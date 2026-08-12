@@ -136,7 +136,6 @@ export function TeamExpansionNudge() {
       <DismissControl
         iconOnly
         ariaLabel="Dismiss Team expansion nudge for 24 hours"
-        className="text-sky-900 hover:bg-sky-100 dark:text-sky-100 dark:hover:bg-sky-900/60"
         onDismiss={() => {
           dismissTeamExpansionNudge24h(activeTrigger);
           setDismissedLocally(true);

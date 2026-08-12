@@ -11,7 +11,7 @@ import {
   type CompareFindingCorrelationMetadata,
 } from "@/lib/compare-finding-correlation";
 import { CROSS_REVIEW_FINDING_CORRELATION_PANEL_TITLE } from "@/lib/vocabulary/finding-correlation-vocabulary";
-import { OPERATOR_TYPOGRAPHY } from "@/lib/design-tokens";
+import { DESIGN_TOKENS, OPERATOR_TYPOGRAPHY } from "@/lib/design-tokens";
 
 export type CompareFindingCorrelationPanelProps = {
   readonly metadata: CompareFindingCorrelationMetadata | null;
@@ -58,7 +58,9 @@ export function CompareFindingCorrelationPanel(props: CompareFindingCorrelationP
 
   if (softFailureMessage !== null) {
     return (
-      <CompareFindingCorrelationSectionShell className="mt-6 rounded-lg border border-dashed border-amber-300 bg-amber-50/60 p-4 dark:border-amber-700 dark:bg-amber-950/20">
+      <CompareFindingCorrelationSectionShell
+        className={cn("mt-6", DESIGN_TOKENS.callout.warn, "rounded-lg border-dashed p-4")}
+      >
         <h2 className={cn("m-0 text-al-text-primary", OPERATOR_TYPOGRAPHY.sectionTitle)}>
           {CROSS_REVIEW_FINDING_CORRELATION_PANEL_TITLE}
         </h2>

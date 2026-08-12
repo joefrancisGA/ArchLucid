@@ -55,7 +55,7 @@ export class MutationErrorBoundary extends Component<
           <p className="m-0 font-semibold">{this.props.title ?? "This view failed to render"}</p>
           <p className={cn("m-0 mt-2 opacity-90", OPERATOR_TYPOGRAPHY.body)}>{detail}</p>
           {showDetail && this.state.stack !== null ? (
-            <pre className="mt-2 max-h-40 overflow-auto whitespace-pre-wrap break-all rounded bg-rose-50 p-2 font-mono text-[11px] text-rose-950 dark:bg-rose-950/40 dark:text-rose-50">
+            <pre className="mt-2 max-h-40 overflow-auto whitespace-pre-wrap break-all rounded bg-neutral-100 p-2 font-mono text-[11px] text-al-text-primary dark:bg-neutral-900">
               {this.state.stack}
             </pre>
           ) : null}

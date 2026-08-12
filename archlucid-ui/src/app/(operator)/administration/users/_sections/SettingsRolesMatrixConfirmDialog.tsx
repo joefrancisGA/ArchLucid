@@ -1,7 +1,7 @@
 "use client";
 
 import { ConfirmationDialog } from "@/components/ConfirmationDialog";
-import { OPERATOR_TYPOGRAPHY } from "@/lib/design-tokens";
+import { DESIGN_TOKENS, OPERATOR_TYPOGRAPHY } from "@/lib/design-tokens";
 import { cn } from "@/lib/utils";
 
 import { ROLES_MATRIX_CONFIRMATION_DIALOG } from "./roles-matrix-constants";
@@ -45,11 +45,11 @@ function RolesMatrixConfirmationExtraContent(props: { readonly copy: RolesMatrix
         </div>
       ) : null}
       {props.copy.highRiskLabels.length > 0 ? (
-        <div className="space-y-1 rounded-md border border-amber-300 bg-amber-50 px-3 py-2 dark:border-amber-700/60 dark:bg-amber-950/40">
-          <p className={cn("m-0 text-amber-900 dark:text-amber-100", OPERATOR_TYPOGRAPHY.body)}>
+        <div className={cn("space-y-1", DESIGN_TOKENS.callout.warn)}>
+          <p className={cn("m-0 font-medium", OPERATOR_TYPOGRAPHY.body)}>
             {ROLES_MATRIX_CONFIRMATION_DIALOG.highRiskLead}
           </p>
-          <ul className={cn("m-0 list-disc space-y-1 pl-5 text-amber-900 dark:text-amber-100", OPERATOR_TYPOGRAPHY.body)}>
+          <ul className={cn("m-0 list-disc space-y-1 pl-5", OPERATOR_TYPOGRAPHY.body)}>
             {props.copy.highRiskLabels.map((label) => (
               <li key={`high-risk-${label}`}>{label}</li>
             ))}

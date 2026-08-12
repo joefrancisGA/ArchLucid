@@ -77,7 +77,6 @@ export function TrialExpiryBanner() {
       <DismissControl
         iconOnly
         ariaLabel="Dismiss trial countdown for this session"
-        className="text-amber-900 hover:bg-amber-100 dark:text-amber-100 dark:hover:bg-amber-900/60"
         onDismiss={() => {
           setDismissed(true);
 

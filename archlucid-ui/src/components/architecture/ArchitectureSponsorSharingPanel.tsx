@@ -45,7 +45,7 @@ import {
 } from "@/lib/architecture/architecture-sponsor-readiness";
 import { buildArchitectureSponsorShareMarkdown } from "@/lib/architecture/architecture-sponsor-preliminary-draft";
 import { writeWorkItemBodyToClipboard } from "@/lib/copy-finding-as-work-item";
-import { OPERATOR_TYPOGRAPHY, type EnterpriseStatusKind } from "@/lib/design-tokens";
+import { DESIGN_TOKENS, OPERATOR_TYPOGRAPHY, type EnterpriseStatusKind } from "@/lib/design-tokens";
 import type { QuickDecisionFinding } from "@/lib/quick-decision-summary-derive";
 import { REVIEWS_NEW_CREATE_ARCHITECTURE_HREF } from "@/lib/reviews-new-path-copy";
 import { showError, showSuccess } from "@/lib/toast";
@@ -206,7 +206,7 @@ export function ArchitectureSponsorSharingPanel(
 
         {requiresPreliminaryOverride ? (
           <p
-            className={cn("m-0 rounded-md border border-amber-200 bg-amber-50 p-3 text-amber-950 dark:border-amber-900 dark:bg-amber-950/30 dark:text-amber-100", OPERATOR_TYPOGRAPHY.body)}
+            className={cn("m-0", DESIGN_TOKENS.callout.warn, "p-3", OPERATOR_TYPOGRAPHY.body)}
             data-testid="architecture-sponsor-incomplete-warning"
           >
             {ARCHITECTURE_SPONSOR_READINESS_INCOMPLETE_WARNING}

@@ -20,7 +20,7 @@ import { useRoiLoadedHourlyUsd } from "@/hooks/use-roi-loaded-hourly-usd";
 import { BUYER_START_ARCHITECTURE_REVIEW_CTA } from "@/lib/buyer/buyer-polish-copy";
 import { EXECUTIVE_SUMMARY_PILOT_ROI_MEASUREMENT_HELP_HREF } from "@/lib/executive-summary-pilot-roi-measurement-help";
 import { GOVERNANCE_WORKSPACE_HEALTH_HREF } from "@/lib/governance/governance-route-paths";
-import { OPERATOR_LINK, OPERATOR_TYPOGRAPHY } from "@/lib/design-tokens";
+import { DESIGN_TOKENS, OPERATOR_LINK, OPERATOR_TYPOGRAPHY } from "@/lib/design-tokens";
 import { isBuyerPolishedOperatorShellEnv } from "@/lib/demo-ui-env";
 import {
   ROI_SUMMARY_PAGE_SUBTITLE,
@@ -149,7 +149,7 @@ export function RoiSummaryPageView(props: Props) {
 
         {showZeroState ? (
           <section
-            className="rounded-lg border border-amber-200 bg-amber-50/70 p-4 dark:border-amber-900/50 dark:bg-amber-950/20"
+            className={cn(DESIGN_TOKENS.callout.warn, "rounded-lg p-4")}
             data-testid="roi-summary-zero-state"
           >
             <h2 className={cn("m-0", OPERATOR_TYPOGRAPHY.cardTitle)}>{roiSummaryZeroStateHeadline()}</h2>

@@ -188,7 +188,7 @@ export function HelpSoc2SelfAssessmentGuideView(
           </section>
 
           <aside
-            className="rounded-md border border-amber-200/80 bg-amber-50/50 p-3 dark:border-amber-900/40 dark:bg-amber-950/20"
+            className={cn(DESIGN_TOKENS.callout.warn, "p-3")}
             data-testid="help-soc2-self-assessment-claim-discipline"
           >
             <h2 className={cn("m-0 text-al-text-primary", OPERATOR_TYPOGRAPHY.cardTitle)}>

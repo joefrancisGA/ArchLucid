@@ -4,7 +4,7 @@ import { useCallback, useEffect, useState } from "react";
 
 import { DismissControl } from "@/components/usability/DismissControl";
 import { PLANNING_CLAIM_DISCIPLINE } from "@/lib/planning-evidence-copy";
-import { OPERATOR_TYPOGRAPHY } from "@/lib/design-tokens";
+import { DESIGN_TOKENS, OPERATOR_TYPOGRAPHY } from "@/lib/design-tokens";
 import { cn } from "@/lib/utils";
 
 const DISMISS_KEY = "archlucid_planning_claim_discipline_dismissed_v1";
@@ -38,7 +38,7 @@ export function PlanningClaimDisciplineCallout(): React.JSX.Element {
   if (!ready) {
     return (
       <aside
-        className="rounded-md border border-amber-200/80 bg-amber-50/50 p-3 dark:border-amber-900/40 dark:bg-amber-950/20"
+        className={cn(DESIGN_TOKENS.callout.warn, "p-3")}
         data-testid="planning-claim-discipline"
       >
         <h2 className={cn("m-0 text-al-text-primary", OPERATOR_TYPOGRAPHY.cardTitle)}>Derived plans only</h2>
@@ -61,7 +61,7 @@ export function PlanningClaimDisciplineCallout(): React.JSX.Element {
 
   return (
     <aside
-      className="rounded-md border border-amber-200/80 bg-amber-50/50 p-3 dark:border-amber-900/40 dark:bg-amber-950/20"
+      className={cn(DESIGN_TOKENS.callout.warn, "p-3")}
       data-testid="planning-claim-discipline"
     >
       <div className="flex items-start justify-between gap-3">

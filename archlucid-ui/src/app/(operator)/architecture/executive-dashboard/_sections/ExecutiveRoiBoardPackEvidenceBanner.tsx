@@ -6,7 +6,7 @@ import type { ReactElement } from "react";
 
 import { StatusTag } from "@/components/ui/status-tag";
 import { EXECUTIVE_ROI_PROOF_STATUS_HELP_HREF } from "@/app/(operator)/architecture/executive-dashboard/_sections/ExecutiveRoiProofStatusStrip";
-import { OPERATOR_LINK, OPERATOR_TYPOGRAPHY } from "@/lib/design-tokens";
+import { DESIGN_TOKENS, OPERATOR_LINK, OPERATOR_TYPOGRAPHY } from "@/lib/design-tokens";
 import {
   boardPackClusterPostureLabel,
   buildBoardPackEvidenceClusterRows,
@@ -44,7 +44,7 @@ export function ExecutiveRoiBoardPackEvidenceBanner(
   return (
     <aside
       aria-labelledby="exec-roi-board-pack-evidence-heading"
-      className="rounded-md border border-amber-600/35 bg-amber-50/50 p-3 dark:border-amber-800/45 dark:bg-amber-950/20"
+      className={cn(DESIGN_TOKENS.callout.warn, "p-3")}
       data-testid="exec-roi-board-pack-evidence-banner"
     >
       <h4

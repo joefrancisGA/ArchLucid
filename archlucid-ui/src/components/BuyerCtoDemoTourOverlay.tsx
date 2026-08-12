@@ -1,6 +1,6 @@
 "use client";
 import { cn } from "@/lib/utils";
-import { OPERATOR_TYPE_SCALE, OPERATOR_TYPOGRAPHY, operatorSemanticBadge } from "@/lib/design-tokens";
+import { DESIGN_TOKENS, OPERATOR_TYPE_SCALE, OPERATOR_TYPOGRAPHY, operatorSemanticBadge } from "@/lib/design-tokens";
 
 import Link from "next/link";
 
@@ -740,7 +740,7 @@ export function BuyerCtoDemoTourOverlay(): React.JSX.Element | null {
 
         {showPresenterLayer && presenterNotesVisible ? (
           <div
-            className="mt-2 rounded-md border border-amber-200/80 bg-amber-50/60 px-3 py-2 dark:border-amber-900/40 dark:bg-amber-950/20"
+            className={cn("mt-2", DESIGN_TOKENS.callout.warn)}
             data-testid="cto-demo-panic-script-section"
           >
             <p className={cn("m-0 font-semibold uppercase tracking-wide text-amber-900 dark:text-amber-200", OPERATOR_TYPOGRAPHY.helper)}>Presenter only</p>

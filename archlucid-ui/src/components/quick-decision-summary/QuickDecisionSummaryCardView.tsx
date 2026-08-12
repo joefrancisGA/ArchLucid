@@ -5,7 +5,7 @@ import { ReviewDetailPolicyPackFindingsBreakdown } from "@/components/findings/R
 import { Button } from "@/components/ui/button";
 import { Card, CardContent, CardHeader, CardTitle } from "@/components/ui/card";
 import { cn } from "@/lib/utils";
-import { OPERATOR_NAV_GROUP_LABEL, OPERATOR_TYPOGRAPHY } from "@/lib/design-tokens";
+import { DESIGN_TOKENS, OPERATOR_NAV_GROUP_LABEL, OPERATOR_TYPOGRAPHY } from "@/lib/design-tokens";
 
 import { QuickDecisionSummaryEmptyState } from "./QuickDecisionSummaryEmptyState";
 import { QuickDecisionSummaryFindingRow } from "./QuickDecisionSummaryFindingRow";
@@ -103,10 +103,7 @@ export function QuickDecisionSummaryCardView({
         ) : null}
         {props.usingExplanationFallback === true ? (
           <p
-            className={cn(
-              "m-0 rounded-md border border-amber-200 bg-amber-50 px-3 py-2 text-amber-950 dark:border-amber-900 dark:bg-amber-950/40 dark:text-amber-100",
-              OPERATOR_TYPOGRAPHY.helper,
-            )}
+            className={cn("m-0", DESIGN_TOKENS.callout.warn, OPERATOR_TYPOGRAPHY.helper)}
             data-testid="quick-decision-explanation-fallback-notice"
             role="status"
           >

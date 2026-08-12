@@ -23,7 +23,7 @@ import { mergeRegistrationScopeForProxy } from "@/lib/proxy-fetch-registration-s
 import { roleClaimCaption, roleDisplayLabel } from "@/lib/role-display-labels";
 import { SETTINGS_USERS_USERS_TAB_PATH } from "@/lib/settings-admin-route-paths";
 import { showError, showSuccess } from "@/lib/toast";
-import { OPERATOR_NAV_GROUP_LABEL, OPERATOR_TYPOGRAPHY } from "@/lib/design-tokens";
+import { DESIGN_TOKENS, OPERATOR_NAV_GROUP_LABEL, OPERATOR_TYPOGRAPHY } from "@/lib/design-tokens";
 
 import { CUSTOM_ROLE_PERMISSION_GROUPS, ALL_MATRIX_PERMISSION_IDS } from "./custom-role-permission-groups";
 import {
@@ -198,11 +198,12 @@ function RolesMatrixCommandBar(props: RolesMatrixCommandBarProps) {
     <div
       data-testid="settings-roles-command-bar"
       className={cn(
-        "sticky top-0 z-40 flex flex-wrap items-center justify-between gap-3 rounded-md border border-amber-300 bg-amber-50 px-3 py-2 dark:border-amber-700/60 dark:bg-amber-950/40",
+        "sticky top-0 z-40 flex flex-wrap items-center justify-between gap-3",
+        DESIGN_TOKENS.callout.warn,
       )}
       role="status"
     >
-      <p className={cn("m-0 text-amber-900 dark:text-amber-100", OPERATOR_TYPOGRAPHY.body)}>
+      <p className={cn("m-0", OPERATOR_TYPOGRAPHY.body)}>
         {changeCount === 1
           ? `1 unsaved permission change on ${roleNames}.`
           : `${changeCount} unsaved permission changes on ${roleNames}.`}
@@ -524,7 +525,8 @@ export function SettingsRolesMatrixSection(props: SettingsRolesMatrixSectionProp
           <p
             data-testid="settings-roles-unsaved-notice"
             className={cn(
-              "m-0 rounded-md border border-amber-300 bg-amber-50 px-3 py-2 text-amber-900 dark:border-amber-700/60 dark:bg-amber-950/40 dark:text-amber-100",
+              "m-0",
+              DESIGN_TOKENS.callout.warn,
               OPERATOR_TYPOGRAPHY.body,
             )}
           >

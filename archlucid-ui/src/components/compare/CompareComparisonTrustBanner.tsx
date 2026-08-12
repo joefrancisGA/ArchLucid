@@ -6,7 +6,7 @@ import { SeverityTag } from "@/components/ui/severity-tag";
 import { buildCompareComparisonTrustItems } from "@/lib/build-compare-comparison-trust-items";
 import type { CompareExecutionModeHonesty } from "@/lib/compare-execution-mode-honesty";
 import type { FindingSeverityKind } from "@/lib/design-tokens";
-import { OPERATOR_TYPOGRAPHY } from "@/lib/design-tokens";
+import { DESIGN_TOKENS, OPERATOR_TYPOGRAPHY } from "@/lib/design-tokens";
 
 export type CompareComparisonTrustBannerProps = {
   readonly executionModeHonesty: CompareExecutionModeHonesty | null;
@@ -60,7 +60,7 @@ export function CompareComparisonTrustBanner(props: CompareComparisonTrustBanner
 
     return (
       <section
-        className="rounded-md border border-amber-600/35 bg-amber-50/50 px-4 py-3 dark:border-amber-800/45 dark:bg-amber-950/20"
+        className={cn(DESIGN_TOKENS.callout.warn, "px-4 py-3")}
         aria-label="Comparison trust and caveats"
         data-testid="compare-comparison-trust-banner"
       >
@@ -77,7 +77,7 @@ export function CompareComparisonTrustBanner(props: CompareComparisonTrustBanner
 
   return (
     <section
-      className="rounded-md border border-amber-600/35 bg-amber-50/50 px-4 py-3 dark:border-amber-800/45 dark:bg-amber-950/20"
+      className={cn(DESIGN_TOKENS.callout.warn, "px-4 py-3")}
       aria-label="Comparison trust and caveats"
       data-testid="compare-comparison-trust-banner"
     >

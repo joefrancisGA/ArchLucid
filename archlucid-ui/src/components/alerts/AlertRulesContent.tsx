@@ -73,7 +73,7 @@ import {
 } from "@/lib/alert-rule-conditions-copy";
 import { ALERT_RULES_LIST_EMPTY_COMPACT } from "@/lib/enterprise-compact-empty-state-presets";
 import { isBuyerPolishedOperatorShellEnv, isOperatorExperienceFullShellEnv } from "@/lib/demo-ui-env";
-import { OPERATOR_TYPOGRAPHY } from "@/lib/design-tokens";
+import { DESIGN_TOKENS, OPERATOR_TYPOGRAPHY } from "@/lib/design-tokens";
 import {
   alertRulesCreateButtonLabelReaderRank,
 } from "@/lib/enterprise-controls-context-copy";
@@ -260,7 +260,7 @@ export function AlertRulesContent() {
       {sampleModeBlocked ? (
         <div
           role="status"
-          className="mb-4 rounded-lg border border-amber-200 bg-amber-50 p-4 text-amber-950 dark:border-amber-900 dark:bg-amber-950/30 dark:text-amber-100"
+          className={cn("mb-4", DESIGN_TOKENS.callout.warn, "p-4")}
         >
           <p className={cn("mb-2", OPERATOR_TYPOGRAPHY.body)}>{ALERT_RULES_SAMPLE_MODE_BANNER}</p>
           <Link href={ALERT_RULES_SAMPLE_MODE_CTA_HREF} className="font-medium underline underline-offset-2">

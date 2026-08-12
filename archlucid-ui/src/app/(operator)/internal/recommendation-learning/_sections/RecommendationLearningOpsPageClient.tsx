@@ -13,7 +13,7 @@ import { PageContextualHelpButton } from "@/components/usability/PageContextualH
 import { useOperateCapability } from "@/hooks/use-operate-capability";
 import type { ApiLoadFailureState } from "@/lib/api-load-failure";
 import { toApiLoadFailure } from "@/lib/api-load-failure";
-import { OPERATOR_TYPOGRAPHY } from "@/lib/design-tokens";
+import { DESIGN_TOKENS, OPERATOR_TYPOGRAPHY } from "@/lib/design-tokens";
 import { cn } from "@/lib/utils";
 import type { LearningProfile } from "@/types/recommendation-learning";
 import type {
@@ -359,7 +359,7 @@ export function RecommendationLearningOpsPageClient(props: Props) {
       </header>
 
       {failure ? (
-        <div className="rounded-md border border-rose-300 bg-rose-50 p-4 dark:border-rose-900 dark:bg-rose-950/40" role="alert">
+        <div className={cn(DESIGN_TOKENS.callout.blocked, "p-4")} role="alert">
           <p className={cn("m-0 font-medium", OPERATOR_TYPOGRAPHY.body)}>Operation failed</p>
           <p className={cn("m-0", OPERATOR_TYPOGRAPHY.body)}>{failure.message}</p>
           {failure.correlationId ? <p className="m-0 font-mono text-sm">Correlation ID: {failure.correlationId}</p> : null}
@@ -502,7 +502,7 @@ export function RecommendationLearningOpsPageClient(props: Props) {
       ) : null}
 
       {production ? (
-        <section className="rounded-lg border border-amber-400 bg-amber-50 p-4 dark:border-amber-700 dark:bg-amber-950/30">
+        <section className={cn(DESIGN_TOKENS.callout.warn, "rounded-lg p-4")}>
           <h2 className={OPERATOR_TYPOGRAPHY.sectionTitle}>Production activation</h2>
           <label className="block space-y-1">
             <span className={OPERATOR_TYPOGRAPHY.body}>Operational reason (required for rebuild in production)</span>

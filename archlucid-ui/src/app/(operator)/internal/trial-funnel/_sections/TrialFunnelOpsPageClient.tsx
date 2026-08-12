@@ -19,7 +19,7 @@ import {
 } from "@/components/ui/enterprise-table";
 import { useOperatorNavAuthority } from "@/components/operator/OperatorNavAuthorityProvider";
 import { PageContextualHelpButton } from "@/components/usability/PageContextualHelpButton";
-import { OPERATOR_NAV_GROUP_LABEL, OPERATOR_TYPOGRAPHY } from "@/lib/design-tokens";
+import { DESIGN_TOKENS, OPERATOR_NAV_GROUP_LABEL, OPERATOR_TYPOGRAPHY } from "@/lib/design-tokens";
 import { FORBIDDEN_WORKSPACE_ADMIN_ACCESS_MESSAGE_SHORT } from "@/lib/buyer/buyer-polish-copy";
 import { AUTHORITY_RANK } from "@/lib/nav-authority";
 import {
@@ -344,8 +344,8 @@ export function TrialFunnelOpsPageClient(): ReactElement {
       </div>
 
       {error ? (
-        <div className="rounded-md border border-rose-300 bg-rose-50 p-4 dark:border-rose-800 dark:bg-rose-950/40" role="alert">
-          <p className={cn("m-0 text-rose-800 dark:text-rose-200", OPERATOR_TYPOGRAPHY.body)}>{error}</p>
+        <div className={cn(DESIGN_TOKENS.callout.blocked, "p-4")} role="alert">
+          <p className={cn("m-0", OPERATOR_TYPOGRAPHY.body)}>{error}</p>
           <Button type="button" variant="outline" size="sm" className="mt-3" onClick={() => void refresh()}>
             Retry
           </Button>
@@ -354,10 +354,10 @@ export function TrialFunnelOpsPageClient(): ReactElement {
 
       {data?.dataQuality?.instrumentationWarning ? (
         <div
-          className="rounded-md border border-amber-300 bg-amber-50 p-4 dark:border-amber-800 dark:bg-amber-950/30"
+          className={cn(DESIGN_TOKENS.callout.warn, "p-4")}
           role="status"
         >
-          <p className={cn("m-0 text-amber-900 dark:text-amber-100", OPERATOR_TYPOGRAPHY.body)}>
+          <p className={cn("m-0", OPERATOR_TYPOGRAPHY.body)}>
             {data.dataQuality.instrumentationWarning}
           </p>
         </div>

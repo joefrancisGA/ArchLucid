@@ -384,7 +384,8 @@ export function ServiceNowIntegrationPageClient(): React.ReactElement {
             {loadError !== null ? (
               <p
                 className={cn(
-                  "m-0 rounded-md border border-amber-200 bg-amber-50 px-3 py-2 text-amber-950 dark:border-amber-900 dark:bg-amber-950/40 dark:text-amber-100",
+                  "m-0",
+                  DESIGN_TOKENS.callout.warn,
                   OPERATOR_TYPOGRAPHY.helper,
                 )}
                 role="alert"
@@ -455,7 +456,7 @@ export function ServiceNowIntegrationPageClient(): React.ReactElement {
               </dl>
 
               {!credentialsReady ? (
-                <p className={cn("m-0 rounded-md border border-amber-200 bg-amber-50 px-3 py-2 text-amber-950 dark:border-amber-900 dark:bg-amber-950/40 dark:text-amber-100", OPERATOR_TYPOGRAPHY.helper)} role="status">
+                <p className={cn("m-0", DESIGN_TOKENS.callout.warn, OPERATOR_TYPOGRAPHY.helper)} role="status">
                   {SERVICENOW_CREDENTIALS_ADMIN_REQUIRED}
                 </p>
               ) : null}

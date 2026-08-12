@@ -207,7 +207,6 @@ export function TrialUsageUpgradeNudge() {
           <DismissControl
             iconOnly
             ariaLabel="Dismiss trial upgrade nudge for 24 hours"
-            className="text-amber-900 hover:bg-amber-100 dark:text-amber-100 dark:hover:bg-amber-900/60"
             onDismiss={() => {
               dismissTrialUpgradeNudge24h(activeTrigger);
               setDismissedLocally(true);

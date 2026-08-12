@@ -172,7 +172,6 @@ export function TrialBanner() {
       <DismissControl
         iconOnly
         ariaLabel="Dismiss trial banner for 24 hours"
-        className="text-amber-900 hover:bg-amber-100 dark:text-amber-100 dark:hover:bg-amber-900/60"
         onDismiss={() => {
           snoozeTrialBanner24h();
           setDismissed(true);

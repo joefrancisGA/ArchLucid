@@ -12,7 +12,7 @@ import { Label } from "@/components/ui/label";
 import { StatusTag } from "@/components/ui/status-tag";
 import { simulatePolicyPackAgainstRun } from "@/lib/api/policy-governance-api";
 import { toApiLoadFailure, uiFailureFromMessage, type ApiLoadFailureState } from "@/lib/api-load-failure";
-import { OPERATOR_LINK, OPERATOR_TYPOGRAPHY } from "@/lib/design-tokens";
+import { DESIGN_TOKENS, OPERATOR_LINK, OPERATOR_TYPOGRAPHY } from "@/lib/design-tokens";
 import { POLICY_PACK_DELTA_DEMO_HELP_PATH } from "@/lib/policy/policy-pack-delta-demo-help-route";
 import type { components } from "@/lib/openapi-schemas";
 import {
@@ -218,7 +218,7 @@ export function PolicyPackImpactPreviewPanel(props: PolicyPackImpactPreviewPanel
         stricterSummary !== null &&
         baselineSummary.blocked !== stricterSummary.blocked ? (
           <p
-            className={cn("m-0 rounded-md border border-amber-600/40 bg-amber-50/60 px-3 py-2 text-al-text-primary dark:border-amber-800/50 dark:bg-amber-950/20", OPERATOR_TYPOGRAPHY.body)}
+            className={cn("m-0", DESIGN_TOKENS.callout.warn, OPERATOR_TYPOGRAPHY.body)}
             data-testid="policy-impact-preview-gate-changed"
           >
             Gate outcome changes for this review under stricter enforcement — this is the policy-pack moat moment for

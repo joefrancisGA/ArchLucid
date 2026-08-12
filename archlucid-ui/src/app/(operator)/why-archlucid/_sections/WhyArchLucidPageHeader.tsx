@@ -4,7 +4,7 @@ import { OperatorPageBreadcrumb } from "@/components/operator/OperatorPageBreadc
 import { OperatorPageHeader } from "@/components/operator/OperatorPageHeader";
 import { StatusTag } from "@/components/ui/status-tag";
 import { PageContextualHelpButton } from "@/components/usability/PageContextualHelpButton";
-import { OPERATOR_LINK, OPERATOR_TYPOGRAPHY } from "@/lib/design-tokens";
+import { DESIGN_TOKENS, OPERATOR_LINK, OPERATOR_TYPOGRAPHY } from "@/lib/design-tokens";
 import { WHY_ARCHLUCID_CANONICAL_PATH } from "@/lib/why-archlucid-evidence-copy";
 import {
   WHY_ARCHLUCID_BREADCRUMB_LEARNING_HREF,
@@ -81,7 +81,7 @@ export function WhyArchLucidPageHeader(props: WhyArchLucidPageHeaderProps): Reac
         className={cn(
           "rounded border px-3 py-2 text-sm",
           failClosed
-            ? "border-amber-300 bg-amber-50 text-amber-950 dark:border-amber-700 dark:bg-amber-950/40 dark:text-amber-100"
+            ? DESIGN_TOKENS.callout.warn
             : "border-neutral-200 bg-neutral-50 text-neutral-800 dark:border-neutral-700 dark:bg-neutral-900/50 dark:text-neutral-200",
         )}
       >

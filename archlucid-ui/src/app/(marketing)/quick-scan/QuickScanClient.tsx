@@ -4,6 +4,7 @@ import Link from "next/link";
 import { useCallback, useEffect, useId, useMemo, useState, type ReactElement } from "react";
 
 import { QuickScanEvidenceOrientationStrip } from "@/components/marketing/QuickScanEvidenceOrientationStrip";
+import { DESIGN_TOKENS } from "@/lib/design-tokens";
 import { findingSeverityLabel } from "@/lib/findings/finding-severity-label";
 import {
   isQuickScanAiSubmitAllowed,
@@ -23,6 +24,7 @@ import {
   validateQuickScanForm,
   type QuickScanFormValues,
 } from "@/lib/quick-scan/quick-scan-validation";
+import { cn } from "@/lib/utils";
 
 import { QuickScanForm } from "./QuickScanForm";
 
@@ -399,7 +401,7 @@ export function QuickScanClient(): ReactElement {
           </div>
 
           {capacityMessage !== null ? (
-            <div className="rounded-md border border-amber-500/40 bg-amber-50 p-4 text-sm text-amber-950 dark:border-amber-700/50 dark:bg-amber-950/30 dark:text-amber-100">
+            <div className={cn(DESIGN_TOKENS.callout.warn, "p-4")}>
               <p>{capacityMessage}</p>
               {shouldOfferQuickScanSample(status) ? (
                 <div className="mt-3 flex flex-wrap gap-3">
@@ -436,7 +438,7 @@ export function QuickScanClient(): ReactElement {
           ) : null}
 
           {error !== null ? (
-            <p role="alert" className="rounded-md border border-rose-600/40 bg-rose-50 px-3 py-2 text-sm text-rose-900 dark:border-rose-700/50 dark:bg-rose-950/30 dark:text-rose-100">
+            <p role="alert" className={DESIGN_TOKENS.callout.blocked}>
               {error}
             </p>
           ) : null}
@@ -474,7 +476,7 @@ export function QuickScanClient(): ReactElement {
               {result.systemName} · {environmentLabel(result.primaryEnvironment)}
             </p>
             {result.isSampleResult ? (
-              <p className="rounded-md border border-amber-500/40 bg-amber-50 px-3 py-2 text-sm text-amber-950 dark:border-amber-700/50 dark:bg-amber-950/30 dark:text-amber-100">
+              <p className={DESIGN_TOKENS.callout.warn}>
                 Illustrative sample only — this is not an analysis of your submission.
               </p>
             ) : null}

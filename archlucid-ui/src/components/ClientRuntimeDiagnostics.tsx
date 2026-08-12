@@ -9,7 +9,7 @@ import {
   installClientRuntimeDiagnostics,
   type ClientDiagnosticsFinding,
 } from "@/lib/client-runtime-diagnostics";
-import { OPERATOR_TYPOGRAPHY } from "@/lib/design-tokens";
+import { DESIGN_TOKENS, OPERATOR_TYPOGRAPHY } from "@/lib/design-tokens";
 import { reportClientError } from "@/lib/error-telemetry";
 import { ensureAppInsights } from "@/lib/telemetry";
 import { cn } from "@/lib/utils";
@@ -91,7 +91,11 @@ export function ClientRuntimeDiagnostics() {
 
   return (
     <div
-      className="fixed inset-x-0 bottom-0 z-[11000] border-t-2 border-rose-700 bg-rose-50 p-3 text-rose-950 shadow-lg dark:border-rose-500 dark:bg-rose-950 dark:text-rose-50"
+      className={cn(
+        DESIGN_TOKENS.callout.blocked,
+        // Full-bleed docked bar: drop the callout's rounding and side/bottom borders so only the top rose accent shows.
+        "fixed inset-x-0 bottom-0 z-[11000] rounded-none border-x-0 border-b-0 border-t-2 border-rose-700 p-3 shadow-lg dark:border-rose-500",
+      )}
       data-testid="client-runtime-diagnostics-banner"
       role="alert"
     >
@@ -123,7 +127,7 @@ export function ClientRuntimeDiagnostics() {
                 </>
               ) : null}
               {finding.detail !== undefined && finding.detail.length > 0 ? (
-                <pre className="mt-1 max-h-24 overflow-auto whitespace-pre-wrap break-all rounded bg-rose-100/80 p-1 font-mono text-[11px] dark:bg-rose-900/60">
+                <pre className="mt-1 max-h-24 overflow-auto whitespace-pre-wrap break-all rounded bg-neutral-100 p-1 font-mono text-[11px] dark:bg-neutral-800">
                   {finding.detail}
                 </pre>
               ) : null}

@@ -47,7 +47,7 @@ export const OPERATOR_INTEGRATIONS_PAGE_HELP_TB1669_SURFACES: readonly OperatorI
     {
       id: "integrations-servicenow",
       pathname: "/integrations/servicenow",
-      modulePath: "app/(operator)/integrations/servicenow/_sections/ServiceNowIntegrationPageClient.tsx",
+      modulePath: "app/(operator)/integrations/servicenow/_sections/ServiceNowIntegrationPageHeader.tsx",
       notes: "ServiceNow integration — integration-readiness help topic.",
     },
     {
@@ -65,7 +65,7 @@ export const OPERATOR_INTEGRATIONS_PAGE_HELP_TB1669_SURFACES: readonly OperatorI
     {
       id: "integrations-slack",
       pathname: "/integrations/slack",
-      modulePath: "app/(operator)/integrations/slack/_sections/SlackIntegrationPageClient.tsx",
+      modulePath: "app/(operator)/integrations/slack/_sections/SlackIntegrationPageHeader.tsx",
       notes: "Slack notifications — troubleshooting help topic.",
     },
     {

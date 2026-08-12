@@ -9,7 +9,7 @@ import { OperatorPageHeader } from "@/components/operator/OperatorPageHeader";
 import { ReportProblemSupportWorkspaceVocabularyRail } from "@/components/ReportProblemSupportWorkspaceVocabularyRail";
 import { Badge } from "@/components/ui/badge";
 import { Button } from "@/components/ui/button";
-import { OPERATOR_LINK, OPERATOR_TYPOGRAPHY } from "@/lib/design-tokens";
+import { DESIGN_TOKENS, OPERATOR_LINK, OPERATOR_TYPOGRAPHY } from "@/lib/design-tokens";
 import { formatRelativeTime } from "@/lib/relative-time";
 import {
   ARCHLUCID_SUPPORT_EMAIL,
@@ -183,7 +183,8 @@ export function AdminSupportPageView({ model }: AdminSupportPageViewProps) {
 
           <p
             className={cn(
-              "m-0 mt-3 rounded-md border border-emerald-200 bg-emerald-50/70 px-3 py-2 text-emerald-950 dark:border-emerald-900 dark:bg-emerald-950/30 dark:text-emerald-100",
+              "m-0 mt-3",
+              DESIGN_TOKENS.callout.success,
               OPERATOR_TYPOGRAPHY.body,
             )}
             data-testid="admin-support-bundle-safety"

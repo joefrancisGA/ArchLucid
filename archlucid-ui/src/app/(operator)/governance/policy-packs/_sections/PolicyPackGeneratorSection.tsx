@@ -7,7 +7,7 @@ import { Button } from "@/components/ui/button";
 import { Input } from "@/components/ui/input";
 import { enterpriseMutationControlDisabledTitle } from "@/lib/enterprise-controls-context-copy";
 import type { CuratedRulesDocument } from "@/lib/policy/policy-pack-curated-rules-v1";
-import { OPERATOR_TYPOGRAPHY } from "@/lib/design-tokens";
+import { DESIGN_TOKENS, OPERATOR_TYPOGRAPHY } from "@/lib/design-tokens";
 
 import { PACK_TYPES } from "./policy-packs-page-constants";
 import { PolicyPackNaturalLanguageBuilderDeferred } from "./policy-packs-authoring-deferred-chunks";
@@ -72,7 +72,8 @@ export function PolicyPackGeneratorSection(props: PolicyPackGeneratorSectionProp
       {validationErrors.length > 0 ? (
         <div
           className={cn(
-            "rounded-md border border-amber-600/40 bg-amber-50/70 p-3 text-amber-950 dark:border-amber-700/50 dark:bg-amber-950/30 dark:text-amber-100",
+            DESIGN_TOKENS.callout.warn,
+            "p-3",
             OPERATOR_TYPOGRAPHY.body,
           )}
           role="alert"

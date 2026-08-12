@@ -13,7 +13,7 @@ import { Button } from "@/components/ui/button";
 import { Input } from "@/components/ui/input";
 import { Label } from "@/components/ui/label";
 import { PageContextualHelpButton } from "@/components/usability/PageContextualHelpButton";
-import { OPERATOR_LAYOUT, OPERATOR_TYPOGRAPHY } from "@/lib/design-tokens";
+import { DESIGN_TOKENS, OPERATOR_LAYOUT, OPERATOR_TYPOGRAPHY } from "@/lib/design-tokens";
 import { enterpriseMutationControlDisabledTitle } from "@/lib/enterprise-controls-context-copy";
 import { INTEGRATIONS_TEAMS_PATH } from "@/lib/integrations-nav-paths";
 import { resolveTeamsConnectCtaPresentation } from "@/lib/teams-integration-connect-cta";
@@ -172,7 +172,8 @@ export function TeamsNotificationsIntegrationPageView(props: Props): React.React
                 {m.conn?.isConfigured !== true ? (
                   <p
                     className={cn(
-                      "m-0 mt-2 rounded-md border border-amber-200 bg-amber-50 px-3 py-2 text-amber-950 dark:border-amber-900 dark:bg-amber-950/40 dark:text-amber-100",
+                      "m-0 mt-2",
+                      DESIGN_TOKENS.callout.warn,
                       OPERATOR_TYPOGRAPHY.helper,
                     )}
                     role="status"

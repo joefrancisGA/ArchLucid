@@ -9,7 +9,7 @@ import {
   ARCHITECTURE_STRUCTURED_RETRY_LABEL,
 } from "@/lib/architecture/architecture-structured-content-copy";
 import { SETTINGS_SUPPORT_PATH } from "@/lib/settings-admin-route-paths";
-import { OPERATOR_TYPOGRAPHY } from "@/lib/design-tokens";
+import { DESIGN_TOKENS, OPERATOR_TYPOGRAPHY } from "@/lib/design-tokens";
 import { cn } from "@/lib/utils";
 
 export type ArchitectureStructuringFailureNoticeProps = {
@@ -31,11 +31,11 @@ export function ArchitectureStructuringFailureNotice(
 ): React.JSX.Element {
   return (
     <div
-      className="rounded-md border border-amber-200 bg-amber-50/80 p-3 dark:border-amber-900 dark:bg-amber-950/30"
+      className={cn(DESIGN_TOKENS.callout.warn, "p-3")}
       data-testid="architecture-structured-parse-failure"
       role="status"
     >
-      <p className={cn("m-0 text-amber-950 dark:text-amber-100", OPERATOR_TYPOGRAPHY.body)}>
+      <p className={cn("m-0", OPERATOR_TYPOGRAPHY.body)}>
         {ARCHITECTURE_STRUCTURED_PARSE_FAILURE_MESSAGE}
       </p>
       <div className="mt-3 flex flex-wrap gap-2">

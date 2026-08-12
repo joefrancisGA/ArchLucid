@@ -10,7 +10,7 @@ import {
   type CompareGovernanceDiffView,
   type CompareManifestGovernanceSnapshot,
 } from "@/lib/compare-effective-governance-diff";
-import { OPERATOR_LINK, OPERATOR_TYPOGRAPHY } from "@/lib/design-tokens";
+import { DESIGN_TOKENS, OPERATOR_LINK, OPERATOR_TYPOGRAPHY } from "@/lib/design-tokens";
 import { governancePolicyPackDetailPath } from "@/lib/governance/governance-route-paths";
 import { policyPackBuyerGovernanceDetailHref } from "@/lib/policy/policy-pack-buyer-label";
 
@@ -145,7 +145,7 @@ export function CompareGovernanceDiffPanel(props: CompareGovernanceDiffPanelProp
 
       {view.usesCurrentEffectiveOnly && props.hideCurrentEffectiveDisclaimer !== true ? (
         <p
-          className={cn("m-0 mt-3 rounded-md border border-amber-600/35 bg-amber-50/50 p-3 text-al-text-secondary dark:border-amber-800/45 dark:bg-amber-950/20", OPERATOR_TYPOGRAPHY.helper)}
+          className={cn("m-0 mt-3", DESIGN_TOKENS.callout.warn, "p-3 text-al-text-secondary", OPERATOR_TYPOGRAPHY.helper)}
           data-testid="compare-governance-current-effective-disclaimer"
         >
           {COMPARE_GOVERNANCE_CURRENT_EFFECTIVE_DISCLAIMER}

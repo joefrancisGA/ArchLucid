@@ -60,7 +60,7 @@ import {
   ALERT_RULES_SAMPLE_MODE_CTA_LABEL,
 } from "@/lib/alert-rule-conditions-copy";
 import { isBuyerPolishedOperatorShellEnv, isOperatorExperienceFullShellEnv } from "@/lib/demo-ui-env";
-import { OPERATOR_LINK, OPERATOR_TYPOGRAPHY } from "@/lib/design-tokens";
+import { DESIGN_TOKENS, OPERATOR_LINK, OPERATOR_TYPOGRAPHY } from "@/lib/design-tokens";
 import { GOVERNANCE_AUDIT_PATH, governanceAlertRulesTabHref } from "@/lib/governance/governance-route-paths";
 import {
   createAlertRoutingSubscription,
@@ -336,7 +336,7 @@ export function AlertRoutingContent() {
         {sampleModeBlocked ? (
           <div
             role="status"
-            className="rounded-lg border border-amber-200 bg-amber-50 p-4 text-amber-950 dark:border-amber-900 dark:bg-amber-950/30 dark:text-amber-100"
+            className={cn(DESIGN_TOKENS.callout.warn, "p-4")}
             data-testid="alert-routing-sample-mode-banner"
           >
             <p className={cn("mb-2", OPERATOR_TYPOGRAPHY.body)}>{ALERT_RULES_SAMPLE_MODE_BANNER}</p>
@@ -506,7 +506,7 @@ export function AlertRoutingContent() {
           </p>
           {thresholdPreview.criticalExcludedWarning !== null ? (
             <p
-              className={cn("rounded-md border border-amber-300 bg-amber-50 px-3 py-2 text-amber-950 dark:border-amber-700 dark:bg-amber-950/40 dark:text-amber-100", OPERATOR_TYPOGRAPHY.helper)}
+              className={cn(DESIGN_TOKENS.callout.warn, OPERATOR_TYPOGRAPHY.helper)}
               data-testid="alert-routing-threshold-critical-warning"
               role="status"
             >
