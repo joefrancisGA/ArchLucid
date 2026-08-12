@@ -3,8 +3,8 @@ import { cn } from "@/lib/utils";
 import { OPERATOR_TYPOGRAPHY, OPERATOR_NAV_GROUP_LABEL } from "@/lib/design-tokens";
 
 import Link from "next/link";
-import { useEffect, useState } from "react";
 
+import { useOperatorAiQualitySnapshotQuery } from "@/hooks/use-operator-ai-quality-snapshot-query";
 import { resolveInAppDocHref } from "@/lib/in-app-doc-href";
 import {
   dispositionClass,
@@ -23,50 +23,24 @@ function formatMetric(value: number | null, digits: number): string {
 /** Readiness diagnostics: offline retrieval trend + remediation links (static snapshot from CI/proof). */
 export function OperatorAiQualityProofCard(props: { readonly embedded?: boolean } = {}) {
   const embedded = props.embedded === true;
-  const [snapshot, setSnapshot] = useState<OperatorAiQualitySnapshot | null>(null);
-  const [loadFailed, setLoadFailed] = useState(false);
-
-  useEffect(() => {
-    let canceled = false;
-
-    async function load(): Promise<void> {
-      try {
-        const response = await fetch("/operator-ai-quality-snapshot.json", { cache: "no-store" });
-
-        if (!response.ok) {
-          if (!canceled) {
-            setLoadFailed(true);
-          }
-
-          return;
-        }
-
-        const json = (await response.json()) as OperatorAiQualitySnapshot;
-
-        if (!canceled) {
-          setSnapshot(json);
-          setLoadFailed(false);
-        }
-      }
-      catch {
-        if (!canceled) {
-          setLoadFailed(true);
-        }
-      }
-    }
-
-    void load();
-
-    return () => {
-      canceled = true;
-    };
-  }, []);
+  const { data: snapshot, isPending } = useOperatorAiQualitySnapshotQuery();
 
   const shellClassName = embedded
     ? "rounded-md border border-neutral-200 bg-white p-3 dark:border-neutral-700 dark:bg-neutral-950"
     : "rounded-lg border border-neutral-200 bg-white p-4 dark:border-neutral-800 dark:bg-neutral-950";
 
-  if (loadFailed || snapshot === null) {
+  if (isPending) {
+    return (
+      <section className={shellClassName} data-testid="operator-ai-quality-proof-card">
+        <h2 className={cn("m-0 font-semibold text-al-text-primary", OPERATOR_TYPOGRAPHY.cardTitle)}>Assistant readiness</h2>
+        <p className={cn("m-0 mt-2 text-neutral-600 dark:text-neutral-400", OPERATOR_TYPOGRAPHY.body)}>
+          Loading assistant readiness diagnostics…
+        </p>
+      </section>
+    );
+  }
+
+  if (snapshot === null) {
     return (
       <section className={shellClassName} data-testid="operator-ai-quality-proof-card">
         <h2 className={cn("m-0 font-semibold text-al-text-primary", OPERATOR_TYPOGRAPHY.cardTitle)}>Assistant readiness</h2>
@@ -78,13 +52,21 @@ export function OperatorAiQualityProofCard(props: { readonly embedded?: boolean 
     );
   }
 
+  return <OperatorAiQualityProofCardBody embedded={embedded} snapshot={snapshot} />;
+}
+
+function OperatorAiQualityProofCardBody(props: {
+  readonly embedded: boolean;
+  readonly snapshot: OperatorAiQualitySnapshot;
+}) {
+  const { embedded, snapshot } = props;
   const disposition = snapshot.disposition;
   const history = snapshot.history ?? [];
   const prior = history.length >= 2 ? history[history.length - 2] : null;
   const recallDelta =
     prior !== null
-      && snapshot.retrievalIr.meanRecallAt5 !== null
-      && prior.retrievalIr.meanRecallAt5 !== null
+    && snapshot.retrievalIr.meanRecallAt5 !== null
+    && prior.retrievalIr.meanRecallAt5 !== null
       ? snapshot.retrievalIr.meanRecallAt5 - prior.retrievalIr.meanRecallAt5
       : null;
 

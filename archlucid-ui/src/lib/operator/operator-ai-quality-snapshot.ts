@@ -23,6 +23,21 @@ export type OperatorAiQualitySnapshot = {
   }[];
 };
 
+/** Loads the static CI-generated assistant readiness snapshot from the app public folder. */
+export async function fetchOperatorAiQualitySnapshot(): Promise<OperatorAiQualitySnapshot | null> {
+  try {
+    const response = await fetch("/operator-ai-quality-snapshot.json", { cache: "no-store" });
+
+    if (!response.ok) {
+      return null;
+    }
+
+    return (await response.json()) as OperatorAiQualitySnapshot;
+  } catch {
+    return null;
+  }
+}
+
 export function dispositionLabel(disposition: OperatorAiQualitySnapshotDisposition): string {
   switch (disposition) {
     case "PASS":

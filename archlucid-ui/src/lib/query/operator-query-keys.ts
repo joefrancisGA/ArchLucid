@@ -13,6 +13,7 @@ export const operatorQueryKeys = {
   operatorStickinessSnapshot: ["operator", "tenant", "stickiness-snapshot"] as const,
   adminConfigLintSummary: ["operator", "admin", "config-lint-summary"] as const,
   pilotScorecard: ["operator", "pilots", "scorecard"] as const,
+  operatorAiQualitySnapshot: ["operator", "assistant", "ai-quality-snapshot"] as const,
   healthReadySummary: ["operator", "health", "ready-summary"] as const,
   /** Throws when readiness cannot be loaded — preserves last payload on refetch errors. */
   healthReadySummaryStrict: ["operator", "health", "ready-summary", "strict"] as const,
@@ -60,6 +61,12 @@ export const operatorQueryKeys = {
     ["operator", "administration", "notifications", "channel-delivery-snapshot", scope] as const,
   alertsInboxWorkspaceContext: (scope: OperatorScopeQueryKey) =>
     ["operator", "alerts", "workspace-context", scope] as const,
+  alertRulesList: (scope: OperatorScopeQueryKey) =>
+    ["operator", "alerts", "rules-list", scope] as const,
+  alertRoutingSubscriptions: (scope: OperatorScopeQueryKey) =>
+    ["operator", "alerts", "routing-subscriptions", scope] as const,
+  compositeAlertRulesList: (scope: OperatorScopeQueryKey) =>
+    ["operator", "alerts", "composite-rules-list", scope] as const,
   auditEventsSearch: (
     scope: OperatorScopeQueryKey,
     filters: Record<string, string>,
