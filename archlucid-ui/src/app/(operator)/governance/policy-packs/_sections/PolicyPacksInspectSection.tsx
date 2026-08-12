@@ -1,6 +1,6 @@
 import { cn } from "@/lib/utils";
 import { CollapsibleJsonTree } from "@/components/CollapsibleJsonTree";
-import { PolicyPackDiffView } from "@/components/PolicyPackDiffView";
+import { PolicyPackDiffView } from "@/components/policy/PolicyPackDiffView";
 import {
   policyPacksCompareVersionsIntroOperator,
   policyPacksCompareVersionsIntroReader,

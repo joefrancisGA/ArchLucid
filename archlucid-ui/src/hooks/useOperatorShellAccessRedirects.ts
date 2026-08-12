@@ -3,7 +3,7 @@
 import { usePathname, useRouter } from "next/navigation";
 import { useEffect } from "react";
 
-import { useOperatorNavAuthority } from "@/components/OperatorNavAuthorityProvider";
+import { useOperatorNavAuthority } from "@/components/operator/OperatorNavAuthorityProvider";
 import { operatorPrincipalLacksArchLucidAccess } from "@/lib/access-denied-context";
 import { buildAuthSignInHref } from "@/lib/navigation/auth-sign-in-href";
 import { pathnameExemptFromOperatorAccessGate } from "@/lib/operator/operator-shell-access-gate";

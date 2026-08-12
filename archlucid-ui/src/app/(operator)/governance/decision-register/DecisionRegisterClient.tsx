@@ -7,8 +7,8 @@ import { DecisionRegisterTimeline } from "@/components/DecisionRegisterTimeline"
 import { DecisionRegisterEmptyTeaching } from "@/components/DecisionRegisterEmptyTeaching";
 import { DecisionRegisterFindingsVocabularyRail } from "@/components/DecisionRegisterFindingsVocabularyRail";
 import { EnterpriseCompactEmptyState } from "@/components/EnterpriseCompactEmptyState";
-import { GovernanceJobRouterStrip } from "@/components/GovernanceJobRouterStrip";
-import { OperatorPageHeader } from "@/components/OperatorPageHeader";
+import { GovernanceJobRouterStrip } from "@/components/governance/GovernanceJobRouterStrip";
+import { OperatorPageHeader } from "@/components/operator/OperatorPageHeader";
 import { Button } from "@/components/ui/button";
 import { PageContextualHelpButton } from "@/components/usability/PageContextualHelpButton";
 import {

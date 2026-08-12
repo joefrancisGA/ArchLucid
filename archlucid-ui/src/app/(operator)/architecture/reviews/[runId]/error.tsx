@@ -4,11 +4,11 @@ import { cn } from "@/lib/utils";
 import Link from "next/link";
 import { useEffect } from "react";
 
-import { OperatorErrorUiReferenceLine } from "@/components/OperatorErrorUiReferenceLine";
-import { OperatorErrorCallout } from "@/components/OperatorShellMessage";
+import { OperatorErrorUiReferenceLine } from "@/components/operator/OperatorErrorUiReferenceLine";
+import { OperatorErrorCallout } from "@/components/operator/OperatorShellMessage";
 import { FatalPageReportProblemSupportRow } from "@/components/support/FatalPageReportProblemAction";
 import { CopyIdButton } from "@/components/CopyIdButton";
-import { RunDetailMinimalChromeMount } from "@/components/RunDetailMinimalChromeMount";
+import { RunDetailMinimalChromeMount } from "@/components/runs/RunDetailMinimalChromeMount";
 import { Button } from "@/components/ui/button";
 import { OPERATOR_LINK, OPERATOR_TYPOGRAPHY } from "@/lib/design-tokens";
 import { reportClientError } from "@/lib/error-telemetry";

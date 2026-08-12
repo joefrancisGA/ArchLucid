@@ -2,13 +2,13 @@ import { Suspense } from "react";
 
 import dynamic from "next/dynamic";
 
-import { GovernanceModePresentationGate } from "@/components/GovernanceModePresentationGate";
-import { RunDetailWhatsNextSection } from "@/components/RunDetailWhatsNextSection";
+import { GovernanceModePresentationGate } from "@/components/governance/GovernanceModePresentationGate";
+import { RunDetailWhatsNextSection } from "@/components/runs/RunDetailWhatsNextSection";
 import { GovernanceApprovalAttestationBlock } from "@/components/reviews/GovernanceApprovalAttestationBlock";
 import { ReviewChainOfCustodySection } from "@/components/reviews/ReviewChainOfCustodySection";
 import { ReviewCliReproduceSection } from "@/components/reviews/ReviewCliReproduceSection";
-import { RunAgentForensicsSection } from "@/components/RunAgentForensicsSection";
-import { RunAgentQualityWarningsSection } from "@/components/RunAgentQualityWarningsSection";
+import { RunAgentForensicsSection } from "@/components/runs/RunAgentForensicsSection";
+import { RunAgentQualityWarningsSection } from "@/components/runs/RunAgentQualityWarningsSection";
 
 import { RunDetailAdvancedAnalysisSection } from "./RunDetailAdvancedAnalysisSection";
 import { RunDetailManifestSummaryAlerts } from "./RunDetailManifestSummaryAlerts";

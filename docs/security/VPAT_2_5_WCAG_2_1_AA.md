@@ -126,7 +126,7 @@ This report uses the four conformance levels defined by ITI for VPAT **2.5**: **
 | -------- | ----- | ----------- | ------------------------ |
 | 4.1.1 Parsing | A | Partially Supports | WCAG 2.1 **4.1.1** (markup validity). **Partial** reliance on framework output and axe rules that surface issues such as **duplicate `id`** (`duplicate-id`); no manual validation of every template against the full parsing requirement. |
 | 4.1.2 Name, Role, Value | A | Partially Supports | **Verified in part** by automated Axe-core on scanned routes and component tests; custom widgets and canvases remain higher risk. |
-| 4.1.3 Status Messages | AA | Partially Supports | **Supports** for **specific** implementations: e.g. **`RunProgressTracker`** exposes **`aria-live="polite"`** (`archlucid-ui/src/components/RunProgressTracker.tsx`), **`RouteAnnouncer`** uses **`aria-live="polite"`** (`RouteAnnouncer.tsx`), and other `aria-live` regions exist (audit page, runs list, wizard). **Product-wide:** not all dynamic status messages are cataloged or verified for this SC. |
+| 4.1.3 Status Messages | AA | Partially Supports | **Supports** for **specific** implementations: e.g. **`RunProgressTracker`** exposes **`aria-live="polite"`** (`archlucid-ui/src/components/runs/RunProgressTracker.tsx`), **`RouteAnnouncer`** uses **`aria-live="polite"`** (`RouteAnnouncer.tsx`), and other `aria-live` regions exist (audit page, runs list, wizard). **Product-wide:** not all dynamic status messages are cataloged or verified for this SC. |
 
 ---
 

@@ -1,5 +1,5 @@
 import { cn } from "@/lib/utils";
-import { OperatorLoadingNotice } from "@/components/OperatorShellMessage";
+import { OperatorLoadingNotice } from "@/components/operator/OperatorShellMessage";
 import { isBuyerPolishedOperatorShellEnv } from "@/lib/demo-ui-env";
 import { OPERATOR_TYPOGRAPHY } from "@/lib/design-tokens";
 

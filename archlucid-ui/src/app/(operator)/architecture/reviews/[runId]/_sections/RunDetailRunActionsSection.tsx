@@ -10,7 +10,7 @@ import { getTraceabilityBundleDownloadUrl } from "@/lib/api";
 import { comparePageHrefAdaptive } from "@/lib/compare-url-query-params";
 import { isBuyerPolishedOperatorShellEnv } from "@/lib/demo-ui-env";
 
-import { RunDetailRunGovernanceDispositionActions } from "@/components/RunDetailRunGovernanceDispositionActions";
+import { RunDetailRunGovernanceDispositionActions } from "@/components/runs/RunDetailRunGovernanceDispositionActions";
 
 import { runDetailSectionHeadingClass } from "./run-detail-section-heading";
 

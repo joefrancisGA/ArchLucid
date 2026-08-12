@@ -3,7 +3,7 @@
 import { cn } from "@/lib/utils";
 import type { ReactNode } from "react";
 
-import { useNavCallerAuthorityRank } from "@/components/OperatorNavAuthorityProvider";
+import { useNavCallerAuthorityRank } from "@/components/operator/OperatorNavAuthorityProvider";
 import { StatusTag } from "@/components/ui/status-tag";
 import {
   alertOperatorToolingOperatorRankLine,

@@ -1,13 +1,13 @@
 import { cn } from "@/lib/utils";
 
-import { OperatorApiProblem } from "@/components/OperatorApiProblem";
-import { OperatorDemoStaticBanner } from "@/components/OperatorDemoStaticBanner";
-import { OperatorMalformedCallout, OperatorTryNext } from "@/components/OperatorShellMessage";
+import { OperatorApiProblem } from "@/components/operator/OperatorApiProblem";
+import { OperatorDemoStaticBanner } from "@/components/operator/OperatorDemoStaticBanner";
+import { OperatorMalformedCallout, OperatorTryNext } from "@/components/operator/OperatorShellMessage";
 import { FatalPageReportProblemSupportRow } from "@/components/support/FatalPageReportProblemAction";
-import { OperatorPageContainer } from "@/components/OperatorPageContainer";
-import { OperatorPageHeader } from "@/components/OperatorPageHeader";
+import { OperatorPageContainer } from "@/components/operator/OperatorPageContainer";
+import { OperatorPageHeader } from "@/components/operator/OperatorPageHeader";
 import { PlanningReviewsVocabularyRail } from "@/components/PlanningReviewsVocabularyRail";
-import { RunsListProofHeadline } from "@/components/RunsListProofHeadline";
+import { RunsListProofHeadline } from "@/components/runs/RunsListProofHeadline";
 import { isOperatorExperienceFullShellEnv } from "@/lib/demo-ui-env";
 import {
   BUYER_RUNS_LIST_MALFORMED_BODY,

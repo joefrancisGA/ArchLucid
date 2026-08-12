@@ -1,7 +1,7 @@
 import type { ReactElement } from "react";
 
 import { InlineGlossaryChip } from "@/components/InlineGlossaryChip";
-import { OperatorEmptyState } from "@/components/OperatorShellMessage";
+import { OperatorEmptyState } from "@/components/operator/OperatorShellMessage";
 import { SIGNED_MANIFEST_LABEL } from "@/lib/usability/canonical-product-terms";
 
 export function RunDetailPreFinalizedEmptyState(): ReactElement {

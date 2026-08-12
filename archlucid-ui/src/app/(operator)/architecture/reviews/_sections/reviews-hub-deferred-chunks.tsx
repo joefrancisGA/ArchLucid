@@ -6,7 +6,7 @@ import type { ComponentType, JSX } from "react";
 import { cn } from "@/lib/utils";
 import { OPERATOR_TYPOGRAPHY } from "@/lib/design-tokens";
 
-import type { RunsIndexBeforeAfterPanelProps } from "@/components/RunsIndexBeforeAfterPanel";
+import type { RunsIndexBeforeAfterPanelProps } from "@/components/runs/RunsIndexBeforeAfterPanel";
 import type { RunsListClientProps } from "@/app/(operator)/architecture/reviews/RunsListClient";
 
 function ReviewsHubDeferredSectionLoading(props: { readonly label: string }): JSX.Element {
@@ -27,7 +27,7 @@ export const OperatorWelcomeOnboardingDeferred: ComponentType<{
   readonly serverEligible: boolean;
 }> = dynamic(
   () =>
-    import("@/components/OperatorWelcomeOnboarding").then((module) => module.OperatorWelcomeOnboarding),
+    import("@/components/operator/OperatorWelcomeOnboarding").then((module) => module.OperatorWelcomeOnboarding),
   {
     ssr: false,
     loading: () => <ReviewsHubDeferredSectionLoading label="Loading welcome guidance" />,
@@ -60,7 +60,7 @@ export const ReviewsHubBeforeAfterDeltaPanelDeferred: ComponentType = dynamic(
 );
 
 export const RunsIndexBeforeAfterPanelDeferred: ComponentType<RunsIndexBeforeAfterPanelProps> = dynamic(
-  () => import("@/components/RunsIndexBeforeAfterPanel").then((module) => module.RunsIndexBeforeAfterPanel),
+  () => import("@/components/runs/RunsIndexBeforeAfterPanel").then((module) => module.RunsIndexBeforeAfterPanel),
   {
     ssr: false,
     loading: () => <ReviewsHubDeferredSectionLoading label="Loading review cycle delta" />,
@@ -72,7 +72,7 @@ type RunsListAggregateErrorBoundaryProps = RunsListClientProps;
 export const RunsListAggregateErrorBoundaryDeferred: ComponentType<RunsListAggregateErrorBoundaryProps> =
   dynamic(
     () =>
-      import("@/components/RunsListAggregateErrorBoundary").then(
+      import("@/components/runs/RunsListAggregateErrorBoundary").then(
         (module) => module.RunsListAggregateErrorBoundary,
       ),
     {

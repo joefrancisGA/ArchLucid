@@ -5,14 +5,14 @@ import { useCallback, useState } from "react";
 
 import { DemoReadinessAdminPageLoadingSkeleton } from "@/app/(operator)/internal/demo-readiness/_sections/DemoReadinessAdminPageLoadingSkeleton";
 import { DemoReadinessToolingDisabledEmptyState } from "@/app/(operator)/internal/demo-readiness/_sections/DemoReadinessToolingDisabledEmptyState";
-import { useOperatorNavAuthority } from "@/components/OperatorNavAuthorityProvider";
+import { useOperatorNavAuthority } from "@/components/operator/OperatorNavAuthorityProvider";
 import {
   BuyerCtoDemoReadinessPanel,
   type DemoReadinessRecheckControls,
 } from "@/components/operator-home/BuyerCtoDemoReadinessPanel";
-import { OperatorPageContainer } from "@/components/OperatorPageContainer";
+import { OperatorPageContainer } from "@/components/operator/OperatorPageContainer";
 import { PageHeading } from "@/components/PageHeading";
-import { TrialFunnelDemoReadinessVocabularyRail } from "@/components/TrialFunnelDemoReadinessVocabularyRail";
+import { TrialFunnelDemoReadinessVocabularyRail } from "@/components/trial/TrialFunnelDemoReadinessVocabularyRail";
 import { Button } from "@/components/ui/button";
 import { PageContextualHelpButton } from "@/components/usability/PageContextualHelpButton";
 import {

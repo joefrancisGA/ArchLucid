@@ -3,10 +3,10 @@
 import Link from "next/link";
 
 import { cn } from "@/lib/utils";
-import { OperatorApiProblem } from "@/components/OperatorApiProblem";
-import { OperatorBrandedRouteLoadFailure } from "@/components/OperatorBrandedRouteLoadFailure";
-import { OperatorLoadingNotice } from "@/components/OperatorShellMessage";
-import { OperatorPageHeader } from "@/components/OperatorPageHeader";
+import { OperatorApiProblem } from "@/components/operator/OperatorApiProblem";
+import { OperatorBrandedRouteLoadFailure } from "@/components/operator/OperatorBrandedRouteLoadFailure";
+import { OperatorLoadingNotice } from "@/components/operator/OperatorShellMessage";
+import { OperatorPageHeader } from "@/components/operator/OperatorPageHeader";
 import { PlanningPlanDetailHubVocabularyRail } from "@/components/PlanningPlanDetailHubVocabularyRail";
 import { PageContextualHelpButton } from "@/components/usability/PageContextualHelpButton";
 import { resolveApiLoadFailurePresentation } from "@/lib/api-load-failure";

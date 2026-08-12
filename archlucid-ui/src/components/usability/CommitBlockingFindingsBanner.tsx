@@ -1,6 +1,6 @@
 import Link from "next/link";
 
-import { OperatorWarningCallout } from "@/components/OperatorShellMessage";
+import { OperatorWarningCallout } from "@/components/operator/OperatorShellMessage";
 import { OPERATOR_TYPOGRAPHY } from "@/lib/design-tokens";
 import { buildReviewDetailTabHref } from "@/lib/review-detail-workspace-tabs";
 import { cn } from "@/lib/utils";

@@ -3,7 +3,7 @@
 import { cn } from "@/lib/utils";
 import { useState } from "react";
 import { GettingStartedSteps } from "@/components/GettingStartedSteps";
-import { OperatorApiProblem } from "@/components/OperatorApiProblem";
+import { OperatorApiProblem } from "@/components/operator/OperatorApiProblem";
 import { useOperateCapability } from "@/hooks/use-operate-capability";
 import { compareAlertRuleCandidates, simulateAlertRule } from "@/lib/api";
 import {

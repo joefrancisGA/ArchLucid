@@ -2,8 +2,8 @@ import { cn } from "@/lib/utils";
 import Link from "next/link";
 import type { ReactElement } from "react";
 
-import { FindingPolicyRuleBadge } from "@/components/FindingPolicyRuleBadge";
-import { FindingTrustChipFromSet } from "@/components/FindingTrustChip";
+import { FindingPolicyRuleBadge } from "@/components/findings/FindingPolicyRuleBadge";
+import { FindingTrustChipFromSet } from "@/components/findings/FindingTrustChip";
 import { SeverityTag } from "@/components/ui/severity-tag";
 import { OPERATOR_LINK, OPERATOR_TYPOGRAPHY } from "@/lib/design-tokens";
 import {

@@ -14,7 +14,7 @@ vi.mock("next/link", () => ({
   default: ({ href, children }: { href: string; children: ReactNode }) => <a href={href}>{children}</a>,
 }));
 
-vi.mock("@/components/OperatorPageContainer", () => ({
+vi.mock("@/components/operator/OperatorPageContainer", () => ({
   OperatorPageContainer: ({ children }: { children: ReactNode }) => <div>{children}</div>,
 }));
 

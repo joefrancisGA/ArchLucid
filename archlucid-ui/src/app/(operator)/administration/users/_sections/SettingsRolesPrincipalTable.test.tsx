@@ -10,7 +10,7 @@ vi.mock("@/lib/admin-role-assignment-request", () => ({
   requestPrincipalAppRoleAssignment: vi.fn(),
 }));
 
-vi.mock("@/components/OperatorNavAuthorityProvider", () => ({
+vi.mock("@/components/operator/OperatorNavAuthorityProvider", () => ({
   useOperatorNavAuthority: () => ({
     currentPrincipal: {
       provenance: "auth-me" as const,

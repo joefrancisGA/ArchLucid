@@ -1,5 +1,5 @@
 import { OperatorHomeRunsDashboardListSkeleton } from "@/components/operator-home/OperatorHomeRunsDashboardListSkeleton";
-import { OperatorPageContainer } from "@/components/OperatorPageContainer";
+import { OperatorPageContainer } from "@/components/operator/OperatorPageContainer";
 import { Skeleton } from "@/components/ui/skeleton";
 import {
   OPERATOR_HOME_PRIMARY_SECTION_HEADING,

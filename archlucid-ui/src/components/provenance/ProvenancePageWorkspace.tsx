@@ -9,7 +9,7 @@ import { ProvenanceGraphViewport } from "@/components/provenance/ProvenanceGraph
 import { ProvenanceGraphErrorBoundary } from "@/components/provenance/ProvenanceGraphErrorBoundary";
 import { ProvenanceSectionNav, type ProvenanceSection } from "@/components/provenance/ProvenanceSectionNav";
 import { ProvenanceWayfinding } from "@/components/provenance/ProvenanceWayfinding";
-import { RunProvenanceEvidenceGraphVocabularyRail } from "@/components/RunProvenanceEvidenceGraphVocabularyRail";
+import { RunProvenanceEvidenceGraphVocabularyRail } from "@/components/runs/RunProvenanceEvidenceGraphVocabularyRail";
 import {
   ProvenanceViewModeTabs,
   provenanceViewPanelProps,
@@ -17,8 +17,8 @@ import {
 } from "@/components/provenance/ProvenanceViewModeTabs";
 import { ProvenanceNodeExplainCell } from "@/components/ProvenanceNodeExplainCell";
 import { ProvenanceReferenceLink } from "@/components/ProvenanceReferenceLink";
-import { OperatorDemoStaticBanner } from "@/components/OperatorDemoStaticBanner";
-import { RunTraceViewerLink } from "@/components/RunTraceViewerLink";
+import { OperatorDemoStaticBanner } from "@/components/operator/OperatorDemoStaticBanner";
+import { RunTraceViewerLink } from "@/components/runs/RunTraceViewerLink";
 import { Button } from "@/components/ui/button";
 import { Input } from "@/components/ui/input";
 import { StatusTag } from "@/components/ui/status-tag";

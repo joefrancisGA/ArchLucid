@@ -12,7 +12,7 @@ import {
   findingCausalMiniChainFromGovernanceQueueRow,
 } from "@/lib/findings/finding-causal-mini-chain";
 import { NewSinceLastVisitMarker } from "@/components/usability/NewSinceLastVisitMarker";
-import { FindingPolicyTraceabilityBadges } from "@/components/FindingPolicyTraceabilityBadges";
+import { FindingPolicyTraceabilityBadges } from "@/components/findings/FindingPolicyTraceabilityBadges";
 import { Card, CardContent, CardHeader, CardTitle } from "@/components/ui/card";
 import { StatusTag } from "@/components/ui/status-tag";
 import { buildPolicyTraceabilityLinksFromRuleId } from "@/lib/findings/finding-policy-evidence-citations";

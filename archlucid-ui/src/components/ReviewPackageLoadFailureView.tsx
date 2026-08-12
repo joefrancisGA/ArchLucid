@@ -9,10 +9,10 @@ import { useCallback, useEffect, useMemo, useState, useTransition } from "react"
 import {
   OperatorRouteDiagnosticsPanel,
   type OperatorRouteDiagnosticsPayload,
-} from "@/components/OperatorRouteDiagnosticsPanel";
+} from "@/components/operator/OperatorRouteDiagnosticsPanel";
 import { FatalPageReportProblemSupportRow } from "@/components/support/FatalPageReportProblemAction";
 import { OperatorErrorRecoveryContract } from "@/components/usability/OperatorErrorRecoveryContract";
-import { OperatorEmptyState, OperatorLoadingNotice } from "@/components/OperatorShellMessage";
+import { OperatorEmptyState, OperatorLoadingNotice } from "@/components/operator/OperatorShellMessage";
 import { Button } from "@/components/ui/button";
 import { getRunDetail } from "@/lib/api";
 import type { ApiLoadFailureState } from "@/lib/api-load-failure";

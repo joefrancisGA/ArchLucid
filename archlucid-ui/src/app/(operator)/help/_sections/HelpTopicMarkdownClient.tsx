@@ -10,7 +10,7 @@ import { HelpEngineeringTroubleshootingGuideView } from "@/app/(operator)/help/_
 import { HelpTopicNotFoundView } from "@/app/(operator)/help/_sections/HelpTopicNotFoundView";
 import { ensureAccessTokenFresh, getAccessTokenForApi } from "@/lib/oidc/session";
 import type { ProductDocumentationEntry } from "@/lib/product-documentation-registry";
-import { OperatorShellAccessGateLoading } from "@/components/OperatorShellAccessGateLoading";
+import { OperatorShellAccessGateLoading } from "@/components/operator/OperatorShellAccessGateLoading";
 
 export type HelpTopicMarkdownClientProps = {
   readonly entry: ProductDocumentationEntry;

@@ -3,8 +3,8 @@
 import type { ReactNode } from "react";
 
 import Link from "next/link";
-import { OperatorPageHeader } from "@/components/OperatorPageHeader";
-import { OperatorPageBreadcrumb } from "@/components/OperatorPageBreadcrumb";
+import { OperatorPageHeader } from "@/components/operator/OperatorPageHeader";
+import { OperatorPageBreadcrumb } from "@/components/operator/OperatorPageBreadcrumb";
 import { HelpTopicPrintButton } from "@/components/help/HelpTopicPrintButton";
 import { Button } from "@/components/ui/button";
 import { PageContextualHelpButton } from "@/components/usability/PageContextualHelpButton";

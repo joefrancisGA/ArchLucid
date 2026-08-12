@@ -8,7 +8,7 @@ import { useEffect, useRef, useState, type ReactElement } from "react";
 
 import { useDigestSubscriptionsQuery } from "@/hooks/use-digest-subscriptions-query";
 
-import { OperatorApiProblem } from "@/components/OperatorApiProblem";
+import { OperatorApiProblem } from "@/components/operator/OperatorApiProblem";
 import { ConfirmationDialog } from "@/components/ConfirmationDialog";
 import { DigestSubscriptionCreateForm } from "@/components/digests/DigestSubscriptionCreateForm";
 import { DigestSubscriptionList } from "@/components/digests/DigestSubscriptionList";

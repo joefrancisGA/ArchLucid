@@ -8,7 +8,7 @@ import { FirstPilotProofStatusStrip } from "@/components/FirstPilotProofStatusSt
 import { FirstPilotReadinessCockpitLoadingBody } from "@/components/FirstPilotReadinessCockpitLoadingBody";
 import { FirstPilotReadinessGroupTable } from "@/components/FirstPilotReadinessGroupTable";
 import { FirstPilotTechnicalCommandDisclosure } from "@/components/FirstPilotTechnicalCommandDisclosure";
-import { OperatorAiQualityProofCard } from "@/components/OperatorAiQualityProofCard";
+import { OperatorAiQualityProofCard } from "@/components/operator/OperatorAiQualityProofCard";
 import { buildTier1InventoryExtractorCommandLines } from "@/lib/get-archlucid-cloud-package-command";
 import { OperatorHomeDisclosureSection } from "@/components/operator-home/OperatorHomeDisclosureSection";
 import { Button } from "@/components/ui/button";

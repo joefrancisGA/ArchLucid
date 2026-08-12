@@ -5,7 +5,7 @@ import Link from "next/link";
 import { useEffect, useMemo, useState } from "react";
 
 import { Card, CardContent, CardDescription, CardHeader, CardTitle } from "@/components/ui/card";
-import { useNavCallerAuthorityRank } from "@/components/OperatorNavAuthorityProvider";
+import { useNavCallerAuthorityRank } from "@/components/operator/OperatorNavAuthorityProvider";
 import { useTenantTrialStatusQuery } from "@/hooks/use-tenant-trial-status-query";
 import { isNextPublicDemoMode } from "@/lib/demo-ui-env";
 import { readFrictionlessTrialSessionEnabled } from "@/lib/frictionless-trial-session";

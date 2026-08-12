@@ -3,11 +3,11 @@
 import { cn } from "@/lib/utils";
 import { useState } from "react";
 
-import { PolicyPackChangeImpactNotice } from "@/components/PolicyPackChangeImpactNotice";
-import { PolicyPackContentJsonEditor } from "@/components/PolicyPackContentJsonEditor";
+import { PolicyPackChangeImpactNotice } from "@/components/policy/PolicyPackChangeImpactNotice";
+import { PolicyPackContentJsonEditor } from "@/components/policy/PolicyPackContentJsonEditor";
 import { ConfirmationDialog } from "@/components/ConfirmationDialog";
 import { InlineHelp } from "@/components/InlineHelp";
-import { GovernanceDryRunModal } from "@/components/GovernanceDryRunModal";
+import { GovernanceDryRunModal } from "@/components/governance/GovernanceDryRunModal";
 import { MutatingInWorkspaceChip } from "@/components/MutatingInWorkspaceChip";
 import { Button } from "@/components/ui/button";
 import { Input } from "@/components/ui/input";

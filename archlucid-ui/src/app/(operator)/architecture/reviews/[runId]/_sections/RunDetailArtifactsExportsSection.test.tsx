@@ -33,7 +33,7 @@ vi.mock("@/components/GoldenManifestExportMenu", () => ({
   GoldenManifestExportMenu: () => <div data-testid="golden-manifest-export-menu" />,
 }));
 
-vi.mock("@/components/RunScopedAuditExportButton", () => ({
+vi.mock("@/components/runs/RunScopedAuditExportButton", () => ({
   RunScopedAuditExportButton: ({ runId }: { runId: string }) => (
     <div data-testid="run-scoped-audit-export" data-run-id={runId} />
   ),

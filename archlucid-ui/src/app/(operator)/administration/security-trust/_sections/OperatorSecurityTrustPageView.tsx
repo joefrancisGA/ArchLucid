@@ -1,8 +1,8 @@
 import { cn } from "@/lib/utils";
 import Link from "next/link";
 
-import { OperatorPageHeader } from "@/components/OperatorPageHeader";
-import { OperatorPageBreadcrumb } from "@/components/OperatorPageBreadcrumb";
+import { OperatorPageHeader } from "@/components/operator/OperatorPageHeader";
+import { OperatorPageBreadcrumb } from "@/components/operator/OperatorPageBreadcrumb";
 import { StatusTag } from "@/components/StatusTag";
 import { TrustAssuranceSecurityTrustVocabularyRail } from "@/components/TrustAssuranceSecurityTrustVocabularyRail";
 import { SecurityTrustHelpHubVocabularyRail } from "@/components/SecurityTrustHelpHubVocabularyRail";

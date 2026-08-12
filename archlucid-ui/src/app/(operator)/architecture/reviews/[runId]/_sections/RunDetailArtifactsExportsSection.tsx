@@ -15,14 +15,14 @@ import { ExportFormatWhenToUseHint } from "@/components/ExportFormatWhenToUseHin
 import { ExportTrackedAnchor } from "@/components/ExportTrackedAnchor";
 import { GoldenManifestExportMenu } from "@/components/GoldenManifestExportMenu";
 import { ReviewBoardWhitelabelConsultingExportButton } from "@/components/ReviewBoardWhitelabelConsultingExportButton";
-import { RunScopedAuditExportButton } from "@/components/RunScopedAuditExportButton";
-import { OperatorApiProblem } from "@/components/OperatorApiProblem";
+import { RunScopedAuditExportButton } from "@/components/runs/RunScopedAuditExportButton";
+import { OperatorApiProblem } from "@/components/operator/OperatorApiProblem";
 import { FatalPageReportProblemSupportRow } from "@/components/support/FatalPageReportProblemAction";
 import {
   OperatorEmptyState,
   OperatorMalformedCallout,
-} from "@/components/OperatorShellMessage";
-import { OperatorSectionRetryButton } from "@/components/OperatorSectionRetryButton";
+} from "@/components/operator/OperatorShellMessage";
+import { OperatorSectionRetryButton } from "@/components/operator/OperatorSectionRetryButton";
 import { Button, buttonVariants } from "@/components/ui/button";
 import {
   getArchitectureRequestDownloadUrl,

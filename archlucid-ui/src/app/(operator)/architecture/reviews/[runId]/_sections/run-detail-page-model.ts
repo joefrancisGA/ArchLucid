@@ -1,4 +1,4 @@
-import type { RunDetailSection } from "@/components/RunDetailSectionNav";
+import type { RunDetailSection } from "@/components/runs/RunDetailSectionNav";
 import type { AdrGeneratorRunInput } from "@/lib/adr-from-run";
 import type { ApiLoadFailureState } from "@/lib/api-load-failure";
 import type { ChangesSinceLastReviewCopy } from "@/lib/changes-since-last-review-summary";

@@ -20,7 +20,7 @@ vi.mock("@/hooks/use-finish-setup-readiness-context", () => ({
   }),
 }));
 
-vi.mock("@/components/OperatorNavAuthorityProvider", () => ({
+vi.mock("@/components/operator/OperatorNavAuthorityProvider", () => ({
   useNavCommittedArchitectureReview: vi.fn(() => true),
   useOperatorNavAuthority: () => ({
     currentPrincipal: {
@@ -38,7 +38,7 @@ import { OPERATOR_HOME_WORKSPACE_METRICS_EMPTY_COPY } from "@/lib/operator/opera
 
 import { OperatorHomeWorkspaceContextDisclosure } from "./OperatorHomeWorkspaceContextDisclosure";
 
-import { useNavCommittedArchitectureReview } from "@/components/OperatorNavAuthorityProvider";
+import { useNavCommittedArchitectureReview } from "@/components/operator/OperatorNavAuthorityProvider";
 
 const emptyRunsDashboard: OperatorHomeRunsDashboardModel = {
   projectId: "default",

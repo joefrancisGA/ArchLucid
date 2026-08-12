@@ -7,7 +7,7 @@ import { AiBudgetSpendNotice } from "@/components/ai-budget/AiBudgetSpendNotice"
 import { Button } from "@/components/ui/button";
 import { Input } from "@/components/ui/input";
 import { AiOutputGovernanceLabel } from "@/components/AiOutputGovernanceLabel";
-import { OperatorApiProblem } from "@/components/OperatorApiProblem";
+import { OperatorApiProblem } from "@/components/operator/OperatorApiProblem";
 import { Card, CardContent, CardHeader, CardTitle } from "@/components/ui/card";
 import { useLlmMonthlyBudgetExecutionGate } from "@/hooks/use-llm-monthly-budget-execution-gate";
 import { generateHolisticCritique } from "@/lib/api/holistic-critic-api";

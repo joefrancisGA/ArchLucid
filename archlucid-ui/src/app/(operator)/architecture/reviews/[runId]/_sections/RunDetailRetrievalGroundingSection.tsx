@@ -2,7 +2,7 @@
 
 import { useEffect, useState } from "react";
 
-import { RunRetrievalGroundingPanel } from "@/components/RunRetrievalGroundingPanel";
+import { RunRetrievalGroundingPanel } from "@/components/runs/RunRetrievalGroundingPanel";
 import { getRunRetrievalGrounding } from "@/lib/api";
 import { toApiLoadFailure } from "@/lib/api-load-failure";
 import type { ApiLoadFailureState } from "@/lib/api-load-failure";

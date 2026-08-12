@@ -30,7 +30,7 @@ vi.mock("@/hooks/use-tenant-trial-status-query", () => ({
   useTenantTrialStatusQuery: () => ({ data: null }),
 }));
 
-vi.mock("@/components/OperatorNavAuthorityProvider", () => ({
+vi.mock("@/components/operator/OperatorNavAuthorityProvider", () => ({
   useNavCallerAuthorityRank: () => 3,
 }));
 

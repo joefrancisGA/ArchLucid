@@ -1,7 +1,7 @@
 "use client";
 
 import { CorePilotChecklist } from "@/components/CorePilotChecklist";
-import { OperatorCorePilotDiagnosticsChecklist } from "@/components/OperatorCorePilotDiagnosticsChecklist";
+import { OperatorCorePilotDiagnosticsChecklist } from "@/components/operator/OperatorCorePilotDiagnosticsChecklist";
 import { OperatorHomeDisclosureSection } from "@/components/operator-home/OperatorHomeDisclosureSection";
 import {
   OPERATOR_HOME_ADVANCED_GUIDANCE_COLLAPSED_SUMMARY,

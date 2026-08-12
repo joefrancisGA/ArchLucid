@@ -4,7 +4,7 @@ import { cn } from "@/lib/utils";
 import { useCallback, useState } from "react";
 
 import { DemoWorkspaceCapabilityUnavailablePanel } from "@/components/DemoWorkspaceCapabilityUnavailablePanel";
-import { OperatorPageHeader } from "@/components/OperatorPageHeader";
+import { OperatorPageHeader } from "@/components/operator/OperatorPageHeader";
 import { PageContextualHelpButton } from "@/components/usability/PageContextualHelpButton";
 import { Badge } from "@/components/ui/badge";
 import { Button } from "@/components/ui/button";

@@ -4,8 +4,8 @@ import Link from "next/link";
 import { memo, type ReactElement } from "react";
 
 import { CopyGovernanceQueueWorkItemButton } from "@/components/CopyFindingAsWorkItemButton";
-import { FindingConfidenceBadge } from "@/components/FindingConfidenceBadge";
-import { FindingPolicyTraceabilityBadges } from "@/components/FindingPolicyTraceabilityBadges";
+import { FindingConfidenceBadge } from "@/components/findings/FindingConfidenceBadge";
+import { FindingPolicyTraceabilityBadges } from "@/components/findings/FindingPolicyTraceabilityBadges";
 import { SeverityTag } from "@/components/ui/severity-tag";
 import { StatusTag } from "@/components/ui/status-tag";
 import { buildPolicyTraceabilityLinksFromRuleId } from "@/lib/findings/finding-policy-evidence-citations";

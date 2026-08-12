@@ -6,7 +6,7 @@ import type { CSSProperties } from "react";
 import { useRef } from "react";
 import { cn } from "@/lib/utils";
 
-import { RunStatusBadge } from "@/components/RunStatusBadge";
+import { RunStatusBadge } from "@/components/runs/RunStatusBadge";
 import { Button } from "@/components/ui/button";
 import {
   EnterpriseTable,

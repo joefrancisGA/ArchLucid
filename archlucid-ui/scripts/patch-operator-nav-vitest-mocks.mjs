@@ -5,7 +5,7 @@ import { fileURLToPath } from "node:url";
 const repoRoot = path.resolve(path.dirname(fileURLToPath(import.meta.url)), "..");
 const srcRoot = path.join(repoRoot, "src");
 
-const mockNeedle = 'vi.mock("@/components/OperatorNavAuthorityProvider"';
+const mockNeedle = 'vi.mock("@/components/operator/OperatorNavAuthorityProvider"';
 const insertionMarker = "useOperatorNavAuthority:";
 
 function walk(dir, out = []) {

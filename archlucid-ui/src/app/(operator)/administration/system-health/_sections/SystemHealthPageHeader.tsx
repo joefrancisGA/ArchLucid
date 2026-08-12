@@ -1,6 +1,6 @@
 "use client";
 
-import { OperatorPageHeader } from "@/components/OperatorPageHeader";
+import { OperatorPageHeader } from "@/components/operator/OperatorPageHeader";
 import { Button } from "@/components/ui/button";
 import { HealthFreshnessLabel } from "@/components/health-dashboard/HealthDashboardSections";
 import { PageContextualHelpButton } from "@/components/usability/PageContextualHelpButton";

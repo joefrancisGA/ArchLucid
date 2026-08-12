@@ -45,7 +45,7 @@ vi.mock("@/lib/demo-ui-env", async (importOriginal) => {
 });
 
 // Keep the real view under test, but stub shell chrome that pulls large client graphs (CI heap OOM on app-operator-e).
-vi.mock("@/components/OperatorPageContainer", () => ({
+vi.mock("@/components/operator/OperatorPageContainer", () => ({
   OperatorPageContainer: ({ children }: { children: React.ReactNode }) => <div data-testid="operator-page-container">{children}</div>,
 }));
 

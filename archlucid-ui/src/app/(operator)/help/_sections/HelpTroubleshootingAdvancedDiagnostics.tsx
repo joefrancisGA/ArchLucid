@@ -2,7 +2,7 @@
 
 import Link from "next/link";
 
-import { useOperatorNavAuthority } from "@/components/OperatorNavAuthorityProvider";
+import { useOperatorNavAuthority } from "@/components/operator/OperatorNavAuthorityProvider";
 import { DESIGN_TOKENS, OPERATOR_TYPOGRAPHY } from "@/lib/design-tokens";
 import { TROUBLESHOOTING_ADVANCED_DIAGNOSTICS_ITEMS } from "@/lib/troubleshooting-help-guide-content";
 import { AUTHORITY_RANK } from "@/lib/nav-authority";

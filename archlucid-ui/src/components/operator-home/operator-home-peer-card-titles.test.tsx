@@ -7,7 +7,7 @@ import type { OperatorHomeRunsDashboardModel } from "@/app/(operator)/_sections/
 import { OperatorHomeExploreSampleSection } from "@/components/operator-home/OperatorHomeExploreSampleSection";
 import { OperatorHomeWorkspaceContextDisclosure } from "@/components/operator-home/OperatorHomeWorkspaceContextDisclosure";
 import { PilotCommandCenterCard } from "@/components/usability/PilotCommandCenterCard";
-import { useNavCommittedArchitectureReview } from "@/components/OperatorNavAuthorityProvider";
+import { useNavCommittedArchitectureReview } from "@/components/operator/OperatorNavAuthorityProvider";
 import { renderWithOperatorQuery } from "@/testing/render-with-operator-query";
 import {
   OPERATOR_HOME_ADVANCED_GUIDANCE_TITLE,
@@ -31,7 +31,7 @@ vi.mock("next/navigation", () => ({
   usePathname: () => "/",
 }));
 
-vi.mock("@/components/OperatorNavAuthorityProvider", () => ({
+vi.mock("@/components/operator/OperatorNavAuthorityProvider", () => ({
   useNavCommittedArchitectureReview: vi.fn(() => false),
   useNavCallerAuthorityRank: () => 100,
 }));

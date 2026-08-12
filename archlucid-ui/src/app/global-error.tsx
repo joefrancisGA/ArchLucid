@@ -5,7 +5,7 @@ import { useEffect } from "react";
 
 import "./globals.css";
 
-import { OperatorErrorUiReferenceLine } from "@/components/OperatorErrorUiReferenceLine";
+import { OperatorErrorUiReferenceLine } from "@/components/operator/OperatorErrorUiReferenceLine";
 import { CopyIdButton } from "@/components/CopyIdButton";
 import { Button } from "@/components/ui/button";
 

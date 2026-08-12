@@ -1,7 +1,7 @@
 import * as React from "react";
 import { vi } from "vitest";
 
-import { OperatorQueryProvider } from "@/components/OperatorQueryProvider";
+import { OperatorQueryProvider } from "@/components/operator/OperatorQueryProvider";
 import { TooltipProvider } from "@/components/ui/tooltip";
 
 /**

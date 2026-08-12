@@ -21,7 +21,7 @@ import {
   type MapGraphPresentation,
 } from "@/lib/graph-mapper";
 import { graphViewModelFilteredByNodeType } from "@/lib/graph-view-model-type-filter";
-import { OperatorEmptyState } from "@/components/OperatorShellMessage";
+import { OperatorEmptyState } from "@/components/operator/OperatorShellMessage";
 import { useBasicAdvancedToggle } from "@/hooks/useBasicAdvancedToggle";
 import { GraphBuyerCanvasToolbar } from "@/components/GraphBuyerCanvasToolbar";
 import { Button } from "@/components/ui/button";

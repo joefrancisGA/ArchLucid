@@ -10,12 +10,12 @@ const pageViewSource = readFileSync(join(sectionsDir, "RunsPageView.tsx"), "utf8
 const deferredSource = readFileSync(join(sectionsDir, "reviews-hub-deferred-chunks.tsx"), "utf8");
 
 const bannedStaticImports = [
-  '@/components/OperatorWelcomeOnboarding"',
+  '@/components/operator/OperatorWelcomeOnboarding"',
   './ReviewsHubExploreSamples"',
   './ReviewsHubPackageIncludes"',
   './ReviewsHubBeforeAfterDeltaPanel"',
-  '@/components/RunsIndexBeforeAfterPanel"',
-  '@/components/RunsListAggregateErrorBoundary"',
+  '@/components/runs/RunsIndexBeforeAfterPanel"',
+  '@/components/runs/RunsListAggregateErrorBoundary"',
 ] as const;
 
 describe("reviews hub deferred imports (TB-934)", () => {
@@ -34,12 +34,12 @@ describe("reviews hub deferred imports (TB-934)", () => {
   });
 
   it("dynamic-imports each deferred reviews hub panel", () => {
-    expect(deferredSource).toContain('import("@/components/OperatorWelcomeOnboarding")');
+    expect(deferredSource).toContain('import("@/components/operator/OperatorWelcomeOnboarding")');
     expect(deferredSource).toContain('import("./ReviewsHubExploreSamples")');
     expect(deferredSource).toContain('import("./ReviewsHubPackageIncludes")');
     expect(deferredSource).toContain('import("./ReviewsHubBeforeAfterDeltaPanel")');
-    expect(deferredSource).toContain('import("@/components/RunsIndexBeforeAfterPanel")');
-    expect(deferredSource).toContain('import("@/components/RunsListAggregateErrorBoundary")');
+    expect(deferredSource).toContain('import("@/components/runs/RunsIndexBeforeAfterPanel")');
+    expect(deferredSource).toContain('import("@/components/runs/RunsListAggregateErrorBoundary")');
     expect(deferredSource).toContain("next/dynamic");
   });
 });

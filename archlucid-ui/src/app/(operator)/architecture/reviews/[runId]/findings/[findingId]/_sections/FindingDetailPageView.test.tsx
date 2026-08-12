@@ -40,7 +40,7 @@ vi.mock("../FindingInspectAuditSection", () => ({
   FindingInspectAuditSection: () => null,
 }));
 
-vi.mock("@/components/FindingExplainabilityTracePanel", () => ({
+vi.mock("@/components/findings/FindingExplainabilityTracePanel", () => ({
   FindingExplainabilityTracePanel: () => null,
 }));
 
@@ -52,11 +52,11 @@ vi.mock("@/components/findings/FindingProvenancePanel", () => ({
   FindingProvenancePanel: () => null,
 }));
 
-vi.mock("@/components/FindingItsmExportPanel", () => ({
+vi.mock("@/components/findings/FindingItsmExportPanel", () => ({
   FindingItsmExportPanel: () => null,
 }));
 
-vi.mock("@/components/FindingAskInlinePanel", () => ({
+vi.mock("@/components/findings/FindingAskInlinePanel", () => ({
   FindingAskInlinePanel: () => <div data-testid="finding-ask-inline-panel" />,
 }));
 
@@ -68,7 +68,7 @@ vi.mock("@/components/ProductLearningFeedbackControls", () => ({
   ProductLearningFeedbackControls: () => <div data-testid="product-learning-feedback" />,
 }));
 
-vi.mock("@/components/OperatorEvidenceLimitsFooter", () => ({
+vi.mock("@/components/operator/OperatorEvidenceLimitsFooter", () => ({
   OperatorEvidenceLimitsFooter: ({
     findingIdForInspectLink,
   }: {

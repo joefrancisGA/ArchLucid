@@ -3217,7 +3217,7 @@ All **P0** **V1**: visible-boundary button contract + design-system rule (**TB-2
 - Empty states and help links explain the unlock condition without sending users to raw GitHub docs.
 - Tests lock the visibility rules for first-run vs committed-review states.
 
-**Refs:** **TB-114**, **TB-143**, **TB-144**, **TB-145**, **TB-156**, **TB-157**, `docs/runbooks/FIRST_PILOT_OPERATOR_PATH.md`, `docs/runbooks/FIRST_VALUE_20_MINUTES.md`, `archlucid-ui/src/app/(operator)/`, `archlucid-ui/src/components/OperatorNextActionsCard.tsx`, `archlucid-ui/src/components/CorePilotNextStepsCard.tsx`.
+**Refs:** **TB-114**, **TB-143**, **TB-144**, **TB-145**, **TB-156**, **TB-157**, `docs/runbooks/FIRST_PILOT_OPERATOR_PATH.md`, `docs/runbooks/FIRST_VALUE_20_MINUTES.md`, `archlucid-ui/src/app/(operator)/`, `archlucid-ui/src/components/operator/OperatorNextActionsCard.tsx`, `archlucid-ui/src/components/CorePilotNextStepsCard.tsx`.
 
 **Size estimate:** M.
 
@@ -7297,7 +7297,7 @@ An operator reviewing and committing a run sees neither. `HasGovernanceWarnings 
 
 - `archlucid-ui/src/app/(operator)/reviews/[runId]/_sections/RunDetailManifestSummaryAlerts.tsx`
 - `archlucid-ui/src/app/(operator)/reviews/[runId]/_sections/RunDetailRunActionsSection.tsx`
-- `archlucid-ui/src/components/RunDetailPageHeader.tsx` (`CommitRunButton` guard)
+- `archlucid-ui/src/components/runs/RunDetailPageHeader.tsx` (`CommitRunButton` guard)
 - `archlucid-ui/src/types/authority.ts` (full `findingCoverageSummary` shape)
 - `ArchLucid.Contracts/Findings/RunFindingCoverageSummary.cs` (read-only ? verify field names)
 
@@ -7339,7 +7339,7 @@ There is no UI surface anywhere on the run detail page (or any sub-route) that s
 - `ArchLucid.Application/` (retrieval hit query ? interface in `IRetrievalQueryService` or new port)
 - `archlucid-ui/src/app/(operator)/reviews/[runId]/_sections/RunDetailRetrievalGroundingSection.tsx` (new)
 - `archlucid-ui/src/app/(operator)/reviews/[runId]/_sections/RunDetailPageView.tsx`
-- `archlucid-ui/src/components/RunExplanationSection.tsx` (link from faithfulness warning)
+- `archlucid-ui/src/components/runs/RunExplanationSection.tsx` (link from faithfulness warning)
 - `archlucid-ui/src/lib/api/architecture-runs.ts` (new API client function)
 
 **Cross-ref:** **TB-045**?**TB-049** (retrieval correctness/drift audit); **RAG-V1-007**?**RAG-V1-011** (`RAG_QUALITY_TECHNICAL_BACKLOG.md`); **TB-033** (persist LLM sampling params ? complementary forensic completeness).
@@ -7377,7 +7377,7 @@ The OTEL trace ID (`run.otelTraceId`) is already stored on `RunRecord` and shown
 
 - `ArchLucid.Api/Controllers/` (traces endpoint extension or new tool-calls endpoint)
 - `ArchLucid.Application/Agents/` (agent execution trace projection ? add tool-call sub-records)
-- `archlucid-ui/src/components/RunAgentForensicsSection.tsx`
+- `archlucid-ui/src/components/runs/RunAgentForensicsSection.tsx`
 - `archlucid-ui/src/app/(operator)/reviews/[runId]/_sections/RunDetailPageView.tsx`
 - `archlucid-ui/src/lib/api/architecture-runs.ts`
 
@@ -7417,7 +7417,7 @@ Additionally, the sibling provenance page uses the **architecture** provenance e
 
 - `archlucid-ui/src/app/(operator)/reviews/[runId]/_sections/RunDetailPageView.tsx`
 - `archlucid-ui/src/app/(operator)/reviews/[runId]/_sections/RunDetailAuthorityChainSection.tsx` (may absorb the summary)
-- `archlucid-ui/src/components/RunDetailOutcomeCards.tsx`
+- `archlucid-ui/src/components/runs/RunDetailOutcomeCards.tsx`
 - `archlucid-ui/src/lib/api/architecture-runs.ts` (authority provenance call, if needed)
 
 **Cross-ref:** **TB-033**?**TB-038** (provenance completeness audit ? backend side); **TB-036** (provenance ? agent trace correlation).
@@ -7462,7 +7462,7 @@ The only run-level action on `RunDetailPageView` is `CommitRunButton` (finalize 
 - `ArchLucid.Core/Persistence/ApplicationPorts/` (run disposition port)
 - `ArchLucid.Persistence/` (run disposition persistence)
 - `archlucid-ui/src/app/(operator)/reviews/[runId]/_sections/RunDetailRunActionsSection.tsx`
-- `archlucid-ui/src/components/RunDetailPageHeader.tsx` (governance status reflection)
+- `archlucid-ui/src/components/runs/RunDetailPageHeader.tsx` (governance status reflection)
 
 **Cross-ref:** **TB-057**?**TB-063** (commercial stickiness / governance review workflow); **TB-108** (`hasCommitBlockingFailures` gate for Approve action).
 
@@ -10217,7 +10217,7 @@ Show the trial user an explicit first-value confirmation using data already pers
 - `archlucid-ui/src/app/(operator)/_sections/OperatorHomePageView.tsx`
 - Vitest tests
 
-**Cross-ref:** TB-220 (wizard-to-commit telemetry), `archlucid-ui/src/components/TrialWelcomeRunDeepLink.tsx` (existing deep-link ? align navigation).
+**Cross-ref:** TB-220 (wizard-to-commit telemetry), `archlucid-ui/src/components/trial/TrialWelcomeRunDeepLink.tsx` (existing deep-link ? align navigation).
 
 ---
 
@@ -10582,7 +10582,7 @@ Guarantee a copyable request id on every API failure.
 
 - `archlucid-ui/src/lib/api/http.ts`, `archlucid-ui/src/lib/correlation.ts`
 - `archlucid-ui/src/lib/api-request-error.ts`
-- `archlucid-ui/src/components/OperatorApiProblem.tsx`
+- `archlucid-ui/src/components/operator/OperatorApiProblem.tsx`
 - error-rendering call sites using raw text / `OperatorShellMessage`
 - Vitest
 
@@ -10612,7 +10612,7 @@ Make operator empty/loading states consistent.
 
 **Affected files / projects:**
 
-- `archlucid-ui/src/components/EmptyState.tsx`, `archlucid-ui/src/components/OperatorShellMessage.tsx`
+- `archlucid-ui/src/components/EmptyState.tsx`, `archlucid-ui/src/components/operator/OperatorShellMessage.tsx`
 - `archlucid-ui/src/app/(operator)/loading.tsx`, `archlucid-ui/src/app/(operator)/governance/loading.tsx` (new)
 - `archlucid-ui/src/components/skeletons/`
 - `scripts/ci/check_operator_token_drift.py` (optional, new)
@@ -12984,7 +12984,7 @@ One-click Jira/ServiceNow actions are visible whenever deployment ITSM config ex
 
 - `ArchLucid.Core/Configuration/IntegrationsItsmOutboundOptions.cs`
 - `ArchLucid.Api/Controllers/Integrations/ItsmOutboundIssuesController.cs`
-- `archlucid-ui/src/components/ItsmOutboundQuickActions.tsx`
+- `archlucid-ui/src/components/itsm/ItsmOutboundQuickActions.tsx`
 - `archlucid-ui/src/app/(operator)/reviews/[runId]/findings/[findingId]/FindingInspectItsmWorkflowPanel.tsx`
 - `docs/go-to-market/INTEGRATION_CATALOG.md`
 
@@ -16298,7 +16298,7 @@ Operators sharing links cannot predict whether an admin task lives under `/admin
 
 **Affected files:**
 
-- `archlucid-ui/src/components/FindingTrustChip.tsx`
+- `archlucid-ui/src/components/findings/FindingTrustChip.tsx`
 
 **Size estimate:** **XS**
 
@@ -16567,7 +16567,7 @@ Operators sharing links cannot predict whether an admin task lives under `/admin
 
 **Affected files:**
 
-- `archlucid-ui/src/components/GovernanceQuickApproveButton.tsx`
+- `archlucid-ui/src/components/governance/GovernanceQuickApproveButton.tsx`
 
 **Size estimate:** **XS**
 
@@ -16634,7 +16634,7 @@ Operators sharing links cannot predict whether an admin task lives under `/admin
 
 **Affected files:**
 
-- `archlucid-ui/src/components/GovernanceQuickApproveButton.tsx`
+- `archlucid-ui/src/components/governance/GovernanceQuickApproveButton.tsx`
 - New component: `GovernanceQuickApproveDialog.tsx`
 
 **Size estimate:** **S**
@@ -17660,7 +17660,7 @@ const reviewContextLabel =
 
 Replace `text-lg font-bold text-neutral-900 dark:text-neutral-100` on `<dd>` elements with `OPERATOR_TYPOGRAPHY.executiveDashboardMetric` from `design-tokens`.
 
-**Affected files:** `archlucid-ui/src/components/OperatorCorePilotDiagnosticsChecklist.tsx`
+**Affected files:** `archlucid-ui/src/components/operator/OperatorCorePilotDiagnosticsChecklist.tsx`
 
 **Size estimate:** **XS**
 
@@ -17732,7 +17732,7 @@ import { cn } from "@/lib/utils";
 
 Replace `className="rounded-md border border-neutral-200 px-2 py-2 dark:border-neutral-700"` with `className={cn("rounded-md border border-neutral-200 dark:border-neutral-700", OPERATOR_CARD.nested)}` using the imported token.
 
-**Affected files:** `archlucid-ui/src/components/OperatorCorePilotDiagnosticsChecklist.tsx`
+**Affected files:** `archlucid-ui/src/components/operator/OperatorCorePilotDiagnosticsChecklist.tsx`
 
 **Size estimate:** **XS**
 
@@ -17865,7 +17865,7 @@ Option B ??? rewrite as user-facing first-review progress card, removing all dep
 
 - Non-admin operators do not see "Server-tracked onboarding signals", "process-lifetime", "Registration/session signal", or "finalize counter" copy.
 
-**Affected files:** `archlucid-ui/src/components/OperatorCorePilotDiagnosticsChecklist.tsx`
+**Affected files:** `archlucid-ui/src/components/operator/OperatorCorePilotDiagnosticsChecklist.tsx`
 
 **Size estimate:** **XS** (Option A) / **M** (Option B)
 
@@ -17949,7 +17949,7 @@ Or wrap in an expandable "Technical details (for support)" disclosure that colla
 - Non-admin operators do not see the "View trace" external link to internal infrastructure.
 - The trace ID is either hidden or labeled as a support reference.
 
-**Affected files:** `archlucid-ui/src/components/RunTraceViewerLink.tsx`
+**Affected files:** `archlucid-ui/src/components/runs/RunTraceViewerLink.tsx`
 
 **Size estimate:** **S**
 
@@ -18006,7 +18006,7 @@ Use a descriptive demo placeholder: `"3.4.1 (Claims Intake example)"` and ensure
 
 **Affected files:**
 - `archlucid-ui/src/app/(operator)/governance/_sections/GovernanceWorkflowPageContent.tsx`
-- `archlucid-ui/src/components/GovernanceInteractiveQuickstartCard.tsx`
+- `archlucid-ui/src/components/governance/GovernanceInteractiveQuickstartCard.tsx`
 
 **Size estimate:** **S**
 
@@ -18136,7 +18136,7 @@ Add a disclaimer below the demo CTA group:
 
 - Clicking "Jump to first review checklist" either scrolls to the target or routes to a useful fallback.
 
-**Affected files:** `archlucid-ui/src/components/OperatorCorePilotDiagnosticsChecklist.tsx`
+**Affected files:** `archlucid-ui/src/components/operator/OperatorCorePilotDiagnosticsChecklist.tsx`
 
 **Size estimate:** **XS**
 
@@ -18267,7 +18267,7 @@ const [submitManifestVersion, setSubmitManifestVersion] = useState(
 - Back-navigation restores from cache without loading flash where data is fresh.
 - No business rules moved client-side ??? hooks wrap existing API client functions only.
 
-**Affected files:** `archlucid-ui/src/hooks/use-*-query.ts` (new/extended), `archlucid-ui/src/components/OperatorQueryProvider.tsx`, `archlucid-ui/src/lib/query/operator-query-client.ts`, governance/alerts/home/executive consumers listed in audit
+**Affected files:** `archlucid-ui/src/hooks/use-*-query.ts` (new/extended), `archlucid-ui/src/components/operator/OperatorQueryProvider.tsx`, `archlucid-ui/src/lib/query/operator-query-client.ts`, governance/alerts/home/executive consumers listed in audit
 
 **Size estimate:** **L**
 
@@ -18319,7 +18319,7 @@ const [submitManifestVersion, setSubmitManifestVersion] = useState(
 - Component files decomposed; no single file >400 lines without documented reason.
 - Home and reviews list smoke tests pass.
 
-**Affected files:** `archlucid-ui/src/components/AlertsInboxContent.tsx`, `archlucid-ui/src/components/RunsDashboardPanel.tsx`, related page loaders under `archlucid-ui/src/app/(operator)/`
+**Affected files:** `archlucid-ui/src/components/AlertsInboxContent.tsx`, `archlucid-ui/src/components/operator-home/RunsDashboardPanel.tsx`, related page loaders under `archlucid-ui/src/app/(operator)/`
 
 **Size estimate:** **L**
 
@@ -20214,8 +20214,8 @@ block and its `.tfvars` defaults, if the values are variablized).
 marketing/product separation assessment.
 
 **Why:** `MARKETING_PRODUCT_SEPARATION_ASSESSMENT.md` ??3 ??? `OperatorRoleGate`
-(`archlucid-ui/src/components/OperatorRoleGate.tsx`) and `OperatorHomeGate`
-(`archlucid-ui/src/components/OperatorHomeGate.tsx`) are client components that redirect **after**
+(`archlucid-ui/src/components/operator/OperatorRoleGate.tsx`) and `OperatorHomeGate`
+(`archlucid-ui/src/components/operator-home/OperatorHomeGate.tsx`) are client components that redirect **after**
 hydration and authority resolution (`useOperatorNavAuthority()`), not before render. An anonymous
 or unauthorized visitor who deep-links into an operator route can see `AppShellClient` shell chrome
 (sidebar, topbar) render for a frame before the `router.replace("/403")` (or marketing redirect)
@@ -20249,9 +20249,9 @@ leak is internal to the operator app's own render path.
 - `OperatorRoleGate.test.tsx` (and an equivalent for `OperatorHomeGate` if not already covered)
   assert the no-premature-shell-content behavior.
 
-**Affected files:** `archlucid-ui/src/components/OperatorRoleGate.tsx`,
-`archlucid-ui/src/components/OperatorHomeGate.tsx`, `archlucid-ui/src/components/AppShellClient.tsx`,
-`archlucid-ui/src/components/OperatorRoleGate.test.tsx`.
+**Affected files:** `archlucid-ui/src/components/operator/OperatorRoleGate.tsx`,
+`archlucid-ui/src/components/operator-home/OperatorHomeGate.tsx`, `archlucid-ui/src/components/AppShellClient.tsx`,
+`archlucid-ui/src/components/operator/OperatorRoleGate.test.tsx`.
 
 **Refs:** `MARKETING_PRODUCT_SEPARATION_ASSESSMENT.md` ??3, ??6, ??8.
 
@@ -22266,7 +22266,7 @@ on **TB-732**; coordinate with **TB-721???TB-728**.
 
 **Approach:**
 
-1. In `archlucid-ui/src/components/OperatorRoleGate.tsx`, replace the unconditional `router.replace("/welcome")` (JWT mode, no session) with `router.replace(buildAuthSignInHref({ returnPath: pathname + window.location.search }))`, imported from `@/lib/navigation/auth-sign-in-href`. Fall back to plain `/auth/signin` only when `isSafeReturnPath` rejects the path.
+1. In `archlucid-ui/src/components/operator/OperatorRoleGate.tsx`, replace the unconditional `router.replace("/welcome")` (JWT mode, no session) with `router.replace(buildAuthSignInHref({ returnPath: pathname + window.location.search }))`, imported from `@/lib/navigation/auth-sign-in-href`. Fall back to plain `/auth/signin` only when `isSafeReturnPath` rejects the path.
 2. Leave `OperatorHomeGate.tsx` (`/` ? `/welcome`) unchanged ? the bare origin remaining the marketing landing for unsigned visitors is intentional; this ticket is scoped to non-home operator routes only.
 3. Do not modify the PKCE/state/nonce logic in `initiate-redirect.ts` or `CallbackClient.tsx` ? return-URL consumption on successful callback already works.
 
@@ -22277,7 +22277,7 @@ on **TB-732**; coordinate with **TB-721???TB-728**.
 - Exempt routes (`/403`, `/auth/*`) and DevelopmentBypass mode are unaffected.
 - After the IdP round-trip, the browser lands back on the originally requested path.
 
-**Affected files:** `archlucid-ui/src/components/OperatorRoleGate.tsx`, `archlucid-ui/src/components/OperatorRoleGate.test.tsx`.
+**Affected files:** `archlucid-ui/src/components/operator/OperatorRoleGate.tsx`, `archlucid-ui/src/components/operator/OperatorRoleGate.test.tsx`.
 
 **Depends on:** none.
 
@@ -49443,7 +49443,7 @@ while the four counters go through `countValue`, which ignores it (line ~58).
 
 **Acceptance:** At least two tracked hubs show measured First Load JS reduction; import guards for deferred shell modules; `check:first-load-js` green.
 
-**Affected files:** `archlucid-ui/src/components/OperatorShellProviders.tsx`, shell top bar, `(operator)` layouts, baseline JSON.
+**Affected files:** `archlucid-ui/src/components/operator/OperatorShellProviders.tsx`, shell top bar, `(operator)` layouts, baseline JSON.
 
 **Peers:** Done **TB-934**/**TB-2030**/**TB-2061**; run-detail **TB-2117**.
 

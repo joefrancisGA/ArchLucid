@@ -5,7 +5,7 @@ import { operatorNavOutsideProviderPrincipal } from "@/lib/current-principal";
 const useNavCallerAuthorityRank = vi.fn(() => 3);
 const useFeaturedCompletedSampleQuery = vi.fn();
 
-vi.mock("@/components/OperatorNavAuthorityProvider", () => ({
+vi.mock("@/components/operator/OperatorNavAuthorityProvider", () => ({
   useNavCallerAuthorityRank: () => useNavCallerAuthorityRank(),
   useOperatorNavAuthority: () => ({
     currentPrincipal: {

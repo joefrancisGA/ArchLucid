@@ -5,7 +5,7 @@ import { useCallback, useEffect, useMemo, useState, type FormEvent } from "react
 
 import { BaselineRoiVocabularyRail } from "@/components/BaselineRoiVocabularyRail";
 import { DemoUnavailableNotice } from "@/components/DemoUnavailableNotice";
-import { OperatorApiProblem } from "@/components/OperatorApiProblem";
+import { OperatorApiProblem } from "@/components/operator/OperatorApiProblem";
 import { Button } from "@/components/ui/button";
 import { Input } from "@/components/ui/input";
 import { Label } from "@/components/ui/label";

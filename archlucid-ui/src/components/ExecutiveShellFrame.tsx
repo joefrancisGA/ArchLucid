@@ -9,7 +9,7 @@ import { ArchLucidWordmarkLink } from "@/components/ArchLucidWordmarkLink";
 import { AuthPanel } from "@/components/AuthPanel";
 import { AuthorityThemeToggle } from "@/components/AuthorityThemeToggle";
 import { ExecutiveShellDeferredChrome } from "@/components/executive/ExecutiveShellDeferredChrome";
-import { OperatorQueryProvider } from "@/components/OperatorQueryProvider";
+import { OperatorQueryProvider } from "@/components/operator/OperatorQueryProvider";
 import { ScopeSwitcher } from "@/components/ScopeSwitcher";
 import { ShellReadySurface } from "@/components/ShellReadySurface";
 import { Button } from "@/components/ui/button";

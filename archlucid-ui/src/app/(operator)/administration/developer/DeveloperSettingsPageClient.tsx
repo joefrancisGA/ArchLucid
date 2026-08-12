@@ -1,7 +1,7 @@
 "use client";
 
 import { DeveloperApiContractsApiKeysVocabularyRail } from "@/components/DeveloperApiContractsApiKeysVocabularyRail";
-import { OperatorPageHeader } from "@/components/OperatorPageHeader";
+import { OperatorPageHeader } from "@/components/operator/OperatorPageHeader";
 import { AuthorityThemeDevSelector } from "@/components/settings/AuthorityThemeDevSelector";
 import { TryCliDemoCard } from "@/components/TryCliDemoCard";
 import { Card, CardContent, CardHeader, CardTitle } from "@/components/ui/card";

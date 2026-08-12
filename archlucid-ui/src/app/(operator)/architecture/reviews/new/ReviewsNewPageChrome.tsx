@@ -2,7 +2,7 @@
 
 import Link from "next/link";
 
-import { OperatorPageHeader } from "@/components/OperatorPageHeader";
+import { OperatorPageHeader } from "@/components/operator/OperatorPageHeader";
 import { InlineGlossaryChip } from "@/components/InlineGlossaryChip";
 import { PathChooserCreateObjectVocabularyRail } from "@/components/PathChooserCreateObjectVocabularyRail";
 import { PageContextualHelpButton } from "@/components/usability/PageContextualHelpButton";

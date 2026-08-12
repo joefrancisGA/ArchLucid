@@ -6,7 +6,7 @@ import { OPERATOR_TYPOGRAPHY } from "@/lib/design-tokens";
 import Link from "next/link";
 import { useCallback, useEffect, useState, type ReactElement } from "react";
 
-import { OperatorLoadingNotice } from "@/components/OperatorShellMessage";
+import { OperatorLoadingNotice } from "@/components/operator/OperatorShellMessage";
 import { Button } from "@/components/ui/button";
 import { StatusTag } from "@/components/ui/status-tag";
 import { ADVISORY_SCANS_SCHEDULES_HREF } from "@/lib/advisory-scans-route";

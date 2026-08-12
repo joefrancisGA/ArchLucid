@@ -4,8 +4,8 @@ import Link from "next/link";
 import { MessageCircle } from "lucide-react";
 import type { ReactElement } from "react";
 
-import { FindingAskInlinePanel } from "@/components/FindingAskInlinePanel";
-import { FindingConfidenceBadge } from "@/components/FindingConfidenceBadge";
+import { FindingAskInlinePanel } from "@/components/findings/FindingAskInlinePanel";
+import { FindingConfidenceBadge } from "@/components/findings/FindingConfidenceBadge";
 import { QuickDecisionFindingRationale } from "@/components/findings/QuickDecisionFindingRationale";
 import { QuickDecisionWorkspaceFindingSupportingDetails } from "@/components/findings/QuickDecisionWorkspaceFindingSupportingDetails";
 import type { QuickDecisionWorkspaceCardContext } from "@/components/findings/QuickDecisionWorkspaceFindingSupportingDetails";

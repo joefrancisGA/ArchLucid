@@ -11,7 +11,7 @@ import { WizardSessionResumePrompt } from "@/components/wizard/WizardSessionResu
 import { WizardSessionSaveStatus } from "@/components/wizard/WizardSessionSaveStatus";
 import { useWizardSessionPersistence } from "@/hooks/use-wizard-session-persistence";
 import { OperatorSuccessCallout } from "@/components/operator/OperatorSuccessCallout";
-import { OperatorPageHeader } from "@/components/OperatorPageHeader";
+import { OperatorPageHeader } from "@/components/operator/OperatorPageHeader";
 import { IdentityProvidersSsoWizardVocabularyRail } from "@/components/IdentityProvidersSsoWizardVocabularyRail";
 import { SsoWizardScimVocabularyRail } from "@/components/SsoWizardScimVocabularyRail";
 

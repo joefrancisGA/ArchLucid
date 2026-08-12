@@ -1,6 +1,6 @@
 "use client";
 
-import { OperatorPageHeader } from "@/components/OperatorPageHeader";
+import { OperatorPageHeader } from "@/components/operator/OperatorPageHeader";
 import { LayerHeader } from "@/components/LayerHeader";
 import { AlertsGovernanceContextPanelDeferred } from "@/components/alerts/alerts-inbox-deferred-chunks";
 import {

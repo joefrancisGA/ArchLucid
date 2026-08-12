@@ -8,7 +8,7 @@ import { useExecutiveRoiSummaryQuery } from "@/hooks/use-executive-roi-summary-q
 
 import { downloadExecutiveRoiBoardPack } from "@/lib/api/executive-roi-board-pack-api";
 
-import { OperatorApiProblem } from "@/components/OperatorApiProblem";
+import { OperatorApiProblem } from "@/components/operator/OperatorApiProblem";
 import { DemoTenantSeedCallout } from "@/components/DemoTenantSeedCallout";
 import { Button } from "@/components/ui/button";
 import {

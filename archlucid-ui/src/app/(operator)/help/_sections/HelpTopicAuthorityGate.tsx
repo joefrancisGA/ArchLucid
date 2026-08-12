@@ -1,7 +1,7 @@
 "use client";
 
-import { useOperatorNavAuthority, useNavCallerAuthorityRank } from "@/components/OperatorNavAuthorityProvider";
-import { OperatorShellAccessGateLoading } from "@/components/OperatorShellAccessGateLoading";
+import { useOperatorNavAuthority, useNavCallerAuthorityRank } from "@/components/operator/OperatorNavAuthorityProvider";
+import { OperatorShellAccessGateLoading } from "@/components/operator/OperatorShellAccessGateLoading";
 import { callerCanAccessHelpTopic } from "@/lib/product-documentation-access";
 import type { ProductDocumentationEntry } from "@/lib/product-documentation-registry";
 

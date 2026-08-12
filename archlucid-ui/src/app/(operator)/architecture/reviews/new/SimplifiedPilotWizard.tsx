@@ -4,7 +4,7 @@ import { useEffect, useState } from "react";
 import { useFormContext } from "react-hook-form";
 
 import { AdvancedOptionsAccordion } from "@/components/AdvancedOptionsAccordion";
-import { LlmMonthlyBudgetExceededBanner } from "@/components/LlmMonthlyBudgetExceededBanner";
+import { LlmMonthlyBudgetExceededBanner } from "@/components/llm/LlmMonthlyBudgetExceededBanner";
 import { WizardNavButtons } from "@/components/wizard/WizardNavButtons";
 import { PilotModePolicyPackToggle } from "@/components/wizard/PilotModePolicyPackToggle";
 import { WizardStepHeading } from "@/components/wizard/WizardStepHeading";

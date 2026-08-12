@@ -7,12 +7,12 @@ import { useSearchParams } from "next/navigation";
 import { useCallback, useEffect, useMemo, useRef, useState } from "react";
 
 import { InspectorPanel } from "@/components/InspectorPanel";
-import { RunsListBuyerFeaturedCard } from "@/components/RunsListBuyerFeaturedCard";
-import { RunInspectorPreview } from "@/components/RunInspectorPreview";
-import { RunProvenanceInline } from "@/components/RunProvenanceInline";
-import { RunsRowBaselineMenu } from "@/components/RunsRowBaselineMenu";
-import { RunTableRowErrorBoundary } from "@/components/RunTableRowErrorBoundary";
-import { RunStatusBadge } from "@/components/RunStatusBadge";
+import { RunsListBuyerFeaturedCard } from "@/components/runs/RunsListBuyerFeaturedCard";
+import { RunInspectorPreview } from "@/components/runs/RunInspectorPreview";
+import { RunProvenanceInline } from "@/components/runs/RunProvenanceInline";
+import { RunsRowBaselineMenu } from "@/components/runs/RunsRowBaselineMenu";
+import { RunTableRowErrorBoundary } from "@/components/runs/RunTableRowErrorBoundary";
+import { RunStatusBadge } from "@/components/runs/RunStatusBadge";
 import { ArchitecturePackageOriginBadge } from "@/components/operator-home/runs-dashboard-helpers";
 import { Button } from "@/components/ui/button";
 import {

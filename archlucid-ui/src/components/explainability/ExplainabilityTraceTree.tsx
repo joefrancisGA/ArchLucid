@@ -2,7 +2,7 @@
 import { cn } from "@/lib/utils";
 import { OPERATOR_TYPOGRAPHY } from "@/lib/design-tokens";
 
-import { FindingConfidenceBadge } from "@/components/FindingConfidenceBadge";
+import { FindingConfidenceBadge } from "@/components/findings/FindingConfidenceBadge";
 import { Collapsible, CollapsibleContent, CollapsibleTrigger } from "@/components/ui/collapsible";
 import { ChevronDown } from "lucide-react";
 import {

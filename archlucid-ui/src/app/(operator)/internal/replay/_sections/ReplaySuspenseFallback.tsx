@@ -1,7 +1,7 @@
 import { cn } from "@/lib/utils";
 import { LayerHeader } from "@/components/LayerHeader";
-import { OperatorPageHeader } from "@/components/OperatorPageHeader";
-import { OperatorLoadingNotice } from "@/components/OperatorShellMessage";
+import { OperatorPageHeader } from "@/components/operator/OperatorPageHeader";
+import { OperatorLoadingNotice } from "@/components/operator/OperatorShellMessage";
 import { OPERATOR_TYPOGRAPHY } from "@/lib/design-tokens";
 
 /** Shown while the validate form client component is initializing (hydrates review context from the URL). */

@@ -11,7 +11,7 @@ const demoUiEnvMock = vi.hoisted(() => ({
   demoMode: false,
 }));
 
-vi.mock("@/components/OperatorNavAuthorityProvider", () => ({
+vi.mock("@/components/operator/OperatorNavAuthorityProvider", () => ({
   useOperatorNavAuthority: () => ({
     callerAuthorityRank: 2,
     isAuthorityLoading: false,

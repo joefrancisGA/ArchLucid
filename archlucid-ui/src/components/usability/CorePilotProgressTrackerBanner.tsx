@@ -3,7 +3,7 @@ import { cn } from "@/lib/utils";
 import { OPERATOR_TYPOGRAPHY } from "@/lib/design-tokens";
 
 import { InlineGuidanceLabel } from "@/components/InlineGuidanceLabel";
-import { useNavCallerAuthorityRank } from "@/components/OperatorNavAuthorityProvider";
+import { useNavCallerAuthorityRank } from "@/components/operator/OperatorNavAuthorityProvider";
 import Link from "next/link";
 import { useEffect, useState } from "react";
 

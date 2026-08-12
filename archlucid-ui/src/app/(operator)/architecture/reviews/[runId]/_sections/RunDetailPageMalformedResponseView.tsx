@@ -1,9 +1,9 @@
 import { cn } from "@/lib/utils";
 import Link from "next/link";
 
-import { OperatorMalformedCallout } from "@/components/OperatorShellMessage";
+import { OperatorMalformedCallout } from "@/components/operator/OperatorShellMessage";
 import { FatalPageReportProblemSupportRow } from "@/components/support/FatalPageReportProblemAction";
-import { RunDetailMinimalChromeMount } from "@/components/RunDetailMinimalChromeMount";
+import { RunDetailMinimalChromeMount } from "@/components/runs/RunDetailMinimalChromeMount";
 import { OPERATOR_LINK, OPERATOR_TYPOGRAPHY } from "@/lib/design-tokens";
 
 export function RunDetailPageMalformedResponseView(props: { readonly message: string }): React.JSX.Element {

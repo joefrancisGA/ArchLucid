@@ -10,7 +10,7 @@ const internalShell = vi.hoisted(() => ({
   enabled: false,
 }));
 
-vi.mock("@/components/OperatorNavAuthorityProvider", () => ({
+vi.mock("@/components/operator/OperatorNavAuthorityProvider", () => ({
   useOperatorNavAuthority: () => ({
     callerAuthorityRank: navAuth.callerAuthorityRank,
     isAuthorityLoading: navAuth.isAuthorityLoading,

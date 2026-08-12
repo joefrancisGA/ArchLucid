@@ -7,7 +7,7 @@ import Link from "next/link";
 
 import { ConfirmationDialog } from "@/components/ConfirmationDialog";
 import { LongOperationWaitNotice } from "@/components/LongOperationWaitNotice";
-import { OperatorApiProblem } from "@/components/OperatorApiProblem";
+import { OperatorApiProblem } from "@/components/operator/OperatorApiProblem";
 import { PreCommitGovernanceBlockPanel } from "@/components/PreCommitGovernanceBlockPanel";
 import { Button } from "@/components/ui/button";
 import { Label } from "@/components/ui/label";

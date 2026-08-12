@@ -1,7 +1,7 @@
 import { cn } from "@/lib/utils";
 import { OPERATOR_TYPOGRAPHY } from "@/lib/design-tokens";
 import { FindingPolicyCitationProminentStrip } from "@/components/findings/FindingPolicyCitationProminentStrip";
-import { OperatorWarningCallout } from "@/components/OperatorShellMessage";
+import { OperatorWarningCallout } from "@/components/operator/OperatorShellMessage";
 import type { PreparedArtifactBody } from "@/lib/artifact-review-helpers";
 import type {
   FindingPolicyCitationLink,

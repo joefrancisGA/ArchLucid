@@ -12,7 +12,7 @@ import { GOLDEN_SPONSOR_PACKAGE_WALKTHROUGH_PRIMARY_CTA } from "@/lib/golden-spo
 
 const committedReviewMock = vi.hoisted(() => ({ value: false }));
 
-vi.mock("@/components/OperatorNavAuthorityProvider", () => ({
+vi.mock("@/components/operator/OperatorNavAuthorityProvider", () => ({
   useNavCommittedArchitectureReview: () => committedReviewMock.value,
   useOperatorNavAuthority: () => ({
     currentPrincipal: {

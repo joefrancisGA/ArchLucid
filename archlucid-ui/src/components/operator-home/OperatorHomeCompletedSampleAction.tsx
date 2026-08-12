@@ -2,7 +2,7 @@
 
 import { useState } from "react";
 
-import { useNavCallerAuthorityRank } from "@/components/OperatorNavAuthorityProvider";
+import { useNavCallerAuthorityRank } from "@/components/operator/OperatorNavAuthorityProvider";
 import { OperatorHomeFeaturedSamplePickerDialog } from "@/components/operator-home/OperatorHomeFeaturedSamplePickerDialog";
 import { OperatorHomeNavigateLoadingButton } from "@/components/operator-home/OperatorHomeNavigateLoadingButton";
 import { useFeaturedCompletedSampleQuery } from "@/hooks/use-featured-completed-sample-query";

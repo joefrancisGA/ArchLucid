@@ -6,7 +6,7 @@ import { FindingPolicyCitationHero } from "@/components/findings/FindingPolicyCi
 import {
   OperatorEvidenceLimitsFooter,
   type OperatorEvidenceLimitsExecutionProps,
-} from "@/components/OperatorEvidenceLimitsFooter";
+} from "@/components/operator/OperatorEvidenceLimitsFooter";
 import { CanonicalObjectSecondaryViewStrip } from "@/components/usability/CanonicalObjectSecondaryViewStrip";
 import { PageContextualHelpButton } from "@/components/usability/PageContextualHelpButton";
 import { buildCanonicalObjectSecondaryView } from "@/lib/canonical-object-home-registry";

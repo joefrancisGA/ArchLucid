@@ -2,7 +2,7 @@
 
 import { cn } from "@/lib/utils";
 import { useState } from "react";
-import { OperatorApiProblem } from "@/components/OperatorApiProblem";
+import { OperatorApiProblem } from "@/components/operator/OperatorApiProblem";
 import { useOperateCapability } from "@/hooks/use-operate-capability";
 import { recommendAlertThreshold } from "@/lib/api";
 import type { ApiLoadFailureState } from "@/lib/api-load-failure";

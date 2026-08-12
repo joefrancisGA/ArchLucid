@@ -3,7 +3,7 @@ import { describe, expect, it, vi } from "vitest";
 
 import { HelpProductGuide } from "./HelpProductGuide";
 
-vi.mock("@/components/OperatorNavAuthorityProvider", () => ({
+vi.mock("@/components/operator/OperatorNavAuthorityProvider", () => ({
   useOperatorNavAuthority: () => ({
     callerAuthorityRank: 1,
     isAuthorityLoading: false,

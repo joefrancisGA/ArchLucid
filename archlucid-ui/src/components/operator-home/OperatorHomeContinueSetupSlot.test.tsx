@@ -13,7 +13,7 @@ vi.mock("@/hooks/use-finish-setup-readiness-context", () => ({
   useFinishSetupReadinessContext: () => useFinishSetupReadinessContext(),
 }));
 
-vi.mock("@/components/OperatorNavAuthorityProvider", () => ({
+vi.mock("@/components/operator/OperatorNavAuthorityProvider", () => ({
   useNavCommittedArchitectureReview: () => useNavCommittedArchitectureReview(),
   useOperatorNavAuthority: () => ({
     currentPrincipal: {

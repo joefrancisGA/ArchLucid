@@ -5,18 +5,18 @@ import { FindingInspectContextDebugPanel } from "@/components/findings/FindingIn
 import { FindingOptionalArtifactUnavailable } from "@/components/findings/FindingOptionalArtifactUnavailable";
 import { FindingProvenancePanel } from "@/components/findings/FindingProvenancePanel";
 import { ProductLearningFeedbackControls } from "@/components/ProductLearningFeedbackControls";
-import { FindingAskInlinePanel } from "@/components/FindingAskInlinePanel";
-import { FindingIacStubPanel } from "@/components/FindingIacStubPanel";
+import { FindingAskInlinePanel } from "@/components/findings/FindingAskInlinePanel";
+import { FindingIacStubPanel } from "@/components/findings/FindingIacStubPanel";
 import { FindingPolicyCitationHero } from "@/components/findings/FindingPolicyCitationHero";
-import { FindingItsmExportPanel } from "@/components/FindingItsmExportPanel";
+import { FindingItsmExportPanel } from "@/components/findings/FindingItsmExportPanel";
 import { CollapsibleSection } from "@/components/CollapsibleSection";
 import { CopyIdButton } from "@/components/CopyIdButton";
-import { FindingConfidenceBadge } from "@/components/FindingConfidenceBadge";
+import { FindingConfidenceBadge } from "@/components/findings/FindingConfidenceBadge";
 import { FindingExplainPanel } from "@/components/FindingExplainPanel";
 import { SponsorPlainEnglishFindingPanel } from "@/components/findings/SponsorPlainEnglishFindingPanel";
-import { FindingExplainabilityTracePanel } from "@/components/FindingExplainabilityTracePanel";
-import { OperatorApiProblem } from "@/components/OperatorApiProblem";
-import { OperatorEvidenceLimitsFooter } from "@/components/OperatorEvidenceLimitsFooter";
+import { FindingExplainabilityTracePanel } from "@/components/findings/FindingExplainabilityTracePanel";
+import { OperatorApiProblem } from "@/components/operator/OperatorApiProblem";
+import { OperatorEvidenceLimitsFooter } from "@/components/operator/OperatorEvidenceLimitsFooter";
 import { SeverityTag } from "@/components/ui/severity-tag";
 import { StatusTag } from "@/components/ui/status-tag";
 import {

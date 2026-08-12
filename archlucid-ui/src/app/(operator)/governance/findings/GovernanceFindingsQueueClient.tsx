@@ -7,10 +7,10 @@ import { AlertsFindingsVocabularyRail } from "@/components/AlertsFindingsVocabul
 import { DecisionRegisterFindingsVocabularyRail } from "@/components/DecisionRegisterFindingsVocabularyRail";
 import { GovernanceApprovalStatusBanner } from "@/components/governance/GovernanceApprovalStatusBanner";
 import { EnterpriseCompactEmptyState } from "@/components/EnterpriseCompactEmptyState";
-import { FindingsQueueSearchEvidenceVocabularyRail } from "@/components/FindingsQueueSearchEvidenceVocabularyRail";
+import { FindingsQueueSearchEvidenceVocabularyRail } from "@/components/findings/FindingsQueueSearchEvidenceVocabularyRail";
 import { LayerHeader } from "@/components/LayerHeader";
-import { OperatorPageHeader } from "@/components/OperatorPageHeader";
-import { GovernanceJobRouterStrip } from "@/components/GovernanceJobRouterStrip";
+import { OperatorPageHeader } from "@/components/operator/OperatorPageHeader";
+import { GovernanceJobRouterStrip } from "@/components/governance/GovernanceJobRouterStrip";
 import { RiskExceptionsFindingsVocabularyRail } from "@/components/RiskExceptionsFindingsVocabularyRail";
 import { PageCapabilityBoundaryStrip } from "@/components/PageCapabilityBoundaryStrip";
 import { PageContextualHelpButton } from "@/components/usability/PageContextualHelpButton";

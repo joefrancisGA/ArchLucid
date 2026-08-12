@@ -1,13 +1,13 @@
 import { cn } from "@/lib/utils";
 import Link from "next/link";
 
-import { OperatorApiProblem } from "@/components/OperatorApiProblem";
-import { OperatorBrandedTransientFailure } from "@/components/OperatorBrandedTransientFailure";
-import { OperatorErrorUiReferenceLine } from "@/components/OperatorErrorUiReferenceLine";
+import { OperatorApiProblem } from "@/components/operator/OperatorApiProblem";
+import { OperatorBrandedTransientFailure } from "@/components/operator/OperatorBrandedTransientFailure";
+import { OperatorErrorUiReferenceLine } from "@/components/operator/OperatorErrorUiReferenceLine";
 import {
   OperatorErrorCallout,
   OperatorMalformedCallout,
-} from "@/components/OperatorShellMessage";
+} from "@/components/operator/OperatorShellMessage";
 import {
   BUYER_MANIFEST_SUMMARY_LOAD_ERROR_HEADING,
   BUYER_MANIFEST_SUMMARY_MALFORMED_HEADING,

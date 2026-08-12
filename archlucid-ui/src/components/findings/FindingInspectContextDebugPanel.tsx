@@ -3,7 +3,7 @@
 import { cn } from "@/lib/utils";
 import { useEffect, useId, useMemo, useState } from "react";
 
-import { OperatorApiProblem } from "@/components/OperatorApiProblem";
+import { OperatorApiProblem } from "@/components/operator/OperatorApiProblem";
 import { buildFindingRawContextBlocks } from "@/lib/build-finding-raw-context-blocks";
 import { getFindingProvenance } from "@/lib/api/finding-provenance";
 import { getFindingLlmAudit } from "@/lib/api";

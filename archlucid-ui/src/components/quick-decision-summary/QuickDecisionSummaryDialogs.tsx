@@ -1,4 +1,4 @@
-import { FindingAiReasoningDialog } from "@/components/FindingAiReasoningDialog";
+import { FindingAiReasoningDialog } from "@/components/findings/FindingAiReasoningDialog";
 import { QuickDecisionFindingMuteDialog } from "@/components/findings/QuickDecisionFindingMuteDialog";
 import type { QuickDecisionFinding } from "@/lib/quick-decision-summary-derive";
 import type { ReactElement } from "react";

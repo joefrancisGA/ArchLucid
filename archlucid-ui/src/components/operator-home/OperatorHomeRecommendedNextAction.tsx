@@ -5,7 +5,7 @@ import { useMemo } from "react";
 
 import { InlineGuidance } from "@/components/InlineGuidance";
 import { useCorePilotCommitContextQuery } from "@/hooks/use-core-pilot-commit-context-query";
-import { useNavCommittedArchitectureReview } from "@/components/OperatorNavAuthorityProvider";
+import { useNavCommittedArchitectureReview } from "@/components/operator/OperatorNavAuthorityProvider";
 import { OPERATOR_HOME_RECOMMENDED_NEXT_LABEL } from "@/lib/buyer/buyer-polish-copy";
 import { OPERATOR_LINK, OPERATOR_TYPE_SCALE } from "@/lib/design-tokens";
 import {

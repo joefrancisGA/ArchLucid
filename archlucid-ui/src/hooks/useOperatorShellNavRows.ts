@@ -7,7 +7,7 @@ import {
   useNavCallerAuthorityRank,
   useNavCommittedArchitectureReview,
   useOperatorNavAuthority,
-} from "@/components/OperatorNavAuthorityProvider";
+} from "@/components/operator/OperatorNavAuthorityProvider";
 import { useOperatorShellAuditRunId } from "@/hooks/useOperatorShellAuditRunId";
 import { usePatternLibraryNavVisible } from "@/hooks/use-pattern-library-nav-visible";
 import { useRoleNavDensityExpanded } from "@/hooks/use-role-nav-density-expanded";

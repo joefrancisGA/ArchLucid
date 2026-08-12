@@ -5,7 +5,7 @@ import Link from "next/link";
 
 import { CopyIdButton } from "@/components/CopyIdButton";
 import { Button } from "@/components/ui/button";
-import { OperatorErrorCallout } from "@/components/OperatorShellMessage";
+import { OperatorErrorCallout } from "@/components/operator/OperatorShellMessage";
 import type { ApiLoadFailureState } from "@/lib/api-load-failure";
 import {
   BUYER_EVIDENCE_TRAIL_ERROR_BODY,

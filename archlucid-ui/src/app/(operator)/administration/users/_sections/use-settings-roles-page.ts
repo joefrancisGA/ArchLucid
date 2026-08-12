@@ -2,7 +2,7 @@
 
 import { useCallback, useEffect, useMemo, useState } from "react";
 
-import { useOperatorNavAuthority } from "@/components/OperatorNavAuthorityProvider";
+import { useOperatorNavAuthority } from "@/components/operator/OperatorNavAuthorityProvider";
 import { requestPrincipalAppRoleAssignment } from "@/lib/admin-role-assignment-request";
 import {
   archLucidAppRoleFromDirectoryFields,

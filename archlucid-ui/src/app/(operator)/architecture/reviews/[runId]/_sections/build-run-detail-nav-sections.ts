@@ -1,4 +1,4 @@
-import type { RunDetailSection } from "@/components/RunDetailSectionNav";
+import type { RunDetailSection } from "@/components/runs/RunDetailSectionNav";
 import {
   REVIEW_DETAIL_TAB_IDS,
   REVIEW_DETAIL_TAB_LABELS,

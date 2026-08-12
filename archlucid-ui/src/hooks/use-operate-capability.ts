@@ -1,6 +1,6 @@
 "use client";
 
-import { useNavCallerAuthorityRank } from "@/components/OperatorNavAuthorityProvider";
+import { useNavCallerAuthorityRank } from "@/components/operator/OperatorNavAuthorityProvider";
 import { operateCapabilityFromRank } from "@/lib/operate-capability";
 
 /**

@@ -23,7 +23,7 @@ For general modal patterns (dismissible overlays, optional close), continue to u
 
 ## Live region — run pipeline progress
 
-**`RunProgressTracker`** (`archlucid-ui/src/components/RunProgressTracker.tsx`) exposes pipeline status in a region with **`aria-live="polite"`** and **`aria-atomic="true"`** so screen readers announce updates when polling advances stages (e.g. “3 of 4 authority pipeline stages complete”, then completion or timeout messages) without interrupting mid-sentence like **`assertive`** would.
+**`RunProgressTracker`** (`archlucid-ui/src/components/runs/RunProgressTracker.tsx`) exposes pipeline status in a region with **`aria-live="polite"`** and **`aria-atomic="true"`** so screen readers announce updates when polling advances stages (e.g. “3 of 4 authority pipeline stages complete”, then completion or timeout messages) without interrupting mid-sentence like **`assertive`** would.
 
 Details of intervals, stop conditions, and props: **[`docs/UI_COMPONENTS.md`](UI_COMPONENTS.md)**.
 

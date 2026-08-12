@@ -4,7 +4,7 @@ import { useState } from "react";
 import type { ReactElement } from "react";
 
 import { CopyGovernanceQueueWorkItemButton } from "@/components/CopyFindingAsWorkItemButton";
-import { ItsmOutboundQuickActions } from "@/components/ItsmOutboundQuickActions";
+import { ItsmOutboundQuickActions } from "@/components/itsm/ItsmOutboundQuickActions";
 import { FindingPolicyCitationProminentStrip } from "@/components/findings/FindingPolicyCitationProminentStrip";
 import { FindingPolicyEvidenceCitationLinks } from "@/components/findings/FindingPolicyEvidenceCitationLinks";
 import { FindingEvidenceRefSnippets } from "@/components/usability/FindingEvidenceRefSnippets";

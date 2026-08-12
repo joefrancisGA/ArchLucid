@@ -24,7 +24,7 @@ import {
 import { useOperateCapability } from "@/hooks/use-operate-capability";
 import { AUTHORITY_RANK } from "@/lib/nav-authority";
 import { sanitizeHostedAzureValidationError } from "@/lib/sanitize-hosted-azure-validation-error";
-import { useNavCallerAuthorityRank } from "@/components/OperatorNavAuthorityProvider";
+import { useNavCallerAuthorityRank } from "@/components/operator/OperatorNavAuthorityProvider";
 
 import { parseFirstTier2SubscriptionId } from "./tier2-connection-field-validation";
 

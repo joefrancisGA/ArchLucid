@@ -7,7 +7,7 @@ import { usePathname } from "next/navigation";
 import { useCallback, useEffect, useLayoutEffect, useMemo, useState } from "react";
 
 import { InlineGuidanceLabel } from "@/components/InlineGuidanceLabel";
-import { useNavCommittedArchitectureReview } from "@/components/OperatorNavAuthorityProvider";
+import { useNavCommittedArchitectureReview } from "@/components/operator/OperatorNavAuthorityProvider";
 import { HelpDrawerContent } from "@/components/help/HelpDrawerContent";
 import {
   Dialog,

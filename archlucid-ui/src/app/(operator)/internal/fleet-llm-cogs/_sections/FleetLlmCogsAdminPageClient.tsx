@@ -5,7 +5,7 @@ import { useCallback, useEffect, useState } from "react";
 
 import { Button } from "@/components/ui/button";
 import { Card, CardContent, CardHeader, CardTitle } from "@/components/ui/card";
-import { useOperatorNavAuthority } from "@/components/OperatorNavAuthorityProvider";
+import { useOperatorNavAuthority } from "@/components/operator/OperatorNavAuthorityProvider";
 import { OPERATOR_NAV_GROUP_LABEL, OPERATOR_TYPOGRAPHY } from "@/lib/design-tokens";
 import { FLEET_LLM_COGS_PAGE_LEAD, FLEET_LLM_COGS_PAGE_TITLE } from "@/lib/fleet-llm-cogs-page-copy";
 import { AUTHORITY_RANK } from "@/lib/nav-authority";

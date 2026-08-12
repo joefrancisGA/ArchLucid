@@ -6,7 +6,7 @@ import type { ReactNode } from "react";
 import Link from "next/link";
 
 import { CollapsibleSection } from "@/components/CollapsibleSection";
-import { OperatorPageHeader } from "@/components/OperatorPageHeader";
+import { OperatorPageHeader } from "@/components/operator/OperatorPageHeader";
 import { SupportBundleDownloadButton } from "@/components/SupportBundleDownloadButton";
 import { TenantLlmJudgeGuideCard } from "@/components/TenantLlmJudgeGuideCard";
 import { WorkspaceScopeTenantSettingsVocabularyRail } from "@/components/WorkspaceScopeTenantSettingsVocabularyRail";

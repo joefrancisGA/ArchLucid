@@ -10,7 +10,7 @@ import { PilotModePolicyPackToggle } from "@/components/wizard/PilotModePolicyPa
 import { DraftIntakeClaimLabel } from "@/components/draft-intake/DraftIntakeClaimLabel";
 import { DraftIntakeRequiredClarificationField } from "@/components/draft-intake/DraftIntakeRequiredClarificationField";
 import { InlineMetadataLabel } from "@/components/InlineMetadataLabel";
-import { OperatorApiProblem } from "@/components/OperatorApiProblem";
+import { OperatorApiProblem } from "@/components/operator/OperatorApiProblem";
 import { ReviewIntakeExampleTemplateCallout } from "@/components/review-intake/ReviewIntakeExampleTemplateCallout";
 import { ReviewStartLoadingButton } from "@/components/review-intake/ReviewStartLoadingButton";
 import { ArchitectureScopeUnderstandingCheckPanel } from "@/components/architecture/ArchitectureScopeUnderstandingCheckPanel";
@@ -25,7 +25,7 @@ import { WizardSessionSaveStatus } from "@/components/wizard/WizardSessionSaveSt
 import { useLlmMonthlyBudgetExecutionGate } from "@/hooks/use-llm-monthly-budget-execution-gate";
 import { useWizardSessionPersistence } from "@/hooks/use-wizard-session-persistence";
 import { useWizardStepNavigation } from "@/hooks/use-wizard-step-navigation";
-import { LlmMonthlyBudgetExceededBanner } from "@/components/LlmMonthlyBudgetExceededBanner";
+import { LlmMonthlyBudgetExceededBanner } from "@/components/llm/LlmMonthlyBudgetExceededBanner";
 import {
   admitDraftRequest,
   answerDraftQuestion,

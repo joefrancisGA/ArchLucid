@@ -15,7 +15,7 @@ const deferredSource = readFileSync(
 );
 
 const bannedStaticImports = [
-  '@/components/OperatorWelcomeOnboarding"',
+  '@/components/operator/OperatorWelcomeOnboarding"',
   '@/components/executive/ExecutiveDashboardHowItWorks"',
   './ExecutiveDashboardNextActionSection"',
   './ExecutiveDashboardPrimaryMetricsSection"',
@@ -58,7 +58,7 @@ describe("executive dashboard deferred imports (TB-2061 / wave 10)", () => {
   });
 
   it("dynamic-imports each deferred executive dashboard panel", () => {
-    expect(deferredSource).toContain('import("@/components/OperatorWelcomeOnboarding")');
+    expect(deferredSource).toContain('import("@/components/operator/OperatorWelcomeOnboarding")');
     expect(deferredSource).toContain('import("@/components/executive/ExecutiveDashboardHowItWorks")');
     expect(deferredSource).toContain('import("./ExecutiveDashboardNextActionSection")');
     expect(deferredSource).toContain('import("./ExecutiveDashboardPrimaryMetricsSection")');

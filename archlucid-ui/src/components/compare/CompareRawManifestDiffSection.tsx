@@ -5,7 +5,7 @@ import { OPERATOR_TYPOGRAPHY } from "@/lib/design-tokens";
 import { useEffect, useState } from "react";
 
 import { ArchitectureManifestUnifiedDiffView } from "@/components/compare/ArchitectureManifestUnifiedDiffView";
-import { OperatorLoadingNotice } from "@/components/OperatorShellMessage";
+import { OperatorLoadingNotice } from "@/components/operator/OperatorShellMessage";
 import {
   BUYER_COMPARE_MANIFEST_DIFF_APPENDIX_LABEL,
   BUYER_COMPARE_REVIEW_RECORD_DIFF_INTRO,

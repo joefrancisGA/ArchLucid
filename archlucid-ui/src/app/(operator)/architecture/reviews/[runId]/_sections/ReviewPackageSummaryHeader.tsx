@@ -1,7 +1,7 @@
 import { cn } from "@/lib/utils";
 
 import { CtoDemoAuditIntegrityVerifyButton } from "@/components/cto-demo/CtoDemoAuditIntegrityVerifyButton";
-import { RunDetailPageHeader, type RunDetailPageHeaderProps } from "@/components/RunDetailPageHeader";
+import { RunDetailPageHeader, type RunDetailPageHeaderProps } from "@/components/runs/RunDetailPageHeader";
 import { ReviewPackageEvidenceDensityStrip } from "@/components/usability/ReviewPackageEvidenceDensityStrip";
 import { ReviewPackagePlainSummary } from "@/components/usability/ReviewPackagePlainSummary";
 import { OPERATOR_LAYOUT, OPERATOR_TYPOGRAPHY } from "@/lib/design-tokens";

@@ -26,7 +26,7 @@ vi.mock("@/lib/demo-ui-env", async (importOriginal) => {
   };
 });
 
-import { OperatorCoArchitectHomeStrip } from "./OperatorCoArchitectHomeStrip";
+import { OperatorCoArchitectHomeStrip } from "@/components/operator/OperatorCoArchitectHomeStrip";
 import { WelcomeBanner } from "./WelcomeBanner";
 
 const SESSION_DISMISS_KEY = "archlucid_welcome_dismissed_session";

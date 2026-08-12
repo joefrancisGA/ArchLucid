@@ -67,12 +67,12 @@ vi.mock("@/components/operator-home/OperatorHomeAdvancedGuidancePanel", async ()
   };
 });
 
-vi.mock("@/components/OperatorHomeGate", () => ({
+vi.mock("@/components/operator-home/OperatorHomeGate", () => ({
   OperatorHomeGate: ({ children }: { children: ReactNode }) => <>{children}</>,
 }));
 
 vi.mock("@/app/(operator)/_sections/operator-home-page-view-deferred-chunks", async () => {
-  const { OperatorHomeGate } = await import("@/components/OperatorHomeGate");
+  const { OperatorHomeGate } = await import("@/components/operator-home/OperatorHomeGate");
   const { PilotCommandCenterCard } = await import("@/components/usability/PilotCommandCenterCard");
   const { OperatorHomeBelowFoldPanels } = await import(
     "@/app/(operator)/_sections/OperatorHomeBelowFoldPanels"
@@ -142,7 +142,7 @@ vi.mock("@/components/dev-testing/DevTestingQuickSwitchPanel", () => ({
   DevTestingQuickSwitchPanel: () => null,
 }));
 
-vi.mock("@/components/OperatorNavAuthorityProvider", () => ({
+vi.mock("@/components/operator/OperatorNavAuthorityProvider", () => ({
   useNavCommittedArchitectureReview: vi.fn(() => false),
   useNavCallerAuthorityRank: () => 3,
   useOperatorNavAuthority: () => ({

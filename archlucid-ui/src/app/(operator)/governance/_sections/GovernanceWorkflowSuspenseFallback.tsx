@@ -1,6 +1,6 @@
 import { cn } from "@/lib/utils";
 
-import { OperatorLoadingNotice } from "@/components/OperatorShellMessage";
+import { OperatorLoadingNotice } from "@/components/operator/OperatorShellMessage";
 import { GOVERNANCE_OVERVIEW_PAGE_TITLE } from "@/lib/governance/governance-overview-copy";
 import { OPERATOR_TYPOGRAPHY } from "@/lib/design-tokens";
 

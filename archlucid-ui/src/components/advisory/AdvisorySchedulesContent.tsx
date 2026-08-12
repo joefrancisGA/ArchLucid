@@ -12,8 +12,8 @@ import { AdvisoryRecurrenceScheduleVocabularyRail } from "@/components/AdvisoryR
 import { AdvisoryResultsSchedulesVocabularyRail } from "@/components/AdvisoryResultsSchedulesVocabularyRail";
 import { DocumentLayout } from "@/components/DocumentLayout";
 import { EnterpriseCompactEmptyState } from "@/components/EnterpriseCompactEmptyState";
-import { useNavCallerAuthorityRank } from "@/components/OperatorNavAuthorityProvider";
-import { OperatorApiProblem } from "@/components/OperatorApiProblem";
+import { useNavCallerAuthorityRank } from "@/components/operator/OperatorNavAuthorityProvider";
+import { OperatorApiProblem } from "@/components/operator/OperatorApiProblem";
 import { Button } from "@/components/ui/button";
 import { StatusTag } from "@/components/ui/status-tag";
 import {

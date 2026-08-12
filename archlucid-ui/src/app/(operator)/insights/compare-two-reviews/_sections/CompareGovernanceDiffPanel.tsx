@@ -3,7 +3,7 @@ import type { ReactElement } from "react";
 import Link from "next/link";
 
 import { StatusTag } from "@/components/ui/status-tag";
-import { OperatorEmptyState } from "@/components/OperatorShellMessage";
+import { OperatorEmptyState } from "@/components/operator/OperatorShellMessage";
 import {
   COMPARE_GOVERNANCE_CURRENT_EFFECTIVE_DISCLAIMER,
   type CompareEffectiveGovernanceAtCommitSnapshot,

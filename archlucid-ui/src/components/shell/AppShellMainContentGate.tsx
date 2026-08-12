@@ -3,7 +3,7 @@
 import type { ReactNode } from "react";
 
 import { DemoStrictNavigationGate } from "@/components/DemoStrictNavigationGate";
-import { OperatorRoleGate } from "@/components/OperatorRoleGate";
+import { OperatorRoleGate } from "@/components/operator/OperatorRoleGate";
 import { SponsorExecutiveShellRedirect } from "@/components/SponsorExecutiveShellRedirect";
 
 type AppShellMainContentGateProps = {

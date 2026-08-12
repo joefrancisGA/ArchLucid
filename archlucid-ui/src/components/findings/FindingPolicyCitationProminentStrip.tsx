@@ -4,7 +4,7 @@ import { OPERATOR_TYPOGRAPHY } from "@/lib/design-tokens";
 
 import type { ReactElement } from "react";
 
-import { FindingPolicyTraceabilityBadges } from "@/components/FindingPolicyTraceabilityBadges";
+import { FindingPolicyTraceabilityBadges } from "@/components/findings/FindingPolicyTraceabilityBadges";
 import { StatusTag } from "@/components/ui/status-tag";
 import type {
   FindingPolicyCitationLink,

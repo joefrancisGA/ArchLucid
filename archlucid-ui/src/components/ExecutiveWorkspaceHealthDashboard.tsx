@@ -15,8 +15,8 @@ import { ExecutiveWorkspaceHealthPageHero } from "@/components/governance/Execut
 import { FieldHelpTooltip } from "@/components/FieldHelpTooltip";
 import { LayerHeader } from "@/components/LayerHeader";
 import { TenantSystemWorkspaceHealthVocabularyRail } from "@/components/TenantSystemWorkspaceHealthVocabularyRail";
-import { useNavCallerAuthorityRank } from "@/components/OperatorNavAuthorityProvider";
-import { OperatorApiProblem } from "@/components/OperatorApiProblem";
+import { useNavCallerAuthorityRank } from "@/components/operator/OperatorNavAuthorityProvider";
+import { OperatorApiProblem } from "@/components/operator/OperatorApiProblem";
 import { Button } from "@/components/ui/button";
 import {
   Card,

@@ -19,7 +19,7 @@ vi.mock("@/lib/core-pilot-commit-context", async (importOriginal) => {
   return createCorePilotCommitContextModuleMock(importOriginal);
 });
 
-vi.mock("@/components/OperatorFirstRunWorkflowPanel", () => ({
+vi.mock("@/components/operator/OperatorFirstRunWorkflowPanel", () => ({
   OperatorFirstRunWorkflowPanel: () => <div data-testid="first-run-panel-mock" />,
 }));
 

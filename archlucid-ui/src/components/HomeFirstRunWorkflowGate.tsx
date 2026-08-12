@@ -1,6 +1,6 @@
 "use client";
 
-import { OperatorFirstRunWorkflowPanel } from "@/components/OperatorFirstRunWorkflowPanel";
+import { OperatorFirstRunWorkflowPanel } from "@/components/operator/OperatorFirstRunWorkflowPanel";
 import { SamplePackageShortcutsCard } from "@/components/operator-home/SamplePackageShortcutsCard";
 import type { CorePilotCommitContext } from "@/lib/core-pilot-commit-context";
 import { fetchCorePilotCommitContextCached } from "@/lib/core-pilot-commit-context";

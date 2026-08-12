@@ -5,7 +5,7 @@ import type { ReactElement } from "react";
 
 import { ArchitectureCreatedFindingsEvidenceOrientationStrip } from "@/components/architecture/ArchitectureCreatedFindingsEvidenceOrientationStrip";
 import { ArchitectureCreatedFindingsNextAction } from "@/components/architecture/ArchitectureCreatedFindingsNextAction";
-import { FindingsItsmExportToolbar } from "@/components/FindingsItsmExportToolbar";
+import { FindingsItsmExportToolbar } from "@/components/findings/FindingsItsmExportToolbar";
 import { FindingKeyboardTriageHost } from "@/components/governance/findings/FindingKeyboardTriageHost";
 import { QuickDecisionSummary } from "@/components/QuickDecisionSummary";
 import {

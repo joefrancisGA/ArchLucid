@@ -22,7 +22,7 @@ vi.mock("@/hooks/use-operate-capability", () => ({
   useOperateCapability: () => useOperateCapabilityMock(),
 }));
 
-vi.mock("@/components/OperatorNavAuthorityProvider", () => ({
+vi.mock("@/components/operator/OperatorNavAuthorityProvider", () => ({
   useNavCallerAuthorityRank: () => 2,
   useNavCommittedArchitectureReview: () => true,
   useOperatorNavAuthority: () => ({

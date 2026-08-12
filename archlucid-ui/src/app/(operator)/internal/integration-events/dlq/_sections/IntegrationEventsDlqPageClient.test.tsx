@@ -6,7 +6,7 @@ import { INTEGRATION_EVENTS_DLQ_BULK_RETRY_ACKNOWLEDGMENT } from "@/lib/integrat
 
 const nav = vi.hoisted(() => ({ callerAuthorityRank: 3 }));
 
-vi.mock("@/components/OperatorNavAuthorityProvider", () => ({
+vi.mock("@/components/operator/OperatorNavAuthorityProvider", () => ({
   useNavCallerAuthorityRank: () => nav.callerAuthorityRank,
   useOperatorNavAuthority: () => ({
     currentPrincipal: {

@@ -1,8 +1,8 @@
 import type { Metadata } from "next";
 
 import { ArchitectureDraftListClient } from "@/components/architecture/ArchitectureDraftListClient";
-import { OperatorPageContainer } from "@/components/OperatorPageContainer";
-import { OperatorPageHeader } from "@/components/OperatorPageHeader";
+import { OperatorPageContainer } from "@/components/operator/OperatorPageContainer";
+import { OperatorPageHeader } from "@/components/operator/OperatorPageHeader";
 import { ARCHITECTURES_LIST_PATH } from "@/lib/architecture/architecture-routes";
 
 import { ArchitecturesHubHeaderActions } from "./_sections/ArchitecturesHubHeaderActions";

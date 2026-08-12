@@ -14,7 +14,7 @@ const navAuth = vi.hoisted(() => ({
   callerAuthorityRank: 3,
 }));
 
-vi.mock("@/components/OperatorNavAuthorityProvider", () => ({
+vi.mock("@/components/operator/OperatorNavAuthorityProvider", () => ({
   useOperatorNavAuthority: () => ({
     currentPrincipal: {
       provenance: "auth-me" as const,

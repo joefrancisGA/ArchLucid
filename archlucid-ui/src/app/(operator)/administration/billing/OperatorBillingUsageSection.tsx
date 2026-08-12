@@ -5,7 +5,7 @@ import Link from "next/link";
 import { useEffect, useState } from "react";
 
 import { Card, CardContent, CardDescription, CardHeader, CardTitle } from "@/components/ui/card";
-import { LlmBudgetUtilizationMeter } from "@/components/LlmBudgetUtilizationMeter";
+import { LlmBudgetUtilizationMeter } from "@/components/llm/LlmBudgetUtilizationMeter";
 import { AI_USAGE_SETTINGS_PATH } from "@/lib/ai-usage-nav-paths";
 import {
   BILLING_AI_USAGE_SECTION_INTRO,

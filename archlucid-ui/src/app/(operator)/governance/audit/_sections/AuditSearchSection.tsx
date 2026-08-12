@@ -1,7 +1,7 @@
 import { cn } from "@/lib/utils";
 import { ChevronDown } from "lucide-react";
 
-import { OperatorSavedViewsBar } from "@/components/OperatorSavedViewsBar";
+import { OperatorSavedViewsBar } from "@/components/operator/OperatorSavedViewsBar";
 import type { OperatorSavedView } from "@/lib/api/operator-saved-views";
 import type { OperatorSavedViewPayload } from "@/lib/operator/operator-saved-view-types";
 

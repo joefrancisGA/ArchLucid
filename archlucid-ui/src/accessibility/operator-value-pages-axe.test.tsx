@@ -109,7 +109,7 @@ vi.mock("@/lib/scope-defaults", () => ({
   DEFAULT_DEV_TENANT_ID: "00000000-0000-0000-0000-000000000000",
 }));
 
-vi.mock("@/components/OperatorNavAuthorityProvider", () => ({
+vi.mock("@/components/operator/OperatorNavAuthorityProvider", () => ({
   useNavCallerAuthorityRank: () => "admin",
   useOperatorNavAuthority: () => ({
     rank: "admin",

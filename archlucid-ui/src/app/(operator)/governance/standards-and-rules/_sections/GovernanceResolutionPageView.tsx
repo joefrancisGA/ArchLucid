@@ -11,10 +11,10 @@ import { GovernanceResolutionRankCue } from "@/components/EnterpriseControlsCont
 import { StandardsRulesGovernanceStatusBanner } from "@/components/governance/StandardsRulesGovernanceStatusBanner";
 import { GlossaryTooltip } from "@/components/GlossaryTooltip";
 import { LayerHeader } from "@/components/LayerHeader";
-import { OperatorApiProblem } from "@/components/OperatorApiProblem";
-import { OperatorPageHeader } from "@/components/OperatorPageHeader";
-import { GovernanceSetupConfigHubsVocabularyRail } from "@/components/GovernanceSetupConfigHubsVocabularyRail";
-import { PolicyPacksStandardsVocabularyRail } from "@/components/PolicyPacksStandardsVocabularyRail";
+import { OperatorApiProblem } from "@/components/operator/OperatorApiProblem";
+import { OperatorPageHeader } from "@/components/operator/OperatorPageHeader";
+import { GovernanceSetupConfigHubsVocabularyRail } from "@/components/governance/GovernanceSetupConfigHubsVocabularyRail";
+import { PolicyPacksStandardsVocabularyRail } from "@/components/policy/PolicyPacksStandardsVocabularyRail";
 import { PageContextualHelpButton } from "@/components/usability/PageContextualHelpButton";
 import { Button } from "@/components/ui/button";
 import {

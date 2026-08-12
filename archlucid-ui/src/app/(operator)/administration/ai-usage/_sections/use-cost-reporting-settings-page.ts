@@ -3,7 +3,7 @@
 import { usePathname, useRouter, useSearchParams } from "next/navigation";
 import { useCallback, useEffect, useMemo, useState } from "react";
 
-import { useOperatorNavAuthority } from "@/components/OperatorNavAuthorityProvider";
+import { useOperatorNavAuthority } from "@/components/operator/OperatorNavAuthorityProvider";
 import { fetchAdminAiUsageDashboard } from "@/lib/admin-ai-usage-dashboard";
 import {
   DEFAULT_AI_USAGE_DASHBOARD_FILTERS,

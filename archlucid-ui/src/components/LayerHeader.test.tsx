@@ -8,7 +8,7 @@ import { AUTHORITY_RANK } from "@/lib/nav-authority";
 /** Default Admin rank for tests — literal `3` because `vi.hoisted` runs before `AUTHORITY_RANK` is available. */
 const navCallerAuthorityRank = vi.hoisted(() => ({ current: 3 }));
 
-vi.mock("@/components/OperatorNavAuthorityProvider", () => ({
+vi.mock("@/components/operator/OperatorNavAuthorityProvider", () => ({
   useNavCallerAuthorityRank: (): number => navCallerAuthorityRank.current,
   /** Matches `composeNavSurface(..., hasCommittedArchitectureReview = true)` — LayerHeader ignores nav links from the surface. */
   useNavCommittedArchitectureReview: (): boolean => true,

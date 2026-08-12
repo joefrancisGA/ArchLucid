@@ -3,7 +3,7 @@
 import { PilotRoiBaselineReadinessCard } from "@/components/operator-home/PilotRoiBaselineReadinessCard";
 import { OperatorHomeDisclosureSection } from "@/components/operator-home/OperatorHomeDisclosureSection";
 import { WorkspaceSetupHealthCallout } from "@/components/operator-home/WorkspaceSetupHealthCallout";
-import { useNavCommittedArchitectureReview } from "@/components/OperatorNavAuthorityProvider";
+import { useNavCommittedArchitectureReview } from "@/components/operator/OperatorNavAuthorityProvider";
 import { useSetupHealthPresentation } from "@/hooks/useSetupHealthPresentation";
 import {
   OPERATOR_HOME_WORKSPACE_STATUS_COLLAPSED_SUMMARY,

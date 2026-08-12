@@ -3,7 +3,7 @@
 import { cn } from "@/lib/utils";
 import { useCallback, useState, type ReactElement, type SyntheticEvent } from "react";
 
-import { FindingInspectJsonPayload } from "@/components/FindingInspectJsonPayload";
+import { FindingInspectJsonPayload } from "@/components/findings/FindingInspectJsonPayload";
 import { getFindingInspect } from "@/lib/api/findings-api";
 import { isBuyerPolishedOperatorShellEnv } from "@/lib/demo-ui-env";
 import { OPERATOR_DISCLOSURE_TRIGGER_CLASS, OPERATOR_TYPOGRAPHY } from "@/lib/design-tokens";

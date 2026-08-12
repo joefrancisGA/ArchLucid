@@ -4,13 +4,13 @@ import Link from "next/link";
 import { cn } from "@/lib/utils";
 import { OPERATOR_LAYOUT, OPERATOR_LINK, OPERATOR_PAGE_CONTAINER, OPERATOR_TYPOGRAPHY } from "@/lib/design-tokens";
 
-import { GovernanceModePresentationGate } from "@/components/GovernanceModePresentationGate";
+import { GovernanceModePresentationGate } from "@/components/governance/GovernanceModePresentationGate";
 import { SignedRecordsReviewDetailVocabularyRail } from "@/components/SignedRecordsReviewDetailVocabularyRail";
 import { detectStalledReview } from "@/lib/usability/stalled-review-detection";
 import { resolveRunDetailLastFailureSummary } from "@/components/resolve-run-detail-last-failure-summary";
 
 import { deriveReviewDetailTabActivityAt } from "@/lib/review-detail-tab-activity";
-import { RunDetailActivityTabSectionNav } from "@/components/RunDetailActivityTabSectionNav";
+import { RunDetailActivityTabSectionNav } from "@/components/runs/RunDetailActivityTabSectionNav";
 
 import {
   RunDetailWorkspaceDisclosureControls,

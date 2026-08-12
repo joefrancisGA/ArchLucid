@@ -3,7 +3,7 @@
 import { cn } from "@/lib/utils";
 import { useEffect, useState } from "react";
 
-import { OperatorApiProblem } from "@/components/OperatorApiProblem";
+import { OperatorApiProblem } from "@/components/operator/OperatorApiProblem";
 import { Button } from "@/components/ui/button";
 import {
   Dialog,

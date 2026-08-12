@@ -23,7 +23,7 @@ vi.mock("@/hooks/useNavProgressiveDisclosure", () => ({
   useNavProgressiveDisclosure: () => ({ showExtended: true, showAdvanced: true }),
 }));
 
-vi.mock("@/components/OperatorNavAuthorityProvider", async () => {
+vi.mock("@/components/operator/OperatorNavAuthorityProvider", async () => {
   const { createOperatorNavAuthorityVitestMock } = await import(
     "@/testing/operator-nav-authority-vitest-mock"
   );

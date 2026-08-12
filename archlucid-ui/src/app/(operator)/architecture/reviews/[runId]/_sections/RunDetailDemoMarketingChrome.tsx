@@ -2,7 +2,7 @@
 
 import type { ReactElement } from "react";
 
-import { OperatorDemoStaticBanner } from "@/components/OperatorDemoStaticBanner";
+import { OperatorDemoStaticBanner } from "@/components/operator/OperatorDemoStaticBanner";
 import { DemoDataBadge } from "@/components/usability/DemoDataBadge";
 import { DemoVsLiveChromeBanner } from "@/components/usability/DemoVsLiveChromeBanner";
 

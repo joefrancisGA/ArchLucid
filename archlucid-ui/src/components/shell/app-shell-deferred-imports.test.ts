@@ -20,13 +20,13 @@ const bannedStaticImports = [
   '@/components/KeyboardShortcutProvider"',
   '@/components/AppInsightsTelemetryInit"',
   '@/components/ClientRuntimeDiagnostics"',
-  '@/components/OperatorRouteEnteredTelemetry"',
+  '@/components/operator/OperatorRouteEnteredTelemetry"',
   '@/components/SessionIdleTimeoutGuard"',
   '@/components/AuthPanel"',
   '@/components/SyncActiveRunFromPathname"',
   '@/components/DemoStrictNavigationGate"',
   '@/components/SponsorExecutiveShellRedirect"',
-  '@/components/OperatorRoleGate"',
+  '@/components/operator/OperatorRoleGate"',
 ] as const;
 
 const bannedTopBarStaticImports = [
@@ -36,7 +36,7 @@ const bannedTopBarStaticImports = [
   '@/components/shell/ShellInFlightOperationsAffordance"',
   '@/components/shell/AccountSettingsMenu"',
   '@/components/shell/OperatorShellTopBarMoreMenu"',
-  '@/components/LlmBudgetStatusPill"',
+  '@/components/llm/LlmBudgetStatusPill"',
 ] as const;
 
 describe("operator shell deferred imports (TB-2118)", () => {

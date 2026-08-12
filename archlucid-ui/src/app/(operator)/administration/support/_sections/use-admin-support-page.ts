@@ -2,7 +2,7 @@
 
 import { useMemo } from "react";
 
-import { useOperatorNavAuthority } from "@/components/OperatorNavAuthorityProvider";
+import { useOperatorNavAuthority } from "@/components/operator/OperatorNavAuthorityProvider";
 import { isShowSystemAdministrationNavEnabled } from "@/lib/features";
 import { AUTHORITY_RANK } from "@/lib/nav-authority";
 import { readOperatorScopeFromStorage } from "@/lib/operator/operator-scope-storage";

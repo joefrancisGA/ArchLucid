@@ -3,8 +3,8 @@
 import { cn } from "@/lib/utils";
 
 import { ClientErrorBoundary } from "@/components/ClientErrorBoundary";
-import { OperatorApiProblem } from "@/components/OperatorApiProblem";
-import { OperatorPageHeader } from "@/components/OperatorPageHeader";
+import { OperatorApiProblem } from "@/components/operator/OperatorApiProblem";
+import { OperatorPageHeader } from "@/components/operator/OperatorPageHeader";
 import { PageContextualHelpButton } from "@/components/usability/PageContextualHelpButton";
 import { ReplaySelectedPackageSummary } from "@/components/replay/ReplaySelectedPackageSummary";
 import { ReplayValidationHistorySection } from "@/components/replay/ReplayValidationHistorySection";
@@ -12,7 +12,7 @@ import { ReplayValidationImpactSummary } from "@/components/replay/ReplayValidat
 import { ReplayValidationModeSelector } from "@/components/replay/ReplayValidationModeSelector";
 import { ReplayValidationResultPanel } from "@/components/replay/ReplayValidationResultPanel";
 import { ReviewPackageValidationPicker } from "@/components/replay/ReviewPackageValidationPicker";
-import { OperatorLoadingNotice, OperatorMalformedCallout, OperatorTryNext } from "@/components/OperatorShellMessage";
+import { OperatorLoadingNotice, OperatorMalformedCallout, OperatorTryNext } from "@/components/operator/OperatorShellMessage";
 import { Button } from "@/components/ui/button";
 import { ValidateCompareVocabularyRail } from "@/components/ValidateCompareVocabularyRail";
 import { WhyDisabledCtaHint } from "@/components/usability/WhyDisabledCtaHint";

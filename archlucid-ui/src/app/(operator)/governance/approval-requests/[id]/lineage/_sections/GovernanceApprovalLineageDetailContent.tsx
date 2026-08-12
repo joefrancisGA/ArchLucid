@@ -3,9 +3,9 @@
 import { cn } from "@/lib/utils";
 import Link from "next/link";
 
-import { OperatorEmptyState } from "@/components/OperatorShellMessage";
-import { OperatorPageBreadcrumb } from "@/components/OperatorPageBreadcrumb";
-import { OperatorPageHeader } from "@/components/OperatorPageHeader";
+import { OperatorEmptyState } from "@/components/operator/OperatorShellMessage";
+import { OperatorPageBreadcrumb } from "@/components/operator/OperatorPageBreadcrumb";
+import { OperatorPageHeader } from "@/components/operator/OperatorPageHeader";
 import { ApprovalLineageQueueVocabularyRail } from "@/components/ApprovalLineageQueueVocabularyRail";
 import { Button } from "@/components/ui/button";
 import {

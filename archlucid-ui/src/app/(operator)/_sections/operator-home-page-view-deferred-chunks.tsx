@@ -65,7 +65,7 @@ export const BuyerPolishedHomeHeroSectionDeferred = dynamic(
 
 /** Perf wave 12 — JWT home access gate off sync First Load JS. */
 export const OperatorHomeGateDeferred = dynamic(
-  () => import("@/components/OperatorHomeGate").then((module) => module.OperatorHomeGate),
+  () => import("@/components/operator-home/OperatorHomeGate").then((module) => module.OperatorHomeGate),
   {
     ssr: false,
     loading: () => (

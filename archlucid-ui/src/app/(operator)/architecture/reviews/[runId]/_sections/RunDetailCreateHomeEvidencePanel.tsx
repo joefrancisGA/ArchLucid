@@ -1,8 +1,8 @@
 import type { ReactElement } from "react";
 
 import { EvidenceGapForecastPanel } from "@/components/evidence/EvidenceGapForecastPanel";
-import { RunDetailEvidenceInventorySection } from "@/components/RunDetailEvidenceInventorySection";
-import { RunDetailEvidenceScopeHeader } from "@/components/RunDetailEvidenceScopeHeader";
+import { RunDetailEvidenceInventorySection } from "@/components/runs/RunDetailEvidenceInventorySection";
+import { RunDetailEvidenceScopeHeader } from "@/components/runs/RunDetailEvidenceScopeHeader";
 import { deriveEvidencePresenceFromInventoryKinds } from "@/lib/evidence-gap-forecast";
 import type { RunDetailEvidenceInventoryItem } from "@/lib/runs/run-detail-evidence-inventory";
 import {

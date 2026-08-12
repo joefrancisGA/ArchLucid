@@ -4,7 +4,7 @@ import type { ReactElement } from "react";
 
 import { AuthorityPipelineTimeline } from "@/components/AuthorityPipelineTimeline";
 import { CollapsibleSection } from "@/components/CollapsibleSection";
-import { OperatorSectionRetryButton } from "@/components/OperatorSectionRetryButton";
+import { OperatorSectionRetryButton } from "@/components/operator/OperatorSectionRetryButton";
 import { Card, CardContent, CardDescription, CardHeader } from "@/components/ui/card";
 import { BUYER_SURFACE_VOCABULARY } from "@/lib/vocabulary/buyer-surface-vocabulary";
 import { auditTrailNavHref } from "@/lib/audit-nav-paths";

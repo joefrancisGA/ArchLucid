@@ -4,10 +4,10 @@ import { cn } from "@/lib/utils";
 import Link from "next/link";
 import { useCallback, useEffect, useMemo, useState } from "react";
 
-import { OperatorLoadingNotice } from "@/components/OperatorShellMessage";
-import { ItsmConnectorProviderChooserRail } from "@/components/ItsmConnectorProviderChooserRail";
-import { ItsmConnectorsBuyerJiraServicenowVocabularyRail } from "@/components/ItsmConnectorsBuyerJiraServicenowVocabularyRail";
-import { useNavCallerAuthorityRank } from "@/components/OperatorNavAuthorityProvider";
+import { OperatorLoadingNotice } from "@/components/operator/OperatorShellMessage";
+import { ItsmConnectorProviderChooserRail } from "@/components/itsm/ItsmConnectorProviderChooserRail";
+import { ItsmConnectorsBuyerJiraServicenowVocabularyRail } from "@/components/itsm/ItsmConnectorsBuyerJiraServicenowVocabularyRail";
+import { useNavCallerAuthorityRank } from "@/components/operator/OperatorNavAuthorityProvider";
 import { PageHeading } from "@/components/PageHeading";
 import { Button } from "@/components/ui/button";
 import { Checkbox } from "@/components/ui/checkbox";

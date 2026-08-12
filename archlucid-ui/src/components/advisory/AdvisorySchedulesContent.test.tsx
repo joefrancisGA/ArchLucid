@@ -33,7 +33,7 @@ vi.mock("@/lib/api/governance-stickiness-api", () => ({
   previewRecurrenceScheduleRuns: apiMocks.previewRecurrenceScheduleRuns,
 }));
 
-vi.mock("@/components/OperatorNavAuthorityProvider", () => ({
+vi.mock("@/components/operator/OperatorNavAuthorityProvider", () => ({
   useNavCallerAuthorityRank: () => authMock.rank,
 }));
 

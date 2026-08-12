@@ -7,7 +7,7 @@ import { AUTHORITY_RANK } from "@/lib/nav-authority";
 /** Mutable rank injected into `useNavCallerAuthorityRank` — literals only (hoisted factory runs before imports resolve). */
 const navCallerAuthorityRank = vi.hoisted(() => ({ current: 1 }));
 
-vi.mock("@/components/OperatorNavAuthorityProvider", () => ({
+vi.mock("@/components/operator/OperatorNavAuthorityProvider", () => ({
   useNavCallerAuthorityRank: (): number => navCallerAuthorityRank.current,
   useOperatorNavAuthority: () => ({
     currentPrincipal: {

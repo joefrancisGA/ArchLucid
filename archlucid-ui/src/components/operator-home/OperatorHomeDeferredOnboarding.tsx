@@ -3,12 +3,12 @@
 import dynamic from "next/dynamic";
 
 const OperatorWelcomeOnboarding = dynamic(
-  () => import("@/components/OperatorWelcomeOnboarding").then((module) => module.OperatorWelcomeOnboarding),
+  () => import("@/components/operator/OperatorWelcomeOnboarding").then((module) => module.OperatorWelcomeOnboarding),
   { loading: () => null, ssr: false },
 );
 
 const TrialWelcomeRunDeepLink = dynamic(
-  () => import("@/components/TrialWelcomeRunDeepLink").then((module) => module.TrialWelcomeRunDeepLink),
+  () => import("@/components/trial/TrialWelcomeRunDeepLink").then((module) => module.TrialWelcomeRunDeepLink),
   { loading: () => null, ssr: false },
 );
 

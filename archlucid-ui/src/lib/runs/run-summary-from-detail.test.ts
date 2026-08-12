@@ -1,6 +1,6 @@
 import { describe, expect, it } from "vitest";
 
-import { deriveRunListPipelineLabel } from "@/components/RunStatusBadge";
+import { deriveRunListPipelineLabel } from "@/components/runs/RunStatusBadge";
 import { effectiveRunSummaryForPipeline, runFromDetailToRunSummary } from "@/lib/runs/run-summary-from-detail";
 import type { RunDetail, RunSummary } from "@/types/authority";
 

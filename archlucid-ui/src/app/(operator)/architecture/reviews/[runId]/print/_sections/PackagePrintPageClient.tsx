@@ -2,7 +2,7 @@
 
 import { useEffect, useState } from "react";
 
-import { OperatorApiProblem } from "@/components/OperatorApiProblem";
+import { OperatorApiProblem } from "@/components/operator/OperatorApiProblem";
 import { Button } from "@/components/ui/button";
 import { getRunSummary } from "@/lib/api";
 import type { ApiLoadFailureState } from "@/lib/api-load-failure";

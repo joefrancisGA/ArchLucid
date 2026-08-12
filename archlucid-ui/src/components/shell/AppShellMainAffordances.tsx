@@ -2,7 +2,7 @@
 
 import { ContextualPageHintStrip } from "@/components/ContextualPageHintStrip";
 import { KeyboardShortcutsDiscoverabilityCoach } from "@/components/KeyboardShortcutsDiscoverabilityCoach";
-import { OperatorRecentViewsTracker } from "@/components/OperatorRecentViewsTracker";
+import { OperatorRecentViewsTracker } from "@/components/operator/OperatorRecentViewsTracker";
 import { BuyerGoldenJourneyLayerContextStrip } from "@/components/shell/BuyerGoldenJourneyLayerContextStrip";
 import { DemoVsLiveChromeBanner } from "@/components/usability/DemoVsLiveChromeBanner";
 import { ExplainThisViewBanner } from "@/components/usability/ExplainThisViewBanner";

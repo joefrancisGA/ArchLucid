@@ -8,7 +8,7 @@ import { useEffect, useRef, useState } from "react";
 import { SponsorArtifactEvidenceBadge } from "@/components/SponsorArtifactEvidenceBadge";
 import { formatUsd } from "@/components/BeforeAfterDelta/formatDelta";
 import { ExportTrackedAnchor } from "@/components/ExportTrackedAnchor";
-import { OperatorApiProblem } from "@/components/OperatorApiProblem";
+import { OperatorApiProblem } from "@/components/operator/OperatorApiProblem";
 import { ProductLearningFeedbackControls } from "@/components/ProductLearningFeedbackControls";
 import { Button } from "@/components/ui/button";
 import { StatusTag } from "@/components/ui/status-tag";

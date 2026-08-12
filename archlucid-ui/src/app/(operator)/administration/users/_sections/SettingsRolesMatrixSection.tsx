@@ -17,7 +17,7 @@ import {
 } from "@/components/ui/select";
 import { SettingsRolesMatrixConfirmDialog } from "./SettingsRolesMatrixConfirmDialog";
 import { SeverityTag } from "@/components/ui/severity-tag";
-import { OperatorEmptyState } from "@/components/OperatorShellMessage";
+import { OperatorEmptyState } from "@/components/operator/OperatorShellMessage";
 import { GOVERNANCE_AUDIT_PATH } from "@/lib/governance/governance-route-paths";
 import { mergeRegistrationScopeForProxy } from "@/lib/proxy-fetch-registration-scope";
 import { roleClaimCaption, roleDisplayLabel } from "@/lib/role-display-labels";

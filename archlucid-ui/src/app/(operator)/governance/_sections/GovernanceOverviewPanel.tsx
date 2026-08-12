@@ -4,10 +4,10 @@ import { cn } from "@/lib/utils";
 import Link from "next/link";
 import { useCallback, useEffect, useRef, useState } from "react";
 
-import { OperatorApiProblem } from "@/components/OperatorApiProblem";
+import { OperatorApiProblem } from "@/components/operator/OperatorApiProblem";
 import { EnterpriseCompactEmptyState } from "@/components/EnterpriseCompactEmptyState";
-import { OperatorLoadingNotice } from "@/components/OperatorShellMessage";
-import { RunIdPicker } from "@/components/RunIdPicker";
+import { OperatorLoadingNotice } from "@/components/operator/OperatorShellMessage";
+import { RunIdPicker } from "@/components/runs/RunIdPicker";
 import { Button } from "@/components/ui/button";
 import { getGovernanceDashboard, getGovernanceDecisionsNeededSummary } from "@/lib/api";
 import type { ApiLoadFailureState } from "@/lib/api-load-failure";

@@ -4,7 +4,7 @@ import { cn } from "@/lib/utils";
 import Link from "next/link";
 import { useCallback, useEffect, useState } from "react";
 
-import { OperatorEmptyState } from "@/components/OperatorShellMessage";
+import { OperatorEmptyState } from "@/components/operator/OperatorShellMessage";
 import { useWorkspaceActiveRun } from "@/components/WorkspaceActiveRunContext";
 import { Card, CardContent } from "@/components/ui/card";
 import {

@@ -2,7 +2,7 @@
 import type { RefObject } from "react";
 
 import { AskRunIdPicker } from "@/components/AskRunIdPicker";
-import { OperatorApiProblem } from "@/components/OperatorApiProblem";
+import { OperatorApiProblem } from "@/components/operator/OperatorApiProblem";
 import { Card, CardContent } from "@/components/ui/card";
 import type { ApiLoadFailureState } from "@/lib/api-load-failure";
 import type { BuyerAskGroundingLink } from "@/lib/ask-buyer-grounding-links";

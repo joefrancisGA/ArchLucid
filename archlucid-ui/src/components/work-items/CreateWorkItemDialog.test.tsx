@@ -32,7 +32,7 @@ vi.mock("@/lib/copy-finding-as-work-item", () => ({
   writeWorkItemBodyToClipboard: (...args: unknown[]) => writeWorkItemBodyToClipboard(...args),
 }));
 
-vi.mock("@/components/OperatorNavAuthorityProvider", () => ({
+vi.mock("@/components/operator/OperatorNavAuthorityProvider", () => ({
   useNavCallerAuthorityRank: () => useNavCallerAuthorityRank(),
   useOperatorNavAuthority: () => ({
     currentPrincipal: {

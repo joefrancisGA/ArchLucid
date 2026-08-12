@@ -3,7 +3,7 @@ import dynamic from "next/dynamic";
 import type { ReactElement } from "react";
 
 import { CollapsibleSection } from "@/components/CollapsibleSection";
-import { RunDetailAiReadinessGateCard } from "@/components/RunDetailAiReadinessGateCard";
+import { RunDetailAiReadinessGateCard } from "@/components/runs/RunDetailAiReadinessGateCard";
 import { BUYER_EXECUTIVE_BRIEFING_PACKAGE_LABEL } from "@/lib/buyer/buyer-polish-copy";
 import { OPERATOR_TYPOGRAPHY } from "@/lib/design-tokens";
 

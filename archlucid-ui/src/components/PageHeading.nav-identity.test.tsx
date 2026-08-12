@@ -3,7 +3,7 @@ import { CloudCog, Hash, Ticket, Workflow } from "lucide-react";
 import { describe, expect, it } from "vitest";
 
 import { PageHeading } from "@/components/PageHeading";
-import { OperatorPageHeader } from "@/components/OperatorPageHeader";
+import { OperatorPageHeader } from "@/components/operator/OperatorPageHeader";
 import {
   CLOUD_CONNECTIONS_PATH,
   INTEGRATIONS_AZURE_BOARDS_PATH,

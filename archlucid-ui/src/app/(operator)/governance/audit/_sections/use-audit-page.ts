@@ -13,7 +13,7 @@ import {
   principalRolesAllowAuditCsvExport,
 } from "@/app/(operator)/governance/audit/audit-ui-helpers";
 import { buyerAuditTrailGovernanceSummaryCounts } from "@/lib/audit-trail-page-helpers";
-import { useNavCallerAuthorityRank, useOperatorNavAuthority } from "@/components/OperatorNavAuthorityProvider";
+import { useNavCallerAuthorityRank, useOperatorNavAuthority } from "@/components/operator/OperatorNavAuthorityProvider";
 import { useWorkspaceActiveRun } from "@/components/WorkspaceActiveRunContext";
 import { useOperateCapability } from "@/hooks/use-operate-capability";
 import { useOperatorScopeQueryKey } from "@/hooks/use-operator-scope-query-key";

@@ -1,4 +1,4 @@
-import type { OperatorEvidenceLimitsExecutionProps } from "@/components/OperatorEvidenceLimitsFooter";
+import type { OperatorEvidenceLimitsExecutionProps } from "@/components/operator/OperatorEvidenceLimitsFooter";
 import type { ApiLoadFailureState } from "@/lib/api-load-failure";
 import type { FindingInspectPayload } from "@/types/finding-inspect";
 

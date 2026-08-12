@@ -57,7 +57,7 @@ const ITSM_DEAD_CLIENT_FILES = [
 const ITSM_PRODUCT_DEEP_LINK_SURFACES = [
   "archlucid-ui/src/app/(operator)/integrations/_sections/itsm/ItsmProductIntegrationPageClient.tsx",
   "archlucid-ui/src/app/(operator)/integrations/servicenow/_sections/ServiceNowIntegrationAside.tsx",
-  "archlucid-ui/src/components/FindingItsmExportPanel.tsx",
+  "archlucid-ui/src/components/findings/FindingItsmExportPanel.tsx",
   "archlucid-ui/src/components/work-items/CreateWorkItemDialog.tsx",
 ] as const;
 

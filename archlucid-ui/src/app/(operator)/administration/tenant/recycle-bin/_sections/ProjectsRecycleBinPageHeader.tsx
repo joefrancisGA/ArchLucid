@@ -1,7 +1,7 @@
 "use client";
 
-import { OperatorPageHeader } from "@/components/OperatorPageHeader";
-import { OperatorPageBreadcrumb } from "@/components/OperatorPageBreadcrumb";
+import { OperatorPageHeader } from "@/components/operator/OperatorPageHeader";
+import { OperatorPageBreadcrumb } from "@/components/operator/OperatorPageBreadcrumb";
 import { Button } from "@/components/ui/button";
 import { PageContextualHelpButton } from "@/components/usability/PageContextualHelpButton";
 import {

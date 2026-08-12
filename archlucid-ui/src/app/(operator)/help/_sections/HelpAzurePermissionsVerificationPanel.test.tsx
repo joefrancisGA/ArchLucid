@@ -4,7 +4,7 @@ import { describe, expect, it, vi } from "vitest";
 const useNavCallerAuthorityRank = vi.hoisted(() => vi.fn(() => 100));
 const validateTier2ConnectionHostedRun = vi.hoisted(() => vi.fn());
 
-vi.mock("@/components/OperatorNavAuthorityProvider", () => ({
+vi.mock("@/components/operator/OperatorNavAuthorityProvider", () => ({
   useNavCallerAuthorityRank: () => useNavCallerAuthorityRank(),
 }));
 

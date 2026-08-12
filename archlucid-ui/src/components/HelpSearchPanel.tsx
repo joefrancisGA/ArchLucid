@@ -6,7 +6,7 @@ import Link from "next/link";
 import { usePathname, useRouter } from "next/navigation";
 import { useCallback, useEffect, useMemo, useRef, useState } from "react";
 
-import { useOperatorNavAuthority } from "@/components/OperatorNavAuthorityProvider";
+import { useOperatorNavAuthority } from "@/components/operator/OperatorNavAuthorityProvider";
 import { HelpDrawerContent } from "@/components/help/HelpDrawerContent";
 import { focusHelpDrawerRow } from "@/components/help/help-drawer-list-keyboard";
 import { useHelpPageSituation } from "@/components/help/help-page-situation-store";

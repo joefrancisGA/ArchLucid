@@ -14,7 +14,7 @@ const workspaceArtifacts = vi.hoisted(() => ({
   reload: vi.fn(),
 }));
 
-vi.mock("@/components/OperatorNavAuthorityProvider", () => ({
+vi.mock("@/components/operator/OperatorNavAuthorityProvider", () => ({
   useOperatorNavAuthority: () => ({
     callerAuthorityRank: navAuth.callerAuthorityRank,
     isAuthorityLoading: navAuth.isAuthorityLoading,

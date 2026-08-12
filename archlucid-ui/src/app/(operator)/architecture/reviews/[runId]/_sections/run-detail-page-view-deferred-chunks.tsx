@@ -57,12 +57,12 @@ export const RunDetailCompareToBaselineCta = dynamic(
 );
 
 export const RunDetailEstimatedLlmCostCardDeferred = dynamic(
-  () => import("@/components/RunEstimatedLlmCostCard").then((module) => module.RunEstimatedLlmCostCard),
+  () => import("@/components/runs/RunEstimatedLlmCostCard").then((module) => module.RunEstimatedLlmCostCard),
   { ssr: false, loading: () => null },
 );
 
 export const RunDetailAgentResultsSummaryCardDeferred = dynamic(
-  () => import("@/components/RunAgentResultsSummaryCard").then((module) => module.RunAgentResultsSummaryCard),
+  () => import("@/components/runs/RunAgentResultsSummaryCard").then((module) => module.RunAgentResultsSummaryCard),
   { ssr: false, loading: () => null },
 );
 
@@ -76,7 +76,7 @@ export const RunDetailReviewAgentExecutionLogSectionDeferred = dynamic(
 
 export const RunDetailRetrievalGroundingSummaryCardDeferred = dynamic(
   () =>
-    import("@/components/RunRetrievalGroundingSummaryCard").then(
+    import("@/components/runs/RunRetrievalGroundingSummaryCard").then(
       (module) => module.RunRetrievalGroundingSummaryCard,
     ),
   { ssr: false, loading: () => null },
@@ -89,18 +89,18 @@ export const RunDetailRunMetadataSectionDeferred = dynamic(
 );
 
 export const RunDetailLastFailureCardDeferred = dynamic(
-  () => import("@/components/RunDetailLastFailureCard").then((module) => module.RunDetailLastFailureCard),
+  () => import("@/components/runs/RunDetailLastFailureCard").then((module) => module.RunDetailLastFailureCard),
   { ssr: false, loading: () => null },
 );
 
 export const RunDetailProgressTrackerDeferred = dynamic(
-  () => import("@/components/RunProgressTracker").then((module) => module.RunProgressTracker),
+  () => import("@/components/runs/RunProgressTracker").then((module) => module.RunProgressTracker),
   { ssr: false, loading: () => null },
 );
 
 export const RunDetailTrustEvidenceCardSectionDeferred = dynamic(
   () =>
-    import("@/components/RunTrustEvidenceCardSection").then((module) => module.RunTrustEvidenceCardSection),
+    import("@/components/runs/RunTrustEvidenceCardSection").then((module) => module.RunTrustEvidenceCardSection),
   { ssr: false, loading: () => null },
 );
 
@@ -148,7 +148,7 @@ export const RunDetailColdOpenOrientationDeferred = dynamic(
 
 export const RunDetailExplanationConfidenceBannerDeferred = dynamic(
   () =>
-    import("@/components/RunExplanationConfidenceBanner").then(
+    import("@/components/runs/RunExplanationConfidenceBanner").then(
       (module) => module.RunExplanationConfidenceBanner,
     ),
   { ssr: false, loading: () => null },
@@ -172,7 +172,7 @@ const outcomeCardsLoading = (
 
 /** Activity-tab / details-gated outcome cards — not needed for first paint (TB-933). */
 export const RunDetailOutcomeCardsDeferred = dynamic(
-  () => import("@/components/RunDetailOutcomeCards").then((module) => module.RunDetailOutcomeCards),
+  () => import("@/components/runs/RunDetailOutcomeCards").then((module) => module.RunDetailOutcomeCards),
   { ssr: false, loading: () => outcomeCardsLoading },
 );
 
@@ -339,12 +339,12 @@ export const RunDetailWorkspaceStickyActionsDeferred = dynamic(
 );
 
 export const RunDetailSectionNavDeferred = dynamic(
-  () => import("@/components/RunDetailSectionNav").then((module) => module.RunDetailSectionNav),
+  () => import("@/components/runs/RunDetailSectionNav").then((module) => module.RunDetailSectionNav),
   { ssr: false, loading: () => sectionNavLoading },
 );
 
 export const RunDetailTabbedSectionNavDeferred = dynamic(
-  () => import("@/components/RunDetailTabbedSectionNav").then((module) => module.RunDetailTabbedSectionNav),
+  () => import("@/components/runs/RunDetailTabbedSectionNav").then((module) => module.RunDetailTabbedSectionNav),
   { ssr: false, loading: () => sectionNavLoading },
 );
 

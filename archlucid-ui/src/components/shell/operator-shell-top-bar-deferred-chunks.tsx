@@ -5,7 +5,7 @@ import type { ComponentType } from "react";
 
 import type { AccountSettingsMenu } from "@/components/shell/AccountSettingsMenu";
 import type { GlobalSearchBar } from "@/components/GlobalSearchBar";
-import type { LlmBudgetStatusPill } from "@/components/LlmBudgetStatusPill";
+import type { LlmBudgetStatusPill } from "@/components/llm/LlmBudgetStatusPill";
 import type { MobileNavDrawer } from "@/components/MobileNavDrawer";
 import type { OperatorShellTopBarMoreMenu } from "@/components/shell/OperatorShellTopBarMoreMenu";
 import type { ScopeSwitcher } from "@/components/ScopeSwitcher";
@@ -68,6 +68,6 @@ export const AccountSettingsMenuDeferred: ComponentType = dynamic(
 );
 
 export const LlmBudgetStatusPillDeferred: ComponentType = dynamic(
-  deferredChunkLoader(() => import("@/components/LlmBudgetStatusPill").then((module) => module.LlmBudgetStatusPill)),
+  deferredChunkLoader(() => import("@/components/llm/LlmBudgetStatusPill").then((module) => module.LlmBudgetStatusPill)),
   { ssr: false },
 );

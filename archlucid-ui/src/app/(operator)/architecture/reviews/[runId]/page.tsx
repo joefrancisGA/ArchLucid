@@ -1,7 +1,7 @@
 import { cn } from "@/lib/utils";
 import { notFound } from "next/navigation";
 
-import { OperatorBrandedNotFound } from "@/components/OperatorBrandedNotFound";
+import { OperatorBrandedNotFound } from "@/components/operator/OperatorBrandedNotFound";
 import { ReviewPackageLoadFailureView } from "@/components/ReviewPackageLoadFailureView";
 import { isInvalidGuidOrSlugRouteToken } from "@/lib/route-dynamic-param";
 import { CREATE_ARCHITECTURE_INTENT } from "@/lib/architecture/architecture-workflow-intent";

@@ -1,7 +1,7 @@
 import { render, screen } from "@testing-library/react";
 import { describe, expect, it } from "vitest";
 
-import { PolicyPackComplianceRuleKeyDiffView } from "@/components/PolicyPackComplianceRuleKeyDiffView";
+import { PolicyPackComplianceRuleKeyDiffView } from "@/components/policy/PolicyPackComplianceRuleKeyDiffView";
 import {
   POLICY_AB_DEMO_ADDED_RULE_KEY,
   POLICY_AB_DEMO_ALLOW_RESULT,

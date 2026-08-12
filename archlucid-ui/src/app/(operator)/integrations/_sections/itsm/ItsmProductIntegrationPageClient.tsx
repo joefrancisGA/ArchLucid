@@ -10,8 +10,8 @@ import { Checkbox } from "@/components/ui/checkbox";
 import { Input } from "@/components/ui/input";
 import { Label } from "@/components/ui/label";
 import { PageContextualHelpButton } from "@/components/usability/PageContextualHelpButton";
-import { ItsmConnectorProviderChooserRail } from "@/components/ItsmConnectorProviderChooserRail";
-import { ItsmConnectorsBuyerJiraServicenowVocabularyRail } from "@/components/ItsmConnectorsBuyerJiraServicenowVocabularyRail";
+import { ItsmConnectorProviderChooserRail } from "@/components/itsm/ItsmConnectorProviderChooserRail";
+import { ItsmConnectorsBuyerJiraServicenowVocabularyRail } from "@/components/itsm/ItsmConnectorsBuyerJiraServicenowVocabularyRail";
 import {
   fetchItsmIntegrationHealth,
   fetchTenantItsmOutboundSettings,
@@ -19,7 +19,7 @@ import {
   type ItsmIntegrationHealthResponse,
   type TenantItsmOutboundSettingsResponse,
 } from "@/lib/api/itsm-outbound-api";
-import { useNavCallerAuthorityRank } from "@/components/OperatorNavAuthorityProvider";
+import { useNavCallerAuthorityRank } from "@/components/operator/OperatorNavAuthorityProvider";
 import { DESIGN_TOKENS, OPERATOR_DISCLOSURE_TRIGGER_CLASS, OPERATOR_LAYOUT, OPERATOR_TYPOGRAPHY } from "@/lib/design-tokens";
 import { enterpriseMutationControlDisabledTitle } from "@/lib/enterprise-controls-context-copy";
 import { INTEGRATIONS_READINESS_PATH } from "@/lib/integrations-nav-paths";

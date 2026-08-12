@@ -12,7 +12,7 @@ import { PageContextualHelpButton } from "@/components/usability/PageContextualH
 import { OPERATOR_LINK, OPERATOR_NAV_GROUP_LABEL, OPERATOR_TYPOGRAPHY } from "@/lib/design-tokens";
 import { isBuyerPolishedOperatorShellEnv } from "@/lib/demo-ui-env";
 import { ValueReportOutcomesNav } from "@/components/usability/ValueReportOutcomesNav";
-import { OperatorApiProblem } from "@/components/OperatorApiProblem";
+import { OperatorApiProblem } from "@/components/operator/OperatorApiProblem";
 import { Button } from "@/components/ui/button";
 import { formatPilotOutcomesAnalysisCoverage } from "@/lib/pilot-outcomes-agent-type-labels";
 import { buildPilotOutcomesExecutiveNarrative } from "@/lib/pilot-outcomes-executive-summary";

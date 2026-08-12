@@ -1,4 +1,4 @@
-import type { OperatorEvidenceLimitsExecutionProps } from "@/components/OperatorEvidenceLimitsFooter";
+import type { OperatorEvidenceLimitsExecutionProps } from "@/components/operator/OperatorEvidenceLimitsFooter";
 
 import { getRunDetail } from "@/lib/api";
 import { coerceRunDetail } from "@/lib/operator/operator-response-guards";

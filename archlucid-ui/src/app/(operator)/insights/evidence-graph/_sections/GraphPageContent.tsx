@@ -3,15 +3,15 @@
 import { useSearchParams } from "next/navigation";
 import { useCallback, useEffect, useLayoutEffect, useMemo, useRef, useState, startTransition } from "react";
 
-import { OperatorPageContainer } from "@/components/OperatorPageContainer";
+import { OperatorPageContainer } from "@/components/operator/OperatorPageContainer";
 import { ArchitectureIntelligenceEvidenceGraphVocabularyRail } from "@/components/ArchitectureIntelligenceEvidenceGraphVocabularyRail";
 import { AuditEvidenceTrailVocabularyRail } from "@/components/AuditEvidenceTrailVocabularyRail";
 import { PackageEvidenceEvidenceGraphVocabularyRail } from "@/components/PackageEvidenceEvidenceGraphVocabularyRail";
-import { RunProvenanceEvidenceGraphVocabularyRail } from "@/components/RunProvenanceEvidenceGraphVocabularyRail";
+import { RunProvenanceEvidenceGraphVocabularyRail } from "@/components/runs/RunProvenanceEvidenceGraphVocabularyRail";
 import { Tabs, TabsContent } from "@/components/ui/tabs";
 import type { EmptyStateProps } from "@/components/EmptyState";
 import { EvidenceGraphFirstOpenCoach } from "@/components/EvidenceGraphFirstOpenCoach";
-import { OperatorPageHeader } from "@/components/OperatorPageHeader";
+import { OperatorPageHeader } from "@/components/operator/OperatorPageHeader";
 import { CtoDemoBuyerValueStrip } from "@/components/cto-demo/CtoDemoBuyerValueStrip";
 import { useWorkspaceActiveRun } from "@/components/WorkspaceActiveRunContext";
 import { isApiRequestError } from "@/lib/api-request-error";
@@ -71,7 +71,7 @@ import { GraphLoadedExperience } from "@/app/(operator)/insights/evidence-graph/
 import { GraphModeAuxiliaryFields } from "@/app/(operator)/insights/evidence-graph/_sections/GraphModeAuxiliaryFields";
 import { GraphPageControls } from "@/app/(operator)/insights/evidence-graph/_sections/GraphPageControls";
 import { EvidenceTrailTracePanel } from "@/app/(operator)/insights/evidence-graph/_sections/EvidenceTrailTracePanel";
-import { OperatorSavedViewsBar } from "@/components/OperatorSavedViewsBar";
+import { OperatorSavedViewsBar } from "@/components/operator/OperatorSavedViewsBar";
 import { useOperateCapability } from "@/hooks/use-operate-capability";
 import type { OperatorSavedView } from "@/lib/api/operator-saved-views";
 import type { GraphSavedViewFilters } from "@/lib/operator/operator-saved-view-types";

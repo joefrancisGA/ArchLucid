@@ -14,7 +14,7 @@ vi.mock("@/hooks/use-operate-capability", () => ({
   useOperateCapability: () => canMutate,
 }));
 
-vi.mock("@/components/OperatorNavAuthorityProvider", () => ({
+vi.mock("@/components/operator/OperatorNavAuthorityProvider", () => ({
   useNavCallerAuthorityRank: () => callerAuthorityRank,
 }));
 

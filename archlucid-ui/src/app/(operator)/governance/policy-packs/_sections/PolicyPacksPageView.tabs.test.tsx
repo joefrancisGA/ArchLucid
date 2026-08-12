@@ -91,7 +91,7 @@ vi.mock("./PolicyPacksAdvancedAuthoringPanel", () => ({
   PolicyPacksAdvancedAuthoringPanel: () => null,
 }));
 
-vi.mock("@/components/PolicyPackImpactPreviewPanel", () => ({
+vi.mock("@/components/policy/PolicyPackImpactPreviewPanel", () => ({
   PolicyPackImpactPreviewPanel: () => null,
 }));
 

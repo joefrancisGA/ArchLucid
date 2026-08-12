@@ -14,9 +14,9 @@ import { AdvisoryRecommendationDispositionDialog } from "@/components/advisory/A
 import { AdvisorySampleRecommendationPreview } from "@/components/advisory/AdvisorySampleRecommendationPreview";
 import { AdvisoryScanSummaryPanel } from "@/components/advisory/AdvisoryScanSummaryPanel";
 import { AdvisoryResultsSchedulesVocabularyRail } from "@/components/AdvisoryResultsSchedulesVocabularyRail";
-import { OperatorApiProblem } from "@/components/OperatorApiProblem";
-import { useNavCallerAuthorityRank } from "@/components/OperatorNavAuthorityProvider";
-import { RunIdPicker } from "@/components/RunIdPicker";
+import { OperatorApiProblem } from "@/components/operator/OperatorApiProblem";
+import { useNavCallerAuthorityRank } from "@/components/operator/OperatorNavAuthorityProvider";
+import { RunIdPicker } from "@/components/runs/RunIdPicker";
 import { Button } from "@/components/ui/button";
 import { applyRecommendationAction, listRecommendations } from "@/lib/advisory-api";
 import { operatorQueryKeys } from "@/lib/query/operator-query-keys";

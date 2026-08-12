@@ -4,7 +4,7 @@ import type { ReactElement } from "react";
 import { useCallback, useId, useLayoutEffect, useState } from "react";
 import { ChevronDown } from "lucide-react";
 
-import { useNavCommittedArchitectureReview } from "@/components/OperatorNavAuthorityProvider";
+import { useNavCommittedArchitectureReview } from "@/components/operator/OperatorNavAuthorityProvider";
 import { OperatorHomeCardSectionTitle } from "@/components/operator-home/OperatorHomeCardSectionTitle";
 import { OperatorHomeWorkspaceMetricsSummary } from "@/components/operator-home/OperatorHomeWorkspaceMetricsSummary";
 import { Button } from "@/components/ui/button";

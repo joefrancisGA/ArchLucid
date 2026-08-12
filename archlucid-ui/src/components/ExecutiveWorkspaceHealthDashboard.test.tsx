@@ -15,7 +15,7 @@ vi.mock("next/navigation", () => ({
   usePathname: () => EXECUTIVE_DASHBOARD_HREF,
 }));
 
-vi.mock("@/components/OperatorNavAuthorityProvider", () => ({
+vi.mock("@/components/operator/OperatorNavAuthorityProvider", () => ({
   useNavCallerAuthorityRank: () => 2,
   useNavCommittedArchitectureReview: () => false,
 }));

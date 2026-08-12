@@ -1,8 +1,8 @@
 import { cn } from "@/lib/utils";
 import Link from "next/link";
 
-import { OperatorApiProblem } from "@/components/OperatorApiProblem";
-import { OperatorBrandedTransientFailure } from "@/components/OperatorBrandedTransientFailure";
+import { OperatorApiProblem } from "@/components/operator/OperatorApiProblem";
+import { OperatorBrandedTransientFailure } from "@/components/operator/OperatorBrandedTransientFailure";
 import { ReviewPackageLoadFailureView } from "@/components/ReviewPackageLoadFailureView";
 import type { ApiLoadFailureState } from "@/lib/api-load-failure";
 import { isApiNotFoundFailure, isApiTransientLoadFailure } from "@/lib/api-load-failure";

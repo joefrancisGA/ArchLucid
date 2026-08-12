@@ -6,7 +6,7 @@ import { useCallback, useState, type ChangeEvent, type ReactElement } from "reac
 
 import { Loader2 } from "lucide-react";
 
-import { useOperatorNavAuthority } from "@/components/OperatorNavAuthorityProvider";
+import { useOperatorNavAuthority } from "@/components/operator/OperatorNavAuthorityProvider";
 import { Button } from "@/components/ui/button";
 import {
   Dialog,

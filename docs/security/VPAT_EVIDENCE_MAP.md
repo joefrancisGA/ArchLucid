@@ -87,7 +87,7 @@ Radix does **not** remove the need for correct **application** usage (labels, co
 
 | Artifact | Note |
 | -------- | ---- |
-| [`archlucid-ui/src/components/RunProgressTracker.tsx`](../../archlucid-ui/src/components/RunProgressTracker.tsx) | `aria-live="polite"` — **4.1.3** evidence for that component |
+| [`archlucid-ui/src/components/runs/RunProgressTracker.tsx`](../../archlucid-ui/src/components/runs/RunProgressTracker.tsx) | `aria-live="polite"` — **4.1.3** evidence for that component |
 | [`archlucid-ui/src/components/RouteAnnouncer.tsx`](../../archlucid-ui/src/components/RouteAnnouncer.tsx) | `aria-live="polite"` + e2e assertion in focus spec |
 
 ---

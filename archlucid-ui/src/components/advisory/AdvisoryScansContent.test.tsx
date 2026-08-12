@@ -40,7 +40,7 @@ function sampleRecommendation(): RecommendationRecord {
   };
 }
 
-vi.mock("@/components/OperatorNavAuthorityProvider", () => ({
+vi.mock("@/components/operator/OperatorNavAuthorityProvider", () => ({
   useNavCallerAuthorityRank: () => 0,
   useOperatorNavAuthority: () => ({
     currentPrincipal: {
@@ -53,7 +53,7 @@ vi.mock("@/components/OperatorNavAuthorityProvider", () => ({
   }),
 }));
 
-vi.mock("@/components/RunIdPicker", () => ({
+vi.mock("@/components/runs/RunIdPicker", () => ({
   RunIdPicker: (props: {
     label: string;
     value: string;

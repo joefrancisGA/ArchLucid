@@ -8,11 +8,11 @@ vi.mock("@/lib/use-itsm-native-create-enabled", () => ({
   useItsmNativeCreateEnabled: () => true,
 }));
 
-vi.mock("@/components/ItsmOutboundQuickActions", () => ({
+vi.mock("@/components/itsm/ItsmOutboundQuickActions", () => ({
   ItsmOutboundQuickActions: () => <div data-testid="itsm-quick-actions" />,
 }));
 
-vi.mock("@/components/FindingCorrelationVocabularyDisambiguation", () => ({
+vi.mock("@/components/findings/FindingCorrelationVocabularyDisambiguation", () => ({
   FindingCorrelationVocabularyDisambiguation: () => <div data-testid="correlation-vocabulary" />,
 }));
 

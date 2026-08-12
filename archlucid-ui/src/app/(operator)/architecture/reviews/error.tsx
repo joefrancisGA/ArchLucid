@@ -4,8 +4,8 @@ import { cn } from "@/lib/utils";
 import Link from "next/link";
 import { useEffect } from "react";
 
-import { OperatorErrorUiReferenceLine } from "@/components/OperatorErrorUiReferenceLine";
-import { OperatorErrorCallout } from "@/components/OperatorShellMessage";
+import { OperatorErrorUiReferenceLine } from "@/components/operator/OperatorErrorUiReferenceLine";
+import { OperatorErrorCallout } from "@/components/operator/OperatorShellMessage";
 import { CopyIdButton } from "@/components/CopyIdButton";
 import { Button } from "@/components/ui/button";
 import { OPERATOR_TYPOGRAPHY } from "@/lib/design-tokens";

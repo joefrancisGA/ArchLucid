@@ -8,9 +8,9 @@ import {
   IntegrationEventsDlqSuppressConfirmDialog,
 } from "@/app/(operator)/internal/integration-events/dlq/_sections/IntegrationEventsDlqConfirmDialogs";
 import { HelpLazyDetails } from "@/components/help/HelpLazyDetails";
-import { OperatorApiProblem } from "@/components/OperatorApiProblem";
-import { OperatorEmptyState, OperatorLoadingNotice } from "@/components/OperatorShellMessage";
-import { useNavCallerAuthorityRank } from "@/components/OperatorNavAuthorityProvider";
+import { OperatorApiProblem } from "@/components/operator/OperatorApiProblem";
+import { OperatorEmptyState, OperatorLoadingNotice } from "@/components/operator/OperatorShellMessage";
+import { useNavCallerAuthorityRank } from "@/components/operator/OperatorNavAuthorityProvider";
 import { WebhooksVsDlqVocabularyRail } from "@/components/WebhooksVsDlqVocabularyRail";
 import { Button } from "@/components/ui/button";
 import { Card, CardContent, CardDescription, CardHeader, CardTitle } from "@/components/ui/card";

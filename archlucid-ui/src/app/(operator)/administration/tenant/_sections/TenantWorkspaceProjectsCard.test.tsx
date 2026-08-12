@@ -13,7 +13,7 @@ const navAuth = vi.hoisted(() => ({
   callerAuthorityRank: 2,
 }));
 
-vi.mock("@/components/OperatorNavAuthorityProvider", () => ({
+vi.mock("@/components/operator/OperatorNavAuthorityProvider", () => ({
   useOperatorNavAuthority: () => ({
     callerAuthorityRank: navAuth.callerAuthorityRank,
     isAuthorityLoading: false,

@@ -8,7 +8,7 @@ import { HelpAcceleratorChooserPrerequisitePanel } from "@/app/(operator)/help/_
 import { HelpAcceleratorChooserRelatedNextStepsLinks } from "@/app/(operator)/help/_sections/HelpAcceleratorChooserSourceLinks";
 import { HelpTopicTableOfContents } from "@/components/help/HelpTopicTableOfContents";
 import { CollapsibleSection } from "@/components/CollapsibleSection";
-import { OperatorPageHeader } from "@/components/OperatorPageHeader";
+import { OperatorPageHeader } from "@/components/operator/OperatorPageHeader";
 import { PageContextualHelpButton } from "@/components/usability/PageContextualHelpButton";
 import { HelpAcceleratorCostGovernancePackCard } from "@/components/accelerator/HelpAcceleratorCostGovernancePackCard";
 import { AcceleratorPackStartCta } from "@/components/accelerator/AcceleratorPackStartCta";

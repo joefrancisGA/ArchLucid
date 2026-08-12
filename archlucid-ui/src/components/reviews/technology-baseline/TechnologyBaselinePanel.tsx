@@ -4,8 +4,8 @@ import { cn } from "@/lib/utils";
 import { Lock, LockOpen } from "lucide-react";
 import { useCallback, useEffect, useState } from "react";
 
-import { OperatorApiProblem } from "@/components/OperatorApiProblem";
-import { OperatorEmptyState, OperatorLoadingNotice, OperatorWarningCallout } from "@/components/OperatorShellMessage";
+import { OperatorApiProblem } from "@/components/operator/OperatorApiProblem";
+import { OperatorEmptyState, OperatorLoadingNotice, OperatorWarningCallout } from "@/components/operator/OperatorShellMessage";
 import { Button } from "@/components/ui/button";
 import {
   EnterpriseTable,

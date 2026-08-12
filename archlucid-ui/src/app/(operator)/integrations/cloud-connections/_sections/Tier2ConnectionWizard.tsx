@@ -36,7 +36,7 @@ import {
 } from "@/lib/admin-integration-mutation-outcome-copy";
 import { showError, showSuccess } from "@/lib/toast";
 import { useOperateCapability } from "@/hooks/use-operate-capability";
-import { useNavCallerAuthorityRank } from "@/components/OperatorNavAuthorityProvider";
+import { useNavCallerAuthorityRank } from "@/components/operator/OperatorNavAuthorityProvider";
 
 import {
   hasTier2FieldValidationErrors,

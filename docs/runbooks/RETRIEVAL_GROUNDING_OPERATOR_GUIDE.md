@@ -11,6 +11,6 @@ Per-finding trust chips render in **Quick decision summary** on review detail. L
 | Citation missing | No evidence references |
 | Heuristic | No evidence references and confidence Low |
 
-Component: `archlucid-ui/src/components/FindingTrustChip.tsx`.
+Component: `archlucid-ui/src/components/findings/FindingTrustChip.tsx`.
 
 Sponsor exports: trust posture remains in the run-level **Trust evidence** card and first-value report sections built by `FindingTrustEvidenceCardMarkdownFormatter`.

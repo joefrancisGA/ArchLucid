@@ -7,7 +7,7 @@ import { useCallback, useEffect, useId, useMemo, useRef, useState } from "react"
 import { AlertOperatorToolingRankCue } from "@/components/EnterpriseControlsContextHints";
 import { OperateExecutePageHint } from "@/components/OperateCapabilityHints";
 import { GettingStartedSteps } from "@/components/GettingStartedSteps";
-import { OperatorApiProblem } from "@/components/OperatorApiProblem";
+import { OperatorApiProblem } from "@/components/operator/OperatorApiProblem";
 import { AlertRoutingCriteriaFields } from "@/components/alerts/AlertRoutingCriteriaFields";
 import { AlertRoutingDestinationList } from "@/components/alerts/AlertRoutingDestinationList";
 import { WhyDisabledCtaHint } from "@/components/usability/WhyDisabledCtaHint";

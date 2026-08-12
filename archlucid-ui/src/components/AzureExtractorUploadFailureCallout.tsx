@@ -6,7 +6,7 @@ import Link from "next/link";
 import { useCallback, useState } from "react";
 import { Copy } from "lucide-react";
 
-import { OperatorErrorCallout } from "@/components/OperatorShellMessage";
+import { OperatorErrorCallout } from "@/components/operator/OperatorShellMessage";
 import { Button } from "@/components/ui/button";
 import type { ApiProblemDetails } from "@/lib/api-problem";
 import { parseAzureExtractorUploadFailure } from "@/lib/azure-extractor-upload-failure";

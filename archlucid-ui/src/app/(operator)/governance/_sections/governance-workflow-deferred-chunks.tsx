@@ -106,7 +106,7 @@ export const CtoDemoGovernancePreviewHintDeferred = dynamic(
 
 export const GovernanceInteractiveQuickstartContentDeferred = dynamic(
   () =>
-    import("@/components/GovernanceInteractiveQuickstartContent").then(
+    import("@/components/governance/GovernanceInteractiveQuickstartContent").then(
       (module) => module.GovernanceInteractiveQuickstartContent,
     ),
   {
@@ -118,7 +118,7 @@ export const GovernanceInteractiveQuickstartContentDeferred = dynamic(
 /** Buyer approval narrative card — below-fold relative to workflow header (First Load split). */
 export const GovernanceApprovalStoryCardDeferred = dynamic(
   () =>
-    import("@/components/GovernanceApprovalStoryCard").then(
+    import("@/components/governance/GovernanceApprovalStoryCard").then(
       (module) => module.GovernanceApprovalStoryCard,
     ),
   {

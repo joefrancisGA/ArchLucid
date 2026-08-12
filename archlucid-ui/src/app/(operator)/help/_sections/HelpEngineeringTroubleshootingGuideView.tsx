@@ -11,7 +11,7 @@ import { HelpTopicTableOfContents } from "@/components/help/HelpTopicTableOfCont
 import { OperatorSeverityCallout } from "@/components/help/OperatorSeverityCallout";
 import { Button } from "@/components/ui/button";
 import { StatusTag } from "@/components/ui/status-tag";
-import { OperatorPageHeader } from "@/components/OperatorPageHeader";
+import { OperatorPageHeader } from "@/components/operator/OperatorPageHeader";
 import { PageContextualHelpButton } from "@/components/usability/PageContextualHelpButton";
 import { ENGINEERING_TROUBLESHOOTING_HELP_PATH } from "@/lib/developer-troubleshooting-help-route";
 import {

@@ -36,15 +36,15 @@ vi.mock("next/link", () => ({
   ),
 }));
 
-vi.mock("@/components/TrialWelcomeRunDeepLink", () => ({
+vi.mock("@/components/trial/TrialWelcomeRunDeepLink", () => ({
   TrialWelcomeRunDeepLink: () => null,
 }));
 
-vi.mock("@/components/OperatorWelcomeOnboarding", () => ({
+vi.mock("@/components/operator/OperatorWelcomeOnboarding", () => ({
   OperatorWelcomeOnboarding: () => null,
 }));
 
-vi.mock("@/components/OperatorHomeGate", () => ({
+vi.mock("@/components/operator-home/OperatorHomeGate", () => ({
   OperatorHomeGate: ({ children }: { children: import("react").ReactNode }) => <>{children}</>,
 }));
 
@@ -91,7 +91,7 @@ vi.mock("./_sections/operator-home-page-view-deferred-chunks", async () => {
   };
 });
 
-vi.mock("@/components/OperatorNavAuthorityProvider", () => ({
+vi.mock("@/components/operator/OperatorNavAuthorityProvider", () => ({
   useNavCommittedArchitectureReview: () => false,
   useNavCallerAuthorityRank: () => 3,
   useOperatorNavAuthority: () => ({

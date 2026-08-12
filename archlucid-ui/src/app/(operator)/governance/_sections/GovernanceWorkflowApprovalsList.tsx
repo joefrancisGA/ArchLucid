@@ -1,7 +1,7 @@
 import { cn } from "@/lib/utils";
 import { GettingStartedSteps } from "@/components/GettingStartedSteps";
-import { GovernanceQuickApproveButton } from "@/components/GovernanceQuickApproveButton";
-import { OperatorEmptyState, OperatorLoadingNotice } from "@/components/OperatorShellMessage";
+import { GovernanceQuickApproveButton } from "@/components/governance/GovernanceQuickApproveButton";
+import { OperatorEmptyState, OperatorLoadingNotice } from "@/components/operator/OperatorShellMessage";
 import { StatusPill } from "@/components/StatusPill";
 import { Button } from "@/components/ui/button";
 import { Card, CardContent, CardDescription, CardFooter, CardHeader, CardTitle } from "@/components/ui/card";

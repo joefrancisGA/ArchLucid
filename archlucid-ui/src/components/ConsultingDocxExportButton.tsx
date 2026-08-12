@@ -4,7 +4,7 @@ import { useState, type ReactNode } from "react";
 
 import { Loader2 } from "lucide-react";
 
-import { useOperatorNavAuthority } from "@/components/OperatorNavAuthorityProvider";
+import { useOperatorNavAuthority } from "@/components/operator/OperatorNavAuthorityProvider";
 import { Button } from "@/components/ui/button";
 import { downloadConsultingArchitectureReportDocx } from "@/lib/api";
 import {

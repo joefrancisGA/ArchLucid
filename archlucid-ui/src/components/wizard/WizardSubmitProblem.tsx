@@ -1,6 +1,6 @@
 "use client";
 
-import { OperatorApiProblem } from "@/components/OperatorApiProblem";
+import { OperatorApiProblem } from "@/components/operator/OperatorApiProblem";
 import { isApiRequestError } from "@/lib/api-request-error";
 
 export type WizardSubmitProblemProps = {

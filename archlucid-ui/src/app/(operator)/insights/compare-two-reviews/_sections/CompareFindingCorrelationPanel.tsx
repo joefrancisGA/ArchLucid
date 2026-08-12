@@ -1,8 +1,8 @@
 import { cn } from "@/lib/utils";
 import type { ReactElement, ReactNode } from "react";
 
-import { OperatorEmptyState } from "@/components/OperatorShellMessage";
-import { FindingCorrelationVocabularyDisambiguation } from "@/components/FindingCorrelationVocabularyDisambiguation";
+import { OperatorEmptyState } from "@/components/operator/OperatorShellMessage";
+import { FindingCorrelationVocabularyDisambiguation } from "@/components/findings/FindingCorrelationVocabularyDisambiguation";
 import {
   buildCompareFindingCorrelationCountRows,
   COMPARE_FINDING_CORRELATION_DEDUPE_KEY_FORMAT,

@@ -11,7 +11,7 @@ import {
   PILOT_COMMAND_CENTER_OPTIONAL_SETUP_LABEL,
 } from "@/lib/buyer/buyer-polish-copy";
 
-vi.mock("@/components/OperatorNavAuthorityProvider", () => ({
+vi.mock("@/components/operator/OperatorNavAuthorityProvider", () => ({
   useNavCommittedArchitectureReview: vi.fn(() => false),
   useNavCallerAuthorityRank: () => 100,
   useOperatorNavAuthority: () => ({

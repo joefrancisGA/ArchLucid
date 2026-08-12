@@ -12,8 +12,8 @@ import ReactFlow, {
 } from "reactflow";
 import "reactflow/dist/style.css";
 
-import { OperatorApiProblem } from "@/components/OperatorApiProblem";
-import { OperatorEmptyState, OperatorLoadingNotice } from "@/components/OperatorShellMessage";
+import { OperatorApiProblem } from "@/components/operator/OperatorApiProblem";
+import { OperatorEmptyState, OperatorLoadingNotice } from "@/components/operator/OperatorShellMessage";
 import { Button } from "@/components/ui/button";
 import {
   applyFindingEvidenceGraphHighlight,

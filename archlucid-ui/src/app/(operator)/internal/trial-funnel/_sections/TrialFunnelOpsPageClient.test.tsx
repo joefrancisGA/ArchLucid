@@ -4,7 +4,7 @@ import { describe, expect, it, vi } from "vitest";
 import { TrialFunnelOpsPageClient } from "@/app/(operator)/internal/trial-funnel/_sections/TrialFunnelOpsPageClient";
 import { TRIAL_FUNNEL_PAGE_SUBTITLE } from "@/lib/trial-funnel-metric-contract";
 
-vi.mock("@/components/OperatorNavAuthorityProvider", () => ({
+vi.mock("@/components/operator/OperatorNavAuthorityProvider", () => ({
   useOperatorNavAuthority: () => ({
     callerAuthorityRank: 4,
     isAuthorityLoading: false,

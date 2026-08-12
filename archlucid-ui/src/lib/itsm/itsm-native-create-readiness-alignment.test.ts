@@ -19,7 +19,7 @@ describe("itsm-native-create-readiness-alignment", () => {
   });
 
   it("keeps native default panel and wizard wiring on finding and admin surfaces", () => {
-    const findingPanel = readRepoFile("archlucid-ui/src/components/FindingItsmExportPanel.tsx");
+    const findingPanel = readRepoFile("archlucid-ui/src/components/findings/FindingItsmExportPanel.tsx");
     const findingDetail = readRepoFile(
       "archlucid-ui/src/app/(operator)/architecture/reviews/[runId]/findings/[findingId]/_sections/FindingDetailPageView.tsx",
     );

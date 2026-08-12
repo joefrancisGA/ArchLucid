@@ -21,7 +21,7 @@ import {
   COMMAND_PALETTE_ARIA_KEYSHORTCUTS,
   commandPaletteOpenAriaLabel,
 } from "@/lib/keyboard-shortcut-display";
-import { useNavCallerAuthorityRank, useNavCommittedArchitectureReview, useOperatorNavAuthority } from "@/components/OperatorNavAuthorityProvider";
+import { useNavCallerAuthorityRank, useNavCommittedArchitectureReview, useOperatorNavAuthority } from "@/components/operator/OperatorNavAuthorityProvider";
 import { useOperatorShellAuditRunId } from "@/hooks/useOperatorShellAuditRunId";
 import { useRoleNavDensityExpanded } from "@/hooks/use-role-nav-density-expanded";
 import { auditTrailNavHref, isAuditNavPath } from "@/lib/audit-nav-paths";

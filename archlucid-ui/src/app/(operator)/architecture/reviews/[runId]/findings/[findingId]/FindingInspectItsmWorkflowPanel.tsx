@@ -2,10 +2,10 @@
 
 import { cn } from "@/lib/utils";
 import { Card, CardContent, CardHeader, CardTitle } from "@/components/ui/card";
-import { FindingCorrelationVocabularyDisambiguation } from "@/components/FindingCorrelationVocabularyDisambiguation";
-import { ItsmConnectorsFindingTicketVocabularyRail } from "@/components/ItsmConnectorsFindingTicketVocabularyRail";
-import { ItsmOutboundQuickActions } from "@/components/ItsmOutboundQuickActions";
-import { ItsmOutboundTriadClarityStrip } from "@/components/ItsmOutboundTriadClarityStrip";
+import { FindingCorrelationVocabularyDisambiguation } from "@/components/findings/FindingCorrelationVocabularyDisambiguation";
+import { ItsmConnectorsFindingTicketVocabularyRail } from "@/components/itsm/ItsmConnectorsFindingTicketVocabularyRail";
+import { ItsmOutboundQuickActions } from "@/components/itsm/ItsmOutboundQuickActions";
+import { ItsmOutboundTriadClarityStrip } from "@/components/itsm/ItsmOutboundTriadClarityStrip";
 import { ITSM_TICKET_LINKAGE_CREATE_INTRO, ITSM_TICKET_LINKAGE_DUPLICATE_BLOCKED } from "@/lib/vocabulary/finding-correlation-vocabulary";
 import { FINDING_ITSM_HUMAN_REVIEW_STATUS_CAPTION } from "@/lib/findings/finding-human-review-display";
 import { useItsmNativeCreateEnabled } from "@/lib/use-itsm-native-create-enabled";

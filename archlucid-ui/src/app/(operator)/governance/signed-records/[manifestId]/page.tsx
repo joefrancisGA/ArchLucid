@@ -1,6 +1,6 @@
 import { notFound } from "next/navigation";
 
-import { OperatorBrandedNotFound } from "@/components/OperatorBrandedNotFound";
+import { OperatorBrandedNotFound } from "@/components/operator/OperatorBrandedNotFound";
 import { isInvalidManifestRouteId } from "@/lib/route-dynamic-param";
 
 import { loadManifestDetailPageModel } from "./_sections/load-manifest-detail-page-model";

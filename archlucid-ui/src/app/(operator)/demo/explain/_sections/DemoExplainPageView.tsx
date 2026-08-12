@@ -4,8 +4,8 @@ import { useRouter } from "next/navigation";
 
 import { cn } from "@/lib/utils";
 import { DemoExplainConversionCtaCard } from "@/components/DemoExplainConversionCtaCard";
-import { OperatorApiProblem } from "@/components/OperatorApiProblem";
-import { OperatorLoadingNotice } from "@/components/OperatorShellMessage";
+import { OperatorApiProblem } from "@/components/operator/OperatorApiProblem";
+import { OperatorLoadingNotice } from "@/components/operator/OperatorShellMessage";
 import { PageContextualHelpButton } from "@/components/usability/PageContextualHelpButton";
 import { OPERATOR_TYPOGRAPHY } from "@/lib/design-tokens";
 import {

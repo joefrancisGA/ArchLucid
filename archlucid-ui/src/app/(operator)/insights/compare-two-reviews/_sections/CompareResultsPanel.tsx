@@ -12,13 +12,13 @@ import { CompareVerdictSummary } from "@/components/compare/CompareVerdictSummar
 import { LegacyRunComparisonView } from "@/components/compare/LegacyRunComparisonView";
 import { StructuredComparisonView } from "@/components/compare/StructuredComparisonView";
 import { ClientErrorBoundary } from "@/components/ClientErrorBoundary";
-import { OperatorApiProblem } from "@/components/OperatorApiProblem";
+import { OperatorApiProblem } from "@/components/operator/OperatorApiProblem";
 import {
   OperatorLoadingNotice,
   OperatorMalformedCallout,
   OperatorTryNext,
   OperatorWarningCallout,
-} from "@/components/OperatorShellMessage";
+} from "@/components/operator/OperatorShellMessage";
 import { Button } from "@/components/ui/button";
 import { compareRunHeadingLabel } from "@/lib/compare-run-display";
 import type { ApiLoadFailureState } from "@/lib/api-load-failure";

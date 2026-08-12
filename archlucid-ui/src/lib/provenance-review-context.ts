@@ -1,4 +1,4 @@
-import { deriveRunListPipelineLabel } from "@/components/RunStatusBadge";
+import { deriveRunListPipelineLabel } from "@/components/runs/RunStatusBadge";
 import type { ProvenanceReviewContext } from "@/components/provenance/ProvenancePageWorkspace";
 import { buyerFacingReviewTitleFromSummary } from "@/lib/buyer/buyer-facing-review-title";
 import type { EnterpriseStatusKind } from "@/lib/design-tokens";

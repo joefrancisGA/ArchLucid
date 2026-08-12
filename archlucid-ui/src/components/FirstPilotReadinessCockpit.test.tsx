@@ -7,7 +7,7 @@ vi.mock("@/components/FirstPilotProofStatusStrip", () => ({
   FirstPilotProofStatusStrip: () => <div data-testid="proof-status-strip-mock" />,
 }));
 
-vi.mock("@/components/OperatorAiQualityProofCard", () => ({
+vi.mock("@/components/operator/OperatorAiQualityProofCard", () => ({
   OperatorAiQualityProofCard: () => <div data-testid="ai-quality-proof-mock" />,
 }));
 

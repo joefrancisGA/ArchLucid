@@ -5,7 +5,7 @@ import dynamic from "next/dynamic";
 import { usePathname, useRouter, useSearchParams } from "next/navigation";
 import { Suspense, useEffect, useMemo, useState } from "react";
 
-import { OperatorPageContainer } from "@/components/OperatorPageContainer";
+import { OperatorPageContainer } from "@/components/operator/OperatorPageContainer";
 import { NewRunWizardSkeleton } from "@/components/skeletons/NewRunWizardSkeleton";
 import { InlineGuidanceText } from "@/components/InlineGuidanceText";
 import { Button } from "@/components/ui/button";

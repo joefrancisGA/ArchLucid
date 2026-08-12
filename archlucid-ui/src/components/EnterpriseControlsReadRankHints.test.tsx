@@ -10,7 +10,7 @@ import {
 } from "@/lib/enterprise-controls-context-copy";
 
 /** Read rank: mock before importing hint components (Vitest hoisting). */
-vi.mock("@/components/OperatorNavAuthorityProvider", async () => {
+vi.mock("@/components/operator/OperatorNavAuthorityProvider", async () => {
   const { AUTHORITY_RANK } = await import("@/lib/nav-authority");
 
   return {

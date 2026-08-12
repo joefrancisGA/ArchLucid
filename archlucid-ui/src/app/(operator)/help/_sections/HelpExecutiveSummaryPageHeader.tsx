@@ -1,6 +1,6 @@
 "use client";
 
-import { OperatorPageHeader } from "@/components/OperatorPageHeader";
+import { OperatorPageHeader } from "@/components/operator/OperatorPageHeader";
 import { HelpTopicPrintButton } from "@/components/help/HelpTopicPrintButton";
 import { PageContextualHelpButton } from "@/components/usability/PageContextualHelpButton";
 import {

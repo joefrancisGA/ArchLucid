@@ -1,5 +1,5 @@
 import { cn } from "@/lib/utils";
-import { OperatorLoadingNotice, OperatorMalformedCallout } from "@/components/OperatorShellMessage";
+import { OperatorLoadingNotice, OperatorMalformedCallout } from "@/components/operator/OperatorShellMessage";
 import { GraphBuyerEvidenceTrailError } from "@/app/(operator)/insights/evidence-graph/_sections/GraphBuyerEvidenceTrailError";
 import { BUYER_GRAPH_LOAD_ERROR } from "@/lib/buyer/buyer-polish-copy";
 import type { ApiLoadFailureState } from "@/lib/api-load-failure";

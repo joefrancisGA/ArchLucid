@@ -16,7 +16,7 @@ vi.mock("@/components/provenance/ProvenanceWayfinding", () => ({
   ProvenanceWayfinding: () => <div data-testid="provenance-wayfinding" />,
 }));
 
-vi.mock("@/components/OperatorDemoStaticBanner", () => ({
+vi.mock("@/components/operator/OperatorDemoStaticBanner", () => ({
   OperatorDemoStaticBanner: () => <div data-testid="operator-demo-static-banner" />,
 }));
 

@@ -3,7 +3,7 @@
 import { cn } from "@/lib/utils";
 import { useMemo } from "react";
 
-import { OperatorApiProblem } from "@/components/OperatorApiProblem";
+import { OperatorApiProblem } from "@/components/operator/OperatorApiProblem";
 import { Button } from "@/components/ui/button";
 import { Card, CardContent, CardDescription, CardHeader, CardTitle } from "@/components/ui/card";
 import { useExecutiveRoiEnvironmentSavingsQuery } from "@/hooks/use-executive-roi-environment-savings-query";

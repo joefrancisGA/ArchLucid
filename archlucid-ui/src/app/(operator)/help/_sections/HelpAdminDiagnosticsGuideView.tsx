@@ -5,7 +5,7 @@ import { HelpAdminDiagnosticsSourceLinks } from "@/app/(operator)/help/_sections
 import { HelpTopicRegistryProvenanceLine } from "@/components/help/HelpTopicRegistryProvenanceLine";
 import { HelpTopicTableOfContents } from "@/components/help/HelpTopicTableOfContents";
 import { MarketingAccessibilityMarkdownFragment } from "@/components/marketing/MarketingAccessibilityMarkdownFragment";
-import { OperatorPageHeader } from "@/components/OperatorPageHeader";
+import { OperatorPageHeader } from "@/components/operator/OperatorPageHeader";
 import { Card, CardContent } from "@/components/ui/card";
 import {
   ADMIN_DIAGNOSTICS_HELP_CANONICAL_PATH,

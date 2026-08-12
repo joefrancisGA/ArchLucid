@@ -52,7 +52,7 @@ Status values: **done** (fixed 2026-08-03) Â· **open** (follow-up) Â· **bloc
 | `src/lib/layer-guidance.ts` ("Select a committed review…", "Schedules clone a committed review…") | 2 | done |
 | `src/components/OperateGatedEmptyState.tsx` ("unlocks after your first committed review") | 1 | done |
 | `src/components/PostCommitRetentionRail.tsx` ("You have a committed review.") | 1 | done |
-| `src/components/PolicyPackImpactPreviewPanel.tsx` ("Committed review ID" label/placeholder/error) | 4 | done |
+| `src/components/policy/PolicyPackImpactPreviewPanel.tsx` ("Committed review ID" label/placeholder/error) | 4 | done |
 | `src/components/governance/RecurrenceScheduleCreatePanel.tsx` ("committed review GUID", "Choose a committed review") | 2 | done |
 | `src/app/(operator)/architecture/executive-dashboard/_sections/BusinessImpactSummaryWidget.tsx` | 3 | done |
 | `src/app/(operator)/architecture/executive-dashboard/_sections/ExecutiveRoiSummarySection.tsx` ("Run or commit a review…", "No committed reviews with findings yet…", "Latest committed review per system") | 3 | done |

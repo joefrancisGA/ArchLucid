@@ -2,7 +2,7 @@ import { cn } from "@/lib/utils";
 import type { ReactElement } from "react";
 
 import { CollapsibleSection } from "@/components/CollapsibleSection";
-import { RunTraceViewerLink } from "@/components/RunTraceViewerLink";
+import { RunTraceViewerLink } from "@/components/runs/RunTraceViewerLink";
 import { StatusTag } from "@/components/ui/status-tag";
 import { isBuyerVocabularyPassActive } from "@/lib/demo-ui-env";
 import { formatStageDurationMs } from "@/lib/format-stage-duration";

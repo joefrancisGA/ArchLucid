@@ -46,8 +46,8 @@ vi.mock("@/lib/llm-monthly-budget-status", async (importOriginal) => {
   };
 });
 
-vi.mock("@/components/OperatorNavAuthorityProvider", async (importOriginal) => {
-  const actual = await importOriginal<typeof import("@/components/OperatorNavAuthorityProvider")>();
+vi.mock("@/components/operator/OperatorNavAuthorityProvider", async (importOriginal) => {
+  const actual = await importOriginal<typeof import("@/components/operator/OperatorNavAuthorityProvider")>();
 
   return {
     ...actual,

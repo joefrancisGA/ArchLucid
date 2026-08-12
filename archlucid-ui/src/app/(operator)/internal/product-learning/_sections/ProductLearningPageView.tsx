@@ -4,8 +4,8 @@ import { cn } from "@/lib/utils";
 import Link from "next/link";
 
 import { EmptyState } from "@/components/EmptyState";
-import { OperatorApiProblem } from "@/components/OperatorApiProblem";
-import { OperatorLoadingNotice } from "@/components/OperatorShellMessage";
+import { OperatorApiProblem } from "@/components/operator/OperatorApiProblem";
+import { OperatorLoadingNotice } from "@/components/operator/OperatorShellMessage";
 import { PilotFeedbackRecommendationLearningVocabularyRail } from "@/components/PilotFeedbackRecommendationLearningVocabularyRail";
 import { SeverityTag } from "@/components/ui/severity-tag";
 import { PageContextualHelpButton } from "@/components/usability/PageContextualHelpButton";

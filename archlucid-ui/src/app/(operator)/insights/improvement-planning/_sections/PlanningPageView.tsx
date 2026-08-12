@@ -3,12 +3,12 @@
 import { cn } from "@/lib/utils";
 import { DemoWorkspaceCapabilityUnavailablePanel } from "@/components/DemoWorkspaceCapabilityUnavailablePanel";
 import { CollapsibleSection } from "@/components/CollapsibleSection";
-import { OperatorApiProblem } from "@/components/OperatorApiProblem";
-import { OperatorDemoStaticBanner } from "@/components/OperatorDemoStaticBanner";
+import { OperatorApiProblem } from "@/components/operator/OperatorApiProblem";
+import { OperatorDemoStaticBanner } from "@/components/operator/OperatorDemoStaticBanner";
 import {
   OperatorLoadingNotice,
   OperatorTryNext,
-} from "@/components/OperatorShellMessage";
+} from "@/components/operator/OperatorShellMessage";
 import { PlanningExportReadinessNote } from "@/components/planning/PlanningExportReadinessNote";
 import { PlanningPlansTable } from "@/components/planning/PlanningPlansTable";
 import { PlanningSummarySection } from "@/components/planning/PlanningSummarySection";

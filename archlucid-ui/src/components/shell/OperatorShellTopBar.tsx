@@ -15,7 +15,7 @@ import { ArchLucidWordmarkLink } from "@/components/ArchLucidWordmarkLink";
 import { AuthPanel } from "@/components/AuthPanel";
 import { AuthorityThemeToggle } from "@/components/AuthorityThemeToggle";
 import { CommandPalette } from "@/components/CommandPaletteLazy";
-import { useNavCallerAuthorityRank } from "@/components/OperatorNavAuthorityProvider";
+import { useNavCallerAuthorityRank } from "@/components/operator/OperatorNavAuthorityProvider";
 import { useCommandPaletteChunkPreload } from "@/hooks/use-command-palette-chunk-preload";
 import { useSearchShortcut } from "@/hooks/useSearchShortcut";
 import { Button } from "@/components/ui/button";

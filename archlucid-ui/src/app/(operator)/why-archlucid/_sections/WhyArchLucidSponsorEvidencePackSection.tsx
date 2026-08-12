@@ -1,5 +1,5 @@
 import { cn } from "@/lib/utils";
-import { OperatorApiProblem } from "@/components/OperatorApiProblem";
+import { OperatorApiProblem } from "@/components/operator/OperatorApiProblem";
 import type { WhyArchLucidDemoUniverse } from "@/app/(operator)/why-archlucid/_sections/why-archlucid-demo-universe";
 import { whyArchLucidSponsorPackSourceLine } from "@/app/(operator)/why-archlucid/_sections/why-archlucid-demo-universe";
 import type { WhyArchLucidPageState } from "@/app/(operator)/why-archlucid/_sections/why-archlucid-page-state";

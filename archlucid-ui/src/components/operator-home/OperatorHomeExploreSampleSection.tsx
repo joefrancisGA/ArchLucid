@@ -4,7 +4,7 @@ import { useOperatorHomeWorkspaceActivity } from "@/components/operator-home/ope
 import { GoldenSponsorPackageWalkthroughPanel } from "@/components/golden-walkthrough/GoldenSponsorPackageWalkthroughPanel";
 import { OperatorHomeCardSectionTitle } from "@/components/operator-home/OperatorHomeCardSectionTitle";
 import { OperatorHomeNavigateLoadingButton } from "@/components/operator-home/OperatorHomeNavigateLoadingButton";
-import { useNavCommittedArchitectureReview } from "@/components/OperatorNavAuthorityProvider";
+import { useNavCommittedArchitectureReview } from "@/components/operator/OperatorNavAuthorityProvider";
 import {
   OPERATOR_HOME_CREATION_EXAMPLE_BODY,
   OPERATOR_HOME_CREATION_EXAMPLE_TITLE,

@@ -34,7 +34,7 @@ const ADMINISTRATION_HELP_INTEGRATIONS_BUTTON_PATHS = [
   "src/components/AdvancedOptionsAccordion.tsx",
   "src/components/CopyIdButton.tsx",
   "src/components/InspectorPanel.tsx",
-  "src/components/OperatorRouteDiagnosticsPanel.tsx",
+  "src/components/operator/OperatorRouteDiagnosticsPanel.tsx",
   "src/components/PilotBaselineWizard.tsx",
   "src/components/wizard/PilotModePolicyPackToggle.tsx",
   "src/components/wizard/steps/WizardStepConstraints.tsx",

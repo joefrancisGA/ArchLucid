@@ -1,7 +1,7 @@
 ﻿import { cn } from "@/lib/utils";
 import { notFound } from "next/navigation";
 
-import { OperatorApiProblem } from "@/components/OperatorApiProblem";
+import { OperatorApiProblem } from "@/components/operator/OperatorApiProblem";
 import { ProvenancePageWorkspace, type ProvenanceReviewContext } from "@/components/provenance/ProvenancePageWorkspace";
 import type { ApiLoadFailureState } from "@/lib/api-load-failure";
 import { isApiNotFoundFailure, toApiLoadFailure } from "@/lib/api-load-failure";

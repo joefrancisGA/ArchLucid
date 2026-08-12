@@ -52,11 +52,11 @@ vi.mock("next/link", () => ({
   ),
 }));
 
-vi.mock("@/components/OperatorPageContainer", () => ({
+vi.mock("@/components/operator/OperatorPageContainer", () => ({
   OperatorPageContainer: ({ children }: { children: ReactNode }) => <div>{children}</div>,
 }));
 
-vi.mock("@/components/OperatorPageHeader", () => ({
+vi.mock("@/components/operator/OperatorPageHeader", () => ({
   OperatorPageHeader: ({
     title,
     subtitle,
@@ -82,11 +82,11 @@ vi.mock("@/hooks/use-architecture-draft-registry-entries", () => ({
   useArchitectureDraftRegistryHydrated: () => true,
 }));
 
-vi.mock("@/components/OperatorWelcomeOnboarding", () => ({
+vi.mock("@/components/operator/OperatorWelcomeOnboarding", () => ({
   OperatorWelcomeOnboarding: () => null,
 }));
 
-vi.mock("@/components/RunsListProofHeadline", () => ({
+vi.mock("@/components/runs/RunsListProofHeadline", () => ({
   RunsListProofHeadline: () => null,
 }));
 
@@ -94,15 +94,15 @@ vi.mock("./ReviewsHubBeforeAfterDeltaPanel", () => ({
   ReviewsHubBeforeAfterDeltaPanel: () => null,
 }));
 
-vi.mock("@/components/RunsIndexBeforeAfterPanel", () => ({
+vi.mock("@/components/runs/RunsIndexBeforeAfterPanel", () => ({
   RunsIndexBeforeAfterPanel: () => null,
 }));
 
-vi.mock("@/components/RunsListAggregateErrorBoundary", () => ({
+vi.mock("@/components/runs/RunsListAggregateErrorBoundary", () => ({
   RunsListAggregateErrorBoundary: () => <div data-testid="runs-list-advanced" />,
 }));
 
-vi.mock("@/components/OperatorDemoStaticBanner", () => ({
+vi.mock("@/components/operator/OperatorDemoStaticBanner", () => ({
   OperatorDemoStaticBanner: () => null,
 }));
 

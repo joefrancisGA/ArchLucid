@@ -3,7 +3,7 @@
 import { cn } from "@/lib/utils";
 import { useCallback, useEffect, useState } from "react";
 
-import { OperatorLoadingNotice } from "@/components/OperatorShellMessage";
+import { OperatorLoadingNotice } from "@/components/operator/OperatorShellMessage";
 import { EvidenceTrailBuyerTraceTable } from "@/app/(operator)/insights/evidence-graph/_sections/EvidenceTrailBuyerTraceTable";
 import { getRunExplanationSummary } from "@/lib/api/architecture-runs";
 import { toApiLoadFailure, type ApiLoadFailureState } from "@/lib/api-load-failure";

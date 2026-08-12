@@ -1,6 +1,6 @@
 "use client";
 
-import { useNavCallerAuthorityRank } from "@/components/OperatorNavAuthorityProvider";
+import { useNavCallerAuthorityRank } from "@/components/operator/OperatorNavAuthorityProvider";
 import { AUTHORITY_RANK } from "@/lib/nav-authority";
 
 import type { IdentityProvidersSettingsPageServerLoad } from "./load-identity-providers-settings-page-data";

@@ -1,7 +1,7 @@
 "use client";
 
-import { OperatorPageBreadcrumb } from "@/components/OperatorPageBreadcrumb";
-import { OperatorPageHeader } from "@/components/OperatorPageHeader";
+import { OperatorPageBreadcrumb } from "@/components/operator/OperatorPageBreadcrumb";
+import { OperatorPageHeader } from "@/components/operator/OperatorPageHeader";
 import { HelpTopicPrintButton } from "@/components/help/HelpTopicPrintButton";
 import { PageContextualHelpButton } from "@/components/usability/PageContextualHelpButton";
 import type { ProductDocumentationEntry } from "@/lib/product-documentation-registry";

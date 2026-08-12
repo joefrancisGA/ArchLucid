@@ -8,7 +8,7 @@ import { OPERATOR_TYPOGRAPHY } from "@/lib/design-tokens";
 import { useCallback, useEffect, useMemo, useRef, useState, type ReactElement } from "react";
 
 import { DigestPreviewBeforeSubscribePanel } from "@/components/digests/DigestPreviewBeforeSubscribePanel";
-import { OperatorApiProblem } from "@/components/OperatorApiProblem";
+import { OperatorApiProblem } from "@/components/operator/OperatorApiProblem";
 import { Button } from "@/components/ui/button";
 import { Input } from "@/components/ui/input";
 import { Label } from "@/components/ui/label";

@@ -15,7 +15,7 @@ import {
 } from "react";
 import { createPortal } from "react-dom";
 
-import { useOperatorNavAuthority } from "@/components/OperatorNavAuthorityProvider";
+import { useOperatorNavAuthority } from "@/components/operator/OperatorNavAuthorityProvider";
 import { ScopeSwitcherProjectOptionButton } from "@/components/ScopeSwitcherProjectOptionButton";
 import { ScopeSwitcherTenantContextFooter } from "@/components/ScopeSwitcherTenantContextFooter";
 import { WorkspaceScopeTenantSettingsVocabularyRail } from "@/components/WorkspaceScopeTenantSettingsVocabularyRail";

@@ -29,7 +29,7 @@ vi.mock("@/components/operator-home/BuyerCtoDemoReadinessPanel", () => ({
   },
 }));
 
-vi.mock("@/components/OperatorNavAuthorityProvider", () => ({
+vi.mock("@/components/operator/OperatorNavAuthorityProvider", () => ({
   useOperatorNavAuthority: () => navAuthorityState,
 }));
 

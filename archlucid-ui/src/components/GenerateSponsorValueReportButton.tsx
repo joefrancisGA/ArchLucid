@@ -4,7 +4,7 @@ import { OPERATOR_TYPOGRAPHY } from "@/lib/design-tokens";
 
 import { useState } from "react";
 
-import { OperatorApiProblem } from "@/components/OperatorApiProblem";
+import { OperatorApiProblem } from "@/components/operator/OperatorApiProblem";
 import { LongOperationWaitNotice } from "@/components/LongOperationWaitNotice";
 import { Button } from "@/components/ui/button";
 import { useOperateCapability } from "@/hooks/use-operate-capability";

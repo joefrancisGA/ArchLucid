@@ -5,8 +5,8 @@ import Link from "next/link";
 import { useMemo } from "react";
 
 import { useExecutiveRoiSummaryQuery } from "@/hooks/use-executive-roi-summary-query";
-import { useNavCommittedArchitectureReview } from "@/components/OperatorNavAuthorityProvider";
-import { OperatorApiProblem } from "@/components/OperatorApiProblem";
+import { useNavCommittedArchitectureReview } from "@/components/operator/OperatorNavAuthorityProvider";
+import { OperatorApiProblem } from "@/components/operator/OperatorApiProblem";
 import { RoiDispositionTrainingTooltip } from "@/components/roi/RoiDispositionTrainingTooltip";
 import { toApiLoadFailure } from "@/lib/api-load-failure";
 import {

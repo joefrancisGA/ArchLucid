@@ -18,7 +18,7 @@ vi.mock("@/lib/api-keys-settings-access", () => ({
   isApiKeysSettingsSurfaceEnabled: () => true,
 }));
 
-vi.mock("@/components/OperatorNavAuthorityProvider", () => ({
+vi.mock("@/components/operator/OperatorNavAuthorityProvider", () => ({
   useNavCallerAuthorityRank: () => 3,
 }));
 

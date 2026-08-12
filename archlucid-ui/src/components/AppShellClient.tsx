@@ -9,7 +9,7 @@ import { usePathname } from "next/navigation";
 
 import { ArchLucidWordmarkLink } from "@/components/ArchLucidWordmarkLink";
 import { AppToaster } from "@/components/AppToaster";
-import { OperatorQueryProvider } from "@/components/OperatorQueryProvider";
+import { OperatorQueryProvider } from "@/components/operator/OperatorQueryProvider";
 import {
   AppShellIdleOverlaysDeferred,
   AppShellMainContentGateDeferred,
@@ -29,9 +29,9 @@ import { AuthorityThemeToggle } from "@/components/AuthorityThemeToggle";
 import {
   OperatorChromeModeProvider,
   useOperatorChromeMode,
-} from "@/components/OperatorChromeModeContext";
-import { OperatorShellProviders } from "@/components/OperatorShellProviders";
-import { OperatorShellDeferredChrome } from "@/components/OperatorShellDeferredChrome";
+} from "@/components/operator/OperatorChromeModeContext";
+import { OperatorShellProviders } from "@/components/operator/OperatorShellProviders";
+import { OperatorShellDeferredChrome } from "@/components/operator/OperatorShellDeferredChrome";
 import { RouteAnnouncer } from "@/components/RouteAnnouncer";
 import { isUiAuthorityThemeEvalEnabledEnv } from "@/lib/ui-authority-theme";
 import { Button } from "@/components/ui/button";
@@ -116,7 +116,7 @@ const AppShellStatusBanners = dynamic(
 );
 
 const TrialLimitModalHost = dynamic(
-  () => import("@/components/TrialLimitModal").then((module) => module.TrialLimitModalHost),
+  () => import("@/components/trial/TrialLimitModal").then((module) => module.TrialLimitModalHost),
   { ssr: false },
 );
 

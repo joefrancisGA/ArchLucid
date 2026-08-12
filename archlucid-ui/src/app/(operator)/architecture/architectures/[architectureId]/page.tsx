@@ -1,7 +1,7 @@
 import type { Metadata } from "next";
 
 import { ArchitectureDraftWorkspace } from "@/components/architecture/ArchitectureDraftWorkspace";
-import { OperatorPageContainer } from "@/components/OperatorPageContainer";
+import { OperatorPageContainer } from "@/components/operator/OperatorPageContainer";
 import { metadataForArchitectureDraftEditRoute } from "@/lib/architecture/architecture-draft-route-metadata";
 
 type ArchitectureDraftPageProps = {

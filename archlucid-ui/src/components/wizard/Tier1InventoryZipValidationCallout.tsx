@@ -2,7 +2,7 @@ import { cn } from "@/lib/utils";
 import Link from "next/link";
 
 import { OPERATOR_TYPOGRAPHY } from "@/lib/design-tokens";
-import { OperatorErrorCallout } from "@/components/OperatorShellMessage";
+import { OperatorErrorCallout } from "@/components/operator/OperatorShellMessage";
 
 type Tier1InventoryZipValidationCalloutProps = {
   message: string;

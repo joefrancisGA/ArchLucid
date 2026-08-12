@@ -6,7 +6,7 @@ import { useState } from "react";
 import { Controller, useFormContext } from "react-hook-form";
 
 import { AdvancedOptionsAccordion } from "@/components/AdvancedOptionsAccordion";
-import { OperatorApiProblem } from "@/components/OperatorApiProblem";
+import { OperatorApiProblem } from "@/components/operator/OperatorApiProblem";
 import { Button } from "@/components/ui/button";
 import { Textarea } from "@/components/ui/textarea";
 import { WizardFieldError } from "@/components/wizard/WizardFieldError";

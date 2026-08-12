@@ -4,7 +4,7 @@ import { cn } from "@/lib/utils";
 import { useCallback, useState } from "react";
 
 import { ConfirmationDialog } from "@/components/ConfirmationDialog";
-import { useOperatorNavAuthority } from "@/components/OperatorNavAuthorityProvider";
+import { useOperatorNavAuthority } from "@/components/operator/OperatorNavAuthorityProvider";
 import {
   Select,
   SelectContent,

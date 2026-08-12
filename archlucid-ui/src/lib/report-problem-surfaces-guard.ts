@@ -71,11 +71,11 @@ const REPORT_PROBLEM_AFFORDANCE_MARKERS = [
 /** Operator error-ish sources scanned by the optional mailto drift guard (warn-only). */
 export const REPORT_PROBLEM_MAILTO_DRIFT_SCAN_ROOTS = [
   "src/app/(operator)",
-  "src/components/OperatorApiProblem.tsx",
-  "src/components/OperatorLayeredConnectivityError.tsx",
-  "src/components/OperatorBrandedTransientFailure.tsx",
+  "src/components/operator/OperatorApiProblem.tsx",
+  "src/components/operator/OperatorLayeredConnectivityError.tsx",
+  "src/components/operator/OperatorBrandedTransientFailure.tsx",
   "src/components/ReviewPackageLoadFailureView.tsx",
-  "src/components/OperatorAccessDeniedPageClient.tsx",
+  "src/components/operator/OperatorAccessDeniedPageClient.tsx",
 ] as const;
 
 export function collectTsxSourceFiles(absoluteRoot: string): string[] {

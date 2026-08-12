@@ -1,6 +1,6 @@
 import { cn } from "@/lib/utils";
 
-import { OperatorApiProblem } from "@/components/OperatorApiProblem";
+import { OperatorApiProblem } from "@/components/operator/OperatorApiProblem";
 import {
   isRunNeedingAttention,
   runListPrimaryTitle,

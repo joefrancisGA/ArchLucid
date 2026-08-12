@@ -28,8 +28,8 @@ vi.mock("@/hooks/use-operate-capability", () => ({
   useOperateCapability: (): boolean => mutateCapability.current,
 }));
 
-vi.mock("@/components/OperatorNavAuthorityProvider", async (importOriginal) => {
-  const mod = await importOriginal<typeof import("@/components/OperatorNavAuthorityProvider")>();
+vi.mock("@/components/operator/OperatorNavAuthorityProvider", async (importOriginal) => {
+  const mod = await importOriginal<typeof import("@/components/operator/OperatorNavAuthorityProvider")>();
   const { AUTHORITY_RANK } = await import("@/lib/nav-authority");
 
   return {

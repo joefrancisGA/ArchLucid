@@ -2,7 +2,7 @@
 
 import type { ReactNode } from "react";
 
-import { PolicyPackDetailHubVocabularyRail } from "@/components/PolicyPackDetailHubVocabularyRail";
+import { PolicyPackDetailHubVocabularyRail } from "@/components/policy/PolicyPackDetailHubVocabularyRail";
 import { PageContextualHelpButton } from "@/components/usability/PageContextualHelpButton";
 
 type PolicyPackDetailEvidenceChromeProps = {

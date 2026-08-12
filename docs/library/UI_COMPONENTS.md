@@ -65,7 +65,7 @@ return (
 
 ## `RunProgressTracker`
 
-**File:** `archlucid-ui/src/components/RunProgressTracker.tsx`
+**File:** `archlucid-ui/src/components/runs/RunProgressTracker.tsx`
 
 ### Props (`RunProgressTrackerProps`)
 
@@ -92,7 +92,7 @@ Errors from **`getRunSummary`** during polling are ignored until timeout (same p
 
 The run detail page (`archlucid-ui/src/app/runs/[runId]/page.tsx`) loads an initial **`RunSummary`** on the server and renders **`RunProgressTracker`** only when the run is not yet fully reflected as complete (no **`goldenManifestId`** and/or summary flags incomplete).
 
-**Tests:** `archlucid-ui/src/components/RunProgressTracker.test.tsx`
+**Tests:** `archlucid-ui/src/components/runs/RunProgressTracker.test.tsx`
 
 ---
 

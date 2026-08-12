@@ -4,9 +4,9 @@ import { cn } from "@/lib/utils";
 import Link from "next/link";
 
 import { DemoUnavailableNotice } from "@/components/DemoUnavailableNotice";
-import { OperatorApiProblem } from "@/components/OperatorApiProblem";
-import { OperatorBrandedRouteLoadFailure } from "@/components/OperatorBrandedRouteLoadFailure";
-import { OperatorEmptyState, OperatorLoadingNotice } from "@/components/OperatorShellMessage";
+import { OperatorApiProblem } from "@/components/operator/OperatorApiProblem";
+import { OperatorBrandedRouteLoadFailure } from "@/components/operator/OperatorBrandedRouteLoadFailure";
+import { OperatorEmptyState, OperatorLoadingNotice } from "@/components/operator/OperatorShellMessage";
 import { Button } from "@/components/ui/button";
 import { resolveApiLoadFailurePresentation } from "@/lib/api-load-failure";
 import { OPERATOR_TYPOGRAPHY } from "@/lib/design-tokens";

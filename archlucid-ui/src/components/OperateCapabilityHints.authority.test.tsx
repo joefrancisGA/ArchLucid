@@ -30,7 +30,7 @@ import {
 /** Literal `1` — hoisted factory runs before `AUTHORITY_RANK` import is safe to reference. */
 const navCallerAuthorityRank = vi.hoisted(() => ({ current: 1 }));
 
-vi.mock("@/components/OperatorNavAuthorityProvider", () => ({
+vi.mock("@/components/operator/OperatorNavAuthorityProvider", () => ({
   useNavCallerAuthorityRank: (): number => navCallerAuthorityRank.current,
 }));
 

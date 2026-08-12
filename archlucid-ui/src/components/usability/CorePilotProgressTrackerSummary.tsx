@@ -1,7 +1,7 @@
 "use client";
 
 import { InlineGuidanceLabel } from "@/components/InlineGuidanceLabel";
-import { useNavCallerAuthorityRank } from "@/components/OperatorNavAuthorityProvider";
+import { useNavCallerAuthorityRank } from "@/components/operator/OperatorNavAuthorityProvider";
 import Link from "next/link";
 import { useEffect, useState } from "react";
 

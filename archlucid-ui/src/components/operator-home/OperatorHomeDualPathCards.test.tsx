@@ -40,7 +40,7 @@ vi.mock("@/hooks/use-finish-setup-readiness-context", () => ({
   }),
 }));
 
-vi.mock("@/components/OperatorNavAuthorityProvider", () => ({
+vi.mock("@/components/operator/OperatorNavAuthorityProvider", () => ({
   useNavCallerAuthorityRank: () => callerAuthorityRank.value,
   useOperatorNavAuthority: () => ({
     currentPrincipal: {

@@ -3,7 +3,7 @@
 import { useEffect, useState } from "react";
 import { usePathname } from "next/navigation";
 
-import { useOperatorNavAuthority } from "@/components/OperatorNavAuthorityProvider";
+import { useOperatorNavAuthority } from "@/components/operator/OperatorNavAuthorityProvider";
 import { shouldDeferOperatorShellChrome } from "@/lib/operator/operator-shell-access-gate";
 
 /** True while operator shell chrome (sidebar/top bar) must stay hidden pending authority or home access. */

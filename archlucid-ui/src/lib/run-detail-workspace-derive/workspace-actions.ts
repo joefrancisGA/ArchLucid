@@ -1,5 +1,5 @@
 import { buyerFacingReviewTitleFromSummary } from "@/lib/buyer/buyer-facing-review-title";
-import { deriveRunListPipelineLabel } from "@/components/RunStatusBadge";
+import { deriveRunListPipelineLabel } from "@/components/runs/RunStatusBadge";
 import { governanceGateLabelFromManifestStatus } from "@/lib/governance/governance-gate-display";
 import { manifestStatusForDisplay } from "@/lib/manifest-status-display";
 import { PIPELINE_STATUS_LABELS } from "@/lib/pipeline-status-labels";

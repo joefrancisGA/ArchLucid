@@ -4,7 +4,7 @@ import Link from "next/link";
 import type { ReactElement } from "react";
 
 import { CopyGovernanceQueueWorkItemButton } from "@/components/CopyFindingAsWorkItemButton";
-import { ItsmOutboundQuickActions } from "@/components/ItsmOutboundQuickActions";
+import { ItsmOutboundQuickActions } from "@/components/itsm/ItsmOutboundQuickActions";
 import { Button } from "@/components/ui/button";
 
 import type { GovernanceFindingQueueRow } from "@/app/(operator)/governance/findings/governance-finding-queue-row";

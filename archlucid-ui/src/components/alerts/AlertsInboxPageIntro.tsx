@@ -1,8 +1,8 @@
 import Link from "next/link";
 
 import { AlertsInboxRankCue } from "@/components/EnterpriseControlsContextHints";
-import { OperatorApiProblem } from "@/components/OperatorApiProblem";
-import { OperatorTryNext } from "@/components/OperatorShellMessage";
+import { OperatorApiProblem } from "@/components/operator/OperatorApiProblem";
+import { OperatorTryNext } from "@/components/operator/OperatorShellMessage";
 import { OPERATOR_LINK, OPERATOR_TYPOGRAPHY } from "@/lib/design-tokens";
 import { shouldMergeOperatorDemoAlertSample } from "@/lib/operator/operator-static-demo";
 import { cn } from "@/lib/utils";

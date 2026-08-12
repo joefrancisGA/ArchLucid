@@ -1,5 +1,5 @@
 import { START_REVIEW_LABEL } from "@/lib/architecture/architecture-workflow-labels";
-import { OperatorPageContainer } from "@/components/OperatorPageContainer";
+import { OperatorPageContainer } from "@/components/operator/OperatorPageContainer";
 import type { Metadata } from "next";
 import dynamic from "next/dynamic";
 import { Suspense } from "react";

@@ -2,7 +2,7 @@ import { describe, expect, it, vi } from "vitest";
 
 import { render, screen } from "@testing-library/react";
 
-vi.mock("@/components/OperatorOfflineReconnectBanner", () => ({
+vi.mock("@/components/operator/OperatorOfflineReconnectBanner", () => ({
   OperatorOfflineReconnectBanner: () => <div data-testid="operator-offline-reconnect" />,
 }));
 
@@ -18,11 +18,11 @@ vi.mock("@/components/governance/ServiceBusHealthBanner", () => ({
   ServiceBusHealthBanner: () => null,
 }));
 
-vi.mock("@/components/LlmBudgetApproachingLimitBanner", () => ({
+vi.mock("@/components/llm/LlmBudgetApproachingLimitBanner", () => ({
   LlmBudgetApproachingLimitBanner: () => null,
 }));
 
-vi.mock("@/components/TrialAiBudgetStatusBanner", () => ({
+vi.mock("@/components/trial/TrialAiBudgetStatusBanner", () => ({
   PublicDemoAiUsageBanner: () => null,
   TrialAiBudgetStatusBanner: () => null,
 }));
@@ -31,15 +31,15 @@ vi.mock("@/components/TeamExpansionNudge", () => ({
   TeamExpansionNudge: () => null,
 }));
 
-vi.mock("@/components/TrialBanner", () => ({
+vi.mock("@/components/trial/TrialBanner", () => ({
   TrialBanner: () => null,
 }));
 
-vi.mock("@/components/TrialExpiryBanner", () => ({
+vi.mock("@/components/trial/TrialExpiryBanner", () => ({
   TrialExpiryBanner: () => null,
 }));
 
-vi.mock("@/components/TrialUsageUpgradeNudge", () => ({
+vi.mock("@/components/trial/TrialUsageUpgradeNudge", () => ({
   TrialUsageUpgradeNudge: () => null,
 }));
 

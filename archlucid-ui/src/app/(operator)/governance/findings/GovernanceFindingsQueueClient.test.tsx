@@ -2,7 +2,7 @@ import { fireEvent, render, screen, within } from "@testing-library/react";
 import { beforeEach, beforeAll, describe, expect, it, vi } from "vitest";
 
 import GovernanceFindingsQueueClient from "@/app/(operator)/governance/findings/GovernanceFindingsQueueClient";
-import { OperatorQueryProvider } from "@/components/OperatorQueryProvider";
+import { OperatorQueryProvider } from "@/components/operator/OperatorQueryProvider";
 import * as governanceApi from "@/lib/api/governance-stickiness-api";
 import { OPERATOR_NAV_LINK_LABELS } from "@/lib/i18n";
 import { ROUTE_TITLES } from "@/lib/route-static-titles";

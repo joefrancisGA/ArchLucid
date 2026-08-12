@@ -6,7 +6,7 @@ import { useSearchParams } from "next/navigation";
 import { useCallback, useEffect, useMemo, useRef, useState } from "react";
 import { FormProvider, useForm, useWatch } from "react-hook-form";
 
-import { OperatorPageContainer } from "@/components/OperatorPageContainer";
+import { OperatorPageContainer } from "@/components/operator/OperatorPageContainer";
 import { CorePilotProgressTrackerBanner } from "@/components/usability/CorePilotProgressTrackerBanner";
 import { ReviewIntakeExampleTemplateCallout } from "@/components/review-intake/ReviewIntakeExampleTemplateCallout";
 import { WizardNavButtons } from "@/components/wizard/WizardNavButtons";
@@ -22,8 +22,8 @@ import type { WizardEvidenceUploadTrackState } from "@/components/wizard/steps/W
 import { WizardStepIdentity } from "@/components/wizard/steps/WizardStepIdentity";
 import { WizardStepPreset } from "@/components/wizard/steps/WizardStepPreset";
 import { WizardStepReview } from "@/components/wizard/steps/WizardStepReview";
-import { LlmMonthlyBudgetExceededBanner } from "@/components/LlmMonthlyBudgetExceededBanner";
-import { LlmUsageBandHint } from "@/components/LlmUsageBandHint";
+import { LlmMonthlyBudgetExceededBanner } from "@/components/llm/LlmMonthlyBudgetExceededBanner";
+import { LlmUsageBandHint } from "@/components/llm/LlmUsageBandHint";
 import { useLlmMonthlyBudgetExecutionGate } from "@/hooks/use-llm-monthly-budget-execution-gate";
 import { useReviewCreationProgress } from "@/hooks/use-review-creation-progress";
 import { useWizardSessionPersistence } from "@/hooks/use-wizard-session-persistence";

@@ -1,6 +1,6 @@
 "use client";
 
-import { OperatorPageContainer } from "@/components/OperatorPageContainer";
+import { OperatorPageContainer } from "@/components/operator/OperatorPageContainer";
 import {
   ExecutiveDashboardDataProvider,
   useExecutiveDashboardData,

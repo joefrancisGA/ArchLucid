@@ -3,12 +3,12 @@
 import { cn } from "@/lib/utils";
 import { useCallback, useEffect, useState } from "react";
 
-import { FindingConfidenceBadge } from "@/components/FindingConfidenceBadge";
+import { FindingConfidenceBadge } from "@/components/findings/FindingConfidenceBadge";
 import { FindingOptionalArtifactUnavailable } from "@/components/findings/FindingOptionalArtifactUnavailable";
 import { MutationErrorBoundary } from "@/components/MutationErrorBoundary";
 import { DocumentLayout } from "@/components/DocumentLayout";
-import { OperatorLoadingNotice } from "@/components/OperatorShellMessage";
-import { useNavCallerAuthorityRank } from "@/components/OperatorNavAuthorityProvider";
+import { OperatorLoadingNotice } from "@/components/operator/OperatorShellMessage";
+import { useNavCallerAuthorityRank } from "@/components/operator/OperatorNavAuthorityProvider";
 import { Button } from "@/components/ui/button";
 import { Collapsible, CollapsibleContent, CollapsibleTrigger } from "@/components/ui/collapsible";
 import { getFindingEvidenceChain, getFindingLlmAudit, postFindingFeedback } from "@/lib/api";

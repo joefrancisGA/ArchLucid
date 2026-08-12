@@ -280,7 +280,7 @@ Change: "Drop the inventory ZIP output from the extractor script. Maximum size {
 
 **TB-492 — FindingTrustChip label:**
 ```
-File: archlucid-ui/src/components/FindingTrustChip.tsx
+File: archlucid-ui/src/components/findings/FindingTrustChip.tsx
 Find:   kind: "citation-missing", label: "Citation missing", title: "No evidence references are attached to this finding."
 Change: kind: "citation-missing", label: "No evidence linked", title: "No evidence references are attached to this finding. Add evidence to the review or re-run to improve traceability."
 ```

@@ -5,7 +5,7 @@ import { cn } from "@/lib/utils";
 import { DemoWorkspaceCapabilityUnavailablePanel } from "@/components/DemoWorkspaceCapabilityUnavailablePanel";
 import { AiUsageBillingVocabularyRail } from "@/components/AiUsageBillingVocabularyRail";
 import { ModelGovernanceAiUsageVocabularyRail } from "@/components/ModelGovernanceAiUsageVocabularyRail";
-import { OperatorOutboxDiagnosticsCard } from "@/components/OperatorOutboxDiagnosticsCard";
+import { OperatorOutboxDiagnosticsCard } from "@/components/operator/OperatorOutboxDiagnosticsCard";
 import { PageHeading } from "@/components/PageHeading";
 import { Skeleton } from "@/components/ui/skeleton";
 import { PageContextualHelpButton } from "@/components/usability/PageContextualHelpButton";

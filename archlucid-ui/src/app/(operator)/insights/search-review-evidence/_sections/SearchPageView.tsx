@@ -5,11 +5,11 @@ import { AskSearchEvidenceVocabularyRail } from "@/components/AskSearchEvidenceV
 import { AuditEvidenceTrailVocabularyRail } from "@/components/AuditEvidenceTrailVocabularyRail";
 import { DemoWorkspaceCapabilityUnavailablePanel } from "@/components/DemoWorkspaceCapabilityUnavailablePanel";
 import { EnterpriseCompactEmptyState } from "@/components/EnterpriseCompactEmptyState";
-import { FindingsQueueSearchEvidenceVocabularyRail } from "@/components/FindingsQueueSearchEvidenceVocabularyRail";
-import { OperatorApiProblem } from "@/components/OperatorApiProblem";
-import { OperatorPageHeader } from "@/components/OperatorPageHeader";
+import { FindingsQueueSearchEvidenceVocabularyRail } from "@/components/findings/FindingsQueueSearchEvidenceVocabularyRail";
+import { OperatorApiProblem } from "@/components/operator/OperatorApiProblem";
+import { OperatorPageHeader } from "@/components/operator/OperatorPageHeader";
 import { PageCapabilityBoundaryStrip } from "@/components/PageCapabilityBoundaryStrip";
-import { RunIdPicker } from "@/components/RunIdPicker";
+import { RunIdPicker } from "@/components/runs/RunIdPicker";
 import { PageContextualHelpButton } from "@/components/usability/PageContextualHelpButton";
 import { Button } from "@/components/ui/button";
 import { Card, CardContent } from "@/components/ui/card";

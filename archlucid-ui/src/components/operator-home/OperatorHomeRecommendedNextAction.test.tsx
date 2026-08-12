@@ -12,7 +12,7 @@ import {
   showcaseSampleReviewPackageHref,
 } from "@/lib/showcase-sample-review-registry";
 
-vi.mock("@/components/OperatorNavAuthorityProvider", () => ({
+vi.mock("@/components/operator/OperatorNavAuthorityProvider", () => ({
   useNavCommittedArchitectureReview: vi.fn(() => false),
 }));
 
@@ -33,7 +33,7 @@ vi.mock("@/lib/core-pilot-commit-context", async (importOriginal) => {
   return mockModule;
 });
 
-import { useNavCommittedArchitectureReview } from "@/components/OperatorNavAuthorityProvider";
+import { useNavCommittedArchitectureReview } from "@/components/operator/OperatorNavAuthorityProvider";
 import { fetchCorePilotCommitContext } from "@/lib/core-pilot-commit-context";
 
 describe("OperatorHomeRecommendedNextAction", () => {

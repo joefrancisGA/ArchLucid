@@ -2,7 +2,7 @@
 
 import { useCallback, useEffect, useRef, useState } from "react";
 
-import { useOperatorNavAuthority } from "@/components/OperatorNavAuthorityProvider";
+import { useOperatorNavAuthority } from "@/components/operator/OperatorNavAuthorityProvider";
 import { tryGetTenantTrialStatus } from "@/lib/api";
 import { AUTHORITY_RANK } from "@/lib/nav-authority";
 import type { TenantTrialStatusPayload } from "@/types/tenant-trial-status";

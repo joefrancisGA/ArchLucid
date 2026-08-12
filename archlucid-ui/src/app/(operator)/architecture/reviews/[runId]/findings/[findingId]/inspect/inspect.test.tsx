@@ -6,13 +6,13 @@ import { FindingInspectView } from "../FindingInspectView";
 
 expect.extend(toHaveNoViolations);
 
-vi.mock("@/components/OperatorApiProblem", () => ({
+vi.mock("@/components/operator/OperatorApiProblem", () => ({
   OperatorApiProblem: ({ fallbackMessage }: { fallbackMessage: string }) => (
     <div data-testid="api-problem-mock">{fallbackMessage}</div>
   ),
 }));
 
-vi.mock("@/components/OperatorEvidenceLimitsFooter", () => ({
+vi.mock("@/components/operator/OperatorEvidenceLimitsFooter", () => ({
   OperatorEvidenceLimitsFooter: () => <div data-testid="operator-evidence-limits-footer-stub" />,
 }));
 

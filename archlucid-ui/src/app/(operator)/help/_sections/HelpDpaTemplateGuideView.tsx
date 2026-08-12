@@ -6,7 +6,7 @@ import { MarketingAccessibilityMarkdownFragment } from "@/components/marketing/M
 import { Button } from "@/components/ui/button";
 import { Card, CardContent, CardHeader, CardTitle } from "@/components/ui/card";
 import { StatusTag } from "@/components/ui/status-tag";
-import { OperatorPageHeader } from "@/components/OperatorPageHeader";
+import { OperatorPageHeader } from "@/components/operator/OperatorPageHeader";
 import { PageContextualHelpButton } from "@/components/usability/PageContextualHelpButton";
 import {
   DPA_TEMPLATE_HELP_CLAIM_DISCIPLINE,

@@ -10,8 +10,8 @@ import {
   IntegrationReadinessSummaryStrip,
   IntegrationRecommendedFirstSetupCard,
 } from "@/components/integrations/IntegrationReadinessSections";
-import { OperatorApiProblem } from "@/components/OperatorApiProblem";
-import { OperatorLoadingNotice } from "@/components/OperatorShellMessage";
+import { OperatorApiProblem } from "@/components/operator/OperatorApiProblem";
+import { OperatorLoadingNotice } from "@/components/operator/OperatorShellMessage";
 import { fetchTenantIntegrationsOperations } from "@/lib/api";
 import type { ApiProblemDetails } from "@/lib/api-problem";
 import {

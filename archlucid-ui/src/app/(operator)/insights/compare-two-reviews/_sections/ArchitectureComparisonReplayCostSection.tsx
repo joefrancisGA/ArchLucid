@@ -4,7 +4,7 @@ import { cn } from "@/lib/utils";
 import { useSearchParams } from "next/navigation";
 import { Fragment, useCallback, useEffect, useState } from "react";
 
-import { OperatorApiProblem } from "@/components/OperatorApiProblem";
+import { OperatorApiProblem } from "@/components/operator/OperatorApiProblem";
 import { ReplayCostPreExecuteCostVocabularyRail } from "@/components/ReplayCostPreExecuteCostVocabularyRail";
 import { Button } from "@/components/ui/button";
 import { Input } from "@/components/ui/input";

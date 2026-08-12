@@ -1,4 +1,4 @@
-import { useItsmNativeCreateReadinessContext } from "@/components/ItsmNativeCreateReadinessProvider";
+import { useItsmNativeCreateReadinessContext } from "@/components/itsm/ItsmNativeCreateReadinessProvider";
 import {
   INITIAL_ITSM_NATIVE_CREATE_READINESS,
   type ItsmNativeCreateReadiness,

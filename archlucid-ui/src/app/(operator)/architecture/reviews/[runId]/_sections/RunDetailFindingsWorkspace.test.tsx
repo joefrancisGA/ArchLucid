@@ -9,7 +9,7 @@ vi.mock("@/components/QuickDecisionSummary", () => ({
   QuickDecisionSummary: () => <div data-testid="quick-decision-summary-stub" />,
 }));
 
-vi.mock("@/components/FindingsItsmExportToolbar", () => ({
+vi.mock("@/components/findings/FindingsItsmExportToolbar", () => ({
   FindingsItsmExportToolbar: () => null,
 }));
 

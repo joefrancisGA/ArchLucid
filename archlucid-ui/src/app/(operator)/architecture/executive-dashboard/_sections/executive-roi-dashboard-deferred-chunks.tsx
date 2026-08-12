@@ -33,7 +33,7 @@ function ExecutiveDashboardDeferredSectionLoading(props: {
 
 export const OperatorWelcomeOnboardingDeferred: ComponentType = dynamic(
   () =>
-    import("@/components/OperatorWelcomeOnboarding").then(
+    import("@/components/operator/OperatorWelcomeOnboarding").then(
       (module) => module.OperatorWelcomeOnboarding,
     ),
   {

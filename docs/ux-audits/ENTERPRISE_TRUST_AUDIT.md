@@ -168,7 +168,7 @@ Add an explicit can/cannot list (can: view packages, export; cannot: approve, fi
 
 **TB-501 — Quick approve audit comment:**
 ```
-File: archlucid-ui/src/components/GovernanceQuickApproveButton.tsx
+File: archlucid-ui/src/components/governance/GovernanceQuickApproveButton.tsx
 Find:   reviewComment: "Quick approve — no Critical/High findings in governance lineage snapshot."
 Change: reviewComment: "Approved — no critical or high findings present at time of review."
 ```

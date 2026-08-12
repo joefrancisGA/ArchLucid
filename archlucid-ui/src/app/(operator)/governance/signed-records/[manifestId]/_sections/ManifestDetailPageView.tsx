@@ -1,21 +1,21 @@
 import { cn } from "@/lib/utils";
 import Link from "next/link";
 
-import { OperatorDemoStaticBanner } from "@/components/OperatorDemoStaticBanner";
+import { OperatorDemoStaticBanner } from "@/components/operator/OperatorDemoStaticBanner";
 import { CtoDemoBuyerValueStrip } from "@/components/cto-demo/CtoDemoBuyerValueStrip";
 import {
   OperatorEvidenceLimitsFooter,
-} from "@/components/OperatorEvidenceLimitsFooter";
+} from "@/components/operator/OperatorEvidenceLimitsFooter";
 import { ArtifactListTable } from "@/components/ArtifactListTable";
 import { ManifestBuyerBundleDownloadSection } from "@/components/ManifestBuyerBundleDownloadSection";
 import { ManifestDeliverableGrid } from "@/components/ManifestDeliverableGrid";
 import { ManifestDetailSummaryPanel } from "@/components/ManifestDetailSummaryPanel";
 import { ManifestTopDecisionsCard } from "@/components/ManifestTopDecisionsCard";
-import { OperatorApiProblem } from "@/components/OperatorApiProblem";
+import { OperatorApiProblem } from "@/components/operator/OperatorApiProblem";
 import {
   OperatorEmptyState,
   OperatorMalformedCallout,
-} from "@/components/OperatorShellMessage";
+} from "@/components/operator/OperatorShellMessage";
 import { Button } from "@/components/ui/button";
 import { Card, CardContent, CardDescription, CardHeader, CardTitle } from "@/components/ui/card";
 import { shouldShowOperatorDemoMarketingChrome } from "@/lib/buyer/buyer-demo-content-gating";

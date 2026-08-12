@@ -3,8 +3,8 @@
 import { cn } from "@/lib/utils";
 import { AdvancedOptionsAccordion } from "@/components/AdvancedOptionsAccordion";
 import type { PolicyPacksPageViewModel } from "./policy-packs-page-view-model";
-import { PolicyPackImpactPreviewPanel } from "@/components/PolicyPackImpactPreviewPanel";
-import { PolicyPackImpactSimulationCard } from "@/components/PolicyPackImpactSimulationCard";
+import { PolicyPackImpactPreviewPanel } from "@/components/policy/PolicyPackImpactPreviewPanel";
+import { PolicyPackImpactSimulationCard } from "@/components/policy/PolicyPackImpactSimulationCard";
 import { PolicyPackBasisStatusBanner } from "@/components/governance/PolicyPackBasisStatusBanner";
 import { buildPolicyPackEnforcedRuleRows } from "@/lib/policy/policy-pack-enforced-rules";
 import {
@@ -25,12 +25,12 @@ import { PolicyPacksPageHeader } from "./PolicyPacksPageHeader";
 import { PolicyPacksRegisteredListSection } from "./PolicyPacksRegisteredListSection";
 import { PolicyPacksAdvancedAuthoringPanel } from "./PolicyPacksAdvancedAuthoringPanel";
 import { LayerHeader } from "@/components/LayerHeader";
-import { OperatorApiProblem } from "@/components/OperatorApiProblem";
+import { OperatorApiProblem } from "@/components/operator/OperatorApiProblem";
 import { OperatorSuccessCallout } from "@/components/operator/OperatorSuccessCallout";
 import { PatternLibraryPolicyPacksVocabularyRail } from "@/components/PatternLibraryPolicyPacksVocabularyRail";
-import { PolicyPackDetailHubVocabularyRail } from "@/components/PolicyPackDetailHubVocabularyRail";
-import { PolicyPacksStandardsVocabularyRail } from "@/components/PolicyPacksStandardsVocabularyRail";
-import { GovernanceSetupConfigHubsVocabularyRail } from "@/components/GovernanceSetupConfigHubsVocabularyRail";
+import { PolicyPackDetailHubVocabularyRail } from "@/components/policy/PolicyPackDetailHubVocabularyRail";
+import { PolicyPacksStandardsVocabularyRail } from "@/components/policy/PolicyPacksStandardsVocabularyRail";
+import { GovernanceSetupConfigHubsVocabularyRail } from "@/components/governance/GovernanceSetupConfigHubsVocabularyRail";
 import {
   Tabs,
   TabsContent,

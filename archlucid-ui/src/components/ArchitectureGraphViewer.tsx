@@ -7,12 +7,12 @@ import Link from "next/link";
 import { useEffect, useMemo, useState } from "react";
 
 import { GraphStaticFallback } from "@/components/GraphStaticFallback";
-import { OperatorApiProblem } from "@/components/OperatorApiProblem";
+import { OperatorApiProblem } from "@/components/operator/OperatorApiProblem";
 import {
   OperatorLoadingNotice,
   OperatorMalformedCallout,
   OperatorTryNext,
-} from "@/components/OperatorShellMessage";
+} from "@/components/operator/OperatorShellMessage";
 import type { ApiLoadFailureState } from "@/lib/api-load-failure";
 import {
   loadArchitectureGraphViewModel,

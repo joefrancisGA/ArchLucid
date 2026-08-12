@@ -5,7 +5,7 @@ import Link from "next/link";
 import { useCallback, useEffect, useMemo, useState } from "react";
 
 import { ConfirmationDialog } from "@/components/ConfirmationDialog";
-import { OperatorEmptyState } from "@/components/OperatorShellMessage";
+import { OperatorEmptyState } from "@/components/operator/OperatorShellMessage";
 import { TechnicalIdDisclosure } from "@/components/usability/TechnicalIdDisclosure";
 import { Button } from "@/components/ui/button";
 import {
