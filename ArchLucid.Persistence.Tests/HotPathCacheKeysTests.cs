@@ -51,6 +51,23 @@ public sealed class HotPathCacheKeysTests
     }
 
     [SkippableFact]
+    public void CommittedArchitectureReviewFlag_includes_scope_and_revision()
+    {
+        ScopeContext scope = new()
+        {
+            TenantId = Guid.Parse("11111111-1111-1111-1111-111111111111"),
+            WorkspaceId = Guid.Parse("22222222-2222-2222-2222-222222222222"),
+            ProjectId = Guid.Parse("33333333-3333-3333-3333-333333333333"),
+        };
+
+        string key = HotPathCacheKeys.CommittedArchitectureReviewFlag(scope, runListScopeRevision: 7);
+
+        key.Should().StartWith("al:hot:committed-arch-review:");
+        key.Should().EndWith(":r7");
+        key.Should().Contain("33333333333333333333333333333333");
+    }
+
+    [SkippableFact]
     public void EffectivePolicyPackSet_includes_revision()
     {
         Guid tenantId = Guid.Parse("11111111-1111-1111-1111-111111111111");

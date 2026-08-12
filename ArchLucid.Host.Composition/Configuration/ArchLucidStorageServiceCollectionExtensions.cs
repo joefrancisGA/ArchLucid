@@ -406,9 +406,11 @@ public static class ArchLucidStorageServiceCollectionExtensions
             services.AddScoped<IGoldenManifestRepository, SqlGoldenManifestRepository>();
             services.AddScoped<IRunRepository, SqlRunRepository>();
             services.AddScoped<IPolicyPackRepository, DapperPolicyPackRepository>();
-            services.AddScoped<
-                ICommittedArchitectureReviewFlagReader,
-                SqlCommittedArchitectureReviewFlagReader>();
+            services.AddScoped<SqlCommittedArchitectureReviewFlagReader>();
+            services.AddScoped<ICommittedArchitectureReviewFlagReader>(sp =>
+                new CachingCommittedArchitectureReviewFlagReader(
+                    sp.GetRequiredService<SqlCommittedArchitectureReviewFlagReader>(),
+                    sp.GetRequiredService<IHotPathReadCache>()));
 
             return;
         }
@@ -428,9 +430,11 @@ public static class ArchLucidStorageServiceCollectionExtensions
             sp.GetRequiredService<DapperPolicyPackRepository>(),
             sp.GetRequiredService<IHotPathReadCache>()));
 
-        services.AddScoped<
-            ICommittedArchitectureReviewFlagReader,
-            SqlCommittedArchitectureReviewFlagReader>();
+        services.AddScoped<SqlCommittedArchitectureReviewFlagReader>();
+        services.AddScoped<ICommittedArchitectureReviewFlagReader>(sp =>
+            new CachingCommittedArchitectureReviewFlagReader(
+                sp.GetRequiredService<SqlCommittedArchitectureReviewFlagReader>(),
+                sp.GetRequiredService<IHotPathReadCache>()));
     }
 
     internal static void RegisterAuditRepository(IServiceCollection services, IConfiguration configuration)
