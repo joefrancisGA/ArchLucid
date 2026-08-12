@@ -27,6 +27,7 @@ import { LlmUsageBandHint } from "@/components/LlmUsageBandHint";
 import { useLlmMonthlyBudgetExecutionGate } from "@/hooks/use-llm-monthly-budget-execution-gate";
 import { useReviewCreationProgress } from "@/hooks/use-review-creation-progress";
 import { useWizardSessionPersistence } from "@/hooks/use-wizard-session-persistence";
+import { useWizardStepNavigation } from "@/hooks/use-wizard-step-navigation";
 import { useRunSummaryStream } from "@/hooks/useRunSummaryStream";
 import { listRunsByProjectPaged } from "@/lib/api";
 import { isApiRequestError } from "@/lib/api-request-error";
@@ -72,7 +73,7 @@ import {
   type WizardFormValues,
 } from "@/lib/wizard-schema";
 import { WizardAiSuggestedFieldsProvider } from "@/lib/wizard-ai-suggested-fields";
-import { trackWizardStepViewed, trackWizardValidationFailed } from "@/lib/telemetry";
+import { trackWizardValidationFailed } from "@/lib/telemetry";
 import {
   resolveFirstRunWizardMode,
   shouldShowWizardModeToggle,
@@ -241,11 +242,16 @@ export function NewRunWizardClient() {
   const zeroConfigAppliedRef = useRef(false);
   const exampleTemplatePrefillAppliedRef = useRef(false);
   const stepDefinitions = baselineFirst ? WIZARD_STEP_DEFINITIONS_BASELINE : WIZARD_STEP_DEFINITIONS_FULL;
-  const stepMax: number = baselineFirst ? STEP_INDEX_MAX_BASELINE : STEP_INDEX_MAX_FULL;
   const reviewStepIndex: number = 7;
   const trackStepIndex: number = 8;
 
-  const [stepIndex, setStepIndex] = useState(0);
+  const { stepIndex, setStepIndex, goBack, goToStep, advance, isFirstStep, isReviewStep } =
+    useWizardStepNavigation({
+      steps: stepDefinitions,
+      telemetryWizardName: "FullGuided",
+      reviewStepIndex,
+    });
+
   const [focusedPilotModeEnabled, setFocusedPilotModeEnabled] = useState(true);
   const [advancedConfigurationOptIn, setAdvancedConfigurationOptIn] = useState(false);
   const [submitting, setSubmitting] = useState(false);
@@ -294,10 +300,6 @@ export function NewRunWizardClient() {
   useEffect(() => {
     wizardReadyRef.current?.setAttribute("data-wizard-ready", "true");
   }, []);
-
-  useEffect(() => {
-    trackWizardStepViewed(stepIndex, stepDefinitions[stepIndex]?.label ?? "Unknown", "FullGuided");
-  }, [stepIndex, stepDefinitions]);
 
   const { summary: pollSummary } = useRunSummaryStream(runId, {
     enabled: runId !== null && (wizardMode === "quick" ? true : stepIndex === trackStepIndex),
@@ -373,7 +375,7 @@ export function NewRunWizardClient() {
     }
 
     reset(applyWizardPreset(buildDefaultWizardValues(), preset));
-    setStepIndex(1);
+    goToStep(1);
 
     if (!baselineFirst) {
       setWizardMode("full");
@@ -402,7 +404,7 @@ export function NewRunWizardClient() {
     }
 
     reset(applyWizardPreset(buildDefaultWizardValues(), presetValues));
-    setStepIndex(1);
+    goToStep(1);
     setWizardMode("full");
 
     try {
@@ -520,10 +522,6 @@ export function NewRunWizardClient() {
     }
   }, []);
 
-  const goBack = () => {
-    setStepIndex((current) => Math.max(0, current - 1));
-  };
-
   const uploadPendingEvidence = useCallback(async (runIdValue: string): Promise<void> => {
     const azureFile = pendingEvidenceFile;
     const documentFiles = pendingDocumentFiles;
@@ -619,7 +617,7 @@ export function NewRunWizardClient() {
   const skipEvidenceAndAdvance = () => {
     setPendingEvidenceFile(null);
     setPendingDocumentFiles([]);
-    setStepIndex((current) => Math.min(stepMax, current + 1));
+    advance();
   };
 
   const tryWithDemoData = useCallback(
@@ -633,9 +631,9 @@ export function NewRunWizardClient() {
       }
 
       showToast("ok", "Demo Azure package loaded — it uploads automatically after the review is created.");
-      setStepIndex((current) => Math.min(stepMax, current + 1));
+      advance();
     },
-    [handlePendingEvidenceFileChange, setValue, showToast, stepMax],
+    [handlePendingEvidenceFileChange, setValue, showToast, advance],
   );
 
   useEffect(() => {
@@ -658,13 +656,14 @@ export function NewRunWizardClient() {
       return;
     }
 
-    setStepIndex(2);
+    goToStep(2);
     showToast("ok", "Demo Azure package loaded — confirm identity and submit your review.");
-  }, [zeroConfigDemo, zeroConfigScenarioId, handlePendingEvidenceFileChange, persistWizardMode, setValue, showToast]);
+  }, [zeroConfigDemo, zeroConfigScenarioId, goToStep, handlePendingEvidenceFileChange, persistWizardMode, setValue, showToast]);
 
   const goNext = async () => {
     if (stepIndex === 0) {
-      setStepIndex(1);
+      advance();
+
       return;
     }
 
@@ -675,7 +674,7 @@ export function NewRunWizardClient() {
         return;
       }
 
-      setStepIndex((current) => Math.min(stepMax, current + 1));
+      advance();
 
       return;
     }
@@ -695,7 +694,7 @@ export function NewRunWizardClient() {
       }
     }
 
-    setStepIndex((current) => Math.min(stepMax, current + 1));
+    advance();
   };
 
   const submitRun = async () => {
@@ -757,7 +756,7 @@ export function NewRunWizardClient() {
 
       creationProgress.succeed();
       setRunId(id);
-      setStepIndex(trackStepIndex);
+      goToStep(trackStepIndex);
       templateWizardSession.clearSession();
       showToast("ok", `Architecture review ${id} created — tracking pipeline below.`);
 
@@ -770,8 +769,6 @@ export function NewRunWizardClient() {
   };
 
   const showNav: boolean = stepIndex < trackStepIndex;
-  const isFirstStep: boolean = stepIndex === 0;
-  const isReviewStep: boolean = stepIndex === reviewStepIndex;
   const showQuickTrack = wizardMode === "quick" && runId !== null;
   const showFullWizardShell = wizardMode === "full" && !showQuickTrack;
   const showSimplifiedPilotWizard = baselineFirst && wizardMode === "quick" && !showQuickTrack;
@@ -1047,7 +1044,7 @@ export function NewRunWizardClient() {
             <WizardStepPreset
               baselineFirst={baselineFirst}
               featuredSampleRunId={featuredSampleRunId}
-              onStartingPointCommitted={() => setStepIndex(1)}
+              onStartingPointCommitted={() => goToStep(1)}
               onWizardNotice={(kind, message) => showToast(kind === "ok" ? "ok" : "err", message)}
             />
           ) : null}

@@ -24,6 +24,7 @@ import { WizardSessionResumePrompt } from "@/components/wizard/WizardSessionResu
 import { WizardSessionSaveStatus } from "@/components/wizard/WizardSessionSaveStatus";
 import { useLlmMonthlyBudgetExecutionGate } from "@/hooks/use-llm-monthly-budget-execution-gate";
 import { useWizardSessionPersistence } from "@/hooks/use-wizard-session-persistence";
+import { useWizardStepNavigation } from "@/hooks/use-wizard-step-navigation";
 import { LlmMonthlyBudgetExceededBanner } from "@/components/LlmMonthlyBudgetExceededBanner";
 import {
   admitDraftRequest,
@@ -69,6 +70,7 @@ import {
   WIZARD_STICKY_PROGRESS_TEST_ID,
 } from "@/lib/wizard-sticky-progress";
 import { showError, showSuccess } from "@/lib/toast";
+import type { WizardStepDefinition } from "@/lib/wizard-step-sequence";
 import {
   normalizeActorSetForAdmission,
 } from "@/lib/draft-intake-actor-suggestions";
@@ -143,6 +145,11 @@ const INTAKE_STEPS = [
     description: GUIDED_INTAKE_STEP2_CARD_DESCRIPTION,
   },
 ] as const;
+
+const INTAKE_STEP_DEFINITIONS: readonly WizardStepDefinition[] = INTAKE_STEPS.map((step) => ({
+  label: step.progressLabel,
+  description: step.description,
+}));
 
 type IntakeFieldLabelProps = {
   readonly htmlFor: string;
@@ -224,7 +231,15 @@ export function SocraticIntakeWizard() {
   const sourceArchitectureLoadedRef = useRef(false);
   const sourceArchitectureId = searchParams?.get(SOURCE_ARCHITECTURE_QUERY_PARAM)?.trim() ?? "";
 
-  const [step, setStep] = useState(0);
+  const {
+    stepIndex: step,
+    setStepIndex: setStep,
+    goBack,
+    goToStep,
+  } = useWizardStepNavigation({
+    steps: INTAKE_STEP_DEFINITIONS,
+    telemetryWizardName: "SocraticIntake",
+  });
   const [busy, setBusy] = useState(false);
   const [submitError, setSubmitError] = useState<unknown | null>(null);
 

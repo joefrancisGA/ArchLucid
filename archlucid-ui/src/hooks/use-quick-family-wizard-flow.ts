@@ -7,16 +7,14 @@ import {
   useReviewCreationProgress,
   type ReviewCreationProgress,
 } from "@/hooks/use-review-creation-progress";
+import { useWizardStepNavigation } from "@/hooks/use-wizard-step-navigation";
 import { REVIEW_START_STEP_VALIDATION_MESSAGE } from "@/lib/review-start-progress-copy";
-import { trackWizardStepViewed, trackWizardValidationFailed } from "@/lib/telemetry";
+import { trackWizardValidationFailed } from "@/lib/telemetry";
 import { submitQuickFamilyWizardCreateRun } from "@/lib/wizard-form-create-run-submit";
 import type { WizardCreateRunPayloadOptions } from "@/lib/wizard-payload";
 import type { WizardFormValues } from "@/lib/wizard-schema";
 import {
   isLastWizardStepIndex,
-  nextWizardStepIndex,
-  previousWizardStepIndex,
-  wizardStepLabelAt,
   type WizardStepDefinition,
   type WizardStepFieldGroup,
 } from "@/lib/wizard-step-sequence";
@@ -73,7 +71,11 @@ export function useQuickFamilyWizardFlow(
     hasTemplate = false,
   } = options;
 
-  const [stepIndex, setStepIndex] = useState(0);
+  const navigation = useWizardStepNavigation({
+    steps,
+    telemetryWizardName,
+  });
+
   const [submitting, setSubmitting] = useState(false);
   const [submitError, setSubmitError] = useState<unknown | null>(null);
   const [stepValidationMessage, setStepValidationMessage] = useState<string | null>(null);
@@ -81,32 +83,21 @@ export function useQuickFamilyWizardFlow(
 
   const { trigger, getValues } = useFormContext<WizardFormValues>();
 
-  const isReviewStep = isLastWizardStepIndex(stepIndex, steps.length);
-  const stepLabel = wizardStepLabelAt(steps, stepIndex);
+  const isReviewStep = navigation.isReviewStep;
 
   useEffect(() => {
-    trackWizardStepViewed(stepIndex, stepLabel, telemetryWizardName);
-
     // A submit failure belongs to the review step; leaving it clears the stale problem panel.
-    if (!isLastWizardStepIndex(stepIndex, steps.length)) {
+    if (!isLastWizardStepIndex(navigation.stepIndex, steps.length)) {
       setSubmitError(null);
     }
 
     setStepValidationMessage(null);
-  }, [stepIndex, stepLabel, steps.length, telemetryWizardName]);
+  }, [navigation.stepIndex, steps.length]);
 
   const isCreating = submitting || creationProgress.isActive;
 
-  const goBack = () => {
-    setStepIndex((current) => previousWizardStepIndex(current));
-  };
-
-  const advance = () => {
-    setStepIndex((current) => nextWizardStepIndex(current, steps.length));
-  };
-
   const validateCurrentStep = async (): Promise<boolean> => {
-    const fieldGroup = resolveStepFieldGroup(stepIndex);
+    const fieldGroup = resolveStepFieldGroup(navigation.stepIndex);
 
     if (fieldGroup === null) {
       return true;
@@ -118,7 +109,12 @@ export function useQuickFamilyWizardFlow(
       return true;
     }
 
-    trackWizardValidationFailed(telemetryWizardName, stepIndex, stepLabel, "field_validation");
+    trackWizardValidationFailed(
+      telemetryWizardName,
+      navigation.stepIndex,
+      navigation.stepLabel,
+      "field_validation",
+    );
     setStepValidationMessage(REVIEW_START_STEP_VALIDATION_MESSAGE);
 
     return false;
@@ -131,12 +127,12 @@ export function useQuickFamilyWizardFlow(
       return;
     }
 
-    if (beforeAdvance !== undefined && !(await beforeAdvance(stepIndex))) {
+    if (beforeAdvance !== undefined && !(await beforeAdvance(navigation.stepIndex))) {
       return;
     }
 
     setStepValidationMessage(null);
-    advance();
+    navigation.advance();
   };
 
   const submitRun = async () => {
@@ -156,8 +152,8 @@ export function useQuickFamilyWizardFlow(
   };
 
   return {
-    stepIndex,
-    isFirstStep: stepIndex === 0,
+    stepIndex: navigation.stepIndex,
+    isFirstStep: navigation.isFirstStep,
     isReviewStep,
     isCreating,
     canProceed: !isCreating,
@@ -165,7 +161,7 @@ export function useQuickFamilyWizardFlow(
     stepValidationMessage,
     submitError,
     creationProgress,
-    goBack,
+    goBack: navigation.goBack,
     goNext,
     submitRun,
   };
