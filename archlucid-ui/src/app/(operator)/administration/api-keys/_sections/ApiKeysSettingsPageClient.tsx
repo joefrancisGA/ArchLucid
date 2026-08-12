@@ -30,7 +30,6 @@ import {
   API_KEYS_STATUS_NOT_CONFIGURED,
   API_KEYS_AUDIT_ACTOR_SELF,
 } from "@/lib/api-keys-settings-copy";
-import { isApiKeysSettingsSurfaceEnabled } from "@/lib/api-keys-settings-access";
 import type {
   ApiKeyAuditEvent,
   ApiKeyCredentialSlot,
@@ -44,7 +43,7 @@ import { ApiKeysUsersVocabularyRail } from "@/components/ApiKeysUsersVocabularyR
 import { DeveloperApiContractsApiKeysVocabularyRail } from "@/components/DeveloperApiContractsApiKeysVocabularyRail";
 import { WebhooksApiKeysVocabularyRail } from "@/components/WebhooksApiKeysVocabularyRail";
 import { PageContextualHelpButton } from "@/components/usability/PageContextualHelpButton";
-import { OPERATOR_TYPOGRAPHY } from "@/lib/design-tokens";
+import { DESIGN_TOKENS, OPERATOR_TYPOGRAPHY } from "@/lib/design-tokens";
 
 import { ApiKeyActionConfirmDialog } from "./ApiKeyActionConfirmDialog";
 import { ApiKeyCredentialTable, type ApiKeyCredentialRowModel } from "./ApiKeyCredentialTable";
@@ -132,7 +131,6 @@ function resolveSuccessBanner(
 }
 
 export function ApiKeysSettingsPageClient() {
-  const surfaceEnabled = isApiKeysSettingsSurfaceEnabled();
   const showTechnicalDetails = isArchLucidInternalOperatorShellEnv();
   const [state, setState] = useState<LoadState>({ status: "idle" });
   const [rotateReveal, setRotateReveal] = useState<AdminApiKeyRotateResponse | null>(null);
@@ -171,12 +169,8 @@ export function ApiKeysSettingsPageClient() {
   }, []);
 
   useEffect(() => {
-    if (!surfaceEnabled) {
-      return;
-    }
-
     void load();
-  }, [load, surfaceEnabled]);
+  }, [load]);
 
   const executeRotate = useCallback(
     async (slot: ApiKeyCredentialSlot, invalidatePrevious: boolean) => {
@@ -252,10 +246,6 @@ export function ApiKeysSettingsPageClient() {
     return buildCredentialRows(state.settings);
   }, [state]);
 
-  if (!surfaceEnabled) {
-    return <ApiKeysSettingsRestrictedState reason="surface_disabled" />;
-  }
-
   if (state.status === "blocked") {
     return <ApiKeysSettingsRestrictedState reason="forbidden" />;
   }
@@ -284,13 +274,13 @@ export function ApiKeysSettingsPageClient() {
       ) : null}
 
       {state.status === "ready" && state.settings.enabled === false ? (
-        <p className={cn("m-0 rounded-md border border-amber-200 bg-amber-50 px-3 py-2 text-amber-950 dark:border-amber-900 dark:bg-amber-950/40 dark:text-amber-100", OPERATOR_TYPOGRAPHY.body)} role="status">
+        <p className={cn("m-0", DESIGN_TOKENS.callout.warn, OPERATOR_TYPOGRAPHY.body)} role="status">
           {API_KEYS_SSO_ONLY_NOTICE}
         </p>
       ) : null}
 
       {statusBanner ? (
-        <p className={cn("m-0 rounded-md border border-emerald-200 bg-emerald-50 px-3 py-2 text-emerald-950 dark:border-emerald-900 dark:bg-emerald-950/40 dark:text-emerald-100", OPERATOR_TYPOGRAPHY.body)} role="status">
+        <p className={cn("m-0", DESIGN_TOKENS.callout.success, OPERATOR_TYPOGRAPHY.body)} role="status">
           {statusBanner}
         </p>
       ) : null}

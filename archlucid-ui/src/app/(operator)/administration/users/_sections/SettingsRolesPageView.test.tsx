@@ -167,7 +167,7 @@ describe("SettingsRolesPageView (SEU / keys tab)", () => {
     expect(within(keysPanel).getByText(SETTINGS_ROLES_KEYS_TAB_CARD_TITLE)).toBeInTheDocument();
     expect(within(keysPanel).getByText(/Assign built-in roles to automation API keys/i)).toBeInTheDocument();
     expect(within(keysPanel).queryByText(/automation principals/i)).not.toBeInTheDocument();
-    expect(within(keysPanel).getByRole("link", { name: "API keys" })).toHaveAttribute(
+    expect(within(keysPanel).getByRole("link", { name: "CLI usage help" })).toHaveAttribute(
       "href",
       SETTINGS_ROLES_KEYS_TAB_LIFECYCLE_HREF,
     );

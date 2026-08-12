@@ -6,8 +6,8 @@
  *   evaluation and CLI demo utilities — not customer credential management.
  * - API contracts (`/help/api-contracts`) is the Admin technical HTTP contract
  *   reference (OpenAPI / API_CONTRACTS.md) — not key rotation.
- * - API keys (`/administration/api-keys`) manage automation credentials for
- *   approved enterprise configurations.
+ * - Host automation credentials (`/help/cli-usage`) are configured via deployment
+ *   settings — not the retired API keys settings page.
  *
  * They stay separate because evaluating developer tools is not reading HTTP
  * contracts, and contracts are not credentials. Operators need all three with
@@ -65,9 +65,9 @@ export const DEVELOPER_API_CONTRACTS_API_KEYS_API_CONTRACTS_LINK: DeveloperApiCo
 
 export const DEVELOPER_API_CONTRACTS_API_KEYS_API_KEYS_LINK: DeveloperApiContractsApiKeysLink = {
   id: "api-keys",
-  label: "API keys",
+  label: "CLI usage help",
   href: API_KEYS_SETTINGS_CANONICAL_PATH,
-  whenToUse: "Rotate or issue automation credentials for enterprise integrations.",
+  whenToUse: "Configure host automation credentials and CLI access for enterprise integrations.",
 };
 
 const ALL_LINKS: readonly DeveloperApiContractsApiKeysLink[] = [

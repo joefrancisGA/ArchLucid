@@ -4,8 +4,8 @@
  * Why two surfaces exist:
  * - Webhooks (`/integrations/webhooks`) deliver selected ArchLucid events to a
  *   customer-managed HTTPS endpoint (outbound push).
- * - API keys (`/administration/api-keys`) manage automation credentials for
- *   approved enterprise configurations (inbound pull / machine auth).
+ * - Host automation credentials (`/help/cli-usage`) cover inbound pull / machine
+ *   auth via deployment settings — not the retired API keys settings page.
  *
  * They stay separate because configuring an outbound destination is not the
  * same as rotating a credential. Operators need both surfaces with deep links
@@ -51,9 +51,9 @@ export const WEBHOOKS_API_KEYS_WEBHOOKS_LINK: WebhooksApiKeysLink = {
 
 export const WEBHOOKS_API_KEYS_API_KEYS_LINK: WebhooksApiKeysLink = {
   id: "api-keys",
-  label: "API keys",
+  label: "CLI usage help",
   href: API_KEYS_SETTINGS_CANONICAL_PATH,
-  whenToUse: "Rotate or issue automation credentials for enterprise integrations.",
+  whenToUse: "Configure host automation credentials and CLI access for enterprise integrations.",
 };
 
 /** Full vocabulary model (heading, why-two copy, and deep links). */

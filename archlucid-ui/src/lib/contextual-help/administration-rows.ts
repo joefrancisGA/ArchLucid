@@ -212,7 +212,7 @@ export const ADMINISTRATION_CONTEXTUAL_HELP_ROWS: readonly PageContextualHelpRow
       whatIsThisPage:
         "API keys — workspace automation credential controls when in-product management is enabled for your workspace.",
       whatToDoNext:
-        "Use Users and roles for people access. Host automation credentials are configured in deployment settings outside this page.",
+        "Use Users and roles for people access. Host automation credentials are documented in CLI usage help.",
       whyEmpty:
         "In-product API key management is not available in this workspace UI.",
       whereToConfigurePrerequisite:

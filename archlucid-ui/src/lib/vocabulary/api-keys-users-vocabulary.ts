@@ -2,8 +2,8 @@
  * TB-2327 — API keys ≠ Users vocabulary rail.
  *
  * Why two surfaces exist:
- * - API keys (`/administration/api-keys`) manage automation credentials for
- *   approved enterprise configurations (rotate, overlap, audit).
+ * - Host automation credentials (`/help/cli-usage`) are configured via deployment
+ *   settings and CLI usage guidance — not in-product key rotation.
  * - Users (`/administration/users`) manage people, invitations, and roles.
  *
  * They stay separate because rotating a key is not the same as inviting a user
@@ -45,9 +45,9 @@ export const API_KEYS_USERS_COMPACT_LINE =
 
 export const API_KEYS_USERS_API_KEYS_LINK: ApiKeysUsersLink = {
   id: "api-keys",
-  label: "API keys",
+  label: "CLI usage help",
   href: API_KEYS_SETTINGS_CANONICAL_PATH,
-  whenToUse: "Rotate or issue automation credentials for enterprise integrations.",
+  whenToUse: "Configure host automation credentials and CLI access outside the Users directory.",
 };
 
 export const API_KEYS_USERS_USERS_LINK: ApiKeysUsersLink = {

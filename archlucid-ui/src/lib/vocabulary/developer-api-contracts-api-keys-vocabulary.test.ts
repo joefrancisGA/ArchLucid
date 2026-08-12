@@ -13,6 +13,7 @@ import {
 } from "@/lib/vocabulary/developer-api-contracts-api-keys-vocabulary";
 import { API_CONTRACTS_HELP_PATH } from "@/lib/api-contracts-help-route";
 import { API_KEYS_SETTINGS_CANONICAL_PATH } from "@/lib/api-keys-settings-evidence-copy";
+import { CLI_USAGE_HELP_PATH } from "@/lib/cli-usage-help-route";
 import { DEVELOPER_SETTINGS_CANONICAL_PATH } from "@/lib/developer-settings-evidence-copy";
 
 describe("developer-api-contracts-api-keys-vocabulary (TB-2270)", () => {
@@ -36,7 +37,7 @@ describe("developer-api-contracts-api-keys-vocabulary (TB-2270)", () => {
 
     expect(model.apiKeysLink).toEqual(DEVELOPER_API_CONTRACTS_API_KEYS_API_KEYS_LINK);
     expect(model.apiKeysLink.href).toBe(API_KEYS_SETTINGS_CANONICAL_PATH);
-    expect(model.apiKeysLink.href).toBe("/administration/api-keys");
+    expect(model.apiKeysLink.href).toBe(CLI_USAGE_HELP_PATH);
   });
 
   it("resolves current and peer links for each surface", () => {

@@ -82,7 +82,7 @@ const READINESS_BY_PATH: Record<string, RouteReadinessTier> = {
   "/administration/billing": "advanced-only",
   "/settings/webhooks": "advanced-only",
   "/settings/roles": "admin-only",
-  "/administration/api-keys": "admin-only",
+  "/administration/api-keys": "hidden",
 };
 
 /**

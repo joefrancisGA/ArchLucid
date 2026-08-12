@@ -1,8 +1,15 @@
 import { describe, expect, it } from "vitest";
 
+import { SETTINGS_MASTER_SECTIONS } from "@/app/(operator)/administration/_sections/settings-master-catalog";
+import { SETTINGS_ROLES_KEYS_TAB_LIFECYCLE_HREF } from "@/app/(operator)/administration/users/_sections/settings-roles-page-keys-tab-copy";
+import { API_KEYS_SETTINGS_RETIRED_ROUTE_PATH } from "@/lib/api-keys-settings-evidence-copy";
+import { isApiKeysSettingsSurfaceEnabled } from "@/lib/api-keys-settings-access";
 import { OPERATOR_NAV_LINK_LABELS } from "@/lib/i18n";
 import { flattenNavLinks, NAV_GROUPS } from "@/lib/nav-config";
 import { NAV_ROUTE_NAMESPACE_EXCEPTIONS } from "@/lib/nav-route-namespace-exceptions";
+import { API_KEYS_USERS_API_KEYS_LINK } from "@/lib/vocabulary/api-keys-users-vocabulary";
+import { DEVELOPER_API_CONTRACTS_API_KEYS_API_KEYS_LINK } from "@/lib/vocabulary/developer-api-contracts-api-keys-vocabulary";
+import { WEBHOOKS_API_KEYS_API_KEYS_LINK } from "@/lib/vocabulary/webhooks-api-keys-vocabulary";
 
 describe("nav-config structure", () => {
   it("does not duplicate hrefs in flattened nav (palette and other consumers key on href)", () => {
@@ -241,7 +248,7 @@ describe("nav-config structure", () => {
     expect(adminHrefs).toContain("/administration/system-health");
     expect(adminHrefs).toContain("/administration/identity-providers");
     expect(adminHrefs).toContain("/administration/identity/sso-wizard");
-    expect(adminHrefs).toContain("/administration/api-keys");
+    expect(adminHrefs).not.toContain("/administration/api-keys");
     expect(adminHrefs).toContain("/administration/scim-provisioning");
     expect(adminHrefs).not.toContain("/governance/recurrence-schedules");
   });
@@ -293,6 +300,28 @@ describe("nav-config structure", () => {
           || link.href.startsWith("/governance/"),
         link.href,
       ).toBe(true);
+    }
+  });
+
+  it("does not deep-link to surface-disabled routes from nav, hub, or vocabulary rails", () => {
+    if (isApiKeysSettingsSurfaceEnabled()) {
+      return;
+    }
+
+    const retiredRoute = API_KEYS_SETTINGS_RETIRED_ROUTE_PATH;
+    const navHrefs = NAV_GROUPS.flatMap((group) => group.links.map((link) => link.href));
+    const hubHrefs = SETTINGS_MASTER_SECTIONS.flatMap((section) =>
+      section.destinations.map((destination) => destination.href),
+    );
+    const vocabularyHrefs = [
+      API_KEYS_USERS_API_KEYS_LINK.href,
+      WEBHOOKS_API_KEYS_API_KEYS_LINK.href,
+      DEVELOPER_API_CONTRACTS_API_KEYS_API_KEYS_LINK.href,
+      SETTINGS_ROLES_KEYS_TAB_LIFECYCLE_HREF,
+    ];
+
+    for (const href of [...navHrefs, ...hubHrefs, ...vocabularyHrefs]) {
+      expect(href, `dead-end referral to ${retiredRoute}`).not.toBe(retiredRoute);
     }
   });
 

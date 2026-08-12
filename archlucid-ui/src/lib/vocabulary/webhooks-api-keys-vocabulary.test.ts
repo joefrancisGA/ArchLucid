@@ -10,6 +10,7 @@ import {
   resolveWebhooksApiKeysPeerLink,
 } from "@/lib/vocabulary/webhooks-api-keys-vocabulary";
 import { API_KEYS_SETTINGS_CANONICAL_PATH } from "@/lib/api-keys-settings-evidence-copy";
+import { CLI_USAGE_HELP_PATH } from "@/lib/cli-usage-help-route";
 import { INTEGRATIONS_WEBHOOKS_PATH } from "@/lib/integrations-nav-paths";
 
 describe("webhooks-api-keys-vocabulary (TB-2320)", () => {
@@ -29,6 +30,7 @@ describe("webhooks-api-keys-vocabulary (TB-2320)", () => {
 
     expect(model.apiKeysLink).toEqual(WEBHOOKS_API_KEYS_API_KEYS_LINK);
     expect(model.apiKeysLink.href).toBe(API_KEYS_SETTINGS_CANONICAL_PATH);
+    expect(model.apiKeysLink.href).toBe(CLI_USAGE_HELP_PATH);
   });
 
   it("resolves the peer surface from webhooks and api-keys", () => {

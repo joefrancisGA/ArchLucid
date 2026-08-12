@@ -14,8 +14,6 @@ import {
 
   HeartPulse,
 
-  KeyRound,
-
   LifeBuoy,
 
   Plug,
@@ -150,22 +148,6 @@ export class OperatorAdminNavGroupBuilder extends NavGroupBuilderBase {
           title: "SSO wizard — guided OIDC / SAML 2.0 tenant configuration",
 
           icon: UserCog,
-
-          tier: "advanced",
-
-          requiredAuthority: "AdminAuthority",
-
-        },
-
-        {
-
-          href: "/administration/api-keys",
-
-          label: "API keys",
-
-          title: "API keys — manage approved automation and integration access",
-
-          icon: KeyRound,
 
           tier: "advanced",
 

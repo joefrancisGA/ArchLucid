@@ -10,6 +10,7 @@ import {
   resolveApiKeysUsersPeerLink,
 } from "@/lib/vocabulary/api-keys-users-vocabulary";
 import { API_KEYS_SETTINGS_CANONICAL_PATH } from "@/lib/api-keys-settings-evidence-copy";
+import { CLI_USAGE_HELP_PATH } from "@/lib/cli-usage-help-route";
 import { SETTINGS_USERS_PATH } from "@/lib/settings-admin-route-paths";
 
 describe("api-keys-users-vocabulary (TB-2327)", () => {
@@ -26,6 +27,7 @@ describe("api-keys-users-vocabulary (TB-2327)", () => {
 
     expect(model.apiKeysLink).toEqual(API_KEYS_USERS_API_KEYS_LINK);
     expect(model.apiKeysLink.href).toBe(API_KEYS_SETTINGS_CANONICAL_PATH);
+    expect(model.apiKeysLink.href).toBe(CLI_USAGE_HELP_PATH);
 
     expect(model.usersLink).toEqual(API_KEYS_USERS_USERS_LINK);
     expect(model.usersLink.href).toBe(SETTINGS_USERS_PATH);

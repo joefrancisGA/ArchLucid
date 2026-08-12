@@ -499,7 +499,7 @@ const PAGE_HELP_TOPICS: readonly { prefix: string; topic: PageHelpTopic }[] = [
   },
   {
     prefix: "/administration/api-keys",
-    topic: { slug: "users-and-roles", label: "API keys" },
+    topic: { slug: "cli-usage", label: "CLI usage" },
   },
   {
     prefix: "/administration/preferences",

@@ -10,6 +10,7 @@ import {
   resolveApiKeysVsUsersPeerLink,
 } from "@/lib/api-keys-vs-users";
 import { API_KEYS_SETTINGS_CANONICAL_PATH } from "@/lib/api-keys-settings-evidence-copy";
+import { CLI_USAGE_HELP_PATH } from "@/lib/cli-usage-help-route";
 import { SETTINGS_USERS_PATH } from "@/lib/settings-admin-route-paths";
 
 describe("api-keys-vs-users (TB-2237)", () => {
@@ -24,7 +25,7 @@ describe("api-keys-vs-users (TB-2237)", () => {
 
     expect(model.apiKeysLink).toEqual(API_KEYS_VS_USERS_API_KEYS_LINK);
     expect(model.apiKeysLink.href).toBe(API_KEYS_SETTINGS_CANONICAL_PATH);
-    expect(model.apiKeysLink.href).toBe("/administration/api-keys");
+    expect(model.apiKeysLink.href).toBe(CLI_USAGE_HELP_PATH);
 
     expect(model.usersLink).toEqual(API_KEYS_VS_USERS_USERS_LINK);
     expect(model.usersLink.href).toBe(SETTINGS_USERS_PATH);

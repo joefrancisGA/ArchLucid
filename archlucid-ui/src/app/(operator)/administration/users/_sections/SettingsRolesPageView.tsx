@@ -214,7 +214,9 @@ export function SettingsRolesPageView(props: Props) {
           </div>
         }
       />
-      <ApiKeysUsersVocabularyRail currentSurfaceId="users" />
+      {isApiKeysSettingsSurfaceEnabled() ? (
+        <ApiKeysUsersVocabularyRail currentSurfaceId="users" />
+      ) : null}
       <ScimUsersVocabularyRail currentSurfaceId="users" />
       {activeTab === "roles" || activeTab === "users" ? (
         <CustomRolesUsersVocabularyRail

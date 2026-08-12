@@ -1,6 +1,7 @@
 import { describe, expect, it } from "vitest";
 
 import { API_KEYS_SETTINGS_CANONICAL_PATH } from "@/lib/api-keys-settings-evidence-copy";
+import { CLI_USAGE_HELP_PATH } from "@/lib/cli-usage-help-route";
 import { INTEGRATIONS_WEBHOOKS_PATH } from "@/lib/integrations-nav-paths";
 import {
   WEBHOOKS_VS_API_KEYS_API_KEYS_LINK,
@@ -28,7 +29,7 @@ describe("webhooks-vs-api-keys (TB-2242)", () => {
 
     expect(model.apiKeysLink).toEqual(WEBHOOKS_VS_API_KEYS_API_KEYS_LINK);
     expect(model.apiKeysLink.href).toBe(API_KEYS_SETTINGS_CANONICAL_PATH);
-    expect(model.apiKeysLink.href).toBe("/administration/api-keys");
+    expect(model.apiKeysLink.href).toBe(CLI_USAGE_HELP_PATH);
   });
 
   it("resolves the peer deep link from each surface", () => {
