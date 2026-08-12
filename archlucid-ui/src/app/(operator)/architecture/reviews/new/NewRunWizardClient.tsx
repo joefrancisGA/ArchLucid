@@ -29,7 +29,7 @@ import { useWizardStepNavigation } from "@/hooks/use-wizard-step-navigation";
 import { useRunSummaryStream } from "@/hooks/useRunSummaryStream";
 import { isApiRequestError } from "@/lib/api-request-error";
 import { isBuyerPolishedOperatorShellEnv, isOperatorExperienceFullShellEnv } from "@/lib/demo-ui-env";
-import { OPERATOR_TYPOGRAPHY } from "@/lib/design-tokens";
+import { OPERATOR_LAYOUT, OPERATOR_TYPOGRAPHY } from "@/lib/design-tokens";
 import { showError, showSuccess } from "@/lib/toast";
 import {
   evaluateWizardFormCreateRunGates,
@@ -591,7 +591,7 @@ export function NewRunWizardClient(props: NewRunWizardClientProps = {}) {
             <WizardStepBaselineZip onPendingZipFileChange={evidence.handlePendingEvidenceFileChange} />
           ) : null}
           {stepIndex === 2 ? (
-            <div className="space-y-8">
+            <div className={OPERATOR_LAYOUT.sectionStack}>
               <PilotModePolicyPackToggle
                 enabled={focusedPilotModeEnabled}
                 onEnabledChange={setFocusedPilotModeEnabled}

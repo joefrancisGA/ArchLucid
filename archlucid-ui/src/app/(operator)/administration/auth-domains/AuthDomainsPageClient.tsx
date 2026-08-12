@@ -671,7 +671,7 @@ export function AuthDomainsPageClient() {
         <CardHeader>
           <CardTitle className={OPERATOR_TYPOGRAPHY.cardTitle}>Sign-in domains</CardTitle>
         </CardHeader>
-        <CardContent className="space-y-6">
+        <CardContent className={OPERATOR_LAYOUT.sectionStack}>
           <section
             id={AUTH_DOMAINS_JOURNEY_SECTION_IDS.add}
             tabIndex={-1}

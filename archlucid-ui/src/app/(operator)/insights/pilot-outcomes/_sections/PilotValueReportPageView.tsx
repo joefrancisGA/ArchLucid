@@ -9,7 +9,7 @@ import { DocumentLayout } from "@/components/DocumentLayout";
 import { InlineMetadataLabel } from "@/components/InlineMetadataLabel";
 import { LayerHeader } from "@/components/LayerHeader";
 import { PageContextualHelpButton } from "@/components/usability/PageContextualHelpButton";
-import { OPERATOR_LINK, OPERATOR_NAV_GROUP_LABEL, OPERATOR_TYPOGRAPHY } from "@/lib/design-tokens";
+import { OPERATOR_LAYOUT, OPERATOR_LINK, OPERATOR_NAV_GROUP_LABEL, OPERATOR_TYPOGRAPHY } from "@/lib/design-tokens";
 import {
   OPERATOR_DATE_RANGE_END_LABEL,
   OPERATOR_DATE_RANGE_START_LABEL,
@@ -225,7 +225,7 @@ export function PilotValueReportPageView(props: Props) {
         ) : null}
 
         {m.data !== null && hasFinalizedReviews ? (
-          <div className="space-y-6">
+          <div className={OPERATOR_LAYOUT.sectionStack}>
             {executiveNarrative !== null ? (
               <section
                 className="rounded-lg border border-neutral-200 bg-white p-4 dark:border-neutral-800 dark:bg-neutral-900"

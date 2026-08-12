@@ -42,6 +42,7 @@ import {
 } from "@/lib/showcase-static-demo";
 import {
   OPERATOR_DISCLOSURE_TRIGGER_CLASS,
+  OPERATOR_LAYOUT,
   OPERATOR_LINK,
   OPERATOR_NAV_GROUP_LABEL,
   OPERATOR_TYPOGRAPHY,
@@ -207,7 +208,7 @@ export function ManifestDetailPageView(props: ManifestDetailPageViewProps) {
   ) : null;
 
   return (
-    <div className="w-full max-w-[1200px] space-y-6 px-1 py-2 sm:px-0">
+    <div className={cn("w-full max-w-[1200px] px-1 py-2 sm:px-0", OPERATOR_LAYOUT.sectionStack)}>
       <CtoDemoBuyerValueStrip stepIndex={1} />
       <p className={cn("m-0 text-al-text-secondary", OPERATOR_TYPOGRAPHY.body)}>
         <Link
@@ -313,10 +314,10 @@ export function ManifestDetailPageView(props: ManifestDetailPageViewProps) {
       ) : null}
 
       {buyerPolishedLayout ? (
-        <div id="manifest-decision-group" className="scroll-mt-24 space-y-6">
+        <div id="manifest-decision-group" className={cn("scroll-mt-24", OPERATOR_LAYOUT.sectionStack)}>
           {summary.warningCount > 0 || summary.unresolvedIssueCount > 0 ? monitoredRiskCard : null}
           {overviewSummaryCard}
-          <div id="manifest-decisions" className="scroll-mt-24 space-y-6">
+          <div id="manifest-decisions" className={cn("scroll-mt-24", OPERATOR_LAYOUT.sectionStack)}>
             {decisionsLeadCard}
           </div>
         </div>

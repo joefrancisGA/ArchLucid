@@ -20,7 +20,7 @@ import { PageContextualHelpButton } from "@/components/usability/PageContextualH
 import { isApiKeysSettingsSurfaceEnabled } from "@/lib/api-keys-settings-access";
 import { AUTHORITY_RANK } from "@/lib/nav-authority";
 import { useNavCallerAuthorityRank } from "@/components/operator/OperatorNavAuthorityProvider";
-import { OPERATOR_LINK, OPERATOR_TYPOGRAPHY } from "@/lib/design-tokens";
+import { OPERATOR_LAYOUT, OPERATOR_LINK, OPERATOR_TYPOGRAPHY } from "@/lib/design-tokens";
 import { FORBIDDEN_WORKSPACE_ADMIN_ACCESS_MESSAGE } from "@/lib/buyer/buyer-polish-copy";
 import { OPERATOR_NAV_LINK_LABELS } from "@/lib/i18n";
 import { usersDirectorySourceStatusTag } from "@/lib/vocabulary/scim-users-vocabulary";
@@ -193,7 +193,7 @@ export function SettingsRolesPageView(props: Props) {
 
   if (m.surface === "authority_loading") {
     return (
-      <div className="w-full max-w-[1200px] space-y-6" data-testid="settings-roles-page">
+      <div className={cn("w-full max-w-[1200px]", OPERATOR_LAYOUT.sectionStack)} data-testid="settings-roles-page">
         <p className={cn("m-0 text-al-text-secondary", OPERATOR_TYPOGRAPHY.body)}>Loading…</p>
       </div>
     );
@@ -201,7 +201,7 @@ export function SettingsRolesPageView(props: Props) {
 
   if (m.surface === "forbidden") {
     return (
-      <div className="w-full max-w-[1200px] space-y-6" data-testid="settings-roles-page">
+      <div className={cn("w-full max-w-[1200px]", OPERATOR_LAYOUT.sectionStack)} data-testid="settings-roles-page">
         <p
           className={cn("m-0 text-rose-800 dark:text-rose-200", OPERATOR_TYPOGRAPHY.body)}
           role="alert"
@@ -239,7 +239,7 @@ export function SettingsRolesPageView(props: Props) {
     pendingInvitationCount === null ? "Pending invitations" : `Pending invitations (${pendingInvitationCount})`;
 
   return (
-    <div className="w-full max-w-[1200px] space-y-6" data-testid="settings-roles-page">
+    <div className={cn("w-full max-w-[1200px]", OPERATOR_LAYOUT.sectionStack)} data-testid="settings-roles-page">
       <PageHeading
         navHref="/administration/users"
         title={OPERATOR_NAV_LINK_LABELS.usersAndRoles}
@@ -267,7 +267,7 @@ export function SettingsRolesPageView(props: Props) {
           currentSurfaceId={activeTab === "roles" ? "custom-roles" : "users"}
         />
       ) : null}
-      <Tabs value={activeTab} onValueChange={onSelectTab} className="space-y-6">
+      <Tabs value={activeTab} onValueChange={onSelectTab} className={OPERATOR_LAYOUT.sectionStack}>
         <TabsList aria-label={`${OPERATOR_NAV_LINK_LABELS.usersAndRoles} sections`} data-testid="settings-roles-tablist">
           {tabs.map((tab) => (
             <TabsTrigger key={tab.id} value={tab.id} data-testid={`settings-roles-tab-${tab.id}`}>
@@ -277,7 +277,7 @@ export function SettingsRolesPageView(props: Props) {
         </TabsList>
 
         <TabsContent value="users" data-testid="settings-roles-tabpanel-users">
-          <div className="space-y-6">
+          <div className={OPERATOR_LAYOUT.sectionStack}>
             {usersTabInviteFirstLayout ? (
               <>
                 <Card

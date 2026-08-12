@@ -7,7 +7,7 @@ import { useOperatorNavAuthority } from "@/components/operator/OperatorNavAuthor
 import { SupportBundleDownloadButton } from "@/components/SupportBundleDownloadButton";
 import { Button } from "@/components/ui/button";
 import { Card, CardContent, CardHeader, CardTitle } from "@/components/ui/card";
-import { OPERATOR_TYPOGRAPHY } from "@/lib/design-tokens";
+import { OPERATOR_LAYOUT, OPERATOR_TYPOGRAPHY } from "@/lib/design-tokens";
 import { isSelfHostedDeploymentEnv } from "@/lib/finish-setup-deployment";
 import { isArchLucidInternalOperatorShellEnv } from "@/lib/internal-operator-env";
 import { AUTHORITY_RANK } from "@/lib/nav-authority";
@@ -45,7 +45,7 @@ export function SettingsPageView() {
   const canViewPrerequisitesBoard = callerAuthorityRank >= AUTHORITY_RANK.AdminAuthority;
 
   return (
-    <div className="w-full max-w-6xl space-y-6" data-testid="settings-page">
+    <div className={cn("w-full max-w-6xl", OPERATOR_LAYOUT.sectionStack)} data-testid="settings-page">
       <SettingsMasterOverviewHeader scope={scope} environmentLabel={environmentLabel} />
       <AdminPrerequisitesReadinessBoard enabled={canViewPrerequisitesBoard && !isAuthorityLoading} />
       <SettingsMasterSearchField
@@ -84,7 +84,7 @@ export function SettingsPageView() {
         <div className="grid gap-8 lg:grid-cols-[220px_minmax(0,1fr)]">
           <SettingsMasterSectionNav sections={visibleSections} />
 
-          <div className="space-y-8">
+          <div className={OPERATOR_LAYOUT.sectionStack}>
             {visibleSections.map((section) => (
               <section
                 key={section.id}

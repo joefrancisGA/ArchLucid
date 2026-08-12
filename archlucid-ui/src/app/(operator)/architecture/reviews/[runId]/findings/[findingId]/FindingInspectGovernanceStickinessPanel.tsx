@@ -26,7 +26,7 @@ import { upsertFindingRemediationAssignment } from "@/lib/api/finding-remediatio
 import { toApiLoadFailure } from "@/lib/api-load-failure";
 import { BUYER_DEMO_GOVERNANCE_WORKFLOW_UNAVAILABLE } from "@/lib/buyer/buyer-polish-copy";
 import { isBuyerPolishedOperatorShellEnv } from "@/lib/demo-ui-env";
-import { OPERATOR_TYPOGRAPHY } from "@/lib/design-tokens";
+import { OPERATOR_LAYOUT, OPERATOR_TYPOGRAPHY } from "@/lib/design-tokens";
 import { whyDisabledEnterpriseMutationControl } from "@/lib/why-disabled-cta";
 import {
   createWaiverTransitionCopy,
@@ -335,7 +335,7 @@ export function FindingInspectGovernanceStickinessPanel({
   );
 
   return (
-    <div className={cn("space-y-6 rounded-lg border border-neutral-200 bg-white p-4 dark:border-neutral-800 dark:bg-neutral-950/40", OPERATOR_TYPOGRAPHY.body)}>
+    <div className={cn(OPERATOR_LAYOUT.sectionStack, "rounded-lg border border-neutral-200 bg-white p-4 dark:border-neutral-800 dark:bg-neutral-950/40", OPERATOR_TYPOGRAPHY.body)}>
       <CollabRecentActorPresenceStrip recentActors={recentDispositionActors} />
       <WhyDisabledCtaHint
         id={mutationDisabledHintId}

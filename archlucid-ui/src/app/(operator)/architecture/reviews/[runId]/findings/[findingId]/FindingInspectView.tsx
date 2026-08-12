@@ -34,7 +34,7 @@ import {
   buildFindingPolicyEvidenceCitationsFromInspect,
   resolvePolicyTraceExcerptFromInspect,
 } from "@/lib/findings/finding-policy-evidence-citations";
-import { OPERATOR_LINK, OPERATOR_TYPOGRAPHY } from "@/lib/design-tokens";
+import { OPERATOR_LAYOUT, OPERATOR_LINK, OPERATOR_TYPOGRAPHY } from "@/lib/design-tokens";
 import type { FindingInspectPayload } from "@/types/finding-inspect";
 
 import { FindingInspectFindingBody } from "./FindingInspectFindingBody";
@@ -156,7 +156,7 @@ export function FindingInspectView({
   const policyTraceExcerpt = resolvePolicyTraceExcerptFromInspect(payload);
 
   return (
-    <div className="w-full max-w-[1440px] space-y-6 p-4" data-testid="finding-inspect-view">
+    <div className={cn("w-full max-w-[1440px] p-4", OPERATOR_LAYOUT.sectionStack)} data-testid="finding-inspect-view">
       <CanonicalObjectSecondaryViewStrip
         presentation={evidenceTraceSecondaryViewPresentation}
         testId="evidence-trace-secondary-view-strip"

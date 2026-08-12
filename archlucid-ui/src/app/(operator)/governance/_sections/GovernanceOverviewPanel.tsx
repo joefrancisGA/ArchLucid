@@ -34,7 +34,7 @@ import {
   GOVERNANCE_OVERVIEW_SUMMARY_HEADING,
 } from "@/lib/governance/governance-overview-copy";
 import { finiteIntegerCountDisplay } from "@/lib/finite-count-display";
-import { OPERATOR_LINK, OPERATOR_TYPOGRAPHY } from "@/lib/design-tokens";
+import { OPERATOR_LAYOUT, OPERATOR_LINK, OPERATOR_TYPOGRAPHY } from "@/lib/design-tokens";
 import type { GovernanceDashboardSummary } from "@/types/governance-dashboard";
 import {
   buildGovernanceOverviewSummaryMetrics,
@@ -174,7 +174,7 @@ export function GovernanceOverviewPanel(props: GovernanceOverviewPanelProps): Re
     loadState.metrics.policyActivations === 0;
 
   return (
-    <div className="mb-8 space-y-6" data-testid="governance-overview-panel">
+    <div className={cn("mb-8", OPERATOR_LAYOUT.sectionStack)} data-testid="governance-overview-panel">
       <section aria-labelledby="governance-overview-summary-heading">
         <h2 id="governance-overview-summary-heading" className={cn("m-0", OPERATOR_TYPOGRAPHY.cardTitle)}>
           {GOVERNANCE_OVERVIEW_SUMMARY_HEADING}

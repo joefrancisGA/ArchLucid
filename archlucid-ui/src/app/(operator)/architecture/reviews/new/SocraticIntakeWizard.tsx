@@ -26,6 +26,7 @@ import { SCOPE_UNDERSTANDING_READY_TO_CONTINUE_HINT } from "@/lib/architecture/a
 import {
   OPERATOR_FORM_FIELD_HELPER_CLASS,
   OPERATOR_FORM_FIELD_STACK_CLASS,
+  OPERATOR_LAYOUT,
   OPERATOR_TYPOGRAPHY,
 } from "@/lib/design-tokens";
 import {
@@ -239,7 +240,7 @@ export function SocraticIntakeWizard() {
               <CardDescription>{INTAKE_STEPS[0].description}</CardDescription>
             </CardHeader>
           ) : null}
-          <CardContent className={cn(isCreateArchitectureFlow ? "space-y-6" : "space-y-4", isCreateArchitectureFlow && "pt-4")}>
+          <CardContent className={cn(OPERATOR_LAYOUT.sectionStack, isCreateArchitectureFlow && "pt-4")}>
             {isCreateArchitectureFlow ? (
               <div className={OPERATOR_FORM_FIELD_STACK_CLASS}>
                 <IntakeFieldLabel
@@ -426,7 +427,7 @@ export function SocraticIntakeWizard() {
                 : "Your answers will be included when you review and submit."}
             </CardDescription>
           </CardHeader>
-          <CardContent className="space-y-6">
+          <CardContent className={OPERATOR_LAYOUT.sectionStack}>
             {primaryPendingQuestion !== null ? (
               <DraftIntakeRequiredClarificationField
                 key={primaryPendingQuestion.questionKey}

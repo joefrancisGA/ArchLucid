@@ -22,6 +22,7 @@ import {
   getArtifactTypeDescription,
 } from "@/lib/artifact-review-helpers";
 import {
+  OPERATOR_LAYOUT,
   OPERATOR_LINK,
   OPERATOR_TYPOGRAPHY,
 } from "@/lib/design-tokens";
@@ -60,7 +61,7 @@ export function SignedRecordArtifactPageView(props: SignedRecordArtifactPageView
   });
 
   return (
-    <div className="w-full max-w-[1200px] space-y-6 px-1 py-2 sm:px-0" data-testid="signed-record-artifact-page">
+    <div className={cn("w-full max-w-[1200px] px-1 py-2 sm:px-0", OPERATOR_LAYOUT.sectionStack)} data-testid="signed-record-artifact-page">
       <nav aria-label="Breadcrumb" className={cn("text-al-text-secondary", OPERATOR_TYPOGRAPHY.body)}>
         <Link className={OPERATOR_LINK.nav} href={SIGNED_RECORDS_LIST_PATH}>
           Signed review records

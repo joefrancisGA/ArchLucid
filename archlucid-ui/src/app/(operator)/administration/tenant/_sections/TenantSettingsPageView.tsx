@@ -38,7 +38,7 @@ import {
 
 import { toDocsBlobUrl } from "@/lib/contextual-help-content";
 
-import { OPERATOR_LINK, OPERATOR_TYPOGRAPHY } from "@/lib/design-tokens";
+import { OPERATOR_LAYOUT, OPERATOR_LINK, OPERATOR_TYPOGRAPHY } from "@/lib/design-tokens";
 
 import { OPERATOR_NAV_LINK_LABELS } from "@/lib/i18n";
 
@@ -180,7 +180,7 @@ export function TenantSettingsPageView(props: Props) {
 
   return (
 
-    <OperatorPageContainer variant="settings" className="space-y-6" data-testid="tenant-settings-page">
+    <OperatorPageContainer variant="settings" className={OPERATOR_LAYOUT.sectionStack} data-testid="tenant-settings-page">
 
       <OperatorPageHeader
 

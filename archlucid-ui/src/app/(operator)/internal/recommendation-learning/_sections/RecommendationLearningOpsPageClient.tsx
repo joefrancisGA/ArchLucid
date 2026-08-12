@@ -26,7 +26,7 @@ import { useOperateCapability } from "@/hooks/use-operate-capability";
 import type { ApiLoadFailureState } from "@/lib/api-load-failure";
 import { toApiLoadFailure } from "@/lib/api-load-failure";
 import { INTERNAL_OPERATIONS_NAV_EYEBROW } from "@/lib/demo-readiness-evidence-copy";
-import { OPERATOR_NAV_GROUP_LABEL, OPERATOR_TYPOGRAPHY } from "@/lib/design-tokens";
+import { OPERATOR_LAYOUT, OPERATOR_NAV_GROUP_LABEL, OPERATOR_TYPOGRAPHY } from "@/lib/design-tokens";
 import { cn } from "@/lib/utils";
 import type { LearningProfile } from "@/types/recommendation-learning";
 import type {
@@ -300,7 +300,7 @@ export function RecommendationLearningOpsPageClient(props: Props) {
 
   if (status === null && failure !== null) {
     return (
-      <OperatorPageContainer variant="dashboard" className="space-y-6" data-testid="recommendation-learning-ops-page">
+      <OperatorPageContainer variant="dashboard" className={OPERATOR_LAYOUT.sectionStack} data-testid="recommendation-learning-ops-page">
         <OperatorPageHeader
           navHref={RECOMMENDATION_LEARNING_CANONICAL_PATH}
           headingLevel="h1"
@@ -338,7 +338,7 @@ export function RecommendationLearningOpsPageClient(props: Props) {
   const weightDeltas = preview?.weightDeltas ?? [];
 
   return (
-    <OperatorPageContainer variant="dashboard" className="space-y-6" data-testid="recommendation-learning-ops-page">
+    <OperatorPageContainer variant="dashboard" className={OPERATOR_LAYOUT.sectionStack} data-testid="recommendation-learning-ops-page">
       <OperatorPageHeader
         navHref={RECOMMENDATION_LEARNING_CANONICAL_PATH}
         headingLevel="h1"
@@ -434,7 +434,7 @@ export function RecommendationLearningOpsPageClient(props: Props) {
       ) : null}
 
       <section className="grid gap-6 lg:grid-cols-[minmax(0,2fr)_minmax(0,1fr)]">
-        <div className="space-y-6">
+        <div className={OPERATOR_LAYOUT.sectionStack}>
           <article className="rounded-lg border border-al-border/70 p-4">
             <h2 className={OPERATOR_TYPOGRAPHY.sectionTitle}>Profile state</h2>
             <dl className="m-0">
@@ -526,7 +526,7 @@ export function RecommendationLearningOpsPageClient(props: Props) {
           ) : null}
         </div>
 
-        <div className="space-y-6">
+        <div className={OPERATOR_LAYOUT.sectionStack}>
           <article className="rounded-lg border border-al-border/70 p-4">
             <h2 className={OPERATOR_TYPOGRAPHY.sectionTitle}>Outcome eligibility</h2>
             <dl className="m-0">

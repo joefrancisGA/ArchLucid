@@ -61,7 +61,7 @@ import {
   SSO_WIZARD_METADATA_RETRIEVED_SUCCESS_MESSAGE,
   SSO_WIZARD_TEST_LOGIN_SUCCESS_MESSAGE,
 } from "@/lib/admin-integration-mutation-outcome-copy";
-import { OPERATOR_LINK, OPERATOR_NAV_GROUP_LABEL, OPERATOR_TYPOGRAPHY } from "@/lib/design-tokens";
+import { OPERATOR_LAYOUT, OPERATOR_LINK, OPERATOR_NAV_GROUP_LABEL, OPERATOR_TYPOGRAPHY } from "@/lib/design-tokens";
 import { SSO_WIZARD_CANONICAL_PATH } from "@/lib/sso-wizard-evidence-copy";
 import { resolveSsoWizardPrimaryDisabledReason } from "@/lib/sso-wizard-disabled-cta";
 import { WIZARD_SESSION_IDS } from "@/lib/wizard-session-persistence";
@@ -373,7 +373,7 @@ export function SsoWizardPageClient() {
   const currentStepMeta = SSO_WIZARD_STEPS[step];
 
   return (
-    <OperatorPageContainer variant="settings" className="space-y-6 px-1 sm:px-0" data-testid="sso-wizard-page">
+    <OperatorPageContainer variant="settings" className={cn(OPERATOR_LAYOUT.sectionStack, "px-1 sm:px-0")} data-testid="sso-wizard-page">
       <header className="space-y-3">
         <p className={cn("m-0", OPERATOR_TYPOGRAPHY.helper)}>
           <Link href={SSO_WIZARD_IDENTITY_PROVIDERS_HREF} className={OPERATOR_LINK.nav} data-testid="sso-wizard-back-link">

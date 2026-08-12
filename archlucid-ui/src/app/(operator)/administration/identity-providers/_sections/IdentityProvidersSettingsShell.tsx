@@ -18,6 +18,7 @@ import {
 import type { IdentityProvidersNavId, IdentityProvidersOverviewModel } from "@/lib/identity-providers-settings-types";
 import { isBuyerPolishedOperatorShellEnv } from "@/lib/demo-ui-env";
 import {
+  OPERATOR_LAYOUT,
   OPERATOR_LINK,
   OPERATOR_TYPOGRAPHY,
 } from "@/lib/design-tokens";
@@ -105,7 +106,7 @@ export function IdentityProvidersSettingsShell(props: IdentityProvidersSettingsS
       : (props.pageIntro ?? IDENTITY_PROVIDERS_PAGE_INTRO));
 
   return (
-    <OperatorPageContainer variant="settings" className="space-y-6" data-testid="identity-providers-settings-shell">
+    <OperatorPageContainer variant="settings" className={OPERATOR_LAYOUT.sectionStack} data-testid="identity-providers-settings-shell">
       <IdentityProvidersSettingsPageHeader
         pageTitle={resolvedTitle}
         subtitle={headerSubtitle}

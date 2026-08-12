@@ -19,6 +19,7 @@ import { WizardStepReview } from "@/components/wizard/steps/WizardStepReview";
 import type { LlmMonthlyDollarBudgetStatus } from "@/hooks/use-llm-monthly-budget-execution-gate";
 import { useQuickFamilyWizardFlow } from "@/hooks/use-quick-family-wizard-flow";
 import { isOperatorExperienceFullShellEnv } from "@/lib/demo-ui-env";
+import { OPERATOR_LAYOUT } from "@/lib/design-tokens";
 import { SIMPLIFIED_PILOT_WIZARD_STEP_FIELD_GROUPS } from "@/lib/simplified-pilot-wizard-step-fields";
 import { applyWizardPreset, wizardPresets } from "@/lib/wizard-presets";
 import type { WizardCreateRunPayloadOptions } from "@/lib/wizard-payload";
@@ -112,7 +113,7 @@ export function SimplifiedPilotWizard(props: SimplifiedPilotWizardProps) {
       />
 
       {flow.stepIndex === 0 ? (
-        <div className="space-y-8">
+        <div className={OPERATOR_LAYOUT.sectionStack}>
           <PilotModePolicyPackToggle
             enabled={focusedPilotModeEnabled}
             onEnabledChange={setFocusedPilotModeEnabled}

@@ -19,7 +19,7 @@ import {
 } from "@/components/ui/enterprise-table";
 import { useOperatorNavAuthority } from "@/components/operator/OperatorNavAuthorityProvider";
 import { PageContextualHelpButton } from "@/components/usability/PageContextualHelpButton";
-import { DESIGN_TOKENS, OPERATOR_NAV_GROUP_LABEL, OPERATOR_TYPOGRAPHY } from "@/lib/design-tokens";
+import { DESIGN_TOKENS, OPERATOR_LAYOUT, OPERATOR_NAV_GROUP_LABEL, OPERATOR_TYPOGRAPHY } from "@/lib/design-tokens";
 import { FORBIDDEN_WORKSPACE_ADMIN_ACCESS_MESSAGE_SHORT } from "@/lib/buyer/buyer-polish-copy";
 import { AUTHORITY_RANK } from "@/lib/nav-authority";
 import {
@@ -281,7 +281,7 @@ export function TrialFunnelOpsPageClient(): ReactElement {
   const timing = data?.timing;
 
   return (
-    <div className="w-full max-w-[1440px] space-y-6" data-testid="trial-funnel-ops-page">
+    <div className={cn("w-full max-w-[1440px]", OPERATOR_LAYOUT.sectionStack)} data-testid="trial-funnel-ops-page">
       <OperatorPageHeader
         title="Trial funnel"
         subtitle={TRIAL_FUNNEL_PAGE_SUBTITLE}
@@ -377,7 +377,7 @@ export function TrialFunnelOpsPageClient(): ReactElement {
         <CardHeader className="pb-2">
           <CardTitle className={OPERATOR_TYPOGRAPHY.cardTitle}>Funnel overview</CardTitle>
         </CardHeader>
-        <CardContent className="space-y-6">
+        <CardContent className={OPERATOR_LAYOUT.sectionStack}>
           <div className="grid gap-4 sm:grid-cols-2 lg:grid-cols-4">
             <div className="rounded-md border border-neutral-200 p-3 dark:border-neutral-800">
               <p className={cn("m-0", OPERATOR_NAV_GROUP_LABEL)}>Active trials</p>
