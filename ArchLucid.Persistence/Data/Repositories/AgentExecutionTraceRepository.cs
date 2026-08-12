@@ -5,6 +5,7 @@ using System.Text.Json;
 using ArchLucid.Contracts.Agents;
 using ArchLucid.Contracts.Common;
 using ArchLucid.Core.AgentEvaluation;
+using ArchLucid.Core.QualityGates;
 using ArchLucid.Core.Scoping;
 using ArchLucid.Persistence.Connections;
 using ArchLucid.Persistence.Data.Infrastructure;
@@ -274,6 +275,7 @@ public sealed class AgentExecutionTraceRepository(
         string definitionVersion,
         string definitionContentHashSha256,
         string gateMode,
+        QualityGateRecordedEvaluationSnapshot? evaluationSnapshot,
         CancellationToken cancellationToken = default)
     {
         ArgumentException.ThrowIfNullOrWhiteSpace(traceId);
@@ -298,6 +300,14 @@ public sealed class AgentExecutionTraceRepository(
                 trace.QualityGateDefinitionContentHashSha256 = definitionContentHashSha256;
                 trace.QualityGateDefinitionMode = gateMode;
                 trace.RecordedQualityGateOutcome = recordedOutcome;
+
+                if (evaluationSnapshot is not null)
+                {
+                    trace.RecordedStructuralCompletenessRatio = evaluationSnapshot.StructuralCompletenessRatio;
+                    trace.RecordedSemanticScore = evaluationSnapshot.SemanticScore;
+                    trace.RecordedRejectReasonCategory = evaluationSnapshot.RejectReasonCategory;
+                    trace.RecordedTriageScenarioId = evaluationSnapshot.TriageScenarioId;
+                }
             },
             cancellationToken);
 
@@ -315,6 +325,10 @@ public sealed class AgentExecutionTraceRepository(
                 QualityGateDefinitionVersion = definitionVersion,
                 QualityGateDefinitionContentHashSha256 = definitionContentHashSha256,
                 RecordedQualityGateOutcome = (byte)recordedOutcome,
+                RecordedStructuralCompletenessRatio = evaluationSnapshot?.StructuralCompletenessRatio,
+                RecordedSemanticScore = evaluationSnapshot?.SemanticScore,
+                RecordedRejectReasonCategory = evaluationSnapshot?.RejectReasonCategory,
+                RecordedTriageScenarioId = evaluationSnapshot?.TriageScenarioId,
             },
             cancellationToken: cancellationToken));
     }

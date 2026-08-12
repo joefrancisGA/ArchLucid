@@ -4,6 +4,7 @@ using System.Text.Json;
 
 using ArchLucid.Contracts.Agents;
 using ArchLucid.Core.AgentEvaluation;
+using ArchLucid.Core.QualityGates;
 using ArchLucid.Core.Concurrency;
 using ArchLucid.Core.Scoping;
 using ArchLucid.Contracts.Common;
@@ -149,6 +150,7 @@ public sealed class CosmosAgentExecutionTraceRepository(
         string definitionVersion,
         string definitionContentHashSha256,
         string gateMode,
+        QualityGateRecordedEvaluationSnapshot? evaluationSnapshot,
         CancellationToken cancellationToken = default)
     {
         AgentExecutionTrace? trace = await LoadTraceAsync(traceId, cancellationToken);
@@ -162,6 +164,15 @@ public sealed class CosmosAgentExecutionTraceRepository(
         trace.QualityGateDefinitionContentHashSha256 = definitionContentHashSha256;
         trace.QualityGateDefinitionMode = gateMode;
         trace.RecordedQualityGateOutcome = recordedOutcome;
+
+        if (evaluationSnapshot is not null)
+        {
+            trace.RecordedStructuralCompletenessRatio = evaluationSnapshot.StructuralCompletenessRatio;
+            trace.RecordedSemanticScore = evaluationSnapshot.SemanticScore;
+            trace.RecordedRejectReasonCategory = evaluationSnapshot.RejectReasonCategory;
+            trace.RecordedTriageScenarioId = evaluationSnapshot.TriageScenarioId;
+        }
+
         await ReplaceTraceAsync(trace, cancellationToken);
     }
 

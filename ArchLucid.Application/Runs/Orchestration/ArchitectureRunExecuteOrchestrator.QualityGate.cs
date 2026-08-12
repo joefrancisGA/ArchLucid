@@ -237,12 +237,43 @@ public sealed partial class ArchitectureRunExecuteOrchestrator
         header.LegacyRunStatus = nameof(ArchitectureRunStatus.ExecutionCompletedQualityRejected);
         await runRepository.UpdateAsync(header, cancellationToken);
 
-        string details = $"TraceId={ex.TraceId};AgentLabel={ex.AgentLabel}";
+        string details = BuildQualityGateRejectedAuditDetails(ex);
         await baselineMutationAudit.RecordAsync(
             AuditEventTypes.Baseline.Architecture.RunQualityGateRejected,
             actor,
             runId,
             details,
             cancellationToken);
+    }
+
+    private static string BuildQualityGateRejectedAuditDetails(AgentOutputQualityGateRejectedException ex)
+    {
+        List<string> parts = [
+            $"TraceId={ex.TraceId}",
+            $"AgentLabel={ex.AgentLabel}",
+        ];
+
+        if (ex.StructuralCompletenessRatio is { } structural)
+            parts.Add($"StructuralCompletenessRatio={structural}");
+
+        if (ex.SemanticScore is { } semantic)
+            parts.Add($"SemanticScore={semantic}");
+
+        if (!string.IsNullOrWhiteSpace(ex.RejectReasonCategory))
+            parts.Add($"RejectReasonCategory={ex.RejectReasonCategory}");
+
+        if (!string.IsNullOrWhiteSpace(ex.TriageScenarioId))
+            parts.Add($"TriageScenarioId={ex.TriageScenarioId}");
+
+        if (!string.IsNullOrWhiteSpace(ex.GateDefinitionVersion))
+            parts.Add($"GateDefinitionVersion={ex.GateDefinitionVersion}");
+
+        if (!string.IsNullOrWhiteSpace(ex.GateDefinitionContentHashSha256))
+            parts.Add($"GateDefinitionContentHashSha256={ex.GateDefinitionContentHashSha256}");
+
+        if (!string.IsNullOrWhiteSpace(ex.GateMode))
+            parts.Add($"GateMode={ex.GateMode}");
+
+        return string.Join(';', parts);
     }
 }

@@ -4,6 +4,7 @@ using ArchLucid.Application.Agents;
 using ArchLucid.AgentRuntime.Prompts;
 using ArchLucid.Contracts.Agents;
 using ArchLucid.Core.AgentEvaluation;
+using ArchLucid.Core.QualityGates;
 using ArchLucid.Contracts.Common;
 using ArchLucid.Core.Audit;
 using ArchLucid.Core.Configuration;
@@ -584,6 +585,7 @@ public sealed class AgentExecutionTraceRecorderReproTests
             string definitionVersion,
             string definitionContentHashSha256,
             string gateMode,
+            QualityGateRecordedEvaluationSnapshot? evaluationSnapshot,
             CancellationToken cancellationToken = default)
         {
             return _inner.PatchQualityGateRecordedSnapshotAsync(
@@ -592,6 +594,7 @@ public sealed class AgentExecutionTraceRecorderReproTests
                 definitionVersion,
                 definitionContentHashSha256,
                 gateMode,
+                evaluationSnapshot,
                 cancellationToken);
         }
 

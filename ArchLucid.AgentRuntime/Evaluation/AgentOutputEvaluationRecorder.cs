@@ -248,6 +248,19 @@ public sealed class AgentOutputEvaluationRecorder(
                 QualityGateDefinitionSnapshot gateSnapshot =
                     QualityGateDefinitionSnapshotFactory.FromOptions(gateOptions);
 
+                string rejectReason = qualityGate.ResolveRejectReasonCategory(
+                    evaluated.GateOutcome,
+                    evaluated.Structural,
+                    evaluated.Semantic,
+                    evaluated.EvaluationReason);
+
+                QualityGateRecordedEvaluationSnapshot recordedEvaluation =
+                    QualityGateRecordedEvaluationSnapshotFactory.Create(
+                        evaluated.GateOutcome,
+                        evaluated.Structural.StructuralCompletenessRatio,
+                        evaluated.Semantic.OverallSemanticScore,
+                        rejectReason);
+
                 await traceRepository
                     .PatchQualityGateRecordedSnapshotAsync(
                         trace.TraceId,
@@ -255,6 +268,7 @@ public sealed class AgentOutputEvaluationRecorder(
                         gateSnapshot.DefinitionVersion,
                         gateSnapshot.ContentHashSha256,
                         gateOptions.Mode.ToString(),
+                        recordedEvaluation,
                         cancellationToken)
                     .ConfigureAwait(false);
 
@@ -263,12 +277,6 @@ public sealed class AgentOutputEvaluationRecorder(
                     : gateOptions.Mode == AgentOutputQualityGateMode.PilotStrict
                         ? "pilot_strict"
                         : "warn_only";
-
-                string rejectReason = qualityGate.ResolveRejectReasonCategory(
-                    evaluated.GateOutcome,
-                    evaluated.Structural,
-                    evaluated.Semantic,
-                    evaluated.EvaluationReason);
 
                 string executionMode = AgentOutputQualityGateTelemetry.ResolveExecutionModeLabel(
                     _agentExecutionOptions.CurrentValue.Mode);
@@ -298,7 +306,14 @@ public sealed class AgentOutputEvaluationRecorder(
                             runId,
                             trace.TraceId,
                             agentLabel,
-                            evaluated.EvaluationReason);
+                            evaluated.EvaluationReason,
+                            recordedEvaluation.StructuralCompletenessRatio,
+                            recordedEvaluation.SemanticScore,
+                            recordedEvaluation.RejectReasonCategory,
+                            recordedEvaluation.TriageScenarioId,
+                            gateSnapshot.DefinitionVersion,
+                            gateSnapshot.ContentHashSha256,
+                            gateOptions.Mode.ToString());
                 }
 
                 else if (evaluated.GateOutcome == AgentOutputQualityGateOutcome.Warned)

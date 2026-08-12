@@ -749,7 +749,24 @@ Events fire only when:
 | **`cta_self_demo_click`** | **Click** on secondary **Try the self-demo** | Same UTM dimensions |
 | **`cta_early_access_submit`** | **After** successful **`POST /v1/marketing/early-access`** (HTTP success) — **not** when opening the inline form or on click | Same UTMs plus optional `cta_email_domain` (domain only, lowercase) |
 
-**Manual verification (staging):** land with `?utm_source=test&utm_medium=email&utm_campaign=hero`; accept cookies/consent; use browser devtools / Clarity dashboard to confirm dimensions and event names. **`NEXT_PUBLIC_ARCHLUCID_CLARITY_PROJECT_ID`** must be configured for the environment under test.
+### Showcase funnel events (`/showcase/{scenario}`)
+
+Consent + kill-switch rules match the hero table above. Implementation: [`showcase-telemetry.ts`](../../archlucid-ui/src/lib/marketing/showcase-telemetry.ts).
+
+| Event | When it fires | Dimensions |
+|--------|----------------|------------|
+| **`showcase_viewed`** | Showcase page mount | `showcase_scenario`, `showcase_render_mode` (`static` \| `api` \| `api_fallback` \| `failed`) |
+| **`showcase_render_mode`** | Same load (App Insights companion) | `scenario`, `renderMode` |
+| **`showcase_quick_nav_*`** | QuickNav link click | `scenario`, `renderMode` |
+| **`showcase_finding_open`** | Timeline finding deep link on showcase body | `scenario`, `renderMode` |
+| **`showcase_evidence_trace_open`** | Evidence graph link or artifact-nav evidence section | `scenario`, `renderMode` |
+| **`showcase_demo_request_cta`** | Bottom **Create your own request** | `scenario`, `renderMode` |
+| **`showcase_signup_cta`** | Bottom signup / sign-in CTAs | `scenario`, `renderMode` |
+
+**Automated verification (CI):** [`showcase-telemetry.test.ts`](../../archlucid-ui/src/lib/marketing/showcase-telemetry.test.ts).
+
+**Manual verification (staging):** open `/showcase/claims-intake-modernization`, accept consent, confirm Clarity custom events include `claims-intake-modernization` scenario slug.
+
 
 **Automated verification (CI):** Vitest mocks `window.clarity` + consent — [`marketing-clarity-custom-event.test.ts`](../../archlucid-ui/src/lib/marketing/marketing-clarity-custom-event.test.ts), [`marketing-hero-cta-clarity.wiring.test.tsx`](../../archlucid-ui/src/components/marketing/marketing-hero-cta-clarity.wiring.test.tsx), [`HeroEarlyAccessCta.test.tsx`](../../archlucid-ui/src/components/marketing/HeroEarlyAccessCta.test.tsx).
 

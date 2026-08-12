@@ -14,6 +14,8 @@ import {
 import { buildDemoPreviewConditionsText } from "@/lib/demo-preview-present";
 import { MARKETING_TYPOGRAPHY } from "@/lib/design-tokens";
 import { signedRecordDetailPath } from "@/lib/signed-records-paths";
+import type { ShowcaseDemoPreviewTelemetry } from "@/lib/marketing/showcase-telemetry";
+import { ShowcaseFunnelTelemetryAnchor } from "@/lib/marketing/showcase-funnel-telemetry-anchor";
 import type { DemoCommitPagePreviewResponse } from "@/types/demo-preview";
 import { isDeterministicExplanationFallback } from "@/types/explanation";
 import { cn } from "@/lib/utils";
@@ -123,7 +125,9 @@ export function DemoPreviewSignedReviewSection(props: DemoPreviewExecutiveConclu
   );
 }
 
-export function DemoPreviewEvidenceGraphSection(props: DemoPreviewExecutiveConclusionProps) {
+export function DemoPreviewEvidenceGraphSection(
+  props: DemoPreviewExecutiveConclusionProps & { readonly showcaseTelemetry?: ShowcaseDemoPreviewTelemetry },
+) {
   const citations = Array.isArray(props.payload.runExplanation?.citations) ? props.payload.runExplanation.citations : [];
   const runId = props.payload.run?.runId ?? "";
 
@@ -151,12 +155,24 @@ export function DemoPreviewEvidenceGraphSection(props: DemoPreviewExecutiveConcl
       ) : null}
       {runId.length > 0 ? (
         <p className="mt-4">
-          <Link
-            href={`/insights/evidence-graph?runId=${encodeURIComponent(runId)}`}
-            className="font-medium text-teal-800 underline underline-offset-2 dark:text-teal-300"
-          >
-            View evidence graph
-          </Link>
+          {props.showcaseTelemetry ? (
+            <ShowcaseFunnelTelemetryAnchor
+              href={`/insights/evidence-graph?runId=${encodeURIComponent(runId)}`}
+              className="font-medium text-teal-800 underline underline-offset-2 dark:text-teal-300"
+              scenario={props.showcaseTelemetry.scenario}
+              renderMode={props.showcaseTelemetry.renderMode}
+              funnelAction="evidence_trace_open"
+            >
+              View evidence graph
+            </ShowcaseFunnelTelemetryAnchor>
+          ) : (
+            <Link
+              href={`/insights/evidence-graph?runId=${encodeURIComponent(runId)}`}
+              className="font-medium text-teal-800 underline underline-offset-2 dark:text-teal-300"
+            >
+              View evidence graph
+            </Link>
+          )}
         </p>
       ) : null}
     </section>

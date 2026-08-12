@@ -135,7 +135,11 @@ internal static class AgentExecutionTraceSql
                                                                 QualityRejected = @QualityRejected,
                                                                 QualityGateDefinitionVersion = @QualityGateDefinitionVersion,
                                                                 QualityGateDefinitionContentHashSha256 = @QualityGateDefinitionContentHashSha256,
-                                                                RecordedQualityGateOutcome = @RecordedQualityGateOutcome
+                                                                RecordedQualityGateOutcome = @RecordedQualityGateOutcome,
+                                                                RecordedStructuralCompletenessRatio = @RecordedStructuralCompletenessRatio,
+                                                                RecordedSemanticScore = @RecordedSemanticScore,
+                                                                RecordedRejectReasonCategory = @RecordedRejectReasonCategory,
+                                                                RecordedTriageScenarioId = @RecordedTriageScenarioId
                                                             WHERE TraceId = @TraceId
                                                               AND RecordedQualityGateOutcome IS NULL;
                                                             """;

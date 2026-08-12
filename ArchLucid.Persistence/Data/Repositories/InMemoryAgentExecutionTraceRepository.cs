@@ -2,6 +2,7 @@ using System.Text.Json;
 
 using ArchLucid.Contracts.Agents;
 using ArchLucid.Core.AgentEvaluation;
+using ArchLucid.Core.QualityGates;
 using ArchLucid.Contracts.Common;
 using ArchLucid.Core.Scoping;
 
@@ -227,6 +228,7 @@ public sealed class InMemoryAgentExecutionTraceRepository : IAgentExecutionTrace
         string definitionVersion,
         string definitionContentHashSha256,
         string gateMode,
+        QualityGateRecordedEvaluationSnapshot? evaluationSnapshot,
         CancellationToken cancellationToken = default)
     {
         ArgumentException.ThrowIfNullOrWhiteSpace(traceId);
@@ -254,6 +256,15 @@ public sealed class InMemoryAgentExecutionTraceRepository : IAgentExecutionTrace
             t.QualityGateDefinitionContentHashSha256 = definitionContentHashSha256;
             t.QualityGateDefinitionMode = gateMode;
             t.RecordedQualityGateOutcome = recordedOutcome;
+
+            if (evaluationSnapshot is not null)
+            {
+                t.RecordedStructuralCompletenessRatio = evaluationSnapshot.StructuralCompletenessRatio;
+                t.RecordedSemanticScore = evaluationSnapshot.SemanticScore;
+                t.RecordedRejectReasonCategory = evaluationSnapshot.RejectReasonCategory;
+                t.RecordedTriageScenarioId = evaluationSnapshot.TriageScenarioId;
+            }
+
             _items[i] = t;
         }
 

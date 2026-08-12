@@ -1,5 +1,6 @@
 using ArchLucid.Contracts.Agents;
 using ArchLucid.Core.AgentEvaluation;
+using ArchLucid.Core.QualityGates;
 using ArchLucid.Core.Scoping;
 
 namespace ArchLucid.Persistence.Data.Repositories;
@@ -82,6 +83,7 @@ public interface IAgentExecutionTraceRepository
         string definitionVersion,
         string definitionContentHashSha256,
         string gateMode,
+        QualityGateRecordedEvaluationSnapshot? evaluationSnapshot,
         CancellationToken cancellationToken = default);
 
     /// <summary>Returns a single trace by id, or <see langword="null" /> when the row is missing.</summary>

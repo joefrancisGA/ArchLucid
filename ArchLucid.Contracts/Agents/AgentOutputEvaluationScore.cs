@@ -76,4 +76,18 @@ public sealed class AgentOutputEvaluationScore
         get;
         set;
     }
+
+    /// <summary>Reject reason category from persisted trace snapshot (TB-964).</summary>
+    public string? RecordedRejectReasonCategory
+    {
+        get;
+        set;
+    }
+
+    /// <summary>Triage scenario id from persisted trace snapshot (TB-964).</summary>
+    public string? RecordedTriageScenarioId
+    {
+        get;
+        set;
+    }
 }

@@ -196,7 +196,7 @@ public sealed class BaselineMutationAuditServiceArchitectureDurableEchoTests
             AuditEventTypes.Baseline.Architecture.RunQualityGateRejected,
             "actor-qg",
             runId,
-            "TraceId=tr-99;AgentLabel=Topology",
+            "TraceId=tr-99;AgentLabel=Topology;StructuralCompletenessRatio=0.25;SemanticScore=0.15;RejectReasonCategory=semantic;TriageScenarioId=groundingInsufficiency;GateDefinitionVersion=v1-test;GateDefinitionContentHashSha256=abc123;GateMode=PilotStrict",
             CancellationToken.None);
 
         auditService.Verify(
@@ -205,7 +205,14 @@ public sealed class BaselineMutationAuditServiceArchitectureDurableEchoTests
                     e.EventType == AuditEventTypes.Run.QualityGateRejected
                     && e.RunId == runGuid
                     && JsonHasString(e.DataJson, "traceId", "tr-99")
-                    && JsonHasString(e.DataJson, "agentLabel", "Topology")),
+                    && JsonHasString(e.DataJson, "agentLabel", "Topology")
+                    && JsonHasNumber(e.DataJson, "structuralCompletenessRatio", 0.25)
+                    && JsonHasNumber(e.DataJson, "semanticScore", 0.15)
+                    && JsonHasString(e.DataJson, "rejectReasonCategory", "semantic")
+                    && JsonHasString(e.DataJson, "triageScenarioId", "groundingInsufficiency")
+                    && JsonHasString(e.DataJson, "gateDefinitionVersion", "v1-test")
+                    && JsonHasString(e.DataJson, "gateDefinitionContentHashSha256", "abc123")
+                    && JsonHasString(e.DataJson, "gateMode", "PilotStrict")),
                 It.IsAny<CancellationToken>()),
             Times.Once);
     }
@@ -259,6 +266,19 @@ public sealed class BaselineMutationAuditServiceArchitectureDurableEchoTests
                && p.ValueKind == JsonValueKind.Number
                && p.TryGetInt32(out int n)
                && n == expected;
+    }
+
+    private static bool JsonHasNumber(string? dataJson, string property, double expected)
+    {
+        if (string.IsNullOrWhiteSpace(dataJson))
+            return false;
+
+        using JsonDocument doc = JsonDocument.Parse(dataJson);
+
+        return doc.RootElement.TryGetProperty(property, out JsonElement p)
+               && p.ValueKind == JsonValueKind.Number
+               && p.TryGetDouble(out double n)
+               && Math.Abs(n - expected) < 0.0001;
     }
 
     private static bool JsonHasProperty(string? dataJson, string property)

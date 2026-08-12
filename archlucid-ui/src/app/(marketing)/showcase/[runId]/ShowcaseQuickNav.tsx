@@ -1,6 +1,9 @@
+"use client";
+
 import Link from "next/link";
 import type { ReactElement } from "react";
 
+import { ShowcaseFunnelTelemetryAnchor } from "@/lib/marketing/showcase-funnel-telemetry-anchor";
 import { buildAuthSignInHref } from "@/lib/navigation/auth-sign-in-href";
 import {
   SHOWCASE_QUICK_NAV_DEEP_LINK_BODY,
@@ -11,6 +14,7 @@ import {
 import type { DemoCommitPagePreviewResponse } from "@/types/demo-preview";
 import { SHOWCASE_STATIC_DEMO_PRIMARY_FINDING_ID } from "@/lib/showcase-static-demo";
 import { signedRecordDetailPath } from "@/lib/signed-records-paths";
+import { resolveShowcaseScenarioSlug, type ShowcaseRenderMode } from "@/lib/marketing/showcase-telemetry";
 
 function primaryFindingIdForShowcase(payload: DemoCommitPagePreviewResponse): string {
   const rows = payload.runExplanation?.findingTraceConfidences;
@@ -32,14 +36,17 @@ const btnClass =
 type ShowcaseQuickNavProps = {
   readonly payload: DemoCommitPagePreviewResponse;
   readonly operatorDeepLinksAvailable: boolean;
+  readonly renderMode: ShowcaseRenderMode;
 };
 
 /** Deep-links into the operator workspace when demo static fallback is active; otherwise sign-in first (TB-890). */
 export function ShowcaseQuickNav({
   payload,
   operatorDeepLinksAvailable,
+  renderMode,
 }: ShowcaseQuickNavProps): ReactElement {
   const runId = payload.run.runId;
+  const scenario = resolveShowcaseScenarioSlug(runId);
   const manifestId = payload.manifest.manifestId;
   const findingId = primaryFindingIdForShowcase(payload);
   const findingHref = `/architecture/reviews/${encodeURIComponent(runId)}/findings/${encodeURIComponent(findingId)}`;
@@ -62,23 +69,44 @@ export function ShowcaseQuickNav({
       <div className="mt-3 flex flex-wrap gap-2">
         {operatorDeepLinksAvailable ? (
           <>
-            <Link href={reviewHref} className={btnClass}>
+            <ShowcaseFunnelTelemetryAnchor
+              href={reviewHref}
+              className={btnClass}
+              scenario={scenario}
+              renderMode={renderMode}
+              funnelAction="quick_nav_review"
+            >
               Review
-            </Link>
-            <Link href={signedRecordDetailPath(manifestId)} className={btnClass}>
+            </ShowcaseFunnelTelemetryAnchor>
+            <ShowcaseFunnelTelemetryAnchor
+              href={signedRecordDetailPath(manifestId)}
+              className={btnClass}
+              scenario={scenario}
+              renderMode={renderMode}
+              funnelAction="quick_nav_signed_record"
+            >
               Open signed record
-            </Link>
-            <Link href={findingHref} className={btnClass}>
+            </ShowcaseFunnelTelemetryAnchor>
+            <ShowcaseFunnelTelemetryAnchor
+              href={findingHref}
+              className={btnClass}
+              scenario={scenario}
+              renderMode={renderMode}
+              funnelAction="quick_nav_finding"
+            >
               Review finding
-            </Link>
+            </ShowcaseFunnelTelemetryAnchor>
           </>
         ) : (
-          <Link
+          <ShowcaseFunnelTelemetryAnchor
             href={buildAuthSignInHref({ returnPath: reviewHref })}
             className={btnClass}
+            scenario={scenario}
+            renderMode={renderMode}
+            funnelAction="quick_nav_sign_in"
           >
             {SHOWCASE_QUICK_NAV_SIGN_IN_CTA}
-          </Link>
+          </ShowcaseFunnelTelemetryAnchor>
         )}
       </div>
     </section>
