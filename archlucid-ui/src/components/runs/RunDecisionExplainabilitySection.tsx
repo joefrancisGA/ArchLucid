@@ -3,6 +3,15 @@ import type { ReactElement } from "react";
 
 import { DESIGN_TOKENS, OPERATOR_NAV_GROUP_LABEL, OPERATOR_TYPOGRAPHY } from "@/lib/design-tokens";
 import {
+  EnterpriseTable,
+  EnterpriseTableBody,
+  EnterpriseTableCell,
+  EnterpriseTableHead,
+  EnterpriseTableHeadRow,
+  EnterpriseTableHeaderCell,
+  EnterpriseTableRow,
+} from "@/components/ui/enterprise-table";
+import {
   formatDecisionPipelineBuyerLabel,
   normalizeDecisionConfidencePercent,
   resolveRecordedDecisionConfidenceNote,
@@ -102,17 +111,17 @@ export function RunDecisionExplainabilitySection(props: {
       ) : null}
 
       {model.manifestDecisions.length > 0 ? (
-        <div className="mb-4 overflow-x-auto">
-          <table className={cn("min-w-full border-collapse text-left", OPERATOR_TYPOGRAPHY.helper)}>
-            <thead>
-              <tr className="border-b border-neutral-200 text-neutral-600 dark:border-neutral-700 dark:text-neutral-400">
-                <th className="px-2 py-1 font-semibold">Review record decision</th>
-                <th className="px-2 py-1 font-semibold">Selected</th>
-                <th className="px-2 py-1 font-semibold">Confidence</th>
-                <th className="px-2 py-1 font-semibold">Pipeline</th>
-              </tr>
-            </thead>
-            <tbody>
+        <div className="mb-4">
+          <EnterpriseTable ariaLabel="Review record decisions" className={OPERATOR_TYPOGRAPHY.helper}>
+            <EnterpriseTableHead>
+              <EnterpriseTableHeadRow>
+                <EnterpriseTableHeaderCell>Review record decision</EnterpriseTableHeaderCell>
+                <EnterpriseTableHeaderCell>Selected</EnterpriseTableHeaderCell>
+                <EnterpriseTableHeaderCell>Confidence</EnterpriseTableHeaderCell>
+                <EnterpriseTableHeaderCell>Pipeline</EnterpriseTableHeaderCell>
+              </EnterpriseTableHeadRow>
+            </EnterpriseTableHead>
+            <EnterpriseTableBody>
               {model.manifestDecisions.map((row) => {
                 const confidenceNote = resolveRecordedDecisionConfidenceNote({
                   selectedOption: row.selectedOption,
@@ -121,59 +130,57 @@ export function RunDecisionExplainabilitySection(props: {
                 });
 
                 return (
-                <tr key={row.decisionId} className="border-b border-neutral-100 dark:border-neutral-800">
-                  <td className="px-2 py-2 align-top">
-                    <p className="m-0 font-medium text-neutral-900 dark:text-neutral-100">{row.title}</p>
-                    <p className={cn("m-0 mt-0.5 text-neutral-600 dark:text-neutral-400", OPERATOR_TYPOGRAPHY.navHelper)}>{row.category}</p>
-                  </td>
-                  <td className="px-2 py-2 align-top">{row.selectedOption}</td>
-                  <td className="px-2 py-2 align-top">
-                    {formatConfidence(row.confidence)}
-                    {confidenceNote !== null ? (
-                      <span className={cn("mt-1 block text-neutral-600 dark:text-neutral-400", OPERATOR_TYPOGRAPHY.micro)}>
-                        {confidenceNote}
-                      </span>
-                    ) : row.buyerConfidenceSource ? (
-                      <span className={cn("block text-neutral-500", OPERATOR_TYPOGRAPHY.micro)}>{row.buyerConfidenceSource}</span>
-                    ) : null}
-                  </td>
-                  <td className={cn("px-2 py-2 align-top", buyerPolishedShell ? OPERATOR_TYPOGRAPHY.helper : "font-mono", OPERATOR_TYPOGRAPHY.micro)}>
-                    {buyerPolishedShell ? formatDecisionPipelineBuyerLabel(row.pipeline) : row.pipeline}
-                  </td>
-                </tr>
-              );
+                  <EnterpriseTableRow key={row.decisionId}>
+                    <EnterpriseTableCell className="align-top">
+                      <p className="m-0 font-medium text-neutral-900 dark:text-neutral-100">{row.title}</p>
+                      <p className={cn("m-0 mt-0.5 text-neutral-600 dark:text-neutral-400", OPERATOR_TYPOGRAPHY.navHelper)}>{row.category}</p>
+                    </EnterpriseTableCell>
+                    <EnterpriseTableCell className="align-top">{row.selectedOption}</EnterpriseTableCell>
+                    <EnterpriseTableCell className="align-top">
+                      {formatConfidence(row.confidence)}
+                      {confidenceNote !== null ? (
+                        <span className={cn("mt-1 block text-neutral-600 dark:text-neutral-400", OPERATOR_TYPOGRAPHY.micro)}>
+                          {confidenceNote}
+                        </span>
+                      ) : row.buyerConfidenceSource ? (
+                        <span className={cn("block text-neutral-500", OPERATOR_TYPOGRAPHY.micro)}>{row.buyerConfidenceSource}</span>
+                      ) : null}
+                    </EnterpriseTableCell>
+                    <EnterpriseTableCell className={cn("align-top", buyerPolishedShell ? OPERATOR_TYPOGRAPHY.helper : "font-mono", OPERATOR_TYPOGRAPHY.micro)}>
+                      {buyerPolishedShell ? formatDecisionPipelineBuyerLabel(row.pipeline) : row.pipeline}
+                    </EnterpriseTableCell>
+                  </EnterpriseTableRow>
+                );
               })}
-            </tbody>
-          </table>
+            </EnterpriseTableBody>
+          </EnterpriseTable>
         </div>
       ) : null}
 
       {model.coordinatorDecisionNodes.length > 0 ? (
-        <div className="overflow-x-auto">
-          <table className={cn("min-w-full border-collapse text-left", OPERATOR_TYPOGRAPHY.helper)}>
-            <thead>
-              <tr className="border-b border-neutral-200 text-neutral-600 dark:border-neutral-700 dark:text-neutral-400">
-                <th className="px-2 py-1 font-semibold">Coordinator topic</th>
-                <th className="px-2 py-1 font-semibold">Confidence</th>
-                <th className="px-2 py-1 font-semibold">Pipeline</th>
-              </tr>
-            </thead>
-            <tbody>
-              {model.coordinatorDecisionNodes.map((row) => (
-                <tr key={row.decisionId} className="border-b border-neutral-100 dark:border-neutral-800">
-                  <td className="px-2 py-2 align-top">
-                    <p className="m-0 font-medium text-neutral-900 dark:text-neutral-100">{row.topic}</p>
-                    <p className={cn("m-0 mt-0.5 text-neutral-600 dark:text-neutral-400", OPERATOR_TYPOGRAPHY.navHelper)}>{row.rationale}</p>
-                  </td>
-                  <td className="px-2 py-2 align-top">{formatConfidence(row.confidence)}</td>
-                  <td className={cn("px-2 py-2 align-top", buyerPolishedShell ? OPERATOR_TYPOGRAPHY.helper : "font-mono", OPERATOR_TYPOGRAPHY.micro)}>
-                    {buyerPolishedShell ? formatDecisionPipelineBuyerLabel(row.pipeline) : row.pipeline}
-                  </td>
-                </tr>
-              ))}
-            </tbody>
-          </table>
-        </div>
+        <EnterpriseTable ariaLabel="Coordinator decision nodes" className={OPERATOR_TYPOGRAPHY.helper}>
+          <EnterpriseTableHead>
+            <EnterpriseTableHeadRow>
+              <EnterpriseTableHeaderCell>Coordinator topic</EnterpriseTableHeaderCell>
+              <EnterpriseTableHeaderCell>Confidence</EnterpriseTableHeaderCell>
+              <EnterpriseTableHeaderCell>Pipeline</EnterpriseTableHeaderCell>
+            </EnterpriseTableHeadRow>
+          </EnterpriseTableHead>
+          <EnterpriseTableBody>
+            {model.coordinatorDecisionNodes.map((row) => (
+              <EnterpriseTableRow key={row.decisionId}>
+                <EnterpriseTableCell className="align-top">
+                  <p className="m-0 font-medium text-neutral-900 dark:text-neutral-100">{row.topic}</p>
+                  <p className={cn("m-0 mt-0.5 text-neutral-600 dark:text-neutral-400", OPERATOR_TYPOGRAPHY.navHelper)}>{row.rationale}</p>
+                </EnterpriseTableCell>
+                <EnterpriseTableCell className="align-top">{formatConfidence(row.confidence)}</EnterpriseTableCell>
+                <EnterpriseTableCell className={cn("align-top", buyerPolishedShell ? OPERATOR_TYPOGRAPHY.helper : "font-mono", OPERATOR_TYPOGRAPHY.micro)}>
+                  {buyerPolishedShell ? formatDecisionPipelineBuyerLabel(row.pipeline) : row.pipeline}
+                </EnterpriseTableCell>
+              </EnterpriseTableRow>
+            ))}
+          </EnterpriseTableBody>
+        </EnterpriseTable>
       ) : null}
     </section>
   );

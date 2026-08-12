@@ -1,5 +1,14 @@
 import { cn } from "@/lib/utils";
 import { CollapsibleSection } from "@/components/CollapsibleSection";
+import {
+  EnterpriseTable,
+  EnterpriseTableBody,
+  EnterpriseTableCell,
+  EnterpriseTableHead,
+  EnterpriseTableHeadRow,
+  EnterpriseTableHeaderCell,
+  EnterpriseTableRow,
+} from "@/components/ui/enterprise-table";
 import { OPERATOR_TYPOGRAPHY } from "@/lib/design-tokens";
 import { formatInstantForLocale } from "@/lib/locale-datetime";
 import type { ApiLoadFailureState } from "@/lib/api-load-failure";
@@ -127,50 +136,48 @@ export function RunRetrievalGroundingPanel(props: RunRetrievalGroundingPanelProp
         ) : null}
 
         {!failure && rows.length > 0 ? (
-          <div className="overflow-x-auto">
-            <table className={cn("w-full border-collapse", OPERATOR_TYPOGRAPHY.body)}>
-              <thead>
-                <tr className="border-b border-neutral-200 text-left dark:border-neutral-700">
-                  <th className="px-1.5 py-2">Agent</th>
-                  <th className="px-1.5 py-2">Corpus</th>
-                  <th className="px-1.5 py-2">Chunks</th>
-                  <th className="px-1.5 py-2">Documents</th>
-                  <th className="px-1.5 py-2">Scores</th>
-                  <th className="px-1.5 py-2">Coverage</th>
-                  <th className="px-1.5 py-2">Tokens</th>
-                  <th className="px-1.5 py-2">Graph-RAG</th>
-                  <th className="px-1.5 py-2">Trace</th>
-                  <th className="px-1.5 py-2">Recorded</th>
-                </tr>
-              </thead>
-              <tbody>
-                {rows.map((row) => (
-                  <tr key={row.traceId} className="border-b border-neutral-100 dark:border-neutral-800">
-                    <td className="whitespace-nowrap px-1.5 py-2">{row.agentName?.trim() || "Unknown"}</td>
-                    <td className="whitespace-nowrap px-1.5 py-2">{row.corpusKind?.trim() || "-"}</td>
-                    <td className={cn("max-w-[14rem] px-1.5 py-2 font-mono", OPERATOR_TYPOGRAPHY.micro)} title={row.retrievedChunkIds.join(", ")}>
-                      {shortList(row.retrievedChunkIds, 3)}
-                    </td>
-                    <td className={cn("max-w-[12rem] px-1.5 py-2 font-mono", OPERATOR_TYPOGRAPHY.micro)} title={row.documentIds.join(", ")}>
-                      {row.documentMetadataMalformed ? "degraded" : shortList(row.documentIds, 2)}
-                    </td>
-                    <td className={cn("max-w-[12rem] px-1.5 py-2 font-mono", OPERATOR_TYPOGRAPHY.micro)}>{scoreText(row)}</td>
-                    <td className="whitespace-nowrap px-1.5 py-2">{pct(row.citationCoverage)}</td>
-                    <td className="whitespace-nowrap px-1.5 py-2">
-                      {optionalNumber(row.tokensIn)} in / {optionalNumber(row.tokensOut)} out
-                    </td>
-                    <td className={cn("whitespace-nowrap px-1.5 py-2", OPERATOR_TYPOGRAPHY.helper)}>{graphRagSummary(row)}</td>
-                    <td className={cn("max-w-[12rem] truncate px-1.5 py-2 font-mono", OPERATOR_TYPOGRAPHY.micro)} title={row.traceId}>
-                      {row.agentExecutionTraceId?.trim() || row.traceId}
-                    </td>
-                    <td className={cn("whitespace-nowrap px-1.5 py-2 text-neutral-600 dark:text-neutral-400", OPERATOR_TYPOGRAPHY.helper)}>
-                      {formatInstantForLocale(row.createdUtc)}
-                    </td>
-                  </tr>
-                ))}
-              </tbody>
-            </table>
-          </div>
+          <EnterpriseTable ariaLabel="Retrieval grounding traces" className={OPERATOR_TYPOGRAPHY.body}>
+            <EnterpriseTableHead>
+              <EnterpriseTableHeadRow>
+                <EnterpriseTableHeaderCell>Agent</EnterpriseTableHeaderCell>
+                <EnterpriseTableHeaderCell>Corpus</EnterpriseTableHeaderCell>
+                <EnterpriseTableHeaderCell>Chunks</EnterpriseTableHeaderCell>
+                <EnterpriseTableHeaderCell>Documents</EnterpriseTableHeaderCell>
+                <EnterpriseTableHeaderCell>Scores</EnterpriseTableHeaderCell>
+                <EnterpriseTableHeaderCell>Coverage</EnterpriseTableHeaderCell>
+                <EnterpriseTableHeaderCell>Tokens</EnterpriseTableHeaderCell>
+                <EnterpriseTableHeaderCell>Graph-RAG</EnterpriseTableHeaderCell>
+                <EnterpriseTableHeaderCell>Trace</EnterpriseTableHeaderCell>
+                <EnterpriseTableHeaderCell>Recorded</EnterpriseTableHeaderCell>
+              </EnterpriseTableHeadRow>
+            </EnterpriseTableHead>
+            <EnterpriseTableBody>
+              {rows.map((row) => (
+                <EnterpriseTableRow key={row.traceId}>
+                  <EnterpriseTableCell className="whitespace-nowrap">{row.agentName?.trim() || "Unknown"}</EnterpriseTableCell>
+                  <EnterpriseTableCell className="whitespace-nowrap">{row.corpusKind?.trim() || "-"}</EnterpriseTableCell>
+                  <EnterpriseTableCell className={cn("max-w-[14rem] font-mono", OPERATOR_TYPOGRAPHY.micro)} title={row.retrievedChunkIds.join(", ")}>
+                    {shortList(row.retrievedChunkIds, 3)}
+                  </EnterpriseTableCell>
+                  <EnterpriseTableCell className={cn("max-w-[12rem] font-mono", OPERATOR_TYPOGRAPHY.micro)} title={row.documentIds.join(", ")}>
+                    {row.documentMetadataMalformed ? "degraded" : shortList(row.documentIds, 2)}
+                  </EnterpriseTableCell>
+                  <EnterpriseTableCell className={cn("max-w-[12rem] font-mono", OPERATOR_TYPOGRAPHY.micro)}>{scoreText(row)}</EnterpriseTableCell>
+                  <EnterpriseTableCell className="whitespace-nowrap">{pct(row.citationCoverage)}</EnterpriseTableCell>
+                  <EnterpriseTableCell className="whitespace-nowrap">
+                    {optionalNumber(row.tokensIn)} in / {optionalNumber(row.tokensOut)} out
+                  </EnterpriseTableCell>
+                  <EnterpriseTableCell className={cn("whitespace-nowrap", OPERATOR_TYPOGRAPHY.helper)}>{graphRagSummary(row)}</EnterpriseTableCell>
+                  <EnterpriseTableCell className={cn("max-w-[12rem] truncate font-mono", OPERATOR_TYPOGRAPHY.micro)} title={row.traceId}>
+                    {row.agentExecutionTraceId?.trim() || row.traceId}
+                  </EnterpriseTableCell>
+                  <EnterpriseTableCell className={cn("whitespace-nowrap text-neutral-600 dark:text-neutral-400", OPERATOR_TYPOGRAPHY.helper)}>
+                    {formatInstantForLocale(row.createdUtc)}
+                  </EnterpriseTableCell>
+                </EnterpriseTableRow>
+              ))}
+            </EnterpriseTableBody>
+          </EnterpriseTable>
         ) : null}
       </CollapsibleSection>
     </div>

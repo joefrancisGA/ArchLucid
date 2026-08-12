@@ -8,6 +8,15 @@ import { OperatorToolingWorkbenchPanels } from "@/components/advisory/OperatorTo
 import { OperatorApiProblem } from "@/components/operator/OperatorApiProblem";
 import { Button } from "@/components/ui/button";
 import { Checkbox } from "@/components/ui/checkbox";
+import {
+  EnterpriseTable,
+  EnterpriseTableBody,
+  EnterpriseTableCell,
+  EnterpriseTableHead,
+  EnterpriseTableHeadRow,
+  EnterpriseTableHeaderCell,
+  EnterpriseTableRow,
+} from "@/components/ui/enterprise-table";
 import { Input } from "@/components/ui/input";
 import { Label } from "@/components/ui/label";
 import { useOperateCapability } from "@/hooks/use-operate-capability";
@@ -78,51 +87,49 @@ function OutcomeTable({ outcomes }: { outcomes: SimulatedAlertOutcome[] }) {
     );
   }
   return (
-    <div className="overflow-x-auto">
-      <table className={cn("mt-2 w-full border-collapse", DESIGN_TOKENS.table.table)}>
-        <thead>
-          <tr className="border-b border-neutral-300 text-left dark:border-neutral-600">
-            <th className="p-1.5">Review ID</th>
-            <th className="p-1.5">Match</th>
-            <th className="p-1.5">Would create</th>
-            <th className="p-1.5">Suppressed</th>
-            <th className="p-1.5">Severity</th>
-            <th className="p-1.5">Title / description</th>
-            <th className="p-1.5">Suppression / dedupe</th>
-          </tr>
-        </thead>
-        <tbody>
-          {outcomes.map((o, i) => (
-            <tr key={`${o.runId ?? "x"}-${i}`} className="border-b border-neutral-100 align-top dark:border-neutral-800">
-              <td className="whitespace-nowrap p-1.5">{o.runId ?? "—"}</td>
-              <td className="p-1.5">{o.ruleMatched ? "yes" : "no"}</td>
-              <td className="p-1.5">{o.wouldCreateAlert ? "yes" : "no"}</td>
-              <td className="p-1.5">{o.wouldBeSuppressed ? "yes" : "no"}</td>
-              <td className="p-1.5">{o.severity}</td>
-              <td className="p-1.5">
-                <strong>{o.title}</strong>
-                <div className="mt-1 text-neutral-600 dark:text-neutral-400">{o.description}</div>
-                {o.notes?.length ? (
-                  <ul className="mt-1.5 pl-[18px] text-neutral-600 dark:text-neutral-400">
-                    {o.notes.map((n, j) => (
-                      <li key={j}>{n}</li>
-                    ))}
-                  </ul>
-                ) : null}
-              </td>
-              <td className={cn("p-1.5", OPERATOR_TYPOGRAPHY.helper)}>
-                <div>
-                  <strong>Reason:</strong> {o.suppressionReason || "—"}
-                </div>
-                <div className="mt-1">
-                  <strong>Dedupe:</strong> {o.deduplicationKey || "—"}
-                </div>
-              </td>
-            </tr>
-          ))}
-        </tbody>
-      </table>
-    </div>
+    <EnterpriseTable ariaLabel="Alert simulation outcomes" className={cn("mt-2", OPERATOR_TYPOGRAPHY.body)}>
+      <EnterpriseTableHead>
+        <EnterpriseTableHeadRow>
+          <EnterpriseTableHeaderCell>Review ID</EnterpriseTableHeaderCell>
+          <EnterpriseTableHeaderCell>Match</EnterpriseTableHeaderCell>
+          <EnterpriseTableHeaderCell>Would create</EnterpriseTableHeaderCell>
+          <EnterpriseTableHeaderCell>Suppressed</EnterpriseTableHeaderCell>
+          <EnterpriseTableHeaderCell>Severity</EnterpriseTableHeaderCell>
+          <EnterpriseTableHeaderCell>Title / description</EnterpriseTableHeaderCell>
+          <EnterpriseTableHeaderCell>Suppression / dedupe</EnterpriseTableHeaderCell>
+        </EnterpriseTableHeadRow>
+      </EnterpriseTableHead>
+      <EnterpriseTableBody>
+        {outcomes.map((o, i) => (
+          <EnterpriseTableRow key={`${o.runId ?? "x"}-${i}`}>
+            <EnterpriseTableCell className="whitespace-nowrap">{o.runId ?? "—"}</EnterpriseTableCell>
+            <EnterpriseTableCell>{o.ruleMatched ? "yes" : "no"}</EnterpriseTableCell>
+            <EnterpriseTableCell>{o.wouldCreateAlert ? "yes" : "no"}</EnterpriseTableCell>
+            <EnterpriseTableCell>{o.wouldBeSuppressed ? "yes" : "no"}</EnterpriseTableCell>
+            <EnterpriseTableCell>{o.severity}</EnterpriseTableCell>
+            <EnterpriseTableCell className="align-top">
+              <strong>{o.title}</strong>
+              <div className="mt-1 text-neutral-600 dark:text-neutral-400">{o.description}</div>
+              {o.notes?.length ? (
+                <ul className="mt-1.5 pl-[18px] text-neutral-600 dark:text-neutral-400">
+                  {o.notes.map((n, j) => (
+                    <li key={j}>{n}</li>
+                  ))}
+                </ul>
+              ) : null}
+            </EnterpriseTableCell>
+            <EnterpriseTableCell className={cn("align-top", OPERATOR_TYPOGRAPHY.helper)}>
+              <div>
+                <strong>Reason:</strong> {o.suppressionReason || "—"}
+              </div>
+              <div className="mt-1">
+                <strong>Dedupe:</strong> {o.deduplicationKey || "—"}
+              </div>
+            </EnterpriseTableCell>
+          </EnterpriseTableRow>
+        ))}
+      </EnterpriseTableBody>
+    </EnterpriseTable>
   );
 }
 
