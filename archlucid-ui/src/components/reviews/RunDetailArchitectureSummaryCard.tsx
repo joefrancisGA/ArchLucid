@@ -71,36 +71,31 @@ function shouldShowArchitectureTitle(title: string, summaryText: string): boolea
   return true;
 }
 
+/** Entity labels are extracted document text too, so they carry the same markdown risk as narrative. */
+function entityLabelList(section: ArchitectureStructuredSection): string {
+  return section.entities.map((entity) => stripInlineMarkdownFromReviewText(entity.label)).join(", ");
+}
+
 function sectionSummary(section: ArchitectureStructuredSection): string {
   const narrative = section.narrativeMarkdown?.trim() ?? "";
 
-  if (narrative.length > 0) {
-    if (/^\s*\|.*\|\s*$/m.test(narrative)) {
-      if (section.entities.length > 0) {
-        return section.entities.map((entity) => entity.label).join(", ");
-      }
-
-      return "";
-    }
-
-    const normalized = stripInlineMarkdownFromReviewText(narrative);
-
-    if (normalized.length === 0) {
-      if (section.entities.length > 0) {
-        return section.entities.map((entity) => entity.label).join(", ");
-      }
-
-      return "";
-    }
-
-    return normalized.length > 240 ? `${normalized.slice(0, 237)}…` : normalized;
+  if (narrative.length === 0) {
+    return entityLabelList(section);
   }
 
-  if (section.entities.length > 0) {
-    return section.entities.map((entity) => entity.label).join(", ");
+  // A markdown table degrades into pipe-delimited noise inside a definition list, so prefer the
+  // parser's structured entities, which hold the same rows as discrete labels.
+  if (/^\s*\|.*\|\s*$/m.test(narrative)) {
+    return entityLabelList(section);
   }
 
-  return "";
+  const normalized = stripInlineMarkdownFromReviewText(narrative);
+
+  if (normalized.length === 0) {
+    return entityLabelList(section);
+  }
+
+  return normalized.length > 240 ? `${normalized.slice(0, 237)}…` : normalized;
 }
 
 function sectionProvenanceLabel(section: ArchitectureStructuredSection): string | null {
