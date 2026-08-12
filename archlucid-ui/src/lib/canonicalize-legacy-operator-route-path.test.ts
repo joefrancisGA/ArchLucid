@@ -49,6 +49,12 @@ describe("canonicalizeLegacyOperatorRoutePath", () => {
     expect(canonicalizeLegacyOperatorRoutePath("/settings/identity-providers")).toBe(
       "/administration/identity-providers",
     );
+    expect(canonicalizeLegacyOperatorRoutePath("/administration/tenant")).toBe(
+      "/administration/workspace-settings",
+    );
+    expect(canonicalizeLegacyOperatorRoutePath("/administration/tenant/recycle-bin")).toBe(
+      "/administration/workspace-settings/recycle-bin",
+    );
     expect(canonicalizeLegacyOperatorRoutePath("/settings/identity/sso-wizard")).toBe(
       "/administration/identity/sso-wizard",
     );

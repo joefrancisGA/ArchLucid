@@ -1,6 +1,6 @@
 import { SETTINGS_ROOT_PATH, SETTINGS_TENANT_PATH } from "@/lib/settings-admin-route-paths";
 
-/** Canonical page title for `/administration/tenant/recycle-bin`. */
+/** Canonical page title for `/administration/workspace-settings/recycle-bin`. */
 export const PROJECTS_RECYCLE_BIN_PAGE_TITLE = "Projects recycle bin";
 
 export const PROJECTS_RECYCLE_BIN_BREADCRUMB_ADMINISTRATION_LABEL = "Administration";
@@ -34,7 +34,7 @@ export const PROJECTS_RECYCLE_BIN_EMPTY_ARCHITECTURES_HREF = "/architecture/arch
 
 export const PROJECTS_RECYCLE_BIN_EMPTY_ARCHITECTURES_LINK_LABEL = "Architecture drafts";
 
-export const PROJECTS_RECYCLE_BIN_EMPTY_DELETE_SURFACE_HREF = "/administration/tenant";
+export const PROJECTS_RECYCLE_BIN_EMPTY_DELETE_SURFACE_HREF = "/administration/workspace-settings";
 
 export const PROJECTS_RECYCLE_BIN_EMPTY_DELETE_SURFACE_LINK_LABEL = "Workspace settings";
 

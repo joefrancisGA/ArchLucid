@@ -41,7 +41,20 @@ export const SETTINGS_SECURITY_TRUST_PATH = `${SETTINGS_ROOT_PATH}/security-trus
 
 export const SETTINGS_SUPPORT_PATH = `${SETTINGS_ROOT_PATH}/support`;
 
-export const SETTINGS_TENANT_PATH = `${SETTINGS_ROOT_PATH}/tenant`;
+/** Canonical workspace settings (trial, cost, scope, quality gates). */
+export const SETTINGS_WORKSPACE_SETTINGS_PATH = `${SETTINGS_ROOT_PATH}/workspace-settings` as const;
+
+export const SETTINGS_WORKSPACE_SETTINGS_RECYCLE_BIN_PATH =
+  `${SETTINGS_WORKSPACE_SETTINGS_PATH}/recycle-bin` as const;
+
+/** @deprecated Legacy bookmark — use {@link SETTINGS_WORKSPACE_SETTINGS_PATH}. */
+export const LEGACY_SETTINGS_TENANT_PATH = `${SETTINGS_ROOT_PATH}/tenant` as const;
+
+/** @deprecated Legacy bookmark — use {@link SETTINGS_WORKSPACE_SETTINGS_RECYCLE_BIN_PATH}. */
+export const LEGACY_SETTINGS_TENANT_RECYCLE_BIN_PATH = `${LEGACY_SETTINGS_TENANT_PATH}/recycle-bin` as const;
+
+/** @deprecated Use {@link SETTINGS_WORKSPACE_SETTINGS_PATH}. */
+export const SETTINGS_TENANT_PATH = LEGACY_SETTINGS_TENANT_PATH;
 
 export const SETTINGS_AUTH_DOMAINS_PATH = `${SETTINGS_ROOT_PATH}/auth-domains` as const;
 
@@ -136,5 +149,12 @@ export function pathMatchesSettingsSupport(pathname: string): boolean {
     pathMatchesRoutePrefix(pathname, SETTINGS_SUPPORT_PATH)
     || pathMatchesRoutePrefix(pathname, `${LEGACY_ADMINISTRATION_SETTINGS_ROOT_PATH}/support`)
     || pathMatchesRoutePrefix(pathname, LEGACY_ADMIN_SUPPORT_PATH)
+  );
+}
+
+export function pathMatchesSettingsWorkspaceSettings(pathname: string): boolean {
+  return (
+    pathMatchesRoutePrefix(pathname, SETTINGS_WORKSPACE_SETTINGS_PATH)
+    || pathMatchesRoutePrefix(pathname, LEGACY_SETTINGS_TENANT_PATH)
   );
 }

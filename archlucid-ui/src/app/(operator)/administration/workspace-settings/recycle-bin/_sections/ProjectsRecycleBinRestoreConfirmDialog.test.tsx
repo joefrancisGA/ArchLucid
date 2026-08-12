@@ -7,7 +7,7 @@ import {
   projectsRecycleBinRestoreConfirmDescription,
 } from "@/lib/projects-recycle-bin-restore-confirm-copy";
 
-import { ProjectsRecycleBinRestoreConfirmDialog } from "@/app/(operator)/administration/tenant/recycle-bin/_sections/ProjectsRecycleBinRestoreConfirmDialog";
+import { ProjectsRecycleBinRestoreConfirmDialog } from "@/app/(operator)/administration/workspace-settings/recycle-bin/_sections/ProjectsRecycleBinRestoreConfirmDialog";
 
 describe("projects-recycle-bin-restore-confirm-copy", () => {
   it("names the project and workspace in restore semantics", () => {

@@ -57,6 +57,10 @@ import {
   SPONSOR_REPORT_ROI_SUMMARY_PATH,
 } from "@/lib/sponsor-report-navigation";
 import {
+  LEGACY_SETTINGS_TENANT_PATH,
+  SETTINGS_WORKSPACE_SETTINGS_PATH,
+} from "@/lib/settings-admin-route-paths";
+import {
   INTERNAL_CONFIGURATION_PATH,
   INTERNAL_DEMO_READINESS_PATH,
   INTERNAL_DEPLOYMENT_STATUS_PATH,
@@ -197,6 +201,10 @@ export function canonicalizeLegacyOperatorRoutePath(pathname: string): string {
 
   if (normalized === LEGACY_SETTINGS_ROLES_PATH) {
     return ADMINISTRATION_USERS_PATH;
+  }
+
+  if (pathMatchesRoutePrefix(normalized, LEGACY_SETTINGS_TENANT_PATH)) {
+    return normalized.replace(LEGACY_SETTINGS_TENANT_PATH, SETTINGS_WORKSPACE_SETTINGS_PATH);
   }
 
   if (normalized === AI_USAGE_LEGACY_ADMIN_PATH) {

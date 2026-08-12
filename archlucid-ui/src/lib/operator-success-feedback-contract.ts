@@ -45,7 +45,7 @@ export const OPERATOR_SUCCESS_FEEDBACK_RULES: readonly OperatorSuccessFeedbackRu
 export const INLINE_SUCCESS_CALLOUT_SURFACES: readonly string[] = [
   "app/(operator)/administration/identity-providers/_sections/SamlSpConfigurationForm.tsx",
   "app/(operator)/administration/scim-provisioning/_sections/ScimProvisioningSettingsPageClient.tsx",
-  "app/(operator)/administration/tenant/_sections/TenantCostSettingsCard.tsx",
+  "app/(operator)/administration/workspace-settings/_sections/TenantCostSettingsCard.tsx",
   "app/(operator)/integrations/cloud-connections/_sections/AwsConnectionDisconnectDialog.tsx",
   "app/(operator)/integrations/cloud-connections/_sections/GcpConnectionDisconnectDialog.tsx",
 ];

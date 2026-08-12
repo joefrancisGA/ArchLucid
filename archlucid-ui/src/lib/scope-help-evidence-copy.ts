@@ -2,7 +2,7 @@ export const SCOPE_HELP_CANONICAL_PATH = "/help/scope" as const;
 
 export const SCOPE_HELP_PRIMARY_ACTION = {
   label: "Open tenant settings",
-  href: "/administration/tenant",
+  href: "/administration/workspace-settings",
   testId: "help-scope-open-tenant-settings",
 } as const;
 

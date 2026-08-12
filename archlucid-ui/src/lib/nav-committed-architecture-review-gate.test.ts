@@ -23,7 +23,7 @@ describe("pathnameEligibleBeforeFirstCommittedArchitectureReview", () => {
     expect(pathnameEligibleBeforeFirstCommittedArchitectureReview("/help")).toBe(true);
     expect(pathnameEligibleBeforeFirstCommittedArchitectureReview("/architecture/first-review-guide")).toBe(true);
     expect(pathnameEligibleBeforeFirstCommittedArchitectureReview("/administration/baseline")).toBe(true);
-    expect(pathnameEligibleBeforeFirstCommittedArchitectureReview("/administration/tenant")).toBe(true);
+    expect(pathnameEligibleBeforeFirstCommittedArchitectureReview("/administration/workspace-settings")).toBe(true);
     expect(pathnameEligibleBeforeFirstCommittedArchitectureReview("/administration")).toBe(false);
     expect(pathnameEligibleBeforeFirstCommittedArchitectureReview("/administration/users")).toBe(false);
     expect(pathnameEligibleBeforeFirstCommittedArchitectureReview("/governance/findings")).toBe(false);

@@ -155,7 +155,7 @@ export const ADMINISTRATION_CONTEXTUAL_HELP_ROWS: readonly PageContextualHelpRow
     },
   },
   {
-    prefix: "/administration/tenant",
+    prefix: "/administration/workspace-settings",
     entry: {
       whatIsThisPage:
         "Tenant settings - configure workspace defaults, quality gates, cost settings, and tenant-wide options for this organization.",
@@ -168,7 +168,7 @@ export const ADMINISTRATION_CONTEXTUAL_HELP_ROWS: readonly PageContextualHelpRow
     },
   },
   {
-    prefix: "/administration/tenant/recycle-bin",
+    prefix: "/administration/workspace-settings/recycle-bin",
     entry: {
       whatIsThisPage:
         "Projects recycle bin - browse soft-deleted architecture projects for this tenant and restore them when names are free.",

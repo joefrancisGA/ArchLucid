@@ -75,8 +75,8 @@ const READINESS_BY_PATH: Record<string, RouteReadinessTier> = {
   "/admin/users": "admin-only",
   "/administration/support": "admin-only",
   "/administration/users": "admin-only",
-  "/administration/tenant": "admin-only",
-  "/administration/tenant/recycle-bin": "admin-only",
+  "/administration/workspace-settings": "admin-only",
+  "/administration/workspace-settings/recycle-bin": "admin-only",
   "/administration/baseline": "advanced-only",
   "/administration/developer": "advanced-only",
   "/administration/billing": "advanced-only",
@@ -140,7 +140,7 @@ import { isCtoDemoPresenterSafeModeEnv } from "@/lib/cto-demo-presenter-pack";
 const PRESENTER_SAFE_MODE_NAV_HIDE = new Set<string>([
   "/administration",
   "/administration/billing",
-  "/administration/tenant",
+  "/administration/workspace-settings",
   "/administration/api-keys",
   "/settings/roles",
   "/administration/baseline",
@@ -164,7 +164,7 @@ const PRESENTER_SAFE_MODE_NAV_HIDE = new Set<string>([
 const DEMO_MODE_EXPLICIT_NAV_HIDE = new Set<string>([
   ARCHITECTURE_SCORECARD_PATH,
   "/insights/search-review-evidence",
-  "/administration/tenant/recycle-bin",
+  "/administration/workspace-settings/recycle-bin",
 ]);
 
 function normalizeOperatorNavHrefForDemo(href: string): string {

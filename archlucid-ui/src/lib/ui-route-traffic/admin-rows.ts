@@ -211,7 +211,7 @@ export const ADMIN_TRAFFIC_ROWS: readonly UiRouteTrafficRow[] = [
   /** Traffic workbook row ID for Tenant settings. Owner backlog shorthand: ATE (template formerly STX on legacy settings path). */
   {
     rowId: "ATE",
-    path: "/administration/tenant",
+    path: "/administration/workspace-settings",
     section: "Admin",
     note: "Tenant settings (Settings/Admin) - TenantSettingsPageView with PageContextualHelpButton (topic map scope; Category-1 registry), Learn more / claim-discipline (Sources follow-up removed TB-2092) orientation strip, workspace defaults / quality gates / cost settings. Sibling STR = recycle-bin; DIS = digests schedule. Access configuration - not a signed-record Sources trail.admin hub at SET/ADY Evidence band; hard-caps higher Evidence without signed-record diligence Sources trail. Owner pass: Evidence chrome shipped; cannot improve further toward 80 without turning this into a signed-record diligence Sources trail.",
     noteMustContain: ["TenantSettingsPageView", "cannot improve further toward 80"],
@@ -268,7 +268,7 @@ export const ADMIN_TRAFFIC_ROWS: readonly UiRouteTrafficRow[] = [
   /** Traffic workbook row ID for Projects recycle bin. Owner backlog shorthand was ARE (collides with template executive-dashboard); template/catalog ID is STR. */
   {
     rowId: "STR",
-    path: "/administration/tenant/recycle-bin",
+    path: "/administration/workspace-settings/recycle-bin",
     section: "Admin",
     note: "Projects recycle bin (Administration) - ProjectsRecycleBinPage with OperatorPageBreadcrumb Administration parent, PageContextualHelpButton (topic map scope; Category-1 registry), Learn more / claim-discipline (Sources follow-up removed TB-2092) orientation strip, soft-deleted project restore. Sibling ATE = tenant settings; ARA = architectures list. Access configuration - not a signed-record Sources trail.admin hub at SET/ADY Evidence band; hard-caps higher Evidence without signed-record diligence Sources trail. Owner pass: Evidence chrome shipped; cannot improve further toward 80 without turning this into a signed-record diligence Sources trail.",
     noteMustContain: ["ProjectsRecycleBinPage", "Administration", "cannot improve further toward 80"],

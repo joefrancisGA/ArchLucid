@@ -1,7 +1,7 @@
 import { fireEvent, render, screen, waitFor } from "@testing-library/react";
 import { describe, expect, it, vi } from "vitest";
 
-import { TenantCostSettingsCard } from "@/app/(operator)/administration/tenant/_sections/TenantCostSettingsCard";
+import { TenantCostSettingsCard } from "@/app/(operator)/administration/workspace-settings/_sections/TenantCostSettingsCard";
 import {
   TENANT_COST_SETTINGS_AUDIT_HREF,
   TENANT_COST_SETTINGS_DEFAULTS_STATUS_LABEL,

@@ -4,7 +4,11 @@ import {
   REVIEWS_NEW_PATH,
 } from "@/lib/architecture/architecture-routes";
 import { isSelfSettingsPath } from "@/lib/self-settings-destinations";
-import { SETTINGS_ROOT_PATH } from "@/lib/settings-admin-route-paths";
+import {
+  SETTINGS_ROOT_PATH,
+  SETTINGS_WORKSPACE_SETTINGS_PATH,
+  pathMatchesSettingsWorkspaceSettings,
+} from "@/lib/settings-admin-route-paths";
 import { PROJECTS_RECYCLE_BIN_PATH } from "@/lib/vocabulary/projects-recycle-drafts-package-vocabulary";
 
 /**
@@ -31,8 +35,8 @@ export function isNavLinkActive(pathname: string, href: string): boolean {
     return pathname === REVIEWS_LIST_PATH;
   }
 
-  if (pathPart === "/administration/tenant") {
-    return pathname === "/administration/tenant";
+  if (pathPart === SETTINGS_WORKSPACE_SETTINGS_PATH) {
+    return pathMatchesSettingsWorkspaceSettings(pathname) && !pathname.startsWith(`${SETTINGS_WORKSPACE_SETTINGS_PATH}/recycle-bin`);
   }
 
   if (pathPart === "/governance/approval-queue") {

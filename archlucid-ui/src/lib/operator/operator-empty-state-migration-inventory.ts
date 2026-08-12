@@ -41,7 +41,7 @@ export type OperatorEmptyStateMigrationEntry = {
 export const OPERATOR_EMPTY_STATE_MIGRATION_INVENTORY: readonly OperatorEmptyStateMigrationEntry[] = [
   {
     id: "digests-browse-empty",
-    pathOrSurface: "/architecture/digests?tab=browse",
+    pathOrSurface: "/architecture/digests?tab=get-started",
     kind: "collection",
     chrome: "compact",
     disposition: "compact-native",
@@ -161,12 +161,12 @@ export const OPERATOR_EMPTY_STATE_MIGRATION_INVENTORY: readonly OperatorEmptySta
   },
   {
     id: "projects-recycle-bin-empty",
-    pathOrSurface: "/administration/tenant/recycle-bin",
+    pathOrSurface: "/administration/workspace-settings/recycle-bin",
     kind: "collection",
     chrome: "operator-empty-state",
     disposition: "centered-justified",
     testId: "projects-recycle-bin-empty-state",
-    componentOrModule: "app/(operator)/administration/tenant/recycle-bin/_sections/ProjectsRecycleBinListStates.tsx",
+    componentOrModule: "app/(operator)/administration/workspace-settings/recycle-bin/_sections/ProjectsRecycleBinListStates.tsx",
     notes: "StatusTag + retention copy; nested admin collection — coordinate with **TB-1182**.",
   },
   {

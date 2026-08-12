@@ -16,7 +16,7 @@ const ADMINISTRATION_HELP_INTEGRATIONS_BUTTON_PATHS = [
   "src/app/(operator)/administration/users/_sections/PendingInvitationsPanel.tsx",
   "src/app/(operator)/administration/account-security/AccountSecurityPageClient.tsx",
   "src/app/(operator)/administration/model-governance/_sections/ModelGovernanceSettingsCard.tsx",
-  "src/app/(operator)/administration/tenant/_sections/TenantQualityGatesCard.tsx",
+  "src/app/(operator)/administration/workspace-settings/_sections/TenantQualityGatesCard.tsx",
   "src/app/(operator)/integrations/teams/_sections/TeamsNotificationsSelector.tsx",
   "src/app/(operator)/integrations/slack/_sections/SlackDestinationsPanel.tsx",
   "src/components/alerts/AlertRoutingContent.tsx",

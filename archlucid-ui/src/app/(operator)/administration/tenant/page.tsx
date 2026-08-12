@@ -1,12 +1,8 @@
-import { TenantSettingsPageClient } from "./_sections/TenantSettingsPageClient";
-import { loadTenantSettingsPageData } from "./_sections/load-tenant-settings-page-data";
+import { redirect } from "next/navigation";
 
-export default async function TenantSettingsPage() {
-  const loaded = await loadTenantSettingsPageData();
+import { SETTINGS_WORKSPACE_SETTINGS_PATH } from "@/lib/settings-admin-route-paths";
 
-  if (loaded.mode === "hidden") {
-    return null;
-  }
-
-  return <TenantSettingsPageClient loaded={loaded} />;
+/** Legacy bookmark — canonical workspace settings live under {@link SETTINGS_WORKSPACE_SETTINGS_PATH}. */
+export default function LegacyTenantSettingsRedirectPage() {
+  redirect(SETTINGS_WORKSPACE_SETTINGS_PATH);
 }

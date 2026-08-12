@@ -220,7 +220,7 @@ describe("nav-config structure", () => {
     expect(systemAdminHrefs).toContain("/internal/replay");
     expect(systemAdminHrefs).not.toContain("/health");
     expect(systemAdminHrefs).not.toContain("/governance/advisory-scans");
-    expect(systemAdminHrefs).not.toContain("/administration/tenant");
+    expect(systemAdminHrefs).not.toContain("/administration/workspace-settings");
     expect(systemAdminHrefs).not.toContain("/workspace/security-trust");
     // Recommendation learning and Review feedback stay under Internal Operations (employee-only /
     // showSystemAdministrationNav). Improvement planning lives under Insights.
@@ -247,7 +247,7 @@ describe("nav-config structure", () => {
     expect(adminHrefs).toContain("/administration/connection-status");
     expect(adminHrefs).toContain("/administration/system-health");
     expect(adminHrefs).toContain("/administration/identity-providers");
-    expect(adminHrefs).toContain("/administration/identity/sso-wizard");
+    expect(adminHrefs).not.toContain("/administration/identity/sso-wizard");
     expect(adminHrefs).not.toContain("/administration/api-keys");
     expect(adminHrefs).toContain("/administration/scim-provisioning");
     expect(adminHrefs).not.toContain("/governance/recurrence-schedules");

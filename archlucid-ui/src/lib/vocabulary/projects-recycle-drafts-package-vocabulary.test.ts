@@ -35,7 +35,7 @@ describe("projects-recycle-drafts-package-vocabulary (TB-2251)", () => {
 
     expect(model.recycleLink).toEqual(PROJECTS_RECYCLE_DRAFTS_PACKAGE_RECYCLE_LINK);
     expect(model.recycleLink.href).toBe(PROJECTS_RECYCLE_BIN_PATH);
-    expect(model.recycleLink.href).toBe("/administration/tenant/recycle-bin");
+    expect(model.recycleLink.href).toBe("/administration/workspace-settings/recycle-bin");
 
     expect(model.draftsLink).toEqual(PROJECTS_RECYCLE_DRAFTS_PACKAGE_DRAFTS_LINK);
     expect(model.draftsLink.href).toBe(ARCHITECTURES_LIST_PATH);

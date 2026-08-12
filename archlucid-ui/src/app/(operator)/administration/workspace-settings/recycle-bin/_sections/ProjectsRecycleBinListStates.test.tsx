@@ -4,7 +4,7 @@ import { describe, expect, it } from "vitest";
 import {
   ProjectsRecycleBinEmptyState,
   ProjectsRecycleBinLoadingNotice,
-} from "@/app/(operator)/administration/tenant/recycle-bin/_sections/ProjectsRecycleBinListStates";
+} from "@/app/(operator)/administration/workspace-settings/recycle-bin/_sections/ProjectsRecycleBinListStates";
 import {
   PROJECTS_RECYCLE_BIN_EMPTY_STATE_STATUS_LABEL,
   PROJECTS_RECYCLE_BIN_EMPTY_STATE_TITLE,
@@ -31,11 +31,11 @@ describe("ProjectsRecycleBinListStates (TB-1291)", () => {
     );
     expect(screen.getByTestId("projects-recycle-bin-empty-delete-surface-link")).toHaveAttribute(
       "href",
-      "/administration/tenant",
+      "/administration/workspace-settings",
     );
     expect(screen.getByRole("link", { name: "Workspace settings" })).toHaveAttribute(
       "href",
-      "/administration/tenant",
+      "/administration/workspace-settings",
     );
     expect(screen.getByRole("link", { name: "Architecture drafts" })).toHaveAttribute(
       "href",

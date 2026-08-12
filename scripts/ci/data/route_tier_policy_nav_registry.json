@@ -459,7 +459,7 @@
       "commercial_tier": "none",
       "class_policy": "AdminAuthority",
       "exemption": null,
-      "nav_operator_href": "/administration/tenant"
+      "nav_operator_href": "/administration/workspace-settings"
     },
     {
       "controller_file": "Admin/SupportBundleController.cs",
@@ -1049,7 +1049,7 @@
       "commercial_tier": "none",
       "class_policy": "AdminAuthority",
       "exemption": null,
-      "nav_operator_href": "/administration/tenant"
+      "nav_operator_href": "/administration/workspace-settings"
     },
     {
       "controller_file": "Billing/BillingMarketplaceWebhookController.cs",
@@ -1859,7 +1859,7 @@
       "commercial_tier": "none",
       "class_policy": "Authorize",
       "exemption": null,
-      "nav_operator_href": "/administration/tenant"
+      "nav_operator_href": "/administration/workspace-settings"
     },
     {
       "controller_file": "Tenancy/TenantUsageStatusController.cs",

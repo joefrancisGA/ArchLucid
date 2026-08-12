@@ -4,13 +4,16 @@ import {
   LEGACY_ADMIN_SUPPORT_PATH,
   LEGACY_ADMIN_USERS_PATH,
   LEGACY_SETTINGS_ROLES_PATH,
+  LEGACY_SETTINGS_TENANT_PATH,
   LEGACY_WORKSPACE_SECURITY_TRUST_PATH,
+  SETTINGS_AUTH_DOMAINS_PATH,
   SETTINGS_SECURITY_TRUST_PATH,
   SETTINGS_SUPPORT_PATH,
-  SETTINGS_AUTH_DOMAINS_PATH,
   SETTINGS_USERS_PATH,
   SETTINGS_USERS_ROLES_TAB_PATH,
   SETTINGS_USERS_USERS_TAB_PATH,
+  SETTINGS_WORKSPACE_SETTINGS_PATH,
+  SETTINGS_WORKSPACE_SETTINGS_RECYCLE_BIN_PATH,
   DIGESTS_SCHEDULE_TAB_PATH,
   pathMatchesSettingsSecurityTrust,
   pathMatchesSettingsSupport,
@@ -29,6 +32,9 @@ describe("settings-admin-route-paths (TB-406 / TB-751)", () => {
     expect(SETTINGS_SECURITY_TRUST_PATH).toBe("/administration/security-trust");
     expect(SETTINGS_SUPPORT_PATH).toBe("/administration/support");
     expect(SETTINGS_AUTH_DOMAINS_PATH).toBe("/administration/auth-domains");
+    expect(SETTINGS_WORKSPACE_SETTINGS_PATH).toBe("/administration/workspace-settings");
+    expect(SETTINGS_WORKSPACE_SETTINGS_RECYCLE_BIN_PATH).toBe("/administration/workspace-settings/recycle-bin");
+    expect(LEGACY_SETTINGS_TENANT_PATH).toBe("/administration/tenant");
   });
 
   it("matches Settings hub root exactly for contextual help (TB-1201)", () => {

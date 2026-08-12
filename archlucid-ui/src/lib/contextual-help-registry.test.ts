@@ -139,8 +139,8 @@ describe("contextual-help-registry (TB-733)", () => {
       "/administration/identity-providers/saml",
       "/administration/identity/sso-wizard",
       "/administration/scim-provisioning",
-      "/administration/tenant",
-      "/administration/tenant/recycle-bin",
+      "/administration/workspace-settings",
+      "/administration/workspace-settings/recycle-bin",
       "/administration/identity-providers/role-mapping",
       "/administration/identity-providers/diagnostics",
       "/administration/api-keys",
@@ -299,17 +299,17 @@ describe("contextual-help-registry (TB-733)", () => {
   });
 
   it("resolves Projects recycle bin Category-1 help (STR)", () => {
-    expect(contextualHelpForPathname("/administration/tenant/recycle-bin")?.whatIsThisPage).toContain(
+    expect(contextualHelpForPathname("/administration/workspace-settings/recycle-bin")?.whatIsThisPage).toContain(
       "Projects recycle bin",
     );
-    expect(contextualHelpForPathname("/administration/tenant/recycle-bin")?.whatToDoNext).toContain(
+    expect(contextualHelpForPathname("/administration/workspace-settings/recycle-bin")?.whatToDoNext).toContain(
       "Refresh the list",
     );
   });
 
   it("resolves Tenant settings Category-1 help (ATE)", () => {
-    expect(contextualHelpForPathname("/administration/tenant")?.whatIsThisPage).toContain("Tenant settings");
-    expect(contextualHelpForPathname("/administration/tenant")?.whatToDoNext).toContain("quality gates");
+    expect(contextualHelpForPathname("/administration/workspace-settings")?.whatIsThisPage).toContain("Tenant settings");
+    expect(contextualHelpForPathname("/administration/workspace-settings")?.whatToDoNext).toContain("quality gates");
   });
 
   it("resolves Identity diagnostics Category-1 help (SEI)", () => {

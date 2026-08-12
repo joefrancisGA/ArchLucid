@@ -49,7 +49,7 @@ describe("usability lib", () => {
     expect(pageHelpTopicForPathname("/governance/advisory-scans")?.slug).toBeUndefined();
     expect(pageHelpTopicForPathname("/governance/advisory-scans")?.label).toBe("Advisory scans");
     expect(pageHelpTopicForPathname("/governance/decision-register")?.slug).toBeUndefined();
-    expect(pageHelpTopicForPathname("/administration/tenant")?.slug).toBe("scope");
+    expect(pageHelpTopicForPathname("/administration/workspace-settings")?.slug).toBe("scope");
     expect(pageHelpTopicForPathname("/internal/recommendation-learning")?.slug).toBe("pilot-feedback");
     expect(pageHelpTopicForPathname("/architecture/reviews/run-1/artifacts/cost-summary")?.slug).toBe("review-artifacts");
     expect(pageHelpTopicForPathname("/governance/signed-records/manifest-1/artifacts/cost-summary")?.slug).toBe(

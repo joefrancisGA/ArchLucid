@@ -2,7 +2,7 @@
  * TB-2251 — Recycle ≠ Drafts ≠ Package vocabulary triad.
  *
  * Three related project surfaces:
- * - Projects recycle bin (`/administration/tenant/recycle-bin`) restores
+ * - Projects recycle bin (`/administration/workspace-settings/recycle-bin`) restores
  *   soft-deleted projects (retention window — not permanent erase).
  * - Architecture drafts (`/architecture/architectures`) is the draft registry
  *   before a review starts.
@@ -21,7 +21,7 @@ import {
 } from "@/lib/architecture/architecture-routes";
 
 /** Canonical projects recycle bin path (administration tenant scope). */
-export const PROJECTS_RECYCLE_BIN_PATH = "/administration/tenant/recycle-bin" as const;
+export const PROJECTS_RECYCLE_BIN_PATH = "/administration/workspace-settings/recycle-bin" as const;
 
 export type ProjectsRecycleDraftsPackageSurfaceId =
   | "projects-recycle"

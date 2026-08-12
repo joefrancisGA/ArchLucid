@@ -210,7 +210,7 @@ describe("HelpTopicMarkdownView workspace and scope guide", () => {
     const contentColumn = screen.getByTestId("help-topic-content");
     expect(within(contentColumn).getByRole("link", { name: "Settings → Tenant" })).toHaveAttribute(
       "href",
-      "/administration/tenant",
+      "/administration/workspace-settings",
     );
   });
 

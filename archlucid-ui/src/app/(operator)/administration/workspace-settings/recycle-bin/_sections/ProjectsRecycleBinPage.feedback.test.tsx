@@ -9,7 +9,7 @@ import {
 import { PROJECTS_RECYCLE_BIN_RESTORE_CONFIRM_ACTION_LABEL } from "@/lib/projects-recycle-bin-restore-confirm-copy";
 
 vi.mock("next/navigation", () => ({
-  usePathname: () => "/administration/tenant/recycle-bin",
+  usePathname: () => "/administration/workspace-settings/recycle-bin",
 }));
 
 vi.mock("@/components/usability/PageContextualHelpButton", async (importOriginal) => {
@@ -28,7 +28,7 @@ vi.mock("@/components/operator/OperatorNavAuthorityProvider", () => ({
   }),
 }));
 
-import { ProjectsRecycleBinPage } from "@/app/(operator)/administration/tenant/recycle-bin/_sections/ProjectsRecycleBinPage";
+import { ProjectsRecycleBinPage } from "@/app/(operator)/administration/workspace-settings/recycle-bin/_sections/ProjectsRecycleBinPage";
 
 const recycleBinPayload = {
   retentionDays: 30,

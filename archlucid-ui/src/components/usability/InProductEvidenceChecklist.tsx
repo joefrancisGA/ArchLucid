@@ -62,7 +62,7 @@ export function InProductEvidenceChecklist() {
           id: "config-lint",
           label: "Workspace configuration validated",
           status: configReady ? "ready" : configLint === null ? "pending" : "attention",
-          actionHref: "/administration/tenant",
+          actionHref: "/administration/workspace-settings",
           actionLabel: "Open settings",
         },
         {

@@ -10,7 +10,7 @@ import {
 import { PAGE_HELP_SHORT_TRIGGER_TEXT } from "@/components/usability/PageContextualHelpButton";
 
 vi.mock("next/navigation", () => ({
-  usePathname: () => "/administration/tenant/recycle-bin",
+  usePathname: () => "/administration/workspace-settings/recycle-bin",
 }));
 
 vi.mock("@/components/usability/PageContextualHelpButton", () => ({
@@ -18,7 +18,7 @@ vi.mock("@/components/usability/PageContextualHelpButton", () => ({
   PageContextualHelpButton: () => <div data-testid="page-contextual-help-button" />,
 }));
 
-import { ProjectsRecycleBinPageHeader } from "@/app/(operator)/administration/tenant/recycle-bin/_sections/ProjectsRecycleBinPageHeader";
+import { ProjectsRecycleBinPageHeader } from "@/app/(operator)/administration/workspace-settings/recycle-bin/_sections/ProjectsRecycleBinPageHeader";
 
 describe("ProjectsRecycleBinPageHeader", () => {
   it("renders Administration breadcrumb, title, help, and refresh (TB-1289)", () => {

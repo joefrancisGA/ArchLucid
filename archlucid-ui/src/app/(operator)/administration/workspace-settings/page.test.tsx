@@ -168,7 +168,7 @@ describe("TenantSettingsPage", () => {
 
     const recycleLink = await screen.findByTestId("tenant-settings-recycle-bin-link");
 
-    expect(recycleLink).toHaveAttribute("href", "/administration/tenant/recycle-bin");
+    expect(recycleLink).toHaveAttribute("href", "/administration/workspace-settings/recycle-bin");
 
     const technicalDetails = screen.getByText("Technical details — routing scope").closest("details");
 

@@ -48,7 +48,7 @@ export function pathnameEligibleBeforeFirstCommittedArchitectureReview(pathWitho
     return true;
   }
 
-  if (pathWithoutQuery === "/administration/tenant" || pathWithoutQuery.startsWith("/administration/tenant/")) {
+  if (pathWithoutQuery === "/administration/workspace-settings" || pathWithoutQuery.startsWith("/administration/workspace-settings/")) {
     return true;
   }
 
@@ -96,7 +96,7 @@ function preCommitNavLinkSortRank(pathWithoutQuery: string): number {
     return 7;
   }
 
-  if (pathWithoutQuery === "/administration/tenant" || pathWithoutQuery.startsWith("/administration/tenant/")) {
+  if (pathWithoutQuery === "/administration/workspace-settings" || pathWithoutQuery.startsWith("/administration/workspace-settings/")) {
     return 8;
   }
 

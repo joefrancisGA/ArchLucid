@@ -22,8 +22,6 @@ import {
 
   ShieldCheck,
 
-  UserCog,
-
   UserPlus,
 
   Users,
@@ -92,7 +90,7 @@ export class OperatorAdminNavGroupBuilder extends NavGroupBuilderBase {
 
         {
 
-          href: "/administration/tenant",
+          href: "/administration/workspace-settings",
 
           label: OPERATOR_NAV_LINK_LABELS.workspaceSettings,
 
@@ -132,22 +130,6 @@ export class OperatorAdminNavGroupBuilder extends NavGroupBuilderBase {
           title: "Identity providers — OIDC authority and audience (read-only catalog row)",
 
           icon: Fingerprint,
-
-          tier: "advanced",
-
-          requiredAuthority: "AdminAuthority",
-
-        },
-
-        {
-
-          href: "/administration/identity/sso-wizard",
-
-          label: "SSO wizard",
-
-          title: "SSO wizard — guided OIDC / SAML 2.0 tenant configuration",
-
-          icon: UserCog,
 
           tier: "advanced",
 
@@ -224,7 +206,7 @@ export class OperatorAdminNavGroupBuilder extends NavGroupBuilderBase {
 
         {
 
-          href: "/administration/tenant/recycle-bin",
+          href: "/administration/workspace-settings/recycle-bin",
 
           label: "Projects recycle bin",
 

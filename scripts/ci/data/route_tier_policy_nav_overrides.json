@@ -36,9 +36,9 @@
     "Scim/ScimUsersController.cs": "scim_idp_automation"
   },
   "nav_operator_href_by_controller_file": {
-    "Admin/SettingsController.cs": "/administration/tenant",
+    "Admin/SettingsController.cs": "/administration/workspace-settings",
     "Admin/AuditController.cs": "/governance/audit",
-    "Billing/BillingCheckoutController.cs": "/administration/tenant",
+    "Billing/BillingCheckoutController.cs": "/administration/workspace-settings",
     "Admin/AdminLlmCostTuningController.cs": "/administration/ai-usage",
     "Admin/MeteringAdminController.cs": "/administration/ai-usage",
     "Admin/SecurityTrustPublicationController.cs": "/administration/security-trust",
@@ -82,7 +82,7 @@
     "Tenancy/CorePilotTeamChecklistController.cs": "/architecture/first-review-guide",
     "Tenancy/TenantMeasuredRoiController.cs": "/insights/roi-summary",
     "Tenancy/TenantPilotValueReportController.cs": "/insights/pilot-outcomes",
-    "Tenancy/TenantTrialController.cs": "/administration/tenant",
+    "Tenancy/TenantTrialController.cs": "/administration/workspace-settings",
     "ValueReports/ValueReportController.cs": "/insights/executive-summary"
   }
 }

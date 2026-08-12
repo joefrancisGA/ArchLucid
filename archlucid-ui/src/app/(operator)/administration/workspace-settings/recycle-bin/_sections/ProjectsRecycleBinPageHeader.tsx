@@ -2,7 +2,7 @@
 
 import { OperatorPageHeader } from "@/components/operator/OperatorPageHeader";
 import { OperatorPageBreadcrumb } from "@/components/operator/OperatorPageBreadcrumb";
-import { Button } from "@/components/ui/button";
+import { RefreshButton } from "@/components/ui/refresh-button";
 import {
   PageContextualHelpButton,
   PAGE_HELP_SHORT_TRIGGER_TEXT,
@@ -47,19 +47,13 @@ export function ProjectsRecycleBinPageHeader(props: ProjectsRecycleBinPageHeader
       actions={
         <div className="flex flex-wrap items-center gap-2" data-testid="projects-recycle-bin-header-actions">
           <PageContextualHelpButton triggerText={PAGE_HELP_SHORT_TRIGGER_TEXT} />
-          <Button
-            type="button"
-            variant="outline"
-            size="sm"
-            disabled={props.loading}
-            aria-label="Refresh recycle bin list"
+          <RefreshButton
+            busy={props.loading}
             data-testid="projects-recycle-bin-refresh-button"
             onClick={() => {
               props.onRefresh();
             }}
-          >
-            {props.loading ? "Refreshing…" : "Refresh"}
-          </Button>
+          />
         </div>
       }
     />

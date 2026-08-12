@@ -44,7 +44,7 @@ describe("TB-2050 secondary-hub Learn more remap", () => {
   });
 
   it("remaps tenant settings and recommendation-learning off getting-started", () => {
-    expect(pageHelpTopicForPathname("/administration/tenant")?.slug).toBe("scope");
+    expect(pageHelpTopicForPathname("/administration/workspace-settings")?.slug).toBe("scope");
     expect(pageHelpTopicForPathname("/internal/recommendation-learning")?.slug).toBe(
       "pilot-feedback",
     );

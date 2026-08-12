@@ -485,7 +485,7 @@ const PAGE_HELP_TOPICS: readonly { prefix: string; topic: PageHelpTopic }[] = [
     topic: { slug: "enterprise-onboarding", label: "SCIM provisioning" },
   },
   {
-    prefix: "/administration/tenant/recycle-bin",
+    prefix: "/administration/workspace-settings/recycle-bin",
     topic: { slug: "scope", label: "Projects recycle bin" },
   },
   {
@@ -550,7 +550,7 @@ const PAGE_HELP_TOPICS: readonly { prefix: string; topic: PageHelpTopic }[] = [
     topic: { slug: "security-trust", label: `${OPERATOR_NAV_LINK_LABELS.securityTrust} help` },
   },
   {
-    prefix: "/administration/tenant",
+    prefix: "/administration/workspace-settings",
     topic: { slug: "scope", label: OPERATOR_NAV_LINK_LABELS.workspaceSettings },
   },
   { prefix: "/administration/baseline", topic: { slug: "executive-summary", hashFragment: "pilot-roi-measurement", label: "View ROI methodology" } },

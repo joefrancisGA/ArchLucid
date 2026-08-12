@@ -1,7 +1,7 @@
 import { fireEvent, render, screen } from "@testing-library/react";
 import { describe, expect, it, vi } from "vitest";
 
-import { ProjectDeleteConfirmDialog } from "@/app/(operator)/administration/tenant/_sections/ProjectDeleteConfirmDialog";
+import { ProjectDeleteConfirmDialog } from "@/app/(operator)/administration/workspace-settings/_sections/ProjectDeleteConfirmDialog";
 import {
   PROJECT_DELETE_CONFIRM_ACTION_LABEL,
   PROJECT_DELETE_CONFIRM_TITLE,

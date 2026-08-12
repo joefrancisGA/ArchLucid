@@ -183,7 +183,7 @@ export const OPERATOR_NAV_LINK_LABELS = {
   /** Notification preference hub (`/administration/notifications`) TB-2203. */
   notifications: "Notifications",
   digests: "Digests",
-  /** Settings hub (`/administration`); workspace entry often `/administration/tenant`. */
+  /** Settings hub (`/administration`); workspace entry often `/administration/workspace-settings`. */
   settings: "Settings",
   workspaceSettings: "Workspace settings",
   /** Users & roles hub (`/administration/users`) — ampersand matches Security & Trust nav spelling. */

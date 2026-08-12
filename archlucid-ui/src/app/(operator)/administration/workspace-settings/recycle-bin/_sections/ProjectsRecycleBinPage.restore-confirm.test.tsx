@@ -4,7 +4,7 @@ import { afterEach, describe, expect, it, vi } from "vitest";
 import { AUTHORITY_RANK } from "@/lib/nav-authority";
 
 vi.mock("next/navigation", () => ({
-  usePathname: () => "/administration/tenant/recycle-bin",
+  usePathname: () => "/administration/workspace-settings/recycle-bin",
 }));
 
 vi.mock("@/components/usability/PageContextualHelpButton", async (importOriginal) => {
@@ -23,7 +23,7 @@ vi.mock("@/components/operator/OperatorNavAuthorityProvider", () => ({
   }),
 }));
 
-import { ProjectsRecycleBinPage } from "@/app/(operator)/administration/tenant/recycle-bin/_sections/ProjectsRecycleBinPage";
+import { ProjectsRecycleBinPage } from "@/app/(operator)/administration/workspace-settings/recycle-bin/_sections/ProjectsRecycleBinPage";
 import { PROJECTS_RECYCLE_BIN_RESTORE_CONFIRM_ACTION_LABEL, PROJECTS_RECYCLE_BIN_RESTORE_CONFIRM_TITLE } from "@/lib/projects-recycle-bin-restore-confirm-copy";
 
 const recycleBinPayload = {

@@ -4,7 +4,7 @@
  * Why two surfaces exist:
  * - Workspace scope (top-bar scope switcher) selects the active workspace and
  *   project for the operator shell session.
- * - Tenant settings (`/administration/tenant`) configures tenant-wide defaults
+ * - Tenant settings (`/administration/workspace-settings`) configures tenant-wide defaults
  *   (quality gates, cost settings, workspace projects list) — not the active
  *   session scope.
  *

@@ -26,7 +26,7 @@ vi.mock("sonner", () => ({
   },
 }));
 
-import { TenantWorkspaceProjectsCard } from "@/app/(operator)/administration/tenant/_sections/TenantWorkspaceProjectsCard";
+import { TenantWorkspaceProjectsCard } from "@/app/(operator)/administration/workspace-settings/_sections/TenantWorkspaceProjectsCard";
 
 const WORKSPACES_PAYLOAD = {
   workspaces: [
