@@ -5,7 +5,7 @@ import { OPERATOR_DATA_TABLE_RAW_TABLE_BASELINE_PATHS } from "@/lib/operator/ope
  *
  * Contract: `docs/library/UI_DESIGN_SYSTEM.md` § Operator populated lists (**TB-1646**).
  * Raw-table ratchet: `operator-data-table-contract.test.ts` (**TB-2382**).
- * Vitest follow-on: **TB-1650**.
+ * Vitest guard: `operator-enterprise-table-guard.test.ts` (**TB-1650**).
  */
 
 export type OperatorPopulatedListKind =
