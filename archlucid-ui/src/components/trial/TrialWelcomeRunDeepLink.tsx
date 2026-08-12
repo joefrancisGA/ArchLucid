@@ -73,7 +73,7 @@ export function TrialWelcomeRunDeepLink() {
     })();
 
     return () => {
-      cancelled = true;
+      canceled = true;
     };
   }, []);
 

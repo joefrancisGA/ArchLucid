@@ -166,7 +166,7 @@ export function LlmCostCommandCenterSummaryCard(props: {
   const [budgetStatus, setBudgetStatus] = useState<LlmMonthlyDollarBudgetStatus | null>(null);
 
   useEffect(() => {
-    let cancelled = false;
+    let canceled = false;
 
     void (async () => {
       try {

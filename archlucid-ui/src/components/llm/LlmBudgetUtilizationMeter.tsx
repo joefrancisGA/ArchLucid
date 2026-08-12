@@ -26,7 +26,7 @@ export function LlmBudgetUtilizationMeter(props: LlmBudgetUtilizationMeterProps)
   const [loadError, setLoadError] = useState(false);
 
   useEffect(() => {
-    let cancelled = false;
+    let canceled = false;
 
     void (async () => {
       setLoading(true);
@@ -37,7 +37,7 @@ export function LlmBudgetUtilizationMeter(props: LlmBudgetUtilizationMeterProps)
           force: props.refreshToken !== undefined && props.refreshToken > 0,
         });
 
-        if (!cancelled) {
+        if (!canceled) {
           setStatus(data);
         }
       } catch {

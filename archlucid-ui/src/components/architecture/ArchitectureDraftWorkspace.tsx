@@ -261,7 +261,7 @@ export function ArchitectureDraftWorkspace(props: ArchitectureDraftWorkspaceProp
       return;
     }
 
-    let cancelled = false;
+    let canceled = false;
 
     void getRunSummary(linkedReviewId)
       .then((summary) => {

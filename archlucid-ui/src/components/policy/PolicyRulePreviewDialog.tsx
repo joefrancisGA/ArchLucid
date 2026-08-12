@@ -91,7 +91,7 @@ export function PolicyRulePreviewDialog(props: PolicyRulePreviewDialogProps): Re
       return;
     }
 
-    let cancelled = false;
+    let canceled = false;
 
     void (async () => {
       setLoading(true);

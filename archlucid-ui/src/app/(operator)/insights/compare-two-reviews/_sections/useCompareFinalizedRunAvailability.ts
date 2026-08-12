@@ -25,7 +25,7 @@ export function useCompareFinalizedRunAvailability(): CompareFinalizedRunAvailab
 
     void loadProjectRunsMergedWithDemoFallback("default", { forCompare: true, committedOnly: true })
       .then((merged) => {
-        if (cancelled) {
+        if (canceled) {
           return;
         }
 
@@ -33,7 +33,7 @@ export function useCompareFinalizedRunAvailability(): CompareFinalizedRunAvailab
         setLoading(false);
       })
       .catch(() => {
-        if (cancelled) {
+        if (canceled) {
           return;
         }
 
@@ -42,7 +42,7 @@ export function useCompareFinalizedRunAvailability(): CompareFinalizedRunAvailab
       });
 
     return () => {
-      cancelled = true;
+      canceled = true;
     };
   }, []);
 

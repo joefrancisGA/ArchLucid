@@ -56,7 +56,7 @@ export function FindingInspectContextDebugPanel(props: FindingInspectContextDebu
       return;
     }
 
-    let cancelled = false;
+    let canceled = false;
 
     setLoading(true);
     setFailure(null);
@@ -70,7 +70,7 @@ export function FindingInspectContextDebugPanel(props: FindingInspectContextDebu
           getFindingLlmAudit(runId, findingId.trim()).catch(() => null),
         ]);
 
-        if (cancelled) {
+        if (canceled) {
           return;
         }
 

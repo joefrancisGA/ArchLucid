@@ -22,7 +22,7 @@ export function RunDetailPackageChangesSinceFinalizeSection(
   const [events, setEvents] = useState<readonly PackageChangeSourceEvent[] | null>(null);
 
   useEffect(() => {
-    let cancelled = false;
+    let canceled = false;
 
     const staticTimeline = tryStaticDemoPipelineTimeline(props.runId);
 

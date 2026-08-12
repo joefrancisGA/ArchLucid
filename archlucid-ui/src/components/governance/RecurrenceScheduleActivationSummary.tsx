@@ -42,13 +42,13 @@ export function RecurrenceScheduleActivationSummary(props: RecurrenceScheduleAct
   );
 
   useEffect(() => {
-    let cancelled = false;
+    let canceled = false;
 
     if (trimmedCron.length === 0) {
       setNextRunUtc(null);
 
       return () => {
-        cancelled = true;
+        canceled = true;
       };
     }
 

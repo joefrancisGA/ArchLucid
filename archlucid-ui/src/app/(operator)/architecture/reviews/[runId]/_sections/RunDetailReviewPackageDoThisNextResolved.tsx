@@ -40,7 +40,7 @@ export function RunDetailReviewPackageDoThisNextResolved(
     let canceled = false;
 
     void import("./resolve-review-package-do-this-next").then(({ resolveReviewPackageDoThisNext }) => {
-      if (cancelled) {
+      if (canceled) {
         return;
       }
 
@@ -64,7 +64,7 @@ export function RunDetailReviewPackageDoThisNextResolved(
     });
 
     return () => {
-      cancelled = true;
+      canceled = true;
     };
   }, [
     props.runId,

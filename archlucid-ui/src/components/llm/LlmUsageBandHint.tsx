@@ -34,7 +34,7 @@ export function LlmUsageBandHint() {
       return;
     }
 
-    let cancelled = false;
+    let canceled = false;
 
     async function load() {
       try {

@@ -140,7 +140,7 @@ export function deriveReplayValidationOutcome(params: {
   readonly canceled?: boolean;
 }): ReplayValidationOutcome | null {
   if (params.canceled === true) {
-    return "cancelled";
+    return "canceled";
   }
 
   if (params.failure !== null) {

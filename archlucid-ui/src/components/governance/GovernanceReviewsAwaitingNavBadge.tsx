@@ -11,7 +11,7 @@ export function GovernanceReviewsAwaitingNavBadge() {
   const [count, setCount] = useState(0);
 
   useEffect(() => {
-    let cancelled = false;
+    let canceled = false;
 
     void (async () => {
       try {

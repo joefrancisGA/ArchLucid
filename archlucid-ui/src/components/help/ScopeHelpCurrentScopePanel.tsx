@@ -198,7 +198,7 @@ export function ScopeHelpCurrentScopePanel(): React.JSX.Element {
         );
 
         if (!response.ok) {
-          if (!cancelled) {
+          if (!canceled) {
             setWorkspaces([]);
           }
 

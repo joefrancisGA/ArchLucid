@@ -40,7 +40,7 @@ export function OperatorTaskSuccessTile() {
   const [error, setError] = useState<string | null>(null);
 
   useEffect(() => {
-    let cancelled = false;
+    let canceled = false;
 
     void (async () => {
       try {
