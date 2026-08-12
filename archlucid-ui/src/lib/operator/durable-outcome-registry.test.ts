@@ -13,13 +13,7 @@ import {
 
 describe("durable outcome registry (TB-2116)", () => {
   it("derives guarded source roots from structured action-outcome surfaces", () => {
-    const derived = listDurableOutcomeGuardedSourceRoots();
-
-    expect(derived.length).toBeGreaterThanOrEqual(DURABLE_MUTATION_GUARDED_SURFACE_PATHS.length);
-
-    for (const path of DURABLE_MUTATION_GUARDED_SURFACE_PATHS) {
-      expect(derived).toContain(path);
-    }
+    expect([...DURABLE_MUTATION_GUARDED_SURFACE_PATHS]).toEqual(listDurableOutcomeGuardedSourceRoots());
   });
 
   it("keeps mutation dual-toast inventory aligned with the canonical registry", () => {

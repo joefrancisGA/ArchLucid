@@ -27,7 +27,10 @@ import {
   REVIEW_CREATED_SUCCESS_MESSAGE,
 } from "@/components/review-intake/ReviewGenerationCreatedNotice";
 import { REVIEW_START_CREATED_CONFIRMATION } from "@/lib/review-start-progress-copy";
-import { DURABLE_OUTCOME_DUAL_TOAST_TEST_PATHS } from "@/lib/operator/durable-outcome-registry";
+import {
+  DURABLE_OUTCOME_DUAL_TOAST_TEST_PATHS,
+  listDurableOutcomeGuardedSourceRoots,
+} from "@/lib/operator/durable-outcome-registry";
 
 /** Success copy that must not be toast-only on operator high-stakes mutation paths (TB-2112–TB-2116). */
 export const DURABLE_MUTATION_FORBIDDEN_TOAST_SUCCESS_PHRASES: readonly string[] = [
@@ -74,26 +77,8 @@ export const DURABLE_MUTATION_TEMPORARY_TOAST_DEBT_PATHS: readonly string[] = [
  * Operator surfaces converted in TB-2113–TB-2115 that must keep durable in-page siblings.
  * Guard scans these for `OperatorSuccessCallout` / `ReviewGenerationCreatedNotice` usage.
  */
-export const DURABLE_MUTATION_GUARDED_SURFACE_PATHS: readonly string[] = [
-  "app/(operator)/integrations/cloud-connections/_sections/Tier2ConnectionWizard.tsx",
-  "app/(operator)/administration/identity/sso-wizard/_sections/SsoWizardPageClient.tsx",
-  "app/(operator)/administration/identity-providers/_sections/SamlSpConfigurationForm.tsx",
-  "app/(operator)/administration/scim-provisioning/_sections/ScimProvisioningSettingsPageClient.tsx",
-  "app/(operator)/integrations/webhooks/WebhooksSettingsClient.tsx",
-  "app/(operator)/integrations/slack/_sections/SlackIntegrationPageClient.tsx",
-  "app/(operator)/integrations/teams/_sections/TeamsNotificationsIntegrationPageView.tsx",
-  "app/(operator)/administration/billing/OperatorBillingPlansClient.tsx",
-  "components/governance/GovernanceQuickApproveButton.tsx",
-  "components/governance/findings/GovernanceFindingsList.tsx",
-  "components/usability/GovernanceFindingsBulkActions.tsx",
-  "app/(operator)/governance/_sections/GovernanceWorkflowPageContent.tsx",
-  "app/(operator)/governance/policy-packs/_sections/PolicyPacksPageView.tsx",
-  "app/(operator)/architecture/reviews/new/FirstPilotIntakeWizard.tsx",
-  "app/(operator)/architecture/reviews/new/QuickStartWizard.tsx",
-  "app/(operator)/architecture/reviews/new/SimplifiedPilotWizard.tsx",
-  "components/wizard/WizardStickyFooter.tsx",
-  "components/review-intake/ReviewGenerationCreatedNotice.tsx",
-];
+export const DURABLE_MUTATION_GUARDED_SURFACE_PATHS: readonly string[] =
+  listDurableOutcomeGuardedSourceRoots();
 
 /**
  * Paths where `showSuccess` may remain for clipboard / trivial echoes on otherwise guarded flows.
