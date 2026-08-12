@@ -190,32 +190,30 @@ function SecurityTrustRelatedSurfacesDisclosure() {
           <p className={cn("m-0 mb-2 font-medium text-neutral-800 dark:text-neutral-200", OPERATOR_TYPOGRAPHY.body)}>
             Badge legend
           </p>
-          <div className="overflow-x-auto">
-            <table className={cn("w-full min-w-[28rem] border-collapse text-left", OPERATOR_TYPOGRAPHY.body)}>
-              <thead className="bg-neutral-100 dark:bg-neutral-900/60">
-                <tr>
-                  <th className="border-b border-neutral-200 px-3 py-2 font-semibold dark:border-neutral-800">Label</th>
-                  <th className="border-b border-neutral-200 px-3 py-2 font-semibold dark:border-neutral-800">Meaning</th>
-                </tr>
-              </thead>
-              <tbody>
-                {OPERATOR_SECURITY_TRUST_MATURITY_TAGS.map((maturityTag) => (
-                  <tr key={maturityTag.label}>
-                    <td className="border-b border-neutral-100 px-3 py-2 dark:border-neutral-800/80">
-                      <StatusTag
-                        data-testid={`security-trust-legend-${maturityTag.label}`}
-                        kind={maturityTag.kind}
-                        label={maturityTag.label}
-                      />
-                    </td>
-                    <td className="border-b border-neutral-100 px-3 py-2 text-neutral-700 dark:border-neutral-800/80 dark:text-neutral-300">
-                      {maturityTag.legendMeaning}
-                    </td>
-                  </tr>
-                ))}
-              </tbody>
-            </table>
-          </div>
+          <EnterpriseTable ariaLabel="Security trust maturity badge legend" className={OPERATOR_TYPOGRAPHY.body}>
+            <EnterpriseTableHead>
+              <EnterpriseTableHeadRow>
+                <EnterpriseTableHeaderCell>Label</EnterpriseTableHeaderCell>
+                <EnterpriseTableHeaderCell>Meaning</EnterpriseTableHeaderCell>
+              </EnterpriseTableHeadRow>
+            </EnterpriseTableHead>
+            <EnterpriseTableBody>
+              {OPERATOR_SECURITY_TRUST_MATURITY_TAGS.map((maturityTag) => (
+                <EnterpriseTableRow key={maturityTag.label}>
+                  <EnterpriseTableCell>
+                    <StatusTag
+                      data-testid={`security-trust-legend-${maturityTag.label}`}
+                      kind={maturityTag.kind}
+                      label={maturityTag.label}
+                    />
+                  </EnterpriseTableCell>
+                  <EnterpriseTableCell className="text-neutral-700 dark:text-neutral-300">
+                    {maturityTag.legendMeaning}
+                  </EnterpriseTableCell>
+                </EnterpriseTableRow>
+              ))}
+            </EnterpriseTableBody>
+          </EnterpriseTable>
         </div>
       </div>
     </details>

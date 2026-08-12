@@ -3,12 +3,9 @@
  * Keep in sync with `operator-data-table-contract.test.ts` RAW_TABLE_BASELINE.
  */
 export const OPERATOR_DATA_TABLE_RAW_TABLE_BASELINE_PATHS: readonly string[] = [
-  "app/(operator)/administration/ai-usage/_sections/ai-usage/AiUsageCostBreakdownPanel.tsx",
-  "app/(operator)/administration/ai-usage/_sections/ai-usage/AiUsageRecentActivityPanel.tsx",
   "app/(operator)/administration/identity-providers/_sections/IdentityProvidersCatalogTable.tsx",
   "app/(operator)/administration/identity-providers/_sections/SamlSpConfigurationForm.tsx",
   "app/(operator)/administration/identity/sso-wizard/_sections/SsoWizardPageClient.tsx",
-  "app/(operator)/administration/security-trust/_sections/OperatorSecurityTrustPageView.tsx",
   "app/(operator)/administration/users/_sections/SettingsRolesMatrixSection.tsx",
   "app/(operator)/governance/policy-packs/_sections/CuratedRulesAuthoringSection.tsx",
   "app/(operator)/insights/pilot-outcomes/_sections/PilotValueReportPageView.tsx",

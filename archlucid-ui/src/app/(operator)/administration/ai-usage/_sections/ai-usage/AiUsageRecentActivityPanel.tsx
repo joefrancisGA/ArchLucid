@@ -4,10 +4,20 @@ import { cn } from "@/lib/utils";
 
 import { Button } from "@/components/ui/button";
 import { Card, CardContent, CardHeader, CardTitle } from "@/components/ui/card";
+import {
+  EnterpriseTable,
+  EnterpriseTableBody,
+  EnterpriseTableCell,
+  EnterpriseTableHead,
+  EnterpriseTableHeadRow,
+  EnterpriseTableHeaderCell,
+  EnterpriseTableRow,
+} from "@/components/ui/enterprise-table";
 import type { AiUsageActivityRow } from "@/lib/ai-usage-dashboard-model";
 import { buildAiUsageActivityCsv } from "@/lib/ai-usage-dashboard-model";
 import { formatCostReportingEstimatedUsd } from "@/app/(operator)/administration/ai-usage/_sections/cost-reporting-page-helpers";
-import { OPERATOR_CARD, OPERATOR_NAV_GROUP_LABEL, OPERATOR_TYPOGRAPHY } from "@/lib/design-tokens";
+import { OPERATOR_CARD, OPERATOR_TYPOGRAPHY } from "@/lib/design-tokens";
+import { formatInstantForLocale } from "@/lib/locale-datetime";
 import { AiUsageSectionState } from "./AiUsageSectionState";
 
 type Props = {
@@ -94,44 +104,42 @@ export function AiUsageRecentActivityPanel(props: Props) {
           emptyDescription="Recent AI-consuming operations will appear here with operation type, model, initiator, and whether the event used budget."
         >
           {props.rows.length > 0 ? (
-            <div className="overflow-x-auto">
-              <table className={cn("w-full text-left", OPERATOR_TYPOGRAPHY.body)}>
-                <thead>
-                  <tr className={cn("border-b border-neutral-200 uppercase text-neutral-500 dark:border-neutral-700", OPERATOR_NAV_GROUP_LABEL)}>
-                    <th className="py-2 pr-3">Date / time</th>
-                    <th className="py-2 pr-3">Operation</th>
-                    <th className="py-2 pr-3">Model</th>
-                    <th className="py-2 pr-3">Initiated by</th>
-                    <th className="py-2 pr-3">Trigger</th>
-                    <th className="py-2 pr-3">Estimated cost</th>
-                    <th className="py-2 pr-3">Status</th>
-                    <th className="py-2 pr-3">Budget impact</th>
-                  </tr>
-                </thead>
-                <tbody>
-                  {props.rows.map((row) => (
-                    <tr key={row.key} className="border-b border-neutral-100 dark:border-neutral-800">
-                      <td className="py-2 pr-3 whitespace-nowrap text-al-text-secondary">
-                        {new Date(row.occurredUtc).toLocaleString()}
-                      </td>
-                      <td className="py-2 pr-3 text-al-text-primary">{row.operationLabel}</td>
-                      <td className="py-2 pr-3 text-al-text-secondary">{row.modelLabel}</td>
-                      <td className="py-2 pr-3 text-al-text-secondary">{row.initiatedByLabel}</td>
-                      <td className="py-2 pr-3">
-                        <span className={cn("inline-flex rounded px-2 py-0.5", OPERATOR_TYPOGRAPHY.badge, triggerBadgeClass(row.triggerBadge))}>
-                          {row.triggerBadge}
-                        </span>
-                      </td>
-                      <td className="py-2 pr-3 tabular-nums text-al-text-primary">
-                        {formatCostReportingEstimatedUsd(row.estimatedCostUsd, props.currency)}
-                      </td>
-                      <td className={cn("py-2 pr-3 font-medium", statusClass(row.status))}>{row.status}</td>
-                      <td className={cn("py-2 pr-3 text-al-text-secondary", OPERATOR_TYPOGRAPHY.helper)}>{row.budgetUsedLabel}</td>
-                    </tr>
-                  ))}
-                </tbody>
-              </table>
-            </div>
+            <EnterpriseTable ariaLabel="Recent AI activity">
+              <EnterpriseTableHead>
+                <EnterpriseTableHeadRow>
+                  <EnterpriseTableHeaderCell>Date / time</EnterpriseTableHeaderCell>
+                  <EnterpriseTableHeaderCell>Operation</EnterpriseTableHeaderCell>
+                  <EnterpriseTableHeaderCell>Model</EnterpriseTableHeaderCell>
+                  <EnterpriseTableHeaderCell>Initiated by</EnterpriseTableHeaderCell>
+                  <EnterpriseTableHeaderCell>Trigger</EnterpriseTableHeaderCell>
+                  <EnterpriseTableHeaderCell>Estimated cost</EnterpriseTableHeaderCell>
+                  <EnterpriseTableHeaderCell>Status</EnterpriseTableHeaderCell>
+                  <EnterpriseTableHeaderCell>Budget impact</EnterpriseTableHeaderCell>
+                </EnterpriseTableHeadRow>
+              </EnterpriseTableHead>
+              <EnterpriseTableBody>
+                {props.rows.map((row) => (
+                  <EnterpriseTableRow key={row.key}>
+                    <EnterpriseTableCell className="whitespace-nowrap text-al-text-secondary">
+                      {formatInstantForLocale(row.occurredUtc)}
+                    </EnterpriseTableCell>
+                    <EnterpriseTableCell className="text-al-text-primary">{row.operationLabel}</EnterpriseTableCell>
+                    <EnterpriseTableCell className="text-al-text-secondary">{row.modelLabel}</EnterpriseTableCell>
+                    <EnterpriseTableCell className="text-al-text-secondary">{row.initiatedByLabel}</EnterpriseTableCell>
+                    <EnterpriseTableCell>
+                      <span className={cn("inline-flex rounded px-2 py-0.5", OPERATOR_TYPOGRAPHY.badge, triggerBadgeClass(row.triggerBadge))}>
+                        {row.triggerBadge}
+                      </span>
+                    </EnterpriseTableCell>
+                    <EnterpriseTableCell className="tabular-nums text-al-text-primary">
+                      {formatCostReportingEstimatedUsd(row.estimatedCostUsd, props.currency)}
+                    </EnterpriseTableCell>
+                    <EnterpriseTableCell className={cn("font-medium", statusClass(row.status))}>{row.status}</EnterpriseTableCell>
+                    <EnterpriseTableCell className={cn("text-al-text-secondary", OPERATOR_TYPOGRAPHY.helper)}>{row.budgetUsedLabel}</EnterpriseTableCell>
+                  </EnterpriseTableRow>
+                ))}
+              </EnterpriseTableBody>
+            </EnterpriseTable>
           ) : null}
         </AiUsageSectionState>
       </CardContent>
