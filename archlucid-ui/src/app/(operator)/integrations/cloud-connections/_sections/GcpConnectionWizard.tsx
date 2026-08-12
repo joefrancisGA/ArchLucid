@@ -22,6 +22,7 @@ import {
 import {
   GCP_CONNECTION_DETAIL_WIZARD_STEPS,
   GCP_CONNECTION_WIZARD_IDS_STEP_LEAD,
+  GCP_CONNECTION_WIZARD_POOL_PROVIDER_PLACEHOLDER,
   GCP_CONNECTION_WIZARD_SAVE_STEP_LEAD,
   GCP_CONNECTION_WIZARD_WIF_STEP_LEAD,
 } from "./gcp-connection-wizard-content";
@@ -197,7 +198,7 @@ export function GcpConnectionWizard(props: Props): React.ReactElement {
                 value={workloadIdentityPoolProvider}
                 onChange={(event) => setWorkloadIdentityPoolProvider(event.target.value)}
                 onBlur={() => markTouched("workloadIdentityPoolProvider")}
-                placeholder="projects/123/locations/global/workloadIdentityPools/pool/providers/azure-ad"
+                placeholder={GCP_CONNECTION_WIZARD_POOL_PROVIDER_PLACEHOLDER}
                 autoComplete="off"
                 aria-invalid={fieldErrorMessage(fieldErrors, touched, "workloadIdentityPoolProvider") !== null}
               />
@@ -265,8 +266,11 @@ export function GcpConnectionWizard(props: Props): React.ReactElement {
           ) : null}
 
           {!canMutate ? (
-            <p className={OPERATOR_TYPOGRAPHY.helper} title={enterpriseMutationControlDisabledTitle}>
-              Elevated workspace permissions required to save a cloud connection.
+            <p
+              id="gcp-connection-wizard-mutation-disabled-hint"
+              className={OPERATOR_TYPOGRAPHY.helper}
+            >
+              {enterpriseMutationControlDisabledTitle}
             </p>
           ) : null}
         </section>
@@ -283,6 +287,7 @@ export function GcpConnectionWizard(props: Props): React.ReactElement {
         onSubmit={step === GCP_CONNECTION_DETAIL_WIZARD_STEPS.length - 1 && !saveSucceeded ? () => void handleSave() : undefined}
         submitLabel="Save GCP connection"
         submittingLabel="Saving…"
+        submitAriaDescribedBy={!canMutate ? "gcp-connection-wizard-mutation-disabled-hint" : undefined}
       />
     </div>
   );

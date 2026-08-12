@@ -1,9 +1,11 @@
 ﻿"use client";
 
+import { Button } from "@/components/ui/button";
 import { OPERATOR_TYPOGRAPHY } from "@/lib/design-tokens";
 import { StatusTag } from "@/components/ui/status-tag";
 import { GCP_WIF_STARTER_IDENTITY_INTRO } from "@/lib/gcp-cloud-connection-wif-starter";
 import { cloudSecurityPreflightTopics } from "@/lib/cloud-security-preflight-topics";
+import { gcpConnectionStatusTagKind } from "@/lib/gcp-connection-present";
 
 import { CloudConnectionsProviderHeader } from "./CloudConnectionsProviderHeader";
 import { CloudProviderDetailLayout } from "./CloudProviderDetailLayout";
@@ -38,7 +40,7 @@ function GcpCloudConnectionHeaderStatus(): React.ReactElement {
 
   return (
     <StatusTag
-      kind="ready"
+      kind={gcpConnectionStatusTagKind(primaryConnection.status)}
       label={primaryConnection.status}
       data-testid="gcp-connection-header-status"
     />
@@ -46,11 +48,21 @@ function GcpCloudConnectionHeaderStatus(): React.ReactElement {
 }
 
 function GcpCloudConnectionPageHeader(): React.ReactElement {
+  const { connections, isLoading, loadError } = useGcpConnectionData();
+  const showConnectPrimary = !isLoading && loadError === null && connections.length === 0;
+
   return (
     <CloudConnectionsProviderHeader
       providerLabel="GCP"
       overview="Read-only Cloud Asset Inventory through Workload Identity Federation."
       statusBadge={<GcpCloudConnectionHeaderStatus />}
+      primaryAction={
+        showConnectPrimary ? (
+          <Button asChild variant="primary" data-testid="gcp-connection-header-connect">
+            <a href="#connection-details">Connect GCP project</a>
+          </Button>
+        ) : undefined
+      }
     />
   );
 }

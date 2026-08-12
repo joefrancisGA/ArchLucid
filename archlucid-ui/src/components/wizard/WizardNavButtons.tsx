@@ -27,6 +27,8 @@ export type WizardNavButtonsProps = {
   submitLabel?: string;
   /** Loading label while `submitting` (default: Submitting…). */
   submittingLabel?: string;
+  /** Wired to Submit when disabled (visible helper id elsewhere on the page). */
+  submitAriaDescribedBy?: string;
 };
 
 /**
@@ -46,6 +48,7 @@ export function WizardNavButtons({
   saveDraftLabel = "Save draft",
   submitLabel = "Submit",
   submittingLabel = "Submitting…",
+  submitAriaDescribedBy,
 }: WizardNavButtonsProps) {
   const showBack = Boolean(onBack) && !isFirstStep;
   const effectiveCanSubmit = canSubmit ?? canProceed;
@@ -71,7 +74,14 @@ export function WizardNavButtons({
           </Button>
         ) : null}
         {showSubmit ? (
-          <Button type="button" variant="primary" disabled={submitDisabled} onClick={onSubmit} aria-busy={submitting}>
+          <Button
+            type="button"
+            variant="primary"
+            disabled={submitDisabled}
+            onClick={onSubmit}
+            aria-busy={submitting}
+            aria-describedby={submitDisabled ? submitAriaDescribedBy : undefined}
+          >
             {submitting ? (
               <>
                 <ReviewStartInlineSpinner />

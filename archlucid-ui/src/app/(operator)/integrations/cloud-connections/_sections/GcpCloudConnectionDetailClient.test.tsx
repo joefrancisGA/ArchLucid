@@ -1,4 +1,4 @@
-import { render, screen } from "@testing-library/react";
+import { render, screen, waitFor } from "@testing-library/react";
 import type { ReactNode } from "react";
 import { describe, expect, it, vi } from "vitest";
 
@@ -19,6 +19,17 @@ vi.mock("./CloudSecurityPreflightPanel", () => ({
   CloudSecurityPreflightTechnicalDetails: ({ children }: { children: ReactNode }) => (
     <div data-testid="gcp-technical-details-stub">{children}</div>
   ),
+}));
+
+vi.mock("@/hooks/use-operate-capability", () => ({
+  useOperateCapability: () => true,
+}));
+
+vi.mock("@/lib/api/gcp-cloud-connections-api", () => ({
+  listGcpTier2Connections: vi.fn(async () => []),
+  configureGcpTier2Connection: vi.fn(),
+  disconnectGcpTier2Connection: vi.fn(),
+  triggerGcpTier2HostedRun: vi.fn(),
 }));
 
 import { GcpCloudConnectionDetailClient } from "./GcpCloudConnectionDetailClient";
@@ -65,5 +76,16 @@ describe("GcpCloudConnectionDetailClient", () => {
 
     expect(screen.getByTestId("gcp-connection-validate-panel")).toBeInTheDocument();
     expect(screen.getByTestId("gcp-connection-recent-activity-panel")).toBeInTheDocument();
+  });
+
+  it("shows connection status and header connect CTA when not connected (P0-2)", async () => {
+    render(<GcpCloudConnectionDetailClient />);
+
+    await waitFor(() => {
+      expect(screen.getByTestId("gcp-connection-header-status")).toHaveTextContent("Not connected");
+    });
+
+    expect(screen.getByTestId("gcp-connection-header-connect")).toHaveTextContent("Connect GCP project");
+    expect(screen.getByTestId("gcp-connection-header-connect")).toHaveAttribute("href", "#connection-details");
   });
 });

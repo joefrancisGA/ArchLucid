@@ -3,6 +3,7 @@ import { describe, expect, it } from "vitest";
 
 import { CloudFirstInventoryCoach } from "@/components/integrations/CloudFirstInventoryCoach";
 import {
+  CLOUD_FIRST_INVENTORY_COACH_EMPTY_TITLE,
   CLOUD_FIRST_INVENTORY_COACH_TITLE,
   CLOUD_FIRST_INVENTORY_START_REVIEW_HREF,
 } from "@/lib/cloud-first-inventory-coach";
@@ -29,6 +30,12 @@ describe("CloudFirstInventoryCoach (TB-2222)", () => {
     render(<CloudFirstInventoryCoach hasConnection={false} hasSuccessfulPull={false} />);
 
     expect(screen.getByTestId("cloud-first-inventory-coach")).toHaveAttribute("data-phase", "empty");
-    expect(screen.getByText(/connect a cloud provider/i)).toBeInTheDocument();
+    expect(screen.getByText(CLOUD_FIRST_INVENTORY_COACH_EMPTY_TITLE)).toBeInTheDocument();
+    expect(screen.getByText(/0 of 3 cloud providers connected/i)).toBeInTheDocument();
+    expect(screen.getByTestId("cloud-first-inventory-coach-cta")).toHaveAttribute(
+      "href",
+      "/integrations/cloud-connections/aws",
+    );
+    expect(screen.getByTestId("cloud-first-inventory-coach-cta")).toHaveTextContent("Configure AWS");
   });
 });

@@ -85,6 +85,20 @@ describe("cloud-first-inventory-coach (TB-2222)", () => {
     expect(view.primaryCtaHref).toBe("/integrations/cloud-connections/azure");
   });
 
+  it("empty phase can anchor to connection details on the current provider page", () => {
+    const view = buildCloudFirstInventoryCoach({
+      hasConnection: false,
+      hasSuccessfulPull: false,
+      connectedProviderCount: 0,
+      totalProviderCount: 3,
+      recommendedProviderId: "gcp",
+      emptyPhasePrimaryCtaHref: "#connection-details",
+    });
+
+    expect(view.primaryCtaLabel).toBe("Configure GCP");
+    expect(view.primaryCtaHref).toBe("#connection-details");
+  });
+
   it("detects successful pull from lastPolledUtc or healthy status", () => {
     expect(cloudConnectionIndicatesSuccessfulPull({ lastPolledUtc: "2026-08-10T12:00:00.000Z" })).toBe(true);
     expect(cloudConnectionIndicatesSuccessfulPull({ status: "Ready" })).toBe(true);

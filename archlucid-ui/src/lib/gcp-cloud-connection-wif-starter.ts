@@ -2,7 +2,16 @@
  * Copyable Workload Identity Federation starter for `/integrations/cloud-connections/gcp` (TB-1775).
  * Pairs with help **TB-1242** — share this module when the help page adds the same template.
  */
+import type { AzureHostedFederationConfig } from "@/lib/azure-cloud-connection-federation-config";
+import { isAzureHostedFederationConfigComplete } from "@/lib/azure-cloud-connection-federation-config";
+import { isAzureGuid } from "@/lib/azure-identifier-validation";
 import { GCP_FEDERATION_IDENTIFIER_SOURCING } from "@/lib/gcp-cloud-connection-federation-identity-source";
+
+export const GCP_WIF_POOL_ID = "archlucid-pool" as const;
+
+export const GCP_WIF_PROVIDER_ID = "archlucid-azure-ad" as const;
+
+export const GCP_WIF_EXAMPLE_PROJECT_ID_PLACEHOLDER = "{your GCP project ID}" as const;
 
 export const GCP_WIF_STARTER_IDENTITY_INTRO =
   "Configure Workload Identity Federation so ArchLucid can impersonate a read-only service account. Use the federation identifiers and starter script below, then paste the pool provider resource name and service account email into Connection details.";
@@ -19,33 +28,60 @@ export type GcpWifStarterFederationIdentifier = {
   readonly isPlaceholder: boolean;
 };
 
-export const GCP_WIF_STARTER_FEDERATION_IDENTIFIERS: readonly GcpWifStarterFederationIdentifier[] = [
-  {
-    id: "issuer",
-    label: "OIDC issuer (Entra ID)",
-    value: "https://login.microsoftonline.com/{ArchLucid tenant ID}/v2.0",
-    isPlaceholder: true,
-  },
-  {
-    id: "audience",
-    label: "Token audience",
-    value: "api://AzureADTokenExchange",
-    isPlaceholder: false,
-  },
-  {
-    id: "subject",
-    label: "Subject (managed identity object ID)",
-    value: "{ArchLucid managed identity object ID}",
-    isPlaceholder: true,
-  },
-  {
-    id: "provider-resource",
-    label: "Provider resource name (example)",
-    value:
-      "projects/{your GCP project ID}/locations/global/workloadIdentityPools/archlucid-pool/providers/archlucid-azure-ad",
-    isPlaceholder: true,
-  },
-] as const;
+const GCP_WIF_TOKEN_AUDIENCE = "api://AzureADTokenExchange" as const;
+
+export function formatGcpEntraOidcIssuerUri(tenantId: string): string {
+  return `https://login.microsoftonline.com/${tenantId}/v2.0`;
+}
+
+export function buildGcpWifStarterFederationIdentifiers(
+  config: AzureHostedFederationConfig,
+): readonly GcpWifStarterFederationIdentifier[] {
+  const tenantResolved = isAzureGuid(config.tenantId);
+  const subjectResolved = isAzureGuid(config.managedIdentityObjectId);
+
+  return [
+    {
+      id: "issuer",
+      label: "OIDC issuer (Entra ID)",
+      value: tenantResolved
+        ? formatGcpEntraOidcIssuerUri(config.tenantId)
+        : "Tenant ID not published for this environment",
+      isPlaceholder: !tenantResolved,
+    },
+    {
+      id: "audience",
+      label: "Token audience",
+      value: GCP_WIF_TOKEN_AUDIENCE,
+      isPlaceholder: false,
+    },
+    {
+      id: "subject",
+      label: "Subject (managed identity object ID)",
+      value: subjectResolved
+        ? config.managedIdentityObjectId
+        : "Managed identity object ID not published for this environment",
+      isPlaceholder: !subjectResolved,
+    },
+    {
+      id: "provider-resource",
+      label: "Provider resource name (example)",
+      value: formatGcpWorkloadIdentityPoolProviderResourceName(
+        GCP_WIF_EXAMPLE_PROJECT_ID_PLACEHOLDER,
+        GCP_WIF_POOL_ID,
+        GCP_WIF_PROVIDER_ID,
+      ),
+      isPlaceholder: true,
+    },
+  ] as const;
+}
+
+/** Static identifiers for help re-exports when federation config is unavailable at import time. */
+export const GCP_WIF_STARTER_FEDERATION_IDENTIFIERS: readonly GcpWifStarterFederationIdentifier[] =
+  buildGcpWifStarterFederationIdentifiers({
+    tenantId: "",
+    managedIdentityObjectId: "",
+  });
 
 export const GCP_WIF_STARTER_SCRIPT_HEADING = "gcloud pool-provider starter";
 
@@ -53,7 +89,7 @@ export const GCP_WIF_STARTER_SCRIPT_INTRO =
   "Run this script in your GCP project (or translate it to Terraform) to create the pool, OIDC provider, read-only service account, and impersonation binding.";
 
 export const GCP_WIF_STARTER_SCRIPT_REPLACE_HINT =
-  "Before running, set PROJECT_ID, ARCHLUCID_TENANT_ID, and ARCHLUCID_MANAGED_IDENTITY_OBJECT_ID at the top of the script. ArchLucid publishes the tenant and managed-identity object IDs during onboarding.";
+  "Before running, set PROJECT_ID at the top of the script to your GCP project ID. ArchLucid tenant and managed-identity object IDs are pre-filled when published for this environment.";
 
 export function formatGcpWorkloadIdentityPoolProviderResourceName(
   projectId: string,
@@ -65,18 +101,26 @@ export function formatGcpWorkloadIdentityPoolProviderResourceName(
 
 export function buildGcpWorkloadIdentityPoolProviderSetupScript(
   projectIdPlaceholder = "YOUR_GCP_PROJECT_ID",
+  federationConfig: AzureHostedFederationConfig = { tenantId: "", managedIdentityObjectId: "" },
 ): string {
+  const tenantIdPlaceholder = isAzureGuid(federationConfig.tenantId)
+    ? federationConfig.tenantId
+    : "YOUR_ARCHLUCID_TENANT_ID";
+  const managedIdentityPlaceholder = isAzureGuid(federationConfig.managedIdentityObjectId)
+    ? federationConfig.managedIdentityObjectId
+    : "YOUR_ARCHLUCID_MANAGED_IDENTITY_OBJECT_ID";
+
   return `# GCP Workload Identity Federation — ArchLucid pool provider starter (gcloud)
 # Prefer IaC in your own repo when you already manage GCP identity with Terraform.
 # ArchLucid stores project ID, provider resource name, and service account email only — no JSON keys.
 
 # --- Replace these values before running ---
 PROJECT_ID="${projectIdPlaceholder}"
-POOL_ID="archlucid-pool"
-PROVIDER_ID="archlucid-azure-ad"
+POOL_ID="${GCP_WIF_POOL_ID}"
+PROVIDER_ID="${GCP_WIF_PROVIDER_ID}"
 SERVICE_ACCOUNT_NAME="archlucid-cloud-asset-reader"
-ARCHLUCID_TENANT_ID="YOUR_ARCHLUCID_TENANT_ID"
-ARCHLUCID_MANAGED_IDENTITY_OBJECT_ID="YOUR_ARCHLUCID_MANAGED_IDENTITY_OBJECT_ID"
+ARCHLUCID_TENANT_ID="${tenantIdPlaceholder}"
+ARCHLUCID_MANAGED_IDENTITY_OBJECT_ID="${managedIdentityPlaceholder}"
 
 PROJECT_NUMBER=$(gcloud projects describe "\${PROJECT_ID}" --format="value(projectNumber)")
 SERVICE_ACCOUNT_EMAIL="\${SERVICE_ACCOUNT_NAME}@\${PROJECT_ID}.iam.gserviceaccount.com"
@@ -98,7 +142,7 @@ gcloud iam workload-identity-pools providers create-oidc "\${PROVIDER_ID}" \\
   --workload-identity-pool="\${POOL_ID}" \\
   --display-name="ArchLucid Entra federation" \\
   --issuer-uri="https://login.microsoftonline.com/\${ARCHLUCID_TENANT_ID}/v2.0" \\
-  --allowed-audiences="api://AzureADTokenExchange" \\
+  --allowed-audiences="${GCP_WIF_TOKEN_AUDIENCE}" \\
   --attribute-mapping="google.subject=assertion.sub,attribute.tenant=assertion.tid"
 
 # 4. Create read-only service account (skip if you already have one)
@@ -121,4 +165,8 @@ echo "Paste into ArchLucid connection form:"
 echo "  Provider: \${PROVIDER_RESOURCE}"
 echo "  Service account: \${SERVICE_ACCOUNT_EMAIL}"
 `;
+}
+
+export function isGcpWifStarterFederationConfigResolvable(config: AzureHostedFederationConfig): boolean {
+  return isAzureHostedFederationConfigComplete(config);
 }

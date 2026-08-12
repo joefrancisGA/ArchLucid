@@ -1,4 +1,16 @@
 import type { WizardStepDefinition } from "@/components/wizard/WizardStepper";
+import {
+  formatGcpWorkloadIdentityPoolProviderResourceName,
+  GCP_WIF_EXAMPLE_PROJECT_ID_PLACEHOLDER,
+  GCP_WIF_POOL_ID,
+  GCP_WIF_PROVIDER_ID,
+} from "@/lib/gcp-cloud-connection-wif-starter";
+
+export const GCP_CONNECTION_WIZARD_POOL_PROVIDER_PLACEHOLDER = formatGcpWorkloadIdentityPoolProviderResourceName(
+  GCP_WIF_EXAMPLE_PROJECT_ID_PLACEHOLDER,
+  GCP_WIF_POOL_ID,
+  GCP_WIF_PROVIDER_ID,
+);
 
 export const GCP_CONNECTION_DETAIL_WIZARD_STEPS: WizardStepDefinition[] = [
   { label: "Configure WIF", description: "Pool and provider binding" },

@@ -20,6 +20,8 @@ export type CloudFirstInventoryCoachInput = {
   readonly totalProviderCount?: number;
   /** Preferred Configure target when nothing is connected (must match visible platform scope). */
   readonly recommendedProviderId?: CloudProviderId;
+  /** When set, empty-phase CTA links here instead of the hub provider detail path (e.g. `#connection-details`). */
+  readonly emptyPhasePrimaryCtaHref?: string;
 };
 
 export type CloudFirstInventoryCoachStepId = "attach" | "start-review";
@@ -120,7 +122,8 @@ export function buildCloudFirstInventoryCoach(
         body: `${connectedProviderCount} of ${totalProviderCount} cloud providers connected. Connecting adds read-only inventory packages to architecture reviews; evidence-only upload works without cloud vendor access.`,
         steps: [],
         primaryCtaLabel: `Configure ${EMPTY_COACH_PROVIDER_LABEL[recommendedProviderId]}`,
-        primaryCtaHref: cloudProviderDetailPath(recommendedProviderId),
+        primaryCtaHref:
+          input.emptyPhasePrimaryCtaHref ?? cloudProviderDetailPath(recommendedProviderId),
         replacesIdleEmpty: true,
       };
     }

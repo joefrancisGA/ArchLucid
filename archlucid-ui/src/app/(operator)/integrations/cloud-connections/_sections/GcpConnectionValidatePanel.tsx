@@ -3,12 +3,18 @@
 import { cn } from "@/lib/utils";
 
 import { Button } from "@/components/ui/button";
+import { StatusTag } from "@/components/ui/status-tag";
 import { OPERATOR_TYPOGRAPHY } from "@/lib/design-tokens";
 import { enterpriseMutationControlDisabledTitle } from "@/lib/enterprise-controls-context-copy";
 import { GCP_CONNECTION_VALIDATE_EMPTY_STATE } from "@/lib/gcp-cloud-connection-copy";
-import { formatGcpConnectionTimestamp, gcpConnectionStatusBadgeClass } from "@/lib/gcp-connection-present";
+import {
+  formatGcpConnectionTimestamp,
+  gcpConnectionStatusTagKind,
+} from "@/lib/gcp-connection-present";
 
 import { useGcpConnectionData } from "./GcpConnectionDataContext";
+
+const GCP_VALIDATE_MUTATION_DISABLED_HINT_ID = "gcp-connection-validate-mutation-disabled-hint";
 
 export function GcpConnectionValidatePanel(): React.ReactElement {
   const {
@@ -59,14 +65,7 @@ export function GcpConnectionValidatePanel(): React.ReactElement {
         <div key={connection.connectionId} className="rounded-md border p-4 space-y-3">
           <div className="flex flex-wrap items-center justify-between gap-2">
             <p className={cn(OPERATOR_TYPOGRAPHY.body, "font-semibold")}>Project {connection.projectId}</p>
-            <span
-              className={cn(
-                "rounded-full px-2 py-0.5 text-xs font-medium",
-                gcpConnectionStatusBadgeClass(connection.status),
-              )}
-            >
-              {connection.status}
-            </span>
+            <StatusTag kind={gcpConnectionStatusTagKind(connection.status)} label={connection.status} />
           </div>
           <p className={OPERATOR_TYPOGRAPHY.helper}>
             Last collected {formatGcpConnectionTimestamp(connection.lastPolledUtc)}
@@ -76,13 +75,18 @@ export function GcpConnectionValidatePanel(): React.ReactElement {
             variant="secondary"
             data-testid={`gcp-validate-repoll-${connection.connectionId}`}
             disabled={pollingConnectionId === connection.connectionId || !canMutate}
-            title={canMutate ? undefined : enterpriseMutationControlDisabledTitle}
+            aria-describedby={canMutate ? undefined : GCP_VALIDATE_MUTATION_DISABLED_HINT_ID}
             onClick={() => void triggerRePoll(connection)}
           >
             {pollingConnectionId === connection.connectionId ? "Validating…" : "Re-poll now"}
           </Button>
         </div>
       ))}
+      {!canMutate ? (
+        <p id={GCP_VALIDATE_MUTATION_DISABLED_HINT_ID} className={OPERATOR_TYPOGRAPHY.helper}>
+          {enterpriseMutationControlDisabledTitle}
+        </p>
+      ) : null}
       {formError ? (
         <p className={cn(OPERATOR_TYPOGRAPHY.body, "text-red-600 dark:text-red-400")} role="alert">
           {formError}

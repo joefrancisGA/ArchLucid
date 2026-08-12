@@ -1,12 +1,10 @@
 "use client";
 
-import Link from "next/link";
-
 import { cn } from "@/lib/utils";
 
 import { CloudFirstInventoryCoach } from "@/components/integrations/CloudFirstInventoryCoach";
 import { StatusTag } from "@/components/ui/status-tag";
-import { OPERATOR_LINK, OPERATOR_TYPOGRAPHY } from "@/lib/design-tokens";
+import { OPERATOR_TYPOGRAPHY } from "@/lib/design-tokens";
 import { cloudConnectionIndicatesSuccessfulPull } from "@/lib/cloud-first-inventory-coach";
 import { awsConnectionStatusTagKind, formatAwsConnectionTimestamp } from "@/lib/aws-connection-present";
 
@@ -42,13 +40,14 @@ export function AwsConnectionRecentActivityPanel(): React.ReactElement {
 
   if (!hasConnection) {
     return (
-      <p className={OPERATOR_TYPOGRAPHY.helper} data-testid="aws-connection-recent-activity-panel">
-        No collection activity yet for this AWS account.{" "}
-        <Link href="#connection-details" className={OPERATOR_LINK.inline}>
-          Configure connection details
-        </Link>{" "}
-        to start scheduled inventory collection.
-      </p>
+      <div className="space-y-3" data-testid="aws-connection-recent-activity-panel">
+        <CloudFirstInventoryCoach
+          hasConnection={false}
+          hasSuccessfulPull={false}
+          recommendedProviderId="aws"
+          emptyPhasePrimaryCtaHref="#connection-details"
+        />
+      </div>
     );
   }
 

@@ -26,6 +26,7 @@ export function CloudFirstInventoryCoach(props: CloudFirstInventoryCoachProps): 
     connectedProviderCount: props.connectedProviderCount,
     totalProviderCount: props.totalProviderCount,
     recommendedProviderId: props.recommendedProviderId,
+    emptyPhasePrimaryCtaHref: props.emptyPhasePrimaryCtaHref,
   });
 
   return (

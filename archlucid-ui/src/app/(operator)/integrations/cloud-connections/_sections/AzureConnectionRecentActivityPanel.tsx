@@ -61,7 +61,12 @@ export function AzureConnectionRecentActivityPanel(): React.ReactElement {
   if (!hasConnection) {
     return (
       <div className="space-y-3" data-testid="azure-connection-recent-activity-panel">
-        <CloudFirstInventoryCoach hasConnection={false} hasSuccessfulPull={false} />
+        <CloudFirstInventoryCoach
+          hasConnection={false}
+          hasSuccessfulPull={false}
+          recommendedProviderId="azure"
+          emptyPhasePrimaryCtaHref="#connection-details"
+        />
         <EnterpriseCompactEmptyState
           title="No collection activity yet"
           description={AZURE_CONNECTION_RECENT_ACTIVITY_EMPTY_STATE}

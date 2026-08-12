@@ -2,24 +2,42 @@
 
 import { useCallback, useMemo, useState } from "react";
 
+import { CopyIdButton } from "@/components/CopyIdButton";
 import { Button } from "@/components/ui/button";
+import { StatusTag } from "@/components/ui/status-tag";
+import {
+  EnterpriseTable,
+  EnterpriseTableBody,
+  EnterpriseTableCell,
+  EnterpriseTableHead,
+  EnterpriseTableHeaderCell,
+  EnterpriseTableRow,
+} from "@/components/ui/enterprise-table";
+import { readAzureHostedFederationConfig } from "@/lib/azure-cloud-connection-federation-config";
 import { OPERATOR_TYPOGRAPHY } from "@/lib/design-tokens";
 import {
+  buildGcpWifStarterFederationIdentifiers,
   buildGcpWorkloadIdentityPoolProviderSetupScript,
   GCP_WIF_STARTER_FEDERATION_HEADING,
-  GCP_WIF_STARTER_FEDERATION_IDENTIFIERS,
   GCP_WIF_STARTER_FEDERATION_INTRO,
   GCP_WIF_STARTER_SCRIPT_HEADING,
   GCP_WIF_STARTER_SCRIPT_INTRO,
   GCP_WIF_STARTER_SCRIPT_REPLACE_HINT,
 } from "@/lib/gcp-cloud-connection-wif-starter";
-import { HELP_PAGE_LAYOUT } from "@/lib/help/help-page-layout";
 import { cn } from "@/lib/utils";
 
 /** Federation identifiers and copyable gcloud starter for GCP identity setup (TB-1775). */
 export function GcpWifStarterPanel(): React.ReactElement {
   const [copied, setCopied] = useState(false);
-  const setupScript = useMemo(() => buildGcpWorkloadIdentityPoolProviderSetupScript(), []);
+  const federationConfig = useMemo(() => readAzureHostedFederationConfig(), []);
+  const federationIdentifiers = useMemo(
+    () => buildGcpWifStarterFederationIdentifiers(federationConfig),
+    [federationConfig],
+  );
+  const setupScript = useMemo(
+    () => buildGcpWorkloadIdentityPoolProviderSetupScript(undefined, federationConfig),
+    [federationConfig],
+  );
 
   const copySetupScript = useCallback(async () => {
     try {
@@ -38,39 +56,43 @@ export function GcpWifStarterPanel(): React.ReactElement {
         <p className={cn("m-0 max-w-prose text-al-text-secondary", OPERATOR_TYPOGRAPHY.body)}>
           {GCP_WIF_STARTER_FEDERATION_INTRO}
         </p>
-        <div className={HELP_PAGE_LAYOUT.tableWrap} data-testid="gcp-wif-starter-federation-identifiers">
-          <table className={HELP_PAGE_LAYOUT.table}>
-            <caption className="sr-only">OIDC federation identifiers for GCP Workload Identity Pool providers</caption>
-            <thead>
-              <tr>
-                <th scope="col" className={HELP_PAGE_LAYOUT.tableHeadCell}>
-                  Field
-                </th>
-                <th scope="col" className={HELP_PAGE_LAYOUT.tableHeadCell}>
-                  Value
-                </th>
-              </tr>
-            </thead>
-            <tbody>
-              {GCP_WIF_STARTER_FEDERATION_IDENTIFIERS.map((identifier, index) => (
-                <tr
-                  key={identifier.id}
-                  className={index % 2 === 0 ? HELP_PAGE_LAYOUT.tableRowOdd : HELP_PAGE_LAYOUT.tableRowEven}
-                >
-                  <th scope="row" className={HELP_PAGE_LAYOUT.tableBodyCell}>
-                    {identifier.label}
-                  </th>
-                  <td className={cn(HELP_PAGE_LAYOUT.tableBodyCell, "font-mono text-sm")}>
-                    {identifier.value}
+        <EnterpriseTable
+          ariaLabel="OIDC federation identifiers for GCP Workload Identity Pool providers"
+          data-testid="gcp-wif-starter-federation-identifiers"
+        >
+          <EnterpriseTableHead>
+            <EnterpriseTableRow>
+              <EnterpriseTableHeaderCell>Field</EnterpriseTableHeaderCell>
+              <EnterpriseTableHeaderCell>Value</EnterpriseTableHeaderCell>
+            </EnterpriseTableRow>
+          </EnterpriseTableHead>
+          <EnterpriseTableBody>
+            {federationIdentifiers.map((identifier) => (
+              <EnterpriseTableRow key={identifier.id} data-testid={`gcp-wif-starter-identifier-${identifier.id}`}>
+                <EnterpriseTableCell>{identifier.label}</EnterpriseTableCell>
+                <EnterpriseTableCell>
+                  <div className="flex flex-wrap items-center gap-2">
+                    <span className={cn("font-mono text-sm", identifier.isPlaceholder ? "text-al-text-secondary" : undefined)}>
+                      {identifier.value}
+                    </span>
                     {identifier.isPlaceholder ? (
-                      <span className="sr-only"> (placeholder — obtain live value from security review)</span>
-                    ) : null}
-                  </td>
-                </tr>
-              ))}
-            </tbody>
-          </table>
-        </div>
+                      <StatusTag
+                        kind="needs-attention"
+                        label="Not published"
+                        data-testid={`gcp-wif-starter-unresolved-${identifier.id}`}
+                      />
+                    ) : (
+                      <CopyIdButton
+                        value={identifier.value}
+                        aria-label={`Copy ${identifier.label}`}
+                      />
+                    )}
+                  </div>
+                </EnterpriseTableCell>
+              </EnterpriseTableRow>
+            ))}
+          </EnterpriseTableBody>
+        </EnterpriseTable>
       </div>
 
       <div className="space-y-3">
