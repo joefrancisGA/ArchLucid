@@ -9,6 +9,7 @@ const repoRoot = join(dirname(fileURLToPath(import.meta.url)), "..", "..", "..")
 const TB_2144_QUERY_SURFACES = [
   "src/app/(operator)/administration/billing/OperatorBillingPaymentPastDueBanner.tsx",
   "src/components/alerts/AlertsOutstandingNavBadge.tsx",
+  "src/components/governance/GovernanceReviewsAwaitingNavBadge.tsx",
 ] as const;
 
 describe("operator billing and alerts nav query migration (TB-2144)", () => {
@@ -16,6 +17,8 @@ describe("operator billing and alerts nav query migration (TB-2144)", () => {
     const source = readFileSync(join(repoRoot, relativePath), "utf8");
 
     expect(source).not.toContain("useEffect(");
-    expect(source).toMatch(/useBillingSubscriptionStatusQuery|useAlertsInboxSummaryQuery/);
+    expect(source).toMatch(
+      /useBillingSubscriptionStatusQuery|useAlertsInboxSummaryQuery|useGovernanceReviewsAwaitingActionQuery/,
+    );
   });
 });
