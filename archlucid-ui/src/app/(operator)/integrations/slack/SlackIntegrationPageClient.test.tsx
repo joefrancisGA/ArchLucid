@@ -190,6 +190,34 @@ describe("SlackIntegrationPageClient", () => {
     const table = await screen.findByTestId("slack-destinations-table");
     expect(within(table).getByText("Governance alerts")).toBeInTheDocument();
     expect(screen.queryByText("https://hooks.slack.com/services/SECRET/PATH")).not.toBeInTheDocument();
+    expect(screen.getByRole("table", { name: "Slack notification destinations" })).toBe(table);
+  });
+
+  it("uses EnterpriseTable inventory for populated Slack destinations (TB-1648)", async () => {
+    mockList.mockResolvedValue([
+      {
+        routingSubscriptionId: "sub-1",
+        tenantId: "t",
+        workspaceId: "w",
+        projectId: "p",
+        name: "Governance alerts",
+        channelType: "SlackWebhook",
+        destination: "https://hooks.slack.com/services/SECRET/PATH",
+        minimumSeverity: "High",
+        isEnabled: true,
+        createdUtc: "2026-01-01T00:00:00Z",
+        lastDeliveredUtc: "2026-01-02T00:00:00Z",
+        metadataJson: JSON.stringify({ eventTypes: ["archlucid.alert.recorded"] }),
+      },
+    ]);
+
+    render(<SlackIntegrationPageClient />);
+
+    await waitFor(() => {
+      expect(screen.getByRole("table", { name: "Slack notification destinations" })).toBeInTheDocument();
+    });
+
+    expect(screen.getByRole("columnheader", { name: "Events" })).toBeInTheDocument();
   });
 
   it("requires confirmation before disabling an enabled Slack destination", async () => {

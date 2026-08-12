@@ -1,3 +1,5 @@
+import { formatRelativeTime } from "@/lib/relative-time";
+
 /** Keys we treat as webhook shared secrets — never echoed in plaintext in the UI. */
 const webhookSecretKeys: ReadonlyArray<string> = ["webhookSharedSecret", "sharedSecret", "hmacSharedSecret"];
 
@@ -101,4 +103,20 @@ export function buildWebhookSubscriptionMetadata(secret: string, eventTypes: str
   }
 
   return JSON.stringify(payload);
+}
+
+export function formatWebhookSubscriptionLastDeliveryLabel(lastDeliveredUtc: string | null | undefined): string {
+  const trimmed = lastDeliveredUtc?.trim() ?? "";
+
+  if (trimmed.length === 0) {
+    return "Not yet delivered";
+  }
+
+  const parsed = Date.parse(trimmed);
+
+  if (Number.isNaN(parsed)) {
+    return "Not yet delivered";
+  }
+
+  return formatRelativeTime(trimmed);
 }

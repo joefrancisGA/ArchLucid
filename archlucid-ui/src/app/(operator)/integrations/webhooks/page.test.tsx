@@ -278,6 +278,8 @@ describe("WebhooksIntegrationPage", () => {
       expect(screen.getByTestId("webhook-subscription-11111111-1111-1111-1111-111111111111")).toBeInTheDocument();
     });
 
+    expect(screen.getByRole("table", { name: "Webhook subscriptions" })).toBeInTheDocument();
+
     fireEvent.change(screen.getByLabelText(/subscription name/i), { target: { value: "existing hook" } });
     fireEvent.change(screen.getByLabelText(/destination url/i), {
       target: { value: "https://listener.example/new" },
@@ -287,6 +289,33 @@ describe("WebhooksIntegrationPage", () => {
 
     expect(await screen.findByText(/subscription with this name already exists/i)).toBeInTheDocument();
     expect(apiMocks.create).not.toHaveBeenCalled();
+  });
+
+  it("uses EnterpriseTable inventory for populated webhook subscriptions (TB-1648)", async () => {
+    apiMocks.list.mockResolvedValue([
+      {
+        routingSubscriptionId: "11111111-1111-1111-1111-111111111111",
+        tenantId: "t",
+        workspaceId: "w",
+        projectId: "p",
+        name: "Existing hook",
+        channelType: "OnCallWebhook",
+        destination: "https://listener.example/hook",
+        minimumSeverity: "High",
+        isEnabled: true,
+        createdUtc: "2026-01-01T00:00:00Z",
+        metadataJson: JSON.stringify({ webhookSharedSecret: "z".repeat(16) }),
+      },
+    ]);
+
+    render(<WebhooksIntegrationPage />);
+
+    await waitFor(() => {
+      expect(screen.getByRole("table", { name: "Webhook subscriptions" })).toBeInTheDocument();
+    });
+
+    expect(screen.getByRole("columnheader", { name: "Destination" })).toBeInTheDocument();
+    expect(screen.getByRole("columnheader", { name: "Signing secret" })).toBeInTheDocument();
   });
 
   it("keeps a single create story when empty (no Active/zero/empty-card theater)", async () => {
