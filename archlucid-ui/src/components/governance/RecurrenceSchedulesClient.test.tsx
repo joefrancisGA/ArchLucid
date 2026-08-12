@@ -205,15 +205,15 @@ describe("RecurrenceSchedulesClient", () => {
     expect(screen.queryByTestId("recurrence-schedules-empty-state")).not.toBeInTheDocument();
   });
 
-  it("shows disabled status when schedule is not enabled", async () => {
+  it("shows paused status when schedule recurrence is stopped", async () => {
     vi.mocked(governanceApi.listArchitectureReviewRecurrenceSchedules).mockResolvedValue([
       { ...sampleSchedule, isEnabled: false, lastRunStatus: "never" },
     ]);
 
     render(<RecurrenceSchedulesClient />);
 
-    expect(await screen.findByText("Disabled")).toBeInTheDocument();
-    expect(screen.getByRole("button", { name: "Enable" })).toBeInTheDocument();
+    expect(await screen.findByText("Paused")).toBeInTheDocument();
+    expect(screen.getByRole("button", { name: "Resume" })).toBeInTheDocument();
   });
 
   it("opens create panel from the sole primary Create action", async () => {

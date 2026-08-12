@@ -36,6 +36,7 @@ import {
   type ArchitectureReviewRecurrenceSchedule,
 } from "@/lib/api/governance-stickiness-api";
 import { OPERATOR_TYPOGRAPHY } from "@/lib/design-tokens";
+import { reversibleControlLabel, reversibleControlStateLabel } from "@/lib/reversible-control-verbs";
 import { whyDisabledEnterpriseMutationControl } from "@/lib/why-disabled-cta";
 import { RecurrenceLocalTimeDisplay } from "@/components/governance/RecurrenceLocalTimeDisplay";
 import {
@@ -421,7 +422,7 @@ export default function RecurrenceSchedulesClient() {
                   <EnterpriseTableHeaderCell>Next run</EnterpriseTableHeaderCell>
                   <EnterpriseTableHeaderCell>Last run</EnterpriseTableHeaderCell>
                   <EnterpriseTableHeaderCell>Status</EnterpriseTableHeaderCell>
-                  <EnterpriseTableHeaderCell>Enabled</EnterpriseTableHeaderCell>
+                  <EnterpriseTableHeaderCell>Recurrence</EnterpriseTableHeaderCell>
                   <EnterpriseTableHeaderCell>Actions</EnterpriseTableHeaderCell>
                 </EnterpriseTableHeadRow>
               </EnterpriseTableHead>
@@ -484,8 +485,8 @@ export default function RecurrenceSchedulesClient() {
                       <EnterpriseTableCell>
                         <BooleanStatusChip
                           value={schedule.isEnabled}
-                          trueLabel="Enabled"
-                          falseLabel="Disabled"
+                          trueLabel={reversibleControlStateLabel("recurring-activity", true)}
+                          falseLabel={reversibleControlStateLabel("recurring-activity", false)}
                           data-testid={`recurrence-enabled-${schedule.scheduleId}`}
                         />
                       </EnterpriseTableCell>
@@ -550,9 +551,7 @@ export default function RecurrenceSchedulesClient() {
                               >
                                 {busyId === schedule.scheduleId
                                   ? "Saving…"
-                                  : schedule.isEnabled
-                                    ? "Disable"
-                                    : "Enable"}
+                                  : reversibleControlLabel("recurring-activity", schedule.isEnabled)}
                               </Button>
                             </div>
                             {autoDisabled ? (

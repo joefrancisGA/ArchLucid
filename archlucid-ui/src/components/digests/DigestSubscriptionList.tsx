@@ -42,6 +42,7 @@ import {
   digestSubscriptionsYourSubscriptionsHeadingOperator,
   digestSubscriptionsYourSubscriptionsHeadingReader,
 } from "@/lib/enterprise-controls-context-copy";
+import { reversibleControlLabel } from "@/lib/reversible-control-verbs";
 import { whyDisabledEnterpriseMutationControl } from "@/lib/why-disabled-cta";
 import type { DigestDeliveryAttempt, DigestSubscription } from "@/types/digest-subscriptions";
 
@@ -180,9 +181,7 @@ export function DigestSubscriptionList(props: DigestSubscriptionListProps): Reac
                           data-testid={`digest-subscription-toggle-${item.subscriptionId}`}
                         >
                           {props.canMutate
-                            ? item.isEnabled
-                              ? "Pause"
-                              : "Resume"
+                            ? reversibleControlLabel("recurring-activity", item.isEnabled === true)
                             : item.isEnabled
                               ? digestSubscriptionsToggleToDisabledReaderRank
                               : digestSubscriptionsToggleToEnabledReaderRank}
