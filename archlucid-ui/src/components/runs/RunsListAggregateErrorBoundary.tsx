@@ -8,6 +8,15 @@ import { Component, type ErrorInfo, type ReactNode } from "react";
 import { RunsListClient, type RunsListClientProps } from "@/app/(operator)/architecture/reviews/RunsListClient";
 import { OperatorDemoStaticBanner } from "@/components/operator/OperatorDemoStaticBanner";
 import { Button } from "@/components/ui/button";
+import {
+  EnterpriseTable,
+  EnterpriseTableBody,
+  EnterpriseTableCell,
+  EnterpriseTableHead,
+  EnterpriseTableHeadRow,
+  EnterpriseTableHeaderCell,
+  EnterpriseTableRow,
+} from "@/components/ui/enterprise-table";
 import { getBuyerSafeReviewsTableLink } from "@/lib/buyer/buyer-safe-review-navigation";
 import { isBuyerPolishedOperatorShellEnv } from "@/lib/demo-ui-env";
 import { tryStaticDemoRunSummariesPaged } from "@/lib/operator/operator-static-demo";
@@ -27,48 +36,39 @@ function RunsListMinimalDemoTable({ runs }: { readonly runs: RunSummary[] }) {
   const buyerPolishedShell = isBuyerPolishedOperatorShellEnv();
 
   return (
-    <div className="overflow-x-auto rounded-md border border-neutral-200 dark:border-neutral-800">
-      <table className={cn("w-full border-collapse", OPERATOR_TYPOGRAPHY.body)}>
-        <thead>
-          <tr className="border-b border-neutral-200 bg-neutral-50/80 dark:border-neutral-800 dark:bg-neutral-900/40">
-            <th className={cn("px-3 py-2 text-left font-semibold uppercase tracking-wide text-neutral-600 dark:text-neutral-400", OPERATOR_TYPOGRAPHY.helper)}>
-              Review
-            </th>
-            <th className={cn("px-3 py-2 text-left font-semibold uppercase tracking-wide text-neutral-600 dark:text-neutral-400", OPERATOR_TYPOGRAPHY.helper)}>
-              Actions
-            </th>
-          </tr>
-        </thead>
-        <tbody className="divide-y divide-neutral-100 dark:divide-neutral-800">
-          {runs.map((run) => {
-            const action = getBuyerSafeReviewsTableLink(run.runId);
+    <EnterpriseTable ariaLabel="Sample reviews fallback list" className={OPERATOR_TYPOGRAPHY.body}>
+      <EnterpriseTableHead>
+        <EnterpriseTableHeadRow>
+          <EnterpriseTableHeaderCell>Review</EnterpriseTableHeaderCell>
+          <EnterpriseTableHeaderCell>Actions</EnterpriseTableHeaderCell>
+        </EnterpriseTableHeadRow>
+      </EnterpriseTableHead>
+      <EnterpriseTableBody>
+        {runs.map((run) => {
+          const action = getBuyerSafeReviewsTableLink(run.runId);
 
-            return (
-              <tr key={run.runId}>
-                <td className="max-w-[min(100vw,28rem)] px-3 py-2 align-top">
-                  <span className={cn("font-semibold text-neutral-900 dark:text-neutral-100", OPERATOR_TYPOGRAPHY.cardTitle)}>
-                    {runListPrimaryTitle(run)}
-                  </span>
-                  {buyerPolishedShell ? null : (
-                    <code className={cn("mt-1 block break-all font-mono text-neutral-500 dark:text-neutral-400", OPERATOR_TYPOGRAPHY.helper)}>
-                      {run.runId}
-                    </code>
-                  )}
-                </td>
-                <td className="whitespace-nowrap px-3 py-2 align-top">
-                  <Link
-                    href={action.href}
-                    className="font-medium text-teal-800 underline dark:text-teal-300"
-                  >
-                    {action.label}
-                  </Link>
-                </td>
-              </tr>
-            );
-          })}
-        </tbody>
-      </table>
-    </div>
+          return (
+            <EnterpriseTableRow key={run.runId}>
+              <EnterpriseTableCell className="max-w-[min(100vw,28rem)] align-top">
+                <span className={cn("font-semibold text-neutral-900 dark:text-neutral-100", OPERATOR_TYPOGRAPHY.cardTitle)}>
+                  {runListPrimaryTitle(run)}
+                </span>
+                {buyerPolishedShell ? null : (
+                  <code className={cn("mt-1 block break-all font-mono text-neutral-500 dark:text-neutral-400", OPERATOR_TYPOGRAPHY.helper)}>
+                    {run.runId}
+                  </code>
+                )}
+              </EnterpriseTableCell>
+              <EnterpriseTableCell className="whitespace-nowrap align-top">
+                <Link href={action.href} className="font-medium text-teal-800 underline dark:text-teal-300">
+                  {action.label}
+                </Link>
+              </EnterpriseTableCell>
+            </EnterpriseTableRow>
+          );
+        })}
+      </EnterpriseTableBody>
+    </EnterpriseTable>
   );
 }
 
