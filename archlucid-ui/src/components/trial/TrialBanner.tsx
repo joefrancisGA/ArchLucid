@@ -57,7 +57,7 @@ function TrialExportOnlyBanner({ daysRemaining }: TrialExportOnlyBannerProps) {
           asChild
           type="button"
           size="sm"
-          className="bg-red-800 text-white hover:bg-red-900 dark:bg-red-700 dark:hover:bg-red-600"
+          variant="destructive"
         >
           <Link href="/architecture/reviews">Export reviews</Link>
         </Button>

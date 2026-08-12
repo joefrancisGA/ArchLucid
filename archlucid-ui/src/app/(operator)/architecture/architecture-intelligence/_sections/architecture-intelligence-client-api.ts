@@ -1,9 +1,8 @@
-import {
-  DEFAULT_ARCHITECTURE_FILE_NAME,
-  DEFAULT_CONTENT_TYPE,
-  type ArchitectureIntelligenceReviewTier,
-  type ClosedLoopReasoningResult,
-  type ClosedLoopReasoningSourceText,
+import type { ArchitectureIntelligenceReviewTier } from "@/lib/architecture/architecture-intelligence-review-tier";
+import type {
+  ClosedLoopReasoningResult,
+  ClosedLoopReasoningSourceText,
+  SpecialistReviewFinding,
 } from "@/app/(operator)/architecture/architecture-intelligence/_sections/architecture-intelligence-types";
 
 export const DEFAULT_ARCHITECTURE_FILE_NAME = "architecture-description.txt";

@@ -30,8 +30,6 @@ const TITLE_ONLY_DISABLED_EXPLANATION_BASELINE: ReadonlySet<string> = new Set([
   "app/(operator)/insights/executive-summary/_sections/ValueReportPageView.tsx",
   "app/(operator)/insights/impact-preview/_sections/ImpactPreviewResultActions.tsx",
   "app/(operator)/integrations/cloud-connections/_sections/AwsConnectionSection.tsx",
-  "app/(operator)/integrations/cloud-connections/_sections/AwsConnectionValidatePanel.tsx",
-  "app/(operator)/integrations/cloud-connections/_sections/AzureConnectionValidatePanel.tsx",
   "app/(operator)/integrations/cloud-connections/_sections/GcpConnectionSection.tsx",
   "app/(operator)/integrations/cloud-connections/_sections/GcpConnectionValidatePanel.tsx",
   "app/(operator)/integrations/cloud-connections/_sections/Tier2ConnectionWizard.tsx",
