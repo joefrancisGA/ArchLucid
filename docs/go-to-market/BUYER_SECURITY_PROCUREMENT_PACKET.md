@@ -937,6 +937,8 @@ Former standalone body: `docs/go-to-market/SOC2_PENTEST_HONEST_PROCUREMENT_TALK_
 
 **Path-stable alias:** [`SOC2_PENTEST_HONEST_PROCUREMENT_TALK_TRACK_PA_ONE_PAGER.md`](SOC2_PENTEST_HONEST_PROCUREMENT_TALK_TRACK_PA_ONE_PAGER.md).
 
+**Contributor contract:** [`SOC2_PENTEST_HONEST_PROCUREMENT_TALK_TRACK_CONTRACT.md`](../library/SOC2_PENTEST_HONEST_PROCUREMENT_TALK_TRACK_CONTRACT.md). Honesty CI: **TB-1145** (follow-on).
+
 **Audience:** Founder and SE in live procurement dialogue.
 
 **Claim:** Do not lead with “no SOC 2 / no pen test.” Do not hedge “SOC 2 ready/almost/in process” or “pen test in flight” when only self-assessment / owner-conducted / SoW template exists.
