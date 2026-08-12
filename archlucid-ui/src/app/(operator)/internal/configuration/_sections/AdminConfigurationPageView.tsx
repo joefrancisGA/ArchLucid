@@ -24,7 +24,7 @@ import {
 } from "@/components/ui/select";
 
 import { ConfigurationSystemHealthVocabularyRail } from "@/components/ConfigurationSystemHealthVocabularyRail";
-import { OPERATOR_NAV_GROUP_LABEL, OPERATOR_TYPOGRAPHY } from "@/lib/design-tokens";
+import { OPERATOR_NAV_GROUP_LABEL, OPERATOR_LAYOUT, OPERATOR_TYPOGRAPHY } from "@/lib/design-tokens";
 import { PageContextualHelpButton } from "@/components/usability/PageContextualHelpButton";
 import { OperatorPageHeader } from "@/components/operator/OperatorPageHeader";
 
@@ -49,7 +49,7 @@ export function AdminConfigurationPageView(props: Props) {
   }
 
   return (
-    <div className="w-full max-w-[1200px] space-y-6" data-testid="admin-configuration-page">
+    <div className={cn("w-full max-w-[1200px]", OPERATOR_LAYOUT.sectionStack)} data-testid="admin-configuration-page">
       <OperatorPageHeader
         title="Configuration summary"
         headingLevel="h1"

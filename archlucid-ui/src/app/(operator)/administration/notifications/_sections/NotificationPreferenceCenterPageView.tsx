@@ -9,7 +9,7 @@ import { Button } from "@/components/ui/button";
 import { Card, CardContent, CardHeader, CardTitle } from "@/components/ui/card";
 import { PageContextualHelpButton } from "@/components/usability/PageContextualHelpButton";
 import { useNotificationChannelDeliveryStatus } from "@/hooks/use-notification-channel-delivery-status";
-import { OPERATOR_TYPOGRAPHY } from "@/lib/design-tokens";
+import { OPERATOR_LAYOUT, OPERATOR_TYPOGRAPHY } from "@/lib/design-tokens";
 import {
   NOTIFICATION_PREFERENCE_CHANNELS,
   NOTIFICATION_PREFERENCE_CENTER_ORIENTATION_LINE,
@@ -24,7 +24,7 @@ export function NotificationPreferenceCenterPageView() {
   const { statusByChannelId } = useNotificationChannelDeliveryStatus();
 
   return (
-    <OperatorPageContainer variant="settings" className="space-y-6" data-testid="notification-preference-center-page">
+    <OperatorPageContainer variant="settings" className={OPERATOR_LAYOUT.sectionStack} data-testid="notification-preference-center-page">
       <OperatorPageHeader
         title={NOTIFICATION_PREFERENCE_CENTER_PAGE_TITLE}
         subtitle={NOTIFICATION_PREFERENCE_CENTER_PAGE_SUBTITLE}

@@ -12,7 +12,7 @@ import { Skeleton } from "@/components/ui/skeleton";
 import { PageContextualHelpButton } from "@/components/usability/PageContextualHelpButton";
 import { AI_USAGE_SETTINGS_PATH } from "@/lib/ai-usage-nav-paths";
 import { formatAiUsageEstimatesAsOfLabel } from "@/lib/ai-usage-dashboard-model";
-import { OPERATOR_TYPOGRAPHY } from "@/lib/design-tokens";
+import { OPERATOR_LAYOUT, OPERATOR_TYPOGRAPHY } from "@/lib/design-tokens";
 import { OPERATOR_NAV_LINK_LABELS } from "@/lib/i18n";
 
 import { useAiUsageRouteShellState } from "./ai-usage-route-shell-context";
@@ -37,7 +37,7 @@ type Props = {
 
 function PageLoadingSkeleton() {
   return (
-    <div className="w-full max-w-[1200px] space-y-6" data-testid="cost-reporting-page">
+    <div className={cn("w-full max-w-[1200px]", OPERATOR_LAYOUT.sectionStack)} data-testid="cost-reporting-page">
       <Skeleton className="h-8 w-64" />
       <Skeleton className="h-4 w-full max-w-3xl" />
       <div className="grid gap-3 md:grid-cols-2 xl:grid-cols-4">
@@ -83,7 +83,7 @@ export function CostReportingSettingsPageView(props: Props) {
 
   if (m.surface === "forbidden") {
     return (
-      <div className="w-full max-w-[1200px] space-y-6" data-testid="cost-reporting-page">
+      <div className={cn("w-full max-w-[1200px]", OPERATOR_LAYOUT.sectionStack)} data-testid="cost-reporting-page">
         <p className={cn("m-0 text-rose-800 dark:text-rose-200", OPERATOR_TYPOGRAPHY.body)} role="alert" data-testid="cost-reporting-forbidden">
           This page requires workspace access (ReadAuthority). Sign in with a workspace-scoped account or API key.
         </p>
@@ -100,7 +100,7 @@ export function CostReportingSettingsPageView(props: Props) {
   const pageLoadFailed = derived.costReportingState === "error" && !m.loading;
 
   return (
-    <div className="w-full max-w-[1200px] space-y-6" data-testid="cost-reporting-page">
+    <div className={cn("w-full max-w-[1200px]", OPERATOR_LAYOUT.sectionStack)} data-testid="cost-reporting-page">
       <PageHeading
         navHref={AI_USAGE_SETTINGS_PATH}
         title={OPERATOR_NAV_LINK_LABELS.aiUsage}

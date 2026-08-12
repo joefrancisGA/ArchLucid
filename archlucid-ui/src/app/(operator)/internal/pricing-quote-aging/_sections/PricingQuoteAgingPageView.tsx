@@ -21,6 +21,7 @@ import {
 } from "@/components/ui/enterprise-table";
 
 import {
+  OPERATOR_LAYOUT,
   OPERATOR_NAV_GROUP_LABEL,
   OPERATOR_TYPOGRAPHY,
   operatorSemanticSurface,
@@ -197,7 +198,7 @@ export function PricingQuoteAgingPageView(props: Props) {
 
   if (m.surface === "authority_loading") {
     return (
-      <div className="w-full max-w-[1440px] space-y-6" data-testid="pricing-quote-aging-page">
+      <div className={cn("w-full max-w-[1440px]", OPERATOR_LAYOUT.sectionStack)} data-testid="pricing-quote-aging-page">
         <p className={cn("m-0 text-al-text-secondary", OPERATOR_TYPOGRAPHY.body)}>Loading…</p>
       </div>
     );
@@ -205,7 +206,7 @@ export function PricingQuoteAgingPageView(props: Props) {
 
   if (m.surface === "forbidden") {
     return (
-      <div className="w-full max-w-[1440px] space-y-6" data-testid="pricing-quote-aging-page">
+      <div className={cn("w-full max-w-[1440px]", OPERATOR_LAYOUT.sectionStack)} data-testid="pricing-quote-aging-page">
         <p
           className={cn("m-0 text-rose-800 dark:text-rose-200", OPERATOR_TYPOGRAPHY.body)}
           role="alert"
@@ -224,7 +225,7 @@ export function PricingQuoteAgingPageView(props: Props) {
     m.lastRefreshedAt === null ? null : `Updated ${formatRelativeTime(m.lastRefreshedAt.toISOString())}`;
 
   return (
-    <div className="w-full max-w-[1440px] space-y-6" data-testid="pricing-quote-aging-page">
+    <div className={cn("w-full max-w-[1440px]", OPERATOR_LAYOUT.sectionStack)} data-testid="pricing-quote-aging-page">
       <OperatorPageHeader
         title="Pricing quote follow-up"
         titleTestId="pricing-quote-follow-up-title"
@@ -316,7 +317,7 @@ export function PricingQuoteAgingPageView(props: Props) {
 
           {!m.loading && data !== null && data.rows.length === 0 ? (
             <div
-              className="rounded-lg border border-dashed border-neutral-300 bg-neutral-50/80 px-4 py-8 text-center dark:border-neutral-700 dark:bg-neutral-900/40"
+              className="rounded-lg border border-dashed border-neutral-300 bg-neutral-50/80 px-4 py-6 text-center dark:border-neutral-700 dark:bg-neutral-900/40"
               data-testid="pricing-quote-follow-up-empty"
             >
               <p className={cn("m-0 font-medium text-al-text-primary", OPERATOR_TYPOGRAPHY.cardTitle)}>

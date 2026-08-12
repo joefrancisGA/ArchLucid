@@ -20,7 +20,7 @@ import { OperatorPageHeader } from "@/components/operator/OperatorPageHeader";
 import { OperatorSectionLoadFailure } from "@/components/operator/OperatorSectionLoadFailure";
 import { PageContextualHelpButton } from "@/components/usability/PageContextualHelpButton";
 import { TenantSystemWorkspaceHealthVocabularyRail } from "@/components/TenantSystemWorkspaceHealthVocabularyRail";
-import { OPERATOR_TYPOGRAPHY } from "@/lib/design-tokens";
+import { OPERATOR_LAYOUT, OPERATOR_TYPOGRAPHY } from "@/lib/design-tokens";
 import { AUTHORITY_RANK } from "@/lib/nav-authority";
 import {
   fetchAdminTenantHealthList,
@@ -89,7 +89,7 @@ export function TenantHealthAdminPageClient() {
   }
 
   return (
-    <div className="w-full max-w-[1440px] space-y-6" data-testid="tenant-health-admin-page">
+    <div className={cn("w-full max-w-[1440px]", OPERATOR_LAYOUT.sectionStack)} data-testid="tenant-health-admin-page">
       <OperatorPageHeader
         headingLevel="h1"
         title="Tenant health"
