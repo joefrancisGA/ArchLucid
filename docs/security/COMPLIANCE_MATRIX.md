@@ -10,7 +10,7 @@ This table links **control themes** from [`SOC2_SELF_ASSESSMENT_2026.md`](SOC2_S
 | Theme | Evidence path | Notes |
 |-------|----------------|-------|
 | Authentication / authorization | [`ArchLucid.Host.Core/Startup/AuthSafetyGuard.cs`](../../ArchLucid.Host.Core/Startup/AuthSafetyGuard.cs), `ArchLucid.Api/Program.cs`, [`SECURITY.md`](../library/contributor-reference/SECURITY.md) | Fail-closed defaults |
-| Tenant isolation | `docs/security/MULTI_TENANT_RLS.md`, SQL migrations under `ArchLucid.Persistence/Migrations/` | Historical RLS object names may still include `Archiforge*` per rename policy |
+| Tenant isolation | [`TENANT_ISOLATION_DEFENSE_IN_DEPTH.md`](TENANT_ISOLATION_DEFENSE_IN_DEPTH.md), [ADR 0037](../architecture/adrs/0037-tenant-isolation-without-rls-defense-in-depth.md), SQL migrations under `ArchLucid.Persistence/Migrations/` | Production = database-per-tenant + app predicates; [`MULTI_TENANT_RLS.md`](MULTI_TENANT_RLS.md) is historical only |
 | API contract hardening | `.github/workflows/ci.yml` (`api-schemathesis-light`), `.github/workflows/schemathesis-scheduled.yml` | PR vs scheduled coverage |
 | Audit trail | `docs/AUDIT_COVERAGE_MATRIX.md`, `ArchLucid.Api/Controllers/Admin/AuditController.cs` | Append-only events |
 | Operational readiness | `docs/runbooks/*`, `docs/runbooks/COORDINATOR_TO_AUTHORITY_PARITY.md` | Parity evidence for ADR 0021 |

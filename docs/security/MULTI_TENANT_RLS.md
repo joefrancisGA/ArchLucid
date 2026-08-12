@@ -7,7 +7,7 @@
 
 # Multi-tenant row-level security (SQL) — design sketch
 
-> **Production posture (2026-06):** SQL RLS is **not deployed**. Tenant isolation uses **database-per-tenant catalogs** and layered application controls per [ADR 0037](../architecture/adrs/0037-tenant-isolation-without-rls-defense-in-depth.md) and [`TENANT_ISOLATION_DEFENSE_IN_DEPTH.md`](TENANT_ISOLATION_DEFENSE_IN_DEPTH.md). This document describes the **historical / optional RLS design** retained for migration archaeology and teams evaluating optional RLS on non-standard deployments.
+> **Production posture (2026-06):** SQL RLS is **not deployed** and is **not** an optional production control. Tenant isolation uses **database-per-tenant catalogs** and layered application controls per [ADR 0037](../architecture/adrs/0037-tenant-isolation-without-rls-defense-in-depth.md) and [`TENANT_ISOLATION_DEFENSE_IN_DEPTH.md`](TENANT_ISOLATION_DEFENSE_IN_DEPTH.md). This document describes the **historical RLS design** retained for migration archaeology only — do not cite it as a live buyer control.
 
 ## 1. Objective
 
@@ -17,12 +17,12 @@ Describe how ArchLucid enforces **tenant / workspace / project isolation in SQL 
 
 - Primary store is **SQL Server** (Azure SQL or boxed) with **private connectivity**; SMB/file shares are not used for tenant data at the API boundary.
 - **Entra ID** (or API keys in constrained scenarios) identifies the caller; **scope** (tenant, workspace, project) is derived from claims or headers and validated in the application layer.
-- When **`ArchLucid:SqlTopology:Mode=SystemWithPerTenantCatalogs`** (the production topology), the **database boundary is the primary and sufficient tenant isolation mechanism**. RLS is not required for defense-in-depth and is not a production requirement; it ships with `STATE = OFF` by default and is available as optional configuration. See [../library/TENANT_DATABASE_TOPOLOGY.md](../library/TENANT_DATABASE_TOPOLOGY.md).
-- RLS is rolled out on **every authority table that carries the scope triple on the row** (initially DbUp `036_RlsArchiforgeTenantScope.sql`; renamed to `rls.ArchLucidTenantScope` + `rls.archlucid_*_predicate` + `al_*` SESSION_CONTEXT keys in DbUp `108_RlsRenameToArchLucid.sql`, 2026-04-21).
+- When **`ArchLucid:SqlTopology:Mode=SystemWithPerTenantCatalogs`** (the production topology), the **database boundary is the primary and sufficient tenant isolation mechanism**. RLS is **not** required, **not** deployed in production, and **must not** be cited as a buyer control. See [../library/TENANT_DATABASE_TOPOLOGY.md](../library/TENANT_DATABASE_TOPOLOGY.md) and ADR 0037.
+- Historical note only: RLS was once sketched for **every authority table that carries the scope triple on the row** (initially DbUp `036_RlsArchiforgeTenantScope.sql`; renamed to `rls.ArchLucidTenantScope` + `rls.archlucid_*_predicate` + `al_*` SESSION_CONTEXT keys in DbUp `108_RlsRenameToArchLucid.sql`, 2026-04-21) and later removed.
 
 ## 3. Constraints
 
-- **RLS does not replace authZ in the API**. In `SystemWithPerTenantCatalogs` (production) mode RLS is optional; tenant isolation is provided by the database boundary. RLS may be enabled as an additional safeguard if desired but is not a required control.
+- **RLS does not replace authZ in the API**, and in production it is **not present** as a control. In `SystemWithPerTenantCatalogs` mode tenant isolation is provided by the database boundary plus application scope predicates (ADR 0037).
 - **SESSION_CONTEXT** predicates must stay **simple** to avoid plan regression; heavy joins inside predicates are not used.
 - **Operational complexity**: every connection must set context (or use bypass for trusted jobs). Missing context defaults to **no rows** (deny-by-default) when policies are **ON**.
 - **Child tables** without denormalized `TenantId` / `WorkspaceId` / `ProjectId` cannot use the same predicate pattern without schema changes (see §9).

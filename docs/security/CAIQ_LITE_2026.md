@@ -9,7 +9,7 @@
 
 **Dry-run note (procurement):** Rows marked **Partial** include an explicit **Gap / next step** in this file or in linked evidence (not silent N/A). Owner must still transpose answers into the buyer’s CAIQ workbook cell-for-cell.
 
-**Product context:** ArchLucid SaaS (API + SQL authority plane + optional Azure OpenAI). Identity: Microsoft Entra ID. Data: Azure SQL with row-level security.
+**Product context:** ArchLucid SaaS (API + SQL authority plane + optional Azure OpenAI). Identity: Microsoft Entra ID. Data: Azure SQL with **database-per-tenant** catalogs and application scope predicates (ADR 0037 — SQL RLS is not a production control).
 
 ## Governance (GOV)
 

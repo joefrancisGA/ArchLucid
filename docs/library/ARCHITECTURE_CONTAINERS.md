@@ -36,7 +36,7 @@ This is a pragmatic C4 “containers” view: **deployable processes** and major
 
 - `ArchLucid.Application` (core orchestration + analysis/export/replay services)
 - `ArchLucid.Persistence.Data.*` (Dapper repositories for run/commit path, migrations, `IDbConnectionFactory`)
-- `ArchLucid.Persistence` (SQL authority repositories, RLS-aware connection factories, queries, advisory/alert persistence)
+- `ArchLucid.Persistence` (SQL authority repositories, scoped / catalog-routing connection factories, queries, advisory/alert persistence)
 - `ArchLucid.Decisioning` (governance, advisory, alerts, manifest/decision models, **manifest merge** in `ArchLucid.Decisioning.Merge`, **JSON schema validation** in `ArchLucid.Decisioning.Validation`)
 - `ArchLucid.Contracts` (DTOs / domain contracts)
 

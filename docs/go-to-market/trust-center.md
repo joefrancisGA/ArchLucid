@@ -142,8 +142,9 @@ This page participates in CI merge gates:
 
 ArchLucid publishes internal analysis, architecture, and control-mapping documents. They are **not** substitutes for a CPA SOC 2 report or a completed external pen test.
 
-- [Row-level security (RLS) and session context](../security/MULTI_TENANT_RLS.md)
-- [RLS risk acceptance](../security/RLS_RISK_ACCEPTANCE.md)
+- [Tenant isolation defense in depth (ADR 0037)](../security/TENANT_ISOLATION_DEFENSE_IN_DEPTH.md)
+- [Historical — RLS design sketch (superseded)](../security/MULTI_TENANT_RLS.md)
+- [Historical — RLS risk acceptance (superseded)](../security/RLS_RISK_ACCEPTANCE.md)
 - [System threat model (STRIDE)](../security/SYSTEM_THREAT_MODEL.md)
 - [Ask / RAG pipeline threat notes](../security/ASK_RAG_THREAT_MODEL.md)
 - [OWASP ZAP baseline rules (CI)](../security/ZAP_BASELINE_RULES.md)

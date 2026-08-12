@@ -10,7 +10,7 @@
 **DiD spine:** [`TENANT_ISOLATION_DEFENSE_IN_DEPTH.md`](../security/TENANT_ISOLATION_DEFENSE_IN_DEPTH.md) (ADR 0037).  
 **Scope decide-once:** [`TENANT_IDENTITY_SINGLE_DERIVATION_CONTRACT.md`](TENANT_IDENTITY_SINGLE_DERIVATION_CONTRACT.md) (**TB-999**).  
 **Retrieval filter:** [`RETRIEVAL_TENANCY_HIT_GUARANTEE_CONTRACT.md`](RETRIEVAL_TENANCY_HIT_GUARANTEE_CONTRACT.md) (**TB-1001**).  
-**Honesty CI:** **TB-1233** (open). **RLS purge / overclaim:** **TB-1122** / GTM **M-194**.
+**Honesty CI:** **TB-1233** (open). **RLS purge / overclaim:** **TB-1122** (Done) / GTM **M-194**.
 
 ---
 

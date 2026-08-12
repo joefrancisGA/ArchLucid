@@ -147,17 +147,19 @@ Former standalone body: `docs/go-to-market/ISOLATION_CLAIMS_VS_INV001_ADR0037_PA
 
 **Audience:** Security reviewers and principal architects challenging tenancy language.
 
-**Claim:** Safe pin = **database-per-tenant** + **INV-001 decide-once** + **M-114** identity-wins. Do **not** cite SQL RLS as a deployed production control. Do not treat workspace/project as the paying-client security boundary. Do not claim G3 fully proven without **TB-948**/**TB-949**. Do not promise per-tenant Search index / crypto-proof retrieval / NetArchTest-alone isolation.
+**Claim:** Safe pin = **database-per-tenant** + **INV-001 decide-once** + **M-114** identity-wins. Do **not** cite SQL RLS as a deployed production control. Do not treat workspace/project as the paying-client security boundary. Do not claim G3 as cryptographically proven isolation — G3 means catalog + decide-once + Search filter DiD are reviewable (see **TB-1122**). Do not promise per-tenant Search index / crypto-proof retrieval / NetArchTest-alone isolation.
+
+**Engineering SoT:** [`../library/ISOLATION_CLAIMS_TOO_STRONG_VS_INV001_ADR0037_CONTRACT.md`](../library/ISOLATION_CLAIMS_TOO_STRONG_VS_INV001_ADR0037_CONTRACT.md) (**TB-1122**). Honesty CI follow-on: **TB-1123**.
 
 ### Too strong vs safe
 
 | Too strong | Safe |
 | --- | --- |
 | “SQL RLS isolates tenants” | ADR 0037 — RLS is non-control |
-| “NetArchTest proves isolation” | Compile-time DAG â‰  runtime tenancy (**M-156**) |
+| “NetArchTest proves isolation” | Compile-time DAG ≠ runtime tenancy (**M-156**) |
 | “Per-tenant Search index / crypto-proof retrieval” | Mandatory OData `$filter` (**M-152**/**M-153**) |
 | “Empty TenantId returns no data” | Empty-scope routing risks — [M-169](#empty-scope-catalog-routing-m-169) |
-| “G3 PASS without isolation evidence” | Soften until **TB-948**/**TB-949** artifacts |
+| “G3 PASS = fully proven isolation” | Soften: catalog + decide-once shipped; residuals **TB-1123** / **TB-1233** |
 
 ### Stale language purge
 
@@ -4683,7 +4685,7 @@ flowchart TB
 ```
 
 - **Layer 1 — Identity:** Prefer **Entra-issued JWTs** with **app roles**; API keys are server-side secrets mapped to **limited** roles ([SECURITY.md](../library/contributor-reference/SECURITY.md)).
-- **Layer 2 — Application:** Controllers enforce **policies**; orchestration sets **tenant / workspace / project** scope before data access ([../security/MULTI_TENANT_RLS.md](../security/MULTI_TENANT_RLS.md) Â§5).
+- **Layer 2 — Application:** Controllers enforce **policies**; orchestration sets **tenant / workspace / project** scope before data access ([`TENANT_ISOLATION_DEFENSE_IN_DEPTH.md`](../security/TENANT_ISOLATION_DEFENSE_IN_DEPTH.md)).
 - **Layer 3 — Database:** In `SystemWithPerTenantCatalogs` (production) mode each tenant organization receives a **dedicated product SQL catalog** resolved via `TenantDatabaseBindings`. **SQL RLS is not used** ([ADR 0037](../architecture/adrs/0037-tenant-isolation-without-rls-defense-in-depth.md)). Application repositories still apply scope predicates within the catalog. Deep reference: [`TENANT_ISOLATION_DEFENSE_IN_DEPTH.md`](../security/TENANT_ISOLATION_DEFENSE_IN_DEPTH.md).
 
 ### Encryption {#tenant-isolation-encryption}

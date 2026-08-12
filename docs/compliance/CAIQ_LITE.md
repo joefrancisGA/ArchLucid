@@ -5,7 +5,7 @@
 This document answers standard enterprise security questions based on the ArchLucid architecture.
 
 **1. Does the system provide tenant isolation?**
-Yes. ArchLucid supports multi-tenancy at the data layer using row-level security (RLS) and tenant-specific identifiers in all core tables.
+Yes. ArchLucid isolates paying tenants with **database-per-tenant** SQL catalogs (ADR 0037) plus host decide-once scope and application-layer tenant identifiers on scoped tables. SQL row-level security is **not** a deployed production control.
 
 **2. How is data backed up?**
 Data is stored in SQL Server. Customers are responsible for configuring SQL Server backups (e.g., Azure SQL Database automated backups) according to their RPO and RTO requirements.

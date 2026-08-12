@@ -43,7 +43,7 @@ The activity is **default aggregated-only** (no per-tenant correlation in the fu
 
 **Recipients.**
 - **Aggregated mode (default):** Application Insights (the same Azure Monitor workspace that already hosts ArchLucid operational telemetry — see [`docs/library/OBSERVABILITY.md`](../library/OBSERVABILITY.md)).
-- **Per-tenant mode (flag-gated):** Application Insights (same as aggregated) **plus** the new SQL table `dbo.FirstTenantFunnelEvents` in the ArchLucid production database (RLS-scoped per tenant on read; see [`docs/security/MULTI_TENANT_RLS.md`](MULTI_TENANT_RLS.md)).
+- **Per-tenant mode (flag-gated):** Application Insights (same as aggregated) **plus** the new SQL table `dbo.FirstTenantFunnelEvents` in the ArchLucid production database (tenant-scoped SQL reads via catalog routing + application predicates; see [`TENANT_ISOLATION_DEFENSE_IN_DEPTH.md`](TENANT_ISOLATION_DEFENSE_IN_DEPTH.md)).
 
 **Retention.**
 - **Aggregated mode (default):** governed by the Application Insights workspace retention (currently the platform default; the audit-retention policy at [`docs/library/AUDIT_RETENTION_POLICY.md`](../library/AUDIT_RETENTION_POLICY.md) does not apply because no audit-event row is written).
@@ -129,7 +129,7 @@ The activity is **default aggregated-only** (no per-tenant correlation in the fu
 
 Operators (or their data-controller employer) may request:
 
-- **Access** — for per-tenant funnel mode rows (§3.A), the tenant administrator may export the relevant `dbo.FirstTenantFunnelEvents` rows via the same RLS-scoped read path used by the architect workspace (forthcoming admin endpoint; not in V1). For transactional email (§3.B), the audit store holds the email address; access requests are fulfilled via the standard audit-data export path. For client-error telemetry (§3.C), Application Insights workspace access is restricted to ArchLucid operations staff; data subjects may request confirmation of what was logged about a specific session.
+- **Access** — for per-tenant funnel mode rows (§3.A), the tenant administrator may export the relevant `dbo.FirstTenantFunnelEvents` rows via the same tenant-scoped SQL read path used by the architect workspace (forthcoming admin endpoint; not in V1). For transactional email (§3.B), the audit store holds the email address; access requests are fulfilled via the standard audit-data export path. For client-error telemetry (§3.C), Application Insights workspace access is restricted to ArchLucid operations staff; data subjects may request confirmation of what was logged about a specific session.
 - **Erasure** — the per-tenant funnel 90-day retention satisfies erasure on automatic schedule; out-of-cycle erasure for a single tenant is supported via the existing tenant-deletion path. For transactional email, tenant deletion cascades to `dbo.SentEmails`. For client-error telemetry, Application Insights data is purged on workspace retention schedule; individual-record purge is available via the Azure Monitor purge API.
 - **Objection** — for §3.A per-tenant mode, the tenant administrator may object by leaving the feature flag at `FALSE` (the V1 default). For §3.B and §3.C, the processing is necessary for contract performance and legitimate service operation respectively; objection would require ceasing use of the service.
 
@@ -138,7 +138,7 @@ Operators (or their data-controller employer) may request:
 | Subprocessor | Purpose | Data flowing |
 |---|---|---|
 | **Microsoft Azure** (Application Insights) | Aggregated funnel counters; client-error telemetry | §3.A counter increments (no `tenantId` in aggregated mode); §3.C error messages, pathnames, user-agent strings (sanitized, truncated). |
-| **Microsoft Azure** (SQL Database) | Per-tenant funnel rows (flag-gated); email idempotency keys | §3.A: `tenantId`, event name, timestamp (RLS-scoped). §3.B: idempotency keys only, no email bodies. |
+| **Microsoft Azure** (SQL Database) | Per-tenant funnel rows (flag-gated); email idempotency keys | §3.A: `tenantId`, event name, timestamp (tenant-scoped). §3.B: idempotency keys only, no email bodies. |
 | **Microsoft Azure** (Azure Communication Services) | Trial lifecycle transactional email delivery | §3.B: email address (To), email body (metadata-only; not persisted by ACS after delivery). |
 
 The full ArchLucid subprocessor list lives in the Trust Center (`docs/go-to-market/trust-center.md`) and is not duplicated here.
