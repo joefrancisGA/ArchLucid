@@ -222,7 +222,10 @@ export function IdentityProvidersRoleMappingPageView(
                         {IDENTITY_PROVIDERS_ROLE_MAPPING_LOAD_ERROR}
                       </p>
                     ) : mappingRows.length > 0 ? (
-                      <EnterpriseTable data-testid="identity-providers-role-mapping-table">
+                      <EnterpriseTable
+                        ariaLabel={IDENTITY_PROVIDERS_ROLE_MAPPING_TABLE_TITLE}
+                        data-testid="identity-providers-role-mapping-table"
+                      >
                         <EnterpriseTableHead>
                           <EnterpriseTableHeadRow>
                             <EnterpriseTableHeaderCell>IdP group or claim value</EnterpriseTableHeaderCell>

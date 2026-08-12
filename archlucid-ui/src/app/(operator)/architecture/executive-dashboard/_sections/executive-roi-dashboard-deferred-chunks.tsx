@@ -105,9 +105,7 @@ export const ExecutiveComplianceDriftTrendSectionDeferred: ComponentType<Executi
       ),
     {
       ssr: false,
-      loading: () => (
-        executiveDashboardDeferredLoading("Loading compliance drift trend"),
-      ),
+      loading: () => executiveDashboardDeferredLoading("Loading compliance drift trend"),
     },
   );
 
