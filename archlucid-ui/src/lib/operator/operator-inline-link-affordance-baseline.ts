@@ -16,7 +16,7 @@ export const OPERATOR_INLINE_LINK_AFFORDANCE_BASELINE: readonly string[] = [
   "app/(marketing)/showcase/[runId]/page.tsx:141",
   "app/(marketing)/showcase/[runId]/page.tsx:147",
   "app/(marketing)/showcase/[runId]/page.tsx:153",
-  "app/(operator)/administration/identity-providers/_sections/IdentityProvidersDiagnosticsPageView.tsx:100",
+  "app/(operator)/administration/identity-providers/_sections/IdentityProvidersDiagnosticsPageView.tsx:142",
   "app/(operator)/architecture/executive-dashboard/_sections/ExecutiveDashboardPrimaryMetricsSection.tsx:118",
   "app/(operator)/architecture/executive-dashboard/_sections/ExecutiveDashboardPrimaryMetricsSection.tsx:189",
   "app/(operator)/architecture/executive-dashboard/_sections/ExecutiveSqlBackupRegionVerificationCard.tsx:129",
