@@ -16,6 +16,7 @@ import {
 import { SeverityTag } from "@/components/ui/severity-tag";
 import { useOperatorNavAuthority } from "@/components/operator/OperatorNavAuthorityProvider";
 import { OperatorPageHeader } from "@/components/operator/OperatorPageHeader";
+import { OperatorSectionLoadFailure } from "@/components/operator/OperatorSectionLoadFailure";
 import { PageContextualHelpButton } from "@/components/usability/PageContextualHelpButton";
 import { TenantSystemWorkspaceHealthVocabularyRail } from "@/components/TenantSystemWorkspaceHealthVocabularyRail";
 import { OPERATOR_TYPOGRAPHY } from "@/lib/design-tokens";
@@ -102,10 +103,14 @@ export function TenantHealthAdminPageClient() {
         }
       />
       <TenantSystemWorkspaceHealthVocabularyRail currentSurfaceId="tenant-health" />
-{error ? (
-        <p className={cn("text-rose-700 dark:text-rose-300", OPERATOR_TYPOGRAPHY.body)} role="alert">
-          {error}
-        </p>
+      {error ? (
+        <OperatorSectionLoadFailure
+          message={error}
+          retryLabel="Reload tenant health"
+          retrying={loading}
+          testId="tenant-health-load-failure"
+          onRetry={() => void refresh()}
+        />
       ) : null}
 
       <EnterpriseTable ariaLabel="Tenant health scores">

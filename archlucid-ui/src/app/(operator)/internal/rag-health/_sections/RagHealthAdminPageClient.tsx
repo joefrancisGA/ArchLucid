@@ -16,6 +16,7 @@ import {
 import { SeverityTag } from "@/components/ui/severity-tag";
 import { useOperatorNavAuthority } from "@/components/operator/OperatorNavAuthorityProvider";
 import { OperatorPageHeader } from "@/components/operator/OperatorPageHeader";
+import { OperatorSectionLoadFailure } from "@/components/operator/OperatorSectionLoadFailure";
 import { RagHealthSystemHealthVocabularyRail } from "@/components/RagHealthSystemHealthVocabularyRail";
 import { PageContextualHelpButton } from "@/components/usability/PageContextualHelpButton";
 import { OPERATOR_TYPOGRAPHY } from "@/lib/design-tokens";
@@ -100,10 +101,14 @@ export function RagHealthAdminPageClient() {
         }
       />
       <RagHealthSystemHealthVocabularyRail currentSurfaceId="rag-health" />
-{error ? (
-        <p className={cn("text-rose-700 dark:text-rose-300", OPERATOR_TYPOGRAPHY.body)} role="alert">
-          {error}
-        </p>
+      {error ? (
+        <OperatorSectionLoadFailure
+          message={error}
+          retryLabel="Reload corpus health"
+          retrying={loading}
+          testId="rag-health-load-failure"
+          onRetry={() => void refresh()}
+        />
       ) : null}
 
       <EnterpriseTable ariaLabel="RAG corpus health">
