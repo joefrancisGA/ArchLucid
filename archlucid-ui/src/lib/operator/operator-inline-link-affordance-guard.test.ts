@@ -9,6 +9,7 @@ import {
   formatOperatorInlineLinkAffordanceViolationKey,
   findOperatorInlineLinkAffordanceViolations,
   hasOperatorInlineLinkAffordance,
+  hasOperatorInlineLinkOwnChrome,
   isOperatorInlineLinkAffordanceExempt,
 } from "@/lib/operator/operator-inline-link-affordance-patterns";
 import { OPERATOR_INLINE_LINK_TB1674_MIGRATED_SURFACES } from "@/lib/operator/operator-inline-link-tb1674-surfaces";
@@ -35,7 +36,8 @@ function listSourceFiles(dir: string): string[] {
 }
 
 const REMEDIATION =
-  "Navigational <Link>/<a> must use OPERATOR_LINK, text-al-link, underline, MARKETING_SURFACES.inlineLink, workflow-inline-link, shell-nav-link, or Button asChild chrome (TB-1671 / TB-1675).";
+  "Navigational <Link>/<a> must use OPERATOR_LINK, text-al-link, underline, MARKETING_SURFACES.inlineLink, workflow-inline-link, shell-nav-link, or Button asChild chrome (TB-1671 / TB-1675). "
+  + "Chips, cards, tiles, dropdown rows, filled/outline CTAs, and dedicated nav treatments are excluded — they already supply a visible boundary.";
 
 describe("operator-inline-link-affordance guard (TB-1675)", () => {
   it("parses multiline Link tags with comparison operators in href expressions", () => {
@@ -115,5 +117,45 @@ describe("operator-inline-link-affordance patterns (unit)", () => {
 
   it("exempts anchors without navigational href", () => {
     expect(isOperatorInlineLinkAffordanceExempt("<a>", "")).toBe(true);
+  });
+});
+
+describe("operator-inline-link own-chrome exclusions (TB-1671)", () => {
+  it("exempts bordered chips and filled or outline CTAs rendered as links", () => {
+    const chip =
+      '<Link href="/insights/compare-two-reviews" className="inline-flex rounded-full border border-neutral-200 bg-white px-2 py-0.5 no-underline hover:bg-neutral-50">';
+    const filledCta =
+      '<Link href="/showcase/x" className="inline-flex rounded-md bg-teal-700 px-4 py-2 text-white no-underline hover:bg-teal-800">';
+
+    expect(hasOperatorInlineLinkOwnChrome(chip)).toBe(true);
+    expect(hasOperatorInlineLinkOwnChrome(filledCta)).toBe(true);
+  });
+
+  it("exempts dropdown rows, tile wrappers, and dedicated nav treatments", () => {
+    const menuRow = '<Link href="/faq" role="menuitem" className="block px-3 py-2 hover:bg-neutral-50">';
+    const tile = '<Link href="/x" className="block rounded-sm no-underline hover:ring-2 hover:ring-primary/30">';
+    const marketingNav = '<Link className={MARKETING_PUBLIC_NAV_LINK_CLASS} href="/pricing">';
+
+    expect(hasOperatorInlineLinkOwnChrome(menuRow)).toBe(true);
+    expect(hasOperatorInlineLinkOwnChrome(tile)).toBe(true);
+    expect(hasOperatorInlineLinkOwnChrome(marketingNav)).toBe(true);
+  });
+
+  it("still flags prose links, including block-level ones with no box or surface cue", () => {
+    const prose = '<Link href="/x" className="font-medium text-neutral-700">';
+    const blockProse = '<Link href="/x" className="block text-sm text-neutral-700">';
+
+    expect(hasOperatorInlineLinkOwnChrome(prose)).toBe(false);
+    expect(hasOperatorInlineLinkOwnChrome(blockProse)).toBe(false);
+    expect(findOperatorInlineLinkAffordanceViolations(blockProse, "example.tsx")).toHaveLength(1);
+  });
+
+  it("resolves chip chrome through a local className constant", () => {
+    const source = [
+      "const shell = cn(DESIGN_TOKENS.interactive.chip, DESIGN_TOKENS.accent.focusRing);",
+      '<Link href={props.href} className={shell}>{props.children}</Link>',
+    ].join("\n");
+
+    expect(findOperatorInlineLinkAffordanceViolations(source, "example.tsx")).toEqual([]);
   });
 });

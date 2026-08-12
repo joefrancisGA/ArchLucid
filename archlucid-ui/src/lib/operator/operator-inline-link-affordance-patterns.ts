@@ -22,6 +22,23 @@ export const OPERATOR_INLINE_LINK_AFFORDANCE_TOKENS = [
   "MARKETING_HERO_SECONDARY_CTA_CLASS",
 ] as const;
 
+/**
+ * Class fragments that carry a dedicated nav or chip treatment, so the anchor is
+ * already visibly interactive without inline-link tokens. `shell-nav-link` lives in
+ * the affordance list above for historical reasons; these are its peers.
+ */
+export const OPERATOR_INLINE_LINK_OWN_CHROME_TOKENS = [
+  "marketing-public-nav-link",
+  "MARKETING_PUBLIC_NAV_LINK_CLASS",
+  "DESIGN_TOKENS.interactive.chip",
+  "DESIGN_TOKENS.interactive.navActive",
+  "DESIGN_TOKENS.card",
+  "OPERATOR_BUTTON_COMPACT_CLASS",
+] as const;
+
+/** ARIA roles that make the anchor a composite-widget row rather than body copy. */
+const OWN_CHROME_ROLES = ["menuitem", "option", "treeitem"] as const;
+
 const EXCLUDED_RELATIVE_PATH_SUFFIXES = [
   ".test.tsx",
   ".test.ts",
@@ -77,8 +94,56 @@ function hasRestingUnderline(value: string): boolean {
   return /(?:^|[\s"'`{(,])underline\b/.test(value);
 }
 
+/**
+ * TB-1671 excludes anchors that "already supply their own visible boundary or
+ * hit-target chrome" — chips, cards, tiles, and dropdown rows. Those are not body
+ * copy, so a resting underline would be wrong rather than missing.
+ */
+export function hasOperatorInlineLinkOwnChrome(value: string): boolean {
+  for (const token of OPERATOR_INLINE_LINK_OWN_CHROME_TOKENS) {
+    if (value.includes(token)) {
+      return true;
+    }
+  }
+
+  for (const role of OWN_CHROME_ROLES) {
+    if (value.includes(`role="${role}"`)) {
+      return true;
+    }
+  }
+
+  if (hasVisibleBoundary(value) && hasBoxPadding(value)) {
+    return true;
+  }
+
+  // A block-level anchor wraps a card or tile whose children paint the boundary;
+  // require a box or hover-surface cue so plain `block` prose links still fail.
+  return isBlockLevel(value) && (hasBoxPadding(value) || hasVisibleBoundary(value) || hasHoverSurface(value));
+}
+
+function hasVisibleBoundary(value: string): boolean {
+  return /(?:^|[\s"'`:])(?:border|border-\d|ring-\d|shadow-(?:sm|md|lg)|rounded(?:-\w+)?)\b/.test(value)
+    || /(?:^|[\s"'`:])bg-(?!transparent\b)/.test(value);
+}
+
+function hasBoxPadding(value: string): boolean {
+  return /(?:^|[\s"'`:])p[xy]?-\d/.test(value);
+}
+
+function hasHoverSurface(value: string): boolean {
+  return /hover:(?:bg-|ring-|shadow-|border-)/.test(value);
+}
+
+function isBlockLevel(value: string): boolean {
+  return /(?:^|[\s"'`:])(?:block|flex|grid)\b/.test(value);
+}
+
 export function isOperatorInlineLinkAffordanceExempt(openingTag: string, sourceBeforeTag: string): boolean {
   if (isWrappedInAsChildButton(sourceBeforeTag)) {
+    return true;
+  }
+
+  if (hasOperatorInlineLinkOwnChrome(openingTag)) {
     return true;
   }
 
@@ -177,9 +242,9 @@ export function findOpeningTagEnd(source: string, tagStart: number): number {
 }
 
 /**
- * Collects module-level identifiers whose definition carries an affordance token,
- * so `className={monoLinkCls}` is recognized when `monoLinkCls` is built from
- * `OPERATOR_LINK`.
+ * Collects module-level identifiers whose definition carries an affordance token or
+ * its own chrome, so `className={monoLinkCls}` is recognized when `monoLinkCls` is
+ * built from `OPERATOR_LINK`, and `className={shell}` when `shell` is a chip.
  */
 export function collectAffordanceBearingIdentifiers(source: string): ReadonlySet<string> {
   const identifiers = new Set<string>();
@@ -190,7 +255,11 @@ export function collectAffordanceBearingIdentifiers(source: string): ReadonlySet
     const name = match[1];
     const value = match[2];
 
-    if (name !== undefined && value !== undefined && hasOperatorInlineLinkAffordance(value)) {
+    if (
+      name !== undefined
+      && value !== undefined
+      && (hasOperatorInlineLinkAffordance(value) || hasOperatorInlineLinkOwnChrome(value))
+    ) {
       identifiers.add(name);
     }
 
