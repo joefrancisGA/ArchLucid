@@ -140,7 +140,8 @@ def discover_controllers(controllers_dir: Path) -> list[ControllerSurface]:
 
 def parse_nav_hrefs(ui_nav_dir: Path) -> set[str]:
     hrefs: set[str] = set()
-    for path in ui_nav_dir.glob("*nav-group-builder.ts"):
+    # Nav builders live under src/lib and src/lib/operator; a flat glob missed operator-admin links.
+    for path in ui_nav_dir.glob("**/*nav-group-builder.ts"):
         for line in path.read_text(encoding="utf-8").splitlines():
             if "href:" not in line:
                 continue

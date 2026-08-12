@@ -19,7 +19,7 @@
       "commercial_tier": "none",
       "class_policy": "AdminAuthority",
       "exemption": null,
-      "nav_operator_href": "/administration/api-keys"
+      "nav_operator_href": null
     },
     {
       "controller_file": "Admin/AdminAuthDiagnosticsController.cs",

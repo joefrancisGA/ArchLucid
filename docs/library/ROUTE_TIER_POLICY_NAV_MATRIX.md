@@ -73,7 +73,7 @@ Merge-blocking check: `python scripts/ci/assert_route_tier_policy_nav.py` after 
 | Controller source | API prefix (normalized) | commercial_tier (class) | class_policy | Operator nav href (parity only) | Exemption code |
 | --- | --- | --- | --- | --- | --- |
 | `Admin/AdminAiUsageDashboardController.cs` | `/v1/admin` | none | ExecuteAuthority |  |  |
-| `Admin/AdminApiKeySettingsController.cs` | `/v1/admin/settings/api-keys` | none | AdminAuthority | /administration/api-keys |  |
+| `Admin/AdminApiKeySettingsController.cs` | `/v1/admin/settings/api-keys` | none | AdminAuthority |  |  |
 | `Admin/AdminAuthDiagnosticsController.cs` | `/v1/admin` | none | AdminAuthority |  | auth_debug_api |
 | `Admin/AdminController.cs` | `/v1/admin` | none | AdminAuthority |  |  |
 | `Admin/AdminCrossTenantUsageRollupController.cs` | `/v1/admin/analytics` | none | PlatformCrossTenantReadAuthority |  |  |
