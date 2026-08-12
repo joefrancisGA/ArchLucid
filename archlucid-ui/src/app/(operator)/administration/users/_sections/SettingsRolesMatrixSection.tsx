@@ -15,16 +15,7 @@ import {
   SelectTrigger,
   SelectValue,
 } from "@/components/ui/select";
-import {
-  AlertDialog,
-  AlertDialogAction,
-  AlertDialogCancel,
-  AlertDialogContent,
-  AlertDialogDescription,
-  AlertDialogFooter,
-  AlertDialogHeader,
-  AlertDialogTitle,
-} from "@/components/ui/alert-dialog";
+import { SettingsRolesMatrixConfirmDialog } from "./SettingsRolesMatrixConfirmDialog";
 import { SeverityTag } from "@/components/ui/severity-tag";
 import { OperatorEmptyState } from "@/components/OperatorShellMessage";
 import { GOVERNANCE_AUDIT_PATH } from "@/lib/governance-route-paths";
@@ -816,55 +807,16 @@ export function SettingsRolesMatrixSection(props: SettingsRolesMatrixSectionProp
           </div>
         </div>
 
-        <AlertDialog open={pendingConfirmation !== null} onOpenChange={(open) => !open && setPendingConfirmation(null)}>
-          <AlertDialogContent>
-            <AlertDialogHeader>
-              <AlertDialogTitle>{confirmationCopy?.title ?? "Confirm role change?"}</AlertDialogTitle>
-              <AlertDialogDescription asChild>
-                <div className="space-y-3">
-                  {confirmationCopy !== null && confirmationCopy.addedLabels.length > 0 ? (
-                    <div className="space-y-1">
-                      <p className={cn("m-0 font-medium text-al-text-primary", OPERATOR_TYPOGRAPHY.body)}>Permissions to grant</p>
-                      <ul className={cn("m-0 list-disc space-y-1 pl-5", OPERATOR_TYPOGRAPHY.body)}>
-                        {confirmationCopy.addedLabels.map((label) => (
-                          <li key={`add-${label}`}>{label}</li>
-                        ))}
-                      </ul>
-                    </div>
-                  ) : null}
-                  {confirmationCopy !== null && confirmationCopy.removedLabels.length > 0 ? (
-                    <div className="space-y-1">
-                      <p className={cn("m-0 font-medium text-al-text-primary", OPERATOR_TYPOGRAPHY.body)}>Permissions to remove</p>
-                      <ul className={cn("m-0 list-disc space-y-1 pl-5", OPERATOR_TYPOGRAPHY.body)}>
-                        {confirmationCopy.removedLabels.map((label) => (
-                          <li key={`remove-${label}`}>{label}</li>
-                        ))}
-                      </ul>
-                    </div>
-                  ) : null}
-                  {confirmationCopy !== null && confirmationCopy.highRiskLabels.length > 0 ? (
-                    <div className="space-y-1 rounded-md border border-amber-300 bg-amber-50 px-3 py-2 dark:border-amber-700/60 dark:bg-amber-950/40">
-                      <p className={cn("m-0 text-amber-900 dark:text-amber-100", OPERATOR_TYPOGRAPHY.body)}>
-                        {ROLES_MATRIX_CONFIRMATION_DIALOG.highRiskLead}
-                      </p>
-                      <ul className={cn("m-0 list-disc space-y-1 pl-5 text-amber-900 dark:text-amber-100", OPERATOR_TYPOGRAPHY.body)}>
-                        {confirmationCopy.highRiskLabels.map((label) => (
-                          <li key={`high-risk-${label}`}>{label}</li>
-                        ))}
-                      </ul>
-                    </div>
-                  ) : null}
-                </div>
-              </AlertDialogDescription>
-            </AlertDialogHeader>
-            <AlertDialogFooter>
-              <AlertDialogCancel>Cancel</AlertDialogCancel>
-              <AlertDialogAction onClick={() => void confirmPendingAction()}>
-                {confirmationCopy?.primaryLabel ?? "Confirm"}
-              </AlertDialogAction>
-            </AlertDialogFooter>
-          </AlertDialogContent>
-        </AlertDialog>
+        <SettingsRolesMatrixConfirmDialog
+          open={pendingConfirmation !== null}
+          copy={confirmationCopy}
+          onCancel={() => {
+            setPendingConfirmation(null);
+          }}
+          onConfirm={() => {
+            void confirmPendingAction();
+          }}
+        />
       </section>
   );
 }
