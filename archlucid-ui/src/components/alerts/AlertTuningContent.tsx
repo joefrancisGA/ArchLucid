@@ -218,8 +218,6 @@ export function AlertTuningContent() {
 
   return (
     <div>
-      <h2 className={cn("mt-0", OPERATOR_TYPOGRAPHY.sectionTitle)}>Tune alert thresholds</h2>
-
       {failure !== null ? (
         <div role="alert">
           <OperatorApiProblem

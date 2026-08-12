@@ -312,7 +312,9 @@ export function AlertSimulationContent() {
 
   return (
     <div className="max-w-[1100px]">
-      <h2 className="mt-0">Simulate alerts</h2>
+      <h3 id="alert-simulation-section-heading" className={cn("m-0", OPERATOR_TYPOGRAPHY.sectionTitle)}>
+        Simulate alerts
+      </h3>
 
       <div className="mb-5 flex flex-wrap gap-2">
         {TABS.map((t) => (

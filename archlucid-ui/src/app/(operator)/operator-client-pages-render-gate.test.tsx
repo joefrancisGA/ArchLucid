@@ -4,7 +4,7 @@ import { describe, expect, it, vi } from "vitest";
 import { AlertRulesContent } from "@/components/alerts/AlertRulesContent";
 import { AlertRoutingContent } from "@/components/alerts/AlertRoutingContent";
 import { AlertSimulationContent } from "@/components/alerts/AlertSimulationContent";
-import { AlertTuningContent } from "@/components/alerts/AlertTuningContent";
+import { AlertSimulationTuningSection } from "@/components/alerts/AlertSimulationTuningSection";
 import { AlertsInboxContent } from "@/components/alerts/AlertsInboxContent";
 import { CompositeAlertRulesContent } from "@/components/alerts/CompositeAlertRulesContent";
 
@@ -221,14 +221,18 @@ describe("operator client pages — render gate", () => {
     expect(screen.getByRole("heading", { level: 2, name: "Notification delivery" })).toBeInTheDocument();
   });
 
-  it("Alert simulation content renders primary heading", () => {
+  it("Alert simulation content demotes duplicate hub page title to h3 (TB-1589)", () => {
     render(<AlertSimulationContent />);
-    expect(screen.getByRole("heading", { level: 2, name: "Simulate alerts" })).toBeInTheDocument();
+    expect(screen.queryByRole("heading", { level: 2, name: "Simulate alerts" })).not.toBeInTheDocument();
+    expect(screen.getByRole("heading", { level: 3, name: "Simulate alerts" })).toBeInTheDocument();
   });
 
-  it("Alert tuning content renders primary heading", () => {
-    render(<AlertTuningContent />);
-    expect(screen.getByRole("heading", { level: 2, name: "Tune alert thresholds" })).toBeInTheDocument();
+  it("Alert simulation tuning section demotes dual h2 under hub tab (TB-1589)", () => {
+    render(<AlertSimulationTuningSection />);
+    expect(screen.queryByRole("heading", { level: 2, name: "Simulate alerts" })).not.toBeInTheDocument();
+    expect(screen.queryByRole("heading", { level: 2, name: "Tune alert thresholds" })).not.toBeInTheDocument();
+    expect(screen.getByRole("heading", { level: 3, name: "Simulate alerts" })).toBeInTheDocument();
+    expect(screen.getByTestId("alert-test-tune-disclosure")).toBeInTheDocument();
   });
 
   it("Composite alert rules content does not duplicate hub page title as h2 (TB-1579)", () => {

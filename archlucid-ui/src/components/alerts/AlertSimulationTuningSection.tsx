@@ -3,16 +3,19 @@
 import { cn } from "@/lib/utils";
 import { AlertSimulationContent } from "@/components/alerts/AlertSimulationContent";
 import { AlertTuningContent } from "@/components/alerts/AlertTuningContent";
+import { CollapsibleSection } from "@/components/CollapsibleSection";
 import { AlertOperatorToolingRankCue } from "@/components/EnterpriseControlsContextHints";
 import { alertTestAlertsTabLead } from "@/lib/enterprise-controls-context-copy";
 import { OPERATOR_TYPOGRAPHY } from "@/lib/design-tokens";
 
+const ALERT_TEST_TUNE_SECTION_TITLE = "Tune alert thresholds";
+
 /**
- * Merged **Simulation** and **Tuning** tab for the `/alerts` hub — two existing page bodies stacked.
+ * Merged **Simulation** and **Tuning** tab for the `/alerts` hub — simulate primary; tune in disclosure.
  */
 export function AlertSimulationTuningSection() {
   return (
-    <div className="space-y-14">
+    <div className="space-y-6">
       <div>
         <p
           className={cn(
@@ -28,7 +31,15 @@ export function AlertSimulationTuningSection() {
         </div>
       </div>
       <AlertSimulationContent />
-      <AlertTuningContent />
+      <CollapsibleSection
+        title={ALERT_TEST_TUNE_SECTION_TITLE}
+        headingLevel={3}
+        defaultOpen={false}
+        sectionTestId="alert-test-tune-disclosure"
+        summaryLine="Optional threshold recommendations against recent reviews (read-only on this tab)."
+      >
+        <AlertTuningContent />
+      </CollapsibleSection>
     </div>
   );
 }

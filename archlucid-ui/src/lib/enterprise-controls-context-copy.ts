@@ -259,7 +259,7 @@ export const alertSimulationPageLead =
 
 /**
  * Alert rules Test alerts tab — shared lead for merged simulation + tuning (`AlertSimulationTuningSection`).
- * Child sections keep their own `h2` titles; rank cue mounts once at tab level (TB-1593).
+ * Simulate is the primary section title; tuning is secondary disclosure (TB-1589); rank cue mounts once (TB-1593).
  */
 export const alertTestAlertsTabLead =
   "Simulation and threshold tuning use read-only APIs on this tab. Enabling subscriptions, editing live rules, or applying a winning threshold stays on Alert rules or routing (Execute+).";
