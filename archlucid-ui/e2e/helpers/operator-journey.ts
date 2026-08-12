@@ -710,9 +710,44 @@ export async function expectBuyerPipelineTimelineSectionVisible(
     await expect(reviewDetailWorkspacePanel(page, "activity")).toBeVisible({ timeout });
   }
 
+  const belowFoldLoading = page.getByRole("status", {
+    name: /Loading review technical sections|Loading pipeline timeline/i,
+  });
+
+  // Manifest-backed runs render pipeline timeline inside deferred below-fold Suspense — wait for skeletons to clear.
+  await expect(async () => {
+    const loadingCount = await belowFoldLoading.count();
+
+    if (loadingCount === 0) {
+      return;
+    }
+
+    const anyVisible = await belowFoldLoading
+      .first()
+      .isVisible()
+      .catch(() => false);
+
+    if (!anyVisible) {
+      return;
+    }
+
+    throw new Error("below-fold pipeline sections still loading");
+  }).toPass({ timeout });
+
+  const sectionNav = page.getByTestId("provenance-section-nav-desktop");
+
+  if ((await sectionNav.count()) > 0) {
+    const pipelineNavLink = sectionNav.getByRole("link", { name: /Recent lifecycle events/i });
+
+    if ((await pipelineNavLink.count()) > 0) {
+      await pipelineNavLink.first().click();
+    }
+  }
+
   const pipelineSection = page.locator("#pipeline-timeline");
 
   await expect(pipelineSection).toBeVisible({ timeout });
+  await pipelineSection.scrollIntoViewIfNeeded();
 
   const collapsible = page.getByTestId("run-pipeline-timeline-collapsible");
 

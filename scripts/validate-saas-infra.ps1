@@ -86,6 +86,35 @@ if ($roots.Count -eq 0) {
     exit 2
 }
 
+function Invoke-TerraformInitWithRetry {
+    param(
+        [int] $MaxAttempts = 6
+    )
+
+    $attempt = 1
+
+    while ($true) {
+        if ($VerbosePreference -eq "Continue") {
+            & terraform init -backend=false -input=false
+        } else {
+            $null = & terraform init -backend=false -input=false 2>&1
+        }
+
+        if ($LASTEXITCODE -eq 0) {
+            return $true
+        }
+
+        if ($attempt -ge $MaxAttempts) {
+            return $false
+        }
+
+        $sleepSeconds = $attempt * 20
+        Write-Host ("terraform init failed (attempt {0}/{1}); retrying in {2}s..." -f $attempt, $MaxAttempts, $sleepSeconds)
+        Start-Sleep -Seconds $sleepSeconds
+        $attempt++
+    }
+}
+
 $rows = [System.Collections.Generic.List[object]]::new()
 $anyFail = $false
 foreach ($dir in $roots) {
@@ -94,13 +123,11 @@ foreach ($dir in $roots) {
     $valResult = "skipped"
     Push-Location -LiteralPath $dir
     try {
-        if ($VerbosePreference -eq "Continue") {
-            & terraform init -backend=false -input=false
+        if (Invoke-TerraformInitWithRetry) {
+            $initResult = "ok"
         } else {
-            $null = & terraform init -backend=false -input=false 2>&1
+            $anyFail = $true
         }
-        if ($LASTEXITCODE -ne 0) { $anyFail = $true }
-        else { $initResult = "ok" }
         if ($initResult -eq "ok") {
             if ($VerbosePreference -eq "Continue") { & terraform validate } else { $null = & terraform validate 2>&1 }
             if ($LASTEXITCODE -ne 0) {
