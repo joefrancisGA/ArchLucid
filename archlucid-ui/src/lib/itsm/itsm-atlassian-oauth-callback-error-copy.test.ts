@@ -12,8 +12,8 @@ import {
 describe("itsm-atlassian-oauth-callback-error-copy (TB-1784)", () => {
   it("maps IdP denial to buyer-safe copy", () => {
     expect(mapItsmAtlassianOAuthIdpError("access_denied", null)).toBe(ITSM_ATLASSIAN_OAUTH_CALLBACK_IDP_DENIED);
-    expect(mapItsmAtlassianOAuthIdpError("access_denied", "User cancelled the request.")).toBe(
-      "User cancelled the request.",
+    expect(mapItsmAtlassianOAuthIdpError("access_denied", "User canceled the request.")).toBe(
+      "User canceled the request.",
     );
   });
 

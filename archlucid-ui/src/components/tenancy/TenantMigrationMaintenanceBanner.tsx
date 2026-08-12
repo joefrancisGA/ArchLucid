@@ -50,7 +50,7 @@ export function TenantMigrationMaintenanceBanner() {
       const generation = ++requestGeneration;
       const status = await fetchTenantCatalogMigrationStatus();
 
-      if (cancelled || generation !== requestGeneration) {
+      if (canceled || generation !== requestGeneration) {
         return;
       }
 
@@ -79,7 +79,7 @@ export function TenantMigrationMaintenanceBanner() {
     }, TENANT_MIGRATION_STATUS_POLL_MS);
 
     return () => {
-      cancelled = true;
+      canceled = true;
       window.clearInterval(timer);
     };
   }, [reloadToken]);

@@ -68,7 +68,7 @@ export function buildExecutiveServerSavingsSummary(
   };
 }
 
-/** Tier 3 helper — labour-hours coefficients × loaded hourly rate. */
+/** Tier 3 helper — labor-hours coefficients × loaded hourly rate. */
 export function buildClientHoursSavingsSummary(
   counts: RoiHoursSurfacedInput,
   hourlyUsd: number = DEFAULT_LOADED_HOURLY_USD,
@@ -89,7 +89,7 @@ export function buildClientHoursSavingsSummary(
   return {
     annualizedUsd,
     basisFootnotes: [
-      `Labour-hours estimate: ${formatHours(hours)} surfaced at ${formatUsd(safeHourly)}/hr (client coefficients).`,
+      `Labor-hours estimate: ${formatHours(hours)} surfaced at ${formatUsd(safeHourly)}/hr (client coefficients).`,
     ],
     sourceKind: "client-hours-estimate",
   };

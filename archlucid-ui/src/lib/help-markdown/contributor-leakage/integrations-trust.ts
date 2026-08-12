@@ -350,7 +350,7 @@ export function stripSoc2SelfAssessmentContributorLeakage(markdown: string): str
 
     if (/^\| G-002 \|/i.test(line)) {
       result.push(
-        "| G-002 | Third-party pen-test redacted summary not yet published | Security | Execute vendor programme when funded | **Open** — ArchLucid uses owner-conducted testing; independent third-party publication when a funded programme completes (not CPA SOC 2 attestation) |",
+        "| G-002 | Third-party pen-test redacted summary not yet published | Security | Execute vendor program when funded | **Open** — ArchLucid uses owner-conducted testing; independent third-party publication when a funded program completes (not CPA SOC 2 attestation) |",
       );
       continue;
     }
@@ -585,7 +585,7 @@ export function stripTrustCenterContributorLeakage(markdown: string): string {
       "",
       "**Current** assurance includes **owner-conducted** testing ([Owner-conducted pen-test summary](/help/procurement)) plus CI and self-assessment evidence linked above.",
       "",
-      "**Planned, not yet scheduled:** When a third-party programme is funded, publish the engagement here. Redacted findings remain **NDA-gated** until explicitly approved for wider distribution — contact **security@archlucid.net**.",
+      "**Planned, not yet scheduled:** When a third-party program is funded, publish the engagement here. Redacted findings remain **NDA-gated** until explicitly approved for wider distribution — contact **security@archlucid.net**.",
     ].join("\n"),
   );
 

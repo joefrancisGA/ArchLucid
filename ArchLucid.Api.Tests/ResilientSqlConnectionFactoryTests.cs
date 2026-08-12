@@ -11,7 +11,7 @@ using Moq;
 namespace ArchLucid.Api.Tests;
 
 /// <summary>
-///     Verifies <see cref="ResilientSqlConnectionFactory" /> retry behaviour via <see cref="SqlOpenResilienceDefaults" />.
+///     Verifies <see cref="ResilientSqlConnectionFactory" /> retry behavior via <see cref="SqlOpenResilienceDefaults" />.
 /// </summary>
 [Trait("Category", "Unit")]
 public sealed class ResilientSqlConnectionFactoryTests

@@ -58,7 +58,7 @@ export function ExtractUploadSettingsPageClient() {
   const maxMb = Math.floor(ARCH_LUCID_AZURE_EXTRACTOR_MAX_ZIP_BYTES / (1024 * 1024));
 
   useEffect(() => {
-    let cancelled = false;
+    let canceled = false;
 
     void (async () => {
       try {
@@ -70,7 +70,7 @@ export function ExtractUploadSettingsPageClient() {
           fetch(EXTRACTOR_SCRIPT_CDN_URL, { cache: "no-store" }),
         ]);
 
-        if (!baselineResponse.ok || !scriptResponse.ok || cancelled) {
+        if (!baselineResponse.ok || !scriptResponse.ok || canceled) {
           return;
         }
 
@@ -94,7 +94,7 @@ export function ExtractUploadSettingsPageClient() {
     })();
 
     return () => {
-      cancelled = true;
+      canceled = true;
     };
   }, []);
 

@@ -98,7 +98,7 @@ public static partial class ArchLucidInstrumentation
     public static readonly Counter<long> PipelineTimeoutsTotal =
         AppMeter.CreateCounter<long>(
             "archlucid_authority_pipeline_timeouts_total",
-            description: "Authority pipeline executions cancelled by configured pipeline timeout.");
+            description: "Authority pipeline executions canceled by configured pipeline timeout.");
 
     
     /// <summary>

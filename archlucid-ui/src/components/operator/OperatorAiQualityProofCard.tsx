@@ -27,7 +27,7 @@ export function OperatorAiQualityProofCard(props: { readonly embedded?: boolean 
   const [loadFailed, setLoadFailed] = useState(false);
 
   useEffect(() => {
-    let cancelled = false;
+    let canceled = false;
 
     async function load(): Promise<void> {
       try {
@@ -43,13 +43,13 @@ export function OperatorAiQualityProofCard(props: { readonly embedded?: boolean 
 
         const json = (await response.json()) as OperatorAiQualitySnapshot;
 
-        if (!cancelled) {
+        if (!canceled) {
           setSnapshot(json);
           setLoadFailed(false);
         }
       }
       catch {
-        if (!cancelled) {
+        if (!canceled) {
           setLoadFailed(true);
         }
       }
@@ -58,7 +58,7 @@ export function OperatorAiQualityProofCard(props: { readonly embedded?: boolean 
     void load();
 
     return () => {
-      cancelled = true;
+      canceled = true;
     };
   }, []);
 

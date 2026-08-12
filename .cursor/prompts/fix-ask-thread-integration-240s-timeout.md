@@ -49,7 +49,7 @@ The deadline fires and the body task is still in `DisposeAsync`.
 ### Underlying cause — still present per #2168
 
 The 4-minute deadline exhaustion converts what used to be a 75-minute blame-hang into a fast
-test failure, which is correct defence-in-depth. **But the underlying hang that makes
+test failure, which is correct defense-in-depth. **But the underlying hang that makes
 operations approach their bounds is not yet fixed.** Per
 `.cursor/prompts/fix-ci-run-2168-integration-shards-blame-hang.md`, the hang candidate paths are:
 
@@ -168,7 +168,7 @@ catch (Exception ex)
 ```
 
 `OperationCanceledException` is a subtype of `Exception` and is caught here. When `ct` is
-cancelled (request timeout fires), the code falls back instead of propagating cancellation —
+canceled (request timeout fires), the code falls back instead of propagating cancellation —
 subsequent awaits with `ct` will then immediately throw `OperationCanceledException`, but any
 synchronous work inside the catch (e.g., `BuildFromRunDetail`) runs to completion. This is
 generally safe but can mask a stall: if `retrievalQuery.SearchAsync` is hanging AND ignoring `ct`,

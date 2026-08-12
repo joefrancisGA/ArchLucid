@@ -17,7 +17,7 @@ Give **Azure DevOps Repos** pilots the **same buyer journey** GitHub pilots alre
 - Buyer agents run **Node.js ≥ 20** (templates pin **22.x** via `NodeTool@0`).
 - Azure DevOps **Git REST 7.1** for PR threads and statuses remains stable for the contract shapes we serialize (`thread` create + `status` create + comment **PATCH**).
 - For **Mode A** (`System.AccessToken`), the **Project Collection Build Service** identity is granted **Contribute to pull requests** on the target repository.
-- Buyers who need **strict compare failures** keep the default fetch behaviour; buyers who want **transient-safe** pipelines may set **`ARCHLUCID_COMPARE_WARN_ONLY=1`** for **404** responses only.
+- Buyers who need **strict compare failures** keep the default fetch behavior; buyers who want **transient-safe** pipelines may set **`ARCHLUCID_COMPARE_WARN_ONLY=1`** for **404** responses only.
 
 ## 3. Constraints
 
@@ -78,7 +78,7 @@ Two **complementary** integrations:
 
 ## 8. Operational Considerations
 
-| Topic | Behaviour |
+| Topic | Behavior |
 | --- | --- |
 | Compare **404** | Optional **`ARCHLUCID_COMPARE_WARN_ONLY=1`**: exit **0**, emit Markdown stub + **WARNING** (does not red-build for transient “target not committed yet”). |
 | PR already merged | Azure DevOps may reject thread updates — operators see REST failure; retry semantics are standard pipeline retries. |

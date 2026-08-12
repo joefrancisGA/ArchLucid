@@ -246,7 +246,7 @@ public sealed class AgentOutputQualityGateTests
     {
         AgentOutputQualityGateOptions options = new();
 
-        options.EnforceOnReject.Should().BeFalse("default must be false so existing behaviour is preserved");
+        options.EnforceOnReject.Should().BeFalse("default must be false so existing behavior is preserved");
     }
 
     [SkippableFact]

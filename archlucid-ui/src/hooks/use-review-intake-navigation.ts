@@ -65,7 +65,7 @@ export function useReviewIntakeNavigation() {
     error,
   } = useSoftNavigationLoading({
     timeoutMs: REVIEW_START_NAVIGATION_STALL_TIMEOUT_MS,
-    // Aborting a working transition in favour of a full page load can be slower; the operator
+    // Aborting a working transition in favor of a full page load can be slower; the operator
     // chooses via the stall notice instead.
     hardNavigateOnTimeout: false,
     onTimeout: handleNavigationTimeout,

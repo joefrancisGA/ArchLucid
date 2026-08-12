@@ -23,12 +23,12 @@ export function RepeatReviewActivationPrompt(): ReactElement | null {
   const [prompt, setPrompt] = useState<RepeatReviewActivationPrompt | null>(null);
 
   useEffect(() => {
-    let cancelled = false;
+    let canceled = false;
 
     void (async () => {
       const ctx = await fetchCorePilotCommitContextCached();
 
-      if (cancelled) {
+      if (canceled) {
         return;
       }
 
@@ -43,7 +43,7 @@ export function RepeatReviewActivationPrompt(): ReactElement | null {
     })();
 
     return () => {
-      cancelled = true;
+      canceled = true;
     };
   }, []);
 

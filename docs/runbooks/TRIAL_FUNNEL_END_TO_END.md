@@ -182,7 +182,7 @@ A cross-tenant audit query for a single funnel run **must** find at least rows 1
 
 | Blocker | Why owner-only | Tracking |
 |---------|----------------|----------|
-| **Stripe live keys + webhook secret** | Real money, real chargebacks. Live keys flip behaviour in `BillingWebhookTrialActivator.OnSubscriptionActivatedAsync` and the Marketplace publisher row in customer statements. | `docs/PENDING_QUESTIONS.md` item 9, item 22 |
+| **Stripe live keys + webhook secret** | Real money, real chargebacks. Live keys flip behavior in `BillingWebhookTrialActivator.OnSubscriptionActivatedAsync` and the Marketplace publisher row in customer statements. | `docs/PENDING_QUESTIONS.md` item 9, item 22 |
 | **Marketplace publisher legal entity name** | Appears on customer statements; must match the legal entity on Partner Center. | `docs/PENDING_QUESTIONS.md` item 22 |
 | **DNS cutover for `archlucid.net` / `staging.archlucid.net`** | Front Door custom domain validation + cert provisioning + downstream MX / DKIM. | `docs/PENDING_QUESTIONS.md` Resolved row "DNS / TLS" |
 | **Trial signup feature flag in production** | Throwing the funnel open to anonymous traffic without rate-limit pre-warming risks SQL pressure on shared catalogs. | `Trial:SignupEnabled` in `appsettings.SaaS.json` overlay |

@@ -64,7 +64,7 @@ export function useNewRunWizardMode(baselineFirst: boolean) {
       return;
     }
 
-    let cancelled = false;
+    let canceled = false;
 
     void (async () => {
       try {
@@ -77,7 +77,7 @@ export function useNewRunWizardMode(baselineFirst: boolean) {
         const page = await listRunsByProjectPaged("default", 1, 50);
         const anyCommitted = page.items.some((r) => r.hasGoldenManifest === true);
 
-        if (!cancelled && !modeChosenRef.current) {
+        if (!canceled && !modeChosenRef.current) {
           setWizardMode(
             resolveFirstRunWizardMode({
               hasCommittedManifest: anyCommitted,
@@ -86,7 +86,7 @@ export function useNewRunWizardMode(baselineFirst: boolean) {
           );
         }
       } catch {
-        if (!cancelled && !modeChosenRef.current) {
+        if (!canceled && !modeChosenRef.current) {
           setWizardMode("quick");
         }
       }

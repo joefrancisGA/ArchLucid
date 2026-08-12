@@ -52,24 +52,24 @@ export function ExecutiveSqlBackupRegionVerificationCard() {
   const [loadFailed, setLoadFailed] = useState(false);
 
   useEffect(() => {
-    let cancelled = false;
+    let canceled = false;
 
     void (async () => {
       try {
         const data = await fetchSqlBackupRegionVerification();
 
-        if (!cancelled) {
+        if (!canceled) {
           setVerification(data);
         }
       } catch {
-        if (!cancelled) {
+        if (!canceled) {
           setLoadFailed(true);
         }
       }
     })();
 
     return () => {
-      cancelled = true;
+      canceled = true;
     };
   }, []);
 

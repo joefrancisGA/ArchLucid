@@ -9,11 +9,11 @@
 > log lines after that fix lands.
 
 > Workflow run: `28828296262`, workflow **CI**, branch `RC7`, `workflow_dispatch`,
-> **conclusion: cancelled** (job-level `timeout-minutes: 90` fired — this run predates the shard-2 fix
+> **conclusion: canceled** (job-level `timeout-minutes: 90` fired — this run predates the shard-2 fix
 > in commit `623dc6d578`, so neither the tenant-isolation nor the OTel-console-exporter change from
 > `.cursor/prompts/fix-ci-run-2526-live-api-extended-shard2-sample-purge.md` was active here).
 > Job: `Operator UI: e2e live API + SQL (extended matrix; warn-only) [shard 3/4]`
-> (job id `85506190450`, started `2026-07-06T23:56:33Z`, cancelled `2026-07-07T01:26:50Z` — **90m17s**,
+> (job id `85506190450`, started `2026-07-06T23:56:33Z`, canceled `2026-07-07T01:26:50Z` — **90m17s**,
 > `https://github.com/joefrancisGA/ArchLucid/actions/runs/28828296262/job/85506190450`).
 > This is the **same disease as shard 2** (`SampleRunPurgeForTenant` triggered by non-isolated real-run
 > commits into the shared `DefaultTenant`), but hitting a **different set of shard-3 spec files** that
@@ -35,7 +35,7 @@ for the cheaper contract test) on **both** the original attempt and the retry:
 | 13–14 | `live-api-governance-rejection.spec.ts:46` | submit → reject → audit → UI | 8.2m ×2 |
 | 15–16 | `live-api-journey.spec.ts:56` | operator happy path (create→…→audit) | 8.2m ×2 |
 | 27–28 | `live-api-negative-paths.spec.ts:49` | governance self-approval blocked | 8.2m ×2 |
-| 33(+) | `live-api-negative-paths.spec.ts:159` | second commit → 409 conflict | 8.2m (job cancelled before its retry could even start) |
+| 33(+) | `live-api-negative-paths.spec.ts:159` | second commit → 409 conflict | 8.2m (job canceled before its retry could even start) |
 
 Every other test in the shard — `live-api-demo-screenshots`, `live-api-digest-webhook` (the one
 non-skipped test), `live-api-error-states` (all 3), `live-api-executive-board-pack`'s second
@@ -110,7 +110,7 @@ against the live ApiKey/JWT CI jobs — treat it as the Step 0 check below, not 
 execution, no parallelism within the shard) and 5–6 tests each burning 8.2m/2.0m twice (attempt +
 retry), the cumulative wall time exceeds 90 minutes before the shard's remaining tests can run, so
 GitHub Actions cancels the whole job rather than letting Playwright's own timeout/reporter finish
-cleanly — hence `conclusion: cancelled`, not `failure`, and no final pass/fail summary or artifacts
+cleanly — hence `conclusion: canceled`, not `failure`, and no final pass/fail summary or artifacts
 report for the tests that never got to start.
 
 ### Note: the OTel console-exporter fix was not active for this run

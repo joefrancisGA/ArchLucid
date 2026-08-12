@@ -150,12 +150,12 @@ export function GovernanceOverviewPanel(props: GovernanceOverviewPanelProps): Re
   }, []);
 
   useEffect(() => {
-    let cancelled = false;
+    let canceled = false;
 
-    void loadOverview({ isCancelled: () => cancelled });
+    void loadOverview({ isCancelled: () => canceled });
 
     return () => {
-      cancelled = true;
+      canceled = true;
     };
   }, [loadOverview]);
 

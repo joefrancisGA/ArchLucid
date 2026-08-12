@@ -59,13 +59,13 @@ function findDuplicateLiteralGroups(): readonly string[] {
     .sort();
 }
 
-describe("status colour tokens (TB-1677)", () => {
+describe("status color tokens (TB-1677)", () => {
   /**
-   * Two status tokens holding the same literal colour render identically while drifting
+   * Two status tokens holding the same literal color render identically while drifting
    * independently — a later tweak to one silently splits states that were meant to match.
    * Deliberate sharing must be written as `var(--other-token)` so the intent is explicit.
    */
-  it("declares each status colour once and expresses sharing as an alias", () => {
+  it("declares each status color once and expresses sharing as an alias", () => {
     expect(findDuplicateLiteralGroups()).toEqual([]);
   });
 

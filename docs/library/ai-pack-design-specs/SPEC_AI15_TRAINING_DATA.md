@@ -133,4 +133,4 @@ A: No. Copyright clearance and GDPR compliance for training data require legal r
 | Doc | Purpose |
 |-----|---------|
 | [`SPEC_AI03_AZURE_OPENAI_FOUNDRY.md`](SPEC_AI03_AZURE_OPENAI_FOUNDRY.md) | Fine-tune storage complement |
-| [`SPEC_AI14_MITRE_ATLAS.md`](SPEC_AI14_MITRE_ATLAS.md) | Data poisoning defence complement |
+| [`SPEC_AI14_MITRE_ATLAS.md`](SPEC_AI14_MITRE_ATLAS.md) | Data poisoning defense complement |

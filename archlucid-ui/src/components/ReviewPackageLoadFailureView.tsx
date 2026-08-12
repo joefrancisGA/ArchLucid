@@ -113,10 +113,10 @@ export function ReviewPackageLoadFailureView(props: ReviewPackageLoadFailureView
       return;
     }
 
-    let cancelled = false;
+    let canceled = false;
 
     const tick = async () => {
-      if (cancelled) {
+      if (canceled) {
         return;
       }
 
@@ -129,7 +129,7 @@ export function ReviewPackageLoadFailureView(props: ReviewPackageLoadFailureView
 
       const loaded = await tryLoadRun();
 
-      if (cancelled) {
+      if (canceled) {
         return;
       }
 
@@ -144,7 +144,7 @@ export function ReviewPackageLoadFailureView(props: ReviewPackageLoadFailureView
     const intervalId = window.setInterval(() => void tick(), PENDING_POLL_MS);
 
     return () => {
-      cancelled = true;
+      canceled = true;
       window.clearInterval(intervalId);
     };
   }, [phase, pendingStartedAt, router, tryLoadRun]);

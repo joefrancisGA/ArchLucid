@@ -13,7 +13,7 @@
   "rules": [
     {
       "id": "soc2-001",
-      "title": "Logical access restricted to authorised users",
+      "title": "Logical access restricted to authorized users",
       "description": "Production systems must document how logical access is granted, reviewed, and revoked \u2014 role assignments should follow least privilege for operators and workloads.",
       "severity": "Critical",
       "priority": "P0",
@@ -220,7 +220,7 @@
       "description": "Material risks (data sensitivity, threat exposure, third-party reliance) should be reflected in architecture decisions \u2014 not only in external risk registers disconnected from the manifest.",
       "severity": "Medium",
       "priority": "P1",
-      "remediationGuidance": "Summarise key risks and mitigations in metadata.ChangeDescription; tag high-risk datastores and external dependencies in governance.ComplianceTags.",
+      "remediationGuidance": "Summarize key risks and mitigations in metadata.ChangeDescription; tag high-risk datastores and external dependencies in governance.ComplianceTags.",
       "evidenceHints": [
         "metadata.ChangeDescription",
         "governance.ComplianceTags",

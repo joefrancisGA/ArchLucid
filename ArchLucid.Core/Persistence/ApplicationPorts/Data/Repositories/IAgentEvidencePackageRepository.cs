@@ -13,7 +13,7 @@ public interface IAgentEvidencePackageRepository
 {
     /// <summary>Persists a new evidence package.</summary>
     /// <param name="evidencePackage">The package to create.</param>
-    /// <param name="cancellationToken">Propagates notification that the operation should be cancelled.</param>
+    /// <param name="cancellationToken">Propagates notification that the operation should be canceled.</param>
     Task CreateAsync(
         AgentEvidencePackage evidencePackage,
         CancellationToken cancellationToken = default,
@@ -24,7 +24,7 @@ public interface IAgentEvidencePackageRepository
     ///     Returns the evidence package for the specified run, or <see langword="null" /> when none exists.
     /// </summary>
     /// <param name="runId">The run whose evidence package is requested.</param>
-    /// <param name="cancellationToken">Propagates notification that the operation should be cancelled.</param>
+    /// <param name="cancellationToken">Propagates notification that the operation should be canceled.</param>
     Task<AgentEvidencePackage?> GetByRunIdAsync(
         string runId,
         CancellationToken cancellationToken = default);

@@ -72,20 +72,20 @@ export function ItsmOutboundCreateIssueDialog({
       return undefined;
     }
 
-    let cancelled = false;
+    let canceled = false;
 
     void (async () => {
       try {
         await reloadCorrelations();
       } catch {
-        if (!cancelled) {
+        if (!canceled) {
           setCorrelationsLoaded(true);
         }
       }
     })();
 
     return () => {
-      cancelled = true;
+      canceled = true;
     };
   }, [findingId, nativeCreateEnabled, reloadCorrelations]);
 

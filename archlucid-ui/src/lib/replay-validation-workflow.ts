@@ -11,7 +11,7 @@ export type ReplayValidationOutcome =
   | "invalid"
   | "incomplete"
   | "failed"
-  | "cancelled";
+  | "canceled";
 
 export type ReplayValidationModeDefinition = {
   readonly mode: ReplayValidationModeId;
@@ -125,7 +125,7 @@ export function replayValidationOutcomeLabel(outcome: ReplayValidationOutcome): 
       return "Incomplete";
     case "failed":
       return "Failed";
-    case "cancelled":
+    case "canceled":
       return "Cancelled";
     default: {
       const exhaustive: never = outcome;
@@ -137,9 +137,9 @@ export function replayValidationOutcomeLabel(outcome: ReplayValidationOutcome): 
 export function deriveReplayValidationOutcome(params: {
   readonly response: ReplayResponse | null;
   readonly failure: ApiLoadFailureState | null;
-  readonly cancelled?: boolean;
+  readonly canceled?: boolean;
 }): ReplayValidationOutcome | null {
-  if (params.cancelled === true) {
+  if (params.canceled === true) {
     return "cancelled";
   }
 

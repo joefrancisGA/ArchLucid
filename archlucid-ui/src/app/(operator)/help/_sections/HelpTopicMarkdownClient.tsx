@@ -25,7 +25,7 @@ export function HelpTopicMarkdownClient(props: HelpTopicMarkdownClientProps): Re
   const [state, setState] = useState<LoadState>({ status: "loading" });
 
   useEffect(() => {
-    let cancelled = false;
+    let canceled = false;
 
     async function loadMarkdown(): Promise<void> {
       try {
@@ -44,7 +44,7 @@ export function HelpTopicMarkdownClient(props: HelpTopicMarkdownClientProps): Re
         });
 
         if (!response.ok) {
-          if (!cancelled) {
+          if (!canceled) {
             setState({ status: "error" });
           }
 
@@ -53,11 +53,11 @@ export function HelpTopicMarkdownClient(props: HelpTopicMarkdownClientProps): Re
 
         const article = (await response.json()) as HelpArticleResponse;
 
-        if (!cancelled) {
+        if (!canceled) {
           setState({ status: "loaded", markdown: article.markdown });
         }
       } catch {
-        if (!cancelled) {
+        if (!canceled) {
           setState({ status: "error" });
         }
       }
@@ -66,7 +66,7 @@ export function HelpTopicMarkdownClient(props: HelpTopicMarkdownClientProps): Re
     void loadMarkdown();
 
     return () => {
-      cancelled = true;
+      canceled = true;
     };
   }, [props.entry.slug]);
 

@@ -107,7 +107,7 @@ export default function RiskExceptionsClient() {
   }, []);
 
   useEffect(() => {
-    let cancelled = false;
+    let canceled = false;
 
     void (async () => {
       setLoadError(null);
@@ -115,14 +115,14 @@ export default function RiskExceptionsClient() {
       try {
         await reload();
       } catch (error: unknown) {
-        if (!cancelled) {
+        if (!canceled) {
           setLoadError(error instanceof Error ? error.message : "Failed to load risk exceptions.");
         }
       }
     })();
 
     return () => {
-      cancelled = true;
+      canceled = true;
     };
   }, [reload]);
 

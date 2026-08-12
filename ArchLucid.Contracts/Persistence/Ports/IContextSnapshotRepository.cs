@@ -16,7 +16,7 @@ public interface IContextSnapshotRepository
     ///     or <see langword="null" /> when none exists.
     /// </summary>
     /// <param name="projectId">Project slug or identifier to query.</param>
-    /// <param name="ct">Propagates notification that the operation should be cancelled.</param>
+    /// <param name="ct">Propagates notification that the operation should be canceled.</param>
     Task<ContextSnapshot?> GetLatestAsync(string projectId, CancellationToken ct);
 
     /// <summary>
@@ -24,7 +24,7 @@ public interface IContextSnapshotRepository
     ///     or <see langword="null" /> when not found.
     /// </summary>
     /// <param name="snapshotId">Primary key of the snapshot.</param>
-    /// <param name="ct">Propagates notification that the operation should be cancelled.</param>
+    /// <param name="ct">Propagates notification that the operation should be canceled.</param>
     Task<ContextSnapshot?> GetByIdAsync(ReadScopeTriple scope, Guid snapshotId, CancellationToken ct);
 
     /// <summary>
@@ -32,7 +32,7 @@ public interface IContextSnapshotRepository
     ///     and <paramref name="transaction" /> to participate in a multi-statement transaction.
     /// </summary>
     /// <param name="snapshot">The snapshot to persist.</param>
-    /// <param name="ct">Propagates notification that the operation should be cancelled.</param>
+    /// <param name="ct">Propagates notification that the operation should be canceled.</param>
     /// <param name="connection">Optional open connection to reuse.</param>
     /// <param name="transaction">Optional transaction to enlist in.</param>
     Task SaveAsync(

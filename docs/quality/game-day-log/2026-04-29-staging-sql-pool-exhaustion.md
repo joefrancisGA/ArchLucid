@@ -13,7 +13,7 @@
 | **RTO/RPO target (staging)** | RTO ≤ **4h**, RPO ≤ **1h** ([RTO_RPO_TARGETS.md](../../library/RTO_RPO_TARGETS.md)) |
 | **Workflow run** | _Paste GitHub Actions run URL after `simmy-chaos-scheduled.yml` (or manual `dotnet test` evidence if workflow skipped)._ |
 
-## Expected behaviour (validate / correct during close-out)
+## Expected behavior (validate / correct during close-out)
 
 Per [`README.md`](README.md) § first-run scenario:
 

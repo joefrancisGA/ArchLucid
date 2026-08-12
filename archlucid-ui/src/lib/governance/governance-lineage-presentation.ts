@@ -98,7 +98,7 @@ export function governanceLineageReviewCheckpointStatusTagPresentation(
   if (
     normalized === "failed" ||
     normalized === "executioncompletedqualityrejected" ||
-    normalized === "cancelled" ||
+    normalized === "canceled" ||
     normalized === "canceled"
   ) {
     return { kind: "blocked", label: status.trim().length > 0 ? status.trim() : "Failed" };

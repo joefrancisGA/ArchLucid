@@ -32,7 +32,7 @@ Implement as unit/integration tests with clear names. For each: attacker goal, s
 6. **Race: simultaneous confirm** — two confirms for same external key → one wins, one fails safely (no dual attach).
 7. **Remove last sign-in method** — cannot leave user with zero recovery paths when SSO-enforced / policy forbids (align with `SignInMethodRemovalPolicyService`).
 8. **Link then SSO bypass** — linking email OTP must not defeat `RequireEnterpriseSso` for enforced domains (coordinate with step 04 if needed; add failing test here if gap found).
-9. **Stale proposal** — expired/cancelled proposal cannot confirm.
+9. **Stale proposal** — expired/canceled proposal cannot confirm.
 10. **Actor mismatch** — confirm/cancel with wrong `userId` / actor rejected.
 
 ## What to build

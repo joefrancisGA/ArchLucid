@@ -106,7 +106,7 @@ export function useAdminPrerequisitesReadiness(enabled: boolean): AdminPrerequis
       return;
     }
 
-    let cancelled = false;
+    let canceled = false;
 
     void (async () => {
       setPhase("loading");
@@ -130,7 +130,7 @@ export function useAdminPrerequisitesReadiness(enabled: boolean): AdminPrerequis
         fetchBillingSubscriptionStatus().catch(() => null),
       ]);
 
-      if (!cancelled) {
+      if (!canceled) {
         setInput({
           finishSetupContext: {
             healthReady,

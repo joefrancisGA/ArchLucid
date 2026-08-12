@@ -13,7 +13,7 @@ const PROOF_CONFIDENCE_DETAILS: Record<string, string> = {
   [PROOF_CONFIDENCE_LABELS["partial-real-mode"]]:
     "Some steps ran live and some fell back to deterministic analysis — check exceptions before quoting results to a sponsor.",
   [PROOF_CONFIDENCE_LABELS["simulator-only"]]:
-    "This review ran on deterministic analysis only. Treat it as a rehearsal, not evidence of live behaviour.",
+    "This review ran on deterministic analysis only. Treat it as a rehearsal, not evidence of live behavior.",
   [PROOF_CONFIDENCE_LABELS.unknown]:
     "This review has no recorded proof classification, so the strength of its evidence cannot be asserted.",
 };

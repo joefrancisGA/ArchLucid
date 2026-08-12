@@ -77,7 +77,7 @@ export function WelcomeBanner() {
       return;
     }
 
-    let cancelled = false;
+    let canceled = false;
 
     void (async () => {
       try {
@@ -86,14 +86,14 @@ export function WelcomeBanner() {
           mergeRegistrationScopeForProxy({ headers: { Accept: "application/json" } }),
         );
 
-        if (!cancelled && res.ok) {
+        if (!canceled && res.ok) {
           const json = (await res.json()) as TrialStatusPayload;
           setTrial(json);
         }
       } catch {
         /* ignore */
       } finally {
-        if (!cancelled) {
+        if (!canceled) {
           setTrialStatusResolved(true);
         }
       }
@@ -112,26 +112,26 @@ export function WelcomeBanner() {
 
         const next = items.length > 0;
 
-        if (cancelled) {
+        if (canceled) {
           return;
         }
 
         setHasExistingRuns(next);
         writeHasExistingRunsCache(next);
       } catch {
-        if (!cancelled) {
+        if (!canceled) {
           setHasExistingRuns(false);
           writeHasExistingRunsCache(false);
         }
       } finally {
-        if (!cancelled) {
+        if (!canceled) {
           setRunsPresenceResolved(true);
         }
       }
     })();
 
     return () => {
-      cancelled = true;
+      canceled = true;
     };
   }, [hydrated, dismissed]);
 

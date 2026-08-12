@@ -12,7 +12,7 @@
 
 - **Deterministic decisioning stays deterministic** — RAG enriches narrative and citations; `RuleBasedDecisionEngine` rule fire is unchanged.
 - **Manifest hash / replay verify** — retrieved chunks are **prompt context only** unless snapshotted with content hashes for verify mode (see **RAG-V1-000**).
-- **Tenant isolation** — tenant-bound corpora require `TenantId` / `WorkspaceId` / `ProjectId` filters on index **and** query (defence in depth). Cross-tenant text retrieval is **forbidden** outside [ADR 0031](../architecture/adrs/0031-cross-tenant-pattern-library.md) k-anonymous aggregates (not embedding-RAG).
+- **Tenant isolation** — tenant-bound corpora require `TenantId` / `WorkspaceId` / `ProjectId` filters on index **and** query (defense in depth). Cross-tenant text retrieval is **forbidden** outside [ADR 0031](../architecture/adrs/0031-cross-tenant-pattern-library.md) k-anonymous aggregates (not embedding-RAG).
 - **ADR 0004** — indexing enqueue stays inside the authority-commit SQL transaction where supported.
 - **ADR 0005** — embedding and completion calls stay inside the existing quota / circuit-breaker / cache pipeline.
 

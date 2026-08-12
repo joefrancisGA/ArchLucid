@@ -29,7 +29,7 @@ function outcomeKind(
     case "invalid":
     case "failed":
       return "blocked";
-    case "cancelled":
+    case "canceled":
     case null:
       return "neutral";
     default: {

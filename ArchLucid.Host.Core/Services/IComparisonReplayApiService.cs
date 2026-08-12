@@ -15,7 +15,7 @@ public interface IComparisonReplayApiService
     /// <param name="metadataOnly">
     /// When <see langword="true"/>, only metadata is returned and artifact re-generation is skipped.
     /// </param>
-    /// <param name="cancellationToken">Propagates notification that the operation should be cancelled.</param>
+    /// <param name="cancellationToken">Propagates notification that the operation should be canceled.</param>
     /// <returns>The replay result from the underlying service.</returns>
     /// <exception cref="InvalidOperationException">Propagated when the comparison record is invalid.</exception>
     Task<ReplayComparisonResult> ReplayAsync(
@@ -26,7 +26,7 @@ public interface IComparisonReplayApiService
     /// <summary>
     /// Runs drift analysis for an existing comparison record.
     /// </summary>
-    /// <param name="comparisonRecordId">Identifier of the comparison record to analyse.</param>
+    /// <param name="comparisonRecordId">Identifier of the comparison record to analyze.</param>
     /// <param name="cancellationToken">Propagates notification that the operation should be cancelled.</param>
     /// <returns>The drift analysis result.</returns>
     Task<DriftAnalysisResult> AnalyzeDriftAsync(

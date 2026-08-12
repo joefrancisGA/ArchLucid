@@ -78,18 +78,18 @@ export function FindingInspectContextDebugPanel(props: FindingInspectContextDebu
         setLlmAudit(auditResult);
         setLoadedForFindingId(findingId.trim());
       } catch (error: unknown) {
-        if (!cancelled) {
+        if (!canceled) {
           setFailure(toApiLoadFailure(error));
         }
       } finally {
-        if (!cancelled) {
+        if (!canceled) {
           setLoading(false);
         }
       }
     })();
 
     return () => {
-      cancelled = true;
+      canceled = true;
     };
   }, [enabled, findingId, loadedForFindingId, runId]);
 

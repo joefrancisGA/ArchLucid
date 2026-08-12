@@ -172,18 +172,18 @@ export function LlmCostCommandCenterSummaryCard(props: {
       try {
         const status = await fetchLlmMonthlyDollarBudgetStatusCached();
 
-        if (!cancelled) {
+        if (!canceled) {
           setBudgetStatus(status);
         }
       } catch {
-        if (!cancelled) {
+        if (!canceled) {
           setBudgetStatus(null);
         }
       }
     })();
 
     return () => {
-      cancelled = true;
+      canceled = true;
     };
   }, []);
 

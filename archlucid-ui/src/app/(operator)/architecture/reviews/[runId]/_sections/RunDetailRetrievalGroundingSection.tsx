@@ -26,24 +26,24 @@ export function RunDetailRetrievalGroundingSection(props: RunDetailRetrievalGrou
       try {
         const response = await getRunRetrievalGrounding(props.runId);
 
-        if (!cancelled) {
+        if (!canceled) {
           setPayload(response.data);
           setFailure(null);
         }
       } catch (error: unknown) {
-        if (!cancelled) {
+        if (!canceled) {
           setPayload(null);
           setFailure(toApiLoadFailure(error));
         }
       } finally {
-        if (!cancelled) {
+        if (!canceled) {
           setLoading(false);
         }
       }
     })();
 
     return () => {
-      cancelled = true;
+      canceled = true;
     };
   }, [props.runId]);
 

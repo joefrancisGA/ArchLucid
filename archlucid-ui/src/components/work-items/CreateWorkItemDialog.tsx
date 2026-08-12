@@ -210,14 +210,14 @@ export function CreateWorkItemDialog(props: CreateWorkItemDialogProps): React.JS
       try {
         await reloadCorrelations();
       } catch {
-        if (!cancelled) {
+        if (!canceled) {
           setCorrelationsLoaded(true);
         }
       }
     })();
 
     return () => {
-      cancelled = true;
+      canceled = true;
     };
   }, [props.open, providerSnapshots, reloadCorrelations]);
 

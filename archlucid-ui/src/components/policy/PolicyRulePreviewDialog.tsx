@@ -108,22 +108,22 @@ export function PolicyRulePreviewDialog(props: PolicyRulePreviewDialogProps): Re
             packVersion,
           });
 
-        if (!cancelled) {
+        if (!canceled) {
           setPreview(resolved);
         }
       } catch (error) {
-        if (!cancelled) {
+        if (!canceled) {
           setLoadError(error instanceof Error ? error.message : "Could not load policy pack content.");
         }
       } finally {
-        if (!cancelled) {
+        if (!canceled) {
           setLoading(false);
         }
       }
     })();
 
     return () => {
-      cancelled = true;
+      canceled = true;
     };
   }, [open, ruleId, ruleLabel, packId, packName, packVersion, initialPreview]);
 

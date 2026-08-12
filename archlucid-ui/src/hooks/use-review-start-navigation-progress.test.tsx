@@ -96,7 +96,7 @@ describe("useReviewStartNavigationProgress", () => {
 
     expect(result.current.stalled).toBe(true);
     expect(result.current.isPending).toBe(false);
-    // Chrome stays up: the pending navigation was not cancelled by giving up on the wait.
+    // Chrome stays up: the pending navigation was not canceled by giving up on the wait.
     expect(result.current.isActive).toBe(true);
   });
 

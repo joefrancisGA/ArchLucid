@@ -23,12 +23,12 @@ export function DataArchivalDegradedBanner() {
       return;
     }
 
-    let cancelled = false;
+    let canceled = false;
 
     async function load() {
       const ready = await fetchHealthReadySummary();
 
-      if (cancelled) {
+      if (canceled) {
         return;
       }
 
@@ -38,7 +38,7 @@ export function DataArchivalDegradedBanner() {
     void load();
 
     return () => {
-      cancelled = true;
+      canceled = true;
     };
   }, []);
 

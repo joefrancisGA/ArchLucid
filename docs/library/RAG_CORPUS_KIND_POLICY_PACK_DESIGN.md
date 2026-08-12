@@ -17,7 +17,7 @@ Add a typed **corpus seam** to the existing `ArchLucid.Retrieval` stack and ship
 - Policy-pack rules from `templates/policy-packs/**/compliance-rules.json` are embedded and searchable.
 - `ComplianceAgentHandler` prepends retrieved controls to the user prompt (fail-open on retrieval errors).
 - Tenant A never sees tenant B's tenant-scoped chunks; platform chunks are visible to all tenants when opted in.
-- Manifest hash / replay verify behaviour is unchanged (retrieval is prompt context only).
+- Manifest hash / replay verify behavior is unchanged (retrieval is prompt context only).
 
 ---
 
@@ -262,7 +262,7 @@ services.AddHostedService<PolicyPackCorpusStartupIndexerHostedService>();
 | `InMemoryVectorIndexPlatformCorpusTests` | `IncludePlatformCorpora = false` excludes platform chunks; `true` includes them; no cross-tenant leakage |
 | `ComplianceAgentHandlerRetrievalTests` | Pre-seeded rule appears in prompt with `ruleId` + description |
 | `ComplianceAgentHandlerNoRetrievalTests` | Empty index; run completes; prompt notes grounding unavailable |
-| Regression | Existing tests pass — defaults preserve prior behaviour |
+| Regression | Existing tests pass — defaults preserve prior behavior |
 
 ---
 

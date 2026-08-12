@@ -33,7 +33,7 @@ export function WhyArchLucidPage() {
   const [state, setState] = useState<WhyArchLucidPageState>(initialWhyArchLucidPageState);
 
   useEffect(() => {
-    let cancelled = false;
+    let canceled = false;
 
     async function loadAll(): Promise<void> {
       let snapshot: WhyArchLucidSnapshot | null = null;
@@ -89,7 +89,7 @@ export function WhyArchLucidPage() {
         }
       }
 
-      if (cancelled) return;
+      if (canceled) return;
 
       setState({
         snapshot,
@@ -110,7 +110,7 @@ export function WhyArchLucidPage() {
     void loadAll();
 
     return () => {
-      cancelled = true;
+      canceled = true;
     };
   }, []);
 

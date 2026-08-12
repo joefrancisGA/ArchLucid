@@ -85,7 +85,7 @@ export function ItsmAtlassianOAuthCallbackClient(): React.ReactElement {
   const [workspaceLabel, setWorkspaceLabel] = useState<string | null>(null);
 
   useEffect(() => {
-    let cancelled = false;
+    let canceled = false;
 
     const oauthError = searchParams.get("error");
     const oauthErrorDescription = searchParams.get("error_description");
@@ -97,7 +97,7 @@ export function ItsmAtlassianOAuthCallbackClient(): React.ReactElement {
       kind: ItsmAtlassianOAuthCallbackFailureKind,
       referenceId?: string | null,
     ) => {
-      if (cancelled) {
+      if (canceled) {
         return;
       }
 
@@ -115,7 +115,7 @@ export function ItsmAtlassianOAuthCallbackClient(): React.ReactElement {
       fail(mapItsmAtlassianOAuthIdpError(oauthError, oauthErrorDescription), "idp-denial");
 
       return () => {
-        cancelled = true;
+        canceled = true;
       };
     }
 
@@ -123,7 +123,7 @@ export function ItsmAtlassianOAuthCallbackClient(): React.ReactElement {
       fail(ITSM_ATLASSIAN_OAUTH_CALLBACK_INCOMPLETE_RESPONSE, "incomplete-response");
 
       return () => {
-        cancelled = true;
+        canceled = true;
       };
     }
 
@@ -136,7 +136,7 @@ export function ItsmAtlassianOAuthCallbackClient(): React.ReactElement {
           { correlationId: requestCorrelationId },
         );
 
-        if (cancelled) {
+        if (canceled) {
           return;
         }
 
@@ -153,7 +153,7 @@ export function ItsmAtlassianOAuthCallbackClient(): React.ReactElement {
         setPhase("success");
         setMessage(ITSM_ATLASSIAN_OAUTH_CALLBACK_SUCCESS_MESSAGE);
       } catch (error: unknown) {
-        if (!cancelled) {
+        if (!canceled) {
           const referenceId = isApiRequestError(error)
             ? error.correlationId ?? requestCorrelationId
             : requestCorrelationId;
@@ -163,7 +163,7 @@ export function ItsmAtlassianOAuthCallbackClient(): React.ReactElement {
     })();
 
     return () => {
-      cancelled = true;
+      canceled = true;
     };
   }, [searchParams]);
 

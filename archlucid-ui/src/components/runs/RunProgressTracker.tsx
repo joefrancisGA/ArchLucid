@@ -195,7 +195,7 @@ export function RunProgressTracker({
       try {
         const timeline = await getRunStageTimeline(runId);
 
-        if (!cancelled) {
+        if (!canceled) {
           setStageTimeline(timeline);
         }
       } catch {
@@ -206,7 +206,7 @@ export function RunProgressTracker({
     void fetchTimeline();
 
     return () => {
-      cancelled = true;
+      canceled = true;
     };
   }, [buyerAssessmentCopy, clientPhase, pollEnabled, pollSession, preFinalizeTerminal, runId, summary]);
 

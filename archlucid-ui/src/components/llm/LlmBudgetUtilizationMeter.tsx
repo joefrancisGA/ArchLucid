@@ -41,19 +41,19 @@ export function LlmBudgetUtilizationMeter(props: LlmBudgetUtilizationMeterProps)
           setStatus(data);
         }
       } catch {
-        if (!cancelled) {
+        if (!canceled) {
           setStatus(null);
           setLoadError(true);
         }
       } finally {
-        if (!cancelled) {
+        if (!canceled) {
           setLoading(false);
         }
       }
     })();
 
     return () => {
-      cancelled = true;
+      canceled = true;
     };
   }, [props.refreshToken]);
 

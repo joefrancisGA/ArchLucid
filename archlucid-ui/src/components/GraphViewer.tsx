@@ -163,17 +163,17 @@ function GraphFitViewSync({
       return;
     }
 
-    let cancelled = false;
+    let canceled = false;
     const outer = window.requestAnimationFrame(() => {
       window.requestAnimationFrame(() => {
-        if (!cancelled) {
+        if (!canceled) {
           void fitView({ padding, maxZoom, duration: 260 });
         }
       });
     });
 
     return () => {
-      cancelled = true;
+      canceled = true;
       window.cancelAnimationFrame(outer);
     };
   }, [nodeCount, edgeCount, presentationKey, padding, maxZoom, fitView]);
@@ -318,11 +318,11 @@ export function GraphViewer({
       return;
     }
 
-    let cancelled = false;
+    let canceled = false;
 
     const outer = window.requestAnimationFrame(() => {
       window.requestAnimationFrame(() => {
-        if (!cancelled) {
+        if (!canceled) {
           setInteractiveSurfaceReady(true);
           onInteractiveSurfaceReady?.();
         }
@@ -330,7 +330,7 @@ export function GraphViewer({
     });
 
     return () => {
-      cancelled = true;
+      canceled = true;
       window.cancelAnimationFrame(outer);
     };
   }, [filtered.nodes.length, filtered.edges.length, flowPresentation, onInteractiveSurfaceReady]);

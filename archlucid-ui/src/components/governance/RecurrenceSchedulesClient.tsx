@@ -190,7 +190,7 @@ export default function RecurrenceSchedulesClient() {
   }, []);
 
   useEffect(() => {
-    let cancelled = false;
+    let canceled = false;
 
     void (async () => {
       setLoadError(null);
@@ -198,14 +198,14 @@ export default function RecurrenceSchedulesClient() {
       try {
         await reload();
       } catch (error: unknown) {
-        if (!cancelled) {
+        if (!canceled) {
           setLoadError(error instanceof Error ? error.message : "Failed to load recurrence schedules.");
         }
       }
     })();
 
     return () => {
-      cancelled = true;
+      canceled = true;
     };
   }, [reload]);
 

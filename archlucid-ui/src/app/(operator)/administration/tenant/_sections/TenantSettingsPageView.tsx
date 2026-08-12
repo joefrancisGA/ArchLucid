@@ -182,7 +182,7 @@ export function TenantSettingsPageView(props: Props) {
       >
         <p className={cn("mb-4 text-al-text-secondary", OPERATOR_TYPOGRAPHY.body)}>
           Configure how strictly ArchLucid evaluates generated review output before it is accepted. These settings affect
-          AI spend and review pipeline behaviour — leave at host defaults unless directed by support.
+          AI spend and review pipeline behavior — leave at host defaults unless directed by support.
         </p>
         <div className="space-y-4">
           <TenantLlmJudgeGuideCard />

@@ -87,7 +87,7 @@ That is **17 assertions** with clear failure messages — strong floor.
 | Proposed assertion | Why |
 |---|---|
 | `OneTopLevelPublicTypePerFile` | Repo rule "each class must be in its own file" — currently convention-only. Source scan over `*.cs` (skip `obj/`, `bin/`, generated-by-csproj). |
-| `NoSiblingPersistenceCircularReferences` | Confirm the persistence sub-module DAG is acyclic by graph-walking the references at test time (defence in depth on top of Tier 2). |
+| `NoSiblingPersistenceCircularReferences` | Confirm the persistence sub-module DAG is acyclic by graph-walking the references at test time (defense in depth on top of Tier 2). |
 
 ## How to add a new assertion (3 steps)
 

@@ -32,7 +32,7 @@
 
 4. **Demo language leaks into live surfaces** — "demo integrity tools" appears in the production audit trail note; "seeded Claims Intake review" appears in Why ArchLucid copy; "Demo-derived sample" appears as a badge on the home page; "Simulator mode" appears as a trust badge on actual review records.
 
-5. **"Sponsor" as a noun qualifier** — "Sponsor value report" (page title), various "sponsor-facing" source attribution strings, and "sponsor pack" references use internal sales-framing terminology that enterprise IT governance leads do not recognise as standard product language.
+5. **"Sponsor" as a noun qualifier** — "Sponsor value report" (page title), various "sponsor-facing" source attribution strings, and "sponsor pack" references use internal sales-framing terminology that enterprise IT governance leads do not recognize as standard product language.
 
 ---
 

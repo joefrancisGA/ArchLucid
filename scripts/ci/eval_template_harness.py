@@ -16,7 +16,7 @@ Two modes, sharing the scenario + rubric schema in tests/eval-corpus/templates-p
              otherwise always exits 0 (inform-only).
 
 Use --enforce in nightly / RC jobs once the first inform-only baseline confirms
-the scenarios match actual agent behaviour. PR CI should run in score mode
+the scenarios match actual agent behavior. PR CI should run in score mode
 without --enforce until then.
 """
 

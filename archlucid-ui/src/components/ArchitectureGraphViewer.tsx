@@ -117,7 +117,7 @@ export function ArchitectureGraphViewer(props: ArchitectureGraphViewerProps) {
   }, [useTemporal, asOfUserMs, maxMs]);
 
   useEffect(() => {
-    let cancelled = false;
+    let canceled = false;
     const rid = props.runId.trim();
 
     async function runLoad(): Promise<void> {
@@ -128,7 +128,7 @@ export function ArchitectureGraphViewer(props: ArchitectureGraphViewerProps) {
       setFailure(null);
 
       if (rid.length === 0) {
-        if (!cancelled) {
+        if (!canceled) {
           setLoading(false);
         }
 
@@ -144,7 +144,7 @@ export function ArchitectureGraphViewer(props: ArchitectureGraphViewerProps) {
         const asOfIso = new Date(safeMs).toISOString();
         const result = await loadArchitectureGraphViewModelAtAsOf(rid, asOfIso);
 
-        if (cancelled) {
+        if (canceled) {
           return;
         }
 
@@ -172,7 +172,7 @@ export function ArchitectureGraphViewer(props: ArchitectureGraphViewerProps) {
 
       const result = await loadArchitectureGraphViewModel(rid);
 
-      if (cancelled) {
+      if (canceled) {
         return;
       }
 
@@ -196,7 +196,7 @@ export function ArchitectureGraphViewer(props: ArchitectureGraphViewerProps) {
     void runLoad();
 
     return () => {
-      cancelled = true;
+      canceled = true;
     };
   }, [props.runId, useTemporal, effectiveAsOfMs, minMs, maxMs]);
 

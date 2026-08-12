@@ -38,7 +38,7 @@ export interface BulkEvidenceUploadProps {
 }
 
 type BulkEvidenceUploadError = {
-  readonly kind: "max-files" | "upload-failed" | "cancelled" | "unexpected";
+  readonly kind: "max-files" | "upload-failed" | "canceled" | "unexpected";
   readonly userMessage: string;
   readonly rawDetail?: string | null;
 };
@@ -58,7 +58,7 @@ function countNonEmptyFiles(files: File[]): number {
 }
 
 function recoveryPresentationForError(error: BulkEvidenceUploadError) {
-  if (error.kind === "cancelled") {
+  if (error.kind === "canceled") {
     return BULK_EVIDENCE_UPLOAD_CANCEL_RECOVERY;
   }
 
@@ -209,8 +209,8 @@ export function BulkEvidenceUpload({ runId, embedded = false }: BulkEvidenceUplo
     } catch (uploadError) {
       if (uploadError instanceof DOMException && uploadError.name === "AbortError") {
         setError({
-          kind: "cancelled",
-          userMessage: "Upload cancelled.",
+          kind: "canceled",
+          userMessage: "Upload canceled.",
         });
       } else {
         setError({

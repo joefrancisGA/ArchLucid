@@ -44,7 +44,7 @@ When the CTO demo tour is active (`readBuyerCtoDemoTourActive() === true`) and t
 At the moment the user fires the live run, render one sentence below the trigger button (using existing `CtoDemoDataSourceBadge` or an inline note):
 > "Live mode uses Azure OpenAI — the same pipeline as a real review, just triggered now."
 
-Use `OPERATOR_TYPOGRAPHY.badge` size, neutral text, not a warning colour.
+Use `OPERATOR_TYPOGRAPHY.badge` size, neutral text, not a warning color.
 
 ## Acceptance criteria
 - A live run initiated from the fast-path shows named progress stages within 2s of submission.

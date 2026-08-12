@@ -182,7 +182,7 @@ export function PilotRoiValidationHandoffClient(props: PilotRoiValidationHandoff
   const [loadState, setLoadState] = useState<LoadState>({ status: "loading" });
 
   useEffect(() => {
-    let cancelled = false;
+    let canceled = false;
 
     async function load(): Promise<void> {
       setLoadState({ status: "loading" });
@@ -194,23 +194,23 @@ export function PilotRoiValidationHandoffClient(props: PilotRoiValidationHandoff
         const response = await fetch(url, headers);
 
         if (!response.ok) {
-          if (!cancelled) setLoadState({ status: "error" });
+          if (!canceled) setLoadState({ status: "error" });
 
           return;
         }
 
         const payload = (await response.json()) as PilotRunDeltasProofSummaryJson;
 
-        if (!cancelled) setLoadState({ status: "ok", payload });
+        if (!canceled) setLoadState({ status: "ok", payload });
       } catch {
-        if (!cancelled) setLoadState({ status: "error" });
+        if (!canceled) setLoadState({ status: "error" });
       }
     }
 
     void load();
 
     return () => {
-      cancelled = true;
+      canceled = true;
     };
   }, [runId]);
 

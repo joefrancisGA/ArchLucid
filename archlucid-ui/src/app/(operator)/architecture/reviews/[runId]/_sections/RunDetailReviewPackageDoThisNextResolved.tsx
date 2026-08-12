@@ -37,7 +37,7 @@ export function RunDetailReviewPackageDoThisNextResolved(
   const [next, setNext] = useState<ReviewPackageDoThisNext | null>(null);
 
   useEffect(() => {
-    let cancelled = false;
+    let canceled = false;
 
     void import("./resolve-review-package-do-this-next").then(({ resolveReviewPackageDoThisNext }) => {
       if (cancelled) {

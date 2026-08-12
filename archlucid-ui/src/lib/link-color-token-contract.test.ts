@@ -11,9 +11,9 @@ import {
 const SRC_ROOT = join(process.cwd(), "src");
 
 /**
- * Navigational links painting their own colour with a raw Tailwind blue (TB-1676 ratchet baseline).
+ * Navigational links painting their own color with a raw Tailwind blue (TB-1676 ratchet baseline).
  *
- * `OPERATOR_LINK.nav` and `MARKETING_SURFACES.inlineLink` both resolve link colour through
+ * `OPERATOR_LINK.nav` and `MARKETING_SURFACES.inlineLink` both resolve link color through
  * `--al-accent-link`, so a theme change moves every link at once. A literal `text-blue-700`
  * does not track the accent token or dark mode consistently — sibling links drifted across
  * `blue-600`, `blue-700`, `blue-800`, and `blue-900` for the same affordance.
@@ -67,8 +67,8 @@ function hasRawBlueLinkColour(absolute: string): boolean {
   return false;
 }
 
-describe("link colour tokens (TB-1676)", () => {
-  it("keeps raw blue link colours inside the frozen baseline", () => {
+describe("link color tokens (TB-1676)", () => {
+  it("keeps raw blue link colors inside the frozen baseline", () => {
     const offenders = collectComponentFiles(SRC_ROOT)
       .filter(hasRawBlueLinkColour)
       .map(toPosixRelativePath)

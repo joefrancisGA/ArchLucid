@@ -50,7 +50,7 @@ ADR 0010 cannot be overridden by a single "while I'm in here" refactor PR. The p
 
 ## Decision
 
-**Adopt a [strangler-fig](https://martinfowler.com/bliki/StranglerFigApplication.html) plan to retire the Coordinator interface family in favour of the Authority family**, in three sequenced phases that each deliver value independently and each gate on its own measurable evidence. Until each gate is met, the boundary stays exactly as ADR 0010 describes it.
+**Adopt a [strangler-fig](https://martinfowler.com/bliki/StranglerFigApplication.html) plan to retire the Coordinator interface family in favor of the Authority family**, in three sequenced phases that each deliver value independently and each gate on its own measurable evidence. Until each gate is met, the boundary stays exactly as ADR 0010 describes it.
 
 This ADR does **not** retire ADR 0010 on acceptance. ADR 0010 stays `Accepted` until **all three** of the following are true:
 
@@ -69,7 +69,7 @@ This ADR moves from `Proposed` → `Accepted` only when **all** of the following
 - The [`docs/archive/dual-pipeline-navigator-superseded.md`](../../archive/dual-pipeline-navigator-superseded.md) decision tree has not flagged a *new* coordinator-only event constant in those 14 days (i.e. nobody is actively extending the doomed family during the review window).
 - A run-volume parity report comparing Coordinator vs Authority p95 latency, p99 latency, audit-row counts, and replay parity on a representative tenant exists at `docs/runbooks/COORDINATOR_TO_AUTHORITY_PARITY.md`.
 
-### Phase 0 — Strangler hardening (no behaviour change)
+### Phase 0 — Strangler hardening (no behavior change)
 
 **Status:** Shipped 2026-04-20 alongside this ADR. Listed here for completeness so the timeline reads in order.
 
@@ -87,7 +87,7 @@ This ADR moves from `Proposed` → `Accepted` only when **all** of the following
 
 #### Phase 1 internal read-path inventory (incremental, 2026-04-21)
 
-The following **Application** services were migrated off **constructor injection** of `ICoordinatorGoldenManifestRepository` for manifest **reads**, in favour of `IUnifiedGoldenManifestReader` (or upstream authority read models that already hydrate the manifest):
+The following **Application** services were migrated off **constructor injection** of `ICoordinatorGoldenManifestRepository` for manifest **reads**, in favor of `IUnifiedGoldenManifestReader` (or upstream authority read models that already hydrate the manifest):
 
 | Area | Read path |
 |------|-----------|
@@ -126,7 +126,7 @@ The two regression tests below ship with this ADR's Phase 0 and pin the boundary
 - **Positive — Cognitive load (weight 4).** Day-1 contributors stop having to learn both interface families. The decision tree at the top of `docs/archive/dual-pipeline-navigator-superseded.md` becomes obsolete after Phase 3 (we can collapse the navigator to a single-pipeline page).
 - **Positive — Testability (weight 3).** A single golden-manifest read path is easier to mock and easier to property-test.
 - **Negative — Risk surface during transition.** The dual-write of audit events in Phase 2 doubles the audit row volume for the deprecation window. Plan for ~2× `dbo.AuditEvents` ingest rate; update the Grafana ingest-rate panels and the [`OBSERVABILITY.md`](../../library/OBSERVABILITY.md) ingest-budget table accordingly.
-- **Negative — Customer-visible behaviour change in Phase 2.** Customers with audit-search automations keyed on `CoordinatorRun*` constants must update; the `Sunset` header gives them one full quarter under the existing deprecation policy.
+- **Negative — Customer-visible behavior change in Phase 2.** Customers with audit-search automations keyed on `CoordinatorRun*` constants must update; the `Sunset` header gives them one full quarter under the existing deprecation policy.
 - **Operational — Backout plan.** Phase 1 is purely additive — back out by deleting `IUnifiedGoldenManifestReader`. Phase 2 is reversible until the Sunset deadline — back out by removing the new constants and the dual-write. Phase 3 is **not** reversible without restoring the deleted code from git history; require an explicit "no-rollback" sign-off on the Phase 3 PR.
 
 ## Related

@@ -18,15 +18,15 @@
 |-------|-------|
 | Assessor | ArchLucid engineering / security liaison (internal) |
 | Trigger | Quarterly assurance cadence aligned with [`PENTEST_EXTERNAL_UI_CHECKLIST.md`](../PENTEST_EXTERNAL_UI_CHECKLIST.md) and Trust Center disclosures |
-| Environments covered | Hosted SaaS **architect workspace**, **HTTPS API**, and **data-plane** behaviours observable from external posture (non-production-first where stipulated in runbooks) |
+| Environments covered | Hosted SaaS **architect workspace**, **HTTPS API**, and **data-plane** behaviors observable from external posture (non-production-first where stipulated in runbooks) |
 
 ## Scope summary
 
 Assessment scope targets **authenticated and unauthenticated** surfaces that materially affect confidentiality, integrity, and availability:
 
 - REST API (**RBAC boundaries**, injection classes, predictable resource IDs)
-- Operator web shell (**session / CSRF-relevant behaviours**, UX-only auth affordances vs server enforcement)
-- Multi-tenant **RLS-aligned** behaviours at the documented application boundary (**not** infra pentest inside Azure tenancy)
+- Operator web shell (**session / CSRF-relevant behaviors**, UX-only auth affordances vs server enforcement)
+- Multi-tenant **RLS-aligned** behaviors at the documented application boundary (**not** infra pentest inside Azure tenancy)
 
 Explicit **out-of-scope** items remain vendor platform pen-test ownership (Azure control plane compromise, certificate lifecycle on Microsoft infra) unless negotiated separately.
 

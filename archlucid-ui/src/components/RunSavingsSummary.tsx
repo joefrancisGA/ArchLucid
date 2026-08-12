@@ -22,7 +22,7 @@ function sourceBadgeLabel(sourceKind: RunSavingsSummarySourceKind): string {
   }
 
   if (sourceKind === "client-hours-estimate") {
-    return "labour-hours estimate • client coefficients";
+    return "labor-hours estimate • client coefficients";
   }
 
   if (sourceKind === "static-demo") {

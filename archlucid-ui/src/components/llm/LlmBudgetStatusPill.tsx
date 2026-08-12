@@ -87,18 +87,18 @@ export function LlmBudgetStatusPill() {
       try {
         const data = await fetchLlmMonthlyDollarBudgetStatusCached();
 
-        if (!cancelled) {
+        if (!canceled) {
           setStatus(data);
         }
       } catch {
-        if (!cancelled) {
+        if (!canceled) {
           setStatus(null);
         }
       }
     })();
 
     return () => {
-      cancelled = true;
+      canceled = true;
     };
   }, [callerAuthorityRank]);
 

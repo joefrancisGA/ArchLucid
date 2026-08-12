@@ -25,10 +25,10 @@ export function TroubleshootingStartHerePlatformStatus(): React.JSX.Element {
   });
 
   useEffect(() => {
-    let cancelled = false;
+    let canceled = false;
 
     void fetchHealthReadySummary().then((body) => {
-      if (cancelled) {
+      if (canceled) {
         return;
       }
 
@@ -41,7 +41,7 @@ export function TroubleshootingStartHerePlatformStatus(): React.JSX.Element {
     });
 
     return () => {
-      cancelled = true;
+      canceled = true;
     };
   }, []);
 

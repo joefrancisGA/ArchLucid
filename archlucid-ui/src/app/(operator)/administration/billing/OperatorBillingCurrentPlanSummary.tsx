@@ -63,19 +63,19 @@ export function OperatorBillingCurrentPlanSummary() {
   }, []);
 
   useEffect(() => {
-    let cancelled = false;
+    let canceled = false;
 
     void (async () => {
       try {
         const status = await fetchLlmMonthlyDollarBudgetStatusCached();
 
-        if (!cancelled) {
+        if (!canceled) {
           setAiBudgetRemainingPercent(llmBudgetRemainingPercent(status));
           setIncludedAiBudgetUsd(status.effectiveHardCapUsd);
           setAiUsedPercent(llmBudgetUtilizationPercent(status));
         }
       } catch {
-        if (!cancelled) {
+        if (!canceled) {
           setAiBudgetRemainingPercent(null);
           setIncludedAiBudgetUsd(null);
           setAiUsedPercent(null);
@@ -84,7 +84,7 @@ export function OperatorBillingCurrentPlanSummary() {
     })();
 
     return () => {
-      cancelled = true;
+      canceled = true;
     };
   }, []);
 

@@ -56,20 +56,20 @@ export function RecurrenceSchedulePostCommitCard({
   }, [normalizedRunId]);
 
   useEffect(() => {
-    let cancelled = false;
+    let canceled = false;
 
     void (async () => {
       try {
         await reload();
       } catch {
-        if (!cancelled) {
+        if (!canceled) {
           setErrorMessage("Recurrence schedules could not be loaded.");
         }
       }
     })();
 
     return () => {
-      cancelled = true;
+      canceled = true;
     };
   }, [reload]);
 

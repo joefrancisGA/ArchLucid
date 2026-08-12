@@ -42,22 +42,22 @@ export function PolicyPackDetailClient(props: PolicyPackDetailClientProps): Reac
         const packs = await listPolicyPacks();
         const match = packs.find((pack) => pack.policyPackId.trim() === policyPackId.trim()) ?? null;
 
-        if (!cancelled) {
+        if (!canceled) {
           setPackRecord(match);
         }
       } catch {
-        if (!cancelled) {
+        if (!canceled) {
           setPackRecord(null);
         }
       } finally {
-        if (!cancelled) {
+        if (!canceled) {
           setLoading(false);
         }
       }
     })();
 
     return () => {
-      cancelled = true;
+      canceled = true;
     };
   }, [policyPackId]);
 

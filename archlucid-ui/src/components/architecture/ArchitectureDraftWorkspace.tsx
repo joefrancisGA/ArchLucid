@@ -265,18 +265,18 @@ export function ArchitectureDraftWorkspace(props: ArchitectureDraftWorkspaceProp
 
     void getRunSummary(linkedReviewId)
       .then((summary) => {
-        if (!cancelled) {
+        if (!canceled) {
           setLinkedReviewTitle(buyerFacingReviewTitleFromSummary(summary));
         }
       })
       .catch(() => {
-        if (!cancelled) {
+        if (!canceled) {
           setLinkedReviewTitle(linkedReviewId);
         }
       });
 
     return () => {
-      cancelled = true;
+      canceled = true;
     };
   }, [linkedReviewId]);
 

@@ -322,18 +322,18 @@ export function AzureBoardsIntegrationPageClient(): React.ReactElement {
       try {
         const types = await listAzureBoardsWorkItemTypes(projectName.trim());
 
-        if (!cancelled) {
+        if (!canceled) {
           setWorkItemTypes(types);
         }
       } catch {
-        if (!cancelled) {
+        if (!canceled) {
           setWorkItemTypes([]);
         }
       }
     })();
 
     return () => {
-      cancelled = true;
+      canceled = true;
     };
   }, [credentialsReady, projectName]);
 

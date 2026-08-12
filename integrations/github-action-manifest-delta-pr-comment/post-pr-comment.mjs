@@ -3,7 +3,7 @@
  * Idempotently upsert a "sticky" PR comment that carries the structured ArchLucid
  * manifest-delta Markdown produced by the sibling `fetch-manifest-delta.mjs` script.
  *
- * The sticky behaviour is achieved by **prepending an HTML-comment marker**
+ * The sticky behavior is achieved by **prepending an HTML-comment marker**
  * (default: `<!-- archlucid:manifest-delta -->`). The action lists the PR's
  * comments via `gh api`, finds one whose body contains that marker, and either
  * PATCHes it in place or POSTs a new one. Re-runs of the workflow therefore

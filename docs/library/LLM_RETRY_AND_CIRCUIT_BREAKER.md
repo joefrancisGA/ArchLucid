@@ -11,14 +11,14 @@ Protect Azure OpenAI completion and embedding calls with a **Polly retry** layer
 
 ## Assumptions
 
-- Azure OpenAI is the primary LLM path in production; failures surface as `HttpRequestException`, `ClientResultException` (Azure SDK / `System.ClientModel`), or `TaskCanceledException` when the HTTP stack times out (token not cancelled).
+- Azure OpenAI is the primary LLM path in production; failures surface as `HttpRequestException`, `ClientResultException` (Azure SDK / `System.ClientModel`), or `TaskCanceledException` when the HTTP stack times out (token not canceled).
 - Operators tune behavior via `AgentExecution:Resilience` without code changes.
 - Chaos validation runs in CI (including a weekly scheduled workflow); Simmy is not used in production.
 
 ## Constraints
 
 - Retry must not wrap the circuit breaker **outside** (no retry-on-open-circuit loops).
-- User-initiated cancellation (`OperationCanceledException` with requested cancellation) must not be retried and must not count as a breaker failure in the same way as dependency faults (see decorator implementation). The decorators call `ThrowIfCancellationRequested()` on the caller token **before** entering the Polly retry pipeline so a pre-cancelled call never hits the inner client even if Polly forwards a different token to the callback.
+- User-initiated cancellation (`OperationCanceledException` with requested cancellation) must not be retried and must not count as a breaker failure in the same way as dependency faults (see decorator implementation). The decorators call `ThrowIfCancellationRequested()` on the caller token **before** entering the Polly retry pipeline so a pre-canceled call never hits the inner client even if Polly forwards a different token to the callback.
 - `InvalidOperationException` (e.g. empty assistant payload) and `CircuitBreakerOpenException` are not retried.
 
 ## Architecture overview
@@ -101,7 +101,7 @@ Configured via **`ArchLucid:FallbackLlm`** (see **`docs/RESILIENCE_CONFIGURATION
 | `HttpRequestException` without status | Yes | Treated as network-level. |
 | `HttpRequestException` 4xx other than 429 | No | Client errors. |
 | `ClientResultException` with status 429 / 5xx listed above | Yes | Azure SDK HTTP wrapper. |
-| `TaskCanceledException`, token **not** cancelled | Yes | Typical HTTP timeout. |
+| `TaskCanceledException`, token **not** canceled | Yes | Typical HTTP timeout. |
 | `OperationCanceledException` / cancel with user token | No | Intentional shutdown. |
 | `InvalidOperationException` | No | e.g. empty assistant message — retry wastes tokens. |
 | `CircuitBreakerOpenException` | No | Circuit already open. |

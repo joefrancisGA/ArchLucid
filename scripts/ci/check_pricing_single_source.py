@@ -29,7 +29,7 @@ REPO_ROOT = os.path.normpath(
     os.path.join(os.path.dirname(__file__), "..", "..")
 )
 
-# Files (repo-root-relative, normalised) that are allowed to contain price strings.
+# Files (repo-root-relative, normalized) that are allowed to contain price strings.
 ALLOWED_PATHS_REL = {
     os.path.normpath("docs/go-to-market/PRICING_PHILOSOPHY.md"),
     os.path.normpath("docs/go-to-market/ORDER_FORM_TEMPLATE.md"),

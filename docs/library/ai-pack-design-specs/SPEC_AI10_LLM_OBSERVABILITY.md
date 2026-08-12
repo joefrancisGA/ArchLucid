@@ -9,7 +9,7 @@
 
 Ship a pack covering the **architecture posture of LLM observability and evaluation systems** — covering eval harness design, golden-set governance, online vs offline evaluation, trace fidelity, prompt-version pinning, regression gating, and faithfulness/grounding metrics. This complements the existing `observability-otel` pack (#22), which covers application-layer instrumentation. This pack covers the **AI-specific evaluation and observability layer** — distinct and technically deeper for GenAI buyers.
 
-**Buyer outcome:** An ML engineering team can assign this pack and see whether their LLM evaluation architecture (eval harness, golden datasets, online monitoring, trace capture) has the posture needed to detect regressions, catch hallucinations before they reach production, and audit model behaviour over time.
+**Buyer outcome:** An ML engineering team can assign this pack and see whether their LLM evaluation architecture (eval harness, golden datasets, online monitoring, trace capture) has the posture needed to detect regressions, catch hallucinations before they reach production, and audit model behavior over time.
 
 ---
 

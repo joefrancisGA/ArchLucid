@@ -69,7 +69,7 @@ export function useCompareGovernanceDiff(
       return;
     }
 
-    let cancelled = false;
+    let canceled = false;
 
     async function load(): Promise<void> {
       setLoading(true);
@@ -107,7 +107,7 @@ export function useCompareGovernanceDiff(
           currentEffective = buildCompareEffectiveGovernanceSnapshot(effectivePacks, effectiveContent);
         }
       } catch {
-        if (!cancelled) {
+        if (!canceled) {
           setView(null);
           setSoftFailureMessage("governance diff");
           setLoading(false);
@@ -116,7 +116,7 @@ export function useCompareGovernanceDiff(
         return;
       }
 
-      if (cancelled) {
+      if (canceled) {
         return;
       }
 

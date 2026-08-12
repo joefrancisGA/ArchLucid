@@ -9,7 +9,7 @@
 
 Ship a pack aligned to **NIST AI 600-1** (July 2024) — the US NIST Generative AI Profile, which maps 12 unique GenAI risks to the NIST AI RMF v1.0 Govern/Map/Measure/Manage framework. Pack #1 covers NIST AI RMF v1.0 cross-cutting themes; this pack provides **GenAI-specific** depth using the 12 GAI risk taxonomy. This is the US government counterpart to the EU AI Act pack (AI-04) and will be referenced in federal AI governance and DoD AI adoption contexts.
 
-**Buyer outcome:** A US federal agency, DoD contractor, or enterprise buyer citing NIST AI 600-1 in their AI governance programme can assign this pack and see which of the 12 GenAI risks have architecture-evidence posture and where gaps exist.
+**Buyer outcome:** A US federal agency, DoD contractor, or enterprise buyer citing NIST AI 600-1 in their AI governance program can assign this pack and see which of the 12 GenAI risks have architecture-evidence posture and where gaps exist.
 
 ---
 

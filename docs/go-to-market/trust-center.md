@@ -12,7 +12,7 @@
 
 **Canonical assurance wording:** [`ASSURANCE_STATUS_CANONICAL.md`](ASSURANCE_STATUS_CANONICAL.md).
 
-This page is the **single buyer-facing index** for security questionnaires, self-assessments, and procurement artifacts. Status labels are honest about evidence type: **self-asserted** documentation, **planned but not yet scheduled** work, **owner-conducted** programmes documented in-repo, or **third-party confirmed** only where a linked file states that explicitly.
+This page is the **single buyer-facing index** for security questionnaires, self-assessments, and procurement artifacts. Status labels are honest about evidence type: **self-asserted** documentation, **planned but not yet scheduled** work, **owner-conducted** programs documented in-repo, or **third-party confirmed** only where a linked file states that explicitly.
 
 ---
 
@@ -67,7 +67,7 @@ Production tenant data is isolated with a **database-per-tenant** model (`System
 | Control | Status | Evidence | Last reviewed |
 |---------|--------|----------|---------------|
 | SOC 2 Common Criteria mapping (self-assessment, not attestation) | Self-asserted | [SOC 2 self-assessment](/help/soc2-self-assessment), [ASSURANCE_STATUS_CANONICAL.md#soc-2-readiness-roadmap](ASSURANCE_STATUS_CANONICAL.md#soc-2-readiness-roadmap) | 2026-07-24 |
-| Independent penetration test programme (third-party vendor-led) | Planned, not yet scheduled — no vendor committed | [V1_DEFERRED.md §6c](../library/V1_DEFERRED.md), [PEN_TEST_SUMMARY_PROCUREMENT_INTERIM.md](PEN_TEST_SUMMARY_PROCUREMENT_INTERIM.md), [ASSURANCE_STATUS_CANONICAL.md](ASSURANCE_STATUS_CANONICAL.md) | 2026-07-24 |
+| Independent penetration test program (third-party vendor-led) | Planned, not yet scheduled — no vendor committed | [V1_DEFERRED.md §6c](../library/V1_DEFERRED.md), [PEN_TEST_SUMMARY_PROCUREMENT_INTERIM.md](PEN_TEST_SUMMARY_PROCUREMENT_INTERIM.md), [ASSURANCE_STATUS_CANONICAL.md](ASSURANCE_STATUS_CANONICAL.md) | 2026-07-24 |
 | 2026-Q2 owner-conducted penetration-style assessment | Active V1 control | [2026-Q2-OWNER-CONDUCTED.md](../security/pen-test-summaries/2026-Q2-OWNER-CONDUCTED.md) | 2026-07-24 |
 | Third-party pen-test SoW template (no awarded vendor) | Template only — use when a vendor engagement is scheduled | [2026-Q2-SOW.md](../security/pen-test-summaries/2026-Q2-SOW.md) | 2026-07-24 |
 | SOC 2 Type II attestation (CPA) — procurement status | Not issued — interim self-assessment only | [SOC2_STATUS_PROCUREMENT.md](SOC2_STATUS_PROCUREMENT.md), [ASSURANCE_STATUS_CANONICAL.md](ASSURANCE_STATUS_CANONICAL.md) | 2026-07-24 |
@@ -129,12 +129,12 @@ This section summarizes what the **V1** contract does and does **not** promise f
 
 This page participates in CI merge gates:
 
-| Check | Behaviour |
+| Check | Behavior |
 |---|---|
 | **`scripts/ci/check_trust_center_links.py`** | Fails merges on broken outbound / relative links referenced here |
 | **`scripts/ci/check_trust_center_posture_freshness.py`** | Parses **Last reviewed** dates; emits `STALE_ROW` warnings (`--fail-on-stale` is opt-in tightening) |
 
-**Workflow:** **`docs/runbooks/TRUST_CENTER_FRESHNESS.md`**. **Procurement artefact catalogue with CI-reviewed rows:** **`docs/go-to-market/PROCUREMENT_PACK_INDEX.md`**.
+**Workflow:** **`docs/runbooks/TRUST_CENTER_FRESHNESS.md`**. **Procurement artefact catalog with CI-reviewed rows:** **`docs/go-to-market/PROCUREMENT_PACK_INDEX.md`**.
 
 ---
 
@@ -168,7 +168,7 @@ Work tracked for a future release window; see linked deferral register (e.g. PGP
 
 **V1:** There is **no** awarded third-party penetration-test vendor. **V1** assurance includes **owner-conducted** testing ([2026-Q2-OWNER-CONDUCTED.md](../security/pen-test-summaries/2026-Q2-OWNER-CONDUCTED.md)) plus CI and self-assessment evidence linked above.
 
-**Planned, not yet scheduled:** When a third-party programme is funded, publish the engagement here and use [2026-Q2-SOW.md](../security/pen-test-summaries/2026-Q2-SOW.md) / [pen-test-summaries/](../security/pen-test-summaries/README.md) as the working surface. Redacted findings remain **NDA-gated** until explicitly approved for wider distribution.
+**Planned, not yet scheduled:** When a third-party program is funded, publish the engagement here and use [2026-Q2-SOW.md](../security/pen-test-summaries/2026-Q2-SOW.md) / [pen-test-summaries/](../security/pen-test-summaries/README.md) as the working surface. Redacted findings remain **NDA-gated** until explicitly approved for wider distribution.
 
 ---
 

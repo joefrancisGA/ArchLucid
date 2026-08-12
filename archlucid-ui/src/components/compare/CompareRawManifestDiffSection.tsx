@@ -49,7 +49,7 @@ export function CompareRawManifestDiffSection(props: CompareRawManifestDiffSecti
       return;
     }
 
-    let cancelled = false;
+    let canceled = false;
 
     async function run(): Promise<void> {
       setLoading(true);
@@ -61,14 +61,14 @@ export function CompareRawManifestDiffSection(props: CompareRawManifestDiffSecti
           resolveArchitectureManifestJsonForDiff(props.updatedRunId),
         ]);
 
-        if (cancelled) {
+        if (canceled) {
           return;
         }
 
         setBeforeText(formatArchitectureManifestJsonForDiff(beforeDoc));
         setAfterText(formatArchitectureManifestJsonForDiff(afterDoc));
       } catch (err) {
-        if (cancelled) {
+        if (canceled) {
           return;
         }
 
@@ -77,7 +77,7 @@ export function CompareRawManifestDiffSection(props: CompareRawManifestDiffSecti
         setBeforeText(null);
         setAfterText(null);
       } finally {
-        if (!cancelled) {
+        if (!canceled) {
           setLoading(false);
         }
       }
@@ -86,7 +86,7 @@ export function CompareRawManifestDiffSection(props: CompareRawManifestDiffSecti
     void run();
 
     return () => {
-      cancelled = true;
+      canceled = true;
     };
   }, [open, props.baselineRunId, props.updatedRunId]);
 

@@ -1,6 +1,6 @@
 import type { ReactElement } from "react";
 
-import { OPERATOR_TYPOGRAPHY } from "@/lib/design-tokens";
+import { DESIGN_TOKENS, OPERATOR_TYPOGRAPHY } from "@/lib/design-tokens";
 import { cn } from "@/lib/utils";
 import { demoVsLiveChromeForFlags } from "@/lib/demo-vs-live-chrome";
 import { isNextPublicDemoMode } from "@/lib/demo-ui-env";
@@ -36,7 +36,9 @@ export function OperatorDemoStaticBanner(props: OperatorDemoStaticBannerProps): 
   return (
     <div
       className={cn(
-        "rounded-md border-2 border-amber-600 bg-amber-100 px-2.5 py-1.5 leading-snug text-amber-950 dark:border-amber-500 dark:bg-amber-950/50 dark:text-amber-50",
+        DESIGN_TOKENS.callout.warn,
+        // 2px amber border keeps presenter-safety emphasis without a pastel fill (TB-2218).
+        "border-2 border-amber-600 px-2.5 py-1.5 leading-snug dark:border-amber-500",
         OPERATOR_TYPOGRAPHY.helper,
       )}
       role="status"
@@ -44,12 +46,12 @@ export function OperatorDemoStaticBanner(props: OperatorDemoStaticBannerProps): 
       data-testid="operator-demo-static-banner"
     >
       <span className="font-bold tracking-wide">{title}</span>
-      <span className="text-amber-900/90 dark:text-amber-100/90">
+      <span>
         {" — "}
         {body}
       </span>
       {props.emphasizeSampleData === true ? (
-        <span className="mt-1 block font-bold text-amber-950 dark:text-amber-100">
+        <span className="mt-1 block font-bold">
           Sample data — not your tenant. Not a live architecture package.
         </span>
       ) : null}

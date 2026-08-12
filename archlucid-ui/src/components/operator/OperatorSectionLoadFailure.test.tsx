@@ -25,7 +25,7 @@ describe("OperatorSectionLoadFailure (TB-2380)", () => {
     expect(onRetry).toHaveBeenCalledTimes(1);
   });
 
-  it("honours a custom retry label", () => {
+  it("honors a custom retry label", () => {
     render(
       <OperatorSectionLoadFailure message="Could not load." retryLabel="Reload corpora" onRetry={vi.fn()} />,
     );

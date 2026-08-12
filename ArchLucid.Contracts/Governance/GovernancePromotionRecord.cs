@@ -77,7 +77,7 @@ public sealed class GovernancePromotionRecord
     } = TimeProvider.System.GetUtcNow().UtcDateTime;
 
     /// <summary>
-    ///     The approval request that authorised this promotion, or <see langword="null" />
+    ///     The approval request that authorized this promotion, or <see langword="null" />
     ///     when the promotion was performed without a formal approval workflow.
     /// </summary>
     public string? ApprovalRequestId

@@ -37,17 +37,17 @@ export function OperatorStickinessSnapshotCard(): ReactElement | null {
       try {
         const snap = await fetchOperatorStickinessSnapshot();
 
-        if (!cancelled) {
+        if (!canceled) {
           setData(snap);
         }
       } catch (e: unknown) {
-        if (!cancelled) {
+        if (!canceled) {
           const message = e instanceof Error ? e.message : "Could not load stickiness snapshot.";
           setProblem({ message, problem: null });
           setData(null);
         }
       } finally {
-        if (!cancelled) {
+        if (!canceled) {
           setLoading(false);
         }
       }
@@ -56,7 +56,7 @@ export function OperatorStickinessSnapshotCard(): ReactElement | null {
     void load();
 
     return () => {
-      cancelled = true;
+      canceled = true;
     };
   }, []);
 

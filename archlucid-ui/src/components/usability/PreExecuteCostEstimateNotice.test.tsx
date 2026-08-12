@@ -152,7 +152,7 @@ describe("PreExecuteCostEstimateNotice (TB-2233)", () => {
     expect(message).not.toHaveTextContent("$19.99");
   });
 
-  it("honours a custom test id", () => {
+  it("honors a custom test id", () => {
     useGate.mockReturnValue({
       loading: false,
       status: null,

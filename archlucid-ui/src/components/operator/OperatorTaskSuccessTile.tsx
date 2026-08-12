@@ -46,19 +46,19 @@ export function OperatorTaskSuccessTile() {
       try {
         const json = await fetchOperatorTaskSuccessRates();
 
-        if (!cancelled) {
+        if (!canceled) {
           setData(json);
           setError(null);
         }
       } catch {
-        if (!cancelled) {
+        if (!canceled) {
           setError("Metrics unavailable.");
         }
       }
     })();
 
     return () => {
-      cancelled = true;
+      canceled = true;
     };
   }, []);
 

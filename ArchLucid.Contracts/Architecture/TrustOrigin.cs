@@ -15,14 +15,14 @@ namespace ArchLucid.Contracts.Architecture;
 public enum TrustOrigin
 {
     /// <summary>
-    ///     The actor is inside the organisation's trust perimeter
+    ///     The actor is inside the organization's trust perimeter
     ///     (employee, ops team, internal service).  Typically authenticated via corporate IdP
     ///     and subject to internal network controls.
     /// </summary>
     Internal,
 
     /// <summary>
-    ///     The actor is outside the organisation but is a known, identified party
+    ///     The actor is outside the organization but is a known, identified party
     ///     (partner, B2B customer, contractor with a dedicated account).
     ///     Subject to explicit authentication and scoped authorisation.
     /// </summary>

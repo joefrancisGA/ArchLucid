@@ -48,7 +48,7 @@ export function ArchitectureDiagramViewer(props: ArchitectureDiagramViewerProps)
   const viewportRef = useRef<HTMLDivElement | null>(null);
 
   useEffect(() => {
-    let cancelled = false;
+    let canceled = false;
 
     async function renderDiagram(): Promise<void> {
       setRenderError(null);
@@ -67,11 +67,11 @@ export function ArchitectureDiagramViewer(props: ArchitectureDiagramViewerProps)
 
         const result = await mermaid.render(renderId, mermaidSource.trim());
 
-        if (!cancelled) {
+        if (!canceled) {
           setSvgMarkup(result.svg);
         }
       } catch (error) {
-        if (!cancelled) {
+        if (!canceled) {
           const message = error instanceof Error ? error.message : ARCHITECTURE_DIAGRAM_RENDER_FAILURE;
           setRenderError(message);
           onRenderFailure?.();
@@ -82,7 +82,7 @@ export function ArchitectureDiagramViewer(props: ArchitectureDiagramViewerProps)
     void renderDiagram();
 
     return (): void => {
-      cancelled = true;
+      canceled = true;
     };
   }, [mermaidSource, dark, renderId, onRenderFailure]);
 

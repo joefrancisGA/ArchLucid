@@ -26,9 +26,9 @@ resulting findings against expected/unexpected rules.
    `--mode score --enforce` once a stable baseline exists.
 
 **Why a separate folder from the main `tests/eval-corpus/`:** The existing
-corpus uses pre-frozen recordings authored by hand to score specific behaviours
+corpus uses pre-frozen recordings authored by hand to score specific behaviors
 (adversarial cases, simulator/real-mode quality gates). This pack uses
-live-captured recordings to track end-to-end behaviour on the 10 buyer-shaped
+live-captured recordings to track end-to-end behavior on the 10 buyer-shaped
 templates. Keeping it isolated avoids muddling the two intents and lets you
 delete or regenerate the whole pack without touching the manifest the existing
 release-candidate workflow scores against.

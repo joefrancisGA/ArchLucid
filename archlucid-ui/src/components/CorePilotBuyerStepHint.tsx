@@ -106,7 +106,7 @@ export function CorePilotBuyerStepHint() {
       return;
     }
 
-    let cancelled = false;
+    let canceled = false;
 
     async function load(): Promise<void> {
       setPhase("loading");
@@ -114,7 +114,7 @@ export function CorePilotBuyerStepHint() {
       try {
         const ctx = await fetchCorePilotCommitContextCached();
 
-        if (cancelled) {
+        if (canceled) {
           return;
         }
 
@@ -123,7 +123,7 @@ export function CorePilotBuyerStepHint() {
         setFirstCommittedRunId(ctx.firstCommittedRunId);
         setPhase("ready");
       } catch {
-        if (cancelled) {
+        if (canceled) {
           return;
         }
 
@@ -137,7 +137,7 @@ export function CorePilotBuyerStepHint() {
     void load();
 
     return () => {
-      cancelled = true;
+      canceled = true;
     };
   }, [buyerShell]);
 

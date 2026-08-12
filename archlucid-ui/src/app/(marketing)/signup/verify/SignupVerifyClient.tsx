@@ -66,19 +66,19 @@ export function SignupVerifyClient() {
   }, []);
 
   useEffect(() => {
-    let cancelled = false;
+    let canceled = false;
 
     void (async () => {
       setChecking(true);
       await refreshTrialStatus();
 
-      if (!cancelled) {
+      if (!canceled) {
         setChecking(false);
       }
     })();
 
     return () => {
-      cancelled = true;
+      canceled = true;
     };
   }, [refreshTrialStatus]);
 

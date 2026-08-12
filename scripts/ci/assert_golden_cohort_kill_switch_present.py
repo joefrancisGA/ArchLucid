@@ -11,7 +11,7 @@ This guard refuses to merge any PR that:
 1. Removes ``tests/golden-cohort/budget.config.json`` or weakens its threshold ratios away from
    ``warnThresholdPercent: 80`` / ``killSwitchThresholdPercent: 95``.
 2. Removes the ``Golden cohort budget probe`` step from
-   ``.github/workflows/golden-cohort-nightly.yml`` — recognised by:
+   ``.github/workflows/golden-cohort-nightly.yml`` — recognized by:
 
       * the inline reference to ``scripts/golden_cohort_budget_probe.py``, AND
       * a guarded gate (``if:`` referencing ``steps.budget.outputs.exit_code``) on the cohort tests.

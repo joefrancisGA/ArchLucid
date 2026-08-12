@@ -94,7 +94,7 @@ Ordered by weighted deficiency (highest first). Source: [`assessments/LATEST_GPT
 | CPB-AI-RAG-12 | MCP retrieval tools (3 of 7) | RAG-V1.1-002 | **Defer** | V1.1 | With **CPB-D02** MCP membrane. |
 | CPB-AI-RAG-V2 | Graph-RAG + agentic retrieval + fine-tuning | RAG-V2-* | **Defer** | V2 | Eval-gated; see [`V1_DEFERRED.md`](library/V1_DEFERRED.md) §6q. |
 
-*Full 25-item catalogue remains in [`AI_LEVERAGE_ROADMAP.md`](library/AI_LEVERAGE_ROADMAP.md).*
+*Full 25-item catalog remains in [`AI_LEVERAGE_ROADMAP.md`](library/AI_LEVERAGE_ROADMAP.md).*
 
 ---
 

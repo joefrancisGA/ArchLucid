@@ -8,7 +8,7 @@
 
 `vitest.setup.ts` clears both variables before each test run so the default path is **non-demo** unless a test file uses `vi.stubEnv` for a specific scenario.
 
-## When you need demo behaviour in a test
+## When you need demo behavior in a test
 
 Prefer explicit stubbing in the test file:
 

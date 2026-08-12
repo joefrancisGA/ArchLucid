@@ -31,7 +31,7 @@ The v1 production workflow subscribes to the following `eventType` values. Owner
 
 ## Per-trigger opt-in matrix (added 2026-04-21)
 
-Each tenant row in `dbo.TenantTeamsIncomingWebhookConnections` carries an `EnabledTriggersJson` column — a JSON array of canonical event-type strings the tenant wants delivered to this Teams channel. Existing rows default to **all-on** so behaviour does not change at migration time. The Logic Apps workflow filters server-side **before** resolving the Key Vault secret so a disabled trigger cannot reach Teams even if upstream routing misbehaves (see `infra/terraform-logicapps/workflows/teams-notifications/README.md` step 3). The canonical catalog lives in `ArchLucid.Core.Notifications.Teams.TeamsNotificationTriggerCatalog`; the API exposes it at `GET /v1/integrations/teams/triggers` so the UI never hard-codes the list.
+Each tenant row in `dbo.TenantTeamsIncomingWebhookConnections` carries an `EnabledTriggersJson` column — a JSON array of canonical event-type strings the tenant wants delivered to this Teams channel. Existing rows default to **all-on** so behavior does not change at migration time. The Logic Apps workflow filters server-side **before** resolving the Key Vault secret so a disabled trigger cannot reach Teams even if upstream routing misbehaves (see `infra/terraform-logicapps/workflows/teams-notifications/README.md` step 3). The canonical catalog lives in `ArchLucid.Core.Notifications.Teams.TeamsNotificationTriggerCatalog`; the API exposes it at `GET /v1/integrations/teams/triggers` so the UI never hard-codes the list.
 
 ## API
 

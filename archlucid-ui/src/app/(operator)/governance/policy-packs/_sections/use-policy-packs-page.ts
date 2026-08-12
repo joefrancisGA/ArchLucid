@@ -308,7 +308,7 @@ export function usePolicyPacksPage(serverLoad: PolicyPacksPageServerLoad): Polic
       return;
     }
 
-    let cancelled = false;
+    let canceled = false;
 
     void (async () => {
       try {
@@ -317,12 +317,12 @@ export function usePolicyPacksPage(serverLoad: PolicyPacksPageServerLoad): Polic
           getPolicyPackVersion(selectedPackId, rightMeta.version),
         ]);
 
-        if (!cancelled) {
+        if (!canceled) {
           setCompareLeftDetail(left);
           setCompareRightDetail(right);
         }
       } catch {
-        if (!cancelled) {
+        if (!canceled) {
           setCompareLeftDetail(null);
           setCompareRightDetail(null);
         }
@@ -330,7 +330,7 @@ export function usePolicyPacksPage(serverLoad: PolicyPacksPageServerLoad): Polic
     })();
 
     return () => {
-      cancelled = true;
+      canceled = true;
     };
   }, [showVersionDiff, selectedPackId, compareLeftId, compareRightId, packVersions]);
 

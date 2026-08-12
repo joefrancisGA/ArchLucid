@@ -129,13 +129,13 @@ export function FindingInspectGovernanceStickinessPanel({
   }, [findingId]);
 
   useEffect(() => {
-    let cancelled = false;
+    let canceled = false;
 
     void (async () => {
       try {
         await reload();
       } catch {
-        if (!cancelled) {
+        if (!canceled) {
           setErrorMessage(
             buyerPolishedShell
               ? BUYER_DEMO_GOVERNANCE_WORKFLOW_UNAVAILABLE
@@ -146,7 +146,7 @@ export function FindingInspectGovernanceStickinessPanel({
     })();
 
     return () => {
-      cancelled = true;
+      canceled = true;
     };
   }, [buyerPolishedShell, reload]);
 

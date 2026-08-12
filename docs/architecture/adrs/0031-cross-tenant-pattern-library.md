@@ -27,15 +27,15 @@ Give opted-in operators **actionable, anonymised pattern guidance** (“peers in
 1. **Never** surfaces tenant-identifying labels (customer names, subscription IDs, hostnames, user emails, project titles, or free-text blobs from manifests).
 2. **Never** relaxes **RLS** on primary tenant tables; the application’s default SQL session context remains **tenant-bound** for all existing features.
 3. **Only** exposes a pattern row when **at least five distinct tenants** (k-anonymity **k ≥ 5**) have contributed to that aggregate bucket in the rolling window used for publication.
-4. **Honours** opt-out: when a tenant withdraws consent, their historical contributions **disappear from publishable aggregates within 24 hours** (see **Operational considerations** below).
+4. **Honors** opt-out: when a tenant withdraws consent, their historical contributions **disappear from publishable aggregates within 24 hours** (see **Operational considerations** below).
 
 ## Assumptions
 
 - **Opt-in default is OFF.** No tenant participates until an **explicit** controller action (UI toggle + durable audit) and, for enterprise customers, language aligned to [`DPA_TEMPLATE.md`](../../go-to-market/DPA_TEMPLATE.md) **Section 10 — Cross-tenant patterns opt-in** (legal completes the bracketed stubs).
 - **Vertical / industry preset** is already a stable product dimension (wizard presets, policy-pack families). Pattern buckets are keyed by **preset code + coarse pattern hash**, not by tenant id in the consumer-facing projection.
-- **Source signal** is **deterministic structural fingerprints** already present in committed manifests (e.g. normalised service graph motifs, policy-pack presence flags, **non-semantic** hashes of topology shape) — **not** raw LLM narrative, **not** user-typed titles, **not** URLs that often embed customer tokens.
+- **Source signal** is **deterministic structural fingerprints** already present in committed manifests (e.g. normalized service graph motifs, policy-pack presence flags, **non-semantic** hashes of topology shape) — **not** raw LLM narrative, **not** user-typed titles, **not** URLs that often embed customer tokens.
 - **k = 5 is non-negotiable for v1.** Product may later propose **k > 5** for stricter tenants via a **new ADR** or per-tenant policy flag; **k < 5** is rejected for the public operator surface because re-identification risk rises quickly at small N.
-- **DPA carve-out** lives in the DPA template (**Section 10 — Cross-tenant patterns opt-in**); this ADR does not restate legal language — it binds engineering behaviour to that stub.
+- **DPA carve-out** lives in the DPA template (**Section 10 — Cross-tenant patterns opt-in**); this ADR does not restate legal language — it binds engineering behavior to that stub.
 
 ## Constraints
 
@@ -47,7 +47,7 @@ Give opted-in operators **actionable, anonymised pattern guidance** (“peers in
 
 ## Architecture Overview
 
-**Opinionated v1 shape:** **nightly ETL** (ArchLucid Worker or Container Apps Job per [ADR 0018](0018-background-workloads-container-apps-jobs.md)) reads **per-tenant manifest fingerprints** from the **existing tenant-isolated stores** using **elevated but narrow** batch credentials, writes **normalised rows** into a **staging** table in a **non-tenant schema**, runs a **k-anonymity gate** (`HAVING COUNT(DISTINCT tenant_id) >= 5`), and refreshes a **materialised view** (or indexed table) consumed **read-only** by a new **PatternInsights** API surface. The **architect workspace** calls that API with the **normal user JWT**; the API **never** receives cross-tenant SQL powers—it only reads the **pre-filtered** aggregate projection.
+**Opinionated v1 shape:** **nightly ETL** (ArchLucid Worker or Container Apps Job per [ADR 0018](0018-background-workloads-container-apps-jobs.md)) reads **per-tenant manifest fingerprints** from the **existing tenant-isolated stores** using **elevated but narrow** batch credentials, writes **normalized rows** into a **staging** table in a **non-tenant schema**, runs a **k-anonymity gate** (`HAVING COUNT(DISTINCT tenant_id) >= 5`), and refreshes a **materialised view** (or indexed table) consumed **read-only** by a new **PatternInsights** API surface. The **architect workspace** calls that API with the **normal user JWT**; the API **never** receives cross-tenant SQL powers—it only reads the **pre-filtered** aggregate projection.
 
 **Trade-off — nightly vs near-real-time.** **Nightly** cadence trades freshness (up to ~24h lag) for **predictable cost**, **simpler cache coherence**, and **time to run re-identification regression tests** offline. Near-real-time streaming (e.g. Event Hub + stream aggregation) is explicitly **deferred** until a future ADR proves need and funds **24/7** operational coverage.
 
@@ -81,7 +81,7 @@ flowchart TB
 | **ETL extractor** | Pull allowed fingerprint columns per tenant batch; **no** free-text | Backend | Unit tests on redaction + schema mapping |
 | **Staging schema** | `stg_pattern_contributions` (name illustrative) — **no** PII columns | Data | SQL unit tests — column allow-list |
 | **k-anonymity SQL** | `GROUP BY` pattern bucket `HAVING COUNT(DISTINCT tenant_id) >= 5` | Data | Golden tests on boundary (4 vs 5 tenants) |
-| **Published projection** | `mv_pattern_insights_public` (illustrative) refreshed nightly | Data | Refresh job idempotency; empty-set behaviour |
+| **Published projection** | `mv_pattern_insights_public` (illustrative) refreshed nightly | Data | Refresh job idempotency; empty-set behavior |
 | **Dedicated SQL login / MI** | `SELECT` only on published projection + staging write during ETL | Security | IaC review; secret rotation runbook |
 | **PatternInsights API** | Read projection; enforce vertical preset match; rate-limit | Backend | AuthZ tests; penetration-test item |
 | **Architect workspace strip** | “Peers in *{vertical}*” cards; no drill-down to foreign tenants | Frontend | Accessibility + copy review |

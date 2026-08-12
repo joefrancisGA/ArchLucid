@@ -29,7 +29,7 @@ public sealed class HostLeaderElectionCoordinator(
 
     /// <summary>
     /// When election is disabled, runs <paramref name="leaderWork"/> with <paramref name="applicationStoppingToken"/> only.
-    /// When enabled, repeats: acquire lease, run work with a token cancelled on lease loss or shutdown, renew in the background, release on exit.
+    /// When enabled, repeats: acquire lease, run work with a token canceled on lease loss or shutdown, renew in the background, release on exit.
     /// Re-competition happens only after lease loss; work that returns while the lease is still held ends the loop.
     /// </summary>
     public async Task RunLeaderWorkAsync(

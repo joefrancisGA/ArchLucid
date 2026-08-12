@@ -46,7 +46,7 @@ export function FindingInspectPolicyRuleCallout(props: FindingInspectPolicyRuleC
   const [loadError, setLoadError] = useState<string | null>(null);
 
   useEffect(() => {
-    let cancelled = false;
+    let canceled = false;
 
     void (async () => {
       setLoading(true);
@@ -58,23 +58,23 @@ export function FindingInspectPolicyRuleCallout(props: FindingInspectPolicyRuleC
           lookupPolicyRulePreviewInEffectivePacks(policy.ruleId, effective.packs) ??
           initialPreview(pack, policy);
 
-        if (!cancelled) {
+        if (!canceled) {
           setPreview(resolved);
         }
       } catch (error) {
-        if (!cancelled) {
+        if (!canceled) {
           setLoadError(error instanceof Error ? error.message : "Could not load policy rule text.");
           setPreview(initialPreview(pack, policy));
         }
       } finally {
-        if (!cancelled) {
+        if (!canceled) {
           setLoading(false);
         }
       }
     })();
 
     return () => {
-      cancelled = true;
+      canceled = true;
     };
   }, [pack, policy]);
 

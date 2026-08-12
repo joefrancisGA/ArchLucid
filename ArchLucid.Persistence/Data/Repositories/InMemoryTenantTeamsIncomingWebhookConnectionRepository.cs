@@ -46,7 +46,7 @@ public sealed class
         return Task.FromResult(_store.TryRemove(tenantId, out _));
     }
 
-    // null = "no change" semantic, matching the Dapper repository's MERGE COALESCE behaviour:
+    // null = "no change" semantic, matching the Dapper repository's MERGE COALESCE behavior:
     // brand-new rows fall back to the catalog default; existing rows keep what was already stored.
     private IReadOnlyList<string> ResolveNextTriggers(Guid tenantId, IReadOnlyList<string>? enabledTriggers)
     {

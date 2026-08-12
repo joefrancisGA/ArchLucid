@@ -67,7 +67,7 @@ export function GovernanceQuickApproveButton({
       return;
     }
 
-    let cancelled = false;
+    let canceled = false;
 
     setPhase("loading");
     setBlockedBySeverity(true);
@@ -76,7 +76,7 @@ export function GovernanceQuickApproveButton({
       try {
         const lineage = await getApprovalRequestLineage(approvalRequestId);
 
-        if (cancelled) {
+        if (canceled) {
           return;
         }
 
@@ -86,7 +86,7 @@ export function GovernanceQuickApproveButton({
         setBlockedBySeverity(blocks);
         setPhase("ready");
       } catch {
-        if (cancelled) {
+        if (canceled) {
           return;
         }
 
@@ -96,7 +96,7 @@ export function GovernanceQuickApproveButton({
     })();
 
     return () => {
-      cancelled = true;
+      canceled = true;
     };
   }, [approvalRequestId, canExecute, status]);
 

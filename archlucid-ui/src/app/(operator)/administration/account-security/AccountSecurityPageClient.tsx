@@ -326,7 +326,7 @@ export function AccountSecurityPageClient() {
     try {
       await cancelSignInMethodLinkProposal(pendingProposal.proposalId);
       resetAddFlow();
-      setAddFeedback({ tone: "info", message: "Link cancelled." });
+      setAddFeedback({ tone: "info", message: "Link canceled." });
     } catch (error) {
       setAddFeedback(problemToFeedback(classifySignInMethodsUnknownFailure(error)));
     } finally {

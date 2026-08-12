@@ -40,17 +40,17 @@ function GraphFitViewOnChange(props: { nodeCount: number; edgeCount: number; vie
       return;
     }
 
-    let cancelled = false;
+    let canceled = false;
     const outer = window.requestAnimationFrame(() => {
       window.requestAnimationFrame(() => {
-        if (!cancelled) {
+        if (!canceled) {
           void fitView({ padding: 0.12, maxZoom: 1.4, duration: 220 });
         }
       });
     });
 
     return () => {
-      cancelled = true;
+      canceled = true;
       window.cancelAnimationFrame(outer);
     };
   }, [props.nodeCount, props.edgeCount, props.viewMode, fitView]);
@@ -160,7 +160,7 @@ export function FindingEvidenceGraph(props: FindingEvidenceGraphProps) {
   );
 
   useEffect(() => {
-    let cancelled = false;
+    let canceled = false;
 
     void (async () => {
       setLoading(true);
@@ -170,7 +170,7 @@ export function FindingEvidenceGraph(props: FindingEvidenceGraphProps) {
 
       const result = await loadArchitectureGraphViewModel(runId);
 
-      if (cancelled) {
+      if (canceled) {
         return;
       }
 
@@ -193,7 +193,7 @@ export function FindingEvidenceGraph(props: FindingEvidenceGraphProps) {
     })();
 
     return () => {
-      cancelled = true;
+      canceled = true;
     };
   }, [runId, graphNodeIdsExamined.length]);
 

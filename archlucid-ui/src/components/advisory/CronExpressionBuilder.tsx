@@ -77,7 +77,7 @@ export function CronExpressionBuilder({
       return;
     }
 
-    let cancelled = false;
+    let canceled = false;
     const timer = window.setTimeout(() => {
       setPreviewLoading(true);
 
@@ -86,7 +86,7 @@ export function CronExpressionBuilder({
         count: PREVIEW_COUNT,
       })
         .then((response) => {
-          if (cancelled) {
+          if (canceled) {
             return;
           }
 
@@ -104,20 +104,20 @@ export function CronExpressionBuilder({
           setPreviewRuns(response.nextRunUtc.map((instant) => new Date(instant)));
         })
         .catch(() => {
-          if (!cancelled) {
+          if (!canceled) {
             setValidationError("Could not load schedule preview from the server.");
             setPreviewRuns([]);
           }
         })
         .finally(() => {
-          if (!cancelled) {
+          if (!canceled) {
             setPreviewLoading(false);
           }
         });
     }, PREVIEW_DEBOUNCE_MS);
 
     return () => {
-      cancelled = true;
+      canceled = true;
       window.clearTimeout(timer);
     };
   }, [trimmedValue]);

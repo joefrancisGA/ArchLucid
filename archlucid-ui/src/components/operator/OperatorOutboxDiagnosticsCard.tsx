@@ -32,7 +32,7 @@ export function OperatorOutboxDiagnosticsCard(): React.JSX.Element {
   const [error, setError] = useState<string | null>(null);
 
   useEffect(() => {
-    let cancelled = false;
+    let canceled = false;
 
     void (async () => {
       try {
@@ -42,7 +42,7 @@ export function OperatorOutboxDiagnosticsCard(): React.JSX.Element {
         );
 
         if (!response.ok) {
-          if (!cancelled)
+          if (!canceled)
             setError("Admin diagnostics unavailable for this account.");
 
           return;
@@ -50,18 +50,18 @@ export function OperatorOutboxDiagnosticsCard(): React.JSX.Element {
 
         const payload = (await response.json()) as AdminOutboxSnapshot;
 
-        if (!cancelled) {
+        if (!canceled) {
           setSnapshot(payload);
           setError(null);
         }
       } catch {
-        if (!cancelled)
+        if (!canceled)
           setError("Could not load outbox diagnostics.");
       }
     })();
 
     return () => {
-      cancelled = true;
+      canceled = true;
     };
   }, []);
 

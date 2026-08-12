@@ -28,7 +28,7 @@ describe("EvidenceOrientationClaimAndSourcesStrip", () => {
     ).toBeInTheDocument();
   });
 
-  it("honours published test ids and headings that predate the slug convention", () => {
+  it("honors published test ids and headings that predate the slug convention", () => {
     render(
       <EvidenceOrientationClaimAndSourcesStrip
         slug="help-digests"

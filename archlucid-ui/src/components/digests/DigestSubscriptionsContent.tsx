@@ -85,7 +85,7 @@ export function DigestSubscriptionsContent(props: DigestSubscriptionsContentProp
       return;
     }
 
-    let cancelled = false;
+    let canceled = false;
 
     void (async () => {
       const attemptEntries = await Promise.all(
@@ -103,7 +103,7 @@ export function DigestSubscriptionsContent(props: DigestSubscriptionsContentProp
       );
       const nextAttempts: Record<string, DigestDeliveryAttempt[]> = {};
 
-      if (cancelled) {
+      if (canceled) {
         return;
       }
 
@@ -115,7 +115,7 @@ export function DigestSubscriptionsContent(props: DigestSubscriptionsContentProp
     })();
 
     return () => {
-      cancelled = true;
+      canceled = true;
     };
   }, [items, refreshToken]);
 

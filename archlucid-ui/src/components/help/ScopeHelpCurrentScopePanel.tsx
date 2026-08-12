@@ -180,11 +180,11 @@ export function ScopeHelpCurrentScopePanel(): React.JSX.Element {
   const switchingAvailable = isScopeSwitchingAvailable(workspaces);
 
   useEffect(() => {
-    let cancelled = false;
+    let canceled = false;
 
     async function loadWorkspaces(): Promise<void> {
       if (isEffectiveDevDefaultScope(workspaceId, projectId)) {
-        if (!cancelled) {
+        if (!canceled) {
           setWorkspaces([demoClaimsIntakeWorkspaceOption()]);
         }
 
@@ -207,11 +207,11 @@ export function ScopeHelpCurrentScopePanel(): React.JSX.Element {
 
         const json: unknown = await response.json();
 
-        if (!cancelled) {
+        if (!canceled) {
           setWorkspaces(parseWorkspacesList(json));
         }
       } catch {
-        if (!cancelled) {
+        if (!canceled) {
           setWorkspaces([]);
         }
       }
@@ -220,7 +220,7 @@ export function ScopeHelpCurrentScopePanel(): React.JSX.Element {
     void loadWorkspaces();
 
     return () => {
-      cancelled = true;
+      canceled = true;
     };
   }, [workspaceId, projectId]);
 

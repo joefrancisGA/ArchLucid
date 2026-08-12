@@ -27,7 +27,7 @@ import {
 import type { ApiLoadFailureState } from "@/lib/api-load-failure";
 import { toApiLoadFailure } from "@/lib/api-load-failure";
 import { useOperateCapability } from "@/hooks/use-operate-capability";
-import { OPERATOR_LINK, OPERATOR_TYPOGRAPHY } from "@/lib/design-tokens";
+import { DESIGN_TOKENS, OPERATOR_LINK, OPERATOR_TYPOGRAPHY } from "@/lib/design-tokens";
 import { isBuyerPolishedOperatorShellEnv } from "@/lib/demo-ui-env";
 import { canonicalizeDemoRunId } from "@/lib/demo-run-canonical";
 import {
@@ -338,10 +338,10 @@ export function GovernanceWorkflowPageContent() {
       return;
     }
 
-    let cancelled = false;
+    let canceled = false;
 
     void loadGovernanceReviewContext(activeRunId).then((context) => {
-      if (cancelled) {
+      if (canceled) {
         return;
       }
 
@@ -350,7 +350,7 @@ export function GovernanceWorkflowPageContent() {
     });
 
     return () => {
-      cancelled = true;
+      canceled = true;
     };
   }, [activeRunId]);
 
@@ -696,7 +696,8 @@ export function GovernanceWorkflowPageContent() {
           {isShowcaseSampleContext ? (
             <p
               className={cn(
-                "mb-4 rounded-md border border-amber-600/40 bg-amber-50/90 px-3 py-2 text-amber-950 dark:border-amber-700/50 dark:bg-amber-950/30 dark:text-amber-100",
+                "mb-4",
+                DESIGN_TOKENS.callout.warn,
                 OPERATOR_TYPOGRAPHY.body,
               )}
               data-testid="governance-sample-context-banner"
@@ -793,7 +794,8 @@ export function GovernanceWorkflowPageContent() {
                 role="status"
                 data-testid="governance-static-demo-fallback-status"
                 className={cn(
-                  "mb-4 rounded-md border border-amber-600/40 bg-amber-50/90 px-3 py-2 text-amber-950 dark:border-amber-700/50 dark:bg-amber-950/30 dark:text-amber-100",
+                  "mb-4",
+                  DESIGN_TOKENS.callout.warn,
                   OPERATOR_TYPOGRAPHY.body,
                 )}
               >

@@ -54,7 +54,7 @@ export function IdentityProviderHealthStrip(props: IdentityProviderHealthStripPr
             <span className={cn("font-mono text-neutral-800 dark:text-neutral-200", OPERATOR_TYPOGRAPHY.micro)}>
               GET /v1/admin/diagnostics/identity-providers
             </span>{" "}
-            (Admin session). Read-only — does not alter authentication behaviour.
+            (Admin session). Read-only — does not alter authentication behavior.
           </p>
         ) : (
           <p className={cn("mt-1", OPERATOR_TYPOGRAPHY.helper)}>

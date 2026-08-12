@@ -46,13 +46,13 @@ export function ExecutiveDashboardPrimaryMetricsSection(
       return undefined;
     }
 
-    let cancelled = false;
+    let canceled = false;
 
     void (async () => {
       try {
         const decisionsNeeded = await getGovernanceDecisionsNeededSummary();
 
-        if (!cancelled) {
+        if (!canceled) {
           setDecisionsNeededCount(decisionsNeeded.totalDecisionItems);
           setStaleRiskCount(
             summary?.staleArchitectureRiskCount ?? decisionsNeeded.staleRisks,
@@ -60,14 +60,14 @@ export function ExecutiveDashboardPrimaryMetricsSection(
           setExpiringWaiversCount(decisionsNeeded.waiversExpiringWithin14Days);
         }
       } catch {
-        if (!cancelled) {
+        if (!canceled) {
           setDecisionsNeededCount(null);
         }
       }
     })();
 
     return () => {
-      cancelled = true;
+      canceled = true;
     };
   }, [loading, summary?.staleArchitectureRiskCount]);
 

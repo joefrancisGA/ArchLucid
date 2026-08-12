@@ -239,7 +239,7 @@ public sealed partial class DemoSeedService
             ResolutionReason = "Demonstrates evaluator export workflow without invoking paid synthesis.",
             ManifestVersion = ProductTourWorkspaceSeed.ManifestVersionLiteral,
             Notes =
-                "Seeded Workspace A artifact — regenerate after tour refresh milestones. dbo.TenantWorkspaces.IsDemoWorkspace=1 excludes fixture from SKU math once billing gates honour the flag.",
+                "Seeded Workspace A artifact — regenerate after tour refresh milestones. dbo.TenantWorkspaces.IsDemoWorkspace=1 excludes fixture from SKU math once billing gates honor the flag.",
             IncludedManifest = true,
             IncludedSummary = true,
             CreatedUtc = ProductTourWorkspaceSeed.SnapshotUtc,

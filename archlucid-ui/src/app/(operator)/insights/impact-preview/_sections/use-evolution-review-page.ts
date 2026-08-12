@@ -129,11 +129,11 @@ export function useEvolutionReviewPage(serverLoad: EvolutionReviewPageServerLoad
       return;
     }
 
-    let cancelled = false;
+    let canceled = false;
 
     void loadProjectRunsMergedWithDemoFallback("default", { forCompare: true, committedOnly: true })
       .then((merged) => {
-        if (cancelled) {
+        if (canceled) {
           return;
         }
 
@@ -145,7 +145,7 @@ export function useEvolutionReviewPage(serverLoad: EvolutionReviewPageServerLoad
         );
       })
       .catch(() => {
-        if (cancelled) {
+        if (canceled) {
           return;
         }
 
@@ -153,7 +153,7 @@ export function useEvolutionReviewPage(serverLoad: EvolutionReviewPageServerLoad
       });
 
     return () => {
-      cancelled = true;
+      canceled = true;
     };
   }, [isDemo]);
 

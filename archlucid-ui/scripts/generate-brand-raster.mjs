@@ -60,7 +60,7 @@ async function rasterizeTarget(target) {
         background: themeBackground,
       },
     })
-      .composite([{ input: resized, gravity: "centre" }])
+      .composite([{ input: resized, gravity: "center" }])
       .png()
       .toFile(outputPath);
 

@@ -21,7 +21,7 @@ export function useCompareFinalizedRunAvailability(): CompareFinalizedRunAvailab
   const [finalizedCount, setFinalizedCount] = useState(0);
 
   useEffect(() => {
-    let cancelled = false;
+    let canceled = false;
 
     void loadProjectRunsMergedWithDemoFallback("default", { forCompare: true, committedOnly: true })
       .then((merged) => {

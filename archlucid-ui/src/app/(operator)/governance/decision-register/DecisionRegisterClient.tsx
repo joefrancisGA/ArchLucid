@@ -118,7 +118,7 @@ export default function DecisionRegisterClient() {
   }, []);
 
   useEffect(() => {
-    let cancelled = false;
+    let canceled = false;
 
     void (async () => {
       setLoadingWorkspace(true);
@@ -126,11 +126,11 @@ export default function DecisionRegisterClient() {
       try {
         const projectId = projectIdFromScopeHeaders(getEffectiveBrowserProxyScopeHeaders());
         const response = await getArchitectureDecisionRegister(projectId);
-        if (!cancelled) {
+        if (!canceled) {
           setWorkspaceDecisions(response.decisions ?? []);
         }
       } catch (error: unknown) {
-        if (!cancelled) {
+        if (!canceled) {
           setWorkspaceDecisions([]);
           setLoadError(error instanceof Error ? error.message : "Failed to load decision register.");
         }
@@ -142,12 +142,12 @@ export default function DecisionRegisterClient() {
     })();
 
     return () => {
-      cancelled = true;
+      canceled = true;
     };
   }, []);
 
   useEffect(() => {
-    let cancelled = false;
+    let canceled = false;
 
     void (async () => {
       setLoadingFiltered(true);
@@ -156,23 +156,23 @@ export default function DecisionRegisterClient() {
       try {
         const projectId = projectIdFromScopeHeaders(getEffectiveBrowserProxyScopeHeaders());
         const response = await getArchitectureDecisionRegister(projectId, filters);
-        if (!cancelled) {
+        if (!canceled) {
           setFilteredDecisions(response.decisions ?? []);
         }
       } catch (error: unknown) {
-        if (!cancelled) {
+        if (!canceled) {
           setFilteredDecisions([]);
           setLoadError(error instanceof Error ? error.message : "Failed to load decision register.");
         }
       } finally {
-        if (!cancelled) {
+        if (!canceled) {
           setLoadingFiltered(false);
         }
       }
     })();
 
     return () => {
-      cancelled = true;
+      canceled = true;
     };
   }, [filters]);
 

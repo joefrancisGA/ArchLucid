@@ -108,7 +108,7 @@ export function SponsorExportsSection({
   const [sponsorDocx, setSponsorDocx] = useState<SponsorDocxTarget | null>(null);
 
   useEffect(() => {
-    let cancelled = false;
+    let canceled = false;
 
     void (async () => {
       const { items } = await loadProjectRunsMergedWithDemoFallback("default", {
@@ -118,13 +118,13 @@ export function SponsorExportsSection({
       const committed = filterCommittedRunsForPicker(items);
       const first = committed[0];
 
-      if (first !== undefined && !cancelled) {
+      if (first !== undefined && !canceled) {
         setSponsorDocx({ runId: first.runId });
       }
     })();
 
     return () => {
-      cancelled = true;
+      canceled = true;
     };
   }, []);
 

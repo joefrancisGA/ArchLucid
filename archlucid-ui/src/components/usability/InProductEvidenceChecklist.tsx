@@ -26,7 +26,7 @@ export function InProductEvidenceChecklist() {
   const [phase, setPhase] = useState<"loading" | "ready">("loading");
 
   useEffect(() => {
-    let cancelled = false;
+    let canceled = false;
 
     async function load(): Promise<void> {
       setPhase("loading");
@@ -37,7 +37,7 @@ export function InProductEvidenceChecklist() {
         fetchCorePilotTeamChecklist().catch(() => []),
       ]);
 
-      if (cancelled) {
+      if (canceled) {
         return;
       }
 
@@ -88,7 +88,7 @@ export function InProductEvidenceChecklist() {
     void load();
 
     return () => {
-      cancelled = true;
+      canceled = true;
     };
   }, []);
 

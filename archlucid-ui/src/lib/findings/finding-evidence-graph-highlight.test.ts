@@ -30,7 +30,7 @@ describe("finding-evidence-graph-highlight", () => {
     expect(set.has("subnet-a")).toBe(true);
   });
 
-  it("keeps examined nodes and their direct neighbours on the reasoning path", () => {
+  it("keeps examined nodes and their direct neighbors on the reasoning path", () => {
     const filtered = resolveFindingEvidenceGraphViewModel(sampleGraph, ["subnet-a"], "reasoningPath");
 
     expect(filtered.nodes.map((node) => node.id).sort()).toEqual(["subnet-a", "vm-1"]);
@@ -44,7 +44,7 @@ describe("finding-evidence-graph-highlight", () => {
     expect(filtered.nodes).toHaveLength(3);
   });
 
-  it("keeps neighbours legible on the reasoning path but dims them in context mode", () => {
+  it("keeps neighbors legible on the reasoning path but dims them in context mode", () => {
     const nodes = [
       { id: "vm-1", position: { x: 0, y: 0 }, data: { label: "VM" } },
       { id: "db-9", position: { x: 1, y: 0 }, data: { label: "DB" } },

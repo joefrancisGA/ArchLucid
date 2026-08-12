@@ -96,7 +96,7 @@ export function CtoDemoLiveRunProgressRail(props: CtoDemoLiveRunProgressRailProp
       return;
     }
 
-    let cancelled = false;
+    let canceled = false;
     consecutiveFailuresRef.current = 0;
 
     const poll = async (): Promise<void> => {
@@ -106,7 +106,7 @@ export function CtoDemoLiveRunProgressRail(props: CtoDemoLiveRunProgressRailProp
           getRunSummary(runId),
         ]);
 
-        if (cancelled) {
+        if (canceled) {
           return;
         }
 
@@ -121,7 +121,7 @@ export function CtoDemoLiveRunProgressRail(props: CtoDemoLiveRunProgressRailProp
           setFinalized(true);
         }
       } catch {
-        if (cancelled) {
+        if (canceled) {
           return;
         }
 
@@ -139,7 +139,7 @@ export function CtoDemoLiveRunProgressRail(props: CtoDemoLiveRunProgressRailProp
     }, POLL_INTERVAL_MS);
 
     return () => {
-      cancelled = true;
+      canceled = true;
       window.clearInterval(pollId);
     };
   }, [finalized, pollSession, pollStalled, runId]);

@@ -306,7 +306,7 @@ fires 75 minutes after the last completed test.
 3. **Check `AlertLifecycleWebAppFactory` teardown** — does `DisposeAsync` / `Dispose` propagate
    cancellation to all hosted services? The `HostOptions.ShutdownTimeout` is set to 15 s in
    `BaseIntegrationTestFixture`, but if a hosted service ignores the token, teardown can still block.
-   Look for `IHostedService` implementations registered in InMemory mode that do not honour
+   Look for `IHostedService` implementations registered in InMemory mode that do not honor
    `CancellationToken` in `StopAsync`.
 
 ### Fix
@@ -340,7 +340,7 @@ If the `AlertLifecycleWebAppFactory` teardown hangs because a hosted service's `
    workers, connection-pool drainers, retry loops).
 2. Add or verify that `StopAsync` uses `CancellationToken.WhenCancelled()` or a linked token with a
    hard deadline. The base `HostOptions.ShutdownTimeout = TimeSpan.FromSeconds(15)` should be
-   sufficient if all services honour it.
+   sufficient if all services honor it.
 
 Do **not** raise `--blame-hang-timeout` in CI — 75 minutes is already generous.
 

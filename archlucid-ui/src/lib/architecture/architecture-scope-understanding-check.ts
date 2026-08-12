@@ -1,4 +1,4 @@
-/** Which intake field a scope row came from. Drives the row's static label and its edit behaviour. */
+/** Which intake field a scope row came from. Drives the row's static label and its edit behavior. */
 export type ScopeUnderstandingBulletKind =
   | "system"
   | "outcome"

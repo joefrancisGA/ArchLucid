@@ -42,18 +42,18 @@ export function OperatorCorePilotDiagnosticsChecklist() {
   );
 
   useEffect(() => {
-    let cancelled = false;
+    let canceled = false;
 
     void (async () => {
       try {
         const data = await fetchOperatorTaskSuccessRates();
 
-        if (!cancelled) {
+        if (!canceled) {
           setRates(data);
           setRatesError(null);
         }
       } catch {
-        if (!cancelled) {
+        if (!canceled) {
           setRates(null);
           setRatesError("Signals unavailable.");
         }
@@ -61,7 +61,7 @@ export function OperatorCorePilotDiagnosticsChecklist() {
     })();
 
     return () => {
-      cancelled = true;
+      canceled = true;
     };
   }, []);
 

@@ -101,7 +101,7 @@ export function ExecutiveRoiDashboardLiveKpiCards({
       try {
         const decisionsNeeded = await getGovernanceDecisionsNeededSummary();
 
-        if (!cancelled) {
+        if (!canceled) {
           setState({
             summary: resolvedSummary,
             staleRiskCount:
@@ -112,18 +112,18 @@ export function ExecutiveRoiDashboardLiveKpiCards({
           });
         }
       } catch (e: unknown) {
-        if (!cancelled) {
+        if (!canceled) {
           setFailure(toApiLoadFailure(e));
         }
       } finally {
-        if (!cancelled) {
+        if (!canceled) {
           setDecisionsLoading(false);
         }
       }
     })();
 
     return () => {
-      cancelled = true;
+      canceled = true;
     };
   }, [loadingProp, resolvedSummary, summaryProp, usesExternalSummary]);
 

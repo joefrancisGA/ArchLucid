@@ -25,7 +25,7 @@ export function OperatorNextActionsCard() {
       return;
     }
 
-    let cancelled = false;
+    let canceled = false;
 
     void (async () => {
       setPhase("loading");
@@ -33,19 +33,19 @@ export function OperatorNextActionsCard() {
       try {
         const data = await fetchOperatorNextBestActions();
 
-        if (!cancelled) {
+        if (!canceled) {
           setItems(data);
           setPhase("ready");
         }
       } catch {
-        if (!cancelled) {
+        if (!canceled) {
           setPhase("error");
         }
       }
     })();
 
     return () => {
-      cancelled = true;
+      canceled = true;
     };
   }, [hideForPolishedBuyerShell]);
 

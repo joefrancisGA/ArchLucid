@@ -25,7 +25,7 @@ public sealed class JobRunTelemetry(ILogger<JobRunTelemetry> logger)
         {
             int exitCode = await execute(cancellationToken).ConfigureAwait(false);
 
-            RecordJobOutcome(jobName, exitCode, sw.Elapsed.TotalMilliseconds, cancelled: false);
+            RecordJobOutcome(jobName, exitCode, sw.Elapsed.TotalMilliseconds, canceled: false);
 
             _logger.LogInformation(
                 "JobCompleted: JobName={JobName}, ExitCode={ExitCode}, DurationMs={DurationMs}",
@@ -37,7 +37,7 @@ public sealed class JobRunTelemetry(ILogger<JobRunTelemetry> logger)
         }
         catch (OperationCanceledException) when (cancellationToken.IsCancellationRequested)
         {
-            RecordJobOutcome(jobName, ArchLucidJobExitCodes.JobFailure, sw.Elapsed.TotalMilliseconds, cancelled: true);
+            RecordJobOutcome(jobName, ArchLucidJobExitCodes.JobFailure, sw.Elapsed.TotalMilliseconds, canceled: true);
 
             _logger.LogWarning(
                 "JobCancelled: JobName={JobName}, DurationMs={DurationMs}",
@@ -48,7 +48,7 @@ public sealed class JobRunTelemetry(ILogger<JobRunTelemetry> logger)
         }
         catch (Exception ex)
         {
-            RecordJobOutcome(jobName, ArchLucidJobExitCodes.JobFailure, sw.Elapsed.TotalMilliseconds, cancelled: false);
+            RecordJobOutcome(jobName, ArchLucidJobExitCodes.JobFailure, sw.Elapsed.TotalMilliseconds, canceled: false);
 
             _logger.LogError(
                 ex,
@@ -60,10 +60,10 @@ public sealed class JobRunTelemetry(ILogger<JobRunTelemetry> logger)
         }
     }
 
-    private static void RecordJobOutcome(string jobName, int exitCode, double durationMs, bool cancelled)
+    private static void RecordJobOutcome(string jobName, int exitCode, double durationMs, bool canceled)
     {
-        string exitClass = cancelled
-            ? "cancelled"
+        string exitClass = canceled
+            ? "canceled"
             : exitCode == ArchLucidJobExitCodes.Success
                 ? "success"
                 : exitCode == ArchLucidJobExitCodes.UnknownJob

@@ -56,18 +56,18 @@ export function HomeFirstRunWorkflowGate() {
       try {
         const ctx = await fetchCorePilotCommitContextCached();
 
-        if (!cancelled) {
+        if (!canceled) {
           setCommitCtx(ctx);
         }
       } catch {
-        if (!cancelled) {
+        if (!canceled) {
           setCommitCtx(emptyCommitContext);
         }
       }
     })();
 
     return () => {
-      cancelled = true;
+      canceled = true;
     };
   }, [needsCommitProbe]);
 

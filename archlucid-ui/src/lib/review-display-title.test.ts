@@ -109,7 +109,7 @@ describe("stripInlineMarkdownFromReviewText", () => {
   });
 
   it("strips underscore emphasis only at word boundaries", () => {
-    expect(stripInlineMarkdownFromReviewText("an _emphasised_ phrase")).toBe("an emphasised phrase");
+    expect(stripInlineMarkdownFromReviewText("an _emphasised_ phrase")).toBe("an emphasized phrase");
     expect(stripInlineMarkdownFromReviewText("__strong__ opener")).toBe("strong opener");
   });
 

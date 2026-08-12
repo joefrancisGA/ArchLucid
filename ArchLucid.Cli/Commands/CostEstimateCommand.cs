@@ -386,7 +386,7 @@ internal static class CostEstimateCommand
 
             ?
 
-            "[grey]Monthly infrastructure estimates (USD) — all rows matched Azure Retail consumption meters.[/]"
+            "[gray]Monthly infrastructure estimates (USD) — all rows matched Azure Retail consumption meters.[/]"
 
             :
 
@@ -394,11 +394,11 @@ internal static class CostEstimateCommand
 
                 ?
 
-                "[grey]Blend of Azure Retail Prices API matches and illustrative fallbacks (730h/month where hourly).[/]"
+                "[gray]Blend of Azure Retail Prices API matches and illustrative fallbacks (730h/month where hourly).[/]"
 
                 :
 
-                "[grey]Illustrative infrastructure USD/month — add --live-pricing for Retail API attempts.[/]";
+                "[gray]Illustrative infrastructure USD/month — add --live-pricing for Retail API attempts.[/]";
 
         AnsiConsole.MarkupLine(banner);
 
@@ -448,7 +448,7 @@ internal static class CostEstimateCommand
         {
 
 
-            table.AddRow("[grey]—[/]", "[grey]No billable rows[/]", "[grey]—[/]", "[grey]$0[/]", "[grey]—[/]");
+            table.AddRow("[gray]—[/]", "[gray]No billable rows[/]", "[gray]—[/]", "[gray]$0[/]", "[gray]—[/]");
 
         }
 

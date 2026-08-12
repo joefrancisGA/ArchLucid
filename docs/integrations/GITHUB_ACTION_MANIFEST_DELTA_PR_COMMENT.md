@@ -38,7 +38,7 @@ flowchart LR
 
 ## 2. Sticky marker contract
 
-The sticky behaviour is identity-by-marker: a hidden HTML comment line.
+The sticky behavior is identity-by-marker: a hidden HTML comment line.
 
 | Field | Default | Notes |
 | --- | --- | --- |

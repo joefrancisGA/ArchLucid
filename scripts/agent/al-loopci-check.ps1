@@ -45,7 +45,7 @@ if ($null -eq $run) {
 
 $status = [string]$run.status
 $conclusion = [string]$run.conclusion
-# Any completed run that is not green is actionable (failure, timed_out, cancelled, …).
+# Any completed run that is not green is actionable (failure, timed_out, canceled, …).
 $needsTriage = ($status -eq 'completed') -and ($conclusion -ne 'success')
 
 $payload = [ordered]@{

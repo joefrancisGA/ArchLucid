@@ -99,7 +99,7 @@ export function MermaidDiagram(props: MermaidDiagramProps): React.JSX.Element {
       return;
     }
 
-    let cancelled = false;
+    let canceled = false;
 
     async function renderDiagram(): Promise<void> {
       setRenderError(null);
@@ -119,12 +119,12 @@ export function MermaidDiagram(props: MermaidDiagramProps): React.JSX.Element {
 
         const result = await mermaid.render(renderId, source.trim());
 
-        if (!cancelled) {
+        if (!canceled) {
           setSvgMarkup(prepareMermaidSvgForResponsiveLayout(result.svg));
         }
       }
       catch (error) {
-        if (!cancelled) {
+        if (!canceled) {
           const message = error instanceof Error ? error.message : "Diagram could not be rendered.";
           setRenderError(message);
         }
@@ -134,7 +134,7 @@ export function MermaidDiagram(props: MermaidDiagramProps): React.JSX.Element {
     void renderDiagram();
 
     return (): void => {
-      cancelled = true;
+      canceled = true;
     };
   }, [source, dark, renderId, hasBeenVisible, themeVariables]);
 

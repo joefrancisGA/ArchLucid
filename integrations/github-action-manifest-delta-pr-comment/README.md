@@ -18,7 +18,7 @@ The delta Markdown is rendered by the sibling [`github-action-manifest-delta`](.
 | `marker` | no | `<!-- archlucid:manifest-delta -->` | HTML-comment sticky marker. Override only when one PR receives multiple delta comments (e.g. one per tenant). |
 | `operator-compare-url-template` | no | `''` | Optional deep link template using `{baseRunId}` and `{targetRunId}` placeholders. |
 
-## Sticky behaviour
+## Sticky behavior
 
 The action prepends a hidden HTML-comment marker to the body. On every run it:
 

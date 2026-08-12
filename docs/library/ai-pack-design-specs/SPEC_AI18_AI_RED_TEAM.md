@@ -1,5 +1,5 @@
 > **Scope:** Design spec for AI policy pack **AI-18 — AI Red-Team & Safety Assurance Architecture**. Rule JSON authoring is out of scope.
-> **Buyer-safe invariant:** Architecture-review mapping for AI red-team programme posture — not safety certification, red-team results attestation, or guarantee of safe AI behaviour.
+> **Buyer-safe invariant:** Architecture-review mapping for AI red-team program posture — not safety certification, red-team results attestation, or guarantee of safe AI behavior.
 
 # AI-18 — AI Red-Team & Safety Assurance Architecture — design spec
 
@@ -7,9 +7,9 @@
 
 ## 1. Objective
 
-Ship a pack covering the architecture posture of an **AI red-team and safety assurance programme** — red-team programme design, attack-library version governance, safety-eval pipeline integration, jailbreak-resistance gating, dual-use review board, and pre/post-deployment red-team cadence. This complements MITRE ATLAS (AI-14, defensive architecture) and LLM Observability (AI-10, eval architecture). It specifically covers the organisational and pipeline architecture of the *red-team function itself* — not the execution of red-team exercises.
+Ship a pack covering the architecture posture of an **AI red-team and safety assurance program** — red-team program design, attack-library version governance, safety-eval pipeline integration, jailbreak-resistance gating, dual-use review board, and pre/post-deployment red-team cadence. This complements MITRE ATLAS (AI-14, defensive architecture) and LLM Observability (AI-10, eval architecture). It specifically covers the organisational and pipeline architecture of the *red-team function itself* — not the execution of red-team exercises.
 
-**Buyer outcome:** An enterprise developing or deploying high-stakes AI can assign this pack and see whether their AI red-team programme has the architecture foundation needed — red-team scope documentation, attack library governance, safety eval integration into deployment pipeline, and findings remediation tracking.
+**Buyer outcome:** An enterprise developing or deploying high-stakes AI can assign this pack and see whether their AI red-team program has the architecture foundation needed — red-team scope documentation, attack library governance, safety eval integration into deployment pipeline, and findings remediation tracking.
 
 ---
 
@@ -19,9 +19,9 @@ Ship a pack covering the architecture posture of an **AI red-team and safety ass
 |---|------------|-----------|
 | A1 | Authoritative sources: Microsoft AI Red Team practices and published red-team reports; NIST AI 600-1 §Govern 4.3 (AI red-teaming); HELM-Safety (Stanford); OpenAI red-team framework public guidance; Google DeepMind red-team methodology. | Multi-source. |
 | A2 | **AI red-team** = structured adversarial testing of AI systems by a team with explicit goals to find failures before deployment. Distinct from vulnerability scanning (automated) and penetration testing (infrastructure). | Definition. |
-| A3 | Architecture evidence for red-team programme: red-team scope document (in `governance.PolicyConstraints`), attack library version reference (in `services[]` tags for the red-team tooling service), safety eval integration into CI/CD pipeline (in `relationships[]`), findings remediation SLA (in `governance.RequiredControls`). | Evidence-mappability. |
+| A3 | Architecture evidence for red-team program: red-team scope document (in `governance.PolicyConstraints`), attack library version reference (in `services[]` tags for the red-team tooling service), safety eval integration into CI/CD pipeline (in `relationships[]`), findings remediation SLA (in `governance.RequiredControls`). | Evidence-mappability. |
 | A4 | **Dual-use review board** = a governance body that evaluates AI capabilities that could be misused (CBRN information generation, deepfake production, autonomous attack tooling). Architecture evidence: board existence documented in governance metadata. | NIST AI 600-1 reference. |
-| A5 | AI-10 (LLM Observability) covers eval harness and golden-set governance. AI-18 covers the red-team programme that feeds findings *into* the eval and safety pipeline. | Non-overlapping. |
+| A5 | AI-10 (LLM Observability) covers eval harness and golden-set governance. AI-18 covers the red-team program that feeds findings *into* the eval and safety pipeline. | Non-overlapping. |
 | A6 | AI-14 (MITRE ATLAS) covers defensive architecture against specific ML attacks. AI-18 covers the red-team function that executes adversarial testing and feeds findings back to defensive posture. | Complementary. |
 
 ---
@@ -32,7 +32,7 @@ Ship a pack covering the architecture posture of an **AI red-team and safety ass
 |---|------------|-------------|
 | C1 | Rule prefix `ai-rt-` is distinct. | Verified. |
 | C2 | Rules must not provide red-team attack execution instructions. | Safety concern — same as ATLAS pack. |
-| C3 | Pack must not imply that having a red-team programme certifies safe AI behaviour. | Mandatory disclaimer. |
+| C3 | Pack must not imply that having a red-team program certifies safe AI behavior. | Mandatory disclaimer. |
 | C4 | Jailbreak-resistance gating rules must be phrased as architecture posture ("is jailbreak resistance testing integrated into the deployment pipeline?") not attack techniques. | Scope boundary. |
 
 ---
@@ -42,7 +42,7 @@ Ship a pack covering the architecture posture of an **AI red-team and safety ass
 ```
 Microsoft AI Red Team practices + NIST AI 600-1 §Govern 4.3 + HELM-Safety
         ↓
-LLM generator (programme design → attack library → safety eval → dual-use → cadence sub-corpora)
+LLM generator (program design → attack library → safety eval → dual-use → cadence sub-corpora)
         ↓
 Critic (attack-instruction check, methodology citation accuracy)
         ↓
@@ -72,7 +72,7 @@ ai-red-team-safety-rules-v1.json → manifest → Seeder
 
 | Prefix | Theme | Target rules | Priority skew |
 |--------|-------|-------------|---------------|
-| `ai-rt-prog-` | Programme design (red-team scope, charter, independence, resourcing) | 5 | P0-heavy |
+| `ai-rt-prog-` | Program design (red-team scope, charter, independence, resourcing) | 5 | P0-heavy |
 | `ai-rt-atk-lib-` | Attack library governance (attack scenario library versioned, coverage mapped, update cadence) | 4 | P0/P1 |
 | `ai-rt-safety-eval-` | Safety eval pipeline integration (jailbreak resistance testing in CI, harmful-output eval gating) | 5 | P0-heavy |
 | `ai-rt-dual-use-` | Dual-use review architecture (dual-use board existence, review trigger design, escalation path) | 4 | P0/P1 |
@@ -82,13 +82,13 @@ ai-red-team-safety-rules-v1.json → manifest → Seeder
 
 ### 5.3 Key evidence fields
 
-`governance.PolicyConstraints` (red-team programme charter, dual-use review policy, safety incident policy), `governance.RequiredControls` (jailbreak resistance gating requirement, remediation SLA), `services[].Tags` (red-team tooling service, attack library version, safety eval service), `relationships[].relationshipType` (safety eval pipeline → deployment gate), `metadata.DecisionTraceIds` (red-team finding → remediation decision audit).
+`governance.PolicyConstraints` (red-team program charter, dual-use review policy, safety incident policy), `governance.RequiredControls` (jailbreak resistance gating requirement, remediation SLA), `services[].Tags` (red-team tooling service, attack library version, safety eval service), `relationships[].relationshipType` (safety eval pipeline → deployment gate), `metadata.DecisionTraceIds` (red-team finding → remediation decision audit).
 
 ---
 
 ## 6. Data Flow
 
-Standard pipeline. `priorityFloor: P0` surfaces programme design, safety eval pipeline integration, and dual-use review architecture. Cadence and incident response rules surface at P0/P1; incident response at P1/P2.
+Standard pipeline. `priorityFloor: P0` surfaces program design, safety eval pipeline integration, and dual-use review architecture. Cadence and incident response rules surface at P0/P1; incident response at P1/P2.
 
 ---
 
@@ -125,7 +125,7 @@ Standard pipeline. `priorityFloor: P0` surfaces programme design, safety eval pi
 ## 10. Required FAQ wording
 
 **Q: Does this pack certify that our AI is safe?**
-A: No. Safety certification requires formal evaluation, testing, and often regulatory review. ArchLucid evaluates architecture-level posture — whether a red-team programme is designed, whether jailbreak resistance testing is built into the deployment pipeline, and whether dual-use governance structures are in place. Having good posture does not guarantee safe AI behaviour; it demonstrates intentional governance design.
+A: No. Safety certification requires formal evaluation, testing, and often regulatory review. ArchLucid evaluates architecture-level posture — whether a red-team program is designed, whether jailbreak resistance testing is built into the deployment pipeline, and whether dual-use governance structures are in place. Having good posture does not guarantee safe AI behavior; it demonstrates intentional governance design.
 
 ---
 

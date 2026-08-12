@@ -24,7 +24,7 @@
 
 ---
 
-## Pre-finalize nav behaviour (UI)
+## Pre-finalize nav behavior (UI)
 
 **Retired as a guard (owner 2026-08-03).** Commit state no longer hides sidebar links: role/authority
 (`filterNavLinksByAuthority`) is the only visibility gate, so Operate analysis and governance clusters are visible

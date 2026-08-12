@@ -12,7 +12,7 @@ public interface IGovernanceEnvironmentActivationRepository
 {
     /// <summary>Persists a new environment activation record.</summary>
     /// <param name="item">The activation to create.</param>
-    /// <param name="cancellationToken">Propagates notification that the operation should be cancelled.</param>
+    /// <param name="cancellationToken">Propagates notification that the operation should be canceled.</param>
     Task CreateAsync(
         GovernanceEnvironmentActivation item,
         CancellationToken cancellationToken = default,
@@ -21,7 +21,7 @@ public interface IGovernanceEnvironmentActivationRepository
 
     /// <summary>Updates an existing environment activation record (e.g., to mark it inactive).</summary>
     /// <param name="item">The activation with updated values.</param>
-    /// <param name="cancellationToken">Propagates notification that the operation should be cancelled.</param>
+    /// <param name="cancellationToken">Propagates notification that the operation should be canceled.</param>
     Task UpdateAsync(
         GovernanceEnvironmentActivation item,
         CancellationToken cancellationToken = default,
@@ -33,7 +33,7 @@ public interface IGovernanceEnvironmentActivationRepository
     ///     ordered by <c>ActivatedUtc</c> descending (most recent first).
     /// </summary>
     /// <param name="environment">Target deployment environment (e.g., <c>dev</c>, <c>test</c>, <c>prod</c>).</param>
-    /// <param name="cancellationToken">Propagates notification that the operation should be cancelled.</param>
+    /// <param name="cancellationToken">Propagates notification that the operation should be canceled.</param>
     Task<IReadOnlyList<GovernanceEnvironmentActivation>> GetByEnvironmentAsync(string environment,
         CancellationToken cancellationToken = default);
 

@@ -262,7 +262,7 @@ public sealed class AgentOutputEvaluationRecorderTests
         Func<Task> act = async () =>
             await sut.EvaluateAndRecordMetricsAsync("run-no-enforce", CancellationToken.None);
 
-        await act.Should().NotThrowAsync("EnforceOnReject=false must preserve existing metrics-only behaviour");
+        await act.Should().NotThrowAsync("EnforceOnReject=false must preserve existing metrics-only behavior");
     }
 
     [SkippableFact]

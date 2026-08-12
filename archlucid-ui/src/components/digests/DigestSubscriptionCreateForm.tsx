@@ -74,18 +74,18 @@ export function DigestSubscriptionCreateForm(props: DigestSubscriptionCreateForm
 
     void fetchTenantIntegrationsOperations()
       .then((data) => {
-        if (!cancelled) {
+        if (!canceled) {
           setIntegrationOps(data);
         }
       })
       .catch(() => {
-        if (!cancelled) {
+        if (!canceled) {
           setIntegrationOps(null);
         }
       });
 
     return () => {
-      cancelled = true;
+      canceled = true;
     };
   }, []);
 

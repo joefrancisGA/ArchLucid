@@ -111,7 +111,7 @@ export function DraftIntakeWhatIfBranchPanel(props: DraftIntakeWhatIfBranchPanel
   const quotaAllowsBranch = quota?.canBranch !== false;
 
   useEffect(() => {
-    let cancelled = false;
+    let canceled = false;
 
     async function loadQuota(): Promise<void> {
       setQuotaError(null);
@@ -119,11 +119,11 @@ export function DraftIntakeWhatIfBranchPanel(props: DraftIntakeWhatIfBranchPanel
       try {
         const loaded = await getDraftBranchQuota(props.draftId);
 
-        if (!cancelled) {
+        if (!canceled) {
           setQuota(loaded);
         }
       } catch (loadError: unknown) {
-        if (!cancelled) {
+        if (!canceled) {
           setQuota(null);
           setQuotaError(
             loadError instanceof Error ? loadError.message : "Failed to load branch quota.",
@@ -135,7 +135,7 @@ export function DraftIntakeWhatIfBranchPanel(props: DraftIntakeWhatIfBranchPanel
     void loadQuota();
 
     return () => {
-      cancelled = true;
+      canceled = true;
     };
   }, [props.draftId]);
 

@@ -18,7 +18,7 @@ public sealed class AzureOpenAiBatchCompletionClient : IBatchAgentCompletionClie
     {
         "completed",
         "failed",
-        "cancelled",
+        "canceled",
         "expired",
     };
 

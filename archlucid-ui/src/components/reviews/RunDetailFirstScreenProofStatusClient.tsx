@@ -9,7 +9,7 @@ import {
   type RunDetailFirstScreenProofSummary,
 } from "@/lib/runs/run-detail-first-screen-proof-status";
 import type { PilotRunDeltasProofSummaryJson } from "@/lib/pilot-proof-readiness";
-import { OPERATOR_TYPOGRAPHY } from "@/lib/design-tokens";
+import { DESIGN_TOKENS, OPERATOR_TYPOGRAPHY } from "@/lib/design-tokens";
 
 import { RunDetailFirstScreenProofStatus } from "./RunDetailFirstScreenProofStatus";
 
@@ -33,7 +33,7 @@ export function RunDetailFirstScreenProofStatusClient(
   }, []);
 
   useEffect(() => {
-    let cancelled = false;
+    let canceled = false;
 
     async function load(): Promise<void> {
       try {
@@ -59,7 +59,7 @@ export function RunDetailFirstScreenProofStatusClient(
           setLoading(false);
         }
       } catch {
-        if (!cancelled) {
+        if (!canceled) {
           setLoadFailed(true);
           setLoading(false);
         }
@@ -69,7 +69,7 @@ export function RunDetailFirstScreenProofStatusClient(
     void load();
 
     return () => {
-      cancelled = true;
+      canceled = true;
     };
   }, [props.runId, reloadToken]);
 
@@ -80,7 +80,7 @@ export function RunDetailFirstScreenProofStatusClient(
   if (loadFailed) {
     return (
       <section
-        className="min-w-0 overflow-visible rounded-lg border border-amber-300 bg-amber-50 px-4 py-3 dark:border-amber-700 dark:bg-amber-950/40"
+        className={cn("min-w-0 overflow-visible", DESIGN_TOKENS.callout.warn, "rounded-lg px-4 py-3")}
         data-testid="run-detail-first-screen-proof-status-load-failed"
         role="alert"
         aria-label="Proof status unavailable"

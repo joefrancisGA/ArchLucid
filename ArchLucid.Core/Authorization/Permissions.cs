@@ -100,7 +100,7 @@ public static class Permissions
 
     private static readonly HashSet<string> AllSet = new(All, StringComparer.Ordinal);
 
-    /// <summary>Built-in Admin effective permission set (mirrors legacy Admin JWT behaviour).</summary>
+    /// <summary>Built-in Admin effective permission set (mirrors legacy Admin JWT behavior).</summary>
     public static IReadOnlyList<string> BuiltInAdmin { get; } = All.ToList();
 
     /// <summary>Built-in Operator effective permission set.</summary>

@@ -262,7 +262,7 @@ export function CorePilotNextStepsCard() {
   const [latestRunReadyToFinalize, setLatestRunReadyToFinalize] = useState(false);
 
   useEffect(() => {
-    let cancelled = false;
+    let canceled = false;
 
     async function load() {
       setPhase("loading");
@@ -270,7 +270,7 @@ export function CorePilotNextStepsCard() {
       try {
         const ctx = await fetchCorePilotCommitContextCached();
 
-        if (cancelled) {
+        if (canceled) {
           return;
         }
 
@@ -280,7 +280,7 @@ export function CorePilotNextStepsCard() {
         setLatestRunReadyToFinalize(ctx.latestRunReadyToFinalize);
         setPhase("ready");
       } catch {
-        if (cancelled) {
+        if (canceled) {
           return;
         }
 
@@ -295,7 +295,7 @@ export function CorePilotNextStepsCard() {
     void load();
 
     return () => {
-      cancelled = true;
+      canceled = true;
     };
   }, []);
 

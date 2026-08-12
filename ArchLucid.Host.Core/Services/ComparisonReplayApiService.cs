@@ -32,7 +32,7 @@ public sealed class ComparisonReplayApiService(
     /// </summary>
     /// <param name="request">Replay configuration including comparison record id, format, mode, and persist flag.</param>
     /// <param name="metadataOnly">When <see langword="true"/>, only metadata is returned; artifact re-generation is skipped.</param>
-    /// <param name="cancellationToken">Propagates notification that the operation should be cancelled.</param>
+    /// <param name="cancellationToken">Propagates notification that the operation should be canceled.</param>
     /// <returns>The full replay result from the inner service.</returns>
     /// <exception cref="InvalidOperationException">Rethrown from <paramref name="inner"/> when the comparison record is invalid.</exception>
     /// <exception cref="RunNotFoundException">Rethrown from <paramref name="inner"/> when a referenced run cannot be found.</exception>
@@ -113,7 +113,7 @@ public sealed class ComparisonReplayApiService(
     /// <summary>
     /// Delegates drift analysis for <paramref name="comparisonRecordId"/> directly to the inner service.
     /// </summary>
-    /// <param name="comparisonRecordId">Identifier of the comparison record to analyse.</param>
+    /// <param name="comparisonRecordId">Identifier of the comparison record to analyze.</param>
     /// <param name="cancellationToken">Propagates notification that the operation should be cancelled.</param>
     /// <returns>The drift analysis result produced by the inner service.</returns>
     public Task<DriftAnalysisResult> AnalyzeDriftAsync(

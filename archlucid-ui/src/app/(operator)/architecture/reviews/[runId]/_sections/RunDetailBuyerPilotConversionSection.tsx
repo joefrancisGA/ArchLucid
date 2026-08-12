@@ -25,17 +25,17 @@ export function RunDetailBuyerPilotConversionSection(props: RunDetailBuyerPilotC
       return;
     }
 
-    let cancelled = false;
+    let canceled = false;
 
     void (async () => {
       try {
         const status = await fetchLlmMonthlyDollarBudgetStatusCached({ force: true });
 
-        if (!cancelled) {
+        if (!canceled) {
           setBudgetStatus(status);
         }
       } catch {
-        if (!cancelled) {
+        if (!canceled) {
           setBudgetStatus(null);
         }
       }
@@ -54,7 +54,7 @@ export function RunDetailBuyerPilotConversionSection(props: RunDetailBuyerPilotC
           return (await res.json()) as TenantTrialStatusPayload;
         });
 
-        if (cancelled) {
+        if (canceled) {
           return;
         }
 
@@ -70,14 +70,14 @@ export function RunDetailBuyerPilotConversionSection(props: RunDetailBuyerPilotC
           setTrialStatus("inactive");
         }
       } catch {
-        if (!cancelled) {
+        if (!canceled) {
           setTrialStatus("unknown");
         }
       }
     })();
 
     return () => {
-      cancelled = true;
+      canceled = true;
     };
   }, [buyerPolishedArtifactTable]);
 

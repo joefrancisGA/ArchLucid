@@ -51,29 +51,29 @@ export function ExecutiveComplianceDriftTrendSection({
       return undefined;
     }
 
-    let cancelled = false;
+    let canceled = false;
     const window = rollingBounds30Days();
 
     void (async () => {
       try {
         const data = await getComplianceDriftTrend(window.fromUtc, window.toUtc, 1440);
 
-        if (!cancelled) {
+        if (!canceled) {
           setPoints(data);
         }
       } catch {
-        if (!cancelled) {
+        if (!canceled) {
           setError(true);
         }
       } finally {
-        if (!cancelled) {
+        if (!canceled) {
           setLoading(false);
         }
       }
     })();
 
     return () => {
-      cancelled = true;
+      canceled = true;
     };
   }, [errorProp, loadingProp, pointsProp, usesExternalData]);
 

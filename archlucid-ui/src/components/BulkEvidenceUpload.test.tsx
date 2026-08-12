@@ -182,7 +182,7 @@ describe("BulkEvidenceUpload Component", () => {
     fireEvent.click(screen.getByTestId("bulk-evidence-upload-cancel"));
 
     await waitFor(() => {
-      expect(screen.getByText("Upload cancelled.")).toBeInTheDocument();
+      expect(screen.getByText("Upload canceled.")).toBeInTheDocument();
     });
 
     expect(rejectUpload).toBeDefined();

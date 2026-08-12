@@ -1,6 +1,6 @@
 "use client";
 import { cn } from "@/lib/utils";
-import { OPERATOR_TYPOGRAPHY } from "@/lib/design-tokens";
+import { DESIGN_TOKENS, OPERATOR_TYPOGRAPHY } from "@/lib/design-tokens";
 
 import Link from "next/link";
 import { useCallback, useEffect, useState } from "react";
@@ -34,7 +34,7 @@ export function FirstValueReachedCallout(props: FirstValueReachedCalloutProps) {
       return;
     }
 
-    let cancelled = false;
+    let canceled = false;
 
     void (async () => {
       try {
@@ -43,7 +43,7 @@ export function FirstValueReachedCallout(props: FirstValueReachedCalloutProps) {
           mergeRegistrationScopeForProxy({ headers: { Accept: "application/json" } }),
         );
 
-        if (!res.ok || cancelled) {
+        if (!res.ok || canceled) {
           return;
         }
 
@@ -63,7 +63,7 @@ export function FirstValueReachedCallout(props: FirstValueReachedCalloutProps) {
     })();
 
     return () => {
-      cancelled = true;
+      canceled = true;
     };
   }, []);
 
@@ -83,17 +83,14 @@ export function FirstValueReachedCallout(props: FirstValueReachedCalloutProps) {
 
   return (
     <div
-      className={cn(
-        "rounded-lg border border-emerald-200 bg-emerald-50 p-4 dark:border-emerald-900 dark:bg-emerald-950/40",
-        props.className,
-      )}
+      className={cn(DESIGN_TOKENS.callout.success, "p-4", props.className)}
       data-testid="first-value-reached-callout"
       role="status"
     >
-      <p className={cn("m-0 font-medium text-emerald-950 dark:text-emerald-100", OPERATOR_TYPOGRAPHY.body)}>
+      <p className={cn("m-0 font-medium", OPERATOR_TYPOGRAPHY.body)}>
         Your first architecture review is ready — open it
       </p>
-      <p className={cn("mt-1 mb-3 text-emerald-900/90 dark:text-emerald-200/90", OPERATOR_TYPOGRAPHY.body)}>
+      <p className={cn("mt-1 mb-3 text-al-text-secondary", OPERATOR_TYPOGRAPHY.body)}>
         A committed signed review record is on your tenant. Open the pre-seeded welcome review to see findings and next steps.
       </p>
       <div className="flex flex-wrap items-center gap-2">

@@ -30,7 +30,7 @@ function historyOutcomeKind(
     case "invalid":
     case "failed":
       return "blocked";
-    case "cancelled":
+    case "canceled":
       return "neutral";
     default: {
       const exhaustive: never = outcome;

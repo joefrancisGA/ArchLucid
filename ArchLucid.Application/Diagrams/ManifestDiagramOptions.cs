@@ -1,7 +1,7 @@
 namespace ArchLucid.Application.Diagrams;
 
 /// <summary>
-///     Controls the rendering behaviour of <see cref="IManifestDiagramService.GenerateMermaid" />.
+///     Controls the rendering behavior of <see cref="IManifestDiagramService.GenerateMermaid" />.
 ///     All options have sensible defaults; callers only need to override what they want to change.
 /// </summary>
 public sealed class ManifestDiagramOptions

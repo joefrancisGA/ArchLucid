@@ -30,7 +30,7 @@ public sealed class AgentEvidencePackage
         set;
     } = string.Empty;
 
-    /// <summary>Name of the system being analysed.</summary>
+    /// <summary>Name of the system being analyzed.</summary>
     public string SystemName
     {
         get;

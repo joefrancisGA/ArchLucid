@@ -19,7 +19,7 @@ public static partial class ArchLucidInstrumentation
     public static readonly Counter<long> CircuitBreakerProbeOutcomes =
         AppMeter.CreateCounter<long>(
             "archlucid_circuit_breaker_probe_outcomes_total",
-            description: "Half-open probe results (labels: gate, outcome=success|failure|cancelled).");
+            description: "Half-open probe results (labels: gate, outcome=success|failure|canceled).");
 
     
     /// <summary>Calls rejected while open or while a half-open probe is in flight (label: <c>gate</c>).</summary>

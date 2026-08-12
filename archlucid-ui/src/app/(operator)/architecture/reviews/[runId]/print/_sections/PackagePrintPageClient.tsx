@@ -34,20 +34,20 @@ export function PackagePrintPageClient(props: PackagePrintPageClientProps): Reac
   const [reloadToken, setReloadToken] = useState(0);
 
   useEffect(() => {
-    let cancelled = false;
+    let canceled = false;
 
     setState({ status: "loading" });
 
     void getRunSummary(runId)
       .then((summary) => {
-        if (cancelled) {
+        if (canceled) {
           return;
         }
 
         setState({ status: "ready", presentation: buildPackagePrintPresentation(summary) });
       })
       .catch((error: unknown) => {
-        if (cancelled) {
+        if (canceled) {
           return;
         }
 
@@ -55,7 +55,7 @@ export function PackagePrintPageClient(props: PackagePrintPageClientProps): Reac
       });
 
     return () => {
-      cancelled = true;
+      canceled = true;
     };
   }, [runId, reloadToken]);
 

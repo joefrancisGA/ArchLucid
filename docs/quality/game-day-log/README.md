@@ -7,7 +7,7 @@
 
 **Primary automation:** [`.github/workflows/simmy-chaos-scheduled.yml`](../../../.github/workflows/simmy-chaos-scheduled.yml) (cron **14:00 UTC** on each calendar row below; `workflow_dispatch` is **staging-only** — production is blocked at step one per item **34**).
 
-**Runbook:** [`docs/runbooks/GAME_DAY_CHAOS_QUARTERLY.md`](../../runbooks/GAME_DAY_CHAOS_QUARTERLY.md) · **RTO/RPO (staging tier):** [`docs/RTO_RPO_TARGETS.md`](../../library/RTO_RPO_TARGETS.md) (≤ **4h** RTO, ≤ **1h** RPO for staging/pre-production) · **Failover:** [`docs/runbooks/DATABASE_FAILOVER.md`](../../runbooks/DATABASE_FAILOVER.md) · **Degraded behaviour:** [`docs/DEGRADED_MODE.md`](../../library/DEGRADED_MODE.md) · **Chaos tests in CI:** [`docs/CHAOS_TESTING.md`](../../library/CHAOS_TESTING.md).
+**Runbook:** [`docs/runbooks/GAME_DAY_CHAOS_QUARTERLY.md`](../../runbooks/GAME_DAY_CHAOS_QUARTERLY.md) · **RTO/RPO (staging tier):** [`docs/RTO_RPO_TARGETS.md`](../../library/RTO_RPO_TARGETS.md) (≤ **4h** RTO, ≤ **1h** RPO for staging/pre-production) · **Failover:** [`docs/runbooks/DATABASE_FAILOVER.md`](../../runbooks/DATABASE_FAILOVER.md) · **Degraded behavior:** [`docs/DEGRADED_MODE.md`](../../library/DEGRADED_MODE.md) · **Chaos tests in CI:** [`docs/CHAOS_TESTING.md`](../../library/CHAOS_TESTING.md).
 
 When `dry_run=false`, capture the GitHub Actions run URL and TRX summaries in the **closing report** for that row. If branch protection blocks bot commits, paste the run URL into the closing report manually after the job completes.
 
@@ -19,7 +19,7 @@ When `dry_run=false`, capture the GitHub Actions run URL and TRX summaries in th
 | **2026-07-29** | **Staging only** | _Scenario TBD (Q3)_ — reserve slot | Platform | Staging only | Same staging targets | _TBD_ | _Create closing report at game-day close; paste workflow URL into [`README.md`](README.md)_ |
 | **2026-10-28** | **Staging only** | _Scenario TBD (Q4)_ — reserve slot | Platform | Staging only | Same staging targets | _TBD_ | _Create closing report at game-day close; paste workflow URL into [`README.md`](README.md)_ |
 
-### First run scenario — expected behaviour (2026-04-29)
+### First run scenario — expected behavior (2026-04-29)
 
 **Hypothesis to validate on staging (not asserted as production contract):**
 

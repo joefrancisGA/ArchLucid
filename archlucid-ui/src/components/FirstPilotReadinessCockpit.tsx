@@ -233,7 +233,7 @@ export function FirstPilotReadinessCockpit() {
 
     void getPilotScorecard()
       .then((loadedScorecard) => {
-        if (cancelled) {
+        if (canceled) {
           return;
         }
 
@@ -241,7 +241,7 @@ export function FirstPilotReadinessCockpit() {
         setScorecardLoadFailed(loadedScorecard === null);
       })
       .finally(() => {
-        if (!cancelled) {
+        if (!canceled) {
           finishProbe();
         }
       });
@@ -249,7 +249,7 @@ export function FirstPilotReadinessCockpit() {
     void (async () => {
       try {
         if (isPublicDemoModeEnv()) {
-          if (!cancelled) {
+          if (!canceled) {
             setCommitCtx(PUBLIC_DEMO_CORE_PILOT_COMMIT_CONTEXT);
             setRunsLoadFailed(false);
           }
@@ -262,7 +262,7 @@ export function FirstPilotReadinessCockpit() {
           loadProjectRunsMergedWithDemoFallback("default").catch(() => ({ items: [], loadError: true })),
         ]);
 
-        if (cancelled) {
+        if (canceled) {
           return;
         }
 
@@ -270,13 +270,13 @@ export function FirstPilotReadinessCockpit() {
         setRunsLoadFailed(merged.loadError === true);
         setCommitCtx(buildCorePilotCommitContextFromRunItems(merged.items, trialAnchoredCommit));
       } catch {
-        if (!cancelled) {
+        if (!canceled) {
           setRuns([]);
           setRunsLoadFailed(true);
           setCommitCtx(EMPTY_COMMIT_CONTEXT);
         }
       } finally {
-        if (!cancelled) {
+        if (!canceled) {
           finishProbe();
         }
       }
@@ -285,21 +285,21 @@ export function FirstPilotReadinessCockpit() {
     if (adminConfigProbeEnabled) {
       void fetchAdminConfigLintSummary()
         .then((loadedConfigLint) => {
-          if (cancelled) {
+          if (canceled) {
             return;
           }
 
           setConfigLint(loadedConfigLint);
         })
         .finally(() => {
-          if (!cancelled) {
+          if (!canceled) {
             finishProbe();
           }
         });
     }
 
     return () => {
-      cancelled = true;
+      canceled = true;
     };
   }, [adminConfigProbeEnabled, finishProbe]);
 

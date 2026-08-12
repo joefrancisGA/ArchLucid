@@ -27,7 +27,7 @@ export function RunDetailAiReadinessGateCard(props: { readonly runId: string; re
       return;
     }
 
-    let cancelled = false;
+    let canceled = false;
     const headers = mergeRegistrationScopeForProxy({ headers: { Accept: "application/json" } });
     const url = `/api/proxy/v1/pilots/runs/${encodeURIComponent(runId)}/pilot-run-deltas`;
 
@@ -36,7 +36,7 @@ export function RunDetailAiReadinessGateCard(props: { readonly runId: string; re
         const response = await fetch(url, headers);
 
         if (!response.ok) {
-          if (!cancelled) {
+          if (!canceled) {
             setState("error");
           }
 
@@ -45,13 +45,13 @@ export function RunDetailAiReadinessGateCard(props: { readonly runId: string; re
 
         const json = (await response.json()) as PilotRunDeltasProofSummaryJson;
 
-        if (!cancelled) {
+        if (!canceled) {
           setPayload(json);
           setState("ok");
         }
       }
       catch {
-        if (!cancelled) {
+        if (!canceled) {
           setState("error");
         }
       }
@@ -60,7 +60,7 @@ export function RunDetailAiReadinessGateCard(props: { readonly runId: string; re
     void load();
 
     return () => {
-      cancelled = true;
+      canceled = true;
     };
   }, [runId, manifestId]);
 

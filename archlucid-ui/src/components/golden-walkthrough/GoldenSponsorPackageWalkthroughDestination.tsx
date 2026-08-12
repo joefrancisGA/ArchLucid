@@ -50,11 +50,11 @@ export function GoldenSponsorPackageWalkthroughDestination(
       return;
     }
 
-    let cancelled = false;
+    let canceled = false;
     let attempts = 0;
 
     const tryScroll = (): void => {
-      if (cancelled) {
+      if (canceled) {
         return;
       }
 
@@ -72,7 +72,7 @@ export function GoldenSponsorPackageWalkthroughDestination(
     tryScroll();
 
     return () => {
-      cancelled = true;
+      canceled = true;
     };
   }, [active]);
 

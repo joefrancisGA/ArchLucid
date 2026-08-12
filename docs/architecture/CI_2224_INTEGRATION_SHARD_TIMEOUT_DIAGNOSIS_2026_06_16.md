@@ -7,7 +7,7 @@
 
 ## Executive summary
 
-CI **#2224** degraded **5 of 6** Api.Tests integration regression shards. **Three shards (3/6, 5/6, 6/6) hit the 240-minute job ceiling** (`cancelled`). **Two shards (2/6, 4/6) failed at ~100–109 minutes** when a single test exceeded the **75-minute blame-hang inactivity** threshold. Only shard **1/6** completed (~9 minutes).
+CI **#2224** degraded **5 of 6** Api.Tests integration regression shards. **Three shards (3/6, 5/6, 6/6) hit the 240-minute job ceiling** (`canceled`). **Two shards (2/6, 4/6) failed at ~100–109 minutes** when a single test exceeded the **75-minute blame-hang inactivity** threshold. Only shard **1/6** completed (~9 minutes).
 
 This is a **systemic signal**, not three unrelated failures. The common path is **SQL-backed integration tests** that boot a full **`GreenfieldSqlApiFactory`** host (ephemeral `ArchLucidGreenfield_<guid>` catalog + DbUp greenfield migration) and exercise **`POST /v1/architecture/request`** through create-run idempotency locks, authority pipeline work, audit append, and outbox tables.
 
@@ -15,7 +15,7 @@ The recurring blame-hang entry **`AskThreadIntegrationTests.Ask_with_seeded_run_
 
 **Leading hypothesis (high confidence):** per-test greenfield SQL host boot + migration cost stacks under CI SQL pressure until shards exceed 240 minutes, amplified by abandoned hosts/connections holding session-scoped `sp_getapplock` resources.
 
-**Critical diagnostic gap:** existing `sqlserver-hang-diagnostics` runs only on `if: failure()` and **does not execute when jobs are `cancelled` by `timeout-minutes`** — so the three timed-out shards produced **no** SQL active-request, blocking, tempdb, or container-log snapshot.
+**Critical diagnostic gap:** existing `sqlserver-hang-diagnostics` runs only on `if: failure()` and **does not execute when jobs are `canceled` by `timeout-minutes`** — so the three timed-out shards produced **no** SQL active-request, blocking, tempdb, or container-log snapshot.
 
 ---
 
@@ -25,10 +25,10 @@ The recurring blame-hang entry **`AskThreadIntegrationTests.Ask_with_seeded_run_
 |-------|--------|-----------|--------------|
 | 1/6 | success | ~9 min | — |
 | 2/6 | **failure** | ~101 min | blame-hang (~75 min single-test inactivity + build) |
-| 3/6 | **cancelled** | **240 min** | job `timeout-minutes: 240` |
+| 3/6 | **canceled** | **240 min** | job `timeout-minutes: 240` |
 | 4/6 | **failure** | ~109 min | blame-hang |
-| 5/6 | **cancelled** | **240 min** | job ceiling |
-| 6/6 | **cancelled** | **240 min** | job ceiling |
+| 5/6 | **canceled** | **240 min** | job ceiling |
+| 6/6 | **canceled** | **240 min** | job ceiling |
 
 **The three timed-out shards are 3/6, 5/6, and 6/6.**
 
@@ -58,7 +58,7 @@ Completed="False"
 
 **Interpretation:** treat this as **last in-flight at kill time**, not proven root cause. The slow-shard API job comment in `ci.yml` explicitly warns that blame “current test” is often the last finished test when the host stalls after tests or during teardown.
 
-For shards **2/6 and 4/6** (which `failure`d, not `cancelled`), the **SQL Server hang diagnostics step should have run** — pull those job logs immediately on the next investigation pass for active requests, blocked waiters, and tempdb at the ~75-minute mark.
+For shards **2/6 and 4/6** (which `failure`d, not `canceled`), the **SQL Server hang diagnostics step should have run** — pull those job logs immediately on the next investigation pass for active requests, blocked waiters, and tempdb at the ~75-minute mark.
 
 ---
 
@@ -132,7 +132,7 @@ Under contention, operations can each approach these ceilings; many greenfield b
 
 ## 10. SQL blocking, pool exhaustion, tempdb, deadlocks, container health?
 
-**Not confirmed from #2224 timed-out shards** — diagnostics did not run on `cancelled` jobs.
+**Not confirmed from #2224 timed-out shards** — diagnostics did not run on `canceled` jobs.
 
 For shards **2/6 and 4/6**, SQL hang diagnostics **should exist in job logs** (failure path). Pending fetch.
 
@@ -142,7 +142,7 @@ For shards **2/6 and 4/6**, SQL hang diagnostics **should exist in job logs** (f
 
 **No — for two reasons:**
 
-1. **`if: failure()` excludes `cancelled` timeout jobs.** Shards 3/6, 5/6, 6/6 got **zero** SQL session/blocking/tempdb/container evidence despite the action already implementing those queries.
+1. **`if: failure()` excludes `canceled` timeout jobs.** Shards 3/6, 5/6, 6/6 got **zero** SQL session/blocking/tempdb/container evidence despite the action already implementing those queries.
 2. **Post-mortem snapshot only** — cannot show which test/request was active when a stall **begins**; blame `Sequence` at job kill is often misleading.
 
 Existing pieces **already present** (do not duplicate without checking):
@@ -190,7 +190,7 @@ Existing pieces **already present** (do not duplicate without checking):
 
 **Goal:** produce evidence on the timeout path before code changes.
 
-1. Change SQL hang diagnostics trigger to run on **timeout/cancel** as well as failure, e.g. `if: failure() || cancelled()` or `if: always()` on that step only — **not a duplicate** of existing queries, just fixing the trigger.
+1. Change SQL hang diagnostics trigger to run on **timeout/cancel** as well as failure, e.g. `if: failure() || canceled()` or `if: always()` on that step only — **not a duplicate** of existing queries, just fixing the trigger.
 2. **Or** run **one shard** (e.g. 5/6) with **`--blame-hang-timeout 20min`** so blame fires before the 240-minute ceiling and names the staller + hang dump.
 
 Compare at stall time:
@@ -220,7 +220,7 @@ Compare at stall time:
 
 ## Recommended changes (after experiment — not applied in this doc)
 
-1. **CI only (smallest, highest signal):** run `sqlserver-hang-diagnostics` on **`cancelled`** timeout jobs.
+1. **CI only (smallest, highest signal):** run `sqlserver-hang-diagnostics` on **`canceled`** timeout jobs.
 2. **Defer** until evidence: bounded dispose on `GreenfieldSqlApiFactory`, reducing per-test greenfield boots, or widening timeouts (prior prompts warn against speculative timeout widening).
 
 **Do not:** disable regression coverage to green CI; add duplicate diagnostics equivalent to existing action; assume local disk issues (this was GitHub CI).

@@ -61,7 +61,7 @@ def build_report(*, needs: dict[str, Any], log_excerpt: str | None) -> dict[str,
         result = str(entry.get("result") or "not_run").lower()
         failure_class = "none"
 
-        if result in {"failure", "cancelled", "timed_out"}:
+        if result in {"failure", "canceled", "timed_out"}:
             failure_class = classify_failure(log_excerpt or result)
 
         rows.append(

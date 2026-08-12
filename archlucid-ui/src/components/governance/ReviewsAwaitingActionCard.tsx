@@ -29,23 +29,23 @@ export function ReviewsAwaitingActionCard() {
   const [loadError, setLoadError] = useState<string | null>(null);
 
   useEffect(() => {
-    let cancelled = false;
+    let canceled = false;
 
     void (async () => {
       try {
         const response = await getGovernanceReviewsAwaitingAction();
-        if (!cancelled) {
+        if (!canceled) {
           setItems(response.items ?? []);
         }
       } catch (error: unknown) {
-        if (!cancelled) {
+        if (!canceled) {
           setLoadError(error instanceof Error ? error.message : "Failed to load reviews awaiting action.");
         }
       }
     })();
 
     return () => {
-      cancelled = true;
+      canceled = true;
     };
   }, []);
 

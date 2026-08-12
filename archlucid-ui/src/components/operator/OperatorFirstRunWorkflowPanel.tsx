@@ -85,14 +85,14 @@ export function OperatorFirstRunWorkflowPanel(props: { exploreCompletedOutput?: 
           setCommitCtx(ctx);
         }
       } catch {
-        if (!cancelled) {
+        if (!canceled) {
           setCommitCtx(emptyCommitContext);
         }
       }
     })();
 
     return () => {
-      cancelled = true;
+      canceled = true;
     };
   }, [exploreCompletedOutput]);
 
@@ -147,13 +147,13 @@ export function OperatorFirstRunWorkflowPanel(props: { exploreCompletedOutput?: 
       return;
     }
 
-    let cancelled = false;
+    let canceled = false;
 
     void (async () => {
       try {
         const rows = await fetchCorePilotTeamChecklist();
 
-        if (cancelled) {
+        if (canceled) {
           return;
         }
 
@@ -195,13 +195,13 @@ export function OperatorFirstRunWorkflowPanel(props: { exploreCompletedOutput?: 
     })();
 
     return () => {
-      cancelled = true;
+      canceled = true;
     };
   }, [exploreCompletedOutput, hydrated]);
 
   useEffect(() => {
     setHasAnyRun(readHasExistingRunsCache());
-    let cancelled = false;
+    let canceled = false;
 
     void (async () => {
       try {
@@ -215,14 +215,14 @@ export function OperatorFirstRunWorkflowPanel(props: { exploreCompletedOutput?: 
         setHasAnyRun(next);
         writeHasExistingRunsCache(next);
       } catch {
-        if (!cancelled) {
+        if (!canceled) {
           setHasAnyRun(false);
         }
       }
     })();
 
     return () => {
-      cancelled = true;
+      canceled = true;
     };
   }, []);
 

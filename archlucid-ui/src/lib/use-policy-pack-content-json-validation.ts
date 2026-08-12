@@ -87,7 +87,7 @@ export function usePolicyPackContentJsonValidation(jsonText: string): PolicyPack
   const [state, setState] = useState<PolicyPackContentJsonValidationState>(idleValidState);
 
   useEffect(() => {
-    let cancelled = false;
+    let canceled = false;
     const trimmed = jsonText.trim();
 
     if (trimmed.length === 0) {

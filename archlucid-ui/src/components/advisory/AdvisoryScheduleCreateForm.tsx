@@ -92,19 +92,19 @@ export function AdvisoryScheduleCreateForm(props: AdvisoryScheduleCreateFormProp
       return;
     }
 
-    let cancelled = false;
+    let canceled = false;
     setPreview((current) => ({ ...current, loading: true }));
 
     const timer = window.setTimeout(() => {
       void loadAdvisoryScheduleUpcomingPreview(cronExpression, form.timeZoneId).then((next) => {
-        if (!cancelled) {
+        if (!canceled) {
           setPreview(next);
         }
       });
     }, ADVISORY_SCHEDULE_PREVIEW_DEBOUNCE_MS);
 
     return () => {
-      cancelled = true;
+      canceled = true;
       window.clearTimeout(timer);
     };
   }, [advancedOpen, cronExpression, form.frequency, form.timeZoneId]);

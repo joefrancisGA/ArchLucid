@@ -18,7 +18,7 @@ export function PilotOutcomeCard() {
   const [error, setError] = useState<string | null>(null);
 
   useEffect(() => {
-    let cancelled = false;
+    let canceled = false;
 
     void (async () => {
       try {
@@ -32,18 +32,18 @@ export function PilotOutcomeCard() {
 
         const json = (await res.json()) as PilotOutcomeSummary;
 
-        if (!cancelled) {
+        if (!canceled) {
           setSummary(json);
         }
       } catch (e: unknown) {
-        if (!cancelled) {
+        if (!canceled) {
           setError(e instanceof Error ? e.message : "Failed to load pilot outcome summary.");
         }
       }
     })();
 
     return () => {
-      cancelled = true;
+      canceled = true;
     };
   }, []);
 

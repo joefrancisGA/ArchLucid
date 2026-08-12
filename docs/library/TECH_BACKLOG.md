@@ -1708,7 +1708,7 @@ All **P0** **V1**: visible-boundary button contract + design-system rule (**TB-2
 | TB-1650 | **Done** (2026-08-12) — Vitest EnterpriseTable allowlist + ban card/raw inventory on exemplar surfaces; see ## TB-1650 below | Testability P2 ? **V1**; after **TB-1647**?**TB-1649**; pairs **TB-1646** / **TB-1556** / **TB-1576** | S |
 | TB-1653 | **Done** (2026-07-30) ? data-handling help aligns isolation copy to honesty ladder (`alignDataHandlingIsolationHonesty`); Vitest; see `## TB-1653` below | Trustworthiness P0 ? **V1**; with **TB-1651**; pairs **TB-1284**/**TB-1418** | S |
 | TB-1659 | **Done** (2026-07-30) ? tenant-isolation help strips pack-alias/repo-path leakage (`stripTenantIsolationContributorLeakage`); Vitest; see `## TB-1659` below | Trustworthiness P0 ? **V1**; with **TB-1656**; pairs **TB-1235** | S |
-| TB-1660 | Tenant-isolation help ? Vitest Three-layers load + anti-stub-only; see ## TB-1660 below | Testability P2 ? **V1**; after **TB-1656** | S |
+| TB-1660 | **Done** (2026-08-12) — Vitest Three-layers load + anti-stub-only drift guard for `/help/data-handling`; see ## TB-1660 below | Testability P2 ? **V1**; after **TB-1656** | S |
 | TB-1665 | **Done** (2026-08-12) — Vitest line-tabs allowlist + ban pill/folder/segmented-tray overrides; see ## TB-1665 below | Testability P2 ? **V1**; after **TB-1662**?**TB-1664**; pairs **TB-1661** / Done **TB-665** drift guard | S |
 | TB-1670 | **Done** (2026-08-12) — unified PageContextualHelpButton allowlist + non-null topic Vitest guard (`operator-page-contextual-help-allowlist`); see ## TB-1670 below | Testability P2 ? **V1**; after **TB-1667**?**TB-1669**; pairs **TB-1666** / **TB-1556** / **TB-1576** / **TB-1650** / **TB-1665** | S |
 | TB-1673 | **Done** (2026-07-30) ? resting link affordance on home recommended-next, Reviews titles, Signup pricing, Core Pilot checkpoints, Demo preview Schedule demo; see `## TB-1673` below | Adoption friction P3 ? **V1**; with **TB-1671**; pairs **TB-1539** | S |
@@ -3436,7 +3436,7 @@ All **P0** **V1**: visible-boundary button contract + design-system rule (**TB-2
 4. **Tracker hygiene** ? Structure findings rows (severity, summary, owner, PR, retest) for [`2026-Q2-OWNER-CONDUCTED.md`](../security/pen-test-summaries/2026-Q2-OWNER-CONDUCTED.md).
 5. **Posture text** ? When retests are green, draft **stub ? final** narrative that matches what was run and fixed and stays consistent with [`docs/go-to-market/trust-center.md`](../go-to-market/trust-center.md).
 
-**Explicit limits:** The agent does **not** autonomously attack **archlucid.net** or Azure; **you** run tools in your environments and supply redacted logs or behaviour descriptions. Third-party vendor engagement is **V1.1 backlog** (**TB-136**), not a substitute for this owner-conducted V1 exercise.
+**Explicit limits:** The agent does **not** autonomously attack **archlucid.net** or Azure; **you** run tools in your environments and supply redacted logs or behavior descriptions. Third-party vendor engagement is **V1.1 backlog** (**TB-136**), not a substitute for this owner-conducted V1 exercise.
 
 **Size estimate:** Ongoing ? budget **30?60 min sessions** per surface or CI failure cluster; close the item when the 2026-Q2 owner tracker is complete and posture text is updated.
 
@@ -3573,7 +3573,7 @@ Default new **`library/`** root files to **`contributor-reference/`** unless the
 
 **Objective**
 
-Allow a paying tenant who has hit the effective monthly cap to continue real-mode LLM usage via a **prepaid wallet** without operator intervention. Default behaviour is unchanged for tenants that do not opt in.
+Allow a paying tenant who has hit the effective monthly cap to continue real-mode LLM usage via a **prepaid wallet** without operator intervention. Default behavior is unchanged for tenants that do not opt in.
 
 **Assumptions**
 
@@ -3815,7 +3815,7 @@ After each smoke wave, update **`docs/library/CONNECTOR_READINESS_MATRIX.md`** (
 
 **What to ship before scale**
 
-1. Typed **manual teardown runbook** (Azure Portal / Terraform teardown order, Key Vault detach, **`dbo.Tenants`** / binding cleanup order) referencing **`TrialLifecycleSchedulerHostedService`** behaviour so ops does not orphan metadata.
+1. Typed **manual teardown runbook** (Azure Portal / Terraform teardown order, Key Vault detach, **`dbo.Tenants`** / binding cleanup order) referencing **`TrialLifecycleSchedulerHostedService`** behavior so ops does not orphan metadata.
 2. Metric / ops query: dormant trials by phase + **`TenantDatabaseBindings`** state ? alert when elasticity pool SKU pressure climbs.
 3. Revisit unattended **`SqlTenantHardPurgeService`** throughput + **`PurgeAfterExportOnlyDays`** tightening when cardinality threshold hits (candidate: **>** N dormant catalogs per pool per FinOps spreadsheet).
 
@@ -4213,7 +4213,7 @@ A domain analysis service should not know about notification mechanisms. The cur
 
 **Correctness / safety:**
 
-- All existing notification behaviour must be preserved ? verify end-to-end in `Decisioning.Tests` (use a fake `IDomainEventPublisher`) and in integration smoke.
+- All existing notification behavior must be preserved ? verify end-to-end in `Decisioning.Tests` (use a fake `IDomainEventPublisher`) and in integration smoke.
 - `IDomainEventPublisher` must be non-blocking (fire-and-forget or outbox-backed) to avoid coupling Decisioning's execution time to notification delivery latency.
 - If an outbox is used, align with ADR 0004 (transactional outbox) to avoid double-delivery risk.
 
@@ -4590,7 +4590,7 @@ In `LlmCompletionAccountingClient.CompleteJsonAsync`, `TryRecordLlmUsageMetering
 1. Await `TryRecordLlmUsageMeteringAsync` in the `finally` block (same pattern as budget trackers), passing **`CancellationToken.None`**.
 2. Keep best-effort semantics: catch and log metering failures without failing the completion (existing `catch` in `TryRecordLlmUsageMeteringAsync`).
 3. Apply the same fix to `StreamJsonAsync` path.
-4. Tests: simulate cancelled token after inner completion returns ? assert metering `RecordAsync` still called once; budget and metering counts align.
+4. Tests: simulate canceled token after inner completion returns ? assert metering `RecordAsync` still called once; budget and metering counts align.
 
 **Out of scope:** Idempotent dedupe of metering events by correlation id (separate if needed).
 
@@ -4678,7 +4678,7 @@ If `SaveAsync` succeeds but `UpdateRunAsync` fails (transient SQL), retry builds
 
 **Problem:**
 
-Maximum billed LLM calls per handler task scales as **`MaxCompletionAttempts ? (1 + LlmCallMaxRetryAttempts)`** (e.g. 3 ? 4 = 12). Each Polly retry that reaches Azure and returns usage is charged in `LlmCompletionAccountingClient`. Remediation attempts use **different user prompts** (remediation text appended), so completion cache does not dedupe across attempts. This is intentional retry behaviour for reliability but unbounded for FinOps unless capped.
+Maximum billed LLM calls per handler task scales as **`MaxCompletionAttempts ? (1 + LlmCallMaxRetryAttempts)`** (e.g. 3 ? 4 = 12). Each Polly retry that reaches Azure and returns usage is charged in `LlmCompletionAccountingClient`. Remediation attempts use **different user prompts** (remediation text appended), so completion cache does not dedupe across attempts. This is intentional retry behavior for reliability but unbounded for FinOps unless capped.
 
 **What to do:**
 
@@ -5020,7 +5020,7 @@ Operators hitting `GET ?/decisions` or trace endpoints see **either** rule-audit
 
 **Problem:**
 
-| Location | Behaviour |
+| Location | Behavior |
 |----------|-----------|
 | `FindingsOrchestrator.cs` (~88?105) | Per-engine `catch` ? log + `FindingEngineFailure` + **continue**; partial snapshot saved with no manifest-level summary |
 | `FindingsSnapshotEvaluationConfidenceEnricher.cs` (~107?115) | Enrichment failure ? warning only; snapshot lacks `EvaluationConfidenceScore` |
@@ -5972,7 +5972,7 @@ While integrations (`AzureDevOps`, `AzureExtractor`) are not currently exposed a
 **What to do:**
 
 1. In `RealAgentExecutor`, after resolving the handler by `AgentTypeKey`, check that `task.AllowedTools` is empty (unrestricted) **or** contains the resolved `AgentTypeKey`. Throw `AgentToolNotAllowedException` (new typed exception) if the check fails.
-2. Treat `null` and empty collections as unrestricted (preserving current behaviour for existing callers).
+2. Treat `null` and empty collections as unrestricted (preserving current behavior for existing callers).
 3. Add unit tests covering: allowlist present and matching, allowlist present and not matching, null/empty allowlist.
 4. Document the enforcement semantics in a comment on `AgentTask.AllowedTools`.
 
@@ -6702,7 +6702,7 @@ The UI card never reads backend orphan findings. Count and dollar figures can di
 
 **What to do:**
 
-1. Add a new read model / query in `ArchLucid.Application` (or extend `ExecutiveRoiSummaryService`) that exposes `OrphanCandidateSummary { Count: int, AnnualSavingsUsd: decimal, EvidenceRunId: Guid }` derived from committed `OrphanedAzureResource` findings for the tenant's latest analysed run.
+1. Add a new read model / query in `ArchLucid.Application` (or extend `ExecutiveRoiSummaryService`) that exposes `OrphanCandidateSummary { Count: int, AnnualSavingsUsd: decimal, EvidenceRunId: Guid }` derived from committed `OrphanedAzureResource` findings for the tenant's latest analyzed run.
 2. Expose the new field on `GET /v1/roi/executive-summary` response (`ExecutiveRoiSummaryResponse`) ? or as a dedicated `GET /v1/roi/orphan-candidate-summary` endpoint if the data source is a separate analysis pipeline.
 3. Replace `ExecutiveOrphanCandidatesCard.tsx` to call the API field instead of fetching and parsing `orphan-candidates.json`.
 4. Delete `heuristicAnnualUsdOpportunityFromOrphanCandidatesJson`, `coerceOrphanList`, and `sumOrphanCandidateRowUsdAnnual` from `run-potential-savings-parser.ts` once no remaining callers exist. Retain `run-savings-summary-model.ts` only if it is still needed for a different artifact type.
@@ -11345,7 +11345,7 @@ Re-read of golden-path sources after TB-273 **Done** marking. Items below still 
 2. `RunAliasDeprecationMiddleware` ? emits RFC 8594 `Deprecation: true` + `Link; rel="successor-version"` headers on the deprecated `v1/runs/*` + `v1/requests` aliases (kept routable; **not** deleted).
 3. Unified idempotency + audit **by construction** ? each canonical route and its alias are multiple `[HttpPost]` attributes on one MVC action; `CanonicalRunWriteSurfaceArchitectureTests` pins the shared-action contract.
 4. `/result` documented + tested as append-only-to-in-progress (`RunStateTransitionService.ValidateResultSubmissionAllowed`); cannot finalize/commit or mutate a committed run.
-5. Decision D: renamed `RegisterCoordinatorDecisionEngineAndRepositories` ? `RegisterAuthorityDecisionEngineAndRepositories` (`DecisionEngineV2` / `IDecisionNodeRepository` / `DecisionNodeManifestMerger` are live authority components, not vestigial coordinator primitives ? no behaviour change).
+5. Decision D: renamed `RegisterCoordinatorDecisionEngineAndRepositories` ? `RegisterAuthorityDecisionEngineAndRepositories` (`DecisionEngineV2` / `IDecisionNodeRepository` / `DecisionNodeManifestMerger` are live authority components, not vestigial coordinator primitives ? no behavior change).
 6. Architecture guard fails the build on a new dual-write verb without an ADR-cited `RunWriteLifecycleRoutes` entry.
 7. ADR **0042**; ADR 0022/0029 status notes amended; `COORDINATOR_TO_AUTHORITY_PARITY.md` + `DI_REGISTRATION_MAP.md` updated.
 
@@ -12979,7 +12979,7 @@ One-click Jira/ServiceNow actions are visible whenever deployment ITSM config ex
 **Acceptance criteria:**
 
 - V1 GA config can present "integration seams ready, native create off" without removing correlation or clipboard paths.
-- Enabling the flag restores current TB-063 behaviour unchanged.
+- Enabling the flag restores current TB-063 behavior unchanged.
 
 **Affected files / projects:**
 
@@ -13072,7 +13072,7 @@ Inbound Jira/ServiceNow webhook sync updates `FindingRecords.HumanReviewStatus` 
 1. Trace correlation insert path to determine intended snapshot/`FindingRecordId` at outbound create time; persist if missing.
 2. Scope inbound UPDATE to the correlated snapshot row (or latest committed snapshot for that finding).
 3. Add integration test: two snapshots with same logical finding id (if reproducible) ??? inbound updates only the correlated row.
-4. Document behaviour in `API_CONTRACTS.md` ITSM inbound section.
+4. Document behavior in `API_CONTRACTS.md` ITSM inbound section.
 
 **Acceptance criteria:**
 
@@ -41327,7 +41327,11 @@ Operators must read three intros before reaching the Trust Center link list.
 
 ## TB-1660 ? Tenant-isolation help ? Vitest Three-layers load + anti-stub-only (P0)
 
-**Window:** V1 ? Testability. **Status:** Not started. **Priority:** P0.
+**Window:** V1 ? Testability.
+
+**Status:** **Done** (2026-08-12) ? `data-handling-tenant-isolation-help-drift-contract.ts` + `data-handling-tenant-isolation-help-drift-guard.test.ts` (canonical `DATA_HANDLING.md` SoT; Three layers + layer enumeration + non-claims; fails stub-dominated TENANT_ISOLATION bodies).
+
+**Priority:** P0.
 
 **Problem:** Registry test still expects ?Three layers? from this slug; stub migration can make the assertion pass on stale fixtures or fail silently in CI drift ? need fail-closed against stub-only body.
 
@@ -41468,7 +41472,7 @@ Operators must read three intros before reaching the Trust Center link list.
 
 **Status:** **Done** (2026-08-12) ? `operator-line-tabs-drift-guard.test.ts` scans every `src/**/*.tsx`: bans the documented `TabsList`/`TabsTrigger` override fragments and bans hand-rolled `role="tablist"` outside `components/ui/tabs.tsx`. Fixed two dead detector regexes in `operator-line-tabs-surfaces.ts` (interpolation inside a regex literal meant banned chrome was **never** matched) and moved tag scanning onto shared `jsx-opening-tag.ts` so a `>` inside a JSX expression no longer truncates the tag. Closed the last hand-rolled tablist by migrating `ProvenanceViewModeTabs` ? `ProvenanceViewModeSwitcher` (segmented `aria-pressed` via `OperatorSegmentedModeToolbar`; panels are `role="region"`) ? **TB-1664** residual.
 
-**Residual (owner decision):** seven surfaces carry no override classes but still inherit the primitive's legacy `pill` default (`OPERATOR_LINE_TABS_PILL_DEFAULT_RESIDUAL`) ? digests hub, Settings roles, reviews new, architect workspace, policy packs, graph presentation, Azure permissions setup. Making them line tabs is a `tabs.tsx` default flip (or per-call-site `variant="line"`) and visibly restyles those hubs, so it is pinned by the guard rather than changed silently.
+**Default flipped (owner decision 2026-08-12):** `tabs.tsx` now defaults `variant` to **`line`**, so the seven surfaces that named no variant (digests hub, Settings roles, reviews new, architect workspace, policy packs, graph presentation, Azure permissions setup ? `OPERATOR_LINE_TABS_DEFAULT_VARIANT_SURFACES`) render Carbon line tabs instead of pills. `variant="pill"` survives only as an explicit opt-out and is **guard-banned** across `src/**/*.tsx`; `tabs-pill-styles.ts` is retained but unused by product code.
 
 **Priority:** P0.
 
@@ -48731,7 +48735,7 @@ Operators must read three intros before reaching the Trust Center link list.
 
 **Depends on:** None.
 
-**Out of scope:** Redesigning the picker into a combobox; changing `committedOnly` / auto-pick behaviour.
+**Out of scope:** Redesigning the picker into a combobox; changing `committedOnly` / auto-pick behavior.
 
 **Size estimate:** S.
 
@@ -48889,7 +48893,7 @@ while the four counters go through `countValue`, which ignores it (line ~58).
 
 **Depends on:** None. Land with **TB-2103**.
 
-**Out of scope:** Removing the controls in populated states; polling/auto-refresh behaviour; the fifteen-page ?Not refreshed yet? sweep (follow-on).
+**Out of scope:** Removing the controls in populated states; polling/auto-refresh behavior; the fifteen-page ?Not refreshed yet? sweep (follow-on).
 
 **Size estimate:** S.
 
@@ -49169,7 +49173,7 @@ while the four counters go through `countValue`, which ignores it (line ~58).
 - `ConfigAgentModelAliasRegistry` is deleted; a test asserts exactly one `IAgentModelAliasRegistry` registration.
 - Every mutation writes an audit event with actor and before/after.
 - No tenant-scoped response contains a deployment or raw model name (guard test).
-- Existing three aliases (`economy-general`, `standard-general`, `premium-assurance`) seed from the migration so behaviour is unchanged on upgrade.
+- Existing three aliases (`economy-general`, `standard-general`, `premium-assurance`) seed from the migration so behavior is unchanged on upgrade.
 
 **Affected files:** new DDL + migration (`ArchLucid.Persistence`), new repository + port, `ArchLucid.AgentRuntime/AgentModelAliases/*` (registry replacement), `ArchLucid.Application/Admin/ModelGovernanceCatalogBuilder.cs`, new admin controller, `archlucid-ui/src/app/(operator)/internal/*` page, `ModelGovernanceSettingsCard.tsx` (read path unchanged).
 
@@ -49193,7 +49197,7 @@ while the four counters go through `countValue`, which ignores it (line ~58).
 
 **Source:** ADR 0065 D4.
 
-**Why:** Structured output is currently an all-or-nothing host toggle (`AzureOpenAI:UseJsonSchemaResponseFormat`) with a runtime HTTP 400 fallback from `json_schema` to JSON-object mode. That works when there is exactly one engine. With several, an engine that cannot honour a strict schema must be **refused for schema-dependent tasks**, not silently degraded ? silent degradation shows up as a rise in `SchemaRemediationAgentCompletionClientAdapter` retries and a quiet cost and quality regression rather than an error anyone sees.
+**Why:** Structured output is currently an all-or-nothing host toggle (`AzureOpenAI:UseJsonSchemaResponseFormat`) with a runtime HTTP 400 fallback from `json_schema` to JSON-object mode. That works when there is exactly one engine. With several, an engine that cannot honor a strict schema must be **refused for schema-dependent tasks**, not silently degraded ? silent degradation shows up as a rise in `SchemaRemediationAgentCompletionClientAdapter` retries and a quiet cost and quality regression rather than an error anyone sees.
 
 **Approach:**
 
@@ -49322,7 +49326,7 @@ while the four counters go through `countValue`, which ignores it (line ~58).
 
 - Pre-flight estimate error per engine is documented on the catalog row and asserted within its stated margin against recorded actuals for the golden cases.
 - Cost estimation for a catalog engine requires no `appsettings` change.
-- Existing Azure behaviour and rates are unchanged after migration (regression test).
+- Existing Azure behavior and rates are unchanged after migration (regression test).
 
 **Affected files:** `ArchLucid.AgentRuntime/Tokens/*`, `LlmCostEstimator.cs`, `ArchLucid.Core/Configuration/ILlmCostEstimator.cs`, `ArchitectureIntelligenceReviewTierBudgetGuard.cs`, catalog schema (**TB-2103**).
 
@@ -49386,12 +49390,12 @@ while the four counters go through `countValue`, which ignores it (line ~58).
 
 **Source:** ADR 0065 D11.
 
-**Why:** The published trust centre, subprocessor list, and buyer security packet all rest on customer evidence staying inside the ArchLucid Azure boundary. An engine reachable only via a third-party API changes that statement of fact, and shipping the capability before the disclosure would make published buyer documents inaccurate ? the most expensive class of error for this product. Treating documentation as a **gate** rather than a follow-up is the whole point of this row.
+**Why:** The published trust center, subprocessor list, and buyer security packet all rest on customer evidence staying inside the ArchLucid Azure boundary. An engine reachable only via a third-party API changes that statement of fact, and shipping the capability before the disclosure would make published buyer documents inaccurate ? the most expensive class of error for this product. Treating documentation as a **gate** rather than a follow-up is the whole point of this row.
 
 **Approach:**
 
 1. Catalog rows carry a data-boundary classification (`AzureBoundary` / `ExternalSubprocessor`); `ExternalSubprocessor` rows cannot be **offered** until the disclosure checklist is satisfied. Per ADR 0065 D11 this gate is **not** overridable by user choice ? a customer can consent to their own evidence reaching a third party, but no user can make ArchLucid's published subprocessor list accurate.
-2. Update subprocessor list, trust-centre entry, and `docs/go-to-market/BUYER_SECURITY_PROCUREMENT_PACKET.md` as part of the same change set as the engine, not after.
+2. Update subprocessor list, trust-center entry, and `docs/go-to-market/BUYER_SECURITY_PROCUREMENT_PACKET.md` as part of the same change set as the engine, not after.
 3. Workspace-administrator regulated-evidence acknowledgment recorded through `IAuditService` before first use on an `ExternalSubprocessor` engine (reuses the ADR 0060 D4 acknowledgment concept).
 4. Buyer-facing copy states plainly that engine choice covers **completions only** ? embeddings remain ArchLucid-managed Azure OpenAI (ADR 0065 D8).
 5. Claim discipline: no wording implying CPA-attested SOC 2 or published third-party pen test.
@@ -49402,7 +49406,7 @@ while the four counters go through `countValue`, which ignores it (line ~58).
 - First use on such an engine is blocked until an acknowledgment audit event exists for that workspace.
 - Buyer docs name the engine, its boundary, and the completions-only limit.
 
-**Affected files:** catalog schema (**TB-2103**), promotion gate, `IAuditService` event types, `docs/go-to-market/BUYER_SECURITY_PROCUREMENT_PACKET.md`, trust-centre + subprocessor content, `archlucid-ui/src/lib/*trust*` copy.
+**Affected files:** catalog schema (**TB-2103**), promotion gate, `IAuditService` event types, `docs/go-to-market/BUYER_SECURITY_PROCUREMENT_PACKET.md`, trust-center + subprocessor content, `archlucid-ui/src/lib/*trust*` copy.
 
 **Depends on:** **TB-2103**.
 
@@ -49441,7 +49445,7 @@ while the four counters go through `countValue`, which ignores it (line ~58).
 - A user can choose any engine in the allowed set per review and cannot choose outside it (server-side test, not UI-only).
 - Evidence (including `NotEvaluated`) is visible in the picker at selection time.
 - Run detail and provenance name the engine actually used.
-- Default behaviour for a workspace that never configures an allowed set is unchanged from today.
+- Default behavior for a workspace that never configures an allowed set is unchanged from today.
 
 **Affected files:** `ArchLucid.Application/Tenancy/*` (new workspace allowed-set service), `ArchLucid.Api/Controllers/Admin/SettingsController.cs`, run-create request + resolver path, `archlucid-ui` reviews/new selection UI + `administration/model-governance` admin UI, run-detail header.
 

@@ -8,7 +8,7 @@
   the upstream router misbehaves.
 
   Default = JSON array of all v1 triggers (resolves PENDING_QUESTIONS.md item 23 sub-bullet
-  "Per-trigger Teams opt-in"): existing rows therefore keep current behaviour (all-on) without an
+  "Per-trigger Teams opt-in"): existing rows therefore keep current behavior (all-on) without an
   explicit backfill statement. The CHECK constraint enforces ISJSON = 1 so a future bug cannot
   store malformed payloads.
 

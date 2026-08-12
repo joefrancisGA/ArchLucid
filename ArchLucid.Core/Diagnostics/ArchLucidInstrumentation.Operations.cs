@@ -44,7 +44,7 @@ public static partial class ArchLucidInstrumentation
         AppMeter.CreateCounter<long>(
             "archlucid_container_job_runs_total",
             description:
-            "ArchLucid.Jobs.Cli job runs (labels: job_name, exit_class=success|failure|unknown_job|configuration_error|cancelled).");
+            "ArchLucid.Jobs.Cli job runs (labels: job_name, exit_class=success|failure|unknown_job|configuration_error|canceled).");
 
     
     /// <summary>Orphaned agent-trace blobs deleted by archival cleanup.</summary>

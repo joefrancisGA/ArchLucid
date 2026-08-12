@@ -74,35 +74,35 @@ public sealed class ConsultingDocxTemplateOptions
         set;
     } = "Prepared by ArchLucid";
 
-    /// <summary>Primary brand colour used for headings, expressed as a 6-character hex string (no <c>#</c>).</summary>
+    /// <summary>Primary brand color used for headings, expressed as a 6-character hex string (no <c>#</c>).</summary>
     public string PrimaryColorHex
     {
         get;
         set;
     } = "2E4053";
 
-    /// <summary>Secondary brand colour used for sub-headings and borders.</summary>
+    /// <summary>Secondary brand color used for sub-headings and borders.</summary>
     public string SecondaryColorHex
     {
         get;
         set;
     } = "4F81BD";
 
-    /// <summary>Light fill colour used for table row highlights and callout boxes.</summary>
+    /// <summary>Light fill color used for table row highlights and callout boxes.</summary>
     public string AccentFillHex
     {
         get;
         set;
     } = "EAF2F8";
 
-    /// <summary>Primary body text colour.</summary>
+    /// <summary>Primary body text color.</summary>
     public string BodyColorHex
     {
         get;
         set;
     } = "1F1F1F";
 
-    /// <summary>Subtle text colour used for captions and metadata.</summary>
+    /// <summary>Subtle text color used for captions and metadata.</summary>
     public string SubtleColorHex
     {
         get;

@@ -54,7 +54,7 @@ export function useRunSummaryStream(
     }
 
     fallbackStartedRef.current = false;
-    let cancelled = false;
+    let canceled = false;
     const url = `${typeof window !== "undefined" ? window.location.origin : ""}/api/proxy/v1/authority/reviews/${encodeURIComponent(runId)}/events`;
 
     const clearFallback = () => {
@@ -66,7 +66,7 @@ export function useRunSummaryStream(
 
     const tickFallback = async () => {
       if (
-        cancelled ||
+        canceled ||
         !shouldRunRunSummaryFallbackPoll({
           sseConnected: sseConnectedRef.current,
           documentHidden: isDocumentHidden(),
@@ -79,7 +79,7 @@ export function useRunSummaryStream(
       try {
         const next = await getRunSummary(runId);
 
-        if (cancelled) {
+        if (canceled) {
           return;
         }
 
@@ -98,7 +98,7 @@ export function useRunSummaryStream(
 
     const ensureFallbackInterval = () => {
       if (
-        cancelled ||
+        canceled ||
         fallbackIntervalRef.current !== undefined ||
         !shouldRunRunSummaryFallbackPoll({
           sseConnected: sseConnectedRef.current,
@@ -116,7 +116,7 @@ export function useRunSummaryStream(
     };
 
     const startPollingFallback = () => {
-      if (cancelled || fallbackStartedRef.current) {
+      if (canceled || fallbackStartedRef.current) {
         return;
       }
 
@@ -148,14 +148,14 @@ export function useRunSummaryStream(
       startPollingFallback();
 
       return () => {
-        cancelled = true;
+        canceled = true;
         document.removeEventListener("visibilitychange", onVisibilityChange);
         clearFallback();
       };
     }
 
     es.onopen = () => {
-      if (!cancelled) {
+      if (!canceled) {
         clearFallback();
         sseConnectedRef.current = true;
         streamPhaseRef.current = "streaming";
@@ -165,7 +165,7 @@ export function useRunSummaryStream(
     };
 
     es.addEventListener("status", (ev: MessageEvent) => {
-      if (cancelled || typeof ev.data !== "string") {
+      if (canceled || typeof ev.data !== "string") {
         return;
       }
 
@@ -178,11 +178,11 @@ export function useRunSummaryStream(
     });
 
     es.addEventListener("complete", () => {
-      if (cancelled) {
+      if (canceled) {
         return;
       }
 
-      cancelled = true;
+      canceled = true;
       clearFallback();
       streamPhaseRef.current = "complete";
       setStreamPhase("complete");
@@ -190,7 +190,7 @@ export function useRunSummaryStream(
     });
 
     es.addEventListener("error", () => {
-      if (cancelled) {
+      if (canceled) {
         return;
       }
 
@@ -201,7 +201,7 @@ export function useRunSummaryStream(
     });
 
     return () => {
-      cancelled = true;
+      canceled = true;
       document.removeEventListener("visibilitychange", onVisibilityChange);
       clearFallback();
       es?.close();

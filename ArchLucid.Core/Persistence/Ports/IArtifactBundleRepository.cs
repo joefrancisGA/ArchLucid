@@ -16,7 +16,7 @@ public interface IArtifactBundleRepository
     ///     and <paramref name="transaction" /> to participate in a multi-statement transaction.
     /// </summary>
     /// <param name="bundle">The bundle to persist.</param>
-    /// <param name="ct">Propagates notification that the operation should be cancelled.</param>
+    /// <param name="ct">Propagates notification that the operation should be canceled.</param>
     /// <param name="connection">Optional open connection to reuse.</param>
     /// <param name="transaction">Optional transaction to enlist in.</param>
     Task SaveAsync(
@@ -36,7 +36,7 @@ public interface IArtifactBundleRepository
     ///     When <see langword="false" />, relational reads omit artifact <c>Content</c> payloads (descriptor/list paths).
     ///     Export and download flows pass <see langword="true" />.
     /// </param>
-    /// <param name="ct">Propagates notification that the operation should be cancelled.</param>
+    /// <param name="ct">Propagates notification that the operation should be canceled.</param>
     Task<ArtifactBundle?> GetByManifestIdAsync(
         ScopeContext scope,
         Guid manifestId,

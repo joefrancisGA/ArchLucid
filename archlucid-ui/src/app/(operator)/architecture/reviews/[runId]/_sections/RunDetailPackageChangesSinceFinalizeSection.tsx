@@ -29,24 +29,24 @@ export function RunDetailPackageChangesSinceFinalizeSection(
     if (staticTimeline !== null) {
       setEvents(staticTimeline);
       return () => {
-        cancelled = true;
+        canceled = true;
       };
     }
 
     void getRunPipelineTimeline(props.runId)
       .then((rows) => {
-        if (!cancelled) {
+        if (!canceled) {
           setEvents(Array.isArray(rows) ? rows : []);
         }
       })
       .catch(() => {
-        if (!cancelled) {
+        if (!canceled) {
           setEvents([]);
         }
       });
 
     return () => {
-      cancelled = true;
+      canceled = true;
     };
   }, [props.runId]);
 

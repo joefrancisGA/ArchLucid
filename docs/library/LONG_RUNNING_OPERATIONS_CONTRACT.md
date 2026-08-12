@@ -171,7 +171,7 @@ Documented stack limits that sit **below** long Real-mode handler work. Values a
 
 ## 11. Client wait ceilings are not failures
 
-A browser that stops waiting has **not** cancelled the server. Treating a client-side ceiling as a failure is what produces duplicate submissions, so long-operation clients follow three rules.
+A browser that stops waiting has **not** canceled the server. Treating a client-side ceiling as a failure is what produces duplicate submissions, so long-operation clients follow three rules.
 
 | Rule | Implementation |
 |------|----------------|

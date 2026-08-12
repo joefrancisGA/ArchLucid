@@ -9,5 +9,5 @@
   "negationLookbackTokens": 5,
   "mode": "simulator",
   "enforceByDefault": false,
-  "notes": "v0 calibration: 70% recall floor with zero unexpected hits. Negation guard rejects substring matches like 'do not use key vault'. Flip enforceByDefault to true (or pass --enforce on the runner) after the first inform-only baseline confirms scenarios match actual agent behaviour."
+  "notes": "v0 calibration: 70% recall floor with zero unexpected hits. Negation guard rejects substring matches like 'do not use key vault'. Flip enforceByDefault to true (or pass --enforce on the runner) after the first inform-only baseline confirms scenarios match actual agent behavior."
 }

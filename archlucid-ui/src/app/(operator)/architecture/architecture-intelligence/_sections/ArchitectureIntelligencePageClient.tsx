@@ -80,7 +80,7 @@ export function ArchitectureIntelligencePageClient() {
     setLoadingAction("product-context");
     setError(null);
 
-    let cancelled = false;
+    let canceled = false;
 
     void (async () => {
       try {
@@ -92,7 +92,7 @@ export function ArchitectureIntelligencePageClient() {
           `/api/proxy/v1/architecture-intelligence/product-runs/${encodeURIComponent(inboundRunId)}/source-context`,
         );
 
-        if (cancelled) {
+        if (canceled) {
           return;
         }
 
@@ -107,7 +107,7 @@ export function ArchitectureIntelligencePageClient() {
 
         setProductContextStatus(sources.length > 0 ? "loaded" : "empty");
       } catch (cause) {
-        if (cancelled) {
+        if (canceled) {
           return;
         }
 
@@ -118,14 +118,14 @@ export function ArchitectureIntelligencePageClient() {
             : "Could not load product run source context. Paste a description or load the golden fixture.",
         );
       } finally {
-        if (!cancelled) {
+        if (!canceled) {
           setLoadingAction(null);
         }
       }
     })();
 
     return () => {
-      cancelled = true;
+      canceled = true;
     };
   }, [inboundRunId]);
 

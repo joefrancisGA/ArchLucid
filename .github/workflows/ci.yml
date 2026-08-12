@@ -2443,7 +2443,7 @@ jobs:
 
       # Parent-process chunk watchdog (Invoke-ApiIntegrationTestShard.ps1) is the primary hang defense:
       # it captures an out-of-process dotnet-dump before killing the test host. Step timeout-minutes is
-      # the Actions backstop so failure/cancelled upload steps still run if the watchdog is bypassed.
+      # the Actions backstop so failure/canceled upload steps still run if the watchdog is bypassed.
       # Coverlet is disabled on integration shards (test.runsettings): collector finalization crashes under chunked SQL load.
       - name: Test â€” ArchLucid.Api.Tests (Integration shard, exclude Category=Slow)
         timeout-minutes: ${{ matrix.step_timeout_minutes }}
@@ -2460,7 +2460,7 @@ jobs:
           -ResultsDirectory "${{ runner.temp }}/coverage-full-core-api-integration-shard-${{ matrix.shard }}"
 
       - name: SQL Server hang diagnostics (on failure or timeout)
-        if: failure() || cancelled()
+        if: failure() || canceled()
         uses: ./.github/actions/sqlserver-hang-diagnostics
 
       - uses: actions/upload-artifact@v7
@@ -5165,7 +5165,7 @@ jobs:
           needs = json.loads(os.environ["NEEDS_JSON"])
           conclusions = [v.get("result") for v in needs.values()]
           overall = "failure" if any(c == "failure" for c in conclusions) else \
-                    "cancelled" if any(c == "cancelled" for c in conclusions) else \
+                    "canceled" if any(c == "canceled" for c in conclusions) else \
                     "success" if all(c in ("success", "skipped") for c in conclusions) else "unknown"
           lines = [
               "## CI workflow summary",

@@ -217,7 +217,7 @@ export function HelpBillingCurrentPlanCard(props: HelpBillingCurrentPlanCardProp
   }, []);
 
   useEffect(() => {
-    let cancelled = false;
+    let canceled = false;
 
     setUsageLoaded(false);
     setUsageError(false);
@@ -228,7 +228,7 @@ export function HelpBillingCurrentPlanCard(props: HelpBillingCurrentPlanCardProp
           force: (props.refreshToken ?? 0) > 0,
         });
 
-        if (cancelled) {
+        if (canceled) {
           return;
         }
 
@@ -245,7 +245,7 @@ export function HelpBillingCurrentPlanCard(props: HelpBillingCurrentPlanCardProp
         setUsageError(false);
         setUsageLoaded(true);
       } catch {
-        if (!cancelled) {
+        if (!canceled) {
           setUsageError(true);
           setUsageLoaded(true);
         }
@@ -253,7 +253,7 @@ export function HelpBillingCurrentPlanCard(props: HelpBillingCurrentPlanCardProp
     })();
 
     return () => {
-      cancelled = true;
+      canceled = true;
     };
   }, [props.refreshToken]);
 

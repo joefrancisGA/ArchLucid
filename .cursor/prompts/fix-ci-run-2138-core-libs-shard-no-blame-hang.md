@@ -7,7 +7,7 @@
 ## Symptom
 
 `.NET: full regression — core libraries shard 1/4 (SQL, non-Api Category!=Slow)` (matrix `shard=0`)
-ran for **3 hours 01 minute** and was cancelled at the `timeout-minutes: 180` GitHub job ceiling.
+ran for **3 hours 01 minute** and was canceled at the `timeout-minutes: 180` GitHub job ceiling.
 
 - No blame dump was produced (see **Root cause** below).
 - No TRX was uploaded (the run was killed before artifact upload completed for that project).

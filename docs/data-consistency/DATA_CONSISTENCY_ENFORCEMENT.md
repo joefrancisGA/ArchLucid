@@ -53,7 +53,7 @@ RLS / tenant isolation predicates on child tables are unchanged; this work does 
 ## Data flow
 
 1. Scheduled probe executes count queries.
-2. **Warn:** logs + detection counter (historical behaviour).
+2. **Warn:** logs + detection counter (historical behavior).
 3. **Alert / Quarantine:** emit **`archlucid_data_consistency_alerts_total`** per table/column slice meeting threshold.
 4. **Quarantine:** **`INSERT … SELECT TOP (@MaxRows)`** batches for orphan **`dbo.GoldenManifests`** and **`dbo.FindingsSnapshots`** (missing **`dbo.Runs`** parent), skipping rows already present in quarantine.
 

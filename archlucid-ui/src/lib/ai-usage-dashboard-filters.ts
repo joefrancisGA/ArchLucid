@@ -15,7 +15,7 @@ export type AiUsageActivityStatusFilter =
   | "failed"
   | "skipped"
   | "budget_blocked"
-  | "cancelled";
+  | "canceled";
 
 export type AiUsageDashboardFilters = {
   readonly groupBy: AiUsageBreakdownGroupBy;
@@ -53,7 +53,7 @@ const STATUS_VALUES: readonly AiUsageActivityStatusFilter[] = [
   "failed",
   "skipped",
   "budget_blocked",
-  "cancelled",
+  "canceled",
 ];
 
 function pickEnum<T extends string>(value: string | null, allowed: readonly T[], fallback: T): T {

@@ -16,18 +16,18 @@ export function GovernanceReviewsAwaitingNavBadge() {
     void (async () => {
       try {
         const response = await getGovernanceReviewsAwaitingAction();
-        if (!cancelled) {
+        if (!canceled) {
           setCount(response.items?.length ?? 0);
         }
       } catch {
-        if (!cancelled) {
+        if (!canceled) {
           setCount(0);
         }
       }
     })();
 
     return () => {
-      cancelled = true;
+      canceled = true;
     };
   }, []);
 

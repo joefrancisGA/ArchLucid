@@ -5112,7 +5112,7 @@ A: Current sub-processors are listed in [`SUBPROCESSORS.md`](SUBPROCESSORS.md). 
 
 | Window | Checkpoint |
 |--------|-----------|
-| V2 (when funded) | **Third-party pen-test programme** — templates: **[Trust Center posture](trust-center.md)**, **[V1_DEFERRED.md Â§6c](../library/V1_DEFERRED.md)** |
+| V2 (when funded) | **Third-party pen-test program** — templates: **[Trust Center posture](trust-center.md)**, **[V1_DEFERRED.md Â§6c](../library/V1_DEFERRED.md)** |
 | Rolling | **Owner-conducted** pen testing + **self-assessment** updates (**[SOC2_SELF_ASSESSMENT_2026.md](../security/SOC2_SELF_ASSESSMENT_2026.md)**), **[2026-Q2-OWNER-CONDUCTED.md](../security/pen-test-summaries/2026-Q2-OWNER-CONDUCTED.md)** |
 | Deferred (funding-gated) | **SOC 2 Type I readiness** milestone |
 | Subsequent | **SOC 2 Type II** (~6–12 months operating effectiveness evidence) |
@@ -5148,13 +5148,13 @@ Former standalone body: `docs/go-to-market/PROCUREMENT_RESPONSE_ACCELERATOR.md` 
 
 **Canonical assurance wording:** [ASSURANCE_STATUS_CANONICAL.md](ASSURANCE_STATUS_CANONICAL.md)
 
-**Rules:** Never represent **`Self-asserted`** or **`Implemented`** docs as SOC 2 **Type II** **audit opinions**. For SOC 2 programme status see **[SOC2_STATUS_PROCUREMENT.md](SOC2_STATUS_PROCUREMENT.md)** and **[SOC2_SELF_ASSESSMENT_2026.md](../security/SOC2_SELF_ASSESSMENT_2026.md)**.
+**Rules:** Never represent **`Self-asserted`** or **`Implemented`** docs as SOC 2 **Type II** **audit opinions**. For SOC 2 program status see **[SOC2_STATUS_PROCUREMENT.md](SOC2_STATUS_PROCUREMENT.md)** and **[SOC2_SELF_ASSESSMENT_2026.md](../security/SOC2_SELF_ASSESSMENT_2026.md)**.
 
 ### Status legend
 
 | Label | Meaning in this accelerator |
 |------|-------------------------------|
-| **Implemented** | Shipped behaviour or CI automation described in linked engineering / security artefacts. |
+| **Implemented** | Shipped behavior or CI automation described in linked engineering / security artefacts. |
 | **Self-asserted** | Owner-maintained narratives, inventories, matrices, or templates—not CPA / pen-test attestations. |
 | **Deferred V2** | Explicitly out of V1 and planned for V2 release window. |
 | **Deferred V1.1** | Deferred publication, engagement class, or follow-on milestone per **`V1_DEFERRED`** or linked procurement notes. |
@@ -5163,7 +5163,7 @@ Former standalone body: `docs/go-to-market/PROCUREMENT_RESPONSE_ACCELERATOR.md` 
 
 Answers are pointers only; pull quotations from targets during diligence.
 
-#### A — Governance & programme
+#### A — Governance & program
 
 | # | Prompt | Status | Evidence |
 |---|--------|--------|----------|
@@ -5198,7 +5198,7 @@ Answers are pointers only; pull quotations from targets during diligence.
 | # | Prompt | Status | Evidence |
 |---|--------|--------|----------|
 |16 | What is the high-level API / platform security stance? | Self-asserted | [SECURITY.md](../library/contributor-reference/SECURITY.md) |
-|17 | Trial / identity edge auth behaviour? | Self-asserted | [TRIAL_AUTH.md](../security/TRIAL_AUTH.md) |
+|17 | Trial / identity edge auth behavior? | Self-asserted | [TRIAL_AUTH.md](../security/TRIAL_AUTH.md) |
 |18 | Tenant isolation narrative for buyers (logical)? | Self-asserted | [#tenant-isolation-buyer-overview](#tenant-isolation-buyer-overview) Â· pack alias [TENANT_ISOLATION.md](TENANT_ISOLATION.md) |
 |19 | Detailed customer trust / connectivity discussion? | Self-asserted | [CUSTOMER_TRUST_AND_ACCESS.md](../library/CUSTOMER_TRUST_AND_ACCESS.md) |
 | 20 | Database-per-tenant SQL isolation? | Implemented | [ADR 0037](../architecture/adrs/0037-tenant-isolation-without-rls-defense-in-depth.md) |
@@ -5214,7 +5214,7 @@ Answers are pointers only; pull quotations from targets during diligence.
 |---|--------|--------|----------|
 |26 | Where does documentation point for infrastructure-as-code posture? | Self-asserted | [SIG_CORE_2026.md](../security/SIG_CORE_2026.md) Â· [`infra/README.md`](../../infra/README.md) |
 |27 | Procurement evidence-pack overview (controlled artefact index)? | Self-asserted | [EVIDENCE_PACK.md](../security/EVIDENCE_PACK.md) |
-|28 | Evidence-pack download / HTTP behaviours (trust surface)? | Self-asserted | [trust-center.md](trust-center.md) |
+|28 | Evidence-pack download / HTTP behaviors (trust surface)? | Self-asserted | [trust-center.md](trust-center.md) |
 
 #### F — Physical / data-center inheritance
 

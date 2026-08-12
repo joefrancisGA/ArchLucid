@@ -43,7 +43,7 @@ function buildDefaultReturnUrls(): { returnUrl: string; cancelUrl: string } {
 
   return {
     returnUrl: `${base}?checkout=success`,
-    cancelUrl: `${base}?checkout=cancelled`,
+    cancelUrl: `${base}?checkout=canceled`,
   };
 }
 

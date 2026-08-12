@@ -24,7 +24,7 @@ describe("EnterpriseTableSkeletonRows (TB-2381)", () => {
     expect(screen.getAllByTestId("enterprise-table-skeleton-rows-row")).toHaveLength(3);
   });
 
-  it("honours an explicit row count", () => {
+  it("honors an explicit row count", () => {
     renderRows({ columns: 2, rows: 5 });
 
     expect(screen.getAllByTestId("enterprise-table-skeleton-rows-row")).toHaveLength(5);
@@ -45,7 +45,7 @@ describe("EnterpriseTableSkeletonRows (TB-2381)", () => {
     expect(screen.getByRole("status")).toHaveTextContent("Loading rows…");
   });
 
-  it("honours a custom announcement label", () => {
+  it("honors a custom announcement label", () => {
     renderRows({ columns: 2, label: "Loading tenant health…" });
 
     expect(screen.getByRole("status")).toHaveTextContent("Loading tenant health…");

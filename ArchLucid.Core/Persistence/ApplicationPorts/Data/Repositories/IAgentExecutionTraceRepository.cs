@@ -12,7 +12,7 @@ public interface IAgentExecutionTraceRepository
 {
     /// <summary>Persists a single execution trace entry.</summary>
     /// <param name="trace">The trace to create.</param>
-    /// <param name="cancellationToken">Propagates notification that the operation should be cancelled.</param>
+    /// <param name="cancellationToken">Propagates notification that the operation should be canceled.</param>
     Task CreateAsync(
         AgentExecutionTrace trace,
         CancellationToken cancellationToken = default);
@@ -93,7 +93,7 @@ public interface IAgentExecutionTraceRepository
     ///     Returns all traces for the specified run, ordered by <c>CreatedUtc</c> ascending.
     /// </summary>
     /// <param name="runId">The run whose traces are requested.</param>
-    /// <param name="cancellationToken">Propagates notification that the operation should be cancelled.</param>
+    /// <param name="cancellationToken">Propagates notification that the operation should be canceled.</param>
     Task<IReadOnlyList<AgentExecutionTrace>> GetByRunIdAsync(
         ScopeContext scope,
         string runId,
@@ -121,7 +121,7 @@ public interface IAgentExecutionTraceRepository
     /// <param name="runId">The run whose traces are requested.</param>
     /// <param name="offset">Zero-based row offset for paging.</param>
     /// <param name="limit">Maximum number of rows to return.</param>
-    /// <param name="cancellationToken">Propagates notification that the operation should be cancelled.</param>
+    /// <param name="cancellationToken">Propagates notification that the operation should be canceled.</param>
     Task<(IReadOnlyList<AgentExecutionTrace> Traces, int TotalCount)> GetPagedByRunIdAsync(
         ScopeContext scope,
         string runId,
@@ -151,7 +151,7 @@ public interface IAgentExecutionTraceRepository
     ///     Returns all traces associated with a specific agent task, ordered by <c>CreatedUtc</c> ascending.
     /// </summary>
     /// <param name="taskId">The agent task whose traces are requested.</param>
-    /// <param name="cancellationToken">Propagates notification that the operation should be cancelled.</param>
+    /// <param name="cancellationToken">Propagates notification that the operation should be canceled.</param>
     Task<IReadOnlyList<AgentExecutionTrace>> GetByTaskIdAsync(
         string taskId,
         CancellationToken cancellationToken = default);

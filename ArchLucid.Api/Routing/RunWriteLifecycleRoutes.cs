@@ -32,6 +32,6 @@ public static class RunWriteLifecycleRoutes
         rawRouteTemplate is not null && CanonicalTemplates.Contains(Normalize(rawRouteTemplate));
 
     // Route RawText sometimes carries a leading slash (absolute attribute routes) and sometimes not (relative ones);
-    // normalise both forms so comparisons are slash-insensitive.
+    // normalize both forms so comparisons are slash-insensitive.
     private static string Normalize(string template) => template.Trim().TrimStart('/');
 }

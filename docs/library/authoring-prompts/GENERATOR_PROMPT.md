@@ -145,7 +145,7 @@ The ArchLucid evidence engine reads these fields from architecture manifests and
 
 ---
 
-### Quality invariants (self-check before finalising output)
+### Quality invariants (self-check before finalizing output)
 
 Before emitting the JSON, verify every rule passes all of these:
 

@@ -177,7 +177,7 @@ export function DigestsBrowseContent(props: DigestsBrowseContentProps = {}): Rea
       return;
     }
 
-    let cancelled = false;
+    let canceled = false;
 
     void (async () => {
       const nextAttempts: Record<string, DigestDeliveryAttempt[]> = {};
@@ -196,7 +196,7 @@ export function DigestsBrowseContent(props: DigestsBrowseContentProps = {}): Rea
         }
       }
 
-      if (cancelled) {
+      if (canceled) {
         return;
       }
 
@@ -204,7 +204,7 @@ export function DigestsBrowseContent(props: DigestsBrowseContentProps = {}): Rea
     })();
 
     return () => {
-      cancelled = true;
+      canceled = true;
     };
   }, [digests, refreshToken]);
 

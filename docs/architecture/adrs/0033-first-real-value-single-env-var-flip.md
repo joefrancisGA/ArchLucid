@@ -17,7 +17,7 @@ Ship **`archlucid try --real`** as an **opt-in** local path:
 1. **Gate:** `ARCHLUCID_REAL_AOAI=1` must be set in the shell alongside `--real`. This is the feature switch (no separate `Demo:Enabled`-style flag for this path).
 2. **Preflight:** the CLI validates **`AZURE_OPENAI_ENDPOINT`**, **`AZURE_OPENAI_API_KEY`**, and **`AZURE_OPENAI_DEPLOYMENT_NAME`** before applying the compose overlay.
 3. **Compose:** additive overlay **`docker-compose.real-aoai.yml`** sets **`AgentExecution:Mode=Real`**, maps AOAI configuration, and caps **`AzureOpenAI:MaxCompletionTokens`** (default **1024**, overridable via **`AZURE_OPENAI_MAX_COMPLETION_TOKENS`**).
-4. **Fallback:** on AOAI failure, default behaviour is **simulator substitution** with a visible Markdown warning; **`--strict-real`** fails loud (for CI smoke that must not mask outages).
+4. **Fallback:** on AOAI failure, default behavior is **simulator substitution** with a visible Markdown warning; **`--strict-real`** fails loud (for CI smoke that must not mask outages).
 5. **Provenance:** first-value reports append an **Execution provenance** footer (mode, trace count, deployment when known).
 6. **Audit + telemetry:** **`FirstRealValueRunStarted`**, **`FirstRealValueRunCompleted`**, **`FirstRealValueRunFellBackToSimulator`** plus OTel counters on the pilot path.
 

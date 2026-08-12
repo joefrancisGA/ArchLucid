@@ -129,7 +129,7 @@ These commercial milestones are **explicitly release-window-pinned to V1.1** so 
 
 **Rules:**
 
-- The CI guard's behaviour does **not** change in V1 — staying in warn-mode is the V1 contract. Flipping it to merge-blocking is a V1.1 task, not a V1 hardening task.
+- The CI guard's behavior does **not** change in V1 — staying in warn-mode is the V1 contract. Flipping it to merge-blocking is a V1.1 task, not a V1 hardening task.
 - The trial funnel TEST-mode end-to-end work (Improvement 2 in the open assessment) is **not** deferred — it is a V1 obligation and stays in §3 as actionable. The **owner-only flip to Stripe live keys** remains owner-gated (readiness via **TB-766**). The **Marketplace `Published` state** is **deferred to V2** (owner 2026-07-12), not a V1.1 obligation.
 - The `BillingProductionSafetyRules` startup guard (fails `ASPNETCORE_ENVIRONMENT=Production` when Stripe live key prefix `sk_live_` is configured without a webhook secret, or when Marketplace landing page URL is empty/localhost) stays **shipped in V1**. Its purpose is to make a future live-key / Marketplace re-open safe; do not remove it.
 - Quality assessments produced **before** these decisions (e.g. [`QUALITY_ASSESSMENT_2026_04_21_INDEPENDENT_68_60.md`](../assessments/LATEST_GPT55.md) before its 2026-04-23 re-score addenda) charged points against V1 for these gaps. Future assessments **must not** — see that file's §0.2 (reference-customer) and §0.3 (commerce-un-hold) re-score addenda for the score adjustments applied on 2026-04-23.

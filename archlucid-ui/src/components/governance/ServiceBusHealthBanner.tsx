@@ -68,7 +68,7 @@ export function ServiceBusHealthBanner() {
     }
 
     const startPollingWhenDegraded = () => {
-      if (cancelled || timer !== undefined || isDocumentHidden() || !showWarningRef.current) {
+      if (canceled || timer !== undefined || isDocumentHidden() || !showWarningRef.current) {
         return;
       }
 
@@ -85,14 +85,14 @@ export function ServiceBusHealthBanner() {
       }
 
       void load().then((unhealthy) => {
-        if (!cancelled && unhealthy) {
+        if (!canceled && unhealthy) {
           startPollingWhenDegraded();
         }
       });
     };
 
     void load().then((unhealthy) => {
-      if (!cancelled && unhealthy) {
+      if (!canceled && unhealthy) {
         startPollingWhenDegraded();
       }
     });
@@ -100,7 +100,7 @@ export function ServiceBusHealthBanner() {
     document.addEventListener("visibilitychange", onVisibilityChange);
 
     return () => {
-      cancelled = true;
+      canceled = true;
       document.removeEventListener("visibilitychange", onVisibilityChange);
       clearTimer();
     };

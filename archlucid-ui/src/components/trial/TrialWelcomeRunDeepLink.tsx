@@ -30,7 +30,7 @@ export function TrialWelcomeRunDeepLink() {
       return;
     }
 
-    let cancelled = false;
+    let canceled = false;
 
     void (async () => {
       try {
@@ -43,7 +43,7 @@ export function TrialWelcomeRunDeepLink() {
           mergeRegistrationScopeForProxy({ headers: { Accept: "application/json" } }),
         );
 
-        if (!res.ok || cancelled) {
+        if (!res.ok || canceled) {
           return;
         }
 

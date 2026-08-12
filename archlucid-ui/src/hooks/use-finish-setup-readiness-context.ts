@@ -29,7 +29,7 @@ export function useFinishSetupReadinessContext(): FinishSetupReadinessSummary {
   const [context, setContext] = useState<FinishSetupWizardContext | null>(null);
 
   useEffect(() => {
-    let cancelled = false;
+    let canceled = false;
 
     void (async () => {
       const principal = await loadCurrentPrincipal();
@@ -44,7 +44,7 @@ export function useFinishSetupReadinessContext(): FinishSetupReadinessSummary {
         healthLoadFailed = true;
       }
 
-      if (!cancelled) {
+      if (!canceled) {
         setContext({
           healthReady,
           healthLoadFailed,
@@ -55,7 +55,7 @@ export function useFinishSetupReadinessContext(): FinishSetupReadinessSummary {
     })();
 
     return () => {
-      cancelled = true;
+      canceled = true;
     };
   }, []);
 

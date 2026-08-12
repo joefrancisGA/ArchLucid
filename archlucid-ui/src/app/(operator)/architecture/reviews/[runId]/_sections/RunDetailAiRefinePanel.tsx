@@ -52,7 +52,7 @@ export function RunDetailAiRefinePanel(props: RunDetailAiRefinePanelProps) {
   const [result, setResult] = useState<ClosedLoopReasoningResult | null>(null);
 
   useEffect(() => {
-    let cancelled = false;
+    let canceled = false;
 
     setContextStatus("loading");
     setError(null);
@@ -62,7 +62,7 @@ export function RunDetailAiRefinePanel(props: RunDetailAiRefinePanelProps) {
       try {
         const context = await fetchArchitectureIntelligenceProductSourceContext(runId);
 
-        if (cancelled) {
+        if (canceled) {
           return;
         }
 
@@ -72,7 +72,7 @@ export function RunDetailAiRefinePanel(props: RunDetailAiRefinePanelProps) {
         setPriorities(context.declaredPriorities ?? []);
         setContextStatus(sources.length > 0 ? "ready" : "empty");
       } catch (cause) {
-        if (cancelled) {
+        if (canceled) {
           return;
         }
 
@@ -86,7 +86,7 @@ export function RunDetailAiRefinePanel(props: RunDetailAiRefinePanelProps) {
     })();
 
     return () => {
-      cancelled = true;
+      canceled = true;
     };
   }, [runId]);
 

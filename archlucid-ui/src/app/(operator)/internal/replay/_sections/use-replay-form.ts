@@ -59,18 +59,18 @@ export function useReplayForm(): ReplayFormViewModel {
 
     void loadReplayValidationAuditHistory(runIdTrimmed)
       .then((entries) => {
-        if (!cancelled) {
+        if (!canceled) {
           setAuditHistory(entries);
         }
       })
       .catch(() => {
-        if (!cancelled) {
+        if (!canceled) {
           setAuditHistory([]);
         }
       });
 
     return () => {
-      cancelled = true;
+      canceled = true;
     };
   }, [runIdTrimmed]);
 

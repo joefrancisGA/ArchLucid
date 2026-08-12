@@ -162,7 +162,7 @@ def main() -> int:
         "--per-tag-k6-api-smoke",
         action="store_true",
         default=False,
-        help="Enforce per-k6api-tag p95 caps matching tests/load/k6-api-smoke.js (honours ARCHLUCID_K6_OPERATOR_MINIMAL)",
+        help="Enforce per-k6api-tag p95 caps matching tests/load/k6-api-smoke.js (honors ARCHLUCID_K6_OPERATOR_MINIMAL)",
     )
     args = parser.parse_args()
 

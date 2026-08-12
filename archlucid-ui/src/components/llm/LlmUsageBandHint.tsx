@@ -40,11 +40,11 @@ export function LlmUsageBandHint() {
       try {
         const nextStatus = await fetchLlmMonthlyDollarBudgetStatusCached();
 
-        if (!cancelled) {
+        if (!canceled) {
           setStatus(nextStatus);
         }
       } catch {
-        if (!cancelled) {
+        if (!canceled) {
           setStatus(null);
         }
       }
@@ -56,7 +56,7 @@ export function LlmUsageBandHint() {
     }, LLM_USAGE_BAND_POLL_MS);
 
     return () => {
-      cancelled = true;
+      canceled = true;
       window.clearInterval(timer);
     };
   }, []);

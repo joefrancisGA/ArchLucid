@@ -18,7 +18,7 @@ export function OperationalMetricsGate({ children }: { children: ReactNode }) {
   const [showOperateDiscovery, setShowOperateDiscovery] = useState(false);
 
   useEffect(() => {
-    let cancelled = false;
+    let canceled = false;
 
     async function load() {
       setPhase("loading");
@@ -26,14 +26,14 @@ export function OperationalMetricsGate({ children }: { children: ReactNode }) {
       try {
         const ctx = await fetchCorePilotCommitContextCached();
 
-        if (cancelled) {
+        if (canceled) {
           return;
         }
 
         setShowOperateDiscovery(ctx.hasCommittedManifest);
         setPhase("ready");
       } catch {
-        if (cancelled) {
+        if (canceled) {
           return;
         }
 
@@ -45,7 +45,7 @@ export function OperationalMetricsGate({ children }: { children: ReactNode }) {
     void load();
 
     return () => {
-      cancelled = true;
+      canceled = true;
     };
   }, []);
 
