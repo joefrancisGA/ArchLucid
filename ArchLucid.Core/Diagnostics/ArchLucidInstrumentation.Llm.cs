@@ -1,4 +1,5 @@
 using System.Diagnostics;
+using System.Diagnostics.Metrics;
 
 namespace ArchLucid.Core.Diagnostics;
 
@@ -7,10 +8,207 @@ namespace ArchLucid.Core.Diagnostics;
 ///     and per-run completion accumulation.
 /// </summary>
 /// <remarks>
-///     Instrument field declarations remain in <c>ArchLucidInstrumentation.cs</c>.
+///     Instrument field declarations for this subsystem live in this partial.
 /// </remarks>
 public static partial class ArchLucidInstrumentation
 {
+    // Instrument catalog
+
+    
+    /// <summary>Half-open probe results (labels: <c>gate</c>, <c>outcome</c>=success|failure|cancelled).</summary>
+    public static readonly Counter<long> CircuitBreakerProbeOutcomes =
+        AppMeter.CreateCounter<long>(
+            "archlucid_circuit_breaker_probe_outcomes_total",
+            description: "Half-open probe results (labels: gate, outcome=success|failure|cancelled).");
+
+    
+    /// <summary>Calls rejected while open or while a half-open probe is in flight (label: <c>gate</c>).</summary>
+    public static readonly Counter<long> CircuitBreakerRejections =
+        AppMeter.CreateCounter<long>(
+            "archlucid_circuit_breaker_rejections_total",
+            description: "Calls rejected because the circuit was open or a probe was in flight (label: gate).");
+
+    
+    /// <summary>Circuit breaker state changes (labels: <c>gate</c>, <c>from_state</c>, <c>to_state</c>).</summary>
+    public static readonly Counter<long> CircuitBreakerStateTransitions =
+        AppMeter.CreateCounter<long>(
+            "archlucid_circuit_breaker_state_transitions_total",
+            description: "Circuit breaker state transitions (labels: gate, from_state, to_state).");
+
+    
+    /// <summary>Estimated USD savings from Batch API discount on offline LLM paths (TB-685).</summary>
+    public static readonly Counter<double> LlmBatchEstimatedSavingsUsdTotal =
+        AppMeter.CreateCounter<double>(
+            "archlucid_llm_batch_estimated_savings_usd_total",
+            description: "Monitoring-grade estimated USD savings from Azure OpenAI Batch API discount on offline paths.");
+
+    
+    /// <summary>Completed Azure OpenAI Batch API jobs (TB-685).</summary>
+    public static readonly Counter<long> LlmBatchJobsCompletedTotal =
+        AppMeter.CreateCounter<long>(
+            "archlucid_llm_batch_jobs_completed_total",
+            description: "Cumulative Azure OpenAI Batch API jobs completed for offline LLM paths.");
+
+    
+    /// <summary>Azure OpenAI prompt-cache discounted input tokens (TB-681).</summary>
+    public static readonly Counter<long> LlmCachedPromptTokensTotal =
+        AppMeter.CreateCounter<long>(
+            "archlucid_llm_cached_prompt_tokens_total",
+            description: "Cumulative cached prompt tokens reported by Azure OpenAI prompt caching.");
+
+    
+    /// <summary>
+    ///     LLM call retry attempts before the circuit breaker records a failure (labels: <c>gate</c>, <c>attempt</c>,
+    ///     <c>exception_type</c>).
+    /// </summary>
+    public static readonly Counter<long> LlmCallRetries =
+        AppMeter.CreateCounter<long>(
+            "archlucid_llm_call_retries_total",
+            description:
+            "LLM call retry attempts before circuit breaker recording (labels: gate, attempt, exception_type).");
+
+    
+    /// <summary>LLM completion calls made during a single <c>RealAgentExecutor.ExecuteAsync</c> batch.</summary>
+    public static readonly Histogram<int> LlmCallsPerRun =
+        AppMeter.CreateHistogram<int>(
+            "archlucid_llm_calls_per_run",
+            "{call}",
+            "Number of LLM completion calls made during a single authority run.");
+
+    
+    /// <summary>LLM completions that used the fallback client after primary throttling or server errors (labels: deployment).</summary>
+    public static readonly Counter<long> LlmCompletionFallbackEngagementsTotal =
+        AppMeter.CreateCounter<long>(
+            "archlucid_llm_completion_fallback_engagements_total",
+            description: "LLM completion calls fulfilled via FallbackAgentCompletionClient (label: deployment).");
+
+    
+    /// <summary>Completion token distribution tagged by agent consume role and invoke kind (TB-015).</summary>
+    public static readonly Histogram<long> LlmCompletionTokensDimensional =
+        AppMeter.CreateHistogram<long>(
+            "archlucid.llm.completion_tokens",
+            description: "Completion token distribution tagged by archlucid.llm.consume_role and archlucid.llm.invoke_kind.");
+
+    
+    /// <summary>Azure OpenAI chat completion output tokens.</summary>
+    public static readonly Counter<long> LlmCompletionTokensTotal =
+        AppMeter.CreateCounter<long>(
+            "archlucid_llm_completion_tokens_total",
+            description: "Cumulative completion tokens reported by Azure OpenAI completions.");
+
+    
+    /// <summary>Azure AI Content Safety blocks on LLM envelope prompts/responses (labels <c>stage</c>, <c>category</c>).</summary>
+    public static readonly Counter<long> LlmContentSafetyBlockedTotal =
+        AppMeter.CreateCounter<long>(
+            "archlucid_llm_content_safety_blocked_total",
+            description: "Content safety blocked outbound prompts or completions (labels stage, category).");
+
+    
+    /// <summary>
+    ///     Pre-tax estimated LLM spend counter (label <c>tenant</c>). Monitoring-grade only — not invoice-reconciliation-grade.
+    ///     See instrument description for IEEE 754 <c>decimal</c>-to-<c>double</c> rounding caveats (TB-025).
+    /// </summary>
+    public static readonly Counter<double> LlmCostUsdTotal =
+        AppMeter.CreateCounter<double>(
+            "archlucid_llm_cost_usd_total",
+            "USD",
+            "Pre-tax estimated LLM spend in USD from token counts × configured per-million rates (label tenant). Monitoring-grade only — not invoice-reconciliation-grade; the decimal-to-double cast introduces sub-microdollar IEEE 754 rounding. Does not include VAT/GST.");
+
+    
+    /// <summary>Embedding input tokens reported by Azure OpenAI embeddings (<c>AzureOpenAiEmbeddingClient</c>).</summary>
+    public static readonly Counter<long> LlmEmbeddingInputTokensTotal =
+        AppMeter.CreateCounter<long>(
+            "archlucid_llm_embedding_input_tokens_total",
+            description: "Cumulative embedding input tokens from Azure OpenAI (not double-counted with chat prompt tokens).");
+
+    
+    /// <summary>
+    ///     End-to-end latency for outbound GenAI operations (chat completions and embedding RPCs; labels
+    ///     <c>gen_ai.operation.name</c>, <c>status</c>).
+    /// </summary>
+    public static readonly Histogram<double> LlmGenAiOperationDurationMilliseconds =
+        AppMeter.CreateHistogram<double>(
+            "archlucid_llm_gen_ai_operation_duration_ms",
+            "ms",
+            "Wall time for GenAI client operations (complements HTTP client spans; no prompt or completion text).");
+
+    
+    /// <summary>Judge paths skipped fail-open when the isolated judge UTC-day token pool is exhausted (TB-190).</summary>
+    public static readonly Counter<long> LlmJudgeBudgetExhaustedTotal =
+        AppMeter.CreateCounter<long>(
+            "archlucid_llm_judge_budget_exhausted_total",
+            description: "LLM-as-judge or faithfulness judge skipped because the judge daily token sub-cap was exhausted.");
+
+    
+    /// <summary>Monthly USD reserve admission denied due to concurrent in-flight reservation ceiling (TB-977).</summary>
+    public static readonly Counter<long> LlmMonthlyBudgetAdmissionBlockedTotal =
+        AppMeter.CreateCounter<long>(
+            "archlucid_llm_monthly_budget_admission_blocked_total",
+            description: "Monthly USD reserve admission denied due to concurrent in-flight reservation ceiling (TB-977).");
+
+    
+    /// <summary>Monthly USD reserve/settle optimistic concurrency retries exhausted (TB-977).</summary>
+    public static readonly Counter<long> LlmMonthlyBudgetOptimisticRetryExhaustedTotal =
+        AppMeter.CreateCounter<long>(
+            "archlucid_llm_monthly_budget_optimistic_retry_exhausted_total",
+            description: "Monthly USD reserve/settle optimistic concurrency retries exhausted (TB-977).");
+
+    
+    /// <summary>Monthly USD reserve/settle used SQL-authoritative period remap (TB-977).</summary>
+    public static readonly Counter<long> LlmMonthlyBudgetPeriodRemapTotal =
+        AppMeter.CreateCounter<long>(
+            "archlucid_llm_monthly_budget_period_remap_total",
+            description: "Monthly USD reserve/settle observed caller/SQL UTC month mismatch (TB-977).");
+
+    
+    /// <summary>Expired monthly per-call reservation leases reclaimed by background worker (TB-976).</summary>
+    public static readonly Counter<long> LlmMonthlyBudgetReservationReclaimedTotal =
+        AppMeter.CreateCounter<long>(
+            "archlucid_llm_monthly_budget_reservation_reclaimed_total",
+            description: "Expired monthly per-call USD reservation leases reclaimed (TB-976).");
+
+    
+    /// <summary>Deny-list redactions applied before Azure OpenAI and trace persistence (label <c>category</c>).</summary>
+    public static readonly Counter<long> LlmPromptRedactionsTotal =
+        AppMeter.CreateCounter<long>(
+            "archlucid_llm_prompt_redactions_total",
+            description: "Outbound LLM prompt redactions (labels: email|ssn|credit_card|jwt|api_key|custom).");
+
+    
+    /// <summary>LLM completions while <c>LlmPromptRedaction:Enabled</c> is false (audit deliberate bypass).</summary>
+    public static readonly Counter<long> LlmPromptRedactionSkippedTotal =
+        AppMeter.CreateCounter<long>(
+            "archlucid_llm_prompt_redaction_skipped_total",
+            description: "LLM completions observed while prompt redaction is disabled.");
+
+    
+    /// <summary>Azure OpenAI chat completion prompt (input) tokens.</summary>
+    public static readonly Counter<long> LlmPromptTokensTotal =
+        AppMeter.CreateCounter<long>(
+            "archlucid_llm_prompt_tokens_total",
+            description: "Cumulative prompt tokens reported by Azure OpenAI completions.");
+
+    
+    /// <summary>
+    ///     LLM completions rejected by per-tenant sliding-window token quota or UTC-day budget (pre-call, in
+    ///     <c>LlmCompletionAccountingClient</c>).
+    /// </summary>
+    public static readonly Counter<long> LlmQuotaExceededTotal =
+        AppMeter.CreateCounter<long>(
+            "archlucid_llm_quota_exceeded_total",
+            description: "LLM calls rejected by tenant token quota or daily budget before outbound completion.");
+
+    
+    /// <summary>
+    ///     HTTP 429 Too Many Responses from the LLM completion transport (labels: <c>retry_after</c>=header|fallback).
+    ///     Recorded in <c>AzureOpenAiCompletionClient</c> before honoring <c>Retry-After</c> / fallback backoff.
+    /// </summary>
+    public static readonly Counter<long> LlmRateLimitTotal =
+        AppMeter.CreateCounter<long>(
+            "archlucid_llm_rate_limit_total",
+            description:
+            "LLM completion rate-limit responses (HTTP 429) before retry wait (labels: retry_after=header|fallback).");
+
     private static readonly AsyncLocal<AgentExecutionLlmCallAccumulator?> LlmCallsPerRunAccumulator = new();
 
     /// <summary>

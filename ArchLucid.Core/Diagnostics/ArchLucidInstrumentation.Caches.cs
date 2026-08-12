@@ -9,11 +9,89 @@ namespace ArchLucid.Core.Diagnostics;
 /// </summary>
 /// <remarks>
 ///     Hit-ratio gauges are observable, so the process-life aggregates below are the source of truth for both the OTel
-///     callbacks and <see cref="GetCacheTelemetrySnapshot" />. Counters live in the instrument catalog
-///     (<c>ArchLucidInstrumentation.cs</c>) because OTel exporters enumerate them from one <see cref="Meter" />.
+///     callbacks and <see cref="GetCacheTelemetrySnapshot" />. Counters live in this partial's instrument catalog on
+///     the shared <see cref="Meter" />.
 /// </remarks>
 public static partial class ArchLucidInstrumentation
 {
+    // Instrument catalog
+
+    
+
+    /// <summary>In-process cache hits for <c>GET /v1/demo/preview</c> (marketing commit-page bundle).</summary>
+    public static readonly Counter<long> DemoPreviewCacheHits =
+        AppMeter.CreateCounter<long>(
+            "archlucid.demo.preview.cache_hit_total",
+            description: "Demo marketing preview bundle cache hits (GET /v1/demo/preview).");
+
+    
+    /// <summary>In-process cache misses for <c>GET /v1/demo/preview</c> (factory invoked).</summary>
+    public static readonly Counter<long> DemoPreviewCacheMisses =
+        AppMeter.CreateCounter<long>(
+            "archlucid.demo.preview.cache_miss_total",
+            description: "Demo marketing preview bundle cache misses (GET /v1/demo/preview).");
+
+    
+    /// <summary>Aggregate explanation cache hits (<c>CachingRunExplanationSummaryService</c>).</summary>
+    public static readonly Counter<long> ExplanationCacheHits =
+        AppMeter.CreateCounter<long>(
+            "archlucid_explanation_cache_hits_total",
+            description: "Aggregate explanation cache hits (via CachingRunExplanationSummaryService).");
+
+    
+    /// <summary>Aggregate explanation cache misses (factory invoked; LLM work may follow).</summary>
+    public static readonly Counter<long> ExplanationCacheMisses =
+        AppMeter.CreateCounter<long>(
+            "archlucid_explanation_cache_misses_total",
+            description: "Aggregate explanation cache misses (LLM call required).");
+
+    
+    /// <summary>
+    ///     Hits on the in-resolve <c>(packId, version)</c> deserialized content cache inside
+    ///     <c>EffectiveGovernanceResolver</c>
+    ///     (avoids duplicate JSON work when the same version appears on multiple assignments).
+    /// </summary>
+    public static readonly Counter<long> GovernancePackContentDeserializeCacheHits =
+        AppMeter.CreateCounter<long>("archlucid_governance_pack_content_deserialize_cache_hits");
+
+    
+    /// <summary>Misses on that cache (JSON deserialize executed for a distinct pack version in the resolve call).</summary>
+    public static readonly Counter<long> GovernancePackContentDeserializeCacheMisses =
+        AppMeter.CreateCounter<long>("archlucid_governance_pack_content_deserialize_cache_misses");
+
+    
+    /// <summary>
+    ///     Hot-path read cache concurrent misses coalesced onto an in-flight loader for the same key (TB-2160).
+    /// </summary>
+    public static readonly Counter<long> HotPathReadCacheInFlightDedupedTotal =
+        AppMeter.CreateCounter<long>(
+            "archlucid_hot_path_read_cache_inflight_deduped_total",
+            description:
+            "Concurrent hot-path read cache misses that awaited an in-flight loader instead of invoking the factory again.");
+
+    
+    /// <summary>LLM completion response cache hits (<c>CachingLlmCompletionClient</c>, label <c>agent_type</c>).</summary>
+    public static readonly Counter<long> LlmCompletionCacheHitsTotal =
+        AppMeter.CreateCounter<long>(
+            "archlucid_llm_cache_hits_total",
+            description: "LLM completion response cache hits (label: agent_type).");
+
+    
+    /// <summary>LLM completion response cache misses (<c>CachingLlmCompletionClient</c>, label <c>agent_type</c>).</summary>
+    public static readonly Counter<long> LlmCompletionCacheMissesTotal =
+        AppMeter.CreateCounter<long>(
+            "archlucid_llm_cache_misses_total",
+            description: "LLM completion response cache misses (label: agent_type).");
+
+    
+    /// <summary>
+    ///     Completion-cache entries removed after a cache-served body failed wire/schema admission (TB-940 poison bust).
+    /// </summary>
+    public static readonly Counter<long> LlmCompletionCachePoisonBustsTotal =
+        AppMeter.CreateCounter<long>(
+            "archlucid_llm_cache_poison_busts_total",
+            description: "LLM completion cache poison busts after cache-served admission failure (label: agent_type).");
+
     private static int _llmCompletionCacheObservableInstrumentsRegistered;
 
     private static int _llmPromptCacheObservableInstrumentsRegistered;

@@ -7,7 +7,8 @@ namespace ArchLucid.Core.Diagnostics;
 ///     warm-catalog pool depth.
 /// </summary>
 /// <remarks>
-///     Instrument field declarations remain in <c>ArchLucidInstrumentation.cs</c>; this partial owns one-shot gauge
+///     Instrument field declarations for observable gauges live in this partial on the shared <see cref="Meter" />;
+///     this partial owns one-shot gauge
 ///     registration and the reader delegates supplied by hosted collectors.
 /// </remarks>
 public static partial class ArchLucidInstrumentation

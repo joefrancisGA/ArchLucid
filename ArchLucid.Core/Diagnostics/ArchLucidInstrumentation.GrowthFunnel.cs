@@ -13,6 +13,266 @@ namespace ArchLucid.Core.Diagnostics;
 /// </remarks>
 public static partial class ArchLucidInstrumentation
 {
+    // Instrument catalog
+
+    
+    /// <summary>Manual prep / people-per-review baseline persisted (settings UI gate).</summary>
+    public static readonly Counter<long> BaselineManualPrepCapturedTotal =
+        AppMeter.CreateCounter<long>(
+            "archlucid_baseline_manual_prep_captured_total",
+            description: "Tenant manual baseline fields saved (PUT /v1/tenant/baseline).");
+
+    
+    /// <summary>
+    ///     Guided Core Pilot checklist progress from the operator shell (labels:
+    ///     <c>step</c> = canonical slug; four steps only — low cardinality).
+    /// </summary>
+    public static readonly Counter<long> CorePilotRailChecklistStepsTotal =
+        AppMeter.CreateCounter<long>(
+            "archlucid_core_pilot_rail_checklist_step_total",
+            description:
+            "Operator-shell Core Pilot checklist step acknowledgements POST /v1/diagnostics/core-pilot-rail-step (label step slug).");
+
+    
+    /// <summary>Email OTP challenge requests (labels: <c>result</c>).</summary>
+    public static readonly Counter<long> EmailOtpChallengeRequestedTotal =
+        AppMeter.CreateCounter<long>(
+            "archlucid_email_otp_challenge_requested_total",
+            description: "Email OTP challenge requests (label result=accepted|rate_limited|sso_required|disabled|invalid_email|bot_challenge_failed).");
+
+    
+    /// <summary>Email OTP verify attempts (labels: <c>result</c>).</summary>
+    public static readonly Counter<long> EmailOtpChallengeVerifiedTotal =
+        AppMeter.CreateCounter<long>(
+            "archlucid_email_otp_challenge_verified_total",
+            description: "Email OTP verify attempts (label result=success|invalid|expired|rate_limited|sso_required).");
+
+    
+    /// <summary>Email OTP outbound delivery failures.</summary>
+    public static readonly Counter<long> EmailOtpDeliveryFailedTotal =
+        AppMeter.CreateCounter<long>(
+            "archlucid_email_otp_delivery_failed_total",
+            description: "Email OTP sign-in code delivery failures.");
+
+    
+    /// <summary>Email OTP rate-limit triggers (labels: <c>scope</c>=email|ip|email_verification_hourly).</summary>
+    public static readonly Counter<long> EmailOtpRateLimitTriggeredTotal =
+        AppMeter.CreateCounter<long>(
+            "archlucid_email_otp_rate_limit_triggered_total",
+            description: "Email OTP rate-limit triggers (label scope).");
+
+    
+    /// <summary>First successful golden-manifest commit per tenant (Core Pilot onboarding funnel).</summary>
+    public static readonly Counter<long> FirstSessionCompletedTotal =
+        AppMeter.CreateCounter<long>(
+            "archlucid_first_session_completed_total",
+            description: "Increments once per tenant on first successful manifest commit.");
+
+    
+    /// <summary>
+    ///     First-tenant onboarding funnel events (Improvement 12). Aggregated counter — the
+    ///     <c>event</c> tag is the only label by default. The <c>tenant_id</c> tag is added only when the
+    ///     <c>Telemetry:FirstTenantFunnel:PerTenantEmission</c> feature flag is on (owner-only flip per
+    ///     pending question 40 / <c>docs/security/PRIVACY_NOTE.md</c> §3.A).
+    /// </summary>
+    public static readonly Counter<long> FirstTenantFunnelEventsTotal =
+        AppMeter.CreateCounter<long>(
+            "archlucid_first_tenant_funnel_events_total",
+            description:
+            "First-tenant onboarding funnel events (label: event includes signup|tour_opt_in|first_run_started|first_run_committed|first_finding_viewed|first_finalization_attempted|first_export_opened|thirty_minute_milestone). tenant_id label added ONLY when Telemetry:FirstTenantFunnel:PerTenantEmission is true.");
+
+    
+    /// <summary>
+    ///     Operator onboarding funnel successes (labels: <c>task</c> = <c>first_run_committed</c> |
+    ///     <c>first_session_completed</c>).
+    /// </summary>
+    public static readonly Counter<long> OperatorTaskSuccessTotal =
+        AppMeter.CreateCounter<long>(
+            "archlucid_operator_task_success_total",
+            description:
+            "Server-side verified onboarding milestones (label task=first_run_committed|first_session_completed).");
+
+    
+    /// <summary>
+    ///     Age in hours of unanswered marketing pricing quote requests (labels: <c>breach_status</c>).
+    ///     Populated every five minutes by <c>MarketingPricingQuoteAgingMetricsHostedService</c>.
+    /// </summary>
+    public static readonly Histogram<double> PricingQuoteRequestAgeHours =
+        AppMeter.CreateHistogram(
+            "archlucid_pricing_quote_request_age_hours",
+            "hours",
+            "Age in hours of unanswered marketing pricing quote requests.",
+            advice: new InstrumentAdvice<double>
+            {
+                HistogramBucketBoundaries =
+                [
+                    1, 6, 12, 18, 24, 48, 72, 168
+                ]
+            });
+
+    
+    /// <summary>Self-service trial abuse denials (labels: <c>reason</c>).</summary>
+    public static readonly Counter<long> SelfServiceTrialAbuseDeniedTotal =
+        AppMeter.CreateCounter<long>(
+            "archlucid_self_service_trial_abuse_denied_total",
+            description: "Self-service trial/workspace abuse policy denials (label reason).");
+
+    
+    /// <summary>Signup marketing attribution conversions (labels: <c>attribution.medium</c>, <c>attribution.platform</c>).</summary>
+    public static readonly Counter<long> SignupMarketingConversionTotal =
+        AppMeter.CreateCounter<long>(
+            "archlucid_signup_marketing_conversion_total",
+            description: "First-touch signup attribution persisted after successful trial provision (coarse buckets only).");
+
+    
+    /// <summary>
+    ///     Operator UI sponsor banner showed the days-since-first-commit badge (labels: <c>tenant_id</c>,
+    ///     <c>days_since_first_commit_bucket</c>).
+    /// </summary>
+    public static readonly Counter<long> SponsorBannerFirstCommitBadgeRenderedTotal =
+        AppMeter.CreateCounter<long>(
+            "archlucid.ui.sponsor_banner.first_commit_badge_rendered",
+            description:
+            "Sponsor banner first-commit badge render (operator shell). Labels: tenant_id, days_since_first_commit_bucket.");
+
+    
+    /// <summary>Paid Team expansion nudge CTA clicks (label <c>trigger</c>).</summary>
+    public static readonly Counter<long> TeamExpansionNudgeClickedTotal =
+        AppMeter.CreateCounter<long>(
+            "archlucid_team_expansion_nudge_clicked_total",
+            description: "Team expansion nudge CTA clicks (label: trigger=seats|workspaces).");
+
+    
+    /// <summary>Paid Team expansion nudge renders in the operator shell (label <c>trigger</c>).</summary>
+    public static readonly Counter<long> TeamExpansionNudgeShownTotal =
+        AppMeter.CreateCounter<long>(
+            "archlucid_team_expansion_nudge_shown_total",
+            description: "Team expansion nudge shown in operator shell (label: trigger=seats|workspaces).");
+
+    
+    /// <summary>
+    ///     Seconds from tenant anchor to first golden manifest commit for any tenant (labels: <c>tenant_kind</c>
+    ///     = <c>trial</c> | <c>non_trial</c>).
+    /// </summary>
+    public static readonly Histogram<double> TenantTimeToFirstCommitSeconds =
+        AppMeter.CreateHistogram(
+            "archlucid_tenant_time_to_first_commit_seconds",
+            "s",
+            "Seconds from tenant anchor (TrialStartUtc or CreatedUtc) to first committed manifest (all tenants).",
+            advice: new InstrumentAdvice<double>
+            {
+                HistogramBucketBoundaries =
+                [
+                    5, 15, 30, 60, 120, 300, 600, 1200, 3600, 7200, 86400
+                ]
+            });
+
+    
+    /// <summary>Trial conversions to paid or higher tier (labels: <c>from_state</c>, <c>to_tier</c>).</summary>
+    public static readonly Counter<long> TrialConversionTotal =
+        AppMeter.CreateCounter<long>(
+            "archlucid_trial_conversion_total",
+            description: "Trial conversions (labels: from_state, to_tier).");
+
+    
+    /// <summary>Automated lifecycle transitions toward expiry / deletion (label <c>reason</c>).</summary>
+    public static readonly Counter<long> TrialExpirationsTotal =
+        AppMeter.CreateCounter<long>(
+            "archlucid_trial_expirations_total",
+            description: "Trial lifecycle transitions applied by automation (label: reason).");
+
+    
+    /// <summary>Seconds from trial anchor (<c>TrialStartUtc</c> when set, otherwise <c>CreatedUtc</c>) to first committed manifest.</summary>
+    public static readonly Histogram<double> TrialFirstRunSeconds =
+        AppMeter.CreateHistogram(
+            "archlucid_trial_first_run_seconds",
+            "s",
+            "Seconds from tenant trial anchor (TrialStartUtc or CreatedUtc) to first committed manifest.",
+            advice: new InstrumentAdvice<double>
+            {
+                HistogramBucketBoundaries =
+                [
+                    5, 15, 30, 60, 120, 300, 600, 1200, 3600, 7200, 86400
+                ]
+            });
+
+    
+    /// <summary>Background health check of <c>GET /v1/demo/preview</c> (labels: <c>outcome</c>=success|failure).</summary>
+    public static readonly Counter<long> TrialFunnelHealthProbeTotal =
+        AppMeter.CreateCounter<long>(
+            "archlucid_trial_funnel_health_probe_total",
+            description: "Trial funnel demo preview probe outcomes (label outcome=success|failure).");
+
+    
+    /// <summary>Failed <c>POST /v1/register</c> HTTP responses (labels: <c>reason</c>=validation|conflict|internal).</summary>
+    public static readonly Counter<long> TrialRegistrationFailuresTotal =
+        AppMeter.CreateCounter<long>(
+            "archlucid_trial_registration_failures_total",
+            description: "Self-service registration API failures (label reason=validation|conflict|internal).");
+
+    
+    /// <summary><c>TrialRunsUsed / TrialRunsLimit</c> at first manifest commit for metered trials (0.0–1.0+).</summary>
+    public static readonly Histogram<double> TrialRunsUsedRatio =
+        AppMeter.CreateHistogram(
+            "archlucid_trial_runs_used_ratio",
+            description: "TrialRunsUsed divided by TrialRunsLimit when the first manifest commits (labels none).",
+            advice: new InstrumentAdvice<double>
+            {
+                HistogramBucketBoundaries =
+                [
+                    0.05, 0.1, 0.2, 0.35, 0.5, 0.65, 0.8, 0.95, 1.0, 1.25, 2.0
+                ]
+            });
+
+    
+    /// <summary>
+    ///     Successful <c>POST /v1/register</c> where the prospect did not supply <c>baselineReviewCycleHours</c> (soft-default
+    ///     / model path).
+    /// </summary>
+    public static readonly Counter<long> TrialSignupBaselineSkippedTotal =
+        AppMeter.CreateCounter<long>(
+            "archlucid_trial_signup_baseline_skipped_total",
+            description: "Self-service trial signup completed without tenant-supplied baseline review-cycle hours.");
+
+    
+    /// <summary>Failed signup / trial bootstrap attempts (labels: <c>stage</c>, <c>reason</c>).</summary>
+    public static readonly Counter<long> TrialSignupFailuresTotal =
+        AppMeter.CreateCounter<long>(
+            "archlucid_trial_signup_failures_total",
+            description: "Self-service trial funnel: failed signup or bootstrap attempts (labels: stage, reason).");
+
+    
+    /// <summary>Successful self-service trial activations (labels: <c>source</c>, <c>mode</c>).</summary>
+    public static readonly Counter<long> TrialSignupsTotal =
+        AppMeter.CreateCounter<long>(
+            "archlucid_trial_signups_total",
+            description: "Self-service trial funnel: successful trial activations (labels: source, mode).");
+
+    
+    /// <summary>Usage-based trial upgrade nudge CTA clicks (label <c>trigger</c>).</summary>
+    public static readonly Counter<long> TrialUpgradeNudgeClickedTotal =
+        AppMeter.CreateCounter<long>(
+            "archlucid_trial_upgrade_nudge_clicked_total",
+            description: "Trial upgrade nudge CTA clicks (label: trigger=runs|seats|expiry).");
+
+    
+    /// <summary>Usage-based trial upgrade nudge renders in the operator shell (label <c>trigger</c>).</summary>
+    public static readonly Counter<long> TrialUpgradeNudgeShownTotal =
+        AppMeter.CreateCounter<long>(
+            "archlucid_trial_upgrade_nudge_shown_total",
+            description: "Trial upgrade nudge shown in operator shell (label: trigger=runs|seats|expiry).");
+
+    
+    /// <summary>
+    ///     Wall-clock minutes from wizard run creation to first committed manifest (TB-220; labels
+    ///     <c>execution_mode</c>, <c>preset_used</c>).
+    /// </summary>
+    public static readonly Histogram<double> WizardToCommittedMinutes =
+        AppMeter.CreateHistogram<double>(
+            "archlucid.pilot.wizard_to_committed_minutes",
+            "min",
+            "Wall-clock minutes from wizard submit to first committed manifest (labels execution_mode, preset_used).");
+
     private static Func<string, bool>? _firstTenantFunnelEventNameValidator;
 
     private static int _trialFunnelObservableGaugesRegistered;
