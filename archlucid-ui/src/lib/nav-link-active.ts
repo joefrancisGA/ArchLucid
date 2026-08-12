@@ -5,6 +5,7 @@ import {
 } from "@/lib/architecture/architecture-routes";
 import { isSelfSettingsPath } from "@/lib/self-settings-destinations";
 import { SETTINGS_ROOT_PATH } from "@/lib/settings-admin-route-paths";
+import { PROJECTS_RECYCLE_BIN_PATH } from "@/lib/vocabulary/projects-recycle-drafts-package-vocabulary";
 
 /**
  * Whether a sidebar / drawer link should show the active style for the current pathname.
@@ -42,7 +43,7 @@ export function isNavLinkActive(pathname: string, href: string): boolean {
   }
 
   if (pathPart === SETTINGS_ROOT_PATH) {
-    if (isSelfSettingsPath(pathname)) {
+    if (isSelfSettingsPath(pathname) || pathname === PROJECTS_RECYCLE_BIN_PATH) {
       return false;
     }
 

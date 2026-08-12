@@ -19,16 +19,32 @@ export type RecycleBinPayload = Readonly<{
 }>;
 
 export type ParsedRecycleBinPayload = Readonly<{
-  retentionDays: number;
+  retentionDays: number | null;
   workspaces: WorkspaceBinRow[];
 }>;
 
-export function recycleBinPageDescription(retentionDays: number): string {
+export function recycleBinPageDescription(retentionDays: number | null): string {
+  if (retentionDays === null) {
+    return "Deleted projects are kept here for the tenant retention window after deletion. You can restore a project if its name is not already used by an active project.";
+  }
+
   return `Deleted projects are kept here for ${retentionDays} days after deletion. You can restore a project if its name is not already used by an active project.`;
 }
 
-export function recycleBinEmptyStateBody(retentionDays: number): string {
+export function recycleBinEmptyStateBody(retentionDays: number | null): string {
+  if (retentionDays === null) {
+    return "No soft-deleted projects are in the retention window.";
+  }
+
   return `No soft-deleted projects are in the ${retentionDays}-day retention window.`;
+}
+
+export function recycleBinEmptyStateRetentionHint(retentionDays: number | null): string {
+  if (retentionDays === null) {
+    return "and it appears here for the tenant retention window before permanent removal.";
+  }
+
+  return `and it appears here for ${retentionDays} days before permanent removal.`;
 }
 
 export function computePurgeAfterUtcIso(deletedUtcIso: string, retentionDays: number): string {
@@ -45,14 +61,14 @@ export function computePurgeAfterUtcIso(deletedUtcIso: string, retentionDays: nu
 
 export function coerceRecycleBinPayload(json: unknown): ParsedRecycleBinPayload {
   if (json === null || typeof json !== "object") {
-    return { retentionDays: DEFAULT_RECYCLE_BIN_RETENTION_DAYS, workspaces: [] };
+    return { retentionDays: null, workspaces: [] };
   }
 
   const payload = json as RecycleBinPayload;
   const retentionDays =
     typeof payload.retentionDays === "number" && Number.isFinite(payload.retentionDays) && payload.retentionDays > 0
       ? Math.trunc(payload.retentionDays)
-      : DEFAULT_RECYCLE_BIN_RETENTION_DAYS;
+      : null;
 
   const workspaces = payload.workspaces;
   if (!Array.isArray(workspaces)) {
@@ -116,7 +132,11 @@ export function coerceRecycleBinPayload(json: unknown): ParsedRecycleBinPayload 
       const deletedIso = typeof p.deletedUtc === "string" ? p.deletedUtc.trim() : "";
       const purgeIsoRaw = typeof p.purgeAfterUtc === "string" ? p.purgeAfterUtc.trim() : "";
       const purgeIso =
-        purgeIsoRaw.length > 0 ? purgeIsoRaw : computePurgeAfterUtcIso(deletedIso, retentionDays);
+        purgeIsoRaw.length > 0
+          ? purgeIsoRaw
+          : retentionDays === null
+            ? ""
+            : computePurgeAfterUtcIso(deletedIso, retentionDays);
 
       if (!pid.trim() || !deletedIso || !purgeIso) {
         continue;

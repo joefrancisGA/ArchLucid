@@ -1,5 +1,7 @@
 "use client";
 
+import Link from "next/link";
+
 import { cn } from "@/lib/utils";
 import { useCallback, useEffect, useState } from "react";
 
@@ -16,8 +18,11 @@ import {
   EnterpriseTableRow,
 } from "@/components/ui/enterprise-table";
 import { StatusTag } from "@/components/ui/status-tag";
+import { WhyDisabledCtaHint } from "@/components/usability/WhyDisabledCtaHint";
 import { ApiV1Routes } from "@/lib/api-v1-routes";
-import { DESIGN_TOKENS, OPERATOR_LAYOUT, OPERATOR_TYPOGRAPHY } from "@/lib/design-tokens";
+import { DESIGN_TOKENS, OPERATOR_LAYOUT, OPERATOR_LINK, OPERATOR_TYPOGRAPHY } from "@/lib/design-tokens";
+import { GOVERNANCE_AUDIT_PATH } from "@/lib/governance/governance-route-paths";
+import { formatInstantForLocale } from "@/lib/locale-datetime";
 import { AUTHORITY_RANK } from "@/lib/nav-authority";
 import {
   type ProjectsRecycleBinFeedback,
@@ -25,18 +30,22 @@ import {
   recycleBinFeedbackStatusKind,
 } from "@/lib/projects-recycle-bin-feedback";
 import {
+  PROJECTS_RECYCLE_BIN_AUDIT_TRAIL_ATTRIBUTION_NOTE,
+  PROJECTS_RECYCLE_BIN_DELETED_BY_NOT_RECORDED,
   PROJECTS_RECYCLE_BIN_LOAD_ERROR_STATUS_LABEL,
   PROJECTS_RECYCLE_BIN_RESTORE_CONFLICT_STATUS_LABEL,
   PROJECTS_RECYCLE_BIN_RESTORE_ERROR_STATUS_LABEL,
   PROJECTS_RECYCLE_BIN_RESTORE_SUCCESS_STATUS_LABEL,
+  PROJECTS_RECYCLE_BIN_ROW_AUDIT_TRAIL_LINK_LABEL,
 } from "@/lib/projects-recycle-bin-page-copy";
 import {
   coerceRecycleBinPayload,
-  DEFAULT_RECYCLE_BIN_RETENTION_DAYS,
   recycleBinPageDescription,
   type WorkspaceBinRow,
 } from "@/lib/projects-recycle-bin-payload";
 import { mergeRegistrationScopeForProxy } from "@/lib/proxy-fetch-registration-scope";
+import { PROJECTS_RECYCLE_DRAFTS_PACKAGE_RESTORE_RESIDUE_HONESTY } from "@/lib/vocabulary/projects-recycle-drafts-package-vocabulary";
+import { whyDisabledNeedsRole } from "@/lib/why-disabled-cta";
 
 import { ProjectsRecycleBinEmptyState, ProjectsRecycleBinLoadingNotice } from "./ProjectsRecycleBinListStates";
 import { ProjectsRecycleBinPageHeader } from "./ProjectsRecycleBinPageHeader";
@@ -47,9 +56,7 @@ import {
 
 const RECYCLE_BIN_PATH = `/api/proxy/${ApiV1Routes.tenantWorkspacesRecycleBin}`;
 
-function formatTimestamp(iso: string): string {
-  return new Date(iso).toLocaleString();
-}
+const RESTORE_DISABLED_REASON = whyDisabledNeedsRole("Execute authority");
 
 function restoreFeedbackStatusLabel(kind: ProjectsRecycleBinFeedback["kind"]): string {
   switch (kind) {
@@ -89,12 +96,20 @@ function WorkspaceRecycleBinTable(props: WorkspaceRecycleBinTableProps) {
       >
         {workspace.name}
       </h2>
+      {!canRestoreExecute ? (
+        <WhyDisabledCtaHint
+          id={`projects-recycle-bin-restore-disabled-hint-${workspace.workspaceId}`}
+          reason={RESTORE_DISABLED_REASON}
+          testId={`projects-recycle-bin-restore-disabled-hint-${workspace.workspaceId}`}
+        />
+      ) : null}
       <EnterpriseTable ariaLabel={`Deleted projects in ${workspace.name}`}>
         <EnterpriseTableHead>
           <EnterpriseTableHeadRow>
             <EnterpriseTableHeaderCell>Project name</EnterpriseTableHeaderCell>
             <EnterpriseTableHeaderCell>Deleted on</EnterpriseTableHeaderCell>
             <EnterpriseTableHeaderCell>Permanently removed on</EnterpriseTableHeaderCell>
+            <EnterpriseTableHeaderCell>Deleted by</EnterpriseTableHeaderCell>
             <EnterpriseTableHeaderCell className="w-[7.5rem] text-right">Restore</EnterpriseTableHeaderCell>
           </EnterpriseTableHeadRow>
         </EnterpriseTableHead>
@@ -111,10 +126,22 @@ function WorkspaceRecycleBinTable(props: WorkspaceRecycleBinTableProps) {
                   {project.name}
                 </EnterpriseTableCell>
                 <EnterpriseTableCell>
-                  <time dateTime={project.deletedUtcIso}>{formatTimestamp(project.deletedUtcIso)}</time>
+                  <time dateTime={project.deletedUtcIso}>{formatInstantForLocale(project.deletedUtcIso)}</time>
                 </EnterpriseTableCell>
                 <EnterpriseTableCell>
-                  <time dateTime={project.purgeAfterUtcIso}>{formatTimestamp(project.purgeAfterUtcIso)}</time>
+                  <time dateTime={project.purgeAfterUtcIso}>{formatInstantForLocale(project.purgeAfterUtcIso)}</time>
+                </EnterpriseTableCell>
+                <EnterpriseTableCell>
+                  <div className="space-y-1">
+                    <span data-testid="projects-recycle-bin-deleted-by">{PROJECTS_RECYCLE_BIN_DELETED_BY_NOT_RECORDED}</span>
+                    <Link
+                      href={GOVERNANCE_AUDIT_PATH}
+                      className={cn("block", OPERATOR_LINK.nav)}
+                      data-testid={`projects-recycle-bin-audit-trail-${project.projectId}`}
+                    >
+                      {PROJECTS_RECYCLE_BIN_ROW_AUDIT_TRAIL_LINK_LABEL}
+                    </Link>
+                  </div>
                 </EnterpriseTableCell>
                 <EnterpriseTableCell className="text-right">
                   <Button
@@ -122,9 +149,13 @@ function WorkspaceRecycleBinTable(props: WorkspaceRecycleBinTableProps) {
                     variant="secondary"
                     size="sm"
                     aria-label={`Restore project ${project.name}`}
+                    aria-describedby={
+                      !canRestoreExecute
+                        ? `projects-recycle-bin-restore-disabled-hint-${workspace.workspaceId}`
+                        : undefined
+                    }
                     data-testid="projects-recycle-bin-restore"
                     disabled={!canRestoreExecute || restoreBusyRow === rowKey}
-                    title={canRestoreExecute ? undefined : "Execute authority required to restore"}
                     onClick={() => {
                       onRequestRestore(workspace.workspaceId, workspace.name, project.projectId, project.name);
                     }}
@@ -151,7 +182,7 @@ export function ProjectsRecycleBinPage() {
 
   const [error, setError] = useState<string | null>(null);
 
-  const [retentionDays, setRetentionDays] = useState(DEFAULT_RECYCLE_BIN_RETENTION_DAYS);
+  const [retentionDays, setRetentionDays] = useState<number | null>(null);
 
   const [rows, setRows] = useState<WorkspaceBinRow[]>([]);
 
@@ -260,6 +291,12 @@ export function ProjectsRecycleBinPage() {
         }}
       />
       <ProjectsRecycleDraftsPackageVocabularyRail currentSurfaceId="projects-recycle" />
+      <p
+        className={cn("m-0 text-al-text-secondary", OPERATOR_TYPOGRAPHY.helper)}
+        data-testid="projects-recycle-bin-restore-residue-honesty"
+      >
+        {PROJECTS_RECYCLE_DRAFTS_PACKAGE_RESTORE_RESIDUE_HONESTY}
+      </p>
       {!isAuthorityLoading && !canRestoreExecute ? (
         <p className={cn("m-0 text-al-text-secondary", OPERATOR_TYPOGRAPHY.body)}>
           Restore requires Execute authority — you can browse deleted projects below, but restoring is unavailable for this
@@ -334,6 +371,14 @@ export function ProjectsRecycleBinPage() {
           void restoreProject(pendingRestore.workspaceId, pendingRestore.projectId);
         }}
       />
+
+      <p className={cn("m-0 text-al-text-secondary", OPERATOR_TYPOGRAPHY.helper)} data-testid="projects-recycle-bin-audit-note">
+        {PROJECTS_RECYCLE_BIN_AUDIT_TRAIL_ATTRIBUTION_NOTE}{" "}
+        <Link href={GOVERNANCE_AUDIT_PATH} className={OPERATOR_LINK.nav}>
+          audit trail
+        </Link>
+        .
+      </p>
     </div>
   );
 }

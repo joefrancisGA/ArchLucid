@@ -14,7 +14,7 @@ import {
   PROJECTS_RECYCLE_BIN_EMPTY_STATE_TITLE,
   PROJECTS_RECYCLE_BIN_LOADING_NOTICE,
 } from "@/lib/projects-recycle-bin-page-copy";
-import { recycleBinEmptyStateBody } from "@/lib/projects-recycle-bin-payload";
+import { recycleBinEmptyStateBody, recycleBinEmptyStateRetentionHint } from "@/lib/projects-recycle-bin-payload";
 import { cn } from "@/lib/utils";
 
 /** First-load and refresh loading chrome for Projects recycle bin (TB-1291). */
@@ -27,12 +27,13 @@ export function ProjectsRecycleBinLoadingNotice(): React.JSX.Element {
 }
 
 export type ProjectsRecycleBinEmptyStateProps = {
-  readonly retentionDays: number;
+  readonly retentionDays: number | null;
 };
 
 /** Happy-empty recycle bin with quiet status and delete-surface orientation (TB-1291 / TB-1181). */
 export function ProjectsRecycleBinEmptyState(props: ProjectsRecycleBinEmptyStateProps): React.JSX.Element {
   const emptyBody = recycleBinEmptyStateBody(props.retentionDays);
+  const retentionHint = recycleBinEmptyStateRetentionHint(props.retentionDays);
 
   return (
     <div data-testid="projects-recycle-bin-empty-state">
@@ -53,7 +54,7 @@ export function ProjectsRecycleBinEmptyState(props: ProjectsRecycleBinEmptyState
             >
               {PROJECTS_RECYCLE_BIN_EMPTY_DELETE_SURFACE_LINK_LABEL}
             </Link>{" "}
-            and it appears here for {props.retentionDays} days before permanent removal.
+            {retentionHint}
           </p>
           <p className={cn("m-0 text-al-text-secondary", OPERATOR_TYPOGRAPHY.helper)}>
             Soft-deleted projects are also removed from the active list in{" "}

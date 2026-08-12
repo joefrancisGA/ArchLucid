@@ -3,10 +3,15 @@
 import { OperatorPageHeader } from "@/components/operator/OperatorPageHeader";
 import { OperatorPageBreadcrumb } from "@/components/operator/OperatorPageBreadcrumb";
 import { Button } from "@/components/ui/button";
-import { PageContextualHelpButton } from "@/components/usability/PageContextualHelpButton";
+import {
+  PageContextualHelpButton,
+  PAGE_HELP_SHORT_TRIGGER_TEXT,
+} from "@/components/usability/PageContextualHelpButton";
 import {
   PROJECTS_RECYCLE_BIN_BREADCRUMB_ADMINISTRATION_HREF,
   PROJECTS_RECYCLE_BIN_BREADCRUMB_ADMINISTRATION_LABEL,
+  PROJECTS_RECYCLE_BIN_BREADCRUMB_WORKSPACE_SETTINGS_HREF,
+  PROJECTS_RECYCLE_BIN_BREADCRUMB_WORKSPACE_SETTINGS_LABEL,
   PROJECTS_RECYCLE_BIN_PAGE_TITLE,
 } from "@/lib/projects-recycle-bin-page-copy";
 
@@ -31,13 +36,17 @@ export function ProjectsRecycleBinPageHeader(props: ProjectsRecycleBinPageHeader
               label: PROJECTS_RECYCLE_BIN_BREADCRUMB_ADMINISTRATION_LABEL,
               href: PROJECTS_RECYCLE_BIN_BREADCRUMB_ADMINISTRATION_HREF,
             },
+            {
+              label: PROJECTS_RECYCLE_BIN_BREADCRUMB_WORKSPACE_SETTINGS_LABEL,
+              href: PROJECTS_RECYCLE_BIN_BREADCRUMB_WORKSPACE_SETTINGS_HREF,
+            },
             { label: PROJECTS_RECYCLE_BIN_PAGE_TITLE },
           ]}
         />
       }
       actions={
         <div className="flex flex-wrap items-center gap-2" data-testid="projects-recycle-bin-header-actions">
-          <PageContextualHelpButton />
+          <PageContextualHelpButton triggerText={PAGE_HELP_SHORT_TRIGGER_TEXT} />
           <Button
             type="button"
             variant="outline"

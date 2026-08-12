@@ -15,7 +15,6 @@ const SRC_ROOT = join(process.cwd(), "src");
  */
 const TITLE_ONLY_DISABLED_EXPLANATION_BASELINE: ReadonlySet<string> = new Set([
   "app/(operator)/administration/tenant/_sections/TenantWorkspaceProjectsCard.tsx",
-  "app/(operator)/administration/tenant/recycle-bin/_sections/ProjectsRecycleBinPage.tsx",
   "app/(operator)/architecture/reviews/[runId]/findings/[findingId]/FindingInspectGovernanceStickinessPanel.tsx",
   "app/(operator)/governance/_sections/GovernanceWorkflowPromotionsActivationsSection.tsx",
   "app/(operator)/governance/policy-packs/_sections/PolicyRulePlainEnglishDraftPanel.tsx",

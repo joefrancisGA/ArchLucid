@@ -9,7 +9,6 @@ export const TIMESTAMP_TIMEZONE_BASELINE: readonly string[] = [
   "app/(operator)/administration/ai-usage/_sections/ai-usage/AiUsageRecentActivityPanel.tsx",
   "app/(operator)/administration/billing/OperatorBillingWalletPanel.tsx",
   "app/(operator)/administration/identity-providers/_sections/SamlSpConfigurationForm.tsx",
-  "app/(operator)/administration/tenant/recycle-bin/_sections/ProjectsRecycleBinPage.tsx",
   "app/(operator)/administration/users/_sections/roles-matrix-constants.ts",
   "app/(operator)/architecture/executive-dashboard/_sections/ExecutiveRoiEnvironmentSavingsSection.tsx",
   "app/(operator)/architecture/executive-dashboard/_sections/ExecutiveRoiSavingsTrendSvgChart.tsx",

@@ -50,6 +50,7 @@ describe("isNavLinkActive", () => {
     expect(isNavLinkActive("/administration/account-security", "/administration")).toBe(false);
     expect(isNavLinkActive("/administration/preferences", "/administration")).toBe(false);
     expect(isNavLinkActive("/administration/notifications", "/administration")).toBe(false);
+    expect(isNavLinkActive("/administration/tenant/recycle-bin", "/administration")).toBe(false);
     expect(isNavLinkActive("/administration/tenant", "/administration")).toBe(true);
     expect(isNavLinkActive("/administration", "/administration")).toBe(true);
   });
