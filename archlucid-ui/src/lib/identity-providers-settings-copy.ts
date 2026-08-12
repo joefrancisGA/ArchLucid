@@ -3,8 +3,11 @@ export const IDENTITY_PROVIDERS_PAGE_TITLE = "Identity providers";
 export const IDENTITY_PROVIDERS_PAGE_SUBTITLE =
   "Configure organization sign-in, SSO, and role mapping.";
 
+// The tenant-scope metadata line below the subtitle already states the organization-wide blast
+// radius, so repeating it here read as unedited duplication and made the buyer subtitle the longer
+// of the two variants.
 export const BUYER_IDENTITY_PROVIDERS_PAGE_SUBTITLE =
-  "Sign-in, SSO, and role mapping for every workspace in this organization.";
+  "Configure sign-in, SSO, and role mapping.";
 
 export const IDENTITY_PROVIDERS_PAGE_SUBTITLE_OPERATOR = IDENTITY_PROVIDERS_PAGE_SUBTITLE;
 
@@ -96,6 +99,7 @@ export const IDENTITY_PROVIDERS_NAV_OIDC = "OIDC/JWT";
 export const IDENTITY_PROVIDERS_NAV_ROLE_MAPPING = "Role mapping";
 export const IDENTITY_PROVIDERS_NAV_DIAGNOSTICS = "Diagnostics";
 
+/** @deprecated Overview no longer renders a configuration-areas section; kept for callers/tests. */
 export const IDENTITY_PROVIDERS_OVERVIEW_CONFIGURE_LINKS_TITLE = "Configuration areas";
 
 export const IDENTITY_PROVIDERS_SAML_PAGE_TITLE = "SAML configuration";
@@ -219,8 +223,7 @@ export const IDENTITY_PROVIDERS_SAVE_CONFIRM_DESCRIPTION =
 
 export const IDENTITY_PROVIDERS_RECOMMENDED_CONFIGURE_SAML = "Configure SAML metadata";
 export const IDENTITY_PROVIDERS_RECOMMENDED_VALIDATE_ROLE_MAPPING = "Validate role mapping";
-export const IDENTITY_PROVIDERS_RECOMMENDED_CONFIGURE_PRODUCTION_SIGN_IN =
-  "Open SSO setup wizard to configure and test";
+export const IDENTITY_PROVIDERS_RECOMMENDED_CONFIGURE_PRODUCTION_SIGN_IN = "Open SSO setup wizard";
 export const IDENTITY_PROVIDERS_RECOMMENDED_CONFIGURE_PRODUCTION_SIGN_IN_DETAIL =
   "Saving configuration writes your IdP settings to the identity provider record. It does not change how anyone signs in today — turning on SSO sign-in is a separate platform configuration change. Local development sign-in is not suitable for shared use, so complete this before inviting other users.";
 export const IDENTITY_PROVIDERS_RECOMMENDED_VALIDATE_OIDC = "Validate OIDC discovery";

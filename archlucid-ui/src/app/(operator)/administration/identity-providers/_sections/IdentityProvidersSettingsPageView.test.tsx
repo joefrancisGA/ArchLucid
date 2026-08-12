@@ -198,6 +198,8 @@ describe("IdentityProvidersSettingsPageView", () => {
 
     expect(screen.queryByTestId("identity-providers-primary-next-step-button")).toBeNull();
 
+    expect(screen.getByTestId("identity-providers-admin-fallback-notice")).toBeInTheDocument();
+
 
 
     fireEvent.click(screen.getByTestId("identity-providers-overview-status-retry-button"));
@@ -328,11 +330,23 @@ describe("IdentityProvidersSettingsPageView", () => {
 
     );
 
+    expect(screen.getByTestId("identity-providers-primary-next-step-button")).toHaveClass(
+
+      "bg-[var(--al-primary-action-bg)]",
+
+    );
+
     expect(screen.queryByTestId("identity-providers-recommended-next-card")).toBeNull();
 
     expect(screen.queryByTestId("identity-providers-local-dev-notice")).toBeNull();
 
     expect(screen.getByText(/does not change how anyone signs in today/i)).toBeInTheDocument();
+
+    expect(screen.getByTestId("identity-providers-admin-fallback-notice")).toHaveTextContent(
+
+      /Keep at least one workspace administrator account/i,
+
+    );
 
   });
 
@@ -362,7 +376,7 @@ describe("IdentityProvidersSettingsPageView", () => {
 
 
 
-  it("renders status tiles with StatusTag and deep links without duplicating tab destinations", () => {
+  it("renders status tiles with StatusTag and term links without duplicating tab destinations", () => {
 
     render(<IdentityProvidersSettingsPageView model={buildModel()} />);
 
@@ -378,7 +392,7 @@ describe("IdentityProvidersSettingsPageView", () => {
 
 
 
-    expect(screen.getByTestId("identity-providers-overview-tile-saml").querySelector("a")).toHaveAttribute(
+    expect(within(screen.getByTestId("identity-providers-overview-tile-saml")).getByRole("link", { name: "SAML" })).toHaveAttribute(
 
       "href",
 
@@ -386,7 +400,7 @@ describe("IdentityProvidersSettingsPageView", () => {
 
     );
 
-    expect(screen.getByTestId("identity-providers-overview-tile-oidc").querySelector("a")).toHaveAttribute(
+    expect(within(screen.getByTestId("identity-providers-overview-tile-oidc")).getByRole("link", { name: "OIDC/JWT" })).toHaveAttribute(
 
       "href",
 
@@ -394,7 +408,7 @@ describe("IdentityProvidersSettingsPageView", () => {
 
     );
 
-    expect(screen.getByTestId("identity-providers-overview-tile-role-mapping").querySelector("a")).toHaveAttribute(
+    expect(within(screen.getByTestId("identity-providers-overview-tile-role-mapping")).getByRole("link", { name: "Role mapping" })).toHaveAttribute(
 
       "href",
 
@@ -402,23 +416,27 @@ describe("IdentityProvidersSettingsPageView", () => {
 
     );
 
+    expect(within(screen.getByTestId("identity-providers-overview-tile-validation")).getByRole("link", { name: "Validation status" })).toHaveAttribute(
+
+      "href",
+
+      "/administration/identity-providers/diagnostics",
+
+    );
+
+    expect(screen.queryByRole("link", { name: "Single sign-on" })).toBeNull();
 
 
-    const configureLinks = screen.getByTestId("identity-providers-overview-links");
 
-    const configureHrefs = Array.from(configureLinks.querySelectorAll("a")).map((anchor) => anchor.getAttribute("href"));
+    expect(screen.queryByTestId("identity-providers-overview-links")).toBeNull();
 
+    expect(screen.getByTestId("identity-providers-sign-in-domains-link").querySelector("a")).toHaveAttribute(
 
+      "href",
 
-    expect(configureHrefs).toHaveLength(2);
+      "/administration/auth-domains",
 
-    expect(configureHrefs).not.toContain("/administration/identity-providers/saml");
-
-    expect(configureHrefs).not.toContain("/administration/identity-providers/oidc");
-
-    expect(configureHrefs).not.toContain("/administration/identity-providers/role-mapping");
-
-    expect(configureHrefs).not.toContain("/administration/identity-providers/diagnostics");
+    );
 
 
 
@@ -430,11 +448,7 @@ describe("IdentityProvidersSettingsPageView", () => {
 
 
 
-    for (const href of configureHrefs) {
-
-      expect(navHrefs).not.toContain(href);
-
-    }
+    expect(navHrefs).not.toContain("/administration/auth-domains");
 
   });
 

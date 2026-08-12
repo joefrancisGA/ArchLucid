@@ -10,10 +10,8 @@ import { Button } from "@/components/ui/button";
 import {
   IDENTITY_PROVIDERS_ADMIN_FALLBACK_NOTICE,
   IDENTITY_PROVIDERS_OVERVIEW_RELATED_SURFACES_TITLE,
-  IDENTITY_PROVIDERS_OVERVIEW_CONFIGURE_LINKS_TITLE,
   IDENTITY_PROVIDERS_RECOMMENDED_CONFIGURE_PRODUCTION_SIGN_IN_DETAIL,
 } from "@/lib/identity-providers-settings-copy";
-import { IDENTITY_PROVIDERS_SSO_WIZARD_WIZARD_LINK } from "@/lib/vocabulary/identity-providers-sso-wizard-vocabulary";
 import { OPERATOR_LINK, OPERATOR_TYPOGRAPHY } from "@/lib/design-tokens";
 
 import { IdentityProvidersOverviewStatusFailureNotice } from "./IdentityProvidersOverviewStatusFailureNotice";
@@ -25,18 +23,9 @@ type IdentityProvidersSettingsPageViewProps = {
   readonly model: UseIdentityProvidersSettingsPageModel;
 };
 
-const CONFIGURATION_AREAS = [
-  {
-    href: IDENTITY_PROVIDERS_SSO_WIZARD_WIZARD_LINK.href,
-    label: IDENTITY_PROVIDERS_SSO_WIZARD_WIZARD_LINK.label,
-    description: IDENTITY_PROVIDERS_SSO_WIZARD_WIZARD_LINK.whenToUse,
-  },
-  {
-    href: "/administration/auth-domains",
-    label: "Sign-in domains",
-    description: "Verify email domains and enforce organization SSO routing.",
-  },
-] as const;
+const SIGN_IN_DOMAINS_HREF = "/administration/auth-domains" as const;
+const SIGN_IN_DOMAINS_DESCRIPTION =
+  "Verify email domains and enforce organization SSO routing." as const;
 
 export function IdentityProvidersSettingsPageView(props: IdentityProvidersSettingsPageViewProps): React.JSX.Element {
   const { model } = props;
@@ -62,38 +51,44 @@ export function IdentityProvidersSettingsPageView(props: IdentityProvidersSettin
         />
       ) : null}
 
-      {!model.dataLoaded ? (
-        <p className={cn("m-0 text-al-text-secondary", OPERATOR_TYPOGRAPHY.body)}>Loading status…</p>
-      ) : showPrimaryNextStep ? (
-        <div className="space-y-2" data-testid="identity-providers-primary-next-step">
-          <Button asChild data-testid="identity-providers-primary-next-step-button">
+      <div className="space-y-2" data-testid="identity-providers-primary-next-step">
+        {model.overviewStatusFailure === null && !model.dataLoaded ? (
+          <p className={cn("m-0 text-al-text-secondary", OPERATOR_TYPOGRAPHY.body)}>Loading status…</p>
+        ) : null}
+
+        {showPrimaryNextStep ? (
+          <Button variant="primary" size="sm" asChild data-testid="identity-providers-primary-next-step-button">
             <Link href={model.overview.recommendedNextHref!}>{model.overview.recommendedNextStep}</Link>
           </Button>
-          {model.overview.usesLocalDevelopmentSignIn ? (
-            <p className={cn("m-0 max-w-3xl text-al-text-secondary", OPERATOR_TYPOGRAPHY.body)}>
-              {IDENTITY_PROVIDERS_RECOMMENDED_CONFIGURE_PRODUCTION_SIGN_IN_DETAIL}
-            </p>
-          ) : null}
+        ) : null}
+
+        {showPrimaryNextStep && model.overview.usesLocalDevelopmentSignIn ? (
+          <p className={cn("m-0 max-w-3xl text-al-text-secondary", OPERATOR_TYPOGRAPHY.body)}>
+            {IDENTITY_PROVIDERS_RECOMMENDED_CONFIGURE_PRODUCTION_SIGN_IN_DETAIL}
+          </p>
+        ) : null}
+
+        {model.dataLoaded ? (
+          <p className={cn("m-0 max-w-3xl", OPERATOR_TYPOGRAPHY.helper)} data-testid="identity-providers-sign-in-domains-link">
+            <Link href={SIGN_IN_DOMAINS_HREF} className={OPERATOR_LINK.nav}>
+              Sign-in domains
+            </Link>
+            <span className="text-al-text-secondary"> — {SIGN_IN_DOMAINS_DESCRIPTION}</span>
+          </p>
+        ) : null}
+
+        <div
+          className={cn(
+            "rounded-md border border-neutral-200 px-3 py-2 text-al-text-primary dark:border-neutral-800",
+            OPERATOR_TYPOGRAPHY.body,
+          )}
+          data-testid="identity-providers-admin-fallback-notice"
+        >
+          {IDENTITY_PROVIDERS_ADMIN_FALLBACK_NOTICE}
         </div>
-      ) : null}
+      </div>
 
       <IdentityProvidersOverviewSummaryRow overview={model.overview} loading={!model.dataLoaded} />
-
-      <section className="space-y-3" data-testid="identity-providers-overview-links">
-        <h2 className={cn("m-0 font-semibold text-al-text-primary", OPERATOR_TYPOGRAPHY.cardTitle)}>
-          {IDENTITY_PROVIDERS_OVERVIEW_CONFIGURE_LINKS_TITLE}
-        </h2>
-        <ul className="m-0 list-none space-y-3 p-0">
-          {CONFIGURATION_AREAS.map((area) => (
-            <li key={area.href}>
-              <Link href={area.href} className={cn("block rounded-md border border-neutral-200 p-3 dark:border-neutral-800", OPERATOR_LINK.nav)}>
-                <span className={cn("font-medium text-al-text-primary", OPERATOR_TYPOGRAPHY.cardTitle)}>{area.label}</span>
-                <p className={cn("m-0 mt-1 text-al-text-secondary", OPERATOR_TYPOGRAPHY.helper)}>{area.description}</p>
-              </Link>
-            </li>
-          ))}
-        </ul>
-      </section>
 
       <details
         className="rounded-lg border border-neutral-200 dark:border-neutral-800"
@@ -108,10 +103,6 @@ export function IdentityProvidersSettingsPageView(props: IdentityProvidersSettin
           <AuthDomainsIdentityProvidersVocabularyRail currentSurfaceId="identity-providers" />
         </div>
       </details>
-
-      <p className={cn("m-0 max-w-3xl text-al-text-primary", OPERATOR_TYPOGRAPHY.body)} data-testid="identity-providers-admin-fallback-notice">
-        {IDENTITY_PROVIDERS_ADMIN_FALLBACK_NOTICE}
-      </p>
     </IdentityProvidersSettingsShell>
   );
 }

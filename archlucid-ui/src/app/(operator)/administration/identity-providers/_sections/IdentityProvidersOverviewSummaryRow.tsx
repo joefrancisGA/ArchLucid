@@ -39,28 +39,41 @@ function StatusSummaryTile(props: {
   readonly loading: boolean;
   readonly testId: string;
 }): React.JSX.Element {
+  const isLinked = props.href !== undefined && !props.loading;
   const statusTag = props.loading ? (
     <span className={cn("text-al-text-primary", OPERATOR_TYPOGRAPHY.cardTitle)}>…</span>
   ) : (
     <StatusTag kind={props.presentation.kind} label={props.presentation.label} />
   );
 
-  const statusValue =
-    props.href !== undefined && !props.loading ? (
-      <Link href={props.href} className={cn("inline-flex rounded-sm", OPERATOR_LINK.nav)}>
-        {statusTag}
-      </Link>
-    ) : (
-      statusTag
-    );
-
   return (
     <div
-      className="rounded-md border border-neutral-200 bg-al-surface-raised px-3 py-2 dark:border-neutral-800"
+      className={cn(
+        "relative rounded-md border border-neutral-200 bg-al-surface-raised px-3 py-2 dark:border-neutral-800",
+        isLinked
+          ? "cursor-pointer hover:border-neutral-400 focus-within:ring-2 focus-within:ring-[var(--al-accent-border-focus)]"
+          : null,
+      )}
       data-testid={props.testId}
     >
-      <dt className={cn("m-0 text-al-text-secondary", OPERATOR_TYPOGRAPHY.helper)}>{props.term}</dt>
-      <dd className="m-0 mt-1">{statusValue}</dd>
+      <dt className={cn("m-0 text-al-text-secondary", OPERATOR_TYPOGRAPHY.helper)}>
+        {isLinked ? (
+          <Link
+            href={props.href!}
+            // The overlay must resolve against the tile wrapper, so this link must NOT be
+            // positioned itself — adding `relative` here shrinks the hit area back to the term text.
+            className={cn(
+              "after:absolute after:inset-0 after:z-[1] after:content-['']",
+              OPERATOR_LINK.nav,
+            )}
+          >
+            {props.term}
+          </Link>
+        ) : (
+          props.term
+        )}
+      </dt>
+      <dd className="m-0 mt-1">{statusTag}</dd>
       {props.caption !== undefined ? (
         <dd className={cn("m-0 mt-1 text-al-text-secondary", OPERATOR_TYPOGRAPHY.helper)}>{props.caption}</dd>
       ) : null}
@@ -123,7 +136,6 @@ export function IdentityProvidersOverviewSummaryRow(props: IdentityProvidersOver
           term={IDENTITY_PROVIDERS_SUMMARY_SSO_LABEL}
           presentation={identityProviderCustomerStatusPresentation(props.overview.ssoStatus)}
           caption={captions.sso}
-          href="/administration/identity-providers/diagnostics"
           loading={props.loading}
           testId="identity-providers-overview-tile-sso"
         />
