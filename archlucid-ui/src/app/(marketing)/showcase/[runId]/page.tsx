@@ -80,7 +80,21 @@ function showcaseTitleForRunId(runId: string): string {
     return "Claims Intake Modernization: Completed Architecture Output";
   }
 
+  if (decoded === "customer-intake-modernization") {
+    return "Enterprise Customer Intake Modernization: Completed Architecture Output";
+  }
+
   return `Completed example (${decoded})`;
+}
+
+function showcaseScenarioRibbonLabel(runId: string): string {
+  const decoded = decodeURIComponent(runId);
+
+  if (decoded === "customer-intake-modernization") {
+    return "Enterprise Customer Intake Modernization sample scenario.";
+  }
+
+  return "Claims Intake Modernization sample scenario.";
 }
 
 function ShowcaseLead({ children }: { readonly children: ReactNode }) {
@@ -111,7 +125,7 @@ function ShowcaseHero({ runId }: { readonly runId: string }): ReactElement {
       >
         <strong className="font-semibold">{SHOWCASE_ILLUSTRATIVE_SAMPLE_TITLE}</strong>
         {" — "}
-        Claims Intake Modernization sample scenario.
+        {showcaseScenarioRibbonLabel(runId)}
       </div>
     ) : null;
 

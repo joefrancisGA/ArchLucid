@@ -1,5 +1,6 @@
 import type { RunSummary } from "@/types/authority";
 
+import { CUSTOMER_INTAKE_SAMPLE_RUN_ID } from "@/lib/samples/customer-intake-modernization/definition";
 import { SHOWCASE_STATIC_DEMO_RUN_ID } from "@/lib/showcase-static-demo";
 import { SHOWCASE_CREATED_STATIC_DEMO_RUN_ID } from "@/lib/showcase-created-static-demo";
 
@@ -13,6 +14,7 @@ const DEMO_RUN_ID_ALIASES: Readonly<Record<string, string>> = {
   "claims-intake-sample-workspace": SHOWCASE_STATIC_DEMO_RUN_ID,
   /** Mock Ask conversation fixtures historically used this token — align pickers with the showcase review id. */
   "run-claims-intake-demo": SHOWCASE_STATIC_DEMO_RUN_ID,
+  "customer-intake-modernization-run": CUSTOMER_INTAKE_SAMPLE_RUN_ID,
 };
 
 /**
@@ -20,6 +22,7 @@ const DEMO_RUN_ID_ALIASES: Readonly<Record<string, string>> = {
  */
 export const SHOWCASE_DEMO_RUN_SLUG_KEYS: ReadonlySet<string> = new Set<string>([
   SHOWCASE_STATIC_DEMO_RUN_ID,
+  CUSTOMER_INTAKE_SAMPLE_RUN_ID,
   SHOWCASE_CREATED_STATIC_DEMO_RUN_ID,
   ...Object.keys(DEMO_RUN_ID_ALIASES),
 ]);

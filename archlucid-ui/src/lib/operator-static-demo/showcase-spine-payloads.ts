@@ -1,21 +1,12 @@
 import { canonicalizeDemoRunId, isShowcaseCreatedStaticDemoRunId } from "@/lib/demo-run-canonical";
 import { SHOWCASE_HOME_AHA_MOMENT } from "@/lib/showcase-home-aha-moment";
+import { resolveSampleScenarioByManifestId, resolveSampleScenarioByRunId } from "@/lib/samples/registry";
 import {
-  getShowcaseCreatedStaticDemoPayload,
-  SHOWCASE_CREATED_STATIC_DEMO_DECISION_SYNOPSES,
-  SHOWCASE_CREATED_STATIC_DEMO_MANIFEST_ID,
-  SHOWCASE_CREATED_STATIC_DEMO_PRIMARY_FINDING_ID,
-  SHOWCASE_CREATED_STATIC_DEMO_RUN_ID,
-  SHOWCASE_CREATED_STATIC_DEMO_WARNING_SYNOPSES,
-} from "@/lib/showcase-created-static-demo";
-import {
+  getShowcaseDecisionSynopsesForRunId,
   getShowcaseStaticDemoPayload,
-  SHOWCASE_STATIC_DEMO_DECISION_SYNOPSES,
+  getShowcaseWarningSynopsesForRunId,
   SHOWCASE_STATIC_DEMO_MANIFEST_ID,
-  SHOWCASE_STATIC_DEMO_PRIMARY_FINDING_ID,
-  SHOWCASE_STATIC_DEMO_PRIMARY_FINDING_TITLE,
   SHOWCASE_STATIC_DEMO_RUN_ID,
-  SHOWCASE_STATIC_DEMO_WARNING_SYNOPSES,
 } from "@/lib/showcase-static-demo";
 import type {
   ArtifactDescriptor,
@@ -28,6 +19,15 @@ import type { RunExplanationSummary } from "@/types/explanation";
 import type { FindingInspectPayload } from "@/types/finding-inspect";
 
 import {
+  getShowcaseCreatedStaticDemoPayload,
+  SHOWCASE_CREATED_STATIC_DEMO_DECISION_SYNOPSES,
+  SHOWCASE_CREATED_STATIC_DEMO_MANIFEST_ID,
+  SHOWCASE_CREATED_STATIC_DEMO_PRIMARY_FINDING_ID,
+  SHOWCASE_CREATED_STATIC_DEMO_RUN_ID,
+  SHOWCASE_CREATED_STATIC_DEMO_WARNING_SYNOPSES,
+} from "@/lib/showcase-created-static-demo";
+
+import {
   isDemoRunIdEligibleForStaticFallback,
   isShowcaseSpineStaticPayloadActiveForManifest,
   isShowcaseSpineStaticPayloadActiveForRun,
@@ -37,12 +37,15 @@ export function buildStaticDemoRunDetailFromShowcase(urlRunId: string): RunDetai
   const d = getShowcaseStaticDemoPayload(urlRunId);
   const manifest = d.manifest;
   const chain = d.authorityChain;
+  const scenario = resolveSampleScenarioByRunId(d.run.runId);
+  const primaryFindingId = scenario?.primaryFindingId ?? "phi-minimization-risk";
+  const decisionSynopses = getShowcaseDecisionSynopsesForRunId(d.run.runId);
 
   const quickDecisionFindings = (() => {
     const findings: NonNullable<RunDetailAgentResult["findings"]> = [
       {
-        findingId: SHOWCASE_STATIC_DEMO_PRIMARY_FINDING_ID,
-        message: "PHI minimization risk",
+        findingId: primaryFindingId,
+        message: scenario?.primaryFindingTitle ?? "Sensitive data minimization risk",
         category: "Compliance",
         severity: "Error",
         reasoningTrace:
@@ -51,12 +54,12 @@ export function buildStaticDemoRunDetailFromShowcase(urlRunId: string): RunDetai
     ];
 
     for (let i = 0; i < 8; i++) {
-      const synopsis = SHOWCASE_STATIC_DEMO_DECISION_SYNOPSES[i];
+      const synopsis = decisionSynopses[i];
       const title =
         typeof synopsis === "string" && synopsis.trim().length > 0 ? synopsis.trim() : `Architecture decision ${i + 2}`;
 
       findings.push({
-        findingId: `${SHOWCASE_STATIC_DEMO_PRIMARY_FINDING_ID}-${i + 2}`,
+        findingId: `${primaryFindingId}-${i + 2}`,
         message: title,
         category: "Architecture",
         severity: "Warning",
@@ -101,9 +104,11 @@ export function buildStaticDemoRunDetailFromShowcase(urlRunId: string): RunDetai
         runId: d.run.runId,
         agentType: "Compliance",
         claims: [
-          "PHI minimization requires monitored exception routing and sponsor review before the next release train.",
+          scenario?.slug === "customer-intake"
+            ? "Sensitive-data minimization requires monitored exception routing and sponsor review before the next release train."
+            : "PHI minimization requires monitored exception routing and sponsor review before the next release train.",
         ],
-        evidenceRefs: [SHOWCASE_STATIC_DEMO_PRIMARY_FINDING_ID],
+        evidenceRefs: [primaryFindingId],
         findings: quickDecisionFindings,
         confidence: 0.85,
       },
@@ -178,6 +183,15 @@ export function tryStaticDemoGoldenManifestJsonForExport(runId: string): Record<
 
   const d = getShowcaseStaticDemoPayload(effectiveRunId);
   const manifest = d.manifest;
+  const decisionSynopses = getShowcaseDecisionSynopsesForRunId(effectiveRunId);
+  const warningSynopses = getShowcaseWarningSynopsesForRunId(effectiveRunId);
+  const scenario = resolveSampleScenarioByRunId(effectiveRunId);
+  const decisionPrefix = scenario?.slug === "customer-intake" ? "customer-intake-decision" : "claims-intake-decision";
+  const topologyPatterns =
+    scenario?.slug === "customer-intake"
+      ? ["Event-driven intake", "Sensitive-data classification at boundary", "Bounded queues with back-pressure"]
+      : ["Event-driven intake", "PHI classification at boundary", "Bounded queues with back-pressure"];
+  const serviceName = scenario?.slug === "customer-intake" ? "Customer intake API" : "Claims intake API";
 
   return {
     manifestId: manifest.manifestId,
@@ -195,23 +209,19 @@ export function tryStaticDemoGoldenManifestJsonForExport(runId: string): Record<
       mandatoryConstraints: [],
       preferences: [],
     },
-    decisions: SHOWCASE_STATIC_DEMO_DECISION_SYNOPSES.map((rationale: string, index: number) => ({
-      decisionId: `claims-intake-decision-${index + 1}`,
+    decisions: decisionSynopses.map((rationale: string, index: number) => ({
+      decisionId: `${decisionPrefix}-${index + 1}`,
       title: `Architecture decision ${index + 1}`,
       category: "Architecture",
       rationale,
     })),
     topology: {
-      selectedPatterns: [
-        "Event-driven intake",
-        "PHI classification at boundary",
-        "Bounded queues with back-pressure",
-      ],
+      selectedPatterns: topologyPatterns,
       resources: ["Azure API Management", "Azure Service Bus", "Azure Cosmos DB"],
       services: [
         {
           serviceId: "svc-intake-api",
-          serviceName: "Claims intake API",
+          serviceName,
           serviceType: 0,
           runtimePlatform: 0,
           purpose: "HTTP ingress and orchestration for intake workloads.",
@@ -220,9 +230,9 @@ export function tryStaticDemoGoldenManifestJsonForExport(runId: string): Record<
     },
     security: {
       controls: [],
-      gaps: [...SHOWCASE_STATIC_DEMO_WARNING_SYNOPSES],
+      gaps: [...warningSynopses],
     },
-    warnings: [...SHOWCASE_STATIC_DEMO_WARNING_SYNOPSES],
+    warnings: [...warningSynopses],
   };
 }
 
@@ -399,14 +409,67 @@ function buildStaticDemoRunDetailFromCreatedShowcase(urlRunId: string): RunDetai
   };
 }
 
-/** Curated PHI finding for static demo when inspect API is unavailable (matches manifest deep links). */
+/** Curated hero finding for static demo when inspect API is unavailable (matches manifest deep links). */
 export function buildStaticDemoPrimaryFindingInspectPayload(effectiveRunId: string): FindingInspectPayload {
   const d = getShowcaseStaticDemoPayload(effectiveRunId);
+  const scenario = resolveSampleScenarioByRunId(effectiveRunId);
+  const isCustomerIntake = scenario?.slug === "customer-intake";
+
+  if (isCustomerIntake && scenario !== null) {
+    return {
+      findingId: scenario.primaryFindingId,
+      typedPayload: {
+        title: scenario.primaryFindingTitle,
+        description:
+          "Sensitive customer profile attributes cross the intake API boundary without field-level encryption required by downstream fulfillment services.",
+        whyThisMatters:
+          "Downstream fulfillment only needs work identifiers — transmitting optional profile attributes expands breach scope and audit exposure under enterprise privacy policy.",
+        severity: "Warning",
+        category: "Compliance",
+        status: "Accepted with monitoring",
+        impactedArea:
+          "Intake sensitive-data boundary, adapters, OCR exception paths, and downstream fulfillment handoff",
+      },
+      decisionRuleId: "privacy.minimization.intake",
+      decisionRuleName: "Sensitive-data minimization at intake",
+      evidence: [
+        {
+          artifactId: "intake-subgraph-v2",
+          lineRange: "142-168",
+          excerpt:
+            "Customer intake subgraph retains qualifying attachment metadata used for downstream fulfillment references.",
+        },
+        {
+          artifactId: "ingress-classifier-spec",
+          lineRange: "28-41",
+          excerpt: "Ingress data-classification rules applied before adapter handoff with exception logging.",
+        },
+        {
+          artifactId: "ocr-bypass-monitor",
+          lineRange: "12-19",
+          excerpt: "OCR bypass path emits volume alerts when unstructured attachment rate exceeds threshold.",
+        },
+      ],
+      reasoningSummary:
+        "This monitored risk was recorded because sensitive-data minimization at intake requires observable controls at ingress, adapter " +
+        "boundaries, and OCR exception paths. Three evidence citations support the governance decision record.",
+      recommendedActions: [
+        "Validate ingress data-classification rules against production traffic patterns.",
+        "Monitor unstructured attachment exception volumes weekly and escalate threshold breaches.",
+        "Confirm OCR bypass handling alerts fire before volume thresholds and review after go-live.",
+      ],
+      auditRowId: "audit-customer-intake-privacy-001",
+      runId: d.run.runId,
+      manifestVersion: "Enterprise Privacy Policy Pack v3.4.1",
+      confidenceLevel: "Medium",
+      evaluationConfidenceScore: 0.78,
+    };
+  }
 
   return {
-    findingId: SHOWCASE_STATIC_DEMO_PRIMARY_FINDING_ID,
+    findingId: scenario?.primaryFindingId ?? "phi-minimization-risk",
     typedPayload: {
-      title: SHOWCASE_STATIC_DEMO_PRIMARY_FINDING_TITLE,
+      title: scenario?.primaryFindingTitle ?? "PHI Minimization Risk",
       description: SHOWCASE_HOME_AHA_MOMENT.finding,
       whyThisMatters: SHOWCASE_HOME_AHA_MOMENT.whyItMatters,
       severity: "Warning",
@@ -516,9 +579,9 @@ export function tryStaticDemoFindingInspect(runId: string, findingId: string): F
 
   // Accept exact match or slug-prefixed IDs (e.g. "phi-minimization-risk-<guid>") so that
   // real finding IDs with appended GUIDs still resolve to the curated demo payload.
-  const isKnownFinding =
-    fid === SHOWCASE_STATIC_DEMO_PRIMARY_FINDING_ID ||
-    fid.startsWith(`${SHOWCASE_STATIC_DEMO_PRIMARY_FINDING_ID}-`);
+  const scenario = resolveSampleScenarioByRunId(effectiveRunId);
+  const primaryFindingId = scenario?.primaryFindingId ?? "phi-minimization-risk";
+  const isKnownFinding = fid === primaryFindingId || fid.startsWith(`${primaryFindingId}-`);
 
   if (!isKnownFinding) {
     return null;
@@ -544,8 +607,10 @@ export function tryStaticDemoManifestSummary(manifestId: string): ManifestSummar
     return buildStaticDemoManifestSummaryFromCreatedShowcase(SHOWCASE_CREATED_STATIC_DEMO_RUN_ID);
   }
 
-  if (manifestId !== SHOWCASE_STATIC_DEMO_MANIFEST_ID) {
-    return null;
+  const scenarioByManifest = resolveSampleScenarioByManifestId(manifestId);
+
+  if (scenarioByManifest !== null) {
+    return buildStaticDemoManifestSummaryFromShowcase(scenarioByManifest.runId);
   }
 
   return buildStaticDemoManifestSummaryFromShowcase(SHOWCASE_STATIC_DEMO_RUN_ID);
@@ -588,11 +653,13 @@ export function tryStaticDemoArtifacts(runIdForPayload: string, manifestId: stri
     return buildStaticDemoArtifactsFromCreatedShowcase(effectiveRunId);
   }
 
-  if (manifestId !== SHOWCASE_STATIC_DEMO_MANIFEST_ID) {
-    return null;
+  const scenarioByManifest = resolveSampleScenarioByManifestId(manifestId);
+
+  if (scenarioByManifest !== null) {
+    return buildStaticDemoArtifactsFromShowcase(scenarioByManifest.runId);
   }
 
-  return buildStaticDemoArtifactsFromShowcase(effectiveRunId);
+  return null;
 }
 
 /** Static fallback for aggregate explanation when the explain API is unavailable (demo static operator mode). */

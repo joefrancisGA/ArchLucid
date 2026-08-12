@@ -3,6 +3,12 @@ import { readFrictionlessTrialSessionEnabled } from "@/lib/frictionless-trial-se
 import { isBuyerPolishedOperatorShellEnv, isOperatorExperienceFullShellEnv } from "@/lib/demo-ui-env";
 import { isPublicDemoModeEnv } from "@/lib/public-demo-mode";
 import {
+  CUSTOMER_INTAKE_LATER_COMPARE_RUN_ID,
+  CUSTOMER_INTAKE_PRIOR_COMPARE_RUN_ID,
+  CUSTOMER_INTAKE_SAMPLE_RUN_ID,
+} from "@/lib/samples/customer-intake-modernization/definition";
+import { resolveSampleScenarioByManifestId } from "@/lib/samples/registry";
+import {
   SHOWCASE_CREATED_STATIC_DEMO_MANIFEST_ID,
   SHOWCASE_CREATED_STATIC_DEMO_RUN_ID,
 } from "@/lib/showcase-created-static-demo";
@@ -11,9 +17,13 @@ import { SHOWCASE_STATIC_DEMO_MANIFEST_ID, SHOWCASE_STATIC_DEMO_RUN_ID } from "@
 const DEMO_RUN_IDS_FOR_STATIC_FALLBACK = new Set<string>([
   SHOWCASE_STATIC_DEMO_RUN_ID,
   SHOWCASE_CREATED_STATIC_DEMO_RUN_ID,
+  CUSTOMER_INTAKE_SAMPLE_RUN_ID,
+  CUSTOMER_INTAKE_PRIOR_COMPARE_RUN_ID,
+  CUSTOMER_INTAKE_LATER_COMPARE_RUN_ID,
   "claims-intake-modernization-run",
   "claims-intake-run-v1",
   "claims-intake-run-v2",
+  "customer-intake-modernization-run",
 ]);
 
 /** When true, operator run/manifest pages use curated showcase data if the API fails (demo deploys only). */
@@ -171,11 +181,13 @@ export function isShowcaseSpineStaticPayloadActiveForManifest(manifestId: string
     return isShowcaseSpineStaticPayloadActiveForRun(SHOWCASE_CREATED_STATIC_DEMO_RUN_ID);
   }
 
-  if (trimmed !== SHOWCASE_STATIC_DEMO_MANIFEST_ID) {
-    return false;
+  const scenario = resolveSampleScenarioByManifestId(trimmed);
+
+  if (scenario !== null) {
+    return isShowcaseSpineStaticPayloadActiveForRun(scenario.runId);
   }
 
-  return isShowcaseSpineStaticPayloadActiveForRun(SHOWCASE_STATIC_DEMO_RUN_ID);
+  return false;
 }
 
 /** True when demo env is on and the run id is a known showcase token (TB-274 / BE-059). */
@@ -195,5 +207,5 @@ export function isStaticDemoPayloadFallbackActiveForManifest(manifestId: string)
     return false;
   }
 
-  return manifestId.trim() === SHOWCASE_STATIC_DEMO_MANIFEST_ID;
+  return isShowcaseSpineStaticPayloadActiveForManifest(manifestId);
 }

@@ -881,7 +881,7 @@ All **P0** **V1**: visible-boundary button contract + design-system rule (**TB-2
 | TB-976 | **Done** (2026-08-11) ? durable per-call monthly USD reservation leases + orphan reclaim + reconcile; see `## TB-976` below | Cost-effectiveness P1 ? **V1**; after **TB-975**; pattern from Quick Scan **TB-894** Done | L |
 | TB-1287 | **Done** (2026-08-11) ? mature LLM cost-control plane beyond budget gates + non-bypassable accounting chokepoint; see `## TB-1287` below | Cost-effectiveness P1 ? **V1**; PA Q14 FinOps plane; GTM **M-225**/**M-226** | S |
 | TB-1570 | **Done** (2026-08-11) ? [`PAYING_TENANT_LLM_SPEND_STORM_AND_BILLING_DISPUTE_CLAIM_MAP.md`](PAYING_TENANT_LLM_SPEND_STORM_AND_BILLING_DISPUTE_CLAIM_MAP.md); see `## TB-1570` below | Cost-effectiveness P1 ? **V1**; PA spend-storm / billing-dispute Q; GTM **M-294**/**M-295**; orchestrates **TB-1287**/**TB-975**/**TB-1020** | S |
-| TB-980 | Author Enterprise Customer Intake Modernization sample package ? second static spine; pin primary one-sentence + Contoso/Northwind ban; see `## TB-980` below | Commercial / marketability P1 ? **V1**; after **TB-979**; GTM **M-133**/**M-135**; PA primary-sentence 2026-07-25 | L |
+| TB-980 | ~~Author Enterprise Customer Intake Modernization sample package~~ **Done** (2026-08-12) ? second static spine; pin primary one-sentence + Contoso/Northwind ban; see `## TB-980` below | Commercial / marketability P1 ? **V1**; after **TB-979**; GTM **M-133**/**M-135**; PA primary-sentence 2026-07-25 | L |
 | TB-981 | Showcase default flip + trial/marketing universe+ID alignment ? no silent dual universe; see `## TB-981` below | Commercial / marketability P1 ? **V1**; after **TB-978**/**TB-980** + GTM **M-133**/**M-134**/**M-136**; PA Q15 2026-07-25 | M |
 | TB-983 | ~~Simulator-derived ROI/savings forbid contract (sponsor-facing)~~ **Done** 2026-08-10 ? [`SIMULATOR_ROI_SPONSOR_FORBID_CONTRACT.md`](SIMULATOR_ROI_SPONSOR_FORBID_CONTRACT.md); see `## TB-983` below | Proof-of-ROI P1 ? **V1**; PA Q19 2026-07-24; GTM **M-138**/**M-139**; after Done **TB-239** / first-value ROI gate | S |
 | TB-984 | **Done** (2026-08-10) ? buyer-polished ROI trend + Email projected-USD badge honor Simulator forbid gates; see ## TB-984 below | Proof-of-ROI P1 ? **V1**; after **TB-983**; pairs PDF execution-mode block already shipped | M |
@@ -1356,10 +1356,10 @@ All **P0** **V1**: visible-boundary button contract + design-system rule (**TB-2
 | TB-1197 | Anti-unvalidated-proposal-overlay / prose-into-governance honesty CI; see `## TB-1197` below | Testability P1 ? **V1**; after **TB-1196**; pairs **M-203** | S |
 | TB-1205 | Anti-delete-pins-as-complete / soft-bridge-as-dual-storage honesty CI; see `## TB-1205` below | Testability P1 ? **V1**; after **TB-1204**; pairs **M-205** | S |
 | TB-1222 | Anti-all-findings-evidence-grounded / empty-EvidenceRefs-as-proof honesty CI; see `## TB-1222` below | Testability P1 ? **V1**; after **TB-1221**; pairs **M-207** | S |
-| TB-1229 | Anti-faithfulness-as-commit-gate / support-ratio-as-legal-truth honesty CI; see `## TB-1229` below | Testability P1 ? **V1**; after **TB-1228**; pairs **M-209** | S |
-| TB-1231 | Anti-Simulator-safe-equals-Real / forked-defense-stack honesty CI; see `## TB-1231` below | Testability P1 ? **V1**; after **TB-1230**; pairs **M-211** | S |
-| TB-1233 | Anti-WHERE-TenantId-equals-isolation / ARCH-alone-proves / RLS-as-beyond-predicate honesty CI; see `## TB-1233` below | Testability P1 ? **V1**; after **TB-1232**; pairs **M-213** | S |
-| TB-1245 | Anti-least-privilege-while-db_owner-colocated / PE-equals-private / AOAI-Contributor honesty CI; see `## TB-1245` below | Testability P1 ? **V1**; after **TB-1244**; pairs **M-215** | S |
+| TB-1229 | **Done** (2026-08-12) ? Anti-faithfulness-as-commit-gate / support-ratio-as-legal-truth honesty CI; see `## TB-1229` below | Testability P1 ? **V1**; after **TB-1228**; pairs **M-209** | S |
+| TB-1231 | **Done** (2026-08-12) ? Anti-Simulator-safe-equals-Real / forked-defense-stack honesty CI; see `## TB-1231` below | Testability P1 ? **V1**; after **TB-1230**; pairs **M-211** | S |
+| TB-1233 | **Done** (2026-08-12) ? Anti-WHERE-TenantId-equals-isolation / ARCH-alone-proves / RLS-as-beyond-predicate honesty CI; see `## TB-1233` below | Testability P1 ? **V1**; after **TB-1232**; pairs **M-213** | S |
+| TB-1245 | **Done** (2026-08-12) ? Anti-least-privilege-while-db_owner-colocated / PE-equals-private / AOAI-Contributor honesty CI; see `## TB-1245` below | Testability P1 ? **V1**; after **TB-1244**; pairs **M-215** | S |
 | TB-1252 | Anti-AllowAnonymous-equals-safe / DemoScopes-pin-equals-catalog / empty-demo-scope honesty CI; see `## TB-1252` below | Testability P1 ? **V1**; after **TB-1251**; pairs **M-217** | S |
 | TB-1264 | Anti-EF-fixes-tenancy-immutability-perf / ORM-under-duress honesty CI; see `## TB-1264` below | Testability P1 ? **V1**; after **TB-1263**; pairs **M-219** | S |
 | TB-1271 | **Done** (2026-08-11) ? anti-exactly-once-commit / silent-double-package / retry-never-spends honesty CI; see `## TB-1271` below | Testability P1 ? **V1**; after **TB-1270**; pairs **M-221** | S |
@@ -26495,35 +26495,20 @@ Plus visual regression: overview, technical index, one expanded object, one fiel
 
 **Window:** V1 ? Commercial / marketability (second static spine).
 
-**Status:** Not started.
+**Status:** **Done** (2026-08-12).
 
 **Priority:** P1.
 
 **Source:** Assessment 2026-07-23 ?7??8 / Option D / F-08. Enriched 2026-07-25 PA Q: *What should the buyer-facing primary scenario be in one sentence ? and what must never appear in that sentence?*
 
-**Problem:** Sole fully-backed buyer spine is healthcare-shaped; multi-vertical ICP needs a lower-translation default without destroying the healthcare wedge. Buyer primary sentence still drifts to Contoso/Northwind or Claims-as-primary.
+**Shipped:**
 
-**Canonical buyer-facing primary sentence (pin in package + GTM **M-133**/**M-135**):**  
-*ArchLucid?s primary buyer-facing sample is Enterprise Customer Intake Modernization ? a governed architecture proof package for modernizing how an enterprise intakes and processes customer work, with evidence-backed findings you can commit and export.*
+1. `archlucid-ui/src/lib/samples/customer-intake-modernization/` ? definition package with canonical primary buyer sentence, privacy-focused hero finding (`sensitive-data-minimization-risk`), and static showcase payload.
+2. `samples/registry.ts` registers `customer-intake` as secondary scenario; **claims-intake** remains active default (**TB-981** not flipped).
+3. `/showcase/customer-intake-modernization` static-first via `showcase-page-resolution` + `getShowcaseStaticDemoPayload` dispatch; operator static fallback eligibility + manifest/finding inspect paths scenario-aware.
+4. Vitest: `definition.test.ts` (primary sentence + Contoso/Northwind ban), `registry.test.ts`, `showcase-page-resolution.test.ts`; Claims spine unchanged.
 
-**Must never appear in that sentence (or primary CTA chrome):** **Contoso**, **Northwind** (buyer-facing org/showcase naming). Healthcare Claims Intake stays **secondary** regulated-depth ? not the primary sentence. Do not imply a real customer.
-
-**Approach:**
-
-1. Author second sample package: scenario name **Enterprise Customer Intake Modernization**; scenario-first slug (e.g. `customer-intake-modernization`); no Contoso/Northwind/Meridian org in routes/IDs.
-2. Reuse Claims architecture topology (8 components, ~2 renames) and portable finding themes (idempotency, OCR bypass, retention, residency, DR evidence, back-pressure, observability); hero finding = sensitive-data minimization at intake mapped to privacy/data-classification packs (not HIPAA).
-3. Azure reference architecture, honestly labeled (TB-778 pattern). Two-beat creation+review framing in showcase body.
-4. Wire static-first marketing route + operator fallback via **TB-979** registry; do **not** make it the default yet (**TB-981**).
-5. Tests: new scenario package suite + regression that Claims spine still works; guard that primary marketing H1/CTA strings for the generic package do not contain Contoso/Northwind.
-6. Cross-link GTM **M-133**/**M-135**; optional doc/CI with **TB-982** label cleanup.
-
-**Acceptance:** `/showcase/{generic-slug}` renders full spine; healthcare Claims route unchanged; Vitest/Playwright cover both; canonical one-sentence + Contoso/Northwind ban pinned; GTM **M-133** names ratified.
-
-**Depends on:** **TB-979**; GTM **M-133** (Option D) + **M-135** naming hierarchy.
-
-**Out of scope:** Default flip; trial bootstrap change; deleting Claims; Contoso SQL rename.
-
-**Size estimate:** L.
+**Acceptance:** Met ? `/showcase/customer-intake-modernization` renders full spine; healthcare Claims route unchanged; canonical one-sentence + Contoso/Northwind ban pinned.
 
 ---
 
@@ -31010,23 +30995,20 @@ Operators must read three intros before reaching the Trust Center link list.
 
 **Window:** V1 ? Testability.
 
-**Status:** Not started.
+**Status:** **Done** (2026-08-12).
 
 **Priority:** P1.
 
 **Source:** Follow-on to **TB-1228**; hardens GTM **M-209**.
 
-**Problem:** Differentiator/proof copy can claim ?faithfulness / support-ratio gates the commit? or that nightly RAG eval proves each package is faithful ? while semantic scores are async/probabilistic and per-finding citation coverage is unwired.
+**Shipped:**
 
-**Approach:**
+1. `scripts/ci/check_faithfulness_support_ratio_scoring_lane_honesty.py` + unit tests; wired in `run_buyer_surface_strict_guards.py` and CI.
+2. Contract anchors updated in [`FAITHFULNESS_SUPPORT_RATIO_SCORING_LANE_POSITIONING_CONTRACT.md`](FAITHFULNESS_SUPPORT_RATIO_SCORING_LANE_POSITIONING_CONTRACT.md) (**TB-1228**/**TB-1229**, **M-209**/**M-210**) and `AgentOutputQualityGate` / `GoldenCohortFineTuningPromotionGate` code anchors.
 
-1. Doc/CI guard: fail stubs that equate RAG-V1-005 / offline support-ratio / LLM faithfulness judge / embedding cosine with the golden-manifest commit gate.
-2. Fail claims that PilotStrict green alone proves Real live-model faithfulness (pair **M-166**; do not re-author that contract).
-3. Pair **M-209**; Verification points at `AgentOutputQualityGate`, `AgentResultEvidenceFaithfulnessChecker`, `RetrievalFaithfulnessEvaluator`, `GoldenCohortFineTuningPromotionGate`, `FindingCitationCoverageRatio` dead path.
+**Acceptance:** Met ? CI fails dishonest faithfulness-as-commit-gate claims; pairs **M-209**.
 
-**Acceptance:** CI fails dishonest faithfulness-as-commit-gate claims; pairs **M-209**.
-
-**Depends on:** **TB-1228**.
+**Depends on:** Done **TB-1228**.
 
 **Out of scope:** Changing Prod PilotStrict floors; implementing **TB-1221** validators; shared defense-plane ownership (**TB-1230**).
 
@@ -31055,23 +31037,20 @@ Operators must read three intros before reaching the Trust Center link list.
 
 **Window:** V1 ? Testability.
 
-**Status:** Not started.
+**Status:** **Done** (2026-08-12).
 
 **Priority:** P1.
 
 **Source:** Follow-on to **TB-1230**; hardens GTM **M-211**.
 
-**Problem:** Docs/PRs can claim Simulator quality-gate green means Real-safe, or that hallucination defenses intentionally fork into separate Simulator vs Real stacks ? both corrupt buyer trust and invite divergent implementations.
+**Shipped:**
 
-**Approach:**
+1. `scripts/ci/check_shared_hallucination_defense_plane_honesty.py` + unit tests; wired in `run_buyer_surface_strict_guards.py` and CI.
+2. Contract anchors updated in [`SHARED_HALLUCINATION_DEFENSE_PLANE_CONTRACT.md`](SHARED_HALLUCINATION_DEFENSE_PLANE_CONTRACT.md) (**TB-1230**/**TB-1231**, **M-211**) and `AgentOutputTraceQualityEvaluator` / content-safety code anchors.
 
-1. Doc/CI guard: fail stubs that equate Simulator (or QuickStartForcedSimulator) PilotStrict/quality pass with Real live-model sponsor safety without **M-166** / INV-002 disclosure.
-2. Fail claims that schema/heuristic/commit defenses are (or should be) implemented as parallel mode-specific stacks rather than one plane with optional judges/thresholds (**TB-1230**).
-3. Pair **M-211**; Verification points at `AgentOutputTraceQualityEvaluator`, `SkipWhenSimulator`, `ContentSafetyEnforcingAgentCompletionClient`, `FineTunedAgentCompletionDeploymentResolver`, `GoldenCohortFineTuningPromotionGate`.
+**Acceptance:** Met ? CI fails dishonest Simulator=Real-safe / forked-stack claims; pairs **M-211**.
 
-**Acceptance:** CI fails dishonest Simulator=Real-safe / forked-stack claims; pairs **M-211**.
-
-**Depends on:** **TB-1230**.
+**Depends on:** Done **TB-1230**.
 
 **Out of scope:** Re-authoring PilotStrict?Real matrix (**M-166**); flipping **G-FAITH-01**.
 
@@ -31124,24 +31103,20 @@ Operators must read three intros before reaching the Trust Center link list.
 
 **Window:** V1 ? Testability.
 
-**Status:** Not started.
+**Status:** **Done** (2026-08-12).
 
 **Priority:** P1.
 
 **Source:** Follow-on to **TB-1232**; hardens GTM **M-213**.
 
-**Problem:** Docs/PRs can claim repository `WHERE TenantId = @scope` (or ARCH001/ARCH006 green) is sufficient tenant isolation, or that adding SQL RLS is the missing ?beyond predicates? control ? both contradict ADR 0037 and invite wrong fixes.
+**Shipped:**
 
-**Approach:**
+1. `scripts/ci/check_tenant_did_erosion_beyond_predicates_honesty.py` + unit tests; wired in `run_buyer_surface_strict_guards.py` and CI.
+2. Contract anchors updated in [`TENANT_DID_EROSION_AND_ENFORCEMENT_BEYOND_PREDICATES_CONTRACT.md`](TENANT_DID_EROSION_AND_ENFORCEMENT_BEYOND_PREDICATES_CONTRACT.md) (**TB-1232**/**TB-1233**, **M-213**) and `BuildRequiredScopeFilter` Search client anchor.
 
-1. Doc/CI guard: fail stubs that equate per-query TenantId/scope predicates (or scope-provider threading alone) with production paying-client isolation without Layer A catalog + INV-001 caveats (**TB-1232** / ADR 0037).
-2. Fail claims that NetArchTest / ARCH green alone proves isolation (**TB-1005**/**TB-1006** overlap OK ? this row focuses on predicate/provider overclaim).
-3. Fail claims that reinstating SQL RLS is the required beyond-predicate enforcement (point to ADR 0037 + **TB-1122**); allow historical RLS doc citations only as rejected posture.
-4. Pair **M-213**; Verification points at `IScopeContextProvider`, `AmbientScopeContext`, `ScopedRoutingSqlConnectionFactory`, ARCH001/ARCH006, `AzureSearchTenantScopeFilterBuilder`, `TENANT_ISOLATION_DEFENSE_IN_DEPTH.md`.
+**Acceptance:** Met ? CI fails dishonest WHERE-TenantId=/ARCH-alone=/RLS-as-beyond-predicate claims; pairs **M-213**.
 
-**Acceptance:** CI fails dishonest WHERE-TenantId=/ARCH-alone=/RLS-as-beyond-predicate claims; pairs **M-213**.
-
-**Depends on:** **TB-1232**.
+**Depends on:** Done **TB-1232**.
 
 **Out of scope:** Re-authoring full too-strong isolation inventory (**TB-1122**); changing catalog topology.
 
@@ -31189,24 +31164,20 @@ Operators must read three intros before reaching the Trust Center link list.
 
 **Window:** V1 ? Testability.
 
-**Status:** Not started.
+**Status:** **Done** (2026-08-12).
 
 **Priority:** P1.
 
 **Source:** Follow-on to **TB-1244**; hardens GTM **M-215**.
 
-**Problem:** Docs/PRs can claim production workloads are least-privilege SQL / fully private / AOAI-overprivileged while Terraform defaults keep bootstrap `db_owner`-equivalent on the API MI, PE roots opt-in with public ingress defaults, and intended AOAI RBAC is already OpenAI User.
+**Shipped:**
 
-**Approach:**
+1. `scripts/ci/check_azure_workload_privilege_escalation_seam_honesty.py` + unit tests; wired in `run_buyer_surface_strict_guards.py` and CI.
+2. Contract anchors updated in [`AZURE_WORKLOAD_PRIVILEGE_ESCALATION_SEAM_CONTRACT.md`](AZURE_WORKLOAD_PRIVILEGE_ESCALATION_SEAM_CONTRACT.md) (**TB-1244**/**TB-1245**, **M-215**) and Terraform `enable_api_sql_runtime_identity` / OpenAI User anchors.
 
-1. Doc/CI guard: fail stubs that claim least-privilege / non-`db_owner` SQL for the API request path while `enable_api_sql_runtime_identity` remains false (or runtime CS is undocumented/unwired) without **TB-1244** caveats.
-2. Fail claims that private endpoints alone equal private data plane without public-network closure + CA VNet integration (**TB-903**).
-3. Fail claims that ArchLucid?s intended AOAI workload role is Contributor/Owner (pin OpenAI **User**); allow ApiKey residual honesty separately (**TB-080** Done path + Content Safety / **TB-906**).
-4. Pair **M-215**; Verification points at `infra/terraform-container-apps` (`enable_api_sql_runtime_identity`, comments on db_owner-equivalent), `MANAGED_IDENTITY_SQL_BLOB.md`, `azure_openai.tf` OpenAI User assignments, `AuthSafetyGuard`.
+**Acceptance:** Met ? CI fails dishonest least-privilege-while-colocated / PE-equals-private / AOAI-Contributor claims; pairs **M-215**.
 
-**Acceptance:** CI fails dishonest least-privilege-while-colocated / PE-equals-private / AOAI-Contributor claims; pairs **M-215**.
-
-**Depends on:** **TB-1244**.
+**Depends on:** Done **TB-1244**.
 
 **Out of scope:** Re-authoring tenant DiD honesty (**TB-1233**); implementing UAMI split.
 

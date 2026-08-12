@@ -2,6 +2,10 @@ import type { DemoCommitPagePreviewResponse } from "@/types/demo-preview";
 
 import type { FindingProvenance } from "@/lib/api/finding-provenance";
 import {
+  buildIntakeShowcaseStaticPayload,
+  type IntakeShowcaseDecisionItem,
+} from "@/lib/samples/build-intake-showcase-static-payload";
+import {
   CLAIMS_INTAKE_BUYER_REVIEW_PACKAGE_TITLE,
   CLAIMS_INTAKE_BUYER_REVIEW_TITLE,
   CLAIMS_INTAKE_CANONICAL_PROOF_HREF,
@@ -16,8 +20,18 @@ import {
   CLAIMS_INTAKE_SAMPLE_DEFINITION,
   CLAIMS_INTAKE_SAMPLE_RUN_ID,
 } from "@/lib/samples/claims-intake/definition";
-import { DEV_SCOPE_PROJECT_ID } from "@/lib/scope";
-import { SIGNED_MANIFEST_LABEL } from "@/lib/usability/canonical-product-terms";
+import {
+  CUSTOMER_INTAKE_PRIMARY_FINDING_ID,
+  CUSTOMER_INTAKE_SAMPLE_DEFINITION,
+  CUSTOMER_INTAKE_SAMPLE_RUN_ID,
+} from "@/lib/samples/customer-intake-modernization/definition";
+import {
+  buildCustomerIntakeShowcaseStaticPayload,
+  CUSTOMER_INTAKE_SHOWCASE_DECISION_ITEMS,
+  CUSTOMER_INTAKE_SHOWCASE_DECISION_SYNOPSES,
+  CUSTOMER_INTAKE_SHOWCASE_WARNING_SYNOPSES,
+} from "@/lib/samples/customer-intake-modernization/static-showcase-payload";
+import { resolveSampleScenarioByRunId } from "@/lib/samples/registry";
 
 export const SHOWCASE_STATIC_DEMO_RUN_ID = CLAIMS_INTAKE_SAMPLE_RUN_ID;
 
@@ -42,6 +56,8 @@ export const SHOWCASE_STATIC_DEMO_PRIMARY_FINDING_TITLE = CLAIMS_INTAKE_PRIMARY_
 export const SHOWCASE_DEMO_TENANT_NAME = CLAIMS_INTAKE_DEMO_TENANT_NAME;
 
 export const SHOWCASE_DEMO_TENANT_CATALOG_ID = CLAIMS_INTAKE_DEMO_TENANT_CATALOG_ID;
+
+export { CUSTOMER_INTAKE_SAMPLE_RUN_ID };
 
 /** Static provenance chains for showcase finding deep links when the API is unavailable. */
 export const SHOWCASE_FINDING_PROVENANCE: Readonly<Record<string, FindingProvenance>> = {
@@ -74,6 +90,35 @@ export const SHOWCASE_FINDING_PROVENANCE: Readonly<Record<string, FindingProvena
       },
     ],
   },
+  [CUSTOMER_INTAKE_PRIMARY_FINDING_ID]: {
+    findingId: CUSTOMER_INTAKE_PRIMARY_FINDING_ID,
+    steps: [
+      {
+        kind: "input",
+        label: "Architecture brief",
+        detail:
+          "Enterprise Customer Intake Modernization — brief describing data flow between intake channels and fulfillment services.",
+      },
+      {
+        kind: "evidence",
+        label: "Data flow identified",
+        detail:
+          "Customer profile attributes detected in intake payload transmitted over internal API without field-level encryption.",
+      },
+      {
+        kind: "policy-check",
+        label: "Enterprise privacy minimization evaluated",
+        detail:
+          "Policy pack rule: sensitive customer data must be minimized at the intake boundary. Transmission includes optional profile fields not required by downstream fulfillment.",
+      },
+      {
+        kind: "conclusion",
+        label: "High severity finding raised",
+        detail:
+          "Unnecessary sensitive-data exposure at intake API boundary — recommend field-level stripping before transmission.",
+      },
+    ],
+  },
 };
 
 /**
@@ -90,10 +135,7 @@ export const SHOWCASE_STATIC_DEMO_ILLUSTRATIVE_ANNUALIZED_EXTRACTION_USD =
   CLAIMS_INTAKE_SAMPLE_DEFINITION.illustrativeAnnualizedExtractionUsd;
 
 /** Grouped decision bullets for manifest detail (synopses are {@link SHOWCASE_STATIC_DEMO_DECISION_SYNOPSES}). */
-export type ShowcaseStaticDemoDecisionItem = {
-  readonly controlArea: string;
-  readonly text: string;
-};
+export type ShowcaseStaticDemoDecisionItem = IntakeShowcaseDecisionItem;
 
 /**
  * Curated synopses for the static Claims Intake manifest detail page (no list API on summary).
@@ -130,7 +172,74 @@ export const SHOWCASE_STATIC_DEMO_WARNING_SYNOPSES: readonly string[] = [
   "Unstructured intake attachments require weekly exception-volume monitoring to maintain PHI minimization coverage.",
 ];
 
-const GENERATED_UTC = "2026-04-23T09:15:00.000Z";
+function buildClaimsIntakeShowcaseStaticPayload(urlRunId: string): DemoCommitPagePreviewResponse {
+  return buildIntakeShowcaseStaticPayload({
+    scenario: CLAIMS_INTAKE_SAMPLE_DEFINITION,
+    urlRunId,
+    demoStatusMessage: "Demonstration — sample healthcare intake scenario",
+    operatorSummary:
+      "Finalized architecture review for Claims Intake Modernization — integration boundaries, PHI handling posture, " +
+      "and sponsor-facing KPIs consolidated for sign-off.",
+    decisionItems: SHOWCASE_STATIC_DEMO_DECISION_ITEMS,
+    warningSynopses: SHOWCASE_STATIC_DEMO_WARNING_SYNOPSES,
+    runExplanationSummary: "Demonstration narrative for Claims Intake Modernization.",
+    keyDrivers: [
+      "PHI boundary and egress control parity across intake channels",
+      "Auditability of intake-to-adjudication flow",
+      "Latency under peak submission windows",
+    ],
+    riskImplications: [
+      "PHI controls must remain consistent while throughput and channel parity improve.",
+    ],
+    costImplications: ["Ops touch reduction on intake rework."],
+    complianceImplications: ["HIPAA-aligned logging and segregation of duties."],
+    detailedNarrative:
+      "This demonstration summarizes a stable, sponsor-reviewable modernization path for intake with clear " +
+      "decisions, bounded risks, and evidence-backed recommendations.",
+    themeSummaries: ["PHI handling", "Intake continuity", "Auditability", "Peak-load performance"],
+    overallAssessment:
+      "Proceed with claims intake modernization under monitored PHI minimization controls — no blocking findings remain open.",
+    riskPosture: "Approved with monitoring",
+    complianceGapCount: 1,
+    graphSnapshotLabel: "Evidence graph — PHI minimization controls",
+    contextSnapshotLabel: "Claims intake architecture brief — intake boundaries",
+    primaryFindingConfidenceLevel: "High",
+    primaryFindingEvaluationScore: 95,
+    primaryFindingEvidenceRefCount: 3,
+    sponsorBriefingArtifactName: "Sponsor briefing — Claims Intake Modernization.md",
+    contextDiagramArtifactName: "Intake modernization context diagram.mmd",
+  });
+}
+
+export function getShowcaseDecisionSynopsesForRunId(runId: string): readonly string[] {
+  const scenario = resolveSampleScenarioByRunId(runId);
+
+  if (scenario?.slug === CUSTOMER_INTAKE_SAMPLE_DEFINITION.slug) {
+    return CUSTOMER_INTAKE_SHOWCASE_DECISION_SYNOPSES;
+  }
+
+  return SHOWCASE_STATIC_DEMO_DECISION_SYNOPSES;
+}
+
+export function getShowcaseWarningSynopsesForRunId(runId: string): readonly string[] {
+  const scenario = resolveSampleScenarioByRunId(runId);
+
+  if (scenario?.slug === CUSTOMER_INTAKE_SAMPLE_DEFINITION.slug) {
+    return CUSTOMER_INTAKE_SHOWCASE_WARNING_SYNOPSES;
+  }
+
+  return SHOWCASE_STATIC_DEMO_WARNING_SYNOPSES;
+}
+
+export function getShowcaseDecisionItemsForRunId(runId: string): readonly ShowcaseStaticDemoDecisionItem[] {
+  const scenario = resolveSampleScenarioByRunId(runId);
+
+  if (scenario?.slug === CUSTOMER_INTAKE_SAMPLE_DEFINITION.slug) {
+    return CUSTOMER_INTAKE_SHOWCASE_DECISION_ITEMS;
+  }
+
+  return SHOWCASE_STATIC_DEMO_DECISION_ITEMS;
+}
 
 /**
  * Read-only static payload for `/showcase/[runId]` when no preview API is configured,
@@ -138,185 +247,11 @@ const GENERATED_UTC = "2026-04-23T09:15:00.000Z";
  */
 export function getShowcaseStaticDemoPayload(urlRunId: string): DemoCommitPagePreviewResponse {
   const runId = urlRunId.trim().length > 0 ? urlRunId.trim() : SHOWCASE_STATIC_DEMO_RUN_ID;
+  const scenario = resolveSampleScenarioByRunId(runId);
 
-  return {
-    generatedUtc: GENERATED_UTC,
-    isDemoData: true,
-    demoStatusMessage: "Demonstration — sample healthcare intake scenario",
-    run: {
-      runId,
-      projectId: DEV_SCOPE_PROJECT_ID,
-      description: SHOWCASE_BUYER_REVIEW_PACKAGE_TITLE,
-      createdUtc: "2026-01-10T09:15:22.000Z",
-    },
-    manifest: {
-      manifestId: SHOWCASE_STATIC_DEMO_MANIFEST_ID,
-      runId,
-      createdUtc: "2026-01-14T22:08:41.000Z",
-      manifestHash: "sha256-demo-7f91c4aab3…",
-      ruleSetId: "healthcare-claims-v3",
-      ruleSetVersion: "3.4.1",
-      decisionCount: 12,
-      warningCount: 1,
-      unresolvedIssueCount: 0,
-      status: "Committed",
-      operatorSummary:
-        "Finalized architecture review for Claims Intake Modernization — integration boundaries, PHI handling posture, " +
-        "and sponsor-facing KPIs consolidated for sign-off.",
-    },
-    authorityChain: {
-      contextSnapshotId: "ctx-snapshot-01",
-      graphSnapshotId: "graph-snapshot-01",
-      findingsSnapshotId: "find-snapshot-01",
-      goldenManifestId: SHOWCASE_STATIC_DEMO_MANIFEST_ID,
-      decisionTraceId: "trace-claims-01",
-      artifactBundleId: "bundle-intake-demo-01",
-    },
-    artifacts: [
-      {
-        artifactId: "b2d4e6f8-a1c3-5e79-abcd-ef9876543210",
-        artifactType: "MarkdownReport",
-        name: "Sponsor briefing — Claims Intake Modernization.md",
-        format: "text/markdown",
-        createdUtc: "2026-01-14T22:10:05.000Z",
-        contentHash: "sha256-demo-art-md",
-      },
-      // CostSummary → shared bucket: second audience table on the default executive tab in buyer shell.
-      {
-        artifactId: "e6f8394c-d8fa-9255-ef01-c45678901234",
-        artifactType: "CostSummary",
-        name: "Cost posture summary.json",
-        format: "application/json",
-        createdUtc: "2026-01-14T22:10:07.000Z",
-        contentHash: "sha256-demo-art-cost",
-      },
-      {
-        artifactId: "c3e5f709-b2d4-6f81-bcde-f12345678901",
-        artifactType: "JsonBundle",
-        name: "Architecture decision record bundle.json",
-        format: "application/json",
-        createdUtc: "2026-01-14T22:10:12.000Z",
-        contentHash: "sha256-demo-art-json",
-      },
-      {
-        artifactId: "d4f6181b-c5e7-7932-cdef-a23456789012",
-        artifactType: "Diagram",
-        name: "Intake modernization context diagram.mmd",
-        format: "text/plain",
-        createdUtc: "2026-01-14T22:10:20.000Z",
-        contentHash: "sha256-demo-art-diagram",
-      },
-    ],
-    pipelineTimeline: [
-      {
-        eventId: "evt-pipeline-request-created",
-        occurredUtc: "2026-01-10T09:15:22.000Z",
-        eventType: "RunStarted",
-        actorUserName: "Jordan Lee",
-        correlationId: "corr-intake-demo-request",
-      },
-      {
-        eventId: "evt-pipeline-context",
-        occurredUtc: "2026-01-13T16:22:41.000Z",
-        eventType: "context.snapshot.created",
-        actorUserName: "ArchLucid system",
-        correlationId: "corr-intake-demo-ctx",
-      },
-      {
-        eventId: "evt-pipeline-graph",
-        occurredUtc: "2026-01-18T14:09:07.000Z",
-        eventType: "graph.snapshot.created",
-        actorUserName: "ArchLucid system",
-        correlationId: "corr-intake-demo-graph",
-      },
-      {
-        eventId: "evt-pipeline-findings",
-        occurredUtc: "2026-01-24T11:41:53.000Z",
-        eventType: "findings.snapshot.created",
-        actorUserName: "ArchLucid system",
-        correlationId: "corr-intake-demo-findings",
-      },
-      {
-        eventId: "evt-pipeline-manifest-finalized",
-        occurredUtc: "2026-01-31T21:52:06.000Z",
-        eventType: "finalize.run",
-        actorUserName: "Taylor Morgan",
-        correlationId: "corr-intake-demo-manifest",
-      },
-      {
-        eventId: "evt-pipeline-governance-approved",
-        occurredUtc: "2026-02-02T17:30:00.000Z",
-        eventType: "com.archlucid.governance.approval.recorded",
-        actorUserName: "Jordan Lee",
-        correlationId: "corr-intake-demo-governance",
-      },
-      {
-        eventId: "evt-pipeline-bundle",
-        occurredUtc: "2026-02-03T09:07:44.000Z",
-        eventType: "artifact.bundle.created",
-        actorUserName: "ArchLucid system",
-        correlationId: "corr-intake-demo-bundle",
-      },
-    ],
-    runExplanation: {
-      explanation: {
-        rawText: "",
-        structured: null,
-        confidence: null,
-        provenance: null,
-        summary: "Demonstration narrative for Claims Intake Modernization.",
-        keyDrivers: [
-          "PHI boundary and egress control parity across intake channels",
-          "Auditability of intake-to-adjudication flow",
-          "Latency under peak submission windows",
-        ],
-        riskImplications: [
-          "PHI controls must remain consistent while throughput and channel parity improve.",
-        ],
-        costImplications: ["Ops touch reduction on intake rework."],
-        complianceImplications: ["HIPAA-aligned logging and segregation of duties."],
-        detailedNarrative:
-          "This demonstration summarizes a stable, sponsor-reviewable modernization path for intake with clear " +
-          "decisions, bounded risks, and evidence-backed recommendations.",
-      },
-      themeSummaries: ["PHI handling", "Intake continuity", "Auditability", "Peak-load performance"],
-      overallAssessment:
-        "Proceed with claims intake modernization under monitored PHI minimization controls — no blocking findings remain open.",
-      riskPosture: "Approved with monitoring",
-      findingCount: 9,
-      decisionCount: 12,
-      unresolvedIssueCount: 0,
-      complianceGapCount: 1,
-      faithfulnessSupportRatio: null,
-      deterministicFallbackUsed: false,
-      faithfulnessWarning: null,
-      findingTraceConfidences: [
-        {
-          findingId: "phi-minimization-risk",
-          findingTitle: "PHI Minimization Risk",
-          // Wire enum: "High" (legacy numeric 0 still normalized in normalizeFindingConfidenceLevel).
-          confidenceLevel: "High",
-          evaluationConfidenceScore: 95,
-          evidenceRefCount: 3,
-          traceConfidenceLabel: "High",
-          traceCompletenessRatio: 0.95,
-        },
-      ],
-      citations: [
-        { kind: "Manifest", id: SHOWCASE_STATIC_DEMO_MANIFEST_ID, label: SIGNED_MANIFEST_LABEL, runId },
-        {
-          kind: "GraphSnapshot",
-          id: "graph-snapshot-01",
-          label: "Evidence graph — PHI minimization controls",
-          runId,
-        },
-        {
-          kind: "ContextSnapshot",
-          id: "ctx-snapshot-01",
-          label: "Claims intake architecture brief — intake boundaries",
-          runId,
-        },
-      ],
-    },
-  };
+  if (scenario?.slug === CUSTOMER_INTAKE_SAMPLE_DEFINITION.slug) {
+    return buildCustomerIntakeShowcaseStaticPayload(runId);
+  }
+
+  return buildClaimsIntakeShowcaseStaticPayload(runId);
 }

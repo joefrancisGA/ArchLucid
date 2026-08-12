@@ -34,4 +34,6 @@ export type SampleScenarioDefinition = {
   readonly illustrativeAnnualizedExtractionUsd: number;
   readonly canonicalProofHref: string;
   readonly universeTextSignals: readonly string[];
+  /** Buyer-facing primary sentence pinned in the package (TB-980 / GTM M-133). */
+  readonly primaryBuyerSentence: string;
 };
