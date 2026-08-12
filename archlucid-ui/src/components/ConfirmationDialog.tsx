@@ -72,7 +72,10 @@ export function ConfirmationDialog({
               !isDestructive &&
                 "border-transparent bg-neutral-900 text-neutral-50 shadow-sm hover:bg-neutral-800 hover:text-neutral-50 focus-visible:ring-neutral-400 dark:bg-neutral-200 dark:text-neutral-900 dark:hover:bg-neutral-300 dark:focus-visible:ring-neutral-500",
             )}
-            onClick={onConfirm}
+            onClick={(event) => {
+              event.preventDefault();
+              onConfirm();
+            }}
           >
             {busy ? (
               <span className="inline-flex items-center gap-2">

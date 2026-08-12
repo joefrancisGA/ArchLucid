@@ -1,22 +1,12 @@
 "use client";
 
-import {
-  AlertDialog,
-  AlertDialogAction,
-  AlertDialogCancel,
-  AlertDialogContent,
-  AlertDialogDescription,
-  AlertDialogFooter,
-  AlertDialogHeader,
-  AlertDialogTitle,
-} from "@/components/ui/alert-dialog";
-import { buttonVariants } from "@/components/ui/button";
+import { ConfirmationDialog } from "@/components/ConfirmationDialog";
+import { OPERATOR_TYPOGRAPHY } from "@/lib/design-tokens";
 import {
   resolveAlertRoutingSubscriptionDisableDialogDescription,
   resolveAlertRoutingSubscriptionDisableDialogTitle,
   type AlertRoutingSubscriptionDisableChannel,
 } from "@/lib/alert-routing-subscription-disable-copy";
-import { OPERATOR_TYPOGRAPHY } from "@/lib/design-tokens";
 import { cn } from "@/lib/utils";
 
 export type AlertRoutingSubscriptionDisableTarget = {
@@ -33,6 +23,7 @@ type AlertRoutingSubscriptionDisableDialogProps = {
   readonly onConfirm: () => void;
 };
 
+/** Domain wrapper over {@link ConfirmationDialog} for alert-routing disable confirms (TB-2363). */
 export function AlertRoutingSubscriptionDisableDialog(
   props: AlertRoutingSubscriptionDisableDialogProps,
 ): React.JSX.Element {
@@ -41,24 +32,21 @@ export function AlertRoutingSubscriptionDisableDialog(
   const errorMessage = props.errorMessage ?? null;
 
   return (
-    <AlertDialog
+    <ConfirmationDialog
       open={props.target !== null}
       onOpenChange={(open) => {
-        if (!open) {
+        if (!open && !props.busy) {
           props.onCancel();
         }
       }}
-    >
-      <AlertDialogContent data-testid="alert-routing-subscription-disable-dialog">
-        <AlertDialogHeader>
-          <AlertDialogTitle className={OPERATOR_TYPOGRAPHY.sectionTitle}>
-            {resolveAlertRoutingSubscriptionDisableDialogTitle(channel, subscriptionName)}
-          </AlertDialogTitle>
-          <AlertDialogDescription className={cn(OPERATOR_TYPOGRAPHY.body, "text-al-text-secondary")}>
-            {resolveAlertRoutingSubscriptionDisableDialogDescription(channel)}
-          </AlertDialogDescription>
-        </AlertDialogHeader>
-        {errorMessage !== null ? (
+      title={resolveAlertRoutingSubscriptionDisableDialogTitle(channel, subscriptionName)}
+      description={resolveAlertRoutingSubscriptionDisableDialogDescription(channel)}
+      confirmLabel="Disable"
+      variant="destructive"
+      busy={props.busy}
+      onConfirm={props.onConfirm}
+      extraContent={
+        errorMessage !== null ? (
           <p
             className={cn(OPERATOR_TYPOGRAPHY.body, "text-red-600 dark:text-red-400")}
             role="alert"
@@ -66,24 +54,8 @@ export function AlertRoutingSubscriptionDisableDialog(
           >
             {errorMessage}
           </p>
-        ) : null}
-        <AlertDialogFooter>
-          <AlertDialogCancel disabled={props.busy} data-testid="alert-routing-subscription-disable-cancel">
-            Cancel
-          </AlertDialogCancel>
-          <AlertDialogAction
-            disabled={props.busy}
-            data-testid="alert-routing-subscription-disable-confirm"
-            className={cn(buttonVariants({ variant: "destructive" }))}
-            onClick={(event) => {
-              event.preventDefault();
-              props.onConfirm();
-            }}
-          >
-            Disable
-          </AlertDialogAction>
-        </AlertDialogFooter>
-      </AlertDialogContent>
-    </AlertDialog>
+        ) : null
+      }
+    />
   );
 }

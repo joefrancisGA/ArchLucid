@@ -250,10 +250,10 @@ describe("AlertRoutingContent", () => {
 
     fireEvent.click(await screen.findByTestId("alert-routing-toggle-sub-1"));
 
-    expect(screen.getByTestId("alert-routing-subscription-disable-dialog")).toBeInTheDocument();
+    expect(screen.getByRole("heading", { name: /Disable webhook subscription Ops email/i })).toBeInTheDocument();
     expect(apiHoisted.toggleAlertRoutingSubscription).not.toHaveBeenCalled();
 
-    fireEvent.click(screen.getByTestId("alert-routing-subscription-disable-confirm"));
+    fireEvent.click(screen.getByRole("button", { name: "Disable" }));
 
     await waitFor(() => {
       expect(apiHoisted.toggleAlertRoutingSubscription).toHaveBeenCalledWith("sub-1");

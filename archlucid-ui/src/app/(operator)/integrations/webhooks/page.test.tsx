@@ -493,12 +493,11 @@ describe("WebhooksIntegrationPage", () => {
 
     fireEvent.click(await screen.findByTestId(`webhook-toggle-${subscriptionId}`));
 
-    expect(screen.getByTestId("alert-routing-subscription-disable-dialog")).toBeInTheDocument();
     expect(screen.getByText(/Disable webhook subscription PagerDuty alerts/i)).toBeInTheDocument();
     expect(screen.getByText(/Outbound HTTPS deliveries/i)).toBeInTheDocument();
     expect(apiMocks.toggle).not.toHaveBeenCalled();
 
-    fireEvent.click(screen.getByTestId("alert-routing-subscription-disable-confirm"));
+    fireEvent.click(screen.getByRole("button", { name: "Disable" }));
 
     await waitFor(() => {
       expect(apiMocks.toggle).toHaveBeenCalledWith(subscriptionId);

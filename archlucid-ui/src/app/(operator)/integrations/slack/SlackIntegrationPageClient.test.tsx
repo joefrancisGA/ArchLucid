@@ -214,12 +214,11 @@ describe("SlackIntegrationPageClient", () => {
 
     fireEvent.click(await screen.findByTestId("slack-toggle-sub-1"));
 
-    expect(screen.getByTestId("alert-routing-subscription-disable-dialog")).toBeInTheDocument();
     expect(screen.getByText(/Disable Slack destination Governance alerts/i)).toBeInTheDocument();
     expect(screen.getByText(/Governance alerts will no longer post/i)).toBeInTheDocument();
     expect(mockToggle).not.toHaveBeenCalled();
 
-    fireEvent.click(screen.getByTestId("alert-routing-subscription-disable-confirm"));
+    fireEvent.click(screen.getByRole("button", { name: "Disable" }));
 
     await waitFor(() => {
       expect(mockToggle).toHaveBeenCalledWith("sub-1");
