@@ -37,11 +37,15 @@ import {
 import { HELP_TOPIC_PERMANENT_REDIRECTS } from "@/lib/help/help-topic-permanent-redirects";
 import { getInboundAuthenticatedServerPrincipal } from "@/lib/server-current-principal";
 import { resolveHelpTopicPermanentRedirect } from "@/lib/help/help-topic-permanent-redirects";
+import { assertHelpTopicCatchAllFallthroughAllowed } from "@/lib/help/help-topic-catch-all-fallthrough";
 import { resolveInternalRunbookHelpRouteMetadata } from "@/lib/resolve-internal-runbook-help-route-metadata";
 
 /** ISR for buyer help topics — keep in sync with `HELP_TOPIC_ROUTE_REVALIDATE_SECONDS` (TB-1600). */
 export const revalidate = 3600;
 
+const HelpPathChooserGuideView = dynamic(() =>
+  import("../_sections/HelpPathChooserGuideView").then((module) => module.HelpPathChooserGuideView),
+);
 const HelpAcceleratorChooserGuideView = dynamic(() =>
   import("../_sections/HelpAcceleratorChooserGuideView").then((module) => module.HelpAcceleratorChooserGuideView),
 );
@@ -474,6 +478,10 @@ function renderHelpTopicView(
     );
   }
 
+  if (loaded.entry.slug === "choose-your-next-step") {
+    return <HelpPathChooserGuideView entry={loaded.entry} markdown={loaded.markdown} />;
+  }
+
   if (loaded.entry.slug === "comparison-replay") {
     return <HelpComparisonReplayGuideView entry={loaded.entry} markdown={loaded.markdown} />;
   }
@@ -501,6 +509,8 @@ function renderHelpTopicView(
   if (loaded.entry.slug === "evidence-trail") {
     return <HelpEvidenceTrailGuideView entry={loaded.entry} markdown={loaded.markdown} />;
   }
+
+  assertHelpTopicCatchAllFallthroughAllowed(loaded.entry);
 
   return (
     <HelpTopicMarkdownView
