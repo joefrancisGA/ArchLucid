@@ -34,8 +34,6 @@ function buildModel(
   overrides: Partial<UseIdentityProvidersSettingsPageModel> = {},
 ): UseIdentityProvidersSettingsPageModel {
   return {
-    note: null,
-    rows: [],
     identityProviderDiagnostics: null,
     identityProviderDiagnosticsNote: null,
     identityProviderDiagnosticsLoaded: true,
@@ -61,8 +59,8 @@ function buildModel(
       ssoStatus: "Enabled",
       samlStatus: "Not configured",
       oidcStatus: "Healthy",
-      roleMappingStatus: "Configured",
-      validationStatusLabel: "Today",
+      roleMappingStatus: "Enabled",
+      validationStatusLabel: "Healthy",
       tileCaptions: {},
       recommendedNextStep: "Validate role mapping",
       recommendedNextHref: "/administration/identity-providers/role-mapping",

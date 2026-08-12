@@ -208,7 +208,11 @@ function resolveValidationStatusLabel(
   input: ResolveIdentityProvidersOverviewInput,
   samlStatus: IdentityProviderCustomerStatus,
 ): string {
-  if (!input.oidcDiagnosticsAvailable && !input.authConfigurationDiagnosticsAvailable) {
+  if (!input.authConfigurationDiagnosticsAvailable) {
+    return IDENTITY_PROVIDERS_STATUS_UNKNOWN;
+  }
+
+  if (!input.oidcDiagnosticsAvailable) {
     return IDENTITY_PROVIDERS_STATUS_UNKNOWN;
   }
 
@@ -222,10 +226,6 @@ function resolveValidationStatusLabel(
 
   if (input.authConfigurationDiagnosticsAvailable && samlStatus === IDENTITY_PROVIDERS_STATUS_ENABLED) {
     return IDENTITY_PROVIDERS_STATUS_ENABLED;
-  }
-
-  if (!input.oidcDiagnosticsAvailable) {
-    return IDENTITY_PROVIDERS_STATUS_UNKNOWN;
   }
 
   return IDENTITY_PROVIDERS_VALIDATION_STATUS_NOT_VALIDATED_YET;
@@ -336,7 +336,7 @@ export function resolveIdentityProvidersOverview(
     validationStatusLabel,
     tileCaptions,
     recommendedNextStep: recommended.step,
-    recommendedNextHref: recommended.href,
+    recommendedNextHref: input.authConfigurationDiagnosticsAvailable ? recommended.href : null,
     usesLocalDevelopmentSignIn: config?.authMode === "DevelopmentBypass",
     headerStatusAvailable: input.authConfigurationDiagnosticsAvailable,
   };

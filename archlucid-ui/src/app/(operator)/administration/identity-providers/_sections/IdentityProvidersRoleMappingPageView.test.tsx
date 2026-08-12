@@ -33,8 +33,6 @@ function buildModel(
   overrides: Partial<UseIdentityProvidersSettingsPageModel> = {},
 ): UseIdentityProvidersSettingsPageModel {
   return {
-    note: null,
-    rows: [],
     identityProviderDiagnostics: null,
     identityProviderDiagnosticsNote: null,
     identityProviderDiagnosticsLoaded: true,

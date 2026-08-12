@@ -100,6 +100,24 @@ describe("resolveIdentityProvidersOverview", () => {
     expect(overview.headerStatusAvailable).toBe(true);
   });
 
+  it("keeps validation Unknown when auth configuration is unavailable even if OIDC probe succeeds", () => {
+    const overview = resolveIdentityProvidersOverview({
+      authConfigurationDiagnostics: null,
+      authConfigurationDiagnosticsAvailable: false,
+      identityProviderDiagnostics: null,
+      identityProviderDiagnosticsAvailable: false,
+      oidcDiagnostics: {
+        authMode: "JwtBearer",
+        discoverySucceeded: true,
+      },
+      oidcDiagnosticsAvailable: true,
+    });
+
+    expect(overview.oidcStatus).toBe(IDENTITY_PROVIDERS_STATUS_UNKNOWN);
+    expect(overview.validationStatusLabel).toBe(IDENTITY_PROVIDERS_STATUS_UNKNOWN);
+    expect(overview.tileCaptions.validation).toBe(IDENTITY_PROVIDERS_STATUS_SOURCE_UNAVAILABLE);
+  });
+
   it("returns Unknown when auth configuration diagnostics are unavailable", () => {
     const overview = resolveIdentityProvidersOverview({
       authConfigurationDiagnostics: null,
@@ -120,6 +138,7 @@ describe("resolveIdentityProvidersOverview", () => {
     expect(overview.oidcStatus).toBe(IDENTITY_PROVIDERS_STATUS_UNKNOWN);
     expect(overview.tileCaptions.authenticationMode).toBe(IDENTITY_PROVIDERS_STATUS_SOURCE_UNAVAILABLE);
     expect(overview.headerStatusAvailable).toBe(false);
+    expect(overview.recommendedNextHref).toBeNull();
   });
 
   it("uses not validated yet when no validation probe has run", () => {

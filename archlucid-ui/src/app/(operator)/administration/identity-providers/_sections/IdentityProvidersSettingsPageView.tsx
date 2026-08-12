@@ -9,10 +9,6 @@ import { ScimIdentityProvidersVocabularyRail } from "@/components/ScimIdentityPr
 import { Button } from "@/components/ui/button";
 import {
   IDENTITY_PROVIDERS_ADMIN_FALLBACK_NOTICE,
-  IDENTITY_PROVIDERS_NAV_DIAGNOSTICS,
-  IDENTITY_PROVIDERS_NAV_OIDC,
-  IDENTITY_PROVIDERS_NAV_ROLE_MAPPING,
-  IDENTITY_PROVIDERS_NAV_SAML,
   IDENTITY_PROVIDERS_OVERVIEW_RELATED_SURFACES_TITLE,
   IDENTITY_PROVIDERS_OVERVIEW_CONFIGURE_LINKS_TITLE,
   IDENTITY_PROVIDERS_RECOMMENDED_CONFIGURE_PRODUCTION_SIGN_IN_DETAIL,
@@ -40,30 +36,14 @@ const CONFIGURATION_AREAS = [
     label: "Sign-in domains",
     description: "Verify email domains and enforce organization SSO routing.",
   },
-  {
-    href: "/administration/identity-providers/saml",
-    label: IDENTITY_PROVIDERS_NAV_SAML,
-    description: "Configure SAML metadata, issuer, and group-to-role mapping.",
-  },
-  {
-    href: "/administration/identity-providers/oidc",
-    label: IDENTITY_PROVIDERS_NAV_OIDC,
-    description: "Review OIDC authority, audience, and discovery status.",
-  },
-  {
-    href: "/administration/identity-providers/role-mapping",
-    label: IDENTITY_PROVIDERS_NAV_ROLE_MAPPING,
-    description: "Validate how identity provider groups map to workspace roles.",
-  },
-  {
-    href: "/administration/identity-providers/diagnostics",
-    label: IDENTITY_PROVIDERS_NAV_DIAGNOSTICS,
-    description: "Run health checks and technical validation when troubleshooting sign-in.",
-  },
 ] as const;
 
 export function IdentityProvidersSettingsPageView(props: IdentityProvidersSettingsPageViewProps): React.JSX.Element {
   const { model } = props;
+  const showPrimaryNextStep =
+    model.dataLoaded
+    && model.overviewStatusFailure === null
+    && model.overview.recommendedNextHref !== null;
 
   return (
     <IdentityProvidersSettingsShell
@@ -84,10 +64,10 @@ export function IdentityProvidersSettingsPageView(props: IdentityProvidersSettin
 
       {!model.dataLoaded ? (
         <p className={cn("m-0 text-al-text-secondary", OPERATOR_TYPOGRAPHY.body)}>Loading status…</p>
-      ) : model.overview.recommendedNextHref !== null ? (
+      ) : showPrimaryNextStep ? (
         <div className="space-y-2" data-testid="identity-providers-primary-next-step">
           <Button asChild data-testid="identity-providers-primary-next-step-button">
-            <Link href={model.overview.recommendedNextHref}>{model.overview.recommendedNextStep}</Link>
+            <Link href={model.overview.recommendedNextHref!}>{model.overview.recommendedNextStep}</Link>
           </Button>
           {model.overview.usesLocalDevelopmentSignIn ? (
             <p className={cn("m-0 max-w-3xl text-al-text-secondary", OPERATOR_TYPOGRAPHY.body)}>

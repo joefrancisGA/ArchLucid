@@ -3,7 +3,6 @@
 import { useCallback, useEffect, useMemo, useState } from "react";
 
 import {
-  IDENTITY_PROVIDERS_CONFIG_SUMMARY_LOAD_ERROR_NOTE,
   IDENTITY_PROVIDERS_FORBIDDEN_NOTE,
   IDENTITY_PROVIDERS_STATUS_LOAD_ERROR_NOTE,
 } from "@/lib/identity-providers-settings-copy";
@@ -14,21 +13,16 @@ import type { components } from "@/lib/openapi-schemas";
 import { mergeRegistrationScopeForProxy } from "@/lib/proxy-fetch-registration-scope";
 import { resolveIdentityProvidersOverview } from "@/lib/resolve-identity-providers-overview";
 
-import { filterArchLucidAuthConfigRows } from "./filter-arch-lucid-auth-config-rows";
 import type { IdentityProvidersSettingsPageServerLoad } from "./load-identity-providers-settings-page-data";
 
-type AdminConfigSummaryResponse = components["schemas"]["AdminConfigSummaryResponse"];
 type AdminAuthConfigurationDiagnosticsResponse =
   components["schemas"]["AdminAuthConfigurationDiagnosticsResponse"];
 type AdminIdentityProviderDiagnosticsResponse =
   components["schemas"]["AdminIdentityProviderDiagnosticsResponse"];
 type AdminOidcDiagnosticsResponse = components["schemas"]["AdminOidcDiagnosticsResponse"];
 type AdminSamlOperationalHealthResponse = components["schemas"]["AdminSamlOperationalHealthResponse"];
-type ConfigSummaryKeyRow = components["schemas"]["ConfigSummaryKeyRow"];
 
 export type UseIdentityProvidersSettingsPageModel = {
-  readonly note: string | null;
-  readonly rows: ConfigSummaryKeyRow[] | null;
   readonly identityProviderDiagnostics: AdminIdentityProviderDiagnosticsResponse | null;
   readonly identityProviderDiagnosticsNote: string | null;
   readonly identityProviderDiagnosticsLoaded: boolean;
@@ -64,8 +58,6 @@ export function useIdentityProvidersSettingsPage(
 ): UseIdentityProvidersSettingsPageModel {
   void loaded;
 
-  const [rows, setRows] = useState<ConfigSummaryKeyRow[] | null>(null);
-  const [note, setNote] = useState<string | null>(null);
   const [accessDenied, setAccessDenied] = useState(false);
   const [refreshing, setRefreshing] = useState(false);
   const [lastRefreshedAt, setLastRefreshedAt] = useState<Date | null>(null);
@@ -90,8 +82,6 @@ export function useIdentityProvidersSettingsPage(
 
   const load = useCallback(async () => {
     setRefreshing(true);
-    setNote(null);
-    setRows(null);
     setAccessDenied(false);
     setOverviewFailureStatusCode(undefined);
     setIdentityProviderDiagnostics(null);
@@ -115,38 +105,20 @@ export function useIdentityProvidersSettingsPage(
     try {
       const opts = mergeRegistrationScopeForProxy({ headers: { Accept: "application/json" }, cache: "no-store" });
 
-      const [summaryRes, diagnosticsRes, authConfigRes, oidcRes, samlRes] = await Promise.all([
-        fetch("/api/proxy/v1/internal/configuration/summary?includeEffectiveValues=true", opts),
+      const [diagnosticsRes, authConfigRes, oidcRes, samlRes] = await Promise.all([
         fetch("/api/proxy/v1/admin/diagnostics/identity-providers", opts),
         fetch("/api/proxy/v1/admin/auth/configuration-diagnostics", opts),
         fetch("/api/proxy/v1/admin/auth/oidc-diagnostics", opts),
         fetch("/api/proxy/v1/admin/auth/saml-operational-health", opts),
       ]);
 
-      if (!summaryRes.ok) {
-        setRows(null);
-
-        if (isForbiddenStatus(summaryRes.status)) {
-          setAccessDenied(true);
-          setNote(IDENTITY_PROVIDERS_FORBIDDEN_NOTE);
-        } else {
-          setNote(
-            formatIdentityProvidersFetchNote({
-              message: IDENTITY_PROVIDERS_CONFIG_SUMMARY_LOAD_ERROR_NOTE,
-              statusCode: summaryRes.status,
-            }),
-          );
-        }
-      } else {
-        const body = (await summaryRes.json()) as AdminConfigSummaryResponse;
-        const keys: ConfigSummaryKeyRow[] = body.keys ?? [];
-        const authRows = filterArchLucidAuthConfigRows(keys);
-
-        setRows(authRows);
-      }
-
       if (!diagnosticsRes.ok) {
         setIdentityProviderDiagnostics(null);
+
+        if (isForbiddenStatus(diagnosticsRes.status)) {
+          setAccessDenied(true);
+        }
+
         setOverviewFailureStatusCode((current) => current ?? diagnosticsRes.status);
         setIdentityProviderDiagnosticsNote(
           isForbiddenStatus(diagnosticsRes.status)
@@ -163,6 +135,11 @@ export function useIdentityProvidersSettingsPage(
 
       if (!authConfigRes.ok) {
         setAuthConfigurationDiagnostics(null);
+
+        if (isForbiddenStatus(authConfigRes.status)) {
+          setAccessDenied(true);
+        }
+
         setOverviewFailureStatusCode((current) => current ?? authConfigRes.status);
         setAuthConfigurationDiagnosticsNote(
           isForbiddenStatus(authConfigRes.status)
@@ -209,8 +186,6 @@ export function useIdentityProvidersSettingsPage(
         samlOperationalHealthSucceeded = true;
       }
     } catch (e: unknown) {
-      setRows(null);
-      setNote(e instanceof Error ? e.message : IDENTITY_PROVIDERS_STATUS_LOAD_ERROR_NOTE);
       setIdentityProviderDiagnostics(null);
       setIdentityProviderDiagnosticsNote(IDENTITY_PROVIDERS_STATUS_LOAD_ERROR_NOTE);
       setAuthConfigurationDiagnostics(null);
@@ -280,8 +255,6 @@ export function useIdentityProvidersSettingsPage(
     : null;
 
   return {
-    note,
-    rows,
     identityProviderDiagnostics,
     identityProviderDiagnosticsNote,
     identityProviderDiagnosticsLoaded,

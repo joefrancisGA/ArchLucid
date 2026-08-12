@@ -5,6 +5,11 @@ import { beforeAll, describe, expect, it } from "vitest";
 import SettingsPage from "@/app/(operator)/administration/page";
 import { FirstPilotReadinessCockpit } from "@/components/FirstPilotReadinessCockpit";
 import { IdentityProvidersSettingsPageView } from "@/app/(operator)/administration/identity-providers/_sections/IdentityProvidersSettingsPageView";
+import {
+  IDENTITY_PROVIDERS_STATUS_LOAD_ERROR_NOTE,
+  IDENTITY_PROVIDERS_STATUS_UNKNOWN,
+} from "@/lib/identity-providers-settings-copy";
+import type { UseIdentityProvidersSettingsPageModel } from "@/app/(operator)/administration/identity-providers/_sections/use-identity-providers-settings-page";
 
 expect.extend(toHaveNoViolations);
 
@@ -18,6 +23,78 @@ beforeAll(() => {
   } as unknown as typeof ResizeObserver;
 });
 
+function buildHealthyIdentityProvidersModel(): UseIdentityProvidersSettingsPageModel {
+  return {
+    identityProviderDiagnostics: null,
+    identityProviderDiagnosticsNote: null,
+    identityProviderDiagnosticsLoaded: true,
+    authConfigurationDiagnostics: {
+      authMode: "JwtBearer",
+      audienceConfigured: true,
+      issuerOrAuthorityConfigured: true,
+      openIdDiscoverySucceeded: true,
+      saml2Enabled: false,
+      roleClaimNameConfigured: true,
+      tenantClaimMappingConfigured: true,
+    },
+    authConfigurationDiagnosticsNote: null,
+    authConfigurationDiagnosticsLoaded: true,
+    oidcDiagnostics: {
+      authMode: "JwtBearer",
+      discoverySucceeded: true,
+    },
+    oidcDiagnosticsNote: null,
+    oidcDiagnosticsLoaded: true,
+    samlOperationalHealth: { saml2Enabled: false },
+    samlOperationalHealthNote: null,
+    samlOperationalHealthLoaded: true,
+    dataLoaded: true,
+    accessDenied: false,
+    diagnosticsDataUnavailable: false,
+    overviewStatusFailure: null,
+    refreshing: false,
+    lastRefreshedAt: null,
+    refresh: async () => undefined,
+    overview: {
+      authenticationModeLabel: "OIDC / JWT",
+      ssoStatus: "Enabled",
+      samlStatus: "Not configured",
+      oidcStatus: "Healthy",
+      roleMappingStatus: "Enabled",
+      validationStatusLabel: "Healthy",
+      tileCaptions: {},
+      recommendedNextStep: "Configure SAML metadata",
+      recommendedNextHref: "/administration/identity-providers/saml",
+      usesLocalDevelopmentSignIn: false,
+      headerStatusAvailable: true,
+    },
+  };
+}
+
+function buildAllProbesUnavailableModel(): UseIdentityProvidersSettingsPageModel {
+  return {
+    ...buildHealthyIdentityProvidersModel(),
+    diagnosticsDataUnavailable: true,
+    overviewStatusFailure: {
+      message: IDENTITY_PROVIDERS_STATUS_LOAD_ERROR_NOTE,
+      statusCode: 503,
+    },
+    overview: {
+      authenticationModeLabel: IDENTITY_PROVIDERS_STATUS_UNKNOWN,
+      ssoStatus: IDENTITY_PROVIDERS_STATUS_UNKNOWN,
+      samlStatus: IDENTITY_PROVIDERS_STATUS_UNKNOWN,
+      oidcStatus: IDENTITY_PROVIDERS_STATUS_UNKNOWN,
+      roleMappingStatus: IDENTITY_PROVIDERS_STATUS_UNKNOWN,
+      validationStatusLabel: IDENTITY_PROVIDERS_STATUS_UNKNOWN,
+      tileCaptions: {},
+      recommendedNextStep: "Configure SAML metadata",
+      recommendedNextHref: null,
+      usesLocalDevelopmentSignIn: false,
+      headerStatusAvailable: false,
+    },
+  };
+}
+
 describe("first-pilot operator routes — axe (Vitest)", () => {
   it("Settings page has no accessibility violations", async () => {
     const { container } = render(<SettingsPage />);
@@ -26,57 +103,13 @@ describe("first-pilot operator routes — axe (Vitest)", () => {
   });
 
   it("Identity providers settings view has no accessibility violations", async () => {
-    const { container } = render(
-      <IdentityProvidersSettingsPageView
-        model={{
-          note: null,
-          rows: null,
-          identityProviderDiagnostics: null,
-          identityProviderDiagnosticsNote: null,
-          identityProviderDiagnosticsLoaded: true,
-          authConfigurationDiagnostics: {
-            authMode: "JwtBearer",
-            audienceConfigured: true,
-            issuerOrAuthorityConfigured: true,
-            openIdDiscoverySucceeded: true,
-            saml2Enabled: false,
-            roleClaimNameConfigured: true,
-            tenantClaimMappingConfigured: true,
-          },
-          authConfigurationDiagnosticsNote: null,
-          authConfigurationDiagnosticsLoaded: true,
-          oidcDiagnostics: {
-            authMode: "JwtBearer",
-            discoverySucceeded: true,
-          },
-          oidcDiagnosticsNote: null,
-          oidcDiagnosticsLoaded: true,
-          samlOperationalHealth: { saml2Enabled: false },
-          samlOperationalHealthNote: null,
-          samlOperationalHealthLoaded: true,
-          dataLoaded: true,
-          accessDenied: false,
-          diagnosticsDataUnavailable: false,
-          overviewStatusFailure: null,
-          refreshing: false,
-          lastRefreshedAt: null,
-          refresh: async () => undefined,
-          overview: {
-            authenticationModeLabel: "OIDC / JWT",
-            ssoStatus: "Enabled",
-            samlStatus: "Not configured",
-            oidcStatus: "Healthy",
-            roleMappingStatus: "Enabled",
-            validationStatusLabel: "Healthy",
-            tileCaptions: {},
-            recommendedNextStep: "Configure SAML metadata",
-            recommendedNextHref: "/administration/identity-providers/saml",
-            usesLocalDevelopmentSignIn: false,
-            headerStatusAvailable: true,
-          },
-        }}
-      />,
-    );
+    const { container } = render(<IdentityProvidersSettingsPageView model={buildHealthyIdentityProvidersModel()} />);
+
+    expect(await axe(container)).toHaveNoViolations();
+  });
+
+  it("Identity providers settings view has no accessibility violations when all probes are unavailable", async () => {
+    const { container } = render(<IdentityProvidersSettingsPageView model={buildAllProbesUnavailableModel()} />);
 
     expect(await axe(container)).toHaveNoViolations();
   });

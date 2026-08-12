@@ -190,7 +190,7 @@ export function IdentityProvidersDiagnosticsPageView(
             <p className={cn("m-0 text-al-text-secondary", OPERATOR_TYPOGRAPHY.helper)}>
               {IDENTITY_PROVIDERS_DIAGNOSTICS_TECHNICAL_DESCRIPTION}
             </p>
-            <IdentityProvidersCatalogTable rows={props.model.rows} note={props.model.note} showConfigPaths />
+            <IdentityProvidersCatalogTable rows={null} note={null} showConfigPaths />
             <AuthTokenTestMappingCard showTechnicalDetails />
           </div>
         </details>
