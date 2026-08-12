@@ -4,12 +4,14 @@ export type TeamsConnectCtaPresentation = Readonly<{
   saveVariant: "primary" | "outline";
   saveDisabled: boolean;
   showTestDisabledHelper: boolean;
+  showSaveDisabledHelper: boolean;
 }>;
 
-/** TB-1176 — Validate → Test → Save hierarchy; Save stays secondary until the secret validates. */
+/** TB-1176 — Validate → Test → Save hierarchy; one primary action per connect state. */
 export function resolveTeamsConnectCtaPresentation(input: {
   readonly isConfigured: boolean;
   readonly secretValidated: boolean;
+  readonly testSucceeded: boolean;
   readonly canMutate: boolean;
   readonly saving: boolean;
   readonly secretNameEmpty: boolean;
@@ -17,6 +19,12 @@ export function resolveTeamsConnectCtaPresentation(input: {
 }): TeamsConnectCtaPresentation {
   const showTestDisabledHelper =
     input.canMutate && !input.saving && !input.secretNameEmpty && !input.canSendTest;
+  const showSaveDisabledHelper =
+    input.canMutate &&
+    !input.saving &&
+    !input.secretNameEmpty &&
+    !input.isConfigured &&
+    !input.secretValidated;
 
   if (input.isConfigured) {
     return {
@@ -25,14 +33,38 @@ export function resolveTeamsConnectCtaPresentation(input: {
       saveVariant: "primary",
       saveDisabled: !input.canMutate || input.saving,
       showTestDisabledHelper,
+      showSaveDisabledHelper: false,
+    };
+  }
+
+  if (!input.secretValidated) {
+    return {
+      validateVariant: "primary",
+      testVariant: "outline",
+      saveVariant: "outline",
+      saveDisabled: !input.canMutate || input.saving || !input.secretValidated,
+      showTestDisabledHelper,
+      showSaveDisabledHelper,
+    };
+  }
+
+  if (!input.testSucceeded) {
+    return {
+      validateVariant: "outline",
+      testVariant: "primary",
+      saveVariant: "outline",
+      saveDisabled: !input.canMutate || input.saving || !input.secretValidated,
+      showTestDisabledHelper: false,
+      showSaveDisabledHelper: false,
     };
   }
 
   return {
-    validateVariant: "primary",
+    validateVariant: "outline",
     testVariant: "outline",
-    saveVariant: "outline",
-    saveDisabled: !input.canMutate || input.saving || !input.secretValidated,
-    showTestDisabledHelper,
+    saveVariant: "primary",
+    saveDisabled: !input.canMutate || input.saving,
+    showTestDisabledHelper: false,
+    showSaveDisabledHelper: false,
   };
 }

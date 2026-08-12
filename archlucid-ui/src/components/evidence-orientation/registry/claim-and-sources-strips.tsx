@@ -80,6 +80,11 @@ import {
   SUBPROCESSORS_HELP_SOURCES,
   SUBPROCESSORS_HELP_SOURCES_INTRO,
 } from "@/lib/subprocessors-help-evidence-copy";
+import {
+  TEAMS_INTEGRATION_CLAIM_DISCIPLINE,
+  TEAMS_INTEGRATION_SOURCES,
+  TEAMS_INTEGRATION_SOURCES_INTRO,
+} from "@/lib/teams-integration-evidence-copy";
 
 export function AuditTrailHelpEvidenceOrientationStrip(): React.JSX.Element {
   return (
@@ -255,6 +260,17 @@ export function SubprocessorsHelpEvidenceOrientationStrip(): React.JSX.Element {
       claim={SUBPROCESSORS_HELP_CLAIM_DISCIPLINE}
       sourcesIntro={SUBPROCESSORS_HELP_SOURCES_INTRO}
       sources={SUBPROCESSORS_HELP_SOURCES}
+    />
+  );
+}
+
+export function TeamsIntegrationEvidenceOrientationStrip(): React.JSX.Element {
+  return (
+    <EvidenceOrientationClaimAndSourcesStrip
+      slug="teams-integration"
+      claim={TEAMS_INTEGRATION_CLAIM_DISCIPLINE}
+      sourcesIntro={TEAMS_INTEGRATION_SOURCES_INTRO}
+      sources={TEAMS_INTEGRATION_SOURCES}
     />
   );
 }

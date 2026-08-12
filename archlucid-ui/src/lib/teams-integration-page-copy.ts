@@ -103,6 +103,10 @@ export const TEAMS_INTEGRATION_NOT_CONFIGURED_NEXT_STEP =
 export const TEAMS_INTEGRATION_TEST_DISABLED_HELPER =
   "Validate the secret before sending a test.";
 
+/** Shown when Save stays disabled until Validate succeeds on a new connection. */
+export const TEAMS_INTEGRATION_SAVE_DISABLED_HELPER =
+  "Validate the secret before saving.";
+
 export function teamsIntegrationConnectionStatusTagKind(
   status: TeamsIntegrationConnectionStatus,
 ): "ready" | "needs-attention" {

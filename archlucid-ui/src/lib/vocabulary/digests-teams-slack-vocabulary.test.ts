@@ -17,6 +17,8 @@ import {
   INTEGRATIONS_TEAMS_PATH,
 } from "@/lib/integrations-nav-paths";
 
+const BANNED_NOTIFICATION_RAIL_TERMS = [/\bjob\b/i, /\bproduct\b/i];
+
 describe("digests-teams-slack-vocabulary (TB-2325)", () => {
   it("explains digest email cadence vs Teams and Slack alert channels", () => {
     const model = buildDigestsTeamsSlackVocabulary();
@@ -40,5 +42,21 @@ describe("digests-teams-slack-vocabulary (TB-2325)", () => {
     ]);
     expect(resolveDigestsTeamsSlackPeerLinks("teams")).toHaveLength(2);
     expect(resolveDigestsTeamsSlackPeerLinks("slack")).toHaveLength(2);
+  });
+
+  it("keeps customer-facing rail copy free of banned job and product wording", () => {
+    const surfaces = [
+      DIGESTS_TEAMS_SLACK_WHY_THREE,
+      DIGESTS_TEAMS_SLACK_COMPACT_LINE,
+      DIGESTS_TEAMS_SLACK_DIGESTS_LINK.whenToUse,
+      DIGESTS_TEAMS_SLACK_TEAMS_LINK.whenToUse,
+      DIGESTS_TEAMS_SLACK_SLACK_LINK.whenToUse,
+    ];
+
+    for (const surface of surfaces) {
+      for (const pattern of BANNED_NOTIFICATION_RAIL_TERMS) {
+        expect(surface, `banned notification-rail term in: ${surface}`).not.toMatch(pattern);
+      }
+    }
   });
 });

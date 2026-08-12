@@ -1,4 +1,4 @@
-import { fireEvent, render, screen, waitFor } from "@testing-library/react";
+import { fireEvent, render, screen, waitFor, within } from "@testing-library/react";
 import { beforeEach, describe, expect, it, vi } from "vitest";
 
 vi.mock("@/components/usability/PageContextualHelpButton", () => ({
@@ -41,9 +41,14 @@ import {
   TEAMS_INTEGRATION_NOT_CONFIGURED_NEXT_STEP,
   TEAMS_INTEGRATION_PAGE_SUBTITLE,
   TEAMS_INTEGRATION_PAGE_TITLE,
+  TEAMS_INTEGRATION_SAVE_DISABLED_HELPER,
   TEAMS_INTEGRATION_SECRET_NAME_LABEL,
   TEAMS_INTEGRATION_SECRET_NAME_NOT_URL_MESSAGE,
+  TEAMS_INTEGRATION_SECURITY_NOTE,
+  TEAMS_INTEGRATION_TEST_DISABLED_HELPER,
 } from "@/lib/teams-integration-page-copy";
+import { TEAMS_INTEGRATION_SOURCES } from "@/lib/teams-integration-evidence-copy";
+import { INTEGRATIONS_READINESS_PATH } from "@/lib/integrations-nav-paths";
 import { TEAMS_RECOMMENDED_EVENT_TYPES } from "@/lib/teams-integration-notification-catalog";
 import { showSuccess } from "@/lib/toast";
 
@@ -64,6 +69,8 @@ const BANNED_PATTERNS = [
   /com\.archlucid\./,
   /Save reference/i,
   /Remove reference/i,
+  /\bjob\b/i,
+  /\bproduct\b/i,
 ];
 
 describe("TeamsNotificationsIntegrationPageClient", () => {
@@ -114,6 +121,10 @@ describe("TeamsNotificationsIntegrationPageClient", () => {
     );
     expect(screen.queryByRole("link", { name: /^Microsoft Teams notification help$/i })).not.toBeInTheDocument();
     expect(screen.queryAllByRole("link", { name: /^Slack notifications$/i })).toHaveLength(0);
+
+    // TB-1575: about-aside demoted — no persistent two-col rail beside the connect form.
+    expect(document.querySelector(".xl\\:grid-cols-\\[minmax\\(0\\,36rem\\)_minmax\\(16rem\\,1fr\\)\\]")).toBeNull();
+    expect(screen.getByTestId("teams-integration-aside")).toBeInTheDocument();
   });
 
   it("does not pre-check recommended triggers when not configured (TB-1175)", async () => {
@@ -212,9 +223,61 @@ describe("TeamsNotificationsIntegrationPageClient", () => {
     expect(screen.getByTestId("teams-save-button")).not.toHaveClass("bg-[var(--al-primary-action-bg)]");
     expect(screen.getByTestId("teams-test-button")).toBeDisabled();
     expect(screen.getByTestId("teams-test-disabled-helper")).toHaveTextContent(
-      "Validate the secret before sending a test.",
+      TEAMS_INTEGRATION_TEST_DISABLED_HELPER,
+    );
+    expect(screen.getByTestId("teams-save-disabled-helper")).toHaveTextContent(
+      TEAMS_INTEGRATION_SAVE_DISABLED_HELPER,
     );
     expect(screen.getByTestId("teams-save-button")).toBeDisabled();
+  });
+
+  it("surfaces secret-reference security copy inline before the CTA cluster", async () => {
+    render(
+      <TeamsNotificationsIntegrationPageClient
+        loaded={{ mode: "live", conn: null, catalog: CATALOG, failure: null }}
+      />,
+    );
+
+    const securityNote = await screen.findByTestId("teams-secret-security-note");
+    const validateButton = screen.getByTestId("teams-validate-button");
+
+    expect(securityNote).toHaveTextContent(TEAMS_INTEGRATION_SECURITY_NOTE);
+    expect(
+      securityNote.compareDocumentPosition(validateButton) & Node.DOCUMENT_POSITION_FOLLOWING,
+    ).toBeTruthy();
+  });
+
+  it("renders the Teams integration Sources and claim-discipline strip", async () => {
+    render(
+      <TeamsNotificationsIntegrationPageClient
+        loaded={{ mode: "live", conn: null, catalog: CATALOG, failure: null }}
+      />,
+    );
+
+    await screen.findByTestId("teams-integration-orientation");
+
+    const sources = screen.getByTestId("teams-integration-sources");
+
+    for (const link of TEAMS_INTEGRATION_SOURCES) {
+      expect(within(sources).getByRole("link", { name: link.label })).toHaveAttribute("href", link.href);
+    }
+
+    const readinessLinks = within(sources).getAllByRole("link", { name: "Integration readiness" });
+    expect(readinessLinks).toHaveLength(1);
+    expect(readinessLinks[0]).toHaveAttribute("href", INTEGRATIONS_READINESS_PATH);
+  });
+
+  it("mounts one channel-disambiguation vocabulary rail", async () => {
+    render(
+      <TeamsNotificationsIntegrationPageClient
+        loaded={{ mode: "live", conn: null, catalog: CATALOG, failure: null }}
+      />,
+    );
+
+    await screen.findByTestId("integrations-teams-page");
+
+    expect(screen.getByTestId("digests-teams-slack-vocabulary")).toBeInTheDocument();
+    expect(screen.queryByTestId("teams-slack-notification-vocabulary")).not.toBeInTheDocument();
   });
 
   it("TB-1177: uses operator spacing tokens instead of marketing-scale py-8 / space-y-8", async () => {
