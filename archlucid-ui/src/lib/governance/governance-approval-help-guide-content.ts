@@ -254,7 +254,7 @@ export const GOVERNANCE_APPROVAL_HELP_DECISION_OUTCOMES: readonly GovernanceAppr
       "After approval, a governance release records movement toward the target environment.",
       "Activation confirms which signed review record version is live for that environment.",
       "Older activations may be superseded when a newer release lands.",
-      "Audit log entries capture who released and activated each step.",
+      "Audit trail entries capture who released and activated each step.",
     ],
   },
 ] as const;
@@ -334,7 +334,7 @@ export const GOVERNANCE_APPROVAL_HELP_TROUBLESHOOTING: readonly GovernanceApprov
   {
     issue: "Audit history not updating",
     resolution:
-      "Refresh the governance workflow or audit log after a decision. If the UI still looks stale, verify the action completed without an error banner.",
+      "Refresh the governance workflow or audit trail after a decision. If the UI still looks stale, verify the action completed without an error banner.",
   },
 ] as const;
 

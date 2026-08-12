@@ -69,7 +69,7 @@ export function WhyArchLucidSponsorPackBody(props: WhyArchLucidSponsorPackBodyPr
           <p className={OPERATOR_NAV_GROUP_LABEL}>Value-report delta</p>
           <dl className={cn("mt-2 grid grid-cols-2 gap-x-4 gap-y-1 sm:grid-cols-4", OPERATOR_TYPOGRAPHY.helper)}>
             <div>
-              <dt className="text-al-text-secondary">Wall to commit</dt>
+              <dt className="text-al-text-secondary">Wall to finalize</dt>
               <dd className="font-mono tabular-nums text-al-text-primary">
                 {sponsorPack.demoRunValueReportDelta.timeToCommittedManifestTotalSeconds != null
                   ? sponsorPack.demoRunValueReportDelta.timeToCommittedManifestTotalSeconds.toFixed(1)

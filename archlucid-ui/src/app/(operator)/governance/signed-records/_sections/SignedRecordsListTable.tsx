@@ -21,7 +21,7 @@ import {
   SIGNED_RECORDS_LIST_RECORD_UNAVAILABLE_LABEL,
   SIGNED_RECORDS_LIST_RETRY_RECORD_ACTION,
   SIGNED_RECORDS_LIST_TABLE_ACTIONS_COLUMN,
-  SIGNED_RECORDS_LIST_TABLE_COMMITTED_COLUMN,
+  SIGNED_RECORDS_LIST_TABLE_FINALIZED_COLUMN,
   SIGNED_RECORDS_LIST_TABLE_REVIEW_COLUMN,
   SIGNED_RECORDS_LIST_TABLE_VERSION_COLUMN,
 } from "./signed-records-list-copy";
@@ -57,7 +57,7 @@ export function SignedRecordsListTable(props: SignedRecordsListTableProps): Reac
         <EnterpriseTableHeadRow>
           <EnterpriseTableHeaderCell>{SIGNED_RECORDS_LIST_TABLE_REVIEW_COLUMN}</EnterpriseTableHeaderCell>
           <EnterpriseTableHeaderCell>{SIGNED_RECORDS_LIST_TABLE_VERSION_COLUMN}</EnterpriseTableHeaderCell>
-          <EnterpriseTableHeaderCell>{SIGNED_RECORDS_LIST_TABLE_COMMITTED_COLUMN}</EnterpriseTableHeaderCell>
+          <EnterpriseTableHeaderCell>{SIGNED_RECORDS_LIST_TABLE_FINALIZED_COLUMN}</EnterpriseTableHeaderCell>
           <EnterpriseTableHeaderCell>{SIGNED_RECORDS_LIST_TABLE_ACTIONS_COLUMN}</EnterpriseTableHeaderCell>
         </EnterpriseTableHeadRow>
       </EnterpriseTableHead>

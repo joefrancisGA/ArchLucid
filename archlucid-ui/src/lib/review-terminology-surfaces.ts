@@ -328,3 +328,44 @@ export const REVIEW_TERMINOLOGY_REVIEW_PACKAGE_DETAIL_SURFACE_PATHS = [
   "src/components/usability/ReviewPackageEvidenceDensityStrip.tsx",
   "src/components/quick-decision-summary/QuickDecisionSummary.tsx",
 ] as const;
+
+/**
+ * Surfaces that name the audit destination or the finalize action.
+ *
+ * The primary action is "Finalize review" and `manifestStatusForDisplay` maps API `Committed` to
+ * display `Finalized`, so "commit" as a user-facing verb is drift. Likewise the destination has one
+ * canonical name (`AUDIT_TRAIL_LABEL`, also `ROUTE_TITLES["/governance/audit"]`), so "audit log"
+ * naming a destination is drift. Both slipped through because these files sit outside the buyer and
+ * golden-path scans above.
+ */
+export const REVIEW_TERMINOLOGY_FINALIZE_AUDIT_SURFACE_PATHS = [
+  "src/app/(operator)/governance/signed-records/_sections/signed-records-list-copy.ts",
+  "src/app/(operator)/governance/signed-records/_sections/SignedRecordsListTable.tsx",
+  "src/app/(operator)/governance/audit/_sections/AuditResultsSection.tsx",
+  "src/app/(operator)/why-archlucid/_sections/WhyArchLucidSponsorPackBody.tsx",
+  "src/components/ExecutiveWorkspaceHealthDashboard.tsx",
+  "src/components/ValueRealizationDashboard.tsx",
+  "src/components/governance/PolicySimulator.tsx",
+  "src/components/operator-home/HomeMaturityLayerCards.tsx",
+  "src/components/cto-demo/CtoDemoLeaveBehindExportButton.tsx",
+  "src/lib/enterprise-controls-context-copy.ts",
+  "src/lib/governance/governance-workflow-empty-guidance.ts",
+  "src/lib/governance/governance-approval-help-guide-content.ts",
+  "src/lib/nav-disclosure-copy.ts",
+  "src/lib/policy/policy-pack-simulate-toast.ts",
+] as const;
+
+/**
+ * Lowercase fragments banned on {@link REVIEW_TERMINOLOGY_FINALIZE_AUDIT_SURFACE_PATHS}.
+ *
+ * Each fragment includes surrounding words so identifiers stay legal: the API-shaped names
+ * `committedUtc`, `timeToCommittedManifestTotalSeconds`, and `pre_commit_severity_gate` have no
+ * spaces and must keep matching the wire contract.
+ */
+export const REVIEW_TERMINOLOGY_BANNED_FINALIZE_AUDIT_PATTERNS = [
+  "audit log",
+  "time to commit",
+  "block commit",
+  "allow commit",
+  "wall to commit",
+] as const;

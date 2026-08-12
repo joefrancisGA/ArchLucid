@@ -75,6 +75,6 @@ export const NAV_DISCLOSURE = {
     /** Settings checkbox: reveal advanced Enterprise Controls links. */
     show: "Show governance, audit & admin controls",
     title:
-      "Alert configuration, audit log, governance workflow, planning, and admin-level controls.",
+      "Alert configuration, audit trail, governance workflow, planning, and admin-level controls.",
   },
 } as const;

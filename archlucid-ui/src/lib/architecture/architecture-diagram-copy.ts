@@ -9,7 +9,7 @@ export const ARCHITECTURE_DIAGRAM_NOT_AUTHORITATIVE =
 export const ARCHITECTURE_DIAGRAM_INSUFFICIENT_HEADING = "A diagram could not be generated yet." as const;
 
 export const ARCHITECTURE_DIAGRAM_INSUFFICIENT_ORIENTATION =
-  "Clarify the missing architecture detail for this run in guided intake, then return here to regenerate the diagram." as const;
+  "Clarify the missing architecture detail for this review in guided intake, then return here to regenerate the diagram." as const;
 
 export const ARCHITECTURE_DIAGRAM_CLARIFY_ARCHITECTURE_ACTION = "Clarify architecture" as const;
 

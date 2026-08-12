@@ -34,5 +34,7 @@ export const POLICY_AB_DEMO_ALLOW_RESULT: PolicyPackGovernanceDryRunResult = {
 /** Block-path dry-run result for the stricter pack arm. */
 export const POLICY_AB_DEMO_BLOCK_RESULT: PolicyPackGovernanceDryRunResult = {
   gateResult: { blocked: true, warnOnly: false },
-  failedChecks: ["pre_commit_severity_gate: would block commit (findings meet proposed minimum severity)"],
+  failedChecks: [
+    "pre_commit_severity_gate: would block finalizing (findings meet proposed minimum severity)",
+  ],
 };

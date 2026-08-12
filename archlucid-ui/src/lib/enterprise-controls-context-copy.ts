@@ -168,38 +168,38 @@ export const governanceWorkflowRefreshRunDataButtonLabel = "Refresh data";
 /** Alerts triage dialog — primary control when **Confirm** is disabled at read rank (preview-only path). */
 export const alertsTriageDialogConfirmButtonLabelReaderRank = "Apply triage (architect permission)";
 
-/** Audit log — search section heading (`audit/page.tsx`); branch with **`callerAuthorityRank`**. */
+/** Audit trail — search section heading (`audit/page.tsx`); branch with **`callerAuthorityRank`**. */
 export const auditSearchEventsSectionHeadingOperator = "Search audit events";
 
 export const auditSearchEventsSectionHeadingReader = "Search audit events (inspect)";
 
-/** Audit log — buyer demo shell: section title without internal “inspect” cue. */
+/** Audit trail — buyer demo shell: section title without internal “inspect” cue. */
 export const auditSearchEventsSectionHeadingBuyerPolished = "Filters";
 
-/** Audit log — search is always **GET**; label nudges read-tier callers away from export expectations. */
-export const auditSearchEventsButtonLabelReaderRank = "Search audit log";
+/** Audit trail — search is always **GET**; label nudges read-tier callers away from export expectations. */
+export const auditSearchEventsButtonLabelReaderRank = "Search audit trail";
 
-/** Audit log — primary **Search** control `title` (`audit/page.tsx`). */
+/** Audit trail — primary **Search** control `title` (`audit/page.tsx`). */
 export const auditSearchEventsButtonTitleOperator = "Run search with the current filter fields (GET).";
 
 export const auditSearchEventsButtonTitleReader =
   "Run search (GET). CSV export remains Auditor/Admin-gated on the API.";
 
-/** Audit log — **Audit results** section heading; branch with **`callerAuthorityRank`**. */
+/** Audit trail — **Audit results** section heading; branch with **`callerAuthorityRank`**. */
 export const auditResultsSectionHeadingOperator = "Audit results";
 
 export const auditResultsSectionHeadingReader = "Audit results (inspect)";
 
-/** Audit log — buyer demo shell: results block title without “inspect”. */
+/** Audit trail — buyer demo shell: results block title without “inspect”. */
 export const auditResultsSectionHeadingBuyerPolished = "Audit results";
 
-/** Audit log — **Load more** pagination (`GET`). */
+/** Audit trail — **Load more** pagination (`GET`). */
 export const auditLoadMoreButtonTitleOperator = "Load the next page of audit events for the current filters (GET).";
 
 export const auditLoadMoreButtonTitleReader =
   "Load older rows (GET). Export rules unchanged on the API.";
 
-/** Audit log — **Clear filters** when rank cannot mutate in the shell (still GET-only; clarifies re-run vs export). */
+/** Audit trail — **Clear filters** when rank cannot mutate in the shell (still GET-only; clarifies re-run vs export). */
 export const auditClearFiltersButtonLabelReaderRank = "Clear filters & search";
 
 /** Alert routing — delivery history fetch is **GET**; reader label clarifies inspect vs toggle writes. */
@@ -325,7 +325,7 @@ export const alertsTriageResolveButtonLabelReaderInbox = "Resolve (preview)";
 
 export const alertsTriageSuppressButtonLabelReaderInbox = "Suppress (preview)";
 
-/** Audit log — readers vs operators (see `AuditLogRankCue`). */
+/** Audit trail — readers vs operators (see `AuditLogRankCue`). */
 export const auditLogRankReaderLine =
   "Audit exports are available only to authorized audit or workspace administrators when your time window is set.";
 
@@ -550,21 +550,21 @@ export const alertsFilteredEmptyDescriptionOperator =
 
 export const auditSearchNoResultsReaderLine = "No audit events match your search.";
 
-/** Audit log — zero rows after search in buyer-polished shell (no “broken product” tone). */
+/** Audit trail — zero rows after search in buyer-polished shell (no “broken product” tone). */
 export const auditSearchNoResultsBuyerPolishedLine =
   "No events match the current review and filter settings.";
 
 export const auditSearchNoResultsOperatorLine = "No audit events match your filters.";
 
-/** Audit log — under “Search audit events” for read tier (LayerHeader already frames export roles). */
+/** Audit trail — under “Search audit events” for read tier (LayerHeader already frames export roles). */
 export const auditSearchSectionLeadReaderLine =
   "Bulk CSV downloads need Auditor or Admin (search above stays available).";
 
-/** Audit log — short line above the CSV button (LayerHeader + search strip carry the rest). */
+/** Audit trail — short line above the CSV button (LayerHeader + search strip carry the rest). */
 export const auditExportSectionSupportingLine =
   "Bulk downloads need Auditor or Admin; pick Start date and End date, then Export audit trail.";
 
-/** Audit log — polished shell: no bulk-export mechanics in primary copy. */
+/** Audit trail — polished shell: no bulk-export mechanics in primary copy. */
 export const auditExportSectionSupportingLineBuyerPolished =
   "Authorized users can export this audit trail as CSV for the selected date range.";
 
@@ -574,15 +574,15 @@ export const auditExportCsvButtonLabelWindowIncomplete = "Export audit trail (se
 /** Audit CSV — button label when window is valid but principal lacks Auditor/Admin for bulk export (API). */
 export const auditExportCsvButtonLabelRoleRestricted = "Download audit trail";
 
-/** Audit log — buyer-polished: intro under results heading (single summary lives in the ribbon above). */
+/** Audit trail — buyer-polished: intro under results heading (single summary lives in the ribbon above). */
 export const auditResultsSectionIntroBuyerPolished =
   "Events are grouped by lifecycle stage. Expand a row for structured details.";
 
-/** Audit log — buyer-polished public sample: short note when bulk CSV is not enabled (date window and/or role). */
+/** Audit trail — buyer-polished public sample: short note when bulk CSV is not enabled (date window and/or role). */
 export const auditExportSampleWorkspaceCsvHintBuyerPolished =
   "In this demonstration workspace, bulk CSV export follows the same role and date-window rules as production.";
 
-/** Audit log — buyer-polished: collapsible region for export and related operator actions (after the timeline). */
+/** Audit trail — buyer-polished: collapsible region for export and related operator actions (after the timeline). */
 export const auditBuyerUtilitiesDetailsSummary = "Audit utilities";
 
 /** Policy packs — intro under “Compare versions” when caller can mutate (Execute+ in shell). */

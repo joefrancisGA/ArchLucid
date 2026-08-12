@@ -4,7 +4,7 @@ export const RUN_DETAIL_CREATE_HOME_EVIDENCE_ORIENTATION_LEAD =
 export const RUN_DETAIL_CREATE_HOME_CAPTURED_EVIDENCE_HEADING = "Uploaded captures" as const;
 
 export const RUN_DETAIL_CREATE_HOME_CAPTURED_EVIDENCE_HELPER =
-  "Files attached to this architecture run in this browser session. The list is kept while you work on this review in this tab group." as const;
+  "Files attached to this review in this browser session. The list is kept while you work on this review in this tab group." as const;
 
 export const RUN_DETAIL_CREATE_HOME_CAPTURED_EVIDENCE_EMPTY_TITLE = "No files uploaded yet" as const;
 

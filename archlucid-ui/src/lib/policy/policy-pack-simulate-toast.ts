@@ -18,7 +18,7 @@ export function resolvePolicyPackSimulateToastOutcome(
   if (blocked) {
     return {
       kind: "warning",
-      message: "Policy validation completed — this pack would block commit for the selected review.",
+      message: "Policy validation completed — this pack would block finalizing the selected review.",
     };
   }
 

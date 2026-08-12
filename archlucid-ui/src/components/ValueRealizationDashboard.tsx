@@ -114,7 +114,7 @@ export function ValueRealizationDashboard() {
             <p className="text-2xl font-bold text-teal-600">{formatHours(safeHours)}</p>
           </div>
           <div className="rounded-lg border p-4 text-center">
-            <p className={cn("text-neutral-500", OPERATOR_TYPOGRAPHY.body)}>Avg time to commit</p>
+            <p className={cn("text-neutral-500", OPERATOR_TYPOGRAPHY.body)}>Avg time to finalize</p>
             <p className="text-2xl font-bold">
               {avgCommitMins !== null ? `${avgCommitMins} mins` : "Not enough data yet"}
             </p>

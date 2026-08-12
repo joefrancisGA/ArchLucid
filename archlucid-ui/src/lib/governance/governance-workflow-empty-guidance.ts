@@ -69,7 +69,7 @@ export const governanceActivationsEmptyGettingStartedReader: EmptyStateGettingSt
   steps: [
     "Activations record which signed review record version is live for an environment.",
     "A governance lead runs Activate after a governance release — nothing shows until that completes.",
-    "Use Audit log if you need the portfolio-level paper trail.",
+    "Use Audit trail if you need the portfolio-level paper trail.",
   ],
 };
 
@@ -79,6 +79,6 @@ export const governanceDashboardPlaceholderGettingStarted: EmptyStateGettingStar
   steps: [
     "Open Governance workflow to move a single review through submit → approve → release → activate.",
     "Track findings and policy drift from Findings and Policy packs when approvals need evidence.",
-    "Search Audit log for immutable records of who changed governance state and when.",
+    "Search Audit trail for immutable records of who changed governance state and when.",
   ],
 };

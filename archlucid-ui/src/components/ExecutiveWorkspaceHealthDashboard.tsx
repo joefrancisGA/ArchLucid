@@ -50,6 +50,7 @@ import {
   EXECUTIVE_WORKSPACE_HEALTH_SESSION_SCOPE_SUMMARY,
 } from "@/lib/executive-workspace-health-page-copy";
 import { GOVERNANCE_AUDIT_PATH } from "@/lib/governance/governance-route-paths";
+import { AUDIT_TRAIL_LABEL } from "@/lib/usability/canonical-product-terms";
 import { finiteIntegerCountDisplay } from "@/lib/finite-count-display";
 import {
   OPERATOR_LINK,
@@ -345,7 +346,7 @@ export function ExecutiveWorkspaceHealthDashboard() {
               <li>
                 Blocked: <span className="font-mono font-medium text-neutral-900 dark:text-neutral-100">{blockCountLabel}</span>{" "}
                 <Link className={OPERATOR_LINK.nav} href={GOVERNANCE_AUDIT_PATH}>
-                  Audit log
+                  {AUDIT_TRAIL_LABEL}
                 </Link>
               </li>
               <li>

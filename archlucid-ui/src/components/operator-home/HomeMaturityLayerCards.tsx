@@ -7,6 +7,7 @@ import { BarChart3, Search, Shield } from "lucide-react";
 
 import { OPERATOR_HOME_SECTION_HEADING, OPERATOR_TYPOGRAPHY } from "@/lib/design-tokens";
 import { isNextPublicDemoMode } from "@/lib/demo-ui-env";
+import { AUDIT_TRAIL_LABEL } from "@/lib/usability/canonical-product-terms";
 
 type LayerCardProps = {
   icon: ReactNode;
@@ -67,7 +68,7 @@ export function HomeMaturityLayerCards() {
         <LayerCard
           icon={<Shield className="h-5 w-5 text-violet-600 dark:text-violet-400" aria-hidden />}
           title="Enterprise Controls"
-          items={["Governance", "Policy packs", "Audit log", "Alerts"]}
+          items={["Governance", "Policy packs", AUDIT_TRAIL_LABEL, "Alerts"]}
           href="/governance/findings"
         />
         <LayerCard

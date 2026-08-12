@@ -25,7 +25,7 @@ describe("resolvePolicyPackSimulateToastOutcome", () => {
     });
   });
 
-  it("returns warning when the gate would block commit", () => {
+  it("returns warning when the gate would block finalizing", () => {
     expect(
       resolvePolicyPackSimulateToastOutcome({
         gateResult: { blocked: true, warnOnly: false },
@@ -45,7 +45,7 @@ describe("resolvePolicyPackSimulateToastOutcome", () => {
 });
 
 describe("presentPolicyPackSimulateToast", () => {
-  it("does not show a success toast when validation would block commit", () => {
+  it("does not show a success toast when validation would block finalizing", () => {
     vi.clearAllMocks();
 
     presentPolicyPackSimulateToast({
@@ -55,7 +55,7 @@ describe("presentPolicyPackSimulateToast", () => {
 
     expect(showSuccess).not.toHaveBeenCalled();
     expect(showError).toHaveBeenCalledWith(
-      expect.stringMatching(/would block commit/i),
+      expect.stringMatching(/would block finalizing/i),
       undefined,
       { type: "warning" },
     );

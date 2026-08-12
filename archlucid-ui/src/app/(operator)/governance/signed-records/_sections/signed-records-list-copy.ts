@@ -21,7 +21,11 @@ export const SIGNED_RECORDS_LIST_TABLE_REVIEW_COLUMN = "Review";
 
 export const SIGNED_RECORDS_LIST_TABLE_VERSION_COLUMN = "Version";
 
-export const SIGNED_RECORDS_LIST_TABLE_COMMITTED_COLUMN = "Committed";
+/**
+ * The cell renders a date, and `manifestStatusForDisplay` maps API `Committed` to display
+ * `Finalized`, so "Committed" here read as a status column in the API's vocabulary.
+ */
+export const SIGNED_RECORDS_LIST_TABLE_FINALIZED_COLUMN = "Finalized";
 
 export const SIGNED_RECORDS_LIST_TABLE_ACTIONS_COLUMN = "Actions";
 

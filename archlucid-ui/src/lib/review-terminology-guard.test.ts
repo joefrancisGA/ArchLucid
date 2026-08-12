@@ -17,14 +17,18 @@ import { OPERATOR_NAV_LINK_LABELS, RUNS_LIST_PAGE_TITLES } from "@/lib/i18n";
 import { COMMAND_PALETTE_CURATED_TASKS } from "@/lib/command-palette-curated-tasks";
 import { ROUTE_TITLES } from "@/lib/route-static-titles";
 import { pageHelpTopicForPathname } from "@/lib/usability/page-help-topic-map";
+import { SIGNED_RECORDS_LIST_TABLE_FINALIZED_COLUMN } from "@/app/(operator)/governance/signed-records/_sections/signed-records-list-copy";
+import { manifestStatusForDisplay } from "@/lib/manifest-status-display";
 import {
   REVIEW_TERMINOLOGY_ARCHITECTURE_PACKAGE_LIST_NOUN_SURFACE_PATHS,
   REVIEW_TERMINOLOGY_ARCHITECT_WORKSPACE_SURFACE_PATHS,
+  REVIEW_TERMINOLOGY_BANNED_FINALIZE_AUDIT_PATTERNS,
   REVIEW_TERMINOLOGY_BANNED_OPERATOR_PATTERNS,
   REVIEW_TERMINOLOGY_BANNED_OPERATOR_PERSONA_PATTERNS,
   REVIEW_TERMINOLOGY_BANNED_PRIMARY_RUN_PATTERNS,
   REVIEW_TERMINOLOGY_BANNED_REVIEW_ONLY_PACKAGE_LIST_PATTERNS,
   REVIEW_TERMINOLOGY_BUYER_SURFACE_PATHS,
+  REVIEW_TERMINOLOGY_FINALIZE_AUDIT_SURFACE_PATHS,
   REVIEW_TERMINOLOGY_FIRST_HOUR_SURFACE_PATHS,
   REVIEW_TERMINOLOGY_GOLDEN_PATH_SURFACE_PATHS,
   REVIEW_TERMINOLOGY_HIGH_TRAFFIC_SURFACE_PATHS,
@@ -108,6 +112,21 @@ describe("review terminology guard", () => {
   it("canonical product terms export audit trail label constant", () => {
     expect(AUDIT_TRAIL_LABEL).toBe("Audit trail");
     expect(SIGNED_MANIFEST_LABEL).toBe("Signed review record");
+  });
+
+  it("finalize/audit surfaces use one verb and one destination name", () => {
+    for (const relativePath of REVIEW_TERMINOLOGY_FINALIZE_AUDIT_SURFACE_PATHS) {
+      const source = readFileSync(path.join(process.cwd(), relativePath), "utf8").toLowerCase();
+
+      for (const pattern of REVIEW_TERMINOLOGY_BANNED_FINALIZE_AUDIT_PATTERNS) {
+        expect(source, `${relativePath} should not contain "${pattern}"`).not.toContain(pattern);
+      }
+    }
+  });
+
+  it("the signed-records date column is named for the finalized state, not the API status", () => {
+    expect(SIGNED_RECORDS_LIST_TABLE_FINALIZED_COLUMN).toBe("Finalized");
+    expect(manifestStatusForDisplay("Committed")).toBe(SIGNED_RECORDS_LIST_TABLE_FINALIZED_COLUMN);
   });
 
   it("nav, empty-state, and glossary surfaces avoid operator persona copy", () => {

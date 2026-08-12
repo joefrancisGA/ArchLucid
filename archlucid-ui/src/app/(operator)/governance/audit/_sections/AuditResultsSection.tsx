@@ -262,7 +262,7 @@ export function AuditResultsSection(props: AuditResultsSectionProps) {
                 ))}
               </div>
             ) : (
-              <AuditEventsOperatorTable events={displayEvents} ariaLabel="Audit log search results" />
+              <AuditEventsOperatorTable events={displayEvents} ariaLabel="Audit trail search results" />
             )}
             {events.length > 0 && hasMoreResults ? (
               <div className="mt-4">

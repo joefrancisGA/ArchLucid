@@ -55,7 +55,7 @@ export function RunDetailCreateHomeCapturedEvidenceInventory(
         </div>
       ) : (
         <div className="mt-3">
-          <EnterpriseTable ariaLabel="Uploaded capture inventory for this architecture run">
+          <EnterpriseTable ariaLabel="Uploaded capture inventory for this review">
             <EnterpriseTableHead>
               <EnterpriseTableRow>
                 <EnterpriseTableHeaderCell scope="col">File</EnterpriseTableHeaderCell>
