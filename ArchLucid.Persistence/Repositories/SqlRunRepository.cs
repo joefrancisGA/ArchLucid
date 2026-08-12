@@ -44,33 +44,7 @@ public sealed class SqlRunRepository(
         ArgumentNullException.ThrowIfNull(run);
         PersistenceTenantScope.RequireEntityTenant(run.TenantId);
 
-        const string sql = """
-                           DECLARE @RunInsertOutput TABLE (RowVersionStamp VARBINARY(8) NOT NULL);
-
-                           INSERT INTO dbo.Runs
-                           (
-                               RunId, TenantId, WorkspaceId, ScopeProjectId, ProjectId, Description, CreatedUtc,
-                               ContextSnapshotId, GraphSnapshotId, FindingsSnapshotId,
-                               GoldenManifestId, DecisionTraceId, ArtifactBundleId, ArchivedUtc,
-                               ArchitectureRequestId, LegacyRunStatus, CompletedUtc, CurrentManifestVersion, OtelTraceId,
-                               IsDemoWelcomeRun, IsPublicShowcase, IsSample, IsPinned, RealModeFellBackToSimulator, PilotAoaiDeploymentSnapshot,
-                               StructuralExecutionMode,
-                               RetryCount, LastFailureReason, PackageOrigin
-                           )
-                           OUTPUT inserted.RowVersionStamp INTO @RunInsertOutput
-                           VALUES
-                           (
-                               @RunId, @TenantId, @WorkspaceId, @ScopeProjectId, @ProjectId, @Description, @CreatedUtc,
-                               @ContextSnapshotId, @GraphSnapshotId, @FindingsSnapshotId,
-                               @GoldenManifestId, @DecisionTraceId, @ArtifactBundleId, @ArchivedUtc,
-                               @ArchitectureRequestId, @LegacyRunStatus, @CompletedUtc, @CurrentManifestVersion, @OtelTraceId,
-                               @IsDemoWelcomeRun, @IsPublicShowcase, @IsSample, @IsPinned, @RealModeFellBackToSimulator, @PilotAoaiDeploymentSnapshot,
-                               @StructuralExecutionMode,
-                               @RetryCount, @LastFailureReason, @PackageOrigin
-                           );
-
-                           SELECT RowVersionStamp FROM @RunInsertOutput;
-                           """;
+        const string sql = RunRepositorySql.Insert;
 
         object insertParams = CreateRunInsertParameters(run);
 
@@ -115,27 +89,7 @@ public sealed class SqlRunRepository(
 
         try
         {
-            const string sql = """
-                               SELECT
-                                   RunId, TenantId, WorkspaceId, ScopeProjectId, ProjectId, Description, CreatedUtc,
-                                   ContextSnapshotId, GraphSnapshotId, FindingsSnapshotId,
-                                   GoldenManifestId, DecisionTraceId, ArtifactBundleId, ArchivedUtc,
-                                   ArchitectureRequestId, LegacyRunStatus, CompletedUtc, CurrentManifestVersion, OtelTraceId,
-                                   IsDemoWelcomeRun, IsPublicShowcase, IsSample, IsPinned, RealModeFellBackToSimulator, PilotAoaiDeploymentSnapshot,
-                                   StructuralExecutionMode,
-                                   RetryCount, LastFailureReason, EngineProvenanceJson, PackageOrigin,
-                                   OperatorGovernanceDecision, OperatorGovernanceDecisionRationale,
-                                   OperatorGovernanceDecisionUtc, OperatorGovernanceDecisionByUserId,
-                                   RowVersionStamp AS RowVersion,
-                                   CASE WHEN EXISTS (SELECT 1 FROM dbo.FindingsSnapshots fs WITH (NOLOCK) WHERE fs.RunId = dbo.Runs.RunId AND fs.ArchivedUtc IS NULL AND fs.HasWarnings = 1) THEN 1 ELSE 0 END AS HasWarnings,
-                                   CASE WHEN EXISTS (SELECT 1 FROM dbo.AlertRecords ar WITH (NOLOCK) WHERE ar.RunId = dbo.Runs.RunId AND ar.Status = 'Open') THEN 1 ELSE 0 END AS HasGovernanceWarnings
-                               FROM dbo.Runs
-                               WHERE RunId = @RunId
-                                 AND TenantId = @TenantId
-                                 AND WorkspaceId = @WorkspaceId
-                                 AND ScopeProjectId = @ScopeProjectId
-                                 AND ArchivedUtc IS NULL;
-                               """;
+            const string sql = RunRepositorySql.SelectByScopedId;
 
             await using SqlConnection connection = await connectionFactory.CreateOpenConnectionAsync(ct).ConfigureAwait(false);
 
@@ -166,22 +120,7 @@ public sealed class SqlRunRepository(
 
         try
         {
-            const string sql = """
-                               SELECT TOP (1)
-                                   RunId, TenantId, WorkspaceId, ScopeProjectId, ProjectId, Description, CreatedUtc,
-                                   ContextSnapshotId, GraphSnapshotId, FindingsSnapshotId,
-                                   GoldenManifestId, DecisionTraceId, ArtifactBundleId, ArchivedUtc,
-                                   ArchitectureRequestId, LegacyRunStatus, CompletedUtc, CurrentManifestVersion, OtelTraceId,
-                                   IsDemoWelcomeRun, IsPublicShowcase, IsSample, IsPinned, RealModeFellBackToSimulator, PilotAoaiDeploymentSnapshot,
-                                   StructuralExecutionMode,
-                                   RetryCount, LastFailureReason, EngineProvenanceJson,
-                                   RowVersionStamp AS RowVersion,
-                                   CASE WHEN EXISTS (SELECT 1 FROM dbo.FindingsSnapshots fs WITH (NOLOCK) WHERE fs.RunId = dbo.Runs.RunId AND fs.ArchivedUtc IS NULL AND fs.HasWarnings = 1) THEN 1 ELSE 0 END AS HasWarnings,
-                                   CASE WHEN EXISTS (SELECT 1 FROM dbo.AlertRecords ar WITH (NOLOCK) WHERE ar.RunId = dbo.Runs.RunId AND ar.Status = 'Open') THEN 1 ELSE 0 END AS HasGovernanceWarnings
-                               FROM dbo.Runs
-                               WHERE RunId = @RunId
-                                 AND ArchivedUtc IS NULL;
-                               """;
+            const string sql = RunRepositorySql.SelectByRunIdAdmin;
 
             await using SqlConnection connection = await connectionFactory.CreateOpenConnectionAsync(ct).ConfigureAwait(false);
 
@@ -213,28 +152,7 @@ public sealed class SqlRunRepository(
 
         try
         {
-            const string sql = """
-                               SELECT TOP (1)
-                                   RunId, TenantId, WorkspaceId, ScopeProjectId, ProjectId, Description, CreatedUtc,
-                                   ContextSnapshotId, GraphSnapshotId, FindingsSnapshotId,
-                                   GoldenManifestId, DecisionTraceId, ArtifactBundleId, ArchivedUtc,
-                                   ArchitectureRequestId, LegacyRunStatus, CompletedUtc, CurrentManifestVersion, OtelTraceId,
-                                   IsDemoWelcomeRun, IsPublicShowcase, IsSample, IsPinned, RealModeFellBackToSimulator, PilotAoaiDeploymentSnapshot,
-                                   StructuralExecutionMode,
-                                   RetryCount, LastFailureReason, EngineProvenanceJson,
-                                   RowVersionStamp AS RowVersion,
-                                   CASE WHEN EXISTS (SELECT 1 FROM dbo.FindingsSnapshots fs WITH (NOLOCK) WHERE fs.RunId = dbo.Runs.RunId AND fs.ArchivedUtc IS NULL AND fs.HasWarnings = 1) THEN 1 ELSE 0 END AS HasWarnings,
-                                   CASE WHEN EXISTS (SELECT 1 FROM dbo.AlertRecords ar WITH (NOLOCK) WHERE ar.RunId = dbo.Runs.RunId AND ar.Status = 'Open') THEN 1 ELSE 0 END AS HasGovernanceWarnings
-                               FROM dbo.Runs
-                               WHERE TenantId = @TenantId
-                                 AND WorkspaceId = @WorkspaceId
-                                 AND ScopeProjectId = @ScopeProjectId
-                                 AND ProjectId = @AuthorityProjectSlug
-                                 AND ArchivedUtc IS NULL
-                                 AND GraphSnapshotId IS NOT NULL
-                                 AND CreatedUtc <= @AsOfUtc
-                               ORDER BY CreatedUtc DESC, RunId DESC;
-                               """;
+            const string sql = RunRepositorySql.SelectLatestWithGraphAtOrBefore;
 
             await using SqlConnection connection = await connectionFactory.CreateOpenConnectionAsync(ct).ConfigureAwait(false);
 
@@ -269,24 +187,7 @@ public sealed class SqlRunRepository(
         ArgumentNullException.ThrowIfNull(projectId);
         PersistenceTenantScope.RequireScopedTenant(scope);
 
-        const string sql = """
-                           SELECT TOP (1) r.RunId
-                           FROM dbo.Runs r WITH (NOLOCK)
-                           INNER JOIN dbo.GoldenManifests gm WITH (NOLOCK)
-                               ON gm.ManifestId = r.GoldenManifestId
-                           WHERE r.TenantId = @TenantId
-                             AND r.WorkspaceId = @WorkspaceId
-                             AND r.ScopeProjectId = @ScopeProjectId
-                             AND r.ProjectId = @AuthorityProjectSlug
-                             AND r.ArchivedUtc IS NULL
-                             AND gm.ArchivedUtc IS NULL
-                             AND (
-                                  r.LegacyRunStatus = @CommittedStatus
-                                  OR NULLIF(LTRIM(RTRIM(r.CurrentManifestVersion)), N'') IS NOT NULL
-                                  OR r.GoldenManifestId IS NOT NULL
-                             )
-                           ORDER BY gm.CreatedUtc DESC, r.RunId DESC;
-                           """;
+        const string sql = RunRepositorySql.SelectLatestCommittedRunIdByManifestCreatedUtc;
 
         await using SqlConnection connection = await connectionFactory.CreateOpenConnectionAsync(ct).ConfigureAwait(false);
 
@@ -541,47 +442,7 @@ public sealed class SqlRunRepository(
         ArgumentNullException.ThrowIfNull(run);
         PersistenceTenantScope.RequireEntityTenant(run.TenantId);
 
-        const string sql = """
-                           DECLARE @RunUpdateOutput TABLE (RowVersionStamp VARBINARY(8) NOT NULL);
-
-                           UPDATE dbo.Runs
-                           SET
-                               TenantId = @TenantId,
-                               WorkspaceId = @WorkspaceId,
-                               ScopeProjectId = @ScopeProjectId,
-                               ProjectId = @ProjectId,
-                               Description = @Description,
-                               ContextSnapshotId = @ContextSnapshotId,
-                               GraphSnapshotId = @GraphSnapshotId,
-                               FindingsSnapshotId = @FindingsSnapshotId,
-                               GoldenManifestId = @GoldenManifestId,
-                               DecisionTraceId = @DecisionTraceId,
-                               ArtifactBundleId = @ArtifactBundleId,
-                               ArchivedUtc = @ArchivedUtc,
-                               ArchitectureRequestId = @ArchitectureRequestId,
-                               LegacyRunStatus = @LegacyRunStatus,
-                               CompletedUtc = @CompletedUtc,
-                               CurrentManifestVersion = @CurrentManifestVersion,
-                               IsDemoWelcomeRun = @IsDemoWelcomeRun,
-                               IsPublicShowcase = @IsPublicShowcase,
-                               IsSample = @IsSample,
-                               IsPinned = @IsPinned,
-                               RealModeFellBackToSimulator = @RealModeFellBackToSimulator,
-                               PilotAoaiDeploymentSnapshot = @PilotAoaiDeploymentSnapshot,
-                               StructuralExecutionMode = @StructuralExecutionMode,
-                               RetryCount = @RetryCount,
-                               LastFailureReason = @LastFailureReason,
-                               EngineProvenanceJson = @EngineProvenanceJson,
-                               PackageOrigin = @PackageOrigin
-                           OUTPUT inserted.RowVersionStamp INTO @RunUpdateOutput
-                           WHERE RunId = @RunId
-                             AND TenantId = @TenantId
-                             AND WorkspaceId = @WorkspaceId
-                             AND ScopeProjectId = @ScopeProjectId
-                             AND (@RowVersion IS NULL OR RowVersionStamp = @RowVersion);
-
-                           SELECT RowVersionStamp FROM @RunUpdateOutput;
-                           """;
+        const string sql = RunRepositorySql.Update;
 
         if (connection is not null)
         {
@@ -601,29 +462,7 @@ public sealed class SqlRunRepository(
     public async Task<RunArchiveBatchResult> ArchiveRunsCreatedBeforeAsync(DateTimeOffset cutoffUtc,
         CancellationToken ct)
     {
-        const string sql = """
-                           DECLARE @ArchivedScratch TABLE (
-                               RunId UNIQUEIDENTIFIER NOT NULL,
-                               TenantId UNIQUEIDENTIFIER NOT NULL,
-                               WorkspaceId UNIQUEIDENTIFIER NOT NULL,
-                               ScopeProjectId UNIQUEIDENTIFIER NOT NULL
-                           );
-
-                           DECLARE @Archived dbo.ArchivedRunIdList;
-
-                           UPDATE dbo.Runs
-                           SET ArchivedUtc = SYSUTCDATETIME()
-                           OUTPUT inserted.RunId, inserted.TenantId, inserted.WorkspaceId, inserted.ScopeProjectId
-                           INTO @ArchivedScratch
-                           WHERE ArchivedUtc IS NULL AND CreatedUtc < @Cutoff;
-
-                           INSERT INTO @Archived (RunId)
-                           SELECT RunId FROM @ArchivedScratch;
-
-                           SELECT RunId, TenantId, WorkspaceId, ScopeProjectId FROM @ArchivedScratch;
-
-                           EXEC dbo.Archival_CascadeFromArchivedRuns @Archived = @Archived;
-                           """;
+        const string sql = RunRepositorySql.ArchiveRunsCreatedBefore;
 
         await using SqlConnection connection = await connectionFactory.CreateOpenConnectionAsync(ct).ConfigureAwait(false);
         await using SqlTransaction tran = (SqlTransaction)await connection.BeginTransactionAsync(ct).ConfigureAwait(false);
@@ -666,33 +505,7 @@ public sealed class SqlRunRepository(
 
         distinctOrdered.AddRange(runIds.Where(seen.Add));
 
-        const string batchSql = """
-                                DECLARE @ArchivedScratch TABLE (
-                                    RunId UNIQUEIDENTIFIER NOT NULL,
-                                    TenantId UNIQUEIDENTIFIER NOT NULL,
-                                    WorkspaceId UNIQUEIDENTIFIER NOT NULL,
-                                    ScopeProjectId UNIQUEIDENTIFIER NOT NULL
-                                );
-
-                                DECLARE @Archived dbo.ArchivedRunIdList;
-
-                                UPDATE dbo.Runs
-                                SET ArchivedUtc = SYSUTCDATETIME()
-                                OUTPUT inserted.RunId, inserted.TenantId, inserted.WorkspaceId, inserted.ScopeProjectId
-                                INTO @ArchivedScratch
-                                WHERE RunId IN @RunIds AND ArchivedUtc IS NULL;
-
-                                INSERT INTO @Archived (RunId)
-                                SELECT RunId FROM @ArchivedScratch;
-
-                                SELECT RunId, TenantId, WorkspaceId, ScopeProjectId FROM @ArchivedScratch;
-
-                                SELECT RunId
-                                FROM dbo.Runs
-                                WHERE RunId IN @RunIds AND ArchivedUtc IS NOT NULL;
-
-                                EXEC dbo.Archival_CascadeFromArchivedRuns @Archived = @Archived;
-                                """;
+        const string batchSql = RunRepositorySql.ArchiveRunsByIds;
 
         await using SqlConnection connection = await connectionFactory.CreateOpenConnectionAsync(ct).ConfigureAwait(false);
         await using SqlTransaction tran = (SqlTransaction)await connection.BeginTransactionAsync(ct).ConfigureAwait(false);
@@ -760,18 +573,7 @@ public sealed class SqlRunRepository(
         if (string.IsNullOrWhiteSpace(architectureRequestId))
             throw new ArgumentException("Architecture request id is required.", nameof(architectureRequestId));
 
-        const string sql = """
-                           SELECT COUNT(1)
-                           FROM dbo.Runs
-                           WHERE TenantId = @TenantId
-                             AND WorkspaceId = @WorkspaceId
-                             AND ScopeProjectId = @ScopeProjectId
-                             AND ArchitectureRequestId = @ArchitectureRequestId
-                             AND ArchivedUtc IS NULL
-                             AND (
-                                 LegacyRunStatus IS NULL
-                                 OR LegacyRunStatus NOT IN (@CommittedStatus, @FailedStatus, @QualityRejectedStatus));
-                           """;
+        const string sql = RunRepositorySql.CountActiveRunsForArchitectureRequest;
 
         using IDbConnection connection = await connectionFactory.CreateOpenConnectionAsync(ct).ConfigureAwait(false);
 
@@ -921,19 +723,7 @@ public sealed class SqlRunRepository(
     {
         ArgumentNullException.ThrowIfNull(connection);
 
-        const string sql = """
-                           SELECT
-                               RunId, TenantId, WorkspaceId, ScopeProjectId, ProjectId, CreatedUtc,
-                               ContextSnapshotId, GraphSnapshotId, FindingsSnapshotId,
-                               GoldenManifestId, DecisionTraceId, ArtifactBundleId,
-                               CurrentManifestVersion, OtelTraceId, StructuralExecutionMode,
-                               EngineProvenanceJson
-                           FROM dbo.Runs
-                           WHERE RunId = @RunId
-                             AND TenantId = @TenantId
-                             AND WorkspaceId = @WorkspaceId
-                             AND ScopeProjectId = @ScopeProjectId;
-                           """;
+        const string sql = RunRepositorySql.SelectAnchorGuardByScopedId;
 
         return await connection.QuerySingleOrDefaultAsync<RunRecord>(
             new CommandDefinition(
@@ -1036,18 +826,7 @@ public sealed class SqlRunRepository(
         if (string.IsNullOrWhiteSpace(actorUserId))
             throw new ArgumentException("Actor user id is required.", nameof(actorUserId));
 
-        const string sql = """
-                           UPDATE dbo.Runs
-                           SET OperatorGovernanceDecision = @Decision,
-                               OperatorGovernanceDecisionRationale = @Rationale,
-                               OperatorGovernanceDecisionUtc = @OccurredUtc,
-                               OperatorGovernanceDecisionByUserId = @ActorUserId
-                           WHERE RunId = @RunId
-                             AND TenantId = @TenantId
-                             AND WorkspaceId = @WorkspaceId
-                             AND ScopeProjectId = @ScopeProjectId
-                             AND ArchivedUtc IS NULL;
-                           """;
+        const string sql = RunRepositorySql.UpdateOperatorGovernanceDisposition;
 
         await using SqlConnection connection = await connectionFactory.CreateOpenConnectionAsync(ct).ConfigureAwait(false);
 

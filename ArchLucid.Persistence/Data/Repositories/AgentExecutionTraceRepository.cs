@@ -38,71 +38,6 @@ public sealed class AgentExecutionTraceRepository(
     {
         ArgumentNullException.ThrowIfNull(trace);
 
-        const string deleteSameAttemptSql = """
-                                            DELETE FROM AgentExecutionTraces
-                                            WHERE RunId = @RunId AND TaskId = @TaskId AND AgentType = @AgentType
-                                              AND AttemptIndex = @AttemptIndex;
-                                            """;
-
-        const string deleteLaterAttemptsSql = """
-                                              DELETE FROM AgentExecutionTraces
-                                              WHERE RunId = @RunId AND TaskId = @TaskId AND AgentType = @AgentType
-                                                AND AttemptIndex > @AttemptIndex;
-                                              """;
-
-        // Dual-write TB-931 hot scalars so list/cost paths prefer typed columns over JSON_VALUE alone.
-        const string sql = """
-                           INSERT INTO AgentExecutionTraces
-                           (
-                               TraceId,
-                               RunId,
-                               TaskId,
-                               AgentType,
-                               AttemptIndex,
-                               ParseSucceeded,
-                               ErrorMessage,
-                               TraceJson,
-                               CreatedUtc,
-                               FullSystemPromptBlobKey,
-                               FullUserPromptBlobKey,
-                               FullResponseBlobKey,
-                               ModelDeploymentName,
-                               ModelVersion,
-                               SystemPromptContentHash,
-                               InputTokenCount,
-                               OutputTokenCount,
-                               ReasoningTokenCount,
-                               EstimatedCostUsd,
-                               ModelAlias,
-                               QualityWarning,
-                               QualityRejected
-                           )
-                           VALUES
-                           (
-                               @TraceId,
-                               @RunId,
-                               @TaskId,
-                               @AgentType,
-                               @AttemptIndex,
-                               @ParseSucceeded,
-                               @ErrorMessage,
-                               @TraceJson,
-                               @CreatedUtc,
-                               @FullSystemPromptBlobKey,
-                               @FullUserPromptBlobKey,
-                               @FullResponseBlobKey,
-                               @ModelDeploymentName,
-                               @ModelVersion,
-                               @SystemPromptContentHash,
-                               @InputTokenCount,
-                               @OutputTokenCount,
-                               @ReasoningTokenCount,
-                               @EstimatedCostUsd,
-                               @ModelAlias,
-                               @QualityWarning,
-                               @QualityRejected
-                           );
-                           """;
 
         string json = JsonSerializer.Serialize(trace, ContractJson.Default);
 
@@ -119,18 +54,18 @@ public sealed class AgentExecutionTraceRepository(
         if (trace.AttemptIndex == 0)
         {
             await connection.ExecuteAsync(new CommandDefinition(
-                deleteLaterAttemptsSql,
+                AgentExecutionTraceSql.DeleteLaterAttempts,
                 scopeArgs,
                 cancellationToken: cancellationToken));
         }
 
         await connection.ExecuteAsync(new CommandDefinition(
-            deleteSameAttemptSql,
+            AgentExecutionTraceSql.DeleteSameAttempt,
             scopeArgs,
             cancellationToken: cancellationToken));
 
         await connection.ExecuteAsync(new CommandDefinition(
-            sql,
+            AgentExecutionTraceSql.Insert,
             new
             {
                 trace.TraceId,
@@ -171,14 +106,8 @@ public sealed class AgentExecutionTraceRepository(
 
         using IDbConnection connection = await _connectionFactory.CreateOpenConnectionAsync(cancellationToken);
 
-        const string selectSql = """
-                                 SELECT TraceJson
-                                 FROM AgentExecutionTraces
-                                 WHERE TraceId = @TraceId;
-                                 """;
-
         string? rowJson = await connection.QuerySingleOrDefaultAsync<string>(
-            new CommandDefinition(selectSql, new
+            new CommandDefinition(AgentExecutionTraceSql.SelectTraceJsonByTraceId, new
             {
                 TraceId = traceId
             }, cancellationToken: cancellationToken));
@@ -205,18 +134,9 @@ public sealed class AgentExecutionTraceRepository(
 
         string updatedJson = JsonSerializer.Serialize(trace, ContractJson.Default);
 
-        const string updateSql = """
-                                 UPDATE AgentExecutionTraces
-                                 SET FullSystemPromptBlobKey = @FullSystemPromptBlobKey,
-                                     FullUserPromptBlobKey = @FullUserPromptBlobKey,
-                                     FullResponseBlobKey = @FullResponseBlobKey,
-                                     TraceJson = @TraceJson
-                                 WHERE TraceId = @TraceId;
-                                 """;
-
         await connection.ExecuteAsync(
             new CommandDefinition(
-                updateSql,
+                AgentExecutionTraceSql.UpdateBlobStorageFields,
                 new
                 {
                     TraceId = traceId,
@@ -236,11 +156,7 @@ public sealed class AgentExecutionTraceRepository(
     {
         ArgumentException.ThrowIfNullOrWhiteSpace(traceId);
 
-        const string sql = """
-                           UPDATE AgentExecutionTraces
-                           SET BlobUploadFailed = @BlobUploadFailed
-                           WHERE TraceId = @TraceId;
-                           """;
+        const string sql = AgentExecutionTraceSql.UpdateBlobUploadFailed;
 
         using IDbConnection connection = await _connectionFactory.CreateOpenConnectionAsync(cancellationToken);
 
@@ -267,14 +183,8 @@ public sealed class AgentExecutionTraceRepository(
 
         using IDbConnection connection = await _connectionFactory.CreateOpenConnectionAsync(cancellationToken);
 
-        const string selectSql = """
-                                 SELECT TraceJson
-                                 FROM AgentExecutionTraces
-                                 WHERE TraceId = @TraceId;
-                                 """;
-
         string? rowJson = await connection.QuerySingleOrDefaultAsync<string>(
-            new CommandDefinition(selectSql, new
+            new CommandDefinition(AgentExecutionTraceSql.SelectTraceJsonByTraceId, new
             {
                 TraceId = traceId
             }, cancellationToken: cancellationToken));
@@ -301,18 +211,9 @@ public sealed class AgentExecutionTraceRepository(
 
         string updatedJson = JsonSerializer.Serialize(trace, ContractJson.Default);
 
-        const string updateSql = """
-                                 UPDATE AgentExecutionTraces
-                                 SET FullSystemPromptInline = COALESCE(@FullSystemPromptInline, FullSystemPromptInline),
-                                     FullUserPromptInline = COALESCE(@FullUserPromptInline, FullUserPromptInline),
-                                     FullResponseInline = COALESCE(@FullResponseInline, FullResponseInline),
-                                     TraceJson = @TraceJson
-                                 WHERE TraceId = @TraceId;
-                                 """;
-
         await connection.ExecuteAsync(
             new CommandDefinition(
-                updateSql,
+                AgentExecutionTraceSql.UpdateInlinePromptFallback,
                 new
                 {
                     TraceId = traceId,
@@ -334,14 +235,8 @@ public sealed class AgentExecutionTraceRepository(
 
         using IDbConnection connection = await _connectionFactory.CreateOpenConnectionAsync(cancellationToken);
 
-        const string selectSql = """
-                                 SELECT TraceJson
-                                 FROM AgentExecutionTraces
-                                 WHERE TraceId = @TraceId;
-                                 """;
-
         string? rowJson = await connection.QuerySingleOrDefaultAsync<string>(
-            new CommandDefinition(selectSql, new
+            new CommandDefinition(AgentExecutionTraceSql.SelectTraceJsonByTraceId, new
             {
                 TraceId = traceId
             }, cancellationToken: cancellationToken));
@@ -358,16 +253,9 @@ public sealed class AgentExecutionTraceRepository(
 
         string updatedJson = JsonSerializer.Serialize(trace, ContractJson.Default);
 
-        const string updateSql = """
-                                 UPDATE AgentExecutionTraces
-                                 SET InlineFallbackFailed = @InlineFallbackFailed,
-                                     TraceJson = @TraceJson
-                                 WHERE TraceId = @TraceId;
-                                 """;
-
         await connection.ExecuteAsync(
             new CommandDefinition(
-                updateSql,
+                AgentExecutionTraceSql.UpdateInlineFallbackFailed,
                 new
                 {
                     TraceId = traceId,
@@ -387,14 +275,8 @@ public sealed class AgentExecutionTraceRepository(
 
         using IDbConnection connection = await _connectionFactory.CreateOpenConnectionAsync(cancellationToken);
 
-        const string selectSql = """
-                                 SELECT TraceJson
-                                 FROM AgentExecutionTraces
-                                 WHERE TraceId = @TraceId;
-                                 """;
-
         string? rowJson = await connection.QuerySingleOrDefaultAsync<string>(
-            new CommandDefinition(selectSql, new
+            new CommandDefinition(AgentExecutionTraceSql.SelectTraceJsonByTraceId, new
             {
                 TraceId = traceId
             }, cancellationToken: cancellationToken));
@@ -411,16 +293,9 @@ public sealed class AgentExecutionTraceRepository(
 
         string updatedJson = JsonSerializer.Serialize(trace, ContractJson.Default);
 
-        const string updateSql = """
-                                 UPDATE AgentExecutionTraces
-                                 SET TraceJson = @TraceJson,
-                                     QualityWarning = @QualityWarning
-                                 WHERE TraceId = @TraceId;
-                                 """;
-
         await connection.ExecuteAsync(
             new CommandDefinition(
-                updateSql,
+                AgentExecutionTraceSql.UpdateQualityWarning,
                 new
                 {
                     TraceId = traceId,
@@ -440,14 +315,8 @@ public sealed class AgentExecutionTraceRepository(
 
         using IDbConnection connection = await _connectionFactory.CreateOpenConnectionAsync(cancellationToken);
 
-        const string selectSql = """
-                                 SELECT TraceJson
-                                 FROM AgentExecutionTraces
-                                 WHERE TraceId = @TraceId;
-                                 """;
-
         string? rowJson = await connection.QuerySingleOrDefaultAsync<string>(
-            new CommandDefinition(selectSql, new
+            new CommandDefinition(AgentExecutionTraceSql.SelectTraceJsonByTraceId, new
             {
                 TraceId = traceId
             }, cancellationToken: cancellationToken));
@@ -464,16 +333,9 @@ public sealed class AgentExecutionTraceRepository(
 
         string updatedJson = JsonSerializer.Serialize(trace, ContractJson.Default);
 
-        const string updateSql = """
-                                 UPDATE AgentExecutionTraces
-                                 SET TraceJson = @TraceJson,
-                                     QualityRejected = @QualityRejected
-                                 WHERE TraceId = @TraceId;
-                                 """;
-
         await connection.ExecuteAsync(
             new CommandDefinition(
-                updateSql,
+                AgentExecutionTraceSql.UpdateQualityRejected,
                 new
                 {
                     TraceId = traceId,
@@ -499,11 +361,7 @@ public sealed class AgentExecutionTraceRepository(
 
         using IDbConnection connection = await _connectionFactory.CreateOpenConnectionAsync(cancellationToken);
 
-        const string selectSql = """
-                                 SELECT TraceJson, RecordedQualityGateOutcome
-                                 FROM AgentExecutionTraces
-                                 WHERE TraceId = @TraceId;
-                                 """;
+        const string selectSql = AgentExecutionTraceSql.SelectTraceJsonAndRecordedOutcomeByTraceId;
 
         (string? RowJson, byte? ExistingOutcome)? row = await connection.QuerySingleOrDefaultAsync<(string? RowJson, byte? ExistingOutcome)>(
             new CommandDefinition(selectSql, new
@@ -532,21 +390,9 @@ public sealed class AgentExecutionTraceRepository(
         string updatedJson = JsonSerializer.Serialize(trace, ContractJson.Default);
         byte recordedOutcomeByte = (byte)recordedOutcome;
 
-        const string updateSql = """
-                                 UPDATE AgentExecutionTraces
-                                 SET TraceJson = @TraceJson,
-                                     QualityWarning = @QualityWarning,
-                                     QualityRejected = @QualityRejected,
-                                     QualityGateDefinitionVersion = @QualityGateDefinitionVersion,
-                                     QualityGateDefinitionContentHashSha256 = @QualityGateDefinitionContentHashSha256,
-                                     RecordedQualityGateOutcome = @RecordedQualityGateOutcome
-                                 WHERE TraceId = @TraceId
-                                   AND RecordedQualityGateOutcome IS NULL;
-                                 """;
-
         await connection.ExecuteAsync(
             new CommandDefinition(
-                updateSql,
+                AgentExecutionTraceSql.UpdateQualityGateRecordedSnapshot,
                 new
                 {
                     TraceId = traceId,
@@ -569,11 +415,7 @@ public sealed class AgentExecutionTraceRepository(
 
         using IDbConnection connection = await _readConnectionFactory.CreateOpenConnectionAsync(cancellationToken);
 
-        const string sql = """
-                           SELECT TraceJson
-                           FROM AgentExecutionTraces
-                           WHERE TraceId = @TraceId;
-                           """;
+        const string sql = AgentExecutionTraceSql.SelectTraceJsonByTraceId;
 
         string? rowJson = await connection.QuerySingleOrDefaultAsync<string>(
             new CommandDefinition(sql, new
@@ -593,15 +435,7 @@ public sealed class AgentExecutionTraceRepository(
 
         using IDbConnection connection = await _readConnectionFactory.CreateOpenConnectionAsync(cancellationToken);
 
-        string sql = $"""
-                      SELECT t.TraceJson
-                      FROM AgentExecutionTraces t
-                      {PersistenceTenantScope.InnerJoinRuns("t")}
-                      WHERE t.RunId = @RunId
-                        AND {PersistenceTenantScope.RunChildScopeWhereClause}
-                      ORDER BY t.CreatedUtc
-                      {SqlPagingSyntax.FirstRowsOnly(500)};
-                      """;
+        string sql = AgentExecutionTraceQueryShapes.SelectTraceJsonByRunId;
 
         IEnumerable<string> rows = await connection.QueryAsync<string>(new CommandDefinition(
             sql,
@@ -626,15 +460,7 @@ public sealed class AgentExecutionTraceRepository(
 
         using IDbConnection connection = await _readConnectionFactory.CreateOpenConnectionAsync(cancellationToken);
 
-        string sql = $"""
-                      SELECT {AgentExecutionTraceLlmCostProjectionSql.SelectColumns}
-                      FROM AgentExecutionTraces t
-                      {PersistenceTenantScope.InnerJoinRuns("t")}
-                      WHERE t.RunId = @RunId
-                        AND {PersistenceTenantScope.RunChildScopeWhereClause}
-                      ORDER BY t.CreatedUtc
-                      {SqlPagingSyntax.FirstRowsOnly(500)};
-                      """;
+        string sql = AgentExecutionTraceQueryShapes.SelectLlmCostSlicesByRunId;
 
         IEnumerable<AgentExecutionTraceLlmCostSlice> rows = await connection.QueryAsync<AgentExecutionTraceLlmCostSlice>(
             new CommandDefinition(
@@ -671,15 +497,7 @@ public sealed class AgentExecutionTraceRepository(
 
         Guid[] runIdsParameter = normalized.Select(SqlRunIdMapping.ToSqlRunId).ToArray();
 
-        string sql = $"""
-                      SELECT t.RunId,
-                             {AgentExecutionTraceLlmCostProjectionSql.SelectColumns}
-                      FROM AgentExecutionTraces t
-                      {PersistenceTenantScope.InnerJoinRuns("t")}
-                      WHERE t.RunId IN @RunIds
-                        AND {PersistenceTenantScope.RunChildScopeWhereClause}
-                      ORDER BY t.RunId, t.CreatedUtc;
-                      """;
+        string sql = AgentExecutionTraceQueryShapes.SelectLlmCostSlicesByRunIds;
 
         using IDbConnection connection = await _readConnectionFactory.CreateOpenConnectionAsync(cancellationToken);
 
@@ -739,16 +557,7 @@ public sealed class AgentExecutionTraceRepository(
     {
         PersistenceTenantScope.RequireRunChildScope(scope);
 
-        string sql = $"""
-                      SELECT t.TraceJson,
-                             COUNT(*) OVER () AS TotalCount
-                      FROM AgentExecutionTraces t
-                      {PersistenceTenantScope.InnerJoinRuns("t")}
-                      WHERE t.RunId = @RunId
-                        AND {PersistenceTenantScope.RunChildScopeWhereClause}
-                      ORDER BY t.CreatedUtc
-                      OFFSET @Offset ROWS FETCH NEXT @Limit ROWS ONLY;
-                      """;
+        string sql = AgentExecutionTraceQueryShapes.SelectTraceJsonPagedByRunId;
 
         int clampedOffset = Math.Max(0, offset);
         int clampedLimit = Math.Clamp(limit, 1, 500);
@@ -787,16 +596,7 @@ public sealed class AgentExecutionTraceRepository(
     {
         PersistenceTenantScope.RequireRunChildScope(scope);
 
-        string sql = $"""
-                      SELECT {AgentExecutionTraceListSql.SelectSummaryColumns},
-                             COUNT(*) OVER () AS TotalCount
-                      FROM AgentExecutionTraces t
-                      {PersistenceTenantScope.InnerJoinRuns("t")}
-                      WHERE t.RunId = @RunId
-                        AND {PersistenceTenantScope.RunChildScopeWhereClause}
-                      ORDER BY t.CreatedUtc
-                      OFFSET @Offset ROWS FETCH NEXT @Limit ROWS ONLY;
-                      """;
+        string sql = AgentExecutionTraceQueryShapes.SelectSummariesPagedByRunId;
 
         int clampedOffset = Math.Max(0, offset);
         int clampedLimit = Math.Clamp(limit, 1, 500);
@@ -832,13 +632,7 @@ public sealed class AgentExecutionTraceRepository(
     {
         PersistenceTenantScope.RequireRunChildScope(scope);
 
-        string sql = $"""
-                      SELECT COUNT(1)
-                      FROM AgentExecutionTraces t
-                      {PersistenceTenantScope.InnerJoinRuns("t")}
-                      WHERE t.RunId = @RunId
-                        AND {PersistenceTenantScope.RunChildScopeWhereClause};
-                      """;
+        string sql = AgentExecutionTraceQueryShapes.CountByRunId;
 
         using IDbConnection connection = await _readConnectionFactory.CreateOpenConnectionAsync(cancellationToken);
 
@@ -860,13 +654,7 @@ public sealed class AgentExecutionTraceRepository(
     {
         using IDbConnection connection = await _readConnectionFactory.CreateOpenConnectionAsync(cancellationToken);
 
-        string sql = $"""
-                      SELECT TraceJson
-                      FROM AgentExecutionTraces
-                      WHERE TaskId = @TaskId
-                      ORDER BY CreatedUtc
-                      {SqlPagingSyntax.FirstRowsOnly(500)};
-                      """;
+        string sql = AgentExecutionTraceQueryShapes.SelectTraceJsonByTaskId;
 
         IEnumerable<string> rows = await connection.QueryAsync<string>(new CommandDefinition(
             sql,
@@ -920,14 +708,7 @@ public sealed class AgentExecutionTraceRepository(
         // List<string> is globally mapped to JSON via ListStringTypeHandler, which prevents Dapper's IN-list expansion.
         Guid[] runIdsParameter = normalized.Select(SqlRunIdMapping.ToSqlRunId).ToArray();
 
-        string sql = $"""
-                      SELECT DISTINCT t.RunId, t.AgentType
-                      FROM dbo.AgentExecutionTraces t
-                      {PersistenceTenantScope.InnerJoinRuns("t")}
-                      WHERE t.RunId IN @RunIds
-                        AND {PersistenceTenantScope.RunChildScopeWhereClause}
-                        AND t.ModelDeploymentName LIKE @PrefixPattern
-                      """;
+        string sql = AgentExecutionTraceQueryShapes.SelectDistinctAgentTypesWithLlmFallbackByRunIds;
 
         using IDbConnection connection = await _readConnectionFactory.CreateOpenConnectionAsync(cancellationToken);
 
@@ -989,12 +770,7 @@ public sealed class AgentExecutionTraceRepository(
     {
         int batch = Math.Clamp(maxRows, 1, 10_000);
 
-        const string sql = """
-                           DELETE TOP (@Batch)
-                           FROM dbo.AgentExecutionTraces
-                           WHERE ArchivedUtc IS NOT NULL
-                             AND ArchivedUtc < @ArchivedBeforeUtc;
-                           """;
+        const string sql = AgentExecutionTraceSql.HardDeleteArchivedBefore;
 
         using IDbConnection connection = await _connectionFactory.CreateOpenConnectionAsync(cancellationToken);
 

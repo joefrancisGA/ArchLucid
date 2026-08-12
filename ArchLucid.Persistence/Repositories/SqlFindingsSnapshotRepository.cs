@@ -105,10 +105,8 @@ public sealed class SqlFindingsSnapshotRepository(
             int recordCount = await SqlRelationalScalarCount.ExecuteAsync(
                 connection,
                 null,
-                """
-                SELECT COUNT(1) FROM dbo.FindingRecords
-                WHERE FindingsSnapshotId = @FindingsSnapshotId
-                """ + PersistenceTenantScope.AndTripleWhere(scope),
+                FindingsSnapshotWriteSql.CountFindingRecordsBySnapshotId
+                + PersistenceTenantScope.AndTripleWhere(scope),
                 parameters,
                 ct);
 
@@ -412,17 +410,9 @@ public sealed class SqlFindingsSnapshotRepository(
             ? string.Empty
             : " AND fr.TenantId = @ScopeTenantId AND fr.WorkspaceId = @ScopeWorkspaceId AND fr.ProjectId = @ScopeProjectId";
 
-        const string updateHeader = """
-                                    UPDATE fr
-                                    SET PriorityRank = v.PriorityRank
-                                    FROM dbo.FindingRecords fr
-                                    INNER JOIN (VALUES
-                                    """;
+        const string updateHeader = FindingsSnapshotWriteSql.PriorityRankUpdateHeader;
 
-        const string updateFooter = """
-                                    ) AS v(FindingId, PriorityRank)
-                                      ON fr.FindingsSnapshotId = @FsId AND fr.FindingId = v.FindingId
-                                    """;
+        const string updateFooter = FindingsSnapshotWriteSql.PriorityRankUpdateFooter;
 
         await SqlChunkedDapperBatch.ExecuteChunksAsync(
             connection,
@@ -644,22 +634,7 @@ public sealed class SqlFindingsSnapshotRepository(
 
         ScopeContext scope = _scopeContextProvider.GetCurrentScope();
 
-        const string headerSql = """
-                                 INSERT INTO dbo.FindingsSnapshots
-                                 (
-                                     FindingsSnapshotId, RunId, ContextSnapshotId, GraphSnapshotId,
-                                     TenantId, WorkspaceId, ProjectId,
-                                     CreatedUtc, SchemaVersion, GenerationStatus, FindingsJson,
-                                     ChecklistCoverageJson, InsightDensityDemotedCount, InsightDensityRetainedCount
-                                 )
-                                 VALUES
-                                 (
-                                     @FindingsSnapshotId, @RunId, @ContextSnapshotId, @GraphSnapshotId,
-                                     @TenantId, @WorkspaceId, @ProjectId,
-                                     @CreatedUtc, @SchemaVersion, @GenerationStatus, @FindingsJson,
-                                     @ChecklistCoverageJson, @InsightDensityDemotedCount, @InsightDensityRetainedCount
-                                 );
-                                 """;
+        const string headerSql = FindingsSnapshotWriteSql.InsertHeader;
 
         object headerArgs = new
         {
@@ -742,36 +717,7 @@ public sealed class SqlFindingsSnapshotRepository(
         Guid projectId,
         CancellationToken ct)
     {
-        const string sql = """
-                           INSERT INTO dbo.FindingRecords
-                           (
-                               FindingRecordId, FindingsSnapshotId, SortOrder,
-                               TenantId, WorkspaceId, ProjectId,
-                               FindingId, FindingSchemaVersion, FindingType, Category, EngineType,
-                               Severity, Title, Rationale, PayloadType, PayloadJson,
-                               RequestInputRef, RunIdRef, AgentExecutionTraceId,
-                               ModelDeploymentName, ModelVersion, PromptTemplateId, PromptTemplateVersion,
-                               ConfidenceScore, EvaluationConfidenceScore, EvaluationConfidenceLevel, PolicyRuleId,
-                               HumanReviewStatus, ReviewedByUserId, ReviewedAtUtc, ReviewNotes,
-                               IsMuted, MuteReason, ReasoningTrace, ReasoningTraceDigestSha256,
-                               InsightDensityScore, Treatment, Classification,
-                               WhyThisIsNotGeneric, PrincipalArchitectValue, DecisionConsequence
-                           )
-                           VALUES
-                           (
-                               @FindingRecordId, @FindingsSnapshotId, @SortOrder,
-                               @TenantId, @WorkspaceId, @ProjectId,
-                               @FindingId, @FindingSchemaVersion, @FindingType, @Category, @EngineType,
-                               @Severity, @Title, @Rationale, @PayloadType, @PayloadJson,
-                               @RequestInputRef, @RunIdRef, @AgentExecutionTraceId,
-                               @ModelDeploymentName, @ModelVersion, @PromptTemplateId, @PromptTemplateVersion,
-                               @ConfidenceScore, @EvaluationConfidenceScore, @EvaluationConfidenceLevel, @PolicyRuleId,
-                               @HumanReviewStatus, @ReviewedByUserId, @ReviewedAtUtc, @ReviewNotes,
-                               @IsMuted, @MuteReason, @ReasoningTrace, @ReasoningTraceDigestSha256,
-                               @InsightDensityScore, @Treatment, @Classification,
-                               @WhyThisIsNotGeneric, @PrincipalArchitectValue, @DecisionConsequence
-                           );
-                           """;
+        const string sql = FindingsSnapshotWriteSql.InsertFindingRecord;
 
         object args = new
         {
@@ -1026,7 +972,7 @@ public sealed class SqlFindingsSnapshotRepository(
         int recordCount = await SqlRelationalScalarCount.ExecuteAsync(
             connection,
             transaction,
-            "SELECT COUNT(1) FROM dbo.FindingRecords WHERE FindingsSnapshotId = @FindingsSnapshotId",
+            FindingsSnapshotWriteSql.CountFindingRecordsBySnapshotId,
             new { snapshot.FindingsSnapshotId },
             ct);
 
@@ -1035,11 +981,7 @@ public sealed class SqlFindingsSnapshotRepository(
 
         FindingsSnapshotMigrator.Apply(snapshot);
 
-        const string scopeSql = """
-                                SELECT TenantId, WorkspaceId, ProjectId
-                                FROM dbo.FindingsSnapshots
-                                WHERE FindingsSnapshotId = @FindingsSnapshotId;
-                                """;
+        const string scopeSql = FindingsSnapshotWriteSql.SelectScopeTripleForBackfill;
 
         FindingSnapshotScopeRow? scopeHdr = await connection.QuerySingleOrDefaultAsync<FindingSnapshotScopeRow>(
             new CommandDefinition(scopeSql, new { snapshot.FindingsSnapshotId }, transaction, cancellationToken: ct));
