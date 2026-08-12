@@ -246,6 +246,7 @@ public static partial class ServiceCollectionExtensions
         services.AddScoped<IRunExecuteOwnershipLeaseService, RunExecuteOwnershipLeaseService>();
         services.AddScoped<IRunExecuteOwnershipReconciliationService, RunExecuteOwnershipReconciliationService>();
         services.AddScoped<IStaleInFlightRunRemediator, StaleInFlightRunRemediator>();
+        services.AddScoped<IMissingArchitectureRequestRunRemediator, MissingArchitectureRequestRunRemediator>();
         services.AddScoped<IRunEngineProvenanceCaptureService, RunEngineProvenanceCaptureService>();
         // ADR 0030 PR A3 (2026-04-24): the legacy ArchitectureRunCommitOrchestrator + RunCommitPathSelector
         // + LegacyRunCommitPathOptions were deleted. The authority-driven orchestrator is the single commit implementation.

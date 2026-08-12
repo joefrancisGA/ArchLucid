@@ -3,6 +3,7 @@ using System.Text.Json;
 
 using ArchLucid.Api.Services.Admin;
 using ArchLucid.Application.Common;
+using ArchLucid.Application.DataConsistency;
 using ArchLucid.Contracts.Admin;
 using ArchLucid.Core.Audit;
 using ArchLucid.Core.Diagnostics;
@@ -173,6 +174,31 @@ public sealed class AdminDiagnosticsServiceNonSqlTests
         Assert.Empty(snapshot.SampleRunIds);
     }
 
+    [Fact]
+    public async Task GetDataConsistencyMissingArchitectureRequestSnapshotAsync_InMemory_returns_empty_without_database()
+    {
+        Mock<IAuditService> audit = new();
+        Mock<IActorContext> actor = ActorMock();
+        Mock<IDbConnectionFactory> factory = new(MockBehavior.Strict);
+
+        AdminDiagnosticsService sut =
+            CreateDiagnosticsService(
+                factory,
+                InMemoryOptions(),
+                audit,
+                actor,
+                out _,
+                out _,
+                out _,
+                out _);
+
+        DataConsistencyMissingArchitectureRequestSnapshot snapshot =
+            await sut.GetDataConsistencyMissingArchitectureRequestSnapshotAsync(20, CancellationToken.None);
+
+        Assert.Equal(0, snapshot.Count);
+        Assert.Empty(snapshot.SampleRunIds);
+    }
+
     [Theory]
     [InlineData(true)]
     [InlineData(false)]
@@ -195,6 +221,36 @@ public sealed class AdminDiagnosticsServiceNonSqlTests
 
         StaleInFlightRemediationResult result =
             await sut.RemediateStaleInFlightRunsAsync(dryRun, 99, CancellationToken.None);
+
+        Assert.Equal(dryRun, result.DryRun);
+        Assert.Equal(0, result.CandidateCount);
+        Assert.Empty(result.CandidateRunIds);
+        Assert.Empty(result.ArchivedRunIds);
+        Assert.Empty(result.Failed);
+    }
+
+    [Theory]
+    [InlineData(true)]
+    [InlineData(false)]
+    public async Task RemediateMissingArchitectureRequestRunsAsync_InMemory_short_circuits(bool dryRun)
+    {
+        Mock<IAuditService> audit = new();
+        Mock<IActorContext> actor = ActorMock();
+        Mock<IDbConnectionFactory> factory = new(MockBehavior.Strict);
+
+        AdminDiagnosticsService sut =
+            CreateDiagnosticsService(
+                factory,
+                InMemoryOptions(),
+                audit,
+                actor,
+                out _,
+                out _,
+                out _,
+                out _);
+
+        MissingArchitectureRequestRemediationResult result =
+            await sut.RemediateMissingArchitectureRequestRunsAsync(dryRun, 99, CancellationToken.None);
 
         Assert.Equal(dryRun, result.DryRun);
         Assert.Equal(0, result.CandidateCount);
@@ -883,7 +939,17 @@ public sealed class AdminDiagnosticsServiceNonSqlTests
             Options.Create(new IntegrationEventsOptions()),
             cacheTelemetrySnapshotProvider,
             actor.Object,
-            audit.Object);
+            audit.Object,
+            MissingArchitectureRequestOptionsMonitor());
+    }
+
+    private static IOptionsMonitor<MissingArchitectureRequestAutoRemediationOptions>
+        MissingArchitectureRequestOptionsMonitor()
+    {
+        Mock<IOptionsMonitor<MissingArchitectureRequestAutoRemediationOptions>> monitor = new();
+        monitor.Setup(m => m.CurrentValue).Returns(new MissingArchitectureRequestAutoRemediationOptions());
+
+        return monitor.Object;
     }
 
     private static ICacheTelemetrySnapshotProvider CacheTelemetryProvider()

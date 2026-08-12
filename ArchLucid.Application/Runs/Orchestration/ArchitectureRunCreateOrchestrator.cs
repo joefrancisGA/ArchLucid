@@ -181,6 +181,11 @@ public sealed class ArchitectureRunCreateOrchestrator(
         CancellationToken cancellationToken)
     {
         string actor = _actorContext.GetActor();
+
+        // Persist ArchitectureRequest before the early-committed Runs header so a crash mid-pipeline
+        // cannot leave runs_missing_architecture_request orphans that degrade /health/ready.
+        await EnsureArchitectureRequestPersistedAsync(request, cancellationToken).ConfigureAwait(false);
+
         CoordinationResult coordination = await _authorityCoordination.CreateRunAsync(request, cancellationToken);
 
         if (!coordination.Success)
@@ -202,7 +207,13 @@ public sealed class ArchitectureRunCreateOrchestrator(
 
             try
             {
-                inserted = await PersistCreateRunRowsAsync(request, coordination, idempotency, uow, cancellationToken);
+                inserted = await PersistCreateRunRowsAsync(
+                    request,
+                    coordination,
+                    idempotency,
+                    uow,
+                    persistArchitectureRequest: false,
+                    cancellationToken);
 
                 if (inserted || idempotency is null)
                     await uow.CommitAsync(cancellationToken);
@@ -217,6 +228,7 @@ public sealed class ArchitectureRunCreateOrchestrator(
         {
             await _baselineMutationAudit.RecordAsync(AuditEventTypes.Baseline.Architecture.RunFailed, actor, coordination.Run.RunId,
                 $"Persist failed: {ex.GetType().Name}", cancellationToken);
+            await TryCompensateArchiveOrphanRunAsync(coordination.Run.RunId, cancellationToken).ConfigureAwait(false);
             throw;
         }
 
@@ -248,7 +260,13 @@ public sealed class ArchitectureRunCreateOrchestrator(
                     throw new InvalidOperationException($"CreateRun failed: {detail}");
                 }
 
-                inserted = await PersistCreateRunRowsAsync(request, coordination, idempotency, uow, cancellationToken);
+                inserted = await PersistCreateRunRowsAsync(
+                    request,
+                    coordination,
+                    idempotency,
+                    uow,
+                    persistArchitectureRequest: true,
+                    cancellationToken);
                 await PatchRunHeaderInTransactionAsync(
                     coordination,
                     request,
@@ -430,19 +448,72 @@ public sealed class ArchitectureRunCreateOrchestrator(
         }
     }
 
-    private async Task<bool> PersistCreateRunRowsAsync(ArchitectureRequest request, CoordinationResult coordination, CreateRunIdempotencyState? idempotency,
-        IArchLucidUnitOfWork uow, CancellationToken cancellationToken)
+    private async Task EnsureArchitectureRequestPersistedAsync(
+        ArchitectureRequest request,
+        CancellationToken cancellationToken)
+    {
+        ArchitectureRequest? existing =
+            await _requestRepository.GetByIdAsync(request.RequestId, cancellationToken).ConfigureAwait(false);
+
+        if (existing is not null)
+            return;
+
+        await _requestRepository.CreateAsync(request, cancellationToken).ConfigureAwait(false);
+    }
+
+    private async Task TryCompensateArchiveOrphanRunAsync(string runId, CancellationToken cancellationToken)
+    {
+        if (!TryParseCoordinationRunGuid(runId, out Guid runGuid))
+            return;
+
+        try
+        {
+            RunArchiveByIdsResult archiveResult =
+                await _runRepository.ArchiveRunsByIdsAsync([runGuid], cancellationToken).ConfigureAwait(false);
+
+            if (_logger.IsEnabled(LogLevel.Warning))
+            {
+                _logger.LogWarning(
+                    "Compensating soft-archive after sync CreateRun persist failure: RunId={RunId}, Archived={ArchivedCount}, Skipped={SkippedCount}.",
+                    LogSanitizer.Sanitize(runId),
+                    archiveResult.SucceededRunIds.Count,
+                    archiveResult.Failed.Count);
+            }
+        }
+        catch (Exception ex) when (ex is not OperationCanceledException)
+        {
+            if (_logger.IsEnabled(LogLevel.Warning))
+            {
+                _logger.LogWarning(
+                    ex,
+                    "Compensating soft-archive failed after sync CreateRun persist failure: RunId={RunId}.",
+                    LogSanitizer.Sanitize(runId));
+            }
+        }
+    }
+
+    private async Task<bool> PersistCreateRunRowsAsync(
+        ArchitectureRequest request,
+        CoordinationResult coordination,
+        CreateRunIdempotencyState? idempotency,
+        IArchLucidUnitOfWork uow,
+        bool persistArchitectureRequest,
+        CancellationToken cancellationToken)
     {
         if (uow.SupportsExternalTransaction)
         {
-            await _requestRepository.CreateAsync(request, cancellationToken, uow.Connection, uow.Transaction);
+            if (persistArchitectureRequest)
+                await _requestRepository.CreateAsync(request, cancellationToken, uow.Connection, uow.Transaction);
+
             await _evidenceBundleRepository.CreateAsync(coordination.EvidenceBundle, cancellationToken, uow.Connection, uow.Transaction);
             if (coordination.Tasks.Count > 0)
                 await _taskRepository.CreateManyAsync(coordination.Tasks, cancellationToken, uow.Connection, uow.Transaction);
         }
         else
         {
-            await _requestRepository.CreateAsync(request, cancellationToken);
+            if (persistArchitectureRequest)
+                await _requestRepository.CreateAsync(request, cancellationToken);
+
             await _evidenceBundleRepository.CreateAsync(coordination.EvidenceBundle, cancellationToken);
             if (coordination.Tasks.Count > 0)
                 await _taskRepository.CreateManyAsync(coordination.Tasks, cancellationToken);

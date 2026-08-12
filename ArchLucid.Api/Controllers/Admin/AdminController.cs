@@ -355,6 +355,42 @@ public sealed class AdminController(
         return Ok(result);
     }
 
+    /// <summary>
+    ///     Detection-only count and sample of runs whose ArchitectureRequestId is missing from
+    ///     <c>dbo.ArchitectureRequests</c> (grace-aged; same predicate as auto-remediation).
+    /// </summary>
+    [HttpGet("diagnostics/data-consistency/missing-architecture-request-runs")]
+    [ProducesResponseType(typeof(DataConsistencyMissingArchitectureRequestSnapshot), StatusCodes.Status200OK)]
+    public async Task<IActionResult> GetDataConsistencyMissingArchitectureRequestRuns(
+        [FromQuery] int maxSampleRows = 50,
+        CancellationToken cancellationToken = default)
+    {
+        DataConsistencyMissingArchitectureRequestSnapshot snapshot =
+            await _diagnostics.GetDataConsistencyMissingArchitectureRequestSnapshotAsync(
+                maxSampleRows,
+                cancellationToken);
+
+        return Ok(snapshot);
+    }
+
+    /// <summary>
+    ///     Lists or soft-archives runs missing ArchitectureRequest rows. Use <c>dryRun=true</c> first.
+    ///     Capped at <see cref="PaginationDefaults.MaxListingTake" /> rows per call.
+    /// </summary>
+    [HttpPost("diagnostics/data-consistency/missing-architecture-request-runs")]
+    [EnableRateLimiting("expensive")]
+    [ProducesResponseType(typeof(MissingArchitectureRequestRemediationResult), StatusCodes.Status200OK)]
+    public async Task<IActionResult> RemediateMissingArchitectureRequestRuns(
+        [FromQuery] bool dryRun = true,
+        [FromQuery] int maxRows = 50,
+        CancellationToken cancellationToken = default)
+    {
+        MissingArchitectureRequestRemediationResult result =
+            await _diagnostics.RemediateMissingArchitectureRequestRunsAsync(dryRun, maxRows, cancellationToken);
+
+        return Ok(result);
+    }
+
     /// <summary>Soft-archives authority runs created strictly before the cutoff (operator-initiated bulk archival).</summary>
     [HttpPost("runs/archive-batch")]
     [EnableRateLimiting("expensive")]

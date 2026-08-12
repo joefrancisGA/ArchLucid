@@ -148,6 +148,8 @@ public static partial class ServiceCollectionExtensions
         services.Configure<DataConsistencyReconciliationOptions>(configuration.GetSection(DataConsistencyReconciliationOptions.SectionName));
         services.Configure<StaleInFlightAutoRemediationOptions>(
             configuration.GetSection(StaleInFlightAutoRemediationOptions.SectionName));
+        services.Configure<MissingArchitectureRequestAutoRemediationOptions>(
+            configuration.GetSection(MissingArchitectureRequestAutoRemediationOptions.SectionName));
         services.AddSingleton<IArchLucidStorageMode, ArchLucidStorageMode>();
         services.AddSingleton<ILeaderElectionWorkRunner, LeaderElectionWorkRunner>();
         services.AddSingleton<DataConsistencyReconciliationHealthState>();
@@ -159,6 +161,7 @@ public static partial class ServiceCollectionExtensions
             services.AddHostedService<RunExecuteOwnershipReconciliationHostedService>();
             services.AddHostedService<RunExecuteOwnershipShutdownReleaseHostedService>();
             services.AddHostedService<StaleInFlightAutoRemediationHostedService>();
+            services.AddHostedService<MissingArchitectureRequestAutoRemediationHostedService>();
         }
     }
 
