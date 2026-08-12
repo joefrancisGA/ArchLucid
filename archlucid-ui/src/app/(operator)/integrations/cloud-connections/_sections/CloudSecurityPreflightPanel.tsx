@@ -1,18 +1,78 @@
 "use client";
 
-import { cn } from "@/lib/utils";
+import Link from "next/link";
 
-import type { CloudSecurityPreflightTopic } from "@/lib/cloud-security-preflight-topics";
-import { OPERATOR_DISCLOSURE_TRIGGER_CLASS, OPERATOR_TYPOGRAPHY } from "@/lib/design-tokens";
+import { StatusTag } from "@/components/ui/status-tag";
+import { OPERATOR_DISCLOSURE_TRIGGER_CLASS, OPERATOR_LINK, OPERATOR_TYPOGRAPHY } from "@/lib/design-tokens";
+import type {
+  CloudSecurityPreflightTopic,
+  CloudSecurityPreflightVerificationState,
+} from "@/lib/cloud-security-preflight-topics";
+import { formatAzureConnectionTimestamp } from "@/lib/azure-connection-present";
+import { cn } from "@/lib/utils";
 
 export type CloudSecurityPreflightPanelProps = {
   readonly topics: readonly CloudSecurityPreflightTopic[];
   readonly providerLabel: string;
+  /** Collapse the checklist to a one-line summary until expanded (P0-2). */
+  readonly collapsedByDefault?: boolean;
+  /** Topics verified after a successful validation run (P0-5). */
+  readonly verifiedTopics?: CloudSecurityPreflightVerificationState;
 };
 
+function CloudSecurityPreflightTopicRow(props: {
+  readonly topic: CloudSecurityPreflightTopic;
+  readonly verifiedUtc: string | null;
+}): React.ReactElement {
+  const { topic, verifiedUtc } = props;
+  const isVerified = verifiedUtc !== null;
+
+  return (
+    <li className="rounded-md border border-neutral-200 p-3 dark:border-neutral-700">
+      <div className="flex flex-wrap items-center justify-between gap-2">
+        <p className={cn("m-0 font-medium text-al-text-primary", OPERATOR_TYPOGRAPHY.body)}>{topic.label}</p>
+        {isVerified ? (
+          <StatusTag
+            kind="ready"
+            label={`Verified ${formatAzureConnectionTimestamp(verifiedUtc)}`}
+            data-testid={`cloud-security-preflight-verified-${topic.id}`}
+          />
+        ) : null}
+      </div>
+      <p className={cn("m-0 mt-1 text-al-text-secondary", OPERATOR_TYPOGRAPHY.helper)}>{topic.detail}</p>
+      <p className={cn("m-0 mt-2", OPERATOR_TYPOGRAPHY.helper)}>
+        <Link
+          href={topic.trustCenterControl.href}
+          className={cn(OPERATOR_LINK.inline, "text-teal-700 underline dark:text-teal-400")}
+          data-testid={`cloud-security-preflight-citation-${topic.id}`}
+        >
+          {topic.trustCenterControl.label}
+        </Link>
+      </p>
+    </li>
+  );
+}
+
 /** Read-only security review checklist — not a persisted attestation control. */
-export function CloudSecurityPreflightPanel(props: CloudSecurityPreflightPanelProps) {
-  const { topics, providerLabel } = props;
+export function CloudSecurityPreflightPanel(props: CloudSecurityPreflightPanelProps): React.ReactElement {
+  const { topics, providerLabel, collapsedByDefault = false, verifiedTopics } = props;
+  const summaryLine = `${topics.length} access controls reviewed for ${providerLabel} — expand for cited details.`;
+
+  const topicList = (
+    <ul className="space-y-4">
+      {topics.map((topic) => (
+        <CloudSecurityPreflightTopicRow
+          key={topic.id}
+          topic={topic}
+          verifiedUtc={
+            topic.verifiableAfterConnection === true && verifiedTopics?.[topic.id] !== undefined
+              ? verifiedTopics[topic.id]?.verifiedUtc ?? null
+              : null
+          }
+        />
+      ))}
+    </ul>
+  );
 
   return (
     <section
@@ -20,14 +80,18 @@ export function CloudSecurityPreflightPanel(props: CloudSecurityPreflightPanelPr
       data-testid="cloud-security-preflight"
       aria-label={`${providerLabel} security preflight checklist`}
     >
-      <ul className="space-y-4">
-        {topics.map((topic) => (
-          <li key={topic.id} className="rounded-md border border-neutral-200 p-3 dark:border-neutral-700">
-            <p className={cn("m-0 font-medium text-al-text-primary", OPERATOR_TYPOGRAPHY.body)}>{topic.label}</p>
-            <p className={cn("m-0 mt-1 text-al-text-secondary", OPERATOR_TYPOGRAPHY.helper)}>{topic.detail}</p>
-          </li>
-        ))}
-      </ul>
+      {collapsedByDefault ? (
+        <details
+          className="rounded-md border border-neutral-200 bg-neutral-50/60 px-3 py-2 dark:border-neutral-700 dark:bg-neutral-900/40"
+        >
+          <summary className={cn("cursor-pointer text-al-text-primary", OPERATOR_DISCLOSURE_TRIGGER_CLASS)}>
+            {summaryLine}
+          </summary>
+          <div className="mt-3">{topicList}</div>
+        </details>
+      ) : (
+        topicList
+      )}
     </section>
   );
 }
@@ -37,7 +101,7 @@ export type CloudSecurityPreflightTechnicalDetailsProps = {
 };
 
 /** Collapsed implementation notes — provider-specific technical content only. */
-export function CloudSecurityPreflightTechnicalDetails(props: CloudSecurityPreflightTechnicalDetailsProps) {
+export function CloudSecurityPreflightTechnicalDetails(props: CloudSecurityPreflightTechnicalDetailsProps): React.ReactElement {
   return (
     <details className="rounded-md border border-neutral-200 bg-neutral-50/60 px-3 py-2 dark:border-neutral-700 dark:bg-neutral-900/40">
       <summary className={cn("cursor-pointer text-al-text-primary", OPERATOR_DISCLOSURE_TRIGGER_CLASS)}>

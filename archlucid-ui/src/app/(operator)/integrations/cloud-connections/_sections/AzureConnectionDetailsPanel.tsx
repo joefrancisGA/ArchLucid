@@ -2,6 +2,8 @@
 
 import { useState } from "react";
 
+import { EnterpriseCompactEmptyState } from "@/components/EnterpriseCompactEmptyState";
+import { Skeleton } from "@/components/ui/skeleton";
 import { Button } from "@/components/ui/button";
 import { StatusTag } from "@/components/ui/status-tag";
 import { OPERATOR_TYPOGRAPHY } from "@/lib/design-tokens";
@@ -97,7 +99,17 @@ export function AzureConnectionDetailsPanel(): React.ReactElement {
   const [isEditing, setIsEditing] = useState(false);
 
   if (isLoading) {
-    return <p className={OPERATOR_TYPOGRAPHY.helper}>Loading Azure connections…</p>;
+    return (
+      <div
+        className="space-y-2"
+        data-testid="azure-connection-details-loading"
+        aria-busy="true"
+        aria-live="polite"
+      >
+        <Skeleton className="h-4 w-48" />
+        <Skeleton className="h-20 w-full" />
+      </div>
+    );
   }
 
   if (loadError !== null) {

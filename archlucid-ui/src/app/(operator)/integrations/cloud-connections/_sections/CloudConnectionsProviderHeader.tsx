@@ -13,11 +13,12 @@ export type CloudConnectionsProviderHeaderProps = {
   readonly providerLabel: string;
   readonly overview: string;
   readonly statusBadge?: ReactNode;
+  readonly primaryAction?: ReactNode;
 };
 
 /** Shared provider detail hero — back-link, title, lead, and Category-1 contextual help. */
 export function CloudConnectionsProviderHeader(props: CloudConnectionsProviderHeaderProps) {
-  const { providerLabel, overview, statusBadge } = props;
+  const { providerLabel, overview, statusBadge, primaryAction } = props;
 
   return (
     <OperatorPageHeader
@@ -25,7 +26,12 @@ export function CloudConnectionsProviderHeader(props: CloudConnectionsProviderHe
       titleTestId={`cloud-connection-${providerLabel.toLowerCase()}-page-title`}
       subtitle={overview}
       statusBadge={statusBadge}
-      actions={<PageContextualHelpButton triggerText={PAGE_HELP_SHORT_TRIGGER_TEXT} />}
+      actions={
+        <>
+          {primaryAction}
+          <PageContextualHelpButton triggerText={PAGE_HELP_SHORT_TRIGGER_TEXT} />
+        </>
+      }
       metadata={
         <Link href={CLOUD_CONNECTIONS_PATH} className={cn(OPERATOR_LINK.nav, OPERATOR_TYPOGRAPHY.helper)}>
           Cloud connections

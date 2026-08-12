@@ -1,7 +1,12 @@
+import type { EnterpriseStatusKind } from "@/lib/design-tokens";
+
 /** Shared presentation helpers for Azure cloud connection UI (TB-1767). */
 
-export function formatAzureConnectionTimestamp(value: string | null | undefined): string {
-  if (value === null || value === undefined || value.trim().length === 0) {
+export function azureConnectionStatusTagKind(): EnterpriseStatusKind {
+  return "ready";
+}
+
+export function formatAzureConnectionTimestamp(value: string | null | undefined): string {  if (value === null || value === undefined || value.trim().length === 0) {
     return "Never";
   }
 

@@ -36,6 +36,7 @@ export function WizardStepper({
   className,
 }: WizardStepperProps) {
   const completed = new Set(completedSteps);
+  const stepPositionLabel = `Step ${currentStep + 1} of ${steps.length}`;
 
   return (
     <nav
@@ -43,6 +44,13 @@ export function WizardStepper({
       className={cn("w-full", sticky && WIZARD_STICKY_PROGRESS_CLASS, className)}
       data-testid={sticky ? WIZARD_STICKY_PROGRESS_TEST_ID : undefined}
     >
+      <p className="sr-only" aria-live="polite">
+        {stepPositionLabel}
+        {completed.has(currentStep) ? " — completed" : ""}
+      </p>
+      <p className={cn("m-0 mb-2 text-al-text-secondary", OPERATOR_TYPOGRAPHY.helper)} aria-hidden="true">
+        {stepPositionLabel}
+      </p>
       <ol className="m-0 flex w-full list-none flex-wrap items-start gap-3 p-0 md:gap-6">
         {steps.map((step, index) => {
           const isActive = index === currentStep;
@@ -54,6 +62,10 @@ export function WizardStepper({
               className="flex min-w-0 flex-1 flex-col items-center gap-2 text-center"
               aria-current={isActive ? "step" : undefined}
             >
+              <span className="sr-only">
+                {step.label}
+                {isDone ? " — completed" : isActive ? " — current step" : ""}
+              </span>
               <span
                 className={cn(
                   "flex h-9 w-9 shrink-0 items-center justify-center rounded-full border-2 font-semibold transition-colors",
@@ -66,6 +78,7 @@ export function WizardStepper({
                     !isDone &&
                     "border-neutral-300 bg-white text-neutral-600 dark:border-neutral-500 dark:bg-neutral-900 dark:text-neutral-300",
                 )}
+                aria-hidden="true"
               >
                 {index + 1}
               </span>
