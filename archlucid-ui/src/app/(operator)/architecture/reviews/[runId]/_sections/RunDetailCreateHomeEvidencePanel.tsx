@@ -16,6 +16,7 @@ import { RUN_DETAIL_CREATE_HOME_EVIDENCE_ORIENTATION_LEAD } from "@/lib/runs/run
 import { OPERATOR_TYPOGRAPHY } from "@/lib/design-tokens";
 
 import { RunDetailCreateHomeEvidenceCaptureRegion } from "./RunDetailCreateHomeEvidenceCaptureRegion";
+import { RunDetailCreateHomeEvidenceDiagramCrossLink } from "@/components/runs/RunDetailCreateHomeEvidenceDiagramCrossLink";
 
 export type RunDetailCreateHomeEvidencePanelProps = {
   readonly packageName: string;
@@ -69,6 +70,7 @@ export function RunDetailCreateHomeEvidencePanel(props: RunDetailCreateHomeEvide
       />
       <EvidenceGapForecastPanel presence={evidencePresence} />
       <RunDetailEvidenceInventorySection items={props.items} hasManifest={false} />
+      <RunDetailCreateHomeEvidenceDiagramCrossLink runId={props.runId} />
       <RunDetailCreateHomeEvidenceCaptureRegion
         key={props.runId}
         runId={props.runId}

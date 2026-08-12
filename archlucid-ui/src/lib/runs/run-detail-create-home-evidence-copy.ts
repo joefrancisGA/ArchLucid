@@ -10,3 +10,8 @@ export const RUN_DETAIL_CREATE_HOME_CAPTURED_EVIDENCE_EMPTY_TITLE = "No files up
 
 export const RUN_DETAIL_CREATE_HOME_CAPTURED_EVIDENCE_EMPTY_DESCRIPTION =
   "Upload supporting documents below. They will appear here immediately after a successful upload." as const;
+
+export const RUN_DETAIL_CREATE_HOME_EVIDENCE_DIAGRAM_CROSS_LINK_HELPER =
+  "Generated architecture diagrams count as supporting evidence for this package. Open Diagram to review or refine the sketch before you upload more files." as const;
+
+export const RUN_DETAIL_CREATE_HOME_EVIDENCE_DIAGRAM_CTA_LABEL = "Open diagram" as const;

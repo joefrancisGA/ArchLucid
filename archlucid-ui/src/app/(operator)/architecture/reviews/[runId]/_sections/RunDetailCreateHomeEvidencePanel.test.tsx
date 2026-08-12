@@ -2,7 +2,10 @@ import { render, screen } from "@testing-library/react";
 import { describe, expect, it, vi } from "vitest";
 
 import { RunDetailCreateHomeEvidencePanel } from "./RunDetailCreateHomeEvidencePanel";
-import { RUN_DETAIL_CREATE_HOME_EVIDENCE_ORIENTATION_LEAD } from "@/lib/runs/run-detail-create-home-evidence-copy";
+import {
+  RUN_DETAIL_CREATE_HOME_EVIDENCE_DIAGRAM_CTA_LABEL,
+  RUN_DETAIL_CREATE_HOME_EVIDENCE_ORIENTATION_LEAD,
+} from "@/lib/runs/run-detail-create-home-evidence-copy";
 
 vi.mock("./RunDetailCreateHomeEvidenceCaptureRegion", () => ({
   RunDetailCreateHomeEvidenceCaptureRegion: () => <div data-testid="capture-evidence-region" />,
@@ -31,6 +34,11 @@ describe("RunDetailCreateHomeEvidencePanel", () => {
     );
     expect(screen.getByTestId("run-detail-evidence-scope-header")).toBeInTheDocument();
     expect(screen.getByTestId("run-detail-evidence-inventory")).toBeInTheDocument();
+    expect(screen.getByTestId("run-detail-create-home-evidence-diagram-cross-link")).toBeInTheDocument();
+    expect(screen.getByRole("link", { name: RUN_DETAIL_CREATE_HOME_EVIDENCE_DIAGRAM_CTA_LABEL })).toHaveAttribute(
+      "href",
+      expect.stringContaining("archTab=diagram"),
+    );
     expect(screen.getByTestId("capture-evidence-region")).toBeInTheDocument();
   });
 });
