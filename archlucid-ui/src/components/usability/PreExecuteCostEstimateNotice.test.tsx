@@ -42,7 +42,7 @@ describe("PreExecuteCostEstimateNotice (TB-2233)", () => {
     const notice = screen.getByTestId("pre-execute-cost-estimate-notice");
     expect(notice).toHaveAttribute("data-kind", "allotment");
     expect(screen.getByTestId("pre-execute-cost-estimate-notice-message")).toHaveTextContent(
-      /AI usage your plan already includes/i,
+      /included in your plan's AI usage/i,
     );
     expect(screen.getByTestId("pre-execute-cost-estimate-notice-message")).toHaveTextContent(
       "$50.00",
@@ -50,6 +50,48 @@ describe("PreExecuteCostEstimateNotice (TB-2233)", () => {
     expect(
       screen.queryByTestId("pre-execute-cost-estimate-notice-honesty"),
     ).not.toBeInTheDocument();
+  });
+
+  it("renders allowance-only teaching as a quiet inline line, not a bordered callout", () => {
+    useGate.mockReturnValue({
+      loading: false,
+      status: createStatus(),
+      blocksLlmExecution: false,
+    });
+
+    render(<PreExecuteCostEstimateNotice />);
+
+    const notice = screen.getByTestId("pre-execute-cost-estimate-notice");
+    expect(notice).toHaveAttribute("data-presentation", "inline");
+    expect(notice.className).not.toMatch(/border/);
+    expect(notice).toHaveAttribute("aria-label", "Included AI usage");
+    expect(notice).not.toHaveAttribute("aria-labelledby");
+    expect(
+      screen.queryByRole("heading", { name: /included ai usage/i }),
+    ).not.toBeInTheDocument();
+  });
+
+  it("keeps the callout heading when a dollar estimate is actually asserted", () => {
+    useGate.mockReturnValue({
+      loading: false,
+      status: createStatus(),
+      blocksLlmExecution: false,
+    });
+
+    render(
+      <PreExecuteCostEstimateNotice
+        estimate={{
+          previewActive: true,
+          estimatedCostUsdLow: 0.04,
+          estimatedCostUsdHigh: 0.72,
+        }}
+      />,
+    );
+
+    const notice = screen.getByTestId("pre-execute-cost-estimate-notice");
+    expect(notice).toHaveAttribute("data-presentation", "callout");
+    expect(notice.className).toMatch(/border/);
+    expect(screen.getByRole("heading", { name: /included ai usage/i })).toBeInTheDocument();
   });
 
   it("shows a Real-mode range when estimate props are supplied", () => {
@@ -121,7 +163,7 @@ describe("PreExecuteCostEstimateNotice (TB-2233)", () => {
 
     expect(screen.getByTestId("draft-cost-teaching")).toBeInTheDocument();
     expect(screen.getByTestId("draft-cost-teaching-message")).toHaveTextContent(
-      /AI usage your plan already includes/i,
+      /included in your plan's AI usage/i,
     );
     expect(screen.getByTestId("draft-cost-teaching-message")).not.toHaveTextContent("$");
   });

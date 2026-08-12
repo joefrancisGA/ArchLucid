@@ -8,8 +8,27 @@ import {
   buildPreExecuteCostEstimateTeaching,
   PRE_EXECUTE_COST_ESTIMATE_TITLE,
   type PreExecuteCostEstimateInput,
+  type PreExecuteCostEstimateKind,
 } from "@/lib/pre-execute-cost-estimate";
 import { cn } from "@/lib/utils";
+
+/**
+ * Allowance-only states assert no dollar figure, so they carry no decision for the operator.
+ * They render as a quiet line rather than a bordered callout competing with the primary CTA.
+ */
+function isInlinePresentation(kind: PreExecuteCostEstimateKind): boolean {
+  return kind === "allotment" || kind === "unknown";
+}
+
+function shellClassName(inline: boolean): string {
+  return inline ? "space-y-1" : cn(DESIGN_TOKENS.callout.neutral, "space-y-1 p-4");
+}
+
+function messageClassName(inline: boolean): string {
+  return inline
+    ? cn("m-0 text-al-text-secondary", OPERATOR_TYPOGRAPHY.helper)
+    : cn("m-0 text-al-text-primary", OPERATOR_TYPOGRAPHY.body);
+}
 
 export type PreExecuteCostEstimateNoticeProps = {
   /**
@@ -72,24 +91,27 @@ export function PreExecuteCostEstimateNotice(
   });
 
   const testId = props.testId ?? "pre-execute-cost-estimate-notice";
+  const inline = isInlinePresentation(teaching.kind);
 
   return (
     <aside
-      className={cn(DESIGN_TOKENS.callout.neutral, "space-y-1 p-4", props.className)}
+      className={cn(shellClassName(inline), props.className)}
       data-testid={testId}
       data-kind={teaching.kind}
-      aria-labelledby={`${testId}-heading`}
+      data-presentation={inline ? "inline" : "callout"}
+      aria-label={PRE_EXECUTE_COST_ESTIMATE_TITLE}
+      // aria-labelledby wins over aria-label when the visible heading is rendered.
+      aria-labelledby={inline ? undefined : `${testId}-heading`}
     >
-      <h2
-        id={`${testId}-heading`}
-        className={cn("m-0 font-semibold text-al-text-primary", OPERATOR_TYPOGRAPHY.cardTitle)}
-      >
-        {PRE_EXECUTE_COST_ESTIMATE_TITLE}
-      </h2>
-      <p
-        className={cn("m-0 text-al-text-primary", OPERATOR_TYPOGRAPHY.body)}
-        data-testid={`${testId}-message`}
-      >
+      {inline ? null : (
+        <h2
+          id={`${testId}-heading`}
+          className={cn("m-0 font-semibold text-al-text-primary", OPERATOR_TYPOGRAPHY.cardTitle)}
+        >
+          {PRE_EXECUTE_COST_ESTIMATE_TITLE}
+        </h2>
+      )}
+      <p className={messageClassName(inline)} data-testid={`${testId}-message`}>
         {teaching.message}
       </p>
       {teaching.honestyNote !== null ? (

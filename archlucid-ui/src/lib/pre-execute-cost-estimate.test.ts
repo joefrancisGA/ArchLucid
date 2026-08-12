@@ -34,9 +34,9 @@ describe("buildPreExecuteCostEstimateTeaching (TB-2233)", () => {
       remainingBudgetUsd: 75,
     });
 
-    expect(unknown.message).toMatch(/already includes/i);
+    expect(unknown.message).toMatch(/included in your plan's AI usage/i);
     expect(unknown.honestyNote).toBeNull();
-    expect(allotment.message).toMatch(/already includes/i);
+    expect(allotment.message).toMatch(/included in your plan's AI usage/i);
     expect(allotment.honestyNote).toBeNull();
   });
 
@@ -85,7 +85,7 @@ describe("buildPreExecuteCostEstimateTeaching (TB-2233)", () => {
     });
 
     expect(teaching.kind).toBe("allotment");
-    expect(teaching.message).toMatch(/AI usage your plan already includes/i);
+    expect(teaching.message).toMatch(/included in your plan's AI usage/i);
     expect(teaching.message).toMatch(/\$50\.00/);
     expect(teaching.message).not.toMatch(/typically draws about \$0\./);
   });

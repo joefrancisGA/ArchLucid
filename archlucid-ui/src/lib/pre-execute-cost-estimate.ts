@@ -117,7 +117,7 @@ export function buildPreExecuteCostEstimateTeaching(
   if (hasRemaining) {
     return {
       title: PRE_EXECUTE_COST_ESTIMATE_TITLE,
-      message: `This review draws on the AI usage your plan already includes. About ${formatUsdTwoDecimals(remaining)} of this month's allowance is left.`,
+      message: `Included in your plan's AI usage — about ${formatUsdTwoDecimals(remaining)} left this month.`,
       honestyNote: previewActive ? RANGE_UNAVAILABLE_HONESTY : null,
       kind: "allotment",
     };
@@ -125,7 +125,7 @@ export function buildPreExecuteCostEstimateTeaching(
 
   return {
     title: PRE_EXECUTE_COST_ESTIMATE_TITLE,
-    message: "This review draws on the AI usage your plan already includes.",
+    message: "Included in your plan's AI usage.",
     honestyNote: null,
     kind: "unknown",
   };
