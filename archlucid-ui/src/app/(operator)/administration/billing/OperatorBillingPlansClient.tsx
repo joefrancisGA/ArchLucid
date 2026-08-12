@@ -14,8 +14,8 @@ import { BILLING_TIER_FEATURE_BULLETS } from "@/lib/billing-plan-tier-features";
 import { startMarketingPlanBillingCheckout } from "@/lib/billing-checkout-client";
 import { isSelfServeBillingCheckoutPlan } from "@/lib/billing-checkout-tier-map";
 import {
-  MARKETING_PRICING_RECOMMENDED_TIER,
   OPERATOR_BILLING_CATALOG_NOTE,
+  OPERATOR_BILLING_RECOMMENDED_TIER,
   OPERATOR_BILLING_TIER_CTAS,
   isMarketingPricingTierId,
   type MarketingPricingTierId,
@@ -32,8 +32,13 @@ import type { PricingDoc, PricingPackage } from "@/lib/pricing-types";
 import {
   BILLING_CHECKOUT_COMPLETED_SUCCESS_MESSAGE,
 } from "@/lib/admin-integration-mutation-outcome-copy";
-import { showInfo } from "@/lib/toast";
 import { OPERATOR_DISCLOSURE_TRIGGER_CLASS, OPERATOR_LINK, OPERATOR_NAV_GROUP_LABEL, OPERATOR_TYPOGRAPHY } from "@/lib/design-tokens";
+
+import { OperatorBillingCheckoutConfirmDialog } from "./OperatorBillingCheckoutConfirmDialog";
+
+function buildSalesLedPricingHref(tierId: MarketingPricingTierId): string {
+  return `/pricing?source=operator-billing&tier=${encodeURIComponent(tierId)}#pricing-quote-request`;
+}
 
 function PlanSummaryLines(props: { pricing: PricingDoc; pkg: PricingPackage }) {
   const lines = buildOperatorBillingPlanSummaryLines(props.pricing, props.pkg);
@@ -74,6 +79,11 @@ function PlanAddonDetails(props: { pricing: PricingDoc; pkg: PricingPackage }) {
   );
 }
 
+type PendingCheckout = {
+  readonly tierId: MarketingPricingTierId;
+  readonly pkg: PricingPackage;
+};
+
 type OperatorBillingPlansClientProps = {
   readonly initialPlanId?: string | null;
 };
@@ -85,6 +95,7 @@ export function OperatorBillingPlansClient(props: OperatorBillingPlansClientProp
   const [checkoutPlanId, setCheckoutPlanId] = useState<MarketingPricingTierId | null>(null);
   const [checkoutSuccessMessage, setCheckoutSuccessMessage] = useState<string | null>(null);
   const [checkoutErrorMessage, setCheckoutErrorMessage] = useState<string | null>(null);
+  const [pendingCheckout, setPendingCheckout] = useState<PendingCheckout | null>(null);
   const checkoutInFlightRef = useRef(false);
 
   const selectedPlanRaw = props.initialPlanId ?? searchParams.get("plan");
@@ -125,16 +136,6 @@ export function OperatorBillingPlansClient(props: OperatorBillingPlansClientProp
     }
   }, [pricing, selectedPlanId]);
 
-  const onSalesLedPlanAction = useCallback((tierId: MarketingPricingTierId) => {
-    if (tierId === "enterprise") {
-      showInfo("Enterprise packaging is sales-led. Use the quote form on public pricing or contact sales.");
-
-      return;
-    }
-
-    showInfo("Professional guided trials are sales-led. Request a quote on public pricing or contact sales.");
-  }, []);
-
   const onStartCheckout = useCallback(
     async (tierId: MarketingPricingTierId, pkg: PricingPackage) => {
       if (checkoutInFlightRef.current) {
@@ -161,10 +162,16 @@ export function OperatorBillingPlansClient(props: OperatorBillingPlansClientProp
       } finally {
         checkoutInFlightRef.current = false;
         setCheckoutPlanId(null);
+        setPendingCheckout(null);
       }
     },
     [],
   );
+
+  const onRequestCheckout = useCallback((tierId: MarketingPricingTierId, pkg: PricingPackage) => {
+    setCheckoutErrorMessage(null);
+    setPendingCheckout({ tierId, pkg });
+  }, []);
 
   return (
     <div className="space-y-4">
@@ -211,10 +218,12 @@ export function OperatorBillingPlansClient(props: OperatorBillingPlansClientProp
             const tierId = pkg.id as MarketingPricingTierId;
             const cta = OPERATOR_BILLING_TIER_CTAS[tierId];
             const bullets = BILLING_TIER_FEATURE_BULLETS[pkg.id] ?? [];
-            const isRecommended = tierId === MARKETING_PRICING_RECOMMENDED_TIER;
+            const isRecommended = tierId === OPERATOR_BILLING_RECOMMENDED_TIER;
             const isSelected = selectedPlanId === tierId;
             const isCheckoutLoading = checkoutPlanId === tierId;
             const selfServe = isSelfServeBillingCheckoutPlan(tierId);
+            const priceLabel = formatPlanPrice(pkg, pricing.currency);
+            const effectiveCaption = `Effective ${formatPricingCatalogEffectiveDate(pricing.effectiveDate)} · ${pricing.currency}`;
 
             return (
               <Card
@@ -227,18 +236,32 @@ export function OperatorBillingPlansClient(props: OperatorBillingPlansClientProp
                 data-testid={`billing-tier-${pkg.id}`}
               >
                 <CardHeader className="pb-2">
-                  <CardTitle className={OPERATOR_TYPOGRAPHY.pageTitle}>
+                  <p
+                    className={cn("m-0 font-semibold tabular-nums text-al-text-primary", OPERATOR_TYPOGRAPHY.sectionTitle)}
+                    data-testid={`billing-tier-price-${pkg.id}`}
+                  >
+                    {priceLabel}
+                  </p>
+                  <p className={cn("m-0 pt-1 text-al-text-secondary", OPERATOR_TYPOGRAPHY.helper)}>{effectiveCaption}</p>
+                  <CardTitle className={cn("pt-2", OPERATOR_TYPOGRAPHY.cardTitle)}>
                     {pkg.title}
                     {isRecommended ? (
-                      <span className={cn("ms-2 align-middle font-semibold uppercase tracking-wide text-teal-800 dark:text-teal-200", OPERATOR_TYPOGRAPHY.helper)}>
+                      <span
+                        className={cn(
+                          "ms-2 align-middle font-semibold uppercase tracking-wide text-teal-800 dark:text-teal-200",
+                          OPERATOR_TYPOGRAPHY.helper,
+                        )}
+                      >
                         Recommended
                       </span>
                     ) : null}
                   </CardTitle>
                   <CardDescription>{pkg.summary}</CardDescription>
-                  <p className={cn("m-0 pt-2 font-semibold text-al-text-primary", OPERATOR_TYPOGRAPHY.cardTitle)} data-testid={`billing-tier-price-${pkg.id}`}>
-                    {formatPlanPrice(pkg, pricing.currency)}
-                  </p>
+                  {!selfServe ? (
+                    <p className={cn("m-0 pt-1 text-al-text-secondary", OPERATOR_TYPOGRAPHY.helper)}>
+                      Sales-led — request a quote on public pricing.
+                    </p>
+                  ) : null}
                 </CardHeader>
                 <CardContent className="flex flex-1 flex-col gap-4 pt-0">
                   <PlanSummaryLines pricing={pricing} pkg={pkg} />
@@ -261,29 +284,35 @@ export function OperatorBillingPlansClient(props: OperatorBillingPlansClientProp
                       idleLabel={cta?.primaryLabel ?? "Upgrade plan"}
                       loadingLabel="Opening checkout…"
                       isLoading={isCheckoutLoading}
-                      onClick={() => {
-                        void onStartCheckout(tierId, pkg);
-                      }}
+                      onClick={() => onRequestCheckout(tierId, pkg)}
                     />
                   ) : (
-                    <Button
-                      type="button"
-                      variant="outline"
-                      className="w-full"
-                      onClick={() => onSalesLedPlanAction(tierId)}
-                    >
-                      {cta?.primaryLabel ?? "Contact us"}
+                    <Button asChild type="button" variant="outline" className="w-full">
+                      <Link href={buildSalesLedPricingHref(tierId)}>{cta?.primaryLabel ?? "Contact us"}</Link>
                     </Button>
                   )}
-                  <p className={cn("text-center", OPERATOR_TYPOGRAPHY.micro)}>
-                    Effective {formatPricingCatalogEffectiveDate(pricing.effectiveDate)} · {pricing.currency}
-                  </p>
                 </CardFooter>
               </Card>
             );
           })}
         </div>
       ) : null}
+
+      <OperatorBillingCheckoutConfirmDialog
+        open={pendingCheckout !== null}
+        tierId={pendingCheckout?.tierId ?? null}
+        pkg={pendingCheckout?.pkg ?? null}
+        pricing={pricing}
+        busy={checkoutPlanId !== null}
+        onCancel={() => setPendingCheckout(null)}
+        onConfirm={() => {
+          if (pendingCheckout === null) {
+            return;
+          }
+
+          void onStartCheckout(pendingCheckout.tierId, pendingCheckout.pkg);
+        }}
+      />
     </div>
   );
 }

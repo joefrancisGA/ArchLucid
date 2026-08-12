@@ -11,8 +11,14 @@ export const BILLING_ARCHITECTURE_PACKAGE_OVERAGE_UNIT_LABEL = "architecture pac
 /** Plan catalog — monthly AI credits bundled with the tier (`pricing.json` `monthlyAiCredits`). TB-1168 */
 export const BILLING_INCLUDED_AI_CREDITS_LABEL = "Included AI credits";
 
-/** Current-plan card — live monthly dollar budget cap from LLM budget status API. TB-1168 */
+/** Current-plan card — plan-tier monthly AI allowance when a paid plan is active. TB-1168 */
 export const BILLING_MONTHLY_AI_BUDGET_ALLOWANCE_LABEL = "Monthly AI budget allowance";
+
+/** Current-plan card — workspace LLM hard cap when no paid plan is active (not a sold entitlement). */
+export const BILLING_WORKSPACE_AI_SPEND_CAP_LABEL = "Workspace AI spend cap";
+
+export const BILLING_WORKSPACE_AI_SPEND_CAP_PROVENANCE =
+  "Workspace AI spend cap — not a plan entitlement";
 
 /** Enterprise / custom tier catalog value when credits are not listed numerically. TB-1168 */
 export const BILLING_CUSTOM_AI_ALLOWANCE_VALUE = "Custom AI allowance";

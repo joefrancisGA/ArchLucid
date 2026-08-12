@@ -52,7 +52,6 @@ describe("pricing-catalog-display", () => {
     });
 
     expect(lines).toEqual([
-      { label: "Plan price", value: "Custom" },
       { label: BILLING_INCLUDED_AI_CREDITS_LABEL, value: BILLING_CUSTOM_AI_ALLOWANCE_VALUE },
     ]);
     expect(lines.some((line) => line.value.includes("0 users"))).toBe(false);
@@ -101,12 +100,11 @@ describe("pricing-catalog-display", () => {
     });
 
     expect(lines.map((line) => line.label)).toEqual([
-      "Plan price",
       "Included",
       BILLING_INCLUDED_AI_CREDITS_LABEL,
       BILLING_INCLUDED_ARCHITECTURE_PACKAGES_LABEL,
     ]);
-    expect(lines[0]?.value).toBe("$99 / mo");
+    expect(lines.some((line) => line.label === "Plan price")).toBe(false);
     expect(lines.some((line) => line.label === "Workspace platform")).toBe(false);
   });
 

@@ -68,8 +68,9 @@ const ROUTE_VIEW_EXPLANATIONS: readonly { prefix: string; explanation: RouteView
     explanation: {
       title: "Billing & plans",
       summary:
-        "See the workspace plan, seats, and invoice settings that govern what this tenant can run.",
-      nextAction: "Confirm the active plan, then open plan details or billing contacts when something looks wrong.",
+        "See the workspace plan, seat usage, and invoice history that govern what this tenant can run.",
+      nextAction:
+        "Confirm the active plan and seat usage, then open Invoices and receipts when you need charges or payment details.",
     },
   },
   {

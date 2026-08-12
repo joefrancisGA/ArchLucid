@@ -36,7 +36,6 @@ describe("operator-billing-pricing-lines", () => {
     });
 
     expect(lines.map((line) => line.label)).toEqual([
-      "Plan price",
       "Included",
       BILLING_INCLUDED_AI_CREDITS_LABEL,
       BILLING_INCLUDED_ARCHITECTURE_PACKAGES_LABEL,
@@ -54,7 +53,7 @@ describe("operator-billing-pricing-lines", () => {
     });
 
     expect(lines.some((line) => line.value.includes("60,000"))).toBe(false);
-    expect(lines[0]?.value).toBe("Custom");
+    expect(lines.some((line) => line.label === "Plan price")).toBe(false);
   });
 
   it("exposes add-on lines separately from bundled plan summary", () => {

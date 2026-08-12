@@ -40,6 +40,9 @@ export const MARKETING_PRICING_TIER_CTAS: Readonly<Record<MarketingPricingTierId
 
 export const MARKETING_PRICING_RECOMMENDED_TIER: MarketingPricingTierId = "professional";
 
+/** Operator billing grid — recommended badge only on self-serve tiers with a checkout path. */
+export const OPERATOR_BILLING_RECOMMENDED_TIER: MarketingPricingTierId = "team";
+
 export const OPERATOR_BILLING_PAGE_LEAD =
   "Manage your plan, AI usage credits, payment method, and billing settings.";
 
@@ -49,6 +52,22 @@ export const OPERATOR_BILLING_CATALOG_NOTE = "Plan details are generated from th
 
 export const OPERATOR_BILLING_AI_OVERAGE_NOTE =
   "Additional AI usage uses prepaid credits after your included allowance is consumed.";
+
+/** Plain-English checkout terms shared between operator billing and public pricing surfaces. */
+export const OPERATOR_BILLING_SELF_SERVE_CHECKOUT_TERMS = {
+  renewal:
+    "Your plan renews automatically each billing period until you cancel from Billing and plans or the Stripe billing portal.",
+  tax: "Listed prices exclude tax. Applicable sales or VAT tax is calculated at checkout based on your billing address.",
+  proration: "Seat or workspace quantity changes may prorate on your next invoice.",
+  cancellation:
+    "Cancel or change your subscription anytime from Billing and plans → Invoices and receipts (Stripe billing portal).",
+} as const;
+
+export function buildOperatorBillingSelfServeCheckoutTermsLine(): string {
+  const { renewal, tax, proration, cancellation } = OPERATOR_BILLING_SELF_SERVE_CHECKOUT_TERMS;
+
+  return `${renewal} ${tax} ${proration} ${cancellation}`;
+}
 
 export const OPERATOR_BILLING_TIER_CTAS: Readonly<
   Record<MarketingPricingTierId, { readonly primaryLabel: string }>
