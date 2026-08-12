@@ -6,6 +6,10 @@ import type { UseValueReportPageModel } from "./use-value-report-page";
 import { ValueReportPageView } from "./ValueReportPageView";
 import { BUYER_VALUE_REPORT_OUTCOME_LEAD, BUYER_VALUE_REPORT_PAGE_SUBTITLE } from "@/lib/buyer/buyer-polish-copy";
 import { LAYER_PAGE_GUIDANCE } from "@/lib/layer-guidance";
+import {
+  OPERATOR_DATE_RANGE_END_LABEL,
+  OPERATOR_DATE_RANGE_START_LABEL,
+} from "@/lib/operator-date-range-copy";
 
 vi.mock("@/components/LayerHeader", () => ({
   LayerHeader: () => <div data-testid="layer-header" />,
@@ -99,6 +103,17 @@ describe("ValueReportPageView buyer-polished chrome (TB-1437)", () => {
     expect(screen.queryByText(LAYER_PAGE_GUIDANCE["value-report"].headline)).not.toBeInTheDocument();
     expect(screen.queryByTestId("layer-header")).not.toBeInTheDocument();
     expect(screen.getByTestId("value-report-export-panel")).toBeInTheDocument();
+  });
+});
+
+describe("ValueReportPageView date range labels (TB-2014)", () => {
+  it("uses Start date and End date on the export period controls", () => {
+    render(<ValueReportPageView model={buildModel()} />);
+
+    expect(screen.getByText(OPERATOR_DATE_RANGE_START_LABEL)).toBeInTheDocument();
+    expect(screen.getByText(OPERATOR_DATE_RANGE_END_LABEL)).toBeInTheDocument();
+    expect(screen.queryByText(/^From$/)).not.toBeInTheDocument();
+    expect(screen.queryByText(/^To$/)).not.toBeInTheDocument();
   });
 });
 

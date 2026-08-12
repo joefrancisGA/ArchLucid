@@ -6,6 +6,7 @@ import {
   auditExportSectionSupportingLine,
 } from "@/lib/enterprise-controls-context-copy";
 import { OPERATOR_TYPOGRAPHY } from "@/lib/design-tokens";
+import { OPERATOR_DATE_RANGE_EXPORT_WINDOW_INCOMPLETE_MESSAGE } from "@/lib/operator-date-range-copy";
 
 type AuditOperatorExportSectionProps = {
   csvExportUiAllowed: boolean;
@@ -40,17 +41,20 @@ export function AuditOperatorExportSection(props: AuditOperatorExportSectionProp
       <p className={cn("mb-3 mt-0 max-w-xl text-al-text-secondary", OPERATOR_TYPOGRAPHY.helper)}>
         {auditExportSectionSupportingLine}
       </p>
+      {!exportDateRangeReady ? (
+        <p className={cn("mb-2 mt-0 max-w-xl text-al-text-secondary", OPERATOR_TYPOGRAPHY.helper)} role="status">
+          {OPERATOR_DATE_RANGE_EXPORT_WINDOW_INCOMPLETE_MESSAGE}
+        </p>
+      ) : null}
+      {!exportRoleOk && exportDateRangeReady ? (
+        <p className={cn("mb-2 mt-0 max-w-xl text-al-text-secondary", OPERATOR_TYPOGRAPHY.helper)} role="status">
+          {auditExportControlDisabledTitle}
+        </p>
+      ) : null}
       <button
         type="button"
         onClick={() => void onExportCsv()}
         disabled={!csvExportUiAllowed || exporting || searching}
-        title={
-          !exportDateRangeReady
-            ? "Set From and To to enable export"
-            : !exportRoleOk
-              ? auditExportControlDisabledTitle
-              : "Export to CSV using the current filters"
-        }
       >
         {exporting
           ? "Exporting…"

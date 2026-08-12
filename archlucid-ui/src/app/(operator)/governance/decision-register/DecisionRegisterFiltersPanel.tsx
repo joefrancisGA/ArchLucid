@@ -6,6 +6,11 @@ import { CollapsibleSection } from "@/components/CollapsibleSection";
 import { Button } from "@/components/ui/button";
 import { Card, CardContent, CardHeader, CardTitle } from "@/components/ui/card";
 import { OPERATOR_TYPOGRAPHY } from "@/lib/design-tokens";
+import {
+  OPERATOR_DATE_RANGE_END_LABEL,
+  OPERATOR_DATE_RANGE_INPUT_CLASSNAME,
+  OPERATOR_DATE_RANGE_START_LABEL,
+} from "@/lib/operator-date-range-copy";
 
 import {
   DECISION_REGISTER_ADVANCED_FILTERS_TITLE,
@@ -17,11 +22,10 @@ import {
   DECISION_REGISTER_DATE_PRESET_90_LABEL,
   DECISION_REGISTER_DATE_PRESET_ALL_LABEL,
   DECISION_REGISTER_DATE_RANGE_ALL_CHIP,
+  DECISION_REGISTER_DATE_RANGE_RECORDED_HELPER,
   DECISION_REGISTER_FILTERS_TITLE,
   DECISION_REGISTER_MAX_CONFIDENCE_LABEL,
   DECISION_REGISTER_MIN_CONFIDENCE_LABEL,
-  DECISION_REGISTER_RECORDED_AFTER_LABEL,
-  DECISION_REGISTER_RECORDED_BEFORE_LABEL,
 } from "./decision-register-copy";
 import type { DecisionRegisterDatePreset } from "./decision-register-date-range";
 
@@ -153,39 +157,43 @@ export function DecisionRegisterFiltersPanel(props: DecisionRegisterFiltersPanel
         </div>
       </CardHeader>
       <CardContent className="space-y-3">
-        <div className="grid gap-3 md:grid-cols-3">
-          <label className={cn("grid gap-1", OPERATOR_TYPOGRAPHY.body)}>
-            <span className="font-medium">{DECISION_REGISTER_CATEGORY_LABEL}</span>
-            <input
-              className={inputClassName}
-              value={props.category}
-              onChange={(event) => {
-                props.onCategoryChange(event.target.value);
-              }}
-            />
-          </label>
-          <label className={cn("grid gap-1", OPERATOR_TYPOGRAPHY.body)}>
-            <span className="font-medium">{DECISION_REGISTER_RECORDED_AFTER_LABEL}</span>
-            <input
-              type="date"
-              className={inputClassName}
-              value={props.recordedAfter}
-              onChange={(event) => {
-                props.onRecordedAfterChange(event.target.value);
-              }}
-            />
-          </label>
-          <label className={cn("grid gap-1", OPERATOR_TYPOGRAPHY.body)}>
-            <span className="font-medium">{DECISION_REGISTER_RECORDED_BEFORE_LABEL}</span>
-            <input
-              type="date"
-              className={inputClassName}
-              value={props.recordedBefore}
-              onChange={(event) => {
-                props.onRecordedBeforeChange(event.target.value);
-              }}
-            />
-          </label>
+        <label className={cn("grid max-w-md gap-1", OPERATOR_TYPOGRAPHY.body)}>
+          <span className="font-medium">{DECISION_REGISTER_CATEGORY_LABEL}</span>
+          <input
+            className={inputClassName}
+            value={props.category}
+            onChange={(event) => {
+              props.onCategoryChange(event.target.value);
+            }}
+          />
+        </label>
+
+        <div className="space-y-1">
+          <p className={cn("m-0 text-al-text-secondary", OPERATOR_TYPOGRAPHY.helper)}>{DECISION_REGISTER_DATE_RANGE_RECORDED_HELPER}</p>
+          <div className="flex flex-wrap items-end gap-3">
+            <label className={cn("grid gap-1", OPERATOR_TYPOGRAPHY.body)}>
+              <span className="font-medium">{OPERATOR_DATE_RANGE_START_LABEL}</span>
+              <input
+                type="date"
+                className={cn(inputClassName, OPERATOR_DATE_RANGE_INPUT_CLASSNAME)}
+                value={props.recordedAfter}
+                onChange={(event) => {
+                  props.onRecordedAfterChange(event.target.value);
+                }}
+              />
+            </label>
+            <label className={cn("grid gap-1", OPERATOR_TYPOGRAPHY.body)}>
+              <span className="font-medium">{OPERATOR_DATE_RANGE_END_LABEL}</span>
+              <input
+                type="date"
+                className={cn(inputClassName, OPERATOR_DATE_RANGE_INPUT_CLASSNAME)}
+                value={props.recordedBefore}
+                onChange={(event) => {
+                  props.onRecordedBeforeChange(event.target.value);
+                }}
+              />
+            </label>
+          </div>
         </div>
 
         {props.collapseAdvanced ? (

@@ -25,9 +25,8 @@ export const DECISION_REGISTER_FILTERS_TITLE = "Filters";
 
 export const DECISION_REGISTER_CATEGORY_LABEL = "Category";
 
-export const DECISION_REGISTER_RECORDED_AFTER_LABEL = "Recorded after";
-
-export const DECISION_REGISTER_RECORDED_BEFORE_LABEL = "Recorded before";
+export const DECISION_REGISTER_DATE_RANGE_RECORDED_HELPER =
+  "Filters by when the decision was recorded in this register.";
 
 export const DECISION_REGISTER_MIN_CONFIDENCE_LABEL = "Minimum confidence";
 

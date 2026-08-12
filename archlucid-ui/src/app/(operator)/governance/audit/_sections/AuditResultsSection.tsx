@@ -14,7 +14,6 @@ import {
 } from "@/lib/audit-trail-view-mode";
 import {
   auditBuyerUtilitiesDetailsSummary,
-  auditExportControlDisabledTitle,
   auditExportExecuteRankAuditorRoleNote,
   auditExportCsvButtonLabelRoleRestricted,
   auditExportCsvButtonLabelWindowIncomplete,
@@ -50,6 +49,7 @@ import {
   whyDisabledNeedsRole,
   type WhyDisabledCtaReason,
 } from "@/lib/why-disabled-cta";
+import { OPERATOR_DATE_RANGE_END_LABEL, OPERATOR_DATE_RANGE_START_LABEL } from "@/lib/operator-date-range-copy";
 
 type AuditEventGroup = { stage: string; events: AuditEvent[] };
 
@@ -104,13 +104,29 @@ export function AuditResultsSection(props: AuditResultsSectionProps) {
 
   const storyPresentation = viewMode === "story";
 
+  const auditCsvExportDisabledReason: WhyDisabledCtaReason | null = (() => {
+    if (csvExportUiAllowed || exporting || searching) {
+      return null;
+    }
+
+    if (!exportDateRangeReady) {
+      return whyDisabledNeedsLifecycle(`${OPERATOR_DATE_RANGE_START_LABEL} and ${OPERATOR_DATE_RANGE_END_LABEL}`);
+    }
+
+    if (!exportRoleOk) {
+      return whyDisabledNeedsRole("Execute authority (or auditor export role)");
+    }
+
+    return null;
+  })();
+
   const completionExportDisabledReason: WhyDisabledCtaReason | null = (() => {
     if (csvExportUiAllowed || exporting) {
       return null;
     }
 
     if (!exportDateRangeReady) {
-      return whyDisabledNeedsLifecycle("the From and To date range");
+      return whyDisabledNeedsLifecycle(`${OPERATOR_DATE_RANGE_START_LABEL} and ${OPERATOR_DATE_RANGE_END_LABEL}`);
     }
 
     if (!exportRoleOk) {
@@ -336,13 +352,6 @@ export function AuditResultsSection(props: AuditResultsSectionProps) {
                     )}
                     onClick={() => void onExportCsv()}
                     disabled={!csvExportUiAllowed || exporting || searching}
-                    title={
-                      !exportDateRangeReady
-                        ? "Set From and To to enable export"
-                        : !exportRoleOk
-                          ? auditExportControlDisabledTitle
-                          : "Download audit trail as CSV using the current filters"
-                    }
                   >
                     {exporting
                       ? "Exporting…"
@@ -354,6 +363,11 @@ export function AuditResultsSection(props: AuditResultsSectionProps) {
                             ? auditExportCsvButtonLabelRoleRestricted
                             : "Download audit trail (CSV)"}
                   </Button>
+                  <WhyDisabledCtaHint
+                    reason={auditCsvExportDisabledReason}
+                    className="max-w-prose"
+                    testId="audit-utilities-export-disabled-hint"
+                  />
                   {buyerPolishedShell ? null : (
                     <div className="border-t border-neutral-200 pt-3 dark:border-neutral-700">
                       <p className={cn("m-0 font-semibold text-al-text-primary", OPERATOR_TYPOGRAPHY.cardTitle)}>

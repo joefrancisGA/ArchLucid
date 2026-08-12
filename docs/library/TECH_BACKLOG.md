@@ -1236,7 +1236,7 @@ All **P0** **V1**: visible-boundary button contract + design-system rule (**TB-2
 | TB-2144 | ~~Alerts inbox + billing banners ? TanStack Query~~ **Done** 2026-08-09 ? billing past-due banner + alerts nav badge on Query (inbox controller already Query); Vitest hydration/remount guards; see ## TB-2144 below | Performance P0 ? **V1**; owner perf wave 6 2026-08-09; residual of Done **TB-2123** | S |
 | TB-2145 | ~~Shared shell / home First Load residual~~ **Done** 2026-08-09 ? `/` **1646.1 ? 1587.2 kB** (?58.9 kB); deferred command center, ROI strip, below-fold panels; Vitest + baseline; see ## TB-2145 below | Performance P0 ? **V1**; owner perf wave 6 2026-08-09; after **TB-2118**/**TB-2061** | L |
 | TB-2146 | Cold-start staging Phase B + paid-lever reopen gate; see ## TB-2146 below | Performance P0 ? **V1**; owner perf wave 6 2026-08-09; residual of Done **TB-2124** | S |
-| TB-2147 | Sweep baselined `title`-attribute help — 90 files remain (disabled-reason batch 1: AlertRoutingCriteriaFields + PolicyPacksLifecycleSection); see ## TB-2147 below | Accessibility P1 — **V1**; filed from **TB-1666** 2026-08-09; shrink `eslint-rules/title-attribute-legacy-surfaces.mjs` to empty | L |
+| TB-2147 | Sweep baselined `title`-attribute help — 85 files remain (batch 2: audit export/search + ColorMode/Governance toggles); see ## TB-2147 below | Accessibility P1 — **V1**; filed from **TB-1666** 2026-08-09; shrink `eslint-rules/title-attribute-legacy-surfaces.mjs` to empty | L |
 | ~~TB-2148~~ | ~~Mutation reversibility classification + undo window for reversible governance actions~~ **Done** 2026-08-09; see `## TB-2148` below | Trustworthiness P0 ? **V1**; owner confusion-reduction ask 2026-08-09; complements Done **TB-2114** | M |
 | ~~TB-2149~~ | ~~Review execution background-safety copy + tenant duration estimate + completion notification~~ **Done** 2026-08-09; see `## TB-2149` below | Adoption friction P0 ? **V1**; owner confusion-reduction ask 2026-08-09; peers **TB-2077**/**TB-2121** | M |
 | ~~TB-2150~~ | ~~Per-user "new since last visit" markers on review tabs, findings, governance surfaces~~ **Done** 2026-08-10; see `## TB-2150` below | Adoption friction P0 ? **V1**; owner confusion-reduction ask 2026-08-09 | M |
@@ -1293,9 +1293,9 @@ All **P0** **V1**: visible-boundary button contract + design-system rule (**TB-2
 | TB-2006 | Architecture draft workspace ? disable Start review until readiness; drop validation toast; see ## TB-2006 below | Adoption friction P1 ? **V1** ? **Done** 2026-08-12 | S |
 | TB-2007 | Pilot baseline wizard ? disable Next/Save until valid; inline field errors; see ## TB-2007 below | Adoption friction P1 ? **V1** ? **Done** 2026-08-12 | S |
 | TB-2008 | Admin toast-validation ? Tenant cost settings + governance bulk disposition; see ## TB-2008 below | Adoption friction P1 ? **V1** ? **Done** 2026-08-12 | S |
-| TB-2012 | Design-system ? date/datetime range Start/End date labels + content-sized pickers; see ## TB-2012 below | Adoption friction P1 ? **V1**; owner Decision Register date-filter ask 2026-07-29 | S |
-| TB-2013 | Decision Register ? Start/End date labels + content-sized date inputs; see ## TB-2013 below | Adoption friction P1 ? **V1**; owner ask 2026-07-29; with **TB-2012** | S |
-| TB-2014 | Audit + Value report ? From/To ? Start/End date + picker width; see ## TB-2014 below | Adoption friction P1 ? **V1**; with **TB-2012**; Pilot value report is reference | S |
+| TB-2012 | Design-system ? date/datetime range Start/End date labels + content-sized pickers; see ## TB-2012 below | Adoption friction P1 ? **V1** ? **Done** 2026-08-12 | S |
+| TB-2013 | Decision Register ? Start/End date labels + content-sized date inputs; see ## TB-2013 below | Adoption friction P1 ? **V1** ? **Done** 2026-08-12 | S |
+| TB-2014 | Audit + Value report ? From/To ? Start/End date + picker width; see ## TB-2014 below | Adoption friction P1 ? **V1** ? **Done** 2026-08-12 | S |
 | TB-891 | Showcase render-mode telemetry ? `showcase_viewed` + `showcase_render_mode` (`static` \| `api` \| `api_fallback` \| `failed`) via Clarity/App Insights on marketing routes; no PII; **extended 2026-07-23** ? require `scenario` dimension + funnel events per **TB-978**; see `## TB-891` / `## TB-978` below | Traceability P1 ? **V1**; assessment 2026-07-19; portfolio assessment 2026-07-23 | S |
 | TB-964 | Durable auditable quality-outcome persistence ? scores, reject category, gate mode/floors, triage id reconstructible without raw LLM bodies; see `## TB-964` below | Traceability P1 ? **V1**; after **TB-963**; builds on quality gate Done path | M |
 | TB-973 | **Done** (2026-08-09) ? persist gate version/hash with outcome; recorded vs advisoryCurrent evaluation split; see `## TB-973` below | Traceability P1 ? **V1**; after **TB-972**; closes live `GET ?/agent-evaluation` re-gate authority gap | M |
@@ -46344,7 +46344,7 @@ Operators must read three intros before reaching the Trust Center link list.
 
 **Window:** V1 ? Adoption friction.
 
-**Status:** Not started.
+**Status:** **Done** 2026-08-12 — `UI_DESIGN_SYSTEM.md` § Date/datetime range filters; shared copy `operator-date-range-copy.ts` + Vitest.
 
 **Priority:** P1.
 
@@ -46375,7 +46375,7 @@ Operators must read three intros before reaching the Trust Center link list.
 
 **Window:** V1 ? Adoption friction.
 
-**Status:** Not started.
+**Status:** **Done** 2026-08-12 — `DecisionRegisterFiltersPanel` Start/End labels + content-sized inputs; Vitest.
 
 **Priority:** P1.
 
@@ -46404,7 +46404,7 @@ Operators must read three intros before reaching the Trust Center link list.
 
 **Window:** V1 ? Adoption friction.
 
-**Status:** Not started.
+**Status:** **Done** 2026-08-12 — Audit search/export + `ValueReportPageView` aligned to `operator-date-range-copy`; Vitest.
 
 **Priority:** P1.
 
@@ -50380,7 +50380,7 @@ while the four counters go through `countValue`, which ignores it (line ~58).
 
 **Window:** V1 ? Accessibility.
 
-**Status:** In progress ? **batch 1 Done** 2026-08-12: disabled-reason pattern on `AlertRoutingCriteriaFields.tsx` + `PolicyPacksLifecycleSection.tsx` (visible status/helper copy; baseline 92?90 files); truncation ruling ratified in `UI_DESIGN_SYSTEM.md`. Remaining ~90 baselined files open.
+**Status:** In progress — **batch 1 Done** 2026-08-12 (AlertRoutingCriteriaFields + PolicyPacksLifecycleSection); **batch 2 Done** 2026-08-12 (audit search/export visible hints + aria-label; ColorMode/Governance toggles; baseline 90→85 files). Remaining ~85 baselined files open.
 
 **Priority:** P1.
 

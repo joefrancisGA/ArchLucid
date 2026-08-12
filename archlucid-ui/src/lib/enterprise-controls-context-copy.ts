@@ -562,14 +562,14 @@ export const auditSearchSectionLeadReaderLine =
 
 /** Audit log — short line above the CSV button (LayerHeader + search strip carry the rest). */
 export const auditExportSectionSupportingLine =
-  "Bulk downloads need Auditor or Admin; pick From/To, then Export audit trail.";
+  "Bulk downloads need Auditor or Admin; pick Start date and End date, then Export audit trail.";
 
 /** Audit log — polished shell: no bulk-export mechanics in primary copy. */
 export const auditExportSectionSupportingLineBuyerPolished =
   "Authorized users can export this audit trail as CSV for the selected date range.";
 
-/** Audit CSV — button label when From/To are incomplete (export disabled before role checks). */
-export const auditExportCsvButtonLabelWindowIncomplete = "Export audit trail (set From/To)";
+/** Audit CSV — button label when Start/End are incomplete (export disabled before role checks). */
+export const auditExportCsvButtonLabelWindowIncomplete = "Export audit trail (set Start date/End date)";
 
 /** Audit CSV — button label when window is valid but principal lacks Auditor/Admin for bulk export (API). */
 export const auditExportCsvButtonLabelRoleRestricted = "Download audit trail";
@@ -621,9 +621,9 @@ export const digestsListRefreshButtonTitleReader =
  * list previously said "Your subscriptions" above a "No delivery destinations yet"
  * empty state, which read as two different features.
  */
-export const digestSubscriptionsYourSubscriptionsHeadingOperator = "Current destinations";
+export const digestSubscriptionsYourSubscriptionsHeadingOperator = "Saved delivery destinations";
 
-export const digestSubscriptionsYourSubscriptionsHeadingReader = "Current destinations (inspect)";
+export const digestSubscriptionsYourSubscriptionsHeadingReader = "Saved delivery destinations (inspect)";
 
 /**
  * Digest subscriptions — primary create when rank cannot mutate in the shell.
@@ -650,10 +650,10 @@ export const digestSubscriptionsDeliveryAttemptsButtonTitleReader =
 
 /** Digest subscriptions — empty list. */
 export const digestSubscriptionsEmptyListOperatorLine =
-  "Create a subscription to deliver scheduled architecture digests to an email address, group mailbox, or webhook.";
+  "Add a delivery destination to send scheduled architecture digests to email or a Teams/Slack webhook.";
 
 export const digestSubscriptionsEmptyListReaderLine =
-  "No digest subscriptions yet. Inspect when rows exist; create and toggle need architect access.";
+  "No delivery destinations yet. Inspect when rows exist; create and toggle need architect access.";
 
 /**
  * Advisory schedules — schedules list **`h3`** (`components/advisory/AdvisorySchedulesContent.tsx`).

@@ -130,6 +130,19 @@ Operator and buyer forms must make hard validation visible on the form and hones
 
 **Open apply / cleanup:** **TB-2006**–**TB-2011** in `TECH_BACKLOG.md`. Cursor enforcement: `.cursor/rules/UI-Form-Validation-Affordances.mdc`.
 
+### Date/datetime range filters (**TB-2012** — done 2026-08-12)
+
+Operator surfaces that filter by a **date or datetime range** share one buyer-visible label pair and one width contract. Constants live in `archlucid-ui/src/lib/operator-date-range-copy.ts`.
+
+| Rule | Required behavior |
+|------|-------------------|
+| Range labels | **Start date** and **End date** (Title Case in copy constants). Prefer over *Recorded after/before*, bare *From/To*, or ad hoc *after/before* wording on filter bars. |
+| Timezone honesty | When the control is `datetime-local` and values map to UTC storage, keep a short **(local)** suffix on the label or a one-line helper under the pair — do not invent new timezone UX. |
+| Width | Content-sized pickers: `max-w-[12rem] w-auto` (see `OPERATOR_DATE_RANGE_INPUT_CLASSNAME`). Do **not** stretch range inputs with `w-full` across equal-fraction grids. Prefer `flex flex-wrap items-end gap-3` for the date pair. Reference: `PilotValueReportPageView.tsx`. |
+| Out of scope | Single-value due/expiry fields (keep domain labels like *Remediation due*). API query param names (`recordedAfter`, `fromUtc`, …) stay unchanged. |
+
+**Apply surfaces:** Decision Register (**TB-2013**), Audit + Value report (**TB-2014**). Regression guard: **TB-2015**.
+
 ### Error recovery contract (**TB-2155** — done 2026-08-10)
 
 Golden-path operator error surfaces must help operators self-rescue before they open Report Problem. Every guarded failure root renders `OperatorErrorRecoveryContract` inline with three labeled lines:

@@ -25,7 +25,24 @@ import { AUTHORITY_RANK } from "@/lib/nav-authority";
 import { buyerFacingReviewLinkLabelFromRunId } from "@/lib/buyer/buyer-facing-review-title";
 import { SHOWCASE_STATIC_DEMO_RUN_ID } from "@/lib/showcase-static-demo";
 import { OPERATOR_TYPOGRAPHY } from "@/lib/design-tokens";
+import {
+  OPERATOR_DATE_RANGE_END_LABEL,
+  OPERATOR_DATE_RANGE_INPUT_CLASSNAME,
+  OPERATOR_DATE_RANGE_LOCAL_TIME_SUFFIX,
+  OPERATOR_DATE_RANGE_START_LABEL,
+} from "@/lib/operator-date-range-copy";
 import { auditRunIdInputDisplayValue, auditRunIdParseInputValue } from "./audit-page-helpers";
+
+function AuditLocalDateRangeLabel(props: { readonly kind: "start" | "end" }): JSX.Element {
+  const label = props.kind === "start" ? OPERATOR_DATE_RANGE_START_LABEL : OPERATOR_DATE_RANGE_END_LABEL;
+
+  return (
+    <span className="block">
+      {label}{" "}
+      <span className={cn("text-al-text-secondary", OPERATOR_TYPOGRAPHY.helper)}>{OPERATOR_DATE_RANGE_LOCAL_TIME_SUFFIX}</span>
+    </span>
+  );
+}
 
 type AuditSearchSectionProps = {
   buyerPolishedShell: boolean;
@@ -260,21 +277,21 @@ export function AuditSearchSection(props: AuditSearchSectionProps) {
                 </select>
               </label>
               <label>
-                From (local){" "}
+                <AuditLocalDateRangeLabel kind="start" />
                 <input
                   type="datetime-local"
                   value={fromUtc}
                   onChange={(e) => setFromUtc(e.target.value)}
-                  className="mt-1 w-full"
+                  className={cn("mt-1", OPERATOR_DATE_RANGE_INPUT_CLASSNAME)}
                 />
               </label>
               <label>
-                To (local){" "}
+                <AuditLocalDateRangeLabel kind="end" />
                 <input
                   type="datetime-local"
                   value={toUtc}
                   onChange={(e) => setToUtc(e.target.value)}
-                  className="mt-1 w-full"
+                  className={cn("mt-1", OPERATOR_DATE_RANGE_INPUT_CLASSNAME)}
                 />
               </label>
               <label>
@@ -361,10 +378,14 @@ export function AuditSearchSection(props: AuditSearchSectionProps) {
                 data-testid="audit-search-button"
                 onClick={() => void runSearch()}
                 disabled={searching || loadingTypes}
-                title={
-                  callerAuthorityRank < AUTHORITY_RANK.ExecuteAuthority
-                    ? auditSearchEventsButtonTitleReader
-                    : auditSearchEventsButtonTitleOperator
+                aria-label={
+                  searching
+                    ? "Searching…"
+                    : `${canMutateEnterpriseShell ? "Search" : auditSearchEventsButtonLabelReaderRank}. ${
+                        callerAuthorityRank < AUTHORITY_RANK.ExecuteAuthority
+                          ? auditSearchEventsButtonTitleReader
+                          : auditSearchEventsButtonTitleOperator
+                      }`
                 }
               >
                 {searching ? "Searching…" : canMutateEnterpriseShell ? "Search" : auditSearchEventsButtonLabelReaderRank}
@@ -373,10 +394,10 @@ export function AuditSearchSection(props: AuditSearchSectionProps) {
                 type="button"
                 onClick={() => void clearFiltersAndSearch()}
                 disabled={searching}
-                title={
+                aria-label={
                   canMutateEnterpriseShell
-                    ? "Clear filter fields and run search with empty criteria"
-                    : "Clear fields and re-run search (GET only; export rules unchanged)"
+                    ? "Clear filters. Clear filter fields and run search with empty criteria"
+                    : "Clear filters. Clear fields and re-run search (GET only; export rules unchanged)"
                 }
               >
                 {canMutateEnterpriseShell ? "Clear filters" : auditClearFiltersButtonLabelReaderRank}
@@ -414,21 +435,21 @@ export function AuditSearchSection(props: AuditSearchSectionProps) {
             </label>
             <>
               <label>
-                From (local){" "}
+                <AuditLocalDateRangeLabel kind="start" />
                 <input
                   type="datetime-local"
                   value={fromUtc}
                   onChange={(e) => setFromUtc(e.target.value)}
-                  className="mt-1 w-full"
+                  className={cn("mt-1", OPERATOR_DATE_RANGE_INPUT_CLASSNAME)}
                 />
               </label>
               <label>
-                To (local){" "}
+                <AuditLocalDateRangeLabel kind="end" />
                 <input
                   type="datetime-local"
                   value={toUtc}
                   onChange={(e) => setToUtc(e.target.value)}
-                  className="mt-1 w-full"
+                  className={cn("mt-1", OPERATOR_DATE_RANGE_INPUT_CLASSNAME)}
                 />
               </label>
             </>
@@ -484,10 +505,14 @@ export function AuditSearchSection(props: AuditSearchSectionProps) {
               data-testid="audit-search-button"
               onClick={() => void runSearch()}
               disabled={searching || loadingTypes}
-              title={
-                callerAuthorityRank < AUTHORITY_RANK.ExecuteAuthority
-                  ? auditSearchEventsButtonTitleReader
-                  : auditSearchEventsButtonTitleOperator
+              aria-label={
+                searching
+                  ? "Searching…"
+                  : `${canMutateEnterpriseShell ? "Search" : auditSearchEventsButtonLabelReaderRank}. ${
+                      callerAuthorityRank < AUTHORITY_RANK.ExecuteAuthority
+                        ? auditSearchEventsButtonTitleReader
+                        : auditSearchEventsButtonTitleOperator
+                    }`
               }
             >
               {searching ? "Searching…" : canMutateEnterpriseShell ? "Search" : auditSearchEventsButtonLabelReaderRank}
@@ -496,10 +521,10 @@ export function AuditSearchSection(props: AuditSearchSectionProps) {
               type="button"
               onClick={() => void clearFiltersAndSearch()}
               disabled={searching}
-              title={
+              aria-label={
                 canMutateEnterpriseShell
-                  ? "Clear filter fields and run search with empty criteria"
-                  : "Clear fields and re-run search (GET only; export rules unchanged)"
+                  ? "Clear filters. Clear filter fields and run search with empty criteria"
+                  : "Clear filters. Clear fields and re-run search (GET only; export rules unchanged)"
               }
             >
               {canMutateEnterpriseShell ? "Clear filters" : auditClearFiltersButtonLabelReaderRank}

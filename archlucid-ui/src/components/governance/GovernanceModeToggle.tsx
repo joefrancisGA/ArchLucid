@@ -27,7 +27,6 @@ export function GovernanceModeToggle(props: GovernanceModeToggleProps) {
       <label
         htmlFor={inputId}
         className={cn("flex cursor-pointer items-start gap-2 rounded-md border border-neutral-200 px-3 py-2 text-neutral-800 dark:border-neutral-700 dark:text-neutral-100", OPERATOR_TYPOGRAPHY.helper)}
-        title={GOVERNANCE_MODE_COPY.toggleTitle}
       >
         <input
           id={inputId}
@@ -46,6 +45,9 @@ export function GovernanceModeToggle(props: GovernanceModeToggleProps) {
         />
         <span className="min-w-0 leading-snug">
           <span className="block font-medium">{GOVERNANCE_MODE_COPY.toggleLabel}</span>
+          <span className={cn("mt-1 block text-neutral-600 dark:text-neutral-400", OPERATOR_TYPOGRAPHY.helper)}>
+            {GOVERNANCE_MODE_COPY.toggleTitle}
+          </span>
         </span>
       </label>
       {showFootnote && !isGovernanceModeEnabled ? (
