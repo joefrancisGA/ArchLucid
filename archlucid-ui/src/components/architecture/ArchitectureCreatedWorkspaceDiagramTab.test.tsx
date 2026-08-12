@@ -18,6 +18,7 @@ vi.mock("@/components/architecture/ArchitectureDiagramViewer", () => ({
   ArchitectureDiagramViewer: () => <div data-testid="architecture-diagram-viewer-mock" />,
 }));
 
+import { ARCHITECTURE_DIAGRAM_ADD_DETAILS_ACTION } from "@/lib/architecture/architecture-diagram-copy";
 import { ArchitectureCreatedWorkspace } from "@/components/architecture/ArchitectureCreatedWorkspace";
 
 const workspaceBaseline = {
@@ -76,5 +77,36 @@ describe("ArchitectureCreatedWorkspace diagram tab", () => {
     expect(screen.getAllByRole("heading", { name: "Architecture diagram" })).toHaveLength(1);
     expect(screen.getAllByTestId("architecture-diagram-viewer-mock")).toHaveLength(1);
     expect(screen.getByTestId("architecture-findings-dual-pane-toggle")).toHaveTextContent("Show with findings");
+  });
+
+  it("diagram tab Add details links to run-scoped guided intake (TB-1842)", async () => {
+    render(
+      <ArchitectureCreatedWorkspace
+        baseline={{
+          ...workspaceBaseline,
+          architectureName: "",
+          architectureOverview: "",
+          peopleAndSystems: [],
+        }}
+        architectureSourceText="Too little detail."
+        canEditDiagram
+        findings={[]}
+        correctionHref="/architecture/reviews/new?path=guided-intake&rerun=run-diagram"
+        panels={{
+          findings: <div>Findings</div>,
+          evidence: <div>Evidence</div>,
+          governance: <div>Governance</div>,
+          activity: <div>Activity</div>,
+          submittedArchitecture: <div>Submitted</div>,
+        }}
+      />,
+    );
+
+    await waitFor(() => {
+      expect(screen.getByTestId("architecture-diagram-insufficient")).toBeInTheDocument();
+    });
+
+    const addDetailsLink = screen.getByRole("link", { name: ARCHITECTURE_DIAGRAM_ADD_DETAILS_ACTION });
+    expect(addDetailsLink.getAttribute("href")).toContain("rerun=run-diagram");
   });
 });

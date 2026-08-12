@@ -57,6 +57,29 @@ describe("ArchitectureDiagramPanel", () => {
     expect(screen.getByText(ARCHITECTURE_DIAGRAM_DRAFT_STATUS_LABEL)).toBeInTheDocument();
   });
 
+  it("links Add details to run-scoped guided intake when clarifyHref is provided (TB-1842)", async () => {
+    const clarifyHref = "/architecture/reviews/new?path=guided-intake&rerun=run-empty";
+
+    render(
+      <ArchitectureDiagramPanel
+        runId="run-empty"
+        architectureName="Untitled architecture"
+        sourceText="Too little detail."
+        userAssertions={{ ...assertions, peopleAndSystems: [], architectureName: "" }}
+        canEdit
+        clarifyHref={clarifyHref}
+      />,
+    );
+
+    await waitFor(() => {
+      expect(screen.getByTestId("architecture-diagram-insufficient")).toBeInTheDocument();
+    });
+
+    const addDetailsLink = screen.getByRole("link", { name: ARCHITECTURE_DIAGRAM_ADD_DETAILS_ACTION });
+    expect(addDetailsLink).toHaveAttribute("href", clarifyHref);
+    expect(addDetailsLink.getAttribute("href")).toContain("rerun=run-empty");
+  });
+
   it("shows insufficient diagnostic state and clarifications action without regenerate", async () => {
     const onClarificationsNavigate = vi.fn();
 

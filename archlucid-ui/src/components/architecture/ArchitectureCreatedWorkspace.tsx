@@ -33,10 +33,10 @@ import {
 } from "@/lib/architecture/architecture-created-home-model";
 import { readArchitectureCreationHandoff } from "@/lib/architecture/architecture-creation-handoff";
 import type { ArchitectureCreationUserAssertions } from "@/lib/architecture/architecture-structured-content-types";
+import { buildArchitectureCorrectionHref } from "@/lib/architecture/architecture-correction-href";
 import {
   ARCHITECTURE_WORKSPACE_TAB_LABELS,
   ARCHITECTURE_WORKSPACE_TAB_PARAM,
-  buildArchitectureWorkspaceTabHref,
   type ArchitectureWorkspaceTabId,
   resolveArchitectureWorkspaceTab,
   resolveArchitectureWorkspaceTabFromHash,
@@ -155,7 +155,7 @@ export function ArchitectureCreatedWorkspace(props: ArchitectureCreatedWorkspace
     clarificationsCount,
   );
   const clarificationsTabAriaLabel = formatMetricCountHeadline(clarificationsPresentation);
-  const clarificationsTabHref = buildArchitectureWorkspaceTabHref(props.baseline.runId, "clarifications");
+  const diagramClarifyHref = buildArchitectureCorrectionHref(props.baseline.runId, props.correctionHref);
   const compactViewportMode =
     activeTab === "clarifications" ||
     activeTab === "diagram" ||
@@ -176,8 +176,7 @@ export function ArchitectureCreatedWorkspace(props: ArchitectureCreatedWorkspace
         canEditDiagram={props.canEditDiagram}
         onNavigateTab={navigateTab}
         mode={compactViewportMode}
-        clarificationsTabHref={clarificationsTabHref}
-        onClarificationsNavigate={() => navigateTab("clarifications")}
+        diagramClarifyHref={diagramClarifyHref}
         onUnconfirmedInferredCountChange={setDiagramInferredCount}
       />
 
@@ -286,8 +285,7 @@ export function ArchitectureCreatedWorkspace(props: ArchitectureCreatedWorkspace
                     sourceText={props.architectureSourceText}
                     userAssertions={userAssertions}
                     canEdit={props.canEditDiagram}
-                    clarifyHref={clarificationsTabHref}
-                    onClarificationsNavigate={() => navigateTab("clarifications")}
+                    clarifyHref={diagramClarifyHref}
                     onUnconfirmedInferredCountChange={setDiagramInferredCount}
                     onDiagramNodesChange={setDiagramNodes}
                     highlightedNodeId={highlightedNodeId}
@@ -302,8 +300,7 @@ export function ArchitectureCreatedWorkspace(props: ArchitectureCreatedWorkspace
                 sourceText={props.architectureSourceText}
                 userAssertions={userAssertions}
                 canEdit={props.canEditDiagram}
-                clarifyHref={clarificationsTabHref}
-                onClarificationsNavigate={() => navigateTab("clarifications")}
+                clarifyHref={diagramClarifyHref}
                 onUnconfirmedInferredCountChange={setDiagramInferredCount}
                 onDiagramNodesChange={setDiagramNodes}
                 highlightedNodeId={null}

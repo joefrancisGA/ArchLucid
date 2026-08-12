@@ -21,8 +21,7 @@ export type ArchitectureCreatedCompactFirstViewportProps = {
   readonly canEditDiagram: boolean;
   readonly onNavigateTab: (tab: ArchitectureWorkspaceTabId) => void;
   readonly mode?: "full" | "context-bar";
-  readonly clarificationsTabHref?: string;
-  readonly onClarificationsNavigate?: () => void;
+  readonly diagramClarifyHref?: string;
   readonly onUnconfirmedInferredCountChange?: (count: number) => void;
 };
 
@@ -129,8 +128,7 @@ export function ArchitectureCreatedCompactFirstViewport(
             sourceText={props.architectureSourceText}
             userAssertions={props.userAssertions}
             canEdit={props.canEditDiagram}
-            clarifyHref={props.clarificationsTabHref}
-            onClarificationsNavigate={props.onClarificationsNavigate}
+            clarifyHref={props.diagramClarifyHref}
             variant="preview"
             onOpenFull={() => {
               props.onNavigateTab("diagram");
