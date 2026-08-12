@@ -19,6 +19,9 @@ const zipMaxEntriesLabel = new Intl.NumberFormat("en-US").format(BULK_EVIDENCE_U
 export const BULK_EVIDENCE_UPLOAD_HANDLING_HELPER =
   `Files attach to this architecture package in your current workspace. Accepted formats include PDF, DOCX, Markdown, text, JSON, YAML, and common images. Up to ${BULK_EVIDENCE_UPLOAD_MAX_FILES} files per upload (${maxMegabytes} MB total per request); ZIP archives count as one file and expand automatically (up to ${zipMaxEntriesLabel} entries each).`;
 
+/** Shared Evidence upload section title (create-home + review detail capture surfaces). */
+export const RUN_DETAIL_EVIDENCE_CAPTURE_SECTION_TITLE = "Add evidence" as const;
+
 export const BULK_EVIDENCE_UPLOAD_HELP_LINKS = [
   { label: "Evidence intake help", href: inAppHelpHref("evidence-intake") },
   { label: "Data handling and tenant isolation", href: inAppHelpHref("data-handling-tenant-isolation") },

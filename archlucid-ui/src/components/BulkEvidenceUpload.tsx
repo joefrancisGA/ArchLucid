@@ -18,6 +18,7 @@ import {
   BULK_EVIDENCE_UPLOAD_FAILURE_RECOVERY,
   BULK_EVIDENCE_UPLOAD_FILE_NOT_STORED_REASON,
   BULK_EVIDENCE_UPLOAD_MAX_FILES,
+  RUN_DETAIL_EVIDENCE_CAPTURE_SECTION_TITLE,
 } from "@/lib/bulk-evidence-upload-copy";
 import {
   buildBulkEvidenceUploadSummary,
@@ -240,7 +241,7 @@ export function BulkEvidenceUpload({ runId, embedded = false, onUploadSummary }:
       {!embedded ? (
         <>
           <h3 className={cn("m-0 text-lg font-medium text-al-text-primary", OPERATOR_TYPOGRAPHY.cardTitle)}>
-            Add evidence
+            {RUN_DETAIL_EVIDENCE_CAPTURE_SECTION_TITLE}
           </h3>
           <p className={cn("m-0 text-al-text-secondary", OPERATOR_TYPOGRAPHY.body)}>
             Upload up to {BULK_EVIDENCE_UPLOAD_MAX_FILES} files per action. ZIP archives are expanded automatically (up
