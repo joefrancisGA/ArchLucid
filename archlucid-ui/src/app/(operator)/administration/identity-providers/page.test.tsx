@@ -8,9 +8,14 @@ vi.mock("next/navigation", () => ({
   usePathname: () => "/administration/identity-providers",
 }));
 
-vi.mock("@/components/usability/PageContextualHelpButton", () => ({
-  PageContextualHelpButton: () => <div data-testid="page-contextual-help-button" />,
-}));
+vi.mock("@/components/usability/PageContextualHelpButton", async (importOriginal) => {
+  const actual = await importOriginal<typeof import("@/components/usability/PageContextualHelpButton")>();
+
+  return {
+    ...actual,
+    PageContextualHelpButton: () => <div data-testid="page-contextual-help-button" />,
+  };
+});
 
 vi.mock("./_sections/load-identity-providers-settings-page-data", () => ({
   loadIdentityProvidersSettingsPageData: () => Promise.resolve(hoistedIdentityProvidersLoad),

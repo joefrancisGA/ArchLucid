@@ -114,7 +114,7 @@ export function IdentityProvidersDiagnosticsPageView(
           >
             {IDENTITY_PROVIDERS_DIAGNOSTICS_LOADING}
           </p>
-        ) : (
+        ) : props.model.diagnosticsDataUnavailable ? null : (
           <p
             className={cn("m-0 text-al-text-primary", OPERATOR_TYPOGRAPHY.body)}
             data-testid="identity-providers-diagnostics-readiness-line"

@@ -107,7 +107,7 @@ export function IdentityProvidersSettingsShell(props: IdentityProvidersSettingsS
         pageTitle={resolvedTitle}
         subtitle={headerSubtitle}
         statusLabel={
-          props.statusBadgeReady === false
+          props.statusBadgeReady === false || props.diagnosticsDataUnavailable === true
             ? undefined
             : resolveHeaderStatusLabel(activeNavId, props.overview)
         }
