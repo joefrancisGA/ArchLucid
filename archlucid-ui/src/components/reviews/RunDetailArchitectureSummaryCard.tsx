@@ -27,12 +27,14 @@ function clampPreviewLine(line: string): string {
 }
 
 function previewLines(text: string): readonly string[] {
-  const stripped = stripInlineMarkdownFromReviewText(text);
-  const lines = stripped.split(/\r?\n/).map((line) => line.trim()).filter((line) => line.length > 0);
+  // Split before stripping: the markdown stripper collapses whitespace, which would erase line breaks.
+  const lines = text.split(/\r?\n/).map((line) => line.trim()).filter((line) => line.length > 0);
 
-  if (lines.length > 0) {
-    return lines.slice(0, SUMMARY_LINE_LIMIT).map(clampPreviewLine);
+  if (lines.length > 1) {
+    return lines.slice(0, SUMMARY_LINE_LIMIT).map(clampPreviewLine).filter((line) => line.length > 0);
   }
+
+  const stripped = stripInlineMarkdownFromReviewText(lines[0] ?? "");
 
   if (stripped.length === 0) {
     return [];

@@ -47,9 +47,10 @@ export function stripInlineMarkdownFromReviewText(text: string): string {
   let result = text;
 
   result = result.replace(/\*\*(.+?)\*\*/g, "$1");
-  result = result.replace(/__(.+?)__/g, "$1");
   result = result.replace(/\*(.+?)\*/g, "$1");
-  result = result.replace(/_(.+?)_/g, "$1");
+  // Underscore emphasis only counts at word boundaries so identifiers such as `my_api_gateway` survive intact.
+  result = result.replace(/(^|[\s(])__(\S(?:[\s\S]*?\S)?)__(?=[\s).,;:!?]|$)/g, "$1$2");
+  result = result.replace(/(^|[\s(])_(\S(?:[\s\S]*?\S)?)_(?=[\s).,;:!?]|$)/g, "$1$2");
   result = result.replace(/`([^`]+)`/g, "$1");
   result = result.replace(/^#+\s*/gm, "");
 

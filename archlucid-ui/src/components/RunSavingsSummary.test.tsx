@@ -43,6 +43,19 @@ describe("RunSavingsSummary", () => {
     expect(screen.queryByText("$900")).not.toBeInTheDocument();
   });
 
+  it("still shows the dollar amount when the baseline check could not run", () => {
+    vi.mocked(usePilotRoiBaselineCompleteness).mockReturnValue({
+      loading: false,
+      complete: null,
+      reload: vi.fn(),
+    });
+
+    render(<RunSavingsSummary model={model} isFinalized />);
+
+    expect(screen.getByText("$900")).toBeInTheDocument();
+    expect(screen.queryByTestId("run-savings-summary-not-quantified")).not.toBeInTheDocument();
+  });
+
   it("shows the dollar amount when baselines are complete", () => {
     vi.mocked(usePilotRoiBaselineCompleteness).mockReturnValue({
       loading: false,

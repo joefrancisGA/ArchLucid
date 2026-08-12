@@ -107,4 +107,14 @@ describe("stripInlineMarkdownFromReviewText", () => {
   it("removes common inline markdown tokens", () => {
     expect(stripInlineMarkdownFromReviewText("**bold** and `code`")).toBe("bold and code");
   });
+
+  it("strips underscore emphasis only at word boundaries", () => {
+    expect(stripInlineMarkdownFromReviewText("an _emphasised_ phrase")).toBe("an emphasised phrase");
+    expect(stripInlineMarkdownFromReviewText("__strong__ opener")).toBe("strong opener");
+  });
+
+  it("keeps underscored identifiers intact", () => {
+    expect(stripInlineMarkdownFromReviewText("my_api_gateway routes traffic")).toBe("my_api_gateway routes traffic");
+    expect(toReviewDisplayTitle("Migration of my_api_gateway")).toBe("Migration of my_api_gateway");
+  });
 });

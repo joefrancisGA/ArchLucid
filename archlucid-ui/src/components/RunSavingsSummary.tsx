@@ -50,7 +50,9 @@ export function RunSavingsSummary(props: RunSavingsSummaryProps): ReactElement {
     hasBaselines: complete === true,
     isFinalized,
   });
-  const suppressAmount = shouldShowSponsorRoiBaselineGateNotice(gateStatus);
+  // A baseline check that could not run (complete === null) must not read as "no baseline recorded",
+  // so the figure stays visible — matching SponsorRoiBaselineGateNotice.
+  const suppressAmount = complete !== null && shouldShowSponsorRoiBaselineGateNotice(gateStatus);
   const formatted = formatUsd(props.model.annualizedUsd);
   const badgeLabel = sourceBadgeLabel(props.model.sourceKind);
 

@@ -56,6 +56,23 @@ describe("RunDetailArchitectureSummaryCard", () => {
     expect(lines.length).toBeLessThanOrEqual(5);
   });
 
+  it("keeps separate lines of a multi-line submission distinct", () => {
+    render(
+      <RunDetailArchitectureSummaryCard
+        architectureTitle={null}
+        architectureText={"**Domain** Payments\nTenant isolation is enforced\nEvidence is attached"}
+        evidenceCount={1}
+        userAssertions={null}
+        hasSubmittedArchitecture
+        onNavigateTab={() => undefined}
+      />,
+    );
+
+    expect(screen.getByText("Domain Payments")).toBeInTheDocument();
+    expect(screen.getByText("Tenant isolation is enforced")).toBeInTheDocument();
+    expect(screen.getByText("Evidence is attached")).toBeInTheDocument();
+  });
+
   it("suppresses architecture title when it duplicates the summary prefix", () => {
     render(
       <RunDetailArchitectureSummaryCard
