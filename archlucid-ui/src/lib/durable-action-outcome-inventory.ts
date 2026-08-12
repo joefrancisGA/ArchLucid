@@ -126,11 +126,6 @@ export const DURABLE_ACTION_OUTCOME_GUARDED_SURFACES: readonly DurableActionOutc
     requiredDurableMarkers: ["ReviewStartInlineError"],
   },
   {
-    id: "review-start-quick-review",
-    sourceRoots: ["app/(operator)/architecture/reviews/new/QuickReviewWizard.tsx"],
-    requiredDurableMarkers: ["ReviewStartInlineError"],
-  },
-  {
     id: "review-start-quick-start",
     sourceRoots: [
       "app/(operator)/architecture/reviews/new/QuickStartWizard.tsx",
@@ -246,7 +241,6 @@ export const DURABLE_ACTION_OUTCOME_DUAL_TOAST_TEST_PATHS: readonly string[] = [
   "components/governance/findings/GovernanceFindingsList.bulk-disposition.test.tsx",
   "app/(operator)/governance/policy-packs/_sections/PolicyPacksPageView.tabs.test.tsx",
   "app/(operator)/architecture/reviews/new/FirstPilotIntakeWizard.test.tsx",
-  "app/(operator)/architecture/reviews/new/QuickReviewWizard.test.tsx",
   "app/(operator)/architecture/reviews/new/QuickStartWizard.test.tsx",
   "app/(operator)/architecture/reviews/new/SimplifiedPilotWizard.test.tsx",
   "components/operator/OperatorSuccessCallout.test.tsx",

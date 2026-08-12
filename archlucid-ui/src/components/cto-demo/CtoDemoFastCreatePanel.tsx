@@ -8,7 +8,7 @@ import { Button } from "@/components/ui/button";
 import { Card, CardContent, CardDescription, CardHeader, CardTitle } from "@/components/ui/card";
 import { CtoDemoLiveRunProgressRail } from "@/components/cto-demo/CtoDemoLiveRunProgressRail";
 import { CtoDemoLatencyBudgetIndicator } from "@/components/cto-demo/CtoDemoLatencyBudgetIndicator";
-import { CONTOSO_RETAIL_SAMPLE_BRIEF } from "@/app/(operator)/architecture/reviews/new/QuickReviewWizard";
+import { CONTOSO_RETAIL_SAMPLE_BRIEF } from "@/lib/quick-review-sample-briefs";
 import type { CreateArchitectureRunRequestPayload } from "@/lib/api";
 import {
   CTO_DEMO_FAST_CREATE_STAGE_LABELS,

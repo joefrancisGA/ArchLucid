@@ -200,7 +200,7 @@ Host registration: **`RegisterSchemaRemediationAgentCompletionClient`** in **`Se
 
 ## References
 
-- **Polly ≠ run completeness (TB-995):** [`POLLY_VS_RUN_LEVEL_SEMANTICS_CONTRACT.md`](POLLY_VS_RUN_LEVEL_SEMANTICS_CONTRACT.md) — transport vs partial agents / cache / mid-run budget; shipped vs residual TB owners. Buyer one-pager: GTM **M-147**.
+- **Polly ≠ run completeness (TB-995):** [`POLLY_VS_RUN_LEVEL_SEMANTICS_CONTRACT.md`](POLLY_VS_RUN_LEVEL_SEMANTICS_CONTRACT.md) — transport vs partial agents / cache / mid-run budget; shipped vs residual TB owners. Buyer one-pagers: GTM **M-146** / **M-147**. Honesty CI: **TB-996**.
 - `docs/RESILIENCE_CONFIGURATION.md` — broader resilience and circuit breaker options.
 - `ArchLucid.Persistence/Connections/SqlOpenResilienceDefaults.cs` — SQL open retry pattern.
 - `ArchLucid.Cli/CliRetryDelegatingHandler.cs` — CLI HTTP retry pattern.

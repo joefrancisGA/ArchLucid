@@ -1,12 +1,12 @@
 > **Scope:** Contributor-reference — Polly / circuit breaker vs run-level semantics (TB-995); per-call transport resilience versus multi-agent review completeness.
 
-# Polly / circuit breaker vs run-level semantics (TB-995)
+# Polly / circuit breaker vs run-level semantics (**TB-995**)
 
 > **Audience:** Contributors, principal architects, and GTM claim reviewers who need one matrix for what per-call Polly/CB covers versus multi-agent run semantics.  
 > **Not** a buyer assurance claim — transport resilience ≠ finished review, finalized package, or zero duplicate provider spend.
 
 **Buyer / PA one-pager:** [`BUYER_SECURITY_PROCUREMENT_PACKET.md`](../go-to-market/BUYER_SECURITY_PROCUREMENT_PACKET.md#polly-vs-run-completeness-m-147) (GTM **M-147**).  
-**Claim honesty:** [`PUBLIC_CLAIM_BOUNDARY_GUIDE.md`](PUBLIC_CLAIM_BOUNDARY_GUIDE.md) (GTM **M-146**).  
+**Claim honesty:** [`PUBLIC_CLAIM_BOUNDARY_GUIDE.md`](PUBLIC_CLAIM_BOUNDARY_GUIDE.md) (GTM **M-146** / **M-147**).  
 **Per-call SoT:** [`LLM_RETRY_AND_CIRCUIT_BREAKER.md`](LLM_RETRY_AND_CIRCUIT_BREAKER.md) · ADR 0005.
 
 ---

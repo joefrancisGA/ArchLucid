@@ -271,7 +271,6 @@ export const REVIEW_TERMINOLOGY_FIRST_HOUR_SURFACE_PATHS = [
   "src/components/runs/RunAgentQualityWarningsPanel.tsx",
   "src/app/(operator)/architecture/reviews/new/SocraticIntakeWizard.tsx",
   "src/app/(operator)/architecture/reviews/new/QuickStartWizard.tsx",
-  "src/app/(operator)/architecture/reviews/new/QuickReviewWizard.tsx",
   "src/app/(operator)/architecture/reviews/RunsListClient.tsx",
 ] as const;
 

@@ -114,6 +114,21 @@ GUARDS: tuple[GuardCommand, ...] = (
         None,
     ),
     GuardCommand(
+        "polly run-completeness honesty",
+        ("python", "scripts/ci/check_polly_run_completeness_honesty.py"),
+        None,
+    ),
+    GuardCommand(
+        "llm trust-boundary honesty",
+        ("python", "scripts/ci/check_llm_trust_boundary_honesty.py"),
+        None,
+    ),
+    GuardCommand(
+        "tenant-identity header re-derive honesty",
+        ("python", "scripts/ci/check_tenant_identity_header_rederive_honesty.py"),
+        None,
+    ),
+    GuardCommand(
         "isolation claims too-strong honesty",
         ("python", "scripts/ci/check_isolation_claims_too_strong_honesty.py"),
         None,
