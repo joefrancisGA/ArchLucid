@@ -10,6 +10,7 @@ import type { MobileNavDrawer } from "@/components/MobileNavDrawer";
 import type { OperatorShellTopBarMoreMenu } from "@/components/shell/OperatorShellTopBarMoreMenu";
 import type { ScopeSwitcher } from "@/components/ScopeSwitcher";
 import type { ShellInFlightOperationsAffordance } from "@/components/shell/ShellInFlightOperationsAffordance";
+import { deferredChunkLoader } from "@/lib/import-deferred-chunk-with-retry";
 
 function GlobalSearchBarDeferredLoading(): React.JSX.Element {
   return (
@@ -22,7 +23,7 @@ function GlobalSearchBarDeferredLoading(): React.JSX.Element {
 }
 
 export const GlobalSearchBarDeferred: ComponentType<React.ComponentProps<typeof GlobalSearchBar>> = dynamic(
-  () => import("@/components/GlobalSearchBar").then((module) => module.GlobalSearchBar),
+  deferredChunkLoader(() => import("@/components/GlobalSearchBar").then((module) => module.GlobalSearchBar)),
   {
     ssr: false,
     loading: () => <GlobalSearchBarDeferredLoading />,
@@ -30,39 +31,43 @@ export const GlobalSearchBarDeferred: ComponentType<React.ComponentProps<typeof 
 );
 
 export const MobileNavDrawerDeferred: ComponentType = dynamic(
-  () => import("@/components/MobileNavDrawer").then((module) => module.MobileNavDrawer),
+  deferredChunkLoader(() => import("@/components/MobileNavDrawer").then((module) => module.MobileNavDrawer)),
   { ssr: false },
 );
 
 export const ScopeSwitcherDeferred: ComponentType<React.ComponentProps<typeof ScopeSwitcher>> = dynamic(
-  () => import("@/components/ScopeSwitcher").then((module) => module.ScopeSwitcher),
+  deferredChunkLoader(() => import("@/components/ScopeSwitcher").then((module) => module.ScopeSwitcher)),
   { ssr: false },
 );
 
 export const ShellInFlightOperationsAffordanceDeferred: ComponentType = dynamic(
-  () =>
+  deferredChunkLoader(() =>
     import("@/components/shell/ShellInFlightOperationsAffordance").then(
       (module) => module.ShellInFlightOperationsAffordance,
     ),
+  ),
   { ssr: false },
 );
 
 export const OperatorShellTopBarMoreMenuDeferred: ComponentType<
   React.ComponentProps<typeof OperatorShellTopBarMoreMenu>
 > = dynamic(
-  () =>
+  deferredChunkLoader(() =>
     import("@/components/shell/OperatorShellTopBarMoreMenu").then(
       (module) => module.OperatorShellTopBarMoreMenu,
     ),
+  ),
   { ssr: false },
 );
 
 export const AccountSettingsMenuDeferred: ComponentType = dynamic(
-  () => import("@/components/shell/AccountSettingsMenu").then((module) => module.AccountSettingsMenu),
+  deferredChunkLoader(() =>
+    import("@/components/shell/AccountSettingsMenu").then((module) => module.AccountSettingsMenu),
+  ),
   { ssr: false },
 );
 
 export const LlmBudgetStatusPillDeferred: ComponentType = dynamic(
-  () => import("@/components/LlmBudgetStatusPill").then((module) => module.LlmBudgetStatusPill),
+  deferredChunkLoader(() => import("@/components/LlmBudgetStatusPill").then((module) => module.LlmBudgetStatusPill)),
   { ssr: false },
 );

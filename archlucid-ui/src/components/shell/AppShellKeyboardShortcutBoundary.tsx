@@ -3,6 +3,7 @@
 import { useEffect, useState, type ReactNode } from "react";
 
 import type { KeyboardShortcutProviderProps } from "@/components/KeyboardShortcutProvider";
+import { importDeferredChunkWithRetry } from "@/lib/import-deferred-chunk-with-retry";
 
 /** Loads keyboard shortcuts after first paint so hub routes avoid the dialog bundle on sync import. */
 export function AppShellKeyboardShortcutBoundary(
@@ -13,7 +14,7 @@ export function AppShellKeyboardShortcutBoundary(
   >(null);
 
   useEffect(() => {
-    void import("@/components/KeyboardShortcutProvider").then((module) => {
+    void importDeferredChunkWithRetry(() => import("@/components/KeyboardShortcutProvider")).then((module) => {
       setProvider(() => module.KeyboardShortcutProvider);
     });
   }, []);
