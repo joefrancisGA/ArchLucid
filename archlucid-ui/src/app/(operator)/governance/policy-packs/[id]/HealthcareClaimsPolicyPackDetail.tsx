@@ -8,6 +8,7 @@ import { Button } from "@/components/ui/button";
 import { Collapsible, CollapsibleContent, CollapsibleTrigger } from "@/components/ui/collapsible";
 import { BUYER_GOVERNANCE_PAGE_TITLE, BUYER_OPEN_SIGNED_RECORD_CTA, BUYER_POLICY_PACK_LEAD } from "@/lib/buyer/buyer-polish-copy";
 import {
+  OPERATOR_LAYOUT,
   OPERATOR_DISCLOSURE_TRIGGER_CLASS,
   OPERATOR_NAV_GROUP_LABEL,
   OPERATOR_TYPOGRAPHY,
@@ -34,7 +35,7 @@ export function HealthcareClaimsPolicyPackDetail(props: HealthcareClaimsPolicyPa
     : "Demonstration rule-set v3.4.1";
 
   return (
-    <div className="w-full max-w-[1200px] space-y-8 p-6">
+    <div className={cn("w-full max-w-[1200px] p-6", OPERATOR_LAYOUT.sectionStack)}>
       <OperatorPageHeader
         title={canonicalPackLabel}
         headingLevel="h1"

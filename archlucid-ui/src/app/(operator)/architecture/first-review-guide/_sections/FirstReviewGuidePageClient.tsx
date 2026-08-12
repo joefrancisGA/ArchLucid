@@ -21,7 +21,7 @@ import {
   BUYER_ONBOARDING_PAGE_TITLE,
   FIRST_REVIEW_GUIDE_PROGRESS_SECTION_TITLE,
 } from "@/lib/buyer/buyer-polish-copy";
-import { OPERATOR_TYPOGRAPHY } from "@/lib/design-tokens";
+import { OPERATOR_LAYOUT, OPERATOR_TYPOGRAPHY } from "@/lib/design-tokens";
 
 import { FirstReviewGuideProgressSummary } from "./FirstReviewGuideProgressSummary";
 import { FirstReviewGuideRequiredSetupPanel } from "./FirstReviewGuideRequiredSetupPanel";
@@ -68,7 +68,7 @@ export function FirstReviewGuidePageClient({ model }: FirstReviewGuidePageClient
   return (
     <OperatorPageContainer
       variant="workflow"
-      className="space-y-8"
+      className={OPERATOR_LAYOUT.sectionStack}
       data-testid="first-review-guide-page"
     >
       <OperatorPageHeader

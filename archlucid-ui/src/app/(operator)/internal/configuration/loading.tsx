@@ -1,12 +1,14 @@
 import { Card, CardContent, CardHeader } from "@/components/ui/card";
 import { Skeleton } from "@/components/ui/skeleton";
+import { cn } from "@/lib/utils";
+import { OPERATOR_LAYOUT } from "@/lib/design-tokens";
 
 /**
  * Route-level shell while configuration summary is loading.
  */
 export default function AdminConfigurationLoading() {
   return (
-    <div className="w-full max-w-[1200px] space-y-6" aria-busy>
+    <div className={cn("w-full max-w-[1200px]", OPERATOR_LAYOUT.sectionStack)} aria-busy>
       <div className="space-y-2">
         <Skeleton className="h-8 w-72" />
         <Skeleton className="h-4 w-full max-w-xl" />

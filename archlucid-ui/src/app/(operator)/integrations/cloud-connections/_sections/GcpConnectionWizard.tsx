@@ -9,7 +9,7 @@ import { Input } from "@/components/ui/input";
 import { Label } from "@/components/ui/label";
 import { OperatorSuccessCallout } from "@/components/operator/OperatorSuccessCallout";
 import { configureGcpTier2Connection } from "@/lib/api/gcp-cloud-connections-api";
-import { OPERATOR_TYPOGRAPHY } from "@/lib/design-tokens";
+import { OPERATOR_LAYOUT, OPERATOR_TYPOGRAPHY } from "@/lib/design-tokens";
 import { GCP_CONNECTION_SAVE_FAILED_ERROR } from "@/lib/gcp-cloud-connection-copy";
 import { enterpriseMutationControlDisabledTitle } from "@/lib/enterprise-controls-context-copy";
 
@@ -138,7 +138,7 @@ export function GcpConnectionWizard(props: Props): React.ReactElement {
   ]);
 
   return (
-    <div className="space-y-6" data-testid="gcp-connection-wizard">
+    <div className={OPERATOR_LAYOUT.sectionStack} data-testid="gcp-connection-wizard">
       <WizardStepper
         steps={GCP_CONNECTION_DETAIL_WIZARD_STEPS}
         currentStep={step}

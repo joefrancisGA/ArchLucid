@@ -1,7 +1,7 @@
 import { cn } from "@/lib/utils";
 
 import { EmptyState } from "@/components/EmptyState";
-import { OPERATOR_TYPOGRAPHY } from "@/lib/design-tokens";
+import { OPERATOR_LAYOUT, OPERATOR_TYPOGRAPHY } from "@/lib/design-tokens";
 import {
   REVIEW_SCORECARD_DATA_REQUIREMENT_NOTE,
   REVIEW_SCORECARD_EMPTY_DESCRIPTION,
@@ -19,7 +19,7 @@ import { ReviewScorecardEmptyStatePreview } from "./ReviewScorecardEmptyStatePre
 /** Executive-ready empty state for the operator review scorecard. */
 export function ReviewScorecardEmptyState(): React.JSX.Element {
   return (
-    <div className="space-y-6" data-testid="review-scorecard-empty-state">
+    <div className={OPERATOR_LAYOUT.sectionStack} data-testid="review-scorecard-empty-state">
       <EmptyState
         title={REVIEW_SCORECARD_EMPTY_HEADING}
         description={REVIEW_SCORECARD_EMPTY_DESCRIPTION}

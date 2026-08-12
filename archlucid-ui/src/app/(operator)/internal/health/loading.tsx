@@ -1,12 +1,14 @@
 import { Card, CardContent, CardHeader } from "@/components/ui/card";
 import { Skeleton } from "@/components/ui/skeleton";
+import { cn } from "@/lib/utils";
+import { OPERATOR_LAYOUT } from "@/lib/design-tokens";
 
 /**
  * Route-level shell while system health data is loading.
  */
 export default function AdminHealthLoading() {
   return (
-    <div className="w-full max-w-3xl space-y-6" aria-busy>
+    <div className={cn("w-full max-w-3xl", OPERATOR_LAYOUT.sectionStack)} aria-busy>
       <div className="space-y-2">
         <Skeleton className="h-8 w-64" />
         <Skeleton className="h-4 w-full max-w-lg" />

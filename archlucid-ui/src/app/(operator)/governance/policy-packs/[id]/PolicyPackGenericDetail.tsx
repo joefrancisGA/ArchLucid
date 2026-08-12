@@ -9,7 +9,7 @@ import { Button } from "@/components/ui/button";
 import { Card, CardContent, CardHeader, CardTitle } from "@/components/ui/card";
 import { Collapsible, CollapsibleContent, CollapsibleTrigger } from "@/components/ui/collapsible";
 import { GOVERNANCE_POLICY_PACKS_PATH } from "@/lib/governance/governance-route-paths";
-import { OPERATOR_DISCLOSURE_TRIGGER_CLASS, OPERATOR_LINK, OPERATOR_TYPOGRAPHY } from "@/lib/design-tokens";
+import { OPERATOR_DISCLOSURE_TRIGGER_CLASS, OPERATOR_LAYOUT, OPERATOR_LINK, OPERATOR_TYPOGRAPHY } from "@/lib/design-tokens";
 import { policyPacksEditHref } from "@/lib/policy/policy-packs-deep-link";
 import type { PolicyPack } from "@/types/policy-packs";
 
@@ -51,7 +51,7 @@ export function PolicyPackGenericDetail(props: PolicyPackGenericDetailProps): Re
       : "Review published versions, inspect how rules apply to this scope, and continue governance workflow steps from the policy pack library.";
 
   return (
-    <div className="w-full max-w-[1200px] space-y-6 p-4" data-testid="policy-pack-generic-detail">
+    <div className={cn("w-full max-w-[1200px] p-4", OPERATOR_LAYOUT.sectionStack)} data-testid="policy-pack-generic-detail">
       <OperatorPageHeader
         navHref={GOVERNANCE_POLICY_PACKS_PATH}
         title={packName}

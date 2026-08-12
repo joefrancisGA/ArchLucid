@@ -82,7 +82,7 @@ export function PatternLibraryDetailClient(props: PatternLibraryDetailClientProp
         </Button>
       </div>
 
-      <div className="space-y-8">
+      <div className={OPERATOR_LAYOUT.sectionStack}>
         <DetailSection id="overview" title="Overview">
           <p className="m-0">{record.overview}</p>
         </DetailSection>

@@ -40,7 +40,7 @@ export default function RunDetailSegmentError({
   if (isStaticFallback || isBuyerPolished) {
     return (
       <RunDetailMinimalChromeMount>
-        <div className="mx-auto max-w-lg space-y-4 px-4 py-8">
+        <div className="mx-auto max-w-lg space-y-4 px-4 py-6">
         <OperatorErrorCallout>
           <strong className={OPERATOR_TYPOGRAPHY.cardTitle}>Sample review unavailable</strong>
           <p className={cn("mt-2 text-al-text-secondary", OPERATOR_TYPOGRAPHY.body)}>
@@ -93,7 +93,7 @@ export default function RunDetailSegmentError({
 
   return (
     <RunDetailMinimalChromeMount>
-      <div className="mx-auto max-w-lg space-y-4 px-4 py-8">
+      <div className="mx-auto max-w-lg space-y-4 px-4 py-6">
       <OperatorErrorCallout>
         <strong className={OPERATOR_TYPOGRAPHY.cardTitle}>Review could not be loaded</strong>
         <p className={cn("mt-2 text-al-text-secondary", OPERATOR_TYPOGRAPHY.body)}>

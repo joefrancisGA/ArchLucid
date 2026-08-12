@@ -2,6 +2,9 @@
 
 import { useEffect, useMemo, useState } from "react";
 
+import { cn } from "@/lib/utils";
+import { OPERATOR_LAYOUT } from "@/lib/design-tokens";
+
 import {
   getFirstValueReportMarkdown,
   getRunExplanationSummary,
@@ -131,7 +134,7 @@ export function WhyArchLucidPage() {
 
   return (
     <div
-      className="w-full max-w-[1200px] space-y-8 p-4"
+      className={cn("w-full max-w-[1200px] p-4", OPERATOR_LAYOUT.sectionStack)}
       data-testid="why-archlucid-page"
       aria-busy={state.loading}
     >

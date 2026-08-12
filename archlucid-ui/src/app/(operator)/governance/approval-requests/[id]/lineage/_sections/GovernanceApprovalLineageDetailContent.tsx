@@ -35,7 +35,7 @@ import {
 } from "@/lib/governance/governance-lineage-presentation";
 import { formatInstantForBuyerGovernance } from "@/lib/locale-datetime";
 import { formatGovernanceLineageCompletenessPercent } from "@/lib/governance/governance-lineage-metric-format";
-import { OPERATOR_LINK, OPERATOR_TYPOGRAPHY } from "@/lib/design-tokens";
+import { OPERATOR_LAYOUT, OPERATOR_LINK, OPERATOR_TYPOGRAPHY } from "@/lib/design-tokens";
 import { OPERATOR_NAV_GROUP_LABELS, OPERATOR_NAV_LINK_LABELS } from "@/lib/i18n";
 import type { GovernanceLineageResult } from "@/types/governance-dashboard";
 
@@ -63,7 +63,7 @@ export function GovernanceApprovalLineageDetailContent({ data }: GovernanceAppro
     : null;
 
   return (
-    <div className="space-y-6">
+    <div className={OPERATOR_LAYOUT.sectionStack}>
       <OperatorPageHeader
         navHref={GOVERNANCE_APPROVAL_QUEUE_PATH}
         title="Approval lineage"

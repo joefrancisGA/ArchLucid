@@ -30,7 +30,7 @@ export default function RunsSegmentError({
   const isDev = process.env.NODE_ENV === "development";
 
   return (
-    <div className="mx-auto max-w-lg space-y-4 px-4 py-8">
+    <div className="mx-auto max-w-lg space-y-4 px-4 py-6">
       <OperatorErrorCallout>
         <strong className={OPERATOR_TYPOGRAPHY.cardTitle}>Reviews could not load</strong>
         <p className={cn("mt-2 text-al-text-secondary", OPERATOR_TYPOGRAPHY.body)}>

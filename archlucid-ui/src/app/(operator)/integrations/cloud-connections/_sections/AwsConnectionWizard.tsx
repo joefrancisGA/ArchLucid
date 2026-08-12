@@ -9,7 +9,7 @@ import { Input } from "@/components/ui/input";
 import { Label } from "@/components/ui/label";
 import { OperatorSuccessCallout } from "@/components/operator/OperatorSuccessCallout";
 import { configureAwsTier2Connection } from "@/lib/api/aws-cloud-connections-api";
-import { OPERATOR_TYPOGRAPHY } from "@/lib/design-tokens";
+import { OPERATOR_LAYOUT, OPERATOR_TYPOGRAPHY } from "@/lib/design-tokens";
 import { AWS_CONNECTION_SAVE_FAILED_ERROR } from "@/lib/aws-cloud-connection-copy";
 import { enterpriseMutationControlDisabledTitle } from "@/lib/enterprise-controls-context-copy";
 
@@ -133,7 +133,7 @@ export function AwsConnectionWizard(props: Props): React.ReactElement {
   ]);
 
   return (
-    <div className="space-y-6" data-testid="aws-connection-wizard">
+    <div className={OPERATOR_LAYOUT.sectionStack} data-testid="aws-connection-wizard">
       <WizardStepper
         steps={AWS_CONNECTION_DETAIL_WIZARD_STEPS}
         currentStep={step}

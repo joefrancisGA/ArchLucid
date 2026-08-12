@@ -34,7 +34,7 @@ import {
 
 } from "@/lib/api/cloud-connections-api";
 
-import { DESIGN_TOKENS, OPERATOR_TYPOGRAPHY } from "@/lib/design-tokens";
+import { DESIGN_TOKENS, OPERATOR_LAYOUT, OPERATOR_TYPOGRAPHY } from "@/lib/design-tokens";
 
 import { enterpriseMutationControlDisabledTitle } from "@/lib/enterprise-controls-context-copy";
 
@@ -637,7 +637,7 @@ export function Tier2ConnectionWizard({
 
   return (
 
-    <div className="space-y-6" data-testid="tier2-connection-wizard">
+    <div className={OPERATOR_LAYOUT.sectionStack} data-testid="tier2-connection-wizard">
 
       <WizardStepper steps={wizardSteps} currentStep={step} completedSteps={completedSteps} />
 

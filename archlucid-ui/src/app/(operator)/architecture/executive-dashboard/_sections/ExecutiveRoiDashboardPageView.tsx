@@ -18,7 +18,7 @@ import {
   isExecutiveSampleWorkspaceData,
 } from "@/lib/executive/executive-dashboard-workspace-state";
 import { EXECUTIVE_DASHBOARD_WORKSPACE_HEALTH_SECTION_ID } from "@/lib/executive/executive-dashboard-route";
-import { OPERATOR_TYPOGRAPHY } from "@/lib/design-tokens";
+import { OPERATOR_LAYOUT, OPERATOR_TYPOGRAPHY } from "@/lib/design-tokens";
 import { ExecutiveDashboardBaselineWarningBanner } from "./ExecutiveDashboardBaselineWarningBanner";
 import {
   BusinessImpactSummaryWidgetDeferred,
@@ -69,7 +69,7 @@ function ExecutiveRoiDashboardPortfolioSections({
 
   return (
     <div data-testid="executive-roi-dashboard-ready" data-ready={dashboardReady ? "true" : "false"}>
-    <OperatorPageContainer variant="dashboard" className="space-y-6">
+    <OperatorPageContainer variant="dashboard" className={OPERATOR_LAYOUT.sectionStack}>
       {showSampleBanner ? <ExecutiveDashboardSampleWorkspaceBanner /> : null}
 
       {!dashboardEmpty ? <OperatorWelcomeOnboardingDeferred /> : null}
