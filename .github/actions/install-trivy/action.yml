@@ -21,11 +21,11 @@ runs:
 
         mkdir -p "${install_dir}"
 
-        # GitHub release assets occasionally return 502/504; retry before failing Terraform/Trivy jobs.
-        max_attempts=5
+        # GitHub release assets occasionally return 502/504 or drop mid-transfer; retry before failing Terraform/Trivy jobs.
+        max_attempts=8
         attempt=1
         while true; do
-          if curl -fsSL --connect-timeout 30 --max-time 300 "${url}" -o "/tmp/${archive}"; then
+          if curl -fsSL --connect-timeout 30 --max-time 600 --retry 5 --retry-all-errors --retry-delay 10 "${url}" -o "/tmp/${archive}"; then
             break
           fi
 
@@ -34,7 +34,7 @@ runs:
             exit 22
           fi
 
-          sleep_seconds=$((attempt * 5))
+          sleep_seconds=$((attempt * 15))
           echo "Trivy download failed (attempt ${attempt}/${max_attempts}); retrying in ${sleep_seconds}s..." >&2
           sleep "${sleep_seconds}"
           attempt=$((attempt + 1))
