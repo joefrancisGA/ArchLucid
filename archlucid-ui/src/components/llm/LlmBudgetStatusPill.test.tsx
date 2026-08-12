@@ -1,10 +1,12 @@
-import { fireEvent, render, screen, waitFor } from "@testing-library/react";
+import { fireEvent, screen, waitFor } from "@testing-library/react";
 import { beforeEach, describe, expect, it, vi } from "vitest";
 
 import { LlmBudgetStatusPill } from "@/components/llm/LlmBudgetStatusPill";
 import { AUTHORITY_RANK } from "@/lib/nav-authority";
+import { resetOperatorQueryClientForTests } from "@/lib/query/operator-query-client";
+import { renderWithOperatorQuery } from "@/testing/render-with-operator-query";
 
-const fetchCached = vi.hoisted(() => vi.fn());
+const fetchStatus = vi.hoisted(() => vi.fn());
 
 const navAuthMock = vi.hoisted(() => ({
   callerAuthorityRank: 3,
@@ -16,7 +18,7 @@ vi.mock("@/lib/llm-monthly-budget-status", async (importOriginal) => {
 
   return {
     ...actual,
-    fetchLlmMonthlyDollarBudgetStatusCached: fetchCached,
+    fetchLlmMonthlyDollarBudgetStatus: fetchStatus,
   };
 });
 
@@ -31,9 +33,11 @@ vi.mock("@/lib/auth-config", () => ({
 
 describe("LlmBudgetStatusPill", () => {
   beforeEach(() => {
+    resetOperatorQueryClientForTests();
     navAuthMock.callerAuthorityRank = AUTHORITY_RANK.AdminAuthority;
     navAuthMock.isAuthorityLoading = false;
-    fetchCached.mockResolvedValue({
+    fetchStatus.mockReset();
+    fetchStatus.mockResolvedValue({
       monthlyBudgetMonitoringActive: true,
       blocksAdditionalLlmExecution: false,
       utcMonth: "2026-05",
@@ -48,7 +52,7 @@ describe("LlmBudgetStatusPill", () => {
   });
 
   it("renders warn-toned pill label when budget headroom is low", async () => {
-    render(<LlmBudgetStatusPill />);
+    renderWithOperatorQuery(<LlmBudgetStatusPill />);
 
     const pill = await screen.findByTestId("llm-budget-status-pill");
 
@@ -58,7 +62,7 @@ describe("LlmBudgetStatusPill", () => {
   });
 
   it("opens popover with utilization meter", async () => {
-    render(<LlmBudgetStatusPill />);
+    renderWithOperatorQuery(<LlmBudgetStatusPill />);
 
     const pill = await screen.findByTestId("llm-budget-status-pill");
     fireEvent.click(pill);
@@ -76,7 +80,7 @@ describe("LlmBudgetStatusPill", () => {
   });
 
   it("hides the pill when remaining budget is healthy (ok tone)", async () => {
-    fetchCached.mockResolvedValue({
+    fetchStatus.mockResolvedValue({
       monthlyBudgetMonitoringActive: true,
       blocksAdditionalLlmExecution: false,
       utcMonth: "2026-05",
@@ -89,17 +93,17 @@ describe("LlmBudgetStatusPill", () => {
       warnFraction: 0.75,
     });
 
-    render(<LlmBudgetStatusPill />);
+    renderWithOperatorQuery(<LlmBudgetStatusPill />);
 
     await waitFor(() => {
-      expect(fetchCached).toHaveBeenCalled();
+      expect(fetchStatus).toHaveBeenCalled();
     });
 
     expect(screen.queryByTestId("llm-budget-status-pill")).not.toBeInTheDocument();
   });
 
   it("renders nothing when monitoring is inactive", async () => {
-    fetchCached.mockResolvedValue({
+    fetchStatus.mockResolvedValue({
       monthlyBudgetMonitoringActive: false,
       blocksAdditionalLlmExecution: false,
       utcMonth: "2026-05",
@@ -112,10 +116,10 @@ describe("LlmBudgetStatusPill", () => {
       warnFraction: null,
     });
 
-    render(<LlmBudgetStatusPill />);
+    renderWithOperatorQuery(<LlmBudgetStatusPill />);
 
     await waitFor(() => {
-      expect(fetchCached).toHaveBeenCalled();
+      expect(fetchStatus).toHaveBeenCalled();
     });
 
     expect(screen.queryByTestId("llm-budget-status-pill")).not.toBeInTheDocument();
@@ -124,17 +128,17 @@ describe("LlmBudgetStatusPill", () => {
   it("renders nothing below AdminAuthority", async () => {
     navAuthMock.callerAuthorityRank = AUTHORITY_RANK.ExecuteAuthority;
 
-    render(<LlmBudgetStatusPill />);
+    renderWithOperatorQuery(<LlmBudgetStatusPill />);
 
     await waitFor(() => {
       expect(screen.queryByTestId("llm-budget-status-pill")).not.toBeInTheDocument();
     });
 
-    expect(fetchCached).not.toHaveBeenCalled();
+    expect(fetchStatus).not.toHaveBeenCalled();
   });
 
   it("shows paused suffix at hard cap", async () => {
-    fetchCached.mockResolvedValue({
+    fetchStatus.mockResolvedValue({
       monthlyBudgetMonitoringActive: true,
       blocksAdditionalLlmExecution: true,
       utcMonth: "2026-05",
@@ -147,7 +151,7 @@ describe("LlmBudgetStatusPill", () => {
       warnFraction: 0.75,
     });
 
-    render(<LlmBudgetStatusPill />);
+    renderWithOperatorQuery(<LlmBudgetStatusPill />);
 
     expect(await screen.findByTestId("llm-budget-status-pill")).toHaveTextContent("AI budget: 0% — paused");
   });

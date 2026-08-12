@@ -2,80 +2,47 @@
 import { cn } from "@/lib/utils";
 import { OPERATOR_TYPOGRAPHY } from "@/lib/design-tokens";
 
-import { useEffect, useState } from "react";
-
 import { Progress } from "@/components/ui/progress";
+import { useLlmMonthlyBudgetStatusQuery } from "@/hooks/use-llm-monthly-budget-status-query";
 import {
-  fetchLlmMonthlyDollarBudgetStatusCached,
   llmBudgetUtilizationPercent,
   resolveLlmBudgetUtilizationTone,
   type LlmBudgetUtilizationTone,
-  type LlmMonthlyDollarBudgetStatus,
 } from "@/lib/llm-monthly-budget-status";
 import { formatUtcBillingMonthLabel } from "@/lib/llm-cost-reporting-display-labels";
 
-export type LlmBudgetUtilizationMeterProps = {
-  /** When set, re-fetches on change (e.g. parent refresh button). */
-  readonly refreshToken?: number;
-};
-
 /** UTC-month LLM dollar hard-cap utilization for operator settings and dashboards. */
-export function LlmBudgetUtilizationMeter(props: LlmBudgetUtilizationMeterProps) {
-  const [loading, setLoading] = useState(true);
-  const [status, setStatus] = useState<LlmMonthlyDollarBudgetStatus | null>(null);
-  const [loadError, setLoadError] = useState(false);
+export function LlmBudgetUtilizationMeter() {
+  const { data: status, isPending, isError } = useLlmMonthlyBudgetStatusQuery();
 
-  useEffect(() => {
-    let canceled = false;
-
-    void (async () => {
-      setLoading(true);
-      setLoadError(false);
-
-      try {
-        const data = await fetchLlmMonthlyDollarBudgetStatusCached({
-          force: props.refreshToken !== undefined && props.refreshToken > 0,
-        });
-
-        if (!canceled) {
-          setStatus(data);
-        }
-      } catch {
-        if (!canceled) {
-          setStatus(null);
-          setLoadError(true);
-        }
-      } finally {
-        if (!canceled) {
-          setLoading(false);
-        }
-      }
-    })();
-
-    return () => {
-      canceled = true;
-    };
-  }, [props.refreshToken]);
-
-  if (loading) {
+  if (isPending) {
     return (
-      <p className={cn("m-0 text-neutral-500 dark:text-neutral-400", OPERATOR_TYPOGRAPHY.body)} data-testid="llm-budget-utilization-loading">
+      <p
+        className={cn("m-0 text-neutral-500 dark:text-neutral-400", OPERATOR_TYPOGRAPHY.body)}
+        data-testid="llm-budget-utilization-loading"
+      >
         Loading budget utilization…
       </p>
     );
   }
 
-  if (loadError) {
+  if (isError) {
     return (
-      <p className={cn("m-0 text-neutral-600 dark:text-neutral-400", OPERATOR_TYPOGRAPHY.body)} data-testid="llm-budget-utilization-unavailable">
+      <p
+        className={cn("m-0 text-neutral-600 dark:text-neutral-400", OPERATOR_TYPOGRAPHY.body)}
+        data-testid="llm-budget-utilization-unavailable"
+      >
         Monthly budget status is unavailable right now.
       </p>
     );
   }
 
-  if (status === null || !status.monthlyBudgetMonitoringActive) {
+  if (status === undefined || !status.monthlyBudgetMonitoringActive) {
     return (
-      <p className={cn("m-0 text-neutral-600 dark:text-neutral-400", OPERATOR_TYPOGRAPHY.body)} data-testid="llm-budget-utilization-inactive">
+      <p
+        className={cn("m-0 text-neutral-600 dark:text-neutral-400", OPERATOR_TYPOGRAPHY.body)}
+        data-testid="llm-budget-utilization-inactive"
+      >
         Monthly AI budget monitoring is not enabled for this workspace.
       </p>
     );
@@ -104,7 +71,9 @@ export function LlmBudgetUtilizationMeter(props: LlmBudgetUtilizationMeterProps)
           {formatUtcBillingMonthLabel()}
         </p>
         <p
-          className={cn("m-0 font-semibold tabular-nums", OPERATOR_TYPOGRAPHY.cardTitle,
+          className={cn(
+            "m-0 font-semibold tabular-nums",
+            OPERATOR_TYPOGRAPHY.cardTitle,
             tone === "critical"
               ? "text-rose-700 dark:text-rose-300"
               : tone === "warn"

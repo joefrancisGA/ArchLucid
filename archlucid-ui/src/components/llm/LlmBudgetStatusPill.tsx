@@ -2,15 +2,15 @@
 
 import { cn } from "@/lib/utils";
 import Link from "next/link";
-import { useEffect, useState } from "react";
+import { useState } from "react";
 
 import { LlmBudgetUtilizationMeter } from "@/components/llm/LlmBudgetUtilizationMeter";
 import { useNavCallerAuthorityRank } from "@/components/operator/OperatorNavAuthorityProvider";
 import { Popover, PopoverContent, PopoverTrigger } from "@/components/ui/popover";
 import { Button } from "@/components/ui/button";
+import { useLlmMonthlyBudgetStatusQuery } from "@/hooks/use-llm-monthly-budget-status-query";
 import { AUTH_MODE } from "@/lib/auth-config";
 import {
-  fetchLlmMonthlyDollarBudgetStatusCached,
   llmBudgetRemainingPercent,
   resolveLlmBudgetUtilizationTone,
   shouldShowShellLlmBudgetStatusPill,
@@ -74,39 +74,15 @@ function isOperatorShellAuthenticated(): boolean {
 export function LlmBudgetStatusPill() {
   const callerAuthorityRank = useNavCallerAuthorityRank();
   const [open, setOpen] = useState(false);
-  const [status, setStatus] = useState<LlmMonthlyDollarBudgetStatus | null>(null);
+  const queryEnabled =
+    isOperatorShellAuthenticated() && callerAuthorityRank >= AUTHORITY_RANK.AdminAuthority;
+  const { data: status } = useLlmMonthlyBudgetStatusQuery({ enabled: queryEnabled });
 
-  useEffect(() => {
-    if (!isOperatorShellAuthenticated() || callerAuthorityRank < AUTHORITY_RANK.AdminAuthority) {
-      return;
-    }
-
-    let canceled = false;
-
-    void (async () => {
-      try {
-        const data = await fetchLlmMonthlyDollarBudgetStatusCached();
-
-        if (!canceled) {
-          setStatus(data);
-        }
-      } catch {
-        if (!canceled) {
-          setStatus(null);
-        }
-      }
-    })();
-
-    return () => {
-      canceled = true;
-    };
-  }, [callerAuthorityRank]);
-
-  if (!isOperatorShellAuthenticated() || callerAuthorityRank < AUTHORITY_RANK.AdminAuthority) {
+  if (!queryEnabled) {
     return null;
   }
 
-  if (status === null || !status.monthlyBudgetMonitoringActive) {
+  if (status === undefined || !status.monthlyBudgetMonitoringActive) {
     return null;
   }
 

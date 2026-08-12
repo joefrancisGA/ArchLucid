@@ -1,22 +1,29 @@
 import { render, screen } from "@testing-library/react";
-import { describe, expect, it, vi } from "vitest";
+import { beforeEach, describe, expect, it, vi } from "vitest";
 
 import { LlmBudgetUtilizationMeter } from "@/components/llm/LlmBudgetUtilizationMeter";
+import { resetOperatorQueryClientForTests } from "@/lib/query/operator-query-client";
+import { renderWithOperatorQuery } from "@/testing/render-with-operator-query";
 
-const fetchCached = vi.hoisted(() => vi.fn());
+const fetchStatus = vi.hoisted(() => vi.fn());
 
 vi.mock("@/lib/llm-monthly-budget-status", async (importOriginal) => {
   const actual = await importOriginal<typeof import("@/lib/llm-monthly-budget-status")>();
 
   return {
     ...actual,
-    fetchLlmMonthlyDollarBudgetStatusCached: fetchCached,
+    fetchLlmMonthlyDollarBudgetStatus: fetchStatus,
   };
 });
 
 describe("LlmBudgetUtilizationMeter", () => {
+  beforeEach(() => {
+    resetOperatorQueryClientForTests();
+    fetchStatus.mockReset();
+  });
+
   it("renders inactive copy when monitoring is off", async () => {
-    fetchCached.mockResolvedValue({
+    fetchStatus.mockResolvedValue({
       monthlyBudgetMonitoringActive: false,
       blocksAdditionalLlmExecution: false,
       utcMonth: "2026-05",
@@ -29,13 +36,13 @@ describe("LlmBudgetUtilizationMeter", () => {
       warnFraction: null,
     });
 
-    render(<LlmBudgetUtilizationMeter />);
+    renderWithOperatorQuery(<LlmBudgetUtilizationMeter />);
 
     expect(await screen.findByTestId("llm-budget-utilization-inactive")).toBeInTheDocument();
   });
 
   it("shows utilization percent when monitoring is active", async () => {
-    fetchCached.mockResolvedValue({
+    fetchStatus.mockResolvedValue({
       monthlyBudgetMonitoringActive: true,
       blocksAdditionalLlmExecution: false,
       utcMonth: "2026-05",
@@ -48,7 +55,7 @@ describe("LlmBudgetUtilizationMeter", () => {
       warnFraction: 0.75,
     });
 
-    render(<LlmBudgetUtilizationMeter />);
+    renderWithOperatorQuery(<LlmBudgetUtilizationMeter />);
 
     expect(await screen.findByTestId("llm-budget-utilization-meter")).toBeInTheDocument();
     expect(screen.getByText("80% used")).toBeInTheDocument();

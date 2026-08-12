@@ -1,4 +1,7 @@
-import type { LlmMonthlyDollarBudgetStatus } from "@/lib/llm-monthly-budget-status";
+import {
+  shouldShowBuyerLlmUsageBandHint,
+  type LlmMonthlyDollarBudgetStatus,
+} from "@/lib/llm-monthly-budget-status";
 
 export const SHELL_BANNER_POLL_MS = 60_000;
 
@@ -23,6 +26,13 @@ export function shouldPollLlmBudgetApproachingBanner(
   status: LlmMonthlyDollarBudgetStatus | undefined,
 ): boolean {
   return status?.monthlyBudgetMonitoringActive === true;
+}
+
+/** Buyer-polished shell band hint — poll only while approaching/exhausted copy is visible. */
+export function shouldPollBuyerLlmUsageBandHint(
+  status: LlmMonthlyDollarBudgetStatus | undefined,
+): boolean {
+  return status !== undefined && shouldShowBuyerLlmUsageBandHint(status);
 }
 
 export function resolveShellBannerPollIntervalMs(args: {

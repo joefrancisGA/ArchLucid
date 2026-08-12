@@ -1,10 +1,10 @@
 "use client";
 
 import { cn } from "@/lib/utils";
-import { useEffect, useState } from "react";
 import type { ReactElement } from "react";
 
 import { Card, CardContent, CardHeader, CardTitle } from "@/components/ui/card";
+import { useLlmMonthlyBudgetStatusQuery } from "@/hooks/use-llm-monthly-budget-status-query";
 import {
   buildLlmBudgetCommandCenterSummary,
   type LlmBudgetCommandCenterSummary,
@@ -18,10 +18,6 @@ import {
   formatUtcBillingMonthLabel,
   formatUtcTodayLabel,
 } from "@/lib/llm-cost-reporting-display-labels";
-import {
-  fetchLlmMonthlyDollarBudgetStatusCached,
-  type LlmMonthlyDollarBudgetStatus,
-} from "@/lib/llm-monthly-budget-status";
 import { OPERATOR_CARD, OPERATOR_TYPOGRAPHY, operatorSemanticSurface } from "@/lib/design-tokens";
 
 function formatUsd(amount: number, currency: string): string {
@@ -163,36 +159,14 @@ export function LlmCostCommandCenterSummaryCard(props: {
   readonly dashboard: LlmCostReportingDashboard | null;
 }): ReactElement | null {
   const summary = buildLlmCostCommandCenterSummary(props.dashboard);
-  const [budgetStatus, setBudgetStatus] = useState<LlmMonthlyDollarBudgetStatus | null>(null);
-
-  useEffect(() => {
-    let canceled = false;
-
-    void (async () => {
-      try {
-        const status = await fetchLlmMonthlyDollarBudgetStatusCached();
-
-        if (!canceled) {
-          setBudgetStatus(status);
-        }
-      } catch {
-        if (!canceled) {
-          setBudgetStatus(null);
-        }
-      }
-    })();
-
-    return () => {
-      canceled = true;
-    };
-  }, []);
+  const { data: budgetStatus } = useLlmMonthlyBudgetStatusQuery();
 
   if (summary === null) {
     return null;
   }
 
   const currency = props.dashboard?.currency ?? "USD";
-  const budgetSummary = buildLlmBudgetCommandCenterSummary(budgetStatus);
+  const budgetSummary = buildLlmBudgetCommandCenterSummary(budgetStatus ?? null);
 
   return (
     <Card data-testid="llm-cost-command-center-summary">

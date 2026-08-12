@@ -3,69 +3,39 @@ import { cn } from "@/lib/utils";
 import { OPERATOR_TYPOGRAPHY } from "@/lib/design-tokens";
 
 import Link from "next/link";
-import { useEffect, useState } from "react";
 
+import { useLlmMonthlyBudgetStatusQuery } from "@/hooks/use-llm-monthly-budget-status-query";
+import { useDocumentHidden } from "@/lib/document-visibility";
 import { isNextPublicDemoMode, isOperatorExperienceFullShellEnv } from "@/lib/demo-ui-env";
 import {
-  fetchLlmMonthlyDollarBudgetStatusCached,
   formatBuyerLlmUsageApproachingCopy,
   formatBuyerLlmUsageExhaustedCopy,
   llmBudgetRemainingPercent,
   shouldShowBuyerLlmUsageBandHint,
-  type LlmMonthlyDollarBudgetStatus,
 } from "@/lib/llm-monthly-budget-status";
 import { isStaticDemoPayloadFallbackEnabled } from "@/lib/operator/operator-static-demo";
-
-const LLM_USAGE_BAND_POLL_MS = 60_000;
+import { shouldPollBuyerLlmUsageBandHint } from "@/lib/shell-banner-poll-policy";
 
 /**
  * Buyer-polished shell hint for UTC-month AI analysis budget headroom. Shows approximate percent remaining
  * (not dollar amounts) when utilization crosses the warn threshold; shows a persistent exhausted banner at hard cap.
  */
 export function LlmUsageBandHint() {
-  const [status, setStatus] = useState<LlmMonthlyDollarBudgetStatus | null>(null);
+  const documentHidden = useDocumentHidden();
+  const queryEnabled =
+    !isOperatorExperienceFullShellEnv() &&
+    !isNextPublicDemoMode() &&
+    !isStaticDemoPayloadFallbackEnabled();
 
-  useEffect(() => {
-    if (
-      isOperatorExperienceFullShellEnv() ||
-      isNextPublicDemoMode() ||
-      isStaticDemoPayloadFallbackEnabled()
-    ) {
-      return;
-    }
-
-    let canceled = false;
-
-    async function load() {
-      try {
-        const nextStatus = await fetchLlmMonthlyDollarBudgetStatusCached();
-
-        if (!canceled) {
-          setStatus(nextStatus);
-        }
-      } catch {
-        if (!canceled) {
-          setStatus(null);
-        }
-      }
-    }
-
-    void load();
-    const timer = window.setInterval(() => {
-      void load();
-    }, LLM_USAGE_BAND_POLL_MS);
-
-    return () => {
-      canceled = true;
-      window.clearInterval(timer);
-    };
-  }, []);
+  const { data: status } = useLlmMonthlyBudgetStatusQuery({
+    enabled: queryEnabled,
+    documentHidden,
+    shouldPoll: shouldPollBuyerLlmUsageBandHint,
+  });
 
   if (
-    isOperatorExperienceFullShellEnv() ||
-    isNextPublicDemoMode() ||
-    isStaticDemoPayloadFallbackEnabled() ||
-    status === null ||
+    !queryEnabled ||
+    status === undefined ||
     !shouldShowBuyerLlmUsageBandHint(status)
   ) {
     return null;
@@ -77,7 +47,10 @@ export function LlmUsageBandHint() {
   if (exhausted) {
     return (
       <div
-        className={cn("rounded-md border border-rose-600/40 bg-al-surface-raised px-3 py-2 text-al-text-primary dark:border-rose-700/50 px-4 py-3 shadow-sm", OPERATOR_TYPOGRAPHY.body)}
+        className={cn(
+          "rounded-md border border-rose-600/40 bg-al-surface-raised px-4 py-3 text-al-text-primary shadow-sm dark:border-rose-700/50",
+          OPERATOR_TYPOGRAPHY.body,
+        )}
         role="alert"
         data-testid="llm-usage-band-hint-exhausted"
       >
@@ -99,7 +72,10 @@ export function LlmUsageBandHint() {
 
   return (
     <div
-      className={cn("rounded-md border border-amber-600/40 bg-al-surface-raised px-3 py-2 text-al-text-primary dark:border-amber-700/50 px-4 py-3 shadow-sm", OPERATOR_TYPOGRAPHY.body)}
+      className={cn(
+        "rounded-md border border-amber-600/40 bg-al-surface-raised px-4 py-3 text-al-text-primary shadow-sm dark:border-amber-700/50",
+        OPERATOR_TYPOGRAPHY.body,
+      )}
       role="status"
       data-testid="llm-usage-band-hint-approaching"
     >
