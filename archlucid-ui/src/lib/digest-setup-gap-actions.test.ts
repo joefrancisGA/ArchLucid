@@ -100,6 +100,27 @@ describe("digest-setup-gap-actions", () => {
     expect(items.find((item) => item.id === "history")?.complete).toBe(true);
   });
 
+  it("keeps generate-first checklist step pending until schedule and subscriptions exist", () => {
+    const zeroSetup = buildDigestSetupChecklistItems(baseSnap(), false);
+    const testPending = zeroSetup.find((item) => item.id === "test");
+
+    expect(testPending?.href).toBeNull();
+    expect(testPending?.complete).toBe(false);
+
+    const prerequisitesMet = buildDigestSetupChecklistItems(
+      baseSnap({
+        enabledAdvisoryScheduleCount: 1,
+        enabledDigestSubscriptionCount: 1,
+      }),
+      false,
+    );
+    const testReady = prerequisitesMet.find((item) => item.id === "test");
+
+    expect(testReady?.href).toBe("/governance/advisory-scans?tab=schedules");
+    expect(testReady?.actionLabel).toBe("Run advisory scan");
+    expect(testReady?.complete).toBe(false);
+  });
+
   it("detects existing configuration", () => {
     expect(digestsHaveExistingConfiguration(baseSnap())).toBe(false);
     expect(digestsHaveExistingConfiguration(baseSnap({ digestSubscriptionCount: 2 }))).toBe(true);

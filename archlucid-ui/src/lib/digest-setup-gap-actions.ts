@@ -199,10 +199,10 @@ export function buildDigestSetupChecklistItems(
     {
       id: "test",
       label: DIGESTS_BROWSE_GENERATE_FIRST_LABEL,
-      href: ADVISORY_SCANS_SCHEDULES_HREF,
-      actionLabel: prerequisitesForScan
-        ? DIGESTS_CHECKLIST_ACTION_RUN_SCAN
-        : DIGESTS_CHECKLIST_ACTION_OPEN_ADVISORY,
+      // Scanning cannot produce a digest before a schedule and recipients exist, so the row stays
+      // status-only until then rather than repeating step one's link to Advisory schedules.
+      href: prerequisitesForScan ? ADVISORY_SCANS_SCHEDULES_HREF : null,
+      actionLabel: DIGESTS_CHECKLIST_ACTION_RUN_SCAN,
       complete: hasTestDigest,
       detail: hasTestDigest
         ? DIGESTS_BROWSE_GENERATE_FIRST_DONE_DETAIL
