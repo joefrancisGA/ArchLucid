@@ -1,6 +1,6 @@
 "use client";
 import { cn } from "@/lib/utils";
-import { OPERATOR_TYPOGRAPHY } from "@/lib/design-tokens";
+import { OPERATOR_LINK, OPERATOR_TYPOGRAPHY } from "@/lib/design-tokens";
 
 import { Check, Copy, ExternalLink } from "lucide-react";
 import { useCallback, useState } from "react";
@@ -77,7 +77,7 @@ export function RunTraceViewerLink({ traceId }: RunTraceViewerLinkProps) {
           href={traceUrl}
           target="_blank"
           rel="noopener noreferrer"
-          className="inline-flex items-center gap-1.5 text-blue-600 hover:underline dark:text-blue-400"
+          className={cn("inline-flex items-center gap-1.5", OPERATOR_LINK.nav)}
         >
           <ExternalLink className="h-3.5 w-3.5 shrink-0" aria-hidden />
           View trace

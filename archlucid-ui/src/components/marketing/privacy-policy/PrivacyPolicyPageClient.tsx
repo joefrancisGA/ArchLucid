@@ -6,6 +6,7 @@ import { MarketingAccessibilityMarkdownFragment } from "@/components/marketing/M
 import { PrivacyEvidenceOrientationStrip } from "@/components/marketing/PrivacyEvidenceOrientationStrip";
 import { PrivacyPolicyRelatedDocuments } from "@/components/marketing/privacy-policy/PrivacyPolicyRelatedDocuments";
 import { PrivacyPolicyTableOfContents } from "@/components/marketing/privacy-policy/PrivacyPolicyTableOfContents";
+import { MARKETING_SURFACES } from "@/lib/design-tokens";
 import type { HelpMarkdownHeading } from "@/lib/help/help-markdown-headings";
 import type { PrivacyPolicyMetadata, PrivacyPolicyRelatedDocument } from "@/lib/privacy-policy-content";
 import { PRIVACY_POLICY_LAYOUT } from "@/lib/privacy-policy-layout";
@@ -194,7 +195,7 @@ export function PrivacyPolicyPageClient(props: PrivacyPolicyPageClientProps): Re
               <p className="text-al-text-secondary">
                 The privacy policy content was not found at build time. Contact{" "}
                 <a
-                  className="text-blue-700 underline underline-offset-2 dark:text-blue-300"
+                  className={MARKETING_SURFACES.inlineLink}
                   href="mailto:privacy@archlucid.net"
                 >
                   privacy@archlucid.net

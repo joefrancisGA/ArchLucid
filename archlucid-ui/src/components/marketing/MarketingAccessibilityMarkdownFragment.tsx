@@ -1,5 +1,5 @@
 import { cn } from "@/lib/utils";
-import { OPERATOR_DISCLOSURE_TRIGGER_CLASS, OPERATOR_LINK, OPERATOR_SHELL_SCROLL_OFFSET_CLASS, OPERATOR_TYPOGRAPHY } from "@/lib/design-tokens";
+import { MARKETING_SURFACES, OPERATOR_DISCLOSURE_TRIGGER_CLASS, OPERATOR_LINK, OPERATOR_SHELL_SCROLL_OFFSET_CLASS, OPERATOR_TYPOGRAPHY } from "@/lib/design-tokens";
 import Link from "next/link";
 import type { ReactNode } from "react";
 
@@ -172,7 +172,7 @@ function renderInline(text: string, keyPrefix: string, options: RenderInlineOpti
           className={
             isInAppHelp || isInternalOperatorRoute
               ? inAppLinkClassName
-              : "text-blue-700 underline underline-offset-2 hover:text-blue-900 dark:text-blue-300 dark:hover:text-blue-200"
+              : MARKETING_SURFACES.inlineLink
           }
           {...(isExternal ? { rel: "noopener noreferrer", target: "_blank" } : {})}
         >

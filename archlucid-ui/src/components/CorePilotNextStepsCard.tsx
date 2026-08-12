@@ -233,7 +233,7 @@ function RescueLink() {
   return (
     <p className={cn("m-0 mt-2 text-neutral-500 dark:text-neutral-400", OPERATOR_TYPOGRAPHY.helper)} data-testid="pilot-rescue-link">
       Blocked?{" "}
-      <Link href="/help" className="font-medium text-blue-700 underline underline-offset-2 dark:text-blue-400">
+      <Link href="/help" className={OPERATOR_LINK.nav}>
         Help
       </Link>
       {" "}or use the{" "}
@@ -334,7 +334,7 @@ export function CorePilotNextStepsCard() {
         <div className="mb-3">
           <Link
             href={reviewHref}
-            className="font-medium text-blue-700 underline underline-offset-2 dark:text-blue-400"
+            className={OPERATOR_LINK.nav}
           >
             Open architecture review detail
           </Link>
@@ -366,7 +366,7 @@ export function CorePilotNextStepsCard() {
           >
             Workspace health (sponsor view)
           </Link>
-          <Link href="/insights/ask-review-questions" className="font-medium text-blue-700 underline dark:text-blue-400">
+          <Link href="/insights/ask-review-questions" className={OPERATOR_LINK.nav}>
             Open Ask (Operate)
           </Link>
         </div>
@@ -405,7 +405,7 @@ export function CorePilotNextStepsCard() {
             <span aria-hidden className={cn("mt-0.5 shrink-0 font-bold text-teal-700 dark:text-teal-300", OPERATOR_TYPOGRAPHY.helper)}>▶</span>
             <Link
               href={latestRunId !== null ? `/insights/evidence-graph?runId=${encodeURIComponent(latestRunId)}` : "/insights/evidence-graph"}
-              className="font-medium text-blue-700 underline dark:text-blue-400"
+              className={OPERATOR_LINK.nav}
               data-testid="pilot-active-evidence-link"
             >
               Evidence — open evidence trail
@@ -415,7 +415,7 @@ export function CorePilotNextStepsCard() {
             <span aria-hidden className={cn("mt-0.5 shrink-0 font-bold text-teal-700 dark:text-teal-300", OPERATOR_TYPOGRAPHY.helper)}>▶</span>
             <Link
               href={latestRunId !== null ? `/architecture/reviews/${latestRunId}` : "/architecture/reviews"}
-              className="font-medium text-blue-700 underline dark:text-blue-400"
+              className={OPERATOR_LINK.nav}
               data-testid="pilot-active-step-link"
             >
               Review — complete the assessment and finalize the review
@@ -425,7 +425,7 @@ export function CorePilotNextStepsCard() {
             <span aria-hidden className={cn("mt-0.5 shrink-0 text-neutral-400", OPERATOR_TYPOGRAPHY.helper)}>4.</span>
             <span>
               Report — sponsor-facing summary on{" "}
-              <Link href={EXECUTIVE_DASHBOARD_HREF} className="font-medium text-blue-700 underline dark:text-blue-400">
+              <Link href={EXECUTIVE_DASHBOARD_HREF} className={OPERATOR_LINK.nav}>
                 Report
               </Link>{" "}
               after outputs land.
@@ -463,7 +463,7 @@ export function CorePilotNextStepsCard() {
           <span aria-hidden className={cn("mt-0.5 shrink-0 font-bold text-teal-700 dark:text-teal-300", OPERATOR_TYPOGRAPHY.helper)}>▶</span>
           <Link
             href="/architecture/reviews/new"
-            className="font-medium text-blue-700 underline dark:text-blue-400"
+            className={OPERATOR_LINK.nav}
             data-testid="pilot-active-step-link"
           >
             {OPERATOR_START_REVIEW_QUICK_ACTION_LABEL}
