@@ -130,6 +130,23 @@ export type PageShortcutEntry = {
   description: string;
 };
 
+/**
+ * Shell chrome shortcuts that open a surface instead of navigating to a route.
+ *
+ * Deliberately **not** in {@link SHORTCUTS}: `useShortcutNavigation` binds that list, and
+ * {@link CommandPalette} already owns its own Ctrl/Cmd+K listener — a second binding would toggle
+ * the dialog twice per keypress. This list exists so the Help → Shortcuts tab can document the
+ * palette, which was previously discoverable only by hovering the header search input.
+ */
+export const SHELL_COMMAND_SHORTCUTS: PageShortcutEntry[] = [
+  {
+    key: "ctrl+k",
+    label: "Command palette",
+    description:
+      "Open the command palette to jump to any page, review, or task (Cmd+K on Mac; works while the header search box has focus)",
+  },
+];
+
 export const ALERTS_PAGE_SHORTCUTS: PageShortcutEntry[] = [
   {
     key: "alt+1",

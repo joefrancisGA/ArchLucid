@@ -1,7 +1,7 @@
 import { fireEvent, render, screen } from "@testing-library/react";
 import { beforeAll, beforeEach, describe, expect, it, vi } from "vitest";
 
-import { CommandPalette } from "@/components/CommandPalette";
+import { CommandPalette, palettePressUsesPaletteModifier } from "@/components/CommandPalette";
 import {
   COMMAND_PALETTE_ARIA_KEYSHORTCUTS,
   COMMAND_PALETTE_DISPLAY_SHORTCUT,
@@ -104,5 +104,60 @@ describe("CommandPalette", () => {
     fireEvent.keyDown(window, { key: "k", metaKey: true, bubbles: true });
 
     expect(screen.getByRole("dialog")).toBeInTheDocument();
+  });
+
+  it("opens while a text field has focus, so the header search box is not a dead end", () => {
+    render(<CommandPalette />);
+
+    const searchBox = document.createElement("input");
+    document.body.append(searchBox);
+    searchBox.focus();
+
+    fireEvent.keyDown(searchBox, { key: "k", ctrlKey: true, bubbles: true });
+
+    expect(screen.getByRole("dialog")).toBeInTheDocument();
+
+    searchBox.remove();
+  });
+});
+
+describe("palettePressUsesPaletteModifier", () => {
+  function withUserAgent(userAgent: string, assert: () => void): void {
+    const original = Object.getOwnPropertyDescriptor(navigator, "userAgent");
+    Object.defineProperty(navigator, "userAgent", { value: userAgent, configurable: true });
+
+    try {
+      assert();
+    } finally {
+      if (original !== undefined) {
+        Object.defineProperty(navigator, "userAgent", original);
+      }
+    }
+  }
+
+  it("ignores an unmodified K so typing never opens the palette", () => {
+    expect(palettePressUsesPaletteModifier({ ctrlKey: false, metaKey: false }, null)).toBe(false);
+  });
+
+  it("accepts either modifier outside a text field", () => {
+    expect(palettePressUsesPaletteModifier({ ctrlKey: true, metaKey: false }, null)).toBe(true);
+    expect(palettePressUsesPaletteModifier({ ctrlKey: false, metaKey: true }, null)).toBe(true);
+  });
+
+  it("accepts Ctrl+K inside a text field on non-Apple platforms", () => {
+    withUserAgent("Mozilla/5.0 (Windows NT 10.0; Win64; x64)", () => {
+      expect(palettePressUsesPaletteModifier({ ctrlKey: true, metaKey: false }, document.createElement("input"))).toBe(
+        true,
+      );
+    });
+  });
+
+  it("leaves Ctrl+K to the field on Apple platforms, where it is kill-to-end-of-line", () => {
+    withUserAgent("Mozilla/5.0 (Macintosh; Intel Mac OS X 10_15_7)", () => {
+      const field = document.createElement("textarea");
+
+      expect(palettePressUsesPaletteModifier({ ctrlKey: true, metaKey: false }, field)).toBe(false);
+      expect(palettePressUsesPaletteModifier({ ctrlKey: false, metaKey: true }, field)).toBe(true);
+    });
   });
 });

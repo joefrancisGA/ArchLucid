@@ -18,7 +18,12 @@ import {
 import { Input } from "@/components/ui/input";
 import { Tabs, TabsContent, TabsList, TabsTrigger } from "@/components/ui/tabs";
 import { KeyboardShortcutsTabContent, matchesShortcutQuery } from "@/components/KeyboardShortcutsHelpContent";
-import { ALERTS_PAGE_SHORTCUTS, SHORTCUTS } from "@/lib/shortcut-registry";
+import {
+  ALERTS_PAGE_SHORTCUTS,
+  FINDINGS_PAGE_SHORTCUTS,
+  SHELL_COMMAND_SHORTCUTS,
+  SHORTCUTS,
+} from "@/lib/shortcut-registry";
 import { corePilotHelpStepForPath } from "@/lib/core-pilot-help-step-for-path";
 import { CORE_PILOT_STEPS } from "@/lib/core-pilot-steps";
 import {
@@ -52,18 +57,11 @@ const KEY_CONCEPTS: { label: string; text: string }[] = [
   { label: "Artifacts", text: "Supporting files, findings, and review materials." },
 ];
 
+/** Every row the Shortcuts tab can render, so a query never hides a shortcut the tab would show. */
 function allShortcutRowsForSearch(): { key: string; description: string }[] {
-  const rows: { key: string; description: string }[] = [];
-
-  for (const s of SHORTCUTS) {
-    rows.push({ key: s.key, description: s.description });
-  }
-
-  for (const s of ALERTS_PAGE_SHORTCUTS) {
-    rows.push({ key: s.key, description: s.description });
-  }
-
-  return rows;
+  return [...SHELL_COMMAND_SHORTCUTS, ...SHORTCUTS, ...ALERTS_PAGE_SHORTCUTS, ...FINDINGS_PAGE_SHORTCUTS].map(
+    (entry) => ({ key: entry.key, description: entry.description }),
+  );
 }
 
 type HelpGuideTopicLinkRowProps = {

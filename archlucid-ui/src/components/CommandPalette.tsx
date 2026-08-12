@@ -20,6 +20,7 @@ import {
 import {
   COMMAND_PALETTE_ARIA_KEYSHORTCUTS,
   commandPaletteOpenAriaLabel,
+  isApplePlatformShortcutModifier,
 } from "@/lib/keyboard-shortcut-display";
 import { useNavCallerAuthorityRank, useNavCommittedArchitectureReview, useOperatorNavAuthority } from "@/components/operator/OperatorNavAuthorityProvider";
 import { useOperatorShellAuditRunId } from "@/hooks/useOperatorShellAuditRunId";
@@ -434,6 +435,37 @@ function RunIdQuickOpen({
   );
 }
 
+function isEditableEventTarget(target: EventTarget | null): boolean {
+  if (target instanceof HTMLInputElement || target instanceof HTMLTextAreaElement) {
+    return true;
+  }
+
+  return target instanceof HTMLElement && target.isContentEditable;
+}
+
+/**
+ * True when this keypress should toggle the palette.
+ *
+ * The shortcut deliberately stays live while a text field has focus: the header search box is the
+ * first place a reader hunting for the palette lands, and suppressing the shortcut there hid the
+ * palette from exactly that person. The one exception is Apple platforms, where Ctrl+K inside a
+ * field is the "kill to end of line" binding — there, only Cmd+K opens the palette.
+ */
+export function palettePressUsesPaletteModifier(
+  event: Pick<KeyboardEvent, "ctrlKey" | "metaKey">,
+  target: EventTarget | null,
+): boolean {
+  if (!event.ctrlKey && !event.metaKey) {
+    return false;
+  }
+
+  if (isEditableEventTarget(target) && isApplePlatformShortcutModifier()) {
+    return event.metaKey;
+  }
+
+  return true;
+}
+
 /**
  * Ctrl+K command palette (metaKey+K on macOS): jump to operator pages surfaced in nav config.
  * Uses **`listNavGroupsVisibleInOperatorShell`** (tier → authority, omit empty groups) — same as sidebar and mobile drawer.
@@ -502,21 +534,16 @@ export function CommandPalette({ showTrigger = false }: CommandPaletteProps) {
 
   useEffect(() => {
     const onKeyDown = (event: KeyboardEvent) => {
-      const target = event.target;
-
-      if (
-        !open &&
-        (target instanceof HTMLInputElement ||
-          target instanceof HTMLTextAreaElement ||
-          (target instanceof HTMLElement && target.isContentEditable))
-      ) {
+      if (event.key.toLowerCase() !== "k") {
         return;
       }
 
-      if ((event.ctrlKey || event.metaKey) && event.key.toLowerCase() === "k") {
-        event.preventDefault();
-        setOpen((previous) => !previous);
+      if (!palettePressUsesPaletteModifier(event, event.target)) {
+        return;
       }
+
+      event.preventDefault();
+      setOpen((previous) => !previous);
     };
 
     window.addEventListener("keydown", onKeyDown);

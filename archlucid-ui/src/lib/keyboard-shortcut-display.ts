@@ -31,9 +31,19 @@ export const GLOBAL_SEARCH_PLACEHOLDER = GLOBAL_FIND_PAGE_SEARCH.placeholder;
  */
 export const COMMAND_PALETTE_ARIA_KEYSHORTCUTS = "Control+K Meta+K";
 
+/**
+ * True on Apple platforms, where the palette's primary modifier is Cmd.
+ *
+ * Also decides whether Ctrl+K may open the palette from inside a text field: on macOS, Ctrl+K is the
+ * field-level "kill to end of line" binding, so {@link CommandPalette} leaves it to the field there.
+ */
+export function isApplePlatformShortcutModifier(): boolean {
+  return typeof navigator !== "undefined" && /Mac|iPhone|iPad|iPod/.test(navigator.userAgent);
+}
+
 /** Visible shortcut label for tooltips — Cmd+K on Apple platforms, Ctrl+K elsewhere. */
 export function resolveCommandPaletteDisplayShortcut(): string {
-  if (typeof navigator !== "undefined" && /Mac|iPhone|iPad|iPod/.test(navigator.userAgent)) {
+  if (isApplePlatformShortcutModifier()) {
     return "Cmd+K";
   }
 
