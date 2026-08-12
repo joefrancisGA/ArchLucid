@@ -19,7 +19,6 @@ import { RunScopedAuditExportButton } from "@/components/runs/RunScopedAuditExpo
 import { OperatorApiProblem } from "@/components/operator/OperatorApiProblem";
 import { FatalPageReportProblemSupportRow } from "@/components/support/FatalPageReportProblemAction";
 import {
-  OperatorEmptyState,
   OperatorMalformedCallout,
 } from "@/components/operator/OperatorShellMessage";
 import { OperatorSectionRetryButton } from "@/components/operator/OperatorSectionRetryButton";
@@ -39,7 +38,7 @@ import type { ArtifactDescriptor, ManifestSummary, RunTrustEvidenceCard } from "
 import type { ManifestFeasibilityVerdict } from "@/types/feasibility-verdict";
 import { OPERATOR_LINK, OPERATOR_TYPOGRAPHY } from "@/lib/design-tokens";
 import { BUYER_REVIEW_DETAIL_IN_PROGRESS_FINALIZE_ANCHOR } from "@/lib/first-week-route-guidance";
-import { RUN_DELIVERABLES_PENDING_FINALIZE_COMPACT } from "@/lib/enterprise-compact-empty-state-presets";
+import { RUN_DELIVERABLES_PENDING_FINALIZE_COMPACT, RUN_DETAIL_DECISION_RECEIPT_EMPTY_COMPACT } from "@/lib/enterprise-compact-empty-state-presets";
 import {
   RUN_DETAIL_DELIVERABLES_BUYER_TABLE_LEAD,
   RUN_DETAIL_DELIVERABLES_INTRO,
@@ -223,12 +222,9 @@ export function RunDetailArtifactsExportsSection(
 
           {!artifactsFailure && !artifactsMalformed && artifacts.length === 0 ? (
             showDecisionReceipt ? (
-              <OperatorEmptyState title="Decision delivered — design not feasible">
-                <div className="flex flex-col items-center justify-center space-y-3 py-4 text-center">
-                  <p className={cn("m-0 max-w-prose text-al-text-secondary", OPERATOR_TYPOGRAPHY.body)}>
-                    A defensible &ldquo;no&rdquo; is a complete deliverable. Export the decision receipt for audit,
-                    sponsor handoff, or portfolio records.
-                  </p>
+              <EnterpriseCompactEmptyState
+                {...RUN_DETAIL_DECISION_RECEIPT_EMPTY_COMPACT}
+                footer={
                   <DecisionReceiptExportButton
                     context={{
                       source: "committed-run",
@@ -236,8 +232,8 @@ export function RunDetailArtifactsExportsSection(
                       verdict: feasibilityVerdict,
                     }}
                   />
-                </div>
-              </OperatorEmptyState>
+                }
+              />
             ) : (
               <EnterpriseCompactEmptyState
                 {...RUN_DELIVERABLES_PENDING_FINALIZE_COMPACT}

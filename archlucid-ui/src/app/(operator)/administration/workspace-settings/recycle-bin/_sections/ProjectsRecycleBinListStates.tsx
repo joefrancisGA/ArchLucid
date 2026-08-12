@@ -2,9 +2,10 @@
 
 import Link from "next/link";
 
-import { OperatorEmptyState, OperatorLoadingNotice } from "@/components/operator/OperatorShellMessage";
+import { EnterpriseCompactEmptyState } from "@/components/EnterpriseCompactEmptyState";
+import { OperatorLoadingNotice } from "@/components/operator/OperatorShellMessage";
 import { StatusTag } from "@/components/ui/status-tag";
-import { OPERATOR_LAYOUT, OPERATOR_TYPOGRAPHY } from "@/lib/design-tokens";
+import { OPERATOR_LAYOUT, OPERATOR_LINK, OPERATOR_TYPOGRAPHY } from "@/lib/design-tokens";
 import {
   PROJECTS_RECYCLE_BIN_EMPTY_ARCHITECTURES_HREF,
   PROJECTS_RECYCLE_BIN_EMPTY_ARCHITECTURES_LINK_LABEL,
@@ -36,8 +37,10 @@ export function ProjectsRecycleBinEmptyState(props: ProjectsRecycleBinEmptyState
   const retentionHint = recycleBinEmptyStateRetentionHint(props.retentionDays);
 
   return (
-    <div data-testid="projects-recycle-bin-empty-state">
-      <OperatorEmptyState title={PROJECTS_RECYCLE_BIN_EMPTY_STATE_TITLE}>
+    <EnterpriseCompactEmptyState
+      testId="projects-recycle-bin-empty-state"
+      title={PROJECTS_RECYCLE_BIN_EMPTY_STATE_TITLE}
+      description={
         <div className={cn(OPERATOR_LAYOUT.sectionHeadingStack)}>
           <StatusTag
             data-testid="projects-recycle-bin-empty-status"
@@ -48,7 +51,7 @@ export function ProjectsRecycleBinEmptyState(props: ProjectsRecycleBinEmptyState
           <p className={cn("m-0", OPERATOR_TYPOGRAPHY.body)}>
             Delete a project from{" "}
             <Link
-              className="font-medium text-sky-700 underline underline-offset-2 dark:text-sky-400"
+              className={OPERATOR_LINK.nav}
               href={PROJECTS_RECYCLE_BIN_EMPTY_DELETE_SURFACE_HREF}
               data-testid="projects-recycle-bin-empty-delete-surface-link"
             >
@@ -58,16 +61,13 @@ export function ProjectsRecycleBinEmptyState(props: ProjectsRecycleBinEmptyState
           </p>
           <p className={cn("m-0 text-al-text-secondary", OPERATOR_TYPOGRAPHY.helper)}>
             Soft-deleted projects are also removed from the active list in{" "}
-            <Link
-              className="font-medium text-sky-700 underline underline-offset-2 dark:text-sky-400"
-              href={PROJECTS_RECYCLE_BIN_EMPTY_ARCHITECTURES_HREF}
-            >
+            <Link className={OPERATOR_LINK.nav} href={PROJECTS_RECYCLE_BIN_EMPTY_ARCHITECTURES_HREF}>
               {PROJECTS_RECYCLE_BIN_EMPTY_ARCHITECTURES_LINK_LABEL}
             </Link>
             .
           </p>
         </div>
-      </OperatorEmptyState>
-    </div>
+      }
+    />
   );
 }

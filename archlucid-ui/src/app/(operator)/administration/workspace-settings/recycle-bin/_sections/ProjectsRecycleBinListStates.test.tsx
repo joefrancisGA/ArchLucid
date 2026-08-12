@@ -21,7 +21,7 @@ describe("ProjectsRecycleBinListStates (TB-1291)", () => {
     expect(screen.getByRole("status")).toHaveTextContent(PROJECTS_RECYCLE_BIN_LOADING_NOTICE);
   });
 
-  it("renders OperatorEmptyState with quiet StatusTag and retention copy", () => {
+  it("renders compact empty state with quiet StatusTag and retention copy", () => {
     render(<ProjectsRecycleBinEmptyState retentionDays={30} />);
 
     expect(screen.getByTestId("projects-recycle-bin-empty-state")).toBeInTheDocument();

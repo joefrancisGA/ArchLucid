@@ -12,9 +12,9 @@ import { ManifestBuyerBundleDownloadSection } from "@/components/ManifestBuyerBu
 import { ManifestDeliverableGrid } from "@/components/ManifestDeliverableGrid";
 import { ManifestDetailSummaryPanel } from "@/components/ManifestDetailSummaryPanel";
 import { ManifestTopDecisionsCard } from "@/components/ManifestTopDecisionsCard";
+import { EnterpriseCompactEmptyState } from "@/components/EnterpriseCompactEmptyState";
 import { OperatorApiProblem } from "@/components/operator/OperatorApiProblem";
 import {
-  OperatorEmptyState,
   OperatorMalformedCallout,
 } from "@/components/operator/OperatorShellMessage";
 import { Button } from "@/components/ui/button";
@@ -47,6 +47,7 @@ import {
   OPERATOR_NAV_GROUP_LABEL,
   OPERATOR_TYPOGRAPHY,
 } from "@/lib/design-tokens";
+import { MANIFEST_ARTIFACTS_LIST_EMPTY_COMPACT } from "@/lib/enterprise-compact-empty-state-presets";
 
 import type { ManifestDetailPageSuccessModel } from "./manifest-detail-page-model";
 type ManifestDetailPageViewProps = {
@@ -409,22 +410,23 @@ export function ManifestDetailPageView(props: ManifestDetailPageViewProps) {
           )}
 
           {!model.artifactsFailure && !model.artifactsMalformed && artifacts.length === 0 && (
-            <OperatorEmptyState title={buyerPolishedLayout ? BUYER_MANIFEST_NO_DELIVERABLES_YET : "No artifacts listed for this review"}>
-              {buyerPolishedLayout ? (
-                <p className="m-0">{BUYER_MANIFEST_DOWNLOAD_PREPARING}</p>
-              ) : (
-                <>
-                  <p className="m-0">
-                    The summary loaded, but the artifact descriptor list is empty. Bundle download may be available when
-                    there is a bundle.
-                  </p>
-                  <p className={cn("m-0 mt-2 text-al-text-secondary", OPERATOR_TYPOGRAPHY.body)}>
-                    This is a <strong>valid empty result</strong> (HTTP 200 with an empty list), not a failed artifact-list
-                    request. <strong>Bundle ZIP may return 404</strong> when no packaged bundle exists yet.
-                  </p>
-                </>
-              )}
-            </OperatorEmptyState>
+            <EnterpriseCompactEmptyState
+              {...MANIFEST_ARTIFACTS_LIST_EMPTY_COMPACT}
+              title={buyerPolishedLayout ? BUYER_MANIFEST_NO_DELIVERABLES_YET : MANIFEST_ARTIFACTS_LIST_EMPTY_COMPACT.title}
+              description={
+                buyerPolishedLayout ? (
+                  <p className="m-0">{BUYER_MANIFEST_DOWNLOAD_PREPARING}</p>
+                ) : (
+                  <>
+                    <p className="m-0">{MANIFEST_ARTIFACTS_LIST_EMPTY_COMPACT.description}</p>
+                    <p className={cn("m-0 mt-2 text-al-text-secondary", OPERATOR_TYPOGRAPHY.body)}>
+                      This is a <strong>valid empty result</strong> (HTTP 200 with an empty list), not a failed artifact-list
+                      request. <strong>Bundle ZIP may return 404</strong> when no packaged bundle exists yet.
+                    </p>
+                  </>
+                )
+              }
+            />
           )}
 
           {!model.artifactsFailure && !model.artifactsMalformed && artifacts.length > 0 && buyerPolishedLayout ? (

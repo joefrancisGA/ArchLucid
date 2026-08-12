@@ -319,6 +319,22 @@ export const RUN_DELIVERABLES_PENDING_FINALIZE_COMPACT: EnterpriseCompactEmptySt
   actions: [],
 };
 
+/** Run detail deliverables when a negative feasibility decision is the complete deliverable. */
+export const RUN_DETAIL_DECISION_RECEIPT_EMPTY_COMPACT: EnterpriseCompactEmptyStateProps = {
+  testId: "run-detail-decision-receipt-empty-state",
+  title: "Decision delivered — design not feasible",
+  description:
+    'A defensible "no" is a complete deliverable. Export the decision receipt for audit, sponsor handoff, or portfolio records.',
+};
+
+/** Signed-record manifest when the artifact descriptor list is empty (operator chrome). */
+export const MANIFEST_ARTIFACTS_LIST_EMPTY_COMPACT: EnterpriseCompactEmptyStateProps = {
+  testId: "manifest-deliverables-empty-state",
+  title: "No artifacts listed for this review",
+  description:
+    "The summary loaded, but the artifact descriptor list is empty. Bundle download may be available when there is a bundle.",
+};
+
 /** Buyer-polished compare idle state. */
 export const COMPARE_WAITING_BUYER_COMPACT: EnterpriseCompactEmptyStateProps = {
   testId: "compare-waiting-empty-state",
@@ -335,10 +351,6 @@ export const ALERT_RULES_LIST_EMPTY_COMPACT: EnterpriseCompactEmptyStateProps = 
   {
     testId: "alert-rules-empty",
     description: ALERT_RULES_LIST_EMPTY_BODY,
-    actions: [
-      { label: "Open policy packs", href: "/governance/policy-packs", variant: "outline" },
-      { label: "Open Standards & rules", href: "/governance/standards-and-rules", variant: "outline" },
-    ],
   },
 );
 
