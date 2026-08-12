@@ -20,7 +20,6 @@ const EXEMPT_PREFIXES: readonly string[] = ["app/(operator)/auth/"];
  * the subtitle measure, actions row, and bottom rule. This list may shrink but must never grow.
  */
 const HAND_ROLLED_PAGE_TITLE_BASELINE: ReadonlySet<string> = new Set([
-  "app/(operator)/_sections/OperatorHomePageSuspenseFallback.tsx",
   "app/(operator)/architecture/reviews/[runId]/_sections/RunDetailPageFetchErrorView.tsx",
   "app/(operator)/architecture/reviews/[runId]/_sections/RunDetailPageMalformedResponseView.tsx",
   "app/(operator)/architecture/reviews/[runId]/_sections/RunDetailWorkspaceChrome.tsx",
@@ -28,11 +27,6 @@ const HAND_ROLLED_PAGE_TITLE_BASELINE: ReadonlySet<string> = new Set([
   "app/(operator)/architecture/reviews/[runId]/findings/[findingId]/_sections/FindingDetailPageView.tsx",
   "app/(operator)/architecture/reviews/[runId]/page.tsx",
   "app/(operator)/architecture/reviews/[runId]/print/_sections/PackagePrintPageView.tsx",
-  "app/(operator)/governance/_sections/GovernanceWorkflowSuspenseFallback.tsx",
-  "app/(operator)/governance/signed-records/[manifestId]/_sections/ManifestDetailPageErrorViews.tsx",
-  "app/(operator)/governance/signed-records/[manifestId]/_sections/ManifestDetailPageView.tsx",
-  "app/(operator)/governance/signed-records/[manifestId]/artifacts/[artifactId]/loading.tsx",
-  "app/(operator)/governance/signed-records/[manifestId]/loading.tsx",
 ]);
 
 function collectPageViews(directory: string): string[] {

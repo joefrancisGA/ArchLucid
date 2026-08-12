@@ -1,7 +1,7 @@
-import { cn } from "@/lib/utils";
-import Link from "next/link";
+﻿import Link from "next/link";
 
-import { OPERATOR_LINK, OPERATOR_TYPOGRAPHY } from "@/lib/design-tokens";
+import { OperatorPageHeader } from "@/components/operator/OperatorPageHeader";
+import { OPERATOR_LINK } from "@/lib/design-tokens";
 import { SIGNED_RECORD_ARTIFACT_PAGE_TITLE } from "@/lib/signed-record-artifact-page-copy";
 import { SIGNED_RECORDS_LIST_PATH } from "@/lib/signed-records-paths";
 
@@ -14,13 +14,18 @@ export default function SignedRecordArtifactLoading(): React.JSX.Element {
       aria-live="polite"
       aria-busy="true"
     >
-      <nav aria-label="Breadcrumb" className={cn("text-al-text-secondary", OPERATOR_TYPOGRAPHY.body)}>
-        <Link className={OPERATOR_LINK.nav} href={SIGNED_RECORDS_LIST_PATH}>
-          Signed review records
-        </Link>
-      </nav>
-      <h1 className={cn("m-0", OPERATOR_TYPOGRAPHY.pageTitle)}>{SIGNED_RECORD_ARTIFACT_PAGE_TITLE}</h1>
-      <p className={cn("m-0 text-al-text-secondary", OPERATOR_TYPOGRAPHY.body)}>Loading artifact preview…</p>
+      <OperatorPageHeader
+        title={SIGNED_RECORD_ARTIFACT_PAGE_TITLE}
+        headingLevel="h1"
+        subtitle="Loading artifact preview…"
+        breadcrumb={
+          <nav aria-label="Breadcrumb">
+            <Link className={OPERATOR_LINK.nav} href={SIGNED_RECORDS_LIST_PATH}>
+              Signed review records
+            </Link>
+          </nav>
+        }
+      />
     </div>
   );
 }

@@ -4,6 +4,7 @@ import Link from "next/link";
 import { OperatorApiProblem } from "@/components/operator/OperatorApiProblem";
 import { OperatorBrandedTransientFailure } from "@/components/operator/OperatorBrandedTransientFailure";
 import { OperatorErrorUiReferenceLine } from "@/components/operator/OperatorErrorUiReferenceLine";
+import { OperatorPageHeader } from "@/components/operator/OperatorPageHeader";
 import {
   OperatorErrorCallout,
   OperatorMalformedCallout,
@@ -26,14 +27,15 @@ type ManifestDetailPageErrorFrameProps = {
 export function ManifestDetailPageErrorFrame(props: ManifestDetailPageErrorFrameProps) {
   return (
     <div className="w-full max-w-[1200px] space-y-4 px-1 py-2 sm:px-0">
-      <p className={cn("m-0 text-al-text-secondary", OPERATOR_TYPOGRAPHY.body)}>
-        <Link className={OPERATOR_LINK.nav} href="/architecture/reviews">
-          Back to reviews
-        </Link>
-      </p>
-      <h1 className={cn("m-0", OPERATOR_TYPOGRAPHY.pageTitle)}>
-        {props.buyerPolishedLayout ? "Architecture review" : "Finalized architecture review"}
-      </h1>
+      <OperatorPageHeader
+        title={props.buyerPolishedLayout ? "Architecture review" : "Finalized architecture review"}
+        headingLevel="h1"
+        breadcrumb={
+          <Link className={OPERATOR_LINK.nav} href="/architecture/reviews">
+            Back to reviews
+          </Link>
+        }
+      />
       {props.children}
     </div>
   );

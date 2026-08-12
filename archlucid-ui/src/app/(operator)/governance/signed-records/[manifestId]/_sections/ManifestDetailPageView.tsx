@@ -2,6 +2,7 @@ import { cn } from "@/lib/utils";
 import Link from "next/link";
 
 import { OperatorDemoStaticBanner } from "@/components/operator/OperatorDemoStaticBanner";
+import { OperatorPageHeader } from "@/components/operator/OperatorPageHeader";
 import { CtoDemoBuyerValueStrip } from "@/components/cto-demo/CtoDemoBuyerValueStrip";
 import {
   OperatorEvidenceLimitsFooter,
@@ -235,45 +236,45 @@ export function ManifestDetailPageView(props: ManifestDetailPageViewProps) {
         <OperatorDemoStaticBanner />
       ) : null}
 
-      <div className="flex flex-col gap-3 sm:flex-row sm:flex-wrap sm:items-start sm:justify-between">
-        <div>
-          <h1 className={cn("m-0", OPERATOR_TYPOGRAPHY.pageTitle)}>
-            {showcaseBuyerManifestHeadline === true
-              ? `${BUYER_SIGNED_DECISION_RECORD_LABEL} — ${BUYER_MANIFEST_HEADLINE_SUFFIX}`
-              : buyerPolishedLayout
-                ? BUYER_SIGNED_DECISION_RECORD_LABEL
-                : "Finalized architecture review"}
-          </h1>
-        </div>
-        {buyerPolishedLayout !== true ? (
-          <div className="flex flex-wrap gap-2">
+      <OperatorPageHeader
+        title={
+          showcaseBuyerManifestHeadline === true
+            ? `${BUYER_SIGNED_DECISION_RECORD_LABEL} — ${BUYER_MANIFEST_HEADLINE_SUFFIX}`
+            : buyerPolishedLayout
+              ? BUYER_SIGNED_DECISION_RECORD_LABEL
+              : "Finalized architecture review"
+        }
+        headingLevel="h1"
+        subtitle={
+          buyerPolishedLayout ? (
+            <>
+              {showcasePackage === true ? (
+                BUYER_MANIFEST_AUTHORITY_SUMMARY
+              ) : (
+                <>
+                  This is the signed review record for the architecture review — decisions, findings, and the files you
+                  can open or download.
+                </>
+              )}
+            </>
+          ) : (
+            <>
+              A signed review record is the immutable authority for this review. It captures decisions, findings, and
+              the downloadable artifact bundle linked from review detail.
+            </>
+          )
+        }
+        subtitleClassName="max-w-prose"
+        actions={
+          buyerPolishedLayout !== true ? (
             <Button variant="primary" size="sm" asChild>
               <a href={getBundleDownloadUrl(manifestId)}>Export review bundle</a>
             </Button>
-          </div>
-        ) : null}
-      </div>
+          ) : undefined
+        }
+      />
 
-      <p className={cn("m-0 max-w-prose text-al-text-secondary", OPERATOR_TYPOGRAPHY.body)}>
-        {buyerPolishedLayout ? (
-          <>
-            {showcasePackage === true ? (
-              BUYER_MANIFEST_AUTHORITY_SUMMARY
-            ) : (
-              <>
-                This is the signed review record for the architecture review — decisions, findings, and the files you can
-                open or download.
-              </>
-            )}
-          </>
-        ) : (
-          <>
-            A signed review record is the immutable authority for this review. It captures decisions, findings, and the
-            downloadable artifact bundle linked from review detail.
-          </>
-        )}
-      </p>
-{showcaseBuyerManifestHeadline === true ? (
+      {showcaseBuyerManifestHeadline === true ? (
         <section
           aria-labelledby="manifest-authority-summary-heading"
           className="rounded-md border border-neutral-200 bg-al-surface-raised dark:border-neutral-800 p-4 shadow-sm"

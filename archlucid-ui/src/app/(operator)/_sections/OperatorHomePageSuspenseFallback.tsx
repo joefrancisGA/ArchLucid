@@ -1,14 +1,13 @@
 import { OperatorHomeRunsDashboardListSkeleton } from "@/components/operator-home/OperatorHomeRunsDashboardListSkeleton";
 import { OperatorPageContainer } from "@/components/operator/OperatorPageContainer";
+import { OperatorPageHeader } from "@/components/operator/OperatorPageHeader";
 import { Skeleton } from "@/components/ui/skeleton";
 import {
   OPERATOR_HOME_PRIMARY_SECTION_HEADING,
   OPERATOR_LAYOUT,
-  OPERATOR_TYPOGRAPHY,
 } from "@/lib/design-tokens";
 import { OPERATOR_HOME_PAGE_TITLE } from "@/lib/operator/operator-home-page-copy";
 import { OPERATOR_HOME_RECENT_REVIEWS_HEADING } from "@/lib/operator/operator-home-recent-reviews-heading";
-import { cn } from "@/lib/utils";
 
 /**
  * Compact enterprise placeholder while the Overview dashboard RSC streams in.
@@ -24,12 +23,9 @@ export function OperatorHomePageSuspenseFallback(): React.JSX.Element {
       aria-label="Loading overview"
       role="status"
     >
-      <header className="space-y-2 border-b border-neutral-200 pb-4 dark:border-neutral-800">
-        <h1 className={cn("m-0 text-al-text-primary", OPERATOR_TYPOGRAPHY.pageTitle)}>
-          {OPERATOR_HOME_PAGE_TITLE}
-        </h1>
+      <OperatorPageHeader title={OPERATOR_HOME_PAGE_TITLE} headingLevel="h1">
         <Skeleton className="h-4 w-full max-w-xl" />
-      </header>
+      </OperatorPageHeader>
 
       <section
         aria-labelledby="operator-home-reviews-heading-skeleton"
