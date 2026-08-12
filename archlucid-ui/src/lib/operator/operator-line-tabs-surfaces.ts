@@ -7,7 +7,7 @@
 
 import { collectJsxOpeningTags } from "@/lib/operator/jsx-opening-tag";
 
-export type OperatorLineTabsSurfaceKind = "tabs-line" | "tabs-pill-default" | "sections-no-tabs";
+export type OperatorLineTabsSurfaceKind = "tabs-line" | "sections-no-tabs";
 
 export type OperatorLineTabsSurfaceEntry = {
   readonly id: string;
@@ -69,58 +69,71 @@ export const OPERATOR_LINE_TABS_GOLD_SURFACES: readonly OperatorLineTabsSurfaceE
 ];
 
 /**
- * Call sites that still inherit the primitive's legacy `pill` default.
+ * Call sites that inherit the primitive default rather than naming a variant.
  *
- * `tabs.tsx` defaults `variant` to `pill` even though **TB-1661** makes line tabs
- * normative, so these render pills without any per-call-site override. They carry no
- * banned chrome, so the fix is a primitive-level default flip (or an explicit
- * `variant="line"` per call site) rather than a class strip — an owner-visible restyle
- * of these hubs, tracked as the **TB-1665** residual.
+ * `tabs.tsx` now defaults to `line` (**TB-1665**), so inheriting is correct and these
+ * need no `variant` prop. They are still allowlisted so a future pill opt-in or chrome
+ * override on them fails CI.
  */
-export const OPERATOR_LINE_TABS_PILL_DEFAULT_RESIDUAL: readonly OperatorLineTabsSurfaceEntry[] = [
+export const OPERATOR_LINE_TABS_DEFAULT_VARIANT_SURFACES: readonly OperatorLineTabsSurfaceEntry[] = [
   {
     id: "digests-hub",
     modulePath: "components/digests/DigestsHubClient.tsx",
-    kind: "tabs-pill-default",
-    notes: "Named a gold exemplar in the contract but inherits the pill default.",
+    kind: "tabs-line",
+    notes: "Digests hub — inherits the line default.",
   },
   {
     id: "settings-roles",
     modulePath: "app/(operator)/administration/users/_sections/SettingsRolesPageView.tsx",
-    kind: "tabs-pill-default",
+    kind: "tabs-line",
     notes: "Users / roles / invitations.",
   },
   {
     id: "reviews-new-path-switcher",
     modulePath: "app/(operator)/architecture/reviews/new/ReviewsNewPathSwitcher.tsx",
-    kind: "tabs-pill-default",
-    notes: "Review creation paths — overflow helpers only, no pill override.",
+    kind: "tabs-line",
+    notes: "Review creation paths — overflow helpers only.",
   },
   {
     id: "architecture-created-workspace",
     modulePath: "components/architecture/ArchitectureCreatedWorkspace.tsx",
-    kind: "tabs-pill-default",
+    kind: "tabs-line",
     notes: "Architect workspace tabs.",
   },
   {
     id: "policy-packs",
     modulePath: "app/(operator)/governance/policy-packs/_sections/PolicyPacksPageView.tsx",
-    kind: "tabs-pill-default",
+    kind: "tabs-line",
     notes: "My packs / catalog.",
   },
   {
     id: "graph-presentation",
     modulePath: "app/(operator)/insights/evidence-graph/_sections/GraphPageContent.tsx",
-    kind: "tabs-pill-default",
+    kind: "tabs-line",
     notes: "Graph / trace presentation switch — <Tabs> root lives in GraphPageContent.",
   },
   {
     id: "help-azure-permissions-setup",
     modulePath: "app/(operator)/help/_sections/HelpAzurePermissionsSetupSection.tsx",
-    kind: "tabs-pill-default",
+    kind: "tabs-line",
     notes: "Portal / CLI setup steps.",
   },
 ];
+
+/** The legacy dialect the contract bans — no call site may opt back into it. */
+export const BANNED_TABS_VARIANT_OPT_IN = /variant\s*=\s*["']pill["']/;
+
+export function findPillVariantOptInPaths(sources: ReadonlyMap<string, string>): readonly string[] {
+  const offenders: string[] = [];
+
+  for (const [relativePath, source] of sources) {
+    if (BANNED_TABS_VARIANT_OPT_IN.test(source)) {
+      offenders.push(relativePath);
+    }
+  }
+
+  return offenders.sort();
+}
 
 /** Combined inventory for the **TB-1665** allowlist. */
 export const OPERATOR_LINE_TABS_MIGRATED_SURFACES: readonly OperatorLineTabsSurfaceEntry[] = [
@@ -132,7 +145,7 @@ export const OPERATOR_LINE_TABS_MIGRATED_SURFACES: readonly OperatorLineTabsSurf
 export const OPERATOR_LINE_TABS_ALLOWLIST: readonly OperatorLineTabsSurfaceEntry[] = [
   ...OPERATOR_LINE_TABS_GOLD_SURFACES,
   ...OPERATOR_LINE_TABS_MIGRATED_SURFACES,
-  ...OPERATOR_LINE_TABS_PILL_DEFAULT_RESIDUAL,
+  ...OPERATOR_LINE_TABS_DEFAULT_VARIANT_SURFACES,
 ];
 
 export function operatorLineTabsSurfacesByKind(

@@ -459,7 +459,7 @@ Product separator is a colon (`Label: value`), not a comma.
 | `StatusTag` | `archlucid-ui/src/components/ui/status-tag.tsx` | Run/governance badges |
 | `SeverityTag` | `archlucid-ui/src/components/ui/severity-tag.tsx` | Findings, governance queue |
 | `EnterpriseTable` | `archlucid-ui/src/components/ui/enterprise-table.tsx` | Reviews list, governance findings, operator audit |
-| `Tabs` / `EnterpriseTabs` | `archlucid-ui/src/components/ui/tabs.tsx` | Shared WAI-ARIA tabs (**TB-665**); **line-tab visual contract** (**TB-1661**); `variant="line"` is normative; `variant="pill"` is legacy until **TB-1662** strips overrides |
+| `Tabs` / `EnterpriseTabs` | `archlucid-ui/src/components/ui/tabs.tsx` | Shared WAI-ARIA tabs (**TB-665**); **line-tab visual contract** (**TB-1661**); `line` is the default and normative; `variant="pill"` is legacy and guard-banned (**TB-1665**) |
 
 ### Operator line tabs — visual contract (**TB-1661** — done 2026-08-12)
 
@@ -467,7 +467,7 @@ Product separator is a colon (`Label: value`), not a comma.
 
 | Rule | Required behavior |
 |------|-------------------|
-| Primitive | `<Tabs variant="line">` (styles in `tabs.tsx`). The shared default is still `pill`, so call sites must pass `variant="line"` explicitly until that default flips. Do **not** add new pill overrides or hand-rolled tab chrome. Surfaces still inheriting the `pill` default are pinned in `operator-line-tabs-surfaces.ts` (`OPERATOR_LINE_TABS_PILL_DEFAULT_RESIDUAL`, **TB-1665**). |
+| Primitive | `<Tabs>` — the shared default is **`line`** as of **TB-1665**, so call sites need no `variant` prop. `variant="pill"` is legacy, banned by the **TB-1665** guard, and must not be reintroduced. Do **not** add pill overrides or hand-rolled tab chrome. |
 | `TabsList` | Horizontal: `border-b border-neutral-200` under the full strip. **Ban** `border-0` on `TabsList`, pill trays, `rounded-full` chip rows, segmented `rounded-md` containers, and folder-tab stacks. |
 | `TabsTrigger` | Plain label text; active = `border-b-2` teal underline. **Ban** `rounded-full`, filled chip backgrounds, bordered pill chrome, and per-call-site `className` overrides that restyle triggers into pills, chips, or segmented trays. |
 | Overflow | `whitespace-nowrap`, `shrink-0`, and a horizontal scroll wrapper on `TabsList` are allowed. Optional count badge **inside** the label only. |
@@ -477,7 +477,7 @@ Product separator is a colon (`Label: value`), not a comma.
 
 **Gold exemplars (line-tab chrome):** review detail workspace tab strip (`ReviewDetailWorkspace`), Advisory hub (`AdvisoryHubClient`), shell help drawer (`HelpPanel`), reviews dashboard status filters (`RunsDashboardPanelClient`), alert rules hub (`AlertRulesHubClient`) — all declare `variant="line"`.
 
-**Known residual (TB-1665):** `/architecture/digests`, Settings roles, `/architecture/reviews/new`, architect workspace, policy packs, graph presentation, and Azure permissions setup carry **no** override classes but still inherit the `pill` default, so they render pills rather than line tabs. Closing this is a primitive default flip (or a per-call-site `variant="line"`), which restyles those hubs — see `OPERATOR_LINE_TABS_PILL_DEFAULT_RESIDUAL`.
+**Inheriting the default (TB-1665):** `/architecture/digests`, Settings roles, `/architecture/reviews/new`, architect workspace, policy packs, graph presentation, and Azure permissions setup pass no `variant` and therefore render line tabs via the flipped default — inventory `OPERATOR_LINE_TABS_DEFAULT_VARIANT_SURFACES`.
 
 **Code migration:** strip override classes and migrate remaining pill call sites under **TB-1662**–**TB-1665** (do not reopen Done **TB-665**–**TB-672** semantics work).
 

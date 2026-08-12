@@ -7,11 +7,11 @@ import {
   HAND_ROLLED_TABLIST_ALLOWED_PATHS,
   OPERATOR_LINE_TABS_ALLOWLIST,
   OPERATOR_LINE_TABS_GOLD_SURFACES,
-  OPERATOR_LINE_TABS_PILL_DEFAULT_RESIDUAL,
   TABS_LIST_BANNED_CLASS_FRAGMENTS,
   TABS_TRIGGER_BANNED_CLASS_FRAGMENTS,
   findHandRolledTablistPaths,
   findOperatorLineTabsChromeViolations,
+  findPillVariantOptInPaths,
   operatorLineTabsModuleHasBannedListChrome,
   operatorLineTabsModuleHasBannedTriggerChrome,
   operatorLineTabsModuleUsesLineVariant,
@@ -61,21 +61,18 @@ const TABLIST_REMEDIATION =
   + "aria-pressed (TB-1661 / TB-1664).";
 
 describe("operator line-tabs drift guard (TB-1665)", () => {
-  it("holds gold exemplars, migrated surfaces, and the pill residual in one allowlist", () => {
+  it("holds gold exemplars, migrated surfaces, and default-variant surfaces in one allowlist", () => {
     const ids = OPERATOR_LINE_TABS_ALLOWLIST.map((entry) => entry.id);
 
     expect(new Set(ids).size).toBe(ids.length);
     expect(OPERATOR_LINE_TABS_GOLD_SURFACES.length).toBeGreaterThan(0);
   });
 
-  it.each(
-    operatorLineTabsSurfacesByKind("tabs-line").map((entry) => [entry.id, entry.modulePath]),
-  )("%s declares variant=line", (_id, modulePath) => {
-    const source = readFileSync(join(SRC_ROOT, modulePath), "utf8");
+  it("defaults the shared primitive to line tabs", () => {
+    const primitive = readFileSync(join(SRC_ROOT, "components/ui/tabs.tsx"), "utf8");
 
-    expect(operatorLineTabsModuleUsesLineVariant(source), `${modulePath} must set variant="line"`).toBe(
-      true,
-    );
+    expect(primitive, 'Carbon line tabs are normative (TB-1661), so the default must be "line".')
+      .toContain('props.variant ?? "line"');
   });
 
   it.each(
@@ -90,27 +87,22 @@ describe("operator line-tabs drift guard (TB-1665)", () => {
     expect(operatorLineTabsModuleHasBannedTriggerChrome(source), CHROME_REMEDIATION).toEqual([]);
   });
 
-  it("pins the surfaces still inheriting the legacy pill default", () => {
-    const residualIds = OPERATOR_LINE_TABS_PILL_DEFAULT_RESIDUAL.map((entry) => entry.id).sort();
-
-    // Shrinks to [] when the primitive default flips to line (or each call site opts in).
-    expect(residualIds).toEqual([
-      "architecture-created-workspace",
-      "digests-hub",
-      "graph-presentation",
-      "help-azure-permissions-setup",
-      "policy-packs",
-      "reviews-new-path-switcher",
-      "settings-roles",
-    ]);
-  });
-
   it.each(
-    OPERATOR_LINE_TABS_PILL_DEFAULT_RESIDUAL.map((entry) => [entry.id, entry.modulePath]),
-  )("%s inherits the default rather than overriding chrome", (_id, modulePath) => {
+    operatorLineTabsSurfacesByKind("tabs-line")
+      .filter((entry) => entry.tabListTestId !== undefined || entry.id === "review-detail-workspace")
+      .map((entry) => [entry.id, entry.modulePath]),
+  )("%s declares variant=line explicitly", (_id, modulePath) => {
     const source = readFileSync(join(SRC_ROOT, modulePath), "utf8");
 
-    expect(operatorLineTabsModuleUsesLineVariant(source)).toBe(false);
+    expect(operatorLineTabsModuleUsesLineVariant(source)).toBe(true);
+  });
+
+  it("no source opts back into the legacy pill dialect", () => {
+    const offenders = findPillVariantOptInPaths(readAllTsxSources());
+
+    expect(offenders, 'variant="pill" is banned by TB-1661 — line tabs are the only visual.').toEqual(
+      [],
+    );
   });
 
   it("no source under src/ applies banned tab chrome", () => {
