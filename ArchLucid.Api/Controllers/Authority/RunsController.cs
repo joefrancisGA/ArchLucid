@@ -534,6 +534,11 @@ public sealed partial class RunsController(
     /// <summary>
     ///     Re-executes agents for <paramref name="runId" /> from cloned tasks/evidence, optionally committing a replay manifest.
     /// </summary>
+    // Replay never mutates the original run: it clones tasks/evidence into a new replay run, so a retry
+    // costs another execution but cannot corrupt the source. Matches the internal twin of this operation
+    // (InternalArchitectureDiagnosticsController) and the rest of the replay family. Declared explicitly
+    // because the posture classifier otherwise infers it from a neighboring action's window.
+    // idempotency-posture: operator-documented-safe-retry
     [HttpPost("review/{runId}/replay")]
     [Authorize(Policy = ArchLucidPolicies.ExecuteAuthority)]
     [ProducesResponseType(typeof(ReplayRunResponse), StatusCodes.Status200OK)]
