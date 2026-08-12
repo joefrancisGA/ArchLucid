@@ -1,5 +1,4 @@
 ﻿using System.Globalization;
-using System.IO;
 using System.Text;
 using System.Text.Json;
 
@@ -94,7 +93,7 @@ public sealed class RunQueryController(
         [FromRoute] string runId,
         CancellationToken cancellationToken)
     {
-        if (!TryParseRunId(runId, out Guid runGuid))
+        if (!AuthorityRunIdentifier.TryParse(runId, out Guid runGuid))
             return this.NotFoundProblem($"Run '{runId}' was not found.", ProblemTypes.RunNotFound);
 
         ScopeContext scope = scopeContextProvider.GetCurrentScope();
@@ -185,7 +184,7 @@ public sealed class RunQueryController(
         if (string.IsNullOrWhiteSpace(runId))
             return this.BadRequestProblem("runId is required.", ProblemTypes.ValidationFailed);
 
-        if (!TryParseRunId(runId, out Guid runGuid))
+        if (!AuthorityRunIdentifier.TryParse(runId, out Guid runGuid))
             return this.NotFoundProblem($"Run '{runId}' was not found.", ProblemTypes.RunNotFound);
 
         ScopeContext scope = scopeContextProvider.GetCurrentScope();
@@ -217,7 +216,7 @@ public sealed class RunQueryController(
         if (string.IsNullOrWhiteSpace(runId))
             return this.BadRequestProblem("runId is required.", ProblemTypes.ValidationFailed);
 
-        if (!TryParseRunId(runId, out Guid runGuid))
+        if (!AuthorityRunIdentifier.TryParse(runId, out Guid runGuid))
             return this.NotFoundProblem($"Run '{runId}' was not found.", ProblemTypes.RunNotFound);
 
         ScopeContext scope = scopeContextProvider.GetCurrentScope();
@@ -226,10 +225,15 @@ public sealed class RunQueryController(
         if (run?.FindingsSnapshotId is not Guid snapshotId)
             return this.NotFoundProblem($"Run '{runId}' has no findings snapshot.", ProblemTypes.ResourceNotFound);
 
-        bool orderByPriority = string.Equals(orderBy, "priority", StringComparison.OrdinalIgnoreCase);
+        bool orderByPriority = RunFindingsListResponseBuilder.IsPriorityOrder(orderBy);
         int pageTake = take ?? FindingPagination.DefaultTake;
-        string findingsFingerprint =
-            $"findings:{snapshotId:N}|order={(orderByPriority ? "priority" : "sortOrder")}|take={pageTake}|cs={cursorSortOrder}|cp={cursorPriorityRank}|cf={cursorFindingRecordId}";
+        string findingsFingerprint = RunFindingsListResponseBuilder.BuildRequestFingerprint(
+            snapshotId,
+            orderByPriority,
+            pageTake,
+            cursorSortOrder,
+            cursorPriorityRank,
+            cursorFindingRecordId);
         string findingsEtag = ConditionalGetNegotiation.FromRowVersionWithFingerprint(run.RowVersion, findingsFingerprint);
 
         IActionResult? findingsNotModified = this.TryConditionalNotModified(findingsEtag);
@@ -250,67 +254,18 @@ public sealed class RunQueryController(
             orderByPriority,
             cancellationToken);
 
-        string[] findingIds = page.Items
-            .Select(static row => row.FindingId)
-            .Where(static id => !string.IsNullOrWhiteSpace(id))
-            .Select(static id => id.Trim())
-            .Distinct(StringComparer.Ordinal)
-            .ToArray();
-
         IReadOnlyDictionary<string, RunFindingExternalTrackingProjection> trackingByFindingId =
             await runFindingExternalTrackingEnrichmentService.LoadForFindingsAsync(
                 scope.TenantId,
                 snapshotId,
-                findingIds,
+                RunFindingsListResponseBuilder.CollectFindingIds(page),
                 cancellationToken);
 
-        RunFindingListItem[] items = page.Items
-            .Select(row =>
-            {
-                RunFindingListItem item = new()
-                {
-                    FindingRecordId = row.FindingRecordId,
-                    FindingId = row.FindingId,
-                    Severity = row.Severity,
-                    Category = row.Category,
-                    FindingType = row.FindingType,
-                    Title = row.Title,
-                    SortOrder = row.SortOrder,
-                    PriorityRank = row.PriorityRank
-                };
-
-                if (trackingByFindingId.TryGetValue(row.FindingId.Trim(), out RunFindingExternalTrackingProjection? tracking))
-                {
-                    item.HumanReviewStatus = tracking.HumanReviewStatus;
-                    item.LatestDisposition = tracking.LatestDisposition;
-                    item.RevisitDueUtc = tracking.RevisitDueUtc;
-                    item.Provider = tracking.Provider;
-                    item.ExternalKey = tracking.ExternalKey;
-                    item.ExternalUrl = tracking.ExternalUrl;
-                    item.ItsmLinkedTicketsSummary = tracking.ItsmLinkedTicketsSummary;
-                    item.TrackedExternally = tracking.TrackedExternally;
-                    item.ExternalTrackingSummary = tracking.ExternalTrackingSummary;
-                }
-
-                return item;
-            })
-            .ToArray();
-
-        RunFindingsListResponse body = new()
-        {
-            RunId = runId.Trim(),
-            OrderBy = orderByPriority ? "priority" : "sortOrder",
-            Items = items,
-            HasMore = page.HasMore
-        };
-
-        if (page.HasMore && items.Length > 0)
-        {
-            RunFindingListItem last = items[^1];
-            body.NextCursorSortOrder = last.SortOrder;
-            body.NextCursorPriorityRank = last.PriorityRank;
-            body.NextCursorFindingRecordId = last.FindingRecordId;
-        }
+        RunFindingsListResponse body = RunFindingsListResponseBuilder.Build(
+            runId,
+            orderByPriority,
+            page,
+            trackingByFindingId);
 
         return this.OkWithConditionalEtag(body, findingsEtag);
     }
@@ -340,7 +295,7 @@ public sealed class RunQueryController(
         ScopeContext scope = scopeContextProvider.GetCurrentScope();
         Guid? findingsSnapshotId = null;
 
-        if (TryParseRunId(runId, out Guid runGuidForSnapshot))
+        if (AuthorityRunIdentifier.TryParse(runId, out Guid runGuidForSnapshot))
         {
             Persistence.Models.RunRecord? runRecord =
                 await authorityRunRepository.GetByIdAsync(scope, runGuidForSnapshot, cancellationToken);
@@ -360,7 +315,7 @@ public sealed class RunQueryController(
         string csv = ArchitectureRunFindingsCsvFormatter.BuildCsvContent(detail, trackingByFindingId);
         int findingCount = ArchitectureRunFindingsCsvFormatter.CountFindingsInDetail(detail);
 
-        Guid? auditRunId = TryParseRunId(runId, out Guid runGuidForAudit) ? runGuidForAudit : null;
+        Guid? auditRunId = AuthorityRunIdentifier.TryParse(runId, out Guid runGuidForAudit) ? runGuidForAudit : null;
 
         await auditService.LogAsync(
             new AuditEvent
@@ -377,7 +332,7 @@ public sealed class RunQueryController(
         string timeSegment = exportFormatter.FormatAttachmentSegmentUtc(utcStamp);
         string safeRunStem = auditRunId.HasValue
             ? runGuidForAudit.ToString("N", CultureInfo.InvariantCulture)
-            : SanitizeRunIdForFindingExport(runId);
+            : AuthorityRunIdentifier.SanitizeForFileStem(runId);
 
         string downloadName =
             $"architecture-run-{safeRunStem}-findings-{timeSegment}.csv";
@@ -401,7 +356,7 @@ public sealed class RunQueryController(
         if (string.IsNullOrWhiteSpace(runId))
             return this.BadRequestProblem("Run id is required.", ProblemTypes.ValidationFailed);
 
-        if (!TryParseRunId(runId, out Guid runGuid))
+        if (!AuthorityRunIdentifier.TryParse(runId, out Guid runGuid))
             return this.BadRequestProblem("Run id must be a valid GUID.", ProblemTypes.ValidationFailed);
 
         return await GetCytoscapeGraphSnapshotAsync(runGuid, cancellationToken);
@@ -429,42 +384,10 @@ public sealed class RunQueryController(
     {
         ScopeContext scope = scopeContextProvider.GetCurrentScope();
 
-        using System.Data.IDbConnection connection = await db.CreateOpenConnectionAsync(cancellationToken);
+        RunRoiTelemetryAggregate aggregate =
+            await RunRoiTelemetryAggregateQuery.ReadAsync(db, scope, cancellationToken);
 
-        ArgumentNullException.ThrowIfNull(connection);
-
-        const string sql = @"
-            SELECT 
-                COUNT(*) as TotalRuns,
-                SUM(EstimatedHoursSaved) as TotalHoursSaved,
-                AVG(RequestDurationMs + AgentExecutionDurationMs + ManualReviewDurationMs) as AverageTimeToCommitMs
-            FROM dbo.RunTelemetry t
-            INNER JOIN dbo.Runs r ON t.RunId = r.RunId
-            WHERE r.TenantId = @TenantId AND r.WorkspaceId = @WorkspaceId AND r.ProjectId = @ProjectId";
-
-        RunRoiTelemetryRow? aggregateRow =
-            await Dapper.SqlMapper.QueryFirstOrDefaultAsync<RunRoiTelemetryRow>(
-                connection,
-                sql,
-                new
-                {
-                    scope.TenantId,
-                    scope.WorkspaceId,
-                    scope.ProjectId
-                });
-
-        long totalRuns = aggregateRow?.TotalRuns ?? 0L;
-        decimal totalHoursSaved = aggregateRow?.TotalHoursSaved ?? 0m;
-        long averageTimeToCommitMs = aggregateRow?.AverageTimeToCommitMs is { } avgMs
-            ? (long)Math.Round(avgMs, MidpointRounding.AwayFromZero)
-            : 0L;
-
-        return Ok(new
-        {
-            TotalRuns = totalRuns,
-            TotalHoursSaved = totalHoursSaved,
-            AverageTimeToCommitMs = averageTimeToCommitMs
-        });
+        return Ok(aggregate);
     }
 
     /// <summary>
@@ -683,9 +606,9 @@ public sealed class RunQueryController(
                 await runDetailQueryService.ListRunSummariesKeysetAsync(cursor, effectiveTake, cancellationToken);
 
             string listFingerprint = $"keyset|cursor={cursor}|take={effectiveTake}";
-            string listEtag = BuildRunListEtag(keysetSummaries, listFingerprint);
+            string listEtag = RunListPageMapper.BuildEtag(keysetSummaries, listFingerprint);
             CursorPagedResponse<RunListItemResponse> keysetBody =
-                MapRunListPage(keysetSummaries, keysetHasMore, nextCursor, effectiveTake);
+                RunListPageMapper.MapPage(keysetSummaries, keysetHasMore, nextCursor, effectiveTake);
 
             return this.OkWithConditionalEtag(keysetBody, listEtag);
         }
@@ -699,60 +622,12 @@ public sealed class RunQueryController(
             await runDetailQueryService.ListRunSummariesOffsetAsync(effectiveOffset, effectiveLimit, cancellationToken);
 
         string offsetFingerprint = $"offset|offset={effectiveOffset}|limit={effectiveLimit}";
-        string offsetEtag = BuildRunListEtag(offsetSummaries, offsetFingerprint);
+        string offsetEtag = RunListPageMapper.BuildEtag(offsetSummaries, offsetFingerprint);
         CursorPagedResponse<RunListItemResponse> offsetBody =
-            MapRunListPage(offsetSummaries, offsetHasMore, nextCursor: null, effectiveLimit);
+            RunListPageMapper.MapPage(offsetSummaries, offsetHasMore, nextCursor: null, effectiveLimit);
 
         return this.OkWithConditionalEtag(offsetBody, offsetEtag);
     }
-
-    private static string BuildRunListEtag(IReadOnlyList<RunSummary> summaries, string requestFingerprint)
-    {
-        RunSummaryRowVersionSlice[] slices = summaries
-            .Select(summary =>
-            {
-                Guid runGuid = Guid.TryParseExact(summary.RunId, "N", out Guid nFormat)
-                    ? nFormat
-                    : Guid.Parse(summary.RunId);
-
-                return new RunSummaryRowVersionSlice(runGuid, summary.RowVersion);
-            })
-            .ToArray();
-
-        return ConditionalGetNegotiation.ComputeRunListEtag(slices, requestFingerprint);
-    }
-
-    private static CursorPagedResponse<RunListItemResponse> MapRunListPage(
-        IReadOnlyList<RunSummary> summaries,
-        bool hasMore,
-        string? nextCursor,
-        int requestedTake)
-    {
-        List<RunListItemResponse> mapped = summaries
-            .Select(r => new RunListItemResponse
-            {
-                RunId = r.RunId,
-                RequestId = r.RequestId,
-                Status = r.Status,
-                CreatedUtc = r.CreatedUtc,
-                CompletedUtc = r.CompletedUtc,
-                CurrentManifestVersion = r.CurrentManifestVersion,
-                SystemName = r.SystemName,
-                PackageOrigin = r.PackageOrigin,
-                GoldenManifestId = r.GoldenManifestId,
-                HasGoldenManifest = r.GoldenManifestId.HasValue
-            })
-            .ToList();
-
-        return new CursorPagedResponse<RunListItemResponse>
-        {
-            Items = mapped,
-            NextCursor = nextCursor,
-            HasMore = hasMore,
-            RequestedTake = requestedTake
-        };
-    }
-
 
     /// <summary>
     ///     Returns persisted artifact pointers for one finding (manifest snapshot ids, graph nodes, agent trace ids).
@@ -813,7 +688,7 @@ public sealed class RunQueryController(
                 ProblemTypes.ResourceNotFound);
         }
 
-        if (!SameAuthorityRunIdentifier(runId.Trim(), body.RunId))
+        if (!AuthorityRunIdentifier.Matches(runId.Trim(), body.RunId))
         {
             return this.NotFoundProblem(
                 $"Finding '{findingId.Trim()}' was not found for run '{runId.Trim()}'.",
@@ -847,7 +722,7 @@ public sealed class RunQueryController(
             if (zip is null)
                 return this.NotFoundProblem($"Run '{runId}' was not found.", ProblemTypes.RunNotFound);
 
-            Guid? auditRunId = TryParseRunId(runId, out Guid runGuidForAudit) ? runGuidForAudit : null;
+            Guid? auditRunId = AuthorityRunIdentifier.TryParse(runId, out Guid runGuidForAudit) ? runGuidForAudit : null;
 
             await auditService.LogAsync(
                 new AuditEvent
@@ -883,53 +758,11 @@ public sealed class RunQueryController(
 
     private async Task<bool> AuthorityRunExistsInScopeAsync(string runId, CancellationToken cancellationToken)
     {
-        if (!TryParseRunId(runId, out Guid runGuid))
+        if (!AuthorityRunIdentifier.TryParse(runId, out Guid runGuid))
             return false;
 
         ScopeContext scope = scopeContextProvider.GetCurrentScope();
 
         return await authorityRunRepository.GetByIdAsync(scope, runGuid, cancellationToken) is not null;
-    }
-
-    private static bool TryParseRunId(string runId, out Guid runGuid)
-    {
-        return Guid.TryParseExact(runId, "N", out runGuid) || Guid.TryParse(runId, out runGuid);
-    }
-
-    private static string SanitizeRunIdForFindingExport(string runId)
-    {
-        if (string.IsNullOrWhiteSpace(runId))
-            return "unknown-run";
-
-        string trimmed = runId.Trim();
-        ReadOnlySpan<char> invalidChars = Path.GetInvalidFileNameChars();
-
-        StringBuilder stem = new(trimmed.Length);
-
-        foreach (char c in trimmed)
-        {
-            if (invalidChars.Contains(c))
-                stem.Append('_');
-            else
-                stem.Append(c);
-        }
-
-        string built = stem.ToString();
-
-        return string.IsNullOrWhiteSpace(built) ? "unknown-run" : built;
-    }
-
-    /// <summary>Hyphen/format-insensitive GUID comparison (aligned with UI <c>sameAuthorityRunId</c>).</summary>
-    private static bool SameAuthorityRunIdentifier(string routeRunId, Guid payloadRunId)
-    {
-        return string.Equals(
-            Norm(routeRunId),
-            Norm(payloadRunId.ToString("D", CultureInfo.InvariantCulture)),
-            StringComparison.Ordinal);
-
-        static string Norm(string value)
-        {
-            return value.Replace("-", string.Empty, StringComparison.Ordinal).Trim().ToUpperInvariant();
-        }
     }
 }
