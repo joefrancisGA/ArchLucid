@@ -410,6 +410,22 @@ describe("AlertRulesContent", () => {
     });
 
     expect(screen.getByText(/raises a High alert when critical and high-severity finding count reaches at least 2/i)).toBeInTheDocument();
+    expect(screen.getByRole("table", { name: "Alert conditions" })).toBeInTheDocument();
+    expect(screen.queryByText("Last triggered")).toBeNull();
+    expect(screen.queryByText("Not triggered yet")).toBeNull();
+  });
+
+  it("uses EnterpriseTable inventory for populated alert rules (TB-1647)", async () => {
+    apiHoisted.listAlertRules.mockResolvedValue([sampleRule]);
+
+    render(<AlertRulesContent />);
+
+    await waitFor(() => {
+      expect(screen.getByRole("table", { name: "Alert conditions" })).toBeInTheDocument();
+    });
+
+    expect(screen.getByRole("columnheader", { name: "Status" })).toBeInTheDocument();
+    expect(screen.getByRole("columnheader", { name: "Notifications" })).toBeInTheDocument();
   });
 
   it("omits silent projectId=default when the rules list is empty and session has no project", async () => {

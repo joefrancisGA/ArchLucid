@@ -1,3 +1,4 @@
+import type { EnterpriseStatusKind } from "@/lib/design-tokens";
 import type { AlertRule } from "@/types/alerts";
 import type { AlertRoutingSubscription } from "@/types/alert-routing";
 
@@ -223,4 +224,22 @@ export function alertRuleActiveStatusLabel(isEnabled: boolean): string {
   }
 
   return "Paused";
+}
+
+export function alertRuleActiveStatusKind(isEnabled: boolean): EnterpriseStatusKind {
+  if (isEnabled) {
+    return "ready";
+  }
+
+  return "draft";
+}
+
+export function alertRuleNotificationReadinessPresentation(
+  readiness: AlertRuleNotificationReadiness,
+): { readonly kind: EnterpriseStatusKind; readonly label: string } {
+  if (readiness.externalNotificationsConfigured) {
+    return { kind: "ready", label: "Destinations configured" };
+  }
+
+  return { kind: "needs-attention", label: "Configure destinations" };
 }

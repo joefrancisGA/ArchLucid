@@ -359,5 +359,34 @@ describe("AdvisorySchedulesContent", () => {
     expect(await screen.findByText("Weekly scan")).toBeInTheDocument();
     const section = screen.getByTestId("advisory-schedules-existing");
     expect(within(section).getByTestId("advisory-schedules-refresh")).toBeInTheDocument();
+    expect(within(section).getByRole("table", { name: "Advisory scan schedules" })).toBeInTheDocument();
+  });
+
+  it("uses EnterpriseTable inventory for populated schedules (TB-1647)", async () => {
+    apiMocks.listAdvisorySchedules.mockResolvedValue([
+      {
+        scheduleId: "sched-1",
+        tenantId: "t",
+        workspaceId: "w",
+        projectId: "p",
+        runProjectSlug: "default",
+        name: "Weekly scan",
+        cronExpression: "0 8 * * 1",
+        isEnabled: true,
+        createdUtc: "2026-07-01T00:00:00.000Z",
+        nextRunUtc: "2026-07-27T08:00:00.000Z",
+        lastRunUtc: null,
+      },
+    ]);
+
+    render(<AdvisorySchedulesContent />);
+
+    await waitFor(() => {
+      expect(screen.getByRole("table", { name: "Advisory scan schedules" })).toBeInTheDocument();
+    });
+
+    expect(screen.getByRole("columnheader", { name: "Cadence" })).toBeInTheDocument();
+    expect(screen.getByRole("columnheader", { name: "Status" })).toBeInTheDocument();
+    expect(screen.queryByText("Last outcome")).toBeNull();
   });
 });

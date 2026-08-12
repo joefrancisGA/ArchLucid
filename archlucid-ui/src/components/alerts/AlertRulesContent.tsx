@@ -14,6 +14,13 @@ import { AlertRuleSimulateModal } from "@/components/alerts/AlertRuleSimulateMod
 import { MutatingInWorkspaceChip } from "@/components/MutatingInWorkspaceChip";
 import { WhyDisabledCtaHint } from "@/components/usability/WhyDisabledCtaHint";
 import { Button } from "@/components/ui/button";
+import {
+  EnterpriseTable,
+  EnterpriseTableBody,
+  EnterpriseTableHead,
+  EnterpriseTableHeaderCell,
+  EnterpriseTableHeadRow,
+} from "@/components/ui/enterprise-table";
 import { Input } from "@/components/ui/input";
 import { Label } from "@/components/ui/label";
 import {
@@ -83,8 +90,9 @@ function AlertRulesListLoadingSkeleton(): React.JSX.Element {
       aria-busy="true"
       aria-label="Loading alert conditions"
     >
-      <Skeleton className="h-28 w-full rounded-lg border border-neutral-200 dark:border-neutral-700" />
-      <Skeleton className="h-28 w-full rounded-lg border border-neutral-200 dark:border-neutral-700" />
+      <Skeleton className="h-10 w-full rounded-lg border border-neutral-200 dark:border-neutral-700" />
+      <Skeleton className="h-10 w-full rounded-lg border border-neutral-200 dark:border-neutral-700" />
+      <Skeleton className="h-10 w-full rounded-lg border border-neutral-200 dark:border-neutral-700" />
     </div>
   );
 }
@@ -303,16 +311,29 @@ export function AlertRulesContent() {
                 {ALERT_RULES_LIST_HEADING}
               </h3>
 
-              <div className="grid gap-3">
-                {items.map((rule) => (
-                  <AlertRuleListRow
-                    key={rule.ruleId}
-                    rule={rule}
-                    routingSubscriptions={routingSubscriptions}
-                    onSimulate={setSimulateForRule}
-                  />
-                ))}
-              </div>
+              <EnterpriseTable ariaLabel="Alert conditions">
+                <EnterpriseTableHead>
+                  <EnterpriseTableHeadRow>
+                    <EnterpriseTableHeaderCell>Name</EnterpriseTableHeaderCell>
+                    <EnterpriseTableHeaderCell>Condition</EnterpriseTableHeaderCell>
+                    <EnterpriseTableHeaderCell>Scope</EnterpriseTableHeaderCell>
+                    <EnterpriseTableHeaderCell>Alert priority</EnterpriseTableHeaderCell>
+                    <EnterpriseTableHeaderCell>Status</EnterpriseTableHeaderCell>
+                    <EnterpriseTableHeaderCell>Notifications</EnterpriseTableHeaderCell>
+                    <EnterpriseTableHeaderCell>Actions</EnterpriseTableHeaderCell>
+                  </EnterpriseTableHeadRow>
+                </EnterpriseTableHead>
+                <EnterpriseTableBody>
+                  {items.map((rule) => (
+                    <AlertRuleListRow
+                      key={rule.ruleId}
+                      rule={rule}
+                      routingSubscriptions={routingSubscriptions}
+                      onSimulate={setSimulateForRule}
+                    />
+                  ))}
+                </EnterpriseTableBody>
+              </EnterpriseTable>
             </section>
           ) : null}
 
