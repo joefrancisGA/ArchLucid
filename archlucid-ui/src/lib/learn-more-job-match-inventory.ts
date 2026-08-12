@@ -10,8 +10,6 @@ export const LEARN_MORE_JOB_MATCH_SECONDARY_HUB_PATHS = [
   "/digests",
   "/insights/improvement-planning",
   "/insights/improvement-planning/plans/plan-1",
-  "/insights/patterns",
-  "/insights/patterns/private-endpoints-paas",
   "/governance/decision-register",
   "/governance/advisory-scans",
   "/insights/impact-preview",

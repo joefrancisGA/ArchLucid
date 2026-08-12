@@ -160,9 +160,8 @@ const PAGE_HELP_TOPICS: readonly { prefix: string; topic: PageHelpTopic }[] = [
   },
   { prefix: "/insights/compare-two-reviews", topic: { slug: "comparison-replay", label: "Compare and replay" } },
   {
-    // Secondary hub — no pattern-library specialty; omit Learn more (TB-2050).
     prefix: "/insights/patterns",
-    topic: { label: "Pattern library" },
+    topic: { slug: "repeat-review-loop", label: "Pattern library" },
   },
   { prefix: "/replay", topic: { slug: "comparison-replay", label: "Compare and replay" } },
   { prefix: "/internal/replay", topic: { slug: "comparison-replay", label: "Validate review" } },

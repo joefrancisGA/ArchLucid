@@ -60,7 +60,7 @@ export const INSIGHTS_CONTEXTUAL_HELP_ROWS: readonly PageContextualHelpRow[] = [
     },
   },
   {
-    // TB-2050 — Learn more omitted (no specialty); Category-1 still mounts.
+    // TB-1814 — Learn more maps to repeat-review-loop (recurring patterns across reviews).
     prefix: "/insights/patterns",
     entry: {
       whatIsThisPage:

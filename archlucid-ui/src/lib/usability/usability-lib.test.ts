@@ -65,6 +65,8 @@ describe("usability lib", () => {
     );
     expect(pageHelpTopicForPathname("/insights/architecture-scorecard")?.label).toBe("Architecture scorecard");
     expect(pageHelpTopicForPathname("/insights/ask-review-questions")?.slug).toBe("prior-manifest-retrieval");
+    expect(pageHelpTopicForPathname("/insights/patterns")?.slug).toBe("repeat-review-loop");
+    expect(pageHelpTopicForPathname("/insights/patterns/private-endpoints-paas")?.slug).toBe("repeat-review-loop");
     expect(pageHelpTopicForPathname("/internal/replay")?.slug).toBe("comparison-replay");
   });
 

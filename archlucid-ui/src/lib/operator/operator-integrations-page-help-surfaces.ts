@@ -96,7 +96,7 @@ export const OPERATOR_INTEGRATIONS_PAGE_HELP_TB1669_SURFACES: readonly OperatorI
       id: "insights-patterns",
       pathname: "/insights/patterns",
       modulePath: "app/(operator)/insights/patterns/_sections/PatternLibraryPageClient.tsx",
-      notes: "Pattern library hub — label-only secondary hub (no Learn more).",
+      notes: "Pattern library hub — repeat-review-loop help topic; detail inherits via prefix match (TB-1814).",
     },
     {
       id: "insights-patterns-detail",

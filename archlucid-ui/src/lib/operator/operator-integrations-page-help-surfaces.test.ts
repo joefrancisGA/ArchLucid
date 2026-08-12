@@ -4,6 +4,7 @@ import { join } from "node:path";
 import { describe, expect, it } from "vitest";
 
 import { OPERATOR_INTEGRATIONS_PAGE_HELP_TB1669_SURFACES } from "@/lib/operator/operator-integrations-page-help-surfaces";
+import { isGenericLearnMoreSlug } from "@/lib/learn-more-job-match-inventory";
 import { pageHelpTopicForPathname } from "@/lib/usability/page-help-topic-map";
 
 const SRC_ROOT = join(process.cwd(), "src");
@@ -74,10 +75,13 @@ describe("operator-integrations-page-help-surfaces (TB-1669)", () => {
     expect(pageHelpTopicForPathname("/internal/health")?.slug).toBe("admin-diagnostics");
   });
 
-  it("pattern library is a label-only secondary hub (TB-1669 / TB-2050)", () => {
-    const topic = pageHelpTopicForPathname("/insights/patterns");
+  it("pattern library maps to repeat-review-loop help on hub and detail (TB-1814)", () => {
+    const hubTopic = pageHelpTopicForPathname("/insights/patterns");
+    const detailTopic = pageHelpTopicForPathname("/insights/patterns/api-gateway-bff");
 
-    expect(topic?.label).toBe("Pattern library");
-    expect(topic?.slug).toBeUndefined();
+    expect(hubTopic?.label).toBe("Pattern library");
+    expect(hubTopic?.slug).toBe("repeat-review-loop");
+    expect(detailTopic?.slug).toBe("repeat-review-loop");
+    expect(isGenericLearnMoreSlug(hubTopic?.slug)).toBe(false);
   });
 });
