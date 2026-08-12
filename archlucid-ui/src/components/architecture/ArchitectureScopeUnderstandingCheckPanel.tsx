@@ -192,7 +192,7 @@ export function ArchitectureScopeUnderstandingCheckPanel(
       >
         <Label
           htmlFor="architecture-scope-understanding-new"
-          className={cn("text-al-text-primary", OPERATOR_TYPOGRAPHY.label)}
+          className={cn("font-semibold text-al-text-primary", OPERATOR_TYPOGRAPHY.label)}
         >
           {SCOPE_UNDERSTANDING_ADD_LABEL}
         </Label>
