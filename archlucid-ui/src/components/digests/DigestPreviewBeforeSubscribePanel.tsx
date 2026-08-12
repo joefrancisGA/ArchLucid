@@ -2,15 +2,11 @@
 
 import type { ReactElement } from "react";
 
-import { Button } from "@/components/ui/button";
 import { OPERATOR_TYPOGRAPHY } from "@/lib/design-tokens";
 import {
   buildDigestPreviewBeforeSubscribeSpecimen,
   DIGEST_PREVIEW_BEFORE_SUBSCRIBE_TITLE,
-  DIGEST_PREVIEW_SEND_TO_ME_LABEL,
-  DIGEST_PREVIEW_SEND_TO_ME_UNAVAILABLE_REASON,
   DIGEST_PREVIEW_SPECIMEN_BADGE,
-  isDigestPreviewSendToMeAvailable,
   resolveDigestPreviewHelper,
   type DigestPreviewBeforeSubscribeInput,
 } from "@/lib/digest-preview-before-subscribe";
@@ -22,7 +18,6 @@ export type DigestPreviewBeforeSubscribePanelProps = DigestPreviewBeforeSubscrib
 
 /**
  * In-app digest specimen shown before Subscribe / Save (TB-2211).
- * Send-to-me stays disabled until a compose-preview API exists.
  */
 export function DigestPreviewBeforeSubscribePanel(
   props: DigestPreviewBeforeSubscribePanelProps,
@@ -30,7 +25,6 @@ export function DigestPreviewBeforeSubscribePanel(
   const { className, ...input } = props;
   const specimen = buildDigestPreviewBeforeSubscribeSpecimen(input);
   const helper = resolveDigestPreviewHelper(input.variant);
-  const sendToMeAvailable = isDigestPreviewSendToMeAvailable();
 
   return (
     <section
@@ -123,31 +117,6 @@ export function DigestPreviewBeforeSubscribePanel(
         </ul>
 
         <p className={cn("m-0 mt-3 text-al-text-secondary", OPERATOR_TYPOGRAPHY.helper)}>{specimen.footnote}</p>
-      </div>
-
-      <div className="mt-3 flex flex-wrap items-center gap-2">
-        <Button
-          type="button"
-          size="sm"
-          variant="outline"
-          disabled={!sendToMeAvailable}
-          aria-describedby={
-            sendToMeAvailable ? undefined : "digest-preview-before-subscribe-send-to-me-reason"
-          }
-          aria-disabled={!sendToMeAvailable}
-          data-testid="digest-preview-before-subscribe-send-to-me"
-        >
-          {DIGEST_PREVIEW_SEND_TO_ME_LABEL}
-        </Button>
-        {!sendToMeAvailable ? (
-          <p
-            id="digest-preview-before-subscribe-send-to-me-reason"
-            className={cn("m-0 max-w-3xl text-al-text-secondary", OPERATOR_TYPOGRAPHY.helper)}
-            data-testid="digest-preview-before-subscribe-send-to-me-reason"
-          >
-            {DIGEST_PREVIEW_SEND_TO_ME_UNAVAILABLE_REASON}
-          </p>
-        ) : null}
       </div>
     </section>
   );

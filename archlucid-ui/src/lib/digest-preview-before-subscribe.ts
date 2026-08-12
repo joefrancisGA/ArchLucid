@@ -62,15 +62,9 @@ export const DIGEST_PREVIEW_SEND_TO_ME_UNAVAILABLE_REASON =
 
 export const DIGEST_PREVIEW_SPECIMEN_BADGE = "Specimen" as const;
 
-const PLACEHOLDER_DESTINATION = "recipient@example.com";
+const PLACEHOLDER_DESTINATION = "—";
 
 function resolveArchitectureSubject(input: DigestPreviewBeforeSubscribeInput): string {
-  const name = input.subscriptionName?.trim();
-
-  if (name !== undefined && name.length > 0) {
-    return name;
-  }
-
   const typeLabel = input.digestTypeLabel?.trim();
 
   if (typeLabel !== undefined && typeLabel.length > 0) {

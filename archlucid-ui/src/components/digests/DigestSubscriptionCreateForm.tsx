@@ -7,6 +7,7 @@ import Link from "next/link";
 import { useEffect, useMemo, useState, type ReactElement } from "react";
 
 import { DigestPreviewBeforeSubscribePanel } from "@/components/digests/DigestPreviewBeforeSubscribePanel";
+import { MutatingInTenantChip } from "@/components/MutatingInTenantChip";
 import { Button } from "@/components/ui/button";
 import { Input } from "@/components/ui/input";
 import { Label } from "@/components/ui/label";
@@ -19,6 +20,7 @@ import {
   DIGEST_SUBSCRIPTION_CHANNELS,
   DIGEST_TYPE_OPTIONS,
   isDigestSubscriptionFormValid,
+  isEmailChannel,
   validateDigestSubscriptionDestination,
 } from "@/lib/digest-subscription-form";
 import {
@@ -33,7 +35,7 @@ import {
 import {
   digestSubscriptionsCreateSubscriptionButtonLabelReaderRank,
 } from "@/lib/enterprise-controls-context-copy";
-import { whyDisabledEnterpriseMutationControl } from "@/lib/why-disabled-cta";
+import { whyDisabledEnterpriseMutationControl, whyDisabledIncompleteInput, firstWhyDisabledCtaReason } from "@/lib/why-disabled-cta";
 import { fetchTenantIntegrationsOperations } from "@/lib/api/tenant-customer-success";
 import { isBuyerPolishedOperatorShellEnv, isOperatorExperienceFullShellEnv } from "@/lib/demo-ui-env";
 import type { DigestSubscription } from "@/types/digest-subscriptions";
@@ -46,6 +48,7 @@ export type DigestSubscriptionCreateFormProps = {
   readonly collapsedByDefault: boolean;
   readonly creating: boolean;
   readonly createSuccess: boolean;
+  readonly focusRequestToken?: number;
   readonly onCreate: (input: {
     readonly name: string;
     readonly channelType: string;
@@ -70,7 +73,7 @@ export function DigestSubscriptionCreateForm(props: DigestSubscriptionCreateForm
   const [integrationOps, setIntegrationOps] = useState<TenantIntegrationsOperationsDto | null>(null);
 
   useEffect(() => {
-    let cancelled = false;
+    let canceled = false;
 
     void fetchTenantIntegrationsOperations()
       .then((data) => {
@@ -109,6 +112,15 @@ export function DigestSubscriptionCreateForm(props: DigestSubscriptionCreateForm
     setNameTouched(true);
     setDestinationTouched(false);
   }, [props.prefillFrom]);
+
+  useEffect(() => {
+    if ((props.focusRequestToken ?? 0) === 0) {
+      return;
+    }
+
+    setExpanded(true);
+    document.getElementById("digest-subscription-destination")?.focus();
+  }, [props.focusRequestToken]);
 
   const destinationError: string | null = useMemo(() => {
     const validationError: string | null = validateDigestSubscriptionDestination(channelType, destination);
@@ -151,8 +163,28 @@ export function DigestSubscriptionCreateForm(props: DigestSubscriptionCreateForm
   const showDigestType: boolean = shouldShowDigestTypeSelector();
   const digestTypeLabel: string =
     DIGEST_TYPE_OPTIONS.find((option) => option.value === digestType)?.label ?? "Architecture digest";
-  const mutationDisabledReason = props.canMutate ? null : whyDisabledEnterpriseMutationControl();
-  const mutationDisabledHintId = "digest-subscription-create-mutate-disabled-hint";
+  const createDisabledHintId = "digest-subscription-create-disabled-hint";
+  const createDisabledReason = firstWhyDisabledCtaReason([
+    props.canMutate ? null : whyDisabledEnterpriseMutationControl(),
+    canEdit && !formValid && destination.trim().length === 0
+      ? whyDisabledIncompleteInput("Enter an email address or webhook URL to save this delivery destination.")
+      : null,
+    canEdit && !formValid && destination.trim().length > 0 && destinationError !== null
+      ? whyDisabledIncompleteInput(destinationError)
+      : null,
+    canEdit && !formValid && integrationBlocksCreate
+      ? whyDisabledIncompleteInput("Finish connector setup before saving this channel.")
+      : null,
+    canEdit && !formValid && isUnchangedPrefill
+      ? whyDisabledIncompleteInput("Change at least one field to save a new delivery destination.")
+      : null,
+  ]);
+  const createButtonDescribedBy =
+    createDisabledReason === null ? undefined : createDisabledHintId;
+  const destinationFieldLabel: string = channelDestinationFieldLabel(channelType);
+  const destinationLabelText: string = isEmailChannel(channelType)
+    ? `${destinationFieldLabel} (required)`
+    : destinationFieldLabel;
 
   if (!expanded) {
     return (
@@ -171,13 +203,13 @@ export function DigestSubscriptionCreateForm(props: DigestSubscriptionCreateForm
               variant="primary"
               onClick={() => setExpanded(true)}
               disabled={!canEdit}
-              aria-describedby={mutationDisabledReason === null ? undefined : mutationDisabledHintId}
+              aria-describedby={createDisabledReason === null ? undefined : createDisabledHintId}
             >
-              {canEdit ? "Create subscription" : digestSubscriptionsCreateSubscriptionButtonLabelReaderRank}
+              {canEdit ? "Add delivery destination" : digestSubscriptionsCreateSubscriptionButtonLabelReaderRank}
             </Button>
             <WhyDisabledCtaHint
-              id={mutationDisabledHintId}
-              reason={mutationDisabledReason}
+              id={createDisabledHintId}
+              reason={createDisabledReason}
               testId="digest-subscription-create-mutate-disabled-hint"
               className="text-right"
             />
@@ -256,7 +288,7 @@ export function DigestSubscriptionCreateForm(props: DigestSubscriptionCreateForm
         </div>
 
         <div className="grid gap-1.5 md:col-span-2">
-          <Label htmlFor="digest-subscription-destination">{channelDestinationFieldLabel(channelType)}</Label>
+          <Label htmlFor="digest-subscription-destination">{destinationLabelText}</Label>
           <Input
             id="digest-subscription-destination"
             value={destination}
@@ -264,8 +296,13 @@ export function DigestSubscriptionCreateForm(props: DigestSubscriptionCreateForm
             onBlur={() => setDestinationTouched(true)}
             placeholder={channelDestinationPlaceholder(channelType)}
             readOnly={!canEdit}
+            required={isEmailChannel(channelType)}
             aria-invalid={destinationTouched && destinationError !== null}
-            aria-describedby="digest-subscription-destination-help"
+            aria-describedby={
+              createDisabledReason !== null && destination.trim().length === 0
+                ? `${createDisabledHintId} digest-subscription-destination-help`
+                : "digest-subscription-destination-help"
+            }
           />
           <p
             id="digest-subscription-destination-help"
@@ -354,15 +391,6 @@ export function DigestSubscriptionCreateForm(props: DigestSubscriptionCreateForm
         </p>
       ) : null}
 
-      <DigestPreviewBeforeSubscribePanel
-        className="mt-3"
-        variant="architecture-subscription"
-        subscriptionName={name}
-        channelType={channelType}
-        destination={destination}
-        digestTypeLabel={digestTypeLabel}
-      />
-
       <div className="mt-3 flex flex-col items-start gap-2">
         <div className="flex flex-wrap items-center gap-2">
           <Button
@@ -379,31 +407,41 @@ export function DigestSubscriptionCreateForm(props: DigestSubscriptionCreateForm
               })
             }
             disabled={!formValid || props.creating || !canEdit}
-            aria-describedby={mutationDisabledReason === null ? undefined : mutationDisabledHintId}
+            aria-describedby={createButtonDescribedBy}
             data-testid="digest-subscription-create-button"
           >
             {props.creating
               ? "Saving…"
               : canEdit
-                ? "Save subscription"
+                ? "Save delivery destination"
                 : digestSubscriptionsCreateSubscriptionButtonLabelReaderRank}
           </Button>
+          <MutatingInTenantChip />
           {props.createSuccess ? (
             <span
               className={cn("text-emerald-800 dark:text-emerald-200", OPERATOR_TYPOGRAPHY.helper)}
               data-testid="digest-subscription-create-success"
               role="status"
             >
-              Subscription saved
+              Delivery destination saved
             </span>
           ) : null}
         </div>
         <WhyDisabledCtaHint
-          id={mutationDisabledHintId}
-          reason={mutationDisabledReason}
-          testId="digest-subscription-create-mutate-disabled-hint"
+          id={createDisabledHintId}
+          reason={createDisabledReason}
+          testId="digest-subscription-create-disabled-hint"
         />
       </div>
+
+      <DigestPreviewBeforeSubscribePanel
+        className="mt-3"
+        variant="architecture-subscription"
+        subscriptionName={name}
+        channelType={channelType}
+        destination={destination}
+        digestTypeLabel={digestTypeLabel}
+      />
     </section>
   );
 }

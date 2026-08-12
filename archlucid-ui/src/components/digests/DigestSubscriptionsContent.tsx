@@ -58,6 +58,7 @@ export function DigestSubscriptionsContent(props: DigestSubscriptionsContentProp
   const [mutationFailure, setMutationFailure] = useState<ApiLoadFailureState | null>(null);
   const [prefillFrom, setPrefillFrom] = useState<DigestSubscription | null>(null);
   const [formResetKey, setFormResetKey] = useState<number>(0);
+  const [focusCreateToken, setFocusCreateToken] = useState<number>(0);
   const [pendingPause, setPendingPause] = useState<{
     subscriptionId: string;
     subscriptionName: string;
@@ -230,6 +231,12 @@ export function DigestSubscriptionsContent(props: DigestSubscriptionsContentProp
     }
   }
 
+  function focusCreateForm(): void {
+    setPrefillFrom(null);
+    setFocusCreateToken((value) => value + 1);
+    formCardRef.current?.scrollIntoView({ behavior: "smooth", block: "start" });
+  }
+
   function onPrefillCreate(subscription: DigestSubscription): void {
     setPrefillFrom(subscription);
     formCardRef.current?.scrollIntoView({ behavior: "smooth", block: "start" });
@@ -277,7 +284,11 @@ export function DigestSubscriptionsContent(props: DigestSubscriptionsContentProp
         </div>
       ) : null}
 
-      <DigestSubscriptionsReadinessPanel healthSnap={props.healthSnap} subscriptions={items} />
+      <DigestSubscriptionsReadinessPanel
+        healthSnap={props.healthSnap}
+        subscriptions={items}
+        onAddDeliveryDestination={focusCreateForm}
+      />
 
       <div ref={formCardRef} className="grid gap-4">
         <DigestSubscriptionCreateForm
@@ -288,6 +299,7 @@ export function DigestSubscriptionsContent(props: DigestSubscriptionsContentProp
           collapsedByDefault={items.length > 0}
           creating={creating}
           createSuccess={createSuccess}
+          focusRequestToken={focusCreateToken}
           onCreate={onCreate}
         />
 
@@ -304,6 +316,7 @@ export function DigestSubscriptionsContent(props: DigestSubscriptionsContentProp
           }
           onViewHistory={(subscriptionId) => void onViewHistory(subscriptionId)}
           onPrefillCreate={onPrefillCreate}
+          onFocusCreateForm={focusCreateForm}
         />
       </div>
 

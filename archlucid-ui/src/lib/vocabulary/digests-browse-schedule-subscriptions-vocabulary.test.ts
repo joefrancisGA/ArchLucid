@@ -27,6 +27,7 @@ describe("digests-browse-schedule-subscriptions-vocabulary (TB-2290)", () => {
     expect(model.whyThree.toLowerCase()).toContain("cadence");
     expect(model.whyThree.toLowerCase()).toContain("destination");
     expect(model.compactLine).toBe(DIGESTS_BROWSE_SCHEDULE_SUBSCRIPTIONS_COMPACT_LINE);
+    expect(JSON.stringify(model)).not.toMatch(/\bjob\b/i);
 
     expect(model.browseLink.href).toBe(DIGESTS_BROWSE_TAB_PATH);
     expect(model.scheduleLink.href).toBe(DIGESTS_SCHEDULE_TAB_PATH);

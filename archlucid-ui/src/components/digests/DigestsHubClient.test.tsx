@@ -152,6 +152,11 @@ describe("DigestsHubClient", () => {
 
     expect(screen.queryByTestId("digests-primary-action")).not.toBeInTheDocument();
     expect(await screen.findByTestId("digest-subscriptions-readiness-panel")).toBeInTheDocument();
+    expect(screen.getByTestId("digests-browse-schedule-subscriptions-vocabulary")).toBeInTheDocument();
+    expect(screen.queryByTestId("digests-notifications-vocabulary")).not.toBeInTheDocument();
+    expect(screen.queryByTestId("digests-teams-slack-vocabulary")).not.toBeInTheDocument();
+    expect(screen.queryByTestId("digests-advisory-scans-vocabulary")).not.toBeInTheDocument();
+    expect(screen.queryByTestId("explain-this-view-banner")).not.toBeInTheDocument();
   });
 
   it("lets the Browse checklist own setup guidance so the banner does not repeat it", async () => {

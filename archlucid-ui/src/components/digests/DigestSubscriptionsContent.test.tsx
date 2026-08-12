@@ -83,15 +83,20 @@ describe("DigestSubscriptionsContent", () => {
     expect(screen.getByTestId("digest-subscriptions-privacy-note")).toBeInTheDocument();
   });
 
-  it("disables save until destination is valid and shows success", async () => {
+  it("disables save until destination is valid, shows readiness hint, and shows success", async () => {
     renderWithOperatorQuery(<DigestSubscriptionsContent healthSnap={null} />);
 
     await screen.findByTestId("digest-subscriptions-empty");
 
     const createButton = screen.getByTestId("digest-subscription-create-button");
     expect(createButton).toBeDisabled();
+    expect(screen.getByTestId("digest-subscription-create-disabled-hint")).toHaveTextContent(
+      /Enter an email address or webhook URL/i,
+    );
+    expect(createButton).toHaveAttribute("aria-describedby", "digest-subscription-create-disabled-hint");
+    expect(screen.getByLabelText("Email address (required)")).toBeRequired();
 
-    fireEvent.change(screen.getByLabelText("Email address"), { target: { value: "ops@example.com" } });
+    fireEvent.change(screen.getByLabelText("Email address (required)"), { target: { value: "ops@example.com" } });
     expect(createButton).not.toBeDisabled();
 
     fireEvent.click(createButton);
@@ -99,7 +104,10 @@ describe("DigestSubscriptionsContent", () => {
     await waitFor(() => {
       expect(createDigestSubscription).toHaveBeenCalled();
     });
-    expect(await screen.findByTestId("digest-subscription-create-success")).toHaveTextContent("Subscription saved");
+    expect(await screen.findByTestId("digest-subscription-create-success")).toHaveTextContent(
+      "Delivery destination saved",
+    );
+    expect(screen.getByTestId("mutating-in-tenant-chip")).toBeInTheDocument();
   });
 
   it("rejects duplicate email destinations", async () => {
@@ -122,13 +130,13 @@ describe("DigestSubscriptionsContent", () => {
 
     await screen.findByRole("table", { name: "Digest subscriptions" });
 
-    const expandButton = screen.queryByRole("button", { name: "Create subscription" });
+    const expandButton = screen.queryByRole("button", { name: "Add delivery destination" });
 
     if (expandButton !== null) {
       fireEvent.click(expandButton);
     }
 
-    const emailField = await screen.findByLabelText("Email address");
+    const emailField = await screen.findByLabelText("Email address (required)");
     fireEvent.change(emailField, { target: { value: "ops@example.com" } });
     fireEvent.blur(emailField);
 
@@ -151,10 +159,10 @@ describe("DigestSubscriptionsContent", () => {
     });
 
     expect(createButton).toBeDisabled();
-    expect(screen.getByTestId("digest-subscription-create-mutate-disabled-hint")).toHaveTextContent(
+    expect(screen.getByTestId("digest-subscription-create-disabled-hint")).toHaveTextContent(
       enterpriseMutationControlDisabledTitle,
     );
-    expect(createButton).toHaveAttribute("aria-describedby", "digest-subscription-create-mutate-disabled-hint");
+    expect(createButton).toHaveAttribute("aria-describedby", "digest-subscription-create-disabled-hint");
   });
 
   it("renders subscription table with status and actions when rows exist", async () => {
@@ -283,7 +291,41 @@ describe("DigestSubscriptionsContent", () => {
 
     const nameField = await screen.findByLabelText("Delivery name");
     expect(nameField).toHaveValue("Ops mailbox");
-    expect(screen.getByLabelText("Email address")).toHaveValue("ops@example.com");
+    expect(screen.getByLabelText("Email address (required)")).toHaveValue("ops@example.com");
     expect(screen.getByLabelText("After saving")).not.toBeChecked();
+  });
+
+  it("shows one schedule setup link in readiness when schedule is missing", async () => {
+    renderWithOperatorQuery(
+      <DigestSubscriptionsContent
+        healthSnap={{
+          enabledAdvisoryScheduleCount: 0,
+          digestSubscriptionCount: 0,
+          enabledDigestSubscriptionCount: 0,
+          digestSubscriptionsByEmailChannel: 0,
+          digestSubscriptionsBySlackChannel: 0,
+          digestSubscriptionsByTeamsChannel: 0,
+          executiveEmailDigestIsConfigured: false,
+          executiveEmailDigestEnabled: false,
+          executiveDigestRecipientCount: 0,
+          executiveDigestIanaTimeZoneId: "UTC",
+          executiveDigestDayOfWeek: 1,
+          executiveDigestHourOfDay: 8,
+          setupGaps: [],
+        }}
+      />,
+    );
+
+    await screen.findByTestId("digest-subscriptions-readiness-panel");
+    expect(screen.getAllByRole("link", { name: "Open schedule setup" })).toHaveLength(1);
+  });
+
+  it("focuses the create form from the empty-state action", async () => {
+    renderWithOperatorQuery(<DigestSubscriptionsContent healthSnap={null} />);
+
+    await screen.findByTestId("digest-subscriptions-empty");
+    fireEvent.click(screen.getByTestId("digest-subscriptions-empty-add-destination"));
+
+    expect(await screen.findByLabelText("Email address (required)")).toHaveFocus();
   });
 });

@@ -38,6 +38,8 @@ import {
   digestSubscriptionsDeliveryAttemptsButtonLabelReaderRank,
   digestSubscriptionsDeliveryAttemptsButtonTitleOperator,
   digestSubscriptionsDeliveryAttemptsButtonTitleReader,
+  digestSubscriptionsEmptyListOperatorLine,
+  digestSubscriptionsEmptyListReaderLine,
   digestSubscriptionsToggleToDisabledReaderRank,
   digestSubscriptionsToggleToEnabledReaderRank,
   digestSubscriptionsYourSubscriptionsHeadingOperator,
@@ -58,12 +60,16 @@ export type DigestSubscriptionListProps = {
   readonly onToggle: (subscriptionId: string, isEnabled: boolean, subscriptionName: string) => void;
   readonly onViewHistory: (subscriptionId: string) => void;
   readonly onPrefillCreate: (subscription: DigestSubscription) => void;
+  readonly onFocusCreateForm: () => void;
 };
 
 export function DigestSubscriptionList(props: DigestSubscriptionListProps): ReactElement {
   const heading: string = props.canMutate
     ? digestSubscriptionsYourSubscriptionsHeadingOperator
     : digestSubscriptionsYourSubscriptionsHeadingReader;
+  const emptyDescription: string = props.canMutate
+    ? digestSubscriptionsEmptyListOperatorLine
+    : digestSubscriptionsEmptyListReaderLine;
   const mutationDisabledReason = props.canMutate ? null : whyDisabledEnterpriseMutationControl();
   const mutationDisabledHintId = "digest-subscriptions-mutate-disabled-hint";
 
@@ -95,8 +101,18 @@ export function DigestSubscriptionList(props: DigestSubscriptionListProps): Reac
           <EnterpriseCompactEmptyState
             testId="digest-subscriptions-empty"
             title="No delivery destinations yet"
-            description="Save a subscription below to deliver architecture digests to email or a Teams/Slack webhook."
-            actions={[]}
+            description={emptyDescription}
+            footer={
+              <Button
+                type="button"
+                size="sm"
+                variant="primary"
+                onClick={props.onFocusCreateForm}
+                data-testid="digest-subscriptions-empty-add-destination"
+              >
+                Add delivery destination
+              </Button>
+            }
           />
         </div>
       ) : null}

@@ -33,7 +33,7 @@ describe("digest-preview-before-subscribe (TB-2211)", () => {
       digestTypeLabel: "Architecture digest",
     });
 
-    expect(specimen.subjectLine).toBe("Ops mailbox");
+    expect(specimen.subjectLine).toBe("Architecture digest");
     expect(specimen.toLine).toBe("ops@example.com");
     expect(specimen.metaLine).toContain("Email");
     expect(specimen.metaLine).toContain("Architecture digest");
@@ -41,13 +41,14 @@ describe("digest-preview-before-subscribe (TB-2211)", () => {
     expect(specimen.footnote.toLowerCase()).toContain("does not send immediately");
   });
 
-  it("falls back to placeholders when destination is empty", () => {
+  it("leaves To unset when destination is empty", () => {
     const specimen = buildDigestPreviewBeforeSubscribeSpecimen({
       variant: "architecture-subscription",
       channelType: "TeamsWebhook",
+      digestTypeLabel: "Architecture digest",
     });
 
-    expect(specimen.toLine).toBe("recipient@example.com");
+    expect(specimen.toLine).toBe("—");
     expect(specimen.metaLine).toContain("Teams webhook");
     expect(specimen.subjectLine).toBe("Architecture digest");
   });

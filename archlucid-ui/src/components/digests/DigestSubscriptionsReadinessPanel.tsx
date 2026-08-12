@@ -18,6 +18,7 @@ import type { WeeklyDigestHealthDto } from "@/types/operate-rhythm";
 export type DigestSubscriptionsReadinessPanelProps = {
   readonly healthSnap: WeeklyDigestHealthDto | null;
   readonly subscriptions: readonly DigestSubscription[];
+  readonly onAddDeliveryDestination?: () => void;
 };
 
 export function DigestSubscriptionsReadinessPanel(
@@ -45,13 +46,33 @@ export function DigestSubscriptionsReadinessPanel(
       </div>
 
       {summary.blockingIssue !== null ? (
-        <p
-          className={cn("m-0 mt-2 text-amber-900 dark:text-amber-100", OPERATOR_TYPOGRAPHY.helper)}
+        <div
+          className={cn(
+            "mt-3 flex flex-wrap items-start justify-between gap-3 rounded-md border border-amber-600/40 bg-al-surface-raised px-3 py-2 text-al-text-primary dark:border-amber-700/50",
+            OPERATOR_TYPOGRAPHY.body,
+          )}
           data-testid="digest-subscriptions-readiness-blocking"
           role="status"
         >
-          {summary.blockingIssue}
-        </p>
+          <p className="m-0">{summary.blockingIssue}</p>
+          {summary.nextActionLabel !== null ? (
+            summary.nextActionHref !== null ? (
+              <Button asChild size="sm" variant="primary">
+                <Link href={summary.nextActionHref}>{summary.nextActionLabel}</Link>
+              </Button>
+            ) : (
+              <Button
+                type="button"
+                size="sm"
+                variant="primary"
+                onClick={props.onAddDeliveryDestination}
+                data-testid="digest-subscriptions-readiness-add-destination"
+              >
+                {summary.nextActionLabel}
+              </Button>
+            )
+          ) : null}
+        </div>
       ) : null}
 
       <dl className="mt-3 grid gap-3 md:grid-cols-2">
@@ -76,20 +97,6 @@ export function DigestSubscriptionsReadinessPanel(
           </div>
         ))}
       </dl>
-
-      {summary.nextActionLabel !== null ? (
-        <div className="mt-3">
-          {summary.nextActionHref !== null ? (
-            <Button asChild size="sm" variant="secondary">
-              <Link href={summary.nextActionHref}>{summary.nextActionLabel}</Link>
-            </Button>
-          ) : (
-            <span className={cn("text-neutral-600 dark:text-neutral-400", OPERATOR_TYPOGRAPHY.helper)}>
-              {summary.nextActionLabel} using the form below.
-            </span>
-          )}
-        </div>
-      ) : null}
     </section>
   );
 }

@@ -21,6 +21,7 @@ describe("digests-advisory-scans-vocabulary (TB-2314)", () => {
     expect(model.whyTwo.toLowerCase()).toContain("cadence");
     expect(model.whyTwo.toLowerCase()).toContain("advisory");
     expect(model.compactLine).toBe(DIGESTS_ADVISORY_SCANS_COMPACT_LINE);
+    expect(JSON.stringify(model)).not.toMatch(/\bjob\b/i);
 
     expect(model.digestsLink).toEqual(DIGESTS_ADVISORY_SCANS_DIGESTS_LINK);
     expect(model.digestsLink.href).toBe(DIGESTS_HUB_PATH);

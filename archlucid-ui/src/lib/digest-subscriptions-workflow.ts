@@ -177,12 +177,12 @@ export function buildDigestSubscriptionReadinessSummary(
   const rows: DigestSubscriptionReadinessRow[] = [
     {
       id: "destinations",
-      label: "Delivery destinations",
+      label: "Active destinations",
       value: activeDestinations > 0 ? `${activeDestinations} active` : "None configured",
       detail:
         activeDestinations > 0
-          ? `${subscriptions.length} subscription${subscriptions.length === 1 ? "" : "s"} in this workspace.`
-          : "Add at least one subscription to receive generated digests.",
+          ? `${subscriptions.length} delivery destination${subscriptions.length === 1 ? "" : "s"} in this workspace.`
+          : "Add at least one delivery destination to receive generated digests.",
       href: null,
     },
     {
@@ -203,8 +203,8 @@ export function buildDigestSubscriptionReadinessSummary(
       id: "next-delivery",
       label: "Next scheduled generation",
       value: nextScheduled,
-      detail: "Subscriptions receive the next generated digest once the schedule runs.",
-      href: scheduleEnabled ? null : ADVISORY_SCANS_SCHEDULES_HREF,
+      detail: "Delivery destinations receive the next generated digest once the schedule runs.",
+      href: null,
     },
   ];
 

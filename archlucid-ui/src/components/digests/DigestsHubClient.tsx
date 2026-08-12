@@ -239,10 +239,16 @@ export function DigestsHubClient(): ReactElement {
           })}
         </TabsList>
 
-        <DigestsNotificationsVocabularyRail currentSurfaceId="digests" />
-        <DigestsTeamsSlackVocabularyRail currentSurfaceId="digests" />
-        <DigestsAdvisoryScansVocabularyRail currentSurfaceId="digests" />
-        <DigestsBrowseScheduleSubscriptionsVocabularyRail currentSurfaceId={activeTab} />
+        {activeTab === "subscriptions" ? (
+          <DigestsBrowseScheduleSubscriptionsVocabularyRail currentSurfaceId="subscriptions" />
+        ) : (
+          <>
+            <DigestsNotificationsVocabularyRail currentSurfaceId="digests" />
+            <DigestsTeamsSlackVocabularyRail currentSurfaceId="digests" />
+            <DigestsAdvisoryScansVocabularyRail currentSurfaceId="digests" />
+            <DigestsBrowseScheduleSubscriptionsVocabularyRail currentSurfaceId={activeTab} />
+          </>
+        )}
 
         {activeTab === "schedule" ? (
           <DigestRecurrenceScheduleVocabularyRail currentSurfaceId="digest-executive-schedule" />
@@ -260,7 +266,7 @@ export function DigestsHubClient(): ReactElement {
             refreshToken={healthRefreshToken}
             onHealthLoaded={onHealthLoaded}
             variant={healthBannerVariant}
-            suppressCompactFacts={browseSetupGuidesChecklist}
+            suppressCompactFacts={browseSetupGuidesChecklist || activeTab === "subscriptions"}
           />
         )}
 

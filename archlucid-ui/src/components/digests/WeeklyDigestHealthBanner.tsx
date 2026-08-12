@@ -176,7 +176,7 @@ export function WeeklyDigestHealthBanner(props: WeeklyDigestHealthBannerProps): 
             {compactTitle}
           </h3>
           <StatusTag kind={overall.kind} label={overall.label} data-testid="digest-overall-status" />
-          {variant === "subscriptions" ? (
+          {variant === "subscriptions" && !suppressCompactFacts ? (
             <span className={cn("text-neutral-500 dark:text-neutral-400", OPERATOR_TYPOGRAPHY.helper)}>
               Active: {snap.enabledDigestSubscriptionCount}
               {" · "}
