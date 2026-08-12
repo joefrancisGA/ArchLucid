@@ -6,7 +6,7 @@ Use this runbook when a pilot or private-beta operator submits **Report problem*
 
 **Goal:** Reconstruct tenant scope, failure context, and correlated telemetry in **under five minutes** before drafting a customer reply.
 
-**MVO miss check:** Before treating the report as novel, classify fleet P0 quiet vs expected support-path intake per [`SOLO_OPERATOR_PAGES_VS_SUPPORT_EMAIL_CONTRACT.md`](../operations/SOLO_OPERATOR_PAGES_VS_SUPPORT_EMAIL_CONTRACT.md) (**TB-989**). Structured triage enrichment: **TB-990**.
+**MVO miss check (mandatory — TB-990):** Before treating the report as novel, complete [MVO quiet / firing classification](#mvo-quiet--firing-classification-tb-990) using [`SOLO_OPERATOR_PAGES_VS_SUPPORT_EMAIL_CONTRACT.md`](../operations/SOLO_OPERATOR_PAGES_VS_SUPPORT_EMAIL_CONTRACT.md) (**TB-989**). Record the outcome in `OperatorNote` or your private triage log.
 
 ## Inputs you need
 
@@ -21,11 +21,56 @@ Use this runbook when a pilot or private-beta operator submits **Report problem*
 
 ## Five-minute triage order
 
-1. **Lookup the report row** (SQL below) — confirm `Status`, scope, `OperatorNote`, `CorrelationId`, `ClientRequestId`, and whether `SupportBundleBlobPath` is set.
-2. **Parse `ContextJson`** — `errorTitle`, `errorCode`, `httpStatus`, `routePath`, `productVersion`, `uiVersion`, `browserClient`.
-3. **Correlate telemetry** — App Insights / Log Analytics queries (below) using `CorrelationId` first, then tenant + time window.
-4. **Optional bundle** — when `SupportBundleBlobPath` is populated, fetch and run the [attached bundle checklist](#optional-attached-support-bundle) before forwarding externally.
-5. **Draft reply** — reference the **Report reference**, what you found, next step for the operator, and the next-business-day commitment if work continues.
+1. **Lookup the report row** (SQL below) — confirm `Status`, scope, `OperatorNote`, `CorrelationId`, `ClientRequestId`, and whether `SupportBundleBlobPath` is set. Note `CreatedUtc` for the MVO window.
+2. **MVO quiet / firing classification (TB-990)** — mandatory before deep investigation; see [section below](#mvo-quiet--firing-classification-tb-990).
+3. **Parse `ContextJson`** — `errorTitle`, `errorCode`, `httpStatus`, `routePath`, `productVersion`, `uiVersion`, `browserClient`.
+4. **Correlate telemetry** — App Insights / Log Analytics queries (below) using `CorrelationId` first, then tenant + time window.
+5. **Optional bundle** — when `SupportBundleBlobPath` is populated, fetch and run the [attached bundle checklist](#optional-attached-support-bundle) before forwarding externally.
+6. **Draft reply** — reference the **Report reference**, what you found, next step for the operator, and the next-business-day commitment if work continues.
+
+## MVO quiet / firing classification (TB-990)
+
+**Window:** `CreatedUtc` ± 1 hour (extend to ± 4h only when the operator reports delayed discovery).
+
+**Question:** Were **fleet MVO P0s** firing (or should they have fired) while this tenant reported failure? Report Problem is **support inbox by design** — absence of a page does not by itself mean MVO failed.
+
+### Classification outcomes
+
+| Outcome | When to use | Next action |
+| --- | --- | --- |
+| **A — Fleet P0 should have fired** | Critical action-group alerts fired **or** AMW signals show fleet-wide degradation in the window, but the operator still opened a ticket first | Treat as **MVO miss** or paging-path gap; run [`SOLO_OPERATOR_MVO_OBSERVABILITY.md`](../operations/SOLO_OPERATOR_MVO_OBSERVABILITY.md) enablement + **M-120** drill notes; escalate to platform owner |
+| **B — Single-tenant / product defect (expected support path)** | Fleet P0s **quiet**; failure is tenant-scoped, UX/config, or stuck-run signal not yet enabled (**TB-958**/**TB-959** owner checklists) | Continue standard triage below; cite contract row in reply if helpful |
+| **C — User / config / expected support** | Misconfiguration, training, or operator mistake; no platform defect | Reply with guidance; no paging retro |
+
+Record in `OperatorNote` (example): `MVO-TB990: B — fleet P0 quiet; stale-run gauge 0 at CreatedUtc`.
+
+### Portal checklist (critical action group)
+
+1. Azure Portal → **Monitor** → **Alerts** → **Alert history**.
+2. Filter **Severity** = Sev0 / **Monitor condition** = Fired in `CreatedUtc` ± 1h.
+3. Confirm whether any **MVO P0** rules from [`SOLO_OPERATOR_MVO_OBSERVABILITY.md`](../operations/SOLO_OPERATOR_MVO_OBSERVABILITY.md) fired (`ArchLucidApiUnavailableTf`, `ArchLucidHealthCheckUnhealthyTf`, `ArchLucidSqlConnectionFailuresSustainedTf`, `ArchLucidCircuitBreakerOpenTf`, `ArchLucidAuthorityPipelineWorkDeadLettersTf`, `ArchLucidTrialSignupFailuresHighTf`, `ArchLucidStaleInFlightRunsTf`).
+4. Review-path canary failures (**TB-959**) appear in GitHub Actions / PagerDuty — not AMW PromQL.
+
+### AMW Metrics explore (copy-paste)
+
+Run in the Azure Monitor workspace linked from [`infra/terraform-monitoring`](../../infra/terraform-monitoring/README.md). Replace `<report-created-utc>` with the SQL `CreatedUtc` instant; adjust range as needed.
+
+```promql
+# Fleet API scrape present in the report window (0 or absent ⇒ investigate outcome A)
+max_over_time(up{job="archlucid-api"}[1h])
+
+# Health probe unhealthy (any series > 0 in window ⇒ fleet degradation)
+max_over_time(archlucid_health_check_status{status="Unhealthy"}[1h])
+
+# Stale in-flight runs fleet gauge (TB-958) — correlate tenant/run from logs, not labels
+max_over_time(archlucid_runs_stale_in_flight_count[1h])
+```
+
+**Do not** infer per-tenant paging from these fleet gauges alone — see [`SOLO_OPERATOR_PAGES_VS_SUPPORT_EMAIL_CONTRACT.md`](../operations/SOLO_OPERATOR_PAGES_VS_SUPPORT_EMAIL_CONTRACT.md).
+
+### False-negative drill hook (**M-120**)
+
+When outcome **A** repeats for the same environment, log a **M-120** false-negative entry (private founder notes): environment, alert rule, window, and whether scrape + critical action group Test passed last release cut.
 
 ## Lookup by Report reference
 
@@ -129,7 +174,10 @@ CLI parity for a fresh bundle from your workstation: `dotnet run --project ArchL
 
 ## Related
 
+- [`SOLO_OPERATOR_PAGES_VS_SUPPORT_EMAIL_CONTRACT.md`](../operations/SOLO_OPERATOR_PAGES_VS_SUPPORT_EMAIL_CONTRACT.md) — pages vs support-email matrix (**TB-989**) and MVO classification hook (**TB-990**)
 - [`TROUBLESHOOTING.md`](TROUBLESHOOTING.md) — engineering symptom index and support bundle collection
 - [`FIRST_PILOT_SUPPORT_TRIAGE.md`](FIRST_PILOT_SUPPORT_TRIAGE.md) — runId / audit escalation order
 - [`../library/OBSERVABILITY.md`](../library/OBSERVABILITY.md) — canonical App Insights queries (**TB-329** tags)
+- [`../operations/SOLO_OPERATOR_PAGES_VS_SUPPORT_EMAIL_CONTRACT.md`](../operations/SOLO_OPERATOR_PAGES_VS_SUPPORT_EMAIL_CONTRACT.md) — pages vs inbox matrix (**TB-989**); MVO triage step **TB-990**
+- [`../operations/SOLO_OPERATOR_MVO_OBSERVABILITY.md`](../operations/SOLO_OPERATOR_MVO_OBSERVABILITY.md) — MVO P0 catalog and enablement (**TB-957** / **TB-958** / **TB-959**)
 - [`../library/customer-facing/REPORT_A_PROBLEM.md`](../library/customer-facing/REPORT_A_PROBLEM.md) — operator-facing workflow copy (**TB-790**)

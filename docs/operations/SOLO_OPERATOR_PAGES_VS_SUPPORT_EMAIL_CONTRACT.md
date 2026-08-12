@@ -65,12 +65,12 @@
 
 ---
 
-## Triage hook (**TB-990**)
+## Triage hook (**TB-990** Done)
 
 When **Report Problem** arrives, before treating it as novel:
 
 1. Classify per this matrix: fleet P0 should have fired vs expected support-path intake.
-2. Follow [`SUPPORT_PROBLEM_REPORT_TRIAGE.md`](../runbooks/SUPPORT_PROBLEM_REPORT_TRIAGE.md) — structured MVO quiet/firing checklist ships in **TB-990**.
+2. Follow [`SUPPORT_PROBLEM_REPORT_TRIAGE.md`](../runbooks/SUPPORT_PROBLEM_REPORT_TRIAGE.md) § **MVO quiet / firing classification (TB-990)** — mandatory checklist, Portal history steps, and AMW PromQL snippets.
 
 ---
 
@@ -85,6 +85,6 @@ Honesty guard: `scripts/ci/check_solo_ops_mvo_honesty.py` — retains anchors in
 - MVO enablement + P0 catalog: [`SOLO_OPERATOR_MVO_OBSERVABILITY.md`](SOLO_OPERATOR_MVO_OBSERVABILITY.md)
 - Stuck-run runbook: [`STALE_IN_FLIGHT_RUNS.md`](../runbooks/STALE_IN_FLIGHT_RUNS.md) (**TB-958**)
 - Review-path canary: [`REVIEW_PATH_CANARY.md`](../runbooks/REVIEW_PATH_CANARY.md) (**TB-959**)
-- Support triage: [`SUPPORT_PROBLEM_REPORT_TRIAGE.md`](../runbooks/SUPPORT_PROBLEM_REPORT_TRIAGE.md) (**TB-792**)
+- Support triage: [`SUPPORT_PROBLEM_REPORT_TRIAGE.md`](../runbooks/SUPPORT_PROBLEM_REPORT_TRIAGE.md) (**TB-792**, **TB-990** MVO classification)
 - Metrics catalog: [`OBSERVABILITY.md`](../library/OBSERVABILITY.md)
 - Claim boundary: [`PUBLIC_CLAIM_BOUNDARY_GUIDE.md`](../library/PUBLIC_CLAIM_BOUNDARY_GUIDE.md) (**M-119** / **M-142**)
