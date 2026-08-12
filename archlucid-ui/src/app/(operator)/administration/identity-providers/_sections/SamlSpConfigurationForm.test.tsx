@@ -8,9 +8,14 @@ vi.mock("next/navigation", () => ({
   usePathname: () => "/administration/identity-providers/saml",
 }));
 
-vi.mock("@/components/usability/PageContextualHelpButton", () => ({
-  PageContextualHelpButton: () => <div data-testid="page-contextual-help-button" />,
-}));
+vi.mock("@/components/usability/PageContextualHelpButton", async (importOriginal) => {
+  const actual = await importOriginal<typeof import("@/components/usability/PageContextualHelpButton")>();
+
+  return {
+    ...actual,
+    PageContextualHelpButton: () => <div data-testid="page-contextual-help-button" />,
+  };
+});
 
 vi.mock("@/components/operator/OperatorNavAuthorityProvider", () => ({
   useNavCallerAuthorityRank: () => 100,
@@ -33,8 +38,11 @@ import {
   IDENTITY_PROVIDERS_ACTION_FETCH_IDP_METADATA,
   IDENTITY_PROVIDERS_ACTION_SAVE,
   IDENTITY_PROVIDERS_ACTION_VALIDATE,
+  IDENTITY_PROVIDERS_SAML_ISSUER_LABEL,
+  IDENTITY_PROVIDERS_SAML_METADATA_URL_HELPER,
   IDENTITY_PROVIDERS_SAML_PAGE_SUBTITLE,
   IDENTITY_PROVIDERS_SAML_PAGE_TITLE,
+  IDENTITY_PROVIDERS_SAML_MAPPING_VALIDATION_REQUIRED,
   IDENTITY_PROVIDERS_SAVE_CONFIRM_TITLE,
 } from "@/lib/identity-providers-settings-copy";
 import { showSuccess } from "@/lib/toast";
@@ -144,7 +152,8 @@ async function completeMinimalSamlForm(): Promise<void> {
     expect(screen.getByTestId("saml-sp-issuer")).toHaveValue("https://idp.example.com/");
   });
 
-  fireEvent.change(screen.getByTestId("saml-mapping-idp-Admin"), {
+  const firstMappingInput = screen.getAllByLabelText(/IdP group or role value for mapping/i)[0];
+  fireEvent.change(firstMappingInput, {
     target: { value: "archlucid-admins" },
   });
 
@@ -225,8 +234,13 @@ describe("SamlSpConfigurationForm", () => {
     });
 
     expect(screen.getByTestId("saml-save-configuration-disabled-hint")).toHaveTextContent(
-      /Issuer \/ entity ID is required/i,
+      /Identity provider issuer \(IdP entity ID\) is required/i,
     );
+    expect(screen.getByTestId("saml-save-readiness-list")).toHaveTextContent(
+      IDENTITY_PROVIDERS_SAML_MAPPING_VALIDATION_REQUIRED,
+    );
+    expect(screen.getByTestId("saml-sp-issuer")).toHaveAttribute("aria-invalid", "true");
+    expect(screen.getByTestId("saml-sp-issuer-error")).toBeInTheDocument();
   });
 
   it("uses in-page save confirmation instead of window.confirm (TB-1922)", async () => {
@@ -269,13 +283,102 @@ describe("SamlSpConfigurationForm", () => {
     render(<SamlSpConfigurationForm />);
 
     await waitFor(() => {
-      expect(screen.getByTestId("saml-mapping-role-Admin")).toBeInTheDocument();
+      expect(screen.getAllByLabelText(/ArchLucid role for mapping/i).length).toBeGreaterThan(0);
     });
 
     expect(screen.getByTestId("saml-sp-configuration-form").querySelector("select")).toBeNull();
     expect(screen.getByTestId("saml-advanced-settings")).toBeInTheDocument();
     expect(screen.getByTestId("saml-advanced-settings")).not.toHaveAttribute("open");
     expect(within(screen.getByTestId("saml-advanced-settings")).getByTestId("saml-group-regex")).toBeInTheDocument();
+  });
+
+  it("labels metadata URL as a lookup that is not stored", async () => {
+    render(<SamlSpConfigurationForm />);
+
+    await waitFor(() => {
+      expect(screen.getByTestId("saml-idp-metadata-lookup-block")).toBeInTheDocument();
+    });
+
+    expect(screen.getByTestId("saml-idp-metadata-lookup-block")).toHaveTextContent(
+      IDENTITY_PROVIDERS_SAML_METADATA_URL_HELPER,
+    );
+  });
+
+  it("shows tenant-wide scope chip beside save", async () => {
+    render(<SamlSpConfigurationForm />);
+
+    await waitFor(() => {
+      expect(screen.getByTestId("mutating-in-tenant-chip")).toBeInTheDocument();
+    });
+
+    expect(screen.getByTestId("mutating-in-tenant-chip")).toHaveAttribute("data-prefix", "Applies tenant-wide");
+    expect(screen.queryByTestId("mutating-in-workspace-chip")).toBeNull();
+  });
+
+  it("states save does not change sign-in and does not claim the wizard enables it", async () => {
+    render(<SamlSpConfigurationForm />);
+
+    await waitFor(() => {
+      expect(screen.getByTestId("saml-save-effect-line")).toBeInTheDocument();
+    });
+
+    const effectLine = screen.getByTestId("saml-save-effect-line");
+
+    expect(effectLine).toHaveTextContent(/does not change how anyone signs in today/i);
+    expect(effectLine).toHaveTextContent(/separate platform configuration change/i);
+    // Activate persists the tenant record only; no surface in this UI enables SAML sign-in.
+    expect(effectLine).not.toHaveTextContent(/Activate step/i);
+    expect(screen.getByRole("link", { name: /SSO setup wizard/i })).toHaveAttribute(
+      "href",
+      "/administration/identity/sso-wizard",
+    );
+  });
+
+  it("labels issuer field as the identity provider side", async () => {
+    render(<SamlSpConfigurationForm />);
+
+    await waitFor(() => {
+      expect(screen.getByLabelText(IDENTITY_PROVIDERS_SAML_ISSUER_LABEL)).toBeInTheDocument();
+    });
+  });
+
+  it("supports multiple IdP groups mapped to the same ArchLucid role", async () => {
+    vi.stubGlobal(
+      "fetch",
+      vi.fn(async (input: RequestInfo | URL) => {
+        const url = typeof input === "string" ? input : input instanceof Request ? input.url : String(input);
+
+        if (url.includes("/admin/identity/configuration")) {
+          return new Response(
+            JSON.stringify({
+              protocol: "Saml",
+              issuerUri: "https://idp.example.com/",
+              claimMappingJson: JSON.stringify({
+                roleClaimName: "groups",
+                mappings: [
+                  { idpValue: "admins-a", archLucidRole: "Admin" },
+                  { idpValue: "admins-b", archLucidRole: "Admin" },
+                ],
+              }),
+            }),
+            { status: 200, headers: { "Content-Type": "application/json" } },
+          );
+        }
+
+        return new Response(null, { status: 404 });
+      }),
+    );
+
+    render(<SamlSpConfigurationForm />);
+
+    await waitFor(() => {
+      expect(screen.getAllByLabelText(/IdP group or role value for mapping/i)).toHaveLength(2);
+    });
+
+    const inputs = screen.getAllByLabelText(/IdP group or role value for mapping/i);
+    expect(inputs[0]).toHaveValue("admins-a");
+    expect(inputs[1]).toHaveValue("admins-b");
+    expect(screen.getAllByLabelText(/ArchLucid role for mapping/i)).toHaveLength(2);
   });
 });
 
@@ -299,6 +402,37 @@ describe("IdentityProvidersSamlPageClient", () => {
     render(<IdentityProvidersSamlPageClient loaded={loaded} />);
 
     expect(await screen.findByTestId("saml-operational-health-card")).toBeInTheDocument();
+  });
+
+  it("renders ArchLucid SP values card with copyable ACS URL", async () => {
+    render(<IdentityProvidersSamlPageClient loaded={loaded} />);
+
+    expect(await screen.findByTestId("archlucid-saml-sp-values-card")).toBeInTheDocument();
+    expect(screen.getByTestId("archlucid-saml-sp-acs-url")).toBeInTheDocument();
+  });
+
+  it("mounts saved-configuration test mapping card on the SAML route", async () => {
+    render(<IdentityProvidersSamlPageClient loaded={loaded} />);
+
+    expect(await screen.findByTestId("auth-token-test-mapping-card")).toBeInTheDocument();
+    expect(screen.getByTestId("auth-token-test-mapping-card")).toHaveTextContent(
+      /saved SAML configuration for this organization/i,
+    );
+    expect(screen.getByTestId("auth-token-test-mapping-card")).toHaveTextContent(/Unsaved edits on this form are not included/i);
+  });
+
+  it("shows admin fallback notice on the SAML route", async () => {
+    render(<IdentityProvidersSamlPageClient loaded={loaded} />);
+
+    expect(await screen.findByTestId("identity-providers-admin-fallback-notice")).toBeInTheDocument();
+  });
+
+  it("renders disabled SAML status with StatusTag when SAML sign-in is off", async () => {
+    render(<IdentityProvidersSamlPageClient loaded={loaded} />);
+
+    expect(await screen.findByTestId("saml-operational-health-status")).toBeInTheDocument();
+    expect(screen.getByTestId("saml-operational-health-disabled-copy")).toHaveTextContent(/organization/i);
+    expect(screen.queryByText(/for this workspace/i)).toBeNull();
   });
 });
 

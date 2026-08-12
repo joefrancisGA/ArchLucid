@@ -119,9 +119,9 @@ export const ADMINISTRATION_CONTEXTUAL_HELP_ROWS: readonly PageContextualHelpRow
     prefix: "/administration/identity-providers/saml",
     entry: {
       whatIsThisPage:
-        "SAML — look up IdP metadata, configure IdP issuer and role claim mapping, and review read-only SP certificate health for workspace federation.",
+        "SAML — look up IdP metadata, configure IdP issuer and role claim mapping, and review read-only SP certificate health. These settings apply to every workspace in the organization.",
       whatToDoNext:
-        "Copy ArchLucid SP values, fetch IdP metadata to fill issuer and claim fields, save the configuration, then open the SSO wizard Activate step or diagnostics before inviting users.",
+        "Copy ArchLucid SP values, use Fetch IdP metadata to fill issuer and claim fields, save the configuration, then test the saved mapping before inviting users. Saving does not switch anyone to SAML sign-in — that is a separate platform configuration change.",
       whyEmpty:
         "The configuration form always renders for authorized Admins; empty claim tables mean metadata has not been fetched or mapping rows are not filled yet.",
       whereToConfigurePrerequisite:

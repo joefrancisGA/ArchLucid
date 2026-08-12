@@ -1,11 +1,12 @@
 "use client";
 
+import Link from "next/link";
 import { cn } from "@/lib/utils";
-import { useCallback, useEffect, useState } from "react";
+import { useCallback, useEffect, useMemo, useState } from "react";
 
 import { OperatorApiProblem } from "@/components/operator/OperatorApiProblem";
 import { OperatorSuccessCallout } from "@/components/operator/OperatorSuccessCallout";
-import { MutatingInWorkspaceChip } from "@/components/MutatingInWorkspaceChip";
+import { MutatingInTenantChip } from "@/components/MutatingInTenantChip";
 import { Button } from "@/components/ui/button";
 import { WhyDisabledCtaHint } from "@/components/usability/WhyDisabledCtaHint";
 import { Card, CardContent, CardHeader } from "@/components/ui/card";
@@ -23,24 +24,36 @@ import {
   discoverIdentityProviderMetadata,
   fetchTenantIdentityProviderConfiguration,
 } from "@/lib/admin-identity-provider-api";
-import { OPERATOR_NAV_GROUP_LABEL, OPERATOR_TYPOGRAPHY } from "@/lib/design-tokens";
+import { OPERATOR_LINK, OPERATOR_NAV_GROUP_LABEL, OPERATOR_TYPOGRAPHY } from "@/lib/design-tokens";
 import {
+  addSamlSpClaimMappingRow,
   buildSamlSpActivateRequest,
   createDefaultSamlSpConfigurationFormValues,
   hydrateSamlSpConfigurationFormValues,
   isSamlSpConfigurationFormValid,
-  resolveSamlSpConfigurationValidationError,
+  removeSamlSpClaimMappingRow,
+  resolveSamlSpConfigurationFieldErrors,
+  resolveSamlSpConfigurationValidationErrors,
   type SamlSpConfigurationFormValues,
 } from "@/lib/saml-sp-configuration-form-state";
 import {
   IDENTITY_PROVIDERS_ACTION_FETCH_IDP_METADATA,
   IDENTITY_PROVIDERS_ACTION_SAVE,
+  IDENTITY_PROVIDERS_ROLE_MAPPING_EXAMPLES,
   IDENTITY_PROVIDERS_ROLE_MAPPING_HELPER,
+  IDENTITY_PROVIDERS_ROLE_MAPPING_SEMANTICS_HELPER,
   IDENTITY_PROVIDERS_SAML_ADVANCED_SETTINGS_TITLE,
   IDENTITY_PROVIDERS_SAML_GROUP_REGEX_LABEL,
   IDENTITY_PROVIDERS_SAML_ISSUER_LABEL,
+  IDENTITY_PROVIDERS_SAML_MAPPING_ADD_ROW,
+  IDENTITY_PROVIDERS_SAML_MAPPING_REMOVE_ROW,
+  IDENTITY_PROVIDERS_SAML_METADATA_URL_HELPER,
   IDENTITY_PROVIDERS_SAML_METADATA_URL_LABEL,
   IDENTITY_PROVIDERS_SAML_ROLE_CLAIM_LABEL,
+  IDENTITY_PROVIDERS_SAML_SAVE_EFFECT_LINE,
+  IDENTITY_PROVIDERS_SAML_SAVE_ENABLEMENT_LINK_HREF,
+  IDENTITY_PROVIDERS_SAML_SAVE_ENABLEMENT_LINK_LABEL,
+  IDENTITY_PROVIDERS_SAML_SAVE_ENABLEMENT_SUFFIX,
   IDENTITY_PROVIDERS_TEST_BEFORE_ENABLE_NOTICE,
 } from "@/lib/identity-providers-settings-copy";
 import {
@@ -56,8 +69,30 @@ import { IdentityProvidersSaveConfirmDialog } from "./IdentityProvidersSaveConfi
 
 const ARCHLUCID_ROLES = ["Admin", "Operator", "Reader", "Auditor"] as const;
 
+type SamlSpConfigurationFormProps = {
+  readonly onDirtyChange?: (dirty: boolean) => void;
+};
+
+function resolveRoleMappingPlaceholder(archLucidRole: string): string {
+  const example = IDENTITY_PROVIDERS_ROLE_MAPPING_EXAMPLES.find((row) => row.archLucidRole === archLucidRole);
+
+  return example?.idpValue ?? "e.g. archlucid-admins";
+}
+
+function serializeSamlSpConfigurationValues(values: SamlSpConfigurationFormValues): string {
+  return JSON.stringify({
+    issuerUri: values.issuerUri.trim(),
+    roleClaimName: values.roleClaimName.trim(),
+    customGroupClaimRegex: values.customGroupClaimRegex.trim(),
+    mappings: values.mappings.map((row) => ({
+      idpValue: row.idpValue.trim(),
+      archLucidRole: row.archLucidRole.trim(),
+    })),
+  });
+}
+
 /** Admin form for SAML 2.0 SP tenant configuration (issuer, IdP metadata URL, claim mappings). */
-export function SamlSpConfigurationForm() {
+export function SamlSpConfigurationForm(props: SamlSpConfigurationFormProps = {}) {
   const [values, setValues] = useState<SamlSpConfigurationFormValues>(() => createDefaultSamlSpConfigurationFormValues());
   const [loading, setLoading] = useState(true);
   const [busy, setBusy] = useState(false);
@@ -66,6 +101,17 @@ export function SamlSpConfigurationForm() {
   const [discoveredClaimNames, setDiscoveredClaimNames] = useState<string[]>([]);
   const [successMessage, setSuccessMessage] = useState<string | null>(null);
   const [saveConfirmOpen, setSaveConfirmOpen] = useState(false);
+  const [savedSnapshot, setSavedSnapshot] = useState<string | null>(null);
+  const [touchedFields, setTouchedFields] = useState({
+    issuerUri: false,
+    roleClaimName: false,
+    mappings: false,
+  });
+
+  const validationErrors = useMemo(() => resolveSamlSpConfigurationValidationErrors(values), [values]);
+  const fieldErrors = useMemo(() => resolveSamlSpConfigurationFieldErrors(values), [values]);
+  const hasUnsavedEdits =
+    savedSnapshot !== null && serializeSamlSpConfigurationValues(values) !== savedSnapshot;
 
   const loadConfiguration = useCallback(async () => {
     setLoading(true);
@@ -74,7 +120,10 @@ export function SamlSpConfigurationForm() {
     try {
       const record = await fetchTenantIdentityProviderConfiguration();
 
-      setValues(hydrateSamlSpConfigurationFormValues(record));
+      const hydratedValues = hydrateSamlSpConfigurationFormValues(record);
+      setValues(hydratedValues);
+      setSavedSnapshot(serializeSamlSpConfigurationValues(hydratedValues));
+      setTouchedFields({ issuerUri: false, roleClaimName: false, mappings: false });
       setSavedUtc(record?.updatedUtc ?? null);
     } catch (e: unknown) {
       setError(e instanceof Error ? e.message : String(e));
@@ -86,6 +135,10 @@ export function SamlSpConfigurationForm() {
   useEffect(() => {
     void loadConfiguration();
   }, [loadConfiguration]);
+
+  useEffect(() => {
+    props.onDirtyChange?.(hasUnsavedEdits);
+  }, [hasUnsavedEdits, props]);
 
   const runDiscover = useCallback(async () => {
     if (values.idpMetadataUrl.trim().length === 0) {
@@ -130,6 +183,8 @@ export function SamlSpConfigurationForm() {
       const response = await activateTenantSamlIdentityProvider(buildSamlSpActivateRequest(values));
 
       setSavedUtc(response.updatedUtc ?? new Date().toISOString());
+      setSavedSnapshot(serializeSamlSpConfigurationValues(values));
+      setTouchedFields({ issuerUri: false, roleClaimName: false, mappings: false });
       setSuccessMessage(SAML_CONFIGURATION_SAVED_SUCCESS_MESSAGE);
       setSaveConfirmOpen(false);
     } catch (e: unknown) {
@@ -140,10 +195,8 @@ export function SamlSpConfigurationForm() {
   }, [values]);
 
   const requestSaveConfiguration = useCallback(() => {
-    const validationError = resolveSamlSpConfigurationValidationError(values);
-
-    if (validationError !== null) {
-      setError(validationError);
+    if (!isSamlSpConfigurationFormValid(values)) {
+      setTouchedFields({ issuerUri: true, roleClaimName: true, mappings: true });
 
       return;
     }
@@ -178,12 +231,18 @@ export function SamlSpConfigurationForm() {
 
         {loading ? (
           <p className={cn("m-0 text-al-text-secondary", OPERATOR_TYPOGRAPHY.body)} role="status">
-            Loading SAML configurationâ€¦
+            Loading SAML configuration…
           </p>
         ) : (
           <>
-            <div className="space-y-2">
+            <div
+              className="space-y-2 rounded-lg border border-neutral-200 p-4 dark:border-neutral-800"
+              data-testid="saml-idp-metadata-lookup-block"
+            >
               <Label htmlFor="saml-idp-metadata-url">{IDENTITY_PROVIDERS_SAML_METADATA_URL_LABEL}</Label>
+              <p className={cn("m-0 text-al-text-secondary", OPERATOR_TYPOGRAPHY.helper)}>
+                {IDENTITY_PROVIDERS_SAML_METADATA_URL_HELPER}
+              </p>
               <Input
                 id="saml-idp-metadata-url"
                 data-testid="saml-idp-metadata-url"
@@ -193,7 +252,7 @@ export function SamlSpConfigurationForm() {
                 }}
                 placeholder="https://idp.example.com/FederationMetadata/2007-06/FederationMetadata.xml"
               />
-              <div className="flex flex-col gap-2">
+              <div className="flex flex-col items-start gap-2">
                 <Button
                   type="button"
                   variant="outline"
@@ -227,11 +286,27 @@ export function SamlSpConfigurationForm() {
                 onChange={(e) => {
                   setValues((prev) => ({ ...prev, issuerUri: e.target.value }));
                 }}
+                onBlur={() => {
+                  setTouchedFields((prev) => ({ ...prev, issuerUri: true }));
+                }}
+                aria-invalid={fieldErrors.issuerUri !== null ? true : undefined}
+                aria-describedby={fieldErrors.issuerUri !== null ? "saml-sp-issuer-error" : undefined}
                 placeholder="https://sts.example.com/"
               />
-              <p className={cn("m-0 text-al-text-secondary", OPERATOR_TYPOGRAPHY.helper)}>
-                Issuer from identity provider federation metadata.
-              </p>
+              {fieldErrors.issuerUri !== null ? (
+                <p
+                  id="saml-sp-issuer-error"
+                  className={cn("m-0 text-red-700 dark:text-red-300", OPERATOR_TYPOGRAPHY.helper)}
+                  role="alert"
+                  data-testid="saml-sp-issuer-error"
+                >
+                  {fieldErrors.issuerUri}
+                </p>
+              ) : (
+                <p className={cn("m-0 text-al-text-secondary", OPERATOR_TYPOGRAPHY.helper)}>
+                  Issuer from identity provider federation metadata.
+                </p>
+              )}
             </div>
 
             <div className="space-y-2">
@@ -244,8 +319,27 @@ export function SamlSpConfigurationForm() {
                 onChange={(e) => {
                   setValues((prev) => ({ ...prev, roleClaimName: e.target.value }));
                 }}
+                onBlur={() => {
+                  setTouchedFields((prev) => ({ ...prev, roleClaimName: true }));
+                }}
+                aria-invalid={touchedFields.roleClaimName && fieldErrors.roleClaimName !== null ? true : undefined}
+                aria-describedby={
+                  touchedFields.roleClaimName && fieldErrors.roleClaimName !== null
+                    ? "saml-role-claim-error"
+                    : undefined
+                }
                 placeholder="groups"
               />
+              {touchedFields.roleClaimName && fieldErrors.roleClaimName !== null ? (
+                <p
+                  id="saml-role-claim-error"
+                  className={cn("m-0 text-red-700 dark:text-red-300", OPERATOR_TYPOGRAPHY.helper)}
+                  role="alert"
+                  data-testid="saml-role-claim-error"
+                >
+                  {fieldErrors.roleClaimName}
+                </p>
+              ) : null}
               <datalist id="saml-discovered-claim-names">
                 {discoveredClaimNames.map((name) => (
                   <option key={name} value={name} />
@@ -254,18 +348,24 @@ export function SamlSpConfigurationForm() {
             </div>
 
             <p className={cn("m-0 text-al-text-secondary", OPERATOR_TYPOGRAPHY.helper)}>{IDENTITY_PROVIDERS_ROLE_MAPPING_HELPER}</p>
+            <p className={cn("m-0 text-al-text-secondary", OPERATOR_TYPOGRAPHY.helper)} data-testid="saml-role-mapping-semantics">
+              {IDENTITY_PROVIDERS_ROLE_MAPPING_SEMANTICS_HELPER}
+            </p>
 
             <div className="overflow-x-auto">
               <table className={cn("w-full text-left", OPERATOR_TYPOGRAPHY.body)} data-testid="saml-claim-mapping-table">
                 <thead>
                   <tr className={cn("border-b border-neutral-200 dark:border-neutral-700", OPERATOR_NAV_GROUP_LABEL)}>
                     <th className="py-2 pr-2">IdP group / role value</th>
-                    <th className="py-2">ArchLucid role</th>
+                    <th className="py-2 pr-2">ArchLucid role</th>
+                    <th className="py-2">
+                      <span className="sr-only">Row actions</span>
+                    </th>
                   </tr>
                 </thead>
                 <tbody>
                   {values.mappings.map((row, index) => (
-                    <tr key={row.archLucidRole} className="border-b border-neutral-100 dark:border-neutral-800">
+                    <tr key={row.rowId} className="border-b border-neutral-100 dark:border-neutral-800">
                       <td className="py-2 pr-2">
                         <Input
                           value={row.idpValue}
@@ -279,11 +379,15 @@ export function SamlSpConfigurationForm() {
                               return { ...prev, mappings };
                             });
                           }}
-                          placeholder="e.g. archlucid-admins"
-                          data-testid={`saml-mapping-idp-${row.archLucidRole}`}
+                          onBlur={() => {
+                            setTouchedFields((prev) => ({ ...prev, mappings: true }));
+                          }}
+                          placeholder={resolveRoleMappingPlaceholder(row.archLucidRole)}
+                          data-testid={`saml-mapping-idp-${row.rowId}`}
+                          aria-label={`IdP group or role value for mapping ${index + 1}`}
                         />
                       </td>
-                      <td className="py-2">
+                      <td className="py-2 pr-2">
                         <Select
                           value={row.archLucidRole}
                           onValueChange={(archLucidRole) => {
@@ -297,8 +401,8 @@ export function SamlSpConfigurationForm() {
                         >
                           <SelectTrigger
                             className="h-9 w-full"
-                            aria-label={`ArchLucid role for ${row.archLucidRole} mapping`}
-                            data-testid={`saml-mapping-role-${row.archLucidRole}`}
+                            aria-label={`ArchLucid role for mapping ${index + 1}`}
+                            data-testid={`saml-mapping-role-${row.rowId}`}
                           >
                             <SelectValue />
                           </SelectTrigger>
@@ -311,11 +415,48 @@ export function SamlSpConfigurationForm() {
                           </SelectContent>
                         </Select>
                       </td>
+                      <td className="py-2">
+                        <Button
+                          type="button"
+                          variant="outline"
+                          size="sm"
+                          disabled={values.mappings.length <= 1}
+                          onClick={() => {
+                            setValues((prev) => removeSamlSpClaimMappingRow(prev, row.rowId));
+                          }}
+                          data-testid={`saml-mapping-remove-${row.rowId}`}
+                          aria-label={`Remove mapping ${index + 1}`}
+                        >
+                          {IDENTITY_PROVIDERS_SAML_MAPPING_REMOVE_ROW}
+                        </Button>
+                      </td>
                     </tr>
                   ))}
                 </tbody>
               </table>
             </div>
+
+            {touchedFields.mappings && fieldErrors.mappings !== null ? (
+              <p
+                className={cn("m-0 text-red-700 dark:text-red-300", OPERATOR_TYPOGRAPHY.helper)}
+                role="alert"
+                data-testid="saml-mapping-table-error"
+              >
+                {fieldErrors.mappings}
+              </p>
+            ) : null}
+
+            <Button
+              type="button"
+              variant="outline"
+              size="sm"
+              onClick={() => {
+                setValues((prev) => addSamlSpClaimMappingRow(prev));
+              }}
+              data-testid="saml-mapping-add-row"
+            >
+              {IDENTITY_PROVIDERS_SAML_MAPPING_ADD_ROW}
+            </Button>
 
             <details
               className="rounded-lg border border-neutral-200 p-4 dark:border-neutral-800"
@@ -339,8 +480,18 @@ export function SamlSpConfigurationForm() {
             </details>
 
             <div className="flex flex-col gap-2">
+              <p
+                className={cn("m-0 max-w-3xl text-al-text-secondary", OPERATOR_TYPOGRAPHY.helper)}
+                data-testid="saml-save-effect-line"
+              >
+                {IDENTITY_PROVIDERS_SAML_SAVE_EFFECT_LINE}{" "}
+                <Link href={IDENTITY_PROVIDERS_SAML_SAVE_ENABLEMENT_LINK_HREF} className={OPERATOR_LINK.inline}>
+                  {IDENTITY_PROVIDERS_SAML_SAVE_ENABLEMENT_LINK_LABEL}
+                </Link>
+                {IDENTITY_PROVIDERS_SAML_SAVE_ENABLEMENT_SUFFIX}
+              </p>
               <div className="flex flex-wrap items-center gap-3">
-                <MutatingInWorkspaceChip />
+                <MutatingInTenantChip />
                 <Button
                   type="button"
                   disabled={!canSave}
@@ -362,6 +513,18 @@ export function SamlSpConfigurationForm() {
                 testId="saml-save-configuration-disabled-hint"
                 className="max-w-3xl"
               />
+              {!canSave && validationErrors.length > 0 ? (
+                <div data-testid="saml-save-readiness-list">
+                  <p className={cn("m-0 font-medium text-al-text-secondary", OPERATOR_TYPOGRAPHY.helper)}>
+                    Complete these items before saving:
+                  </p>
+                  <ul className={cn("m-0 mt-1 list-disc pl-5 text-al-text-secondary", OPERATOR_TYPOGRAPHY.helper)}>
+                    {validationErrors.map((message) => (
+                      <li key={message}>{message}</li>
+                    ))}
+                  </ul>
+                </div>
+              ) : null}
             </div>
           </>
         )}
@@ -375,4 +538,3 @@ export function SamlSpConfigurationForm() {
     </Card>
   );
 }
-

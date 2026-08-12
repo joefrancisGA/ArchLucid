@@ -115,6 +115,9 @@ export const IDENTITY_PROVIDERS_ROLE_MAPPING_PAGE_SUBTITLE =
 export const IDENTITY_PROVIDERS_ROLE_MAPPING_HELPER =
   "Map identity provider groups to ArchLucid workspace roles.";
 
+export const IDENTITY_PROVIDERS_ROLE_MAPPING_SEMANTICS_HELPER =
+  "Unmapped IdP groups or role values receive no ArchLucid role. A user can match multiple mappings and receive every matching role. Each IdP value can map to only one ArchLucid role — duplicate values use the first row in the table.";
+
 export const IDENTITY_PROVIDERS_ROLE_MAPPING_EXAMPLES = [
   { idpValue: "archlucid-admins", archLucidRole: "Admin" },
   { idpValue: "archlucid-operators", archLucidRole: "Operator" },
@@ -152,8 +155,46 @@ export const IDENTITY_PROVIDERS_DIAGNOSTICS_INTERNAL_ONLY =
   "Advanced diagnostics are available in internal operator environments.";
 
 export const IDENTITY_PROVIDERS_SAML_STATUS_LABEL = "SAML status";
-export const IDENTITY_PROVIDERS_SAML_METADATA_URL_LABEL = "Identity provider metadata URL";
-export const IDENTITY_PROVIDERS_SAML_ISSUER_LABEL = "Issuer / entity ID";
+export const IDENTITY_PROVIDERS_SAML_METADATA_URL_LABEL = "Identity provider metadata URL (lookup only)";
+export const IDENTITY_PROVIDERS_SAML_METADATA_URL_HELPER =
+  "Use this URL once to fetch issuer and claim names. It is not saved with your configuration.";
+export const IDENTITY_PROVIDERS_SAML_ISSUER_LABEL = "Identity provider issuer (IdP entity ID)";
+export const IDENTITY_PROVIDERS_SAML_ISSUER_VALIDATION_REQUIRED = "Identity provider issuer (IdP entity ID) is required.";
+
+export const IDENTITY_PROVIDERS_SAML_SP_VALUES_CARD_TITLE = "ArchLucid service provider values";
+export const IDENTITY_PROVIDERS_SAML_SP_VALUES_CARD_INTRO =
+  "Register these values in your identity provider before users can sign in with SAML.";
+export const IDENTITY_PROVIDERS_SAML_SP_ACS_LABEL = "Assertion Consumer Service (ACS) / Reply URL path";
+export const IDENTITY_PROVIDERS_SAML_SP_ACS_HOST_NOTE =
+  "Append this path to your ArchLucid API host. That is not this console's address when the API is deployed on a separate host, so confirm the API host before registering the reply URL.";
+export const IDENTITY_PROVIDERS_SAML_SP_ENTITY_ID_LABEL = "ArchLucid entity ID (SP)";
+export const IDENTITY_PROVIDERS_SAML_SP_METADATA_UNAVAILABLE =
+  "Ask your platform administrator for the ArchLucid SP entity ID and metadata XML.";
+
+export const IDENTITY_PROVIDERS_SAML_SAVE_EFFECT_LINE =
+  "Save configuration writes your IdP issuer and group-to-role mapping to the identity provider record for every workspace in this organization. It does not change how anyone signs in today — turning on SAML sign-in is a separate platform configuration change. The";
+export const IDENTITY_PROVIDERS_SAML_SAVE_ENABLEMENT_LINK_LABEL = "SSO setup wizard";
+export const IDENTITY_PROVIDERS_SAML_SAVE_ENABLEMENT_LINK_HREF = "/administration/identity/sso-wizard" as const;
+export const IDENTITY_PROVIDERS_SAML_SAVE_ENABLEMENT_SUFFIX =
+  " walks through the same settings with a sandbox sign-in test.";
+
+export const IDENTITY_PROVIDERS_SAML_MAPPING_ADD_ROW = "Add mapping";
+export const IDENTITY_PROVIDERS_SAML_MAPPING_REMOVE_ROW = "Remove";
+
+export const IDENTITY_PROVIDERS_SAML_MAPPING_VALIDATION_REQUIRED =
+  "Add at least one IdP group or role mapping.";
+
+export const IDENTITY_PROVIDERS_SAML_TEST_MAPPING_CARD_TITLE = "Test role mapping";
+export const IDENTITY_PROVIDERS_SAML_TEST_MAPPING_CARD_DESCRIPTION =
+  "Evaluate a sample identity token against the saved SAML configuration for this organization. Unsaved edits on this form are not included.";
+export const IDENTITY_PROVIDERS_SAML_TEST_MAPPING_UNSAVED_NOTICE =
+  "You have unsaved configuration edits — the test below uses the last saved mapping, not the values currently in the form.";
+
+export const IDENTITY_PROVIDERS_SAML_STATUS_DISABLED_EXPLANATION =
+  "SAML sign-in is not enabled for this organization, so settings saved here are stored but not yet used to sign anyone in. Turning it on is a platform configuration change your platform administrator makes outside this screen. To configure and test the connection in the meantime, use the";
+export const IDENTITY_PROVIDERS_SAML_STATUS_DISABLED_NEXT_STEP_HREF =
+  "/administration/identity/sso-wizard" as const;
+export const IDENTITY_PROVIDERS_SAML_STATUS_DISABLED_NEXT_STEP_LABEL = "SSO setup wizard";
 export const IDENTITY_PROVIDERS_SAML_ROLE_CLAIM_LABEL = "Attribute used for roles/groups";
 export const IDENTITY_PROVIDERS_SAML_GROUP_REGEX_LABEL = "Optional custom group claim regex";
 
@@ -166,7 +207,7 @@ export const IDENTITY_PROVIDERS_ACTION_TEST_ROLE_MAPPING = "Test role mapping";
 
 export const IDENTITY_PROVIDERS_SAVE_CONFIRM_TITLE = "Save identity configuration?";
 export const IDENTITY_PROVIDERS_SAVE_CONFIRM_DESCRIPTION =
-  "Saving can change how users sign in. Validate configuration and keep an administrator fallback before relying on this for production access.";
+  "This saves your IdP issuer and group-to-role mapping to the identity provider record for every workspace in this organization. It does not change how anyone signs in today — turning on SAML sign-in is a separate platform configuration change. Keep at least one administrator who can sign in without SAML before relying on this for production access.";
 
 export const IDENTITY_PROVIDERS_RECOMMENDED_CONFIGURE_SAML = "Configure SAML metadata";
 export const IDENTITY_PROVIDERS_RECOMMENDED_VALIDATE_ROLE_MAPPING = "Validate role mapping";

@@ -5,7 +5,7 @@ export const IDENTITY_PROVIDERS_SAML_CANONICAL_PATH =
   "/administration/identity-providers/saml" as const;
 
 export const IDENTITY_PROVIDERS_SAML_CLAIM_DISCIPLINE =
-  "This SAML page configures SP metadata, signing, and claim mapping for workspace federation - it is not a signed-review diligence Sources package. Open SSO and identity, Role mapping, or Assurance status when you need hub setup, claim mapping, or trust cites.";
+  "This SAML page configures IdP metadata lookup, issuer, role claim, and group-to-role mapping for organization-wide federation — plus read-only SP certificate health when SAML is enabled. It is not a signed-review diligence Sources package. Open SSO and identity, Role mapping, or Assurance status when you need hub setup, claim mapping, or trust cites.";
 
 export const IDENTITY_PROVIDERS_SAML_SOURCES_INTRO =
   "Use these follow-ups when SAML SP configuration turns into SSO wizard steps, role mapping, diagnostics, or assurance cites.";
