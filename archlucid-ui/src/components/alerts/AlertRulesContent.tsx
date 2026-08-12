@@ -16,6 +16,14 @@ import { WhyDisabledCtaHint } from "@/components/usability/WhyDisabledCtaHint";
 import { Button } from "@/components/ui/button";
 import { Input } from "@/components/ui/input";
 import { Label } from "@/components/ui/label";
+import {
+  Select,
+  SelectContent,
+  SelectItem,
+  SelectTrigger,
+  SelectValue,
+} from "@/components/ui/select";
+import { Skeleton } from "@/components/ui/skeleton";
 import { useOperateCapability } from "@/hooks/use-operate-capability";
 import { useOptionalAlertRulesHubRefresh } from "@/lib/alerts-hub-refresh-context";
 import { createAlertRule, listAlertRoutingSubscriptions, listAlertRules } from "@/lib/api";
@@ -67,6 +75,20 @@ import { readOperatorScopeFromStorage } from "@/lib/operator/operator-scope-stor
 import type { AlertRule } from "@/types/alerts";
 import type { AlertRoutingSubscription } from "@/types/alert-routing";
 
+function AlertRulesListLoadingSkeleton(): React.JSX.Element {
+  return (
+    <div
+      className="grid gap-3"
+      data-testid="alert-rules-list-loading-skeleton"
+      aria-busy="true"
+      aria-label="Loading alert conditions"
+    >
+      <Skeleton className="h-28 w-full rounded-lg border border-neutral-200 dark:border-neutral-700" />
+      <Skeleton className="h-28 w-full rounded-lg border border-neutral-200 dark:border-neutral-700" />
+    </div>
+  );
+}
+
 export function AlertRulesContent() {
   const canMutateAlertRules = useOperateCapability();
   const refreshContext = useOptionalAlertRulesHubRefresh();
@@ -78,7 +100,7 @@ export function AlertRulesContent() {
 
   const [items, setItems] = useState<AlertRule[]>([]);
   const [routingSubscriptions, setRoutingSubscriptions] = useState<AlertRoutingSubscription[]>([]);
-  const [loading, setLoading] = useState(false);
+  const [loading, setLoading] = useState(true);
   const [creating, setCreating] = useState(false);
   const [failure, setFailure] = useState<ApiLoadFailureState | null>(null);
   const [statusMessage, setStatusMessage] = useState<string | null>(null);
@@ -202,9 +224,10 @@ export function AlertRulesContent() {
   const mutationDisabledReason = canMutateAlertRules ? null : whyDisabledEnterpriseMutationControl();
   const mutationDisabledHintId = "alert-rules-mutate-disabled-hint";
 
+  const listInitialLoading = loading && items.length === 0;
   const isEmpty = items.length === 0;
   const showCreateForm = !canEdit || showCreatePanel || !isEmpty;
-  const emptyIntroMode = isEmpty && canEdit && !showCreatePanel;
+  const emptyIntroMode = isEmpty && canEdit && !showCreatePanel && !listInitialLoading;
   const sectionGap = pinLivePreviewRail ? "gap-8" : "gap-4";
 
   return (
@@ -272,7 +295,9 @@ export function AlertRulesContent() {
         data-empty-intro={emptyIntroMode ? "true" : "false"}
       >
         <div className={cn("flex min-w-0 flex-col", sectionGap)}>
-          {items.length > 0 ? (
+          {listInitialLoading ? <AlertRulesListLoadingSkeleton /> : null}
+
+          {!listInitialLoading && items.length > 0 ? (
             <section aria-labelledby="alert-rules-list-heading">
               <h3 id="alert-rules-list-heading" className={cn("m-0 mb-3", OPERATOR_TYPOGRAPHY.sectionTitle)}>
                 {ALERT_RULES_LIST_HEADING}
@@ -291,11 +316,11 @@ export function AlertRulesContent() {
             </section>
           ) : null}
 
-          {emptyIntroMode ? (
+          {!listInitialLoading && emptyIntroMode ? (
             <EnterpriseCompactEmptyState {...ALERT_RULES_LIST_EMPTY_COMPACT} />
           ) : null}
 
-          {isEmpty && !canEdit ? (
+          {!listInitialLoading && isEmpty && !canEdit ? (
             <EnterpriseCompactEmptyState {...ALERT_RULES_LIST_EMPTY_COMPACT} />
           ) : null}
 
@@ -325,19 +350,27 @@ export function AlertRulesContent() {
 
               <div>
                 <Label htmlFor="alert-rule-type">{ALERT_RULES_RULE_TYPE_LABEL}</Label>
-                <select
-                  id="alert-rule-type"
+                <Select
                   value={ruleType}
-                  onChange={(event) => setRuleType(event.target.value)}
+                  onValueChange={setRuleType}
                   disabled={!canEdit || creating}
-                  className="mt-1 block w-full rounded-md border border-neutral-300 bg-white p-2 dark:border-neutral-600 dark:bg-neutral-950"
                 >
-                  {ALERT_RULE_TYPE_OPTIONS.map((option) => (
-                    <option key={option.value} value={option.value}>
-                      {option.label}
-                    </option>
-                  ))}
-                </select>
+                  <SelectTrigger
+                    id="alert-rule-type"
+                    className="mt-1"
+                    aria-label={ALERT_RULES_RULE_TYPE_LABEL}
+                    data-testid="alert-rule-type-select"
+                  >
+                    <SelectValue />
+                  </SelectTrigger>
+                  <SelectContent>
+                    {ALERT_RULE_TYPE_OPTIONS.map((option) => (
+                      <SelectItem key={option.value} value={option.value}>
+                        {option.label}
+                      </SelectItem>
+                    ))}
+                  </SelectContent>
+                </Select>
                 <p className={cn("mt-1 text-al-text-secondary", OPERATOR_TYPOGRAPHY.helper)}>
                   {ALERT_RULES_RULE_TYPE_HELP}
                 </p>
@@ -345,19 +378,27 @@ export function AlertRulesContent() {
 
               <div>
                 <Label htmlFor="alert-rule-priority">{ALERT_RULES_ALERT_PRIORITY_LABEL}</Label>
-                <select
-                  id="alert-rule-priority"
+                <Select
                   value={alertPriority}
-                  onChange={(event) => setAlertPriority(event.target.value)}
+                  onValueChange={setAlertPriority}
                   disabled={!canEdit || creating}
-                  className="mt-1 block w-full rounded-md border border-neutral-300 bg-white p-2 dark:border-neutral-600 dark:bg-neutral-950"
                 >
-                  {ALERT_PRIORITY_OPTIONS.map((priority) => (
-                    <option key={priority} value={priority}>
-                      {priority}
-                    </option>
-                  ))}
-                </select>
+                  <SelectTrigger
+                    id="alert-rule-priority"
+                    className="mt-1"
+                    aria-label={ALERT_RULES_ALERT_PRIORITY_LABEL}
+                    data-testid="alert-rule-priority-select"
+                  >
+                    <SelectValue />
+                  </SelectTrigger>
+                  <SelectContent>
+                    {ALERT_PRIORITY_OPTIONS.map((priority) => (
+                      <SelectItem key={priority} value={priority}>
+                        {priority}
+                      </SelectItem>
+                    ))}
+                  </SelectContent>
+                </Select>
                 <p className={cn("mt-1 text-al-text-secondary", OPERATOR_TYPOGRAPHY.helper)}>
                   {ALERT_RULES_ALERT_PRIORITY_HELP}
                 </p>

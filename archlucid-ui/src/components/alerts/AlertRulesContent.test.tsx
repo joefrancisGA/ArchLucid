@@ -5,12 +5,14 @@ import { beforeEach, describe, expect, it, vi } from "vitest";
 
 import { AlertRulesContent } from "@/components/alerts/AlertRulesContent";
 import {
+  ALERT_RULES_ALERT_PRIORITY_LABEL,
   ALERT_RULES_CREATE_BLOCKED_HINT,
   ALERT_RULES_CREATE_SUCCESS_MESSAGE,
   ALERT_RULES_LIST_EMPTY_TITLE,
   ALERT_RULES_NAME_LABEL,
   ALERT_RULES_PREVIEW_DRAFT_STATUS_LABEL,
   ALERT_RULES_RULE_TYPE_HELP,
+  ALERT_RULES_RULE_TYPE_LABEL,
 } from "@/lib/alert-rule-conditions-copy";
 import { alertRulesCreateButtonLabelReaderRank, enterpriseMutationControlDisabledTitle } from "@/lib/enterprise-controls-context-copy";
 import {
@@ -62,6 +64,10 @@ const sampleRule = {
 
 describe("AlertRulesContent", () => {
   async function revealCreateForm(): Promise<void> {
+    await waitFor(() => {
+      expect(screen.getByTestId("alert-rules-create-action")).toBeInTheDocument();
+    });
+
     fireEvent.click(screen.getByTestId("alert-rules-create-action"));
 
     await waitFor(() => {
@@ -121,7 +127,9 @@ describe("AlertRulesContent", () => {
     expect(screen.getByTestId("alert-rules-layout").className).not.toContain("gap-8");
     expect(screen.queryByLabelText(ALERT_RULES_NAME_LABEL)).toBeNull();
     expect(screen.queryByTestId("alert-rule-live-preview")).toBeNull();
-    expect(screen.getByTestId("alert-rules-create-action")).toBeInTheDocument();
+    await waitFor(() => {
+      expect(screen.getByTestId("alert-rules-create-action")).toBeInTheDocument();
+    });
 
     await revealCreateForm();
 
@@ -205,6 +213,53 @@ describe("AlertRulesContent", () => {
       expect(buttonBlock).toContain('variant="primary"');
       expect(buttonBlock).toContain('size="sm"');
     }
+  });
+
+  it("TB-1588: shows a list loading skeleton while alert rules are loading", async () => {
+    let resolveList: ((rules: typeof sampleRule[]) => void) | undefined;
+    apiHoisted.listAlertRules.mockImplementation(
+      () =>
+        new Promise<typeof sampleRule[]>((resolve) => {
+          resolveList = resolve;
+        }),
+    );
+    apiHoisted.listAlertRoutingSubscriptions.mockResolvedValue([]);
+
+    render(<AlertRulesContent />);
+
+    expect(screen.getByTestId("alert-rules-list-loading-skeleton")).toBeInTheDocument();
+    expect(screen.queryByTestId("alert-rules-empty")).not.toBeInTheDocument();
+    expect(screen.queryByTestId("alert-rules-create-action")).not.toBeInTheDocument();
+
+    resolveList?.([]);
+
+    await waitFor(() => {
+      expect(screen.getByTestId("alert-rules-empty")).toBeInTheDocument();
+    });
+
+    expect(screen.queryByTestId("alert-rules-list-loading-skeleton")).not.toBeInTheDocument();
+  });
+
+  it("TB-1588: create form uses design-system Select controls", async () => {
+    render(<AlertRulesContent />);
+
+    await waitFor(() => {
+      expect(screen.getByTestId("alert-rules-empty")).toBeInTheDocument();
+    });
+
+    await revealCreateForm();
+
+    expect(screen.getByTestId("alert-rule-type-select")).toBeInTheDocument();
+    expect(screen.getByTestId("alert-rule-priority-select")).toBeInTheDocument();
+    expect(screen.getByRole("combobox", { name: ALERT_RULES_RULE_TYPE_LABEL })).toBeInTheDocument();
+    expect(screen.getByRole("combobox", { name: ALERT_RULES_ALERT_PRIORITY_LABEL })).toBeInTheDocument();
+  });
+
+  it("TB-1588: Conditions tab source avoids raw select elements", () => {
+    const source = readFileSync(join(process.cwd(), "src", "components", "alerts", "AlertRulesContent.tsx"), "utf8");
+
+    expect(source).toMatch(/from "@\/components\/ui\/select"/);
+    expect(source).not.toMatch(/<select\b/);
   });
 
   it("stacks live preview rail when empty list uses default draft (TB-1574)", async () => {
