@@ -1121,10 +1121,10 @@ All **P0** **V1**: visible-boundary button contract + design-system rule (**TB-2
 | TB-1874 | ~~Quick start Card chrome / first-viewport density~~ **Done** 2026-08-12 ? flattened `FirstPilotIntakeWizard` panel; Vitest; see ## TB-1874 below | Adoption friction P1 ? **V1**; with **TB-1871** | S |
 | TB-1879 | **Done** (2026-08-10) ? guided intake demotes context banners to helper lines; single primary panel testid; Vitest; see ## TB-1879 below | Adoption friction P1 ? **V1**; with **TB-1876** | S |
 | TB-1884 | ~~Account security ? empty/inactive honesty + auth-help CTA~~ **Done** 2026-08-12 ? empty/help CTA + inactive helper; Vitest; see ## TB-1884 below | Adoption friction P1 ? **V1**; with **TB-1881**; pairs **TB-1614** | S |
-| TB-1894 | Sign-in domains ? checklist/StatusTag + settings wayfinding + auth-help CTA; see ## TB-1894 below | Adoption friction P1 ? **V1**; with **TB-1891**; pairs **TB-1614**/**TB-116** | S |
-| TB-1899 | Internal developer tools ? Authority/ReadAuthority + internal-shell discovery honesty; see ## TB-1899 below | Adoption friction P1 ? **V1**; with **TB-1896** | S |
-| TB-1908 | Identity diagnostics ? collapse triple intro + strip Card density; see ## TB-1908 below | Adoption friction P1 ? **V1**; with **TB-1906** | S |
-| TB-1909 | Identity diagnostics ? loading/empty when strips not yet loaded; see ## TB-1909 below | Adoption friction P1 ? **V1**; with **TB-1906** | S |
+| TB-1894 | **Done** (2026-08-12) ? Sign-in domains ? checklist/StatusTag + settings wayfinding + auth-help CTA; Vitest; see `## TB-1894` below | Adoption friction P1 ? **V1**; with **TB-1891**; pairs **TB-1614**/**TB-116** | S |
+| TB-1899 | **Done** (2026-08-12) ? Internal developer tools ? Authority/ReadAuthority + internal-shell discovery honesty; Vitest; see `## TB-1899` below | Adoption friction P1 ? **V1**; with **TB-1896** | S |
+| TB-1908 | **Done** (2026-08-12) ? Identity diagnostics ? collapse triple intro + strip Card density; Vitest; see `## TB-1908` below | Adoption friction P1 ? **V1**; with **TB-1906** | S |
+| TB-1909 | **Done** (2026-08-12) ? Identity diagnostics ? loading/empty when strips not yet loaded; Vitest; see `## TB-1909` below | Adoption friction P1 ? **V1**; with **TB-1906** | S |
 | TB-1914 | **Done** (2026-08-10) ? OIDC/JWT tab loading/empty states + protocol-aware CTA hierarchy; Vitest; see `## TB-1914` below | Adoption friction P1 ? **V1**; with **TB-1911** | S |
 | TB-1919 | **Done** (2026-08-10) ? Role mapping tab protocol-aware primary CTA + Open identity diagnostics + loading; Vitest; see `## TB-1919` below | Adoption friction P1 ? **V1**; with **TB-1916** | S |
 | TB-1924 | SAML tab ? DS Select + advanced regex disclosure + optional health strip; see ## TB-1924 below | Adoption friction P1 ? **V1**; with **TB-1921** | S |
@@ -44606,11 +44606,13 @@ Operators must read three intros before reaching the Trust Center link list.
 
 ## TB-1894 ? Sign-in domains ? checklist/StatusTag + settings wayfinding + auth-help CTA (P1)
 
-**Window:** V1 ? Adoption friction. **Status:** Not started. **Priority:** P1.
+**Window:** V1 ? Adoption friction. **Status:** **Done** (2026-08-12). **Priority:** P1.
 
 **Problem:** Pre-enforcement checklist uses ?/? text; no ? Settings; no link to `/help/authentication-sign-in`; Card stack densifies first viewport.
 
 **Approach:** StatusTag (or DS checklist) for readiness items; Settings back + Open authentication help (**TB-1614**, do not reopen); demote secondary cards. Pair **TB-116**.
+
+**Shipped:** `AuthDomainsPageClient` ? `OperatorPageHeader` with Settings breadcrumb, authentication-help CTA, `StatusTag` checklist items, flattened add-domain panel, collapsed sources disclosure; Vitest.
 
 **Acceptance:** Checklist readable; help/settings one click; denser first viewport. **Size estimate:** S.
 
@@ -44668,11 +44670,13 @@ Operators must read three intros before reaching the Trust Center link list.
 
 ## TB-1899 ? Internal developer tools ? Authority/ReadAuthority + internal-shell discovery honesty (P1)
 
-**Window:** V1 ? Adoption friction. **Status:** Not started. **Priority:** P1.
+**Window:** V1 ? Adoption friction. **Status:** **Done** (2026-08-12). **Priority:** P1.
 
 **Problem:** Destination uses **ReadAuthority** while other advanced identity controls are admin-only; file comment says not in customer nav but catalog section exists ? discovery rules unclear.
 
 **Approach:** Confirm intended authority + whether catalog section should appear only when internal shell flag is on; document in catalog metadata. Vitest: catalog visibility tied to gate if product requires it.
+
+**Shipped:** Catalog gate note on `developer-tools` destination; page access-note copy; Vitest for catalog metadata and `showInternalShell` hub visibility.
 
 **Acceptance:** Who can open/discover the page matches gate copy. **Size estimate:** S.
 
@@ -44780,11 +44784,13 @@ Operators must read three intros before reaching the Trust Center link list.
 
 ## TB-1908 ? Identity diagnostics ? collapse triple intro + strip Card density (P1)
 
-**Window:** V1 ? Adoption friction. **Status:** Not started. **Priority:** P1.
+**Window:** V1 ? Adoption friction. **Status:** **Done** (2026-08-12). **Priority:** P1.
 
 **Problem:** Subtitle + pageIntro + intro Card + stacked health/checklist/OIDC/SAML Cards bury the first actionable signal.
 
 **Approach:** One lead; prioritize health strip; collapse secondary strips. Vitest: single primary lead region.
+
+**Shipped:** `IdentityProvidersDiagnosticsPageView` ? `identity-providers-diagnostics-primary-lead` with health/checklist first; OIDC/SAML collapsed under protocol details; customer support tooling demoted to `<details>`; Vitest.
 
 **Acceptance:** First viewport shows health/checklist without essay stack. **Size estimate:** S.
 
@@ -44792,11 +44798,13 @@ Operators must read three intros before reaching the Trust Center link list.
 
 ## TB-1909 ? Identity diagnostics ? loading/empty when strips not yet loaded (P1)
 
-**Window:** V1 ? Adoption friction. **Status:** Not started. **Priority:** P1.
+**Window:** V1 ? Adoption friction. **Status:** **Done** (2026-08-12). **Priority:** P1.
 
 **Problem:** Until `*Loaded` flags flip, page can show only the intro Card with no loading skeleton.
 
 **Approach:** Shared loading/empty for diagnostics bundle; surface fetch notes. Vitest: loading testid while pending.
+
+**Shipped:** Bundle loading line `identity-providers-diagnostics-loading` while any diagnostics strip is pending; Vitest.
 
 **Acceptance:** No empty intro-only flash during load. **Size estimate:** S.
 

@@ -75,6 +75,20 @@ describe("settings-master-page-model", () => {
     expect(destinationIds).toContain("developer-tools");
   });
 
+  it("hides internal developer tools when the internal shell is off (TB-1899)", () => {
+    const sections = buildSettingsMasterVisibleSections(SETTINGS_MASTER_SECTIONS, {
+      callerAuthorityRank: AUTHORITY_RANK.ReadAuthority,
+      isAuthorityLoading: false,
+      showInternalShell: false,
+      searchQuery: "",
+      showAdvanced: false,
+    });
+
+    const destinationIds = sections.flatMap((section) => section.destinations).map((destination) => destination.id);
+
+    expect(destinationIds).not.toContain("developer-tools");
+  });
+
   it("includes support for execute-tier users but keeps workspace settings admin-only", () => {
     const executeIds = buildSettingsMasterVisibleSections(SETTINGS_MASTER_SECTIONS, {
       callerAuthorityRank: AUTHORITY_RANK.ExecuteAuthority,

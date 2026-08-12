@@ -7,8 +7,12 @@ import { TryCliDemoCard } from "@/components/TryCliDemoCard";
 import { Card, CardContent, CardHeader, CardTitle } from "@/components/ui/card";
 import { PageContextualHelpButton } from "@/components/usability/PageContextualHelpButton";
 import { OPERATOR_TYPOGRAPHY } from "@/lib/design-tokens";
+import { cn } from "@/lib/utils";
 
-import { INTERNAL_DEVELOPER_TOOLS_INTRO } from "./developer-settings-copy";
+import {
+  INTERNAL_DEVELOPER_TOOLS_ACCESS_NOTE,
+  INTERNAL_DEVELOPER_TOOLS_INTRO,
+} from "./developer-settings-copy";
 
 /** Internal operator developer tools — not linked from customer settings navigation. */
 export function DeveloperSettingsPageClient() {
@@ -20,6 +24,12 @@ export function DeveloperSettingsPageClient() {
         titleTestId="developer-settings-page-title"
         actions={<PageContextualHelpButton />}
       />
+      <p
+        className={cn("m-0 text-al-text-secondary", OPERATOR_TYPOGRAPHY.body)}
+        data-testid="developer-settings-access-note"
+      >
+        {INTERNAL_DEVELOPER_TOOLS_ACCESS_NOTE}
+      </p>
       <DeveloperApiContractsApiKeysVocabularyRail currentSurfaceId="developer" />
 
       <Card>

@@ -2,7 +2,10 @@ import { OPERATOR_NAV_LINK_LABELS } from "@/lib/i18n";
 import { ITSM_ADMIN_TICKET_LINKAGE_DESCRIPTION } from "@/lib/vocabulary/finding-correlation-vocabulary";
 import { SETTINGS_NOTIFICATIONS_PATH, SETTINGS_SECURITY_TRUST_PATH } from "@/lib/settings-admin-route-paths";
 
-import { INTERNAL_DEVELOPER_TOOLS_CATALOG_DESCRIPTION } from "../developer/developer-settings-copy";
+import {
+  INTERNAL_DEVELOPER_TOOLS_CATALOG_DESCRIPTION,
+  INTERNAL_DEVELOPER_TOOLS_CATALOG_GATE_NOTE,
+} from "../developer/developer-settings-copy";
 import type { SettingsMasterSection } from "./settings-master-types";
 
 /** Searchable master settings index — hub links; detail pages own editable controls. */
@@ -419,7 +422,7 @@ export const SETTINGS_MASTER_SECTIONS: readonly SettingsMasterSection[] = [
       {
         id: "developer-tools",
         title: "Internal developer tools",
-        description: INTERNAL_DEVELOPER_TOOLS_CATALOG_DESCRIPTION,
+        description: `${INTERNAL_DEVELOPER_TOOLS_CATALOG_DESCRIPTION} ${INTERNAL_DEVELOPER_TOOLS_CATALOG_GATE_NOTE}`,
         href: "/administration/developer",
         cta: "Open internal developer tools",
         keywords: ["developer", "cli", "demo"],

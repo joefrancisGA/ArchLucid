@@ -11,7 +11,27 @@ import {
   removeTenantAuthDomainRecoveryAdmin,
   setTenantAuthDomainEnforcement,
 } from "@/lib/admin-auth-domains-api";
-import { AUTH_DOMAINS_ENABLE_ENFORCEMENT_CONFIRM_TITLE, AUTH_DOMAINS_RECOVERY_REMOVE_CONFIRM_TITLE, AUTH_DOMAINS_SET_ENFORCEMENT_CONFIRM_TITLE } from "@/lib/auth-domains-confirm-copy";
+import {
+  AUTH_DOMAINS_ENABLE_ENFORCEMENT_CONFIRM_TITLE,
+  AUTH_DOMAINS_RECOVERY_REMOVE_CONFIRM_TITLE,
+  AUTH_DOMAINS_SET_ENFORCEMENT_CONFIRM_TITLE,
+  AUTH_DOMAINS_SET_ENFORCEMENT_DOWNGRADE_CONFIRM_TITLE,
+} from "@/lib/auth-domains-confirm-copy";
+import {
+  AUTH_DOMAINS_ADD_DOMAIN_READINESS,
+  AUTH_DOMAINS_ADMIN_AUTHORITY_LABEL,
+  AUTH_DOMAINS_AUTHENTICATION_HELP_CTA,
+  AUTH_DOMAINS_EMPTY_TITLE,
+  AUTH_DOMAINS_MUTATION_ERROR_SUMMARY,
+  AUTH_DOMAINS_PAGE_TITLE,
+  AUTH_DOMAINS_SOURCES_DISCLOSURE_TITLE,
+} from "@/lib/auth-domains-page-copy";
+import {
+  AUTH_DOMAINS_SETTINGS_CLAIM_DISCIPLINE,
+  AUTH_DOMAINS_SETTINGS_SOURCES,
+} from "@/lib/auth-domains-settings-evidence-copy";
+import { PAGE_HELP_SHORT_TRIGGER_TEXT } from "@/components/usability/PageContextualHelpButton";
+import { inAppHelpHref } from "@/lib/product-documentation-registry";
 
 vi.mock("@/lib/admin-auth-domains-api", () => ({
   fetchTenantAuthDomains: vi.fn(),
@@ -28,6 +48,16 @@ vi.mock("@/lib/admin-auth-domains-api", () => ({
   removeTenantAuthDomainRecoveryAdmin: vi.fn(),
 }));
 
+vi.mock("@/lib/operator/operator-scope-storage", () => ({
+  readOperatorScopeFromStorage: () => ({
+    tenantId: "tenant-1",
+    workspaceId: "workspace-1",
+    projectId: "project-1",
+    workspaceLabel: "Claims Intake Demo",
+    projectLabel: "Default project",
+  }),
+}));
+
 const sampleDomain = {
   tenantId: "tenant-1",
   displayDomain: "example.com",
@@ -37,6 +67,7 @@ const sampleDomain = {
   requireEnterpriseSso: false,
   allowEmailOtpRecovery: true,
   createdUtc: "2026-07-01T00:00:00.000Z",
+  routingTestPassedUtc: "2026-07-02T00:00:00.000Z",
   isEnforcementActive: false,
 };
 
@@ -64,6 +95,43 @@ describe("AuthDomainsPageClient", () => {
   afterEach(() => {
     vi.clearAllMocks();
     vi.restoreAllMocks();
+  });
+
+  it("renders shared page chrome, tenant scope, and journey strip", async () => {
+    vi.mocked(fetchTenantAuthDomains).mockResolvedValue([]);
+
+    render(<AuthDomainsPageClient />);
+
+    expect(await screen.findByTestId("auth-domains-page-breadcrumb")).toHaveTextContent("Administration");
+    expect(screen.getByTestId("auth-domains-page-breadcrumb")).toHaveTextContent("Settings");
+    expect(screen.getByTestId("auth-domains-page-breadcrumb")).toHaveTextContent(AUTH_DOMAINS_PAGE_TITLE);
+    expect(screen.getByTestId("auth-domains-page-title")).toHaveTextContent(AUTH_DOMAINS_PAGE_TITLE);
+    expect(screen.queryByRole("heading", { level: 1 })).not.toBeInTheDocument();
+    expect(screen.getByTestId("page-contextual-help-button")).toHaveTextContent(PAGE_HELP_SHORT_TRIGGER_TEXT);
+    expect(screen.getByTestId("auth-domains-tenant-scope")).toHaveTextContent("Claims Intake Demo");
+    expect(screen.getByTestId("auth-domains-admin-authority-tag")).toHaveTextContent(
+      AUTH_DOMAINS_ADMIN_AUTHORITY_LABEL,
+    );
+    expect(screen.getByTestId("auth-domains-journey-step-add")).toHaveAttribute("aria-current", "step");
+    expect(screen.getByTestId("auth-domains-add-readiness")).toHaveTextContent(AUTH_DOMAINS_ADD_DOMAIN_READINESS);
+    expect(screen.getByTestId("auth-domains-empty-state")).toHaveTextContent(AUTH_DOMAINS_EMPTY_TITLE);
+    expect(screen.getByRole("link", { name: AUTH_DOMAINS_AUTHENTICATION_HELP_CTA })).toHaveAttribute(
+      "href",
+      inAppHelpHref("authentication-sign-in"),
+    );
+    expect(screen.getByTestId("auth-domains-sources-disclosure")).toHaveTextContent(
+      AUTH_DOMAINS_SOURCES_DISCLOSURE_TITLE,
+    );
+
+    fireEvent.click(screen.getByText(AUTH_DOMAINS_SOURCES_DISCLOSURE_TITLE));
+
+    expect(screen.getByTestId("auth-domains-settings-claim-discipline")).toHaveTextContent(
+      AUTH_DOMAINS_SETTINGS_CLAIM_DISCIPLINE,
+    );
+
+    for (const source of AUTH_DOMAINS_SETTINGS_SOURCES) {
+      expect(screen.getByRole("link", { name: source.label })).toHaveAttribute("href", source.href);
+    }
   });
 
   it("humanizes verification and enforcement enums in the domain list", async () => {
@@ -99,6 +167,7 @@ describe("AuthDomainsPageClient", () => {
     expect(
       await screen.findByRole("heading", { name: AUTH_DOMAINS_ENABLE_ENFORCEMENT_CONFIRM_TITLE }),
     ).toBeInTheDocument();
+    expect(screen.getByTestId("auth-domains-tenant-scope")).toHaveTextContent("Claims Intake Demo");
     expect(confirmSpy).not.toHaveBeenCalled();
 
     fireEvent.click(screen.getByRole("button", { name: "Enable enforcement" }));
@@ -219,7 +288,7 @@ describe("AuthDomainsPageClient", () => {
     expect(screen.getByText(/Enforcement mode for example.com set to SSO required/i)).toBeInTheDocument();
   });
 
-  it("applies SSO optional immediately with specific success copy", async () => {
+  it("requires confirmation before downgrading to SSO optional", async () => {
     vi.mocked(fetchTenantAuthDomains).mockResolvedValue([sampleDomain]);
     vi.mocked(fetchTenantAuthDomainEnforcementReadiness).mockResolvedValue(readyReadiness);
     vi.mocked(setTenantAuthDomainEnforcement).mockResolvedValue({} as never);
@@ -233,11 +302,42 @@ describe("AuthDomainsPageClient", () => {
     fireEvent.click(screen.getByTestId("auth-domain-row-example.com"));
     fireEvent.click(screen.getByTestId("auth-domains-enforcement-optional"));
 
+    expect(
+      await screen.findByRole("heading", { name: AUTH_DOMAINS_SET_ENFORCEMENT_DOWNGRADE_CONFIRM_TITLE }),
+    ).toBeInTheDocument();
+    expect(screen.getByText(/sign in without SSO/i)).toBeInTheDocument();
+    expect(setTenantAuthDomainEnforcement).not.toHaveBeenCalled();
+
+    fireEvent.click(screen.getByRole("button", { name: "Allow SSO optional" }));
+
     await waitFor(() => {
       expect(setTenantAuthDomainEnforcement).toHaveBeenCalledWith("example.com", "SsoOptional", false);
     });
-    expect(screen.queryByRole("heading", { name: AUTH_DOMAINS_SET_ENFORCEMENT_CONFIRM_TITLE })).not.toBeInTheDocument();
     expect(screen.getByText(/Enforcement mode for example.com set to SSO optional/i)).toBeInTheDocument();
+  });
+
+  it("renders mutation recovery contract instead of raw API errors", async () => {
+    vi.mocked(fetchTenantAuthDomains).mockResolvedValue([sampleDomain]);
+    vi.mocked(fetchTenantAuthDomainEnforcementReadiness).mockResolvedValue(readyReadiness);
+    vi.mocked(setTenantAuthDomainEnforcement).mockRejectedValue(new Error("Internal server error detail"));
+
+    render(<AuthDomainsPageClient />);
+
+    await waitFor(() => {
+      expect(screen.getByTestId("auth-domain-row-example.com")).toBeInTheDocument();
+    });
+
+    fireEvent.click(screen.getByTestId("auth-domain-row-example.com"));
+    fireEvent.click(screen.getByTestId("auth-domains-enforcement-required"));
+    fireEvent.click(screen.getByRole("button", { name: "Set SSO required" }));
+
+    await waitFor(() => {
+      expect(screen.getByTestId("auth-domains-inline-error")).toHaveTextContent(AUTH_DOMAINS_MUTATION_ERROR_SUMMARY);
+    });
+    expect(screen.getByTestId("auth-domains-inline-error")).not.toHaveTextContent("Internal server error detail");
+    expect(screen.getByTestId("operator-error-recovery-what-failed")).toBeInTheDocument();
+    expect(screen.getByTestId("operator-error-recovery-intact")).toBeInTheDocument();
+    expect(screen.getByTestId("operator-error-recovery-next-step")).toBeInTheDocument();
   });
 
   it("disables add domain while propose is in flight", async () => {

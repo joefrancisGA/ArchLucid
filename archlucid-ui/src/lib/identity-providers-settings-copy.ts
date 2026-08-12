@@ -115,6 +115,14 @@ export const IDENTITY_PROVIDERS_DIAGNOSTICS_PAGE_INTRO =
 export const IDENTITY_PROVIDERS_DIAGNOSTICS_PAGE_SUBTITLE =
   "Validate identity configuration, review health probes, and run support tooling before enabling SSO for all users.";
 
+export const IDENTITY_PROVIDERS_DIAGNOSTICS_LOADING = "Loading identity diagnostics…";
+
+export const IDENTITY_PROVIDERS_DIAGNOSTICS_PROTOCOL_DETAILS_TITLE = "Protocol diagnostics";
+
+export const IDENTITY_PROVIDERS_DIAGNOSTICS_OIDC_DETAILS_TITLE = "OIDC discovery details";
+
+export const IDENTITY_PROVIDERS_DIAGNOSTICS_SAML_DETAILS_TITLE = "SAML operational details";
+
 export const IDENTITY_PROVIDERS_DIAGNOSTICS_TECHNICAL_TITLE = "Technical details";
 export const IDENTITY_PROVIDERS_DIAGNOSTICS_TECHNICAL_DESCRIPTION =
   "Configuration references, endpoint probes, and support diagnostics. Use only when troubleshooting with your administrator or ArchLucid support.";

@@ -7,6 +7,7 @@ import {
   AUTH_DOMAINS_ENFORCEMENT_WARNING,
   AUTH_DOMAINS_RECOVERY_REMOVE_CONFIRM_TITLE,
   AUTH_DOMAINS_SET_ENFORCEMENT_CONFIRM_TITLE,
+  AUTH_DOMAINS_SET_ENFORCEMENT_DOWNGRADE_CONFIRM_TITLE,
 } from "@/lib/auth-domains-confirm-copy";
 
 describe("AuthDomainsActionConfirmDialog", () => {
@@ -16,6 +17,7 @@ describe("AuthDomainsActionConfirmDialog", () => {
     render(
       <AuthDomainsActionConfirmDialog
         pending={{ kind: "enable-enforcement" }}
+        organizationLabel="Claims Intake Demo"
         busy={false}
         onCancel={vi.fn()}
         onConfirm={onConfirm}
@@ -23,7 +25,8 @@ describe("AuthDomainsActionConfirmDialog", () => {
     );
 
     expect(screen.getByRole("heading", { name: AUTH_DOMAINS_ENABLE_ENFORCEMENT_CONFIRM_TITLE })).toBeInTheDocument();
-    expect(screen.getByText(AUTH_DOMAINS_ENFORCEMENT_WARNING)).toBeInTheDocument();
+    expect(screen.getByText(new RegExp(AUTH_DOMAINS_ENFORCEMENT_WARNING.replace(/[.*+?^${}()|[\]\\]/g, "\\$&")))).toBeInTheDocument();
+    expect(screen.getByText(/Claims Intake Demo/)).toBeInTheDocument();
 
     fireEvent.click(screen.getByRole("button", { name: "Enable enforcement" }));
 
@@ -39,6 +42,7 @@ describe("AuthDomainsActionConfirmDialog", () => {
           enforcementMode: "SsoRequiredForVerifiedDomain",
           allowEmailOtpRecovery: false,
         }}
+        organizationLabel="Claims Intake Demo"
         busy={false}
         onCancel={vi.fn()}
         onConfirm={vi.fn()}
@@ -47,6 +51,27 @@ describe("AuthDomainsActionConfirmDialog", () => {
 
     expect(screen.getByRole("heading", { name: AUTH_DOMAINS_SET_ENFORCEMENT_CONFIRM_TITLE })).toBeInTheDocument();
     expect(screen.getByRole("button", { name: "Set SSO required" })).toBeInTheDocument();
+  });
+
+  it("renders downgrade confirm labels for SSO optional", () => {
+    render(
+      <AuthDomainsActionConfirmDialog
+        pending={{
+          kind: "set-enforcement-mode",
+          displayDomain: "example.com",
+          enforcementMode: "SsoOptional",
+          allowEmailOtpRecovery: false,
+        }}
+        organizationLabel="Claims Intake Demo"
+        busy={false}
+        onCancel={vi.fn()}
+        onConfirm={vi.fn()}
+      />,
+    );
+
+    expect(screen.getByRole("heading", { name: AUTH_DOMAINS_SET_ENFORCEMENT_DOWNGRADE_CONFIRM_TITLE })).toBeInTheDocument();
+    expect(screen.getByText(/sign in without SSO/i)).toBeInTheDocument();
+    expect(screen.getByRole("button", { name: "Allow SSO optional" })).toBeInTheDocument();
   });
 
   it("renders recovery-admin removal warning in the description", () => {
@@ -60,6 +85,7 @@ describe("AuthDomainsActionConfirmDialog", () => {
           displayRecoveryAdminEmail: "breakglass@example.com",
           warningMessage,
         }}
+        organizationLabel="Claims Intake Demo"
         busy={false}
         onCancel={vi.fn()}
         onConfirm={vi.fn()}
