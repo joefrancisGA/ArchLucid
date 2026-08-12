@@ -6,6 +6,7 @@ import Link from "next/link";
 import { FirstReviewGuideFirstArchitectureReviewVocabularyRail } from "@/components/FirstReviewGuideFirstArchitectureReviewVocabularyRail";
 import { GettingStartedTrialSection } from "@/components/GettingStartedTrialSection";
 import { OperatorPageContainer } from "@/components/operator/OperatorPageContainer";
+import { OperatorPageHeader } from "@/components/operator/OperatorPageHeader";
 import { Button } from "@/components/ui/button";
 import { StatusTag } from "@/components/ui/status-tag";
 import { PageContextualHelpButton } from "@/components/usability/PageContextualHelpButton";
@@ -64,12 +65,13 @@ export function FirstReviewGuidePageClient({ model }: FirstReviewGuidePageClient
 
   return (
     <OperatorPageContainer variant="reading" className="mx-auto max-w-[1100px] space-y-8">
-      <header className="space-y-3" data-testid="onboarding-hero">
-        <div className="flex flex-wrap items-start justify-between gap-2">
-          <h1 className={cn("m-0", OPERATOR_TYPOGRAPHY.pageTitle)}>{BUYER_ONBOARDING_PAGE_TITLE}</h1>
-          <PageContextualHelpButton />
-        </div>
-        <p className={cn("m-0 max-w-3xl", OPERATOR_TYPOGRAPHY.helper)}>{BUYER_ONBOARDING_PAGE_LEAD}</p>
+      <OperatorPageHeader
+        title={BUYER_ONBOARDING_PAGE_TITLE}
+        headingLevel="h1"
+        subtitle={BUYER_ONBOARDING_PAGE_LEAD}
+        subtitleClassName="max-w-3xl"
+        actions={<PageContextualHelpButton />}
+      >
         <FirstReviewGuideFirstArchitectureReviewVocabularyRail currentSurfaceId="first-review-guide" />
         <div
           className="space-y-2"
@@ -88,27 +90,30 @@ export function FirstReviewGuidePageClient({ model }: FirstReviewGuidePageClient
           {guide.headerActions.primaryDisabled ? (
             <Button
               size="sm"
-              variant="default"
               disabled
               aria-describedby="first-review-guide-primary-disabled-hint"
+              data-testid="first-review-guide-primary-disabled"
             >
               {guide.headerActions.primaryLabel}
             </Button>
           ) : (
-            <Button asChild size="sm" variant="default">
+            <Button size="sm" asChild data-testid="first-review-guide-primary">
               <Link href={guide.headerActions.primaryHref}>{guide.headerActions.primaryLabel}</Link>
             </Button>
           )}
-          <Button asChild size="sm" variant="outline">
-            <Link href={guide.headerActions.secondaryHref}>{guide.headerActions.secondaryLabel}</Link>
-          </Button>
+          {guide.headerActions.secondaryHref !== null ? (
+            <Button size="sm" variant="outline" asChild data-testid="first-review-guide-secondary">
+              <Link href={guide.headerActions.secondaryHref}>{guide.headerActions.secondaryLabel}</Link>
+            </Button>
+          ) : null}
         </div>
         <WhyDisabledCtaHint
           id="first-review-guide-primary-disabled-hint"
           reason={primaryDisabledReason}
+          testId="first-review-guide-primary-disabled-hint"
           className="max-w-3xl"
         />
-      </header>
+      </OperatorPageHeader>
 
       {model.fromRegistration ? <GettingStartedTrialSection fromRegistrationQuery={model.fromRegistration} /> : null}
 

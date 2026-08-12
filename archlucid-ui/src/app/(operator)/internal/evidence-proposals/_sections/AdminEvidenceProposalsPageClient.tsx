@@ -6,6 +6,7 @@ import { useCallback, useEffect, useState } from "react";
 import { Button } from "@/components/ui/button";
 import { Card, CardContent, CardHeader, CardTitle } from "@/components/ui/card";
 import { PageContextualHelpButton } from "@/components/usability/PageContextualHelpButton";
+import { OperatorPageHeader } from "@/components/operator/OperatorPageHeader";
 import { OPERATOR_TYPOGRAPHY } from "@/lib/design-tokens";
 
 type EvidenceProposalRow = {
@@ -74,17 +75,12 @@ export function AdminEvidenceProposalsPageClient() {
 
   return (
     <div className="w-full max-w-3xl space-y-6" data-testid="admin-evidence-proposals-page">
-      <div>
-        <div className="flex flex-wrap items-start justify-between gap-3">
-          <div>
-            <h1 className={OPERATOR_TYPOGRAPHY.pageTitle}>Evidence proposals</h1>
-            <p className={cn("mt-1 text-al-text-secondary", OPERATOR_TYPOGRAPHY.body)}>
-              Review agent-suggested catalog entries from recent reviews and promote approved items into the tenant curated evidence catalog.
-            </p>
-          </div>
-          <PageContextualHelpButton />
-        </div>
-      </div>
+      <OperatorPageHeader
+        title="Evidence proposals"
+        headingLevel="h1"
+        subtitle="Review agent-suggested catalog entries from recent reviews and promote approved items into the tenant curated evidence catalog."
+        actions={<PageContextualHelpButton />}
+      />
 {error !== null ? (
         <p
           role="alert"

@@ -21,13 +21,8 @@ const EXEMPT_PREFIXES: readonly string[] = ["app/(operator)/auth/"];
  */
 const HAND_ROLLED_PAGE_TITLE_BASELINE: ReadonlySet<string> = new Set([
   "app/(operator)/_sections/OperatorHomePageSuspenseFallback.tsx",
-  "app/(operator)/administration/api-keys/_sections/ApiKeysSettingsPageClient.tsx",
-  "app/(operator)/administration/billing/OperatorBillingSettingsClient.tsx",
-  "app/(operator)/administration/identity-providers/_sections/IdentityProvidersSettingsRestrictedState.tsx",
-  "app/(operator)/administration/tenant/_sections/TenantSettingsRestrictedState.tsx",
   "app/(operator)/administration/users/_sections/InviteReviewerPageView.tsx",
   "app/(operator)/architecture/digests/page.tsx",
-  "app/(operator)/architecture/first-review-guide/_sections/FirstReviewGuidePageClient.tsx",
   "app/(operator)/architecture/reviews/[runId]/_sections/RunDetailPageFetchErrorView.tsx",
   "app/(operator)/architecture/reviews/[runId]/_sections/RunDetailPageMalformedResponseView.tsx",
   "app/(operator)/architecture/reviews/[runId]/_sections/RunDetailWorkspaceChrome.tsx",
@@ -35,7 +30,6 @@ const HAND_ROLLED_PAGE_TITLE_BASELINE: ReadonlySet<string> = new Set([
   "app/(operator)/architecture/reviews/[runId]/findings/[findingId]/_sections/FindingDetailPageView.tsx",
   "app/(operator)/architecture/reviews/[runId]/page.tsx",
   "app/(operator)/architecture/reviews/[runId]/print/_sections/PackagePrintPageView.tsx",
-  "app/(operator)/demo/explain/_sections/DemoExplainPageView.tsx",
   "app/(operator)/governance/_sections/GovernanceWorkflowSuspenseFallback.tsx",
   "app/(operator)/governance/audit/page.tsx",
   "app/(operator)/governance/policy-packs/[id]/HealthcareClaimsPolicyPackDetail.tsx",
@@ -45,9 +39,6 @@ const HAND_ROLLED_PAGE_TITLE_BASELINE: ReadonlySet<string> = new Set([
   "app/(operator)/governance/signed-records/[manifestId]/loading.tsx",
   "app/(operator)/insights/architecture-scorecard/_sections/PilotScorecardPageView.tsx",
   "app/(operator)/insights/roi-summary/_sections/RoiSummaryPageView.tsx",
-  "app/(operator)/internal/configuration/_sections/AdminConfigurationPageView.tsx",
-  "app/(operator)/internal/evidence-proposals/_sections/AdminEvidenceProposalsPageClient.tsx",
-  "app/(operator)/internal/tenants/_sections/AdminTenantsPageClient.tsx",
 ]);
 
 function collectPageViews(directory: string): string[] {

@@ -42,6 +42,8 @@ import { Card, CardContent, CardHeader, CardTitle } from "@/components/ui/card";
 import { ApiKeysUsersVocabularyRail } from "@/components/ApiKeysUsersVocabularyRail";
 import { DeveloperApiContractsApiKeysVocabularyRail } from "@/components/DeveloperApiContractsApiKeysVocabularyRail";
 import { WebhooksApiKeysVocabularyRail } from "@/components/WebhooksApiKeysVocabularyRail";
+import { OperatorPageContainer } from "@/components/operator/OperatorPageContainer";
+import { OperatorPageHeader } from "@/components/operator/OperatorPageHeader";
 import { PageContextualHelpButton } from "@/components/usability/PageContextualHelpButton";
 import { DESIGN_TOKENS, OPERATOR_TYPOGRAPHY } from "@/lib/design-tokens";
 
@@ -251,24 +253,23 @@ export function ApiKeysSettingsPageClient() {
   }
 
   return (
-    <div className="w-full max-w-5xl space-y-6" data-testid="api-keys-settings-page">
-      <header className="space-y-3">
-<div className="flex flex-wrap items-start justify-between gap-3">
-          <div>
-            <h1 className={OPERATOR_TYPOGRAPHY.pageTitle}>{API_KEYS_PAGE_TITLE}</h1>
-            <p className={cn("mt-1 max-w-prose text-al-text-secondary", OPERATOR_TYPOGRAPHY.body)}>
-              {API_KEYS_PAGE_SUBTITLE}
-            </p>
-            <p className={cn("mt-2 max-w-3xl text-al-text-secondary", OPERATOR_TYPOGRAPHY.helper)}>
-              {API_KEYS_ENTERPRISE_ONLY_NOTICE}
-            </p>
-          </div>
-          <PageContextualHelpButton />
-        </div>
+    <OperatorPageContainer variant="settings" className="space-y-6" data-testid="api-keys-settings-page">
+      <OperatorPageHeader
+        title={API_KEYS_PAGE_TITLE}
+        headingLevel="h1"
+        subtitle={
+          <>
+            <p className="m-0">{API_KEYS_PAGE_SUBTITLE}</p>
+            <p className={cn("m-0 mt-2 max-w-3xl", OPERATOR_TYPOGRAPHY.helper)}>{API_KEYS_ENTERPRISE_ONLY_NOTICE}</p>
+          </>
+        }
+        subtitleClassName="max-w-prose"
+        actions={<PageContextualHelpButton />}
+      >
         <ApiKeysUsersVocabularyRail currentSurfaceId="api-keys" />
         <WebhooksApiKeysVocabularyRail currentSurfaceId="api-keys" />
         <DeveloperApiContractsApiKeysVocabularyRail currentSurfaceId="api-keys" />
-      </header>
+      </OperatorPageHeader>
 {state.status === "loading" ? (
         <p className={cn("text-al-text-secondary", OPERATOR_TYPOGRAPHY.body)}>Loading API key status…</p>
       ) : null}
@@ -373,6 +374,6 @@ export function ApiKeysSettingsPageClient() {
           void executeRotate("Admin", false);
         }}
       />
-    </div>
+    </OperatorPageContainer>
   );
 }

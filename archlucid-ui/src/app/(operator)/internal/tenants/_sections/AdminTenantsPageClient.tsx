@@ -17,6 +17,7 @@ import {
 import { StatusTag } from "@/components/ui/status-tag";
 import { useOperatorNavAuthority } from "@/components/operator/OperatorNavAuthorityProvider";
 import { PageContextualHelpButton } from "@/components/usability/PageContextualHelpButton";
+import { OperatorPageHeader } from "@/components/operator/OperatorPageHeader";
 import { OPERATOR_TYPOGRAPHY } from "@/lib/design-tokens";
 import { AUTHORITY_RANK } from "@/lib/nav-authority";
 import {
@@ -220,22 +221,16 @@ export function AdminTenantsPageClient() {
 
   return (
     <div className="w-full max-w-[1440px] space-y-6" data-testid="admin-tenants-page">
-      <div>
-        <div className="flex flex-wrap items-start justify-between gap-3">
-          <div>
-            <h1 className={OPERATOR_TYPOGRAPHY.pageTitle}>Tenants</h1>
-            <p className={cn("mt-1 text-al-text-secondary", OPERATOR_TYPOGRAPHY.body)}>
-              Provision a net-new tenant (seeds bundled policy packs) or shut off an existing tenant without deleting
-              data. Erasure quarantine remains a separate platform deletion path.
-            </p>
-          </div>
-          <PageContextualHelpButton />
-        </div>
+      <OperatorPageHeader
+        title="Tenants"
+        headingLevel="h1"
+        subtitle="Provision a net-new tenant (seeds bundled policy packs) or shut off an existing tenant without deleting data. Erasure quarantine remains a separate platform deletion path."
+        actions={<PageContextualHelpButton />}
+      >
         <Button
           type="button"
           variant="outline"
           size="sm"
-          className="mt-3"
           disabled={loading}
           onClick={() => {
             void refresh();
@@ -243,8 +238,8 @@ export function AdminTenantsPageClient() {
         >
           {loading ? "Refreshing…" : "Refresh"}
         </Button>
-      </div>
-<section
+      </OperatorPageHeader>
+      <section
         className="space-y-3 rounded-md border border-neutral-300 p-4 dark:border-neutral-700"
         aria-labelledby="admin-tenants-create-heading"
         data-testid="admin-tenants-create"

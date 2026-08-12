@@ -1,4 +1,5 @@
 import { Card, CardContent } from "@/components/ui/card";
+import { OperatorPageHeader } from "@/components/operator/OperatorPageHeader";
 import { OPERATOR_TYPOGRAPHY } from "@/lib/design-tokens";
 import { OPERATOR_NAV_LINK_LABELS } from "@/lib/i18n";
 import { cn } from "@/lib/utils";
@@ -15,12 +16,12 @@ export const TENANT_SETTINGS_RESTRICTED_DESCRIPTION =
 export function TenantSettingsRestrictedState(): React.JSX.Element {
   return (
     <div className="w-full max-w-3xl space-y-6" data-testid="tenant-settings-restricted">
-      <div>
-        <h1 className={OPERATOR_TYPOGRAPHY.pageTitle}>{OPERATOR_NAV_LINK_LABELS.workspaceSettings}</h1>
-        <p className={cn("mt-1 max-w-prose text-al-text-secondary", OPERATOR_TYPOGRAPHY.body)} role="alert">
-          {TENANT_SETTINGS_RESTRICTED_DESCRIPTION}
-        </p>
-      </div>
+      <OperatorPageHeader
+        title={OPERATOR_NAV_LINK_LABELS.workspaceSettings}
+        headingLevel="h1"
+        subtitle={<span role="alert">{TENANT_SETTINGS_RESTRICTED_DESCRIPTION}</span>}
+        subtitleClassName="max-w-prose"
+      />
       <Card>
         <CardContent className={cn("py-6 text-al-text-secondary", OPERATOR_TYPOGRAPHY.body)}>
           <p className="m-0">

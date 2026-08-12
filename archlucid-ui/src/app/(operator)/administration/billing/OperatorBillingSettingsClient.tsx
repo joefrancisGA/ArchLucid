@@ -8,6 +8,7 @@ import { CollapsibleSection } from "@/components/CollapsibleSection";
 import { useNavCallerAuthorityRank } from "@/components/operator/OperatorNavAuthorityProvider";
 import { AiUsageBillingVocabularyRail } from "@/components/AiUsageBillingVocabularyRail";
 import { PageContextualHelpButton } from "@/components/usability/PageContextualHelpButton";
+import { OperatorPageHeader } from "@/components/operator/OperatorPageHeader";
 import { useTenantTrialStatusQuery } from "@/hooks/use-tenant-trial-status-query";
 import { useTenantUsageStatusQuery } from "@/hooks/use-tenant-usage-status-query";
 import { useBillingSubscriptionStatusQuery } from "@/hooks/use-billing-subscription-status-query";
@@ -75,15 +76,13 @@ export function OperatorBillingSettingsClient(props: { readonly initialPlanId?: 
 
   return (
     <div className="w-full max-w-[1440px] space-y-4 p-4" data-testid="operator-billing-plans-page">
-      <header className="space-y-2">
-        <div className="flex flex-wrap items-start justify-between gap-3">
-          <div className="min-w-0 flex-1 space-y-2">
-            <h1 className={OPERATOR_TYPOGRAPHY.pageTitle}>Billing &amp; plans</h1>
-            <p className={cn("max-w-3xl", OPERATOR_TYPOGRAPHY.helper)}>{OPERATOR_BILLING_PAGE_LEAD}</p>
-          </div>
-          <PageContextualHelpButton />
-        </div>
-      </header>
+      <OperatorPageHeader
+        title="Billing & plans"
+        headingLevel="h1"
+        subtitle={OPERATOR_BILLING_PAGE_LEAD}
+        subtitleClassName="max-w-3xl"
+        actions={<PageContextualHelpButton />}
+      />
       <AiUsageBillingVocabularyRail currentSurfaceId="billing" />
       <OperatorBillingPaymentPastDueBanner canMutate={canMutate} />
 
