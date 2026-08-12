@@ -1325,7 +1325,7 @@ All **P0** **V1**: visible-boundary button contract + design-system rule (**TB-2
 | TB-1204 | **Done** (2026-08-12) ? [`POST_STRANGLER_RESIDUAL_COUPLING_AND_DISCIPLINE_TEST_RETIREMENT_CONTRACT.md`](POST_STRANGLER_RESIDUAL_COUPLING_AND_DISCIPLINE_TEST_RETIREMENT_CONTRACT.md); see `## TB-1204` below | Architectural integrity P1 ? **V1**; PA Q4 strangler residual; GTM **M-205**/**M-206** | S |
 | TB-1263 | **Done** (2026-08-12) ? [`DAPPER_DDL_SATELLITE_BREAKDOWN_SIGNALS_CONTRACT.md`](DAPPER_DDL_SATELLITE_BREAKDOWN_SIGNALS_CONTRACT.md); see `## TB-1263` below | Maintainability P1 ? **V1**; PA Q11 data-access; GTM **M-219**/**M-220** | S |
 | TB-1311 | **Done** (2026-08-12) ? First async-orchestration forcing workload + run state machine freeze (commit-safe split); see `## TB-1311` below | Architectural integrity P1 ? **V1**; PA 2026-07-26 async/DTF; GTM **M-231**/**M-232** | S |
-| TB-1324 | Policy-pack / rule-set evaluation hybrid (versioned data plane + compiled interpreter) contract; see `## TB-1324` below | Architectural integrity P1 ? **V1**; PA Q19 packs?frameworks; GTM **M-235**/**M-236** | S |
+| TB-1324 | **Done** (2026-08-12) ? [`POLICY_PACK_EVALUATION_COMPILED_VS_DATA_PLANE_CONTRACT.md`](POLICY_PACK_EVALUATION_COMPILED_VS_DATA_PLANE_CONTRACT.md); see `## TB-1324` below | Architectural integrity P1 ? **V1**; PA Q19 packs?frameworks; GTM **M-235**/**M-236** | S |
 | TB-1624 | **Done** (2026-08-11) ? [`POLICY_PACK_CUSTOMER_RULE_SANDBOX_PIN_BLAST_RADIUS_CLAIM_MAP.md`](POLICY_PACK_CUSTOMER_RULE_SANDBOX_PIN_BLAST_RADIUS_CLAIM_MAP.md); see `## TB-1624` below | Architectural integrity P1 ? **V1**; PA pack extensibility Q; GTM **M-298**/**M-299**; see `POLICY_PACK_CUSTOMER_RULE_SANDBOX_PIN_BLAST_RADIUS_CLAIM_MAP.md`; orchestrates **TB-1324**/**TB-1022** | S |
 | TB-1824 | ~~Pair MAM `/signed-records/.../artifacts/...` with RER restore~~ **Done** 2026-08-03 ? via **TB-1947** GAR | Architectural integrity P1 ? **V1**; with **TB-1821**; traffic **MAM**?**GAR** | M |
 | TB-1873 | **Done** (2026-08-12) ? Quick start vs legacy `QuickReviewWizard` dual-surface honesty; see ## TB-1873 below | Maintainability P1 ? **V1**; with **TB-1871** | M |
@@ -1335,13 +1335,13 @@ All **P0** **V1**: visible-boundary button contract + design-system rule (**TB-2
 | TB-996 | **Done** (2026-08-12) ? Polly ? run-completeness honesty CI + `LLM_RETRY` doc bridge; see `## TB-996` below | Testability P1 ? **V1**; after **TB-995**; pairs GTM **M-146** | S |
 | TB-998 | **Done** (2026-08-12) ? LLM trust-boundary honesty CI ? forbid injection-proof / model-has-tools overclaims; see `## TB-998` below | Testability P1 ? **V1**; after **TB-997**; pairs **M-116**/**M-148** | S |
 | TB-1000 | **Done** (2026-08-12) ? Anti-header/ambient re-derive honesty CI ? forbid prod header-as-tenant / deep-layer HttpContext claims; see `## TB-1000` below | Testability P1 ? **V1**; after **TB-999**; pairs **M-150**; complements ARCH001 | S |
-| TB-1002 | Anti-per-tenant-Search-index / filter-optional honesty CI; see `## TB-1002` below | Testability P1 ? **V1**; after **TB-1001**; pairs **M-152** | S |
+| TB-1002 | **Done** (2026-08-12) ? Anti-per-tenant-Search-index / filter-optional honesty CI; see `## TB-1002` below | Testability P1 ? **V1**; after **TB-1001**; pairs **M-152** | S |
 | TB-1004 | **Done** (2026-08-12) ? Anti-substitute-for-committed-manifest / fake-chain-hop honesty CI; see `## TB-1004` below | Testability P1 ? **V1**; after **TB-1003**; pairs **M-154** | S |
 | TB-1006 | **Done** (2026-08-12) ? Anti-NetArchTest-equals-isolation / silent-allowlist honesty CI; see `## TB-1006` below | Testability P1 ? **V1**; after **TB-1005**; pairs **M-156** | S |
 | TB-1008 | **Done** (2026-08-12) ? Anti-always-execute-after-create / dual-pipeline-alive honesty CI; see `## TB-1008` below | Testability P1 ? **V1**; after **TB-1007**; pairs **M-158** | S |
 | TB-1010 | **Done** (2026-08-12) ? Anti-editable-audit / in-place-seal-rewrite / platform-WORM honesty CI; see `## TB-1010` below | Testability P1 ? **V1**; after **TB-1009**; pairs **M-160** | S |
-| TB-1012 | Anti-committed-equals-indexed / all-audit-transactional honesty CI; see `## TB-1012` below | Testability P1 ? **V1**; after **TB-1011**; pairs **M-162** | S |
-| TB-1023 | Anti-pack-equals-certification / priorityFloor-blocks / SoD-on-commit honesty CI; see `## TB-1023` below | Testability P1 ? **V1**; after **TB-1022**; pairs **M-172** | S |
+| TB-1012 | **Done** (2026-08-12) ? Anti-committed-equals-indexed / all-audit-transactional honesty CI; see `## TB-1012` below | Testability P1 ? **V1**; after **TB-1011**; pairs **M-162** | S |
+| TB-1023 | **Done** (2026-08-12) ? Anti-pack-equals-certification / priorityFloor-blocks / SoD-on-commit honesty CI; see `## TB-1023` below | Testability P1 ? **V1**; after **TB-1022**; pairs **M-172** | S |
 | TB-1025 | Anti-artifact-mode-equals-stable / live-UI-verify honesty CI; see `## TB-1025` below | Testability P1 ? **V1**; after **TB-1024**; pairs **M-174** | S |
 | TB-1027 | Anti-finding-as-primary / dual-product-create-review honesty CI; see `## TB-1027` below | Testability P1 ? **V1**; after **TB-1026**; pairs **M-176** | S |
 | TB-1029 | Anti-see-it-Claims-banner-Contoso-payload honesty CI; see `## TB-1029` below | Testability P1 ? **V1**; after **TB-1028**; pairs **M-178** | S |
@@ -27126,22 +27126,18 @@ Plus visual regression: overview, technical index, one expanded object, one fiel
 
 **Window:** V1 ? Testability.
 
-**Status:** Not started.
+**Status:** **Done** (2026-08-12).
 
 **Priority:** P1.
 
 **Source:** Follow-on to **TB-1001**; hardens GTM **M-152**.
 
-**Problem:** Buyer/PA copy can claim a dedicated Search index per tenant, imply Graph-RAG can fetch arbitrary index docs, or treat `$filter` as optional/best-effort.
+**Shipped:**
 
-**Approach:**
+1. `scripts/ci/check_retrieval_tenancy_hit_guarantee_honesty.py` + unit tests; wired in `run_buyer_surface_strict_guards.py` and CI.
+2. Contract anchors updated in [`RETRIEVAL_TENANCY_HIT_GUARANTEE_CONTRACT.md`](RETRIEVAL_TENANCY_HIT_GUARANTEE_CONTRACT.md) (**TB-1001**/**TB-1002**, **M-152**/**M-153**) and `AzureSearchSdkClient` `BuildRequiredScopeFilter` anchor.
 
-1. Doc/CI guard: fail stubs that claim per-tenant Azure AI Search service isolation, ?impossible to return another tenant?s chunk even without filter,? or optional tenant `$filter` on production Ask/Search paths without **TB-1001** caveats.
-2. Require **TB-1001** (or Ask threat-model + TB-071/604 anchors) near G3 retrieval / Ask isolation language; distinguish platform sentinel from cross-tenant leak.
-3. Optional: architecture/smoke assert `AzureSearchSdkClient.SearchAsync` / delete paths still call `BuildRequiredScopeFilter` (string/presence guard ? do not re-test OData semantics already covered).
-4. Point Verification at existing filter/upsert tests; pair **M-152**.
-
-**Acceptance:** CI fails on dishonest physical-index / filter-optional claims; pairs **M-152**.
+**Acceptance:** Met ? CI fails dishonest physical-index / filter-optional claims; pairs **M-152**.
 
 **Depends on:** Done **TB-1001**.
 
@@ -27387,22 +27383,18 @@ Plus visual regression: overview, technical index, one expanded object, one fiel
 
 **Window:** V1 ? Testability.
 
-**Status:** Not started.
+**Status:** **Done** (2026-08-12).
 
 **Priority:** P1.
 
 **Source:** Follow-on to **TB-1011**; hardens GTM **M-162**.
 
-**Problem:** Demo/procurement copy can imply finalize makes Ask/RAG and ITSM tickets immediately consistent, or that every audit event is transactional/fail-closed.
+**Shipped:**
 
-**Approach:**
+1. `scripts/ci/check_transactional_finalize_outbox_honesty.py` + unit tests; wired in `run_buyer_surface_strict_guards.py` and CI.
+2. Contract anchors updated in [`TRANSACTIONAL_FINALIZE_VS_OUTBOX_CONTRACT.md`](TRANSACTIONAL_FINALIZE_VS_OUTBOX_CONTRACT.md) (**TB-1011**/**TB-1012**, **M-162**/**M-163**).
 
-1. Doc/CI guard: fail WHAT_NOT_TO_PROMISE-adjacent stubs that equate commit success with Search indexed / webhook delivered / Cosmos projected without **TB-1011** lag caveats.
-2. Fail ?all audit is transactional? / ?no best-effort audit? without INV-003 Required vs informational (**TB-001** / **M-117**) distinction.
-3. Optional: flag ?exactly-once integration delivery on commit? language (coordinate **TB-994** / **M-144**, do not duplicate MessageId tests).
-4. Point Verification at test/script names; pair **M-162**.
-
-**Acceptance:** CI fails on dishonest committed=indexed / all-audit-transactional claims; pairs **M-162**.
+**Acceptance:** Met ? CI fails dishonest committed=indexed / all-audit-transactional claims; pairs **M-162**.
 
 **Depends on:** **TB-1011** (**Done** 2026-08-05).
 
@@ -27444,22 +27436,18 @@ Plus visual regression: overview, technical index, one expanded object, one fiel
 
 **Window:** V1 ? Testability.
 
-**Status:** Not started.
+**Status:** **Done** (2026-08-12).
 
 **Priority:** P1.
 
 **Source:** Follow-on to **TB-1022**; hardens GTM **M-172**.
 
-**Problem:** Demo/procurement copy can imply every policy pack blocks finalize, that `priorityFloor: P0` is a commit gate, that packs equal HIPAA/PCI certification, that SoD requires a different committer, or that the pre-finalize gate is always enabled in production.
+**Shipped:**
 
-**Approach:**
+1. `scripts/ci/check_pre_finalize_gate_sod_honesty.py` + unit tests; wired in `run_buyer_surface_strict_guards.py` and CI.
+2. Contract anchors updated in [`PRE_FINALIZE_GATE_BLOCK_VS_ADVISORY_SOD_CONTRACT.md`](PRE_FINALIZE_GATE_BLOCK_VS_ADVISORY_SOD_CONTRACT.md) (**TB-1022**/**TB-1023**, **M-172**/**M-173**).
 
-1. Doc/CI guard: fail WHAT_NOT_TO_PROMISE-adjacent / procurement stubs that equate policy packs with certification, treat `priorityFloor` as commit-blocking, claim SoD on the commit actor, or claim the pre-finalize gate is always on without **TB-1022** / `PreCommitGateEnabled` caveats.
-2. Require **TB-1022** (or `PRE_COMMIT_GOVERNANCE_GATE` + ADR 0034) near ?governance gate? / ?segregation of duties? / ?enforcing policy pack? buyer language.
-3. Optional: flag ?advisory findings block commit? without noting `EnforcementTier.Advisory` exclusion / `WarnOnlySeverities`.
-4. Point Verification at test/script names; pair **M-172**.
-
-**Acceptance:** CI fails on dishonest pack=cert / priorityFloor-blocks / SoD-on-commit / gate-always-on claims; pairs **M-172**.
+**Acceptance:** Met ? CI fails dishonest pack=cert / priorityFloor-blocks / SoD-on-commit / gate-always-on claims; pairs **M-172**.
 
 **Depends on:** **TB-1022** (**Done** 2026-08-05).
 
@@ -32888,25 +32876,19 @@ Operators must read three intros before reaching the Trust Center link list.
 
 **Window:** V1 ? Architectural integrity.
 
-**Status:** Not started.
+**Status:** **Done** (2026-08-12).
 
 **Priority:** P1.
 
 **Source:** Owner / PA question 2026-07-26: *Where should policy-pack and rule-set evaluation sit as packs multiply per compliance framework ? compiled into decisioning, or a versioned data plane the engine interprets ? and what does each choice cost in testability?*
 
-**Problem:** As CIS / HIPAA / industry packs multiply, teams can wrongly choose either (a) a new C# `IFindingEngine` / decision path per framework pack (release-coupled content) or (b) a Turing-complete pack DSL that turns the interpreter into a language runtime. Shipped reality is already a **hybrid**: versioned pack/rule data (`PolicyPack` versions, ADR 0007 effective merge, curated rules via `TenantCuratedComplianceRulePackMerger` / `pack.curatedRules.v1`) interpreted by `IDecisionRuleProvider` ? `DecisionRuleSet` ? `RuleBasedDecisionEngine` / `DecisionRuleCriteriaEvaluator` with `RuleSetHash` pins ? plus **compiled** typed finding engines and stable action semantics. PA/sales lack one contract that names the split, the scale rule (?new framework content stays data?), and the testability cost of each extreme.
+**Shipped:**
 
-**Approach:**
+1. [`POLICY_PACK_EVALUATION_COMPILED_VS_DATA_PLANE_CONTRACT.md`](POLICY_PACK_EVALUATION_COMPILED_VS_DATA_PLANE_CONTRACT.md) ? hybrid matrix, scale rule, testability cost table, **TB-1325** CI anchors.
+2. Cross-links ADR 0007, ADR 0051, `POLICY_PACK_RULE_PRIORITY_MODEL.md`, **TB-1022**/**TB-1023**, **TB-1196**, GTM **M-235**/**M-236**.
+3. Explicit non-claims: no compile-per-pack engine default; no Turing pack DSL; packs ? certification (**TB-1022**).
 
-1. Author `docs/library/POLICY_PACK_EVALUATION_COMPILED_VS_DATA_PLANE_CONTRACT.md` with:
-   - **Shipped hybrid matrix:** data plane (pack versions, curated rules, effective merge, rule-set hash pins) vs compiled (typed `IFindingEngine`s, criteria/action interpreter, commit-time governance capture).
-   - **Scale rule as packs multiply:** deepen **versioned data plane** for framework/content rules; keep **compiled interpreter + finding-type engines** for stable semantics. **Do not** compile each new framework pack into new engines. **Do not** invent a Turing-complete pack DSL.
-   - **Testability cost table:** compiled-per-pack ? N? engine suites + release coupling; pure data plane ? pack fixture goldens + interpreter property tests + version/hash pin (cheap per pack once engine suite exists); bad DSL ? full language test matrix.
-   - Pin: pack content ? certification / always-blocking gate (**TB-1022** / **M-172**); content enrichment stays **G-CONTENT-01** (not engine forks).
-2. Cross-link ADR 0007, ADR 0051, `POLICY_PACK_RULE_PRIORITY_MODEL.md`, `architecture_quality_policy_engine_assessment.md`, **TB-1022**/**TB-1023**, **TB-1196**, GTM **M-235**/**M-236**; do not reopen Done multi-cloud pack content **TB-701**?**TB-719**.
-3. Name CI anchors for **TB-1325**.
-
-**Acceptance:** Contract published; GTM can cite hybrid + testability costs without selling ?every pack is a new engine? or ?packs are a programmable policy language.?
+**Acceptance:** Met ? contract published; GTM can cite hybrid + testability costs without selling ?every pack is a new engine? or ?packs are a programmable policy language.?
 
 **Depends on:** None (docs). Builds on shipped pack merge + `RuleBasedDecisionEngine`.
 

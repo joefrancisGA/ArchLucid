@@ -1049,6 +1049,22 @@ jobs:
         continue-on-error: true
         run: python -m unittest discover -s scripts/ci/tests -p "test_check_honesty_cluster_1004_1010.py"
 
+      - name: Retrieval tenancy hit guarantee honesty guard (TB-1002 / M-152)
+        continue-on-error: true
+        run: python scripts/ci/check_retrieval_tenancy_hit_guarantee_honesty.py
+
+      - name: Transactional finalize outbox honesty guard (TB-1012 / M-162)
+        continue-on-error: true
+        run: python scripts/ci/check_transactional_finalize_outbox_honesty.py
+
+      - name: Pre-finalize gate SoD honesty guard (TB-1023 / M-172)
+        continue-on-error: true
+        run: python scripts/ci/check_pre_finalize_gate_sod_honesty.py
+
+      - name: Honesty cluster 1002-1023 guard unit tests
+        continue-on-error: true
+        run: python -m unittest discover -s scripts/ci/tests -p "test_check_honesty_cluster_1002_1023.py"
+
       - name: Buyer-surface strict claim guards (blocking when buyer paths changed)
         if: steps.buyer-surface-detect.outputs.changed == 'true'
         run: |

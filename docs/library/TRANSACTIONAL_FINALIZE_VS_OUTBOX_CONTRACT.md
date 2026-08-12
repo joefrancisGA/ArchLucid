@@ -3,7 +3,7 @@
 # Transactional finalize vs outbox / async contract
 
 **Status:** Active (V1)  
-**Backlog:** **TB-1011** (this contract) · **TB-1012** (honesty CI anchors — open until shipped)  
+**Backlog:** **TB-1011** (this contract) · **TB-1012** (honesty CI — Done 2026-08-12)  
 **Audience:** Principal architects, integration reviewers, coding agents  
 **Related:** [ADR 0004](../architecture/adrs/0004-transactional-outbox-retrieval-indexing.md) · [DATA_CONSISTENCY_MATRIX.md](./DATA_CONSISTENCY_MATRIX.md) · [APPEND_ONLY_AND_SEALED_EVIDENCE_CONTRACT.md](./APPEND_ONLY_AND_SEALED_EVIDENCE_CONTRACT.md) (**TB-1009**) · [COMMITTED_GOLDEN_MANIFEST_UNIT_OF_TRUTH_CONTRACT.md](./COMMITTED_GOLDEN_MANIFEST_UNIT_OF_TRUTH_CONTRACT.md) (**TB-1003**) · [ITSM_OUTBOX_DLQ_DELIVERY_GUARANTEE_MAP.md](./ITSM_OUTBOX_DLQ_DELIVERY_GUARANTEE_MAP.md) · [ARCHITECTURE_INVARIANTS.md](./ARCHITECTURE_INVARIANTS.md) **INV-003** · [PUBLIC_CLAIM_BOUNDARY_GUIDE.md](./PUBLIC_CLAIM_BOUNDARY_GUIDE.md) (**M-162**) · [BUYER_SECURITY_PROCUREMENT_PACKET.md § M-163](../go-to-market/BUYER_SECURITY_PROCUREMENT_PACKET.md#transactional-finalize-vs-outbox-m-163) · PA alias [TRANSACTIONAL_FINALIZE_VS_OUTBOX_PA_ONE_PAGER.md](../go-to-market/TRANSACTIONAL_FINALIZE_VS_OUTBOX_PA_ONE_PAGER.md)
 
@@ -95,7 +95,7 @@ Some Authority finalize paths emit `RunCompleted` (or similar) **after** SQL `Co
 
 ---
 
-## 7. CI anchors for **TB-1012** (contract published; CI open)
+## 7. CI anchors for **TB-1012**
 
 | Forbidden implication | Anchor direction |
 |-----------------------|------------------|
@@ -105,7 +105,7 @@ Some Authority finalize paths emit `RunCompleted` (or similar) **after** SQL `Co
 | “Exactly-once integration on commit” | Coordinate **TB-994** / **M-144**; at-least-once + consumer idempotency |
 | DTF / orchestrator activity as the commit guarantee | Commit stays CAS / SQL finalize (**TB-924** out of scope) |
 
-Until **TB-1012** ships, treat this document as the **human** gate; CI is the **mechanical** gate.
+Mechanical gate: `scripts/ci/check_transactional_finalize_outbox_honesty.py`.
 
 ---
 

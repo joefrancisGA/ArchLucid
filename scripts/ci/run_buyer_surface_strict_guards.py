@@ -149,6 +149,21 @@ GUARDS: tuple[GuardCommand, ...] = (
         None,
     ),
     GuardCommand(
+        "retrieval tenancy hit guarantee honesty",
+        ("python", "scripts/ci/check_retrieval_tenancy_hit_guarantee_honesty.py"),
+        None,
+    ),
+    GuardCommand(
+        "transactional finalize outbox honesty",
+        ("python", "scripts/ci/check_transactional_finalize_outbox_honesty.py"),
+        None,
+    ),
+    GuardCommand(
+        "pre-finalize gate SoD honesty",
+        ("python", "scripts/ci/check_pre_finalize_gate_sod_honesty.py"),
+        None,
+    ),
+    GuardCommand(
         "isolation claims too-strong honesty",
         ("python", "scripts/ci/check_isolation_claims_too_strong_honesty.py"),
         None,
