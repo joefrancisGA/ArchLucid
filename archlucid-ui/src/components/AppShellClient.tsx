@@ -5,7 +5,7 @@ import Link from "next/link";
 import { CircleHelp } from "lucide-react";
 import { Suspense, useEffect, useLayoutEffect, useRef, useState, useCallback, type ReactNode, type RefObject } from "react";
 
-import { usePathname } from "next/navigation";
+import { usePathname, useRouter } from "next/navigation";
 
 import { ArchLucidWordmarkLink } from "@/components/ArchLucidWordmarkLink";
 import { AppToaster } from "@/components/AppToaster";
@@ -57,6 +57,7 @@ import { useAppShellStickyOffsetSync } from "@/hooks/useAppShellStickyOffsetSync
 import { useOperatorShellChromeDeferred } from "@/hooks/useOperatorShellChromeDeferred";
 import { useRouteChangeFocus } from "@/hooks/useRouteChangeFocus";
 import type { HelpTabId } from "@/components/HelpPanel";
+import { resolveOperatorHelpRequestForPathname } from "@/lib/usability/resolve-operator-help-request";
 
 const FrictionlessTrialBanner = dynamic(
   () =>
@@ -225,14 +226,22 @@ export function AppShellClient({ children }: AppShellClientProps) {
 
 function AppShellInner({ children }: AppShellClientProps) {
   const pathname = usePathname();
+  const router = useRouter();
   const chromeMode = useOperatorChromeMode();
   const deferChrome = useOperatorShellChromeDeferred();
   const [helpGuidesOpen, setHelpGuidesOpen] = useState(false);
   const [helpGuidesInitialTab, setHelpGuidesInitialTab] = useState<HelpTabId>("guides");
   const [helpDocSearchOpen, setHelpDocSearchOpen] = useState(false);
   const openHelpSearch = useCallback(() => {
+    const request = resolveOperatorHelpRequestForPathname(pathname ?? "/");
+
+    if (request.kind === "navigate") {
+      router.push(request.href);
+      return;
+    }
+
     setHelpDocSearchOpen(true);
-  }, []);
+  }, [pathname, router]);
   const openHelpGuidesPanel = useCallback((initialTab: HelpTabId = "guides") => {
     setHelpGuidesInitialTab(initialTab);
     setHelpGuidesOpen(true);
