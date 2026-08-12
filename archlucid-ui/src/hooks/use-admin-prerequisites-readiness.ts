@@ -3,6 +3,7 @@
 import { useEffect, useMemo, useState } from "react";
 
 import { useOperatorNavAuthority } from "@/components/operator/OperatorNavAuthorityProvider";
+import { useAdminConfigLintSummaryQuery } from "@/hooks/use-admin-config-lint-summary-query";
 import { useBillingSubscriptionStatusQuery } from "@/hooks/use-billing-subscription-status-query";
 import { useHealthReadySummaryQuery } from "@/hooks/use-health-ready-summary-query";
 import { listAwsTier2Connections } from "@/lib/api/aws-cloud-connections-api";
