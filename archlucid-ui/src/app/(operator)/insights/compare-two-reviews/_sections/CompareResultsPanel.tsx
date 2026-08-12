@@ -339,12 +339,15 @@ export function CompareResultsPanel(props: CompareResultsPanelProps) {
           />
           <div className="flex shrink-0 flex-col items-stretch gap-2 sm:flex-row lg:items-end">
             {docxHref !== null ? (
-              <Button variant="outline" size="sm" asChild data-testid="compare-download-docx-button">
-                <a href={docxHref} rel="noreferrer">
-                  <FileText className="h-4 w-4" />
-                  Download DOCX package
-                </a>
-              </Button>
+              <a
+                href={docxHref}
+                rel="noreferrer"
+                className={cn(OPERATOR_LINK.inline, "inline-flex items-center gap-1.5 text-sm")}
+                data-testid="compare-download-docx-button"
+              >
+                <FileText className="h-4 w-4" aria-hidden />
+                Download DOCX package
+              </a>
             ) : null}
             <Button
               variant="outline"

@@ -4,7 +4,7 @@ import { cn } from "@/lib/utils";
 
 import { CROSS_REVIEW_FINDING_CORRELATION_PANEL_TITLE } from "@/lib/vocabulary/finding-correlation-vocabulary";
 import { BUYER_COMPARE_MANIFEST_DIFF_APPENDIX_LABEL, BUYER_COMPARE_TECHNICAL_APPENDIX_LABEL } from "@/lib/buyer/buyer-polish-copy";
-import { OPERATOR_TYPOGRAPHY } from "@/lib/design-tokens";
+import { OPERATOR_LINK, OPERATOR_TYPOGRAPHY } from "@/lib/design-tokens";
 
 export type CompareResultsSectionNavProps = {
   readonly showStructured: boolean;
@@ -73,7 +73,7 @@ export function CompareResultsSectionNav(props: CompareResultsSectionNavProps): 
       <ol className={cn("m-0 flex list-none flex-wrap gap-x-4 gap-y-1 p-0", OPERATOR_TYPOGRAPHY.body)}>
         {items.map((item) => (
           <li key={item.href}>
-            <a className="text-teal-800 underline-offset-2 hover:underline dark:text-teal-200" href={item.href}>
+            <a className={OPERATOR_LINK.inline} href={item.href}>
               {item.label}
             </a>
           </li>
