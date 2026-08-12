@@ -70,6 +70,7 @@ export function RunDetailCreateHomeEvidencePanel(props: RunDetailCreateHomeEvide
       <EvidenceGapForecastPanel presence={evidencePresence} />
       <RunDetailEvidenceInventorySection items={props.items} hasManifest={false} />
       <RunDetailCreateHomeEvidenceCaptureRegion
+        key={props.runId}
         runId={props.runId}
         buyerPolished={props.buyerPolished}
         artifacts={props.artifacts}

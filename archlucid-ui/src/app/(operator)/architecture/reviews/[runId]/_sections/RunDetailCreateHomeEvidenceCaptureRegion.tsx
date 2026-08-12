@@ -1,7 +1,7 @@
 "use client";
 
 import { useRouter } from "next/navigation";
-import { useCallback, useEffect, useMemo, useState, type ReactElement } from "react";
+import { useCallback, useEffect, useMemo, useRef, useState, type ReactElement } from "react";
 
 import { RunDetailCaptureEvidenceSection } from "./RunDetailCaptureEvidenceSection";
 import { RunDetailCreateHomeCapturedEvidenceInventory } from "@/components/runs/RunDetailCreateHomeCapturedEvidenceInventory";
@@ -34,8 +34,18 @@ export function RunDetailCreateHomeEvidenceCaptureRegion(
     [props.artifacts, props.runId],
   );
   const [capturedItems, setCapturedItems] = useState<readonly RunDetailCreateHomeCapturedEvidenceItem[]>(initialCaptured);
+  const trackedRunIdRef = useRef(props.runId);
 
   useEffect(() => {
+    const runIdChanged = trackedRunIdRef.current !== props.runId;
+    trackedRunIdRef.current = props.runId;
+
+    if (runIdChanged) {
+      setCapturedItems(initialCaptured);
+      writePersistedCapturedEvidenceInventory(props.runId, initialCaptured);
+      return;
+    }
+
     setCapturedItems((current) => {
       const next = reconcileCapturedEvidenceInventory(initialCaptured, current);
 

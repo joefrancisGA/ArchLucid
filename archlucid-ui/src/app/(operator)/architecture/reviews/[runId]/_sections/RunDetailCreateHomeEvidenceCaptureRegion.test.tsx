@@ -70,4 +70,27 @@ describe("RunDetailCreateHomeEvidenceCaptureRegion", () => {
 
     expect(screen.getByText("inventory.zip")).toBeInTheDocument();
   });
+
+  it("does not leak captured inventory when runId changes (TB-1847)", async () => {
+    const { rerender } = render(
+      <RunDetailCreateHomeEvidenceCaptureRegion runId="run-a" buyerPolished artifacts={[]} />,
+    );
+
+    fireEvent.click(screen.getByTestId("mock-upload-summary-trigger"));
+
+    await waitFor(() => {
+      expect(screen.getByText("network-diagram.png")).toBeInTheDocument();
+    });
+
+    rerender(
+      <RunDetailCreateHomeEvidenceCaptureRegion
+        runId="run-b"
+        buyerPolished
+        artifacts={[{ artifactId: "art-b", name: "brief-b.md", createdUtc: "2026-08-12T10:00:00Z" }]}
+      />,
+    );
+
+    expect(screen.queryByText("network-diagram.png")).not.toBeInTheDocument();
+    expect(screen.getByText("brief-b.md")).toBeInTheDocument();
+  });
 });
