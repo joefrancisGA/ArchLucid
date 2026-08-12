@@ -1,6 +1,6 @@
 "use client";
 import { cn } from "@/lib/utils";
-import { OPERATOR_TYPOGRAPHY } from "@/lib/design-tokens";
+import { OPERATOR_LINK, OPERATOR_TYPOGRAPHY } from "@/lib/design-tokens";
 
 import Link from "next/link";
 import { Pin, PinOff } from "lucide-react";
@@ -71,7 +71,7 @@ export function NavPinnedLinksPanel() {
             <li key={row.href} className="flex items-center gap-1 rounded px-1 hover:bg-neutral-100 dark:hover:bg-neutral-900">
               <Link
                 href={row.href}
-                className={cn("min-w-0 flex-1 truncate rounded px-1 py-1 text-neutral-800 dark:text-neutral-200", OPERATOR_TYPOGRAPHY.body)}
+                className={cn(OPERATOR_LINK.nav, "min-w-0 flex-1 truncate rounded px-1 py-1")}
               >
                 {row.label}
               </Link>

@@ -94,15 +94,28 @@ export function ProductLearningPageView(props: Props) {
             {PILOT_FEEDBACK_VOCABULARY.exportSectionLead} Uses the same scope and time range as the dashboard above.
           </p>
           <p className={cn("mt-2.5", OPERATOR_TYPOGRAPHY.body)}>
-            <a href={buildProductLearningReportFileUrl("markdown", sinceIsoForRange(m.range))} download>
+            <a
+              href={buildProductLearningReportFileUrl("markdown", sinceIsoForRange(m.range))}
+              download
+              className={OPERATOR_LINK.inline}
+            >
               Download Markdown
             </a>
             {" · "}
-            <a href={buildProductLearningReportFileUrl("json", sinceIsoForRange(m.range))} download>
+            <a
+              href={buildProductLearningReportFileUrl("json", sinceIsoForRange(m.range))}
+              download
+              className={OPERATOR_LINK.inline}
+            >
               Download JSON
             </a>
             {" · "}
-            <a href={buildProductLearningReportJsonUrl(sinceIsoForRange(m.range))} target="_blank" rel="noopener noreferrer">
+            <a
+              href={buildProductLearningReportJsonUrl(sinceIsoForRange(m.range))}
+              target="_blank"
+              rel="noopener noreferrer"
+              className={OPERATOR_LINK.inline}
+            >
               Open JSON in new tab
             </a>
           </p>

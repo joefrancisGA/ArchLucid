@@ -1,5 +1,5 @@
 import { cn } from "@/lib/utils";
-import { OPERATOR_TYPOGRAPHY } from "@/lib/design-tokens";
+import { OPERATOR_LINK, OPERATOR_TYPOGRAPHY } from "@/lib/design-tokens";
 import Link from "next/link";
 import type { ReactElement } from "react";
 import type { EvolutionSimulationRunWithEvaluationResponse } from "@/types/evolution";
@@ -14,7 +14,7 @@ const colCls = (cn("p-3.5 leading-normal align-top", OPERATOR_TYPOGRAPHY.helper)
 const colBeforeCls = `${colCls} border-r-[3px] border-neutral-300 bg-al-surface-raised dark:border-neutral-600`;
 const colAfterCls = `${colCls} bg-al-surface-raised dark:bg-neutral-900/50`;
 const labelCls = (cn("mb-1.5 font-bold uppercase tracking-wide text-neutral-500 dark:text-neutral-400", OPERATOR_TYPOGRAPHY.helper));
-const monoCls = (cn("font-mono break-all", OPERATOR_TYPOGRAPHY.helper));
+const monoLinkCls = cn(OPERATOR_LINK.inline, "font-mono break-all");
 
 function formatScore(n: number | null | undefined): string {
   if (n === null || n === undefined) {
@@ -45,7 +45,7 @@ export function SimulationRunDiffCard(props: SimulationRunDiffCardProps): ReactE
       <div className={headerCls} id={`sim-run-${run.simulationRunId}`}>
         <span>
           <strong>Review baseline</strong>{" "}
-          <Link href={`/architecture/reviews/${encodeURIComponent(baselineId)}`} className={monoCls}>
+          <Link href={`/architecture/reviews/${encodeURIComponent(baselineId)}`} className={monoLinkCls}>
             {baselineId}
           </Link>
         </span>
@@ -70,7 +70,7 @@ export function SimulationRunDiffCard(props: SimulationRunDiffCardProps): ReactE
                   Linked reviews:{" "}
                   {planLinkedRunIds.map((id, idx) => (
                     <span key={`${id}-${idx}`} className="block">
-                      <Link href={`/architecture/reviews/${encodeURIComponent(id)}`} className={monoCls}>
+                      <Link href={`/architecture/reviews/${encodeURIComponent(id)}`} className={monoLinkCls}>
                         {id}
                       </Link>
                       {id === baselineId ? " ← this row" : null}
@@ -103,7 +103,7 @@ export function SimulationRunDiffCard(props: SimulationRunDiffCardProps): ReactE
                 <dt className="text-neutral-500 dark:text-neutral-400">Review status</dt>
                 <dd className="m-0">{parsed.shadow.runStatus ?? "—"}</dd>
                 <dt className="text-neutral-500 dark:text-neutral-400">Review record version</dt>
-                <dd className={`m-0 ${monoCls}`}>{parsed.shadow.manifestVersion ?? "—"}</dd>
+                <dd className={cn("m-0 font-mono break-all", OPERATOR_TYPOGRAPHY.helper)}>{parsed.shadow.manifestVersion ?? "—"}</dd>
                 <dt className="text-neutral-500 dark:text-neutral-400">Has manifest</dt>
                 <dd className="m-0">{parsed.shadow.hasManifest ? "yes" : "no"}</dd>
                 <dt className="text-neutral-500 dark:text-neutral-400">Summary length</dt>

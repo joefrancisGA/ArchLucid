@@ -104,7 +104,7 @@ export function PageScopedContextualHelpPanel({
           <p className={cn("m-0 pt-1", OPERATOR_TYPOGRAPHY.helper)}>
             <Link
               href={learnMoreHref}
-              className="font-medium text-teal-700 underline-offset-2 hover:underline dark:text-teal-300"
+              className={OPERATOR_LINK.optional}
               data-testid="page-scoped-contextual-help-learn-more"
             >
               Learn more →
