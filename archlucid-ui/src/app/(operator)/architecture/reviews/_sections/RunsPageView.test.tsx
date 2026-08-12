@@ -62,13 +62,16 @@ vi.mock("@/components/operator/OperatorPageHeader", () => ({
     subtitle,
     metadata,
     actions,
+    navHref,
   }: {
     title: string;
     subtitle?: string;
     metadata?: ReactNode;
     actions?: ReactNode;
+    navHref?: string;
   }) => (
     <div>
+      {navHref !== undefined ? <span data-testid="page-heading-icon" aria-hidden /> : null}
       <h2>{title}</h2>
       {subtitle ? <p data-testid="runs-page-subtitle">{subtitle}</p> : null}
       {metadata ? <div data-testid="runs-page-metadata">{metadata}</div> : null}
@@ -140,6 +143,7 @@ describe("RunsPageView page chrome", () => {
     render(<RunsPageView model={baseModel()} />);
 
     expect(screen.getByRole("heading", { level: 2, name: REVIEWS_HUB_PAGE_TITLE })).toBeInTheDocument();
+    expect(screen.getByTestId("page-heading-icon")).toBeInTheDocument();
     expect(screen.getByTestId("runs-page-subtitle")).toHaveTextContent(REVIEWS_HUB_PAGE_SUBTITLE);
     expect(screen.queryByTestId("runs-page-project-label")).toBeNull();
   });

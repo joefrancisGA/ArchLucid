@@ -14,6 +14,7 @@ import {
   BUYER_RUNS_LIST_MALFORMED_HEADING,
 } from "@/lib/buyer/buyer-polish-copy";
 import { isApiNotFoundFailure } from "@/lib/api-load-failure";
+import { REVIEWS_LIST_PATH } from "@/lib/architecture/architecture-routes";
 import { OPERATOR_TYPOGRAPHY, OPERATOR_TYPE_SCALE } from "@/lib/design-tokens";
 
 import {
@@ -64,6 +65,7 @@ export function RunsPageView(props: Props) {
     <OperatorPageContainer variant="dashboard">
       <OperatorWelcomeOnboardingDeferred serverEligible={m.welcomeOnboardingEligible} />
       <OperatorPageHeader
+        navHref={REVIEWS_LIST_PATH}
         title={REVIEWS_HUB_PAGE_TITLE}
         subtitle={REVIEWS_HUB_PAGE_SUBTITLE}
         metadata={
