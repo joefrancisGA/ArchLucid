@@ -1,13 +1,16 @@
 /*
   ArchLucid_Unified_Schema.sql
 
+  GENERATED FILE — DO NOT EDIT BY HAND. Edit ArchLucid.Persistence/Scripts/ArchLucid.sql and
+  regenerate; CI fails when this file drifts from generator output (check_archlucid_unified_schema_snapshot).
+
   REFERENCE AND IaC ALIGNMENT ONLY. This script is NOT executed by DbUp, SqlSchemaBootstrapper,
   or deployment pipelines unless you deliberately wire it yourself.
 
   PURPOSE
     Consolidated declarative DDL (CREATE TABLE, CREATE INDEX, ALTER TABLE batches only) reflecting
     the final schema shape after sequential application of forward DbUp migrations
-    ArchLucid.Persistence/Migrations/001_*.sql … 143_*.sql (excluding Rollback/).
+    ArchLucid.Persistence/Migrations/001_*.sql … 306_*.sql (excluding Rollback/).
 
   HOW THIS ARTIFACT RELATES TO MIGRATIONS
     Forward migrations remain the authoritative upgrade path on existing databases.
