@@ -10,6 +10,7 @@ import { OperatorMutationInlineError } from "@/components/operator/OperatorMutat
 import { OperatorPageContainer } from "@/components/operator/OperatorPageContainer";
 import { OperatorPageBreadcrumb } from "@/components/operator/OperatorPageBreadcrumb";
 import { OperatorPageHeader } from "@/components/operator/OperatorPageHeader";
+import { useOperatorNavAuthority } from "@/components/operator/OperatorNavAuthorityProvider";
 import { BooleanStatusChip } from "@/components/ui/boolean-status-chip";
 import { Button } from "@/components/ui/button";
 import { Card, CardContent, CardHeader, CardTitle } from "@/components/ui/card";
@@ -31,16 +32,17 @@ import {
   labelForAuthDomainVerificationStatus,
   successMessageForAuthDomainEnforcementModeChange,
 } from "@/lib/auth-domains-enum-labels";
-import { AUTH_DOMAINS_ENFORCEMENT_WARNING } from "@/lib/auth-domains-confirm-copy";
+import { AUTH_DOMAINS_ENFORCEMENT_WARNING, AUTH_DOMAINS_ZERO_DOMAIN_ENFORCEMENT_CALLOUT } from "@/lib/auth-domains-confirm-copy";
 import {
+  AUTH_DOMAINS_ADD_DOMAIN_PREREQUISITES_ITEMS,
+  AUTH_DOMAINS_ADD_DOMAIN_PREREQUISITES_TITLE,
   AUTH_DOMAINS_ADD_DOMAIN_READINESS,
-  AUTH_DOMAINS_ADMIN_AUTHORITY_LABEL,
   AUTH_DOMAINS_AUTHENTICATION_HELP_CTA,
   AUTH_DOMAINS_DOMAIN_FORMAT_ERROR,
   AUTH_DOMAINS_DOMAIN_LABEL,
   AUTH_DOMAINS_EMPTY_DESCRIPTION,
-  AUTH_DOMAINS_EMPTY_FOCUS_ACTION_LABEL,
   AUTH_DOMAINS_EMPTY_TITLE,
+  AUTH_DOMAINS_JOURNEY_SECTION_IDS,
   AUTH_DOMAINS_JOURNEY_STEPS,
   AUTH_DOMAINS_LIST_LOAD_ERROR_SUMMARY,
   AUTH_DOMAINS_LIST_LOAD_RECOVERY,
@@ -49,11 +51,15 @@ import {
   AUTH_DOMAINS_PAGE_SUBTITLE,
   AUTH_DOMAINS_PAGE_TITLE,
   AUTH_DOMAINS_SOURCES_DISCLOSURE_TITLE,
+  authDomainsAdminAuthorityPresentation,
+  authDomainsJourneyStepAriaLabel,
   authDomainsTenantScopeLine,
+  authDomainsTenantSignInPosture,
   isPlausibleAuthDomainInput,
   resolveAuthDomainsCurrentWorkspaceLabel,
   resolveAuthDomainsJourneyStep,
   successMessageForAuthDomainAction,
+  type AuthDomainsJourneyStepId,
 } from "@/lib/auth-domains-page-copy";
 import {
   AUTH_DOMAINS_SETTINGS_CLAIM_DISCIPLINE,
@@ -78,6 +84,7 @@ import {
   type TenantAuthDomainRecord,
   type TenantAuthDomainRecoveryAdminRecord,
 } from "@/lib/admin-auth-domains-api";
+import { AUTHORITY_RANK } from "@/lib/nav-authority";
 import { readOperatorScopeFromStorage } from "@/lib/operator/operator-scope-storage";
 import { inAppHelpHref } from "@/lib/product-documentation-registry";
 import { SETTINGS_ROOT_PATH } from "@/lib/settings-admin-route-paths";
@@ -115,8 +122,13 @@ export function AuthDomainsPageClient() {
   const [pendingConfirm, setPendingConfirm] = useState<AuthDomainsPendingConfirm | null>(null);
   const [currentWorkspaceLabel, setCurrentWorkspaceLabel] = useState<string | null>(null);
   const newDomainInputRef = useRef<HTMLInputElement>(null);
+  const pendingJourneyScrollRef = useRef<AuthDomainsJourneyStepId | null>(null);
+  const { callerAuthorityRank } = useOperatorNavAuthority();
 
   const tenantScopeLine = authDomainsTenantScopeLine(currentWorkspaceLabel);
+  const hasAdminAuthority = callerAuthorityRank >= AUTHORITY_RANK.AdminAuthority;
+  const adminAuthorityPresentation = authDomainsAdminAuthorityPresentation(hasAdminAuthority);
+  const signInPosture = authDomainsTenantSignInPosture(domains);
   const newDomainValid = isPlausibleAuthDomainInput(newDomain);
   const showNewDomainFormatError = newDomainTouched && newDomain.trim().length > 0 && !newDomainValid;
 
@@ -191,6 +203,19 @@ export function AuthDomainsPageClient() {
     void refreshRecoveryAdmins(selectedDomain);
     void refreshReadiness(selectedDomain);
   }, [refreshReadiness, refreshRecoveryAdmins, selectedDomain]);
+
+  useEffect(() => {
+    if (pendingJourneyScrollRef.current === null || selectedDomain === null) {
+      return;
+    }
+
+    const stepId = pendingJourneyScrollRef.current;
+    pendingJourneyScrollRef.current = null;
+
+    requestAnimationFrame(() => {
+      focusJourneySection(stepId);
+    });
+  }, [selectedDomain]);
 
   const selected = domains.find((row) => row.normalizedDomain === selectedDomain) ?? null;
   const currentJourneyStep = resolveAuthDomainsJourneyStep({
@@ -488,8 +513,43 @@ export function AuthDomainsPageClient() {
     }
   }
 
-  function focusNewDomainField(): void {
-    newDomainInputRef.current?.focus();
+  function focusJourneySection(stepId: AuthDomainsJourneyStepId): void {
+    const target = document.getElementById(AUTH_DOMAINS_JOURNEY_SECTION_IDS[stepId]);
+
+    if (target === null) {
+      return;
+    }
+
+    target.scrollIntoView({ behavior: "smooth", block: "start" });
+
+    if (typeof target.focus === "function") {
+      target.focus({ preventScroll: true });
+    }
+  }
+
+  function scrollToJourneySection(stepId: AuthDomainsJourneyStepId): void {
+    const target = document.getElementById(AUTH_DOMAINS_JOURNEY_SECTION_IDS[stepId]);
+
+    if (target !== null) {
+      focusJourneySection(stepId);
+
+      return;
+    }
+
+    if (stepId !== "add" && domains.length > 0 && selectedDomain === null) {
+      pendingJourneyScrollRef.current = stepId;
+      setSelectedDomain(domains[0]?.normalizedDomain ?? null);
+
+      return;
+    }
+
+    if (stepId === "add") {
+      newDomainInputRef.current?.focus();
+
+      return;
+    }
+
+    document.getElementById("auth-domains-journey-target-domains")?.scrollIntoView({ behavior: "smooth", block: "start" });
   }
 
   return (
@@ -503,7 +563,6 @@ export function AuthDomainsPageClient() {
             data-testid="auth-domains-page-breadcrumb"
             items={[
               { label: "Administration", href: SETTINGS_ROOT_PATH },
-              { label: "Settings", href: SETTINGS_ROOT_PATH },
               { label: AUTH_DOMAINS_PAGE_TITLE },
             ]}
           />
@@ -512,8 +571,8 @@ export function AuthDomainsPageClient() {
           <>
             <span data-testid="auth-domains-tenant-scope">{tenantScopeLine}</span>
             <StatusTag
-              kind="needs-attention"
-              label={AUTH_DOMAINS_ADMIN_AUTHORITY_LABEL}
+              kind={adminAuthorityPresentation.kind}
+              label={adminAuthorityPresentation.label}
               data-testid="auth-domains-admin-authority-tag"
             />
           </>
@@ -533,6 +592,33 @@ export function AuthDomainsPageClient() {
         }
       />
 
+      {!loading && errorState === null ? (
+        <>
+          <div
+            className="flex flex-wrap items-start gap-2"
+            data-testid="auth-domains-sign-in-posture"
+          >
+            <StatusTag
+              kind={signInPosture.kind}
+              label={signInPosture.label}
+              data-testid="auth-domains-sign-in-posture-tag"
+            />
+            <p className={cn("m-0 flex-1 min-w-[12rem] text-al-text-secondary", OPERATOR_TYPOGRAPHY.helper)}>
+              {signInPosture.detail}
+            </p>
+          </div>
+
+          {domains.length === 0 ? (
+            <div
+              className={cn(DESIGN_TOKENS.callout.warn, OPERATOR_TYPOGRAPHY.helper)}
+              data-testid="auth-domains-zero-domain-enforcement-callout"
+            >
+              {AUTH_DOMAINS_ZERO_DOMAIN_ENFORCEMENT_CALLOUT}
+            </div>
+          ) : null}
+        </>
+      ) : null}
+
       <nav aria-label="Sign-in domain workflow" data-testid="auth-domains-journey-strip">
         <ol className="m-0 flex flex-wrap gap-2 p-0 list-none">
           {AUTH_DOMAINS_JOURNEY_STEPS.map((step, index) => {
@@ -540,7 +626,8 @@ export function AuthDomainsPageClient() {
 
             return (
               <li key={step.id}>
-                <span
+                <button
+                  type="button"
                   className={cn(
                     OPERATOR_LINK.stepPill,
                     isCurrent ? OPERATOR_LINK.stepPillCurrent : undefined,
@@ -548,10 +635,12 @@ export function AuthDomainsPageClient() {
                   )}
                   data-testid={`auth-domains-journey-step-${step.id}`}
                   aria-current={isCurrent ? "step" : undefined}
+                  aria-label={authDomainsJourneyStepAriaLabel(index, step.label)}
+                  onClick={() => scrollToJourneySection(step.id)}
                 >
                   <span aria-hidden="true">{index + 1}.</span>
                   {step.label}
-                </span>
+                </button>
               </li>
             );
           })}
@@ -578,127 +667,140 @@ export function AuthDomainsPageClient() {
         />
       ) : null}
 
-      <section className="space-y-3" data-testid="auth-domains-add-panel">
-        <h2 className={cn("m-0", OPERATOR_TYPOGRAPHY.cardTitle)}>Add domain</h2>
-        <p className={cn("m-0 text-al-text-secondary", OPERATOR_TYPOGRAPHY.helper)}>
-          Entering a domain does not claim it. Add the DNS TXT record shown after you start verification.
-        </p>
-        <div className="space-y-2">
-          <Label htmlFor="auth-domains-new-domain" className={OPERATOR_FORM_FIELD_LABEL_CLASS}>
-            {AUTH_DOMAINS_DOMAIN_LABEL}
-          </Label>
-          <div className="flex flex-wrap items-start gap-3">
-            <div className="min-w-[12rem] flex-1 space-y-1">
-              <Input
-                ref={newDomainInputRef}
-                id="auth-domains-new-domain"
-                value={newDomain}
-                onChange={(event) => {
-                  setNewDomain(event.target.value);
-                  setNewDomainTouched(true);
-                }}
-                onBlur={() => setNewDomainTouched(true)}
-                placeholder="example.com"
-                aria-invalid={showNewDomainFormatError}
-                aria-describedby={
-                  showNewDomainFormatError
-                    ? "auth-domains-new-domain-error"
-                    : !newDomainValid
-                      ? "auth-domains-add-readiness"
-                      : undefined
-                }
-                data-testid="auth-domains-new-domain"
-              />
-              {showNewDomainFormatError ? (
-                <p
-                  id="auth-domains-new-domain-error"
-                  className={cn("m-0 text-rose-800 dark:text-rose-200", OPERATOR_TYPOGRAPHY.helper)}
-                  role="alert"
-                >
-                  {AUTH_DOMAINS_DOMAIN_FORMAT_ERROR}
-                </p>
-              ) : null}
-            </div>
-            <div className="space-y-1">
-              <Button
-                type="button"
-                variant="primary"
-                onClick={() => void handleProposeDomain()}
-                disabled={busy || !newDomainValid}
-                data-testid="auth-domains-add"
-              >
-                Add domain
-              </Button>
-              {!newDomainValid ? (
-                <p
-                  id="auth-domains-add-readiness"
-                  className={cn("m-0 text-al-text-secondary", OPERATOR_TYPOGRAPHY.helper)}
-                  data-testid="auth-domains-add-readiness"
-                >
-                  {AUTH_DOMAINS_ADD_DOMAIN_READINESS}
-                </p>
-              ) : null}
-            </div>
-          </div>
-        </div>
-      </section>
-
-      <Card data-testid="auth-domains-list-card">
+      <Card data-testid="auth-domains-main-card">
         <CardHeader>
-          <CardTitle className={OPERATOR_TYPOGRAPHY.cardTitle}>Domains</CardTitle>
+          <CardTitle className={OPERATOR_TYPOGRAPHY.cardTitle}>Sign-in domains</CardTitle>
         </CardHeader>
-        <CardContent>
-          {loading ? <p className={cn("m-0", OPERATOR_TYPOGRAPHY.body)}>Loading domains…</p> : null}
-          {!loading && domains.length === 0 ? (
-            <EnterpriseCompactEmptyState
-              title={AUTH_DOMAINS_EMPTY_TITLE}
-              description={AUTH_DOMAINS_EMPTY_DESCRIPTION}
-              testId="auth-domains-empty-state"
-              footer={
-                <Button type="button" size="sm" variant="primary" onClick={focusNewDomainField}>
-                  {AUTH_DOMAINS_EMPTY_FOCUS_ACTION_LABEL}
-                </Button>
-              }
-            />
-          ) : null}
-          <ul className="space-y-2">
-            {domains.map((row) => (
-              <li key={row.normalizedDomain}>
-                <button
-                  type="button"
-                  className={cn(
-                    "w-full rounded-md border px-3 py-2 text-left",
-                    selectedDomain === row.normalizedDomain ? "border-teal-700 bg-al-surface-raised" : "border-neutral-200",
-                  )}
-                  onClick={() => {
-                    setSelectedDomain(row.normalizedDomain);
-                    setDnsInstruction(null);
-                  }}
-                  data-testid={`auth-domain-row-${row.normalizedDomain}`}
-                >
-                  <div className="font-medium text-al-text-primary">{row.displayDomain}</div>
-                  <div
-                    className="flex flex-wrap items-center gap-2 pt-1"
-                    data-testid={`auth-domain-status-${row.normalizedDomain}`}
+        <CardContent className="space-y-6">
+          <section
+            id={AUTH_DOMAINS_JOURNEY_SECTION_IDS.add}
+            tabIndex={-1}
+            className="space-y-3 outline-none"
+            data-testid="auth-domains-add-panel"
+          >
+            <h2 className={cn("m-0", OPERATOR_TYPOGRAPHY.cardTitle)}>Add domain</h2>
+            <div
+              className={cn(DESIGN_TOKENS.callout.info, OPERATOR_TYPOGRAPHY.helper, "space-y-2")}
+              data-testid="auth-domains-add-prerequisites"
+            >
+              <p className="m-0 font-medium text-al-text-primary">{AUTH_DOMAINS_ADD_DOMAIN_PREREQUISITES_TITLE}</p>
+              <ul className="m-0 list-disc space-y-1 pl-5">
+                {AUTH_DOMAINS_ADD_DOMAIN_PREREQUISITES_ITEMS.map((item) => (
+                  <li key={item}>{item}</li>
+                ))}
+              </ul>
+            </div>
+            <p className={cn("m-0 text-al-text-secondary", OPERATOR_TYPOGRAPHY.helper)}>
+              Entering a domain does not claim it. Add the DNS TXT record shown after you start verification.
+            </p>
+            <div className="space-y-2">
+              <Label htmlFor="auth-domains-new-domain" className={OPERATOR_FORM_FIELD_LABEL_CLASS}>
+                {AUTH_DOMAINS_DOMAIN_LABEL}
+              </Label>
+              <div className="flex flex-wrap items-start gap-3">
+                <div className="min-w-[12rem] flex-1 space-y-1">
+                  <Input
+                    ref={newDomainInputRef}
+                    id="auth-domains-new-domain"
+                    value={newDomain}
+                    onChange={(event) => {
+                      setNewDomain(event.target.value);
+                      setNewDomainTouched(true);
+                    }}
+                    onBlur={() => setNewDomainTouched(true)}
+                    placeholder="example.com"
+                    aria-invalid={showNewDomainFormatError}
+                    aria-describedby={
+                      showNewDomainFormatError
+                        ? "auth-domains-new-domain-error auth-domains-add-readiness"
+                        : "auth-domains-add-readiness"
+                    }
+                    data-testid="auth-domains-new-domain"
+                  />
+                  {showNewDomainFormatError ? (
+                    <p
+                      id="auth-domains-new-domain-error"
+                      className={cn("m-0 text-rose-800 dark:text-rose-200", OPERATOR_TYPOGRAPHY.helper)}
+                      role="alert"
+                    >
+                      {AUTH_DOMAINS_DOMAIN_FORMAT_ERROR}
+                    </p>
+                  ) : null}
+                  <p
+                    id="auth-domains-add-readiness"
+                    className={cn("m-0 text-al-text-secondary", OPERATOR_TYPOGRAPHY.helper)}
+                    data-testid="auth-domains-add-readiness"
                   >
-                    <StatusTag
-                      kind={authDomainVerificationStatusKind(row.verificationStatus)}
-                      label={labelForAuthDomainVerificationStatus(row.verificationStatus)}
-                      data-verification-status={row.verificationStatus}
-                    />
-                    <StatusTag
-                      kind={authDomainEnforcementModeKind(row.enforcementMode)}
-                      label={labelForAuthDomainEnforcementMode(row.enforcementMode)}
-                      data-enforcement-mode={row.enforcementMode}
-                    />
-                    {row.isEnforcementActive ? (
-                      <StatusTag kind="ready" label="Enforcement active" data-testid="auth-domain-enforcement-active" />
-                    ) : null}
-                  </div>
-                </button>
-              </li>
-            ))}
-          </ul>
+                    {AUTH_DOMAINS_ADD_DOMAIN_READINESS}
+                  </p>
+                </div>
+                <Button
+                  type="button"
+                  variant="primary"
+                  onClick={() => void handleProposeDomain()}
+                  disabled={busy || !newDomainValid}
+                  data-testid="auth-domains-add"
+                >
+                  Add domain
+                </Button>
+              </div>
+            </div>
+          </section>
+
+          <section
+            id="auth-domains-journey-target-domains"
+            tabIndex={-1}
+            className="space-y-3 outline-none"
+            data-testid="auth-domains-list-section"
+          >
+            <h2 className={cn("m-0", OPERATOR_TYPOGRAPHY.cardTitle)}>Domains</h2>
+            {loading ? <p className={cn("m-0", OPERATOR_TYPOGRAPHY.body)}>Loading domains…</p> : null}
+            {!loading && domains.length === 0 ? (
+              <EnterpriseCompactEmptyState
+                title={AUTH_DOMAINS_EMPTY_TITLE}
+                description={AUTH_DOMAINS_EMPTY_DESCRIPTION}
+                testId="auth-domains-empty-state"
+              />
+            ) : null}
+            <ul className="space-y-2">
+              {domains.map((row) => (
+                <li key={row.normalizedDomain}>
+                  <button
+                    type="button"
+                    className={cn(
+                      "w-full rounded-md border px-3 py-2 text-left",
+                      selectedDomain === row.normalizedDomain ? "border-teal-700 bg-al-surface-raised" : "border-neutral-200",
+                    )}
+                    onClick={() => {
+                      setSelectedDomain(row.normalizedDomain);
+                      setDnsInstruction(null);
+                    }}
+                    data-testid={`auth-domain-row-${row.normalizedDomain}`}
+                  >
+                    <div className="font-medium text-al-text-primary">{row.displayDomain}</div>
+                    <div
+                      className="flex flex-wrap items-center gap-2 pt-1"
+                      data-testid={`auth-domain-status-${row.normalizedDomain}`}
+                    >
+                      <StatusTag
+                        kind={authDomainVerificationStatusKind(row.verificationStatus)}
+                        label={labelForAuthDomainVerificationStatus(row.verificationStatus)}
+                        data-verification-status={row.verificationStatus}
+                      />
+                      <StatusTag
+                        kind={authDomainEnforcementModeKind(row.enforcementMode)}
+                        label={labelForAuthDomainEnforcementMode(row.enforcementMode)}
+                        data-enforcement-mode={row.enforcementMode}
+                      />
+                      {row.isEnforcementActive ? (
+                        <StatusTag kind="ready" label="Enforcement active" data-testid="auth-domain-enforcement-active" />
+                      ) : null}
+                    </div>
+                  </button>
+                </li>
+              ))}
+            </ul>
+          </section>
         </CardContent>
       </Card>
 
@@ -717,7 +819,11 @@ export function AuthDomainsPageClient() {
               </p>
             ) : null}
 
-            <div className="flex flex-wrap gap-2">
+            <div
+              id={AUTH_DOMAINS_JOURNEY_SECTION_IDS["verify-dns"]}
+              tabIndex={-1}
+              className="flex flex-wrap gap-2 outline-none"
+            >
               <Button
                 type="button"
                 variant="secondary"
@@ -738,7 +844,11 @@ export function AuthDomainsPageClient() {
               </Button>
             </div>
 
-            <div className="space-y-2">
+            <div
+              id={AUTH_DOMAINS_JOURNEY_SECTION_IDS["test-routing"]}
+              tabIndex={-1}
+              className="space-y-2 outline-none"
+            >
               <label className={OPERATOR_TYPOGRAPHY.label} htmlFor="auth-domains-test-email">
                 Routing test email
               </label>
@@ -771,7 +881,12 @@ export function AuthDomainsPageClient() {
               </div>
             </div>
 
-            <div className="space-y-2" data-testid="auth-domains-enforcement-checklist">
+            <div
+              id={AUTH_DOMAINS_JOURNEY_SECTION_IDS.enforce}
+              tabIndex={-1}
+              className="space-y-2 outline-none"
+              data-testid="auth-domains-enforcement-checklist"
+            >
               <p className={cn("m-0", OPERATOR_TYPOGRAPHY.label)}>Pre-enforcement checklist</p>
               <ul className="space-y-2">
                 {(readiness?.checklist ?? []).map((item) => (

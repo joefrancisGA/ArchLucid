@@ -33,13 +33,13 @@ export type AuthDomainsIdentityProvidersVocabularyModel = {
 };
 
 export const AUTH_DOMAINS_IDENTITY_PROVIDERS_HEADING =
-  "Sign-in domains and Identity providers do different jobs" as const;
+  "Sign-in domains and Identity providers serve different purposes" as const;
 
 export const AUTH_DOMAINS_IDENTITY_PROVIDERS_WHY_TWO =
   "Sign-in domains verifies tenant email-domain ownership and SSO enforcement. Identity providers configures SAML and OIDC federation for sign-in, role mapping, and diagnostics. Enabling domain enforcement does not configure the federation protocol." as const;
 
 export const AUTH_DOMAINS_IDENTITY_PROVIDERS_COMPACT_LINE =
-  "Sign-in domains is email-domain allowlist and enforcement; Identity providers is SAML/OIDC federation — open the other when you need that job." as const;
+  "Sign-in domains is email-domain allowlist and enforcement; Identity providers is SAML/OIDC federation — open the other when you need that capability." as const;
 
 export const AUTH_DOMAINS_IDENTITY_PROVIDERS_DOMAINS_LINK: AuthDomainsIdentityProvidersLink = {
   id: "auth-domains",

@@ -43,6 +43,8 @@ export const SETTINGS_SUPPORT_PATH = `${SETTINGS_ROOT_PATH}/support`;
 
 export const SETTINGS_TENANT_PATH = `${SETTINGS_ROOT_PATH}/tenant`;
 
+export const SETTINGS_AUTH_DOMAINS_PATH = `${SETTINGS_ROOT_PATH}/auth-domains` as const;
+
 export function pathMatchesSettingsRoot(pathname: string): boolean {
   return (
     pathname === SETTINGS_ROOT_PATH

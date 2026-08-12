@@ -19,13 +19,18 @@ import {
 } from "@/lib/auth-domains-confirm-copy";
 import {
   AUTH_DOMAINS_ADD_DOMAIN_READINESS,
-  AUTH_DOMAINS_ADMIN_AUTHORITY_LABEL,
+  AUTH_DOMAINS_ADMIN_AUTHORITY_READY_LABEL,
   AUTH_DOMAINS_AUTHENTICATION_HELP_CTA,
   AUTH_DOMAINS_EMPTY_TITLE,
   AUTH_DOMAINS_MUTATION_ERROR_SUMMARY,
   AUTH_DOMAINS_PAGE_TITLE,
   AUTH_DOMAINS_SOURCES_DISCLOSURE_TITLE,
+  AUTH_DOMAINS_ZERO_DOMAIN_POSTURE_DETAIL,
+  AUTH_DOMAINS_ZERO_DOMAIN_POSTURE_LABEL,
+  AUTH_DOMAINS_ADD_DOMAIN_PREREQUISITES_TITLE,
+  authDomainsJourneyStepAriaLabel,
 } from "@/lib/auth-domains-page-copy";
+import { AUTH_DOMAINS_ZERO_DOMAIN_ENFORCEMENT_CALLOUT } from "@/lib/auth-domains-confirm-copy";
 import {
   AUTH_DOMAINS_SETTINGS_CLAIM_DISCIPLINE,
   AUTH_DOMAINS_SETTINGS_SOURCES,
@@ -103,18 +108,31 @@ describe("AuthDomainsPageClient", () => {
     render(<AuthDomainsPageClient />);
 
     expect(await screen.findByTestId("auth-domains-page-breadcrumb")).toHaveTextContent("Administration");
-    expect(screen.getByTestId("auth-domains-page-breadcrumb")).toHaveTextContent("Settings");
+    expect(screen.getByTestId("auth-domains-page-breadcrumb")).not.toHaveTextContent("Settings");
     expect(screen.getByTestId("auth-domains-page-breadcrumb")).toHaveTextContent(AUTH_DOMAINS_PAGE_TITLE);
     expect(screen.getByTestId("auth-domains-page-title")).toHaveTextContent(AUTH_DOMAINS_PAGE_TITLE);
     expect(screen.queryByRole("heading", { level: 1 })).not.toBeInTheDocument();
     expect(screen.getByTestId("page-contextual-help-button")).toHaveTextContent(PAGE_HELP_SHORT_TRIGGER_TEXT);
     expect(screen.getByTestId("auth-domains-tenant-scope")).toHaveTextContent("Claims Intake Demo");
     expect(screen.getByTestId("auth-domains-admin-authority-tag")).toHaveTextContent(
-      AUTH_DOMAINS_ADMIN_AUTHORITY_LABEL,
+      AUTH_DOMAINS_ADMIN_AUTHORITY_READY_LABEL,
     );
+    expect(screen.getByTestId("auth-domains-sign-in-posture-tag")).toHaveTextContent(
+      AUTH_DOMAINS_ZERO_DOMAIN_POSTURE_LABEL,
+    );
+    expect(screen.getByTestId("auth-domains-sign-in-posture")).toHaveTextContent(AUTH_DOMAINS_ZERO_DOMAIN_POSTURE_DETAIL);
+    expect(screen.getByTestId("auth-domains-zero-domain-enforcement-callout")).toHaveTextContent(
+      AUTH_DOMAINS_ZERO_DOMAIN_ENFORCEMENT_CALLOUT,
+    );
+    expect(screen.getByTestId("auth-domains-add-prerequisites")).toHaveTextContent(
+      AUTH_DOMAINS_ADD_DOMAIN_PREREQUISITES_TITLE,
+    );
+    expect(screen.getByRole("button", { name: authDomainsJourneyStepAriaLabel(0, "Add domain") })).toBeInTheDocument();
     expect(screen.getByTestId("auth-domains-journey-step-add")).toHaveAttribute("aria-current", "step");
     expect(screen.getByTestId("auth-domains-add-readiness")).toHaveTextContent(AUTH_DOMAINS_ADD_DOMAIN_READINESS);
     expect(screen.getByTestId("auth-domains-empty-state")).toHaveTextContent(AUTH_DOMAINS_EMPTY_TITLE);
+    expect(screen.queryByRole("button", { name: "Add your first domain" })).not.toBeInTheDocument();
+    expect(screen.getAllByRole("button", { name: "Add domain" })).toHaveLength(1);
     expect(screen.getByRole("link", { name: AUTH_DOMAINS_AUTHENTICATION_HELP_CTA })).toHaveAttribute(
       "href",
       inAppHelpHref("authentication-sign-in"),
@@ -132,6 +150,26 @@ describe("AuthDomainsPageClient", () => {
     for (const source of AUTH_DOMAINS_SETTINGS_SOURCES) {
       expect(screen.getByRole("link", { name: source.label })).toHaveAttribute("href", source.href);
     }
+  });
+
+  it("does not show sign-in posture until domains finish loading", async () => {
+    let resolveDomains: ((domains: typeof sampleDomain[]) => void) | undefined;
+    const domainsPromise = new Promise<typeof sampleDomain[]>((resolve) => {
+      resolveDomains = resolve;
+    });
+    vi.mocked(fetchTenantAuthDomains).mockReturnValue(domainsPromise);
+
+    render(<AuthDomainsPageClient />);
+
+    expect(screen.queryByTestId("auth-domains-sign-in-posture")).not.toBeInTheDocument();
+    expect(screen.queryByTestId("auth-domains-zero-domain-enforcement-callout")).not.toBeInTheDocument();
+
+    resolveDomains?.([sampleDomain]);
+
+    await waitFor(() => {
+      expect(screen.getByTestId("auth-domains-sign-in-posture")).toBeInTheDocument();
+    });
+    expect(screen.queryByTestId("auth-domains-zero-domain-enforcement-callout")).not.toBeInTheDocument();
   });
 
   it("humanizes verification and enforcement enums in the domain list", async () => {

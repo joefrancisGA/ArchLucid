@@ -10,7 +10,25 @@ export const AUTH_DOMAINS_AUTHENTICATION_HELP_CTA = "Open authentication help" a
 
 export const AUTH_DOMAINS_SOURCES_DISCLOSURE_TITLE = "Sources and follow-up links" as const;
 
-export const AUTH_DOMAINS_ADMIN_AUTHORITY_LABEL = "Admin authority required" as const;
+export const AUTH_DOMAINS_ADMIN_AUTHORITY_READY_LABEL = "Admin authority" as const;
+
+export const AUTH_DOMAINS_ADMIN_AUTHORITY_BLOCKED_LABEL = "Admin authority required" as const;
+
+/** @deprecated Prefer {@link authDomainsAdminAuthorityPresentation}. */
+export const AUTH_DOMAINS_ADMIN_AUTHORITY_LABEL = AUTH_DOMAINS_ADMIN_AUTHORITY_BLOCKED_LABEL;
+
+export const AUTH_DOMAINS_ZERO_DOMAIN_POSTURE_LABEL = "Email code sign-in" as const;
+
+export const AUTH_DOMAINS_ZERO_DOMAIN_POSTURE_DETAIL =
+  "SSO is not active for this tenant. Users sign in with email codes until you verify a domain and enable enforcement." as const;
+
+export const AUTH_DOMAINS_ADD_DOMAIN_PREREQUISITES_TITLE = "Before you add a domain" as const;
+
+export const AUTH_DOMAINS_ADD_DOMAIN_PREREQUISITES_ITEMS = [
+  "You need access to publish a DNS TXT record for the domain.",
+  "DNS propagation is asynchronous — verification can take minutes or longer.",
+  "Adding a domain does not change sign-in behavior until you verify DNS and enable enforcement.",
+] as const;
 
 export const AUTH_DOMAINS_ADD_DOMAIN_READINESS =
   "Enter a domain name to continue." as const;
@@ -35,6 +53,13 @@ export const AUTH_DOMAINS_JOURNEY_STEPS = [
 ] as const;
 
 export type AuthDomainsJourneyStepId = (typeof AUTH_DOMAINS_JOURNEY_STEPS)[number]["id"];
+
+export const AUTH_DOMAINS_JOURNEY_SECTION_IDS: Record<AuthDomainsJourneyStepId, string> = {
+  add: "auth-domains-journey-target-add",
+  "verify-dns": "auth-domains-journey-target-verify-dns",
+  "test-routing": "auth-domains-journey-target-test-routing",
+  enforce: "auth-domains-journey-target-enforce",
+};
 
 export const AUTH_DOMAINS_MUTATION_ERROR_SUMMARY =
   "This sign-in domain action did not complete." as const;
@@ -143,4 +168,61 @@ export function successMessageForAuthDomainAction(
   displayDomain: string,
 ): string {
   return `${actionLabel} for ${displayDomain}.`;
+}
+
+export function authDomainsAdminAuthorityPresentation(hasAdminAuthority: boolean): {
+  readonly kind: "ready" | "needs-attention";
+  readonly label: string;
+} {
+  if (hasAdminAuthority) {
+    return { kind: "ready", label: AUTH_DOMAINS_ADMIN_AUTHORITY_READY_LABEL };
+  }
+
+  return { kind: "needs-attention", label: AUTH_DOMAINS_ADMIN_AUTHORITY_BLOCKED_LABEL };
+}
+
+export function authDomainsTenantSignInPosture(
+  domains: readonly { readonly verificationStatus: string; readonly isEnforcementActive: boolean }[],
+): {
+  readonly kind: "neutral" | "ready" | "needs-attention";
+  readonly label: string;
+  readonly detail: string;
+} {
+  if (domains.length === 0) {
+    return {
+      kind: "neutral",
+      label: AUTH_DOMAINS_ZERO_DOMAIN_POSTURE_LABEL,
+      detail: AUTH_DOMAINS_ZERO_DOMAIN_POSTURE_DETAIL,
+    };
+  }
+
+  const verifiedCount = domains.filter((row) => row.verificationStatus === "Verified").length;
+  const enforcingCount = domains.filter((row) => row.isEnforcementActive).length;
+  const domainCount = domains.length;
+
+  if (enforcingCount > 0) {
+    return {
+      kind: "ready",
+      label: `${enforcingCount} domain${enforcingCount === 1 ? "" : "s"} enforcing SSO`,
+      detail: `${enforcingCount} of ${domainCount} domain${domainCount === 1 ? "" : "s"} require SSO for matching email addresses. ${verifiedCount} verified overall.`,
+    };
+  }
+
+  if (verifiedCount > 0) {
+    return {
+      kind: "needs-attention",
+      label: `${verifiedCount} verified domain${verifiedCount === 1 ? "" : "s"}`,
+      detail: `${verifiedCount} of ${domainCount} domain${domainCount === 1 ? "" : "s"} verified. SSO enforcement is not active until you complete routing tests and enable enforcement.`,
+    };
+  }
+
+  return {
+    kind: "neutral",
+    label: `${domainCount} domain${domainCount === 1 ? "" : "s"} pending verification`,
+    detail: "No domains verified yet. Users still sign in with email codes until verification and enforcement complete.",
+  };
+}
+
+export function authDomainsJourneyStepAriaLabel(stepIndex: number, stepLabel: string): string {
+  return `Go to step ${stepIndex + 1}: ${stepLabel}`;
 }

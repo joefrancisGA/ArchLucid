@@ -3,6 +3,9 @@
 export const AUTH_DOMAINS_ENFORCEMENT_WARNING =
   "Requiring SSO may prevent users from signing in through other methods. Confirm that the configured identity provider and recovery access have been tested." as const;
 
+export const AUTH_DOMAINS_ZERO_DOMAIN_ENFORCEMENT_CALLOUT =
+  "Enabling SSO enforcement applies tenant-wide to every workspace in this organization. Before enforcement, configure your identity provider and designate recovery administrators so audited break-glass email-code access remains available." as const;
+
 export const AUTH_DOMAINS_ENABLE_ENFORCEMENT_CONFIRM_TITLE = "Enable SSO enforcement?" as const;
 
 export const AUTH_DOMAINS_SET_ENFORCEMENT_CONFIRM_TITLE = "Change enforcement mode?" as const;

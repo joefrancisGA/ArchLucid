@@ -1,7 +1,9 @@
 import { describe, expect, it } from "vitest";
 
 import {
+  authDomainsAdminAuthorityPresentation,
   authDomainsTenantScopeLine,
+  authDomainsTenantSignInPosture,
   isPlausibleAuthDomainInput,
   resolveAuthDomainsCurrentWorkspaceLabel,
   resolveAuthDomainsJourneyStep,
@@ -45,12 +47,6 @@ describe("auth-domains-page-copy", () => {
     expect(line).toContain("every workspace in this organization");
   });
 
-  it("validates plausible domain input", () => {
-    expect(isPlausibleAuthDomainInput("example.com")).toBe(true);
-    expect(isPlausibleAuthDomainInput("not-a-domain")).toBe(false);
-    expect(isPlausibleAuthDomainInput("user@example.com")).toBe(false);
-  });
-
   it("resolves journey step from domain readiness", () => {
     expect(
       resolveAuthDomainsJourneyStep({
@@ -91,5 +87,31 @@ describe("auth-domains-page-copy", () => {
         ],
       }),
     ).toBe("enforce");
+  });
+
+  it("validates plausible domain input", () => {
+    expect(isPlausibleAuthDomainInput("example.com")).toBe(true);
+    expect(isPlausibleAuthDomainInput("not-a-domain")).toBe(false);
+    expect(isPlausibleAuthDomainInput("user@example.com")).toBe(false);
+  });
+
+  it("presents admin authority as ready or blocked", () => {
+    expect(authDomainsAdminAuthorityPresentation(true).kind).toBe("ready");
+    expect(authDomainsAdminAuthorityPresentation(false).kind).toBe("needs-attention");
+  });
+
+  it("describes tenant sign-in posture for zero and configured domains", () => {
+    const zeroDomains = authDomainsTenantSignInPosture([]);
+
+    expect(zeroDomains.label).toContain("Email code");
+    expect(zeroDomains.detail).toContain("SSO is not active");
+
+    const configured = authDomainsTenantSignInPosture([
+      { verificationStatus: "Verified", isEnforcementActive: true },
+      { verificationStatus: "Unverified", isEnforcementActive: false },
+    ]);
+
+    expect(configured.label).toContain("enforcing SSO");
+    expect(configured.detail).toContain("1 of 2");
   });
 });

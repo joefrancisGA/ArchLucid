@@ -7,6 +7,7 @@ import {
   LEGACY_WORKSPACE_SECURITY_TRUST_PATH,
   SETTINGS_SECURITY_TRUST_PATH,
   SETTINGS_SUPPORT_PATH,
+  SETTINGS_AUTH_DOMAINS_PATH,
   SETTINGS_USERS_PATH,
   SETTINGS_USERS_ROLES_TAB_PATH,
   SETTINGS_USERS_USERS_TAB_PATH,
@@ -27,6 +28,7 @@ describe("settings-admin-route-paths (TB-406 / TB-751)", () => {
     expect(SETTINGS_USERS_USERS_TAB_PATH).toBe("/administration/users?tab=users");
     expect(SETTINGS_SECURITY_TRUST_PATH).toBe("/administration/security-trust");
     expect(SETTINGS_SUPPORT_PATH).toBe("/administration/support");
+    expect(SETTINGS_AUTH_DOMAINS_PATH).toBe("/administration/auth-domains");
   });
 
   it("matches Settings hub root exactly for contextual help (TB-1201)", () => {
