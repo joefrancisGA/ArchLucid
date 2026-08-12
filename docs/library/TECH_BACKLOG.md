@@ -15,7 +15,7 @@ Regenerate after opening or closing summary-table rows:
 | Deployability | 4 |
 | AI/Agent readiness | 12 |
 | Architectural integrity | 9 |
-| Adoption friction | 185 |
+| Adoption friction | 184 |
 | Commercial / marketability | 4 |
 | Cutting-edge AI | 3 |
 | Explainability | 1 |
@@ -33,9 +33,9 @@ Regenerate after opening or closing summary-table rows:
 | Differentiability | 3 |
 | Operability | 1 |
 | Other / uncategorized | 8 |
-| **Total (unique open)** | **403** |
+| **Total (unique open)** | **402** |
 
-**By priority band:** P0 **2** | P1 **290** | P2 **94** | P3 **9** | unlabeled **8**.
+**By priority band:** P0 **2** | P1 **289** | P2 **94** | P3 **9** | unlabeled **8**.
 
 <!-- tech-backlog-open-by-category:end -->
 
@@ -1016,7 +1016,7 @@ All **P0** **V1**: visible-boundary button contract + design-system rule (**TB-2
 | TB-1479 | **Done** (2026-08-11) ? Alert rules Rules tab ? empty-first + header Create reveals form; see ## TB-1479 below | Adoption friction P1 ? **V1**; with **TB-1477**; `AlertRulesContent`; pairs **TB-936** | S |
 | TB-1480 | **Done** (2026-08-11) ? Digests browse empty checklist + collapsed includes disclosure; Vitest; see ## TB-1480 below | Adoption friction P1 ? **V1**; owner whitespace pass 2026-07-27 | S |
 | TB-1481 | **Done** (2026-08-11) ? Alert routing empty form-first composition + compact getting-started strip; Vitest; see ## TB-1481 below | Adoption friction P1 ? **V1**; owner whitespace pass 2026-07-27 | S |
-| TB-1483 | `/compliance-journey` ? MarketingPageShell + marketing tokens (parity `/trust`); see ## TB-1483 below | Adoption friction P1 ? **V1**; **Done** 2026-08-11 | S |
+| TB-1483 | **Done** (2026-08-11) ? `/compliance-journey` MarketingPageShell + marketing tokens; Vitest; see ## TB-1483 below | Adoption friction P1 ? **V1**; owner review 2026-07-27 | S |
 | TB-1485 | Compliance journey ? staged structure + primary Trust Center CTA (not flat link dump); see ## TB-1485 below | Adoption friction P1 ? **V1**; **Done** 2026-08-11 | S |
 | TB-1487 | Compliance journey ? CTA hierarchy + Verify dedupe; see ## TB-1487 below | Adoption friction P1 ? **V1**; **Done** 2026-08-11 | S |
 | TB-1501 | Digests browse ? honor `#digest-{id}` deep link (select + scroll); see ## TB-1501 below | Adoption friction P1 ? **V1**; **Done** 2026-08-11 | S |
