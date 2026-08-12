@@ -19,7 +19,8 @@ import { useReviewIntakeNavigation } from "@/hooks/use-review-intake-navigation"
 import { CREATE_ARCHITECTURE_LABEL } from "@/lib/architecture-workflow-labels";
 import {
   OPERATOR_HOME_BEST_FOR_EVALUATING_BADGE,
-  OPERATOR_HOME_CLOUD_EVIDENCE_LINK,
+  OPERATOR_HOME_CLOUD_CONNECT_ADMIN_HINT,
+  OPERATOR_HOME_CONNECT_CLOUD_CTA,
   OPERATOR_HOME_CREATE_ARCHITECTURE_CARD_BODY,
   OPERATOR_HOME_CREATE_ARCHITECTURE_CARD_TITLE,
   OPERATOR_HOME_EXPLORE_COMPLETED_REVIEW_BODY,
@@ -30,7 +31,7 @@ import {
   OPERATOR_HOME_REVIEW_ARCHITECTURE_CARD_TITLE,
   OPERATOR_HOME_REVIEW_ARCHITECTURE_CTA,
 } from "@/lib/buyer-polish-copy";
-import { OPERATOR_CARD, OPERATOR_LAYOUT, OPERATOR_LINK, OPERATOR_SURFACE_CARD_CLASS, OPERATOR_TYPE_SCALE } from "@/lib/design-tokens";
+import { OPERATOR_CARD, OPERATOR_LAYOUT, OPERATOR_SURFACE_CARD_CLASS, OPERATOR_TYPE_SCALE } from "@/lib/design-tokens";
 import type { OperatorHomeLifecyclePath } from "@/lib/resolve-operator-home-workspace-phase";
 import { trackOperatorHomeLifecyclePathClick } from "@/lib/operator-home-lifecycle-path-telemetry";
 import { CLOUD_CONNECTIONS_PATH } from "@/lib/integrations-nav-paths";
@@ -159,16 +160,37 @@ export function OperatorHomeDualPathCards(props: OperatorHomeDualPathCardsProps)
             ) : null}
           </div>
           {canExecute ? (
-            <ReviewStartLoadingButton
-              variant="primary"
-              size="sm"
-              className="h-8 w-fit"
-              idleLabel={CREATE_ARCHITECTURE_LABEL}
-              loadingLabel={createArchitectureNavigation.loadingLabel}
-              isLoading={createArchitectureNavigation.isNavigating && selectedPath === "create-architecture"}
-              onClick={startCreateArchitecture}
-              data-testid="operator-home-create-architecture-cta"
-            />
+            <div className="flex flex-col gap-2" data-testid="operator-home-create-architecture-actions">
+              <ReviewStartLoadingButton
+                variant="primary"
+                size="sm"
+                className="h-8 w-fit"
+                idleLabel={CREATE_ARCHITECTURE_LABEL}
+                loadingLabel={createArchitectureNavigation.loadingLabel}
+                isLoading={createArchitectureNavigation.isNavigating && selectedPath === "create-architecture"}
+                onClick={startCreateArchitecture}
+                data-testid="operator-home-create-architecture-cta"
+              />
+              <div data-testid="operator-home-connect-cloud-path">
+                <OperatorHomeNavigateLoadingButton
+                  variant="outline"
+                  size="sm"
+                  className="h-8 w-fit"
+                  href={CLOUD_CONNECTIONS_PATH}
+                  idleLabel={OPERATOR_HOME_CONNECT_CLOUD_CTA}
+                  loadingLabel={OPERATOR_HOME_OPENING_CLOUD_CONNECTIONS_LABEL}
+                  onNavigate={() => {
+                    setSelectedPath("create-architecture");
+                  }}
+                  data-testid="operator-home-connect-cloud"
+                />
+                {!canManageCloudConnections ? (
+                  <p className={cn("m-0 pt-1", OPERATOR_TYPE_SCALE.micro, "text-al-text-secondary")}>
+                    {OPERATOR_HOME_CLOUD_CONNECT_ADMIN_HINT}
+                  </p>
+                ) : null}
+              </div>
+            </div>
           ) : (
             <p className={cn("m-0", OPERATOR_TYPE_SCALE.micro, "text-al-text-secondary")}>
               {OPERATOR_HOME_READ_ONLY_INTENT_HINT}
@@ -216,19 +238,6 @@ export function OperatorHomeDualPathCards(props: OperatorHomeDualPathCardsProps)
             variant="compact"
             sectionTestId="operator-home-review-architecture-specimen-preview"
           />
-          {canManageCloudConnections ? (
-            <div className="pt-1" data-testid="operator-home-optional-cloud-shortcut">
-              <OperatorHomeNavigateLoadingButton
-                variant="outline"
-                size="sm"
-                className={cn("h-8 w-fit border-0 px-0 font-medium shadow-none", OPERATOR_LINK.nav)}
-                href={CLOUD_CONNECTIONS_PATH}
-                idleLabel={OPERATOR_HOME_CLOUD_EVIDENCE_LINK}
-                loadingLabel={OPERATOR_HOME_OPENING_CLOUD_CONNECTIONS_LABEL}
-                data-testid="operator-home-connect-cloud"
-              />
-            </div>
-          ) : null}
         </article>
 
         <article

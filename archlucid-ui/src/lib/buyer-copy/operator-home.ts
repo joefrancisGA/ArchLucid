@@ -120,20 +120,20 @@ export const OPERATOR_HOME_COMPACT_STARTING_ACTIONS_HEADING = "Start another rev
 export const OPERATOR_HOME_ARCHITECTURE_LIFECYCLE_INTRO_LABEL = "One lifecycle:";
 
 export const OPERATOR_HOME_ARCHITECTURE_LIFECYCLE_INTRO_BODY =
-  "Describe your architecture, then run a governed review. The review is the durable work item.";
+  "Start from a description, uploaded evidence, or live cloud inventory—then run a governed review. The review is the durable work item.";
 
 export const OPERATOR_HOME_ARCHITECTURE_LIFECYCLE_INTRO =
   `${OPERATOR_HOME_ARCHITECTURE_LIFECYCLE_INTRO_LABEL} ${OPERATOR_HOME_ARCHITECTURE_LIFECYCLE_INTRO_BODY}`;
 
-export const OPERATOR_HOME_CREATE_ARCHITECTURE_CARD_TITLE = "Step 1 — Describe or import your architecture";
+export const OPERATOR_HOME_CREATE_ARCHITECTURE_CARD_TITLE = "Step 1 — Describe, import, or connect";
 
 export const OPERATOR_HOME_CREATE_ARCHITECTURE_CARD_BODY =
-  "Start from a draft, business goals, constraints, requirements, and available evidence. Saving a draft does not start a review.";
+  "Start from an architecture draft, uploaded briefs and diagrams, or read-only cloud inventory from Azure, AWS, or Google Cloud. Saving a draft does not start a review.";
 
 export const OPERATOR_HOME_REVIEW_ARCHITECTURE_CARD_TITLE = "Step 2 — Run a governed review";
 
 export const OPERATOR_HOME_REVIEW_ARCHITECTURE_CARD_BODY =
-  "Provide the architecture information you already have, including diagrams, descriptions, requirements, evidence, or other supporting material.";
+  "Attach architecture information you already have—diagrams, documents, inventory exports, or connected cloud evidence—then start the governed review.";
 
 /** @deprecated Merged into {@link OPERATOR_HOME_REVIEW_ARCHITECTURE_CARD_BODY} on the home review card. */
 export const OPERATOR_HOME_REVIEW_ARCHITECTURE_SUPPORT = OPERATOR_HOME_REVIEW_ARCHITECTURE_CARD_BODY;
@@ -290,8 +290,11 @@ export const OPERATOR_HOME_CONNECT_CLOUD_TITLE = "Connect cloud environment";
 export const OPERATOR_HOME_CONNECT_CLOUD_BODY =
   "Import architecture evidence from Azure, AWS, or Google Cloud.";
 
-/** Low-emphasis cloud shortcut beneath the review architecture path. */
-export const OPERATOR_HOME_CLOUD_EVIDENCE_LINK = "Have cloud evidence? Connect a cloud environment.";
+/** Primary CTA on home Step 1 for the cloud-as-architecture path. */
+export const OPERATOR_HOME_CONNECT_CLOUD_CTA = OPERATOR_HOME_CONNECT_CLOUD_TITLE;
+
+/** @deprecated Use {@link OPERATOR_HOME_CONNECT_CLOUD_CTA} — retained for legacy imports. */
+export const OPERATOR_HOME_CLOUD_EVIDENCE_LINK = OPERATOR_HOME_CONNECT_CLOUD_CTA;
 
 export const OPERATOR_HOME_CLOUD_CONNECT_ADMIN_HINT =
   "Cloud connection requires workspace administrator access.";

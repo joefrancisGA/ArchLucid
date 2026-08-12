@@ -106,7 +106,7 @@ describe("PilotCommandCenterCard", () => {
     expect(screen.queryByTestId("pilot-command-center-optional-setup")).toBeNull();
     expect(screen.queryByTestId("pilot-command-center-connect-azure")).toBeNull();
     expect(screen.queryByTestId("pilot-command-center-invite-reviewer")).toBeNull();
-    expect(screen.queryByTestId("operator-home-optional-cloud-shortcut")).toBeNull();
+    expect(screen.queryByTestId("operator-home-connect-cloud-path")).toBeNull();
 
     render(<OperatorHomeContinueSetupCard canBegin blockerMessage={null} />);
 

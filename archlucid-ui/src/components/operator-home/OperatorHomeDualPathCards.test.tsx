@@ -17,6 +17,8 @@ const setupReadiness = vi.hoisted(() => ({
   context: { healthReady: true, healthLoadFailed: false, principalAdmin: true },
 }));
 
+const callerAuthorityRank = vi.hoisted(() => ({ value: 100 }));
+
 vi.mock("next/navigation", () => ({
   useRouter: () => ({
     push,
@@ -39,14 +41,14 @@ vi.mock("@/hooks/use-finish-setup-readiness-context", () => ({
 }));
 
 vi.mock("@/components/OperatorNavAuthorityProvider", () => ({
-  useNavCallerAuthorityRank: () => 100,
+  useNavCallerAuthorityRank: () => callerAuthorityRank.value,
   useOperatorNavAuthority: () => ({
     currentPrincipal: {
       ...operatorNavOutsideProviderPrincipal,
-      authorityRank: 100,
+      authorityRank: callerAuthorityRank.value,
       hasCommittedArchitectureReview: false,
     },
-    callerAuthorityRank: 100,
+    callerAuthorityRank: callerAuthorityRank.value,
     isAuthorityLoading: false,
   }),}));
 
@@ -108,7 +110,8 @@ import {
   OPERATOR_HOME_ARCHITECTURE_LIFECYCLE_INTRO,
   OPERATOR_HOME_ASSIGN_ADMIN_BLOCKER,
   OPERATOR_HOME_BEST_FOR_EVALUATING_BADGE,
-  OPERATOR_HOME_CLOUD_EVIDENCE_LINK,
+  OPERATOR_HOME_CLOUD_CONNECT_ADMIN_HINT,
+  OPERATOR_HOME_CONNECT_CLOUD_CTA,
   OPERATOR_HOME_CREATE_ARCHITECTURE_CARD_TITLE,
   OPERATOR_HOME_EXPLORE_COMPLETED_REVIEW_TITLE,
   OPERATOR_HOME_OPEN_COMPLETED_REVIEW_CTA,
@@ -127,6 +130,7 @@ const featuredSampleRunId = "dddddddd-dddd-dddd-dddd-dddddddddddd";
 describe("OperatorHomeDualPathCards", () => {
   beforeEach(() => {
     setupReadiness.context = { ...UNBLOCKED_SETUP_CONTEXT };
+    callerAuthorityRank.value = 100;
   });
 
   it("shows lifecycle steps plus an evaluation explore card", () => {
@@ -141,8 +145,8 @@ describe("OperatorHomeDualPathCards", () => {
     expect(screen.getByRole("heading", { name: OPERATOR_HOME_CREATE_ARCHITECTURE_CARD_TITLE })).toBeInTheDocument();
     expect(screen.getByRole("heading", { name: OPERATOR_HOME_REVIEW_ARCHITECTURE_CARD_TITLE })).toBeInTheDocument();
     expect(screen.getByText(OPERATOR_HOME_REVIEW_ARCHITECTURE_CARD_BODY)).toBeInTheDocument();
-    expect(screen.getByTestId("operator-home-optional-cloud-shortcut")).toBeInTheDocument();
-    expect(screen.getByRole("link", { name: OPERATOR_HOME_CLOUD_EVIDENCE_LINK })).toHaveAttribute(
+    expect(screen.getByTestId("operator-home-connect-cloud-path")).toBeInTheDocument();
+    expect(screen.getByRole("link", { name: OPERATOR_HOME_CONNECT_CLOUD_CTA })).toHaveAttribute(
       "href",
       CLOUD_CONNECTIONS_PATH,
     );
@@ -213,5 +217,18 @@ describe("OperatorHomeDualPathCards", () => {
 
     expect(createNavigate).toHaveBeenCalledTimes(1);
     expect(screen.queryByTestId("operator-home-review-start-progress")).toBeNull();
+  });
+
+  it("shows connect cloud on Step 1 for non-admin operators with an admin hint", () => {
+    callerAuthorityRank.value = 2;
+
+    render(<OperatorHomeDualPathCards />);
+
+    expect(screen.getByTestId("operator-home-connect-cloud-path")).toBeInTheDocument();
+    expect(screen.getByRole("link", { name: OPERATOR_HOME_CONNECT_CLOUD_CTA })).toHaveAttribute(
+      "href",
+      CLOUD_CONNECTIONS_PATH,
+    );
+    expect(screen.getByText(OPERATOR_HOME_CLOUD_CONNECT_ADMIN_HINT)).toBeInTheDocument();
   });
 });
