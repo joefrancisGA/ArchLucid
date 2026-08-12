@@ -92,6 +92,7 @@ import {
 import { RunDetailDecisionDeltaDeferred } from "./RunDetailDecisionDeltaDeferred";
 import { RunDetailDecisionDeltaSkeleton } from "./RunDetailDecisionDeltaSkeleton";
 import { RunDetailExplanationDeferred } from "./RunDetailExplanationDeferred";
+import { RunDetailCreateHomeFindingsPanel } from "./RunDetailCreateHomeFindingsPanel";
 import type { RunDetailPageModel } from "./run-detail-page-model";
 
 /** Server component: renders the main run detail chrome from a preloaded `RunDetailPageModel`. */
@@ -270,31 +271,36 @@ export async function RunDetailPageView(props: {
                     correctionHref={architectureEditHref}
                     panels={{
                       findings: (
-                        <RunDetailExplanationDeferred
-                          runId={m.routeRunId}
-                          buyerPolishedArtifactTable={m.buyerPolishedArtifactTable}
-                          resolvedDetail={m.resolvedDetail}
-                          explanationSummary={m.explanationSummary}
-                          explanationFailure={m.explanationFailure}
-                          findingCountDisplay={m.findingCountDisplay}
-                          warningCountDisplay={m.warningCountDisplay}
-                          goldenManifestJsonForExport={m.goldenManifestJsonForExport}
-                          manifestRuleSetId={m.manifestSummaryForUi?.ruleSetId ?? null}
-                          manifestRuleSetVersion={m.manifestSummaryForUi?.ruleSetVersion ?? null}
+                        <RunDetailCreateHomeFindingsPanel
+                          runId={m.resolvedDetail.run.runId}
                           packageCommitted={Boolean(m.manifestId)}
-                          analysisStagesComplete={createHomeAnalysisStagesComplete}
-                          triageVisibleCount={findingsTriageVisibleCount}
-                          providerNeutralWorkItems={Boolean(m.manifestId)}
-                          architectureWorkItemContext={
-                            m.manifestId
-                              ? {
-                                  architectureName: architectureCreatedBaseline.architectureName,
-                                  architectureOverview: architectureCreatedBaseline.architectureOverview,
-                                  ownerLabel: architectureCreatedBaseline.ownerLabel,
-                                }
-                              : null
-                          }
-                        />
+                        >
+                          <RunDetailExplanationDeferred
+                            runId={m.routeRunId}
+                            buyerPolishedArtifactTable={m.buyerPolishedArtifactTable}
+                            resolvedDetail={m.resolvedDetail}
+                            explanationSummary={m.explanationSummary}
+                            explanationFailure={m.explanationFailure}
+                            findingCountDisplay={m.findingCountDisplay}
+                            warningCountDisplay={m.warningCountDisplay}
+                            goldenManifestJsonForExport={m.goldenManifestJsonForExport}
+                            manifestRuleSetId={m.manifestSummaryForUi?.ruleSetId ?? null}
+                            manifestRuleSetVersion={m.manifestSummaryForUi?.ruleSetVersion ?? null}
+                            packageCommitted={Boolean(m.manifestId)}
+                            analysisStagesComplete={createHomeAnalysisStagesComplete}
+                            triageVisibleCount={findingsTriageVisibleCount}
+                            providerNeutralWorkItems={Boolean(m.manifestId)}
+                            architectureWorkItemContext={
+                              m.manifestId
+                                ? {
+                                    architectureName: architectureCreatedBaseline.architectureName,
+                                    architectureOverview: architectureCreatedBaseline.architectureOverview,
+                                    ownerLabel: architectureCreatedBaseline.ownerLabel,
+                                  }
+                                : null
+                            }
+                          />
+                        </RunDetailCreateHomeFindingsPanel>
                       ),
                       evidence: (
                         <RunDetailCreateHomeEvidencePanelDeferred
