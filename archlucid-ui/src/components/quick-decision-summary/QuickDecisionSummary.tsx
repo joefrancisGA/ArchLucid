@@ -34,7 +34,17 @@ import type {
   QuickDecisionSummaryProps,
 } from "./types";
 
-function useQuickDecisionSummaryDerivedData(props: QuickDecisionSummaryProps): QuickDecisionSummaryDerivedData {
+/** Derived data plus the filter toggles the hook owns; {@link splitDerivedState} separates the two again. */
+type QuickDecisionSummaryDerivedState = QuickDecisionSummaryDerivedData & {
+  readonly showMuted: boolean;
+  readonly setShowMuted: (value: boolean) => void;
+  readonly showLowConfidence: boolean;
+  readonly setShowLowConfidence: (value: boolean) => void;
+  readonly showAdvisory: boolean;
+  readonly setShowAdvisory: (value: boolean) => void;
+};
+
+function useQuickDecisionSummaryDerivedData(props: QuickDecisionSummaryProps): QuickDecisionSummaryDerivedState {
   const sorted = sortQuickDecisionFindings(props.findings);
   const confidenceManagedExternally = props.confidenceVisibility?.managedExternally === true;
   const [showMuted, setShowMuted] = useState(false);
@@ -133,15 +143,6 @@ function useQuickDecisionSummaryDerivedData(props: QuickDecisionSummaryProps): Q
     setShowAdvisory,
   };
 }
-
-type QuickDecisionSummaryDerivedState = QuickDecisionSummaryDerivedData & {
-  readonly showMuted: boolean;
-  readonly setShowMuted: (value: boolean) => void;
-  readonly showLowConfidence: boolean;
-  readonly setShowLowConfidence: (value: boolean) => void;
-  readonly showAdvisory: boolean;
-  readonly setShowAdvisory: (value: boolean) => void;
-};
 
 function splitDerivedState(state: QuickDecisionSummaryDerivedState): {
   derived: QuickDecisionSummaryDerivedData;

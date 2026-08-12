@@ -11,7 +11,6 @@ import type { GoldenManifestComparison } from "@/types/comparison";
 import type { RunComparison, RunSummary } from "@/types/authority";
 
 import {
-  DEMO_RUN_IDS_FOR_STATIC_FALLBACK,
   isDemoRunIdEligibleForStaticFallback,
   isStaticDemoPayloadFallbackActiveForRun,
   isStaticDemoPayloadFallbackEnabled,

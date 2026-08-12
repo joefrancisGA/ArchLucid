@@ -1,6 +1,6 @@
 import type { QuickDecisionWorkItemContext } from "@/components/findings/QuickDecisionWorkspaceFindingSupportingDetails";
 import type { QuickDecisionFinding } from "@/lib/quick-decision-summary-derive";
-import type { PolicyPackFindingGroup } from "@/lib/group-findings-by-policy-pack";
+import type { PolicyPackFindingGroup, PolicyPackFindingGroupDetail } from "@/lib/group-findings-by-policy-pack";
 
 export type QuickDecisionSummaryConfidenceVisibility = {
   readonly showLowConfidence: boolean;
@@ -62,7 +62,7 @@ export type QuickDecisionSummaryDerivedData = {
   readonly advisoryNotes: readonly QuickDecisionFinding[];
   readonly lowConfidencePolicyViolations: readonly QuickDecisionFinding[];
   readonly lowConfidenceAdvisoryNotes: readonly QuickDecisionFinding[];
-  readonly topGroups: readonly PolicyPackFindingGroup[];
+  readonly topGroups: readonly PolicyPackFindingGroupDetail[];
   readonly policyPackSummary: readonly PolicyPackFindingGroup[];
   readonly policyPackImpact: {
     readonly groups: readonly PolicyPackFindingGroup[];

@@ -27,7 +27,7 @@ const PRODUCT_BRAND_NAME = "ArchLucid";
 import type {
   RunDetailWorkspaceRecommendedAction
 } from "./types";
-import { countFindingsBySeverity } from "./finding-metrics";
+import { countFindingsBySeverity, derivePrimaryConcernFinding } from "./finding-metrics";
 export function deriveBlockingApprovalCount(input: {
   readonly unresolvedIssueCount: number | null | undefined;
   readonly hasCommitBlockingFailures: boolean;

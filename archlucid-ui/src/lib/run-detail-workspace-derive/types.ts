@@ -77,6 +77,11 @@ export type ExecutiveBottomLineContent =
       readonly kind: "narrative";
       readonly text: string;
     }
+  | {
+      readonly kind: "considerations";
+      readonly themes: readonly string[];
+    };
+
 export type DeriveRunDetailWorkspaceStatusInput = {
   readonly run: RunDetail["run"];
   readonly manifestId: string | null | undefined;
