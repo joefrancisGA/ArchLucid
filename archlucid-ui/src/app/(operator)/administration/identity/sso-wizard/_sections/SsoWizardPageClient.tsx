@@ -18,6 +18,15 @@ import { SsoWizardScimVocabularyRail } from "@/components/SsoWizardScimVocabular
 
 import { Button } from "@/components/ui/button";
 import { Card, CardContent, CardHeader, CardTitle } from "@/components/ui/card";
+import {
+  EnterpriseTable,
+  EnterpriseTableBody,
+  EnterpriseTableCell,
+  EnterpriseTableHead,
+  EnterpriseTableHeadRow,
+  EnterpriseTableHeaderCell,
+  EnterpriseTableRow,
+} from "@/components/ui/enterprise-table";
 import { Input } from "@/components/ui/input";
 import { Label } from "@/components/ui/label";
 import { PageContextualHelpButton } from "@/components/usability/PageContextualHelpButton";
@@ -513,17 +522,17 @@ export function SsoWizardPageClient() {
                   ))}
                 </datalist>
               </div>
-              <table className={cn("w-full text-left", OPERATOR_TYPOGRAPHY.body)} data-testid="sso-role-mapping-table">
-                <thead>
-                  <tr className={cn("border-b border-neutral-200 dark:border-neutral-700", OPERATOR_NAV_GROUP_LABEL)}>
-                    <th className="py-2 pr-2">Identity provider value</th>
-                    <th className="py-2">ArchLucid role</th>
-                  </tr>
-                </thead>
-                <tbody>
+              <EnterpriseTable ariaLabel="SSO role claim mappings" className={OPERATOR_TYPOGRAPHY.body} data-testid="sso-role-mapping-table">
+                <EnterpriseTableHead>
+                  <EnterpriseTableHeadRow className={cn("border-b border-neutral-200 dark:border-neutral-700", OPERATOR_NAV_GROUP_LABEL)}>
+                    <EnterpriseTableHeaderCell className="py-2 pr-2">Identity provider value</EnterpriseTableHeaderCell>
+                    <EnterpriseTableHeaderCell className="py-2">ArchLucid role</EnterpriseTableHeaderCell>
+                  </EnterpriseTableHeadRow>
+                </EnterpriseTableHead>
+                <EnterpriseTableBody>
                   {state.claimMapping.mappings.map((row, index) => (
-                    <tr key={`${row.archLucidRole}-${index}`} className="border-b border-neutral-100 dark:border-neutral-800">
-                      <td className="py-2 pr-2">
+                    <EnterpriseTableRow key={`${row.archLucidRole}-${index}`}>
+                      <EnterpriseTableCell className="py-2 pr-2">
                         <Input
                           value={row.idpValue}
                           onChange={(e) => {
@@ -538,8 +547,8 @@ export function SsoWizardPageClient() {
                           }}
                           placeholder="e.g. al-admin-group"
                         />
-                      </td>
-                      <td className="py-2">
+                      </EnterpriseTableCell>
+                      <EnterpriseTableCell className="py-2">
                         <select
                           className={cn(
                             "w-full rounded-md border border-neutral-300 bg-white px-2 py-2 dark:border-neutral-600 dark:bg-neutral-900",
@@ -563,11 +572,11 @@ export function SsoWizardPageClient() {
                             </option>
                           ))}
                         </select>
-                      </td>
-                    </tr>
+                      </EnterpriseTableCell>
+                    </EnterpriseTableRow>
                   ))}
-                </tbody>
-              </table>
+                </EnterpriseTableBody>
+              </EnterpriseTable>
               <div>
                 <Label htmlFor="group-regex">Optional group claim pattern</Label>
                 <Input

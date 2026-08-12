@@ -10,6 +10,15 @@ import { MutatingInTenantChip } from "@/components/MutatingInTenantChip";
 import { Button } from "@/components/ui/button";
 import { WhyDisabledCtaHint } from "@/components/usability/WhyDisabledCtaHint";
 import { Card, CardContent, CardHeader } from "@/components/ui/card";
+import {
+  EnterpriseTable,
+  EnterpriseTableBody,
+  EnterpriseTableCell,
+  EnterpriseTableHead,
+  EnterpriseTableHeadRow,
+  EnterpriseTableHeaderCell,
+  EnterpriseTableRow,
+} from "@/components/ui/enterprise-table";
 import { Input } from "@/components/ui/input";
 import { Label } from "@/components/ui/label";
 import {
@@ -371,21 +380,20 @@ export function SamlSpConfigurationForm(props: SamlSpConfigurationFormProps = {}
               {IDENTITY_PROVIDERS_ROLE_MAPPING_SEMANTICS_HELPER}
             </p>
 
-            <div className="overflow-x-auto">
-              <table className={cn("w-full text-left", OPERATOR_TYPOGRAPHY.body)} data-testid="saml-claim-mapping-table">
-                <thead>
-                  <tr className={cn("border-b border-neutral-200 dark:border-neutral-700", OPERATOR_NAV_GROUP_LABEL)}>
-                    <th className="py-2 pr-2">IdP group / role value</th>
-                    <th className="py-2 pr-2">ArchLucid role</th>
-                    <th className="py-2">
-                      <span className="sr-only">Row actions</span>
-                    </th>
-                  </tr>
-                </thead>
-                <tbody>
-                  {values.mappings.map((row, index) => (
-                    <tr key={row.rowId} className="border-b border-neutral-100 dark:border-neutral-800">
-                      <td className="py-2 pr-2">
+            <EnterpriseTable ariaLabel="SAML claim role mappings" className={OPERATOR_TYPOGRAPHY.body} data-testid="saml-claim-mapping-table">
+              <EnterpriseTableHead>
+                <EnterpriseTableHeadRow className={cn("border-b border-neutral-200 dark:border-neutral-700", OPERATOR_NAV_GROUP_LABEL)}>
+                  <EnterpriseTableHeaderCell className="py-2 pr-2">IdP group / role value</EnterpriseTableHeaderCell>
+                  <EnterpriseTableHeaderCell className="py-2 pr-2">ArchLucid role</EnterpriseTableHeaderCell>
+                  <EnterpriseTableHeaderCell className="py-2">
+                    <span className="sr-only">Row actions</span>
+                  </EnterpriseTableHeaderCell>
+                </EnterpriseTableHeadRow>
+              </EnterpriseTableHead>
+              <EnterpriseTableBody>
+                {values.mappings.map((row, index) => (
+                  <EnterpriseTableRow key={row.rowId}>
+                    <EnterpriseTableCell className="py-2 pr-2">
                         <Input
                           value={row.idpValue}
                           onChange={(e) => {
@@ -405,8 +413,8 @@ export function SamlSpConfigurationForm(props: SamlSpConfigurationFormProps = {}
                           data-testid={`saml-mapping-idp-${row.rowId}`}
                           aria-label={`IdP group or role value for mapping ${index + 1}`}
                         />
-                      </td>
-                      <td className="py-2 pr-2">
+                      </EnterpriseTableCell>
+                      <EnterpriseTableCell className="py-2 pr-2">
                         <Select
                           value={row.archLucidRole}
                           onValueChange={(archLucidRole) => {
@@ -433,8 +441,8 @@ export function SamlSpConfigurationForm(props: SamlSpConfigurationFormProps = {}
                             ))}
                           </SelectContent>
                         </Select>
-                      </td>
-                      <td className="py-2">
+                      </EnterpriseTableCell>
+                      <EnterpriseTableCell className="py-2">
                         <Button
                           type="button"
                           variant="outline"
@@ -448,12 +456,11 @@ export function SamlSpConfigurationForm(props: SamlSpConfigurationFormProps = {}
                         >
                           {IDENTITY_PROVIDERS_SAML_MAPPING_REMOVE_ROW}
                         </Button>
-                      </td>
-                    </tr>
+                      </EnterpriseTableCell>
+                    </EnterpriseTableRow>
                   ))}
-                </tbody>
-              </table>
-            </div>
+              </EnterpriseTableBody>
+            </EnterpriseTable>
 
             {touchedFields.mappings && fieldErrors.mappings !== null ? (
               <p

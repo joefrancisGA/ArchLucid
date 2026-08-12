@@ -2,6 +2,15 @@
 
 import { cn } from "@/lib/utils";
 import { Card, CardContent, CardHeader, CardTitle } from "@/components/ui/card";
+import {
+  EnterpriseTable,
+  EnterpriseTableBody,
+  EnterpriseTableCell,
+  EnterpriseTableHead,
+  EnterpriseTableHeadRow,
+  EnterpriseTableHeaderCell,
+  EnterpriseTableRow,
+} from "@/components/ui/enterprise-table";
 import { OPERATOR_NAV_GROUP_LABEL, OPERATOR_TYPOGRAPHY } from "@/lib/design-tokens";
 import type { components } from "@/lib/openapi-schemas";
 
@@ -27,28 +36,30 @@ export function IdentityProvidersCatalogTable(props: IdentityProvidersCatalogTab
           <p className={cn("m-0 text-amber-900 dark:text-amber-100", OPERATOR_TYPOGRAPHY.body)}>{props.note}</p>
         ) : null}
         {props.rows !== null && props.rows.length > 0 ? (
-          <div className="overflow-x-auto">
-            <table className={cn("w-full text-left", OPERATOR_TYPOGRAPHY.body)} data-testid="identity-providers-table">
-              <thead>
-                <tr className={cn("border-b border-neutral-200 dark:border-neutral-700", OPERATOR_NAV_GROUP_LABEL)}>
-                  {props.showConfigPaths ? <th className="py-2 pr-3">Config path</th> : <th className="py-2 pr-3">Setting</th>}
-                  <th className="py-2 pr-3">Set</th>
-                  <th className="py-2 pr-3">Effective value</th>
-                </tr>
-              </thead>
-              <tbody>
-                {props.rows.map((row) => (
-                  <tr key={row.configPath} className="border-b border-neutral-100 dark:border-neutral-800">
-                    <td className={cn("py-2 pr-3 text-al-text-primary", props.showConfigPaths ? OPERATOR_TYPOGRAPHY.micro : OPERATOR_TYPOGRAPHY.body, props.showConfigPaths ? "font-mono" : "")}>
-                      {props.showConfigPaths ? row.configPath : formatCustomerSettingLabel(row.configPath)}
-                    </td>
-                    <td className="py-2 pr-3 text-al-text-secondary">{row.isSet ? "yes" : "no"}</td>
-                    <td className="break-all py-2 pr-3 text-al-text-secondary">{row.effectiveValue ?? "—"}</td>
-                  </tr>
-                ))}
-              </tbody>
-            </table>
-          </div>
+          <EnterpriseTable ariaLabel="OIDC catalog alignment settings" className={OPERATOR_TYPOGRAPHY.body} data-testid="identity-providers-table">
+            <EnterpriseTableHead>
+              <EnterpriseTableHeadRow className={cn("border-b border-neutral-200 dark:border-neutral-700", OPERATOR_NAV_GROUP_LABEL)}>
+                {props.showConfigPaths ? (
+                  <EnterpriseTableHeaderCell className="py-2 pr-3">Config path</EnterpriseTableHeaderCell>
+                ) : (
+                  <EnterpriseTableHeaderCell className="py-2 pr-3">Setting</EnterpriseTableHeaderCell>
+                )}
+                <EnterpriseTableHeaderCell className="py-2 pr-3">Set</EnterpriseTableHeaderCell>
+                <EnterpriseTableHeaderCell className="py-2 pr-3">Effective value</EnterpriseTableHeaderCell>
+              </EnterpriseTableHeadRow>
+            </EnterpriseTableHead>
+            <EnterpriseTableBody>
+              {props.rows.map((row) => (
+                <EnterpriseTableRow key={row.configPath}>
+                  <EnterpriseTableCell className={cn("py-2 pr-3 text-al-text-primary", props.showConfigPaths ? OPERATOR_TYPOGRAPHY.micro : OPERATOR_TYPOGRAPHY.body, props.showConfigPaths ? "font-mono" : "")}>
+                    {props.showConfigPaths ? row.configPath : formatCustomerSettingLabel(row.configPath)}
+                  </EnterpriseTableCell>
+                  <EnterpriseTableCell className="py-2 pr-3 text-al-text-secondary">{row.isSet ? "yes" : "no"}</EnterpriseTableCell>
+                  <EnterpriseTableCell className="break-all py-2 pr-3 text-al-text-secondary">{row.effectiveValue ?? "—"}</EnterpriseTableCell>
+                </EnterpriseTableRow>
+              ))}
+            </EnterpriseTableBody>
+          </EnterpriseTable>
         ) : (
           <p className={cn("m-0 text-al-text-secondary", OPERATOR_TYPOGRAPHY.body)}>No catalog rows returned.</p>
         )}
