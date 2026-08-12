@@ -13,6 +13,8 @@ namespace ArchLucid.Core.Diagnostics;
 /// </remarks>
 public static partial class ArchLucidInstrumentation
 {
+    private static Func<string, bool>? _firstTenantFunnelEventNameValidator;
+
     private static int _trialFunnelObservableGaugesRegistered;
 
     private static long _trialActiveTenantsCached;
@@ -25,6 +27,9 @@ public static partial class ArchLucidInstrumentation
 
     private static readonly string[] CorePilotRailChecklistSteps =
         ["create_request", "track_review", "finalize_review_package", "review_outputs"];
+
+    public static void SetFirstTenantFunnelEventNameValidator(Func<string, bool> validator) =>
+        Volatile.Write(ref _firstTenantFunnelEventNameValidator, validator);
 
     /// <summary>Registers trial funnel observable gauges once (call from OpenTelemetry host setup).</summary>
     public static void EnsureTrialFunnelObservableGaugesRegistered()
@@ -318,5 +323,61 @@ public static partial class ArchLucidInstrumentation
         };
 
         WizardToCommittedMinutes.Record(clampedMinutes, tags);
+    }
+
+    /// <summary>Records one pricing quote request age observation for SLA histogram export.</summary>
+    public static void RecordPricingQuoteRequestAgeHours(double ageHours, string breachStatus)
+    {
+        if (ageHours < 0)
+            ageHours = 0;
+
+        if (string.IsNullOrWhiteSpace(breachStatus))
+            breachStatus = "unknown";
+
+        KeyValuePair<string, object?>[] tags =
+        [
+            new KeyValuePair<string, object?>("breach_status", breachStatus)
+        ];
+
+        PricingQuoteRequestAgeHours.Record(ageHours, tags.AsSpan());
+    }
+
+    /// <summary>
+    ///     Increments <see cref="FirstTenantFunnelEventsTotal" />. <paramref name="eventName" /> must be one of
+    ///     <see cref="FirstTenantFunnelEventNames" />. <paramref name="tenantIdNormalized" /> is added as a
+    ///     <c>tenant_id</c> tag <b>only</b> when <paramref name="recordPerTenant" /> is true (owner-only flag
+    ///     per pending question 40). Never tags <c>userId</c>, IP, or any other personal data.
+    /// </summary>
+    public static void RecordFirstTenantFunnelEvent(
+        string eventName,
+        bool recordPerTenant,
+        string? tenantIdNormalized)
+    {
+        if (_firstTenantFunnelEventNameValidator != null && !_firstTenantFunnelEventNameValidator(eventName))
+            throw new ArgumentOutOfRangeException(
+                nameof(eventName),
+                eventName,
+                "eventName must be one of the known FirstTenantFunnelEventNames constants.");
+
+        TagList tags = new() { { "event", eventName } };
+
+        if (recordPerTenant && !string.IsNullOrEmpty(tenantIdNormalized))
+
+            tags.Add("tenant_id", tenantIdNormalized);
+
+        FirstTenantFunnelEventsTotal.Add(1, tags);
+    }
+
+    /// <summary>Increments <see cref="OperatorTaskSuccessTotal" /> for a low-cardinality <paramref name="task" /> label.</summary>
+    public static void RecordOperatorTaskSuccess(string task)
+    {
+        string t = string.IsNullOrWhiteSpace(task) ? "unknown" : task.Trim();
+        if (t is not ("first_run_committed" or "first_session_completed"))
+            throw new ArgumentOutOfRangeException(nameof(task),
+                "task must be first_run_committed or first_session_completed.");
+
+        TagList tags = new() { { "task", t } };
+
+        OperatorTaskSuccessTotal.Add(1, tags);
     }
 }

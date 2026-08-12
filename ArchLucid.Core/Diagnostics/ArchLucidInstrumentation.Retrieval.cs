@@ -14,6 +14,8 @@ namespace ArchLucid.Core.Diagnostics;
 /// </remarks>
 public static partial class ArchLucidInstrumentation
 {
+    private static Func<bool>? _retrievalTelemetryPerTenantTagCircuitBreaker;
+
     /// <summary>
     ///     Supplies the RAG per-tenant tag circuit breaker (drops <c>tenant_id</c> when tenant estimates exceed safe
     ///     thresholds).
@@ -197,5 +199,14 @@ public static partial class ArchLucidInstrumentation
             tags.Add("tenant_id", tenantId.ToString("D"));
 
         RetrievalFaithfulnessRatio.Record(clamped, tags);
+    }
+
+    /// <summary>Records one heuristic Azure Retail Prices fallback row (Improvement #6).</summary>
+    public static void RecordAzureRetailPricesHeuristicFallback(string serviceName, string sku)
+    {
+        AzureRetailPricesHeuristicFallbackTotal.Add(
+            1,
+            new KeyValuePair<string, object?>("service_name", serviceName),
+            new KeyValuePair<string, object?>("sku", sku));
     }
 }

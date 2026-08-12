@@ -9,6 +9,14 @@ from pathlib import Path
 REPO_ROOT = Path(__file__).resolve().parents[3]
 
 
+def _instrumentation_sources() -> str:
+    diagnostics = REPO_ROOT / "ArchLucid.Core" / "Diagnostics"
+    return "".join(
+        path.read_text(encoding="utf-8")
+        for path in sorted(diagnostics.glob("ArchLucidInstrumentation*.cs"))
+    )
+
+
 class TestAdoptionBatch5AH(unittest.TestCase):
     def test_tb_220_architecture_request_has_request_source(self) -> None:
         path = REPO_ROOT / "ArchLucid.Contracts" / "Requests" / "ArchitectureRequest.cs"
@@ -17,8 +25,7 @@ class TestAdoptionBatch5AH(unittest.TestCase):
         self.assertIn("WizardPresetUsed", text)
 
     def test_tb_220_instrumentation_histogram(self) -> None:
-        path = REPO_ROOT / "ArchLucid.Core" / "Diagnostics" / "ArchLucidInstrumentation.cs"
-        text = path.read_text(encoding="utf-8")
+        text = _instrumentation_sources()
         self.assertIn("archlucid.pilot.wizard_to_committed_minutes", text)
         self.assertIn("RecordWizardToCommittedMinutes", text)
 
