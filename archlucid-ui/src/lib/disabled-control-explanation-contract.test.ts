@@ -24,14 +24,6 @@ const TITLE_ONLY_DISABLED_EXPLANATION_BASELINE: ReadonlySet<string> = new Set([
   "app/(operator)/insights/executive-summary/_sections/ValueReportPageView.tsx",
   "app/(operator)/integrations/cloud-connections/_sections/Tier2ConnectionWizard.tsx",
   "app/(operator)/internal/integration-events/dlq/_sections/IntegrationEventsDlqPageClient.tsx",
-  "components/GraphBuyerCanvasToolbar.tsx",
-  "components/ShareReviewPackageButton.tsx",
-  "components/alerts/AlertsInboxControls.tsx",
-  "components/alerts/AlertsInboxDialogs.tsx",
-  "components/alerts/AlertsInboxPagination.tsx",
-  "components/findings/FindingFeedbackThumbs.tsx",
-  "components/governance/GovernanceQuickApproveButton.tsx",
-  "components/runs/RunDetailRunGovernanceDispositionActions.tsx",
 ]);
 
 const OPENING_BUTTON_TAG = /<Button\b[^>]*>/g;

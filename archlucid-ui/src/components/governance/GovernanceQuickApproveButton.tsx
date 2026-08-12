@@ -17,6 +17,8 @@ import {
 } from "@/lib/governance/governance-mutation-outcome-copy";
 import { BUYER_GOVERNANCE_QUICK_APPROVE_LABEL } from "@/lib/buyer/buyer-polish-copy";
 import { isBuyerPolishedOperatorShellEnv } from "@/lib/demo-ui-env";
+import { OPERATOR_TYPOGRAPHY } from "@/lib/design-tokens";
+import { cn } from "@/lib/utils";
 
 type LineagePhase = "loading" | "ready" | "error";
 
@@ -150,7 +152,6 @@ export function GovernanceQuickApproveButton({
         disabled
         aria-busy="true"
         data-testid="governance-quick-approve-loading"
-        title="Checking finding severities from governance lineage…"
       >
         Checking risk…
       </Button>
@@ -174,7 +175,7 @@ export function GovernanceQuickApproveButton({
         variant="secondary"
         disabled={busy}
         data-testid="governance-quick-approve"
-        title="Approve when lineage shows no Critical or High (Error) findings. Opens a confirmation dialog before submitting."
+        aria-describedby="governance-quick-approve-help"
         onClick={() => {
           setDialogErrorMessage(null);
           setDialogOpen(true);
@@ -182,6 +183,12 @@ export function GovernanceQuickApproveButton({
       >
         {busy ? "Approving…" : isBuyerPolishedOperatorShellEnv() ? BUYER_GOVERNANCE_QUICK_APPROVE_LABEL : "Quick approve"}
       </Button>
+      <p
+        id="governance-quick-approve-help"
+        className={cn("sr-only", OPERATOR_TYPOGRAPHY.helper)}
+      >
+        Approve when lineage shows no Critical or High (Error) findings. Opens a confirmation dialog before submitting.
+      </p>
 
       <GovernanceQuickApproveDialog
         open={dialogOpen}

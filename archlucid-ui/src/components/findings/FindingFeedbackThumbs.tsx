@@ -51,7 +51,6 @@ export function FindingFeedbackThumbs(props: FindingFeedbackThumbsProps): ReactE
         className={compact ? (cn("h-7 px-2", OPERATOR_TYPOGRAPHY.helper)) : undefined}
         disabled={disabled || busy}
         aria-label={`Mark finding ${findingId} helpful`}
-        title="Thumbs up"
         onClick={() => void submit(true)}
       >
         👍
@@ -63,7 +62,6 @@ export function FindingFeedbackThumbs(props: FindingFeedbackThumbsProps): ReactE
         className={compact ? (cn("h-7 px-2", OPERATOR_TYPOGRAPHY.helper)) : undefined}
         disabled={disabled || busy}
         aria-label={`Mark finding ${findingId} not helpful`}
-        title="Thumbs down"
         onClick={() => void submit(false)}
       >
         👎

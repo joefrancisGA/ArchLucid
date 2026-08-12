@@ -1,6 +1,7 @@
 import { cn } from "@/lib/utils";
 
 import { Button } from "@/components/ui/button";
+import { WhyDisabledCtaHint } from "@/components/usability/WhyDisabledCtaHint";
 import { alertsPaginationNavTitleReaderRank } from "@/lib/enterprise-controls-context-copy";
 import { OPERATOR_TYPOGRAPHY } from "@/lib/design-tokens";
 
@@ -31,11 +32,18 @@ function formatAlertsInboxPaginationSummary(
 }
 
 export function AlertsInboxPagination(props: AlertsInboxPaginationProps) {
+  const readerPaginationHintId = "alerts-inbox-pagination-reader-hint";
+  const readerPaginationReason = props.canMutateAlertInbox
+    ? null
+    : {
+        kind: "role" as const,
+        message: alertsPaginationNavTitleReaderRank,
+      };
+
   return (
     <nav
       className={cn("mt-4 flex flex-wrap items-center gap-4 text-neutral-600 dark:text-neutral-400", OPERATOR_TYPOGRAPHY.body)}
       aria-label="Alerts pagination"
-      title={props.canMutateAlertInbox ? undefined : alertsPaginationNavTitleReaderRank}
     >
       <span>
         {formatAlertsInboxPaginationSummary(props.page, props.shownCount, props.hasMore)}
@@ -45,7 +53,7 @@ export function AlertsInboxPagination(props: AlertsInboxPaginationProps) {
         variant="outline"
         size="sm"
         disabled={!props.canGoPrevious}
-        title={props.canMutateAlertInbox ? undefined : alertsPaginationNavTitleReaderRank}
+        aria-describedby={readerPaginationReason === null ? undefined : readerPaginationHintId}
         onClick={props.onPrevious}
       >
         Previous
@@ -55,11 +63,16 @@ export function AlertsInboxPagination(props: AlertsInboxPaginationProps) {
         variant="outline"
         size="sm"
         disabled={!props.canGoNext}
-        title={props.canMutateAlertInbox ? undefined : alertsPaginationNavTitleReaderRank}
+        aria-describedby={readerPaginationReason === null ? undefined : readerPaginationHintId}
         onClick={props.onNext}
       >
         Next
       </Button>
+      <WhyDisabledCtaHint
+        id={readerPaginationHintId}
+        reason={readerPaginationReason}
+        testId={readerPaginationHintId}
+      />
     </nav>
   );
 }

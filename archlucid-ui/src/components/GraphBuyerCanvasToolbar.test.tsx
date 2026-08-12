@@ -31,7 +31,7 @@ describe("GraphBuyerCanvasToolbar", () => {
     expect(screen.getByRole("group", { name: GRAPH_CANVAS_CONTROLS_GROUP_LABEL })).toBeInTheDocument();
   });
 
-  it("disables Highlight path and Focus selection with a title until a node is selected", () => {
+  it("disables Highlight path and Focus selection with a visible hint until a node is selected", () => {
     render(
       <GraphBuyerCanvasToolbar {...noopHandlers} showPathOnly={false} hasSelection={false} />,
     );
@@ -44,8 +44,11 @@ describe("GraphBuyerCanvasToolbar", () => {
 
     expect(highlight).toBeDisabled();
     expect(focus).toBeDisabled();
-    expect(highlight).toHaveAttribute("title", GRAPH_CANVAS_SELECTION_REQUIRED_TITLE);
-    expect(focus).toHaveAttribute("title", GRAPH_CANVAS_SELECTION_REQUIRED_TITLE);
+    expect(highlight).toHaveAttribute("aria-describedby", "graph-buyer-canvas-selection-required-hint");
+    expect(focus).toHaveAttribute("aria-describedby", "graph-buyer-canvas-selection-required-hint");
+    expect(screen.getByTestId("graph-buyer-canvas-selection-required-hint")).toHaveTextContent(
+      GRAPH_CANVAS_SELECTION_REQUIRED_TITLE,
+    );
 
     expect(within(toolbar).getByRole("button", { name: BUYER_EVIDENCE_GRAPH_FIT_GRAPH_CTA })).toBeEnabled();
     expect(within(toolbar).getByRole("button", { name: BUYER_EVIDENCE_GRAPH_ZOOM_100_CTA })).toBeEnabled();
@@ -65,7 +68,7 @@ describe("GraphBuyerCanvasToolbar", () => {
 
     expect(highlight).toBeEnabled();
     expect(focus).toBeEnabled();
-    expect(highlight).not.toHaveAttribute("title");
-    expect(focus).not.toHaveAttribute("title");
+    expect(highlight).not.toHaveAttribute("aria-describedby");
+    expect(focus).not.toHaveAttribute("aria-describedby");
   });
 });

@@ -101,7 +101,7 @@ export function AlertsInboxControls(props: AlertsInboxControlsProps) {
             variant="secondary"
             onClick={props.onRefresh}
             disabled={props.loading}
-            title={
+            aria-label={
               props.canMutateAlertInbox ? alertsInboxRefreshButtonTitleOperator : alertsInboxRefreshButtonTitleReader
             }
           >

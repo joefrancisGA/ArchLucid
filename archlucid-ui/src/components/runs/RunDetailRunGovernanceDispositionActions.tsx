@@ -78,11 +78,7 @@ export function RunDetailRunGovernanceDispositionActions(
           size="sm"
           variant="outline"
           disabled={hasCommitBlockingFailures || busy}
-          title={
-            hasCommitBlockingFailures
-              ? "Resolve commit-blocking finding coverage before approving this review."
-              : undefined
-          }
+          aria-describedby={hasCommitBlockingFailures ? "run-governance-disposition-approve-blocked-hint" : undefined}
           onClick={() => setPending("Approved")}
         >
           Approve review
@@ -101,7 +97,10 @@ export function RunDetailRunGovernanceDispositionActions(
         </Button>
       </div>
       {hasCommitBlockingFailures ? (
-        <p className={cn("m-0 text-amber-800 dark:text-amber-200", OPERATOR_TYPOGRAPHY.helper)}>
+        <p
+          id="run-governance-disposition-approve-blocked-hint"
+          className={cn("m-0 text-amber-800 dark:text-amber-200", OPERATOR_TYPOGRAPHY.helper)}
+        >
           Approve is blocked while commit-blocking finding coverage failures are open.
         </p>
       ) : null}

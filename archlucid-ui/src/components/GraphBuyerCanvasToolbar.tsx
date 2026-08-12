@@ -1,6 +1,7 @@
 "use client";
 
 import { Button } from "@/components/ui/button";
+import { WhyDisabledCtaHint } from "@/components/usability/WhyDisabledCtaHint";
 import {
   BUYER_EVIDENCE_GRAPH_FIT_GRAPH_CTA,
   BUYER_EVIDENCE_GRAPH_RESET_VIEW_CTA,
@@ -42,9 +43,13 @@ export function GraphBuyerCanvasToolbar({
   // Show-all exits path scope without needing a node; keep it available after deselection.
   const pathToggleNeedsSelection = !showPathOnly;
   const pathActionsDisabled = pathToggleNeedsSelection && !hasSelection;
-  const selectionRequiredTitle = pathActionsDisabled ? GRAPH_CANVAS_SELECTION_REQUIRED_TITLE : undefined;
+  const selectionRequiredHintId = "graph-buyer-canvas-selection-required-hint";
+  const selectionRequiredReason = pathActionsDisabled
+    ? { kind: "prerequisite" as const, message: GRAPH_CANVAS_SELECTION_REQUIRED_TITLE }
+    : null;
 
   return (
+    <div className="space-y-2">
     <div
       className="flex flex-wrap items-center gap-2"
       data-testid="graph-buyer-canvas-toolbar"
@@ -63,7 +68,7 @@ export function GraphBuyerCanvasToolbar({
         variant="outline"
         onClick={onTracePath}
         disabled={!hasSelection}
-        title={!hasSelection ? GRAPH_CANVAS_SELECTION_REQUIRED_TITLE : undefined}
+        aria-describedby={!hasSelection ? selectionRequiredHintId : undefined}
       >
         {BUYER_EVIDENCE_GRAPH_TRACE_PATH_CTA}
       </Button>
@@ -73,13 +78,19 @@ export function GraphBuyerCanvasToolbar({
         variant={showPathOnly ? "primary" : "outline"}
         onClick={onTogglePathOnly}
         disabled={pathActionsDisabled}
-        title={selectionRequiredTitle}
+        aria-describedby={pathActionsDisabled ? selectionRequiredHintId : undefined}
       >
         {showPathOnly ? BUYER_EVIDENCE_GRAPH_SHOW_ALL_NODES_CTA : BUYER_EVIDENCE_GRAPH_SHOW_SELECTED_PATH_CTA}
       </Button>
       <Button type="button" size="sm" variant="outline" onClick={onResetView}>
         {BUYER_EVIDENCE_GRAPH_RESET_VIEW_CTA}
       </Button>
+    </div>
+    <WhyDisabledCtaHint
+      id={selectionRequiredHintId}
+      reason={selectionRequiredReason}
+      testId={selectionRequiredHintId}
+    />
     </div>
   );
 }
