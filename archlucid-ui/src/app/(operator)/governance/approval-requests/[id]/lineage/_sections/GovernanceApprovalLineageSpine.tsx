@@ -9,7 +9,7 @@ import {
   governanceApprovalStatusTagPresentation,
   governanceLineageReviewCheckpointStatusTagPresentation,
   type GovernanceLineageSpineStep,
-} from "@/lib/governance-lineage-presentation";
+} from "@/lib/governance/governance-lineage-presentation";
 import type { GovernanceLineageResult } from "@/types/governance-dashboard";
 
 type GovernanceApprovalLineageSpineProps = {

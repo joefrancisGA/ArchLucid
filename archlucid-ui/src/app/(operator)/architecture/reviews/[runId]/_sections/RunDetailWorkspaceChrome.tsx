@@ -15,6 +15,17 @@ import { CTA_WIDTH, DESIGN_TOKENS, OPERATOR_LINK, OPERATOR_TYPOGRAPHY } from "@/
 import type { RunDetailWorkspaceStatus } from "@/lib/run-detail-workspace-derive";
 
 const NOT_RECORDED_LABEL = "Not recorded";
+const MAX_WORKSPACE_H1_CHARS = 120;
+
+function clampWorkspaceH1Title(title: string): string {
+  const trimmed = title.trim();
+
+  if (trimmed.length <= MAX_WORKSPACE_H1_CHARS) {
+    return trimmed;
+  }
+
+  return `${trimmed.slice(0, MAX_WORKSPACE_H1_CHARS - 1).trimEnd()}…`;
+}
 
 export type RunDetailWorkspaceHeaderProps = {
   readonly runId: string;
@@ -30,6 +41,8 @@ export type RunDetailWorkspaceHeaderProps = {
 
 /** Customer-facing review header — title and review identity without repeating executive metrics. */
 export function RunDetailWorkspaceHeader(props: RunDetailWorkspaceHeaderProps): React.JSX.Element {
+  const h1Title = clampWorkspaceH1Title(props.h1Title);
+
   return (
     <header
       className="space-y-3 border-b border-neutral-200 pb-5 dark:border-neutral-800"
@@ -42,8 +55,8 @@ export function RunDetailWorkspaceHeader(props: RunDetailWorkspaceHeaderProps): 
             <p className={cn("m-0 text-neutral-500 dark:text-neutral-400", OPERATOR_TYPOGRAPHY.helper)}>
               {props.eyebrowLabel}
             </p>
-            <h1 className={cn("m-0", OPERATOR_TYPOGRAPHY.pageTitle)}>
-              {props.h1Title}
+            <h1 className={cn("m-0 truncate", OPERATOR_TYPOGRAPHY.pageTitle)} title={h1Title}>
+              {h1Title}
             </h1>
             <div
               className={cn(

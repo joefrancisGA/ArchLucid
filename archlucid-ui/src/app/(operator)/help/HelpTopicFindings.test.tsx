@@ -13,14 +13,14 @@ import { HelpFindingsGuideView } from "@/app/(operator)/help/_sections/HelpFindi
 import {
   FINDINGS_HELP_CLAIM_DISCIPLINE,
   FINDINGS_HELP_SOURCES,
-} from "@/lib/findings-help-evidence-copy";
+} from "@/lib/findings/findings-help-evidence-copy";
 import {
   FINDINGS_HELP_EVIDENCE_ACTIONS,
   FINDINGS_HELP_OVERVIEW,
   FINDINGS_HELP_PAGE_SUBTITLE,
   FINDINGS_HELP_PAGE_TITLE,
   FINDINGS_HELP_PRIMARY_ACTIONS,
-} from "@/lib/findings-help-guide-content";
+} from "@/lib/findings/findings-help-guide-content";
 import { getProductDocumentationEntry } from "@/lib/product-documentation-registry";
 
 const BANNED_DEVELOPER_COPY = [

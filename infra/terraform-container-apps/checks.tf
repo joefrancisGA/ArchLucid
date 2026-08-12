@@ -161,3 +161,13 @@ check "communication_email_requires_names" {
     error_message = "enable_communication_email_account = true requires communication_email_email_service_name, communication_email_communication_service_name, communication_email_custom_domain_name, and communication_email_sender_username."
   }
 }
+
+# TB-2141 — multi-replica API fleets require Redis L2 (TB-580 / startup validation).
+check "hot_path_cache_redis_required_when_api_scaled" {
+  assert {
+    condition = !var.enable_container_apps || var.api_min_replicas < 2 || length(
+      trimspace(var.hot_path_cache_redis_connection_string)
+    ) > 0
+    error_message = "When api_min_replicas >= 2, set hot_path_cache_redis_connection_string (from infra/terraform-redis output or Key Vault). Without Redis, keep api_min_replicas at 1 or set HotPathCache__Provider = Memory explicitly in app config."
+  }
+}

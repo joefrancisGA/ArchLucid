@@ -6,7 +6,7 @@ import Link from "next/link";
 import { CopyFindingAsWorkItemButton } from "@/components/CopyFindingAsWorkItemButton";
 import { ItsmOutboundCreateIssueDialog } from "@/components/ItsmOutboundCreateIssueDialog";
 import { DESIGN_TOKENS, OPERATOR_TYPOGRAPHY } from "@/lib/design-tokens";
-import { ITSM_NATIVE_CREATE_ADMIN_HREF } from "@/lib/itsm-native-create-readiness-alignment";
+import { ITSM_NATIVE_CREATE_ADMIN_HREF } from "@/lib/itsm/itsm-native-create-readiness-alignment";
 import { useItsmNativeCreateReadiness } from "@/lib/use-itsm-native-create-enabled";
 import type { FindingInspectPayload } from "@/types/finding-inspect";
 

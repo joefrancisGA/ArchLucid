@@ -5,12 +5,12 @@ import { CREATE_ARCHITECTURE_LABEL } from "@/lib/architecture-workflow-labels";
 import { ARCHITECTURES_NEW_PATH } from "@/lib/architecture-routes";
 import { auditTrailNavHref } from "@/lib/audit-nav-paths";
 import { OPERATOR_GRAPH_IDLE_BODY, OPERATOR_GRAPH_IDLE_TITLE, OPERATOR_GRAPH_WHAT_YOU_WILL_SEE } from "@/lib/buyer-polish-copy";
-import { GOVERNANCE_POLICY_PACKS_PATH } from "@/lib/governance-route-paths";
+import { GOVERNANCE_POLICY_PACKS_PATH } from "@/lib/governance/governance-route-paths";
 import { SHOWCASE_STATIC_DEMO_RUN_ID } from "@/lib/showcase-static-demo";
 import {
   governanceWorkflowIdleGettingStartedOperator,
   governanceWorkflowIdleGettingStartedReader,
-} from "@/lib/governance-workflow-empty-guidance";
+} from "@/lib/governance/governance-workflow-empty-guidance";
 
 /** Honest qualifier for claims-intake sample CTAs — Azure reference architecture with fabricated data (TB-778). */
 export const AZURE_REFERENCE_SAMPLE_REVIEW_CTA_LABEL = "Explore sample review (Azure reference)";

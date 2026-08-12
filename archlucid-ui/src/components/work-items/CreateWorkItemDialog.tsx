@@ -55,7 +55,7 @@ import {
   CREATE_WORK_ITEM_PROVIDER_LABEL,
 } from "@/lib/create-work-item-copy";
 import { OPERATOR_TYPOGRAPHY } from "@/lib/design-tokens";
-import { ITSM_CONNECTORS_ADMIN_PATH } from "@/lib/itsm-connectors-admin-scope";
+import { ITSM_CONNECTORS_ADMIN_PATH } from "@/lib/itsm/itsm-connectors-admin-scope";
 import {
   canNativeCreateWithItsmProvider,
   configuredItsmWorkItemProviders,
@@ -66,7 +66,7 @@ import {
   resolveItsmWorkItemProviderSnapshots,
   selectSingleConfiguredItsmWorkItemProvider,
   type ItsmWorkItemProvider,
-} from "@/lib/itsm-work-item-provider-state";
+} from "@/lib/itsm/itsm-work-item-provider-state";
 import { useItsmNativeCreateReadiness } from "@/lib/use-itsm-native-create-enabled";
 import { AUTHORITY_RANK } from "@/lib/nav-authority";
 import { showError, showSuccess } from "@/lib/toast";

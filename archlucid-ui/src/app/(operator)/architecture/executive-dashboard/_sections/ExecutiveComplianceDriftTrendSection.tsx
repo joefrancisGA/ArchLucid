@@ -12,7 +12,7 @@ import {
   BUYER_EXECUTIVE_DATA_SOURCE_NOTE,
 } from "@/lib/buyer-polish-copy";
 import { OPERATOR_KPI_CARD_DESCRIPTION, OPERATOR_LINK, OPERATOR_TYPOGRAPHY } from "@/lib/design-tokens";
-import { GOVERNANCE_WORKSPACE_HEALTH_HREF } from "@/lib/governance-route-paths";
+import { GOVERNANCE_WORKSPACE_HEALTH_HREF } from "@/lib/governance/governance-route-paths";
 import type { ComplianceDriftTrendPoint } from "@/types/governance-dashboard";
 
 function rollingBounds30Days(): { fromUtc: string; toUtc: string } {

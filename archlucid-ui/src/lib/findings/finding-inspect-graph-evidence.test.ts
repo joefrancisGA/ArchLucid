@@ -5,7 +5,7 @@ import {
   graphEvidenceHrefFromInspect,
   preferredGraphNodeIdForFindingDeepLink,
   SHOWCASE_PHI_FINDING_GRAPH_NODE_ID,
-} from "@/lib/finding-inspect-graph-evidence";
+} from "@/lib/findings/finding-inspect-graph-evidence";
 import { SHOWCASE_STATIC_DEMO_PRIMARY_FINDING_ID, SHOWCASE_STATIC_DEMO_RUN_ID } from "@/lib/showcase-static-demo";
 import type { FindingInspectPayload } from "@/types/finding-inspect";
 

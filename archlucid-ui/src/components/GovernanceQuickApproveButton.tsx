@@ -10,11 +10,11 @@ import {
 import { OperatorSuccessCallout } from "@/components/operator/OperatorSuccessCallout";
 import { batchReviewGovernanceApprovalRequests, getApprovalRequestLineage } from "@/lib/api";
 import { toApiLoadFailure } from "@/lib/api-load-failure";
-import { approvalLineageBlocksQuickApprove } from "@/lib/governance-quick-approve-lineage";
+import { approvalLineageBlocksQuickApprove } from "@/lib/governance/governance-quick-approve-lineage";
 import {
   GOVERNANCE_QUICK_APPROVE_FAILURE_MESSAGE,
   GOVERNANCE_QUICK_APPROVE_SUCCESS_MESSAGE,
-} from "@/lib/governance-mutation-outcome-copy";
+} from "@/lib/governance/governance-mutation-outcome-copy";
 import { BUYER_GOVERNANCE_QUICK_APPROVE_LABEL } from "@/lib/buyer-polish-copy";
 import { isBuyerPolishedOperatorShellEnv } from "@/lib/demo-ui-env";
 

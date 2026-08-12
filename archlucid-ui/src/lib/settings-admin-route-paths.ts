@@ -1,5 +1,5 @@
 import { DIGESTS_SCHEDULE_TAB_PATH } from "@/lib/digests-route-paths";
-import { pathMatchesRoutePrefix } from "@/lib/governance-route-paths";
+import { pathMatchesRoutePrefix } from "@/lib/governance/governance-route-paths";
 
 export { DIGESTS_SCHEDULE_TAB_PATH };
 

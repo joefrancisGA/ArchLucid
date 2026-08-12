@@ -42,7 +42,7 @@ import {
   pathMatchesGovernanceAlerts,
   pathMatchesGovernanceAudit,
   pathMatchesGovernancePolicyPacks,
-} from "@/lib/governance-route-paths";
+} from "@/lib/governance/governance-route-paths";
 import {
   OPERATOR_SHELL_BODY_ROW_CLASS,
   OPERATOR_SHELL_CONTENT_PADDING_X_CLASS,

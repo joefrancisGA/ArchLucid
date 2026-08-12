@@ -14,7 +14,7 @@ import { isBuyerPolishedOperatorShellEnv } from "@/lib/demo-ui-env";
 import { isPinnedDemoWorkspaceRunId } from "@/lib/demo-workspace-scope";
 import { isShowcaseStaticDemoRunId } from "@/lib/demo-run-canonical";
 import { isUsableGoldenManifestExportJson } from "@/lib/export-markdown";
-import { buyerGovernanceApprovalDisplayLabel, governanceGateLabelFromManifestStatus } from "@/lib/governance-gate-display";
+import { buyerGovernanceApprovalDisplayLabel, governanceGateLabelFromManifestStatus } from "@/lib/governance/governance-gate-display";
 import { formatInstantForLocale } from "@/lib/locale-datetime";
 import { manifestStatusForDisplay } from "@/lib/manifest-status-display";
 import { isManifestCommittedForPilotScorecardPackage } from "@/lib/pilot-scorecard-package-eligibility";
@@ -30,7 +30,7 @@ import {
   tryStaticDemoManifestSummary,
   tryStaticDemoRunDetail,
 } from "@/lib/operator-static-demo";
-import { policyPackBuyerLabel } from "@/lib/policy-pack-buyer-label";
+import { policyPackBuyerLabel } from "@/lib/policy/policy-pack-buyer-label";
 import {
   resolveQuickDecisionFindingsForRunDetail,
   severityBadgeLabel,

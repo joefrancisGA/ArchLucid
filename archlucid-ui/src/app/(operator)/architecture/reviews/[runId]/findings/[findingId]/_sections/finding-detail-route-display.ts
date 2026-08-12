@@ -5,7 +5,7 @@ import {
   phiMinimizationApprovalNarrative,
   phiMinimizationControlNarrative,
   phiMinimizationRecommendedActionFallback,
-} from "@/lib/finding-display-from-inspect";
+} from "@/lib/findings/finding-display-from-inspect";
 import {
   BUYER_SHOWCASE_RESIDUAL_RISK_NEXT_REVIEW,
   BUYER_SHOWCASE_RESIDUAL_RISK_OWNER,

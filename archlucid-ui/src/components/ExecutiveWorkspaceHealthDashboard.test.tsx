@@ -5,7 +5,7 @@ import {
   buyerPolishedShellVitestOverride,
   extendBuyerPolishedShellVitestMock,
 } from "@/testing/buyer-polished-shell-vitest-override";
-import { EXECUTIVE_DASHBOARD_HREF } from "@/lib/executive-dashboard-route";
+import { EXECUTIVE_DASHBOARD_HREF } from "@/lib/executive/executive-dashboard-route";
 
 vi.mock("@/lib/demo-ui-env", async (importOriginal) =>
   extendBuyerPolishedShellVitestMock(importOriginal),
@@ -95,7 +95,7 @@ import { getGovernanceDashboard, getComplianceDriftTrend } from "@/lib/api";
 import { getGovernanceDecisionsNeededSummary } from "@/lib/api/governance-stickiness-api";
 import { countAuditEventsInWindow } from "@/lib/workspace-health-audit-count";
 import { fetchPilotValueReportJson } from "@/lib/pilot-value-report-fetch";
-import { executiveWorkspaceHealthKpiTitle } from "@/lib/executive-workspace-health-page-copy";
+import { executiveWorkspaceHealthKpiTitle } from "@/lib/executive/executive-workspace-health-page-copy";
 import { ExecutiveWorkspaceHealthDashboard } from "@/components/ExecutiveWorkspaceHealthDashboard";
 
 const stubPilotReport = {

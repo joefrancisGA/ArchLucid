@@ -2,7 +2,7 @@
  * High-value jumps merged into the command palette beside nav links. Each `href` must match
  * a configured nav target so visibility can be gated with {@link visibleOperatorShellHrefSet}.
  */
-import { GOVERNANCE_APPROVAL_QUEUE_PATH } from "@/lib/governance-route-paths";
+import { GOVERNANCE_APPROVAL_QUEUE_PATH } from "@/lib/governance/governance-route-paths";
 import { DIGESTS_HUB_PATH } from "@/lib/digests-route-paths";
 import { OPERATOR_NAV_LINK_LABELS } from "@/lib/i18n";
 

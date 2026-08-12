@@ -9,17 +9,17 @@ import { useExecutiveRoiSummaryQuery } from "@/hooks/use-executive-roi-summary-q
 import { OperatorApiProblem } from "@/components/OperatorApiProblem";
 import { KpiTileDrillThroughLink } from "@/components/KpiTileDrillThroughLink";
 import { Card, CardContent, CardDescription, CardHeader, CardTitle } from "@/components/ui/card";
-import { EXECUTIVE_KPI_DRILL_THROUGH } from "@/lib/executive-kpi-drill-through-hrefs";
+import { EXECUTIVE_KPI_DRILL_THROUGH } from "@/lib/executive/executive-kpi-drill-through-hrefs";
 import { toApiLoadFailure, type ApiLoadFailureState } from "@/lib/api-load-failure";
 import { getGovernanceDecisionsNeededSummary } from "@/lib/api/governance-stickiness-api";
 import { BUYER_EXECUTIVE_SUMMARY_VOCABULARY } from "@/lib/vocabulary/buyer-surface-vocabulary";
-import type { ExecutiveRoiSummary } from "@/lib/executive-summary-markdown";
+import type { ExecutiveRoiSummary } from "@/lib/executive/executive-summary-markdown";
 import {
   presentCostEvidenceFreshness,
   presentExecutiveKpiCount,
-} from "@/lib/executive-roi-kpi-display";
+} from "@/lib/executive/executive-roi-kpi-display";
 import { toDocsBlobUrl } from "@/lib/contextual-help-content";
-import { computePilotDayNumber } from "@/lib/executive-pilot-day";
+import { computePilotDayNumber } from "@/lib/executive/executive-pilot-day";
 import { isBuyerPolishedOperatorShellEnv } from "@/lib/demo-ui-env";
 import { OPERATOR_KPI_CARD_DESCRIPTION, OPERATOR_KPI_CARD_TITLE, OPERATOR_TYPOGRAPHY } from "@/lib/design-tokens";
 

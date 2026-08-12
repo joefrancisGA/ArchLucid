@@ -7,7 +7,7 @@ import {
   type FindingTrustChipKind,
   type FindingTrustChipSet,
   type FindingTrustPresentationInput,
-} from "@/lib/finding-trust-presentation";
+} from "@/lib/findings/finding-trust-presentation";
 import type { QuickDecisionFinding } from "@/lib/quick-decision-summary-derive";
 
 export type { FindingTrustChipKind, FindingTrustChipSet };

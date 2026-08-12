@@ -9,8 +9,8 @@ import {
 import {
   GOVERNANCE_SETUP_OUTCOMES_HEADING,
   GOVERNANCE_SETUP_PAGE_SUBTITLE,
-} from "@/lib/governance-setup-route";
-import { GOVERNANCE_WORKSPACE_HEALTH_HREF } from "@/lib/governance-route-paths";
+} from "@/lib/governance/governance-setup-route";
+import { GOVERNANCE_WORKSPACE_HEALTH_HREF } from "@/lib/governance/governance-route-paths";
 
 describe("GovernanceSetupGuidePageView", () => {
   it("renders outcome-framed setup copy without implementation jargon", () => {

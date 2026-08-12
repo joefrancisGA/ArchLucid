@@ -11,7 +11,7 @@ import {
   buildGovernanceSetupConfigHubsVocabulary,
   resolveGovernanceSetupConfigHubsPeerLinks,
 } from "@/lib/vocabulary/governance-setup-config-hubs-vocabulary";
-import { GOVERNANCE_SETUP_HREF } from "@/lib/governance-setup-route";
+import { GOVERNANCE_SETUP_HREF } from "@/lib/governance/governance-setup-route";
 
 describe("governance-setup-config-hubs-vocabulary (TB-2297)", () => {
   it("explains setup guide vs live config hubs", () => {

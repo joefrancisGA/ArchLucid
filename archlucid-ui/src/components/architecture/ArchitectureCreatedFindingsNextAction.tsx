@@ -4,7 +4,7 @@ import { Button } from "@/components/ui/button";
 import { buildArchitectureGovernanceFinalizeReadinessHref } from "@/lib/architecture-created-finalize-readiness-href";
 import { buildArchitectureWorkspaceTabHref } from "@/lib/architecture-workspace-tabs";
 import { OPERATOR_TYPOGRAPHY } from "@/lib/design-tokens";
-import { applyFindingsConfidenceVisibility } from "@/lib/finding-confidence-filter";
+import { applyFindingsConfidenceVisibility } from "@/lib/findings/finding-confidence-filter";
 import {
   sortQuickDecisionFindings,
   type QuickDecisionFinding,

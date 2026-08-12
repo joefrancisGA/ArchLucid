@@ -7,7 +7,7 @@ import {
   GOVERNANCE_APPROVAL_HELP_RELATED_PRODUCT_DOCS,
   GOVERNANCE_APPROVAL_HELP_TECHNICAL_REFERENCE_INTRO,
   GOVERNANCE_APPROVAL_HELP_TECHNICAL_REFERENCE_SECTIONS,
-} from "@/lib/governance-approval-help-guide-content";
+} from "@/lib/governance/governance-approval-help-guide-content";
 import { cn } from "@/lib/utils";
 import { DESIGN_TOKENS, OPERATOR_TYPOGRAPHY } from "@/lib/design-tokens";
 import { HELP_PAGE_LAYOUT } from "@/lib/help-page-layout";

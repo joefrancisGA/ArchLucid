@@ -84,7 +84,7 @@ import { cn } from "@/lib/utils";
 import { OPERATOR_DISCLOSURE_TRIGGER_CLASS, OPERATOR_LAYOUT, OPERATOR_LINK, OPERATOR_TYPOGRAPHY } from "@/lib/design-tokens";
 import { enterpriseMutationControlDisabledTitle } from "@/lib/enterprise-controls-context-copy";
 import { isShowSystemAdministrationNavEnabled } from "@/lib/features";
-import { GOVERNANCE_AUDIT_PATH } from "@/lib/governance-route-paths";
+import { GOVERNANCE_AUDIT_PATH } from "@/lib/governance/governance-route-paths";
 import { ItsmConnectorProviderChooserRail } from "@/components/ItsmConnectorProviderChooserRail";
 
 import { AzureBoardsIntegrationAside } from "./AzureBoardsIntegrationAside";

@@ -27,7 +27,7 @@ import {
   EVIDENCE_GRAPH_PAGE_TITLE,
 } from "@/lib/evidence-graph-page";
 import { isBuyerPolishedOperatorShellEnv, isNextPublicDemoMode } from "@/lib/demo-ui-env";
-import { SHOWCASE_PHI_FINDING_GRAPH_NODE_ID } from "@/lib/finding-inspect-graph-evidence";
+import { SHOWCASE_PHI_FINDING_GRAPH_NODE_ID } from "@/lib/findings/finding-inspect-graph-evidence";
 import {
   getArchitectureGraph,
   getDecisionSubgraph,

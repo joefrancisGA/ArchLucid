@@ -160,7 +160,7 @@ export const REVIEW_TERMINOLOGY_BANNED_PRODUCT_VERSION_PATTERNS = [
 export const REVIEW_TERMINOLOGY_NAV_EMPTY_GLOSSARY_SURFACE_PATHS = [
   "src/lib/empty-state-presets.ts",
   "src/lib/enterprise-compact-empty-state-presets.ts",
-  "src/lib/governance-workflow-empty-guidance.ts",
+  "src/lib/governance/governance-workflow-empty-guidance.ts",
   "src/lib/glossary-definitions.ts",
   "src/lib/layer-guidance.ts",
   "src/lib/nav-disclosure-copy.ts",
@@ -189,7 +189,7 @@ export const REVIEW_TERMINOLOGY_ARCHITECT_WORKSPACE_SURFACE_PATHS = [
   "src/app/layout.tsx",
   "src/lib/empty-state-presets.ts",
   "src/lib/enterprise-compact-empty-state-presets.ts",
-  "src/lib/governance-workflow-empty-guidance.ts",
+  "src/lib/governance/governance-workflow-empty-guidance.ts",
   "src/lib/glossary-definitions.ts",
   "src/lib/layer-guidance.ts",
   "src/lib/nav-disclosure-copy.ts",

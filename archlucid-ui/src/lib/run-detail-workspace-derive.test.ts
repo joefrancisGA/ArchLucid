@@ -341,6 +341,25 @@ describe("run-detail-workspace-derive", () => {
     expect(systemName).toBe("ArchLucid");
   });
 
+  it("clamps a multi-thousand-character displayName to a single-line title", () => {
+    const blob = `**Reviewed** 2026-07-26 # Architecture Review Packet ${"809 SaaS Tenant Migration ".repeat(200)}`;
+
+    const systemName = deriveArchitectureSystemName(
+      {
+        runId: "run-1",
+        projectId: "p1",
+        displayName: blob,
+        description: blob,
+      } as RunSummary,
+      "Architecture review",
+    );
+
+    expect(systemName).not.toBeNull();
+    expect(systemName?.includes("**")).toBe(false);
+    expect((systemName ?? "").length).toBeLessThanOrEqual(80);
+    expect((systemName ?? "").split(/\r?\n/)).toHaveLength(1);
+  });
+
   it("summarizes evidence coverage for open findings", () => {
     const summary = deriveEvidenceCoverageSummary([
       finding(2, { evidenceRefCount: 1 }),

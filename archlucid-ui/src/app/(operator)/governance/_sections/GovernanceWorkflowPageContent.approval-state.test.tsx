@@ -2,7 +2,7 @@ import { fireEvent, render, screen, waitFor } from "@testing-library/react";
 import { beforeEach, describe, expect, it, vi } from "vitest";
 
 import type { GovernanceApprovalRequest } from "@/types/governance-workflow";
-import { GOVERNANCE_WORKFLOW_OUTCOME_NO_REQUESTS } from "@/lib/governance-workflow-section-copy";
+import { GOVERNANCE_WORKFLOW_OUTCOME_NO_REQUESTS } from "@/lib/governance/governance-workflow-section-copy";
 import { SHOWCASE_STATIC_DEMO_RUN_ID } from "@/lib/showcase-static-demo";
 
 const apiHoisted = vi.hoisted(() => ({

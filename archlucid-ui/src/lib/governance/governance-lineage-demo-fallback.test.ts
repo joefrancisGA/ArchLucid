@@ -3,7 +3,7 @@ import { afterEach, beforeEach, describe, expect, it, vi } from "vitest";
 import {
   isGovernanceLineageIncomplete,
   resolveGovernanceApprovalLineage,
-} from "@/lib/governance-lineage-demo-fallback";
+} from "@/lib/governance/governance-lineage-demo-fallback";
 import type { GovernanceLineageResult } from "@/types/governance-dashboard";
 
 function emptyLineage(): GovernanceLineageResult {

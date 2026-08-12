@@ -1,7 +1,7 @@
 import { describe, expect, it } from "vitest";
 
 import { findPresetCtasTargetingRedirectSources } from "@/lib/empty-state-preset-cta-guard";
-import { GOVERNANCE_POLICY_PACKS_PATH } from "@/lib/governance-route-paths";
+import { GOVERNANCE_POLICY_PACKS_PATH } from "@/lib/governance/governance-route-paths";
 import { GOVERNANCE_WORKFLOW_IDLE } from "@/lib/empty-state-presets";
 import {
   hrefPathname,

@@ -8,7 +8,7 @@ import {
   normalizeFindingTrustLabelName,
   type FindingTrustLabelName,
   FINDING_PROVENANCE_ORIGIN_EXPLANATIONS,
-} from "@/lib/finding-provenance-display";
+} from "@/lib/findings/finding-provenance-display";
 
 const ALL_LABELS: readonly FindingTrustLabelName[] = [
   "EvidenceBacked",

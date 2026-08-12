@@ -1,7 +1,7 @@
 import { REVIEWS_LIST_PATH, REVIEWS_NEW_PATH, reviewDetailPath } from "@/lib/architecture-routes";
 import { inAppHelpHref } from "@/lib/product-documentation-registry";
 import type { EvidenceSourceLink } from "@/lib/evidence-surface-copy";
-import { GOVERNANCE_AUDIT_PATH, GOVERNANCE_FINDINGS_PATH } from "@/lib/governance-route-paths";
+import { GOVERNANCE_AUDIT_PATH, GOVERNANCE_FINDINGS_PATH } from "@/lib/governance/governance-route-paths";
 
 export const REVIEW_WORKSPACE_CLAIM_DISCIPLINE =
   "This review workspace is the package leave-behind for one architecture review — findings, decisions, and artifacts here are application-layer evidence, not a complete diligence Sources export package alone. Open Evidence graph, Audit, or signed-record detail when you need fuller sponsor-safe trails.";

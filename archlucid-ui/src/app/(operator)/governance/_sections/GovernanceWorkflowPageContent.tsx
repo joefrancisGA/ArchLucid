@@ -47,8 +47,8 @@ import {
   GOVERNANCE_OVERVIEW_WORKSPACE_HEALTH_LINK_LABEL,
   governanceOverviewPageLead,
   GOVERNANCE_REVIEW_CONTEXT_PAGE_LEAD,
-} from "@/lib/governance-overview-copy";
-import { governanceApprovalQueueHref, GOVERNANCE_WORKSPACE_HEALTH_HREF } from "@/lib/governance-route-paths";
+} from "@/lib/governance/governance-overview-copy";
+import { governanceApprovalQueueHref, GOVERNANCE_WORKSPACE_HEALTH_HREF } from "@/lib/governance/governance-route-paths";
 import {
   BUYER_GOVERNANCE_APPROVAL_RECORD_LEAD,
   BUYER_GOVERNANCE_GOVERNED_USE_SCOPE,
@@ -61,12 +61,12 @@ import {
   GOVERNANCE_WORKFLOW_REQUEST_REJECTED_SUCCESS,
   GOVERNANCE_WORKFLOW_REVIEWED_BY_REQUIRED,
   governanceWorkflowActivateSuccessMessage,
-} from "@/lib/governance-mutation-outcome-copy";
+} from "@/lib/governance/governance-mutation-outcome-copy";
 import {
   GOVERNANCE_WORKFLOW_AUDIT_NAME_REQUIRED_BEFORE_RELEASE,
   GOVERNANCE_WORKFLOW_ENVIRONMENT_RELEASES_ACCORDION_LABEL,
   GOVERNANCE_WORKFLOW_RELEASE_SUCCESS_TOAST,
-} from "@/lib/governance-workflow-release-copy";
+} from "@/lib/governance/governance-workflow-release-copy";
 import type {
   GovernanceApprovalRequest,
   GovernanceEnvironmentActivation,
@@ -100,7 +100,7 @@ import {
   GOVERNANCE_APPROVAL_REQUESTS_SECTION_LEAD,
   GOVERNANCE_APPROVAL_REQUESTS_SECTION_TITLE,
   governanceWorkflowOutcomeLineForPhase,
-} from "@/lib/governance-workflow-section-copy";
+} from "@/lib/governance/governance-workflow-section-copy";
 
 export function GovernanceWorkflowPageContent() {
   const router = useRouter();

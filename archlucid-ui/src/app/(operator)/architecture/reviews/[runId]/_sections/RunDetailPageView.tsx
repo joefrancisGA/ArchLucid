@@ -337,6 +337,24 @@ export async function RunDetailPageView(props: {
         panels={{
           overview: (
             <div className="space-y-4">
+              <RunDetailColdOpenOrientationDeferred
+                runId={m.resolvedDetail.run.runId}
+                packageTitle={reviewDisplayTitle}
+                packageOwnerLabel={reviewOwnerLabel}
+                workspaceStatus={workspaceStatus}
+              />
+              <RunDetailWorkspaceSummaryStripDeferred
+                outcomeHeading={m.manifestId ? "Governance decision" : "Review posture"}
+                reviewOutcome={m.manifestId ? governanceOutcomeLine : reviewStatusSummary.reviewOutcome}
+                highestUnresolvedSeverity={reviewStatusSummary.highestUnresolvedSeverity}
+                findingsSummaryLine={findingsSummaryLine}
+                evidenceCoverageLine={evidenceCoverageSummary.summaryLine}
+                primaryConcern={reviewStatusSummary.primaryConcern}
+                materialSeverityLine={materialSeverityLine}
+              />
+              {blockingApprovalCount > 0 ? (
+                <RunDetailWorkspaceBlockingBannerDeferred blockingCount={blockingApprovalCount} />
+              ) : null}
               <RunDetailOverviewPanelClientDeferred
                 runId={m.resolvedDetail.run.runId}
                 architectureTitle={architectureSummaryTitle}
@@ -440,6 +458,24 @@ export async function RunDetailPageView(props: {
           ),
           reviewPackage: (
             <div className="space-y-4">
+              {m.manifestId ? (
+                <RunDetailReviewPackageSponsorHandoffGateDeferred
+                  runId={m.resolvedDetail.run.runId}
+                  manifestId={m.manifestId}
+                  hasCommitBlockingFailures={findingCoverageSummary?.hasCommitBlockingFailures === true}
+                  blockingFindingCount={blockingApprovalCount}
+                  buyerPolishedArtifactTable={m.buyerPolishedArtifactTable}
+                  operatorGovernanceDecision={m.resolvedDetail.run.operatorGovernanceDecision}
+                  manifestStatus={m.manifestSummary?.status ?? null}
+                  runCompleted={m.resolvedDetail.run.completedUtc != null}
+                  nextAction={reviewStatusSummary.nextAction}
+                  goldenManifestJsonForExport={m.goldenManifestJsonForExport}
+                  manifestSummary={m.manifestSummaryForUi ?? m.manifestSummary}
+                  trustEvidenceCard={m.resolvedDetail.trustEvidenceCard}
+                  usedStaticDemoRun={m.usedStaticDemoRun}
+                  showExtendedSponsorBriefing={m.showPilotScorecardPackageCta}
+                />
+              ) : null}
               <RunDetailReviewPackageSectionDeferred
                 manifestId={m.manifestId}
                 runId={m.resolvedDetail.run.runId}
@@ -760,13 +796,6 @@ export async function RunDetailPageView(props: {
                     packageVersionLabel={packageVersionLabel}
                   />
 
-                  <RunDetailColdOpenOrientationDeferred
-                    runId={m.resolvedDetail.run.runId}
-                    packageTitle={reviewDisplayTitle}
-                    packageOwnerLabel={reviewOwnerLabel}
-                    workspaceStatus={workspaceStatus}
-                  />
-
                   <RunDetailReviewPackageDoThisNextResolvedDeferred
                     runId={m.resolvedDetail.run.runId}
                     manifestId={m.manifestId}
@@ -785,46 +814,11 @@ export async function RunDetailPageView(props: {
                     commitBlockedReason={commitBlockedReason}
                   />
 
-                  {blockingApprovalCount > 0 ? (
-                    <RunDetailWorkspaceBlockingBannerDeferred
-                      blockingCount={blockingApprovalCount}
-                    />
-                  ) : null}
-
-                  <RunDetailWorkspaceSummaryStripDeferred
-                    outcomeHeading={m.manifestId ? "Governance decision" : "Review posture"}
-                    reviewOutcome={m.manifestId ? governanceOutcomeLine : reviewStatusSummary.reviewOutcome}
-                    highestUnresolvedSeverity={reviewStatusSummary.highestUnresolvedSeverity}
-                    findingsSummaryLine={findingsSummaryLine}
-                    evidenceCoverageLine={evidenceCoverageSummary.summaryLine}
-                    primaryConcern={reviewStatusSummary.primaryConcern}
-                    materialSeverityLine={materialSeverityLine}
-                  />
-
-                  {m.manifestId ? (
-                    <RunDetailReviewPackageSponsorHandoffGateDeferred
-                      runId={m.resolvedDetail.run.runId}
-                      manifestId={m.manifestId}
-                      hasCommitBlockingFailures={findingCoverageSummary?.hasCommitBlockingFailures === true}
-                      blockingFindingCount={blockingApprovalCount}
-                      buyerPolishedArtifactTable={m.buyerPolishedArtifactTable}
-                      operatorGovernanceDecision={m.resolvedDetail.run.operatorGovernanceDecision}
-                      manifestStatus={m.manifestSummary?.status ?? null}
-                      runCompleted={m.resolvedDetail.run.completedUtc != null}
-                      nextAction={reviewStatusSummary.nextAction}
-                      goldenManifestJsonForExport={m.goldenManifestJsonForExport}
-                      manifestSummary={m.manifestSummaryForUi ?? m.manifestSummary}
-                      trustEvidenceCard={m.resolvedDetail.trustEvidenceCard}
-                      usedStaticDemoRun={m.usedStaticDemoRun}
-                      showExtendedSponsorBriefing={m.showPilotScorecardPackageCta}
-                    />
-                  ) : null}
+                  {tabbedWorkspaceEl}
                 </>
               )}
 
               {!showArchitectureCreatedHome ? executiveBottomLineEl : null}
-
-              {tabbedWorkspaceEl}
 
               {!m.manifestId ? (
                 (() => {

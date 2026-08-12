@@ -19,7 +19,7 @@ import {
   LEGACY_GOVERNANCE_RISK_EXCEPTIONS_PATH,
   LEGACY_POLICY_PACKS_PATH,
   pathMatchesRoutePrefix,
-} from "@/lib/governance-route-paths";
+} from "@/lib/governance/governance-route-paths";
 import { CLOUD_CONNECTIONS_PATH } from "@/lib/integrations-nav-paths";
 import {
   CANONICAL_GRAPH_PATH,

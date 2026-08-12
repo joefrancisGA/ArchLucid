@@ -13,7 +13,7 @@ import {
   YAxis,
 } from "recharts";
 
-import type { ExecutiveRoiSystemicIssueTrendSeries } from "@/lib/executive-summary-markdown";
+import type { ExecutiveRoiSystemicIssueTrendSeries } from "@/lib/executive/executive-summary-markdown";
 
 export type ExecutiveRoiSystemicIssueTrendChartProps = {
   series: ExecutiveRoiSystemicIssueTrendSeries[];

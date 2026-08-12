@@ -15,7 +15,7 @@ import {
   ALERTS_EMPTY_NO_RULES_BODY,
   ALERTS_EMPTY_NO_RULES_TITLE,
 } from "@/lib/alerts-page-copy";
-import { governanceAlertRulesTabHref } from "@/lib/governance-route-paths";
+import { governanceAlertRulesTabHref } from "@/lib/governance/governance-route-paths";
 
 const ALL = "__all__";
 const RULES_HREF = governanceAlertRulesTabHref("rules");

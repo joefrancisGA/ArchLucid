@@ -2,7 +2,7 @@ import { describe, expect, it } from "vitest";
 
 import { OperateAnalysisNavGroupBuilder } from "@/lib/operate-analysis-nav-group-builder";
 import { OperateGovernanceNavGroupBuilder } from "@/lib/operate-governance-nav-group-builder";
-import { GOVERNANCE_EXCEPTIONS_PATH } from "@/lib/governance-route-paths";
+import { GOVERNANCE_EXCEPTIONS_PATH } from "@/lib/governance/governance-route-paths";
 
 describe("OperateAnalysisNavGroupBuilder", () => {
   it("uses Insights group label and caption (TB-525)", () => {

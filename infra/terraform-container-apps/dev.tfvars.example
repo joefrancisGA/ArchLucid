@@ -70,6 +70,10 @@ api_key_tenant_id    = "11111111-1111-1111-1111-111111111111"
 api_key_workspace_id = "22222222-2222-2222-2222-222222222222"
 api_key_project_id   = "33333333-3333-3333-3333-333333333333"
 
+# TB-2120 (Done) / TB-2141 — HotPathCache Redis L2 on DEV (Azure Managed Redis; ExpectedApiReplicaCount tracks api_max_replicas when set).
+# Paste from terraform-redis output or GitHub Environment secret after apply. See SCALE_TIER_CACHE_GUIDE.md § TB-2141.
+# hot_path_cache_redis_connection_string = "<terraform output -raw redis_primary_connection_string>"
+
 # Transactional email (OTP, invites) via Azure Communication Services Email on archlucid.net.
 # After apply: terraform output communication_email_domain_verification_records — publish DNS at your host,
 # set communication_email_initiate_domain_verification = true, re-apply, then set GitHub var DEV_ACS_EMAIL_ENDPOINT

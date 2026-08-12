@@ -1,4 +1,4 @@
-import { getFindingEvidenceTraceHref } from "@/lib/finding-evidence-navigation";
+import { getFindingEvidenceTraceHref } from "@/lib/findings/finding-evidence-navigation";
 
 export type ArchitectureRiskRegisterCsvRow = {
   recordKind: "finding" | "decision";

@@ -6,7 +6,7 @@ import {
   ITSM_OUTBOUND_TRIAD_COMPACT_LINE,
   ITSM_OUTBOUND_TRIAD_HEADING,
   ITSM_OUTBOUND_TRIAD_WHY_THREE,
-} from "@/lib/itsm-outbound-triad-clarity";
+} from "@/lib/itsm/itsm-outbound-triad-clarity";
 
 describe("ItsmOutboundTriadClarityStrip (TB-2236)", () => {
   it("renders compact strip by default", () => {

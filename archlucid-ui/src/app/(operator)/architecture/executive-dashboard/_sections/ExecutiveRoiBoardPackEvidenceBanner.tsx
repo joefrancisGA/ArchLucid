@@ -11,8 +11,8 @@ import {
   boardPackClusterPostureLabel,
   buildBoardPackEvidenceClusterRows,
   type BoardPackClusterEvidencePosture,
-} from "@/lib/executive-roi-board-pack-evidence-clusters";
-import type { ExecutiveRoiSummary } from "@/lib/executive-summary-markdown";
+} from "@/lib/executive/executive-roi-board-pack-evidence-clusters";
+import type { ExecutiveRoiSummary } from "@/lib/executive/executive-summary-markdown";
 
 export type ExecutiveRoiBoardPackEvidenceBannerProps = {
   readonly summary: ExecutiveRoiSummary;

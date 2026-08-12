@@ -5,7 +5,7 @@ import {
   isGovernanceFoundationIndicatorComplete,
   summarizeGovernanceSetupProgress,
 } from "@/app/(operator)/governance/setup/_sections/governance-setup-guide-steps";
-import { GOVERNANCE_WORKSPACE_HEALTH_HREF } from "@/lib/governance-route-paths";
+import { GOVERNANCE_WORKSPACE_HEALTH_HREF } from "@/lib/governance/governance-route-paths";
 import { presentGovernanceSetupStepStatus } from "@/app/(operator)/governance/setup/_sections/governance-setup-step-status-present";
 
 describe("governance-setup-guide-steps", () => {

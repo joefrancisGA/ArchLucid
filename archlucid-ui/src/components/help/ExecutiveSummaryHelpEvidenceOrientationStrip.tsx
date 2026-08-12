@@ -1,4 +1,4 @@
-import { EXECUTIVE_SUMMARY_HELP_CLAIM_DISCIPLINE } from "@/lib/executive-summary-help-evidence-copy";
+import { EXECUTIVE_SUMMARY_HELP_CLAIM_DISCIPLINE } from "@/lib/executive/executive-summary-help-evidence-copy";
 import { DESIGN_TOKENS, OPERATOR_TYPOGRAPHY } from "@/lib/design-tokens";
 import { cn } from "@/lib/utils";
 

@@ -19,7 +19,7 @@ import {
   GOVERNANCE_WORKFLOW_AUDIT_TRAIL_ACTOR_HELPER,
   GOVERNANCE_WORKFLOW_AUDIT_TRAIL_ACTOR_LABEL,
   GOVERNANCE_WORKFLOW_AUDIT_TRAIL_ACTOR_PLACEHOLDER,
-} from "@/lib/governance-workflow-release-copy";
+} from "@/lib/governance/governance-workflow-release-copy";
 import { OPERATOR_TYPOGRAPHY } from "@/lib/design-tokens";
 
 type GovernanceWorkflowQueryCardProps = {

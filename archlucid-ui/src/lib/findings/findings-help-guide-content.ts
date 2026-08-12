@@ -2,7 +2,7 @@ import type { HelpMarkdownHeading } from "@/lib/help-markdown-headings";
 import {
   GOVERNANCE_RESOLUTION_PATH,
   GOVERNANCE_POLICY_PACKS_PATH,
-} from "@/lib/governance-route-paths";
+} from "@/lib/governance/governance-route-paths";
 import { SEVERITY_LABELS } from "@/lib/design-tokens";
 import { inAppHelpHref } from "@/lib/product-documentation-registry";
 

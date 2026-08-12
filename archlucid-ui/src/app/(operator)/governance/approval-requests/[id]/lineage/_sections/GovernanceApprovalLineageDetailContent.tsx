@@ -24,17 +24,17 @@ import {
   PageContextualHelpButton,
 } from "@/components/usability/PageContextualHelpButton";
 import { SelfDescribingMetricCount } from "@/components/usability/SelfDescribingMetricCount";
-import { getFindingDetailHref } from "@/lib/finding-evidence-navigation";
-import { GOVERNANCE_APPROVAL_QUEUE_PATH } from "@/lib/governance-route-paths";
+import { getFindingDetailHref } from "@/lib/findings/finding-evidence-navigation";
+import { GOVERNANCE_APPROVAL_QUEUE_PATH } from "@/lib/governance/governance-route-paths";
 import {
   buildGovernanceLineageManifestMetricFields,
   governanceApprovalRequestParentHref,
   governanceApprovalStatusTagPresentation,
   governanceLineageVerificationStatusTagPresentation,
   governanceRiskPostureStatusTagPresentation,
-} from "@/lib/governance-lineage-presentation";
+} from "@/lib/governance/governance-lineage-presentation";
 import { formatInstantForBuyerGovernance } from "@/lib/locale-datetime";
-import { formatGovernanceLineageCompletenessPercent } from "@/lib/governance-lineage-metric-format";
+import { formatGovernanceLineageCompletenessPercent } from "@/lib/governance/governance-lineage-metric-format";
 import { OPERATOR_LINK, OPERATOR_TYPOGRAPHY } from "@/lib/design-tokens";
 import { OPERATOR_NAV_GROUP_LABELS, OPERATOR_NAV_LINK_LABELS } from "@/lib/i18n";
 import type { GovernanceLineageResult } from "@/types/governance-dashboard";

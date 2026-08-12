@@ -1,7 +1,7 @@
 "use client";
 
 import { cn } from "@/lib/utils";
-import { getFindingEvidenceTraceHref } from "@/lib/finding-evidence-navigation";
+import { getFindingEvidenceTraceHref } from "@/lib/findings/finding-evidence-navigation";
 import { useVirtualizer } from "@tanstack/react-virtual";
 import Link from "next/link";
 import { useMemo, useRef, useState } from "react";
@@ -17,12 +17,12 @@ import { FindingExplainabilityDialog } from "@/components/FindingExplainabilityD
 import { ProductLearningFeedbackControls } from "@/components/ProductLearningFeedbackControls";
 import { Button } from "@/components/ui/button";
 import { graphTrailHrefWithOptionalNode } from "@/lib/graph-finding-deep-links";
-import { preferredGraphNodeIdForFindingDeepLink } from "@/lib/finding-inspect-graph-evidence";
+import { preferredGraphNodeIdForFindingDeepLink } from "@/lib/findings/finding-inspect-graph-evidence";
 import {
   defaultManifestIdForShowcaseFinding,
   primaryFindingEvidenceNavigationHref,
   runDetailSectionHref,
-} from "@/lib/finding-source-evidence-links";
+} from "@/lib/findings/finding-source-evidence-links";
 import { isBuyerPolishedOperatorShellEnv } from "@/lib/demo-ui-env";
 import { OPERATOR_TYPOGRAPHY } from "@/lib/design-tokens";
 import { usePrefetchItsmFindingCorrelations } from "@/lib/use-itsm-finding-correlations";

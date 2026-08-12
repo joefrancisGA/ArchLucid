@@ -1,6 +1,6 @@
 import { describe, expect, it } from "vitest";
 
-import { buyerGovernanceApprovalDisplayLabel, governanceGateLabelFromManifestStatus } from "@/lib/governance-gate-display";
+import { buyerGovernanceApprovalDisplayLabel, governanceGateLabelFromManifestStatus } from "@/lib/governance/governance-gate-display";
 
 describe("governanceGateLabelFromManifestStatus", () => {
   it("returns Not configured for empty status", () => {

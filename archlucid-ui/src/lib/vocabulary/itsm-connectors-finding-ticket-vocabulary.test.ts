@@ -9,8 +9,8 @@ import {
   buildItsmConnectorsFindingTicketVocabulary,
   resolveItsmConnectorsFindingTicketPeerLink,
 } from "@/lib/vocabulary/itsm-connectors-finding-ticket-vocabulary";
-import { GOVERNANCE_FINDINGS_PATH } from "@/lib/governance-route-paths";
-import { ITSM_CONNECTORS_ADMIN_PATH } from "@/lib/itsm-connectors-admin-scope";
+import { GOVERNANCE_FINDINGS_PATH } from "@/lib/governance/governance-route-paths";
+import { ITSM_CONNECTORS_ADMIN_PATH } from "@/lib/itsm/itsm-connectors-admin-scope";
 
 describe("itsm-connectors-finding-ticket-vocabulary (TB-2310)", () => {
   it("explains connector admin vs finding ticket linkage", () => {

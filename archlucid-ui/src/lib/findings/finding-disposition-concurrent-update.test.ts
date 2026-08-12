@@ -5,7 +5,7 @@ import {
   formatDispositionConcurrentUpdateMessage,
   latestDispositionEvent,
   resolveDispositionConcurrentUpdateNotice,
-} from "@/lib/finding-disposition-concurrent-update";
+} from "@/lib/findings/finding-disposition-concurrent-update";
 
 function event(
   partial: Partial<FindingDispositionEvent> & Pick<FindingDispositionEvent, "eventId" | "disposition" | "occurredAtUtc">,

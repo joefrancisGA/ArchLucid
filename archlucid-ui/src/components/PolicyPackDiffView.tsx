@@ -1,7 +1,7 @@
 import { cn } from "@/lib/utils";
 import { OPERATOR_TYPOGRAPHY } from "@/lib/design-tokens";
 import { OperatorEmptyState } from "@/components/OperatorShellMessage";
-import { diffPolicyPackContent, type PolicyPackDiffItem } from "@/lib/policy-pack-diff";
+import { diffPolicyPackContent, type PolicyPackDiffItem } from "@/lib/policy/policy-pack-diff";
 import { formatIsoUtcForDisplay } from "@/lib/format-iso-utc";
 import type { PolicyPackVersion } from "@/types/policy-packs";
 

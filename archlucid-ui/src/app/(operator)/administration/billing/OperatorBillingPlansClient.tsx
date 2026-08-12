@@ -6,16 +6,17 @@ import { useCallback, useEffect, useRef, useState } from "react";
 import { useSearchParams } from "next/navigation";
 
 import { AsyncActionButton } from "@/components/ui/AsyncActionButton";
-import { Button } from "@/components/ui/button";
 import { Card, CardContent, CardDescription, CardFooter, CardHeader, CardTitle } from "@/components/ui/card";
 import { OperatorMutationInlineError } from "@/components/operator/OperatorMutationInlineError";
 import { OperatorSuccessCallout } from "@/components/operator/OperatorSuccessCallout";
 import { BILLING_TIER_FEATURE_BULLETS } from "@/lib/billing-plan-tier-features";
 import { startMarketingPlanBillingCheckout } from "@/lib/billing-checkout-client";
 import { isSelfServeBillingCheckoutPlan } from "@/lib/billing-checkout-tier-map";
+import { buildOperatorBillingSalesLedQuoteHref } from "@/lib/marketing/marketing-billing-plan-href";
 import {
   MARKETING_PRICING_RECOMMENDED_TIER,
   OPERATOR_BILLING_CATALOG_NOTE,
+  OPERATOR_BILLING_SALES_LED_CTA_HELP,
   OPERATOR_BILLING_TIER_CTAS,
   isMarketingPricingTierId,
   type MarketingPricingTierId,
@@ -32,7 +33,6 @@ import type { PricingDoc, PricingPackage } from "@/lib/pricing-types";
 import {
   BILLING_CHECKOUT_COMPLETED_SUCCESS_MESSAGE,
 } from "@/lib/admin-integration-mutation-outcome-copy";
-import { showInfo } from "@/lib/toast";
 import { OPERATOR_DISCLOSURE_TRIGGER_CLASS, OPERATOR_LINK, OPERATOR_NAV_GROUP_LABEL, OPERATOR_TYPOGRAPHY } from "@/lib/design-tokens";
 
 function PlanSummaryLines(props: { pricing: PricingDoc; pkg: PricingPackage }) {
@@ -124,16 +124,6 @@ export function OperatorBillingPlansClient(props: OperatorBillingPlansClientProp
       card.scrollIntoView({ behavior: "smooth", block: "nearest" });
     }
   }, [pricing, selectedPlanId]);
-
-  const onSalesLedPlanAction = useCallback((tierId: MarketingPricingTierId) => {
-    if (tierId === "enterprise") {
-      showInfo("Enterprise packaging is sales-led. Use the quote form on public pricing or contact sales.");
-
-      return;
-    }
-
-    showInfo("Professional guided trials are sales-led. Request a quote on public pricing or contact sales.");
-  }, []);
 
   const onStartCheckout = useCallback(
     async (tierId: MarketingPricingTierId, pkg: PricingPackage) => {
@@ -266,14 +256,20 @@ export function OperatorBillingPlansClient(props: OperatorBillingPlansClientProp
                       }}
                     />
                   ) : (
-                    <Button
-                      type="button"
-                      variant="outline"
-                      className="w-full"
-                      onClick={() => onSalesLedPlanAction(tierId)}
-                    >
-                      {cta?.primaryLabel ?? "Contact us"}
-                    </Button>
+                    <>
+                      <Link
+                        href={buildOperatorBillingSalesLedQuoteHref(tierId)}
+                        className={cn(OPERATOR_LINK.nav, "inline-block w-full text-center font-medium")}
+                        data-testid={`billing-tier-sales-led-cta-${tierId}`}
+                      >
+                        {cta?.primaryLabel ?? "Contact us"}
+                      </Link>
+                      {tierId === "professional" || tierId === "enterprise" ? (
+                        <p className={cn("m-0 text-center text-al-text-secondary", OPERATOR_TYPOGRAPHY.micro)}>
+                          {OPERATOR_BILLING_SALES_LED_CTA_HELP[tierId]}
+                        </p>
+                      ) : null}
+                    </>
                   )}
                   <p className={cn("text-center", OPERATOR_TYPOGRAPHY.micro)}>
                     Effective {formatPricingCatalogEffectiveDate(pricing.effectiveDate)} · {pricing.currency}

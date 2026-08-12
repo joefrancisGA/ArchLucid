@@ -2,17 +2,20 @@
 
 import { useMemo } from "react";
 
+import { ArchitectureNarrativeMarkdownView } from "@/components/architecture/ArchitectureNarrativeMarkdownView";
 import { Button } from "@/components/ui/button";
 import { parseArchitectureGeneratedContent } from "@/lib/architecture-generated-content-parser";
 import type {
   ArchitectureCreationUserAssertions,
   ArchitectureStructuredSection,
 } from "@/lib/architecture-structured-content-types";
+import { stripDangerousMarkupForPlainTextDisplay } from "@/lib/architecture-narrative-presentation";
 import { OPERATOR_TYPOGRAPHY } from "@/lib/design-tokens";
 import type { ReviewDetailTabId } from "@/lib/review-detail-workspace-tabs";
 import { cn } from "@/lib/utils";
 
 const SUMMARY_LINE_LIMIT = 5;
+const PREVIEW_LINE_CHAR_LIMIT = 240;
 
 function sectionSummary(section: ArchitectureStructuredSection): string {
   const narrative = section.narrativeMarkdown?.trim() ?? "";
@@ -35,20 +38,66 @@ function findSection(
   return sections.find((section) => section.key === key);
 }
 
+function normalizePreviewText(text: string): string {
+  return stripDangerousMarkupForPlainTextDisplay(text)
+    .replace(/\*\*(.+?)\*\*/g, "$1")
+    .replace(/__(.+?)__/g, "$1")
+    .replace(/\*(.+?)\*/g, "$1")
+    .replace(/_(.+?)_/g, "$1")
+    .replace(/^#+\s+/gm, "")
+    .replace(/`/g, "")
+    .trim();
+}
+
+function chunkPreviewLine(line: string): readonly string[] {
+  const normalized = normalizePreviewText(line);
+
+  if (normalized.length === 0) {
+    return [];
+  }
+
+  if (normalized.length <= PREVIEW_LINE_CHAR_LIMIT) {
+    return [normalized];
+  }
+
+  const chunks: string[] = [];
+
+  for (let index = 0; index < normalized.length && chunks.length < SUMMARY_LINE_LIMIT; index += PREVIEW_LINE_CHAR_LIMIT) {
+    const slice = normalized.slice(index, index + PREVIEW_LINE_CHAR_LIMIT).trimEnd();
+
+    if (slice.length > 0) {
+      chunks.push(slice);
+    }
+  }
+
+  return chunks;
+}
+
 function previewLines(text: string): readonly string[] {
   const lines = text.split(/\r?\n/).map((line) => line.trim()).filter((line) => line.length > 0);
 
   if (lines.length > 0) {
-    return lines.slice(0, SUMMARY_LINE_LIMIT);
+    return lines.flatMap((line) => chunkPreviewLine(line)).slice(0, SUMMARY_LINE_LIMIT);
   }
 
   const paragraphs = text.split(/\n\s*\n/).map((part) => part.trim()).filter((part) => part.length > 0);
 
   if (paragraphs.length > 0) {
-    return paragraphs.slice(0, SUMMARY_LINE_LIMIT);
+    return paragraphs.flatMap((paragraph) => chunkPreviewLine(paragraph)).slice(0, SUMMARY_LINE_LIMIT);
   }
 
-  return [text.slice(0, 320)];
+  return chunkPreviewLine(text);
+}
+
+function shouldShowArchitectureTitle(title: string, summaryText: string): boolean {
+  const normalizedTitle = normalizePreviewText(title).toLowerCase();
+  const normalizedSummary = normalizePreviewText(summaryText).toLowerCase();
+
+  if (normalizedTitle.length === 0) {
+    return false;
+  }
+
+  return !normalizedSummary.startsWith(normalizedTitle);
 }
 
 export type RunDetailArchitectureSummaryCardProps = {
@@ -79,7 +128,11 @@ export function RunDetailArchitectureSummaryCard(
   const summaryLines =
     props.hasSubmittedArchitecture && text.length > 0 ? previewLines(text) : [];
 
-  const architectureTitle = props.architectureTitle?.trim() ?? "";
+  const architectureTitleRaw = props.architectureTitle?.trim() ?? "";
+  const architectureTitle =
+    architectureTitleRaw.length > 0 && shouldShowArchitectureTitle(architectureTitleRaw, text)
+      ? normalizePreviewText(architectureTitleRaw)
+      : "";
 
   if (
     !props.hasSubmittedArchitecture &&
@@ -146,12 +199,8 @@ export function RunDetailArchitectureSummaryCard(
         ) : null}
       </dl>
       {summaryLines.length > 0 ? (
-        <div className={cn("mt-3 space-y-1", OPERATOR_TYPOGRAPHY.body)}>
-          {summaryLines.map((line, index) => (
-            <p key={`arch-summary-line-${index}`} className="m-0 text-neutral-700 dark:text-neutral-300">
-              {line}
-            </p>
-          ))}
+        <div className="mt-3" data-testid="run-detail-architecture-summary-preview">
+          <ArchitectureNarrativeMarkdownView markdown={summaryLines.join("\n\n")} />
         </div>
       ) : !props.hasSubmittedArchitecture ? (
         <p className={cn("m-0 mt-3 text-neutral-600 dark:text-neutral-400", OPERATOR_TYPOGRAPHY.body)}>

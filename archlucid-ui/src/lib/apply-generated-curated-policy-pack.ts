@@ -2,8 +2,8 @@ import {
   composePolicyPackContentForPublish,
   validateCuratedRulesDocument,
   type CuratedRulesDocument,
-} from "@/lib/policy-pack-curated-rules-v1";
-import type { GuidedPolicyFields } from "@/lib/policy-pack-guided-content";
+} from "@/lib/policy/policy-pack-curated-rules-v1";
+import type { GuidedPolicyFields } from "@/lib/policy/policy-pack-guided-content";
 
 const EMPTY_GUIDED_FIELDS: GuidedPolicyFields = {
   complianceRuleKeysText: "",

@@ -8,9 +8,9 @@ import { isBuyerPolishedOperatorShellEnv, isNextPublicDemoMode, isOperatorExperi
 import { getShowcaseManifestHref } from "@/lib/buyer-safe-review-navigation";
 import { isDemoRunIdEligibleForStaticFallback } from "@/lib/operator-static-demo";
 import type { FindingInspectPayload } from "@/types/finding-inspect";
-import { findingWhyThisMattersText, typedPayloadLookupString } from "@/lib/finding-display-from-inspect";
-import { buildFindingModelProvenanceRow } from "@/lib/finding-model-provenance-display";
-import { buildFindingPolicyEvidenceCitationsFromInspect } from "@/lib/finding-policy-evidence-citations";
+import { findingWhyThisMattersText, typedPayloadLookupString } from "@/lib/findings/finding-display-from-inspect";
+import { buildFindingModelProvenanceRow } from "@/lib/findings/finding-model-provenance-display";
+import { buildFindingPolicyEvidenceCitationsFromInspect } from "@/lib/findings/finding-policy-evidence-citations";
 import { FindingInsightDensityDisclosure } from "@/components/usability/FindingInsightDensityDisclosure";
 import { OPERATOR_TYPOGRAPHY } from "@/lib/design-tokens";
 import { FindingInspectAuditSection } from "./FindingInspectAuditSection";

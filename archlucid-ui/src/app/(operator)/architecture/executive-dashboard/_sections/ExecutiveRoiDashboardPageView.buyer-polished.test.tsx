@@ -59,7 +59,7 @@ import {
   EXECUTIVE_DASHBOARD_PAGE_SUBTITLE_BUYER,
   EXECUTIVE_DASHBOARD_PAGE_SUBTITLE_OPERATOR,
   EXECUTIVE_DASHBOARD_SCOPE_DETAILS_TRIGGER,
-} from "@/lib/executive-dashboard-page-copy";
+} from "@/lib/executive/executive-dashboard-page-copy";
 
 describe("ExecutiveRoiDashboardPageView buyer-polished shell", () => {
   it("uses buyer subtitle and collapses duplicate dashboard intro copy", () => {

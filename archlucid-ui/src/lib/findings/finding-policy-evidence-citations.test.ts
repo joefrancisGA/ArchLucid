@@ -6,7 +6,7 @@ import {
   coercePolicyRuleIdFromFindingWire,
   findingInspectEvidenceCitationLabel,
   resolvePolicyTraceExcerptFromInspect,
-} from "@/lib/finding-policy-evidence-citations";
+} from "@/lib/findings/finding-policy-evidence-citations";
 import type { QuickDecisionFinding } from "@/lib/quick-decision-summary-derive";
 import type { FindingInspectPayload } from "@/types/finding-inspect";
 

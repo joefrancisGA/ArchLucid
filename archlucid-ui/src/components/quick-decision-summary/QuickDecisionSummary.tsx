@@ -9,11 +9,11 @@ import { useOptionallyControlledBoolean } from "@/hooks/use-optionally-controlle
 import {
   aggregateFindingProvenance,
   formatFindingProvenanceAggregateLine,
-} from "@/lib/finding-provenance-display";
+} from "@/lib/findings/finding-provenance-display";
 import {
   formatHiddenLowConfidenceHint,
   partitionQuickDecisionFindingsByConfidence,
-} from "@/lib/finding-confidence-filter";
+} from "@/lib/findings/finding-confidence-filter";
 import {
   groupQuickDecisionFindingsByPolicyPack,
   summarizePolicyPackFindingImpact,

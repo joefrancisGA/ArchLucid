@@ -1,4 +1,4 @@
-﻿import { POLICY_PACKS_HELP_PATH } from "@/lib/policy-packs-page";
+﻿import { POLICY_PACKS_HELP_PATH } from "@/lib/policy/policy-packs-page";
 
 /**
  * Traffic workbook row ID for Policy packs help.

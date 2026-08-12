@@ -12,7 +12,7 @@ import {
   SEE_IT_MARKETING_PDF_HELPER,
   SEE_IT_MARKETING_PDF_HREF,
 } from "@/lib/see-it-page-copy";
-import { policyPackBuyerLabel } from "@/lib/policy-pack-buyer-label";
+import { policyPackBuyerLabel } from "@/lib/policy/policy-pack-buyer-label";
 import {
   SHOWCASE_BUYER_REVIEW_TITLE,
 } from "@/lib/showcase-static-demo";

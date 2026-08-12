@@ -7,7 +7,7 @@ import {
   filterGovernanceRowsForJobView,
   filterReviewFindingsForJobView,
   matchesReviewFindingJobView,
-} from "@/lib/finding-job-view";
+} from "@/lib/findings/finding-job-view";
 import type { QuickDecisionFinding } from "@/lib/quick-decision-summary-derive";
 
 function reviewFinding(overrides: Partial<QuickDecisionFinding> & Pick<QuickDecisionFinding, "findingId">): QuickDecisionFinding {

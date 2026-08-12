@@ -5,7 +5,6 @@ import Link from "next/link";
 
 import { ExportTrackedAnchor } from "@/components/ExportTrackedAnchor";
 import { GoldenManifestExportMenu } from "@/components/GoldenManifestExportMenu";
-import { InlineGlossaryChip } from "@/components/InlineGlossaryChip";
 import { ArtifactPreviewSponsorExportVocabularyRail } from "@/components/ArtifactPreviewSponsorExportVocabularyRail";
 import { RoiSponsorExportVocabularyRail } from "@/components/RoiSponsorExportVocabularyRail";
 import { SponsorRoiBaselineGateNotice } from "@/components/SponsorRoiBaselineGateNotice";
@@ -16,6 +15,7 @@ import { getRunPackageExportUrl, SAMPLE_REVIEW_EXPORT_UNAVAILABLE_HINT } from "@
 import { OPERATOR_TYPOGRAPHY } from "@/lib/design-tokens";
 import { buildReviewDetailTabHref } from "@/lib/review-detail-workspace-tabs";
 import {
+  RUN_DETAIL_SPONSOR_HANDOFF_LEAD,
   RUN_DETAIL_SPONSOR_HANDOFF_MORE_EXPORTS_LABEL,
   RUN_DETAIL_SPONSOR_HANDOFF_TITLE,
 } from "@/lib/run-detail-deliverables-copy";
@@ -40,7 +40,7 @@ export function ReviewPackageSponsorHandoffStrip(
   return (
     <section
       id="sponsor-handoff"
-      className="scroll-mt-24 rounded-lg border border-teal-200 bg-teal-50/60 p-4 dark:border-teal-900 dark:bg-teal-950/30"
+      className="scroll-mt-24 rounded-lg border border-neutral-200 bg-al-surface-raised p-4 dark:border-neutral-800"
       data-testid="review-package-sponsor-handoff-strip"
       aria-labelledby="review-package-sponsor-handoff-heading"
     >
@@ -50,33 +50,11 @@ export function ReviewPackageSponsorHandoffStrip(
       >
         {RUN_DETAIL_SPONSOR_HANDOFF_TITLE}
       </h2>
-      <RoiSponsorExportVocabularyRail
-        currentSurfaceId="sponsor-handoff"
-        runId={props.runId}
-        className="mt-2"
-      />
-      <ArtifactPreviewSponsorExportVocabularyRail
-        currentSurfaceId="sponsor-export"
-        runId={props.runId}
-        className="mt-2"
-      />
-      <div className={cn("m-0 mt-1 max-w-prose text-neutral-700 dark:text-neutral-300", OPERATOR_TYPOGRAPHY.body)}>
-        Download the executive review summary or architecture report when you are ready to share this finalized{" "}
-        <InlineGlossaryChip nounId="signed-review-record">signed review record</InlineGlossaryChip> internally or with
-        sponsors. Use <InlineGlossaryChip nounId="governance-approval">governance approval</InlineGlossaryChip> when
-        policy sign-off is required.
-      </div>
+      <p className={cn("m-0 mt-1 max-w-prose text-neutral-700 dark:text-neutral-300", OPERATOR_TYPOGRAPHY.body)}>
+        {RUN_DETAIL_SPONSOR_HANDOFF_LEAD}
+      </p>
       <SponsorRoiBaselineGateNotice isFinalized />
       <div className="mt-3 flex flex-wrap items-center gap-2">
-        <GoldenManifestExportMenu
-          runId={props.runId}
-          manifestId={props.manifestId}
-          goldenManifestJson={props.goldenManifestJsonForExport}
-          manifestSummary={props.manifestSummary}
-          trustEvidenceCard={props.trustEvidenceCard ?? null}
-          buyerMarkdownAsPrimaryButton
-          markdownDownloadTestId="review-package-sponsor-handoff-markdown-download"
-        />
         {props.usedStaticDemoRun ? (
           <Button variant="primary" size="sm" disabled title={SAMPLE_REVIEW_EXPORT_UNAVAILABLE_HINT}>
             Download architecture review report (DOCX)
@@ -96,15 +74,30 @@ export function ReviewPackageSponsorHandoffStrip(
           </Button>
         ) : null}
       </div>
-      <div className="mt-3">
-        <SponsorRehearsalPreviewPanel
-          input={
-            props.rehearsalPreview ?? {
-              packageTitle: props.runId,
+      <details className="mt-3 rounded-md border border-neutral-200 p-3 dark:border-neutral-800">
+        <summary className={cn("cursor-pointer font-medium text-neutral-800 dark:text-neutral-200", OPERATOR_TYPOGRAPHY.body)}>
+          More sponsor exports
+        </summary>
+        <div className="mt-3 space-y-2">
+          <RoiSponsorExportVocabularyRail currentSurfaceId="sponsor-handoff" runId={props.runId} />
+          <ArtifactPreviewSponsorExportVocabularyRail currentSurfaceId="sponsor-export" runId={props.runId} />
+          <GoldenManifestExportMenu
+            runId={props.runId}
+            manifestId={props.manifestId}
+            goldenManifestJson={props.goldenManifestJsonForExport}
+            manifestSummary={props.manifestSummary}
+            trustEvidenceCard={props.trustEvidenceCard ?? null}
+            markdownDownloadTestId="review-package-sponsor-handoff-markdown-download"
+          />
+          <SponsorRehearsalPreviewPanel
+            input={
+              props.rehearsalPreview ?? {
+                packageTitle: props.runId,
+              }
             }
-          }
-        />
-      </div>
+          />
+        </div>
+      </details>
     </section>
   );
 }

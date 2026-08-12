@@ -7,7 +7,7 @@ import {
   governanceLineageReviewCheckpointStatusTagPresentation,
   governanceLineageVerificationStatusTagPresentation,
   governanceRiskPostureStatusTagPresentation,
-} from "@/lib/governance-lineage-presentation";
+} from "@/lib/governance/governance-lineage-presentation";
 import type { GovernanceLineageResult } from "@/types/governance-dashboard";
 
 function sampleLineage(overrides: Partial<GovernanceLineageResult> = {}): GovernanceLineageResult {

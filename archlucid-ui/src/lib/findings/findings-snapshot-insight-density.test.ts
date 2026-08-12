@@ -6,7 +6,7 @@ import {
   formatInsightDensityCurationMessage,
   hasFindingsSnapshotInsightDensityContent,
   resolveFindingsSnapshotInsightDensityView,
-} from "./findings-snapshot-insight-density";
+} from "@/lib/findings/findings-snapshot-insight-density";
 
 describe("findings-snapshot-insight-density", () => {
   it("resolveFindingsSnapshotInsightDensityView returns empty when snapshot missing", () => {

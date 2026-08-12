@@ -20,7 +20,7 @@ import {
   defaultFindingEvidenceGraphViewMode,
   resolveFindingEvidenceGraphViewModel,
   type FindingEvidenceGraphViewMode,
-} from "@/lib/finding-evidence-graph-highlight";
+} from "@/lib/findings/finding-evidence-graph-highlight";
 import type { ApiLoadFailureState } from "@/lib/api-load-failure";
 import { loadArchitectureGraphViewModel } from "@/lib/load-architecture-graph-view-model";
 import { mapGraphToReactFlow } from "@/lib/graph-mapper";

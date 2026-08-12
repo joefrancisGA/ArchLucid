@@ -10,7 +10,7 @@ import {
   describeFindingsNaturalLanguageFacets,
   parseFindingsNaturalLanguageFilter,
   type FindingsNaturalLanguageFacets,
-} from "@/lib/findings-natural-language-filter";
+} from "@/lib/findings/findings-natural-language-filter";
 import { cn } from "@/lib/utils";
 
 export type FindingsNaturalLanguageFilterProps = {

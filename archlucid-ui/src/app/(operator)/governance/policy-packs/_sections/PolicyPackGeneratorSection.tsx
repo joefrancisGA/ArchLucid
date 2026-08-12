@@ -6,7 +6,7 @@ import { useState } from "react";
 import { Button } from "@/components/ui/button";
 import { Input } from "@/components/ui/input";
 import { enterpriseMutationControlDisabledTitle } from "@/lib/enterprise-controls-context-copy";
-import type { CuratedRulesDocument } from "@/lib/policy-pack-curated-rules-v1";
+import type { CuratedRulesDocument } from "@/lib/policy/policy-pack-curated-rules-v1";
 import { OPERATOR_TYPOGRAPHY } from "@/lib/design-tokens";
 
 import { PACK_TYPES } from "./policy-packs-page-constants";

@@ -15,7 +15,7 @@
 import {
   GOVERNANCE_POLICY_PACKS_PATH,
   GOVERNANCE_STANDARDS_AND_RULES_PATH,
-} from "@/lib/governance-route-paths";
+} from "@/lib/governance/governance-route-paths";
 
 export type PolicyPacksStandardsSurfaceId = "policy-packs" | "standards-and-rules";
 

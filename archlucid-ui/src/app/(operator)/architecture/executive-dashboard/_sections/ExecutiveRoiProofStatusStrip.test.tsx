@@ -5,7 +5,7 @@ import {
   EXECUTIVE_ROI_PROOF_STATUS_HELP_HREF,
   ExecutiveRoiProofStatusStrip,
 } from "@/app/(operator)/architecture/executive-dashboard/_sections/ExecutiveRoiProofStatusStrip";
-import type { ExecutiveRoiSummary } from "@/lib/executive-summary-markdown";
+import type { ExecutiveRoiSummary } from "@/lib/executive/executive-summary-markdown";
 
 function baseSummary(overrides: Partial<ExecutiveRoiSummary> = {}): ExecutiveRoiSummary {
   return {

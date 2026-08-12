@@ -7,13 +7,13 @@ import type { ReactElement } from "react";
 import { StatusTag } from "@/components/ui/status-tag";
 import { toDocsBlobUrl } from "@/lib/contextual-help-content";
 import { OPERATOR_TYPOGRAPHY } from "@/lib/design-tokens";
-import type { ExecutiveRoiSummary } from "@/lib/executive-summary-markdown";
-import { EXECUTIVE_SUMMARY_PILOT_ROI_MEASUREMENT_HELP_HREF } from "@/lib/executive-summary-pilot-roi-measurement-help";
+import type { ExecutiveRoiSummary } from "@/lib/executive/executive-summary-markdown";
+import { EXECUTIVE_SUMMARY_PILOT_ROI_MEASUREMENT_HELP_HREF } from "@/lib/executive/executive-summary-pilot-roi-measurement-help";
 import {
   costEvidenceFreshnessStatusTagKind,
   formatExecutiveHeadlineScopeCodeLabel,
-} from "@/lib/executive-roi-proof-status-strip";
-import { presentCostEvidenceFreshness } from "@/lib/executive-roi-kpi-display";
+} from "@/lib/executive/executive-roi-proof-status-strip";
+import { presentCostEvidenceFreshness } from "@/lib/executive/executive-roi-kpi-display";
 import {
   resolveExecutiveHeadlineScopeLabel,
   resolveExecutiveSystemRowScopeLabel,

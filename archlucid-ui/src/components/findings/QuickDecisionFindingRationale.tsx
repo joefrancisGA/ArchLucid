@@ -5,9 +5,9 @@ import type { ReactElement } from "react";
 import { SponsorPlainEnglishFindingPanel } from "@/components/findings/SponsorPlainEnglishFindingPanel";
 import { FindingCausalMiniChain } from "@/components/usability/FindingCausalMiniChain";
 import { FindingDerivationLine } from "@/components/usability/FindingDerivationLine";
-import { findingCausalMiniChainFromQuickDecisionFinding } from "@/lib/finding-causal-mini-chain";
-import { findingDerivationFromQuickDecisionFinding } from "@/lib/finding-derivation-sentence";
-import { getFindingEvidenceTraceHref } from "@/lib/finding-evidence-navigation";
+import { findingCausalMiniChainFromQuickDecisionFinding } from "@/lib/findings/finding-causal-mini-chain";
+import { findingDerivationFromQuickDecisionFinding } from "@/lib/findings/finding-derivation-sentence";
+import { getFindingEvidenceTraceHref } from "@/lib/findings/finding-evidence-navigation";
 import { severityBadgeLabel } from "@/lib/quick-decision-summary-derive";
 import type { QuickDecisionFinding } from "@/lib/quick-decision-summary-derive";
 

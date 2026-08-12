@@ -2,7 +2,7 @@ import { render, screen } from "@testing-library/react";
 import { describe, expect, it } from "vitest";
 
 import { ExecutiveRoiBoardPackEvidenceBanner } from "@/app/(operator)/architecture/executive-dashboard/_sections/ExecutiveRoiBoardPackEvidenceBanner";
-import type { ExecutiveRoiSummary } from "@/lib/executive-summary-markdown";
+import type { ExecutiveRoiSummary } from "@/lib/executive/executive-summary-markdown";
 
 function baseSummary(overrides: Partial<ExecutiveRoiSummary> = {}): ExecutiveRoiSummary {
   return {

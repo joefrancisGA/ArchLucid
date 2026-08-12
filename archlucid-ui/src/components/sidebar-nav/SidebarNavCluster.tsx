@@ -12,7 +12,7 @@ import { OPERATOR_NAV_GROUP_LABEL, OPERATOR_TYPOGRAPHY } from "@/lib/design-toke
 import {
   GOVERNANCE_ALERTS_PATH,
   GOVERNANCE_APPROVAL_QUEUE_PATH,
-} from "@/lib/governance-route-paths";
+} from "@/lib/governance/governance-route-paths";
 import { isNavLinkActive } from "@/lib/nav-link-active";
 import {
   filterSidebarNavClusterLinks,

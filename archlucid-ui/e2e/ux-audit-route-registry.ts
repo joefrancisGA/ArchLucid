@@ -1,4 +1,4 @@
-import { EXECUTIVE_DASHBOARD_WORKSPACE_HEALTH_HREF } from "@/lib/executive-dashboard-route";
+import { EXECUTIVE_DASHBOARD_WORKSPACE_HEALTH_HREF } from "@/lib/executive/executive-dashboard-route";
 import { auditTrailNavHref } from "@/lib/audit-nav-paths";
 
 import { EXECUTIVE_ROI_DASHBOARD_PATHS } from "./helpers/executive-roi-dashboard";

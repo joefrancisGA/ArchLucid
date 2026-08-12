@@ -5,7 +5,7 @@ import {
   getGovernanceConflictLosers,
   getGovernanceConflictWinner,
   resolveGovernanceConflictWhy,
-} from "@/lib/governance-conflict-resolution";
+} from "@/lib/governance/governance-conflict-resolution";
 import type {
   GovernanceConflictRecord,
   GovernanceResolutionCandidate,

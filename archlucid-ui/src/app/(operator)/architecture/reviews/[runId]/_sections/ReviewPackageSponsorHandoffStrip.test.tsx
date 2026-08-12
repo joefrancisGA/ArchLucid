@@ -48,8 +48,7 @@ describe("ReviewPackageSponsorHandoffStrip", () => {
     );
 
     expect(screen.getByTestId("review-package-sponsor-handoff-strip")).toBeInTheDocument();
-    expect(screen.getByTestId("sponsor-rehearsal-preview")).toBeInTheDocument();
-    expect(screen.getByText("Preview as sponsor")).toBeInTheDocument();
+    expect(screen.getByTestId("review-package-sponsor-handoff-strip")).not.toHaveClass("bg-teal-50/60");
     expect(screen.getByRole("heading", { name: "Send to sponsor" })).toBeInTheDocument();
     expect(screen.getByTestId("review-package-sponsor-handoff-markdown-download")).toBeInTheDocument();
     expect(screen.getByTestId("review-package-sponsor-handoff-docx")).toBeInTheDocument();

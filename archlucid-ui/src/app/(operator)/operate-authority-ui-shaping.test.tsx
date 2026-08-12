@@ -178,7 +178,7 @@ import {
   policyPacksCurrentPacksHeadingReader,
   policyPacksPackContentHeadingReader,
 } from "@/lib/enterprise-controls-context-copy";
-import { GOVERNANCE_OVERVIEW_PAGE_TITLE } from "@/lib/governance-overview-copy";
+import { GOVERNANCE_OVERVIEW_PAGE_TITLE } from "@/lib/governance/governance-overview-copy";
 
 import { AlertRulesContent } from "@/components/alerts/AlertRulesContent";
 import { AlertSimulationContent } from "@/components/alerts/AlertSimulationContent";

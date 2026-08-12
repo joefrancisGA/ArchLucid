@@ -17,7 +17,7 @@ import {
   EXECUTIVE_SUMMARY_HELP_OVERVIEW,
   EXECUTIVE_SUMMARY_HELP_PRIMARY_ACTIONS,
   executiveSummaryHelpPageSubtitle,
-} from "@/lib/executive-summary-help-guide-content";
+} from "@/lib/executive/executive-summary-help-guide-content";
 import { isBuyerPolishedOperatorShellEnv } from "@/lib/demo-ui-env";
 import {
   DESIGN_TOKENS,

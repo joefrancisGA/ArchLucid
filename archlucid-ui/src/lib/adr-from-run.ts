@@ -1,6 +1,6 @@
 import type { QuickDecisionFinding } from "@/lib/quick-decision-summary-derive";
 import { sortQuickDecisionFindings } from "@/lib/quick-decision-summary-derive";
-import { formatFindingTrustExportLine } from "@/lib/finding-trust-export";
+import { formatFindingTrustExportLine } from "@/lib/findings/finding-trust-export";
 import type { RunExplanationSummary } from "@/types/explanation";
 import { isDeterministicExplanationFallback } from "@/types/explanation";
 

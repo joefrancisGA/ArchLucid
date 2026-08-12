@@ -18,7 +18,7 @@ import {
   ARCHITECTURE_SCORECARD_SOURCES_INTRO,
 } from "@/lib/architecture-scorecard-page-copy";
 import { OPERATOR_LINK, OPERATOR_NAV_GROUP_LABEL, OPERATOR_TYPOGRAPHY } from "@/lib/design-tokens";
-import { GOVERNANCE_WORKSPACE_HEALTH_HREF } from "@/lib/governance-route-paths";
+import { GOVERNANCE_WORKSPACE_HEALTH_HREF } from "@/lib/governance/governance-route-paths";
 import {
   REVIEW_SCORECARD_FINALIZED_HREF,
   REVIEW_SCORECARD_GOVERNANCE_HREF,

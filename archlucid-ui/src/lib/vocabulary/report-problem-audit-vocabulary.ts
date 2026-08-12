@@ -13,7 +13,7 @@
  * evidence trail surfaces).
  */
 
-import { GOVERNANCE_AUDIT_PATH } from "@/lib/governance-route-paths";
+import { GOVERNANCE_AUDIT_PATH } from "@/lib/governance/governance-route-paths";
 import { SUPPORT_REPORT_PROBLEM_HELP_HREF } from "@/lib/support-workspace-present";
 
 export type ReportProblemAuditSurfaceId = "report-problem" | "audit";

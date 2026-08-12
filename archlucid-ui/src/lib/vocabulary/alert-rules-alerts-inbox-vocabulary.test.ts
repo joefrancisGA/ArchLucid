@@ -12,7 +12,7 @@ import {
 import {
   GOVERNANCE_ALERT_RULES_PATH,
   GOVERNANCE_ALERTS_PATH,
-} from "@/lib/governance-route-paths";
+} from "@/lib/governance/governance-route-paths";
 
 describe("alert-rules-alerts-inbox-vocabulary (TB-2289)", () => {
   it("explains alert rules config vs alerts inbox triage", () => {

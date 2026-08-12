@@ -2,7 +2,7 @@ import { inAppHelpHref } from "@/lib/product-documentation-registry";
 import { RECOMMENDATION_LEARNING_CANONICAL_PATH } from "@/types/recommendation-learning-operational";
 import type { EvidenceSourceLink } from "@/lib/evidence-surface-copy";
 import { ADVISORY_SCANS_HREF } from "@/lib/advisory-scans-route";
-import { GOVERNANCE_AUDIT_PATH } from "@/lib/governance-route-paths";
+import { GOVERNANCE_AUDIT_PATH } from "@/lib/governance/governance-route-paths";
 
 export { RECOMMENDATION_LEARNING_CANONICAL_PATH };
 

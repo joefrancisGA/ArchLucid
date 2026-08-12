@@ -1,4 +1,4 @@
-import { diffComplianceRuleKeys, type ComplianceRuleKeyDiffItem } from "@/lib/policy-pack-compliance-rule-key-diff";
+import { diffComplianceRuleKeys, type ComplianceRuleKeyDiffItem } from "@/lib/policy/policy-pack-compliance-rule-key-diff";
 import type { EffectivePolicyPackSet, PolicyPackContentDocument } from "@/types/policy-packs";
 
 export const COMPARE_GOVERNANCE_CURRENT_EFFECTIVE_DISCLAIMER =

@@ -45,7 +45,7 @@ import { CAIQ_SIG_RESPONSE_HELP_PRIMARY_ACTION } from "@/lib/caiq-sig-response-h
 import { INTEGRATION_READINESS_HELP_PRIMARY_ACTION } from "@/lib/integration-readiness-help-evidence-copy";
 import { PROCUREMENT_HELP_CLAIM_DISCIPLINE } from "@/lib/procurement-help-evidence-copy";
 import { isProcurementHelpTopic } from "@/lib/procurement-help-presentation";
-import { POLICY_PACKS_HELP_PRIMARY_ACTION } from "@/lib/policy-packs-help-evidence-copy";
+import { POLICY_PACKS_HELP_PRIMARY_ACTION } from "@/lib/policy/policy-packs-help-evidence-copy";
 import { REPORT_A_PROBLEM_HELP_PRIMARY_ACTION } from "@/lib/report-a-problem-help-evidence-copy";
 import { SCOPE_HELP_PRIMARY_ACTION } from "@/lib/scope-help-evidence-copy";
 import { SECURITY_TRUST_HELP_PRIMARY_ACTION } from "@/lib/security-trust-help-evidence-copy";

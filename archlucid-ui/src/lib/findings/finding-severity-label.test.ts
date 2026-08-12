@@ -1,6 +1,6 @@
 import { describe, expect, it } from "vitest";
 
-import { findingSeverityLabel } from "./finding-severity-label";
+import { findingSeverityLabel } from "@/lib/findings/finding-severity-label";
 
 describe("findingSeverityLabel", () => {
   it("maps contract enum values", () => {

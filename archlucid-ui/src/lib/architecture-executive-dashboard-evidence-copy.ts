@@ -1,5 +1,5 @@
 import { inAppHelpHref } from "@/lib/product-documentation-registry";
-import { EXECUTIVE_DASHBOARD_HREF } from "@/lib/executive-dashboard-route";
+import { EXECUTIVE_DASHBOARD_HREF } from "@/lib/executive/executive-dashboard-route";
 import type { EvidenceSourceLink } from "@/lib/evidence-surface-copy";
 
 export const ARCHITECTURE_EXECUTIVE_DASHBOARD_CANONICAL_PATH = EXECUTIVE_DASHBOARD_HREF;

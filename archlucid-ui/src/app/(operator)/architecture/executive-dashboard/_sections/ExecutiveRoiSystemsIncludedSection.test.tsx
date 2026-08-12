@@ -3,7 +3,7 @@ import { describe, expect, it } from "vitest";
 
 import { ExecutiveRoiSystemsIncludedSection } from "./ExecutiveRoiSystemsIncludedSection";
 import { TooltipProvider } from "@/components/ui/tooltip";
-import type { ExecutiveRoiSummary } from "@/lib/executive-summary-markdown";
+import type { ExecutiveRoiSummary } from "@/lib/executive/executive-summary-markdown";
 import {
   ROI_SYSTEM_ROW_MATH_TOOLTIP_LABEL,
 } from "@/lib/roi-disposition-training-copy";

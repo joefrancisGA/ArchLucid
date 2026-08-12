@@ -6,7 +6,7 @@ import { REVIEWS_LIST_PATH } from "@/lib/architecture-routes";
 import {
   GOVERNANCE_APPROVAL_QUEUE_PATH,
   GOVERNANCE_WORKSPACE_HEALTH_HREF,
-} from "@/lib/governance-route-paths";
+} from "@/lib/governance/governance-route-paths";
 
 export const GOVERNANCE_CONTEXTUAL_HELP_ROWS: readonly PageContextualHelpRow[] = [
   {

@@ -2,7 +2,7 @@ import { fireEvent, render, screen, waitFor } from "@testing-library/react";
 import { beforeEach, describe, expect, it, vi } from "vitest";
 
 import type { FindingDispositionEvent } from "@/lib/api/governance-stickiness-api";
-import { formatDispositionConcurrentUpdateMessage } from "@/lib/finding-disposition-concurrent-update";
+import { formatDispositionConcurrentUpdateMessage } from "@/lib/findings/finding-disposition-concurrent-update";
 import { FindingInspectGovernanceStickinessPanel } from "./FindingInspectGovernanceStickinessPanel";
 
 vi.mock("@/hooks/use-operate-capability", () => ({

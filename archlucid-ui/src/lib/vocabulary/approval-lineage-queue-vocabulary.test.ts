@@ -10,7 +10,7 @@ import {
   resolveApprovalLineageQueuePeerLink,
 } from "@/lib/vocabulary/approval-lineage-queue-vocabulary";
 import { APPROVAL_LINEAGE_CANONICAL_PATH_PATTERN } from "@/lib/approval-lineage-evidence-copy";
-import { GOVERNANCE_APPROVAL_QUEUE_PATH } from "@/lib/governance-route-paths";
+import { GOVERNANCE_APPROVAL_QUEUE_PATH } from "@/lib/governance/governance-route-paths";
 
 describe("approval-lineage-queue-vocabulary (TB-2271)", () => {
   it("explains approval lineage vs approval queue", () => {

@@ -23,7 +23,7 @@ export function DemoDataBadge(props: DemoDataBadgeProps) {
       role="status"
       aria-label="Sample data — not your tenant"
     >
-      Sample data — not your tenant
+      Sample data
     </span>
   );
 }

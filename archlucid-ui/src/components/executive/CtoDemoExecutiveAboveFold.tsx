@@ -11,9 +11,9 @@ import {
 } from "@/lib/buyer-cto-demo-recap";
 import { isCtoDemoPackEnv } from "@/lib/cto-demo-presenter-pack";
 import { DESIGN_TOKENS, OPERATOR_TYPOGRAPHY, operatorSemanticBadge } from "@/lib/design-tokens";
-import { getFindingEvidenceInspectHref } from "@/lib/finding-evidence-navigation";
-import { severityFromTrace, severitySortRank } from "@/lib/executive-finding-severity";
-import { decisionGradeExecutiveTraceRows } from "@/lib/executive-decision-grade-trace-rows";
+import { getFindingEvidenceInspectHref } from "@/lib/findings/finding-evidence-navigation";
+import { severityFromTrace, severitySortRank } from "@/lib/executive/executive-finding-severity";
+import { decisionGradeExecutiveTraceRows } from "@/lib/executive/executive-decision-grade-trace-rows";
 import { verdictTierFromRiskPosture, verdictTierLabel, verdictTierTone } from "@/lib/verdict-taxonomy";
 import type { FindingTraceConfidenceDto } from "@/types/explanation";
 import type { RunExplanationSummary } from "@/types/explanation";

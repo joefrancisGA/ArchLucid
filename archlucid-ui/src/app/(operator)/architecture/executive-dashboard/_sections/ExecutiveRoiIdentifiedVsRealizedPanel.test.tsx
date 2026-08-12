@@ -3,8 +3,8 @@ import { describe, expect, it } from "vitest";
 
 import { ExecutiveRoiIdentifiedVsRealizedPanel } from "./ExecutiveRoiIdentifiedVsRealizedPanel";
 import { TooltipProvider } from "@/components/ui/tooltip";
-import { resolveExecutiveRoiIdentifiedVsRealized } from "@/lib/executive-roi-identified-vs-realized";
-import type { ExecutiveRoiSummary } from "@/lib/executive-summary-markdown";
+import { resolveExecutiveRoiIdentifiedVsRealized } from "@/lib/executive/executive-roi-identified-vs-realized";
+import type { ExecutiveRoiSummary } from "@/lib/executive/executive-summary-markdown";
 import { ROI_HEADLINE_MATH_TOOLTIP_LABEL } from "@/lib/roi-disposition-training-copy";
 
 const summary: ExecutiveRoiSummary = {

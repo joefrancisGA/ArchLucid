@@ -1,6 +1,6 @@
 import { inAppHelpHref } from "@/lib/product-documentation-registry";
 import type { EvidenceSourceLink } from "@/lib/evidence-surface-copy";
-import { GOVERNANCE_FINDINGS_PATH } from "@/lib/governance-route-paths";
+import { GOVERNANCE_FINDINGS_PATH } from "@/lib/governance/governance-route-paths";
 
 export const PLANNING_CLAIM_DISCIPLINE =
   "Themes and plans are derived from captured review feedback in the current workspace scope — not a signed-review diligence Sources trail.";

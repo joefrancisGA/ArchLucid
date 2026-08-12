@@ -6,10 +6,10 @@ import type { PolicyPacksPageViewModel } from "./policy-packs-page-view-model";
 import { PolicyPackImpactPreviewPanel } from "@/components/PolicyPackImpactPreviewPanel";
 import { PolicyPackImpactSimulationCard } from "@/components/PolicyPackImpactSimulationCard";
 import { PolicyPackBasisStatusBanner } from "@/components/governance/PolicyPackBasisStatusBanner";
-import { buildPolicyPackEnforcedRuleRows } from "@/lib/policy-pack-enforced-rules";
+import { buildPolicyPackEnforcedRuleRows } from "@/lib/policy/policy-pack-enforced-rules";
 import {
   policyPacksPageSubtitle,
-} from "@/lib/policy-packs-page";
+} from "@/lib/policy/policy-packs-page";
 import {
   policyPacksRefreshAssistReaderLine,
   policyPacksRefreshAssistReaderLineBuyerPolished,

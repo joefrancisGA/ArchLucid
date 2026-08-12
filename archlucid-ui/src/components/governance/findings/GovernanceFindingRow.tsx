@@ -10,14 +10,14 @@ import { FindingCausalMiniChain } from "@/components/usability/FindingCausalMini
 import {
   buildFindingCausalMiniChain,
   findingCausalMiniChainFromGovernanceQueueRow,
-} from "@/lib/finding-causal-mini-chain";
+} from "@/lib/findings/finding-causal-mini-chain";
 import { NewSinceLastVisitMarker } from "@/components/usability/NewSinceLastVisitMarker";
 import { FindingPolicyTraceabilityBadges } from "@/components/FindingPolicyTraceabilityBadges";
 import { Card, CardContent, CardHeader, CardTitle } from "@/components/ui/card";
 import { StatusTag } from "@/components/ui/status-tag";
-import { buildPolicyTraceabilityLinksFromRuleId } from "@/lib/finding-policy-evidence-citations";
+import { buildPolicyTraceabilityLinksFromRuleId } from "@/lib/findings/finding-policy-evidence-citations";
 import { OPERATOR_LINK, OPERATOR_TYPOGRAPHY } from "@/lib/design-tokens";
-import { findingDerivationFromGovernanceQueueRow } from "@/lib/finding-derivation-sentence";
+import { findingDerivationFromGovernanceQueueRow } from "@/lib/findings/finding-derivation-sentence";
 import { cn } from "@/lib/utils";
 
 import {

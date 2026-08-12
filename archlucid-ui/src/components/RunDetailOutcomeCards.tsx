@@ -6,6 +6,7 @@ import Link from "next/link";
 import { Card, CardContent, CardDescription, CardHeader, CardTitle } from "@/components/ui/card";
 import { ReviewOutcomeTaxonomyLegend } from "@/components/ReviewOutcomeTaxonomyLegend";
 import { StatusPill } from "@/components/StatusPill";
+import { StatusTag } from "@/components/ui/status-tag";
 import { useNavCommittedArchitectureReview } from "@/components/OperatorNavAuthorityProvider";
 import { BUYER_APPROVED_WITH_MONITORING_DEFINITION, BUYER_DECISION_KEY_SUMMARY, BUYER_FINDINGS_COUNT_WITH_MONITORED_RISK, BUYER_OPEN_SIGNED_RECORD_CTA, BUYER_REVIEW_DETAIL_EVIDENCE_BASIS_LINE, BUYER_REVIEW_MONITORED_RISK_COUNT_CLARIFIER, BUYER_SEALED_MANIFEST_TOOLTIP } from "@/lib/buyer-polish-copy";
 import { CORE_PILOT_PATH_STREAMLINED_LABELS, isStreamlinedCorePilotPath } from "@/lib/vocabulary/core-pilot-path-vocabulary";
@@ -307,7 +308,7 @@ function PackageStatusStrip(props: PackageStatusStripProps) {
           status="Finalized"
           domain="pipeline"
           className="mt-px"
-          ariaLabel="Review outcome: finalized"
+          ariaLabel="Package state: finalized"
           title={isBuyerPolishedOperatorShellEnv() ? BUYER_SEALED_MANIFEST_TOOLTIP : undefined}
         />
       ) : (
@@ -334,11 +335,11 @@ function PackageStatusStrip(props: PackageStatusStripProps) {
   return (
     <section
       role="status"
-      aria-label="Review outcome summary"
+      aria-label="Package status summary"
       className={cn(stripShell, "flex flex-col divide-y divide-neutral-200 sm:flex-row sm:divide-x sm:divide-y-0 dark:divide-neutral-700")}
     >
       <div className={segmentInner}>
-        <p className={stripSegmentLabelClass()}>Review outcome</p>
+        <p className={stripSegmentLabelClass()}>Package state</p>
         <div className="mt-1">
           {props.hasGoldenManifest && hasManifest ? (
             <Link
@@ -626,15 +627,11 @@ export function RunDetailOutcomeCards({
           <CardDescription>Reviewed architecture record</CardDescription>
         </CardHeader>
         <CardContent className="pt-0">
-          <p
-            className={cn(
-              "m-0 font-semibold text-al-text-primary",
-              OPERATOR_TYPOGRAPHY.body,
-              hasGoldenManifest ? "text-emerald-700 dark:text-emerald-400" : "text-amber-800 dark:text-amber-200",
-            )}
-          >
-            {hasGoldenManifest ? "Finalized" : "Awaiting finalize"}
-          </p>
+          {hasGoldenManifest ? (
+            <StatusTag kind="ready" label="Finalized" />
+          ) : (
+            <StatusTag kind="needs-attention" label="Awaiting finalize" />
+          )}
           {warningsLine !== null ? (
             <p className={cn("m-0 mt-1 tabular-nums text-neutral-800 dark:text-neutral-200", OPERATOR_TYPOGRAPHY.body)}>{warningsLine}</p>
           ) : null}

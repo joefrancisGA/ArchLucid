@@ -7,10 +7,10 @@ import { CollapsibleSection } from "@/components/CollapsibleSection";
 import { CopyIdButton } from "@/components/CopyIdButton";
 import { BUYER_SHOWCASE_POLICY_PACK_LABEL } from "@/lib/buyer-polish-copy";
 import { isBuyerPolishedOperatorShellEnv } from "@/lib/demo-ui-env";
-import { findingDetailHeadingTitle } from "@/lib/finding-display-from-inspect";
-import { policyPacksRuleHref } from "@/lib/policy-packs-deep-link";
+import { findingDetailHeadingTitle } from "@/lib/findings/finding-display-from-inspect";
+import { policyPacksRuleHref } from "@/lib/policy/policy-packs-deep-link";
 import { OPERATOR_LINK, OPERATOR_TYPOGRAPHY } from "@/lib/design-tokens";
-import { resolvePolicyRuleIdFromInspect, resolvePolicyRuleLabelFromInspect } from "@/lib/finding-policy-evidence-citations";
+import { resolvePolicyRuleIdFromInspect, resolvePolicyRuleLabelFromInspect } from "@/lib/findings/finding-policy-evidence-citations";
 import type { FindingInspectPayload } from "@/types/finding-inspect";
 
 export type FindingInspectWhyMattersSectionProps = {

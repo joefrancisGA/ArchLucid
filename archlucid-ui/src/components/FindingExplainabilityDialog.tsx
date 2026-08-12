@@ -26,7 +26,7 @@ import {
   findingRationalePreview,
   findingSeverityAudienceCopy,
   findingTraceCompletenessPlainEnglish,
-} from "@/lib/finding-explainability-summary";
+} from "@/lib/findings/finding-explainability-summary";
 import { truncateForList } from "@/lib/truncate-for-list";
 import {
   OPERATOR_CALLOUT_WARN_CLASS,

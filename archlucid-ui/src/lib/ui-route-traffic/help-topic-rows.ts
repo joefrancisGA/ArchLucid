@@ -1,7 +1,7 @@
 import { API_CONTRACTS_HELP_PATH } from "@/lib/api-contracts-help-route";
 import { ENGINEERING_TROUBLESHOOTING_HELP_PATH } from "@/lib/developer-troubleshooting-help-route";
 import { DPA_TEMPLATE_HELP_PATH } from "@/lib/dpa-template-help-route";
-import { FINDINGS_HELP_PATH } from "@/lib/findings-help-route";
+import { FINDINGS_HELP_PATH } from "@/lib/findings/findings-help-route";
 import { FIRST_ARCHITECTURE_REVIEW_HELP_PATH } from "@/lib/first-architecture-review-help-route";
 import { GETTING_STARTED_HELP_PATH } from "@/lib/getting-started-help-guide-content";
 import { PATH_CHOOSER_HELP_PATH } from "@/lib/path-chooser-help-route";

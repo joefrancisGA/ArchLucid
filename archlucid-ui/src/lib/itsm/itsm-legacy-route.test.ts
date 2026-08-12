@@ -9,14 +9,14 @@ import {
   ITSM_ATLASSIAN_OAUTH_CALLBACK_PATH,
   REMOVED_INTEGRATIONS_ITSM_HUB_PATH,
 } from "@/lib/integrations-nav-paths";
-import { ITSM_CONNECTOR_SMOKE_HELP, ITSM_PRODUCT_SMOKE_VERIFICATION_HREF } from "@/lib/itsm-connectors-admin-scope";
-import { ITSM_PRODUCT_CANONICAL_DEEP_LINKS } from "@/lib/itsm-product-canonical-deep-links";
+import { ITSM_CONNECTOR_SMOKE_HELP, ITSM_PRODUCT_SMOKE_VERIFICATION_HREF } from "@/lib/itsm/itsm-connectors-admin-scope";
+import { ITSM_PRODUCT_CANONICAL_DEEP_LINKS } from "@/lib/itsm/itsm-product-canonical-deep-links";
 import {
   hrefTargetsPermanentRedirectSource,
   NEXT_CONFIG_PERMANENT_REDIRECT_SOURCE_PATHS,
 } from "@/lib/next-config-permanent-redirect-source-paths";
 
-import nextConfig from "../../next.config";
+import nextConfig from "../../../next.config";
 
 const ITSM_REMOVED_HUB_APP_PAGE = join(
   process.cwd(),

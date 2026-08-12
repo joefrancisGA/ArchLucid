@@ -7,7 +7,7 @@ import {
 } from "@/testing/buyer-polished-shell-vitest-override";
 import { useOperatorQueryTestLifecycle } from "@/testing/operator-query-test-helpers";
 import { renderWithOperatorQuery } from "@/testing/render-with-operator-query";
-import { EXECUTIVE_KPI_DRILL_THROUGH } from "@/lib/executive-kpi-drill-through-hrefs";
+import { EXECUTIVE_KPI_DRILL_THROUGH } from "@/lib/executive/executive-kpi-drill-through-hrefs";
 
 vi.mock("@/lib/demo-ui-env", async (importOriginal) =>
   extendBuyerPolishedShellVitestMock(importOriginal),

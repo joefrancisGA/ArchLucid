@@ -14,7 +14,7 @@
 import {
   GOVERNANCE_DECISION_REGISTER_PATH,
   GOVERNANCE_FINDINGS_PATH,
-} from "@/lib/governance-route-paths";
+} from "@/lib/governance/governance-route-paths";
 
 export type DecisionRegisterFindingsSurfaceId = "decision-register" | "findings-queue";
 

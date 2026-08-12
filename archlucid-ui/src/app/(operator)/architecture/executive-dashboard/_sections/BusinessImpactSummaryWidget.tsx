@@ -8,7 +8,7 @@ import { useExecutiveRoiSummaryQuery } from "@/hooks/use-executive-roi-summary-q
 import { OperatorApiProblem } from "@/components/OperatorApiProblem";
 import { Card, CardContent, CardDescription, CardHeader, CardTitle } from "@/components/ui/card";
 import { toApiLoadFailure } from "@/lib/api-load-failure";
-import type { ExecutiveRoiSummary } from "@/lib/executive-summary-markdown";
+import type { ExecutiveRoiSummary } from "@/lib/executive/executive-summary-markdown";
 import {
   formatExecutiveRoiPricingBasisLabel,
   formatRoiCostEvidenceFreshnessWarning,

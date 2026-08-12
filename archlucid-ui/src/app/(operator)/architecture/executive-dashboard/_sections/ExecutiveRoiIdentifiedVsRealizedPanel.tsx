@@ -9,10 +9,10 @@ import {
   EXECUTIVE_ROI_REALIZED_COMMITTED_DESCRIPTION,
   EXECUTIVE_ROI_REALIZED_COMMITTED_LABEL,
   type ExecutiveRoiIdentifiedVsRealizedBuckets,
-} from "@/lib/executive-roi-identified-vs-realized";
-import { presentExecutiveEstimatedSavings } from "@/lib/executive-estimated-savings-display";
+} from "@/lib/executive/executive-roi-identified-vs-realized";
+import { presentExecutiveEstimatedSavings } from "@/lib/executive/executive-estimated-savings-display";
 import { OPERATOR_TYPOGRAPHY } from "@/lib/design-tokens";
-import type { ExecutiveRoiSummary } from "@/lib/executive-summary-markdown";
+import type { ExecutiveRoiSummary } from "@/lib/executive/executive-summary-markdown";
 import { resolveExecutiveHeadlineScopeLabel } from "@/lib/roi-sponsor-scope-labels";
 import {
   formatExecutiveRoiPricingBasisLabel,

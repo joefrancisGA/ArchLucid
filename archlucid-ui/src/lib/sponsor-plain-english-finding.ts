@@ -5,7 +5,7 @@
  * V1 uses templates only — no new LLM call — so export packets stay trustworthy and reviewable.
  */
 
-import { FINDING_DERIVATION_NOT_AVAILABLE } from "@/lib/finding-derivation-sentence";
+import { FINDING_DERIVATION_NOT_AVAILABLE } from "@/lib/findings/finding-derivation-sentence";
 
 export const SPONSOR_PLAIN_ENGLISH_CAUTION =
   "Sponsor-facing paraphrase only — not new evidence, not a formal risk acceptance, and not a substitute for the recorded finding and evidence trail.";

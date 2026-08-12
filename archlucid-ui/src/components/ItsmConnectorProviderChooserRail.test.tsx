@@ -9,7 +9,7 @@ import {
   ITSM_CONNECTOR_PROVIDER_JIRA_LINK,
   ITSM_CONNECTOR_PROVIDER_SERVICENOW_LINK,
   ITSM_CONNECTOR_PROVIDER_WHY_THREE,
-} from "@/lib/itsm-connector-provider-chooser";
+} from "@/lib/itsm/itsm-connector-provider-chooser";
 
 describe("ItsmConnectorProviderChooserRail (TB-2256)", () => {
   it("from Jira links ServiceNow and Azure Boards", () => {

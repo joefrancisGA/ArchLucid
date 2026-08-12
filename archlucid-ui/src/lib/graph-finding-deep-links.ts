@@ -1,5 +1,5 @@
 import { evidenceGraphHref } from "@/lib/evidence-graph-route";
-import { getFindingEvidenceTraceHref } from "@/lib/finding-evidence-navigation";
+import { getFindingEvidenceTraceHref } from "@/lib/findings/finding-evidence-navigation";
 import { SHOWCASE_STATIC_DEMO_PRIMARY_FINDING_ID } from "@/lib/showcase-static-demo";
 import type { GraphNodeVm } from "@/types/graph";
 

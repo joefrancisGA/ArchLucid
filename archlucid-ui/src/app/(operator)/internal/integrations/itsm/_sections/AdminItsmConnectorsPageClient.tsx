@@ -25,7 +25,7 @@ import {
   ITSM_CONNECTORS_NATIVE_DISABLED_MESSAGE,
   ITSM_CONNECTORS_NATIVE_ENABLED_MESSAGE,
   ITSM_CONNECTORS_PAGE_CONFIG_CARD_TITLE,
-} from "@/lib/itsm-connectors-admin-scope";
+} from "@/lib/itsm/itsm-connectors-admin-scope";
 import { DESIGN_TOKENS, OPERATOR_TYPOGRAPHY } from "@/lib/design-tokens";
 
 import { AdminItsmConnectorOnboardingWizard } from "./AdminItsmConnectorOnboardingWizard";
@@ -39,7 +39,7 @@ import {
 import {
   buildItsmConnectorsAdminPageLoadResult,
   sanitizeItsmConnectorsAdminLoadError,
-} from "@/lib/itsm-connectors-admin-page-load";
+} from "@/lib/itsm/itsm-connectors-admin-page-load";
 
 export function AdminItsmConnectorsPageClient(): React.ReactElement {
   const [health, setHealth] = useState<ItsmIntegrationHealthResponse | null>(null);

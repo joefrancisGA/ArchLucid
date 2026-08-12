@@ -17,7 +17,7 @@ import { DIGESTS_HUB_PATH } from "@/lib/digests-route-paths";
 import {
   GOVERNANCE_ALERTS_PATH,
   GOVERNANCE_EXCEPTIONS_PATH,
-} from "@/lib/governance-route-paths";
+} from "@/lib/governance/governance-route-paths";
 import { IMPACT_PREVIEW_PATH } from "@/lib/impact-preview-route";
 
 const ROUTE_VIEW_EXPLANATIONS: readonly { prefix: string; explanation: RouteViewExplanation }[] = [

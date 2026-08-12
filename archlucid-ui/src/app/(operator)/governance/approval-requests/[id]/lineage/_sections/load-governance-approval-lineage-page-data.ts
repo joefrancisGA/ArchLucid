@@ -1,7 +1,7 @@
 import { getApprovalRequestLineage } from "@/lib/api";
 import type { ApiLoadFailureState } from "@/lib/api-load-failure";
 import { toApiLoadFailure } from "@/lib/api-load-failure";
-import { resolveGovernanceApprovalLineage } from "@/lib/governance-lineage-demo-fallback";
+import { resolveGovernanceApprovalLineage } from "@/lib/governance/governance-lineage-demo-fallback";
 import type { GovernanceLineageResult } from "@/types/governance-dashboard";
 
 export type GovernanceApprovalLineagePageServerLoad = {

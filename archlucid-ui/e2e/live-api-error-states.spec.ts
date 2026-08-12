@@ -5,7 +5,7 @@
 import { expect, test } from "@playwright/test";
 
 import { RUNS_LIST_PAGE_PRIMARY_HEADING_PATTERN } from "./fixtures";
-import { EXECUTIVE_DASHBOARD_WORKSPACE_HEALTH_HREF } from "@/lib/executive-dashboard-route";
+import { EXECUTIVE_DASHBOARD_WORKSPACE_HEALTH_HREF } from "@/lib/executive/executive-dashboard-route";
 import { liveApiBase } from "./helpers/live-api-client";
 import { auditPageMainHeading, clickAuditSearchAndWaitForSuccessfulResponse, expandAuditBuyerFiltersIfPresent, expectAuditSearchNoResults } from "./helpers/operator-journey";
 

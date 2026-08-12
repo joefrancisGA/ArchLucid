@@ -3,7 +3,7 @@ import { describe, expect, it } from "vitest";
 
 import { CanonicalObjectSecondaryViewStrip } from "@/components/usability/CanonicalObjectSecondaryViewStrip";
 import { buildCanonicalObjectSecondaryView } from "@/lib/canonical-object-home-registry";
-import { getFindingDetailHref } from "@/lib/finding-evidence-navigation";
+import { getFindingDetailHref } from "@/lib/findings/finding-evidence-navigation";
 
 describe("CanonicalObjectSecondaryViewStrip (TB-2153)", () => {
   it("renders viewing-from copy and canonical home link", () => {

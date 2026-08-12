@@ -1,6 +1,6 @@
 import { describe, expect, it } from "vitest";
 
-import { FINDING_DERIVATION_NOT_AVAILABLE } from "@/lib/finding-derivation-sentence";
+import { FINDING_DERIVATION_NOT_AVAILABLE } from "@/lib/findings/finding-derivation-sentence";
 import {
   buildSponsorPlainEnglishFinding,
   SPONSOR_PLAIN_ENGLISH_CAUTION,

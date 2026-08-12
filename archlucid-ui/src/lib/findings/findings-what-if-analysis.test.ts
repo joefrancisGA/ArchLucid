@@ -1,12 +1,12 @@
 import { describe, expect, it } from "vitest";
 
-import type { QuickDecisionFinding } from "./quick-decision-summary-derive";
+import type { QuickDecisionFinding } from "@/lib/quick-decision-summary-derive";
 
 import {
   hasFindingsWhatIfAnalysisContent,
   readFindingProjectedImpactInterval,
   readFindingProjectedImpactUsd,
-} from "./findings-what-if-analysis";
+} from "@/lib/findings/findings-what-if-analysis";
 
 function buildFinding(findingId: string, wireJson: string): QuickDecisionFinding {
   return {

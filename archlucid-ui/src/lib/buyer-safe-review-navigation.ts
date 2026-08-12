@@ -2,7 +2,7 @@ import { BUYER_VIEW_SIGNED_RECORD_CTA } from "@/lib/buyer-polish-copy";
 import { evidenceGraphHref } from "@/lib/evidence-graph-route";
 import { canonicalizeDemoRunId } from "@/lib/demo-run-canonical";
 import { isBuyerSafeDemoMarketingChromeEnv } from "@/lib/demo-ui-env";
-import { SHOWCASE_PHI_FINDING_GRAPH_NODE_ID } from "@/lib/finding-inspect-graph-evidence";
+import { SHOWCASE_PHI_FINDING_GRAPH_NODE_ID } from "@/lib/findings/finding-inspect-graph-evidence";
 import { isDemoRunIdEligibleForStaticFallback } from "@/lib/operator-static-demo";
 import { comparePageHrefAdaptive } from "@/lib/compare-url-query-params";
 import { reviewDetailPath } from "@/lib/architecture-routes";

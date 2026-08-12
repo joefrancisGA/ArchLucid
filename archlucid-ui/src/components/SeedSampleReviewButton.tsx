@@ -9,7 +9,7 @@ import {
   BUYER_SEED_SAMPLE_WORKSPACE_CTA,
   BUYER_SEED_SAMPLE_WORKSPACE_SUCCESS,
 } from "@/lib/buyer-polish-copy";
-import { EXECUTIVE_DASHBOARD_HREF } from "@/lib/executive-dashboard-route";
+import { EXECUTIVE_DASHBOARD_HREF } from "@/lib/executive/executive-dashboard-route";
 import {
   invalidateOperatorExecutiveRoiCaches,
   invalidateOperatorHomeRunsCaches,

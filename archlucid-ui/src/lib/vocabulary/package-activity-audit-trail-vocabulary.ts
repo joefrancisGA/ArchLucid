@@ -15,7 +15,7 @@
 
 import { REVIEWS_LIST_PATH } from "@/lib/architecture-routes";
 import { buildArchitectureWorkspaceTabHref } from "@/lib/architecture-workspace-tabs";
-import { GOVERNANCE_AUDIT_PATH } from "@/lib/governance-route-paths";
+import { GOVERNANCE_AUDIT_PATH } from "@/lib/governance/governance-route-paths";
 import { buildReviewDetailTabHref } from "@/lib/review-detail-workspace-tabs";
 
 export type PackageActivityHrefKind = "archTab" | "reviewTab";

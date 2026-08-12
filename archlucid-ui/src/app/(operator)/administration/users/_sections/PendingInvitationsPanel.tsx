@@ -24,7 +24,7 @@ import {
   type AdminUserInvitationRow,
 } from "@/lib/admin-user-invitations";
 import { OPERATOR_LINK, OPERATOR_TYPOGRAPHY } from "@/lib/design-tokens";
-import { GOVERNANCE_AUDIT_PATH } from "@/lib/governance-route-paths";
+import { GOVERNANCE_AUDIT_PATH } from "@/lib/governance/governance-route-paths";
 import { formatInstantForLocale } from "@/lib/locale-datetime";
 import { formatRelativeTime } from "@/lib/relative-time";
 import { showError, showSuccess } from "@/lib/toast";

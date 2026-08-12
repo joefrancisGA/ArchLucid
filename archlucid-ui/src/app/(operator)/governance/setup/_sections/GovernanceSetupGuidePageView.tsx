@@ -3,7 +3,7 @@ import { cn } from "@/lib/utils";
 import { OperatorPageHeader } from "@/components/OperatorPageHeader";
 import { GovernanceSetupConfigHubsVocabularyRail } from "@/components/GovernanceSetupConfigHubsVocabularyRail";
 import { OPERATOR_TYPOGRAPHY } from "@/lib/design-tokens";
-import { GOVERNANCE_SETUP_PAGE_SUBTITLE } from "@/lib/governance-setup-route";
+import { GOVERNANCE_SETUP_PAGE_SUBTITLE } from "@/lib/governance/governance-setup-route";
 
 import { GovernanceSetupFoundationPanel } from "./GovernanceSetupFoundationPanel";
 import { GovernanceSetupGuideProgressSummary } from "./GovernanceSetupGuideProgressSummary";

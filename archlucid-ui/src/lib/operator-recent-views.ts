@@ -3,7 +3,7 @@
  */
 
 import { BUYER_TERMINOLOGY } from "@/lib/vocabulary/buyer-surface-vocabulary";
-import { GOVERNANCE_AUDIT_PATH } from "@/lib/governance-route-paths";
+import { GOVERNANCE_AUDIT_PATH } from "@/lib/governance/governance-route-paths";
 import { isExecutiveDashboardPath } from "@/lib/executive/executive-dashboard-route";
 import { OPERATOR_NAV_LINK_LABELS } from "@/lib/i18n";
 
