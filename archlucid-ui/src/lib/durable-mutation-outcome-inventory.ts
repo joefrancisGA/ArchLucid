@@ -27,6 +27,7 @@ import {
   REVIEW_CREATED_SUCCESS_MESSAGE,
 } from "@/components/review-intake/ReviewGenerationCreatedNotice";
 import { REVIEW_START_CREATED_CONFIRMATION } from "@/lib/review-start-progress-copy";
+import { DURABLE_OUTCOME_DUAL_TOAST_TEST_PATHS } from "@/lib/operator/durable-outcome-registry";
 
 /** Success copy that must not be toast-only on operator high-stakes mutation paths (TB-2112–TB-2116). */
 export const DURABLE_MUTATION_FORBIDDEN_TOAST_SUCCESS_PHRASES: readonly string[] = [
@@ -109,24 +110,4 @@ export const DURABLE_MUTATION_TRIVIAL_TOAST_ALLOWLIST: readonly { readonly pathS
 ];
 
 /** Vitest files that assert high-stakes saves do not toast (dual-toast guard inventory). */
-export const DURABLE_MUTATION_DUAL_TOAST_TEST_PATHS: readonly string[] = [
-  "app/(operator)/integrations/cloud-connections/_sections/Tier2ConnectionWizard.test.tsx",
-  "app/(operator)/administration/identity/sso-wizard/page.test.tsx",
-  "app/(operator)/administration/identity-providers/_sections/SamlSpConfigurationForm.test.tsx",
-  "app/(operator)/administration/scim-provisioning/_sections/ScimProvisioningSettingsPageClient.test.tsx",
-  "app/(operator)/integrations/webhooks/page.test.tsx",
-  "app/(operator)/integrations/slack/SlackIntegrationPageClient.test.tsx",
-  "app/(operator)/integrations/teams/TeamsNotificationsIntegrationPageClient.test.tsx",
-  "app/(operator)/administration/billing/page.test.tsx",
-  "components/governance/GovernanceQuickApproveButton.test.tsx",
-  "components/usability/GovernanceFindingsBulkActions.test.tsx",
-  "components/governance/findings/GovernanceFindingsList.bulk-disposition.test.tsx",
-  "app/(operator)/governance/policy-packs/_sections/PolicyPacksPageView.tabs.test.tsx",
-  "app/(operator)/architecture/reviews/new/FirstPilotIntakeWizard.test.tsx",
-  "app/(operator)/architecture/reviews/new/QuickStartWizard.test.tsx",
-  "app/(operator)/architecture/reviews/new/SimplifiedPilotWizard.test.tsx",
-  "components/operator/OperatorSuccessCallout.test.tsx",
-  "components/review-intake/ReviewGenerationCreatedNotice.test.tsx",
-  "lib/durable-action-outcome-guard.test.ts",
-  "lib/tb2116-durable-mutation-outcome-guard.test.ts",
-];
+export const DURABLE_MUTATION_DUAL_TOAST_TEST_PATHS: readonly string[] = DURABLE_OUTCOME_DUAL_TOAST_TEST_PATHS;
