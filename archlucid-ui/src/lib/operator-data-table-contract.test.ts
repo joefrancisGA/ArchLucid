@@ -5,6 +5,8 @@ import { describe, expect, it } from "vitest";
 
 const SRC_ROOT = join(process.cwd(), "src");
 
+import { OPERATOR_DATA_TABLE_RAW_TABLE_BASELINE_PATHS } from "@/lib/operator/operator-data-table-raw-table-baseline";
+
 /**
  * Marketing pages, help guides, and the static reference tables they embed are prose documents,
  * not operator data grids, so they are outside the EnterpriseTable convention.
@@ -24,44 +26,7 @@ const EXEMPT_PREFIXES: readonly string[] = [
  * `border-neutral-100` rows against the shared `border-neutral-200`. This list may shrink but must
  * never grow.
  */
-const RAW_TABLE_BASELINE: ReadonlySet<string> = new Set([
-  "app/(operator)/administration/ai-usage/_sections/ai-usage/AiUsageCostBreakdownPanel.tsx",
-  "app/(operator)/administration/ai-usage/_sections/ai-usage/AiUsageRecentActivityPanel.tsx",
-  "app/(operator)/administration/identity-providers/_sections/IdentityProvidersCatalogTable.tsx",
-  "app/(operator)/administration/identity-providers/_sections/SamlSpConfigurationForm.tsx",
-  "app/(operator)/administration/identity/sso-wizard/_sections/SsoWizardPageClient.tsx",
-  "app/(operator)/administration/model-governance/_sections/ModelGovernanceSettingsCard.tsx",
-  "app/(operator)/administration/security-trust/_sections/OperatorSecurityTrustPageView.tsx",
-  "app/(operator)/administration/users/_sections/SettingsRolesMatrixSection.tsx",
-  "app/(operator)/governance/policy-packs/_sections/CuratedRulesAuthoringSection.tsx",
-  "app/(operator)/insights/pilot-outcomes/_sections/PilotValueReportPageView.tsx",
-  "app/(operator)/integrations/cloud-connections/_sections/AwsConnectionRecentActivityPanel.tsx",
-  "app/(operator)/integrations/cloud-connections/_sections/AwsTrustPolicyStarterPanel.tsx",
-  "app/(operator)/integrations/cloud-connections/_sections/GcpConnectionRecentActivityPanel.tsx",
-  "app/(operator)/integrations/cloud-connections/_sections/GcpWifStarterPanel.tsx",
-  "app/(operator)/internal/configuration/_sections/AdminConfigurationPageView.tsx",
-  "app/(operator)/internal/pricing-quote-aging/_sections/PricingQuoteAgingPageView.tsx",
-  "app/(operator)/internal/product-learning/_sections/ProductLearningPageView.tsx",
-  "app/(operator)/internal/recommendation-learning/_sections/RecommendationLearningOpsPageClient.tsx",
-  "components/ArtifactListTable.tsx",
-  "components/alerts/AlertSimulationContent.tsx",
-  "components/compare/ArchitectureManifestUnifiedDiffView.tsx",
-  "components/compare/StructuredComparisonView.tsx",
-  "components/evolution/SimulationRunDiffCard.tsx",
-  "components/governance/GovernanceConflictsTable.tsx",
-  "components/planning/PlanningPlansTable.tsx",
-  "components/planning/PlanningThemesTable.tsx",
-  "components/provenance/ProvenancePageWorkspace.tsx",
-  "components/replay/ReplayValidationHistorySection.tsx",
-  "components/reviews/ReviewAgentExecutionLogSection.tsx",
-  "components/runs/RunAgentForensicsSection.tsx",
-  "components/runs/RunAgentQualityWarningsPanel.tsx",
-  "components/runs/RunDecisionExplainabilitySection.tsx",
-  "components/runs/RunRetrievalGroundingPanel.tsx",
-  "components/runs/RunToolInvocationForensicsPanel.tsx",
-  "components/runs/RunsListAggregateErrorBoundary.tsx",
-  "components/skeletons/RunsListSkeleton.tsx",
-]);
+const RAW_TABLE_BASELINE: ReadonlySet<string> = new Set(OPERATOR_DATA_TABLE_RAW_TABLE_BASELINE_PATHS);
 
 function collectComponentFiles(directory: string): string[] {
   const collected: string[] = [];

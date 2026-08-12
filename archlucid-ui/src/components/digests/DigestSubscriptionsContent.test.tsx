@@ -191,11 +191,12 @@ describe("DigestSubscriptionsContent", () => {
     expect(screen.getByText("Ops mailbox")).toBeInTheDocument();
     expect(screen.getByText("Active")).toBeInTheDocument();
     expect(screen.getByRole("button", { name: "Pause" })).toBeInTheDocument();
+    fireEvent.click(screen.getByTestId("digest-subscription-more-s1"));
     expect(screen.getByRole("link", { name: "Send test digest" })).toHaveAttribute(
       "href",
       "/governance/advisory-scans?tab=schedules",
     );
-    expect(screen.getByRole("button", { name: "Delete" })).toBeDisabled();
+    expect(screen.queryByRole("button", { name: "Delete" })).toBeNull();
     expect(screen.getByTestId("digest-subscriptions-refresh")).toBeInTheDocument();
   });
 

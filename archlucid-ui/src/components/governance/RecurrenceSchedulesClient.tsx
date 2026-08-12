@@ -12,6 +12,7 @@ import { EnterpriseCompactEmptyState } from "@/components/EnterpriseCompactEmpty
 import { OperatorPageHeader } from "@/components/operator/OperatorPageHeader";
 import { PageContextualHelpButton } from "@/components/usability/PageContextualHelpButton";
 import { WhyDisabledCtaHint } from "@/components/usability/WhyDisabledCtaHint";
+import { OperatorInventoryRowMoreActions } from "@/components/operator/OperatorInventoryRowMoreActions";
 import { RecurrenceScheduleActivationActions } from "@/components/governance/RecurrenceScheduleActivationActions";
 import { RecurrenceScheduleCreatePanel } from "@/components/governance/RecurrenceScheduleCreatePanel";
 import { RecurrenceScheduleExamplesSection } from "@/components/governance/RecurrenceScheduleExamplesSection";
@@ -65,6 +66,8 @@ function truncateRunId(runId: string): string {
 
   return `${normalized.slice(0, 8)}…${normalized.slice(-4)}`;
 }
+
+const RECURRENCE_SCHEDULE_REVIEW_PACKAGE_LINK_LABEL = "Open review";
 
 type RecurrenceStatusPresentation = {
   kind: "ready" | "needs-attention" | "danger" | "muted";
@@ -440,11 +443,12 @@ export default function RecurrenceSchedulesClient() {
                         <Link
                           href={`/architecture/reviews/${schedule.sourceRunId}`}
                           className={cn(
-                            "font-mono text-teal-800 underline-offset-2 hover:underline dark:text-teal-300",
+                            "text-teal-800 underline underline-offset-2 dark:text-teal-300",
                             OPERATOR_TYPOGRAPHY.body,
                           )}
+                          title={`Architecture review ${truncateRunId(schedule.sourceRunId)}`}
                         >
-                          {truncateRunId(schedule.sourceRunId)}
+                          {RECURRENCE_SCHEDULE_REVIEW_PACKAGE_LINK_LABEL}
                         </Link>
                       </EnterpriseTableCell>
                       <EnterpriseTableCell>
@@ -455,9 +459,14 @@ export default function RecurrenceSchedulesClient() {
                             ianaTimeZoneId: displayTimeZoneId,
                           })}
                         />
-                        <p className={cn("m-0 mt-1 font-mono text-neutral-500", OPERATOR_TYPOGRAPHY.helper)}>
-                          {schedule.cronExpression}
-                        </p>
+                        <details className="mt-1">
+                          <summary className={cn("cursor-pointer text-neutral-600 dark:text-neutral-400", OPERATOR_TYPOGRAPHY.helper)}>
+                            Cron expression
+                          </summary>
+                          <p className={cn("m-0 mt-1 font-mono text-neutral-500", OPERATOR_TYPOGRAPHY.helper)}>
+                            {schedule.cronExpression}
+                          </p>
+                        </details>
                       </EnterpriseTableCell>
                       <EnterpriseTableCell>
                         <RecurrenceLocalTimeDisplay
@@ -521,11 +530,31 @@ export default function RecurrenceSchedulesClient() {
                             </Button>
                           </div>
                         ) : (
-                          <div className="flex flex-col gap-2">
-                            <div className="flex flex-wrap gap-2">
-                              <Button asChild size="sm" variant="outline">
-                                <Link href={`/architecture/reviews/${schedule.sourceRunId}`}>View</Link>
-                              </Button>
+                          <OperatorInventoryRowMoreActions
+                            testId={`recurrence-more-${schedule.scheduleId}`}
+                            primaryActions={
+                              <>
+                                <Button asChild size="sm" variant="outline">
+                                  <Link href={`/architecture/reviews/${schedule.sourceRunId}`}>View</Link>
+                                </Button>
+                                <Button
+                                  type="button"
+                                  size="sm"
+                                  variant="outline"
+                                  disabled={busyId === schedule.scheduleId || !canMutate}
+                                  aria-describedby={
+                                    mutationDisabledReason === null ? undefined : mutationDisabledHintId
+                                  }
+                                  onClick={() => void toggleEnabled(schedule)}
+                                  data-testid={`recurrence-toggle-${schedule.scheduleId}`}
+                                >
+                                  {busyId === schedule.scheduleId
+                                    ? "Saving…"
+                                    : reversibleControlLabel("recurring-activity", schedule.isEnabled)}
+                                </Button>
+                              </>
+                            }
+                            overflowActions={
                               <Button
                                 type="button"
                                 size="sm"
@@ -538,29 +567,14 @@ export default function RecurrenceSchedulesClient() {
                               >
                                 Edit
                               </Button>
-                              <Button
-                                type="button"
-                                size="sm"
-                                variant="outline"
-                                disabled={busyId === schedule.scheduleId || !canMutate}
-                                aria-describedby={
-                                  mutationDisabledReason === null ? undefined : mutationDisabledHintId
-                                }
-                                onClick={() => void toggleEnabled(schedule)}
-                                data-testid={`recurrence-toggle-${schedule.scheduleId}`}
-                              >
-                                {busyId === schedule.scheduleId
-                                  ? "Saving…"
-                                  : reversibleControlLabel("recurring-activity", schedule.isEnabled)}
-                              </Button>
-                            </div>
-                            {autoDisabled ? (
-                              <span className={cn("text-neutral-600 dark:text-neutral-400", OPERATOR_TYPOGRAPHY.helper)}>
-                                Auto-disabled after repeated failures — re-enable when ready.
-                              </span>
-                            ) : null}
-                          </div>
+                            }
+                          />
                         )}
+                        {!isEditing && autoDisabled ? (
+                          <span className={cn("mt-2 block text-neutral-600 dark:text-neutral-400", OPERATOR_TYPOGRAPHY.helper)}>
+                            Auto-disabled after repeated failures — re-enable when ready.
+                          </span>
+                        ) : null}
                       </EnterpriseTableCell>
                     </EnterpriseTableRow>
                   );

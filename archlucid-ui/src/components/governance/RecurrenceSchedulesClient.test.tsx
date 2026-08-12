@@ -264,6 +264,7 @@ describe("RecurrenceSchedulesClient", () => {
       expect(screen.getByText("Weekly architecture review")).toBeInTheDocument();
     });
 
+    fireEvent.click(screen.getByTestId(`recurrence-more-${sampleSchedule.scheduleId}`));
     fireEvent.click(screen.getByRole("button", { name: "Edit" }));
     fireEvent.change(screen.getByTestId("recurrence-schedule-name"), {
       target: { value: "Updated weekly review" },
@@ -315,5 +316,20 @@ describe("RecurrenceSchedulesClient", () => {
     expect(hint).toHaveTextContent(enterpriseMutationControlDisabledTitle);
     expect(createButton).toHaveAttribute("aria-describedby", "recurrence-schedules-mutate-disabled-hint");
     expect(emptyState).toContainElement(hint);
+  });
+
+  it("uses buyer scope label, cadence disclosure, and action-budget row chrome (TB-1649)", async () => {
+    vi.mocked(governanceApi.listArchitectureReviewRecurrenceSchedules).mockResolvedValue([sampleSchedule]);
+
+    render(<RecurrenceSchedulesClient />);
+
+    await waitFor(() => {
+      expect(screen.getByRole("link", { name: "Open review" })).toBeInTheDocument();
+    });
+
+    expect(screen.getByText("Cron expression")).toBeInTheDocument();
+    expect(screen.getByTestId(`recurrence-more-${sampleSchedule.scheduleId}`)).toBeInTheDocument();
+    expect(screen.getByRole("link", { name: "View" })).toBeInTheDocument();
+    expect(screen.getByRole("button", { name: "Pause" })).toBeInTheDocument();
   });
 });
