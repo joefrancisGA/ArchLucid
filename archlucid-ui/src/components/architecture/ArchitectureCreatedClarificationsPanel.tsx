@@ -19,7 +19,7 @@ import {
   type ArchitectureWorkspaceTabId,
 } from "@/lib/architecture/architecture-workspace-tabs";
 import { REVIEWS_NEW_GUIDED_QUESTIONS_LABEL } from "@/lib/reviews-new-path-copy";
-import { OPERATOR_TYPOGRAPHY } from "@/lib/design-tokens";
+import { OPERATOR_LINK, OPERATOR_TYPOGRAPHY } from "@/lib/design-tokens";
 
 export type ArchitectureCreatedClarificationsPanelProps = {
   readonly model: ArchitectureCreatedHomeModel;
@@ -233,7 +233,7 @@ export function ArchitectureCreatedClarificationsPanel(
             assess risks and recommend remediation. Clarify gaps before running a final assessment or sponsor share.
           </p>
           <p className={cn("m-0 mt-3", OPERATOR_TYPOGRAPHY.helper)}>
-            <Link href={continueClarifyingHref} className="font-medium text-teal-800 dark:text-teal-300">
+            <Link href={continueClarifyingHref} className={OPERATOR_LINK.inline}>
               Continue clarifying · {REVIEWS_NEW_GUIDED_QUESTIONS_LABEL}
             </Link>
           </p>

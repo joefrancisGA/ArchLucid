@@ -20,6 +20,12 @@ export const OPERATOR_INLINE_LINK_AFFORDANCE_TOKENS = [
   "shell-nav-link",
   "MARKETING_PRIMARY_CTA_CLASS",
   "MARKETING_HERO_SECONDARY_CTA_CLASS",
+  // Cross-module link tokens whose definitions carry a resting underline.
+  "TOOLTIP_TYPOGRAPHY.link",
+  "DESIGN_TOKENS.accent.link",
+  // Evidence-orientation style bundle: every `link` variant is OPERATOR_LINK.inline
+  // or an explicit underline (see evidence-orientation-styles.ts).
+  "style.link",
 ] as const;
 
 /**
@@ -34,6 +40,16 @@ export const OPERATOR_INLINE_LINK_OWN_CHROME_TOKENS = [
   "DESIGN_TOKENS.interactive.navActive",
   "DESIGN_TOKENS.card",
   "OPERATOR_BUTTON_COMPACT_CLASS",
+  // Shared helpers that stamp button, badge, or icon-trigger chrome onto an anchor.
+  "buttonVariants",
+  "badgeClassName",
+  "helpTooltipLinkClassName",
+  "PAGE_CONTEXTUAL_HELP_TRIGGER_CLASSNAME",
+  // Table-of-contents rails and jump-nav chips — dedicated wayfinding chrome.
+  "HELP_PAGE_TOC.link",
+  "PRIVACY_POLICY_TOC.link",
+  "PRIVACY_POLICY_LAYOUT.quickNavLink",
+  "PRIVACY_POLICY_LAYOUT.relatedCard",
 ] as const;
 
 /** ARIA roles that make the anchor a composite-widget row rather than body copy. */
@@ -147,11 +163,7 @@ export function isOperatorInlineLinkAffordanceExempt(openingTag: string, sourceB
     return true;
   }
 
-  if (/\bskip-link\b/.test(openingTag) || /\bsr-only\b/.test(openingTag)) {
-    return true;
-  }
-
-  if (/\bdata-skip-link\b/.test(openingTag)) {
+  if (isSkipLink(openingTag)) {
     return true;
   }
 
@@ -163,20 +175,65 @@ export function isOperatorInlineLinkAffordanceExempt(openingTag: string, sourceB
 }
 
 /**
- * A `<Button asChild>` (or any `asChild` wrapper) donates its own chrome to the
- * anchor it wraps, so the anchor is exempt. Only the nearest unclosed wrapper
- * counts — otherwise one `asChild` button would exempt every later link in the file.
+ * Skip links are visually hidden until focused, so a resting underline is neither
+ * possible nor desirable. Covers raw classes and the shared layout tokens.
+ */
+function isSkipLink(openingTag: string): boolean {
+  return /\bskip-link\b/.test(openingTag)
+    || /\bdata-skip-link\b/.test(openingTag)
+    || /\bskip-to-main\b/.test(openingTag)
+    || /\bsr-only\b/.test(openingTag)
+    || /[Ss]kipLink\b/.test(openingTag);
+}
+
+/** Components that donate their own chrome to a child anchor. */
+const CHROME_DONATING_WRAPPERS = ["asChild", "CommandItem"] as const;
+
+/**
+ * A `<Button asChild>` wrapper (or a cmdk `CommandItem` row) donates its chrome to
+ * the anchor it wraps, so the anchor is exempt. The wrapper only counts while it is
+ * still open — otherwise one wrapper would exempt every later link in the file.
+ * Its own closing tag is the boundary, so an anchor in the second branch of a
+ * ternary still counts as wrapped even though the first branch closed its tag.
  */
 function isWrappedInAsChildButton(sourceBeforeTag: string): boolean {
-  const lastAsChild = sourceBeforeTag.lastIndexOf("asChild");
+  return CHROME_DONATING_WRAPPERS.some((marker) => isInsideOpenWrapper(sourceBeforeTag, marker));
+}
 
-  if (lastAsChild < 0) {
+function isInsideOpenWrapper(sourceBeforeTag: string, marker: string): boolean {
+  const markerIndex = sourceBeforeTag.lastIndexOf(marker);
+
+  if (markerIndex < 0) {
     return false;
   }
 
-  const afterWrapper = sourceBeforeTag.slice(lastAsChild);
+  const wrapperName = wrapperTagNameAt(sourceBeforeTag, markerIndex);
 
-  return !/<\/[A-Za-z][\w.]*>|\/>/.test(afterWrapper);
+  if (wrapperName === null) {
+    return false;
+  }
+
+  const afterWrapper = sourceBeforeTag.slice(markerIndex);
+  const closing = new RegExp(`</${escapeForRegExp(wrapperName)}\\s*>`);
+
+  return !closing.test(afterWrapper);
+}
+
+/** Resolves the element name that owns the wrapper marker at `markerIndex`. */
+function wrapperTagNameAt(source: string, markerIndex: number): string | null {
+  const openBracket = source.lastIndexOf("<", markerIndex);
+
+  if (openBracket < 0) {
+    return null;
+  }
+
+  const named = /^<([A-Za-z][\w.]*)/.exec(source.slice(openBracket, markerIndex + 1));
+
+  return named === null ? null : (named[1] ?? null);
+}
+
+function escapeForRegExp(value: string): string {
+  return value.replace(/[.*+?^${}()|[\]\\]/g, "\\$&");
 }
 
 function hasNavigationalHref(openingTag: string): boolean {

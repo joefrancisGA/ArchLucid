@@ -96,7 +96,12 @@ describe("operator-inline-link-affordance guard (TB-1675)", () => {
 
     if (process.env.REFRESH_OPERATOR_INLINE_LINK_BASELINE === "1") {
       const body = [
-        "/** TB-1675 grandfathered bare navigational Link and a[href] call sites. Shrink when migrating to OPERATOR_LINK. */",
+        "/**",
+        " * TB-1675 grandfathered bare navigational Link and a[href] call sites.",
+        " *",
+        " * Empty since 2026-08-12: every navigational anchor now carries a link token or its",
+        " * own visible chrome. Keep it empty — migrate the call site instead of adding a row.",
+        " */",
         "export const OPERATOR_INLINE_LINK_AFFORDANCE_BASELINE: readonly string[] = [",
         ...keys.map((key) => `  "${key}",`),
         "] as const;",
@@ -106,6 +111,10 @@ describe("operator-inline-link-affordance guard (TB-1675)", () => {
     }
 
     expect(keys, REMEDIATION).toEqual([...OPERATOR_INLINE_LINK_AFFORDANCE_BASELINE].sort());
+  });
+
+  it("keeps the baseline empty so bare links cannot be re-grandfathered", () => {
+    expect(OPERATOR_INLINE_LINK_AFFORDANCE_BASELINE, REMEDIATION).toEqual([]);
   });
 });
 

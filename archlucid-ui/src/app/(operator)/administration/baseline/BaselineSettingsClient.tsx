@@ -44,7 +44,7 @@ import {
   validateBaselineReviewCycleHours,
 } from "@/lib/baseline-settings-present";
 import { isNextPublicDemoMode } from "@/lib/demo-ui-env";
-import { DESIGN_TOKENS, OPERATOR_TYPOGRAPHY } from "@/lib/design-tokens";
+import { DESIGN_TOKENS, OPERATOR_LINK, OPERATOR_TYPOGRAPHY } from "@/lib/design-tokens";
 import { PILOT_BASELINE_WIZARD_OPEN_EVENT } from "@/lib/pilot-baseline-wizard-events";
 import { SETTINGS_ROOT_PATH } from "@/lib/settings-admin-route-paths";
 import { showError, showSuccess } from "@/lib/toast";
@@ -456,7 +456,7 @@ export function BaselineSettingsClient() {
                   <ul className="m-0 flex flex-wrap gap-x-3 gap-y-1 p-0 list-none">
                     {BASELINE_SETTINGS_USED_IN_SURFACES.map((surface) => (
                       <li key={surface.href}>
-                        <Link href={surface.href} className="text-teal-700 hover:underline dark:text-teal-300">
+                        <Link href={surface.href} className={OPERATOR_LINK.nav}>
                           {surface.label}
                         </Link>
                       </li>

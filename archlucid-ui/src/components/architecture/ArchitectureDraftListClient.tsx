@@ -63,7 +63,7 @@ import {
 } from "@/lib/architectures-hub-copy";
 import { CREATE_ARCHITECTURE_LABEL } from "@/lib/architecture/architecture-workflow-labels";
 import { buyerFilterChipClass } from "@/lib/buyer/buyer-shell-home-present";
-import { OPERATOR_TYPOGRAPHY } from "@/lib/design-tokens";
+import { OPERATOR_LINK, OPERATOR_TYPOGRAPHY } from "@/lib/design-tokens";
 import { formatRelativeTime } from "@/lib/relative-time";
 import { cn } from "@/lib/utils";
 
@@ -311,7 +311,7 @@ export function ArchitectureDraftListClient(): React.JSX.Element {
                   <EnterpriseTableCell>
                     <Link
                       href={architectureDraftPath(entry.architectureId)}
-                      className={cn("font-medium text-al-text-primary hover:underline")}
+                      className={OPERATOR_LINK.nav}
                     >
                       {entry.displayName}
                     </Link>

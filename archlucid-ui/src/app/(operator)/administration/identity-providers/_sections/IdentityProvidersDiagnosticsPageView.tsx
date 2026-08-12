@@ -19,7 +19,7 @@ import {
 } from "@/lib/identity-providers-settings-copy";
 import type { IdentityProvidersOverviewModel } from "@/lib/identity-providers-settings-types";
 import { canViewIdentityProviderTechnicalDiagnostics } from "@/lib/resolve-identity-providers-overview";
-import { OPERATOR_TYPOGRAPHY } from "@/lib/design-tokens";
+import { OPERATOR_LINK, OPERATOR_TYPOGRAPHY } from "@/lib/design-tokens";
 import type { components } from "@/lib/openapi-schemas";
 
 import { AuthTokenTestMappingCard } from "./AuthTokenTestMappingCard";
@@ -210,7 +210,7 @@ export function IdentityProvidersDiagnosticsPageView(
               To validate role mapping safely, open{" "}
               <Link
                 href="/administration/identity-providers/role-mapping"
-                className="font-medium text-teal-800 dark:text-teal-300"
+                className={OPERATOR_LINK.inline}
               >
                 Role mapping
               </Link>{" "}

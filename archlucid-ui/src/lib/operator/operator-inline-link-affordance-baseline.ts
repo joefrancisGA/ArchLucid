@@ -1,34 +1,8 @@
-/** TB-1675 grandfathered bare navigational Link and a[href] call sites. Shrink when migrating to OPERATOR_LINK. */
+/**
+ * TB-1675 grandfathered bare navigational Link and a[href] call sites.
+ *
+ * Empty since 2026-08-12: every navigational anchor now carries a link token or its
+ * own visible chrome. Keep it empty — migrate the call site instead of adding a row.
+ */
 export const OPERATOR_INLINE_LINK_AFFORDANCE_BASELINE: readonly string[] = [
-  "app/(operator)/administration/baseline/BaselineSettingsClient.tsx:459",
-  "app/(operator)/administration/identity-providers/_sections/IdentityProvidersDiagnosticsPageView.tsx:142",
-  "app/(operator)/architecture/executive-dashboard/_sections/SponsorExportsSection.tsx:76",
-  "app/(operator)/architecture/reviews/[runId]/_sections/ReviewPackagePrimaryAction.tsx:44",
-  "app/(operator)/architecture/reviews/[runId]/_sections/RunDetailWorkspaceChrome.tsx:235",
-  "app/(operator)/help/_sections/HelpAdminDiagnosticsGuideView.tsx:54",
-  "app/(operator)/help/_sections/HelpApiContractsGuideView.tsx:57",
-  "app/(operator)/help/_sections/HelpCliUsageTechnicalReferenceView.tsx:41",
-  "app/(operator)/help/_sections/HelpEngineeringTroubleshootingGuideView.tsx:64",
-  "app/(operator)/help/_sections/HelpPilotFeedbackGuideView.tsx:162",
-  "components/AppShellClient.tsx:307",
-  "components/AppShellClient.tsx:411",
-  "components/CommandPalette.tsx:132",
-  "components/ExecutiveShellFrame.tsx:57",
-  "components/GlossaryTooltip.tsx:66",
-  "components/HelpLink.tsx:25",
-  "components/InAppHelpLink.tsx:40",
-  "components/InlineGlossaryChip.tsx:80",
-  "components/architecture/ArchitectureCreatedClarificationsPanel.tsx:236",
-  "components/architecture/ArchitectureDraftListClient.tsx:312",
-  "components/dev-testing/DevTestingQuickJumpLinks.tsx:45",
-  "components/evidence-orientation/EvidenceOrientationSourcesSection.tsx:49",
-  "components/help/EnterpriseOnboardingHubSteps.tsx:80",
-  "components/help/HelpTechnicalReferenceNavigation.tsx:94",
-  "components/help/HelpTopicTableOfContents.tsx:37",
-  "components/marketing/privacy-policy/PrivacyPolicyPageClient.tsx:105",
-  "components/marketing/privacy-policy/PrivacyPolicyPageClient.tsx:169",
-  "components/marketing/privacy-policy/PrivacyPolicyRelatedDocuments.tsx:25",
-  "components/marketing/privacy-policy/PrivacyPolicyTableOfContents.tsx:36",
-  "components/shell/TenantWorkspaceBoundaryBadge.tsx:59",
-  "components/usability/PageContextualHelpButton.tsx:62",
 ] as const;
