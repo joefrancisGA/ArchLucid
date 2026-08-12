@@ -75,7 +75,7 @@ public sealed class ArchitectureReviewPdfBuilder
         page.Margin(2, Unit.Centimetre);
         page.DefaultTextStyle(x => x.FontSize(9).FontFamily("Helvetica"));
 
-        page.Footer().AlignCenter().Text(footerText).FontSize(8).FontColor(Colors.Gray.Darken1);
+        page.Footer().AlignCenter().Text(footerText).FontSize(8).FontColor(Colors.Grey.Darken1);
 
         if (!string.IsNullOrWhiteSpace(activeTrialExportNotice))
         {
@@ -84,7 +84,7 @@ public sealed class ArchitectureReviewPdfBuilder
                 .AlignMiddle()
                 .Text(activeTrialExportNotice)
                 .FontSize(36)
-                .FontColor(Colors.Gray.Lighten3)
+                .FontColor(Colors.Grey.Lighten3)
                 .Italic();
         }
 
@@ -95,7 +95,7 @@ public sealed class ArchitectureReviewPdfBuilder
                 .AlignMiddle()
                 .Text(DemoTenantExportWatermark)
                 .FontSize(28)
-                .FontColor(Colors.Gray.Lighten3)
+                .FontColor(Colors.Grey.Lighten3)
                 .Italic();
         }
 
@@ -120,7 +120,7 @@ public sealed class ArchitectureReviewPdfBuilder
                 column.Item()
                     .Text(ArchitectureReviewBoardCoverPageContent.LogoPlaceholderLabel)
                     .FontSize(9)
-                    .FontColor(Colors.Gray.Darken2)
+                    .FontColor(Colors.Grey.Darken2)
                     .Italic();
                 column.Item().Height(16);
             }
@@ -140,12 +140,12 @@ public sealed class ArchitectureReviewPdfBuilder
                 column.Item().Height(12);
             }
 
-            column.Item().Text(cover.GeneratedOnLabel).FontSize(10).FontColor(Colors.Gray.Darken2);
+            column.Item().Text(cover.GeneratedOnLabel).FontSize(10).FontColor(Colors.Grey.Darken2);
             column.Item().Height(6);
             column.Item()
                 .Text(ArchitectureReviewBoardCoverPageContent.DirectionalEstimatesFooter)
                 .FontSize(8)
-                .FontColor(Colors.Gray.Darken2)
+                .FontColor(Colors.Grey.Darken2)
                 .Italic();
 
             if (!string.IsNullOrWhiteSpace(cover.DemoNotice))
@@ -154,22 +154,22 @@ public sealed class ArchitectureReviewPdfBuilder
                 column.Item()
                     .Text(cover.DemoNotice)
                     .FontSize(8)
-                    .FontColor(Colors.Gray.Darken2)
+                    .FontColor(Colors.Grey.Darken2)
                     .Italic();
             }
 
             column.Item().Height(22);
 
-            column.Item().Text($"Review ID: {model.ReviewId:D}").FontSize(8).FontColor(Colors.Gray.Darken2);
+            column.Item().Text($"Review ID: {model.ReviewId:D}").FontSize(8).FontColor(Colors.Grey.Darken2);
 
-            column.Item().Text($"Review (run) ID: {model.RunId.Trim()}").FontSize(8).FontColor(Colors.Gray.Darken2);
+            column.Item().Text($"Review (run) ID: {model.RunId.Trim()}").FontSize(8).FontColor(Colors.Grey.Darken2);
 
             if (!string.IsNullOrWhiteSpace(model.RequestId))
-                column.Item().Text($"Request ID: {model.RequestId.Trim()}").FontSize(8).FontColor(Colors.Gray.Darken2);
+                column.Item().Text($"Request ID: {model.RequestId.Trim()}").FontSize(8).FontColor(Colors.Grey.Darken2);
 
             if (!string.IsNullOrWhiteSpace(model.ManifestVersion))
                 column.Item().Text($"Architecture snapshot version: {model.ManifestVersion.Trim()}").FontSize(8)
-                    .FontColor(Colors.Gray.Darken2);
+                    .FontColor(Colors.Grey.Darken2);
 
             column.Item().Height(36);
 
@@ -177,7 +177,7 @@ public sealed class ArchitectureReviewPdfBuilder
                 .Text(
                     "Terminology follows buyer-facing glossary: Review ↔ committed run; Architecture snapshot ↔ golden manifest.")
                 .FontSize(8)
-                .FontColor(Colors.Gray.Darken2)
+                .FontColor(Colors.Grey.Darken2)
                 .Italic();
         });
     }
@@ -188,7 +188,7 @@ public sealed class ArchitectureReviewPdfBuilder
         page.Margin(2, Unit.Centimetre);
         page.DefaultTextStyle(x => x.FontSize(9).FontFamily("Helvetica"));
 
-        page.Footer().AlignCenter().Text(footerText).FontSize(8).FontColor(Colors.Gray.Darken1);
+        page.Footer().AlignCenter().Text(footerText).FontSize(8).FontColor(Colors.Grey.Darken1);
 
         page.Content().Column(column =>
         {
@@ -258,10 +258,10 @@ public sealed class ArchitectureReviewPdfBuilder
             column.Item().PaddingVertical(2).Text(headline).FontSize(9);
 
             if (!string.IsNullOrWhiteSpace(item.Detail))
-                column.Item().Text(item.Detail.Trim()).FontSize(8).FontColor(Colors.Gray.Darken2);
+                column.Item().Text(item.Detail.Trim()).FontSize(8).FontColor(Colors.Grey.Darken2);
 
             if (!string.IsNullOrWhiteSpace(item.Reference))
-                column.Item().Text($"Reference: {item.Reference.Trim()}").FontSize(8).FontColor(Colors.Gray.Darken2);
+                column.Item().Text($"Reference: {item.Reference.Trim()}").FontSize(8).FontColor(Colors.Grey.Darken2);
 
             column.Item().Height(6);
         }
@@ -290,7 +290,7 @@ public sealed class ArchitectureReviewPdfBuilder
                 AddMultilineBodyText(column, row.Detail);
 
             if (!string.IsNullOrWhiteSpace(row.RecordedAtUtcLabel))
-                column.Item().Text($"Recorded: {row.RecordedAtUtcLabel.Trim()}").FontSize(8).FontColor(Colors.Gray.Darken2);
+                column.Item().Text($"Recorded: {row.RecordedAtUtcLabel.Trim()}").FontSize(8).FontColor(Colors.Grey.Darken2);
 
             column.Item().Height(6);
         }
@@ -317,7 +317,7 @@ public sealed class ArchitectureReviewPdfBuilder
             column.Item().PaddingVertical(2).Text($"{severity}: {summaryText}").FontSize(9);
 
             if (!string.IsNullOrWhiteSpace(risk.Detail))
-                column.Item().Text(risk.Detail.Trim()).FontSize(8).FontColor(Colors.Gray.Darken2);
+                column.Item().Text(risk.Detail.Trim()).FontSize(8).FontColor(Colors.Grey.Darken2);
 
             column.Item().Height(6);
         }
@@ -345,7 +345,7 @@ public sealed class ArchitectureReviewPdfBuilder
             column.Item().PaddingVertical(2).Text($"{pack} — {outcome}").FontSize(9);
 
             if (!string.IsNullOrWhiteSpace(row.Detail))
-                column.Item().Text(row.Detail.Trim()).FontSize(8).FontColor(Colors.Gray.Darken2);
+                column.Item().Text(row.Detail.Trim()).FontSize(8).FontColor(Colors.Grey.Darken2);
 
             column.Item().Height(6);
         }
@@ -356,13 +356,13 @@ public sealed class ArchitectureReviewPdfBuilder
         AddHeading(column, "AI-assisted analysis", firstMajorHeading: false);
 
         column.Item()
-            .Background(Colors.Gray.Lighten4)
+            .Background(Colors.Grey.Lighten4)
             .Padding(10)
             .Text(
                 "Findings requiring human disposition — model-assisted observations are advisory only. ArchLucid does not exercise autonomous authority over production posture.")
             .Bold()
             .FontSize(8)
-            .FontColor(Colors.Gray.Darken3);
+            .FontColor(Colors.Grey.Darken3);
 
         column.Item().Height(10);
 
@@ -395,7 +395,7 @@ public sealed class ArchitectureReviewPdfBuilder
             column.Item().PaddingVertical(2).Text(item.Summary.Trim()).FontSize(9);
 
             if (!string.IsNullOrWhiteSpace(item.Context))
-                column.Item().Text(item.Context.Trim()).FontSize(8).FontColor(Colors.Gray.Darken2);
+                column.Item().Text(item.Context.Trim()).FontSize(8).FontColor(Colors.Grey.Darken2);
 
             column.Item().Height(6);
         }
@@ -441,8 +441,8 @@ public sealed class ArchitectureReviewPdfBuilder
 
             foreach ((string key, string value) in rows)
             {
-                table.Cell().BorderBottom(0.5f).BorderColor(Colors.Gray.Lighten2).Padding(4).Text(key).SemiBold();
-                table.Cell().BorderBottom(0.5f).BorderColor(Colors.Gray.Lighten2).Padding(4).Text(value);
+                table.Cell().BorderBottom(0.5f).BorderColor(Colors.Grey.Lighten2).Padding(4).Text(key).SemiBold();
+                table.Cell().BorderBottom(0.5f).BorderColor(Colors.Grey.Lighten2).Padding(4).Text(value);
             }
         });
     }
@@ -483,7 +483,7 @@ public sealed class ArchitectureReviewPdfBuilder
 
     private static void AddPlaceholder(ColumnDescriptor column, string itemPhrase)
     {
-        column.Item().PaddingVertical(2).Text($"No {itemPhrase} recorded.").FontSize(8).FontColor(Colors.Gray.Darken2).Italic();
+        column.Item().PaddingVertical(2).Text($"No {itemPhrase} recorded.").FontSize(8).FontColor(Colors.Grey.Darken2).Italic();
 
         column.Item().Height(8);
     }

@@ -41,7 +41,7 @@ internal static class MarkdownPdfRenderer
 
             if (IsHorizontalRule(line))
             {
-                column.Item().PaddingVertical(4).LineHorizontal(1).LineColor(Colors.Gray.Lighten2);
+                column.Item().PaddingVertical(4).LineHorizontal(1).LineColor(Colors.Grey.Lighten2);
                 index++;
 
                 continue;
@@ -218,10 +218,10 @@ internal static class MarkdownPdfRenderer
             });
 
             foreach (string header in headers)
-                table.Cell().Background(Colors.Gray.Lighten3).Padding(3).Text(t => RenderInline(t, header, bold: true));
+                table.Cell().Background(Colors.Grey.Lighten3).Padding(3).Text(t => RenderInline(t, header, bold: true));
 
             foreach (string cell in rows.SelectMany(row => row))
-                table.Cell().BorderTop(0.5f).BorderColor(Colors.Gray.Lighten2).Padding(3)
+                table.Cell().BorderTop(0.5f).BorderColor(Colors.Grey.Lighten2).Padding(3)
                     .Text(t => RenderInline(t, cell));
         });
 
@@ -270,7 +270,7 @@ internal static class MarkdownPdfRenderer
             else if (m.Groups["italic"].Success)
                 text.Span(raw[1..^1]).Italic();
             else if (m.Groups["code"].Success)
-                text.Span(raw[1..^1]).FontFamily("Courier New").BackgroundColor(Colors.Gray.Lighten4);
+                text.Span(raw[1..^1]).FontFamily("Courier New").BackgroundColor(Colors.Grey.Lighten4);
             else if (m.Groups["link"].Success)
             {
                 int splitIndex = raw.IndexOf("](", StringComparison.Ordinal);
