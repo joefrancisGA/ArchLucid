@@ -85,6 +85,11 @@ import {
   TEAMS_INTEGRATION_SOURCES,
   TEAMS_INTEGRATION_SOURCES_INTRO,
 } from "@/lib/teams-integration-evidence-copy";
+import {
+  ITSM_OAUTH_CALLBACK_CLAIM_DISCIPLINE,
+  ITSM_OAUTH_CALLBACK_SOURCES,
+  ITSM_OAUTH_CALLBACK_SOURCES_INTRO,
+} from "@/lib/itsm/itsm-oauth-callback-evidence-copy";
 
 export function AuditTrailHelpEvidenceOrientationStrip(): React.JSX.Element {
   return (
@@ -271,6 +276,17 @@ export function TeamsIntegrationEvidenceOrientationStrip(): React.JSX.Element {
       claim={TEAMS_INTEGRATION_CLAIM_DISCIPLINE}
       sourcesIntro={TEAMS_INTEGRATION_SOURCES_INTRO}
       sources={TEAMS_INTEGRATION_SOURCES}
+    />
+  );
+}
+
+export function ItsmOAuthCallbackEvidenceOrientationStrip(): React.JSX.Element {
+  return (
+    <EvidenceOrientationClaimAndSourcesStrip
+      slug="itsm-oauth-callback"
+      claim={ITSM_OAUTH_CALLBACK_CLAIM_DISCIPLINE}
+      sourcesIntro={ITSM_OAUTH_CALLBACK_SOURCES_INTRO}
+      sources={ITSM_OAUTH_CALLBACK_SOURCES}
     />
   );
 }

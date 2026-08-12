@@ -29,7 +29,7 @@ export const ITSM_ATLASSIAN_OAUTH_CALLBACK_FORBIDDEN_SUBSTRINGS = [
   "NullReference",
 ] as const;
 
-function containsForbiddenOAuthCallbackLeak(text: string): boolean {
+export function containsForbiddenOAuthCallbackLeak(text: string): boolean {
   if (containsBuyerUnsafeAuthLeak(text)) {
     return true;
   }

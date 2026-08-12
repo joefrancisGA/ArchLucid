@@ -1,4 +1,14 @@
-import { apiDelete, apiGet, apiPostJson, apiPutJson } from "@/lib/api-client";
+import {
+  apiDelete,
+  apiGet,
+  apiPostJson,
+  apiPutJson,
+  ensureOidcBearerReady,
+  resolveRequest,
+  throwApiRequestError,
+} from "@/lib/api-client";
+import { CORRELATION_ID_HEADER, applyTraceParentHeader, captureTraceContextFromResponse } from "@/lib/correlation";
+import { ensureCorrelationId } from "@/lib/usability/ensure-correlation-id";
 import { createItsmOutboundIssueWithJobPolling } from "@/lib/api/itsm-outbound-create";
 import type { BackgroundJobInfo } from "@/lib/api/background-jobs-api";
 import type { components } from "@/lib/openapi-schemas";
@@ -148,13 +158,40 @@ export async function startItsmAtlassianOAuthConsent(
   );
 }
 
+export type ItsmAtlassianOAuthConsentCompleteResult = ItsmAtlassianOAuthConsentCompleteResponse & {
+  readonly correlationId: string;
+};
+
 export async function completeItsmAtlassianOAuthConsent(
   body: ItsmAtlassianOAuthConsentCompleteRequest,
-): Promise<ItsmAtlassianOAuthConsentCompleteResponse> {
-  return apiPostJson<ItsmAtlassianOAuthConsentCompleteResponse>(
+  options?: { readonly correlationId?: string },
+): Promise<ItsmAtlassianOAuthConsentCompleteResult> {
+  await ensureOidcBearerReady();
+  const { url, headers } = await resolveRequest(
     "/v1/integrations/itsm/connections/jira/oauth/consent/complete",
-    body,
   );
+  const correlationId = ensureCorrelationId(options?.correlationId);
+  const requestHeaders = new Headers(headers);
+  requestHeaders.set(CORRELATION_ID_HEADER, correlationId);
+  applyTraceParentHeader(requestHeaders);
+  requestHeaders.set("Content-Type", "application/json");
+
+  const response = await fetch(url, {
+    method: "POST",
+    headers: requestHeaders,
+    body: JSON.stringify(body),
+    cache: "no-store",
+  });
+  captureTraceContextFromResponse(response);
+  const text = await response.text();
+
+  if (!response.ok) {
+    throwApiRequestError(response, text, correlationId);
+  }
+
+  const data = JSON.parse(text) as ItsmAtlassianOAuthConsentCompleteResponse;
+
+  return { ...data, correlationId };
 }
 
 export async function listItsmFindingCorrelations(

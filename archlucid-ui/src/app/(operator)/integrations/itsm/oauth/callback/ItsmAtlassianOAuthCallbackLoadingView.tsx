@@ -4,23 +4,18 @@ import { cn } from "@/lib/utils";
 import {
   ITSM_ATLASSIAN_OAUTH_CALLBACK_LOADING_DETAIL,
   ITSM_ATLASSIAN_OAUTH_CALLBACK_LOADING_STATUS_LABEL,
-  ITSM_ATLASSIAN_OAUTH_CALLBACK_PAGE_TITLE,
 } from "@/lib/itsm/itsm-atlassian-oauth-callback-page-copy";
 import { OPERATOR_TYPOGRAPHY } from "@/lib/design-tokens";
 
-/** Shared loading chrome for Atlassian OAuth callback Suspense fallback and in-flight consent completion. */
+/** In-card loading chrome for Atlassian OAuth callback consent completion. */
 export function ItsmAtlassianOAuthCallbackLoadingView(): React.JSX.Element {
   return (
-    <div className="max-w-[560px]" data-testid="itsm-oauth-callback-loading">
-      <h1 className={cn("mt-0", OPERATOR_TYPOGRAPHY.pageTitle)}>{ITSM_ATLASSIAN_OAUTH_CALLBACK_PAGE_TITLE}</h1>
-
-      <div className="mt-3">
-        <StatusTag
-          kind="in-progress"
-          label={ITSM_ATLASSIAN_OAUTH_CALLBACK_LOADING_STATUS_LABEL}
-          data-testid="itsm-oauth-callback-loading-status-tag"
-        />
-      </div>
+    <div data-testid="itsm-oauth-callback-loading">
+      <StatusTag
+        kind="in-progress"
+        label={ITSM_ATLASSIAN_OAUTH_CALLBACK_LOADING_STATUS_LABEL}
+        data-testid="itsm-oauth-callback-loading-status-tag"
+      />
 
       <Skeleton
         className="mt-4 h-4 w-full max-w-md"
