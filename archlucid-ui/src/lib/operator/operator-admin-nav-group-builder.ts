@@ -212,7 +212,7 @@ export class OperatorAdminNavGroupBuilder extends NavGroupBuilderBase {
 
           title:
 
-            "Security & trust — share procurement-ready materials, trust-center links, and assessment status",
+            "Security & Trust — share procurement-ready materials, trust-center links, and assessment status",
 
           icon: ShieldCheck,
 

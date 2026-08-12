@@ -323,7 +323,7 @@ One group per conceptual domain. Progressive disclosure preserved — advanced t
 | **Governance** | Unlocked at phase 1 (first commit) | Approval queue · Risk register · Decision register · Audit trail · [extended] Risk exceptions · [extended] Standards · [extended] Standards & rules · [extended] Governance setup guide · [extended] Alerts |
 | **Reports** | After first finalized architecture package | Scorecard · Value report |
 | **Integrations** | When configured | Connection status · Cloud connections · Jira · ServiceNow · Microsoft Teams · Slack · Webhooks |
-| **Administration** | Admin rank | Workspace settings · Users & roles (consolidated) · Billing & plans · [extended] AI usage · [extended] Security & trust · [extended] Support |
+| **Administration** | Admin rank | Workspace settings · Users & roles (consolidated) · Billing & plans · [extended] AI usage · [extended] Security & Trust · [extended] Support |
 
 ---
 

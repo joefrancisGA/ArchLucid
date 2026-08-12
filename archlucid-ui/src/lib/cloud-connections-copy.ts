@@ -27,7 +27,7 @@ export const CLOUD_CONNECTIONS_SECURITY_ASSURANCE_TITLE = "Security assurance";
 export const CLOUD_CONNECTIONS_SECURITY_ASSURANCE_BODY =
   "Cloud connections use read-only federated access. Review procurement materials and tenant isolation notes before enabling collection in production.";
 
-export const CLOUD_CONNECTIONS_SECURITY_ASSURANCE_LINK_LABEL = "Security & trust";
+export const CLOUD_CONNECTIONS_SECURITY_ASSURANCE_LINK_LABEL = "Security & Trust";
 
 export const CLOUD_CONNECTIONS_PROVIDER_EVIDENCE_NONE = "None collected yet";
 

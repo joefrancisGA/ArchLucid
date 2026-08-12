@@ -363,7 +363,7 @@ export const HELP_TOPIC_CONTEXTUAL_HELP_ROWS: readonly PageContextualHelpRow[] =
       whatIsThisPage:
         "Procurement FAQ — buyer-facing answers on diligence packs, questionnaires, and how to request security review materials.",
       whatToDoNext:
-        "Open Assurance status or Trust Center for public assurance, or settings Security & trust when requesting NDA-gated packs.",
+        "Open Assurance status or Trust Center for public assurance, or settings Security & Trust when requesting NDA-gated packs.",
       whyEmpty: "This FAQ is always available; NDA packs require contacting the security mailbox listed in the guide.",
       whereToConfigurePrerequisite:
         "No workspace toggle is required — this page is procurement orientation vocabulary only.",

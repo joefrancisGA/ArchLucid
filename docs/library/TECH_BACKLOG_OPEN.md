@@ -54,7 +54,7 @@ In `TECH_BACKLOG.md` summary table: **V1 / V1.1 first** (cluster order); **`### 
 | Users invitations tab (`/administration/settings/users?tab=users`) | **TB-1936**–**TB-1940** (open **V1**) | URL sync; execute **TB-1214**; principals purge; density; Vitest; ~46/100; traffic **SSU**; pairs **TB-1210**–**TB-1215**; sibling **SEU** |
 | Signed review records (`/signed-records`) | **TB-1941**–**TB-1942**, **TB-1944**–**TB-1945** (open **V1**) | Traffic section; empty projectId; CTA/pagination/enrich; Vitest; ~50/100; traffic **SI**; sibling **MAM** via **TB-1824**; **TB-1943** Done |
 | AI usage (`/administration/settings/ai-usage`) | **TB-1216**–**TB-1220** (open P1 **V1**) | Administration breadcrumb honesty; suppress zero-usage theater; PageHeading/help; budget CTA dedupe; hide Highest-cost when $0; owner screenshot ~51/100 2026-07-25 |
-| Security & trust (`/administration/settings/security-trust`) | **TB-1223**–**TB-1227**, **TB-1285**–**TB-1286** (open; **TB-1284** Done) | Administration breadcrumb honesty; collapse triple intro; PageHeading/help; Available-now CTA; contact dedupe; StatusTag badges; density/legend; owner reviews ~53/100 2026-07-25/26; traffic **WSX** |
+| Security & Trust (`/administration/settings/security-trust`) | **TB-1223**–**TB-1227**, **TB-1285**–**TB-1286** (open; **TB-1284** Done) | Administration breadcrumb honesty; collapse triple intro; PageHeading/help; Available-now CTA; contact dedupe; StatusTag badges; density/legend; owner reviews ~53/100 2026-07-25/26; traffic **WSX** |
 | Account security (`/administration/settings/account-security`) | **TB-1881**–**TB-1885** (open **V1**) | Scope honesty; busy disables; in-page remove; empty/help; Vitest; ~52/100; traffic **SEA**; pairs **TB-1614** |
 | Sign-in domains (`/administration/settings/auth-domains`) | **TB-1891**–**TB-1895** (open **V1**) | Enum labels; busy disables; in-page confirms; checklist/help; Vitest; ~48/100; traffic **SAU**; pairs **TB-1614**/**TB-1883** |
 | Internal developer tools (`/administration/settings/developer`) | **TB-1896**–**TB-1900** (open **V1**) | Traffic gated honesty; catalog overclaim; CLI theater; authority/discovery; Vitest; ~42/100; traffic **SED**; pairs **TB-1357** |
@@ -704,8 +704,8 @@ In `TECH_BACKLOG.md` summary table: **V1 / V1.1 first** (cluster order); **`### 
 | TB-1281 | `/see-it` — first-viewport hero budget | Adoption friction P1 **V1** — with **TB-1279** |
 | TB-1282 | `/see-it` — single CTA path + `/live-demo` ladder + purge manifest jargon | Adoption friction P1 **V1** — with **TB-1279**; pairs **TB-1267** |
 | TB-1283 | `/see-it` — download label honesty (not “evidence bundle” for marketing PDF) | Trustworthiness P1 **V1** — with **TB-1279** |
-| TB-1285 | Security & trust — StatusTag for Available now / Under NDA / Roadmap | Adoption friction P1 **V1** — with **TB-1284**; TB-116 parity |
-| TB-1286 | Security & trust — operator density + badge-legend StatusTag samples | Adoption friction P1 **V1** — with **TB-1285** |
+| TB-1285 | Security & Trust — StatusTag for Available now / Under NDA / Roadmap | Adoption friction P1 **V1** — with **TB-1284**; TB-116 parity |
+| TB-1286 | Security & Trust — operator density + badge-legend StatusTag samples | Adoption friction P1 **V1** — with **TB-1285** |
 | TB-1294 | `/welcome` — first-viewport hero budget | Adoption friction P1 **V1** — owner welcome ~50/100; traffic **WXX**; complements **M-09** |
 | TB-1295 | `/welcome` — single primary conversion path (demote CTA stack) | Adoption friction P1 **V1** — with **TB-1294** |
 | TB-1296 | `/welcome` — canonical proof CTA ladder (see-it vs demo/preview) | Adoption friction P1 **V1** — with **TB-1294**; pairs **TB-1028**/**TB-1282**/**M-107** |
@@ -786,11 +786,11 @@ In `TECH_BACKLOG.md` summary table: **V1 / V1.1 first** (cluster order); **`### 
 | TB-1218 | AI usage — PageHeading icon + PageContextualHelpButton | Adoption friction P1 **V1** — with **TB-1216**; parity **TB-1184** |
 | TB-1219 | AI usage — dedupe Edit budget / budget-control CTAs | Adoption friction P1 **V1** — with **TB-1216** |
 | TB-1220 | ~~AI usage — hide Highest-cost project when no usage~~ **Done** 2026-07-28 | Trustworthiness P0 **V1** — with **TB-1217** |
-| TB-1223 | Security & trust — Administration vs Settings wayfinding (breadcrumb / URL honesty) | Adoption friction P1 **V1** — owner `/administration/settings/security-trust` ~53/100; TB-404; with **TB-1216** |
-| TB-1224 | Security & trust — collapse triple intro into one hero | Adoption friction P1 **V1** — with **TB-1223** |
-| TB-1225 | Security & trust — PageHeading icon + PageContextualHelpButton | Adoption friction P1 **V1** — with **TB-1224**; parity **TB-1184** |
-| TB-1226 | Security & trust — Available-now primary CTA hierarchy | Adoption friction P1 **V1** — with **TB-1224** |
-| TB-1227 | Security & trust — dedupe security@ contact CTAs | Adoption friction P1 **V1** — with **TB-1223** |
+| TB-1223 | Security & Trust — Administration vs Settings wayfinding (breadcrumb / URL honesty) | Adoption friction P1 **V1** — owner `/administration/settings/security-trust` ~53/100; TB-404; with **TB-1216** |
+| TB-1224 | Security & Trust — collapse triple intro into one hero | Adoption friction P1 **V1** — with **TB-1223** |
+| TB-1225 | Security & Trust — PageHeading icon + PageContextualHelpButton | Adoption friction P1 **V1** — with **TB-1224**; parity **TB-1184** |
+| TB-1226 | Security & Trust — Available-now primary CTA hierarchy | Adoption friction P1 **V1** — with **TB-1224** |
+| TB-1227 | Security & Trust — dedupe security@ contact CTAs | Adoption friction P1 **V1** — with **TB-1223** |
 | TB-1179 | Project deletion has no UI — governed delete affordance | Adoption friction P1 **V1** — owner recycle bin ~58/100; API DELETE exists |
 | TB-1180 | Recycle bin retention transparency — actual window + purge date | Trustworthiness P1 **V1** — with **TB-1179**; API + UI |
 | TB-1181 | Recycle bin discoverability — unbury entry from Technical details | Adoption friction P1 **V1** — after **TB-1179** |

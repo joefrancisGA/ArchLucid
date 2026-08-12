@@ -259,7 +259,7 @@ export function buyerPolishedRouteOrientation(
 
   if (pathMatchesSettingsSecurityTrust(path)) {
     return {
-      label: "Security & trust",
+      label: "Security & Trust",
       line: "Procurement-facing security posture, trust center, and assessment materials.",
     };
   }

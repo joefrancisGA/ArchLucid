@@ -119,13 +119,13 @@ export const ADMINISTRATION_CONTEXTUAL_HELP_ROWS: readonly PageContextualHelpRow
     prefix: "/administration/identity-providers/saml",
     entry: {
       whatIsThisPage:
-        "SAML - configure SP metadata URL, issuer, signing, and IdP claim mapping for workspace federation.",
+        "SAML — look up IdP metadata, configure IdP issuer and role claim mapping, and review read-only SP certificate health for workspace federation.",
       whatToDoNext:
-        "Fetch IdP metadata, confirm issuer and role claim fields, save the SP configuration, then open diagnostics or role mapping before inviting users.",
+        "Copy ArchLucid SP values, fetch IdP metadata to fill issuer and claim fields, save the configuration, then open the SSO wizard Activate step or diagnostics before inviting users.",
       whyEmpty:
         "The configuration form always renders for authorized Admins; empty claim tables mean metadata has not been fetched or mapping rows are not filled yet.",
       whereToConfigurePrerequisite:
-        "Changing SAML settings needs Admin authority and a reachable IdP metadata URL; signing certificate health is reviewed on Identity diagnostics.",
+        "Changing SAML settings needs Admin authority and a reachable IdP metadata URL for lookup; SP signing certificate health is reviewed on Identity diagnostics.",
     },
   },
   {
@@ -301,7 +301,7 @@ export const ADMINISTRATION_CONTEXTUAL_HELP_ROWS: readonly PageContextualHelpRow
     prefix: "/administration/security-trust",
     entry: {
       whatIsThisPage:
-        "Operator Security & trust — procurement-oriented materials, tenant isolation posture, retention notes, and NDA-gated diligence requests for this workspace.",
+        "Operator Security & Trust — procurement-oriented materials, tenant isolation posture, retention notes, and NDA-gated diligence requests for this workspace.",
       whatToDoNext:
         "Open Assurance status or Trust Center for assurance surfaces, or Audit when you need governed activity trails.",
       whyEmpty:

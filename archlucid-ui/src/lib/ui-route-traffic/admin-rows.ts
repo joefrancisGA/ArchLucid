@@ -273,12 +273,12 @@ export const ADMIN_TRAFFIC_ROWS: readonly UiRouteTrafficRow[] = [
     note: "Projects recycle bin (Administration) - ProjectsRecycleBinPage with OperatorPageBreadcrumb Administration parent, PageContextualHelpButton (topic map scope; Category-1 registry), Learn more / claim-discipline (Sources follow-up removed TB-2092) orientation strip, soft-deleted project restore. Sibling ATE = tenant settings; ARA = architectures list. Access configuration - not a signed-record Sources trail.admin hub at SET/ADY Evidence band; hard-caps higher Evidence without signed-record diligence Sources trail. Owner pass: Evidence chrome shipped; cannot improve further toward 80 without turning this into a signed-record diligence Sources trail.",
     noteMustContain: ["ProjectsRecycleBinPage", "Administration", "cannot improve further toward 80"],
   },
-  /** Traffic workbook row ID for operator Security & trust settings. Owner backlog shorthand: WSX. */
+  /** Traffic workbook row ID for operator Security & Trust settings. Owner backlog shorthand: WSX. */
   {
     rowId: "WSX",
     path: SETTINGS_SECURITY_TRUST_PATH,
     section: "Admin",
-    note: "Security & trust (Settings) - OperatorSecurityTrustPageView with PageContextualHelpButton (topic map security-trust; Category-1 registry), Learn more / claim-discipline (Sources follow-up removed TB-2092) orientation strip, procurement materials + NDA/roadmap honesty. Sibling SEC = /security-trust hub; HSE = /help/security-trust; TXX = /trust. Operator orientation Ã¢â‚¬â€ not a signed-record Sources trail.admin hub at SET/ADY Evidence band; hard-caps higher Evidence without signed-record diligence Sources trail. Owner pass: Evidence chrome shipped; cannot improve further toward 80 without turning this into a signed-record diligence Sources trail.",
+    note: "Security & Trust (Settings) - OperatorSecurityTrustPageView with PageContextualHelpButton (topic map security-trust; Category-1 registry), Learn more / claim-discipline (Sources follow-up removed TB-2092) orientation strip, procurement materials + NDA/roadmap honesty. Sibling SEC = /security-trust hub; HSE = /help/security-trust; TXX = /trust. Operator orientation Ã¢â‚¬â€ not a signed-record Sources trail.admin hub at SET/ADY Evidence band; hard-caps higher Evidence without signed-record diligence Sources trail. Owner pass: Evidence chrome shipped; cannot improve further toward 80 without turning this into a signed-record diligence Sources trail.",
     noteMustContain: ["OperatorSecurityTrustPageView", "Sources", "cannot improve further toward 80"],
   },
 ];

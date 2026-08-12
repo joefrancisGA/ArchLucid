@@ -156,7 +156,7 @@ Items here are **greenlit in principle** ? the decision has been made and contex
 
 **TB-400** was added 2026-06-23 as a **V1.1 follow-on** to the architecture advisory UX polish pass (advisory page review picker + strip label shipped in V1). The advisory recommendation cards currently surface `rationale`, `suggestedAction`, and `expectedImpact` from the API. What is missing is a **direct link from a recommendation to the source finding or manifest section** that generated it ??? clicking "API tier lacks circuit breaker" should deep-link into the finding record or evidence trail where the gap was observed. This requires: (a) a new `sourceEvidenceLinks: { kind: "finding" | "manifestSection", id: string }[]` field on `RecommendationRecord` (API + persistence); (b) rendering those links as navigable links in `AdvisoryScansContent` recommendation cards; (c) an integration test asserting at least one link is populated when a finding-backed recommendation is generated. **Out of scope:** changing the recommendation generation logic or the advisory-scan scheduling surface. **Cross-ref:** `AdvisoryScansContent.tsx`, `advisory-api.ts`, `types/advisory.ts`.
 
-**TB-404 ??? TB-408** were added 2026-06-28 from an **operator sidebar ??? URL prefix alignment** audit (`archlucid-ui` nav group builders vs App Router paths; canvas `canvases/nav-route-audit.canvas.tsx`). The operator shell exposes **57** nav links across **7** groups, but **23** hrefs use a URL prefix that does not match the menu section (e.g. **Integrations ??? Cloud connections** at `/settings/cloud-connections`, **Administration ??? Security & trust** at `/workspace/security-trust`, **Governance ??? Policy packs** at `/policy-packs` while `/governance/policy-packs` also exists). Buyers and operators infer location from the address bar, bookmarks, and shared links ??? prefix drift undermines wayfinding and breadcrumb mental models. **TB-404** (P1) publishes a route-namespace policy + CI drift guard (same pattern as **TB-399**, **TB-344**, **NAV_CONFIG_CONTRACT.md**); **TB-405** (P1) consolidates governance outliers under `/governance/*` with permanent redirects; **TB-406** (P1) reconciles Administration `/administration/settings/*` vs `/admin/*` vs `/workspace/*` split; **TB-407** (P2) aligns Integrations cross-namespace routes and stale ITSM redirect nav; **TB-408** (P2) deduplicates ambiguous nav entries and adds semantic path aliases. Does not duplicate **TB-399** (manifest terminology URLs), **TB-276?282** (route-tenant API scope), **TB-267** (executive dashboard route), or **TB-401** (run-detail IA). Cross-ref `integrations-nav-paths.ts`, `ai-usage-nav-paths.ts`, `nav-config.structure.test.ts`, `archlucid-ui/docs/NAV_CONFIG_CONTRACT.md`.
+**TB-404 ??? TB-408** were added 2026-06-28 from an **operator sidebar ??? URL prefix alignment** audit (`archlucid-ui` nav group builders vs App Router paths; canvas `canvases/nav-route-audit.canvas.tsx`). The operator shell exposes **57** nav links across **7** groups, but **23** hrefs use a URL prefix that does not match the menu section (e.g. **Integrations ??? Cloud connections** at `/settings/cloud-connections`, **Administration ??? Security & Trust** at `/workspace/security-trust`, **Governance ??? Policy packs** at `/policy-packs` while `/governance/policy-packs` also exists). Buyers and operators infer location from the address bar, bookmarks, and shared links ??? prefix drift undermines wayfinding and breadcrumb mental models. **TB-404** (P1) publishes a route-namespace policy + CI drift guard (same pattern as **TB-399**, **TB-344**, **NAV_CONFIG_CONTRACT.md**); **TB-405** (P1) consolidates governance outliers under `/governance/*` with permanent redirects; **TB-406** (P1) reconciles Administration `/administration/settings/*` vs `/admin/*` vs `/workspace/*` split; **TB-407** (P2) aligns Integrations cross-namespace routes and stale ITSM redirect nav; **TB-408** (P2) deduplicates ambiguous nav entries and adds semantic path aliases. Does not duplicate **TB-399** (manifest terminology URLs), **TB-276?282** (route-tenant API scope), **TB-267** (executive dashboard route), or **TB-401** (run-detail IA). Cross-ref `integrations-nav-paths.ts`, `ai-usage-nav-paths.ts`, `nav-config.structure.test.ts`, `archlucid-ui/docs/NAV_CONFIG_CONTRACT.md`.
 
 **TB-402 ??? TB-403** were added 2026-06-27 as the **V1.1 automated cloud polling** cluster. [`MULTI_CLOUD_ANALYSIS_V1_1.md`](MULTI_CLOUD_ANALYSIS_V1_1.md) commits to AWS/GCP topology ingestion via Terraform and customer-controlled inventory ZIPs (Phase 1???3); it explicitly defers **Tier 2 live API connectors** (long-lived credentials inside the customer AWS/GCP account). These two items add **hosted automated polling** for AWS (**TB-402**) and GCP (**TB-403**) at **full parity with the Azure Tier 2 extractor** shipped in V1 (see `V1_SCOPE.md ??2.16`, `CloudConnectionsPageClient.tsx`, and `Integrations.AzureExtractor`). Tier 2 for Azure wires a hosted poller that holds a minimal read-only credential, runs on a schedule, uploads an inventory ZIP via `/v1/extractor/azure/upload`, and exposes a management UI at `/settings/cloud-connections`. TB-402 and TB-403 replicate that same end-to-end stack for AWS and GCP respectively. They do **not** duplicate `TB-214` (non-Azure JSON upload path, DEFERRED owner-gated), `TB-341` (multi-source evidence picker V1.1 badges), `TB-343` (cloud-connections plural copy reconciliation ??? Done 2026-06-19), or Phase 1???4 of `MULTI_CLOUD_ANALYSIS_V1_1.md` (topology analysis + pricing ??? distinct from the polling credential/scheduler/UI cluster). Owner must confirm acceptable credential model (Entra Workload Identity Federation, IAM role-ARN trust, or GCP Workload Identity before implementation begins; items are blocked on that pending question ??? **PQ-CLOUD-01**).
 
@@ -331,7 +331,7 @@ All **P0** **V1**: visible-boundary button contract + design-system rule (**TB-2
 **TB-1427 ? TB-1428** were added 2026-07-26 from the owner / PA question: *Is `/live-demo` helping or hurting claim honesty right now, and what would make it a safe see-it ladder?* Finding: **net hurting honesty today** ? H1/nav say **Live demo** while fabricated/offline sample; Contoso-under-Claims risk (**TB-1028**); Review integrity overclaim; no see-it ladder. Safe ladder in `LIVE_DEMO_SEE_IT_LADDER_HONESTY.md`. **TB-1427** (P1) contract. **TB-1428** (P1) honesty CI. GTM: **M-259**/**M-260**. Orchestrates **TB-1265**?**TB-1269** / **TB-1279**?**TB-1283**; does not reopen **M-107**.
 **TB-1429 ? TB-1433** were added 2026-07-26 from an **owner review of Internal Ops ITSM connectors** at `/admin/integrations/itsm` (scored ~41/100; traffic **ADT**). Strengths: real system-admin onboarding wizard + connector health probes; links to Integration readiness / Jira / ServiceNow; StatusTag used in wizard; scoped off buyer Integrations nav. Residual: route title **ITSM** vs H1 **ITSM connectors**; bare H1 (no PageHeading/help); **V1 scope** card + `Integrations:Itsm:NativeEnabled=true` appsettings leak in body; `Promise.all` health+settings wipe; Loading prose only; smoke help constants point at generic `/help/troubleshooting`. Complements open Jira/SN empty CTAs (**TB-1146**/**TB-1161**) / **TB-1422** admin chrome. **TB-1429** (P0) PageHeading + title. **TB-1430** (P0) leak purge. **TB-1431** (P0) load isolate. **TB-1432** (P1) empty/loading/CTA. **TB-1433** (P1) help/deep-link honesty. No new GTM IDs. (IDs **TB-1429**?**TB-1433**; skip PA **TB-1427**?**TB-1428**; skip **TB-1422**?**TB-1426** ADE.)
 
-**TB-1434 ? TB-1440** were added 2026-07-27 from an **owner UI pass on redundant page-description chrome** (exemplar: Advisory scans stacking LayerContextStrip orientation with OperatorPageHeader lead ? same anti-pattern as Done **TB-1125** / **TB-1129**). Mechanism: buyer-polished shell renders `buyerPolishedRouteOrientation` into `LayerContextStrip` (`label ? line`) above pages that already own a title + subtitle/lead. Inventory of **clear** remaining offenders: `/governance` uses the **same** `GOVERNANCE_OVERVIEW_PAGE_LEAD` in strip and header; `/governance/audit` and `/governance/alert-rules` still hit the `/governance/*` fallthrough (wrong overview blurb) while headers teach audit/alert-config jobs; `/search` repeats `SEARCH_PAGE_SUBTITLE` verbatim; `/value-report*` stacks strip + `LayerHeader` + page subtitle; `/product-learning` and `/dashboard` near-duplicate orientation vs page leads. Already tracked separately: Governance setup **TB-1136**, Security & trust **TB-1224**. **TB-1434** (P1) governance overview exact dup. **TB-1435** (P1) audit + alert-rules fallthrough. **TB-1436** (P1) search exact dup. **TB-1437** (P1) value-report triple. **TB-1438** (P1) product-learning. **TB-1439** (P1) dashboard. **TB-1440** (P2) Vitest strip?header guard. No new GTM IDs. (IDs **TB-1434**?**TB-1440**; skip ITSM **TB-1429**?**TB-1433**; skip PA **TB-1427**?**TB-1428**.)
+**TB-1434 ? TB-1440** were added 2026-07-27 from an **owner UI pass on redundant page-description chrome** (exemplar: Advisory scans stacking LayerContextStrip orientation with OperatorPageHeader lead ? same anti-pattern as Done **TB-1125** / **TB-1129**). Mechanism: buyer-polished shell renders `buyerPolishedRouteOrientation` into `LayerContextStrip` (`label ? line`) above pages that already own a title + subtitle/lead. Inventory of **clear** remaining offenders: `/governance` uses the **same** `GOVERNANCE_OVERVIEW_PAGE_LEAD` in strip and header; `/governance/audit` and `/governance/alert-rules` still hit the `/governance/*` fallthrough (wrong overview blurb) while headers teach audit/alert-config jobs; `/search` repeats `SEARCH_PAGE_SUBTITLE` verbatim; `/value-report*` stacks strip + `LayerHeader` + page subtitle; `/product-learning` and `/dashboard` near-duplicate orientation vs page leads. Already tracked separately: Governance setup **TB-1136**, Security & Trust **TB-1224**. **TB-1434** (P1) governance overview exact dup. **TB-1435** (P1) audit + alert-rules fallthrough. **TB-1436** (P1) search exact dup. **TB-1437** (P1) value-report triple. **TB-1438** (P1) product-learning. **TB-1439** (P1) dashboard. **TB-1440** (P2) Vitest strip?header guard. No new GTM IDs. (IDs **TB-1434**?**TB-1440**; skip ITSM **TB-1429**?**TB-1433**; skip PA **TB-1427**?**TB-1428**.)
 
 **TB-1441 ? TB-1445** were added 2026-07-27 from an **owner review of legacy Alert routing** at `/alert-routing` (scored ~49/100; traffic **AL2**). Strengths: App Router page already `redirect()`s to `governanceAlertRulesTabHref("routing")`; `next.config.ts` also redirects to `/governance/alert-rules?tab=routing`. Residual: dual redirect mechanisms (`permanent: false` config + `page.tsx` + force-dynamic `OperatorDataRouteLayout`); traffic workbook still score-0 product-reviews a ghost route; help/breadcrumb/comments still teach `/alert-routing` as a live surface (**IA-014** / **TB-1404** pattern). Product UX lives on `/governance/alert-rules` Routing tab (open **TB-1435** orientation). **TB-1441** (P2) single shim. **TB-1442** (P1) permanent redirect. **TB-1443** (P2) traffic redirect-only. **TB-1444** (P2) CI. **TB-1445** (P1) canonicalize references. No new GTM IDs. (IDs **TB-1441**?**TB-1445**; skip **TB-1434**?**TB-1440** LayerContext; skip **TB-1429**?**TB-1433** ADT.)
 
@@ -411,7 +411,7 @@ All **P0** **V1**: visible-boundary button contract + design-system rule (**TB-2
 
 **TB-1646 ? TB-1650** were added 2026-07-27 from an **owner populated-list convention pass** (Recurrence/Digests/Reviews `EnterpriseTable` vs Advisory/Alert card stacks vs Slack raw HTML vs Webhooks cards vs Teams checklist vs Audit sticky/virtualized). Finding: design system already cites `EnterpriseTable` + `StatusTag` but never defines list **kinds** or when cards/raw tables are allowed. Competing patterns: (1) EnterpriseTable inventory, (2) spacious entity cards, (3) master-detail table, (4) raw HTML table dialect, (5) config checklist, (6) action-dense rows. Recommended standard: name list kind; default inventory/master-detail to `EnterpriseTable` + `StatusTag`; entity-summary cards only for low cardinality + nested detail; config checklist stays separate; ?2 visible row actions; buyer labels in primary columns (no UUID/cron theater); ban parallel raw tables. **TB-1646** (P1) design-system contract. **TB-1647** (P1) Advisory + Alert rules cards?table. **TB-1648** (P1) Slack/Webhooks destination unify. **TB-1649** (P1) row honesty/action budget + raw-table inventory. **TB-1650** (P2) Vitest guard. No new GTM IDs. (IDs **TB-1646**?**TB-1650**; skip HCR **TB-1641**?**TB-1645**; pairs empty **TB-1552**?**TB-1556** / side-rail **TB-1572**?**TB-1576** / CTA **TB-1539**; do not reopen surface whitespace/Alert GOC rows.)
 
-**TB-1651 ? TB-1655** were added 2026-07-27 from an **owner review of What ArchLucid does with your data** at `/help/data-handling` (~52/100; traffic **HED**). Strengths: short buyer-safe `DATA_HANDLING.md`; product Help Center tier; Vitest bans SOC 2 Type II attestation phrasing; clear leaves/stays/isolation sections. Residual: bare `HelpTopicMarkdownView` with no Trust Center / Security & trust primary CTA; near-duplicate job vs `/help/data-handling-tenant-isolation` (**HDA**, still score-0) and overlap with `security-trust` dual-source; Isolation line ?Cross-tenant data access is not part of the product design? risks absolute-claim vs open **TB-1284**/**TB-1418**; sequential H2 essay before leaves/stays orientation; Related omits tenant-isolation sibling and marketing Trust Center. Pairs **TB-1414** (do not reopen). IDs skip PA populated-list **TB-1646**?**TB-1650** / HCR **TB-1641**?**TB-1645**. No new GTM IDs.
+**TB-1651 ? TB-1655** were added 2026-07-27 from an **owner review of What ArchLucid does with your data** at `/help/data-handling` (~52/100; traffic **HED**). Strengths: short buyer-safe `DATA_HANDLING.md`; product Help Center tier; Vitest bans SOC 2 Type II attestation phrasing; clear leaves/stays/isolation sections. Residual: bare `HelpTopicMarkdownView` with no Trust Center / Security & Trust primary CTA; near-duplicate job vs `/help/data-handling-tenant-isolation` (**HDA**, still score-0) and overlap with `security-trust` dual-source; Isolation line ?Cross-tenant data access is not part of the product design? risks absolute-claim vs open **TB-1284**/**TB-1418**; sequential H2 essay before leaves/stays orientation; Related omits tenant-isolation sibling and marketing Trust Center. Pairs **TB-1414** (do not reopen). IDs skip PA populated-list **TB-1646**?**TB-1650** / HCR **TB-1641**?**TB-1645**. No new GTM IDs.
 
 **TB-1656 ? TB-1660** were added 2026-07-27 from an **owner review of Data handling and tenant isolation** at `/help/data-handling-tenant-isolation` (~38/100; traffic **HDA**). Strengths: buyer audience + product Help Center tier; sectionAnchor reuse intent (**TB-727** Done); title promises isolation depth. Residual: `TENANT_ISOLATION.md` is now a **path-stable pack alias stub** pointing at `BUYER_SECURITY_PROCUREMENT_PACKET.md#tenant-isolation-buyer-overview`, while registry still `sourcePaths` the stub + old short anchors (`three-layers`, `encryption`, ?) that no longer match packet ids (`tenant-isolation-three-layers`, ?) ? in-app ?Three layers? deep-dive can silently drop; bare `HelpTopicMarkdownView`; near-duplicate of **HED** `/help/data-handling` (**TB-1652**); stub/packet expose contributor paths (SECURITY.md, ADR 0037, MULTI_TENANT_RLS, generate_*.py). IDs skip HED **TB-1651**?**TB-1655** / PA **TB-1646**?**TB-1650**. No new GTM IDs.
 
@@ -571,7 +571,7 @@ All **P0** **V1**: visible-boundary button contract + design-system rule (**TB-2
 
 **TB-1279 ? TB-1283** were added 2026-07-26 from an **owner review of See it** at `/see-it` (scored ~55/100; traffic ID **SEE**). Findings: proof strip, sample disclosure, snapshot fallback, and outcome-led lead are real strengths, but the banner hardcodes **Healthcare claims sample** while live/`GET /v1/demo/preview` can serve Contoso (known **TB-1028**/**TB-1029** ? UI fail-closed must ship as page P0, not wait on the full PA boundary contract); title/metadata overclaim **30 seconds** for a long scroll; first viewport stacks H1 + value prop + proof strip + ROI PDF + full-preview card before the sample body; **Open full demo preview** appears twice and CTA copy says **manifest**; download is labeled **evidence bundle** but hits `why-archlucid-pack.pdf`; no ladder to `/live-demo` (**TB-1267** peer). **TB-1279** (P0) universe fail-closed banner. **TB-1280** (P1) honest time copy. **TB-1281** (P1) hero budget. **TB-1282** (P1) single CTA path + live-demo ladder + purge manifest jargon. **TB-1283** (P1) download label honesty. No new GTM IDs.
 
-**TB-1284 ? TB-1286** were added 2026-07-26 from an **owner re-review of Security & trust** at `/administration/settings/security-trust` (scored ~53/100; traffic ID **WSX**). Prior cluster **TB-1223**?**TB-1227** still covers Administration breadcrumb, triple intro, PageHeading/help, Available-now CTA hierarchy, and security@ dedupe (unchanged in code). Gaps not tracked there: `OPERATOR_SECURITY_TRUST_TENANT_ISOLATION_BODY` claims **?no cross-tenant data path in the standard operating model?** (too absolute vs DiD / staff surfaces / **TB-1122**); Available now / Under NDA / Roadmap use custom `rounded-full` pills (not **StatusTag** / **TB-116**); page uses `space-y-6` and a raw HTML badge-legend table. **TB-1284** (P0) soft isolation copy. **TB-1285** (P1) StatusTag section labels. **TB-1286** (P1) density + badge-legend parity. No new GTM IDs.
+**TB-1284 ? TB-1286** were added 2026-07-26 from an **owner re-review of Security & Trust** at `/administration/settings/security-trust` (scored ~53/100; traffic ID **WSX**). Prior cluster **TB-1223**?**TB-1227** still covers Administration breadcrumb, triple intro, PageHeading/help, Available-now CTA hierarchy, and security@ dedupe (unchanged in code). Gaps not tracked there: `OPERATOR_SECURITY_TRUST_TENANT_ISOLATION_BODY` claims **?no cross-tenant data path in the standard operating model?** (too absolute vs DiD / staff surfaces / **TB-1122**); Available now / Under NDA / Roadmap use custom `rounded-full` pills (not **StatusTag** / **TB-116**); page uses `space-y-6` and a raw HTML badge-legend table. **TB-1284** (P0) soft isolation copy. **TB-1285** (P1) StatusTag section labels. **TB-1286** (P1) density + badge-legend parity. No new GTM IDs.
 
 **TB-1289 ? TB-1291** were added 2026-07-26 from an **owner re-review of Projects recycle bin** at `/administration/settings/tenant/recycle-bin` (scored ~58/100; traffic ID **STR**). Prior cluster **TB-1179**?**TB-1182** still covers missing delete UI, retention/purge transparency, buried Tenant-settings entry, and restore/error StatusTag density (unchanged in code). Gaps not tracked there: breadcrumb parent is **Settings** while nav is Administration; raw H1 without **PageHeading** / contextual help; **Restore** posts immediately with no Dialog confirm; empty/loading are Card + ?Loading?? (not `OperatorEmptyState` / loading notice). **TB-1289** (P1) Admin wayfinding + PageHeading/help. **TB-1290** (P1) restore Dialog. **TB-1291** (P1) empty/loading polish. No new GTM IDs.
 
@@ -934,11 +934,11 @@ All **P0** **V1**: visible-boundary button contract + design-system rule (**TB-2
 | TB-1216 | **Done (2026-08-11)** AI usage ? nav/document/H1 title consistency (AI usage); see ## TB-1216 below | Adoption friction P1 ? **V1**; owner `/administration/settings/ai-usage` ~51/100 2026-07-25; TB-404 | S |
 | TB-1218 | **Done (2026-08-11)** AI usage ? PageHeading icon + PageContextualHelpButton; see ## TB-1218 below | Adoption friction P1 ? **V1**; with **TB-1216**; parity **TB-1184** | S |
 | TB-1219 | **Done (2026-08-11)** AI usage ? dedupe Edit budget / budget-control CTAs; see ## TB-1219 below | Adoption friction P1 ? **V1**; with **TB-1216** | S |
-| TB-1223 | **Done** (2026-08-11) ? Security & trust Administration breadcrumb + nav href honesty; Vitest; see `## TB-1223` below | Adoption friction P1 ? **V1**; owner `/administration/settings/security-trust` ~53/100 2026-07-25; TB-404; with **TB-1216** | S |
-| TB-1224 | **Done** (2026-08-11) ? Security & trust single hero description; Vitest; see `## TB-1224` below | Adoption friction P1 ? **V1**; with **TB-1223** | S |
-| TB-1225 | **Done** (2026-08-11) ? Security & trust PageHeading icon + PageContextualHelpButton; Vitest; see `## TB-1225` below | Adoption friction P1 ? **V1**; with **TB-1224**; parity **TB-1184** | XS |
-| TB-1226 | **Done** (2026-08-11) ? Security & trust Trust Center primary CTA hierarchy; Vitest; see `## TB-1226` below | Adoption friction P1 ? **V1**; with **TB-1224** | S |
-| TB-1227 | **Done** (2026-08-11) ? Security & trust dedupe security@ contact CTAs; Vitest; see `## TB-1227` below | Adoption friction P1 ? **V1**; with **TB-1223** | XS |
+| TB-1223 | **Done** (2026-08-11) ? Security & Trust Administration breadcrumb + nav href honesty; Vitest; see `## TB-1223` below | Adoption friction P1 ? **V1**; owner `/administration/settings/security-trust` ~53/100 2026-07-25; TB-404; with **TB-1216** | S |
+| TB-1224 | **Done** (2026-08-11) ? Security & Trust single hero description; Vitest; see `## TB-1224` below | Adoption friction P1 ? **V1**; with **TB-1223** | S |
+| TB-1225 | **Done** (2026-08-11) ? Security & Trust PageHeading icon + PageContextualHelpButton; Vitest; see `## TB-1225` below | Adoption friction P1 ? **V1**; with **TB-1224**; parity **TB-1184** | XS |
+| TB-1226 | **Done** (2026-08-11) ? Security & Trust Trust Center primary CTA hierarchy; Vitest; see `## TB-1226` below | Adoption friction P1 ? **V1**; with **TB-1224** | S |
+| TB-1227 | **Done** (2026-08-11) ? Security & Trust dedupe security@ contact CTAs; Vitest; see `## TB-1227` below | Adoption friction P1 ? **V1**; with **TB-1223** | XS |
 | TB-1248 | **Done** (2026-08-11) — canonical `/help/engineering-troubleshooting` + redirect; Vitest; see ## TB-1248 below | Adoption friction P1 ? **V1**; with **TB-1246** | S |
 | TB-1256 | **Done** (2026-08-11) ? Procurement FAQ diligence CTA chrome; Vitest; see `## TB-1256` below | Adoption friction P1 ? **V1**; with **TB-1253** | S |
 | TB-1259 | **Done** (2026-08-11) ? Review guide Start architecture review CTA to `/reviews/new`; Vitest; see `## TB-1259` below | Adoption friction P1 ? **V1**; with **TB-1258** | S |
@@ -955,8 +955,8 @@ All **P0** **V1**: visible-boundary button contract + design-system rule (**TB-2
 | TB-1276 | **Done** (2026-08-11) ? Integration DLQ mutation CTA hierarchy + Dialog confirm + filters; Vitest; see `## TB-1276` below | Adoption friction P1 ? **V1**; with **TB-1272** | M |
 | TB-1281 | **Done** (2026-08-11) ? `/see-it` first-viewport hero budget; Vitest; see `## TB-1281` below | Adoption friction P1 ? **V1**; with **TB-1279** | S |
 | TB-1282 | **Done** (2026-08-11) ? `/see-it` single CTA + `/live-demo` ladder; Vitest; see `## TB-1282` below | Adoption friction P1 ? **V1**; with **TB-1279**; pairs **TB-1267** | S |
-| TB-1285 | **Done** (2026-08-10) ? Security & trust StatusTag for Available now / Under NDA / Roadmap; Vitest; see `## TB-1285` below | Adoption friction P1 ? **V1**; with **TB-1284**; TB-116 parity | XS |
-| TB-1286 | **Done** (2026-08-10) ? Security & trust operator density + badge-legend StatusTag samples; Vitest; see `## TB-1286` below | Adoption friction P1 ? **V1**; with **TB-1285** | XS |
+| TB-1285 | **Done** (2026-08-10) ? Security & Trust StatusTag for Available now / Under NDA / Roadmap; Vitest; see `## TB-1285` below | Adoption friction P1 ? **V1**; with **TB-1284**; TB-116 parity | XS |
+| TB-1286 | **Done** (2026-08-10) ? Security & Trust operator density + badge-legend StatusTag samples; Vitest; see `## TB-1286` below | Adoption friction P1 ? **V1**; with **TB-1285** | XS |
 | TB-1289 | **Done** (2026-08-10) ? Recycle bin Administration breadcrumb + PageHeading/help; Vitest; see `## TB-1289` below | Adoption friction P1 ? **V1**; owner recycle-bin re-review ~58/100 2026-07-26; traffic **STR**; complements **TB-1179**?**TB-1182**; pairs **TB-1223** | S |
 | TB-1290 | **Done** (2026-08-10) ? Recycle bin Dialog confirm before Restore; Vitest; see `## TB-1290` below | Adoption friction P1 ? **V1**; with **TB-1289** | S |
 | TB-1291 | **Done** (2026-08-10) ? Recycle bin OperatorEmptyState + loading notice; Vitest; see `## TB-1291` below | Adoption friction P1 ? **V1**; with **TB-1182** | XS |
@@ -1647,7 +1647,7 @@ All **P0** **V1**: visible-boundary button contract + design-system rule (**TB-2
 | TB-1255 | ~~Procurement FAQ ? buyer-safe data residency (no appsettings keys)~~ **Done** 2026-07-29 ? Q3 buyer-safe; admin keys in Configuration reference; Vitest residency bans | Trustworthiness P0 ? **V1**; with **TB-1253** | S |
 | TB-1272 | ~~Integration DLQ ? fix ?tenant-scoped? lie; state cross-tenant clearly~~ **Done** 2026-07-29 ? cross-tenant warn callout + CardDescription; Vitest bans tenant-scoped | Trustworthiness P0 ? **V1**; owner DLQ ~49/100 2026-07-26; traffic **OID**; complements Done **TB-632** | S |
 | TB-1279 | ~~`/see-it` ? universe fail-closed banner (Claims chrome ? Contoso payload)~~ **Done** 2026-07-29 ? universe classifier + banner/title fail-closed; Vitest Contoso?Claims | Trustworthiness P0 ? **V1**; owner see-it ~55/100 2026-07-26; traffic **SEE**; elevates UI ship of **TB-1028**; pairs **TB-1029** | S |
-| TB-1284 | ~~Security & trust ? soft tenant-isolation copy (no absolute ?no cross-tenant?)~~ **Done** 2026-07-29 ? dedicated catalog + host decide-once + scope caveat; Vitest bans absolute path claim | Trustworthiness P0 ? **V1**; owner security-trust re-review ~53/100 2026-07-26; traffic **WSX**; complements **TB-1223**?**TB-1227** + **TB-1122** | S |
+| TB-1284 | ~~Security & Trust ? soft tenant-isolation copy (no absolute ?no cross-tenant?)~~ **Done** 2026-07-29 ? dedicated catalog + host decide-once + scope caveat; Vitest bans absolute path claim | Trustworthiness P0 ? **V1**; owner security-trust re-review ~53/100 2026-07-26; traffic **WSX**; complements **TB-1223**?**TB-1227** + **TB-1122** | S |
 | TB-1297 | ~~`/welcome` ? purge contributor library docs from Verify links~~ **Done** 2026-07-29 ? pillar Verify ? /help + trust surfaces; Vitest bans docs/library | Trustworthiness P0 ? **V1**; with **TB-1294**; banned-copy / help-link parity **TB-1254** | S |
 | TB-1304 | ~~`/why` ? purge contributor library docs from Verify column~~ **Done** 2026-07-29 ? Verify ? /help + trust surfaces; Vitest bans docs/library + docs/security | Trustworthiness P0 ? **V1**; with **TB-1301**; parity **TB-1297**/**TB-1254** | S |
 | TB-1306 | ~~`/why-archlucid` ? Claims?Contoso universe honesty (fail-closed)~~ **Done** 2026-07-29 ? Contoso-labeled chrome; shared demo universe classifier; fail-closed on unknown/collision; Vitest | Trustworthiness P0 ? **V1**; owner why-archlucid ~46/100 2026-07-26; traffic **WH**; pairs **TB-1028**/**TB-1279**/**M-107** | S |
@@ -1892,7 +1892,7 @@ All **P0** **V1**: visible-boundary button contract + design-system rule (**TB-2
 | TB-630 | ~~"Trial funnel" nav label vs. page `<h1>` "Trial-to-paid funnel" mismatch~~ **Done 2026-07-05** ??? renamed the `<h1>` in `TrialFunnelOpsPageClient` to "Trial funnel"; backend and nav authority (`AdminAuthority`) were already aligned; page is read-only | Adoption friction P3 ? **V1**; found during a left-nav business-purpose review 2026-07-05 | XS |
 | TB-629 | ~~"AI processing diagnostics" (`/admin/ai-cost-diagnostics`) sidebar nav item was a dead link ??? no page ever existed for the route, so it 404'd on click; the described content (outbox queue depth, dead-letter posture) already ships elsewhere as the `OperatorOutboxDiagnosticsCard` "Related diagnostics" section on the AI usage page~~ **Done 2026-07-05** ??? owner directed removing the redundant nav item rather than re-pointing or building a standalone page; removed from `operator-system-admin-nav-group-builder.ts` plus the now-unused `AI_COST_DIAGNOSTICS_PATH` constant and dead route references in `nav-shell-visibility.ts` / `route-readiness.ts` / `getLayerForRoute.test.ts` | Adoption friction P3 ? **V1**; found + directed during a left-nav business-purpose review 2026-07-05 | XS |
 | TB-628 | ~~"Support" nav item is `ExecuteAuthority`, but `SupportBundleController` (shared by the Support page and the Settings page's `SupportBundleDownloadButton`) was class-level `AdminAuthority`, so Execute-tier non-Admins saw a live "Download support bundle" button that 403'd on click~~ **Done 2026-07-05** ??? owner directed lowering the backend (bundle is already redacted); `SupportBundleController` policy lowered to `ExecuteAuthority`; `SupportBundleEndpointTests` and the route-tier-policy-nav registry/matrix snapshots updated | Adoption friction P2 ? **V1**; found + directed during a left-nav business-purpose review 2026-07-05 | S |
-| TB-627 | ~~"Security & trust" page (`OperatorSecurityTrustPageView`) had no page-level heading ??? went straight from the `LayerHeader` contextual banner into subsection `<h2>`s with no parent title, unlike every other page reviewed in this sweep~~ **Done 2026-07-05** ??? added an `OperatorPageHeader` titled "Security & trust" matching the nav label; page is static procurement content with no backend calls, so no authority gap | Adoption friction P3 ? **V1**; found during a left-nav business-purpose review 2026-07-05 | XS |
+| TB-627 | ~~"Security & Trust" page (`OperatorSecurityTrustPageView`) had no page-level heading ??? went straight from the `LayerHeader` contextual banner into subsection `<h2>`s with no parent title, unlike every other page reviewed in this sweep~~ **Done 2026-07-05** ??? added an `OperatorPageHeader` titled "Security & Trust" matching the nav label; page is static procurement content with no backend calls, so no authority gap | Adoption friction P3 ? **V1**; found during a left-nav business-purpose review 2026-07-05 | XS |
 | TB-626 | ~~"AI usage" nav item and `/settings/cost-reporting` page were gated at `AdminAuthority`, but `TenantLlmCostReportingController` is `ReadAuthority` and the page is a read-only report with no mutations, so non-Admin callers who could otherwise view every other Read-tier report were blocked from seeing their own AI spend~~ **Done 2026-07-05** ??? owner directed lowering to match the backend (same reasoning as the Billing wallet fix, TB-625); nav item's `requiredAuthority` lowered to `ReadAuthority`; page's `"admin"` surface renamed to `"granted"` and its gate switched from `AdminAuthority` to `ReadAuthority`; `page.test.tsx` updated | Adoption friction P2 ? **V1**; found + directed during a left-nav business-purpose review 2026-07-05 | S |
 | TB-625 | ~~"Billing & plans" nav item is ReadAuthority, but `WalletController`'s `GET` inherited the class-level `AdminAuthority` policy, so non-Admin visitors (Operators, Architects, Sponsors, Readers) got a 403 on every page load, surfaced as an alarming "Could not load AI usage credit settings" error toast before the wallet panel silently disappeared; separately, the "Save credit settings"/"Add payment method" mutation controls had zero client-side capability gating~~ **Done 2026-07-05** ??? owner directed non-Admins should see wallet info; lowered `WalletController.GetAsync` to `ReadAuthority` (kept `PutAsync` at `AdminAuthority`), added `useNavCallerAuthorityRank() >= AUTHORITY_RANK.AdminAuthority` gating to `OperatorBillingWalletPanel`'s mutation controls | Adoption friction P2 ? **V1**; found + directed during a left-nav business-purpose review 2026-07-05 | S |
 | TB-624 | ~~Owner kept "Jira"/"ServiceNow" nav items at AdminAuthority, but `ItsmProductIntegrationPageClient`'s shared "Save tenant settings" button (used by both `/integrations/jira` and `/integrations/servicenow`) had zero `useOperateCapability()` check, even though the backend `TenantItsmOutboundSettingsController` `PUT` endpoint only requires ExecuteAuthority~~ **Done 2026-07-05** ??? added `useOperateCapability()` gating (disabled button + helper copy + early-return guard on `saveSettings`) as defense-in-depth against a direct URL visit or a future nav-authority relaxation | Adoption friction P3 ? **V1**; found + directed during a left-nav business-purpose review 2026-07-05 | XS |
@@ -1987,7 +1987,7 @@ All **P0** **V1**: visible-boundary button contract + design-system rule (**TB-2
 | TB-734 | **Done** (2026-07-18) ? `/help` Guides-vs-Documentation split: `contentKind`-filtered `HelpDocumentationGuide` tab, Documentation badge + export affordance, search drawer browse labels, settings SSO/API keys/Azure technical links to configuration reference; see `## TB-734` below | Adoption friction P2 ? **V1**; depends on **TB-732**; cursor prompt `.cursor/prompts/ia-taxonomy-03-product-help-vs-technical-docs-split.md` | M |
 | TB-735 | **Done** (2026-07-11) ??? Internal-runbook gating hardening ??? confirmed unconditional `/help` loader; `getServerCurrentPrincipal` + `principalCanAccessHelpTopic` on page/API; `HelpTopicAuthorityGate` for JWT sessions; excluded internal-runbook slugs from `generateStaticParams`; removed `pre-commit-ci-gate` from in-app registry; see `## TB-735` below | Trustworthiness P1 ? **V1**; depends on **TB-732**; cursor prompt `.cursor/prompts/ia-taxonomy-04-internal-runbook-gating-hardening.md` | M |
 | TB-736 | **Done** (2026-07-18) ? Marketing first-run consolidation: `/quick-start` 301 ? `/get-started`; guided-trial CTAs ? `/onboarding` + Getting started help learn-more; `marketing-surface-hygiene.ts` leak guard; procurement FAQ `/help/procurement` link; see `## TB-736` below | Adoption friction P2 ? **V1**; cursor prompt `.cursor/prompts/ia-taxonomy-05-marketing-surface-hygiene.md` | M |
-| TB-737 | **Done** (2026-07-18) ? Security & trust consolidation: public assurance downloads on `/trust`; `/trust` vs `/security-trust` differentiation; `trust-center.md` canonical; pointer stubs for duplicate markdown; `trust-center-public-assurance.ts` + Vitest; see `## TB-737` below | Trustworthiness P2 ? **V1**; depends on **TB-732**; coordinate with **TB-721**?**TB-728** PDF cluster; cursor prompt `.cursor/prompts/ia-taxonomy-06-security-trust-consolidation.md` | M |
+| TB-737 | **Done** (2026-07-18) ? Security & Trust consolidation: public assurance downloads on `/trust`; `/trust` vs `/security-trust` differentiation; `trust-center.md` canonical; pointer stubs for duplicate markdown; `trust-center-public-assurance.ts` + Vitest; see `## TB-737` below | Trustworthiness P2 ? **V1**; depends on **TB-732**; coordinate with **TB-721**?**TB-728** PDF cluster; cursor prompt `.cursor/prompts/ia-taxonomy-06-security-trust-consolidation.md` | M |
 | TB-738 | **Done** (2026-07-11) ??? Architecture package vocabulary unification ??? sidebar/hub/home empty states use **Architecture packages** list noun; Architecture nav caption updated; `reviews-hub-copy.test.ts` + TB-738 terminology drift guards; `UI_GLOSSARY_V1.md` **Architecture package** row; see `## TB-738` below | Adoption friction P1 ? **V1**; prerequisite for **TB-740**/**TB-744**; cluster root per CREATE_REVIEW_POSITIONING_ADVERSARIAL_EVALUATION.md | M |
 | TB-739 | **Done** (2026-07-11) ??? Home evidence-package-first copy + trust ladder ??? evaluation tagline; create card promises born-governed output; review card **Recommended first** badge + sample-first recommended-next; `OperatorHomeDualPathCards.test.tsx`; see `## TB-739` below | Adoption friction P1 ? **V1**; pair with **TB-738**; depends on evaluation copy in `buyer-polish-copy.ts` | S |
 | TB-740 | ~~Architecture package origin badges ??? show **Created** vs **Reviewed** on workspace activity / packages list rows from durable intake metadata; see `## TB-740` below~~ ? **Done** (2026-07-11) | Adoption friction P2 ? **V1** | M |
@@ -13585,7 +13585,7 @@ Additionally, **both** `/policy-packs` and `/governance/policy-packs` (+ `[id]`)
 |-----------|-------------|-------|
 | Users & roles | `/admin/users` | `/admin/` prefix |
 | Role management | `/settings/roles` | `/administration/settings/` prefix ??? same conceptual area |
-| Security & trust | `/workspace/security-trust` | `/workspace/` segment unexplained |
+| Security & Trust | `/workspace/security-trust` | `/workspace/` segment unexplained |
 | Support | `/admin/support` | `/admin/` prefix |
 | Recurrence schedules | `/governance/recurrence-schedules` | `/governance/` but shown under Administration |
 
@@ -20523,7 +20523,7 @@ flags the voice issue for repo docs; this extends the check to marketing UI copy
 
 ---
 
-## TB-737 ? Security & trust materials consolidation (P2) ? **Done** (2026-07-18)
+## TB-737 ? Security & Trust materials consolidation (P2) ? **Done** (2026-07-18)
 
 **Shipped:** `/trust` public assurance downloads (evidence-pack ZIP, SOC 2 self-assessment, CAIQ, SIG, owner-conducted pen-test summary) without auth; `/trust` vs `/security-trust` explicit differentiation; `docs/go-to-market/trust-center.md` canonical with pointer stubs for `docs/trust-center.md`, `docs/security/trust-center.md`, `docs/go-to-market/trust-center.md`; `trust-center-public-assurance.ts` + Vitest guards; procurement CI canonical path updated.
 
@@ -30840,17 +30840,17 @@ Plus visual regression: overview, technical index, one expanded object, one fiel
 
 ---
 
-## TB-1223 ? Security & trust ? Administration vs Settings wayfinding (P0)
+## TB-1223 ? Security & Trust ? Administration vs Settings wayfinding (P0)
 
 **Window:** V1 ? Adoption friction.
 
 **Status:** **Done** (2026-08-11) ? `OperatorSecurityTrustPageView` renders Administration breadcrumb via `operator-security-trust-page-copy.ts`; canonical path `/administration/security-trust`; Vitest **TB-1223**.
 
-**Problem:** Sidebar places **Security & trust** under **Administration**, but breadcrumbs under `/administration/settings/*` resolve the parent as **Settings** (`breadcrumb-map` segment label). URL is `/administration/settings/security-trust` (`SETTINGS_SECURITY_TRUST_PATH`). Same class as **TB-1216**. Product history (**TB-404** Done): Administration nav group uses the **`/administration/settings/*`** URL namespace; **`/admin/*`** is System Administration. Inventing a one-off `/administration/security-trust` breaks namespace policy.
+**Problem:** Sidebar places **Security & Trust** under **Administration**, but breadcrumbs under `/administration/settings/*` resolve the parent as **Settings** (`breadcrumb-map` segment label). URL is `/administration/settings/security-trust` (`SETTINGS_SECURITY_TRUST_PATH`). Same class as **TB-1216**. Product history (**TB-404** Done): Administration nav group uses the **`/administration/settings/*`** URL namespace; **`/admin/*`** is System Administration. Inventing a one-off `/administration/security-trust` breaks namespace policy.
 
 **Approach (preferred path first):**
 
-1. Breadcrumb for `/administration/settings/security-trust` (and Administration siblings) should read **Administration / Security & trust**, while keeping canonical href `/administration/settings/security-trust`.
+1. Breadcrumb for `/administration/settings/security-trust` (and Administration siblings) should read **Administration / Security & Trust**, while keeping canonical href `/administration/settings/security-trust`.
 2. Document: Administration = nav label; `/administration/settings` = URL prefix (coordinate **TB-1212** / **TB-1216**).
 3. Optional owner decision (separate, L): rename entire `/administration/settings` ? `/administration` with redirects ? do **not** move only this route.
 4. Vitest: parent crumb is Administration; path constant stays `/administration/settings/security-trust` unless whole-namespace rename is approved.
@@ -30865,7 +30865,7 @@ Plus visual regression: overview, technical index, one expanded object, one fiel
 
 ---
 
-## TB-1224 ? Security & trust ? collapse triple intro into one hero (P0)
+## TB-1224 ? Security & Trust ? collapse triple intro into one hero (P0)
 
 **Window:** V1 ? Adoption friction.
 
@@ -30899,7 +30899,7 @@ Operators must read three intros before reaching the Trust Center link list.
 
 ---
 
-## TB-1225 ? Security & trust ? PageHeading icon + PageContextualHelpButton (P0)
+## TB-1225 ? Security & Trust ? PageHeading icon + PageContextualHelpButton (P0)
 
 **Window:** V1 ? Adoption friction.
 
@@ -30926,7 +30926,7 @@ Operators must read three intros before reaching the Trust Center link list.
 
 ---
 
-## TB-1226 ? Security & trust ? Available-now primary CTA hierarchy (P0)
+## TB-1226 ? Security & Trust ? Available-now primary CTA hierarchy (P0)
 
 **Window:** V1 ? Adoption friction.
 
@@ -30954,7 +30954,7 @@ Operators must read three intros before reaching the Trust Center link list.
 
 ---
 
-## TB-1227 ? Security & trust ? dedupe security@ contact CTAs (P0)
+## TB-1227 ? Security & Trust ? dedupe security@ contact CTAs (P0)
 
 **Window:** V1 ? Adoption friction.
 
@@ -31839,7 +31839,7 @@ Operators must read three intros before reaching the Trust Center link list.
 
 ---
 
-## TB-1284 ? Security & trust ? soft tenant-isolation copy (no absolute ?no cross-tenant?) (P0)
+## TB-1284 ? Security & Trust ? soft tenant-isolation copy (no absolute ?no cross-tenant?) (P0)
 
 **Window:** V1 ? Trustworthiness.
 
@@ -31857,7 +31857,7 @@ Operators must read three intros before reaching the Trust Center link list.
 2. Point technical detail at CAIQ / Trust Center isolation section without overclaiming RLS-as-live or crypto-proof Search.
 3. Vitest: page must not contain the absolute ?no cross-tenant data path? string; must retain dedicated-catalog / scope-enforcement language.
 
-**Acceptance:** Operator Security & trust isolation paragraph matches **TB-1122** safe-to-claim posture.
+**Acceptance:** Operator Security & Trust isolation paragraph matches **TB-1122** safe-to-claim posture.
 
 **Depends on:** None (UI copy can ship before the full **TB-1122** contract doc).
 
@@ -31867,7 +31867,7 @@ Operators must read three intros before reaching the Trust Center link list.
 
 ---
 
-## TB-1285 ? Security & trust ? StatusTag for Available now / Under NDA / Roadmap (P0)
+## TB-1285 ? Security & Trust ? StatusTag for Available now / Under NDA / Roadmap (P0)
 
 **Window:** V1 ? Adoption friction.
 
@@ -31891,7 +31891,7 @@ Operators must read three intros before reaching the Trust Center link list.
 
 ---
 
-## TB-1286 ? Security & trust ? operator density + badge-legend StatusTag samples (P0)
+## TB-1286 ? Security & Trust ? operator density + badge-legend StatusTag samples (P0)
 
 **Window:** V1 ? Adoption friction.
 
@@ -34512,17 +34512,17 @@ Operators must read three intros before reaching the Trust Center link list.
 
 **Window:** V1 ? Adoption friction.
 
-**Status:** **Done** (2026-08-11) ? `ProcurementHelpDiligenceCtaSection` on `/help/procurement` with Trust Center, Security & trust help, DPA, Subprocessors, and NDA/sales secondary paths; Vitest **TB-1256**.
+**Status:** **Done** (2026-08-11) ? `ProcurementHelpDiligenceCtaSection` on `/help/procurement` with Trust Center, Security & Trust help, DPA, Subprocessors, and NDA/sales secondary paths; Vitest **TB-1256**.
 
 **Priority:** P0.
 
 **Source:** Owner `/help/procurement` review 2026-07-26 ? FAQ answers without a ?what do I do next? ladder.
 
-**Problem:** Page has Print/PDF but no primary diligence actions. Buyers need clear CTAs to Trust Center (public evidence), Security & trust help, DPA template, Subprocessors, and a **buyer-safe** path to request/download the procurement pack ? **not** ?clone the repo and run `archlucid procurement-pack`? (that is SE/ops).
+**Problem:** Page has Print/PDF but no primary diligence actions. Buyers need clear CTAs to Trust Center (public evidence), Security & Trust help, DPA template, Subprocessors, and a **buyer-safe** path to request/download the procurement pack ? **not** ?clone the repo and run `archlucid procurement-pack`? (that is SE/ops).
 
 **Approach:**
 
-1. Add a first-viewport CTA group: Trust Center, Security & trust (`/help/security-trust`), DPA, Subprocessors; secondary: contact security/sales for pack under NDA.
+1. Add a first-viewport CTA group: Trust Center, Security & Trust (`/help/security-trust`), DPA, Subprocessors; secondary: contact security/sales for pack under NDA.
 2. Do not deep-link buyers to contributor HOW_TO_REQUEST CLI instructions; fix or replace the `how_to_request_procurement_pack.md` ? `executive-summary` mapping so it cannot strand reviewers.
 3. Vitest: specialty view exposes the CTA group; no buyer-visible `procurement-pack --out` command on this page.
 
@@ -36642,7 +36642,7 @@ Operators must read three intros before reaching the Trust Center link list.
 
 **Priority:** P0.
 
-**Source:** Owner redundant-description pass 2026-07-27; same triple-intro class as open **TB-1224** (Security & trust).
+**Source:** Owner redundant-description pass 2026-07-27; same triple-intro class as open **TB-1224** (Security & Trust).
 
 **Problem:** `/value-report`, `/value-report/pilot`, and `/value-report/roi` (and sponsor-report aliases) stack LayerContextStrip orientation + `LayerHeader` + page subtitle/lead that all restate sponsor-ready / pilot outcomes / ROI savings stories.
 
@@ -41217,7 +41217,7 @@ Operators must read three intros before reaching the Trust Center link list.
 
 **Problem:** Strong buyer markdown still falls through to generic `HelpTopicMarkdownView` ? Print/PDF, no specialty hero, no primary CTA to Trust Center or `/help/security-trust` for diligence follow-through.
 
-**Approach:** Specialty companion (pair **TB-1414**): buyer lead (data flow / isolation / portability); primary CTA Trust Center or Security & trust. Vitest: specialty testid + primary Button.
+**Approach:** Specialty companion (pair **TB-1414**): buyer lead (data flow / isolation / portability); primary CTA Trust Center or Security & Trust. Vitest: specialty testid + primary Button.
 
 **Acceptance:** First job is diligence-actionable, not markdown-only. **Size estimate:** M.
 

@@ -17,5 +17,5 @@ export const SEE_IT_SOURCES: readonly EvidenceSourceLink[] = [
   { label: "Get started", href: "/get-started" },
   { label: LIVE_DEMO_PAGE_TITLE, href: "/live-demo" },
   { label: "Claims showcase", href: CANONICAL_ANONYMOUS_PROOF_HREF },
-  { label: "Security & trust", href: "/security-trust" },
+  { label: "Security & Trust", href: "/security-trust" },
 ] as const;

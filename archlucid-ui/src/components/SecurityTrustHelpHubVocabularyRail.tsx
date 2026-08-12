@@ -17,7 +17,7 @@ export type SecurityTrustHelpHubVocabularyRailProps = {
   readonly model?: SecurityTrustHelpHubVocabularyModel;
 };
 
-/** TB-2315 — Security & trust help topic vs Security & trust admin hub. */
+/** TB-2315 — Security & Trust help topic vs Security & Trust admin hub. */
 export function SecurityTrustHelpHubVocabularyRail(
   props: SecurityTrustHelpHubVocabularyRailProps,
 ): JSX.Element {

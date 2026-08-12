@@ -236,7 +236,7 @@ For **`npm run screenshots`**, **`npm run screenshots:all`**, **`npm run screens
 | `/auth/signin` | Start OIDC sign-in (JWT mode only) |
 | `/auth/callback` | OAuth redirect handler (PKCE token exchange) |
 | `/security-trust` | Public marketing — recent assurance activity (metadata only) |
-| `/workspace/security-trust` | Operator shell — Security & trust (NDA path, badges legend) |
+| `/workspace/security-trust` | Operator shell — Security & Trust (NDA path, badges legend) |
 
 Downloads use **`/api/proxy/...`** so the browser receives files without attaching `X-Api-Key` manually.
 

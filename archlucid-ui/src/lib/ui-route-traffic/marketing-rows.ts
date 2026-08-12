@@ -108,7 +108,7 @@ export const MARKETING_TRAFFIC_ROWS: readonly UiRouteTrafficRow[] = [
     note: "Validate review (Marketing catalog; operator Execute) - ReplayFormView with OperatorPageHeader PageContextualHelpButton (topic map comparison-replay; Category-1 registry), Learn more / claim-discipline orientation strip (Sources follow-up removed TB-2092), package picker + validation modes. Package re-validation hub - not a signed-record Sources trail. Sibling CXX = compare-two-reviews. Score 68/100 (2026-08-08) - validation-action hub at CXX Evidence band; hard-caps higher Evidence without signed-record diligence Sources trail. Owner pass: Evidence chrome shipped; cannot improve further toward 80 without turning this into a signed-record diligence Sources trail.",
     noteMustContain: ["ReplayFormView", "Sources", "cannot improve further toward 80"],
   },
-  /** Traffic workbook row ID for Security & trust marketing page. Owner backlog shorthand: SEC. */
+  /** Traffic workbook row ID for Security & Trust marketing page. Owner backlog shorthand: SEC. */
   {
     rowId: "SEC",
     path: "/security-trust",
@@ -129,7 +129,7 @@ export const MARKETING_TRAFFIC_ROWS: readonly UiRouteTrafficRow[] = [
     rowId: "SIG",
     path: "/signup",
     section: "Marketing",
-    note: "Signup (Marketing) - SignupForm (TB-2010 disable-until-ready) or SignupAccessRequestForm (fields visible; zod email gate; explained disabled primary; data-use + Privacy line), SignupEvaluationAsideRail (what-happens-next steps, tenant/sign-in/no-payment posture, sample review), SignupEvidenceOrientationStrip (quiet Scope claim + Security & trust; no Related strip; no FAQ/Trust/Sign-in body dupes; wordmark text-sm vs nav text-xs). Not an operator PageContextualHelp surface. Score 58/100 (2026-08-08) - marketing evaluation-access ceiling below operator Evidence band; hard-caps higher Evidence without signed-record diligence Sources trail. Owner pass: Evidence chrome shipped; cannot improve further toward 80 without turning this into a signed-record diligence Sources trail.",
+    note: "Signup (Marketing) - SignupForm (TB-2010 disable-until-ready) or SignupAccessRequestForm (fields visible; zod email gate; explained disabled primary; data-use + Privacy line), SignupEvaluationAsideRail (what-happens-next steps, tenant/sign-in/no-payment posture, sample review), SignupEvidenceOrientationStrip (quiet Scope claim + Security & Trust; no Related strip; no FAQ/Trust/Sign-in body dupes; wordmark text-sm vs nav text-xs). Not an operator PageContextualHelp surface. Score 58/100 (2026-08-08) - marketing evaluation-access ceiling below operator Evidence band; hard-caps higher Evidence without signed-record diligence Sources trail. Owner pass: Evidence chrome shipped; cannot improve further toward 80 without turning this into a signed-record diligence Sources trail.",
     noteMustContain: ["SignupEvidenceOrientationStrip", "cannot improve further toward 80"],
   },
   /** Traffic workbook row ID for Showcase run. Owner backlog shorthand: SRH. */

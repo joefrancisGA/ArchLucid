@@ -150,7 +150,7 @@ export const LAYER_PAGE_GUIDANCE: Record<LayerGuidancePageKey, LayerGuidanceBloc
     enterpriseFootnote: "Search first; CSV export for auditors and admins.",
   },
   "security-trust": {
-    layerBadge: "Security & trust",
+    layerBadge: "Security & Trust",
     headline: "Security materials for procurement, vendor review, and enterprise trust.",
     useWhen:
       "Share procurement-ready security materials, trust-center links, and assessment status for this workspace.",

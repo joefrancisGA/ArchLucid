@@ -282,8 +282,8 @@ export const SETTINGS_MASTER_SECTIONS: readonly SettingsMasterSection[] = [
   },
   {
     id: "security-trust",
-    navLabel: "Security & trust",
-    title: "Security & trust",
+    navLabel: "Security & Trust",
+    title: "Security & Trust",
     description: "Procurement materials and trust-center links.",
     keywords: ["security", "trust", "procurement", "compliance"],
     tier: "common",

@@ -656,7 +656,7 @@ Removed App Router redirect stub; CTO recap leave-behind links now use `/archite
 
 /trust ships TrustCenterEvidenceOrientationStrip (Sources + claim-discipline), traffic Notes under Marketing, and honest Evidence score 40. Marketing Trust Center hard-caps higher Evidence; no CPA / third-party pen-test implication.
 
-## 2026-08-04 - UI: Security & trust Evidence chrome (SEC)
+## 2026-08-04 - UI: Security & Trust Evidence chrome (SEC)
 
 /security-trust ships SecurityTrustEvidenceOrientationStrip (Sources + claim-discipline), traffic Notes under Marketing, and honest Evidence score 40. Marketing assurance page hard-caps higher Evidence; no CPA / third-party pen-test implication.
 
@@ -1247,9 +1247,9 @@ Honest co-primary surface?package?IDs map ([`SAMPLE_PACKAGE_FUNNEL_ID_MATRIX.md`
 
 ---
 
-## 2026-04-23 ï¿½ `archlucid-ui`: operator Security & trust route dedupe (Next.js build)
+## 2026-04-23 ï¿½ `archlucid-ui`: operator Security & Trust route dedupe (Next.js build)
 
-**Outcome.** Next.js App Router cannot register two `page.tsx` files that resolve to the same URL. The signed-in **Security & trust** surface moved from **`/security-trust`** to **`/workspace/security-trust`** ([`archlucid-ui/src/app/(operator)/workspace/security-trust/page.tsx`](../archlucid-ui/src/app/(operator)/workspace/security-trust/page.tsx)); the public marketing page stays at **`/security-trust`**. [`archlucid-ui/src/lib/nav-config.ts`](../archlucid-ui/src/lib/nav-config.ts) Operate (governance and trust) link updated. [`docs/library/OPERATOR_ATLAS.md`](library/OPERATOR_ATLAS.md) operator path updated. **`PilotOutcomeCard`:** invalid C#-style `is null` in TSX was already corrected to `=== null` ([`archlucid-ui/src/components/PilotOutcomeCard.tsx`](../archlucid-ui/src/components/PilotOutcomeCard.tsx)). **CI:** [`scripts/ci/assert_archlucid_ui_app_router_unique_paths.py`](../scripts/ci/assert_archlucid_ui_app_router_unique_paths.py) runs in **`docker-build-smoke`** and **`ui-unit`** ([`.github/workflows/ci.yml`](../.github/workflows/ci.yml)) so route-group collisions fail before `next build` / Docker.
+**Outcome.** Next.js App Router cannot register two `page.tsx` files that resolve to the same URL. The signed-in **Security & Trust** surface moved from **`/security-trust`** to **`/workspace/security-trust`** ([`archlucid-ui/src/app/(operator)/workspace/security-trust/page.tsx`](../archlucid-ui/src/app/(operator)/workspace/security-trust/page.tsx)); the public marketing page stays at **`/security-trust`**. [`archlucid-ui/src/lib/nav-config.ts`](../archlucid-ui/src/lib/nav-config.ts) Operate (governance and trust) link updated. [`docs/library/OPERATOR_ATLAS.md`](library/OPERATOR_ATLAS.md) operator path updated. **`PilotOutcomeCard`:** invalid C#-style `is null` in TSX was already corrected to `=== null` ([`archlucid-ui/src/components/PilotOutcomeCard.tsx`](../archlucid-ui/src/components/PilotOutcomeCard.tsx)). **CI:** [`scripts/ci/assert_archlucid_ui_app_router_unique_paths.py`](../scripts/ci/assert_archlucid_ui_app_router_unique_paths.py) runs in **`docker-build-smoke`** and **`ui-unit`** ([`.github/workflows/ci.yml`](../.github/workflows/ci.yml)) so route-group collisions fail before `next build` / Docker.
 
 ---
 

@@ -11,7 +11,7 @@ import {
 import { OPERATOR_LINK, OPERATOR_TYPOGRAPHY } from "@/lib/design-tokens";
 import { cn } from "@/lib/utils";
 
-/** Anchored security assurance band with Security & trust deep link. */
+/** Anchored security assurance band with Security & Trust deep link. */
 export function CloudConnectionsSecurityAssuranceBand(): ReactElement {
   return (
     <section

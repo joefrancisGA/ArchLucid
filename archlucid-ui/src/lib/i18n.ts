@@ -144,7 +144,7 @@ export const OPERATOR_NAV_LINK_LABELS = {
   auditTrail: BUYER_SURFACE_VOCABULARY.auditTrail,
   governanceSetupGuide: "Governance setup",
   workspaceHealth: "Workspace health",
-  securityTrust: "Security & trust",
+  securityTrust: "Security & Trust",
   aiUsage: "AI usage",
   /** Internal Operations — buyer-facing nav label (TB-648). */
   knowledgeIndexHealth: "Knowledge index health",
@@ -186,7 +186,7 @@ export const OPERATOR_NAV_LINK_LABELS = {
   /** Settings hub (`/administration`); workspace entry often `/administration/tenant`. */
   settings: "Settings",
   workspaceSettings: "Workspace settings",
-  /** Users & roles hub (`/administration/users`) — ampersand matches Security & trust nav spelling. */
+  /** Users & roles hub (`/administration/users`) — ampersand matches Security & Trust nav spelling. */
   usersAndRoles: "Users & roles",
 } as const;
 

@@ -17,7 +17,7 @@ import {
 import { SETTINGS_SECURITY_TRUST_PATH } from "@/lib/settings-admin-route-paths";
 
 describe("trust-assurance-security-trust-vocabulary (TB-2302)", () => {
-  it("explains Trust Center vs Assurance status vs Security & trust hub", () => {
+  it("explains Trust Center vs Assurance status vs Security & Trust hub", () => {
     const model = buildTrustAssuranceSecurityTrustVocabulary();
 
     expect(model.heading).toBe(TRUST_ASSURANCE_SECURITY_TRUST_HEADING);

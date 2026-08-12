@@ -22,7 +22,7 @@ export const PROCUREMENT_HELP_LEAD =
   "Buyer-safe answers for InfoSec questionnaires, resilience reviews, and enterprise procurement.";
 
 export const PROCUREMENT_HELP_CLAIM_DISCIPLINE =
-  "This Procurement FAQ orients buyers and architects on diligence questions and pack requests — it is help orientation, not a CPA SOC 2 attestation, a published third-party pen-test report, or a signed-review diligence Sources package from your tenant. Open Assurance status, Trust Center, or settings Security & trust when you need live assurance surfaces or NDA request paths.";
+  "This Procurement FAQ orients buyers and architects on diligence questions and pack requests — it is help orientation, not a CPA SOC 2 attestation, a published third-party pen-test report, or a signed-review diligence Sources package from your tenant. Open Assurance status, Trust Center, or settings Security & Trust when you need live assurance surfaces or NDA request paths.";
 
 export const PROCUREMENT_HELP_SOURCES_INTRO =
   "Use these follow-ups when procurement FAQ vocabulary turns into assurance hubs, isolation depth, or contract templates.";
@@ -34,7 +34,7 @@ export const PROCUREMENT_HELP_SOURCES: readonly EvidenceSourceLink[] = [
   { label: "Trust Center", href: "/trust" },
   { label: "Security and trust help", href: inAppHelpHref("security-trust") },
   { label: "DPA template", href: inAppHelpHref("dpa-template") },
-  { label: "Settings Security & trust", href: "/administration/security-trust" },
+  { label: "Settings Security & Trust", href: "/administration/security-trust" },
 ] as const;
 
 export type ProcurementHelpDiligenceCta = {
@@ -76,7 +76,7 @@ export const PROCUREMENT_HELP_DILIGENCE_SECONDARY_CTAS: readonly ProcurementHelp
   {
     label: "Request materials under NDA",
     href: PROCUREMENT_HELP_NDA_REQUEST_HREF,
-    description: "Settings Security & trust — NDA-gated diligence pack requests.",
+    description: "Settings Security & Trust — NDA-gated diligence pack requests.",
     testId: "procurement-help-diligence-nda-request",
   },
   {

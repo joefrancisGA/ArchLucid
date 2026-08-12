@@ -1,10 +1,10 @@
 /**
- * TB-2315 — Security & trust help ≠ Security & trust hub vocabulary rail.
+ * TB-2315 — Security & Trust help ≠ Security & Trust hub vocabulary rail.
  *
  * Why two surfaces exist:
- * - Security & trust help (`/help/security-trust`) orients architects and buyers
+ * - Security & Trust help (`/help/security-trust`) orients architects and buyers
  *   on the assurance ladder, data handling, and diligence materials.
- * - Security & trust hub (`/administration/security-trust`) is the in-product
+ * - Security & Trust hub (`/administration/security-trust`) is the in-product
  *   operator hub for workspace procurement-ready materials.
  *
  * They stay separate because reading a help topic is not the same job as using
@@ -34,24 +34,24 @@ export type SecurityTrustHelpHubVocabularyModel = {
 };
 
 export const SECURITY_TRUST_HELP_HUB_HEADING =
-  "Security & trust help and Security & trust hub do different jobs" as const;
+  "Security & Trust help and Security & Trust hub do different jobs" as const;
 
 export const SECURITY_TRUST_HELP_HUB_WHY_TWO =
-  "Security & trust help orients architects and buyers on the assurance ladder, data handling, and diligence materials. Security & trust hub is the in-product operator hub for workspace procurement-ready materials. Reading the help topic is not the same as using the admin hub." as const;
+  "Security & Trust help orients architects and buyers on the assurance ladder, data handling, and diligence materials. Security & Trust hub is the in-product operator hub for workspace procurement-ready materials. Reading the help topic is not the same as using the admin hub." as const;
 
 export const SECURITY_TRUST_HELP_HUB_COMPACT_LINE =
-  "Security & trust help is orientation; Security & trust hub is the admin procurement hub — open the other when you need that job." as const;
+  "Security & Trust help is orientation; Security & Trust hub is the admin procurement hub — open the other when you need that job." as const;
 
 export const SECURITY_TRUST_HELP_HUB_HELP_LINK: SecurityTrustHelpHubLink = {
   id: "security-trust-help",
-  label: "Security & trust help",
+  label: "Security & Trust help",
   href: SECURITY_TRUST_HELP_CANONICAL_PATH,
   whenToUse: "Read assurance and diligence orientation for architects and buyers.",
 };
 
 export const SECURITY_TRUST_HELP_HUB_HUB_LINK: SecurityTrustHelpHubLink = {
   id: "security-trust-hub",
-  label: "Security & trust",
+  label: "Security & Trust",
   href: SETTINGS_SECURITY_TRUST_PATH,
   whenToUse: "Open the in-product operator hub for workspace procurement materials.",
 };

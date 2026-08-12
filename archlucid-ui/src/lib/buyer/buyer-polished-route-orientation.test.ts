@@ -136,7 +136,7 @@ describe("buyerPolishedRouteOrientation", () => {
     const canonical = buyerPolishedRouteOrientation("/administration/security-trust");
     const legacy = buyerPolishedRouteOrientation("/workspace/security-trust");
 
-    expect(canonical?.label).toBe("Security & trust");
+    expect(canonical?.label).toBe("Security & Trust");
     expect(canonical?.line).toContain("Procurement-facing security posture");
     expect(legacy).toEqual(canonical);
   });

@@ -1,11 +1,11 @@
 /**
- * TB-2302 — Trust Center ≠ Assurance status ≠ Security & trust hub vocabulary triad.
+ * TB-2302 — Trust Center ≠ Assurance status ≠ Security & Trust hub vocabulary triad.
  *
  * Why three surfaces exist:
  * - Trust Center (`/trust`) is the public procurement trust pack and downloads.
  * - Assurance status (`/security-trust`) is the public assurance ladder / engagement
  *   status for diligence reviewers.
- * - Security & trust (`/administration/security-trust`) is the operator workspace
+ * - Security & Trust (`/administration/security-trust`) is the operator workspace
  *   hub for procurement-ready materials inside the product.
  *
  * They stay separate because a public trust pack, a public assurance ladder, and
@@ -42,13 +42,13 @@ export type TrustAssuranceSecurityTrustVocabularyModel = {
 };
 
 export const TRUST_ASSURANCE_SECURITY_TRUST_HEADING =
-  "Trust Center, Assurance status, and Security & trust do different jobs" as const;
+  "Trust Center, Assurance status, and Security & Trust do different jobs" as const;
 
 export const TRUST_ASSURANCE_SECURITY_TRUST_WHY_THREE =
-  "Trust Center is the public procurement trust pack and downloads. Assurance status is the public assurance ladder for diligence reviewers. Security & trust is the in-product operator hub for workspace procurement materials. Opening one does not replace the other two." as const;
+  "Trust Center is the public procurement trust pack and downloads. Assurance status is the public assurance ladder for diligence reviewers. Security & Trust is the in-product operator hub for workspace procurement materials. Opening one does not replace the other two." as const;
 
 export const TRUST_ASSURANCE_SECURITY_TRUST_COMPACT_LINE =
-  "Trust Center is the public pack; Assurance status is the public ladder; Security & trust is the in-product hub — open the other when you need that job." as const;
+  "Trust Center is the public pack; Assurance status is the public ladder; Security & Trust is the in-product hub — open the other when you need that job." as const;
 
 export const TRUST_ASSURANCE_SECURITY_TRUST_CENTER_LINK: TrustAssuranceSecurityTrustLink = {
   id: "trust-center",
@@ -66,7 +66,7 @@ export const TRUST_ASSURANCE_SECURITY_TRUST_ASSURANCE_LINK: TrustAssuranceSecuri
 
 export const TRUST_ASSURANCE_SECURITY_TRUST_HUB_LINK: TrustAssuranceSecurityTrustLink = {
   id: "security-trust-hub",
-  label: "Security & trust",
+  label: "Security & Trust",
   href: SETTINGS_SECURITY_TRUST_PATH,
   whenToUse: "Open the in-product operator hub for workspace procurement materials.",
 };

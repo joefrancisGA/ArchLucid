@@ -56,7 +56,7 @@ describe("PilotNavGroupBuilder", () => {
     const securityTrustLink = group.links.find((link) => link.href === "/administration/security-trust");
 
     expect(securityTrustLink).toBeDefined();
-    expect(securityTrustLink?.label).toBe("Security & trust");
+    expect(securityTrustLink?.label).toBe("Security & Trust");
     expect(securityTrustLink?.requiredAuthority).toBe("ReadAuthority");
   });
 

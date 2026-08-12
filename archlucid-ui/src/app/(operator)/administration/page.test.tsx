@@ -84,7 +84,7 @@ describe("SettingsPageView", () => {
   it("exposes section nav as hash links (TB-1202)", () => {
     render(<SettingsPageView />);
 
-    const securityLink = screen.getByRole("link", { name: "Security & trust" });
+    const securityLink = screen.getByRole("link", { name: "Security & Trust" });
 
     expect(securityLink).toHaveAttribute("href", "#settings-section-security-trust");
   });

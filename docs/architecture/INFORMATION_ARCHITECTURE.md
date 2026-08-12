@@ -14,7 +14,7 @@ ArchLucid ships five distinct kinds of product content. They must not be blurred
 | 2 | Product help | Architects, pilot teams, buyers | Task-length guide | Implementation detail, internal-only runbook links |
 | 3 | Technical documentation | Admins, integrators, developers | Reference-length; may be PDF-exportable | Internal-only docs must be role-gated, not merely nav-hidden |
 | 4 | Marketing content | Public, unauthenticated | Fast, polished, conversion-focused | Internal routes, implementation terms, roadmap labels |
-| 5 | Security & trust materials | Buyers, procurement, security reviewers | Buyer-safe, procurement-safe | Internal implementation detail beyond what a customer's security team should see |
+| 5 | Security & Trust materials | Buyers, procurement, security reviewers | Buyer-safe, procurement-safe | Internal implementation detail beyond what a customer's security team should see |
 
 ## Route groups vs categories
 
@@ -22,7 +22,7 @@ Next.js route groups map **authentication shell**, not content kind alone:
 
 | Route group | Typical URLs | Primary categories |
 |-------------|--------------|-------------------|
-| `(marketing)` | `/welcome`, `/pricing`, `/signup`, `/trust`, `/faq` | **4** Marketing; **5** Security & trust on `/trust`, `/security-trust`, `/compliance-journey` |
+| `(marketing)` | `/welcome`, `/pricing`, `/signup`, `/trust`, `/faq` | **4** Marketing; **5** Security & Trust on `/trust`, `/security-trust`, `/compliance-journey` |
 | `(operator)` | `/reviews`, `/governance/**`, `/help/**`, `/administration/settings/**` | **1** Contextual help on feature pages; **2** and **3** under `/help/{slug}`; settings pages may link to **3** |
 | `(executive)` | Executive scorecard and value surfaces | **1** Contextual help; links to **2** guides |
 

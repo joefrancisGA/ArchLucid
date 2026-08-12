@@ -1,4 +1,4 @@
-# IA taxonomy 06 — Security & trust materials consolidation
+# IA taxonomy 06 — Security & Trust materials consolidation
 
 > **Not yet executed.** Base branch: `master`. Depends on `ia-taxonomy-01`. Full categorization:
 > `.cursor/prompts/ia-taxonomy-00-plan-and-sitemap.md` § "Category 5".

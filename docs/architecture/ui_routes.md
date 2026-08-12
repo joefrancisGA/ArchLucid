@@ -158,7 +158,7 @@ Columns:
 | `/privacy` | Privacy policy | Open directly |
 | `/quick-scan` | Quick scan marketing entry | Open directly |
 | `/quick-start` | Deprecated alias | App Router shim permanently redirects to `/get-started` (query preserved; canonical UX on **GXX**) |
-| `/security-trust` | Public Security & trust (metadata only) | Open directly |
+| `/security-trust` | Public Security & Trust (metadata only) | Open directly |
 | `/see-it` | “See it in 30 seconds” pitch | Open directly |
 | `/showcase/[runId]` | Public completed review showcase | T1: `/showcase/claims-intake-modernization`. QuickNav deep-links into `/architecture/reviews/*` when demo static fallback is active; otherwise sign-in CTA (`showcase-quick-nav-contract.ts`). |
 | `/signup` | Self-service trial signup | Open directly; submit needs backend |
@@ -236,7 +236,7 @@ Query keys for compare: `priorRunId`/`laterRunId` (buyer) or `leftRunId`/`rightR
 | `/governance/setup` | Governance setup guide | T1 deep links (read-only) |
 | `/governance/recurrence-schedules` | Recurrence schedules | T3 mock or T2 |
 | `/insights/executive-summary` | Sponsor value DOCX export | T2 finalized reviews + Execute role |
-| `/administration/security-trust` | Operator Security & trust | T1/T2; distinct from public `/security-trust` |
+| `/administration/security-trust` | Operator Security & Trust | T1/T2; distinct from public `/security-trust` |
 
 Layer guidance copy for many governance/analysis routes: `archlucid-ui/src/lib/layer-guidance.ts`. Sidebar source of truth: `archlucid-ui/src/lib/nav-config.ts` and `archlucid-ui/docs/NAV_CONFIG_CONTRACT.md`.
 

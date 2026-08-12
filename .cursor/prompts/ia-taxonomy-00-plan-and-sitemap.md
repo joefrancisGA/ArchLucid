@@ -29,7 +29,7 @@ Audit basis: `docs/architecture/ui_routes.md`, `archlucid-ui/src/lib/product-doc
 | 2 | Product help | Architects, pilot teams, buyers | Task-length guide | Implementation detail, internal-only runbook links |
 | 3 | Technical documentation | Admins, integrators, developers | Reference-length, PDF-exportable | — (may include implementation detail; internal-only docs must be role-gated) |
 | 4 | Marketing content | Public, unauthenticated | Fast, polished, conversion-focused | Internal routes, implementation terms, roadmap labels |
-| 5 | Security & trust materials | Buyers, procurement, security reviewers | Buyer-safe, procurement-safe | Internal implementation detail beyond what a customer's security team should see |
+| 5 | Security & Trust materials | Buyers, procurement, security reviewers | Buyer-safe, procurement-safe | Internal implementation detail beyond what a customer's security team should see |
 
 ## Category 1 — Context-sensitive help (no dedicated routes)
 
@@ -127,7 +127,7 @@ shell — the main work is hygiene (phase 05), not relocation:
 **Request demo** is currently a CTA inside `/pricing` (`MarketingPricingQuotePanel.tsx`), not a
 standalone route — leave as-is unless phase 05 finds a reason to split it out.
 
-## Category 5 — Security & trust materials
+## Category 5 — Security & Trust materials
 
 | Surface | URL / path | Public or signed-in |
 |---------|-----------|----------------------|

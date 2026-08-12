@@ -41,8 +41,8 @@ describe("help-product-language", () => {
   });
 
   it("rewrites legacy workspace security-trust path to administration canonical", () => {
-    expect(rewriteLegacyHelpOperatorRoutes("Open [Security & trust](/workspace/security-trust)")).toBe(
-      "Open [Security & trust](/administration/security-trust)",
+    expect(rewriteLegacyHelpOperatorRoutes("Open [Security & Trust](/workspace/security-trust)")).toBe(
+      "Open [Security & Trust](/administration/security-trust)",
     );
   });
 

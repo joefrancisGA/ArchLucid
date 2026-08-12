@@ -26,7 +26,7 @@ Doc-only phrase scanners (**TB-134**, `check_commercial_overclaim_guard.py`, war
 
 | WNTP row | Do not promise (UI) | Highest-risk UI surfaces | Open owner rows |
 | --- | --- | --- | --- |
-| SOC 2 CPA attestation | “SOC 2 certified” / CPA report available | Trust center, Security & trust settings, `/help/procurement`, `/help/soc2-self-assessment` | **TB-1112** · **TB-1144** · **M-196** — tech **TB-135** Done; owner **G-REAL-05** |
+| SOC 2 CPA attestation | “SOC 2 certified” / CPA report available | Trust center, Security & Trust settings, `/help/procurement`, `/help/soc2-self-assessment` | **TB-1112** · **TB-1144** · **M-196** — tech **TB-135** Done; owner **G-REAL-05** |
 | Third-party pen test | Published independent pen-test report | Same assurance cluster + procurement FAQ | **TB-1144** · **M-197** — tech **TB-136** Done; owner **G-ASSURANCE-02** |
 | Live Marketplace / Stripe checkout | “Buy today” / always-on self-serve checkout | `/pricing`, billing settings, billing help CTAs | **TB-1166** · **TB-1169**–**TB-1170** · **TB-1344** (CI) |
 | Named reference customer | “Customer X saved Y%” without approval | Marketing proof pages, executive ROI widgets, welcome/see-it quant copy | **TB-1294** · **TB-1367** · **TB-1463** drift inventory |

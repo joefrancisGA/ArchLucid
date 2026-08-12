@@ -18,7 +18,7 @@ export type TrustAssuranceSecurityTrustVocabularyRailProps = {
   readonly model?: TrustAssuranceSecurityTrustVocabularyModel;
 };
 
-/** TB-2302 — Trust Center vs Assurance status vs Security & trust hub triad. */
+/** TB-2302 — Trust Center vs Assurance status vs Security & Trust hub triad. */
 export function TrustAssuranceSecurityTrustVocabularyRail(
   props: TrustAssuranceSecurityTrustVocabularyRailProps,
 ): JSX.Element {
