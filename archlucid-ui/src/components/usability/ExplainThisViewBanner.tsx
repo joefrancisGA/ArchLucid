@@ -10,7 +10,7 @@ import { InlineGuidanceLabel } from "@/components/InlineGuidanceLabel";
 import { DismissControl } from "@/components/usability/DismissControl";
 import { useAiUsageRouteShellState } from "@/app/(operator)/administration/ai-usage/_sections/ai-usage-route-shell-context";
 import { AI_USAGE_SETTINGS_PATH } from "@/lib/ai-usage-nav-paths";
-import { OPERATOR_LINK } from "@/lib/design-tokens";
+import { OPERATOR_LINK, OPERATOR_PAGE_CONTAINER } from "@/lib/design-tokens";
 import Link from "next/link";
 import { routeViewExplanationForPathname, explainViewDismissKey } from "@/lib/usability/route-view-explanations";
 
@@ -39,11 +39,14 @@ export function ExplainThisViewBanner() {
     return null;
   }
 
+  const alignWithSettingsMeasure = pathname.startsWith("/administration/identity/sso-wizard");
+
   return (
     <div
       className={cn(
         "mb-3 flex flex-wrap items-start justify-between gap-2 rounded-md border border-neutral-200 bg-neutral-50/90 px-3 py-2 dark:border-neutral-700 dark:bg-neutral-900/50",
         OPERATOR_TYPOGRAPHY.body,
+        alignWithSettingsMeasure && OPERATOR_PAGE_CONTAINER.variant.settings,
       )}
       aria-label={explanation.title}
       data-testid="explain-this-view-banner"

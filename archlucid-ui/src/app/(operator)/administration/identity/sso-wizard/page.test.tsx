@@ -12,6 +12,10 @@ vi.mock("next/navigation", async (importOriginal) => {
   };
 });
 
+vi.mock("@/lib/admin-identity-provider-api", () => ({
+  fetchTenantIdentityProviderConfiguration: vi.fn(async () => null),
+}));
+
 vi.mock("@/lib/proxy-fetch-registration-scope", () => ({
   mergeRegistrationScopeForProxy: (init: RequestInit) => init,
 }));
@@ -31,6 +35,7 @@ import {
   SSO_WIZARD_CONFIGURATION_EFFECT_LINE,
   SSO_WIZARD_IDENTITY_PROVIDERS_HREF,
   SSO_WIZARD_RELATED_SURFACES_DISCLOSURE_TITLE,
+  SSO_WIZARD_VERIFY_CLAIM_MAPPING_BUTTON,
 } from "@/lib/sso-wizard-copy";
 import {
   SSO_WIZARD_ACTIVATE_SUCCESS_MESSAGE,
@@ -57,7 +62,7 @@ describe("SsoWizardPage", () => {
     expect(screen.getByTestId("sso-wizard-continue")).toBeDisabled();
 
     const page = screen.getByTestId("sso-wizard-page");
-    expect(page.className).toContain("w-full max-w-[62rem] space-y-6");
+    expect(page.className).toContain("w-full max-w-[62rem]");
     expect(page.className).not.toContain("mx-auto");
 
     const pageText = page.textContent ?? "";
@@ -74,14 +79,16 @@ describe("SsoWizardPage", () => {
   it("shows one configuration effect line between the title and stepper", () => {
     render(<SsoWizardPageClient />);
 
-    const matches = screen.getAllByText(SSO_WIZARD_CONFIGURATION_EFFECT_LINE);
-    expect(matches).toHaveLength(1);
+    const effectLink = screen.getByTestId("sso-wizard-platform-change-link");
+    expect(effectLink).toHaveAttribute("href", "/administration/identity-providers/diagnostics");
+    expect(effectLink).toHaveTextContent(/separate platform configuration change/i);
+    expect(effectLink.parentElement?.textContent).toContain(SSO_WIZARD_CONFIGURATION_EFFECT_LINE);
 
     const header = screen.getByRole("heading", { name: /Configure single sign-on/i });
     const stepper = screen.getByTestId("sso-wizard-stepper");
 
     expect(header.compareDocumentPosition(stepper) & Node.DOCUMENT_POSITION_FOLLOWING).toBeTruthy();
-    expect(matches[0].compareDocumentPosition(stepper) & Node.DOCUMENT_POSITION_FOLLOWING).toBeTruthy();
+    expect(effectLink.compareDocumentPosition(stepper) & Node.DOCUMENT_POSITION_FOLLOWING).toBeTruthy();
   });
 
   it("places vocabulary rails in a collapsed disclosure below the wizard card", () => {
@@ -180,6 +187,10 @@ describe("SsoWizardPage", () => {
     const fetchMock = vi.fn(async (input: RequestInfo | URL, init?: RequestInit) => {
       const url = String(input);
 
+      if (url.includes("/admin/identity/configuration")) {
+        return new Response("not found", { status: 404 });
+      }
+
       if (url.includes("/admin/identity/discover")) {
         return new Response(
           JSON.stringify({
@@ -228,7 +239,7 @@ describe("SsoWizardPage", () => {
     fireEvent.click(screen.getByTestId("sso-wizard-continue"));
 
     fireEvent.change(screen.getByTestId("sso-sample-claims"), { target: { value: "al-admins" } });
-    fireEvent.click(screen.getByRole("button", { name: /Test connection/i }));
+    fireEvent.click(screen.getByRole("button", { name: SSO_WIZARD_VERIFY_CLAIM_MAPPING_BUTTON }));
 
     await waitFor(() => {
       expect(screen.getByTestId("sso-wizard-success-callout")).toHaveTextContent(
@@ -244,11 +255,17 @@ describe("SsoWizardPage", () => {
       "does not change how anyone signs in today",
     );
 
+    expect(screen.getByTestId("sso-activate-consequence-preview-platform-change-link")).toHaveAttribute(
+      "href",
+      "/administration/identity-providers/diagnostics",
+    );
+
     fireEvent.click(screen.getByTestId("sso-wizard-activate"));
 
     const successCallout = await screen.findByTestId("sso-wizard-success-callout");
     expect(successCallout).toHaveTextContent(SSO_WIZARD_ACTIVATE_SUCCESS_MESSAGE);
     expect(successCallout.textContent?.toLowerCase()).not.toContain("single sign-on activated");
+    expect(screen.getByTestId("sso-wizard-post-save-next-action")).toBeInTheDocument();
     expect(showSuccess).not.toHaveBeenCalled();
 
     vi.unstubAllGlobals();

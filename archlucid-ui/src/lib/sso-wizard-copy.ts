@@ -5,8 +5,18 @@ export const SSO_WIZARD_PAGE_TITLE = "Configure single sign-on";
 export const SSO_WIZARD_PAGE_INTRO =
   "Record and verify your organization's identity provider configuration and role mapping for every workspace in this organization.";
 
-export const SSO_WIZARD_CONFIGURATION_EFFECT_LINE =
-  "Saving configuration writes your verified identity provider settings and role mapping to the identity provider record for every workspace in this organization. It does not change how anyone signs in today — turning on SSO sign-in is a separate platform configuration change.";
+export const SSO_WIZARD_CONFIGURATION_EFFECT_LINE_PREFIX =
+  "Saving configuration writes your verified identity provider settings and role mapping to the identity provider record for every workspace in this organization. It does not change how anyone signs in today — turning on SSO sign-in is a";
+
+export const SSO_WIZARD_PLATFORM_CONFIGURATION_CHANGE_LINK_LABEL = "separate platform configuration change";
+
+export const SSO_WIZARD_PLATFORM_CONFIGURATION_CHANGE_LINK_HREF =
+  "/administration/identity-providers/diagnostics" as const;
+
+export const SSO_WIZARD_CONFIGURATION_EFFECT_LINE_SUFFIX = ".";
+
+/** Full effect line for drift guards and non-interactive surfaces. */
+export const SSO_WIZARD_CONFIGURATION_EFFECT_LINE = `${SSO_WIZARD_CONFIGURATION_EFFECT_LINE_PREFIX} ${SSO_WIZARD_PLATFORM_CONFIGURATION_CHANGE_LINK_LABEL}${SSO_WIZARD_CONFIGURATION_EFFECT_LINE_SUFFIX}`;
 
 /** @deprecated Use SSO_WIZARD_CONFIGURATION_EFFECT_LINE — kept for drift guards. */
 export const SSO_WIZARD_STATUS_NOT_ACTIVE = SSO_WIZARD_CONFIGURATION_EFFECT_LINE;
@@ -59,8 +69,52 @@ export const SSO_WIZARD_CANCEL_UNSAVED_CONFIRM =
 export const SSO_WIZARD_ACTIVATE_INTRO =
   "Review your settings, then save this verified identity provider configuration to the organization record. Turning on SSO sign-in for users is a separate platform configuration change your platform administrator makes after this step.";
 
-export const SSO_WIZARD_TEST_CONNECTION_INTRO =
+export const SSO_WIZARD_VERIFY_CLAIM_MAPPING_STEP_LABEL = "Verify claim mapping";
+
+export const SSO_WIZARD_VERIFY_CLAIM_MAPPING_STEP_DESCRIPTION =
+  "Sandbox sign-in test with sample claim values";
+
+export const SSO_WIZARD_VERIFY_CLAIM_MAPPING_INTRO =
   "Run a sandbox sign-in test with sample claim values to verify claim-to-role mapping before saving configuration.";
+
+export const SSO_WIZARD_VERIFY_CLAIM_MAPPING_BUTTON = "Verify claim mapping";
+
+/** @deprecated Use SSO_WIZARD_VERIFY_CLAIM_MAPPING_INTRO — kept for drift guards. */
+export const SSO_WIZARD_TEST_CONNECTION_INTRO = SSO_WIZARD_VERIFY_CLAIM_MAPPING_INTRO;
+
+export const SSO_WIZARD_BEFORE_YOU_BEGIN_HEADING = "Before you begin";
+
+export const SSO_WIZARD_BEFORE_YOU_BEGIN_INTRO =
+  "Register these ArchLucid values in your identity provider before users can sign in. Values depend on the protocol you choose in the next step.";
+
+export const SSO_WIZARD_BEFORE_YOU_BEGIN_PROTOCOL_HINT =
+  "Select an identity provider above to see protocol-specific service provider values.";
+
+export const SSO_WIZARD_OIDC_SP_REDIRECT_URI_LABEL = "Redirect URI";
+
+export const SSO_WIZARD_OIDC_SP_CLIENT_ID_LABEL = "Application (client) ID";
+
+export const SSO_WIZARD_OIDC_SP_VALUES_INTRO =
+  "Register this redirect URI and client ID on your OpenID Connect application before continuing.";
+
+export const SSO_WIZARD_EXISTING_CONFIG_SUMMARY_TITLE = "Current organization SSO configuration";
+
+export const SSO_WIZARD_EXISTING_CONFIG_LOADING = "Loading current configuration…";
+
+export const SSO_WIZARD_EXISTING_CONFIG_LOAD_ERROR =
+  "Could not load the current identity provider configuration. You can still continue with a new setup.";
+
+export const SSO_WIZARD_POST_SAVE_NEXT_ACTION_PREFIX =
+  "Next, review identity diagnostics with your platform administrator to plan the";
+
+export const SSO_WIZARD_POST_SAVE_NEXT_ACTION_LINK_LABEL = "platform configuration change";
+
+export const SSO_WIZARD_POST_SAVE_NEXT_ACTION_LINK_HREF =
+  "/administration/identity-providers/diagnostics" as const;
+
+export const SSO_WIZARD_POST_SAVE_HELP_LINK_LABEL = "Authentication and sign-in help";
+
+export const SSO_WIZARD_POST_SAVE_HELP_LINK_HREF = "/help/authentication-sign-in" as const;
 
 export const SSO_WIZARD_CREDENTIALS_REFERENCE_LABEL = "Credentials reference (optional)";
 
@@ -81,6 +135,7 @@ export const SSO_WIZARD_BANNED_UI_PATTERNS = [
   /startup wiring/i,
   /Identity\.SsoConfigurationActivated/i,
   /SECURITY\.md/i,
+  /\bTest connection\b/i,
 ] as const;
 
 export const SSO_WIZARD_SETTINGS_BREADCRUMB_LABEL = "Settings";

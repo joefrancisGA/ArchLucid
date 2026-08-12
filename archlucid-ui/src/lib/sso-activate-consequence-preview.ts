@@ -33,7 +33,7 @@ export function buildSsoActivateConsequencePreview(): SsoActivateConsequencePrev
   return {
     title: SSO_ACTIVATE_CONSEQUENCE_PREVIEW_TITLE,
     summary:
-      "Saving this configuration writes your verified identity provider settings and role mapping to the identity provider record for every workspace in this organization. It does not change how anyone signs in today — turning on SSO sign-in is a separate platform configuration change.",
+      "Saving this configuration writes your verified identity provider settings and role mapping to the identity provider record for every workspace in this organization. It does not change how anyone signs in today — turning on SSO sign-in is a",
     rows: [
       {
         id: "whoSignsInNext",

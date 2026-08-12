@@ -39,7 +39,7 @@ export const SSO_WIZARD_STEPS = [
   { label: "Protocol", description: "Choose OIDC or SAML" },
   { label: "Provider details", description: "Enter provider metadata" },
   { label: "Role mapping", description: "Map groups and claims" },
-  { label: "Test connection", description: "Check claim-to-role mapping" },
+  { label: "Verify claim mapping", description: "Sandbox sign-in test with sample claim values" },
   { label: "Save configuration", description: "Review and save configuration" },
 ] as const;
 
@@ -52,7 +52,8 @@ export function applySsoWizardIdpPreset(
   return {
     ...state,
     idpPresetId,
-    protocol: suggested,
+    // Preserve a hydrated or user-chosen protocol when editing an existing tenant record.
+    protocol: state.protocol ?? suggested,
   };
 }
 

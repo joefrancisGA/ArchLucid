@@ -2,8 +2,14 @@
 
 import type { ReactElement } from "react";
 
-import { OPERATOR_TYPOGRAPHY } from "@/lib/design-tokens";
+import Link from "next/link";
+
+import { OPERATOR_LINK, OPERATOR_TYPOGRAPHY } from "@/lib/design-tokens";
 import { buildSsoActivateConsequencePreview } from "@/lib/sso-activate-consequence-preview";
+import {
+  SSO_WIZARD_PLATFORM_CONFIGURATION_CHANGE_LINK_HREF,
+  SSO_WIZARD_PLATFORM_CONFIGURATION_CHANGE_LINK_LABEL,
+} from "@/lib/sso-wizard-copy";
 import { cn } from "@/lib/utils";
 
 export type SsoActivateConsequencePreviewProps = {
@@ -39,7 +45,15 @@ export function SsoActivateConsequencePreview(props: SsoActivateConsequencePrevi
         className={cn("m-0 mt-1 text-al-text-secondary", OPERATOR_TYPOGRAPHY.helper)}
         data-testid="sso-activate-consequence-preview-summary"
       >
-        {preview.summary}
+        {preview.summary}{" "}
+        <Link
+          href={SSO_WIZARD_PLATFORM_CONFIGURATION_CHANGE_LINK_HREF}
+          className={OPERATOR_LINK.inline}
+          data-testid="sso-activate-consequence-preview-platform-change-link"
+        >
+          {SSO_WIZARD_PLATFORM_CONFIGURATION_CHANGE_LINK_LABEL}
+        </Link>
+        .
       </p>
       <dl className="m-0 mt-3 grid gap-2">
         {preview.rows.map((row) => (

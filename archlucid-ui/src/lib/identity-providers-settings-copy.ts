@@ -232,6 +232,10 @@ export const IDENTITY_PROVIDERS_SAVE_CONFIRM_DESCRIPTION =
 export const IDENTITY_PROVIDERS_RECOMMENDED_CONFIGURE_SAML = "Configure SAML metadata";
 export const IDENTITY_PROVIDERS_RECOMMENDED_VALIDATE_ROLE_MAPPING = "Validate role mapping";
 export const IDENTITY_PROVIDERS_RECOMMENDED_CONFIGURE_PRODUCTION_SIGN_IN = "Open SSO setup wizard";
+
+export const IDENTITY_PROVIDERS_SSO_SETUP_CTA_LABEL = "Configure SSO";
+
+export const IDENTITY_PROVIDERS_SSO_SETUP_CTA_HREF = "/administration/identity/sso-wizard" as const;
 export const IDENTITY_PROVIDERS_RECOMMENDED_CONFIGURE_PRODUCTION_SIGN_IN_DETAIL =
   "Saving configuration writes your IdP settings to the identity provider record. It does not change how anyone signs in today — turning on SSO sign-in is a separate platform configuration change. Local development sign-in is not suitable for shared use, so complete this before inviting other users.";
 export const IDENTITY_PROVIDERS_RECOMMENDED_VALIDATE_OIDC = "Validate OIDC discovery";

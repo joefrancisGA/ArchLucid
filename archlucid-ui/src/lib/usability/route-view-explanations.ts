@@ -122,7 +122,7 @@ const ROUTE_VIEW_EXPLANATIONS: readonly { prefix: string; explanation: RouteView
       summary:
         "Guided setup for enterprise single sign-on — connect your identity provider and map roles into ArchLucid.",
       nextAction:
-        "Complete each wizard step, then run a sandbox sign-in test with sample claim values on the Test connection step to verify claim-to-role mapping.",
+        "Complete each wizard step, then run a sandbox sign-in test with sample claim values on the Verify claim mapping step to verify claim-to-role mapping.",
     },
   },
   {

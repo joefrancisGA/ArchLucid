@@ -37,6 +37,8 @@ export function SsoWizardIdpSelector(props: SsoWizardIdpSelectorProps): React.JS
           {SSO_WIZARD_IDP_PRESETS.map((option) => {
             const selected = props.value === option.id;
             const inputId = `sso-idp-${option.id}`;
+            const labelId = `${inputId}-label`;
+            const descriptionId = `${inputId}-description`;
             const Icon = IDP_ICONS[option.id];
 
             return (
@@ -61,7 +63,8 @@ export function SsoWizardIdpSelector(props: SsoWizardIdpSelectorProps): React.JS
                   value={option.id}
                   checked={selected}
                   disabled={props.disabled}
-                  aria-label={option.label}
+                  aria-labelledby={labelId}
+                  aria-describedby={descriptionId}
                   onChange={() => props.onChange(option.id)}
                 />
 
@@ -91,10 +94,16 @@ export function SsoWizardIdpSelector(props: SsoWizardIdpSelectorProps): React.JS
                   </span>
 
                   <div>
-                    <p className={cn("m-0 font-medium text-al-text-primary", OPERATOR_TYPOGRAPHY.body)}>
+                    <p
+                      id={labelId}
+                      className={cn("m-0 font-medium text-al-text-primary", OPERATOR_TYPOGRAPHY.body)}
+                    >
                       {option.label}
                     </p>
-                    <p className={cn("m-0 mt-1 text-al-text-secondary", OPERATOR_TYPOGRAPHY.helper)}>
+                    <p
+                      id={descriptionId}
+                      className={cn("m-0 mt-1 text-al-text-secondary", OPERATOR_TYPOGRAPHY.helper)}
+                    >
                       {option.description}
                     </p>
                   </div>
