@@ -1,9 +1,9 @@
-import { CANONICAL_ANONYMOUS_PROOF_HREF } from "@/lib/showcase-static-demo";
+import { CANONICAL_ANONYMOUS_PROOF_HREF, SECONDARY_CLAIMS_PROOF_HREF } from "@/lib/showcase-static-demo";
 
 /**
  * One row per front-door hard-comparison claim (same order as `WHY_COMPARISON_ROWS` / COMPETITIVE_LANDSCAPE.md).
  * Buyer-safe Verify anchors only — no `docs/library/*` or `docs/security/*` contributor paths (TB-1304).
- * Cold funnel Verify uses Claims static showcase (M-107 Option A) — not Contoso `/demo/preview`.
+ * Cold funnel Verify uses the primary static showcase (TB-981); Claims remains an explicit regulated-depth link.
  * CI: row count locked in `why-comparison.test.ts`.
  */
 export type WhyVerifyLink = {
@@ -12,7 +12,7 @@ export type WhyVerifyLink = {
 };
 
 export const WHY_COMPARISON_VERIFY_LINK_ROWS: readonly WhyVerifyLink[][] = [
-  [{ label: "Claims sample architecture review", href: CANONICAL_ANONYMOUS_PROOF_HREF }],
+  [{ label: "Enterprise customer intake sample review", href: CANONICAL_ANONYMOUS_PROOF_HREF }],
   [
     { label: "Assurance evidence bundle (ZIP)", href: "/v1/marketing/trust-center/evidence-pack.zip" },
     { label: "Audit trail", href: "/help/audit-trail" },
@@ -26,6 +26,6 @@ export const WHY_COMPARISON_VERIFY_LINK_ROWS: readonly WhyVerifyLink[][] = [
     { label: "Trust center", href: "/trust" },
   ],
   [{ label: "Compare and replay", href: "/help/comparison-replay" }],
-  [{ label: "Claims evidence trail", href: CANONICAL_ANONYMOUS_PROOF_HREF }],
+  [{ label: "Claims regulated-depth evidence trail", href: SECONDARY_CLAIMS_PROOF_HREF }],
   [{ label: "Governance approval", href: "/help/governance-approval" }],
 ];

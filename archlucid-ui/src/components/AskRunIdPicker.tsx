@@ -46,7 +46,7 @@ function operatorAllowsSyntheticAskRunPick(): boolean {
 }
 
 /** Legacy slug still appearing in bookmarks — canonical id is {@link SHOWCASE_STATIC_DEMO_RUN_ID}. */
-const DEMO_RUN_PREF_ID = "claims-intake-modernization";
+const DEMO_RUN_PREF_ID = SHOWCASE_STATIC_DEMO_RUN_ID;
 
 export type AskRunIdPickerProps = {
   readonly value: string;

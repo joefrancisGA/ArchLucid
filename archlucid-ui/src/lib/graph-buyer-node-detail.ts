@@ -1,5 +1,6 @@
 import { isBuyerTrailPhiHeroNode } from "@/lib/graph-mapper";
-import { SHOWCASE_STATIC_DEMO_PRIMARY_FINDING_ID } from "@/lib/showcase-static-demo";
+import { getActiveSampleScenario } from "@/lib/samples/registry";
+import { SHOWCASE_STATIC_DEMO_PRIMARY_FINDING_ID, SHOWCASE_STATIC_DEMO_PRIMARY_FINDING_TITLE } from "@/lib/showcase-static-demo";
 import type { GraphNodeVm } from "@/types/graph";
 
 export type BuyerTrailMetadataLine = {
@@ -18,7 +19,7 @@ function titleCaseSlug(slug: string): string {
 }
 
 const KNOWN_REFERENCE_SLUGS: Record<string, string> = {
-  [SHOWCASE_STATIC_DEMO_PRIMARY_FINDING_ID]: "PHI Minimization Risk",
+  [SHOWCASE_STATIC_DEMO_PRIMARY_FINDING_ID]: SHOWCASE_STATIC_DEMO_PRIMARY_FINDING_TITLE,
 };
 
 /**
@@ -53,7 +54,7 @@ export function graphBuyerTrailDispositionLine(
 
   if (
     referenceId === SHOWCASE_STATIC_DEMO_PRIMARY_FINDING_ID ||
-    referencedSlug === "phi-minimization-risk"
+    referencedSlug === SHOWCASE_STATIC_DEMO_PRIMARY_FINDING_ID
   ) {
     return "Accepted with monitoring — non-blocking for go-live; governance cadence covers unstructured attachment exceptions.";
   }
@@ -91,6 +92,15 @@ export function graphBuyerTrailRecordTypeLine(node: GraphNodeVm): {
   readonly secondary: string | null;
 } {
   if (isBuyerTrailPhiHeroNode(node)) {
+    const scenario = getActiveSampleScenario();
+
+    if (scenario.slug === "customer-intake") {
+      return {
+        primary: "Finding: Sensitive data minimization",
+        secondary: "Risk area: Privacy and data handling",
+      };
+    }
+
     return {
       primary: "Finding: PHI minimization",
       secondary: "Risk area: PHI handling",
@@ -236,7 +246,7 @@ export function graphBuyerTrailMetadataLines(
 
   const inferredPhiFinding =
     (metadata.referenceId ?? metadata.ReferenceId ?? "").trim() === SHOWCASE_STATIC_DEMO_PRIMARY_FINDING_ID ||
-    (metadata.referenced ?? "").trim() === "phi-minimization-risk";
+    (metadata.referenced ?? "").trim() === SHOWCASE_STATIC_DEMO_PRIMARY_FINDING_ID;
 
   if (inferredPhiFinding) {
     const summaryLabelsPresent = new Set(summaryLines.map((row) => row.label));

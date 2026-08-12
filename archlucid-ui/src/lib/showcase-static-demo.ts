@@ -32,30 +32,36 @@ import {
   CUSTOMER_INTAKE_SHOWCASE_WARNING_SYNOPSES,
 } from "@/lib/samples/customer-intake-modernization/static-showcase-payload";
 import { resolveSampleScenarioByRunId } from "@/lib/samples/registry";
+import {
+  PRIMARY_SHOWCASE_PROOF_HREF,
+  SECONDARY_CLAIMS_PROOF_HREF,
+} from "@/lib/samples/sample-scenario-surface-alignment";
 
-export const SHOWCASE_STATIC_DEMO_RUN_ID = CLAIMS_INTAKE_SAMPLE_RUN_ID;
+export const SHOWCASE_STATIC_DEMO_RUN_ID = CUSTOMER_INTAKE_SAMPLE_RUN_ID;
 
-export const CANONICAL_ANONYMOUS_PROOF_HREF = CLAIMS_INTAKE_CANONICAL_PROOF_HREF;
+export const CANONICAL_ANONYMOUS_PROOF_HREF = PRIMARY_SHOWCASE_PROOF_HREF;
 
-export const SHOWCASE_STATIC_DEMO_PRIOR_COMPARE_RUN_ID = CLAIMS_INTAKE_PRIOR_COMPARE_RUN_ID;
+export { SECONDARY_CLAIMS_PROOF_HREF };
 
-export const SHOWCASE_STATIC_DEMO_LATER_COMPARE_RUN_ID = CLAIMS_INTAKE_LATER_COMPARE_RUN_ID;
+export const SHOWCASE_STATIC_DEMO_PRIOR_COMPARE_RUN_ID = CUSTOMER_INTAKE_SAMPLE_DEFINITION.priorCompareRunId;
 
-export const SHOWCASE_BUYER_REVIEW_TITLE = CLAIMS_INTAKE_BUYER_REVIEW_TITLE;
+export const SHOWCASE_STATIC_DEMO_LATER_COMPARE_RUN_ID = CUSTOMER_INTAKE_SAMPLE_DEFINITION.laterCompareRunId;
 
-export const SHOWCASE_BUYER_REVIEW_PACKAGE_TITLE = CLAIMS_INTAKE_BUYER_REVIEW_PACKAGE_TITLE;
+export const SHOWCASE_BUYER_REVIEW_TITLE = CUSTOMER_INTAKE_SAMPLE_DEFINITION.buyerReviewTitle;
 
-export const SHOWCASE_STATIC_DEMO_MANIFEST_ID = CLAIMS_INTAKE_MANIFEST_ID;
+export const SHOWCASE_BUYER_REVIEW_PACKAGE_TITLE = CUSTOMER_INTAKE_SAMPLE_DEFINITION.buyerReviewPackageTitle;
 
-export const SHOWCASE_STATIC_DEMO_POLICY_PACK_DETAIL_HREF = CLAIMS_INTAKE_POLICY_PACK_DETAIL_HREF;
+export const SHOWCASE_STATIC_DEMO_MANIFEST_ID = CUSTOMER_INTAKE_SAMPLE_DEFINITION.manifestId;
 
-export const SHOWCASE_STATIC_DEMO_PRIMARY_FINDING_ID = CLAIMS_INTAKE_PRIMARY_FINDING_ID;
+export const SHOWCASE_STATIC_DEMO_POLICY_PACK_DETAIL_HREF = CUSTOMER_INTAKE_SAMPLE_DEFINITION.policyPackDetailHref;
 
-export const SHOWCASE_STATIC_DEMO_PRIMARY_FINDING_TITLE = CLAIMS_INTAKE_PRIMARY_FINDING_TITLE;
+export const SHOWCASE_STATIC_DEMO_PRIMARY_FINDING_ID = CUSTOMER_INTAKE_SAMPLE_DEFINITION.primaryFindingId;
 
-export const SHOWCASE_DEMO_TENANT_NAME = CLAIMS_INTAKE_DEMO_TENANT_NAME;
+export const SHOWCASE_STATIC_DEMO_PRIMARY_FINDING_TITLE = CUSTOMER_INTAKE_SAMPLE_DEFINITION.primaryFindingTitle;
 
-export const SHOWCASE_DEMO_TENANT_CATALOG_ID = CLAIMS_INTAKE_DEMO_TENANT_CATALOG_ID;
+export const SHOWCASE_DEMO_TENANT_NAME = CUSTOMER_INTAKE_SAMPLE_DEFINITION.tenantName;
+
+export const SHOWCASE_DEMO_TENANT_CATALOG_ID = CUSTOMER_INTAKE_SAMPLE_DEFINITION.tenantCatalogId;
 
 export { CUSTOMER_INTAKE_SAMPLE_RUN_ID };
 
@@ -125,14 +131,14 @@ export const SHOWCASE_FINDING_PROVENANCE: Readonly<Record<string, FindingProvena
  * Canonical counts for the static Claims Intake demo spine — Run detail, manifest summary, and showcase should
  * reflect the same numbers when serving this payload (see {@link getShowcaseStaticDemoPayload}).
  */
-export const SHOWCASE_STATIC_DEMO_SPINE_COUNTS = CLAIMS_INTAKE_SAMPLE_DEFINITION.spineCounts;
+export const SHOWCASE_STATIC_DEMO_SPINE_COUNTS = CUSTOMER_INTAKE_SAMPLE_DEFINITION.spineCounts;
 
 /**
- * Sponsor-facing headline used only when **`usedStaticDemoRun`** serves the Claims Intake static payload —
+ * Sponsor-facing headline used only when **`usedStaticDemoRun`** serves the primary static payload —
  * illustrative until live `cost-actual.json` + `orphan-candidates.json` artifacts exist on tenants.
  */
 export const SHOWCASE_STATIC_DEMO_ILLUSTRATIVE_ANNUALIZED_EXTRACTION_USD =
-  CLAIMS_INTAKE_SAMPLE_DEFINITION.illustrativeAnnualizedExtractionUsd;
+  CUSTOMER_INTAKE_SAMPLE_DEFINITION.illustrativeAnnualizedExtractionUsd;
 
 /** Grouped decision bullets for manifest detail (synopses are {@link SHOWCASE_STATIC_DEMO_DECISION_SYNOPSES}). */
 export type ShowcaseStaticDemoDecisionItem = IntakeShowcaseDecisionItem;
@@ -162,10 +168,10 @@ export const SHOWCASE_STATIC_DEMO_DECISION_SYNOPSES: readonly string[] = SHOWCAS
 
 /** Buyer “at a glance” counts aligned with the demo graph and audit sample. */
 export const SHOWCASE_STATIC_DEMO_GRAPH_LINKED_RECORD_COUNT =
-  CLAIMS_INTAKE_SAMPLE_DEFINITION.graphLinkedRecordCount;
+  CUSTOMER_INTAKE_SAMPLE_DEFINITION.graphLinkedRecordCount;
 
 export const SHOWCASE_STATIC_DEMO_AUDIT_TRAIL_EVENT_COUNT =
-  CLAIMS_INTAKE_SAMPLE_DEFINITION.auditTrailEventCount;
+  CUSTOMER_INTAKE_SAMPLE_DEFINITION.auditTrailEventCount;
 
 /** Single curated warning matching `manifest.warningCount` for the static showcase. */
 export const SHOWCASE_STATIC_DEMO_WARNING_SYNOPSES: readonly string[] = [

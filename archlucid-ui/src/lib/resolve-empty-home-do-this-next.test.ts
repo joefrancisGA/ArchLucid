@@ -107,12 +107,12 @@ describe("resolveEmptyHomeDoThisNext", () => {
         principalAdmin: false,
       },
       demoSeededOverview: true,
-      sampleHref: "/architecture/reviews/claims-intake-modernization",
+      sampleHref: "/architecture/reviews/customer-intake-modernization",
     });
 
     expect(action.kind).toBe("sample");
     expect(action.label).toBe(OPERATOR_HOME_OPEN_SAMPLE_PACKAGE_CTA);
-    expect(action.href).toBe("/architecture/reviews/claims-intake-modernization");
+    expect(action.href).toBe("/architecture/reviews/customer-intake-modernization");
     expect(action.bridgeCopy).toBe(OPERATOR_HOME_DEMO_SEEDED_SAMPLE_BRIDGE);
   });
 });

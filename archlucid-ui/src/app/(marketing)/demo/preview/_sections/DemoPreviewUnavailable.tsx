@@ -1,5 +1,7 @@
 import Link from "next/link";
 
+import { CANONICAL_ANONYMOUS_PROOF_HREF } from "@/lib/showcase-static-demo";
+
 /**
  * Customer-safe fallback when the demo preview route cannot load (no API routing, network error, or HTTP error).
  * Avoids env var names, internal URLs, and localhost hints — operators see diagnostics in server logs instead.
@@ -19,7 +21,7 @@ export function DemoPreviewFriendlyUnavailable() {
       </p>
       <div className="mt-4 flex flex-wrap gap-3">
         <Link
-          href="/showcase/claims-intake-modernization"
+          href={CANONICAL_ANONYMOUS_PROOF_HREF}
           className="inline-flex rounded-md bg-teal-700 px-4 py-2 text-sm font-medium text-white no-underline hover:bg-teal-800 dark:bg-teal-600 dark:hover:bg-teal-500"
         >
           View example output
@@ -48,7 +50,7 @@ export function DemoPreviewNotAvailable() {
       </p>
       <div className="mt-4 flex flex-wrap gap-3">
         <Link
-          href="/showcase/claims-intake-modernization"
+          href={CANONICAL_ANONYMOUS_PROOF_HREF}
           className="inline-flex rounded-md bg-teal-700 px-4 py-2 text-sm font-medium text-white no-underline hover:bg-teal-800 dark:bg-teal-600 dark:hover:bg-teal-500"
         >
           View example output

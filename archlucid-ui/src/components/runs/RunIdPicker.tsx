@@ -15,7 +15,7 @@ import { compareRunBuyerDisplayLabel } from "@/lib/compare-run-display-label";
 import { runSummaryDisplayLabel } from "@/lib/runs/run-summary-display-label";
 
 /** Preferred demo run id when multiple rows exist and demo mode is enabled (`NEXT_PUBLIC_DEMO_MODE`). */
-const DEMO_RUN_PREF_ID = "claims-intake-modernization";
+const DEMO_RUN_PREF_ID = SHOWCASE_STATIC_DEMO_RUN_ID;
 const RUN_PICKER_MAX_VISIBLE = 50;
 
 type RunIdPickerProps = {

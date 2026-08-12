@@ -21,35 +21,35 @@ import {
 } from "@/lib/samples/registry";
 
 describe("samples/registry", () => {
-  it("exposes claims-intake as the active default scenario", () => {
-    expect(ACTIVE_SAMPLE_SCENARIO_SLUG).toBe("claims-intake");
-    expect(getActiveSampleScenario()).toBe(CLAIMS_INTAKE_SAMPLE_DEFINITION);
-    expect(resolveSampleScenarioBySlug("claims-intake")).toBe(CLAIMS_INTAKE_SAMPLE_DEFINITION);
+  it("exposes customer-intake as the active default scenario (TB-981)", () => {
+    expect(ACTIVE_SAMPLE_SCENARIO_SLUG).toBe("customer-intake");
+    expect(getActiveSampleScenario()).toBe(CUSTOMER_INTAKE_SAMPLE_DEFINITION);
+    expect(resolveSampleScenarioBySlug("customer-intake")).toBe(CUSTOMER_INTAKE_SAMPLE_DEFINITION);
   });
 
-  it("registers customer-intake as a secondary scenario without flipping the default", () => {
+  it("keeps claims-intake registered as the regulated-depth secondary scenario", () => {
     expect(listRegisteredSampleScenarios()).toHaveLength(2);
-    expect(resolveSampleScenarioBySlug("customer-intake")).toBe(CUSTOMER_INTAKE_SAMPLE_DEFINITION);
-    expect(resolveSampleScenarioByRunId(CUSTOMER_INTAKE_SAMPLE_RUN_ID)).toBe(CUSTOMER_INTAKE_SAMPLE_DEFINITION);
-    expect(getActiveSampleScenario()).not.toBe(CUSTOMER_INTAKE_SAMPLE_DEFINITION);
+    expect(resolveSampleScenarioBySlug("claims-intake")).toBe(CLAIMS_INTAKE_SAMPLE_DEFINITION);
+    expect(resolveSampleScenarioByRunId(CLAIMS_INTAKE_SAMPLE_RUN_ID)).toBe(CLAIMS_INTAKE_SAMPLE_DEFINITION);
+    expect(getActiveSampleScenario()).not.toBe(CLAIMS_INTAKE_SAMPLE_DEFINITION);
   });
 
   it("resolves hero finding and run ids from the definition package", () => {
     expect(isActiveSampleRunId(CLAIMS_INTAKE_SAMPLE_RUN_ID)).toBe(true);
     expect(isActiveSampleRunId(CUSTOMER_INTAKE_SAMPLE_RUN_ID)).toBe(true);
-    expect(isActiveSampleHeroFindingId(CLAIMS_INTAKE_SAMPLE_DEFINITION.primaryFindingId)).toBe(true);
-    expect(isActiveSampleHeroFindingId(`${CLAIMS_INTAKE_SAMPLE_DEFINITION.primaryFindingId}-alt`)).toBe(true);
+    expect(isActiveSampleHeroFindingId(CUSTOMER_INTAKE_SAMPLE_DEFINITION.primaryFindingId)).toBe(true);
+    expect(isActiveSampleHeroFindingId(`${CUSTOMER_INTAKE_SAMPLE_DEFINITION.primaryFindingId}-alt`)).toBe(true);
     expect(
       isSampleHeroFindingIdForRun(
-        CUSTOMER_INTAKE_SAMPLE_RUN_ID,
-        CUSTOMER_INTAKE_SAMPLE_DEFINITION.primaryFindingId,
+        CLAIMS_INTAKE_SAMPLE_RUN_ID,
+        CLAIMS_INTAKE_SAMPLE_DEFINITION.primaryFindingId,
       ),
     ).toBe(true);
   });
 
-  it("matches healthcare claims policy pack aliases from the definition", () => {
-    expect(isActiveSamplePolicyPackId("demo-healthcare-claims-pack")).toBe(true);
-    expect(isActiveSamplePolicyPackId("healthcare-claims-v3")).toBe(true);
-    expect(isActiveSamplePolicyPackId("responsible-ai-v1")).toBe(false);
+  it("matches enterprise privacy policy pack aliases from the active definition", () => {
+    expect(isActiveSamplePolicyPackId("demo-enterprise-privacy-pack")).toBe(true);
+    expect(isActiveSamplePolicyPackId("enterprise-privacy-v2")).toBe(true);
+    expect(isActiveSamplePolicyPackId("demo-healthcare-claims-pack")).toBe(false);
   });
 });

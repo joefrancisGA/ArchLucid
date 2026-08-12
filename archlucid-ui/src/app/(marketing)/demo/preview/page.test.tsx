@@ -137,7 +137,7 @@ describe("Demo preview marketing body", () => {
     expect(screen.getByTestId("demo-preview-friendly-unavailable")).toBeInTheDocument();
     expect(screen.getByRole("link", { name: /view example output/i })).toHaveAttribute(
       "href",
-      "/showcase/claims-intake-modernization",
+      "/showcase/customer-intake-modernization",
     );
   });
 

@@ -118,7 +118,7 @@ describe("loadProjectRunsMergedWithDemoFallback", () => {
 
     expect(loadError).toBe(false);
     expect(items).toHaveLength(1);
-    expect(items[0]?.runId).toBe("claims-intake-modernization");
+    expect(items[0]?.runId).toBe("customer-intake-modernization");
   });
 
   it("prefers compare pair when forCompare and list is empty and demo mode is on", async () => {
@@ -135,7 +135,7 @@ describe("loadProjectRunsMergedWithDemoFallback", () => {
 
     expect(loadError).toBe(false);
     expect(items).toHaveLength(2);
-    expect(items.map((r) => r.runId)).toEqual(["claims-intake-run-v1", "claims-intake-run-v2"]);
+    expect(items.map((r) => r.runId)).toEqual(["customer-intake-run-v1", "customer-intake-run-v2"]);
   });
 
   it("returns empty list when API returns zero without explicit demo build flags", async () => {

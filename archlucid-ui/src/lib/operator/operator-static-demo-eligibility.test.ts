@@ -19,6 +19,7 @@ import {
   SHOWCASE_STATIC_DEMO_LATER_COMPARE_RUN_ID,
   SHOWCASE_STATIC_DEMO_MANIFEST_ID,
   SHOWCASE_STATIC_DEMO_PRIOR_COMPARE_RUN_ID,
+  SHOWCASE_STATIC_DEMO_PRIMARY_FINDING_ID,
   SHOWCASE_STATIC_DEMO_PRIMARY_FINDING_TITLE,
   SHOWCASE_STATIC_DEMO_RUN_ID,
 } from "@/lib/showcase-static-demo";
@@ -343,7 +344,10 @@ describe("operator-static-demo — showcase eligibility without demo env vars", 
 
     expect(isShowcaseSpineStaticPayloadActiveForRun(SHOWCASE_STATIC_DEMO_RUN_ID)).toBe(true);
 
-    const inspect = tryStaticDemoFindingInspect(SHOWCASE_STATIC_DEMO_RUN_ID, "phi-minimization-risk");
+    const inspect = tryStaticDemoFindingInspect(
+      SHOWCASE_STATIC_DEMO_RUN_ID,
+      SHOWCASE_STATIC_DEMO_PRIMARY_FINDING_ID,
+    );
 
     expect(inspect).not.toBeNull();
     expect(inspect?.typedPayload.title).toBe(SHOWCASE_STATIC_DEMO_PRIMARY_FINDING_TITLE);

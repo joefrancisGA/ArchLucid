@@ -107,7 +107,7 @@ describe("WelcomeBanner — renders heading and CTAs", () => {
     expect(screen.getByLabelText(/What one completed architecture review delivers/i)).toBeInTheDocument();
     const exampleLinks = screen.getAllByRole("link", { name: /see completed example/i });
     expect(exampleLinks.length).toBeGreaterThanOrEqual(1);
-    expect(exampleLinks[0]).toHaveAttribute("href", "/showcase/claims-intake-modernization");
+    expect(exampleLinks[0]).toHaveAttribute("href", "/showcase/customer-intake-modernization");
     expect(screen.getByTestId("opt-in-tour-launcher")).toBeInTheDocument();
   });
 
@@ -139,7 +139,7 @@ describe("WelcomeBanner — renders heading and CTAs", () => {
     expect(screen.getByRole("link", { name: "Create from evidence" })).toHaveAttribute("href", "/architecture/reviews/new");
     expect(screen.getByRole("link", { name: /see completed example/i })).toHaveAttribute(
       "href",
-      "/showcase/claims-intake-modernization",
+      "/showcase/customer-intake-modernization",
     );
   });
 });

@@ -19,6 +19,7 @@ import { tryStaticDemoRunSummariesPaged, isStaticDemoPayloadFallbackEnabled } fr
 import { writeHasExistingRunsCache } from "@/lib/operator/operator-run-presence";
 import { mergeRegistrationScopeForProxy } from "@/lib/proxy-fetch-registration-scope";
 import { DESIGN_TOKENS, OPERATOR_TYPOGRAPHY, operatorSemanticBadge, operatorSemanticSurface } from "@/lib/design-tokens";
+import { CANONICAL_ANONYMOUS_PROOF_HREF } from "@/lib/showcase-static-demo";
 
 const SESSION_DISMISS_KEY = "archlucid_welcome_dismissed_session";
 
@@ -252,7 +253,7 @@ export function WelcomeBanner() {
                 variant="outline"
                 className={cn("h-10 px-5 font-semibold", OPERATOR_TYPOGRAPHY.button)}
               >
-                <Link href="/showcase/claims-intake-modernization">See completed example</Link>
+                <Link href={CANONICAL_ANONYMOUS_PROOF_HREF}>See completed example</Link>
               </Button>
             </div>
           )}

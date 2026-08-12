@@ -21,13 +21,13 @@ export const SHOWCASE_HOME_AHA_MOMENT: ShowcaseHomeAhaMoment = {
   title: SHOWCASE_STATIC_DEMO_PRIMARY_FINDING_TITLE,
   severity: "warning",
   finding:
-    "PHI fields cross the claims API boundary without field-level encryption required by downstream processors.",
+    "Sensitive customer profile attributes cross the intake API boundary without field-level encryption required by downstream fulfillment services.",
   whyItMatters:
-    "Downstream adjudication only needs claim identifiers — transmitting date-of-birth and SSN expands breach scope and audit exposure under HIPAA.",
+    "Downstream fulfillment only needs work identifiers — transmitting optional profile attributes expands breach scope and audit exposure under enterprise privacy policy.",
   evidenceSupport:
-    "Architecture brief data-flow diagram plus policy pack rule HIPAA §164.312(a)(2)(iv): PHI must be minimized at the API boundary.",
+    "Architecture brief data-flow diagram plus enterprise privacy pack rule: sensitive customer data must be minimized at the intake boundary.",
   decisionChange:
-    "Defer ARB approval until intake strips non-essential PHI before the internal claims API handoff.",
+    "Defer ARB approval until intake strips non-essential profile attributes before the internal fulfillment API handoff.",
 };
 
 export function showcasePrimaryFindingHref(runId: string): string {

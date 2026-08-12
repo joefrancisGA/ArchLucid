@@ -5,17 +5,17 @@ import { SHOWCASE_STATIC_DEMO_PRIMARY_FINDING_ID } from "./showcase-static-demo"
 import type { GraphNodeVm } from "@/types/graph";
 
 describe("graphBuyerTrailRecordTypeLine", () => {
-  it("labels PHI hero finding as risk finding with risk area", () => {
+  it("labels active sample hero finding with scenario-specific risk framing", () => {
     const node: GraphNodeVm = {
       id: SHOWCASE_STATIC_DEMO_PRIMARY_FINDING_ID,
       type: "Finding",
-      label: "PHI minimization risk",
-      metadata: { referenced: "phi-minimization-risk" },
+      label: "Sensitive data minimization risk",
+      metadata: { referenced: SHOWCASE_STATIC_DEMO_PRIMARY_FINDING_ID },
     };
 
     expect(graphBuyerTrailRecordTypeLine(node)).toEqual({
-      primary: "Finding: PHI minimization",
-      secondary: "Risk area: PHI handling",
+      primary: "Finding: Sensitive data minimization",
+      secondary: "Risk area: Privacy and data handling",
     });
   });
 

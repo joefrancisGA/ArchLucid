@@ -96,7 +96,10 @@ export function tryStaticDemoCompareRunSummaries(
   });
 
   return {
-    items: [row("claims-intake-run-v1", "Claims Intake — baseline"), row("claims-intake-run-v2", "Claims Intake — updated")],
+    items: [
+      row(SHOWCASE_STATIC_DEMO_PRIOR_COMPARE_RUN_ID, "Customer Intake — baseline"),
+      row(SHOWCASE_STATIC_DEMO_LATER_COMPARE_RUN_ID, "Customer Intake — updated"),
+    ],
     totalCount: 2,
   };
 }

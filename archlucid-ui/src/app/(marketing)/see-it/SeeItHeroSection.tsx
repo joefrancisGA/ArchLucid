@@ -42,7 +42,7 @@ export function SeeItHeroSection(): React.JSX.Element {
             <Link href={CANONICAL_ANONYMOUS_PROOF_HREF}>Open interactive sample review</Link>
           </Button>
           <p className={cn("m-0", MARKETING_TYPOGRAPHY.meta, MARKETING_CAPTION_TEXT_CLASS)}>
-            No sign-in · healthcare claims sample
+            No sign-in · enterprise customer intake sample
           </p>
         </div>
         <p className={cn("mt-4", MARKETING_TYPOGRAPHY.meta)}>

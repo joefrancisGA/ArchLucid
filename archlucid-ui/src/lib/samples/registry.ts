@@ -5,7 +5,7 @@ import { CUSTOMER_INTAKE_SAMPLE_DEFINITION } from "@/lib/samples/customer-intake
 import type { SampleScenarioDefinition } from "@/lib/samples/types";
 
 /** Active default sample scenario for marketing, static showcase, and operator demo spine. */
-export const ACTIVE_SAMPLE_SCENARIO_SLUG = CLAIMS_INTAKE_SAMPLE_DEFINITION.slug;
+export const ACTIVE_SAMPLE_SCENARIO_SLUG = CUSTOMER_INTAKE_SAMPLE_DEFINITION.slug;
 
 const REGISTERED_SAMPLE_SCENARIOS: readonly SampleScenarioDefinition[] = [
   CLAIMS_INTAKE_SAMPLE_DEFINITION,
@@ -35,7 +35,7 @@ const SAMPLE_SCENARIO_BY_MANIFEST_ID: Readonly<Record<string, SampleScenarioDefi
 const SAMPLE_SCENARIO_RUN_IDS: ReadonlySet<string> = new Set(Object.keys(SAMPLE_SCENARIO_BY_RUN_ID));
 
 export function getActiveSampleScenario(): SampleScenarioDefinition {
-  return CLAIMS_INTAKE_SAMPLE_DEFINITION;
+  return CUSTOMER_INTAKE_SAMPLE_DEFINITION;
 }
 
 export function listRegisteredSampleScenarios(): readonly SampleScenarioDefinition[] {

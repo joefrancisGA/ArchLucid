@@ -27,7 +27,7 @@ export const RUNS_EMPTY: EmptyStateProps = {
     "Start an architecture review to gather evidence, evaluate findings, record decisions, and produce exports. Or explore the sample review to see a completed flow.",
   actions: [
     { label: "Start an architecture review", href: "/architecture/reviews/new" },
-    { label: AZURE_REFERENCE_SAMPLE_REVIEW_CTA_LABEL, href: "/architecture/reviews/claims-intake-modernization", variant: "outline" },
+    { label: AZURE_REFERENCE_SAMPLE_REVIEW_CTA_LABEL, href: `/architecture/reviews/${SHOWCASE_STATIC_DEMO_RUN_ID}`, variant: "outline" },
   ],
   helpTopicPath: "review-guide",
 };
