@@ -3,6 +3,11 @@ import { CONFIGURATION_REFERENCE_HELP_PATH } from "@/lib/configuration-reference
 import { DIGESTS_HUB_PATH } from "@/lib/digests-route-paths";
 import type { UiRouteTrafficRow } from "@/lib/ui-route-traffic/types";
 import {
+  LEGACY_ARCHITECTURE_GRAPH_TRAFFIC_NOTE,
+  LEGACY_ARCHITECTURE_GRAPH_TRAFFIC_PATH,
+  LEGACY_ARCHITECTURE_GRAPH_TRAFFIC_ROW_ID,
+} from "@/lib/ui-route-traffic-legacy-architecture-graph";
+import {
   LEGACY_LOGIN_TRAFFIC_NOTE,
   LEGACY_LOGIN_TRAFFIC_PATH,
   LEGACY_LOGIN_TRAFFIC_ROW_ID,
@@ -77,6 +82,16 @@ export const OTHER_TRAFFIC_ROWS: readonly UiRouteTrafficRow[] = [
     noteMustContain: ["Legacy", "/auth/signin", "/auth/session-expired"],
     noteMustNotContainLower: ["live marketing", "pagecontextualhelp", "score 58", "score 72"],
     sectionMustNotEqual: ["Auth"],
+  },
+  /** Traffic workbook row ID for legacy `/operate/architecture-graph` redirect shim. Owner backlog shorthand: OPR. */
+  {
+    rowId: LEGACY_ARCHITECTURE_GRAPH_TRAFFIC_ROW_ID,
+    path: LEGACY_ARCHITECTURE_GRAPH_TRAFFIC_PATH,
+    section: "Redirect shim",
+    note: LEGACY_ARCHITECTURE_GRAPH_TRAFFIC_NOTE,
+    noteMustContain: ["Legacy", "/insights/evidence-graph"],
+    noteMustNotContainLower: ["live marketing", "pagecontextualhelp", "score 68"],
+    sectionMustNotEqual: ["Planning", "Operate"],
   },
   /** Traffic workbook row ID for post-auth bootstrap. Owner backlog shorthand: AUB. */
   {

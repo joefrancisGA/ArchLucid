@@ -15,7 +15,7 @@ Regenerate after opening or closing summary-table rows:
 | Deployability | 4 |
 | AI/Agent readiness | 12 |
 | Architectural integrity | 9 |
-| Adoption friction | 120 |
+| Adoption friction | 110 |
 | Commercial / marketability | 4 |
 | Cutting-edge AI | 3 |
 | Explainability | 1 |
@@ -33,9 +33,9 @@ Regenerate after opening or closing summary-table rows:
 | Differentiability | 3 |
 | Operability | 1 |
 | Other / uncategorized | 8 |
-| **Total (unique open)** | **329** |
+| **Total (unique open)** | **319** |
 
-**By priority band:** P0 **2** | P1 **222** | P2 **88** | P3 **9** | unlabeled **8**.
+**By priority band:** P0 **2** | P1 **212** | P2 **88** | P3 **9** | unlabeled **8**.
 
 <!-- tech-backlog-open-by-category:end -->
 
@@ -1092,7 +1092,7 @@ All **P0** **V1**: visible-boundary button contract + design-system rule (**TB-2
 | TB-1794 | ~~`/login` ? traffic redirect-only + canonicalize inbound links~~ **Done** 2026-08-12 ? LOG redirect-shim workbook row + Vitest; see ## TB-1794 below | Adoption friction P1 ? **V1**; with **TB-1791**; pairs **TB-1443**/**TB-1779** | S |
 | TB-1798 | ~~`/onboard` ? traffic redirect-only workbook honesty~~ **Done** 2026-08-12 ? OXX redirect-shim workbook row + Vitest; see ## TB-1798 below | Adoption friction P1 ? **V1**; with **TB-1796**; pairs **TB-1794** | S |
 | TB-1801 | ~~`/onboarding/start` traffic redirect-only workbook honesty~~ **Done** 2026-08-12 ? OSX redirect-shim workbook row + Vitest; see ## TB-1801 below | Adoption friction P1 ? **V1**; owner review ~12/100 2026-07-27; traffic **ONS**; pairs **TB-1798** | S |
-| TB-1806 | `/operate/architecture-graph` traffic redirect-only workbook honesty; see ## TB-1806 below | Adoption friction P1 ? **V1**; owner review ~12/100 2026-07-27; traffic **OPR** | S |
+| TB-1806 | **Done** (2026-08-12) — `/operate/architecture-graph` OAX redirect-shim traffic workbook honesty; Vitest TB-1806; see ## TB-1806 below | Adoption friction P1 ? **V1**; owner review ~12/100 2026-07-27; traffic **OPR** | S |
 | TB-1808 | Preserve query on `/operate/architecture-graph` ? `/graph` redirect; see ## TB-1808 below | Adoption friction P1 ? **V1**; with **TB-1806** | S |
 | TB-1812 | `/patterns/[patternKey]` ? contextual peer-compare (not hard-coded BFF); see ## TB-1812 below | Adoption friction P1 ? **V1**; with **TB-1811** | S |
 | TB-1814 | `/patterns` + detail ? page-help topic map + contextual help mount; see ## TB-1814 below | Adoption friction P1 ? **V1**; with **TB-1811**; pairs **TB-1669** | S |
@@ -1236,7 +1236,7 @@ All **P0** **V1**: visible-boundary button contract + design-system rule (**TB-2
 | TB-2144 | ~~Alerts inbox + billing banners ? TanStack Query~~ **Done** 2026-08-09 ? billing past-due banner + alerts nav badge on Query (inbox controller already Query); Vitest hydration/remount guards; see ## TB-2144 below | Performance P0 ? **V1**; owner perf wave 6 2026-08-09; residual of Done **TB-2123** | S |
 | TB-2145 | ~~Shared shell / home First Load residual~~ **Done** 2026-08-09 ? `/` **1646.1 ? 1587.2 kB** (?58.9 kB); deferred command center, ROI strip, below-fold panels; Vitest + baseline; see ## TB-2145 below | Performance P0 ? **V1**; owner perf wave 6 2026-08-09; after **TB-2118**/**TB-2061** | L |
 | TB-2146 | Cold-start staging Phase B + paid-lever reopen gate; see ## TB-2146 below | Performance P0 ? **V1**; owner perf wave 6 2026-08-09; residual of Done **TB-2124** | S |
-| TB-2147 | Sweep baselined `title`-attribute help ? 135 sites / 92 files (fake tooltips, disabled reasons, truncation reveal); see ## TB-2147 below | Accessibility P1 ? **V1**; filed from **TB-1666** 2026-08-09; shrink `eslint-rules/title-attribute-legacy-surfaces.mjs` to empty | L |
+| TB-2147 | Sweep baselined `title`-attribute help — 90 files remain (disabled-reason batch 1: AlertRoutingCriteriaFields + PolicyPacksLifecycleSection); see ## TB-2147 below | Accessibility P1 — **V1**; filed from **TB-1666** 2026-08-09; shrink `eslint-rules/title-attribute-legacy-surfaces.mjs` to empty | L |
 | ~~TB-2148~~ | ~~Mutation reversibility classification + undo window for reversible governance actions~~ **Done** 2026-08-09; see `## TB-2148` below | Trustworthiness P0 ? **V1**; owner confusion-reduction ask 2026-08-09; complements Done **TB-2114** | M |
 | ~~TB-2149~~ | ~~Review execution background-safety copy + tenant duration estimate + completion notification~~ **Done** 2026-08-09; see `## TB-2149` below | Adoption friction P0 ? **V1**; owner confusion-reduction ask 2026-08-09; peers **TB-2077**/**TB-2121** | M |
 | ~~TB-2150~~ | ~~Per-user "new since last visit" markers on review tabs, findings, governance surfaces~~ **Done** 2026-08-10; see `## TB-2150` below | Adoption friction P0 ? **V1**; owner confusion-reduction ask 2026-08-09 | M |
@@ -1290,9 +1290,9 @@ All **P0** **V1**: visible-boundary button contract + design-system rule (**TB-2
 | TB-2109 | Non-Azure engine data-boundary gate ? subprocessor disclosure + trust-center/buyer-packet update + workspace-admin regulated-evidence acknowledgment in audit before first use; see ## TB-2109 below | Compliance readiness P1 ? **V1.1**; ADR 0065 D11; documentation is a merge gate, not a follow-up | M |
 | TB-2096 | **Done** ? Keep only middle golden-journey step pills ? remove prev/next arrows + Review lifecycle hero; see ## TB-2096 below | Adoption friction P0 ? **V1**; owner ask 2026-08-07; Evidence graph spine | S |
 | TB-2097 | **Done** ? Rename golden-journey step pill ?Evidence trail? ? ?Evidence graph?; see ## TB-2097 below | Adoption friction P0 ? **V1**; owner ask 2026-08-07; aligns BUYER_SURFACE_VOCABULARY | S |
-| TB-2006 | Architecture draft workspace ? disable Start review until readiness; drop validation toast; see ## TB-2006 below | Adoption friction P1 ? **V1**; owner ask 2026-07-29; with **TB-2005** | S |
-| TB-2007 | Pilot baseline wizard ? disable Next/Save until valid; inline field errors; see ## TB-2007 below | Adoption friction P1 ? **V1**; with **TB-2005**; first-session overlay | S |
-| TB-2008 | Admin toast-validation ? Tenant cost settings + governance bulk disposition; see ## TB-2008 below | Adoption friction P1 ? **V1**; with **TB-2005** | S |
+| TB-2006 | Architecture draft workspace ? disable Start review until readiness; drop validation toast; see ## TB-2006 below | Adoption friction P1 ? **V1** ? **Done** 2026-08-12 | S |
+| TB-2007 | Pilot baseline wizard ? disable Next/Save until valid; inline field errors; see ## TB-2007 below | Adoption friction P1 ? **V1** ? **Done** 2026-08-12 | S |
+| TB-2008 | Admin toast-validation ? Tenant cost settings + governance bulk disposition; see ## TB-2008 below | Adoption friction P1 ? **V1** ? **Done** 2026-08-12 | S |
 | TB-2012 | Design-system ? date/datetime range Start/End date labels + content-sized pickers; see ## TB-2012 below | Adoption friction P1 ? **V1**; owner Decision Register date-filter ask 2026-07-29 | S |
 | TB-2013 | Decision Register ? Start/End date labels + content-sized date inputs; see ## TB-2013 below | Adoption friction P1 ? **V1**; owner ask 2026-07-29; with **TB-2012** | S |
 | TB-2014 | Audit + Value report ? From/To ? Start/End date + picker width; see ## TB-2014 below | Adoption friction P1 ? **V1**; with **TB-2012**; Pilot value report is reference | S |
@@ -43473,7 +43473,7 @@ Operators must read three intros before reaching the Trust Center link list.
 
 ## TB-1806 ? `/operate/architecture-graph` traffic redirect-only workbook honesty (P0)
 
-**Window:** V1 ? Adoption friction. **Status:** Not started. **Priority:** P0.
+**Window:** V1 ? Adoption friction. **Status:** **Done** (2026-08-12). **Priority:** P0.
 
 **Source:** Owner OPR ~12/100 2026-07-27.
 
@@ -43482,6 +43482,8 @@ Operators must read three intros before reaching the Trust Center link list.
 **Approach:** Notes redirect-only; optional fold toward `/graph` in workbook. Keep shim for bookmarks.
 
 **Acceptance:** Workbook honesty for shim. **Size estimate:** S.
+
+**Shipped:** OAX registry + template redirect-shim row documents legacy `/operate/architecture-graph` ? `/insights/evidence-graph`; Vitest TB-1806.
 
 ---
 
@@ -46165,7 +46167,7 @@ Operators must read three intros before reaching the Trust Center link list.
 
 **Window:** V1 ? Adoption friction.
 
-**Status:** Not started.
+**Status:** **Done** (2026-08-12) ? `ArchitectureDraftWorkspace.tsx` gates **Start architecture review** on readiness/scope/persist; validation `showError` removed; inline readiness + Vitest TB-2006 cases.
 
 **Priority:** P1.
 
@@ -46194,7 +46196,7 @@ Operators must read three intros before reaching the Trust Center link list.
 
 **Window:** V1 ? Adoption friction.
 
-**Status:** Not started.
+**Status:** **Done** (2026-08-12) ? `PilotBaselineWizard.tsx` + `pilot-baseline-wizard-validation.ts`; `BaselineFieldMessage`; Vitest TB-2007.
 
 **Priority:** P1.
 
@@ -46221,7 +46223,7 @@ Operators must read three intros before reaching the Trust Center link list.
 
 **Window:** V1 ? Adoption friction.
 
-**Status:** Not started.
+**Status:** **Done** (2026-08-12) ? `TenantCostSettingsCard.tsx` + `tenant-cost-settings-validation.ts`; `GovernanceFindingsBulkActions.tsx` disables bulk CTAs until reason entered; Vitest TB-2008.
 
 **Priority:** P1.
 
@@ -50376,7 +50378,7 @@ while the four counters go through `countValue`, which ignores it (line ~58).
 
 **Window:** V1 ? Accessibility.
 
-**Status:** Not started.
+**Status:** In progress ? **batch 1 Done** 2026-08-12: disabled-reason pattern on `AlertRoutingCriteriaFields.tsx` + `PolicyPacksLifecycleSection.tsx` (visible status/helper copy; baseline 92?90 files); truncation ruling ratified in `UI_DESIGN_SYSTEM.md`. Remaining ~90 baselined files open.
 
 **Priority:** P1.
 
