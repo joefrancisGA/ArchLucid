@@ -1,4 +1,5 @@
 import type { EnterpriseStatusKind } from "@/lib/design-tokens";
+import { formatInstantForLocale } from "@/lib/locale-datetime";
 
 /** Shared presentation helpers for GCP cloud connection UI (TB-1773). */
 
@@ -26,7 +27,7 @@ export function formatGcpConnectionTimestamp(value: string | null): string {
     return value;
   }
 
-  return new Date(parsed).toLocaleString();
+  return formatInstantForLocale(value);
 }
 
 export function gcpConnectionStatusBadgeClass(status: string): string {

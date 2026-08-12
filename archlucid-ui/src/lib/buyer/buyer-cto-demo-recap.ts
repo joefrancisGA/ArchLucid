@@ -72,10 +72,15 @@ export function buildCtoDemoRecapPayloadFromRun(
   };
 }
 
+/** Grouped whole-dollar amount for recap copy (fixed `en-US`, no currency symbol). */
+function formatRecapAmount(amountUsd: number): string {
+  return new Intl.NumberFormat("en-US").format(amountUsd);
+}
+
 export function formatCtoDemoRecapMarkdown(payload: CtoDemoRecapPayload): string {
   const savingsLine =
     payload.estimatedSavingsUsd !== null
-      ? `$${payload.estimatedSavingsUsd.toLocaleString("en-US")} (${payload.savingsQualifier})`
+      ? `$${formatRecapAmount(payload.estimatedSavingsUsd)} (${payload.savingsQualifier})`
       : `Not available (${payload.savingsQualifier})`;
 
   return [
@@ -95,7 +100,7 @@ export function formatCtoDemoRecapMarkdown(payload: CtoDemoRecapPayload): string
 
 export function formatCtoDemoHeroStat(payload: CtoDemoRecapPayload): string {
   if (payload.estimatedSavingsUsd !== null) {
-    return `$${payload.estimatedSavingsUsd.toLocaleString("en-US")} annualized risk exposure identified`;
+    return `$${formatRecapAmount(payload.estimatedSavingsUsd)} annualized risk exposure identified`;
   }
 
   return `${payload.findingsCount} findings · ${payload.riskPosture}`;

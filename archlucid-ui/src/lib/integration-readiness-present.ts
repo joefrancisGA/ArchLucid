@@ -4,6 +4,7 @@ import {
   resolveConnectorHumanStatus,
   resolveIntegrationEventBusHumanStatus,
 } from "@/lib/connector-operations-present";
+import { formatInstantForLocale } from "@/lib/locale-datetime";
 import type { ConnectorSurfaceStatusDto, IntegrationEventBusStatusDto } from "@/types/operate-rhythm";
 
 export type IntegrationBackgroundDeliveryLabel = "Configured" | "Not configured" | "Not required";
@@ -59,10 +60,7 @@ export function isConnectorDisabledForDeployment(connector: ConnectorSurfaceStat
 }
 
 export function formatIntegrationReadinessLastChecked(configurationReadAt: Date): string {
-  return `Configuration read at ${configurationReadAt.toLocaleString(undefined, {
-    dateStyle: "medium",
-    timeStyle: "short",
-  })}`;
+  return `Configuration read at ${formatInstantForLocale(configurationReadAt.toISOString())}`;
 }
 
 export function resolveConnectorRowActionLabel(

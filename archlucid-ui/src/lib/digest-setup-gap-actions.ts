@@ -21,6 +21,7 @@ import {
   DIGESTS_CHECKLIST_SCHEDULE_DETAIL_PENDING,
   DIGESTS_CHECKLIST_SCHEDULE_LABEL,
 } from "@/lib/digests-browse-copy";
+import { formatInstantForLocale } from "@/lib/locale-datetime";
 import type { WeeklyDigestHealthDto } from "@/types/operate-rhythm";
 
 /** Actionable setup gap for the digests health card. */
@@ -246,15 +247,5 @@ export function digestsHaveExistingConfiguration(snap: WeeklyDigestHealthDto): b
 
 /** Formats an optional UTC instant for operator surfaces; returns em dash when missing. */
 export function formatDigestInstant(value: string | null | undefined): string {
-  if (value === null || value === undefined || value.trim() === "") {
-    return "—";
-  }
-
-  const parsed: Date = new Date(value);
-
-  if (Number.isNaN(parsed.getTime())) {
-    return "—";
-  }
-
-  return parsed.toLocaleString();
+  return formatInstantForLocale(value);
 }

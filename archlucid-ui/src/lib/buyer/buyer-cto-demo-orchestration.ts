@@ -1,4 +1,5 @@
 import { BUYER_GOLDEN_JOURNEY_STEP_DEFINITIONS } from "@/lib/buyer/buyer-golden-journey-nav";
+import { formatConversationListDate } from "@/lib/locale-datetime";
 import {
   getStartCtoDemoTourHref,
   writeBuyerCtoDemoTourActive,
@@ -79,7 +80,7 @@ export function formatDemoRelativeTimestamp(
     return `${diffWeeks} weeks ago`;
   }
 
-  return event.toLocaleDateString(undefined, { month: "short", day: "numeric", year: "numeric" });
+  return formatConversationListDate(event.toISOString());
 }
 
 export function clearBuyerCtoDemoTourStorage(): void {

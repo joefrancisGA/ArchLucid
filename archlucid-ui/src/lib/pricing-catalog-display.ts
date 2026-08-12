@@ -98,7 +98,8 @@ export function formatMonthlyAiCredits(pkg: PricingPackage): string | null {
   }
 
   if (typeof pkg.monthlyAiCredits === "number" && pkg.monthlyAiCredits > 0) {
-    return `${pkg.monthlyAiCredits.toLocaleString()} AI credits / month`;
+    // Fixed `en-US` grouping keeps the credit count identical on the server and in the browser.
+    return `${new Intl.NumberFormat("en-US").format(pkg.monthlyAiCredits)} AI credits / month`;
   }
 
   return null;
@@ -117,12 +118,7 @@ export function buildOperatorBillingPlanSummaryLines(
   pricing: PricingDoc,
   pkg: PricingPackage,
 ): PricingCatalogLine[] {
-  const lines: PricingCatalogLine[] = [
-    {
-      label: "Plan price",
-      value: formatPlanPrice(pkg, pricing.currency),
-    },
-  ];
+  const lines: PricingCatalogLine[] = [];
 
   const includedLine = formatIncludedUsersAndWorkspaces(pkg);
 

@@ -1,4 +1,5 @@
 import type { EnterpriseStatusKind } from "@/lib/design-tokens";
+import { formatInstantForLocale } from "@/lib/locale-datetime";
 
 /** Shared presentation helpers for AWS cloud connection UI (TB-1762). */
 
@@ -13,7 +14,7 @@ export function formatAwsConnectionTimestamp(value: string | null): string {
     return value;
   }
 
-  return new Date(parsed).toLocaleString();
+  return formatInstantForLocale(value);
 }
 
 export function awsConnectionStatusTagKind(status: string): EnterpriseStatusKind {

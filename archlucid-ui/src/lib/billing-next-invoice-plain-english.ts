@@ -27,6 +27,9 @@ export const BILLING_NEXT_INVOICE_MANAGE_CTA_LABEL = "Manage billing" as const;
 export const BILLING_NEXT_INVOICE_OPEN_MANAGE_MESSAGE =
   "Open Manage billing for next invoice amount and date" as const;
 
+export const BILLING_STRIPE_PORTAL_SYSTEM_OF_RECORD_NOTE =
+  "Invoice history, payment methods, and cancellation are managed in the Stripe billing portal. ArchLucid opens that portal on your behalf; Stripe remains the system of record.";
+
 function nonEmpty(value: string | null | undefined): string | null {
   const trimmed = value?.trim() ?? "";
 
@@ -59,7 +62,10 @@ function formatInvoiceDate(utc: string): string | null {
     return null;
   }
 
-  return new Date(ms).toLocaleDateString(undefined, {
+  // Invoice dates read as a long month locally; the shared date formatter is short-month only,
+  // so the shape stays here with the time zone pinned so every operator reads the same day.
+  return new Date(ms).toLocaleDateString("en-US", {
+    timeZone: "UTC",
     year: "numeric",
     month: "long",
     day: "numeric",

@@ -1,4 +1,5 @@
 import type { EnterpriseStatusKind } from "@/lib/design-tokens";
+import { formatInstantForLocale } from "@/lib/locale-datetime";
 
 /** Shared presentation helpers for Azure cloud connection UI (TB-1767). */
 
@@ -6,7 +7,8 @@ export function azureConnectionStatusTagKind(): EnterpriseStatusKind {
   return "ready";
 }
 
-export function formatAzureConnectionTimestamp(value: string | null | undefined): string {  if (value === null || value === undefined || value.trim().length === 0) {
+export function formatAzureConnectionTimestamp(value: string | null | undefined): string {
+  if (value === null || value === undefined || value.trim().length === 0) {
     return "Never";
   }
 
@@ -16,7 +18,7 @@ export function formatAzureConnectionTimestamp(value: string | null | undefined)
     return value;
   }
 
-  return new Date(parsed).toLocaleString();
+  return formatInstantForLocale(value);
 }
 
 export function formatAzureSubscriptionSummary(subscriptionIds: string): string {

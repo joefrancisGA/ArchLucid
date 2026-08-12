@@ -1,4 +1,5 @@
 import type { SponsorReadinessStatus } from "@/lib/architecture/architecture-sponsor-readiness";
+import { formatConversationListDate } from "@/lib/locale-datetime";
 
 export type BuildArchitectureSponsorDraftInput = {
   readonly runId: string;
@@ -39,15 +40,12 @@ export function buildArchitectureSponsorDraftWatermark(
 function formatDateLabel(iso: string): string {
   const parsed = new Date(iso);
 
+  // Unparseable input keeps the raw value: the watermark must show what was recorded, not an em dash.
   if (Number.isNaN(parsed.getTime())) {
     return iso;
   }
 
-  return parsed.toLocaleDateString(undefined, {
-    year: "numeric",
-    month: "short",
-    day: "numeric",
-  });
+  return formatConversationListDate(iso);
 }
 
 /** Sponsor-facing markdown with required preliminary draft watermark fields. */

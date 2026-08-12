@@ -1,3 +1,5 @@
+import { formatInstantForLocale } from "@/lib/locale-datetime";
+
 export const ARCHLUCID_SUPPORT_EMAIL = "support@archlucid.net";
 
 export const SUPPORT_PAGE_GUIDANCE =
@@ -103,7 +105,7 @@ export function resolveSupportBundleStatusLabel(
     case "ready":
       return lastGeneratedAt === null
         ? "Download ready."
-        : `Download ready — last generated ${lastGeneratedAt.toLocaleString()}.`;
+        : `Download ready — last generated ${formatInstantForLocale(lastGeneratedAt.toISOString())}.`;
     case "failed":
       return "Download failed. Try again or contact support with the error below.";
     case "permission_required":

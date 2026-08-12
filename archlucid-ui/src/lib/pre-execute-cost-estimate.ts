@@ -49,13 +49,14 @@ function isFiniteNumber(value: number | null | undefined): value is number {
   return typeof value === "number" && Number.isFinite(value);
 }
 
+/** Fixed `en-US` so the same allowance renders identically on the server and in the browser. */
 function formatUsdTwoDecimals(value: number): string {
-  return value.toLocaleString(undefined, {
+  return new Intl.NumberFormat("en-US", {
     style: "currency",
     currency: "USD",
     minimumFractionDigits: 2,
     maximumFractionDigits: 2,
-  });
+  }).format(value);
 }
 
 function remainingAllowanceClause(remainingUsd: number): string {

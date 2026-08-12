@@ -8,7 +8,9 @@ import {
   AZURE_BOARDS_SETUP_STEP_DONE_LABEL,
   AZURE_BOARDS_SETUP_STEP_PENDING_LABEL,
 } from "@/lib/azure-boards-page-copy";
+import { parseIsoUtcMs } from "@/lib/format-iso-utc";
 import { GOVERNANCE_FINDINGS_PATH } from "@/lib/governance/governance-route-paths";
+import { formatInstantForLocale } from "@/lib/locale-datetime";
 import type { WhyDisabledCtaReason } from "@/lib/why-disabled-cta";
 
 export type AzureBoardsConnectionStatus =
@@ -423,7 +425,12 @@ export function resolveAzureBoardsConnectionProvenance(
   const updatedUtc = connection?.updatedUtc?.trim();
 
   if (updatedUtc && updatedUtc.length > 0) {
-    return `Last modified ${new Date(updatedUtc).toLocaleString()}`;
+    // API `*Utc` fields can arrive without a `Z`, so parse as UTC before formatting.
+    const updatedMs = parseIsoUtcMs(updatedUtc);
+
+    if (!Number.isNaN(updatedMs)) {
+      return `Last modified ${formatInstantForLocale(new Date(updatedMs).toISOString())}`;
+    }
   }
 
   return AZURE_BOARDS_CONNECTION_PROVENANCE_NONE;

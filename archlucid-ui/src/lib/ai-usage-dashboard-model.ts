@@ -807,10 +807,15 @@ export function dailyMetricAccessibleSummary(
   }
 
   if (metric === "tokens") {
-    return `Daily token usage over ${daily.length} days totals ${total.toLocaleString()} tokens with a peak day of ${peak.toLocaleString()} tokens${peakDay.length > 0 ? ` on ${peakDay.slice(0, 10)}` : ""}.`;
+    return `Daily token usage over ${daily.length} days totals ${formatMetricCount(total)} tokens with a peak day of ${formatMetricCount(peak)} tokens${peakDay.length > 0 ? ` on ${peakDay.slice(0, 10)}` : ""}.`;
   }
 
-  return `Daily ${metric} over ${daily.length} days totals ${total.toLocaleString()} with a peak of ${peak.toLocaleString()}.`;
+  return `Daily ${metric} over ${daily.length} days totals ${formatMetricCount(total)} with a peak of ${formatMetricCount(peak)}.`;
+}
+
+/** Fixed `en-US` grouping so the screen-reader summary matches between server render and hydration. */
+function formatMetricCount(value: number): string {
+  return new Intl.NumberFormat("en-US").format(value);
 }
 
 function formatUsd(value: number, currency: string): string {

@@ -88,9 +88,13 @@ export function resolveTroubleshootingPlatformStatus(
 }
 
 export function formatTroubleshootingCheckedAt(checkedAt: Date): string {
-  const time = checkedAt.toLocaleTimeString(undefined, {
+  // Clock-only label has no shared formatter; pinned to UTC with the zone shown so operators
+  // comparing this line against an incident timeline read the same clock (TB-1678).
+  const time = checkedAt.toLocaleTimeString("en-US", {
+    timeZone: "UTC",
     hour: "2-digit",
     minute: "2-digit",
+    timeZoneName: "short",
   });
 
   return `Checked at ${time}`;

@@ -79,9 +79,9 @@ describe("operatorLastRefreshedExactLabel", () => {
     expect(operatorLastRefreshedExactLabel(undefined)).toBeUndefined();
   });
 
-  it("keeps the exact locale timestamp available for the tooltip", () => {
+  it("keeps the exact timestamp available for the tooltip in a fixed time zone", () => {
     const refreshedAt = new Date("2026-01-15T12:00:00.000Z");
 
-    expect(operatorLastRefreshedExactLabel(refreshedAt)).toBe(refreshedAt.toLocaleString());
+    expect(operatorLastRefreshedExactLabel(refreshedAt)).toBe("Jan 15, 2026, 12:00 PM UTC");
   });
 });

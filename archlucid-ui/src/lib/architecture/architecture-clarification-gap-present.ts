@@ -27,7 +27,16 @@ export function formatGapCapturedAtLabel(utc: string | null): string | null {
     return null;
   }
 
-  return `captured ${parsed.toLocaleTimeString([], { hour: "2-digit", minute: "2-digit" })}`;
+  // Clock-only label has no shared formatter; pinned to UTC with the zone shown so the
+  // same capture time reads identically for every reviewer (TB-1678).
+  const capturedAt = parsed.toLocaleTimeString("en-US", {
+    timeZone: "UTC",
+    hour: "2-digit",
+    minute: "2-digit",
+    timeZoneName: "short",
+  });
+
+  return `captured ${capturedAt}`;
 }
 
 export function buildClarificationGapSourcePresentation(input: {

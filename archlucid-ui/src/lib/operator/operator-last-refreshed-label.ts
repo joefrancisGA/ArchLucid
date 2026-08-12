@@ -1,3 +1,4 @@
+import { formatInstantForLocale } from "@/lib/locale-datetime";
 import { formatRelativeTime } from "@/lib/relative-time";
 
 /** Shown before the first successful load completes. */
@@ -48,7 +49,7 @@ export function operatorLastRefreshedExactLabel(
     return undefined;
   }
 
-  return lastRefreshedAt.toLocaleString();
+  return formatInstantForLocale(lastRefreshedAt.toISOString());
 }
 
 /**
