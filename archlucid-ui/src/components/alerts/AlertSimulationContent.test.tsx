@@ -1,3 +1,5 @@
+import { readFileSync } from "node:fs";
+import { join } from "node:path";
 import { fireEvent, render, screen, waitFor } from "@testing-library/react";
 import { beforeEach, describe, expect, it, vi } from "vitest";
 
@@ -78,5 +80,28 @@ describe("AlertSimulationContent TB-1592", () => {
         }),
       );
     });
+  });
+});
+
+describe("AlertSimulationContent TB-1590", () => {
+  it("uses design-system Input fields and a primary submit Button on the simple simulation form", () => {
+    render(<AlertSimulationContent />);
+
+    expect(screen.getByLabelText("Name")).toBeInTheDocument();
+    expect(screen.getByTestId("alert-simulation-simple-submit")).toHaveTextContent("Simulate");
+  });
+
+  it("simulation form source avoids raw html input and button elements", () => {
+    const source = readFileSync(
+      join(process.cwd(), "src", "components", "alerts", "AlertSimulationContent.tsx"),
+      "utf8",
+    );
+
+    expect(source).not.toMatch(/<input\b/);
+    expect(source).not.toMatch(/<button\b/);
+    expect(source).toContain('data-testid="alert-simulation-simple-submit"');
+    expect(source).toContain('data-testid="alert-simulation-composite-submit"');
+    expect(source).toContain('data-testid="alert-simulation-compare-submit"');
+    expect(source).toContain('variant="primary"');
   });
 });

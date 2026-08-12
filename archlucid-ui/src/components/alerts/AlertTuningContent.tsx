@@ -3,6 +3,9 @@
 import { cn } from "@/lib/utils";
 import { useState } from "react";
 import { OperatorApiProblem } from "@/components/operator/OperatorApiProblem";
+import { Button } from "@/components/ui/button";
+import { Input } from "@/components/ui/input";
+import { Label } from "@/components/ui/label";
 import { useOperateCapability } from "@/hooks/use-operate-capability";
 import { recommendAlertThreshold } from "@/lib/api";
 import type { ApiLoadFailureState } from "@/lib/api-load-failure";
@@ -10,6 +13,7 @@ import { toApiLoadFailure, uiFailureFromMessage } from "@/lib/api-load-failure";
 import {
   ALERT_SIMULATION_PROJECT_SLUG_HELPER,
   ALERT_SIMULATION_PROJECT_SLUG_PLACEHOLDER,
+  ALERT_TOOLING_FORM_SELECT_CLASS,
   resolveAlertSimulationRunProjectSlug,
 } from "@/lib/alert-simulation-form";
 import {
@@ -281,34 +285,37 @@ export function AlertTuningContent() {
             {alertToolingConfigureSectionSubline}
           </p>
       <div className="mb-6 grid max-w-3xl gap-3">
-        <label>
-          Rule kind
+        <div>
+          <Label htmlFor="alert-tuning-rule-kind">Rule kind</Label>
           <select
+            id="alert-tuning-rule-kind"
             value={ruleKind}
             onChange={(e) => setRuleKind(e.target.value as "Simple" | "Composite")}
-            className="mt-1 block w-full p-2"
+            className={ALERT_TOOLING_FORM_SELECT_CLASS}
           >
             <option value="Simple">Simple</option>
             <option value="Composite">Composite</option>
           </select>
-        </label>
+        </div>
 
-        <label>
-          Name
-          <input
+        <div>
+          <Label htmlFor="alert-tuning-name">Name</Label>
+          <Input
+            id="alert-tuning-name"
             value={name}
             onChange={(e) => setName(e.target.value)}
-            className="mt-1 block w-full p-2"
+            className="mt-1"
           />
-        </label>
+        </div>
 
         {ruleKind === "Simple" ? (
-          <label>
-            Rule type (simple)
+          <div>
+            <Label htmlFor="alert-tuning-simple-rule-type">Rule type (simple)</Label>
             <select
+              id="alert-tuning-simple-rule-type"
               value={ruleType}
               onChange={(e) => setRuleType(e.target.value)}
-              className="mt-1 block w-full p-2"
+              className={ALERT_TOOLING_FORM_SELECT_CLASS}
             >
               {SIMPLE_RULE_TYPES.map((r) => (
                 <option key={r.value} value={r.value}>
@@ -316,15 +323,16 @@ export function AlertTuningContent() {
                 </option>
               ))}
             </select>
-          </label>
+          </div>
         ) : (
           <>
-            <label>
-              Metric to tune (must match a condition below)
+            <div>
+              <Label htmlFor="alert-tuning-composite-metric">Metric to tune (must match a condition below)</Label>
               <select
+                id="alert-tuning-composite-metric"
                 value={tunedMetricComposite}
                 onChange={(e) => setTunedMetricComposite(e.target.value)}
-                className="mt-1 block w-full p-2"
+                className={ALERT_TOOLING_FORM_SELECT_CLASS}
               >
                 {COMPOSITE_METRICS.map((m) => (
                   <option key={m.value} value={m.value}>
@@ -332,95 +340,150 @@ export function AlertTuningContent() {
                   </option>
                 ))}
               </select>
-            </label>
-            <label>
-              Join
+            </div>
+            <div>
+              <Label htmlFor="alert-tuning-composite-join">Join</Label>
               <select
+                id="alert-tuning-composite-join"
                 value={cJoin}
                 onChange={(e) => setCJoin(e.target.value)}
-                className="mt-1 block w-full p-2"
+                className={ALERT_TOOLING_FORM_SELECT_CLASS}
               >
                 <option value="And">All (AND)</option>
                 <option value="Or">Any (OR)</option>
               </select>
-            </label>
+            </div>
             <div className="grid grid-cols-2 gap-3">
-              <label>
-                Suppression window (min)
-                <input
+              <div>
+                <Label htmlFor="alert-tuning-composite-suppression-window">Suppression window (min)</Label>
+                <Input
+                  id="alert-tuning-composite-suppression-window"
                   type="number"
                   value={cSuppression}
                   onChange={(e) => setCSuppression(Number(e.target.value))}
-                  className="mt-1 block w-full p-2"
+                  className="mt-1"
                 />
-              </label>
-              <label>
-                Cooldown (min)
-                <input
+              </div>
+              <div>
+                <Label htmlFor="alert-tuning-composite-cooldown">Cooldown (min)</Label>
+                <Input
+                  id="alert-tuning-composite-cooldown"
                   type="number"
                   value={cCooldown}
                   onChange={(e) => setCCooldown(Number(e.target.value))}
-                  className="mt-1 block w-full p-2"
+                  className="mt-1"
                 />
-              </label>
+              </div>
             </div>
-            <label>
-              Dedupe scope
+            <div>
+              <Label htmlFor="alert-tuning-composite-dedupe-scope">Dedupe scope</Label>
               <select
+                id="alert-tuning-composite-dedupe-scope"
                 value={cDedupe}
                 onChange={(e) => setCDedupe(e.target.value)}
-                className="mt-1 block w-full p-2"
+                className={ALERT_TOOLING_FORM_SELECT_CLASS}
               >
                 <option value="RuleOnly">Rule only</option>
                 <option value="RuleAndRun">Rule + review</option>
                 <option value="RuleAndComparison">Rule + review + comparison</option>
               </select>
-            </label>
+            </div>
             <p className="m-0 font-semibold">Condition 1</p>
             <div className="grid grid-cols-3 gap-2">
-              <select value={cM1} onChange={(e) => setCM1(e.target.value)}>
-                {COMPOSITE_METRICS.map((m) => (
-                  <option key={m.value} value={m.value}>
-                    {m.label}
-                  </option>
-                ))}
-              </select>
-              <select value={cO1} onChange={(e) => setCO1(e.target.value)}>
-                {COND_OPS.map((o) => (
-                  <option key={o.value} value={o.value}>
-                    {o.label}
-                  </option>
-                ))}
-              </select>
-              <input type="number" value={cV1} onChange={(e) => setCV1(Number(e.target.value))} />
+              <div>
+                <Label htmlFor="alert-tuning-composite-c1-metric">Metric</Label>
+                <select
+                  id="alert-tuning-composite-c1-metric"
+                  value={cM1}
+                  onChange={(e) => setCM1(e.target.value)}
+                  className={ALERT_TOOLING_FORM_SELECT_CLASS}
+                >
+                  {COMPOSITE_METRICS.map((m) => (
+                    <option key={m.value} value={m.value}>
+                      {m.label}
+                    </option>
+                  ))}
+                </select>
+              </div>
+              <div>
+                <Label htmlFor="alert-tuning-composite-c1-operator">Operator</Label>
+                <select
+                  id="alert-tuning-composite-c1-operator"
+                  value={cO1}
+                  onChange={(e) => setCO1(e.target.value)}
+                  className={ALERT_TOOLING_FORM_SELECT_CLASS}
+                >
+                  {COND_OPS.map((o) => (
+                    <option key={o.value} value={o.value}>
+                      {o.label}
+                    </option>
+                  ))}
+                </select>
+              </div>
+              <div>
+                <Label htmlFor="alert-tuning-composite-c1-threshold">Threshold</Label>
+                <Input
+                  id="alert-tuning-composite-c1-threshold"
+                  type="number"
+                  value={cV1}
+                  onChange={(e) => setCV1(Number(e.target.value))}
+                  className="mt-1"
+                />
+              </div>
             </div>
             <p className="m-0 font-semibold">Condition 2</p>
             <div className="grid grid-cols-3 gap-2">
-              <select value={cM2} onChange={(e) => setCM2(e.target.value)}>
-                {COMPOSITE_METRICS.map((m) => (
-                  <option key={m.value} value={m.value}>
-                    {m.label}
-                  </option>
-                ))}
-              </select>
-              <select value={cO2} onChange={(e) => setCO2(e.target.value)}>
-                {COND_OPS.map((o) => (
-                  <option key={o.value} value={o.value}>
-                    {o.label}
-                  </option>
-                ))}
-              </select>
-              <input type="number" value={cV2} onChange={(e) => setCV2(Number(e.target.value))} />
+              <div>
+                <Label htmlFor="alert-tuning-composite-c2-metric">Metric</Label>
+                <select
+                  id="alert-tuning-composite-c2-metric"
+                  value={cM2}
+                  onChange={(e) => setCM2(e.target.value)}
+                  className={ALERT_TOOLING_FORM_SELECT_CLASS}
+                >
+                  {COMPOSITE_METRICS.map((m) => (
+                    <option key={m.value} value={m.value}>
+                      {m.label}
+                    </option>
+                  ))}
+                </select>
+              </div>
+              <div>
+                <Label htmlFor="alert-tuning-composite-c2-operator">Operator</Label>
+                <select
+                  id="alert-tuning-composite-c2-operator"
+                  value={cO2}
+                  onChange={(e) => setCO2(e.target.value)}
+                  className={ALERT_TOOLING_FORM_SELECT_CLASS}
+                >
+                  {COND_OPS.map((o) => (
+                    <option key={o.value} value={o.value}>
+                      {o.label}
+                    </option>
+                  ))}
+                </select>
+              </div>
+              <div>
+                <Label htmlFor="alert-tuning-composite-c2-threshold">Threshold</Label>
+                <Input
+                  id="alert-tuning-composite-c2-threshold"
+                  type="number"
+                  value={cV2}
+                  onChange={(e) => setCV2(Number(e.target.value))}
+                  className="mt-1"
+                />
+              </div>
             </div>
           </>
         )}
 
-        <label>
-          Severity
+        <div>
+          <Label htmlFor="alert-tuning-severity">Severity</Label>
           <select
+            id="alert-tuning-severity"
             value={severity}
             onChange={(e) => setSeverity(e.target.value)}
-            className="mt-1 block w-full p-2"
+            className={ALERT_TOOLING_FORM_SELECT_CLASS}
           >
             {SEVERITIES.map((s) => (
               <option key={s} value={s}>
@@ -428,76 +491,84 @@ export function AlertTuningContent() {
               </option>
             ))}
           </select>
-        </label>
+        </div>
 
-        <label>
-          Candidate thresholds (comma-separated)
-          <input
+        <div>
+          <Label htmlFor="alert-tuning-candidate-thresholds">Candidate thresholds (comma-separated)</Label>
+          <Input
+            id="alert-tuning-candidate-thresholds"
             value={candidateThresholdsStr}
             onChange={(e) => setCandidateThresholdsStr(e.target.value)}
             placeholder="5,10,15,20,25"
-            className="mt-1 block w-full p-2"
+            className="mt-1"
           />
-        </label>
+        </div>
 
-        <label>
-          Recent review count (1–50)
-          <input
+        <div>
+          <Label htmlFor="alert-tuning-recent-count">Recent review count (1–50)</Label>
+          <Input
+            id="alert-tuning-recent-count"
             type="number"
             min={1}
             max={50}
             value={recentRunCount}
             onChange={(e) => setRecentRunCount(Number(e.target.value))}
-            className="mt-1 block w-full p-2"
+            className="mt-1"
           />
-        </label>
+        </div>
 
-        <label>
-          Workspace project slug
-          <input
+        <div>
+          <Label htmlFor="alert-tuning-project-slug">Workspace project slug</Label>
+          <Input
+            id="alert-tuning-project-slug"
             value={runSlug}
             onChange={(e) => setRunSlug(e.target.value)}
             placeholder={ALERT_SIMULATION_PROJECT_SLUG_PLACEHOLDER}
-            className="mt-1 block w-full p-2"
+            className="mt-1"
             data-testid="alert-tuning-project-slug"
           />
           <span className={cn("mt-1 block text-neutral-600 dark:text-neutral-400", OPERATOR_TYPOGRAPHY.helper)}>
             {ALERT_SIMULATION_PROJECT_SLUG_HELPER}
           </span>
-        </label>
+        </div>
 
         <div className="grid grid-cols-2 gap-3">
-          <label>
-            Target created alerts (min)
-            <input
+          <div>
+            <Label htmlFor="alert-tuning-target-min">Target created alerts (min)</Label>
+            <Input
+              id="alert-tuning-target-min"
               type="number"
               min={0}
               value={targetMin}
               onChange={(e) => setTargetMin(Number(e.target.value))}
-              className="mt-1 block w-full p-2"
+              className="mt-1"
             />
-          </label>
-          <label>
-            Target created alerts (max)
-            <input
+          </div>
+          <div>
+            <Label htmlFor="alert-tuning-target-max">Target created alerts (max)</Label>
+            <Input
+              id="alert-tuning-target-max"
               type="number"
               min={0}
               value={targetMax}
               onChange={(e) => setTargetMax(Number(e.target.value))}
-              className="mt-1 block w-full p-2"
+              className="mt-1"
             />
-          </label>
+          </div>
         </div>
 
-        <button
+        <Button
           type="button"
+          variant="primary"
+          size="sm"
+          data-testid="alert-tuning-recommend-submit"
           onClick={() => void recommend()}
           disabled={loading}
           title={alertTuningRecommendButtonTitle}
-          className={`max-w-[240px] px-4 py-2.5 ${loading ? "cursor-wait" : "cursor-pointer"}`}
+          className="max-w-[240px]"
         >
           {loading ? "Running…" : "Recommend threshold"}
-        </button>
+        </Button>
       </div>
         </section>
       </div>

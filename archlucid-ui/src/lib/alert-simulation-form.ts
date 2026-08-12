@@ -14,6 +14,10 @@ export const ALERT_SIMULATION_PROJECT_SLUG_PLACEHOLDER = "Current project";
 export const ALERT_SIMULATION_PROJECT_SLUG_HELPER =
   "Leave blank to use the current project. Override only when simulating a different project slug.";
 
+/** Shared native `<select>` styling for alert simulation/tuning forms (TB-1590; pairs composite **TB-1580**). */
+export const ALERT_TOOLING_FORM_SELECT_CLASS =
+  "mt-1 block w-full rounded-md border border-neutral-300 bg-white p-2 dark:border-neutral-600 dark:bg-neutral-950";
+
 /**
  * Resolves the authority run-list project key for simulation/tuning APIs (TB-1592).
  * Typed override wins; otherwise derive from session (GUID/empty → authority `default` on the wire only).

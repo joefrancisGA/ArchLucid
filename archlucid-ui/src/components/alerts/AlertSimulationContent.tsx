@@ -4,6 +4,10 @@ import { cn } from "@/lib/utils";
 import { useState } from "react";
 import { GettingStartedSteps } from "@/components/GettingStartedSteps";
 import { OperatorApiProblem } from "@/components/operator/OperatorApiProblem";
+import { Button } from "@/components/ui/button";
+import { Checkbox } from "@/components/ui/checkbox";
+import { Input } from "@/components/ui/input";
+import { Label } from "@/components/ui/label";
 import { useOperateCapability } from "@/hooks/use-operate-capability";
 import { compareAlertRuleCandidates, simulateAlertRule } from "@/lib/api";
 import {
@@ -12,6 +16,7 @@ import {
   ALERT_SIMULATION_PROJECT_SLUG_PLACEHOLDER,
   ALERT_SIMULATION_REVIEW_ID_HELPER,
   ALERT_SIMULATION_REVIEW_ID_PLACEHOLDER,
+  ALERT_TOOLING_FORM_SELECT_CLASS,
   resolveAlertSimulationRunProjectSlug,
 } from "@/lib/alert-simulation-form";
 import {
@@ -318,14 +323,21 @@ export function AlertSimulationContent() {
 
       <div className="mb-5 flex flex-wrap gap-2">
         {TABS.map((t) => (
-          <button
+          <Button
             key={t}
             type="button"
+            variant="secondary"
+            size="sm"
             onClick={() => setTab(t)}
-            className={`cursor-pointer capitalize rounded-md px-3.5 py-2 ${tab === t ? "border-2 border-neutral-700 bg-neutral-100 dark:border-neutral-300 dark:bg-neutral-800" : "border border-neutral-300 bg-white dark:border-neutral-600 dark:bg-neutral-950"}`}
+            className={cn(
+              "capitalize",
+              tab === t &&
+                "border-2 border-neutral-700 bg-neutral-100 dark:border-neutral-300 dark:bg-neutral-800",
+            )}
+            aria-pressed={tab === t}
           >
             {t}
-          </button>
+          </Button>
         ))}
       </div>
 
@@ -346,20 +358,22 @@ export function AlertSimulationContent() {
               Simulation inputs
             </h3>
             <div className="grid max-w-[640px] gap-3">
-            <label>
-              Name
-              <input
+            <div>
+              <Label htmlFor="alert-simulation-simple-name">Name</Label>
+              <Input
+                id="alert-simulation-simple-name"
                 value={sName}
                 onChange={(e) => setSName(e.target.value)}
-                className="mt-1 block w-full p-2"
+                className="mt-1"
               />
-            </label>
-            <label>
-              Rule type
+            </div>
+            <div>
+              <Label htmlFor="alert-simulation-simple-rule-type">Rule type</Label>
               <select
+                id="alert-simulation-simple-rule-type"
                 value={sRuleType}
                 onChange={(e) => setSRuleType(e.target.value)}
-                className="mt-1 block w-full p-2"
+                className={ALERT_TOOLING_FORM_SELECT_CLASS}
               >
                 {SIMPLE_RULE_TYPES.map((r) => (
                   <option key={r.value} value={r.value}>
@@ -367,13 +381,14 @@ export function AlertSimulationContent() {
                   </option>
                 ))}
               </select>
-            </label>
-            <label>
-              Severity
+            </div>
+            <div>
+              <Label htmlFor="alert-simulation-simple-severity">Severity</Label>
               <select
+                id="alert-simulation-simple-severity"
                 value={sSeverity}
                 onChange={(e) => setSSeverity(e.target.value)}
-                className="mt-1 block w-full p-2"
+                className={ALERT_TOOLING_FORM_SELECT_CLASS}
               >
                 {SEVERITIES.map((s) => (
                   <option key={s} value={s}>
@@ -381,81 +396,90 @@ export function AlertSimulationContent() {
                   </option>
                 ))}
               </select>
-            </label>
-            <label>
-              Threshold
-              <input
+            </div>
+            <div>
+              <Label htmlFor="alert-simulation-simple-threshold">Threshold</Label>
+              <Input
+                id="alert-simulation-simple-threshold"
                 type="number"
                 value={sThreshold}
                 onChange={(e) => setSThreshold(Number(e.target.value))}
-                className="mt-1 block w-full p-2"
+                className="mt-1"
               />
-            </label>
-            <label>
-              Recent review count (1–50)
-              <input
+            </div>
+            <div>
+              <Label htmlFor="alert-simulation-simple-recent-count">Recent review count (1–50)</Label>
+              <Input
+                id="alert-simulation-simple-recent-count"
                 type="number"
                 min={1}
                 max={50}
                 value={sRecent}
                 onChange={(e) => setSRecent(Number(e.target.value))}
-                className="mt-1 block w-full p-2"
+                className="mt-1"
               />
-            </label>
-            <label>
-              Workspace project slug
-              <input
+            </div>
+            <div>
+              <Label htmlFor="alert-simulation-simple-project-slug">Workspace project slug</Label>
+              <Input
+                id="alert-simulation-simple-project-slug"
                 value={sSlug}
                 onChange={(e) => setSSlug(e.target.value)}
                 placeholder={ALERT_SIMULATION_PROJECT_SLUG_PLACEHOLDER}
-                className="mt-1 block w-full p-2"
+                className="mt-1"
                 data-testid="alert-simulation-simple-project-slug"
               />
               <span className={cn("mt-1 block text-neutral-600 dark:text-neutral-400", OPERATOR_TYPOGRAPHY.helper)}>
                 {ALERT_SIMULATION_PROJECT_SLUG_HELPER}
               </span>
-            </label>
-            <label>
-              Specific review ID (optional; overrides recent list)
-              <input
+            </div>
+            <div>
+              <Label htmlFor="alert-simulation-simple-review-id">Specific review ID (optional; overrides recent list)</Label>
+              <Input
+                id="alert-simulation-simple-review-id"
                 value={sRunId}
                 onChange={(e) => setSRunId(e.target.value)}
                 placeholder={ALERT_SIMULATION_REVIEW_ID_PLACEHOLDER}
-                className="mt-1 block w-full p-2"
+                className="mt-1"
                 data-testid="alert-simulation-simple-review-id"
               />
               <span className={cn("mt-1 block text-neutral-600 dark:text-neutral-400", OPERATOR_TYPOGRAPHY.helper)}>
                 {ALERT_SIMULATION_REVIEW_ID_HELPER}
               </span>
-            </label>
-            <label>
-              Compared-to review ID (optional)
-              <input
+            </div>
+            <div>
+              <Label htmlFor="alert-simulation-simple-compared-review-id">Compared-to review ID (optional)</Label>
+              <Input
+                id="alert-simulation-simple-compared-review-id"
                 value={sCompareRun}
                 onChange={(e) => setSCompareRun(e.target.value)}
-                className="mt-1 block w-full p-2"
+                className="mt-1"
               />
               <span className={cn("mt-1 block text-neutral-600 dark:text-neutral-400", OPERATOR_TYPOGRAPHY.helper)}>
                 {ALERT_SIMULATION_COMPARED_REVIEW_ID_HELPER}
               </span>
-            </label>
-            <label className="flex items-center gap-2">
-              <input
-                type="checkbox"
+            </div>
+            <div className="flex items-center gap-2">
+              <Checkbox
+                id="alert-simulation-simple-use-historical-window"
                 checked={sUseHistory}
-                onChange={(e) => setSUseHistory(e.target.checked)}
+                onCheckedChange={(checked) => setSUseHistory(checked === true)}
               />
-              Use historical window (recent reviews)
-            </label>
-            <button
+              <Label htmlFor="alert-simulation-simple-use-historical-window">
+                Use historical window (recent reviews)
+              </Label>
+            </div>
+            <Button
               type="button"
+              variant="primary"
+              size="sm"
+              data-testid="alert-simulation-simple-submit"
               onClick={() => void runSimple()}
               disabled={loading}
               title={alertSimulationRunControlTitle}
-              className={`px-4 py-2.5 ${loading ? "cursor-wait" : "cursor-pointer"}`}
             >
               {loading ? "Running…" : "Simulate"}
-            </button>
+            </Button>
           </div>
           </section>
           <section aria-labelledby="sim-simple-behavior-heading" className="mt-6">
@@ -480,20 +504,22 @@ export function AlertSimulationContent() {
               Simulation inputs
             </h3>
             <div className="grid max-w-3xl gap-3">
-            <label>
-              Name
-              <input
+            <div>
+              <Label htmlFor="alert-simulation-composite-name">Name</Label>
+              <Input
+                id="alert-simulation-composite-name"
                 value={cName}
                 onChange={(e) => setCName(e.target.value)}
-                className="mt-1 block w-full p-2"
+                className="mt-1"
               />
-            </label>
-            <label>
-              Severity
+            </div>
+            <div>
+              <Label htmlFor="alert-simulation-composite-severity">Severity</Label>
               <select
+                id="alert-simulation-composite-severity"
                 value={cSeverity}
                 onChange={(e) => setCSeverity(e.target.value)}
-                className="mt-1 block w-full p-2"
+                className={ALERT_TOOLING_FORM_SELECT_CLASS}
               >
                 {SEVERITIES.map((s) => (
                   <option key={s} value={s}>
@@ -501,119 +527,177 @@ export function AlertSimulationContent() {
                   </option>
                 ))}
               </select>
-            </label>
-            <label>
-              Join
+            </div>
+            <div>
+              <Label htmlFor="alert-simulation-composite-join">Join</Label>
               <select
+                id="alert-simulation-composite-join"
                 value={cJoin}
                 onChange={(e) => setCJoin(e.target.value)}
-                className="mt-1 block w-full p-2"
+                className={ALERT_TOOLING_FORM_SELECT_CLASS}
               >
                 <option value="And">All (AND)</option>
                 <option value="Or">Any (OR)</option>
               </select>
-            </label>
+            </div>
             <div className="grid grid-cols-2 gap-3">
-              <label>
-                Suppression window (min)
-                <input
+              <div>
+                <Label htmlFor="alert-simulation-composite-suppression-window">Suppression window (min)</Label>
+                <Input
+                  id="alert-simulation-composite-suppression-window"
                   type="number"
                   value={cSuppression}
                   onChange={(e) => setCSuppression(Number(e.target.value))}
-                  className="mt-1 block w-full p-2"
+                  className="mt-1"
                 />
-              </label>
-              <label>
-                Cooldown (min)
-                <input
+              </div>
+              <div>
+                <Label htmlFor="alert-simulation-composite-cooldown">Cooldown (min)</Label>
+                <Input
+                  id="alert-simulation-composite-cooldown"
                   type="number"
                   value={cCooldown}
                   onChange={(e) => setCCooldown(Number(e.target.value))}
-                  className="mt-1 block w-full p-2"
+                  className="mt-1"
                 />
-              </label>
+              </div>
             </div>
-            <label>
-              Dedupe scope
+            <div>
+              <Label htmlFor="alert-simulation-composite-dedupe-scope">Dedupe scope</Label>
               <select
+                id="alert-simulation-composite-dedupe-scope"
                 value={cDedupe}
                 onChange={(e) => setCDedupe(e.target.value)}
-                className="mt-1 block w-full p-2"
+                className={ALERT_TOOLING_FORM_SELECT_CLASS}
               >
                 <option value="RuleOnly">Rule only</option>
                 <option value="RuleAndRun">Rule + review</option>
                 <option value="RuleAndComparison">Rule + review + comparison</option>
               </select>
-            </label>
+            </div>
             <p className="m-0 font-semibold">Condition 1</p>
             <div className="grid grid-cols-3 gap-2">
-              <select value={cM1} onChange={(e) => setCM1(e.target.value)}>
-                {METRICS.map((m) => (
-                  <option key={m.value} value={m.value}>
-                    {m.label}
-                  </option>
-                ))}
-              </select>
-              <select value={cO1} onChange={(e) => setCO1(e.target.value)}>
-                {COND_OPS.map((o) => (
-                  <option key={o.value} value={o.value}>
-                    {o.label}
-                  </option>
-                ))}
-              </select>
-              <input type="number" value={cV1} onChange={(e) => setCV1(Number(e.target.value))} />
+              <div>
+                <Label htmlFor="alert-simulation-composite-c1-metric">Metric</Label>
+                <select
+                  id="alert-simulation-composite-c1-metric"
+                  value={cM1}
+                  onChange={(e) => setCM1(e.target.value)}
+                  className={ALERT_TOOLING_FORM_SELECT_CLASS}
+                >
+                  {METRICS.map((m) => (
+                    <option key={m.value} value={m.value}>
+                      {m.label}
+                    </option>
+                  ))}
+                </select>
+              </div>
+              <div>
+                <Label htmlFor="alert-simulation-composite-c1-operator">Operator</Label>
+                <select
+                  id="alert-simulation-composite-c1-operator"
+                  value={cO1}
+                  onChange={(e) => setCO1(e.target.value)}
+                  className={ALERT_TOOLING_FORM_SELECT_CLASS}
+                >
+                  {COND_OPS.map((o) => (
+                    <option key={o.value} value={o.value}>
+                      {o.label}
+                    </option>
+                  ))}
+                </select>
+              </div>
+              <div>
+                <Label htmlFor="alert-simulation-composite-c1-threshold">Threshold</Label>
+                <Input
+                  id="alert-simulation-composite-c1-threshold"
+                  type="number"
+                  value={cV1}
+                  onChange={(e) => setCV1(Number(e.target.value))}
+                  className="mt-1"
+                />
+              </div>
             </div>
             <p className="m-0 font-semibold">Condition 2</p>
             <div className="grid grid-cols-3 gap-2">
-              <select value={cM2} onChange={(e) => setCM2(e.target.value)}>
-                {METRICS.map((m) => (
-                  <option key={m.value} value={m.value}>
-                    {m.label}
-                  </option>
-                ))}
-              </select>
-              <select value={cO2} onChange={(e) => setCO2(e.target.value)}>
-                {COND_OPS.map((o) => (
-                  <option key={o.value} value={o.value}>
-                    {o.label}
-                  </option>
-                ))}
-              </select>
-              <input type="number" value={cV2} onChange={(e) => setCV2(Number(e.target.value))} />
+              <div>
+                <Label htmlFor="alert-simulation-composite-c2-metric">Metric</Label>
+                <select
+                  id="alert-simulation-composite-c2-metric"
+                  value={cM2}
+                  onChange={(e) => setCM2(e.target.value)}
+                  className={ALERT_TOOLING_FORM_SELECT_CLASS}
+                >
+                  {METRICS.map((m) => (
+                    <option key={m.value} value={m.value}>
+                      {m.label}
+                    </option>
+                  ))}
+                </select>
+              </div>
+              <div>
+                <Label htmlFor="alert-simulation-composite-c2-operator">Operator</Label>
+                <select
+                  id="alert-simulation-composite-c2-operator"
+                  value={cO2}
+                  onChange={(e) => setCO2(e.target.value)}
+                  className={ALERT_TOOLING_FORM_SELECT_CLASS}
+                >
+                  {COND_OPS.map((o) => (
+                    <option key={o.value} value={o.value}>
+                      {o.label}
+                    </option>
+                  ))}
+                </select>
+              </div>
+              <div>
+                <Label htmlFor="alert-simulation-composite-c2-threshold">Threshold</Label>
+                <Input
+                  id="alert-simulation-composite-c2-threshold"
+                  type="number"
+                  value={cV2}
+                  onChange={(e) => setCV2(Number(e.target.value))}
+                  className="mt-1"
+                />
+              </div>
             </div>
-            <label>
-              Recent review count
-              <input
+            <div>
+              <Label htmlFor="alert-simulation-composite-recent-count">Recent review count</Label>
+              <Input
+                id="alert-simulation-composite-recent-count"
                 type="number"
                 min={1}
                 max={50}
                 value={cRecent}
                 onChange={(e) => setCRecent(Number(e.target.value))}
-                className="mt-1 block w-full p-2"
+                className="mt-1"
               />
-            </label>
-            <label>
-              Workspace project slug
-              <input
+            </div>
+            <div>
+              <Label htmlFor="alert-simulation-composite-project-slug">Workspace project slug</Label>
+              <Input
+                id="alert-simulation-composite-project-slug"
                 value={cSlug}
                 onChange={(e) => setCSlug(e.target.value)}
                 placeholder={ALERT_SIMULATION_PROJECT_SLUG_PLACEHOLDER}
-                className="mt-1 block w-full p-2"
+                className="mt-1"
                 data-testid="alert-simulation-composite-project-slug"
               />
               <span className={cn("mt-1 block text-neutral-600 dark:text-neutral-400", OPERATOR_TYPOGRAPHY.helper)}>
                 {ALERT_SIMULATION_PROJECT_SLUG_HELPER}
               </span>
-            </label>
-            <button
+            </div>
+            <Button
               type="button"
+              variant="primary"
+              size="sm"
+              data-testid="alert-simulation-composite-submit"
               onClick={() => void runComposite()}
               disabled={loading}
               title={alertSimulationRunControlTitle}
-              className={`px-4 py-2.5 ${loading ? "cursor-wait" : "cursor-pointer"}`}
             >
               {loading ? "Running…" : "Simulate"}
-            </button>
+            </Button>
           </div>
           </section>
           <section aria-labelledby="sim-composite-behavior-heading" className="mt-6">
@@ -641,20 +725,22 @@ export function AlertSimulationContent() {
               Same rule type and severity; only thresholds differ. Useful for tuning (e.g. 10 vs 20).
             </p>
             <div className="grid max-w-[640px] gap-3">
-            <label>
-              Name
-              <input
+            <div>
+              <Label htmlFor="alert-simulation-compare-name">Name</Label>
+              <Input
+                id="alert-simulation-compare-name"
                 value={cmpName}
                 onChange={(e) => setCmpName(e.target.value)}
-                className="mt-1 block w-full p-2"
+                className="mt-1"
               />
-            </label>
-            <label>
-              Rule type
+            </div>
+            <div>
+              <Label htmlFor="alert-simulation-compare-rule-type">Rule type</Label>
               <select
+                id="alert-simulation-compare-rule-type"
                 value={cmpRuleType}
                 onChange={(e) => setCmpRuleType(e.target.value)}
-                className="mt-1 block w-full p-2"
+                className={ALERT_TOOLING_FORM_SELECT_CLASS}
               >
                 {SIMPLE_RULE_TYPES.map((r) => (
                   <option key={r.value} value={r.value}>
@@ -662,13 +748,14 @@ export function AlertSimulationContent() {
                   </option>
                 ))}
               </select>
-            </label>
-            <label>
-              Severity
+            </div>
+            <div>
+              <Label htmlFor="alert-simulation-compare-severity">Severity</Label>
               <select
+                id="alert-simulation-compare-severity"
                 value={cmpSeverity}
                 onChange={(e) => setCmpSeverity(e.target.value)}
-                className="mt-1 block w-full p-2"
+                className={ALERT_TOOLING_FORM_SELECT_CLASS}
               >
                 {SEVERITIES.map((s) => (
                   <option key={s} value={s}>
@@ -676,58 +763,64 @@ export function AlertSimulationContent() {
                   </option>
                 ))}
               </select>
-            </label>
-            <label>
-              Candidate A threshold
-              <input
+            </div>
+            <div>
+              <Label htmlFor="alert-simulation-compare-threshold-a">Candidate A threshold</Label>
+              <Input
+                id="alert-simulation-compare-threshold-a"
                 type="number"
                 value={cmpA}
                 onChange={(e) => setCmpA(Number(e.target.value))}
-                className="mt-1 block w-full p-2"
+                className="mt-1"
               />
-            </label>
-            <label>
-              Candidate B threshold
-              <input
+            </div>
+            <div>
+              <Label htmlFor="alert-simulation-compare-threshold-b">Candidate B threshold</Label>
+              <Input
+                id="alert-simulation-compare-threshold-b"
                 type="number"
                 value={cmpB}
                 onChange={(e) => setCmpB(Number(e.target.value))}
-                className="mt-1 block w-full p-2"
+                className="mt-1"
               />
-            </label>
-            <label>
-              Recent review count
-              <input
+            </div>
+            <div>
+              <Label htmlFor="alert-simulation-compare-recent-count">Recent review count</Label>
+              <Input
+                id="alert-simulation-compare-recent-count"
                 type="number"
                 min={1}
                 max={50}
                 value={cmpRecent}
                 onChange={(e) => setCmpRecent(Number(e.target.value))}
-                className="mt-1 block w-full p-2"
+                className="mt-1"
               />
-            </label>
-            <label>
-              Workspace project slug
-              <input
+            </div>
+            <div>
+              <Label htmlFor="alert-simulation-compare-project-slug">Workspace project slug</Label>
+              <Input
+                id="alert-simulation-compare-project-slug"
                 value={cmpSlug}
                 onChange={(e) => setCmpSlug(e.target.value)}
                 placeholder={ALERT_SIMULATION_PROJECT_SLUG_PLACEHOLDER}
-                className="mt-1 block w-full p-2"
+                className="mt-1"
                 data-testid="alert-simulation-compare-project-slug"
               />
               <span className={cn("mt-1 block text-neutral-600 dark:text-neutral-400", OPERATOR_TYPOGRAPHY.helper)}>
                 {ALERT_SIMULATION_PROJECT_SLUG_HELPER}
               </span>
-            </label>
-            <button
+            </div>
+            <Button
               type="button"
+              variant="primary"
+              size="sm"
+              data-testid="alert-simulation-compare-submit"
               onClick={() => void runCompare()}
               disabled={loading}
               title={alertSimulationRunControlTitle}
-              className={`px-4 py-2.5 ${loading ? "cursor-wait" : "cursor-pointer"}`}
             >
               {loading ? "Running…" : "Compare candidates"}
-            </button>
+            </Button>
           </div>
           </section>
           <section aria-labelledby="sim-compare-behavior-heading" className="mt-6">
