@@ -127,6 +127,33 @@ def test_configuration_reference_help_is_excluded_from_buyer_ux_ranking() -> Non
     assert lowest_ux_buyer_rows(rows, limit=10) == [rows[1]]
 
 
+def test_demo_explain_is_excluded_from_buyer_ux_ranking() -> None:
+    dex_row = {
+        "id": "DEX",
+        "path": "/demo/explain",
+        "pct": "0%",
+        "score": "58,74",
+        "section": "Internal",
+        "notes": "Internal demo explain",
+    }
+
+    assert not is_buyer_facing_ux_row(dex_row)
+
+    rows = [
+        dex_row,
+        {
+            "id": "HOM",
+            "path": "/",
+            "pct": "3%",
+            "score": "74,80",
+            "section": "Core review",
+            "notes": "Home",
+        },
+    ]
+
+    assert lowest_ux_buyer_rows(rows, limit=10) == [rows[1]]
+
+
 def test_internal_section_rows_are_excluded_from_buyer_ux_ranking() -> None:
     row = {
         "id": "FOO",

@@ -40,6 +40,11 @@ def test_discover_tab_paths_includes_architecture_workspace_tabs() -> None:
     assert "/advisory?tab=scans" not in tab_paths
 
 
+def test_build_catalog_classifies_demo_explain_as_internal() -> None:
+    catalog = build_catalog()
+    assert catalog["/demo/explain"].section == "Internal"
+
+
 def test_build_catalog_classifies_architecture_intelligence_as_core_review() -> None:
     catalog = build_catalog()
     assert catalog["/architecture/architecture-intelligence"].section == "Core review"

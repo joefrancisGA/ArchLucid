@@ -27,12 +27,16 @@ PREFERRED_NEW_ROW_IDS: dict[str, str] = {
     "/operate/architecture-graph": "OAX",
 }
 
-# Admin internal-runbook help topics excluded from buyer UX scoring (/al-ui-lowest).
-INTERNAL_UX_RANKING_HELP_PATHS: frozenset[str] = frozenset(
+# Routes outside `/internal` excluded from buyer UX scoring (/al-ui-lowest) and buyer traffic rollup.
+INTERNAL_UX_RANKING_EXCLUDED_PATHS: frozenset[str] = frozenset(
     {
         "/help/configuration-reference",
+        "/demo/explain",
     }
 )
+
+# Back-compat alias — name predates non-help exclusions (e.g. DEX).
+INTERNAL_UX_RANKING_HELP_PATHS = INTERNAL_UX_RANKING_EXCLUDED_PATHS
 
 # Legacy workbook paths → canonical catalog paths (scores and Hit% merge on collision).
 WORKBOOK_PATH_MIGRATIONS: dict[str, str] = {
@@ -345,12 +349,15 @@ def infer_section(path: str, *, help_alias_paths: set[str]) -> str:
     if _is_redirect_shim_path(path):
         return "Redirect shim"
 
+    if path in INTERNAL_UX_RANKING_EXCLUDED_PATHS:
+        return "Internal"
+
     if "?" in path:
         return "Tab surface"
     if path == "/help":
         return "Help hub"
     if path.startswith("/help/"):
-        if path in INTERNAL_UX_RANKING_HELP_PATHS:
+        if path in INTERNAL_UX_RANKING_EXCLUDED_PATHS:
             return "Internal"
         if path in help_alias_paths:
             return "Help alias"
@@ -412,7 +419,7 @@ def infer_section(path: str, *, help_alias_paths: set[str]) -> str:
         return "Onboarding"
     if path.startswith("/planning") or path.startswith("/graph") or path == "/compare":
         return "Planning"
-    if path in ("/why-archlucid", "/demo/explain"):
+    if path == "/why-archlucid":
         return "Learning"
     return "Marketing"
 

@@ -6,7 +6,7 @@ import re
 import shutil
 from pathlib import Path
 
-from archlucid_ui_route_catalog import INTERNAL_UX_RANKING_HELP_PATHS
+from archlucid_ui_route_catalog import INTERNAL_UX_RANKING_EXCLUDED_PATHS
 
 BACKTICK = chr(96)
 REPO_ROOT = Path(__file__).resolve().parents[2]
@@ -130,7 +130,7 @@ def is_internal_ux_ranking_path(path: str) -> bool:
     if is_internal_path(path):
         return True
 
-    return bare in INTERNAL_UX_RANKING_HELP_PATHS
+    return bare in INTERNAL_UX_RANKING_EXCLUDED_PATHS
 
 
 def is_internal_ux_section(section: str) -> bool:

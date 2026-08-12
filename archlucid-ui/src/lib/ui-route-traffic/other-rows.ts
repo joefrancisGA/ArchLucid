@@ -1,6 +1,12 @@
 import { ADVISORY_SCANS_HREF } from "@/lib/advisory-scans-route";
 import { CONFIGURATION_REFERENCE_HELP_PATH } from "@/lib/configuration-reference-help-route";
 import { DIGESTS_HUB_PATH } from "@/lib/digests-route-paths";
+import {
+  DEMO_EXPLAIN_TRAFFIC_NOTE,
+  DEMO_EXPLAIN_TRAFFIC_PATH,
+  DEMO_EXPLAIN_TRAFFIC_ROW_ID,
+  DEMO_EXPLAIN_TRAFFIC_SECTION,
+} from "@/lib/ui-route-traffic-demo-explain";
 import type { UiRouteTrafficRow } from "@/lib/ui-route-traffic/types";
 import {
   LEGACY_ARCHITECTURE_GRAPH_TRAFFIC_NOTE,
@@ -136,11 +142,11 @@ export const OTHER_TRAFFIC_ROWS: readonly UiRouteTrafficRow[] = [
   },
   /** Traffic workbook row ID for demo explain proof page. Owner backlog shorthand: DEX. */
   {
-    rowId: "DEX",
-    path: "/demo/explain",
-    section: "Learning",
-    note: "Demo explain (Learning) - DemoExplainPageView with PageContextualHelpButton (topic map evidence-trail; Category-1 registry), internal tooling orientation strip (full-operator shell), Learn more / claim-discipline orientation strip, example provenance graph + citations-bound explanation. Sibling WH = /why-archlucid; DPX = /demo/preview; DXX = /demo entry. Buyer-polished shell redirects to /see-it (TB-1322 IA-014). Demo/proof orientation — not a signed-record Sources trail.",
-    noteMustContain: ["DemoExplainPageView", "TB-1322", "/see-it"],
+    rowId: DEMO_EXPLAIN_TRAFFIC_ROW_ID,
+    path: DEMO_EXPLAIN_TRAFFIC_PATH,
+    section: DEMO_EXPLAIN_TRAFFIC_SECTION,
+    note: DEMO_EXPLAIN_TRAFFIC_NOTE,
+    noteMustContain: ["DemoExplainPageView", "TB-1322", "never scored as buyer Learning traffic"],
   },
   /** Traffic workbook row ID for Connect Azure securely help. Owner backlog shorthand: HC. */
   {
