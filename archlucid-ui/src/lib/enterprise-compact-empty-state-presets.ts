@@ -46,7 +46,14 @@ import { SHOWCASE_STATIC_DEMO_RUN_ID } from "@/lib/showcase-static-demo";
 import {
   buildOperatorFilteredEmptyCompact,
   buildOperatorHubZoneEmptyCompact,
+  buildOperatorPrerequisiteEmptyCompact,
 } from "@/lib/operator/operator-empty-state-kind-presets";
+import {
+  ACCOUNT_SECURITY_AUTH_GATE_MESSAGE,
+  ACCOUNT_SECURITY_DEMO_GATE_MESSAGE,
+} from "@/lib/account-security-page-copy";
+import { buildAuthSignInHref } from "@/lib/navigation/auth-sign-in-href";
+import { SETTINGS_ACCOUNT_SECURITY_PATH } from "@/lib/settings-admin-route-paths";
 
 /** Reviews list when the project has zero reviews. */
 export const RUNS_EMPTY_COMPACT: EnterpriseCompactEmptyStateProps = {
@@ -322,3 +329,24 @@ export const ALERTS_INBOX_HEALTHY_EMPTY_COMPACT: EnterpriseCompactEmptyStateProp
     },
   ],
 };
+
+/** Account security — frictionless demo workspace blocks personal sign-in management (prerequisite). */
+export const ACCOUNT_SECURITY_DEMO_BLOCKED_EMPTY_COMPACT: EnterpriseCompactEmptyStateProps =
+  buildOperatorPrerequisiteEmptyCompact("Full workspace account", {
+    testId: "account-security-demo-blocked-empty-state",
+    description: ACCOUNT_SECURITY_DEMO_GATE_MESSAGE,
+  });
+
+/** Account security — signed-in platform account required before listing sign-in methods (prerequisite). */
+export const ACCOUNT_SECURITY_AUTH_REQUIRED_EMPTY_COMPACT: EnterpriseCompactEmptyStateProps =
+  buildOperatorPrerequisiteEmptyCompact("Signed-in ArchLucid account", {
+    testId: "account-security-auth-required-empty-state",
+    description: ACCOUNT_SECURITY_AUTH_GATE_MESSAGE,
+    actions: [
+      {
+        label: "Sign in",
+        href: buildAuthSignInHref({ returnPath: SETTINGS_ACCOUNT_SECURITY_PATH }),
+        variant: "primary",
+      },
+    ],
+  });

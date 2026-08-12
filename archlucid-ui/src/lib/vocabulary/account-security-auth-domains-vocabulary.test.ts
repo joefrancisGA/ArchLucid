@@ -17,7 +17,7 @@ describe("account-security-auth-domains-vocabulary (TB-2293)", () => {
     const model = buildAccountSecurityAuthDomainsVocabulary();
 
     expect(model.heading).toBe(ACCOUNT_SECURITY_AUTH_DOMAINS_HEADING);
-    expect(model.heading.toLowerCase()).toContain("account security");
+    expect(model.heading.toLowerCase()).toContain("sign-in methods");
     expect(model.heading.toLowerCase()).toContain("sign-in domains");
     expect(model.whyTwo).toBe(ACCOUNT_SECURITY_AUTH_DOMAINS_WHY_TWO);
     expect(model.whyTwo.toLowerCase()).toContain("sign-in methods");
@@ -25,6 +25,7 @@ describe("account-security-auth-domains-vocabulary (TB-2293)", () => {
     expect(model.compactLine).toBe(ACCOUNT_SECURITY_AUTH_DOMAINS_COMPACT_LINE);
 
     expect(model.accountSecurityLink).toEqual(ACCOUNT_SECURITY_AUTH_DOMAINS_SECURITY_LINK);
+    expect(model.accountSecurityLink.label).toBe("Sign-in methods");
     expect(model.accountSecurityLink.href).toBe(SETTINGS_ACCOUNT_SECURITY_PATH);
     expect(model.accountSecurityLink.href).toBe("/administration/account-security");
 

@@ -4,7 +4,9 @@ import Link from "next/link";
 import { useCallback, useEffect, useRef, useState } from "react";
 
 import { AccountSecurityAuthDomainsVocabularyRail } from "@/components/AccountSecurityAuthDomainsVocabularyRail";
+import { EnterpriseCompactEmptyState } from "@/components/EnterpriseCompactEmptyState";
 import { OperatorPageHeader } from "@/components/operator/OperatorPageHeader";
+import { OperatorPageBreadcrumb } from "@/components/operator/OperatorPageBreadcrumb";
 import { BooleanStatusChip } from "@/components/ui/boolean-status-chip";
 import { Button } from "@/components/ui/button";
 import { Card, CardContent, CardHeader, CardTitle } from "@/components/ui/card";
@@ -12,12 +14,18 @@ import { Input } from "@/components/ui/input";
 import { Skeleton } from "@/components/ui/skeleton";
 import { StatusTag } from "@/components/ui/status-tag";
 import { PageContextualHelpButton } from "@/components/usability/PageContextualHelpButton";
+import { ACCOUNT_SETTINGS_MENU_ARIA_LABEL } from "@/components/shell/AccountSettingsMenu";
 import { DESIGN_TOKENS, OPERATOR_TYPOGRAPHY } from "@/lib/design-tokens";
 import {
-  ACCOUNT_SECURITY_AUTH_GATE_MESSAGE,
+  ACCOUNT_SECURITY_DEMO_GATE_MESSAGE,
   ACCOUNT_SECURITY_PAGE_SUBTITLE,
   ACCOUNT_SECURITY_PAGE_TITLE,
+  ACCOUNT_SECURITY_RECENT_AUTH_LIST_UNAVAILABLE,
 } from "@/lib/account-security-page-copy";
+import {
+  ACCOUNT_SECURITY_AUTH_REQUIRED_EMPTY_COMPACT,
+  ACCOUNT_SECURITY_DEMO_BLOCKED_EMPTY_COMPACT,
+} from "@/lib/enterprise-compact-empty-state-presets";
 import { readFrictionlessTrialSessionEnabled } from "@/lib/frictionless-trial-session";
 import { formatInstantForLocale } from "@/lib/locale-datetime";
 import {
@@ -39,6 +47,8 @@ import {
   msUntilExpiry,
   type SignInMethodsProblem,
 } from "@/lib/sign-in-methods-problem";
+import { buildAuthSignInHref } from "@/lib/navigation/auth-sign-in-href";
+import { SETTINGS_ACCOUNT_SECURITY_PATH } from "@/lib/settings-admin-route-paths";
 import { appSiteHref } from "@/lib/site-urls";
 import { resolveSignInMethodRemoveBlockedReason } from "@/lib/sign-in-method-remove-blocked-copy";
 import { cn } from "@/lib/utils";
@@ -47,12 +57,30 @@ import {
   ACCOUNT_SECURITY_REMOVE_WARNING,
   AccountSecurityRemoveDialog,
 } from "./AccountSecurityRemoveDialog";
+
 type FeedbackTone = "success" | "blocked" | "warn" | "info";
 
 type CardFeedback = {
   readonly tone: FeedbackTone;
   readonly message: string;
 };
+
+function accountSecuritySignInHref(): string {
+  return appSiteHref(
+    buildAuthSignInHref({
+      returnPath: SETTINGS_ACCOUNT_SECURITY_PATH,
+    }),
+  );
+}
+
+function accountSecuritySignInAgainHref(): string {
+  return appSiteHref(
+    buildAuthSignInHref({
+      reason: "session-expired",
+      returnPath: SETTINGS_ACCOUNT_SECURITY_PATH,
+    }),
+  );
+}
 
 function calloutClassForTone(tone: FeedbackTone): string {
   switch (tone) {
@@ -120,6 +148,7 @@ export function AccountSecurityPageClient() {
 
   const codeInputRef = useRef<HTMLInputElement>(null);
   const frictionless = typeof window !== "undefined" && readFrictionlessTrialSessionEnabled();
+  const isDemoSession = frictionless || gateProblem?.kind === "demo-session-blocked";
 
   const emailValid = isPlausibleEmailAddress(addEmail);
   const codeValid = isSixDigitVerificationCode(verificationCode);
@@ -127,9 +156,10 @@ export function AccountSecurityPageClient() {
   const proposalExpired = proposalRemainingMs !== null && proposalRemainingMs <= 0;
   const resendCooldownMs = Math.max(0, resendCooldownUntilMs - nowMs);
   const blockedForAuth =
+    isDemoSession ||
     gateProblem?.kind === "unauthorized-platform-user" ||
-    gateProblem?.kind === "recent-auth-required" ||
-    frictionless;
+    gateProblem?.kind === "recent-auth-required";
+  const showRecentAuthGateCallout = gateProblem?.kind === "recent-auth-required";
 
   const refreshMethods = useCallback(async (options?: { readonly preserveListFeedback?: boolean }) => {
     setLoading(true);
@@ -140,8 +170,8 @@ export function AccountSecurityPageClient() {
 
     if (readFrictionlessTrialSessionEnabled()) {
       setGateProblem({
-        kind: "unauthorized-platform-user",
-        message: ACCOUNT_SECURITY_AUTH_GATE_MESSAGE,
+        kind: "demo-session-blocked",
+        message: ACCOUNT_SECURITY_DEMO_GATE_MESSAGE,
       });
       setMethods([]);
       setListLoaded(false);
@@ -321,16 +351,18 @@ export function AccountSecurityPageClient() {
     }
   }
 
-  const authActions = (
-    <>
-      <Button type="button" size="sm" variant="primary" asChild>
-        <Link href={appSiteHref("/auth/signin")}>Sign in</Link>
-      </Button>
-      <Button type="button" size="sm" variant="outline" asChild>
-        <Link href="/signup">Start an evaluation</Link>
-      </Button>
-    </>
-  );
+  const authBlockedEmptyProps = isDemoSession
+    ? ACCOUNT_SECURITY_DEMO_BLOCKED_EMPTY_COMPACT
+    : {
+        ...ACCOUNT_SECURITY_AUTH_REQUIRED_EMPTY_COMPACT,
+        actions: [
+          {
+            label: "Sign in",
+            href: accountSecuritySignInHref(),
+            variant: "primary" as const,
+          },
+        ],
+      };
 
   return (
     <div className="w-full max-w-[62rem] space-y-6" data-testid="account-security-page">
@@ -338,21 +370,26 @@ export function AccountSecurityPageClient() {
         title={ACCOUNT_SECURITY_PAGE_TITLE}
         subtitle={ACCOUNT_SECURITY_PAGE_SUBTITLE}
         titleTestId="account-security-page-title"
+        breadcrumb={
+          <OperatorPageBreadcrumb
+            data-testid="account-security-page-breadcrumb"
+            items={[
+              { label: ACCOUNT_SETTINGS_MENU_ARIA_LABEL },
+              { label: ACCOUNT_SECURITY_PAGE_TITLE },
+            ]}
+          />
+        }
         actions={<PageContextualHelpButton />}
       />
       <AccountSecurityAuthDomainsVocabularyRail currentSurfaceId="account-security" />
-{gateProblem ? (
+      {showRecentAuthGateCallout && gateProblem !== null ? (
         <FeedbackCallout
           feedback={problemToFeedback(gateProblem)}
           testId="account-security-auth-gate"
           actions={
-            gateProblem.kind === "recent-auth-required" ? (
-              <Button type="button" size="sm" variant="primary" asChild>
-                <Link href={appSiteHref("/auth/signin")}>Sign in again</Link>
-              </Button>
-            ) : (
-              authActions
-            )
+            <Button type="button" size="sm" variant="primary" asChild>
+              <Link href={accountSecuritySignInAgainHref()}>Sign in again</Link>
+            </Button>
           }
         />
       ) : null}
@@ -381,9 +418,14 @@ export function AccountSecurityPageClient() {
               <Skeleton className="h-16 w-full" />
               <Skeleton className="h-16 w-full" />
             </div>
-          ) : blockedForAuth ? (
-            <p className={cn("m-0 text-al-text-secondary", OPERATOR_TYPOGRAPHY.body)}>
-              Sign-in methods appear here after you sign in to an ArchLucid account.
+          ) : blockedForAuth && !showRecentAuthGateCallout ? (
+            <EnterpriseCompactEmptyState {...authBlockedEmptyProps} />
+          ) : showRecentAuthGateCallout && !listLoaded ? (
+            <p
+              className={cn("m-0 text-al-text-secondary", OPERATOR_TYPOGRAPHY.body)}
+              data-testid="sign-in-methods-recent-auth-unavailable"
+            >
+              {ACCOUNT_SECURITY_RECENT_AUTH_LIST_UNAVAILABLE}
             </p>
           ) : listLoaded && methods.length === 0 ? (
             <div className="space-y-2">

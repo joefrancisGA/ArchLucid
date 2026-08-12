@@ -45,4 +45,12 @@ describe("isNavLinkActive", () => {
     ).toBe(true);
     expect(isNavLinkActive("/governance/policy-packs", "/governance/approval-queue")).toBe(false);
   });
+
+  it("does not highlight settings hub for personal account-menu destinations", () => {
+    expect(isNavLinkActive("/administration/account-security", "/administration")).toBe(false);
+    expect(isNavLinkActive("/administration/preferences", "/administration")).toBe(false);
+    expect(isNavLinkActive("/administration/notifications", "/administration")).toBe(false);
+    expect(isNavLinkActive("/administration/tenant", "/administration")).toBe(true);
+    expect(isNavLinkActive("/administration", "/administration")).toBe(true);
+  });
 });

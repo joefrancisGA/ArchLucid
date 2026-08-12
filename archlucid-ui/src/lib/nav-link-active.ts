@@ -3,6 +3,8 @@ import {
   REVIEWS_LIST_PATH,
   REVIEWS_NEW_PATH,
 } from "@/lib/architecture/architecture-routes";
+import { isSelfSettingsPath } from "@/lib/self-settings-destinations";
+import { SETTINGS_ROOT_PATH } from "@/lib/settings-admin-route-paths";
 
 /**
  * Whether a sidebar / drawer link should show the active style for the current pathname.
@@ -37,6 +39,14 @@ export function isNavLinkActive(pathname: string, href: string): boolean {
       pathname === "/governance/approval-queue" ||
       pathname.startsWith("/governance/approval-requests/")
     );
+  }
+
+  if (pathPart === SETTINGS_ROOT_PATH) {
+    if (isSelfSettingsPath(pathname)) {
+      return false;
+    }
+
+    return pathname === SETTINGS_ROOT_PATH || pathname.startsWith(`${SETTINGS_ROOT_PATH}/`);
   }
 
   return pathname === pathPart || pathname.startsWith(`${pathPart}/`);

@@ -10,7 +10,12 @@ import {
   verifyEmailLinkChallenge,
 } from "@/lib/sign-in-methods-api";
 import { SignInMethodsApiError } from "@/lib/sign-in-methods-problem";
-import { ACCOUNT_SECURITY_AUTH_GATE_MESSAGE } from "@/lib/account-security-page-copy";
+import {
+  ACCOUNT_SECURITY_AUTH_GATE_MESSAGE,
+  ACCOUNT_SECURITY_DEMO_GATE_MESSAGE,
+  ACCOUNT_SECURITY_RECENT_AUTH_LIST_UNAVAILABLE,
+} from "@/lib/account-security-page-copy";
+import { SETTINGS_ACCOUNT_SECURITY_PATH } from "@/lib/settings-admin-route-paths";
 import {
   SIGN_IN_METHOD_LAST_REMAINING_BLOCKED_REASON,
 } from "@/lib/sign-in-method-remove-blocked-copy";
@@ -62,7 +67,7 @@ describe("AccountSecurityPageClient", () => {
     vi.clearAllMocks();
   });
 
-  it("shows auth gate without dumping ProblemDetails JSON or a fake empty list", async () => {
+  it("shows auth prerequisite empty with return-path sign-in and no top gate callout", async () => {
     vi.mocked(fetchSignInMethods).mockRejectedValue(
       new SignInMethodsApiError({
         kind: "unauthorized-platform-user",
@@ -72,23 +77,76 @@ describe("AccountSecurityPageClient", () => {
 
     render(<AccountSecurityPageClient />);
 
-    const gate = await screen.findByTestId("account-security-auth-gate");
+    const emptyState = await screen.findByTestId("account-security-auth-required-empty-state");
 
-    expect(gate.textContent).not.toContain("{");
-    expect(gate.textContent).not.toContain("correlationId");
+    expect(emptyState.textContent).not.toContain("{");
+    expect(emptyState.textContent).not.toContain("correlationId");
+    expect(emptyState).toHaveTextContent(ACCOUNT_SECURITY_AUTH_GATE_MESSAGE);
     expect(screen.queryByText("No sign-in methods are linked yet.")).not.toBeInTheDocument();
     expect(screen.queryByTestId("add-sign-in-method-card")).not.toBeInTheDocument();
-    expect(screen.getByRole("link", { name: "Sign in" })).toBeInTheDocument();
+    expect(screen.queryByTestId("account-security-auth-gate")).not.toBeInTheDocument();
+
+    const signInLink = screen.getByRole("link", { name: "Sign in" });
+
+    expect(signInLink).toHaveAttribute(
+      "href",
+      expect.stringContaining(`returnUrl=${encodeURIComponent(SETTINGS_ACCOUNT_SECURITY_PATH)}`),
+    );
+    expect(screen.queryByRole("link", { name: "Start an evaluation" })).not.toBeInTheDocument();
+    expect(screen.queryByRole("link", { name: /signup/i })).not.toBeInTheDocument();
   });
 
-  it("gates early when frictionless trial session is active", async () => {
+  it("shows demo-scoped prerequisite empty without a not-signed-in assertion", async () => {
     frictionlessMock.enabled = true;
 
     render(<AccountSecurityPageClient />);
 
-    expect(await screen.findByTestId("account-security-auth-gate")).toBeInTheDocument();
+    const emptyState = await screen.findByTestId("account-security-demo-blocked-empty-state");
+
+    expect(emptyState).toHaveTextContent(ACCOUNT_SECURITY_DEMO_GATE_MESSAGE);
+    expect(emptyState.textContent?.toLowerCase()).not.toContain("not signed in");
+    expect(screen.queryByTestId("account-security-auth-gate")).not.toBeInTheDocument();
+    expect(screen.queryByRole("link", { name: "Sign in" })).not.toBeInTheDocument();
     expect(fetchSignInMethods).not.toHaveBeenCalled();
     expect(screen.queryByTestId("account-security-send-code")).not.toBeInTheDocument();
+  });
+
+  it("shows recent-auth gate callout with return-path sign-in again", async () => {
+    vi.mocked(fetchSignInMethods).mockRejectedValue(
+      new SignInMethodsApiError({
+        kind: "recent-auth-required",
+        message: "Recent authentication is required. Sign in again and retry.",
+      }),
+    );
+
+    render(<AccountSecurityPageClient />);
+
+    const gate = await screen.findByTestId("account-security-auth-gate");
+
+    expect(gate).toHaveTextContent(/Recent authentication/i);
+    expect(screen.queryByTestId("account-security-auth-required-empty-state")).not.toBeInTheDocument();
+
+    const signInAgainLink = screen.getByRole("link", { name: "Sign in again" });
+
+    expect(signInAgainLink).toHaveAttribute(
+      "href",
+      expect.stringContaining(`returnUrl=${encodeURIComponent(SETTINGS_ACCOUNT_SECURITY_PATH)}`),
+    );
+
+    expect(screen.getByTestId("sign-in-methods-recent-auth-unavailable")).toHaveTextContent(
+      ACCOUNT_SECURITY_RECENT_AUTH_LIST_UNAVAILABLE,
+    );
+  });
+
+  it("renders personal-settings breadcrumb trail", async () => {
+    vi.mocked(fetchSignInMethods).mockResolvedValue([]);
+
+    render(<AccountSecurityPageClient />);
+
+    const breadcrumb = await screen.findByTestId("account-security-page-breadcrumb");
+
+    expect(breadcrumb).toHaveTextContent("Your account settings");
+    expect(breadcrumb).toHaveTextContent("Sign-in methods");
   });
 
   it("shows empty copy only after a successful empty list load", async () => {

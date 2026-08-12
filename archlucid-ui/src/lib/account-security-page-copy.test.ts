@@ -42,6 +42,7 @@ describe("account-security-page-copy (TB-1881)", () => {
       readUiSource("src/app/(operator)/administration/account-security/AccountSecurityPageClient.tsx"),
       readUiSource("src/lib/self-settings-destinations.ts"),
       readUiSource("src/lib/account-security-settings-evidence-copy.ts"),
+      readUiSource("src/lib/vocabulary/account-security-auth-domains-vocabulary.ts"),
       accountSecurityHelpCopy(),
       pageHelpTopicForPathname("/administration/account-security")?.label ?? "",
     ].join("\n");
@@ -52,7 +53,7 @@ describe("account-security-page-copy (TB-1881)", () => {
 
     expect(sources).toContain(ACCOUNT_SECURITY_PAGE_TITLE);
     expect(readUiSource("src/app/(operator)/administration/account-security/AccountSecurityPageClient.tsx")).toContain(
-      "ACCOUNT_SECURITY_AUTH_GATE_MESSAGE",
+      "ACCOUNT_SECURITY_AUTH_REQUIRED_EMPTY_COMPACT",
     );
     expect(ACCOUNT_SECURITY_AUTH_GATE_MESSAGE).toContain("Sign-in methods");
   });

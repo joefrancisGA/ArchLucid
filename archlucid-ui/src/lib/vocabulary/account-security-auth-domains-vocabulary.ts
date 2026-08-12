@@ -1,14 +1,14 @@
 /**
- * TB-2293 — Account security ≠ Auth domains vocabulary rail.
+ * TB-2293 — Sign-in methods ≠ Auth domains vocabulary rail.
  *
  * Why two surfaces exist:
- * - Account security (`/administration/account-security`) manages sign-in methods for
- *   you and your workspace (email link, passkeys, linked identities).
+ * - Sign-in methods (`/administration/account-security`) manages linked identities for
+ *   you (email link, passkeys, linked identities).
  * - Auth domains (`/administration/auth-domains`) verifies tenant email-domain
- *   ownership and SSO enforcement readiness.
+ *   ownership and single sign-on enforcement readiness.
  *
  * They stay separate because personal sign-in methods are not the same job as
- * tenant-wide email-domain allowlists and SSO enforcement.
+ * tenant-wide email-domain allowlists and single sign-on enforcement.
  */
 
 import { AUTH_DOMAINS_SETTINGS_CANONICAL_PATH } from "@/lib/auth-domains-settings-evidence-copy";
@@ -32,17 +32,17 @@ export type AccountSecurityAuthDomainsVocabularyModel = {
 };
 
 export const ACCOUNT_SECURITY_AUTH_DOMAINS_HEADING =
-  "Account security and Sign-in domains do different jobs" as const;
+  "Sign-in methods and Sign-in domains do different jobs" as const;
 
 export const ACCOUNT_SECURITY_AUTH_DOMAINS_WHY_TWO =
-  "Account security manages your sign-in methods and linked identities. Sign-in domains verifies tenant email-domain ownership and SSO enforcement. Personal sign-in setup does not configure organization-wide domain allowlists." as const;
+  "Sign-in methods manages your linked identities and email one-time-code recovery. Sign-in domains verifies tenant email-domain ownership and single sign-on enforcement. Personal sign-in setup does not configure organization-wide domain allowlists." as const;
 
 export const ACCOUNT_SECURITY_AUTH_DOMAINS_COMPACT_LINE =
-  "Account security is your sign-in methods; Sign-in domains is tenant domain allowlist — open the other when you need that job." as const;
+  "Sign-in methods is your personal sign-in setup; Sign-in domains is tenant domain allowlist — open the other when you need that job." as const;
 
 export const ACCOUNT_SECURITY_AUTH_DOMAINS_SECURITY_LINK: AccountSecurityAuthDomainsLink = {
   id: "account-security",
-  label: "Account security",
+  label: "Sign-in methods",
   href: SETTINGS_ACCOUNT_SECURITY_PATH,
   whenToUse: "Manage sign-in methods and linked identities for your account.",
 };
@@ -51,7 +51,7 @@ export const ACCOUNT_SECURITY_AUTH_DOMAINS_DOMAINS_LINK: AccountSecurityAuthDoma
   id: "auth-domains",
   label: "Sign-in domains",
   href: AUTH_DOMAINS_SETTINGS_CANONICAL_PATH,
-  whenToUse: "Verify email domain ownership and enable SSO enforcement.",
+  whenToUse: "Verify email domain ownership and enable single sign-on enforcement.",
 };
 
 /** Full vocabulary model (heading, why-two copy, and deep links). */
