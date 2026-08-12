@@ -195,6 +195,7 @@ internal static class GoldenManifestPhase1RelationalRead
                 cancellationToken: ct))).ToList();
 
         Dictionary<string, List<string>> evidenceByDecision = new(StringComparer.Ordinal);
+
         foreach (DecisionEvidenceRow er in evidenceRows)
         {
             if (!evidenceByDecision.TryGetValue(er.DecisionId, out List<string>? list))
@@ -207,6 +208,7 @@ internal static class GoldenManifestPhase1RelationalRead
         }
 
         Dictionary<string, List<string>> nodesByDecision = new(StringComparer.Ordinal);
+
         foreach (DecisionNodeRow nr in nodeRows)
         {
             if (!nodesByDecision.TryGetValue(nr.DecisionId, out List<string>? list))
@@ -219,6 +221,7 @@ internal static class GoldenManifestPhase1RelationalRead
         }
 
         List<ResolvedArchitectureDecision> result = [];
+
         foreach (ManifestDecisionRow dr in decisionRows)
         {
             evidenceByDecision.TryGetValue(dr.DecisionId, out List<string>? ev);
