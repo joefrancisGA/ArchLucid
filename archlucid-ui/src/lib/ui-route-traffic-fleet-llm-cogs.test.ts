@@ -1,6 +1,6 @@
 import { describe, expect, it } from "vitest";
 
-import { extractMasterTableRows, readUiRouteTrafficEstimatesTemplateMarkdown } from "@/lib/testing/ui-route-traffic-workbook-test-utils";
+import { extractMasterTableRows, findTrafficRowById, readUiRouteTrafficEstimatesTemplateMarkdown } from "@/lib/testing/ui-route-traffic-workbook-test-utils";
 
 import {
   FLEET_LLM_COGS_TRAFFIC_NOTE,

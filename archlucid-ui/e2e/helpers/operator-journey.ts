@@ -483,6 +483,34 @@ function reviewDetailWorkspacePanel(page: Page, tab: ReviewDetailTabId): Locator
   return page.getByTestId(`review-detail-workspace-panel-${tab}`);
 }
 
+/** "More sections" collapses advanced workspace tabs — expand before clicking hidden triggers. */
+async function ensureReviewDetailWorkspaceTabTriggerVisible(
+  page: Page,
+  tab: ReviewDetailTabId,
+  options?: { timeoutMs?: number },
+): Promise<Locator> {
+  const timeout = options?.timeoutMs ?? 15_000;
+  const trigger = page.getByTestId(`review-detail-workspace-tab-${tab}`);
+
+  await expect(async () => {
+    if (!(await trigger.isVisible())) {
+      const moreTabs = page.getByTestId("review-detail-workspace-more-tabs");
+
+      if ((await moreTabs.count()) > 0) {
+        await moreTabs.first().evaluate((element) => {
+          if (element instanceof HTMLDetailsElement) {
+            element.open = true;
+          }
+        });
+      }
+    }
+
+    await expect(trigger).toBeVisible();
+  }).toPass({ timeout });
+
+  return trigger;
+}
+
 /** Radix tab panels hide inactive workspace content — open the tab before tab-scoped assertions. */
 export async function openReviewDetailWorkspaceTab(
   page: Page,
@@ -504,12 +532,13 @@ export async function openReviewDetailWorkspaceTab(
 
   // Prefer in-place tab activation — full page.goto drops cold-start scope races on demo/tenant shells.
   if (onRunDetail && (await trigger.count()) > 0) {
-    const dataState = await trigger.getAttribute("data-state");
-    const ariaCurrent = await trigger.getAttribute("aria-current");
+    const visibleTrigger = await ensureReviewDetailWorkspaceTabTriggerVisible(page, tab);
+    const dataState = await visibleTrigger.getAttribute("data-state");
+    const ariaCurrent = await visibleTrigger.getAttribute("aria-current");
     const alreadyActive = dataState === "active" || ariaCurrent === "page";
 
     if (!alreadyActive) {
-      await trigger.click();
+      await visibleTrigger.click();
     }
   } else {
     await page.goto(href);
@@ -671,31 +700,35 @@ export async function expectBuyerPipelineTimelineSectionVisible(
   options?: { timeoutMs?: number; runId?: string },
 ): Promise<void> {
   const timeout = options?.timeoutMs ?? 60_000;
-  const sectionNav = buyerPolishedReviewDetailSectionNav(page);
 
-  if ((await sectionNav.count()) > 0) {
-    await buyerPolishedReviewDetailSectionNavLink(sectionNav, "pipeline-timeline").click();
-  } else if (options?.runId !== undefined && options.runId.trim().length > 0) {
+  if (options?.runId !== undefined && options.runId.trim().length > 0) {
     await openReviewDetailWorkspaceTab(page, options.runId, "activity");
   } else {
-    await page.getByTestId("review-detail-workspace-tab-activity").click();
+    const activityTrigger = await ensureReviewDetailWorkspaceTabTriggerVisible(page, "activity", { timeoutMs: timeout });
+
+    await activityTrigger.click();
     await expect(reviewDetailWorkspacePanel(page, "activity")).toBeVisible({ timeout });
   }
 
+  const pipelineSection = page.locator("#pipeline-timeline");
+
+  await expect(pipelineSection).toBeVisible({ timeout });
+
   const collapsible = page.getByTestId("run-pipeline-timeline-collapsible");
 
-  await expect(collapsible).toBeVisible({ timeout });
-  await expect(
-    collapsible.locator("summary", { hasText: /Recent lifecycle events|Pipeline timeline/i }),
-  ).toBeVisible({ timeout });
+  if ((await collapsible.count()) > 0 && (await collapsible.isVisible())) {
+    await expect(
+      collapsible.locator("summary", { hasText: /Recent lifecycle events|Pipeline timeline/i }),
+    ).toBeVisible({ timeout });
 
-  const heading = page.locator("#pipeline-timeline").getByRole("heading", {
+    return;
+  }
+
+  const heading = pipelineSection.getByRole("heading", {
     name: /Recent lifecycle events|Pipeline timeline/i,
   });
 
-  if ((await heading.count()) > 0) {
-    await expect(heading.first()).toBeVisible({ timeout });
-  }
+  await expect(heading.first()).toBeVisible({ timeout });
 }
 
 /** Buyer-polished run detail collapses `#artifacts-exports` deliverables by default — expand before export assertions. */

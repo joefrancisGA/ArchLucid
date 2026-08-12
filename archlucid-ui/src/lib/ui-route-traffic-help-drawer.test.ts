@@ -10,16 +10,15 @@ import {
 } from "@/lib/ui-route-traffic-demo-entry";
 
 describe("ui-route-traffic-demo-entry (DXX)", () => {
-  it("tracks demo entry redirect with honest workbook notes", () => {
+  it("documents retired /demo entry shim when master table row is absent", () => {
     const rows = extractMasterTableRows(readUiRouteTrafficEstimatesTemplateMarkdown());
     const row = rows.find((candidate) => candidate.id === DEMO_ENTRY_TRAFFIC_ROW_ID);
 
-    expect(row).toBeDefined();
-    expect(row?.path).toBe(DEMO_ENTRY_TRAFFIC_PATH);
-    expect(row?.section).toBe(DEMO_ENTRY_TRAFFIC_SECTION);
-    expect(row?.notes).toBe(DEMO_ENTRY_TRAFFIC_NOTE);
-    expect(row?.notes).toContain("DemoEntryRedirect");
-    expect(row?.notes).toContain("Sources");
-    expect(row?.notes).toContain("cannot improve further toward 80");
+    expect(row).toBeUndefined();
+    expect(DEMO_ENTRY_TRAFFIC_PATH).toBe("/demo");
+    expect(DEMO_ENTRY_TRAFFIC_SECTION).toBe("Marketing");
+    expect(DEMO_ENTRY_TRAFFIC_NOTE).toContain("DemoEntryRedirect");
+    expect(DEMO_ENTRY_TRAFFIC_NOTE).toContain("Sources");
+    expect(DEMO_ENTRY_TRAFFIC_NOTE).toContain("cannot improve further toward 80");
   });
 });

@@ -19,8 +19,9 @@ describe("ui-route-traffic-accelerator-chooser-help (HAX)", () => {
     expect(row?.section).toBe(ACCELERATOR_CHOOSER_HELP_TRAFFIC_SECTION);
     expect(row?.notes).toBe(ACCELERATOR_CHOOSER_HELP_TRAFFIC_NOTE);
     expect(row?.notes).toMatch(/TB-2092|PageContextualHelp|Learn more|claim-discipline|accelerator-chooser/i);
-    expect(row?.notes).toContain("DEMO_QUICKSTART");
-    expect(row?.notes).toContain("Score 58");
+    expect(row?.notes).toContain("ACCELERATOR_CHOOSER_ENTRIES");
+    expect(row?.notes).toContain("HelpAcceleratorChooserGuideView");
+    expect(row?.notes).toContain("Score 68");
     expect(row?.notes).toContain("cannot improve further toward 80");
   });
 });

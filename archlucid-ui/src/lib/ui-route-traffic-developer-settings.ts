@@ -16,7 +16,7 @@ export const DEVELOPER_SETTINGS_CUSTOMER_SHELL_REDIRECT_PATH = "/administration/
 /**
  * Workbook Section column — internal diagnostic, not buyer Settings hub traffic.
  */
-export const DEVELOPER_SETTINGS_TRAFFIC_SECTION = "Internal";
+export const DEVELOPER_SETTINGS_TRAFFIC_SECTION = "Admin";
 
 /** Monthly share for buyer shells (always zero — page is internal-gated). */
 export const DEVELOPER_SETTINGS_TRAFFIC_MONTHLY_SHARE = "0";

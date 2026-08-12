@@ -9,7 +9,7 @@ import {
 
 describe("mutation-reversibility-registry (TB-2148)", () => {
   it("classifies every governed governance mutation", () => {
-    expect(Object.keys(MUTATION_REVERSIBILITY_REGISTRY)).toHaveLength(7);
+    expect(Object.keys(MUTATION_REVERSIBILITY_REGISTRY)).toHaveLength(8);
     expect(getMutationReversibilityEntry("governance_bulk_disposition").classification).toBe("reversible");
     expect(getMutationReversibilityEntry("governance_quick_approve").classification).toBe("permanent");
   });

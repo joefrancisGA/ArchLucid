@@ -8,6 +8,8 @@ export const UI_ROUTE_TRAFFIC_ESTIMATES_TEMPLATE_PATH =
 export type TrafficWorkbookRow = {
   readonly id: string;
   readonly path: string;
+  readonly hitPct: string;
+  readonly monthlyShare: string;
   readonly section: string;
   readonly done: string;
   readonly notes: string;
@@ -44,6 +46,8 @@ export function extractMasterTableRows(markdown: string): TrafficWorkbookRow[] {
     rows.push({
       id: cells[1] ?? "",
       path: (cells[2] ?? "").replace(/^`|`$/g, ""),
+      hitPct: cells[3] ?? "",
+      monthlyShare: cells[5] ?? "",
       section: cells[7] ?? "",
       done: cells[8] ?? "",
       notes: cells[9] ?? "",
