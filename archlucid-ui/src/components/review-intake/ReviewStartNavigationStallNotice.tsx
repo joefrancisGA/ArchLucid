@@ -3,7 +3,7 @@
 import { useCallback } from "react";
 
 import { Button } from "@/components/ui/button";
-import { OPERATOR_TYPOGRAPHY } from "@/lib/design-tokens";
+import { DESIGN_TOKENS, OPERATOR_TYPOGRAPHY } from "@/lib/design-tokens";
 import {
   REVIEW_START_NAVIGATION_STALL_MESSAGE,
   REVIEW_START_OPEN_DIRECTLY_CTA,
@@ -35,7 +35,7 @@ export function ReviewStartNavigationStallNotice(
       role="status"
       aria-live="polite"
       data-testid={testId ?? "review-start-navigation-stall"}
-      className="space-y-2 rounded-md border border-amber-300 bg-amber-50 px-3 py-3 text-amber-950 dark:border-amber-900/50 dark:bg-amber-950/30 dark:text-amber-100"
+      className={cn("space-y-2 py-3", DESIGN_TOKENS.callout.warn)}
     >
       <p className={cn("m-0", OPERATOR_TYPOGRAPHY.body)}>{REVIEW_START_NAVIGATION_STALL_MESSAGE}</p>
       <Button

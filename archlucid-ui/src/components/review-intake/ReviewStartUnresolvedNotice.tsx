@@ -4,7 +4,7 @@ import Link from "next/link";
 import { useEffect, useRef } from "react";
 
 import { Button } from "@/components/ui/button";
-import { OPERATOR_TYPOGRAPHY } from "@/lib/design-tokens";
+import { DESIGN_TOKENS, OPERATOR_TYPOGRAPHY } from "@/lib/design-tokens";
 import {
   REVIEW_START_UNRESOLVED_HEADLINE,
   REVIEW_START_UNRESOLVED_MESSAGE,
@@ -42,7 +42,7 @@ export function ReviewStartUnresolvedNotice(
     <div
       role="status"
       data-testid={testId ?? "review-start-unresolved-notice"}
-      className="space-y-3 rounded-md border border-amber-300 bg-amber-50 px-3 py-3 text-amber-950 dark:border-amber-900/50 dark:bg-amber-950/30 dark:text-amber-100"
+      className={cn("space-y-3 py-3", DESIGN_TOKENS.callout.warn)}
     >
       <p
         ref={headingRef}
