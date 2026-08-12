@@ -1,3 +1,5 @@
+import { enterpriseMutationControlDisabledTitle } from "@/lib/enterprise-controls-context-copy";
+
 /**
  * Shared source of truth for explaining why a primary CTA is disabled (TB-2190).
  * Prefer a visible WhyDisabledCtaHint over title-only tooltips for accessibility.
@@ -76,5 +78,13 @@ export function whyDisabledLlmBudgetExhausted(): WhyDisabledCtaReason {
   return {
     kind: "policy",
     message: "AI budget for this workspace is exhausted. Open AI usage to review spend or raise the cap.",
+  };
+}
+
+/** Execute-tier shell soft-disable for governance and integration mutation controls (TB-2359). */
+export function whyDisabledEnterpriseMutationControl(): WhyDisabledCtaReason {
+  return {
+    kind: "role",
+    message: enterpriseMutationControlDisabledTitle,
   };
 }

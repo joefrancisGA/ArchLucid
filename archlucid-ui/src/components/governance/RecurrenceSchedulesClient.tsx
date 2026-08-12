@@ -11,6 +11,7 @@ import { AdvisoryRecurrenceScheduleVocabularyRail } from "@/components/AdvisoryR
 import { EnterpriseCompactEmptyState } from "@/components/EnterpriseCompactEmptyState";
 import { OperatorPageHeader } from "@/components/OperatorPageHeader";
 import { PageContextualHelpButton } from "@/components/usability/PageContextualHelpButton";
+import { WhyDisabledCtaHint } from "@/components/usability/WhyDisabledCtaHint";
 import { RecurrenceScheduleActivationActions } from "@/components/governance/RecurrenceScheduleActivationActions";
 import { RecurrenceScheduleCreatePanel } from "@/components/governance/RecurrenceScheduleCreatePanel";
 import { RecurrenceScheduleExamplesSection } from "@/components/governance/RecurrenceScheduleExamplesSection";
@@ -35,7 +36,7 @@ import {
   type ArchitectureReviewRecurrenceSchedule,
 } from "@/lib/api/governance-stickiness-api";
 import { OPERATOR_TYPOGRAPHY } from "@/lib/design-tokens";
-import { enterpriseMutationControlDisabledTitle } from "@/lib/enterprise-controls-context-copy";
+import { whyDisabledEnterpriseMutationControl } from "@/lib/why-disabled-cta";
 import { RecurrenceLocalTimeDisplay } from "@/components/governance/RecurrenceLocalTimeDisplay";
 import {
   buildRecurrenceLocalTimeSummary,
@@ -290,6 +291,8 @@ export default function RecurrenceSchedulesClient() {
   ] as const;
 
   const isEmpty = schedules.length === 0;
+  const mutationDisabledReason = canMutate ? null : whyDisabledEnterpriseMutationControl();
+  const mutationDisabledHintId = "recurrence-schedules-mutate-disabled-hint";
 
   // Empty first viewport keeps one optional secondary link (TB-1133); populated keeps the full set.
   const secondaryActions = isEmpty
@@ -298,20 +301,27 @@ export default function RecurrenceSchedulesClient() {
 
   // Open-only + hide while panel is open so Create never toggles away in-progress fields (TB-1131).
   const createScheduleButton = showCreatePanel ? null : (
-    <Button
-      type="button"
-      size="sm"
-      variant="primary"
-      data-testid="recurrence-schedules-create-action"
-      disabled={!canMutate}
-      title={canMutate ? undefined : enterpriseMutationControlDisabledTitle}
-      onClick={() => {
-        setCreateSeed(null);
-        setShowCreatePanel(true);
-      }}
-    >
-      Create recurrence schedule
-    </Button>
+    <div className="flex flex-col items-start gap-1">
+      <Button
+        type="button"
+        size="sm"
+        variant="primary"
+        data-testid="recurrence-schedules-create-action"
+        disabled={!canMutate}
+        aria-describedby={mutationDisabledReason === null ? undefined : mutationDisabledHintId}
+        onClick={() => {
+          setCreateSeed(null);
+          setShowCreatePanel(true);
+        }}
+      >
+        Create recurrence schedule
+      </Button>
+      <WhyDisabledCtaHint
+        id={mutationDisabledHintId}
+        reason={mutationDisabledReason}
+        testId="recurrence-schedules-mutate-disabled-hint"
+      />
+    </div>
   );
 
   return (
@@ -520,7 +530,9 @@ export default function RecurrenceSchedulesClient() {
                                 size="sm"
                                 variant="outline"
                                 disabled={!canMutate}
-                                title={canMutate ? undefined : enterpriseMutationControlDisabledTitle}
+                                aria-describedby={
+                                  mutationDisabledReason === null ? undefined : mutationDisabledHintId
+                                }
                                 onClick={() => beginEdit(schedule)}
                               >
                                 Edit
@@ -530,7 +542,9 @@ export default function RecurrenceSchedulesClient() {
                                 size="sm"
                                 variant="outline"
                                 disabled={busyId === schedule.scheduleId || !canMutate}
-                                title={canMutate ? undefined : enterpriseMutationControlDisabledTitle}
+                                aria-describedby={
+                                  mutationDisabledReason === null ? undefined : mutationDisabledHintId
+                                }
                                 onClick={() => void toggleEnabled(schedule)}
                                 data-testid={`recurrence-toggle-${schedule.scheduleId}`}
                               >

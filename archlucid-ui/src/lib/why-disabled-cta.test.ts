@@ -1,9 +1,11 @@
 import { describe, expect, it } from "vitest";
 
+import { enterpriseMutationControlDisabledTitle } from "@/lib/enterprise-controls-context-copy";
 import {
   firstWhyDisabledCtaReason,
   formatWhyDisabledCtaMessage,
   whyDisabledBusy,
+  whyDisabledEnterpriseMutationControl,
   whyDisabledNeedsLifecycle,
   whyDisabledNeedsPrerequisite,
   whyDisabledNeedsRole,
@@ -59,6 +61,10 @@ describe("why-disabled helpers", () => {
     expect(whyDisabledBusy("Export")).toEqual({
       kind: "busy",
       message: "Export is in progress.",
+    });
+    expect(whyDisabledEnterpriseMutationControl()).toEqual({
+      kind: "role",
+      message: enterpriseMutationControlDisabledTitle,
     });
   });
 });

@@ -1,8 +1,10 @@
 import { fireEvent, render, screen, waitFor } from "@testing-library/react";
 import { beforeEach, describe, expect, it, vi } from "vitest";
 
+let canMutate = true;
+
 vi.mock("@/hooks/use-operate-capability", () => ({
-  useOperateCapability: () => true,
+  useOperateCapability: () => canMutate,
 }));
 
 vi.mock("@/lib/api/governance-stickiness-api", () => ({
@@ -14,6 +16,7 @@ vi.mock("@/lib/api/governance-stickiness-api", () => ({
 
 import * as governanceApi from "@/lib/api/governance-stickiness-api";
 import RecurrenceSchedulesClient from "@/components/governance/RecurrenceSchedulesClient";
+import { enterpriseMutationControlDisabledTitle } from "@/lib/enterprise-controls-context-copy";
 import { GOVERNANCE_OVERVIEW_PAGE_LEAD } from "@/lib/governance-overview-copy";
 import {
   RECURRENCE_SCHEDULE_EXAMPLES,
@@ -42,6 +45,7 @@ const sampleSchedule = {
 
 describe("RecurrenceSchedulesClient", () => {
   beforeEach(() => {
+    canMutate = true;
     vi.mocked(governanceApi.listArchitectureReviewRecurrenceSchedules).mockResolvedValue([]);
     vi.mocked(governanceApi.updateArchitectureReviewRecurrenceSchedule).mockResolvedValue(sampleSchedule);
     vi.mocked(governanceApi.previewRecurrenceScheduleRuns).mockResolvedValue({
@@ -296,5 +300,20 @@ describe("RecurrenceSchedulesClient", () => {
         { isEnabled: false },
       );
     });
+  });
+
+  it("shows visible WhyDisabled hint when mutation controls are read-only (TB-2359)", async () => {
+    canMutate = false;
+
+    render(<RecurrenceSchedulesClient />);
+
+    const emptyState = await screen.findByTestId("recurrence-schedules-empty-state");
+    const createButton = screen.getByTestId("recurrence-schedules-create-action");
+    const hint = screen.getByTestId("recurrence-schedules-mutate-disabled-hint");
+
+    expect(createButton).toBeDisabled();
+    expect(hint).toHaveTextContent(enterpriseMutationControlDisabledTitle);
+    expect(createButton).toHaveAttribute("aria-describedby", "recurrence-schedules-mutate-disabled-hint");
+    expect(emptyState).toContainElement(hint);
   });
 });
