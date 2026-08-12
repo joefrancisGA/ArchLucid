@@ -149,7 +149,7 @@ Former standalone body: `docs/go-to-market/ISOLATION_CLAIMS_VS_INV001_ADR0037_PA
 
 **Claim:** Safe pin = **database-per-tenant** + **INV-001 decide-once** + **M-114** identity-wins. Do **not** cite SQL RLS as a deployed production control. Do not treat workspace/project as the paying-client security boundary. Do not claim G3 as cryptographically proven isolation — G3 means catalog + decide-once + Search filter DiD are reviewable (see **TB-1122**). Do not promise per-tenant Search index / crypto-proof retrieval / NetArchTest-alone isolation.
 
-**Engineering SoT:** [`../library/ISOLATION_CLAIMS_TOO_STRONG_VS_INV001_ADR0037_CONTRACT.md`](../library/ISOLATION_CLAIMS_TOO_STRONG_VS_INV001_ADR0037_CONTRACT.md) (**TB-1122**). Honesty CI follow-on: **TB-1123**.
+**Engineering SoT:** [`../library/ISOLATION_CLAIMS_TOO_STRONG_VS_INV001_ADR0037_CONTRACT.md`](../library/ISOLATION_CLAIMS_TOO_STRONG_VS_INV001_ADR0037_CONTRACT.md) (**TB-1122**). Honesty CI: **TB-1123** (**Done** — `check_isolation_claims_too_strong_honesty.py`).
 
 ### Too strong vs safe
 
@@ -159,7 +159,7 @@ Former standalone body: `docs/go-to-market/ISOLATION_CLAIMS_VS_INV001_ADR0037_PA
 | “NetArchTest proves isolation” | Compile-time DAG ≠ runtime tenancy (**M-156**) |
 | “Per-tenant Search index / crypto-proof retrieval” | Mandatory OData `$filter` (**M-152**/**M-153**) |
 | “Empty TenantId returns no data” | Empty-scope routing risks — [M-169](#empty-scope-catalog-routing-m-169) |
-| “G3 PASS = fully proven isolation” | Soften: catalog + decide-once shipped; residuals **TB-1123** / **TB-1233** |
+| “G3 PASS = fully proven isolation” | Soften: catalog + decide-once shipped; residual DiD erosion **TB-1233** (**TB-1123** honesty CI Done) |
 
 ### Stale language purge
 
@@ -3756,7 +3756,7 @@ Former standalone body: `docs/go-to-market/STAGE_0_CLAIM_ALLOWLIST_VS_OVERSELL_P
 | --- | --- |
 | **G1** | Execution-mode honesty **PASS** |
 | **G2** | ROI source integrity **PASS** |
-| **G3** | Tenant isolation provable **PASS** |
+| **G3** | Tenant isolation (catalog + decide-once) **PASS** (with residuals — **TB-1122** / **M-195**) |
 | **G4** | â‰¥3 distinct Real clean proof-packet rows (**G-REAL-06** / **G-REAL-07**) |
 | Founder signoff | Dated approval even when G1–G4 are green; else **HOLD_FOR_OWNER_SIGNOFF** |
 
@@ -3776,6 +3776,7 @@ Until that exit: stay on the allowlist. Pair packet composition with [M-191](#mi
 ### Residuals (honest)
 
 - **TB-1072** / **TB-1073** own Stage 0 allowlist language guards.
+- G3 residual: DiD erosion **TB-1233** (honesty CI **TB-1123** Done) — not “fully proven isolation.”
 - G4 evidence remains **G-REAL-06** / **G-REAL-07**; does not substitute those runs.
 - Pilot-packet composition without CPA/3P is [M-191](#minimum-pilot-trust-packet-m-191).
 - This handout does not claim CPA SOC 2 or a published third-party penetration test.

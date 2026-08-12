@@ -5,7 +5,7 @@
 **Audience:** Contributors, principal architects, and GTM claim reviewers.  
 **Not** a buyer brochure — Layer A catalog routing + INV-001 decide-once are the safe pin; this contract inventories **too-strong** language and the **stale-doc purge list**.
 
-**Status:** Shipped contract for **TB-1122** / GTM **M-194** / **M-195**. Honesty CI follow-on: **TB-1123** (open).
+**Status:** Shipped contract for **TB-1122** / GTM **M-194** / **M-195**. Honesty CI: **TB-1123** (**Done** — `scripts/ci/check_isolation_claims_too_strong_honesty.py`).
 
 **Buyer / PA handout:** [`BUYER_SECURITY_PROCUREMENT_PACKET.md#isolation-claims-vs-inv001-adr0037-m-195`](../go-to-market/BUYER_SECURITY_PROCUREMENT_PACKET.md#isolation-claims-vs-inv001-adr0037-m-195).  
 **Path-stable alias:** [`ISOLATION_CLAIMS_VS_INV001_ADR0037_PA_ONE_PAGER.md`](../go-to-market/ISOLATION_CLAIMS_VS_INV001_ADR0037_PA_ONE_PAGER.md).  
@@ -27,7 +27,7 @@ Safe pin = **database-per-tenant catalogs (Layer A)** + **INV-001 decide-once** 
 |------------|----------------|--------------------------------------------------|
 | “SQL RLS isolates tenants” / “RLS protects production” | ADR 0037 — RLS removed; catalogs + app predicates | **M-194** / this contract; historical only: [`MULTI_TENANT_RLS.md`](../security/MULTI_TENANT_RLS.md) |
 | Workspace/project as paying-client security boundary | Organizational dimensions inside a tenant catalog | **M-114**; ADR 0037 decision summary |
-| “G3 fully proven / crypto-provable isolation” without caveats | G3 = catalog + decide-once + Search filter DiD; residuals remain | [`CLAIM_READINESS_STATUS.md`](../go-to-market/CLAIM_READINESS_STATUS.md); **TB-1123** / **TB-1233** |
+| “G3 fully proven / crypto-provable isolation” without caveats | G3 = catalog + decide-once + Search filter DiD; DiD erosion residual **TB-1233** | [`CLAIM_READINESS_STATUS.md`](../go-to-market/CLAIM_READINESS_STATUS.md); honesty CI **TB-1123** Done |
 | Per-tenant Azure AI Search index / crypto-proof retrieval | Shared index + mandatory OData `$filter` | **M-152** / **M-153** / **TB-1001** |
 | NetArchTest / ARCH001 alone = isolation | Compile-time DAG ≠ runtime tenancy | **M-156** / **TB-1005** |
 | Empty `AllowedTools` = confined agent | Fail-closed tools are separate; empty must not mean unrestricted on prod-like hosts | **M-115** / **TB-950** (Done) |
@@ -76,13 +76,13 @@ Do **not** duplicate bodies of **M-150** / **M-152** / **M-156** / **M-168** / *
 
 - Prefer signal wording: **Tenant isolation (catalog + decide-once)** over **Tenant isolation provable**.
 - Stale **TB-948** / **TB-949** blockers on G3 were ID reuse / harness leftovers — do **not** re-block G3 on those IDs.
-- Residual honesty CI: **TB-1123** (this contract’s anti-RLS-as-live guard) and **TB-1233** (anti-WHERE-equals-isolation).
+- Honesty CI **TB-1123** Done (this contract’s anti-RLS-as-live guard). Residual DiD erosion honesty: **TB-1233** (anti-WHERE-equals-isolation).
 
 ---
 
 ## CI anchors for **TB-1123**
 
-Name these targets for the follow-on honesty guard (do not implement the guard in **TB-1122**):
+Targets enforced by `scripts/ci/check_isolation_claims_too_strong_honesty.py` (**TB-1123** Done):
 
 | Anchor class | Example dishonest stub | Safe rewrite |
 |--------------|------------------------|--------------|
@@ -92,12 +92,12 @@ Name these targets for the follow-on honesty guard (do not implement the guard i
 | NetArch alone | “architecture tests prove isolation” | “compile-time DAG + Layer A + INV-001” |
 | G3 overclaim | “G3 PASS = fully proven isolation” near unqualified PASS | Require this contract / M-195 matrix nearby |
 
-Wire suggestion (when **TB-1123** ships): buyer-doc scan in `scripts/ci/` + `run_buyer_surface_strict_guards.py`, mirroring **TB-1113** / **TB-1002** patterns. Point Verification at existing clusters **TB-1000** / **TB-1002** / **TB-1006** / **TB-1019** without duplicating their scopes.
+Wire: buyer-doc scan in `scripts/ci/check_isolation_claims_too_strong_honesty.py` + `run_buyer_surface_strict_guards.py` (**TB-1123** Done). Point Verification at existing clusters **TB-1000** / **TB-1002** / **TB-1006** / **TB-1019** without duplicating their scopes.
 
 ---
 
 ## Related
 
 - GTM **M-194** / **M-195** (Done content) · **M-114** (isolation one-pager)
-- Engineering **TB-1123** (honesty CI) · **TB-1232** / **TB-1233** (DiD erosion)
+- Engineering **TB-1123** (honesty CI — **Done**) · **TB-1232** / **TB-1233** (DiD erosion)
 - ADR [0037](../architecture/adrs/0037-tenant-isolation-without-rls-defense-in-depth.md)
