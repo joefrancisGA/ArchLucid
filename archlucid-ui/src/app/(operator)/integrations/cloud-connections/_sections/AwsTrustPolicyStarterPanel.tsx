@@ -4,6 +4,15 @@ import { useCallback, useMemo, useState } from "react";
 import Link from "next/link";
 
 import { Button } from "@/components/ui/button";
+import {
+  EnterpriseTable,
+  EnterpriseTableBody,
+  EnterpriseTableCell,
+  EnterpriseTableHead,
+  EnterpriseTableHeadRow,
+  EnterpriseTableHeaderCell,
+  EnterpriseTableRow,
+} from "@/components/ui/enterprise-table";
 import { StatusTag } from "@/components/ui/status-tag";
 import { OPERATOR_TYPOGRAPHY } from "@/lib/design-tokens";
 import {
@@ -54,28 +63,28 @@ export function AwsTrustPolicyStarterPanel(): React.ReactElement {
           {AWS_TRUST_STARTER_FEDERATION_INTRO_TAIL}
         </p>
         <div className={HELP_PAGE_LAYOUT.tableWrap} data-testid="aws-trust-starter-federation-identifiers">
-          <table className={HELP_PAGE_LAYOUT.table}>
+          <EnterpriseTable ariaLabel="OIDC federation identifiers for AWS IAM role trust" className={HELP_PAGE_LAYOUT.table}>
             <caption className="sr-only">OIDC federation identifiers for AWS IAM role trust</caption>
-            <thead>
-              <tr>
-                <th scope="col" className={HELP_PAGE_LAYOUT.tableHeadCell}>
+            <EnterpriseTableHead>
+              <EnterpriseTableHeadRow>
+                <EnterpriseTableHeaderCell scope="col" className={HELP_PAGE_LAYOUT.tableHeadCell}>
                   Field
-                </th>
-                <th scope="col" className={HELP_PAGE_LAYOUT.tableHeadCell}>
+                </EnterpriseTableHeaderCell>
+                <EnterpriseTableHeaderCell scope="col" className={HELP_PAGE_LAYOUT.tableHeadCell}>
                   Value
-                </th>
-              </tr>
-            </thead>
-            <tbody>
+                </EnterpriseTableHeaderCell>
+              </EnterpriseTableHeadRow>
+            </EnterpriseTableHead>
+            <EnterpriseTableBody>
               {AWS_TRUST_STARTER_FEDERATION_IDENTIFIERS.map((identifier, index) => (
-                <tr
+                <EnterpriseTableRow
                   key={identifier.id}
                   className={index % 2 === 0 ? HELP_PAGE_LAYOUT.tableRowOdd : HELP_PAGE_LAYOUT.tableRowEven}
                 >
-                  <th scope="row" className={HELP_PAGE_LAYOUT.tableBodyCell}>
+                  <EnterpriseTableHeaderCell scope="row" className={HELP_PAGE_LAYOUT.tableBodyCell}>
                     {identifier.label}
-                  </th>
-                  <td className={cn(HELP_PAGE_LAYOUT.tableBodyCell, "font-mono text-sm")}>
+                  </EnterpriseTableHeaderCell>
+                  <EnterpriseTableCell className={cn(HELP_PAGE_LAYOUT.tableBodyCell, "font-mono text-sm")}>
                     <div className="flex flex-wrap items-center gap-2">
                       <span className={identifier.isPlaceholder ? "text-al-text-secondary" : undefined}>
                         {identifier.value}
@@ -86,11 +95,11 @@ export function AwsTrustPolicyStarterPanel(): React.ReactElement {
                         <StatusTag kind="ready" label="Confirmed" data-testid={`aws-trust-starter-confirmed-${identifier.id}`} />
                       )}
                     </div>
-                  </td>
-                </tr>
+                  </EnterpriseTableCell>
+                </EnterpriseTableRow>
               ))}
-            </tbody>
-          </table>
+            </EnterpriseTableBody>
+          </EnterpriseTable>
         </div>
       </div>
 

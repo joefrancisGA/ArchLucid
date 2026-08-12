@@ -7,6 +7,15 @@ import { useCallback, useEffect, useMemo, useState } from "react";
 
 import { Button } from "@/components/ui/button";
 import { Checkbox } from "@/components/ui/checkbox";
+import {
+  EnterpriseTable,
+  EnterpriseTableBody,
+  EnterpriseTableCell,
+  EnterpriseTableHead,
+  EnterpriseTableHeadRow,
+  EnterpriseTableHeaderCell,
+  EnterpriseTableRow,
+} from "@/components/ui/enterprise-table";
 import { Input } from "@/components/ui/input";
 import {
   Select,
@@ -635,13 +644,13 @@ export function SettingsRolesMatrixSection(props: SettingsRolesMatrixSectionProp
           </div>
 
           <div className="max-h-[70vh] overflow-auto rounded-md border border-neutral-200 dark:border-neutral-800">
-            <table
-              aria-label="Role permissions matrix"
+            <EnterpriseTable
+              ariaLabel="Role permissions matrix"
               className={cn("w-full min-w-[48rem] table-auto border-collapse text-left", OPERATOR_TYPOGRAPHY.body)}
             >
-              <thead className="sticky top-0 z-20 bg-neutral-50 shadow-sm dark:bg-neutral-900/95">
-                <tr>
-                  <th
+              <EnterpriseTableHead className="sticky top-0 z-20 bg-neutral-50 shadow-sm dark:bg-neutral-900/95">
+                <EnterpriseTableHeadRow>
+                  <EnterpriseTableHeaderCell
                     scope="col"
                     className={cn(
                       "sticky left-0 top-0 z-30 min-w-[14rem] border-b border-neutral-200 bg-neutral-50 px-3 py-3 text-left font-semibold text-al-text-primary dark:border-neutral-800 dark:bg-neutral-900/95",
@@ -649,7 +658,7 @@ export function SettingsRolesMatrixSection(props: SettingsRolesMatrixSectionProp
                     )}
                   >
                     Permission
-                  </th>
+                  </EnterpriseTableHeaderCell>
                   {columns.map((role) => {
                     const roleKey = roleMatrixKey(role);
                     const displayName = roleDisplayLabel(role.name);
@@ -660,7 +669,7 @@ export function SettingsRolesMatrixSection(props: SettingsRolesMatrixSectionProp
                     const lastUpdated = formatRoleLastUpdated(role.updatedUtc);
 
                     return (
-                      <th
+                      <EnterpriseTableHeaderCell
                         key={roleKey}
                         scope="col"
                         className={cn(
@@ -724,28 +733,28 @@ export function SettingsRolesMatrixSection(props: SettingsRolesMatrixSectionProp
                             </Button>
                           ) : null}
                         </div>
-                      </th>
+                      </EnterpriseTableHeaderCell>
                     );
                   })}
-                </tr>
-              </thead>
-              <tbody>
+                </EnterpriseTableHeadRow>
+              </EnterpriseTableHead>
+              <EnterpriseTableBody>
                 {visiblePermissionGroups.length === 0 ? (
-                  <tr>
-                    <td
+                  <EnterpriseTableRow>
+                    <EnterpriseTableCell
                       colSpan={columns.length + 1}
                       className="px-3 py-6 text-center text-al-text-secondary"
                     >
                       No permissions match the current filter.
-                    </td>
-                  </tr>
+                    </EnterpriseTableCell>
+                  </EnterpriseTableRow>
                 ) : null}
                 {visiblePermissionGroups.map((group) => {
                   const isCollapsed = collapsedGroups.has(group.area);
 
                   return [
-                    <tr key={`group-${group.area}`} className="bg-neutral-100/90 dark:bg-neutral-900/60">
-                      <td
+                    <EnterpriseTableRow key={`group-${group.area}`} className="bg-neutral-100/90 dark:bg-neutral-900/60">
+                      <EnterpriseTableCell
                         colSpan={columns.length + 1}
                         className="sticky left-0 z-10 border-y border-neutral-200 bg-neutral-100/95 px-3 py-2 dark:border-neutral-800 dark:bg-neutral-900/80"
                       >
@@ -765,15 +774,15 @@ export function SettingsRolesMatrixSection(props: SettingsRolesMatrixSectionProp
                             aria-hidden
                           />
                         </button>
-                      </td>
-                    </tr>,
+                      </EnterpriseTableCell>
+                    </EnterpriseTableRow>,
                     ...(!isCollapsed
                       ? group.permissions.map((permission) => (
-                          <tr
+                          <EnterpriseTableRow
                             key={permission.id}
                             className="border-b border-neutral-200 hover:bg-neutral-50 dark:border-neutral-800 dark:hover:bg-neutral-900/50"
                           >
-                            <th
+                            <EnterpriseTableHeaderCell
                               scope="row"
                               className={cn(
                                 "sticky left-0 z-10 border-r border-neutral-200 bg-white px-3 py-0 text-left font-normal text-al-text-primary dark:border-neutral-800 dark:bg-neutral-950",
@@ -786,9 +795,9 @@ export function SettingsRolesMatrixSection(props: SettingsRolesMatrixSectionProp
                                   <SeverityTag severity="High" kind="high" label="High risk" className="shrink-0" />
                                 ) : null}
                               </div>
-                            </th>
+                            </EnterpriseTableHeaderCell>
                             {columns.map((role) => (
-                              <td key={`${roleMatrixKey(role)}:${permission.id}`} className="p-0 text-center align-middle">
+                              <EnterpriseTableCell key={`${roleMatrixKey(role)}:${permission.id}`} className="p-0 text-center align-middle">
                                 <PermissionValue
                                   allowed={role.permissions.has(permission.id)}
                                   roleName={roleDisplayLabel(role.name)}
@@ -797,15 +806,15 @@ export function SettingsRolesMatrixSection(props: SettingsRolesMatrixSectionProp
                                   checked={role.permissions.has(permission.id)}
                                   onToggle={() => togglePermission(roleMatrixKey(role), permission.id)}
                                 />
-                              </td>
+                              </EnterpriseTableCell>
                             ))}
-                          </tr>
+                          </EnterpriseTableRow>
                         ))
                       : []),
                   ];
                 })}
-              </tbody>
-            </table>
+              </EnterpriseTableBody>
+            </EnterpriseTable>
           </div>
         </div>
 

@@ -19,6 +19,15 @@ import { ValueReportOutcomesNav } from "@/components/usability/ValueReportOutcom
 import { OperatorApiProblem } from "@/components/operator/OperatorApiProblem";
 import { OperatorPageHeader } from "@/components/operator/OperatorPageHeader";
 import { Button } from "@/components/ui/button";
+import {
+  EnterpriseTable,
+  EnterpriseTableBody,
+  EnterpriseTableCell,
+  EnterpriseTableHead,
+  EnterpriseTableHeadRow,
+  EnterpriseTableHeaderCell,
+  EnterpriseTableRow,
+} from "@/components/ui/enterprise-table";
 import { formatPilotOutcomesAnalysisCoverage } from "@/lib/pilot-outcomes-agent-type-labels";
 import { buildPilotOutcomesExecutiveNarrative } from "@/lib/pilot-outcomes-executive-summary";
 import { PILOT_OUTCOMES_PERIOD_PRESETS } from "@/lib/pilot-outcomes-period-presets";
@@ -362,58 +371,56 @@ export function PilotValueReportPageView(props: Props) {
                   </Link>
                 </p>
               ) : null}
-              <div className="overflow-x-auto">
-                <table className={cn("min-w-full text-left", OPERATOR_TYPOGRAPHY.body)}>
-                  <thead className={cn("border-b border-neutral-200 dark:border-neutral-800", OPERATOR_NAV_GROUP_LABEL)}>
-                    <tr>
-                      <th scope="col" className="py-2 pr-3">
-                        Review
-                      </th>
-                      <th scope="col" className="py-2 pr-3">
-                        System
-                      </th>
-                      <th scope="col" className="py-2 pr-3">
-                        Created
-                      </th>
-                      <th scope="col" className="py-2 pr-3">
-                        Finalized
-                      </th>
-                      <th scope="col" className="py-2 pr-3">
-                        Outcome
-                      </th>
-                      <th scope="col" className="py-2 pr-3">
-                        Highest severity
-                      </th>
-                      <th scope="col" className="py-2 pr-3">
-                        Open actions
-                      </th>
-                      <th scope="col" className="py-2">
-                        Link
-                      </th>
-                    </tr>
-                  </thead>
-                  <tbody>
-                    {timelineRows.map((row) => (
-                      <tr key={row.runId} className="border-b border-neutral-100 dark:border-neutral-800">
-                        <td className={cn("py-2 pr-3", OPERATOR_TYPOGRAPHY.body)}>{row.systemName || row.runId}</td>
-                        <td className={cn("py-2 pr-3", OPERATOR_TYPOGRAPHY.helper)}>{row.systemName || "—"}</td>
-                        <td className={cn("py-2 pr-3", OPERATOR_TYPOGRAPHY.helper)}>{formatReviewDate(row.createdUtc)}</td>
-                        <td className={cn("py-2 pr-3", OPERATOR_TYPOGRAPHY.helper)}>
-                          {formatReviewDate(row.committedUtc)}
-                        </td>
-                        <td className={cn("py-2 pr-3", OPERATOR_TYPOGRAPHY.helper)}>Not available</td>
-                        <td className={cn("py-2 pr-3", OPERATOR_TYPOGRAPHY.helper)}>Not available</td>
-                        <td className={cn("py-2 pr-3", OPERATOR_TYPOGRAPHY.helper)}>Not available</td>
-                        <td className={cn("py-2", OPERATOR_TYPOGRAPHY.helper)}>
-                          <Link href={`/architecture/reviews/${encodeURIComponent(row.runId)}`} className={OPERATOR_LINK.inline}>
-                            Open review
-                          </Link>
-                        </td>
-                      </tr>
-                    ))}
-                  </tbody>
-                </table>
-              </div>
+              <EnterpriseTable ariaLabel="Finalized reviews in pilot value report" className={cn("min-w-full text-left", OPERATOR_TYPOGRAPHY.body)}>
+                <EnterpriseTableHead className={cn("border-b border-neutral-200 dark:border-neutral-800", OPERATOR_NAV_GROUP_LABEL)}>
+                  <EnterpriseTableHeadRow>
+                    <EnterpriseTableHeaderCell scope="col" className="py-2 pr-3">
+                      Review
+                    </EnterpriseTableHeaderCell>
+                    <EnterpriseTableHeaderCell scope="col" className="py-2 pr-3">
+                      System
+                    </EnterpriseTableHeaderCell>
+                    <EnterpriseTableHeaderCell scope="col" className="py-2 pr-3">
+                      Created
+                    </EnterpriseTableHeaderCell>
+                    <EnterpriseTableHeaderCell scope="col" className="py-2 pr-3">
+                      Finalized
+                    </EnterpriseTableHeaderCell>
+                    <EnterpriseTableHeaderCell scope="col" className="py-2 pr-3">
+                      Outcome
+                    </EnterpriseTableHeaderCell>
+                    <EnterpriseTableHeaderCell scope="col" className="py-2 pr-3">
+                      Highest severity
+                    </EnterpriseTableHeaderCell>
+                    <EnterpriseTableHeaderCell scope="col" className="py-2 pr-3">
+                      Open actions
+                    </EnterpriseTableHeaderCell>
+                    <EnterpriseTableHeaderCell scope="col" className="py-2">
+                      Link
+                    </EnterpriseTableHeaderCell>
+                  </EnterpriseTableHeadRow>
+                </EnterpriseTableHead>
+                <EnterpriseTableBody>
+                  {timelineRows.map((row) => (
+                    <EnterpriseTableRow key={row.runId}>
+                      <EnterpriseTableCell className={cn("py-2 pr-3", OPERATOR_TYPOGRAPHY.body)}>{row.systemName || row.runId}</EnterpriseTableCell>
+                      <EnterpriseTableCell className={cn("py-2 pr-3", OPERATOR_TYPOGRAPHY.helper)}>{row.systemName || "—"}</EnterpriseTableCell>
+                      <EnterpriseTableCell className={cn("py-2 pr-3", OPERATOR_TYPOGRAPHY.helper)}>{formatReviewDate(row.createdUtc)}</EnterpriseTableCell>
+                      <EnterpriseTableCell className={cn("py-2 pr-3", OPERATOR_TYPOGRAPHY.helper)}>
+                        {formatReviewDate(row.committedUtc)}
+                      </EnterpriseTableCell>
+                      <EnterpriseTableCell className={cn("py-2 pr-3", OPERATOR_TYPOGRAPHY.helper)}>Not available</EnterpriseTableCell>
+                      <EnterpriseTableCell className={cn("py-2 pr-3", OPERATOR_TYPOGRAPHY.helper)}>Not available</EnterpriseTableCell>
+                      <EnterpriseTableCell className={cn("py-2 pr-3", OPERATOR_TYPOGRAPHY.helper)}>Not available</EnterpriseTableCell>
+                      <EnterpriseTableCell className={cn("py-2", OPERATOR_TYPOGRAPHY.helper)}>
+                        <Link href={`/architecture/reviews/${encodeURIComponent(row.runId)}`} className={OPERATOR_LINK.inline}>
+                          Open review
+                        </Link>
+                      </EnterpriseTableCell>
+                    </EnterpriseTableRow>
+                  ))}
+                </EnterpriseTableBody>
+              </EnterpriseTable>
             </section>
 
             <CollapsibleSection title="Technical details" defaultOpen={false} sectionTestId="pilot-outcomes-technical-details">
