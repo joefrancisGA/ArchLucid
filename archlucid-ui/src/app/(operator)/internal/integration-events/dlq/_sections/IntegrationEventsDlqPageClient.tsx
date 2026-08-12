@@ -27,8 +27,8 @@ import { Input } from "@/components/ui/input";
 import { Label } from "@/components/ui/label";
 import { PageContextualHelpButton } from "@/components/usability/PageContextualHelpButton";
 import { WhyDisabledCtaHint } from "@/components/usability/WhyDisabledCtaHint";
+import { OperatorPageHeader } from "@/components/operator/OperatorPageHeader";
 import type { components } from "@/lib/api-types.generated";
-import { enterpriseMutationControlDisabledTitle } from "@/lib/enterprise-controls-context-copy";
 import { whyDisabledEnterpriseMutationControl } from "@/lib/why-disabled-cta";
 import { AUTHORITY_RANK } from "@/lib/nav-authority";
 import { mergeRegistrationScopeForProxy } from "@/lib/proxy-fetch-registration-scope";
@@ -327,24 +327,23 @@ export function IntegrationEventsDlqPageClient() {
       className={cn("w-full max-w-[1200px]", OPERATOR_LAYOUT.sectionStack)}
       data-testid="integration-events-dlq-page"
     >
-      <header>
-        <div className="flex flex-wrap items-center gap-2">
-          <h1 className={cn("m-0", OPERATOR_TYPOGRAPHY.pageTitle)} data-testid="integration-events-dlq-page-title">
-            {INTEGRATION_EVENTS_DLQ_PAGE_TITLE}
-          </h1>
-          <PageContextualHelpButton />
-        </div>
-        <p className={cn("mt-1 text-al-text-secondary", OPERATOR_TYPOGRAPHY.body)}>{INTEGRATION_EVENTS_DLQ_PAGE_SUBTITLE}</p>
-        <p className={cn("mt-1 text-al-text-secondary", OPERATOR_TYPOGRAPHY.helper)}>
+      <OperatorPageHeader
+        title={INTEGRATION_EVENTS_DLQ_PAGE_TITLE}
+        titleTestId="integration-events-dlq-page-title"
+        headingLevel="h1"
+        subtitle={INTEGRATION_EVENTS_DLQ_PAGE_SUBTITLE}
+        actions={<PageContextualHelpButton />}
+      >
+        <p className={cn("m-0 text-al-text-secondary", OPERATOR_TYPOGRAPHY.helper)}>
           Internal Operations staff may also see these rows described as dead letters in API or runbook vocabulary.
         </p>
         <WebhooksVsDlqVocabularyRail currentSurfaceId="dlq" />
         {!canMutate ? (
-          <p className={cn("mt-1 text-al-text-secondary", OPERATOR_TYPOGRAPHY.helper)}>
+          <p className={cn("m-0 text-al-text-secondary", OPERATOR_TYPOGRAPHY.helper)}>
             Administrator access required to retry or suppress failed integration messages.
           </p>
         ) : null}
-      </header>
+      </OperatorPageHeader>
 
       <div
         className={cn(DESIGN_TOKENS.callout.warn, "px-4 py-3")}

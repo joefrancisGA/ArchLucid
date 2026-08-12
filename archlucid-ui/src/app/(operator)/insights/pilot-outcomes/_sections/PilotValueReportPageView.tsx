@@ -13,6 +13,7 @@ import { OPERATOR_LINK, OPERATOR_NAV_GROUP_LABEL, OPERATOR_TYPOGRAPHY } from "@/
 import { isBuyerPolishedOperatorShellEnv } from "@/lib/demo-ui-env";
 import { ValueReportOutcomesNav } from "@/components/usability/ValueReportOutcomesNav";
 import { OperatorApiProblem } from "@/components/operator/OperatorApiProblem";
+import { OperatorPageHeader } from "@/components/operator/OperatorPageHeader";
 import { Button } from "@/components/ui/button";
 import { formatPilotOutcomesAnalysisCoverage } from "@/lib/pilot-outcomes-agent-type-labels";
 import { buildPilotOutcomesExecutiveNarrative } from "@/lib/pilot-outcomes-executive-summary";
@@ -79,19 +80,15 @@ export function PilotValueReportPageView(props: Props) {
   return (
     <div className="w-full max-w-[1440px] space-y-4 print:w-full" data-testid="pilot-outcomes-page">
       {buyerPolishedShell ? null : <LayerHeader pageKey="value-report-pilot" />}
-      <div className="flex flex-wrap items-center justify-end gap-2 print:hidden">
-        <PageContextualHelpButton />
-      </div>
-<ValueReportOutcomesNav />
+      <ValueReportOutcomesNav />
       <DocumentLayout>
-        <header className="space-y-2">
-          <h1 className={`m-0 ${OPERATOR_TYPOGRAPHY.pageTitle}`}>{PILOT_OUTCOMES_PAGE_TITLE}</h1>
-          {buyerPolishedShell ? (
-            <p className={cn("m-0 max-w-3xl text-al-text-secondary", OPERATOR_TYPOGRAPHY.body)}>
-              {PILOT_OUTCOMES_PAGE_SUBTITLE}
-            </p>
-          ) : null}
-        </header>
+        <OperatorPageHeader
+          title={PILOT_OUTCOMES_PAGE_TITLE}
+          headingLevel="h1"
+          subtitle={buyerPolishedShell ? PILOT_OUTCOMES_PAGE_SUBTITLE : null}
+          subtitleClassName="max-w-3xl"
+          actions={<PageContextualHelpButton />}
+        />
 
         {m.includesSampleData ? (
           <div
@@ -129,7 +126,7 @@ export function PilotValueReportPageView(props: Props) {
 
           <div className="flex flex-wrap items-end gap-3">
             <label className={cn("block", OPERATOR_TYPOGRAPHY.body)}>
-              <span className={cn("mb-1 block", OPERATOR_TYPOGRAPHY.helper)}>Start date</span>
+              <span className={cn("mb-1 block", OPERATOR_TYPOGRAPHY.helper)}>{OPERATOR_DATE_RANGE_START_LABEL}</span>
               <input
                 type="datetime-local"
                 className={cn(
@@ -144,7 +141,7 @@ export function PilotValueReportPageView(props: Props) {
               />
             </label>
             <label className={cn("block", OPERATOR_TYPOGRAPHY.body)}>
-              <span className={cn("mb-1 block", OPERATOR_TYPOGRAPHY.helper)}>End date</span>
+              <span className={cn("mb-1 block", OPERATOR_TYPOGRAPHY.helper)}>{OPERATOR_DATE_RANGE_END_LABEL}</span>
               <input
                 type="datetime-local"
                 className={cn(

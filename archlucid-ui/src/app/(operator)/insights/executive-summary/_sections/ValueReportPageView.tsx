@@ -10,6 +10,7 @@ import { LayerHeader } from "@/components/LayerHeader";
 import { PageContextualHelpButton } from "@/components/usability/PageContextualHelpButton";
 import { ValueReportOutcomesNav } from "@/components/usability/ValueReportOutcomesNav";
 import { OperatorApiProblem } from "@/components/operator/OperatorApiProblem";
+import { OperatorPageHeader } from "@/components/operator/OperatorPageHeader";
 import { Button } from "@/components/ui/button";
 import { WhyDisabledCtaHint } from "@/components/usability/WhyDisabledCtaHint";
 import { firstWhyDisabledCtaReason, type WhyDisabledCtaReason } from "@/lib/why-disabled-cta";
@@ -99,24 +100,22 @@ export function ValueReportPageView({ model }: ValueReportPageViewProps) {
   return (
     <OperatorPageContainer variant="dashboard" className="space-y-4 print:w-full">
       {buyerPolishedShell ? null : <LayerHeader pageKey="value-report" />}
-      <div className="flex flex-wrap items-center justify-end gap-2 print:hidden">
-        <PageContextualHelpButton />
-      </div>
       <ValueReportOutcomesNav />
 <DocumentLayout>
-        <header className="space-y-2">
-          <h1 className={`m-0 ${OPERATOR_TYPOGRAPHY.pageTitle}`}>{BUYER_VALUE_REPORT_PAGE_TITLE}</h1>
-          {buyerPolishedShell ? (
-            <>
-              <p className={cn("m-0 max-w-3xl text-al-text-secondary", OPERATOR_TYPOGRAPHY.body)}>
-                {BUYER_VALUE_REPORT_PAGE_SUBTITLE}
-              </p>
-              <p className={cn("m-0 max-w-3xl text-al-text-secondary", OPERATOR_TYPOGRAPHY.helper)}>
-                {BUYER_VALUE_REPORT_OUTCOME_LEAD}
-              </p>
-            </>
-          ) : null}
-        </header>
+        <OperatorPageHeader
+          title={BUYER_VALUE_REPORT_PAGE_TITLE}
+          headingLevel="h1"
+          subtitle={
+            buyerPolishedShell ? (
+              <>
+                <p className="m-0">{BUYER_VALUE_REPORT_PAGE_SUBTITLE}</p>
+                <p className="m-0 mt-2">{BUYER_VALUE_REPORT_OUTCOME_LEAD}</p>
+              </>
+            ) : null
+          }
+          subtitleClassName="max-w-3xl"
+          actions={<PageContextualHelpButton />}
+        />
 
         <CollapsibleSection title={BUYER_VALUE_REPORT_HOW_IT_WORKS_TITLE} defaultOpen={false} sectionTestId="value-report-how-it-works">
           <p className={cn("m-0 text-al-text-secondary", OPERATOR_TYPOGRAPHY.body)}>{BUYER_VALUE_REPORT_HOW_IT_WORKS_DETAILS}</p>
