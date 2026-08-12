@@ -21,8 +21,6 @@ const EXEMPT_PREFIXES: readonly string[] = ["app/(operator)/auth/"];
  */
 const HAND_ROLLED_PAGE_TITLE_BASELINE: ReadonlySet<string> = new Set([
   "app/(operator)/_sections/OperatorHomePageSuspenseFallback.tsx",
-  "app/(operator)/administration/users/_sections/InviteReviewerPageView.tsx",
-  "app/(operator)/architecture/digests/page.tsx",
   "app/(operator)/architecture/reviews/[runId]/_sections/RunDetailPageFetchErrorView.tsx",
   "app/(operator)/architecture/reviews/[runId]/_sections/RunDetailPageMalformedResponseView.tsx",
   "app/(operator)/architecture/reviews/[runId]/_sections/RunDetailWorkspaceChrome.tsx",
@@ -31,14 +29,10 @@ const HAND_ROLLED_PAGE_TITLE_BASELINE: ReadonlySet<string> = new Set([
   "app/(operator)/architecture/reviews/[runId]/page.tsx",
   "app/(operator)/architecture/reviews/[runId]/print/_sections/PackagePrintPageView.tsx",
   "app/(operator)/governance/_sections/GovernanceWorkflowSuspenseFallback.tsx",
-  "app/(operator)/governance/audit/page.tsx",
-  "app/(operator)/governance/policy-packs/[id]/HealthcareClaimsPolicyPackDetail.tsx",
   "app/(operator)/governance/signed-records/[manifestId]/_sections/ManifestDetailPageErrorViews.tsx",
   "app/(operator)/governance/signed-records/[manifestId]/_sections/ManifestDetailPageView.tsx",
   "app/(operator)/governance/signed-records/[manifestId]/artifacts/[artifactId]/loading.tsx",
   "app/(operator)/governance/signed-records/[manifestId]/loading.tsx",
-  "app/(operator)/insights/architecture-scorecard/_sections/PilotScorecardPageView.tsx",
-  "app/(operator)/insights/roi-summary/_sections/RoiSummaryPageView.tsx",
 ]);
 
 function collectPageViews(directory: string): string[] {

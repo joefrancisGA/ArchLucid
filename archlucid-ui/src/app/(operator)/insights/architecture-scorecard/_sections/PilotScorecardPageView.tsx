@@ -7,6 +7,7 @@ import { useMemo } from "react";
 
 import { CollapsibleSection } from "@/components/CollapsibleSection";
 import { OperatorPageContainer } from "@/components/operator/OperatorPageContainer";
+import { OperatorPageHeader } from "@/components/operator/OperatorPageHeader";
 import { ScorecardRoiVocabularyRail } from "@/components/ScorecardRoiVocabularyRail";
 import { PageContextualHelpButton } from "@/components/usability/PageContextualHelpButton";
 import { ValueReportOutcomesNav } from "@/components/usability/ValueReportOutcomesNav";
@@ -157,25 +158,32 @@ export function PilotScorecardPageView({ model }: PilotScorecardPageViewProps) {
     <OperatorPageContainer variant="dashboard" className="space-y-4" data-testid="review-scorecard-page">
       <ValueReportOutcomesNav />
       <ScorecardRoiVocabularyRail currentSurfaceId="scorecard" />
-      <header className="space-y-2 border-b border-neutral-200 pb-4 dark:border-neutral-800">
-        <div className="flex flex-col gap-3 sm:flex-row sm:items-start sm:justify-between">
-          <div className="space-y-2">
-            <h1 className={OPERATOR_TYPOGRAPHY.pageTitle}>{REVIEW_SCORECARD_PAGE_TITLE}</h1>
-            <p className={cn("m-0 max-w-3xl", OPERATOR_TYPOGRAPHY.helper)}>{REVIEW_SCORECARD_PAGE_SUBTITLE}</p>
+      <OperatorPageHeader
+        title={REVIEW_SCORECARD_PAGE_TITLE}
+        headingLevel="h1"
+        subtitle={REVIEW_SCORECARD_PAGE_SUBTITLE}
+        subtitleClassName="max-w-3xl"
+        metadata={
+          <>
             {scopeCue !== null ? (
-              <p className={cn("m-0 text-al-text-secondary", OPERATOR_TYPOGRAPHY.helper)} data-testid="review-scorecard-scope-cue">
+              <span
+                className={cn("text-al-text-secondary", OPERATOR_TYPOGRAPHY.helper)}
+                data-testid="review-scorecard-scope-cue"
+              >
                 {scopeCue}
-              </p>
+              </span>
             ) : null}
             {metricsAsOfLabel !== null ? (
-              <p
-                className={cn("m-0 text-al-text-secondary", OPERATOR_TYPOGRAPHY.helper)}
+              <span
+                className={cn("text-al-text-secondary", OPERATOR_TYPOGRAPHY.helper)}
                 data-testid="review-scorecard-metrics-as-of"
               >
                 {metricsAsOfLabel}
-              </p>
+              </span>
             ) : null}
-          </div>
+          </>
+        }
+        actions={
           <div className="flex shrink-0 flex-col items-stretch gap-2 sm:items-end print:hidden">
             <PageContextualHelpButton />
             <nav
@@ -193,8 +201,8 @@ export function PilotScorecardPageView({ model }: PilotScorecardPageViewProps) {
               </Link>
             </nav>
           </div>
-        </div>
-      </header>
+        }
+      />
 
       <section
         className="rounded-md border border-neutral-200 bg-al-surface-raised p-3 dark:border-neutral-800"

@@ -3,6 +3,7 @@
 import Link from "next/link";
 
 import { DemoWorkspaceCapabilityUnavailablePanel } from "@/components/DemoWorkspaceCapabilityUnavailablePanel";
+import { OperatorPageHeader } from "@/components/operator/OperatorPageHeader";
 import { Button } from "@/components/ui/button";
 import { Card, CardContent, CardHeader, CardTitle } from "@/components/ui/card";
 import { PageContextualHelpButton } from "@/components/usability/PageContextualHelpButton";
@@ -94,18 +95,20 @@ export function InviteReviewerPageView(props: Props) {
 
 function InviteReviewerPageHeader(): React.JSX.Element {
   return (
-    <header className="space-y-2">
-      <div className="flex flex-wrap items-start justify-between gap-2">
-        <Button type="button" variant="outline" size="sm" className="-ml-2 h-8 px-2" asChild>
-          <Link href={INVITE_REVIEWER_BACK_TO_REVIEW_HREF}>{INVITE_REVIEWER_BACK_LABEL}</Link>
-        </Button>
-        <PageContextualHelpButton />
-      </div>
-      <div>
-        <h1 className={OPERATOR_TYPOGRAPHY.pageTitle}>{INVITE_REVIEWER_PAGE_TITLE}</h1>
-        <p className={cn("mt-1 text-al-text-secondary", OPERATOR_TYPOGRAPHY.body)}>{INVITE_REVIEWER_PAGE_LEAD}</p>
-        <InviteReviewerReaderCapabilitiesSummary />
-      </div>
-    </header>
+    <OperatorPageHeader
+      title={INVITE_REVIEWER_PAGE_TITLE}
+      headingLevel="h1"
+      subtitle={INVITE_REVIEWER_PAGE_LEAD}
+      actions={
+        <div className="flex flex-wrap items-center gap-2">
+          <Button type="button" variant="outline" size="sm" className="h-8 px-2" asChild>
+            <Link href={INVITE_REVIEWER_BACK_TO_REVIEW_HREF}>{INVITE_REVIEWER_BACK_LABEL}</Link>
+          </Button>
+          <PageContextualHelpButton />
+        </div>
+      }
+    >
+      <InviteReviewerReaderCapabilitiesSummary />
+    </OperatorPageHeader>
   );
 }

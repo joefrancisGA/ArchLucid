@@ -5,6 +5,7 @@ import Link from "next/link";
 
 import { DemoWorkspaceCapabilityUnavailablePanel } from "@/components/DemoWorkspaceCapabilityUnavailablePanel";
 import { OperatorPageContainer } from "@/components/operator/OperatorPageContainer";
+import { OperatorPageHeader } from "@/components/operator/OperatorPageHeader";
 import { DocumentLayout } from "@/components/DocumentLayout";
 import { LayerHeader } from "@/components/LayerHeader";
 import { BaselineRoiVocabularyRail } from "@/components/BaselineRoiVocabularyRail";
@@ -104,41 +105,36 @@ export function RoiSummaryPageView(props: Props) {
   return (
     <OperatorPageContainer variant="dashboard" className="space-y-4">
       {layerHeader}
-      <div className="flex flex-wrap items-center justify-end gap-2 print:hidden">
-        <PageContextualHelpButton />
-      </div>
       <ValueReportOutcomesNav />
       <RoiSponsorExportVocabularyRail currentSurfaceId="roi-summary" />
       <ScorecardRoiVocabularyRail currentSurfaceId="roi-summary" />
       <BaselineRoiVocabularyRail currentSurfaceId="roi-summary" />
       <DocumentLayout>
-        <div className="flex flex-wrap items-start justify-between gap-3">
-          <div>
-            <h1 className={cn("m-0", OPERATOR_TYPOGRAPHY.pageTitle)}>ROI summary</h1>
-            {buyerPolishedShell ? (
-              <p className={cn("m-0 mt-2 max-w-3xl text-al-text-secondary", OPERATOR_TYPOGRAPHY.body)}>
-                {ROI_SUMMARY_PAGE_SUBTITLE}
-              </p>
-            ) : null}
-          </div>
-          <nav
-            aria-label="Related value reports"
-            className={cn("flex flex-wrap items-center gap-x-3 gap-y-1 text-al-text-secondary", OPERATOR_TYPOGRAPHY.helper)}
-          >
-            <Link href="/insights/pilot-outcomes" className={OPERATOR_LINK.inline}>
-              Pilot value report
-            </Link>
-            <Link href="/administration/baseline" className={OPERATOR_LINK.inline}>
-
-              Baseline settings
-
-            </Link>
-
-            <Link href={GOVERNANCE_WORKSPACE_HEALTH_HREF} className={OPERATOR_LINK.inline}>
-              Workspace health
-            </Link>
-          </nav>
-        </div>
+        <OperatorPageHeader
+          title="ROI summary"
+          headingLevel="h1"
+          subtitle={buyerPolishedShell ? ROI_SUMMARY_PAGE_SUBTITLE : null}
+          subtitleClassName="max-w-3xl"
+          actions={
+            <div className="flex flex-wrap items-center gap-2">
+              <PageContextualHelpButton />
+              <nav
+                aria-label="Related value reports"
+                className={cn("flex flex-wrap items-center gap-x-3 gap-y-1 text-al-text-secondary", OPERATOR_TYPOGRAPHY.helper)}
+              >
+                <Link href="/insights/pilot-outcomes" className={OPERATOR_LINK.inline}>
+                  Pilot value report
+                </Link>
+                <Link href="/administration/baseline" className={OPERATOR_LINK.inline}>
+                  Baseline settings
+                </Link>
+                <Link href={GOVERNANCE_WORKSPACE_HEALTH_HREF} className={OPERATOR_LINK.inline}>
+                  Workspace health
+                </Link>
+              </nav>
+            </div>
+          }
+        />
 
         <RoiSummaryHeroStrip
           period={heroPeriod}
