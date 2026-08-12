@@ -2,7 +2,7 @@
 
 import { useEffect, useState } from "react";
 
-import { loadCurrentPrincipal } from "@/lib/current-principal";
+import { useOperatorNavAuthority } from "@/components/operator/OperatorNavAuthorityProvider";
 import { fetchHealthReadySummary } from "@/lib/fetch-health-ready";
 import {
   countFinishSetupReadySteps,
@@ -25,32 +25,31 @@ const INITIAL_CONTEXT: FinishSetupWizardContext = {
 
 /** Loads health + principal signals used by finish-setup readiness and operator-home metrics. */
 export function useFinishSetupReadinessContext(): FinishSetupReadinessSummary {
-  const [phase, setPhase] = useState<"loading" | "ready">("loading");
-  const [context, setContext] = useState<FinishSetupWizardContext | null>(null);
+  const { currentPrincipal, isAuthorityLoading } = useOperatorNavAuthority();
+  const [healthPhase, setHealthPhase] = useState<"loading" | "ready">("loading");
+  const [healthReady, setHealthReady] = useState(false);
+  const [healthLoadFailed, setHealthLoadFailed] = useState(true);
 
   useEffect(() => {
     let canceled = false;
 
     void (async () => {
-      const principal = await loadCurrentPrincipal();
-      let healthReady = false;
-      let healthLoadFailed = true;
+      setHealthPhase("loading");
 
       try {
         const health = await fetchHealthReadySummary();
-        healthReady = health !== null && health.status.toLowerCase().includes("healthy");
-        healthLoadFailed = health === null;
-      } catch {
-        healthLoadFailed = true;
-      }
+        const ready = health !== null && health.status.toLowerCase().includes("healthy");
 
-      if (!canceled) {
-        setContext({
-          healthReady,
-          healthLoadFailed,
-          principalAdmin: (principal?.authorityRank ?? 0) >= AUTHORITY_RANK.AdminAuthority,
-        });
-        setPhase("ready");
+        if (!canceled) {
+          setHealthReady(ready);
+          setHealthLoadFailed(health === null);
+          setHealthPhase("ready");
+        }
+      } catch {
+        if (!canceled) {
+          setHealthLoadFailed(true);
+          setHealthPhase("ready");
+        }
       }
     })();
 
@@ -59,12 +58,20 @@ export function useFinishSetupReadinessContext(): FinishSetupReadinessSummary {
     };
   }, []);
 
-  const resolvedContext = context ?? INITIAL_CONTEXT;
-  const counts = countFinishSetupReadySteps(resolvedContext);
+  const phase = isAuthorityLoading || healthPhase === "loading" ? "loading" : "ready";
+  const context: FinishSetupWizardContext =
+    phase === "ready"
+      ? {
+          healthReady,
+          healthLoadFailed,
+          principalAdmin: currentPrincipal.authorityRank >= AUTHORITY_RANK.AdminAuthority,
+        }
+      : INITIAL_CONTEXT;
+  const counts = countFinishSetupReadySteps(context);
 
   return {
     phase,
-    context: phase === "ready" ? resolvedContext : null,
+    context: phase === "ready" ? context : null,
     readyCount: counts.ready,
     totalCount: counts.total,
   };

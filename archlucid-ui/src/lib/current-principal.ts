@@ -146,6 +146,19 @@ export function principalHasPermission(principal: CurrentPrincipal, permission: 
 
 const ME_PATH = "/api/proxy/api/auth/me";
 
+/** Align with proxy `Cache-Control: private, max-age=60` for `/api/auth/me`. */
+const AUTH_ME_CLIENT_CACHE_TTL_MS = 60_000;
+
+let cachedAuthMePrincipal: CurrentPrincipal | null = null;
+let cachedAuthMePrincipalExpiresAtMs = 0;
+let inFlightAuthMePrincipal: Promise<CurrentPrincipal> | null = null;
+
+/** Clears the browser `/me` client cache (tests and explicit invalidation). */
+export function invalidateCurrentPrincipalCache(): void {
+  cachedAuthMePrincipal = null;
+  cachedAuthMePrincipalExpiresAtMs = 0;
+}
+
 function collectPermissionClaimValues(claims: ReadonlyArray<{ type: string; value: string }>): readonly string[] {
   const values: string[] = [];
 
@@ -179,7 +192,7 @@ export async function buildAuthMeProxyRequestInit(): Promise<RequestInit> {
   }
 
   return mergeRegistrationScopeForProxy({
-    cache: "no-store",
+    cache: "default",
     credentials: "same-origin",
     headers,
   });
@@ -286,23 +299,15 @@ export function normalizeAuthMeResponse(payload: AuthMeResponse): CurrentPrincip
   };
 }
 
-/**
- * Loads the current principal from `/api/proxy/api/auth/me`.
- *
- * - **Non-browser:** returns a synthetic Read principal (`non-browser`) — do not call from RSC for real auth state.
- * - **JWT, not signed in:** synthetic Read (`jwt-unsigned`) without calling `/me`.
- * - **development-bypass:** calls `/me` using the proxy’s server API key so the dev role still shapes the UI.
- * - **`/me` failure:** conservative synthetic Read (`me-http` / `me-network`).
- */
-export async function loadCurrentPrincipal(options?: { init?: RequestInit }): Promise<CurrentPrincipal> {
-  if (typeof window === "undefined") {
-    return createSyntheticPrincipal("non-browser");
-  }
+export type LoadCurrentPrincipalOptions = {
+  readonly init?: RequestInit;
+  /** When true, skip the in-memory `/me` cache (e.g. window-focus refresh). */
+  readonly bypassCache?: boolean;
+};
 
-  if (isJwtAuthMode() && !isLikelySignedIn()) {
-    return createSyntheticPrincipal("jwt-unsigned");
-  }
-
+async function fetchCurrentPrincipalFromNetwork(
+  options?: LoadCurrentPrincipalOptions,
+): Promise<CurrentPrincipal> {
   try {
     const init = options?.init ?? (await buildAuthMeProxyRequestInit());
     const response = await fetch(ME_PATH, init);
@@ -316,6 +321,64 @@ export async function loadCurrentPrincipal(options?: { init?: RequestInit }): Pr
     return applyDevRoleOverrideToPrincipal(normalizeAuthMeResponse(body));
   } catch {
     return createSyntheticPrincipal("me-network");
+  }
+}
+
+function rememberAuthMePrincipal(principal: CurrentPrincipal): CurrentPrincipal {
+  if (principal.provenance !== "auth-me") {
+    return principal;
+  }
+
+  cachedAuthMePrincipal = principal;
+  cachedAuthMePrincipalExpiresAtMs = Date.now() + AUTH_ME_CLIENT_CACHE_TTL_MS;
+
+  return principal;
+}
+
+/**
+ * Loads the current principal from `/api/proxy/api/auth/me`.
+ *
+ * - **Non-browser:** returns a synthetic Read principal (`non-browser`) — do not call from RSC for real auth state.
+ * - **JWT, not signed in:** synthetic Read (`jwt-unsigned`) without calling `/me`.
+ * - **development-bypass:** calls `/me` using the proxy’s server API key so the dev role still shapes the UI.
+ * - **`/me` failure:** conservative synthetic Read (`me-http` / `me-network`).
+ * - **Browser:** coalesces parallel callers and caches successful `/me` bodies briefly (see `AUTH_ME_CLIENT_CACHE_TTL_MS`).
+ */
+export async function loadCurrentPrincipal(options?: LoadCurrentPrincipalOptions): Promise<CurrentPrincipal> {
+  if (typeof window === "undefined") {
+    return createSyntheticPrincipal("non-browser");
+  }
+
+  if (isJwtAuthMode() && !isLikelySignedIn()) {
+    return createSyntheticPrincipal("jwt-unsigned");
+  }
+
+  const now = Date.now();
+
+  if (
+    options?.bypassCache !== true
+    && cachedAuthMePrincipal !== null
+    && now < cachedAuthMePrincipalExpiresAtMs
+  ) {
+    return cachedAuthMePrincipal;
+  }
+
+  if (options?.bypassCache !== true && inFlightAuthMePrincipal !== null) {
+    return inFlightAuthMePrincipal;
+  }
+
+  const fetchPromise = fetchCurrentPrincipalFromNetwork(options).then((principal) =>
+    rememberAuthMePrincipal(principal),
+  );
+
+  inFlightAuthMePrincipal = fetchPromise;
+
+  try {
+    return await fetchPromise;
+  } finally {
+    if (inFlightAuthMePrincipal === fetchPromise) {
+      inFlightAuthMePrincipal = null;
+    }
   }
 }
 

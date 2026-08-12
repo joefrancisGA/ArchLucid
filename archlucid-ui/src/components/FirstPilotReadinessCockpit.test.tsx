@@ -29,14 +29,25 @@ vi.mock("@/lib/core-pilot-commit-context", async (importOriginal) => {
   };
 });
 
-vi.mock("@/lib/current-principal", async (importOriginal) => {
-  const actual = await importOriginal<typeof import("@/lib/current-principal")>();
-
-  return {
-    ...actual,
-    loadCurrentPrincipal: vi.fn(async () => actual.shellBootstrapReadPrincipal),
-  };
-});
+vi.mock("@/components/operator/OperatorNavAuthorityProvider", () => ({
+  useOperatorNavAuthority: () => ({
+    currentPrincipal: {
+      provenance: "synthetic",
+      syntheticReason: undefined,
+      name: null,
+      roleClaimValues: [],
+      primaryAppRole: null,
+      maxAuthority: "ReadAuthority",
+      authorityRank: 1,
+      hasEnterpriseOperatorSurfaces: false,
+      hasCommittedArchitectureReview: false,
+      hasRecognizedArchLucidRole: false,
+      permissionClaimValues: [],
+    },
+    callerAuthorityRank: 1,
+    isAuthorityLoading: false,
+  }),
+}));
 
 vi.mock("@/lib/api", () => ({
   getPilotScorecard: vi.fn(async () => null),

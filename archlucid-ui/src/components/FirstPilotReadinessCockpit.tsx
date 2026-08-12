@@ -8,13 +8,14 @@ import { FirstPilotProofStatusStrip } from "@/components/FirstPilotProofStatusSt
 import { FirstPilotReadinessCockpitLoadingBody } from "@/components/FirstPilotReadinessCockpitLoadingBody";
 import { FirstPilotReadinessGroupTable } from "@/components/FirstPilotReadinessGroupTable";
 import { FirstPilotTechnicalCommandDisclosure } from "@/components/FirstPilotTechnicalCommandDisclosure";
+import { useOperatorNavAuthority } from "@/components/operator/OperatorNavAuthorityProvider";
 import { OperatorAiQualityProofCard } from "@/components/operator/OperatorAiQualityProofCard";
 import { buildTier1InventoryExtractorCommandLines } from "@/lib/get-archlucid-cloud-package-command";
 import { OperatorHomeDisclosureSection } from "@/components/operator-home/OperatorHomeDisclosureSection";
 import { Button } from "@/components/ui/button";
 import { StatusTag } from "@/components/ui/status-tag";
 import { getPilotScorecard } from "@/lib/api";
-import { loadCurrentPrincipal, shellBootstrapReadPrincipal, type CurrentPrincipal } from "@/lib/current-principal";
+import type { CurrentPrincipal } from "@/lib/current-principal";
 import { resolveFirstPilotCommandCenterPhase } from "@/lib/first-pilot-command-center-phase";
 import {
   FIRST_PILOT_SPONSOR_PROOF_CLI_COMMAND,
@@ -167,12 +168,12 @@ function ReadinessStatusCountsBar({ rows }: { readonly rows: readonly FirstPilot
 
 /** Single first-pilot command center: phase, readiness rows, sponsor disposition, and next action in one place. */
 export function FirstPilotReadinessCockpit() {
-  const bootstrapPrincipal = shellBootstrapReadPrincipal;
-  const adminConfigProbeEnabled = bootstrapPrincipal.authorityRank >= AUTHORITY_RANK.AdminAuthority;
-  const initialPendingProbes = adminConfigProbeEnabled ? 5 : 4;
+  const { currentPrincipal, isAuthorityLoading } = useOperatorNavAuthority();
+  const principal: CurrentPrincipal = currentPrincipal;
+  const adminConfigProbeEnabled = principal.authorityRank >= AUTHORITY_RANK.AdminAuthority;
+  const initialPendingProbes = adminConfigProbeEnabled ? 4 : 3;
 
   const [pendingProbes, setPendingProbes] = useState(initialPendingProbes);
-  const [principal, setPrincipal] = useState<CurrentPrincipal>(bootstrapPrincipal);
   const [runs, setRuns] = useState<readonly RunSummary[]>([]);
   const [commitCtx, setCommitCtx] = useState<CorePilotCommitContext>(EMPTY_COMMIT_CONTEXT);
   const [scorecard, setScorecard] = useState<PilotScorecardJson | null>(null);
@@ -200,7 +201,13 @@ export function FirstPilotReadinessCockpit() {
   );
 
   useEffect(() => {
+    if (isAuthorityLoading) {
+      return;
+    }
+
     let canceled = false;
+
+    setPendingProbes(adminConfigProbeEnabled ? 4 : 3);
 
     void fetchHealthReadySummary()
       .then((readyBody) => {
@@ -210,20 +217,6 @@ export function FirstPilotReadinessCockpit() {
 
         setHealthStatus(readyBody?.status ?? null);
         setHealthLoadFailed(readyBody === null);
-      })
-      .finally(() => {
-        if (!canceled) {
-          finishProbe();
-        }
-      });
-
-    void loadCurrentPrincipal()
-      .then((loadedPrincipal) => {
-        if (canceled) {
-          return;
-        }
-
-        setPrincipal(loadedPrincipal);
       })
       .finally(() => {
         if (!canceled) {
@@ -301,7 +294,7 @@ export function FirstPilotReadinessCockpit() {
     return () => {
       canceled = true;
     };
-  }, [adminConfigProbeEnabled, finishProbe]);
+  }, [adminConfigProbeEnabled, finishProbe, isAuthorityLoading]);
 
   const rows = useMemo(
     () =>
@@ -341,7 +334,7 @@ export function FirstPilotReadinessCockpit() {
     [signals, baselinesEntered, canExecute, blocker],
   );
 
-  const probesLoading = pendingProbes > 0;
+  const probesLoading = isAuthorityLoading || pendingProbes > 0;
   const curatedHome = isBuyerShellHomePresentation();
   const reviewPackageHref =
     commitCtx.firstCommittedRunId !== null

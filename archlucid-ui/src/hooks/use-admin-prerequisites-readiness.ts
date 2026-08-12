@@ -2,11 +2,11 @@
 
 import { useEffect, useMemo, useState } from "react";
 
+import { useOperatorNavAuthority } from "@/components/operator/OperatorNavAuthorityProvider";
 import { listAwsTier2Connections } from "@/lib/api/aws-cloud-connections-api";
 import { listTier2Connections } from "@/lib/api/cloud-connections-api";
 import { listGcpTier2Connections } from "@/lib/api/gcp-cloud-connections-api";
 import { fetchBillingSubscriptionStatus } from "@/lib/billing-subscription-status-client";
-import { loadCurrentPrincipal } from "@/lib/current-principal";
 import { fetchAdminConfigLintSummary } from "@/lib/fetch-admin-config-lint";
 import { fetchHealthReadySummary } from "@/lib/fetch-health-ready";
 import type { FinishSetupWizardContext } from "@/lib/finish-setup-wizard-steps";
@@ -100,6 +100,7 @@ async function fetchCloudSummary(): Promise<ResolveAdminPrerequisitesReadinessIn
 
 /** Loads admin prerequisite probes for the settings hub readiness board (TB-2156). */
 export function useAdminPrerequisitesReadiness(enabled: boolean): AdminPrerequisitesReadinessState {
+  const { currentPrincipal, isAuthorityLoading } = useOperatorNavAuthority();
   const [phase, setPhase] = useState<"loading" | "ready">("loading");
   const [input, setInput] = useState<ResolveAdminPrerequisitesReadinessInput | null>(null);
 
@@ -111,12 +112,17 @@ export function useAdminPrerequisitesReadiness(enabled: boolean): AdminPrerequis
       return;
     }
 
+    if (isAuthorityLoading) {
+      setPhase("loading");
+
+      return;
+    }
+
     let canceled = false;
 
     void (async () => {
       setPhase("loading");
 
-      const principal = await loadCurrentPrincipal();
       let healthReady = false;
       let healthLoadFailed = true;
 
@@ -141,7 +147,7 @@ export function useAdminPrerequisitesReadiness(enabled: boolean): AdminPrerequis
           finishSetupContext: {
             healthReady,
             healthLoadFailed,
-            principalAdmin: (principal?.authorityRank ?? 0) >= AUTHORITY_RANK.AdminAuthority,
+            principalAdmin: currentPrincipal.authorityRank >= AUTHORITY_RANK.AdminAuthority,
           },
           configLint,
           includeHostConfigurationLint,
@@ -160,7 +166,7 @@ export function useAdminPrerequisitesReadiness(enabled: boolean): AdminPrerequis
     return () => {
       canceled = true;
     };
-  }, [enabled]);
+  }, [currentPrincipal.authorityRank, enabled, isAuthorityLoading]);
 
   return useMemo(() => {
     if (!enabled || input === null) {

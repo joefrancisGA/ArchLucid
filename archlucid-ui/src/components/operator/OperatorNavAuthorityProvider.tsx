@@ -81,7 +81,7 @@ export function OperatorNavAuthorityProvider({ children }: { children: ReactNode
 
     const refreshPromise = (async (): Promise<void> => {
       try {
-        const principal = await loadCurrentPrincipal();
+        const principal = await loadCurrentPrincipal({ bypassCache: true });
 
         setCallerAuthorityRank(principal.authorityRank);
         setCurrentPrincipal(principal);
