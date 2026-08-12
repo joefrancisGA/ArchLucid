@@ -3,24 +3,24 @@
 import { cn } from "@/lib/utils";
 import { OPERATOR_TYPOGRAPHY } from "@/lib/design-tokens";
 
-import { useEffect, useState, type ReactElement } from "react";
+import { useCallback, useEffect, useRef, useState, type ReactElement } from "react";
 
+import { EnterpriseCompactEmptyState } from "@/components/EnterpriseCompactEmptyState";
 import {
-  ConnectorReadinessCard,
+  IntegrationConnectorInventoryTable,
   IntegrationReadinessSummaryStrip,
   IntegrationRecommendedFirstSetupCard,
+  type IntegrationConnectorInventoryRow,
 } from "@/components/integrations/IntegrationReadinessSections";
-import { OperatorApiProblem } from "@/components/operator/OperatorApiProblem";
+import { OperatorSectionLoadFailure } from "@/components/operator/OperatorSectionLoadFailure";
 import { OperatorLoadingNotice } from "@/components/operator/OperatorShellMessage";
 import { fetchTenantIntegrationsOperations } from "@/lib/api";
-import type { ApiProblemDetails } from "@/lib/api-problem";
 import {
   CONNECTOR_PURPOSE_GROUPS,
   connectorCardTitle,
   formatConnectorCustomerSummary,
   formatIntegrationEventBusTechnicalDetails,
   groupConnectorsByPurpose,
-  resolveConnectorBestFor,
   resolveConnectorDisplayStatus,
   resolveConnectorGuidance,
   resolveConnectorHumanStatus,
@@ -34,53 +34,82 @@ import {
 } from "@/lib/connector-readiness-summary";
 import {
   isConnectorDisabledForDeployment,
-  resolveConnectorConfigureHelper,
   resolveConnectorDetailsLabel,
+  resolveConnectorRowActionLabel,
   resolveIntegrationBackgroundDeliveryLabel,
 } from "@/lib/integration-readiness-present";
 import type { TenantIntegrationsOperationsDto } from "@/types/operate-rhythm";
 
+const CONNECTION_STATUS_EMPTY_STATE = {
+  title: "No integrations to show yet",
+  description:
+    "This workspace returned no integration rows. Core review workflows still work without optional delivery channels.",
+} as const;
+
 export function ConnectorOperationsDashboard(): ReactElement {
   const [data, setData] = useState<TenantIntegrationsOperationsDto | null>(null);
-  const [lastCheckedAt, setLastCheckedAt] = useState<Date | null>(null);
-  const [problem, setProblem] = useState<{ problem?: ApiProblemDetails; message: string } | null>(null);
+  const [configurationReadAt, setConfigurationReadAt] = useState<Date | null>(null);
+  const [loadFailureMessage, setLoadFailureMessage] = useState<string | null>(null);
   const [loading, setLoading] = useState(true);
+  const [retrying, setRetrying] = useState(false);
 
-  useEffect(() => {
-    let cancelled = false;
+  const latestRequestRef = useRef<number>(0);
+  const mountedRef = useRef<boolean>(false);
 
-    async function load(): Promise<void> {
-      setLoading(true);
-      setProblem(null);
+  const load = useCallback(async (): Promise<void> => {
+    // Repeated retries can overlap, so only the newest read is allowed to write state.
+    // Without this an earlier slow failure could land after a later success and replace
+    // freshly loaded data with an error.
+    const requestId: number = latestRequestRef.current + 1;
+    latestRequestRef.current = requestId;
 
-      try {
-        const row = await fetchTenantIntegrationsOperations();
+    const isCurrentRequest = (): boolean => mountedRef.current && latestRequestRef.current === requestId;
 
-        if (!cancelled) {
-          setData(row);
-          setLastCheckedAt(new Date());
-        }
-      } catch (e: unknown) {
-        if (!cancelled) {
-          setProblem({ message: e instanceof Error ? e.message : "Could not load connector operations summary." });
-          setData(null);
-          setLastCheckedAt(null);
-        }
-      } finally {
-        if (!cancelled) {
-          setLoading(false);
-        }
+    setLoading(true);
+    setLoadFailureMessage(null);
+
+    try {
+      const row = await fetchTenantIntegrationsOperations();
+
+      if (!isCurrentRequest()) {
+        return;
+      }
+
+      setData(row);
+      setConfigurationReadAt(new Date());
+    } catch (error: unknown) {
+      if (!isCurrentRequest()) {
+        return;
+      }
+
+      setData(null);
+      setConfigurationReadAt(null);
+      setLoadFailureMessage(
+        error instanceof Error ? error.message : "Could not load connector operations summary.",
+      );
+    } finally {
+      if (isCurrentRequest()) {
+        setLoading(false);
+        setRetrying(false);
       }
     }
+  }, []);
 
+  useEffect(() => {
+    mountedRef.current = true;
     void load();
 
     return () => {
-      cancelled = true;
+      mountedRef.current = false;
     };
-  }, []);
+  }, [load]);
 
-  if (loading && !data) {
+  const handleRetry = useCallback((): void => {
+    setRetrying(true);
+    void load();
+  }, [load]);
+
+  if (loading && data === null && loadFailureMessage === null) {
     return (
       <OperatorLoadingNotice>
         <strong>Loading connection status.</strong>
@@ -88,12 +117,36 @@ export function ConnectorOperationsDashboard(): ReactElement {
     );
   }
 
-  if (problem !== null) {
-    return <OperatorApiProblem problem={problem.problem} fallbackMessage={problem.message} variant="warning" />;
+  if (loadFailureMessage !== null) {
+    return (
+      <OperatorSectionLoadFailure
+        message={loadFailureMessage}
+        retrying={retrying || loading}
+        testId="connection-status-load-failure"
+        onRetry={handleRetry}
+      />
+    );
   }
 
-  if (!data || lastCheckedAt === null) {
-    return <></>;
+  if (data === null || configurationReadAt === null) {
+    return (
+      <OperatorSectionLoadFailure
+        message="Connection status could not be loaded."
+        retrying={retrying || loading}
+        testId="connection-status-load-failure"
+        onRetry={handleRetry}
+      />
+    );
+  }
+
+  if (data.connectors.length === 0) {
+    return (
+      <EnterpriseCompactEmptyState
+        title={CONNECTION_STATUS_EMPTY_STATE.title}
+        description={CONNECTION_STATUS_EMPTY_STATE.description}
+        testId="connection-status-empty-state"
+      />
+    );
   }
 
   const groupedConnectors = groupConnectorsByPurpose(data.connectors);
@@ -102,10 +155,42 @@ export function ConnectorOperationsDashboard(): ReactElement {
   const recommendedFirstSetup = buildIntegrationRecommendedFirstSetup(data);
   const eventBusHumanStatus = resolveIntegrationEventBusHumanStatus(data.integrationEventBus);
   const eventBusBackgroundLabel = resolveIntegrationBackgroundDeliveryLabel(data.integrationEventBus);
+  const eventBusDisplayStatus =
+    eventBusBackgroundLabel === "Configured"
+      ? "Ready"
+      : eventBusBackgroundLabel === "Not configured"
+        ? "Needs attention"
+        : "Optional";
+
+  const buildInventoryRow = (
+    connectorKey: string,
+    title: string,
+    displayStatus: ReturnType<typeof resolveConnectorDisplayStatus>,
+    guidance: string,
+    configurationHref: string | null,
+    technicalDetails: string,
+    disabledForDeployment: boolean,
+    testId: string,
+  ): IntegrationConnectorInventoryRow => ({
+    key: connectorKey,
+    title,
+    displayStatus,
+    guidance,
+    configurationHref,
+    rowActionLabel: resolveConnectorRowActionLabel(displayStatus, disabledForDeployment, configurationHref),
+    detailsLabel: resolveConnectorDetailsLabel(displayStatus, disabledForDeployment),
+    technicalDetails,
+    disabledForDeployment,
+    testId,
+  });
 
   return (
-    <div className="space-y-8">
-      <IntegrationReadinessSummaryStrip headline={headline} tiles={summaryTiles} lastCheckedAt={lastCheckedAt} />
+    <div className="space-y-4">
+      <IntegrationReadinessSummaryStrip
+        headline={headline}
+        tiles={summaryTiles}
+        configurationReadAt={configurationReadAt}
+      />
       {recommendedFirstSetup ? <IntegrationRecommendedFirstSetupCard setup={recommendedFirstSetup} /> : null}
 
       {CONNECTOR_PURPOSE_GROUPS.filter((group) => group.id !== "technical").map((group) => {
@@ -116,65 +201,62 @@ export function ConnectorOperationsDashboard(): ReactElement {
         }
 
         return (
-          <section key={group.id} data-testid={`integration-readiness-group-${group.id}`}>
-            <h2 className={cn("m-0 font-semibold text-neutral-900 dark:text-neutral-100", OPERATOR_TYPOGRAPHY.cardTitle)}>
-              {group.title}
-            </h2>
-            <p className={cn("mt-1 text-neutral-600 dark:text-neutral-400", OPERATOR_TYPOGRAPHY.body)}>{group.description}</p>
-            <ul className="mt-4 grid list-none gap-4 p-0 md:grid-cols-2">
-              {connectors.map((connector) => {
+          <section key={group.id} className="space-y-4" data-testid={`integration-readiness-group-${group.id}`}>
+            <div>
+              <h2 className={cn("m-0 font-semibold text-neutral-900 dark:text-neutral-100", OPERATOR_TYPOGRAPHY.cardTitle)}>
+                {group.title}
+              </h2>
+              <p className={cn("mt-1 text-neutral-600 dark:text-neutral-400", OPERATOR_TYPOGRAPHY.body)}>{group.description}</p>
+            </div>
+            <IntegrationConnectorInventoryTable
+              ariaLabel={group.title}
+              testId={`integration-readiness-table-${group.id}`}
+              rows={connectors.map((connector) => {
                 const humanStatus = resolveConnectorHumanStatus(connector);
                 const displayStatus = resolveConnectorDisplayStatus(connector);
                 const disabledForDeployment = isConnectorDisabledForDeployment(connector);
 
-                return (
-                  <ConnectorReadinessCard
-                    key={connector.connectorKey}
-                    title={connectorCardTitle(connector)}
-                    displayStatus={displayStatus}
-                    guidance={resolveConnectorGuidance(connector, humanStatus)}
-                    bestFor={resolveConnectorBestFor(connector.connectorKey)}
-                    configurationHref={connector.configurationHref ?? null}
-                    configureHelper={resolveConnectorConfigureHelper(connector.connectorKey)}
-                    detailsLabel={resolveConnectorDetailsLabel(displayStatus, disabledForDeployment)}
-                    technicalDetails={formatConnectorCustomerSummary(connector)}
-                    disabledForDeployment={disabledForDeployment}
-                    testId={`connector-card-${connector.connectorKey}`}
-                  />
+                return buildInventoryRow(
+                  connector.connectorKey,
+                  connectorCardTitle(connector),
+                  displayStatus,
+                  resolveConnectorGuidance(connector, humanStatus),
+                  connector.configurationHref ?? null,
+                  formatConnectorCustomerSummary(connector),
+                  disabledForDeployment,
+                  `connector-card-${connector.connectorKey}`,
                 );
               })}
-            </ul>
+            />
           </section>
         );
       })}
 
-      <section data-testid="integration-readiness-group-technical">
-        <h2 className={cn("m-0 font-semibold text-neutral-900 dark:text-neutral-100", OPERATOR_TYPOGRAPHY.cardTitle)}>
-          Advanced delivery infrastructure
-        </h2>
-        <p className={cn("mt-1 text-neutral-600 dark:text-neutral-400", OPERATOR_TYPOGRAPHY.body)}>
-          Background delivery for asynchronous integration events. Standard review workflows do not require this layer.
-        </p>
-        <ul className="mt-4 grid list-none gap-4 p-0 md:grid-cols-2">
-          <ConnectorReadinessCard
-            title="Integration event bus"
-            displayStatus={
-              eventBusBackgroundLabel === "Configured"
-                ? "Ready"
-                : eventBusBackgroundLabel === "Not configured"
-                  ? "Needs attention"
-                  : "Optional"
-            }
-            guidance={resolveIntegrationEventBusGuidance(data.integrationEventBus, eventBusHumanStatus)}
-            bestFor="Use when integration events must be delivered asynchronously across services."
-            configurationHref={null}
-            configureHelper={null}
-            detailsLabel="View setup details"
-            technicalDetails={formatIntegrationEventBusTechnicalDetails(data.integrationEventBus)}
-            disabledForDeployment={false}
-            testId="connector-card-integration-event-bus"
-          />
-        </ul>
+      <section className="space-y-4" data-testid="integration-readiness-group-technical">
+        <div>
+          <h2 className={cn("m-0 font-semibold text-neutral-900 dark:text-neutral-100", OPERATOR_TYPOGRAPHY.cardTitle)}>
+            Advanced delivery infrastructure
+          </h2>
+          <p className={cn("mt-1 text-neutral-600 dark:text-neutral-400", OPERATOR_TYPOGRAPHY.body)}>
+            Background delivery for asynchronous integration events. Standard review workflows do not require this layer.
+          </p>
+        </div>
+        <IntegrationConnectorInventoryTable
+          ariaLabel="Advanced delivery infrastructure"
+          testId="integration-readiness-table-technical"
+          rows={[
+            buildInventoryRow(
+              "integration-event-bus",
+              "Integration event bus",
+              eventBusDisplayStatus,
+              resolveIntegrationEventBusGuidance(data.integrationEventBus, eventBusHumanStatus),
+              null,
+              formatIntegrationEventBusTechnicalDetails(data.integrationEventBus),
+              false,
+              "connector-card-integration-event-bus",
+            ),
+          ]}
+        />
       </section>
     </div>
   );

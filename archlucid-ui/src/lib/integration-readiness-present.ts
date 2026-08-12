@@ -58,9 +58,29 @@ export function isConnectorDisabledForDeployment(connector: ConnectorSurfaceStat
   return isDisabledConnector(connector) || resolveConnectorHumanStatus(connector) === "Disabled";
 }
 
-export function formatIntegrationReadinessLastChecked(lastCheckedAt: Date): string {
-  return `Last checked: ${lastCheckedAt.toLocaleString(undefined, {
+export function formatIntegrationReadinessLastChecked(configurationReadAt: Date): string {
+  return `Configuration read at ${configurationReadAt.toLocaleString(undefined, {
     dateStyle: "medium",
     timeStyle: "short",
   })}`;
+}
+
+export function resolveConnectorRowActionLabel(
+  displayStatus: ConnectorDisplayStatus,
+  disabledForDeployment: boolean,
+  configurationHref: string | null,
+): string | null {
+  if (disabledForDeployment) {
+    return "View requirements";
+  }
+
+  if (configurationHref === null) {
+    return null;
+  }
+
+  if (displayStatus === "Ready") {
+    return "Manage setup";
+  }
+
+  return "Open setup";
 }

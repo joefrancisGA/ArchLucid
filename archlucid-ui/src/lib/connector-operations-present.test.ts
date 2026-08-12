@@ -130,9 +130,22 @@ describe("connector-readiness-summary", () => {
     );
 
     const tiles = buildIntegrationReadinessSummaryTiles(data);
+    expect(tiles.find((tile) => tile.id === "connected")?.label).toBe("Integrations connected");
+    expect(tiles.find((tile) => tile.id === "connected")?.value).toBe("0 of 2 — none required");
     expect(tiles.find((tile) => tile.id === "recommended")?.value).toBe("1");
     expect(tiles.find((tile) => tile.id === "optional")?.value).toBe("1");
     expect(tiles.find((tile) => tile.id === "background")?.value).toBe("Not required");
+  });
+
+  it("keeps the of-total framing on the connected tile once an integration is ready", () => {
+    const data = operationsData([
+      connector({ connectorKey: "teams", smokeReadiness: "LocallyValid", isConfigured: true, configurationHref: "/integrations/teams" }),
+      connector({ connectorKey: "jira", smokeReadiness: "NotConfigured", configurationHref: "/integrations/jira" }),
+    ]);
+
+    const tiles = buildIntegrationReadinessSummaryTiles(data);
+
+    expect(tiles.find((tile) => tile.id === "connected")?.value).toBe("1 of 2");
   });
 
   it("surfaces a single recommended first setup for notification connectors", () => {
@@ -145,6 +158,7 @@ describe("connector-readiness-summary", () => {
 
     expect(setup?.title).toMatch(/Configure Teams or Slack/i);
     expect(setup?.href).toBe("/integrations/teams");
+    expect(setup?.actionLabel).toBe("Configure Teams notifications");
   });
 
   it("omits recommended first setup when Teams or Slack is ready", () => {

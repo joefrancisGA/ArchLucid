@@ -65,7 +65,6 @@ const TINTED_CALLOUT_SURFACE_BASELINE: ReadonlySet<string> = new Set([
   "components/findings/FindingsWhatIfAnalysisPanel.tsx",
   "components/governance/GovernanceConflictsTable.tsx",
   "components/governance/RecurrenceScheduleActivationActions.tsx",
-  "components/integrations/IntegrationReadinessSections.tsx",
   "components/llm/LlmBudgetApproachingLimitBanner.tsx",
   "components/operator-home/OperatorHomeGlossarySections.tsx",
   "components/operator/OperatorDemoStaticBanner.tsx",

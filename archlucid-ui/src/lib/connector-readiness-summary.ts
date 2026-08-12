@@ -26,6 +26,7 @@ export type IntegrationRecommendedFirstSetup = {
   readonly title: string;
   readonly detail: string;
   readonly href: string | null;
+  readonly actionLabel: string;
   readonly configureHelper: string | null;
 };
 
@@ -71,12 +72,42 @@ function tileToneForBackground(label: IntegrationBackgroundDeliveryLabel): Integ
   return "neutral";
 }
 
+function formatIntegrationsConnectedValue(connectedCount: number, totalCount: number): string {
+  // Zero is an acceptable state on this surface, so the tile says so rather than showing a
+  // bare "0" that reads as a fault. Every count keeps the "of {total}" scope framing.
+  if (connectedCount === 0) {
+    return `${connectedCount} of ${totalCount} — none required`;
+  }
+
+  return `${connectedCount} of ${totalCount}`;
+}
+
+function recommendedSetupActionLabel(
+  connectors: readonly ConnectorSurfaceStatusDto[],
+  href: string | null,
+): string {
+  if (href === null) {
+    return "Configure notifications";
+  }
+
+  const connector = connectors.find((row) => row.configurationHref === href);
+
+  if (connector?.connectorKey === "teams") {
+    return "Configure Teams notifications";
+  }
+
+  if (connector?.connectorKey === "slack") {
+    return "Configure Slack notifications";
+  }
+
+  return "Configure notifications";
+}
+
 export function buildIntegrationReadinessSummaryTiles(
   data: TenantIntegrationsOperationsDto,
 ): readonly IntegrationReadinessSummaryTile[] {
+  const totalIntegrations = data.connectors.length;
   const readyConnectors = data.connectors.filter((connector) => isConnectorReady(connector)).length;
-  const eventBusReady = resolveIntegrationBackgroundDeliveryLabel(data.integrationEventBus) === "Configured";
-  const readyCount = readyConnectors + (eventBusReady ? 1 : 0);
 
   const recommendedRemaining = data.connectors.filter(
     (connector) =>
@@ -98,10 +129,10 @@ export function buildIntegrationReadinessSummaryTiles(
 
   return [
     {
-      id: "ready",
-      label: "Ready integrations",
-      value: String(readyCount),
-      tone: readyCount > 0 ? "healthy" : "neutral",
+      id: "connected",
+      label: "Integrations connected",
+      value: formatIntegrationsConnectedValue(readyConnectors, totalIntegrations),
+      tone: readyConnectors > 0 ? "healthy" : "neutral",
     },
     {
       id: "recommended",
@@ -152,10 +183,13 @@ export function buildIntegrationRecommendedFirstSetup(
   const slackReady = isConnectorReady(data.connectors.find((row) => row.connectorKey === "slack") ?? null);
 
   if (!teamsReady && !slackReady) {
+    const href = firstConfigurationHref(data.connectors, ["teams", "slack"]);
+
     return {
       title: "Configure Teams or Slack to send review notifications.",
       detail: "Recommended when stakeholders should receive review outcomes in a collaboration channel.",
-      href: firstConfigurationHref(data.connectors, ["teams", "slack"]),
+      href,
+      actionLabel: recommendedSetupActionLabel(data.connectors, href),
       configureHelper: "Send review notifications to a channel.",
     };
   }

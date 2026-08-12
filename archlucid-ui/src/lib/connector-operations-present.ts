@@ -1,3 +1,4 @@
+import type { EnterpriseStatusKind } from "@/lib/design-tokens";
 import type {
   ConnectorSurfaceStatusDto,
   IntegrationEventBusStatusDto,
@@ -308,6 +309,38 @@ export function groupConnectorsByPurpose(
   }
 
   return grouped;
+}
+
+export type ConnectorDisplayStatusTag = {
+  readonly kind: EnterpriseStatusKind;
+  readonly label: string;
+};
+
+export function resolveConnectorDisplayStatusTag(status: ConnectorDisplayStatus): ConnectorDisplayStatusTag {
+  switch (status) {
+    case "Ready":
+      return { kind: "ready", label: "Ready" };
+
+    case "Recommended":
+      return { kind: "needs-attention", label: "Recommended" };
+
+    case "Optional":
+      return { kind: "neutral", label: "Optional" };
+
+    case "Not configured":
+      return { kind: "draft", label: "Not configured" };
+
+    case "Disabled":
+      return { kind: "blocked", label: "Disabled" };
+
+    case "Needs attention":
+      return { kind: "needs-attention", label: "Action needed" };
+
+    default: {
+      const exhaustive: never = status;
+      return exhaustive;
+    }
+  }
 }
 
 export function displayStatusBadgeClass(status: ConnectorDisplayStatus): string {
