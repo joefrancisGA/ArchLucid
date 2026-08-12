@@ -36,7 +36,7 @@
     {
       "changeType": "Audit event semantics",
       "touchPaths": [
-        "ArchLucid.Core/Audit/AuditEventTypes.cs"
+        "ArchLucid.Core/Audit"
       ],
       "testsAndDocs": [
         "docs/library/AUDIT_COVERAGE_MATRIX.md",

@@ -1,5 +1,5 @@
 #!/usr/bin/env python3
-"""Cross-check ``AuditEventTypes.cs`` ``public const string`` keys vs ``AUDIT_COVERAGE_MATRIX.md`` appendices + marker."""
+"""Cross-check ``AuditEventTypes`` ``public const string`` keys vs ``AUDIT_COVERAGE_MATRIX.md`` appendices + marker."""
 
 from __future__ import annotations
 
@@ -9,8 +9,12 @@ import sys
 from collections import Counter
 from pathlib import Path
 
+from audit_event_types_source import audit_event_types_paths
+
 _MARKER_RE = re.compile(r"<!--\s*audit-core-const-count:(\d+)\s*-->")
 _CONST_RE = re.compile(r"^\s*public const string (\w+)\s*=")
+_CLASS_RE = re.compile(r"^\s*public static (?:partial )?class (\w+)\b")
+_STRING_LITERAL_RE = re.compile(r'"[^"]*"')
 _FIRST_CELL_RE = re.compile(r"^\|\s*`([^`]+)`\s*\|")
 
 _APPENDIX_CORE = "## Appendix — Core"
@@ -30,42 +34,66 @@ def read_marker(matrix_text: str) -> int | None:
     return int(match.group(1))
 
 
-def parse_audit_event_type_keys(lines: list[str]) -> list[str]:
-    """Build canonical matrix keys from ``AuditEventTypes.cs`` lines (same naming as appendix tables)."""
+def _code_only(line: str) -> str:
+    """Line with comments and string literals removed, so brace tracking ignores doc-comment braces."""
 
-    def find_line(predicate: str, start: int = 0) -> int:
-        for i in range(start, len(lines)):
-            if predicate in lines[i]:
-                return i
+    stripped = line.lstrip()
 
-        raise ValueError(f"assert_audit_const_count: anchor not found: {predicate!r} (from line {start})")
+    if stripped.startswith("//"):
+        return ""
 
-    idx_run = find_line("public static class Run")
-    idx_baseline = find_line("public static class Baseline")
-    idx_arch = find_line("public static class Architecture", start=idx_baseline)
-    idx_gov = find_line("public static class Governance", start=idx_baseline)
+    return _STRING_LITERAL_RE.sub('""', line)
+
+
+def parse_audit_event_type_keys_in_file(lines: list[str]) -> list[str]:
+    """Build canonical matrix keys from one catalog partial by tracking nested static classes."""
+
     keys: list[str] = []
-    for i, line in enumerate(lines):
-        match = _CONST_RE.match(line)
-        if match is None:
-            continue
+    # Class names by brace depth; the outermost entry is AuditEventTypes itself and is not part of a key.
+    open_classes: list[str] = []
+    pending_class: str | None = None
 
-        name = match.group(1)
-        if i < idx_run:
-            keys.append(name)
-            continue
+    for line in lines:
+        class_match = _CLASS_RE.match(line)
 
-        if i < idx_baseline:
-            keys.append("Run." + name)
-            continue
+        if class_match is not None:
+            pending_class = class_match.group(1)
 
-        if idx_arch <= i < idx_gov:
-            keys.append("Baseline.Architecture." + name)
-            continue
+        const_match = _CONST_RE.match(line)
 
-        if i >= idx_gov:
-            keys.append("Baseline.Governance." + name)
-            continue
+        if const_match is not None:
+            prefix = ".".join(name for name in open_classes[1:] if name)
+            name = const_match.group(1)
+            keys.append(f"{prefix}.{name}" if prefix else name)
+
+        for character in _code_only(line):
+            if character == "{":
+                open_classes.append(pending_class or "")
+                pending_class = None
+                continue
+
+            if character == "}" and open_classes:
+                open_classes.pop()
+
+    return keys
+
+
+def parse_audit_event_type_keys(lines: list[str]) -> list[str]:
+    """Single-file entry point retained for fixtures and ad-hoc invocation."""
+
+    keys = parse_audit_event_type_keys_in_file(lines)
+
+    if len(keys) == 0:
+        raise ValueError("assert_audit_const_count: no public const string entries parsed")
+
+    return keys
+
+
+def parse_audit_event_type_keys_in_files(paths: list[Path]) -> list[str]:
+    keys: list[str] = []
+
+    for path in paths:
+        keys.extend(parse_audit_event_type_keys_in_file(path.read_text(encoding="utf-8", errors="strict").splitlines()))
 
     if len(keys) == 0:
         raise ValueError("assert_audit_const_count: no public const string entries parsed")
@@ -172,8 +200,9 @@ def main(argv: list[str] | None = None) -> int:
     parser.add_argument(
         "--audit-types",
         type=Path,
+        nargs="+",
         default=None,
-        help="Override path to AuditEventTypes.cs (default: ArchLucid.Core/Audit/AuditEventTypes.cs).",
+        help="Override catalog paths (default: ArchLucid.Core/Audit/AuditEventTypes*.cs family partials).",
     )
     parser.add_argument(
         "--matrix",
@@ -183,26 +212,30 @@ def main(argv: list[str] | None = None) -> int:
     )
     args = parser.parse_args(argv)
     root: Path = args.repo_root.resolve()
-    audit_path = (
-        args.audit_types if args.audit_types is not None else root / "ArchLucid.Core" / "Audit" / "AuditEventTypes.cs"
-    ).resolve()
+    audit_paths = [
+        path.resolve()
+        for path in (args.audit_types if args.audit_types is not None else audit_event_types_paths(root))
+    ]
     matrix_path = (
         args.matrix if args.matrix is not None else root / "docs" / "library" / "AUDIT_COVERAGE_MATRIX.md"
     ).resolve()
 
-    if not audit_path.is_file():
-        print(f"assert_audit_const_count: missing {audit_path}", file=sys.stderr)
+    missing_sources = [path for path in audit_paths if not path.is_file()]
+
+    if len(audit_paths) == 0 or missing_sources:
+        for path in missing_sources or audit_paths:
+            print(f"assert_audit_const_count: missing {path}", file=sys.stderr)
+
         return 1
 
     if not matrix_path.is_file():
         print(f"assert_audit_const_count: missing {matrix_path}", file=sys.stderr)
         return 1
 
-    cs_lines = audit_path.read_text(encoding="utf-8", errors="strict").splitlines()
     matrix_text = matrix_path.read_text(encoding="utf-8", errors="strict")
     marker = read_marker(matrix_text)
     try:
-        source_keys = parse_audit_event_type_keys(cs_lines)
+        source_keys = parse_audit_event_type_keys_in_files(audit_paths)
         matrix_names = parse_matrix_registry_names(matrix_text)
     except ValueError as ex:
         print(f"assert_audit_const_count: {ex}", file=sys.stderr)
@@ -218,8 +251,8 @@ def main(argv: list[str] | None = None) -> int:
         return 1
 
     print(
-        f"assert_audit_const_count: OK ({len(source_keys)} const(s); marker={marker}; "
-        f"{matrix_path.relative_to(root)} rows match {audit_path.relative_to(root)})."
+        f"assert_audit_const_count: OK ({len(source_keys)} const(s) across {len(audit_paths)} partial(s); "
+        f"marker={marker}; {matrix_path.name} rows match)."
     )
     return 0
 

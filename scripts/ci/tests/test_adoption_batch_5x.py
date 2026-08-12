@@ -31,8 +31,8 @@ class TestAdoptionBatch5X(unittest.TestCase):
         self.assertIn("--bearer", text)
 
     def test_tb_207_audit_event_catalog_entry(self) -> None:
-        path = REPO_ROOT / "ArchLucid.Core" / "Audit" / "AuditEventTypes.cs"
-        text = path.read_text(encoding="utf-8")
+        audit_dir = REPO_ROOT / "ArchLucid.Core" / "Audit"
+        text = "\n".join(path.read_text(encoding="utf-8") for path in sorted(audit_dir.glob("AuditEventTypes*.cs")))
         self.assertIn("AuthTokenDiagnosticRequested", text)
 
 

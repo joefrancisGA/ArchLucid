@@ -155,7 +155,7 @@ flowchart TB
 
 | Step | Location | Notes |
 |------|----------|--------|
-| 1 | `ArchLucid.Core/Audit/AuditEventTypes.cs` | New `public const string`. |
+| 1 | `ArchLucid.Core/Audit/AuditEventTypes.<Family>.cs` | New `public const string` in the matching family partial (root `AuditEventTypes.cs` covers run/manifest lifecycle). |
 | 2 | Call site | `IAuditService.LogAsync` (fire-and-forget acceptable only where already documented). |
 | 3 | `docs/AUDIT_COVERAGE_MATRIX.md` | New row + bump **`<!-- audit-core-const-count:N -->`**. |
 
