@@ -9,6 +9,8 @@ import {
   AZURE_BOARDS_DOCUMENTATION_ASIDE_TITLE,
   AZURE_BOARDS_HELP_TOPIC_HREF,
   AZURE_BOARDS_HELP_TOPIC_LABEL,
+  AZURE_BOARDS_LATEST_TEST_FAILED_LABEL,
+  AZURE_BOARDS_LATEST_TEST_PASSED_LABEL,
   AZURE_BOARDS_LATEST_TEST_TITLE,
   AZURE_BOARDS_PERMISSIONS_ASIDE_BODY,
   AZURE_BOARDS_PERMISSIONS_ASIDE_TITLE,
@@ -112,18 +114,22 @@ export function AzureBoardsIntegrationAside(props: Props): React.ReactElement {
             <time dateTime={props.lastTestAt}>{new Date(props.lastTestAt).toLocaleString()}</time>
           </p>
           {props.lastTestSummary ? (
-            <p
-              role={props.lastTestSuccess === false ? "alert" : "status"}
-              className={cn(
-                "m-0 mt-2 rounded-md border px-3 py-2",
-                OPERATOR_TYPOGRAPHY.helper,
-                props.lastTestSuccess === false
-                  ? "border-red-200 text-red-800 dark:border-red-900 dark:text-red-200"
-                  : "border-teal-200 text-teal-900 dark:border-teal-900 dark:text-teal-100",
-              )}
-            >
-              {props.lastTestSummary}
-            </p>
+            <div className="mt-2 space-y-2">
+              <StatusTag
+                kind={props.lastTestSuccess === false ? "needs-attention" : "ready"}
+                label={
+                  props.lastTestSuccess === false
+                    ? AZURE_BOARDS_LATEST_TEST_FAILED_LABEL
+                    : AZURE_BOARDS_LATEST_TEST_PASSED_LABEL
+                }
+              />
+              <p
+                role={props.lastTestSuccess === false ? "alert" : "status"}
+                className={cn("m-0 text-al-text-secondary", OPERATOR_TYPOGRAPHY.helper)}
+              >
+                {props.lastTestSummary}
+              </p>
+            </div>
           ) : null}
         </div>
       ) : null}

@@ -4,6 +4,7 @@ import Link from "next/link";
 import { useCallback, useEffect, useMemo, useState } from "react";
 
 import { Button } from "@/components/ui/button";
+import { Skeleton } from "@/components/ui/skeleton";
 import { Input } from "@/components/ui/input";
 import { Label } from "@/components/ui/label";
 import {
@@ -434,6 +435,7 @@ export function AzureBoardsIntegrationPageClient(): React.ReactElement {
   const connectionProvenance = resolveAzureBoardsConnectionProvenance(connection, hasUnsavedConnectionEdits);
   const organizationDisplay = formatAzureBoardsOrganizationUrl(connection);
   const isInitialLoad = isLoading && !hasLoadedOnce;
+  const isRefreshing = isLoading && hasLoadedOnce;
   const connectionTestCollapsedSummary = credentialsReady
     ? AZURE_BOARDS_CONNECTION_TEST_COLLAPSED_SUMMARY
     : AZURE_BOARDS_CONNECTION_TEST_COLLAPSED_CREDENTIALS_SUMMARY;
@@ -444,7 +446,7 @@ export function AzureBoardsIntegrationPageClient(): React.ReactElement {
 
   return (
     <div
-      className={cn("w-full max-w-[68rem] px-4 py-6 sm:px-6 lg:px-8", OPERATOR_LAYOUT.majorSectionGap)}
+      className={cn("w-full max-w-[68rem] px-4 py-4 sm:px-6 lg:px-8", OPERATOR_LAYOUT.majorSectionGap)}
       data-testid="integrations-azure-boards-page"
     >
       <AzureBoardsIntegrationPageHeader
@@ -464,7 +466,18 @@ export function AzureBoardsIntegrationPageClient(): React.ReactElement {
           data-testid="azure-boards-page-content"
           data-operator-side-rail-kind="none"
         >
-          <div className={cn("min-w-0", OPERATOR_LAYOUT.majorSectionGap)}>
+          {isRefreshing ? (
+            <div
+              className="space-y-2"
+              data-testid="azure-boards-refresh-skeleton"
+              aria-hidden="true"
+            >
+              <Skeleton className="h-3 w-28" />
+              <Skeleton className="h-3 w-full max-w-md" />
+            </div>
+          ) : null}
+
+          <div className={cn("min-w-0", OPERATOR_LAYOUT.majorSectionGap, isRefreshing && "opacity-70")}>
             <section aria-labelledby="azure-boards-status-heading" className="space-y-3" data-testid="azure-boards-connection-status">
               <div className="flex flex-wrap items-center gap-3">
                 <h2 id="azure-boards-status-heading" className={OPERATOR_TYPOGRAPHY.sectionTitle}>

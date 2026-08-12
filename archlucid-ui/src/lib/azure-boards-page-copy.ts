@@ -87,6 +87,10 @@ export const AZURE_BOARDS_SETUP_PROGRESS_TITLE = "Setup progress";
 
 export const AZURE_BOARDS_LATEST_TEST_TITLE = "Latest connection test";
 
+export const AZURE_BOARDS_LATEST_TEST_PASSED_LABEL = "Connection check passed";
+
+export const AZURE_BOARDS_LATEST_TEST_FAILED_LABEL = "Connection check failed";
+
 export const AZURE_BOARDS_TROUBLESHOOTING_HELP_LABEL = "Troubleshooting";
 
 export const AZURE_BOARDS_CONNECTION_SAVE_DISABLED_TOKEN_HELPER =

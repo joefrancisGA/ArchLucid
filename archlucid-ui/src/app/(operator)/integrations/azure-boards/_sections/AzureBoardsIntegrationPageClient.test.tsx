@@ -114,6 +114,25 @@ describe("AzureBoardsIntegrationPageClient", () => {
     }
   });
 
+  it("TB-1756: uses operator spacing tokens instead of marketing-scale py-8 / space-y-8", async () => {
+    render(<AzureBoardsIntegrationPageClient />);
+
+    const page = await screen.findByTestId("integrations-azure-boards-page");
+    expect(page.className).toContain("space-y-6");
+    expect(page.className).toContain("py-4");
+    expect(page.className).not.toContain("space-y-8");
+    expect(page.className).not.toContain("py-8");
+    expect(page.className).not.toContain("py-6");
+  });
+
+  it("TB-1757: setup progress uses StatusTag without teal chip classes", async () => {
+    render(<AzureBoardsIntegrationPageClient />);
+
+    const aside = await screen.findByTestId("azure-boards-integration-aside");
+    expect(aside.innerHTML).not.toMatch(/border-teal-/);
+    expect(within(screen.getByTestId("azure-boards-setup-step-credentials")).getByText("In progress")).toBeInTheDocument();
+  });
+
   it("TB-1758: shows loading skeleton on first paint then content", async () => {
     let resolveSettings: (value: unknown) => void = () => undefined;
     const settingsPromise = new Promise((resolve) => {
@@ -145,12 +164,23 @@ describe("AzureBoardsIntegrationPageClient", () => {
       expect(screen.getByTestId("azure-boards-organization-url")).toHaveValue("https://dev.azure.com/example");
     });
 
+    let resolveHealth: (value: unknown) => void = () => undefined;
+    const healthPromise = new Promise((resolve) => {
+      resolveHealth = resolve;
+    });
+    mockFetchAzureHealth.mockReturnValue(healthPromise);
     mockFetchAzureSettings.mockRejectedValueOnce(new Error("temporary failure"));
     fireEvent.click(screen.getByTestId("azure-boards-refresh-button"));
 
     expect(screen.getByTestId("azure-boards-page-content")).toBeInTheDocument();
+    expect(screen.getByTestId("azure-boards-refresh-skeleton")).toBeInTheDocument();
     expect(screen.queryByTestId("azure-boards-loading-skeleton")).not.toBeInTheDocument();
     expect(screen.getByTestId("azure-boards-organization-url")).toHaveValue("https://dev.azure.com/example");
+
+    resolveHealth(baseHealth({ reachable: true }));
+    await waitFor(() => {
+      expect(screen.queryByTestId("azure-boards-refresh-skeleton")).not.toBeInTheDocument();
+    });
   });
 
   it("links documentation to Azure Boards help topic and troubleshooting", async () => {
@@ -275,6 +305,8 @@ describe("AzureBoardsIntegrationPageClient", () => {
     });
 
     expect(await screen.findByTestId("azure-boards-latest-test")).toBeInTheDocument();
+    expect(screen.getByText("Connection check passed")).toBeInTheDocument();
+    expect(screen.getByTestId("azure-boards-integration-aside").innerHTML).not.toMatch(/border-teal-/);
   });
 
   it("loads project and work item type discovery lists", async () => {
