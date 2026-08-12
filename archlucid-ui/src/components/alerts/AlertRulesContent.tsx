@@ -399,6 +399,7 @@ export function AlertRulesContent() {
                     <Button
                       type="button"
                       variant="primary"
+                      size="sm"
                       onClick={() => void onCreate()}
                       disabled={loading || creating || !canEdit || !formValid}
                       aria-describedby={mutationDisabledReason === null ? undefined : mutationDisabledHintId}

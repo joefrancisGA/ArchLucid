@@ -89,7 +89,7 @@ export const OPERATOR_PRIMARY_CTA_INVENTORY: readonly OperatorPrimaryCtaInventor
     primaryTestId: "alert-rules-create-action",
     componentOrModule: "components/alerts/AlertRulesContent.tsx",
     status: "verified",
-    notes: "Empty: header Create reveals form; populated: form submit primary; live rail **TB-1574** / empty-first **TB-1479**.",
+    notes: "Empty: header Create reveals form; populated: form submit primary; live rail **TB-1574** / empty-first **TB-1479** / primary sm **TB-1586**.",
   },
   {
     id: "alert-routing",

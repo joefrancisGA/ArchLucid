@@ -161,6 +161,52 @@ describe("AlertRulesContent", () => {
     expect(screen.getByText(ALERT_RULES_RULE_TYPE_HELP)).toBeInTheDocument();
   });
 
+  it("TB-1586: empty intro keeps one primary header Create (TB-1539)", async () => {
+    render(<AlertRulesContent />);
+
+    await waitFor(() => {
+      expect(screen.getByTestId("alert-rules-create-action")).toBeInTheDocument();
+    });
+
+    const primaryButtons = screen
+      .getAllByRole("button")
+      .filter((button) => button.className.includes("al-primary-action-bg"));
+
+    expect(primaryButtons).toHaveLength(1);
+    expect(primaryButtons[0]).toHaveAttribute("data-testid", "alert-rules-create-action");
+  });
+
+  it("TB-1586: revealed form promotes one primary submit Create", async () => {
+    render(<AlertRulesContent />);
+
+    await revealCreateForm();
+
+    expect(screen.queryByTestId("alert-rules-create-action")).toBeNull();
+
+    const submit = screen.getByTestId("alert-rules-create-button");
+
+    expect(submit.className).toContain("al-primary-action-bg");
+
+    const primaryButtons = screen
+      .getAllByRole("button")
+      .filter((button) => button.className.includes("al-primary-action-bg"));
+
+    expect(primaryButtons).toHaveLength(1);
+    expect(primaryButtons[0]).toBe(submit);
+  });
+
+  it("TB-1586: create buttons source use primary sm variants", () => {
+    const source = readFileSync(join(process.cwd(), "src", "components", "alerts", "AlertRulesContent.tsx"), "utf8");
+
+    for (const testId of ["alert-rules-create-action", "alert-rules-create-button"] as const) {
+      const buttonBlock = source.match(new RegExp(`<Button[\\s\\S]*?data-testid="${testId}"[\\s\\S]*?>`))?.[0];
+
+      expect(buttonBlock).toBeTruthy();
+      expect(buttonBlock).toContain('variant="primary"');
+      expect(buttonBlock).toContain('size="sm"');
+    }
+  });
+
   it("stacks live preview rail when empty list uses default draft (TB-1574)", async () => {
     render(<AlertRulesContent />);
 
