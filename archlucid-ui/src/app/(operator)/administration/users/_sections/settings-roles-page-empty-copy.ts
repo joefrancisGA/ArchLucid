@@ -1,3 +1,5 @@
+import type { EnterpriseCompactEmptyStateProps } from "@/components/EnterpriseCompactEmptyState";
+
 import type { SettingsRolesPageNote } from "./settings-roles-page-types";
 
 export type SettingsRolesEmptySurface = "users" | "api_keys";
@@ -55,3 +57,17 @@ export function settingsRolesEmptyStateDescription(
 
   return "The workspace member list could not be loaded. Check your connection and reload. Contact support if the problem continues.";
 }
+
+/** Users tab collection empty (stacked members card — not invite-first composition). */
+export const SETTINGS_ROLES_USERS_EMPTY_COMPACT: EnterpriseCompactEmptyStateProps = {
+  testId: "settings-roles-users-empty-state",
+  title: settingsRolesEmptyStateTitle("empty_response", "users"),
+  description: settingsRolesEmptyStateDescription("empty_response", "users"),
+};
+
+/** API keys tab collection empty (role assignment directory). */
+export const SETTINGS_ROLES_API_KEYS_EMPTY_COMPACT: EnterpriseCompactEmptyStateProps = {
+  testId: "settings-roles-api-keys-empty-state",
+  title: settingsRolesEmptyStateTitle("empty_response", "api_keys"),
+  description: settingsRolesEmptyStateDescription("empty_response", "api_keys"),
+};

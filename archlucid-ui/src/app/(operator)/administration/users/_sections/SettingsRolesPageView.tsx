@@ -8,6 +8,7 @@ import { usePathname, useRouter, useSearchParams } from "next/navigation";
 import { PageHeading } from "@/components/PageHeading";
 import { CollapsibleSection } from "@/components/CollapsibleSection";
 import { DemoWorkspaceCapabilityUnavailablePanel } from "@/components/DemoWorkspaceCapabilityUnavailablePanel";
+import { EnterpriseCompactEmptyState } from "@/components/EnterpriseCompactEmptyState";
 import { OperatorEmptyState } from "@/components/operator/OperatorShellMessage";
 import { ApiKeysUsersVocabularyRail } from "@/components/ApiKeysUsersVocabularyRail";
 import { CustomRolesUsersVocabularyRail } from "@/components/CustomRolesUsersVocabularyRail";
@@ -37,7 +38,12 @@ import type { AdminUserInvitationRow } from "@/lib/admin-user-invitations";
 import { SettingsRolesInvitePanel } from "./SettingsRolesInvitePanel";
 import { PendingInvitationsPanel } from "./PendingInvitationsPanel";
 import { SettingsRolesPrincipalTable } from "./SettingsRolesPrincipalTable";
-import { settingsRolesEmptyStateDescription, settingsRolesEmptyStateTitle } from "./settings-roles-page-empty-copy";
+import {
+  SETTINGS_ROLES_API_KEYS_EMPTY_COMPACT,
+  SETTINGS_ROLES_USERS_EMPTY_COMPACT,
+  settingsRolesEmptyStateDescription,
+  settingsRolesEmptyStateTitle,
+} from "./settings-roles-page-empty-copy";
 import {
   SETTINGS_ROLES_KEYS_TAB_CARD_TITLE,
   SETTINGS_ROLES_KEYS_TAB_LABEL,
@@ -78,6 +84,19 @@ function isUsersNoteLoadFailure(
   note: SettingsRolesPageViewModel["usersNote"],
 ): note is "api_unavailable" | "load_failed" {
   return note === "api_unavailable" || note === "load_failed";
+}
+
+function isKeysNoteLoadFailure(
+  note: SettingsRolesPageViewModel["keysNote"],
+): note is "api_unavailable" | "load_failed" {
+  return note === "api_unavailable" || note === "load_failed";
+}
+
+function isKeysDirectoryCollectionEmpty(
+  keysNote: SettingsRolesPageViewModel["keysNote"],
+  apiKeyCount: number,
+): boolean {
+  return apiKeyCount === 0 && (keysNote === null || keysNote === "empty_response");
 }
 
 type Props = {
@@ -353,10 +372,7 @@ export function SettingsRolesPageView(props: Props) {
                       </div>
                     ) : null}
                     {!m.loading && m.usersNote === "empty_response" && userRows.length === 0 ? (
-                      <OperatorEmptyState
-                        title={settingsRolesEmptyStateTitle("empty_response", "users")}
-                        description={settingsRolesEmptyStateDescription("empty_response", "users")}
-                      />
+                      <EnterpriseCompactEmptyState {...SETTINGS_ROLES_USERS_EMPTY_COMPACT} />
                     ) : null}
                     {!m.loading && userRows.length > 0 ? (
                       <SettingsRolesPrincipalTable rows={userRows} onRoleChange={m.onRoleChange} />
@@ -442,7 +458,7 @@ export function SettingsRolesPageView(props: Props) {
                   .
                 </p>
                 {m.loading ? <p className={cn("m-0 text-al-text-secondary", OPERATOR_TYPOGRAPHY.body)}>Loading…</p> : null}
-                {!m.loading && m.keysNote !== null ? (
+                {!m.loading && m.keysNote !== null && isKeysNoteLoadFailure(m.keysNote) ? (
                   <div data-testid="settings-roles-api-keys-note" className="space-y-4">
                     <OperatorEmptyState
                       title={settingsRolesEmptyStateTitle(m.keysNote, "api_keys")}
@@ -463,12 +479,9 @@ export function SettingsRolesPageView(props: Props) {
                     onRoleChange={m.onRoleChange}
                   />
                 ) : null}
-                {!m.loading && m.keysNote === null && apiKeyRows.length === 0 ? (
+                {!m.loading && isKeysDirectoryCollectionEmpty(m.keysNote, apiKeyRows.length) ? (
                   <div className="space-y-4" data-testid="settings-roles-keys-empty">
-                    <OperatorEmptyState
-                      title={settingsRolesEmptyStateTitle("empty_response", "api_keys")}
-                      description={settingsRolesEmptyStateDescription("empty_response", "api_keys")}
-                    />
+                    <EnterpriseCompactEmptyState {...SETTINGS_ROLES_API_KEYS_EMPTY_COMPACT} />
                     <Button asChild variant="primary" size="sm" data-testid="settings-roles-keys-open-api-keys">
                       <Link href={SETTINGS_ROLES_KEYS_TAB_LIFECYCLE_HREF}>{SETTINGS_ROLES_KEYS_TAB_OPEN_CTA_LABEL}</Link>
                     </Button>

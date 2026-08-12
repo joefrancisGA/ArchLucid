@@ -1,6 +1,6 @@
 import { describe, expect, it } from "vitest";
 
-import { DURABLE_ACTION_OUTCOME_HIGH_STAKES_MESSAGES } from "@/lib/durable-action-outcome-inventory";
+import { DURABLE_ACTION_OUTCOME_FORBIDDEN_TOAST_PHRASES } from "@/lib/durable-action-outcome-inventory";
 import {
   DURABLE_MUTATION_DUAL_TOAST_TEST_PATHS,
   DURABLE_MUTATION_FORBIDDEN_TOAST_SUCCESS_PHRASES,
@@ -22,14 +22,9 @@ describe("durable outcome registry (TB-2116)", () => {
     );
   });
 
-  it("covers mutation forbidden toast phrases with action high-stakes messages", () => {
-    const uncovered = DURABLE_MUTATION_FORBIDDEN_TOAST_SUCCESS_PHRASES.filter(
-      (phrase) =>
-        !DURABLE_ACTION_OUTCOME_HIGH_STAKES_MESSAGES.some(
-          (message) => message.includes(phrase) || phrase.includes(message),
-        ),
-    );
-
-    expect(uncovered).toEqual([]);
+  it("aliases mutation forbidden toast phrases to action forbidden toast phrases", () => {
+    expect([...DURABLE_MUTATION_FORBIDDEN_TOAST_SUCCESS_PHRASES]).toEqual([
+      ...DURABLE_ACTION_OUTCOME_FORBIDDEN_TOAST_PHRASES,
+    ]);
   });
 });

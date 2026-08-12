@@ -44,8 +44,8 @@ export type DurableActionOutcomeGuardedSurface = {
   readonly allowedToastLinePatterns?: readonly RegExp[];
 };
 
-/** High-stakes acceptance copy that must never be toast-only on the golden path. */
-export const DURABLE_ACTION_OUTCOME_HIGH_STAKES_MESSAGES: readonly string[] = [
+/** Full-message and template phrases for repo-wide `showSuccess` scans (TB-2116). */
+export const DURABLE_ACTION_OUTCOME_FORBIDDEN_TOAST_PHRASES: readonly string[] = [
   CLOUD_CONNECTION_SAVE_SUCCESS_MESSAGE,
   WEBHOOK_SUBSCRIPTION_SAVE_SUCCESS_MESSAGE,
   SLACK_INTEGRATION_SAVE_SUCCESS_MESSAGE,
@@ -68,11 +68,17 @@ export const DURABLE_ACTION_OUTCOME_HIGH_STAKES_MESSAGES: readonly string[] = [
   GOVERNANCE_WORKFLOW_REQUEST_REJECTED_SUCCESS,
   REVIEW_CREATED_SUCCESS_MESSAGE,
   REVIEW_CREATED_ANALYSIS_IN_PROGRESS_MESSAGE,
-  REVIEW_START_STEP_VALIDATION_MESSAGE,
   REVIEW_START_CREATED_CONFIRMATION,
-  "Policy pack version",
   "Marked ",
   "finding(s) as ",
+  "Policy pack version ",
+  "Policy pack version published.",
+];
+
+/** High-stakes acceptance copy that must never be toast-only on the golden path. */
+export const DURABLE_ACTION_OUTCOME_HIGH_STAKES_MESSAGES: readonly string[] = [
+  ...DURABLE_ACTION_OUTCOME_FORBIDDEN_TOAST_PHRASES,
+  REVIEW_START_STEP_VALIDATION_MESSAGE,
   "Activated ",
   "for ",
 ];
