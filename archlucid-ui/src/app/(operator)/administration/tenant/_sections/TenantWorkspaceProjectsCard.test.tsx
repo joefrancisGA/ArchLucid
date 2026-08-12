@@ -3,6 +3,8 @@ import { afterEach, beforeEach, describe, expect, it, vi } from "vitest";
 
 import { AUTHORITY_RANK } from "@/lib/nav-authority";
 import {
+  PROJECT_DELETE_CONFIRM_ACTION_LABEL,
+  PROJECT_DELETE_CONFIRM_TITLE,
   PROJECT_DELETE_DEFAULT_PROJECT_DISABLED_REASON,
   PROJECT_DELETE_EXECUTE_DISABLED_REASON,
 } from "@/lib/projects-delete-confirm-copy";
@@ -118,8 +120,10 @@ describe("TenantWorkspaceProjectsCard (TB-1179)", () => {
     const deleteButtons = await screen.findAllByTestId("tenant-workspace-project-delete");
     fireEvent.click(deleteButtons[1]!);
 
-    expect(await screen.findByTestId("project-delete-confirm-dialog")).toBeInTheDocument();
-    fireEvent.click(screen.getByTestId("project-delete-confirm-confirm"));
+    expect(
+      await screen.findByRole("heading", { name: PROJECT_DELETE_CONFIRM_TITLE }),
+    ).toBeInTheDocument();
+    fireEvent.click(screen.getByRole("button", { name: PROJECT_DELETE_CONFIRM_ACTION_LABEL }));
 
     await waitFor(() => {
       expect(global.fetch).toHaveBeenCalledWith(

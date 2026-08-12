@@ -1,23 +1,12 @@
 "use client";
 
-import {
-  AlertDialog,
-  AlertDialogAction,
-  AlertDialogCancel,
-  AlertDialogContent,
-  AlertDialogDescription,
-  AlertDialogFooter,
-  AlertDialogHeader,
-  AlertDialogTitle,
-} from "@/components/ui/alert-dialog";
-import { OPERATOR_TYPOGRAPHY } from "@/lib/design-tokens";
+import { ConfirmationDialog } from "@/components/ConfirmationDialog";
 import {
   PROJECT_DELETE_CONFIRM_ACTION_LABEL,
   PROJECT_DELETE_CONFIRM_CANCEL_LABEL,
   PROJECT_DELETE_CONFIRM_TITLE,
   projectDeleteConfirmDescription,
 } from "@/lib/projects-delete-confirm-copy";
-import { cn } from "@/lib/utils";
 
 export type ProjectDeletePending = Readonly<{
   workspaceId: string;
@@ -46,39 +35,20 @@ export function ProjectDeleteConfirmDialog(props: ProjectDeleteConfirmDialogProp
         );
 
   return (
-    <AlertDialog
+    <ConfirmationDialog
       open={props.pending !== null}
       onOpenChange={(open) => {
-        if (!open) {
+        if (!open && !props.busy) {
           props.onCancel();
         }
       }}
-    >
-      <AlertDialogContent data-testid="project-delete-confirm-dialog">
-        <AlertDialogHeader>
-          <AlertDialogTitle className={OPERATOR_TYPOGRAPHY.sectionTitle}>
-            {PROJECT_DELETE_CONFIRM_TITLE}
-          </AlertDialogTitle>
-          <AlertDialogDescription className={cn(OPERATOR_TYPOGRAPHY.body, "text-al-text-secondary")}>
-            {description}
-          </AlertDialogDescription>
-        </AlertDialogHeader>
-        <AlertDialogFooter>
-          <AlertDialogCancel disabled={props.busy} data-testid="project-delete-confirm-cancel">
-            {PROJECT_DELETE_CONFIRM_CANCEL_LABEL}
-          </AlertDialogCancel>
-          <AlertDialogAction
-            disabled={props.busy}
-            data-testid="project-delete-confirm-confirm"
-            onClick={(event) => {
-              event.preventDefault();
-              props.onConfirm();
-            }}
-          >
-            {props.busy ? "Deleting…" : PROJECT_DELETE_CONFIRM_ACTION_LABEL}
-          </AlertDialogAction>
-        </AlertDialogFooter>
-      </AlertDialogContent>
-    </AlertDialog>
+      title={PROJECT_DELETE_CONFIRM_TITLE}
+      description={description}
+      confirmLabel={PROJECT_DELETE_CONFIRM_ACTION_LABEL}
+      cancelLabel={PROJECT_DELETE_CONFIRM_CANCEL_LABEL}
+      variant="destructive"
+      busy={props.busy}
+      onConfirm={props.onConfirm}
+    />
   );
 }
