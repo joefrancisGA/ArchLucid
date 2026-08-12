@@ -15,7 +15,7 @@ import {
   resolveAlertRuleNotificationReadiness,
   type AlertRuleFormInput,
 } from "@/lib/alert-rule-conditions";
-import { governanceAlertRulesTabHref } from "@/lib/governance/governance-route-paths";
+import { governanceAlertRulesTabHref } from "@/lib/governance-route-paths";
 import { OPERATOR_TYPOGRAPHY } from "@/lib/design-tokens";
 import type { AlertRule } from "@/types/alerts";
 import type { AlertRoutingSubscription } from "@/types/alert-routing";

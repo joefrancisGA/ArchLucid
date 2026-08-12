@@ -15,8 +15,8 @@ import {
   useRunDetailFindingsToolbarState,
   type RunDetailFindingsFilterKind,
 } from "@/components/findings/RunDetailFindingsToolbar";
-import type { FindingsNaturalLanguageFacets } from "@/lib/findings/findings-natural-language-filter";
-import { applyFindingsConfidenceVisibility } from "@/lib/findings/finding-confidence-filter";
+import type { FindingsNaturalLanguageFacets } from "@/lib/findings-natural-language-filter";
+import { applyFindingsConfidenceVisibility } from "@/lib/finding-confidence-filter";
 import {
   architectureAssessmentFindingsPresentation,
   reviewFindingsGovernanceQueuePresentation,

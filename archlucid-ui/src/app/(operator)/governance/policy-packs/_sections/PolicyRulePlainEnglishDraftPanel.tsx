@@ -10,12 +10,12 @@ import { draftPolicyPackRule } from "@/lib/api/policy-pack-draft-api";
 import { toApiLoadFailure, uiFailureFromMessage } from "@/lib/api-load-failure";
 import type { ApiLoadFailureState } from "@/lib/api-load-failure";
 import { enterpriseMutationControlDisabledTitle } from "@/lib/enterprise-controls-context-copy";
-import { CURATED_RULE_ROW_SCHEMA_REFERENCE } from "@/lib/policy/policy-pack-curated-rules-constants";
+import { CURATED_RULE_ROW_SCHEMA_REFERENCE } from "@/lib/policy-pack-curated-rules-constants";
 import {
   tryParseCuratedRuleRowJson,
   type CuratedRuleRow,
   type CuratedRulesDocument,
-} from "@/lib/policy/policy-pack-curated-rules-v1";
+} from "@/lib/policy-pack-curated-rules-v1";
 import { showSuccess } from "@/lib/toast";
 import { OPERATOR_NAV_GROUP_LABEL, OPERATOR_TYPOGRAPHY } from "@/lib/design-tokens";
 

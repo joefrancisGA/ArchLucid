@@ -1,7 +1,7 @@
 import { cn } from "@/lib/utils";
 
 import { OperatorLoadingNotice } from "@/components/OperatorShellMessage";
-import { GOVERNANCE_OVERVIEW_PAGE_TITLE } from "@/lib/governance/governance-overview-copy";
+import { GOVERNANCE_OVERVIEW_PAGE_TITLE } from "@/lib/governance-overview-copy";
 import { OPERATOR_TYPOGRAPHY } from "@/lib/design-tokens";
 
 export function GovernanceWorkflowSuspenseFallback() {

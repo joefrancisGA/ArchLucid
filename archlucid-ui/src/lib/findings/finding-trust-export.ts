@@ -1,7 +1,7 @@
 import {
   deriveFindingTrustPresentation,
   type FindingTrustPresentationInput,
-} from "@/lib/findings/finding-trust-presentation";
+} from "@/lib/finding-trust-presentation";
 
 /** Wire `FindingTrustLabel` + reason for sponsor / ITSM export surfaces (TB-2044). */
 export type FindingTrustExportFields = FindingTrustPresentationInput & {

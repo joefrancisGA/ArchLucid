@@ -6,13 +6,13 @@ import { Button } from "@/components/ui/button";
 import { CREATE_WORK_ITEM_CONFIGURE_CTA } from "@/lib/create-work-item-copy";
 import { OPERATOR_TYPOGRAPHY } from "@/lib/design-tokens";
 import { INTEGRATIONS_READINESS_PATH } from "@/lib/integrations-nav-paths";
-import { ITSM_CONNECTORS_ADMIN_PATH } from "@/lib/itsm/itsm-connectors-admin-scope";
+import { ITSM_CONNECTORS_ADMIN_PATH } from "@/lib/itsm-connectors-admin-scope";
 import {
   ITSM_NOT_CONFIGURED_ADMIN_LEAD,
   ITSM_NOT_CONFIGURED_OPERATOR_LEAD,
   ITSM_NOT_CONFIGURED_READINESS_CTA,
   type ItsmProductId,
-} from "@/lib/itsm/itsm-product-integration-page-copy";
+} from "@/lib/itsm-product-integration-page-copy";
 import { cn } from "@/lib/utils";
 
 export type ItsmNotConfiguredNextStepProps = {

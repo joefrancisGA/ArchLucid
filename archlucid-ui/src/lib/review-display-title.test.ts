@@ -79,12 +79,6 @@ describe("toReviewDisplayTitle", () => {
     expect(title.endsWith("…")).toBe(true);
   });
 
-  it("strips inline markdown syntax from title candidates", () => {
-    expect(toReviewDisplayTitle("**Reviewed** 2026-07-26 # Architecture Review Packet")).toBe(
-      "Reviewed 2026-07-26 # Architecture Review Packet",
-    );
-  });
-
   it("returns an empty string for blank input", () => {
     expect(toReviewDisplayTitle(null)).toBe("");
     expect(toReviewDisplayTitle("   ")).toBe("");

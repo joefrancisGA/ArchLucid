@@ -1,6 +1,6 @@
 import { describe, expect, it } from "vitest";
 
-import { parseGovernanceBypassAuditPayload } from "@/lib/governance/governance-bypass-audit-payload";
+import { parseGovernanceBypassAuditPayload } from "./governance-bypass-audit-payload";
 
 describe("parseGovernanceBypassAuditPayload", () => {
   it("extracts justification, actor context fields, and blocking finding ids", () => {

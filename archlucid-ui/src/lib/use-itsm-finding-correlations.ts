@@ -7,7 +7,7 @@ import {
   requestItsmFindingCorrelations,
   subscribeItsmFindingCorrelations,
   type ItsmFindingCorrelationsEntry,
-} from "@/lib/itsm/itsm-finding-correlations-store";
+} from "@/lib/itsm-finding-correlations-store";
 
 export type UseItsmFindingCorrelationsOptions = {
   readonly enabled?: boolean;

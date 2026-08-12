@@ -2,7 +2,7 @@ import { describe, expect, it } from "vitest";
 import { render, screen } from "@testing-library/react";
 
 import { PolicyPackChangeImpactNotice } from "@/components/PolicyPackChangeImpactNotice";
-import { POLICY_PACK_CHANGE_IMPACT_NO_ESTIMATE_BODY } from "@/lib/policy/policy-pack-change-impact";
+import { POLICY_PACK_CHANGE_IMPACT_NO_ESTIMATE_BODY } from "@/lib/policy-pack-change-impact";
 
 describe("PolicyPackChangeImpactNotice", () => {
   it("renders honest no-estimate copy", () => {

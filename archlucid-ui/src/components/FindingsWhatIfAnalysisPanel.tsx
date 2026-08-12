@@ -10,7 +10,7 @@ import {
   hasFindingsWhatIfAnalysisContent,
   readFindingProjectedImpactInterval,
   readFindingProjectedImpactUsd,
-} from "@/lib/findings/findings-what-if-analysis";
+} from "@/lib/findings-what-if-analysis";
 import type { QuickDecisionFinding } from "@/lib/quick-decision-summary-derive";
 import { Label } from "@/components/ui/label";
 

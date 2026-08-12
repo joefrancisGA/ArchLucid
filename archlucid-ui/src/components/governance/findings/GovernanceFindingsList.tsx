@@ -5,14 +5,14 @@ import { memo, useState, type ReactElement } from "react";
 import { GovernanceFindingsBulkActions } from "@/components/usability/GovernanceFindingsBulkActions";
 import { ReversibleMutationSuccessCallout } from "@/components/operator/ReversibleMutationSuccessCallout";
 import { NewSinceLastVisitMarker } from "@/components/usability/NewSinceLastVisitMarker";
-import { resolveGovernanceQueueRowActivityAtUtc } from "@/lib/findings/finding-activity-at-utc";
+import { resolveGovernanceQueueRowActivityAtUtc } from "@/lib/finding-activity-at-utc";
 import {
   governanceQueueRowWatermarkKey,
   isActivityNewSinceLastVisit,
   markLastVisitedNow,
 } from "@/lib/usability/last-visited-watermark";
 import { BUYER_GOVERNANCE_FINDINGS_RISKS_SECTION_TITLE } from "@/lib/buyer-polish-copy";
-import { GOVERNANCE_BULK_DISPOSITION_FAILURE_MESSAGE } from "@/lib/governance/governance-mutation-outcome-copy";
+import { GOVERNANCE_BULK_DISPOSITION_FAILURE_MESSAGE } from "@/lib/governance-mutation-outcome-copy";
 import { OPERATOR_TYPOGRAPHY } from "@/lib/design-tokens";
 import { cn } from "@/lib/utils";
 

@@ -12,7 +12,7 @@ import {
   OPERATOR_TYPOGRAPHY,
 } from "@/lib/design-tokens";
 import { isBuyerPolishedOperatorShellEnv } from "@/lib/demo-ui-env";
-import { policyPackBuyerLabel } from "@/lib/policy/policy-pack-buyer-label";
+import { policyPackBuyerLabel } from "@/lib/policy-pack-buyer-label";
 import { SHOWCASE_STATIC_DEMO_MANIFEST_ID } from "@/lib/showcase-static-demo";
 import { signedRecordDetailPath } from "@/lib/signed-records-paths";
 

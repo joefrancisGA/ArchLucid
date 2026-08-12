@@ -1,4 +1,4 @@
-import { EXECUTIVE_SUMMARY_PILOT_ROI_MEASUREMENT_HELP_HREF } from "@/lib/executive/executive-summary-pilot-roi-measurement-help";
+import { EXECUTIVE_SUMMARY_PILOT_ROI_MEASUREMENT_HELP_HREF } from "@/lib/executive-summary-pilot-roi-measurement-help";
 import { coerceFinitePositiveHours, isPilotRoiBaselineComplete } from "@/lib/pilot-roi-baseline-completeness";
 
 export type BaselineSettingsStatus = "not-set" | "partial" | "complete";

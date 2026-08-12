@@ -1,6 +1,6 @@
 import { inAppHelpHref } from "@/lib/product-documentation-registry";
 import type { EvidenceSourceLink } from "@/lib/evidence-surface-copy";
-import { GOVERNANCE_AUDIT_PATH } from "@/lib/governance/governance-route-paths";
+import { GOVERNANCE_AUDIT_PATH } from "@/lib/governance-route-paths";
 
 export const ADMIN_CONFIGURATION_CLAIM_DISCIPLINE =
   "Configuration summary lists effective non-sensitive deployment keys for administrators — it is not a signed-review diligence Sources package. Open Diagnostics, System health, or Audit when you need readiness or governed trails.";

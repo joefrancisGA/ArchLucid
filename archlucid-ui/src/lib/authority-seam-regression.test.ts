@@ -8,7 +8,7 @@
  */
 import { describe, expect, it } from "vitest";
 
-import { EXECUTIVE_DASHBOARD_HREF } from "@/lib/executive/executive-dashboard-route";
+import { EXECUTIVE_DASHBOARD_HREF } from "@/lib/executive-dashboard-route";
 import {
   normalizeAuthMeResponse,
   operatorNavOutsideProviderPrincipal,

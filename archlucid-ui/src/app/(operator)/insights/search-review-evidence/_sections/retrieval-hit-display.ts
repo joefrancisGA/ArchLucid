@@ -1,5 +1,5 @@
 import { evidenceGraphHref } from "@/lib/evidence-graph-route";
-import { findingInspectHref } from "@/lib/findings/finding-policy-evidence-citations";
+import { findingInspectHref } from "@/lib/finding-policy-evidence-citations";
 import { reviewSignedRecordPath, signedRecordDetailPath } from "@/lib/signed-records-paths";
 import { SIGNED_MANIFEST_LABEL } from "@/lib/usability/canonical-product-terms";
 

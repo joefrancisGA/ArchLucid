@@ -38,19 +38,6 @@ export function isProcurementHelpTopic(helpTopicSlug: string | undefined): boole
   return helpTopicSlug === PROCUREMENT_HELP_TOPIC_SLUG;
 }
 
-/** FAQ-only body for `/help/procurement` specialty chrome (TB-1253). */
-export function prepareProcurementHelpBodyMarkdown(markdown: string): string {
-  const start = markdown.indexOf("## Q & A");
-
-  if (start < 0) {
-    return markdown.trim();
-  }
-
-  const end = markdown.indexOf("\n## Trust progression timeline", start);
-
-  return (end >= 0 ? markdown.slice(start, end) : markdown.slice(start)).trim();
-}
-
 export function resolveProcurementFaqPostureForQuestion(questionNumber: number): ProcurementFaqPosture | null {
   return PROCUREMENT_FAQ_POSTURES.find((posture) => posture.questionNumber === questionNumber) ?? null;
 }

@@ -7,7 +7,7 @@ import { Label } from "@/components/ui/label";
 import {
   GOVERNANCE_OVERVIEW_BACK_ACTION,
   GOVERNANCE_OVERVIEW_LOAD_REVIEW_ACTION,
-} from "@/lib/governance/governance-overview-copy";
+} from "@/lib/governance-overview-copy";
 import { buyerFacingReviewLinkLabelFromRunId } from "@/lib/buyer-facing-review-title";
 import {
   enterpriseMutationControlDisabledTitle,
@@ -18,7 +18,7 @@ import {
   GOVERNANCE_WORKFLOW_AUDIT_TRAIL_ACTOR_HELPER,
   GOVERNANCE_WORKFLOW_AUDIT_TRAIL_ACTOR_LABEL,
   GOVERNANCE_WORKFLOW_AUDIT_TRAIL_ACTOR_PLACEHOLDER,
-} from "@/lib/governance/governance-workflow-release-copy";
+} from "@/lib/governance-workflow-release-copy";
 import { OPERATOR_TYPOGRAPHY } from "@/lib/design-tokens";
 
 export type GovernanceReviewContextBarProps = {

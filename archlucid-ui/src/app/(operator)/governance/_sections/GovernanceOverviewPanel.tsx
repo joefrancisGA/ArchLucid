@@ -12,7 +12,7 @@ import { Button } from "@/components/ui/button";
 import { getGovernanceDashboard, getGovernanceDecisionsNeededSummary } from "@/lib/api";
 import type { ApiLoadFailureState } from "@/lib/api-load-failure";
 import { toApiLoadFailure } from "@/lib/api-load-failure";
-import { GOVERNANCE_POLICY_PACKS_PATH } from "@/lib/governance/governance-route-paths";
+import { GOVERNANCE_POLICY_PACKS_PATH } from "@/lib/governance-route-paths";
 import {
   GOVERNANCE_OVERVIEW_APPROVED_PACKAGES_LABEL,
   GOVERNANCE_OVERVIEW_BLOCKING_ALERTS_LABEL,
@@ -32,7 +32,7 @@ import {
   GOVERNANCE_OVERVIEW_RISK_REGISTER_ACTION,
   GOVERNANCE_OVERVIEW_SUBMIT_ACTION,
   GOVERNANCE_OVERVIEW_SUMMARY_HEADING,
-} from "@/lib/governance/governance-overview-copy";
+} from "@/lib/governance-overview-copy";
 import { finiteIntegerCountDisplay } from "@/lib/finite-count-display";
 import { OPERATOR_LINK, OPERATOR_TYPOGRAPHY } from "@/lib/design-tokens";
 import type { GovernanceDashboardSummary } from "@/types/governance-dashboard";

@@ -15,7 +15,7 @@ import {
   buildExecutiveSummaryMarkdown,
   executiveSummaryMarkdownFilename,
   type ExecutiveRoiSummary,
-} from "@/lib/executive/executive-summary-markdown";
+} from "@/lib/executive-summary-markdown";
 const ExecutiveRoiSystemicIssueTrendChart = dynamic(
   () =>
     import("@/components/ExecutiveRoiSystemicIssueTrendChart").then(
@@ -37,7 +37,7 @@ import { ExecutiveRoiBoardPackEvidenceBanner } from "./ExecutiveRoiBoardPackEvid
 import { ExecutiveRoiProofStatusStrip } from "./ExecutiveRoiProofStatusStrip";
 import { ExecutiveRoiSystemsIncludedSection } from "./ExecutiveRoiSystemsIncludedSection";
 import { RoiHeadlineMathTooltip } from "@/components/roi/RoiHeadlineMathTooltip";
-import { resolveExecutiveRoiIdentifiedVsRealized } from "@/lib/executive/executive-roi-identified-vs-realized";
+import { resolveExecutiveRoiIdentifiedVsRealized } from "@/lib/executive-roi-identified-vs-realized";
 import { triggerGoldenManifestMarkdownDownload } from "@/lib/export-markdown";
 import { showError } from "@/lib/toast";
 

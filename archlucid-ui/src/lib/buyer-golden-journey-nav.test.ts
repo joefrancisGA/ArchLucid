@@ -2,7 +2,7 @@ import { describe, expect, it } from "vitest";
 
 import { BUYER_GOLDEN_JOURNEY_STEP_DEFINITIONS, resolveBuyerGoldenJourneyNav } from "@/lib/buyer-golden-journey-nav";
 import { getShowcaseExecutiveHref, getShowcaseManifestHref } from "@/lib/buyer-safe-review-navigation";
-import { SHOWCASE_PHI_FINDING_GRAPH_NODE_ID } from "@/lib/findings/finding-inspect-graph-evidence";
+import { SHOWCASE_PHI_FINDING_GRAPH_NODE_ID } from "@/lib/finding-inspect-graph-evidence";
 import { SHOWCASE_STATIC_DEMO_RUN_ID } from "@/lib/showcase-static-demo";
 
 const showcaseRunEnc = encodeURIComponent(SHOWCASE_STATIC_DEMO_RUN_ID);

@@ -7,7 +7,7 @@ import {
   pathMatchesGovernanceApprovalQueue,
   pathMatchesGovernanceAudit,
   pathMatchesGovernanceExceptions,
-} from "@/lib/governance/governance-route-paths";
+} from "@/lib/governance-route-paths";
 import { canonicalizeDemoRunId } from "@/lib/demo-run-canonical";
 import { isPinnedDemoWorkspaceRunId } from "@/lib/demo-workspace-scope";
 import {
@@ -21,7 +21,7 @@ import {
   GOVERNANCE_OVERVIEW_PAGE_LEAD,
   GOVERNANCE_OVERVIEW_SAMPLE_CONTEXT_LABEL,
   GOVERNANCE_OVERVIEW_SAMPLE_CONTEXT_LINE,
-} from "@/lib/governance/governance-overview-copy";
+} from "@/lib/governance-overview-copy";
 
 import {
   pathMatchesSettingsSecurityTrust,

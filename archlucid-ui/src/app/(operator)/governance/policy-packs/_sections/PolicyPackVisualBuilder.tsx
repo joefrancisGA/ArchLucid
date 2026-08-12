@@ -24,8 +24,8 @@ import {
   type VisualConditionNode,
   type VisualPredicateOperator,
   visualBuilderStateToContentJson,
-} from "@/lib/policy/policy-pack-visual-builder";
-import { presentPolicyPackSimulateToast } from "@/lib/policy/policy-pack-simulate-toast";
+} from "@/lib/policy-pack-visual-builder";
+import { presentPolicyPackSimulateToast } from "@/lib/policy-pack-simulate-toast";
 import { showSuccess } from "@/lib/toast";
 import { OPERATOR_NAV_GROUP_LABEL, OPERATOR_TYPOGRAPHY } from "@/lib/design-tokens";
 

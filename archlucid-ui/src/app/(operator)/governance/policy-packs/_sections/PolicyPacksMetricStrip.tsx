@@ -5,7 +5,7 @@ import {
   OPERATOR_KPI_CARD_TITLE,
   OPERATOR_TYPOGRAPHY,
 } from "@/lib/design-tokens";
-import { policyPackTypeDisplayLabel } from "@/lib/policy/policy-pack-type-label";
+import { policyPackTypeDisplayLabel } from "@/lib/policy-pack-type-label";
 import type { EffectivePolicyPackSet, PolicyPack } from "@/types/policy-packs";
 
 export type PolicyPacksMetricStripProps = {

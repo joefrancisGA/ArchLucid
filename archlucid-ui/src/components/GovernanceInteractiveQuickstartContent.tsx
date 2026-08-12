@@ -2,7 +2,7 @@
 
 import { CREATE_ARCHITECTURE_LABEL } from "@/lib/architecture-workflow-labels";
 import { ARCHITECTURES_NEW_PATH } from "@/lib/architecture-routes";
-import { GOVERNANCE_POLICY_PACKS_PATH } from "@/lib/governance/governance-route-paths";
+import { GOVERNANCE_POLICY_PACKS_PATH } from "@/lib/governance-route-paths";
 import { cn } from "@/lib/utils";
 import { OPERATOR_TYPOGRAPHY } from "@/lib/design-tokens";
 
@@ -12,7 +12,7 @@ import { Button } from "@/components/ui/button";
 import {
   GOVERNANCE_OVERVIEW_QUICKSTART_CHECKLIST_HEADING,
   GOVERNANCE_OVERVIEW_QUICKSTART_CHECKLIST_LEAD,
-} from "@/lib/governance/governance-overview-copy";
+} from "@/lib/governance-overview-copy";
 
 type GovernanceInteractiveQuickstartContentProps = {
   /** Hide the First 30 days onboarding link (buyer-polished workflow surface). */

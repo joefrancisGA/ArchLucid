@@ -1,4 +1,4 @@
-import { GOVERNANCE_AUDIT_PATH } from "@/lib/governance/governance-route-paths";
+import { GOVERNANCE_AUDIT_PATH } from "@/lib/governance-route-paths";
 import { inAppHelpHref } from "@/lib/product-documentation-registry";
 
 export const DATA_HANDLING_TENANT_ISOLATION_HELP_PAGE_TITLE = "Data handling and tenant isolation";

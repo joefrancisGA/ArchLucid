@@ -8,7 +8,7 @@ export type PageContextualHint = {
   learnMoreHref?: string;
 };
 
-import { GOVERNANCE_AUDIT_PATH } from "@/lib/governance/governance-route-paths";
+import { GOVERNANCE_AUDIT_PATH } from "@/lib/governance-route-paths";
 
 const HINTS: readonly { prefix: string; hint: PageContextualHint }[] = [
   {

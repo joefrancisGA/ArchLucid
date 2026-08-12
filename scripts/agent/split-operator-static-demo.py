@@ -81,7 +81,7 @@ import {
 """,
     "provenance-graph.ts": """import { canonicalizeDemoRunId } from "@/lib/demo-run-canonical";
 import { pipelineEventTypeFriendlyLabel } from "@/lib/pipeline-event-type-labels";
-import { policyPackBuyerLabel } from "@/lib/policy/policy-pack-buyer-label";
+import { policyPackBuyerLabel } from "@/lib/policy-pack-buyer-label";
 import {
   getShowcaseStaticDemoPayload,
   SHOWCASE_STATIC_DEMO_PRIMARY_FINDING_ID,
@@ -93,7 +93,7 @@ import {
   isShowcaseSpineStaticPayloadActiveForRun,
 } from "./eligibility";
 """,
-    "policy-packs.ts": """import { policyPackBuyerLabel } from "@/lib/policy/policy-pack-buyer-label";
+    "policy-packs.ts": """import { policyPackBuyerLabel } from "@/lib/policy-pack-buyer-label";
 import { isOperatorExperienceFullShellEnv } from "@/lib/demo-ui-env";
 import type { EffectivePolicyPackSet, PolicyPack, PolicyPackContentDocument } from "@/types/policy-packs";
 

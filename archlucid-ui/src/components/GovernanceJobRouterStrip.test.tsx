@@ -8,7 +8,7 @@ import {
   GOVERNANCE_JOB_ROUTER_HEADING,
   GOVERNANCE_JOB_TRIAGE_FINDINGS,
   getGovernanceJobRouter,
-} from "@/lib/governance/governance-job-router";
+} from "@/lib/governance-job-router";
 
 describe("GovernanceJobRouterStrip (TB-2199 / TB-2230)", () => {
   it("renders chooser with SoT heading and all three job options", () => {

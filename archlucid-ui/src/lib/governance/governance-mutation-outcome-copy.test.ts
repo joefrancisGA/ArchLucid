@@ -3,7 +3,7 @@ import { describe, expect, it } from "vitest";
 import {
   governanceBulkDispositionSuccessMessage,
   policyPackPublishSuccessMessage,
-} from "@/lib/governance/governance-mutation-outcome-copy";
+} from "@/lib/governance-mutation-outcome-copy";
 
 describe("governance-mutation-outcome-copy", () => {
   it("formats bulk disposition success labels", () => {

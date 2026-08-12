@@ -2,7 +2,7 @@ import { render, screen } from "@testing-library/react";
 import { describe, expect, it } from "vitest";
 
 import { FindingCausalMiniChain } from "@/components/usability/FindingCausalMiniChain";
-import { buildFindingCausalMiniChain } from "@/lib/findings/finding-causal-mini-chain";
+import { buildFindingCausalMiniChain } from "@/lib/finding-causal-mini-chain";
 
 describe("FindingCausalMiniChain (TB-2217)", () => {
   it("renders three steps with values when present", () => {

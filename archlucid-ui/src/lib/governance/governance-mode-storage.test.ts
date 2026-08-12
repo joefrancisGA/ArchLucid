@@ -4,7 +4,7 @@ import {
   GOVERNANCE_MODE_STORAGE_KEY,
   readGovernanceModeEnabledFromStorage,
   writeGovernanceModeEnabledToStorage,
-} from "@/lib/governance/governance-mode-storage";
+} from "@/lib/governance-mode-storage";
 
 describe("governance-mode-storage", () => {
   afterEach(() => {

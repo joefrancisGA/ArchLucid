@@ -19,7 +19,7 @@ import {
   EXECUTIVE_DASHBOARD_LAST_REFRESHED_PREFIX,
   EXECUTIVE_DASHBOARD_PAGE_TITLE,
   executiveDashboardPageSubtitle,
-} from "@/lib/executive/executive-dashboard-page-copy";
+} from "@/lib/executive-dashboard-page-copy";
 
 export type ExecutiveDashboardPageHeroProps = {
   readonly dashboardEmpty: boolean;

@@ -15,9 +15,9 @@ import { StatusTag } from "@/components/ui/status-tag";
 import { FindingEvidenceLinkChip } from "@/components/usability/FindingEvidenceLinkChip";
 import { NewSinceLastVisitMarker } from "@/components/usability/NewSinceLastVisitMarker";
 import { FINDINGS_ROW_METADATA_TAG_SIZE, OPERATOR_TYPOGRAPHY } from "@/lib/design-tokens";
-import { resolveFindingActivityAtUtc } from "@/lib/findings/finding-activity-at-utc";
-import { findingEnforcementTierLabel } from "@/lib/findings/finding-enforcement-tier";
-import { getFindingDetailHref, getFindingGovernanceDispositionHref } from "@/lib/findings/finding-evidence-navigation";
+import { resolveFindingActivityAtUtc } from "@/lib/finding-activity-at-utc";
+import { findingEnforcementTierLabel } from "@/lib/finding-enforcement-tier";
+import { getFindingDetailHref, getFindingGovernanceDispositionHref } from "@/lib/finding-evidence-navigation";
 import {
   buildQuickDecisionFindingEvidenceLinks,
   quickDecisionRecommendationSnippet,

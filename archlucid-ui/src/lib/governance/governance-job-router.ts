@@ -4,8 +4,8 @@
  */
 
 import { DECISION_REGISTER_CANONICAL_PATH } from "@/lib/decision-register-evidence-copy";
-import { GOVERNANCE_FINDINGS_CANONICAL_PATH } from "@/lib/governance/governance-findings-evidence-copy";
-import { GOVERNANCE_APPROVAL_QUEUE_PATH } from "@/lib/governance/governance-route-paths";
+import { GOVERNANCE_FINDINGS_CANONICAL_PATH } from "@/lib/governance-findings-evidence-copy";
+import { GOVERNANCE_APPROVAL_QUEUE_PATH } from "@/lib/governance-route-paths";
 
 export type GovernanceJobId = "approve-governance" | "triage-findings" | "record-decisions";
 

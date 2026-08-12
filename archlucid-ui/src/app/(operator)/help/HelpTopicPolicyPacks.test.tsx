@@ -25,7 +25,7 @@ import {
   POLICY_PACKS_HELP_CLAIM_DISCIPLINE,
   POLICY_PACKS_HELP_PRIMARY_ACTION,
   POLICY_PACKS_HELP_SOURCES,
-} from "@/lib/policy/policy-packs-help-evidence-copy";
+} from "@/lib/policy-packs-help-evidence-copy";
 import { getProductDocumentationEntry } from "@/lib/product-documentation-registry";
 import { tryLoadProductDocumentation } from "@/lib/load-product-documentation";
 

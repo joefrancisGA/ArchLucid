@@ -13,7 +13,7 @@ import { StatusTag } from "@/components/ui/status-tag";
 import { simulatePolicyPackAgainstRun } from "@/lib/api/policy-governance-api";
 import { toApiLoadFailure, uiFailureFromMessage, type ApiLoadFailureState } from "@/lib/api-load-failure";
 import { OPERATOR_LINK, OPERATOR_TYPOGRAPHY } from "@/lib/design-tokens";
-import { POLICY_PACK_DELTA_DEMO_HELP_PATH } from "@/lib/policy/policy-pack-delta-demo-help-route";
+import { POLICY_PACK_DELTA_DEMO_HELP_PATH } from "@/lib/policy-pack-delta-demo-help-route";
 import type { components } from "@/lib/openapi-schemas";
 import {
   buildAfterAssignmentComplianceRuleKeys,
@@ -22,7 +22,7 @@ import {
   resolveLatestPublishedVersion,
   summarizePolicyImpactGateResult,
   type PolicyImpactPreviewGateSummary,
-} from "@/lib/policy/policy-pack-impact-preview";
+} from "@/lib/policy-pack-impact-preview";
 import type { PolicyPackContentDocument, PolicyPackVersion } from "@/types/policy-packs";
 
 export type PolicyPackImpactPreviewPanelProps = {

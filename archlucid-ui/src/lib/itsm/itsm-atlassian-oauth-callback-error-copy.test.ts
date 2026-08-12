@@ -7,7 +7,7 @@ import {
   ITSM_ATLASSIAN_OAUTH_CALLBACK_IDP_DENIED,
   mapItsmAtlassianOAuthCallbackFailure,
   mapItsmAtlassianOAuthIdpError,
-} from "@/lib/itsm/itsm-atlassian-oauth-callback-error-copy";
+} from "@/lib/itsm-atlassian-oauth-callback-error-copy";
 
 describe("itsm-atlassian-oauth-callback-error-copy (TB-1784)", () => {
   it("maps IdP denial to buyer-safe copy", () => {

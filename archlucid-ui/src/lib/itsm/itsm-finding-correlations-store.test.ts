@@ -4,7 +4,7 @@ import {
   getItsmFindingCorrelationsSnapshot,
   requestItsmFindingCorrelations,
   resetItsmFindingCorrelationsStoreForTests,
-} from "@/lib/itsm/itsm-finding-correlations-store";
+} from "@/lib/itsm-finding-correlations-store";
 
 const listItsmFindingCorrelationsBatch = vi.fn();
 

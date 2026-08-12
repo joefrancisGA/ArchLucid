@@ -1,7 +1,7 @@
 import type { Metadata } from "next";
 import { notFound } from "next/navigation";
 
-import { metadataForFindingEvidenceTraceRoute } from "@/lib/findings/finding-route-metadata";
+import { metadataForFindingEvidenceTraceRoute } from "@/lib/finding-route-metadata";
 import { shouldTreatFindingInspectFailureAsNotFound } from "@/lib/load-finding-inspect-for-route";
 import { loadFindingInspectForRouteCached } from "@/lib/load-finding-inspect-for-route-cached";
 import { isInvalidDynamicRouteToken, isInvalidGuidOrSlugRouteToken } from "@/lib/route-dynamic-param";

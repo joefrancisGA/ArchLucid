@@ -1,12 +1,12 @@
 import { firstRecommendationSentence } from "@/lib/quick-decision-summary-derive";
 import type { QuickDecisionFinding } from "@/lib/quick-decision-summary-derive";
-import { preferredGraphNodeIdForFindingDeepLink } from "@/lib/findings/finding-inspect-graph-evidence";
+import { preferredGraphNodeIdForFindingDeepLink } from "@/lib/finding-inspect-graph-evidence";
 import { graphTrailHrefWithOptionalNode } from "@/lib/graph-finding-deep-links";
 import {
   defaultManifestIdForShowcaseFinding,
   primaryFindingEvidenceNavigationHref,
   runDetailSectionHref,
-} from "@/lib/findings/finding-source-evidence-links";
+} from "@/lib/finding-source-evidence-links";
 
 /** Shown when a finding carries no recommendation text of its own. */
 export const QUICK_DECISION_RECOMMENDATION_FALLBACK = "See finding detail for recommended actions.";

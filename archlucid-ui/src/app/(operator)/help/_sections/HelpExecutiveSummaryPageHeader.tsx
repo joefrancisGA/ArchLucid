@@ -5,8 +5,8 @@ import { HelpTopicPrintButton } from "@/components/help/HelpTopicPrintButton";
 import { PageContextualHelpButton } from "@/components/usability/PageContextualHelpButton";
 import {
   EXECUTIVE_SUMMARY_HELP_PAGE_TITLE,
-} from "@/lib/executive/executive-summary-help-guide-content";
-import { EXECUTIVE_SUMMARY_HELP_CANONICAL_PATH } from "@/lib/executive/executive-summary-help-evidence-copy";
+} from "@/lib/executive-summary-help-guide-content";
+import { EXECUTIVE_SUMMARY_HELP_CANONICAL_PATH } from "@/lib/executive-summary-help-evidence-copy";
 import type { ProductDocumentationEntry } from "@/lib/product-documentation-registry";
 
 export type HelpExecutiveSummaryPageHeaderProps = {

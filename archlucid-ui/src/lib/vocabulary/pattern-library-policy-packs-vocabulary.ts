@@ -11,7 +11,7 @@
  * authoring or activating enforceable policy packs.
  */
 
-import { GOVERNANCE_POLICY_PACKS_PATH } from "@/lib/governance/governance-route-paths";
+import { GOVERNANCE_POLICY_PACKS_PATH } from "@/lib/governance-route-paths";
 import { PATTERN_LIBRARY_PATH } from "@/lib/pattern-library-route";
 
 export type PatternLibraryPolicyPacksSurfaceId = "pattern-library" | "policy-packs";

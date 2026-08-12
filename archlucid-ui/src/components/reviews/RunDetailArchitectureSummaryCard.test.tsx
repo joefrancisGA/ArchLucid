@@ -1,11 +1,5 @@
 import { render, screen } from "@testing-library/react";
-import { describe, expect, it, vi } from "vitest";
-
-vi.mock("@/components/architecture/ArchitectureNarrativeMarkdownView", () => ({
-  ArchitectureNarrativeMarkdownView: ({ markdown }: { markdown: string }) => (
-    <div data-testid="architecture-narrative-markdown">{markdown}</div>
-  ),
-}));
+import { describe, expect, it } from "vitest";
 
 import { RunDetailArchitectureSummaryCard } from "@/components/reviews/RunDetailArchitectureSummaryCard";
 
@@ -41,25 +35,5 @@ describe("RunDetailArchitectureSummaryCard", () => {
 
     expect(screen.getByText("Claims intake platform")).toBeInTheDocument();
     expect(screen.getByTestId("run-detail-view-submitted-architecture")).toBeInTheDocument();
-  });
-
-  it("suppresses repeated architecture title and caps long single-line summaries", () => {
-    const repeatedTitle = "**Reviewed** tenant migration overview";
-    const longBody = `${repeatedTitle} ${"detail ".repeat(200)}`;
-
-    render(
-      <RunDetailArchitectureSummaryCard
-        architectureTitle={repeatedTitle}
-        architectureText={longBody}
-        evidenceCount={1}
-        userAssertions={null}
-        hasSubmittedArchitecture
-        onNavigateTab={() => undefined}
-      />,
-    );
-
-    expect(screen.queryByText("Architecture", { selector: "dt" })).not.toBeInTheDocument();
-    expect(screen.getByTestId("run-detail-architecture-summary-preview")).toBeInTheDocument();
-    expect(screen.getByTestId("architecture-narrative-markdown").textContent).not.toContain("**");
   });
 });

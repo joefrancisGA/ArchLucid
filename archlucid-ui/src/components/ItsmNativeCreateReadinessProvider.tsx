@@ -6,7 +6,7 @@ import {
   INITIAL_ITSM_NATIVE_CREATE_READINESS,
   resolveItsmNativeCreateReadiness,
   type ItsmNativeCreateReadiness,
-} from "@/lib/itsm/itsm-native-integration";
+} from "@/lib/itsm-native-integration";
 
 const ItsmNativeCreateReadinessContext = createContext<ItsmNativeCreateReadiness>(
   INITIAL_ITSM_NATIVE_CREATE_READINESS,

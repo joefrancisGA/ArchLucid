@@ -8,7 +8,7 @@ vi.mock("@/lib/core-pilot-commit-context", async (importOriginal) => {
 });
 
 import { START_REVIEW_LABEL } from "@/lib/architecture-workflow-labels";
-import { GOVERNANCE_WORKSPACE_HEALTH_HREF } from "@/lib/governance/governance-route-paths";
+import { GOVERNANCE_WORKSPACE_HEALTH_HREF } from "@/lib/governance-route-paths";
 import { CorePilotNextStepsCard } from "@/components/CorePilotNextStepsCard";
 import { fetchCorePilotCommitContext } from "@/lib/core-pilot-commit-context";
 

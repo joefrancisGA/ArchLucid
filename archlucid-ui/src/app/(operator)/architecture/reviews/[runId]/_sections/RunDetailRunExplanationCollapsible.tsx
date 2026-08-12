@@ -11,8 +11,8 @@ import { InsightDensityCurationBanner } from "@/components/usability/InsightDens
 import {
   hasFindingsSnapshotInsightDensityContent,
   type FindingsSnapshotInsightDensityView,
-} from "@/lib/findings/findings-snapshot-insight-density";
-import { hasFindingsWhatIfAnalysisContent } from "@/lib/findings/findings-what-if-analysis";
+} from "@/lib/findings-snapshot-insight-density";
+import { hasFindingsWhatIfAnalysisContent } from "@/lib/findings-what-if-analysis";
 import type { FindingWireSnapshot, QuickDecisionFinding } from "@/lib/quick-decision-summary-derive";
 import type { RunExplanationSummary } from "@/types/explanation";
 import { RunDecisionExplainabilitySection } from "@/components/RunDecisionExplainabilitySection";

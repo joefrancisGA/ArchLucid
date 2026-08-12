@@ -6,9 +6,9 @@ import Link from "next/link";
 import { StatusTag } from "@/components/ui/status-tag";
 import type { PreCommitGovernanceBlockView } from "@/lib/pre-commit-governance-block-problem";
 import { inAppHelpHref } from "@/lib/product-documentation-registry";
-import { policyPacksEditHref } from "@/lib/policy/policy-packs-deep-link";
+import { policyPacksEditHref } from "@/lib/policy-packs-deep-link";
 import { OPERATOR_LINK, OPERATOR_TYPOGRAPHY } from "@/lib/design-tokens";
-import { GOVERNANCE_WORKSPACE_HEALTH_HREF } from "@/lib/governance/governance-route-paths";
+import { GOVERNANCE_WORKSPACE_HEALTH_HREF } from "@/lib/governance-route-paths";
 
 export type PreCommitGovernanceBlockPanelProps = {
   readonly runId: string;

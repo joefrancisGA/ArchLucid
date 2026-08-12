@@ -76,8 +76,6 @@ describe("metadata status labels", () => {
     const sample = screen.getByTestId("demo-data-badge");
 
     expect(sample.tagName).toBe("SPAN");
-    expect(sample).toHaveTextContent("Sample data");
-    expect(sample).toHaveAttribute("aria-label", "Sample data — not your tenant");
     expect(sample.className).toContain("pointer-events-none");
   });
 

@@ -4,7 +4,7 @@ import {
   getFindingEvidenceInspectHref,
   getFindingEvidenceTraceHref,
   getFindingGovernanceDispositionHref,
-} from "@/lib/findings/finding-evidence-navigation";
+} from "@/lib/finding-evidence-navigation";
 
 describe("finding-evidence-navigation", () => {
   it("builds the canonical evidence-trace route for a finding", () => {

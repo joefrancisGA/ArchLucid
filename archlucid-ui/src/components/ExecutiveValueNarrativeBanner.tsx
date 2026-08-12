@@ -8,14 +8,14 @@ import { ApiV1Routes } from "@/lib/api-v1-routes";
 import {
   buildExecutiveScorecardRecommendedActions,
   type ExecutiveScorecardRecommendedAction,
-} from "@/lib/executive/executive-scorecard-recommended-actions";
-import type { ExecutiveRoiSummary } from "@/lib/executive/executive-summary-markdown";
-import { buildExecutiveValueNarrative } from "@/lib/executive/executive-value-narrative";
+} from "@/lib/executive-scorecard-recommended-actions";
+import type { ExecutiveRoiSummary } from "@/lib/executive-summary-markdown";
+import { buildExecutiveValueNarrative } from "@/lib/executive-value-narrative";
 import { isBuyerPolishedOperatorShellEnv } from "@/lib/demo-ui-env";
 import {
   type ExecutiveTimeRange,
   windowForExecutiveRange,
-} from "@/lib/executive/executive-time-range";
+} from "@/lib/executive-time-range";
 import { fetchPilotValueReportJson } from "@/lib/pilot-value-report-fetch";
 import { mergeRegistrationScopeForProxy } from "@/lib/proxy-fetch-registration-scope";
 import { hoursSurfaced } from "@/lib/roi-assumptions";

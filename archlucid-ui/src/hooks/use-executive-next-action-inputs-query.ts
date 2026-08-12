@@ -4,7 +4,7 @@ import { useQuery } from "@tanstack/react-query";
 
 import { getComplianceDriftTrend } from "@/lib/api";
 import { isBrowser } from "@/lib/api/http";
-import { type ExecutiveTimeRange, windowForExecutiveRange } from "@/lib/executive/executive-time-range";
+import { type ExecutiveTimeRange, windowForExecutiveRange } from "@/lib/executive-time-range";
 import { fetchPilotValueReportJson } from "@/lib/pilot-value-report-fetch";
 import { operatorQueryKeys } from "@/lib/query/operator-query-keys";
 import type { PilotValueReportTimelineRow } from "@/types/pilot-value-report";

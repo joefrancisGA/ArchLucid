@@ -30,7 +30,7 @@ import {
   governanceResolutionResolutionDetailsHeadingOperator,
   governanceResolutionResolutionDetailsHeadingReader,
 } from "@/lib/enterprise-controls-context-copy";
-import { triggerGovernanceResolutionMarkdownDownload } from "@/lib/governance/governance-resolution-markdown";
+import { triggerGovernanceResolutionMarkdownDownload } from "@/lib/governance-resolution-markdown";
 import {
   OPERATOR_DISCLOSURE_TRIGGER_CLASS,
   OPERATOR_TYPOGRAPHY,

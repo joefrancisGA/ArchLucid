@@ -1,6 +1,6 @@
 import type { ApiLoadFailureState } from "@/lib/api-load-failure";
 import { deriveRunDetailBaselineAnnualCostUsd } from "@/lib/derive-run-detail-baseline-cost";
-import { resolveFindingsSnapshotInsightDensityView } from "@/lib/findings/findings-snapshot-insight-density";
+import { resolveFindingsSnapshotInsightDensityView } from "@/lib/findings-snapshot-insight-density";
 import {
   buildFindingWireSnapshotsForRunDetail,
   isQuickDecisionDerivedFromExplanationTraces,

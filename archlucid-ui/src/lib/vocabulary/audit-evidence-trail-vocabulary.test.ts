@@ -12,7 +12,7 @@ import {
   resolveAuditEvidenceTrailPeerLinks,
 } from "@/lib/vocabulary/audit-evidence-trail-vocabulary";
 import { EVIDENCE_GRAPH_PATH } from "@/lib/evidence-graph-route";
-import { GOVERNANCE_AUDIT_PATH } from "@/lib/governance/governance-route-paths";
+import { GOVERNANCE_AUDIT_PATH } from "@/lib/governance-route-paths";
 import { SEARCH_REVIEW_EVIDENCE_PATH } from "@/lib/search-review-evidence-route";
 
 describe("audit-evidence-trail-vocabulary (TB-2255)", () => {

@@ -15,7 +15,7 @@
 import {
   GOVERNANCE_ALERT_RULES_PATH,
   GOVERNANCE_ALERTS_PATH,
-} from "@/lib/governance/governance-route-paths";
+} from "@/lib/governance-route-paths";
 
 export type AlertRulesAlertsInboxSurfaceId = "alert-rules" | "alerts-inbox";
 

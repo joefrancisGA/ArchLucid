@@ -36,7 +36,7 @@ vi.mock("@/lib/operator-query-invalidation", () => ({
   invalidateOperatorHomeRunsCaches: () => invalidateHomeRunsMock(),
 }));
 
-import { EXECUTIVE_DASHBOARD_HREF } from "@/lib/executive/executive-dashboard-route";
+import { EXECUTIVE_DASHBOARD_HREF } from "@/lib/executive-dashboard-route";
 import { BUYER_SEED_SAMPLE_WORKSPACE_SUCCESS } from "@/lib/buyer-polish-copy";
 import { SeedSampleReviewButton } from "./SeedSampleReviewButton";
 

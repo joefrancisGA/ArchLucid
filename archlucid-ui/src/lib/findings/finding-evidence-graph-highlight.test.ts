@@ -5,7 +5,7 @@ import {
   buildExaminedNodeIdSet,
   defaultFindingEvidenceGraphViewMode,
   resolveFindingEvidenceGraphViewModel,
-} from "@/lib/findings/finding-evidence-graph-highlight";
+} from "@/lib/finding-evidence-graph-highlight";
 import type { GraphViewModel } from "@/types/graph";
 
 const sampleGraph: GraphViewModel = {

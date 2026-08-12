@@ -2,7 +2,7 @@ import { fireEvent, render, screen, waitFor } from "@testing-library/react";
 import { beforeEach, describe, expect, it, vi } from "vitest";
 
 import { GovernanceFindingsBulkActions } from "@/components/usability/GovernanceFindingsBulkActions";
-import { GOVERNANCE_BULK_DISPOSITION_REASON_REQUIRED } from "@/lib/governance/governance-mutation-outcome-copy";
+import { GOVERNANCE_BULK_DISPOSITION_REASON_REQUIRED } from "@/lib/governance-mutation-outcome-copy";
 
 const recordBulkFindingDisposition = vi.fn();
 const refresh = vi.fn();

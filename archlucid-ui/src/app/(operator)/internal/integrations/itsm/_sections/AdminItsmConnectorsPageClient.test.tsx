@@ -4,8 +4,8 @@ import { dirname, join } from "node:path";
 import { fileURLToPath } from "node:url";
 import { afterEach, describe, expect, it, vi } from "vitest";
 
-import { ITSM_CONNECTORS_ADMIN_BANNED_SUBSTRINGS } from "@/lib/itsm/itsm-connectors-admin-scope";
-import { ITSM_CONNECTORS_ADMIN_SETTINGS_LOAD_FAILURE_EXPLANATION } from "@/lib/itsm/itsm-connectors-admin-page-load";
+import { ITSM_CONNECTORS_ADMIN_BANNED_SUBSTRINGS } from "@/lib/itsm-connectors-admin-scope";
+import { ITSM_CONNECTORS_ADMIN_SETTINGS_LOAD_FAILURE_EXPLANATION } from "@/lib/itsm-connectors-admin-page-load";
 
 const repoRoot = join(dirname(fileURLToPath(import.meta.url)), "..", "..", "..", "..", "..", "..", "..", "..");
 

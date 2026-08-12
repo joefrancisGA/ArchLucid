@@ -1,4 +1,4 @@
-import { GOVERNANCE_APPROVAL_QUEUE_PATH } from "@/lib/governance/governance-route-paths";
+import { GOVERNANCE_APPROVAL_QUEUE_PATH } from "@/lib/governance-route-paths";
 
 export const IMPACT_PREVIEW_PAGE_TITLE = "Impact preview" as const;
 

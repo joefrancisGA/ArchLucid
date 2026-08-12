@@ -8,7 +8,7 @@ import {
   executiveWorkspaceHealthPageLead,
   executiveWorkspaceHealthPageTitle,
   EXECUTIVE_WORKSPACE_HEALTH_WORKFLOW_LINK_LABEL,
-} from "@/lib/executive/executive-workspace-health-page-copy";
+} from "@/lib/executive-workspace-health-page-copy";
 import { OPERATOR_LINK, OPERATOR_TYPOGRAPHY } from "@/lib/design-tokens";
 
 export type ExecutiveWorkspaceHealthPageHeroProps = {

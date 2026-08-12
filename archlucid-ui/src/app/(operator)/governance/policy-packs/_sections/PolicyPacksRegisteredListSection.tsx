@@ -6,13 +6,13 @@ import {
   policyPacksEmptyScopeReaderLine,
   policyPacksPackSelectReaderTitle,
 } from "@/lib/enterprise-controls-context-copy";
-import { policyPackTypeBuyerDisplayLabel, policyPackTypeDisplayLabel } from "@/lib/policy/policy-pack-type-label";
+import { policyPackTypeBuyerDisplayLabel, policyPackTypeDisplayLabel } from "@/lib/policy-pack-type-label";
 import {
   isOrganizationPrivatePolicyPackDistributionScope,
   policyPackDistributionScopeBuyerLabel,
   POLICY_PACK_ORGANIZATION_PRIVATE_HELPER_COPY,
-} from "@/lib/policy/policy-pack-distribution-scope-label";
-import { isStandardBaselinePolicyPackName } from "@/lib/policy/policy-pack-standard-baseline";
+} from "@/lib/policy-pack-distribution-scope-label";
+import { isStandardBaselinePolicyPackName } from "@/lib/policy-pack-standard-baseline";
 import { OPERATOR_TYPOGRAPHY } from "@/lib/design-tokens";
 import { CopyIdButton } from "@/components/CopyIdButton";
 import { BooleanStatusChip } from "@/components/ui/boolean-status-chip";

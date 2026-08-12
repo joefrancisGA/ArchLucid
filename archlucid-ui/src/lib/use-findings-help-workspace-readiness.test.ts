@@ -5,7 +5,7 @@ import {
   getArchitectureDecisionRegister,
   getArchitectureRiskRegister,
 } from "@/lib/api/governance-stickiness-api";
-import { FINDINGS_HELP_READINESS_LABELS } from "@/lib/findings/findings-help-guide-content";
+import { FINDINGS_HELP_READINESS_LABELS } from "@/lib/findings-help-guide-content";
 import { useFindingsHelpWorkspaceReadiness } from "@/lib/use-findings-help-workspace-readiness";
 
 vi.mock("@/lib/api/governance-stickiness-api", () => ({

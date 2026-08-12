@@ -31,7 +31,7 @@ vi.mock("@/lib/api/itsm-outbound-api", () => ({
 
 import { ServiceNowIntegrationPageClient } from "./ServiceNowIntegrationPageClient";
 import { INTEGRATIONS_READINESS_PATH, INTEGRATIONS_SERVICENOW_PATH } from "@/lib/integrations-nav-paths";
-import { ITSM_CONNECTORS_ADMIN_PATH } from "@/lib/itsm/itsm-connectors-admin-scope";
+import { ITSM_CONNECTORS_ADMIN_PATH } from "@/lib/itsm-connectors-admin-scope";
 import { AUTHORITY_RANK } from "@/lib/nav-authority";
 import {
   SERVICENOW_CONNECTION_TEST_BUTTON,

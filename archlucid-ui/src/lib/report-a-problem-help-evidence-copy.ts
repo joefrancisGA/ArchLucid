@@ -1,7 +1,7 @@
 import { inAppHelpHref } from "@/lib/product-documentation-registry";
 import { SUPPORT_REPORT_PROBLEM_HELP_HREF } from "@/lib/support-workspace-present";
 import type { EvidenceAdminSourceLink } from "@/lib/evidence-surface-copy";
-import { GOVERNANCE_ALERTS_PATH } from "@/lib/governance/governance-route-paths";
+import { GOVERNANCE_ALERTS_PATH } from "@/lib/governance-route-paths";
 import type { HelpTopicMarkdownPrimaryAction } from "@/app/(operator)/help/_sections/HelpTopicMarkdownPageHeader";
 
 export const REPORT_A_PROBLEM_HELP_CANONICAL_PATH = SUPPORT_REPORT_PROBLEM_HELP_HREF;

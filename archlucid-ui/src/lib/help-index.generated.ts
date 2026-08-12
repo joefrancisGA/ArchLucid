@@ -941,7 +941,7 @@ export const HELP_DOC_SEARCH_RECORDS: readonly HelpDocSearchRecord[] = [
     "docTitle": "Buyer security and procurement packet",
     "sectionSlug": "minimum-pilot-trust-packet-m-191",
     "sectionHeading": "Minimum pilot trust packet without CPA / 3P pen test (M-191)",
-    "excerpt": "Former standalone body: `docs/go-to-market/MINIMUM_PILOT_TRUST_PACKET_WITHOUT_CPA_PA_ONE_PAGER.md` → this section (filename kept as a path-stable alias for GTM M-191 / TB-1112). Engineering SoT: [`../library/MINIMUM_PILOT_TRUST_PACKET_WITHOUT_CPA_CONTRACT.md`](../library/MINIMUM_PILOT_TRUST_PACKET_WITHOUT_CPA_CONTRA…"
+    "excerpt": "Former standalone body: `docs/go-to-market/MINIMUM_PILOT_TRUST_PACKET_WITHOUT_CPA_PA_ONE_PAGER.md` → this section (filename kept as a path-stable alias for GTM M-191 / TB-1112). Does not reopen Done TB-135/TB-136. Complements [Â§4 Assurance status](#4-assurance-status--explicit). Not an assurance attestation."
   },
   {
     "docPath": "docs/go-to-market/BUYER_SECURITY_PROCUREMENT_PACKET.md",
@@ -4147,7 +4147,7 @@ export const HELP_DOC_SEARCH_RECORDS: readonly HelpDocSearchRecord[] = [
     "docTitle": "Buyer security and procurement packet",
     "sectionSlug": "tenant-isolation-three-layers",
     "sectionHeading": "Three layers",
-    "excerpt": "- Layer 1 — Identity: Prefer Entra-issued JWTs with app roles; API keys are server-side secrets mapped to limited roles ([SECURITY.md](../library/contributor-reference/SECURITY.md)). - Layer 2 — Application: Controllers enforce policies; orchestration sets tenant / workspace / project scope before data access ([`TEN…"
+    "excerpt": "- Layer 1 — Identity: Prefer Entra-issued JWTs with app roles; API keys are server-side secrets mapped to limited roles ([SECURITY.md](../library/contributor-reference/SECURITY.md)). - Layer 2 — Application: Controllers enforce policies; orchestration sets tenant / workspace / project scope before data access ([../s…"
   },
   {
     "docPath": "docs/go-to-market/BUYER_SECURITY_PROCUREMENT_PACKET.md",

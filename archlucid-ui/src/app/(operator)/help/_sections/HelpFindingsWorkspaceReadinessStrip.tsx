@@ -10,7 +10,7 @@ import { cn } from "@/lib/utils";
 import {
   FINDINGS_HELP_READINESS_FORBIDDEN_MESSAGE,
   FINDINGS_HELP_READINESS_SECTION_TITLE,
-} from "@/lib/findings/findings-help-guide-content";
+} from "@/lib/findings-help-guide-content";
 import { OPERATOR_TYPOGRAPHY } from "@/lib/design-tokens";
 import { formatRelativeTime } from "@/lib/relative-time";
 import type {

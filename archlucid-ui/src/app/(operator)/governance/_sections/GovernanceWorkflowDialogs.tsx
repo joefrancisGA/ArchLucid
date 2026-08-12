@@ -5,7 +5,7 @@ import {
   GOVERNANCE_WORKFLOW_RELEASE_CONFIRM_BUTTON,
   GOVERNANCE_WORKFLOW_RELEASE_CONFIRM_TITLE,
   governanceWorkflowReleaseConfirmDescription,
-} from "@/lib/governance/governance-workflow-release-copy";
+} from "@/lib/governance-workflow-release-copy";
 
 type GovernanceWorkflowDialogsProps = {
   pendingPromote: { manifestId: string; targetEnv: string } | null;

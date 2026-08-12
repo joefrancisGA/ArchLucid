@@ -3,7 +3,7 @@ import {
   GOVERNANCE_AUDIT_PATH,
   GOVERNANCE_FINDINGS_PATH,
   GOVERNANCE_WORKSPACE_HEALTH_HREF,
-} from "@/lib/governance/governance-route-paths";
+} from "@/lib/governance-route-paths";
 import { inAppHelpHref } from "@/lib/product-documentation-registry";
 import type { EvidenceSourceLink } from "@/lib/evidence-surface-copy";
 

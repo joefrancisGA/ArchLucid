@@ -7,7 +7,7 @@ import {
   findingSeverityAudienceCopy,
   findingTraceCompletenessPlainEnglish,
   stripFindingNarrativePreamble,
-} from "@/lib/findings/finding-explainability-summary";
+} from "./finding-explainability-summary";
 
 describe("finding-explainability-summary", () => {
   it("maps common severities to inspect-first posture", () => {

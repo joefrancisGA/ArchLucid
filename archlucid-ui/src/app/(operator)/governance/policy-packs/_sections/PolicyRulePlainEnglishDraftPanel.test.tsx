@@ -2,7 +2,7 @@ import { fireEvent, render, screen, waitFor } from "@testing-library/react";
 import { describe, expect, it, vi } from "vitest";
 
 import { PolicyRulePlainEnglishDraftPanel } from "@/app/(operator)/governance/policy-packs/_sections/PolicyRulePlainEnglishDraftPanel";
-import { createEmptyCuratedRulesDocument } from "@/lib/policy/policy-pack-curated-rules-v1";
+import { createEmptyCuratedRulesDocument } from "@/lib/policy-pack-curated-rules-v1";
 
 vi.mock("@/lib/api/policy-pack-draft-api", () => ({
   draftPolicyPackRule: vi.fn(async () => ({

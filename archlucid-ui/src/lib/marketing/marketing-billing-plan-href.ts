@@ -14,13 +14,3 @@ export function buildMarketingSelfServeBillingHref(planId: MarketingPricingTierI
 
   return `/auth/signin?returnUrl=${encodeURIComponent(returnUrl)}`;
 }
-
-/** Public pricing quote panel deep link for sales-led tiers (TB-1169). */
-export function buildOperatorBillingSalesLedQuoteHref(planId: MarketingPricingTierId): string {
-  const params = new URLSearchParams({
-    source: "operator-billing",
-    plan: planId,
-  });
-
-  return `/pricing?${params.toString()}#pricing-quote-request`;
-}

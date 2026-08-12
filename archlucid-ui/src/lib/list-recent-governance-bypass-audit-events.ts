@@ -1,5 +1,5 @@
 import { searchAuditEvents, type AuditEvent } from "@/lib/api";
-import { GOVERNANCE_BYPASS_INVOKED_EVENT_TYPE } from "@/lib/governance/governance-bypass-audit-payload";
+import { GOVERNANCE_BYPASS_INVOKED_EVENT_TYPE } from "@/lib/governance-bypass-audit-payload";
 
 export type ListRecentGovernanceBypassAuditEventsInput = {
   readonly days?: number;

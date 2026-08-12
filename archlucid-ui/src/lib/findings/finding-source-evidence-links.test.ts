@@ -7,7 +7,7 @@ import {
   parseEvidenceRefToSourceLink,
   primaryFindingEvidenceNavigationHref,
   runDetailSectionHref,
-} from "@/lib/findings/finding-source-evidence-links";
+} from "@/lib/finding-source-evidence-links";
 import { buildStaticDemoPrimaryFindingInspectPayload } from "@/lib/operator-static-demo";
 import {
   SHOWCASE_STATIC_DEMO_MANIFEST_ID,

@@ -1,6 +1,6 @@
 import { evidenceGraphHref } from "@/lib/evidence-graph-route";
 import { signedRecordArtifactPath, signedRecordDetailPath } from "@/lib/signed-records-paths";
-import { getFindingEvidenceTraceHref } from "@/lib/findings/finding-evidence-navigation";
+import { getFindingEvidenceTraceHref } from "@/lib/finding-evidence-navigation";
 import type { ArchitectureLinkageNode } from "@/types/architecture-provenance";
 
 const GUID_RE = /^[0-9a-f]{8}-[0-9a-f]{4}-[0-9a-f]{4}-[0-9a-f]{4}-[0-9a-f]{12}$/i;

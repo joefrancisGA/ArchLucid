@@ -8,7 +8,7 @@ import { ChevronDown } from "lucide-react";
 import {
   findingConfidenceExplanation,
   findingEvidenceCountPlainLine,
-} from "@/lib/findings/finding-explainability-summary";
+} from "@/lib/finding-explainability-summary";
 import type { FindingExplainability } from "@/types/explanation";
 import { normalizeFindingConfidenceLevel } from "@/types/explanation";
 

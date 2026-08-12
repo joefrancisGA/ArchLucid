@@ -11,7 +11,7 @@ import {
 } from "@/lib/api/itsm-outbound-api";
 import { BUYER_DEMO_ITSM_LINKAGE_UNAVAILABLE } from "@/lib/buyer-polish-copy";
 import { isBuyerPolishedOperatorShellEnv } from "@/lib/demo-ui-env";
-import { invalidateItsmFindingCorrelations } from "@/lib/itsm/itsm-finding-correlations-store";
+import { invalidateItsmFindingCorrelations } from "@/lib/itsm-finding-correlations-store";
 import { useItsmNativeCreateEnabled } from "@/lib/use-itsm-native-create-enabled";
 import { useItsmFindingCorrelations } from "@/lib/use-itsm-finding-correlations";
 

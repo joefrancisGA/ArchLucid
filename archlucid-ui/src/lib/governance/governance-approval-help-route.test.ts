@@ -4,11 +4,11 @@ import { join } from "node:path";
 
 import { describe, expect, it } from "vitest";
 
-import { GOVERNANCE_APPROVAL_HELP_ROUTE_METADATA } from "@/lib/governance/governance-approval-help-route-metadata";
+import { GOVERNANCE_APPROVAL_HELP_ROUTE_METADATA } from "@/lib/governance-approval-help-route-metadata";
 
-import { GOVERNANCE_APPROVAL_HELP_PATH } from "@/lib/governance/governance-approval-help-route";
+import { GOVERNANCE_APPROVAL_HELP_PATH } from "@/lib/governance-approval-help-route";
 
-import { GOVERNANCE_APPROVAL_HELP_RELATED_PRODUCT_DOCS } from "@/lib/governance/governance-approval-help-guide-content";
+import { GOVERNANCE_APPROVAL_HELP_RELATED_PRODUCT_DOCS } from "@/lib/governance-approval-help-guide-content";
 
 import { HELP_CENTER_FEATURED_SLUGS } from "@/lib/help-center-catalog";
 

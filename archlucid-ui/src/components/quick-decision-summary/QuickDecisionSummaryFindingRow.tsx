@@ -18,9 +18,9 @@ import { FindingInsightDensityDisclosure } from "@/components/usability/FindingI
 import { Button } from "@/components/ui/button";
 import { SeverityTag } from "@/components/ui/severity-tag";
 import { StatusTag } from "@/components/ui/status-tag";
-import { findingEnforcementTierLabel } from "@/lib/findings/finding-enforcement-tier";
-import { buildFindingPolicyEvidenceCitationsFromQuickDecision } from "@/lib/findings/finding-policy-evidence-citations";
-import { getFindingDetailHref } from "@/lib/findings/finding-evidence-navigation";
+import { findingEnforcementTierLabel } from "@/lib/finding-enforcement-tier";
+import { buildFindingPolicyEvidenceCitationsFromQuickDecision } from "@/lib/finding-policy-evidence-citations";
+import { getFindingDetailHref } from "@/lib/finding-evidence-navigation";
 import {
   buildQuickDecisionFindingEvidenceLinks,
   quickDecisionRecommendationSnippet,

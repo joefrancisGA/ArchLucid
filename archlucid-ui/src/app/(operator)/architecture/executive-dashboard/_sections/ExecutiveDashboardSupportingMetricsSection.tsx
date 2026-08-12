@@ -9,7 +9,7 @@ import { OPERATOR_TYPOGRAPHY } from "@/lib/design-tokens";
 import { ExecutiveOrphanCandidatesCard } from "./ExecutiveOrphanCandidatesCard";
 import { ExecutiveRoiDashboardLiveKpiCards } from "./ExecutiveRoiDashboardLiveKpiCards";
 import { ExecutiveSqlBackupRegionVerificationCard } from "./ExecutiveSqlBackupRegionVerificationCard";
-import type { ExecutiveRoiSummary } from "@/lib/executive/executive-summary-markdown";
+import type { ExecutiveRoiSummary } from "@/lib/executive-summary-markdown";
 
 export type ExecutiveDashboardSupportingMetricsSectionProps = {
   readonly summary: ExecutiveRoiSummary | null;

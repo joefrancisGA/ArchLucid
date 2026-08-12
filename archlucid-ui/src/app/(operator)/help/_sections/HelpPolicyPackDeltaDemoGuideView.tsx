@@ -15,8 +15,8 @@ import {
   POLICY_PACK_DELTA_DEMO_HELP_PAGE_SUBTITLE,
   POLICY_PACK_DELTA_DEMO_HELP_PAGE_TITLE,
   POLICY_PACK_DELTA_DEMO_HELP_PRIMARY_ACTIONS,
-} from "@/lib/policy/policy-pack-delta-demo-help-guide-content";
-import { POLICY_PACK_DELTA_DEMO_HELP_PATH } from "@/lib/policy/policy-pack-delta-demo-help-route";
+} from "@/lib/policy-pack-delta-demo-help-guide-content";
+import { POLICY_PACK_DELTA_DEMO_HELP_PATH } from "@/lib/policy-pack-delta-demo-help-route";
 import {
   DESIGN_TOKENS,
   OPERATOR_CARD,

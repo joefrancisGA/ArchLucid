@@ -15,7 +15,7 @@ import {
 } from "@/lib/alerts-hub-tab";
 import { alertsConfigurationPageSubtitle } from "@/lib/alerts-page-copy";
 import { OPERATOR_TYPOGRAPHY } from "@/lib/design-tokens";
-import { governanceAlertRulesTabHref } from "@/lib/governance/governance-route-paths";
+import { governanceAlertRulesTabHref } from "@/lib/governance-route-paths";
 
 import { AlertRulesHubRefreshProvider, useAlertRulesHubRefresh } from "@/lib/alerts-hub-refresh-context";
 import {

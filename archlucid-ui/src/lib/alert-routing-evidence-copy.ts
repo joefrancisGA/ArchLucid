@@ -1,5 +1,5 @@
 import { inAppHelpHref } from "@/lib/product-documentation-registry";
-import { GOVERNANCE_ALERTS_PATH, governanceAlertRulesTabHref } from "@/lib/governance/governance-route-paths";
+import { GOVERNANCE_ALERTS_PATH, governanceAlertRulesTabHref } from "@/lib/governance-route-paths";
 import type { EvidenceSourceLink } from "@/lib/evidence-surface-copy";
 
 export const ALERT_ROUTING_TAB_PATH = governanceAlertRulesTabHref("notifications");

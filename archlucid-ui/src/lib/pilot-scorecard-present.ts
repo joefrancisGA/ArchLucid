@@ -7,7 +7,7 @@ import {
   GOVERNANCE_APPROVAL_QUEUE_PATH,
   GOVERNANCE_AUDIT_PATH,
   GOVERNANCE_FINDINGS_PATH,
-} from "@/lib/governance/governance-route-paths";
+} from "@/lib/governance-route-paths";
 
 export const REVIEW_SCORECARD_PAGE_TITLE = BUYER_TERMINOLOGY.reviewScorecard;
 

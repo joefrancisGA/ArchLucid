@@ -31,7 +31,7 @@ import { COMMAND_PALETTE_ACTIONS } from "@/lib/command-palette-actions";
 import { COMMAND_PALETTE_CURATED_TASKS } from "@/lib/command-palette-curated-tasks";
 import { DOCUMENTATION_SEARCH_ITEMS, resolveDocumentationHref } from "@/lib/docs-search-index";
 import { NAV_GROUPS } from "@/lib/nav-config";
-import { isExecutiveDashboardPath } from "@/lib/executive/executive-dashboard-route";
+import { isExecutiveDashboardPath } from "@/lib/executive-dashboard-route";
 import { resetBuyerCtoDemoSession } from "@/lib/buyer-cto-demo-orchestration";
 import {
   ARCHLUCID_BUYER_CTO_DEMO_TOUR_START_EVENT,

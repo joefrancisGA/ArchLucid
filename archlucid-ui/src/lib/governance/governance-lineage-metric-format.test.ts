@@ -3,7 +3,7 @@ import { describe, expect, it } from "vitest";
 import {
   formatGovernanceLineageCompletenessPercent,
   formatGovernanceLineageWholeCount,
-} from "@/lib/governance/governance-lineage-metric-format";
+} from "./governance-lineage-metric-format";
 
 describe("formatGovernanceLineageWholeCount", () => {
   it("formats finite numbers with rounding", () => {

@@ -6,7 +6,7 @@ import { OperatorEmptyState } from "@/components/OperatorShellMessage";
 import {
   formatInsightDensityCurationMessage,
   type InsightDensityCurationCounts,
-} from "@/lib/findings/findings-snapshot-insight-density";
+} from "@/lib/findings-snapshot-insight-density";
 
 export type InsightDensityCurationBannerProps = {
   readonly curation: InsightDensityCurationCounts | null;

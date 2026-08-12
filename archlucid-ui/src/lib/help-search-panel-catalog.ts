@@ -1,6 +1,6 @@
 import type { HelpTabId } from "@/components/HelpPanel";
 import { canonicalizeLegacyOperatorRoutePath } from "@/lib/canonicalize-legacy-operator-route-path";
-import { GOVERNANCE_POLICY_PACKS_PATH } from "@/lib/governance/governance-route-paths";
+import { GOVERNANCE_POLICY_PACKS_PATH } from "@/lib/governance-route-paths";
 import { helpPageSituationTopicIds, type HelpPageSituation } from "@/lib/help-page-situation";
 import { inAppHelpHref } from "@/lib/product-documentation-registry";
 import { REVIEW_TERMINOLOGY_BANNED_OPERATOR_PATTERNS } from "@/lib/review-terminology-surfaces";

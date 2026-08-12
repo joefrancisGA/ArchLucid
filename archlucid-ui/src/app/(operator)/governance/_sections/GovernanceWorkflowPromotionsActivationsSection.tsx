@@ -23,14 +23,14 @@ import {
   governanceActivationsEmptyGettingStartedReader,
   governancePromotionsEmptyGettingStartedOperator,
   governancePromotionsEmptyGettingStartedReader,
-} from "@/lib/governance/governance-workflow-empty-guidance";
+} from "@/lib/governance-workflow-empty-guidance";
 import {
   GOVERNANCE_WORKFLOW_ACTIVATE_TOOLTIP_TARGET_ENV,
   GOVERNANCE_WORKFLOW_NO_RELEASES_RECORDED_TITLE,
   GOVERNANCE_WORKFLOW_RELEASE_CARD_TITLE_PREFIX,
   GOVERNANCE_WORKFLOW_RELEASE_RECORD_ID_SR_ONLY_PREFIX,
   GOVERNANCE_WORKFLOW_TIMELINE_LEAD,
-} from "@/lib/governance/governance-workflow-release-copy";
+} from "@/lib/governance-workflow-release-copy";
 import type { ApiLoadFailureState } from "@/lib/api-load-failure";
 import { OPERATOR_TYPOGRAPHY } from "@/lib/design-tokens";
 import type { GovernanceEnvironmentActivation, GovernancePromotionRecord } from "@/types/governance-workflow";

@@ -124,7 +124,7 @@ import { AlertRoutingContent } from "@/components/alerts/AlertRoutingContent";
 import { AlertsInboxContent } from "@/components/alerts/AlertsInboxContent";
 import GovernanceWorkflowPage from "./governance/approval-queue/page";
 import PolicyPacksPage from "./governance/policy-packs/page";
-import { GOVERNANCE_OVERVIEW_PAGE_TITLE } from "@/lib/governance/governance-overview-copy";
+import { GOVERNANCE_OVERVIEW_PAGE_TITLE } from "@/lib/governance-overview-copy";
 
 const sampleAlert = {
   alertId: "alert-layout-1",

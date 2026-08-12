@@ -13,8 +13,8 @@ import type { ApiLoadFailureState } from "@/lib/api-load-failure";
 import {
   tryParseCuratedRulesDocumentJson,
   type CuratedRulesDocument,
-} from "@/lib/policy/policy-pack-curated-rules-v1";
-import { GOVERNANCE_POLICY_PACKS_PATH } from "@/lib/governance/governance-route-paths";
+} from "@/lib/policy-pack-curated-rules-v1";
+import { GOVERNANCE_POLICY_PACKS_PATH } from "@/lib/governance-route-paths";
 import { OPERATOR_LINK, OPERATOR_NAV_GROUP_LABEL, OPERATOR_TYPOGRAPHY } from "@/lib/design-tokens";
 
 export type PolicyPackNaturalLanguageBuilderProps = {

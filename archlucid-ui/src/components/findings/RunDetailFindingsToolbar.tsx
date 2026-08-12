@@ -8,15 +8,15 @@ import { Label } from "@/components/ui/label";
 import { SeverityTag } from "@/components/ui/severity-tag";
 import { StatusTag } from "@/components/ui/status-tag";
 import { OPERATOR_TYPOGRAPHY } from "@/lib/design-tokens";
-import { formatFindingsVisibilitySummaryLine } from "@/lib/findings/finding-confidence-filter";
+import { formatFindingsVisibilitySummaryLine } from "@/lib/finding-confidence-filter";
 import { FindingJobViewToggleBar } from "@/components/findings/FindingJobViewToggleBar";
 import { FindingsNaturalLanguageFilter } from "@/components/findings/FindingsNaturalLanguageFilter";
-import type { FindingsNaturalLanguageFacets } from "@/lib/findings/findings-natural-language-filter";
+import type { FindingsNaturalLanguageFacets } from "@/lib/findings-natural-language-filter";
 import {
   DEFAULT_FINDING_JOB_VIEW,
   filterReviewFindingsForJobView,
   type FindingJobView,
-} from "@/lib/findings/finding-job-view";
+} from "@/lib/finding-job-view";
 import {
   humanReviewStatusDisplay,
   severityBadgeLabel,

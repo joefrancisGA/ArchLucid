@@ -1,6 +1,6 @@
 import type { Metadata } from "next";
 
-import { findingDetailHeadingTitle } from "@/lib/findings/finding-display-from-inspect";
+import { findingDetailHeadingTitle } from "@/lib/finding-display-from-inspect";
 import { shouldTreatFindingInspectFailureAsNotFound } from "@/lib/load-finding-inspect-for-route";
 import { loadFindingInspectForRouteCached } from "@/lib/load-finding-inspect-for-route-cached";
 import { isInvalidDynamicRouteToken, isInvalidGuidOrSlugRouteToken } from "@/lib/route-dynamic-param";

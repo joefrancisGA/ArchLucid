@@ -16,7 +16,7 @@ import {
   GOVERNANCE_WORKFLOW_SUBMIT_CARD_DESCRIPTION_OPERATOR,
   GOVERNANCE_WORKFLOW_TIMELINE_LEAD,
   governanceWorkflowReleaseConfirmDescription,
-} from "@/lib/governance/governance-workflow-release-copy";
+} from "./governance-workflow-release-copy";
 
 describe("governance-workflow-release-copy (TB-510)", () => {
   it("avoids promote or promotion as standalone action verbs in release vocabulary", () => {

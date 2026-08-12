@@ -2,7 +2,7 @@ import {
   deriveFindingTrustPresentation,
   formatFindingTrustCompareDeltaLabels,
   type FindingTrustChipSet,
-} from "@/lib/findings/finding-trust-presentation";
+} from "@/lib/finding-trust-presentation";
 import {
   severityBadgeLabel,
   sortQuickDecisionFindings,

@@ -1,7 +1,7 @@
 import { reviewDetailPath } from "@/lib/architecture-routes";
 import { DECISION_REGISTER_CANONICAL_PATH } from "@/lib/decision-register-evidence-copy";
-import { getFindingDetailHref } from "@/lib/findings/finding-evidence-navigation";
-import { GOVERNANCE_APPROVAL_QUEUE_PATH } from "@/lib/governance/governance-route-paths";
+import { getFindingDetailHref } from "@/lib/finding-evidence-navigation";
+import { GOVERNANCE_APPROVAL_QUEUE_PATH } from "@/lib/governance-route-paths";
 import { signedRecordDetailPath } from "@/lib/signed-records-paths";
 
 /** Governed operator objects with a single canonical home route (TB-2153 / TB-1026). */

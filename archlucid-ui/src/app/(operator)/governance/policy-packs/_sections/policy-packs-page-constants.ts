@@ -1,4 +1,4 @@
-import { DEFAULT_POLICY_PACK_CONTENT_JSON } from "@/lib/policy/policy-pack-default-content";
+import { DEFAULT_POLICY_PACK_CONTENT_JSON } from "@/lib/policy-pack-default-content";
 
 export const PACK_TYPES: ReadonlyArray<{ value: string; label: string }> = [
   { value: "BuiltIn", label: "Built-in template" },

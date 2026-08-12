@@ -3,7 +3,7 @@ import { BUYER_ASK_PAGE_TITLE } from "@/lib/buyer-polish-copy";
 import {
   GOVERNANCE_OVERVIEW_PAGE_TITLE,
   GOVERNANCE_REVIEW_CONTEXT_PAGE_TITLE,
-} from "@/lib/governance/governance-overview-copy";
+} from "@/lib/governance-overview-copy";
 import { OPERATOR_NAV_LINK_LABELS, RUNS_LIST_PAGE_TITLES } from "@/lib/i18n";
 
 function escapeRegExpLiteral(value: string): string {

@@ -15,8 +15,8 @@ import { toApiLoadFailure } from "@/lib/api-load-failure";
 import {
   findingEvidenceCountPlainLine,
   findingTraceCompletenessPlainEnglish,
-} from "@/lib/findings/finding-explainability-summary";
-import { resolveFindingOptionalArtifactUnavailableCopy } from "@/lib/findings/finding-optional-artifact-copy";
+} from "@/lib/finding-explainability-summary";
+import { resolveFindingOptionalArtifactUnavailableCopy } from "@/lib/finding-optional-artifact-copy";
 import { isShowcaseStaticDemoRunId } from "@/lib/demo-run-canonical";
 import type { FindingExplainability } from "@/types/explanation";
 

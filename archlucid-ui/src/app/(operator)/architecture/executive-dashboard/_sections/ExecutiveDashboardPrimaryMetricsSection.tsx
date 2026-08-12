@@ -7,13 +7,13 @@ import { useEffect, useState } from "react";
 import { Card, CardContent, CardDescription, CardHeader, CardTitle } from "@/components/ui/card";
 import { getGovernanceDecisionsNeededSummary } from "@/lib/api/governance-stickiness-api";
 import { BUYER_EXECUTIVE_SUMMARY_VOCABULARY } from "@/lib/vocabulary/buyer-surface-vocabulary";
-import type { ExecutiveRoiSummary } from "@/lib/executive/executive-summary-markdown";
-import { EXECUTIVE_KPI_DRILL_THROUGH } from "@/lib/executive/executive-kpi-drill-through-hrefs";
+import type { ExecutiveRoiSummary } from "@/lib/executive-summary-markdown";
+import { EXECUTIVE_KPI_DRILL_THROUGH } from "@/lib/executive-kpi-drill-through-hrefs";
 import { formatMetricCountScopeLabel } from "@/lib/metric-count-presentation";
 import {
   presentCostEvidenceFreshness,
   presentExecutiveKpiCount,
-} from "@/lib/executive/executive-roi-kpi-display";
+} from "@/lib/executive-roi-kpi-display";
 import {
   OPERATOR_KPI_CARD_DESCRIPTION,
   OPERATOR_KPI_CARD_TITLE,
@@ -24,7 +24,7 @@ import {
   buildExecutiveServerSavingsSummary,
   resolveRunSavingsUsd,
 } from "@/lib/roi-resolution-priority";
-import { presentExecutiveEstimatedSavings } from "@/lib/executive/executive-estimated-savings-display";
+import { presentExecutiveEstimatedSavings } from "@/lib/executive-estimated-savings-display";
 
 export type ExecutiveDashboardPrimaryMetricsSectionProps = {
   readonly summary: ExecutiveRoiSummary | null;

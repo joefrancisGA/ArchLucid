@@ -19,7 +19,7 @@ import {
   POLICY_PACKS_PAGE_TITLE,
   POLICY_PACKS_RESOLUTION_LINK_HREF,
   POLICY_PACKS_RESOLUTION_LINK_LABEL,
-} from "@/lib/policy/policy-packs-page";
+} from "@/lib/policy-packs-page";
 
 export type PolicyPacksPageHeaderProps = {
   readonly subtitle: string;

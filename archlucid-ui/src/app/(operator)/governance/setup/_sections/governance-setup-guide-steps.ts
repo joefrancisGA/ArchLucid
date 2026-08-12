@@ -1,5 +1,5 @@
 import { ALERTS_CONFIGURE_RULES_LINK_LABEL } from "@/lib/alerts-page-copy";
-import { GOVERNANCE_WORKSPACE_HEALTH_HREF, GOVERNANCE_POLICY_PACKS_PATH, governanceAlertRulesTabHref } from "@/lib/governance/governance-route-paths";
+import { GOVERNANCE_WORKSPACE_HEALTH_HREF, GOVERNANCE_POLICY_PACKS_PATH, governanceAlertRulesTabHref } from "@/lib/governance-route-paths";
 import { INTEGRATIONS_READINESS_PATH } from "@/lib/integrations-nav-paths";
 
 import type {

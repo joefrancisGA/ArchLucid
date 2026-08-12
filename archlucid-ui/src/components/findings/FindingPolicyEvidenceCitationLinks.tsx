@@ -1,7 +1,7 @@
 import type { ReactElement } from "react";
 
 import { FindingPolicyProvenancePanel } from "@/components/findings/FindingPolicyProvenancePanel";
-import type { FindingPolicyEvidenceCitationModel } from "@/lib/findings/finding-policy-evidence-citations";
+import type { FindingPolicyEvidenceCitationModel } from "@/lib/finding-policy-evidence-citations";
 
 export type FindingPolicyEvidenceCitationLinksProps = {
   readonly model: FindingPolicyEvidenceCitationModel;

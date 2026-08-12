@@ -6,7 +6,7 @@ import { FindingConfidenceBadge } from "@/components/FindingConfidenceBadge";
 import { SeverityTag } from "@/components/ui/severity-tag";
 import { StatusTag } from "@/components/ui/status-tag";
 import { OPERATOR_KPI_CARD_TITLE, OPERATOR_LINK, OPERATOR_TYPOGRAPHY } from "@/lib/design-tokens";
-import { getFindingGovernanceDispositionHref } from "@/lib/findings/finding-evidence-navigation";
+import { getFindingGovernanceDispositionHref } from "@/lib/finding-evidence-navigation";
 import { findingStatusTagKind } from "./finding-detail-route-display";
 import type { FindingDecisionSummary } from "./finding-detail-route-display";
 

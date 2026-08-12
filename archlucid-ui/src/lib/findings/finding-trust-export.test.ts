@@ -1,6 +1,6 @@
 import { describe, expect, it } from "vitest";
 
-import { findingTrustExportJsonFields, formatFindingTrustExportLine } from "@/lib/findings/finding-trust-export";
+import { findingTrustExportJsonFields, formatFindingTrustExportLine } from "./finding-trust-export";
 
 describe("formatFindingTrustExportLine", () => {
   it("derives canonical label when wire trustLabel is absent", () => {

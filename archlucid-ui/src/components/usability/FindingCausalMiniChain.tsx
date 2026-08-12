@@ -3,7 +3,7 @@ import { cn } from "@/lib/utils";
 import {
   FINDING_CAUSAL_STEP_MISSING,
   type FindingCausalMiniChainResult,
-} from "@/lib/findings/finding-causal-mini-chain";
+} from "@/lib/finding-causal-mini-chain";
 import { OPERATOR_TYPOGRAPHY } from "@/lib/design-tokens";
 
 export type FindingCausalMiniChainProps = {

@@ -2,7 +2,7 @@ import Link from "next/link";
 
 import { ExplanationEvidenceBasisBadges } from "@/components/ExplanationEvidenceBasisBadges";
 import { manifestStatusForDisplay } from "@/lib/manifest-status-display";
-import { policyPackBuyerLabel } from "@/lib/policy/policy-pack-buyer-label";
+import { policyPackBuyerLabel } from "@/lib/policy-pack-buyer-label";
 import {
   DEMO_PREVIEW_CONDITIONS_LABEL,
   DEMO_PREVIEW_EVIDENCE_BASIS_LABEL,

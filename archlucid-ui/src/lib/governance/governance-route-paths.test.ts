@@ -9,7 +9,7 @@ import {
   buildCanonicalGovernanceAlertsInboxHref,
   governanceAlertRulesTabHref,
   governanceAlertsTabHref,
-} from "@/lib/governance/governance-route-paths";
+} from "@/lib/governance-route-paths";
 
 describe("governance-route-paths", () => {
   it("exposes canonical governance alert paths", () => {

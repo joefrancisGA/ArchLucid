@@ -3,7 +3,7 @@ import { describe, expect, it } from "vitest";
 import {
   GOVERNANCE_ACTION_REGION_TITLE,
   validateRemediationOwnerInput,
-} from "@/lib/findings/finding-governance-action-copy";
+} from "@/lib/finding-governance-action-copy";
 
 describe("finding-governance-action-copy", () => {
   it("exposes governance region title", () => {

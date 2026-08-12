@@ -1,6 +1,6 @@
 import { inAppHelpHref } from "@/lib/product-documentation-registry";
 import type { EvidenceSourceLink } from "@/lib/evidence-surface-copy";
-import { GOVERNANCE_AUDIT_PATH } from "@/lib/governance/governance-route-paths";
+import { GOVERNANCE_AUDIT_PATH } from "@/lib/governance-route-paths";
 
 export const ADMIN_HEALTH_CLAIM_DISCIPLINE =
   "Diagnostics dashboard shows workspace health, readiness, and configuration advisories for architects — it is not a signed-review diligence Sources package. Open System health, Audit, or Assurance status when you need governed or evaluation trails.";

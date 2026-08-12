@@ -16,7 +16,7 @@
 import {
   GOVERNANCE_EXCEPTIONS_PATH,
   GOVERNANCE_FINDINGS_PATH,
-} from "@/lib/governance/governance-route-paths";
+} from "@/lib/governance-route-paths";
 
 export type RiskExceptionsFindingsSurfaceId = "risk-exceptions" | "findings-queue";
 

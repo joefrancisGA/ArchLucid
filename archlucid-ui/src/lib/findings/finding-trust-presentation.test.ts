@@ -3,7 +3,7 @@ import { describe, expect, it } from "vitest";
 import {
   deriveFindingTrustPresentation,
   formatFindingTrustCompareDeltaLabels,
-} from "@/lib/findings/finding-trust-presentation";
+} from "@/lib/finding-trust-presentation";
 
 const FIXTURE_INFERRED_POLICY_RULE = {
   policyRuleId: "cis-az-001",

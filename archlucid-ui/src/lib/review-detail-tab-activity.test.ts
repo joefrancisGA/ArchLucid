@@ -1,6 +1,6 @@
 import { describe, expect, it } from "vitest";
 
-import { resolveFindingActivityAtUtc } from "@/lib/findings/finding-activity-at-utc";
+import { resolveFindingActivityAtUtc } from "@/lib/finding-activity-at-utc";
 import { deriveReviewDetailTabActivityAt } from "@/lib/review-detail-tab-activity";
 
 describe("finding-activity-at-utc", () => {

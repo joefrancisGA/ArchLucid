@@ -3,7 +3,7 @@ import { describe, expect, it } from "vitest";
 import {
   buildGovernanceResolutionMarkdown,
   governanceResolutionMarkdownFilename,
-} from "@/lib/governance/governance-resolution-markdown";
+} from "@/lib/governance-resolution-markdown";
 import type { EffectiveGovernanceResolutionResult } from "@/types/governance-resolution";
 
 const emptyContent: EffectiveGovernanceResolutionResult["effectiveContent"] = {

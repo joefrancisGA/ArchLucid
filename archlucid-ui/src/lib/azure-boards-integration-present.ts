@@ -8,7 +8,7 @@ import {
   AZURE_BOARDS_SETUP_STEP_DONE_LABEL,
   AZURE_BOARDS_SETUP_STEP_PENDING_LABEL,
 } from "@/lib/azure-boards-page-copy";
-import { GOVERNANCE_FINDINGS_PATH } from "@/lib/governance/governance-route-paths";
+import { GOVERNANCE_FINDINGS_PATH } from "@/lib/governance-route-paths";
 import type { WhyDisabledCtaReason } from "@/lib/why-disabled-cta";
 
 export type AzureBoardsConnectionStatus =

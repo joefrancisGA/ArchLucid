@@ -12,8 +12,8 @@ import {
   EnterpriseTableHeadRow,
   EnterpriseTableRow,
 } from "@/components/ui/enterprise-table";
-import type { ExecutiveRoiSummary } from "@/lib/executive/executive-summary-markdown";
-import { presentExecutiveEstimatedSavings } from "@/lib/executive/executive-estimated-savings-display";
+import type { ExecutiveRoiSummary } from "@/lib/executive-summary-markdown";
+import { presentExecutiveEstimatedSavings } from "@/lib/executive-estimated-savings-display";
 import { OPERATOR_TYPOGRAPHY } from "@/lib/design-tokens";
 import { resolveExecutiveSystemRowScopeLabel } from "@/lib/roi-sponsor-scope-labels";
 

@@ -1,8 +1,8 @@
-import { getFindingEvidenceTraceHref } from "@/lib/findings/finding-evidence-navigation";
+import { getFindingEvidenceTraceHref } from "@/lib/finding-evidence-navigation";
 import {
   findingTrustExportJsonFields,
   formatFindingTrustExportLine,
-} from "@/lib/findings/finding-trust-export";
+} from "@/lib/finding-trust-export";
 export type WorkItemClipboardFormat =
   | "markdown"
   | "jiraWiki"

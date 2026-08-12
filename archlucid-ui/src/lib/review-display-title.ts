@@ -39,24 +39,12 @@ function firstSentence(text: string): string {
   return match === null ? text : match[1];
 }
 
-function stripInlineMarkdownSyntax(text: string): string {
-  return text
-    .replace(/\*\*(.+?)\*\*/g, "$1")
-    .replace(/__(.+?)__/g, "$1")
-    .replace(/\*(.+?)\*/g, "$1")
-    .replace(/_(.+?)_/g, "$1")
-    .replace(/^#+\s+/gm, "")
-    .replace(/`/g, "");
-}
-
 function clampTitle(text: string): string {
-  const stripped = stripInlineMarkdownSyntax(text.trim());
-
-  if (stripped.length <= MAX_REVIEW_TITLE_CHARS) {
-    return stripped;
+  if (text.length <= MAX_REVIEW_TITLE_CHARS) {
+    return text;
   }
 
-  return `${stripped.slice(0, MAX_REVIEW_TITLE_CHARS - 1).trimEnd()}…`;
+  return `${text.slice(0, MAX_REVIEW_TITLE_CHARS - 1).trimEnd()}…`;
 }
 
 /** Turns any run label candidate (display name or description) into a single-line review title. */

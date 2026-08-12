@@ -23,7 +23,7 @@ import {
   type CuratedRulesDocument,
   type CuratedRuleSeverity,
   serializeCuratedRulesDocument,
-} from "@/lib/policy/policy-pack-curated-rules-v1";
+} from "@/lib/policy-pack-curated-rules-v1";
 import { OPERATOR_NAV_GROUP_LABEL, OPERATOR_TYPOGRAPHY } from "@/lib/design-tokens";
 
 export type CuratedRulesAuthoringSectionProps = {

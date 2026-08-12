@@ -3,7 +3,7 @@
 import {
   buildPolicyPackChangeImpactPreview,
   type PolicyPackChangeImpactPreviewInput,
-} from "@/lib/policy/policy-pack-change-impact";
+} from "@/lib/policy-pack-change-impact";
 import { OPERATOR_TYPOGRAPHY } from "@/lib/design-tokens";
 import { cn } from "@/lib/utils";
 

@@ -1,5 +1,5 @@
 import { apiGet, apiPostJson, apiPostNoContent, apiPutJson, apiPutNoContent } from "./http";
-import { createGovernanceMutationIdempotencyKey } from "@/lib/governance/governance-mutation-idempotency-key";
+import { createGovernanceMutationIdempotencyKey } from "@/lib/governance-mutation-idempotency-key";
 import { ApiV1Routes } from "@/lib/api-v1-routes";
 
 export type FindingDispositionKind =

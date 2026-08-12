@@ -7,7 +7,7 @@ import {
   patchGovernanceFindingsQueueFacets,
   readGovernanceFindingsQueueFacets,
   writeGovernanceFindingsQueueFacets,
-} from "@/lib/governance/governance-findings-queue-facets-storage";
+} from "@/lib/governance-findings-queue-facets-storage";
 
 describe("governance-findings-queue-facets-storage", () => {
   afterEach(() => {

@@ -9,7 +9,7 @@ import {
   type GovernanceJobId,
   type GovernanceJobRouter,
   type GovernanceJobRouterOption,
-} from "@/lib/governance/governance-job-router";
+} from "@/lib/governance-job-router";
 import { OPERATOR_LINK, OPERATOR_TYPOGRAPHY } from "@/lib/design-tokens";
 import { cn } from "@/lib/utils";
 

@@ -8,7 +8,7 @@ import { useExecutiveRoiSummaryQuery } from "@/hooks/use-executive-roi-summary-q
 import { OperatorApiProblem } from "@/components/OperatorApiProblem";
 import { KpiTileDrillThroughLink } from "@/components/KpiTileDrillThroughLink";
 import { Card, CardContent, CardDescription, CardHeader, CardTitle } from "@/components/ui/card";
-import { EXECUTIVE_KPI_DRILL_THROUGH } from "@/lib/executive/executive-kpi-drill-through-hrefs";
+import { EXECUTIVE_KPI_DRILL_THROUGH } from "@/lib/executive-kpi-drill-through-hrefs";
 import { toApiLoadFailure } from "@/lib/api-load-failure";
 import { OPERATOR_KPI_CARD_DESCRIPTION, OPERATOR_KPI_CARD_TITLE, OPERATOR_TYPOGRAPHY } from "@/lib/design-tokens";
 

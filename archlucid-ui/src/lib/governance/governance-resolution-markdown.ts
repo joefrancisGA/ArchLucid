@@ -2,7 +2,7 @@ import {
   getGovernanceConflictLosers,
   getGovernanceConflictWinner,
   resolveGovernanceConflictWhy,
-} from "@/lib/governance/governance-conflict-resolution";
+} from "@/lib/governance-conflict-resolution";
 import { triggerGoldenManifestMarkdownDownload } from "@/lib/export-markdown";
 import type { EffectiveGovernanceResolutionResult } from "@/types/governance-resolution";
 

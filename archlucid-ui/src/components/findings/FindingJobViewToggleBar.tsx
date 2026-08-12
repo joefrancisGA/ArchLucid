@@ -7,7 +7,7 @@ import {
   countReviewFindingsForJobView,
   FINDING_JOB_VIEW_LABELS,
   type FindingJobView,
-} from "@/lib/findings/finding-job-view";
+} from "@/lib/finding-job-view";
 import { OPERATOR_TYPOGRAPHY } from "@/lib/design-tokens";
 
 import type { GovernanceFindingQueueRow } from "@/app/(operator)/governance/findings/governance-finding-queue-row";

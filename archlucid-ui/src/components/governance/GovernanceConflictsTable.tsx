@@ -7,8 +7,8 @@ import {
   getGovernanceConflictLosers,
   getGovernanceConflictWinner,
   resolveGovernanceConflictWhy,
-} from "@/lib/governance/governance-conflict-resolution";
-import { policyPacksEditHref } from "@/lib/policy/policy-packs-deep-link";
+} from "@/lib/governance-conflict-resolution";
+import { policyPacksEditHref } from "@/lib/policy-packs-deep-link";
 import type {
   GovernanceConflictRecord,
   GovernanceResolutionDecision,

@@ -5,7 +5,7 @@ import {
   GOVERNANCE_SETUP_OUTCOMES_HEADING,
   GOVERNANCE_SETUP_OUTCOMES_INTRO,
   GOVERNANCE_SETUP_OUTCOME_BULLETS,
-} from "@/lib/governance/governance-setup-route";
+} from "@/lib/governance-setup-route";
 
 /** Sticky value rail — fills empty horizontal space without Pending status theater. */
 export function GovernanceSetupOutcomesPanel() {

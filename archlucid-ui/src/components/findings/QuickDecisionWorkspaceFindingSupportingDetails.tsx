@@ -11,7 +11,7 @@ import { FindingEvidenceRefSnippets } from "@/components/usability/FindingEviden
 import { FindingInsightDensityDisclosure } from "@/components/usability/FindingInsightDensityDisclosure";
 import { FindingCreateWorkItemActions } from "@/components/work-items/FindingCreateWorkItemActions";
 import { OPERATOR_TYPOGRAPHY } from "@/lib/design-tokens";
-import { buildFindingPolicyEvidenceCitationsFromQuickDecision } from "@/lib/findings/finding-policy-evidence-citations";
+import { buildFindingPolicyEvidenceCitationsFromQuickDecision } from "@/lib/finding-policy-evidence-citations";
 import { quickDecisionWorkItemSeverityLabel } from "@/lib/quick-decision-finding-links";
 import type { QuickDecisionFinding } from "@/lib/quick-decision-summary-derive";
 import { cn } from "@/lib/utils";

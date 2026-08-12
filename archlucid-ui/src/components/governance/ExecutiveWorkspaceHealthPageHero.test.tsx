@@ -5,8 +5,8 @@ import {
   executiveWorkspaceHealthPageLead,
   executiveWorkspaceHealthPageTitle,
   EXECUTIVE_WORKSPACE_HEALTH_WORKFLOW_LINK_LABEL,
-} from "@/lib/executive/executive-workspace-health-page-copy";
-import { EXECUTIVE_DASHBOARD_HREF } from "@/lib/executive/executive-dashboard-route";
+} from "@/lib/executive-workspace-health-page-copy";
+import { EXECUTIVE_DASHBOARD_HREF } from "@/lib/executive-dashboard-route";
 
 vi.mock("next/navigation", () => ({
   usePathname: () => EXECUTIVE_DASHBOARD_HREF,

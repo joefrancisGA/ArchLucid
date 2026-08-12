@@ -6,7 +6,7 @@ import {
   type FindingProvenanceGrounding,
   type FindingProvenanceOrigin,
   type FindingTrustLabelName,
-} from "@/lib/findings/finding-provenance-display";
+} from "@/lib/finding-provenance-display";
 
 export type FindingTrustChipKind =
   | "evidence-backed"

@@ -1,6 +1,6 @@
-import { graphEvidenceHrefFromInspect, preferredGraphNodeIdForFindingDeepLink } from "@/lib/findings/finding-inspect-graph-evidence";
-import { findingInspectEvidenceCitationLabel } from "@/lib/findings/finding-policy-evidence-citations";
-import { normalizeEvidenceRefSnippet } from "@/lib/findings/finding-evidence-ref-snippet";
+import { graphEvidenceHrefFromInspect, preferredGraphNodeIdForFindingDeepLink } from "@/lib/finding-inspect-graph-evidence";
+import { findingInspectEvidenceCitationLabel } from "@/lib/finding-policy-evidence-citations";
+import { normalizeEvidenceRefSnippet } from "@/lib/finding-evidence-ref-snippet";
 import { graphTrailHrefWithOptionalNode } from "@/lib/graph-finding-deep-links";
 import {
   SHOWCASE_STATIC_DEMO_MANIFEST_ID,

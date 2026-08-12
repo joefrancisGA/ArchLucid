@@ -1,6 +1,6 @@
 import { inAppHelpHref } from "@/lib/product-documentation-registry";
 import type { EvidenceSourceLink } from "@/lib/evidence-surface-copy";
-import { GOVERNANCE_FINDINGS_PATH } from "@/lib/governance/governance-route-paths";
+import { GOVERNANCE_FINDINGS_PATH } from "@/lib/governance-route-paths";
 
 export const EVIDENCE_TRACE_CANONICAL_PATH_PATTERN =
   "/architecture/reviews/[runId]/findings/[findingId]/evidence-trace" as const;

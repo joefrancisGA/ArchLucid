@@ -16,23 +16,23 @@ import {
   findingDetailHeadingTitle,
   findingDetailLeadSentence,
   findingInspectPageEyebrow,
-} from "@/lib/findings/finding-display-from-inspect";
-import { formatFindingHumanReviewStatusLabel } from "@/lib/findings/finding-human-review-display";
+} from "@/lib/finding-display-from-inspect";
+import { formatFindingHumanReviewStatusLabel } from "@/lib/finding-human-review-display";
 import {
   EVIDENCE_TRACE_PAGE_SUBTITLE,
   getFindingDetailHref,
   getFindingEvidenceTraceHref,
-} from "@/lib/findings/finding-evidence-navigation";
+} from "@/lib/finding-evidence-navigation";
 import {
   GOVERNANCE_ACTION_REGION_LEAD,
   GOVERNANCE_ACTION_REGION_TITLE,
-} from "@/lib/findings/finding-governance-action-copy";
+} from "@/lib/finding-governance-action-copy";
 import { findingIdsAlignForInspectRoute } from "@/lib/load-finding-inspect-for-route";
 import { isBuyerPolishedOperatorShellEnv } from "@/lib/demo-ui-env";
 import {
   buildFindingPolicyEvidenceCitationsFromInspect,
   resolvePolicyTraceExcerptFromInspect,
-} from "@/lib/findings/finding-policy-evidence-citations";
+} from "@/lib/finding-policy-evidence-citations";
 import { OPERATOR_LINK, OPERATOR_TYPOGRAPHY } from "@/lib/design-tokens";
 import type { FindingInspectPayload } from "@/types/finding-inspect";
 

@@ -1,4 +1,4 @@
-import { GOVERNANCE_OVERVIEW_APPROVAL_LIFECYCLE_STEPS } from "@/lib/governance/governance-overview-copy";
+import { GOVERNANCE_OVERVIEW_APPROVAL_LIFECYCLE_STEPS } from "@/lib/governance-overview-copy";
 import { OPERATOR_TYPOGRAPHY } from "@/lib/design-tokens";
 import { cn } from "@/lib/utils";
 

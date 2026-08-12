@@ -12,8 +12,8 @@
  * “correlation”) and Alerts ≠ Findings dual-inbox teaching.
  */
 
-import { GOVERNANCE_FINDINGS_PATH } from "@/lib/governance/governance-route-paths";
-import { ITSM_CONNECTORS_ADMIN_PATH } from "@/lib/itsm/itsm-connectors-admin-scope";
+import { GOVERNANCE_FINDINGS_PATH } from "@/lib/governance-route-paths";
+import { ITSM_CONNECTORS_ADMIN_PATH } from "@/lib/itsm-connectors-admin-scope";
 
 export type ItsmConnectorsFindingTicketSurfaceId =
   | "itsm-connectors"

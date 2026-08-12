@@ -2,7 +2,7 @@ import { ADMINISTRATION_SYSTEM_HEALTH_PATH } from "@/lib/administration-route-pa
 import type { HelpMarkdownHeading } from "@/lib/help-markdown-headings";
 import { SPONSOR_REPORT_EXECUTIVE_SUMMARY_PATH } from "@/lib/sponsor-report-navigation";
 import { ARCHLUCID_SUPPORT_EMAIL } from "@/lib/support-workspace-present";
-import { GOVERNANCE_POLICY_PACKS_PATH } from "@/lib/governance/governance-route-paths";
+import { GOVERNANCE_POLICY_PACKS_PATH } from "@/lib/governance-route-paths";
 import { inAppHelpHref } from "@/lib/product-documentation-registry";
 
 export const TROUBLESHOOTING_REPORT_PROBLEM_LINK = {

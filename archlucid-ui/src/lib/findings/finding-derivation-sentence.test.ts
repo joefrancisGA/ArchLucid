@@ -5,7 +5,7 @@ import {
   FINDING_DERIVATION_NOT_AVAILABLE,
   findingDerivationFromGovernanceQueueRow,
   findingDerivationFromQuickDecisionFinding,
-} from "@/lib/findings/finding-derivation-sentence";
+} from "@/lib/finding-derivation-sentence";
 import type { QuickDecisionFinding } from "@/lib/quick-decision-summary-derive";
 import type { GovernanceFindingQueueRow } from "@/app/(operator)/governance/findings/governance-finding-queue-row";
 

@@ -87,29 +87,6 @@ describe("RunDetailWorkspaceHeader", () => {
     expect(screen.getByTestId("favorite-review-toggle")).toBeInTheDocument();
     expect(screen.getByTestId("page-contextual-help-button")).toBeInTheDocument();
   });
-
-  it("clamps an overlong h1 title to one line", () => {
-    const longTitle = "x".repeat(200);
-
-    render(
-      <RunDetailWorkspaceHeader
-        runId="run-1"
-        h1Title={longTitle}
-        eyebrowLabel="Architecture review"
-        reviewIdentifierLabel="run-1"
-        workspaceStatus={workspaceStatus}
-        reviewOwner={null}
-        templateLabel={null}
-        finalizedAtLabel={null}
-        packageVersionLabel={null}
-      />,
-    );
-
-    const heading = screen.getByRole("heading", { level: 1 });
-
-    expect(heading.textContent?.length).toBeLessThanOrEqual(120);
-    expect(heading.textContent?.endsWith("…")).toBe(true);
-  });
 });
 
 describe("RunDetailWorkspaceBlockingBanner", () => {

@@ -3,7 +3,7 @@ import { describe, expect, it, vi } from "vitest";
 
 import { PolicyPacksPageView } from "./PolicyPacksPageView";
 import type { PolicyPacksPageViewModel } from "./policy-packs-page-view-model";
-import { policyPackPublishSuccessMessage } from "@/lib/governance/governance-mutation-outcome-copy";
+import { policyPackPublishSuccessMessage } from "@/lib/governance-mutation-outcome-copy";
 
 function buildModel(overrides: Partial<PolicyPacksPageViewModel> = {}): PolicyPacksPageViewModel {
   return {

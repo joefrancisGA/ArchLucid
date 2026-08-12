@@ -4,7 +4,7 @@ import {
   BUYER_GOVERNANCE_OVERVIEW_PAGE_LEAD,
   governanceOverviewPageLead,
   GOVERNANCE_OVERVIEW_PAGE_LEAD,
-} from "@/lib/governance/governance-overview-copy";
+} from "@/lib/governance-overview-copy";
 
 describe("governance-overview-copy", () => {
   it("uses shorter buyer overview lead", () => {

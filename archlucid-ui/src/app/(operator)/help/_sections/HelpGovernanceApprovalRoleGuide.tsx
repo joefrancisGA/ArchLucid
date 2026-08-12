@@ -1,6 +1,6 @@
 import {
   GOVERNANCE_APPROVAL_HELP_ROLES,
-} from "@/lib/governance/governance-approval-help-guide-content";
+} from "@/lib/governance-approval-help-guide-content";
 import { OPERATOR_SHELL_SCROLL_OFFSET_CLASS, OPERATOR_TYPOGRAPHY } from "@/lib/design-tokens";
 import { cn } from "@/lib/utils";
 

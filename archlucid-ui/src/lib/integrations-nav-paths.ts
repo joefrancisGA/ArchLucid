@@ -1,4 +1,4 @@
-import { pathMatchesRoutePrefix } from "@/lib/governance/governance-route-paths";
+import { pathMatchesRoutePrefix } from "@/lib/governance-route-paths";
 
 /** Canonical Administration → Connection status hub (nav label alignment). */
 export const ADMINISTRATION_CONNECTION_STATUS_PATH = "/administration/connection-status";

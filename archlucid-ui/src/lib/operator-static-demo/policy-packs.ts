@@ -1,4 +1,4 @@
-import { policyPackBuyerLabel } from "@/lib/policy/policy-pack-buyer-label";
+import { policyPackBuyerLabel } from "@/lib/policy-pack-buyer-label";
 import { isOperatorExperienceFullShellEnv } from "@/lib/demo-ui-env";
 import type { EffectivePolicyPackSet, PolicyPack, PolicyPackContentDocument } from "@/types/policy-packs";
 

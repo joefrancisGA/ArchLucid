@@ -46,20 +46,20 @@ import { buildSponsorStoryDispositionCountsFromRows } from "@/lib/sponsor-story-
 import {
   matchesFindingsNaturalLanguageFacets,
   type FindingsNaturalLanguageFacets,
-} from "@/lib/findings/findings-natural-language-filter";
+} from "@/lib/findings-natural-language-filter";
 import { CanonicalObjectSecondaryViewStrip } from "@/components/usability/CanonicalObjectSecondaryViewStrip";
 import { SelfDescribingMetricCount } from "@/components/usability/SelfDescribingMetricCount";
 import { secondaryViewFromGovernanceQueueRow } from "@/lib/canonical-object-home-registry";
 import {
   patchGovernanceFindingsQueueFacets,
   readGovernanceFindingsQueueFacets,
-} from "@/lib/governance/governance-findings-queue-facets-storage";
+} from "@/lib/governance-findings-queue-facets-storage";
 import { usePrefetchItsmFindingCorrelations } from "@/lib/use-itsm-finding-correlations";
 import { cn } from "@/lib/utils";
 import {
   filterGovernanceRowsForJobView,
   type FindingJobView,
-} from "@/lib/findings/finding-job-view";
+} from "@/lib/finding-job-view";
 
 export type { GovernanceFindingQueueRow } from "./governance-finding-queue-row";
 

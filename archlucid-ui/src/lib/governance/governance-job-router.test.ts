@@ -1,7 +1,7 @@
 import { describe, expect, it } from "vitest";
 
 import { DECISION_REGISTER_CANONICAL_PATH } from "@/lib/decision-register-evidence-copy";
-import { GOVERNANCE_FINDINGS_CANONICAL_PATH } from "@/lib/governance/governance-findings-evidence-copy";
+import { GOVERNANCE_FINDINGS_CANONICAL_PATH } from "@/lib/governance-findings-evidence-copy";
 import {
   GOVERNANCE_JOB_APPROVE_GOVERNANCE,
   GOVERNANCE_JOB_RECORD_DECISIONS,
@@ -10,8 +10,8 @@ import {
   buildGovernanceJobRouterOptions,
   getGovernanceJobRouter,
   type GovernanceJobId,
-} from "@/lib/governance/governance-job-router";
-import { GOVERNANCE_APPROVAL_QUEUE_PATH } from "@/lib/governance/governance-route-paths";
+} from "@/lib/governance-job-router";
+import { GOVERNANCE_APPROVAL_QUEUE_PATH } from "@/lib/governance-route-paths";
 
 describe("governance-job-router (TB-2199 / TB-2230)", () => {
   it("buildGovernanceJobRouterOptions returns the approval ↔ findings ↔ decisions triad", () => {

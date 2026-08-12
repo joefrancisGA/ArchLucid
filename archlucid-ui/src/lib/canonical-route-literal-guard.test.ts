@@ -8,7 +8,7 @@ import {
   describeCanonicalRouteLiteralViolation,
   findCanonicalRouteLiteralViolations,
 } from "@/lib/canonical-route-literal-guard";
-import { GOVERNANCE_AUDIT_PATH, GOVERNANCE_FINDINGS_PATH } from "@/lib/governance/governance-route-paths";
+import { GOVERNANCE_AUDIT_PATH, GOVERNANCE_FINDINGS_PATH } from "@/lib/governance-route-paths";
 
 const EVIDENCE_COPY_DIR = "src/lib";
 
@@ -122,7 +122,7 @@ describe("findCanonicalRouteLiteralViolations", () => {
 
     expect(message).toContain("example.ts:1");
     expect(message).toContain("GOVERNANCE_AUDIT_PATH");
-    expect(message).toContain("@/lib/governance/governance-route-paths");
+    expect(message).toContain("@/lib/governance-route-paths");
   });
 });
 

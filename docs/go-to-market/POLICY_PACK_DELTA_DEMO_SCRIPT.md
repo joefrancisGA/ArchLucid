@@ -251,7 +251,7 @@ Prove the mechanism still holds before booking any live session.
 
 - **Canonical fixture:** [`../../tests/fixtures/policy-ab-demo/policy-ab-demo-fixture.json`](../../tests/fixtures/policy-ab-demo/policy-ab-demo-fixture.json)
 - **Backend regression:** `ArchLucid.Application.Tests/Governance/PolicyAbDemoRegressionTests.cs`
-- **UI regression:** `archlucid-ui/src/lib/policy/policy-ab-demo-fixture.test.tsx`
+- **UI regression:** `archlucid-ui/src/lib/policy-ab-demo-fixture.test.tsx`
 
 ```powershell
 dotnet test .\ArchLucid.Application.Tests\ArchLucid.Application.Tests.csproj --filter "FullyQualifiedName~PolicyAbDemoRegressionTests"
@@ -259,7 +259,7 @@ dotnet test .\ArchLucid.Application.Tests\ArchLucid.Application.Tests.csproj --f
 
 ```powershell
 cd archlucid-ui
-npx vitest run src/lib/policy/policy-ab-demo-fixture.test.tsx
+npx vitest run src/lib/policy-ab-demo-fixture.test.tsx
 ```
 
 ### Step 1 — Live A/B on one committed run

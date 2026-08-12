@@ -9,7 +9,7 @@ import {
   buildPatternLibraryPolicyPacksVocabulary,
   resolvePatternLibraryPolicyPacksPeerLink,
 } from "@/lib/vocabulary/pattern-library-policy-packs-vocabulary";
-import { GOVERNANCE_POLICY_PACKS_PATH } from "@/lib/governance/governance-route-paths";
+import { GOVERNANCE_POLICY_PACKS_PATH } from "@/lib/governance-route-paths";
 import { PATTERN_LIBRARY_PATH } from "@/lib/pattern-library-route";
 
 describe("pattern-library-policy-packs-vocabulary (TB-2292)", () => {

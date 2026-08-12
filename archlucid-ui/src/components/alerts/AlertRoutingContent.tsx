@@ -61,7 +61,7 @@ import {
 } from "@/lib/alert-rule-conditions-copy";
 import { isBuyerPolishedOperatorShellEnv, isOperatorExperienceFullShellEnv } from "@/lib/demo-ui-env";
 import { OPERATOR_LINK, OPERATOR_TYPOGRAPHY } from "@/lib/design-tokens";
-import { GOVERNANCE_AUDIT_PATH, governanceAlertRulesTabHref } from "@/lib/governance/governance-route-paths";
+import { GOVERNANCE_AUDIT_PATH, governanceAlertRulesTabHref } from "@/lib/governance-route-paths";
 import {
   createAlertRoutingSubscription,
   listAlertRoutingDeliveryAttempts,

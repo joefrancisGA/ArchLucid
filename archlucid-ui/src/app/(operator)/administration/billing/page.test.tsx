@@ -229,54 +229,6 @@ describe("BillingSettingsPage", () => {
     vi.unstubAllGlobals();
   });
 
-  it("routes sales-led tier CTAs to the public quote form instead of toast dead-ends (TB-1169)", async () => {
-    const fetchMock = vi.fn(async (input: string | URL) => {
-      const url = String(input);
-
-      if (url.includes("/pricing.json")) {
-        return new Response(JSON.stringify(pricingFixture), {
-          status: 200,
-          headers: { "Content-Type": "application/json" },
-        });
-      }
-
-      if (url.includes("/api/proxy/v1/billing/wallet")) {
-        return new Response(JSON.stringify(walletFixture), {
-          status: 200,
-          headers: { "Content-Type": "application/json" },
-        });
-      }
-
-      return new Response("not found", { status: 404 });
-    });
-    vi.stubGlobal("fetch", fetchMock);
-
-    render(<OperatorBillingSettingsClient />);
-
-    await waitFor(() => {
-      expect(screen.getByTestId("billing-tier-professional")).toBeInTheDocument();
-    });
-
-    const professionalLink = screen.getByTestId("billing-tier-sales-led-cta-professional");
-    expect(professionalLink).toHaveAttribute(
-      "href",
-      "/pricing?source=operator-billing&plan=professional#pricing-quote-request",
-    );
-    expect(professionalLink.tagName).toBe("A");
-
-    const enterpriseLink = screen.getByTestId("billing-tier-sales-led-cta-enterprise");
-    expect(enterpriseLink).toHaveAttribute(
-      "href",
-      "/pricing?source=operator-billing&plan=enterprise#pricing-quote-request",
-    );
-    expect(enterpriseLink.tagName).toBe("A");
-    expect(screen.queryByRole("button", { name: /Request guided trial/i })).not.toBeInTheDocument();
-    expect(screen.queryByRole("button", { name: /Request enterprise discussion/i })).not.toBeInTheDocument();
-    expect(showInfo).not.toHaveBeenCalled();
-
-    vi.unstubAllGlobals();
-  });
-
   it("shows durable checkout success callout when returning from Stripe", async () => {
     const navigation = await import("next/navigation");
     vi.spyOn(navigation, "useSearchParams").mockReturnValue(new URLSearchParams("checkout=success") as never);

@@ -1,7 +1,7 @@
-import { typedPayloadLookupString } from "@/lib/findings/finding-display-from-inspect";
-import { getFindingEvidenceTraceHref } from "@/lib/findings/finding-evidence-navigation";
-import { preferredGraphNodeIdForFindingDeepLink } from "@/lib/findings/finding-inspect-graph-evidence";
-import { normalizeEvidenceRefSnippet } from "@/lib/findings/finding-evidence-ref-snippet";
+import { typedPayloadLookupString } from "@/lib/finding-display-from-inspect";
+import { getFindingEvidenceTraceHref } from "@/lib/finding-evidence-navigation";
+import { preferredGraphNodeIdForFindingDeepLink } from "@/lib/finding-inspect-graph-evidence";
+import { normalizeEvidenceRefSnippet } from "@/lib/finding-evidence-ref-snippet";
 import {
   buildSourceEvidenceLinksFromEvidenceRefs,
   buildSourceEvidenceLinksFromInspectEvidence,
@@ -9,11 +9,11 @@ import {
   parseEvidenceRefToSourceLink,
   primaryFindingEvidenceNavigationHref,
   runDetailSectionHref,
-} from "@/lib/findings/finding-source-evidence-links";
+} from "@/lib/finding-source-evidence-links";
 import { graphTrailHrefWithOptionalNode } from "@/lib/graph-finding-deep-links";
-import { policyPackBuyerLabel } from "@/lib/policy/policy-pack-buyer-label";
-import { inferPolicyPackDisplayNameFromComplianceRuleKey } from "@/lib/policy/policy-pack-rule-key-prefix-catalog";
-import { policyPacksEditHref, policyPacksRuleHref } from "@/lib/policy/policy-packs-deep-link";
+import { policyPackBuyerLabel } from "@/lib/policy-pack-buyer-label";
+import { inferPolicyPackDisplayNameFromComplianceRuleKey } from "@/lib/policy-pack-rule-key-prefix-catalog";
+import { policyPacksEditHref, policyPacksRuleHref } from "@/lib/policy-packs-deep-link";
 import type { QuickDecisionFinding } from "@/lib/quick-decision-summary-derive";
 import type { FindingInspectEvidence, FindingInspectPayload } from "@/types/finding-inspect";
 

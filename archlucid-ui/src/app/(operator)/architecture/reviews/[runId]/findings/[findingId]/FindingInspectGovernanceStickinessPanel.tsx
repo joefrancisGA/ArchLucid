@@ -41,9 +41,9 @@ import {
   REMEDIATION_OWNER_HELP,
   REMEDIATION_OWNER_LABEL,
   validateRemediationOwnerInput,
-} from "@/lib/findings/finding-governance-action-copy";
+} from "@/lib/finding-governance-action-copy";
 import { buildSponsorStoryDispositionCountsFromRows } from "@/lib/sponsor-story-synopsis";
-import { resolveDispositionConcurrentUpdateNotice } from "@/lib/findings/finding-disposition-concurrent-update";
+import { resolveDispositionConcurrentUpdateNotice } from "@/lib/finding-disposition-concurrent-update";
 import { collabRecentActorsFromDispositionHistory } from "@/lib/collab-recent-actor-presence";
 
 const DISPOSITION_OPTIONS: FindingDispositionKind[] = [

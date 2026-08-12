@@ -35,7 +35,7 @@ import {
   FINDINGS_HELP_SEVERITY_INTRO,
   FINDINGS_HELP_SEVERITY_ROWS,
   FINDINGS_HELP_WHAT_IS_BODY,
-} from "@/lib/findings/findings-help-guide-content";
+} from "@/lib/findings-help-guide-content";
 import { cn } from "@/lib/utils";
 import {
   DESIGN_TOKENS,

@@ -5,8 +5,8 @@ import { StatusTag } from "@/components/ui/status-tag";
 import { OPERATOR_TYPOGRAPHY } from "@/lib/design-tokens";
 import { auditTrailNavHref } from "@/lib/audit-nav-paths";
 import { resolveReviewDetailPolicyPackHref } from "@/lib/group-findings-by-policy-pack";
-import { policyPackBuyerLabel } from "@/lib/policy/policy-pack-buyer-label";
-import { policyPacksAuthorHref, policyPacksEditHref } from "@/lib/policy/policy-packs-deep-link";
+import { policyPackBuyerLabel } from "@/lib/policy-pack-buyer-label";
+import { policyPacksAuthorHref, policyPacksEditHref } from "@/lib/policy-packs-deep-link";
 
 export type ReviewDetailPolicyPackImpactCalloutProps = {
   readonly ruleSetId: string;

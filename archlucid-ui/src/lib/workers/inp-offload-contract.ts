@@ -1,6 +1,6 @@
 import type { ArchitectureManifestUnifiedLine } from "@/lib/architecture-manifest-line-diff";
 import type { CompareGovernanceDiffView } from "@/lib/compare-effective-governance-diff";
-import type { FindingEvidenceGraphViewMode } from "@/lib/findings/finding-evidence-graph-highlight";
+import type { FindingEvidenceGraphViewMode } from "@/lib/finding-evidence-graph-highlight";
 import type { MapGraphPresentation } from "@/lib/graph-mapper";
 import type { ProvenanceGraphLayoutResult } from "@/lib/provenance-graph-layout";
 import type { ArchitectureLinkageEdge, ArchitectureLinkageNode } from "@/types/architecture-provenance";

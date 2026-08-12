@@ -4,11 +4,11 @@ import { join } from "node:path";
 
 import { describe, expect, it } from "vitest";
 
-import { FINDINGS_HELP_ROUTE_METADATA } from "@/lib/findings/findings-help-route-metadata";
+import { FINDINGS_HELP_ROUTE_METADATA } from "@/lib/findings-help-route-metadata";
 
-import { FINDINGS_HELP_PATH } from "@/lib/findings/findings-help-route";
+import { FINDINGS_HELP_PATH } from "@/lib/findings-help-route";
 
-import { FINDINGS_HELP_RELATED_PRODUCT_DOCS } from "@/lib/findings/findings-help-guide-content";
+import { FINDINGS_HELP_RELATED_PRODUCT_DOCS } from "@/lib/findings-help-guide-content";
 
 import { HELP_CENTER_FEATURED_SLUGS } from "@/lib/help-center-catalog";
 
@@ -26,7 +26,7 @@ const PRODUCT_FINDINGS_HELP_SURFACES = [
 
   "archlucid-ui/src/lib/help-center-catalog.ts",
 
-  "archlucid-ui/src/lib/findings/findings-help-guide-content.ts",
+  "archlucid-ui/src/lib/findings-help-guide-content.ts",
 
   "archlucid-ui/src/lib/product-documentation-registry.ts",
 

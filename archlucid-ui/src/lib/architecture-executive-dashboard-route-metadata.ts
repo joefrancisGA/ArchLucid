@@ -3,7 +3,7 @@ import type { Metadata } from "next";
 import {
   EXECUTIVE_DASHBOARD_PAGE_SUBTITLE_OPERATOR,
   EXECUTIVE_DASHBOARD_PAGE_TITLE,
-} from "@/lib/executive/executive-dashboard-page-copy";
+} from "@/lib/executive-dashboard-page-copy";
 
 /**
  * Canonical executive ROI portfolio dashboard — operator workspace surface (not marketing).

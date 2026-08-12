@@ -12,7 +12,7 @@
  * which reconciles pack assignment with effective standards.
  */
 
-import { GOVERNANCE_POLICY_PACKS_PATH } from "@/lib/governance/governance-route-paths";
+import { GOVERNANCE_POLICY_PACKS_PATH } from "@/lib/governance-route-paths";
 
 export type PolicyPackDetailHubSurfaceId = "policy-packs" | "pack-detail";
 

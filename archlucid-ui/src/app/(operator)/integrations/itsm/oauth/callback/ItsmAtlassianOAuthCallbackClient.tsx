@@ -15,7 +15,7 @@ import {
   ITSM_ATLASSIAN_OAUTH_CALLBACK_RETRY_LABEL,
   mapItsmAtlassianOAuthCallbackFailure,
   mapItsmAtlassianOAuthIdpError,
-} from "@/lib/itsm/itsm-atlassian-oauth-callback-error-copy";
+} from "@/lib/itsm-atlassian-oauth-callback-error-copy";
 import { ARCHLUCID_SUPPORT_EMAIL } from "@/lib/support-workspace-present";
 
 export function ItsmAtlassianOAuthCallbackClient(): React.ReactElement {

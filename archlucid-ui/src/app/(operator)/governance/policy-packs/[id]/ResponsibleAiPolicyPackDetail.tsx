@@ -16,10 +16,10 @@ import {
   EnterpriseTableHeaderCell,
   EnterpriseTableRow,
 } from "@/components/ui/enterprise-table";
-import { GOVERNANCE_POLICY_PACKS_PATH } from "@/lib/governance/governance-route-paths";
+import { GOVERNANCE_POLICY_PACKS_PATH } from "@/lib/governance-route-paths";
 import { OPERATOR_DISCLOSURE_TRIGGER_CLASS, OPERATOR_LINK, OPERATOR_TYPOGRAPHY } from "@/lib/design-tokens";
 import { finiteIntegerCountDisplay } from "@/lib/finite-count-display";
-import { policyPacksEditHref } from "@/lib/policy/policy-packs-deep-link";
+import { policyPacksEditHref } from "@/lib/policy-packs-deep-link";
 import type { PolicyPack } from "@/types/policy-packs";
 
 import {

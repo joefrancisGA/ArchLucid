@@ -3,7 +3,7 @@ import {
   FINDINGS_HELP_CLAIM_DISCIPLINE,
   FINDINGS_HELP_SOURCES,
   FINDINGS_HELP_SOURCES_INTRO,
-} from "@/lib/findings/findings-help-evidence-copy";
+} from "@/lib/findings-help-evidence-copy";
 
 /** Claim discipline + diligence artifact index for `/help/findings`. */
 export function FindingsHelpEvidenceOrientationStrip(): React.JSX.Element {

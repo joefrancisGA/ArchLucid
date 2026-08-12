@@ -6,7 +6,7 @@ import type { ReactElement } from "react";
 
 import { FindingPolicyTraceabilityBadges } from "@/components/FindingPolicyTraceabilityBadges";
 import { StatusTag } from "@/components/ui/status-tag";
-import type { FindingPolicyEvidenceCitationModel } from "@/lib/findings/finding-policy-evidence-citations";
+import type { FindingPolicyEvidenceCitationModel } from "@/lib/finding-policy-evidence-citations";
 
 export type FindingPolicyProvenancePanelProps = {
   readonly model: FindingPolicyEvidenceCitationModel;

@@ -5,7 +5,7 @@ import {
   isApprovalBlockingFinding,
   isLowConfidenceFinding,
   partitionQuickDecisionFindingsByConfidence,
-} from "@/lib/findings/finding-confidence-filter";
+} from "@/lib/finding-confidence-filter";
 import type { QuickDecisionFinding } from "@/lib/quick-decision-summary-derive";
 
 function finding(overrides: Partial<QuickDecisionFinding> = {}): QuickDecisionFinding {

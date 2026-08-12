@@ -14,7 +14,7 @@ import {
   GOVERNANCE_APPROVAL_QUEUE_PATH,
   GOVERNANCE_AUDIT_PATH,
   GOVERNANCE_STANDARDS_AND_RULES_PATH,
-} from "@/lib/governance/governance-route-paths";
+} from "@/lib/governance-route-paths";
 import { DIGESTS_HUB_PATH } from "@/lib/digests-route-paths";
 
 /**

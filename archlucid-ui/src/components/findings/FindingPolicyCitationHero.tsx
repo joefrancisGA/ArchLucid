@@ -4,7 +4,7 @@ import type { ReactElement } from "react";
 
 import { FindingInspectPolicyRuleCallout } from "@/app/(operator)/architecture/reviews/[runId]/findings/[findingId]/FindingInspectPolicyRuleCallout";
 import { FindingPolicyProvenancePanel } from "@/components/findings/FindingPolicyProvenancePanel";
-import type { FindingPolicyEvidenceCitationModel } from "@/lib/findings/finding-policy-evidence-citations";
+import type { FindingPolicyEvidenceCitationModel } from "@/lib/finding-policy-evidence-citations";
 
 export type FindingPolicyCitationHeroProps = {
   readonly model: FindingPolicyEvidenceCitationModel;

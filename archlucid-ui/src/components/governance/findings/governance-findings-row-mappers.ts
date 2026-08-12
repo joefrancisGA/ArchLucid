@@ -1,5 +1,5 @@
-import { formatFindingHumanReviewStatusLabel } from "@/lib/findings/finding-human-review-display";
-import { coerceComplianceRuleKey } from "@/lib/policy/policy-pack-rule-key-prefix-catalog";
+import { formatFindingHumanReviewStatusLabel } from "@/lib/finding-human-review-display";
+import { coerceComplianceRuleKey } from "@/lib/policy-pack-rule-key-prefix-catalog";
 import { severityFromTrace } from "@/lib/executive/executive-finding-severity";
 import { isDemoRunIdEligibleForStaticFallback } from "@/lib/operator-static-demo";
 import {

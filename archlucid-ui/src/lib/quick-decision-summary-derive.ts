@@ -1,9 +1,9 @@
 import type { RunDetail } from "@/types/authority";
 import type { FindingConfidenceLevel, FindingTraceConfidenceDto, RunExplanationSummary } from "@/types/explanation";
 import { normalizeFindingConfidenceLevel } from "@/types/explanation";
-import { normalizeFindingEnforcementTier, type FindingEnforcementTierKind } from "@/lib/findings/finding-enforcement-tier";
-import { collectEvidenceRefSnippets } from "@/lib/findings/finding-evidence-ref-snippet";
-import { coercePolicyRuleIdFromFindingWire } from "@/lib/findings/finding-policy-evidence-citations";
+import { normalizeFindingEnforcementTier, type FindingEnforcementTierKind } from "@/lib/finding-enforcement-tier";
+import { collectEvidenceRefSnippets } from "@/lib/finding-evidence-ref-snippet";
+import { coercePolicyRuleIdFromFindingWire } from "@/lib/finding-policy-evidence-citations";
 import type { EnterpriseStatusKind, FindingSeverityKind } from "@/lib/design-tokens";
 
 /**

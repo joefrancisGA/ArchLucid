@@ -14,8 +14,8 @@ import {
   GOVERNANCE_ALERT_RULES_PATH,
   GOVERNANCE_POLICY_PACKS_PATH,
   GOVERNANCE_STANDARDS_AND_RULES_PATH,
-} from "@/lib/governance/governance-route-paths";
-import { GOVERNANCE_SETUP_HREF } from "@/lib/governance/governance-setup-route";
+} from "@/lib/governance-route-paths";
+import { GOVERNANCE_SETUP_HREF } from "@/lib/governance-setup-route";
 
 export type GovernanceSetupConfigHubsSurfaceId =
   | "setup"

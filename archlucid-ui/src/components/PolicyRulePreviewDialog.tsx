@@ -21,8 +21,8 @@ import {
   buildPolicyRulePreviewFallback,
   lookupPolicyRulePreviewInEffectivePacks,
   type PolicyRulePreview,
-} from "@/lib/policy/policy-rule-preview-lookup";
-import { policyPacksEditHref, policyPacksRuleHref } from "@/lib/policy/policy-packs-deep-link";
+} from "@/lib/policy-rule-preview-lookup";
+import { policyPacksEditHref, policyPacksRuleHref } from "@/lib/policy-packs-deep-link";
 
 export type PolicyRulePreviewDialogProps = {
   readonly open: boolean;

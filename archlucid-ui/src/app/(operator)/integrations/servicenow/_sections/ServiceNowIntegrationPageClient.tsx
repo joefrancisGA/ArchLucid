@@ -70,7 +70,7 @@ import {
   sanitizeCustomerFacingProbeSummary,
 } from "@/lib/servicenow-integration-present";
 import { buildServiceNowPageLoadResult } from "@/lib/servicenow-page-load";
-import { ITSM_PRODUCT_SMOKE_VERIFICATION_HREF } from "@/lib/itsm/itsm-connectors-admin-scope";
+import { ITSM_PRODUCT_SMOKE_VERIFICATION_HREF } from "@/lib/itsm-connectors-admin-scope";
 import { AUTHORITY_RANK } from "@/lib/nav-authority";
 
 import { ItsmNotConfiguredNextStep } from "../../_sections/itsm/ItsmNotConfiguredNextStep";

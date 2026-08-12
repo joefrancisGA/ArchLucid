@@ -1,6 +1,6 @@
 import { describe, expect, it } from "vitest";
 
-import { collectEvidenceRefSnippets, normalizeEvidenceRefSnippet } from "@/lib/findings/finding-evidence-ref-snippet";
+import { collectEvidenceRefSnippets, normalizeEvidenceRefSnippet } from "./finding-evidence-ref-snippet";
 
 describe("finding-evidence-ref-snippet", () => {
   it("normalizeEvidenceRefSnippet strips scheme prefixes", () => {

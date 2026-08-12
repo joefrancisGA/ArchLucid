@@ -4,7 +4,7 @@ import type { ReactElement } from "react";
 
 import { OPERATOR_LINK, OPERATOR_TYPOGRAPHY } from "@/lib/design-tokens";
 import { FOCUSED_PILOT_MODE_COPY } from "@/lib/focused-pilot-mode-policy-packs";
-import { POLICY_PACKS_HELP_PATH } from "@/lib/policy/policy-packs-page";
+import { POLICY_PACKS_HELP_PATH } from "@/lib/policy-packs-page";
 
 export type FocusedPilotPolicyPackAppliedCalloutProps = {
   readonly className?: string;

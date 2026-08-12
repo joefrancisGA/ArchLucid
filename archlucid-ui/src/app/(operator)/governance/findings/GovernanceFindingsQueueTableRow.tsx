@@ -9,7 +9,7 @@ import { FindingCausalMiniChain } from "@/components/usability/FindingCausalMini
 import {
   buildFindingCausalMiniChain,
   findingCausalMiniChainFromGovernanceQueueRow,
-} from "@/lib/findings/finding-causal-mini-chain";
+} from "@/lib/finding-causal-mini-chain";
 import { NewSinceLastVisitMarker } from "@/components/usability/NewSinceLastVisitMarker";
 import { CopyIdButton } from "@/components/CopyIdButton";
 import { FindingConfidenceBadge } from "@/components/FindingConfidenceBadge";
@@ -23,10 +23,10 @@ import {
 } from "@/components/ui/enterprise-table";
 import { BUYER_GOVERNANCE_FINDINGS_VIEW_OBSERVATION_CTA } from "@/lib/buyer-polish-copy";
 import { DESIGN_TOKENS, OPERATOR_LINK, OPERATOR_TYPOGRAPHY } from "@/lib/design-tokens";
-import { findingDerivationFromGovernanceQueueRow } from "@/lib/findings/finding-derivation-sentence";
+import { findingDerivationFromGovernanceQueueRow } from "@/lib/finding-derivation-sentence";
 import { CopyGovernanceQueueWorkItemButton } from "@/components/CopyFindingAsWorkItemButton";
 import { FindingPolicyTraceabilityBadges } from "@/components/FindingPolicyTraceabilityBadges";
-import { buildPolicyTraceabilityLinksFromRuleId } from "@/lib/findings/finding-policy-evidence-citations";
+import { buildPolicyTraceabilityLinksFromRuleId } from "@/lib/finding-policy-evidence-citations";
 import { governanceQueueStatusTagKind } from "@/components/governance/findings/governance-findings-buyer-labels";
 import { GovernanceFindingsQueueOperationalActions } from "@/components/governance/findings/governance-findings-queue-operational-actions";
 import {

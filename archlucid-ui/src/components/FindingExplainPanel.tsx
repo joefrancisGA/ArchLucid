@@ -18,7 +18,7 @@ import { isBuyerPolishedOperatorShellEnv } from "@/lib/demo-ui-env";
 import { recordFirstTenantFunnelEvent } from "@/lib/first-tenant-funnel-telemetry";
 import type { ApiLoadFailureState } from "@/lib/api-load-failure";
 import { toApiLoadFailure } from "@/lib/api-load-failure";
-import { resolveFindingOptionalArtifactUnavailableCopy } from "@/lib/findings/finding-optional-artifact-copy";
+import { resolveFindingOptionalArtifactUnavailableCopy } from "@/lib/finding-optional-artifact-copy";
 import { isShowcaseStaticDemoRunId } from "@/lib/demo-run-canonical";
 import { AUTHORITY_RANK } from "@/lib/nav-authority";
 import { OPERATOR_NAV_GROUP_LABEL, OPERATOR_TYPOGRAPHY } from "@/lib/design-tokens";

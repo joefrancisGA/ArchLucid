@@ -8,7 +8,7 @@ import { useMemo, useState } from "react";
 import { Button } from "@/components/ui/button";
 import { DismissControl } from "@/components/usability/DismissControl";
 import { useTenantTrialStatusQuery } from "@/hooks/use-tenant-trial-status-query";
-import { GOVERNANCE_AUDIT_PATH } from "@/lib/governance/governance-route-paths";
+import { GOVERNANCE_AUDIT_PATH } from "@/lib/governance-route-paths";
 import { mergeRegistrationScopeForProxy } from "@/lib/proxy-fetch-registration-scope";
 import { OPERATOR_TYPOGRAPHY } from "@/lib/design-tokens";
 import {

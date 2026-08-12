@@ -7,8 +7,8 @@ import { StatusTag } from "@/components/ui/status-tag";
 import { OPERATOR_TYPOGRAPHY } from "@/lib/design-tokens";
 import type { PolicyPackFindingGroup } from "@/lib/group-findings-by-policy-pack";
 import { resolveReviewDetailPolicyPackHref } from "@/lib/group-findings-by-policy-pack";
-import { GOVERNANCE_POLICY_PACKS_PATH } from "@/lib/governance/governance-route-paths";
-import { policyPacksEditHref } from "@/lib/policy/policy-packs-deep-link";
+import { GOVERNANCE_POLICY_PACKS_PATH } from "@/lib/governance-route-paths";
+import { policyPacksEditHref } from "@/lib/policy-packs-deep-link";
 
 export type ReviewDetailPolicyPackFindingsBreakdownProps = {
   readonly groups: readonly PolicyPackFindingGroup[];

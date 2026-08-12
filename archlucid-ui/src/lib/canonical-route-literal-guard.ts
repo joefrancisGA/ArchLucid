@@ -8,7 +8,7 @@ import {
   GOVERNANCE_FINDINGS_PATH,
   GOVERNANCE_POLICY_PACKS_PATH,
   GOVERNANCE_STANDARDS_AND_RULES_PATH,
-} from "@/lib/governance/governance-route-paths";
+} from "@/lib/governance-route-paths";
 
 /** A route that has a canonical constant, so copy modules must not spell it as a literal. */
 export interface CanonicalRouteBinding {
@@ -29,7 +29,7 @@ export interface CanonicalRouteLiteralViolation {
   readonly text: string;
 }
 
-const GOVERNANCE_ROUTE_PATHS_MODULE = "@/lib/governance/governance-route-paths";
+const GOVERNANCE_ROUTE_PATHS_MODULE = "@/lib/governance-route-paths";
 
 export const CANONICAL_ROUTE_LITERAL_BINDINGS: readonly CanonicalRouteBinding[] = [
   { path: GOVERNANCE_AUDIT_PATH, constant: "GOVERNANCE_AUDIT_PATH", module: GOVERNANCE_ROUTE_PATHS_MODULE },

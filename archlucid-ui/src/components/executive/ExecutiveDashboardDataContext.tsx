@@ -5,7 +5,7 @@ import { useQueryClient } from "@tanstack/react-query";
 
 import { useComplianceDriftTrendQuery } from "@/hooks/use-compliance-drift-trend-query";
 import { useExecutiveRoiSummaryQuery } from "@/hooks/use-executive-roi-summary-query";
-import type { ExecutiveRoiSummary } from "@/lib/executive/executive-summary-markdown";
+import type { ExecutiveRoiSummary } from "@/lib/executive-summary-markdown";
 import { operatorQueryKeys } from "@/lib/query/operator-query-keys";
 import type { ComplianceDriftTrendPoint } from "@/types/governance-dashboard";
 

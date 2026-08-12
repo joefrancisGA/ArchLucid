@@ -9,7 +9,7 @@ import {
 import {
   AZURE_REFERENCE_SAMPLE_REVIEW_CTA_LABEL,
 } from "@/lib/empty-state-presets";
-import { GOVERNANCE_APPROVAL_QUEUE_PATH, governanceAlertRulesTabHref } from "@/lib/governance/governance-route-paths";
+import { GOVERNANCE_APPROVAL_QUEUE_PATH, governanceAlertRulesTabHref } from "@/lib/governance-route-paths";
 import {
   ALERT_RULES_LIST_EMPTY_BODY,
 } from "@/lib/alert-rule-conditions-copy";

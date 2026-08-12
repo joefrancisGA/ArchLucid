@@ -13,7 +13,7 @@ import {
 import { alertPrimaryFindingDetailHref } from "@/lib/alert-finding-navigation";
 import { getCanonicalReviewWorkspaceHref } from "@/lib/buyer-safe-review-navigation";
 import { ALERTS_INBOX_LABELS } from "@/lib/i18n";
-import { policyPacksRuleHref } from "@/lib/policy/policy-packs-deep-link";
+import { policyPacksRuleHref } from "@/lib/policy-packs-deep-link";
 import { OPERATOR_LINK, OPERATOR_NAV_GROUP_LABEL, OPERATOR_TYPOGRAPHY } from "@/lib/design-tokens";
 import { formatRelativeTime } from "@/lib/relative-time";
 import type { AlertRecord } from "@/types/alerts";

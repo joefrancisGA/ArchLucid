@@ -16,7 +16,7 @@
  */
 
 import { EVIDENCE_GRAPH_PATH } from "@/lib/evidence-graph-route";
-import { GOVERNANCE_AUDIT_PATH } from "@/lib/governance/governance-route-paths";
+import { GOVERNANCE_AUDIT_PATH } from "@/lib/governance-route-paths";
 import { SEARCH_REVIEW_EVIDENCE_PATH } from "@/lib/search-review-evidence-route";
 
 export type AuditEvidenceTrailSurfaceId = "audit" | "evidence-graph" | "search-evidence";

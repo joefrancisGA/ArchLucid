@@ -6,7 +6,7 @@ import * as path from "node:path";
 
 import type { APIRequestContext, Page } from "@playwright/test";
 
-import { pathMatchesGovernanceAlerts, pathMatchesGovernanceAudit } from "@/lib/governance/governance-route-paths";
+import { pathMatchesGovernanceAlerts, pathMatchesGovernanceAudit } from "@/lib/governance-route-paths";
 
 import { waitForAuditSearchSummaryNonEmpty } from "../screenshot-demo-quality-gates";
 import { screenshotEffectiveHref, waitForScreenshotLegacyRedirects } from "../screenshot-legacy-redirects";

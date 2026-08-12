@@ -1,6 +1,6 @@
 import { describe, expect, it } from "vitest";
 
-import { filterNavGroupsForGovernanceMode, filterNavLinksForGovernanceMode } from "@/lib/governance/governance-mode-nav-filter";
+import { filterNavGroupsForGovernanceMode, filterNavLinksForGovernanceMode } from "@/lib/governance-mode-nav-filter";
 import { NAV_GROUPS } from "@/lib/nav-config";
 import { AUTHORITY_RANK } from "@/lib/nav-authority";
 import { listNavGroupsVisibleInOperatorShell } from "@/lib/nav-shell-visibility";

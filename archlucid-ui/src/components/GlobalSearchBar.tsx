@@ -14,7 +14,7 @@ import {
   globalSearchInputTitle,
 } from "@/lib/keyboard-shortcut-display";
 import { GLOBAL_FIND_PAGE_SEARCH } from "@/lib/search-surface-disambiguation";
-import { GOVERNANCE_POLICY_PACKS_PATH } from "@/lib/governance/governance-route-paths";
+import { GOVERNANCE_POLICY_PACKS_PATH } from "@/lib/governance-route-paths";
 import { mergeRegistrationScopeForProxy } from "@/lib/proxy-fetch-registration-scope";
 import { searchHelpTopics } from "@/lib/usability/search-help-topics";
 

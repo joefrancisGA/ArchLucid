@@ -4,9 +4,9 @@ import {
   getFindingDetailHref,
   getFindingEvidenceTraceHref,
   getFindingGovernanceDispositionHref,
-} from "@/lib/findings/finding-evidence-navigation";
+} from "@/lib/finding-evidence-navigation";
 import { evidenceGraphHref } from "@/lib/evidence-graph-route";
-import { GOVERNANCE_DECISION_REGISTER_PATH } from "@/lib/governance/governance-route-paths";
+import { GOVERNANCE_DECISION_REGISTER_PATH } from "@/lib/governance-route-paths";
 import { ARCHITECTURE_DECISION_LABEL } from "@/lib/usability/canonical-product-terms";
 import { BUYER_SURFACE_VOCABULARY } from "@/lib/vocabulary/buyer-surface-vocabulary";
 

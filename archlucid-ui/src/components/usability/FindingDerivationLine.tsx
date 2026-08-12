@@ -1,7 +1,7 @@
 import Link from "next/link";
 
 import { OPERATOR_LINK, OPERATOR_TYPOGRAPHY } from "@/lib/design-tokens";
-import type { FindingDerivationResult } from "@/lib/findings/finding-derivation-sentence";
+import type { FindingDerivationResult } from "@/lib/finding-derivation-sentence";
 import { cn } from "@/lib/utils";
 
 export type FindingDerivationLineProps = {

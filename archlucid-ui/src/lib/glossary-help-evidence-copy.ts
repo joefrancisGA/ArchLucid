@@ -1,6 +1,6 @@
 import type { EvidenceSourceLink } from "@/lib/evidence-surface-copy";
 import { inAppHelpHref } from "@/lib/product-documentation-registry";
-import { GOVERNANCE_AUDIT_PATH } from "@/lib/governance/governance-route-paths";
+import { GOVERNANCE_AUDIT_PATH } from "@/lib/governance-route-paths";
 
 export const GLOSSARY_HELP_CANONICAL_PATH = "/help/glossary" as const;
 

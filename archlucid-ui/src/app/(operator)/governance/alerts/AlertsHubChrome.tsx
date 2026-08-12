@@ -18,7 +18,7 @@ import {
   OPERATOR_LINK,
   OPERATOR_TYPOGRAPHY,
 } from "@/lib/design-tokens";
-import { governanceAlertRulesTabHref } from "@/lib/governance/governance-route-paths";
+import { governanceAlertRulesTabHref } from "@/lib/governance-route-paths";
 import { OPERATOR_NAV_LINK_LABELS } from "@/lib/i18n";
 import { cn } from "@/lib/utils";
 import Link from "next/link";

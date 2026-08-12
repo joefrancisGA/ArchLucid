@@ -1,6 +1,6 @@
 import { describe, expect, it } from "vitest";
 
-import { mapFindingInspectApiPayload } from "@/lib/findings/finding-inspect-payload-map";
+import { mapFindingInspectApiPayload } from "@/lib/finding-inspect-payload-map";
 
 describe("mapFindingInspectApiPayload", () => {
   it("preserves typed trust fields from the inspect wire model", () => {

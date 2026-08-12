@@ -1,4 +1,4 @@
-import { GOVERNANCE_APPROVAL_QUEUE_PATH } from "@/lib/governance/governance-route-paths";
+import { GOVERNANCE_APPROVAL_QUEUE_PATH } from "@/lib/governance-route-paths";
 
 /** Canonical `/governance/alerts` inbox copy — keep header, empty state, and disclosures aligned. */
 export const ALERTS_PAGE_SUBTITLE =

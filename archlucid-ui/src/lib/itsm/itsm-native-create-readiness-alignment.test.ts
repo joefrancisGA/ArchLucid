@@ -7,9 +7,9 @@ import { describe, expect, it } from "vitest";
 import {
   ITSM_NATIVE_CREATE_ADMIN_HREF,
   ITSM_NATIVE_CREATE_REQUIRED_UI_TEST_IDS,
-} from "@/lib/itsm/itsm-native-create-readiness-alignment";
+} from "@/lib/itsm-native-create-readiness-alignment";
 
-const repoRoot = join(dirname(fileURLToPath(import.meta.url)), "..", "..", "..", "..");
+const repoRoot = join(dirname(fileURLToPath(import.meta.url)), "..", "..", "..");
 
 function readRepoFile(relativePath: string): string {
   return readFileSync(join(repoRoot, relativePath), "utf8");

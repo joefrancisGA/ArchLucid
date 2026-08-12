@@ -1,6 +1,6 @@
 import { describe, expect, it } from "vitest";
 
-import { GOVERNANCE_POLICY_PACKS_PATH } from "@/lib/governance/governance-route-paths";
+import { GOVERNANCE_POLICY_PACKS_PATH } from "@/lib/governance-route-paths";
 import {
   POLICY_PACK_DETAIL_HUB_COMPACT_LINE,
   POLICY_PACK_DETAIL_HUB_HEADING,

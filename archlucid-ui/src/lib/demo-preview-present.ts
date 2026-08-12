@@ -1,5 +1,5 @@
 import { manifestStatusForDisplay } from "@/lib/manifest-status-display";
-import { policyPackBuyerLabel } from "@/lib/policy/policy-pack-buyer-label";
+import { policyPackBuyerLabel } from "@/lib/policy-pack-buyer-label";
 import type { DemoCommitPagePreviewResponse } from "@/types/demo-preview";
 
 export type DemoPreviewAtAGlanceMetrics = {

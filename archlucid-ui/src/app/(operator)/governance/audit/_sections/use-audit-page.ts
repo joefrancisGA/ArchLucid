@@ -34,7 +34,7 @@ import {
 } from "@/lib/enterprise-controls-context-copy";
 import { AUTHORITY_RANK } from "@/lib/nav-authority";
 import { auditTrailNavHref } from "@/lib/audit-nav-paths";
-import { GOVERNANCE_AUDIT_PATH } from "@/lib/governance/governance-route-paths";
+import { GOVERNANCE_AUDIT_PATH } from "@/lib/governance-route-paths";
 import { resolveOperatorShellAuditRunId } from "@/lib/resolve-operator-shell-audit-run-id";
 import { readBuyerCtoDemoTourActive } from "@/lib/buyer-cto-demo-tour";
 import {

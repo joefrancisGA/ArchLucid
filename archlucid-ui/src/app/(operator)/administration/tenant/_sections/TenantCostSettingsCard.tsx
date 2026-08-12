@@ -4,7 +4,6 @@ import { cn } from "@/lib/utils";
 import { useCallback, useEffect, useState, type FormEvent } from "react";
 
 import { Button } from "@/components/ui/button";
-import { OperatorSuccessCallout } from "@/components/operator/OperatorSuccessCallout";
 import { Card, CardContent, CardHeader, CardTitle } from "@/components/ui/card";
 import { Input } from "@/components/ui/input";
 import { Label } from "@/components/ui/label";
@@ -12,7 +11,7 @@ import { BUYER_DEMO_CAPABILITY_UNAVAILABLE_TITLE } from "@/lib/buyer-polish-copy
 import { OPERATOR_TYPOGRAPHY } from "@/lib/design-tokens";
 import { toApiLoadFailure } from "@/lib/api-load-failure";
 import { isNextPublicDemoMode } from "@/lib/demo-ui-env";
-import { showError } from "@/lib/toast";
+import { showError, showSuccess } from "@/lib/toast";
 import type { TenantCostSettingsPutRequest, TenantCostSettingsResponse } from "@/types/tenant-cost-settings";
 
 type TenantCostSettingsCardProps = {
@@ -45,7 +44,6 @@ export function TenantCostSettingsCard({ canEdit }: TenantCostSettingsCardProps)
   const [hourlyRate, setHourlyRate] = useState("");
   const [incidentCost, setIncidentCost] = useState("");
   const [eaDiscountPercentage, setEaDiscountPercentage] = useState("0");
-  const [saveConfirmation, setSaveConfirmation] = useState<string | null>(null);
 
   const load = useCallback(async () => {
     if (demoMode) {
@@ -129,7 +127,6 @@ export function TenantCostSettingsCard({ canEdit }: TenantCostSettingsCardProps)
       };
 
       setSaving(true);
-      setSaveConfirmation(null);
 
       try {
         const res = await fetch("/api/proxy/v1/tenant/cost-settings", {
@@ -151,7 +148,7 @@ export function TenantCostSettingsCard({ canEdit }: TenantCostSettingsCardProps)
         setHourlyRate(String(saved.architectHourlyRateUsd));
         setIncidentCost(String(saved.averageIncidentCostUsd));
         setEaDiscountPercentage(String(saved.eaDiscountPercentage ?? 0));
-        setSaveConfirmation("Cost settings saved.");
+        showSuccess("Cost settings saved.");
       } catch (error: unknown) {
         showError("Could not save cost settings", toApiLoadFailure(error).message);
       } finally {
@@ -199,14 +196,6 @@ export function TenantCostSettingsCard({ canEdit }: TenantCostSettingsCardProps)
           <p className={cn("m-0 text-al-text-secondary", OPERATOR_TYPOGRAPHY.body)}>Loading cost settings…</p>
         ) : (
           <form onSubmit={(e) => void onSave(e)} className="space-y-4">
-            {saveConfirmation !== null ? (
-              <OperatorSuccessCallout
-                message={saveConfirmation}
-                testId="tenant-cost-settings-saved"
-                onDismiss={() => setSaveConfirmation(null)}
-              />
-            ) : null}
-
             <div className="grid gap-3 sm:grid-cols-2">
               <div>
                 <Label htmlFor="architect-hourly-rate">Average architect hourly rate (USD)</Label>

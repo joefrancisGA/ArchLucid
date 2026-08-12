@@ -1,6 +1,6 @@
 import { describe, expect, it } from "vitest";
 
-import { buildFindingModelProvenanceRow } from "@/lib/findings/finding-model-provenance-display";
+import { buildFindingModelProvenanceRow } from "@/lib/finding-model-provenance-display";
 
 describe("buildFindingModelProvenanceRow", () => {
   it("prefers wire trustLabel for model row", () => {

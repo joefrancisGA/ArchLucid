@@ -1,4 +1,4 @@
-import { isPhiMinimizationFindingId } from "@/lib/findings/finding-display-from-inspect";
+import { isPhiMinimizationFindingId } from "@/lib/finding-display-from-inspect";
 
 /**
  * Normalizes finding severity labels for buyer-facing surfaces so breadcrumbs, graph panels, and detail cards agree.

@@ -1,7 +1,7 @@
 import type { Dispatch, SetStateAction } from "react";
 
 import type { ApiLoadFailureState } from "@/lib/api-load-failure";
-import type { CuratedRulesDocument } from "@/lib/policy/policy-pack-curated-rules-v1";
+import type { CuratedRulesDocument } from "@/lib/policy-pack-curated-rules-v1";
 import type {
   EffectivePolicyPackSet,
   PolicyPack,

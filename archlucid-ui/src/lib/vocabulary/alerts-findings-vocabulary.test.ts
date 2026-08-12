@@ -12,7 +12,7 @@ import {
 import {
   GOVERNANCE_ALERTS_PATH,
   GOVERNANCE_FINDINGS_PATH,
-} from "@/lib/governance/governance-route-paths";
+} from "@/lib/governance-route-paths";
 
 describe("alerts-findings-vocabulary (TB-2319)", () => {
   it("explains alerts triage vs findings disposition", () => {

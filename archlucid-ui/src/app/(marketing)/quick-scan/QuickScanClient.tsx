@@ -4,7 +4,7 @@ import Link from "next/link";
 import { useCallback, useEffect, useId, useMemo, useState, type ReactElement } from "react";
 
 import { QuickScanEvidenceOrientationStrip } from "@/components/marketing/QuickScanEvidenceOrientationStrip";
-import { findingSeverityLabel } from "@/lib/findings/finding-severity-label";
+import { findingSeverityLabel } from "@/lib/finding-severity-label";
 import {
   isQuickScanAiSubmitAllowed,
   resolveQuickScanCapacityMessage,

@@ -1,6 +1,6 @@
 import { describe, expect, it } from "vitest";
 
-import { approvalLineageBlocksQuickApprove } from "@/lib/governance/governance-quick-approve-lineage";
+import { approvalLineageBlocksQuickApprove } from "@/lib/governance-quick-approve-lineage";
 
 describe("approvalLineageBlocksQuickApprove", () => {
   it("returns false for empty or non-blocking severities", () => {

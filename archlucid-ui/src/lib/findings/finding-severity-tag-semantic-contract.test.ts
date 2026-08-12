@@ -3,7 +3,7 @@ import { describe, expect, it } from "vitest";
 import {
   FINDING_SEVERITY_TAG_SEMANTIC_CONTRACT,
   listFindingSeverityContractMismatches,
-} from "@/lib/findings/finding-severity-tag-semantic-contract";
+} from "@/lib/finding-severity-tag-semantic-contract";
 import { normalizeFindingSeverity, SEVERITY_LABELS } from "@/lib/design-tokens";
 
 describe("FINDING_SEVERITY_TAG_SEMANTIC_CONTRACT (TB-328)", () => {

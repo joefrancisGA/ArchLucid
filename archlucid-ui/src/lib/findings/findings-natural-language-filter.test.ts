@@ -5,7 +5,7 @@ import {
   EMPTY_FINDINGS_NATURAL_LANGUAGE_FACETS,
   matchesFindingsNaturalLanguageFacets,
   parseFindingsNaturalLanguageFilter,
-} from "@/lib/findings/findings-natural-language-filter";
+} from "@/lib/findings-natural-language-filter";
 
 describe("findings-natural-language-filter (TB-2207)", () => {
   it("returns empty facets for blank input", () => {

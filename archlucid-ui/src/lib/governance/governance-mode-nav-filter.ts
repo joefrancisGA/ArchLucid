@@ -9,7 +9,7 @@ import {
   LEGACY_ALERTS_PATH,
   LEGACY_AUDIT_PATH,
   LEGACY_POLICY_PACKS_PATH,
-} from "@/lib/governance/governance-route-paths";
+} from "@/lib/governance-route-paths";
 
 /** Governance destinations hidden until the operator enables governance view. */
 export const GOVERNANCE_MODE_HIDDEN_NAV_HREFS = new Set<string>([

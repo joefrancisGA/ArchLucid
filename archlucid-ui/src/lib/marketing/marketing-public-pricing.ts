@@ -59,12 +59,6 @@ export const OPERATOR_BILLING_TIER_CTAS: Readonly<
   enterprise: { primaryLabel: "Request enterprise discussion" },
 };
 
-/** One-sentence expectation copy under sales-led tier links (TB-1169). */
-export const OPERATOR_BILLING_SALES_LED_CTA_HELP: Readonly<Record<"professional" | "enterprise", string>> = {
-  professional: "Opens the public quote form — we respond with guided trial options.",
-  enterprise: "Opens the public quote form — we align scope and procurement before quoting.",
-};
-
 export const BUYER_MARKETING_PRICING_AI_USAGE_NOTE =
   "Plans include monthly AI credits. Larger workloads can use prepaid credits or an approved customer AI provider.";
 

@@ -41,13 +41,6 @@ tags = {
 
 finops_environment = "staging"
 
-# TB-2141 / TB-094 / TB-2120 — HotPathCache Redis L2 (required when api_min_replicas >= 2 outside Development).
-# Order: apply infra/terraform-redis (staging.tfvars.example) → paste sensitive output here (or Key Vault reference).
-# Container Apps sets HotPathCache__RedisConnectionString secret + HotPathCache__ExpectedApiReplicaCount = api_max_replicas.
-# Checklist: scripts/ops/enable-hot-path-cache-redis-checklist.ps1 -Environment staging
-# Guide: docs/library/SCALE_TIER_CACHE_GUIDE.md § TB-2141
-# hot_path_cache_redis_connection_string = "<terraform output -raw redis_primary_connection_string>"
-
 # TB-903 / TB-905: secondary region always on in staging; geo-failover drill exercises Front Door secondary origin + paired compute.
 secondary_region_stack_enabled   = true
 secondary_resource_group_name    = "rg-archlucid-ca-staging-secondary"

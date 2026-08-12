@@ -10,7 +10,7 @@ import {
   ITSM_CONNECTOR_SMOKE_HELP,
   ITSM_CONNECTOR_SMOKE_HELP_BANNED_HREFS,
   ITSM_PRODUCT_SMOKE_VERIFICATION_HREF,
-} from "@/lib/itsm/itsm-connectors-admin-scope";
+} from "@/lib/itsm-connectors-admin-scope";
 
 describe("itsm-connectors-admin-scope smoke help (TB-1433)", () => {
   it("points admin smoke runbooks at product integration and readiness surfaces", () => {

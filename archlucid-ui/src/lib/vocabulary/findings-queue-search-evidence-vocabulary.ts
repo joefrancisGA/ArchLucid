@@ -13,7 +13,7 @@
  * questions with citations; this rail pairs the findings queue with Search.
  */
 
-import { GOVERNANCE_FINDINGS_CANONICAL_PATH } from "@/lib/governance/governance-findings-evidence-copy";
+import { GOVERNANCE_FINDINGS_CANONICAL_PATH } from "@/lib/governance-findings-evidence-copy";
 import { SEARCH_REVIEW_EVIDENCE_PATH } from "@/lib/search-review-evidence-route";
 
 export type FindingsQueueSearchEvidenceSurfaceId = "findings-queue" | "search-evidence";

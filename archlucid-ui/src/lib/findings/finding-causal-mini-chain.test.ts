@@ -6,7 +6,7 @@ import {
   findingCausalMiniChainFromGovernanceQueueRow,
   findingCausalMiniChainFromInspectPayload,
   findingCausalMiniChainFromQuickDecisionFinding,
-} from "@/lib/findings/finding-causal-mini-chain";
+} from "@/lib/finding-causal-mini-chain";
 import type { QuickDecisionFinding } from "@/lib/quick-decision-summary-derive";
 import type { GovernanceFindingQueueRow } from "@/app/(operator)/governance/findings/governance-finding-queue-row";
 import type { FindingInspectPayload } from "@/types/finding-inspect";

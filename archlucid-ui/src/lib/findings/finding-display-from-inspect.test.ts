@@ -4,7 +4,7 @@ import {
   findingDetailHeadingTitle,
   findingWhyThisMattersText,
   typedPayloadLookupString,
-} from "@/lib/findings/finding-display-from-inspect";
+} from "@/lib/finding-display-from-inspect";
 import type { FindingInspectPayload } from "@/types/finding-inspect";
 
 import { SHOWCASE_STATIC_DEMO_PRIMARY_FINDING_ID } from "@/lib/showcase-static-demo";

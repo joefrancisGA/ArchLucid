@@ -1,6 +1,6 @@
 import { ADVISORY_SCANS_SCANS_HREF, ADVISORY_SCANS_SCHEDULES_HREF } from "@/lib/advisory-scans-route";
 import { DIGESTS_BROWSE_TAB_PATH, DIGESTS_SUBSCRIPTIONS_TAB_PATH } from "@/lib/digests-route-paths";
-import { governanceAlertRulesTabHref } from "@/lib/governance/governance-route-paths";
+import { governanceAlertRulesTabHref } from "@/lib/governance-route-paths";
 import { SETTINGS_USERS_ROLES_TAB_PATH, SETTINGS_USERS_USERS_TAB_PATH } from "@/lib/settings-admin-route-paths";
 import type { UiRouteTrafficRow } from "@/lib/ui-route-traffic/types";
 

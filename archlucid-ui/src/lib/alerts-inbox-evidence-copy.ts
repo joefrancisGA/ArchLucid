@@ -1,5 +1,5 @@
 import { inAppHelpHref } from "@/lib/product-documentation-registry";
-import { GOVERNANCE_AUDIT_PATH, GOVERNANCE_FINDINGS_PATH, governanceAlertRulesTabHref } from "@/lib/governance/governance-route-paths";
+import { GOVERNANCE_AUDIT_PATH, GOVERNANCE_FINDINGS_PATH, governanceAlertRulesTabHref } from "@/lib/governance-route-paths";
 import type { EvidenceSourceLink } from "@/lib/evidence-surface-copy";
 
 export const ALERTS_INBOX_CLAIM_DISCIPLINE =

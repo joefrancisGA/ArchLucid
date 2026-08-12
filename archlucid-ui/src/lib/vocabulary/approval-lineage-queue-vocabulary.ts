@@ -13,7 +13,7 @@
  */
 
 import { APPROVAL_LINEAGE_CANONICAL_PATH_PATTERN } from "@/lib/approval-lineage-evidence-copy";
-import { GOVERNANCE_APPROVAL_QUEUE_PATH } from "@/lib/governance/governance-route-paths";
+import { GOVERNANCE_APPROVAL_QUEUE_PATH } from "@/lib/governance-route-paths";
 
 export type ApprovalLineageQueueSurfaceId = "approval-lineage" | "approval-queue";
 

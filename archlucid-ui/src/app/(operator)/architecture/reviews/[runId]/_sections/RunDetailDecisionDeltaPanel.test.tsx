@@ -2,7 +2,7 @@ import { render, screen } from "@testing-library/react";
 import { describe, expect, it } from "vitest";
 
 import { RunDetailDecisionDeltaPanel } from "@/app/(operator)/architecture/reviews/[runId]/_sections/RunDetailDecisionDeltaPanel";
-import { deriveFindingTrustPresentation } from "@/lib/findings/finding-trust-presentation";
+import { deriveFindingTrustPresentation } from "@/lib/finding-trust-presentation";
 import {
   RUN_DETAIL_DECISION_DELTA_PANEL_TEST_ID,
   RUN_DETAIL_DECISION_DELTA_ROW_TEST_ID,

@@ -1,6 +1,6 @@
-import { coerceComplianceRuleKey, inferPolicyPackDisplayNameFromComplianceRuleKey } from "@/lib/policy/policy-pack-rule-key-prefix-catalog";
+import { coerceComplianceRuleKey, inferPolicyPackDisplayNameFromComplianceRuleKey } from "@/lib/policy-pack-rule-key-prefix-catalog";
 import { firstRecommendationSentence, type QuickDecisionFinding } from "@/lib/quick-decision-summary-derive";
-import { parseFindingWireDerivationFields } from "@/lib/findings/finding-derivation-sentence";
+import { parseFindingWireDerivationFields } from "@/lib/finding-derivation-sentence";
 
 import type { GovernanceFindingQueueRow } from "@/app/(operator)/governance/findings/governance-finding-queue-row";
 import type { FindingInspectPayload } from "@/types/finding-inspect";

@@ -17,7 +17,7 @@
 import {
   GOVERNANCE_ALERTS_PATH,
   GOVERNANCE_FINDINGS_PATH,
-} from "@/lib/governance/governance-route-paths";
+} from "@/lib/governance-route-paths";
 
 export type AlertsFindingsSurfaceId = "alerts-inbox" | "findings-queue";
 

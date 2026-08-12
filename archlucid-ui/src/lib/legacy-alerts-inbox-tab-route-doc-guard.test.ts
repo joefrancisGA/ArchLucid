@@ -3,7 +3,7 @@ import { join } from "node:path";
 
 import { describe, expect, it } from "vitest";
 
-import { GOVERNANCE_ALERTS_PATH } from "@/lib/governance/governance-route-paths";
+import { GOVERNANCE_ALERTS_PATH } from "@/lib/governance-route-paths";
 import { RETIRED_ALERTS_INBOX_TAB_TRAFFIC_PATH } from "@/lib/ui-route-traffic-alerts-inbox-tab";
 
 const LEGACY_ALERTS_INBOX_TAB_PATTERN = /\/governance\/alerts\?tab=inbox/g;

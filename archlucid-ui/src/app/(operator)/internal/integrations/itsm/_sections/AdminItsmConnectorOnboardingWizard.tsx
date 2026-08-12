@@ -26,16 +26,16 @@ import {
   ITSM_CONNECTORS_SERVICENOW_CREDENTIALS_NOT_CONFIGURED,
   ITSM_CONNECTORS_WIZARD_NATIVE_DISABLED_MESSAGE,
   ITSM_CONNECTORS_WIZARD_PREREQUISITES_DESCRIPTION,
-} from "@/lib/itsm/itsm-connectors-admin-scope";
+} from "@/lib/itsm-connectors-admin-scope";
 import {
   resolveItsmAdminJiraCredentialsConfigured,
   resolveItsmAdminServiceNowCredentialsConfigured,
-} from "@/lib/itsm/itsm-connectors-admin-page-load";
+} from "@/lib/itsm-connectors-admin-page-load";
 import {
   isItsmNativeCreateDefaultPathReady,
   resolveItsmOnboardingWizardInitialStep,
   type ItsmOnboardingWizardStep,
-} from "@/lib/itsm/itsm-native-create-readiness";
+} from "@/lib/itsm-native-create-readiness";
 
 type Props = {
   readonly initialSettings: TenantItsmOutboundSettingsResponse | null;

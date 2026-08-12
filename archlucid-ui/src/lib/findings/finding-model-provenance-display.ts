@@ -2,7 +2,7 @@ import {
   deriveFindingTrustPresentation,
   type FindingModelProvenanceRow,
   type FindingTrustPresentationInput,
-} from "@/lib/findings/finding-trust-presentation";
+} from "@/lib/finding-trust-presentation";
 
 export type { FindingModelProvenanceRow };
 

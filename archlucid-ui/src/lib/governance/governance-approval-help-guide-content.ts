@@ -5,7 +5,7 @@ import {
   GOVERNANCE_AUDIT_PATH,
   GOVERNANCE_STANDARDS_AND_RULES_PATH,
   GOVERNANCE_WORKSPACE_HEALTH_HREF,
-} from "@/lib/governance/governance-route-paths";
+} from "@/lib/governance-route-paths";
 import { inAppHelpHref } from "@/lib/product-documentation-registry";
 
 export const GOVERNANCE_APPROVAL_HELP_PAGE_TITLE = "Governance approval";
