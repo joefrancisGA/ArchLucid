@@ -86,7 +86,7 @@ export const RUNS_EMPTY_COMPACT: EnterpriseCompactEmptyStateProps = {
     "Start an architecture review to gather evidence, evaluate findings, and record decisions. Or explore the sample review.",
   actions: [
     { label: BUYER_START_ARCHITECTURE_REVIEW_CTA, href: "/architecture/reviews/new", variant: "primary" },
-    { label: AZURE_REFERENCE_SAMPLE_REVIEW_CTA_LABEL, href: "/architecture/reviews/claims-intake-modernization", variant: "outline" },
+    { label: AZURE_REFERENCE_SAMPLE_REVIEW_CTA_LABEL, href: `/architecture/reviews/${SHOWCASE_STATIC_DEMO_RUN_ID}`, variant: "outline" },
   ],
 };
 
@@ -137,6 +137,14 @@ export const COMPARE_WAITING_COMPACT: EnterpriseCompactEmptyStateProps = {
   actions: [
     { label: "Open reviews", href: "/architecture/reviews", variant: "primary" },
   ],
+};
+
+/** Compare finding correlation panel when export metadata is absent. */
+export const COMPARE_FINDING_CORRELATION_EMPTY_COMPACT: EnterpriseCompactEmptyStateProps = {
+  testId: "compare-finding-correlation-empty-state",
+  title: "No correlation metadata",
+  description:
+    "No finding correlation metadata on this comparison (API may predate correlation export metadata).",
 };
 
 /** Compare page when zero finalized reviews exist. */

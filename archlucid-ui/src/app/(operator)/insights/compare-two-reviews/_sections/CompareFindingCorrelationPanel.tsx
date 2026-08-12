@@ -1,7 +1,7 @@
 import { cn } from "@/lib/utils";
 import type { ReactElement, ReactNode } from "react";
 
-import { OperatorEmptyState } from "@/components/operator/OperatorShellMessage";
+import { EnterpriseCompactEmptyState } from "@/components/EnterpriseCompactEmptyState";
 import { FindingCorrelationVocabularyDisambiguation } from "@/components/findings/FindingCorrelationVocabularyDisambiguation";
 import {
   buildCompareFindingCorrelationCountRows,
@@ -11,6 +11,7 @@ import {
   type CompareFindingCorrelationMetadata,
 } from "@/lib/compare-finding-correlation";
 import { CROSS_REVIEW_FINDING_CORRELATION_PANEL_TITLE } from "@/lib/vocabulary/finding-correlation-vocabulary";
+import { COMPARE_FINDING_CORRELATION_EMPTY_COMPACT } from "@/lib/enterprise-compact-empty-state-presets";
 import { DESIGN_TOKENS, OPERATOR_TYPOGRAPHY } from "@/lib/design-tokens";
 
 export type CompareFindingCorrelationPanelProps = {
@@ -78,9 +79,7 @@ export function CompareFindingCorrelationPanel(props: CompareFindingCorrelationP
         <h2 className={cn("m-0 text-al-text-primary", OPERATOR_TYPOGRAPHY.sectionTitle)}>
           {CROSS_REVIEW_FINDING_CORRELATION_PANEL_TITLE}
         </h2>
-        <OperatorEmptyState title="No correlation metadata">
-          No finding correlation metadata on this comparison (API may predate correlation export metadata).
-        </OperatorEmptyState>
+        <EnterpriseCompactEmptyState {...COMPARE_FINDING_CORRELATION_EMPTY_COMPACT} />
       </CompareFindingCorrelationSectionShell>
     );
   }
