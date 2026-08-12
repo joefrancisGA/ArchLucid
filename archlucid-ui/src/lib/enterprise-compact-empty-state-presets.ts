@@ -5,7 +5,7 @@ import {
   OPERATOR_HOME_WORKSPACE_ARCHIVED_EMPTY_TITLE,
   OPERATOR_HOME_WORKSPACE_EMPTY_BODY,
   OPERATOR_HOME_WORKSPACE_EMPTY_TITLE,
-} from "@/lib/buyer-polish-copy";
+} from "@/lib/buyer/buyer-polish-copy";
 import {
   AZURE_REFERENCE_SAMPLE_REVIEW_CTA_LABEL,
 } from "@/lib/empty-state-presets";
@@ -13,6 +13,9 @@ import { GOVERNANCE_APPROVAL_QUEUE_PATH, governanceAlertRulesTabHref } from "@/l
 import {
   ALERT_RULES_LIST_EMPTY_BODY,
 } from "@/lib/alert-rule-conditions-copy";
+import {
+  COMPOSITE_RULES_LIST_EMPTY_BODY,
+} from "@/lib/enterprise-controls-context-copy";
 import {
   ADVISORY_SCANS_SCHEDULES_EMPTY_BODY,
 } from "@/lib/advisory-copy";
@@ -43,7 +46,7 @@ import { SHOWCASE_STATIC_DEMO_RUN_ID } from "@/lib/showcase-static-demo";
 import {
   buildOperatorFilteredEmptyCompact,
   buildOperatorHubZoneEmptyCompact,
-} from "@/lib/operator-empty-state-kind-presets";
+} from "@/lib/operator/operator-empty-state-kind-presets";
 
 /** Reviews list when the project has zero reviews. */
 export const RUNS_EMPTY_COMPACT: EnterpriseCompactEmptyStateProps = {
@@ -231,6 +234,15 @@ export const ALERT_RULES_LIST_EMPTY_COMPACT: EnterpriseCompactEmptyStateProps = 
   {
     testId: "alert-rules-empty",
     description: ALERT_RULES_LIST_EMPTY_BODY,
+  },
+);
+
+/** Composite alert rules tab when no composite rules exist yet (TB-1555 hub-zone preset). */
+export const COMPOSITE_RULES_LIST_EMPTY_COMPACT: EnterpriseCompactEmptyStateProps = buildOperatorHubZoneEmptyCompact(
+  "composite alert rules",
+  {
+    testId: "composite-alert-rules-empty",
+    description: COMPOSITE_RULES_LIST_EMPTY_BODY,
   },
 );
 

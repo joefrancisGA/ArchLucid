@@ -457,9 +457,17 @@ export const compositeRulesDefinedListEmptyReaderLine =
 
 export const compositeRulesDefinedListEmptyOperatorLine = "None yet.";
 
+/** Composite alert rules — compact empty body (TB-1555 hub-zone preset; title from `operatorHubZoneEmptyTitle`). */
+export const COMPOSITE_RULES_LIST_EMPTY_BODY =
+  "Composite rules combine multiple metrics before firing — create one when a single threshold is too noisy.";
+
 /** Composite alert rules — lead under page title (`composite-alert-rules/page.tsx`). */
 export const compositeRulesPageLeadOperator =
   "Review compound conditions in the list, then author a new composite rule below.";
+
+/** Composite alert rules — lead when the list is empty and the create form is collapsed (TB-1582). */
+export const compositeRulesPageLeadOperatorEmpty =
+  "Create a composite rule when multiple signals must align before an alert fires.";
 
 export const compositeRulesPageLeadReader =
   "Inspect definitions above; new composite rules need Execute+ on the API at this rank.";

@@ -2,8 +2,8 @@
 
 import { cn } from "@/lib/utils";
 import { useCallback, useEffect, useState } from "react";
+import { EnterpriseCompactEmptyState } from "@/components/EnterpriseCompactEmptyState";
 import { AlertOperatorToolingRankCue } from "@/components/EnterpriseControlsContextHints";
-import { GettingStartedSteps } from "@/components/GettingStartedSteps";
 import { OperatorApiProblem } from "@/components/OperatorApiProblem";
 import { Button } from "@/components/ui/button";
 import { Input } from "@/components/ui/input";
@@ -28,14 +28,12 @@ import {
   compositeRulesDefinedListEmptyOperatorLine,
   compositeRulesDefinedListEmptyReaderLine,
   compositeRulesPageLeadOperator,
+  compositeRulesPageLeadOperatorEmpty,
   compositeRulesPageLeadReader,
   compositeRulesRefreshAssistReaderLine,
   enterpriseMutationControlDisabledTitle,
 } from "@/lib/enterprise-controls-context-copy";
-import {
-  compositeRulesEmptyGettingStartedOperator,
-  compositeRulesEmptyGettingStartedReader,
-} from "@/lib/alerts-hub-empty-guidance";
+import { COMPOSITE_RULES_LIST_EMPTY_COMPACT } from "@/lib/enterprise-compact-empty-state-presets";
 import {
   COMPOSITE_ALERT_CONDITION_OPERATOR_OPTIONS,
   COMPOSITE_ALERT_DEDUPE_SCOPE_OPTIONS,
@@ -74,6 +72,7 @@ export function CompositeAlertRulesContent() {
   const [items, setItems] = useState<CompositeAlertRule[]>([]);
   const [loading, setLoading] = useState(false);
   const [failure, setFailure] = useState<ApiLoadFailureState | null>(null);
+  const [showCreatePanel, setShowCreatePanel] = useState(false);
 
   const [name, setName] = useState("Cost + compliance composite");
   const [severity, setSeverity] = useState("High");
@@ -141,10 +140,19 @@ export function CompositeAlertRulesContent() {
     }
   }
 
+  const isEmpty = items.length === 0;
+  const emptyIntroMode = isEmpty && canMutateComposite && !showCreatePanel && !loading;
+  const showCreateForm = !canMutateComposite || showCreatePanel || !isEmpty;
+  const sectionGap = emptyIntroMode ? "gap-4" : "gap-8";
+
   return (
     <div>
       <p className={cn("mb-2 max-w-prose leading-snug text-neutral-600 dark:text-neutral-400", OPERATOR_TYPOGRAPHY.body)}>
-        {canMutateComposite ? compositeRulesPageLeadOperator : compositeRulesPageLeadReader}
+        {canMutateComposite
+          ? emptyIntroMode
+            ? compositeRulesPageLeadOperatorEmpty
+            : compositeRulesPageLeadOperator
+          : compositeRulesPageLeadReader}
       </p>
       <AlertOperatorToolingRankCue />
 
@@ -158,14 +166,31 @@ export function CompositeAlertRulesContent() {
         </div>
       ) : null}
 
-      <div className="flex flex-col gap-8">
+      <div
+        className={cn("flex flex-col", sectionGap)}
+        data-testid="composite-alert-rules-layout"
+        data-empty-intro={emptyIntroMode ? "true" : "false"}
+      >
         <section
           className={cn("min-w-0", !canMutateComposite && "opacity-95")}
           aria-labelledby="composite-rules-current-heading"
         >
-          <h3 id="composite-rules-current-heading" className={cn("mt-2", OPERATOR_TYPOGRAPHY.sectionTitle)}>
-            {canMutateComposite ? compositeRulesCurrentRulesHeadingOperator : compositeRulesCurrentRulesHeadingReader}
-          </h3>
+          <div className="mb-2 flex flex-wrap items-start justify-between gap-2">
+            <h3 id="composite-rules-current-heading" className={cn("m-0 mt-2", OPERATOR_TYPOGRAPHY.sectionTitle)}>
+              {canMutateComposite ? compositeRulesCurrentRulesHeadingOperator : compositeRulesCurrentRulesHeadingReader}
+            </h3>
+            {emptyIntroMode ? (
+              <Button
+                type="button"
+                size="sm"
+                variant="primary"
+                data-testid="composite-rules-create-action"
+                onClick={() => setShowCreatePanel(true)}
+              >
+                {compositeRulesCreateButtonLabelOperator}
+              </Button>
+            ) : null}
+          </div>
           <div className="mb-4 flex flex-col gap-1 sm:flex-row sm:flex-wrap sm:items-center sm:gap-3">
             <Button
               type="button"
@@ -190,17 +215,12 @@ export function CompositeAlertRulesContent() {
           <div className="grid gap-3.5">
             {loading && items.length === 0 ? (
               <CompositeAlertRulesListLoadingSkeleton />
+            ) : emptyIntroMode ? (
+              <EnterpriseCompactEmptyState {...COMPOSITE_RULES_LIST_EMPTY_COMPACT} />
             ) : items.length === 0 ? (
-              <div className="grid max-w-xl gap-3">
-                <p className={cn("text-neutral-600 dark:text-neutral-400", OPERATOR_TYPOGRAPHY.body)}>
-                  {canMutateComposite ? compositeRulesDefinedListEmptyOperatorLine : compositeRulesDefinedListEmptyReaderLine}
-                </p>
-                <GettingStartedSteps
-                  {...(canMutateComposite
-                    ? compositeRulesEmptyGettingStartedOperator
-                    : compositeRulesEmptyGettingStartedReader)}
-                />
-              </div>
+              <p className={cn("text-neutral-600 dark:text-neutral-400", OPERATOR_TYPOGRAPHY.body)}>
+                {canMutateComposite ? compositeRulesDefinedListEmptyOperatorLine : compositeRulesDefinedListEmptyReaderLine}
+              </p>
             ) : (
               items.map((r) => (
                 <article
@@ -233,6 +253,7 @@ export function CompositeAlertRulesContent() {
           </div>
         </section>
 
+        {showCreateForm ? (
         <section
           className={cn("min-w-0", !canMutateComposite && "opacity-90")}
           aria-labelledby="composite-rules-change-heading"
@@ -437,6 +458,7 @@ export function CompositeAlertRulesContent() {
       </div>
       </fieldset>
         </section>
+        ) : null}
       </div>
     </div>
   );

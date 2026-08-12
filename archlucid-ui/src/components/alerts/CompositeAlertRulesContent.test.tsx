@@ -1,9 +1,10 @@
 import { readFileSync } from "node:fs";
 import { join } from "node:path";
-import { render, screen, waitFor, within } from "@testing-library/react";
+import { fireEvent, render, screen, waitFor, within } from "@testing-library/react";
 import { beforeEach, describe, expect, it, vi } from "vitest";
 
 import { CompositeAlertRulesContent } from "@/components/alerts/CompositeAlertRulesContent";
+import { operatorHubZoneEmptyTitle } from "@/lib/operator/operator-empty-state-kind-presets";
 import type { CompositeAlertRule } from "@/types/composite-alert-rules";
 
 const mutateCapability = vi.hoisted(() => ({ current: true }));
@@ -150,6 +151,30 @@ describe("CompositeAlertRulesContent", () => {
 
     expect(source).not.toMatch(/<h2\b/);
     expect(source).not.toContain("OPERATOR_TYPOGRAPHY.pageTitle");
+  });
+
+  it("TB-1582: empty-first hides create form until header Create reveals it", async () => {
+    apiHoisted.listCompositeAlertRules.mockResolvedValue([]);
+    render(<CompositeAlertRulesContent />);
+
+    await waitFor(() => {
+      expect(screen.getByTestId("composite-alert-rules-layout")).toHaveAttribute("data-empty-intro", "true");
+    });
+
+    expect(screen.getByTestId("composite-alert-rules-empty")).toHaveTextContent(
+      operatorHubZoneEmptyTitle("composite alert rules"),
+    );
+    expect(screen.queryByLabelText("Name")).toBeNull();
+    expect(screen.getByTestId("composite-rules-create-action")).toBeInTheDocument();
+
+    fireEvent.click(screen.getByTestId("composite-rules-create-action"));
+
+    await waitFor(() => {
+      expect(screen.getByTestId("composite-alert-rules-layout")).toHaveAttribute("data-empty-intro", "false");
+    });
+
+    expect(screen.getByLabelText("Name")).toBeInTheDocument();
+    expect(screen.queryByTestId("composite-rules-create-action")).toBeNull();
   });
 
   it("TB-1583: shows a list loading skeleton while composite rules are loading", async () => {
