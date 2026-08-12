@@ -1,7 +1,9 @@
-import { render, screen, waitFor } from "@testing-library/react";
+import { screen, waitFor } from "@testing-library/react";
 import { afterEach, beforeEach, describe, expect, it, vi } from "vitest";
 
 import { LlmUsageBandHint } from "@/components/llm/LlmUsageBandHint";
+import { resetOperatorQueryClientForTests } from "@/lib/query/operator-query-client";
+import { renderWithOperatorQuery } from "@/testing/render-with-operator-query";
 
 const fetchCached = vi.hoisted(() => vi.fn());
 
@@ -10,7 +12,7 @@ vi.mock("@/lib/llm-monthly-budget-status", async (importOriginal) => {
 
   return {
     ...actual,
-    fetchLlmMonthlyDollarBudgetStatusCached: fetchCached,
+    fetchLlmMonthlyDollarBudgetStatus: fetchCached,
   };
 });
 
@@ -20,6 +22,8 @@ vi.mock("@/lib/operator/operator-static-demo", () => ({
 
 describe("LlmUsageBandHint", () => {
   beforeEach(() => {
+    resetOperatorQueryClientForTests();
+    fetchCached.mockReset();
     fetchCached.mockResolvedValue({
       monthlyBudgetMonitoringActive: true,
       blocksAdditionalLlmExecution: false,
@@ -42,7 +46,7 @@ describe("LlmUsageBandHint", () => {
   it("shows approximate percent remaining at warn utilization in buyer-polished shell", async () => {
     vi.stubEnv("NEXT_PUBLIC_OPERATOR_EXPERIENCE", "");
 
-    render(<LlmUsageBandHint />);
+    renderWithOperatorQuery(<LlmUsageBandHint />);
 
     expect(await screen.findByTestId("llm-usage-band-hint-approaching")).toHaveTextContent(
       /approximately 20% remaining/i,
@@ -53,7 +57,7 @@ describe("LlmUsageBandHint", () => {
   it("is hidden in operator shell mode", async () => {
     vi.stubEnv("NEXT_PUBLIC_OPERATOR_EXPERIENCE", "operator");
 
-    render(<LlmUsageBandHint />);
+    renderWithOperatorQuery(<LlmUsageBandHint />);
 
     await waitFor(() => {
       expect(fetchCached).not.toHaveBeenCalled();
@@ -79,7 +83,7 @@ describe("LlmUsageBandHint", () => {
       warnFraction: 0.75,
     });
 
-    render(<LlmUsageBandHint />);
+    renderWithOperatorQuery(<LlmUsageBandHint />);
 
     expect(await screen.findByTestId("llm-usage-band-hint-exhausted")).toHaveTextContent(/0% remaining/i);
     expect(screen.getByRole("link", { name: /View pricing and request a quote/i })).toHaveAttribute(
