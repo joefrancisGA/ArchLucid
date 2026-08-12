@@ -67,7 +67,10 @@ export function GenerateSponsorValueReportButton() {
       {roiBaselineLoading ? (
         <p className={cn("m-0 text-neutral-500 dark:text-neutral-400", OPERATOR_TYPOGRAPHY.helper)}>Checking ROI baseline posture…</p>
       ) : blockRoiExport ? (
-        <p className={cn("m-0 font-medium text-amber-800 dark:text-amber-200", OPERATOR_TYPOGRAPHY.helper)}>
+        <p
+          id="sponsor-report-roi-baseline-hint"
+          className={cn("m-0 font-medium text-amber-800 dark:text-amber-200", OPERATOR_TYPOGRAPHY.helper)}
+        >
           Capture tenant ROI baselines (review-cycle hours + manual preparation hours) before generating sponsor DOCX — use Settings → Baseline or the guided ROI baseline wizard on operator home.
         </p>
       ) : null}
@@ -81,11 +84,7 @@ export function GenerateSponsorValueReportButton() {
         type="button"
         variant="outline"
         disabled={busy || blockRoiExport}
-        title={
-          blockRoiExport
-            ? "Tenant ROI baselines must be captured before generating sponsor-ready DOCX exports."
-            : "Generate a sponsor-ready DOCX for the current scope."
-        }
+        aria-describedby={blockRoiExport ? "sponsor-report-roi-baseline-hint" : undefined}
         onClick={() => void onClick()}
       >
         {busy ? "Generating…" : "Generate sponsor report"}

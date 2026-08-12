@@ -9,10 +9,7 @@ import { useOperatorNavAuthority } from "@/components/operator/OperatorNavAuthor
 import { Button } from "@/components/ui/button";
 import { downloadAuditExportCsv } from "@/lib/api";
 import { isApiRequestError } from "@/lib/api-request-error";
-import {
-  auditExportCsvButtonLabelRoleRestricted,
-  auditExportExecuteRankAuditorRoleNote,
-} from "@/lib/enterprise-controls-context-copy";
+import { auditExportExecuteRankAuditorRoleNote } from "@/lib/enterprise-controls-context-copy";
 import { buildRunScopedAuditExportParams } from "@/lib/runs/run-scoped-audit-export";
 import { showError } from "@/lib/toast";
 
@@ -73,10 +70,8 @@ export function RunScopedAuditExportButton(props: RunScopedAuditExportButtonProp
         size="sm"
         disabled={busy || !exportRoleOk}
         data-testid="run-scoped-audit-export-button"
-        title={
-          exportRoleOk
-            ? "Download audit trail (CSV) for this review"
-            : auditExportCsvButtonLabelRoleRestricted
+        aria-describedby={
+          roleHintVisible || !exportRoleOk ? "run-scoped-audit-export-role-hint" : undefined
         }
         onClick={() => void onExport()}
       >
@@ -84,6 +79,7 @@ export function RunScopedAuditExportButton(props: RunScopedAuditExportButtonProp
       </Button>
       {roleHintVisible || !exportRoleOk ? (
         <p
+          id="run-scoped-audit-export-role-hint"
           className={cn("m-0 max-w-prose text-neutral-600 dark:text-neutral-400", OPERATOR_TYPOGRAPHY.helper)}
           data-testid="run-scoped-audit-export-role-hint"
         >
