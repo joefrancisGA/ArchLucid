@@ -18,7 +18,7 @@ import {
   OPERATOR_LINK,
   OPERATOR_TYPOGRAPHY,
 } from "@/lib/design-tokens";
-import { governanceAlertRulesTabHref } from "@/lib/governance/governance-route-paths";
+import { governanceAlertRulesTabHref, GOVERNANCE_ALERTS_PATH } from "@/lib/governance/governance-route-paths";
 import { OPERATOR_NAV_LINK_LABELS } from "@/lib/i18n";
 import { cn } from "@/lib/utils";
 import Link from "next/link";
@@ -51,6 +51,7 @@ function AlertsHubChromeInner({
       ) : null}
 
       <OperatorPageHeader
+        navHref={GOVERNANCE_ALERTS_PATH}
         title={OPERATOR_NAV_LINK_LABELS.alerts}
         subtitle={alertsPageSubtitle(buyerPolishedShell)}
         titleTestId="alerts-page-title"

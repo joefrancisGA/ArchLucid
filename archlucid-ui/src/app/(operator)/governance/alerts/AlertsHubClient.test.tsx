@@ -85,6 +85,7 @@ describe("AlertsHubClient", () => {
     render(<AlertsHubClient />);
     expect(screen.getByTestId("stub-inbox")).toBeInTheDocument();
     expect(screen.getByTestId("alerts-page-title")).toHaveTextContent("Alerts");
+    expect(screen.getByTestId("page-heading-icon")).toBeInTheDocument();
     expect(screen.getByText(ALERTS_PAGE_SUBTITLE)).toBeInTheDocument();
     // The governance context panel is a deferred chunk, so orientation copy paints after the header.
     expect(await screen.findByText(ALERTS_CONTEXT_NOTE)).toBeInTheDocument();
