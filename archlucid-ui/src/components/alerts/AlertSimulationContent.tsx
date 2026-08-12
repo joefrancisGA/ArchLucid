@@ -3,6 +3,8 @@
 import { cn } from "@/lib/utils";
 import { useState } from "react";
 import { GettingStartedSteps } from "@/components/GettingStartedSteps";
+import { OperatorSegmentedModeToolbar } from "@/components/advisory/OperatorSegmentedModeToolbar";
+import { OperatorToolingWorkbenchPanels } from "@/components/advisory/OperatorToolingWorkbenchPanels";
 import { OperatorApiProblem } from "@/components/operator/OperatorApiProblem";
 import { Button } from "@/components/ui/button";
 import { Checkbox } from "@/components/ui/checkbox";
@@ -321,25 +323,16 @@ export function AlertSimulationContent() {
         Simulate alerts
       </h3>
 
-      <div className="mb-5 flex flex-wrap gap-2" role="group" aria-label="Simulation mode">
-        {ALERT_SIMULATION_MODE_TABS.map((mode) => (
-          <Button
-            key={mode.id}
-            type="button"
-            variant="secondary"
-            size="sm"
-            onClick={() => setTab(mode.id)}
-            className={cn(
-              tab === mode.id &&
-                "border-2 border-neutral-700 bg-neutral-100 dark:border-neutral-300 dark:bg-neutral-800",
-            )}
-            aria-pressed={tab === mode.id}
-            data-testid={`alert-simulation-mode-${mode.id}`}
-          >
-            {mode.label}
-          </Button>
-        ))}
-      </div>
+      <OperatorSegmentedModeToolbar
+        tabs={ALERT_SIMULATION_MODE_TABS.map((mode) => ({
+          id: mode.id,
+          label: mode.label,
+          testId: `alert-simulation-mode-${mode.id}`,
+        }))}
+        activeTabId={tab}
+        onTabChange={(nextTabId) => setTab(nextTabId as AlertSimulationModeTabId)}
+        ariaLabel="Simulation mode"
+      />
 
       {failure !== null ? (
         <div role="alert">
@@ -352,12 +345,18 @@ export function AlertSimulationContent() {
       ) : null}
 
       {tab === "simple" ? (
-        <>
-          <section aria-labelledby="sim-simple-inputs-heading">
-            <h3 id="sim-simple-inputs-heading" className="mt-0">
-              Simulation inputs
-            </h3>
-            <div className="grid max-w-[640px] gap-3">
+        <OperatorToolingWorkbenchPanels
+          inputsHeadingId="sim-simple-inputs-heading"
+          inputsHeading="Simulation inputs"
+          behaviorHeadingId="sim-simple-behavior-heading"
+          behaviorHeading={
+            canMutateEnterpriseShell
+              ? alertSimulationCurrentBehaviorHeadingOperator
+              : alertSimulationCurrentBehaviorHeadingReader
+          }
+          inputsGridClassName="grid max-w-[640px] gap-3"
+          inputs={
+            <>
             <div>
               <Label htmlFor="alert-simulation-simple-name">Name</Label>
               <Input
@@ -480,30 +479,33 @@ export function AlertSimulationContent() {
             >
               {loading ? "Running…" : "Simulate"}
             </Button>
-          </div>
-          </section>
-          <section aria-labelledby="sim-simple-behavior-heading" className="mt-6">
-            <h3 id="sim-simple-behavior-heading" className="mt-0">
-              {canMutateEnterpriseShell
-                ? alertSimulationCurrentBehaviorHeadingOperator
-                : alertSimulationCurrentBehaviorHeadingReader}
-            </h3>
-            {simpleResult ? (
+            </>
+          }
+          behavior={
+            simpleResult ? (
               <SummaryBlock result={simpleResult} />
             ) : (
-              <p className={cn("mt-2 text-neutral-500 dark:text-neutral-400", OPERATOR_TYPOGRAPHY.body)}>Run a simulation to see outcomes here.</p>
-            )}
-          </section>
-        </>
+              <p className={cn("mt-2 text-neutral-500 dark:text-neutral-400", OPERATOR_TYPOGRAPHY.body)}>
+                Run a simulation to see outcomes here.
+              </p>
+            )
+          }
+        />
       ) : null}
 
       {tab === "composite" ? (
-        <>
-          <section aria-labelledby="sim-composite-inputs-heading">
-            <h3 id="sim-composite-inputs-heading" className="mt-0">
-              Simulation inputs
-            </h3>
-            <div className="grid max-w-3xl gap-3">
+        <OperatorToolingWorkbenchPanels
+          inputsHeadingId="sim-composite-inputs-heading"
+          inputsHeading="Simulation inputs"
+          behaviorHeadingId="sim-composite-behavior-heading"
+          behaviorHeading={
+            canMutateEnterpriseShell
+              ? alertSimulationCurrentBehaviorHeadingOperator
+              : alertSimulationCurrentBehaviorHeadingReader
+          }
+          inputsGridClassName="grid max-w-3xl gap-3"
+          inputs={
+            <>
             <div>
               <Label htmlFor="alert-simulation-composite-name">Name</Label>
               <Input
@@ -698,33 +700,36 @@ export function AlertSimulationContent() {
             >
               {loading ? "Running…" : "Simulate"}
             </Button>
-          </div>
-          </section>
-          <section aria-labelledby="sim-composite-behavior-heading" className="mt-6">
-            <h3 id="sim-composite-behavior-heading" className="mt-0">
-              {canMutateEnterpriseShell
-                ? alertSimulationCurrentBehaviorHeadingOperator
-                : alertSimulationCurrentBehaviorHeadingReader}
-            </h3>
-            {compositeResult ? (
+            </>
+          }
+          behavior={
+            compositeResult ? (
               <SummaryBlock result={compositeResult} />
             ) : (
-              <p className={cn("mt-2 text-neutral-500 dark:text-neutral-400", OPERATOR_TYPOGRAPHY.body)}>Run a simulation to see outcomes here.</p>
-            )}
-          </section>
-        </>
+              <p className={cn("mt-2 text-neutral-500 dark:text-neutral-400", OPERATOR_TYPOGRAPHY.body)}>
+                Run a simulation to see outcomes here.
+              </p>
+            )
+          }
+        />
       ) : null}
 
       {tab === "compare" ? (
-        <>
-          <section aria-labelledby="sim-compare-inputs-heading">
-            <h3 id="sim-compare-inputs-heading" className="mt-0">
-              Simulation inputs
-            </h3>
+        <OperatorToolingWorkbenchPanels
+          inputsHeadingId="sim-compare-inputs-heading"
+          inputsHeading="Simulation inputs"
+          behaviorHeadingId="sim-compare-behavior-heading"
+          behaviorHeading={
+            canMutateEnterpriseShell
+              ? alertSimulationCurrentBehaviorHeadingOperator
+              : alertSimulationCurrentBehaviorHeadingReader
+          }
+          inputsGridClassName="grid max-w-[640px] gap-3"
+          inputs={
+            <>
             <p className={cn("text-neutral-600 dark:text-neutral-400", OPERATOR_TYPOGRAPHY.body)}>
               Same rule type and severity; only thresholds differ. Useful for tuning (e.g. 10 vs 20).
             </p>
-            <div className="grid max-w-[640px] gap-3">
             <div>
               <Label htmlFor="alert-simulation-compare-name">Name</Label>
               <Input
@@ -821,15 +826,10 @@ export function AlertSimulationContent() {
             >
               {loading ? "Running…" : "Compare candidates"}
             </Button>
-          </div>
-          </section>
-          <section aria-labelledby="sim-compare-behavior-heading" className="mt-6">
-            <h3 id="sim-compare-behavior-heading" className="mt-0">
-              {canMutateEnterpriseShell
-                ? alertSimulationCurrentBehaviorHeadingOperator
-                : alertSimulationCurrentBehaviorHeadingReader}
-            </h3>
-            {compareResult ? (
+            </>
+          }
+          behavior={
+            compareResult ? (
               <div className="mt-2">
                 <h4 className="mb-2">Comparison notes</h4>
                 <ul>
@@ -843,10 +843,12 @@ export function AlertSimulationContent() {
                 <SummaryBlock result={compareResult.candidateB} />
               </div>
             ) : (
-              <p className={cn("mt-2 text-neutral-500 dark:text-neutral-400", OPERATOR_TYPOGRAPHY.body)}>Run a comparison to see outcomes here.</p>
-            )}
-          </section>
-        </>
+              <p className={cn("mt-2 text-neutral-500 dark:text-neutral-400", OPERATOR_TYPOGRAPHY.body)}>
+                Run a comparison to see outcomes here.
+              </p>
+            )
+          }
+        />
       ) : null}
     </div>
   );
