@@ -59,6 +59,8 @@ test.describe("live-api-socratic-intake", { tag: ["@founder", "@buyer-journey"] 
     await page.getByTestId("socratic-outcome").fill(OUTCOME);
     await page.getByTestId("draft-intake-actor-add").click();
     await page.getByTestId("draft-intake-actor-label-0").fill("Primary operator");
+    // Confirmed scope is merged into the brief by the pre-admission patch, so the gate is on step 0.
+    await page.getByTestId("architecture-scope-understanding-confirm").click();
     await clickSocraticAdmitWithRetry(page, { timeoutMs: 180_000 });
     await waitForSocraticClarificationsStep(page, 90_000);
 

@@ -56,6 +56,8 @@ import { buildReviewGenerationRedirect } from "@/lib/review-generation-handoff";
 import { recordArchitectureCreationHandoff } from "@/lib/architecture-creation-handoff";
 import {
   mergeScopeBulletsIntoBrief,
+  scopeBriefLines,
+  SCOPE_UNDERSTANDING_READY_TO_CONTINUE_HINT,
   type ScopeUnderstandingBullet,
 } from "@/lib/architecture-scope-understanding-check";
 import { isApiRequestError } from "@/lib/api-request-error";
@@ -72,9 +74,11 @@ import {
 } from "@/lib/draft-intake-actor-suggestions";
 import { BUYER_START_ARCHITECTURE_REVIEW_CTA, CREATE_REVIEW_PACKAGE_HEADING } from "@/lib/buyer-polish-copy";
 import {
+  GUIDED_INTAKE_ARCHITECTURE_INTENT_LABEL,
   GUIDED_INTAKE_ARCHITECTURE_INTENT_MIN_CHARS,
   GUIDED_INTAKE_ARCHITECTURE_INTENT_PLACEHOLDER,
   GUIDED_INTAKE_BUSINESS_OUTCOME_PLACEHOLDER,
+  GUIDED_INTAKE_CONFIRMED_SCOPE_SUMMARY_HEADING,
   GUIDED_INTAKE_CONTINUE_TO_CLARIFICATIONS,
   GUIDED_INTAKE_CONTINUE_TO_DISCOVERY,
   GUIDED_INTAKE_CREATION_ARCHITECTURE_OVERVIEW_LABEL,
@@ -85,6 +89,8 @@ import {
   GUIDED_INTAKE_CREATION_SYSTEM_NAME_LABEL,
   GUIDED_INTAKE_CREATION_SYSTEM_NAME_PLACEHOLDER,
   GUIDED_INTAKE_READINESS_SUCCESS_TOAST,
+  GUIDED_INTAKE_REQUEST_FAILED_FALLBACK,
+  GUIDED_INTAKE_SCOPE_CONFIRMATION_BLOCKER,
   GUIDED_INTAKE_STEP0_CARD_DESCRIPTION,
   GUIDED_INTAKE_STEP0_CARD_TITLE,
   GUIDED_INTAKE_STEP0_PROGRESS_LABEL,
@@ -160,6 +166,40 @@ function IntakeFieldLabel(props: IntakeFieldLabelProps): React.JSX.Element {
         {props.required ? " (required)" : " (optional)"}
       </span>
     </Label>
+  );
+}
+
+type GuidedIntakeRequestErrorProps = {
+  readonly error: unknown;
+};
+
+/**
+ * Keeps a failed request next to the control that triggered it. The wizard's primary CTA sits at the
+ * bottom of a long step, so an error rendered at the page top lands off-screen on click.
+ */
+function GuidedIntakeRequestError(props: GuidedIntakeRequestErrorProps): React.JSX.Element {
+  const containerRef = useRef<HTMLDivElement | null>(null);
+
+  useEffect(() => {
+    const container = containerRef.current;
+
+    // jsdom has no layout engine, so scrollIntoView is absent under unit tests.
+    if (container === null || typeof container.scrollIntoView !== "function") {
+      return;
+    }
+
+    container.scrollIntoView({ behavior: "smooth", block: "center" });
+  }, [props.error]);
+
+  return (
+    <div ref={containerRef} data-testid="guided-intake-request-error">
+      <OperatorApiProblem
+        problem={isApiRequestError(props.error) ? props.error.problem : null}
+        fallbackMessage={
+          isApiRequestError(props.error) ? props.error.message : GUIDED_INTAKE_REQUEST_FAILED_FALLBACK
+        }
+      />
+    </div>
   );
 }
 
@@ -256,45 +296,57 @@ export function SocraticIntakeWizard() {
   const outcomeMeetsMinimum = outcomeTrimmedLength >= MIN_OUTCOME_CHARS;
   const systemNameMeetsMinimum = systemName.trim().length > 0;
 
-  const canAdvanceIntent = isCreateArchitectureFlow
-    ? systemNameMeetsMinimum && intentMeetsMinimum && outcomeMeetsMinimum && !busy
-    : intentMeetsMinimum &&
-      outcomeMeetsMinimum &&
-      actorSet.actors.length > 0 &&
-      !busy;
+  const intentFieldLabel = isCreateArchitectureFlow
+    ? GUIDED_INTAKE_CREATION_ARCHITECTURE_OVERVIEW_LABEL
+    : GUIDED_INTAKE_ARCHITECTURE_INTENT_LABEL;
 
-  const createArchitectureAdvanceBlockers = useMemo(() => {
-    if (!isCreateArchitectureFlow) {
-      return [];
-    }
-
+  const advanceBlockers = useMemo(() => {
     const blockers: string[] = [];
 
-    if (!systemNameMeetsMinimum) {
+    if (isCreateArchitectureFlow && !systemNameMeetsMinimum) {
       blockers.push("system name");
     }
 
     if (!intentMeetsMinimum) {
-      blockers.push("architecture overview");
+      blockers.push(intentFieldLabel.toLowerCase());
     }
 
     if (!outcomeMeetsMinimum) {
       blockers.push("business outcome");
     }
 
-    return blockers;
-  }, [intentMeetsMinimum, isCreateArchitectureFlow, outcomeMeetsMinimum, systemNameMeetsMinimum]);
+    if (!isCreateArchitectureFlow && actorSet.actors.length === 0) {
+      blockers.push("at least one person or system");
+    }
 
-  const createArchitectureAdvanceHint = buildGuidedIntakeCreationAdvanceBlockerMessage(
-    createArchitectureAdvanceBlockers,
-  );
+    // Confirmed scope is merged into the brief by the patch that precedes admission, so it has to be
+    // settled before the wizard leaves this step — the draft is immutable once it is admitted.
+    if (!scopeGateOpen) {
+      blockers.push(GUIDED_INTAKE_SCOPE_CONFIRMATION_BLOCKER);
+    }
+
+    return blockers;
+  }, [
+    actorSet.actors.length,
+    intentFieldLabel,
+    intentMeetsMinimum,
+    isCreateArchitectureFlow,
+    outcomeMeetsMinimum,
+    scopeGateOpen,
+    systemNameMeetsMinimum,
+  ]);
+
+  const canAdvanceIntent = advanceBlockers.length === 0 && !busy;
+
+  const advanceHint = buildGuidedIntakeCreationAdvanceBlockerMessage(advanceBlockers);
 
   const allClarificationsHandled =
     pendingQuestions.length === 0 ||
     pendingQuestions.every((question) => savedLocallyQuestionKeys.has(question.questionKey));
   const canReviewAnswers = allClarificationsHandled && !busy;
-  const canSubmit =
-    draftId !== null && allClarificationsHandled && scopeGateOpen && !busy && !blocksLlmExecution;
+  // Scope is gated on step 0 and already persisted on the draft, so it is not re-gated here.
+  const canSubmit = draftId !== null && allClarificationsHandled && !busy && !blocksLlmExecution;
+  const confirmedScopeLines = useMemo(() => scopeBriefLines(scopeBullets), [scopeBullets]);
 
   const scopeUnderstandingInput = useMemo(
     () => ({
@@ -427,7 +479,7 @@ export function SocraticIntakeWizard() {
       }
 
       await patchDraftRequest(id, {
-        freeTextIntent: freeTextIntent.trim(),
+        freeTextIntent: mergeScopeBulletsIntoBrief(scopeBullets, freeTextIntent),
         businessOutcome: businessOutcome.trim(),
         systemName: systemName.trim() || undefined,
         actorSet: normalizeActorSetForAdmission(actorSet),
@@ -451,7 +503,7 @@ export function SocraticIntakeWizard() {
     } finally {
       setBusy(false);
     }
-  }, [actorSet, businessOutcome, draftId, focusedPilotModeEnabled, freeTextIntent, isCreateArchitectureFlow, systemName]);
+  }, [actorSet, businessOutcome, draftId, focusedPilotModeEnabled, freeTextIntent, isCreateArchitectureFlow, scopeBullets, systemName]);
 
   const runAdmission = useCallback(async () => {
     setBusy(true);
@@ -467,8 +519,10 @@ export function SocraticIntakeWizard() {
       const id = created.draftId;
       setDraftId(id);
 
+      // Confirmed scope goes onto the server copy of the brief before admission: a draft is immutable
+      // once admitted, and the admission gate must see the same text the reviewer will read.
       await patchDraftRequest(id, {
-        freeTextIntent: freeTextIntent.trim(),
+        freeTextIntent: mergeScopeBulletsIntoBrief(scopeBullets, freeTextIntent),
         businessOutcome: businessOutcome.trim(),
         systemName: systemName.trim() || undefined,
         actorSet: normalizeActorSetForAdmission(actorSet),
@@ -500,7 +554,7 @@ export function SocraticIntakeWizard() {
     } finally {
       setBusy(false);
     }
-  }, [actorSet, businessOutcome, focusedPilotModeEnabled, freeTextIntent, isCreateArchitectureFlow, refreshQuestions, systemName]);
+  }, [actorSet, businessOutcome, focusedPilotModeEnabled, freeTextIntent, isCreateArchitectureFlow, refreshQuestions, scopeBullets, systemName]);
 
   const reviewAnswers = useCallback(async () => {
     if (draftId === null) {
@@ -605,8 +659,6 @@ export function SocraticIntakeWizard() {
     setSubmitError(null);
 
     try {
-      const briefWithScope = mergeScopeBulletsIntoBrief(scopeBullets, freeTextIntent);
-      await patchDraftRequest(draftId, { freeTextIntent: briefWithScope });
       const result = await submitDraftRequest(draftId);
       recordFirstTenantFunnelEvent("first_run_started");
       wizardSession.clearSession();
@@ -646,14 +698,13 @@ export function SocraticIntakeWizard() {
         ),
       );
     } catch (error) {
+      // Inline only: the failure belongs beside the button that produced it, not in a toast the
+      // operator has to read before it disappears.
       setSubmitError(error);
-      if (isApiRequestError(error)) {
-        showError(REVIEWS_NEW_GUIDED_QUESTIONS_LABEL, error.message);
-      }
     } finally {
       setBusy(false);
     }
-  }, [actorSet.actors, businessOutcome, draftId, freeTextIntent, isCreateArchitectureFlow, parentSpawnedRunId, router, scopeBullets, systemName, wizardSession]);
+  }, [actorSet.actors, businessOutcome, draftId, freeTextIntent, isCreateArchitectureFlow, parentSpawnedRunId, router, systemName, wizardSession]);
 
   return (
     <div
@@ -715,15 +766,6 @@ export function SocraticIntakeWizard() {
       ) : null}
 
       {llmBudgetStatus !== null ? <LlmMonthlyBudgetExceededBanner status={llmBudgetStatus} /> : null}
-
-      {submitError !== null ? (
-        <OperatorApiProblem
-          problem={isApiRequestError(submitError) ? submitError.problem : null}
-          fallbackMessage={
-            isApiRequestError(submitError) ? submitError.message : "Guided questions request failed."
-          }
-        />
-      ) : null}
 
       {parentDraftId !== null ? (
         <p
@@ -793,15 +835,7 @@ export function SocraticIntakeWizard() {
             ) : null}
 
             <div className="space-y-2">
-              <IntakeFieldLabel
-                htmlFor="socratic-intent"
-                label={
-                  isCreateArchitectureFlow
-                    ? GUIDED_INTAKE_CREATION_ARCHITECTURE_OVERVIEW_LABEL
-                    : "Architecture intent"
-                }
-                required
-              />
+              <IntakeFieldLabel htmlFor="socratic-intent" label={intentFieldLabel} required />
               <Textarea
                 id="socratic-intent"
                 value={freeTextIntent}
@@ -905,15 +939,27 @@ export function SocraticIntakeWizard() {
               className={isCreateArchitectureFlow ? "max-w-md" : undefined}
             />
 
-            {isCreateArchitectureFlow && !canAdvanceIntent && createArchitectureAdvanceHint.length > 0 ? (
+            <ArchitectureScopeUnderstandingCheckPanel
+              input={scopeUnderstandingInput}
+              contextSourceLabel={`${intentFieldLabel} above`}
+              readyHint={SCOPE_UNDERSTANDING_READY_TO_CONTINUE_HINT}
+              // Local editing only — an exhausted LLM budget must not lock the operator out of step 0.
+              disabled={busy}
+              onBulletsChange={setScopeBullets}
+              onGateChange={setScopeGateOpen}
+            />
+
+            {!canAdvanceIntent && advanceHint.length > 0 ? (
               <p
                 className={cn("m-0", OPERATOR_TYPOGRAPHY.helper, "text-neutral-600 dark:text-neutral-400")}
                 role="status"
                 data-testid="socratic-advance-hint"
               >
-                {createArchitectureAdvanceHint}
+                {advanceHint}
               </p>
             ) : null}
+
+            {submitError !== null ? <GuidedIntakeRequestError error={submitError} /> : null}
 
             <Button
               type="button"
@@ -1042,6 +1088,7 @@ export function SocraticIntakeWizard() {
                   Handle all required clarifications first.
                 </p>
               ) : null}
+              {submitError !== null ? <GuidedIntakeRequestError error={submitError} /> : null}
               <Button
                 type="button"
                 variant={allClarificationsHandled ? "primary" : "outline"}
@@ -1102,13 +1149,24 @@ export function SocraticIntakeWizard() {
               ) : null}
             </ul>
             <EvidenceGapForecastPanel presence={guidedIntakeEvidencePresence} />
-            <ArchitectureScopeUnderstandingCheckPanel
-              input={scopeUnderstandingInput}
-              contextSourceLabel="the architecture intent step"
-              disabled={busy || blocksLlmExecution}
-              onBulletsChange={setScopeBullets}
-              onGateChange={setScopeGateOpen}
-            />
+            {confirmedScopeLines.length > 0 ? (
+              <section className="space-y-1" data-testid="socratic-confirmed-scope-summary">
+                <h3 className={cn("m-0 font-semibold", OPERATOR_TYPOGRAPHY.label)}>
+                  {GUIDED_INTAKE_CONFIRMED_SCOPE_SUMMARY_HEADING}
+                </h3>
+                <ul
+                  className={cn(
+                    "m-0 list-disc space-y-1 pl-5 text-neutral-700 dark:text-neutral-300",
+                    OPERATOR_TYPOGRAPHY.helper,
+                  )}
+                >
+                  {confirmedScopeLines.map((line) => (
+                    <li key={line}>{line}</li>
+                  ))}
+                </ul>
+              </section>
+            ) : null}
+            {submitError !== null ? <GuidedIntakeRequestError error={submitError} /> : null}
             <div className="flex flex-wrap gap-2">
               <Button type="button" variant="outline" disabled={busy} onClick={() => setStep(1)}>
                 Back to questions

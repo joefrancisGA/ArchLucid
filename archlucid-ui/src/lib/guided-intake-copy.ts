@@ -15,6 +15,8 @@ export const GUIDED_INTAKE_CREATION_STEP0_CARD_DESCRIPTION =
 export const GUIDED_INTAKE_CREATION_INTRO =
   "Describe your architecture, then answer a short set of guided questions.";
 
+export const GUIDED_INTAKE_ARCHITECTURE_INTENT_LABEL = "Architecture intent";
+
 export const GUIDED_INTAKE_CREATION_ARCHITECTURE_OVERVIEW_LABEL = "Architecture overview";
 
 export const GUIDED_INTAKE_CREATION_BUSINESS_OUTCOME_LABEL = "Business outcome";
@@ -132,6 +134,14 @@ export const GUIDED_INTAKE_SOURCE_ARCHITECTURE_HINT_TAIL =
   "Later edits to the architecture draft will not change this review's evidence basis.";
 
 export const GUIDED_INTAKE_WHAT_IF_BRANCH_HINT_LEAD = "What-if branch.";
+
+/** Blocker phrase for the in-scope confirmation gate on step 0, listed with the missing fields. */
+export const GUIDED_INTAKE_SCOPE_CONFIRMATION_BLOCKER = "the in-scope confirmation";
+
+export const GUIDED_INTAKE_REQUEST_FAILED_FALLBACK = "Guided questions request failed.";
+
+/** Heading for the read-only confirmed-scope recap on the submit step. */
+export const GUIDED_INTAKE_CONFIRMED_SCOPE_SUMMARY_HEADING = "Confirmed in-scope items";
 
 export function buildGuidedIntakeCreationAdvanceBlockerMessage(blockers: readonly string[]): string {
   if (blockers.length === 0) {

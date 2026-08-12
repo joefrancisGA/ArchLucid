@@ -21,6 +21,7 @@ import {
   SCOPE_UNDERSTANDING_CONFIRM_LABEL,
   SCOPE_UNDERSTANDING_HEADING,
   SCOPE_UNDERSTANDING_HELPER,
+  SCOPE_UNDERSTANDING_READY_HINT,
   type DeriveScopeUnderstandingBulletsInput,
   type ScopeUnderstandingBullet,
 } from "@/lib/architecture-scope-understanding-check";
@@ -32,6 +33,8 @@ export type ArchitectureScopeUnderstandingCheckPanelProps = {
   readonly disabled?: boolean;
   /** Names the field that owns the architecture context text on this surface, for the read-only row hint. */
   readonly contextSourceLabel?: string;
+  /** What confirmation unblocks on this surface — starting the review, or continuing the wizard. */
+  readonly readyHint?: string;
   readonly onBulletsChange?: Dispatch<SetStateAction<ScopeUnderstandingBullet[]>>;
   readonly onGateChange?: (gateOpen: boolean) => void;
 };
@@ -279,7 +282,7 @@ export function ArchitectureScopeUnderstandingCheckPanel(
           className={cn("m-0 text-al-text-secondary", OPERATOR_TYPOGRAPHY.helper)}
           data-testid="architecture-scope-understanding-ready"
         >
-          Scope confirmed — you can start the review.
+          {props.readyHint ?? SCOPE_UNDERSTANDING_READY_HINT}
         </p>
       ) : null}
     </section>

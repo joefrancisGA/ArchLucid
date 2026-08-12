@@ -60,6 +60,10 @@ export const SCOPE_UNDERSTANDING_READ_ONLY_HINT = scopeReadOnlyHint(
 );
 export const SCOPE_UNDERSTANDING_CONFIRM_LABEL = "Confirm scope";
 export const SCOPE_UNDERSTANDING_SECTION_HEADER = "Operator-confirmed in-scope understanding";
+/** Ready line for surfaces where confirming scope is the last step before the review starts. */
+export const SCOPE_UNDERSTANDING_READY_HINT = "Scope confirmed — you can start the review.";
+/** Ready line for wizards that confirm scope on an earlier step. */
+export const SCOPE_UNDERSTANDING_READY_TO_CONTINUE_HINT = "Scope confirmed — you can continue.";
 
 /** Preview length for the read-only context row. Display-only: the excerpt is never merged into the brief. */
 export const SCOPE_CONTEXT_PREVIEW_MAX_LENGTH = 180;
@@ -290,15 +294,23 @@ export function validateScopeUnderstandingItem(
   return { status: "valid" };
 }
 
+/**
+ * The confirmed scope lines a reviewer will actually read. Single source of truth so a summary
+ * rendered before submit cannot disagree with what the brief carries.
+ */
+export function scopeBriefLines(bullets: readonly ScopeUnderstandingBullet[]): string[] {
+  return bullets
+    .filter((bullet) => scopeBulletBehavior(bullet.kind).includeInBrief)
+    .filter((bullet) => bullet.value.trim().length > 0)
+    .map((bullet) => scopeBulletText(bullet));
+}
+
 export function mergeScopeBulletsIntoBrief(
   bullets: readonly ScopeUnderstandingBullet[],
   baseBrief: string,
 ): string {
   const trimmedBrief = baseBrief.trim();
-  const bulletLines = bullets
-    .filter((bullet) => scopeBulletBehavior(bullet.kind).includeInBrief)
-    .filter((bullet) => bullet.value.trim().length > 0)
-    .map((bullet) => `- ${scopeBulletText(bullet)}`);
+  const bulletLines = scopeBriefLines(bullets).map((line) => `- ${line}`);
 
   if (bulletLines.length === 0) {
     return trimmedBrief;

@@ -116,6 +116,11 @@ function fillCreateArchitectureMinimumFields(): void {
   fireEvent.change(screen.getByTestId("socratic-outcome"), { target: { value: validOutcome } });
 }
 
+/** Editing any intake field re-derives the scope rows and reopens the gate, so confirm last. */
+function confirmStep0Scope(): void {
+  fireEvent.click(screen.getByTestId("architecture-scope-understanding-confirm"));
+}
+
 describe("SocraticIntakeWizard create-architecture intent", () => {
   beforeEach(() => {
     admitDraftRequest.mockReset();
@@ -180,6 +185,7 @@ describe("SocraticIntakeWizard create-architecture intent", () => {
     render(<SocraticIntakeWizard />);
 
     fillCreateArchitectureMinimumFields();
+    confirmStep0Scope();
 
     const continueButton = screen.getByRole("button", { name: GUIDED_INTAKE_CONTINUE_TO_DISCOVERY });
     expect(continueButton).toBeEnabled();
@@ -225,6 +231,7 @@ describe("SocraticIntakeWizard create-architecture intent", () => {
 
     fillCreateArchitectureMinimumFields();
     fireEvent.click(screen.getByTestId("draft-intake-actor-stub-add"));
+    confirmStep0Scope();
 
     fireEvent.click(screen.getByRole("button", { name: GUIDED_INTAKE_CONTINUE_TO_DISCOVERY }));
 
