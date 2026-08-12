@@ -4,7 +4,7 @@ import { cn } from "@/lib/utils";
 import * as React from "react";
 import * as AlertDialogPrimitive from "@radix-ui/react-alert-dialog";
 
-import { OPERATOR_TYPOGRAPHY } from "@/lib/design-tokens";
+import { OPERATOR_DANGER, OPERATOR_TYPOGRAPHY } from "@/lib/design-tokens";
 
 const AlertDialog = AlertDialogPrimitive.Root
 
@@ -109,8 +109,8 @@ const AlertDialogAction = React.forwardRef<
 >(({ className, ...props }, ref) => (
   <AlertDialogPrimitive.Action
     ref={ref}
-    className={cn("inline-flex h-9 items-center justify-center whitespace-nowrap rounded-md border border-transparent px-4 py-2 text-white shadow transition-colors focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-red-500 focus-visible:ring-offset-2 disabled:pointer-events-none disabled:opacity-50 dark:focus-visible:ring-red-500 dark:ring-offset-neutral-950", OPERATOR_TYPOGRAPHY.button,
-      "bg-red-600 hover:bg-red-600/80 dark:bg-red-900 dark:hover:bg-red-900/80",
+    className={cn("inline-flex h-9 items-center justify-center whitespace-nowrap rounded-md border border-transparent px-4 py-2 shadow transition-colors focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-offset-2 disabled:pointer-events-none disabled:opacity-50 dark:ring-offset-neutral-950", OPERATOR_TYPOGRAPHY.button,
+      OPERATOR_DANGER.action,
       className
     )}
     {...props}

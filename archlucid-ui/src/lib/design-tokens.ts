@@ -30,7 +30,31 @@ export const AL_CSS_VAR_NAMES = {
   statusApprovedFg: "--al-status-approved-fg",
   statusApprovedMonitoringBg: "--al-status-approved-monitoring-bg",
   statusApprovedMonitoringFg: "--al-status-approved-monitoring-fg",
+  dangerActionBg: "--al-danger-action-bg",
+  dangerActionBgHover: "--al-danger-action-bg-hover",
+  dangerActionFg: "--al-danger-action-fg",
+  dangerActionRing: "--al-danger-action-ring",
+  dangerText: "--al-danger-text",
+  dangerSurfaceBg: "--al-danger-surface-bg",
+  dangerSurfaceBorder: "--al-danger-surface-border",
+  dangerSurfaceFg: "--al-danger-surface-fg",
   layerHover: "--al-layer-hover",
+} as const;
+
+/**
+ * Destructive affordances (TB-2375). Raw `bg-red-*` / `text-red-*` utilities do not track dark
+ * mode, so destructive controls drifted between primitives — `Button variant="destructive"` used
+ * `dark:bg-red-600` while `AlertDialogAction` used `dark:bg-red-900` for the same confirm.
+ */
+export const OPERATOR_DANGER = {
+  /** Destructive button/action fill. Prefer `Button variant="destructive"` over applying directly. */
+  action:
+    "bg-[var(--al-danger-action-bg)] text-[var(--al-danger-action-fg)] hover:bg-[var(--al-danger-action-bg-hover)] focus-visible:ring-[var(--al-danger-action-ring)]",
+  /** Inline error text beside or beneath a control. */
+  text: "text-[var(--al-danger-text)]",
+  /** Error banner / callout surface. */
+  surface:
+    "border border-[var(--al-danger-surface-border)] bg-[var(--al-danger-surface-bg)] text-[var(--al-danger-surface-fg)]",
 } as const;
 
 /** Shared card chrome for operator surfaces — prefer over per-page `px-2.5` overrides. */

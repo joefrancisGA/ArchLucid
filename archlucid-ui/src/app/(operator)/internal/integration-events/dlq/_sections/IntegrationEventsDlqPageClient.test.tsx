@@ -118,7 +118,7 @@ describe("IntegrationEventsDlqPageClient", () => {
     const bulk = within(actions).getByTestId("integration-events-dlq-bulk-retry-button");
 
     expect(refresh.className).toMatch(/primary|bg-\[var\(--al-primary-action-bg\)\]/);
-    expect(bulk.className).toMatch(/destructive|bg-red-600/);
+    expect(bulk.className).toMatch(/destructive|bg-\[var\(--al-danger-action-bg\)\]/);
 
     fireEvent.click(bulk);
 

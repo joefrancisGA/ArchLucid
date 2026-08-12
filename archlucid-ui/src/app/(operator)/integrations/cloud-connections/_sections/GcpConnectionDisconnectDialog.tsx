@@ -1,7 +1,7 @@
 "use client";
 
 import { ConfirmationDialog } from "@/components/ConfirmationDialog";
-import { OPERATOR_TYPOGRAPHY } from "@/lib/design-tokens";
+import { OPERATOR_DANGER, OPERATOR_TYPOGRAPHY } from "@/lib/design-tokens";
 import { cn } from "@/lib/utils";
 
 export type GcpConnectionDisconnectTarget = {
@@ -47,7 +47,7 @@ export function GcpConnectionDisconnectDialog(props: GcpConnectionDisconnectDial
       extraContent={
         errorMessage !== null ? (
           <p
-            className={cn(OPERATOR_TYPOGRAPHY.body, "text-red-600 dark:text-red-400")}
+            className={cn(OPERATOR_TYPOGRAPHY.body, OPERATOR_DANGER.text)}
             role="alert"
             data-testid="gcp-connection-disconnect-error"
           >

@@ -1,5 +1,5 @@
 import { cn } from "@/lib/utils";
-import { OPERATOR_TYPOGRAPHY } from "@/lib/design-tokens";
+import { OPERATOR_DANGER, OPERATOR_TYPOGRAPHY } from "@/lib/design-tokens";
 import { Slot } from "@radix-ui/react-slot";
 import { cva, type VariantProps } from "class-variance-authority";
 import * as React from "react";
@@ -21,7 +21,7 @@ const buttonVariants = cva(
         primary:
           "bg-[var(--al-primary-action-bg)] text-[var(--al-primary-action-fg)] hover:bg-[var(--al-primary-action-bg-hover)] focus-visible:ring-[var(--al-primary-action-ring)]",
         secondary: SECONDARY_BUTTON_CLASS,
-        destructive: "bg-red-600 text-white hover:bg-red-700 focus-visible:ring-red-500 dark:bg-red-600 dark:hover:bg-red-700",
+        destructive: OPERATOR_DANGER.action,
         outline:
           "border border-neutral-300 bg-white text-neutral-900 hover:bg-neutral-100 dark:border-neutral-600 dark:bg-neutral-900 dark:text-neutral-100 dark:hover:bg-neutral-800",
       },
