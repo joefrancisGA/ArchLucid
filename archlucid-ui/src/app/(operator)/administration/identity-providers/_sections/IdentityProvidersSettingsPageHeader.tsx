@@ -8,7 +8,7 @@ import { cn } from "@/lib/utils";
 
 import { OperatorPageBreadcrumb } from "@/components/operator/OperatorPageBreadcrumb";
 import { OperatorPageHeader } from "@/components/operator/OperatorPageHeader";
-import { Button } from "@/components/ui/button";
+import { RefreshButton } from "@/components/ui/refresh-button";
 import { StatusTag } from "@/components/ui/status-tag";
 import {
   PAGE_HELP_SHORT_TRIGGER_TEXT,
@@ -18,7 +18,6 @@ import { resolveAuthDomainsCurrentWorkspaceLabel } from "@/lib/auth-domains-page
 import { OPERATOR_LINK, OPERATOR_TYPOGRAPHY } from "@/lib/design-tokens";
 import { identityProviderCustomerStatusPresentation } from "@/lib/identity-provider-probe-status-presentation";
 import {
-  IDENTITY_PROVIDERS_ACTION_REFRESH,
   IDENTITY_PROVIDERS_ACTION_REFRESHING,
   IDENTITY_PROVIDERS_BREADCRUMB_ADMINISTRATION_LABEL,
   IDENTITY_PROVIDERS_BREADCRUMB_HUB_HREF,
@@ -119,16 +118,11 @@ export function IdentityProvidersSettingsPageHeader(
       actions={
         <div className="flex flex-wrap items-center gap-2" data-testid="identity-providers-header-actions">
           <PageContextualHelpButton triggerText={PAGE_HELP_SHORT_TRIGGER_TEXT} />
-          <Button
-            type="button"
-            variant="outline"
-            size="sm"
+          <RefreshButton
+            busy={props.refreshing}
             data-testid="identity-providers-refresh-button"
-            disabled={props.refreshing}
             onClick={() => void props.onRefresh()}
-          >
-            {props.refreshing ? IDENTITY_PROVIDERS_ACTION_REFRESHING : IDENTITY_PROVIDERS_ACTION_REFRESH}
-          </Button>
+          />
           {showDiagnosticsLink ? (
             <Link
               href={IDENTITY_PROVIDERS_DIAGNOSTICS_LINK_HREF}

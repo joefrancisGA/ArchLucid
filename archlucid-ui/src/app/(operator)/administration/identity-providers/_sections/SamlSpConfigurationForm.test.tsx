@@ -20,6 +20,14 @@ vi.mock("@/components/usability/PageContextualHelpButton", async (importOriginal
 vi.mock("@/components/operator/OperatorNavAuthorityProvider", () => ({
   useNavCallerAuthorityRank: () => 100,
   useNavCommittedArchitectureReview: () => false,
+  useOperatorNavAuthority: () => ({
+    currentPrincipal: {
+      authorityRank: 100,
+      hasCommittedArchitectureReview: false,
+    },
+    callerAuthorityRank: 100,
+    isAuthorityLoading: false,
+  }),
 }));
 
 vi.mock("@/lib/proxy-fetch-registration-scope", () => ({
@@ -32,6 +40,7 @@ vi.mock("@/lib/toast", () => ({
 }));
 
 import { IdentityProvidersSamlPageClient } from "./IdentityProvidersSamlPageClient";
+import { IdentityProvidersSettingsProvider } from "./IdentityProvidersSettingsProvider";
 import { SamlSpConfigurationForm } from "./SamlSpConfigurationForm";
 import { SAML_CONFIGURATION_SAVED_SUCCESS_MESSAGE } from "@/lib/admin-integration-mutation-outcome-copy";
 import {
@@ -50,6 +59,14 @@ import { showSuccess } from "@/lib/toast";
 const loaded = {
   demo: false,
 };
+
+function renderSamlPageClient(): ReturnType<typeof render> {
+  return render(
+    <IdentityProvidersSettingsProvider loaded={loaded}>
+      <IdentityProvidersSamlPageClient />
+    </IdentityProvidersSettingsProvider>,
+  );
+}
 
 function stubIdentityFetch(): void {
   vi.stubGlobal(
@@ -392,27 +409,27 @@ describe("IdentityProvidersSamlPageClient", () => {
   });
 
   it("uses SAML-specific shell subtitle instead of generic configure intro (TB-1923)", async () => {
-    render(<IdentityProvidersSamlPageClient loaded={loaded} />);
+    renderSamlPageClient();
 
     expect(await screen.findByText(IDENTITY_PROVIDERS_SAML_PAGE_SUBTITLE)).toBeInTheDocument();
     expect(screen.getByRole("heading", { name: IDENTITY_PROVIDERS_SAML_PAGE_TITLE })).toBeInTheDocument();
   });
 
   it("shows SAML operational health strip when model data is available (TB-1924)", async () => {
-    render(<IdentityProvidersSamlPageClient loaded={loaded} />);
+    renderSamlPageClient();
 
     expect(await screen.findByTestId("saml-operational-health-card")).toBeInTheDocument();
   });
 
   it("renders ArchLucid SP values card with copyable ACS URL", async () => {
-    render(<IdentityProvidersSamlPageClient loaded={loaded} />);
+    renderSamlPageClient();
 
     expect(await screen.findByTestId("archlucid-saml-sp-values-card")).toBeInTheDocument();
     expect(screen.getByTestId("archlucid-saml-sp-acs-url")).toBeInTheDocument();
   });
 
   it("mounts saved-configuration test mapping card on the SAML route", async () => {
-    render(<IdentityProvidersSamlPageClient loaded={loaded} />);
+    renderSamlPageClient();
 
     expect(await screen.findByTestId("auth-token-test-mapping-card")).toBeInTheDocument();
     expect(screen.getByTestId("auth-token-test-mapping-card")).toHaveTextContent(
@@ -422,13 +439,13 @@ describe("IdentityProvidersSamlPageClient", () => {
   });
 
   it("shows admin fallback notice on the SAML route", async () => {
-    render(<IdentityProvidersSamlPageClient loaded={loaded} />);
+    renderSamlPageClient();
 
     expect(await screen.findByTestId("identity-providers-admin-fallback-notice")).toBeInTheDocument();
   });
 
   it("renders disabled SAML status with StatusTag when SAML sign-in is off", async () => {
-    render(<IdentityProvidersSamlPageClient loaded={loaded} />);
+    renderSamlPageClient();
 
     expect(await screen.findByTestId("saml-operational-health-status")).toBeInTheDocument();
     expect(screen.getByTestId("saml-operational-health-disabled-copy")).toHaveTextContent(/organization/i);

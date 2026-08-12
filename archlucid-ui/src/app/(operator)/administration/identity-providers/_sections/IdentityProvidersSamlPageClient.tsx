@@ -13,19 +13,14 @@ import { ArchLucidSamlSpValuesCard } from "./ArchLucidSamlSpValuesCard";
 import { AuthTokenTestMappingCard } from "./AuthTokenTestMappingCard";
 import { IdentityProvidersSettingsGate } from "./IdentityProvidersSettingsGate";
 import { IdentityProvidersSettingsShell } from "./IdentityProvidersSettingsShell";
-import type { IdentityProvidersSettingsPageServerLoad } from "./load-identity-providers-settings-page-data";
 import { SamlOperationalHealthStrip } from "./SamlOperationalHealthStrip";
 import { SamlSpConfigurationForm } from "./SamlSpConfigurationForm";
 
-type Props = {
-  readonly loaded: IdentityProvidersSettingsPageServerLoad;
-};
-
-export function IdentityProvidersSamlPageClient(props: Props): React.JSX.Element {
+export function IdentityProvidersSamlPageClient(): React.JSX.Element {
   const [hasUnsavedSamlEdits, setHasUnsavedSamlEdits] = useState(false);
 
   return (
-    <IdentityProvidersSettingsGate loaded={props.loaded}>
+    <IdentityProvidersSettingsGate>
       {(model) => (
         <IdentityProvidersSettingsShell
           pageTitle={IDENTITY_PROVIDERS_SAML_PAGE_TITLE}

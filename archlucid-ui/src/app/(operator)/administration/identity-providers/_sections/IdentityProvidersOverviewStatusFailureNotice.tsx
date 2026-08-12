@@ -1,10 +1,8 @@
 "use client";
 
 import { cn } from "@/lib/utils";
-import { Button } from "@/components/ui/button";
+import { RefreshButton } from "@/components/ui/refresh-button";
 import {
-  IDENTITY_PROVIDERS_ACTION_REFRESH,
-  IDENTITY_PROVIDERS_ACTION_REFRESHING,
   IDENTITY_PROVIDERS_DIAGNOSTICS_TECHNICAL_TITLE,
   IDENTITY_PROVIDERS_OVERVIEW_STATUS_FAILURE_TITLE,
 } from "@/lib/identity-providers-settings-copy";
@@ -41,16 +39,11 @@ export function IdentityProvidersOverviewStatusFailureNotice(
         </details>
       ) : null}
       <div className="mt-3">
-        <Button
-          type="button"
-          variant="outline"
-          size="sm"
+        <RefreshButton
+          busy={props.refreshing}
           data-testid="identity-providers-overview-status-retry-button"
-          disabled={props.refreshing}
           onClick={props.onRefresh}
-        >
-          {props.refreshing ? IDENTITY_PROVIDERS_ACTION_REFRESHING : IDENTITY_PROVIDERS_ACTION_REFRESH}
-        </Button>
+        />
       </div>
     </section>
   );

@@ -3,18 +3,16 @@
 import { useNavCallerAuthorityRank } from "@/components/operator/OperatorNavAuthorityProvider";
 import { AUTHORITY_RANK } from "@/lib/nav-authority";
 
-import type { IdentityProvidersSettingsPageServerLoad } from "./load-identity-providers-settings-page-data";
 import { IdentityProvidersSettingsRestrictedState } from "./IdentityProvidersSettingsRestrictedState";
-import { useIdentityProvidersSettingsPage } from "./use-identity-providers-settings-page";
+import { useIdentityProvidersSettingsModel } from "./IdentityProvidersSettingsProvider";
 
 export type IdentityProvidersSettingsGateProps = {
-  readonly loaded: IdentityProvidersSettingsPageServerLoad;
-  readonly children: (model: ReturnType<typeof useIdentityProvidersSettingsPage>) => React.ReactNode;
+  readonly children: (model: ReturnType<typeof useIdentityProvidersSettingsModel>) => React.ReactNode;
 };
 
 export function IdentityProvidersSettingsGate(props: IdentityProvidersSettingsGateProps): React.JSX.Element {
   const callerAuthorityRank = useNavCallerAuthorityRank();
-  const model = useIdentityProvidersSettingsPage(props.loaded);
+  const model = useIdentityProvidersSettingsModel();
 
   if (callerAuthorityRank < AUTHORITY_RANK.AdminAuthority) {
     return <IdentityProvidersSettingsRestrictedState />;

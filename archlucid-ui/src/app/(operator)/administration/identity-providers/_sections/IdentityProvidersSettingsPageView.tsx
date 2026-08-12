@@ -7,11 +7,16 @@ import { AuthDomainsIdentityProvidersVocabularyRail } from "@/components/AuthDom
 import { IdentityProvidersSsoWizardVocabularyRail } from "@/components/IdentityProvidersSsoWizardVocabularyRail";
 import { ScimIdentityProvidersVocabularyRail } from "@/components/ScimIdentityProvidersVocabularyRail";
 import { Button } from "@/components/ui/button";
+import { StatusTag } from "@/components/ui/status-tag";
 import {
   IDENTITY_PROVIDERS_ADMIN_FALLBACK_NOTICE,
   IDENTITY_PROVIDERS_OVERVIEW_RELATED_SURFACES_TITLE,
   IDENTITY_PROVIDERS_RECOMMENDED_CONFIGURE_PRODUCTION_SIGN_IN_DETAIL,
+  IDENTITY_PROVIDERS_SSO_SETUP_CTA_HREF,
+  IDENTITY_PROVIDERS_SSO_SETUP_CTA_LABEL,
 } from "@/lib/identity-providers-settings-copy";
+import type { IdentityProviderCustomerStatus } from "@/lib/identity-providers-settings-types";
+import { identityProviderCustomerStatusPresentation } from "@/lib/identity-provider-probe-status-presentation";
 import { OPERATOR_LINK, OPERATOR_TYPOGRAPHY } from "@/lib/design-tokens";
 
 import { IdentityProvidersOverviewStatusFailureNotice } from "./IdentityProvidersOverviewStatusFailureNotice";
@@ -32,7 +37,8 @@ export function IdentityProvidersSettingsPageView(props: IdentityProvidersSettin
   const showPrimaryNextStep =
     model.dataLoaded
     && model.overviewStatusFailure === null
-    && model.overview.recommendedNextHref !== null;
+    && model.overview.recommendedNextHref !== null
+    && model.overview.recommendedNextHref !== IDENTITY_PROVIDERS_SSO_SETUP_CTA_HREF;
 
   return (
     <IdentityProvidersSettingsShell
@@ -54,6 +60,25 @@ export function IdentityProvidersSettingsPageView(props: IdentityProvidersSettin
       <div className="space-y-2" data-testid="identity-providers-primary-next-step">
         {model.overviewStatusFailure === null && !model.dataLoaded ? (
           <p className={cn("m-0 text-al-text-secondary", OPERATOR_TYPOGRAPHY.body)}>Loading status…</p>
+        ) : null}
+
+        {model.dataLoaded && model.overviewStatusFailure === null && model.overview.headerStatusAvailable ? (
+          <div
+            className="flex flex-wrap items-center gap-2"
+            data-testid="identity-providers-sso-setup-cta"
+          >
+            <Button variant="primary" size="sm" asChild data-testid="identity-providers-sso-setup-cta-button">
+              <Link href={IDENTITY_PROVIDERS_SSO_SETUP_CTA_HREF}>{IDENTITY_PROVIDERS_SSO_SETUP_CTA_LABEL}</Link>
+            </Button>
+            <StatusTag
+              kind={
+                identityProviderCustomerStatusPresentation(
+                  model.overview.ssoStatus as IdentityProviderCustomerStatus,
+                ).kind
+              }
+              label={model.overview.ssoStatus}
+            />
+          </div>
         ) : null}
 
         {showPrimaryNextStep ? (

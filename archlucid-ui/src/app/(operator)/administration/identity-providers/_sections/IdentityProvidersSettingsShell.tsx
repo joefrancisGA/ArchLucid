@@ -157,6 +157,7 @@ export function IdentityProvidersSettingsShell(props: IdentityProvidersSettingsS
               <li key={item.id}>
                 <Link
                   href={item.href}
+                  prefetch={false}
                   aria-current={active ? "page" : undefined}
                   className={cn(
                     "inline-flex min-h-[30px] items-center rounded-full border px-3 py-1 transition-colors",

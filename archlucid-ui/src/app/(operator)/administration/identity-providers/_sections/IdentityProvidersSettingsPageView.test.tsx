@@ -322,25 +322,20 @@ describe("IdentityProvidersSettingsPageView", () => {
 
 
 
-    expect(screen.getByTestId("identity-providers-primary-next-step-button")).toHaveAttribute(
-
+    expect(screen.getByTestId("identity-providers-sso-setup-cta-button")).toHaveAttribute(
       "href",
-
       IDENTITY_PROVIDERS_SAML_SAVE_ENABLEMENT_LINK_HREF,
-
     );
 
-    expect(screen.getByTestId("identity-providers-primary-next-step-button")).toHaveClass(
-
+    expect(screen.getByTestId("identity-providers-sso-setup-cta-button")).toHaveClass(
       "bg-[var(--al-primary-action-bg)]",
-
     );
+
+    expect(screen.queryByTestId("identity-providers-primary-next-step-button")).toBeNull();
 
     expect(screen.queryByTestId("identity-providers-recommended-next-card")).toBeNull();
 
     expect(screen.queryByTestId("identity-providers-local-dev-notice")).toBeNull();
-
-    expect(screen.getByText(/does not change how anyone signs in today/i)).toBeInTheDocument();
 
     expect(screen.getByTestId("identity-providers-admin-fallback-notice")).toHaveTextContent(
 
