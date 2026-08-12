@@ -1,4 +1,4 @@
-import { fireEvent, render, screen, waitFor } from "@testing-library/react";
+import { fireEvent, render, screen, waitFor, within } from "@testing-library/react";
 import { describe, expect, it, vi } from "vitest";
 
 import { GcpConnectionDataProvider } from "./GcpConnectionDataContext";
@@ -46,11 +46,13 @@ describe("GcpConnectionSection", () => {
 
     fireEvent.click(screen.getByTestId("gcp-disconnect-gcp-1"));
 
-    expect(screen.getByTestId("gcp-connection-disconnect-dialog")).toBeInTheDocument();
-    expect(screen.getByText(/Disconnect GCP project my-gcp-project/i)).toBeInTheDocument();
+    const heading = screen.getByRole("heading", { name: /Disconnect GCP project my-gcp-project/i });
+    const dialog = heading.closest('[role="alertdialog"]');
+
+    expect(dialog).not.toBeNull();
     expect(disconnectGcpTier2Connection).not.toHaveBeenCalled();
 
-    fireEvent.click(screen.getByTestId("gcp-connection-disconnect-confirm"));
+    fireEvent.click(within(dialog as HTMLElement).getByRole("button", { name: "Disconnect" }));
 
     await waitFor(() => {
       expect(disconnectGcpTier2Connection).toHaveBeenCalledWith("gcp-1");
@@ -84,13 +86,17 @@ describe("GcpConnectionSection", () => {
     });
 
     fireEvent.click(screen.getByTestId("gcp-disconnect-gcp-2"));
-    fireEvent.click(screen.getByTestId("gcp-connection-disconnect-confirm"));
+
+    const heading = screen.getByRole("heading", { name: /Disconnect GCP project other-project/i });
+    const dialog = heading.closest('[role="alertdialog"]');
+
+    fireEvent.click(within(dialog as HTMLElement).getByRole("button", { name: "Disconnect" }));
 
     await waitFor(() => {
       expect(screen.getByTestId("gcp-connection-disconnect-error")).toBeInTheDocument();
     });
 
-    expect(screen.getByTestId("gcp-connection-disconnect-dialog")).toBeInTheDocument();
+    expect(heading).toBeInTheDocument();
     expect(screen.getAllByRole("alert")).toHaveLength(1);
   });
 });

@@ -1,16 +1,6 @@
 "use client";
 
-import {
-  AlertDialog,
-  AlertDialogAction,
-  AlertDialogCancel,
-  AlertDialogContent,
-  AlertDialogDescription,
-  AlertDialogFooter,
-  AlertDialogHeader,
-  AlertDialogTitle,
-} from "@/components/ui/alert-dialog";
-import { buttonVariants } from "@/components/ui/button";
+import { ConfirmationDialog } from "@/components/ConfirmationDialog";
 import { OPERATOR_TYPOGRAPHY } from "@/lib/design-tokens";
 import { cn } from "@/lib/utils";
 
@@ -27,30 +17,35 @@ type GcpConnectionDisconnectDialogProps = {
   readonly onConfirm: () => void;
 };
 
+function resolveDisconnectTitle(projectId: string): string {
+  if (projectId.length > 0) {
+    return `Disconnect GCP project ${projectId}?`;
+  }
+
+  return "Disconnect GCP project?";
+}
+
+/** Domain wrapper over {@link ConfirmationDialog} for GCP disconnect (TB-2372). */
 export function GcpConnectionDisconnectDialog(props: GcpConnectionDisconnectDialogProps): React.JSX.Element {
   const projectId = props.target?.projectId ?? "";
   const errorMessage = props.errorMessage ?? null;
 
   return (
-    <AlertDialog
+    <ConfirmationDialog
       open={props.target !== null}
       onOpenChange={(open) => {
-        if (!open) {
+        if (!open && !props.busy) {
           props.onCancel();
         }
       }}
-    >
-      <AlertDialogContent data-testid="gcp-connection-disconnect-dialog">
-        <AlertDialogHeader>
-          <AlertDialogTitle className={OPERATOR_TYPOGRAPHY.sectionTitle}>
-            {projectId.length > 0 ? `Disconnect GCP project ${projectId}?` : "Disconnect GCP project?"}
-          </AlertDialogTitle>
-          <AlertDialogDescription className={cn(OPERATOR_TYPOGRAPHY.body, "text-al-text-secondary")}>
-            Scheduled read-only inventory collection for this GCP project will stop. Previously collected inventory
-            packages and any signed review records that cite them are retained.
-          </AlertDialogDescription>
-        </AlertDialogHeader>
-        {errorMessage !== null ? (
+      title={resolveDisconnectTitle(projectId)}
+      description="Scheduled read-only inventory collection for this GCP project will stop. Previously collected inventory packages and any signed review records that cite them are retained."
+      confirmLabel="Disconnect"
+      variant="destructive"
+      busy={props.busy}
+      onConfirm={props.onConfirm}
+      extraContent={
+        errorMessage !== null ? (
           <p
             className={cn(OPERATOR_TYPOGRAPHY.body, "text-red-600 dark:text-red-400")}
             role="alert"
@@ -58,24 +53,8 @@ export function GcpConnectionDisconnectDialog(props: GcpConnectionDisconnectDial
           >
             {errorMessage}
           </p>
-        ) : null}
-        <AlertDialogFooter>
-          <AlertDialogCancel disabled={props.busy} data-testid="gcp-connection-disconnect-cancel">
-            Cancel
-          </AlertDialogCancel>
-          <AlertDialogAction
-            disabled={props.busy}
-            data-testid="gcp-connection-disconnect-confirm"
-            className={cn(buttonVariants({ variant: "destructive" }))}
-            onClick={(event) => {
-              event.preventDefault();
-              props.onConfirm();
-            }}
-          >
-            Disconnect
-          </AlertDialogAction>
-        </AlertDialogFooter>
-      </AlertDialogContent>
-    </AlertDialog>
+        ) : null
+      }
+    />
   );
 }
