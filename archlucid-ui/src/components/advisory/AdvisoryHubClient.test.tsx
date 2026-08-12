@@ -69,6 +69,20 @@ describe("AdvisoryHubClient (TB-670)", () => {
     expect(scansTab).toHaveFocus();
   });
 
+  it("TB-1662: renders Carbon line-tab chrome (border-b list + border-b-2 active trigger)", () => {
+    render(<AdvisoryHubClient initialTab="scans" />);
+
+    const tablist = screen.getByTestId("advisory-hub-tablist");
+
+    expect(tablist).toHaveAttribute("data-tabs-list");
+    expect(tablist.className).toMatch(/border-b/);
+
+    const scansTab = screen.getByRole("tab", { name: "Scans" });
+
+    expect(scansTab.className).toMatch(/border-b-2/);
+    expect(scansTab.className).not.toMatch(/rounded-full/);
+  });
+
   it("preserves runId when switching advisory tabs", () => {
     render(<AdvisoryHubClient initialTab="scans" initialRunId="run-abc" />);
 

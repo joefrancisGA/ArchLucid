@@ -443,6 +443,7 @@ export function RunsDashboardPanelClient({
         onValueChange={(next) => {
           selectDashboardTab(next as RunsDashboardTabId);
         }}
+        variant="line"
       >
         <Card
           className={cn(

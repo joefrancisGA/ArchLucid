@@ -101,7 +101,7 @@ export function AdvisoryHubClient({ initialTab, initialRunId = null }: AdvisoryH
         </p>
       </CollapsibleSection>
 
-      <Tabs value={activeTab} onValueChange={onSelectTab} className="mb-6">
+      <Tabs value={activeTab} onValueChange={onSelectTab} variant="line" className="mb-6">
         <TabsList aria-label="Advisory hub sections" data-testid="advisory-hub-tablist">
           {ADVISORY_HUB_TAB_IDS.map((id) => {
             const tabTitle: string | undefined =

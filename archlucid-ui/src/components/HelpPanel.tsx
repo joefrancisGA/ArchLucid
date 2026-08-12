@@ -282,6 +282,7 @@ export function HelpPanel({ open, onOpenChange, initialTab = "guides" }: HelpPan
           onValueChange={(next) => {
             setTab(next as HelpTabId);
           }}
+          variant="line"
           className="flex min-h-0 flex-1 flex-col"
         >
           <div className="shrink-0 space-y-3 border-b border-neutral-100 px-5 py-3 dark:border-neutral-800">
