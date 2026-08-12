@@ -1,9 +1,7 @@
 "use client";
 
-import { useEffect, useState } from "react";
-
 import { useOperatorNavAuthority } from "@/components/operator/OperatorNavAuthorityProvider";
-import { fetchHealthReadySummary } from "@/lib/fetch-health-ready";
+import { useHealthReadySummaryQuery } from "@/hooks/use-health-ready-summary-query";
 import {
   countFinishSetupReadySteps,
   type FinishSetupWizardContext,
@@ -26,39 +24,11 @@ const INITIAL_CONTEXT: FinishSetupWizardContext = {
 /** Loads health + principal signals used by finish-setup readiness and operator-home metrics. */
 export function useFinishSetupReadinessContext(): FinishSetupReadinessSummary {
   const { currentPrincipal, isAuthorityLoading } = useOperatorNavAuthority();
-  const [healthPhase, setHealthPhase] = useState<"loading" | "ready">("loading");
-  const [healthReady, setHealthReady] = useState(false);
-  const [healthLoadFailed, setHealthLoadFailed] = useState(true);
+  const { data: health, isPending: healthPending } = useHealthReadySummaryQuery();
 
-  useEffect(() => {
-    let canceled = false;
-
-    void (async () => {
-      setHealthPhase("loading");
-
-      try {
-        const health = await fetchHealthReadySummary();
-        const ready = health !== null && health.status.toLowerCase().includes("healthy");
-
-        if (!canceled) {
-          setHealthReady(ready);
-          setHealthLoadFailed(health === null);
-          setHealthPhase("ready");
-        }
-      } catch {
-        if (!canceled) {
-          setHealthLoadFailed(true);
-          setHealthPhase("ready");
-        }
-      }
-    })();
-
-    return () => {
-      canceled = true;
-    };
-  }, []);
-
-  const phase = isAuthorityLoading || healthPhase === "loading" ? "loading" : "ready";
+  const healthReady = health !== null && health !== undefined && health.status.toLowerCase().includes("healthy");
+  const healthLoadFailed = !healthPending && health === null;
+  const phase = isAuthorityLoading || healthPending ? "loading" : "ready";
   const context: FinishSetupWizardContext =
     phase === "ready"
       ? {

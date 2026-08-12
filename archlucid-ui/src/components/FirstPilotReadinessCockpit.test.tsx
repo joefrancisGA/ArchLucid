@@ -1,7 +1,9 @@
-import { fireEvent, render, screen, waitFor } from "@testing-library/react";
+import { fireEvent, screen, waitFor } from "@testing-library/react";
 import { afterEach, beforeEach, describe, expect, it, vi } from "vitest";
 
 import { FirstPilotReadinessCockpit } from "@/components/FirstPilotReadinessCockpit";
+import { resetOperatorQueryClientForTests } from "@/lib/query/operator-query-client";
+import { renderWithOperatorQuery } from "@/testing/render-with-operator-query";
 
 vi.mock("@/components/FirstPilotProofStatusStrip", () => ({
   FirstPilotProofStatusStrip: () => <div data-testid="proof-status-strip-mock" />,
@@ -13,6 +15,10 @@ vi.mock("@/components/operator/OperatorAiQualityProofCard", () => ({
 
 vi.mock("@/lib/fetch-health-ready", () => ({
   fetchHealthReadySummary: vi.fn(async () => ({ status: "Healthy" })),
+}));
+
+vi.mock("@/lib/query/operator-query-persist-client", () => ({
+  setupOperatorQueryClientPersistence: () => {},
 }));
 
 vi.mock("@/lib/operator/operator-run-picker-client", () => ({
@@ -63,11 +69,14 @@ vi.mock("@/lib/fetch-admin-config-lint", () => ({
 
 describe("FirstPilotReadinessCockpit", () => {
   beforeEach(() => {
+    sessionStorage.clear();
     localStorage.clear();
+    resetOperatorQueryClientForTests();
     vi.clearAllMocks();
   });
 
   afterEach(() => {
+    sessionStorage.clear();
     localStorage.clear();
     vi.useRealTimers();
   });
@@ -77,7 +86,7 @@ describe("FirstPilotReadinessCockpit", () => {
   }
 
   it("renders the workspace shell immediately and hydrates after probes finish", async () => {
-    render(<FirstPilotReadinessCockpit />);
+    renderWithOperatorQuery(<FirstPilotReadinessCockpit />);
 
     expect(screen.getByTestId("first-pilot-readiness-cockpit")).toBeInTheDocument();
     expect(screen.getByRole("heading", { name: "Workspace readiness" })).toBeInTheDocument();
@@ -92,7 +101,7 @@ describe("FirstPilotReadinessCockpit", () => {
   });
 
   it("collapses and expands from the header chevron", async () => {
-    render(<FirstPilotReadinessCockpit />);
+    renderWithOperatorQuery(<FirstPilotReadinessCockpit />);
 
     await waitFor(() => {
       expect(screen.getByTestId("first-pilot-readiness-cockpit")).toBeInTheDocument();

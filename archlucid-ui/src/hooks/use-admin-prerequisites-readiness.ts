@@ -3,12 +3,12 @@
 import { useEffect, useMemo, useState } from "react";
 
 import { useOperatorNavAuthority } from "@/components/operator/OperatorNavAuthorityProvider";
+import { useBillingSubscriptionStatusQuery } from "@/hooks/use-billing-subscription-status-query";
+import { useHealthReadySummaryQuery } from "@/hooks/use-health-ready-summary-query";
 import { listAwsTier2Connections } from "@/lib/api/aws-cloud-connections-api";
 import { listTier2Connections } from "@/lib/api/cloud-connections-api";
 import { listGcpTier2Connections } from "@/lib/api/gcp-cloud-connections-api";
-import { fetchBillingSubscriptionStatus } from "@/lib/billing-subscription-status-client";
 import { fetchAdminConfigLintSummary } from "@/lib/fetch-admin-config-lint";
-import { fetchHealthReadySummary } from "@/lib/fetch-health-ready";
 import type { FinishSetupWizardContext } from "@/lib/finish-setup-wizard-steps";
 import { isArchLucidInternalOperatorShellEnv } from "@/lib/internal-operator-env";
 import { mergeRegistrationScopeForProxy } from "@/lib/proxy-fetch-registration-scope";
@@ -30,12 +30,6 @@ export type AdminPrerequisitesReadinessState = {
   readonly phase: "loading" | "ready";
   readonly rows: readonly AdminPrerequisiteRow[];
   readonly allReady: boolean;
-};
-
-const INITIAL_FINISH_SETUP_CONTEXT: FinishSetupWizardContext = {
-  healthReady: false,
-  healthLoadFailed: true,
-  principalAdmin: false,
 };
 
 async function fetchIdentityDiagnostics(): Promise<{
@@ -63,7 +57,6 @@ async function fetchIdentityDiagnostics(): Promise<{
 
     return {
       identity: {
-        // A non-ok auth configuration response returns early above, so reaching here means it is available.
         authConfigurationDiagnostics,
         authConfigurationDiagnosticsAvailable: true,
         identityProviderDiagnostics,
@@ -104,6 +97,12 @@ export function useAdminPrerequisitesReadiness(enabled: boolean): AdminPrerequis
   const [phase, setPhase] = useState<"loading" | "ready">("loading");
   const [input, setInput] = useState<ResolveAdminPrerequisitesReadinessInput | null>(null);
 
+  const probesEnabled = enabled && !isAuthorityLoading;
+  const { data: health, isPending: healthPending } = useHealthReadySummaryQuery({ enabled: probesEnabled });
+  const { data: billingStatus, isPending: billingPending } = useBillingSubscriptionStatusQuery({
+    enabled: probesEnabled,
+  });
+
   useEffect(() => {
     if (!enabled) {
       setPhase("ready");
@@ -112,43 +111,35 @@ export function useAdminPrerequisitesReadiness(enabled: boolean): AdminPrerequis
       return;
     }
 
-    if (isAuthorityLoading) {
+    if (isAuthorityLoading || healthPending || billingPending) {
       setPhase("loading");
 
       return;
     }
+
+    const healthReady = health !== null && health !== undefined && health.status.toLowerCase().includes("healthy");
+    const healthLoadFailed = health === null;
+    const finishSetupContext: FinishSetupWizardContext = {
+      healthReady,
+      healthLoadFailed,
+      principalAdmin: currentPrincipal.authorityRank >= AUTHORITY_RANK.AdminAuthority,
+    };
 
     let canceled = false;
 
     void (async () => {
       setPhase("loading");
 
-      let healthReady = false;
-      let healthLoadFailed = true;
-
-      try {
-        const health = await fetchHealthReadySummary();
-        healthReady = health !== null && health.status.toLowerCase().includes("healthy");
-        healthLoadFailed = health === null;
-      } catch {
-        healthLoadFailed = true;
-      }
-
       const includeHostConfigurationLint = isArchLucidInternalOperatorShellEnv();
-      const [configLint, identityDiagnostics, cloud, billingStatus] = await Promise.all([
+      const [configLint, identityDiagnostics, cloud] = await Promise.all([
         includeHostConfigurationLint ? fetchAdminConfigLintSummary() : Promise.resolve(null),
         fetchIdentityDiagnostics(),
         fetchCloudSummary(),
-        fetchBillingSubscriptionStatus().catch(() => null),
       ]);
 
       if (!canceled) {
         setInput({
-          finishSetupContext: {
-            healthReady,
-            healthLoadFailed,
-            principalAdmin: currentPrincipal.authorityRank >= AUTHORITY_RANK.AdminAuthority,
-          },
+          finishSetupContext,
           configLint,
           includeHostConfigurationLint,
           identity: identityDiagnostics.identity,
@@ -166,7 +157,15 @@ export function useAdminPrerequisitesReadiness(enabled: boolean): AdminPrerequis
     return () => {
       canceled = true;
     };
-  }, [currentPrincipal.authorityRank, enabled, isAuthorityLoading]);
+  }, [
+    billingPending,
+    billingStatus,
+    currentPrincipal.authorityRank,
+    enabled,
+    health,
+    healthPending,
+    isAuthorityLoading,
+  ]);
 
   return useMemo(() => {
     if (!enabled || input === null) {
