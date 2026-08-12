@@ -288,6 +288,10 @@ const PAGE_HELP_TOPICS: readonly { prefix: string; topic: PageHelpTopic }[] = [
     topic: { slug: "pilot-feedback", label: "Pilot feedback" },
   },
   {
+    prefix: "/internal/health",
+    topic: { slug: "admin-diagnostics", label: "Diagnostics dashboard" },
+  },
+  {
     // Learning / product-orientation allowlist — retired how-it-works slug redirects to this anchor.
     prefix: "/why-archlucid",
     topic: {
