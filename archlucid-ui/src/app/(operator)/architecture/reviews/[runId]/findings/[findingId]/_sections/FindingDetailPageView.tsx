@@ -17,6 +17,7 @@ import { SponsorPlainEnglishFindingPanel } from "@/components/findings/SponsorPl
 import { FindingExplainabilityTracePanel } from "@/components/findings/FindingExplainabilityTracePanel";
 import { OperatorApiProblem } from "@/components/operator/OperatorApiProblem";
 import { OperatorEvidenceLimitsFooter } from "@/components/operator/OperatorEvidenceLimitsFooter";
+import { OperatorPageHeader } from "@/components/operator/OperatorPageHeader";
 import { SeverityTag } from "@/components/ui/severity-tag";
 import { StatusTag } from "@/components/ui/status-tag";
 import {
@@ -175,27 +176,34 @@ export function FindingDetailPageView(props: Props) {
         <div className="space-y-4">
           <section className={cn("overflow-hidden rounded-lg border p-5", DESIGN_TOKENS.surface.card)}>
             <div className="max-w-3xl space-y-3">
-              <p className={cn("m-0 text-al-text-secondary", OPERATOR_NAV_GROUP_LABEL)}>
-                {findingDetailPageEyebrow(inspectPayload, decodedFindingId)}
-              </p>
-              <h1 className={OPERATOR_TYPOGRAPHY.pageTitle}>{pageTitle}</h1>
-              <p className={cn("m-0 max-w-2xl leading-relaxed text-al-text-primary", OPERATOR_TYPOGRAPHY.body)}>
-                {inspectPayload !== null
-                  ? findingDetailLeadSentence(inspectPayload)
-                  : findingDetailLeadFallback(decodedFindingId)}
-              </p>
-              {severityRationale.length > 0 ? (
-                <p className={cn("m-0 max-w-2xl leading-snug text-al-text-secondary", OPERATOR_TYPOGRAPHY.helper)}>
-                  {severityRationale}
-                </p>
-              ) : null}
-              {policyProvenanceModel !== null &&
-              (policyProvenanceModel.pack !== null || policyProvenanceModel.policy !== null) ? (
-                <FindingPolicyCitationHero
-                  model={policyProvenanceModel}
-                  traceExcerpt={policyTraceExcerpt}
-                />
-              ) : null}
+              <OperatorPageHeader
+                title={pageTitle}
+                headingLevel="h1"
+                breadcrumb={
+                  <p className={cn("m-0 text-al-text-secondary", OPERATOR_NAV_GROUP_LABEL)}>
+                    {findingDetailPageEyebrow(inspectPayload, decodedFindingId)}
+                  </p>
+                }
+                subtitle={
+                  inspectPayload !== null
+                    ? findingDetailLeadSentence(inspectPayload)
+                    : findingDetailLeadFallback(decodedFindingId)
+                }
+                subtitleClassName="max-w-2xl leading-relaxed"
+              >
+                {severityRationale.length > 0 ? (
+                  <p className={cn("m-0 max-w-2xl leading-snug text-al-text-secondary", OPERATOR_TYPOGRAPHY.helper)}>
+                    {severityRationale}
+                  </p>
+                ) : null}
+                {policyProvenanceModel !== null &&
+                (policyProvenanceModel.pack !== null || policyProvenanceModel.policy !== null) ? (
+                  <FindingPolicyCitationHero
+                    model={policyProvenanceModel}
+                    traceExcerpt={policyTraceExcerpt}
+                  />
+                ) : null}
+              </OperatorPageHeader>
             </div>
 
             {findingIsPhi ? (
@@ -400,12 +408,13 @@ export function FindingDetailPageView(props: Props) {
           ) : null}
         </div>
       ) : !buyerPolishedShell ? (
-        <header className="space-y-3">
-          <p className={cn("m-0 text-al-text-secondary", OPERATOR_NAV_GROUP_LABEL)}>
-            Finding detail
-          </p>
-          <h1 className={OPERATOR_TYPOGRAPHY.pageTitle}>{pageTitle}</h1>
-
+        <OperatorPageHeader
+          title={pageTitle}
+          headingLevel="h1"
+          breadcrumb={
+            <p className={cn("m-0 text-al-text-secondary", OPERATOR_NAV_GROUP_LABEL)}>Finding detail</p>
+          }
+        >
           {policyProvenanceModel !== null &&
           (policyProvenanceModel.pack !== null || policyProvenanceModel.policy !== null) ? (
             <FindingPolicyCitationHero model={policyProvenanceModel} traceExcerpt={policyTraceExcerpt} />
@@ -455,7 +464,7 @@ export function FindingDetailPageView(props: Props) {
               {findingDetailLeadSentence(inspectPayload)}
             </p>
           ) : null}
-        </header>
+        </OperatorPageHeader>
       ) : null}
 
       {inspectFailure !== null ? (

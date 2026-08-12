@@ -21,7 +21,7 @@ describe("ui-authority-theme", () => {
     expect(hasStoredAuthorityThemeOverride()).toBe(true);
     expect(window.localStorage.getItem(AUTHORITY_THEME_STORAGE_KEY)).toBe("charcoal");
 
-    clearStoredAuthorityTheme("default");
+    expect(clearStoredAuthorityTheme("default")).toBe(true);
 
     expect(hasStoredAuthorityThemeOverride()).toBe(false);
     expect(window.localStorage.getItem(AUTHORITY_THEME_STORAGE_KEY)).toBeNull();

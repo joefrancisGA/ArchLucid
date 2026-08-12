@@ -1,6 +1,7 @@
 import Link from "next/link";
 
 import { DocumentLayout } from "@/components/DocumentLayout";
+import { OperatorPageHeader } from "@/components/operator/OperatorPageHeader";
 import { PackagePrintButton } from "@/components/reviews/PackagePrintButton";
 import { StatusTag } from "@/components/ui/status-tag";
 import { OPERATOR_LINK, OPERATOR_TYPOGRAPHY } from "@/lib/design-tokens";
@@ -50,17 +51,21 @@ export function PackagePrintPageView(props: PackagePrintPageViewProps): React.JS
       </p>
 
       <DocumentLayout>
-        <header className="space-y-2">
-          <p className={cn("m-0 text-al-text-secondary", OPERATOR_TYPOGRAPHY.helper)}>
-            {PACKAGE_PRINT_PAGE_TITLE}
-          </p>
-          <h1 className={cn("m-0", OPERATOR_TYPOGRAPHY.pageTitle)} data-testid="package-print-title">
-            {presentation.title}
-          </h1>
-          <p className={cn("m-0 text-al-text-secondary", OPERATOR_TYPOGRAPHY.helper)}>
-            {PACKAGE_PRINT_META_CREATED_LABEL}: {formatInstantForLocale(presentation.createdUtc)}
-          </p>
-        </header>
+        <OperatorPageHeader
+          title={presentation.title}
+          titleTestId="package-print-title"
+          headingLevel="h1"
+          breadcrumb={
+            <p className={cn("m-0 text-al-text-secondary", OPERATOR_TYPOGRAPHY.helper)}>
+              {PACKAGE_PRINT_PAGE_TITLE}
+            </p>
+          }
+          metadata={
+            <span className={cn("text-al-text-secondary", OPERATOR_TYPOGRAPHY.helper)}>
+              {PACKAGE_PRINT_META_CREATED_LABEL}: {formatInstantForLocale(presentation.createdUtc)}
+            </span>
+          }
+        />
 
         <section className="space-y-2" aria-labelledby="package-print-status-heading">
           <h2 id="package-print-status-heading" className={cn("m-0", OPERATOR_TYPOGRAPHY.cardTitle)}>

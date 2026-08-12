@@ -1,12 +1,12 @@
-import { cn } from "@/lib/utils";
 import Link from "next/link";
 
 import { OperatorApiProblem } from "@/components/operator/OperatorApiProblem";
 import { OperatorBrandedTransientFailure } from "@/components/operator/OperatorBrandedTransientFailure";
+import { OperatorPageHeader } from "@/components/operator/OperatorPageHeader";
 import { ReviewPackageLoadFailureView } from "@/components/ReviewPackageLoadFailureView";
 import type { ApiLoadFailureState } from "@/lib/api-load-failure";
 import { isApiNotFoundFailure, isApiTransientLoadFailure } from "@/lib/api-load-failure";
-import { OPERATOR_LINK, OPERATOR_TYPOGRAPHY } from "@/lib/design-tokens";
+import { OPERATOR_LINK } from "@/lib/design-tokens";
 import { REVIEW_PACKAGE_OPEN_FAILURE_HEADING } from "@/lib/review-generation-handoff";
 
 export function RunDetailPageFetchErrorView(props: {
@@ -19,11 +19,14 @@ export function RunDetailPageFetchErrorView(props: {
   if (props.fromGeneration || isApiNotFoundFailure(props.loadFailure)) {
     return (
       <div className="w-full max-w-[1200px] space-y-4 px-1 py-2 sm:px-0" data-testid="run-detail-load-failure">
-        <h1 className={cn("text-al-text-primary", OPERATOR_TYPOGRAPHY.pageTitle)}>
-          {props.fromGeneration
-            ? REVIEW_PACKAGE_OPEN_FAILURE_HEADING
-            : "Review detail — Could not load review"}
-        </h1>
+        <OperatorPageHeader
+          title={
+            props.fromGeneration
+              ? REVIEW_PACKAGE_OPEN_FAILURE_HEADING
+              : "Review detail — Could not load review"
+          }
+          headingLevel="h1"
+        />
         <ReviewPackageLoadFailureView
           runId={props.runId}
           fromGeneration={props.fromGeneration}
@@ -41,7 +44,7 @@ export function RunDetailPageFetchErrorView(props: {
         className="w-full max-w-[1200px] space-y-4 px-1 py-2 sm:px-0"
         data-testid="run-detail-load-failure"
       >
-        <h1 className={cn("text-al-text-primary", OPERATOR_TYPOGRAPHY.pageTitle)}>Review detail</h1>
+        <OperatorPageHeader title="Review detail" headingLevel="h1" />
         <OperatorBrandedTransientFailure
           failure={props.loadFailure}
           retryLabel="Retry loading review"
@@ -56,7 +59,7 @@ export function RunDetailPageFetchErrorView(props: {
       className="w-full max-w-[1200px] space-y-4 px-1 py-2 sm:px-0"
       data-testid="run-detail-load-failure"
     >
-      <h1 className={cn("text-al-text-primary", OPERATOR_TYPOGRAPHY.pageTitle)}>Review detail</h1>
+      <OperatorPageHeader title="Review detail" headingLevel="h1" />
       <OperatorApiProblem
         problem={props.loadFailure?.problem ?? null}
         fallbackMessage={props.fallbackMessage}

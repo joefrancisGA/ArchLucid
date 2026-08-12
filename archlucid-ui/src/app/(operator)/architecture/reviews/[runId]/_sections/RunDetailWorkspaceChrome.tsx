@@ -3,8 +3,8 @@
 import { cn } from "@/lib/utils";
 import Link from "next/link";
 
-import { NavDerivedPageIcon } from "@/components/PageHeading";
 import { CopyIdButton } from "@/components/CopyIdButton";
+import { OperatorPageHeader } from "@/components/operator/OperatorPageHeader";
 import { buttonVariants } from "@/components/ui/button";
 import { SeverityTag } from "@/components/ui/severity-tag";
 import { StatusTag } from "@/components/ui/status-tag";
@@ -34,78 +34,65 @@ export function RunDetailWorkspaceHeader(props: RunDetailWorkspaceHeaderProps): 
   const h1Title = clampReviewWorkspaceH1Title(props.h1Title);
 
   return (
-    <header
-      className="space-y-3 border-b border-neutral-200 pb-5 dark:border-neutral-800"
-      data-testid="run-detail-workspace-header"
-    >
-      <div className="flex flex-wrap items-start justify-between gap-3">
-        <div className="flex min-w-0 flex-1 items-start gap-3">
-          <NavDerivedPageIcon navHref={REVIEWS_LIST_PATH} />
-          <div className="min-w-0 flex-1 space-y-1">
-            <p className={cn("m-0 text-neutral-500 dark:text-neutral-400", OPERATOR_TYPOGRAPHY.helper)}>
-              {props.eyebrowLabel}
-            </p>
-            <h1 className={cn("m-0 truncate", OPERATOR_TYPOGRAPHY.pageTitle)}>
-              {h1Title}
-            </h1>
-            <div
-              className={cn(
-                "flex flex-wrap items-center gap-x-3 gap-y-1 text-neutral-600 dark:text-neutral-400",
-                OPERATOR_TYPOGRAPHY.helper,
-              )}
-            >
-              <span className="inline-flex min-w-0 items-center gap-1">
-                <span className="font-medium text-neutral-700 dark:text-neutral-300">Review ID</span>
-                <code className="max-w-[14rem] truncate font-mono select-all">{props.reviewIdentifierLabel}</code>
-                <CopyIdButton value={props.runId} aria-label="Copy review ID" />
-              </span>
-            </div>
-          </div>
-        </div>
-        <div className="flex shrink-0 flex-wrap items-center gap-2">
-          <FavoriteReviewToggle runId={props.runId} title={h1Title} size="sm" />
-          <PageContextualHelpButton />
-        </div>
-      </div>
-
-      <dl
-        className={cn(
-          "m-0 grid gap-3 sm:grid-cols-2 lg:grid-cols-3",
-          OPERATOR_TYPOGRAPHY.body,
-        )}
+    <div data-testid="run-detail-workspace-header">
+      <OperatorPageHeader
+        navHref={REVIEWS_LIST_PATH}
+        title={h1Title}
+        headingLevel="h1"
+        subtitle={props.eyebrowLabel}
+        metadata={
+          <span className="inline-flex min-w-0 items-center gap-1">
+            <span className="font-medium text-neutral-700 dark:text-neutral-300">Review ID</span>
+            <code className="max-w-[14rem] truncate font-mono select-all">{props.reviewIdentifierLabel}</code>
+            <CopyIdButton value={props.runId} aria-label="Copy review ID" />
+          </span>
+        }
+        actions={
+          <>
+            <FavoriteReviewToggle runId={props.runId} title={h1Title} size="sm" />
+            <PageContextualHelpButton />
+          </>
+        }
       >
-        <div>
-          <dt className="font-medium text-neutral-500 dark:text-neutral-400">Review status</dt>
-          <dd className="m-0 mt-1">
-            <StatusTag kind={props.workspaceStatus.statusTagKind} label={props.workspaceStatus.label} />
-          </dd>
-        </div>
-        <div>
-          <dt className="font-medium text-neutral-500 dark:text-neutral-400">Review owner</dt>
-          <dd className="m-0 mt-1 text-neutral-800 dark:text-neutral-200">
-            {props.reviewOwner ?? NOT_RECORDED_LABEL}
-          </dd>
-        </div>
-        <div>
-          <dt className="font-medium text-neutral-500 dark:text-neutral-400">Review template</dt>
-          <dd className="m-0 mt-1 text-neutral-800 dark:text-neutral-200">
-            {props.templateLabel ?? NOT_RECORDED_LABEL}
-          </dd>
-        </div>
-        <div>
-          <dt className="font-medium text-neutral-500 dark:text-neutral-400">Finalized at</dt>
-          <dd className="m-0 mt-1 text-neutral-800 dark:text-neutral-200">
-            {props.finalizedAtLabel ?? NOT_RECORDED_LABEL}
-          </dd>
-        </div>
-        <div>
-          <dt className="font-medium text-neutral-500 dark:text-neutral-400">Package version</dt>
-          <dd className="m-0 mt-1 text-neutral-800 dark:text-neutral-200">
-            {props.packageVersionLabel ?? NOT_RECORDED_LABEL}
-          </dd>
-        </div>
-      </dl>
-    </header>
+        <dl
+          className={cn(
+            "m-0 grid gap-3 sm:grid-cols-2 lg:grid-cols-3",
+            OPERATOR_TYPOGRAPHY.body,
+          )}
+        >
+          <div>
+            <dt className="font-medium text-neutral-500 dark:text-neutral-400">Review status</dt>
+            <dd className="m-0 mt-1">
+              <StatusTag kind={props.workspaceStatus.statusTagKind} label={props.workspaceStatus.label} />
+            </dd>
+          </div>
+          <div>
+            <dt className="font-medium text-neutral-500 dark:text-neutral-400">Review owner</dt>
+            <dd className="m-0 mt-1 text-neutral-800 dark:text-neutral-200">
+              {props.reviewOwner ?? NOT_RECORDED_LABEL}
+            </dd>
+          </div>
+          <div>
+            <dt className="font-medium text-neutral-500 dark:text-neutral-400">Review template</dt>
+            <dd className="m-0 mt-1 text-neutral-800 dark:text-neutral-200">
+              {props.templateLabel ?? NOT_RECORDED_LABEL}
+            </dd>
+          </div>
+          <div>
+            <dt className="font-medium text-neutral-500 dark:text-neutral-400">Finalized at</dt>
+            <dd className="m-0 mt-1 text-neutral-800 dark:text-neutral-200">
+              {props.finalizedAtLabel ?? NOT_RECORDED_LABEL}
+            </dd>
+          </div>
+          <div>
+            <dt className="font-medium text-neutral-500 dark:text-neutral-400">Package version</dt>
+            <dd className="m-0 mt-1 text-neutral-800 dark:text-neutral-200">
+              {props.packageVersionLabel ?? NOT_RECORDED_LABEL}
+            </dd>
+          </div>
+        </dl>
+      </OperatorPageHeader>
+    </div>
   );
 }
 

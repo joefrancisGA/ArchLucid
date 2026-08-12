@@ -7,6 +7,7 @@ import {
   OperatorEvidenceLimitsFooter,
   type OperatorEvidenceLimitsExecutionProps,
 } from "@/components/operator/OperatorEvidenceLimitsFooter";
+import { OperatorPageHeader } from "@/components/operator/OperatorPageHeader";
 import { CanonicalObjectSecondaryViewStrip } from "@/components/usability/CanonicalObjectSecondaryViewStrip";
 import { PageContextualHelpButton } from "@/components/usability/PageContextualHelpButton";
 import { buildCanonicalObjectSecondaryView } from "@/lib/canonical-object-home-registry";
@@ -72,10 +73,11 @@ export function FindingInspectView({
     if (buyerPolishedShell && failure) {
       return (
         <div className="w-full max-w-[1440px] space-y-4 p-6">
-          <div className="flex flex-wrap items-start justify-between gap-3">
-            <h1 className={cn("text-al-text-primary", OPERATOR_TYPOGRAPHY.pageTitle)}>Evidence trace</h1>
-            <PageContextualHelpButton />
-          </div>
+          <OperatorPageHeader
+            title="Evidence trace"
+            headingLevel="h1"
+            actions={<PageContextualHelpButton />}
+          />
           <FindingOptionalArtifactUnavailable
             heading="Evidence trace temporarily unavailable"
             body="ArchLucid could not load the evidence trace for this finding right now."
@@ -89,7 +91,7 @@ export function FindingInspectView({
 
     return (
       <div className="w-full max-w-[1440px] space-y-4 p-6">
-        <h1 className={cn("text-al-text-primary", OPERATOR_TYPOGRAPHY.pageTitle)}>Technical inspection</h1>
+        <OperatorPageHeader title="Technical inspection" headingLevel="h1" />
         <FindingOptionalArtifactUnavailable
           heading="Evidence trace unavailable"
           body={failure?.message ?? "Finding inspector unavailable."}
@@ -161,47 +163,50 @@ export function FindingInspectView({
       />
       <section
         className="space-y-4"
-        aria-labelledby="evidence-trace-region-heading"
+        aria-label={inspectHeroTitle}
         data-testid="finding-evidence-trace-region"
       >
-        <header
+        <div
           className={
             buyerPolishedShell
               ? "rounded-md border border-neutral-200 bg-al-surface-raised dark:border-neutral-800 space-y-3 border-2 p-5"
-              : "space-y-3"
+              : undefined
           }
         >
-          <div className="flex flex-wrap items-start justify-between gap-3">
-            <p className={cn("m-0 text-al-text-secondary", OPERATOR_TYPOGRAPHY.helper)}>
-              {findingInspectPageEyebrow(payload)}
+          <OperatorPageHeader
+            title={inspectHeroTitle}
+            headingLevel="h1"
+            breadcrumb={
+              <p className={cn("m-0 text-al-text-secondary", OPERATOR_TYPOGRAPHY.helper)}>
+                {findingInspectPageEyebrow(payload)}
+              </p>
+            }
+            subtitle={
+              <>
+                <p className="m-0">{EVIDENCE_TRACE_PAGE_SUBTITLE}</p>
+                <p className="m-0 mt-2">{findingDetailLeadSentence(payload)}</p>
+              </>
+            }
+            subtitleClassName="max-w-3xl leading-relaxed"
+            actions={<PageContextualHelpButton />}
+          >
+            {!buyerPolishedShell ? (
+              <p className={cn("m-0 mt-1 text-al-text-secondary", OPERATOR_TYPOGRAPHY.body)}>
+                Finding <span className={cn("font-mono", OPERATOR_TYPOGRAPHY.micro)}>{decodedFindingId}</span> — review record{" "}
+                <span className={cn("font-mono", OPERATOR_TYPOGRAPHY.micro)}>{payload.manifestVersion ?? "—"}</span>
+              </p>
+            ) : null}
+            <p className="m-0">
+              <Link
+                href={findingDetailHref}
+                className={cn(OPERATOR_LINK.inline, "font-medium")}
+                data-testid="evidence-trace-back-to-finding"
+              >
+                Back to finding
+              </Link>
             </p>
-            <PageContextualHelpButton />
-          </div>
-          <h1 id="evidence-trace-region-heading" className={cn("text-al-text-primary", OPERATOR_TYPOGRAPHY.pageTitle)}>
-            {inspectHeroTitle}
-          </h1>
-          <p className={cn("m-0 max-w-3xl leading-relaxed text-al-text-secondary", OPERATOR_TYPOGRAPHY.body)}>
-            {EVIDENCE_TRACE_PAGE_SUBTITLE}
-          </p>
-          <p className={cn("m-0 max-w-3xl leading-relaxed text-al-text-primary", OPERATOR_TYPOGRAPHY.body)}>
-            {findingDetailLeadSentence(payload)}
-          </p>
-          {!buyerPolishedShell ? (
-            <p className={cn("m-0 mt-1 text-al-text-secondary", OPERATOR_TYPOGRAPHY.body)}>
-              Finding <span className={cn("font-mono", OPERATOR_TYPOGRAPHY.micro)}>{decodedFindingId}</span> — review record{" "}
-              <span className={cn("font-mono", OPERATOR_TYPOGRAPHY.micro)}>{payload.manifestVersion ?? "—"}</span>
-            </p>
-          ) : null}
-          <p className="m-0">
-            <Link
-              href={findingDetailHref}
-              className={cn(OPERATOR_LINK.inline, "font-medium")}
-              data-testid="evidence-trace-back-to-finding"
-            >
-              Back to finding
-            </Link>
-          </p>
-        </header>
+          </OperatorPageHeader>
+        </div>
 {policyCitationModel.pack !== null || policyCitationModel.policy !== null ? (
           <FindingPolicyCitationHero model={policyCitationModel} traceExcerpt={policyTraceExcerpt} />
         ) : null}

@@ -19,15 +19,7 @@ const EXEMPT_PREFIXES: readonly string[] = ["app/(operator)/auth/"];
  * above the first content block differs page to page. `OperatorPageHeader` owns that spacing plus
  * the subtitle measure, actions row, and bottom rule. This list may shrink but must never grow.
  */
-const HAND_ROLLED_PAGE_TITLE_BASELINE: ReadonlySet<string> = new Set([
-  "app/(operator)/architecture/reviews/[runId]/_sections/RunDetailPageFetchErrorView.tsx",
-  "app/(operator)/architecture/reviews/[runId]/_sections/RunDetailPageMalformedResponseView.tsx",
-  "app/(operator)/architecture/reviews/[runId]/_sections/RunDetailWorkspaceChrome.tsx",
-  "app/(operator)/architecture/reviews/[runId]/findings/[findingId]/FindingInspectView.tsx",
-  "app/(operator)/architecture/reviews/[runId]/findings/[findingId]/_sections/FindingDetailPageView.tsx",
-  "app/(operator)/architecture/reviews/[runId]/page.tsx",
-  "app/(operator)/architecture/reviews/[runId]/print/_sections/PackagePrintPageView.tsx",
-]);
+const HAND_ROLLED_PAGE_TITLE_BASELINE: ReadonlySet<string> = new Set([]);
 
 function collectPageViews(directory: string): string[] {
   const collected: string[] = [];

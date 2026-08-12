@@ -67,7 +67,12 @@ export function AuthorityThemeDevSelector() {
   }, []);
 
   const resetToBuildDefault = useCallback(() => {
-    clearStoredAuthorityTheme(envDefault);
+    const cleared = clearStoredAuthorityTheme(envDefault);
+
+    if (!cleared) {
+      return;
+    }
+
     setTheme(envDefault);
     setHasOverride(false);
   }, []);
@@ -89,6 +94,7 @@ export function AuthorityThemeDevSelector() {
         event.preventDefault();
         const nextIndex = (index + 1) % options.length;
 
+        selectTheme(options[nextIndex].value);
         focusOption(nextIndex);
 
         return;
@@ -98,6 +104,7 @@ export function AuthorityThemeDevSelector() {
         event.preventDefault();
         const nextIndex = (index - 1 + options.length) % options.length;
 
+        selectTheme(options[nextIndex].value);
         focusOption(nextIndex);
       }
     },

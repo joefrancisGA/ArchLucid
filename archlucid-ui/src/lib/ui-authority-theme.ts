@@ -87,19 +87,25 @@ export function hasStoredAuthorityThemeOverride(): boolean {
   return readStoredAuthorityTheme() !== null;
 }
 
-/** Clears the browser override and reapplies the build-time default from env. */
-export function clearStoredAuthorityTheme(envDefault: UiAuthorityTheme): void {
+/** Clears the browser override and reapplies the build-time default from env. Returns false when storage could not be cleared. */
+export function clearStoredAuthorityTheme(envDefault: UiAuthorityTheme): boolean {
   if (typeof window === "undefined") {
-    return;
+    return false;
   }
 
   try {
     window.localStorage.removeItem(AUTHORITY_THEME_STORAGE_KEY);
   } catch {
-    // ignore
+    return false;
+  }
+
+  if (readStoredAuthorityTheme() !== null) {
+    return false;
   }
 
   applyAuthorityThemeToDocument(envDefault);
+
+  return true;
 }
 
 export function buildAuthorityThemeToggleLabel(theme: UiAuthorityTheme): string {
