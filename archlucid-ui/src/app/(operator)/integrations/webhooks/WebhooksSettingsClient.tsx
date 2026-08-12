@@ -6,9 +6,10 @@ import { zodResolver } from "@hookform/resolvers/zod";
 import { Controller, FormProvider, useForm, useWatch } from "react-hook-form";
 
 import { OperatorApiProblem } from "@/components/operator/OperatorApiProblem";
-import { OperatorEmptyState } from "@/components/operator/OperatorShellMessage";
+import { EnterpriseCompactEmptyState } from "@/components/EnterpriseCompactEmptyState";
 import { OperatorSuccessCallout } from "@/components/operator/OperatorSuccessCallout";
 import { WEBHOOK_SUBSCRIPTION_SAVE_SUCCESS_MESSAGE } from "@/lib/admin-integration-mutation-outcome-copy";
+import { WEBHOOKS_SUBSCRIPTIONS_EMPTY_COMPACT } from "@/lib/enterprise-compact-empty-state-presets";
 import { PageHeading } from "@/components/PageHeading";
 import { WebhooksApiKeysVocabularyRail } from "@/components/WebhooksApiKeysVocabularyRail";
 import { WebhooksVsDlqVocabularyRail } from "@/components/WebhooksVsDlqVocabularyRail";
@@ -59,8 +60,6 @@ import {
   WEBHOOKS_DELIVERY_CONTRACT_HEADING,
   WEBHOOKS_DESTINATION_URL_HELPER,
   WEBHOOKS_DESTINATION_URL_LABEL,
-  WEBHOOKS_EMPTY_BODY,
-  WEBHOOKS_EMPTY_TITLE,
   WEBHOOKS_EVENTS_HELPER,
   WEBHOOKS_FORM_DESTINATION_HEADING,
   WEBHOOKS_FORM_EVENTS_HEADING,
@@ -403,9 +402,7 @@ export function WebhooksSettingsClient() {
                 Loading subscriptions…
               </p>
             ) : webhookRows.length === 0 ? (
-              <div data-testid="webhooks-empty-state">
-                <OperatorEmptyState title={WEBHOOKS_EMPTY_TITLE} description={WEBHOOKS_EMPTY_BODY} />
-              </div>
+              <EnterpriseCompactEmptyState {...WEBHOOKS_SUBSCRIPTIONS_EMPTY_COMPACT} />
             ) : (
               <EnterpriseTable ariaLabel="Webhook subscriptions" data-testid="webhooks-subscriptions-table">
                 <EnterpriseTableHead>

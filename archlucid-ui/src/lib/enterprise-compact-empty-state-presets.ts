@@ -70,6 +70,11 @@ import {
   buildReviewScorecardSampleHref,
 } from "@/lib/review-scorecard-empty-state";
 import { PILOT_FEEDBACK_VOCABULARY } from "@/lib/vocabulary/buyer-surface-vocabulary";
+import {
+  INTEGRATION_EVENTS_DLQ_EMPTY_DESCRIPTION,
+  INTEGRATION_EVENTS_DLQ_EMPTY_TITLE,
+} from "@/lib/integration-events-dlq-page-copy";
+import { WEBHOOKS_EMPTY_BODY, WEBHOOKS_EMPTY_TITLE } from "@/lib/webhooks-page-copy";
 import { SETTINGS_ACCOUNT_SECURITY_PATH, SETTINGS_ROOT_PATH } from "@/lib/settings-admin-route-paths";
 import { API_KEYS_USERS_USERS_LINK } from "@/lib/vocabulary/api-keys-users-vocabulary";
 
@@ -171,6 +176,27 @@ export const PRODUCT_LEARNING_EMPTY_COMPACT: EnterpriseCompactEmptyStateProps = 
       variant: "outline",
     },
   ],
+};
+
+/** Webhook subscriptions list when the tenant has no subscriptions yet. */
+export const WEBHOOKS_SUBSCRIPTIONS_EMPTY_COMPACT: EnterpriseCompactEmptyStateProps = {
+  testId: "webhooks-empty-state",
+  title: WEBHOOKS_EMPTY_TITLE,
+  description: WEBHOOKS_EMPTY_BODY,
+};
+
+/** Internal ops DLQ when no failed integration messages exist. */
+export const INTEGRATION_EVENTS_DLQ_EMPTY_COMPACT: EnterpriseCompactEmptyStateProps = {
+  testId: "integration-events-dlq-empty-state",
+  title: INTEGRATION_EVENTS_DLQ_EMPTY_TITLE,
+  description: INTEGRATION_EVENTS_DLQ_EMPTY_DESCRIPTION,
+};
+
+/** Internal ops DLQ when filters hide every row. */
+export const INTEGRATION_EVENTS_DLQ_FILTER_EMPTY_COMPACT: EnterpriseCompactEmptyStateProps = {
+  testId: "integration-events-dlq-filter-empty-state",
+  title: "No rows match these filters",
+  description: "Clear filters or broaden the tenant substring to review failed messages again.",
 };
 
 /** Compare page when fewer than two finalized reviews exist. */

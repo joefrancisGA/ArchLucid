@@ -90,7 +90,7 @@ describe("IntegrationEventsDlqPageClient", () => {
     vi.unstubAllGlobals();
   });
 
-  it("uses OperatorEmptyState for happy empty and avoids emerald-only empty copy (TB-1275)", async () => {
+  it("uses compact empty state for happy empty and avoids emerald-only empty copy (TB-1275)", async () => {
     vi.stubGlobal(
       "fetch",
       vi.fn(async () => new Response(JSON.stringify([]), { status: 200 })),

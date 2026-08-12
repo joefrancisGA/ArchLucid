@@ -9,7 +9,8 @@ import {
 } from "@/app/(operator)/internal/integration-events/dlq/_sections/IntegrationEventsDlqConfirmDialogs";
 import { HelpLazyDetails } from "@/components/help/HelpLazyDetails";
 import { OperatorApiProblem } from "@/components/operator/OperatorApiProblem";
-import { OperatorEmptyState, OperatorLoadingNotice } from "@/components/operator/OperatorShellMessage";
+import { EnterpriseCompactEmptyState } from "@/components/EnterpriseCompactEmptyState";
+import { OperatorLoadingNotice } from "@/components/operator/OperatorShellMessage";
 import { useNavCallerAuthorityRank } from "@/components/operator/OperatorNavAuthorityProvider";
 import { WebhooksVsDlqVocabularyRail } from "@/components/WebhooksVsDlqVocabularyRail";
 import { Button } from "@/components/ui/button";
@@ -36,8 +37,6 @@ import { mergeRegistrationScopeForProxy } from "@/lib/proxy-fetch-registration-s
 import { showError, showSuccess } from "@/lib/toast";
 import { DESIGN_TOKENS, OPERATOR_LAYOUT, OPERATOR_TYPOGRAPHY } from "@/lib/design-tokens";
 import {
-  INTEGRATION_EVENTS_DLQ_EMPTY_DESCRIPTION,
-  INTEGRATION_EVENTS_DLQ_EMPTY_TITLE,
   INTEGRATION_EVENTS_DLQ_PAGE_SUBTITLE,
   INTEGRATION_EVENTS_DLQ_PAGE_TITLE,
   integrationEventsDlqBulkRetryFailedMessage,
@@ -46,6 +45,10 @@ import {
   integrationEventsDlqRetryFailedMessage,
   integrationEventsDlqSuppressFailedMessage,
 } from "@/lib/integration-events-dlq-page-copy";
+import {
+  INTEGRATION_EVENTS_DLQ_EMPTY_COMPACT,
+  INTEGRATION_EVENTS_DLQ_FILTER_EMPTY_COMPACT,
+} from "@/lib/enterprise-compact-empty-state-presets";
 import { truncateMiddle } from "@/lib/truncate-middle";
 import { cn } from "@/lib/utils";
 
@@ -467,19 +470,10 @@ export function IntegrationEventsDlqPageClient() {
             <OperatorApiProblem fallbackMessage={state.message} problem={null} />
           ) : null}
           {state.status === "ready" && state.rows.length === 0 ? (
-            <div data-testid="integration-events-dlq-empty-state">
-              <OperatorEmptyState
-                title={INTEGRATION_EVENTS_DLQ_EMPTY_TITLE}
-                description={INTEGRATION_EVENTS_DLQ_EMPTY_DESCRIPTION}
-              />
-            </div>
+            <EnterpriseCompactEmptyState {...INTEGRATION_EVENTS_DLQ_EMPTY_COMPACT} />
           ) : null}
           {state.status === "ready" && state.rows.length > 0 && filteredRows.length === 0 ? (
-            <OperatorEmptyState
-              title="No rows match these filters"
-              description="Clear filters or broaden the tenant substring to review failed messages again."
-              data-testid="integration-events-dlq-filter-empty-state"
-            />
+            <EnterpriseCompactEmptyState {...INTEGRATION_EVENTS_DLQ_FILTER_EMPTY_COMPACT} />
           ) : null}
           {state.status === "ready" && filteredRows.length > 0 ? (
             <EnterpriseTable ariaLabel="Failed integration messages">
