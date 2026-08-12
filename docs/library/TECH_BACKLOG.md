@@ -44008,7 +44008,7 @@ Operators must read three intros before reaching the Trust Center link list.
 
 ## TB-1850 ? Evidence tab ? Vitest orientation + traffic honesty (P2)
 
-**Window:** V1 ? Testability. **Status:** Not started. **Priority:** P2.
+**Window:** V1 ? Testability. **Status:** **Done** (2026-08-12) ? `run-detail-create-home-evidence-band.test.ts` bundles sibling guards for **TB-1846**?**TB-1849** (REE traffic honesty, orientation/capture copy, diagram href, Add evidence label) plus on-disk Vitest inventory; `RunDetailPageView.create-home-evidence.test.ts` guards deferred create-home panel wiring. **Priority:** P2.
 
 **Problem:** Easy to leave Evidence as a bare uploader forever.
 
