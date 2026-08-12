@@ -40,7 +40,7 @@ export const DIGESTS_NOTIFICATIONS_WHY_TWO =
   "Digests are the content cadence for architecture summary emails and subscriptions. Notifications is the preference launcher that opens digests, alerts, Teams, and Slack configure pages. Schedule and browse digest content on Digests; use Notifications when you need to choose which channel to configure." as const;
 
 export const DIGESTS_NOTIFICATIONS_COMPACT_LINE =
-  "Digests are content cadence; Notifications launches channel preferences — open the other when you need both." as const;
+  "Digests are content cadence; Notifications is the channel-preference launcher." as const;
 
 export const DIGESTS_NOTIFICATIONS_DIGESTS_LINK: DigestsNotificationsLink = {
   id: "digests",

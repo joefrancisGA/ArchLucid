@@ -51,11 +51,14 @@ describe("routeViewExplanationForPathname (TB-2216 / TB-2257)", () => {
   });
 
   it("covers TB-2257 explain-this-view expansions with buyer nouns", () => {
-    const digests = routeViewExplanationForPathname(DIGESTS_HUB_PATH);
-    expect(digests?.title).toBe("Digests");
-    expect(digests?.summary.toLowerCase()).toContain("digest");
-    expect(digests?.summary.toLowerCase()).toContain("content cadence");
+    expect(routeViewExplanationForPathname(DIGESTS_HUB_PATH)).toBeNull();
+    expect(routeViewExplanationForPathname(DIGESTS_HUB_PATH, { search: "tab=get-started" })).toBeNull();
     expect(routeViewExplanationForPathname(DIGESTS_HUB_PATH, { search: "tab=subscriptions" })).toBeNull();
+
+    const digestsSchedule = routeViewExplanationForPathname(DIGESTS_HUB_PATH, { search: "tab=schedule" });
+    expect(digestsSchedule?.title).toBe("Digests");
+    expect(digestsSchedule?.summary.toLowerCase()).toContain("digest");
+    expect(digestsSchedule?.summary.toLowerCase()).toContain("content cadence");
 
     const aiUsage = routeViewExplanationForPathname(AI_USAGE_SETTINGS_PATH);
     expect(aiUsage?.title).toBe("AI usage");

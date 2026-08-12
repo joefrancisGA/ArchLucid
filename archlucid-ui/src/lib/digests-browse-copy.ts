@@ -22,7 +22,7 @@ export function digestsSchedulePageSubtitle(buyerPolishedShell: boolean): string
 
 export const DIGESTS_LAST_UPDATED_PREFIX = "Last updated" as const;
 
-export const DIGESTS_HEALTH_CHECK_PREFIX = "Setup status read" as const;
+export const DIGESTS_HEALTH_CHECK_PREFIX = "Setup status checked" as const;
 
 export const DIGESTS_BROWSE_TAB_BROWSE_LABEL = "Browse" as const;
 
@@ -82,7 +82,7 @@ export const DIGESTS_BROWSE_GENERATE_FIRST_DONE_DETAIL =
   "At least one digest has been generated." as const;
 
 export const DIGESTS_BROWSE_HISTORY_PENDING_DETAIL =
-  "Generated digests appear in this list." as const;
+  "No digests generated yet — generated digests appear in this list." as const;
 
 export const DIGESTS_BROWSE_HISTORY_READY_DETAIL = "Digest history is available below." as const;
 
@@ -118,10 +118,10 @@ export const DIGESTS_BROWSE_RELATED_INTEGRATIONS_LABEL = "Check integration read
 
 export const DIGESTS_CHECKLIST_SCHEDULE_LABEL = "Enable advisory scan schedule" as const;
 
-export const DIGESTS_CHECKLIST_SCHEDULE_DETAIL_ENABLED = "Advisory scan schedule enabled." as const;
-
 export const DIGESTS_CHECKLIST_SCHEDULE_DETAIL_PENDING =
-  "Set generation cadence in Advisory schedules; the executive schedule controls only when the sponsor rollup email is sent." as const;
+  "No enabled advisory scan schedules. Set generation cadence in Advisory schedules; the executive schedule controls only when the sponsor rollup email is sent." as const;
+
+export const DIGESTS_CHECKLIST_RECIPIENTS_DETAIL_SUFFIX = "Add outbound recipients for delivery." as const;
 
 export const DIGESTS_CHECKLIST_ACTION_OPEN_ADVISORY = DIGESTS_BROWSE_RELATED_ADVISORY_LABEL;
 

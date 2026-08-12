@@ -39,7 +39,7 @@ export const DIGESTS_ADVISORY_SCANS_WHY_TWO =
   "Digests are the content cadence for architecture summary emails, browse, subscriptions, and executive schedule. Advisory scans generate advisory findings and schedule recurring scans for architecture packages. Browsing digest cadence is not the same as running advisory scans." as const;
 
 export const DIGESTS_ADVISORY_SCANS_COMPACT_LINE =
-  "Digests are summary content cadence; Advisory scans produce advisory findings — open the other when you need that work." as const;
+  "Digests are summary content cadence; Advisory scans produce advisory findings." as const;
 
 export const DIGESTS_ADVISORY_SCANS_DIGESTS_LINK: DigestsAdvisoryScansLink = {
   id: "digests",

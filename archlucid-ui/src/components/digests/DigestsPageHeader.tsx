@@ -28,6 +28,11 @@ export type DigestsPageHeaderProps = {
  * Date plus minute-precision time. Seconds were dropped deliberately: a
  * second-ticking readout on a governance surface reads as a debug probe, and the
  * underlying data does not change per second.
+ *
+ * The timezone name is omitted for the same reason. This instant is stamped in the
+ * browser when the snapshot loads, not by the server, and it renders in the viewer's
+ * own zone — naming that zone adds no information while making a local clock read
+ * look like a server-recorded instant.
  */
 function formatDigestsLastUpdated(lastUpdatedUtc: string | null): string {
   if (lastUpdatedUtc === null) {
@@ -46,7 +51,6 @@ function formatDigestsLastUpdated(lastUpdatedUtc: string | null): string {
     day: "numeric",
     hour: "numeric",
     minute: "2-digit",
-    timeZoneName: "short",
   });
 }
 

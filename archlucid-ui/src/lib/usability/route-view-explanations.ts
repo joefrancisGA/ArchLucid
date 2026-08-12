@@ -191,7 +191,7 @@ export function routeViewExplanationForPathname(
   if (path === DIGESTS_HUB_PATH || path.startsWith(`${DIGESTS_HUB_PATH}/`)) {
     const tab = digestsHubTabFromLocation(path, new URLSearchParams(options?.search ?? "").get("tab"));
 
-    if (tab === "subscriptions") {
+    if (tab === "subscriptions" || tab === "get-started") {
       return null;
     }
   }

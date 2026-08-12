@@ -54,7 +54,7 @@ export function DigestsBrowseScheduleSubscriptionsVocabularyRail(
             {index > 0 ? " · " : null}
             <Link
               href={peer.href}
-              className={cn(OPERATOR_LINK.inline, "font-medium")}
+              className={cn(OPERATOR_LINK.nav, "font-medium")}
               data-testid={`digests-browse-schedule-subscriptions-vocabulary-peer-${peer.id}`}
             >
               {peer.label}

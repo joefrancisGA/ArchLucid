@@ -17,7 +17,7 @@ import {
   DIGESTS_CHECKLIST_ACTION_OPEN_ADVISORY,
   DIGESTS_CHECKLIST_ACTION_OPEN_EXECUTIVE,
   DIGESTS_CHECKLIST_ACTION_RUN_SCAN,
-  DIGESTS_CHECKLIST_SCHEDULE_DETAIL_ENABLED,
+  DIGESTS_CHECKLIST_RECIPIENTS_DETAIL_SUFFIX,
   DIGESTS_CHECKLIST_SCHEDULE_DETAIL_PENDING,
   DIGESTS_CHECKLIST_SCHEDULE_LABEL,
 } from "@/lib/digests-browse-copy";
@@ -170,6 +170,36 @@ export function hasGeneratedDigestHistory(snap: WeeklyDigestHealthDto): boolean 
   return generatedUtc.length > 0;
 }
 
+function pluralizeCount(count: number, singular: string, plural: string): string {
+  return count === 1 ? singular : plural;
+}
+
+/** Checklist row detail for advisory scan schedule setup. */
+export function formatChecklistScheduleDetail(snap: WeeklyDigestHealthDto): string {
+  const count: number = snap.enabledAdvisoryScheduleCount;
+
+  if (count === 0) {
+    return DIGESTS_CHECKLIST_SCHEDULE_DETAIL_PENDING;
+  }
+
+  return `${count} enabled advisory scan ${pluralizeCount(count, "schedule", "schedules")} · next scheduled send ${formatDigestInstant(snap.earliestNextAdvisoryRunUtc)}`;
+}
+
+/** Checklist row detail for digest subscription recipients. */
+export function formatChecklistRecipientsDetail(snap: WeeklyDigestHealthDto): string {
+  const total: number = snap.enabledDigestSubscriptionCount;
+  const email: number = snap.digestSubscriptionsByEmailChannel;
+  const teams: number = snap.digestSubscriptionsByTeamsChannel;
+  const slack: number = snap.digestSubscriptionsBySlackChannel;
+  const channelBreakdown: string = `${email} email · ${teams} Teams · ${slack} Slack`;
+
+  if (total === 0) {
+    return `0 active digest subscriptions (0 email · 0 Teams · 0 Slack). ${DIGESTS_CHECKLIST_RECIPIENTS_DETAIL_SUFFIX}`;
+  }
+
+  return `${total} active digest ${pluralizeCount(total, "subscription", "subscriptions")} (${channelBreakdown}).`;
+}
+
 export function buildDigestSetupChecklistItems(
   snap: WeeklyDigestHealthDto,
   hasGeneratedDigests: boolean,
@@ -186,7 +216,7 @@ export function buildDigestSetupChecklistItems(
       href: ADVISORY_SCANS_SCHEDULES_HREF,
       actionLabel: DIGESTS_CHECKLIST_ACTION_OPEN_ADVISORY,
       complete: hasSchedule,
-      detail: hasSchedule ? DIGESTS_CHECKLIST_SCHEDULE_DETAIL_ENABLED : DIGESTS_CHECKLIST_SCHEDULE_DETAIL_PENDING,
+      detail: formatChecklistScheduleDetail(snap),
     },
     {
       id: "recipients",
@@ -194,7 +224,7 @@ export function buildDigestSetupChecklistItems(
       href: DIGESTS_SUBSCRIPTIONS_TAB_PATH,
       actionLabel: DIGESTS_CHECKLIST_ACTION_ADD_SUBSCRIPTIONS,
       complete: hasRecipients,
-      detail: hasRecipients ? "Active digest subscriptions configured." : "Add outbound recipients for delivery.",
+      detail: formatChecklistRecipientsDetail(snap),
     },
     {
       id: "test",

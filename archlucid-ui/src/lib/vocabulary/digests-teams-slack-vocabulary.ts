@@ -44,7 +44,7 @@ export const DIGESTS_TEAMS_SLACK_WHY_THREE =
   "Digests browse, schedule, and subscribe to architecture summary email content. Microsoft Teams and Slack each configure chat-channel webhook destinations for governance alerts. Scheduling digest email is not the same as configuring Teams or Slack alert delivery." as const;
 
 export const DIGESTS_TEAMS_SLACK_COMPACT_LINE =
-  "Digests are email cadence; Teams and Slack are chat alert channels — open the other destination when you need that channel." as const;
+  "Digests are email cadence; Teams and Slack are chat alert channels." as const;
 
 export const DIGESTS_TEAMS_SLACK_DIGESTS_LINK: DigestsTeamsSlackLink = {
   id: "digests",
