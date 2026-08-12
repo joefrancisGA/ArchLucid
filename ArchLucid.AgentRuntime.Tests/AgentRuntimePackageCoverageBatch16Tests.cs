@@ -3,6 +3,7 @@ using ArchLucid.AgentRuntime.Evaluation;
 using ArchLucid.AgentRuntime.Evaluation.ReferenceCases;
 using ArchLucid.AgentRuntime.Safety;
 using ArchLucid.AgentRuntime.Tests.Support;
+using ArchLucid.Application.Budgeting;
 using ArchLucid.Contracts.Agents;
 using ArchLucid.Contracts.Common;
 using ArchLucid.Contracts.Persistence.Agents;
@@ -430,10 +431,16 @@ public sealed class AgentRuntimePackageCoverageBatch16Tests
             new InMemoryLlmTenantBudgetRepository());
 
         LlmMonthlyTenantDollarBudgetOptions monthlyOpts = new() { Enabled = false };
+
+        // The reservation store reads and writes the same ledger the tracker does, so both must
+        // share one repository instance rather than each holding a private in-memory copy.
+        InMemoryLlmTenantBudgetRepository monthlyBudgetRepository = new();
+
         LlmMonthlyTenantDollarBudgetTracker monthlyTracker = new(
             new FixedValueOptionsMonitor<LlmMonthlyTenantDollarBudgetOptions>(monthlyOpts),
             costEstimator.Object,
-            new InMemoryLlmTenantBudgetRepository(),
+            monthlyBudgetRepository,
+            new InMemoryLlmMonthlyTenantBudgetReservationStore(monthlyBudgetRepository, TimeProvider.System),
             new NoOpLlmTenantWalletService(),
             new PassthroughTenantLlmMonthlyBudgetCapResolver(),
             new ConfigurationBuilder().Build(),
