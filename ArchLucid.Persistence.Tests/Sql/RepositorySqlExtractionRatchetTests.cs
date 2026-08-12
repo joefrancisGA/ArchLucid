@@ -73,6 +73,16 @@ public sealed class RepositorySqlExtractionRatchetTests
                 "ArchLucid.Persistence/Data/Repositories/AgentExecutionTraceJsonPatcher.cs",
                 "AgentExecutionTraceSql",
                 "ArchLucid.Persistence/Sql/AgentExecutionTraceSql.cs"
+            },
+            {
+                "ArchLucid.Persistence/Repositories/SqlGoldenManifestRepository.cs",
+                "GoldenManifestWriteSql",
+                "ArchLucid.Persistence/Sql/GoldenManifestWriteSql.cs"
+            },
+            {
+                "ArchLucid.Persistence/GoldenManifests/GoldenManifestRelationalWriter.cs",
+                "GoldenManifestWriteSql",
+                "ArchLucid.Persistence/Sql/GoldenManifestWriteSql.cs"
             }
         };
 
