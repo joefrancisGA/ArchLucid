@@ -3,6 +3,7 @@
 import Link from "next/link";
 import { useMemo, useSyncExternalStore } from "react";
 
+import { useOperatorHomeWorkspaceActivity } from "@/components/operator-home/operator-home-workspace-activity-context";
 import { StatusTag } from "@/components/ui/status-tag";
 import { useArchitectureDraftRegistryEntries } from "@/hooks/use-architecture-draft-registry-entries";
 import {
@@ -21,6 +22,7 @@ import { cn } from "@/lib/utils";
 import type { RunSummary } from "@/types/authority";
 
 export type UnfinishedWorkRailProps = {
+  /** Server-rendered reviews for first paint; a refreshed client snapshot supersedes it when present. */
   readonly runs: readonly RunSummary[];
 };
 
@@ -95,20 +97,22 @@ function UnfinishedWorkRailList(props: { readonly items: readonly UnfinishedWork
  */
 export function UnfinishedWorkRail(props: UnfinishedWorkRailProps): React.JSX.Element | null {
   const drafts = useArchitectureDraftRegistryEntries();
+  const { liveRunsSnapshot } = useOperatorHomeWorkspaceActivity();
   const incompleteWizards = useSyncExternalStore(
     subscribeWizardSessions,
     getIncompleteWizardSnapshot,
     getIncompleteWizardServerSnapshot,
   );
+  const runs = liveRunsSnapshot?.items ?? props.runs;
 
   const items = useMemo(
     () =>
       buildUnfinishedWorkRailItems({
         drafts,
-        runs: props.runs,
+        runs,
         incompleteWizards,
       }),
-    [drafts, incompleteWizards, props.runs],
+    [drafts, incompleteWizards, runs],
   );
 
   if (items.length === 0) {

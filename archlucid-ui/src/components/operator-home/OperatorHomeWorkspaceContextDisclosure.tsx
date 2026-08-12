@@ -10,6 +10,7 @@ import { OperatorHomeWorkspaceMetricsSummary } from "@/components/operator-home/
 import { Button } from "@/components/ui/button";
 import { Collapsible, CollapsibleContent, CollapsibleTrigger } from "@/components/ui/collapsible";
 import { useFinishSetupReadinessContext } from "@/hooks/use-finish-setup-readiness-context";
+import { useLiveOperatorHomeRunsDashboard } from "@/hooks/use-live-operator-home-runs-dashboard";
 import type { OperatorHomeRunsDashboardModel } from "@/app/(operator)/_sections/operator-home-runs-dashboard-model";
 import {
   OPERATOR_HOME_DISCLOSURE_STORAGE_KEYS,
@@ -41,6 +42,7 @@ export function OperatorHomeWorkspaceContextDisclosure(
   const hasCommittedArchitectureReview = useNavCommittedArchitectureReview();
   const detailsPanelId = useId();
   const setupReadiness = useFinishSetupReadinessContext();
+  const runsDashboard = useLiveOperatorHomeRunsDashboard(props.runsDashboard);
   const [hydrated, setHydrated] = useState(false);
   const [detailsExpanded, setDetailsExpanded] = useState(false);
 
@@ -61,8 +63,8 @@ export function OperatorHomeWorkspaceContextDisclosure(
   }
 
   const workspaceMetrics = deriveOperatorHomeWorkspaceMetrics(
-    props.runsDashboard.items,
-    props.runsDashboard.totalCount,
+    runsDashboard.items,
+    runsDashboard.totalCount,
   );
   const showDetailsExpanded = hydrated ? detailsExpanded : false;
   const detailsToggleLabel = showDetailsExpanded ? "Hide metrics details" : "View details";
@@ -86,7 +88,7 @@ export function OperatorHomeWorkspaceContextDisclosure(
 
       <OperatorHomeWorkspaceMetricsSummary
         variant="primary"
-        runsDashboard={props.runsDashboard}
+        runsDashboard={runsDashboard}
         setupReadyCount={setupReadiness.readyCount}
         setupTotalCount={setupReadiness.totalCount}
         setupReadinessLoading={setupReadiness.phase === "loading"}
@@ -122,7 +124,7 @@ export function OperatorHomeWorkspaceContextDisclosure(
             <div className="space-y-4 border-t border-neutral-200/80 pt-3 dark:border-neutral-800">
               <OperatorHomeWorkspaceMetricsSummary
                 variant="secondary"
-                runsDashboard={props.runsDashboard}
+                runsDashboard={runsDashboard}
                 setupReadyCount={setupReadiness.readyCount}
                 setupTotalCount={setupReadiness.totalCount}
                 setupReadinessLoading={setupReadiness.phase === "loading"}

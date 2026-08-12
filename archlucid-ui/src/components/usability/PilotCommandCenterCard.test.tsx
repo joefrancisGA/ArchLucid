@@ -45,12 +45,18 @@ vi.mock("@/hooks/use-finish-setup-readiness-context", () => ({
   }),
 }));
 
+const workspaceActivityMock = vi.hoisted(() => ({
+  hasWorkspaceReviews: false,
+  liveRunsSnapshot: null as { readonly items: readonly unknown[]; readonly totalCount: number } | null,
+}));
+
 vi.mock("@/components/operator-home/operator-home-workspace-activity-context", () => ({
   useOperatorHomeWorkspaceActivity: () => ({
-    hasWorkspaceReviews: false,
+    hasWorkspaceReviews: workspaceActivityMock.hasWorkspaceReviews,
     hasActionNeededReviews: false,
     openFindingsCount: 0,
     recentRunIds: [],
+    liveRunsSnapshot: workspaceActivityMock.liveRunsSnapshot,
     reportWorkspaceReviews: vi.fn(),
   }),
 }));
@@ -146,6 +152,8 @@ describe("PilotCommandCenterCard", () => {
     vi.mocked(useNavCommittedArchitectureReview).mockReturnValue(false);
     vi.mocked(fetchCorePilotCommitContext).mockResolvedValue(emptyCommitContext);
     vi.mocked(useArchitectureDraftRegistryEntries).mockReturnValue([]);
+    workspaceActivityMock.hasWorkspaceReviews = false;
+    workspaceActivityMock.liveRunsSnapshot = null;
   });
 
   it("shows a single Do-this-next card on empty Overview (TB-1038 / TB-1039)", async () => {
@@ -328,5 +336,69 @@ describe("PilotCommandCenterCard", () => {
       "data-workspace-phase",
       "active-reviews",
     );
+  });
+
+  it("shows refreshed hero KPI counts instead of the stale server snapshot", () => {
+    workspaceActivityMock.hasWorkspaceReviews = true;
+    workspaceActivityMock.liveRunsSnapshot = {
+      items: [
+        {
+          runId: "review-001",
+          projectId: "default",
+          createdUtc: "2026-01-15T12:00:00.000Z",
+          hasFindingsSnapshot: true,
+          hasGoldenManifest: false,
+          findingCount: 1,
+        },
+        {
+          runId: "review-002",
+          projectId: "default",
+          createdUtc: "2026-01-16T12:00:00.000Z",
+          hasFindingsSnapshot: true,
+          hasGoldenManifest: false,
+          findingCount: 1,
+        },
+        {
+          runId: "review-003",
+          projectId: "default",
+          createdUtc: "2026-01-17T12:00:00.000Z",
+          hasFindingsSnapshot: true,
+          hasGoldenManifest: false,
+          findingCount: 1,
+        },
+      ],
+      totalCount: 3,
+    };
+
+    renderWithOperatorQuery(
+      <PilotCommandCenterCard
+        hasWorkspaceReviews
+        runsDashboard={{
+          projectId: "default",
+          page: 1,
+          pageSize: 5,
+          items: [
+            {
+              runId: "review-001",
+              projectId: "default",
+              createdUtc: "2026-01-15T12:00:00.000Z",
+              hasFindingsSnapshot: true,
+              hasGoldenManifest: false,
+              findingCount: 1,
+            },
+          ],
+          totalCount: 1,
+          loadFailure: null,
+          malformedMessage: null,
+          usedStaticRunsFallback: false,
+          buyerPolishedShell: true,
+        }}
+      />,
+    );
+
+    const kpiStrip = screen.getByTestId("operator-home-hero-kpi-strip");
+
+    expect(kpiStrip).toHaveTextContent("3 (0 committed · 3 active)");
+    expect(kpiStrip).not.toHaveTextContent("1 (0 committed · 1 active)");
   });
 });

@@ -30,6 +30,7 @@ import {
   OPERATOR_TYPE_SCALE,
 } from "@/lib/design-tokens";
 import { resolvePilotNextBestAction, type PilotNextBestAction } from "@/lib/resolve-pilot-next-best-action";
+import { resolveLiveRunsDashboardModel } from "@/lib/operator-home-live-runs-dashboard";
 import { deriveOperatorHomeWorkspaceMetrics } from "@/lib/operator-home-workspace-metrics";
 import {
   resolveOperatorHomeLifecycleEmphasizedPath,
@@ -77,24 +78,35 @@ export function PilotCommandCenterCard(props: PilotCommandCenterCardProps = {}):
   const hasCommittedArchitectureReview = useNavCommittedArchitectureReview();
   const workspaceActivity = useOperatorHomeWorkspaceActivity();
   const draftEntries = useArchitectureDraftRegistryEntries();
-  const workspaceMetrics = useMemo(() => {
+  const liveRunsSnapshot = workspaceActivity.liveRunsSnapshot ?? null;
+  const runsDashboard = useMemo(() => {
     if (props.runsDashboard === undefined) {
+      return undefined;
+    }
+
+    return resolveLiveRunsDashboardModel(props.runsDashboard, liveRunsSnapshot);
+  }, [liveRunsSnapshot, props.runsDashboard]);
+  const workspaceMetrics = useMemo(() => {
+    if (runsDashboard === undefined) {
       return null;
     }
 
-    return deriveOperatorHomeWorkspaceMetrics(props.runsDashboard.items, props.runsDashboard.totalCount);
-  }, [props.runsDashboard]);
+    return deriveOperatorHomeWorkspaceMetrics(runsDashboard.items, runsDashboard.totalCount);
+  }, [runsDashboard]);
+  // SSR seed props are a stale floor once live rows arrive: keeping them would pin counts that
+  // Refresh just proved lower (a resolved finding, a deleted review).
+  const useSsrSeedCounts = liveRunsSnapshot === null;
   const openFindingsCount = Math.max(
-    props.openFindingsCount ?? 0,
+    useSsrSeedCounts ? props.openFindingsCount ?? 0 : 0,
     workspaceActivity.openFindingsCount,
     workspaceMetrics?.openFindings ?? 0,
   );
   const governanceWarningsCount = Math.max(
-    props.governanceWarningsCount ?? 0,
+    useSsrSeedCounts ? props.governanceWarningsCount ?? 0 : 0,
     workspaceMetrics?.governanceWarnings ?? 0,
   );
   const hasWorkspaceReviews =
-    (props.hasWorkspaceReviews ?? false) || workspaceActivity.hasWorkspaceReviews;
+    (useSsrSeedCounts && props.hasWorkspaceReviews === true) || workspaceActivity.hasWorkspaceReviews;
   const commitQuery = useCorePilotCommitContextQuery();
 
   const phaseSignals = useMemo(
@@ -146,7 +158,7 @@ export function PilotCommandCenterCard(props: PilotCommandCenterCardProps = {}):
   ]);
 
   const showHeroKpiStrip =
-    props.runsDashboard !== undefined &&
+    runsDashboard !== undefined &&
     (workspacePhase === "active-reviews" || workspacePhase === "operational");
 
   return (
@@ -180,9 +192,9 @@ export function PilotCommandCenterCard(props: PilotCommandCenterCardProps = {}):
         <FirstPilotOperateUnlockVocabularyRail currentSurfaceId="first-pilot" />
       </div>
 
-      {showHeroKpiStrip && props.runsDashboard !== undefined ? (
+      {showHeroKpiStrip && runsDashboard !== undefined ? (
         <OperatorHomeWorkspaceMetricsSummary
-          runsDashboard={props.runsDashboard}
+          runsDashboard={runsDashboard}
           setupReadyCount={0}
           setupTotalCount={0}
           setupReadinessLoading={false}

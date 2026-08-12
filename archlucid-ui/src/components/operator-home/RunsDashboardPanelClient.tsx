@@ -108,6 +108,7 @@ export function RunsDashboardPanelClient({
   const [showArchived, setShowArchived] = useState(false);
   const [restoreBusyRequestId, setRestoreBusyRequestId] = useState<string | null>(null);
   const [items, setItems] = useState<RunSummary[]>(initialModel?.items ?? []);
+  const [loadedTotalCount, setLoadedTotalCount] = useState<number>(initialModel?.totalCount ?? 0);
   const [phase, setPhase] = useState<RunsDashboardLoadPhase>(
     initialModel !== null ? (initialModel.loadFailure !== null ? "error" : "ready") : "loading",
   );
@@ -146,6 +147,7 @@ export function RunsDashboardPanelClient({
     }
 
     let nextItems: RunSummary[] = [];
+    let nextTotalCount = 0;
     let nextFailure: ApiLoadFailureState | null = null;
     let authorityUnusable = false;
     let malformedMessage: string | null = null;
@@ -163,6 +165,7 @@ export function RunsDashboardPanelClient({
         authorityUnusable = true;
       } else {
         nextItems = coerced.value.items;
+        nextTotalCount = coerced.value.totalCount;
       }
     } catch (error: unknown) {
       nextFailure = toApiLoadFailure(error);
@@ -176,6 +179,7 @@ export function RunsDashboardPanelClient({
 
     if (demoPaged !== null) {
       nextItems = demoPaged.items;
+      nextTotalCount = demoPaged.totalCount;
       nextFailure = null;
       malformedMessage = null;
       authorityUnusable = false;
@@ -191,6 +195,7 @@ export function RunsDashboardPanelClient({
 
       if (emptyWorkspaceDemo !== null && emptyWorkspaceDemo.items.length > 0) {
         nextItems = emptyWorkspaceDemo.items;
+        nextTotalCount = emptyWorkspaceDemo.totalCount;
       }
     }
 
@@ -204,6 +209,7 @@ export function RunsDashboardPanelClient({
       })
     ) {
       nextItems = [buildDemoSeededOverviewRunSummary(projectId, getEffectiveBrowserProxyScopeHeaders())];
+      nextTotalCount = nextItems.length;
       nextFailure = null;
       malformedMessage = null;
       authorityUnusable = false;
@@ -217,6 +223,7 @@ export function RunsDashboardPanelClient({
     }
 
     setItems(nextItems);
+    setLoadedTotalCount(nextTotalCount);
     setFailure(nextFailure);
     setRunsListAuthorityUnusable(authorityUnusable);
     setPhase(nextFailure !== null && nextItems.length === 0 ? "error" : "ready");
@@ -365,9 +372,11 @@ export function RunsDashboardPanelClient({
 
   useEffect(() => {
     if (phase === "ready" || phase === "error") {
-      reportWorkspaceReviews(effectiveItems);
+      // effectiveItems can carry client-only fallback rows the server total never counted, and a
+      // keyset total is only a lower bound — publish whichever count is larger.
+      reportWorkspaceReviews(effectiveItems, Math.max(loadedTotalCount, effectiveItems.length));
     }
-  }, [effectiveItems, phase, reportWorkspaceReviews]);
+  }, [effectiveItems, loadedTotalCount, phase, reportWorkspaceReviews]);
 
   async function restoreArchivedRequest(requestId: string): Promise<void> {
     setRestoreBusyRequestId(requestId);

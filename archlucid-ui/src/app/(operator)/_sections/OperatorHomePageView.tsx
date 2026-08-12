@@ -64,6 +64,8 @@ function BuyerPolishedHomePageBody(props: { readonly model: OperatorHomePageView
 
     <OperatorHomeWorkspaceActivityProvider initialHasReviews={initialHasReviews}>
 
+      <UnfinishedWorkRail runs={props.model.runsDashboard.items} />
+
       <BuyerPolishedHomeHeroSectionDeferred runsDashboard={props.model.runsDashboard} />
 
       <HomeRecentReviewsSection model={props.model} />
@@ -89,6 +91,8 @@ function OperatorHomePageBody(props: { readonly model: OperatorHomePageViewModel
       initialHasReviews={workspaceMetrics.hasReviews}
       initialOpenFindingsCount={workspaceMetrics.openFindings}
     >
+
+      <UnfinishedWorkRail runs={props.model.runsDashboard.items} />
 
       <section aria-label="Overview command center" data-testid="operator-home-pilot-command-center-host">
 
@@ -128,7 +132,7 @@ export function OperatorHomePageView({ model }: OperatorHomePageViewProps) {
         <OperatorHomeDeferredOnboarding />
         <OperatorPageContainer variant="dashboard" className={OPERATOR_LAYOUT.majorSectionGap}>
           <OperatorHomePageChrome buyerPolishedShell={buyerPolishedShell} />
-          <UnfinishedWorkRail runs={model.runsDashboard.items} />
+          {/* The continue rail renders inside each body so it reads the same live reviews snapshot. */}
           {buyerPolishedShell ? <BuyerPolishedHomePageBody model={model} /> : <OperatorHomePageBody model={model} />}
         </OperatorPageContainer>
       </OperatorHomeRefreshProvider>
