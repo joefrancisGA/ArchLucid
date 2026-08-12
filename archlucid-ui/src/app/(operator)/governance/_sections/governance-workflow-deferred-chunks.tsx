@@ -3,24 +3,15 @@
 import dynamic from "next/dynamic";
 import type { ComponentType } from "react";
 
-import { cn } from "@/lib/utils";
-import { OPERATOR_TYPOGRAPHY } from "@/lib/design-tokens";
+import { DeferredChunkLoading } from "@/components/ui/deferred-chunk-loading";
 
 import type { GovernanceOverviewPanelProps } from "./GovernanceOverviewPanel";
 import type { GovernanceReviewContextBarProps } from "./GovernanceReviewContextBar";
 import type { GovernanceWorkflowSubmitSectionProps } from "./GovernanceWorkflowSubmitSection";
 
-function GovernanceWorkflowDeferredLoading(props: { readonly label: string }): React.JSX.Element {
+function governanceWorkflowDeferredLoading(label: string): React.JSX.Element {
   return (
-    <div
-      className={cn(
-        "min-h-24 animate-pulse rounded-md border border-neutral-200 bg-neutral-100 dark:border-neutral-700 dark:bg-neutral-800",
-        OPERATOR_TYPOGRAPHY.body,
-      )}
-      role="status"
-      aria-label={props.label}
-      data-testid="governance-workflow-deferred-chunk-loading"
-    />
+    <DeferredChunkLoading label={label} testId="governance-workflow-deferred-chunk-loading" />
   );
 }
 
@@ -29,7 +20,7 @@ export const GovernanceOverviewPanelDeferred: ComponentType<GovernanceOverviewPa
   () => import("./GovernanceOverviewPanel").then((module) => module.GovernanceOverviewPanel),
   {
     ssr: false,
-    loading: () => <GovernanceWorkflowDeferredLoading label="Loading governance overview" />,
+    loading: () => governanceWorkflowDeferredLoading("Loading governance overview"),
   },
 );
 
@@ -38,7 +29,7 @@ export const GovernanceReviewContextBarDeferred: ComponentType<GovernanceReviewC
   () => import("./GovernanceReviewContextBar").then((module) => module.GovernanceReviewContextBar),
   {
     ssr: false,
-    loading: () => <GovernanceWorkflowDeferredLoading label="Loading review context" />,
+    loading: () => governanceWorkflowDeferredLoading("Loading review context"),
   },
 );
 
@@ -50,7 +41,7 @@ export const GovernanceWorkflowSubmitSectionDeferred: ComponentType<GovernanceWo
       ),
     {
       ssr: false,
-      loading: () => <GovernanceWorkflowDeferredLoading label="Loading approval submit" />,
+      loading: () => governanceWorkflowDeferredLoading("Loading approval submit"),
     },
   );
 
@@ -60,7 +51,7 @@ export const GovernanceWorkflowApprovalsListDeferred = dynamic(
     import("./GovernanceWorkflowApprovalsList").then((module) => module.GovernanceWorkflowApprovalsList),
   {
     ssr: false,
-    loading: () => <GovernanceWorkflowDeferredLoading label="Loading approval requests" />,
+    loading: () => governanceWorkflowDeferredLoading("Loading approval requests"),
   },
 );
 
@@ -71,7 +62,7 @@ export const GovernanceWorkflowPromotionsActivationsSectionDeferred = dynamic(
     ),
   {
     ssr: false,
-    loading: () => <GovernanceWorkflowDeferredLoading label="Loading environment releases" />,
+    loading: () => governanceWorkflowDeferredLoading("Loading environment releases"),
   },
 );
 
@@ -111,7 +102,7 @@ export const GovernanceInteractiveQuickstartContentDeferred = dynamic(
     ),
   {
     ssr: false,
-    loading: () => <GovernanceWorkflowDeferredLoading label="Loading governance quickstart" />,
+    loading: () => governanceWorkflowDeferredLoading("Loading governance quickstart"),
   },
 );
 
@@ -123,7 +114,7 @@ export const GovernanceApprovalStoryCardDeferred = dynamic(
     ),
   {
     ssr: false,
-    loading: () => <GovernanceWorkflowDeferredLoading label="Loading approval decision record" />,
+    loading: () => governanceWorkflowDeferredLoading("Loading approval decision record"),
   },
 );
 
@@ -135,6 +126,6 @@ export const AdvancedOptionsAccordionDeferred = dynamic(
     ),
   {
     ssr: false,
-    loading: () => <GovernanceWorkflowDeferredLoading label="Loading advanced options" />,
+    loading: () => governanceWorkflowDeferredLoading("Loading advanced options"),
   },
 );

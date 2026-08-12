@@ -1,0 +1,8 @@
+/**
+ * Hand-rolled deferred-chunk loading placeholders for TB-2391.
+ * Keep in sync with `deferred-chunk-loading-contract.test.ts` HAND_ROLLED_DEFERRED_CHUNK_LOADING_BASELINE.
+ */
+export const HAND_ROLLED_DEFERRED_CHUNK_LOADING_BASELINE_PATHS: readonly string[] = [
+  "app/(operator)/architecture/reviews/[runId]/_sections/run-detail-page-view-deferred-chunks.tsx",
+  "components/shell/operator-shell-top-bar-deferred-chunks.tsx",
+] as const;
