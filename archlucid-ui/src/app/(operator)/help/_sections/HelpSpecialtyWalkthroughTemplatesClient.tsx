@@ -58,6 +58,8 @@ import {
   type SpecialtyReviewTemplateId,
 } from "@/lib/specialty-review-templates";
 
+const SPECIALTY_TEMPLATE_READ_ONLY_HINT_ID = "specialty-template-permission-hint";
+
 type HelpSpecialtyWalkthroughTemplatesClientProps = {
   readonly entry: ProductDocumentationEntry;
 };
@@ -176,7 +178,7 @@ function SpecialtyTemplateCardSelectionFooter(props: {
             type="button"
             size="sm"
             disabled
-            title={SPECIALTY_REVIEW_TEMPLATES_READ_ONLY_USE_HINT}
+            aria-describedby={SPECIALTY_TEMPLATE_READ_ONLY_HINT_ID}
             data-testid="specialty-template-continue-setup"
           >
             Continue to review setup
@@ -275,7 +277,7 @@ function SpecialtyTemplateCard(props: {
               type="button"
               size="sm"
               disabled
-              title={SPECIALTY_REVIEW_TEMPLATES_READ_ONLY_USE_HINT}
+              aria-describedby={SPECIALTY_TEMPLATE_READ_ONLY_HINT_ID}
               data-testid={`specialty-template-use-${template.id}`}
             >
               Use template
@@ -368,7 +370,11 @@ export function HelpSpecialtyWalkthroughTemplatesClient(
             </Link>
           </p>
           {!canExecute ? (
-            <p className={cn("m-0 max-w-3xl", OPERATOR_TYPOGRAPHY.helper)} data-testid="specialty-template-permission-hint">
+            <p
+              id={SPECIALTY_TEMPLATE_READ_ONLY_HINT_ID}
+              className={cn("m-0 max-w-3xl", OPERATOR_TYPOGRAPHY.helper)}
+              data-testid={SPECIALTY_TEMPLATE_READ_ONLY_HINT_ID}
+            >
               {SPECIALTY_REVIEW_TEMPLATES_READ_ONLY_USE_HINT}
             </p>
           ) : null}

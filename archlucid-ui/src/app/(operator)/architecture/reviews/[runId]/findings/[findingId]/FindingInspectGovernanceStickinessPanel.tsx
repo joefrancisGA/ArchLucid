@@ -5,6 +5,7 @@ import { useCallback, useEffect, useMemo, useState } from "react";
 
 import { Button } from "@/components/ui/button";
 import { ConfirmationDialog } from "@/components/ConfirmationDialog";
+import { WhyDisabledCtaHint } from "@/components/usability/WhyDisabledCtaHint";
 import { CollabRecentActorPresenceStrip } from "@/components/CollabRecentActorPresenceStrip";
 import { DispositionExportBeforeAfterPreview } from "@/components/operator/DispositionExportBeforeAfterPreview";
 import { DispositionExportImpactNotice } from "@/components/operator/DispositionExportImpactNotice";
@@ -26,7 +27,7 @@ import { toApiLoadFailure } from "@/lib/api-load-failure";
 import { BUYER_DEMO_GOVERNANCE_WORKFLOW_UNAVAILABLE } from "@/lib/buyer/buyer-polish-copy";
 import { isBuyerPolishedOperatorShellEnv } from "@/lib/demo-ui-env";
 import { OPERATOR_TYPOGRAPHY } from "@/lib/design-tokens";
-import { enterpriseMutationControlDisabledTitle } from "@/lib/enterprise-controls-context-copy";
+import { whyDisabledEnterpriseMutationControl } from "@/lib/why-disabled-cta";
 import {
   createWaiverTransitionCopy,
   dispositionTransitionCopy,
@@ -315,7 +316,8 @@ export function FindingInspectGovernanceStickinessPanel({
   }
 
   const currentDisposition = latestDispositionLabel(history);
-  const mutateDisabledTitle = canMutate ? undefined : enterpriseMutationControlDisabledTitle;
+  const mutationDisabledHintId = "finding-governance-stickiness-mutate-disabled-hint";
+  const mutationDisabledReason = canMutate ? null : whyDisabledEnterpriseMutationControl();
   const pendingDispositionKind: FindingDispositionKind =
     pendingDispositionConfirm === "mark-remediated" ? "Remediated" : disposition;
   const sponsorSynopsisCounts = useMemo(
@@ -335,6 +337,11 @@ export function FindingInspectGovernanceStickinessPanel({
   return (
     <div className={cn("space-y-6 rounded-lg border border-neutral-200 bg-white p-4 dark:border-neutral-800 dark:bg-neutral-950/40", OPERATOR_TYPOGRAPHY.body)}>
       <CollabRecentActorPresenceStrip recentActors={recentDispositionActors} />
+      <WhyDisabledCtaHint
+        id={mutationDisabledHintId}
+        reason={mutationDisabledReason}
+        testId={mutationDisabledHintId}
+      />
       <SponsorStorySynopsisFromCounts
         packageTitle={sponsorSynopsisPackageTitle}
         counts={sponsorSynopsisCounts}
@@ -394,7 +401,7 @@ export function FindingInspectGovernanceStickinessPanel({
             size="sm"
             variant="default"
             disabled={busyAction !== null || !canMutate}
-            title={mutateDisabledTitle}
+            aria-describedby={mutationDisabledReason === null ? undefined : mutationDisabledHintId}
             onClick={() => void submitRemediationAssignment()}
             data-testid="finding-remediation-save"
             aria-busy={busyAction === "remediation"}
@@ -463,7 +470,7 @@ export function FindingInspectGovernanceStickinessPanel({
             size="sm"
             variant="default"
             disabled={busyAction !== null || !canMutate}
-            title={mutateDisabledTitle}
+            aria-describedby={mutationDisabledReason === null ? undefined : mutationDisabledHintId}
             onClick={() => {
               setPendingDispositionConfirm("disposition");
             }}
@@ -477,7 +484,7 @@ export function FindingInspectGovernanceStickinessPanel({
             size="sm"
             variant="outline"
             disabled={busyAction !== null || !canMutate}
-            title={mutateDisabledTitle}
+            aria-describedby={mutationDisabledReason === null ? undefined : mutationDisabledHintId}
             onClick={() => {
               setPendingDispositionConfirm("mark-remediated");
             }}
@@ -557,7 +564,7 @@ export function FindingInspectGovernanceStickinessPanel({
                 size="sm"
                 variant="outline"
                 disabled={busyAction !== null || !canMutate}
-                title={mutateDisabledTitle}
+                aria-describedby={mutationDisabledReason === null ? undefined : mutationDisabledHintId}
                 onClick={() => void submitWaiver()}
                 data-testid="finding-waiver-create"
                 aria-busy={busyAction === "waiver"}
@@ -574,7 +581,7 @@ export function FindingInspectGovernanceStickinessPanel({
               size="sm"
               variant="destructive"
               disabled={busyAction !== null || !canMutate}
-              title={mutateDisabledTitle}
+              aria-describedby={mutationDisabledReason === null ? undefined : mutationDisabledHintId}
               onClick={() => {
                 setPendingRevokeWaiverConfirm(true);
               }}

@@ -4,6 +4,7 @@ import { OperatorEmptyState } from "@/components/operator/OperatorShellMessage";
 import { Button } from "@/components/ui/button";
 import { Card, CardContent, CardFooter, CardHeader, CardTitle } from "@/components/ui/card";
 import { Tooltip, TooltipContent, TooltipTrigger } from "@/components/ui/tooltip";
+import { WhyDisabledCtaHint } from "@/components/usability/WhyDisabledCtaHint";
 import {
   enterpriseMutationControlDisabledTitle,
   governanceWorkflowActivateButtonLabelReaderRank,
@@ -33,6 +34,7 @@ import {
 } from "@/lib/governance/governance-workflow-release-copy";
 import type { ApiLoadFailureState } from "@/lib/api-load-failure";
 import { OPERATOR_TYPOGRAPHY } from "@/lib/design-tokens";
+import { whyDisabledEnterpriseMutationControl } from "@/lib/why-disabled-cta";
 import type { GovernanceEnvironmentActivation, GovernancePromotionRecord } from "@/types/governance-workflow";
 import type { MutableRefObject } from "react";
 import { formatGovernanceBusinessInstant } from "./governance-workflow-helpers";
@@ -67,6 +69,8 @@ export function GovernanceWorkflowPromotionsActivationsSection(
     pendingActivatePromotionRef,
     activateBusyId,
   } = props;
+  const mutationDisabledHintId = "governance-workflow-activate-mutate-disabled-hint";
+  const mutationDisabledReason = canMutateWorkflow ? null : whyDisabledEnterpriseMutationControl();
 
   return (
     <section className="mb-0">
@@ -84,6 +88,12 @@ export function GovernanceWorkflowPromotionsActivationsSection(
         {GOVERNANCE_WORKFLOW_TIMELINE_LEAD}
         {activeRunId ? <span className="sr-only"> Technical review id {activeRunId}</span> : null}
       </p>
+      <WhyDisabledCtaHint
+        id={mutationDisabledHintId}
+        reason={mutationDisabledReason}
+        testId={mutationDisabledHintId}
+        className="mb-4"
+      />
 
       {!listsLoading && activeRunId !== null && promotions.length === 0 && listFailure === null ? (
         <OperatorEmptyState title={GOVERNANCE_WORKFLOW_NO_RELEASES_RECORDED_TITLE}>
@@ -135,7 +145,9 @@ export function GovernanceWorkflowPromotionsActivationsSection(
                         !workflowActor.trim() ||
                         !canMutateWorkflow
                       }
-                      title={canMutateWorkflow ? undefined : enterpriseMutationControlDisabledTitle}
+                      aria-describedby={
+                        !canMutateWorkflow ? mutationDisabledHintId : undefined
+                      }
                       onClick={() => {
                         pendingActivatePromotionRef.current = p;
                         setPendingActivate({

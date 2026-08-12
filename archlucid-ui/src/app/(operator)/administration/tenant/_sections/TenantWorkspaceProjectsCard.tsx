@@ -238,12 +238,13 @@ export function TenantWorkspaceProjectsCard(): React.JSX.Element {
                       </p>
                     ) : null}
                   </div>
+                  <div className="flex flex-col items-end gap-1">
                   <Button
                     type="button"
                     variant="outline"
                     size="sm"
                     disabled={disabledReason !== undefined || deleteBusyProjectId !== null}
-                    title={disabledReason}
+                    aria-describedby={disabledReason !== undefined ? `tenant-project-delete-hint-${project.projectId}` : undefined}
                     data-testid="tenant-workspace-project-delete"
                     onClick={() => {
                       setPendingDelete({
@@ -256,6 +257,15 @@ export function TenantWorkspaceProjectsCard(): React.JSX.Element {
                   >
                     Delete project
                   </Button>
+                  {disabledReason !== undefined ? (
+                    <p
+                      id={`tenant-project-delete-hint-${project.projectId}`}
+                      className={cn("m-0 text-right text-al-text-secondary", OPERATOR_TYPOGRAPHY.helper)}
+                    >
+                      {disabledReason}
+                    </p>
+                  ) : null}
+                  </div>
                 </li>
               );
             })}

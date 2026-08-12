@@ -1069,7 +1069,7 @@ export function Tier2ConnectionWizard({
 
                 disabled={isValidating || !canRunValidation}
 
-                title={canRunValidation ? undefined : enterpriseMutationControlDisabledTitle}
+                aria-describedby={!canRunValidation ? "tier2-validation-admin-required-hint" : undefined}
 
                 onClick={() => void handleValidateHostedRun()}
 
@@ -1083,7 +1083,7 @@ export function Tier2ConnectionWizard({
 
               {!canRunValidation ? (
 
-                <p className={OPERATOR_TYPOGRAPHY.helper}>{AZURE_CONNECTION_VALIDATION_ADMIN_REQUIRED}</p>
+                <p id="tier2-validation-admin-required-hint" className={OPERATOR_TYPOGRAPHY.helper}>{AZURE_CONNECTION_VALIDATION_ADMIN_REQUIRED}</p>
 
               ) : null}
 

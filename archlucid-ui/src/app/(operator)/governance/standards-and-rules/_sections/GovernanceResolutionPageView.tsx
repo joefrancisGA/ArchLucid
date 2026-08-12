@@ -176,7 +176,7 @@ function GovernanceResolutionOperatorDiagnostics(props: { readonly model: Govern
             type="button"
             variant="secondary"
             size="sm"
-            title={governanceResolutionRefreshButtonTitle}
+            aria-label={governanceResolutionRefreshButtonTitle}
             onClick={() => void m.load()}
             disabled={m.loading}
           >
@@ -187,8 +187,9 @@ function GovernanceResolutionOperatorDiagnostics(props: { readonly model: Govern
             variant="outline"
             size="sm"
             data-testid="governance-resolution-export-markdown"
-            title="Download a point-in-time diagnostic report with notes, conflicts, decisions, and effective content"
+            aria-label="Download a point-in-time diagnostic report with notes, conflicts, decisions, and effective content"
             disabled={m.loading || m.data === null}
+            aria-describedby={m.data === null && !m.loading ? "governance-resolution-export-disabled-hint" : undefined}
             onClick={() => {
               if (m.data === null) {
                 return;
@@ -200,6 +201,14 @@ function GovernanceResolutionOperatorDiagnostics(props: { readonly model: Govern
             Export diagnostic report
           </Button>
         </div>
+        {m.data === null && !m.loading ? (
+          <p
+            id="governance-resolution-export-disabled-hint"
+            className={cn("m-0 max-w-3xl text-al-text-secondary", OPERATOR_TYPOGRAPHY.helper)}
+          >
+            Refresh governance resolution data before exporting a diagnostic report.
+          </p>
+        ) : null}
       </section>
     </>
   );

@@ -26,8 +26,10 @@ import {
 import { Input } from "@/components/ui/input";
 import { Label } from "@/components/ui/label";
 import { PageContextualHelpButton } from "@/components/usability/PageContextualHelpButton";
+import { WhyDisabledCtaHint } from "@/components/usability/WhyDisabledCtaHint";
 import type { components } from "@/lib/api-types.generated";
 import { enterpriseMutationControlDisabledTitle } from "@/lib/enterprise-controls-context-copy";
+import { whyDisabledEnterpriseMutationControl } from "@/lib/why-disabled-cta";
 import { AUTHORITY_RANK } from "@/lib/nav-authority";
 import { mergeRegistrationScopeForProxy } from "@/lib/proxy-fetch-registration-scope";
 import { showError, showSuccess } from "@/lib/toast";
@@ -126,6 +128,8 @@ export function IntegrationEventsDlqPageClient() {
   // dead-lettered events, not just the caller's own — gate the shell so a non-Admin who reaches this route directly
   // (the nav item itself is hidden from non-Admins) sees disabled controls instead of a live button that 403s.
   const canMutate = useNavCallerAuthorityRank() >= AUTHORITY_RANK.AdminAuthority;
+  const mutationDisabledHintId = "integration-events-dlq-mutate-disabled-hint";
+  const mutationDisabledReason = canMutate ? null : whyDisabledEnterpriseMutationControl();
   const [state, setState] = useState<LoadState>({ status: "idle" });
   const [retryingId, setRetryingId] = useState<string | null>(null);
   const [suppressingId, setSuppressingId] = useState<string | null>(null);
@@ -384,7 +388,7 @@ export function IntegrationEventsDlqPageClient() {
               size="sm"
               data-testid="integration-events-dlq-bulk-retry-button"
               disabled={bulkRetrying || state.status === "loading" || !canMutate}
-              title={canMutate ? undefined : enterpriseMutationControlDisabledTitle}
+              aria-describedby={mutationDisabledReason === null ? undefined : mutationDisabledHintId}
               onClick={() => {
                 setBulkRetryAcknowledgment("");
                 setBulkRetryDialogOpen(true);
@@ -393,6 +397,11 @@ export function IntegrationEventsDlqPageClient() {
               Bulk retry (100)
             </Button>
           </div>
+          <WhyDisabledCtaHint
+            id={mutationDisabledHintId}
+            reason={mutationDisabledReason}
+            testId={mutationDisabledHintId}
+          />
         </CardHeader>
         <CardContent className={OPERATOR_LAYOUT.sectionStack}>
           {state.status === "ready" && state.rows.length > 0 ? (
@@ -548,7 +557,7 @@ export function IntegrationEventsDlqPageClient() {
                             size="sm"
                             variant="primary"
                             disabled={retryingId === row.outboxId || suppressingId === row.outboxId || !canMutate}
-                            title={canMutate ? undefined : enterpriseMutationControlDisabledTitle}
+                            aria-describedby={mutationDisabledReason === null ? undefined : mutationDisabledHintId}
                             onClick={() => {
                               if (row.outboxId === undefined || row.outboxId === null) {
                                 return;
@@ -564,7 +573,7 @@ export function IntegrationEventsDlqPageClient() {
                             size="sm"
                             variant="outline"
                             disabled={retryingId === row.outboxId || suppressingId === row.outboxId || !canMutate}
-                            title={canMutate ? undefined : enterpriseMutationControlDisabledTitle}
+                            aria-describedby={mutationDisabledReason === null ? undefined : mutationDisabledHintId}
                             onClick={() => {
                               if (row.outboxId === undefined || row.outboxId === null) {
                                 return;

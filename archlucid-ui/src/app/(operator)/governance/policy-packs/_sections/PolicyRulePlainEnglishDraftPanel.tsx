@@ -5,11 +5,12 @@ import { useMemo, useState } from "react";
 
 import { Button } from "@/components/ui/button";
 import { Textarea } from "@/components/ui/textarea";
+import { WhyDisabledCtaHint } from "@/components/usability/WhyDisabledCtaHint";
 import { OperatorApiProblem } from "@/components/operator/OperatorApiProblem";
 import { draftPolicyPackRule } from "@/lib/api/policy-pack-draft-api";
 import { toApiLoadFailure, uiFailureFromMessage } from "@/lib/api-load-failure";
 import type { ApiLoadFailureState } from "@/lib/api-load-failure";
-import { enterpriseMutationControlDisabledTitle } from "@/lib/enterprise-controls-context-copy";
+import { whyDisabledEnterpriseMutationControl } from "@/lib/why-disabled-cta";
 import { CURATED_RULE_ROW_SCHEMA_REFERENCE } from "@/lib/policy/policy-pack-curated-rules-constants";
 import {
   tryParseCuratedRuleRowJson,
@@ -47,6 +48,8 @@ export function PolicyRulePlainEnglishDraftPanel(props: PolicyRulePlainEnglishDr
     () => (draftRuleJson !== null ? prettifyJson(draftRuleJson) : null),
     [draftRuleJson],
   );
+  const mutationDisabledHintId = "policy-rule-plain-english-mutate-disabled-hint";
+  const mutationDisabledReason = canMutatePacks ? null : whyDisabledEnterpriseMutationControl();
 
   return (
     <div
@@ -75,7 +78,7 @@ export function PolicyRulePlainEnglishDraftPanel(props: PolicyRulePlainEnglishDr
           size="sm"
           disabled={!canMutatePacks || busy || intent.trim().length < 20}
           data-testid="policy-rule-plain-english-draft-button"
-          title={canMutatePacks ? undefined : enterpriseMutationControlDisabledTitle}
+          aria-describedby={mutationDisabledReason === null ? undefined : mutationDisabledHintId}
           onClick={() => {
             void (async () => {
               setBusy(true);
@@ -118,7 +121,7 @@ export function PolicyRulePlainEnglishDraftPanel(props: PolicyRulePlainEnglishDr
             variant="secondary"
             disabled={!canMutatePacks}
             data-testid="policy-rule-plain-english-add-button"
-            title={canMutatePacks ? undefined : enterpriseMutationControlDisabledTitle}
+            aria-describedby={mutationDisabledReason === null ? undefined : mutationDisabledHintId}
             onClick={() => {
               if (parsedRule === null) {
                 return;
@@ -150,6 +153,11 @@ export function PolicyRulePlainEnglishDraftPanel(props: PolicyRulePlainEnglishDr
           </Button>
         ) : null}
       </div>
+      <WhyDisabledCtaHint
+        id={mutationDisabledHintId}
+        reason={mutationDisabledReason}
+        testId={mutationDisabledHintId}
+      />
       {failure !== null ? (
         <div className="mt-3" role="alert">
           <OperatorApiProblem failure={failure} />

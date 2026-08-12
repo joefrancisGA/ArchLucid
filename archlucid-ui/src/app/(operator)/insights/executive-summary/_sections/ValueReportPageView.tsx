@@ -26,6 +26,11 @@ import {
 } from "@/lib/buyer/buyer-polish-copy";
 import { isNextPublicDemoMode, isBuyerPolishedOperatorShellEnv } from "@/lib/demo-ui-env";
 import { DESIGN_TOKENS, OPERATOR_TYPOGRAPHY } from "@/lib/design-tokens";
+import {
+  OPERATOR_DATE_RANGE_END_LABEL,
+  OPERATOR_DATE_RANGE_INPUT_CLASSNAME,
+  OPERATOR_DATE_RANGE_START_LABEL,
+} from "@/lib/operator-date-range-copy";
 
 import type { UseValueReportPageModel } from "./use-value-report-page";
 import { ValueReportEmptyState } from "./ValueReportEmptyState";
@@ -83,7 +88,7 @@ export function ValueReportPageView({ model }: ValueReportPageViewProps) {
   } = model;
 
   const disabledReason = exportDisabledReason(canMutate, hasReportData, previewBusy);
-  const disabledReasonMessage = disabledReason?.message;
+  const exportDisabledHintId = "value-report-export-disabled-reason";
   const showDemoSampleNote = isNextPublicDemoMode();
   const buyerPolishedShell = isBuyerPolishedOperatorShellEnv();
 
@@ -131,13 +136,14 @@ export function ValueReportPageView({ model }: ValueReportPageViewProps) {
 
           <fieldset className="m-0 space-y-3 border-0 p-0">
             <legend className="sr-only">Report period</legend>
-            <div className="grid gap-3 md:grid-cols-2">
+            <div className="flex flex-wrap items-end gap-3">
               <label className={cn("flex flex-col gap-1", OPERATOR_TYPOGRAPHY.body)}>
-                <span className="font-medium text-al-text-primary">From</span>
+                <span className="font-medium text-al-text-primary">{OPERATOR_DATE_RANGE_START_LABEL}</span>
                 <input
                   className={cn(
                     "rounded border border-neutral-300 bg-white px-2 py-1 dark:border-neutral-700 dark:bg-neutral-900",
                     OPERATOR_TYPOGRAPHY.body,
+                    OPERATOR_DATE_RANGE_INPUT_CLASSNAME,
                   )}
                   type="datetime-local"
                   value={fromUtc}
@@ -145,11 +151,12 @@ export function ValueReportPageView({ model }: ValueReportPageViewProps) {
                 />
               </label>
               <label className={cn("flex flex-col gap-1", OPERATOR_TYPOGRAPHY.body)}>
-                <span className="font-medium text-al-text-primary">To</span>
+                <span className="font-medium text-al-text-primary">{OPERATOR_DATE_RANGE_END_LABEL}</span>
                 <input
                   className={cn(
                     "rounded border border-neutral-300 bg-white px-2 py-1 dark:border-neutral-700 dark:bg-neutral-900",
                     OPERATOR_TYPOGRAPHY.body,
+                    OPERATOR_DATE_RANGE_INPUT_CLASSNAME,
                   )}
                   type="datetime-local"
                   value={toUtc}
@@ -170,7 +177,7 @@ export function ValueReportPageView({ model }: ValueReportPageViewProps) {
               <Button
                 type="button"
                 disabled={!canDownload || busy}
-                title={!canDownload ? disabledReasonMessage : undefined}
+                aria-describedby={disabledReason === null ? undefined : exportDisabledHintId}
                 onClick={() => void onGenerate()}
               >
                 {busy ? "Generating…" : "Export sponsor report (.docx)"}
@@ -179,14 +186,23 @@ export function ValueReportPageView({ model }: ValueReportPageViewProps) {
                 type="button"
                 variant="outline"
                 disabled={!canDownload || boardBusy}
-                title={!canDownload ? disabledReasonMessage : "Uses the current calendar quarter"}
+                aria-describedby={disabledReason === null ? undefined : exportDisabledHintId}
+                aria-label={
+                  boardBusy
+                    ? "Generating board pack"
+                    : "Export board pack (.pdf). Uses the current calendar quarter."
+                }
                 onClick={() => void onBoardPack()}
               >
                 {boardBusy ? "Generating…" : "Export board pack (.pdf)"}
               </Button>
             </div>
           </fieldset>
-          <WhyDisabledCtaHint reason={disabledReason} testId="value-report-export-disabled-reason" />
+          <WhyDisabledCtaHint
+            id={exportDisabledHintId}
+            reason={disabledReason}
+            testId={exportDisabledHintId}
+          />
         </section>
 
         {showDemoSampleNote ? (
