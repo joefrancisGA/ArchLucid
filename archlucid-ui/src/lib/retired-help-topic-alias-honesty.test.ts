@@ -135,6 +135,13 @@ describe("help-topic-permanent-redirects (Batch J merged)", () => {
     expect(resolveHelpTopicPermanentRedirect("review-guide")).toBeNull();
   });
 
+  it("chains creating-runs directly to review-guide without starting-reviews intermediate (TB-1643)", () => {
+    expect(HELP_TOPIC_PERMANENT_REDIRECTS["creating-runs"]).toBe("/help/review-guide");
+    expect(HELP_TOPIC_PERMANENT_REDIRECTS["creating-runs"]).not.toBe("/help/starting-reviews");
+    expect(inAppHelpHref("creating-runs")).toBe("/help/review-guide");
+    expect(getProductDocumentationEntry("creating-runs")).toBeNull();
+  });
+
   it("redirects retired developer-troubleshooting bookmarks to engineering-troubleshooting (TB-1248)", () => {
     expect(HELP_TOPIC_PERMANENT_REDIRECTS["developer-troubleshooting"]).toBe("/help/engineering-troubleshooting");
     expect(resolveHelpTopicPermanentRedirect("developer-troubleshooting")).toBe("/help/engineering-troubleshooting");
