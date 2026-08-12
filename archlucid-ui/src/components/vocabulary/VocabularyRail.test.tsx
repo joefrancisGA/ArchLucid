@@ -16,6 +16,7 @@ describe("VocabularyRail", () => {
         whyTwo="They answer different questions."
         currentLabel="Left surface"
         links={[PEER]}
+        notes={[{ testIdSuffix: "honesty", text: "Estimates, not invoices." }]}
       />,
     );
 
@@ -23,6 +24,9 @@ describe("VocabularyRail", () => {
     expect(strip).toHaveAttribute("data-variant", "compact");
     expect(strip).toHaveAttribute("data-current-surface", "left");
     expect(strip.textContent ?? "").toContain("Left is not right.");
+    expect(screen.getByTestId("pair-vocabulary-honesty")).toHaveTextContent(
+      "Estimates, not invoices.",
+    );
 
     const peer = screen.getByTestId("pair-vocabulary-peer-link");
     expect(peer).toHaveAttribute("href", "/peer");

@@ -22,11 +22,6 @@ describe("routeViewExplanationForPathname (TB-2216 / TB-2257)", () => {
   });
 
   it("covers TB-2257 explain-this-view expansions with buyer nouns", () => {
-    const exceptions = routeViewExplanationForPathname(GOVERNANCE_EXCEPTIONS_PATH);
-    expect(exceptions?.title).toBe("Exceptions");
-    expect(exceptions?.summary.toLowerCase()).toContain("risk exception");
-    expect(exceptions?.nextAction.toLowerCase()).toContain("exception");
-
     const digests = routeViewExplanationForPathname(DIGESTS_HUB_PATH);
     expect(digests?.title).toBe("Digests");
     expect(digests?.summary.toLowerCase()).toContain("digest");
@@ -35,6 +30,11 @@ describe("routeViewExplanationForPathname (TB-2216 / TB-2257)", () => {
     const aiUsage = routeViewExplanationForPathname(AI_USAGE_SETTINGS_PATH);
     expect(aiUsage?.title).toBe("AI usage");
     expect(aiUsage?.summary.toLowerCase()).toContain("budget");
+
+    const quietAiUsage = routeViewExplanationForPathname(AI_USAGE_SETTINGS_PATH, {
+      isAiUsageQuietEmptyPeriod: true,
+    });
+    expect(quietAiUsage?.nextAction.toLowerCase()).not.toContain("scan current period usage");
 
     const billing = routeViewExplanationForPathname(SETTINGS_BILLING_PATH);
     expect(billing?.title).toBe("Billing & plans");
@@ -51,6 +51,8 @@ describe("routeViewExplanationForPathname (TB-2216 / TB-2257)", () => {
 
   it("keeps other governance and evidence-graph null when headers own orientation", () => {
     expect(routeViewExplanationForPathname("/governance")).toBeNull();
+    // Risk exceptions own layer guidance plus the governance approval banner — a shell banner would repeat it.
+    expect(routeViewExplanationForPathname(GOVERNANCE_EXCEPTIONS_PATH)).toBeNull();
     expect(routeViewExplanationForPathname("/governance/findings")).toBeNull();
     expect(routeViewExplanationForPathname("/governance/audit")).toBeNull();
     expect(routeViewExplanationForPathname("/insights/evidence-graph")).toBeNull();

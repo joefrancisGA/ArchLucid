@@ -61,7 +61,13 @@ export function VocabularyRail(props: VocabularyRailProps): JSX.Element {
         data-variant="compact"
         data-current-surface={props.currentSurfaceId}
       >
-        <span>{props.compactLine}</span>{" "}
+        <span>{props.compactLine}</span>
+        {notes.map((note) => (
+          <span key={note.testIdSuffix} data-testid={`${props.testIdPrefix}-${note.testIdSuffix}`}>
+            {" "}
+            {note.text}
+          </span>
+        ))}{" "}
         {props.links.map((link, index) => (
           <Fragment key={link.testIdSuffix}>
             {index > 0 ? " · " : null}

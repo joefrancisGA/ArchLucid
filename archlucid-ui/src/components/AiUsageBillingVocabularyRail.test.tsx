@@ -19,6 +19,9 @@ describe("AiUsageBillingVocabularyRail (TB-2253)", () => {
     expect(strip).toHaveAttribute("data-variant", "compact");
     expect(strip).toHaveAttribute("data-current-surface", "ai-usage");
     expect(strip.textContent ?? "").toContain(AI_USAGE_BILLING_COMPACT_LINE);
+    expect(screen.getByTestId("ai-usage-billing-vocabulary-honesty")).toHaveTextContent(
+      AI_USAGE_BILLING_ESTIMATES_HONESTY,
+    );
 
     const peer = screen.getByTestId("ai-usage-billing-vocabulary-peer-link");
     expect(peer).toHaveTextContent(AI_USAGE_BILLING_BILLING_LINK.label);

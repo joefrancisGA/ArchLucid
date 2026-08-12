@@ -8,6 +8,7 @@ import { OPERATOR_NAV_LINK_LABELS } from "@/lib/i18n";
 import { ROUTE_TITLES } from "@/lib/route-static-titles";
 import { resolveNavLinkForPathname } from "@/lib/resolve-nav-link-for-pathname";
 import { pageHelpTopicForPathname } from "@/lib/usability/page-help-topic-map";
+import { AI_USAGE_BILLING_ESTIMATES_HONESTY } from "@/lib/vocabulary/ai-usage-billing-vocabulary";
 
 import { CostReportingSettingsPageView } from "./CostReportingSettingsPageView";
 import type { CostReportingSettingsPageViewModel } from "./cost-reporting-settings-page-view-model";
@@ -62,6 +63,8 @@ function buildQuietEmptyModel(overrides: Partial<CostReportingSettingsPageViewMo
     filters: DEFAULT_AI_USAGE_DASHBOARD_FILTERS,
     canViewBudgetDetails: true,
     canManageBudget: true,
+    estimatesAsOfUtc: "2026-07-10T12:00:00.000Z",
+    billingPeriodUtcMonth: "2026-07",
   });
 
   return {
@@ -93,6 +96,14 @@ describe("CostReportingSettingsPageView (TB-1217)", () => {
 
     expect(screen.getByTestId("ai-usage-period-zero-state")).toBeInTheDocument();
     expect(screen.getByTestId("ai-usage-quiet-budget-cap")).toHaveTextContent("$75");
+    expect(screen.getByTestId("ai-usage-quiet-period-reset")).toHaveTextContent("August");
+    expect(screen.getByTestId("ai-usage-estimates-as-of")).toBeInTheDocument();
+    expect(screen.getByTestId("ai-usage-estimate-honesty-line")).toHaveTextContent(
+      AI_USAGE_BILLING_ESTIMATES_HONESTY,
+    );
+    expect(screen.getByTestId("ai-usage-billing-vocabulary-honesty")).toHaveTextContent(
+      AI_USAGE_BILLING_ESTIMATES_HONESTY,
+    );
     expect(screen.queryByTestId("ai-usage-kpi-row")).not.toBeInTheDocument();
     expect(screen.queryByTestId("ai-usage-monthly-budget-panel")).not.toBeInTheDocument();
     expect(screen.queryByText(/On track/i)).not.toBeInTheDocument();
@@ -149,6 +160,8 @@ function buildUsageModel(overrides: Partial<CostReportingSettingsPageViewModel> 
     filters: DEFAULT_AI_USAGE_DASHBOARD_FILTERS,
     canViewBudgetDetails: true,
     canManageBudget: true,
+    estimatesAsOfUtc: "2026-07-10T12:00:00.000Z",
+    billingPeriodUtcMonth: "2026-07",
   });
 
   return {
@@ -195,7 +208,7 @@ describe("CostReportingSettingsPageView (TB-1216–1219)", () => {
     );
   });
 
-  it("keeps a single edit-budget affordance in the budget controls cluster (TB-1219)", () => {
+  it("keeps a single primary edit-budget affordance and distinct budget destinations (TB-1219)", () => {
     render(<CostReportingSettingsPageView model={buildUsageModel()} />);
 
     expect(screen.getByTestId("ai-usage-monthly-budget-panel")).toBeInTheDocument();
@@ -204,7 +217,40 @@ describe("CostReportingSettingsPageView (TB-1216–1219)", () => {
       "href",
       "/administration/billing#billing-ai-credits",
     );
+    expect(screen.getByTestId("ai-usage-budget-limits-enforcement")).toHaveAttribute(
+      "href",
+      "/administration/billing#billing-usage",
+    );
     expect(screen.queryByRole("link", { name: /^Edit budget$/i })).not.toBeInTheDocument();
-    expect(screen.queryByRole("link", { name: /Review limit behavior/i })).not.toBeInTheDocument();
+    expect(screen.queryByRole("link", { name: /Set warning threshold/i })).not.toBeInTheDocument();
+    expect(screen.queryByRole("link", { name: /Configure hard-stop behavior/i })).not.toBeInTheDocument();
+  });
+
+  it("shows page-level retry when cost reporting fails to load", () => {
+    const model = buildUsageModel({
+      loading: false,
+      derived: buildAiUsageDashboardDerived({
+        costReporting: null,
+        costReportingLoading: false,
+        costReportingError: true,
+        costReportingDelayed: false,
+        budgetStatus: null,
+        budgetLoading: false,
+        budgetError: false,
+        budgetForbidden: false,
+        adminDashboard: null,
+        adminLoading: false,
+        adminError: false,
+        adminForbidden: false,
+        filters: DEFAULT_AI_USAGE_DASHBOARD_FILTERS,
+        canViewBudgetDetails: true,
+        canManageBudget: true,
+      }),
+    });
+
+    render(<CostReportingSettingsPageView model={model} />);
+
+    expect(screen.getByTestId("cost-reporting-page-error")).toBeInTheDocument();
+    expect(screen.getByRole("button", { name: "Retry" })).toBeInTheDocument();
   });
 });

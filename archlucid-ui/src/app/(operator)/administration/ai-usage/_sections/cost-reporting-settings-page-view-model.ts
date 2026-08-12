@@ -17,6 +17,6 @@ export type CostReportingSettingsPageViewModel = {
   readonly canViewBudgetDetails: boolean;
   readonly canManageBudget: boolean;
   readonly showDetailedActivityLink: boolean;
-  readonly load: () => Promise<void>;
+  readonly load: (options?: import("./use-cost-reporting-settings-page").CostReportingSettingsPageLoadOptions) => Promise<void>;
   readonly setFilters: (filters: AiUsageDashboardFilters) => void;
 };

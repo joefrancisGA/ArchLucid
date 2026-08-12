@@ -1,6 +1,7 @@
 "use client";
 
 import { cn } from "@/lib/utils";
+import { useEffect } from "react";
 
 import { DemoWorkspaceCapabilityUnavailablePanel } from "@/components/DemoWorkspaceCapabilityUnavailablePanel";
 import { AiUsageBillingVocabularyRail } from "@/components/AiUsageBillingVocabularyRail";
@@ -10,18 +11,22 @@ import { PageHeading } from "@/components/PageHeading";
 import { Skeleton } from "@/components/ui/skeleton";
 import { PageContextualHelpButton } from "@/components/usability/PageContextualHelpButton";
 import { AI_USAGE_SETTINGS_PATH } from "@/lib/ai-usage-nav-paths";
+import { formatAiUsageEstimatesAsOfLabel } from "@/lib/ai-usage-dashboard-model";
 import { OPERATOR_TYPOGRAPHY } from "@/lib/design-tokens";
 import { OPERATOR_NAV_LINK_LABELS } from "@/lib/i18n";
 
+import { useAiUsageRouteShellState } from "./ai-usage-route-shell-context";
+
 import { AiUsageBudgetControlsPanel } from "./ai-usage/AiUsageBudgetControlsPanel";
 import { AiUsageCostBreakdownPanel } from "./ai-usage/AiUsageCostBreakdownPanel";
-import { AiUsageCostScopeHelp } from "./ai-usage/AiUsageCostScopeHelp";
+import { AiUsageCostScopeHelp, AiUsageEstimateHonestyLine } from "./ai-usage/AiUsageCostScopeHelp";
 import { AiUsageDailyUsagePanel } from "./ai-usage/AiUsageDailyUsagePanel";
 import { AiUsageFiltersBar } from "./ai-usage/AiUsageFiltersBar";
 import { AiUsageKpiRow } from "./ai-usage/AiUsageKpiRow";
 import { AiUsageMonthlyBudgetPanel } from "./ai-usage/AiUsageMonthlyBudgetPanel";
 import { AiUsageQuietEmptyPeriodPanel } from "./ai-usage/AiUsageQuietEmptyPeriodPanel";
 import { AiUsageRecentActivityPanel } from "./ai-usage/AiUsageRecentActivityPanel";
+import { AiUsageSectionState } from "./ai-usage/AiUsageSectionState";
 import { isAiUsageQuietEmptyPeriod } from "./ai-usage/is-ai-usage-quiet-empty-period";
 import { WorkspaceBudgetStatusCard } from "./ai-usage/WorkspaceBudgetStatusCard";
 import type { CostReportingSettingsPageViewModel } from "./cost-reporting-settings-page-view-model";
@@ -47,6 +52,21 @@ function PageLoadingSkeleton() {
 
 export function CostReportingSettingsPageView(props: Props) {
   const m = props.model;
+  const aiUsageShell = useAiUsageRouteShellState();
+  const quietEmptyPeriod =
+    m.surface === "granted" && isAiUsageQuietEmptyPeriod(m.derived, m.loading);
+
+  useEffect(() => {
+    if (m.surface !== "granted") {
+      return undefined;
+    }
+
+    aiUsageShell?.setQuietEmptyPeriod(quietEmptyPeriod);
+
+    return () => {
+      aiUsageShell?.setQuietEmptyPeriod(false);
+    };
+  }, [aiUsageShell, m.surface, quietEmptyPeriod]);
 
   if (m.surface === "demo") {
     return (
@@ -73,8 +93,11 @@ export function CostReportingSettingsPageView(props: Props) {
 
   const data = m.data;
   const derived = m.derived;
-  // Quiet empty period: no zeroed KPI / On track / empty-chart cockpit (TB-1217).
-  const quietEmptyPeriod = isAiUsageQuietEmptyPeriod(derived, m.loading);
+  const estimatesAsOfLabel =
+    derived.freshness.estimatesAsOfUtc !== null
+      ? formatAiUsageEstimatesAsOfLabel(derived.freshness.estimatesAsOfUtc)
+      : null;
+  const pageLoadFailed = derived.costReportingState === "error" && !m.loading;
 
   return (
     <div className="w-full max-w-[1200px] space-y-6" data-testid="cost-reporting-page">
@@ -82,8 +105,14 @@ export function CostReportingSettingsPageView(props: Props) {
         navHref={AI_USAGE_SETTINGS_PATH}
         title={OPERATOR_NAV_LINK_LABELS.aiUsage}
         description="Monitor estimated AI spend, remaining budget, and the workflows driving cost for this workspace."
+        metadata={
+          estimatesAsOfLabel !== null ? (
+            <span data-testid="ai-usage-estimates-as-of">{estimatesAsOfLabel}</span>
+          ) : null
+        }
         actions={<PageContextualHelpButton />}
       />
+      <AiUsageEstimateHonestyLine />
       <AiUsageBillingVocabularyRail currentSurfaceId="ai-usage" />
       <ModelGovernanceAiUsageVocabularyRail currentSurfaceId="ai-usage" />
 {data?.isMocked === true ? (
@@ -99,12 +128,22 @@ export function CostReportingSettingsPageView(props: Props) {
         </p>
       ) : null}
 
-      {quietEmptyPeriod ? (
+      {pageLoadFailed ? (
+        <div data-testid="cost-reporting-page-error">
+          <AiUsageSectionState
+            state="error"
+            title="AI usage"
+            errorMessage="Could not load AI usage data. The request timed out or was interrupted."
+            onRetry={() => void m.load({ forceRefresh: true })}
+          />
+        </div>
+      ) : quietEmptyPeriod ? (
         <>
           <AiUsageQuietEmptyPeriodPanel
             budgetTotalUsd={derived.kpi.budgetTotalUsd}
             currency={derived.kpi.currency}
             canManageBudget={m.canManageBudget}
+            billingPeriodResetLabel={derived.freshness.billingPeriodResetLabel}
           />
           <WorkspaceBudgetStatusCard
             governance={derived.governance}
@@ -112,6 +151,7 @@ export function CostReportingSettingsPageView(props: Props) {
             remainingBudgetUsd={derived.kpi.remainingBudgetUsd}
             budgetTotalUsd={derived.kpi.budgetTotalUsd}
             usedAmountUsd={derived.kpi.usedThisMonthUsd}
+            onRetry={() => void m.load({ forceRefresh: true })}
           />
           <AiUsageCostScopeHelp />
           <AiUsageBudgetControlsPanel canManageBudget={m.canManageBudget} />
@@ -127,7 +167,7 @@ export function CostReportingSettingsPageView(props: Props) {
             warningThresholdPercent={derived.governance?.warningThresholdPercent ?? null}
             state={derived.budgetState}
             canManageBudget={m.canManageBudget}
-            onRetry={() => void m.load()}
+            onRetry={() => void m.load({ forceRefresh: true })}
           />
 
           <WorkspaceBudgetStatusCard
@@ -136,6 +176,7 @@ export function CostReportingSettingsPageView(props: Props) {
             remainingBudgetUsd={derived.kpi.remainingBudgetUsd}
             budgetTotalUsd={derived.kpi.budgetTotalUsd}
             usedAmountUsd={derived.kpi.usedThisMonthUsd}
+            onRetry={() => void m.load({ forceRefresh: true })}
           />
 
           <AiUsageBudgetControlsPanel canManageBudget={m.canManageBudget} />
@@ -156,7 +197,7 @@ export function CostReportingSettingsPageView(props: Props) {
             daily={data?.daily ?? []}
             currency={data?.currency ?? "USD"}
             state={derived.costReportingState}
-            onRefresh={() => void m.load()}
+            onRefresh={() => void m.load({ forceRefresh: true })}
           />
 
           <AiUsageCostBreakdownPanel

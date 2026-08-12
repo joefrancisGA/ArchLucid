@@ -14,10 +14,7 @@ import { AI_USAGE_SETTINGS_PATH } from "@/lib/ai-usage-nav-paths";
 import { ARCHITECTURES_LIST_PATH } from "@/lib/architecture/architecture-routes";
 import { SETTINGS_BILLING_PATH } from "@/lib/billing-and-plans-help-route";
 import { DIGESTS_HUB_PATH } from "@/lib/digests-route-paths";
-import {
-  GOVERNANCE_ALERTS_PATH,
-  GOVERNANCE_EXCEPTIONS_PATH,
-} from "@/lib/governance/governance-route-paths";
+import { GOVERNANCE_ALERTS_PATH } from "@/lib/governance/governance-route-paths";
 import { IMPACT_PREVIEW_PATH } from "@/lib/impact-preview-route";
 
 const ROUTE_VIEW_EXPLANATIONS: readonly { prefix: string; explanation: RouteViewExplanation }[] = [
@@ -46,15 +43,6 @@ const ROUTE_VIEW_EXPLANATIONS: readonly { prefix: string; explanation: RouteView
       summary:
         "Triage governance and architecture-risk signals raised from review findings that need acknowledgement or resolution.",
       nextAction: "Open an alert to acknowledge or resolve it, or configure alert rules when the inbox is empty.",
-    },
-  },
-  {
-    prefix: GOVERNANCE_EXCEPTIONS_PATH,
-    explanation: {
-      title: "Exceptions",
-      summary:
-        "Track accepted risk exceptions against findings — time-bounded waivers that stay visible in the governance trail.",
-      nextAction: "Review open exceptions, renew or close ones that expired, or open the linked finding.",
     },
   },
   {
@@ -121,20 +109,22 @@ const ROUTE_VIEW_EXPLANATIONS: readonly { prefix: string; explanation: RouteView
   },
 ];
 
+/**
+ * Only the alerts inbox is opted in. Risk exceptions keep their own layer guidance and governance
+ * approval banner, so a shell banner there repeats guidance the page already owns.
+ */
 function isGovernanceExplainOptIn(path: string): boolean {
-  const isAlerts =
-    path === GOVERNANCE_ALERTS_PATH || path.startsWith(`${GOVERNANCE_ALERTS_PATH}/`);
-  const isExceptions =
-    path === GOVERNANCE_EXCEPTIONS_PATH || path.startsWith(`${GOVERNANCE_EXCEPTIONS_PATH}/`);
-
-  return isAlerts || isExceptions;
+  return path === GOVERNANCE_ALERTS_PATH || path.startsWith(`${GOVERNANCE_ALERTS_PATH}/`);
 }
 
 /** Returns compact orientation copy only when the route does not already own header guidance. */
-export function routeViewExplanationForPathname(pathname: string): RouteViewExplanation | null {
+export function routeViewExplanationForPathname(
+  pathname: string,
+  options?: { readonly isAiUsageQuietEmptyPeriod?: boolean },
+): RouteViewExplanation | null {
   const path = (pathname ?? "").split("?")[0] ?? "";
 
-  // Most governance surfaces own orientation via page headers; alerts and exceptions are opted in.
+  // Most governance surfaces own orientation via page headers; only the alerts inbox is opted in.
   if (path.startsWith("/governance")) {
     if (!isGovernanceExplainOptIn(path)) {
       return null;
@@ -149,6 +139,14 @@ export function routeViewExplanationForPathname(pathname: string): RouteViewExpl
 
   for (const row of sorted) {
     if (path === row.prefix || path.startsWith(`${row.prefix}/`)) {
+      if (row.prefix === AI_USAGE_SETTINGS_PATH && options?.isAiUsageQuietEmptyPeriod === true) {
+        return {
+          ...row.explanation,
+          nextAction:
+            "Confirm your monthly AI budget cap below, then open billing when you need plan or invoice details.",
+        };
+      }
+
       return row.explanation;
     }
   }

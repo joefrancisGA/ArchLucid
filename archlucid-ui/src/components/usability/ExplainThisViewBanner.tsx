@@ -8,6 +8,8 @@ import { useEffect, useState } from "react";
 
 import { InlineGuidanceLabel } from "@/components/InlineGuidanceLabel";
 import { DismissControl } from "@/components/usability/DismissControl";
+import { useAiUsageRouteShellState } from "@/app/(operator)/administration/ai-usage/_sections/ai-usage-route-shell-context";
+import { AI_USAGE_SETTINGS_PATH } from "@/lib/ai-usage-nav-paths";
 import { routeViewExplanationForPathname } from "@/lib/usability/route-view-explanations";
 
 function explainViewDismissKey(pathname: string): string {
@@ -17,7 +19,12 @@ function explainViewDismissKey(pathname: string): string {
 /** Compact per-route orientation — merged into the main column, not a competing right-side hero card. */
 export function ExplainThisViewBanner() {
   const pathname = usePathname() ?? "/";
-  const explanation = routeViewExplanationForPathname(pathname);
+  const aiUsageShell = useAiUsageRouteShellState();
+  const quietEmptyPeriod =
+    pathname === AI_USAGE_SETTINGS_PATH && aiUsageShell?.isQuietEmptyPeriod === true;
+  const explanation = routeViewExplanationForPathname(pathname, {
+    isAiUsageQuietEmptyPeriod: quietEmptyPeriod,
+  });
   const [dismissed, setDismissed] = useState(false);
 
   useEffect(() => {

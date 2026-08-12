@@ -165,7 +165,7 @@ export function withCorrelationHeaders(headers: HeadersInit): Headers {
 
 function serverFetchInit(
   headers: Headers,
-  init?: { readonly method?: string; readonly body?: string },
+  init?: { readonly method?: string; readonly body?: string; readonly signal?: AbortSignal },
 ): RequestInit {
   const requestInit: RequestInit = {
     cache: "no-store",
@@ -173,7 +173,9 @@ function serverFetchInit(
     ...init,
   };
 
-  if (!isBrowser()) {
+  if (init?.signal !== undefined) {
+    requestInit.signal = init.signal;
+  } else if (!isBrowser()) {
     requestInit.signal = AbortSignal.timeout(SERVER_UPSTREAM_FETCH_TIMEOUT_MS);
   }
 
@@ -225,7 +227,7 @@ function notifyIfIdempotencyReplayed(response: Response): void {
 
 export async function apiGetJsonWithTrace<T>(
   path: string,
-  options?: { readonly scopeHeaders?: Record<string, string> },
+  options?: { readonly scopeHeaders?: Record<string, string>; readonly signal?: AbortSignal },
 ): Promise<ApiResponseWithTrace<T>> {
   const sandboxPayload = trySandboxMockJsonForApiGet(path);
 
@@ -236,7 +238,7 @@ export async function apiGetJsonWithTrace<T>(
   await ensureOidcBearerReady();
   const { url, headers } = await resolveRequest(path, options);
   const { headers: h, correlationId } = applyCorrelationHeaders(headers);
-  const fetchOnce = () => fetch(url, serverFetchInit(h));
+  const fetchOnce = () => fetch(url, serverFetchInit(h, { signal: options?.signal }));
   const response = isBrowser()
     ? await fetchOnce()
     : await fetchWithWarmupRetry(fetchOnce);
@@ -254,7 +256,7 @@ export async function apiGetJsonWithTrace<T>(
 /** GETs JSON from the ArchLucid API. Throws {@link ApiRequestError} on HTTP errors. */
 export async function apiGet<T>(
   path: string,
-  options?: { readonly scopeHeaders?: Record<string, string> },
+  options?: { readonly scopeHeaders?: Record<string, string>; readonly signal?: AbortSignal },
 ): Promise<T> {
   const { data } = await apiGetJsonWithTrace<T>(path, options);
 
