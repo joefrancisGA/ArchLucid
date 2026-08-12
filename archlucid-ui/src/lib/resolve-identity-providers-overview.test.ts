@@ -8,6 +8,7 @@ import {
   IDENTITY_PROVIDERS_STATUS_ENABLED,
   IDENTITY_PROVIDERS_STATUS_HEALTHY,
   IDENTITY_PROVIDERS_STATUS_NOT_APPLICABLE,
+  IDENTITY_PROVIDERS_STATUS_NOT_STARTED,
   IDENTITY_PROVIDERS_STATUS_NOT_CONFIGURED,
   IDENTITY_PROVIDERS_STATUS_SOURCE_UNAVAILABLE,
   IDENTITY_PROVIDERS_STATUS_UNKNOWN,
@@ -62,7 +63,7 @@ describe("resolveIdentityProvidersOverview", () => {
 
     expect(overview.authenticationModeLabel).toBe("Local development sign-in");
     expect(overview.usesLocalDevelopmentSignIn).toBe(true);
-    expect(overview.roleMappingStatus).toBe(IDENTITY_PROVIDERS_STATUS_NOT_APPLICABLE);
+    expect(overview.roleMappingStatus).toBe(IDENTITY_PROVIDERS_STATUS_NOT_STARTED);
     expect(overview.tileCaptions.roleMapping).toBe(IDENTITY_PROVIDERS_ROLE_MAPPING_LOCAL_DEV_REASON);
     expect(overview.recommendedNextHref).toBe(IDENTITY_PROVIDERS_SAML_SAVE_ENABLEMENT_LINK_HREF);
     expect(overview.recommendedNextStep).toBe(IDENTITY_PROVIDERS_RECOMMENDED_CONFIGURE_PRODUCTION_SIGN_IN);

@@ -81,6 +81,8 @@ export const IDENTITY_PROVIDERS_RECOMMENDED_NEXT_LABEL = "Recommended next step"
 export const IDENTITY_PROVIDERS_STATUS_ENABLED = "Enabled";
 export const IDENTITY_PROVIDERS_STATUS_DISABLED = "Disabled";
 export const IDENTITY_PROVIDERS_STATUS_NOT_CONFIGURED = "Not configured";
+export const IDENTITY_PROVIDERS_STATUS_NOT_CONFIGURED_YET = "Not configured yet";
+export const IDENTITY_PROVIDERS_STATUS_NOT_STARTED = "Not started";
 export const IDENTITY_PROVIDERS_STATUS_ACTION_NEEDED = "Action needed";
 export const IDENTITY_PROVIDERS_STATUS_NOT_APPLICABLE = "Not applicable";
 export const IDENTITY_PROVIDERS_STATUS_HEALTHY = "Healthy";
@@ -141,8 +143,14 @@ export const IDENTITY_PROVIDERS_ROLE_MAPPING_EXAMPLES_HELPER =
   "Sample IdP group names for reference — not your tenant's live configuration.";
 
 export const IDENTITY_PROVIDERS_ROLE_MAPPING_LOADING = "Loading role mapping status…";
+export const IDENTITY_PROVIDERS_ROLE_MAPPING_LOAD_ERROR =
+  "Could not load configured role mappings for this tenant. Refresh or try again in a moment.";
+export const IDENTITY_PROVIDERS_ROLE_MAPPING_EMPTY_STATE =
+  "No group or claim mappings are saved for this organization yet.";
+export const IDENTITY_PROVIDERS_ROLE_MAPPING_TABLE_TITLE = "Configured mappings";
 export const IDENTITY_PROVIDERS_ROLE_MAPPING_ACTION_EDIT_SAML = "Edit SAML role mapping";
 export const IDENTITY_PROVIDERS_ROLE_MAPPING_ACTION_OPEN_SSO_WIZARD = "Open SSO wizard";
+export const IDENTITY_PROVIDERS_ROLE_MAPPING_ACTION_TEST_TOKEN = "Test a token against this mapping";
 export const IDENTITY_PROVIDERS_ACTION_OPEN_IDENTITY_DIAGNOSTICS = "Open identity diagnostics";
 
 export const IDENTITY_PROVIDERS_DIAGNOSTICS_PAGE_TITLE = "Identity diagnostics";

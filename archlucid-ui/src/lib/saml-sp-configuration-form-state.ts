@@ -52,6 +52,17 @@ export function createDefaultSamlSpConfigurationFormValues(): SamlSpConfiguratio
   };
 }
 
+export function extractPersistedTenantRoleMappingRows(
+  record: TenantIdentityProviderConfigurationRecord | null,
+): ReadonlyArray<{ readonly idpValue: string; readonly archLucidRole: string }> {
+  return hydrateSamlSpConfigurationFormValues(record)
+    .mappings.filter((row) => row.idpValue.trim().length > 0)
+    .map((row) => ({
+      idpValue: row.idpValue.trim(),
+      archLucidRole: row.archLucidRole.trim(),
+    }));
+}
+
 export function hydrateSamlSpConfigurationFormValues(
   record: TenantIdentityProviderConfigurationRecord | null,
 ): SamlSpConfigurationFormValues {

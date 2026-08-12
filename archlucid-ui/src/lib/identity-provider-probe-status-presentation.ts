@@ -1,5 +1,6 @@
 import type { EnterpriseStatusKind } from "@/lib/design-tokens";
 import type { IdentityProviderCustomerStatus } from "@/lib/identity-providers-settings-types";
+import type { components } from "@/lib/openapi-schemas";
 import {
   IDENTITY_PROVIDERS_DISCOVERY_STATUS_NOT_ATTEMPTED,
   IDENTITY_PROVIDERS_STATUS_ACTION_NEEDED,
@@ -9,8 +10,13 @@ import {
   IDENTITY_PROVIDERS_STATUS_NEEDS_REVIEW,
   IDENTITY_PROVIDERS_STATUS_NOT_APPLICABLE,
   IDENTITY_PROVIDERS_STATUS_NOT_CONFIGURED,
+  IDENTITY_PROVIDERS_STATUS_NOT_CONFIGURED_YET,
+  IDENTITY_PROVIDERS_STATUS_NOT_STARTED,
   IDENTITY_PROVIDERS_STATUS_UNKNOWN,
 } from "@/lib/identity-providers-settings-copy";
+
+type AdminAuthConfigurationDiagnosticsResponse =
+  components["schemas"]["AdminAuthConfigurationDiagnosticsResponse"];
 
 export type IdentityProviderStatusPresentation = {
   readonly kind: EnterpriseStatusKind;
@@ -46,6 +52,8 @@ export function identityProviderCustomerStatusPresentation(
       return { kind: "blocked", label: status };
     case IDENTITY_PROVIDERS_STATUS_DISABLED:
     case IDENTITY_PROVIDERS_STATUS_NOT_CONFIGURED:
+    case IDENTITY_PROVIDERS_STATUS_NOT_CONFIGURED_YET:
+    case IDENTITY_PROVIDERS_STATUS_NOT_STARTED:
     case IDENTITY_PROVIDERS_STATUS_NOT_APPLICABLE:
     case IDENTITY_PROVIDERS_STATUS_UNKNOWN:
       return { kind: "neutral", label: status };
@@ -97,6 +105,37 @@ export function oidcDiscoveryStatusPresentation(
       return _exhaustive;
     }
   }
+}
+
+/** Derives role-mapping customer status from configuration diagnostics — not probe applicability. */
+export function resolveRoleMappingConfigurationCustomerStatus(
+  config: AdminAuthConfigurationDiagnosticsResponse | null,
+): IdentityProviderCustomerStatus {
+  if (config === null) {
+    return IDENTITY_PROVIDERS_STATUS_NOT_CONFIGURED_YET;
+  }
+
+  if (config.authMode === "DevelopmentBypass") {
+    return IDENTITY_PROVIDERS_STATUS_NOT_STARTED;
+  }
+
+  if (config.roleClaimNameConfigured === true && config.tenantClaimMappingConfigured === true) {
+    return IDENTITY_PROVIDERS_STATUS_ENABLED;
+  }
+
+  if (config.roleClaimNameConfigured === true) {
+    return IDENTITY_PROVIDERS_STATUS_NEEDS_REVIEW;
+  }
+
+  const identitySourceConfigured =
+    config.tenantIdentityProviderProtocol === "Saml"
+    || (config.authMode === "JwtBearer" && config.issuerOrAuthorityConfigured === true);
+
+  if (!identitySourceConfigured) {
+    return IDENTITY_PROVIDERS_STATUS_NOT_CONFIGURED_YET;
+  }
+
+  return IDENTITY_PROVIDERS_STATUS_ACTION_NEEDED;
 }
 
 export function oidcConfiguredStringFieldPresentation(

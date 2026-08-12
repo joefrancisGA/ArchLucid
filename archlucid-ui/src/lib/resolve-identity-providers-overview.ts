@@ -1,3 +1,4 @@
+import { resolveRoleMappingConfigurationCustomerStatus } from "@/lib/identity-provider-probe-status-presentation";
 import type { components } from "@/lib/openapi-schemas";
 import {
   IDENTITY_PROVIDERS_AUTH_MODE_API_KEY,
@@ -16,6 +17,7 @@ import {
   IDENTITY_PROVIDERS_STATUS_NEEDS_REVIEW,
   IDENTITY_PROVIDERS_STATUS_NOT_APPLICABLE,
   IDENTITY_PROVIDERS_STATUS_NOT_CONFIGURED,
+  IDENTITY_PROVIDERS_STATUS_NOT_STARTED,
   IDENTITY_PROVIDERS_STATUS_SOURCE_UNAVAILABLE,
   IDENTITY_PROVIDERS_STATUS_UNKNOWN,
   IDENTITY_PROVIDERS_VALIDATION_STATUS_NOT_VALIDATED_YET,
@@ -121,19 +123,7 @@ function resolveOidcStatus(
 }
 
 function resolveRoleMappingStatus(config: AdminAuthConfigurationDiagnosticsResponse | null): IdentityProviderCustomerStatus {
-  if (config?.roleClaimNameConfigured === true && config?.tenantClaimMappingConfigured === true) {
-    return IDENTITY_PROVIDERS_STATUS_ENABLED;
-  }
-
-  if (config?.roleClaimNameConfigured === true) {
-    return IDENTITY_PROVIDERS_STATUS_NEEDS_REVIEW;
-  }
-
-  if (config?.authMode === "DevelopmentBypass") {
-    return IDENTITY_PROVIDERS_STATUS_NOT_APPLICABLE;
-  }
-
-  return IDENTITY_PROVIDERS_STATUS_ACTION_NEEDED;
+  return resolveRoleMappingConfigurationCustomerStatus(config);
 }
 
 function resolveSsoStatus(
@@ -262,7 +252,7 @@ function buildTileCaptions(
 
   if (
     input.authConfigurationDiagnosticsAvailable
-    && roleMappingStatus === IDENTITY_PROVIDERS_STATUS_NOT_APPLICABLE
+    && roleMappingStatus === IDENTITY_PROVIDERS_STATUS_NOT_STARTED
     && input.authConfigurationDiagnostics?.authMode === "DevelopmentBypass"
   ) {
     captions.roleMapping = IDENTITY_PROVIDERS_ROLE_MAPPING_LOCAL_DEV_REASON;

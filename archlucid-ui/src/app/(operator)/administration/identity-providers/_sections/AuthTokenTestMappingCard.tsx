@@ -83,7 +83,7 @@ export function AuthTokenTestMappingCard(
   }
 
   return (
-    <Card data-testid="auth-token-test-mapping-card">
+    <Card id="auth-token-test-mapping-card" data-testid="auth-token-test-mapping-card">
       <CardHeader>
         <CardTitle className={OPERATOR_TYPOGRAPHY.cardTitle}>
           {props.showTechnicalDetails === true ? "Test mapping" : IDENTITY_PROVIDERS_SAML_TEST_MAPPING_CARD_TITLE}

@@ -6,6 +6,7 @@ import {
   oidcDiscoveryStatusLabelFromPayload,
   oidcDiscoveryStatusPresentation,
   oidcPageDiscoveryStatusPresentation,
+  resolveRoleMappingConfigurationCustomerStatus,
 } from "@/lib/identity-provider-probe-status-presentation";
 import {
   IDENTITY_PROVIDERS_DISCOVERY_STATUS_NOT_ATTEMPTED,
@@ -15,6 +16,8 @@ import {
   IDENTITY_PROVIDERS_STATUS_NEEDS_REVIEW,
   IDENTITY_PROVIDERS_STATUS_NOT_APPLICABLE,
   IDENTITY_PROVIDERS_STATUS_NOT_CONFIGURED,
+  IDENTITY_PROVIDERS_STATUS_NOT_CONFIGURED_YET,
+  IDENTITY_PROVIDERS_STATUS_NOT_STARTED,
   IDENTITY_PROVIDERS_STATUS_UNKNOWN,
 } from "@/lib/identity-providers-settings-copy";
 
@@ -60,6 +63,14 @@ describe("identity-provider-probe-status-presentation", () => {
     expect(identityProviderCustomerStatusPresentation(IDENTITY_PROVIDERS_STATUS_NOT_CONFIGURED)).toEqual({
       kind: "neutral",
       label: IDENTITY_PROVIDERS_STATUS_NOT_CONFIGURED,
+    });
+    expect(identityProviderCustomerStatusPresentation(IDENTITY_PROVIDERS_STATUS_NOT_CONFIGURED_YET)).toEqual({
+      kind: "neutral",
+      label: IDENTITY_PROVIDERS_STATUS_NOT_CONFIGURED_YET,
+    });
+    expect(identityProviderCustomerStatusPresentation(IDENTITY_PROVIDERS_STATUS_NOT_STARTED)).toEqual({
+      kind: "neutral",
+      label: IDENTITY_PROVIDERS_STATUS_NOT_STARTED,
     });
     expect(identityProviderCustomerStatusPresentation(IDENTITY_PROVIDERS_STATUS_UNKNOWN)).toEqual({
       kind: "neutral",
@@ -128,5 +139,34 @@ describe("identity-provider-probe-status-presentation", () => {
       kind: "neutral",
       label: IDENTITY_PROVIDERS_STATUS_NOT_CONFIGURED,
     });
+  });
+
+  it("derives role-mapping status from configuration state instead of probe applicability", () => {
+    expect(resolveRoleMappingConfigurationCustomerStatus(null)).toBe(
+      IDENTITY_PROVIDERS_STATUS_NOT_CONFIGURED_YET,
+    );
+    expect(
+      resolveRoleMappingConfigurationCustomerStatus({
+        authMode: "DevelopmentBypass",
+        roleClaimNameConfigured: false,
+        tenantClaimMappingConfigured: false,
+      }),
+    ).toBe(IDENTITY_PROVIDERS_STATUS_NOT_STARTED);
+    expect(
+      resolveRoleMappingConfigurationCustomerStatus({
+        authMode: "ApiKey",
+        roleClaimNameConfigured: false,
+        tenantClaimMappingConfigured: false,
+        issuerOrAuthorityConfigured: false,
+      }),
+    ).toBe(IDENTITY_PROVIDERS_STATUS_NOT_CONFIGURED_YET);
+    expect(
+      resolveRoleMappingConfigurationCustomerStatus({
+        authMode: "JwtBearer",
+        roleClaimNameConfigured: true,
+        tenantClaimMappingConfigured: true,
+        issuerOrAuthorityConfigured: true,
+      }),
+    ).toBe(IDENTITY_PROVIDERS_STATUS_ENABLED);
   });
 });
