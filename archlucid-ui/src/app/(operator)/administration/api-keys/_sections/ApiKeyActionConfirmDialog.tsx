@@ -2,8 +2,9 @@
 
 import { cn } from "@/lib/utils";
 import { useMemo, useState } from "react";
-import { Loader2 } from "lucide-react";
 
+import { ConfirmationDialog } from "@/components/ConfirmationDialog";
+import { Input } from "@/components/ui/input";
 import {
   API_KEYS_CONFIRM_OVERLAP_DESCRIPTION,
   API_KEYS_CONFIRM_OVERLAP_TITLE,
@@ -14,17 +15,6 @@ import {
   API_KEYS_CONFIRM_TYPE_PHRASE_ADMIN,
 } from "@/lib/api-keys-settings-copy";
 import type { ApiKeyPendingAction } from "@/lib/api-keys-settings-types";
-import {
-  AlertDialog,
-  AlertDialogAction,
-  AlertDialogCancel,
-  AlertDialogContent,
-  AlertDialogDescription,
-  AlertDialogFooter,
-  AlertDialogHeader,
-  AlertDialogTitle,
-} from "@/components/ui/alert-dialog";
-import { Input } from "@/components/ui/input";
 import { OPERATOR_TYPOGRAPHY } from "@/lib/design-tokens";
 
 export type ApiKeyActionConfirmDialogProps = {
@@ -80,29 +70,31 @@ function resolveDialogCopy(pendingAction: ApiKeyPendingAction | null): {
   };
 }
 
+/** Domain wrapper over {@link ConfirmationDialog} for API key rotation confirms (TB-2365). */
 export function ApiKeyActionConfirmDialog(props: ApiKeyActionConfirmDialogProps): React.JSX.Element {
   const [typedPhrase, setTypedPhrase] = useState("");
   const copy = useMemo(() => resolveDialogCopy(props.pendingAction), [props.pendingAction]);
   const phraseMatches =
     copy.requireTypedPhrase === null || typedPhrase.trim() === copy.requireTypedPhrase;
-  const isDestructive = copy.variant === "destructive";
 
   return (
-    <AlertDialog
+    <ConfirmationDialog
       open={props.pendingAction !== null}
       onOpenChange={(open) => {
-        if (!open) {
+        if (!open && !props.busy) {
           setTypedPhrase("");
           props.onCancel();
         }
       }}
-    >
-      <AlertDialogContent>
-        <AlertDialogHeader>
-          <AlertDialogTitle>{copy.title}</AlertDialogTitle>
-          <AlertDialogDescription>{copy.description}</AlertDialogDescription>
-        </AlertDialogHeader>
-        {copy.requireTypedPhrase !== null ? (
+      title={copy.title}
+      description={copy.description}
+      confirmLabel={copy.confirmLabel}
+      variant={copy.variant}
+      busy={props.busy}
+      confirmDisabled={!phraseMatches}
+      onConfirm={props.onConfirm}
+      extraContent={
+        copy.requireTypedPhrase !== null ? (
           <div className="space-y-2">
             <p className={cn("m-0 text-al-text-secondary", OPERATOR_TYPOGRAPHY.helper)}>
               Type <span className="font-medium text-al-text-primary">{copy.requireTypedPhrase}</span> to confirm.
@@ -115,28 +107,8 @@ export function ApiKeyActionConfirmDialog(props: ApiKeyActionConfirmDialogProps)
               autoComplete="off"
             />
           </div>
-        ) : null}
-        <AlertDialogFooter>
-          <AlertDialogCancel disabled={props.busy}>Cancel</AlertDialogCancel>
-          <AlertDialogAction
-            disabled={props.busy || !phraseMatches}
-            className={cn(
-              !isDestructive &&
-                "border-transparent bg-neutral-900 text-neutral-50 shadow-sm hover:bg-neutral-800 hover:text-neutral-50 focus-visible:ring-neutral-400 dark:bg-neutral-200 dark:text-neutral-900 dark:hover:bg-neutral-300 dark:focus-visible:ring-neutral-500",
-            )}
-            onClick={props.onConfirm}
-          >
-            {props.busy ? (
-              <span className="inline-flex items-center gap-2">
-                <Loader2 className="h-4 w-4 shrink-0 animate-spin" aria-hidden />
-                Processing…
-              </span>
-            ) : (
-              copy.confirmLabel
-            )}
-          </AlertDialogAction>
-        </AlertDialogFooter>
-      </AlertDialogContent>
-    </AlertDialog>
+        ) : null
+      }
+    />
   );
 }

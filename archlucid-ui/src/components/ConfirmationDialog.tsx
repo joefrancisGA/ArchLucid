@@ -28,6 +28,8 @@ export type ConfirmationDialogProps = {
   variant?: "destructive" | "default";
   onConfirm: () => void;
   busy?: boolean;
+  /** When true, keeps the confirm action disabled (e.g. typed-phrase gates). */
+  confirmDisabled?: boolean;
   /** Rendered after the description and before the footer (e.g. optional checkboxes). */
   extraContent?: ReactNode;
   /** When set, renders governed-mutation reversibility copy before the footer (TB-2148). */
@@ -47,6 +49,7 @@ export function ConfirmationDialog({
   variant = "destructive",
   onConfirm,
   busy = false,
+  confirmDisabled = false,
   extraContent,
   reversibilityMutationId,
 }: ConfirmationDialogProps) {
@@ -67,7 +70,7 @@ export function ConfirmationDialog({
         <AlertDialogFooter>
           <AlertDialogCancel disabled={busy}>{cancelLabel}</AlertDialogCancel>
           <AlertDialogAction
-            disabled={busy}
+            disabled={busy || confirmDisabled}
             className={cn(
               !isDestructive &&
                 "border-transparent bg-neutral-900 text-neutral-50 shadow-sm hover:bg-neutral-800 hover:text-neutral-50 focus-visible:ring-neutral-400 dark:bg-neutral-200 dark:text-neutral-900 dark:hover:bg-neutral-300 dark:focus-visible:ring-neutral-500",
