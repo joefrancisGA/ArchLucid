@@ -18,7 +18,7 @@ vi.mock("@/components/architecture/ArchitectureDiagramViewer", () => ({
   ArchitectureDiagramViewer: () => <div data-testid="architecture-diagram-viewer-mock" />,
 }));
 
-import { ARCHITECTURE_DIAGRAM_ADD_DETAILS_ACTION } from "@/lib/architecture/architecture-diagram-copy";
+import { ARCHITECTURE_DIAGRAM_CLARIFY_ARCHITECTURE_ACTION } from "@/lib/architecture/architecture-diagram-copy";
 import { ArchitectureCreatedWorkspace } from "@/components/architecture/ArchitectureCreatedWorkspace";
 
 const workspaceBaseline = {
@@ -106,7 +106,7 @@ describe("ArchitectureCreatedWorkspace diagram tab", () => {
       expect(screen.getByTestId("architecture-diagram-insufficient")).toBeInTheDocument();
     });
 
-    const addDetailsLink = screen.getByRole("link", { name: ARCHITECTURE_DIAGRAM_ADD_DETAILS_ACTION });
+    const addDetailsLink = screen.getByRole("link", { name: ARCHITECTURE_DIAGRAM_CLARIFY_ARCHITECTURE_ACTION });
     expect(addDetailsLink.getAttribute("href")).toContain("rerun=run-diagram");
   });
 });
