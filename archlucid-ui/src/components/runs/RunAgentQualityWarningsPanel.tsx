@@ -9,6 +9,15 @@ import { useState } from "react";
 import { OperatorApiProblem } from "@/components/operator/OperatorApiProblem";
 import { Button } from "@/components/ui/button";
 import { Card, CardContent, CardDescription, CardHeader } from "@/components/ui/card";
+import {
+  EnterpriseTable,
+  EnterpriseTableBody,
+  EnterpriseTableCell,
+  EnterpriseTableHead,
+  EnterpriseTableHeadRow,
+  EnterpriseTableHeaderCell,
+  EnterpriseTableRow,
+} from "@/components/ui/enterprise-table";
 import { StatusTag } from "@/components/ui/status-tag";
 import { SeverityTag } from "@/components/ui/severity-tag";
 import { executeArchitectureRunAsync } from "@/lib/api";
@@ -90,40 +99,40 @@ export function RunAgentQualityWarningsPanel(props: RunAgentQualityWarningsPanel
           ) : null}
         </CardHeader>
         <CardContent className="space-y-4">
-          <div className="overflow-x-auto">
-            <table className={cn("w-full border-collapse", OPERATOR_TYPOGRAPHY.body)}>
-              <thead>
-                <tr className="border-b border-neutral-200 text-left dark:border-neutral-700">
-                  <th className="px-1.5 py-2">Agent</th>
-                  <th className="px-1.5 py-2">Status</th>
-                  <th className="px-1.5 py-2">Structural</th>
-                  <th className="px-1.5 py-2">Semantic</th>
-                  <th className="px-1.5 py-2 min-w-[12rem]">Threshold notes</th>
-                </tr>
-              </thead>
-              <tbody>
-                {rows.map((row) => (
-                  <tr key={row.traceId} className="border-b border-neutral-100 dark:border-neutral-800">
-                    <td className="whitespace-nowrap px-1.5 py-2">{row.agentLabel}</td>
-                    <td className="px-1.5 py-2">
-                      {row.status === "rejected" ? (
-                        <SeverityTag severity="Critical" kind="critical" label="Rejected" />
-                      ) : (
-                        <StatusTag kind="needs-attention" label="Warned" />
-                      )}
-                    </td>
-                    <td className={cn("px-1.5 py-2 font-mono", OPERATOR_TYPOGRAPHY.helper)}>{row.structuralCompletenessRatio.toFixed(2)}</td>
-                    <td className={cn("px-1.5 py-2 font-mono", OPERATOR_TYPOGRAPHY.helper)}>
-                      {row.semanticScore === null ? "—" : row.semanticScore.toFixed(2)}
-                    </td>
-                    <td className={cn("px-1.5 py-2 text-neutral-600 dark:text-neutral-400", OPERATOR_TYPOGRAPHY.helper)}>
-                      {row.breachedThresholds.join(" · ")}
-                    </td>
-                  </tr>
-                ))}
-              </tbody>
-            </table>
-          </div>
+          <EnterpriseTable ariaLabel="AI quality warning traces" className={OPERATOR_TYPOGRAPHY.body}>
+            <EnterpriseTableHead>
+              <EnterpriseTableHeadRow>
+                <EnterpriseTableHeaderCell>Agent</EnterpriseTableHeaderCell>
+                <EnterpriseTableHeaderCell>Status</EnterpriseTableHeaderCell>
+                <EnterpriseTableHeaderCell>Structural</EnterpriseTableHeaderCell>
+                <EnterpriseTableHeaderCell>Semantic</EnterpriseTableHeaderCell>
+                <EnterpriseTableHeaderCell className="min-w-[12rem]">Threshold notes</EnterpriseTableHeaderCell>
+              </EnterpriseTableHeadRow>
+            </EnterpriseTableHead>
+            <EnterpriseTableBody>
+              {rows.map((row) => (
+                <EnterpriseTableRow key={row.traceId}>
+                  <EnterpriseTableCell className="whitespace-nowrap">{row.agentLabel}</EnterpriseTableCell>
+                  <EnterpriseTableCell>
+                    {row.status === "rejected" ? (
+                      <SeverityTag severity="Critical" kind="critical" label="Rejected" />
+                    ) : (
+                      <StatusTag kind="needs-attention" label="Warned" />
+                    )}
+                  </EnterpriseTableCell>
+                  <EnterpriseTableCell className={cn("font-mono", OPERATOR_TYPOGRAPHY.helper)}>
+                    {row.structuralCompletenessRatio.toFixed(2)}
+                  </EnterpriseTableCell>
+                  <EnterpriseTableCell className={cn("font-mono", OPERATOR_TYPOGRAPHY.helper)}>
+                    {row.semanticScore === null ? "—" : row.semanticScore.toFixed(2)}
+                  </EnterpriseTableCell>
+                  <EnterpriseTableCell className={cn("text-neutral-600 dark:text-neutral-400", OPERATOR_TYPOGRAPHY.helper)}>
+                    {row.breachedThresholds.join(" · ")}
+                  </EnterpriseTableCell>
+                </EnterpriseTableRow>
+              ))}
+            </EnterpriseTableBody>
+          </EnterpriseTable>
 
           <div className="flex flex-wrap items-center gap-3">
             <Button type="button" variant="primary" size="sm" disabled={busy} onClick={() => void onReRunReview()}>

@@ -2,7 +2,17 @@ import { cn } from "@/lib/utils";
 import { OPERATOR_TYPOGRAPHY } from "@/lib/design-tokens";
 import { IMPROVEMENT_PLANNING_THEMES_EMPTY_MESSAGE } from "@/lib/planning-page-copy";
 import type { LearningPlanListItemResponse, LearningThemeResponse } from "@/types/learning";
-import { planningNumericCellCls, planningTableCls, planningThTdCls } from "./planning-table-styles";
+
+import {
+  EnterpriseTable,
+  EnterpriseTableBody,
+  EnterpriseTableCell,
+  EnterpriseTableHead,
+  EnterpriseTableHeadRow,
+  EnterpriseTableHeaderCell,
+  EnterpriseTableRow,
+} from "@/components/ui/enterprise-table";
+import { planningNumericCellCls, planningThTdCls } from "./planning-table-styles";
 
 type PlanningThemesTableProps = {
   themes: LearningThemeResponse[];
@@ -33,51 +43,49 @@ export function PlanningThemesTable(props: PlanningThemesTableProps) {
   }
 
   return (
-    <div className="overflow-x-auto">
-      <table className={planningTableCls}>
-        <thead>
-          <tr className="bg-neutral-50/90 dark:bg-neutral-900/50">
-            <th className={planningThTdCls}>Theme</th>
-            <th className={planningNumericCellCls}>Feedback signals</th>
-            <th className={planningThTdCls}>Impacted area</th>
-            <th className={planningThTdCls}>Action</th>
-          </tr>
-        </thead>
-        <tbody>
-          {themes.map((t) => {
-            const planCount = countPlansForTheme(plans, t.themeId);
-            const isActive = selectedThemeId === t.themeId;
+    <EnterpriseTable ariaLabel="Improvement planning themes" className={OPERATOR_TYPOGRAPHY.body}>
+      <EnterpriseTableHead>
+        <EnterpriseTableHeadRow>
+          <EnterpriseTableHeaderCell className={planningThTdCls}>Theme</EnterpriseTableHeaderCell>
+          <EnterpriseTableHeaderCell className={planningNumericCellCls}>Feedback signals</EnterpriseTableHeaderCell>
+          <EnterpriseTableHeaderCell className={planningThTdCls}>Impacted area</EnterpriseTableHeaderCell>
+          <EnterpriseTableHeaderCell className={planningThTdCls}>Action</EnterpriseTableHeaderCell>
+        </EnterpriseTableHeadRow>
+      </EnterpriseTableHead>
+      <EnterpriseTableBody>
+        {themes.map((t) => {
+          const planCount = countPlansForTheme(plans, t.themeId);
+          const isActive = selectedThemeId === t.themeId;
 
-            return (
-              <tr key={t.themeId} className={isActive ? "bg-[var(--al-layer-hover)] dark:bg-neutral-800/80" : ""}>
-                <td className={planningThTdCls}>
-                  <strong>{t.title}</strong>
-                  <div className={cn("mt-1 text-neutral-600 dark:text-neutral-400", OPERATOR_TYPOGRAPHY.helper)}>{t.summary}</div>
-                </td>
-                <td className={planningNumericCellCls}>{t.evidenceSignalCount}</td>
-                <td className={planningThTdCls}>{t.affectedArtifactTypeOrWorkflowArea || "—"}</td>
-                <td className={planningThTdCls}>
-                  {planCount === 0 ? (
-                    <span className={cn("text-neutral-400 dark:text-neutral-500", OPERATOR_TYPOGRAPHY.helper)}>
-                      Plans pending
-                    </span>
-                  ) : (
-                    <button
-                      type="button"
-                      className={browseBtnCls}
-                      onClick={() => onSelectThemeForPlans(t.themeId)}
-                      aria-pressed={isActive}
-                      aria-label={`View ${planCount} plan(s) for theme ${t.title}`}
-                    >
-                      View {planCount} plan{planCount === 1 ? "" : "s"}
-                    </button>
-                  )}
-                </td>
-              </tr>
-            );
-          })}
-        </tbody>
-      </table>
-    </div>
+          return (
+            <EnterpriseTableRow key={t.themeId} selected={isActive}>
+              <EnterpriseTableCell className={planningThTdCls}>
+                <strong>{t.title}</strong>
+                <div className={cn("mt-1 text-neutral-600 dark:text-neutral-400", OPERATOR_TYPOGRAPHY.helper)}>{t.summary}</div>
+              </EnterpriseTableCell>
+              <EnterpriseTableCell className={planningNumericCellCls}>{t.evidenceSignalCount}</EnterpriseTableCell>
+              <EnterpriseTableCell className={planningThTdCls}>{t.affectedArtifactTypeOrWorkflowArea || "—"}</EnterpriseTableCell>
+              <EnterpriseTableCell className={planningThTdCls}>
+                {planCount === 0 ? (
+                  <span className={cn("text-neutral-400 dark:text-neutral-500", OPERATOR_TYPOGRAPHY.helper)}>
+                    Plans pending
+                  </span>
+                ) : (
+                  <button
+                    type="button"
+                    className={browseBtnCls}
+                    onClick={() => onSelectThemeForPlans(t.themeId)}
+                    aria-pressed={isActive}
+                    aria-label={`View ${planCount} plan(s) for theme ${t.title}`}
+                  >
+                    View {planCount} plan{planCount === 1 ? "" : "s"}
+                  </button>
+                )}
+              </EnterpriseTableCell>
+            </EnterpriseTableRow>
+          );
+        })}
+      </EnterpriseTableBody>
+    </EnterpriseTable>
   );
 }

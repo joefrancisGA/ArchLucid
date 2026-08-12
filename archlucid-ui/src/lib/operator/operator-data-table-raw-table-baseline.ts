@@ -1,35 +1,29 @@
-/**
- * Shared raw-table baseline paths for TB-2382 / TB-1649 migrate inventory.
- * Keep in sync with `operator-data-table-contract.test.ts` RAW_TABLE_BASELINE.
- */
-export const OPERATOR_DATA_TABLE_RAW_TABLE_BASELINE_PATHS: readonly string[] = [
-  "app/(operator)/administration/identity-providers/_sections/IdentityProvidersCatalogTable.tsx",
-  "app/(operator)/administration/identity-providers/_sections/SamlSpConfigurationForm.tsx",
-  "app/(operator)/administration/identity/sso-wizard/_sections/SsoWizardPageClient.tsx",
-  "app/(operator)/administration/users/_sections/SettingsRolesMatrixSection.tsx",
-  "app/(operator)/governance/policy-packs/_sections/CuratedRulesAuthoringSection.tsx",
-  "app/(operator)/insights/pilot-outcomes/_sections/PilotValueReportPageView.tsx",
-  "app/(operator)/integrations/cloud-connections/_sections/AwsConnectionRecentActivityPanel.tsx",
-  "app/(operator)/integrations/cloud-connections/_sections/AwsTrustPolicyStarterPanel.tsx",
-  "app/(operator)/internal/configuration/_sections/AdminConfigurationPageView.tsx",
-  "app/(operator)/internal/pricing-quote-aging/_sections/PricingQuoteAgingPageView.tsx",
-  "app/(operator)/internal/product-learning/_sections/ProductLearningPageView.tsx",
-  "components/ArtifactListTable.tsx",
-  "components/alerts/AlertSimulationContent.tsx",
-  "components/compare/ArchitectureManifestUnifiedDiffView.tsx",
-  "components/compare/StructuredComparisonView.tsx",
-  "components/evolution/SimulationRunDiffCard.tsx",
-  "components/governance/GovernanceConflictsTable.tsx",
-  "components/planning/PlanningPlansTable.tsx",
-  "components/planning/PlanningThemesTable.tsx",
-  "components/provenance/ProvenancePageWorkspace.tsx",
-  "components/replay/ReplayValidationHistorySection.tsx",
-  "components/reviews/ReviewAgentExecutionLogSection.tsx",
-  "components/runs/RunAgentForensicsSection.tsx",
-  "components/runs/RunAgentQualityWarningsPanel.tsx",
-  "components/runs/RunDecisionExplainabilitySection.tsx",
-  "components/runs/RunRetrievalGroundingPanel.tsx",
-  "components/runs/RunToolInvocationForensicsPanel.tsx",
-  "components/runs/RunsListAggregateErrorBoundary.tsx",
-  "components/skeletons/RunsListSkeleton.tsx",
-] as const;
+/**
+ * Shared raw-table baseline paths for TB-2382 / TB-1649 migrate inventory.
+ * Keep in sync with `operator-data-table-contract.test.ts` RAW_TABLE_BASELINE.
+ */
+export const OPERATOR_DATA_TABLE_RAW_TABLE_BASELINE_PATHS: readonly string[] = [
+  "app/(operator)/administration/identity-providers/_sections/IdentityProvidersCatalogTable.tsx",
+  "app/(operator)/administration/identity-providers/_sections/SamlSpConfigurationForm.tsx",
+  "app/(operator)/administration/identity/sso-wizard/_sections/SsoWizardPageClient.tsx",
+  "app/(operator)/administration/users/_sections/SettingsRolesMatrixSection.tsx",
+  "app/(operator)/governance/policy-packs/_sections/CuratedRulesAuthoringSection.tsx",
+  "app/(operator)/insights/pilot-outcomes/_sections/PilotValueReportPageView.tsx",
+  "app/(operator)/integrations/cloud-connections/_sections/AwsTrustPolicyStarterPanel.tsx",
+  "app/(operator)/internal/configuration/_sections/AdminConfigurationPageView.tsx",
+  "app/(operator)/internal/pricing-quote-aging/_sections/PricingQuoteAgingPageView.tsx",
+  "app/(operator)/internal/product-learning/_sections/ProductLearningPageView.tsx",
+  "components/ArtifactListTable.tsx",
+  "components/alerts/AlertSimulationContent.tsx",
+  "components/compare/ArchitectureManifestUnifiedDiffView.tsx",
+  "components/compare/StructuredComparisonView.tsx",
+  "components/evolution/SimulationRunDiffCard.tsx",
+  "components/provenance/ProvenancePageWorkspace.tsx",
+  "components/reviews/ReviewAgentExecutionLogSection.tsx",
+  "components/runs/RunAgentForensicsSection.tsx",
+  "components/runs/RunDecisionExplainabilitySection.tsx",
+  "components/runs/RunRetrievalGroundingPanel.tsx",
+  "components/runs/RunToolInvocationForensicsPanel.tsx",
+  "components/runs/RunsListAggregateErrorBoundary.tsx",
+  "components/skeletons/RunsListSkeleton.tsx",
+] as const;
