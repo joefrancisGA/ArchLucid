@@ -55,7 +55,7 @@ vi.mock("@/components/operator/OperatorNavAuthorityProvider", () => ({
   }),
 }));
 
-vi.mock("@/lib/api", () => ({
+vi.mock("@/lib/api/pilots-marketing", () => ({
   getPilotScorecard: vi.fn(async () => null),
 }));
 
@@ -72,7 +72,6 @@ describe("FirstPilotReadinessCockpit", () => {
     sessionStorage.clear();
     localStorage.clear();
     resetOperatorQueryClientForTests();
-    vi.clearAllMocks();
   });
 
   afterEach(() => {
@@ -105,6 +104,7 @@ describe("FirstPilotReadinessCockpit", () => {
 
     await waitFor(() => {
       expect(screen.getByTestId("first-pilot-readiness-cockpit")).toBeInTheDocument();
+      expect(screen.queryByText(/still checking/i)).not.toBeInTheDocument();
     });
 
     await expandWorkspaceReadiness();

@@ -8,7 +8,7 @@ import { OPERATOR_QUERY_STALE_MS } from "@/lib/query/operator-query-stale-time";
 
 export function useAskProjectRunsQuery(
   projectId = "default",
-  options?: { readonly committedOnly?: boolean },
+  options?: { readonly committedOnly?: boolean; readonly enabled?: boolean },
 ) {
   return useQuery({
     queryKey: [...operatorQueryKeys.askProjectRuns(projectId), options?.committedOnly ?? false] as const,
@@ -16,6 +16,7 @@ export function useAskProjectRunsQuery(
       loadProjectRunsMergedWithDemoFallback(projectId, {
         committedOnly: options?.committedOnly ?? false,
       }),
+    enabled: options?.enabled ?? true,
     staleTime: OPERATOR_QUERY_STALE_MS,
   });
 }

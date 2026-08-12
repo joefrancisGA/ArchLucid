@@ -2,22 +2,21 @@
 
 import { cn } from "@/lib/utils";
 import Link from "next/link";
-import { useEffect, useState, type ReactNode } from "react";
+import type { ReactNode } from "react";
 
 import { OperatorHomeGuidanceLink } from "@/components/operator-home/OperatorHomeGuidanceLink";
 import { OperatorHomeGuidanceLinks } from "@/components/operator-home/OperatorHomeGuidanceLinks";
+import { useCorePilotCommitContextQuery } from "@/hooks/use-core-pilot-commit-context-query";
 import {
   corePilotCommitProgressFromContext,
   corePilotStepBadgeLabel,
   type CorePilotCommitProgressState,
 } from "@/lib/core-pilot-commit-progress";
-import { fetchCorePilotCommitContextCached } from "@/lib/core-pilot-commit-context";
 import { BUYER_ONBOARDING_PAGE_TITLE } from "@/lib/buyer/buyer-polish-copy";
 import { isBuyerPolishedOperatorShellEnv } from "@/lib/demo-ui-env";
 import { OPERATOR_TYPOGRAPHY, OPERATOR_TYPE_SCALE } from "@/lib/design-tokens";
 import { OPERATOR_START_REVIEW_QUICK_ACTION_LABEL } from "@/lib/operator/operator-nav-labels";
 
-type Phase = "loading" | "ready";
 
 function StepBadge({ label }: { label: string }) {
   return (
@@ -96,54 +95,15 @@ function buyerHintBody(
  */
 export function CorePilotBuyerStepHint() {
   const buyerShell = isBuyerPolishedOperatorShellEnv();
-  const [phase, setPhase] = useState<Phase>("loading");
-  const [progress, setProgress] = useState<CorePilotCommitProgressState>("no-run");
-  const [latestRunId, setLatestRunId] = useState<string | null>(null);
-  const [firstCommittedRunId, setFirstCommittedRunId] = useState<string | null>(null);
+  const { data, isPending, isError } = useCorePilotCommitContextQuery({ enabled: buyerShell });
 
-  useEffect(() => {
-    if (!buyerShell) {
-      return;
-    }
-
-    let canceled = false;
-
-    async function load(): Promise<void> {
-      setPhase("loading");
-
-      try {
-        const ctx = await fetchCorePilotCommitContextCached();
-
-        if (canceled) {
-          return;
-        }
-
-        setProgress(corePilotCommitProgressFromContext(ctx));
-        setLatestRunId(ctx.latestRunId);
-        setFirstCommittedRunId(ctx.firstCommittedRunId);
-        setPhase("ready");
-      } catch {
-        if (canceled) {
-          return;
-        }
-
-        setProgress("no-run");
-        setLatestRunId(null);
-        setFirstCommittedRunId(null);
-        setPhase("ready");
-      }
-    }
-
-    void load();
-
-    return () => {
-      canceled = true;
-    };
-  }, [buyerShell]);
-
-  if (!buyerShell || phase === "loading") {
+  if (!buyerShell || isPending) {
     return null;
   }
+
+  const progress: CorePilotCommitProgressState = isError ? "no-run" : corePilotCommitProgressFromContext(data);
+  const latestRunId = isError ? null : data.latestRunId;
+  const firstCommittedRunId = isError ? null : data.firstCommittedRunId;
 
   const badge = corePilotStepBadgeLabel(progress);
 

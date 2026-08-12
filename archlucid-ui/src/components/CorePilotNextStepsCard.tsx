@@ -3,9 +3,9 @@ import { cn } from "@/lib/utils";
 import { OPERATOR_LINK, OPERATOR_TYPOGRAPHY, type EnterpriseStatusKind } from "@/lib/design-tokens";
 
 import Link from "next/link";
-import { useEffect, useState } from "react";
 
 import { InlineGuidance } from "@/components/InlineGuidance";
+import { useCorePilotCommitContextQuery } from "@/hooks/use-core-pilot-commit-context-query";
 import { InlineGuidanceText } from "@/components/InlineGuidanceText";
 import { InAppHelpLink } from "@/components/InAppHelpLink";
 import { OperatorHomeDisclosureSection } from "@/components/operator-home/OperatorHomeDisclosureSection";
@@ -15,7 +15,6 @@ import {
   deriveCorePilotCommitProgressState,
   type CorePilotCommitProgressState,
 } from "@/lib/core-pilot-commit-progress";
-import { fetchCorePilotCommitContextCached } from "@/lib/core-pilot-commit-context";
 import { EXECUTIVE_DASHBOARD_HREF } from "@/lib/executive-dashboard-route";
 import { GOVERNANCE_WORKSPACE_HEALTH_HREF } from "@/lib/governance/governance-route-paths";
 import { OPERATOR_HOME_DISCLOSURE_STORAGE_KEYS } from "@/lib/operator/operator-home-disclosure-storage";
@@ -24,7 +23,6 @@ import { StatusTag } from "@/components/ui/status-tag";
 
 const NEXT_STEPS_LEGACY_MINIMIZED_STORAGE_KEY = "archlucid_core_pilot_next_steps_minimized_v1";
 
-type Phase = "loading" | "ready";
 type FirstReviewCheckpointStatus = "complete" | "active" | "pending";
 type FirstReviewCheckpointId = "intake" | "execute" | "commit" | "export" | "sponsor-ready";
 
@@ -255,53 +253,16 @@ function RescueLink() {
  * Operate links remain secondary: only offered after a manifest is committed.
  */
 export function CorePilotNextStepsCard() {
-  const [phase, setPhase] = useState<Phase>("loading");
-  const [hasCommit, setHasCommit] = useState(false);
-  const [latestRunId, setLatestRunId] = useState<string | null>(null);
-  const [firstCommittedRunId, setFirstCommittedRunId] = useState<string | null>(null);
-  const [latestRunReadyToFinalize, setLatestRunReadyToFinalize] = useState(false);
+  const { data, isPending, isError } = useCorePilotCommitContextQuery();
 
-  useEffect(() => {
-    let canceled = false;
-
-    async function load() {
-      setPhase("loading");
-
-      try {
-        const ctx = await fetchCorePilotCommitContextCached();
-
-        if (canceled) {
-          return;
-        }
-
-        setHasCommit(ctx.hasCommittedManifest);
-        setLatestRunId(ctx.latestRunId);
-        setFirstCommittedRunId(ctx.firstCommittedRunId);
-        setLatestRunReadyToFinalize(ctx.latestRunReadyToFinalize);
-        setPhase("ready");
-      } catch {
-        if (canceled) {
-          return;
-        }
-
-        setHasCommit(false);
-        setLatestRunId(null);
-        setFirstCommittedRunId(null);
-        setLatestRunReadyToFinalize(false);
-        setPhase("ready");
-      }
-    }
-
-    void load();
-
-    return () => {
-      canceled = true;
-    };
-  }, []);
-
-  if (phase === "loading") {
+  if (isPending) {
     return null;
   }
+
+  const hasCommit = !isError && data.hasCommittedManifest;
+  const latestRunId = isError ? null : data.latestRunId;
+  const firstCommittedRunId = isError ? null : data.firstCommittedRunId;
+  const latestRunReadyToFinalize = !isError && data.latestRunReadyToFinalize;
 
   const pilotState: CorePilotCommitProgressState = deriveCorePilotCommitProgressState(hasCommit, latestRunId);
 

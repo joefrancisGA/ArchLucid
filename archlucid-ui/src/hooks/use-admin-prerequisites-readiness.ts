@@ -9,7 +9,6 @@ import { useHealthReadySummaryQuery } from "@/hooks/use-health-ready-summary-que
 import { listAwsTier2Connections } from "@/lib/api/aws-cloud-connections-api";
 import { listTier2Connections } from "@/lib/api/cloud-connections-api";
 import { listGcpTier2Connections } from "@/lib/api/gcp-cloud-connections-api";
-import { fetchAdminConfigLintSummary } from "@/lib/fetch-admin-config-lint";
 import type { FinishSetupWizardContext } from "@/lib/finish-setup-wizard-steps";
 import { isArchLucidInternalOperatorShellEnv } from "@/lib/internal-operator-env";
 import { mergeRegistrationScopeForProxy } from "@/lib/proxy-fetch-registration-scope";
@@ -99,9 +98,13 @@ export function useAdminPrerequisitesReadiness(enabled: boolean): AdminPrerequis
   const [input, setInput] = useState<ResolveAdminPrerequisitesReadinessInput | null>(null);
 
   const probesEnabled = enabled && !isAuthorityLoading;
+  const includeHostConfigurationLint = isArchLucidInternalOperatorShellEnv();
   const { data: health, isPending: healthPending } = useHealthReadySummaryQuery({ enabled: probesEnabled });
   const { data: billingStatus, isPending: billingPending } = useBillingSubscriptionStatusQuery({
     enabled: probesEnabled,
+  });
+  const { data: configLintData, isPending: configLintPending } = useAdminConfigLintSummaryQuery({
+    enabled: probesEnabled && includeHostConfigurationLint,
   });
 
   useEffect(() => {
@@ -113,6 +116,12 @@ export function useAdminPrerequisitesReadiness(enabled: boolean): AdminPrerequis
     }
 
     if (isAuthorityLoading || healthPending || billingPending) {
+      setPhase("loading");
+
+      return;
+    }
+
+    if (includeHostConfigurationLint && configLintPending) {
       setPhase("loading");
 
       return;
@@ -131,9 +140,7 @@ export function useAdminPrerequisitesReadiness(enabled: boolean): AdminPrerequis
     void (async () => {
       setPhase("loading");
 
-      const includeHostConfigurationLint = isArchLucidInternalOperatorShellEnv();
-      const [configLint, identityDiagnostics, cloud] = await Promise.all([
-        includeHostConfigurationLint ? fetchAdminConfigLintSummary() : Promise.resolve(null),
+      const [identityDiagnostics, cloud] = await Promise.all([
         fetchIdentityDiagnostics(),
         fetchCloudSummary(),
       ]);
@@ -141,7 +148,7 @@ export function useAdminPrerequisitesReadiness(enabled: boolean): AdminPrerequis
       if (!canceled) {
         setInput({
           finishSetupContext,
-          configLint,
+          configLint: includeHostConfigurationLint ? (configLintData ?? null) : null,
           includeHostConfigurationLint,
           identity: identityDiagnostics.identity,
           identityLoadFailed: identityDiagnostics.identityLoadFailed,
@@ -161,10 +168,13 @@ export function useAdminPrerequisitesReadiness(enabled: boolean): AdminPrerequis
   }, [
     billingPending,
     billingStatus,
+    configLintData,
+    configLintPending,
     currentPrincipal.authorityRank,
     enabled,
     health,
     healthPending,
+    includeHostConfigurationLint,
     isAuthorityLoading,
   ]);
 

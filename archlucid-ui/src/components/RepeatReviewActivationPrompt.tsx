@@ -3,12 +3,12 @@ import { cn } from "@/lib/utils";
 import { OPERATOR_TYPOGRAPHY } from "@/lib/design-tokens";
 
 import Link from "next/link";
-import { useEffect, useState, type ReactElement } from "react";
+import { useMemo, type ReactElement } from "react";
 
 import { OperatorHomeGuidanceLink } from "@/components/operator-home/OperatorHomeGuidanceLink";
 import { Button } from "@/components/ui/button";
 import { Card, CardContent, CardHeader } from "@/components/ui/card";
-import { fetchCorePilotCommitContextCached } from "@/lib/core-pilot-commit-context";
+import { useCorePilotCommitContextQuery } from "@/hooks/use-core-pilot-commit-context-query";
 import { isBuyerPolishedOperatorShellEnv } from "@/lib/demo-ui-env";
 import {
   resolveRepeatReviewActivation,
@@ -20,32 +20,20 @@ import {
  */
 export function RepeatReviewActivationPrompt(): ReactElement | null {
   const buyerPolishedShell = isBuyerPolishedOperatorShellEnv();
-  const [prompt, setPrompt] = useState<RepeatReviewActivationPrompt | null>(null);
+  const { data, isPending } = useCorePilotCommitContextQuery();
 
-  useEffect(() => {
-    let canceled = false;
+  const prompt = useMemo((): RepeatReviewActivationPrompt | null => {
+    if (isPending || data === undefined) {
+      return null;
+    }
 
-    void (async () => {
-      const ctx = await fetchCorePilotCommitContextCached();
-
-      if (canceled) {
-        return;
-      }
-
-      setPrompt(
-        resolveRepeatReviewActivation({
-          committedReviewCount: ctx.committedReviewCount,
-          latestRunId: ctx.latestRunId,
-          firstCommittedRunId: ctx.firstCommittedRunId,
-          secondCommittedRunId: ctx.secondCommittedRunId,
-        }),
-      );
-    })();
-
-    return () => {
-      canceled = true;
-    };
-  }, []);
+    return resolveRepeatReviewActivation({
+      committedReviewCount: data.committedReviewCount,
+      latestRunId: data.latestRunId,
+      firstCommittedRunId: data.firstCommittedRunId,
+      secondCommittedRunId: data.secondCommittedRunId,
+    });
+  }, [data, isPending]);
 
   if (prompt === null) {
     return null;

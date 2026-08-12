@@ -12,6 +12,7 @@ export const operatorQueryKeys = {
   billingSubscriptionStatus: ["operator", "tenant", "billing-subscription-status"] as const,
   operatorStickinessSnapshot: ["operator", "tenant", "stickiness-snapshot"] as const,
   adminConfigLintSummary: ["operator", "admin", "config-lint-summary"] as const,
+  pilotScorecard: ["operator", "pilots", "scorecard"] as const,
   healthReadySummary: ["operator", "health", "ready-summary"] as const,
   /** Throws when readiness cannot be loaded — preserves last payload on refetch errors. */
   healthReadySummaryStrict: ["operator", "health", "ready-summary", "strict"] as const,

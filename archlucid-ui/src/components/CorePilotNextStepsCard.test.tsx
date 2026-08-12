@@ -1,6 +1,12 @@
 import { fireEvent, render, screen, waitFor } from "@testing-library/react";
 import { afterEach, beforeEach, describe, expect, it, vi } from "vitest";
 
+vi.unmock("@/hooks/use-core-pilot-commit-context-query");
+
+vi.mock("@/lib/query/operator-query-persist-client", () => ({
+  setupOperatorQueryClientPersistence: () => {},
+}));
+
 vi.mock("@/lib/core-pilot-commit-context", async (importOriginal) => {
   const { createCorePilotCommitContextModuleMock } = await import("@/testing/core-pilot-commit-context.mock");
 
@@ -11,6 +17,8 @@ import { START_REVIEW_LABEL } from "@/lib/architecture/architecture-workflow-lab
 import { GOVERNANCE_WORKSPACE_HEALTH_HREF } from "@/lib/governance/governance-route-paths";
 import { CorePilotNextStepsCard } from "@/components/CorePilotNextStepsCard";
 import { fetchCorePilotCommitContext } from "@/lib/core-pilot-commit-context";
+import { resetOperatorQueryClientForTests } from "@/lib/query/operator-query-client";
+import { renderWithOperatorQuery } from "@/testing/render-with-operator-query";
 
 const mockedFetchCorePilotCommitContext = vi.mocked(fetchCorePilotCommitContext);
 
@@ -37,6 +45,11 @@ async function expandNextStepsCardIfMinimized(): Promise<void> {
 }
 
 describe("CorePilotNextStepsCard", () => {
+  beforeEach(() => {
+    sessionStorage.clear();
+    resetOperatorQueryClientForTests();
+  });
+
   afterEach(() => {
     vi.clearAllMocks();
     localStorage.clear();
@@ -55,7 +68,7 @@ describe("CorePilotNextStepsCard", () => {
 
   describe("no-run state (first-time operator)", () => {
     it("shows Step 1 of 4 badge so the operator knows where they are", async () => {
-      render(<CorePilotNextStepsCard />);
+      renderWithOperatorQuery(<CorePilotNextStepsCard />);
 
       await waitFor(() => {
         expect(screen.getByTestId("core-pilot-next-steps")).toBeInTheDocument();
@@ -72,7 +85,7 @@ describe("CorePilotNextStepsCard", () => {
     });
 
     it("marks Start review as the active step CTA when expanded", async () => {
-      render(<CorePilotNextStepsCard />);
+      renderWithOperatorQuery(<CorePilotNextStepsCard />);
 
       await expandNextStepsCardIfMinimized();
 
@@ -81,7 +94,7 @@ describe("CorePilotNextStepsCard", () => {
     });
 
     it("shows Finalize checkpoint label in the step tracker", async () => {
-      render(<CorePilotNextStepsCard />);
+      renderWithOperatorQuery(<CorePilotNextStepsCard />);
 
       await expandNextStepsCardIfMinimized();
 
@@ -89,7 +102,7 @@ describe("CorePilotNextStepsCard", () => {
     });
 
     it("shows skip-for-now note naming advanced features", async () => {
-      render(<CorePilotNextStepsCard />);
+      renderWithOperatorQuery(<CorePilotNextStepsCard />);
 
       await expandNextStepsCardIfMinimized();
 
@@ -109,7 +122,7 @@ describe("CorePilotNextStepsCard", () => {
     });
 
     it("shows rescue link to Help when blocked", async () => {
-      render(<CorePilotNextStepsCard />);
+      renderWithOperatorQuery(<CorePilotNextStepsCard />);
 
       await expandNextStepsCardIfMinimized();
 
@@ -122,7 +135,7 @@ describe("CorePilotNextStepsCard", () => {
     });
 
     it("does not show operate links in first-time state", async () => {
-      render(<CorePilotNextStepsCard />);
+      renderWithOperatorQuery(<CorePilotNextStepsCard />);
 
       await expandNextStepsCardIfMinimized();
 
@@ -135,7 +148,7 @@ describe("CorePilotNextStepsCard", () => {
     });
 
     it("does not show a run ID when no run exists yet", async () => {
-      render(<CorePilotNextStepsCard />);
+      renderWithOperatorQuery(<CorePilotNextStepsCard />);
 
       await expandNextStepsCardIfMinimized();
 
@@ -160,7 +173,7 @@ describe("CorePilotNextStepsCard", () => {
     });
 
     it("shows Step 2–3 of 4 badge", async () => {
-      render(<CorePilotNextStepsCard />);
+      renderWithOperatorQuery(<CorePilotNextStepsCard />);
 
       await waitFor(() => {
         expect(screen.getByTestId("pilot-step-badge")).toHaveTextContent("Step 2–3 of 4");
@@ -168,7 +181,7 @@ describe("CorePilotNextStepsCard", () => {
     });
 
     it("shows the run ID for support correlation", async () => {
-      render(<CorePilotNextStepsCard />);
+      renderWithOperatorQuery(<CorePilotNextStepsCard />);
 
       await expandNextStepsCardIfMinimized();
 
@@ -180,7 +193,7 @@ describe("CorePilotNextStepsCard", () => {
     });
 
     it("Review step CTA links to the existing run detail; Evidence links to the graph", async () => {
-      render(<CorePilotNextStepsCard />);
+      renderWithOperatorQuery(<CorePilotNextStepsCard />);
 
       await expandNextStepsCardIfMinimized();
 
@@ -196,7 +209,7 @@ describe("CorePilotNextStepsCard", () => {
     });
 
     it("shows skip-for-now note", async () => {
-      render(<CorePilotNextStepsCard />);
+      renderWithOperatorQuery(<CorePilotNextStepsCard />);
 
       await expandNextStepsCardIfMinimized();
 
@@ -206,7 +219,7 @@ describe("CorePilotNextStepsCard", () => {
     });
 
     it("shows rescue link", async () => {
-      render(<CorePilotNextStepsCard />);
+      renderWithOperatorQuery(<CorePilotNextStepsCard />);
 
       await expandNextStepsCardIfMinimized();
 
@@ -216,7 +229,7 @@ describe("CorePilotNextStepsCard", () => {
     });
 
     it("shows execute as the concrete next action when prerequisites are missing", async () => {
-      render(<CorePilotNextStepsCard />);
+      renderWithOperatorQuery(<CorePilotNextStepsCard />);
 
       await expandNextStepsCardIfMinimized();
 
@@ -228,7 +241,7 @@ describe("CorePilotNextStepsCard", () => {
     });
 
     it("does not show operate links before commit", async () => {
-      render(<CorePilotNextStepsCard />);
+      renderWithOperatorQuery(<CorePilotNextStepsCard />);
 
       await expandNextStepsCardIfMinimized();
 
@@ -252,7 +265,7 @@ describe("CorePilotNextStepsCard", () => {
         secondCommittedRunId: null,
       });
 
-      render(<CorePilotNextStepsCard />);
+      renderWithOperatorQuery(<CorePilotNextStepsCard />);
 
       await waitFor(() => {
         expect(screen.getByTestId("core-pilot-next-steps-complete")).toBeInTheDocument();
@@ -276,7 +289,7 @@ describe("CorePilotNextStepsCard", () => {
         secondCommittedRunId: null,
       });
 
-      render(<CorePilotNextStepsCard />);
+      renderWithOperatorQuery(<CorePilotNextStepsCard />);
 
       await waitFor(() => {
         expect(screen.getByTestId("core-pilot-next-steps-complete")).toBeInTheDocument();
@@ -300,7 +313,7 @@ describe("CorePilotNextStepsCard", () => {
         secondCommittedRunId: null,
       });
 
-      render(<CorePilotNextStepsCard />);
+      renderWithOperatorQuery(<CorePilotNextStepsCard />);
 
       await waitFor(() => {
         expect(screen.getByTestId("pilot-run-id")).toBeInTheDocument();
@@ -319,7 +332,7 @@ describe("CorePilotNextStepsCard", () => {
         secondCommittedRunId: null,
       });
 
-      render(<CorePilotNextStepsCard />);
+      renderWithOperatorQuery(<CorePilotNextStepsCard />);
 
       await waitFor(() => {
         expect(screen.getByRole("link", { name: /open architecture review detail/i })).toBeInTheDocument();
@@ -341,7 +354,7 @@ describe("CorePilotNextStepsCard", () => {
         secondCommittedRunId: null,
       });
 
-      render(<CorePilotNextStepsCard />);
+      renderWithOperatorQuery(<CorePilotNextStepsCard />);
 
       await waitFor(() => {
         expect(screen.getByRole("link", { name: /open architecture review detail/i })).toBeInTheDocument();
@@ -363,7 +376,7 @@ describe("CorePilotNextStepsCard", () => {
         secondCommittedRunId: null,
       });
 
-      render(<CorePilotNextStepsCard />);
+      renderWithOperatorQuery(<CorePilotNextStepsCard />);
 
       await waitFor(() => {
         expect(screen.getAllByText(/run-support-packet/i).length).toBeGreaterThanOrEqual(1);
@@ -380,7 +393,7 @@ describe("CorePilotNextStepsCard", () => {
         secondCommittedRunId: null,
       });
 
-      render(<CorePilotNextStepsCard />);
+      renderWithOperatorQuery(<CorePilotNextStepsCard />);
 
       await waitFor(() => {
         expect(screen.getByTestId("first-review-checkpoint-next-action")).toHaveTextContent(
