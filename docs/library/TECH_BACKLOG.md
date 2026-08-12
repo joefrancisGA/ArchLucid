@@ -43773,11 +43773,13 @@ Operators must read three intros before reaching the Trust Center link list.
 
 ## TB-1829 ? Evidence-trace heading hierarchy + region density (P0)
 
-**Window:** V1 ? Accessibility. **Status:** Not started. **Priority:** P0.
+**Window:** V1 ? Accessibility. **Status:** **Done** (2026-08-12) ? governance `h2` uses `OPERATOR_TYPOGRAPHY.sectionTitle`; muted secondary region chrome; Vitest heading-order guard. **Priority:** P0.
 
 **Problem:** Governance action region uses `OPERATOR_TYPOGRAPHY.pageTitle` on an `h2`, competing with the page H1; dual bordered regions read as two pages.
 
 **Approach:** Demote governance heading to sectionTitle; tighten region chrome so evidence is primary and governance is clearly secondary. Axe/Vitest heading order.
+
+**Shipped:** Single page H1 on finding title; governance panel visually subordinate (`sectionTitle` + neutral tint border).
 
 **Acceptance:** Single visual/semantic page title; governance is a subordinate section. **Size estimate:** S.
 
