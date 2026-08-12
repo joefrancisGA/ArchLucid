@@ -119,16 +119,6 @@ const ROUTE_VIEW_EXPLANATIONS: readonly { prefix: string; explanation: RouteView
       nextAction: "Choose SAML or OIDC, or open the SSO wizard if you are setting up for the first time.",
     },
   },
-  {
-    // Exact `/` only — matching uses equality or `${prefix}/`, so this does not swallow other routes.
-    prefix: "/",
-    explanation: {
-      title: "Home",
-      summary:
-        "Recent reviews, pilot progress, and the next action for your architecture packages.",
-      nextAction: "Open a recent review or start a new architecture review from the primary CTA.",
-    },
-  },
 ];
 
 function isGovernanceExplainOptIn(path: string): boolean {

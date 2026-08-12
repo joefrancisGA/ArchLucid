@@ -13,7 +13,6 @@ import { OperatorHomeDoThisNextCard } from "@/components/operator-home/OperatorH
 import { GoldenSponsorPackageWalkthroughPanel } from "@/components/golden-walkthrough/GoldenSponsorPackageWalkthroughPanel";
 import { InviteeFirstOrientationPanel } from "@/components/operator/InviteeFirstOrientationPanel";
 import { OperatorHomeDualPathCards } from "@/components/operator-home/OperatorHomeDualPathCards";
-import { OperatorHomeResumeDraftCallout } from "@/components/operator-home/OperatorHomeResumeDraftCallout";
 import { OperatorHomeWorkspaceMetricsSummary } from "@/components/operator-home/OperatorHomeWorkspaceMetricsSummary";
 import { useOperatorHomeWorkspaceActivity } from "@/components/operator-home/operator-home-workspace-activity-context";
 import { Button } from "@/components/ui/button";
@@ -22,6 +21,7 @@ import { PageContextualHelpButton } from "@/components/usability/PageContextualH
 import type { OperatorHomeRunsDashboardModel } from "@/app/(operator)/_sections/operator-home-runs-dashboard-model";
 import {
   OPERATOR_HOME_COMMAND_CENTER_TAGLINE,
+  OPERATOR_HOME_RESUME_LATEST_DRAFT_CTA,
 } from "@/lib/buyer-polish-copy";
 import {
   OPERATOR_CARD,
@@ -34,6 +34,7 @@ import { resolveLiveRunsDashboardModel } from "@/lib/operator-home-live-runs-das
 import { deriveOperatorHomeWorkspaceMetrics } from "@/lib/operator-home-workspace-metrics";
 import {
   resolveOperatorHomeLifecycleEmphasizedPath,
+  resolveLatestArchitectureDraftHref,
   resolveOperatorHomePhaseHeroCopy,
   resolveOperatorHomeWorkspacePhase,
 } from "@/lib/resolve-operator-home-workspace-phase";
@@ -129,7 +130,13 @@ export function PilotCommandCenterCard(props: PilotCommandCenterCardProps = {}):
   );
 
   const workspacePhase = resolveOperatorHomeWorkspacePhase(phaseSignals);
-  const heroCopy = resolveOperatorHomePhaseHeroCopy(workspacePhase, phaseSignals);
+  const latestDraft = draftEntries[0] ?? null;
+  const resumeHref = resolveLatestArchitectureDraftHref(draftEntries);
+  const heroCopy = resolveOperatorHomePhaseHeroCopy(
+    workspacePhase,
+    phaseSignals,
+    latestDraft?.displayName ?? null,
+  );
   const emphasizedPath = resolveOperatorHomeLifecycleEmphasizedPath(workspacePhase);
   const showLeadCopy = props.suppressLeadCopy !== true;
   const showContextualHelp = props.showContextualHelp !== false;
@@ -189,7 +196,9 @@ export function PilotCommandCenterCard(props: PilotCommandCenterCardProps = {}):
             </div>
           ) : null}
         </div>
-        <FirstPilotOperateUnlockVocabularyRail currentSurfaceId="first-pilot" />
+        {workspacePhase === "eval-empty" ? (
+          <FirstPilotOperateUnlockVocabularyRail currentSurfaceId="first-pilot" />
+        ) : null}
       </div>
 
       {showHeroKpiStrip && runsDashboard !== undefined ? (
@@ -215,7 +224,26 @@ export function PilotCommandCenterCard(props: PilotCommandCenterCardProps = {}):
 
       {workspacePhase === "eval-with-drafts" ? (
         <div className={cn("space-y-4", OPERATOR_LAYOUT.inlineGap)}>
-          <OperatorHomeResumeDraftCallout draftEntries={draftEntries} />
+          {resumeHref !== null ? (
+            <div
+              className={cn(
+                "flex flex-col gap-3 sm:flex-row sm:items-center sm:justify-between",
+                OPERATOR_LAYOUT.inlineGap,
+              )}
+            >
+              <p
+                className={cn("m-0", OPERATOR_TYPE_SCALE.helper, "text-al-text-secondary")}
+                data-testid="operator-home-resume-draft-bridge"
+              >
+                {heroCopy.lead}
+              </p>
+              <Button asChild variant="primary" size="sm" className={cn(heroCtaButtonClass, "shrink-0")}>
+                <Link href={resumeHref} data-testid="operator-home-resume-draft-primary">
+                  {OPERATOR_HOME_RESUME_LATEST_DRAFT_CTA}
+                </Link>
+              </Button>
+            </div>
+          ) : null}
           <OperatorHomeDualPathCards emphasizedPath={emphasizedPath} />
         </div>
       ) : null}

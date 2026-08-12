@@ -18,6 +18,7 @@ import {
   type UnfinishedWorkRailItem,
   type UnfinishedWorkRailItemKind,
 } from "@/lib/unfinished-work-rail";
+import { resolveOperatorHomeWorkspacePhase } from "@/lib/resolve-operator-home-workspace-phase";
 import { cn } from "@/lib/utils";
 import type { RunSummary } from "@/types/authority";
 
@@ -97,13 +98,23 @@ function UnfinishedWorkRailList(props: { readonly items: readonly UnfinishedWork
  */
 export function UnfinishedWorkRail(props: UnfinishedWorkRailProps): React.JSX.Element | null {
   const drafts = useArchitectureDraftRegistryEntries();
-  const { liveRunsSnapshot } = useOperatorHomeWorkspaceActivity();
+  const { hasWorkspaceReviews, liveRunsSnapshot } = useOperatorHomeWorkspaceActivity();
   const incompleteWizards = useSyncExternalStore(
     subscribeWizardSessions,
     getIncompleteWizardSnapshot,
     getIncompleteWizardServerSnapshot,
   );
   const runs = liveRunsSnapshot?.items ?? props.runs;
+  const activeDraftCount = drafts.filter((entry) => entry.customerStatus !== "archived").length;
+  const workspacePhase = resolveOperatorHomeWorkspacePhase({
+    hasWorkspaceReviews,
+    draftCount: activeDraftCount,
+    hasCommittedManifest: false,
+    openFindingsCount: 0,
+    governanceWarningsCount: 0,
+  });
+  const excludeKinds: readonly UnfinishedWorkRailItemKind[] =
+    workspacePhase === "eval-with-drafts" ? ["architecture-draft"] : [];
 
   const items = useMemo(
     () =>
@@ -111,8 +122,8 @@ export function UnfinishedWorkRail(props: UnfinishedWorkRailProps): React.JSX.El
         drafts,
         runs,
         incompleteWizards,
-      }),
-    [drafts, incompleteWizards, runs],
+      }).filter((item) => !excludeKinds.includes(item.kind)),
+    [drafts, excludeKinds, incompleteWizards, runs],
   );
 
   if (items.length === 0) {

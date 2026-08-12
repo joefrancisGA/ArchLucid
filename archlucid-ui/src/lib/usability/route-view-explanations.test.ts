@@ -9,8 +9,8 @@ import { IMPACT_PREVIEW_PATH } from "@/lib/impact-preview-route";
 import { routeViewExplanationForPathname } from "@/lib/usability/route-view-explanations";
 
 describe("routeViewExplanationForPathname (TB-2216 / TB-2257)", () => {
-  it("covers home, compare, alerts, and SSO hubs", () => {
-    expect(routeViewExplanationForPathname("/")?.title).toBe("Home");
+  it("covers compare, alerts, and SSO hubs; home owns orientation via command center", () => {
+    expect(routeViewExplanationForPathname("/")).toBeNull();
     expect(routeViewExplanationForPathname("/insights/compare-two-reviews")?.title).toBe("Compare two reviews");
     expect(routeViewExplanationForPathname(GOVERNANCE_ALERTS_PATH)?.title).toBe("Alerts");
     expect(routeViewExplanationForPathname("/alerts")?.title).toBe("Alerts");

@@ -56,6 +56,16 @@ export const OPERATOR_HOME_INTENT_CHOOSER_HEADING = "Start the architecture revi
 
 export const OPERATOR_HOME_CONTINUE_ARCHITECTURE_HEADING = "Continue your architecture";
 
+export function formatOperatorHomeContinueDraftHeading(displayName: string): string {
+  const trimmedName = displayName.trim();
+
+  if (trimmedName.length > 0) {
+    return trimmedName;
+  }
+
+  return OPERATOR_HOME_CONTINUE_ARCHITECTURE_HEADING;
+}
+
 export const OPERATOR_HOME_ACTIVE_REVIEWS_HEADING = "Reviews in progress";
 
 export const OPERATOR_HOME_ACTIVE_REVIEWS_LEAD =

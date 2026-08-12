@@ -48,7 +48,7 @@ describe("UnfinishedWorkRail (TB-2209)", () => {
     mockDraftEntries = [];
   });
 
-  it("renders compact list when unfinished work exists", () => {
+  it("hides draft-only continue rail when the hero owns resume", () => {
     mockDraftEntries = [
       {
         architectureId: "arch-1",
@@ -61,15 +61,43 @@ describe("UnfinishedWorkRail (TB-2209)", () => {
       },
     ];
 
-    render(<UnfinishedWorkRail runs={[]} />);
+    const { container } = render(<UnfinishedWorkRail runs={[]} />);
+
+    expect(container).toBeEmptyDOMElement();
+  });
+
+  it("still surfaces in-progress reviews when drafts also exist", () => {
+    mockDraftEntries = [
+      {
+        architectureId: "arch-1",
+        displayName: "Payments edge",
+        customerStatus: "draft",
+        ownerLabel: "You",
+        lastUpdatedUtc: "2026-08-10T12:00:00Z",
+        linkedReviewId: null,
+        serverUpdatedUtc: "2026-08-10T12:00:00Z",
+      },
+    ];
+    const runs = [
+      {
+        runId: "run-mid",
+        projectId: "default",
+        createdUtc: "2026-08-10T11:00:00Z",
+        description: "Edge review in flight",
+        hasFindingsSnapshot: false,
+        hasGoldenManifest: false,
+      },
+    ] as RunSummary[];
+
+    render(
+      <OperatorHomeWorkspaceActivityProvider initialHasReviews>
+        <UnfinishedWorkRail runs={runs} />
+      </OperatorHomeWorkspaceActivityProvider>,
+    );
 
     expect(screen.getByTestId("unfinished-work-rail")).toBeInTheDocument();
-    expect(screen.getByText("Continue where you left off")).toBeInTheDocument();
+    expect(screen.getByText("Edge review in flight")).toBeInTheDocument();
     expect(screen.getByText("Payments edge")).toBeInTheDocument();
-    expect(screen.getByRole("link", { name: /Payments edge/i })).toHaveAttribute(
-      "href",
-      "/architecture/architectures/arch-1",
-    );
   });
 
   it("hides when empty", () => {

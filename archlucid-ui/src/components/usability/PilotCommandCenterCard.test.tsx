@@ -7,7 +7,6 @@ import {
   OPERATOR_HOME_COMMAND_CENTER_TAGLINE,
   OPERATOR_HOME_EXPLORE_REVIEW_WALKTHROUGH_HEADING,
   OPERATOR_HOME_INTENT_CHOOSER_HEADING,
-  OPERATOR_HOME_CONTINUE_ARCHITECTURE_HEADING,
   OPERATOR_HOME_OPEN_SAMPLE_PACKAGE_CTA,
   OPERATOR_HOME_RESUME_LATEST_DRAFT_CTA,
   OPERATOR_HOME_WORKSPACE_OVERVIEW_HEADING,
@@ -228,7 +227,7 @@ describe("PilotCommandCenterCard", () => {
       "eval-with-drafts",
     );
     expect(
-      screen.getByRole("heading", { level: 2, name: OPERATOR_HOME_CONTINUE_ARCHITECTURE_HEADING }),
+      screen.getByRole("heading", { level: 2, name: "Claims intake" }),
     ).toBeInTheDocument();
     expect(screen.getByTestId("operator-home-resume-draft-primary")).toHaveAttribute(
       "href",
@@ -238,7 +237,8 @@ describe("PilotCommandCenterCard", () => {
       OPERATOR_HOME_RESUME_LATEST_DRAFT_CTA,
     );
     expect(screen.getByTestId("operator-home-dual-path-cards")).toBeInTheDocument();
-    expect(screen.getByTestId("operator-home-lifecycle-recommended-review-architecture")).toBeInTheDocument();
+    expect(screen.queryByTestId("operator-home-lifecycle-recommended-review-architecture")).toBeNull();
+    expect(screen.queryByTestId("first-pilot-operate-unlock-vocabulary")).toBeNull();
     expect(screen.queryByTestId("operator-home-do-this-next")).toBeNull();
   });
 

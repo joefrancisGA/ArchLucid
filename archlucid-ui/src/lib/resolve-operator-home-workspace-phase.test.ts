@@ -70,9 +70,9 @@ describe("resolveOperatorHomeWorkspacePhase", () => {
 });
 
 describe("resolveOperatorHomeLifecycleEmphasizedPath", () => {
-  it("emphasizes explore on eval-empty and review on in-progress phases", () => {
+  it("emphasizes explore on eval-empty and review on active-reviews only", () => {
     expect(resolveOperatorHomeLifecycleEmphasizedPath("eval-empty")).toBe("explore-completed-review");
-    expect(resolveOperatorHomeLifecycleEmphasizedPath("eval-with-drafts")).toBe("review-architecture");
+    expect(resolveOperatorHomeLifecycleEmphasizedPath("eval-with-drafts")).toBeNull();
     expect(resolveOperatorHomeLifecycleEmphasizedPath("active-reviews")).toBe("review-architecture");
     expect(resolveOperatorHomeLifecycleEmphasizedPath("operational")).toBeNull();
   });
@@ -98,13 +98,26 @@ describe("resolveOperatorHomeRequiresAttention", () => {
 
 describe("resolveOperatorHomePhaseHeroCopy", () => {
   it("uses draft-aware copy for eval-with-drafts", () => {
+    const copy = resolveOperatorHomePhaseHeroCopy(
+      "eval-with-drafts",
+      {
+        ...baseSignals,
+        draftCount: 2,
+      },
+      "Vertex",
+    );
+
+    expect(copy.heading).toBe("Vertex");
+    expect(copy.lead).toContain("2");
+  });
+
+  it("falls back to continue-architecture heading when the draft has no display name", () => {
     const copy = resolveOperatorHomePhaseHeroCopy("eval-with-drafts", {
       ...baseSignals,
-      draftCount: 2,
+      draftCount: 1,
     });
 
     expect(copy.heading).toBe("Continue your architecture");
-    expect(copy.lead).toContain("2");
   });
 
   it("uses active-review copy when reviews are in flight", () => {
