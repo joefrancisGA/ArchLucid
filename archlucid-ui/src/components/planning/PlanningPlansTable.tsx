@@ -1,5 +1,5 @@
 import { cn } from "@/lib/utils";
-import { OPERATOR_TYPOGRAPHY } from "@/lib/design-tokens";
+import { OPERATOR_LINK, OPERATOR_TYPOGRAPHY } from "@/lib/design-tokens";
 import Link from "next/link";
 import { IMPROVEMENT_PLANNING_PLANS_EMPTY_MESSAGE } from "@/lib/planning-page-copy";
 import { planningPlanDetailPath } from "@/lib/planning-route";
@@ -52,7 +52,7 @@ export function PlanningPlansTable(props: PlanningPlansTableProps) {
             <tr key={p.planId}>
               <td className={planningNumericCellCls}>{p.priorityScore}</td>
               <td className={planningThTdCls}>
-                <Link href={planningPlanDetailPath(p.planId)} className="font-medium text-blue-700 dark:text-blue-400">
+                <Link href={planningPlanDetailPath(p.planId)} className={OPERATOR_LINK.nav}>
                   {p.title}
                 </Link>
               </td>
