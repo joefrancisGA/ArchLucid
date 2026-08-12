@@ -4,7 +4,8 @@ import { join } from "node:path";
 import { describe, expect, it } from "vitest";
 
 import {
-  OPERATOR_LINE_TABS_TB1662_SURFACES,
+  OPERATOR_LINE_TABS_MIGRATED_SURFACES,
+  OPERATOR_LINE_TABS_TB1663_SURFACES,
   operatorLineTabsModuleHasBannedListChrome,
   operatorLineTabsModuleHasBannedTriggerChrome,
   operatorLineTabsModuleUsesLineVariant,
@@ -16,9 +17,9 @@ function readSrcModule(relativePath: string): string {
   return readFileSync(join(SRC_ROOT, relativePath), "utf8");
 }
 
-describe("operator-line-tabs-surfaces (TB-1662)", () => {
+describe("operator-line-tabs-surfaces (TB-1662 / TB-1663)", () => {
   it("tracks every TB-1662 named surface module", () => {
-    expect(OPERATOR_LINE_TABS_TB1662_SURFACES.map((entry) => entry.id)).toEqual([
+    expect(OPERATOR_LINE_TABS_MIGRATED_SURFACES.filter((entry) => entry.id !== "alert-rules-hub").map((entry) => entry.id)).toEqual([
       "advisory-hub",
       "help-panel",
       "buyer-deliverables-artifacts",
@@ -26,8 +27,12 @@ describe("operator-line-tabs-surfaces (TB-1662)", () => {
     ]);
   });
 
+  it("tracks TB-1663 alert rules hub", () => {
+    expect(OPERATOR_LINE_TABS_TB1663_SURFACES.map((entry) => entry.id)).toEqual(["alert-rules-hub"]);
+  });
+
   it.each(
-    OPERATOR_LINE_TABS_TB1662_SURFACES.filter((entry) => entry.kind === "tabs-line").map((entry) => [
+    OPERATOR_LINE_TABS_MIGRATED_SURFACES.filter((entry) => entry.kind === "tabs-line").map((entry) => [
       entry.id,
       entry.modulePath,
     ]),
@@ -44,5 +49,14 @@ describe("operator-line-tabs-surfaces (TB-1662)", () => {
 
     expect(source).not.toContain("<TabsList");
     expect(source).not.toContain("<TabsTrigger");
+  });
+
+  it("alert rules hub does not hand-roll tablist markup (TB-1663)", () => {
+    const source = readSrcModule("app/(operator)/governance/alert-rules/AlertRulesHubClient.tsx");
+
+    expect(source).not.toMatch(/role\s*=\s*["']tablist["']/);
+    expect(source).not.toMatch(/role\s*=\s*["']tab["']/);
+    expect(source).toContain("@/components/ui/tabs");
+    expect(source).toContain("TabsContent");
   });
 });

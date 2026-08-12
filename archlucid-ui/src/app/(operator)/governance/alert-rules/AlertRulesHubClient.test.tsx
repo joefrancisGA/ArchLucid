@@ -134,4 +134,18 @@ describe("AlertRulesHubClient", () => {
     expect(push).toHaveBeenCalledWith("/governance/alert-rules?tab=notifications");
     expect(document.activeElement).toBe(screen.getByRole("tab", { name: "Notifications" }));
   });
+
+  it("TB-1663: renders Carbon line-tab chrome on shared Tabs", () => {
+    render(<AlertRulesHubClient />);
+
+    const tablist = screen.getByRole("tablist", { name: "Alerts configuration sections" });
+
+    expect(tablist).toHaveAttribute("data-tabs-list");
+    expect(tablist.className).toMatch(/border-b/);
+
+    const conditionsTab = screen.getByRole("tab", { name: "Conditions" });
+
+    expect(conditionsTab.className).toMatch(/border-b-2/);
+    expect(conditionsTab.className).not.toMatch(/rounded-full/);
+  });
 });

@@ -46,6 +46,22 @@ export const OPERATOR_LINE_TABS_TB1662_SURFACES: readonly OperatorLineTabsSurfac
   },
 ];
 
+/** Surfaces named in **TB-1663** — alert configuration hub migrated from hand-rolled folder tabs. */
+export const OPERATOR_LINE_TABS_TB1663_SURFACES: readonly OperatorLineTabsSurfaceEntry[] = [
+  {
+    id: "alert-rules-hub",
+    modulePath: "app/(operator)/governance/alert-rules/AlertRulesHubClient.tsx",
+    kind: "tabs-line",
+    notes: "Conditions / Notifications / Advanced rules / Test alerts — shared Tabs + panel leads (**TB-1663**).",
+  },
+];
+
+/** Combined inventory for **TB-1665** allowlist extension. */
+export const OPERATOR_LINE_TABS_MIGRATED_SURFACES: readonly OperatorLineTabsSurfaceEntry[] = [
+  ...OPERATOR_LINE_TABS_TB1662_SURFACES,
+  ...OPERATOR_LINE_TABS_TB1663_SURFACES,
+];
+
 const TABS_LIST_BANNED_CLASS_FRAGMENTS = [
   "border-0",
   "rounded-full",
