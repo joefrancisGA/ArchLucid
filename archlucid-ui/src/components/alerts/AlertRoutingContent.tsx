@@ -10,6 +10,7 @@ import { GettingStartedSteps } from "@/components/GettingStartedSteps";
 import { OperatorApiProblem } from "@/components/OperatorApiProblem";
 import { AlertRoutingCriteriaFields } from "@/components/alerts/AlertRoutingCriteriaFields";
 import { AlertRoutingDestinationList } from "@/components/alerts/AlertRoutingDestinationList";
+import { WhyDisabledCtaHint } from "@/components/usability/WhyDisabledCtaHint";
 import {
   AlertRoutingSubscriptionDisableDialog,
   type AlertRoutingSubscriptionDisableTarget,
@@ -26,8 +27,8 @@ import {
   alertRoutingPageLeadOperatorEmpty,
   alertRoutingPageLeadReader,
   alertRoutingPageLeadReaderEmpty,
-  enterpriseMutationControlDisabledTitle,
 } from "@/lib/enterprise-controls-context-copy";
+import { whyDisabledEnterpriseMutationControl } from "@/lib/why-disabled-cta";
 import {
   alertRoutingEmptyGettingStartedOperator,
   alertRoutingEmptyGettingStartedReader,
@@ -125,6 +126,8 @@ export function AlertRoutingContent() {
 
   const deliveryHealth = useMemo(() => summarizeAlertRoutingDeliveryHealth(items), [items]);
   const isEmptyComposition: boolean = !loading && items.length === 0;
+  const mutationDisabledReason = canMutateRouting ? null : whyDisabledEnterpriseMutationControl();
+  const mutationDisabledHintId = "alert-routing-mutate-disabled-hint";
 
   const configProvenanceLabel = useMemo(() => {
     const change = latestAlertRoutingConfigChange(items);
@@ -516,15 +519,16 @@ export function AlertRoutingContent() {
           criteria={routingCriteria}
           onChange={setRoutingCriteria}
           disabled={!canEditRouting || creating}
-          disabledTitle={canEditRouting ? undefined : enterpriseMutationControlDisabledTitle}
         />
 
-        <div className="flex flex-wrap items-center gap-3 border-t border-neutral-200 pt-4 dark:border-neutral-700">
+        <div className="flex flex-col items-start gap-2 border-t border-neutral-200 pt-4 dark:border-neutral-700">
+          <div className="flex flex-wrap items-center gap-3">
           <Button
             type="button"
             variant="primary"
             onClick={() => void onCreate(false)}
             disabled={!canEditRouting || creating || !formValid}
+            aria-describedby={mutationDisabledReason === null ? undefined : mutationDisabledHintId}
             data-testid="alert-routing-create-destination"
           >
             {creating ? "Creating destination…" : canMutateRouting ? "Create notification destination" : alertRoutingCreateSubscriptionButtonLabelReaderRank}
@@ -555,6 +559,12 @@ export function AlertRoutingContent() {
           >
             Reset form
           </Button>
+          </div>
+          <WhyDisabledCtaHint
+            id={mutationDisabledHintId}
+            reason={mutationDisabledReason}
+            testId="alert-routing-mutate-disabled-hint"
+          />
         </div>
       </section>
 

@@ -13,6 +13,7 @@ import {
   EnterpriseTableRow,
 } from "@/components/ui/enterprise-table";
 import { StatusTag } from "@/components/ui/status-tag";
+import { WhyDisabledCtaHint } from "@/components/usability/WhyDisabledCtaHint";
 import {
   alertRoutingDeliveryAttemptsButtonLabelReaderRank,
   alertRoutingDeliveryAttemptsButtonTitleOperator,
@@ -20,6 +21,7 @@ import {
   alertRoutingToggleToDisabledReaderRank,
   alertRoutingToggleToEnabledReaderRank,
 } from "@/lib/enterprise-controls-context-copy";
+import { whyDisabledEnterpriseMutationControl } from "@/lib/why-disabled-cta";
 import {
   channelDisplayLabel,
   formatAlertRoutingFiltersSummary,
@@ -56,8 +58,16 @@ export function AlertRoutingDestinationList({
     return null;
   }
 
+  const mutationDisabledReason = canMutateRouting ? null : whyDisabledEnterpriseMutationControl();
+  const mutationDisabledHintId = "alert-routing-list-mutate-disabled-hint";
+
   return (
     <div className="space-y-3" data-testid="alert-routing-destination-list">
+      <WhyDisabledCtaHint
+        id={mutationDisabledHintId}
+        reason={mutationDisabledReason}
+        testId="alert-routing-list-mutate-disabled-hint"
+      />
       <EnterpriseTable ariaLabel="Notification destinations">
         <EnterpriseTableHead>
           <EnterpriseTableHeadRow>
@@ -129,6 +139,7 @@ export function AlertRoutingDestinationList({
                         )
                       }
                       disabled={!canMutateRouting}
+                      aria-describedby={mutationDisabledReason === null ? undefined : mutationDisabledHintId}
                       data-testid={`alert-routing-toggle-${item.routingSubscriptionId}`}
                     >
                       {canMutateRouting

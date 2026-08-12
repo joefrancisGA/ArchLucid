@@ -3,6 +3,10 @@ import { beforeEach, describe, expect, it, vi } from "vitest";
 
 import { AlertRulesHubRefreshProvider, useAlertRulesHubRefresh } from "@/lib/alerts-hub-refresh-context";
 import { ALERT_ROUTING_DESTINATION_NAME_PLACEHOLDER } from "@/lib/alert-routing-presentation";
+import {
+  alertRoutingCreateSubscriptionButtonLabelReaderRank,
+  enterpriseMutationControlDisabledTitle,
+} from "@/lib/enterprise-controls-context-copy";
 import { OPERATOR_NOT_REFRESHED_LABEL } from "@/lib/operator-last-refreshed-label";
 
 import { AlertRoutingContent } from "./AlertRoutingContent";
@@ -15,8 +19,10 @@ const apiHoisted = vi.hoisted(() => ({
   testWebhookSubscription: vi.fn(),
 }));
 
+const mutateCapability = vi.hoisted(() => ({ current: true }));
+
 vi.mock("@/hooks/use-operate-capability", () => ({
-  useOperateCapability: () => true,
+  useOperateCapability: () => mutateCapability.current,
 }));
 
 vi.mock("@/lib/api", () => ({
@@ -57,6 +63,7 @@ function fillValidDestinationForm(): void {
 
 describe("AlertRoutingContent", () => {
   beforeEach(() => {
+    mutateCapability.current = true;
     apiHoisted.listAlertRoutingSubscriptions.mockResolvedValue([]);
     apiHoisted.createAlertRoutingSubscription.mockResolvedValue({
       routingSubscriptionId: "sub-1",
@@ -251,5 +258,57 @@ describe("AlertRoutingContent", () => {
     await waitFor(() => {
       expect(apiHoisted.toggleAlertRoutingSubscription).toHaveBeenCalledWith("sub-1");
     });
+  });
+
+  it("shows visible WhyDisabled hint when mutation controls are read-only (TB-2361)", async () => {
+    mutateCapability.current = false;
+
+    renderWithHub(<AlertRoutingContent />);
+
+    await screen.findByTestId("alert-routing-empty-state");
+
+    const createButton = screen.getByTestId("alert-routing-create-destination");
+
+    expect(createButton).toBeDisabled();
+    expect(screen.getByTestId("alert-routing-mutate-disabled-hint")).toHaveTextContent(
+      enterpriseMutationControlDisabledTitle,
+    );
+    expect(createButton).toHaveAttribute("aria-describedby", "alert-routing-mutate-disabled-hint");
+    expect(screen.getByRole("button", { name: alertRoutingCreateSubscriptionButtonLabelReaderRank })).toBe(
+      createButton,
+    );
+  });
+
+  it("shows list toggle WhyDisabled hint when destinations exist and mutation is unavailable (TB-2361)", async () => {
+    mutateCapability.current = false;
+    apiHoisted.listAlertRoutingSubscriptions.mockResolvedValue([
+      {
+        routingSubscriptionId: "sub-1",
+        tenantId: "tenant-1",
+        workspaceId: "workspace-1",
+        projectId: "project-1",
+        name: "Ops email",
+        channelType: "Email",
+        destination: "ops@example.com",
+        minimumSeverity: "High",
+        isEnabled: true,
+        createdUtc: "2026-01-15T12:00:00.000Z",
+        createdByActor: "alex@contoso.com",
+        lastDeliveredUtc: "2026-01-16T12:00:00.000Z",
+        metadataJson: "{}",
+      },
+    ]);
+
+    renderWithHub(<AlertRoutingContent />);
+
+    await screen.findByTestId("alert-routing-destination-list");
+
+    const hint = screen.getByTestId("alert-routing-list-mutate-disabled-hint");
+
+    expect(hint).toHaveTextContent(enterpriseMutationControlDisabledTitle);
+    expect(screen.getByTestId("alert-routing-toggle-sub-1")).toHaveAttribute(
+      "aria-describedby",
+      "alert-routing-list-mutate-disabled-hint",
+    );
   });
 });
