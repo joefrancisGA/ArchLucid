@@ -58,6 +58,11 @@ public sealed class RepositorySqlExtractionRatchetTests
                 "ArchLucid.Persistence/Repositories/SqlFindingsSnapshotRepository.cs",
                 "FindingsSnapshotWriteSql",
                 "ArchLucid.Persistence/Sql/FindingsSnapshotWriteSql.cs"
+            },
+            {
+                "ArchLucid.Persistence/Data/Repositories/AgentResultRepository.cs",
+                "AgentResultWriteSql",
+                "ArchLucid.Persistence/Sql/AgentResultWriteSql.cs"
             }
         };
 

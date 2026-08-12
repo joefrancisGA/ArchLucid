@@ -3,6 +3,7 @@ using System.Text.Json;
 using ArchLucid.Contracts.Agents;
 using ArchLucid.Contracts.Common;
 using ArchLucid.Core.Persistence;
+using ArchLucid.Persistence.Serialization;
 
 namespace ArchLucid.Persistence.Data.Repositories;
 
@@ -10,7 +11,22 @@ internal static class AgentResultEnrichmentMerger
 {
     internal static IReadOnlyList<AgentResult> Apply(
         IReadOnlyList<AgentResult> baseResults,
-        IReadOnlyDictionary<string, AgentResultEnrichmentRecord> enrichmentsByResultId)
+        IReadOnlyDictionary<string, AgentResultEnrichmentRecord> enrichmentsByResultId) =>
+        Merge(baseResults, enrichmentsByResultId, MergeOne);
+
+    /// <summary>
+    ///     Rollup/compare variant (TB-2053): an enriched blob is re-projected so compare stays field-complete without
+    ///     retaining reasoning / topology LOBs from the enrichment payload.
+    /// </summary>
+    internal static IReadOnlyList<AgentResult> ApplyRollup(
+        IReadOnlyList<AgentResult> projected,
+        IReadOnlyDictionary<string, AgentResultEnrichmentRecord> enrichmentsByResultId) =>
+        Merge(projected, enrichmentsByResultId, MergeOneForRollup);
+
+    private static IReadOnlyList<AgentResult> Merge(
+        IReadOnlyList<AgentResult> baseResults,
+        IReadOnlyDictionary<string, AgentResultEnrichmentRecord> enrichmentsByResultId,
+        Func<AgentResult, AgentResultEnrichmentRecord, AgentResult> mergeOne)
     {
         if (enrichmentsByResultId.Count == 0)
             return baseResults;
@@ -25,7 +41,7 @@ internal static class AgentResultEnrichmentMerger
                 continue;
             }
 
-            merged.Add(MergeOne(baseResult, enrichment));
+            merged.Add(mergeOne(baseResult, enrichment));
         }
 
         return merged;
@@ -49,6 +65,24 @@ internal static class AgentResultEnrichmentMerger
         return merged;
     }
 
+    private static AgentResult MergeOneForRollup(AgentResult baseResult, AgentResultEnrichmentRecord enrichment)
+    {
+        if (!string.IsNullOrWhiteSpace(enrichment.EnrichedResultJson))
+        {
+            AgentResult? enriched = DeserializeEnrichedForRollup(
+                enrichment.EnrichedResultJson,
+                baseResult.ResultId);
+
+            if (enriched is not null)
+                return AgentResultRollupProjection.StripHeavyFields(enriched);
+        }
+
+        if (enrichment.CalibratedConfidence.HasValue)
+            baseResult.CalibratedConfidence = enrichment.CalibratedConfidence;
+
+        return baseResult;
+    }
+
     private static AgentResult Clone(AgentResult source)
     {
         string json = JsonSerializer.Serialize(source, ContractJson.Default);
@@ -57,11 +91,21 @@ internal static class AgentResultEnrichmentMerger
         return copy ?? throw new InvalidOperationException("Clone produced null AgentResult.");
     }
 
-    private static AgentResult? DeserializeEnriched(string enrichedResultJson, string resultId)
+    private static AgentResult? DeserializeEnriched(string enrichedResultJson, string resultId) =>
+        Deserialize(enrichedResultJson, resultId, ContractJson.Default);
+
+    /// <summary>Rollup reads use the persistence read options so legacy claim shapes still bind.</summary>
+    private static AgentResult? DeserializeEnrichedForRollup(string enrichedResultJson, string resultId) =>
+        Deserialize(enrichedResultJson, resultId, AgentResultJsonSerialization.DeserializeOptions);
+
+    private static AgentResult? Deserialize(
+        string enrichedResultJson,
+        string resultId,
+        JsonSerializerOptions options)
     {
         try
         {
-            return JsonSerializer.Deserialize<AgentResult>(enrichedResultJson, ContractJson.Default);
+            return JsonSerializer.Deserialize<AgentResult>(enrichedResultJson, options);
         }
         catch (JsonException ex)
         {
