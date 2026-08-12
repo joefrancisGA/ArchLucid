@@ -210,13 +210,13 @@ export const ADMINISTRATION_CONTEXTUAL_HELP_ROWS: readonly PageContextualHelpRow
     prefix: "/administration/api-keys",
     entry: {
       whatIsThisPage:
-        "API keys - host automation credential controls (parked in product UI until Internal Operations maturity).",
+        "API keys — workspace automation credential controls when in-product management is enabled for your workspace.",
       whatToDoNext:
-        "Use Users and roles for people access. Prefer Key Vault / host configuration for machine credentials until this surface returns under Internal Operations.",
+        "Use Users and roles for people access. Host automation credentials are configured in deployment settings outside this page.",
       whyEmpty:
-        "This page stays restricted while in-product API key management is deferred.",
+        "In-product API key management is not available in this workspace UI.",
       whereToConfigurePrerequisite:
-        "Re-enable requires flipping isApiKeysSettingsSurfaceEnabled and Admin authority; some tenants require SSO-only sign-in.",
+        "Workspace Admin authority is required when the surface is enabled; some tenants use SSO-only sign-in without API keys.",
     },
   },
   {

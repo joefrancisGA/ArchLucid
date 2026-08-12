@@ -46,6 +46,7 @@ import { SHOWCASE_STATIC_DEMO_RUN_ID } from "@/lib/showcase-static-demo";
 import {
   buildOperatorFilteredEmptyCompact,
   buildOperatorHubZoneEmptyCompact,
+  buildOperatorPermissionEmptyCompact,
   buildOperatorPrerequisiteEmptyCompact,
 } from "@/lib/operator/operator-empty-state-kind-presets";
 import {
@@ -53,7 +54,13 @@ import {
   ACCOUNT_SECURITY_DEMO_GATE_MESSAGE,
 } from "@/lib/account-security-page-copy";
 import { buildAuthSignInHref } from "@/lib/navigation/auth-sign-in-href";
-import { SETTINGS_ACCOUNT_SECURITY_PATH } from "@/lib/settings-admin-route-paths";
+import {
+  API_KEYS_FORBIDDEN_EMPTY_BODY,
+  API_KEYS_SURFACE_DISABLED_DESCRIPTION,
+} from "@/lib/api-keys-settings-copy";
+import { OPERATOR_NAV_LINK_LABELS } from "@/lib/i18n";
+import { SETTINGS_ACCOUNT_SECURITY_PATH, SETTINGS_ROOT_PATH } from "@/lib/settings-admin-route-paths";
+import { API_KEYS_USERS_USERS_LINK } from "@/lib/vocabulary/api-keys-users-vocabulary";
 
 /** Reviews list when the project has zero reviews. */
 export const RUNS_EMPTY_COMPACT: EnterpriseCompactEmptyStateProps = {
@@ -347,6 +354,44 @@ export const ACCOUNT_SECURITY_AUTH_REQUIRED_EMPTY_COMPACT: EnterpriseCompactEmpt
         label: "Sign in",
         href: buildAuthSignInHref({ returnPath: SETTINGS_ACCOUNT_SECURITY_PATH }),
         variant: "primary",
+      },
+    ],
+  });
+
+/** API keys settings — in-product surface parked; people and host credentials live elsewhere. */
+export const API_KEYS_SURFACE_DISABLED_EMPTY_COMPACT: EnterpriseCompactEmptyStateProps = {
+  testId: "api-keys-surface-disabled-empty-state",
+  title: "Manage access elsewhere",
+  description: API_KEYS_SURFACE_DISABLED_DESCRIPTION,
+  actions: [
+    {
+      label: API_KEYS_USERS_USERS_LINK.label,
+      href: API_KEYS_USERS_USERS_LINK.href,
+      variant: "primary",
+    },
+    {
+      label: OPERATOR_NAV_LINK_LABELS.settings,
+      href: SETTINGS_ROOT_PATH,
+      variant: "outline",
+    },
+  ],
+};
+
+/** API keys settings — workspace administrator authority required (permission). */
+export const API_KEYS_FORBIDDEN_EMPTY_COMPACT: EnterpriseCompactEmptyStateProps =
+  buildOperatorPermissionEmptyCompact("manage API keys", {
+    testId: "api-keys-forbidden-empty-state",
+    description: API_KEYS_FORBIDDEN_EMPTY_BODY,
+    actions: [
+      {
+        label: API_KEYS_USERS_USERS_LINK.label,
+        href: API_KEYS_USERS_USERS_LINK.href,
+        variant: "primary",
+      },
+      {
+        label: OPERATOR_NAV_LINK_LABELS.settings,
+        href: SETTINGS_ROOT_PATH,
+        variant: "outline",
       },
     ],
   });

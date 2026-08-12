@@ -322,10 +322,12 @@ describe("contextual-help-registry (TB-733)", () => {
   });
 
   it("resolves API keys settings Category-1 help (ADP)", () => {
-    expect(contextualHelpForPathname("/administration/api-keys")?.whatIsThisPage).toContain("API keys");
-    expect(contextualHelpForPathname("/administration/api-keys")?.whatToDoNext).toContain(
-      "Users and roles",
-    );
+    const entry = contextualHelpForPathname("/administration/api-keys");
+    expect(entry?.whatIsThisPage).toContain("API keys");
+    expect(entry?.whatToDoNext).toContain("Users and roles");
+    expect(entry?.whyEmpty).toContain("not available");
+    expect(entry?.whereToConfigurePrerequisite).not.toContain("isApiKeysSettingsSurfaceEnabled");
+    expect(entry?.whatIsThisPage).not.toContain("Internal Operations");
   });
 
   it("resolves Preferences settings Category-1 help (ADR)", () => {
