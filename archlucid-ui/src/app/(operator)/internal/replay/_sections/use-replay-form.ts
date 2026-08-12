@@ -48,12 +48,12 @@ export function useReplayForm(): ReplayFormViewModel {
   const runIdTrimmed = runId.trim();
 
   useEffect(() => {
-    let cancelled = false;
+    let canceled = false;
 
     if (runIdTrimmed.length === 0) {
       setAuditHistory([]);
       return () => {
-        cancelled = true;
+        canceled = true;
       };
     }
 

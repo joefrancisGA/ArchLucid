@@ -92,7 +92,7 @@ export function useWhatIfBranchAutoCompare(
     }, POLL_MS);
 
     return () => {
-      cancelled = true;
+      canceled = true;
       window.clearInterval(intervalId);
     };
   }, [

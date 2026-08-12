@@ -204,7 +204,7 @@ export function CreateWorkItemDialog(props: CreateWorkItemDialogProps): React.JS
       setProvider(singleConfigured);
     }
 
-    let cancelled = false;
+    let canceled = false;
 
     void (async () => {
       try {

@@ -19,7 +19,7 @@ export function useImpactPreviewBaselineAvailability(): ImpactPreviewBaselineAva
 
     void loadProjectRunsMergedWithDemoFallback("default", { forCompare: true, committedOnly: true })
       .then((merged) => {
-        if (cancelled) {
+        if (canceled) {
           return;
         }
 
@@ -27,7 +27,7 @@ export function useImpactPreviewBaselineAvailability(): ImpactPreviewBaselineAva
         setLoading(false);
       })
       .catch(() => {
-        if (cancelled) {
+        if (canceled) {
           return;
         }
 
@@ -36,7 +36,7 @@ export function useImpactPreviewBaselineAvailability(): ImpactPreviewBaselineAva
       });
 
     return () => {
-      cancelled = true;
+      canceled = true;
     };
   }, []);
 

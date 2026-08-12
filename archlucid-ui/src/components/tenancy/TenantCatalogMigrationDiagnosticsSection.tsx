@@ -25,7 +25,7 @@ export function TenantCatalogMigrationDiagnosticsSection() {
   );
 
   useEffect(() => {
-    let cancelled = false;
+    let canceled = false;
 
     async function load() {
       const status = await fetchTenantCatalogMigrationStatus();

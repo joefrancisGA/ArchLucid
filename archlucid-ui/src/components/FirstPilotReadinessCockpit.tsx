@@ -200,11 +200,11 @@ export function FirstPilotReadinessCockpit() {
   );
 
   useEffect(() => {
-    let cancelled = false;
+    let canceled = false;
 
     void fetchHealthReadySummary()
       .then((readyBody) => {
-        if (cancelled) {
+        if (canceled) {
           return;
         }
 
@@ -212,21 +212,21 @@ export function FirstPilotReadinessCockpit() {
         setHealthLoadFailed(readyBody === null);
       })
       .finally(() => {
-        if (!cancelled) {
+        if (!canceled) {
           finishProbe();
         }
       });
 
     void loadCurrentPrincipal()
       .then((loadedPrincipal) => {
-        if (cancelled) {
+        if (canceled) {
           return;
         }
 
         setPrincipal(loadedPrincipal);
       })
       .finally(() => {
-        if (!cancelled) {
+        if (!canceled) {
           finishProbe();
         }
       });

@@ -36,7 +36,7 @@ export function ServiceBusHealthBanner() {
       return;
     }
 
-    let cancelled = false;
+    let canceled = false;
     let timer: number | undefined;
 
     const clearTimer = () => {
@@ -49,7 +49,7 @@ export function ServiceBusHealthBanner() {
     async function load(): Promise<boolean> {
       const ready = await fetchHealthReadySummary();
 
-      if (cancelled) {
+      if (canceled) {
         return false;
       }
 

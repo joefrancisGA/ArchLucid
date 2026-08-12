@@ -34,7 +34,7 @@ export function OperatorAiQualityProofCard(props: { readonly embedded?: boolean 
         const response = await fetch("/operator-ai-quality-snapshot.json", { cache: "no-store" });
 
         if (!response.ok) {
-          if (!cancelled) {
+          if (!canceled) {
             setLoadFailed(true);
           }
 

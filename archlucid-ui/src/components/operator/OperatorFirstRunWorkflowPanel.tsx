@@ -75,13 +75,13 @@ export function OperatorFirstRunWorkflowPanel(props: { exploreCompletedOutput?: 
       return;
     }
 
-    let cancelled = false;
+    let canceled = false;
 
     void (async () => {
       try {
         const ctx = await fetchCorePilotCommitContextCached();
 
-        if (!cancelled) {
+        if (!canceled) {
           setCommitCtx(ctx);
         }
       } catch {
@@ -208,7 +208,7 @@ export function OperatorFirstRunWorkflowPanel(props: { exploreCompletedOutput?: 
         const merged = await loadProjectRunsMergedWithDemoFallback("default");
         const next = merged.items.length > 0;
 
-        if (cancelled) {
+        if (canceled) {
           return;
         }
 

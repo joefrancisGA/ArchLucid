@@ -48,7 +48,7 @@ export function RunDetailReviewPackageSponsorHandoffGate(
     });
 
     return () => {
-      cancelled = true;
+      canceled = true;
     };
   }, [
     props.runId,

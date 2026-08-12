@@ -136,7 +136,7 @@ export function useCompareGovernanceDiff(
     void load();
 
     return () => {
-      cancelled = true;
+      canceled = true;
     };
   }, [baselineRunId, targetRunId]);
 

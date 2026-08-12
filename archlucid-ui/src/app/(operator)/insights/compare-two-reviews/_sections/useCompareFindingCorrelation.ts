@@ -79,7 +79,7 @@ export function useCompareFindingCorrelation(
     void load();
 
     return () => {
-      cancelled = true;
+      canceled = true;
     };
   }, [baselineRunId, targetRunId]);
 

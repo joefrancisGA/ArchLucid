@@ -181,14 +181,14 @@ export function CallbackClient() {
       } catch (e) {
         clearSlowHintTimer();
 
-        if (!cancelled) {
+        if (!canceled) {
           fail(e instanceof Error ? e.message : String(e));
         }
       }
     })();
 
     return () => {
-      cancelled = true;
+      canceled = true;
       clearSlowHintTimer();
     };
   }, [code, oauthError, oauthErrorDescription, state]);

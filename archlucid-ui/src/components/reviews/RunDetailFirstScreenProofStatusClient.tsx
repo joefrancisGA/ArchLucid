@@ -43,7 +43,7 @@ export function RunDetailFirstScreenProofStatusClient(
         );
 
         if (!response.ok) {
-          if (!cancelled) {
+          if (!canceled) {
             setLoadFailed(true);
             setLoading(false);
           }
@@ -53,7 +53,7 @@ export function RunDetailFirstScreenProofStatusClient(
 
         const payload = (await response.json()) as PilotRunDeltasProofSummaryJson;
 
-        if (!cancelled) {
+        if (!canceled) {
           setSummary(buildRunDetailFirstScreenProofSummary(payload));
           setLoadFailed(false);
           setLoading(false);

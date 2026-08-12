@@ -20,7 +20,7 @@ export function RunDetailRetrievalGroundingSection(props: RunDetailRetrievalGrou
   const [loading, setLoading] = useState(true);
 
   useEffect(() => {
-    let cancelled = false;
+    let canceled = false;
 
     void (async () => {
       try {

@@ -135,7 +135,7 @@ export default function DecisionRegisterClient() {
           setLoadError(error instanceof Error ? error.message : "Failed to load decision register.");
         }
       } finally {
-        if (!cancelled) {
+        if (!canceled) {
           setLoadingWorkspace(false);
         }
       }

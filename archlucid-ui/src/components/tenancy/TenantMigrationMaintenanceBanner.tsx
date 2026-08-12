@@ -43,7 +43,7 @@ export function TenantMigrationMaintenanceBanner() {
       return;
     }
 
-    let cancelled = false;
+    let canceled = false;
     let requestGeneration = 0;
 
     async function load() {

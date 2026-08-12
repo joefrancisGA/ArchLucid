@@ -33,7 +33,7 @@ export function PolicyPackDetailClient(props: PolicyPackDetailClientProps): Reac
   const [loading, setLoading] = useState(true);
 
   useEffect(() => {
-    let cancelled = false;
+    let canceled = false;
 
     void (async () => {
       setLoading(true);

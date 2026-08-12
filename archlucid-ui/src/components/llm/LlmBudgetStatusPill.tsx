@@ -81,7 +81,7 @@ export function LlmBudgetStatusPill() {
       return;
     }
 
-    let cancelled = false;
+    let canceled = false;
 
     void (async () => {
       try {

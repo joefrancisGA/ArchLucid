@@ -126,7 +126,7 @@ export function usePolicyPackContentJsonValidation(jsonText: string): PolicyPack
         try {
           const result = await validatePolicyPackContentJson(jsonText);
 
-          if (cancelled) {
+          if (canceled) {
             return;
           }
 
@@ -140,7 +140,7 @@ export function usePolicyPackContentJsonValidation(jsonText: string): PolicyPack
             }),
           );
         } catch {
-          if (cancelled) {
+          if (canceled) {
             return;
           }
 
@@ -157,7 +157,7 @@ export function usePolicyPackContentJsonValidation(jsonText: string): PolicyPack
     }, POLICY_PACK_CONTENT_JSON_VALIDATION_DEBOUNCE_MS);
 
     return () => {
-      cancelled = true;
+      canceled = true;
       window.clearTimeout(timer);
     };
   }, [jsonText]);

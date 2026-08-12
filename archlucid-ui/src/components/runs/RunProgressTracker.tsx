@@ -189,7 +189,7 @@ export function RunProgressTracker({
       return;
     }
 
-    let cancelled = false;
+    let canceled = false;
 
     const fetchTimeline = async (): Promise<void> => {
       try {

@@ -93,7 +93,7 @@ export function useNewRunWizardMode(baselineFirst: boolean) {
     })();
 
     return () => {
-      cancelled = true;
+      canceled = true;
     };
   }, [baselineFirst]);
 
