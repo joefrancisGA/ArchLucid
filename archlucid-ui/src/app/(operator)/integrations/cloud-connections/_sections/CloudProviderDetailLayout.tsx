@@ -21,7 +21,7 @@ export function CloudProviderDetailSection(props: CloudProviderDetailSectionProp
           {title}
         </h2>
         {description !== undefined && description.length > 0 ? (
-          <p className={cn("mt-1 max-w-3xl", OPERATOR_TYPOGRAPHY.helper)}>{description}</p>
+          <p className={cn("mt-1", OPERATOR_TYPOGRAPHY.helper)}>{description}</p>
         ) : null}
       </div>
       {children}

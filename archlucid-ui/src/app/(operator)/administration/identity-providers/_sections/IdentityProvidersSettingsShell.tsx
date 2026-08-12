@@ -125,12 +125,12 @@ export function IdentityProvidersSettingsShell(props: IdentityProvidersSettingsS
       {isOverviewPage ? (
         <div className="space-y-2">
           {!buyerPolishedShell ? (
-            <p className={cn("m-0 max-w-3xl text-al-text-secondary", OPERATOR_TYPOGRAPHY.body)}>
+            <p className={cn("m-0 text-al-text-secondary", OPERATOR_TYPOGRAPHY.body)}>
               {IDENTITY_PROVIDERS_PAGE_INTRO}
             </p>
           ) : null}
           <p
-            className={cn("m-0 max-w-3xl text-al-text-primary", OPERATOR_TYPOGRAPHY.body)}
+            className={cn("m-0 text-al-text-primary", OPERATOR_TYPOGRAPHY.body)}
             data-testid="identity-providers-safety-notice"
           >
             {IDENTITY_PROVIDERS_SAFETY_NOTICE}
@@ -140,7 +140,7 @@ export function IdentityProvidersSettingsShell(props: IdentityProvidersSettingsS
 
       {props.showAdminFallbackNotice === true ? (
         <p
-          className={cn("m-0 max-w-3xl text-al-text-secondary", OPERATOR_TYPOGRAPHY.helper)}
+          className={cn("m-0 text-al-text-secondary", OPERATOR_TYPOGRAPHY.helper)}
           data-testid="identity-providers-admin-fallback-notice"
         >
           {IDENTITY_PROVIDERS_ADMIN_FALLBACK_NOTICE}

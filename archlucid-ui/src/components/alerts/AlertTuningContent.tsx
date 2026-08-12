@@ -271,7 +271,7 @@ export function AlertTuningContent() {
               </div>
             </>
           ) : (
-            <p className={cn("mt-0 max-w-2xl text-neutral-500 dark:text-neutral-400", OPERATOR_TYPOGRAPHY.body)}>
+            <p className={cn("mt-0 text-neutral-500 dark:text-neutral-400", OPERATOR_TYPOGRAPHY.body)}>
               No tuning results yet. Run a recommendation below to compare candidate thresholds against recent reviews.
             </p>
           )}
@@ -281,7 +281,7 @@ export function AlertTuningContent() {
           <h3 id="alert-tuning-change-heading" className={cn("mb-2 mt-0", OPERATOR_TYPOGRAPHY.sectionTitle)}>
             {alertToolingChangeConfigurationHeadingOperator}
           </h3>
-          <p className={cn("mb-2.5 mt-0 max-w-2xl text-neutral-500 dark:text-neutral-400", OPERATOR_TYPOGRAPHY.helper)}>
+          <p className={cn("mb-2.5 mt-0 text-neutral-500 dark:text-neutral-400", OPERATOR_TYPOGRAPHY.helper)}>
             {alertToolingConfigureSectionSubline}
           </p>
       <div className="mb-6 grid max-w-3xl gap-3">

@@ -80,7 +80,6 @@ export function OperatorBillingSettingsClient(props: { readonly initialPlanId?: 
         title="Billing & plans"
         headingLevel="h1"
         subtitle={OPERATOR_BILLING_PAGE_LEAD}
-        subtitleClassName="max-w-3xl"
         actions={<PageContextualHelpButton />}
       />
       <AiUsageBillingVocabularyRail currentSurfaceId="billing" />
@@ -109,7 +108,7 @@ export function OperatorBillingSettingsClient(props: { readonly initialPlanId?: 
 
       <OperatorBillingWalletPanel />
 
-      <p className={cn("m-0 max-w-3xl", OPERATOR_TYPOGRAPHY.helper)}>
+      <p className={cn("m-0", OPERATOR_TYPOGRAPHY.helper)}>
         Need procurement or deployment details?{" "}
         <Link href="/pricing" className="text-teal-800 underline decoration-teal-600/40 underline-offset-2 dark:text-teal-200">
           View public pricing

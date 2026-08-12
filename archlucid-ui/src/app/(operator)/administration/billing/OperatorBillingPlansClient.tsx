@@ -190,7 +190,7 @@ export function OperatorBillingPlansClient(props: OperatorBillingPlansClientProp
         />
       ) : null}
 
-      <p className={cn("m-0 max-w-3xl", OPERATOR_TYPOGRAPHY.helper)}>
+      <p className={cn("m-0", OPERATOR_TYPOGRAPHY.helper)}>
         {OPERATOR_BILLING_CATALOG_NOTE}{" "}
         <Link href="/pricing" className={OPERATOR_LINK.nav}>
           View public pricing

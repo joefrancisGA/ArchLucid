@@ -327,7 +327,7 @@ export function WebhooksSettingsClient() {
         actions={<PageContextualHelpButton />}
         description={
           <>
-            <p className={cn("m-0 max-w-3xl leading-snug", OPERATOR_TYPOGRAPHY.body)}>{WEBHOOKS_PAGE_DESCRIPTION}</p>
+            <p className={cn("m-0 leading-snug", OPERATOR_TYPOGRAPHY.body)}>{WEBHOOKS_PAGE_DESCRIPTION}</p>
             <div className="space-y-2" data-testid="webhooks-configuration-status">
               {loading ? (
                 <p className={cn("m-0 font-medium text-al-text-primary", OPERATOR_TYPOGRAPHY.cardTitle)}>
@@ -341,7 +341,7 @@ export function WebhooksSettingsClient() {
               )}
               {!loading && webhookRows.length === 0 ? (
                 <p
-                  className={cn("m-0 max-w-3xl text-al-text-secondary", OPERATOR_TYPOGRAPHY.helper)}
+                  className={cn("m-0 text-al-text-secondary", OPERATOR_TYPOGRAPHY.helper)}
                   data-testid="webhooks-not-configured-next-step"
                 >
                   {WEBHOOKS_NOT_CONFIGURED_NEXT_STEP}
@@ -384,7 +384,7 @@ export function WebhooksSettingsClient() {
                   {WEBHOOKS_SUBSCRIPTIONS_HEADING}
                 </h2>
                 {webhookRows.length > 0 ? (
-                  <p className={cn("max-w-3xl text-al-text-secondary", OPERATOR_TYPOGRAPHY.helper)}>
+                  <p className={cn("text-al-text-secondary", OPERATOR_TYPOGRAPHY.helper)}>
                     {webhookRows.length} subscription{webhookRows.length === 1 ? "" : "s"} in this workspace.
                   </p>
                 ) : null}
@@ -533,14 +533,14 @@ export function WebhooksSettingsClient() {
               <h2 id="webhook-create-heading" className={OPERATOR_TYPOGRAPHY.sectionTitle}>
                 New subscription
               </h2>
-              <p className={cn("m-0 mt-1 max-w-3xl text-al-text-secondary", OPERATOR_TYPOGRAPHY.helper)}>
+              <p className={cn("m-0 mt-1 text-al-text-secondary", OPERATOR_TYPOGRAPHY.helper)}>
                 {WEBHOOKS_SAVE_THEN_TEST_HELPER}
               </p>
             </div>
 
             {!canMutate ? (
               <p
-                className={cn("m-0 max-w-3xl text-al-text-secondary", OPERATOR_TYPOGRAPHY.helper)}
+                className={cn("m-0 text-al-text-secondary", OPERATOR_TYPOGRAPHY.helper)}
                 data-testid="webhooks-mutation-prerequisite-notice"
                 role="status"
               >

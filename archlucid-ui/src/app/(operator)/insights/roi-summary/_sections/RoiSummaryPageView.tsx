@@ -114,7 +114,6 @@ export function RoiSummaryPageView(props: Props) {
           title="ROI summary"
           headingLevel="h1"
           subtitle={buyerPolishedShell ? ROI_SUMMARY_PAGE_SUBTITLE : null}
-          subtitleClassName="max-w-3xl"
           actions={
             <div className="flex flex-wrap items-center gap-2">
               <PageContextualHelpButton />

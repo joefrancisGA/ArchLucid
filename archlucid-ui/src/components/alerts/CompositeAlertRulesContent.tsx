@@ -150,7 +150,7 @@ export function CompositeAlertRulesContent() {
 
   return (
     <div>
-      <p className={cn("mb-2 max-w-prose leading-snug text-neutral-600 dark:text-neutral-400", OPERATOR_TYPOGRAPHY.body)}>
+      <p className={cn("mb-2 leading-snug text-neutral-600 dark:text-neutral-400", OPERATOR_TYPOGRAPHY.body)}>
         {canMutateComposite
           ? emptyIntroMode
             ? compositeRulesPageLeadOperatorEmpty
@@ -210,7 +210,7 @@ export function CompositeAlertRulesContent() {
               {loading ? "Loading…" : "Refresh"}
             </Button>
             {!canMutateComposite ? (
-              <span className={cn("max-w-prose text-neutral-500 dark:text-neutral-400", OPERATOR_TYPOGRAPHY.helper)}>
+              <span className={cn("text-neutral-500 dark:text-neutral-400", OPERATOR_TYPOGRAPHY.helper)}>
                 {compositeRulesRefreshAssistReaderLine}
               </span>
             ) : null}
@@ -266,7 +266,7 @@ export function CompositeAlertRulesContent() {
               ? alertToolingChangeConfigurationHeadingOperator
               : alertToolingChangeConfigurationHeadingReader}
           </h3>
-          <p className={cn("mb-2.5 mt-0 max-w-2xl text-neutral-500 dark:text-neutral-400", OPERATOR_TYPOGRAPHY.helper)}>
+          <p className={cn("mb-2.5 mt-0 text-neutral-500 dark:text-neutral-400", OPERATOR_TYPOGRAPHY.helper)}>
             {alertToolingConfigureSectionSubline}
           </p>
       <fieldset

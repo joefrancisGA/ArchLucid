@@ -805,7 +805,7 @@ export function GovernanceWorkflowPageContent() {
             <h3 className={cn("m-0 text-al-text-primary", OPERATOR_TYPOGRAPHY.cardTitle)}>
               {GOVERNANCE_APPROVAL_REQUESTS_SECTION_TITLE}
             </h3>
-            <p className={cn("m-0 mt-2 mb-4 max-w-3xl text-al-text-secondary", OPERATOR_TYPOGRAPHY.helper)}>
+            <p className={cn("m-0 mt-2 mb-4 text-al-text-secondary", OPERATOR_TYPOGRAPHY.helper)}>
               {showBuyerApprovalStory
                 ? GOVERNANCE_APPROVAL_REQUESTS_COMPACT_SECTION_LEAD
                 : GOVERNANCE_APPROVAL_REQUESTS_SECTION_LEAD}

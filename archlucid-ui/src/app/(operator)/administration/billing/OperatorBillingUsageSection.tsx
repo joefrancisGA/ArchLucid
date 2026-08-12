@@ -34,7 +34,7 @@ export function OperatorBillingUsageSection() {
     <section id="billing-usage" className="scroll-mt-24 space-y-3" data-testid="operator-billing-usage-section">
       <div>
         <h2 className={OPERATOR_NAV_GROUP_LABEL}>AI usage and credits</h2>
-        <p className={cn("mt-1 max-w-3xl", OPERATOR_TYPOGRAPHY.helper)}>{BILLING_AI_USAGE_SECTION_INTRO}</p>
+        <p className={cn("mt-1", OPERATOR_TYPOGRAPHY.helper)}>{BILLING_AI_USAGE_SECTION_INTRO}</p>
       </div>
       <Card>
         <CardHeader className="pb-2">

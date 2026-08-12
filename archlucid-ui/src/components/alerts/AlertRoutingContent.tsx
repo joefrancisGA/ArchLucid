@@ -330,7 +330,7 @@ export function AlertRoutingContent() {
             />
           ) : null}
         </div>
-        <p className={cn("m-0 max-w-prose leading-snug text-neutral-600 dark:text-neutral-400", OPERATOR_TYPOGRAPHY.body)}>
+        <p className={cn("m-0 leading-snug text-neutral-600 dark:text-neutral-400", OPERATOR_TYPOGRAPHY.body)}>
           {pageLead}
         </p>
         {sampleModeBlocked ? (
@@ -411,7 +411,7 @@ export function AlertRoutingContent() {
             {isEmptyComposition ? "Set up alert delivery" : "Add another destination"}
           </h3>
           {isEmptyComposition ? (
-            <p className={cn("m-0 max-w-prose text-al-text-secondary", OPERATOR_TYPOGRAPHY.helper)}>
+            <p className={cn("m-0 text-al-text-secondary", OPERATOR_TYPOGRAPHY.helper)}>
               Create your first email or webhook destination. Qualifying findings notify your team when severity
               thresholds are met.
             </p>

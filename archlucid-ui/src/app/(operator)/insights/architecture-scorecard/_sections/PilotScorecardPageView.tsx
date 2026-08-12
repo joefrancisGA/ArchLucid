@@ -162,7 +162,6 @@ export function PilotScorecardPageView({ model }: PilotScorecardPageViewProps) {
         title={REVIEW_SCORECARD_PAGE_TITLE}
         headingLevel="h1"
         subtitle={REVIEW_SCORECARD_PAGE_SUBTITLE}
-        subtitleClassName="max-w-3xl"
         metadata={
           <>
             {scopeCue !== null ? (

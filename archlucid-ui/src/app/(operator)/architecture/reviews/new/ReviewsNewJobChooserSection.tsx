@@ -22,7 +22,7 @@ export function ReviewsNewJobChooserSection(): React.JSX.Element {
         >
           {ACCELERATOR_JOB_CHOOSER_HEADING}
         </h2>
-        <p className={cn("m-0 mt-1 max-w-3xl text-al-text-secondary", OPERATOR_TYPOGRAPHY.helper)}>
+        <p className={cn("m-0 mt-1 text-al-text-secondary", OPERATOR_TYPOGRAPHY.helper)}>
           {ACCELERATOR_JOB_CHOOSER_LEAD}
         </p>
       </div>

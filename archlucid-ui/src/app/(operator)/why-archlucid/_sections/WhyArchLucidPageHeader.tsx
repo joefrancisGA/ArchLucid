@@ -50,7 +50,6 @@ export function WhyArchLucidPageHeader(props: WhyArchLucidPageHeaderProps): Reac
           </span>
         </>
       }
-      subtitleClassName="max-w-3xl"
       breadcrumb={
         <OperatorPageBreadcrumb
           data-testid="why-archlucid-page-breadcrumb"

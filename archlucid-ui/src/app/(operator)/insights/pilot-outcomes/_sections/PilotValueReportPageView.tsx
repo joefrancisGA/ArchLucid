@@ -99,7 +99,6 @@ export function PilotValueReportPageView(props: Props) {
           title={PILOT_OUTCOMES_PAGE_TITLE}
           headingLevel="h1"
           subtitle={buyerPolishedShell ? PILOT_OUTCOMES_PAGE_SUBTITLE : null}
-          subtitleClassName="max-w-3xl"
           actions={<PageContextualHelpButton />}
         />
 

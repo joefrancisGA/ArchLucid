@@ -97,7 +97,7 @@ export function TeamsNotificationsIntegrationPageView(props: Props): React.React
         actions={<PageContextualHelpButton />}
         description={
           <>
-            <p className={cn("m-0 max-w-2xl leading-relaxed", OPERATOR_TYPOGRAPHY.body)}>
+            <p className={cn("m-0 leading-relaxed", OPERATOR_TYPOGRAPHY.body)}>
               {TEAMS_INTEGRATION_PAGE_SUBTITLE}
             </p>
             <div className="space-y-2" data-testid="teams-connection-status">
@@ -113,7 +113,7 @@ export function TeamsNotificationsIntegrationPageView(props: Props): React.React
               )}
               {!m.loading && m.connectionStatus === "not-configured" ? (
                 <p
-                  className={cn("m-0 max-w-2xl text-al-text-secondary", OPERATOR_TYPOGRAPHY.helper)}
+                  className={cn("m-0 text-al-text-secondary", OPERATOR_TYPOGRAPHY.helper)}
                   data-testid="teams-not-configured-next-step"
                 >
                   {TEAMS_INTEGRATION_NOT_CONFIGURED_NEXT_STEP}

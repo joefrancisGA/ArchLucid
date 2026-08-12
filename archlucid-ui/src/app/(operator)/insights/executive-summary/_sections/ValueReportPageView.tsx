@@ -113,7 +113,6 @@ export function ValueReportPageView({ model }: ValueReportPageViewProps) {
               </>
             ) : null
           }
-          subtitleClassName="max-w-3xl"
           actions={<PageContextualHelpButton />}
         />
 
