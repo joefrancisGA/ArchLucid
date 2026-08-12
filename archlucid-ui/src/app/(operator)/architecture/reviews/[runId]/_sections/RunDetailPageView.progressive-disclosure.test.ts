@@ -9,6 +9,7 @@ import {
 } from "@/testing/source-scan-harness";
 
 const source = readRegisteredSource("run-detail-page-view");
+const tabbedWorkspaceSource = readRegisteredSource("run-detail-tabbed-workspace");
 
 describe("RunDetailPageView progressive disclosure", () => {
   it("relies on shell breadcrumbs instead of a page-local breadcrumb trail", () => {
@@ -24,48 +25,49 @@ describe("RunDetailPageView progressive disclosure", () => {
 
   it("prioritizes first-screen proof status in overview tab", () => {
     requireSourceIndex(
-      source,
+      tabbedWorkspaceSource,
       "proofStatusSlot={<RunDetailFirstScreenProofStatusClient",
-      "run-detail-page-view",
+      "run-detail-tabbed-workspace",
     );
     const belowFoldSource = readRegisteredSource("run-detail-below-fold");
 
     requireSourceIndex(belowFoldSource, "<RunAgentForensicsSection", "run-detail-below-fold");
   });
 
-  it("prioritizes workspace header and summary before tabbed workspace render", () => {
+  it("prioritizes workspace header before tabbed workspace mount and summary strip inside tabbed workspace", () => {
     const headerIndex = requireSourceIndex(source, "<RunDetailWorkspaceHeader", "run-detail-page-view");
-    const summaryMatch = /<RunDetailWorkspaceSummaryStripDeferred(?:\s|>)/.exec(source);
+    const summaryMatch = /<RunDetailWorkspaceSummaryStripDeferred(?:\s|>)/.exec(tabbedWorkspaceSource);
     const summaryIndex = summaryMatch?.index ?? -1;
     const workspaceRenderIndex = requireSourceIndex(source, "{tabbedWorkspaceEl}", "run-detail-page-view");
 
     expect(summaryIndex).toBeGreaterThan(-1);
-    expect(headerIndex).toBeLessThan(summaryIndex);
-    expect(summaryIndex).toBeLessThan(workspaceRenderIndex);
+    expect(headerIndex).toBeLessThan(workspaceRenderIndex);
+    expect(summaryIndex).toBeGreaterThan(-1);
   });
 
   it("places proof status in overview tab before findings panel", () => {
     const tabbedWorkspaceIndex = requireSourceIndex(
       source,
-      "const tabbedWorkspaceEl",
+      "RunDetailTabbedWorkspace",
       "run-detail-page-view",
     );
-    const overviewPanelIndex = source.indexOf("<RunDetailOverviewPanelClient", tabbedWorkspaceIndex);
-    const findingsPanelIndex = source.indexOf("findings: (", overviewPanelIndex);
+    const overviewPanelIndex = tabbedWorkspaceSource.indexOf("<RunDetailOverviewPanelClient");
+    const findingsPanelIndex = tabbedWorkspaceSource.indexOf("findings: (", overviewPanelIndex);
 
     expect(overviewPanelIndex).toBeGreaterThan(-1);
     expect(findingsPanelIndex).toBeGreaterThan(-1);
     expect(overviewPanelIndex).toBeLessThan(findingsPanelIndex);
     expectSourceContains(
-      source,
+      tabbedWorkspaceSource,
       "proofStatusSlot={<RunDetailFirstScreenProofStatusClient",
-      "run-detail-page-view",
+      "run-detail-tabbed-workspace",
     );
+    expect(tabbedWorkspaceIndex).toBeGreaterThan(-1);
   });
 
   it("hides operator forensics and metadata in sponsor mode", () => {
-    expectSourceContains(source, "{!m.buyerPolishedArtifactTable ? (", "run-detail-page-view");
-    expectSourceContains(source, "RunDetailOperatorTechnicalForensicsPanel", "run-detail-page-view");
+    expectSourceContains(tabbedWorkspaceSource, "{!m.buyerPolishedArtifactTable ? (", "run-detail-tabbed-workspace");
+    expectSourceContains(tabbedWorkspaceSource, "RunDetailOperatorTechnicalForensicsPanel", "run-detail-tabbed-workspace");
 
     const belowFoldSource = readRegisteredSource("run-detail-below-fold");
 
@@ -90,7 +92,7 @@ describe("RunDetailPageView progressive disclosure", () => {
   it("wraps operator technical forensics in a default-closed accordion", () => {
     const disclosureSource = readRegisteredSource("run-detail-operator-technical-disclosure");
 
-    expectSourceContains(source, "RunDetailOperatorTechnicalForensicsPanel", "run-detail-page-view");
+    expectSourceContains(tabbedWorkspaceSource, "RunDetailOperatorTechnicalForensicsPanel", "run-detail-tabbed-workspace");
     expectSourceContains(
       disclosureSource,
       'data-testid="run-detail-advanced-options"',
@@ -115,23 +117,24 @@ describe("RunDetailPageView progressive disclosure", () => {
   });
 
   it("uses tabbed review workspace for standard review detail mode", () => {
-    expectSourceContains(source, "ReviewDetailWorkspace", "run-detail-page-view");
-    expectSourceContains(source, "RunDetailOverviewPanelClient", "run-detail-page-view");
+    expectSourceContains(source, "RunDetailTabbedWorkspace", "run-detail-page-view");
+    expectSourceContains(tabbedWorkspaceSource, "ReviewDetailWorkspace", "run-detail-tabbed-workspace");
+    expectSourceContains(tabbedWorkspaceSource, "RunDetailOverviewPanelClient", "run-detail-tabbed-workspace");
     expectSourceContains(source, "tabbedWorkspaceEl", "run-detail-page-view");
-    expectSourceContains(source, "useStructuredPresentation", "run-detail-page-view");
+    expectSourceContains(tabbedWorkspaceSource, "useStructuredPresentation", "run-detail-tabbed-workspace");
   });
 
   it("places executive context immediately after the decision snapshot in standard review mode", () => {
     const summaryIndex = requireSourceIndex(
-      source,
+      tabbedWorkspaceSource,
       "<RunDetailWorkspaceSummaryStripDeferred",
-      "run-detail-page-view",
+      "run-detail-tabbed-workspace",
     );
-    const executiveAfterSummary = source.indexOf("executiveBottomLineEl", summaryIndex);
-    const tabbedWorkspaceIndex = requireSourceIndex(source, "{tabbedWorkspaceEl}", "run-detail-page-view");
+    const executiveAfterSummary = tabbedWorkspaceSource.indexOf("executiveBottomLineEl", summaryIndex);
+    const tabbedWorkspaceMountIndex = requireSourceIndex(source, "{tabbedWorkspaceEl}", "run-detail-page-view");
 
     expect(executiveAfterSummary).toBeGreaterThan(summaryIndex);
-    expect(tabbedWorkspaceIndex).toBeGreaterThan(executiveAfterSummary);
+    expect(tabbedWorkspaceMountIndex).toBeGreaterThan(-1);
   });
 
   it("keeps sticky actions to navigation plus one resolved primary action", () => {
