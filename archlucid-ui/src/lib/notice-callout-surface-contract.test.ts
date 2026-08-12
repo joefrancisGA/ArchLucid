@@ -24,7 +24,6 @@ const TINTED_CALLOUT_SURFACE_BASELINE: ReadonlySet<string> = new Set([
   "app/(marketing)/quick-scan/QuickScanForm.tsx",
   "app/(operator)/administration/_sections/SettingsMasterDestinationCard.tsx",
   "app/(operator)/administration/ai-usage/_sections/ai-usage/AiUsageRecentActivityPanel.tsx",
-  "app/(operator)/administration/baseline/BaselineSettingsClient.tsx",
   "app/(operator)/architecture/reviews/[runId]/_sections/RunDetailFeasibilityVerdictSection.tsx",
   "app/(operator)/insights/roi-summary/_sections/RoiSummaryLoadedHourlyCostField.tsx",
   "app/(operator)/internal/configuration/_sections/AdminConfigurationPageView.tsx",

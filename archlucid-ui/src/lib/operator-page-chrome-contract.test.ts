@@ -22,9 +22,7 @@ const EXEMPT_PREFIXES: readonly string[] = ["app/(operator)/auth/"];
 const HAND_ROLLED_PAGE_TITLE_BASELINE: ReadonlySet<string> = new Set([
   "app/(operator)/_sections/OperatorHomePageSuspenseFallback.tsx",
   "app/(operator)/administration/api-keys/_sections/ApiKeysSettingsPageClient.tsx",
-  "app/(operator)/administration/baseline/BaselineSettingsClient.tsx",
   "app/(operator)/administration/billing/OperatorBillingSettingsClient.tsx",
-  "app/(operator)/administration/extract-upload/_sections/ExtractUploadSettingsPageClient.tsx",
   "app/(operator)/administration/identity-providers/_sections/IdentityProvidersSettingsRestrictedState.tsx",
   "app/(operator)/administration/tenant/_sections/TenantSettingsRestrictedState.tsx",
   "app/(operator)/administration/users/_sections/InviteReviewerPageView.tsx",

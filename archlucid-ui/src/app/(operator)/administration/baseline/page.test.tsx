@@ -1,4 +1,4 @@
-import { fireEvent, render, screen, waitFor } from "@testing-library/react";
+import { fireEvent, render, screen, waitFor, within } from "@testing-library/react";
 import { beforeEach, describe, expect, it, vi } from "vitest";
 
 vi.mock("@/lib/toast", () => ({
@@ -20,6 +20,8 @@ vi.mock("@/lib/demo-ui-env", async (importOriginal) => {
 });
 
 import { showError, showSuccess } from "@/lib/toast";
+import { BASELINE_SETTINGS_PAGE_TITLE } from "@/lib/baseline-settings-present";
+import { SETTINGS_ROOT_PATH } from "@/lib/settings-admin-route-paths";
 import { BaselineSettingsClient } from "./BaselineSettingsClient";
 
 const emptyBaseline = {
@@ -65,21 +67,90 @@ describe("BaselineSettingsPage", () => {
     vi.mocked(showError).mockClear();
   });
 
+  it("renders operator header chrome with breadcrumb back to Settings", async () => {
+    vi.stubGlobal("fetch", createFetchMock());
+    render(<BaselineSettingsClient />);
+
+    expect(await screen.findByTestId("baseline-settings-page-title")).toHaveTextContent(BASELINE_SETTINGS_PAGE_TITLE);
+    const breadcrumb = screen.getByTestId("baseline-settings-page-breadcrumb");
+    expect(breadcrumb).toHaveTextContent("Administration");
+    expect(breadcrumb).toHaveTextContent("Settings");
+    expect(breadcrumb).toHaveTextContent(BASELINE_SETTINGS_PAGE_TITLE);
+    expect(screen.getByRole("link", { name: "Settings" })).toHaveAttribute("href", SETTINGS_ROOT_PATH);
+
+    vi.unstubAllGlobals();
+  });
+
   it("renders summary, recommended path, and form after load", async () => {
     vi.stubGlobal("fetch", createFetchMock());
     render(<BaselineSettingsClient />);
 
     expect(await screen.findByTestId("baseline-settings-summary")).toBeInTheDocument();
-    expect(screen.getByText("Not set")).toBeInTheDocument();
+    expect(screen.getByTestId("baseline-settings-status-tag")).toHaveTextContent("Not set");
     expect(screen.getByText("Conservative defaults")).toBeInTheDocument();
-    expect(screen.getByText(/Value report, Executive dashboard, ROI summary/)).toBeInTheDocument();
+    const summary = await screen.findByTestId("baseline-settings-summary");
+    expect(within(summary).getByRole("link", { name: "Value report" })).toHaveAttribute(
+      "href",
+      "/insights/executive-summary",
+    );
+    expect(within(summary).getByRole("link", { name: "Executive dashboard" })).toHaveAttribute(
+      "href",
+      "/architecture/executive-dashboard",
+    );
+    expect(within(summary).getByRole("link", { name: "ROI summary" })).toHaveAttribute("href", "/insights/roi-summary");
     expect(screen.getByTestId("baseline-settings-recommended-path")).toBeInTheDocument();
     expect(screen.getByTestId("baseline-open-guided-wizard")).toHaveTextContent("Open guided baseline wizard");
     expect(screen.getByText(/Recommended if you are not sure what values to enter/i)).toBeInTheDocument();
     expect(screen.getByTestId("baseline-use-conservative-defaults")).toBeInTheDocument();
-    expect(screen.getByText("Review cycle baseline")).toBeInTheDocument();
+    expect(screen.getByTestId("baseline-review-cycle-card")).toBeInTheDocument();
     expect(screen.getByTestId("baseline-settings-methodology")).toBeInTheDocument();
     expect(screen.queryByRole("link", { name: "View ROI methodology" })).not.toBeInTheDocument();
+
+    vi.unstubAllGlobals();
+  });
+
+  it("shows partly modeled ROI label when only one baseline field is set", async () => {
+    vi.stubGlobal(
+      "fetch",
+      createFetchMock({
+        get: {
+          ...emptyBaseline,
+          manualPrepHoursPerReview: 4,
+        },
+      }),
+    );
+    render(<BaselineSettingsClient />);
+
+    expect(await screen.findByTestId("baseline-settings-summary")).toBeInTheDocument();
+    expect(screen.getByText("Partly modeled")).toBeInTheDocument();
+    expect(screen.queryByText("Workspace-specific baseline")).not.toBeInTheDocument();
+
+    vi.unstubAllGlobals();
+  });
+
+  it("disables estimate note without review-cycle hours and blocks silent drop on save", async () => {
+    const fetchMock = createFetchMock();
+    vi.stubGlobal("fetch", fetchMock);
+    render(<BaselineSettingsClient />);
+
+    const hoursField = await screen.findByTestId("baseline-review-cycle-hours");
+    const noteField = screen.getByTestId("baseline-review-cycle-note");
+    expect(noteField).toBeDisabled();
+    expect(screen.getByTestId("baseline-review-note-requires-hours")).toBeInTheDocument();
+
+    fireEvent.change(hoursField, { target: { value: "12" } });
+    expect(noteField).not.toBeDisabled();
+    fireEvent.change(noteField, { target: { value: "Workshop estimate" } });
+    fireEvent.change(hoursField, { target: { value: "" } });
+
+    expect(noteField).toBeDisabled();
+    expect(screen.getByTestId("baseline-save")).toBeDisabled();
+    expect(screen.getByTestId("baseline-review-note-save-readiness")).toBeInTheDocument();
+
+    fireEvent.click(screen.getByTestId("baseline-save"));
+
+    const puts = fetchMock.mock.calls.filter((c) => (c[1] as RequestInit | undefined)?.method === "PUT");
+    expect(puts).toHaveLength(0);
 
     vi.unstubAllGlobals();
   });
@@ -161,7 +232,7 @@ describe("BaselineSettingsPage", () => {
     vi.unstubAllGlobals();
   });
 
-  it("clears workspace values when using conservative defaults", async () => {
+  it("does not offer to remove a saved baseline the API cannot clear", async () => {
     const fetchMock = createFetchMock({
       get: {
         ...emptyBaseline,
@@ -169,27 +240,47 @@ describe("BaselineSettingsPage", () => {
         peoplePerReview: 5,
         capturedUtc: "2026-01-01T00:00:00Z",
         baselineReviewCycleHours: 10,
+        baselineReviewCycleSource: "baseline_settings:Workshop estimate",
         baselineReviewCycleCapturedUtc: "2026-01-01T00:00:00Z",
       },
     });
     vi.stubGlobal("fetch", fetchMock);
     render(<BaselineSettingsClient />);
 
-    expect(await screen.findByTestId("baseline-use-conservative-defaults")).toBeInTheDocument();
+    await waitFor(() => {
+      expect(screen.getByTestId("baseline-use-conservative-defaults")).toBeDisabled();
+    });
+
+    expect(screen.getByTestId("baseline-modeled-defaults-helper")).toHaveTextContent(
+      /Removing a saved baseline is not available in this release/i,
+    );
+
     fireEvent.click(screen.getByTestId("baseline-use-conservative-defaults"));
 
-    await waitFor(() => {
-      const puts = fetchMock.mock.calls.filter((c) => (c[1] as RequestInit | undefined)?.method === "PUT");
-      expect(puts.length).toBeGreaterThan(0);
-      const body = JSON.parse(String((puts[0]?.[1] as RequestInit).body)) as Record<string, unknown>;
-      expect(body.manualPrepHoursPerReview).toBeNull();
-      expect(body.peoplePerReview).toBeNull();
-      expect(body.baselineReviewCycleHours).toBeNull();
-    });
+    const puts = fetchMock.mock.calls.filter((c) => (c[1] as RequestInit | undefined)?.method === "PUT");
+    expect(puts).toHaveLength(0);
+    expect(screen.getByTestId("baseline-manual-prep")).toHaveValue(4);
 
-    await waitFor(() => {
-      expect(showSuccess).toHaveBeenCalledWith("Using conservative defaults.");
-    });
+    vi.unstubAllGlobals();
+  });
+
+  it("blanks the form for modeled defaults without writing to the API", async () => {
+    const fetchMock = createFetchMock({ get: emptyBaseline });
+    vi.stubGlobal("fetch", fetchMock);
+    render(<BaselineSettingsClient />);
+
+    expect(await screen.findByTestId("baseline-use-conservative-defaults")).not.toBeDisabled();
+    fireEvent.change(screen.getByTestId("baseline-review-cycle-hours"), { target: { value: "12" } });
+    fireEvent.change(screen.getByTestId("baseline-manual-prep"), { target: { value: "2" } });
+
+    fireEvent.click(screen.getByTestId("baseline-use-conservative-defaults"));
+
+    expect(screen.getByTestId("baseline-review-cycle-hours")).toHaveValue(null);
+    expect(screen.getByTestId("baseline-manual-prep")).toHaveValue(null);
+
+    const puts = fetchMock.mock.calls.filter((c) => (c[1] as RequestInit | undefined)?.method === "PUT");
+    expect(puts).toHaveLength(0);
+    expect(showSuccess).not.toHaveBeenCalled();
 
     vi.unstubAllGlobals();
   });

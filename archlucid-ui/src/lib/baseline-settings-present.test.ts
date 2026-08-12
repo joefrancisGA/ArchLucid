@@ -1,7 +1,11 @@
 import { describe, expect, it } from "vitest";
 
 import {
+  baselineFieldHasOwnerEstimate,
+  baselineFieldProvenanceLabel,
   baselineSettingsStatusLabel,
+  baselineSettingsStatusTagKind,
+  resolveBaselineRoiModelLabel,
   resolveBaselineSaveToastMessage,
   resolveBaselineSettingsStatus,
   validateBaselineReviewCycleHours,
@@ -80,5 +84,41 @@ describe("baseline-settings-present", () => {
     expect(baselineSettingsStatusLabel("not-set")).toBe("Not set");
     expect(baselineSettingsStatusLabel("partial")).toBe("Partially set");
     expect(baselineSettingsStatusLabel("complete")).toBe("Complete");
+    expect(baselineSettingsStatusTagKind("complete")).toBe("ready");
+    expect(baselineSettingsStatusTagKind("partial")).toBe("needs-attention");
+    expect(baselineSettingsStatusTagKind("not-set")).toBe("neutral");
+  });
+
+  it("labels ROI model by completeness instead of any single populated field", () => {
+    const partialSnapshot = {
+      manualPrepHoursPerReview: 4,
+      peoplePerReview: null,
+      capturedUtc: null,
+      baselineReviewCycleHours: null,
+      baselineReviewCycleSource: null,
+      baselineReviewCycleCapturedUtc: null,
+    };
+
+    expect(resolveBaselineSettingsStatus(partialSnapshot)).toBe("partial");
+    expect(resolveBaselineRoiModelLabel(partialSnapshot)).toBe("Partly modeled");
+    expect(resolveBaselineRoiModelLabel(partialSnapshot)).not.toBe("Workspace-specific baseline");
+
+    const completeSnapshot = {
+      manualPrepHoursPerReview: 4,
+      peoplePerReview: 3,
+      capturedUtc: "2026-01-01T00:00:00Z",
+      baselineReviewCycleHours: 12,
+      baselineReviewCycleSource: "baseline_settings",
+      baselineReviewCycleCapturedUtc: "2026-01-01T00:00:00Z",
+    };
+
+    expect(resolveBaselineRoiModelLabel(completeSnapshot)).toBe("Workspace-specific baseline");
+  });
+
+  it("labels field provenance for modeled default vs owner estimate", () => {
+    expect(baselineFieldHasOwnerEstimate("")).toBe(false);
+    expect(baselineFieldProvenanceLabel(false)).toBe("Modeled default");
+    expect(baselineFieldHasOwnerEstimate("12")).toBe(true);
+    expect(baselineFieldProvenanceLabel(true)).toBe("Your estimate");
   });
 });

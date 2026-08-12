@@ -1,24 +1,40 @@
 "use client";
 
+import Link from "next/link";
 import { cn } from "@/lib/utils";
 import { useCallback, useEffect, useMemo, useState, type FormEvent } from "react";
 
 import { BaselineRoiVocabularyRail } from "@/components/BaselineRoiVocabularyRail";
+import { CollapsibleSection } from "@/components/CollapsibleSection";
 import { DemoUnavailableNotice } from "@/components/DemoUnavailableNotice";
 import { OperatorApiProblem } from "@/components/operator/OperatorApiProblem";
+import { OperatorPageBreadcrumb } from "@/components/operator/OperatorPageBreadcrumb";
+import { OperatorPageHeader } from "@/components/operator/OperatorPageHeader";
 import { Button } from "@/components/ui/button";
 import { Input } from "@/components/ui/input";
 import { Label } from "@/components/ui/label";
+import { StatusTag } from "@/components/ui/status-tag";
 import { PageContextualHelpButton } from "@/components/usability/PageContextualHelpButton";
 import type { ApiLoadFailureState } from "@/lib/api-load-failure";
 import { toApiLoadFailure } from "@/lib/api-load-failure";
 import {
+  BASELINE_MODELED_DEFAULTS_HELPER,
+  BASELINE_REVIEW_NOTE_REQUIRES_HOURS_HELPER,
+  BASELINE_REVIEW_NOTE_SAVE_READINESS,
+  BASELINE_SAVED_CANNOT_BE_REMOVED_HELPER,
   BASELINE_SETTINGS_CONSERVATIVE_DEFAULTS_NOTE,
   BASELINE_SETTINGS_PAGE_SUBTITLE,
+  BASELINE_SETTINGS_PAGE_TITLE,
   BASELINE_SETTINGS_USED_IN_SURFACES,
+  baselineFieldHasOwnerEstimate,
+  baselineFieldProvenanceKind,
+  baselineFieldProvenanceLabel,
   baselineSettingsStatusLabel,
+  baselineSettingsStatusTagKind,
   formatBaselineLastUpdated,
+  hasSavedWorkspaceBaseline,
   resolveBaselineLastUpdatedUtc,
+  resolveBaselineReviewSourceNoteDisplay,
   resolveBaselineRoiModelLabel,
   resolveBaselineSaveToastMessage,
   resolveBaselineSettingsStatus,
@@ -28,8 +44,9 @@ import {
   validateBaselineReviewCycleHours,
 } from "@/lib/baseline-settings-present";
 import { isNextPublicDemoMode } from "@/lib/demo-ui-env";
-import { OPERATOR_TYPOGRAPHY } from "@/lib/design-tokens";
+import { DESIGN_TOKENS, OPERATOR_TYPOGRAPHY } from "@/lib/design-tokens";
 import { PILOT_BASELINE_WIZARD_OPEN_EVENT } from "@/lib/pilot-baseline-wizard-events";
+import { SETTINGS_ROOT_PATH } from "@/lib/settings-admin-route-paths";
 import { showError, showSuccess } from "@/lib/toast";
 
 function parseNumberOrNull(raw: string): number | null {
@@ -48,32 +65,19 @@ function parseNumberOrNull(raw: string): number | null {
   return n;
 }
 
-function formatBaselineReviewSourceNoteDisplay(source: string | null | undefined): string | null {
-  if (source === null || source === undefined) {
-    return null;
-  }
+type BaselineFieldProvenanceProps = {
+  readonly hasOwnerEstimate: boolean;
+  readonly testId: string;
+};
 
-  const t = source.trim();
-
-  if (t.length === 0) {
-    return null;
-  }
-
-  const marker = "baseline_settings";
-
-  if (t.toLowerCase() === marker) {
-    return null;
-  }
-
-  const prefix = `${marker}:`;
-
-  if (t.toLowerCase().startsWith(prefix)) {
-    const tail = t.slice(prefix.length).trim();
-
-    return tail.length === 0 ? null : tail;
-  }
-
-  return t;
+function BaselineFieldProvenance(props: BaselineFieldProvenanceProps) {
+  return (
+    <StatusTag
+      kind={baselineFieldProvenanceKind(props.hasOwnerEstimate)}
+      label={baselineFieldProvenanceLabel(props.hasOwnerEstimate)}
+      data-testid={props.testId}
+    />
+  );
 }
 
 function snapshotFromForm(
@@ -118,7 +122,7 @@ function applySnapshotToFields(
       ? String(data.baselineReviewCycleHours)
       : "",
   );
-  setters.setReviewNote(formatBaselineReviewSourceNoteDisplay(data.baselineReviewCycleSource) ?? "");
+  setters.setReviewNote(resolveBaselineReviewSourceNoteDisplay(data.baselineReviewCycleSource) ?? "");
 }
 
 type FieldMessageProps = {
@@ -168,8 +172,13 @@ export function BaselineSettingsClient() {
   );
 
   const baselineStatus = resolveBaselineSettingsStatus(displaySnapshot);
+  const statusTagKind = baselineSettingsStatusTagKind(baselineStatus);
   const roiModelLabel = resolveBaselineRoiModelLabel(displaySnapshot);
   const lastUpdatedLabel = formatBaselineLastUpdated(resolveBaselineLastUpdatedUtc(displaySnapshot));
+  const reviewHoursTrimmed = reviewHours.trim();
+  const reviewNoteTrimmed = reviewNote.trim();
+  const noteRequiresHours = reviewHoursTrimmed.length === 0;
+  const noteWouldBeDroppedOnSave = noteRequiresHours && reviewNoteTrimmed.length > 0;
 
   const load = useCallback(async () => {
     if (demoMode) {
@@ -218,35 +227,37 @@ export function BaselineSettingsClient() {
     void load();
   }, [demoMode, load]);
 
-  async function persistBaseline(clearAll: boolean): Promise<void> {
+  async function persistBaseline(): Promise<void> {
     if (demoMode) {
       return;
     }
 
-    const reviewTrim = clearAll ? "" : reviewHours.trim();
-    const prepTrim = clearAll ? "" : manualPrep.trim();
-    const peopleTrim = clearAll ? "" : people.trim();
-    const noteTrim = clearAll ? "" : reviewNote.trim();
+    const reviewTrim = reviewHours.trim();
+    const prepTrim = manualPrep.trim();
+    const peopleTrim = people.trim();
+    const noteTrim = reviewNote.trim();
 
-    if (!clearAll) {
-      if (reviewValidation.error || prepValidation.error || peopleValidation.error) {
-        showError("Baseline", "Fix the highlighted fields before saving.");
+    if (reviewValidation.error || prepValidation.error || peopleValidation.error) {
+      showError("Baseline", "Fix the highlighted fields before saving.");
 
-        return;
-      }
-
-      if (noteTrim.length > 500) {
-        showError("Baseline", "Review-cycle estimate note must be 500 characters or fewer.");
-
-        return;
-      }
+      return;
     }
 
-    const prepN = clearAll ? null : parseNumberOrNull(prepTrim);
-    const peopleN = clearAll ? null : parseNumberOrNull(peopleTrim);
+    if (noteTrim.length > 500) {
+      showError("Baseline", "Review-cycle estimate note must be 500 characters or fewer.");
+
+      return;
+    }
+
+    if (noteTrim.length > 0 && reviewTrim.length === 0) {
+      return;
+    }
+
+    const prepN = parseNumberOrNull(prepTrim);
+    const peopleN = parseNumberOrNull(peopleTrim);
     let reviewParsed: number | null = null;
 
-    if (!clearAll && reviewTrim.length > 0) {
+    if (reviewTrim.length > 0) {
       reviewParsed = parseNumberOrNull(reviewTrim);
 
       if (Number.isNaN(reviewParsed) || reviewParsed === null || reviewParsed <= 0 || reviewParsed > 10_000) {
@@ -256,13 +267,13 @@ export function BaselineSettingsClient() {
       }
     }
 
-    if (!clearAll && prepTrim.length > 0 && (Number.isNaN(prepN) || prepN === null || prepN <= 0 || prepN > 10_000)) {
+    if (prepTrim.length > 0 && (Number.isNaN(prepN) || prepN === null || prepN <= 0 || prepN > 10_000)) {
       showError("Baseline", "Manual preparation hours must be a positive number up to 10,000.");
 
       return;
     }
 
-    if (!clearAll && peopleTrim.length > 0 && (Number.isNaN(peopleN) || peopleN === null || peopleN <= 0 || peopleN > 10_000)) {
+    if (peopleTrim.length > 0 && (Number.isNaN(peopleN) || peopleN === null || peopleN <= 0 || peopleN > 10_000)) {
       showError("Baseline", "People involved must be a positive number up to 10,000.");
 
       return;
@@ -328,15 +339,21 @@ export function BaselineSettingsClient() {
   async function onSave(e: FormEvent): Promise<void> {
     e.preventDefault();
 
-    await persistBaseline(false);
+    await persistBaseline();
   }
 
-  function onUseConservativeDefaults(): void {
+  /**
+   * Blanks the form so a subsequent save records no workspace estimates, which is what makes reports
+   * fall back to conservative modeled defaults. This deliberately does not attempt to erase an
+   * already-saved baseline: PUT /v1/tenant/baseline treats a body whose values are all null as "no
+   * fields supplied" and returns the stored row untouched, so a clear request would report success
+   * while changing nothing.
+   */
+  function onUseModeledDefaults(): void {
     setManualPrep("");
     setPeople("");
     setReviewHours("");
     setReviewNote("");
-    void persistBaseline(true);
   }
 
   function onResetToLoaded(): void {
@@ -359,18 +376,27 @@ export function BaselineSettingsClient() {
 
   const hasValidationErrors =
     reviewValidation.error !== null || prepValidation.error !== null || peopleValidation.error !== null;
+  const saveBlocked = saving || hasValidationErrors || noteWouldBeDroppedOnSave;
+  const hasSavedBaseline = loadedSnapshot !== null && hasSavedWorkspaceBaseline(loadedSnapshot);
 
   return (
-    <div className="w-full max-w-3xl space-y-6 pb-24">
-      <div className="flex flex-wrap items-start justify-between gap-3">
-        <div className="min-w-0 flex-1">
-          <h1 className={OPERATOR_TYPOGRAPHY.pageTitle}>Baseline settings — ROI measurement</h1>
-          <p className={cn("mt-1 max-w-3xl text-al-text-secondary", OPERATOR_TYPOGRAPHY.body)}>
-            {BASELINE_SETTINGS_PAGE_SUBTITLE}
-          </p>
-        </div>
-        <PageContextualHelpButton />
-      </div>
+    <div className="w-full max-w-3xl space-y-4">
+      <OperatorPageHeader
+        title={BASELINE_SETTINGS_PAGE_TITLE}
+        subtitle={BASELINE_SETTINGS_PAGE_SUBTITLE}
+        titleTestId="baseline-settings-page-title"
+        breadcrumb={
+          <OperatorPageBreadcrumb
+            data-testid="baseline-settings-page-breadcrumb"
+            items={[
+              { label: "Administration", href: SETTINGS_ROOT_PATH },
+              { label: "Settings", href: SETTINGS_ROOT_PATH },
+              { label: BASELINE_SETTINGS_PAGE_TITLE },
+            ]}
+          />
+        }
+        actions={<PageContextualHelpButton />}
+      />
       <BaselineRoiVocabularyRail currentSurfaceId="baseline" />
 {demoMode ? (
         <DemoUnavailableNotice
@@ -401,8 +427,12 @@ export function BaselineSettingsClient() {
             <dl className={cn("m-0 mt-3 grid gap-3 sm:grid-cols-2", OPERATOR_TYPOGRAPHY.body)}>
               <div>
                 <dt className={cn("text-al-text-secondary", OPERATOR_TYPOGRAPHY.helper)}>Baseline status</dt>
-                <dd className={cn("m-0 mt-0.5 font-medium text-al-text-primary", OPERATOR_TYPOGRAPHY.body)}>
-                  {baselineSettingsStatusLabel(baselineStatus)}
+                <dd className="m-0 mt-0.5">
+                  <StatusTag
+                    kind={statusTagKind}
+                    label={baselineSettingsStatusLabel(baselineStatus)}
+                    data-testid="baseline-settings-status-tag"
+                  />
                 </dd>
               </div>
               <div>
@@ -423,14 +453,22 @@ export function BaselineSettingsClient() {
               <div>
                 <dt className={cn("text-al-text-secondary", OPERATOR_TYPOGRAPHY.helper)}>Used in</dt>
                 <dd className={cn("m-0 mt-0.5 text-al-text-primary", OPERATOR_TYPOGRAPHY.body)}>
-                  {BASELINE_SETTINGS_USED_IN_SURFACES.join(", ")}
+                  <ul className="m-0 flex flex-wrap gap-x-3 gap-y-1 p-0 list-none">
+                    {BASELINE_SETTINGS_USED_IN_SURFACES.map((surface) => (
+                      <li key={surface.href}>
+                        <Link href={surface.href} className="text-teal-700 hover:underline dark:text-teal-300">
+                          {surface.label}
+                        </Link>
+                      </li>
+                    ))}
+                  </ul>
                 </dd>
               </div>
             </dl>
           </section>
 
           <section
-            className="rounded-lg border border-sky-200 bg-sky-50/60 p-4 dark:border-sky-900 dark:bg-sky-950/20"
+            className={cn(DESIGN_TOKENS.callout.info, "rounded-lg p-4")}
             data-testid="baseline-settings-recommended-path"
           >
             <h2 className={cn("m-0 font-semibold text-al-text-primary", OPERATOR_TYPOGRAPHY.cardTitle)}>
@@ -455,46 +493,56 @@ export function BaselineSettingsClient() {
                   Recommended if you are not sure what values to enter.
                 </p>
               </div>
-              <Button
-                type="button"
-                variant="outline"
-                data-testid="baseline-use-conservative-defaults"
-                disabled={saving}
-                onClick={() => {
-                  void onUseConservativeDefaults();
-                }}
-              >
-                Use conservative defaults
-              </Button>
+              <div className="space-y-1">
+                <Button
+                  type="button"
+                  variant="outline"
+                  data-testid="baseline-use-conservative-defaults"
+                  disabled={saving || hasSavedBaseline}
+                  onClick={() => {
+                    onUseModeledDefaults();
+                  }}
+                >
+                  Use modeled defaults
+                </Button>
+                <p
+                  className={cn("m-0 max-w-prose text-al-text-secondary", OPERATOR_TYPOGRAPHY.helper)}
+                  data-testid="baseline-modeled-defaults-helper"
+                >
+                  {hasSavedBaseline
+                    ? BASELINE_SAVED_CANNOT_BE_REMOVED_HELPER
+                    : BASELINE_MODELED_DEFAULTS_HELPER}
+                </p>
+              </div>
             </div>
           </section>
 
-          <form onSubmit={onSave} className="space-y-8">
-            <section className="space-y-4" aria-labelledby="baseline-review-cycle-heading">
-              <div
-                className={cn(
-                  "rounded-md border border-neutral-200 bg-neutral-50 px-3 py-3 dark:border-neutral-700 dark:bg-neutral-900/40",
-                  OPERATOR_TYPOGRAPHY.helper,
-                )}
+          <form onSubmit={onSave} className="space-y-4">
+            <section
+              className="space-y-4 rounded-lg border border-neutral-200 bg-neutral-50/80 p-4 dark:border-neutral-700 dark:bg-neutral-900/40"
+              aria-labelledby="baseline-review-cycle-heading"
+              data-testid="baseline-review-cycle-card"
+            >
+              <h2
+                id="baseline-review-cycle-heading"
+                className={cn("m-0 font-semibold text-al-text-primary", OPERATOR_TYPOGRAPHY.cardTitle)}
               >
-                <h2
-                  id="baseline-review-cycle-heading"
-                  className={cn("m-0 font-semibold text-al-text-primary", OPERATOR_TYPOGRAPHY.cardTitle)}
-                >
-                  Review cycle baseline
-                </h2>
-                <p className={cn("m-0 mt-1 leading-relaxed text-al-text-secondary", OPERATOR_TYPOGRAPHY.body)}>
-                  Estimate the typical effort required to move from architecture request to reviewable package before
-                  ArchLucid.
-                </p>
-                <p className={cn("m-0 mt-2 leading-relaxed text-al-text-secondary", OPERATOR_TYPOGRAPHY.helper)}>
-                  These values are used only to estimate value in reports. They do not affect review findings or
-                  governance decisions.
-                </p>
-              </div>
+                Review cycle baseline
+              </h2>
+              <p className={cn("m-0 text-al-text-secondary", OPERATOR_TYPOGRAPHY.body)}>
+                Estimate the typical effort required to move from architecture request to reviewable package before
+                ArchLucid. These values estimate value in reports only — they do not affect review findings or governance
+                decisions.
+              </p>
 
               <div>
-                <Label htmlFor="baseline-review-cycle-hours">Median review-cycle hours (optional)</Label>
+                <div className="flex flex-wrap items-center gap-2">
+                  <Label htmlFor="baseline-review-cycle-hours">Median review-cycle hours (optional)</Label>
+                  <BaselineFieldProvenance
+                    hasOwnerEstimate={baselineFieldHasOwnerEstimate(reviewHours)}
+                    testId="baseline-review-cycle-provenance"
+                  />
+                </div>
                 <Input
                   id="baseline-review-cycle-hours"
                   type="number"
@@ -511,18 +559,15 @@ export function BaselineSettingsClient() {
                 </p>
                 <FieldMessage error={reviewValidation.error} warning={reviewValidation.warning} />
               </div>
-            </section>
-
-            <section className="space-y-4" aria-labelledby="baseline-manual-prep-heading">
-              <h2
-                id="baseline-manual-prep-heading"
-                className={cn("m-0 font-semibold text-al-text-primary", OPERATOR_TYPOGRAPHY.cardTitle)}
-              >
-                Manual preparation effort
-              </h2>
 
               <div>
-                <Label htmlFor="baseline-prep">Manual preparation hours per review (optional)</Label>
+                <div className="flex flex-wrap items-center gap-2">
+                  <Label htmlFor="baseline-prep">Manual preparation hours per review (optional)</Label>
+                  <BaselineFieldProvenance
+                    hasOwnerEstimate={baselineFieldHasOwnerEstimate(manualPrep)}
+                    testId="baseline-manual-prep-provenance"
+                  />
+                </div>
                 <Input
                   id="baseline-prep"
                   type="number"
@@ -538,18 +583,15 @@ export function BaselineSettingsClient() {
                 </p>
                 <FieldMessage error={prepValidation.error} warning={prepValidation.warning} />
               </div>
-            </section>
-
-            <section className="space-y-4" aria-labelledby="baseline-people-heading">
-              <h2
-                id="baseline-people-heading"
-                className={cn("m-0 font-semibold text-al-text-primary", OPERATOR_TYPOGRAPHY.cardTitle)}
-              >
-                People involved
-              </h2>
 
               <div>
-                <Label htmlFor="baseline-people">People involved per review (optional)</Label>
+                <div className="flex flex-wrap items-center gap-2">
+                  <Label htmlFor="baseline-people">People involved per review (optional)</Label>
+                  <BaselineFieldProvenance
+                    hasOwnerEstimate={baselineFieldHasOwnerEstimate(people)}
+                    testId="baseline-people-provenance"
+                  />
+                </div>
                 <Input
                   id="baseline-people"
                   type="number"
@@ -565,50 +607,43 @@ export function BaselineSettingsClient() {
                 </p>
                 <FieldMessage error={peopleValidation.error} warning={peopleValidation.warning} />
               </div>
-            </section>
-
-            <section className="space-y-4" aria-labelledby="baseline-estimate-source-heading">
-              <h2
-                id="baseline-estimate-source-heading"
-                className={cn("m-0 font-semibold text-al-text-primary", OPERATOR_TYPOGRAPHY.cardTitle)}
-              >
-                Estimate source
-              </h2>
 
               <div>
                 <Label htmlFor="baseline-review-cycle-note">How you estimated review-cycle hours (optional)</Label>
                 <textarea
                   id="baseline-review-cycle-note"
                   className={cn(
-                    "mt-1 min-h-[72px] w-full max-w-2xl rounded-md border border-neutral-300 bg-white px-3 py-2 text-al-text-primary shadow-sm outline-none ring-teal-500/40 placeholder:text-neutral-400 focus-visible:ring-2 dark:border-neutral-700 dark:bg-neutral-950",
+                    "mt-1 min-h-[72px] w-full max-w-2xl rounded-md border border-neutral-300 bg-white px-3 py-2 text-al-text-primary shadow-sm outline-none ring-teal-500/40 placeholder:text-neutral-400 focus-visible:ring-2 disabled:cursor-not-allowed disabled:bg-neutral-100 disabled:text-al-text-secondary dark:border-neutral-700 dark:bg-neutral-950 dark:disabled:bg-neutral-900",
                     OPERATOR_TYPOGRAPHY.body,
                   )}
                   maxLength={500}
+                  disabled={noteRequiresHours}
                   data-testid="baseline-review-cycle-note"
                   value={reviewNote}
                   onChange={(x) => setReviewNote(x.target.value)}
                   placeholder="Example: median from prior reviews, workshop estimate, or team lead estimate."
                 />
+                {noteRequiresHours ? (
+                  <p
+                    className={cn("m-0 mt-1 text-al-text-secondary", OPERATOR_TYPOGRAPHY.helper)}
+                    data-testid="baseline-review-note-requires-hours"
+                  >
+                    {BASELINE_REVIEW_NOTE_REQUIRES_HOURS_HELPER}
+                  </p>
+                ) : null}
               </div>
             </section>
 
-            <section
-              className="rounded-md border border-neutral-200 bg-white px-4 py-3 dark:border-neutral-700 dark:bg-neutral-900"
-              aria-labelledby="baseline-methodology-heading"
-              data-testid="baseline-settings-methodology"
+            <CollapsibleSection
+              title="Assumptions and methodology"
+              defaultOpen={false}
+              sectionTestId="baseline-settings-methodology"
             >
-              <h2
-                id="baseline-methodology-heading"
-                className={cn("m-0 font-semibold text-al-text-primary", OPERATOR_TYPOGRAPHY.cardTitle)}
-              >
-                Assumptions and methodology
-              </h2>
-              <ul className={cn("m-0 mt-3 list-disc space-y-2 pl-5 text-al-text-secondary", OPERATOR_TYPOGRAPHY.body)}>
-                <li>ArchLucid uses conservative defaults when workspace-specific values are not provided.</li>
+              <ul className={cn("m-0 list-disc space-y-2 pl-5 text-al-text-secondary", OPERATOR_TYPOGRAPHY.body)}>
                 <li>ROI estimates are shown as estimates, not guaranteed savings.</li>
                 <li>Measured review data takes precedence when available.</li>
               </ul>
-            </section>
+            </CollapsibleSection>
 
             <div
               className="sticky bottom-0 -mx-1 flex flex-wrap items-center gap-2 border-t border-neutral-200 bg-white/95 px-1 py-3 backdrop-blur dark:border-neutral-800 dark:bg-neutral-950/95"
@@ -616,7 +651,7 @@ export function BaselineSettingsClient() {
             >
               <Button
                 type="submit"
-                disabled={saving || hasValidationErrors}
+                disabled={saveBlocked}
                 variant="primary"
                 data-testid="baseline-save"
               >
@@ -625,6 +660,15 @@ export function BaselineSettingsClient() {
               <Button type="button" variant="outline" disabled={saving} onClick={onResetToLoaded}>
                 Reset changes
               </Button>
+              {noteWouldBeDroppedOnSave ? (
+                <p
+                  className={cn("m-0 text-red-700 dark:text-red-300", OPERATOR_TYPOGRAPHY.helper)}
+                  role="alert"
+                  data-testid="baseline-review-note-save-readiness"
+                >
+                  {BASELINE_REVIEW_NOTE_SAVE_READINESS}
+                </p>
+              ) : null}
             </div>
           </form>
         </>
