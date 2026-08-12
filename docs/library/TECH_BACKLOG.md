@@ -44009,7 +44009,7 @@ Operators must read three intros before reaching the Trust Center link list.
 
 ## TB-1847 ? Create-home Evidence ? orientation + uploaded inventory (not upload-only) (P1)
 
-**Window:** V1 ? Adoption friction. **Status:** **Done** (2026-08-12) ? `RunDetailCreateHomeEvidencePanel` orientation lead; `RunDetailCreateHomeCapturedEvidenceInventory` + capture region merges run artifacts and post-upload descriptors; `BulkEvidenceUpload.onUploadSummary`; Vitest in `RunDetailCreateHomeEvidencePanel.test.tsx`, `RunDetailCreateHomeEvidenceCaptureRegion.test.tsx`, and `run-detail-create-home-captured-evidence.test.ts`. **Priority:** P1.
+**Window:** V1 ? Adoption friction. **Status:** **Done** (2026-08-12) ? `RunDetailCreateHomeEvidencePanel` orientation lead; `RunDetailCreateHomeCapturedEvidenceInventory` + capture region merges run artifacts and post-upload descriptors with session-scoped persistence and runId-safe reset; `BulkEvidenceUpload.onUploadSummary`; Vitest in `RunDetailCreateHomeEvidencePanel.test.tsx`, `RunDetailCreateHomeEvidenceCaptureRegion.test.tsx`, and `run-detail-create-home-captured-evidence.test.ts`. **Priority:** P1.
 
 **Problem:** Create-home Evidence is only `RunDetailCaptureEvidenceSection` ? no list/count of evidence already on the run after upload.
 
