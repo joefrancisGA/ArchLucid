@@ -11,6 +11,9 @@ describe("sso-wizard-state", () => {
   it("places Identity provider at step 0 and Protocol at step 1", () => {
     expect(SSO_WIZARD_STEPS[0]?.label).toBe("Identity provider");
     expect(SSO_WIZARD_STEPS[1]?.label).toBe("Protocol");
+    expect(SSO_WIZARD_STEPS[4]?.description).toBe("Check claim-to-role mapping");
+    expect(SSO_WIZARD_STEPS[5]?.label).toBe("Save configuration");
+    expect(SSO_WIZARD_STEPS[5]?.description).toBe("Review and save configuration");
     expect(SSO_WIZARD_STEPS).toHaveLength(6);
   });
 

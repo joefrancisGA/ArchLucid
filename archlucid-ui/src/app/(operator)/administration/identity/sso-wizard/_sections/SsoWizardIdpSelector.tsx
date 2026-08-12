@@ -1,12 +1,9 @@
 "use client";
 
-import { Building2, CircleEllipsis, KeyRound, Shield } from "lucide-react";
+import { Boxes, Building2, KeyRound, Shield } from "lucide-react";
 
 import { cn } from "@/lib/utils";
 import { OPERATOR_TYPOGRAPHY } from "@/lib/design-tokens";
-import {
-  SSO_WIZARD_IDP_REQUIRED_HELPER,
-} from "@/lib/sso-wizard-copy";
 import {
   SSO_WIZARD_IDP_PRESETS,
   type SsoWizardIdpPresetId,
@@ -18,7 +15,7 @@ const IDP_ICONS: Record<SsoWizardIdpPresetId, IdpOptionIcon> = {
   entra: Building2,
   okta: Shield,
   auth0: KeyRound,
-  other: CircleEllipsis,
+  other: Boxes,
 };
 
 export type SsoWizardIdpSelectorProps = {
@@ -28,8 +25,6 @@ export type SsoWizardIdpSelectorProps = {
 };
 
 export function SsoWizardIdpSelector(props: SsoWizardIdpSelectorProps): React.JSX.Element {
-  const showRequirement = props.value === null;
-
   return (
     <div className="space-y-4" data-testid="sso-idp-selector">
       <fieldset>
@@ -38,7 +33,6 @@ export function SsoWizardIdpSelector(props: SsoWizardIdpSelectorProps): React.JS
           className="grid gap-3 md:grid-cols-2"
           role="radiogroup"
           aria-label="Identity provider"
-          aria-describedby={showRequirement ? "sso-idp-requirement" : undefined}
         >
           {SSO_WIZARD_IDP_PRESETS.map((option) => {
             const selected = props.value === option.id;
@@ -71,34 +65,11 @@ export function SsoWizardIdpSelector(props: SsoWizardIdpSelectorProps): React.JS
                   onChange={() => props.onChange(option.id)}
                 />
 
-                <div className="flex items-start justify-between gap-3">
-                  <div className="flex items-start gap-3">
-                    <span
-                      className={cn(
-                        "mt-0.5 flex h-10 w-10 shrink-0 items-center justify-center rounded-md border",
-                        selected
-                          ? "border-teal-700 bg-white text-teal-800 dark:border-teal-500 dark:bg-neutral-900 dark:text-teal-200"
-                          : "border-neutral-200 bg-white text-neutral-700 dark:border-neutral-700 dark:bg-neutral-900 dark:text-neutral-200",
-                      )}
-                      aria-hidden
-                    >
-                      <Icon className="h-5 w-5" />
-                    </span>
-
-                    <div>
-                      <p className={cn("m-0 font-medium text-al-text-primary", OPERATOR_TYPOGRAPHY.body)}>
-                        {option.label}
-                      </p>
-                      <p className={cn("m-0 mt-1 text-al-text-secondary", OPERATOR_TYPOGRAPHY.helper)}>
-                        {option.description}
-                      </p>
-                    </div>
-                  </div>
-
+                <div className="flex items-start gap-3">
                   <span
                     aria-hidden
                     className={cn(
-                      "mt-1 flex h-5 w-5 shrink-0 items-center justify-center rounded-full border-2",
+                      "mt-0.5 flex h-5 w-5 shrink-0 items-center justify-center rounded-full border-2",
                       selected
                         ? "border-teal-700 bg-teal-700 dark:border-teal-500 dark:bg-teal-600"
                         : "border-neutral-300 bg-white dark:border-neutral-600 dark:bg-neutral-900",
@@ -106,18 +77,33 @@ export function SsoWizardIdpSelector(props: SsoWizardIdpSelectorProps): React.JS
                   >
                     {selected ? <span className="block h-2 w-2 rounded-full bg-white" /> : null}
                   </span>
+
+                  <span
+                    className={cn(
+                      "flex h-10 w-10 shrink-0 items-center justify-center rounded-md border",
+                      selected
+                        ? "border-teal-700 bg-white text-teal-800 dark:border-teal-500 dark:bg-neutral-900 dark:text-teal-200"
+                        : "border-neutral-200 bg-white text-neutral-700 dark:border-neutral-700 dark:bg-neutral-900 dark:text-neutral-200",
+                    )}
+                    aria-hidden
+                  >
+                    <Icon className="h-5 w-5" />
+                  </span>
+
+                  <div>
+                    <p className={cn("m-0 font-medium text-al-text-primary", OPERATOR_TYPOGRAPHY.body)}>
+                      {option.label}
+                    </p>
+                    <p className={cn("m-0 mt-1 text-al-text-secondary", OPERATOR_TYPOGRAPHY.helper)}>
+                      {option.description}
+                    </p>
+                  </div>
                 </div>
               </label>
             );
           })}
         </div>
       </fieldset>
-
-      {showRequirement ? (
-        <p id="sso-idp-requirement" className={cn("m-0 text-al-text-secondary", OPERATOR_TYPOGRAPHY.helper)} role="status">
-          {SSO_WIZARD_IDP_REQUIRED_HELPER}
-        </p>
-      ) : null}
     </div>
   );
 }

@@ -18,8 +18,10 @@ export function resolveSsoWizardPrimaryDisabledReason(
 ): WhyDisabledCtaReason | null {
   if (input.isLastStep) {
     return firstWhyDisabledCtaReason([
-      input.busy ? whyDisabledBusy("Activation") : null,
-      !input.canActivate ? whyDisabledNeedsPrerequisite("a successful test sign-in on the prior step") : null,
+      input.busy ? whyDisabledBusy("Save") : null,
+      !input.canActivate
+        ? whyDisabledNeedsPrerequisite("a successful sandbox claim-mapping test on the prior step")
+        : null,
     ]);
   }
 
@@ -32,15 +34,15 @@ export function resolveSsoWizardPrimaryDisabledReason(
 function resolveSsoWizardContinuePrerequisiteReason(step: number): WhyDisabledCtaReason | null {
   switch (step) {
     case 0:
-      return whyDisabledNeedsPrerequisite("an identity provider preset");
+      return whyDisabledNeedsPrerequisite("an identity provider");
     case 1:
       return whyDisabledNeedsPrerequisite("OpenID Connect or SAML 2.0");
     case 2:
-      return whyDisabledNeedsPrerequisite("issuer URI from IdP metadata");
+      return whyDisabledNeedsPrerequisite("issuer from provider metadata");
     case 3:
-      return whyDisabledNeedsPrerequisite("role claim mapping with at least one IdP group");
+      return whyDisabledNeedsPrerequisite("role claim mapping with at least one identity provider group");
     case 4:
-      return whyDisabledNeedsPrerequisite("a successful test sign-in");
+      return whyDisabledNeedsPrerequisite("a successful sandbox claim-mapping test");
     default:
       return null;
   }

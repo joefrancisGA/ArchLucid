@@ -120,7 +120,8 @@ const ROUTE_VIEW_EXPLANATIONS: readonly { prefix: string; explanation: RouteView
       title: "SSO wizard",
       summary:
         "Guided setup for enterprise single sign-on — connect your identity provider and map roles into ArchLucid.",
-      nextAction: "Complete each wizard step, then verify sign-in with a test user from your IdP.",
+      nextAction:
+        "Complete each wizard step, then run a sandbox sign-in test with sample claim values on the Test connection step to verify claim-to-role mapping.",
     },
   },
   {

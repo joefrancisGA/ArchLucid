@@ -13,14 +13,13 @@ describe("SsoWizardFooter", () => {
         canContinue={false}
         canActivate={false}
         busy={false}
-        primaryDisabledReason={whyDisabledNeedsPrerequisite("an identity provider preset")}
+        primaryDisabledReason={whyDisabledNeedsPrerequisite("an identity provider")}
         onCancel={() => undefined}
       />,
     );
 
     expect(screen.getByTestId("sso-wizard-continue")).toBeDisabled();
-    expect(screen.getByTestId("sso-wizard-primary-disabled-hint")).toHaveTextContent(
-      /identity provider preset/i,
-    );
+    expect(screen.getByTestId("sso-wizard-primary-disabled-hint")).toHaveTextContent(/identity provider/i);
+    expect(screen.getByTestId("sso-wizard-primary-disabled-hint").textContent).not.toMatch(/preset/i);
   });
 });

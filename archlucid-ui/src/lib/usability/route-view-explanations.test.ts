@@ -26,6 +26,15 @@ describe("routeViewExplanationForPathname (TB-2216 / TB-2257)", () => {
     expect(routeViewExplanationForPathname("/administration/identity-providers/diagnostics")).toBeNull();
   });
 
+  it("describes SSO wizard next steps as a sandbox claim-mapping test", () => {
+    const wizard = routeViewExplanationForPathname("/administration/identity/sso-wizard");
+
+    expect(wizard?.nextAction.toLowerCase()).toContain("sandbox sign-in test");
+    expect(wizard?.nextAction.toLowerCase()).toContain("sample claim values");
+    expect(wizard?.nextAction.toLowerCase()).toContain("claim-to-role mapping");
+    expect(wizard?.nextAction).not.toMatch(/test user from your idp/i);
+  });
+
   it("describes SAML next steps without claiming the wizard enables sign-in", () => {
     const saml = routeViewExplanationForPathname("/administration/identity-providers/saml");
 

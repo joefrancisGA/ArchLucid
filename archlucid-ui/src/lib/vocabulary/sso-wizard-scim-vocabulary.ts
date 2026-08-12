@@ -3,7 +3,7 @@
  *
  * Why two surfaces exist:
  * - SSO wizard (`/administration/identity/sso-wizard`) is guided setup that
- *   discovers, tests, and activates SSO sign-in for the workspace.
+ *   records and verifies SSO configuration for the workspace.
  * - SCIM provisioning (`/administration/scim-provisioning`) issues directory-sync
  *   tokens so an identity provider can push users and groups.
  *
@@ -36,16 +36,16 @@ export const SSO_WIZARD_SCIM_HEADING =
   "SSO wizard and SCIM provisioning do different jobs" as const;
 
 export const SSO_WIZARD_SCIM_WHY_TWO =
-  "The SSO wizard is guided setup that discovers, tests, and activates single sign-on for the workspace. SCIM provisioning issues directory-sync tokens so an identity provider can push users and groups. Configuring SSO sign-in is not SCIM directory sync — and issuing a SCIM token does not activate SSO." as const;
+  "The SSO wizard is guided setup that records and verifies single sign-on configuration for the workspace. SCIM provisioning issues directory-sync tokens so an identity provider can push users and groups. Configuring SSO sign-in is not SCIM directory sync — and issuing a SCIM token does not save SSO configuration." as const;
 
 export const SSO_WIZARD_SCIM_COMPACT_LINE =
-  "SSO wizard activates sign-in; SCIM syncs directory people — open the other when you need that job." as const;
+  "SSO wizard records and verifies the sign-in connection; SCIM syncs directory people — open the other when you need both." as const;
 
 export const SSO_WIZARD_SCIM_SSO_WIZARD_LINK: SsoWizardScimLink = {
   id: "sso-wizard",
   label: "SSO wizard",
   href: SSO_WIZARD_CANONICAL_PATH,
-  whenToUse: "Walk guided discovery, test login, and activate SSO sign-in.",
+  whenToUse: "Walk guided discovery, sandbox claim mapping test, and save configuration.",
 };
 
 export const SSO_WIZARD_SCIM_SCIM_LINK: SsoWizardScimLink = {

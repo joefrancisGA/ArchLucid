@@ -21,8 +21,9 @@ describe("identity-providers-sso-wizard-vocabulary (TB-2277)", () => {
     expect(model.heading.toLowerCase()).toContain("sso wizard");
     expect(model.whyTwo).toBe(IDENTITY_PROVIDERS_SSO_WIZARD_WHY_TWO);
     expect(model.whyTwo.toLowerCase()).toContain("hub");
-    expect(model.whyTwo.toLowerCase()).toContain("activate");
+    expect(model.whyTwo.toLowerCase()).toContain("records and verifies");
     expect(model.compactLine).toBe(IDENTITY_PROVIDERS_SSO_WIZARD_COMPACT_LINE);
+    expect(model.compactLine.toLowerCase()).not.toContain("activates sign-in");
 
     expect(model.identityProvidersLink).toEqual(IDENTITY_PROVIDERS_SSO_WIZARD_HUB_LINK);
     expect(model.identityProvidersLink.href).toBe(SSO_WIZARD_IDENTITY_PROVIDERS_HREF);
@@ -31,6 +32,7 @@ describe("identity-providers-sso-wizard-vocabulary (TB-2277)", () => {
     expect(model.ssoWizardLink).toEqual(IDENTITY_PROVIDERS_SSO_WIZARD_WIZARD_LINK);
     expect(model.ssoWizardLink.href).toBe(SSO_WIZARD_CANONICAL_PATH);
     expect(model.ssoWizardLink.href).toBe("/administration/identity/sso-wizard");
+    expect(model.ssoWizardLink.whenToUse.toLowerCase()).toContain("save configuration");
   });
 
   it("resolves the peer surface from identity-providers and sso-wizard", () => {

@@ -34,6 +34,7 @@ import {
   SSO_WIZARD_ACTIVATE_INTRO,
   SSO_WIZARD_BACK_LINK_LABEL,
   SSO_WIZARD_CANCEL_UNSAVED_CONFIRM,
+  SSO_WIZARD_CONFIGURATION_EFFECT_LINE,
   SSO_WIZARD_CREDENTIALS_REFERENCE_LABEL,
   SSO_WIZARD_CREDENTIALS_REFERENCE_PLACEHOLDER,
   SSO_WIZARD_IDENTITY_PROVIDERS_HREF,
@@ -43,8 +44,8 @@ import {
   SSO_WIZARD_PAGE_TITLE,
   SSO_WIZARD_PROTOCOL_STEP_HEADING,
   SSO_WIZARD_PROTOCOL_STEP_INSTRUCTION,
-  SSO_WIZARD_STATUS_NOT_ACTIVE,
-  SSO_WIZARD_TRUST_REASSURANCE,
+  SSO_WIZARD_RELATED_SURFACES_DISCLOSURE_TITLE,
+  SSO_WIZARD_TEST_CONNECTION_INTRO,
 } from "@/lib/sso-wizard-copy";
 import {
   SSO_WIZARD_ACTIVATE_SUCCESS_MESSAGE,
@@ -379,15 +380,8 @@ export function SsoWizardPageClient() {
           actions={<PageContextualHelpButton />}
         />
         <p className={cn("m-0 max-w-3xl text-al-text-secondary", OPERATOR_TYPOGRAPHY.helper)} role="status">
-          {SSO_WIZARD_STATUS_NOT_ACTIVE}
+          {SSO_WIZARD_CONFIGURATION_EFFECT_LINE}
         </p>
-        {step === 0 ? (
-          <>
-            <IdentityProvidersSsoWizardVocabularyRail currentSurfaceId="sso-wizard" />
-            <SsoWizardScimVocabularyRail currentSurfaceId="sso-wizard" />
-          </>
-        ) : null}
-
       </header>
 
       {wizardSession.pendingRestore !== null ? (
@@ -594,7 +588,7 @@ export function SsoWizardPageClient() {
           {step === 4 ? (
             <div className="space-y-3">
               <p className={cn("m-0 text-al-text-secondary", OPERATOR_TYPOGRAPHY.body)}>
-                Run a test sign-in with sample claim values before activating SSO for users.
+                {SSO_WIZARD_TEST_CONNECTION_INTRO}
               </p>
               <div>
                 <Label htmlFor="sample-claims">Sample identity provider claim values (comma or newline separated)</Label>
@@ -645,8 +639,6 @@ export function SsoWizardPageClient() {
             </div>
           ) : null}
 
-          <p className={cn("m-0 text-al-text-secondary", OPERATOR_TYPOGRAPHY.helper)}>{SSO_WIZARD_TRUST_REASSURANCE}</p>
-
           <SsoWizardFooter
             isFirstStep={step === 0}
             isLastStep={isLastStep}
@@ -665,6 +657,19 @@ export function SsoWizardPageClient() {
           />
         </CardContent>
       </Card>
+
+      <details
+        className="rounded-lg border border-neutral-200 dark:border-neutral-800"
+        data-testid="sso-wizard-related-surfaces-disclosure"
+      >
+        <summary className={cn("cursor-pointer px-4 py-2", OPERATOR_TYPOGRAPHY.cardTitle)}>
+          {SSO_WIZARD_RELATED_SURFACES_DISCLOSURE_TITLE}
+        </summary>
+        <div className="space-y-3 border-t border-neutral-200 px-4 py-3 dark:border-neutral-800">
+          <IdentityProvidersSsoWizardVocabularyRail currentSurfaceId="sso-wizard" />
+          <SsoWizardScimVocabularyRail currentSurfaceId="sso-wizard" />
+        </div>
+      </details>
 
       <ConfirmationDialog
         open={pendingCancelConfirm}

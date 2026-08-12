@@ -1,9 +1,9 @@
 /**
  * Buyer-facing SSO activate consequence preview (TB-2241).
- * Who signs in next, what stays unchanged until activate, and what rolls back / bypass.
+ * What the save step stores, what stays in effect, and rollback / bypass.
  */
 
-export const SSO_ACTIVATE_CONSEQUENCE_PREVIEW_TITLE = "What activating SSO does" as const;
+export const SSO_ACTIVATE_CONSEQUENCE_PREVIEW_TITLE = "What saving this configuration does" as const;
 
 export type SsoActivateConsequencePreviewRowId =
   | "whoSignsInNext"
@@ -28,30 +28,30 @@ const ROW_IDS: readonly SsoActivateConsequencePreviewRowId[] = [
   "rollsBackOrBypass",
 ] as const;
 
-/** Stable consequence matrix for the SSO wizard activate step. */
+/** Stable consequence matrix for the SSO wizard save-configuration step. */
 export function buildSsoActivateConsequencePreview(): SsoActivateConsequencePreview {
   return {
     title: SSO_ACTIVATE_CONSEQUENCE_PREVIEW_TITLE,
     summary:
-      "Activating single sign-on switches this workspace to your identity provider for sign-in. Draft wizard settings stay inactive until this step succeeds.",
+      "Saving this configuration writes your verified identity provider settings and role mapping to the identity provider record for every workspace in this organization. It does not change how anyone signs in today — turning on SSO sign-in is a separate platform configuration change.",
     rows: [
       {
         id: "whoSignsInNext",
         label: "Who signs in next",
         detail:
-          "After activation, people sign in through your organization's identity provider (OIDC or SAML). Mapped roles from the successful connection test apply to those sign-ins.",
+          "Nobody's sign-in path changes as a result of this step. Everyone continues on the current sign-in path until your platform administrator completes the separate platform configuration change to turn on SSO sign-in.",
       },
       {
         id: "staysUnchangedUntilActivate",
-        label: "What stays unchanged until activate",
+        label: "What the record stores vs. what is in effect",
         detail:
-          "Provider metadata, claim mapping, and credentials references stay draft until you activate. Existing users keep their current sign-in path until activation succeeds.",
+          "This step marks the identity provider configuration record active with your issuer, claim mapping, and credentials reference. Those values are stored for the organization but are not yet used to sign anyone in until SSO sign-in is enabled at the platform level.",
       },
       {
         id: "rollsBackOrBypass",
         label: "What rolls back / bypass",
         detail:
-          "If activation fails, the workspace keeps the prior sign-in path. Development bypass and local admin recovery paths remain available for break-glass access — they are not replaced by a failed activate.",
+          "Running this wizard again overwrites the stored identity provider record with new values. Break-glass local administrator recovery is unaffected either way.",
       },
     ],
   };

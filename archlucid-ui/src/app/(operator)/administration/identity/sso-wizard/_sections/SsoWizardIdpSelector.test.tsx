@@ -14,8 +14,18 @@ describe("SsoWizardIdpSelector", () => {
     expect(screen.getByTestId("sso-idp-okta")).toHaveTextContent("Okta");
     expect(screen.getByTestId("sso-idp-auth0")).toHaveTextContent("Auth0");
     expect(screen.getByTestId("sso-idp-other")).toHaveTextContent("Other");
-    expect(screen.getByText(/Select an identity provider to continue/i)).toBeInTheDocument();
     expect(screen.getByTestId("sso-idp-selector").textContent ?? "").not.toMatch(/IdP entity/i);
+  });
+
+  it("shows one circular selection control per card adjacent to the label", () => {
+    render(<SsoWizardIdpSelector value="okta" onChange={vi.fn()} />);
+
+    for (const id of ["entra", "okta", "auth0", "other"]) {
+      const card = screen.getByTestId(`sso-idp-${id}`);
+      const circles = card.querySelectorAll(".rounded-full.border-2");
+
+      expect(circles.length).toBe(1);
+    }
   });
 
   it("notifies onChange when a provider card is selected", () => {
@@ -27,10 +37,9 @@ describe("SsoWizardIdpSelector", () => {
     expect(onChange).toHaveBeenCalledWith("entra");
   });
 
-  it("marks the selected provider and hides the required helper", () => {
+  it("marks the selected provider", () => {
     render(<SsoWizardIdpSelector value="okta" onChange={vi.fn()} />);
 
     expect(screen.getByRole("radio", { name: "Okta" })).toBeChecked();
-    expect(screen.queryByText(/Select an identity provider to continue/i)).not.toBeInTheDocument();
   });
 });

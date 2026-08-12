@@ -28,9 +28,14 @@ vi.mock("@/components/usability/PageContextualHelpButton", () => ({
 import { SsoWizardPageClient } from "./_sections/SsoWizardPageClient";
 import {
   SSO_WIZARD_BANNED_UI_PATTERNS,
+  SSO_WIZARD_CONFIGURATION_EFFECT_LINE,
   SSO_WIZARD_IDENTITY_PROVIDERS_HREF,
+  SSO_WIZARD_RELATED_SURFACES_DISCLOSURE_TITLE,
 } from "@/lib/sso-wizard-copy";
-import { SSO_WIZARD_ACTIVATE_SUCCESS_MESSAGE } from "@/lib/admin-integration-mutation-outcome-copy";
+import {
+  SSO_WIZARD_ACTIVATE_SUCCESS_MESSAGE,
+  SSO_WIZARD_TEST_LOGIN_SUCCESS_MESSAGE,
+} from "@/lib/admin-integration-mutation-outcome-copy";
 import { showSuccess } from "@/lib/toast";
 
 function selectEntraAndContinue(): void {
@@ -44,7 +49,7 @@ describe("SsoWizardPage", () => {
 
     expect(screen.getByRole("heading", { name: /Configure single sign-on/i })).toBeInTheDocument();
     expect(screen.getByTestId("page-heading-icon")).toBeInTheDocument();
-    expect(screen.getByText(/test the connection before it can be activated/i)).toBeInTheDocument();
+    expect(screen.getByText(/Record and verify your organization's identity provider configuration/i)).toBeInTheDocument();
     expect(screen.getByTestId("sso-wizard-stepper")).toBeInTheDocument();
     expect(screen.getByTestId("sso-wizard-stepper")).toHaveTextContent("Identity provider");
     expect(screen.getByTestId("sso-idp-selector")).toBeInTheDocument();
@@ -62,15 +67,53 @@ describe("SsoWizardPage", () => {
     }
 
     expect(pageText).not.toMatch(/IdP entity/i);
+    expect(pageText).not.toMatch(/activated for users/i);
+    expect(pageText).not.toMatch(/preset/i);
   });
 
-  it("gates Continue on identity provider, then shows protocol step with Entra OIDC preset", () => {
+  it("shows one configuration effect line between the title and stepper", () => {
+    render(<SsoWizardPageClient />);
+
+    const matches = screen.getAllByText(SSO_WIZARD_CONFIGURATION_EFFECT_LINE);
+    expect(matches).toHaveLength(1);
+
+    const header = screen.getByRole("heading", { name: /Configure single sign-on/i });
+    const stepper = screen.getByTestId("sso-wizard-stepper");
+
+    expect(header.compareDocumentPosition(stepper) & Node.DOCUMENT_POSITION_FOLLOWING).toBeTruthy();
+    expect(matches[0].compareDocumentPosition(stepper) & Node.DOCUMENT_POSITION_FOLLOWING).toBeTruthy();
+  });
+
+  it("places vocabulary rails in a collapsed disclosure below the wizard card", () => {
+    render(<SsoWizardPageClient />);
+
+    const header = screen.getByRole("heading", { name: /Configure single sign-on/i }).closest("header");
+    const stepper = screen.getByTestId("sso-wizard-stepper");
+    const disclosure = screen.getByTestId("sso-wizard-related-surfaces-disclosure");
+
+    expect(header?.querySelector('[data-testid="identity-providers-sso-wizard-vocabulary"]')).toBeNull();
+    expect(header?.querySelector('[data-testid="sso-wizard-scim-vocabulary"]')).toBeNull();
+    expect(stepper.compareDocumentPosition(disclosure) & Node.DOCUMENT_POSITION_FOLLOWING).toBeTruthy();
+    expect(screen.getByText(SSO_WIZARD_RELATED_SURFACES_DISCLOSURE_TITLE)).toBeInTheDocument();
+
+    expect(
+      disclosure.querySelector('[data-testid="identity-providers-sso-wizard-vocabulary"]'),
+    ).toBeInTheDocument();
+    expect(disclosure.querySelector('[data-testid="sso-wizard-scim-vocabulary"]')).toBeInTheDocument();
+    expect(
+      disclosure.querySelector('[data-testid="identity-providers-sso-wizard-vocabulary"]')?.textContent?.toLowerCase(),
+    ).not.toContain("activates sign-in");
+  });
+
+  it("gates Continue on identity provider with a single readiness hint", () => {
     render(<SsoWizardPageClient />);
 
     const continueButton = screen.getByTestId("sso-wizard-continue");
     expect(continueButton).toBeDisabled();
     expect(screen.getByRole("radiogroup", { name: /identity provider/i })).toBeInTheDocument();
-    expect(screen.getByText(/Select an identity provider to continue/i)).toBeInTheDocument();
+    expect(screen.getByTestId("sso-wizard-primary-disabled-hint")).toHaveTextContent(/identity provider/i);
+    expect(screen.getAllByText(/identity provider/i).length).toBeGreaterThanOrEqual(1);
+    expect(screen.queryByText(/Select an identity provider to continue/i)).not.toBeInTheDocument();
 
     fireEvent.click(screen.getByTestId("sso-idp-entra"));
     expect(continueButton).toBeEnabled();
@@ -112,7 +155,6 @@ describe("SsoWizardPage", () => {
     fireEvent.click(screen.getByTestId("sso-idp-entra"));
     fireEvent.click(screen.getByRole("button", { name: /^Cancel$/i }));
 
-    // TB-2356 confirms discarding unsaved wizard input through the in-app dialog, not window.confirm.
     expect(await screen.findByText("Leave SSO setup?")).toBeInTheDocument();
 
     fireEvent.click(screen.getByRole("button", { name: /Leave without saving/i }));
@@ -134,7 +176,7 @@ describe("SsoWizardPage", () => {
     expect(screen.queryByRole("link", { name: /Enterprise onboarding checklist/i })).not.toBeInTheDocument();
   });
 
-  it("shows durable in-page success after SSO activation without toast", async () => {
+  it("shows durable in-page success after configuration save without claiming SSO is active", async () => {
     const fetchMock = vi.fn(async (input: RequestInfo | URL, init?: RequestInit) => {
       const url = String(input);
 
@@ -189,17 +231,24 @@ describe("SsoWizardPage", () => {
     fireEvent.click(screen.getByRole("button", { name: /Test connection/i }));
 
     await waitFor(() => {
-      expect(screen.getByTestId("sso-wizard-continue")).toBeEnabled();
+      expect(screen.getByTestId("sso-wizard-success-callout")).toHaveTextContent(
+        SSO_WIZARD_TEST_LOGIN_SUCCESS_MESSAGE,
+      );
     });
 
     fireEvent.click(screen.getByTestId("sso-wizard-continue"));
 
-    expect(await screen.findByTestId("sso-wizard-activate")).toBeInTheDocument();
+    expect(await screen.findByTestId("sso-wizard-activate")).toHaveTextContent(/Save configuration/i);
+    expect(screen.getByTestId("sso-activate-consequence-preview")).toBeInTheDocument();
+    expect(screen.getByTestId("sso-activate-consequence-preview-summary").textContent?.toLowerCase()).toContain(
+      "does not change how anyone signs in today",
+    );
+
     fireEvent.click(screen.getByTestId("sso-wizard-activate"));
 
-    expect(await screen.findByTestId("sso-wizard-success-callout")).toHaveTextContent(
-      SSO_WIZARD_ACTIVATE_SUCCESS_MESSAGE,
-    );
+    const successCallout = await screen.findByTestId("sso-wizard-success-callout");
+    expect(successCallout).toHaveTextContent(SSO_WIZARD_ACTIVATE_SUCCESS_MESSAGE);
+    expect(successCallout.textContent?.toLowerCase()).not.toContain("single sign-on activated");
     expect(showSuccess).not.toHaveBeenCalled();
 
     vi.unstubAllGlobals();

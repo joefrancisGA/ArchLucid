@@ -17,7 +17,16 @@ describe("sso-wizard-disabled-cta", () => {
         canContinue: false,
         canActivate: false,
       })?.message,
-    ).toContain("identity provider preset");
+    ).toContain("identity provider");
+    expect(
+      resolveSsoWizardPrimaryDisabledReason({
+        step: 0,
+        isLastStep: false,
+        busy: false,
+        canContinue: false,
+        canActivate: false,
+      })?.message,
+    ).not.toContain("preset");
 
     expect(
       resolveSsoWizardPrimaryDisabledReason({
@@ -27,10 +36,10 @@ describe("sso-wizard-disabled-cta", () => {
         canContinue: false,
         canActivate: false,
       })?.message,
-    ).toContain("test sign-in");
+    ).toContain("sandbox claim-mapping test");
   });
 
-  it("explains activate prerequisites on the final step", () => {
+  it("explains save prerequisites on the final step", () => {
     expect(
       resolveSsoWizardPrimaryDisabledReason({
         step: 5,
@@ -39,7 +48,7 @@ describe("sso-wizard-disabled-cta", () => {
         canContinue: true,
         canActivate: false,
       })?.message,
-    ).toContain("test sign-in");
+    ).toContain("sandbox claim-mapping test");
   });
 });
 
@@ -55,6 +64,6 @@ describe("saml-sp-configuration-disabled-cta", () => {
 
     expect(
       resolveSamlSpSaveDisabledReason({ values, loading: false, busy: false })?.message,
-    ).toContain("Issuer / entity ID is required.");
+    ).toContain("Identity provider issuer");
   });
 });
