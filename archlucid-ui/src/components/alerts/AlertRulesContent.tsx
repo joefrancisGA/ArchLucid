@@ -11,6 +11,7 @@ import { AlertRuleLivePreviewPanel } from "@/components/alerts/AlertRuleLivePrev
 import { AlertRuleNotificationReadinessPanel } from "@/components/alerts/AlertRuleNotificationReadinessPanel";
 import { AlertRuleSimulateModal } from "@/components/alerts/AlertRuleSimulateModal";
 import { MutatingInWorkspaceChip } from "@/components/MutatingInWorkspaceChip";
+import { WhyDisabledCtaHint } from "@/components/usability/WhyDisabledCtaHint";
 import { Button } from "@/components/ui/button";
 import { Input } from "@/components/ui/input";
 import { Label } from "@/components/ui/label";
@@ -60,8 +61,8 @@ import { isBuyerPolishedOperatorShellEnv, isOperatorExperienceFullShellEnv } fro
 import { OPERATOR_TYPOGRAPHY } from "@/lib/design-tokens";
 import {
   alertRulesCreateButtonLabelReaderRank,
-  enterpriseMutationControlDisabledTitle,
 } from "@/lib/enterprise-controls-context-copy";
+import { whyDisabledEnterpriseMutationControl } from "@/lib/why-disabled-cta";
 import { readOperatorScopeFromStorage } from "@/lib/operator-scope-storage";
 import type { AlertRule } from "@/types/alerts";
 import type { AlertRoutingSubscription } from "@/types/alert-routing";
@@ -197,6 +198,8 @@ export function AlertRulesContent() {
       draftDiffersFromDefault: alertRuleFormDiffersFromDefaultDraft(formInput),
     }),
   );
+  const mutationDisabledReason = canMutateAlertRules ? null : whyDisabledEnterpriseMutationControl();
+  const mutationDisabledHintId = "alert-rules-mutate-disabled-hint";
 
   return (
     <div className="min-w-0">
@@ -291,7 +294,6 @@ export function AlertRulesContent() {
                   onChange={(event) => setName(event.target.value)}
                   onBlur={() => setFieldTouched((current) => ({ ...current, name: true }))}
                   disabled={!canEdit || creating}
-                  title={canEdit ? undefined : enterpriseMutationControlDisabledTitle}
                   className="mt-1"
                 />
                 {fieldTouched.name && fieldErrors.name ? (
@@ -308,7 +310,6 @@ export function AlertRulesContent() {
                   value={ruleType}
                   onChange={(event) => setRuleType(event.target.value)}
                   disabled={!canEdit || creating}
-                  title={canEdit ? undefined : enterpriseMutationControlDisabledTitle}
                   className="mt-1 block w-full rounded-md border border-neutral-300 bg-white p-2 dark:border-neutral-600 dark:bg-neutral-950"
                 >
                   {ALERT_RULE_TYPE_OPTIONS.map((option) => (
@@ -326,7 +327,6 @@ export function AlertRulesContent() {
                   value={alertPriority}
                   onChange={(event) => setAlertPriority(event.target.value)}
                   disabled={!canEdit || creating}
-                  title={canEdit ? undefined : enterpriseMutationControlDisabledTitle}
                   className="mt-1 block w-full rounded-md border border-neutral-300 bg-white p-2 dark:border-neutral-600 dark:bg-neutral-950"
                 >
                   {ALERT_PRIORITY_OPTIONS.map((priority) => (
@@ -358,7 +358,6 @@ export function AlertRulesContent() {
                     }}
                     onBlur={() => setFieldTouched((current) => ({ ...current, threshold: true }))}
                     disabled={!canEdit || creating}
-                    title={canEdit ? undefined : enterpriseMutationControlDisabledTitle}
                     className="mt-1"
                   />
                   {fieldTouched.threshold && fieldErrors.thresholdValue ? (
@@ -372,29 +371,37 @@ export function AlertRulesContent() {
               <div className="grid gap-2">
                 <MutatingInWorkspaceChip />
 
-                <div className="flex flex-wrap items-center gap-3">
-                  <Button
-                    type="button"
-                    variant="primary"
-                    onClick={() => void onCreate()}
-                    disabled={loading || creating || !canEdit || !formValid}
-                    title={canEdit ? undefined : enterpriseMutationControlDisabledTitle}
-                  >
-                    {creating
-                      ? ALERT_RULES_CREATE_PENDING_LABEL
-                      : canEdit
-                        ? ALERT_RULES_CREATE_BUTTON_LABEL
-                        : alertRulesCreateButtonLabelReaderRank}
-                  </Button>
-
-                  {canEdit && !formValid ? (
-                    <p
-                      className={cn("m-0 text-al-text-secondary", OPERATOR_TYPOGRAPHY.helper)}
-                      data-testid="alert-rules-create-readiness"
+                <div className="flex flex-col items-start gap-2">
+                  <div className="flex flex-wrap items-center gap-3">
+                    <Button
+                      type="button"
+                      variant="primary"
+                      onClick={() => void onCreate()}
+                      disabled={loading || creating || !canEdit || !formValid}
+                      aria-describedby={mutationDisabledReason === null ? undefined : mutationDisabledHintId}
+                      data-testid="alert-rules-create-button"
                     >
-                      {ALERT_RULES_CREATE_BLOCKED_HINT}
-                    </p>
-                  ) : null}
+                      {creating
+                        ? ALERT_RULES_CREATE_PENDING_LABEL
+                        : canEdit
+                          ? ALERT_RULES_CREATE_BUTTON_LABEL
+                          : alertRulesCreateButtonLabelReaderRank}
+                    </Button>
+
+                    {canEdit && !formValid ? (
+                      <p
+                        className={cn("m-0 text-al-text-secondary", OPERATOR_TYPOGRAPHY.helper)}
+                        data-testid="alert-rules-create-readiness"
+                      >
+                        {ALERT_RULES_CREATE_BLOCKED_HINT}
+                      </p>
+                    ) : null}
+                  </div>
+                  <WhyDisabledCtaHint
+                    id={mutationDisabledHintId}
+                    reason={mutationDisabledReason}
+                    testId="alert-rules-mutate-disabled-hint"
+                  />
                 </div>
               </div>
             </div>

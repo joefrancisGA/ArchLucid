@@ -9,7 +9,7 @@ import {
   ALERT_RULES_NAME_LABEL,
   ALERT_RULES_PREVIEW_DRAFT_STATUS_LABEL,
 } from "@/lib/alert-rule-conditions-copy";
-import { alertRulesCreateButtonLabelReaderRank } from "@/lib/enterprise-controls-context-copy";
+import { alertRulesCreateButtonLabelReaderRank, enterpriseMutationControlDisabledTitle } from "@/lib/enterprise-controls-context-copy";
 import {
   clearOperatorScopeStorage,
   writeOperatorScopeToStorage,
@@ -161,6 +161,13 @@ describe("AlertRulesContent", () => {
     await waitFor(() => {
       expect(screen.getByRole("button", { name: alertRulesCreateButtonLabelReaderRank })).toBeDisabled();
     });
+
+    const createButton = screen.getByTestId("alert-rules-create-button");
+
+    expect(screen.getByTestId("alert-rules-mutate-disabled-hint")).toHaveTextContent(
+      enterpriseMutationControlDisabledTitle,
+    );
+    expect(createButton).toHaveAttribute("aria-describedby", "alert-rules-mutate-disabled-hint");
   });
 
   it("names the target workspace beside the create control", async () => {
