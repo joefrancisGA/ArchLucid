@@ -38,8 +38,8 @@ export function OperatorHomePageSuspenseFallback(): React.JSX.Element {
       </section>
 
       <div className="space-y-3" aria-hidden="true">
-        <Skeleton className="h-24 w-full max-w-3xl rounded-md" />
-        <Skeleton className="h-16 w-full max-w-2xl rounded-md" />
+        <Skeleton className="h-24 w-full rounded-md" />
+        <Skeleton className="h-16 w-full rounded-md" />
       </div>
     </OperatorPageContainer>
   );

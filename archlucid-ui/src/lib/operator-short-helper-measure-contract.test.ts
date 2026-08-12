@@ -20,5 +20,6 @@ describe("operator short helper measure contract (TB-2038)", () => {
     expect(designSystem).toContain("OPERATOR_SHORT_HELPER_MEASURE_CLASS");
     expect(designSystem).toContain("max-w-prose");
     expect(designSystem).toContain("TB-2039");
+    expect(designSystem).toContain("TB-2041");
   });
 });
