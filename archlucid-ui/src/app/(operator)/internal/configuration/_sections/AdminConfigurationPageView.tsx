@@ -4,6 +4,15 @@ import { cn } from "@/lib/utils";
 import { DemoWorkspaceCapabilityUnavailablePanel } from "@/components/DemoWorkspaceCapabilityUnavailablePanel";
 import { Button } from "@/components/ui/button";
 import { Card, CardContent, CardHeader, CardTitle } from "@/components/ui/card";
+import {
+  EnterpriseTable,
+  EnterpriseTableBody,
+  EnterpriseTableCell,
+  EnterpriseTableHead,
+  EnterpriseTableHeadRow,
+  EnterpriseTableHeaderCell,
+  EnterpriseTableRow,
+} from "@/components/ui/enterprise-table";
 import { Input } from "@/components/ui/input";
 import { Label } from "@/components/ui/label";
 import {
@@ -199,43 +208,42 @@ export function AdminConfigurationPageView(props: Props) {
               <p className={cn("m-0 text-al-text-secondary", OPERATOR_TYPOGRAPHY.helper)}>{items.length} key(s) in this category</p>
             </CardHeader>
             <CardContent>
-              <div className="overflow-x-auto">
-                <table
-                  className={cn("w-full text-left", OPERATOR_TYPOGRAPHY.body)}
-                  data-testid={`admin-configuration-table-${sectionToTestIdSegment(section)}`}
-                >
-                  <thead>
-                    <tr className={cn("border-b border-neutral-200 dark:border-neutral-700", OPERATOR_NAV_GROUP_LABEL)}>
-                      <th className="py-2 pr-3">Key path</th>
-                      <th className="py-2 pr-3">Set</th>
-                      <th className="py-2 pr-3">Sources (catalog)</th>
-                      <th className="py-2 pr-3">Effective value</th>
-                      <th className="py-2 pr-3">Description</th>
-                    </tr>
-                  </thead>
-                  <tbody>
-                    {items.map((row) => {
-                      const setLabel = row.isSet === true ? "Yes" : "No";
-                      const sources = formatSources(row.sources);
-                      const ev = row.effectiveValue ?? "—";
-                      const desc = normalizePath(row.description).length > 0 ? row.description : "—";
-                      const pathKey = normalizePath(row.configPath).length > 0 ? row.configPath : "—";
+              <EnterpriseTable
+                ariaLabel={`Configuration keys in ${section}`}
+                className={OPERATOR_TYPOGRAPHY.body}
+                data-testid={`admin-configuration-table-${sectionToTestIdSegment(section)}`}
+              >
+                <EnterpriseTableHead>
+                  <EnterpriseTableHeadRow className={cn("border-b border-neutral-200 dark:border-neutral-700", OPERATOR_NAV_GROUP_LABEL)}>
+                    <EnterpriseTableHeaderCell className="py-2 pr-3">Key path</EnterpriseTableHeaderCell>
+                    <EnterpriseTableHeaderCell className="py-2 pr-3">Set</EnterpriseTableHeaderCell>
+                    <EnterpriseTableHeaderCell className="py-2 pr-3">Sources (catalog)</EnterpriseTableHeaderCell>
+                    <EnterpriseTableHeaderCell className="py-2 pr-3">Effective value</EnterpriseTableHeaderCell>
+                    <EnterpriseTableHeaderCell className="py-2 pr-3">Description</EnterpriseTableHeaderCell>
+                  </EnterpriseTableHeadRow>
+                </EnterpriseTableHead>
+                <EnterpriseTableBody>
+                  {items.map((row) => {
+                    const setLabel = row.isSet === true ? "Yes" : "No";
+                    const sources = formatSources(row.sources);
+                    const ev = row.effectiveValue ?? "—";
+                    const desc = normalizePath(row.description).length > 0 ? row.description : "—";
+                    const pathKey = normalizePath(row.configPath).length > 0 ? row.configPath : "—";
 
-                      return (
-                        <tr key={pathKey} className="border-b border-neutral-100 dark:border-neutral-800">
-                          <td className={cn("py-2 pr-3 font-mono text-al-text-primary", OPERATOR_TYPOGRAPHY.micro)}>
-                            {normalizePath(row.configPath).length > 0 ? row.configPath : "—"}
-                          </td>
-                          <td className="py-2 pr-3 text-al-text-primary">{setLabel}</td>
-                          <td className={cn("py-2 pr-3 text-al-text-secondary", OPERATOR_TYPOGRAPHY.body)}>{sources}</td>
-                          <td className={cn("py-2 pr-3 font-mono text-al-text-primary", OPERATOR_TYPOGRAPHY.micro)}>{ev}</td>
-                          <td className={cn("py-2 pr-3 text-al-text-secondary", OPERATOR_TYPOGRAPHY.body)}>{desc}</td>
-                        </tr>
-                      );
-                    })}
-                  </tbody>
-                </table>
-              </div>
+                    return (
+                      <EnterpriseTableRow key={pathKey}>
+                        <EnterpriseTableCell className={cn("py-2 pr-3 font-mono text-al-text-primary", OPERATOR_TYPOGRAPHY.micro)}>
+                          {normalizePath(row.configPath).length > 0 ? row.configPath : "—"}
+                        </EnterpriseTableCell>
+                        <EnterpriseTableCell className="py-2 pr-3 text-al-text-primary">{setLabel}</EnterpriseTableCell>
+                        <EnterpriseTableCell className={cn("py-2 pr-3 text-al-text-secondary", OPERATOR_TYPOGRAPHY.body)}>{sources}</EnterpriseTableCell>
+                        <EnterpriseTableCell className={cn("py-2 pr-3 font-mono text-al-text-primary", OPERATOR_TYPOGRAPHY.micro)}>{ev}</EnterpriseTableCell>
+                        <EnterpriseTableCell className={cn("py-2 pr-3 text-al-text-secondary", OPERATOR_TYPOGRAPHY.body)}>{desc}</EnterpriseTableCell>
+                      </EnterpriseTableRow>
+                    );
+                  })}
+                </EnterpriseTableBody>
+              </EnterpriseTable>
             </CardContent>
           </Card>
         );

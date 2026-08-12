@@ -10,8 +10,5 @@ export const OPERATOR_DATA_TABLE_RAW_TABLE_BASELINE_PATHS: readonly string[] = [
   "app/(operator)/governance/policy-packs/_sections/CuratedRulesAuthoringSection.tsx",
   "app/(operator)/insights/pilot-outcomes/_sections/PilotValueReportPageView.tsx",
   "app/(operator)/integrations/cloud-connections/_sections/AwsTrustPolicyStarterPanel.tsx",
-  "app/(operator)/internal/configuration/_sections/AdminConfigurationPageView.tsx",
-  "components/compare/ArchitectureManifestUnifiedDiffView.tsx",
-  "components/compare/StructuredComparisonView.tsx",
   "components/provenance/ProvenancePageWorkspace.tsx",
 ] as const;
