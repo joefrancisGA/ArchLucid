@@ -198,10 +198,12 @@ describe("AccountSecurityPageClient", () => {
 
     fireEvent.click(await screen.findByTestId("sign-in-method-remove-id-1"));
 
-    expect(await screen.findByTestId("account-security-remove-dialog")).toBeInTheDocument();
+    expect(
+      await screen.findByRole("heading", { name: "Remove Email code (y***@example.com)?" }),
+    ).toBeInTheDocument();
     expect(confirmSpy).not.toHaveBeenCalled();
 
-    fireEvent.click(screen.getByTestId("account-security-remove-confirm"));
+    fireEvent.click(screen.getByRole("button", { name: "Remove" }));
 
     await waitFor(() => {
       expect(removeSignInMethod).toHaveBeenCalledWith("id-1");
