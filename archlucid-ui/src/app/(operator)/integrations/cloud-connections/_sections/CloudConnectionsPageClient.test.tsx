@@ -80,14 +80,13 @@ describe("CloudConnectionsPageClient", () => {
       expect(card.querySelectorAll("a[href^='/integrations/cloud-connections/']")).toHaveLength(1);
       expect(card).not.toHaveTextContent("View details");
       expect(screen.getByTestId(`cloud-connection-card-${provider}-not-connected`)).toBeInTheDocument();
-      expect(card).toHaveTextContent("Last validation");
-      expect(card).toHaveTextContent("Not validated yet");
-      expect(card).toHaveTextContent("None collected yet");
-      expect(card).toHaveTextContent("Authentication model");
+      expect(card).not.toHaveTextContent("Not configured");
+      expect(card).not.toHaveTextContent("Not validated yet");
+      expect(card).not.toHaveTextContent("No packages collected");
     }
   });
 
-  it("shows provenance rows on unconfigured provider cards", async () => {
+  it("suppresses zero-theater rows on unconfigured provider cards (TB-1143)", async () => {
     render(<CloudConnectionsPageClient />);
 
     await waitFor(() => {
@@ -95,8 +94,9 @@ describe("CloudConnectionsPageClient", () => {
     });
 
     expect(screen.getByTestId("cloud-connection-card-evidence-only")).toHaveTextContent("Always available");
-    expect(screen.getByTestId("cloud-connection-card-evidence-only")).toHaveTextContent("Last validation");
     expect(screen.queryByText("Not configured")).not.toBeInTheDocument();
+    expect(screen.queryByText("Not validated yet")).not.toBeInTheDocument();
+    expect(screen.queryByText("No packages collected")).not.toBeInTheDocument();
   });
 
   it("shows zero-connected readiness coach with one recommended action", async () => {
