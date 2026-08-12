@@ -190,9 +190,9 @@ describe("HelpEngineeringTroubleshootingGuideView", () => {
 
     expect(
 
-      within(symptomIndex).getByRole("link", { name: "Configuration reference" }),
+      within(symptomIndex).getByRole("link", { name: "Identity providers" }),
 
-    ).toHaveAttribute("href", "/help/configuration-reference");
+    ).toHaveAttribute("href", "/administration/identity-providers");
 
     expect(within(symptomIndex).getByText("Request ID + auth mode")).toBeInTheDocument();
 

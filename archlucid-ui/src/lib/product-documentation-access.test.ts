@@ -1,4 +1,4 @@
-import { describe, expect, it } from "vitest";
+import { afterEach, describe, expect, it, vi } from "vitest";
 
 import { AUTHORITY_RANK } from "@/lib/nav-authority";
 import { operatorNavOutsideProviderPrincipal, shellBootstrapReadPrincipal } from "@/lib/current-principal";
@@ -10,6 +10,10 @@ import {
 import { getProductDocumentationEntry } from "@/lib/product-documentation-registry";
 
 describe("product-documentation-access", () => {
+  afterEach(() => {
+    vi.unstubAllEnvs();
+  });
+
   it("treats internal-runbook slugs as admin-only", () => {
     expect(isInternalRunbookHelpSlug("policy-pack-delta-demo")).toBe(true);
     expect(isInternalRunbookHelpSlug("engineering-troubleshooting")).toBe(true);
@@ -38,7 +42,9 @@ describe("product-documentation-access", () => {
     expect(principalCanAccessHelpTopic(entry!, operatorNavOutsideProviderPrincipal)).toBe(true);
   });
 
-  it("gates configuration-reference as Admin-only until specialty guide (TB-1329)", () => {
+  it("gates configuration-reference to the internal operator shell, not tenant Admin (TB-1329)", () => {
+    vi.stubEnv("NEXT_PUBLIC_ARCHLUCID_INTERNAL_OPERATOR", "");
+
     const entry = getProductDocumentationEntry("configuration-reference");
 
     expect(entry).not.toBeNull();
@@ -46,9 +52,19 @@ describe("product-documentation-access", () => {
     expect(isInternalRunbookHelpSlug("configuration-reference")).toBe(true);
     expect(callerCanAccessHelpTopic(entry!, AUTHORITY_RANK.ReadAuthority)).toBe(false);
     expect(callerCanAccessHelpTopic(entry!, AUTHORITY_RANK.ExecuteAuthority)).toBe(false);
-    expect(callerCanAccessHelpTopic(entry!, AUTHORITY_RANK.AdminAuthority)).toBe(true);
+    expect(callerCanAccessHelpTopic(entry!, AUTHORITY_RANK.AdminAuthority)).toBe(false);
     expect(principalCanAccessHelpTopic(entry!, shellBootstrapReadPrincipal)).toBe(false);
-    expect(principalCanAccessHelpTopic(entry!, operatorNavOutsideProviderPrincipal)).toBe(true);
+    expect(principalCanAccessHelpTopic(entry!, operatorNavOutsideProviderPrincipal)).toBe(false);
+  });
+
+  it("allows configuration-reference for Admin callers in the internal operator shell", () => {
+    vi.stubEnv("NEXT_PUBLIC_ARCHLUCID_INTERNAL_OPERATOR", "true");
+
+    const entry = getProductDocumentationEntry("configuration-reference");
+
+    expect(entry).not.toBeNull();
+    expect(callerCanAccessHelpTopic(entry!, AUTHORITY_RANK.AdminAuthority)).toBe(true);
+    expect(callerCanAccessHelpTopic(entry!, AUTHORITY_RANK.ExecuteAuthority)).toBe(false);
   });
 
   it("gates api-contracts as Admin-only (TB-1384)", () => {

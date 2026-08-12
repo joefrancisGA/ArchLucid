@@ -10,6 +10,7 @@ import { loadCurrentPrincipal } from "@/lib/current-principal";
 import { fetchAdminConfigLintSummary } from "@/lib/fetch-admin-config-lint";
 import { fetchHealthReadySummary } from "@/lib/fetch-health-ready";
 import type { FinishSetupWizardContext } from "@/lib/finish-setup-wizard-steps";
+import { isArchLucidInternalOperatorShellEnv } from "@/lib/internal-operator-env";
 import { mergeRegistrationScopeForProxy } from "@/lib/proxy-fetch-registration-scope";
 import {
   resolveAdminPrerequisitesReadiness,
@@ -123,8 +124,9 @@ export function useAdminPrerequisitesReadiness(enabled: boolean): AdminPrerequis
         healthLoadFailed = true;
       }
 
+      const includeHostConfigurationLint = isArchLucidInternalOperatorShellEnv();
       const [configLint, identityDiagnostics, cloud, billingStatus] = await Promise.all([
-        fetchAdminConfigLintSummary(),
+        includeHostConfigurationLint ? fetchAdminConfigLintSummary() : Promise.resolve(null),
         fetchIdentityDiagnostics(),
         fetchCloudSummary(),
         fetchBillingSubscriptionStatus().catch(() => null),
@@ -138,6 +140,7 @@ export function useAdminPrerequisitesReadiness(enabled: boolean): AdminPrerequis
             principalAdmin: (principal?.authorityRank ?? 0) >= AUTHORITY_RANK.AdminAuthority,
           },
           configLint,
+          includeHostConfigurationLint,
           identity: identityDiagnostics.identity,
           identityLoadFailed: identityDiagnostics.identityLoadFailed,
           cloud,
@@ -151,7 +154,7 @@ export function useAdminPrerequisitesReadiness(enabled: boolean): AdminPrerequis
     })();
 
     return () => {
-      cancelled = true;
+      canceled = true;
     };
   }, [enabled]);
 

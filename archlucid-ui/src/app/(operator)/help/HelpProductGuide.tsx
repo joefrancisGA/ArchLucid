@@ -19,6 +19,7 @@ import {
   listHelpCenterAdvancedGuideTopics,
   listHelpCenterGuideTopics,
 } from "@/lib/help/help-center-catalog";
+import { isArchLucidInternalOperatorShellEnv } from "@/lib/internal-operator-env";
 import { AUTHORITY_RANK } from "@/lib/nav-authority";
 import { inAppHelpHref, type ProductDocumentationEntry } from "@/lib/product-documentation-registry";
 
@@ -35,6 +36,7 @@ export function HelpProductGuide() {
     () => ({
       showAdvanced,
       isAdmin,
+      isInternalOperator: isArchLucidInternalOperatorShellEnv(),
     }),
     [isAdmin, showAdvanced],
   );

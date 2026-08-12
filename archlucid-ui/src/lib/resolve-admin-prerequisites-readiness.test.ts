@@ -47,6 +47,7 @@ function buildInput(
     cloud: overrides.cloud ?? { anyConfigured: false, loadFailed: false },
     billing: overrides.billing ?? { paymentPastDue: false, loadFailed: false },
     deployment: overrides.deployment ?? MANAGED_SAAS_DEPLOYMENT,
+    includeHostConfigurationLint: overrides.includeHostConfigurationLint,
   };
 }
 
@@ -56,11 +57,11 @@ describe("resolveAdminPrerequisitesReadiness (TB-2156)", () => {
 
     expect(result.allReady).toBe(false);
     expect(result.rows.map((row) => row.id)).toEqual([
-      "production-config",
+      "cloud-connection",
       "corporate-sign-in",
       "admin-role",
     ]);
-    expect(result.rows[0]?.sortOrder).toBe(ADMIN_PREREQUISITE_SORT_ORDER.productionConfig);
+    expect(result.rows[0]?.sortOrder).toBe(ADMIN_PREREQUISITE_SORT_ORDER.cloudConnection);
     expect(result.rows[1]?.sortOrder).toBe(ADMIN_PREREQUISITE_SORT_ORDER.corporateSignIn);
     expect(result.rows[2]?.sortOrder).toBe(ADMIN_PREREQUISITE_SORT_ORDER.adminRole);
   });
@@ -114,9 +115,20 @@ describe("resolveAdminPrerequisitesReadiness (TB-2156)", () => {
     expect(result.rows).toHaveLength(0);
   });
 
+  it("includes host config-lint only for the internal operator shell", () => {
+    const tenantAdmin = resolveAdminPrerequisitesReadiness(buildInput());
+    const internal = resolveAdminPrerequisitesReadiness(
+      buildInput({ includeHostConfigurationLint: true }),
+    );
+
+    expect(tenantAdmin.rows.some((row) => row.id === "production-config")).toBe(false);
+    expect(internal.rows[0]?.id).toBe("production-config");
+  });
+
   it("collapses optional cloud connection while blocking config findings remain", () => {
     const result = resolveAdminPrerequisitesReadiness(
       buildInput({
+        includeHostConfigurationLint: true,
         configLint: {
           blockingCount: 2,
           advisoryCount: 0,

@@ -324,8 +324,8 @@ export function stripPilotFeedbackContributorLeakage(markdown: string): string {
 export function stripExecutiveSummarySponsorBriefLeakage(markdown: string): string {
   return stripProductOverviewContributorLeakage(markdown)
     .replace(/^(##+)\s+\d+\.\s+/gm, "$1 ")
-    .replace(/`?API_CONTRACTS\.md`?/gi, "[Configuration reference](/help/configuration-reference)")
-    .replace(/API_CONTRACTS\.md/gi, "/help/configuration-reference")
+    .replace(/`?API_CONTRACTS\.md`?/gi, "[API contracts](/help/api-contracts)")
+    .replace(/API_CONTRACTS\.md/gi, "/help/api-contracts")
     .replace(
       /`?PILOT_ROI_MODEL\.md`?/gi,
       "[Pilot ROI measurement](/help/executive-summary#pilot-roi-measurement)",

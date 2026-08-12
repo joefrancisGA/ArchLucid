@@ -140,7 +140,6 @@ describe("HelpAdminDiagnosticsGuideView (HAE)", () => {
   it("matches source link labels to registry titles", () => {
     const troubleshooting = getProductDocumentationEntry("troubleshooting");
     const engineering = getProductDocumentationEntry("engineering-troubleshooting");
-    const configuration = getProductDocumentationEntry("configuration-reference");
     const cli = getProductDocumentationEntry("cli-usage");
     const reportAProblem = getProductDocumentationEntry("report-a-problem");
 
@@ -152,9 +151,7 @@ describe("HelpAdminDiagnosticsGuideView (HAE)", () => {
         (link) => link.adminOnly === true && link.href.includes("engineering-troubleshooting"),
       )?.label,
     ).toBe(engineering?.title);
-    expect(
-      ADMIN_DIAGNOSTICS_HELP_RELATED_TOPICS.find((link) => link.href.includes("configuration-reference"))?.label,
-    ).toBe(configuration?.title);
+    expect(ADMIN_DIAGNOSTICS_HELP_RELATED_TOPICS.find((link) => link.href.includes("configuration-reference"))).toBeUndefined();
     expect(ADMIN_DIAGNOSTICS_HELP_RELATED_TOPICS.find((link) => link.href.includes("cli-usage"))?.label).toBe(cli?.title);
     expect(ADMIN_DIAGNOSTICS_HELP_RELATED_TOPICS.find((link) => link.href.includes("report-a-problem"))?.label).toBe(
       reportAProblem?.title,
@@ -179,11 +176,11 @@ describe("HelpAdminDiagnosticsGuideView (HAE)", () => {
     expect(within(relatedTopics).getByRole("link", { name: "Troubleshooting" })).toBeInTheDocument();
     expect(within(relatedTopics).getByRole("link", { name: "Report a problem" })).toBeInTheDocument();
     expect(within(relatedTopics).getByRole("link", { name: "Engineering troubleshooting runbook" })).toBeInTheDocument();
-    expect(within(relatedTopics).getByRole("link", { name: "Configuration reference" })).toBeInTheDocument();
+    expect(within(relatedTopics).queryByRole("link", { name: "Configuration reference" })).not.toBeInTheDocument();
     expect(within(relatedTopics).getByRole("link", { name: "CLI usage" })).toBeInTheDocument();
 
     const adminTags = within(actionPanel).getAllByTestId("help-admin-diagnostics-admin-tag");
-    expect(adminTags.length).toBeGreaterThanOrEqual(3);
+    expect(adminTags.length).toBeGreaterThanOrEqual(2);
   });
 
   it("shows admin tags on admin-only related topics for admin callers", () => {
@@ -197,7 +194,7 @@ describe("HelpAdminDiagnosticsGuideView (HAE)", () => {
     const relatedTopics = within(actionPanel).getByTestId("help-admin-diagnostics-related-topics");
 
     expect(within(relatedTopics).getByRole("link", { name: "Engineering troubleshooting runbook" })).toBeInTheDocument();
-    expect(within(relatedTopics).getByRole("link", { name: "Configuration reference" })).toBeInTheDocument();
+    expect(within(relatedTopics).queryByRole("link", { name: "Configuration reference" })).not.toBeInTheDocument();
     expect(within(relatedTopics).getByRole("link", { name: "CLI usage" })).toBeInTheDocument();
   });
 });

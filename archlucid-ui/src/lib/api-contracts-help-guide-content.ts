@@ -37,7 +37,6 @@ export type ApiContractsHelpSourceLink = {
 /** Admin Sources — no self-href to this eng runbook. */
 export const API_CONTRACTS_HELP_SOURCES: readonly ApiContractsHelpSourceLink[] = [
   { label: "CLI usage", href: inAppHelpHref("cli-usage") },
-  { label: "Configuration reference", href: inAppHelpHref("configuration-reference") },
   { label: "Engineering troubleshooting", href: inAppHelpHref("engineering-troubleshooting") },
   { label: "Audit trail help", href: inAppHelpHref("audit-trail") },
   { label: "Admin diagnostics", href: inAppHelpHref("admin-diagnostics") },

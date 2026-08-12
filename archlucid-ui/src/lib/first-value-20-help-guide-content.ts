@@ -77,7 +77,6 @@ export const FIRST_VALUE_20_HELP_SOURCES: readonly FirstValue20HelpSourceLink[] 
   { label: "Your first architecture review", href: FIRST_ARCHITECTURE_REVIEW_HELP_PATH },
   { label: "First-run evidence checklist", href: FIRST_REVIEW_HELP_PATH },
   { label: "Troubleshooting", href: inAppHelpHref("troubleshooting") },
-  { label: "Configuration reference", href: inAppHelpHref("configuration-reference") },
   { label: "Specialty walkthroughs", href: inAppHelpHref("specialty-walkthroughs") },
 ] as const;
 

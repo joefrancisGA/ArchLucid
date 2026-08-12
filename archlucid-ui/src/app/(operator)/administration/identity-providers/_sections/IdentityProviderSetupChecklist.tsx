@@ -27,10 +27,10 @@ type SetupStep = {
   readonly docHref: string | null;
 };
 
-const PRODUCTION_LIKE_AUTH_DOC = "/docs/library/CONFIGURATION_REFERENCE.md";
+const PRODUCTION_LIKE_AUTH_DOC = "/docs/library/customer-facing/AUTHENTICATION_AND_SIGN_IN.md";
 const OIDC_DOC = "/docs/runbooks/GENERIC_OIDC_SETUP.md";
 const SAML_DOC = "/docs/runbooks/SAML_SP_CERTIFICATE_ROTATION_RUNBOOK.md";
-const PRIVATE_BETA_AUTH_DOC = "/docs/library/LIVE_E2E_JWT_SETUP.md";
+const PRIVATE_BETA_AUTH_DOC = "/docs/library/customer-facing/AUTHENTICATION_AND_SIGN_IN.md";
 
 function statusClass(status: SetupStep["status"]): string {
   switch (status) {
@@ -165,7 +165,9 @@ function buildSteps(
       "Invite email base URL",
       config.operatorBaseUrlConfigured,
       "Operator base URL is configured for invitation accept links.",
-      "Set Email:OperatorBaseUrl to your operator UI origin so invitations include a clickable accept link.",
+      showTechnicalDetails
+        ? "Set Email:OperatorBaseUrl to your operator UI origin so invitations include a clickable accept link."
+        : "Set the operator UI origin so invitations include a clickable accept link.",
       showTechnicalDetails ? "Email:OperatorBaseUrl" : null,
       PRIVATE_BETA_AUTH_DOC,
     ),
@@ -173,7 +175,9 @@ function buildSteps(
       "Invite session signing",
       config.localTrialIdentityConfigured,
       "Local trial identity JWT signing is configured for invite accept → session.",
-      "Configure Auth:Trial:LocalIdentity (JwtIssuer, JwtAudience, JwtPrivateKeyPemPath) so invite accept can mint API sessions.",
+      showTechnicalDetails
+        ? "Configure Auth:Trial:LocalIdentity (JwtIssuer, JwtAudience, JwtPrivateKeyPemPath) so invite accept can mint API sessions."
+        : "Configure invite-accept session signing so accepted invitations can mint API sessions.",
       showTechnicalDetails ? "Auth:Trial:LocalIdentity" : null,
       PRIVATE_BETA_AUTH_DOC,
     ),

@@ -77,11 +77,14 @@ describe("help-center-catalog", () => {
     expect(advancedNonAdmin.some((entry) => entry.slug === "procurement")).toBe(true);
   });
 
-  it("exposes configuration-reference to admins in advanced help only (TB-1329)", () => {
+  it("does not expose configuration-reference to tenant admins; internal operator advanced help may list it", () => {
     const advancedAdmin = listHelpCenterTopics({ showAdvanced: true, isAdmin: true }).map((entry) => entry.slug);
 
-    expect(advancedAdmin).toContain("configuration-reference");
-    expect(listHelpCenterTopics({ showAdvanced: false, isAdmin: true }).map((e) => e.slug)).not.toContain(
+    expect(advancedAdmin).not.toContain("configuration-reference");
+    expect(
+      listHelpCenterTopics({ showAdvanced: true, isAdmin: true, isInternalOperator: true }).map((e) => e.slug),
+    ).toContain("configuration-reference");
+    expect(listHelpCenterTopics({ showAdvanced: false, isAdmin: true, isInternalOperator: true }).map((e) => e.slug)).not.toContain(
       "configuration-reference",
     );
   });

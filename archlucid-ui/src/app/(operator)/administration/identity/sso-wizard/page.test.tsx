@@ -123,9 +123,9 @@ describe("SsoWizardPage", () => {
 
     fireEvent.click(screen.getByText(/Not sure which protocol to choose/i));
     expect(screen.getByText(/Choose OpenID Connect when your provider supports it/i)).toBeInTheDocument();
-    expect(screen.getByRole("link", { name: /Configuration reference/i })).toHaveAttribute(
+    expect(screen.getByRole("link", { name: /Authentication and sign-in/i })).toHaveAttribute(
       "href",
-      "/help/configuration-reference",
+      "/help/authentication-sign-in",
     );
     expect(screen.queryByRole("link", { name: /Enterprise onboarding checklist/i })).not.toBeInTheDocument();
   });

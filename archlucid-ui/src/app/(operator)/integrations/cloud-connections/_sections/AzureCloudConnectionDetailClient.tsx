@@ -210,14 +210,6 @@ function AzureConnectionDetailBody() {
 
           <p>
 
-            <Link href={inAppHelpHref("configuration-reference")} className="text-teal-700 underline dark:text-teal-400">
-
-              Configuration reference
-
-            </Link>
-
-            {" · "}
-
             <Link href={inAppHelpHref("cloud-connections-azure")} className="text-teal-700 underline dark:text-teal-400">
 
               View setup guide

@@ -30,7 +30,7 @@ export function stripFirstReviewEvidenceChecklistContributorLeakage(markdown: st
     .replace(/POST \/v1\/azure-extractor\/upload/gi, "extractor ZIP upload")
     .replace(/`?\/version`?/gi, "version endpoint")
     .replace(/`?X-Correlation-ID`?/gi, "correlation id")
-    .replace(/\[([^\]]*)\]\(\.\.\/library\/CONFIGURATION_REFERENCE\.md\)/gi, "[Configuration reference](/help/configuration-reference)")
+    .replace(/\[([^\]]*)\]\(\.\.\/library\/CONFIGURATION_REFERENCE\.md\)/gi, "[Troubleshooting](/help/troubleshooting)")
     .replace(/\[([^\]]*)\]\(\.\.\/library\/contributor-reference\/SECURITY\.md\)/gi, "[Security and trust](/help/security-trust)")
     .replace(/\[([^\]]*)\]\(FIRST_PILOT_OPERATOR_PATH\.md\)/gi, "[Troubleshooting](/help/troubleshooting)")
     .replace(/\[([^\]]*)\]\(\.\.\/library\/customer-facing\/PILOT_GUIDE\.md\)/gi, "[Your first architecture review](/help/first-architecture-review)")

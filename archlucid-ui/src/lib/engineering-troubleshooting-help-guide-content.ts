@@ -38,7 +38,7 @@ export const ENGINEERING_TROUBLESHOOTING_HELP_SOURCES_DISCLOSURE_INTRO =
 export const ENGINEERING_TROUBLESHOOTING_HELP_SOURCES_STRIP_TITLE = "Related diligence topics";
 
 export const ENGINEERING_TROUBLESHOOTING_HELP_SOURCES_STRIP_INTRO =
-  "Use Admin diagnostics and configuration reference when you need live-surface signals or env keys — not sponsor diligence packing.";
+  "Use Admin diagnostics and System health when you need live-surface signals — not sponsor diligence packing.";
 
 export const ENGINEERING_TROUBLESHOOTING_HELP_RUNBOOK_OVERVIEW = {
   title: "Runbook overview",
@@ -86,10 +86,10 @@ export const ENGINEERING_TROUBLESHOOTING_HELP_SYMPTOM_ROWS: readonly Engineering
   [
     {
       symptom: "API does not start (migration / DbUp)",
-      firstCheck: "Fix ConnectionStrings:ArchLucid and confirm SQL is reachable.",
+      firstCheck: "Confirm the database for this deployment is reachable, then restart the API.",
       evidenceToAttach: "DbUp migration output",
-      escalationDestinationLabel: "Configuration reference",
-      escalationHref: inAppHelpHref("configuration-reference"),
+      escalationDestinationLabel: "System health",
+      escalationHref: "/administration/system-health",
       runbookSectionId: "1-api-exits-at-startup-sql-connection-string-missing-unreachable",
       severity: "critical",
     },
@@ -104,19 +104,19 @@ export const ENGINEERING_TROUBLESHOOTING_HELP_SYMPTOM_ROWS: readonly Engineering
     },
     {
       symptom: "401 / 403 on API",
-      firstCheck: "Confirm auth mode and JWT roles map to Reader, Operator, or Admin.",
+      firstCheck: "Confirm the caller is signed in and mapped to a workspace role (Reader, Operator, or Admin).",
       evidenceToAttach: "Request ID + auth mode",
-      escalationDestinationLabel: "Configuration reference",
-      escalationHref: inAppHelpHref("configuration-reference"),
+      escalationDestinationLabel: "Identity providers",
+      escalationHref: "/administration/identity-providers",
       runbookSectionId: "3-401-unauthorized-everywhere",
       severity: "medium",
     },
     {
       symptom: "429 Too Many Requests",
-      firstCheck: "Wait for the rate-limit window or adjust RateLimiting settings (non-production).",
+      firstCheck: "Wait for the rate-limit window, then retry. Non-production hosts can raise the limit with ArchLucid support.",
       evidenceToAttach: "Rate-limit response headers",
-      escalationDestinationLabel: "Configuration reference",
-      escalationHref: inAppHelpHref("configuration-reference"),
+      escalationDestinationLabel: "System health",
+      escalationHref: "/administration/system-health",
       runbookSectionId: "8-429-too-many-requests",
       severity: "low",
     },
@@ -140,10 +140,10 @@ export const ENGINEERING_TROUBLESHOOTING_HELP_SYMPTOM_ROWS: readonly Engineering
     },
     {
       symptom: "UI shows 503 invalid upstream API configuration",
-      firstCheck: "Set ARCHLUCID_API_BASE_URL in archlucid-ui/.env.local and restart dev.",
+      firstCheck: "Confirm the UI can reach the API host, then restart the web app.",
       evidenceToAttach: "Proxy configuration excerpt",
-      escalationDestinationLabel: "Configuration reference",
-      escalationHref: inAppHelpHref("configuration-reference"),
+      escalationDestinationLabel: "Customer Troubleshooting",
+      escalationHref: inAppHelpHref("troubleshooting"),
       runbookSectionId: "quick-matrix",
       severity: "high",
     },
@@ -158,7 +158,7 @@ export const ENGINEERING_TROUBLESHOOTING_HELP_SYMPTOM_ROWS: readonly Engineering
     },
     {
       symptom: "run --quick / execute LLM or timeout errors",
-      firstCheck: "Prefer simulator mode for pilots; validate AgentExecution / Azure OpenAI config.",
+      firstCheck: "Prefer simulator mode for pilots; validate LLM connectivity for this deployment.",
       evidenceToAttach: "Agent execution trace",
       escalationDestinationLabel: "CLI usage",
       escalationHref: inAppHelpHref("cli-usage"),
@@ -187,7 +187,6 @@ export const ENGINEERING_TROUBLESHOOTING_HELP_SOURCES: readonly EngineeringTroub
     { label: "Customer Troubleshooting", href: inAppHelpHref("troubleshooting") },
     { label: "Admin diagnostics", href: inAppHelpHref("admin-diagnostics") },
     { label: "CLI usage", href: inAppHelpHref("cli-usage") },
-    { label: "Configuration reference", href: inAppHelpHref("configuration-reference") },
     { label: "Report a problem", href: inAppHelpHref("report-a-problem") },
     { label: "System health", href: "/administration/system-health" },
   ] as const;

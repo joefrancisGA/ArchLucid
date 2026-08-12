@@ -1,4 +1,3 @@
-import { inAppHelpHref } from "@/lib/product-documentation-registry";
 import type { EvidenceSourceLink } from "@/lib/evidence-surface-copy";
 import { GOVERNANCE_AUDIT_PATH, GOVERNANCE_FINDINGS_PATH } from "@/lib/governance/governance-route-paths";
 
@@ -16,5 +15,4 @@ export const ADMINISTRATION_HUB_SOURCES: readonly EvidenceSourceLink[] = [
   { label: "Users and roles", href: "/administration/users" },
   { label: "Audit trail", href: GOVERNANCE_AUDIT_PATH },
   { label: "Governance findings", href: GOVERNANCE_FINDINGS_PATH },
-  { label: "Configuration reference help", href: inAppHelpHref("configuration-reference") },
 ] as const;

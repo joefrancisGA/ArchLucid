@@ -1,5 +1,6 @@
 import { EXECUTIVE_DASHBOARD_HREF } from "@/lib/executive/executive-dashboard-route";
 import { tryResolveInAppDocHref } from "@/lib/in-app-doc-href";
+import { isArchLucidInternalOperatorShellEnv } from "@/lib/internal-operator-env";
 
 /**
  * Static contextual help index for the architect workspace. Doc paths are relative to the repository root.
@@ -259,8 +260,19 @@ export function getHelpTopicHref(topic: HelpTopic): string | null {
   return getDocHref(topic.docPath);
 }
 
+/** Host configuration catalog — internal operator Help drawer only, not tenant Admin. */
+const HOST_CONFIGURATION_HELP_TOPIC_IDS = new Set<string>(["admin-configuration"]);
+
+function helpTopicsVisibleInCurrentShell(): HelpTopic[] {
+  if (isArchLucidInternalOperatorShellEnv()) {
+    return HELP_TOPICS;
+  }
+
+  return HELP_TOPICS.filter((topic) => !HOST_CONFIGURATION_HELP_TOPIC_IDS.has(topic.id));
+}
+
 export function helpTopicsForGuidesTab(): HelpTopic[] {
-  const filtered = HELP_TOPICS.filter((t) => !TROUBLESHOOTING_HELP_TOPIC_IDS.has(t.id));
+  const filtered = helpTopicsVisibleInCurrentShell().filter((t) => !TROUBLESHOOTING_HELP_TOPIC_IDS.has(t.id));
 
   function rank(id: string): number {
     const i = GOLDEN_PATH_GUIDE_TOPIC_IDS.indexOf(id);
@@ -276,23 +288,24 @@ export function helpTopicsForGuidesTab(): HelpTopic[] {
 }
 
 export function helpTopicsForTroubleshootingTab(): HelpTopic[] {
-  return HELP_TOPICS.filter((t) => TROUBLESHOOTING_HELP_TOPIC_IDS.has(t.id));
+  return helpTopicsVisibleInCurrentShell().filter((t) => TROUBLESHOOTING_HELP_TOPIC_IDS.has(t.id));
 }
 
 export function filterHelpTopics(query: string, pathname: string): HelpTopic[] {
   const q = query.trim().toLowerCase();
+  const visibleTopics = helpTopicsVisibleInCurrentShell();
 
   if (q.length === 0) {
-    const byRoute = HELP_TOPICS.filter((topic) =>
+    const byRoute = visibleTopics.filter((topic) =>
       topic.routes.some((route) => pathname === route || pathname.startsWith(`${route}/`)),
     );
 
     return byRoute.length > 0
       ? byRoute
-      : [...helpTopicsForGuidesTab(), ...HELP_TOPICS.filter((t) => TROUBLESHOOTING_HELP_TOPIC_IDS.has(t.id))];
+      : [...helpTopicsForGuidesTab(), ...visibleTopics.filter((t) => TROUBLESHOOTING_HELP_TOPIC_IDS.has(t.id))];
   }
 
-  const scored = HELP_TOPICS.map((topic) => {
+  const scored = visibleTopics.map((topic) => {
     let score = 0;
 
     for (const route of topic.routes) {
@@ -324,7 +337,7 @@ export function filterHelpTopics(query: string, pathname: string): HelpTopic[] {
     return matched.map((x) => x.topic);
   }
 
-  return HELP_TOPICS.filter(
+  return visibleTopics.filter(
     (topic) =>
       topic.title.toLowerCase().includes(q) ||
       topic.summary.toLowerCase().includes(q) ||

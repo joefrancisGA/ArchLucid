@@ -121,10 +121,7 @@ export const PATH_CHOOSER_HELP_BRANCHES: readonly PathChooserHelpBranch[] = [
     id: "engineering",
     goal: "I need engineering or CLI support",
     primary: { label: "CLI usage", href: inAppHelpHref("cli-usage") },
-    fallback: {
-      label: "Configuration reference",
-      href: inAppHelpHref("configuration-reference"),
-    },
+    fallback: { label: "Customer Troubleshooting", href: inAppHelpHref("troubleshooting") },
   },
 ] as const;
 

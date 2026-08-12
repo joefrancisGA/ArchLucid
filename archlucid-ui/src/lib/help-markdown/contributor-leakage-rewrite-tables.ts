@@ -74,8 +74,8 @@ export const DPA_TEMPLATE_LEAKAGE_REWRITES = [
 ] as const satisfies ReadonlyArray<LeakageRewriteRule>;
 
 export const DEVELOPER_TROUBLESHOOTING_LEAKAGE_REWRITES = [
-  { pattern: /\[([^\]]*)\]\(\.\.\/library\/CONFIGURATION_REFERENCE\.md\)/gi, replacement: "[Configuration reference](/help/configuration-reference)" },
-  { pattern: /\[([^\]]*)\]\(CONFIGURATION_REFERENCE\.md\)/gi, replacement: "[Configuration reference](/help/configuration-reference)" },
+  { pattern: /\[([^\]]*)\]\(\.\.\/library\/CONFIGURATION_REFERENCE\.md\)/gi, replacement: "[System health](/administration/system-health)" },
+  { pattern: /\[([^\]]*)\]\(CONFIGURATION_REFERENCE\.md\)/gi, replacement: "[System health](/administration/system-health)" },
   { pattern: /\[([^\]]*)\]\(\.\.\/library\/CLI_USAGE\.md\)/gi, replacement: "[CLI usage](/help/cli-usage)" },
   { pattern: /\[([^\]]*)\]\(CLI_USAGE\.md\)/gi, replacement: "[CLI usage](/help/cli-usage)" },
   { pattern: /\[([^\]]*)\]\([^)]*contributor-reference\/[^)]+\)/gi, replacement: "$1" },

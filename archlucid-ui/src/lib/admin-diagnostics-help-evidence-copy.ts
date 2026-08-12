@@ -49,7 +49,6 @@ export const ADMIN_DIAGNOSTICS_HELP_RELATED_TOPICS: readonly EvidenceAdminSource
     href: inAppHelpHref("engineering-troubleshooting"),
     adminOnly: true,
   },
-  { label: "Configuration reference", href: inAppHelpHref("configuration-reference"), adminOnly: true },
   { label: "CLI usage", href: inAppHelpHref("cli-usage"), adminOnly: true },
 ] as const;
 

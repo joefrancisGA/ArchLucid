@@ -148,5 +148,7 @@ describe("IdentityProviderSetupChecklist", () => {
     expect(screen.getByText(/Invite email base URL/i)).toBeInTheDocument();
     expect(screen.getByText(/Invite session signing/i)).toBeInTheDocument();
     expect(screen.getAllByText(/Action needed/i).length).toBeGreaterThan(0);
+    expect(screen.queryByText(/Email:OperatorBaseUrl/)).not.toBeInTheDocument();
+    expect(screen.queryByText(/Auth:Trial:LocalIdentity/)).not.toBeInTheDocument();
   });
 });

@@ -147,6 +147,8 @@ export function getHelpCenterDisplay(entry: ProductDocumentationEntry): HelpCent
 export type HelpCenterTopicFilters = {
   showAdvanced: boolean;
   isAdmin: boolean;
+  /** ArchLucid internal operator shell — required to list host configuration catalogs. */
+  isInternalOperator?: boolean;
 };
 
 function isFeaturedSlug(slug: string): boolean {
@@ -184,6 +186,10 @@ export function listHelpCenterTopics(filters: HelpCenterTopicFilters): ProductDo
 
     if (!filters.showAdvanced) {
       return false;
+    }
+
+    if (entry.slug === "configuration-reference") {
+      return filters.isAdmin && filters.isInternalOperator === true;
     }
 
     if (tier === "internal") {

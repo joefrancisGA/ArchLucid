@@ -1,6 +1,6 @@
 import { describe, expect, it } from "vitest";
 
-import { getDocHref, getHelpTopicHref, HELP_TOPICS } from "@/lib/help/help-topics";
+import { getDocHref, getHelpTopicHref, helpTopicsForGuidesTab, HELP_TOPICS } from "@/lib/help/help-topics";
 
 describe("getDocHref", () => {
   it("maps known repo paths to in-app help routes", () => {
@@ -54,5 +54,11 @@ describe("HELP_TOPICS buyer governance links (TB-1387)", () => {
     expect(getHelpTopicHref(HELP_TOPICS.find((entry) => entry.id === "governance-workflow")!)).toBe(
       "/help/governance-approval",
     );
+  });
+});
+
+describe("helpTopicsForGuidesTab host configuration", () => {
+  it("omits Configuration summary from the Help drawer for tenant-admin shells", () => {
+    expect(helpTopicsForGuidesTab().some((topic) => topic.id === "admin-configuration")).toBe(false);
   });
 });

@@ -74,6 +74,12 @@ describe("usability lib", () => {
     expect(hits.some((h) => h.slug === "pilot-guide")).toBe(true);
   });
 
+  it("does not surface host configuration-reference in tenant-admin global search", () => {
+    const hits = searchHelpTopics("configuration");
+
+    expect(hits.some((h) => h.slug === "configuration-reference")).toBe(false);
+  });
+
   it("shouldAutoStartRegistrationTour detects registration source", () => {
     expect(shouldAutoStartRegistrationTour("?source=registration")).toBe(true);
     expect(shouldAutoStartRegistrationTour("")).toBe(false);

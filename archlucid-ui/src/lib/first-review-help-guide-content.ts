@@ -48,7 +48,6 @@ export const FIRST_REVIEW_HELP_SOURCES: readonly FirstReviewHelpSourceLink[] = [
   { label: "Connect Azure securely", href: inAppHelpHref("cloud-connections-azure") },
   { label: "Audit trail help", href: inAppHelpHref("audit-trail") },
   { label: "Troubleshooting", href: inAppHelpHref("troubleshooting") },
-  { label: "Configuration reference", href: inAppHelpHref("configuration-reference") },
   { label: "Open audit trail", href: GOVERNANCE_AUDIT_PATH },
 ] as const;
 

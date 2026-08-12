@@ -202,7 +202,7 @@ export function throwApiRequestError(
       showApiError("Not permitted — missing ArchLucid role", {
         type: "warning",
         detail:
-          "Your token is authenticated but lacks ArchLucidRoles (Admin, Operator, Reader, or Auditor). Map IdP claims via ArchLucidAuth:RoleClaimSources — see CONFIGURATION_REFERENCE.md.",
+          "Your token is authenticated but does not map to an ArchLucid workspace role (Admin, Operator, Reader, or Auditor). Ask a workspace administrator to map your identity-provider groups, then sign in again.",
         correlationId: err.correlationId,
       });
     });

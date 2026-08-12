@@ -55,8 +55,8 @@ describe("engineering-troubleshooting-help-guide-content", () => {
     expect(ENGINEERING_TROUBLESHOOTING_HELP_CLAIM_DISCIPLINE.toLowerCase()).not.toContain("cpa");
   });
 
-  it("names admin-diagnostics and configuration-reference in the Sources strip intro", () => {
+  it("names admin-diagnostics and system health in the Sources strip intro", () => {
     expect(ENGINEERING_TROUBLESHOOTING_HELP_SOURCES_STRIP_INTRO.toLowerCase()).toContain("admin diagnostics");
-    expect(ENGINEERING_TROUBLESHOOTING_HELP_SOURCES_STRIP_INTRO.toLowerCase()).toContain("configuration reference");
+    expect(ENGINEERING_TROUBLESHOOTING_HELP_SOURCES_STRIP_INTRO.toLowerCase()).toContain("system health");
   });
 });
