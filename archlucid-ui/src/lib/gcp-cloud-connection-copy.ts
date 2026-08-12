@@ -17,6 +17,9 @@ export const GCP_CONNECTION_COLLECTION_FAILED_ERROR =
 
 export const GCP_CONNECTION_DISCONNECT_FAILED_ERROR = "Could not disconnect the GCP connection.";
 
+export const GCP_CONNECTION_SAVE_FAILED_ERROR =
+  "Could not save the GCP connection. Verify the Workload Identity Federation binding and try again.";
+
 export const GCP_CONNECTION_VALIDATE_EMPTY_STATE =
   "Save a GCP connection in Connection details before validating access.";
 

@@ -1083,10 +1083,10 @@ All **P0** **V1**: visible-boundary button contract + design-system rule (**TB-2
 | TB-1761 | **Done** (2026-08-12) — `/integrations/cloud-connections/aws` Azure-parity guided connect wizard; see ## TB-1761 below | Adoption friction P1 ? **V1**; owner review ~44/100 2026-07-27; traffic **INC**; pairs **TB-1139**/**TB-1234** (do not reopen) | M |
 | TB-1764 | **Done** (2026-08-12) — AWS cloud detail ? empty/connected single primary CTA; see ## TB-1764 below | Adoption friction P1 ? **V1**; with **TB-1761**; pairs **TB-1141**/**TB-1539** | S |
 | TB-1769 | **Done** (2026-08-12) — Azure cloud detail ? hydrate saved connection + disconnect/re-validate CTA; see ## TB-1769 below | Adoption friction P1 ? **V1**; with **TB-1766** | M |
-| TB-1772 | GCP cloud detail ? Azure-parity guided connect wizard; see ## TB-1772 below | Adoption friction P1 ? **V1**; with **TB-1771**; pairs **TB-1761** | M |
+| TB-1772 | ~~GCP cloud detail ? Azure-parity guided connect wizard~~ **Done** 2026-08-12 ? `GcpConnectionWizard` + field validation; Vitest wizard step testids | Adoption friction P1 ? **V1**; with **TB-1771**; pairs **TB-1761** | M |
 | TB-1779 | ~~ITSM legacy traffic ? mark INT redirect-only + fold workbook notes~~ **Done** 2026-08-11 ? hub removed; IIX dropped; doc guard | Adoption friction P1 ? **V1**; with **TB-1776**; pairs **TB-1443** | S |
-| TB-1782 | Atlassian OAuth callback ? brand shell + loading honesty; see ## TB-1782 below | Adoption friction P1 ? **V1**; with **TB-1781**; after **TB-1776** | S |
-| TB-1783 | Atlassian OAuth callback ? success copy + primary Open Jira CTA; see ## TB-1783 below | Adoption friction P1 ? **V1**; with **TB-1781** | S |
+| TB-1782 | ~~Atlassian OAuth callback ? brand shell + loading honesty~~ **Done** 2026-08-12 ? `AuthFlowShell` + `ItsmAtlassianOAuthCallbackLoadingView`; Vitest shell + loading | Adoption friction P1 ? **V1**; with **TB-1781**; after **TB-1776** | S |
+| TB-1783 | ~~Atlassian OAuth callback ? success copy + primary Open Jira CTA~~ **Done** 2026-08-12 ? Jira-only success copy + primary Open Jira button; Vitest bans ITSM settings | Adoption friction P1 ? **V1**; with **TB-1781** | S |
 | TB-1788 | Recommendation-learning ops ? Load persisted vs Refresh toolbar honesty; see ## TB-1788 below | Adoption friction P1 ? **V1**; with **TB-1786** | S |
 | TB-1789 | Recommendation-learning ops ? enterprise chrome (header/StatusTag/EnterpriseTable); see ## TB-1789 below | Adoption friction P1 ? **V1**; with **TB-1786**; pairs **TB-116**/**TB-1646** | M |
 | TB-1794 | `/login` ? traffic redirect-only + canonicalize inbound links; see ## TB-1794 below | Adoption friction P1 ? **V1**; with **TB-1791**; pairs **TB-1443**/**TB-1779** | S |
@@ -43021,7 +43021,7 @@ Operators must read three intros before reaching the Trust Center link list.
 
 ## TB-1772 ? GCP cloud detail ? Azure-parity guided connect wizard (P0)
 
-**Window:** V1 ? Adoption friction. **Status:** Not started. **Priority:** P0.
+**Window:** V1 ? Adoption friction. **Status:** **Done** (2026-08-12) ? `GcpConnectionWizard` + `gcp-connection-field-validation.ts` / wizard content; empty `GcpConnectionSection` uses guided steps; Vitest wizard step testids. **Priority:** P0.
 
 **Problem:** Flat project/pool/SA form vs Azure guided wizard ? same gap as AWS **TB-1761**.
 
@@ -43147,7 +43147,7 @@ Operators must read three intros before reaching the Trust Center link list.
 
 ## TB-1782 ? Atlassian OAuth callback ? brand shell + loading honesty (P0)
 
-**Window:** V1 ? Adoption friction. **Status:** Not started. **Priority:** P0.
+**Window:** V1 ? Adoption friction. **Status:** **Done** (2026-08-12) ? `AuthFlowShell` + `ItsmAtlassianOAuthCallbackLoadingView` (StatusTag + skeleton); Suspense fallback aligned; Vitest shell testid + loading state. **Priority:** P0.
 
 **Problem:** Minimal `max-w` div + H2 ? no OperatorPageContainer / brand parity with other auth completion surfaces; loading is plain text only.
 
@@ -43159,7 +43159,7 @@ Operators must read three intros before reaching the Trust Center link list.
 
 ## TB-1783 ? Atlassian OAuth callback ? success copy + primary Open Jira CTA (P0)
 
-**Window:** V1 ? Adoption friction. **Status:** Not started. **Priority:** P0.
+**Window:** V1 ? Adoption friction. **Status:** **Done** (2026-08-12) ? `itsm-atlassian-oauth-callback-page-copy.ts`; primary Open Jira `Button`; Vitest bans ?ITSM settings? on success. **Priority:** P0.
 
 **Problem:** Success message references ?ITSM settings? while link goes to Jira path ? dual vocabulary after Done OAuth.
 

@@ -1,12 +1,15 @@
 "use client";
 
-import { cn } from "@/lib/utils";
 import Link from "next/link";
 import { useSearchParams } from "next/navigation";
 import { useEffect, useState } from "react";
 
-import { PageContextualHelpButton } from "@/components/usability/PageContextualHelpButton";
+import { ItsmAtlassianOAuthCallbackLoadingView } from "@/app/(operator)/integrations/itsm/oauth/callback/ItsmAtlassianOAuthCallbackLoadingView";
+import { AuthFlowShell } from "@/components/auth/AuthFlowShell";
+import { Button } from "@/components/ui/button";
+import { StatusTag } from "@/components/ui/status-tag";
 import { completeItsmAtlassianOAuthConsent } from "@/lib/api/itsm-outbound-api";
+import { cn } from "@/lib/utils";
 import { OPERATOR_TYPOGRAPHY } from "@/lib/design-tokens";
 import { INTEGRATIONS_JIRA_PATH } from "@/lib/integrations-nav-paths";
 import {
@@ -16,11 +19,17 @@ import {
   mapItsmAtlassianOAuthCallbackFailure,
   mapItsmAtlassianOAuthIdpError,
 } from "@/lib/itsm/itsm-atlassian-oauth-callback-error-copy";
+import {
+  ITSM_ATLASSIAN_OAUTH_CALLBACK_LOADING_DETAIL,
+  ITSM_ATLASSIAN_OAUTH_CALLBACK_OPEN_JIRA_LABEL,
+  ITSM_ATLASSIAN_OAUTH_CALLBACK_PAGE_TITLE,
+  ITSM_ATLASSIAN_OAUTH_CALLBACK_SUCCESS_MESSAGE,
+} from "@/lib/itsm/itsm-atlassian-oauth-callback-page-copy";
 import { ARCHLUCID_SUPPORT_EMAIL } from "@/lib/support-workspace-present";
 
 export function ItsmAtlassianOAuthCallbackClient(): React.ReactElement {
   const searchParams = useSearchParams();
-  const [message, setMessage] = useState("Completing Atlassian consent…");
+  const [message, setMessage] = useState(ITSM_ATLASSIAN_OAUTH_CALLBACK_LOADING_DETAIL);
   const [failed, setFailed] = useState(false);
   const [done, setDone] = useState(false);
 
@@ -33,8 +42,9 @@ export function ItsmAtlassianOAuthCallbackClient(): React.ReactElement {
     const state = searchParams.get("state");
 
     const fail = (text: string) => {
-      if (cancelled)
+      if (cancelled) {
         return;
+      }
 
       setFailed(true);
       setMessage(text);
@@ -60,8 +70,9 @@ export function ItsmAtlassianOAuthCallbackClient(): React.ReactElement {
       try {
         const result = await completeItsmAtlassianOAuthConsent({ code, state });
 
-        if (cancelled)
+        if (cancelled) {
           return;
+        }
 
         if (!result.refreshTokenStored) {
           fail(ITSM_ATLASSIAN_OAUTH_CALLBACK_REFRESH_TOKEN_STORE_FAILED);
@@ -70,10 +81,11 @@ export function ItsmAtlassianOAuthCallbackClient(): React.ReactElement {
         }
 
         setDone(true);
-        setMessage("Jira is connected with OAuth. You can run a connector health probe from ITSM settings.");
+        setMessage(ITSM_ATLASSIAN_OAUTH_CALLBACK_SUCCESS_MESSAGE);
       } catch (error: unknown) {
-        if (!cancelled)
+        if (!cancelled) {
           fail(mapItsmAtlassianOAuthCallbackFailure(error));
+        }
       }
     })();
 
@@ -82,42 +94,58 @@ export function ItsmAtlassianOAuthCallbackClient(): React.ReactElement {
     };
   }, [searchParams]);
 
+  if (!failed && !done) {
+    return (
+      <AuthFlowShell showEvaluationSignupLink={false}>
+        <ItsmAtlassianOAuthCallbackLoadingView />
+      </AuthFlowShell>
+    );
+  }
+
   return (
-    <div className="max-w-[640px] space-y-4" data-testid="itsm-oauth-callback-page">
-      <div className="flex flex-wrap items-start justify-between gap-3">
-        <h2 className={cn("mt-0", OPERATOR_TYPOGRAPHY.pageTitle)}>Atlassian connector consent</h2>
-        <PageContextualHelpButton />
-      </div>
-      <p
-        role={failed ? "alert" : "status"}
-        aria-live="polite"
-        className={cn(
-          "m-0",
-          failed ? "text-red-600 dark:text-red-400" : "text-al-text-secondary",
-          OPERATOR_TYPOGRAPHY.body,
+    <AuthFlowShell showEvaluationSignupLink={false}>
+      <div className="max-w-[560px] space-y-4" data-testid="itsm-oauth-callback-page">
+        <h1 className={cn("mt-0", OPERATOR_TYPOGRAPHY.pageTitle)}>{ITSM_ATLASSIAN_OAUTH_CALLBACK_PAGE_TITLE}</h1>
+
+        {done ? (
+          <StatusTag kind="ready" label="Connected" data-testid="itsm-oauth-callback-success-status" />
+        ) : (
+          <StatusTag kind="blocked" label="Consent failed" data-testid="itsm-oauth-callback-failure-status" />
         )}
-        data-testid="itsm-oauth-callback-message"
-      >
-        {message}
-      </p>
-      {done ? (
-        <Link href={INTEGRATIONS_JIRA_PATH} className="text-sm font-medium text-al-accent-primary hover:underline">
-          Return to Jira integration settings
-        </Link>
-      ) : null}
-      {failed ? (
-        <div className="flex flex-wrap items-center gap-3" data-testid="itsm-oauth-callback-failure-actions">
-          <Link href={INTEGRATIONS_JIRA_PATH} className="text-sm font-medium text-al-accent-primary hover:underline">
-            {ITSM_ATLASSIAN_OAUTH_CALLBACK_RETRY_LABEL}
-          </Link>
-          <Link
-            href={`mailto:${ARCHLUCID_SUPPORT_EMAIL}`}
-            className="text-sm font-medium text-al-accent-primary hover:underline"
-          >
-            Contact support
-          </Link>
-        </div>
-      ) : null}
-    </div>
+
+        <p
+          role={failed ? "alert" : "status"}
+          aria-live="polite"
+          className={cn(
+            "m-0",
+            failed ? "text-red-600 dark:text-red-400" : "text-al-text-secondary",
+            OPERATOR_TYPOGRAPHY.body,
+          )}
+          data-testid="itsm-oauth-callback-message"
+        >
+          {message}
+        </p>
+
+        {done ? (
+          <Button asChild variant="primary" data-testid="itsm-oauth-callback-open-jira">
+            <Link href={INTEGRATIONS_JIRA_PATH}>{ITSM_ATLASSIAN_OAUTH_CALLBACK_OPEN_JIRA_LABEL}</Link>
+          </Button>
+        ) : null}
+
+        {failed ? (
+          <div className="flex flex-wrap items-center gap-3" data-testid="itsm-oauth-callback-failure-actions">
+            <Link href={INTEGRATIONS_JIRA_PATH} className="text-sm font-medium text-al-accent-primary hover:underline">
+              {ITSM_ATLASSIAN_OAUTH_CALLBACK_RETRY_LABEL}
+            </Link>
+            <Link
+              href={`mailto:${ARCHLUCID_SUPPORT_EMAIL}`}
+              className="text-sm font-medium text-al-accent-primary hover:underline"
+            >
+              Contact support
+            </Link>
+          </div>
+        ) : null}
+      </div>
+    </AuthFlowShell>
   );
 }

@@ -5,9 +5,7 @@ import { useCallback, useState } from "react";
 
 import { Button } from "@/components/ui/button";
 import { Card, CardContent, CardHeader, CardTitle } from "@/components/ui/card";
-import { Input } from "@/components/ui/input";
-import { Label } from "@/components/ui/label";
-import { configureGcpTier2Connection, disconnectGcpTier2Connection } from "@/lib/api/gcp-cloud-connections-api";
+import { disconnectGcpTier2Connection } from "@/lib/api/gcp-cloud-connections-api";
 import { OPERATOR_TYPOGRAPHY } from "@/lib/design-tokens";
 import { enterpriseMutationControlDisabledTitle } from "@/lib/enterprise-controls-context-copy";
 import { GCP_CONNECTION_DISCONNECT_FAILED_ERROR } from "@/lib/gcp-cloud-connection-copy";
@@ -18,6 +16,7 @@ import {
   type GcpConnectionDisconnectTarget,
 } from "./GcpConnectionDisconnectDialog";
 import { useGcpConnectionData } from "./GcpConnectionDataContext";
+import { GcpConnectionWizard } from "./GcpConnectionWizard";
 
 export function GcpConnectionSection(props: { readonly embedded?: boolean }) {
   const embedded = props.embedded === true;
@@ -34,71 +33,10 @@ export function GcpConnectionSection(props: { readonly embedded?: boolean }) {
     setActionMessage,
     triggerRePoll,
   } = useGcpConnectionData();
-  const [projectId, setProjectId] = useState("");
-  const [workloadIdentityPoolProvider, setWorkloadIdentityPoolProvider] = useState("");
-  const [serviceAccountEmail, setServiceAccountEmail] = useState("");
-  const [isSaving, setIsSaving] = useState(false);
   const [isDisconnecting, setIsDisconnecting] = useState(false);
   const [disconnectTarget, setDisconnectTarget] = useState<GcpConnectionDisconnectTarget | null>(null);
 
-  const handleConnect = useCallback(async () => {
-    if (!canMutate) {
-      return;
-    }
-
-    setFormError(null);
-    setActionMessage(null);
-
-    const trimmedProjectId = projectId.trim();
-    const trimmedProvider = workloadIdentityPoolProvider.trim();
-    const trimmedServiceAccount = serviceAccountEmail.trim();
-
-    if (trimmedProjectId.length === 0) {
-      setFormError("GCP project ID is required.");
-
-      return;
-    }
-
-    if (!trimmedProvider.includes("workloadIdentityPools")) {
-      setFormError("Workload Identity Pool provider must reference a workload identity pool provider resource.");
-
-      return;
-    }
-
-    if (!trimmedServiceAccount.endsWith(".iam.gserviceaccount.com")) {
-      setFormError("Service account email must end with .iam.gserviceaccount.com.");
-
-      return;
-    }
-
-    setIsSaving(true);
-
-    try {
-      await configureGcpTier2Connection({
-        projectId: trimmedProjectId,
-        workloadIdentityPoolProvider: trimmedProvider,
-        serviceAccountEmail: trimmedServiceAccount,
-      });
-      await refreshConnections();
-      setActionMessage("GCP connection saved.");
-      setProjectId("");
-      setWorkloadIdentityPoolProvider("");
-      setServiceAccountEmail("");
-    } catch (err) {
-      console.error(err);
-      setFormError("Could not save the GCP connection. Verify the Workload Identity Federation binding and try again.");
-    } finally {
-      setIsSaving(false);
-    }
-  }, [
-    canMutate,
-    projectId,
-    workloadIdentityPoolProvider,
-    serviceAccountEmail,
-    refreshConnections,
-    setActionMessage,
-    setFormError,
-  ]);
+  const hasConnection = !isLoading && connections.length > 0;
 
   const handleDisconnect = useCallback(
     async (connectionId: string) => {
@@ -130,53 +68,6 @@ export function GcpConnectionSection(props: { readonly embedded?: boolean }) {
 
   const body = (
     <>
-      <div className="grid gap-4">
-        <div className="space-y-2">
-          <Label htmlFor="gcpProjectId">GCP project ID</Label>
-          <Input
-            id="gcpProjectId"
-            data-testid="gcp-project-id"
-            value={projectId}
-            onChange={(event) => setProjectId(event.target.value)}
-            placeholder="my-gcp-project"
-            autoComplete="off"
-          />
-        </div>
-        <div className="space-y-2">
-          <Label htmlFor="gcpPoolProvider">Workload Identity Pool provider</Label>
-          <Input
-            id="gcpPoolProvider"
-            data-testid="gcp-pool-provider"
-            value={workloadIdentityPoolProvider}
-            onChange={(event) => setWorkloadIdentityPoolProvider(event.target.value)}
-            placeholder="projects/123/locations/global/workloadIdentityPools/pool/providers/azure-ad"
-            autoComplete="off"
-          />
-        </div>
-        <div className="space-y-2">
-          <Label htmlFor="gcpServiceAccountEmail">Read-only service account email</Label>
-          <Input
-            id="gcpServiceAccountEmail"
-            data-testid="gcp-service-account-email"
-            value={serviceAccountEmail}
-            onChange={(event) => setServiceAccountEmail(event.target.value)}
-            placeholder="archlucid-readonly@my-gcp-project.iam.gserviceaccount.com"
-            autoComplete="off"
-          />
-        </div>
-      </div>
-
-      <Button
-        type="button"
-        data-testid="gcp-connect-submit"
-        variant="primary"
-        disabled={isSaving || !canMutate}
-        title={canMutate ? undefined : enterpriseMutationControlDisabledTitle}
-        onClick={() => void handleConnect()}
-      >
-        {isSaving ? "Saving…" : "Save GCP connection"}
-      </Button>
-
       {loadError !== null ? (
         <p className={cn(OPERATOR_TYPOGRAPHY.body, "text-red-600 dark:text-red-400")} role="alert">
           {loadError}
@@ -197,7 +88,9 @@ export function GcpConnectionSection(props: { readonly embedded?: boolean }) {
 
       {isLoading ? <p className={OPERATOR_TYPOGRAPHY.helper}>Loading GCP connections…</p> : null}
 
-      {!isLoading && connections.length > 0 ? (
+      {!isLoading && !hasConnection ? <GcpConnectionWizard /> : null}
+
+      {hasConnection ? (
         <div className="space-y-4" data-testid="gcp-connection-list">
           {connections.map((connection) => (
             <div key={connection.connectionId} className="rounded-md border p-4 space-y-3">
@@ -269,7 +162,7 @@ export function GcpConnectionSection(props: { readonly embedded?: boolean }) {
   );
 
   if (embedded) {
-    return <div data-testid="cloud-connections-available-gcp">{body}</div>;
+    return <div className="space-y-4" data-testid="cloud-connections-available-gcp">{body}</div>;
   }
 
   return (
@@ -281,7 +174,7 @@ export function GcpConnectionSection(props: { readonly embedded?: boolean }) {
           metadata only; no service-account JSON keys are stored.
         </p>
       </CardHeader>
-      <CardContent className="space-y-6">{body}</CardContent>
+      <CardContent className="space-y-4">{body}</CardContent>
     </Card>
   );
 }

@@ -1,5 +1,5 @@
 import { fireEvent, render, screen, waitFor, within } from "@testing-library/react";
-import { describe, expect, it, vi } from "vitest";
+import { beforeEach, describe, expect, it, vi } from "vitest";
 
 import { GcpConnectionDataProvider } from "./GcpConnectionDataContext";
 import { GcpConnectionSection } from "./GcpConnectionSection";
@@ -20,6 +20,33 @@ vi.mock("@/lib/api/gcp-cloud-connections-api", () => ({
 }));
 
 describe("GcpConnectionSection", () => {
+  beforeEach(() => {
+    listGcpTier2Connections.mockReset();
+    listGcpTier2Connections.mockResolvedValue([]);
+    configureGcpTier2Connection.mockReset();
+    configureGcpTier2Connection.mockResolvedValue(undefined);
+    disconnectGcpTier2Connection.mockReset();
+    disconnectGcpTier2Connection.mockResolvedValue(undefined);
+  });
+
+  it("TB-1772: empty state uses guided wizard steps instead of a flat form", async () => {
+    render(
+      <GcpConnectionDataProvider>
+        <GcpConnectionSection embedded />
+      </GcpConnectionDataProvider>,
+    );
+
+    await waitFor(() => {
+      expect(screen.getByTestId("gcp-connection-wizard")).toBeInTheDocument();
+    });
+
+    expect(screen.getByTestId("gcp-connection-wizard-step-wif")).toBeInTheDocument();
+    expect(screen.queryByTestId("gcp-connect-submit")).not.toBeInTheDocument();
+
+    fireEvent.click(screen.getByRole("button", { name: "Next" }));
+    expect(screen.getByTestId("gcp-connection-wizard-step-ids")).toBeInTheDocument();
+  });
+
   it("requires confirmation before disconnecting a saved connection", async () => {
     listGcpTier2Connections.mockResolvedValueOnce([
       {
