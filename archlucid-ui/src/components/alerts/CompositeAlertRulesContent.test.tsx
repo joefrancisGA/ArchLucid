@@ -1,3 +1,5 @@
+import { readFileSync } from "node:fs";
+import { join } from "node:path";
 import { render, screen, waitFor, within } from "@testing-library/react";
 import { beforeEach, describe, expect, it, vi } from "vitest";
 
@@ -105,6 +107,26 @@ describe("CompositeAlertRulesContent", () => {
 
     expect(screen.queryByText(/reserved for future use/i)).not.toBeInTheDocument();
     expect(screen.queryByLabelText(/reopen delta threshold/i)).not.toBeInTheDocument();
+  });
+
+  it("TB-1579: does not render a duplicate hub page-title h2 on the composite panel", async () => {
+    render(<CompositeAlertRulesContent />);
+
+    await waitFor(() => {
+      expect(screen.getByTestId("composite-alert-rule-row-composite-1")).toBeInTheDocument();
+    });
+
+    expect(screen.queryByRole("heading", { level: 2, name: "Advanced alert rules" })).not.toBeInTheDocument();
+  });
+
+  it("TB-1579: composite panel source avoids page-title h2 chrome", () => {
+    const source = readFileSync(
+      join(process.cwd(), "src", "components", "alerts", "CompositeAlertRulesContent.tsx"),
+      "utf8",
+    );
+
+    expect(source).not.toMatch(/<h2\b/);
+    expect(source).not.toContain("OPERATOR_TYPOGRAPHY.pageTitle");
   });
 
   it("TB-1583: shows a list loading skeleton while composite rules are loading", async () => {

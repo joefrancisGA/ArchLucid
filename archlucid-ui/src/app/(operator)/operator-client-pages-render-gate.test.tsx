@@ -230,9 +230,9 @@ describe("operator client pages — render gate", () => {
     expect(screen.getByRole("heading", { level: 2, name: "Tune alert thresholds" })).toBeInTheDocument();
   });
 
-  it("Composite alert rules content renders primary heading", () => {
+  it("Composite alert rules content does not duplicate hub page title as h2 (TB-1579)", () => {
     render(<CompositeAlertRulesContent />);
-    expect(screen.getByRole("heading", { level: 2, name: "Advanced alert rules" })).toBeInTheDocument();
+    expect(screen.queryByRole("heading", { level: 2, name: "Advanced alert rules" })).not.toBeInTheDocument();
   });
 
   it("Advisory hub Scans tab content renders primary heading", () => {
