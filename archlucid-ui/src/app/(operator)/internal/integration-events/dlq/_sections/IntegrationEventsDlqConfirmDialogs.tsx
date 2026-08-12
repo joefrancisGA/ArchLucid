@@ -1,29 +1,23 @@
 "use client";
 
-import {
-  AlertDialog,
-  AlertDialogAction,
-  AlertDialogCancel,
-  AlertDialogContent,
-  AlertDialogDescription,
-  AlertDialogFooter,
-  AlertDialogHeader,
-  AlertDialogTitle,
-} from "@/components/ui/alert-dialog";
-import { Button, buttonVariants } from "@/components/ui/button";
-import {
-  Dialog,
-  DialogContent,
-  DialogDescription,
-  DialogFooter,
-  DialogHeader,
-  DialogTitle,
-} from "@/components/ui/dialog";
+import { ConfirmationDialog } from "@/components/ConfirmationDialog";
 import { Input } from "@/components/ui/input";
 import { Label } from "@/components/ui/label";
 import { INTEGRATION_EVENTS_DLQ_BULK_RETRY_ACKNOWLEDGMENT } from "@/lib/integration-events-dlq-page-copy";
 import { OPERATOR_TYPOGRAPHY } from "@/lib/design-tokens";
-import { cn } from "@/lib/utils";
+
+function buildBulkRetryDescription(filteredRowCount: number): string {
+  const base =
+    "This queues up to 100 dead-letter rows across every tenant and event type — not your current workspace only. Fix the root cause before bulk retry.";
+
+  if (filteredRowCount <= 0) {
+    return base;
+  }
+
+  const rowWord = filteredRowCount === 1 ? "row" : "rows";
+
+  return `${base} The table currently shows ${filteredRowCount} matching ${rowWord} after filters.`;
+}
 
 type IntegrationEventsDlqBulkRetryConfirmDialogProps = {
   readonly open: boolean;
@@ -35,6 +29,7 @@ type IntegrationEventsDlqBulkRetryConfirmDialogProps = {
   readonly onConfirm: () => void;
 };
 
+/** Domain wrapper over {@link ConfirmationDialog} for DLQ bulk retry (TB-2370). */
 export function IntegrationEventsDlqBulkRetryConfirmDialog(
   props: IntegrationEventsDlqBulkRetryConfirmDialogProps,
 ): React.JSX.Element {
@@ -42,29 +37,21 @@ export function IntegrationEventsDlqBulkRetryConfirmDialog(
     props.acknowledgment.trim().toLowerCase() === INTEGRATION_EVENTS_DLQ_BULK_RETRY_ACKNOWLEDGMENT;
 
   return (
-    <Dialog
+    <ConfirmationDialog
       open={props.open}
       onOpenChange={(open) => {
-        if (!open) {
+        if (!open && !props.busy) {
           props.onCancel();
         }
       }}
-    >
-      <DialogContent data-testid="integration-events-dlq-bulk-retry-confirm-dialog">
-        <DialogHeader>
-          <DialogTitle className={OPERATOR_TYPOGRAPHY.sectionTitle}>Bulk retry failed messages?</DialogTitle>
-          <DialogDescription className={cn(OPERATOR_TYPOGRAPHY.body, "text-al-text-secondary")}>
-            This queues up to 100 dead-letter rows across every tenant and event type — not your current workspace
-            only. Fix the root cause before bulk retry.
-            {props.filteredRowCount > 0 ? (
-              <>
-                {" "}
-                The table currently shows {props.filteredRowCount} matching row
-                {props.filteredRowCount === 1 ? "" : "s"} after filters.
-              </>
-            ) : null}
-          </DialogDescription>
-        </DialogHeader>
+      title="Bulk retry failed messages?"
+      description={buildBulkRetryDescription(props.filteredRowCount)}
+      confirmLabel="Bulk retry (100)"
+      variant="destructive"
+      busy={props.busy}
+      confirmDisabled={!acknowledgmentMatches}
+      onConfirm={props.onConfirm}
+      extraContent={
         <div className="space-y-2">
           <Label htmlFor="integration-events-dlq-bulk-retry-acknowledgment" className={OPERATOR_TYPOGRAPHY.label}>
             Type <span className="font-mono">{INTEGRATION_EVENTS_DLQ_BULK_RETRY_ACKNOWLEDGMENT}</span> to confirm
@@ -80,22 +67,8 @@ export function IntegrationEventsDlqBulkRetryConfirmDialog(
             }}
           />
         </div>
-        <DialogFooter>
-          <Button type="button" variant="outline" disabled={props.busy} onClick={props.onCancel}>
-            Cancel
-          </Button>
-          <Button
-            type="button"
-            variant="destructive"
-            disabled={props.busy || !acknowledgmentMatches}
-            data-testid="integration-events-dlq-bulk-retry-confirm-button"
-            onClick={props.onConfirm}
-          >
-            {props.busy ? "Bulk retrying…" : "Bulk retry (100)"}
-          </Button>
-        </DialogFooter>
-      </DialogContent>
-    </Dialog>
+      }
+    />
   );
 }
 
@@ -106,40 +79,24 @@ type IntegrationEventsDlqSuppressConfirmDialogProps = {
   readonly onConfirm: () => void;
 };
 
+/** Domain wrapper over {@link ConfirmationDialog} for DLQ suppress (TB-2370). */
 export function IntegrationEventsDlqSuppressConfirmDialog(
   props: IntegrationEventsDlqSuppressConfirmDialogProps,
 ): React.JSX.Element {
   return (
-    <AlertDialog
+    <ConfirmationDialog
       open={props.open}
       onOpenChange={(open) => {
-        if (!open) {
+        if (!open && !props.busy) {
           props.onCancel();
         }
       }}
-    >
-      <AlertDialogContent data-testid="integration-events-dlq-suppress-confirm-dialog">
-        <AlertDialogHeader>
-          <AlertDialogTitle className={OPERATOR_TYPOGRAPHY.sectionTitle}>Suppress this message?</AlertDialogTitle>
-          <AlertDialogDescription className={cn(OPERATOR_TYPOGRAPHY.body, "text-al-text-secondary")}>
-            Suppress marks the row processed without republishing. Use when the event should not be retried.
-          </AlertDialogDescription>
-        </AlertDialogHeader>
-        <AlertDialogFooter>
-          <AlertDialogCancel disabled={props.busy}>Cancel</AlertDialogCancel>
-          <AlertDialogAction
-            disabled={props.busy}
-            data-testid="integration-events-dlq-suppress-confirm-button"
-            className={cn(buttonVariants({ variant: "destructive" }))}
-            onClick={(event) => {
-              event.preventDefault();
-              props.onConfirm();
-            }}
-          >
-            {props.busy ? "Suppressing…" : "Suppress"}
-          </AlertDialogAction>
-        </AlertDialogFooter>
-      </AlertDialogContent>
-    </AlertDialog>
+      title="Suppress this message?"
+      description="Suppress marks the row processed without republishing. Use when the event should not be retried."
+      confirmLabel="Suppress"
+      variant="destructive"
+      busy={props.busy}
+      onConfirm={props.onConfirm}
+    />
   );
 }

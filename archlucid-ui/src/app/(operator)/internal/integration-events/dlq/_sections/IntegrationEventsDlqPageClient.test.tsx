@@ -122,12 +122,16 @@ describe("IntegrationEventsDlqPageClient", () => {
 
     fireEvent.click(bulk);
 
-    const dialog = await screen.findByTestId("integration-events-dlq-bulk-retry-confirm-dialog");
-    const confirm = within(dialog).getByTestId("integration-events-dlq-bulk-retry-confirm-button");
+    const heading = await screen.findByRole("heading", { name: "Bulk retry failed messages?" });
+    const dialog = heading.closest('[role="alertdialog"]');
+
+    expect(dialog).not.toBeNull();
+
+    const confirm = within(dialog as HTMLElement).getByRole("button", { name: "Bulk retry (100)" });
 
     expect(confirm).toBeDisabled();
 
-    fireEvent.change(within(dialog).getByTestId("integration-events-dlq-bulk-retry-acknowledgment-input"), {
+    fireEvent.change(within(dialog as HTMLElement).getByTestId("integration-events-dlq-bulk-retry-acknowledgment-input"), {
       target: { value: INTEGRATION_EVENTS_DLQ_BULK_RETRY_ACKNOWLEDGMENT },
     });
 
@@ -151,5 +155,22 @@ describe("IntegrationEventsDlqPageClient", () => {
     ).toBeInTheDocument();
 
     vi.unstubAllGlobals();
+  });
+});
+
+describe("IntegrationEventsDlqConfirmDialogs (TB-2370)", () => {
+  it("renders suppress confirm through ConfirmationDialog", async () => {
+    const { IntegrationEventsDlqSuppressConfirmDialog } = await import("./IntegrationEventsDlqConfirmDialogs");
+    const onConfirm = vi.fn();
+
+    render(
+      <IntegrationEventsDlqSuppressConfirmDialog open busy={false} onCancel={vi.fn()} onConfirm={onConfirm} />,
+    );
+
+    expect(screen.getByRole("heading", { name: "Suppress this message?" })).toBeInTheDocument();
+
+    fireEvent.click(screen.getByRole("button", { name: "Suppress" }));
+
+    expect(onConfirm).toHaveBeenCalledTimes(1);
   });
 });
