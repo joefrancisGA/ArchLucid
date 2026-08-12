@@ -54,6 +54,7 @@ vi.mock("@/lib/use-nav-surface", () => ({
 }));
 
 vi.mock("@/components/usability/PageContextualHelpButton", () => ({
+  PAGE_HELP_SHORT_TRIGGER_TEXT: "Help",
   PageContextualHelpButton: () => <div data-testid="page-contextual-help-button" />,
 }));
 

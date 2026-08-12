@@ -137,20 +137,21 @@ describe("AlertRulesContent", () => {
     expect(screen.queryByTestId("alert-rules-create-action")).toBeNull();
   });
 
-  it("TB-1584: demotes Conditions tab lead to h3 under the hub page title", async () => {
+  it("TB-1584: uses h2 list heading under the hub page title without duplicating it", async () => {
+    apiHoisted.listAlertRules.mockResolvedValue([sampleRule]);
     render(<AlertRulesContent />);
 
     await waitFor(() => {
-      expect(screen.getByRole("heading", { level: 3, name: "Alert conditions" })).toBeInTheDocument();
+      expect(screen.getByRole("heading", { level: 2, name: "Configured alert rules" })).toBeInTheDocument();
     });
 
-    expect(screen.queryByRole("heading", { level: 2, name: "Alert conditions" })).not.toBeInTheDocument();
+    expect(screen.queryByRole("heading", { level: 2, name: "Alert rules" })).not.toBeInTheDocument();
   });
 
   it("TB-1584: Conditions tab source avoids page-title h2 chrome", () => {
     const source = readFileSync(join(process.cwd(), "src", "components", "alerts", "AlertRulesContent.tsx"), "utf8");
 
-    expect(source).not.toMatch(/<h2\b/);
+    expect(source).toMatch(/<h2\b/);
     expect(source).not.toContain("OPERATOR_TYPOGRAPHY.pageTitle");
   });
 
@@ -169,7 +170,7 @@ describe("AlertRulesContent", () => {
     expect(screen.getByText(ALERT_RULES_RULE_TYPE_HELP)).toBeInTheDocument();
   });
 
-  it("TB-1586: empty intro keeps one primary header Create (TB-1539)", async () => {
+  it("TB-1586: empty intro keeps one primary Create in the empty region", async () => {
     render(<AlertRulesContent />);
 
     await waitFor(() => {
@@ -182,6 +183,7 @@ describe("AlertRulesContent", () => {
 
     expect(primaryButtons).toHaveLength(1);
     expect(primaryButtons[0]).toHaveAttribute("data-testid", "alert-rules-create-action");
+    expect(screen.getByTestId("alert-rules-empty")).toContainElement(primaryButtons[0]);
   });
 
   it("TB-1586: revealed form promotes one primary submit Create", async () => {
@@ -348,10 +350,8 @@ describe("AlertRulesContent", () => {
     expect(createButton).toHaveAttribute("aria-describedby", "alert-rules-mutate-disabled-hint");
   });
 
-  it("names the target workspace beside the create control", async () => {
+  it("names the target workspace beside mutating controls in all states", async () => {
     render(<AlertRulesContent />);
-
-    await revealCreateForm();
 
     await waitFor(() => {
       expect(screen.getByTestId("mutating-in-workspace-chip")).toBeInTheDocument();
@@ -360,8 +360,21 @@ describe("AlertRulesContent", () => {
     expect(screen.getByTestId("mutating-in-workspace-chip")).toHaveTextContent(
       "Applies to workspace: Claims Intake",
     );
+
+    await revealCreateForm();
+
+    expect(screen.getByTestId("mutating-in-workspace-chip")).toHaveTextContent(
+      "Applies to workspace: Claims Intake",
+    );
   });
 
+  it("focuses the rule name field when Create is activated from the empty state", async () => {
+    render(<AlertRulesContent />);
+
+    await revealCreateForm();
+
+    expect(screen.getByLabelText(ALERT_RULES_NAME_LABEL)).toHaveFocus();
+  });
 
   it("marks the rule preview as an unsaved draft so it cannot read as a configured rule", async () => {
     render(<AlertRulesContent />);
@@ -410,7 +423,7 @@ describe("AlertRulesContent", () => {
     });
 
     expect(screen.getByText(/raises a High alert when critical and high-severity finding count reaches at least 2/i)).toBeInTheDocument();
-    expect(screen.getByRole("table", { name: "Alert conditions" })).toBeInTheDocument();
+    expect(screen.getByRole("table", { name: "Alert rules" })).toBeInTheDocument();
     expect(screen.queryByText("Last triggered")).toBeNull();
     expect(screen.queryByText("Not triggered yet")).toBeNull();
   });
@@ -421,7 +434,7 @@ describe("AlertRulesContent", () => {
     render(<AlertRulesContent />);
 
     await waitFor(() => {
-      expect(screen.getByRole("table", { name: "Alert conditions" })).toBeInTheDocument();
+      expect(screen.getByRole("table", { name: "Alert rules" })).toBeInTheDocument();
     });
 
     expect(screen.getByRole("columnheader", { name: "Status" })).toBeInTheDocument();

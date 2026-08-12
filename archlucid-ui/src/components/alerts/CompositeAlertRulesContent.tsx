@@ -1,7 +1,7 @@
 "use client";
 
 import { cn } from "@/lib/utils";
-import { useCallback, useEffect, useState } from "react";
+import { useCallback, useEffect, useRef, useState } from "react";
 import { EnterpriseCompactEmptyState } from "@/components/EnterpriseCompactEmptyState";
 import { AlertOperatorToolingRankCue } from "@/components/EnterpriseControlsContextHints";
 import { OperatorApiProblem } from "@/components/operator/OperatorApiProblem";
@@ -69,6 +69,8 @@ function CompositeAlertRulesListLoadingSkeleton(): React.JSX.Element {
 export function CompositeAlertRulesContent() {
   const canMutateComposite = useOperateCapability();
   const refreshContext = useOptionalAlertRulesHubRefresh();
+  const reportTabLoadedRef = useRef(refreshContext?.reportTabLoaded);
+  reportTabLoadedRef.current = refreshContext?.reportTabLoaded;
   const [items, setItems] = useState<CompositeAlertRule[]>([]);
   const [loading, setLoading] = useState(false);
   const [failure, setFailure] = useState<ApiLoadFailureState | null>(null);
@@ -95,6 +97,7 @@ export function CompositeAlertRulesContent() {
     try {
       const data = await listCompositeAlertRules();
       setItems(data);
+      reportTabLoadedRef.current?.("advanced-rules", data.length);
     } catch (e) {
       setFailure(toApiLoadFailure(e));
     } finally {

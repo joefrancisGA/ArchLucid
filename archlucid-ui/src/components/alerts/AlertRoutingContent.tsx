@@ -145,7 +145,7 @@ export function AlertRoutingContent() {
     try {
       const data = await listAlertRoutingSubscriptions();
       setItems(data);
-      reportTabLoadedRef.current?.("notifications");
+      reportTabLoadedRef.current?.("notifications", data.length);
     } catch (e) {
       setFailure(toApiLoadFailure(e));
     } finally {

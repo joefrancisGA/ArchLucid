@@ -8,14 +8,15 @@ import {
 import { OPERATOR_NOT_REFRESHED_LABEL } from "@/lib/operator/operator-last-refreshed-label";
 
 function Probe(): React.JSX.Element {
-  const { lastRefreshedAt, reportTabLoaded, registerTabLoader } = useAlertRulesHubRefresh();
+  const { lastRefreshedAt, reportTabLoaded, registerTabLoader, tabCounts } = useAlertRulesHubRefresh();
 
   return (
     <div>
       <span data-testid="freshness">
         {lastRefreshedAt === null ? OPERATOR_NOT_REFRESHED_LABEL : "refreshed"}
       </span>
-      <button type="button" onClick={() => reportTabLoaded("notifications")}>
+      <span data-testid="tab-count">{tabCounts.notifications ?? "unset"}</span>
+      <button type="button" onClick={() => reportTabLoaded("notifications", 3)}>
         report
       </button>
       <button
@@ -33,7 +34,7 @@ function Probe(): React.JSX.Element {
 }
 
 describe("alerts-hub-refresh-context", () => {
-  it("stamps freshness when the active tab reports a successful load", () => {
+  it("stamps freshness and tab counts when the active tab reports a successful load", () => {
     render(
       <AlertRulesHubRefreshProvider activeTab="notifications">
         <Probe />
@@ -47,9 +48,10 @@ describe("alerts-hub-refresh-context", () => {
     });
 
     expect(screen.getByTestId("freshness")).toHaveTextContent("refreshed");
+    expect(screen.getByTestId("tab-count")).toHaveTextContent("3");
   });
 
-  it("ignores freshness reports from inactive tabs", () => {
+  it("stores tab counts from inactive tabs without stamping freshness", () => {
     render(
       <AlertRulesHubRefreshProvider activeTab="rules">
         <Probe />
@@ -61,6 +63,7 @@ describe("alerts-hub-refresh-context", () => {
     });
 
     expect(screen.getByTestId("freshness")).toHaveTextContent(OPERATOR_NOT_REFRESHED_LABEL);
+    expect(screen.getByTestId("tab-count")).toHaveTextContent("3");
   });
 
   it("clears freshness when the active hub tab changes", () => {

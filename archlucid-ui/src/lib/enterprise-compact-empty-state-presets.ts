@@ -248,6 +248,10 @@ export const ALERT_RULES_LIST_EMPTY_COMPACT: EnterpriseCompactEmptyStateProps = 
   {
     testId: "alert-rules-empty",
     description: ALERT_RULES_LIST_EMPTY_BODY,
+    actions: [
+      { label: "Open policy packs", href: "/governance/policy-packs", variant: "outline" },
+      { label: "Open Standards & rules", href: "/governance/standards-and-rules", variant: "outline" },
+    ],
   },
 );
 

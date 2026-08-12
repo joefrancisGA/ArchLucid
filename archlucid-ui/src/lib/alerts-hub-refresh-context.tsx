@@ -18,8 +18,9 @@ type TabLoader = () => Promise<void>;
 type AlertRulesHubRefreshContextValue = {
   readonly refreshing: boolean;
   readonly lastRefreshedAt: Date | null;
+  readonly tabCounts: Partial<Record<AlertRulesHubTabId, number>>;
   readonly requestRefresh: () => void;
-  readonly reportTabLoaded: (tabId: AlertRulesHubTabId) => void;
+  readonly reportTabLoaded: (tabId: AlertRulesHubTabId, itemCount?: number) => void;
   readonly registerTabLoader: (tabId: AlertRulesHubTabId, loader: TabLoader) => () => void;
 };
 
@@ -35,6 +36,7 @@ export function AlertRulesHubRefreshProvider(props: AlertRulesHubRefreshProvider
   const loadersRef = useRef<Partial<Record<AlertRulesHubTabId, TabLoader>>>({});
   const [refreshing, setRefreshing] = useState(false);
   const [lastRefreshedAt, setLastRefreshedAt] = useState<Date | null>(null);
+  const [tabCounts, setTabCounts] = useState<Partial<Record<AlertRulesHubTabId, number>>>({});
 
   // Freshness is per active tab — clear when the operator switches so the header does not
   // show another tab's stamp.
@@ -53,7 +55,11 @@ export function AlertRulesHubRefreshProvider(props: AlertRulesHubRefreshProvider
   }, []);
 
   const reportTabLoaded = useCallback(
-    (tabId: AlertRulesHubTabId) => {
+    (tabId: AlertRulesHubTabId, itemCount?: number) => {
+      if (itemCount !== undefined) {
+        setTabCounts((current) => ({ ...current, [tabId]: itemCount }));
+      }
+
       if (tabId !== props.activeTab) {
         return;
       }
@@ -85,11 +91,12 @@ export function AlertRulesHubRefreshProvider(props: AlertRulesHubRefreshProvider
     () => ({
       refreshing,
       lastRefreshedAt,
+      tabCounts,
       requestRefresh,
       reportTabLoaded,
       registerTabLoader,
     }),
-    [lastRefreshedAt, refreshing, registerTabLoader, reportTabLoaded, requestRefresh],
+    [lastRefreshedAt, refreshing, registerTabLoader, reportTabLoaded, requestRefresh, tabCounts],
   );
 
   return (

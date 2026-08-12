@@ -8,13 +8,21 @@ export const ALERT_RULES_CONDITIONS_PAGE_LEAD =
 export const ALERT_RULES_RULE_TYPE_HELP =
   "Evaluates findings from completed reviews. Saving a condition does not configure external notification delivery.";
 
-/** Distinct from the page title so the list is not a second "Alert rules" heading under it. */
-export const ALERT_RULES_LIST_HEADING = "Configured rules";
+/** Canonical rules-tab label — keep aligned with {@link ALERT_RULES_SECTION_HEADING} and empty titles. */
+export const ALERT_RULES_TAB_LABEL = "Alert rules";
+
+/** Section heading when persisted alert rules exist (distinct from the hub page title row). */
+export const ALERT_RULES_SECTION_HEADING = ALERT_RULES_TAB_LABEL;
+
+export const ALERT_RULES_LIST_HEADING = "Configured alert rules";
 
 export const ALERT_RULES_LIST_EMPTY_TITLE = "No alert rules yet";
 
 export const ALERT_RULES_LIST_EMPTY_BODY =
-  "Create a rule below to raise alerts when review findings cross your thresholds.";
+  "Create an alert rule to raise notifications when review findings cross your thresholds.";
+
+/** Header posture on the rules tab before any alert rules exist in the workspace. */
+export const ALERT_RULES_POSTURE_NOT_CONFIGURED_LABEL = "No conditions configured";
 
 export const ALERT_RULES_CREATE_HEADING = "Create alert rule";
 

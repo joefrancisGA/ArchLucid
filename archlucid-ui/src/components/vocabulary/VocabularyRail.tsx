@@ -73,7 +73,7 @@ export function VocabularyRail(props: VocabularyRailProps): JSX.Element {
             {index > 0 ? " · " : null}
             <Link
               href={link.href}
-              className={cn(OPERATOR_LINK.inline, "font-medium")}
+              className={cn(OPERATOR_LINK.nav, "font-medium")}
               data-testid={`${props.testIdPrefix}-${link.testIdSuffix}`}
               onClick={link.onClick}
             >

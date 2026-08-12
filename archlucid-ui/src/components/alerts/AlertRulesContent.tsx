@@ -88,7 +88,7 @@ function AlertRulesListLoadingSkeleton(): React.JSX.Element {
       className="grid gap-3"
       data-testid="alert-rules-list-loading-skeleton"
       aria-busy="true"
-      aria-label="Loading alert conditions"
+      aria-label="Loading alert rules"
     >
       <Skeleton className="h-10 w-full rounded-lg border border-neutral-200 dark:border-neutral-700" />
       <Skeleton className="h-10 w-full rounded-lg border border-neutral-200 dark:border-neutral-700" />
@@ -100,11 +100,14 @@ function AlertRulesListLoadingSkeleton(): React.JSX.Element {
 export function AlertRulesContent() {
   const canMutateAlertRules = useOperateCapability();
   const refreshContext = useOptionalAlertRulesHubRefresh();
+  const registerTabLoader = refreshContext?.registerTabLoader;
+  const reportTabLoaded = refreshContext?.reportTabLoaded;
   const sampleModeBlocked: boolean =
     isBuyerPolishedOperatorShellEnv() && !isOperatorExperienceFullShellEnv();
   const canEdit: boolean = canMutateAlertRules && !sampleModeBlocked;
   const statusRegionId = useId();
   const createInFlightRef = useRef(false);
+  const nameInputRef = useRef<HTMLInputElement>(null);
 
   const [items, setItems] = useState<AlertRule[]>([]);
   const [routingSubscriptions, setRoutingSubscriptions] = useState<AlertRoutingSubscription[]>([]);
@@ -172,12 +175,32 @@ export function AlertRulesContent() {
   }, [load]);
 
   useEffect(() => {
-    if (refreshContext === null) {
+    if (registerTabLoader === undefined) {
       return;
     }
 
-    return refreshContext.registerTabLoader("rules", load);
-  }, [load, refreshContext]);
+    return registerTabLoader("rules", load);
+  }, [load, registerTabLoader]);
+
+  useEffect(() => {
+    if (reportTabLoaded === undefined || loading || failure !== null) {
+      return;
+    }
+
+    reportTabLoaded("rules", items.length);
+  }, [failure, items.length, loading, reportTabLoaded]);
+
+  const revealCreatePanel = useCallback(() => {
+    setShowCreatePanel(true);
+  }, []);
+
+  useEffect(() => {
+    if (!showCreatePanel || !canEdit) {
+      return;
+    }
+
+    nameInputRef.current?.focus();
+  }, [canEdit, showCreatePanel]);
 
   async function onCreate() {
     if (!canEdit || createInFlightRef.current) {
@@ -237,24 +260,22 @@ export function AlertRulesContent() {
   const showCreateForm = !canEdit || showCreatePanel || !isEmpty;
   const emptyIntroMode = isEmpty && canEdit && !showCreatePanel && !listInitialLoading;
   const sectionGap = pinLivePreviewRail ? "gap-8" : "gap-4";
+  const emptyStateFooter = canEdit ? (
+    <Button
+      type="button"
+      size="sm"
+      variant="primary"
+      data-testid="alert-rules-create-action"
+      onClick={revealCreatePanel}
+    >
+      {ALERT_RULES_CREATE_BUTTON_LABEL}
+    </Button>
+  ) : null;
 
   return (
     <div className="min-w-0">
-      <div className="mb-2 flex flex-wrap items-start justify-between gap-2">
-        <h3 id="alert-rules-conditions-heading" className={cn("m-0", OPERATOR_TYPOGRAPHY.sectionTitle)}>
-          Alert conditions
-        </h3>
-        {emptyIntroMode ? (
-          <Button
-            type="button"
-            size="sm"
-            variant="primary"
-            data-testid="alert-rules-create-action"
-            onClick={() => setShowCreatePanel(true)}
-          >
-            {ALERT_RULES_CREATE_BUTTON_LABEL}
-          </Button>
-        ) : null}
+      <div className="mb-2 flex flex-wrap items-center justify-end gap-2">
+        <MutatingInWorkspaceChip />
       </div>
 
       {sampleModeBlocked ? (
@@ -307,11 +328,11 @@ export function AlertRulesContent() {
 
           {!listInitialLoading && items.length > 0 ? (
             <section aria-labelledby="alert-rules-list-heading">
-              <h3 id="alert-rules-list-heading" className={cn("m-0 mb-3", OPERATOR_TYPOGRAPHY.sectionTitle)}>
+              <h2 id="alert-rules-list-heading" className={cn("m-0 mb-3", OPERATOR_TYPOGRAPHY.sectionTitle)}>
                 {ALERT_RULES_LIST_HEADING}
-              </h3>
+              </h2>
 
-              <EnterpriseTable ariaLabel="Alert conditions">
+              <EnterpriseTable ariaLabel="Alert rules">
                 <EnterpriseTableHead>
                   <EnterpriseTableHeadRow>
                     <EnterpriseTableHeaderCell>Name</EnterpriseTableHeaderCell>
@@ -338,7 +359,7 @@ export function AlertRulesContent() {
           ) : null}
 
           {!listInitialLoading && emptyIntroMode ? (
-            <EnterpriseCompactEmptyState {...ALERT_RULES_LIST_EMPTY_COMPACT} />
+            <EnterpriseCompactEmptyState {...ALERT_RULES_LIST_EMPTY_COMPACT} footer={emptyStateFooter} />
           ) : null}
 
           {!listInitialLoading && isEmpty && !canEdit ? (
@@ -347,14 +368,15 @@ export function AlertRulesContent() {
 
           {showCreateForm ? (
             <section aria-labelledby="alert-rules-create-heading" aria-label={ALERT_RULES_FORM_SECTION_ARIA_LABEL}>
-              <h3 id="alert-rules-create-heading" className={cn("mb-3 mt-0", OPERATOR_TYPOGRAPHY.sectionTitle)}>
+              <h2 id="alert-rules-create-heading" className={cn("mb-3 mt-0", OPERATOR_TYPOGRAPHY.sectionTitle)}>
                 {ALERT_RULES_CREATE_HEADING}
-              </h3>
+              </h2>
 
               <div className="grid max-w-2xl gap-4">
               <div>
                 <Label htmlFor="alert-rule-name">{ALERT_RULES_NAME_LABEL}</Label>
                 <Input
+                  ref={nameInputRef}
                   id="alert-rule-name"
                   value={name}
                   onChange={(event) => setName(event.target.value)}
@@ -454,8 +476,6 @@ export function AlertRulesContent() {
               ) : null}
 
               <div className="grid gap-2">
-                <MutatingInWorkspaceChip />
-
                 <div className="flex flex-col items-start gap-2">
                   <div className="flex flex-wrap items-center gap-3">
                     <Button

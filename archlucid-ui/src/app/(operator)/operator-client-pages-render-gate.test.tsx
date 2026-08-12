@@ -1,4 +1,4 @@
-import { fireEvent, render, screen } from "@testing-library/react";
+import { fireEvent, render, screen, waitFor } from "@testing-library/react";
 import { describe, expect, it, vi } from "vitest";
 
 import { AlertRulesContent } from "@/components/alerts/AlertRulesContent";
@@ -210,10 +210,13 @@ describe("operator client pages — render gate", () => {
     expect(screen.getByTestId("alerts-inbox-summary-row")).toBeInTheDocument();
   });
 
-  it("Alert rules content renders without a duplicate hub page-title h2 (TB-1584)", () => {
+  it("Alert rules content renders without a duplicate hub page-title h2 (TB-1584)", async () => {
     render(<AlertRulesContent />);
-    expect(screen.queryByRole("heading", { level: 2, name: "Alert conditions" })).not.toBeInTheDocument();
-    expect(screen.getByRole("heading", { level: 3, name: "Alert conditions" })).toBeInTheDocument();
+    await waitFor(() => {
+      expect(screen.getByTestId("mutating-in-workspace-chip")).toBeInTheDocument();
+    });
+    expect(screen.queryByRole("heading", { level: 2, name: "Alert rules" })).not.toBeInTheDocument();
+    expect(screen.queryByRole("heading", { level: 2, name: "Configured alert rules" })).not.toBeInTheDocument();
   });
 
   it("Alert routing content renders primary heading", () => {
