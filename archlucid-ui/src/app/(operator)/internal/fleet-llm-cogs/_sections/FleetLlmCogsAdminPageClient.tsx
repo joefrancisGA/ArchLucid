@@ -5,6 +5,16 @@ import { useCallback, useEffect, useState } from "react";
 
 import { Button } from "@/components/ui/button";
 import { Card, CardContent, CardHeader, CardTitle } from "@/components/ui/card";
+import {
+  EnterpriseTable,
+  EnterpriseTableBody,
+  EnterpriseTableCell,
+  EnterpriseTableHead,
+  EnterpriseTableHeaderCell,
+  EnterpriseTableHeadRow,
+  EnterpriseTableRow,
+} from "@/components/ui/enterprise-table";
+import { EnterpriseTableSkeletonRows } from "@/components/ui/enterprise-table-skeleton-rows";
 import { useOperatorNavAuthority } from "@/components/operator/OperatorNavAuthorityProvider";
 import { OperatorPageHeader } from "@/components/operator/OperatorPageHeader";
 import { OperatorSectionLoadFailure } from "@/components/operator/OperatorSectionLoadFailure";
@@ -104,40 +114,49 @@ export function FleetLlmCogsAdminPageClient() {
               <p className={cn("m-0 mt-1 tabular-nums", OPERATOR_TYPOGRAPHY.cardTitle)}>{data?.hardStopTenantCount ?? 0}</p>
             </div>
           </div>
-          <table className={cn("min-w-full text-left", OPERATOR_TYPOGRAPHY.body)}>
-            <thead>
-              <tr className={cn("border-b border-neutral-200 dark:border-neutral-800", OPERATOR_NAV_GROUP_LABEL)}>
-                <th className="py-2 pr-4">Tenant</th>
-                <th className="py-2 pr-4">Est. pressure</th>
-                <th className="py-2 pr-4">Hard cap</th>
-                <th className="py-2 pr-4">Utilization</th>
-                <th className="py-2 pr-4">Risk</th>
-                <th className="py-2 pr-4">Budget completeness</th>
-              </tr>
-            </thead>
-            <tbody>
+          <EnterpriseTable ariaLabel="Fleet LLM cost of goods sold by tenant">
+            <EnterpriseTableHead>
+              <EnterpriseTableHeadRow>
+                <EnterpriseTableHeaderCell>Tenant</EnterpriseTableHeaderCell>
+                <EnterpriseTableHeaderCell>Est. pressure</EnterpriseTableHeaderCell>
+                <EnterpriseTableHeaderCell>Hard cap</EnterpriseTableHeaderCell>
+                <EnterpriseTableHeaderCell>Utilization</EnterpriseTableHeaderCell>
+                <EnterpriseTableHeaderCell>Risk</EnterpriseTableHeaderCell>
+                <EnterpriseTableHeaderCell>Budget completeness</EnterpriseTableHeaderCell>
+              </EnterpriseTableHeadRow>
+            </EnterpriseTableHead>
+            <EnterpriseTableBody>
+              {loading && (data?.rows ?? []).length === 0 ? (
+                <EnterpriseTableSkeletonRows
+                  columns={6}
+                  label="Loading fleet COGS…"
+                  testId="fleet-llm-cogs-skeleton"
+                />
+              ) : null}
               {(data?.rows ?? []).map((row) => (
-                <tr key={row.tenantId} className="border-b border-neutral-100 dark:border-neutral-900">
-                  <td className="py-2 pr-4">{row.tenantName}</td>
-                  <td className="py-2 pr-4 tabular-nums">${row.estimatedUsdPressureUtcMonth.toFixed(2)}</td>
-                  <td className="py-2 pr-4 tabular-nums">
+                <EnterpriseTableRow key={row.tenantId}>
+                  <EnterpriseTableCell>{row.tenantName}</EnterpriseTableCell>
+                  <EnterpriseTableCell className="tabular-nums">
+                    ${row.estimatedUsdPressureUtcMonth.toFixed(2)}
+                  </EnterpriseTableCell>
+                  <EnterpriseTableCell className="tabular-nums">
                     {row.hardCapUsdUtcMonth != null ? `$${row.hardCapUsdUtcMonth.toFixed(2)}` : "—"}
-                  </td>
-                  <td className="py-2 pr-4 tabular-nums">
+                  </EnterpriseTableCell>
+                  <EnterpriseTableCell className="tabular-nums">
                     {row.hardCapUtilizationFraction != null
                       ? `${Math.round(row.hardCapUtilizationFraction * 100)}%`
                       : "—"}
-                  </td>
-                  <td className="py-2 pr-4">{row.grossMarginRiskLabel}</td>
-                  <td className="py-2 pr-4">
+                  </EnterpriseTableCell>
+                  <EnterpriseTableCell>{row.grossMarginRiskLabel}</EnterpriseTableCell>
+                  <EnterpriseTableCell>
                     <span className={row.costRatesConfigured ? "" : "font-medium text-amber-800 dark:text-amber-200"}>
                       {row.budgetCompletionLabel}
                     </span>
-                  </td>
-                </tr>
+                  </EnterpriseTableCell>
+                </EnterpriseTableRow>
               ))}
-            </tbody>
-          </table>
+            </EnterpriseTableBody>
+          </EnterpriseTable>
         </CardContent>
       </Card>
     </div>
