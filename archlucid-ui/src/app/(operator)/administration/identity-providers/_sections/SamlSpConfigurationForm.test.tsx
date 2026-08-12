@@ -31,6 +31,7 @@ import { SamlSpConfigurationForm } from "./SamlSpConfigurationForm";
 import { SAML_CONFIGURATION_SAVED_SUCCESS_MESSAGE } from "@/lib/admin-integration-mutation-outcome-copy";
 import {
   IDENTITY_PROVIDERS_ACTION_FETCH_IDP_METADATA,
+  IDENTITY_PROVIDERS_ACTION_SAVE,
   IDENTITY_PROVIDERS_ACTION_VALIDATE,
   IDENTITY_PROVIDERS_SAML_PAGE_SUBTITLE,
   IDENTITY_PROVIDERS_SAML_PAGE_TITLE,
@@ -168,8 +169,10 @@ describe("SamlSpConfigurationForm", () => {
     await completeMinimalSamlForm();
     fireEvent.click(screen.getByTestId("saml-save-configuration-button"));
 
-    const dialog = await screen.findByTestId("identity-providers-save-confirm-dialog");
-    fireEvent.click(within(dialog).getByTestId("identity-providers-save-confirm-confirm"));
+    expect(
+      await screen.findByRole("heading", { name: IDENTITY_PROVIDERS_SAVE_CONFIRM_TITLE }),
+    ).toBeInTheDocument();
+    fireEvent.click(screen.getByRole("button", { name: IDENTITY_PROVIDERS_ACTION_SAVE }));
 
     await waitFor(() => {
       expect(vi.mocked(fetch)).toHaveBeenCalledWith(
@@ -232,14 +235,17 @@ describe("SamlSpConfigurationForm", () => {
     await completeMinimalSamlForm();
     fireEvent.click(screen.getByTestId("saml-save-configuration-button"));
 
-    const dialog = await screen.findByTestId("identity-providers-save-confirm-dialog");
-    expect(within(dialog).getByText(IDENTITY_PROVIDERS_SAVE_CONFIRM_TITLE)).toBeInTheDocument();
+    expect(
+      await screen.findByRole("heading", { name: IDENTITY_PROVIDERS_SAVE_CONFIRM_TITLE }),
+    ).toBeInTheDocument();
     expect(globalThis.confirm).not.toHaveBeenCalled();
 
-    fireEvent.click(within(dialog).getByTestId("identity-providers-save-confirm-cancel"));
+    fireEvent.click(screen.getByRole("button", { name: "Cancel" }));
 
     await waitFor(() => {
-      expect(screen.queryByTestId("identity-providers-save-confirm-dialog")).not.toBeInTheDocument();
+      expect(
+        screen.queryByRole("heading", { name: IDENTITY_PROVIDERS_SAVE_CONFIRM_TITLE }),
+      ).not.toBeInTheDocument();
     });
 
     expect(vi.mocked(fetch)).not.toHaveBeenCalledWith(
