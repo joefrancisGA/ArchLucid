@@ -16,9 +16,6 @@ const SRC_ROOT = join(process.cwd(), "src");
 const TITLE_ONLY_DISABLED_EXPLANATION_BASELINE: ReadonlySet<string> = new Set([
   "app/(operator)/administration/tenant/_sections/TenantWorkspaceProjectsCard.tsx",
   "app/(operator)/administration/tenant/recycle-bin/_sections/ProjectsRecycleBinPage.tsx",
-  "app/(operator)/architecture/first-review-guide/_sections/FirstReviewGuidePageClient.tsx",
-  "app/(operator)/architecture/reviews/[runId]/_sections/ReviewPackageSponsorHandoffStrip.tsx",
-  "app/(operator)/architecture/reviews/[runId]/_sections/RunDetailArtifactsExportsSection.tsx",
   "app/(operator)/architecture/reviews/[runId]/findings/[findingId]/FindingInspectGovernanceStickinessPanel.tsx",
   "app/(operator)/governance/_sections/GovernanceWorkflowApprovalsList.tsx",
   "app/(operator)/governance/_sections/GovernanceWorkflowPromotionsActivationsSection.tsx",
@@ -28,7 +25,6 @@ const TITLE_ONLY_DISABLED_EXPLANATION_BASELINE: ReadonlySet<string> = new Set([
   "app/(operator)/governance/standards-and-rules/_sections/GovernanceResolutionPageView.tsx",
   "app/(operator)/help/_sections/HelpSpecialtyWalkthroughTemplatesClient.tsx",
   "app/(operator)/insights/executive-summary/_sections/ValueReportPageView.tsx",
-  "app/(operator)/insights/impact-preview/_sections/ImpactPreviewResultActions.tsx",
   "app/(operator)/integrations/cloud-connections/_sections/AwsConnectionSection.tsx",
   "app/(operator)/integrations/cloud-connections/_sections/Tier2ConnectionWizard.tsx",
   "app/(operator)/integrations/slack/_sections/SlackDestinationForm.tsx",
@@ -36,7 +32,6 @@ const TITLE_ONLY_DISABLED_EXPLANATION_BASELINE: ReadonlySet<string> = new Set([
   "app/(operator)/integrations/teams/_sections/TeamsNotificationsIntegrationPageView.tsx",
   "app/(operator)/integrations/teams/_sections/TeamsNotificationsSelector.tsx",
   "app/(operator)/internal/integration-events/dlq/_sections/IntegrationEventsDlqPageClient.tsx",
-  "components/EmailRunToSponsorBanner.tsx",
   "components/GraphBuyerCanvasToolbar.tsx",
   "components/ShareReviewPackageButton.tsx",
   "components/advisory/AdvisoryScheduleCreateForm.tsx",
@@ -50,7 +45,6 @@ const TITLE_ONLY_DISABLED_EXPLANATION_BASELINE: ReadonlySet<string> = new Set([
   "components/findings/FindingFeedbackThumbs.tsx",
   "components/governance/GovernanceQuickApproveButton.tsx",
   "components/governance/RiskExceptionsClient.tsx",
-  "components/runs/RunDetailPageHeader.tsx",
   "components/runs/RunDetailRunGovernanceDispositionActions.tsx",
 ]);
 

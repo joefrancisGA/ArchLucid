@@ -50,7 +50,7 @@ function BuyerExecutiveBriefExports({ runId, usedStaticDemoRun }: { runId: strin
 
 function DisabledExportButton({ label }: { label: string }) {
   return (
-    <Button variant="outline" size="sm" disabled title={SAMPLE_REVIEW_EXPORT_UNAVAILABLE_HINT}>
+    <Button variant="outline" size="sm" disabled aria-describedby="run-detail-package-export-disabled-hint">
       <Download className="mr-2 h-4 w-4" />
       {label}
     </Button>
@@ -73,7 +73,10 @@ function RunPackageExportButtons({
           <DisabledExportButton label={RUN_PACKAGE_EXPORT_LABELS.html} />
           <DisabledExportButton label="Download Executive Summary" />
         </div>
-        <p className={cn("m-0 max-w-xs text-neutral-600 dark:text-neutral-400", OPERATOR_TYPOGRAPHY.helper)}>
+        <p
+          id="run-detail-package-export-disabled-hint"
+          className={cn("m-0 max-w-xs text-neutral-600 dark:text-neutral-400", OPERATOR_TYPOGRAPHY.helper)}
+        >
           {SAMPLE_REVIEW_EXPORT_UNAVAILABLE_HINT}
         </p>
       </div>

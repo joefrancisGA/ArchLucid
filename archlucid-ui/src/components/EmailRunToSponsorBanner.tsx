@@ -12,6 +12,7 @@ import { OperatorApiProblem } from "@/components/operator/OperatorApiProblem";
 import { ProductLearningFeedbackControls } from "@/components/ProductLearningFeedbackControls";
 import { Button } from "@/components/ui/button";
 import { StatusTag } from "@/components/ui/status-tag";
+import { WhyDisabledCtaHint } from "@/components/usability/WhyDisabledCtaHint";
 import {
   downloadFirstValueReportPdf,
   markSponsorPackSent,
@@ -19,7 +20,6 @@ import {
   getBundleDownloadUrl,
   getRunExportDownloadUrl,
   getRunPackageExportUrl,
-  SAMPLE_REVIEW_EXPORT_UNAVAILABLE_HINT,
 } from "@/lib/api";
 import type { ApiProblemDetails } from "@/lib/api-problem";
 import { isApiRequestError } from "@/lib/api-request-error";
@@ -38,6 +38,7 @@ import {
   type PilotRunDeltasProofSummaryJson,
 } from "@/lib/pilot-proof-readiness";
 import { isPilotRoiBaselineComplete } from "@/lib/pilot-roi-baseline-completeness";
+import { whyDisabledSampleReviewExport } from "@/lib/why-disabled-cta";
 import { PILOT_BASELINE_WIZARD_OPEN_EVENT } from "@/lib/pilot-baseline-wizard-events";
 import { mergeRegistrationScopeForProxy } from "@/lib/proxy-fetch-registration-scope";
 import { recordSponsorBannerFirstCommitBadge } from "@/lib/sponsor-banner-telemetry";
@@ -611,14 +612,21 @@ export function EmailRunToSponsorBanner({
           </Button>
         ) : null}
         {sponsorDocxAvailable && curatedSampleRun ? (
-          <Button
-            variant="secondary"
-            disabled
-            title={SAMPLE_REVIEW_EXPORT_UNAVAILABLE_HINT}
-            data-testid="email-run-to-sponsor-sponsor-docx"
-          >
-            Download Sponsor Export (DOCX)
-          </Button>
+          <div className="flex flex-col gap-1.5">
+            <Button
+              variant="secondary"
+              disabled
+              aria-describedby="email-run-to-sponsor-docx-disabled-hint"
+              data-testid="email-run-to-sponsor-sponsor-docx"
+            >
+              Download Sponsor Export (DOCX)
+            </Button>
+            <WhyDisabledCtaHint
+              id="email-run-to-sponsor-docx-disabled-hint"
+              reason={whyDisabledSampleReviewExport()}
+              testId="email-run-to-sponsor-docx-disabled-hint"
+            />
+          </div>
         ) : null}
         {sentToSponsorUtc !== null ? (
           <StatusTag

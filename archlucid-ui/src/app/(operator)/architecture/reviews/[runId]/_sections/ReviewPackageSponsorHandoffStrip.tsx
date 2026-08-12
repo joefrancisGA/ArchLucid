@@ -11,8 +11,10 @@ import { SponsorRoiBaselineGateNotice } from "@/components/SponsorRoiBaselineGat
 import { SponsorRehearsalPreviewPanel } from "@/components/reviews/SponsorRehearsalPreviewPanel";
 import type { SponsorRehearsalPreviewInput } from "@/lib/sponsor-rehearsal-preview";
 import { Button } from "@/components/ui/button";
-import { getRunPackageExportUrl, SAMPLE_REVIEW_EXPORT_UNAVAILABLE_HINT } from "@/lib/api";
+import { WhyDisabledCtaHint } from "@/components/usability/WhyDisabledCtaHint";
+import { getRunPackageExportUrl } from "@/lib/api";
 import { OPERATOR_TYPOGRAPHY } from "@/lib/design-tokens";
+import { whyDisabledSampleReviewExport } from "@/lib/why-disabled-cta";
 import { buildReviewDetailTabHref } from "@/lib/review-detail-workspace-tabs";
 import {
   RUN_DETAIL_SPONSOR_HANDOFF_LEAD,
@@ -56,9 +58,21 @@ export function ReviewPackageSponsorHandoffStrip(
       <SponsorRoiBaselineGateNotice isFinalized />
       <div className="mt-3 flex flex-wrap items-center gap-2">
         {props.usedStaticDemoRun ? (
-          <Button variant="primary" size="sm" disabled title={SAMPLE_REVIEW_EXPORT_UNAVAILABLE_HINT}>
-            Download architecture review report (DOCX)
-          </Button>
+          <div className="flex max-w-prose flex-col gap-1.5">
+            <Button
+              variant="primary"
+              size="sm"
+              disabled
+              aria-describedby="review-package-sponsor-handoff-docx-disabled-hint"
+            >
+              Download architecture review report (DOCX)
+            </Button>
+            <WhyDisabledCtaHint
+              id="review-package-sponsor-handoff-docx-disabled-hint"
+              reason={whyDisabledSampleReviewExport()}
+              testId="review-package-sponsor-handoff-docx-disabled-hint"
+            />
+          </div>
         ) : (
           <Button variant="primary" size="sm" asChild data-testid="review-package-sponsor-handoff-docx">
             <ExportTrackedAnchor href={getRunPackageExportUrl(props.runId, "docx")}>

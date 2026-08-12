@@ -86,7 +86,12 @@ export function FirstReviewGuidePageClient({ model }: FirstReviewGuidePageClient
         <FirstReviewGuideRequiredSetupPanel blockers={guide.requiredBlockers} />
         <div className="flex flex-wrap items-center gap-2">
           {guide.headerActions.primaryDisabled ? (
-            <Button size="sm" variant="default" disabled title={primaryDisabledReason?.message}>
+            <Button
+              size="sm"
+              variant="default"
+              disabled
+              aria-describedby="first-review-guide-primary-disabled-hint"
+            >
               {guide.headerActions.primaryLabel}
             </Button>
           ) : (
@@ -98,7 +103,11 @@ export function FirstReviewGuidePageClient({ model }: FirstReviewGuidePageClient
             <Link href={guide.headerActions.secondaryHref}>{guide.headerActions.secondaryLabel}</Link>
           </Button>
         </div>
-        <WhyDisabledCtaHint reason={primaryDisabledReason} className="max-w-3xl" />
+        <WhyDisabledCtaHint
+          id="first-review-guide-primary-disabled-hint"
+          reason={primaryDisabledReason}
+          className="max-w-3xl"
+        />
       </header>
 
       {model.fromRegistration ? <GettingStartedTrialSection fromRegistrationQuery={model.fromRegistration} /> : null}

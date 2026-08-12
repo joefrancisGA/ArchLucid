@@ -1,4 +1,5 @@
 import { enterpriseMutationControlDisabledTitle } from "@/lib/enterprise-controls-context-copy";
+import { SAMPLE_REVIEW_EXPORT_UNAVAILABLE_HINT } from "@/lib/api/downloads-api";
 
 /**
  * Shared source of truth for explaining why a primary CTA is disabled (TB-2190).
@@ -101,5 +102,13 @@ export function whyDisabledEnterpriseMutationControl(): WhyDisabledCtaReason {
   return {
     kind: "role",
     message: enterpriseMutationControlDisabledTitle,
+  };
+}
+
+/** Curated sample / static demo reviews have no backend-persisted export target. */
+export function whyDisabledSampleReviewExport(): WhyDisabledCtaReason {
+  return {
+    kind: "policy",
+    message: SAMPLE_REVIEW_EXPORT_UNAVAILABLE_HINT,
   };
 }

@@ -310,13 +310,16 @@ export function OperatorBillingWalletPanel() {
             variant="outline"
             onClick={onSaveClick}
             disabled={!canSaveWallet}
-            title={canMutate ? undefined : enterpriseMutationControlDisabledTitle}
+            aria-describedby={!canMutate ? "operator-billing-wallet-mutate-disabled-hint" : undefined}
           >
             Save AI credit settings
           </Button>
 
           {!canMutate ? (
-            <p className={cn("m-0", OPERATOR_TYPOGRAPHY.helper)}>
+            <p
+              id="operator-billing-wallet-mutate-disabled-hint"
+              className={cn("m-0", OPERATOR_TYPOGRAPHY.helper)}
+            >
               Administrator access required to change AI credit settings.
             </p>
           ) : null}

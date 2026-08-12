@@ -124,11 +124,14 @@ export function RunDetailArtifactsExportsSection(
             {/* Exports stay secondary — the review's recommended next step owns the only primary affordance. */}
             {usedStaticDemoRun ? (
               <div className="flex max-w-prose flex-col gap-1.5">
-                <Button variant="outline" disabled title={SAMPLE_REVIEW_EXPORT_UNAVAILABLE_HINT}>
+                <Button variant="outline" disabled aria-describedby="run-detail-docx-export-disabled-hint">
                   Download architecture review report (DOCX)
                 </Button>
                 <ExportFormatWhenToUseHint format="docx" />
-                <p className={cn("m-0 text-al-text-secondary", OPERATOR_TYPOGRAPHY.helper)}>
+                <p
+                  id="run-detail-docx-export-disabled-hint"
+                  className={cn("m-0 text-al-text-secondary", OPERATOR_TYPOGRAPHY.helper)}
+                >
                   {SAMPLE_REVIEW_EXPORT_UNAVAILABLE_HINT}
                 </p>
               </div>
