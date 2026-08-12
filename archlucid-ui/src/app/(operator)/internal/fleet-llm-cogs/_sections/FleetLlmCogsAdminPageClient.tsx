@@ -6,6 +6,7 @@ import { useCallback, useEffect, useState } from "react";
 import { Button } from "@/components/ui/button";
 import { Card, CardContent, CardHeader, CardTitle } from "@/components/ui/card";
 import { useOperatorNavAuthority } from "@/components/operator/OperatorNavAuthorityProvider";
+import { OperatorPageHeader } from "@/components/operator/OperatorPageHeader";
 import { OPERATOR_NAV_GROUP_LABEL, OPERATOR_TYPOGRAPHY } from "@/lib/design-tokens";
 import { FLEET_LLM_COGS_PAGE_LEAD, FLEET_LLM_COGS_PAGE_TITLE } from "@/lib/fleet-llm-cogs-page-copy";
 import { AUTHORITY_RANK } from "@/lib/nav-authority";
@@ -54,15 +55,16 @@ export function FleetLlmCogsAdminPageClient() {
 
   return (
     <div className="w-full max-w-[1440px] space-y-6" data-testid="fleet-llm-cogs-page">
-      <div>
-        <h1 className={OPERATOR_TYPOGRAPHY.pageTitle}>{FLEET_LLM_COGS_PAGE_TITLE}</h1>
-        <p className={cn("mt-1 text-al-text-secondary", OPERATOR_TYPOGRAPHY.body)}>
-          {FLEET_LLM_COGS_PAGE_LEAD}
-        </p>
-        <Button type="button" variant="outline" size="sm" className="mt-3" disabled={loading} onClick={() => void refresh()}>
-          {loading ? "Refreshing…" : "Refresh"}
-        </Button>
-      </div>
+      <OperatorPageHeader
+        headingLevel="h1"
+        title={FLEET_LLM_COGS_PAGE_TITLE}
+        subtitle={FLEET_LLM_COGS_PAGE_LEAD}
+        actions={
+          <Button type="button" variant="outline" size="sm" disabled={loading} onClick={() => void refresh()}>
+            {loading ? "Refreshing…" : "Refresh"}
+          </Button>
+        }
+      />
 
       {error ? (
         <p className={cn("text-rose-700 dark:text-rose-300", OPERATOR_TYPOGRAPHY.body)} role="alert">

@@ -15,6 +15,7 @@ import {
 } from "@/components/ui/enterprise-table";
 import { SeverityTag } from "@/components/ui/severity-tag";
 import { useOperatorNavAuthority } from "@/components/operator/OperatorNavAuthorityProvider";
+import { OperatorPageHeader } from "@/components/operator/OperatorPageHeader";
 import { PageContextualHelpButton } from "@/components/usability/PageContextualHelpButton";
 import { TenantSystemWorkspaceHealthVocabularyRail } from "@/components/TenantSystemWorkspaceHealthVocabularyRail";
 import { OPERATOR_TYPOGRAPHY } from "@/lib/design-tokens";
@@ -87,20 +88,19 @@ export function TenantHealthAdminPageClient() {
 
   return (
     <div className="w-full max-w-[1440px] space-y-6" data-testid="tenant-health-admin-page">
-      <div>
-        <div className="flex flex-wrap items-start justify-between gap-3">
-          <div>
-            <h1 className={OPERATOR_TYPOGRAPHY.pageTitle}>Tenant health</h1>
-            <p className={cn("mt-1 text-al-text-secondary", OPERATOR_TYPOGRAPHY.body)}>
-              Internal customer-success view of engagement, governance, and pilot funnel stage per tenant scope.
-            </p>
-          </div>
-          <PageContextualHelpButton />
-        </div>
-        <Button type="button" variant="outline" size="sm" className="mt-3" disabled={loading} onClick={() => void refresh()}>
-          {loading ? "Refreshing…" : "Refresh"}
-        </Button>
-      </div>
+      <OperatorPageHeader
+        headingLevel="h1"
+        title="Tenant health"
+        subtitle="Internal customer-success view of engagement, governance, and pilot funnel stage per tenant scope."
+        actions={
+          <>
+            <Button type="button" variant="outline" size="sm" disabled={loading} onClick={() => void refresh()}>
+              {loading ? "Refreshing…" : "Refresh"}
+            </Button>
+            <PageContextualHelpButton />
+          </>
+        }
+      />
       <TenantSystemWorkspaceHealthVocabularyRail currentSurfaceId="tenant-health" />
 {error ? (
         <p className={cn("text-rose-700 dark:text-rose-300", OPERATOR_TYPOGRAPHY.body)} role="alert">

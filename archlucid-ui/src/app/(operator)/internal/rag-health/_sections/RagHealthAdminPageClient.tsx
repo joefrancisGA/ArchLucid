@@ -15,6 +15,7 @@ import {
 } from "@/components/ui/enterprise-table";
 import { SeverityTag } from "@/components/ui/severity-tag";
 import { useOperatorNavAuthority } from "@/components/operator/OperatorNavAuthorityProvider";
+import { OperatorPageHeader } from "@/components/operator/OperatorPageHeader";
 import { RagHealthSystemHealthVocabularyRail } from "@/components/RagHealthSystemHealthVocabularyRail";
 import { PageContextualHelpButton } from "@/components/usability/PageContextualHelpButton";
 import { OPERATOR_TYPOGRAPHY } from "@/lib/design-tokens";
@@ -80,21 +81,24 @@ export function RagHealthAdminPageClient() {
 
   return (
     <div className="w-full max-w-[1440px] space-y-6" data-testid="rag-health-admin-page">
-      <div>
-        <div className="flex flex-wrap items-start justify-between gap-3">
-          <div>
-            <h1 className={OPERATOR_TYPOGRAPHY.pageTitle}>RAG corpus health</h1>
-            <p className={cn("mt-1 text-al-text-secondary", OPERATOR_TYPOGRAPHY.body)}>
-              Per-corpus chunk counts and last-indexed timestamps for this API host process. Embedding model:{" "}
-              <span className={cn("font-mono", OPERATOR_TYPOGRAPHY.micro)}>{embeddingModelId || "—"}</span>.
-            </p>
-          </div>
-          <PageContextualHelpButton />
-        </div>
-        <Button type="button" variant="outline" size="sm" className="mt-3" disabled={loading} onClick={() => void refresh()}>
-          {loading ? "Refreshing…" : "Refresh"}
-        </Button>
-      </div>
+      <OperatorPageHeader
+        headingLevel="h1"
+        title="RAG corpus health"
+        subtitle={
+          <>
+            Per-corpus chunk counts and last-indexed timestamps for this API host process. Embedding model:{" "}
+            <span className={cn("font-mono", OPERATOR_TYPOGRAPHY.micro)}>{embeddingModelId || "—"}</span>.
+          </>
+        }
+        actions={
+          <>
+            <Button type="button" variant="outline" size="sm" disabled={loading} onClick={() => void refresh()}>
+              {loading ? "Refreshing…" : "Refresh"}
+            </Button>
+            <PageContextualHelpButton />
+          </>
+        }
+      />
       <RagHealthSystemHealthVocabularyRail currentSurfaceId="rag-health" />
 {error ? (
         <p className={cn("text-rose-700 dark:text-rose-300", OPERATOR_TYPOGRAPHY.body)} role="alert">
