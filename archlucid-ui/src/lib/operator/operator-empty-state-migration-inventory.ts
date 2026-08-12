@@ -111,7 +111,7 @@ export const OPERATOR_EMPTY_STATE_MIGRATION_INVENTORY: readonly OperatorEmptySta
   },
   {
     id: "alerts-inbox-empty",
-    pathOrSurface: "/governance/alerts?tab=inbox",
+    pathOrSurface: "/governance/alerts",
     kind: "collection",
     chrome: "compact",
     disposition: "compact-native",
