@@ -351,6 +351,7 @@ public sealed class OperatorReviewJourneyRunner
             if (!detail.Step.Passed)
             {
                 // Transient 5xx: keep polling until deadline.
+
                 if (detail.Step.Detail.Contains("HTTP 5", StringComparison.Ordinal))
                 {
                     await Task.Delay(interval, cancellationToken);

@@ -1,3 +1,5 @@
+> **Scope:** Buyer-facing overview of connecting ArchLucid findings to Azure Boards work items — not Azure Repos, Pipelines, or internal connector implementation.
+
 # Azure Boards integration
 
 Azure Boards is ArchLucid’s work-management connector for teams that track engineering work in Azure DevOps. It is independent of which cloud hosts your architecture — AWS and Google Cloud architectures can use Azure Boards for backlog and remediation tracking.
