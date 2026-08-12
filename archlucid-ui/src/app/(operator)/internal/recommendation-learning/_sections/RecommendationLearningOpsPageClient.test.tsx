@@ -88,7 +88,7 @@ describe("RecommendationLearningOpsPageClient TB-1788 toolbar honesty", () => {
       />,
     );
 
-    expect(screen.getByRole("button", { name: "Refresh operational data" })).toBeInTheDocument();
+    expect(screen.getByRole("button", { name: "Refresh" })).toBeInTheDocument();
     expect(screen.getByRole("button", { name: "Load persisted profile" })).toBeInTheDocument();
     expect(screen.getByText(/reload eligibility counts, profile metadata, and version history/i)).toBeInTheDocument();
     expect(screen.getByText(/fetch the latest stored weighting profile only/i)).toBeInTheDocument();
@@ -104,7 +104,7 @@ describe("RecommendationLearningOpsPageClient TB-1788 toolbar honesty", () => {
       />,
     );
 
-    fireEvent.click(screen.getByRole("button", { name: "Refresh operational data" }));
+    fireEvent.click(screen.getByRole("button", { name: "Refresh" }));
 
     await vi.waitFor(() => {
       expect(reloadBundle).toHaveBeenCalledTimes(1);

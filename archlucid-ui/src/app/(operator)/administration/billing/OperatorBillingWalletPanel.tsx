@@ -12,6 +12,7 @@ import { Button } from "@/components/ui/button";
 import { Card, CardContent, CardDescription, CardHeader, CardTitle } from "@/components/ui/card";
 import { Checkbox } from "@/components/ui/checkbox";
 import { Label } from "@/components/ui/label";
+import { RefreshButton } from "@/components/ui/refresh-button";
 import {
   Select,
   SelectContent,
@@ -193,9 +194,7 @@ export function OperatorBillingWalletPanel() {
           description="Prepaid credit balance and auto-replenish controls could not be loaded."
           actions={[{ label: "Retry", href: "#billing-ai-credits", variant: "outline" }]}
           footer={
-            <Button type="button" variant="outline" size="sm" onClick={() => void loadWallet()}>
-              Retry loading
-            </Button>
+            <RefreshButton label="Retry loading" onClick={() => void loadWallet()} />
           }
           testId="operator-billing-wallet-fetch-error"
         />

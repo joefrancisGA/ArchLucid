@@ -5,7 +5,7 @@ import type { ReactNode } from "react";
 import { cn } from "@/lib/utils";
 
 import { OperatorPageHeader } from "@/components/operator/OperatorPageHeader";
-import { Button } from "@/components/ui/button";
+import { RefreshButton } from "@/components/ui/refresh-button";
 import { PageContextualHelpButton, PAGE_HELP_SHORT_TRIGGER_TEXT } from "@/components/usability/PageContextualHelpButton";
 import { OPERATOR_TYPOGRAPHY } from "@/lib/design-tokens";
 import {
@@ -18,7 +18,6 @@ export type DigestsPageHeaderProps = {
   readonly refreshing: boolean;
   readonly lastUpdatedUtc: string | null;
   readonly onRefresh: () => void;
-  readonly refreshButtonTitle?: string;
   readonly showRefresh?: boolean;
   readonly actions?: ReactNode;
   /** Defaults to {@link DIGESTS_LAST_UPDATED_PREFIX}; use health-check label during setup. */
@@ -67,17 +66,11 @@ export function DigestsPageHeader(props: DigestsPageHeaderProps): React.JSX.Elem
           <PageContextualHelpButton triggerText={PAGE_HELP_SHORT_TRIGGER_TEXT} />
           {props.actions}
           {showRefresh ? (
-            <Button
-              type="button"
-              size="sm"
-              variant="secondary"
-              onClick={props.onRefresh}
-              disabled={props.refreshing}
+            <RefreshButton
+              busy={props.refreshing}
               data-testid="digests-refresh-button"
-              aria-label={props.refreshButtonTitle}
-            >
-              {props.refreshing ? "Refreshing…" : "Refresh"}
-            </Button>
+              onClick={props.onRefresh}
+            />
           ) : null}
         </div>
       }

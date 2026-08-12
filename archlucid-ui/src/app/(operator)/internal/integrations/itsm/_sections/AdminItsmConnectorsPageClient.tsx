@@ -10,7 +10,7 @@ import { ItsmConnectorsBuyerJiraServicenowVocabularyRail } from "@/components/it
 import { ItsmConnectorsFindingTicketVocabularyRail } from "@/components/itsm/ItsmConnectorsFindingTicketVocabularyRail";
 import { PageHeading } from "@/components/PageHeading";
 import { PageContextualHelpButton } from "@/components/usability/PageContextualHelpButton";
-import { Button } from "@/components/ui/button";
+import { RefreshButton } from "@/components/ui/refresh-button";
 import { Card, CardContent, CardDescription, CardHeader, CardTitle } from "@/components/ui/card";
 import {
   fetchItsmIntegrationHealth,
@@ -102,16 +102,13 @@ export function AdminItsmConnectorsPageClient(): React.ReactElement {
         bordered
         actions={
           <>
-            <Button
-              type="button"
+            <RefreshButton
+              busy={isLoading}
               variant={hasLoadErrors ? "default" : "outline"}
-              size="sm"
-              disabled={isLoading}
+              label={hasLoadErrors ? "Retry" : undefined}
               onClick={() => void refresh()}
               data-testid="admin-itsm-connectors-refresh"
-            >
-              {isLoading ? "Refreshing…" : hasLoadErrors ? "Retry" : "Refresh"}
-            </Button>
+            />
             <PageContextualHelpButton />
           </>
         }

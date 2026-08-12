@@ -2,6 +2,7 @@ import { cn } from "@/lib/utils";
 import Link from "next/link";
 
 import { Button } from "@/components/ui/button";
+import { RefreshButton } from "@/components/ui/refresh-button";
 import { Input } from "@/components/ui/input";
 import { Label } from "@/components/ui/label";
 import {
@@ -12,7 +13,6 @@ import { buyerFacingReviewLinkLabelFromRunId } from "@/lib/buyer/buyer-facing-re
 import {
   enterpriseMutationControlDisabledTitle,
   governanceWorkflowRefreshRunDataButtonLabel,
-  governanceWorkflowRefreshRunDataTitle,
 } from "@/lib/enterprise-controls-context-copy";
 import {
   GOVERNANCE_WORKFLOW_AUDIT_TRAIL_ACTOR_HELPER,
@@ -68,23 +68,15 @@ export function GovernanceReviewContextBar(props: GovernanceReviewContextBarProp
           <Button type="button" variant="outline" size="sm" onClick={onBackToOverview}>
             {GOVERNANCE_OVERVIEW_BACK_ACTION}
           </Button>
-          <Button
-            type="button"
-            variant="secondary"
-            size="sm"
+          <RefreshButton
+            busy={listsLoadingShowsBusyChrome}
+            disabled={listsLoading}
+            label={buyerPolishedShell ? "Refresh review data" : governanceWorkflowRefreshRunDataButtonLabel}
             data-testid="governance-refresh-review-data"
             onClick={() => {
               onRefresh();
             }}
-            disabled={listsLoading}
-            title={governanceWorkflowRefreshRunDataTitle}
-          >
-            {listsLoadingShowsBusyChrome
-              ? "Refreshing…"
-              : buyerPolishedShell
-                ? "Refresh review data"
-                : governanceWorkflowRefreshRunDataButtonLabel}
-          </Button>
+          />
         </div>
       </div>
       <p className={cn("m-0 text-al-text-secondary", OPERATOR_TYPOGRAPHY.helper)}>

@@ -13,6 +13,7 @@ import { ApiKeysUsersVocabularyRail } from "@/components/ApiKeysUsersVocabularyR
 import { CustomRolesUsersVocabularyRail } from "@/components/CustomRolesUsersVocabularyRail";
 import { ScimUsersVocabularyRail } from "@/components/ScimUsersVocabularyRail";
 import { Button } from "@/components/ui/button";
+import { RefreshButton } from "@/components/ui/refresh-button";
 import { Card, CardContent, CardHeader, CardTitle } from "@/components/ui/card";
 import { StatusTag } from "@/components/ui/status-tag";
 import { Tabs, TabsContent, TabsList, TabsTrigger } from "@/components/ui/tabs";
@@ -344,9 +345,7 @@ export function SettingsRolesPageView(props: Props) {
                           description={settingsRolesEmptyStateDescription(m.usersNote, "users")}
                         />
                         <div className="mt-4 flex flex-wrap gap-2">
-                          <Button type="button" variant="secondary" size="sm" onClick={() => void m.load()}>
-                            Refresh
-                          </Button>
+                          <RefreshButton busy={m.loading} onClick={() => void m.load()} />
                         </div>
                       </div>
                     ) : null}
@@ -450,9 +449,7 @@ export function SettingsRolesPageView(props: Props) {
                       <Button asChild variant="primary" size="sm" data-testid="settings-roles-keys-open-api-keys">
                         <Link href={SETTINGS_ROLES_KEYS_TAB_LIFECYCLE_HREF}>{SETTINGS_ROLES_KEYS_TAB_OPEN_CTA_LABEL}</Link>
                       </Button>
-                      <Button type="button" variant="secondary" size="sm" onClick={() => void m.load()}>
-                        Refresh
-                      </Button>
+                      <RefreshButton busy={m.loading} onClick={() => void m.load()} />
                     </div>
                   </div>
                 ) : null}

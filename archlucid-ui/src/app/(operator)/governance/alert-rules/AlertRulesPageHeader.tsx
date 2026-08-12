@@ -1,12 +1,10 @@
 "use client";
 
-import { RefreshCw } from "lucide-react";
-
 import { cn } from "@/lib/utils";
 
 import { OperatorPageHeader } from "@/components/operator/OperatorPageHeader";
 import { OperatorPageBreadcrumb } from "@/components/operator/OperatorPageBreadcrumb";
-import { Button } from "@/components/ui/button";
+import { RefreshButton } from "@/components/ui/refresh-button";
 import { StatusTag } from "@/components/ui/status-tag";
 import {
   PageContextualHelpButton,
@@ -20,7 +18,6 @@ import {
   operatorLastRefreshedExactLabel,
 } from "@/lib/operator/operator-last-refreshed-label";
 import {
-  ALERTS_CONFIGURATION_ACTION_REFRESH,
   ALERTS_CONFIGURATION_ACTION_REFRESHING,
   ALERTS_CONFIGURATION_BREADCRUMB_GOVERNANCE_HREF,
   ALERTS_CONFIGURATION_BREADCRUMB_GOVERNANCE_LABEL,
@@ -82,10 +79,6 @@ function alertRulesHeaderMetadata(props: AlertRulesPageHeaderProps): React.JSX.E
 
 /** Shared `/governance/alert-rules` hero — title, lead, contextual help, refresh, and posture/freshness metadata. */
 export function AlertRulesPageHeader(props: AlertRulesPageHeaderProps): React.JSX.Element {
-  const refreshLabel = props.refreshing
-    ? ALERTS_CONFIGURATION_ACTION_REFRESHING
-    : ALERTS_CONFIGURATION_ACTION_REFRESH;
-
   return (
     <OperatorPageHeader
       title={ALERTS_CONFIGURATION_PAGE_TITLE}
@@ -106,17 +99,11 @@ export function AlertRulesPageHeader(props: AlertRulesPageHeaderProps): React.JS
       actions={
         <div className="flex flex-wrap items-center gap-2" data-testid="alert-rules-header-actions">
           <PageContextualHelpButton triggerText={PAGE_HELP_SHORT_TRIGGER_TEXT} />
-          <Button
-            type="button"
-            variant="outline"
-            size="icon"
+          <RefreshButton
+            busy={props.refreshing}
             data-testid="alert-rules-refresh-button"
-            disabled={props.refreshing}
-            aria-label={refreshLabel}
             onClick={() => void props.onRefresh()}
-          >
-            <RefreshCw className={cn("h-4 w-4", props.refreshing ? "animate-spin" : "")} aria-hidden />
-          </Button>
+          />
         </div>
       }
       metadata={alertRulesHeaderMetadata(props)}

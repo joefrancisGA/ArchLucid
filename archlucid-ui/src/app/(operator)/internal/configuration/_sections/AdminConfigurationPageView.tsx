@@ -2,7 +2,7 @@
 
 import { cn } from "@/lib/utils";
 import { DemoWorkspaceCapabilityUnavailablePanel } from "@/components/DemoWorkspaceCapabilityUnavailablePanel";
-import { Button } from "@/components/ui/button";
+import { RefreshButton } from "@/components/ui/refresh-button";
 import { Card, CardContent, CardHeader, CardTitle } from "@/components/ui/card";
 import {
   EnterpriseTable,
@@ -96,16 +96,11 @@ export function AdminConfigurationPageView(props: Props) {
               </SelectContent>
             </Select>
           </div>
-          <Button
-            type="button"
-            variant="outline"
-            size="sm"
-            disabled={m.loadState === "loading" || m.lintState === "loading"}
+          <RefreshButton
+            busy={m.loadState === "loading" || m.lintState === "loading"}
             data-testid="admin-configuration-refresh"
             onClick={() => void m.refreshAll()}
-          >
-            {m.loadState === "loading" || m.lintState === "loading" ? "Refreshing…" : "Refresh"}
-          </Button>
+          />
         </div>
       </OperatorPageHeader>
 

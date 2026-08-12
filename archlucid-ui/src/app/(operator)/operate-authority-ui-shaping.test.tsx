@@ -163,7 +163,6 @@ vi.mock("./governance/policy-packs/_sections/load-policy-packs-page-data", () =>
 import {
   alertSimulationCurrentBehaviorHeadingReader,
   alertTuningCurrentTuningHeadingReader,
-  alertsInboxRefreshButtonTitleReader,
   alertsInboxRankReaderLine,
   alertsTriageDialogConfirmButtonLabelReaderRank,
   governanceResolutionChangeRelatedControlsReaderSupplement,
@@ -413,7 +412,7 @@ describe("Enterprise authority UI shaping (mutation hook → controls)", () => {
       expect(screen.getByRole("button", { name: /Acknowledge/ })).not.toBeDisabled();
     });
 
-    expect(screen.getByRole("button", { name: /^Refresh$/ })).toHaveAttribute("title", alertsInboxRefreshButtonTitleReader);
+    expect(screen.getByRole("button", { name: /^Refresh$/ })).toBeInTheDocument();
 
     screen.getByRole("button", { name: /Acknowledge/ }).click();
 

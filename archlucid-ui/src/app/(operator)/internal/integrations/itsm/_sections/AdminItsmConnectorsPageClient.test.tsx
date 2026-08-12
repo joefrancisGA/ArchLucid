@@ -205,7 +205,7 @@ describe("AdminItsmConnectorsPageClient", () => {
 
     expect(screen.getByTestId("admin-itsm-connectors-loading-skeleton")).toBeInTheDocument();
     expect(screen.queryByText(/Loading connector configuration/i)).not.toBeInTheDocument();
-    expect(screen.getByTestId("admin-itsm-connectors-refresh")).toHaveTextContent("Refreshing…");
+    expect(screen.getByTestId("admin-itsm-connectors-refresh")).toHaveAttribute("aria-busy", "true");
   });
 
   it("promotes Retry when load errors are present (TB-1432)", async () => {

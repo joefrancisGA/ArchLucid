@@ -4,14 +4,13 @@ import Link from "next/link";
 
 import { OperatorPageBreadcrumb } from "@/components/operator/OperatorPageBreadcrumb";
 import { OperatorPageHeader } from "@/components/operator/OperatorPageHeader";
-import { Button } from "@/components/ui/button";
+import { RefreshButton } from "@/components/ui/refresh-button";
 import { StatusTag } from "@/components/ui/status-tag";
 import { PageContextualHelpButton } from "@/components/usability/PageContextualHelpButton";
 import { OPERATOR_LINK, OPERATOR_TYPOGRAPHY } from "@/lib/design-tokens";
 import { INTEGRATIONS_READINESS_PATH, INTEGRATIONS_SLACK_PATH } from "@/lib/integrations-nav-paths";
 import { operatorLastRefreshedExactLabel } from "@/lib/operator/operator-last-refreshed-label";
 import {
-  SLACK_ACTION_REFRESH,
   SLACK_ACTION_REFRESHING,
   SLACK_BREADCRUMB_INTEGRATIONS_LABEL,
   SLACK_INTEGRATION_PAGE_SUBTITLE,
@@ -63,16 +62,12 @@ export function SlackIntegrationPageHeader(props: SlackIntegrationPageHeaderProp
       actions={
         <div className="flex flex-wrap items-center gap-2" data-testid="slack-header-actions">
           <PageContextualHelpButton />
-          <Button
-            type="button"
-            variant="outline"
-            size="sm"
+          <RefreshButton
             data-testid="slack-refresh-button"
+            busy={props.refreshing}
             disabled={props.refreshDisabled}
             onClick={() => void props.onRefresh()}
-          >
-            {props.refreshing ? SLACK_ACTION_REFRESHING : SLACK_ACTION_REFRESH}
-          </Button>
+          />
           <Link
             href={INTEGRATIONS_READINESS_PATH}
             className={cn(OPERATOR_LINK.inline, OPERATOR_TYPOGRAPHY.micro)}

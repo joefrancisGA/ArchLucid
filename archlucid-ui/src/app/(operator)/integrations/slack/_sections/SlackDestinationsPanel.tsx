@@ -1,9 +1,8 @@
 "use client";
 
-import { RefreshCw } from "lucide-react";
-
 import { BooleanStatusChip } from "@/components/ui/boolean-status-chip";
 import { Button } from "@/components/ui/button";
+import { RefreshButton } from "@/components/ui/refresh-button";
 import { EnterpriseCompactEmptyState } from "@/components/EnterpriseCompactEmptyState";
 import {
   EnterpriseTable,
@@ -20,7 +19,6 @@ import { whyDisabledEnterpriseMutationControl } from "@/lib/why-disabled-cta";
 import { labelForSlackIntegrationEventId } from "@/lib/slack-integration-form-schema";
 import {
   SLACK_DESTINATIONS_REFRESH_LABEL,
-  SLACK_DESTINATIONS_REFRESHING_LABEL,
   SLACK_INTEGRATION_DESTINATIONS_TITLE,
   SLACK_INTEGRATION_EMPTY_DESCRIPTION,
   SLACK_INTEGRATION_EMPTY_TITLE,
@@ -73,18 +71,13 @@ export function SlackDestinationsPanel(props: SlackDestinationsPanelProps): Reac
             </p>
           ) : null}
         </div>
-        <Button
-          type="button"
-          variant="outline"
-          size="sm"
-          className="shrink-0 gap-2"
-          onClick={onRefresh}
-          disabled={loading}
+        <RefreshButton
+          busy={loading}
+          label={SLACK_DESTINATIONS_REFRESH_LABEL}
+          className="shrink-0"
           data-testid="slack-destinations-refresh"
-        >
-          <RefreshCw className={cn("h-4 w-4", loading ? "animate-spin" : "")} aria-hidden />
-          {loading ? SLACK_DESTINATIONS_REFRESHING_LABEL : SLACK_DESTINATIONS_REFRESH_LABEL}
-        </Button>
+          onClick={onRefresh}
+        />
       </div>
 
       <WhyDisabledCtaHint

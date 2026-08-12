@@ -3,7 +3,7 @@
 import { cn } from "@/lib/utils";
 import { useCallback, useEffect, useState } from "react";
 
-import { Button } from "@/components/ui/button";
+import { RefreshButton } from "@/components/ui/refresh-button";
 import {
   EnterpriseTable,
   EnterpriseTableBody,
@@ -94,9 +94,7 @@ export function RagHealthAdminPageClient() {
         }
         actions={
           <>
-            <Button type="button" variant="outline" size="sm" disabled={loading} onClick={() => void refresh()}>
-              {loading ? "Refreshing…" : "Refresh"}
-            </Button>
+            <RefreshButton busy={loading} onClick={() => void refresh()} />
             <PageContextualHelpButton />
           </>
         }

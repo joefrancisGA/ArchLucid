@@ -5,6 +5,7 @@ import { useMemo, useState } from "react";
 
 import { Button } from "@/components/ui/button";
 import { Card, CardContent, CardHeader, CardTitle } from "@/components/ui/card";
+import { RefreshButton } from "@/components/ui/refresh-button";
 import type { AiUsageDailyMetric } from "@/lib/ai-usage-dashboard-model";
 import {
   dailyMetricAccessibleSummary,
@@ -141,9 +142,7 @@ export function AiUsageDailyUsagePanel(props: Props) {
         >
           {chart}
           {props.onRefresh !== undefined ? (
-            <Button type="button" variant="outline" size="sm" onClick={() => void props.onRefresh?.()}>
-              Refresh
-            </Button>
+            <RefreshButton onClick={() => void props.onRefresh?.()} />
           ) : null}
         </AiUsageSectionState>
       </CardContent>

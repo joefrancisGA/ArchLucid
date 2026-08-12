@@ -17,6 +17,7 @@ import {
   EnterpriseTableHeaderCell,
   EnterpriseTableRow,
 } from "@/components/ui/enterprise-table";
+import { RefreshButton } from "@/components/ui/refresh-button";
 import { StatusTag } from "@/components/ui/status-tag";
 import {
   fetchAdminUserInvitations,
@@ -175,9 +176,7 @@ export function PendingInvitationsPanel({
           description="ArchLucid could not load pending invitations for this workspace. Try again or check system health."
         />
         <div className="mt-4">
-          <Button type="button" variant="secondary" size="sm" onClick={() => void load()}>
-            Retry
-          </Button>
+          <RefreshButton variant="secondary" label="Retry" onClick={() => void load()} />
         </div>
         <div className="mt-4">
           <PendingInvitationsAuditTrailFootnote />

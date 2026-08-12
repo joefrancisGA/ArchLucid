@@ -1,7 +1,6 @@
 "use client";
 
 import Link from "next/link";
-import { RefreshCw } from "lucide-react";
 import { cn } from "@/lib/utils";
 import { OPERATOR_TYPOGRAPHY } from "@/lib/design-tokens";
 
@@ -22,6 +21,7 @@ import { DigestPreviewBeforeSubscribePanel } from "@/components/digests/DigestPr
 import { OperatorApiProblem } from "@/components/operator/OperatorApiProblem";
 import { WhyDisabledCtaHint } from "@/components/usability/WhyDisabledCtaHint";
 import { Button } from "@/components/ui/button";
+import { RefreshButton } from "@/components/ui/refresh-button";
 import { Label } from "@/components/ui/label";
 import { StatusTag } from "@/components/ui/status-tag";
 import { useOperateCapability } from "@/hooks/use-operate-capability";
@@ -654,19 +654,13 @@ export function ExecDigestScheduleContent(props: ExecDigestScheduleContentProps 
                 ))}
               </ul>
               {onRefresh !== undefined ? (
-                <Button
-                  type="button"
-                  size="sm"
-                  variant="outline"
+                <RefreshButton
+                  busy={refreshing}
+                  label="Refresh status"
                   className="mt-4"
-                  onClick={onRefresh}
-                  disabled={refreshing}
                   data-testid="exec-digest-refresh-status"
-                  aria-label={refreshing ? "Refreshing status" : "Refresh status"}
-                >
-                  <RefreshCw className={cn("mr-1.5 size-3.5", refreshing && "animate-spin")} aria-hidden />
-                  {refreshing ? "Refreshing…" : "Refresh status"}
-                </Button>
+                  onClick={onRefresh}
+                />
               ) : null}
             </section>
 

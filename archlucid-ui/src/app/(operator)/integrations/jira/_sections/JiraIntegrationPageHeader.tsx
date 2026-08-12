@@ -5,6 +5,7 @@ import Link from "next/link";
 import { OperatorPageBreadcrumb } from "@/components/operator/OperatorPageBreadcrumb";
 import { OperatorPageHeader } from "@/components/operator/OperatorPageHeader";
 import { Button } from "@/components/ui/button";
+import { RefreshButton } from "@/components/ui/refresh-button";
 import { StatusTag } from "@/components/ui/status-tag";
 import { PageContextualHelpButton } from "@/components/usability/PageContextualHelpButton";
 import { WhyDisabledCtaHint } from "@/components/usability/WhyDisabledCtaHint";
@@ -12,7 +13,6 @@ import { OPERATOR_LINK, OPERATOR_TYPOGRAPHY } from "@/lib/design-tokens";
 import { INTEGRATIONS_JIRA_PATH, INTEGRATIONS_READINESS_PATH } from "@/lib/integrations-nav-paths";
 import { itsmConnectionStatusTagKind } from "@/lib/itsm/itsm-connection-status-tag-kind";
 import {
-  JIRA_ACTION_REFRESH,
   JIRA_ACTION_REFRESHING,
   JIRA_BREADCRUMB_INTEGRATIONS_LABEL,
   JIRA_CONNECT_WITH_ATLASSIAN_LABEL,
@@ -77,16 +77,11 @@ export function JiraIntegrationPageHeader(props: JiraIntegrationPageHeaderProps)
             >
               {props.isConnecting ? JIRA_CONNECT_WITH_ATLASSIAN_PENDING : JIRA_CONNECT_WITH_ATLASSIAN_LABEL}
             </Button>
-            <Button
-              type="button"
-              variant="outline"
-              size="sm"
+            <RefreshButton
               data-testid="jira-refresh-button"
-              disabled={props.refreshing}
+              busy={props.refreshing}
               onClick={() => void props.onRefresh()}
-            >
-              {props.refreshing ? JIRA_ACTION_REFRESHING : JIRA_ACTION_REFRESH}
-            </Button>
+            />
             <Link
               href={INTEGRATIONS_READINESS_PATH}
               className={cn(OPERATOR_LINK.inline, OPERATOR_TYPOGRAPHY.micro)}

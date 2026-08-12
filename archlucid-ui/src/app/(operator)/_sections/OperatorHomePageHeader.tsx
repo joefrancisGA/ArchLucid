@@ -3,18 +3,14 @@
 import type { ReactNode } from "react";
 
 import { OperatorPageHeader } from "@/components/operator/OperatorPageHeader";
-import { Button } from "@/components/ui/button";
+import { RefreshButton } from "@/components/ui/refresh-button";
 import { PageContextualHelpButton } from "@/components/usability/PageContextualHelpButton";
 import {
   OPERATOR_HOME_ARCHITECTURE_LIFECYCLE_INTRO,
   OPERATOR_HOME_ARCHITECTURE_LIFECYCLE_INTRO_BODY,
   OPERATOR_HOME_ARCHITECTURE_LIFECYCLE_INTRO_LABEL,
 } from "@/lib/buyer/buyer-polish-copy";
-import {
-  OPERATOR_HOME_ACTION_REFRESH,
-  OPERATOR_HOME_ACTION_REFRESHING,
-  OPERATOR_HOME_PAGE_TITLE,
-} from "@/lib/operator/operator-home-page-copy";
+import { OPERATOR_HOME_PAGE_TITLE } from "@/lib/operator/operator-home-page-copy";
 import { useOperatorHomeRefresh } from "@/lib/operator/operator-home-refresh-context";
 
 export type OperatorHomePageHeaderProps = {
@@ -50,16 +46,11 @@ export function OperatorHomePageHeader(props: OperatorHomePageHeaderProps): Reac
       actions={
         <div className="flex flex-wrap items-center gap-2" data-testid="operator-home-header-actions">
           <PageContextualHelpButton />
-          <Button
-            type="button"
-            variant="outline"
-            size="sm"
+          <RefreshButton
             data-testid="operator-home-refresh-button"
-            disabled={refreshing}
+            busy={refreshing}
             onClick={() => void requestRefresh()}
-          >
-            {refreshing ? OPERATOR_HOME_ACTION_REFRESHING : OPERATOR_HOME_ACTION_REFRESH}
-          </Button>
+          />
         </div>
       }
     />

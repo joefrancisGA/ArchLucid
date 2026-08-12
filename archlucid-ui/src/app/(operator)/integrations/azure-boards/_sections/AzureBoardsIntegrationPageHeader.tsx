@@ -5,7 +5,7 @@ import Link from "next/link";
 import { cn } from "@/lib/utils";
 
 import { OperatorPageHeader } from "@/components/operator/OperatorPageHeader";
-import { Button } from "@/components/ui/button";
+import { RefreshButton } from "@/components/ui/refresh-button";
 import { PageContextualHelpButton } from "@/components/usability/PageContextualHelpButton";
 import { OPERATOR_LINK, OPERATOR_TYPOGRAPHY } from "@/lib/design-tokens";
 import {
@@ -13,7 +13,6 @@ import {
   operatorLastRefreshedLabel,
 } from "@/lib/operator/operator-last-refreshed-label";
 import {
-  AZURE_BOARDS_ACTION_REFRESH,
   AZURE_BOARDS_ACTION_REFRESHING,
   AZURE_BOARDS_LAST_REFRESHED_PREFIX,
   AZURE_BOARDS_PAGE_SUBTITLE,
@@ -42,16 +41,11 @@ export function AzureBoardsIntegrationPageHeader(
       actions={
         <div className="flex flex-wrap items-center gap-2" data-testid="azure-boards-header-actions">
           <PageContextualHelpButton />
-          <Button
-            type="button"
-            variant="outline"
-            size="sm"
+          <RefreshButton
             data-testid="azure-boards-refresh-button"
-            disabled={props.refreshing}
+            busy={props.refreshing}
             onClick={() => void props.onRefresh()}
-          >
-            {props.refreshing ? AZURE_BOARDS_ACTION_REFRESHING : AZURE_BOARDS_ACTION_REFRESH}
-          </Button>
+          />
           <Link
             href={INTEGRATIONS_READINESS_PATH}
             className={cn(OPERATOR_LINK.inline, OPERATOR_TYPOGRAPHY.micro)}

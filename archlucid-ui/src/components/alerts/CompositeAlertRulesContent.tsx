@@ -6,6 +6,7 @@ import { EnterpriseCompactEmptyState } from "@/components/EnterpriseCompactEmpty
 import { AlertOperatorToolingRankCue } from "@/components/EnterpriseControlsContextHints";
 import { OperatorApiProblem } from "@/components/operator/OperatorApiProblem";
 import { Button } from "@/components/ui/button";
+import { RefreshButton } from "@/components/ui/refresh-button";
 import { Input } from "@/components/ui/input";
 import { Label } from "@/components/ui/label";
 import { Skeleton } from "@/components/ui/skeleton";
@@ -19,8 +20,6 @@ import {
   alertToolingChangeConfigurationHeadingOperator,
   alertToolingChangeConfigurationHeadingReader,
   alertToolingConfigureSectionSubline,
-  alertToolingListRefreshButtonTitleOperator,
-  alertToolingListRefreshButtonTitleReader,
   compositeRulesCreateButtonLabelOperator,
   compositeRulesCreateButtonLabelReaderRank,
   compositeRulesCurrentRulesHeadingOperator,
@@ -195,20 +194,7 @@ export function CompositeAlertRulesContent() {
             ) : null}
           </div>
           <div className="mb-4 flex flex-col gap-1 sm:flex-row sm:flex-wrap sm:items-center sm:gap-3">
-            <Button
-              type="button"
-              variant="secondary"
-              size="sm"
-              onClick={() => void load()}
-              disabled={loading}
-              title={
-                canMutateComposite
-                  ? alertToolingListRefreshButtonTitleOperator
-                  : alertToolingListRefreshButtonTitleReader
-              }
-            >
-              {loading ? "Loading…" : "Refresh"}
-            </Button>
+            <RefreshButton busy={loading} onClick={() => void load()} />
             {!canMutateComposite ? (
               <span className={cn("text-neutral-500 dark:text-neutral-400", OPERATOR_TYPOGRAPHY.helper)}>
                 {compositeRulesRefreshAssistReaderLine}

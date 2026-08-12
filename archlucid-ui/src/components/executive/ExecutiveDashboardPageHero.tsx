@@ -7,6 +7,7 @@ import { useExecutiveDashboardData } from "@/components/executive/ExecutiveDashb
 import { OperatorPageHeader } from "@/components/operator/OperatorPageHeader";
 import { PageContextualHelpButton } from "@/components/usability/PageContextualHelpButton";
 import { Button } from "@/components/ui/button";
+import { RefreshButton } from "@/components/ui/refresh-button";
 import { BUYER_EXECUTIVE_SUMMARY_VOCABULARY } from "@/lib/vocabulary/buyer-surface-vocabulary";
 import { OPERATOR_LINK, OPERATOR_TYPOGRAPHY } from "@/lib/design-tokens";
 import {
@@ -14,7 +15,6 @@ import {
   operatorLastRefreshedLabel,
 } from "@/lib/operator/operator-last-refreshed-label";
 import {
-  EXECUTIVE_DASHBOARD_ACTION_REFRESH,
   EXECUTIVE_DASHBOARD_ACTION_REFRESHING,
   EXECUTIVE_DASHBOARD_LAST_REFRESHED_PREFIX,
   EXECUTIVE_DASHBOARD_PAGE_TITLE,
@@ -46,18 +46,13 @@ export function ExecutiveDashboardPageHero({
         actions={
           <div className="flex flex-wrap items-center gap-2" data-testid="executive-dashboard-hero-actions">
             <PageContextualHelpButton />
-            <Button
-              type="button"
-              variant="outline"
-              size="sm"
+            <RefreshButton
               data-testid="executive-dashboard-refresh-button"
-              disabled={refreshing}
+              busy={refreshing}
               onClick={() => {
                 void refreshDashboard();
               }}
-            >
-              {refreshing ? EXECUTIVE_DASHBOARD_ACTION_REFRESHING : EXECUTIVE_DASHBOARD_ACTION_REFRESH}
-            </Button>
+            />
             {dashboardEmpty ? (
               <Button variant="primary" size="sm" asChild>
                 <Link href="/architecture/reviews/new" className="no-underline" data-testid="executive-dashboard-hero-start-review">

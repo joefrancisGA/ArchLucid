@@ -4,7 +4,7 @@ import Link from "next/link";
 
 import { OperatorPageBreadcrumb } from "@/components/operator/OperatorPageBreadcrumb";
 import { OperatorPageHeader } from "@/components/operator/OperatorPageHeader";
-import { Button } from "@/components/ui/button";
+import { RefreshButton } from "@/components/ui/refresh-button";
 import { StatusTag } from "@/components/ui/status-tag";
 import { PageContextualHelpButton } from "@/components/usability/PageContextualHelpButton";
 import { OPERATOR_LINK, OPERATOR_TYPOGRAPHY } from "@/lib/design-tokens";
@@ -12,7 +12,6 @@ import { INTEGRATIONS_READINESS_PATH, INTEGRATIONS_SERVICENOW_PATH } from "@/lib
 import { itsmConnectionStatusTagKind } from "@/lib/itsm/itsm-connection-status-tag-kind";
 import { operatorLastRefreshedExactLabel } from "@/lib/operator/operator-last-refreshed-label";
 import {
-  SERVICENOW_ACTION_REFRESH,
   SERVICENOW_ACTION_REFRESHING,
   SERVICENOW_BREADCRUMB_INTEGRATIONS_LABEL,
   SERVICENOW_INTEGRATION_PAGE_TITLE,
@@ -60,16 +59,12 @@ export function ServiceNowIntegrationPageHeader(
       actions={
         <div className="flex flex-wrap items-center gap-2" data-testid="servicenow-header-actions">
           <PageContextualHelpButton />
-          <Button
-            type="button"
-            variant="outline"
-            size="sm"
+          <RefreshButton
             data-testid="servicenow-refresh-button"
+            busy={props.refreshing}
             disabled={props.refreshDisabled}
             onClick={() => void props.onRefresh()}
-          >
-            {props.refreshing ? SERVICENOW_ACTION_REFRESHING : SERVICENOW_ACTION_REFRESH}
-          </Button>
+          />
           <Link
             href={INTEGRATIONS_READINESS_PATH}
             className={cn(OPERATOR_LINK.inline, OPERATOR_TYPOGRAPHY.micro)}

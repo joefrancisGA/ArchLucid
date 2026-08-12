@@ -1,7 +1,7 @@
 "use client";
 
 import { OperatorPageHeader } from "@/components/operator/OperatorPageHeader";
-import { Button } from "@/components/ui/button";
+import { RefreshButton } from "@/components/ui/refresh-button";
 import { HealthFreshnessLabel } from "@/components/health-dashboard/HealthDashboardSections";
 import { PageContextualHelpButton } from "@/components/usability/PageContextualHelpButton";
 import { SYSTEM_HEALTH_PAGE_TITLE, SYSTEM_HEALTH_REFRESH_POLICY } from "@/lib/system-health-page-copy";
@@ -34,16 +34,11 @@ export function SystemHealthPageHeader(props: SystemHealthPageHeaderProps): Reac
             refreshPolicy={SYSTEM_HEALTH_REFRESH_POLICY}
             testId="system-health-refresh-timestamp"
           />
-          <Button
-            type="button"
-            variant="outline"
-            size="sm"
+          <RefreshButton
+            busy={props.loading}
             data-testid={refreshTestId}
-            disabled={props.loading}
             onClick={() => void props.onRefresh()}
-          >
-            {props.loading ? "Refreshing…" : "Refresh"}
-          </Button>
+          />
         </div>
       }
     />

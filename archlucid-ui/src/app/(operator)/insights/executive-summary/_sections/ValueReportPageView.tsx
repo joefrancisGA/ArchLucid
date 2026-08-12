@@ -12,6 +12,7 @@ import { ValueReportOutcomesNav } from "@/components/usability/ValueReportOutcom
 import { OperatorApiProblem } from "@/components/operator/OperatorApiProblem";
 import { OperatorPageHeader } from "@/components/operator/OperatorPageHeader";
 import { Button } from "@/components/ui/button";
+import { RefreshButton } from "@/components/ui/refresh-button";
 import { WhyDisabledCtaHint } from "@/components/usability/WhyDisabledCtaHint";
 import { firstWhyDisabledCtaReason, type WhyDisabledCtaReason } from "@/lib/why-disabled-cta";
 import {
@@ -164,9 +165,12 @@ export function ValueReportPageView({ model }: ValueReportPageViewProps) {
             </div>
 
             <div className="flex flex-wrap gap-2">
-              <Button type="button" variant="secondary" disabled={previewBusy} onClick={() => void onRefreshPreview()}>
-                {previewBusy ? "Refreshing…" : "Refresh preview"}
-              </Button>
+              <RefreshButton
+                busy={previewBusy}
+                label="Refresh preview"
+                size="default"
+                onClick={() => void onRefreshPreview()}
+              />
               {hasReportData && !previewBusy ? (
                 <Button type="button" variant="outline" onClick={scrollToPreview}>
                   Preview report

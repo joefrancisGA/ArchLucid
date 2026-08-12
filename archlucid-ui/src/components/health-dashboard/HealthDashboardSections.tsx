@@ -3,7 +3,7 @@
 import { cn } from "@/lib/utils";
 import type { ReactNode } from "react";
 
-import { Button } from "@/components/ui/button";
+import { RefreshButton } from "@/components/ui/refresh-button";
 import { CollapsibleSection } from "@/components/CollapsibleSection";
 import {
   EnterpriseTable,
@@ -71,16 +71,11 @@ type HealthRefreshToolbarProps = {
 export function HealthRefreshToolbar(props: HealthRefreshToolbarProps) {
   return (
     <div className="flex flex-wrap items-center gap-3">
-      <Button
-        type="button"
-        variant="outline"
-        size="sm"
+      <RefreshButton
+        busy={props.loading}
         data-testid={props.refreshTestId}
-        disabled={props.loading}
         onClick={() => void props.onRefresh()}
-      >
-        {props.loading ? "Refreshing…" : "Refresh"}
-      </Button>
+      />
       <HealthFreshnessLabel
         loading={props.loading}
         lastRefreshedAt={props.lastRefreshedAt}

@@ -5,7 +5,7 @@ import Link from "next/link";
 import { cn } from "@/lib/utils";
 
 import { OperatorPageHeader } from "@/components/operator/OperatorPageHeader";
-import { Button } from "@/components/ui/button";
+import { RefreshButton } from "@/components/ui/refresh-button";
 import { PageContextualHelpButton } from "@/components/usability/PageContextualHelpButton";
 import { OPERATOR_LINK, OPERATOR_TYPOGRAPHY } from "@/lib/design-tokens";
 import {
@@ -13,7 +13,6 @@ import {
   operatorLastRefreshedLabel,
 } from "@/lib/operator/operator-last-refreshed-label";
 import {
-  POLICY_PACKS_ACTION_REFRESH,
   POLICY_PACKS_ACTION_REFRESHING,
   POLICY_PACKS_LAST_REFRESHED_PREFIX,
   POLICY_PACKS_PAGE_TITLE,
@@ -40,16 +39,11 @@ export function PolicyPacksPageHeader(props: PolicyPacksPageHeaderProps): React.
       actions={
         <div className="flex flex-wrap items-center gap-2" data-testid="policy-packs-header-actions">
           <PageContextualHelpButton />
-          <Button
-            type="button"
-            variant="outline"
-            size="sm"
+          <RefreshButton
             data-testid="policy-packs-refresh-button"
-            disabled={props.refreshing}
+            busy={props.refreshing}
             onClick={() => void props.onRefresh()}
-          >
-            {props.refreshing ? POLICY_PACKS_ACTION_REFRESHING : POLICY_PACKS_ACTION_REFRESH}
-          </Button>
+          />
           <Link
             href={POLICY_PACKS_RESOLUTION_LINK_HREF}
             className={cn(OPERATOR_LINK.inline, OPERATOR_TYPOGRAPHY.micro)}

@@ -3,7 +3,7 @@
 import { cn } from "@/lib/utils";
 import { useCallback, useEffect, useState } from "react";
 
-import { Button } from "@/components/ui/button";
+import { RefreshButton } from "@/components/ui/refresh-button";
 import { Card, CardContent, CardHeader, CardTitle } from "@/components/ui/card";
 import {
   EnterpriseTable,
@@ -71,9 +71,7 @@ export function FleetLlmCogsAdminPageClient() {
         title={FLEET_LLM_COGS_PAGE_TITLE}
         subtitle={FLEET_LLM_COGS_PAGE_LEAD}
         actions={
-          <Button type="button" variant="outline" size="sm" disabled={loading} onClick={() => void refresh()}>
-            {loading ? "Refreshing…" : "Refresh"}
-          </Button>
+          <RefreshButton busy={loading} onClick={() => void refresh()} />
         }
       />
 

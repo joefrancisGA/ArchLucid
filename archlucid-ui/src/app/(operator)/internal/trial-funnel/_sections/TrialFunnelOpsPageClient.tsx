@@ -7,6 +7,7 @@ import { useCallback, useEffect, useMemo, useState, type ReactElement } from "re
 import { OperatorPageHeader } from "@/components/operator/OperatorPageHeader";
 import { TrialFunnelDemoReadinessVocabularyRail } from "@/components/trial/TrialFunnelDemoReadinessVocabularyRail";
 import { Button } from "@/components/ui/button";
+import { RefreshButton } from "@/components/ui/refresh-button";
 import { Card, CardContent, CardHeader, CardTitle } from "@/components/ui/card";
 import {
   EnterpriseTable,
@@ -316,15 +317,7 @@ export function TrialFunnelOpsPageClient(): ReactElement {
               />
               Compare with previous period
             </label>
-            <Button
-              type="button"
-              variant="outline"
-              size="sm"
-              disabled={loadState === "loading"}
-              onClick={() => void refresh()}
-            >
-              {loadState === "loading" ? "Refreshing data…" : "Refresh data"}
-            </Button>
+            <RefreshButton busy={loadState === "loading"} onClick={() => void refresh()} />
             <Button
               type="button"
               variant="outline"

@@ -10,6 +10,7 @@ import { OperatorPageHeader } from "@/components/operator/OperatorPageHeader";
 import { OperatorSectionLoadFailure } from "@/components/operator/OperatorSectionLoadFailure";
 import { PilotFeedbackRecommendationLearningVocabularyRail } from "@/components/PilotFeedbackRecommendationLearningVocabularyRail";
 import { Button } from "@/components/ui/button";
+import { RefreshButton } from "@/components/ui/refresh-button";
 import {
   EnterpriseTable,
   EnterpriseTableBody,
@@ -359,15 +360,11 @@ export function RecommendationLearningOpsPageClient(props: Props) {
         }
         actions={
           <div className="flex flex-wrap items-center justify-end gap-2">
-            <Button
-              type="button"
-              variant="outline"
-              size="sm"
-              disabled={isRefreshing || isLoadingPersisted}
+            <RefreshButton
+              busy={isRefreshing}
+              disabled={isLoadingPersisted}
               onClick={() => void refresh()}
-            >
-              {isRefreshing ? "Refreshing…" : "Refresh operational data"}
-            </Button>
+            />
             <Button
               type="button"
               variant="outline"

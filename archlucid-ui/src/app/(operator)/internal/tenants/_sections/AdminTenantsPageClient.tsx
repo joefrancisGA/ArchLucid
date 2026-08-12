@@ -5,6 +5,7 @@ import { useCallback, useEffect, useMemo, useState, type FormEvent } from "react
 
 import { ConfirmationDialog } from "@/components/ConfirmationDialog";
 import { Button } from "@/components/ui/button";
+import { RefreshButton } from "@/components/ui/refresh-button";
 import {
   EnterpriseTable,
   EnterpriseTableBody,
@@ -227,17 +228,12 @@ export function AdminTenantsPageClient() {
         subtitle="Provision a net-new tenant (seeds bundled policy packs) or shut off an existing tenant without deleting data. Erasure quarantine remains a separate platform deletion path."
         actions={<PageContextualHelpButton />}
       >
-        <Button
-          type="button"
-          variant="outline"
-          size="sm"
-          disabled={loading}
+        <RefreshButton
+          busy={loading}
           onClick={() => {
             void refresh();
           }}
-        >
-          {loading ? "Refreshing…" : "Refresh"}
-        </Button>
+        />
       </OperatorPageHeader>
       <section
         className="space-y-3 rounded-md border border-neutral-300 p-4 dark:border-neutral-700"

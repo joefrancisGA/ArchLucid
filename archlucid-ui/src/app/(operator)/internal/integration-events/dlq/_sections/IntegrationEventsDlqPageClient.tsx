@@ -25,6 +25,7 @@ import {
 } from "@/components/ui/enterprise-table";
 import { Input } from "@/components/ui/input";
 import { Label } from "@/components/ui/label";
+import { RefreshButton } from "@/components/ui/refresh-button";
 import { PageContextualHelpButton } from "@/components/usability/PageContextualHelpButton";
 import { WhyDisabledCtaHint } from "@/components/usability/WhyDisabledCtaHint";
 import { OperatorPageHeader } from "@/components/operator/OperatorPageHeader";
@@ -371,16 +372,12 @@ export function IntegrationEventsDlqPageClient() {
             className="flex shrink-0 flex-wrap items-center gap-2"
             data-testid="integration-events-dlq-header-actions"
           >
-            <Button
-              type="button"
+            <RefreshButton
               variant="primary"
-              size="sm"
               data-testid="integration-events-dlq-refresh-button"
               onClick={() => void load()}
-              disabled={state.status === "loading"}
-            >
-              Refresh
-            </Button>
+              busy={state.status === "loading"}
+            />
             <Button
               type="button"
               variant="destructive"

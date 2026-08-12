@@ -10,6 +10,7 @@ import { PageHeading } from "@/components/PageHeading";
 import { ExternalLink } from "@/components/ui/external-link";
 import { StatusTag } from "@/components/ui/status-tag";
 import { Button } from "@/components/ui/button";
+import { RefreshButton } from "@/components/ui/refresh-button";
 import { PageContextualHelpButton } from "@/components/usability/PageContextualHelpButton";
 import { cn } from "@/lib/utils";
 import { displayDeploymentField, deploymentOverallStatusShortLabel, deploymentOverallStatusTagKind, resolveOverallTone } from "@/lib/admin-deployment-status";
@@ -90,17 +91,12 @@ export function AdminDeploymentStatusPageView(props: Props) {
         }
         actions={
           <>
-            <Button
-              type="button"
-              variant="primary"
-              size="sm"
+            <RefreshButton
+              busy={m.loading}
               className="h-8"
-              disabled={m.loading}
               onClick={() => void m.refresh()}
               data-testid="admin-deployment-status-refresh"
-            >
-              {m.loading ? "Refreshing…" : "Refresh"}
-            </Button>
+            />
             <PageContextualHelpButton />
           </>
         }

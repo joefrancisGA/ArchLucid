@@ -3,7 +3,7 @@
 import { cn } from "@/lib/utils";
 import { useCallback, useEffect, useMemo, useState } from "react";
 
-import { Button } from "@/components/ui/button";
+import { RefreshButton } from "@/components/ui/refresh-button";
 import {
   EnterpriseTable,
   EnterpriseTableBody,
@@ -96,9 +96,7 @@ export function TenantHealthAdminPageClient() {
         subtitle="Internal customer-success view of engagement, governance, and pilot funnel stage per tenant scope."
         actions={
           <>
-            <Button type="button" variant="outline" size="sm" disabled={loading} onClick={() => void refresh()}>
-              {loading ? "Refreshing…" : "Refresh"}
-            </Button>
+            <RefreshButton busy={loading} onClick={() => void refresh()} />
             <PageContextualHelpButton />
           </>
         }

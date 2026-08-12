@@ -17,6 +17,7 @@ import { GovernanceSetupConfigHubsVocabularyRail } from "@/components/governance
 import { PolicyPacksStandardsVocabularyRail } from "@/components/policy/PolicyPacksStandardsVocabularyRail";
 import { PageContextualHelpButton } from "@/components/usability/PageContextualHelpButton";
 import { Button } from "@/components/ui/button";
+import { RefreshButton } from "@/components/ui/refresh-button";
 import {
   governanceResolutionChangeRelatedControlsLead,
   governanceResolutionChangeRelatedControlsReaderSupplement,
@@ -25,7 +26,6 @@ import {
   governanceResolutionPageLeadOperator,
   governanceResolutionPageLeadReader,
   governanceResolutionRawOutputAccordionLabel,
-  governanceResolutionRefreshButtonTitle,
   governanceResolutionRefreshPolicySectionHeading,
   governanceResolutionResolutionDetailsHeadingOperator,
   governanceResolutionResolutionDetailsHeadingReader,
@@ -172,16 +172,7 @@ function GovernanceResolutionOperatorDiagnostics(props: { readonly model: Govern
           </p>
         ) : null}
         <div className="mb-0 flex flex-wrap gap-2">
-          <Button
-            type="button"
-            variant="secondary"
-            size="sm"
-            aria-label={governanceResolutionRefreshButtonTitle}
-            onClick={() => void m.load()}
-            disabled={m.loading}
-          >
-            {m.loading ? "Loading…" : "Refresh"}
-          </Button>
+          <RefreshButton busy={m.loading} onClick={() => void m.load()} />
           <Button
             type="button"
             variant="outline"

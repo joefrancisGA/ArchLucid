@@ -39,10 +39,6 @@ import {
   digestsHubTabFromLocation,
   digestsHubTabPath,
 } from "@/lib/digests-route-paths";
-import {
-  digestsListRefreshButtonTitleOperator,
-  digestsListRefreshButtonTitleReader,
-} from "@/lib/enterprise-controls-context-copy";
 import type { WeeklyDigestHealthDto } from "@/types/operate-rhythm";
 
 import { DigestRecurrenceScheduleVocabularyRail } from "@/components/DigestRecurrenceScheduleVocabularyRail";
@@ -221,9 +217,6 @@ export function DigestsHubClient(): ReactElement {
         refreshing={refreshing}
         lastUpdatedUtc={lastUpdatedUtc}
         onRefresh={onRefresh}
-        refreshButtonTitle={
-          canMutate ? digestsListRefreshButtonTitleOperator : digestsListRefreshButtonTitleReader
-        }
         lastUpdatedPrefix={browseSetupGuidesChecklist ? DIGESTS_HEALTH_CHECK_PREFIX : undefined}
         actions={browseHeaderActions}
       />

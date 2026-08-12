@@ -80,6 +80,6 @@ describe("TrialFunnelOpsPageClient", () => {
     expect(await screen.findByText("Funnel overview")).toBeInTheDocument();
     expect(screen.getByText("Activation and review timing")).toBeInTheDocument();
     expect(screen.getAllByText("First-review AI cost").length).toBeGreaterThan(0);
-    expect(screen.getByRole("button", { name: /refresh data/i })).toBeInTheDocument();
+    expect(screen.getByRole("button", { name: "Refresh" })).toBeInTheDocument();
   });
 });

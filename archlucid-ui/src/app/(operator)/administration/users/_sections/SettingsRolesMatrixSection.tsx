@@ -6,6 +6,7 @@ import { cn } from "@/lib/utils";
 import { useCallback, useEffect, useMemo, useState } from "react";
 
 import { Button } from "@/components/ui/button";
+import { RefreshButton } from "@/components/ui/refresh-button";
 import { Checkbox } from "@/components/ui/checkbox";
 import {
   EnterpriseTable,
@@ -518,9 +519,7 @@ export function SettingsRolesMatrixSection(props: SettingsRolesMatrixSectionProp
           description="Custom roles and permissions could not be loaded. Refresh to try again."
         />
         <div className="flex flex-wrap gap-2">
-          <Button type="button" variant="secondary" size="sm" onClick={() => void load()}>
-            Refresh
-          </Button>
+          <RefreshButton onClick={() => void load()} />
         </div>
       </section>
     );

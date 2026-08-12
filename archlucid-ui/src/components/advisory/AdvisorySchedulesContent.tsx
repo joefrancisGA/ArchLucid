@@ -4,7 +4,6 @@ import { cn } from "@/lib/utils";
 import { OPERATOR_TYPOGRAPHY } from "@/lib/design-tokens";
 
 import Link from "next/link";
-import { RefreshCw } from "lucide-react";
 import { useCallback, useEffect, useMemo, useRef, useState, type ReactElement } from "react";
 
 import { AdvisoryScheduleCreateForm } from "@/components/advisory/AdvisoryScheduleCreateForm";
@@ -15,6 +14,7 @@ import { EnterpriseCompactEmptyState } from "@/components/EnterpriseCompactEmpty
 import { useNavCallerAuthorityRank } from "@/components/operator/OperatorNavAuthorityProvider";
 import { OperatorApiProblem } from "@/components/operator/OperatorApiProblem";
 import { Button } from "@/components/ui/button";
+import { RefreshButton } from "@/components/ui/refresh-button";
 import {
   EnterpriseTable,
   EnterpriseTableBody,
@@ -349,18 +349,11 @@ export function AdvisorySchedulesContent(): ReactElement {
             <h3 className={cn("m-0 font-semibold text-al-text-primary", OPERATOR_TYPOGRAPHY.cardTitle)}>
               {canMutateSchedules ? advisorySchedulesListHeadingOperator : advisorySchedulesListHeadingReader}
             </h3>
-            <Button
-              type="button"
-              variant="outline"
-              size="sm"
-              onClick={() => void refresh()}
-              disabled={loading}
-              aria-label={loading ? "Refreshing schedules" : "Refresh schedules"}
+            <RefreshButton
+              busy={loading}
               data-testid="advisory-schedules-refresh"
-            >
-              <RefreshCw className={cn("mr-1.5 size-3.5", loading && "animate-spin")} aria-hidden />
-              {loading ? "Refreshing…" : "Refresh"}
-            </Button>
+              onClick={() => void refresh()}
+            />
           </div>
 
           <EnterpriseTable ariaLabel="Advisory scan schedules">

@@ -15,6 +15,7 @@ import { WebhooksVsDlqVocabularyRail } from "@/components/WebhooksVsDlqVocabular
 import { ConnectionStatusWebhooksVocabularyRail } from "@/components/ConnectionStatusWebhooksVocabularyRail";
 import { BooleanStatusChip } from "@/components/ui/boolean-status-chip";
 import { Button } from "@/components/ui/button";
+import { RefreshButton } from "@/components/ui/refresh-button";
 import {
   EnterpriseTable,
   EnterpriseTableBody,
@@ -390,9 +391,7 @@ export function WebhooksSettingsClient() {
                 ) : null}
               </div>
               {webhookRows.length > 0 ? (
-                <Button type="button" variant="outline" size="sm" onClick={() => void load()} disabled={loading} aria-busy={loading}>
-                  {loading ? "Refreshing…" : "Refresh"}
-                </Button>
+                <RefreshButton busy={loading} onClick={() => void load()} />
               ) : null}
             </div>
 

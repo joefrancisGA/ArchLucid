@@ -8,6 +8,7 @@ import { OperatorPageHeader } from "@/components/operator/OperatorPageHeader";
 import { PageContextualHelpButton } from "@/components/usability/PageContextualHelpButton";
 import { Badge } from "@/components/ui/badge";
 import { Button } from "@/components/ui/button";
+import { RefreshButton } from "@/components/ui/refresh-button";
 import { Card, CardContent, CardHeader, CardTitle } from "@/components/ui/card";
 import { CollapsibleSection } from "@/components/CollapsibleSection";
 import {
@@ -243,9 +244,7 @@ export function PricingQuoteAgingPageView(props: Props) {
                 {lastUpdatedLabel}
               </span>
             ) : null}
-            <Button type="button" variant="outline" size="sm" disabled={m.loading} onClick={() => void m.refresh()}>
-              {m.loading ? "Refreshing…" : "Refresh"}
-            </Button>
+            <RefreshButton busy={m.loading} onClick={() => void m.refresh()} />
           </div>
         }
       />

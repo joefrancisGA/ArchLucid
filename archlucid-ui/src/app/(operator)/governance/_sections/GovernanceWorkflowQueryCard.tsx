@@ -1,5 +1,6 @@
 import { cn } from "@/lib/utils";
 import { Button } from "@/components/ui/button";
+import { RefreshButton } from "@/components/ui/refresh-button";
 import { Card, CardContent, CardDescription, CardHeader, CardTitle } from "@/components/ui/card";
 import { Input } from "@/components/ui/input";
 import { Label } from "@/components/ui/label";
@@ -12,7 +13,6 @@ import {
   governanceWorkflowQueryCardDescriptionOperator,
   governanceWorkflowQueryCardDescriptionReader,
   governanceWorkflowRefreshRunDataButtonLabel,
-  governanceWorkflowRefreshRunDataTitle,
 } from "@/lib/enterprise-controls-context-copy";
 import { buyerFacingReviewLinkLabelFromRunId } from "@/lib/buyer/buyer-facing-review-title";
 import {
@@ -103,19 +103,13 @@ export function GovernanceWorkflowQueryCard(props: GovernanceWorkflowQueryCardPr
                   {listsLoadingShowsBusyChrome ? "Loading…" : "Load selected review"}
                 </Button>
                 {activeRunId !== null ? (
-                  <Button
-                    type="button"
-                    variant="outline"
-                    onClick={() => void refreshIfActive()}
+                  <RefreshButton
+                    busy={listsLoadingShowsBusyChrome}
                     disabled={listsLoading}
-                    title={governanceWorkflowRefreshRunDataTitle}
-                  >
-                    {listsLoadingShowsBusyChrome
-                      ? "Refreshing…"
-                      : buyerPolishedShell
-                        ? "Refresh review data"
-                        : governanceWorkflowRefreshRunDataButtonLabel}
-                  </Button>
+                    size="default"
+                    label={buyerPolishedShell ? "Refresh review data" : governanceWorkflowRefreshRunDataButtonLabel}
+                    onClick={() => void refreshIfActive()}
+                  />
                 ) : null}
               </div>
             </div>

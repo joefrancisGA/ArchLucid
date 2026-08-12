@@ -2,6 +2,7 @@
 
 import { cn } from "@/lib/utils";
 import { OperatorApiProblem } from "@/components/operator/OperatorApiProblem";
+import { RefreshButton } from "@/components/ui/refresh-button";
 import type { ApiLoadFailureState } from "@/lib/api-load-failure";
 import { OPERATOR_NAV_GROUP_LABEL, OPERATOR_TYPOGRAPHY } from "@/lib/design-tokens";
 import type { PolicyPackCatalogListItem } from "@/types/policy-packs";
@@ -29,21 +30,14 @@ export function PolicyPacksCatalogSection(props: PolicyPacksCatalogSectionProps)
     <section className="flex flex-col gap-4" aria-label="Policy pack catalog">
       <div className="flex flex-wrap items-center gap-2">
         <h2 className={cn("m-0", OPERATOR_NAV_GROUP_LABEL)}>Catalog</h2>
-        <button
-          type="button"
-          className={cn(
-            "rounded-md border border-input bg-background px-3 py-1.5 hover:bg-accent",
-            OPERATOR_TYPOGRAPHY.tab,
-            props.loading && "pointer-events-none opacity-60",
-          )}
+        <RefreshButton
+          label="Refresh catalog"
+          busy={props.loading}
+          data-testid="policy-packs-catalog-refresh"
           onClick={() => {
             void props.onRefresh();
           }}
-          disabled={props.loading}
-          data-testid="policy-packs-catalog-refresh"
-        >
-          Refresh catalog
-        </button>
+        />
         <button
           type="button"
           className={cn(

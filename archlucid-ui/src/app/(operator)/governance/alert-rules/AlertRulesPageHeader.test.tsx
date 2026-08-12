@@ -39,7 +39,7 @@ describe("AlertRulesPageHeader", () => {
     expect(screen.getByText(alertsConfigurationPageSubtitle(false))).toBeInTheDocument();
     expect(screen.getByTestId("page-contextual-help-button")).toHaveTextContent("Help");
     expect(screen.getByTestId("alert-rules-header-actions")).toBeInTheDocument();
-    expect(screen.getByTestId("alert-rules-refresh-button")).toHaveAttribute("aria-label", "Refresh");
+    expect(screen.getByRole("button", { name: "Refresh" })).toBeInTheDocument();
     expect(screen.queryByTestId("alert-rules-open-inbox-link")).toBeNull();
     expect(screen.queryByTestId("alert-rules-posture-tag")).toBeNull();
     expect(screen.queryByTestId("alert-rules-last-refreshed")).toBeNull();

@@ -9,6 +9,7 @@ import type { ReactElement } from "react";
 import { EnterpriseCompactEmptyState } from "@/components/EnterpriseCompactEmptyState";
 import { OperatorInventoryRowMoreActions } from "@/components/operator/OperatorInventoryRowMoreActions";
 import { Button } from "@/components/ui/button";
+import { RefreshButton } from "@/components/ui/refresh-button";
 import {
   EnterpriseTable,
   EnterpriseTableBody,
@@ -77,16 +78,11 @@ export function DigestSubscriptionList(props: DigestSubscriptionListProps): Reac
     <section className="rounded-lg border border-neutral-200 bg-white p-4 dark:border-neutral-700 dark:bg-neutral-950">
       <div className="flex flex-wrap items-center justify-between gap-2">
         <h3 className={cn("m-0 font-semibold text-al-text-primary", OPERATOR_TYPOGRAPHY.cardTitle)}>{heading}</h3>
-        <Button
-          type="button"
-          size="sm"
-          variant="secondary"
-          onClick={props.onRefresh}
-          disabled={props.loading}
+        <RefreshButton
+          busy={props.loading}
           data-testid="digest-subscriptions-refresh"
-        >
-          {props.loading ? "Refreshing…" : "Refresh"}
-        </Button>
+          onClick={props.onRefresh}
+        />
       </div>
 
       <WhyDisabledCtaHint
