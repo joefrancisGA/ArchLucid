@@ -79,6 +79,15 @@ export const GUIDED_INTAKE_CREATION_PEOPLE_SYSTEMS_HINT =
 
 export const GUIDED_INTAKE_ACTORS_EMPTY_STATE = "No people or systems added yet.";
 
+/**
+ *     Interaction is a timing axis, but its first option is named after a channel
+ *     ("Interactive UI"), so a person uploading a batch from a screen can pick it by mistake.
+ *     The wrong choice sends the review after response-time requirements instead of job
+ *     durability and resumability.
+ */
+export const GUIDED_INTAKE_INTERACTION_TIMING_HINT =
+  "Choose Async batch if work is submitted now and the result arrives later.";
+
 /** Start review guided intake — field label is Architecture intent. */
 export const GUIDED_INTAKE_SUGGEST_ACTORS_BUTTON = "Suggest from architecture intent";
 

@@ -6,6 +6,7 @@ import {
   GUIDED_INTAKE_ACTORS_SECTION_HEADING,
   GUIDED_INTAKE_ADD_ACTOR_BUTTON,
   GUIDED_INTAKE_ADD_SELECTED_ACTORS_BUTTON,
+  GUIDED_INTAKE_INTERACTION_TIMING_HINT,
   GUIDED_INTAKE_SUGGEST_ACTORS_BUTTON,
   GUIDED_INTAKE_SUGGEST_ACTORS_DISABLED_HINT,
   GUIDED_INTAKE_TRUST_BOUNDARY_HINT,
@@ -153,6 +154,17 @@ describe("DraftIntakeActorEditor", () => {
         },
       ],
     });
+  });
+
+  it("announces the interaction timing hint from the interaction dropdown", () => {
+    const onChange = vi.fn();
+
+    render(<DraftIntakeActorEditor actorSet={baseActorSet} intentText={sampleIntent} onChange={onChange} />);
+
+    const hint = screen.getByTestId("draft-intake-actor-contract-hint-0");
+
+    expect(hint).toHaveTextContent(GUIDED_INTAKE_INTERACTION_TIMING_HINT);
+    expect(screen.getByLabelText("Interaction")).toHaveAttribute("aria-describedby", hint.id);
   });
 
   it("shows creation-flow helper copy when requested", () => {

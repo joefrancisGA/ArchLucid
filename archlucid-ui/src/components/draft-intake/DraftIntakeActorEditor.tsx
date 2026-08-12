@@ -44,6 +44,7 @@ import {
   GUIDED_INTAKE_CREATION_PEOPLE_SYSTEMS_HINT,
   GUIDED_INTAKE_CREATION_SUGGEST_ACTORS_BUTTON,
   GUIDED_INTAKE_CREATION_SUGGEST_ACTORS_DISABLED_HINT,
+  GUIDED_INTAKE_INTERACTION_TIMING_HINT,
   GUIDED_INTAKE_SUGGESTED_ACTORS_HEADING,
   GUIDED_INTAKE_SUGGEST_ACTORS_BUTTON,
   GUIDED_INTAKE_SUGGEST_ACTORS_DISABLED_HINT,
@@ -420,7 +421,10 @@ export function DraftIntakeActorEditor(props: DraftIntakeActorEditorProps) {
                   );
                 }}
               >
-                <SelectTrigger id={`draft-intake-actor-contract-${index}`}>
+                <SelectTrigger
+                  id={`draft-intake-actor-contract-${index}`}
+                  aria-describedby={`draft-intake-actor-contract-hint-${index}`}
+                >
                   <SelectValue />
                 </SelectTrigger>
                 <SelectContent>
@@ -431,6 +435,13 @@ export function DraftIntakeActorEditor(props: DraftIntakeActorEditorProps) {
                   ))}
                 </SelectContent>
               </Select>
+              <p
+                id={`draft-intake-actor-contract-hint-${index}`}
+                className={cn("m-0 text-neutral-600 dark:text-neutral-400", OPERATOR_TYPOGRAPHY.helper)}
+                data-testid={`draft-intake-actor-contract-hint-${index}`}
+              >
+                {GUIDED_INTAKE_INTERACTION_TIMING_HINT}
+              </p>
             </div>
           </div>
         </div>
