@@ -63,9 +63,13 @@ async function fetchIdentityDiagnostics(): Promise<{
 
     return {
       identity: {
+        // A non-ok auth configuration response returns early above, so reaching here means it is available.
         authConfigurationDiagnostics,
+        authConfigurationDiagnosticsAvailable: true,
         identityProviderDiagnostics,
+        identityProviderDiagnosticsAvailable: identityProviderRes.ok,
         oidcDiagnostics,
+        oidcDiagnosticsAvailable: oidcRes.ok,
       },
       identityLoadFailed: false,
     };

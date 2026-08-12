@@ -221,7 +221,7 @@ export const IDENTITY_PROVIDERS_RECOMMENDED_VALIDATE_ROLE_MAPPING = "Validate ro
 export const IDENTITY_PROVIDERS_RECOMMENDED_CONFIGURE_PRODUCTION_SIGN_IN =
   "Open SSO setup wizard to configure and test";
 export const IDENTITY_PROVIDERS_RECOMMENDED_CONFIGURE_PRODUCTION_SIGN_IN_DETAIL =
-  "Saving configuration writes your IdP settings to the identity provider record. It does not change how anyone signs in today — turning on SSO sign-in is a separate platform configuration change.";
+  "Saving configuration writes your IdP settings to the identity provider record. It does not change how anyone signs in today — turning on SSO sign-in is a separate platform configuration change. Local development sign-in is not suitable for shared use, so complete this before inviting other users.";
 export const IDENTITY_PROVIDERS_RECOMMENDED_VALIDATE_OIDC = "Validate OIDC discovery";
 export const IDENTITY_PROVIDERS_RECOMMENDED_OPEN_DIAGNOSTICS = "Review identity diagnostics";
 

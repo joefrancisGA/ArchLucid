@@ -41,10 +41,6 @@ export type ResolveIdentityProvidersOverviewInput = {
   readonly oidcDiagnosticsAvailable: boolean;
 };
 
-function unknownCaption(): string {
-  return IDENTITY_PROVIDERS_STATUS_SOURCE_UNAVAILABLE;
-}
-
 function mapAuthModeLabel(authMode: string | null | undefined): string {
   switch (authMode) {
     case "DevelopmentBypass":
@@ -254,14 +250,14 @@ function buildTileCaptions(
   } = {};
 
   if (!input.authConfigurationDiagnosticsAvailable) {
-    captions.authenticationMode = unknownCaption();
-    captions.saml = unknownCaption();
-    captions.roleMapping = unknownCaption();
-    captions.sso = unknownCaption();
+    captions.authenticationMode = IDENTITY_PROVIDERS_STATUS_SOURCE_UNAVAILABLE;
+    captions.saml = IDENTITY_PROVIDERS_STATUS_SOURCE_UNAVAILABLE;
+    captions.roleMapping = IDENTITY_PROVIDERS_STATUS_SOURCE_UNAVAILABLE;
+    captions.sso = IDENTITY_PROVIDERS_STATUS_SOURCE_UNAVAILABLE;
   }
 
   if (!input.oidcDiagnosticsAvailable && !input.identityProviderDiagnosticsAvailable) {
-    captions.oidc = unknownCaption();
+    captions.oidc = IDENTITY_PROVIDERS_STATUS_SOURCE_UNAVAILABLE;
   }
 
   if (
@@ -273,23 +269,23 @@ function buildTileCaptions(
   }
 
   if (validationStatusLabel === IDENTITY_PROVIDERS_STATUS_UNKNOWN) {
-    captions.validation = unknownCaption();
+    captions.validation = IDENTITY_PROVIDERS_STATUS_SOURCE_UNAVAILABLE;
   }
 
   if (authModeLabel === IDENTITY_PROVIDERS_STATUS_UNKNOWN) {
-    captions.authenticationMode = unknownCaption();
+    captions.authenticationMode = IDENTITY_PROVIDERS_STATUS_SOURCE_UNAVAILABLE;
   }
 
   if (samlStatus === IDENTITY_PROVIDERS_STATUS_UNKNOWN) {
-    captions.saml = unknownCaption();
+    captions.saml = IDENTITY_PROVIDERS_STATUS_SOURCE_UNAVAILABLE;
   }
 
   if (oidcStatus === IDENTITY_PROVIDERS_STATUS_UNKNOWN) {
-    captions.oidc = unknownCaption();
+    captions.oidc = IDENTITY_PROVIDERS_STATUS_SOURCE_UNAVAILABLE;
   }
 
   if (ssoStatus === IDENTITY_PROVIDERS_STATUS_UNKNOWN) {
-    captions.sso = unknownCaption();
+    captions.sso = IDENTITY_PROVIDERS_STATUS_SOURCE_UNAVAILABLE;
   }
 
   return captions;
