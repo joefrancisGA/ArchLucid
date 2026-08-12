@@ -147,6 +147,21 @@ export const COMPARE_FINDING_CORRELATION_EMPTY_COMPACT: EnterpriseCompactEmptySt
     "No finding correlation metadata on this comparison (API may predate correlation export metadata).",
 };
 
+/** Governance approval lineage — findings card when the snapshot has no linked findings. */
+export const GOVERNANCE_APPROVAL_LINEAGE_FINDINGS_EMPTY_COMPACT: EnterpriseCompactEmptyStateProps = {
+  testId: "governance-approval-lineage-findings-empty-state",
+  title: "No findings in lineage",
+  description:
+    "Findings appear when this approval links to a review that has a findings snapshot.",
+};
+
+/** Governance approval lineage — rare null-data fallback after a non-error load path. */
+export const GOVERNANCE_APPROVAL_LINEAGE_NO_DATA_COMPACT: EnterpriseCompactEmptyStateProps = {
+  testId: "governance-approval-lineage-no-data",
+  title: "Could not load lineage",
+  description: "Lineage could not be loaded.",
+};
+
 /** Compare page when zero finalized reviews exist. */
 export const COMPARE_ZERO_FINALIZED_COMPACT: EnterpriseCompactEmptyStateProps = {
   testId: "compare-zero-finalized-empty-state",

@@ -1,15 +1,15 @@
 "use client";
 
-import { cn } from "@/lib/utils";
 import Link from "next/link";
 
+import { EnterpriseCompactEmptyState } from "@/components/EnterpriseCompactEmptyState";
 import { DemoUnavailableNotice } from "@/components/DemoUnavailableNotice";
 import { OperatorApiProblem } from "@/components/operator/OperatorApiProblem";
 import { OperatorBrandedRouteLoadFailure } from "@/components/operator/OperatorBrandedRouteLoadFailure";
-import { OperatorEmptyState, OperatorLoadingNotice } from "@/components/operator/OperatorShellMessage";
+import { OperatorLoadingNotice } from "@/components/operator/OperatorShellMessage";
 import { Button } from "@/components/ui/button";
 import { resolveApiLoadFailurePresentation } from "@/lib/api-load-failure";
-import { OPERATOR_TYPOGRAPHY } from "@/lib/design-tokens";
+import { GOVERNANCE_APPROVAL_LINEAGE_NO_DATA_COMPACT } from "@/lib/enterprise-compact-empty-state-presets";
 
 import { GovernanceApprovalLineageDetailContent } from "./GovernanceApprovalLineageDetailContent";
 import type { UseGovernanceApprovalLineagePageModel } from "./use-governance-approval-lineage-page";
@@ -88,11 +88,7 @@ export function GovernanceApprovalLineagePageView({ model }: GovernanceApprovalL
   }
 
   if (!data) {
-    return (
-      <OperatorEmptyState title="No data">
-        <p className={cn("text-al-text-secondary", OPERATOR_TYPOGRAPHY.body)}>Lineage could not be loaded.</p>
-      </OperatorEmptyState>
-    );
+    return <EnterpriseCompactEmptyState {...GOVERNANCE_APPROVAL_LINEAGE_NO_DATA_COMPACT} />;
   }
 
   return <GovernanceApprovalLineageDetailContent data={data} />;

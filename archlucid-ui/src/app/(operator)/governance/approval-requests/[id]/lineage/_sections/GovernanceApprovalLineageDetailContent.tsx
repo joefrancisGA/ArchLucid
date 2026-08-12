@@ -3,7 +3,7 @@
 import { cn } from "@/lib/utils";
 import Link from "next/link";
 
-import { OperatorEmptyState } from "@/components/operator/OperatorShellMessage";
+import { EnterpriseCompactEmptyState } from "@/components/EnterpriseCompactEmptyState";
 import { OperatorPageBreadcrumb } from "@/components/operator/OperatorPageBreadcrumb";
 import { OperatorPageHeader } from "@/components/operator/OperatorPageHeader";
 import { ApprovalLineageQueueVocabularyRail } from "@/components/ApprovalLineageQueueVocabularyRail";
@@ -36,6 +36,7 @@ import {
 import { formatInstantForBuyerGovernance } from "@/lib/locale-datetime";
 import { formatGovernanceLineageCompletenessPercent } from "@/lib/governance/governance-lineage-metric-format";
 import { OPERATOR_LAYOUT, OPERATOR_LINK, OPERATOR_TYPOGRAPHY } from "@/lib/design-tokens";
+import { GOVERNANCE_APPROVAL_LINEAGE_FINDINGS_EMPTY_COMPACT } from "@/lib/enterprise-compact-empty-state-presets";
 import { OPERATOR_NAV_GROUP_LABELS, OPERATOR_NAV_LINK_LABELS } from "@/lib/i18n";
 import type { GovernanceLineageResult } from "@/types/governance-dashboard";
 
@@ -219,11 +220,7 @@ export function GovernanceApprovalLineageDetailContent({ data }: GovernanceAppro
         </CardHeader>
         <CardContent>
           {data.topFindings.length === 0 ? (
-            <OperatorEmptyState title="No findings in lineage">
-              <p className={OPERATOR_TYPOGRAPHY.body}>
-                Findings appear when this approval links to a review that has a findings snapshot.
-              </p>
-            </OperatorEmptyState>
+            <EnterpriseCompactEmptyState {...GOVERNANCE_APPROVAL_LINEAGE_FINDINGS_EMPTY_COMPACT} />
           ) : (
             <ul className={cn("space-y-2", OPERATOR_TYPOGRAPHY.body)}>
               {data.topFindings.map((finding) => (
