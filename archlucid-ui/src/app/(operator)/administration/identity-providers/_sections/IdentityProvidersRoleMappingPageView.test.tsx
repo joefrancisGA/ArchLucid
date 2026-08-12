@@ -5,9 +5,14 @@ vi.mock("next/navigation", () => ({
   usePathname: () => "/administration/identity-providers/role-mapping",
 }));
 
-vi.mock("@/components/usability/PageContextualHelpButton", () => ({
-  PageContextualHelpButton: () => <div data-testid="page-contextual-help-button" />,
-}));
+vi.mock("@/components/usability/PageContextualHelpButton", async (importOriginal) => {
+  const actual = await importOriginal<typeof import("@/components/usability/PageContextualHelpButton")>();
+
+  return {
+    ...actual,
+    PageContextualHelpButton: () => <div data-testid="page-contextual-help-button" />,
+  };
+});
 
 import { IdentityProvidersRoleMappingPageView } from "./IdentityProvidersRoleMappingPageView";
 import type { UseIdentityProvidersSettingsPageModel } from "./use-identity-providers-settings-page";
@@ -49,6 +54,7 @@ function buildModel(
     dataLoaded: true,
     refreshing: false,
     lastRefreshedAt: new Date("2026-07-09T12:00:00.000Z"),
+    diagnosticsDataUnavailable: false,
     refresh: vi.fn(async () => undefined),
     accessDenied: false,
     overview: {

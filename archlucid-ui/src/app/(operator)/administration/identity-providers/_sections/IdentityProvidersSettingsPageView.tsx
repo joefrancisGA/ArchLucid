@@ -61,6 +61,9 @@ export function IdentityProvidersSettingsPageView(props: IdentityProvidersSettin
     <IdentityProvidersSettingsShell
       refreshing={model.refreshing}
       lastRefreshedAt={model.lastRefreshedAt}
+      overview={model.overview}
+      statusBadgeReady={model.dataLoaded}
+      diagnosticsDataUnavailable={model.diagnosticsDataUnavailable}
       onRefresh={() => void model.refresh()}
     >
       <IdentityProvidersSsoWizardVocabularyRail currentSurfaceId="identity-providers" />

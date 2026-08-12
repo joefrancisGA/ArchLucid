@@ -85,6 +85,17 @@ describe("resolveInAppDocHref", () => {
     expect(resolveInAppDocHref("docs/library/AGENT_OUTPUT_EVALUATION.md")).not.toBe("/help/admin-diagnostics");
   });
 
+  it("maps identity-provider runbooks to enterprise onboarding help", () => {
+    expect(resolveInAppDocHref("docs/runbooks/GENERIC_OIDC_SETUP.md")).toBe(
+      "/help/enterprise-onboarding#workforce-sso",
+    );
+    expect(resolveInAppDocHref("docs/runbooks/SAML_SP_CERTIFICATE_ROTATION_RUNBOOK.md")).toBe(
+      "/help/enterprise-onboarding",
+    );
+    expect(resolveInAppDocHref("docs/runbooks/GENERIC_OIDC_SETUP.md")).not.toBe("/help");
+    expect(resolveInAppDocHref("docs/runbooks/SAML_SP_CERTIFICATE_ROTATION_RUNBOOK.md")).not.toBe("/help");
+  });
+
   it("maps finding provenance stub to Findings help provenance section", () => {
     expect(resolveInAppDocHref("docs/library/customer-facing/FINDING_PROVENANCE.md")).toBe(
       "/help/findings#where-findings-come-from",

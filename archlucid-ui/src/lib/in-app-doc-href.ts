@@ -19,6 +19,8 @@ const DOC_PATH_TO_ABSOLUTE_HREF: Readonly<Record<string, string>> = {
   "docs/runbooks/first_pilot_operator_path.md": "/help/first-architecture-review#first-value-in-20-minutes",
   /** Finding provenance folded into Findings help (2026-08-04). */
   "docs/library/customer-facing/finding_provenance.md": "/help/findings#where-findings-come-from",
+  "docs/runbooks/generic_oidc_setup.md": "/help/enterprise-onboarding#workforce-sso",
+  "docs/runbooks/saml_sp_certificate_rotation_runbook.md": "/help/enterprise-onboarding",
 };
 
 /**

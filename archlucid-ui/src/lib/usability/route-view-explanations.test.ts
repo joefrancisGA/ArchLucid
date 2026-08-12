@@ -6,7 +6,7 @@ import { SETTINGS_BILLING_PATH } from "@/lib/billing-and-plans-help-route";
 import { DIGESTS_HUB_PATH } from "@/lib/digests-route-paths";
 import { GOVERNANCE_ALERTS_PATH, GOVERNANCE_EXCEPTIONS_PATH } from "@/lib/governance/governance-route-paths";
 import { IMPACT_PREVIEW_PATH } from "@/lib/impact-preview-route";
-import { routeViewExplanationForPathname } from "@/lib/usability/route-view-explanations";
+import { routeViewExplanationForPathname, explainViewDismissKey } from "@/lib/usability/route-view-explanations";
 
 describe("routeViewExplanationForPathname (TB-2216 / TB-2257)", () => {
   it("covers compare, alerts, and SSO hubs; home owns orientation via command center", () => {
@@ -17,8 +17,13 @@ describe("routeViewExplanationForPathname (TB-2216 / TB-2257)", () => {
     expect(routeViewExplanationForPathname("/administration/identity/sso-wizard")?.title).toBe("SSO wizard");
     expect(routeViewExplanationForPathname("/administration/identity-providers")?.title).toBe("SSO and identity");
     expect(routeViewExplanationForPathname("/administration/identity-providers/saml")?.title).toBe(
-      "SSO and identity",
+      "SAML configuration",
     );
+    expect(routeViewExplanationForPathname("/administration/identity-providers/oidc")?.title).toBe("OIDC/JWT status");
+    expect(routeViewExplanationForPathname("/administration/identity-providers/role-mapping")?.title).toBe(
+      "Role mapping status",
+    );
+    expect(routeViewExplanationForPathname("/administration/identity-providers/diagnostics")).toBeNull();
   });
 
   it("covers TB-2257 explain-this-view expansions with buyer nouns", () => {
@@ -56,9 +61,22 @@ describe("routeViewExplanationForPathname (TB-2216 / TB-2257)", () => {
     expect(routeViewExplanationForPathname("/governance/findings")).toBeNull();
     expect(routeViewExplanationForPathname("/governance/audit")).toBeNull();
     expect(routeViewExplanationForPathname("/insights/evidence-graph")).toBeNull();
+    expect(routeViewExplanationForPathname("/administration/identity-providers/diagnostics")).toBeNull();
   });
 
   it("does not treat nested paths as home", () => {
     expect(routeViewExplanationForPathname("/architecture/reviews")).toBeNull();
+  });
+
+  it("shares explain-this-view dismiss keys across identity provider tabs", () => {
+    expect(explainViewDismissKey("/administration/identity-providers/oidc")).toBe(
+      explainViewDismissKey("/administration/identity-providers/saml"),
+    );
+    expect(explainViewDismissKey("/administration/identity-providers/role-mapping")).toBe(
+      explainViewDismissKey("/administration/identity-providers/oidc"),
+    );
+    expect(explainViewDismissKey("/administration/identity-providers")).not.toBe(
+      explainViewDismissKey("/administration/identity-providers/oidc"),
+    );
   });
 });

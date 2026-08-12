@@ -26,6 +26,27 @@ export const IDENTITY_PROVIDERS_DIAGNOSTICS_LINK_LABEL = "Open diagnostics" as c
 
 export const IDENTITY_PROVIDERS_DIAGNOSTICS_LINK_HREF = "/administration/identity-providers/diagnostics" as const;
 
+export const IDENTITY_PROVIDERS_DIAGNOSTICS_OIDC_SECTION_ID = "identity-providers-oidc-diagnostics" as const;
+
+export const IDENTITY_PROVIDERS_DIAGNOSTICS_OIDC_SECTION_HREF =
+  `${IDENTITY_PROVIDERS_DIAGNOSTICS_LINK_HREF}#${IDENTITY_PROVIDERS_DIAGNOSTICS_OIDC_SECTION_ID}` as const;
+
+export const IDENTITY_PROVIDERS_BREADCRUMB_ADMINISTRATION_LABEL = "Administration" as const;
+
+export const IDENTITY_PROVIDERS_BREADCRUMB_HUB_HREF = "/administration/identity-providers" as const;
+
+const IDENTITY_PROVIDERS_TENANT_SCOPE_PREFIX =
+  "Tenant scope: identity provider settings apply tenant-wide, to every workspace in this organization";
+
+/** Names the current workspace as one affected workspace rather than conflating it with the tenant. */
+export function identityProvidersTenantScopeLine(currentWorkspaceLabel: string | null): string {
+  if (currentWorkspaceLabel === null || currentWorkspaceLabel.length === 0) {
+    return `${IDENTITY_PROVIDERS_TENANT_SCOPE_PREFIX}.`;
+  }
+
+  return `${IDENTITY_PROVIDERS_TENANT_SCOPE_PREFIX} — including ${currentWorkspaceLabel}.`;
+}
+
 export const IDENTITY_PROVIDERS_PAGE_INTRO =
   "Configure sign-in, single sign-on, and role mapping for this workspace.";
 

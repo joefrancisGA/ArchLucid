@@ -97,6 +97,16 @@ export function oidcDiscoveryStatusPresentation(
   }
 }
 
+export function oidcConfiguredStringFieldPresentation(
+  value: string | null | undefined,
+): IdentityProviderStatusPresentation {
+  if (value !== null && value !== undefined && value.trim().length > 0) {
+    return identityProviderCustomerStatusPresentation(IDENTITY_PROVIDERS_STATUS_ENABLED);
+  }
+
+  return identityProviderCustomerStatusPresentation(IDENTITY_PROVIDERS_STATUS_NOT_CONFIGURED);
+}
+
 export function oidcPageDiscoveryStatusPresentation(
   oidc: { readonly discoveryAttempted?: boolean; readonly discoverySucceeded?: boolean | null } | null | undefined,
   overviewOidcStatus: string,

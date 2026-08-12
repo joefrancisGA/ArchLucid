@@ -41,6 +41,7 @@ export type UseIdentityProvidersSettingsPageModel = {
   readonly dataLoaded: boolean;
   readonly refreshing: boolean;
   readonly lastRefreshedAt: Date | null;
+  readonly diagnosticsDataUnavailable: boolean;
   readonly refresh: () => Promise<void>;
   readonly accessDenied: boolean;
   readonly overview: IdentityProvidersOverviewModel;
@@ -59,7 +60,7 @@ export function useIdentityProvidersSettingsPage(
   const [note, setNote] = useState<string | null>(null);
   const [accessDenied, setAccessDenied] = useState(false);
   const [refreshing, setRefreshing] = useState(false);
-  const [lastRefreshedAt, setLastRefreshedAt] = useState<Date | null>(() => new Date());
+  const [lastRefreshedAt, setLastRefreshedAt] = useState<Date | null>(null);
 
   const [identityProviderDiagnostics, setIdentityProviderDiagnostics] =
     useState<AdminIdentityProviderDiagnosticsResponse | null>(null);
@@ -95,6 +96,11 @@ export function useIdentityProvidersSettingsPage(
     setSamlOperationalHealth(null);
     setSamlOperationalHealthNote(null);
     setSamlOperationalHealthLoaded(false);
+
+    let identityProviderDiagnosticsSucceeded = false;
+    let authConfigurationDiagnosticsSucceeded = false;
+    let oidcDiagnosticsSucceeded = false;
+    let samlOperationalHealthSucceeded = false;
 
     try {
       const opts = mergeRegistrationScopeForProxy({ headers: { Accept: "application/json" }, cache: "no-store" });
@@ -136,6 +142,7 @@ export function useIdentityProvidersSettingsPage(
 
         setIdentityProviderDiagnostics(body);
         setIdentityProviderDiagnosticsNote(null);
+        identityProviderDiagnosticsSucceeded = true;
       }
 
       if (!authConfigRes.ok) {
@@ -150,6 +157,7 @@ export function useIdentityProvidersSettingsPage(
 
         setAuthConfigurationDiagnostics(body);
         setAuthConfigurationDiagnosticsNote(null);
+        authConfigurationDiagnosticsSucceeded = true;
       }
 
       if (!oidcRes.ok) {
@@ -164,6 +172,7 @@ export function useIdentityProvidersSettingsPage(
 
         setOidcDiagnostics(body);
         setOidcDiagnosticsNote(null);
+        oidcDiagnosticsSucceeded = true;
       }
 
       if (!samlRes.ok) {
@@ -178,6 +187,7 @@ export function useIdentityProvidersSettingsPage(
 
         setSamlOperationalHealth(body);
         setSamlOperationalHealthNote(null);
+        samlOperationalHealthSucceeded = true;
       }
     } catch (e: unknown) {
       setRows(null);
@@ -192,7 +202,16 @@ export function useIdentityProvidersSettingsPage(
       setSamlOperationalHealthNote(IDENTITY_PROVIDERS_LOAD_ERROR_NOTE);
     } finally {
       setRefreshing(false);
-      setLastRefreshedAt(new Date());
+
+      if (
+        identityProviderDiagnosticsSucceeded
+        || authConfigurationDiagnosticsSucceeded
+        || oidcDiagnosticsSucceeded
+        || samlOperationalHealthSucceeded
+      ) {
+        setLastRefreshedAt(new Date());
+      }
+
       setIdentityProviderDiagnosticsLoaded(true);
       setAuthConfigurationDiagnosticsLoaded(true);
       setOidcDiagnosticsLoaded(true);
@@ -220,6 +239,17 @@ export function useIdentityProvidersSettingsPage(
     [authConfigurationDiagnostics, dataLoaded, identityProviderDiagnostics, oidcDiagnostics],
   );
 
+  const diagnosticsDataUnavailable =
+    dataLoaded
+    && identityProviderDiagnostics === null
+    && authConfigurationDiagnostics === null
+    && oidcDiagnostics === null
+    && samlOperationalHealth === null
+    && identityProviderDiagnosticsNote !== null
+    && authConfigurationDiagnosticsNote !== null
+    && oidcDiagnosticsNote !== null
+    && samlOperationalHealthNote !== null;
+
   return {
     note,
     rows,
@@ -238,6 +268,7 @@ export function useIdentityProvidersSettingsPage(
     dataLoaded,
     refreshing,
     lastRefreshedAt,
+    diagnosticsDataUnavailable,
     refresh: load,
     accessDenied,
     overview,

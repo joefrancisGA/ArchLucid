@@ -14,7 +14,7 @@ import {
   IDENTITY_PROVIDERS_SAFETY_NOTICE,
   identityProvidersPageSubtitle,
 } from "@/lib/identity-providers-settings-copy";
-import type { IdentityProvidersNavId } from "@/lib/identity-providers-settings-types";
+import type { IdentityProvidersNavId, IdentityProvidersOverviewModel } from "@/lib/identity-providers-settings-types";
 import { isBuyerPolishedOperatorShellEnv } from "@/lib/demo-ui-env";
 import {
   OPERATOR_LINK,
@@ -49,12 +49,42 @@ function resolveActiveNavId(pathname: string): IdentityProvidersNavId {
   return "overview";
 }
 
+function resolveHeaderStatusLabel(
+  activeNavId: IdentityProvidersNavId,
+  overview: IdentityProvidersOverviewModel | undefined,
+): IdentityProvidersOverviewModel["oidcStatus"] | undefined {
+  if (overview === undefined) {
+    return undefined;
+  }
+
+  switch (activeNavId) {
+    case "saml":
+      return overview.samlStatus;
+    case "oidc":
+      return overview.oidcStatus;
+    case "role-mapping":
+      return overview.roleMappingStatus;
+    case "diagnostics":
+      return overview.ssoStatus;
+    case "overview":
+      return overview.ssoStatus;
+    default: {
+      const _exhaustive: never = activeNavId;
+
+      return _exhaustive;
+    }
+  }
+}
+
 export type IdentityProvidersSettingsShellProps = {
   readonly pageTitle?: string;
   readonly pageSubtitle?: string;
   readonly pageIntro?: string;
+  readonly overview?: IdentityProvidersOverviewModel;
+  readonly statusBadgeReady?: boolean;
   readonly refreshing: boolean;
   readonly lastRefreshedAt: Date | null;
+  readonly diagnosticsDataUnavailable?: boolean;
   readonly onRefresh: () => void;
   readonly children: React.ReactNode;
 };
@@ -76,8 +106,14 @@ export function IdentityProvidersSettingsShell(props: IdentityProvidersSettingsS
       <IdentityProvidersSettingsPageHeader
         pageTitle={resolvedTitle}
         subtitle={headerSubtitle}
+        statusLabel={
+          props.statusBadgeReady === false
+            ? undefined
+            : resolveHeaderStatusLabel(activeNavId, props.overview)
+        }
         refreshing={props.refreshing}
         lastRefreshedAt={props.lastRefreshedAt}
+        diagnosticsDataUnavailable={props.diagnosticsDataUnavailable}
         onRefresh={props.onRefresh}
       />
 

@@ -4,8 +4,14 @@ import { cn } from "@/lib/utils";
 import Link from "next/link";
 
 import { Card, CardContent, CardHeader, CardTitle } from "@/components/ui/card";
+import { StatusTag } from "@/components/ui/status-tag";
+import { resolveInAppDocHref } from "@/lib/in-app-doc-href";
+import type { EnterpriseStatusKind } from "@/lib/design-tokens";
 import { OPERATOR_LINK, OPERATOR_TYPOGRAPHY, operatorSemanticSurface } from "@/lib/design-tokens";
-import { toDocsBlobUrl } from "@/lib/contextual-help-content";
+import {
+  IDENTITY_PROVIDERS_STATUS_NEEDS_REVIEW,
+  IDENTITY_PROVIDERS_STATUS_NOT_APPLICABLE,
+} from "@/lib/identity-providers-settings-copy";
 import type { components } from "@/lib/openapi-schemas";
 
 type AdminAuthConfigurationDiagnosticsResponse =
@@ -32,17 +38,43 @@ const OIDC_DOC = "/docs/runbooks/GENERIC_OIDC_SETUP.md";
 const SAML_DOC = "/docs/runbooks/SAML_SP_CERTIFICATE_ROTATION_RUNBOOK.md";
 const PRIVATE_BETA_AUTH_DOC = "/docs/library/customer-facing/AUTHENTICATION_AND_SIGN_IN.md";
 
-function statusClass(status: SetupStep["status"]): string {
+const SETUP_STEP_STATUS_SORT_ORDER: Readonly<Record<SetupStep["status"], number>> = {
+  "Action needed": 0,
+  "Unknown": 1,
+  "Ready": 2,
+  "Not applicable": 3,
+};
+
+function setupStepStatusPresentation(
+  status: SetupStep["status"],
+): { readonly kind: EnterpriseStatusKind; readonly label: string } {
   switch (status) {
     case "Ready":
-      return "border-neutral-300 bg-al-surface-raised text-al-text-primary dark:border-neutral-700";
+      return { kind: "ready", label: status };
     case "Action needed":
-      return "border-rose-700/40 bg-al-surface-raised text-al-text-primary dark:border-rose-800/50";
+      return { kind: "needs-attention", label: status };
     case "Unknown":
-      return "border-amber-600/40 bg-al-surface-raised text-al-text-primary dark:border-amber-700/50";
-    default:
-      return "border-neutral-300 bg-neutral-50 text-neutral-800 dark:border-neutral-700 dark:bg-neutral-900/40 dark:text-neutral-200";
+      return { kind: "needs-attention", label: IDENTITY_PROVIDERS_STATUS_NEEDS_REVIEW };
+    case "Not applicable":
+      return { kind: "neutral", label: IDENTITY_PROVIDERS_STATUS_NOT_APPLICABLE };
+    default: {
+      const _exhaustive: never = status;
+
+      return _exhaustive;
+    }
   }
+}
+
+function setupGuideLinkLabel(docHref: string): string {
+  if (docHref === OIDC_DOC) {
+    return "OIDC discovery setup";
+  }
+
+  if (docHref === SAML_DOC) {
+    return "Certificate rotation runbook";
+  }
+
+  return "Setup guide";
 }
 
 function booleanStep(
@@ -243,7 +275,13 @@ export function IdentityProviderSetupChecklist(props: IdentityProviderSetupCheck
   }
 
   const steps = configDiagnostics ? buildSteps(configDiagnostics, samlOperationalHealth, props.showTechnicalDetails === true) : [];
-  const nextStep = steps.find((step) => step.status === "Action needed" || step.status === "Unknown");
+  const sortedSteps = [...steps].sort(
+    (left, right) => SETUP_STEP_STATUS_SORT_ORDER[left.status] - SETUP_STEP_STATUS_SORT_ORDER[right.status],
+  );
+  const outstandingSteps = sortedSteps.filter(
+    (step) => step.status === "Action needed" || step.status === "Unknown",
+  );
+  const nextStep = outstandingSteps[0];
 
   return (
     <Card data-testid="identity-provider-setup-checklist">
@@ -257,7 +295,10 @@ export function IdentityProviderSetupChecklist(props: IdentityProviderSetupCheck
       </CardHeader>
       <CardContent className="space-y-3">
         {configDiagnosticsNote ? (
-          <p className={cn("m-0 text-amber-900 dark:text-amber-100", OPERATOR_TYPOGRAPHY.body)} data-testid="identity-provider-setup-note">
+          <p
+            className={cn("m-0", operatorSemanticSurface("warn"), OPERATOR_TYPOGRAPHY.body)}
+            data-testid="identity-provider-setup-note"
+          >
             {configDiagnosticsNote}
           </p>
         ) : null}
@@ -267,12 +308,26 @@ export function IdentityProviderSetupChecklist(props: IdentityProviderSetupCheck
               "m-0 rounded-md border border-amber-600/40 bg-al-surface-raised px-3 py-2 text-al-text-primary dark:border-amber-700/50",
               OPERATOR_TYPOGRAPHY.body,
             )}
+            data-testid="identity-provider-setup-next-step-banner"
           >
-            <strong>Next setup step:</strong> {nextStep.detail}
+            <strong>
+              {outstandingSteps.length === 1
+                ? "Next setup step:"
+                : `${String(outstandingSteps.length)} setup steps need attention — start with:`}
+            </strong>{" "}
+            {nextStep.detail}
             {nextStep.configKey && props.showTechnicalDetails === true ? (
               <>
                 {" "}
                 Config key: <code>{nextStep.configKey}</code>
+              </>
+            ) : null}
+            {nextStep.docHref ? (
+              <>
+                {" "}
+                <Link href={resolveInAppDocHref(nextStep.docHref)} className={OPERATOR_LINK.nav}>
+                  {setupGuideLinkLabel(nextStep.docHref)}
+                </Link>
               </>
             ) : null}
           </p>
@@ -281,9 +336,12 @@ export function IdentityProviderSetupChecklist(props: IdentityProviderSetupCheck
             Core identity setup checks are ready for this auth mode.
           </p>
         ) : null}
-        {steps.length > 0 ? (
+        {sortedSteps.length > 0 ? (
           <div className="grid gap-2">
-            {steps.map((step) => (
+            {sortedSteps.map((step) => {
+              const statusPresentation = setupStepStatusPresentation(step.status);
+
+              return (
               <div
                 key={step.label}
                 className="rounded-md border border-neutral-200 p-3 dark:border-neutral-700"
@@ -291,9 +349,7 @@ export function IdentityProviderSetupChecklist(props: IdentityProviderSetupCheck
               >
                 <div className="flex flex-wrap items-center gap-2">
                   <span className={cn("font-medium text-neutral-900 dark:text-neutral-100", OPERATOR_TYPOGRAPHY.body)}>{step.label}</span>
-                  <span className={cn("inline-flex rounded-full border px-2 py-0.5", OPERATOR_TYPOGRAPHY.badge, statusClass(step.status))}>
-                    {step.status}
-                  </span>
+                  <StatusTag kind={statusPresentation.kind} label={statusPresentation.label} />
                 </div>
                 <p className={cn("m-0 mt-2 text-neutral-700 dark:text-neutral-300", OPERATOR_TYPOGRAPHY.helper)}>{step.detail}</p>
                 {step.configKey && props.showTechnicalDetails === true ? (
@@ -303,13 +359,14 @@ export function IdentityProviderSetupChecklist(props: IdentityProviderSetupCheck
                 ) : null}
                 {step.docHref ? (
                   <p className={cn("m-0 mt-2", OPERATOR_TYPOGRAPHY.helper)}>
-                    <Link href={toDocsBlobUrl(step.docHref)} className={OPERATOR_LINK.nav} rel="noopener noreferrer" target="_blank">
-                      Setup guide
+                    <Link href={resolveInAppDocHref(step.docHref)} className={OPERATOR_LINK.nav}>
+                      {setupGuideLinkLabel(step.docHref)}
                     </Link>
                   </p>
                 ) : null}
               </div>
-            ))}
+              );
+            })}
           </div>
         ) : null}
       </CardContent>

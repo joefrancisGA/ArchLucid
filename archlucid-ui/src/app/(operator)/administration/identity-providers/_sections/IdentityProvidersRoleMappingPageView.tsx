@@ -48,8 +48,11 @@ export function IdentityProvidersRoleMappingPageView(
     <IdentityProvidersSettingsShell
       pageTitle={IDENTITY_PROVIDERS_ROLE_MAPPING_PAGE_TITLE}
       pageSubtitle={IDENTITY_PROVIDERS_ROLE_MAPPING_PAGE_SUBTITLE}
+      overview={props.model.overview}
+      statusBadgeReady={props.model.dataLoaded}
       refreshing={props.model.refreshing}
       lastRefreshedAt={props.model.lastRefreshedAt}
+      diagnosticsDataUnavailable={props.model.diagnosticsDataUnavailable}
       onRefresh={() => void props.model.refresh()}
     >
       <div className="flex justify-end">

@@ -17,6 +17,23 @@ import { DIGESTS_HUB_PATH } from "@/lib/digests-route-paths";
 import { GOVERNANCE_ALERTS_PATH } from "@/lib/governance/governance-route-paths";
 import { IMPACT_PREVIEW_PATH } from "@/lib/impact-preview-route";
 
+const IDENTITY_PROVIDERS_TAB_DISMISS_KEY =
+  "archlucid.explain-view.dismissed./administration/identity-providers-tabs" as const;
+
+function explainViewDismissKey(pathname: string): string {
+  if (
+    pathname === "/administration/identity-providers/saml"
+    || pathname === "/administration/identity-providers/oidc"
+    || pathname === "/administration/identity-providers/role-mapping"
+  ) {
+    return IDENTITY_PROVIDERS_TAB_DISMISS_KEY;
+  }
+
+  return `archlucid.explain-view.dismissed.${pathname}`;
+}
+
+export { IDENTITY_PROVIDERS_TAB_DISMISS_KEY, explainViewDismissKey };
+
 const ROUTE_VIEW_EXPLANATIONS: readonly { prefix: string; explanation: RouteViewExplanation }[] = [
   {
     prefix: "/insights/compare-two-reviews",
@@ -101,6 +118,34 @@ const ROUTE_VIEW_EXPLANATIONS: readonly { prefix: string; explanation: RouteView
     },
   },
   {
+    prefix: "/administration/identity-providers/oidc",
+    explanation: {
+      title: "OIDC/JWT status",
+      summary:
+        "Review OpenID Connect authority, audience, discovery validation, and role claim mapping for this workspace.",
+      nextAction:
+        "Confirm discovery status and authority or audience values, then open diagnostics if validation has not been attempted.",
+    },
+  },
+  {
+    prefix: "/administration/identity-providers/saml",
+    explanation: {
+      title: "SAML configuration",
+      summary:
+        "Configure SAML metadata, issuer, and group-to-role mapping before enabling SAML sign-in for all users.",
+      nextAction: "Complete SAML metadata and role mapping, then validate sign-in with a test user from your IdP.",
+    },
+  },
+  {
+    prefix: "/administration/identity-providers/role-mapping",
+    explanation: {
+      title: "Role mapping status",
+      summary:
+        "Review how identity provider groups or claims map to ArchLucid workspace roles before broad SSO rollout.",
+      nextAction: "Confirm claim sources and mapping status, then test with a non-production user from your IdP.",
+    },
+  },
+  {
     prefix: "/administration/identity-providers",
     explanation: {
       title: "SSO and identity",
@@ -133,6 +178,10 @@ export function routeViewExplanationForPathname(
   }
 
   if (path === "/insights/evidence-graph" || path.startsWith("/insights/evidence-graph/")) {
+    return null;
+  }
+
+  if (path === "/administration/identity-providers/diagnostics") {
     return null;
   }
 

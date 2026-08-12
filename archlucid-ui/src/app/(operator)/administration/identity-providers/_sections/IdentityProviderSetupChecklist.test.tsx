@@ -56,10 +56,13 @@ describe("IdentityProviderSetupChecklist", () => {
       />,
     );
 
-    expect(screen.getByText(/Next setup step:/i)).toBeInTheDocument();
+    expect(screen.getByTestId("identity-provider-setup-next-step-banner")).toHaveTextContent(
+      /setup steps need attention/i,
+    );
     expect(screen.getAllByText(/Local development sign-in is enabled/i).length).toBeGreaterThan(0);
     expect(screen.queryByText(/DevelopmentBypass/i)).not.toBeInTheDocument();
     expect(screen.getAllByRole("link", { name: "Setup guide" }).length).toBeGreaterThan(0);
+    expect(screen.getAllByLabelText("Status: Action needed").length).toBeGreaterThan(0);
   });
 
   it("shows config keys only in technical diagnostics mode", () => {
@@ -150,5 +153,38 @@ describe("IdentityProviderSetupChecklist", () => {
     expect(screen.getAllByText(/Action needed/i).length).toBeGreaterThan(0);
     expect(screen.queryByText(/Email:OperatorBaseUrl/)).not.toBeInTheDocument();
     expect(screen.queryByText(/Auth:Trial:LocalIdentity/)).not.toBeInTheDocument();
+  });
+
+  it("resolves setup guide links to in-app help routes, not bare /help", () => {
+    render(
+      <IdentityProviderSetupChecklist
+        configDiagnostics={{
+          authMode: "JwtBearer",
+          audienceConfigured: false,
+          issuerOrAuthorityConfigured: true,
+          openIdDiscoverySucceeded: false,
+          saml2Enabled: true,
+          spEntityIdConfigured: true,
+          samlRoleClaimSourcesConfigured: true,
+          tenantClaimMappingConfigured: true,
+          tenantIdentityProviderProtocol: "saml",
+          jwksConfigured: true,
+          scimProvisioningConfigured: null,
+          scimBearerTokenActive: null,
+          roleClaimNameConfigured: false,
+          misconfigurationHints: [],
+        }}
+        configDiagnosticsNote={null}
+        samlOperationalHealth={{ saml2Enabled: true }}
+      />,
+    );
+
+    const oidcLinks = screen.getAllByRole("link", { name: "OIDC discovery setup" });
+    const rotationLinks = screen.getAllByRole("link", { name: "Certificate rotation runbook" });
+
+    expect(oidcLinks[0]).toHaveAttribute("href", "/help/enterprise-onboarding#workforce-sso");
+    expect(rotationLinks[0]).toHaveAttribute("href", "/help/enterprise-onboarding");
+    expect(oidcLinks[0]?.getAttribute("href")).not.toBe("/help");
+    expect(rotationLinks[0]?.getAttribute("href")).not.toBe("/help");
   });
 });

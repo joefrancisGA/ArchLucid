@@ -1,5 +1,7 @@
 import {
   IDENTITY_PROVIDERS_ACTION_OPEN_IDENTITY_DIAGNOSTICS,
+  IDENTITY_PROVIDERS_DIAGNOSTICS_LINK_HREF,
+  IDENTITY_PROVIDERS_DIAGNOSTICS_OIDC_SECTION_HREF,
   IDENTITY_PROVIDERS_OIDC_ACTION_VALIDATE_DISCOVERY,
   IDENTITY_PROVIDERS_ROLE_MAPPING_ACTION_OPEN_SSO_WIZARD,
   IDENTITY_PROVIDERS_STATUS_ACTION_NEEDED,
@@ -18,6 +20,10 @@ export function oidcPageNeedsDiscoveryReview(
   oidc: AdminOidcDiagnosticsResponse | null,
   overviewOidcStatus: string,
 ): boolean {
+  if (oidc?.discoveryAttempted === false) {
+    return true;
+  }
+
   if (oidc?.discoverySucceeded === false) {
     return true;
   }
@@ -40,7 +46,7 @@ export function resolveOidcPagePrimaryCta(
   if (oidcPageNeedsDiscoveryReview(oidc, overviewOidcStatus)) {
     return {
       label: IDENTITY_PROVIDERS_OIDC_ACTION_VALIDATE_DISCOVERY,
-      href: "/administration/identity-providers/diagnostics",
+      href: IDENTITY_PROVIDERS_DIAGNOSTICS_OIDC_SECTION_HREF,
     };
   }
 
@@ -63,6 +69,6 @@ export function resolveOidcPageSecondaryCta(
 
   return {
     label: IDENTITY_PROVIDERS_ACTION_OPEN_IDENTITY_DIAGNOSTICS,
-    href: "/administration/identity-providers/diagnostics",
+    href: IDENTITY_PROVIDERS_DIAGNOSTICS_LINK_HREF,
   };
 }

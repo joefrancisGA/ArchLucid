@@ -2,6 +2,8 @@ import { describe, expect, it } from "vitest";
 
 import {
   IDENTITY_PROVIDERS_ACTION_OPEN_IDENTITY_DIAGNOSTICS,
+  IDENTITY_PROVIDERS_DIAGNOSTICS_LINK_HREF,
+  IDENTITY_PROVIDERS_DIAGNOSTICS_OIDC_SECTION_HREF,
   IDENTITY_PROVIDERS_OIDC_ACTION_VALIDATE_DISCOVERY,
   IDENTITY_PROVIDERS_ROLE_MAPPING_ACTION_OPEN_SSO_WIZARD,
   IDENTITY_PROVIDERS_STATUS_NEEDS_REVIEW,
@@ -26,6 +28,19 @@ describe("oidc-page-cta", () => {
     ).toBe(true);
   });
 
+  it("treats unattempted discovery as needs review", () => {
+    expect(
+      oidcPageNeedsDiscoveryReview(
+        {
+          authMode: "JwtBearer",
+          discoveryAttempted: false,
+          discoverySucceeded: null,
+        },
+        "Healthy",
+      ),
+    ).toBe(true);
+  });
+
   it("routes unconfigured tenants to SSO wizard primary CTA (TB-1914)", () => {
     expect(resolveOidcPagePrimaryCta(null, "Not configured")).toEqual({
       label: IDENTITY_PROVIDERS_ROLE_MAPPING_ACTION_OPEN_SSO_WIZARD,
@@ -33,14 +48,14 @@ describe("oidc-page-cta", () => {
     });
     expect(resolveOidcPageSecondaryCta(null, "Not configured")).toEqual({
       label: IDENTITY_PROVIDERS_ACTION_OPEN_IDENTITY_DIAGNOSTICS,
-      href: "/administration/identity-providers/diagnostics",
+      href: IDENTITY_PROVIDERS_DIAGNOSTICS_LINK_HREF,
     });
   });
 
-  it("routes needs-review tenants to diagnostics primary CTA (TB-1914)", () => {
+  it("routes needs-review tenants to diagnostics OIDC section primary CTA (TB-1914)", () => {
     expect(resolveOidcPagePrimaryCta(null, IDENTITY_PROVIDERS_STATUS_NEEDS_REVIEW)).toEqual({
       label: IDENTITY_PROVIDERS_OIDC_ACTION_VALIDATE_DISCOVERY,
-      href: "/administration/identity-providers/diagnostics",
+      href: IDENTITY_PROVIDERS_DIAGNOSTICS_OIDC_SECTION_HREF,
     });
     expect(resolveOidcPageSecondaryCta(null, IDENTITY_PROVIDERS_STATUS_NEEDS_REVIEW)).toEqual({
       label: IDENTITY_PROVIDERS_ROLE_MAPPING_ACTION_OPEN_SSO_WIZARD,

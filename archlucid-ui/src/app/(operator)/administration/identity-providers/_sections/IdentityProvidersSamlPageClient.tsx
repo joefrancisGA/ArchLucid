@@ -22,8 +22,11 @@ export function IdentityProvidersSamlPageClient(props: Props): React.JSX.Element
         <IdentityProvidersSettingsShell
           pageTitle={IDENTITY_PROVIDERS_SAML_PAGE_TITLE}
           pageSubtitle={IDENTITY_PROVIDERS_SAML_PAGE_SUBTITLE}
+          overview={model.overview}
+          statusBadgeReady={model.dataLoaded}
           refreshing={model.refreshing}
           lastRefreshedAt={model.lastRefreshedAt}
+          diagnosticsDataUnavailable={model.diagnosticsDataUnavailable}
           onRefresh={() => void model.refresh()}
         >
           <div className="space-y-4">

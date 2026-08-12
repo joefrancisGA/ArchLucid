@@ -1,6 +1,7 @@
 "use client";
 
 import Link from "next/link";
+import { useEffect, useRef } from "react";
 
 import { cn } from "@/lib/utils";
 import { isArchLucidInternalOperatorShellEnv } from "@/lib/internal-operator-env";
@@ -9,11 +10,17 @@ import {
   IDENTITY_PROVIDERS_DIAGNOSTICS_PAGE_SUBTITLE,
   IDENTITY_PROVIDERS_DIAGNOSTICS_PAGE_TITLE,
   IDENTITY_PROVIDERS_DIAGNOSTICS_PROTOCOL_DETAILS_TITLE,
+  IDENTITY_PROVIDERS_DIAGNOSTICS_OIDC_SECTION_ID,
   IDENTITY_PROVIDERS_DIAGNOSTICS_TECHNICAL_DESCRIPTION,
   IDENTITY_PROVIDERS_DIAGNOSTICS_TECHNICAL_TITLE,
+  IDENTITY_PROVIDERS_RECOMMENDED_NEXT_LABEL,
+  IDENTITY_PROVIDERS_SUMMARY_AUTH_MODE_LABEL,
+  IDENTITY_PROVIDERS_SUMMARY_SSO_LABEL,
 } from "@/lib/identity-providers-settings-copy";
+import type { IdentityProvidersOverviewModel } from "@/lib/identity-providers-settings-types";
 import { canViewIdentityProviderTechnicalDiagnostics } from "@/lib/resolve-identity-providers-overview";
 import { OPERATOR_TYPOGRAPHY } from "@/lib/design-tokens";
+import type { components } from "@/lib/openapi-schemas";
 
 import { AuthTokenTestMappingCard } from "./AuthTokenTestMappingCard";
 import { IdentityProviderHealthStrip } from "./IdentityProviderHealthStrip";
@@ -24,17 +31,30 @@ import { OidcDiagnosticsStrip } from "./OidcDiagnosticsStrip";
 import { SamlOperationalHealthStrip } from "./SamlOperationalHealthStrip";
 import type { UseIdentityProvidersSettingsPageModel } from "./use-identity-providers-settings-page";
 
+type AdminIdentityProviderDiagnosticsResponse =
+  components["schemas"]["AdminIdentityProviderDiagnosticsResponse"];
+
 type IdentityProvidersDiagnosticsPageViewProps = {
   readonly model: UseIdentityProvidersSettingsPageModel;
 };
 
 function diagnosticsBundlePending(model: UseIdentityProvidersSettingsPageModel): boolean {
   return (
-    !model.identityProviderDiagnosticsLoaded ||
-    !model.authConfigurationDiagnosticsLoaded ||
-    !model.oidcDiagnosticsLoaded ||
-    !model.samlOperationalHealthLoaded
+    !model.identityProviderDiagnosticsLoaded
+    || !model.authConfigurationDiagnosticsLoaded
+    || !model.oidcDiagnosticsLoaded
+    || !model.samlOperationalHealthLoaded
   );
+}
+
+function formatDiagnosticsReadinessLine(overview: IdentityProvidersOverviewModel): string {
+  return `${IDENTITY_PROVIDERS_SUMMARY_AUTH_MODE_LABEL}: ${overview.authenticationModeLabel} · ${IDENTITY_PROVIDERS_SUMMARY_SSO_LABEL}: ${overview.ssoStatus} · ${IDENTITY_PROVIDERS_RECOMMENDED_NEXT_LABEL}: ${overview.recommendedNextStep}`;
+}
+
+function bothIdentityProviderProbesNotApplicable(
+  payload: AdminIdentityProviderDiagnosticsResponse | null,
+): boolean {
+  return payload?.oidc?.status === "NotApplicable" && payload?.saml?.status === "NotApplicable";
 }
 
 export function IdentityProvidersDiagnosticsPageView(
@@ -44,13 +64,46 @@ export function IdentityProvidersDiagnosticsPageView(
   const bundlePending = diagnosticsBundlePending(props.model);
   const showProtocolDetails =
     props.model.oidcDiagnosticsLoaded || props.model.samlOperationalHealthLoaded;
+  const collapseHealthIntoProtocol = bothIdentityProviderProbesNotApplicable(props.model.identityProviderDiagnostics);
+  const protocolDetailsRef = useRef<HTMLDetailsElement>(null);
+  const oidcDeepLinkHandledRef = useRef<boolean>(false);
+
+  // The disclosure this deep link targets only mounts once the protocol payloads settle, so the
+  // effect has to wait for that render rather than firing once on mount.
+  useEffect(() => {
+    if (typeof window === "undefined" || oidcDeepLinkHandledRef.current || !showProtocolDetails) {
+      return;
+    }
+
+    const hash = window.location.hash.replace(/^#/, "").trim();
+
+    if (hash !== IDENTITY_PROVIDERS_DIAGNOSTICS_OIDC_SECTION_ID) {
+      return;
+    }
+
+    const details = protocolDetailsRef.current;
+
+    if (details !== null) {
+      details.open = true;
+    }
+
+    const target = document.getElementById(IDENTITY_PROVIDERS_DIAGNOSTICS_OIDC_SECTION_ID);
+
+    if (target !== null) {
+      target.scrollIntoView({ block: "start" });
+      oidcDeepLinkHandledRef.current = true;
+    }
+  }, [showProtocolDetails]);
 
   return (
     <IdentityProvidersSettingsShell
       pageTitle={IDENTITY_PROVIDERS_DIAGNOSTICS_PAGE_TITLE}
       pageSubtitle={IDENTITY_PROVIDERS_DIAGNOSTICS_PAGE_SUBTITLE}
+      overview={props.model.overview}
+      statusBadgeReady={props.model.dataLoaded}
       refreshing={props.model.refreshing}
       lastRefreshedAt={props.model.lastRefreshedAt}
+      diagnosticsDataUnavailable={props.model.diagnosticsDataUnavailable}
       onRefresh={() => void props.model.refresh()}
     >
       <div className="space-y-4" data-testid="identity-providers-diagnostics-primary-lead">
@@ -61,15 +114,14 @@ export function IdentityProvidersDiagnosticsPageView(
           >
             {IDENTITY_PROVIDERS_DIAGNOSTICS_LOADING}
           </p>
-        ) : null}
-
-        {props.model.identityProviderDiagnosticsLoaded ? (
-          <IdentityProviderHealthStrip
-            payload={props.model.identityProviderDiagnostics}
-            fetchNote={props.model.identityProviderDiagnosticsNote}
-            showTechnicalDetails={showTechnicalDetails}
-          />
-        ) : null}
+        ) : (
+          <p
+            className={cn("m-0 text-al-text-primary", OPERATOR_TYPOGRAPHY.body)}
+            data-testid="identity-providers-diagnostics-readiness-line"
+          >
+            {formatDiagnosticsReadinessLine(props.model.overview)}
+          </p>
+        )}
 
         {props.model.authConfigurationDiagnosticsLoaded ? (
           <IdentityProviderSetupChecklist
@@ -80,8 +132,17 @@ export function IdentityProvidersDiagnosticsPageView(
           />
         ) : null}
 
+        {props.model.identityProviderDiagnosticsLoaded && !collapseHealthIntoProtocol ? (
+          <IdentityProviderHealthStrip
+            payload={props.model.identityProviderDiagnostics}
+            fetchNote={props.model.identityProviderDiagnosticsNote}
+            showTechnicalDetails={showTechnicalDetails}
+          />
+        ) : null}
+
         {showProtocolDetails ? (
           <details
+            ref={protocolDetailsRef}
             className="rounded-lg border border-neutral-200 p-4 dark:border-neutral-800"
             data-testid="identity-providers-diagnostics-protocol-details"
           >
@@ -89,6 +150,14 @@ export function IdentityProvidersDiagnosticsPageView(
               {IDENTITY_PROVIDERS_DIAGNOSTICS_PROTOCOL_DETAILS_TITLE}
             </summary>
             <div className="mt-4 space-y-4">
+              {props.model.identityProviderDiagnosticsLoaded && collapseHealthIntoProtocol ? (
+                <IdentityProviderHealthStrip
+                  payload={props.model.identityProviderDiagnostics}
+                  fetchNote={props.model.identityProviderDiagnosticsNote}
+                  showTechnicalDetails={showTechnicalDetails}
+                />
+              ) : null}
+
               {props.model.oidcDiagnosticsLoaded ? (
                 <OidcDiagnosticsStrip
                   payload={props.model.oidcDiagnostics}
