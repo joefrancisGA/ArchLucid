@@ -12,6 +12,7 @@ import {
 const EXECUTIVE_DASHBOARD_SURFACES = [
   "src/lib/executive/executive-dashboard-page-copy.ts",
   "src/components/executive/ExecutiveDashboardPageHero.tsx",
+  "src/components/executive/ExecutiveTimeRangeSelect.tsx",
   "src/app/(operator)/architecture/executive-dashboard/_sections/ExecutiveRoiTrendSection.tsx",
 ] as const;
 
@@ -35,9 +36,9 @@ describe("executive dashboard buyer-safe copy (TB-1533)", () => {
     }
   });
 
-  it("wires buyer-safe window help on the executive ROI trend time-range control", () => {
+  it("wires buyer-safe window help on the executive time-range control", () => {
     const source = readFileSync(
-      join(process.cwd(), "src/app/(operator)/architecture/executive-dashboard/_sections/ExecutiveRoiTrendSection.tsx"),
+      join(process.cwd(), "src/components/executive/ExecutiveTimeRangeSelect.tsx"),
       "utf8",
     );
 

@@ -1,7 +1,7 @@
-import { render, screen } from "@testing-library/react";
+import { fireEvent, render, screen } from "@testing-library/react";
 import { describe, expect, it, vi } from "vitest";
 
-import { EXECUTIVE_DASHBOARD_HREF } from "@/lib/executive-dashboard-route";
+import { EXECUTIVE_DASHBOARD_HREF } from "@/lib/executive/executive-dashboard-route";
 import { BUYER_EXECUTIVE_SUMMARY_VOCABULARY } from "@/lib/vocabulary/buyer-surface-vocabulary";
 
 vi.mock("@/components/SeedSampleReviewButton", () => ({
@@ -27,6 +27,21 @@ describe("ExecutiveScorecardEmptyState", () => {
       "href",
       EXECUTIVE_DASHBOARD_HREF,
     );
-    expect(screen.getByTestId("executive-scorecard-empty-preview")).toBeInTheDocument();
+  });
+
+  it("keeps preview behind disclosure for first-viewport density (TB-1536)", () => {
+    const vocabulary = BUYER_EXECUTIVE_SUMMARY_VOCABULARY;
+
+    render(<ExecutiveScorecardEmptyState />);
+
+    const primaryActions = screen.getAllByRole("link", { name: vocabulary.scorecardEmptyStatePrimaryAction });
+
+    expect(primaryActions).toHaveLength(1);
+    expect(screen.getByTestId("executive-scorecard-empty-preview-disclosure")).toBeInTheDocument();
+    expect(screen.queryByTestId("executive-scorecard-empty-preview")).not.toBeVisible();
+
+    fireEvent.click(screen.getByText(vocabulary.scorecardEmptyStatePreviewSectionTitle));
+
+    expect(screen.getByTestId("executive-scorecard-empty-preview")).toBeVisible();
   });
 });

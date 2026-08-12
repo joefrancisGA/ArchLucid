@@ -88,6 +88,19 @@ describe("ExecutiveRoiTrendSection", () => {
     expect(screen.getByTestId("exec-roi-trend-svg-chart")).toBeInTheDocument();
   });
 
+  it("uses design-system time-range control and loading skeleton (TB-1536, TB-1532)", () => {
+    vi.stubGlobal(
+      "fetch",
+      vi.fn(() => new Promise(() => undefined)),
+    );
+
+    renderWithQueryClient(<ExecutiveRoiTrendSection defaultTimeRange="all" showTimeRangeSelector />);
+
+    expect(screen.getByTestId("exec-roi-trend-time-range")).toBeInTheDocument();
+    expect(screen.getByTestId("exec-roi-trend-loading-skeleton")).toBeInTheDocument();
+    expect(screen.getByText("Loading ROI trend…")).toHaveClass("sr-only");
+  });
+
   it("uses Real-mode savings only on buyer-polished trend chart", async () => {
     buyerPolishedShellVitestOverride.value = true;
 

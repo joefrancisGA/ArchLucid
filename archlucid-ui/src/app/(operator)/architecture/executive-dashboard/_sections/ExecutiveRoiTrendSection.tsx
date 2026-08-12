@@ -3,7 +3,9 @@
 import { cn } from "@/lib/utils";
 import { useMemo, useState } from "react";
 
+import { ExecutiveTimeRangeSelect } from "@/components/executive/ExecutiveTimeRangeSelect";
 import { Card, CardContent, CardDescription, CardHeader, CardTitle } from "@/components/ui/card";
+import { Skeleton } from "@/components/ui/skeleton";
 import { StatusTag } from "@/components/ui/status-tag";
 import {
   type ExecutiveRoiHistoryPoint,
@@ -12,8 +14,8 @@ import {
 import {
   type ExecutiveTimeRange,
   filterHistoryPointsByRange,
-} from "@/lib/executive-time-range";
-import { BUYER_EXECUTIVE_DATA_SOURCE_NOTE, BUYER_EXECUTIVE_SCORECARD_WINDOW_HELP } from "@/lib/buyer-polish-copy";
+} from "@/lib/executive/executive-time-range";
+import { BUYER_EXECUTIVE_DATA_SOURCE_NOTE } from "@/lib/buyer-polish-copy";
 import { EXECUTION_MODE_ROI_PERIOD_MIX_FOOTNOTE, resolveExecutiveTrendSavingsUsd } from "@/lib/execution-mode-honesty";
 import { isBuyerPolishedOperatorShellEnv } from "@/lib/demo-ui-env";
 import { OPERATOR_KPI_CARD_DESCRIPTION, OPERATOR_TYPOGRAPHY } from "@/lib/design-tokens";
@@ -102,35 +104,28 @@ export function ExecutiveRoiTrendSection({
             </CardDescription>
           </div>
           {showTimeRangeSelector ? (
-            <div className="shrink-0">
-              <label htmlFor="exec-roi-trend-range" className={cn("mb-1 block font-medium text-al-text-primary", OPERATOR_TYPOGRAPHY.helper)}>
-                Time range
-              </label>
-              <select
-                id="exec-roi-trend-range"
-                data-testid="exec-roi-trend-time-range"
-                className={cn("rounded-md border border-neutral-300 bg-white px-2 py-1 text-al-text-primary dark:border-neutral-600 dark:bg-neutral-950", OPERATOR_TYPOGRAPHY.helper)}
-                value={timeRange}
-                onChange={(event) => setTimeRange(event.target.value as ExecutiveTimeRange)}
-              >
-                <option value="30d">Last 30 days</option>
-                <option value="quarter">Last quarter</option>
-                <option value="year">Last year</option>
-                <option value="all">All time</option>
-              </select>
-              <p
-                className={cn("m-0 mt-1 max-w-xs text-al-text-secondary", OPERATOR_TYPOGRAPHY.helper)}
-                data-testid="exec-roi-trend-window-help"
-              >
-                {BUYER_EXECUTIVE_SCORECARD_WINDOW_HELP}
-              </p>
-            </div>
+            <ExecutiveTimeRangeSelect
+              id="exec-roi-trend-range"
+              value={timeRange}
+              onValueChange={setTimeRange}
+              triggerTestId="exec-roi-trend-time-range"
+            />
           ) : null}
         </div>
       </CardHeader>
       <CardContent>
         {loading ? (
-          <p className={cn("m-0 text-al-text-secondary", OPERATOR_TYPOGRAPHY.body)}>Loading ROI trend…</p>
+          <div
+            aria-busy="true"
+            aria-label="Loading ROI trend"
+            className="space-y-3"
+            data-testid="exec-roi-trend-loading-skeleton"
+            role="status"
+          >
+            <span className="sr-only">Loading ROI trend…</span>
+            <Skeleton className="h-40 w-full rounded-md" />
+            <Skeleton className="h-4 w-48" />
+          </div>
         ) : null}
         {!loading && error ? (
           <p className={cn("m-0 text-al-text-secondary", OPERATOR_TYPOGRAPHY.body)} role="alert">

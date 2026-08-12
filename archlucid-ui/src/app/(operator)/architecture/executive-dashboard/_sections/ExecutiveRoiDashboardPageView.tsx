@@ -6,17 +6,18 @@ import {
   useExecutiveDashboardData,
 } from "@/components/executive/ExecutiveDashboardDataContext";
 import { ExecutiveDashboardEmptyState } from "@/components/executive/ExecutiveDashboardEmptyState";
+import { ExecutiveDashboardLoadingSkeleton } from "@/components/executive/ExecutiveDashboardLoadingSkeleton";
 import { ExecutiveDashboardPageHero } from "@/components/executive/ExecutiveDashboardPageHero";
 import { ExecutiveDashboardSampleWorkspaceBanner } from "@/components/executive/ExecutiveDashboardSampleWorkspaceBanner";
-import type { ExecutiveTimeRange } from "@/lib/executive-time-range";
+import type { ExecutiveTimeRange } from "@/lib/executive/executive-time-range";
 import { BUYER_EXECUTIVE_SUMMARY_VOCABULARY } from "@/lib/vocabulary/buyer-surface-vocabulary";
 import { isBuyerPolishedOperatorShellEnv } from "@/lib/demo-ui-env";
 import {
   hasExecutiveCommittedReviews,
   isExecutiveDashboardEmpty,
   isExecutiveSampleWorkspaceData,
-} from "@/lib/executive-dashboard-workspace-state";
-import { EXECUTIVE_DASHBOARD_WORKSPACE_HEALTH_SECTION_ID } from "@/lib/executive-dashboard-route";
+} from "@/lib/executive/executive-dashboard-workspace-state";
+import { EXECUTIVE_DASHBOARD_WORKSPACE_HEALTH_SECTION_ID } from "@/lib/executive/executive-dashboard-route";
 import { OPERATOR_TYPOGRAPHY } from "@/lib/design-tokens";
 import { ExecutiveDashboardBaselineWarningBanner } from "./ExecutiveDashboardBaselineWarningBanner";
 import {
@@ -74,12 +75,17 @@ function ExecutiveRoiDashboardPortfolioSections({
       {!dashboardEmpty ? <OperatorWelcomeOnboardingDeferred /> : null}
 
       <ExecutiveDashboardPageHero dashboardEmpty={dashboardEmpty} />
-{dashboardEmpty ? (
+
+      {summaryLoading ? <ExecutiveDashboardLoadingSkeleton /> : null}
+
+      {!summaryLoading && dashboardEmpty ? (
         <>
           <ExecutiveDashboardEmptyState />
           {!buyerPolishedShell ? <ExecutiveDashboardHowItWorksDeferred /> : null}
         </>
-      ) : (
+      ) : null}
+
+      {!summaryLoading && !dashboardEmpty ? (
         <>
           <ExecutiveDashboardNextActionSectionDeferred
             timeRange={defaultTrendRange}
@@ -88,7 +94,7 @@ function ExecutiveRoiDashboardPortfolioSections({
           />
           <ExecutiveDashboardPrimaryMetricsSectionDeferred summary={summary ?? null} loading={summaryLoading ?? false} />
         </>
-      )}
+      ) : null}
 
       {hasCommittedReviews ? (
         <SponsorExportsSectionDeferred surface={surface} hasCommittedReviews={hasCommittedReviews} />

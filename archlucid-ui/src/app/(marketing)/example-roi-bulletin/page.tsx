@@ -10,12 +10,12 @@ import { loadSampleAggregateRoiBulletinSyntheticMarkdown } from "@/marketing/loa
 
 export const revalidate = 300;
 
-// TB-1520: noindex until buyer-facing CTA rewrite (TB-1518) lands — avoids SERP contributor-path leakage.
+// TB-1520 / TB-1518: indexable after buyer-facing CTA rewrite landed 2026-08-11.
 export const metadata: Metadata = {
   title: "ArchLucid · Example aggregate ROI bulletin (synthetic)",
   description:
     "Illustrative aggregate baseline bulletin shape for procurement — not production data; real publication gates on operator admin preview with minTenants.",
-  robots: { index: false, follow: true },
+  robots: { index: true, follow: true },
 };
 
 export default function ExampleRoiBulletinMarketingPage() {
