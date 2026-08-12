@@ -3,12 +3,11 @@
 import { cn } from "@/lib/utils";
 import Link from "next/link";
 import { useCallback, useEffect, useRef, useState } from "react";
-import { ClipboardCheck } from "lucide-react";
 
 import { OperatorApiProblem } from "@/components/OperatorApiProblem";
+import { EnterpriseCompactEmptyState } from "@/components/EnterpriseCompactEmptyState";
 import { OperatorLoadingNotice } from "@/components/OperatorShellMessage";
 import { RunIdPicker } from "@/components/RunIdPicker";
-import { EmptyState } from "@/components/EmptyState";
 import { Button } from "@/components/ui/button";
 import { getGovernanceDashboard, getGovernanceDecisionsNeededSummary } from "@/lib/api";
 import type { ApiLoadFailureState } from "@/lib/api-load-failure";
@@ -328,10 +327,10 @@ export function GovernanceOverviewPanel(props: GovernanceOverviewPanelProps): Re
           </h2>
           {loadState.dashboard.pendingApprovals.length === 0 ? (
             <div className="mt-3" data-testid="governance-overview-no-pending">
-              <EmptyState
-                icon={ClipboardCheck}
+              <EnterpriseCompactEmptyState
                 title={GOVERNANCE_OVERVIEW_NO_PENDING_TITLE}
                 description={GOVERNANCE_OVERVIEW_NO_PENDING_DESCRIPTION}
+                testId="governance-overview-no-pending-compact"
               />
             </div>
           ) : (

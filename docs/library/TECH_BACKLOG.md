@@ -1014,7 +1014,7 @@ All **P0** **V1**: visible-boundary button contract + design-system rule (**TB-2
 | TB-1476 | **Done** (2026-08-10) ? invite safe secondary exit / help when stuck; see ## TB-1476 below | Adoption friction P1 ? **V1**; with **TB-1472**; pairs **TB-1469**/**TB-1315** | S |
 | TB-1477 | ~~Advisory schedules ? empty form+scope-rail first-viewport whitespace~~ **Done** 2026-08-11 ? compact empty under create form; Vitest | Adoption friction P1 ? **V1**; owner whitespace pass 2026-07-27; `AdvisorySchedulesContent`; pairs **TB-1133** | S |
 | TB-1478 | ~~Digests schedule ? empty/form+readiness-rail whitespace~~ **Done** 2026-08-11 ? demote supplemental aside when rail unpinned; Vitest | Adoption friction P1 ? **V1**; with **TB-1477**; `ExecDigestScheduleContent` | S |
-| TB-1479 | Alert rules Rules tab ? empty `gap-8` list+create+preview two-col; see ## TB-1479 below | Adoption friction P1 ? **V1**; with **TB-1477**; `AlertRulesContent`; pairs **TB-936** | S |
+| TB-1479 | **Done** (2026-08-11) ? Alert rules Rules tab ? empty-first + header Create reveals form; see ## TB-1479 below | Adoption friction P1 ? **V1**; with **TB-1477**; `AlertRulesContent`; pairs **TB-936** | S |
 | TB-1480 | Digests browse ? empty checklist+preview+empty stack composition; see ## TB-1480 below | Adoption friction P1 ? **V1**; **Done** 2026-08-11 | S |
 | TB-1481 | Alert routing ? empty destinations+GettingStarted+create-card first viewport; see ## TB-1481 below | Adoption friction P1 ? **V1**; **Done** 2026-08-11 | S |
 | TB-1483 | `/compliance-journey` ? MarketingPageShell + marketing tokens (parity `/trust`); see ## TB-1483 below | Adoption friction P1 ? **V1**; **Done** 2026-08-11 | S |
@@ -1031,10 +1031,10 @@ All **P0** **V1**: visible-boundary button contract + design-system rule (**TB-2
 | TB-1536 | **Done** (2026-08-11) — Executive time-range Select + scorecard empty preview disclosure; see ## TB-1536 below | Adoption friction P1 ? **V1**; with **TB-1532**; pairs **TB-1529** empty Dashboard CTA | S |
 | TB-1539 | Operator primary-CTA contract ? document in UI_DESIGN_SYSTEM (+ UI ARCHITECTURE pointer); see ## TB-1539 below | Adoption friction P1 ? **V1**; owner CTA-convention pass 2026-07-27; pairs header narrative **TB-1508**?**TB-1513** | S |
 | TB-1540 | Recurrence ? Create `variant="primary"` + empty ranking residual (demote View*); see ## TB-1540 below | Adoption friction P1 ? **V1**; residual after Done **TB-1131**; with **TB-1539** | S |
-| TB-1542 | Advisory Schedules ? empty-first + header Create reveals form (form submit only primary when open); see ## TB-1542 below | Adoption friction P1 ? **V1**; with **TB-1539**; pairs **TB-1477** | S |
-| TB-1543 | Key operator hubs ? inventory migrate to one-primary CTA rule; see ## TB-1543 below | Adoption friction P1 ? **V1**; after **TB-1539**; does not reopen **TB-1141**/**TB-1276** | M |
-| TB-1552 | Operator empty-state contract ? document in UI_DESIGN_SYSTEM (+ UI ARCHITECTURE pointer); see ## TB-1552 below | Adoption friction P1 ? **V1**; owner empty-state convention pass 2026-07-27; pairs CTA **TB-1539**?**TB-1544** / whitespace **TB-1477**?**TB-1482** | S |
-| TB-1554 | Operator EmptyState ? Compact migration inventory (dense hubs); see ## TB-1554 below | Adoption friction P1 ? **V1**; with **TB-1552** | M |
+| TB-1542 | **Done** (2026-08-11) ? Advisory Schedules ? empty-first + header Create reveals form; see ## TB-1542 below | Adoption friction P1 ? **V1**; with **TB-1539**; pairs **TB-1477** | S |
+| TB-1543 | **Done** (2026-08-11) ? Key operator hubs ? inventory migrate to one-primary CTA rule; see ## TB-1543 below | Adoption friction P1 ? **V1**; after **TB-1539**; does not reopen **TB-1141**/**TB-1276** | M |
+| TB-1552 | **Done** (2026-08-11) ? Operator empty-state contract ? document in UI_DESIGN_SYSTEM (+ UI ARCHITECTURE pointer); see ## TB-1552 below | Adoption friction P1 ? **V1**; owner empty-state convention pass 2026-07-27; pairs CTA **TB-1539**?**TB-1544** / whitespace **TB-1477**?**TB-1482** | S |
+| TB-1554 | **Done** (2026-08-11) ? Operator EmptyState ? Compact migration inventory (dense hubs); see ## TB-1554 below | Adoption friction P1 ? **V1**; with **TB-1552** | M |
 | TB-1555 | Empty-kind presets/helpers ? collection / hub-zone / filtered / permission conventions; see ## TB-1555 below | Adoption friction P1 ? **V1**; with **TB-1552**; extend `enterprise-compact-empty-state-presets.ts` | S |
 | TB-1565 | **Done** (2026-08-11) ? Advisory Scans tab ? keep `?tab=scans` deep-link stable; see ## TB-1565 below | Adoption friction P1 ? **V1**; owner review ~52/100 2026-07-27; traffic **ADS**; pairs **TB-1505** | XS |
 | TB-1566 | **Done** (2026-08-11) ? Advisory recommendation disposition ? replace `window.prompt` with on-system dialog; see ## TB-1566 below | Adoption friction P1 ? **V1**; with **TB-1565**; after Done **TB-1127** affordance | S |
@@ -39794,7 +39794,7 @@ Operators must read three intros before reaching the Trust Center link list.
 
 **Window:** V1 ? Adoption friction.
 
-**Status:** Not started.
+**Status:** **Done** (2026-08-11) ? `operator-empty-state-migration-inventory.ts` + Vitest; migrated governance overview no-pending + standards-rules empties to Compact; centered `OperatorEmptyState` rows documented as justified.
 
 **Priority:** P0.
 
@@ -39802,14 +39802,13 @@ Operators must read three intros before reaching the Trust Center link list.
 
 **Problem:** Two visual languages for ?no data?; centered cards read more consumer-SaaS on governance/list hubs.
 
-**Approach:**
+**Shipped:**
 
-1. Inventory `EmptyState` / page-shell `OperatorEmptyState` call sites on operator hubs.
-2. Migrate dense collection/hub-zone empties to Compact (+ presets).
-3. Keep centered `EmptyState` only for rare full-page first-run where `gettingStarted` steps are the product ? or fold steps into collapsed How-it-works under Compact.
-4. Publish inventory checklist for **TB-1556**.
+1. `archlucid-ui/src/lib/operator-empty-state-migration-inventory.ts` ? compact-native / migrated / centered-justified / coordinate rows for dense hubs.
+2. Migrated `GovernanceOverviewPanel` no-pending and `StandardsRulesEmptyState` to `EnterpriseCompactEmptyState` (+ `STANDARDS_RULES_EMPTY_COMPACT` preset).
+3. Vitest **TB-1554** in `operator-empty-state-migration-inventory.test.ts`; checklist for **TB-1556**.
 
-**Acceptance:** Allowlisted dense hubs no longer use centered EmptyState for collection empty; inventory checked in.
+**Acceptance:** Met ? Allowlisted dense hubs inventory checked in; two centered collection empties migrated to Compact.
 
 **Depends on:** After **TB-1552**.
 

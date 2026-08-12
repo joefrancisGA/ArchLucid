@@ -263,6 +263,7 @@ Bans playful empties — this section defines **empty kinds**, Compact-vs-center
 | Centered `EmptyState` | Reserve for rare full-page first-run where `gettingStarted` steps **are** the product — or fold steps into collapsed How-it-works under Compact. Dense operator hubs use Compact (**TB-1554** inventory). |
 | Copy | Not-configured → “No {thing} yet” + one sentence on the page job — not playful illustration. |
 | Presets | Reuse `archlucid-ui/src/lib/enterprise-compact-empty-state-presets.ts` where possible. |
+| Migration inventory | Dense-hub allowlist: `archlucid-ui/src/lib/operator-empty-state-migration-inventory.ts` (**TB-1554** Done); Vitest guard **TB-1556**. |
 
 **Exemplars:** Digests browse (Compact under master-detail), Recurrence (empty footer Create + collapsed helper, **TB-1540**), Reviews hub (**TB-1553**), Advisory Schedules empty-first + header Create (**TB-1542**).
 
@@ -535,5 +536,5 @@ Headline counts on golden-path surfaces must be **self-describing** and **click-
 - Page-header help **borderless carve-out**: this file § *Visible-boundary `Button` contract* → *Carve-out — page-header contextual help* (owner decision 2026-08-11) — shared chrome in `components/usability/page-contextual-help-trigger.ts`; shell top-bar `Help` stays `variant="outline"`
 - Operator **side rails** contract: this file § *Operator side rails* (**TB-1572** Done) — single-column default; allow working-object / master-detail / live-when-live / TOC-wizard; ban teaching / static-scope / about-aside persistent rails; live pin policy **TB-1574** Done; hub inventory + about-aside demotion **TB-1575** Done (`operator-side-rail-inventory.ts`); Vitest allowlist **TB-1576**
 - Operator **primary CTA** contract: this file § *Operator primary CTA* (**TB-1539** Done) — one page job; ≤1 `variant="primary"` in first viewport; header order Help → Primary → outline utilities; hub inventory **TB-1543** Done (`operator-primary-cta-inventory.ts`); Vitest dual-primary guard **TB-1544**
-- Operator **empty states** contract: this file § *Operator empty states* (**TB-1552** Done) — name empty kind; default collection/hub-zone → `EnterpriseCompactEmptyState`; ban form+rail+empty stacks; presets in `enterprise-compact-empty-state-presets.ts`
+- Operator **empty states** contract: this file § *Operator empty states* (**TB-1552** Done) — name empty kind; default collection/hub-zone → `EnterpriseCompactEmptyState`; ban form+rail+empty stacks; presets in `enterprise-compact-empty-state-presets.ts`; migration inventory **TB-1554** (`operator-empty-state-migration-inventory.ts`)
 - Operator **populated lists** contract: this file § *Operator populated lists* (**TB-1646** Done) — name list kind; default inventory/master-detail → `EnterpriseTable` + `StatusTag`; entity-summary cards only when justified; ≤2 visible row actions; ban parallel raw HTML tables; apply **TB-1647**–**TB-1650**

@@ -10,6 +10,11 @@ import {
   AZURE_REFERENCE_SAMPLE_REVIEW_CTA_LABEL,
 } from "@/lib/empty-state-presets";
 import { GOVERNANCE_APPROVAL_QUEUE_PATH } from "@/lib/governance-route-paths";
+import {
+  STANDARDS_RULES_EMPTY_BODY,
+  STANDARDS_RULES_EMPTY_HEADING,
+} from "@/lib/standards-rules-page";
+import { SHOWCASE_STATIC_DEMO_RUN_ID } from "@/lib/showcase-static-demo";
 
 /** Reviews list when the project has zero reviews. */
 export const RUNS_EMPTY_COMPACT: EnterpriseCompactEmptyStateProps = {
@@ -136,6 +141,21 @@ export const EXECUTIVE_REVIEWS_EMPTY_COMPACT: EnterpriseCompactEmptyStateProps =
   actions: [
     { label: "See a completed sample review", href: "/see-it", variant: "primary" },
     { label: "Start a review", href: "/architecture/reviews/new", variant: "outline" },
+  ],
+};
+
+/** Standards & rules register when no rules apply to the current review scope. */
+export const STANDARDS_RULES_EMPTY_COMPACT: EnterpriseCompactEmptyStateProps = {
+  testId: "standards-rules-empty-state",
+  title: STANDARDS_RULES_EMPTY_HEADING,
+  description: STANDARDS_RULES_EMPTY_BODY,
+  actions: [
+    { label: "Open policy packs", href: "/governance/policy-packs", variant: "primary" },
+    {
+      label: "View review evidence",
+      href: `/insights/evidence-graph?runId=${encodeURIComponent(SHOWCASE_STATIC_DEMO_RUN_ID)}`,
+      variant: "outline",
+    },
   ],
 };
 
