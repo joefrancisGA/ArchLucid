@@ -943,7 +943,7 @@ export function AuthDomainsPageClient() {
 
       <AuthDomainsActionConfirmDialog
         pending={pendingConfirm}
-        organizationLabel={organizationLabel}
+        currentWorkspaceLabel={currentWorkspaceLabel}
         busy={busy}
         onCancel={() => setPendingConfirm(null)}
         onConfirm={() => void handleConfirmPendingAction()}

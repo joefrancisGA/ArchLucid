@@ -17,7 +17,7 @@ describe("AuthDomainsActionConfirmDialog", () => {
     render(
       <AuthDomainsActionConfirmDialog
         pending={{ kind: "enable-enforcement" }}
-        organizationLabel="Claims Intake Demo"
+        currentWorkspaceLabel="Claims Intake Demo"
         busy={false}
         onCancel={vi.fn()}
         onConfirm={onConfirm}
@@ -42,7 +42,7 @@ describe("AuthDomainsActionConfirmDialog", () => {
           enforcementMode: "SsoRequiredForVerifiedDomain",
           allowEmailOtpRecovery: false,
         }}
-        organizationLabel="Claims Intake Demo"
+        currentWorkspaceLabel="Claims Intake Demo"
         busy={false}
         onCancel={vi.fn()}
         onConfirm={vi.fn()}
@@ -62,7 +62,7 @@ describe("AuthDomainsActionConfirmDialog", () => {
           enforcementMode: "SsoOptional",
           allowEmailOtpRecovery: false,
         }}
-        organizationLabel="Claims Intake Demo"
+        currentWorkspaceLabel="Claims Intake Demo"
         busy={false}
         onCancel={vi.fn()}
         onConfirm={vi.fn()}
@@ -85,7 +85,7 @@ describe("AuthDomainsActionConfirmDialog", () => {
           displayRecoveryAdminEmail: "breakglass@example.com",
           warningMessage,
         }}
-        organizationLabel="Claims Intake Demo"
+        currentWorkspaceLabel="Claims Intake Demo"
         busy={false}
         onCancel={vi.fn()}
         onConfirm={vi.fn()}

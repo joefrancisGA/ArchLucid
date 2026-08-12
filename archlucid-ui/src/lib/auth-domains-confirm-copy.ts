@@ -11,25 +11,33 @@ export const AUTH_DOMAINS_SET_ENFORCEMENT_DOWNGRADE_CONFIRM_TITLE = "Allow SSO o
 
 export const AUTH_DOMAINS_RECOVERY_REMOVE_CONFIRM_TITLE = "Remove recovery administrator?" as const;
 
-export function authDomainsConfirmScopePhrase(organizationLabel: string): string {
-  return `This change applies tenant-wide to sign-in domains for ${organizationLabel}.`;
+/**
+ * The shell switcher names a workspace, so the confirm must not imply the change is workspace-scoped.
+ * The workspace is named only as one of the affected workspaces.
+ */
+export function authDomainsConfirmScopePhrase(currentWorkspaceLabel: string | null): string {
+  if (currentWorkspaceLabel === null || currentWorkspaceLabel.length === 0) {
+    return "This change applies tenant-wide, to every workspace in this organization.";
+  }
+
+  return `This change applies tenant-wide, to every workspace in this organization — including ${currentWorkspaceLabel}.`;
 }
 
-export function authDomainsEnableEnforcementConfirmDescription(organizationLabel: string): string {
-  return `${authDomainsConfirmScopePhrase(organizationLabel)} ${AUTH_DOMAINS_ENFORCEMENT_WARNING}`;
+export function authDomainsEnableEnforcementConfirmDescription(currentWorkspaceLabel: string | null): string {
+  return `${authDomainsConfirmScopePhrase(currentWorkspaceLabel)} ${AUTH_DOMAINS_ENFORCEMENT_WARNING}`;
 }
 
 export function authDomainsSetEnforcementUpgradeDescription(
-  organizationLabel: string,
+  currentWorkspaceLabel: string | null,
   displayDomain: string,
   modeLabel: string,
 ): string {
-  return `${authDomainsConfirmScopePhrase(organizationLabel)} Require ${modeLabel} for ${displayDomain}. ${AUTH_DOMAINS_ENFORCEMENT_WARNING}`;
+  return `${authDomainsConfirmScopePhrase(currentWorkspaceLabel)} Require ${modeLabel} for ${displayDomain}. ${AUTH_DOMAINS_ENFORCEMENT_WARNING}`;
 }
 
 export function authDomainsSetEnforcementDowngradeDescription(
-  organizationLabel: string,
+  currentWorkspaceLabel: string | null,
   displayDomain: string,
 ): string {
-  return `${authDomainsConfirmScopePhrase(organizationLabel)} Users on ${displayDomain} will be able to sign in without SSO once this change is saved. Confirm that loosening enforcement is intentional.`;
+  return `${authDomainsConfirmScopePhrase(currentWorkspaceLabel)} Users on ${displayDomain} will be able to sign in without SSO once this change is saved. Confirm that loosening enforcement is intentional.`;
 }

@@ -29,7 +29,7 @@ export type AuthDomainsPendingConfirm =
 
 type AuthDomainsActionConfirmDialogProps = {
   readonly pending: AuthDomainsPendingConfirm | null;
-  readonly organizationLabel: string;
+  readonly currentWorkspaceLabel: string | null;
   readonly busy: boolean;
   readonly onCancel: () => void;
   readonly onConfirm: () => void;
@@ -37,7 +37,7 @@ type AuthDomainsActionConfirmDialogProps = {
 
 function resolveDialogCopy(
   pending: AuthDomainsPendingConfirm | null,
-  organizationLabel: string,
+  currentWorkspaceLabel: string | null,
 ): {
   title: string;
   description: string;
@@ -54,7 +54,7 @@ function resolveDialogCopy(
   if (pending.kind === "enable-enforcement") {
     return {
       title: AUTH_DOMAINS_ENABLE_ENFORCEMENT_CONFIRM_TITLE,
-      description: authDomainsEnableEnforcementConfirmDescription(organizationLabel),
+      description: authDomainsEnableEnforcementConfirmDescription(currentWorkspaceLabel),
       confirmLabel: "Enable enforcement",
     };
   }
@@ -66,7 +66,7 @@ function resolveDialogCopy(
     if (isDowngrade) {
       return {
         title: AUTH_DOMAINS_SET_ENFORCEMENT_DOWNGRADE_CONFIRM_TITLE,
-        description: authDomainsSetEnforcementDowngradeDescription(organizationLabel, pending.displayDomain),
+        description: authDomainsSetEnforcementDowngradeDescription(currentWorkspaceLabel, pending.displayDomain),
         confirmLabel: "Allow SSO optional",
       };
     }
@@ -74,7 +74,7 @@ function resolveDialogCopy(
     return {
       title: AUTH_DOMAINS_SET_ENFORCEMENT_CONFIRM_TITLE,
       description: authDomainsSetEnforcementUpgradeDescription(
-        organizationLabel,
+        currentWorkspaceLabel,
         pending.displayDomain,
         modeLabel,
       ),
@@ -93,7 +93,7 @@ function resolveDialogCopy(
 export function AuthDomainsActionConfirmDialog(
   props: AuthDomainsActionConfirmDialogProps,
 ): React.JSX.Element {
-  const copy = resolveDialogCopy(props.pending, props.organizationLabel);
+  const copy = resolveDialogCopy(props.pending, props.currentWorkspaceLabel);
 
   return (
     <ConfirmationDialog
