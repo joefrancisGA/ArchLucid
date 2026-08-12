@@ -130,3 +130,60 @@ describe("RecommendationLearningOpsPageClient TB-1788 toolbar honesty", () => {
     expect(reloadBundle).not.toHaveBeenCalled();
   });
 });
+
+describe("RecommendationLearningOpsPageClient TB-1789 enterprise chrome", () => {
+  beforeEach(() => {
+    reloadBundle.mockReset();
+    reloadPersistedOnly.mockReset();
+    reloadBundle.mockResolvedValue({
+      status: baseStatus,
+      profile: baseProfile,
+      history: [
+        {
+          profileId: "profile-v2",
+          generatedUtc: "2026-08-12T11:00:00Z",
+          outcomeCount: 10,
+          isActive: true,
+        },
+      ],
+    });
+    reloadPersistedOnly.mockResolvedValue(baseProfile);
+  });
+
+  it("uses OperatorPageHeader chrome and StatusTag for profile state", () => {
+    render(
+      <RecommendationLearningOpsPageClient
+        initialStatus={baseStatus}
+        initialProfile={baseProfile}
+        initialHistory={[
+          {
+            profileId: "profile-v2",
+            generatedUtc: "2026-08-12T11:00:00Z",
+            outcomeCount: 10,
+            isActive: true,
+          },
+        ]}
+        initialFailure={null}
+      />,
+    );
+
+    expect(screen.getByTestId("recommendation-learning-page-title")).toHaveTextContent("Recommendation learning");
+    expect(screen.getByTestId("recommendation-learning-ops-eyebrow")).toHaveTextContent(/internal operations/i);
+    expect(screen.getByTestId("recommendation-learning-environment-tag")).toBeInTheDocument();
+    expect(screen.getByTestId("rl-profile-state")).toHaveTextContent("Active");
+    expect(screen.getByRole("table", { name: /profile version history/i })).toBeInTheDocument();
+  });
+
+  it("does not render hand-rolled pastel status chrome", () => {
+    const { container } = render(
+      <RecommendationLearningOpsPageClient
+        initialStatus={baseStatus}
+        initialProfile={baseProfile}
+        initialHistory={[]}
+        initialFailure={null}
+      />,
+    );
+
+    expect(container.innerHTML).not.toMatch(/text-rose-800|text-amber-800|StatusPill/);
+  });
+});

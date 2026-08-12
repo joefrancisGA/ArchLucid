@@ -1,8 +1,12 @@
 import { describe, expect, it } from "vitest";
 
 import {
+  deployEnvironmentStatusTagKind,
   profileStateLabel,
+  profileStateStatusTagKind,
+  profileVersionStatusTagKind,
   resolveDeployEnvironmentLabel,
+  validationCheckStatusTagKind,
 } from "@/app/(operator)/internal/recommendation-learning/_sections/recommendation-learning-ops-display";
 
 describe("recommendation-learning-ops-display", () => {
@@ -22,5 +26,14 @@ describe("recommendation-learning-ops-display", () => {
     } else {
       process.env.NEXT_PUBLIC_DEPLOY_ENV = previous;
     }
+  });
+
+  it("maps profile and validation status tag kinds", () => {
+    expect(profileStateStatusTagKind("Active")).toBe("ready");
+    expect(profileStateStatusTagKind("InsufficientData")).toBe("needs-attention");
+    expect(profileVersionStatusTagKind(true)).toBe("ready");
+    expect(validationCheckStatusTagKind("Pass")).toBe("ready");
+    expect(validationCheckStatusTagKind("Fail")).toBe("blocked");
+    expect(deployEnvironmentStatusTagKind()).toBe("neutral");
   });
 });

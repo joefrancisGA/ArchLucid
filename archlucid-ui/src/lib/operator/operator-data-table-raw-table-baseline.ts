@@ -18,7 +18,6 @@ export const OPERATOR_DATA_TABLE_RAW_TABLE_BASELINE_PATHS: readonly string[] = [
   "app/(operator)/internal/configuration/_sections/AdminConfigurationPageView.tsx",
   "app/(operator)/internal/pricing-quote-aging/_sections/PricingQuoteAgingPageView.tsx",
   "app/(operator)/internal/product-learning/_sections/ProductLearningPageView.tsx",
-  "app/(operator)/internal/recommendation-learning/_sections/RecommendationLearningOpsPageClient.tsx",
   "components/ArtifactListTable.tsx",
   "components/alerts/AlertSimulationContent.tsx",
   "components/compare/ArchitectureManifestUnifiedDiffView.tsx",
