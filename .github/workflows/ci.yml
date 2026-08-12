@@ -1065,6 +1065,26 @@ jobs:
         continue-on-error: true
         run: python -m unittest discover -s scripts/ci/tests -p "test_check_honesty_cluster_1002_1023.py"
 
+      - name: Faithfulness scoring lane honesty guard (TB-1229 / M-209)
+        continue-on-error: true
+        run: python scripts/ci/check_faithfulness_support_ratio_scoring_lane_honesty.py
+
+      - name: Shared hallucination defense plane honesty guard (TB-1231 / M-211)
+        continue-on-error: true
+        run: python scripts/ci/check_shared_hallucination_defense_plane_honesty.py
+
+      - name: Tenant DiD erosion beyond predicates honesty guard (TB-1233 / M-213)
+        continue-on-error: true
+        run: python scripts/ci/check_tenant_did_erosion_beyond_predicates_honesty.py
+
+      - name: Azure workload privilege escalation seam honesty guard (TB-1245 / M-215)
+        continue-on-error: true
+        run: python scripts/ci/check_azure_workload_privilege_escalation_seam_honesty.py
+
+      - name: Honesty cluster 1229-1245 guard unit tests
+        continue-on-error: true
+        run: python -m unittest discover -s scripts/ci/tests -p "test_check_honesty_cluster_1229_1245.py"
+
       - name: Buyer-surface strict claim guards (blocking when buyer paths changed)
         if: steps.buyer-surface-detect.outputs.changed == 'true'
         run: |

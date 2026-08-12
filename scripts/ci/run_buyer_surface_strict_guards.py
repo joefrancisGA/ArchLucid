@@ -164,6 +164,26 @@ GUARDS: tuple[GuardCommand, ...] = (
         None,
     ),
     GuardCommand(
+        "faithfulness scoring lane honesty",
+        ("python", "scripts/ci/check_faithfulness_support_ratio_scoring_lane_honesty.py"),
+        None,
+    ),
+    GuardCommand(
+        "shared hallucination defense plane honesty",
+        ("python", "scripts/ci/check_shared_hallucination_defense_plane_honesty.py"),
+        None,
+    ),
+    GuardCommand(
+        "tenant DiD erosion beyond predicates honesty",
+        ("python", "scripts/ci/check_tenant_did_erosion_beyond_predicates_honesty.py"),
+        None,
+    ),
+    GuardCommand(
+        "azure workload privilege escalation seam honesty",
+        ("python", "scripts/ci/check_azure_workload_privilege_escalation_seam_honesty.py"),
+        None,
+    ),
+    GuardCommand(
         "isolation claims too-strong honesty",
         ("python", "scripts/ci/check_isolation_claims_too_strong_honesty.py"),
         None,

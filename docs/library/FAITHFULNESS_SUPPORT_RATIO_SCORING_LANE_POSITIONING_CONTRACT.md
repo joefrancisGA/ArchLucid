@@ -80,6 +80,16 @@
 
 ---
 
+## CI anchors for **TB-1229**
+
+| Anchor | Purpose |
+| --- | --- |
+| This contract + buyer packet **M-209**/**M-210** | Required cite near faithfulness / support-ratio lane language |
+| `scripts/ci/check_faithfulness_support_ratio_scoring_lane_honesty.py` | Fail buyer stubs: semantic faithfulness = commit gate / cohort ratio = package safety / PilotStrict = Real proof |
+| Code presence | `AgentOutputQualityGate`, `GoldenCohortFineTuningPromotionGate` |
+
+---
+
 ## Related backlog
 
 | ID | Role |

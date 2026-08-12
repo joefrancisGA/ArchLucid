@@ -9,7 +9,7 @@
 **Real-variance isolation:** [`AGENT_OUTPUT_DECISIONING_REAL_VARIANCE_ISOLATION_CONTRACT.md`](AGENT_OUTPUT_DECISIONING_REAL_VARIANCE_ISOLATION_CONTRACT.md) (**TB-1196**).  
 **Finding provenance:** [`DECISION_GRADE_FINDING_PROVENANCE_FAIL_CLOSED_CONTRACT.md`](DECISION_GRADE_FINDING_PROVENANCE_FAIL_CLOSED_CONTRACT.md) (**TB-1221**).  
 **Evaluation lanes:** **TB-1228** (Lane A structural / Lane B–C async).  
-**Honesty CI:** **TB-1231** (open). **PilotStrict floors:** Done **TB-684**.
+**Honesty CI:** **TB-1231** Done (`scripts/ci/check_shared_hallucination_defense_plane_honesty.py`). **PilotStrict floors:** Done **TB-684**.
 
 ---
 
@@ -79,12 +79,12 @@
 
 ---
 
-## TB-1231 CI anchors (named, not implemented here)
+## CI anchors for **TB-1231**
 
 | Anchor | Purpose |
 | --- | --- |
 | `SHARED_HALLUCINATION_DEFENSE_PLANE_CONTRACT.md` | Drift guard (this file) |
-| Buyer/proof stub guards | Fail Simulator=Real-safe / forked-stack claims |
+| `scripts/ci/check_shared_hallucination_defense_plane_honesty.py` | Fail Simulator=Real-safe / forked-stack claims |
 | Code presence | `AgentOutputTraceQualityEvaluator`, `SkipWhenSimulator`, `ContentSafetyEnforcingAgentCompletionClient`, `FineTunedAgentCompletionDeploymentResolver`, `GoldenCohortFineTuningPromotionGate` |
 
 ---
@@ -93,7 +93,7 @@
 
 - Does not implement validate-before-overlay (**TB-1196** follow-on) or provenance validators (**TB-1221**).
 - Does not change FT activation (**TB-690**) or reopen Done **TB-684**.
-- Does not close honesty CI (**TB-1231**).
+- Honesty CI shipped: **TB-1231** (`check_shared_hallucination_defense_plane_honesty.py`).
 
 ---
 

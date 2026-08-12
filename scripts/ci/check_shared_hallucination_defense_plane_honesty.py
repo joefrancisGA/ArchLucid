@@ -1,5 +1,5 @@
 #!/usr/bin/env python3
-"""TB-1233 / M-213: Anti-WHERE-TenantId-equals-isolation / ARCH-alone / RLS honesty CI."""
+"""TB-1231 / M-211: Anti-Simulator-safe-equals-Real / forked-defense-stack honesty CI."""
 
 from __future__ import annotations
 
@@ -11,15 +11,14 @@ from pathlib import Path
 
 REPO_ROOT = Path(__file__).resolve().parents[2]
 
-ALLOWLIST_MARKER = "tenant-did-erosion-beyond-predicates-honesty: allow"
+ALLOWLIST_MARKER = "shared-hallucination-defense-plane-honesty: allow"
 
-CONTRACT_REL = Path(
-    "docs/library/TENANT_DID_EROSION_AND_ENFORCEMENT_BEYOND_PREDICATES_CONTRACT.md"
+CONTRACT_REL = Path("docs/library/SHARED_HALLUCINATION_DEFENSE_PLANE_CONTRACT.md")
+PA_ONE_PAGER_REL = Path("docs/go-to-market/SHARED_HALLUCINATION_DEFENSE_PLANE_PA_ONE_PAGER.md")
+TRACE_EVALUATOR_REL = Path("ArchLucid.AgentRuntime/Evaluation/AgentOutputTraceQualityEvaluator.cs")
+CONTENT_SAFETY_REL = Path(
+    "ArchLucid.AgentRuntime/Safety/ContentSafetyEnforcingAgentCompletionClient.cs"
 )
-PA_ONE_PAGER_REL = Path(
-    "docs/go-to-market/TENANT_DID_EROSION_BEYOND_PREDICATES_PA_ONE_PAGER.md"
-)
-SEARCH_CLIENT_REL = Path("ArchLucid.Retrieval/Indexing/AzureSearchSdkClient.cs")
 
 DOCS_TO_SCAN: tuple[Path, ...] = (
     Path("docs/go-to-market/WHAT_NOT_TO_PROMISE.md"),
@@ -31,12 +30,13 @@ DOCS_TO_SCAN: tuple[Path, ...] = (
 )
 
 REQUIRED_CONTRACT_MARKERS: tuple[str, ...] = (
-    "**TB-1232**",
-    "**TB-1233**",
-    "M-213",
+    "**TB-1230**",
+    "**TB-1231**",
+    "M-211",
     "Explicit non-claims",
-    "CI anchors for **TB-1233**",
-    "BuildRequiredScopeFilter",
+    "CI anchors for **TB-1231**",
+    "AgentOutputTraceQualityEvaluator",
+    "SkipWhenSimulator",
 )
 
 _CAVEAT_MARKERS: tuple[str, ...] = (
@@ -47,18 +47,15 @@ _CAVEAT_MARKERS: tuple[str, ...] = (
     "not claim",
     "forbidden",
     "too strong",
-    "layer a",
-    "catalog",
-    "adr 0037",
-    "did",
-    "defense in depth",
-    "tb-1232",
-    "tb-1233",
-    "tb-1122",
-    "m-213",
+    "inv-002",
+    "m-166",
+    "tb-1230",
+    "tb-1231",
+    "m-211",
     "honesty guard",
     "non-claim",
-    "predicate",
+    "config-only",
+    "cost control",
     "≠",
 )
 
@@ -72,53 +69,43 @@ class ClaimPattern:
 CLAIM_PATTERNS: tuple[ClaimPattern, ...] = (
     ClaimPattern(
         re.compile(
-            r"\bwhere\s+tenant\s*id\b[^.\n]{0,80}\b(?:is|equals?|equal|proves?|means?)\b"
-            r"[^.\n]{0,60}\b(?:tenant\s+)?isolation\b",
+            r"\bsimulator\b[^.\n]{0,80}\b(?:pilot\s*strict|quality\s+gate|quality\s+pass)\b"
+            r"[^.\n]{0,80}\b(?:green|pass(?:es|ed)?)\b[^.\n]{0,60}\b(?:means?|proves?|equals?)\b"
+            r"[^.\n]{0,40}\breal[-\s]safe\b",
             re.IGNORECASE,
         ),
-        "`WHERE TenantId` is Layer D DiD — not production paying-client isolation (TB-1232 / ADR 0037).",
+        "Simulator PilotStrict/quality pass is not Real live-model sponsor safety (TB-1230 / M-166).",
     ),
     ClaimPattern(
         re.compile(
-            r"\b(?:scope[-\s]context|tenantid\s+predicates?|per[-\s]query\s+filters?)\b"
-            r"[^.\n]{0,80}\b(?:alone|by\s+themselves)\b[^.\n]{0,60}\b"
-            r"(?:prove|means?|equals?|guarantee)\b[^.\n]{0,40}\b(?:tenant\s+)?isolation\b",
+            r"\bsimulator\b[^.\n]{0,80}\b(?:green|pass(?:es|ed)?)\b[^.\n]{0,80}\b"
+            r"(?:proves?|means?|guarantees?)\b[^.\n]{0,60}\b(?:real|live[-\s]model)\b[^.\n]{0,40}\bsafe",
             re.IGNORECASE,
         ),
-        "Scope predicates alone are not the primary isolation boundary (TB-1232).",
+        "Simulator quality pass does not prove Real-safe without INV-002 disclosure (TB-1230).",
     ),
     ClaimPattern(
         re.compile(
-            r"\b(?:netarchtest|arch001|arch006|architecture\s+tests?)\b[^.\n]{0,80}\b"
-            r"(?:alone|by\s+themselves)\b[^.\n]{0,60}\b(?:prove|means?|guarantee)\b"
-            r"[^.\n]{0,40}\b(?:tenant\s+)?isolation\b",
+            r"\b(?:parallel|separate|forked|distinct)\b[^.\n]{0,60}\b"
+            r"(?:simulator|real)\b[^.\n]{0,60}\bdefense\s+stacks?\b",
             re.IGNORECASE,
         ),
-        "NetArchTest / ARCH green alone does not prove paying-client isolation (TB-1232 / TB-1005).",
+        "One shared post-agent defense plane — not parallel Simulator vs Real stacks (TB-1230).",
     ),
     ClaimPattern(
         re.compile(
-            r"\b(?:sql\s+)?rls\b[^.\n]{0,80}\b(?:is|are|will\s+be)\b[^.\n]{0,60}\b"
-            r"(?:the\s+)?(?:missing|required|beyond[-\s]predicate)\b[^.\n]{0,40}\b(?:control|fix|enforcement)\b",
+            r"\b(?:simulator|real)\b[^.\n]{0,60}\b(?:and|vs\.?|versus)\b[^.\n]{0,60}\b(?:simulator|real)\b"
+            r"[^.\n]{0,60}\b(?:defense|quality)\s+stacks?\b",
             re.IGNORECASE,
         ),
-        "SQL RLS is not the beyond-predicate fix — catalog routing is primary (TB-1232 / TB-1122).",
+        "Mode varies thresholds/judges only — do not claim forked defense stacks (TB-1230).",
     ),
     ClaimPattern(
         re.compile(
-            r"\b(?:reinstat(?:e|ing)|add(?:ing)?)\b[^.\n]{0,40}\b(?:sql\s+)?rls\b[^.\n]{0,80}\b"
-            r"(?:fixes?|solves?|enforces?)\b[^.\n]{0,40}\btenan(?:t|cy)\b",
+            r"\bquick\s*start\s*forced\s*simulator\b[^.\n]{0,80}\b(?:proves?|means?)\b[^.\n]{0,60}\breal\b",
             re.IGNORECASE,
         ),
-        "Do not sell RLS reinstatement as tenancy enforcement (TB-1232 / ADR 0037).",
-    ),
-    ClaimPattern(
-        re.compile(
-            r"\biscopecontextprovider\b[^.\n]{0,80}\b(?:alone|by\s+itself)\b[^.\n]{0,60}\b"
-            r"(?:proves?|means?|equals?)\b[^.\n]{0,40}\b(?:tenant\s+)?isolation\b",
-            re.IGNORECASE,
-        ),
-        "Scope-provider threading alone is not paying-client isolation proof (TB-1232).",
+        "QuickStartForcedSimulator output is not Real execution proof (TB-1230 / INV-002).",
     ),
 )
 
@@ -207,42 +194,48 @@ def contract_violations(root: Path) -> list[str]:
     path = root / CONTRACT_REL
 
     if not path.is_file():
-        return [
-            f"{CONTRACT_REL.as_posix()}: missing tenant DiD erosion contract (TB-1232)."
-        ]
+        return [f"{CONTRACT_REL.as_posix()}: missing shared defense plane contract (TB-1230)."]
 
     text = path.read_text(encoding="utf-8", errors="replace")
     violations: list[str] = []
 
     for marker in _missing_markers(text, REQUIRED_CONTRACT_MARKERS):
         violations.append(
-            f"{CONTRACT_REL.as_posix()}: missing required honesty anchor {marker!r} (TB-1233)."
+            f"{CONTRACT_REL.as_posix()}: missing required honesty anchor {marker!r} (TB-1231)."
         )
 
     return violations
 
 
-def search_client_anchor_violations(root: Path) -> list[str]:
-    path = root / SEARCH_CLIENT_REL
+def code_anchor_violations(root: Path) -> list[str]:
+    violations: list[str] = []
+    anchors: tuple[tuple[Path, str], ...] = (
+        (TRACE_EVALUATOR_REL, "AgentOutputTraceQualityEvaluator"),
+        (CONTENT_SAFETY_REL, "ContentSafetyEnforcingAgentCompletionClient"),
+    )
 
-    if not path.is_file():
-        return [f"{SEARCH_CLIENT_REL.as_posix()}: missing AzureSearchSdkClient anchor (TB-1233)."]
+    for rel, symbol in anchors:
+        path = root / rel
 
-    text = path.read_text(encoding="utf-8", errors="replace")
+        if not path.is_file():
+            violations.append(f"{rel.as_posix()}: missing shared defense plane code anchor (TB-1231).")
+            continue
 
-    if "BuildRequiredScopeFilter" not in text:
-        return [
-            f"{SEARCH_CLIENT_REL.as_posix()}: expected BuildRequiredScopeFilter call anchor (TB-1233)."
-        ]
+        text = path.read_text(encoding="utf-8", errors="replace")
 
-    return []
+        if symbol not in text:
+            violations.append(
+                f"{rel.as_posix()}: expected {symbol!r} anchor (TB-1231)."
+            )
+
+    return violations
 
 
 def scan_doc_claims(root: Path, rel: Path) -> list[str]:
     path = root / rel
 
     if not path.is_file():
-        return [f"{rel.as_posix()}: missing tenant DiD erosion honesty scan target."]
+        return [f"{rel.as_posix()}: missing shared defense plane honesty scan target."]
 
     text = path.read_text(encoding="utf-8", errors="replace")
     violations: list[str] = []
@@ -267,10 +260,10 @@ def scan_doc_claims(root: Path, rel: Path) -> list[str]:
     return violations
 
 
-def tenant_did_erosion_beyond_predicates_honesty_violations(root: Path) -> list[str]:
+def shared_hallucination_defense_plane_honesty_violations(root: Path) -> list[str]:
     violations: list[str] = []
     violations.extend(contract_violations(root))
-    violations.extend(search_client_anchor_violations(root))
+    violations.extend(code_anchor_violations(root))
 
     for rel in DOCS_TO_SCAN:
         violations.extend(scan_doc_claims(root, rel))
@@ -283,18 +276,18 @@ def main(argv: list[str] | None = None) -> int:
     parser.add_argument("--advisory", action="store_true")
     args = parser.parse_args(argv)
 
-    violations = tenant_did_erosion_beyond_predicates_honesty_violations(REPO_ROOT)
+    violations = shared_hallucination_defense_plane_honesty_violations(REPO_ROOT)
 
     if violations:
         label = "warnings" if args.advisory else "errors"
-        print(f"Tenant DiD erosion beyond predicates honesty guard: FAIL ({label})", file=sys.stderr)
+        print(f"Shared hallucination defense plane honesty guard: FAIL ({label})", file=sys.stderr)
 
         for violation in violations:
             print(f"  - {violation}", file=sys.stderr)
 
         return 0 if args.advisory else 1
 
-    print("Tenant DiD erosion beyond predicates honesty guard: PASS")
+    print("Shared hallucination defense plane honesty guard: PASS")
     return 0
 
 

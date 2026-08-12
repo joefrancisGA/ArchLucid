@@ -1,5 +1,5 @@
 #!/usr/bin/env python3
-"""TB-1233 / M-213: Anti-WHERE-TenantId-equals-isolation / ARCH-alone / RLS honesty CI."""
+"""TB-1245 / M-215: Anti-least-privilege-while-colocated / PE-equals-private / AOAI-Contributor honesty CI."""
 
 from __future__ import annotations
 
@@ -11,15 +11,14 @@ from pathlib import Path
 
 REPO_ROOT = Path(__file__).resolve().parents[2]
 
-ALLOWLIST_MARKER = "tenant-did-erosion-beyond-predicates-honesty: allow"
+ALLOWLIST_MARKER = "azure-workload-privilege-escalation-seam-honesty: allow"
 
-CONTRACT_REL = Path(
-    "docs/library/TENANT_DID_EROSION_AND_ENFORCEMENT_BEYOND_PREDICATES_CONTRACT.md"
-)
+CONTRACT_REL = Path("docs/library/AZURE_WORKLOAD_PRIVILEGE_ESCALATION_SEAM_CONTRACT.md")
 PA_ONE_PAGER_REL = Path(
-    "docs/go-to-market/TENANT_DID_EROSION_BEYOND_PREDICATES_PA_ONE_PAGER.md"
+    "docs/go-to-market/AZURE_WORKLOAD_PRIVILEGE_ESCALATION_SEAM_PA_ONE_PAGER.md"
 )
-SEARCH_CLIENT_REL = Path("ArchLucid.Retrieval/Indexing/AzureSearchSdkClient.cs")
+TF_VARIABLES_REL = Path("infra/terraform-container-apps/variables.tf")
+TF_OPENAI_REL = Path("infra/terraform-container-apps/azure_openai.tf")
 
 DOCS_TO_SCAN: tuple[Path, ...] = (
     Path("docs/go-to-market/WHAT_NOT_TO_PROMISE.md"),
@@ -31,12 +30,12 @@ DOCS_TO_SCAN: tuple[Path, ...] = (
 )
 
 REQUIRED_CONTRACT_MARKERS: tuple[str, ...] = (
-    "**TB-1232**",
-    "**TB-1233**",
-    "M-213",
+    "**TB-1244**",
+    "**TB-1245**",
+    "M-215",
     "Explicit non-claims",
-    "CI anchors for **TB-1233**",
-    "BuildRequiredScopeFilter",
+    "CI anchors for **TB-1245**",
+    "enable_api_sql_runtime_identity",
 )
 
 _CAVEAT_MARKERS: tuple[str, ...] = (
@@ -47,18 +46,16 @@ _CAVEAT_MARKERS: tuple[str, ...] = (
     "not claim",
     "forbidden",
     "too strong",
-    "layer a",
-    "catalog",
-    "adr 0037",
-    "did",
-    "defense in depth",
-    "tb-1232",
-    "tb-1233",
-    "tb-1122",
-    "m-213",
+    "bootstrap",
+    "runtime",
+    "default false",
+    "tb-1244",
+    "tb-1245",
+    "tb-903",
+    "m-215",
     "honesty guard",
     "non-claim",
-    "predicate",
+    "openai user",
     "≠",
 )
 
@@ -72,53 +69,51 @@ class ClaimPattern:
 CLAIM_PATTERNS: tuple[ClaimPattern, ...] = (
     ClaimPattern(
         re.compile(
-            r"\bwhere\s+tenant\s*id\b[^.\n]{0,80}\b(?:is|equals?|equal|proves?|means?)\b"
-            r"[^.\n]{0,60}\b(?:tenant\s+)?isolation\b",
+            r"\bproduction\b[^.\n]{0,60}\bapi\b[^.\n]{0,60}\b(?:sql|database)\b[^.\n]{0,60}\b"
+            r"(?:is|uses?|runs?\s+with)\b[^.\n]{0,40}\b(?:least[-\s]privilege|non[-\s]db_owner)\b",
             re.IGNORECASE,
         ),
-        "`WHERE TenantId` is Layer D DiD — not production paying-client isolation (TB-1232 / ADR 0037).",
+        "API request-path SQL may still use bootstrap MI until runtime split is wired (TB-1244).",
     ),
     ClaimPattern(
         re.compile(
-            r"\b(?:scope[-\s]context|tenantid\s+predicates?|per[-\s]query\s+filters?)\b"
-            r"[^.\n]{0,80}\b(?:alone|by\s+themselves)\b[^.\n]{0,60}\b"
-            r"(?:prove|means?|equals?|guarantee)\b[^.\n]{0,40}\b(?:tenant\s+)?isolation\b",
+            r"\b(?:api|request[-\s]path)\b[^.\n]{0,60}\b(?:sql|database)\b[^.\n]{0,60}\b"
+            r"(?:is|are)\b[^.\n]{0,40}\b(?:least[-\s]privilege|non[-\s]db_owner)\b"
+            r"[^.\n]{0,40}\b(?:by\s+default|in\s+production)\b",
             re.IGNORECASE,
         ),
-        "Scope predicates alone are not the primary isolation boundary (TB-1232).",
+        "Do not claim least-privilege API SQL by default while runtime UAMI is off (TB-1244).",
     ),
     ClaimPattern(
         re.compile(
-            r"\b(?:netarchtest|arch001|arch006|architecture\s+tests?)\b[^.\n]{0,80}\b"
-            r"(?:alone|by\s+themselves)\b[^.\n]{0,60}\b(?:prove|means?|guarantee)\b"
-            r"[^.\n]{0,40}\b(?:tenant\s+)?isolation\b",
+            r"\bprivate\s+endpoints?\b[^.\n]{0,80}\b(?:alone|by\s+themselves)\b[^.\n]{0,60}\b"
+            r"(?:mean|means?|equal|equals?|guarantee)\b[^.\n]{0,40}\bprivate\s+data\s+plane\b",
             re.IGNORECASE,
         ),
-        "NetArchTest / ARCH green alone does not prove paying-client isolation (TB-1232 / TB-1005).",
+        "Private endpoints alone do not equal private data plane — see TB-903 (TB-1244).",
     ),
     ClaimPattern(
         re.compile(
-            r"\b(?:sql\s+)?rls\b[^.\n]{0,80}\b(?:is|are|will\s+be)\b[^.\n]{0,60}\b"
-            r"(?:the\s+)?(?:missing|required|beyond[-\s]predicate)\b[^.\n]{0,40}\b(?:control|fix|enforcement)\b",
+            r"\bprivate\s+endpoints?\b[^.\n]{0,80}\b(?:mean|means?|equal|equals?)\b[^.\n]{0,40}\b"
+            r"(?:fully\s+)?private\b",
             re.IGNORECASE,
         ),
-        "SQL RLS is not the beyond-predicate fix — catalog routing is primary (TB-1232 / TB-1122).",
+        "PE resources require public-network closure + VNet-integrated CA — not PE alone (TB-903).",
     ),
     ClaimPattern(
         re.compile(
-            r"\b(?:reinstat(?:e|ing)|add(?:ing)?)\b[^.\n]{0,40}\b(?:sql\s+)?rls\b[^.\n]{0,80}\b"
-            r"(?:fixes?|solves?|enforces?)\b[^.\n]{0,40}\btenan(?:t|cy)\b",
+            r"\b(?:azure\s+openai|aoai)\b[^.\n]{0,80}\b(?:contributor|owner)\b[^.\n]{0,60}\b"
+            r"(?:is|are|as)\b[^.\n]{0,40}\b(?:intended|workload|production)\b[^.\n]{0,20}\brole\b",
             re.IGNORECASE,
         ),
-        "Do not sell RLS reinstatement as tenancy enforcement (TB-1232 / ADR 0037).",
+        "Intended AOAI workload RBAC is Cognitive Services OpenAI User — not Contributor (TB-1244).",
     ),
     ClaimPattern(
         re.compile(
-            r"\biscopecontextprovider\b[^.\n]{0,80}\b(?:alone|by\s+itself)\b[^.\n]{0,60}\b"
-            r"(?:proves?|means?|equals?)\b[^.\n]{0,40}\b(?:tenant\s+)?isolation\b",
+            r"\bcompromised\s+api\b[^.\n]{0,80}\bcannot\b[^.\n]{0,40}\b(?:ddl|schema)\b",
             re.IGNORECASE,
         ),
-        "Scope-provider threading alone is not paying-client isolation proof (TB-1232).",
+        "Compromised API may DDL while bootstrap privilege stays on request path (TB-1244).",
     ),
 )
 
@@ -208,7 +203,7 @@ def contract_violations(root: Path) -> list[str]:
 
     if not path.is_file():
         return [
-            f"{CONTRACT_REL.as_posix()}: missing tenant DiD erosion contract (TB-1232)."
+            f"{CONTRACT_REL.as_posix()}: missing Azure workload PE seam contract (TB-1244)."
         ]
 
     text = path.read_text(encoding="utf-8", errors="replace")
@@ -216,33 +211,49 @@ def contract_violations(root: Path) -> list[str]:
 
     for marker in _missing_markers(text, REQUIRED_CONTRACT_MARKERS):
         violations.append(
-            f"{CONTRACT_REL.as_posix()}: missing required honesty anchor {marker!r} (TB-1233)."
+            f"{CONTRACT_REL.as_posix()}: missing required honesty anchor {marker!r} (TB-1245)."
         )
 
     return violations
 
 
-def search_client_anchor_violations(root: Path) -> list[str]:
-    path = root / SEARCH_CLIENT_REL
+def terraform_anchor_violations(root: Path) -> list[str]:
+    violations: list[str] = []
+    variables_path = root / TF_VARIABLES_REL
+    openai_path = root / TF_OPENAI_REL
 
-    if not path.is_file():
-        return [f"{SEARCH_CLIENT_REL.as_posix()}: missing AzureSearchSdkClient anchor (TB-1233)."]
+    if not variables_path.is_file():
+        violations.append(
+            f"{TF_VARIABLES_REL.as_posix()}: missing enable_api_sql_runtime_identity anchor (TB-1245)."
+        )
+    else:
+        variables_text = variables_path.read_text(encoding="utf-8", errors="replace")
 
-    text = path.read_text(encoding="utf-8", errors="replace")
+        if "enable_api_sql_runtime_identity" not in variables_text:
+            violations.append(
+                f"{TF_VARIABLES_REL.as_posix()}: expected enable_api_sql_runtime_identity (TB-1245)."
+            )
 
-    if "BuildRequiredScopeFilter" not in text:
-        return [
-            f"{SEARCH_CLIENT_REL.as_posix()}: expected BuildRequiredScopeFilter call anchor (TB-1233)."
-        ]
+    if not openai_path.is_file():
+        violations.append(
+            f"{TF_OPENAI_REL.as_posix()}: missing AOAI role assignment anchor (TB-1245)."
+        )
+    else:
+        openai_text = openai_path.read_text(encoding="utf-8", errors="replace")
 
-    return []
+        if "Cognitive Services OpenAI User" not in openai_text:
+            violations.append(
+                f"{TF_OPENAI_REL.as_posix()}: expected Cognitive Services OpenAI User assignment (TB-1245)."
+            )
+
+    return violations
 
 
 def scan_doc_claims(root: Path, rel: Path) -> list[str]:
     path = root / rel
 
     if not path.is_file():
-        return [f"{rel.as_posix()}: missing tenant DiD erosion honesty scan target."]
+        return [f"{rel.as_posix()}: missing Azure workload PE seam honesty scan target."]
 
     text = path.read_text(encoding="utf-8", errors="replace")
     violations: list[str] = []
@@ -267,10 +278,10 @@ def scan_doc_claims(root: Path, rel: Path) -> list[str]:
     return violations
 
 
-def tenant_did_erosion_beyond_predicates_honesty_violations(root: Path) -> list[str]:
+def azure_workload_privilege_escalation_seam_honesty_violations(root: Path) -> list[str]:
     violations: list[str] = []
     violations.extend(contract_violations(root))
-    violations.extend(search_client_anchor_violations(root))
+    violations.extend(terraform_anchor_violations(root))
 
     for rel in DOCS_TO_SCAN:
         violations.extend(scan_doc_claims(root, rel))
@@ -283,18 +294,22 @@ def main(argv: list[str] | None = None) -> int:
     parser.add_argument("--advisory", action="store_true")
     args = parser.parse_args(argv)
 
-    violations = tenant_did_erosion_beyond_predicates_honesty_violations(REPO_ROOT)
+    violations = azure_workload_privilege_escalation_seam_honesty_violations(REPO_ROOT)
 
     if violations:
         label = "warnings" if args.advisory else "errors"
-        print(f"Tenant DiD erosion beyond predicates honesty guard: FAIL ({label})", file=sys.stderr)
+        print(
+            "Azure workload privilege escalation seam honesty guard: FAIL "
+            f"({label})",
+            file=sys.stderr,
+        )
 
         for violation in violations:
             print(f"  - {violation}", file=sys.stderr)
 
         return 0 if args.advisory else 1
 
-    print("Tenant DiD erosion beyond predicates honesty guard: PASS")
+    print("Azure workload privilege escalation seam honesty guard: PASS")
     return 0
 
 
