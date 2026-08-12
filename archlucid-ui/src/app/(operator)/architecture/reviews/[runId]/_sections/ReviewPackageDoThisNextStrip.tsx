@@ -21,6 +21,7 @@ export function ReviewPackageDoThisNextStrip(
   props: ReviewPackageDoThisNextStripProps,
 ): React.JSX.Element {
   const { next, runId, hasGoldenManifest, commitBlockedReason } = props;
+  const buttonVariant = next.buttonVariant ?? "primary";
 
   return (
     <section
@@ -40,7 +41,7 @@ export function ReviewPackageDoThisNextStrip(
         </p>
       </div>
 
-      <div className="shrink-0" data-testid="review-package-do-this-next-action" data-review-package-do-this-next-kind={next.kind}>
+      <div className="flex shrink-0 flex-col items-stretch gap-2 sm:items-end" data-testid="review-package-do-this-next-action" data-review-package-do-this-next-kind={next.kind}>
         {next.kind === "finalize-package" ? (
           <CommitRunButton
             runId={runId}
@@ -49,14 +50,23 @@ export function ReviewPackageDoThisNextStrip(
             buttonVariant="primary"
           />
         ) : next.href !== null ? (
-          <Button type="button" variant="primary" size="sm" asChild>
+          <Button type="button" variant={buttonVariant} size="sm" asChild>
             <Link href={next.href}>{next.actionLabel}</Link>
           </Button>
         ) : (
-          <span className={cn(buttonVariants({ variant: "primary", size: "sm" }), "pointer-events-none opacity-60")}>
+          <span className={cn(buttonVariants({ variant: buttonVariant, size: "sm" }), "pointer-events-none opacity-60")}>
             {next.actionLabel}
           </span>
         )}
+        {next.secondaryAction !== null && next.secondaryAction !== undefined ? (
+          <Link
+            href={next.secondaryAction.href}
+            className={cn(OPERATOR_TYPOGRAPHY.body, "text-center text-al-text-secondary underline-offset-2 hover:underline sm:text-right")}
+            data-testid="review-package-do-this-next-secondary-action"
+          >
+            {next.secondaryAction.label}
+          </Link>
+        ) : null}
       </div>
     </section>
   );

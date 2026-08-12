@@ -15,6 +15,8 @@ export { deriveArchitectureSystemName } from "./review-metadata";
 export { deriveSubmittedArchitectureText } from "./review-metadata";
 export { deriveReviewOwnerLabel } from "./review-metadata";
 export { deriveReviewTemplateLabel } from "./review-metadata";
+export { deriveSignedReviewRecordIdLabel } from "./review-metadata";
+export { REVIEW_METADATA_NOT_RECORDED_REASONS } from "./review-metadata";
 export { deriveLastEvaluatedLabel } from "./review-metadata";
 export { deriveFinalizedAtUtc } from "./review-metadata";
 export { deriveRunDetailWorkspaceStatus } from "./workspace-status";

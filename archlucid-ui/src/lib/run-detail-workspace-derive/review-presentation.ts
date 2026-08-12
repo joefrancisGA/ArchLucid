@@ -14,7 +14,12 @@ import {
 import type { EnterpriseStatusKind } from "@/lib/design-tokens";
 import { evidenceAbsenceFindingLabel } from "@/lib/evidence-absence-finding-copy";
 import { buildReviewDetailTabHref } from "@/lib/review-detail-workspace-tabs";
-import { isGeneratedIntakeBrief, toReviewDisplayTitle } from "@/lib/review-display-title";
+import {
+  isGeneratedIntakeBrief,
+  isUnusableReviewTitleCandidate,
+  stripInlineMarkdownFromReviewText,
+  toReviewDisplayTitle,
+} from "@/lib/review-display-title";
 import {
   isQualityRejectedRunStatus,
   resolveExecutionFailedWorkspaceStatusLabel,
@@ -133,6 +138,26 @@ export function isProductBrandReviewTitle(title: string): boolean {
 
   return normalized === PRODUCT_BRAND_NAME.toLowerCase() || normalized === "architecture review";
 }
+
+function isUsableReviewTitle(title: string): boolean {
+  return title.length > 0 && !isProductBrandReviewTitle(title) && !isUnusableReviewTitleCandidate(title);
+}
+
+function resolveReviewHeaderEyebrow(reviewTitle: string, h1Title: string): string {
+  if (!isUsableReviewTitle(reviewTitle)) {
+    return "Architecture review";
+  }
+
+  const normalizedH1 = stripInlineMarkdownFromReviewText(h1Title).toLowerCase();
+  const normalizedEyebrow = stripInlineMarkdownFromReviewText(reviewTitle).toLowerCase();
+
+  if (normalizedEyebrow === normalizedH1 || normalizedH1.startsWith(normalizedEyebrow)) {
+    return "Architecture review";
+  }
+
+  return reviewTitle;
+}
+
 export function deriveReviewHeaderPresentation(input: {
   readonly reviewTitle: string;
   readonly systemName: string | null;
@@ -141,7 +166,9 @@ export function deriveReviewHeaderPresentation(input: {
   readonly manifestId?: string | null;
 }): ReviewHeaderPresentation {
   const reviewTitle = input.reviewTitle.trim();
-  const systemName = input.systemName?.trim() ?? "";
+  const rawSystemName = input.systemName?.trim() ?? "";
+  const systemName =
+    rawSystemName.length > 0 && !isUnusableReviewTitleCandidate(rawSystemName) ? rawSystemName : "";
   const templateLabel = input.templateLabel?.trim() ?? "";
   const hasManifest = (input.manifestId ?? "").trim().length > 0;
   const runId = input.runId.trim();
@@ -149,19 +176,14 @@ export function deriveReviewHeaderPresentation(input: {
     runId.length > 12 ? `${runId.slice(0, 8)}…${runId.slice(-4)}` : runId;
 
   if (systemName.length > 0) {
-    const eyebrow =
-      reviewTitle.length > 0 && !isProductBrandReviewTitle(reviewTitle)
-        ? reviewTitle
-        : "Architecture review";
-
     return {
       h1Title: systemName,
-      eyebrowLabel: eyebrow,
+      eyebrowLabel: resolveReviewHeaderEyebrow(reviewTitle, systemName),
       reviewIdentifierLabel: shortReviewId.length > 0 ? shortReviewId : runId,
     };
   }
 
-  if (reviewTitle.length > 0 && !isProductBrandReviewTitle(reviewTitle)) {
+  if (isUsableReviewTitle(reviewTitle)) {
     return {
       h1Title: reviewTitle,
       eyebrowLabel: "Architecture review",
@@ -193,21 +215,11 @@ export function deriveReviewHeaderPresentation(input: {
 }
 export function derivePackageVersionLabel(
   manifestSummary: ManifestSummary | null,
-  manifestId: string | null | undefined,
+  _manifestId?: string | null | undefined,
 ): string | null {
   const version = manifestSummary?.ruleSetVersion?.trim() ?? "";
 
-  if (version.length > 0) {
-    return version;
-  }
-
-  const manifest = (manifestId ?? "").trim();
-
-  if (manifest.length > 0) {
-    return manifest.length > 16 ? `${manifest.slice(0, 8)}…${manifest.slice(-4)}` : manifest;
-  }
-
-  return null;
+  return version.length > 0 ? version : null;
 }
 export function deriveEvidenceCoverageSummary(
   findings: readonly QuickDecisionFinding[],

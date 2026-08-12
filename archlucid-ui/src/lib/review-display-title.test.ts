@@ -4,6 +4,7 @@ import {
   clampReviewWorkspaceH1Title,
   extractGeneratedIntakeBriefTitle,
   isGeneratedIntakeBrief,
+  isUnusableReviewTitleCandidate,
   stripInlineMarkdownFromReviewText,
   toReviewDisplayTitle,
 } from "@/lib/review-display-title";
@@ -109,12 +110,37 @@ describe("stripInlineMarkdownFromReviewText", () => {
   });
 
   it("strips underscore emphasis only at word boundaries", () => {
-    expect(stripInlineMarkdownFromReviewText("an _emphasised_ phrase")).toBe("an emphasized phrase");
+    expect(stripInlineMarkdownFromReviewText("an _emphasised_ phrase")).toBe("an emphasised phrase");
     expect(stripInlineMarkdownFromReviewText("__strong__ opener")).toBe("strong opener");
   });
 
   it("keeps underscored identifiers intact", () => {
     expect(stripInlineMarkdownFromReviewText("my_api_gateway routes traffic")).toBe("my_api_gateway routes traffic");
     expect(toReviewDisplayTitle("Migration of my_api_gateway")).toBe("Migration of my_api_gateway");
+  });
+
+  it("strips blockquote carets, list markers, and pipe-table rows", () => {
+    expect(stripInlineMarkdownFromReviewText("> Reviewed: 2026-07-26")).toBe("Reviewed: 2026-07-26");
+    expect(stripInlineMarkdownFromReviewText("- Claims intake\n| A | B |")).toBe("Claims intake");
+    expect(stripInlineMarkdownFromReviewText("1. First item")).toBe("First item");
+  });
+});
+
+describe("isUnusableReviewTitleCandidate", () => {
+  it("rejects metadata date fragments and letterless residue", () => {
+    expect(isUnusableReviewTitleCandidate("> Reviewed: 2026-07-26")).toBe(true);
+    expect(isUnusableReviewTitleCandidate("2026-07-26")).toBe(true);
+    expect(isUnusableReviewTitleCandidate("| | |")).toBe(true);
+    expect(isUnusableReviewTitleCandidate("Claims intake modernization")).toBe(false);
+  });
+
+  it("keeps short acronym titles usable", () => {
+    expect(isUnusableReviewTitleCandidate("API")).toBe(false);
+    expect(isUnusableReviewTitleCandidate("IAM")).toBe(false);
+    expect(toReviewDisplayTitle("API")).toBe("API");
+  });
+
+  it("returns empty display titles for unusable document fragments", () => {
+    expect(toReviewDisplayTitle("> Reviewed: 2026-07-26")).toBe("");
   });
 });

@@ -12,6 +12,8 @@ import {
   deriveReviewHeaderPresentation,
   deriveReviewStatusSummary,
   deriveRunDetailWorkspaceStatus,
+  derivePackageVersionLabel,
+  deriveSignedReviewRecordIdLabel,
   deriveSubmittedArchitectureText,
   formatDecisionSnapshotFindingsLine,
   formatDecisionSnapshotGovernanceOutcome,
@@ -313,6 +315,39 @@ describe("run-detail-workspace-derive", () => {
 
     expect(presentation.h1Title).toBe("Payments platform");
     expect(presentation.eyebrowLabel).toBe("Architecture review");
+  });
+
+  it("suppresses duplicate eyebrow text and rejects document metadata titles", () => {
+    const presentation = deriveReviewHeaderPresentation({
+      reviewTitle: "> Reviewed: 2026-07-26",
+      systemName: "> Reviewed: 2026-07-26",
+      runId: "run-abc-123",
+    });
+
+    expect(presentation.h1Title).toBe("Architecture under review");
+    expect(presentation.eyebrowLabel).toBe("Architecture review");
+  });
+
+  it("falls back to Architecture under review when only document metadata exists", () => {
+    const presentation = deriveReviewHeaderPresentation({
+      reviewTitle: "> Reviewed: 2026-07-26",
+      systemName: null,
+      runId: "run-abc-123",
+      templateLabel: null,
+      manifestId: null,
+    });
+
+    expect(presentation.h1Title).toBe("Architecture under review");
+    expect(presentation.eyebrowLabel).toBe("Architecture review");
+  });
+
+  it("does not invent package version from manifest id", () => {
+    expect(derivePackageVersionLabel(null, "9026d565-0000-0000-0000-0000000099e8")).toBeNull();
+    expect(derivePackageVersionLabel({ ruleSetVersion: "2.1.0" } as never, "manifest-1")).toBe("2.1.0");
+  });
+
+  it("formats signed review record id labels without treating them as versions", () => {
+    expect(deriveSignedReviewRecordIdLabel("9026d565-0000-0000-0000-0000000099e8")).toBe("9026d565…99e8");
   });
 
   it("uses ArchLucid as H1 when it is the system name and no other label exists", () => {

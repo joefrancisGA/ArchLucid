@@ -68,6 +68,8 @@ describe("RunDetailWorkspaceHeader", () => {
         h1Title="Claims API"
         eyebrowLabel="Claims platform review"
         reviewIdentifierLabel="run-1"
+        signedReviewRecordId="manifest-9026"
+        signedReviewRecordIdLabel="manifest-9026"
         workspaceStatus={workspaceStatus}
         reviewOwner={null}
         templateLabel={null}
@@ -80,12 +82,37 @@ describe("RunDetailWorkspaceHeader", () => {
     expect(screen.getByRole("heading", { level: 1, name: "Claims API" })).toBeInTheDocument();
     expect(screen.getByText("Claims platform review")).toBeInTheDocument();
     expect(screen.getByText("Review ID")).toBeInTheDocument();
+    expect(screen.getByText("Signed review record ID")).toBeInTheDocument();
     expect(screen.getByText("run-1")).toBeInTheDocument();
-    expect(screen.getAllByText("Not recorded")).toHaveLength(2);
+    expect(screen.getByText("Not recorded — this record does not name who recorded the decision")).toBeInTheDocument();
+    expect(screen.getByText("Not recorded — no review template captured for this package")).toBeInTheDocument();
     expect(screen.getByText("Jan 1, 2026, 12:00 PM")).toBeInTheDocument();
     expect(screen.getByText("v2")).toBeInTheDocument();
     expect(screen.getByTestId("favorite-review-toggle")).toBeInTheDocument();
     expect(screen.getByTestId("page-contextual-help-button")).toBeInTheDocument();
+  });
+
+  it("collapses sparse metadata into a disclosure with reason copy", () => {
+    render(
+      <RunDetailWorkspaceHeader
+        runId="run-1"
+        h1Title="Claims API"
+        eyebrowLabel="Architecture review"
+        reviewIdentifierLabel="run-1"
+        signedReviewRecordId="manifest-9026"
+        signedReviewRecordIdLabel="manifest-9026"
+        workspaceStatus={workspaceStatus}
+        reviewOwner={null}
+        templateLabel={null}
+        finalizedAtLabel={null}
+        packageVersionLabel={null}
+      />,
+    );
+
+    expect(screen.getByTestId("run-detail-record-metadata-disclosure")).toBeInTheDocument();
+    expect(screen.getByText("Record metadata (4 fields not recorded)")).toBeInTheDocument();
+    expect(screen.getByText("Not recorded — finalization timestamp missing from the signed record")).toBeInTheDocument();
+    expect(screen.getByText("Not recorded — rule set version missing")).toBeInTheDocument();
   });
 
   it("clamps an oversized h1 title to one line without markdown", () => {
@@ -96,6 +123,8 @@ describe("RunDetailWorkspaceHeader", () => {
         h1Title={blob}
         eyebrowLabel="Architecture review"
         reviewIdentifierLabel="run-1"
+        signedReviewRecordId={null}
+        signedReviewRecordIdLabel={null}
         workspaceStatus={workspaceStatus}
         reviewOwner={null}
         templateLabel={null}

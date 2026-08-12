@@ -40,7 +40,13 @@ export function buyerFacingReviewTitleFromSummary(run: RunSummary): string {
     displayName !== runIdTrim &&
     displayName.toLowerCase() !== runIdTrim.toLowerCase()
   ) {
-    return toReviewDisplayTitle(displayName);
+    // An unusable label (uploaded-document fragment) normalizes to empty, so keep falling through
+    // the chain rather than rendering a blank title on list and favourites surfaces.
+    const normalizedDisplayName = toReviewDisplayTitle(displayName);
+
+    if (normalizedDisplayName.length > 0) {
+      return normalizedDisplayName;
+    }
   }
 
   const description = stripRetiredDemoOrgBranding(run.description).trim();
@@ -51,7 +57,11 @@ export function buyerFacingReviewTitleFromSummary(run: RunSummary): string {
     description !== runIdTrim &&
     description.toLowerCase() !== runIdTrim.toLowerCase()
   ) {
-    return toReviewDisplayTitle(description);
+    const normalizedDescription = toReviewDisplayTitle(description);
+
+    if (normalizedDescription.length > 0) {
+      return normalizedDescription;
+    }
   }
 
   return "Untitled review";

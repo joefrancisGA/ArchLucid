@@ -145,6 +145,8 @@ export async function RunDetailPageView(props: {
     showDemoMarketingChrome,
     showGovernanceCta,
     showGovernanceCtaCard,
+    signedReviewRecordId,
+    signedReviewRecordIdLabel,
     submittedArchitectureText,
     templateLabel,
     workspaceStatus,
@@ -201,6 +203,14 @@ export async function RunDetailPageView(props: {
 
   const tabbedWorkspaceEl = <RunDetailTabbedWorkspace model={m} presentation={presentation} />;
 
+  const governanceDecisionRecorded =
+    (m.resolvedDetail.run.operatorGovernanceDecision ?? "").trim().length > 0;
+  const reviewPackageDoThisNextEvidenceProps = {
+    evidenceCoverageLinkedCount: evidenceCoverageSummary.linkedCount,
+    evidenceCoverageTotalCount: evidenceCoverageSummary.totalCount,
+    governanceDecisionRecorded,
+  };
+
   const runDetailBody = (
     <div
       className={cn(
@@ -211,8 +221,6 @@ export async function RunDetailPageView(props: {
       )}
     >
       <RunDetailCtoDemoReviewRouteGuardDeferred runId={m.resolvedDetail.run.runId} />
-
-      <SignedRecordsReviewDetailVocabularyRail currentSurfaceId="review-detail" />
 
       <HelpPageSituationRegistrarDeferred
         situation={blockingApprovalCount > 0 ? "review-approval-blocked" : null}
@@ -259,6 +267,7 @@ export async function RunDetailPageView(props: {
                     useCreateHomeWorkspaceTabs
                     hasGoldenManifest={Boolean(m.manifestId)}
                     commitBlockedReason={commitBlockedReason}
+                    {...reviewPackageDoThisNextEvidenceProps}
                   />
                   <RunDetailWorkspaceDisclosureControls />
                   <Suspense fallback={<RunDetailExplanationSkeleton />}>
@@ -393,6 +402,8 @@ export async function RunDetailPageView(props: {
                     h1Title={reviewHeaderPresentation.h1Title}
                     eyebrowLabel={reviewHeaderPresentation.eyebrowLabel}
                     reviewIdentifierLabel={reviewHeaderPresentation.reviewIdentifierLabel}
+                    signedReviewRecordId={signedReviewRecordId}
+                    signedReviewRecordIdLabel={signedReviewRecordIdLabel}
                     workspaceStatus={workspaceStatus}
                     reviewOwner={reviewOwnerLabel}
                     templateLabel={templateLabel}
@@ -416,6 +427,7 @@ export async function RunDetailPageView(props: {
                     useCreateHomeWorkspaceTabs={false}
                     hasGoldenManifest={Boolean(m.manifestId)}
                     commitBlockedReason={commitBlockedReason}
+                    {...reviewPackageDoThisNextEvidenceProps}
                   />
 
                   {tabbedWorkspaceEl}
@@ -455,6 +467,16 @@ export async function RunDetailPageView(props: {
           rail={null}
         />
       </RunDetailWorkspaceDisclosureProvider>
+
+      <details
+        className="rounded-lg border border-neutral-200 dark:border-neutral-800"
+        data-testid="review-detail-related-surfaces-disclosure"
+      >
+        <summary className={cn("cursor-pointer px-4 py-2", OPERATOR_TYPOGRAPHY.cardTitle)}>Related surfaces</summary>
+        <div className="space-y-3 border-t border-neutral-200 px-4 py-3 dark:border-neutral-800">
+          <SignedRecordsReviewDetailVocabularyRail currentSurfaceId="review-detail" />
+        </div>
+      </details>
 
       {showArchitectureCreatedHome ? (
         <>

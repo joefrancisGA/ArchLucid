@@ -34,6 +34,17 @@ describe("RunDetailPageView progressive disclosure", () => {
     requireSourceIndex(belowFoldSource, "<RunAgentForensicsSection", "run-detail-below-fold");
   });
 
+  it("places related surfaces rail in a bottom disclosure after primary content", () => {
+    expectSourceContains(source, 'data-testid="review-detail-related-surfaces-disclosure"', "run-detail-page-view");
+    expectSourceContains(source, '<SignedRecordsReviewDetailVocabularyRail currentSurfaceId="review-detail" />', "run-detail-page-view");
+    const disclosureIndex = requireSourceIndex(source, 'data-testid="review-detail-related-surfaces-disclosure"', "run-detail-page-view");
+    const workspaceProviderCloseIndex = source.lastIndexOf("</RunDetailWorkspaceDisclosureProvider>");
+    const ctoGuardIndex = requireSourceIndex(source, "<RunDetailCtoDemoReviewRouteGuardDeferred", "run-detail-page-view");
+
+    expect(disclosureIndex).toBeGreaterThan(workspaceProviderCloseIndex);
+    expect(disclosureIndex).toBeGreaterThan(ctoGuardIndex);
+  });
+
   it("prioritizes workspace header before tabbed workspace mount and summary strip inside tabbed workspace", () => {
     const headerIndex = requireSourceIndex(source, "<RunDetailWorkspaceHeader", "run-detail-page-view");
     const summaryMatch = /<RunDetailWorkspaceSummaryStripDeferred(?:\s|>)/.exec(tabbedWorkspaceSource);

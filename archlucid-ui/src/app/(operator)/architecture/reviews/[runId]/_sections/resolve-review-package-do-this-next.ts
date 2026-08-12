@@ -18,6 +18,11 @@ export type ReviewPackageDoThisNext = {
   readonly sentence: string;
   readonly actionLabel: string;
   readonly href: string | null;
+  readonly buttonVariant?: "primary" | "outline";
+  readonly secondaryAction?: {
+    readonly label: string;
+    readonly href: string;
+  } | null;
 };
 
 export type ResolveReviewPackageDoThisNextInput = ResolveReviewPackagePrimaryActionInput & {
@@ -25,6 +30,9 @@ export type ResolveReviewPackageDoThisNextInput = ResolveReviewPackagePrimaryAct
   readonly openClarificationGapCount: number;
   readonly correctionHref: string | null;
   readonly nextAction?: string | null;
+  readonly evidenceCoverageLinkedCount: number;
+  readonly evidenceCoverageTotalCount: number;
+  readonly governanceDecisionRecorded: boolean;
   /** Create-home uses `archTab=`; committed review workspace uses `reviewTab=` (TB-1831). */
   readonly useCreateHomeWorkspaceTabs: boolean;
 };
@@ -73,6 +81,19 @@ function sentenceForPrimaryAction(
   }
 }
 
+function evidenceCoverageGap(input: ResolveReviewPackageDoThisNextInput): boolean {
+  return input.evidenceCoverageTotalCount > 0 && input.evidenceCoverageLinkedCount === 0;
+}
+
+function evidenceCoverageGapSentence(totalCount: number): string {
+  const gap =
+    totalCount === 1
+      ? "its one open finding has no linked evidence"
+      : `none of its ${totalCount} open findings have linked evidence`;
+
+  return `This package is finalized, but ${gap} — review evidence coverage before sharing with a sponsor.`;
+}
+
 /** TB-2175: one sentence + one CTA for the current review package lifecycle step. */
 export function resolveReviewPackageDoThisNext(
   input: ResolveReviewPackageDoThisNextInput,
@@ -104,6 +125,20 @@ export function resolveReviewPackageDoThisNext(
     ...input,
     nextAction: input.nextAction,
   });
+
+  if (primaryAction.kind === "send-to-sponsor" && evidenceCoverageGap(input)) {
+    return {
+      kind: primaryAction.kind,
+      sentence: evidenceCoverageGapSentence(input.evidenceCoverageTotalCount),
+      actionLabel: "Review evidence coverage",
+      href: buildReviewDetailTabHref(input.runId, "evidence"),
+      buttonVariant: "outline",
+      secondaryAction: {
+        label: primaryAction.label,
+        href: primaryAction.href ?? buildReviewDetailTabHref(input.runId, "review-package", { hash: "sponsor-handoff" }),
+      },
+    };
+  }
 
   return {
     kind: primaryAction.kind,

@@ -234,3 +234,11 @@ export function runDetailFirstScreenProofDispositionClass(disposition: RunDetail
     }
   }
 }
+
+export const RUN_DETAIL_PROOF_STATUS_UNAVAILABLE_HEADING = "Proof status unavailable";
+
+export const RUN_DETAIL_PROOF_STATUS_UNAVAILABLE_BODY =
+  "The sponsor proof gate and proof confidence for this review could not be loaded. Until this loads, treat the readiness of this package as unknown and do not rely on it for sponsor handoff.";
+
+export const RUN_DETAIL_PROOF_STATUS_UNAVAILABLE_RETRY_HINT =
+  "If retry keeps failing, check execution provenance on the Activity tab.";

@@ -59,6 +59,9 @@ export function RunDetailReviewPackageDoThisNextResolved(
           openClarificationGapCount: props.openClarificationGapCount,
           correctionHref: props.correctionHref,
           useCreateHomeWorkspaceTabs: props.useCreateHomeWorkspaceTabs,
+          evidenceCoverageLinkedCount: props.evidenceCoverageLinkedCount,
+          evidenceCoverageTotalCount: props.evidenceCoverageTotalCount,
+          governanceDecisionRecorded: props.governanceDecisionRecorded,
         }),
       );
     });
@@ -80,6 +83,9 @@ export function RunDetailReviewPackageDoThisNextResolved(
     props.openClarificationGapCount,
     props.correctionHref,
     props.useCreateHomeWorkspaceTabs,
+    props.evidenceCoverageLinkedCount,
+    props.evidenceCoverageTotalCount,
+    props.governanceDecisionRecorded,
   ]);
 
   if (next === null) {

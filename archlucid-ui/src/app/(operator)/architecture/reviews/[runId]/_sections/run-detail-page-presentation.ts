@@ -74,6 +74,8 @@ export type RunDetailPresentation = {
   readonly templateLabel: string | null;
   readonly packageVersionLabel: string | null;
   readonly finalizedAtLabel: string | null;
+  readonly signedReviewRecordId: string | null;
+  readonly signedReviewRecordIdLabel: string | null;
 
   readonly overallPosture: string;
   readonly blockingApprovalCount: number;
@@ -216,6 +218,7 @@ export async function buildRunDetailPresentation(
     deriveReviewStatusSummary,
     deriveReviewTemplateLabel,
     deriveRunDetailWorkspaceStatus,
+    deriveSignedReviewRecordIdLabel,
     deriveSubmittedArchitectureText,
     formatDecisionSnapshotFindingsLine,
     formatDecisionSnapshotGovernanceOutcome,
@@ -355,6 +358,8 @@ export async function buildRunDetailPresentation(
       reviewTitle: reviewDisplayTitle,
       systemName,
       runId: model.resolvedDetail.run.runId,
+      templateLabel: deriveReviewTemplateLabel(model.manifestSummaryForUi),
+      manifestId: model.manifestId,
     }),
     reviewOwnerLabel: deriveReviewOwnerLabel(model.resolvedDetail.run),
     templateLabel: deriveReviewTemplateLabel(model.manifestSummaryForUi),
@@ -363,6 +368,8 @@ export async function buildRunDetailPresentation(
       model.manifestId,
     ),
     finalizedAtLabel: finalizedAtUtc !== null ? formatInstantForLocale(finalizedAtUtc) : null,
+    signedReviewRecordId: (model.manifestId ?? "").trim().length > 0 ? (model.manifestId ?? "").trim() : null,
+    signedReviewRecordIdLabel: deriveSignedReviewRecordIdLabel(model.manifestId),
 
     overallPosture,
     blockingApprovalCount,

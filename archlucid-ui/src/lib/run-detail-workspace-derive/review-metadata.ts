@@ -14,7 +14,7 @@ import {
 import type { EnterpriseStatusKind } from "@/lib/design-tokens";
 import { evidenceAbsenceFindingLabel } from "@/lib/evidence-absence-finding-copy";
 import { buildReviewDetailTabHref } from "@/lib/review-detail-workspace-tabs";
-import { isGeneratedIntakeBrief, toReviewDisplayTitle } from "@/lib/review-display-title";
+import { isGeneratedIntakeBrief, isUnusableReviewTitleCandidate, toReviewDisplayTitle } from "@/lib/review-display-title";
 import {
   isQualityRejectedRunStatus,
   resolveExecutionFailedWorkspaceStatusLabel,
@@ -25,6 +25,25 @@ import type { ManifestSummary, RunDetail, RunSummary } from "@/types/authority";
 const PRODUCT_BRAND_NAME = "ArchLucid";
 
 import { isProductBrandReviewTitle } from "./review-presentation";
+
+export const REVIEW_METADATA_NOT_RECORDED_REASONS = {
+  governanceDecisionRecordedBy: "Not recorded — this record does not name who recorded the decision",
+  reviewTemplate: "Not recorded — no review template captured for this package",
+  finalizedAt: "Not recorded — finalization timestamp missing from the signed record",
+  packageVersion: "Not recorded — rule set version missing",
+  signedReviewRecordId: "Not recorded — no signed review record ID",
+} as const;
+
+export function deriveSignedReviewRecordIdLabel(manifestId: string | null | undefined): string | null {
+  const manifest = (manifestId ?? "").trim();
+
+  if (manifest.length === 0) {
+    return null;
+  }
+
+  return manifest.length > 16 ? `${manifest.slice(0, 8)}…${manifest.slice(-4)}` : manifest;
+}
+
 export function deriveArchitectureSystemName(run: RunSummary, headline: string): string | null {
   const displayName = run.displayName?.trim() ?? "";
 
@@ -38,7 +57,11 @@ export function deriveArchitectureSystemName(run: RunSummary, headline: string):
       headline.trim().toLowerCase() !== PRODUCT_BRAND_NAME.toLowerCase();
 
     if (!headlineMatchesDisplayName || !headlineIsGenericPlaceholder) {
-      return toReviewDisplayTitle(displayName);
+      const normalizedDisplayName = toReviewDisplayTitle(displayName);
+
+      if (normalizedDisplayName.length > 0) {
+        return normalizedDisplayName;
+      }
     }
   }
 
@@ -54,7 +77,7 @@ export function deriveArchitectureSystemName(run: RunSummary, headline: string):
   ) {
     const normalized = toReviewDisplayTitle(description);
 
-    if (normalized.length > 0) {
+    if (normalized.length > 0 && !isUnusableReviewTitleCandidate(normalized)) {
       return normalized;
     }
   }

@@ -1,14 +1,20 @@
 "use client";
 
 import { cn } from "@/lib/utils";
+import Link from "next/link";
 import { useCallback, useEffect, useState } from "react";
 
 import { Button } from "@/components/ui/button";
+import { StatusTag } from "@/components/ui/status-tag";
 import {
   buildRunDetailFirstScreenProofSummary,
+  RUN_DETAIL_PROOF_STATUS_UNAVAILABLE_BODY,
+  RUN_DETAIL_PROOF_STATUS_UNAVAILABLE_HEADING,
+  RUN_DETAIL_PROOF_STATUS_UNAVAILABLE_RETRY_HINT,
   type RunDetailFirstScreenProofSummary,
 } from "@/lib/runs/run-detail-first-screen-proof-status";
 import type { PilotRunDeltasProofSummaryJson } from "@/lib/pilot-proof-readiness";
+import { buildReviewDetailTabHref } from "@/lib/review-detail-workspace-tabs";
 import { DESIGN_TOKENS, OPERATOR_TYPOGRAPHY } from "@/lib/design-tokens";
 
 import { RunDetailFirstScreenProofStatus } from "./RunDetailFirstScreenProofStatus";
@@ -80,24 +86,37 @@ export function RunDetailFirstScreenProofStatusClient(
   if (loadFailed) {
     return (
       <section
-        className={cn("min-w-0 overflow-visible", DESIGN_TOKENS.callout.warn, "rounded-lg px-4 py-3")}
+        className={cn("min-w-0 overflow-visible rounded-lg px-4 py-3", DESIGN_TOKENS.callout.warnShell)}
         data-testid="run-detail-first-screen-proof-status-load-failed"
         role="alert"
-        aria-label="Proof status unavailable"
+        aria-label={RUN_DETAIL_PROOF_STATUS_UNAVAILABLE_HEADING}
       >
-        <p className={cn("m-0 text-al-text-primary", OPERATOR_TYPOGRAPHY.body)}>
-          Proof status could not be loaded for this review.
-        </p>
-        <Button
-          type="button"
-          variant="outline"
-          size="sm"
-          className="mt-3"
-          onClick={retryLoad}
-          data-testid="run-detail-first-screen-proof-status-retry"
-        >
-          Retry load
-        </Button>
+        <div className="space-y-2">
+          <div className="flex flex-wrap items-center gap-2">
+            <h3 className={cn("m-0 font-semibold text-al-text-primary", OPERATOR_TYPOGRAPHY.cardTitle)}>
+              {RUN_DETAIL_PROOF_STATUS_UNAVAILABLE_HEADING}
+            </h3>
+            <StatusTag kind="needs-attention" label="Needs attention" />
+          </div>
+          <p className={cn("m-0 text-al-text-primary", OPERATOR_TYPOGRAPHY.body)}>
+            {RUN_DETAIL_PROOF_STATUS_UNAVAILABLE_BODY}
+          </p>
+          <Button
+            type="button"
+            variant="outline"
+            size="sm"
+            onClick={retryLoad}
+            data-testid="run-detail-first-screen-proof-status-retry"
+          >
+            Retry load
+          </Button>
+          <p className={cn("m-0 text-al-text-secondary", OPERATOR_TYPOGRAPHY.helper)}>
+            {RUN_DETAIL_PROOF_STATUS_UNAVAILABLE_RETRY_HINT}{" "}
+            <Link href={buildReviewDetailTabHref(props.runId, "activity")} className="underline underline-offset-2">
+              Open Activity tab
+            </Link>
+          </p>
+        </div>
       </section>
     );
   }

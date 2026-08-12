@@ -75,7 +75,25 @@ function sectionSummary(section: ArchitectureStructuredSection): string {
   const narrative = section.narrativeMarkdown?.trim() ?? "";
 
   if (narrative.length > 0) {
-    return narrative.length > 240 ? `${narrative.slice(0, 237)}…` : narrative;
+    if (/^\s*\|.*\|\s*$/m.test(narrative)) {
+      if (section.entities.length > 0) {
+        return section.entities.map((entity) => entity.label).join(", ");
+      }
+
+      return "";
+    }
+
+    const normalized = stripInlineMarkdownFromReviewText(narrative);
+
+    if (normalized.length === 0) {
+      if (section.entities.length > 0) {
+        return section.entities.map((entity) => entity.label).join(", ");
+      }
+
+      return "";
+    }
+
+    return normalized.length > 240 ? `${normalized.slice(0, 237)}…` : normalized;
   }
 
   if (section.entities.length > 0) {
@@ -83,6 +101,14 @@ function sectionSummary(section: ArchitectureStructuredSection): string {
   }
 
   return "";
+}
+
+function sectionProvenanceLabel(section: ArchitectureStructuredSection): string | null {
+  if (section.provenance === "asserted") {
+    return "Operator-asserted";
+  }
+
+  return null;
 }
 
 function findSection(
@@ -145,6 +171,9 @@ export function RunDetailArchitectureSummaryCard(
       >
         Architecture summary
       </h2>
+      <p className={cn("m-0 mb-3 text-neutral-500 dark:text-neutral-400", OPERATOR_TYPOGRAPHY.helper)}>
+        Extracted from the submitted architecture document — not an ArchLucid assessment
+      </p>
       <dl className={cn("m-0 grid gap-2 sm:grid-cols-2", OPERATOR_TYPOGRAPHY.body)}>
         {showArchitectureTitle ? (
           <div>
@@ -163,27 +192,47 @@ export function RunDetailArchitectureSummaryCard(
             </dd>
           ) : null}
         </div>
-        {purposeSection !== undefined ? (
+        {purposeSection !== undefined && sectionSummary(purposeSection).length > 0 ? (
           <div className="sm:col-span-2">
-            <dt className="text-neutral-500 dark:text-neutral-400">Purpose</dt>
+            <dt className="text-neutral-500 dark:text-neutral-400">
+              Purpose
+              {sectionProvenanceLabel(purposeSection) !== null ? (
+                <span className="ml-1 font-normal">({sectionProvenanceLabel(purposeSection)})</span>
+              ) : null}
+            </dt>
             <dd className="m-0 mt-0.5 text-neutral-800 dark:text-neutral-200">{sectionSummary(purposeSection)}</dd>
           </div>
         ) : null}
-        {outcomeSection !== undefined ? (
+        {outcomeSection !== undefined && sectionSummary(outcomeSection).length > 0 ? (
           <div className="sm:col-span-2">
-            <dt className="text-neutral-500 dark:text-neutral-400">Business outcome</dt>
+            <dt className="text-neutral-500 dark:text-neutral-400">
+              Business outcome
+              {sectionProvenanceLabel(outcomeSection) !== null ? (
+                <span className="ml-1 font-normal">({sectionProvenanceLabel(outcomeSection)})</span>
+              ) : null}
+            </dt>
             <dd className="m-0 mt-0.5 text-neutral-800 dark:text-neutral-200">{sectionSummary(outcomeSection)}</dd>
           </div>
         ) : null}
-        {scopeSection !== undefined ? (
+        {scopeSection !== undefined && sectionSummary(scopeSection).length > 0 ? (
           <div>
-            <dt className="text-neutral-500 dark:text-neutral-400">Scope</dt>
+            <dt className="text-neutral-500 dark:text-neutral-400">
+              Scope
+              {sectionProvenanceLabel(scopeSection) !== null ? (
+                <span className="ml-1 font-normal">({sectionProvenanceLabel(scopeSection)})</span>
+              ) : null}
+            </dt>
             <dd className="m-0 mt-0.5 text-neutral-800 dark:text-neutral-200">{sectionSummary(scopeSection)}</dd>
           </div>
         ) : null}
-        {domainsSection !== undefined ? (
+        {domainsSection !== undefined && sectionSummary(domainsSection).length > 0 ? (
           <div>
-            <dt className="text-neutral-500 dark:text-neutral-400">Major systems</dt>
+            <dt className="text-neutral-500 dark:text-neutral-400">
+              Major systems
+              {sectionProvenanceLabel(domainsSection) !== null ? (
+                <span className="ml-1 font-normal">({sectionProvenanceLabel(domainsSection)})</span>
+              ) : null}
+            </dt>
             <dd className="m-0 mt-0.5 text-neutral-800 dark:text-neutral-200">{sectionSummary(domainsSection)}</dd>
           </div>
         ) : null}

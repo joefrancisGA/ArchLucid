@@ -15,6 +15,9 @@ const baseInput = {
   openClarificationGapCount: 0,
   correctionHref: "/architecture/reviews/new?path=guided-intake&rerun=run-abc",
   useCreateHomeWorkspaceTabs: true,
+  evidenceCoverageLinkedCount: 0,
+  evidenceCoverageTotalCount: 0,
+  governanceDecisionRecorded: false,
 };
 
 describe("resolveReviewPackageDoThisNext", () => {
@@ -99,10 +102,32 @@ describe("resolveReviewPackageDoThisNext", () => {
       runCompleted: true,
       manifestStatus: "Passed",
       operatorGovernanceDecision: "Approved",
+      governanceDecisionRecorded: true,
     });
 
     expect(next.kind).toBe("send-to-sponsor");
     expect(next.sentence).toContain("finalized");
     expect(next.href).toContain("sponsor-handoff");
+  });
+
+  it("demotes sponsor handoff when open findings lack linked evidence", () => {
+    const next = resolveReviewPackageDoThisNext({
+      ...baseInput,
+      manifestId: "manifest-1",
+      runCompleted: true,
+      manifestStatus: "Passed",
+      operatorGovernanceDecision: "Approved",
+      governanceDecisionRecorded: true,
+      evidenceCoverageLinkedCount: 0,
+      evidenceCoverageTotalCount: 4,
+      useCreateHomeWorkspaceTabs: false,
+    });
+
+    expect(next.kind).toBe("send-to-sponsor");
+    expect(next.sentence).toContain("none of its 4 open findings have linked evidence");
+    expect(next.actionLabel).toBe("Review evidence coverage");
+    expect(next.buttonVariant).toBe("outline");
+    expect(next.href).toContain("reviewTab=evidence");
+    expect(next.secondaryAction?.label).toBe("Send to sponsor");
   });
 });

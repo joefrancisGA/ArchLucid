@@ -21,6 +21,26 @@ describe("RunDetailArchitectureSummaryCard", () => {
     expect(screen.queryByTestId("run-detail-view-submitted-architecture")).not.toBeInTheDocument();
   });
 
+  it("shows attribution and strips markdown from structured sections", () => {
+    render(
+      <RunDetailArchitectureSummaryCard
+        architectureTitle="Claims intake platform"
+        architectureText={"## Executive summary\n\n**Governed** intake for PHI.\n| Scope | Value |\n|---|---|\n| A | B |"}
+        evidenceCount={4}
+        userAssertions={null}
+        hasSubmittedArchitecture
+        onNavigateTab={() => undefined}
+      />,
+    );
+
+    expect(
+      screen.getByText("Extracted from the submitted architecture document — not an ArchLucid assessment"),
+    ).toBeInTheDocument();
+    expect(screen.getByText("Governed intake for PHI.")).toBeInTheDocument();
+    expect(screen.queryByText("**")).not.toBeInTheDocument();
+    expect(screen.queryByText("|")).not.toBeInTheDocument();
+  });
+
   it("shows distinct architecture name when provided", () => {
     render(
       <RunDetailArchitectureSummaryCard
