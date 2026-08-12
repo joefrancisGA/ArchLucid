@@ -132,14 +132,14 @@ export function useInpOffloadTask<K extends InpOffloadTaskKind>(
       return;
     }
 
-    let cancelled = false;
+    let canceled = false;
 
     setPending(true);
     setError(null);
 
     void runInpOffloadTask(kind, payload)
       .then((nextResult) => {
-        if (!cancelled) {
+        if (!canceled) {
           setResult(nextResult);
           setPending(false);
         }
@@ -154,7 +154,7 @@ export function useInpOffloadTask<K extends InpOffloadTaskKind>(
       });
 
     return () => {
-      cancelled = true;
+      canceled = true;
     };
   }, [kind, payload, payloadKey]);
 

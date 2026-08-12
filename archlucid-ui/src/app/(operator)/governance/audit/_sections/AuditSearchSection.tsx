@@ -1,3 +1,5 @@
+import type { ReactElement } from "react";
+
 import { cn } from "@/lib/utils";
 import { ChevronDown } from "lucide-react";
 
@@ -33,7 +35,7 @@ import {
 } from "@/lib/operator-date-range-copy";
 import { auditRunIdInputDisplayValue, auditRunIdParseInputValue } from "./audit-page-helpers";
 
-function AuditLocalDateRangeLabel(props: { readonly kind: "start" | "end" }): JSX.Element {
+function AuditLocalDateRangeLabel(props: { readonly kind: "start" | "end" }): ReactElement {
   const label = props.kind === "start" ? OPERATOR_DATE_RANGE_START_LABEL : OPERATOR_DATE_RANGE_END_LABEL;
 
   return (
