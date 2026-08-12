@@ -452,6 +452,26 @@ Product separator is a colon (`Label: value`), not a comma.
 
 ---
 
+## Operator form and helper breathing room (TB-2000)
+
+Done **TB-118** sets **page** density (`space-y-4`, compact cards). This section sets **intra-field** rhythm so buyer intake and operator forms do not crush label → control → helper stacks.
+
+| Stack | Token / class | Rule |
+|-------|---------------|------|
+| Field stack (label → control → helper) | `OPERATOR_FORM_FIELD_STACK_CLASS` (`space-y-3`) | Prefer over `space-y-1` / `space-y-2` / bare `mt-1` between label, input, and helper on operator forms |
+| Form label | `OPERATOR_FORM_FIELD_LABEL_CLASS` | Uses `leading-5` — do not pair labels with global `leading-none` crush |
+| Multi-line helper under a control | `OPERATOR_FORM_FIELD_HELPER_CLASS` | `leading-relaxed` on helper copy; not `leading-[18px]` alone on long paragraphs |
+| Checkbox / radio + description | `OPERATOR_FORM_CONTROL_DESCRIPTION_GAP_CLASS` (`gap-3`) | When description wraps, use at least `gap-3` between control and text |
+| Line tabs + path hint + panel | `space-y-4` minimum | Start-review path switcher and similar: tab strip, intro hint, then panel |
+
+**Coexists with:** compact page spacing (**TB-118**), inline metadata emphasis (**TB-1996**).
+
+**Do not:** reopen sparse-void empty layouts (**TB-1477**–**TB-1482**); stretch banner-only **TB-1879**; apply marketing hero spacing to operator forms.
+
+**Apply surfaces:** **TB-2001** (Guided intake), **TB-2002** (Start review primitives), **TB-2004** inventory — not this contract row alone.
+
+---
+
 ## Components (TB-116, TB-117) — done 2026-05-31
 
 | Component | Path | Migrated surfaces |

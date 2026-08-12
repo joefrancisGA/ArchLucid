@@ -17,7 +17,6 @@ import { OPERATOR_LINK } from "@/lib/design-tokens";
 
 import {
   SIGNED_RECORDS_LIST_OPEN_RECORD_ACTION,
-  SIGNED_RECORDS_LIST_OPEN_REVIEW_ACTION,
   SIGNED_RECORDS_LIST_PAGE_TITLE,
   SIGNED_RECORDS_LIST_RECORD_UNAVAILABLE_LABEL,
   SIGNED_RECORDS_LIST_RETRY_RECORD_ACTION,
@@ -77,9 +76,6 @@ export function SignedRecordsListTable(props: SignedRecordsListTableProps): Reac
               <EnterpriseTableCell>{formatCommittedDate(row.committedUtc)}</EnterpriseTableCell>
               <EnterpriseTableCell>
                 <div className="flex flex-wrap items-center gap-2">
-                  <Button asChild variant="outline" size="sm">
-                    <Link href={row.reviewHref}>{SIGNED_RECORDS_LIST_OPEN_REVIEW_ACTION}</Link>
-                  </Button>
                   {signedRecordHref !== null ? (
                     <Button asChild variant="default" size="sm">
                       <Link href={signedRecordHref}>{SIGNED_RECORDS_LIST_OPEN_RECORD_ACTION}</Link>

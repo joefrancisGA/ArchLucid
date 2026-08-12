@@ -50,4 +50,31 @@ describe("enrichSignedRecordsListRows", () => {
       "/governance/signed-records/bbbbbbbb-cccc-dddd-eeee-ffffffffffff",
     );
   });
+
+  it("limits parallel manifest lookups to the configured concurrency ceiling (TB-1944)", async () => {
+    let inFlight = 0;
+    let maxInFlight = 0;
+
+    resolveGoldenManifestIdForRun.mockImplementation(async () => {
+      inFlight += 1;
+      maxInFlight = Math.max(maxInFlight, inFlight);
+      await new Promise((resolve) => {
+        setTimeout(resolve, 5);
+      });
+      inFlight -= 1;
+
+      return "manifest-concurrent";
+    });
+
+    const pendingRows = Array.from({ length: 12 }, (_, index) => ({
+      ...baseRow,
+      runId: `00000000-0000-0000-0000-${String(index).padStart(12, "0")}`,
+      reviewHref: `/architecture/reviews/${index}`,
+    }));
+
+    await enrichSignedRecordsListRows(pendingRows);
+
+    expect(maxInFlight).toBeLessThanOrEqual(5);
+    expect(resolveGoldenManifestIdForRun).toHaveBeenCalledTimes(12);
+  });
 });

@@ -253,6 +253,22 @@ export const OPERATOR_LINK = {
  */
 export const OPERATOR_FORM_FIELD_LABEL_CLASS = "text-[13px] font-semibold leading-5 text-al-text-primary";
 
+/**
+ * Vertical rhythm inside one form field stack (label → control → helper). TB-2000.
+ * Coexists with compact page chrome (Done TB-118) — do not use page-scale `space-y-8` here.
+ */
+export const OPERATOR_FORM_FIELD_STACK_CLASS = "space-y-3";
+
+/**
+ * Multi-line helper copy under a control — relaxed leading vs default helper crush. TB-2000.
+ */
+export const OPERATOR_FORM_FIELD_HELPER_CLASS = `${OPERATOR_TYPE_SCALE.helper} leading-relaxed`;
+
+/**
+ * Checkbox / radio row with a wrapping description — minimum gap before multi-line body copy. TB-2000.
+ */
+export const OPERATOR_FORM_CONTROL_DESCRIPTION_GAP_CLASS = "gap-3";
+
 /** Semibold scan marker on inline guidance lines — pair with normal-weight body copy after the colon. */
 export const INLINE_GUIDANCE_LABEL_CLASS = "font-semibold text-al-text-primary";
 

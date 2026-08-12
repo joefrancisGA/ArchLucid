@@ -25,6 +25,7 @@ import {
   SIGNED_RECORDS_LIST_PAGE_SUBTITLE,
   SIGNED_RECORDS_LIST_PAGE_TITLE,
 } from "./signed-records-list-copy";
+import { SignedRecordsListPagination } from "./SignedRecordsListPagination";
 import { buildSignedRecordsListRowsFromRuns, type SignedRecordsListRow } from "./signed-records-list-row";
 
 const SIGNED_RECORDS_LIST_PAGE_SIZE = 100;
@@ -34,8 +35,13 @@ export default function SignedRecordsListClient() {
   const [loading, setLoading] = useState(true);
   const [loadError, setLoadError] = useState<string | null>(null);
   const [retryingRunId, setRetryingRunId] = useState<string | null>(null);
+  const [page, setPage] = useState(1);
+  const [cursor, setCursor] = useState("");
+  const [cursorHistory, setCursorHistory] = useState<readonly string[]>([]);
+  const [hasMore, setHasMore] = useState(false);
+  const [nextCursor, setNextCursor] = useState<string | null>(null);
 
-  const loadRows = useCallback(async () => {
+  const loadRows = useCallback(async (request: { readonly page: number; readonly cursor: string }) => {
     setLoading(true);
     setLoadError(null);
 
@@ -43,15 +49,18 @@ export default function SignedRecordsListClient() {
     const projectId = projectIdFromScopeHeaders(scopeHeaders) ?? "default";
 
     try {
-      const raw: unknown = await listRunsByProjectPaged(projectId, 1, SIGNED_RECORDS_LIST_PAGE_SIZE, {
-        cursor: "",
+      const raw: unknown = await listRunsByProjectPaged(projectId, request.page, SIGNED_RECORDS_LIST_PAGE_SIZE, {
+        cursor: request.cursor,
         scopeHeaders,
       });
-      const coerced = coerceRunSummaryPaged(raw, { page: 1 });
+      const coerced = coerceRunSummaryPaged(raw, { page: request.page });
 
       if (!coerced.ok) {
         setRows([]);
+        setHasMore(false);
+        setNextCursor(null);
         setLoadError(coerced.message);
+
         return;
       }
 
@@ -66,8 +75,12 @@ export default function SignedRecordsListClient() {
       const enrichedRows = await enrichSignedRecordsListRows(baseRows);
 
       setRows(enrichedRows);
+      setHasMore(coerced.value.hasMore);
+      setNextCursor(coerced.value.nextCursor ?? null);
     } catch (error: unknown) {
       setRows([]);
+      setHasMore(false);
+      setNextCursor(null);
       setLoadError(error instanceof Error ? error.message : "Failed to load signed review records.");
     } finally {
       setLoading(false);
@@ -93,10 +106,33 @@ export default function SignedRecordsListClient() {
   }, [rows]);
 
   useEffect(() => {
-    void loadRows();
-  }, [loadRows]);
+    void loadRows({ page, cursor });
+  }, [cursor, loadRows, page]);
+
+  const goToNextPage = useCallback(() => {
+    if (nextCursor === null || nextCursor.length === 0) {
+      return;
+    }
+
+    setCursorHistory((history) => [...history, cursor]);
+    setCursor(nextCursor);
+    setPage((currentPage) => currentPage + 1);
+  }, [cursor, nextCursor]);
+
+  const goToPreviousPage = useCallback(() => {
+    if (cursorHistory.length === 0) {
+      return;
+    }
+
+    const previousCursor = cursorHistory[cursorHistory.length - 1];
+
+    setCursorHistory((history) => history.slice(0, -1));
+    setCursor(previousCursor);
+    setPage((currentPage) => Math.max(1, currentPage - 1));
+  }, [cursorHistory]);
 
   const hasRows = rows.length > 0;
+  const showPagination = !loading && loadError === null && (hasRows || page > 1 || hasMore);
 
   return (
     <div className="w-full max-w-[1440px]">
@@ -139,6 +175,18 @@ export default function SignedRecordsListClient() {
           onRetryRow={(runId) => {
             void retryRow(runId);
           }}
+        />
+      ) : null}
+
+      {showPagination ? (
+        <SignedRecordsListPagination
+          page={page}
+          shownCount={rows.length}
+          hasMore={hasMore}
+          canGoPrevious={cursorHistory.length > 0}
+          canGoNext={hasMore && nextCursor !== null && nextCursor.length > 0}
+          onPrevious={goToPreviousPage}
+          onNext={goToNextPage}
         />
       ) : null}
     </div>
