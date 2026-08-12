@@ -204,6 +204,26 @@ GUARDS: tuple[GuardCommand, ...] = (
         None,
     ),
     GuardCommand(
+        "container apps terraform authority honesty",
+        ("python", "scripts/ci/check_container_apps_terraform_authority_honesty.py"),
+        None,
+    ),
+    GuardCommand(
+        "policy pack evaluation hybrid honesty",
+        ("python", "scripts/ci/check_policy_pack_evaluation_hybrid_honesty.py"),
+        None,
+    ),
+    GuardCommand(
+        "review volume 100x capacity honesty",
+        ("python", "scripts/ci/check_review_volume_100x_capacity_honesty.py"),
+        None,
+    ),
+    GuardCommand(
+        "wntp buyer ui honesty",
+        ("python", "scripts/ci/check_wntp_buyer_ui_honesty.py"),
+        None,
+    ),
+    GuardCommand(
         "isolation claims too-strong honesty",
         ("python", "scripts/ci/check_isolation_claims_too_strong_honesty.py"),
         None,

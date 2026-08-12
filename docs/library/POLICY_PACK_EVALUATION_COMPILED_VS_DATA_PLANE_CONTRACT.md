@@ -9,7 +9,7 @@
 **Gate / SoD (separate concern):** [`PRE_FINALIZE_GATE_BLOCK_VS_ADVISORY_SOD_CONTRACT.md`](PRE_FINALIZE_GATE_BLOCK_VS_ADVISORY_SOD_CONTRACT.md) (**TB-1022**).  
 **Real-variance isolation:** [`AGENT_OUTPUT_DECISIONING_REAL_VARIANCE_ISOLATION_CONTRACT.md`](AGENT_OUTPUT_DECISIONING_REAL_VARIANCE_ISOLATION_CONTRACT.md) (**TB-1196**).  
 **Priority tiers:** [`POLICY_PACK_RULE_PRIORITY_MODEL.md`](POLICY_PACK_RULE_PRIORITY_MODEL.md).  
-**Honesty CI:** **TB-1325** (open — named anchors only in this batch).
+**Honesty CI:** **TB-1325** Done (`scripts/ci/check_policy_pack_evaluation_hybrid_honesty.py`).
 
 ---
 
@@ -64,12 +64,12 @@ Pack evaluation architecture (**this contract**) is **orthogonal** to pre-finali
 
 ---
 
-## TB-1325 CI anchors (named, not implemented here)
+## CI anchors for **TB-1325**
 
 | Anchor | Purpose |
 | --- | --- |
 | `POLICY_PACK_EVALUATION_COMPILED_VS_DATA_PLANE_CONTRACT.md` | Drift guard (this file) |
-| Buyer/proof stub guards | Fail compile-per-pack / pack-DSL / pack-equals-cert claims |
+| `scripts/ci/check_policy_pack_evaluation_hybrid_honesty.py` | Fail compile-per-pack / pack-DSL / pack-equals-cert claims |
 | Code presence | `RuleBasedDecisionEngine`, `TenantCuratedComplianceRulePackMerger`, `IDecisionRuleProvider`, ADR 0007, `POLICY_PACK_RULE_PRIORITY_MODEL.md` |
 
 ---
@@ -79,7 +79,7 @@ Pack evaluation architecture (**this contract**) is **orthogonal** to pre-finali
 - Does not implement a new pack DSL or per-framework engine forks.
 - Does not change default `PreCommitGateEnabled` (**TB-1022**).
 - Does not reopen Done multi-cloud pack content **TB-701**–**TB-719**.
-- Does not close honesty CI (**TB-1325**).
+- Honesty CI shipped: **TB-1325** (`check_policy_pack_evaluation_hybrid_honesty.py`).
 
 ---
 

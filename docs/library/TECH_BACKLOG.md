@@ -882,7 +882,7 @@ All **P0** **V1**: visible-boundary button contract + design-system rule (**TB-2
 | TB-1287 | **Done** (2026-08-11) ? mature LLM cost-control plane beyond budget gates + non-bypassable accounting chokepoint; see `## TB-1287` below | Cost-effectiveness P1 ? **V1**; PA Q14 FinOps plane; GTM **M-225**/**M-226** | S |
 | TB-1570 | **Done** (2026-08-11) ? [`PAYING_TENANT_LLM_SPEND_STORM_AND_BILLING_DISPUTE_CLAIM_MAP.md`](PAYING_TENANT_LLM_SPEND_STORM_AND_BILLING_DISPUTE_CLAIM_MAP.md); see `## TB-1570` below | Cost-effectiveness P1 ? **V1**; PA spend-storm / billing-dispute Q; GTM **M-294**/**M-295**; orchestrates **TB-1287**/**TB-975**/**TB-1020** | S |
 | TB-980 | ~~Author Enterprise Customer Intake Modernization sample package~~ **Done** (2026-08-12) ? second static spine; pin primary one-sentence + Contoso/Northwind ban; see `## TB-980` below | Commercial / marketability P1 ? **V1**; after **TB-979**; GTM **M-133**/**M-135**; PA primary-sentence 2026-07-25 | L |
-| TB-981 | Showcase default flip + trial/marketing universe+ID alignment ? no silent dual universe; see `## TB-981` below | Commercial / marketability P1 ? **V1**; after **TB-978**/**TB-980** + GTM **M-133**/**M-134**/**M-136**; PA Q15 2026-07-25 | M |
+| TB-981 | ~~Showcase default flip + trial/marketing universe+ID alignment~~ **Done** (2026-08-12) ? customer intake primary; Claims secondary; M-134 alignment table; see `## TB-981` below | Commercial / marketability P1 ? **V1**; after **TB-978**/**TB-980** + GTM **M-133**/**M-134**/**M-136**; PA Q15 2026-07-25 | M |
 | TB-983 | ~~Simulator-derived ROI/savings forbid contract (sponsor-facing)~~ **Done** 2026-08-10 ? [`SIMULATOR_ROI_SPONSOR_FORBID_CONTRACT.md`](SIMULATOR_ROI_SPONSOR_FORBID_CONTRACT.md); see `## TB-983` below | Proof-of-ROI P1 ? **V1**; PA Q19 2026-07-24; GTM **M-138**/**M-139**; after Done **TB-239** / first-value ROI gate | S |
 | TB-984 | **Done** (2026-08-10) ? buyer-polished ROI trend + Email projected-USD badge honor Simulator forbid gates; see ## TB-984 below | Proof-of-ROI P1 ? **V1**; after **TB-983**; pairs PDF execution-mode block already shipped | M |
 | TB-1112 | **Done** (2026-08-11) ? [`MINIMUM_PILOT_TRUST_PACKET_WITHOUT_CPA_CONTRACT.md`](MINIMUM_PILOT_TRUST_PACKET_WITHOUT_CPA_CONTRACT.md); see `## TB-1112` below | Commercial / marketability P1 ? **V1**; PA Q14; GTM **M-190**/**M-191** | S |
@@ -1305,8 +1305,8 @@ All **P0** **V1**: visible-boundary button contract + design-system rule (**TB-2
 | TB-876 | ~~Customer-controlled Tier 1 AWS/GCP inventory ZIP~~ ? **Done** (2026-07-21); see `## TB-876` below | Interoperability P1 ? **V1**; V1_SCOPE ?2.19 remainder; complements Tier 2 **TB-402**/**TB-403** (Done); does not reopen **TB-214**; found during promoted multi-cloud analysis backlogization 2026-07-19 | L |
 | TB-1530 | ~~ITSM outbox/DLQ delivery guarantee map~~ ? **Done** (2026-08-12); see `## TB-1530` below | Interoperability P1 ? **V1**; PA ITSM delivery Q; GTM **M-280**/**M-281**; see `ITSM_OUTBOX_DLQ_DELIVERY_GUARANTEE_MAP.md`; complements **TB-992** | S |
 | TB-899 | ~~Quick Scan cost telemetry, dashboards, reconciliation, alerts~~ ? **Done** (2026-08-12); monitoring runbook; see `## TB-899` below | Operability P1 ? **V1**; after **TB-894**; prompts Prompt 9 | L |
-| TB-1317 | Container Apps Terraform drift escape classes + provably authoritative state contract; see `## TB-1317` below | Deployability P1 ? **V1**; PA 2026-07-26 CA/IaC drift; GTM **M-233**/**M-234** | S |
-| TB-1336 | 100? review-volume fail-first order + option-preserving capacity ledger contract; see `## TB-1336` below | Scalability P1 ? **V1**; PA Q20 100? reviews; GTM **M-237**/**M-238** | S |
+| TB-1317 | **Done** (2026-08-12) ? Container Apps Terraform drift escape classes + provably authoritative state contract; see `## TB-1317` below | Deployability P1 ? **V1**; PA 2026-07-26 CA/IaC drift; GTM **M-233**/**M-234** | S |
+| TB-1336 | **Done** (2026-08-12) ? 100× review-volume fail-first order + option-preserving capacity ledger contract; see `## TB-1336` below | Scalability P1 ? **V1**; PA Q20 100× reviews; GTM **M-237**/**M-238** | S |
 | TB-1577 | **Done** (2026-08-11) ? [`SHARED_AOAI_TPM_NOISY_NEIGHBOR_FAIRNESS_CLAIM_MAP.md`](SHARED_AOAI_TPM_NOISY_NEIGHBOR_FAIRNESS_CLAIM_MAP.md); see `## TB-1577` below | Scalability P1 ? **V1**; PA noisy-neighbor / TPM fairness Q; GTM **M-296**/**M-297**; orchestrates **TB-1336**/**TB-1299**/**TB-947** | S |
 | TB-946 | ~~Single-signal scale micro-drill harness~~ **Done** 2026-08-09 ? `SCALE_MICRO_DRILL.md` + k6 drills A/B/C + `run_scale_micro_drill.sh` + results append; TB-905 Phase C gate; CI smoke; see ## TB-946 below | Performance / testability P0 ? **V1** (promoted P0 2026-08-09 with perf wave 6; was P1); validates **TB-915**; owner **G-SCALE-01**; before **TB-905** launch-load half | M |
 | TB-1032 | **Done** (2026-08-12) ? Launch-load hot-path failure order + graceful degradation matrix; see `## TB-1032` below | Reliability / scalability P1 ? **V1**; `LAUNCH_LOAD_FAILURE_ORDER_DEGRADATION_CONTRACT.md`; GTM **M-182**/**M-183** | S |
@@ -1368,10 +1368,10 @@ All **P0** **V1**: visible-boundary button contract + design-system rule (**TB-2
 | TB-1293 | **Done** (2026-08-12) ? Anti-ratio-only-promote / silent-model-swap / rollback-without-record honesty CI; see `## TB-1293` below | Testability P1 ? **V1**; after **TB-1292**; pairs **M-227** | S |
 | TB-1300 | **Done** (2026-08-12) ? Anti-silent-sim-on-429 / queue-as-Real-success / labeled-sim-as-buyer-proof honesty CI; see `## TB-1300` below | Testability P1 ? **V1**; after **TB-1299**; pairs **M-229** | S |
 | TB-1312 | **Done** (2026-08-12) ? Anti-everything-in-process / DTF-required-for-V1 / commit-inside-orchestrator honesty CI; see `## TB-1312` below | Testability P1 ? **V1**; after **TB-1311**; pairs **M-231** | S |
-| TB-1318 | Anti-TF-state-is-SoT-with-silent-ignores / portal-scale-undetected honesty CI; see `## TB-1318` below | Testability P1 ? **V1**; after **TB-1317**; pairs **M-233** | S |
-| TB-1325 | Anti-compile-each-pack-engine / Turing-pack-DSL / pack-equals-cert honesty CI; see `## TB-1325` below | Testability P1 ? **V1**; after **TB-1324**; pairs **M-235** | S |
-| TB-1337 | Anti-SQL-fails-first-at-100x / premature-blob-or-DTF / replicas-fix-TPM honesty CI; see `## TB-1337` below | Testability P1 ? **V1**; after **TB-1336**; pairs **M-237** | S |
-| TB-1344 | Anti-WNTP-forbidden-phrase-in-buyer-UI / billing-checkout-theater honesty CI; see `## TB-1344` below | Testability P1 ? **V1**; after **TB-1343**; pairs **M-239** | S |
+| TB-1318 | **Done** (2026-08-12) ? Anti-TF-state-is-SoT-with-silent-ignores / portal-scale-undetected honesty CI; see `## TB-1318` below | Testability P1 ? **V1**; after **TB-1317**; pairs **M-233** | S |
+| TB-1325 | **Done** (2026-08-12) ? Anti-compile-each-pack-engine / Turing-pack-DSL / pack-equals-cert honesty CI; see `## TB-1325` below | Testability P1 ? **V1**; after **TB-1324**; pairs **M-235** | S |
+| TB-1337 | **Done** (2026-08-12) ? Anti-SQL-fails-first-at-100x / premature-blob-or-DTF / replicas-fix-TPM honesty CI; see `## TB-1337` below | Testability P1 ? **V1**; after **TB-1336**; pairs **M-237** | S |
+| TB-1344 | **Done** (2026-08-12) ? Anti-WNTP-forbidden-phrase-in-buyer-UI / billing-checkout-theater honesty CI; see `## TB-1344` below | Testability P1 ? **V1**; after **TB-1343**; pairs **M-239** | S |
 | TB-1368 | Anti-two-weeks-to-two-hours / every-finding-trace / gate-always-on honesty CI; see `## TB-1368` below | Testability P1 ? **V1**; after **TB-1367**; pairs **M-245** | S |
 | TB-1370 | Anti-Simulator-decide-differently-gated / schema-equals-provenance honesty CI; see `## TB-1370` below | Testability P1 ? **V1**; after **TB-1369**; pairs **M-247** | S |
 | TB-1372 | Anti-TB-881-blocks-pilots / reopen-Done-TB-881 honesty CI + OPEN hygiene; see `## TB-1372` below | Testability P1 ? **V1**; after **TB-1371**; pairs **M-249** | S |
@@ -26516,7 +26516,7 @@ Plus visual regression: overview, technical index, one expanded object, one fiel
 
 **Window:** V1 ? Commercial / marketability (public promotion readiness).
 
-**Status:** Not started.
+**Status:** **Done** (2026-08-12).
 
 **Priority:** P1.
 
@@ -26532,7 +26532,7 @@ Plus visual regression: overview, technical index, one expanded object, one fiel
 4. Compare **TB-978** scenario funnel metrics before removing any Claims deep links; do not delete Claims redirects.
 5. Guardrail: when a surface claims the primary universe, spine counts and run/manifest IDs must match the package (coordinate fixture-manifest parity for SQL A/B; do not weaken `@release-gate`).
 
-**Acceptance:** Default anonymous proof path lands on generic intake; healthcare vertical still reaches Claims; trial + marketing + primary showcase share one package (or documented co-primary); telemetry comparison recorded; **M-134** can cite the alignment table.
+**Acceptance:** Met ? default anonymous proof path lands on generic intake (`customer-intake-modernization`); healthcare vertical still reaches Claims; trial SQL co-primary documented in `sample-scenario-surface-alignment.ts` + `trial-sample-run.ts`; **M-134** alignment table shipped; Claims deep links retained.
 
 **Depends on:** **TB-978**, **TB-979**, **TB-980**, GTM **M-133**, **M-134**, **M-136**.
 
@@ -32622,7 +32622,7 @@ Operators must read three intros before reaching the Trust Center link list.
 
 **Window:** V1 ? Deployability.
 
-**Status:** Not started.
+**Status:** **Done** (2026-08-12) ? [`CONTAINER_APPS_TERRAFORM_AUTHORITY_AND_DRIFT_CONTRACT.md`](CONTAINER_APPS_TERRAFORM_AUTHORITY_AND_DRIFT_CONTRACT.md); **TB-1318** honesty CI shipped.
 
 **Priority:** P1.
 
@@ -32653,7 +32653,7 @@ Operators must read three intros before reaching the Trust Center link list.
 
 **Window:** V1 ? Testability.
 
-**Status:** Not started.
+**Status:** **Done** (2026-08-12) ? `scripts/ci/check_container_apps_terraform_authority_honesty.py` + unit tests; wired in `run_buyer_surface_strict_guards.py` and CI.
 
 **Priority:** P1.
 
@@ -32854,7 +32854,7 @@ Operators must read three intros before reaching the Trust Center link list.
 
 **Window:** V1 ? Testability.
 
-**Status:** Not started.
+**Status:** **Done** (2026-08-12) ? `scripts/ci/check_policy_pack_evaluation_hybrid_honesty.py` + unit tests; wired in `run_buyer_surface_strict_guards.py` and CI.
 
 **Priority:** P1.
 
@@ -33153,7 +33153,7 @@ Operators must read three intros before reaching the Trust Center link list.
 
 **Window:** V1 ? Scalability.
 
-**Status:** Not started.
+**Status:** **Done** (2026-08-12) ? [`REVIEW_VOLUME_100X_FAILURE_ORDER_AND_OPTION_PRESERVING_CAPACITY_CONTRACT.md`](REVIEW_VOLUME_100X_FAILURE_ORDER_AND_OPTION_PRESERVING_CAPACITY_CONTRACT.md); **TB-1337** honesty CI shipped.
 
 **Priority:** P1.
 
@@ -33185,7 +33185,7 @@ Operators must read three intros before reaching the Trust Center link list.
 
 **Window:** V1 ? Testability.
 
-**Status:** Not started.
+**Status:** **Done** (2026-08-12) ? `scripts/ci/check_review_volume_100x_capacity_honesty.py` + unit tests; wired in `run_buyer_surface_strict_guards.py` and CI.
 
 **Priority:** P1.
 
@@ -33387,7 +33387,7 @@ Operators must read three intros before reaching the Trust Center link list.
 
 **Window:** V1 ? Testability.
 
-**Status:** Not started.
+**Status:** **Done** (2026-08-12) ? `scripts/ci/check_wntp_buyer_ui_honesty.py` + unit tests; wired in `run_buyer_surface_strict_guards.py` and CI.
 
 **Priority:** P1.
 

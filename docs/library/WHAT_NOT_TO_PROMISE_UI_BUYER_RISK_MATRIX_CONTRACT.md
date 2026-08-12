@@ -2,7 +2,7 @@
 
 # WNTP → UI buyer-risk matrix contract (TB-1343)
 
-**Status:** Shipped **2026-08-11** (**TB-1343**). Honesty CI follow-on: **TB-1344**.  
+**Status:** Shipped **2026-08-11** (**TB-1343**). Honesty CI: **TB-1344** Done (`scripts/ci/check_wntp_buyer_ui_honesty.py`).  
 **GTM:** **M-239** (matrix), **M-240** (PA one-pager).  
 **Canon table:** [`PUBLIC_CLAIM_BOUNDARY_GUIDE.md#gtm-do-not-promise`](PUBLIC_CLAIM_BOUNDARY_GUIDE.md#gtm-do-not-promise) (formerly `WHAT_NOT_TO_PROMISE.md`).  
 **PA handout (path-stable alias):** [`../go-to-market/BUYER_SECURITY_PROCUREMENT_PACKET.md#wntp-ui-buyer-risk-matrix-m-240`](../go-to-market/BUYER_SECURITY_PROCUREMENT_PACKET.md#wntp-ui-buyer-risk-matrix-m-240) · [`../go-to-market/WHAT_NOT_TO_PROMISE_UI_BUYER_RISK_MATRIX_PA_ONE_PAGER.md`](../go-to-market/WHAT_NOT_TO_PROMISE_UI_BUYER_RISK_MATRIX_PA_ONE_PAGER.md).  
@@ -42,11 +42,11 @@ Doc-only phrase scanners (**TB-134**, `check_commercial_overclaim_guard.py`, war
 | --- | --- | --- |
 | **TB-134** doc scanners | GTM markdown / docs corpus | React UI strings, pricing pages, help specialty views |
 | **This contract (TB-1343)** | Ranked surface × WNTP row × owner map for PA triage | Rewriting every page body |
-| **TB-1344** (open) | Fail dishonest WNTP phrases / checkout theater on named buyer UI paths | Implementing Stripe / CPA programs |
+| **TB-1344** Done | Fail dishonest WNTP phrases / checkout theater on named buyer UI paths | Implementing Stripe / CPA programs |
 
-## CI anchors for TB-1344
+## CI anchors for **TB-1344**
 
-Extend or sibling-scan these paths against [`PUBLIC_CLAIM_BOUNDARY_GUIDE.md#gtm-do-not-promise`](PUBLIC_CLAIM_BOUNDARY_GUIDE.md#gtm-do-not-promise):
+`scripts/ci/check_wntp_buyer_ui_honesty.py` scans buyer UI paths against [`PUBLIC_CLAIM_BOUNDARY_GUIDE.md#gtm-do-not-promise`](PUBLIC_CLAIM_BOUNDARY_GUIDE.md#gtm-do-not-promise):
 
 | Path class | Examples |
 | --- | --- |

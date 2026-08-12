@@ -1101,9 +1101,29 @@ jobs:
         continue-on-error: true
         run: python scripts/ci/check_async_orchestration_first_force_honesty.py
 
+      - name: Container Apps Terraform authority honesty guard (TB-1318 / M-233)
+        continue-on-error: true
+        run: python scripts/ci/check_container_apps_terraform_authority_honesty.py
+
+      - name: Policy-pack evaluation hybrid honesty guard (TB-1325 / M-235)
+        continue-on-error: true
+        run: python scripts/ci/check_policy_pack_evaluation_hybrid_honesty.py
+
+      - name: Review volume 100x capacity honesty guard (TB-1337 / M-237)
+        continue-on-error: true
+        run: python scripts/ci/check_review_volume_100x_capacity_honesty.py
+
+      - name: WNTP buyer UI honesty guard (TB-1344 / M-239)
+        continue-on-error: true
+        run: python scripts/ci/check_wntp_buyer_ui_honesty.py
+
       - name: Honesty cluster 1264-1312 guard unit tests
         continue-on-error: true
         run: python -m unittest discover -s scripts/ci/tests -p "test_check_honesty_cluster_1264_1312.py"
+
+      - name: Honesty cluster 1318-1344 guard unit tests
+        continue-on-error: true
+        run: python -m unittest discover -s scripts/ci/tests -p "test_check_honesty_cluster_1318_1344.py"
 
       - name: Buyer-surface strict claim guards (blocking when buyer paths changed)
         if: steps.buyer-surface-detect.outputs.changed == 'true'
