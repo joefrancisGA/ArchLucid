@@ -4,6 +4,7 @@ using System.Globalization;
 
 using ArchLucid.Core.Budgeting;
 using ArchLucid.Persistence.Data.Infrastructure;
+using ArchLucid.Persistence.Sql;
 
 using Dapper;
 
@@ -103,17 +104,13 @@ public sealed partial class SqlLlmTenantBudgetRepository(IDbConnectionFactory co
             return row;
 
         DateTime utcDayDate = utcDay.ToDateTime(TimeOnly.MinValue, DateTimeKind.Utc);
-        const string insert = """
-                              INSERT INTO dbo.LlmDailyTenantTokenWindowState (TenantId, UtcDay, TotalTokens, ReservedAssumedTokens, WarnedApproaching, LastUpdatedUtc)
-                              VALUES (@TenantId, @UtcDay, 0, 0, 0, SYSUTCDATETIME());
-                              """;
 
         try
         {
             await connection
                 .ExecuteAsync(
                     new CommandDefinition(
-                        insert,
+                        LlmTenantBudgetSql.InsertDaily,
                         new
                         {
                             TenantId = tenantId,
@@ -149,17 +146,12 @@ public sealed partial class SqlLlmTenantBudgetRepository(IDbConnectionFactory co
         if (row is not null)
             return row;
 
-        const string insert = """
-                              INSERT INTO dbo.LlmMonthlyTenantBudgetState (TenantId, UtcYear, UtcMonth, SpentUsd, ReservedAssumedUsd, PurchasedCapBumpUsd, WarnedApproaching, LastUpdatedUtc)
-                              VALUES (@TenantId, @UtcYear, @UtcMonth, 0, 0, 0, 0, SYSUTCDATETIME());
-                              """;
-
         try
         {
             await connection
                 .ExecuteAsync(
                     new CommandDefinition(
-                        insert,
+                        LlmTenantBudgetSql.InsertMonthly,
                         new
                         {
                             TenantId = tenantId,
@@ -199,23 +191,13 @@ public sealed partial class SqlLlmTenantBudgetRepository(IDbConnectionFactory co
         DateOnly utcDay = DateOnly.ParseExact(request.PeriodKey, "yyyy-MM-dd", CultureInfo.InvariantCulture);
         DateTime utcDayDate = utcDay.ToDateTime(TimeOnly.MinValue, DateTimeKind.Utc);
 
-        const string sql = """
-                           UPDATE dbo.LlmDailyTenantTokenWindowState
-                           SET ReservedAssumedTokens = ReservedAssumedTokens + @Add,
-                               LastUpdatedUtc = SYSUTCDATETIME()
-                           WHERE TenantId = @TenantId
-                             AND UtcDay = @UtcDay
-                             AND RowVersion = @RowVersion
-                             AND TotalTokens + ReservedAssumedTokens + @Add <= @HardCap;
-                           """;
-
         using IDbConnection connection =
             await _connectionFactory.CreateOpenConnectionAsync(cancellationToken).ConfigureAwait(false);
 
         int affected = await connection
             .ExecuteAsync(
                 new CommandDefinition(
-                    sql,
+                    LlmTenantBudgetSql.ReserveDaily,
                     new
                     {
                         request.TenantId,
@@ -272,21 +254,10 @@ public sealed partial class SqlLlmTenantBudgetRepository(IDbConnectionFactory co
 
         await EnsureMonthlyRowAsync(connection, request.TenantId, sqlYear, sqlMonth, cancellationToken).ConfigureAwait(false);
 
-        const string sql = """
-                           UPDATE dbo.LlmMonthlyTenantBudgetState
-                           SET ReservedAssumedUsd = ReservedAssumedUsd + @Add,
-                               LastUpdatedUtc = SYSUTCDATETIME()
-                           WHERE TenantId = @TenantId
-                             AND UtcYear = @UtcYear
-                             AND UtcMonth = @UtcMonth
-                             AND RowVersion = @RowVersion
-                             AND SpentUsd + ReservedAssumedUsd + @Add <= @HardCap;
-                           """;
-
         int affected = await connection
             .ExecuteAsync(
                 new CommandDefinition(
-                    sql,
+                    LlmTenantBudgetSql.ReserveMonthly,
                     new
                     {
                         request.TenantId,
@@ -396,33 +367,13 @@ public sealed partial class SqlLlmTenantBudgetRepository(IDbConnectionFactory co
                 : new LlmTenantBudgetSettleResult { NewState = cur };
         }
 
-        const string sql = """
-                           UPDATE dbo.LlmDailyTenantTokenWindowState
-                           SET TotalTokens = TotalTokens + @Actual,
-                               ReservedAssumedTokens = ReservedAssumedTokens - @Release,
-                               WarnedApproaching = CASE
-                                   WHEN WarnedApproaching = 1 THEN 1
-                                   WHEN TotalTokens < @WarnAt AND TotalTokens + @Actual >= @WarnAt THEN 1
-                                   ELSE WarnedApproaching
-                                   END,
-                               LastUpdatedUtc = SYSUTCDATETIME()
-                           OUTPUT INSERTED.TotalTokens AS NewTotal,
-                                  INSERTED.WarnedApproaching AS NewWarned,
-                                  DELETED.TotalTokens AS OldTotal,
-                                  DELETED.WarnedApproaching AS OldWarned
-                           WHERE TenantId = @TenantId
-                             AND UtcDay = @UtcDay
-                             AND RowVersion = @RowVersion
-                             AND ReservedAssumedTokens >= @Release;
-                           """;
-
         using IDbConnection connection =
             await _connectionFactory.CreateOpenConnectionAsync(cancellationToken).ConfigureAwait(false);
 
         DailySettleOutput? output = await connection
             .QuerySingleOrDefaultAsync<DailySettleOutput>(
                 new CommandDefinition(
-                    sql,
+                    LlmTenantBudgetSql.SettleDaily,
                     new
                     {
                         request.TenantId,
@@ -482,31 +433,10 @@ public sealed partial class SqlLlmTenantBudgetRepository(IDbConnectionFactory co
                 };
         }
 
-        const string sql = """
-                           UPDATE dbo.LlmMonthlyTenantBudgetState
-                           SET SpentUsd = SpentUsd + @Actual,
-                               ReservedAssumedUsd = ReservedAssumedUsd - @Release,
-                               WarnedApproaching = CASE
-                                   WHEN WarnedApproaching = 1 THEN 1
-                                   WHEN SpentUsd < @WarnAt AND SpentUsd + @Actual >= @WarnAt THEN 1
-                                   ELSE WarnedApproaching
-                                   END,
-                               LastUpdatedUtc = SYSUTCDATETIME()
-                           OUTPUT INSERTED.SpentUsd AS NewSpent,
-                                  INSERTED.WarnedApproaching AS NewWarned,
-                                  DELETED.SpentUsd AS OldSpent,
-                                  DELETED.WarnedApproaching AS OldWarned
-                           WHERE TenantId = @TenantId
-                             AND UtcYear = @UtcYear
-                             AND UtcMonth = @UtcMonth
-                             AND RowVersion = @RowVersion
-                             AND ReservedAssumedUsd >= @Release;
-                           """;
-
         MonthlySettleOutput? output = await connection
             .QuerySingleOrDefaultAsync<MonthlySettleOutput>(
                 new CommandDefinition(
-                    sql,
+                    LlmTenantBudgetSql.SettleMonthly,
                     new
                     {
                         request.TenantId,
@@ -547,20 +477,9 @@ public sealed partial class SqlLlmTenantBudgetRepository(IDbConnectionFactory co
         CancellationToken cancellationToken)
     {
         DateTime utcDayDate = utcDay.ToDateTime(TimeOnly.MinValue, DateTimeKind.Utc);
-        const string sel = """
-                           SELECT TotalTokens AS TokensConsumed,
-                                  ReservedAssumedTokens AS ReservedTokens,
-                                  CAST(0 AS DECIMAL(18, 6)) AS CommittedUsd,
-                                  CAST(0 AS DECIMAL(18, 6)) AS ReservedUsd,
-                                  CAST(0 AS DECIMAL(18, 6)) AS PurchasedCapBumpUsd,
-                                  WarnedApproaching,
-                                  RowVersion
-                           FROM dbo.LlmDailyTenantTokenWindowState
-                           WHERE TenantId = @TenantId AND UtcDay = @UtcDay;
-                           """;
 
         return connection.QuerySingleOrDefaultAsync<LlmTenantBudgetStateReadModel>(
-            new CommandDefinition(sel, new
+            new CommandDefinition(LlmTenantBudgetSql.SelectDaily, new
             {
                 TenantId = tenantId,
                 UtcDay = utcDayDate
@@ -574,21 +493,9 @@ public sealed partial class SqlLlmTenantBudgetRepository(IDbConnectionFactory co
         int utcMonth,
         CancellationToken cancellationToken)
     {
-        const string sel = """
-                           SELECT CAST(0 AS BIGINT) AS TokensConsumed,
-                                  CAST(0 AS BIGINT) AS ReservedTokens,
-                                  SpentUsd AS CommittedUsd,
-                                  ReservedAssumedUsd AS ReservedUsd,
-                                  PurchasedCapBumpUsd AS PurchasedCapBumpUsd,
-                                  WarnedApproaching,
-                                  RowVersion
-                           FROM dbo.LlmMonthlyTenantBudgetState
-                           WHERE TenantId = @TenantId AND UtcYear = @UtcYear AND UtcMonth = @UtcMonth;
-                           """;
-
         return connection.QuerySingleOrDefaultAsync<LlmTenantBudgetStateReadModel>(
             new CommandDefinition(
-                sel,
+                LlmTenantBudgetSql.SelectMonthly,
                 new
                 {
                     TenantId = tenantId,
@@ -618,10 +525,9 @@ public sealed partial class SqlLlmTenantBudgetRepository(IDbConnectionFactory co
         IDbConnection connection,
         CancellationToken cancellationToken)
     {
-        const string sql = "SELECT YEAR(SYSUTCDATETIME()) AS UtcYear, MONTH(SYSUTCDATETIME()) AS UtcMonth;";
-
         (int Year, int Month) row = await connection
-            .QuerySingleAsync<(int Year, int Month)>(new CommandDefinition(sql, cancellationToken: cancellationToken))
+            .QuerySingleAsync<(int Year, int Month)>(
+                new CommandDefinition(LlmTenantBudgetSql.SelectSqlUtcYearMonth, cancellationToken: cancellationToken))
             .ConfigureAwait(false);
 
         ValidateUtcYearMonth(row.Year, row.Month);
@@ -642,17 +548,12 @@ public sealed partial class SqlLlmTenantBudgetRepository(IDbConnectionFactory co
         if (row is not null)
             return;
 
-        const string insert = """
-                              INSERT INTO dbo.LlmMonthlyTenantBudgetState (TenantId, UtcYear, UtcMonth, SpentUsd, ReservedAssumedUsd, PurchasedCapBumpUsd, WarnedApproaching, LastUpdatedUtc)
-                              VALUES (@TenantId, @UtcYear, @UtcMonth, 0, 0, 0, 0, SYSUTCDATETIME());
-                              """;
-
         try
         {
             await connection
                 .ExecuteAsync(
                     new CommandDefinition(
-                        insert,
+                        LlmTenantBudgetSql.InsertMonthly,
                         new
                         {
                             TenantId = tenantId,

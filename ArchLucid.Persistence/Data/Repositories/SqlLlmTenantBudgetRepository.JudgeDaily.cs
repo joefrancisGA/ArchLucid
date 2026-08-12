@@ -2,6 +2,7 @@ using System.Data;
 using System.Globalization;
 
 using ArchLucid.Core.Budgeting;
+using ArchLucid.Persistence.Sql;
 
 using Dapper;
 
@@ -29,17 +30,13 @@ public sealed partial class SqlLlmTenantBudgetRepository
             return row;
 
         DateTime utcDayDate = utcDay.ToDateTime(TimeOnly.MinValue, DateTimeKind.Utc);
-        const string insert = """
-                              INSERT INTO dbo.LlmJudgeDailyTenantTokenWindowState (TenantId, UtcDay, TotalTokens, ReservedAssumedTokens, WarnedApproaching, LastUpdatedUtc)
-                              VALUES (@TenantId, @UtcDay, 0, 0, 0, SYSUTCDATETIME());
-                              """;
 
         try
         {
             await connection
                 .ExecuteAsync(
                     new CommandDefinition(
-                        insert,
+                        LlmTenantBudgetSql.InsertJudgeDaily,
                         new
                         {
                             TenantId = tenantId,
@@ -78,23 +75,13 @@ public sealed partial class SqlLlmTenantBudgetRepository
         DateOnly utcDay = DateOnly.ParseExact(request.PeriodKey, "yyyy-MM-dd", CultureInfo.InvariantCulture);
         DateTime utcDayDate = utcDay.ToDateTime(TimeOnly.MinValue, DateTimeKind.Utc);
 
-        const string sql = """
-                           UPDATE dbo.LlmJudgeDailyTenantTokenWindowState
-                           SET ReservedAssumedTokens = ReservedAssumedTokens + @Add,
-                               LastUpdatedUtc = SYSUTCDATETIME()
-                           WHERE TenantId = @TenantId
-                             AND UtcDay = @UtcDay
-                             AND RowVersion = @RowVersion
-                             AND TotalTokens + ReservedAssumedTokens + @Add <= @HardCap;
-                           """;
-
         using IDbConnection connection =
             await _connectionFactory.CreateOpenConnectionAsync(cancellationToken).ConfigureAwait(false);
 
         int affected = await connection
             .ExecuteAsync(
                 new CommandDefinition(
-                    sql,
+                    LlmTenantBudgetSql.ReserveJudgeDaily,
                     new
                     {
                         request.TenantId,
@@ -161,24 +148,13 @@ public sealed partial class SqlLlmTenantBudgetRepository
                 : new LlmTenantBudgetSettleResult { NewState = cur };
         }
 
-        const string sql = """
-                           UPDATE dbo.LlmJudgeDailyTenantTokenWindowState
-                           SET TotalTokens = TotalTokens + @Actual,
-                               ReservedAssumedTokens = ReservedAssumedTokens - @Release,
-                               LastUpdatedUtc = SYSUTCDATETIME()
-                           WHERE TenantId = @TenantId
-                             AND UtcDay = @UtcDay
-                             AND RowVersion = @RowVersion
-                             AND ReservedAssumedTokens >= @Release;
-                           """;
-
         using IDbConnection connection =
             await _connectionFactory.CreateOpenConnectionAsync(cancellationToken).ConfigureAwait(false);
 
         int affected = await connection
             .ExecuteAsync(
                 new CommandDefinition(
-                    sql,
+                    LlmTenantBudgetSql.SettleJudgeDaily,
                     new
                     {
                         request.TenantId,
@@ -207,20 +183,9 @@ public sealed partial class SqlLlmTenantBudgetRepository
         CancellationToken cancellationToken)
     {
         DateTime utcDayDate = utcDay.ToDateTime(TimeOnly.MinValue, DateTimeKind.Utc);
-        const string sel = """
-                           SELECT TotalTokens AS TokensConsumed,
-                                  ReservedAssumedTokens AS ReservedTokens,
-                                  CAST(0 AS DECIMAL(18, 6)) AS CommittedUsd,
-                                  CAST(0 AS DECIMAL(18, 6)) AS ReservedUsd,
-                                  CAST(0 AS DECIMAL(18, 6)) AS PurchasedCapBumpUsd,
-                                  WarnedApproaching,
-                                  RowVersion
-                           FROM dbo.LlmJudgeDailyTenantTokenWindowState
-                           WHERE TenantId = @TenantId AND UtcDay = @UtcDay;
-                           """;
 
         return connection.QuerySingleOrDefaultAsync<LlmTenantBudgetStateReadModel>(
-            new CommandDefinition(sel, new
+            new CommandDefinition(LlmTenantBudgetSql.SelectJudgeDaily, new
             {
                 TenantId = tenantId,
                 UtcDay = utcDayDate
