@@ -1096,7 +1096,7 @@ All **P0** **V1**: visible-boundary button contract + design-system rule (**TB-2
 | TB-1808 | **Done** (2026-08-12) — Preserve query on `/operate/architecture-graph` → `/insights/evidence-graph` redirect; Vitest TB-1808; see ## TB-1808 below | Adoption friction P1 ? **V1**; with **TB-1806** | S |
 | TB-1812 | **Done** (2026-08-12) ? `/patterns/[patternKey]` contextual peer-compare (not hard-coded BFF); see ## TB-1812 below | Adoption friction P1 ? **V1**; with **TB-1811** | S |
 | TB-1814 | `/patterns` + detail ? page-help topic map + contextual help mount; see ## TB-1814 below | Adoption friction P1 ? **V1**; with **TB-1811**; pairs **TB-1669** | S |
-| TB-1816 | `/quick-start` traffic redirect-only workbook honesty; see ## TB-1816 below | Adoption friction P1 ? **V1**; owner review ~12/100 2026-07-27; traffic **QUI**; after Done **TB-736** | S |
+| TB-1816 | **Done** (2026-08-12) ? `/quick-start` traffic redirect-only workbook honesty; see ## TB-1816 below | Adoption friction P1 ? **V1**; owner review ~12/100 2026-07-27; traffic **QUI**; after Done **TB-736** | S |
 | TB-1823 | ~~`/reviews/.../artifacts/...` traffic ghost-route workbook honesty~~ **Done** 2026-08-11 ? RER row removed; doc guard | Adoption friction P1 ? **V1**; with **TB-1821** | S |
 | TB-1826 | ~~`/?/evidence-trace` buyer H1 + eyebrow vocabulary (finding-first)~~ **Done** 2026-08-12 ? finding-first H1 + sentence-case eyebrow; Vitest; see ## TB-1826 below | Adoption friction P1 ? **V1**; owner review ~54/100 2026-07-27; traffic **ERU** | S |
 | TB-1827 | ~~Evidence-trace footer must not self-link Inspect/Trace~~ **Done** 2026-08-12 ? footer omits `findingIdForInspectLink` on ERU; Vitest; see ## TB-1827 below | Adoption friction P1 ? **V1**; with **TB-1826** | XS |
@@ -43609,7 +43609,7 @@ Operators must read three intros before reaching the Trust Center link list.
 
 ## TB-1816 ? `/quick-start` traffic redirect-only workbook honesty (P0)
 
-**Window:** V1 ? Adoption friction. **Status:** Not started. **Priority:** P0.
+**Window:** V1 ? Adoption friction. **Status:** **Done** (2026-08-12) ? QUI redirect-shim row in `other-rows.ts`, template row in `ui_route_traffic_estimates.template.md`, Vitest `ui-route-traffic-legacy-quick-start.test.ts`. **Priority:** P0.
 
 **Source:** Owner QUI ~12/100 2026-07-27.
 
