@@ -22,6 +22,7 @@ vi.mock("@/components/usability/PageContextualHelpButton", () => ({
 }));
 
 import { INTERNAL_OPERATIONS_NAV_EYEBROW } from "@/lib/demo-readiness-evidence-copy";
+import { ADMIN_DEPLOYMENT_STATUS_PAGE_TITLE } from "@/lib/deployment-status-evidence-copy";
 
 import AdminDeploymentStatusPage from "./page";
 
@@ -64,6 +65,9 @@ describe("AdminDeploymentStatusPage", () => {
     render(page);
 
     expect(await screen.findByTestId("admin-deployment-status-page")).toBeInTheDocument();
+    expect(screen.getByTestId("admin-deployment-status-page-heading")).toBeInTheDocument();
+    expect(screen.getByRole("heading", { level: 1, name: ADMIN_DEPLOYMENT_STATUS_PAGE_TITLE })).toBeInTheDocument();
+    expect(screen.getByTestId("page-contextual-help-button")).toBeInTheDocument();
     expect(screen.getByTestId("admin-deployment-status-ops-eyebrow")).toHaveTextContent(
       INTERNAL_OPERATIONS_NAV_EYEBROW,
     );
