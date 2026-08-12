@@ -3,64 +3,23 @@ import { cn } from "@/lib/utils";
 import { OPERATOR_TYPOGRAPHY } from "@/lib/design-tokens";
 
 import Link from "next/link";
-import { useEffect, useState, type ReactElement } from "react";
+import type { ReactElement } from "react";
 
 import { OperatorApiProblem } from "@/components/operator/OperatorApiProblem";
 import { OperatorLoadingNotice } from "@/components/operator/OperatorShellMessage";
 import { Card, CardContent, CardHeader } from "@/components/ui/card";
-import { fetchOperatorStickinessSnapshot } from "@/lib/api";
+import { useOperatorStickinessSnapshotQuery } from "@/hooks/use-operator-stickiness-snapshot-query";
 import { isBuyerPolishedOperatorShellEnv } from "@/lib/demo-ui-env";
 import { formatInstantForLocale } from "@/lib/locale-datetime";
-import type { ApiProblemDetails } from "@/lib/api-problem";
-import type { OperatorStickinessSnapshotDto } from "@/types/operate-rhythm";
 
 /**
  * Customer-success stickiness cockpit: funnel + habit metrics with links to next actions.
  */
 export function OperatorStickinessSnapshotCard(): ReactElement | null {
   const buyerPolishedShell = isBuyerPolishedOperatorShellEnv();
-  const [data, setData] = useState<OperatorStickinessSnapshotDto | null>(null);
-  const [problem, setProblem] = useState<{
-    problem: ApiProblemDetails | null;
-    message: string;
-    correlationId?: string | null;
-  } | null>(null);
-  const [loading, setLoading] = useState(true);
+  const { data, isPending, isError, error } = useOperatorStickinessSnapshotQuery();
 
-  useEffect(() => {
-    let canceled = false;
-
-    async function load(): Promise<void> {
-      setLoading(true);
-      setProblem(null);
-
-      try {
-        const snap = await fetchOperatorStickinessSnapshot();
-
-        if (!canceled) {
-          setData(snap);
-        }
-      } catch (e: unknown) {
-        if (!canceled) {
-          const message = e instanceof Error ? e.message : "Could not load stickiness snapshot.";
-          setProblem({ message, problem: null });
-          setData(null);
-        }
-      } finally {
-        if (!canceled) {
-          setLoading(false);
-        }
-      }
-    }
-
-    void load();
-
-    return () => {
-      canceled = true;
-    };
-  }, []);
-
-  if (loading && !data) {
+  if (isPending && !data) {
     return (
       <OperatorLoadingNotice>
         <strong>Loading pilot health snapshot.</strong>
@@ -68,13 +27,14 @@ export function OperatorStickinessSnapshotCard(): ReactElement | null {
     );
   }
 
-  if (problem !== null) {
+  if (isError) {
+    const message = error instanceof Error ? error.message : "Could not load stickiness snapshot.";
+
     return (
       <div className={cn("rounded-md border border-amber-600/40 bg-al-surface-raised px-3 py-2 text-al-text-primary dark:border-amber-700/50 p-4", OPERATOR_TYPOGRAPHY.body)}>
         <OperatorApiProblem
-          problem={problem.problem}
-          fallbackMessage={problem.message}
-          correlationId={problem.correlationId}
+          problem={null}
+          fallbackMessage={message}
           variant="warning"
         />
       </div>
