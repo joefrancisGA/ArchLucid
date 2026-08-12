@@ -227,6 +227,13 @@ describe("GovernanceFindingsQueueClient", () => {
     expect(screen.queryByTestId("report-problem-trigger")).not.toBeInTheDocument();
   });
 
+  it("renders the Findings nav icon in the page header", async () => {
+    renderGovernanceFindingsQueue();
+
+    expect(await screen.findByTestId("architecture-risk-register-page-title")).toBeInTheDocument();
+    expect(screen.getByTestId("page-heading-icon")).toBeInTheDocument();
+  });
+
   it("renders operational table rows and filters when risk data is loaded", async () => {
     vi.mocked(governanceApi.getArchitectureRiskRegister).mockResolvedValue({ entries: [loadedRiskRow] });
 

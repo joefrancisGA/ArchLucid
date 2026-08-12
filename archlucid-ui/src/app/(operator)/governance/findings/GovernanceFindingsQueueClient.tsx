@@ -41,6 +41,7 @@ import {
 import { isBuyerPolishedOperatorShellEnv } from "@/lib/demo-ui-env";
 import { OPERATOR_LAYOUT, OPERATOR_LINK, OPERATOR_TYPOGRAPHY } from "@/lib/design-tokens";
 import { GOVERNANCE_FINDINGS_FILTER_NO_MATCH_COMPACT, GOVERNANCE_FINDINGS_LOAD_FAILED_COMPACT } from "@/lib/enterprise-compact-empty-state-presets";
+import { GOVERNANCE_FINDINGS_PATH } from "@/lib/governance/governance-route-paths";
 import { governanceRegisterMetricPresentation } from "@/lib/metric-count-presentation";
 import { buildSponsorStoryDispositionCountsFromRows } from "@/lib/sponsor-story-synopsis";
 import {
@@ -154,6 +155,7 @@ export default function GovernanceFindingsQueueClient() {
       )}
 
       <OperatorPageHeader
+        navHref={GOVERNANCE_FINDINGS_PATH}
         title={pageTitle}
         subtitle={pageSubtitle}
         titleTestId="architecture-risk-register-page-title"
