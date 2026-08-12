@@ -71,6 +71,7 @@ export function writeLastVisitedWatermark(key: LastVisitedWatermarkKey, seenAtUt
   }
 
   try {
+    // codeql[js/clear-text-storage-of-sensitive-data]: stores UTC activity watermarks only; keys scope UX dots, not credentials (TB-2150).
     window.localStorage.setItem(storageKey(key), normalized);
   } catch {
     /* private mode */

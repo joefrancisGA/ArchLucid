@@ -2,6 +2,10 @@ import { dispatchInpOffloadRequest } from "@/lib/workers/inp-offload-tasks";
 import type { InpOffloadRequest, InpOffloadResponse } from "@/lib/workers/inp-offload-contract";
 
 self.addEventListener("message", (event: MessageEvent<InpOffloadRequest>) => {
+  if (event.origin !== "" && event.origin !== self.location.origin) {
+    return;
+  }
+
   const request = event.data;
 
   try {
