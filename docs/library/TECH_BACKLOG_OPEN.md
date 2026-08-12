@@ -19,7 +19,7 @@ In `TECH_BACKLOG.md` summary table: **V1 / V1.1 first** (cluster order); **`### 
 | GTM-only rows removed from TECH_BACKLOG | **TB-141**, **TB-142**, **TB-164**, **TB-236** (wave 1); **TB-161**–**TB-163**, **TB-640** (wave 2); **TB-135**–**TB-140**, **TB-158**–**TB-160** (wave 3) |
 | Page-scoped Learn more job-match (design system) | **TB-2048**–**TB-2052** (Done 2026-08-05–2026-08-11); Help alias Batch **U** traffic stub fold 2026-08-11 |
 | Digests Learn more golden + Schedule deep links | **TB-2049**–**TB-2052** (Done 2026-08-05–2026-08-11) |
-| Digests Browse buyer-confidence pass | **TB-1480**, **TB-1501**–**TB-1505** (Done 2026-08-05) |
+| Digests Browse buyer-confidence pass | **TB-1480**, **TB-1501**–**TB-1505** (**Done** 2026-08-11) |
 
 ## Open clusters (summary rows — see `TECH_BACKLOG.md`)
 

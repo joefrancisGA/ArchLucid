@@ -1020,10 +1020,10 @@ All **P0** **V1**: visible-boundary button contract + design-system rule (**TB-2
 | TB-1483 | `/compliance-journey` ? MarketingPageShell + marketing tokens (parity `/trust`); see ## TB-1483 below | Adoption friction P1 ? **V1**; **Done** 2026-08-11 | S |
 | TB-1485 | Compliance journey ? staged structure + primary Trust Center CTA (not flat link dump); see ## TB-1485 below | Adoption friction P1 ? **V1**; **Done** 2026-08-11 | S |
 | TB-1487 | Compliance journey ? CTA hierarchy + Verify dedupe; see ## TB-1487 below | Adoption friction P1 ? **V1**; **Done** 2026-08-11 | S |
-| TB-1501 | Digests browse ? honor `#digest-{id}` deep link (select + scroll); see ## TB-1501 below | Adoption friction P1 ? **V1**; owner review ~53/100 2026-07-27; traffic **DIB**; hub Preview latest already builds hash | S |
-| TB-1502 | Digests browse ? loading skeleton (not prose-only Loading digests?); see ## TB-1502 below | Adoption friction P1 ? **V1**; with **TB-1501** | S |
-| TB-1505 | Digests browse ? keep `?tab=browse` deep-link stable when selecting Browse; see ## TB-1505 below | Adoption friction P1 ? **V1**; with **TB-1501**; traffic **DIB** | XS |
-| TB-1516 | `/example-roi-bulletin` ? MarketingPageShell + marketing tokens; see ## TB-1516 below | Adoption friction P1 ? **V1**; owner review ~48/100 2026-07-27; traffic **EXA**; pairs **TB-1483** | S |
+| TB-1501 | Digests browse ? honor `#digest-{id}` deep link (select + scroll); see ## TB-1501 below | Adoption friction P1 ? **V1**; **Done** 2026-08-11 | S |
+| TB-1502 | Digests browse ? loading skeleton (not prose-only Loading digests?); see ## TB-1502 below | Adoption friction P1 ? **V1**; **Done** 2026-08-11 | S |
+| TB-1505 | Digests browse ? keep `?tab=browse` deep-link stable when selecting Browse; see ## TB-1505 below | Adoption friction P1 ? **V1**; **Done** 2026-08-11 | XS |
+| TB-1516 | `/example-roi-bulletin` ? MarketingPageShell + marketing tokens; see ## TB-1516 below | Adoption friction P1 ? **V1**; **Done** 2026-08-11 | S |
 | TB-1518 | Example ROI bulletin ? buyer CTA hierarchy (demote admin API / CLI); see ## TB-1518 below | Adoption friction P1 ? **V1**; with **TB-1516** | S |
 | TB-1519 | Example ROI bulletin ? render synthetic sample as Markdown + dedupe chrome; see ## TB-1519 below | Adoption friction P1 ? **V1**; with **TB-1516** | S |
 | TB-1526 | **Done** (2026-08-10) ? Executive shell Dashboard nav + active highlight on canonical `/architecture/executive-dashboard`; `executive-shell-dashboard-nav.test.ts`; see ## TB-1526 below | Adoption friction P1 ? **V1**; with **TB-1525** | S |
@@ -38547,7 +38547,7 @@ Operators must read three intros before reaching the Trust Center link list.
 
 **Window:** V1 ? Adoption friction.
 
-**Status:** Not started.
+**Status:** **Done** (2026-08-11) ? `digestIdFromLocationHash` + hashchange auto-select; stable `digest-{id}` row ids; Vitest TB-1501.
 
 **Priority:** P0.
 
@@ -38575,7 +38575,7 @@ Operators must read three intros before reaching the Trust Center link list.
 
 **Window:** V1 ? Adoption friction.
 
-**Status:** Not started.
+**Status:** **Done** (2026-08-11) ? `DigestsBrowseHistorySkeleton` master-detail grid; sr-only loading label; Vitest TB-1502.
 
 **Priority:** P0.
 
@@ -38619,7 +38619,7 @@ Operators must read three intros before reaching the Trust Center link list.
 
 **Window:** V1 ? Adoption friction.
 
-**Status:** Not started.
+**Status:** **Done** (2026-08-11) ? `DigestsHubClient.onSelectTab` pushes `?tab=`; Vitest TB-1505.
 
 **Priority:** P0.
 
@@ -38647,7 +38647,7 @@ Operators must read three intros before reaching the Trust Center link list.
 
 **Window:** V1 ? Adoption friction.
 
-**Status:** Not started.
+**Status:** **Done** (2026-08-11) ? `MarketingPageShell` + `ExampleRoiBulletinPageBody` with `MARKETING_SURFACES` / `MARKETING_TYPOGRAPHY`; Vitest TB-1516.
 
 **Priority:** P0.
 
