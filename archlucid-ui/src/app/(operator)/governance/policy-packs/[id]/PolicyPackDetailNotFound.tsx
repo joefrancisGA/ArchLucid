@@ -1,5 +1,5 @@
 import { EnterpriseCompactEmptyState } from "@/components/EnterpriseCompactEmptyState";
-import { GOVERNANCE_POLICY_PACKS_PATH } from "@/lib/governance-route-paths";
+import { GOVERNANCE_POLICY_PACKS_PATH } from "@/lib/governance/governance-route-paths";
 
 import {
   RESPONSIBLE_AI_ACTION_OPEN_GOVERNANCE_SETUP,

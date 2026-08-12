@@ -1,4 +1,4 @@
-import { GOVERNANCE_APPROVAL_QUEUE_PATH, GOVERNANCE_FINDINGS_PATH } from "@/lib/governance-route-paths";
+import { GOVERNANCE_APPROVAL_QUEUE_PATH, GOVERNANCE_FINDINGS_PATH } from "@/lib/governance/governance-route-paths";
 import { SIGNED_RECORDS_LIST_PATH } from "@/lib/signed-records-paths";
 import type { UiRouteTrafficRow } from "@/lib/ui-route-traffic/types";
 

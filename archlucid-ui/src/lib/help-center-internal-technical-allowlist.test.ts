@@ -1,9 +1,9 @@
 import { describe, expect, it } from "vitest";
 
-import { FINDINGS_HELP_RELATED_PRODUCT_DOCS } from "@/lib/findings-help-guide-content";
+import { FINDINGS_HELP_RELATED_PRODUCT_DOCS } from "@/lib/findings/findings-help-guide-content";
 import { getHelpCenterTier } from "@/lib/help-center-catalog";
 import { HELP_CENTER_INTERNAL_TECHNICAL_DOCUMENTATION_ALLOWLIST } from "@/lib/help-center-internal-technical-allowlist";
-import { GOVERNANCE_APPROVAL_HELP_RELATED_PRODUCT_DOCS } from "@/lib/governance-approval-help-guide-content";
+import { GOVERNANCE_APPROVAL_HELP_RELATED_PRODUCT_DOCS } from "@/lib/governance/governance-approval-help-guide-content";
 import { listProductDocumentationEntries } from "@/lib/product-documentation-registry";
 
 describe("help-center internal + technical-documentation allowlist (TB-1250)", () => {

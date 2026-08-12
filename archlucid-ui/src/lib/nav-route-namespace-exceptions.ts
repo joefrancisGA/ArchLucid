@@ -1,5 +1,5 @@
 import type { NavRouteNamespaceException } from "@/lib/nav-route-namespace-policy";
-import { GOVERNANCE_WORKSPACE_HEALTH_HREF } from "@/lib/governance-route-paths";
+import { GOVERNANCE_WORKSPACE_HEALTH_HREF } from "@/lib/governance/governance-route-paths";
 
 /**
  * Intentional nav-group ↔ URL prefix mismatches.

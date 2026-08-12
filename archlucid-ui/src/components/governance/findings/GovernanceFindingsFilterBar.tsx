@@ -20,9 +20,9 @@ import type { GovernanceFindingsFilterPreset } from "@/components/governance/fin
 import { FindingJobViewToggleBar } from "@/components/findings/FindingJobViewToggleBar";
 import {
   type FindingJobView,
-} from "@/lib/finding-job-view";
+} from "@/lib/findings/finding-job-view";
 import { FindingsNaturalLanguageFilter } from "@/components/findings/FindingsNaturalLanguageFilter";
-import type { FindingsNaturalLanguageFacets } from "@/lib/findings-natural-language-filter";
+import type { FindingsNaturalLanguageFacets } from "@/lib/findings/findings-natural-language-filter";
 import { BulkTriageRemainingProgress } from "@/components/usability/BulkTriageRemainingProgress";
 
 export type GovernanceFindingsFilterBarProps = {

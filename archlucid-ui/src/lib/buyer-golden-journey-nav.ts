@@ -4,7 +4,7 @@ import { isBuyerGoldenSpineRunId } from "@/lib/buyer-golden-spine-run-id";
 import { BUYER_EXECUTIVE_SUMMARY_VOCABULARY, BUYER_SURFACE_VOCABULARY } from "@/lib/vocabulary/buyer-surface-vocabulary";
 import { SIGNED_MANIFEST_LABEL } from "@/lib/usability/canonical-product-terms";
 import { comparePageHref } from "@/lib/compare-url-query-params";
-import { SHOWCASE_PHI_FINDING_GRAPH_NODE_ID } from "@/lib/finding-inspect-graph-evidence";
+import { SHOWCASE_PHI_FINDING_GRAPH_NODE_ID } from "@/lib/findings/finding-inspect-graph-evidence";
 import {
   SHOWCASE_STATIC_DEMO_LATER_COMPARE_RUN_ID,
   SHOWCASE_STATIC_DEMO_MANIFEST_ID,
@@ -19,7 +19,7 @@ import {
   pathMatchesGovernanceApprovalQueue,
   pathMatchesGovernanceAudit,
   pathMatchesGovernanceExceptions,
-} from "@/lib/governance-route-paths";
+} from "@/lib/governance/governance-route-paths";
 
 const showcaseRunEnc = encodeURIComponent(SHOWCASE_STATIC_DEMO_RUN_ID);
 

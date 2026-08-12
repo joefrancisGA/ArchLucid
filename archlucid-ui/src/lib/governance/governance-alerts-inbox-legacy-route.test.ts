@@ -6,7 +6,7 @@ import { describe, expect, it } from "vitest";
 import {
   buildCanonicalGovernanceAlertsInboxHref,
   GOVERNANCE_ALERTS_PATH,
-} from "@/lib/governance-route-paths";
+} from "@/lib/governance/governance-route-paths";
 import {
   CANONICAL_ALERTS_INBOX_TRAFFIC_PATH,
   RETIRED_ALERTS_INBOX_TAB_TRAFFIC_PATH,

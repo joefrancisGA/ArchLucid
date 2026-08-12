@@ -1,4 +1,4 @@
-import { normalizeEvidenceRefSnippet } from "@/lib/finding-evidence-ref-snippet";
+import { normalizeEvidenceRefSnippet } from "@/lib/findings/finding-evidence-ref-snippet";
 import type { QuickDecisionFinding } from "@/lib/quick-decision-summary-derive";
 import type { TrustEvidenceReadiness, TrustEvidenceReadinessVerdict } from "@/lib/trust-evidence-readiness";
 

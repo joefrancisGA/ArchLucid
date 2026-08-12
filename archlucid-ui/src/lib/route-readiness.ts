@@ -9,7 +9,7 @@ import { EXECUTIVE_DASHBOARD_HREF } from "@/lib/executive/executive-dashboard-ro
 import {
   GOVERNANCE_APPROVAL_QUEUE_PATH,
   GOVERNANCE_STANDARDS_AND_RULES_PATH,
-} from "@/lib/governance-route-paths";
+} from "@/lib/governance/governance-route-paths";
 import { IMPACT_PREVIEW_PATH } from "@/lib/impact-preview-route";
 import { PLANNING_PATH } from "@/lib/planning-route";
 import { DIGESTS_HUB_PATH, LEGACY_DIGESTS_HUB_PATH } from "@/lib/digests-route-paths";

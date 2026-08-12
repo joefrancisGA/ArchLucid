@@ -1,6 +1,6 @@
 import { FIRST_ARCHITECTURE_REVIEW_HELP_PATH } from "@/lib/first-architecture-review-help-route";
 import { FIRST_REVIEW_HELP_PATH } from "@/lib/first-review-help-route";
-import { GOVERNANCE_AUDIT_PATH } from "@/lib/governance-route-paths";
+import { GOVERNANCE_AUDIT_PATH } from "@/lib/governance/governance-route-paths";
 import { inAppHelpHref } from "@/lib/product-documentation-registry";
 
 export const FIRST_REVIEW_HELP_PAGE_TITLE = "First-run evidence checklist";

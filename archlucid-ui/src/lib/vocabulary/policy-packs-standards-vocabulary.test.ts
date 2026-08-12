@@ -3,7 +3,7 @@ import { describe, expect, it } from "vitest";
 import {
   GOVERNANCE_POLICY_PACKS_PATH,
   GOVERNANCE_STANDARDS_AND_RULES_PATH,
-} from "@/lib/governance-route-paths";
+} from "@/lib/governance/governance-route-paths";
 import {
   POLICY_PACKS_STANDARDS_COMPACT_LINE,
   POLICY_PACKS_STANDARDS_HEADING,

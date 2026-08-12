@@ -12,7 +12,7 @@ import {
 import {
   GOVERNANCE_EXCEPTIONS_PATH,
   GOVERNANCE_FINDINGS_PATH,
-} from "@/lib/governance-route-paths";
+} from "@/lib/governance/governance-route-paths";
 
 describe("risk-exceptions-findings-vocabulary (TB-2249)", () => {
   it("explains why risk exceptions and findings stay separate and deep-links both", () => {

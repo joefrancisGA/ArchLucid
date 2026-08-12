@@ -1,11 +1,11 @@
 import type { HelpMarkdownHeading } from "@/lib/help-markdown-headings";
-import { GOVERNANCE_POLICY_PACKS_PATH, governancePolicyPackDetailPath } from "@/lib/governance-route-paths";
+import { GOVERNANCE_POLICY_PACKS_PATH, governancePolicyPackDetailPath } from "@/lib/governance/governance-route-paths";
 import { inAppHelpHref } from "@/lib/product-documentation-registry";
-import { policyPackBuyerGovernanceDetailHref } from "@/lib/policy-pack-buyer-label";
+import { policyPackBuyerGovernanceDetailHref } from "@/lib/policy/policy-pack-buyer-label";
 import {
   isResponsibleAiPolicyPackId,
   resolvePolicyPackDetailKind,
-} from "@/lib/policy-pack-detail-resolver";
+} from "@/lib/policy/policy-pack-detail-resolver";
 import { SHOWCASE_STATIC_DEMO_POLICY_PACK_DETAIL_HREF } from "@/lib/showcase-static-demo";
 import { RESPONSIBLE_AI_POLICY_PACK_DEFAULT_VERSION } from "@/lib/responsible-ai-policy-pack-detail-content";
 import type { WizardFormValues } from "@/lib/wizard-schema";

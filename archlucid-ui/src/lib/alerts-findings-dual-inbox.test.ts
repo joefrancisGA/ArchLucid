@@ -12,7 +12,7 @@ import {
 import {
   GOVERNANCE_ALERTS_PATH,
   GOVERNANCE_FINDINGS_PATH,
-} from "@/lib/governance-route-paths";
+} from "@/lib/governance/governance-route-paths";
 
 describe("alerts-findings-dual-inbox (TB-2221)", () => {
   it("explains why two inboxes exist and deep-links both surfaces", () => {

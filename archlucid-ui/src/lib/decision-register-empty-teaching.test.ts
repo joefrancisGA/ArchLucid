@@ -10,7 +10,7 @@ import {
   buildDecisionRegisterEmptyTeaching,
 } from "@/lib/decision-register-empty-teaching";
 import { REVIEWS_LIST_PATH, REVIEWS_NEW_PATH } from "@/lib/architecture-routes";
-import { GOVERNANCE_FINDINGS_CANONICAL_PATH } from "@/lib/governance-findings-evidence-copy";
+import { GOVERNANCE_FINDINGS_CANONICAL_PATH } from "@/lib/governance/governance-findings-evidence-copy";
 import { START_REVIEW_LABEL } from "@/lib/architecture-workflow-labels";
 
 describe("decision-register-empty-teaching (TB-2263)", () => {

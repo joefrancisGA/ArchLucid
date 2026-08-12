@@ -3,7 +3,7 @@ import {
   POLICY_PACKS_HELP_CLAIM_DISCIPLINE,
   POLICY_PACKS_HELP_SOURCES,
   POLICY_PACKS_HELP_SOURCES_INTRO,
-} from "@/lib/policy-packs-help-evidence-copy";
+} from "@/lib/policy/policy-packs-help-evidence-copy";
 
 /** Claim discipline + governance follow-up index for `/help/policy-packs`. */
 export function PolicyPacksHelpEvidenceOrientationStrip(): React.JSX.Element {

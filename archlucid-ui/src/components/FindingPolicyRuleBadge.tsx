@@ -2,7 +2,7 @@ import Link from "next/link";
 
 import { StatusTag } from "@/components/ui/status-tag";
 import { OPERATOR_LINK } from "@/lib/design-tokens";
-import { policyPacksRuleHref } from "@/lib/policy-packs-deep-link";
+import { policyPacksRuleHref } from "@/lib/policy/policy-packs-deep-link";
 import { cn } from "@/lib/utils";
 
 export type FindingPolicyRuleBadgeProps = {

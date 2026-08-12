@@ -11,7 +11,7 @@ import { PolicyPackGenericDetail } from "./PolicyPackGenericDetail";
 import {
   isSampleResponsibleAiPolicyPack,
   resolvePolicyPackDetailKind,
-} from "@/lib/policy-pack-detail-resolver";
+} from "@/lib/policy/policy-pack-detail-resolver";
 import { PolicyPackDetailNotFound } from "./PolicyPackDetailNotFound";
 import { ResponsibleAiPolicyPackDetail } from "./ResponsibleAiPolicyPackDetail";
 

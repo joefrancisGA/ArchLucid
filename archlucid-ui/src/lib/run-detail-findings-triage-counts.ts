@@ -1,4 +1,4 @@
-import { applyFindingsConfidenceVisibility } from "@/lib/finding-confidence-filter";
+import { applyFindingsConfidenceVisibility } from "@/lib/findings/finding-confidence-filter";
 import type { QuickDecisionFinding } from "@/lib/quick-decision-summary-derive";
 
 export type RunDetailFindingsTriageCounts = {

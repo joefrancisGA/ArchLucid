@@ -1,4 +1,4 @@
-import contractJson from "../../../docs/library/FINDING_SEVERITY_TAG_SEMANTIC_CONTRACT.json";
+import contractJson from "../../../../docs/library/FINDING_SEVERITY_TAG_SEMANTIC_CONTRACT.json";
 
 import {
   normalizeFindingSeverity,

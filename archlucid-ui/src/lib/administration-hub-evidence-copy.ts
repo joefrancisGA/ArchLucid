@@ -1,6 +1,6 @@
 import { inAppHelpHref } from "@/lib/product-documentation-registry";
 import type { EvidenceSourceLink } from "@/lib/evidence-surface-copy";
-import { GOVERNANCE_AUDIT_PATH, GOVERNANCE_FINDINGS_PATH } from "@/lib/governance-route-paths";
+import { GOVERNANCE_AUDIT_PATH, GOVERNANCE_FINDINGS_PATH } from "@/lib/governance/governance-route-paths";
 
 export const ADMINISTRATION_HUB_CLAIM_DISCIPLINE =
   "Settings is the configuration launcher for workspace, identity, billing, security, and support — it is not a signed-review diligence Sources package. Open System health, Audit, or a signed record when you need operational or sponsor-safe trails.";

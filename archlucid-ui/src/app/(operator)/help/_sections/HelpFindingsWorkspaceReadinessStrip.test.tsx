@@ -7,7 +7,7 @@ import {
   FINDINGS_HELP_READINESS_LABELS,
   FINDINGS_HELP_READINESS_SECTION_TITLE,
   FINDINGS_HELP_WORKSPACE_SCOPE_FALLBACK_LABEL,
-} from "@/lib/findings-help-guide-content";
+} from "@/lib/findings/findings-help-guide-content";
 import type { FindingsHelpWorkspaceReadinessSnapshot } from "@/lib/use-findings-help-workspace-readiness";
 
 function buildMetric(

@@ -8,7 +8,7 @@ import {
   GOVERNANCE_RESOLUTION_PATH,
   GOVERNANCE_ALERTS_PATH,
   governanceAlertRulesTabHref,
-} from "@/lib/governance-route-paths";
+} from "@/lib/governance/governance-route-paths";
 import { inAppHelpHref } from "@/lib/product-documentation-registry";
 
 export const ALERTS_HELP_PAGE_TITLE = "Understanding governance alerts";

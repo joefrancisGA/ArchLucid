@@ -5,7 +5,7 @@ import { isBuyerGoldenReviewPackagePageReady } from "@/lib/buyer-golden-spine-ru
 import { shouldShowOperatorDemoMarketingChrome } from "@/lib/buyer-demo-content-gating";
 import { isShowcaseStaticDemoRunId } from "@/lib/demo-run-canonical";
 import { formatInstantForLocale } from "@/lib/locale-datetime";
-import { policyPackBuyerLabel } from "@/lib/policy-pack-buyer-label";
+import { policyPackBuyerLabel } from "@/lib/policy/policy-pack-buyer-label";
 import {
   humanReviewStatusDisplay,
   resolveQuickDecisionFindingsForRunDetail,

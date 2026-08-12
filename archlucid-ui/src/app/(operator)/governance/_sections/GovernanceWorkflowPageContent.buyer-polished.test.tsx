@@ -1,8 +1,8 @@
 import { render, screen, waitFor } from "@testing-library/react";
 import { beforeEach, describe, expect, it, vi } from "vitest";
 
-import { GOVERNANCE_OVERVIEW_PAGE_LEAD, BUYER_GOVERNANCE_OVERVIEW_PAGE_LEAD } from "@/lib/governance-overview-copy";
-import { GOVERNANCE_WORKSPACE_HEALTH_HREF } from "@/lib/governance-route-paths";
+import { GOVERNANCE_OVERVIEW_PAGE_LEAD, BUYER_GOVERNANCE_OVERVIEW_PAGE_LEAD } from "@/lib/governance/governance-overview-copy";
+import { GOVERNANCE_WORKSPACE_HEALTH_HREF } from "@/lib/governance/governance-route-paths";
 
 const apiHoisted = vi.hoisted(() => ({
   listApprovalRequests: vi.fn(),

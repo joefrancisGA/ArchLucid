@@ -8,7 +8,7 @@ import { FindingConfidenceBadge } from "@/components/FindingConfidenceBadge";
 import { FindingPolicyTraceabilityBadges } from "@/components/FindingPolicyTraceabilityBadges";
 import { SeverityTag } from "@/components/ui/severity-tag";
 import { StatusTag } from "@/components/ui/status-tag";
-import { buildPolicyTraceabilityLinksFromRuleId } from "@/lib/finding-policy-evidence-citations";
+import { buildPolicyTraceabilityLinksFromRuleId } from "@/lib/findings/finding-policy-evidence-citations";
 import {
   BUYER_GOVERNANCE_FINDINGS_VIEW_EVIDENCE_TRAIL_CTA,
 } from "@/lib/buyer-polish-copy";

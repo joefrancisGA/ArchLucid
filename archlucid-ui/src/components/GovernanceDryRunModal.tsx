@@ -21,7 +21,7 @@ import { toApiLoadFailure } from "@/lib/api-load-failure";
 import {
   buildPolicyPackSimulationSummary,
   type PolicyPackSimulationSummary,
-} from "@/lib/policy-pack-dry-run-summary";
+} from "@/lib/policy/policy-pack-dry-run-summary";
 import {
   POLICY_PACK_DRY_RUN_DEFAULT_PAGE_SIZE,
   POLICY_PACK_DRY_RUN_MAX_PAGE_SIZE,

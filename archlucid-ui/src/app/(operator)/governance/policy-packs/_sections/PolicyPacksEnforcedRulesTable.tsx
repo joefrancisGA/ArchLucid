@@ -9,8 +9,8 @@ import {
   EnterpriseTableHeaderCell,
   EnterpriseTableRow,
 } from "@/components/ui/enterprise-table";
-import type { PolicyPackEnforcedRuleRow } from "@/lib/policy-pack-enforced-rules";
-import { POLICY_PACKS_ENFORCED_RULES_TITLE } from "@/lib/policy-packs-page";
+import type { PolicyPackEnforcedRuleRow } from "@/lib/policy/policy-pack-enforced-rules";
+import { POLICY_PACKS_ENFORCED_RULES_TITLE } from "@/lib/policy/policy-packs-page";
 import { OPERATOR_LINK, OPERATOR_TYPOGRAPHY } from "@/lib/design-tokens";
 import { cn } from "@/lib/utils";
 

@@ -12,7 +12,7 @@ import {
 import {
   GOVERNANCE_DECISION_REGISTER_PATH,
   GOVERNANCE_FINDINGS_PATH,
-} from "@/lib/governance-route-paths";
+} from "@/lib/governance/governance-route-paths";
 
 describe("decision-register-findings-vocabulary (TB-2291)", () => {
   it("explains decision register locked dispositions vs findings queue triage", () => {

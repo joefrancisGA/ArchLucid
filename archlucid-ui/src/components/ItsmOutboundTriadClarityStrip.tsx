@@ -5,7 +5,7 @@ import type { JSX } from "react";
 import {
   buildItsmOutboundTriadClarity,
   type ItsmOutboundTriadClarityModel,
-} from "@/lib/itsm-outbound-triad-clarity";
+} from "@/lib/itsm/itsm-outbound-triad-clarity";
 import { OPERATOR_TYPOGRAPHY } from "@/lib/design-tokens";
 import { cn } from "@/lib/utils";
 

@@ -26,22 +26,22 @@ import {
   findingInspectPrimaryLabels,
   findingWhyThisMattersText,
   phiMinimizationBuyerConsequenceNarrative,
-} from "@/lib/finding-display-from-inspect";
-import { buildFindingDerivationSentence } from "@/lib/finding-derivation-sentence";
-import { findingCausalMiniChainFromInspectPayload } from "@/lib/finding-causal-mini-chain";
+} from "@/lib/findings/finding-display-from-inspect";
+import { buildFindingDerivationSentence } from "@/lib/findings/finding-derivation-sentence";
+import { findingCausalMiniChainFromInspectPayload } from "@/lib/findings/finding-causal-mini-chain";
 import { FindingDerivationLine } from "@/components/usability/FindingDerivationLine";
 import { FindingCausalMiniChain } from "@/components/usability/FindingCausalMiniChain";
-import { findingSeverityAudienceCopy } from "@/lib/finding-explainability-summary";
+import { findingSeverityAudienceCopy } from "@/lib/findings/finding-explainability-summary";
 import { getShowcaseManifestHref } from "@/lib/buyer-safe-review-navigation";
 import { isNextPublicDemoMode, isOperatorExperienceFullShellEnv } from "@/lib/demo-ui-env";
 import { isDemoRunIdEligibleForStaticFallback } from "@/lib/operator-static-demo";
 import { DESIGN_TOKENS, OPERATOR_LINK, OPERATOR_NAV_GROUP_LABEL, OPERATOR_TYPOGRAPHY } from "@/lib/design-tokens";
-import { getFindingEvidenceTraceHref } from "@/lib/finding-evidence-navigation";
-import { graphEvidenceHrefFromInspect } from "@/lib/finding-inspect-graph-evidence";
+import { getFindingEvidenceTraceHref } from "@/lib/findings/finding-evidence-navigation";
+import { graphEvidenceHrefFromInspect } from "@/lib/findings/finding-inspect-graph-evidence";
 import {
   buildFindingPolicyEvidenceCitationsFromInspect,
   resolvePolicyTraceExcerptFromInspect,
-} from "@/lib/finding-policy-evidence-citations";
+} from "@/lib/findings/finding-policy-evidence-citations";
 
 import { FindingInspectAuditSection } from "../FindingInspectAuditSection";
 import { FindingInspectEvidenceSection } from "../FindingInspectEvidenceSection";

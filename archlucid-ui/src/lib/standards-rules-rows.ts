@@ -1,6 +1,6 @@
 import type { EffectiveGovernanceResolutionResult } from "@/types/governance-resolution";
-import { SHOWCASE_PHI_FINDING_GRAPH_NODE_ID } from "@/lib/finding-inspect-graph-evidence";
-import { policyPackBuyerLabel } from "@/lib/policy-pack-buyer-label";
+import { SHOWCASE_PHI_FINDING_GRAPH_NODE_ID } from "@/lib/findings/finding-inspect-graph-evidence";
+import { policyPackBuyerLabel } from "@/lib/policy/policy-pack-buyer-label";
 import { SHOWCASE_STATIC_DEMO_RUN_ID } from "@/lib/showcase-static-demo";
 
 const showcaseRunEnc = encodeURIComponent(SHOWCASE_STATIC_DEMO_RUN_ID);

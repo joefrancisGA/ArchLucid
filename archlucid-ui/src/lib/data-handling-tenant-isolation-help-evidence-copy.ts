@@ -1,4 +1,4 @@
-import { GOVERNANCE_AUDIT_PATH } from "@/lib/governance-route-paths";
+import { GOVERNANCE_AUDIT_PATH } from "@/lib/governance/governance-route-paths";
 import type { EvidenceDiligenceSourceLink } from "@/lib/evidence-surface-copy";
 import { inAppHelpHref } from "@/lib/product-documentation-registry";
 import { HELP_DILIGENCE_ARTIFACT_INDEX_TITLE } from "@/lib/help-diligence-artifact-index";

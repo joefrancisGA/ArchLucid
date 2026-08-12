@@ -27,8 +27,8 @@ import {
   GOVERNANCE_APPROVAL_HELP_STATUS_ROWS,
   GOVERNANCE_APPROVAL_HELP_TROUBLESHOOTING,
   GOVERNANCE_APPROVAL_HELP_WORKFLOW_STEPS,
-} from "@/lib/governance-approval-help-guide-content";
-import { GOVERNANCE_APPROVAL_HELP_CLAIM_DISCIPLINE } from "@/lib/governance-approval-help-evidence-copy";
+} from "@/lib/governance/governance-approval-help-guide-content";
+import { GOVERNANCE_APPROVAL_HELP_CLAIM_DISCIPLINE } from "@/lib/governance/governance-approval-help-evidence-copy";
 import { cn } from "@/lib/utils";
 import {
   DESIGN_TOKENS,

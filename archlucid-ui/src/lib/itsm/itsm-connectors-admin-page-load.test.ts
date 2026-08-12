@@ -7,7 +7,7 @@ import {
   resolveItsmAdminServiceNowCredentialsConfigured,
   sanitizeItsmConnectorsAdminLoadError,
   settleItsmConnectorsAdminPageLoadSlice,
-} from "@/lib/itsm-connectors-admin-page-load";
+} from "@/lib/itsm/itsm-connectors-admin-page-load";
 
 describe("itsm-connectors-admin-page-load", () => {
   it("keeps fulfilled values and marks rejected slices failed", () => {

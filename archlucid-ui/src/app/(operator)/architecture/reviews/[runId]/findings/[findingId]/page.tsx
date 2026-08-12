@@ -1,7 +1,7 @@
 import type { Metadata } from "next";
 import { notFound } from "next/navigation";
 
-import { metadataForFindingDetailRoute } from "@/lib/finding-route-metadata";
+import { metadataForFindingDetailRoute } from "@/lib/findings/finding-route-metadata";
 import { isInvalidDynamicRouteToken, isInvalidGuidOrSlugRouteToken } from "@/lib/route-dynamic-param";
 
 import { FindingDetailPageView } from "./_sections/FindingDetailPageView";

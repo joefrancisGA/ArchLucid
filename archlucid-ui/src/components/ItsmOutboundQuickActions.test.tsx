@@ -2,7 +2,7 @@ import { fireEvent, render, screen, waitFor } from "@testing-library/react";
 import { describe, expect, it, vi, beforeEach } from "vitest";
 
 import { ItsmOutboundQuickActions } from "./ItsmOutboundQuickActions";
-import { resetItsmFindingCorrelationsStoreForTests } from "@/lib/itsm-finding-correlations-store";
+import { resetItsmFindingCorrelationsStoreForTests } from "@/lib/itsm/itsm-finding-correlations-store";
 
 const listItsmFindingCorrelationsBatch = vi.fn();
 const createItsmOutboundIssue = vi.fn();

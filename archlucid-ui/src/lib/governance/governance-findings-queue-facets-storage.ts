@@ -6,13 +6,13 @@ import {
   DEFAULT_FINDING_JOB_VIEW,
   FINDING_JOB_VIEW_LABELS,
   type FindingJobView,
-} from "@/lib/finding-job-view";
+} from "@/lib/findings/finding-job-view";
 import {
   EMPTY_FINDINGS_NATURAL_LANGUAGE_FACETS,
   type FindingsNaturalLanguageFacets,
   type FindingsNaturalLanguageSeverity,
   type FindingsNaturalLanguageStatus,
-} from "@/lib/findings-natural-language-filter";
+} from "@/lib/findings/findings-natural-language-filter";
 
 /** localStorage key for last-used governance findings queue facets (TB-2228). */
 export const GOVERNANCE_FINDINGS_QUEUE_FACETS_STORAGE_KEY =

@@ -5,7 +5,7 @@ import {
 } from "@/lib/live-demo-page-copy";
 import { resolveLiveDemoInspectHref } from "@/lib/live-demo-public-links";
 import { manifestStatusForDisplay } from "@/lib/manifest-status-display";
-import { policyPackBuyerLabel } from "@/lib/policy-pack-buyer-label";
+import { policyPackBuyerLabel } from "@/lib/policy/policy-pack-buyer-label";
 import { MARKETING_TYPOGRAPHY } from "@/lib/design-tokens";
 import type { DemoCommitPagePreviewResponse } from "@/types/demo-preview";
 import { cn } from "@/lib/utils";

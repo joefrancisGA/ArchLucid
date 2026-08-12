@@ -5,7 +5,7 @@ import {
   GOVERNANCE_WORKFLOW_OUTCOME_APPROVED,
   GOVERNANCE_WORKFLOW_OUTCOME_NO_REQUESTS,
   GOVERNANCE_WORKFLOW_OUTCOME_PENDING,
-} from "@/lib/governance-workflow-section-copy";
+} from "@/lib/governance/governance-workflow-section-copy";
 
 describe("governanceWorkflowOutcomeLineForPhase", () => {
   it("suppresses completion messaging when no requests exist", () => {

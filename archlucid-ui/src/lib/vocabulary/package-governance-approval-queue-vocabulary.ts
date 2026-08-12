@@ -17,7 +17,7 @@ import { buildArchitectureWorkspaceTabHref } from "@/lib/architecture-workspace-
 import {
   GOVERNANCE_APPROVAL_QUEUE_PATH,
   governanceApprovalQueueHref,
-} from "@/lib/governance-route-paths";
+} from "@/lib/governance/governance-route-paths";
 import { buildReviewDetailTabHref } from "@/lib/review-detail-workspace-tabs";
 
 export type PackageGovernanceHrefKind = "archTab" | "reviewTab";

@@ -3,7 +3,7 @@ import { OperatorEmptyState } from "@/components/OperatorShellMessage";
 import {
   diffComplianceRuleKeys,
   type ComplianceRuleKeyDiffItem,
-} from "@/lib/policy-pack-compliance-rule-key-diff";
+} from "@/lib/policy/policy-pack-compliance-rule-key-diff";
 import { OPERATOR_TYPOGRAPHY } from "@/lib/design-tokens";
 
 const rowCls: Record<ComplianceRuleKeyDiffItem["changeType"], string> = {

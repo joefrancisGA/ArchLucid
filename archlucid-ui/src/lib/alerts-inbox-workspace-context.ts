@@ -7,7 +7,7 @@ import {
   ALERTS_INBOX_NO_REVIEWS_EMPTY_COMPACT,
   ALERTS_INBOX_NO_RULES_EMPTY_COMPACT,
 } from "@/lib/enterprise-compact-empty-state-presets";
-import { governanceAlertRulesTabHref } from "@/lib/governance-route-paths";
+import { governanceAlertRulesTabHref } from "@/lib/governance/governance-route-paths";
 
 export const ALERTS_INBOX_DEFAULT_PROJECT_ID = "default";
 

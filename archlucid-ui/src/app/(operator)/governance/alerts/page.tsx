@@ -6,7 +6,7 @@ import { isAlertConfigurationTabParam } from "@/lib/alerts-hub-tab";
 import {
   buildCanonicalGovernanceAlertsInboxHref,
   governanceAlertRulesTabHref,
-} from "@/lib/governance-route-paths";
+} from "@/lib/governance/governance-route-paths";
 
 import { AlertsInboxStreamingBody } from "./_sections/AlertsInboxStreamingBody";
 import { AlertsHubChrome } from "./AlertsHubChrome";

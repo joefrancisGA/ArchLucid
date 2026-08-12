@@ -10,7 +10,7 @@ import { PolicyRulePreviewDialog } from "@/components/PolicyRulePreviewDialog";
 import type {
   FindingPolicyCitationLink,
   FindingPolicyPackCitationLink,
-} from "@/lib/finding-policy-evidence-citations";
+} from "@/lib/findings/finding-policy-evidence-citations";
 
 export type FindingPolicyTraceabilityBadgesProps = {
   readonly pack?: FindingPolicyPackCitationLink | null;

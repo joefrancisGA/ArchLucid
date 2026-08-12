@@ -2,7 +2,7 @@ import {
   GOVERNANCE_AUDIT_PATH,
   LEGACY_AUDIT_PATH,
   pathMatchesGovernanceAudit,
-} from "@/lib/governance-route-paths";
+} from "@/lib/governance/governance-route-paths";
 
 const AUDIT_NAV_PATHS = new Set<string>([GOVERNANCE_AUDIT_PATH, LEGACY_AUDIT_PATH]);
 

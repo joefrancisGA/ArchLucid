@@ -1,7 +1,7 @@
 ﻿import { inAppHelpHref } from "@/lib/product-documentation-registry";
-import { getFindingEvidenceTraceHref } from "@/lib/finding-evidence-navigation";
+import { getFindingEvidenceTraceHref } from "@/lib/findings/finding-evidence-navigation";
 import type { EvidenceSourceLink } from "@/lib/evidence-surface-copy";
-import { GOVERNANCE_FINDINGS_PATH } from "@/lib/governance-route-paths";
+import { GOVERNANCE_FINDINGS_PATH } from "@/lib/governance/governance-route-paths";
 
 export const FINDING_DETAIL_CANONICAL_PATH_PATTERN =
   "/architecture/reviews/[runId]/findings/[findingId]" as const;

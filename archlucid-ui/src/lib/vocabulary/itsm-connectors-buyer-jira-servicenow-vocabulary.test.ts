@@ -14,7 +14,7 @@ import {
   INTEGRATIONS_JIRA_PATH,
   INTEGRATIONS_SERVICENOW_PATH,
 } from "@/lib/integrations-nav-paths";
-import { ITSM_CONNECTORS_ADMIN_PATH } from "@/lib/itsm-connectors-admin-scope";
+import { ITSM_CONNECTORS_ADMIN_PATH } from "@/lib/itsm/itsm-connectors-admin-scope";
 
 describe("itsm-connectors-buyer-jira-servicenow-vocabulary (TB-2324)", () => {
   it("explains admin ITSM connectors vs buyer Jira vs buyer ServiceNow", () => {

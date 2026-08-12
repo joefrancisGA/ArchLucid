@@ -137,7 +137,7 @@ Architecture review does not have its own separate pack-selection step distinct 
 
 **Despite bundled-content parity, runtime behavior is Azure-skewed in two places that matter for a provider-neutral baseline:**
 - `RunStarterTaskFactory.BuildPolicyRefs` (`ArchLucid.Application/Runs/Coordination/RunStarterTaskFactory.cs:80-89`) **hardcodes** `PolicyPackAzureSecurityBaseline` into starter evidence refs for every run regardless of `CloudProvider`, and its service-catalog refs (`:92-98`) are Azure-only (`catalog:azure-core-services`, `catalog:azure-sql`, …).
-- The UI's "Standard baseline" badge (`archlucid-ui/src/lib/policy-pack-standard-baseline.ts:2-11`) only flags Azure WAF/CIS-Azure as "standard" — it has no AWS/GCP WAF/CIS equivalents in its display logic, even though those packs exist and are bundled.
+- The UI's "Standard baseline" badge (`archlucid-ui/src/lib/policy/policy-pack-standard-baseline.ts:2-11`) only flags Azure WAF/CIS-Azure as "standard" — it has no AWS/GCP WAF/CIS equivalents in its display logic, even though those packs exist and are bundled.
 - Marketing copy is explicitly "Azure-first" by internal comment (`archlucid-ui/src/components/marketing/WelcomeMarketingUseCasesSection.tsx:11`).
 
 Azure prompt-composition is not itself the odd one out: `CloudProviderAgentPromptComposer.cs:35-130` treats Azure as the *implicit default* (no addendum text) while AWS/GCP/None each get an explicit addendum — a modeling asymmetry worth correcting during overlay work (Part C.8), but not a blocker, since content-wise AWS and GCP are already full peers in the manifest.
@@ -199,7 +199,7 @@ Migrations are numbered sequentially and live under `ArchLucid.Persistence/Migra
 
 ## A.22 Relevant UI routes and components
 
-Canonical routes (`archlucid-ui/src/lib/governance-route-paths.ts:2-10`): `/governance/policy-packs` (tenant pack registration/assignment/authoring — ~20 section components under `_sections/`), `/governance/standards-and-rules` (read-only merged-effective-rules and conflict-resolution view — a genuinely different concern from selection), `/governance/audit`, `/governance/alerts`, `/governance/alert-rules`. Architecture-creation wizards (`/reviews/new/*`) have their own, much narrower, focused-pilot-mode toggle, entirely separate from the tenant policy-packs settings page. No route today groups packs into required/recommended/optional tiers, shows "why recommended," or supports excluding a pack with a reason — confirmed by direct reading of `PolicyPacksRegisteredListSection.tsx`, `PolicyPacksActivePackSummaryCard.tsx`, and `PilotModePolicyPackToggle.tsx`.
+Canonical routes (`archlucid-ui/src/lib/governance/governance-route-paths.ts:2-10`): `/governance/policy-packs` (tenant pack registration/assignment/authoring — ~20 section components under `_sections/`), `/governance/standards-and-rules` (read-only merged-effective-rules and conflict-resolution view — a genuinely different concern from selection), `/governance/audit`, `/governance/alerts`, `/governance/alert-rules`. Architecture-creation wizards (`/reviews/new/*`) have their own, much narrower, focused-pilot-mode toggle, entirely separate from the tenant policy-packs settings page. No route today groups packs into required/recommended/optional tiers, shows "why recommended," or supports excluding a pack with a reason — confirmed by direct reading of `PolicyPacksRegisteredListSection.tsx`, `PolicyPacksActivePackSummaryCard.tsx`, and `PilotModePolicyPackToggle.tsx`.
 
 ## A.23 Existing automated tests
 

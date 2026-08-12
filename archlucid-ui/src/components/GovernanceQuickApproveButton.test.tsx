@@ -7,7 +7,7 @@ import { GOVERNANCE_QUICK_APPROVE_DEFAULT_REVIEW_COMMENT } from "@/components/Go
 import {
   GOVERNANCE_QUICK_APPROVE_FAILURE_MESSAGE,
   GOVERNANCE_QUICK_APPROVE_SUCCESS_MESSAGE,
-} from "@/lib/governance-mutation-outcome-copy";
+} from "@/lib/governance/governance-mutation-outcome-copy";
 
 const getApprovalRequestLineage = vi.fn();
 const batchReviewGovernanceApprovalRequests = vi.fn();

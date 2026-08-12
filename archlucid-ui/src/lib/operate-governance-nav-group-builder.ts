@@ -21,8 +21,8 @@ import {
   GOVERNANCE_WORKSPACE_HEALTH_HREF,
   GOVERNANCE_EXCEPTIONS_PATH,
   GOVERNANCE_STANDARDS_AND_RULES_PATH,
-} from "@/lib/governance-route-paths";
-import { GOVERNANCE_SETUP_HREF } from "@/lib/governance-setup-route";
+} from "@/lib/governance/governance-route-paths";
+import { GOVERNANCE_SETUP_HREF } from "@/lib/governance/governance-setup-route";
 import { OPERATOR_NAV_GROUP_LABELS, OPERATOR_NAV_LINK_LABELS } from "@/lib/i18n";
 import { SIGNED_RECORDS_LIST_PATH } from "@/lib/signed-records-paths";
 

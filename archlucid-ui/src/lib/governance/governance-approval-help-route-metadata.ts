@@ -6,7 +6,7 @@ import {
 
   GOVERNANCE_APPROVAL_HELP_PAGE_TITLE,
 
-} from "@/lib/governance-approval-help-guide-content";
+} from "@/lib/governance/governance-approval-help-guide-content";
 
 /**
 

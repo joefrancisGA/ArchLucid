@@ -10,7 +10,7 @@ import {
 } from "@/lib/demo-preview-page-copy";
 import { buildDemoPreviewTimelineRows } from "@/lib/demo-preview-timeline-present";
 import { MARKETING_TYPOGRAPHY } from "@/lib/design-tokens";
-import { policyPackBuyerLabel } from "@/lib/policy-pack-buyer-label";
+import { policyPackBuyerLabel } from "@/lib/policy/policy-pack-buyer-label";
 import type { DemoCommitPagePreviewResponse } from "@/types/demo-preview";
 import type { PipelineTimelineItem } from "@/types/authority";
 import { cn } from "@/lib/utils";

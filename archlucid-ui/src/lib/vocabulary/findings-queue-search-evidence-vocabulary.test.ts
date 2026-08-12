@@ -9,7 +9,7 @@ import {
   buildFindingsQueueSearchEvidenceVocabulary,
   resolveFindingsQueueSearchEvidencePeerLink,
 } from "@/lib/vocabulary/findings-queue-search-evidence-vocabulary";
-import { GOVERNANCE_FINDINGS_CANONICAL_PATH } from "@/lib/governance-findings-evidence-copy";
+import { GOVERNANCE_FINDINGS_CANONICAL_PATH } from "@/lib/governance/governance-findings-evidence-copy";
 import { SEARCH_REVIEW_EVIDENCE_PATH } from "@/lib/search-review-evidence-route";
 
 describe("findings-queue-search-evidence-vocabulary (TB-2261)", () => {

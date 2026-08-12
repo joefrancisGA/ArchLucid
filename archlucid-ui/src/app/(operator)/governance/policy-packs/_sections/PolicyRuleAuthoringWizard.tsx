@@ -18,18 +18,18 @@ import { enterpriseMutationControlDisabledTitle } from "@/lib/enterprise-control
 import {
   guidedFieldsFromContentDocument,
   type GuidedPolicyFields,
-} from "@/lib/policy-pack-guided-content";
+} from "@/lib/policy/policy-pack-guided-content";
 import {
   composePolicyPackContentForPublish,
   createEmptyCuratedRulesDocument,
   hydrateCuratedFromContentDocument,
   type CuratedRulesDocument,
   validateCuratedRulesDocument,
-} from "@/lib/policy-pack-curated-rules-v1";
+} from "@/lib/policy/policy-pack-curated-rules-v1";
 import { coerceRunSummaryPaged } from "@/lib/operator-response-guards";
 import type { components } from "@/lib/openapi-schemas";
 import type { PolicyPackContentDocument } from "@/types/policy-packs";
-import { presentPolicyPackSimulateToast } from "@/lib/policy-pack-simulate-toast";
+import { presentPolicyPackSimulateToast } from "@/lib/policy/policy-pack-simulate-toast";
 import { showSuccess } from "@/lib/toast";
 import { OPERATOR_TYPOGRAPHY } from "@/lib/design-tokens";
 import type { RunSummary } from "@/types/authority";

@@ -4,7 +4,7 @@ import {
   buildGovernanceFindingsQueueHref,
   type MetricCountPresentation,
 } from "@/lib/metric-count-presentation";
-import { GOVERNANCE_APPROVAL_QUEUE_PATH } from "@/lib/governance-route-paths";
+import { GOVERNANCE_APPROVAL_QUEUE_PATH } from "@/lib/governance/governance-route-paths";
 import type { GovernanceLineageManifestSummary, GovernanceLineageResult } from "@/types/governance-dashboard";
 
 export type GovernanceLineageStatusTagPresentation = {

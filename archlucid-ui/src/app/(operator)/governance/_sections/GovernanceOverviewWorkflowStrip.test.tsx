@@ -1,7 +1,7 @@
 import { render, screen } from "@testing-library/react";
 import { describe, expect, it } from "vitest";
 
-import { GOVERNANCE_OVERVIEW_APPROVAL_LIFECYCLE_STEPS } from "@/lib/governance-overview-copy";
+import { GOVERNANCE_OVERVIEW_APPROVAL_LIFECYCLE_STEPS } from "@/lib/governance/governance-overview-copy";
 
 import { GovernanceOverviewWorkflowStrip } from "./GovernanceOverviewWorkflowStrip";
 

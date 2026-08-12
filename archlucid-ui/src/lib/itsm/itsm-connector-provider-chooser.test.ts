@@ -11,7 +11,7 @@ import {
   buildItsmConnectorProviderChooser,
   resolveItsmConnectorProviderCurrentLink,
   resolveItsmConnectorProviderPeerLinks,
-} from "@/lib/itsm-connector-provider-chooser";
+} from "@/lib/itsm/itsm-connector-provider-chooser";
 import {
   INTEGRATIONS_AZURE_BOARDS_PATH,
   INTEGRATIONS_JIRA_PATH,

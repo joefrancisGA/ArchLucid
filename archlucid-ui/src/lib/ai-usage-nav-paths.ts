@@ -1,4 +1,4 @@
-import { pathMatchesRoutePrefix } from "@/lib/governance-route-paths";
+import { pathMatchesRoutePrefix } from "@/lib/governance/governance-route-paths";
 
 /** Canonical workspace admin AI budget and usage reporting URL (TB-408). */
 export const AI_USAGE_SETTINGS_PATH = "/administration/ai-usage";

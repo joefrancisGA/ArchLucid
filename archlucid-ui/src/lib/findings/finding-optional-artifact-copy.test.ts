@@ -1,7 +1,7 @@
 import { describe, expect, it } from "vitest";
 
 import type { ApiLoadFailureState } from "@/lib/api-load-failure";
-import { resolveFindingOptionalArtifactUnavailableCopy } from "@/lib/finding-optional-artifact-copy";
+import { resolveFindingOptionalArtifactUnavailableCopy } from "@/lib/findings/finding-optional-artifact-copy";
 
 function notFoundFailure(): ApiLoadFailureState {
   return {

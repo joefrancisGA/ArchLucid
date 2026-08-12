@@ -1,7 +1,7 @@
 import { describe, expect, it } from "vitest";
 
 import { buildStaticDemoProvenanceGraphFromShowcase } from "@/lib/operator-static-demo";
-import { policyPackBuyerLabel } from "@/lib/policy-pack-buyer-label";
+import { policyPackBuyerLabel } from "@/lib/policy/policy-pack-buyer-label";
 import {
   applyBuyerLabelsToProvenanceGraphViewModel,
   buyerLabelForProvenanceNode,

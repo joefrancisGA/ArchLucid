@@ -1,7 +1,7 @@
 import { DIGESTS_HUB_PATH } from "@/lib/digests-route-paths";
 import { inAppHelpHref } from "@/lib/product-documentation-registry";
 import type { EvidenceSourceLink } from "@/lib/evidence-surface-copy";
-import { GOVERNANCE_AUDIT_PATH } from "@/lib/governance-route-paths";
+import { GOVERNANCE_AUDIT_PATH } from "@/lib/governance/governance-route-paths";
 
 /**
  * Quiet honesty for Technical details / owner notes — not a first-viewport amber banner.

@@ -17,7 +17,7 @@ vi.mock("@/lib/api/governance-stickiness-api", () => ({
 import * as governanceApi from "@/lib/api/governance-stickiness-api";
 import RecurrenceSchedulesClient from "@/components/governance/RecurrenceSchedulesClient";
 import { enterpriseMutationControlDisabledTitle } from "@/lib/enterprise-controls-context-copy";
-import { GOVERNANCE_OVERVIEW_PAGE_LEAD } from "@/lib/governance-overview-copy";
+import { GOVERNANCE_OVERVIEW_PAGE_LEAD } from "@/lib/governance/governance-overview-copy";
 import {
   RECURRENCE_SCHEDULE_EXAMPLES,
   RECURRENCE_SCHEDULES_EMPTY_DESCRIPTION,

@@ -33,7 +33,7 @@ import { isBuyerSafeDemoMarketingChromeEnv } from "@/lib/demo-ui-env";
 import {
   GOVERNANCE_WORKFLOW_READER_LOAD_REVIEW_HINT,
   GOVERNANCE_WORKFLOW_SUBMIT_CARD_DESCRIPTION_OPERATOR,
-} from "@/lib/governance-workflow-release-copy";
+} from "@/lib/governance/governance-workflow-release-copy";
 import { GOVERNANCE_ENV_OPTIONS } from "./governance-workflow-helpers";
 
 export type GovernanceWorkflowSubmitSectionProps = {

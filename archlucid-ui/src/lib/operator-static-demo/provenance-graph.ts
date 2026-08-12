@@ -1,6 +1,6 @@
 import { canonicalizeDemoRunId } from "@/lib/demo-run-canonical";
 import { pipelineEventTypeFriendlyLabel } from "@/lib/pipeline-event-type-labels";
-import { policyPackBuyerLabel } from "@/lib/policy-pack-buyer-label";
+import { policyPackBuyerLabel } from "@/lib/policy/policy-pack-buyer-label";
 import {
   getShowcaseStaticDemoPayload,
   SHOWCASE_STATIC_DEMO_PRIMARY_FINDING_ID,

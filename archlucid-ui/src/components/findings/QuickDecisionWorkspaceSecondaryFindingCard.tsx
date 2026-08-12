@@ -10,7 +10,7 @@ import { Button } from "@/components/ui/button";
 import { SeverityTag } from "@/components/ui/severity-tag";
 import { StatusTag } from "@/components/ui/status-tag";
 import { FINDINGS_ROW_METADATA_TAG_SIZE, OPERATOR_TYPOGRAPHY } from "@/lib/design-tokens";
-import { getFindingDetailHref, getFindingGovernanceDispositionHref } from "@/lib/finding-evidence-navigation";
+import { getFindingDetailHref, getFindingGovernanceDispositionHref } from "@/lib/findings/finding-evidence-navigation";
 import { quickDecisionRecommendationSnippet } from "@/lib/quick-decision-finding-links";
 import {
   humanReviewStatusDisplay,

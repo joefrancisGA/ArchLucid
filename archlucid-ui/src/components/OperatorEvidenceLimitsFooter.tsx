@@ -2,7 +2,7 @@ import { cn } from "@/lib/utils";
 import { OPERATOR_TYPOGRAPHY } from "@/lib/design-tokens";
 import Link from "next/link";
 
-import { getFindingEvidenceTraceHref } from "@/lib/finding-evidence-navigation";
+import { getFindingEvidenceTraceHref } from "@/lib/findings/finding-evidence-navigation";
 import { GeneratedByModelAliasDisclosure } from "@/components/GeneratedByModelAliasDisclosure";
 import { isBuyerPolishedOperatorShellEnv } from "@/lib/demo-ui-env";
 

@@ -1,4 +1,4 @@
-import { GOVERNANCE_APPROVAL_QUEUE_PATH } from "@/lib/governance-route-paths";
+import { GOVERNANCE_APPROVAL_QUEUE_PATH } from "@/lib/governance/governance-route-paths";
 
 /** Page copy and navigation targets for governance recurrence schedules. */
 

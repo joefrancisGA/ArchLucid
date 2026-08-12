@@ -3,7 +3,7 @@ import { describe, expect, it } from "vitest";
 
 import { FocusedPilotPolicyPackAppliedCallout } from "@/components/wizard/FocusedPilotPolicyPackAppliedCallout";
 import { FOCUSED_PILOT_MODE_PACK_DISPLAY_NAMES } from "@/lib/focused-pilot-mode-policy-packs";
-import { POLICY_PACKS_HELP_PATH } from "@/lib/policy-packs-page";
+import { POLICY_PACKS_HELP_PATH } from "@/lib/policy/policy-packs-page";
 
 describe("FocusedPilotPolicyPackAppliedCallout", () => {
   it("describes default standards without repeating pack display names", () => {

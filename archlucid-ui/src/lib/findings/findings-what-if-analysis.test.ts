@@ -1,6 +1,6 @@
 import { describe, expect, it } from "vitest";
 
-import type { QuickDecisionFinding } from "./quick-decision-summary-derive";
+import type { QuickDecisionFinding } from ".././quick-decision-summary-derive";
 
 import {
   hasFindingsWhatIfAnalysisContent,

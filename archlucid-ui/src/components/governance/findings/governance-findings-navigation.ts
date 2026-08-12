@@ -1,9 +1,9 @@
 import type { KeyboardEvent } from "react";
 import type { AppRouterInstance } from "next/dist/shared/lib/app-router-context.shared-runtime";
 
-import { getFindingEvidenceTraceHref } from "@/lib/finding-evidence-navigation";
+import { getFindingEvidenceTraceHref } from "@/lib/findings/finding-evidence-navigation";
 import { graphTrailHrefWithOptionalNode } from "@/lib/graph-finding-deep-links";
-import { preferredGraphNodeIdForFindingDeepLink } from "@/lib/finding-inspect-graph-evidence";
+import { preferredGraphNodeIdForFindingDeepLink } from "@/lib/findings/finding-inspect-graph-evidence";
 
 import { reviewDetailPath } from "@/lib/architecture-routes";
 import { signedRecordDetailPath } from "@/lib/signed-records-paths";

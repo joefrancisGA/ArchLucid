@@ -12,12 +12,12 @@ import { DispositionExportImpactNotice } from "@/components/operator/Disposition
 import { Input } from "@/components/ui/input";
 import { Label } from "@/components/ui/label";
 import { OperatorMutationInlineError } from "@/components/operator/OperatorMutationInlineError";
-import { createGovernanceMutationIdempotencyKey } from "@/lib/governance-mutation-idempotency-key";
+import { createGovernanceMutationIdempotencyKey } from "@/lib/governance/governance-mutation-idempotency-key";
 import {
   GOVERNANCE_BULK_DISPOSITION_FAILURE_MESSAGE,
   GOVERNANCE_BULK_DISPOSITION_REASON_REQUIRED,
   governanceBulkDispositionSuccessMessage,
-} from "@/lib/governance-mutation-outcome-copy";
+} from "@/lib/governance/governance-mutation-outcome-copy";
 import { recordBulkFindingDisposition, type FindingDispositionKind } from "@/lib/api/governance-stickiness-api";
 
 type GovernanceFindingsBulkActionsProps = {

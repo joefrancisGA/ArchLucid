@@ -7,7 +7,7 @@ import {
   collectAskCitationFindingIds,
   parseAskCitationRefsFromMessageMetadata,
 } from "@/lib/ask-citation-action-follow-ups";
-import { GOVERNANCE_DECISION_REGISTER_PATH } from "@/lib/governance-route-paths";
+import { GOVERNANCE_DECISION_REGISTER_PATH } from "@/lib/governance/governance-route-paths";
 
 describe("buildAskCitationActionFollowUps", () => {
   it("returns honest empty when run id is missing", () => {

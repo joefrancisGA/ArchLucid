@@ -6,7 +6,7 @@ import {
 
   FINDINGS_HELP_PAGE_TITLE,
 
-} from "@/lib/findings-help-guide-content";
+} from "@/lib/findings/findings-help-guide-content";
 
 /**
 

@@ -1,6 +1,6 @@
 import { inAppHelpHref } from "@/lib/product-documentation-registry";
 import type { EvidenceSourceLink } from "@/lib/evidence-surface-copy";
-import { GOVERNANCE_ALERT_RULES_PATH, GOVERNANCE_AUDIT_PATH, GOVERNANCE_FINDINGS_PATH, GOVERNANCE_POLICY_PACKS_PATH } from "@/lib/governance-route-paths";
+import { GOVERNANCE_ALERT_RULES_PATH, GOVERNANCE_AUDIT_PATH, GOVERNANCE_FINDINGS_PATH, GOVERNANCE_POLICY_PACKS_PATH } from "@/lib/governance/governance-route-paths";
 
 export const GOVERNANCE_SETUP_CLAIM_DISCIPLINE =
   "Governance setup is a checklist guide that links into audited config workspaces — it is not a signed-review diligence Sources package. Open Findings, Audit, or Policy packs when you need live governance trails.";

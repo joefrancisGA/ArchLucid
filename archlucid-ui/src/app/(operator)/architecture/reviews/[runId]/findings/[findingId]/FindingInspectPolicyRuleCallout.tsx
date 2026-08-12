@@ -11,13 +11,13 @@ import { getEffectivePolicyPacks } from "@/lib/api/policy-governance-api";
 import type {
   FindingPolicyCitationLink,
   FindingPolicyPackCitationLink,
-} from "@/lib/finding-policy-evidence-citations";
+} from "@/lib/findings/finding-policy-evidence-citations";
 import {
   buildPolicyRulePreviewFallback,
   lookupPolicyRulePreviewInEffectivePacks,
   type PolicyRulePreview,
-} from "@/lib/policy-rule-preview-lookup";
-import { policyPacksRuleHref } from "@/lib/policy-packs-deep-link";
+} from "@/lib/policy/policy-rule-preview-lookup";
+import { policyPacksRuleHref } from "@/lib/policy/policy-packs-deep-link";
 import { OPERATOR_LINK, OPERATOR_NAV_GROUP_LABEL, OPERATOR_TYPOGRAPHY } from "@/lib/design-tokens";
 
 export type FindingInspectPolicyRuleCalloutProps = {

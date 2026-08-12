@@ -49,7 +49,7 @@ import {
   executiveWorkspaceHealthKpiTitle,
   EXECUTIVE_WORKSPACE_HEALTH_SESSION_SCOPE_SUMMARY,
 } from "@/lib/executive-workspace-health-page-copy";
-import { GOVERNANCE_AUDIT_PATH } from "@/lib/governance-route-paths";
+import { GOVERNANCE_AUDIT_PATH } from "@/lib/governance/governance-route-paths";
 import { finiteIntegerCountDisplay } from "@/lib/finite-count-display";
 import {
   OPERATOR_LINK,

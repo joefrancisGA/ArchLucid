@@ -4,7 +4,7 @@ import { applyGeneratedCuratedPolicyPack } from "@/lib/apply-generated-curated-p
 import {
   createEmptyCuratedRulesDocument,
   type CuratedRulesDocument,
-} from "@/lib/policy-pack-curated-rules-v1";
+} from "@/lib/policy/policy-pack-curated-rules-v1";
 
 describe("applyGeneratedCuratedPolicyPack", () => {
   it("maps pack metadata and composes publish JSON", () => {

@@ -1,7 +1,7 @@
 import { inAppHelpHref } from "@/lib/product-documentation-registry";
 import { INTERNAL_TENANTS_PATH } from "@/lib/internal-ops-route-paths";
 import type { EvidenceSourceLink } from "@/lib/evidence-surface-copy";
-import { GOVERNANCE_AUDIT_PATH } from "@/lib/governance-route-paths";
+import { GOVERNANCE_AUDIT_PATH } from "@/lib/governance/governance-route-paths";
 
 export const ADMIN_TENANTS_CANONICAL_PATH = INTERNAL_TENANTS_PATH;
 

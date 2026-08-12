@@ -1,9 +1,9 @@
-import { policyPackBuyerGovernanceDetailHref, policyPackBuyerLabel } from "@/lib/policy-pack-buyer-label";
-import { policyPacksEditHref, policyPacksRuleHref } from "@/lib/policy-packs-deep-link";
+import { policyPackBuyerGovernanceDetailHref, policyPackBuyerLabel } from "@/lib/policy/policy-pack-buyer-label";
+import { policyPacksEditHref, policyPacksRuleHref } from "@/lib/policy/policy-packs-deep-link";
 import {
   inferPolicyPackDisplayNameFromComplianceRuleKey,
   coerceComplianceRuleKey,
-} from "@/lib/policy-pack-rule-key-prefix-catalog";
+} from "@/lib/policy/policy-pack-rule-key-prefix-catalog";
 import type { QuickDecisionFinding } from "@/lib/quick-decision-summary-derive";
 
 export type PolicyPackFindingGroup = {

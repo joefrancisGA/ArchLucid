@@ -7,7 +7,7 @@ import {
   partitionPolicyPackContentJsonIssues,
   type PolicyPackContentJsonValidationIssue,
   validatePolicyPackContentJson,
-} from "@/lib/policy-pack-content-json-validation";
+} from "@/lib/policy/policy-pack-content-json-validation";
 
 /** Debounce window before calling POST /v1/policy-packs/validate while typing. */
 export const POLICY_PACK_CONTENT_JSON_VALIDATION_DEBOUNCE_MS = 450;

@@ -11,8 +11,8 @@ import {
   type CompareManifestGovernanceSnapshot,
 } from "@/lib/compare-effective-governance-diff";
 import { OPERATOR_LINK, OPERATOR_TYPOGRAPHY } from "@/lib/design-tokens";
-import { governancePolicyPackDetailPath } from "@/lib/governance-route-paths";
-import { policyPackBuyerGovernanceDetailHref } from "@/lib/policy-pack-buyer-label";
+import { governancePolicyPackDetailPath } from "@/lib/governance/governance-route-paths";
+import { policyPackBuyerGovernanceDetailHref } from "@/lib/policy/policy-pack-buyer-label";
 
 export type CompareGovernanceDiffPanelProps = {
   readonly view: CompareGovernanceDiffView | null;

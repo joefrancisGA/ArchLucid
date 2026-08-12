@@ -9,7 +9,7 @@ import { StatusTag } from "@/components/ui/status-tag";
 import type {
   FindingPolicyCitationLink,
   FindingPolicyPackCitationLink,
-} from "@/lib/finding-policy-evidence-citations";
+} from "@/lib/findings/finding-policy-evidence-citations";
 
 export type FindingPolicyCitationProminentStripProps = {
   readonly pack?: FindingPolicyPackCitationLink | null;
