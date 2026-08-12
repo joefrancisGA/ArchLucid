@@ -26,51 +26,69 @@ public sealed class RepositorySqlExtractionRatchetTests
         "MERGE "
     ];
 
-    /// <summary>Repository source path (relative to the repo root) paired with the companion class it must use.</summary>
-    public static TheoryData<string, string> ExtractedRepositories =>
+    /// <summary>
+    ///     Repository source path (relative to the repo root), the companion class it must use, and that companion's own
+    ///     path. Companions usually sit beside their repository, but shared statement classes live under
+    ///     <c>ArchLucid.Persistence/Sql/</c>, so the path is spelled out rather than derived.
+    /// </summary>
+    public static TheoryData<string, string, string> ExtractedRepositories =>
         new()
         {
             {
                 "ArchLucid.Persistence/IntegrationOutbox/DapperIntegrationEventOutboxRepository.cs",
-                "IntegrationEventOutboxSql"
+                "IntegrationEventOutboxSql",
+                "ArchLucid.Persistence/IntegrationOutbox/IntegrationEventOutboxSql.cs"
             },
             {
                 "ArchLucid.Persistence/Coordination/ProductLearning/DapperProductLearningPilotSignalRepository.cs",
-                "ProductLearningPilotSignalSql"
+                "ProductLearningPilotSignalSql",
+                "ArchLucid.Persistence/Coordination/ProductLearning/ProductLearningPilotSignalSql.cs"
             },
             {
                 "ArchLucid.Persistence/Coordination/ProductLearning/Planning/DapperProductLearningPlanningPlanLinkRepository.cs",
-                "ProductLearningPlanningPlanLinkSql"
+                "ProductLearningPlanningPlanLinkSql",
+                "ArchLucid.Persistence/Coordination/ProductLearning/Planning/ProductLearningPlanningPlanLinkSql.cs"
             },
             {
                 "ArchLucid.Persistence/Tenancy/DapperTenantRepository.Directory.cs",
-                "TenantDirectorySql"
+                "TenantDirectorySql",
+                "ArchLucid.Persistence/Tenancy/TenantDirectorySql.cs"
+            },
+            {
+                "ArchLucid.Persistence/Repositories/SqlFindingsSnapshotRepository.cs",
+                "FindingsSnapshotWriteSql",
+                "ArchLucid.Persistence/Sql/FindingsSnapshotWriteSql.cs"
             }
         };
 
     [Theory]
     [MemberData(nameof(ExtractedRepositories))]
-    public void Extracted_repositories_hold_no_inline_sql(string relativePath, string companionClass)
+    public void Extracted_repositories_hold_no_inline_sql(
+        string relativePath,
+        string companionClass,
+        string companionPath)
     {
         string source = ReadRepoFile(relativePath);
 
         IReadOnlyList<string> found = [.. SqlStatementMarkers.Where(marker => source.Contains(marker, StringComparison.Ordinal))];
 
         found.Should().BeEmpty(
-            $"SQL for '{relativePath}' belongs in {companionClass}, not in a method body");
+            $"SQL for '{relativePath}' belongs in {companionClass} ({companionPath}), not in a method body");
     }
 
     [Theory]
     [MemberData(nameof(ExtractedRepositories))]
     public void Extracted_repositories_still_source_statements_from_their_companion(
         string relativePath,
-        string companionClass)
+        string companionClass,
+        string companionPath)
     {
         string source = ReadRepoFile(relativePath);
 
         source.Should().Contain(
             companionClass + ".",
-            because: "an extracted repository that stops referencing its companion has lost its SQL, not cleaned it up");
+            because:
+            $"an extracted repository that stops referencing {companionPath} has lost its SQL, not cleaned it up");
     }
 
     /// <summary>
@@ -79,19 +97,19 @@ public sealed class RepositorySqlExtractionRatchetTests
     /// </summary>
     [Theory]
     [MemberData(nameof(ExtractedRepositories))]
-    public void Companion_classes_expose_statements_as_constants(string relativePath, string companionClass)
+    public void Companion_classes_expose_statements_as_constants(
+        string relativePath,
+        string companionClass,
+        string companionPath)
     {
-        string companionPath = Path.Combine(
-            Path.GetDirectoryName(relativePath.Replace('/', Path.DirectorySeparatorChar))!,
-            companionClass + ".cs");
-
-        string source = ReadRepoFile(companionPath.Replace(Path.DirectorySeparatorChar, '/'));
+        string source = ReadRepoFile(companionPath);
 
         source.Should().Contain("internal static class " + companionClass);
 
         Regex.IsMatch(source, @"public const string \w+ =")
             .Should()
-            .BeTrue($"{companionClass} must expose its statements as compile-time constants");
+            .BeTrue(
+                $"{companionClass} must expose the statements used by '{relativePath}' as compile-time constants");
     }
 
     private static string ReadRepoFile(string relativePath, [CallerFilePath] string? callerFilePath = null)
