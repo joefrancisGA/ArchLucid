@@ -18,9 +18,6 @@ export const OPERATOR_HOME_OPENING_CREATION_EXAMPLE_LABEL = "Opening creation ex
 
 export const OPERATOR_HOME_RUNNING_GUIDED_REVIEW_LABEL = "Running guided review…";
 
-export const REVIEW_START_NAVIGATION_FAILED_MESSAGE =
-  "We could not start the architecture review. Your selections have been preserved. Try again.";
-
 export const CREATE_ARCHITECTURE_NAVIGATION_FAILED_MESSAGE =
   "We could not start the architecture draft. Please try again.";
 

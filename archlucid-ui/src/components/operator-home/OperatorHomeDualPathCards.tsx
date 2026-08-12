@@ -9,6 +9,7 @@ import { OperatorHomeNavigateLoadingButton } from "@/components/operator-home/Op
 import { OperatorHomeReadinessStrip } from "@/components/operator-home/OperatorHomeReadinessStrip";
 import { ReviewStartInlineError } from "@/components/review-intake/ReviewStartInlineError";
 import { ReviewStartLoadingButton } from "@/components/review-intake/ReviewStartLoadingButton";
+import { ReviewStartNavigationStallNotice } from "@/components/review-intake/ReviewStartNavigationStallNotice";
 import { ReviewStartStagedProgress } from "@/components/review-intake/ReviewStartStagedProgress";
 import { StatusTag } from "@/components/ui/status-tag";
 import { useCreateArchitectureNavigation } from "@/hooks/use-create-architecture-navigation";
@@ -277,6 +278,13 @@ export function OperatorHomeDualPathCards(props: OperatorHomeDualPathCardsProps)
           activeStageId={reviewNavigation.activeStageId}
           headline={REVIEW_START_PREPARING_LABEL}
           testId="operator-home-review-start-progress"
+        />
+      ) : null}
+
+      {reviewNavigation.stalled && reviewNavigation.stalledHref !== null ? (
+        <ReviewStartNavigationStallNotice
+          href={reviewNavigation.stalledHref}
+          testId="operator-home-review-start-stall"
         />
       ) : null}
 

@@ -12,6 +12,7 @@ import { SpecialtyTemplatePolicyPackProvenance } from "@/components/help/Special
 import { OperatorPageContainer } from "@/components/OperatorPageContainer";
 import { ReviewStartInlineError } from "@/components/review-intake/ReviewStartInlineError";
 import { ReviewStartLoadingButton } from "@/components/review-intake/ReviewStartLoadingButton";
+import { ReviewStartNavigationStallNotice } from "@/components/review-intake/ReviewStartNavigationStallNotice";
 import { ReviewStartStagedProgress } from "@/components/review-intake/ReviewStartStagedProgress";
 import { Button } from "@/components/ui/button";
 import { Card, CardContent, CardFooter, CardHeader, CardTitle } from "@/components/ui/card";
@@ -379,6 +380,13 @@ export function HelpSpecialtyWalkthroughTemplatesClient(
             activeStageId={navigation.activeStageId}
             headline={REVIEW_START_PREPARING_LABEL}
             testId="specialty-template-review-start-progress"
+          />
+        ) : null}
+
+        {navigation.stalled && navigation.stalledHref !== null ? (
+          <ReviewStartNavigationStallNotice
+            href={navigation.stalledHref}
+            testId="specialty-template-review-start-stall"
           />
         ) : null}
 
