@@ -1,4 +1,4 @@
-import { fireEvent, render, screen, waitFor, within } from "@testing-library/react";
+import { fireEvent, render, screen, waitFor } from "@testing-library/react";
 import { afterEach, describe, expect, it, vi } from "vitest";
 
 import { AuthDomainsPageClient } from "./AuthDomainsPageClient";
@@ -11,7 +11,7 @@ import {
   removeTenantAuthDomainRecoveryAdmin,
   setTenantAuthDomainEnforcement,
 } from "@/lib/admin-auth-domains-api";
-import { AUTH_DOMAINS_ENFORCEMENT_WARNING } from "@/lib/auth-domains-confirm-copy";
+import { AUTH_DOMAINS_ENABLE_ENFORCEMENT_CONFIRM_TITLE, AUTH_DOMAINS_RECOVERY_REMOVE_CONFIRM_TITLE, AUTH_DOMAINS_SET_ENFORCEMENT_CONFIRM_TITLE } from "@/lib/auth-domains-confirm-copy";
 
 vi.mock("@/lib/admin-auth-domains-api", () => ({
   fetchTenantAuthDomains: vi.fn(),
@@ -96,15 +96,12 @@ describe("AuthDomainsPageClient", () => {
     fireEvent.click(screen.getByTestId("auth-domains-session-ack"));
     fireEvent.click(screen.getByTestId("auth-domains-enable-enforcement"));
 
-    expect(await screen.findByTestId("auth-domains-enable-confirm-dialog")).toBeInTheDocument();
     expect(
-      within(screen.getByTestId("auth-domains-enable-confirm-dialog")).getByText(
-        AUTH_DOMAINS_ENFORCEMENT_WARNING,
-      ),
+      await screen.findByRole("heading", { name: AUTH_DOMAINS_ENABLE_ENFORCEMENT_CONFIRM_TITLE }),
     ).toBeInTheDocument();
     expect(confirmSpy).not.toHaveBeenCalled();
 
-    fireEvent.click(screen.getByTestId("auth-domains-confirm-confirm"));
+    fireEvent.click(screen.getByRole("button", { name: "Enable enforcement" }));
 
     await waitFor(() => {
       expect(enableTenantAuthDomainEnforcement).toHaveBeenCalledWith("example.com", true);
@@ -131,7 +128,7 @@ describe("AuthDomainsPageClient", () => {
     fireEvent.click(screen.getByTestId("auth-domain-row-example.com"));
     fireEvent.click(screen.getByTestId("auth-domains-session-ack"));
     fireEvent.click(screen.getByTestId("auth-domains-enable-enforcement"));
-    fireEvent.click(await screen.findByTestId("auth-domains-confirm-confirm"));
+    fireEvent.click(screen.getByRole("button", { name: "Enable enforcement" }));
 
     await waitFor(() => {
       expect(screen.getByTestId("auth-domains-enable-enforcement")).toBeDisabled();
@@ -176,12 +173,14 @@ describe("AuthDomainsPageClient", () => {
     const removeButton = await screen.findByTestId("auth-domains-remove-recovery-breakglass@example.com");
     fireEvent.click(removeButton);
 
-    expect(await screen.findByTestId("auth-domains-recovery-remove-confirm-dialog")).toBeInTheDocument();
+    expect(
+      await screen.findByRole("heading", { name: AUTH_DOMAINS_RECOVERY_REMOVE_CONFIRM_TITLE }),
+    ).toBeInTheDocument();
     expect(screen.getByText(warningMessage)).toBeInTheDocument();
     expect(confirmSpy).not.toHaveBeenCalled();
     expect(removeTenantAuthDomainRecoveryAdmin).toHaveBeenCalledWith("example.com", "breakglass@example.com", false);
 
-    fireEvent.click(screen.getByTestId("auth-domains-confirm-confirm"));
+    fireEvent.click(screen.getByRole("button", { name: "Remove breakglass@example.com" }));
 
     await waitFor(() => {
       expect(removeTenantAuthDomainRecoveryAdmin).toHaveBeenCalledWith("example.com", "breakglass@example.com", true);
@@ -203,10 +202,12 @@ describe("AuthDomainsPageClient", () => {
     fireEvent.click(screen.getByTestId("auth-domain-row-example.com"));
     fireEvent.click(screen.getByTestId("auth-domains-enforcement-required"));
 
-    expect(await screen.findByTestId("auth-domains-set-enforcement-confirm-dialog")).toBeInTheDocument();
+    expect(
+      await screen.findByRole("heading", { name: AUTH_DOMAINS_SET_ENFORCEMENT_CONFIRM_TITLE }),
+    ).toBeInTheDocument();
     expect(setTenantAuthDomainEnforcement).not.toHaveBeenCalled();
 
-    fireEvent.click(screen.getByTestId("auth-domains-confirm-confirm"));
+    fireEvent.click(screen.getByRole("button", { name: "Set SSO required" }));
 
     await waitFor(() => {
       expect(setTenantAuthDomainEnforcement).toHaveBeenCalledWith(
@@ -235,7 +236,7 @@ describe("AuthDomainsPageClient", () => {
     await waitFor(() => {
       expect(setTenantAuthDomainEnforcement).toHaveBeenCalledWith("example.com", "SsoOptional", false);
     });
-    expect(screen.queryByTestId("auth-domains-set-enforcement-confirm-dialog")).not.toBeInTheDocument();
+    expect(screen.queryByRole("heading", { name: AUTH_DOMAINS_SET_ENFORCEMENT_CONFIRM_TITLE })).not.toBeInTheDocument();
     expect(screen.getByText(/Enforcement mode for example.com set to SSO optional/i)).toBeInTheDocument();
   });
 
