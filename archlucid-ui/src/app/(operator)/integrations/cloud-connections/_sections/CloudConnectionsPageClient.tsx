@@ -28,7 +28,7 @@ import {
   type CloudPlatformScope,
   type CloudProviderId,
 } from "@/lib/cloud-platform-scope-storage";
-import { OPERATOR_LINK, OPERATOR_NAV_GROUP_LABEL, OPERATOR_TYPOGRAPHY } from "@/lib/design-tokens";
+import { OPERATOR_LAYOUT, OPERATOR_LINK, OPERATOR_NAV_GROUP_LABEL, OPERATOR_TYPOGRAPHY } from "@/lib/design-tokens";
 
 import { CloudFirstInventoryCoach } from "@/components/integrations/CloudFirstInventoryCoach";
 import { PageHeading } from "@/components/PageHeading";
@@ -179,7 +179,7 @@ export function CloudConnectionsPageClient() {
   }, [platformScope, providerSummaries]);
 
   return (
-    <div className="w-full max-w-[1120px] space-y-6 px-1 py-4 sm:px-0" data-testid="cloud-connections-page">
+    <div className={cn("w-full max-w-[1120px] px-1 py-4 sm:px-0", OPERATOR_LAYOUT.sectionStack)} data-testid="cloud-connections-page">
       <PageHeading
         navHref={CLOUD_CONNECTIONS_PATH}
         title={CLOUD_CONNECTIONS_PAGE_TITLE}

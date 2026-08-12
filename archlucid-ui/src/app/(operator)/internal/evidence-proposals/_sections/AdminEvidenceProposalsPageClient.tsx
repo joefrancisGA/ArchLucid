@@ -7,7 +7,7 @@ import { Button } from "@/components/ui/button";
 import { Card, CardContent, CardHeader, CardTitle } from "@/components/ui/card";
 import { PageContextualHelpButton } from "@/components/usability/PageContextualHelpButton";
 import { OperatorPageHeader } from "@/components/operator/OperatorPageHeader";
-import { OPERATOR_TYPOGRAPHY } from "@/lib/design-tokens";
+import { OPERATOR_LAYOUT, OPERATOR_TYPOGRAPHY } from "@/lib/design-tokens";
 
 type EvidenceProposalRow = {
   resultId: string;
@@ -74,7 +74,7 @@ export function AdminEvidenceProposalsPageClient() {
   };
 
   return (
-    <div className="w-full max-w-3xl space-y-6" data-testid="admin-evidence-proposals-page">
+    <div className={cn("w-full max-w-3xl", OPERATOR_LAYOUT.sectionStack)} data-testid="admin-evidence-proposals-page">
       <OperatorPageHeader
         title="Evidence proposals"
         headingLevel="h1"

@@ -23,7 +23,7 @@ import {
   ADMIN_DEPLOYMENT_STATUS_PAGE_LEAD,
   ADMIN_DEPLOYMENT_STATUS_PAGE_TITLE,
 } from "@/lib/deployment-status-evidence-copy";
-import { OPERATOR_NAV_GROUP_LABEL, OPERATOR_TYPOGRAPHY } from "@/lib/design-tokens";
+import { OPERATOR_LAYOUT, OPERATOR_NAV_GROUP_LABEL, OPERATOR_TYPOGRAPHY } from "@/lib/design-tokens";
 import { INTERNAL_DEPLOYMENT_STATUS_PATH, INTERNAL_HEALTH_PATH } from "@/lib/internal-ops-route-paths";
 
 import { AdminDeploymentStatusPageLoadingSkeleton } from "./AdminDeploymentStatusPageLoadingSkeleton";
@@ -70,7 +70,7 @@ export function AdminDeploymentStatusPageView(props: Props) {
   const showEmptyState = status === null && !m.loading && m.error === null;
 
   return (
-    <OperatorPageContainer variant="dashboard" className="space-y-6" data-testid="admin-deployment-status-page">
+    <OperatorPageContainer variant="dashboard" className={OPERATOR_LAYOUT.sectionStack} data-testid="admin-deployment-status-page">
       <PageHeading
         navHref={INTERNAL_DEPLOYMENT_STATUS_PATH}
         title={ADMIN_DEPLOYMENT_STATUS_PAGE_TITLE}

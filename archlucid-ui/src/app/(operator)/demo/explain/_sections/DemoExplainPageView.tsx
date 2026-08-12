@@ -8,7 +8,7 @@ import { OperatorApiProblem } from "@/components/operator/OperatorApiProblem";
 import { OperatorLoadingNotice } from "@/components/operator/OperatorShellMessage";
 import { PageContextualHelpButton } from "@/components/usability/PageContextualHelpButton";
 import { OperatorPageHeader } from "@/components/operator/OperatorPageHeader";
-import { OPERATOR_TYPOGRAPHY } from "@/lib/design-tokens";
+import { OPERATOR_LAYOUT, OPERATOR_TYPOGRAPHY } from "@/lib/design-tokens";
 import {
   DEMO_EXPLAIN_PAGE_LEAD,
   DEMO_EXPLAIN_PAGE_TITLE,
@@ -35,7 +35,7 @@ export function DemoExplainPageView(props: Props) {
   return (
     <>
       <div
-        className="w-full max-w-[1440px] space-y-6 p-4 pb-28 md:pb-24"
+        className={cn("w-full max-w-[1440px] p-4 pb-28 md:pb-24", OPERATOR_LAYOUT.sectionStack)}
         data-testid="demo-explain-page"
         aria-busy={state.loading}
       >

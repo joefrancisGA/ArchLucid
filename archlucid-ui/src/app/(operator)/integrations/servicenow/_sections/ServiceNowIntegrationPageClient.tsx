@@ -380,7 +380,7 @@ export function ServiceNowIntegrationPageClient(): React.ReactElement {
           data-testid="servicenow-page-layout"
           data-operator-side-rail-kind="none"
         >
-          <div className="min-w-0 space-y-8" data-testid="servicenow-page-main">
+          <div className={cn("min-w-0", OPERATOR_LAYOUT.sectionStack)} data-testid="servicenow-page-main">
             {loadError !== null ? (
               <p
                 className={cn(

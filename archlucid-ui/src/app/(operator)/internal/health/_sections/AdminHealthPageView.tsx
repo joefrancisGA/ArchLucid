@@ -20,7 +20,7 @@ import { TenantCatalogMigrationDiagnosticsSection } from "@/components/tenancy/T
 import { CollapsibleSection } from "@/components/CollapsibleSection";
 import { PageContextualHelpButton } from "@/components/usability/PageContextualHelpButton";
 import { OperatorPageHeader } from "@/components/operator/OperatorPageHeader";
-import { OPERATOR_TYPOGRAPHY } from "@/lib/design-tokens";
+import { OPERATOR_LAYOUT, OPERATOR_TYPOGRAPHY } from "@/lib/design-tokens";
 import { isDataArchivalHealthDegraded } from "@/lib/health-dashboard-types";
 import { presentConfigLintFindings } from "@/lib/health-config-lint-presentation";
 import { buildHealthSummaryTiles, humanizeCircuitGateName } from "@/lib/health-dashboard-summary";
@@ -71,7 +71,7 @@ export function AdminHealthPageView(props: Props) {
     m.ready !== null && isDataArchivalHealthDegraded(m.ready.entries);
 
   return (
-    <div className={cn(HEALTH_DASHBOARD_PAGE_CLASS, "space-y-6")} data-testid="admin-health-page">
+    <div className={cn(HEALTH_DASHBOARD_PAGE_CLASS, OPERATOR_LAYOUT.sectionStack)} data-testid="admin-health-page">
       <header className="space-y-4">
         <OperatorPageHeader
           title="Diagnostics dashboard"
@@ -129,7 +129,7 @@ export function AdminHealthPageView(props: Props) {
           </CardContent>
         </Card>
 
-        <div className="space-y-6">
+        <div className={OPERATOR_LAYOUT.sectionStack}>
           <Card>
             <CardContent className="space-y-4 pt-6">
               <HealthDashboardSection
