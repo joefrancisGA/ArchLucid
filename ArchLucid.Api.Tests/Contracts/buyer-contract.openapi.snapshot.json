@@ -8648,6 +8648,25 @@
         ],
         "type": "object"
       },
+      "DataConsistencyMissingArchitectureRequestSnapshot": {
+        "properties": {
+          "count": {
+            "format": "int64",
+            "type": "integer"
+          },
+          "sampleRunIds": {
+            "items": {
+              "type": "string"
+            },
+            "type": "array"
+          }
+        },
+        "required": [
+          "count",
+          "sampleRunIds"
+        ],
+        "type": "object"
+      },
       "DataConsistencyOrphanCounts": {
         "properties": {
           "comparisonRecordsLeftRunIdOrphans": {
@@ -17215,6 +17234,43 @@
         },
         "required": [
           "queryText"
+        ],
+        "type": "object"
+      },
+      "MissingArchitectureRequestRemediationResult": {
+        "properties": {
+          "archivedRunIds": {
+            "items": {
+              "type": "string"
+            },
+            "type": "array"
+          },
+          "candidateCount": {
+            "format": "int32",
+            "type": "integer"
+          },
+          "candidateRunIds": {
+            "items": {
+              "type": "string"
+            },
+            "type": "array"
+          },
+          "dryRun": {
+            "type": "boolean"
+          },
+          "failed": {
+            "items": {
+              "$ref": "#/components/schemas/RunArchiveByIdFailure"
+            },
+            "type": "array"
+          }
+        },
+        "required": [
+          "archivedRunIds",
+          "candidateCount",
+          "candidateRunIds",
+          "dryRun",
+          "failed"
         ],
         "type": "object"
       },
