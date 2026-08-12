@@ -14,16 +14,7 @@ import { ScimUsersVocabularyRail } from "@/components/ScimUsersVocabularyRail";
 import { SsoWizardScimVocabularyRail } from "@/components/SsoWizardScimVocabularyRail";
 
 import { PageContextualHelpButton } from "@/components/usability/PageContextualHelpButton";
-import {
-  AlertDialog,
-  AlertDialogAction,
-  AlertDialogCancel,
-  AlertDialogContent,
-  AlertDialogDescription,
-  AlertDialogFooter,
-  AlertDialogHeader,
-  AlertDialogTitle,
-} from "@/components/ui/alert-dialog";
+import { ScimProvisioningRevokeConfirmDialog } from "@/app/(operator)/administration/scim-provisioning/_sections/ScimProvisioningRevokeConfirmDialog";
 import { Badge } from "@/components/ui/badge";
 import { Button } from "@/components/ui/button";
 import { Card, CardContent, CardDescription, CardHeader, CardTitle } from "@/components/ui/card";
@@ -61,10 +52,6 @@ import {
   SCIM_PROVISIONING_PAGE_SUBTITLE,
   SCIM_PROVISIONING_PAGE_TITLE,
   SCIM_REVOKE_ACTION,
-  SCIM_REVOKE_DIALOG_CANCEL,
-  SCIM_REVOKE_DIALOG_CONFIRM,
-  SCIM_REVOKE_DIALOG_DESCRIPTION,
-  SCIM_REVOKE_DIALOG_TITLE,
   SCIM_REVOKING_ACTION,
   SCIM_SSO_CONTEXT_NOTE_LINK,
   SCIM_SSO_CONTEXT_NOTE_PREFIX,
@@ -613,37 +600,18 @@ export function ScimProvisioningSettingsPageClient() {
         {SCIM_SSO_CONTEXT_NOTE_SUFFIX}
       </p>
 
-      <AlertDialog
+      <ScimProvisioningRevokeConfirmDialog
         open={pendingRevoke !== null}
-        onOpenChange={(open) => {
-          if (!open) {
-            setPendingRevoke(null);
+        busy={revokingId !== null}
+        onCancel={() => {
+          setPendingRevoke(null);
+        }}
+        onConfirm={() => {
+          if (pendingRevoke !== null) {
+            void revokeToken(pendingRevoke.id);
           }
         }}
-      >
-        <AlertDialogContent>
-          <AlertDialogHeader>
-            <AlertDialogTitle>{SCIM_REVOKE_DIALOG_TITLE}</AlertDialogTitle>
-            <AlertDialogDescription>{SCIM_REVOKE_DIALOG_DESCRIPTION}</AlertDialogDescription>
-          </AlertDialogHeader>
-          <AlertDialogFooter>
-            <AlertDialogCancel>{SCIM_REVOKE_DIALOG_CANCEL}</AlertDialogCancel>
-            <AlertDialogAction
-              className="bg-red-600 text-white hover:bg-red-700"
-              disabled={pendingRevoke === null || revokingId !== null}
-              onClick={(event) => {
-                event.preventDefault();
-
-                if (pendingRevoke !== null) {
-                  void revokeToken(pendingRevoke.id);
-                }
-              }}
-            >
-              {SCIM_REVOKE_DIALOG_CONFIRM}
-            </AlertDialogAction>
-          </AlertDialogFooter>
-        </AlertDialogContent>
-      </AlertDialog>
+      />
     </div>
   );
 }
