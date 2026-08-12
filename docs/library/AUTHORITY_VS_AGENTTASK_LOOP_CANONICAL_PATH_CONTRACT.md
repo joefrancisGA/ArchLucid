@@ -1,6 +1,6 @@
 > **Scope:** Contributor-reference — Authority pipeline vs AgentTask-loop canonical path (TB-1007); not a buyer-facing trust claim.
 
-# Authority vs AgentTask-loop canonical path (TB-1007)
+# Authority vs AgentTask-loop canonical path (**TB-1007**)
 
 > **Audience:** Contributors, principal architects, and integrators.  
 > **Not** a buyer assurance claim — Authority-as-product-default ≠ “`/result` is retired” and ≠ dual storage pipelines still shipping.

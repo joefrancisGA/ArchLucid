@@ -1,6 +1,6 @@
 > **Scope:** Contributor-reference — committed golden manifest as unit of truth (TB-1003); not a buyer-facing trust claim.
 
-# Committed golden manifest unit of truth (TB-1003)
+# Committed golden manifest unit of truth (**TB-1003**)
 
 > **Audience:** Contributors, principal architects, and GTM claim reviewers.  
 > **Not** a buyer assurance claim — application-layer `ManifestHash` lineage ≠ WORM storage and ≠ PKI signing.

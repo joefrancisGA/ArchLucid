@@ -129,6 +129,26 @@ GUARDS: tuple[GuardCommand, ...] = (
         None,
     ),
     GuardCommand(
+        "committed-manifest substitute honesty",
+        ("python", "scripts/ci/check_committed_manifest_substitute_honesty.py"),
+        None,
+    ),
+    GuardCommand(
+        "netarchtest isolation honesty",
+        ("python", "scripts/ci/check_netarchtest_isolation_honesty.py"),
+        None,
+    ),
+    GuardCommand(
+        "authority AgentTask path honesty",
+        ("python", "scripts/ci/check_authority_agenttask_path_honesty.py"),
+        None,
+    ),
+    GuardCommand(
+        "append-only sealed evidence honesty",
+        ("python", "scripts/ci/check_append_only_sealed_evidence_honesty.py"),
+        None,
+    ),
+    GuardCommand(
         "isolation claims too-strong honesty",
         ("python", "scripts/ci/check_isolation_claims_too_strong_honesty.py"),
         None,

@@ -1029,6 +1029,26 @@ jobs:
         continue-on-error: true
         run: python scripts/ci/check_tenant_identity_header_rederive_honesty.py
 
+      - name: Committed-manifest substitute honesty guard (TB-1004 / M-154)
+        continue-on-error: true
+        run: python scripts/ci/check_committed_manifest_substitute_honesty.py
+
+      - name: NetArchTest isolation honesty guard (TB-1006 / M-156)
+        continue-on-error: true
+        run: python scripts/ci/check_netarchtest_isolation_honesty.py
+
+      - name: Authority AgentTask path honesty guard (TB-1008 / M-158)
+        continue-on-error: true
+        run: python scripts/ci/check_authority_agenttask_path_honesty.py
+
+      - name: Append-only sealed evidence honesty guard (TB-1010 / M-160)
+        continue-on-error: true
+        run: python scripts/ci/check_append_only_sealed_evidence_honesty.py
+
+      - name: Honesty cluster 1004-1010 guard unit tests
+        continue-on-error: true
+        run: python -m unittest discover -s scripts/ci/tests -p "test_check_honesty_cluster_1004_1010.py"
+
       - name: Buyer-surface strict claim guards (blocking when buyer paths changed)
         if: steps.buyer-surface-detect.outputs.changed == 'true'
         run: |

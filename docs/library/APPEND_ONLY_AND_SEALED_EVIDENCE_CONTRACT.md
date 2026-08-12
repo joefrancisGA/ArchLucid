@@ -3,7 +3,7 @@
 # Append-only and sealed evidence contract
 
 **Status:** Active (V1)  
-**Backlog:** **TB-1009** (this contract) · **TB-1010** (honesty CI anchors — open until shipped)  
+**Backlog:** **TB-1009** (this contract) · **TB-1010** (honesty CI anchors — **Done** 2026-08-12)  
 **Audience:** Security / compliance engineers, principal architects, procurement reviewers, coding agents  
 **Related:** [EVIDENCE_IMMUTABILITY.md](./EVIDENCE_IMMUTABILITY.md) (deep dive) · [ARCHITECTURE_INVARIANTS.md](./ARCHITECTURE_INVARIANTS.md) **INV-011** · [PUBLIC_CLAIM_BOUNDARY_GUIDE.md](./PUBLIC_CLAIM_BOUNDARY_GUIDE.md) (**M-160**) · [BUYER_SECURITY_PROCUREMENT_PACKET.md § M-161](../go-to-market/BUYER_SECURITY_PROCUREMENT_PACKET.md#append-only-sealed-evidence-m-161) · [GDPR_ERASURE_VS_APPEND_ONLY_MAP.md](./GDPR_ERASURE_VS_APPEND_ONLY_MAP.md) (**TB-1470** / **M-265**) · [EVIDENCE_BACKUP_RESTORE_INVARIANT_MAP.md](./EVIDENCE_BACKUP_RESTORE_INVARIANT_MAP.md) (**TB-1490** / **M-270**) · [PROJECT_SOFT_DELETE_SEALED_EVIDENCE_MAP.md](./PROJECT_SOFT_DELETE_SEALED_EVIDENCE_MAP.md) (**TB-1497** / **M-272**) · Done **TB-303** / **TB-307** / **TB-310** / **TB-311** · ADR [0039](../architecture/adrs/0039-commit-sealed-evidence-immutability.md) · ADR [0040](../architecture/adrs/0040-tamper-evident-lineage-without-worm-storage.md) · PA alias [APPEND_ONLY_SEALED_EVIDENCE_PA_ONE_PAGER.md](../go-to-market/APPEND_ONLY_SEALED_EVIDENCE_PA_ONE_PAGER.md)
 
@@ -88,7 +88,7 @@ When a prior sealed statement was wrong:
 
 ---
 
-## 7. CI anchors for **TB-1010** (contract published; CI open)
+## 7. CI anchors for **TB-1010** (contract published; CI **Done** 2026-08-12)
 
 Honesty / architecture tests should fail closed when marketing or code implies:
 
@@ -101,7 +101,7 @@ Honesty / architecture tests should fail closed when marketing or code implies:
 | Post-commit package byte mutation without new identity | Commit / hash-pin tests |
 | Equating FindingReviewEvents with SQL DENY–sealed AuditEvents | Require §3 tier language |
 
-Until **TB-1010** ships, treat this document as the **human** gate; CI is the **mechanical** gate.
+Until **TB-1010** shipped (2026-08-12), this document was the **human** gate; CI is the **mechanical** gate (`check_append_only_sealed_evidence_honesty.py`).
 
 ---
 
