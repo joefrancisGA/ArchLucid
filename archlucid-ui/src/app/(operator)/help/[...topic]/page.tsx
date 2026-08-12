@@ -16,6 +16,7 @@ import { HelpSubprocessorsHeaderMetadata } from "@/app/(operator)/help/_sections
 import { HelpTopicAuthorityGate } from "../_sections/HelpTopicAuthorityGate";
 import { HelpTopicMarkdownClient } from "../_sections/HelpTopicMarkdownClient";
 import { HelpTopicNotFoundView } from "../_sections/HelpTopicNotFoundView";
+import { HELP_TOPIC_ROUTE_REVALIDATE_SECONDS } from "@/lib/help/help-topic-route-cache-policy";
 import { principalCanAccessHelpTopic } from "@/lib/product-documentation-access";
 import { BILLING_AND_PLANS_HELP_ROUTE_METADATA } from "@/lib/billing-and-plans-help-route-metadata";
 import { EXECUTIVE_SUMMARY_HELP_ROUTE_METADATA } from "@/lib/executive/executive-summary-help-route-metadata";
@@ -39,7 +40,7 @@ import { getInboundAuthenticatedServerPrincipal } from "@/lib/server-current-pri
 import { resolveHelpTopicPermanentRedirect } from "@/lib/help/help-topic-permanent-redirects";
 import { resolveInternalRunbookHelpRouteMetadata } from "@/lib/resolve-internal-runbook-help-route-metadata";
 
-export const revalidate = 3600;
+export const revalidate = HELP_TOPIC_ROUTE_REVALIDATE_SECONDS;
 
 const HelpAcceleratorChooserGuideView = dynamic(() =>
   import("../_sections/HelpAcceleratorChooserGuideView").then((module) => module.HelpAcceleratorChooserGuideView),
