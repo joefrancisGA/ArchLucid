@@ -59,6 +59,17 @@ import {
   API_KEYS_SURFACE_DISABLED_DESCRIPTION,
 } from "@/lib/api-keys-settings-copy";
 import { OPERATOR_NAV_LINK_LABELS } from "@/lib/i18n";
+import {
+  REVIEW_SCORECARD_EMPTY_DESCRIPTION,
+  REVIEW_SCORECARD_EMPTY_HEADING,
+  REVIEW_SCORECARD_EMPTY_PRIMARY_CTA,
+  REVIEW_SCORECARD_EMPTY_PRIMARY_HREF,
+  REVIEW_SCORECARD_EMPTY_SECONDARY_CTA,
+  REVIEW_SCORECARD_EMPTY_SECONDARY_HREF,
+  REVIEW_SCORECARD_EMPTY_TERTIARY_CTA,
+  buildReviewScorecardSampleHref,
+} from "@/lib/review-scorecard-empty-state";
+import { PILOT_FEEDBACK_VOCABULARY } from "@/lib/vocabulary/buyer-surface-vocabulary";
 import { SETTINGS_ACCOUNT_SECURITY_PATH, SETTINGS_ROOT_PATH } from "@/lib/settings-admin-route-paths";
 import { API_KEYS_USERS_USERS_LINK } from "@/lib/vocabulary/api-keys-users-vocabulary";
 
@@ -132,6 +143,33 @@ export const COMPARE_ZERO_FINALIZED_COMPACT: EnterpriseCompactEmptyStateProps = 
   actions: [
     { label: BUYER_START_ARCHITECTURE_REVIEW_CTA, href: "/architecture/reviews/new", variant: "primary" },
     { label: "Open reviews", href: "/architecture/reviews", variant: "outline" },
+  ],
+};
+
+/** Architecture scorecard when no finalized reviews exist yet. */
+export const REVIEW_SCORECARD_EMPTY_COMPACT: EnterpriseCompactEmptyStateProps = {
+  testId: "review-scorecard-empty-state",
+  title: REVIEW_SCORECARD_EMPTY_HEADING,
+  description: REVIEW_SCORECARD_EMPTY_DESCRIPTION,
+  actions: [
+    { label: REVIEW_SCORECARD_EMPTY_PRIMARY_CTA, href: REVIEW_SCORECARD_EMPTY_PRIMARY_HREF, variant: "primary" },
+    { label: REVIEW_SCORECARD_EMPTY_TERTIARY_CTA, href: buildReviewScorecardSampleHref(), variant: "outline" },
+    { label: REVIEW_SCORECARD_EMPTY_SECONDARY_CTA, href: REVIEW_SCORECARD_EMPTY_SECONDARY_HREF, variant: "outline" },
+  ],
+};
+
+/** Pilot feedback dashboard when no signals exist in the selected scope. */
+export const PRODUCT_LEARNING_EMPTY_COMPACT: EnterpriseCompactEmptyStateProps = {
+  testId: "product-learning-empty-state",
+  title: PILOT_FEEDBACK_VOCABULARY.emptyStateTitle,
+  description: PILOT_FEEDBACK_VOCABULARY.emptyStateDescription,
+  actions: [
+    { label: PILOT_FEEDBACK_VOCABULARY.emptyStatePrimaryAction, href: "/architecture/reviews", variant: "primary" },
+    {
+      label: PILOT_FEEDBACK_VOCABULARY.emptyStateSecondaryAction,
+      href: "/architecture/reviews/new",
+      variant: "outline",
+    },
   ],
 };
 

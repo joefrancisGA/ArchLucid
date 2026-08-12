@@ -3,7 +3,7 @@
 import { cn } from "@/lib/utils";
 import Link from "next/link";
 
-import { EmptyState } from "@/components/EmptyState";
+import { EnterpriseCompactEmptyState } from "@/components/EnterpriseCompactEmptyState";
 import { OperatorApiProblem } from "@/components/operator/OperatorApiProblem";
 import { OperatorLoadingNotice } from "@/components/operator/OperatorShellMessage";
 import { PilotFeedbackRecommendationLearningVocabularyRail } from "@/components/PilotFeedbackRecommendationLearningVocabularyRail";
@@ -28,6 +28,7 @@ import {
   OPERATOR_LINK,
   OPERATOR_TYPOGRAPHY,
 } from "@/lib/design-tokens";
+import { PRODUCT_LEARNING_EMPTY_COMPACT } from "@/lib/enterprise-compact-empty-state-presets";
 
 import {
   formatUtc,
@@ -155,14 +156,7 @@ export function ProductLearningPageView(props: Props) {
       ) : null}
 
       {emptyDataset && !m.loading ? (
-        <EmptyState
-          title={PILOT_FEEDBACK_VOCABULARY.emptyStateTitle}
-          description={PILOT_FEEDBACK_VOCABULARY.emptyStateDescription}
-          actions={[
-            { label: PILOT_FEEDBACK_VOCABULARY.emptyStatePrimaryAction, href: "/architecture/reviews" },
-            { label: PILOT_FEEDBACK_VOCABULARY.emptyStateSecondaryAction, href: "/architecture/reviews/new" },
-          ]}
-        />
+        <EnterpriseCompactEmptyState {...PRODUCT_LEARNING_EMPTY_COMPACT} />
       ) : null}
 
       {showPopulatedSections ? (
