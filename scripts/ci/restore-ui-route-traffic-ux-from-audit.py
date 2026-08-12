@@ -193,7 +193,6 @@ _AUDIT_UX_SCORES: dict[str, int] = {
     "GOP": 74,
     "SI": 74,
     "GAR": 74,
-    "HE.": 73,
     "HAX": 73,
     "HAE": 73,
     "HEP": 73,

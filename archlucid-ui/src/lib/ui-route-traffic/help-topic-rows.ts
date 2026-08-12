@@ -6,6 +6,12 @@ import { FIRST_ARCHITECTURE_REVIEW_HELP_PATH } from "@/lib/first-architecture-re
 import { GETTING_STARTED_HELP_PATH } from "@/lib/getting-started-help-guide-content";
 import { PATH_CHOOSER_HELP_PATH } from "@/lib/path-chooser-help-route";
 import { SOC2_SELF_ASSESSMENT_HELP_PATH } from "@/lib/soc2-self-assessment-help-route";
+import {
+  HELP_TOPIC_CATCHALL_TRAFFIC_NOTE,
+  HELP_TOPIC_CATCHALL_TRAFFIC_PATH,
+  HELP_TOPIC_CATCHALL_TRAFFIC_ROW_ID,
+  HELP_TOPIC_CATCHALL_TRAFFIC_SECTION,
+} from "@/lib/ui-route-traffic-help-topic-catchall";
 import type { UiRouteTrafficRow } from "@/lib/ui-route-traffic/types";
 
 /** Traffic workbook rows for the `help-topic` workbook section. */
@@ -146,11 +152,19 @@ export const HELP_TOPIC_TRAFFIC_ROWS: readonly UiRouteTrafficRow[] = [
   },
   /** Traffic workbook row ID for help topic catch-all dispatcher. Owner backlog shorthand: HE. */
   {
-    rowId: "HE.",
-    path: "/help/[...topic]",
-    section: "Help topic",
-    note: "Help topic catch-all (Help topic) - App Router /help/[...topic] dispatcher mounts specialty guides (HA/GO/HR/HFX/...) or HelpTopicMarkdownView for residual curated markdown. Residual default path ships + PageContextualHelpButton (Category-1 /help fallback; longer specialty prefixes win). Specialty siblings own richer chrome on their rows. Not a signed-record Sources trail. Score 58/100 (2026-08-08) - help catch-all residual hard-caps at specialty orientation band. Owner pass: Evidence chrome shipped; cannot improve further toward 80 without turning this into a signed-record diligence Sources trail.",
-    noteMustContain: ["PageContextualHelpButton", "Score 58", "cannot improve further toward 80"],
+    rowId: HELP_TOPIC_CATCHALL_TRAFFIC_ROW_ID,
+    path: HELP_TOPIC_CATCHALL_TRAFFIC_PATH,
+    section: HELP_TOPIC_CATCHALL_TRAFFIC_SECTION,
+    note: HELP_TOPIC_CATCHALL_TRAFFIC_NOTE,
+    noteMustContain: [
+      "Router meta",
+      "not a standalone buyer URL",
+      "Per-slug help workbook rows",
+      "router/dispatch hygiene only",
+      "TB-1601",
+    ],
+    noteMustNotContain: ["Score 58", "cannot improve further toward 80"],
+    sectionMustNotEqual: ["Help topic"],
   },
   /** Traffic workbook row ID for Azure permissions help. Owner backlog shorthand: HE (template formerly HAZ at lower Hit%). */
   {

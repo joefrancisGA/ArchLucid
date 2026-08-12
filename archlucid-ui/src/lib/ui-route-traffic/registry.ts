@@ -44,6 +44,7 @@ export const UI_ROUTE_TRAFFIC_STANDALONE_MODULES: readonly string[] = [
   "ui-route-traffic-first-review-guide",
   "ui-route-traffic-governance-dashboard",
   "ui-route-traffic-help-drawer",
+  "ui-route-traffic-help-topic-catchall",
   "ui-route-traffic-impact-preview",
   "ui-route-traffic-legacy-architecture-graph",
   "ui-route-traffic-legacy-login",
