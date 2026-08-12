@@ -1,17 +1,12 @@
 "use client";
 
 import { useCallback, useEffect, useMemo, useState } from "react";
-import Link from "next/link";
 import { zodResolver } from "@hookform/resolvers/zod";
 import { FormProvider, useForm } from "react-hook-form";
 
-import { PageHeading } from "@/components/PageHeading";
 import { OperatorApiProblem } from "@/components/operator/OperatorApiProblem";
 import { OperatorSuccessCallout } from "@/components/operator/OperatorSuccessCallout";
-import { StatusTag } from "@/components/ui/status-tag";
-import { PageContextualHelpButton } from "@/components/usability/PageContextualHelpButton";
 import { DigestsTeamsSlackVocabularyRail } from "@/components/DigestsTeamsSlackVocabularyRail";
-import { TeamsSlackNotificationVocabularyRail } from "@/components/TeamsSlackNotificationVocabularyRail";
 import { useOperateCapability } from "@/hooks/use-operate-capability";
 import type { ApiLoadFailureState } from "@/lib/api-load-failure";
 import { toApiLoadFailure } from "@/lib/api-load-failure";
@@ -22,23 +17,16 @@ import {
   testWebhookSubscription,
   toggleAlertRoutingSubscription,
 } from "@/lib/api";
-import {
-  INTEGRATIONS_READINESS_PATH,
-  INTEGRATIONS_SLACK_PATH,
-} from "@/lib/integrations-nav-paths";
-import { OPERATOR_LAYOUT, OPERATOR_LINK, OPERATOR_TYPOGRAPHY } from "@/lib/design-tokens";
+import { OPERATOR_LAYOUT } from "@/lib/design-tokens";
 import {
   slackIntegrationDefaultValues,
   slackIntegrationFormSchema,
   type SlackIntegrationFormValues,
 } from "@/lib/slack-integration-form-schema";
 import {
-  SLACK_INTEGRATION_NOT_CONFIGURED_NEXT_STEP,
-  SLACK_INTEGRATION_PAGE_SUBTITLE,
-  SLACK_INTEGRATION_PAGE_TITLE,
-  slackIntegrationConfigurationStatusLabel,
-  slackIntegrationConfigurationStatusTagKind,
-} from "@/lib/slack-integration-page-copy";
+  resolveSlackEmphasizedSetupStepId,
+  resolveSlackSetupSteps,
+} from "@/lib/slack-integration-present";
 import {
   SLACK_INTEGRATION_DISABLE_SUCCESS_MESSAGE,
   SLACK_INTEGRATION_ENABLE_SUCCESS_MESSAGE,
@@ -55,10 +43,12 @@ import type { AlertRoutingSubscription } from "@/types/alert-routing";
 import { SlackDestinationForm } from "./SlackDestinationForm";
 import { SlackDestinationsPanel } from "./SlackDestinationsPanel";
 import { SlackIntegrationAside } from "./SlackIntegrationAside";
+import { SlackIntegrationPageHeader } from "./SlackIntegrationPageHeader";
 import {
   AlertRoutingSubscriptionDisableDialog,
   type AlertRoutingSubscriptionDisableTarget,
 } from "@/app/(operator)/integrations/_sections/AlertRoutingSubscriptionDisableDialog";
+
 const SLACK_CHANNEL_TYPE = "SlackWebhook";
 
 const SAVE_FAILURE_MESSAGE = "We could not save this destination. Check the fields and try again.";
@@ -69,6 +59,7 @@ export function SlackIntegrationPageClient(): React.ReactElement {
   const [items, setItems] = useState<AlertRoutingSubscription[]>([]);
   const [loading, setLoading] = useState(false);
   const [failure, setFailure] = useState<ApiLoadFailureState | null>(null);
+  const [lastCheckedAt, setLastCheckedAt] = useState<Date | null>(null);
   const [testingId, setTestingId] = useState<string | null>(null);
   const [testingForm, setTestingForm] = useState(false);
   const [formTestFeedback, setFormTestFeedback] = useState<SlackIntegrationTestFeedback | null>(null);
@@ -96,6 +87,28 @@ export function SlackIntegrationPageClient(): React.ReactElement {
     [slackRows],
   );
 
+  const formTestSucceeded = formTestFeedback?.kind === "success";
+
+  const setupSteps = useMemo(
+    () =>
+      resolveSlackSetupSteps({
+        totalDestinationCount: slackRows.length,
+        activeDestinationCount,
+        formTestSucceeded,
+      }),
+    [activeDestinationCount, formTestSucceeded, slackRows.length],
+  );
+
+  const emphasizedSetupStepId = useMemo(
+    () =>
+      resolveSlackEmphasizedSetupStepId({
+        totalDestinationCount: slackRows.length,
+        activeDestinationCount,
+        formTestSucceeded,
+      }),
+    [activeDestinationCount, formTestSucceeded, slackRows.length],
+  );
+
   const load = useCallback(async (): Promise<void> => {
     setLoading(true);
     setFailure(null);
@@ -103,6 +116,7 @@ export function SlackIntegrationPageClient(): React.ReactElement {
     try {
       const data = await listAlertRoutingSubscriptions();
       setItems(data);
+      setLastCheckedAt(new Date());
     } catch (error) {
       setFailure(toApiLoadFailure(error));
     } finally {
@@ -226,7 +240,6 @@ export function SlackIntegrationPageClient(): React.ReactElement {
     }
 
     setFailure(null);
-    setFormTestFeedback(null);
     setMutationSuccessMessage(null);
 
     try {
@@ -239,6 +252,7 @@ export function SlackIntegrationPageClient(): React.ReactElement {
         metadataJson: buildWebhookSubscriptionMetadata(values.secret, values.eventTypes),
       });
       reset(slackIntegrationDefaultValues);
+      setFormTestFeedback(null);
       await load();
       setMutationSuccessMessage(SLACK_INTEGRATION_SAVE_SUCCESS_MESSAGE);
     } catch {
@@ -257,47 +271,16 @@ export function SlackIntegrationPageClient(): React.ReactElement {
       className={cn("w-full max-w-[68rem] px-4 py-4 sm:px-6 lg:px-8", OPERATOR_LAYOUT.majorSectionGap)}
       data-testid="integrations-slack-page"
     >
-      <PageHeading
-        navHref={INTEGRATIONS_SLACK_PATH}
-        title={SLACK_INTEGRATION_PAGE_TITLE}
-        variant="integration"
-        bordered
-        actions={<PageContextualHelpButton />}
-        description={
-          <>
-            <p className={cn("m-0 max-w-2xl leading-relaxed text-al-text-secondary", OPERATOR_TYPOGRAPHY.body)}>
-              {SLACK_INTEGRATION_PAGE_SUBTITLE}
-            </p>
-            <div className="space-y-2" data-testid="slack-configuration-status">
-              {loading ? (
-                <p className={cn("m-0 font-medium text-al-text-primary", OPERATOR_TYPOGRAPHY.cardTitle)}>
-                  Loading configuration status…
-                </p>
-              ) : (
-                <StatusTag
-                  kind={slackIntegrationConfigurationStatusTagKind(activeDestinationCount)}
-                  label={slackIntegrationConfigurationStatusLabel(activeDestinationCount)}
-                />
-              )}
-              {!loading && activeDestinationCount === 0 ? (
-                <p
-                  className={cn("m-0 max-w-2xl text-al-text-secondary", OPERATOR_TYPOGRAPHY.helper)}
-                  data-testid="slack-not-configured-next-step"
-                >
-                  {SLACK_INTEGRATION_NOT_CONFIGURED_NEXT_STEP}
-                </p>
-              ) : null}
-            </div>
-            <p className={cn("m-0 text-al-text-secondary", OPERATOR_TYPOGRAPHY.helper)}>
-              <Link className={OPERATOR_LINK.inline} href={INTEGRATIONS_READINESS_PATH}>
-                Integration readiness
-              </Link>
-            </p>
-          </>
-        }
+      <SlackIntegrationPageHeader
+        activeDestinationCount={activeDestinationCount}
+        refreshing={loading}
+        refreshDisabled={loading || testingForm || testingId !== null}
+        lastCheckedAt={lastCheckedAt}
+        onRefresh={() => void load()}
       />
-      <TeamsSlackNotificationVocabularyRail currentSurfaceId="slack" />
+
       <DigestsTeamsSlackVocabularyRail currentSurfaceId="slack" />
+
       {failure !== null ? (
         <div role="alert">
           <OperatorApiProblem
@@ -318,32 +301,41 @@ export function SlackIntegrationPageClient(): React.ReactElement {
 
       <FormProvider {...form}>
         <div
-          className={cn("min-w-0", OPERATOR_LAYOUT.sectionStack, !canMutate && "opacity-95")}
+          className={cn(OPERATOR_LAYOUT.mainWithStickyAside)}
+          data-testid="slack-page-layout"
           data-operator-side-rail-kind="none"
         >
-          <SlackDestinationForm
-            onClearFormTestFeedback={() => setFormTestFeedback(null)}
-            canMutate={canMutate}
-            loading={loading}
-            testingForm={testingForm}
-            formTestFeedback={formTestFeedback}
-            onSave={() => void onSave()}
-            onSendTest={() => void onSendFormTest()}
-          />
+          <div className={cn("min-w-0", OPERATOR_LAYOUT.sectionStack, !canMutate && "opacity-95")} data-testid="slack-page-main">
+            <SlackDestinationForm
+              onClearFormTestFeedback={() => setFormTestFeedback(null)}
+              canMutate={canMutate}
+              loading={loading}
+              testingForm={testingForm}
+              formTestFeedback={formTestFeedback}
+              onSave={() => void onSave()}
+              onSendTest={() => void onSendFormTest()}
+            />
 
-          <SlackIntegrationAside />
+            <SlackDestinationsPanel
+              destinations={slackRows}
+              loading={loading}
+              canMutate={canMutate}
+              testingId={testingId}
+              rowTestFeedback={rowTestFeedback}
+              onRefresh={() => void load()}
+              onTest={(routingSubscriptionId) => void onTestDestination(routingSubscriptionId)}
+              onToggle={(routingSubscriptionId, isEnabled, subscriptionName) =>
+                void onToggleDestination(routingSubscriptionId, isEnabled, subscriptionName)
+              }
+            />
+          </div>
 
-          <SlackDestinationsPanel
-            destinations={slackRows}
+          <SlackIntegrationAside
+            className={OPERATOR_LAYOUT.stickyAsideTop}
             loading={loading}
-            canMutate={canMutate}
-            testingId={testingId}
-            rowTestFeedback={rowTestFeedback}
-            onRefresh={() => void load()}
-            onTest={(routingSubscriptionId) => void onTestDestination(routingSubscriptionId)}
-            onToggle={(routingSubscriptionId, isEnabled, subscriptionName) =>
-              void onToggleDestination(routingSubscriptionId, isEnabled, subscriptionName)
-            }
+            activeDestinationCount={activeDestinationCount}
+            setupSteps={setupSteps}
+            emphasizedSetupStepId={emphasizedSetupStepId}
           />
         </div>
       </FormProvider>

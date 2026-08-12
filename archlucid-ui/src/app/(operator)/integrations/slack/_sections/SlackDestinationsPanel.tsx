@@ -18,6 +18,8 @@ import { OPERATOR_TYPOGRAPHY } from "@/lib/design-tokens";
 import { enterpriseMutationControlDisabledTitle } from "@/lib/enterprise-controls-context-copy";
 import { labelForSlackIntegrationEventId } from "@/lib/slack-integration-form-schema";
 import {
+  SLACK_DESTINATIONS_REFRESH_LABEL,
+  SLACK_DESTINATIONS_REFRESHING_LABEL,
   SLACK_INTEGRATION_DESTINATIONS_TITLE,
   SLACK_INTEGRATION_EMPTY_DESCRIPTION,
   SLACK_INTEGRATION_EMPTY_TITLE,
@@ -62,21 +64,23 @@ export function SlackDestinationsPanel(props: SlackDestinationsPanelProps): Reac
           <h2 id="slack-destinations-heading" className={OPERATOR_TYPOGRAPHY.sectionTitle}>
             {SLACK_INTEGRATION_DESTINATIONS_TITLE}
           </h2>
-          <p className={cn("m-0 mt-1 text-al-text-secondary", OPERATOR_TYPOGRAPHY.helper)}>
-            {slackIntegrationDestinationsSupportingText(destinations.length)}
-          </p>
+          {destinations.length > 0 ? (
+            <p className={cn("m-0 mt-1 text-al-text-secondary", OPERATOR_TYPOGRAPHY.helper)}>
+              {slackIntegrationDestinationsSupportingText(destinations.length)}
+            </p>
+          ) : null}
         </div>
         <Button
           type="button"
           variant="outline"
           size="sm"
-          className="shrink-0 px-2"
+          className="shrink-0 gap-2"
           onClick={onRefresh}
           disabled={loading}
-          aria-label={loading ? "Refreshing destinations" : "Refresh destinations"}
           data-testid="slack-destinations-refresh"
         >
           <RefreshCw className={cn("h-4 w-4", loading ? "animate-spin" : "")} aria-hidden />
+          {loading ? SLACK_DESTINATIONS_REFRESHING_LABEL : SLACK_DESTINATIONS_REFRESH_LABEL}
         </Button>
       </div>
 
