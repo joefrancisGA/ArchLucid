@@ -1,5 +1,5 @@
 import type { DigestsHubTabId } from "@/lib/digests-hub-tab";
-import { digestsHubTabFromSearchParam } from "@/lib/digests-hub-tab";
+import { DIGESTS_HUB_GET_STARTED_TAB_ID, digestsHubTabFromSearchParam } from "@/lib/digests-hub-tab";
 
 /** Canonical Architecture digests hub path (Architecture nav group). */
 export const DIGESTS_HUB_PATH = "/architecture/digests";
@@ -24,8 +24,11 @@ export const DIGESTS_SCHEDULE_CANONICAL_PATH = DIGESTS_SCHEDULE_TAB_PATH;
 /** Canonical Digests Subscriptions tab (traffic row AIS). */
 export const DIGESTS_SUBSCRIPTIONS_TAB_PATH = digestsHubTabPath("subscriptions");
 
-/** Canonical Digests Browse tab (traffic row ARB). */
-export const DIGESTS_BROWSE_TAB_PATH = digestsHubTabPath("browse");
+/** Canonical Digests Get started tab (traffic row ARB). */
+export const DIGESTS_GET_STARTED_TAB_PATH = digestsHubTabPath(DIGESTS_HUB_GET_STARTED_TAB_ID);
+
+/** Alias retained for browse-tab deep links and traffic rows. */
+export const DIGESTS_BROWSE_TAB_PATH = DIGESTS_GET_STARTED_TAB_PATH;
 
 /** Browse tab deep link with digest row hash anchor. */
 export function digestsBrowseDigestDeepLink(digestId: string): string {

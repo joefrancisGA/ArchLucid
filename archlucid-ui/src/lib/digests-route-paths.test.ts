@@ -18,13 +18,13 @@ describe("digests-route-paths", () => {
     expect(DIGESTS_HUB_PATH).toBe("/architecture/digests");
     expect(DIGESTS_SCHEDULE_TAB_PATH).toBe("/architecture/digests?tab=schedule");
     expect(DIGESTS_SUBSCRIPTIONS_TAB_PATH).toBe("/architecture/digests?tab=subscriptions");
-    expect(DIGESTS_BROWSE_TAB_PATH).toBe("/architecture/digests?tab=browse");
-    expect(digestsHubTabPath("browse")).toBe(DIGESTS_BROWSE_TAB_PATH);
+    expect(DIGESTS_BROWSE_TAB_PATH).toBe("/architecture/digests?tab=get-started");
+    expect(digestsHubTabPath("get-started")).toBe(DIGESTS_BROWSE_TAB_PATH);
   });
 
   it("builds browse deep links with digest hash anchors", () => {
     expect(digestsBrowseDigestDeepLink("digest-1")).toBe(
-      "/architecture/digests?tab=browse#digest-digest-1",
+      "/architecture/digests?tab=get-started#digest-digest-1",
     );
     expect(digestsBrowseDigestDeepLink("   ")).toBe(DIGESTS_BROWSE_TAB_PATH);
   });

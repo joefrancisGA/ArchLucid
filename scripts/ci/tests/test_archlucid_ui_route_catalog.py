@@ -30,6 +30,8 @@ def test_discover_app_router_paths_includes_architectures_hub() -> None:
 def test_discover_tab_paths_includes_architecture_workspace_tabs() -> None:
     tab_paths = discover_tab_paths()
     assert "/architecture/reviews/[runId]?archTab=evidence" in tab_paths
+    assert "/architecture/digests?tab=get-started" in tab_paths
+    assert "/architecture/digests?tab=browse" not in tab_paths
     assert "/administration/users?tab=roles" in tab_paths
     assert "/administration/users?tab=keys" not in tab_paths
     assert "/architecture/reviews/new?path=guided-intake" in tab_paths
@@ -242,6 +244,11 @@ def test_build_catalog_does_not_track_retired_settings_exec_digest_bookmark() ->
 
 def test_migrate_workbook_path_maps_legacy_settings_exec_digest() -> None:
     assert migrate_workbook_path("/settings/exec-digest") == "/architecture/digests?tab=schedule"
+
+
+def test_migrate_workbook_path_maps_legacy_digests_browse_tab() -> None:
+    assert migrate_workbook_path("/architecture/digests?tab=browse") == "/architecture/digests?tab=get-started"
+    assert migrate_workbook_path("/digests?tab=browse") == "/architecture/digests?tab=get-started"
 
 
 def test_migrate_workbook_path_maps_legacy_operator_system_health() -> None:

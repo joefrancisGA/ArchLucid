@@ -5,7 +5,7 @@ import { isBuyerPolishedOperatorShellEnv } from "@/lib/demo-ui-env";
 import { OPERATOR_TYPOGRAPHY } from "@/lib/design-tokens";
 
 import Link from "next/link";
-import { useCallback, useMemo, useState, type ReactElement } from "react";
+import { useCallback, useEffect, useMemo, useState, type ReactElement } from "react";
 import { usePathname, useRouter, useSearchParams } from "next/navigation";
 
 import { Button } from "@/components/ui/button";
@@ -33,10 +33,11 @@ import {
   DIGESTS_SCHEDULE_TAB_RESPONSIBILITY,
   DIGESTS_SUBSCRIPTIONS_TAB_RESPONSIBILITY,
 } from "@/lib/exec-digest-schedule-page-model";
-import { DIGESTS_HUB_TAB_IDS, type DigestsHubTabId } from "@/lib/digests-hub-tab";
+import { DIGESTS_HUB_TAB_IDS, DIGESTS_HUB_GET_STARTED_TAB_ID, LEGACY_DIGESTS_HUB_BROWSE_TAB_ID, type DigestsHubTabId } from "@/lib/digests-hub-tab";
 import {
   digestsHubNavigationPathname,
   digestsHubTabFromLocation,
+  digestsHubTabPath,
 } from "@/lib/digests-route-paths";
 import {
   digestsListRefreshButtonTitleOperator,
@@ -103,7 +104,20 @@ export function DigestsHubClient(): ReactElement {
         )
       : false;
 
-  const browseSetupGuidesChecklist: boolean = activeTab === "browse" && browseSetupChecklistIncomplete;
+  const browseSetupGuidesChecklist: boolean =
+    activeTab === DIGESTS_HUB_GET_STARTED_TAB_ID && browseSetupChecklistIncomplete;
+
+  useEffect(() => {
+    if (rawTab !== LEGACY_DIGESTS_HUB_BROWSE_TAB_ID) {
+      return;
+    }
+
+    const params = new URLSearchParams(searchParams.toString());
+    params.set(TAB_PARAM, DIGESTS_HUB_GET_STARTED_TAB_ID);
+    const hash = typeof window !== "undefined" ? window.location.hash : "";
+
+    router.replace(`${hubPathname}?${params.toString()}${hash}`);
+  }, [rawTab, searchParams, hubPathname, router]);
 
   // Always carry `?tab=` so shared and traffic deep links survive tab selection (TB-1505).
   const onSelectTab = useCallback(
@@ -138,7 +152,7 @@ export function DigestsHubClient(): ReactElement {
   const latestDigestId: string | null | undefined = healthSnap?.latestArchitectureDigestId;
   const previewDigestId = latestDigestId?.trim() ?? "";
   const hasPreviewDigest: boolean = previewDigestId !== "";
-  const previewHref: string = `${pathname}?${TAB_PARAM}=browse${digestHashFragment(previewDigestId)}`;
+  const previewHref: string = `${digestsHubTabPath(DIGESTS_HUB_GET_STARTED_TAB_ID)}${digestHashFragment(previewDigestId)}`;
 
   /**
    * One primary job per page (TB-1539): preview when configured, or the next setup
@@ -152,7 +166,7 @@ export function DigestsHubClient(): ReactElement {
     activeTab === "schedule"
       ? digestsSchedulePageSubtitle(buyerPolishedShell)
       : digestsBrowsePageSubtitle(buyerPolishedShell);
-  const showBrowseHeaderActions: boolean = activeTab === "browse";
+  const showBrowseHeaderActions: boolean = activeTab === DIGESTS_HUB_GET_STARTED_TAB_ID;
 
   const browseHeaderActions =
     showBrowseHeaderActions && (showHeaderSetupAction || hasPreviewDigest) ? (
@@ -177,7 +191,7 @@ export function DigestsHubClient(): ReactElement {
     ) : null;
 
   const tabLabel = (id: DigestsHubTabId): string => {
-    if (id === "browse") {
+    if (id === DIGESTS_HUB_GET_STARTED_TAB_ID) {
       return digestsBrowseTabLabel(hasDigestHistory);
     }
 
@@ -189,7 +203,7 @@ export function DigestsHubClient(): ReactElement {
   };
 
   const tabResponsibility = (id: DigestsHubTabId): string => {
-    if (id === "browse") {
+    if (id === DIGESTS_HUB_GET_STARTED_TAB_ID) {
       return browseTabResponsibility(hasDigestHistory);
     }
 
@@ -270,7 +284,7 @@ export function DigestsHubClient(): ReactElement {
           />
         )}
 
-        {activeTab === "browse" && !browseSetupGuidesChecklist ? (
+        {activeTab === DIGESTS_HUB_GET_STARTED_TAB_ID && !browseSetupGuidesChecklist ? (
           <p
             className={cn(
               "mb-4 m-0 max-w-3xl rounded-md border border-neutral-200 bg-neutral-50 px-3 py-2 text-neutral-600 dark:border-neutral-700 dark:bg-neutral-900 dark:text-neutral-400",
@@ -282,7 +296,7 @@ export function DigestsHubClient(): ReactElement {
           </p>
         ) : null}
 
-        <TabsContent value="browse" className="mt-4" data-testid="digests-hub-panel">
+        <TabsContent value={DIGESTS_HUB_GET_STARTED_TAB_ID} className="mt-4" data-testid="digests-hub-panel">
           <DigestsBrowseContent
             refreshToken={browseRefreshToken}
             onLoaded={onBrowseLoaded}

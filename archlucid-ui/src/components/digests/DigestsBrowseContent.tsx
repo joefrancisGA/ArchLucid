@@ -209,7 +209,7 @@ export function DigestsBrowseContent(props: DigestsBrowseContentProps = {}): Rea
   }, [digests, refreshToken]);
 
   /**
-   * Honors `/digests?tab=browse#digest-{id}` from the hub Preview action and
+   * Honors `/digests?tab=get-started#digest-{id}` from the hub Preview action and
    * schedule links (TB-1501). Re-runs on hashchange so repeat clicks re-select.
    */
   useEffect(() => {

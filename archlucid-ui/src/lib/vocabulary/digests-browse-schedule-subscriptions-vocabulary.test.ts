@@ -35,11 +35,11 @@ describe("digests-browse-schedule-subscriptions-vocabulary (TB-2290)", () => {
   });
 
   it("resolves current and peer links for each Digests hub tab", () => {
-    expect(resolveDigestsBrowseScheduleSubscriptionsLink("browse")).toEqual(
+    expect(resolveDigestsBrowseScheduleSubscriptionsLink("get-started")).toEqual(
       DIGESTS_BROWSE_SCHEDULE_SUBSCRIPTIONS_BROWSE_LINK,
     );
 
-    expect(resolveDigestsBrowseScheduleSubscriptionsPeerLinks("browse")).toEqual([
+    expect(resolveDigestsBrowseScheduleSubscriptionsPeerLinks("get-started")).toEqual([
       DIGESTS_BROWSE_SCHEDULE_SUBSCRIPTIONS_SCHEDULE_LINK,
       DIGESTS_BROWSE_SCHEDULE_SUBSCRIPTIONS_SUBSCRIPTIONS_LINK,
     ]);

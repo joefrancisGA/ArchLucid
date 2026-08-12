@@ -13,12 +13,12 @@ import {
 describe("DigestsBrowseScheduleSubscriptionsVocabularyRail (TB-2290)", () => {
   it("renders browse strip with peer links to schedule and subscriptions", () => {
     render(
-      <DigestsBrowseScheduleSubscriptionsVocabularyRail currentSurfaceId="browse" />,
+      <DigestsBrowseScheduleSubscriptionsVocabularyRail currentSurfaceId="get-started" />,
     );
 
     const strip = screen.getByTestId("digests-browse-schedule-subscriptions-vocabulary");
     expect(strip).toHaveAttribute("data-variant", "compact");
-    expect(strip).toHaveAttribute("data-current-surface", "browse");
+    expect(strip).toHaveAttribute("data-current-surface", "get-started");
     expect(strip.textContent ?? "").toContain(DIGESTS_BROWSE_SCHEDULE_SUBSCRIPTIONS_COMPACT_LINE);
 
     const schedulePeer = screen.getByTestId(

@@ -302,7 +302,7 @@ describe("ExecDigestScheduleContent", () => {
 
     expect(await screen.findByRole("link", { name: "Preview latest generated digest" })).toHaveAttribute(
       "href",
-      "/architecture/digests?tab=browse#digest-digest-1",
+      "/architecture/digests?tab=get-started#digest-digest-1",
     );
   });
 

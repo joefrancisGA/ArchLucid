@@ -21,6 +21,10 @@ DEFAULT_NEW_HIT_PCT = "0.02%"
 PREFERRED_NEW_ROW_IDS: dict[str, str] = {
     "/shell/contextual-help-drawer": "HCD",
     "/help/choose-your-next-step": "HPX",
+    "/login": "LOG",
+    "/onboard": "OXX",
+    "/onboarding/start": "OSX",
+    "/operate/architecture-graph": "OAX",
 }
 
 # Admin internal-runbook help topics excluded from buyer UX scoring (/al-ui-lowest).
@@ -115,6 +119,8 @@ WORKBOOK_PATH_MIGRATIONS: dict[str, str] = {
     "/settings/alerts": "/governance/alert-rules",
     # TB-1902 / TB-1901: /settings/exec-digest is next.config-only → Digests Schedule tab.
     "/settings/exec-digest": "/architecture/digests?tab=schedule",
+    "/architecture/digests?tab=browse": "/architecture/digests?tab=get-started",
+    "/digests?tab=browse": "/architecture/digests?tab=get-started",
     "/health": "/administration/system-health",
     # Batch A retired help aliases (permanent redirect only) — migrate out of workbook/catalog.
     "/help/core-pilot": "/help/first-architecture-review",
@@ -189,6 +195,7 @@ TRAFFIC_TRACKED_REDIRECT_BOOKMARKS: frozenset[str] = frozenset(
         "/login",
         "/onboard",
         "/onboarding/start",
+        "/operate/architecture-graph",
     }
 )
 
@@ -309,7 +316,7 @@ def discover_tab_paths() -> list[str]:
     digests_tabs = _parse_ts_string_array(UI_LIB_DIR / "digests-hub-tab.ts", "DIGESTS_HUB_TAB_IDS")
     alert_rules_tabs = _parse_ts_string_array(UI_LIB_DIR / "alerts-hub-tab.ts", "ALERT_RULES_HUB_TAB_IDS")
     arch_tabs = _parse_ts_string_array(
-        UI_LIB_DIR / "architecture-workspace-tabs.ts",
+        UI_LIB_DIR / "architecture" / "architecture-workspace-tabs.ts",
         "ARCHITECTURE_WORKSPACE_TAB_IDS",
     )
 
@@ -330,7 +337,14 @@ def discover_tab_paths() -> list[str]:
     return sorted(set(paths))
 
 
+def _is_redirect_shim_path(path: str) -> bool:
+    return path in TRAFFIC_TRACKED_REDIRECT_BOOKMARKS
+
+
 def infer_section(path: str, *, help_alias_paths: set[str]) -> str:
+    if _is_redirect_shim_path(path):
+        return "Redirect shim"
+
     if "?" in path:
         return "Tab surface"
     if path == "/help":

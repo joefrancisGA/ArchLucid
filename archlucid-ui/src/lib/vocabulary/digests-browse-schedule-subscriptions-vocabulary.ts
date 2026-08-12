@@ -2,7 +2,7 @@
  * TB-2290 — Digests Browse ≠ Schedule ≠ Subscriptions vocabulary triad.
  *
  * Why three Digests hub tabs exist:
- * - Browse (`?tab=browse`) is history of generated digest content.
+ * - Get started (`?tab=get-started`) is history of generated digest content.
  * - Schedule (`?tab=schedule`) is executive digest email cadence and recipients.
  * - Subscriptions (`?tab=subscriptions`) are destination subscriptions for
  *   architecture digests after advisory scans.
@@ -19,7 +19,7 @@ import {
 } from "@/lib/digests-route-paths";
 
 export type DigestsBrowseScheduleSubscriptionsSurfaceId =
-  | "browse"
+  | "get-started"
   | "schedule"
   | "subscriptions";
 
@@ -50,7 +50,7 @@ export const DIGESTS_BROWSE_SCHEDULE_SUBSCRIPTIONS_COMPACT_LINE =
 
 export const DIGESTS_BROWSE_SCHEDULE_SUBSCRIPTIONS_BROWSE_LINK: DigestsBrowseScheduleSubscriptionsLink =
   {
-    id: "browse",
+    id: "get-started",
     label: "Browse",
     href: DIGESTS_BROWSE_TAB_PATH,
     whenToUse: "Review generated digest history and open a past summary.",

@@ -1,13 +1,17 @@
 import { describe, expect, it } from "vitest";
 
-import { digestsHubTabFromSearchParam } from "@/lib/digests-hub-tab";
+import {
+  DIGESTS_HUB_GET_STARTED_TAB_ID,
+  digestsHubTabFromSearchParam,
+} from "@/lib/digests-hub-tab";
 
 describe("digestsHubTabFromSearchParam", () => {
-  it("defaults to browse for missing, empty, browse, or unknown tab", () => {
-    expect(digestsHubTabFromSearchParam(null)).toBe("browse");
-    expect(digestsHubTabFromSearchParam("")).toBe("browse");
-    expect(digestsHubTabFromSearchParam("browse")).toBe("browse");
-    expect(digestsHubTabFromSearchParam("nope")).toBe("browse");
+  it("defaults to get-started for missing, empty, legacy browse, or unknown tab", () => {
+    expect(digestsHubTabFromSearchParam(null)).toBe(DIGESTS_HUB_GET_STARTED_TAB_ID);
+    expect(digestsHubTabFromSearchParam("")).toBe(DIGESTS_HUB_GET_STARTED_TAB_ID);
+    expect(digestsHubTabFromSearchParam("browse")).toBe(DIGESTS_HUB_GET_STARTED_TAB_ID);
+    expect(digestsHubTabFromSearchParam("get-started")).toBe(DIGESTS_HUB_GET_STARTED_TAB_ID);
+    expect(digestsHubTabFromSearchParam("nope")).toBe(DIGESTS_HUB_GET_STARTED_TAB_ID);
   });
 
   it("resolves subscriptions and schedule", () => {

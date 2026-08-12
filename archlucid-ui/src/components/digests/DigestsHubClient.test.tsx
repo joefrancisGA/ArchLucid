@@ -184,18 +184,18 @@ describe("DigestsHubClient", () => {
 
     const preview = await screen.findByTestId("digests-preview-action");
 
-    expect(preview).toHaveAttribute("href", "/architecture/digests?tab=browse#digest-d1");
+    expect(preview).toHaveAttribute("href", "/architecture/digests?tab=get-started#digest-d1");
     expect(screen.queryByTestId("digests-primary-action")).not.toBeInTheDocument();
   });
 
-  it("keeps ?tab=browse in the URL when Browse is selected (TB-1505)", async () => {
+  it("keeps ?tab=get-started in the URL when Get started is selected (TB-1505)", async () => {
     searchParams = new URLSearchParams("tab=subscriptions");
 
     render(<DigestsHubClient />);
 
-    fireEvent.click(await screen.findByTestId("digests-hub-tab-browse"));
+    fireEvent.click(await screen.findByTestId("digests-hub-tab-get-started"));
 
-    expect(push).toHaveBeenCalledWith("/architecture/digests?tab=browse");
+    expect(push).toHaveBeenCalledWith("/architecture/digests?tab=get-started");
   });
 
   it("selects the schedule tab from the query parameter and simplifies the header", async () => {
