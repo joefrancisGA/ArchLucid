@@ -6,6 +6,8 @@ Use this runbook when a pilot or private-beta operator submits **Report problem*
 
 **Goal:** Reconstruct tenant scope, failure context, and correlated telemetry in **under five minutes** before drafting a customer reply.
 
+**MVO miss check:** Before treating the report as novel, classify fleet P0 quiet vs expected support-path intake per [`SOLO_OPERATOR_PAGES_VS_SUPPORT_EMAIL_CONTRACT.md`](../operations/SOLO_OPERATOR_PAGES_VS_SUPPORT_EMAIL_CONTRACT.md) (**TB-989**). Structured triage enrichment: **TB-990**.
+
 ## Inputs you need
 
 | Input | Where it appears |

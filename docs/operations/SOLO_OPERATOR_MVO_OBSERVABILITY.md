@@ -86,6 +86,7 @@ pwsh ../../scripts/ops/verify-amw-p0-metrics.ps1
 
 ## Related
 
+- Pages vs support-email decision matrix: [`SOLO_OPERATOR_PAGES_VS_SUPPORT_EMAIL_CONTRACT.md`](SOLO_OPERATOR_PAGES_VS_SUPPORT_EMAIL_CONTRACT.md) (**TB-989**)
 - Metrics catalog: [`OBSERVABILITY.md`](../library/OBSERVABILITY.md)
 - Self-hosted alert YAML: `infra/prometheus/archlucid-alerts.yml` (`tier: p0`)
 - SLO / Grafana: [`SLO_PROMETHEUS_GRAFANA.md`](../runbooks/SLO_PROMETHEUS_GRAFANA.md)
