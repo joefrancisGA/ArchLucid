@@ -45,7 +45,7 @@ export function OperatorHomePageHeader(props: OperatorHomePageHeaderProps): Reac
       title={OPERATOR_HOME_PAGE_TITLE}
       titleTestId="operator-home-page-title"
       subtitle={operatorHomeSubtitleContent(props.subtitle)}
-      subtitleClassName="max-w-none [&_strong]:font-bold"
+      subtitleClassName="[&_strong]:font-bold"
       subtitleTestId="operator-home-page-subtitle"
       actions={
         <div className="flex flex-wrap items-center gap-2" data-testid="operator-home-header-actions">

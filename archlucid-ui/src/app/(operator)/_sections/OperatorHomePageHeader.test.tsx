@@ -34,7 +34,7 @@ describe("OperatorHomePageHeader", () => {
     expect(screen.getByTestId("operator-home-page-subtitle")).toHaveTextContent(
       operatorHomePageSubtitle(false),
     );
-    expect(screen.getByTestId("operator-home-page-subtitle").className).toContain("max-w-none");
+    expect(screen.getByTestId("operator-home-page-subtitle").className).not.toContain("max-w-2xl");
     expect(screen.getByTestId("operator-home-page-subtitle").className).toContain("text-[13px]");
     expect(screen.getByTestId("page-contextual-help-button")).toBeInTheDocument();
     expect(screen.getByTestId("operator-home-header-actions")).toBeInTheDocument();

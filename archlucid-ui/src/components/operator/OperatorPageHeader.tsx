@@ -8,11 +8,7 @@ export type OperatorPageHeaderProps = {
   title: string;
   /** Plain string or rich lead (e.g. bold label prefix on Overview). */
   subtitle?: ReactNode;
-  /**
-   * Optional classes for the subtitle paragraph (non-`navHref` path).
-   * Overview passes `max-w-none` so short dashboard leads use the full work surface;
-   * default remains `max-w-2xl` until **TB-2039** removes the shared measure cap.
-   */
+  /** Optional classes for the subtitle paragraph (non-`navHref` path). */
   subtitleClassName?: string;
   /** Canonical nav href — when set, renders the same icon as primary navigation. */
   navHref?: string;
@@ -107,7 +103,7 @@ export function OperatorPageHeader({
       {subtitle != null && (
         <div
           className={cn(
-            "m-0 mt-2 max-w-2xl text-neutral-500 dark:text-neutral-400",
+            "m-0 mt-2 text-neutral-500 dark:text-neutral-400",
             OPERATOR_TYPOGRAPHY.body,
             subtitleClassName,
           )}

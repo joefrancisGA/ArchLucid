@@ -114,7 +114,7 @@ export function PageHeading({
           </div>
 
           {description !== undefined && description !== null ? (
-            <div className={cn("m-0 max-w-3xl text-al-text-secondary", OPERATOR_TYPOGRAPHY.body)}>{description}</div>
+            <div className={cn("m-0 text-al-text-secondary", OPERATOR_TYPOGRAPHY.body)}>{description}</div>
           ) : null}
 
           {metadata !== undefined && metadata !== null ? (

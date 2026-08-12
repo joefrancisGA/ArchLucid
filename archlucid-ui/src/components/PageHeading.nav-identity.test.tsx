@@ -105,6 +105,20 @@ describe("PageHeading nav identity", () => {
     expect(resolveNavIconForHref("/insights/evidence-graph")).toBeDefined();
   });
 
+  it("renders full-width PageHeading descriptions without default measure caps (TB-2039)", () => {
+    render(
+      <PageHeading
+        navHref="/insights/evidence-graph"
+        title="Evidence graph"
+        description="Short hub lead uses the full work surface."
+      />,
+    );
+
+    const description = screen.getByText("Short hub lead uses the full work surface.");
+    expect(description.className).not.toContain("max-w-3xl");
+    expect(description.className).not.toContain("max-w-2xl");
+  });
+
   it("uses the help topic book icon for in-app help routes without nav identity", () => {
     render(<PageHeading navHref="/help/cloud-connections" title="Cloud connections" />);
 
