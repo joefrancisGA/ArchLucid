@@ -27,6 +27,7 @@ import {
   executeRecommendationLearningPreview,
   executeRecommendationLearningRebuild,
   executeRecommendationLearningRollback,
+  reloadPersistedRecommendationLearningProfileOnly,
   reloadRecommendationLearningOpsBundle,
 } from "./load-recommendation-learning-ops-page-data";
 import {
@@ -152,6 +153,7 @@ export function RecommendationLearningOpsPageClient(props: Props) {
   const [failure, setFailure] = useState<ApiLoadFailureState | null>(props.initialFailure);
   const [preview, setPreview] = useState<RecommendationLearningPreview | null>(null);
   const [busyAction, setBusyAction] = useState<string | null>(null);
+  const [isLoadingPersisted, setIsLoadingPersisted] = useState(false);
   const [rollbackReason, setRollbackReason] = useState("");
   const [rollbackProfileId, setRollbackProfileId] = useState<string | null>(null);
   const [activateReason, setActivateReason] = useState("");
@@ -181,6 +183,20 @@ export function RecommendationLearningOpsPageClient(props: Props) {
       setFailure(toApiLoadFailure(e));
     }
   }, [router]);
+
+  const loadPersistedProfile = useCallback(async () => {
+    setIsLoadingPersisted(true);
+    setFailure(null);
+
+    try {
+      const persistedProfile = await reloadPersistedRecommendationLearningProfileOnly();
+      setProfile(persistedProfile);
+    } catch (e: unknown) {
+      setFailure(toApiLoadFailure(e));
+    } finally {
+      setIsLoadingPersisted(false);
+    }
+  }, []);
 
   const runPreview = useCallback(async () => {
     if (!canMutate) {
@@ -319,12 +335,17 @@ export function RecommendationLearningOpsPageClient(props: Props) {
             <p className={cn("m-0 font-mono text-al-text-secondary", OPERATOR_TYPOGRAPHY.helper)}>{status.scopeLabel}</p>
           </div>
         </div>
-<div className="flex flex-wrap gap-3">
-          <Button type="button" variant="outline" disabled={isRefreshing} onClick={() => void refresh()}>
-            {isRefreshing ? "Refreshing…" : "Refresh counts"}
+        <div className="flex flex-wrap gap-3">
+          <Button type="button" variant="outline" disabled={isRefreshing || isLoadingPersisted} onClick={() => void refresh()}>
+            {isRefreshing ? "Refreshing…" : "Refresh operational data"}
           </Button>
-          <Button type="button" variant="outline" disabled={busyAction !== null} onClick={() => void refresh()}>
-            Load persisted profile
+          <Button
+            type="button"
+            variant="outline"
+            disabled={busyAction !== null || isRefreshing || isLoadingPersisted}
+            onClick={() => void loadPersistedProfile()}
+          >
+            {isLoadingPersisted ? "Loading profile…" : "Load persisted profile"}
           </Button>
           <Button
             type="button"
@@ -344,11 +365,11 @@ export function RecommendationLearningOpsPageClient(props: Props) {
         </div>
         <div className="grid gap-2 sm:grid-cols-2">
           <p className={cn("m-0 text-al-text-secondary", OPERATOR_TYPOGRAPHY.helper)}>
-            Load persisted profile — load the latest successfully persisted profile without recomputing weights.
+            Refresh operational data — reload eligibility counts, profile metadata, and version history from the API.
           </p>
           <p className={cn("m-0 text-al-text-secondary", OPERATOR_TYPOGRAPHY.helper)}>
-            Rebuild from historical outcomes — recompute all recommendation-ranking weights from the eligible historical
-            outcome set and persist a new profile version (immediately active).
+            Load persisted profile — fetch the latest stored weighting profile only, without recomputing weights or
+            refreshing eligibility counts.
           </p>
         </div>
         {!canMutate ? (
@@ -387,7 +408,7 @@ export function RecommendationLearningOpsPageClient(props: Props) {
                   Open completed reviews
                 </Link>
                 <Button type="button" variant="outline" size="sm" onClick={() => void refresh()}>
-                  Refresh counts
+                  Refresh operational data
                 </Button>
               </div>
             ) : null}
