@@ -109,6 +109,29 @@ describe("CompositeAlertRulesContent", () => {
     expect(screen.queryByLabelText(/reopen delta threshold/i)).not.toBeInTheDocument();
   });
 
+  it("TB-1580: uses design-system Input fields and a primary Create Button on the composite form", async () => {
+    render(<CompositeAlertRulesContent />);
+
+    await waitFor(() => {
+      expect(screen.getByTestId("composite-alert-rule-row-composite-1")).toBeInTheDocument();
+    });
+
+    expect(screen.getByLabelText("Name")).toBeInTheDocument();
+    expect(screen.getByTestId("composite-rules-create-button")).toHaveTextContent("Create composite rule");
+  });
+
+  it("TB-1580: composite form source avoids raw html input and button elements", () => {
+    const source = readFileSync(
+      join(process.cwd(), "src", "components", "alerts", "CompositeAlertRulesContent.tsx"),
+      "utf8",
+    );
+
+    expect(source).not.toMatch(/<input\b/);
+    expect(source).not.toMatch(/<button\b/);
+    expect(source).toContain('data-testid="composite-rules-create-button"');
+    expect(source).toContain('variant="primary"');
+  });
+
   it("TB-1579: does not render a duplicate hub page-title h2 on the composite panel", async () => {
     render(<CompositeAlertRulesContent />);
 

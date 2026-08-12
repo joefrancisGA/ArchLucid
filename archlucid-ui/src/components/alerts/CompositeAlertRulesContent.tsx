@@ -6,6 +6,8 @@ import { AlertOperatorToolingRankCue } from "@/components/EnterpriseControlsCont
 import { GettingStartedSteps } from "@/components/GettingStartedSteps";
 import { OperatorApiProblem } from "@/components/OperatorApiProblem";
 import { Button } from "@/components/ui/button";
+import { Input } from "@/components/ui/input";
+import { Label } from "@/components/ui/label";
 import { Skeleton } from "@/components/ui/skeleton";
 import { StatusTag } from "@/components/ui/status-tag";
 import { useOperateCapability } from "@/hooks/use-operate-capability";
@@ -19,6 +21,7 @@ import {
   alertToolingConfigureSectionSubline,
   alertToolingListRefreshButtonTitleOperator,
   alertToolingListRefreshButtonTitleReader,
+  compositeRulesCreateButtonLabelOperator,
   compositeRulesCreateButtonLabelReaderRank,
   compositeRulesCurrentRulesHeadingOperator,
   compositeRulesCurrentRulesHeadingReader,
@@ -47,6 +50,9 @@ import { OPERATOR_TYPOGRAPHY } from "@/lib/design-tokens";
 import type { CompositeAlertRule } from "@/types/composite-alert-rules";
 
 const SEVERITIES = ["Info", "Warning", "High", "Critical"];
+
+const COMPOSITE_RULE_SELECT_CLASS =
+  "mt-1 block w-full rounded-md border border-neutral-300 bg-white p-2 dark:border-neutral-600 dark:bg-neutral-950";
 
 function CompositeAlertRulesListLoadingSkeleton(): React.JSX.Element {
   return (
@@ -245,21 +251,23 @@ export function CompositeAlertRulesContent() {
         aria-label="New composite rule form"
         className="m-0 border-none p-0"
       >
-      <div className="mb-7 grid max-w-3xl gap-3">
-        <label>
-          Name
-          <input
+      <div className="mb-7 grid max-w-3xl gap-4">
+        <div>
+          <Label htmlFor="composite-rule-name">Name</Label>
+          <Input
+            id="composite-rule-name"
             value={name}
-            onChange={(e) => setName(e.target.value)}
-            className="mt-1 block w-full p-2"
+            onChange={(event) => setName(event.target.value)}
+            className="mt-1"
           />
-        </label>
-        <label>
-          Severity when fired
+        </div>
+        <div>
+          <Label htmlFor="composite-rule-severity">Severity when fired</Label>
           <select
+            id="composite-rule-severity"
             value={severity}
-            onChange={(e) => setSeverity(e.target.value)}
-            className="mt-1 block w-full p-2"
+            onChange={(event) => setSeverity(event.target.value)}
+            className={COMPOSITE_RULE_SELECT_CLASS}
           >
             {SEVERITIES.map((s) => (
               <option key={s} value={s}>
@@ -267,13 +275,14 @@ export function CompositeAlertRulesContent() {
               </option>
             ))}
           </select>
-        </label>
-        <label>
-          Combine conditions
+        </div>
+        <div>
+          <Label htmlFor="composite-rule-join-operator">Combine conditions</Label>
           <select
+            id="composite-rule-join-operator"
             value={joinOperator}
-            onChange={(e) => setJoinOperator(e.target.value)}
-            className="mt-1 block w-full p-2"
+            onChange={(event) => setJoinOperator(event.target.value)}
+            className={COMPOSITE_RULE_SELECT_CLASS}
           >
             {COMPOSITE_ALERT_JOIN_OPERATOR_OPTIONS.map((j) => (
               <option key={j.value} value={j.value}>
@@ -281,17 +290,18 @@ export function CompositeAlertRulesContent() {
               </option>
             ))}
           </select>
-        </label>
+        </div>
 
         <fieldset className="rounded-lg border border-neutral-300 p-3 dark:border-neutral-600">
           <legend>Condition 1</legend>
-          <div className="grid gap-2">
-            <label>
-              Metric
+          <div className="grid gap-3">
+            <div>
+              <Label htmlFor="composite-rule-m1-metric">Metric</Label>
               <select
+                id="composite-rule-m1-metric"
                 value={m1}
-                onChange={(e) => setM1(e.target.value)}
-                className="mt-1 block w-full p-2"
+                onChange={(event) => setM1(event.target.value)}
+                className={COMPOSITE_RULE_SELECT_CLASS}
               >
                 {COMPOSITE_ALERT_METRIC_OPTIONS.map((x) => (
                   <option key={x.value} value={x.value}>
@@ -299,13 +309,15 @@ export function CompositeAlertRulesContent() {
                   </option>
                 ))}
               </select>
-            </label>
-            <label>
-              Operator
+            </div>
+            <div>
+              <Label htmlFor="composite-rule-m1-operator">Operator</Label>
               <select
+                id="composite-rule-m1-operator"
                 value={o1}
-                onChange={(e) => setO1(e.target.value)}
-                className="mt-1 block w-full p-2"
+                onChange={(event) => setO1(event.target.value)}
+                className={COMPOSITE_RULE_SELECT_CLASS}
+                aria-label="Operator"
               >
                 {COMPOSITE_ALERT_CONDITION_OPERATOR_OPTIONS.map((x) => (
                   <option key={x.value} value={x.value}>
@@ -313,29 +325,31 @@ export function CompositeAlertRulesContent() {
                   </option>
                 ))}
               </select>
-            </label>
-            <label>
-              Threshold value
-              <input
+            </div>
+            <div>
+              <Label htmlFor="composite-rule-m1-threshold">Threshold value</Label>
+              <Input
+                id="composite-rule-m1-threshold"
                 type="number"
                 step="any"
                 value={v1}
-                onChange={(e) => setV1(Number(e.target.value))}
-                className="mt-1 block w-full p-2"
+                onChange={(event) => setV1(Number(event.target.value))}
+                className="mt-1"
               />
-            </label>
+            </div>
           </div>
         </fieldset>
 
         <fieldset className="rounded-lg border border-neutral-300 p-3 dark:border-neutral-600">
           <legend>Condition 2</legend>
-          <div className="grid gap-2">
-            <label>
-              Metric
+          <div className="grid gap-3">
+            <div>
+              <Label htmlFor="composite-rule-m2-metric">Metric</Label>
               <select
+                id="composite-rule-m2-metric"
                 value={m2}
-                onChange={(e) => setM2(e.target.value)}
-                className="mt-1 block w-full p-2"
+                onChange={(event) => setM2(event.target.value)}
+                className={COMPOSITE_RULE_SELECT_CLASS}
               >
                 {COMPOSITE_ALERT_METRIC_OPTIONS.map((x) => (
                   <option key={x.value} value={x.value}>
@@ -343,13 +357,15 @@ export function CompositeAlertRulesContent() {
                   </option>
                 ))}
               </select>
-            </label>
-            <label>
-              Operator
+            </div>
+            <div>
+              <Label htmlFor="composite-rule-m2-operator">Operator</Label>
               <select
+                id="composite-rule-m2-operator"
                 value={o2}
-                onChange={(e) => setO2(e.target.value)}
-                className="mt-1 block w-full p-2"
+                onChange={(event) => setO2(event.target.value)}
+                className={COMPOSITE_RULE_SELECT_CLASS}
+                aria-label="Operator"
               >
                 {COMPOSITE_ALERT_CONDITION_OPERATOR_OPTIONS.map((x) => (
                   <option key={x.value} value={x.value}>
@@ -357,44 +373,48 @@ export function CompositeAlertRulesContent() {
                   </option>
                 ))}
               </select>
-            </label>
-            <label>
-              Threshold value
-              <input
+            </div>
+            <div>
+              <Label htmlFor="composite-rule-m2-threshold">Threshold value</Label>
+              <Input
+                id="composite-rule-m2-threshold"
                 type="number"
                 step="any"
                 value={v2}
-                onChange={(e) => setV2(Number(e.target.value))}
-                className="mt-1 block w-full p-2"
+                onChange={(event) => setV2(Number(event.target.value))}
+                className="mt-1"
               />
-            </label>
+            </div>
           </div>
         </fieldset>
 
-        <label>
-          Suppression window (minutes)
-          <input
+        <div>
+          <Label htmlFor="composite-rule-suppression-minutes">Suppression window (minutes)</Label>
+          <Input
+            id="composite-rule-suppression-minutes"
             type="number"
             value={suppressionWindowMinutes}
-            onChange={(e) => setSuppressionWindowMinutes(Number(e.target.value))}
-            className="mt-1 block w-full p-2"
+            onChange={(event) => setSuppressionWindowMinutes(Number(event.target.value))}
+            className="mt-1"
           />
-        </label>
-        <label>
-          Cooldown (minutes)
-          <input
+        </div>
+        <div>
+          <Label htmlFor="composite-rule-cooldown-minutes">Cooldown (minutes)</Label>
+          <Input
+            id="composite-rule-cooldown-minutes"
             type="number"
             value={cooldownMinutes}
-            onChange={(e) => setCooldownMinutes(Number(e.target.value))}
-            className="mt-1 block w-full p-2"
+            onChange={(event) => setCooldownMinutes(Number(event.target.value))}
+            className="mt-1"
           />
-        </label>
-        <label>
-          Dedupe scope
+        </div>
+        <div>
+          <Label htmlFor="composite-rule-dedupe-scope">Dedupe scope</Label>
           <select
+            id="composite-rule-dedupe-scope"
             value={dedupeScope}
-            onChange={(e) => setDedupeScope(e.target.value)}
-            className="mt-1 block w-full p-2"
+            onChange={(event) => setDedupeScope(event.target.value)}
+            className={COMPOSITE_RULE_SELECT_CLASS}
           >
             {COMPOSITE_ALERT_DEDUPE_SCOPE_OPTIONS.map((d) => (
               <option key={d.value} value={d.value}>
@@ -402,20 +422,18 @@ export function CompositeAlertRulesContent() {
               </option>
             ))}
           </select>
-        </label>
+        </div>
 
-        <button
+        <Button
           type="button"
+          variant="primary"
+          data-testid="composite-rules-create-button"
           onClick={() => void onCreate()}
           disabled={loading || !canMutateComposite}
           title={canMutateComposite ? undefined : enterpriseMutationControlDisabledTitle}
-          className={cn(
-            !canMutateComposite &&
-              "rounded border border-neutral-300 bg-neutral-50 text-neutral-600 dark:border-neutral-600 dark:bg-neutral-900/50 dark:text-neutral-400",
-          )}
         >
-          {canMutateComposite ? "Create composite rule" : compositeRulesCreateButtonLabelReaderRank}
-        </button>
+          {canMutateComposite ? compositeRulesCreateButtonLabelOperator : compositeRulesCreateButtonLabelReaderRank}
+        </Button>
       </div>
       </fieldset>
         </section>

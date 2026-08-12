@@ -473,6 +473,9 @@ export const compositeRulesCurrentRulesHeadingReader = "Current composite rules 
 export const compositeRulesRefreshAssistReaderLine =
   "Refresh reloads the rule list (GET only; does not create or change rules).";
 
+/** Composite — primary create button when mutation capability is true. */
+export const compositeRulesCreateButtonLabelOperator = "Create composite rule";
+
 /** Composite — primary create button when mutation capability is false. */
 export const compositeRulesCreateButtonLabelReaderRank = "Create composite rule (Execute+)";
 
