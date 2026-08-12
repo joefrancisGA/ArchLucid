@@ -205,7 +205,7 @@ describe("WizardStepTrack", () => {
     }
   });
 
-  it("shows timeout message and retry after the poll watchdog elapses", async () => {
+  it("frames the elapsed poll watchdog as still running, not failed", async () => {
     vi.useFakeTimers({ shouldAdvanceTime: true });
 
     renderWithTooltips(
@@ -223,8 +223,9 @@ describe("WizardStepTrack", () => {
       await vi.advanceTimersByTimeAsync(180_000);
     });
 
-    expect(screen.getByText(/We're preparing this review/i)).toBeInTheDocument();
-    expect(screen.getByRole("button", { name: /retry polling/i })).toBeInTheDocument();
+    expect(screen.getByText(/nothing was canceled and analysis is still running/i)).toBeInTheDocument();
+    expect(screen.queryByRole("button", { name: /retry/i })).toBeNull();
+    expect(screen.getByRole("button", { name: /keep watching/i })).toBeInTheDocument();
   });
 
   it("calls onRetryPolling when the operator retries after a stall", async () => {
@@ -247,7 +248,7 @@ describe("WizardStepTrack", () => {
       await vi.advanceTimersByTimeAsync(180_000);
     });
 
-    fireEvent.click(screen.getByRole("button", { name: /retry polling/i }));
+    fireEvent.click(screen.getByRole("button", { name: /keep watching/i }));
     expect(onRetryPolling).toHaveBeenCalledTimes(1);
   });
 

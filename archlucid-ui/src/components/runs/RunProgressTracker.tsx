@@ -33,9 +33,11 @@ import { formatStageDurationMs } from "@/lib/format-stage-duration";
 import { formatInstantForLocale } from "@/lib/locale-datetime";
 import { buyerPipelineStageName } from "@/lib/pipeline-stage-buyer-labels";
 import {
+  REVIEW_PIPELINE_ASSESSMENT_WATCHDOG_MESSAGE,
   REVIEW_PIPELINE_BACKGROUND_SAFETY_MESSAGE,
   REVIEW_PIPELINE_DURATION_ESTIMATE_DISCLAIMER,
   REVIEW_PIPELINE_ENABLE_NOTIFICATIONS_LABEL,
+  REVIEW_PIPELINE_KEEP_WATCHING_CTA,
   REVIEW_PIPELINE_NOTIFICATIONS_ENABLED_LABEL,
   resolveReviewPipelineBackgroundSafetyMessage,
   resolveReviewPipelinePollMaxMs,
@@ -244,7 +246,7 @@ export function RunProgressTracker({
       }
 
       if (clientPhase === "timeout") {
-        return "Assessment is taking longer than expected. Check again or open Reviews for the latest status.";
+        return REVIEW_PIPELINE_ASSESSMENT_WATCHDOG_MESSAGE;
       }
 
       return `${completedAssessmentStages} of ${assessmentStageCount} assessment stages complete.`;
@@ -285,7 +287,6 @@ export function RunProgressTracker({
     pollEnabled && canPromptForDesktopNotifications() && notificationPermission === "default";
   const showNotificationEnabled = pollEnabled && notificationPermission === "granted";
   const progressHeading = buyerAssessmentCopy ? "Assessment progress" : "Pipeline progress";
-  const retryLabel = buyerAssessmentCopy ? "Check again" : "Retry polling";
 
   return (
     <section
@@ -363,7 +364,7 @@ export function RunProgressTracker({
               setPollSession((s) => s + 1);
             }}
           >
-            {retryLabel}
+            {REVIEW_PIPELINE_KEEP_WATCHING_CTA}
           </Button>
         </div>
       ) : null}

@@ -16,6 +16,7 @@ import { OPERATOR_LINK, OPERATOR_TYPOGRAPHY } from "@/lib/design-tokens";
 import { isBuyerPolishedOperatorShellEnv } from "@/lib/demo-ui-env";
 import { recordReviewGenerationHandoff, reviewDetailHrefAfterGeneration } from "@/lib/review-generation-handoff";
 import {
+  REVIEW_PIPELINE_KEEP_WATCHING_CTA,
   resolveReviewPipelinePollMaxMs,
   resolveReviewPipelineTimeoutMessage,
 } from "@/lib/review-execution-background-safety-copy";
@@ -199,7 +200,7 @@ export function WizardStepTrack({ runId, pollSummary, onRetryPolling }: WizardSt
                 onRetryPolling?.();
               }}
             >
-              Retry polling
+              {REVIEW_PIPELINE_KEEP_WATCHING_CTA}
             </Button>
           ) : null}
         </div>

@@ -60,24 +60,33 @@ export function resolveReviewPipelinePollMaxMs(p90Seconds: number | null | undef
   return Math.min(Math.max(extendedMs, REVIEW_PIPELINE_DEFAULT_POLL_MAX_MS), REVIEW_PIPELINE_POLL_MAX_CAP_MS);
 }
 
+/**
+ * Reaching the watchdog ceiling means the browser stopped refreshing, not that the server failed.
+ * Same distinction `useReviewCreationProgress` draws between `failed` and `unresolved`, and the same
+ * reason it matters: framing a still-running analysis as a failure is what prompts duplicate work.
+ */
+export const REVIEW_PIPELINE_WATCHDOG_NOTHING_CANCELED_CLAUSE =
+  "nothing was canceled and analysis is still running on the server";
+
+/** Re-arms client polling only; deliberately not "Retry", which reads as re-running the analysis. */
+export const REVIEW_PIPELINE_KEEP_WATCHING_CTA = "Keep watching";
+
+export const REVIEW_PIPELINE_ASSESSMENT_WATCHDOG_MESSAGE =
+  `We stopped refreshing this page — ${REVIEW_PIPELINE_WATCHDOG_NOTHING_CANCELED_CLAUSE}. Keep watching or open Reviews for the latest status.`;
+
 export function resolveReviewPipelineTimeoutMessage(options: {
   readonly buyerPolished: boolean;
   readonly runId: string;
   readonly p90Seconds: number | null | undefined;
 }): string {
   const extended = (options.p90Seconds ?? 0) > 180;
+  const longerThanUsual = extended
+    ? " Recent reviews in your workspace often take longer than a few minutes."
+    : "";
 
   if (options.buyerPolished) {
-    if (extended) {
-      return "We're still preparing this review — recent reviews in your workspace often take longer than a few minutes. Use Retry or refresh the page.";
-    }
-
-    return "We're preparing this review; this can take a moment. Use Retry or refresh the page.";
+    return `We're still preparing this review — ${REVIEW_PIPELINE_WATCHDOG_NOTHING_CANCELED_CLAUSE}.${longerThanUsual} Keep watching or open Reviews for the latest status.`;
   }
 
-  if (extended) {
-    return `Pipeline may still be running server-side (review ${options.runId}). Recent workspace reviews often exceed three minutes — use Retry, refresh this page, or check Reviews for status.`;
-  }
-
-  return `Pipeline may still be running server-side (review ${options.runId}). Use Retry to watch for up to ~3 minutes, refresh this page, or check Reviews for status.`;
+  return `We stopped refreshing this page — ${REVIEW_PIPELINE_WATCHDOG_NOTHING_CANCELED_CLAUSE} (review ${options.runId}).${longerThanUsual} Keep watching, refresh this page, or check Reviews for status.`;
 }

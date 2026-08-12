@@ -347,8 +347,9 @@ describe("RunProgressTracker", () => {
       await vi.runOnlyPendingTimersAsync();
     });
 
-    expect(screen.getByText(/We're preparing this review/i)).toBeInTheDocument();
-    expect(screen.getByRole("button", { name: /retry polling/i })).toBeInTheDocument();
+    expect(screen.getByText(/nothing was canceled and analysis is still running/i)).toBeInTheDocument();
+    expect(screen.queryByRole("button", { name: /retry/i })).toBeNull();
+    expect(screen.getByRole("button", { name: /keep watching/i })).toBeInTheDocument();
   });
 
   it("shows granular stage label from stage timeline when available", async () => {
