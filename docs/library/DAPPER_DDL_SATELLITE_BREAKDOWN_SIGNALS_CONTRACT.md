@@ -4,7 +4,7 @@
 
 > **Audience:** Contributors evaluating data-access complexity and ORM debates.  
 > **Buyer summary:** [`BUYER_SECURITY_PROCUREMENT_PACKET.md`](../go-to-market/BUYER_SECURITY_PROCUREMENT_PACKET.md#dapper-ddl-satellite-breakdown-m-220) (**M-219** / **M-220**).  
-> **Honesty CI:** **TB-1264** (open).
+> **Honesty CI:** **TB-1264** Done (`scripts/ci/check_dapper_ddl_satellite_breakdown_signals_honesty.py`).
 
 ---
 
@@ -83,6 +83,16 @@ New feature PRs **routinely** need **≥3** of:
 | Dual-write satellites = “halfway to ORM” | Intentional provenance pattern |
 | JSON columns prove Dapper failed | Compat layer — measure LOB/list pain |
 | “Adopt ORM now” without metrics | **TB-931** / ladder exhaustion |
+
+---
+
+## CI anchors for **TB-1264**
+
+| Anchor | Purpose |
+| --- | --- |
+| This contract + buyer packet **M-219** / **M-220** | Required cite near ORM-under-duress language |
+| `scripts/ci/check_dapper_ddl_satellite_breakdown_signals_honesty.py` | Fail EF-fixes-isolation/DENY / satellites=ORM / adopt-ORM-now overclaims |
+| Code presence | `SqlGoldenManifestRepository`, `HotPathRelationalQueryShapes` |
 
 ---
 

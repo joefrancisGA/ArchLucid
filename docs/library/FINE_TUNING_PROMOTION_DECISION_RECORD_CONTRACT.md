@@ -79,7 +79,7 @@ Each **Promote**, **Reject**, or **Rollback** writes a new row. Prior promote ro
 | --- | --- |
 | `FineTuningPromotionDecisionEvents` table or append-only event store | Persist rows per table above |
 | API / operator export | Read-only decision history per tenant |
-| **TB-1293** CI | Fail ratio-only / silent-swap / rollback-without-record claims |
+| **TB-1293** CI | Fail ratio-only / silent-swap / rollback-without-record claims (`check_fine_tuning_promotion_decision_record_honesty.py`) |
 
 Owner may park schema to V1.1; **this contract remains V1 documentation**.
 
@@ -92,8 +92,18 @@ Owner may park schema to V1.1; **this contract remains V1 documentation**.
 | Done **TB-594** | Promotion gate + cache invalidation |
 | Open **TB-690** | Fine-tuning job activation (not reopened here) |
 | Open **TB-1228** | Faithfulness score lanes (complementary) |
-| Open **TB-1293** | Honesty CI anchors citing this contract |
+| Open **TB-1293** | Honesty CI shipped (`check_fine_tuning_promotion_decision_record_honesty.py`) |
 | **M-227** / **M-228** | GTM one-pager + procurement packet |
+
+---
+
+## CI anchors for **TB-1293**
+
+| Anchor | Purpose |
+| --- | --- |
+| This contract + **M-227** PA one-pager | Drift guard for FT promotion audit claims |
+| `scripts/ci/check_fine_tuning_promotion_decision_record_honesty.py` | Fail ratio-only / silent-swap / rollback-without-record overclaims |
+| Code presence | `GoldenCohortFineTuningPromotionGate`, `FineTunedModelRegistryEntry` |
 
 ---
 

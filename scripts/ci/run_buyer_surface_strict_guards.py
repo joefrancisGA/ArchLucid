@@ -184,6 +184,26 @@ GUARDS: tuple[GuardCommand, ...] = (
         None,
     ),
     GuardCommand(
+        "dapper DDL satellite breakdown honesty",
+        ("python", "scripts/ci/check_dapper_ddl_satellite_breakdown_signals_honesty.py"),
+        None,
+    ),
+    GuardCommand(
+        "fine-tuning promotion decision record honesty",
+        ("python", "scripts/ci/check_fine_tuning_promotion_decision_record_honesty.py"),
+        None,
+    ),
+    GuardCommand(
+        "real execute AOAI throttle policy honesty",
+        ("python", "scripts/ci/check_real_execute_aoai_throttle_policy_honesty.py"),
+        None,
+    ),
+    GuardCommand(
+        "async orchestration first-force honesty",
+        ("python", "scripts/ci/check_async_orchestration_first_force_honesty.py"),
+        None,
+    ),
+    GuardCommand(
         "isolation claims too-strong honesty",
         ("python", "scripts/ci/check_isolation_claims_too_strong_honesty.py"),
         None,

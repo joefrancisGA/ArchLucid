@@ -1085,6 +1085,26 @@ jobs:
         continue-on-error: true
         run: python -m unittest discover -s scripts/ci/tests -p "test_check_honesty_cluster_1229_1245.py"
 
+      - name: Dapper DDL satellite breakdown honesty guard (TB-1264 / M-219)
+        continue-on-error: true
+        run: python scripts/ci/check_dapper_ddl_satellite_breakdown_signals_honesty.py
+
+      - name: Fine-tuning promotion decision record honesty guard (TB-1293 / M-227)
+        continue-on-error: true
+        run: python scripts/ci/check_fine_tuning_promotion_decision_record_honesty.py
+
+      - name: Real execute AOAI throttle policy honesty guard (TB-1300 / M-229)
+        continue-on-error: true
+        run: python scripts/ci/check_real_execute_aoai_throttle_policy_honesty.py
+
+      - name: Async orchestration first-force honesty guard (TB-1312 / M-231)
+        continue-on-error: true
+        run: python scripts/ci/check_async_orchestration_first_force_honesty.py
+
+      - name: Honesty cluster 1264-1312 guard unit tests
+        continue-on-error: true
+        run: python -m unittest discover -s scripts/ci/tests -p "test_check_honesty_cluster_1264_1312.py"
+
       - name: Buyer-surface strict claim guards (blocking when buyer paths changed)
         if: steps.buyer-surface-detect.outputs.changed == 'true'
         run: |

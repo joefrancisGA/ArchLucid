@@ -1361,13 +1361,13 @@ All **P0** **V1**: visible-boundary button contract + design-system rule (**TB-2
 | TB-1233 | **Done** (2026-08-12) ? Anti-WHERE-TenantId-equals-isolation / ARCH-alone-proves / RLS-as-beyond-predicate honesty CI; see `## TB-1233` below | Testability P1 ? **V1**; after **TB-1232**; pairs **M-213** | S |
 | TB-1245 | **Done** (2026-08-12) ? Anti-least-privilege-while-db_owner-colocated / PE-equals-private / AOAI-Contributor honesty CI; see `## TB-1245` below | Testability P1 ? **V1**; after **TB-1244**; pairs **M-215** | S |
 | TB-1252 | Anti-AllowAnonymous-equals-safe / DemoScopes-pin-equals-catalog / empty-demo-scope honesty CI; see `## TB-1252` below | Testability P1 ? **V1**; after **TB-1251**; pairs **M-217** | S |
-| TB-1264 | Anti-EF-fixes-tenancy-immutability-perf / ORM-under-duress honesty CI; see `## TB-1264` below | Testability P1 ? **V1**; after **TB-1263**; pairs **M-219** | S |
+| TB-1264 | **Done** (2026-08-12) ? Anti-EF-fixes-tenancy-immutability-perf / ORM-under-duress honesty CI; see `## TB-1264` below | Testability P1 ? **V1**; after **TB-1263**; pairs **M-219** | S |
 | TB-1271 | **Done** (2026-08-11) ? anti-exactly-once-commit / silent-double-package / retry-never-spends honesty CI; see `## TB-1271` below | Testability P1 ? **V1**; after **TB-1270**; pairs **M-221** | S |
 | TB-1278 | **Done** (2026-08-11) ? manifest schema evolution honesty CI; see `## TB-1278` below | Testability P1 ? **V1**; after **TB-1277**; pairs **M-223** | S |
 | TB-1288 | **Done** (2026-08-11) ? anti-gates-alone FinOps / call-site-reserve-enough / direct-SDK-bypass honesty CI; see `## TB-1288` below | Testability P1 ? **V1**; after **TB-1287**; pairs **M-225** | S |
-| TB-1293 | Anti-ratio-only-promote / silent-model-swap / rollback-without-record honesty CI; see `## TB-1293` below | Testability P1 ? **V1**; after **TB-1292**; pairs **M-227** | S |
-| TB-1300 | Anti-silent-sim-on-429 / queue-as-Real-success / labeled-sim-as-buyer-proof honesty CI; see `## TB-1300` below | Testability P1 ? **V1**; after **TB-1299**; pairs **M-229** | S |
-| TB-1312 | Anti-everything-in-process / DTF-required-for-V1 / commit-inside-orchestrator honesty CI; see `## TB-1312` below | Testability P1 ? **V1**; after **TB-1311**; pairs **M-231** | S |
+| TB-1293 | **Done** (2026-08-12) ? Anti-ratio-only-promote / silent-model-swap / rollback-without-record honesty CI; see `## TB-1293` below | Testability P1 ? **V1**; after **TB-1292**; pairs **M-227** | S |
+| TB-1300 | **Done** (2026-08-12) ? Anti-silent-sim-on-429 / queue-as-Real-success / labeled-sim-as-buyer-proof honesty CI; see `## TB-1300` below | Testability P1 ? **V1**; after **TB-1299**; pairs **M-229** | S |
+| TB-1312 | **Done** (2026-08-12) ? Anti-everything-in-process / DTF-required-for-V1 / commit-inside-orchestrator honesty CI; see `## TB-1312` below | Testability P1 ? **V1**; after **TB-1311**; pairs **M-231** | S |
 | TB-1318 | Anti-TF-state-is-SoT-with-silent-ignores / portal-scale-undetected honesty CI; see `## TB-1318` below | Testability P1 ? **V1**; after **TB-1317**; pairs **M-233** | S |
 | TB-1325 | Anti-compile-each-pack-engine / Turing-pack-DSL / pack-equals-cert honesty CI; see `## TB-1325` below | Testability P1 ? **V1**; after **TB-1324**; pairs **M-235** | S |
 | TB-1337 | Anti-SQL-fails-first-at-100x / premature-blob-or-DTF / replicas-fix-TPM honesty CI; see `## TB-1337` below | Testability P1 ? **V1**; after **TB-1336**; pairs **M-237** | S |
@@ -31285,24 +31285,20 @@ Operators must read three intros before reaching the Trust Center link list.
 
 **Window:** V1 ? Testability.
 
-**Status:** Not started.
+**Status:** **Done** (2026-08-12).
 
 **Priority:** P1.
 
 **Source:** Follow-on to **TB-1263**; hardens GTM **M-219**.
 
-**Problem:** Docs/PRs can claim Entity Framework (or ?an ORM?) would fix tenant isolation, sealed-evidence immutability, or hot-path JSON deserialize cost ? or that Dapper is ?temporary until we get an ORM? ? inviting duress rewrites that fight DENYs and miss catalog routing.
+**Shipped:**
 
-**Approach:**
+1. `scripts/ci/check_dapper_ddl_satellite_breakdown_signals_honesty.py` + unit tests; wired in `run_buyer_surface_strict_guards.py` and CI.
+2. Contract anchors updated in [`DAPPER_DDL_SATELLITE_BREAKDOWN_SIGNALS_CONTRACT.md`](DAPPER_DDL_SATELLITE_BREAKDOWN_SIGNALS_CONTRACT.md) (**TB-1263**/**TB-1264**, **M-219**) and `SqlGoldenManifestRepository` / `HotPathRelationalQueryShapes` code anchors.
 
-1. Doc/CI guard: fail stubs that claim EF/ORM substitutes for ADR 0037 catalog isolation, ADR 0039/0045 DENYs, or H2 list/`*Json` engineering without **TB-1263** ladder caveats.
-2. Fail claims that dual-write satellites mean the product is ?already halfway to ORM? or that JSON columns prove Dapper failed.
-3. Fail ?adopt ORM now? without measured LOB/list/commit indicators and exhaustion of typed-projection / **TB-931** (and optionally **TB-932**) steps.
-4. Pair **M-219**; Verification points at `SqlGoldenManifestRepository`, `GoldenManifestPhase1RelationalRead`, `HotPathRelationalQueryShapes`, `JSON_FALLBACK_AUDIT.md`, `SQL_SCRIPTS.md`, ADR 0011/0037/0039.
+**Acceptance:** Met ? CI fails dishonest EF-fixes-*/ORM-under-duress claims; pairs **M-219**.
 
-**Acceptance:** CI fails dishonest EF-fixes-*/ORM-under-duress claims; pairs **M-219**.
-
-**Depends on:** **TB-1263**.
+**Depends on:** Done **TB-1263**.
 
 **Out of scope:** Authoring LinkedIn **M-69** article body; implementing typed scalars.
 
@@ -31970,25 +31966,20 @@ Operators must read three intros before reaching the Trust Center link list.
 
 **Window:** V1 ? Testability.
 
-**Status:** Not started.
+**Status:** **Done** (2026-08-12).
 
 **Priority:** P1.
 
 **Source:** Follow-on to **TB-1292**; hardens GTM **M-227**.
 
-**Problem:** Docs/PRs can claim fine-tuned routing is as auditable as a code rollback while only `PromotedUtc`/`RolledBackUtc` + one ratio exist; or sell ?gate passed? without cohort identity / prior-active pointer; or conflate manifest governance promotion records with model registry decisions.
+**Shipped:**
 
-**Approach:**
+1. `scripts/ci/check_fine_tuning_promotion_decision_record_honesty.py` + unit tests; wired in `run_buyer_surface_strict_guards.py` and CI.
+2. Contract anchors updated in [`FINE_TUNING_PROMOTION_DECISION_RECORD_CONTRACT.md`](FINE_TUNING_PROMOTION_DECISION_RECORD_CONTRACT.md) (**TB-1292**/**TB-1293**, **M-227**) and promotion gate / registry entry code anchors.
 
-1. Doc/CI guard: fail stubs that claim model promote/rollback is code-rollback-grade without naming an append-only decision record (prior pointer, both ratios + floor, cohort pin, actor) per **TB-1292**.
-2. Fail claims that persisting only fine-tuned `EvalSupportRatio` + timestamps is sufficient audit.
-3. Fail claims that silent deployment swaps (or cache eviction alone) constitute an auditable rollback.
-4. Fail conflation of `GovernancePromotionRecord` (manifest workflow) with fine-tuned model promotion decisions.
-5. Pair **M-227**; Verification points at `GoldenCohortFineTuningPromotionGate`, `FineTunedModelRegistryEntry`, `OnlineFineTuningOrchestrationService`, ADR 0056, migration `267_FineTuningManifestOnlineLearning.sql`.
+**Acceptance:** Met ? CI fails dishonest ratio-only / silent-swap / rollback-without-record claims; pairs **M-227**.
 
-**Acceptance:** CI fails dishonest ratio-only / silent-swap / rollback-without-record claims; pairs **M-227**.
-
-**Depends on:** **TB-1292**.
+**Depends on:** Done **TB-1292**.
 
 **Out of scope:** Implementing the decision-record DDL (named as follow-on in **TB-1292**).
 
@@ -32035,25 +32026,20 @@ Operators must read three intros before reaching the Trust Center link list.
 
 **Window:** V1 ? Testability.
 
-**Status:** Not started.
+**Status:** **Done** (2026-08-12).
 
 **Priority:** P1.
 
 **Source:** Follow-on to **TB-1299**; hardens GTM **M-229**.
 
-**Problem:** Docs/PRs can claim graceful AOAI degradation produces buyer-safe Real packages via silent Simulator, that queued executes are Real successes, or that any labeled Simulator fallback is sponsor-proof.
+**Shipped:**
 
-**Approach:**
+1. `scripts/ci/check_real_execute_aoai_throttle_policy_honesty.py` + unit tests; wired in `run_buyer_surface_strict_guards.py` and CI.
+2. Contract anchors updated in [`REAL_EXECUTE_AOAI_THROTTLE_POLICY_CONTRACT.md`](REAL_EXECUTE_AOAI_THROTTLE_POLICY_CONTRACT.md) (**TB-1299**/**TB-1300**, **M-229**) and `FallbackAgentCompletionClient` / execute orchestrator code anchors.
 
-1. Doc/CI guard: fail stubs that say product Real execute falls back to Simulator on 429 without naming INV-002 + non-proof-path allowlist per **TB-1299**.
-2. Fail claims that deferred queue / retry equals a completed Real run or ReadyForCommit package.
-3. Fail claims that CLI `RealModeFellBackToSimulator` / seed-fake-results is buyer live-model evidence.
-4. Fail conflation of AOAI secondary-deployment **Fallback** with DeterministicAgentSimulator.
-5. Pair **M-229**; Verification points at `FallbackAgentCompletionClient`, `StructuralExecutionModeResolver`, `ArchitectureRunExecuteOrchestrator`, `DEGRADED_MODE.md`, `LLM_RETRY_AND_CIRCUIT_BREAKER.md`, INV-002.
+**Acceptance:** Met ? CI fails dishonest silent-sim / queue-as-Real / labeled-sim-as-proof claims; pairs **M-229**.
 
-**Acceptance:** CI fails dishonest silent-sim / queue-as-Real / labeled-sim-as-proof claims; pairs **M-229**.
-
-**Depends on:** **TB-1299**.
+**Depends on:** Done **TB-1299**.
 
 **Out of scope:** Implementing execute-retry queue DDL/worker.
 
@@ -32082,25 +32068,20 @@ Operators must read three intros before reaching the Trust Center link list.
 
 **Window:** V1 ? Testability.
 
-**Status:** Not started.
+**Status:** **Done** (2026-08-12).
 
 **Priority:** P1.
 
 **Source:** Follow-on to **TB-1311**; hardens GTM **M-231**.
 
-**Problem:** Docs/PRs can claim all runs are still fully in-process, that V1 requires DTF/Service Bus for agents, or that moving execute async means commit/finalize must become an orchestration activity.
+**Shipped:**
 
-**Approach:**
+1. `scripts/ci/check_async_orchestration_first_force_honesty.py` + unit tests; wired in `run_buyer_surface_strict_guards.py` and CI.
+2. Contract anchors updated in [`ASYNC_ORCHESTRATION_FIRST_FORCE_AND_RUN_STATE_MACHINE_CONTRACT.md`](ASYNC_ORCHESTRATION_FIRST_FORCE_AND_RUN_STATE_MACHINE_CONTRACT.md) (**TB-1311**/**TB-1312**, **M-231**) and authority/execute orchestrator code anchors.
 
-1. Doc/CI guard: fail stubs that claim ?everything runs in-process? without naming SQL authority queue default (ADR 0038) vs sync agent execute.
-2. Fail claims that absence of DTF/Service Bus agent orchestration is a V1 defect (`V1_DEFERRED.md` ?6f / **TB-921**).
-3. Fail claims that async agent execute or DTF cutover requires rewriting commit / folding finalize into orchestrator activities ? pin separate commit verb per **TB-1311**.
-4. Fail equating integration-event Service Bus with agent orchestration substrate.
-5. Pair **M-231**; Verification points at `AuthorityRunOrchestrator`, `ArchitectureRunExecuteOrchestrator`, `DtfAuthorityRunOrchestrator`, ADR 0038, **TB-921**, `sp_FinalizeManifest`.
+**Acceptance:** Met ? CI fails dishonest in-process / DTF-required / commit-inside-orchestrator claims; pairs **M-231**.
 
-**Acceptance:** CI fails dishonest in-process / DTF-required / commit-inside-orchestrator claims; pairs **M-231**.
-
-**Depends on:** **TB-1311**.
+**Depends on:** Done **TB-1311**.
 
 **Out of scope:** Implementing **TB-924**.
 

@@ -75,9 +75,19 @@
 | ID | Role |
 | --- | --- |
 | **TB-1299** | This contract |
-| **TB-1300** | Open — CI anchors for throttle-policy honesty |
+| **TB-1300** | Done — `scripts/ci/check_real_execute_aoai_throttle_policy_honesty.py` |
 | **TB-1032** | Launch-load order (complements, does not own policy) |
 | **TB-937** / **TB-938** | Done — partial + selective re-execute |
 | **TB-969** / **TB-971** | Done — execution-mode honesty |
 
-**CI follow-on:** **TB-1300** should fail silent Real→Simulator mid-execute claims and mislabeled Fallback-as-Simulator copy in buyer surfaces.
+**CI follow-on:** **TB-1300** Done — `check_real_execute_aoai_throttle_policy_honesty.py` fails silent Real→Simulator and queue-as-Real-success copy.
+
+---
+
+## CI anchors for **TB-1300**
+
+| Anchor | Purpose |
+| --- | --- |
+| This contract + **M-229** / **M-230** | Required cite near AOAI throttle / degrade language |
+| `scripts/ci/check_real_execute_aoai_throttle_policy_honesty.py` | Fail silent-sim / queue-as-Real / Fallback-as-Simulator overclaims |
+| Code presence | `FallbackAgentCompletionClient`, `ArchitectureRunExecuteOrchestrator` |

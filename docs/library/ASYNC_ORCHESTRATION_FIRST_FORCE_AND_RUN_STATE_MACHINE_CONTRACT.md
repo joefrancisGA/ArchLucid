@@ -8,7 +8,7 @@
 **GTM:** **M-231** / **M-232** · **M-162** · **M-145**.  
 **Authority path:** [`AUTHORITY_VS_AGENTTASK_LOOP_CANONICAL_PATH_CONTRACT.md`](AUTHORITY_VS_AGENTTASK_LOOP_CANONICAL_PATH_CONTRACT.md) (**TB-1007**).  
 **Finalize vs outbox:** [`TRANSACTIONAL_FINALIZE_VS_OUTBOX_CONTRACT.md`](TRANSACTIONAL_FINALIZE_VS_OUTBOX_CONTRACT.md) (**TB-1011**).  
-**DTF gate:** **TB-921** · **TB-924** (gated). **Honesty CI:** **TB-1312** (open).
+**DTF gate:** **TB-921** · **TB-924** (gated). **Honesty CI:** **TB-1312** Done (`scripts/ci/check_async_orchestration_first_force_honesty.py`).
 
 ---
 
@@ -71,12 +71,12 @@ Create → Authority pipeline (queued OK) → Agent execute
 
 ---
 
-## TB-1312 CI anchors (named, not implemented here)
+## CI anchors for **TB-1312**
 
 | Anchor | Purpose |
 | --- | --- |
 | `ASYNC_ORCHESTRATION_FIRST_FORCE_AND_RUN_STATE_MACHINE_CONTRACT.md` | Drift guard (this file) |
-| Buyer/proof stub guards | Fail in-process / DTF-required / commit-inside-orchestrator claims |
+| `scripts/ci/check_async_orchestration_first_force_honesty.py` | Fail in-process / DTF-required / commit-inside-orchestrator claims |
 | Verification | `AuthorityRunOrchestrator`, `ArchitectureRunExecuteOrchestrator`, `DtfAuthorityRunOrchestrator`, ADR 0038, **TB-921**, `sp_FinalizeManifest` |
 
 ---
@@ -85,7 +85,7 @@ Create → Authority pipeline (queued OK) → Agent execute
 
 - Does not implement async agent outbox or start gated **TB-924**.
 - Does not change finalize SQL or `sp_FinalizeManifest`.
-- Does not close honesty CI (**TB-1312**).
+- Honesty CI shipped: **TB-1312** (`check_async_orchestration_first_force_honesty.py`).
 
 ---
 
