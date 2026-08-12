@@ -1136,6 +1136,16 @@ jobs:
           cd scripts/ci
           python -m unittest test_assert_golden_cohort_baseline_locked
 
+      - name: Manifest hash hasher baseline re-lock guard
+        continue-on-error: true
+        env:
+          ARCHLUCID_GIT_DIFF_RANGE: ${{ github.event_name == 'pull_request' && format('{0}...{1}', github.event.pull_request.base.sha, github.event.pull_request.head.sha) || format('{0}...{1}', github.event.before, github.sha) }}
+        run: python scripts/ci/assert_manifest_hash_hasher_baseline_locked.py
+
+      - name: Manifest hash hasher baseline guard unit tests
+        continue-on-error: true
+        run: python -m unittest discover -s scripts/ci/tests -p "test_assert_manifest_hash_hasher_baseline_locked.py"
+
       - name: Procurement pack canonical inputs (validator)
         continue-on-error: true
         run: python scripts/ci/assert_procurement_pack_buildable.py

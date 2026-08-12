@@ -1,0 +1,6 @@
+{
+  "hasherSchemaVersion": "v1",
+  "fixtureName": "BaseManifest",
+  "description": "Pinned SHA-256 for ManifestHashService over the BaseManifest fixture in ManifestHashServiceTests.",
+  "expectedManifestHashSha256": "4EA3362449DD7495917A4C2A46ACFB446C79FE173774B0301C11651A3EE38F1A"
+}

@@ -264,7 +264,7 @@ Clients must not assume verify failure returns 200 with a JSON body flag.
 
 ## Architecture run: Authority pipeline vs coordinator (`execute` / `result` / `commit`)
 
-**Create** always starts with **`POST /v1/architecture/request`**. On **SQL** hosts, **`IAuthorityRunOrchestrator`** then drives **ingestion → graph → findings → decisioning → artifacts** (`AuthorityPipelineStagesExecutor`). **Separately**, **`POST /v1/architecture/review/{runId}/execute`**, **`POST /v1/architecture/review/{runId}/result`**, and **`POST /v1/architecture/review/{runId}/finalize`** implement the **legacy coordinator** loop (agent tasks + **`AgentResult`** rows + merge commit). Integrations must **not** assume every run needs **`execute`** after create.
+**Create** always starts with **`POST /v1/architecture/request`**. On **SQL** hosts, **`IAuthorityRunOrchestrator`** then drives **ingestion → graph → findings → decisioning → artifacts** (`AuthorityPipelineStagesExecutor`). **Separately**, **`POST /v1/architecture/review/{runId}/execute`**, **`POST /v1/architecture/review/{runId}/result`**, and **`POST /v1/architecture/review/{runId}/finalize`** implement the **AgentTask / AgentResult extension loop** (agent tasks + **`AgentResult`** rows + merge commit; `/result` sunset per [ADR 0066](../architecture/adrs/0066-agent-result-append-sunset.md)). Integrations must **not** assume every run needs **`execute`** after create. Product-default freeze: [`STRANGLER_NEXT_SLICE_AUTHORITY_FREEZE_AND_RESULT_SUNSET_CONTRACT.md`](STRANGLER_NEXT_SLICE_AUTHORITY_FREEZE_AND_RESULT_SUNSET_CONTRACT.md) (**TB-1034**).
 
 | Aspect | Authority pipeline | Legacy coordinator |
 |--------|-------------------|-------------------|

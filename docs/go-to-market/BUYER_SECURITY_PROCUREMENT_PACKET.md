@@ -3574,7 +3574,8 @@ Do not teach create→execute→commit as the default peer lifecycle to Authorit
 
 ### Residuals (honest)
 
-- **TB-1034** / **TB-1035** own strangler next-slice language guards.
+- **TB-1035** owns strangler next-slice language guards (honesty CI).
+- Engineering SoT: [`../library/STRANGLER_NEXT_SLICE_AUTHORITY_FREEZE_AND_RESULT_SUNSET_CONTRACT.md`](../library/STRANGLER_NEXT_SLICE_AUTHORITY_FREEZE_AND_RESULT_SUNSET_CONTRACT.md) (**TB-1034** Done); sunset ADR [0066](../architecture/adrs/0066-agent-result-append-sunset.md).
 - Complements **M-158**/**M-159** forbid matrix; does not reopen Done **TB-919**.
 - Cite [`../architecture/COORDINATOR_STRANGLER_INVENTORY.md`](../architecture/COORDINATOR_STRANGLER_INVENTORY.md), ADR 0030, ADR 0042.
 - This handout does not claim CPA SOC 2 or a published third-party penetration test.
@@ -3637,7 +3638,8 @@ Do not claim dual coordinator storage still ships; do not equate AgentTask verbs
 
 ### Residuals (honest)
 
-- **TB-1204** / **TB-1205** own residual-coupling / discipline-test retirement contract and honesty CI.
+- **TB-1205** owns residual-coupling honesty CI.
+- Engineering SoT: [`../library/POST_STRANGLER_RESIDUAL_COUPLING_AND_DISCIPLINE_TEST_RETIREMENT_CONTRACT.md`](../library/POST_STRANGLER_RESIDUAL_COUPLING_AND_DISCIPLINE_TEST_RETIREMENT_CONTRACT.md) (**TB-1204** Done).
 - Cite ADR 0030/0042, `DualPipelineRegistrationDisciplineTests`, `CoordinatorStranglerCompletionArchitectureTests`, ceiling script.
 - Complements **M-158**/**M-159**, **M-184**/**M-185**; pairs claim-honesty **M-205**.
 - This handout does not claim CPA SOC 2 or a published third-party penetration test.
@@ -4434,7 +4436,8 @@ Do not claim EF/ORM would fix tenant isolation, sealed DENYs, or hot-path `*Json
 
 ### Residuals (honest)
 
-- **TB-1263** / **TB-1264** own the breakdown-signal contract and honesty CI.
+- **TB-1264** owns breakdown-signal honesty CI.
+- Engineering SoT: [`../library/DAPPER_DDL_SATELLITE_BREAKDOWN_SIGNALS_CONTRACT.md`](../library/DAPPER_DDL_SATELLITE_BREAKDOWN_SIGNALS_CONTRACT.md) (**TB-1263** Done).
 - Cite [`../library/SQL_SCRIPTS.md`](../library/SQL_SCRIPTS.md), [`../library/JSON_FALLBACK_AUDIT.md`](../library/JSON_FALLBACK_AUDIT.md), `HotPathRelationalQueryShapes`, ADR 0011 / 0037 / 0039.
 - Complements **M-154** / **M-160** / **M-198** / **TB-931**; pairs claim-honesty **M-219**; align **M-69**.
 - This handout does not claim CPA SOC 2 or a published third-party penetration test.
