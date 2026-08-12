@@ -30,8 +30,13 @@ const EXCLUDED_RELATIVE_PATH_FRAGMENTS = [
   "/pipeline-status-label-surfaces.ts",
   "/retired-demo-org-branding.ts",
   "/help-product-language.ts",
-  "/help-markdown/contributor-leakage/index.ts",
+  // Leakage strippers hold the banned phrasing as search patterns, not as shipped copy.
+  "/help-markdown/contributor-leakage/",
   "/help-markdown/markdown-cleanup.ts",
+  // Route-inventory workbook notes mirrored from docs/architecture/ui_route_traffic_estimates.template.md.
+  "/ui-route-traffic",
+  // Surface inventory whose `notes` describe engineering intent for a Vitest guard; never rendered.
+  "/operator/operator-line-tabs-surfaces.ts",
   "/itsm-connectors-admin-scope.ts",
   "/api-v1-routes.ts",
   "/wizard-evidence-source-options.ts",

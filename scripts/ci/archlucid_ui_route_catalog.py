@@ -72,10 +72,16 @@ WORKBOOK_PATH_MIGRATIONS: dict[str, str] = {
     "/help/first-pilot-path": "/help/first-architecture-review",
     "/help/operator-auth-roles": "/help/users-and-roles",
     "/help/pilot-nav-profile": "/help/pilot-guide",
-    "/help/first-review": "/help/first-architecture-review#printable-first-run-evidence-checklist",
-    "/help/first-value-20-minutes": "/help/first-architecture-review#first-value-in-20-minutes",
+    # Workbook rows are catalog routes, so these fold to the destination page even when the
+    # browser redirect lands on a section anchor — build_catalog() never emits "#fragment" paths
+    # and assert_ui_route_traffic_workbook_canonical rejects rows outside the catalog.
+    "/help/first-review": "/help/first-architecture-review",
+    "/help/first-value-20-minutes": "/help/first-architecture-review",
+    "/help/pilot-roi-model": "/help/executive-summary",
+    "/help/developer-troubleshooting": "/help/engineering-troubleshooting",
+    # Legacy key: /help/policy-pack-delta-demo is a live registry topic again, so this entry only
+    # keeps the route out of the traffic catalog. Dropping it needs a workbook sync for the new row.
     "/help/policy-pack-delta-demo": "/help/policy-packs#policy-pack-delta-demo",
-    "/help/pilot-roi-model": "/help/executive-summary#pilot-roi-measurement",
     "/manifests": "/governance/signed-records",
     "/manifests/[manifestId]": "/governance/signed-records/[manifestId]",
     "/manifests/[manifestId]/artifacts/[artifactId]": (

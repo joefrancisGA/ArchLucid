@@ -1,5 +1,4 @@
-import { resolveProductDocumentationContentKind } from "@/lib/product-documentation-content-kinds";
-import { normalizeHelpTopicSlug } from "@/lib/product-documentation-registry";
+import { getProductDocumentationEntry } from "@/lib/product-documentation-registry";
 
 export const HELP_BROWSE_GUIDE_LABEL = "Guide" as const;
 
@@ -13,9 +12,18 @@ export function resolveHelpTopicBrowseLabel(helpSlug: string | null): HelpBrowse
     return null;
   }
 
-  // TB-1739: callers may pass a retired alias slug (e.g. "how-it-works") that only
-  // exists as a permanent redirect — resolve via normalizeHelpTopicSlug first.
-  const kind = resolveProductDocumentationContentKind(normalizeHelpTopicSlug(helpSlug));
+  // TB-1739: callers may pass a retired alias slug (e.g. "how-it-works", "first-value-20-minutes")
+  // that only exists as a permanent redirect. Those have no catalog row, so they earn no eyebrow —
+  // and the label is decoration, so an unknown slug must not throw inside a drawer row render.
+  // Live registry slugs still fail fast on a missing taxonomy mapping: the registry itself resolves
+  // `contentKind` through `resolveProductDocumentationContentKind` when it is constructed.
+  const entry = getProductDocumentationEntry(helpSlug);
+
+  if (entry === null) {
+    return null;
+  }
+
+  const kind = entry.contentKind;
 
   if (kind === "technical-documentation") {
     return HELP_BROWSE_DOCUMENTATION_LABEL;

@@ -71,7 +71,8 @@ export function TenantSettingsPageView(props: Props) {
 
       <Card>
         <CardHeader>
-          <CardTitle className={OPERATOR_TYPOGRAPHY.cardTitle}>Workspace scope</CardTitle>
+          {/* Named apart from the "Workspace scope" vocabulary-rail link (TB-2317) so the page does not repeat one label for two targets. */}
+          <CardTitle className={OPERATOR_TYPOGRAPHY.cardTitle}>Active workspace and projects</CardTitle>
         </CardHeader>
         <CardContent className={cn("space-y-2 text-al-text-secondary", OPERATOR_TYPOGRAPHY.body)}>
           <p className="m-0">

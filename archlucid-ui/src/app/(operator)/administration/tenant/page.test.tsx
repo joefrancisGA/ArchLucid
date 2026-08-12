@@ -130,8 +130,10 @@ describe("TenantSettingsPage", () => {
     expect(await screen.findByTestId("tenant-settings-page")).toBeInTheDocument();
     expect(await screen.findByTestId("tenant-settings-page-title")).toHaveTextContent("Workspace settings");
     expect(screen.queryByTestId("tenant-settings-orientation")).toBeNull(); // TB-2092
-    expect(await screen.findByText("Workspace scope")).toBeInTheDocument();
+    expect(await screen.findByText("Active workspace and projects")).toBeInTheDocument();
     expect(await screen.findByText(/selected from the workspace switcher\./i)).toBeInTheDocument();
+    // The only "Workspace scope" label on this page is the vocabulary-rail peer link to the top-bar switcher.
+    expect(await screen.findByText("Workspace scope")).toHaveAttribute("href", "#operator-scope-switcher");
     expect(await screen.findByText(/Status:/i)).toBeInTheDocument();
   });
 

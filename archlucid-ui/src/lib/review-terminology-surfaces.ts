@@ -91,6 +91,16 @@ export const REVIEW_TERMINOLOGY_BANNED_OPERATOR_PERSONA_PATTERNS = [
   "operators want",
 ] as const;
 
+/**
+ * Product nouns that `docs/library/UI_DESIGN_SYSTEM.md` still lists as approved language, so they
+ * are only wrong as *list* nouns on the reviews hub and nav (TB-738), where the review — not the
+ * package — is the thing being enumerated.
+ */
+const REVIEW_TERMINOLOGY_CANONICAL_PACKAGE_NOUNS: ReadonlySet<string> = new Set([
+  "architecture package",
+  "architecture packages",
+]);
+
 /** Lowercase phrase fragments banned on reviews hub and nav list surfaces. */
 export const REVIEW_TERMINOLOGY_BANNED_REVIEW_ONLY_PACKAGE_LIST_PATTERNS = [
   "review package",
@@ -108,9 +118,15 @@ export const REVIEW_TERMINOLOGY_BANNED_REVIEW_ONLY_PACKAGE_LIST_PATTERNS = [
   "evidence package",
 ] as const;
 
-/** Lowercase phrase fragments banned on all global buyer-facing surfaces (package terminology sweep). */
-export const REVIEW_TERMINOLOGY_BANNED_PACKAGE_PATTERNS = [
-  ...REVIEW_TERMINOLOGY_BANNED_REVIEW_ONLY_PACKAGE_LIST_PATTERNS,
+/**
+ * Lowercase phrase fragments banned on all global buyer-facing surfaces (package terminology sweep).
+ * {@link REVIEW_TERMINOLOGY_CANONICAL_PACKAGE_NOUNS} is filtered out: banning it everywhere would
+ * flag the noun the design system asks for on ~65 modules, so it stays scoped to TB-738 surfaces.
+ */
+export const REVIEW_TERMINOLOGY_BANNED_PACKAGE_PATTERNS: readonly string[] = [
+  ...REVIEW_TERMINOLOGY_BANNED_REVIEW_ONLY_PACKAGE_LIST_PATTERNS.filter(
+    (pattern) => !REVIEW_TERMINOLOGY_CANONICAL_PACKAGE_NOUNS.has(pattern),
+  ),
   "architecture review package",
   "finalized review package",
   "completed review package",

@@ -53,7 +53,7 @@ export function resolveColdSharedLinkUnpackPresentation(input: {
   }
 
   const inviteeContext = resolveInviteeOrientationContext(input.principal);
-  const primaryCtaLabel = inviteeContext.isInviteeReviewer ? "Review findings" : "Open package overview";
+  const primaryCtaLabel = inviteeContext.isInviteeReviewer ? "Review findings" : "Open review overview";
   const primaryCtaHref = inviteeContext.isInviteeReviewer
     ? buildReviewDetailTabHref(input.runId, "findings")
     : buildReviewDetailTabHref(input.runId, "overview");

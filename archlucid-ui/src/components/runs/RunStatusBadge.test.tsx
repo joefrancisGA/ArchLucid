@@ -20,6 +20,7 @@ vi.mock("@/lib/demo-ui-env", async (importOriginal) => {
 });
 
 import { RunStatusBadge, deriveRunListPipelineLabel } from "@/components/runs/RunStatusBadge";
+import { AL_CSS_VAR_NAMES } from "@/lib/design-tokens";
 import type { RunSummary } from "@/types/authority";
 
 const base: RunSummary = {
@@ -57,15 +58,15 @@ describe("RunStatusBadge", () => {
     expect(screen.getByLabelText(/Review status: Ready/i)).toBeInTheDocument();
   });
 
-  it("delegates to StatusPill pipeline domain (Ready styling)", () => {
+  it("delegates styling to the canonical approved StatusTag (Ready label)", () => {
     runStatusVocabularyPassForced.on = true;
 
     const { container } = render(<RunStatusBadge run={{ ...base, hasGoldenManifest: true }} />);
     const pill = container.querySelector('[aria-label="Review status: Ready"]');
 
     expect(pill).not.toBeNull();
-    expect(pill?.className).toMatch(/rounded/);
-    expect(pill?.className).toMatch(/--al-status-ready-bg/);
+    expect(pill?.className).toContain(`bg-[var(${AL_CSS_VAR_NAMES.statusApprovedBg})]`);
+    expect(pill?.className).toContain(`text-[var(${AL_CSS_VAR_NAMES.statusApprovedFg})]`);
   });
 
   it("shows engineering pipeline labels when vocabulary pass is off", () => {

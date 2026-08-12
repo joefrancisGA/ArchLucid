@@ -19,7 +19,7 @@ function personalDestinationIds(destinations: readonly SettingsMasterDestination
 }
 
 describe("settings-master-page-model", () => {
-  it("shows help and security for read-tier users without advanced or internal sections", () => {
+  it("shows security for read-tier users without advanced or internal sections", () => {
     const sections = buildSettingsMasterVisibleSections(SETTINGS_MASTER_SECTIONS, {
       callerAuthorityRank: AUTHORITY_RANK.ReadAuthority,
       isAuthorityLoading: false,
@@ -30,11 +30,15 @@ describe("settings-master-page-model", () => {
 
     const ids = sections.map((section) => section.id);
 
-    expect(ids).toContain("help");
     expect(ids).toContain("security-trust");
     expect(ids).not.toContain("workspace");
     expect(ids).not.toContain("advanced");
     expect(ids).not.toContain("developer-internal");
+  });
+
+  /** TB-1200 retired the destination-less Help section; help now ships as the page-heading contextual help button. */
+  it("publishes no destination-less Help section in the hub catalog", () => {
+    expect(SETTINGS_MASTER_SECTIONS.some((section) => section.id === "help")).toBe(false);
   });
 
   it("keeps personal settings out of the hub at every rank", () => {

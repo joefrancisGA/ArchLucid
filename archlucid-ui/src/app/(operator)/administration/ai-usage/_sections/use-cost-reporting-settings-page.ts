@@ -128,7 +128,7 @@ export function useCostReportingSettingsPage(
 
   const loadGenerationRef = useRef(0);
   const loadAbortControllerRef = useRef<AbortController | null>(null);
-  const loadFetchTimeoutRef = useRef<ReturnType<typeof window.setTimeout> | null>(null);
+  const loadFetchTimeoutRef = useRef<number | null>(null);
 
   const abortInFlightLoad = useCallback((): void => {
     if (loadFetchTimeoutRef.current !== null) {

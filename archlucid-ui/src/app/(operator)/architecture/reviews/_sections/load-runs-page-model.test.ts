@@ -75,8 +75,9 @@ describe("fetchReviewsHubPagedInventory", () => {
     });
 
     expect(listRunsInScopePaged).toHaveBeenCalledTimes(1);
+    // An absent cursor is normalized to the empty first-page cursor before the fallback call.
     expect(listRunsByProjectPaged).toHaveBeenCalledWith("default", 1, 20, {
-      cursor: undefined,
+      cursor: "",
       scopeHeaders: { "X-ArchLucid-TenantId": "t1" },
     });
   });

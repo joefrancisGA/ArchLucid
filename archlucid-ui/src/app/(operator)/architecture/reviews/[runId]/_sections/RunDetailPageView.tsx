@@ -194,6 +194,10 @@ export async function RunDetailPageView(props: {
     <RunDetailSectionNavDeferred runId={m.resolvedDetail.run.runId} sections={m.runDetailNavSections} />
   );
 
+  const governanceCtaEl = showGovernanceCta ? (
+    <RunDetailGovernanceCtaDeferred runId={m.resolvedDetail.run.runId} demoted />
+  ) : null;
+
   const tabbedWorkspaceEl = <RunDetailTabbedWorkspace model={m} presentation={presentation} />;
 
   const runDetailBody = (
@@ -343,7 +347,7 @@ export async function RunDetailPageView(props: {
                         <RunDetailCreateHomeActivityPanelDeferred
                           runId={m.resolvedDetail.run.runId}
                           routeRunId={m.routeRunId}
-                          manifestId={m.manifestId}
+                          manifestId={m.manifestId ?? null}
                           showProgressTracker={m.showProgressTracker}
                           statusLine={createHomeActivityStatusLine}
                           provenanceAsOfLabel={createHomeActivityProvenanceAsOfLabel}

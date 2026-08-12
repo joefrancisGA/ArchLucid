@@ -148,7 +148,8 @@ describe("OperatorShellTopBar", () => {
     expect(contextRail.className).toMatch(/\bflex-nowrap\b/);
     expect(screen.getByTestId("operator-shell-help-trigger")).toBeInTheDocument();
     expect(screen.queryByTestId("operator-shell-topbar-more-trigger")).not.toBeInTheDocument();
-    expect(await screen.findByTestId("llm-budget-status-pill")).toBeInTheDocument();
+    // The budget pill is a dynamic chunk; a cold import can exceed the default findBy timeout.
+    expect(await screen.findByTestId("llm-budget-status-pill", {}, { timeout: 8000 })).toBeInTheDocument();
     expect(screen.queryByTestId("operator-shell-resources-trigger")).not.toBeInTheDocument();
     expect(screen.getByTestId("archlucid-wordmark-link")).toHaveAttribute(
       "aria-label",

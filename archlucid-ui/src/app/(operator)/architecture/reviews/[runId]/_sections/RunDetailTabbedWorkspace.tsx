@@ -12,6 +12,7 @@ import {
   BeforeAfterDeltaPanelDeferred,
   RecurrenceSchedulePostCommitCardDeferred,
   ReviewDetailWorkspaceDeferred,
+  RunDetailArtifactsExportsSectionDeferred,
   RunDetailBelowFoldSectionsDeferred,
   RunDetailColdOpenOrientationDeferred,
   RunDetailCompareToBaselineCta,
@@ -72,6 +73,7 @@ export function RunDetailTabbedWorkspace(props: RunDetailTabbedWorkspaceProps): 
   const p = props.presentation;
   const {
     architectureEditHref,
+    architectureSummaryTitle,
     blockingApprovalCount,
     buyerFinalizedPackage,
     deferredContext,
@@ -83,6 +85,7 @@ export function RunDetailTabbedWorkspace(props: RunDetailTabbedWorkspaceProps): 
     findingCoverageSummary,
     findingsSummaryLine,
     governanceOutcomeLine,
+    hasSubmittedArchitecture,
     materialSeverityLine,
     pendingDecisionCount,
     primaryConcernFindingId,
@@ -160,15 +163,21 @@ const artifactsExportsSectionEl =
       }
       deliverablesDefaultOpen={false}
     />
-  );
+  ) : null;
 
-const sectionNavEl = (
-  <RunDetailSectionNavDeferred runId={m.resolvedDetail.run.runId} sections={m.runDetailNavSections} />
-);
+const sampleReviewPackageSummaryEl =
+  m.usedStaticDemoRun ? (
+    <RunDetailSampleReviewPackageSummaryDeferred
+      runId={m.resolvedDetail.run.runId}
+      manifestId={m.manifestId}
+      artifactCount={m.artifacts.length}
+      findingCount={m.findingCountDisplay}
+    />
+  ) : null;
 
 const governanceCtaEl = showGovernanceCta ? (
   <RunDetailGovernanceCtaDeferred runId={m.resolvedDetail.run.runId} demoted />
-  );
+  ) : null;
 
 const evidenceTabPanelEl = (
   <RunDetailEvidenceTabPanelDeferred
@@ -195,7 +204,7 @@ const evidenceTabPanelEl = (
 const executiveBottomLineEl =
   blockingApprovalCount === 0 ? (
     <RunDetailExecutiveBottomLineDeferred content={executiveBottomLineContent} />
-  );
+  ) : null;
 const explanationDeferredEl = (
   <RunDetailExplanationDeferred
     runId={m.routeRunId}

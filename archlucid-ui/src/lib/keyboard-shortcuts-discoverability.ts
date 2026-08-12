@@ -35,7 +35,7 @@ export const KEYBOARD_SHORTCUTS_DISCOVERABILITY_HINTS: readonly KeyboardShortcut
     {
       id: "help",
       label: "Help",
-      body: "F1 or Shift+? opens Help from the operator shell — same entry as the Help button in the top bar.",
+      body: "F1 or Shift+? opens Help from anywhere in the workspace — same entry as the Help button in the top bar.",
     },
     {
       id: "palette",
@@ -49,7 +49,7 @@ export const KEYBOARD_SHORTCUTS_DISCOVERABILITY_HINTS: readonly KeyboardShortcut
     },
   ] as const;
 
-export const KEYBOARD_SHORTCUTS_DISCOVERABILITY_DISMISS_LABEL = "Got it" as const;
+export const KEYBOARD_SHORTCUTS_DISCOVERABILITY_DISMISS_LABEL = "Dismiss" as const;
 
 /** Full first-open coach model (heading, lead, help/palette/where hints). */
 export function buildKeyboardShortcutsDiscoverability(): KeyboardShortcutsDiscoverabilityModel {

@@ -223,6 +223,14 @@ describe("authority-shaped layout regression", () => {
       { timeout: 8000 },
     );
 
+    // The overview panel (review picker) is its own dynamic chunk, so wait for the control itself.
+    await waitFor(
+      () => {
+        expect(screen.getByLabelText("Review")).toBeInTheDocument();
+      },
+      { timeout: 8000 },
+    );
+
     fireEvent.change(screen.getByLabelText("Review"), { target: { value: "gov-layout-run" } });
     fireEvent.click(screen.getByTestId("governance-overview-load-review"));
 

@@ -71,7 +71,7 @@ export function HelpApiContractsGuideView(props: HelpApiContractsGuideViewProps)
               <StatusTag kind="neutral" label="Admin internal" data-testid="help-api-contracts-status-tag" />
               <StatusTag
                 kind="neutral"
-                label={API_CONTRACTS_HELP_REFERENCE_LANDING.apiVersion.split(" — ")[0] ?? "1.0"}
+                label={API_CONTRACTS_HELP_REFERENCE_LANDING.apiVersion.split(" — ")[0] ?? "v1.0"}
                 data-testid="help-api-contracts-version-tag"
               />
             </div>

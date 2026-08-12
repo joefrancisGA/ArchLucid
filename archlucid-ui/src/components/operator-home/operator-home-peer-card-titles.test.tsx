@@ -34,6 +34,22 @@ vi.mock("next/navigation", () => ({
 vi.mock("@/components/operator/OperatorNavAuthorityProvider", () => ({
   useNavCommittedArchitectureReview: vi.fn(() => false),
   useNavCallerAuthorityRank: () => 100,
+  // PilotCommandCenterCard resolves invitee-reviewer orientation from the nav principal.
+  useOperatorNavAuthority: () => ({
+    currentPrincipal: {
+      provenance: "auth-me" as const,
+      name: "Test Architect",
+      roleClaimValues: ["Admin"],
+      primaryAppRole: "Admin" as const,
+      maxAuthority: "AdminAuthority" as const,
+      authorityRank: 100,
+      hasEnterpriseOperatorSurfaces: true,
+      hasCommittedArchitectureReview: false,
+      permissionClaimValues: [],
+    },
+    callerAuthorityRank: 100,
+    isAuthorityLoading: false,
+  }),
 }));
 
 vi.mock("@/components/operator-home/operator-home-workspace-activity-context", () => ({

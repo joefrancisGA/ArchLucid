@@ -90,8 +90,10 @@ describe("help-product-language", () => {
   });
 
   it("strips product version labels from buyer help copy", () => {
+    // The trailing sentence keeps the bare-`V1` catch-all covered: `**V1** assurance` and
+    // `V1 GA` have dedicated rewrites, so only an unqualified `V1` reaches the product-name swap.
     const input =
-      "**V1** assurance includes owner-conducted testing. Tier 2 is opt-in and not required for V1 pilots. Status: V1 GA — aligns with product scope.";
+      "**V1** assurance includes owner-conducted testing. Tier 2 is opt-in and not required for V1 pilots. Status: V1 GA — aligns with product scope. V1 supports hosted tenants.";
     const output = applyHelpTopicProductLanguage(input);
 
     expect(output).not.toMatch(/\bV1\b/);

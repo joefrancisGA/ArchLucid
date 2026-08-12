@@ -64,7 +64,7 @@ describe("fleet-llm-cogs-route (AFX)", () => {
 
     expect(pageSource).toContain("FleetLlmCogsAdminPageClient");
     expect(layoutSource).toContain("FLEET_LLM_COGS_ROUTE_METADATA");
-    expect(layoutSource).toContain("OperatorDataRouteLayout");
+    expect(layoutSource).toContain("OperatorClientDrivenRouteLayout");
   });
 
   it("keeps marketing sitemap inventory off the fleet LLM COGS path", () => {

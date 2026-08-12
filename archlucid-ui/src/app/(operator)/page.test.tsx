@@ -162,23 +162,6 @@ vi.mock("@/components/operator-home/OperatorHomeDeferredPanels", async () => {
   };
 });
 
-// TB-2145 — home uses next/dynamic deferred wrappers; resolve them to leaf mocks above.
-vi.mock("@/app/(operator)/_sections/operator-home-page-view-deferred-chunks", async () => {
-  const { PilotCommandCenterCard } = await import("@/components/usability/PilotCommandCenterCard");
-  const { OperatorHomeBelowFoldPanels } = await import(
-    "@/app/(operator)/_sections/OperatorHomeBelowFoldPanels"
-  );
-  const { OperatorHomeExecutiveRoiStrip } = await import("@/components/operator-home/OperatorHomeExecutiveRoiStrip");
-  const { CtoDemoExecutiveLandingRedirect } = await import("@/components/cto-demo/CtoDemoExecutiveLandingRedirect");
-
-  return {
-    PilotCommandCenterCardDeferred: PilotCommandCenterCard,
-    OperatorHomeBelowFoldPanelsDeferred: OperatorHomeBelowFoldPanels,
-    OperatorHomeExecutiveRoiStripDeferred: OperatorHomeExecutiveRoiStrip,
-    CtoDemoExecutiveLandingRedirectDeferred: CtoDemoExecutiveLandingRedirect,
-  };
-});
-
 const useFeaturedCompletedSampleQuery = vi.fn();
 
 vi.mock("@/hooks/use-featured-completed-sample-query", () => ({

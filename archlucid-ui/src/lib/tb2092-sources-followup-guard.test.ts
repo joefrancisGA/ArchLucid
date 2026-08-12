@@ -62,18 +62,42 @@ function toRelativePosix(absolutePath: string): string {
   return relative(SRC_ROOT, absolutePath).replace(/\\/g, "/");
 }
 
-/** `slug="…"` on a `EvidenceOrientationSourcesAndClaimStrip` usage. */
-function readStripSlug(source: string): string | undefined {
-  return /\bslug="([^"]+)"/.exec(source)?.[1];
+const SHARED_STRIP_OPEN_TAG = "<EvidenceOrientationSourcesAndClaimStrip";
+
+type SharedStripUsage = {
+  readonly slug: string | undefined;
+  /** A usage that passes `sourcesTitle` has opted out of the evaluation heading. */
+  readonly overridesSourcesTitle: boolean;
+};
+
+/**
+ * One entry per `<EvidenceOrientationSourcesAndClaimStrip … />` usage. Several surfaces share one
+ * registry module, so a module-wide check cannot tell a cleared surface from an opted-out sibling.
+ */
+function readSharedStripUsages(source: string): SharedStripUsage[] {
+  const usages: SharedStripUsage[] = [];
+  let cursor: number = source.indexOf(SHARED_STRIP_OPEN_TAG);
+
+  while (cursor !== -1) {
+    const close: number = source.indexOf("/>", cursor);
+    const props: string = source.slice(cursor, close === -1 ? source.length : close);
+
+    usages.push({
+      slug: /\bslug="([^"]+)"/.exec(props)?.[1],
+      overridesSourcesTitle: props.includes("sourcesTitle="),
+    });
+
+    cursor = source.indexOf(SHARED_STRIP_OPEN_TAG, cursor + SHARED_STRIP_OPEN_TAG.length);
+  }
+
+  return usages;
 }
 
-function usesSharedEvaluationStrip(source: string): boolean {
-  return source.includes("<EvidenceOrientationSourcesAndClaimStrip");
-}
-
-/** A surface that passes `sourcesTitle` has opted out of the evaluation heading. */
-function overridesSourcesTitle(source: string): boolean {
-  return source.includes("sourcesTitle=");
+/** Slugs this module renders with the default evaluation heading. */
+function readEvaluationHeadingSlugs(source: string): string[] {
+  return readSharedStripUsages(source).flatMap((usage) =>
+    usage.overridesSourcesTitle || usage.slug === undefined ? [] : [usage.slug],
+  );
 }
 
 describe("TB-2092 evaluation Sources heading registry", () => {
@@ -93,14 +117,14 @@ describe("TB-2092 evaluation Sources heading registry", () => {
     for (const absolutePath of productionSources) {
       const source = readFileSync(absolutePath, "utf8");
 
-      if (!usesSharedEvaluationStrip(source) || overridesSourcesTitle(source)) {
-        continue;
-      }
+      for (const usage of readSharedStripUsages(source)) {
+        if (usage.overridesSourcesTitle) {
+          continue;
+        }
 
-      const slug: string | undefined = readStripSlug(source);
-
-      if (slug === undefined || !EVALUATION_SOURCES_TITLE_SLUGS.includes(slug)) {
-        unregistered.push(`${toRelativePosix(absolutePath)} (slug: ${slug ?? "none"})`);
+        if (usage.slug === undefined || !EVALUATION_SOURCES_TITLE_SLUGS.includes(usage.slug)) {
+          unregistered.push(`${toRelativePosix(absolutePath)} (slug: ${usage.slug ?? "none"})`);
+        }
       }
     }
 
@@ -131,7 +155,7 @@ describe("TB-2092 evaluation Sources heading registry", () => {
       }
 
       const source: string = readFileSync(absolutePath, "utf8");
-      const rendersViaStrip: boolean = usesSharedEvaluationStrip(source) && !overridesSourcesTitle(source);
+      const rendersViaStrip: boolean = readEvaluationHeadingSlugs(source).includes(surface.slug);
       const rendersViaConstant: boolean = source.includes("EVALUATION_SOURCES_TITLE");
 
       if (!rendersViaStrip && !rendersViaConstant) {

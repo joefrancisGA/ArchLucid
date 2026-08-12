@@ -69,6 +69,7 @@ exports[`WhyArchLucidPage (proof page snapshot) > matches the rendered layout sn
               Pilot proof telemetry
             </h1>
             <span
+              aria-label="Status: Internal pilot proof"
               class="inline-flex max-w-full items-center rounded px-1.5 py-0.5 cursor-default select-none pointer-events-none text-[11px] font-medium leading-tight border border-neutral-200/70 border-l-[3px] dark:border-neutral-700/70 border-l-neutral-400 bg-neutral-100 text-al-text-secondary dark:border-l-neutral-500 dark:bg-neutral-800/80"
               data-testid="why-archlucid-internal-pilot-badge"
             >
@@ -84,7 +85,7 @@ exports[`WhyArchLucidPage (proof page snapshot) > matches the rendered layout sn
                   aria-expanded="false"
                   aria-haspopup="dialog"
                   aria-label="Help: Architecture workflow"
-                  class="inline-flex items-center justify-center whitespace-nowrap transition-colors focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-neutral-400 focus-visible:ring-offset-2 disabled:pointer-events-none disabled:opacity-50 font-semibold border border-neutral-300 bg-white hover:bg-neutral-100 dark:border-neutral-600 dark:bg-neutral-900 dark:hover:bg-neutral-800 rounded-md text-xs h-8 gap-1.5 px-2 text-neutral-700 dark:text-neutral-300"
+                  class="inline-flex h-8 shrink-0 items-center gap-1.5 rounded-sm px-2 text-neutral-700 transition-colors hover:bg-neutral-100 hover:text-neutral-900 focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-[var(--al-accent-border-focus)] focus-visible:ring-offset-2 dark:text-neutral-300 dark:hover:bg-neutral-800 dark:hover:text-neutral-100"
                   data-state="closed"
                   data-testid="page-contextual-help-button"
                   type="button"
@@ -138,7 +139,7 @@ exports[`WhyArchLucidPage (proof page snapshot) > matches the rendered layout sn
               For competitive narrative, see
                
               <a
-                class="[object Object]"
+                class="font-medium text-[var(--al-accent-link)] underline underline-offset-2 hover:text-[var(--al-accent-link-hover)]"
                 href="/why"
               >
                 Public differentiation (/why)

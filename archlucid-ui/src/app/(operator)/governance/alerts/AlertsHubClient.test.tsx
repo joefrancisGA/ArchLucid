@@ -81,12 +81,13 @@ describe("AlertsHubClient", () => {
     vi.clearAllMocks();
   });
 
-  it("shows inbox-only triage surface with concise orientation copy", () => {
+  it("shows inbox-only triage surface with concise orientation copy", async () => {
     render(<AlertsHubClient />);
     expect(screen.getByTestId("stub-inbox")).toBeInTheDocument();
     expect(screen.getByTestId("alerts-page-title")).toHaveTextContent("Alerts");
     expect(screen.getByText(ALERTS_PAGE_SUBTITLE)).toBeInTheDocument();
-    expect(screen.getByText(ALERTS_CONTEXT_NOTE)).toBeInTheDocument();
+    // The governance context panel is a deferred chunk, so orientation copy paints after the header.
+    expect(await screen.findByText(ALERTS_CONTEXT_NOTE)).toBeInTheDocument();
     expect(screen.getByTestId("page-contextual-help-button")).toBeInTheDocument();
     expect(screen.getByTestId("alerts-configure-rules-link")).toHaveAttribute("href", "/governance/alert-rules");
     expect(screen.queryByRole("tab")).not.toBeInTheDocument();

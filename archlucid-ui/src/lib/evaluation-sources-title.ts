@@ -29,55 +29,47 @@ export type EvaluationSourcesSurface = {
   readonly module: string;
 };
 
+/**
+ * Every per-surface strip now lives in one registry module; the old
+ * `components/marketing/*EvidenceOrientationStrip.tsx` paths are re-export shims that no longer
+ * render the heading themselves.
+ */
+const SOURCES_AND_CLAIM_STRIP_REGISTRY_MODULE =
+  "components/evidence-orientation/registry/sources-and-claim-strips.tsx";
+
 export const EVALUATION_SOURCES_TITLE_SURFACES: readonly EvaluationSourcesSurface[] = [
-  { slug: "accessibility", kind: "marketing", module: "components/marketing/AccessibilityEvidenceOrientationStrip.tsx" },
-  {
-    slug: "compliance-journey",
-    kind: "marketing",
-    module: "components/marketing/ComplianceJourneyEvidenceOrientationStrip.tsx",
-  },
-  { slug: "demo-preview", kind: "marketing", module: "components/marketing/DemoPreviewEvidenceOrientationStrip.tsx" },
-  {
-    slug: "example-roi-bulletin",
-    kind: "marketing",
-    module: "components/marketing/ExampleRoiBulletinEvidenceOrientationStrip.tsx",
-  },
-  { slug: "faq", kind: "marketing", module: "components/marketing/FaqEvidenceOrientationStrip.tsx" },
-  { slug: "get-started", kind: "marketing", module: "components/marketing/GetStartedEvidenceOrientationStrip.tsx" },
-  { slug: "live-demo", kind: "marketing", module: "components/marketing/LiveDemoEvidenceOrientationStrip.tsx" },
-  { slug: "pricing", kind: "marketing", module: "components/marketing/PricingEvidenceOrientationStrip.tsx" },
-  { slug: "privacy", kind: "marketing", module: "components/marketing/PrivacyEvidenceOrientationStrip.tsx" },
-  { slug: "quick-scan", kind: "marketing", module: "components/marketing/QuickScanEvidenceOrientationStrip.tsx" },
-  {
-    slug: "security-trust",
-    kind: "marketing",
-    module: "components/marketing/SecurityTrustEvidenceOrientationStrip.tsx",
-  },
-  { slug: "see-it", kind: "marketing", module: "components/marketing/SeeItEvidenceOrientationStrip.tsx" },
-  { slug: "showcase", kind: "marketing", module: "components/marketing/ShowcaseEvidenceOrientationStrip.tsx" },
-  {
-    slug: "signup-verify",
-    kind: "marketing",
-    module: "components/marketing/SignupVerifyEvidenceOrientationStrip.tsx",
-  },
-  { slug: "trust-center", kind: "marketing", module: "components/marketing/TrustCenterEvidenceOrientationStrip.tsx" },
-  { slug: "try", kind: "marketing", module: "components/marketing/TryEvidenceOrientationStrip.tsx" },
-  { slug: "welcome", kind: "marketing", module: "components/marketing/WelcomeEvidenceOrientationStrip.tsx" },
-  { slug: "why", kind: "marketing", module: "components/marketing/WhyEvidenceOrientationStrip.tsx" },
+  { slug: "accessibility", kind: "marketing", module: SOURCES_AND_CLAIM_STRIP_REGISTRY_MODULE },
+  { slug: "compliance-journey", kind: "marketing", module: SOURCES_AND_CLAIM_STRIP_REGISTRY_MODULE },
+  { slug: "demo-preview", kind: "marketing", module: SOURCES_AND_CLAIM_STRIP_REGISTRY_MODULE },
+  { slug: "example-roi-bulletin", kind: "marketing", module: SOURCES_AND_CLAIM_STRIP_REGISTRY_MODULE },
+  { slug: "faq", kind: "marketing", module: SOURCES_AND_CLAIM_STRIP_REGISTRY_MODULE },
+  { slug: "get-started", kind: "marketing", module: SOURCES_AND_CLAIM_STRIP_REGISTRY_MODULE },
+  { slug: "live-demo", kind: "marketing", module: SOURCES_AND_CLAIM_STRIP_REGISTRY_MODULE },
+  { slug: "pricing", kind: "marketing", module: SOURCES_AND_CLAIM_STRIP_REGISTRY_MODULE },
+  { slug: "privacy", kind: "marketing", module: SOURCES_AND_CLAIM_STRIP_REGISTRY_MODULE },
+  { slug: "quick-scan", kind: "marketing", module: SOURCES_AND_CLAIM_STRIP_REGISTRY_MODULE },
+  { slug: "security-trust", kind: "marketing", module: SOURCES_AND_CLAIM_STRIP_REGISTRY_MODULE },
+  { slug: "see-it", kind: "marketing", module: SOURCES_AND_CLAIM_STRIP_REGISTRY_MODULE },
+  { slug: "showcase", kind: "marketing", module: SOURCES_AND_CLAIM_STRIP_REGISTRY_MODULE },
+  { slug: "signup-verify", kind: "marketing", module: SOURCES_AND_CLAIM_STRIP_REGISTRY_MODULE },
+  { slug: "trust-center", kind: "marketing", module: SOURCES_AND_CLAIM_STRIP_REGISTRY_MODULE },
+  { slug: "try", kind: "marketing", module: SOURCES_AND_CLAIM_STRIP_REGISTRY_MODULE },
+  { slug: "welcome", kind: "marketing", module: SOURCES_AND_CLAIM_STRIP_REGISTRY_MODULE },
+  { slug: "why", kind: "marketing", module: SOURCES_AND_CLAIM_STRIP_REGISTRY_MODULE },
   {
     slug: "architecture-overview",
     kind: "pre-finalize-architecture",
-    module: "components/architecture/ArchitectureCreatedOverviewEvidenceOrientationStrip.tsx",
+    module: SOURCES_AND_CLAIM_STRIP_REGISTRY_MODULE,
   },
   {
     slug: "architecture-findings",
     kind: "pre-finalize-architecture",
-    module: "components/architecture/ArchitectureCreatedFindingsEvidenceOrientationStrip.tsx",
+    module: SOURCES_AND_CLAIM_STRIP_REGISTRY_MODULE,
   },
   {
     slug: "architecture-clarifications",
     kind: "pre-finalize-architecture",
-    module: "components/architecture/ArchitectureCreatedClarificationsEvidenceOrientationStrip.tsx",
+    module: SOURCES_AND_CLAIM_STRIP_REGISTRY_MODULE,
   },
   { slug: "azure-boards-help", kind: "help-topic", module: "lib/azure-boards-help-evidence-copy.ts" },
 ];

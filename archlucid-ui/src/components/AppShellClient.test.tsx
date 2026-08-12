@@ -154,10 +154,14 @@ describe("AppShellClient — LLM budget chrome", () => {
       </AppShellClient>,
     );
 
-    await waitFor(() => {
-      expect(screen.getByTestId("operator-shell-help-trigger")).toBeInTheDocument();
-      expect(screen.getByTestId("llm-budget-status-pill")).toBeInTheDocument();
-    });
+    // Both come from deferred chunks behind a budget query; the 1s default flakes under full-suite load.
+    await waitFor(
+      () => {
+        expect(screen.getByTestId("operator-shell-help-trigger")).toBeInTheDocument();
+        expect(screen.getByTestId("llm-budget-status-pill")).toBeInTheDocument();
+      },
+      { timeout: 5000 },
+    );
 
     expect(screen.queryByTestId("operator-shell-topbar-more-trigger")).not.toBeInTheDocument();
 

@@ -3,6 +3,7 @@ import { describe, expect, it, vi } from "vitest";
 
 import AskPage from "@/app/(operator)/insights/ask-review-questions/page";
 import SearchPage from "@/app/(operator)/insights/search-review-evidence/page";
+import { SEARCH_QUERY_FIELD_LABEL } from "@/app/(operator)/insights/search-review-evidence/_sections/search-page-copy";
 
 vi.mock("next/navigation", async (importOriginal) => {
   const actual = await importOriginal<typeof import("next/navigation")>();
@@ -42,7 +43,8 @@ describe("SearchPage (operator shell)", () => {
     render(page);
 
     expect(screen.getByRole("heading", { name: /search review evidence/i })).toBeInTheDocument();
-    expect(screen.getByLabelText(/^search$/i)).toBeInTheDocument();
+    // TB-2196 renamed the query field to "Evidence query" so it cannot read like header Find a page.
+    expect(screen.getByLabelText(SEARCH_QUERY_FIELD_LABEL)).toBeInTheDocument();
     expect(screen.getByRole("button", { name: /^search$/i })).toBeInTheDocument();
   });
 });

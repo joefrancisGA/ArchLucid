@@ -598,6 +598,11 @@ describe("Enterprise authority UI shaping (mutation hook → controls)", () => {
         expect(screen.getByRole("heading", { name: GOVERNANCE_OVERVIEW_PAGE_TITLE })).toBeInTheDocument();
       });
 
+      // The overview panel (review picker) is its own dynamic chunk, so wait for the control itself.
+      await waitFor(() => {
+        expect(screen.getByLabelText("Review")).toBeInTheDocument();
+      });
+
       fireEvent.change(screen.getByLabelText("Review"), { target: { value: "gov-ui-shape-run" } });
       fireEvent.click(screen.getByTestId("governance-overview-load-review"));
 
@@ -605,13 +610,19 @@ describe("Enterprise authority UI shaping (mutation hook → controls)", () => {
         expect(screen.getByTestId("governance-review-context-bar")).toBeInTheDocument();
       });
 
-      expect(screen.getByText("No approval requests for this review")).toBeInTheDocument();
-      expect(screen.getAllByText("Submit for governance approval").length).toBeGreaterThan(0);
+      // Approvals list and submit card are separate dynamic chunks that mount after the context bar.
+      expect(await screen.findByText("No approval requests for this review")).toBeInTheDocument();
+      expect((await screen.findAllByText("Submit for governance approval")).length).toBeGreaterThan(0);
 
-      const submitVersion = document.getElementById("gov-submit-version") as HTMLInputElement | null;
+      const submitVersion = await waitFor(() => {
+        const input = document.getElementById("gov-submit-version") as HTMLInputElement | null;
 
-      expect(submitVersion).not.toBeNull();
-      expect(submitVersion!.readOnly).toBe(true);
+        expect(input).not.toBeNull();
+
+        return input!;
+      });
+
+      expect(submitVersion.readOnly).toBe(true);
     },
     15_000,
   );

@@ -322,7 +322,7 @@ function PackageStatusStrip(props: PackageStatusStripProps) {
   return (
     <section
       role="status"
-      aria-label="Package status summary"
+      aria-label="Review status summary"
       className={cn(stripShell, "flex flex-col divide-y divide-neutral-200 sm:flex-row sm:divide-x sm:divide-y-0 dark:divide-neutral-700")}
     >
       <div className={segmentInner}>

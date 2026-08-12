@@ -148,7 +148,9 @@ describe("HelpAdminDiagnosticsGuideView (HAE)", () => {
       ADMIN_DIAGNOSTICS_HELP_RELATED_TOPICS.find((link) => link.href.includes("troubleshooting") && !link.adminOnly)?.label,
     ).toBe(troubleshooting?.title);
     expect(
-      ADMIN_DIAGNOSTICS_HELP_RELATED_TOPICS.find((link) => link.adminOnly === true && link.href.includes("developer"))?.label,
+      ADMIN_DIAGNOSTICS_HELP_RELATED_TOPICS.find(
+        (link) => link.adminOnly === true && link.href.includes("engineering-troubleshooting"),
+      )?.label,
     ).toBe(engineering?.title);
     expect(
       ADMIN_DIAGNOSTICS_HELP_RELATED_TOPICS.find((link) => link.href.includes("configuration-reference"))?.label,

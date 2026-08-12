@@ -18,7 +18,8 @@ type Props = {
   readonly permissionMessage?: string;
   readonly inactiveMessage?: string;
   readonly onRetry?: () => void;
-  readonly children: ReactNode;
+  /** Only rendered in the ready state, so error/empty/loading call sites can omit it. */
+  readonly children?: ReactNode;
   readonly skeleton?: ReactNode;
   readonly testId?: string;
 };

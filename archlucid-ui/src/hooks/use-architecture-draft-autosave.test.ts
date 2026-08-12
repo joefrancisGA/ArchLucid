@@ -169,13 +169,18 @@ describe("useArchitectureDraftAutosave", () => {
 
     rerender({ fields: complete });
 
+    let queuedSave: Promise<boolean> | undefined;
+
+    // saveDraft() called during an in-flight PATCH resolves with that outstanding request, so the
+    // first PATCH has to be released before either promise is awaited.
     await act(async () => {
-      await result.current.saveDraft();
+      queuedSave = result.current.saveDraft();
     });
 
     await act(async () => {
       resolveFirstPatch?.(draftResponse(intentOnly, "2026-08-11T12:00:30.000Z"));
       await firstSave;
+      await queuedSave;
     });
 
     await waitFor(() => {

@@ -124,7 +124,7 @@ export const GUIDED_INTAKE_DRAFT_GUIDANCE_CALLOUT =
   "Draft guidance only. Nothing is added to review evidence until you submit.";
 
 export const GUIDED_INTAKE_STEP2_CARD_DESCRIPTION =
-  "Submit your answers to start the architecture review package.";
+  "Submit your answers to start the architecture review.";
 
 export const GUIDED_INTAKE_STEP2_SUBMIT_DESCRIPTION =
   "Submit uses the same review-start path as Quick start and Templates and imports.";

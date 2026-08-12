@@ -1,22 +1,18 @@
-import { readFileSync } from "node:fs";
-import { dirname, join } from "node:path";
-import { fileURLToPath } from "node:url";
-
 import { describe, expect, it } from "vitest";
+
+import { readRegisteredSource } from "@/testing/source-scan-harness";
 
 import {
   RUN_DETAIL_FINALIZED_ARCHITECT_SECTION_ORDER,
 } from "./run-detail-architect-section-order";
 
-const pageViewSource = readFileSync(
-  join(dirname(fileURLToPath(import.meta.url)), "RunDetailPageView.tsx"),
-  "utf8",
-);
+const pageViewSource = readRegisteredSource("run-detail-page-view");
+const tabbedWorkspaceSource = readRegisteredSource("run-detail-tabbed-workspace");
+const belowFoldSource = readRegisteredSource("run-detail-below-fold");
 
-const belowFoldSource = readFileSync(
-  join(dirname(fileURLToPath(import.meta.url)), "RunDetailBelowFoldSections.tsx"),
-  "utf8",
-);
+// The standard-mode tab panels were extracted into RunDetailTabbedWorkspace, so the workspace
+// markup a reviewer sees is now split across two modules. Scan both for mount assertions.
+const workspaceSource = `${pageViewSource}\n${tabbedWorkspaceSource}`;
 
 describe("run-detail-architect-section-order (TB-620)", () => {
   it("documents finalized architect section order", () => {
@@ -45,14 +41,14 @@ describe("run-detail-architect-section-order (TB-620)", () => {
     ] as const;
 
     for (const marker of sectionsOwnedByOneTab) {
-      expect(pageViewSource, `${marker} must stay mounted on its owning tab`).toContain(marker);
+      expect(workspaceSource, `${marker} must stay mounted on its owning tab`).toContain(marker);
     }
   });
 
   it("tells the tabbed workspace's below-fold block that tabs own those sections", () => {
-    expect(pageViewSource).toContain("renderedInsideTabbedWorkspace");
+    expect(tabbedWorkspaceSource).toContain("renderedInsideTabbedWorkspace");
     // Superseded by renderedInsideTabbedWorkspace, which covers all four tab-owned sections.
-    expect(pageViewSource).not.toContain("skipArtifactsExports");
+    expect(workspaceSource).not.toContain("skipArtifactsExports");
     expect(belowFoldSource).not.toContain("skipArtifactsExports");
   });
 
@@ -61,8 +57,8 @@ describe("run-detail-architect-section-order (TB-620)", () => {
     expect(belowFoldSource).toContain("{!ownedByAnotherTab && !m.buyerPolishedArtifactTable && m.manifestId ? (");
     expect(belowFoldSource).toContain("{m.manifestId && !ownedByAnotherTab && !m.buyerPolishedArtifactTable ? (");
     expect(belowFoldSource).toContain("{m.manifestId && !ownedByAnotherTab ? (");
-    expect(pageViewSource).not.toContain("RunDetailTabbedSectionNavDeferred");
-    expect(pageViewSource).toContain("ReviewDetailWorkspaceDeferred");
+    expect(workspaceSource).not.toContain("RunDetailTabbedSectionNavDeferred");
+    expect(tabbedWorkspaceSource).toContain("ReviewDetailWorkspaceDeferred");
   });
 
   it("places operator findings before pipeline timeline in below-fold", () => {

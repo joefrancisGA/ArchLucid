@@ -1,4 +1,4 @@
-import { render, screen } from "@testing-library/react";
+import { render, screen, within } from "@testing-library/react";
 import { describe, expect, it, vi } from "vitest";
 
 import { getProductDocumentationEntry } from "@/lib/product-documentation-registry";
@@ -38,7 +38,10 @@ describe("HelpTopicMarkdownPageHeader", () => {
 
     expect(screen.getByTestId("help-topic-breadcrumb")).toBeInTheDocument();
     expect(screen.getByTestId("help-topic-page-title")).toBeInTheDocument();
-    expect(screen.getByTestId("help-topic-header-metadata")).toBeInTheDocument();
+    // Registry provenance chips were retired from help headers, so the metadata row only appears
+    // when a caller passes title-block orientation copy (covered below).
+    expect(screen.queryByTestId("help-topic-header-metadata")).toBeNull();
+    expect(screen.queryByTestId("help-topic-registry-provenance")).toBeNull();
     expect(screen.getByTestId(ENTERPRISE_ONBOARDING_HELP_PRIMARY_ACTION.testId)).toHaveAttribute(
       "href",
       ENTERPRISE_ONBOARDING_HELP_PRIMARY_ACTION.href,
@@ -47,6 +50,23 @@ describe("HelpTopicMarkdownPageHeader", () => {
     expect(screen.getByTestId("help-topic-export-actions")).toBeInTheDocument();
     expect(screen.getByTestId("help-topic-print-button")).toBeInTheDocument();
     expect(screen.queryByTestId("help-topic-pdf-download-button")).toBeNull();
+  });
+
+  it("renders the header metadata row when title-block orientation copy is supplied", () => {
+    if (entry === null) {
+      throw new Error("Expected enterprise-onboarding documentation entry.");
+    }
+
+    render(
+      <HelpTopicMarkdownPageHeader
+        entry={entry}
+        titleBlockOrientation={<span data-testid="help-topic-orientation-line">Hosted tenant setup</span>}
+      />,
+    );
+
+    const metadata = screen.getByTestId("help-topic-header-metadata");
+
+    expect(within(metadata).getByTestId("help-topic-orientation-line")).toBeInTheDocument();
   });
 
   it("does not render an empty export action container when only contextual help is requested", () => {

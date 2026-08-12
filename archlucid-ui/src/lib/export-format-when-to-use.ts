@@ -43,7 +43,7 @@ export const EXPORT_FORMAT_DOCX: ExportFormatWhenToUse = {
 export const EXPORT_FORMAT_ZIP: ExportFormatWhenToUse = {
   id: "zip",
   label: "ZIP - archive",
-  whenToUse: "Download the full evidence package for records retention.",
+  whenToUse: "Download the full evidence archive for records retention.",
   recommendedFor: "archive",
 };
 

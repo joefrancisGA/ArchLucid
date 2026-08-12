@@ -47,7 +47,8 @@ export const WORKSPACE_SWITCHER_TEACHING_STEPS: readonly WorkspaceSwitcherTeachi
   },
 ] as const;
 
-export const WORKSPACE_SWITCHER_TEACHING_DISMISS_LABEL = "Got it" as const;
+/** Enterprise tone: the scope popover never ships a casual acknowledgement control. */
+export const WORKSPACE_SWITCHER_TEACHING_DISMISS_LABEL = "Dismiss" as const;
 
 /** Full first-open coach model (heading, lead, hierarchy steps). */
 export function buildWorkspaceSwitcherTeaching(): WorkspaceSwitcherTeachingModel {

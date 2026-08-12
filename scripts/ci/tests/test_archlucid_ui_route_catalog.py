@@ -63,16 +63,12 @@ def test_migrate_workbook_path_maps_tb2050_retired_help_aliases() -> None:
     assert migrate_workbook_path("/help/path-chooser") == "/help/choose-your-next-step"
     assert migrate_workbook_path("/help/first-hour-operator-path") == "/help/first-architecture-review"
     assert migrate_workbook_path("/help/operator-auth-roles") == "/help/users-and-roles"
-    assert (
-        migrate_workbook_path("/help/first-review")
-        == "/help/first-architecture-review#printable-first-run-evidence-checklist"
-    )
-    assert (
-        migrate_workbook_path("/help/first-value-20-minutes")
-        == "/help/first-architecture-review#first-value-in-20-minutes"
-    )
+    # Section anchors stay out of workbook targets: rows must be catalog routes.
+    assert migrate_workbook_path("/help/first-review") == "/help/first-architecture-review"
+    assert migrate_workbook_path("/help/first-value-20-minutes") == "/help/first-architecture-review"
+    assert migrate_workbook_path("/help/pilot-roi-model") == "/help/executive-summary"
+    assert migrate_workbook_path("/help/developer-troubleshooting") == "/help/engineering-troubleshooting"
     assert migrate_workbook_path("/help/policy-pack-delta-demo") == "/help/policy-packs#policy-pack-delta-demo"
-    assert migrate_workbook_path("/help/pilot-roi-model") == "/help/executive-summary#pilot-roi-measurement"
 
 
 def test_build_catalog_keeps_tb2050_retired_aliases_out() -> None:

@@ -26,7 +26,10 @@ vi.mock("@/components/usability/PageContextualHelpButton", () => ({
 }));
 
 import { SsoWizardPageClient } from "./_sections/SsoWizardPageClient";
-import { SSO_WIZARD_BANNED_UI_PATTERNS } from "@/lib/sso-wizard-copy";
+import {
+  SSO_WIZARD_BANNED_UI_PATTERNS,
+  SSO_WIZARD_IDENTITY_PROVIDERS_HREF,
+} from "@/lib/sso-wizard-copy";
 import { SSO_WIZARD_ACTIVATE_SUCCESS_MESSAGE } from "@/lib/admin-integration-mutation-outcome-copy";
 import { showSuccess } from "@/lib/toast";
 
@@ -99,18 +102,18 @@ describe("SsoWizardPage", () => {
     expect(screen.getByTestId("sso-metadata-url")).toBeInTheDocument();
   });
 
-  it("provides cancel navigation back to identity providers", () => {
-    const confirmSpy = vi.spyOn(window, "confirm").mockReturnValue(true);
-
+  it("provides cancel navigation back to identity providers", async () => {
     render(<SsoWizardPageClient />);
 
     fireEvent.click(screen.getByTestId("sso-idp-entra"));
-    fireEvent.click(screen.getByRole("button", { name: /Cancel/i }));
+    fireEvent.click(screen.getByRole("button", { name: /^Cancel$/i }));
 
-    expect(confirmSpy).toHaveBeenCalled();
-    expect(pushMock).toHaveBeenCalledWith("/administration/identity-providers");
+    // TB-2356 confirms discarding unsaved wizard input through the in-app dialog, not window.confirm.
+    expect(await screen.findByText("Leave SSO setup?")).toBeInTheDocument();
 
-    confirmSpy.mockRestore();
+    fireEvent.click(screen.getByRole("button", { name: /Leave without saving/i }));
+
+    expect(pushMock).toHaveBeenCalledWith(SSO_WIZARD_IDENTITY_PROVIDERS_HREF);
   });
 
   it("expands protocol guidance without implementation leakage", () => {

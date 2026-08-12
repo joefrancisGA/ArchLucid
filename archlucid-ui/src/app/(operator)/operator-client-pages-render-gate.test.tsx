@@ -1,4 +1,4 @@
-import { render, screen } from "@testing-library/react";
+import { fireEvent, render, screen } from "@testing-library/react";
 import { describe, expect, it, vi } from "vitest";
 
 import { AlertRulesContent } from "@/components/alerts/AlertRulesContent";
@@ -240,9 +240,14 @@ describe("operator client pages — render gate", () => {
     expect(screen.queryByRole("heading", { level: 2, name: "Advanced alert rules" })).not.toBeInTheDocument();
   });
 
+  // Empty-first UX (TB-1567): the Scans tab opens on the next-story CTAs, so the generate form
+  // heading (h3 under the hub page title) only mounts after Choose review.
   it("Advisory hub Scans tab content renders primary heading", () => {
     renderWithOperatorQuery(<AdvisoryScansContent />);
-    expect(screen.getByRole("heading", { level: 2, name: ADVISORY_SCANS_FORM_SECTION_TITLE })).toBeInTheDocument();
+
+    fireEvent.click(screen.getByTestId("advisory-choose-review-cta"));
+
+    expect(screen.getByRole("heading", { level: 3, name: ADVISORY_SCANS_FORM_SECTION_TITLE })).toBeInTheDocument();
   });
 
   it("Advisory hub Schedules tab content renders primary heading", () => {

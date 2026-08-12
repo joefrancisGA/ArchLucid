@@ -34,7 +34,7 @@ import {
 
 } from "@/lib/api/cloud-connections-api";
 
-import { OPERATOR_TYPOGRAPHY } from "@/lib/design-tokens";
+import { DESIGN_TOKENS, OPERATOR_TYPOGRAPHY } from "@/lib/design-tokens";
 
 import { enterpriseMutationControlDisabledTitle } from "@/lib/enterprise-controls-context-copy";
 
@@ -991,7 +991,7 @@ export function Tier2ConnectionWizard({
 
             <p
 
-              className={cn("rounded-md border border-amber-200 bg-amber-50 px-3 py-2 text-amber-900 dark:border-amber-900/50 dark:bg-amber-950/40 dark:text-amber-100", OPERATOR_TYPOGRAPHY.helper)}
+              className={cn(DESIGN_TOKENS.callout.warn, OPERATOR_TYPOGRAPHY.helper)}
 
               data-testid="tier2-workspace-binding-callout"
 

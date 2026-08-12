@@ -1,6 +1,9 @@
 import { fireEvent, render, screen, waitFor, within } from "@testing-library/react";
 import { describe, expect, it, vi } from "vitest";
 
+import { CLOUD_CONNECTIONS_AWS_PATH } from "@/lib/cloud-connections-paths";
+import { CLOUD_FIRST_INVENTORY_COACH_EMPTY_TITLE } from "@/lib/cloud-first-inventory-coach";
+
 import { AwsConnectionDataProvider } from "./AwsConnectionDataContext";
 import { AwsConnectionRecentActivityPanel } from "./AwsConnectionRecentActivityPanel";
 import { AwsConnectionSection } from "./AwsConnectionSection";
@@ -46,7 +49,7 @@ describe("AWS connection live panels (TB-1762)", () => {
     expect(screen.queryByText(/appear in Connection details after you save/i)).not.toBeInTheDocument();
   });
 
-  it("shows an AWS-scoped empty recent-activity state without hub coach copy (P0-7)", async () => {
+  it("keeps the empty recent-activity coach AWS-scoped and on the connection details page (P0-7)", async () => {
     const { listAwsTier2Connections } = await import("@/lib/api/aws-cloud-connections-api");
     vi.mocked(listAwsTier2Connections).mockResolvedValueOnce([]);
 
@@ -58,15 +61,19 @@ describe("AWS connection live panels (TB-1762)", () => {
 
     await waitFor(() => {
       expect(screen.getByTestId("aws-connection-recent-activity-panel")).toHaveTextContent(
-        "No collection activity yet for this AWS account",
+        CLOUD_FIRST_INVENTORY_COACH_EMPTY_TITLE,
       );
     });
 
-    expect(screen.queryByText(/0 of 3 cloud providers connected/i)).not.toBeInTheDocument();
-    expect(screen.getByRole("link", { name: "Configure connection details" })).toHaveAttribute(
-      "href",
-      "#connection-details",
-    );
+    expect(screen.getByTestId("cloud-first-inventory-coach")).toHaveAttribute("data-phase", "empty");
+
+    const emptyCoachCta = screen.getByTestId("cloud-first-inventory-coach-cta");
+    expect(emptyCoachCta).toHaveTextContent("Configure AWS");
+    expect(emptyCoachCta).toHaveAttribute("href", "#connection-details");
+
+    // P0-7: an AWS-scoped panel must not bounce the operator back to the cloud connections hub.
+    const renderedHrefs = screen.getAllByRole("link").map((link) => link.getAttribute("href"));
+    expect(renderedHrefs).not.toContain(CLOUD_CONNECTIONS_AWS_PATH);
   });
 
   it("reports a re-poll result in the panel that triggered it, exactly once", async () => {
