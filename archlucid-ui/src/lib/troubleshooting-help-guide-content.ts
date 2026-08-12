@@ -4,6 +4,11 @@ import { SPONSOR_REPORT_EXECUTIVE_SUMMARY_PATH } from "@/lib/sponsor-report-navi
 import { ARCHLUCID_SUPPORT_EMAIL } from "@/lib/support-workspace-present";
 import { GOVERNANCE_POLICY_PACKS_PATH } from "@/lib/governance/governance-route-paths";
 import { inAppHelpHref } from "@/lib/product-documentation-registry";
+import {
+  ADMIN_DIAGNOSTICS_INBOUND_GUIDANCE_HREF,
+  ADMIN_DIAGNOSTICS_INBOUND_GUIDANCE_LINK_LABEL,
+  ADMIN_DIAGNOSTICS_INBOUND_SECTION_TITLE,
+} from "@/lib/admin-diagnostics-inbound-copy";
 
 export const TROUBLESHOOTING_REPORT_PROBLEM_LINK = {
   label: "Report a problem",
@@ -337,10 +342,10 @@ export const TROUBLESHOOTING_ADVANCED_DIAGNOSTICS_ITEMS: readonly Troubleshootin
     linkLabel: "Open System health",
   },
   {
-    title: "Admin diagnostics",
+    title: ADMIN_DIAGNOSTICS_INBOUND_SECTION_TITLE,
     body: "Workspace admins can review readiness signals, assistant diagnostics, and platform health references in Help.",
-    href: inAppHelpHref("admin-diagnostics"),
-    linkLabel: "Open admin diagnostics",
+    href: ADMIN_DIAGNOSTICS_INBOUND_GUIDANCE_HREF,
+    linkLabel: ADMIN_DIAGNOSTICS_INBOUND_GUIDANCE_LINK_LABEL,
   },
   {
     title: "Support reference for tickets",

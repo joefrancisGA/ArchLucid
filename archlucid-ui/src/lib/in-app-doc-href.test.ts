@@ -78,6 +78,13 @@ describe("resolveInAppDocHref", () => {
     expect(resolveInAppDocHref("docs/library/OPERATOR_QUICKSTART.md")).toBe("/help/cli-usage");
   });
 
+  it("maps contributor observability docs to engineering troubleshooting, not admin diagnostics (TB-1613)", () => {
+    expect(resolveInAppDocHref("docs/library/OBSERVABILITY.md")).toBe("/help/engineering-troubleshooting");
+    expect(resolveInAppDocHref("docs/library/AGENT_OUTPUT_EVALUATION.md")).toBe("/help/engineering-troubleshooting");
+    expect(resolveInAppDocHref("docs/library/OBSERVABILITY.md")).not.toBe("/help/admin-diagnostics");
+    expect(resolveInAppDocHref("docs/library/AGENT_OUTPUT_EVALUATION.md")).not.toBe("/help/admin-diagnostics");
+  });
+
   it("maps finding provenance stub to Findings help provenance section", () => {
     expect(resolveInAppDocHref("docs/library/customer-facing/FINDING_PROVENANCE.md")).toBe(
       "/help/findings#where-findings-come-from",
