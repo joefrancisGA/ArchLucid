@@ -31,7 +31,7 @@ import {
   revokeRiskException,
   type RiskExceptionRecord,
 } from "@/lib/api/governance-stickiness-api";
-import { CREATE_ARCHITECTURE_LABEL } from "@/lib/architecture-workflow-labels";
+import { CREATE_ARCHITECTURE_LABEL } from "@/lib/architecture/architecture-workflow-labels";
 import {
   BUYER_RISK_EXCEPTIONS_EMPTY_BODY,
   BUYER_RISK_EXCEPTIONS_EMPTY_TERTIARY_ACTION,
@@ -39,7 +39,7 @@ import {
   BUYER_RISK_EXCEPTIONS_PAGE_LEAD,
   BUYER_RISK_EXCEPTIONS_PAGE_TITLE,
   BUYER_RISK_REGISTER_EMPTY_SECONDARY_ACTION,
-} from "@/lib/buyer-polish-copy";
+} from "@/lib/buyer/buyer-polish-copy";
 import { isBuyerPolishedOperatorShellEnv } from "@/lib/demo-ui-env";
 import { OPERATOR_LAYOUT, OPERATOR_LINK, OPERATOR_TYPOGRAPHY } from "@/lib/design-tokens";
 import { enterpriseMutationControlDisabledTitle } from "@/lib/enterprise-controls-context-copy";

@@ -21,7 +21,7 @@ import { AUTH_CALLBACK_LOADING_DETAIL } from "@/lib/auth/auth-callback-page-copy
 import {
   BUYER_SAFE_AUTH_NOT_CONFIGURED_MESSAGE,
   toBuyerSafeAuthFailureMessage,
-} from "@/lib/buyer-safe-auth-messages";
+} from "@/lib/buyer/buyer-safe-auth-messages";
 import {
   decodeOAuthErrorDescription,
   humanizeAuthorizeCallbackError,

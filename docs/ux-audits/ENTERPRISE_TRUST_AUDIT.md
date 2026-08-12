@@ -197,7 +197,7 @@ Add role capability summary block (see TB-511 scope).
 
 **TB-505 + TB-506 — Security-trust page enhancements:**
 ```
-File: archlucid-ui/src/lib/operator-security-trust-content.ts
+File: archlucid-ui/src/lib/operator/operator-security-trust-content.ts
 Add OPERATOR_SECURITY_TRUST_TENANT_ISOLATION_SUMMARY constant.
 Add OPERATOR_SECURITY_TRUST_DATA_RETENTION_NOTE constant.
 
@@ -224,7 +224,7 @@ File: archlucid-ui/src/app/(operator)/dashboard/_sections/ExecutiveSqlBackupRegi
 
 **TB-509 — Governance demo preview note:**
 ```
-File: archlucid-ui/src/lib/buyer-polish-copy.ts
+File: archlucid-ui/src/lib/buyer/buyer-polish-copy.ts
 Find:   "In a live pilot, an architect with Execute authority approves here. The view below shows the post-approval state for demonstration purposes."
 Change: "In production, an architect with Execute authority approves here. This view shows the post-approval state from the example architecture package."
 ```

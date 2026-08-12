@@ -1,6 +1,6 @@
 import { isApiRequestError } from "@/lib/api-request-error";
 import { sanitizeOperatorFacingText } from "@/lib/api-validation-problem";
-import { containsBuyerUnsafeAuthLeak } from "@/lib/buyer-safe-auth-messages";
+import { containsBuyerUnsafeAuthLeak } from "@/lib/buyer/buyer-safe-auth-messages";
 
 export const ITSM_ATLASSIAN_OAUTH_CALLBACK_GENERIC_FAILURE =
   "Could not complete Atlassian consent. Try Connect with Atlassian again from Jira integration settings.";

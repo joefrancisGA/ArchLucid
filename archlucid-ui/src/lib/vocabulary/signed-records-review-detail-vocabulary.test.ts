@@ -9,7 +9,7 @@ import {
   buildSignedRecordsReviewDetailVocabulary,
   resolveSignedRecordsReviewDetailPeerLink,
 } from "@/lib/vocabulary/signed-records-review-detail-vocabulary";
-import { REVIEWS_LIST_PATH } from "@/lib/architecture-routes";
+import { REVIEWS_LIST_PATH } from "@/lib/architecture/architecture-routes";
 import { SIGNED_RECORDS_LIST_PATH } from "@/lib/signed-records-paths";
 
 describe("signed-records-review-detail-vocabulary (TB-2272)", () => {

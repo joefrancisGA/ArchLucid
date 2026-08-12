@@ -19,9 +19,9 @@ import {
   FIRST_VALUE_20_HELP_PRIMARY_ACTIONS,
   FIRST_VALUE_20_HELP_SOURCES,
 } from "@/lib/first-value-20-help-guide-content";
-import { prepareHelpMarkdownForPresentation } from "@/lib/help-markdown-presentation";
+import { prepareHelpMarkdownForPresentation } from "@/lib/help/help-markdown-presentation";
 import { tryLoadFoldedInternalRunbook } from "@/lib/load-product-documentation";
-import { resolveHelpTopicPermanentRedirect } from "@/lib/help-topic-permanent-redirects";
+import { resolveHelpTopicPermanentRedirect } from "@/lib/help/help-topic-permanent-redirects";
 
 describe("HelpFirstValue20GuideView (folded into COR, Batch R)", () => {
   const loaded = tryLoadFoldedInternalRunbook("first-value-20-minutes");

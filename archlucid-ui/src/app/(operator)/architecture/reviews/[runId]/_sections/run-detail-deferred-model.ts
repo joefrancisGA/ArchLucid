@@ -1,5 +1,5 @@
 ﻿import type { ApiLoadFailureState } from "@/lib/api-load-failure";
-import type { RunSavingsSummaryModel } from "@/lib/run-savings-summary-model";
+import type { RunSavingsSummaryModel } from "@/lib/runs/run-savings-summary-model";
 import type { PipelineTimelineItem } from "@/types/authority";
 import type { StageTimelineSummary } from "@/types/stage-timeline";
 

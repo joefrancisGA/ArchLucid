@@ -42,7 +42,7 @@ vi.mock("@/lib/api/governance-stickiness-api", () => ({
   getArchitectureRiskRegister: vi.fn(),
 }));
 
-vi.mock("@/lib/buyer-demo-content-gating", () => ({
+vi.mock("@/lib/buyer/buyer-demo-content-gating", () => ({
   shouldUseGovernanceCuratedDemoSpine: () => false,
 }));
 

@@ -8,7 +8,7 @@ import {
   ARCHITECTURE_DIAGRAM_INVALID_MERMAID_ERROR,
   ARCHITECTURE_DIAGRAM_SAVE_ACTION,
   ARCHITECTURE_DIAGRAM_VERSION_HISTORY_DISCLAIMER,
-} from "@/lib/architecture-diagram-copy";
+} from "@/lib/architecture/architecture-diagram-copy";
 
 describe("ArchitectureDiagramEditor", () => {
   it("disables save for invalid mermaid and supports cancel", () => {

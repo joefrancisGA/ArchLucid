@@ -6,7 +6,7 @@ import { DraftIntakeActorEditor } from "@/components/draft-intake/DraftIntakeAct
 import { Input } from "@/components/ui/input";
 import { Label } from "@/components/ui/label";
 import { Textarea } from "@/components/ui/textarea";
-import type { ArchitectureDraftFieldState } from "@/lib/architecture-draft-readiness";
+import type { ArchitectureDraftFieldState } from "@/lib/architecture/architecture-draft-readiness";
 import {
   GUIDED_INTAKE_ARCHITECTURE_INTENT_MIN_CHARS,
   GUIDED_INTAKE_BUSINESS_OUTCOME_PLACEHOLDER,

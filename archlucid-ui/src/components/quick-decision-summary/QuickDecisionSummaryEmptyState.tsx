@@ -5,8 +5,8 @@ import {
   ARCHITECTURE_CREATED_FINDINGS_FINALIZE_ELIGIBLE_EMPTY,
   ARCHITECTURE_CREATED_FINDINGS_IN_PROGRESS_ACTIVITY_LINK,
   ARCHITECTURE_CREATED_FINDINGS_IN_PROGRESS_EMPTY,
-} from "@/lib/architecture-created-findings-sources";
-import { buildArchitectureWorkspaceTabHref } from "@/lib/architecture-workspace-tabs";
+} from "@/lib/architecture/architecture-created-findings-sources";
+import { buildArchitectureWorkspaceTabHref } from "@/lib/architecture/architecture-workspace-tabs";
 import { cn } from "@/lib/utils";
 import { OPERATOR_LINK } from "@/lib/design-tokens";
 

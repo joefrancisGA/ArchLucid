@@ -13,7 +13,7 @@ import {
   listOperatorSavedViews,
   type OperatorSavedView,
 } from "@/lib/api/operator-saved-views";
-import type { OperatorSavedViewPayload, OperatorSavedViewSurface } from "@/lib/operator-saved-view-types";
+import type { OperatorSavedViewPayload, OperatorSavedViewSurface } from "@/lib/operator/operator-saved-view-types";
 
 type UseOperatorSavedViewsOptions = {
   surface: OperatorSavedViewSurface;

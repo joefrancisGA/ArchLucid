@@ -2,7 +2,7 @@ import { isApiRequestError } from "@/lib/api-request-error";
 import { toApiLoadFailure, uiFailureFromMessage, type ApiLoadFailureState } from "@/lib/api-load-failure";
 import { getArchitectureGraph, getArchitectureGraphTemporalSnapshot, mergeArchitectureGraphPages } from "@/lib/graph-api";
 import { formatInstantForLocale } from "@/lib/locale-datetime";
-import { coerceGraphViewModel } from "@/lib/operator-response-guards";
+import { coerceGraphViewModel } from "@/lib/operator/operator-response-guards";
 import type { GraphViewModel } from "@/types/graph";
 
 export type LoadArchitectureGraphViewModelResult =

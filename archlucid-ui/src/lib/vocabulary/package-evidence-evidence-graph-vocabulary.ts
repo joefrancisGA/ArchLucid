@@ -13,8 +13,8 @@
  * graph (TB-2273).
  */
 
-import { REVIEWS_LIST_PATH } from "@/lib/architecture-routes";
-import { buildArchitectureWorkspaceTabHref } from "@/lib/architecture-workspace-tabs";
+import { REVIEWS_LIST_PATH } from "@/lib/architecture/architecture-routes";
+import { buildArchitectureWorkspaceTabHref } from "@/lib/architecture/architecture-workspace-tabs";
 import { EVIDENCE_GRAPH_PATH } from "@/lib/evidence-graph-route";
 import { buildReviewDetailTabHref } from "@/lib/review-detail-workspace-tabs";
 

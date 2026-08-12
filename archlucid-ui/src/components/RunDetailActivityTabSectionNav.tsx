@@ -5,7 +5,7 @@ import {
 } from "@/components/provenance/ProvenanceSectionNav";
 import { useGovernanceMode } from "@/hooks/use-governance-mode";
 import { isBuyerPolishedOperatorShellEnv } from "@/lib/demo-ui-env";
-import { buildRunDetailActivityTabSections } from "@/lib/run-detail-activity-tab-section-nav";
+import { buildRunDetailActivityTabSections } from "@/lib/runs/run-detail-activity-tab-section-nav";
 
 /** In-page anchor nav for the Activity tab on long review workspaces. */
 export function RunDetailActivityTabSectionNav(props: {

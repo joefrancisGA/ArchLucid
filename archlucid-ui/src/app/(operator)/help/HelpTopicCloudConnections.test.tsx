@@ -13,7 +13,7 @@ import {
   CLOUD_CONNECTIONS_HELP_TIER_1,
   CLOUD_CONNECTIONS_HELP_TIER_2,
 } from "@/lib/cloud-connections-help-guide-content";
-import { HELP_DILIGENCE_ARTIFACT_INDEX_TITLE } from "@/lib/help-diligence-artifact-index";
+import { HELP_DILIGENCE_ARTIFACT_INDEX_TITLE } from "@/lib/help/help-diligence-artifact-index";
 import { getProductDocumentationEntry } from "@/lib/product-documentation-registry";
 
 function renderCloudConnectionsGuide(markdown = "# Cloud connections\n\nOptional connectors for read-only evidence.\n"): void {

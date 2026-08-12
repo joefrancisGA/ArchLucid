@@ -4,7 +4,7 @@ import { OPERATOR_TYPOGRAPHY } from "@/lib/design-tokens";
 import {
   BUYER_EARLY_ADOPTER_PRICING_BANNER_SUMMARY,
   BUYER_EARLY_ADOPTER_PRICING_NOTE,
-} from "@/lib/buyer-polish-copy";
+} from "@/lib/buyer/buyer-polish-copy";
 import { BUYER_MARKETING_PRICING_AI_USAGE_NOTE } from "@/lib/marketing/marketing-public-pricing";
 
 export type MarketingPricingEarlyAdopterBannerProps = {

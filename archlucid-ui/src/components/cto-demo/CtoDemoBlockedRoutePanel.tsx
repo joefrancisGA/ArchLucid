@@ -7,8 +7,8 @@ import { usePathname } from "next/navigation";
 
 import { Button } from "@/components/ui/button";
 import { Card, CardContent, CardDescription, CardHeader, CardTitle } from "@/components/ui/card";
-import { readBuyerCtoDemoTourActive, resolveBuyerCtoDemoTourNavigation } from "@/lib/buyer-cto-demo-tour";
-import { BUYER_GOLDEN_JOURNEY_STEP_DEFINITIONS } from "@/lib/buyer-golden-journey-nav";
+import { readBuyerCtoDemoTourActive, resolveBuyerCtoDemoTourNavigation } from "@/lib/buyer/buyer-cto-demo-tour";
+import { BUYER_GOLDEN_JOURNEY_STEP_DEFINITIONS } from "@/lib/buyer/buyer-golden-journey-nav";
 import type { BlockedRouteEntry } from "@/lib/cto-demo-blocked-route-registry";
 import { OPERATOR_TYPOGRAPHY } from "@/lib/design-tokens";
 

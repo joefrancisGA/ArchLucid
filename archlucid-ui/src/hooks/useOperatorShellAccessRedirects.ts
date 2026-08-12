@@ -6,7 +6,7 @@ import { useEffect } from "react";
 import { useOperatorNavAuthority } from "@/components/OperatorNavAuthorityProvider";
 import { operatorPrincipalLacksArchLucidAccess } from "@/lib/access-denied-context";
 import { buildAuthSignInHref } from "@/lib/navigation/auth-sign-in-href";
-import { pathnameExemptFromOperatorAccessGate } from "@/lib/operator-shell-access-gate";
+import { pathnameExemptFromOperatorAccessGate } from "@/lib/operator/operator-shell-access-gate";
 import { isJwtAuthMode } from "@/lib/oidc/config";
 import { isLikelySignedIn } from "@/lib/oidc/session";
 

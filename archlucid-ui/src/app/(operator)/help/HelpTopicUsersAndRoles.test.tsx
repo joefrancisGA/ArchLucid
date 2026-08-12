@@ -43,7 +43,7 @@ import {
   USERS_AND_ROLES_GUIDE_HEADINGS,
 } from "@/lib/users-and-roles-help-manifest";
 import { getProductDocumentationEntry } from "@/lib/product-documentation-registry";
-import { resolveHelpTopicPermanentRedirect } from "@/lib/help-topic-permanent-redirects";
+import { resolveHelpTopicPermanentRedirect } from "@/lib/help/help-topic-permanent-redirects";
 import {
   USERS_AND_ROLES_HELP_AS_OF_APPLICABILITY,
   USERS_AND_ROLES_HELP_CANONICAL_PATH,

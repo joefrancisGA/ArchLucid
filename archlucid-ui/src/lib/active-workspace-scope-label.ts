@@ -2,7 +2,7 @@ import {
   defaultLabelsForScopeIds,
   readOperatorScopeFromStorage,
   type OperatorScopeRecord,
-} from "@/lib/operator-scope-storage";
+} from "@/lib/operator/operator-scope-storage";
 import { DEV_SCOPE_PROJECT_ID, DEV_SCOPE_WORKSPACE_ID } from "@/lib/scope";
 import { workspaceShortNameFromLabel } from "@/lib/scope-switcher-display";
 

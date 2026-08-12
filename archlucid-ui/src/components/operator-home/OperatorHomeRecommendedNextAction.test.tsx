@@ -5,7 +5,7 @@ import { OperatorHomeRecommendedNextAction } from "@/components/operator-home/Op
 import {
   OPERATOR_HOME_RECOMMENDED_NEXT_LABEL,
   OPERATOR_HOME_RECOMMENDED_NEXT_OPEN_SAMPLE,
-} from "@/lib/buyer-polish-copy";
+} from "@/lib/buyer/buyer-polish-copy";
 import { renderWithOperatorQuery } from "@/testing/render-with-operator-query";
 import {
   SHOWCASE_SAMPLE_REVIEW_REGISTRY,

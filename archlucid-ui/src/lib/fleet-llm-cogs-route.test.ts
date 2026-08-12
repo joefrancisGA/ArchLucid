@@ -30,7 +30,7 @@ const FLEET_LLM_COGS_LAYOUT = join(
 );
 
 const PRODUCT_FLEET_LLM_COGS_SURFACES = [
-  "archlucid-ui/src/lib/operator-system-admin-nav-group-builder.ts",
+  "archlucid-ui/src/lib/operator/operator-system-admin-nav-group-builder.ts",
   "archlucid-ui/src/lib/trial-funnel-ops.ts",
 ] as const;
 

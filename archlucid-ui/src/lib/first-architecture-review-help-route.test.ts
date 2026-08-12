@@ -16,8 +16,8 @@ const HELP_TOPIC_PAGE = join(process.cwd(), "src", "app", "(operator)", "help", 
 const PRODUCT_FIRST_REVIEW_HELP_SURFACES = [
   "archlucid-ui/src/lib/first-review-90min-playbook-alignment.ts",
   "archlucid-ui/src/components/CorePilotNextStepsCard.tsx",
-  "archlucid-ui/src/lib/help-center-catalog.ts",
-  "archlucid-ui/src/lib/help-search-panel-catalog.ts",
+  "archlucid-ui/src/lib/help/help-center-catalog.ts",
+  "archlucid-ui/src/lib/help/help-search-panel-catalog.ts",
   "archlucid-ui/src/lib/usability/page-help-topic-map.ts",
   "archlucid-ui/src/lib/repeat-review-loop-help-guide-content.ts",
 ] as const;

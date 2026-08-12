@@ -30,14 +30,14 @@ import {
   computeArchitectureRiskRegisterSummary,
   matchesGovernanceFindingsRunScope,
   matchesRiskRegisterFilter,
-} from "@/lib/architecture-risk-register-page";
+} from "@/lib/architecture/architecture-risk-register-page";
 import {
   BUYER_GOVERNANCE_FINDINGS_PAGE_LEAD,
   BUYER_GOVERNANCE_FINDINGS_PAGE_TITLE,
   BUYER_RISK_REGISTER_EMPTY_BODY,
   BUYER_RISK_REGISTER_EMPTY_SECONDARY_ACTION,
   BUYER_RISK_REGISTER_EMPTY_TITLE,
-} from "@/lib/buyer-polish-copy";
+} from "@/lib/buyer/buyer-polish-copy";
 import { isBuyerPolishedOperatorShellEnv } from "@/lib/demo-ui-env";
 import { OPERATOR_LAYOUT, OPERATOR_LINK, OPERATOR_TYPOGRAPHY } from "@/lib/design-tokens";
 import { GOVERNANCE_FINDINGS_FILTER_NO_MATCH_COMPACT, GOVERNANCE_FINDINGS_LOAD_FAILED_COMPACT } from "@/lib/enterprise-compact-empty-state-presets";

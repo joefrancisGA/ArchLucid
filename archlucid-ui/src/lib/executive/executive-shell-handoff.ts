@@ -1,4 +1,4 @@
-import { BUYER_EXECUTIVE_OPERATOR_HANDOFF_LINK, BUYER_EXECUTIVE_SCORECARD_RECOMMENDED_ACTION_LINK } from "@/lib/buyer-polish-copy";
+import { BUYER_EXECUTIVE_OPERATOR_HANDOFF_LINK, BUYER_EXECUTIVE_SCORECARD_RECOMMENDED_ACTION_LINK } from "@/lib/buyer/buyer-polish-copy";
 
 /** True when a link leaves the executive shell for operator-only destinations. */
 export function isOperatorShellHandoffHref(href: string): boolean {

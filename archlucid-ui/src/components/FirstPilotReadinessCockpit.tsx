@@ -1,4 +1,4 @@
-import { CREATE_ARCHITECTURE_LABEL } from "@/lib/architecture-workflow-labels";
+import { CREATE_ARCHITECTURE_LABEL } from "@/lib/architecture/architecture-workflow-labels";
 
 import { cn } from "@/lib/utils";
 import Link from "next/link";
@@ -34,18 +34,18 @@ import {
 import {
   BUYER_COMMAND_CENTER_OPEN_REVIEW_LINK,
   BUYER_COMMAND_CENTER_RECOMMENDED_HEADING,
-} from "@/lib/buyer-home-status-copy";
+} from "@/lib/buyer/buyer-home-status-copy";
 import {
   applyBuyerPolishedCommandCenterPhase,
   isBuyerShellHomePresentation,
   shellReadinessCountPhrase,
   shellReadinessStatusTagLabel,
-} from "@/lib/buyer-shell-home-present";
+} from "@/lib/buyer/buyer-shell-home-present";
 import { mapReadinessStatusToEnterpriseKind } from "@/lib/vocabulary/first-pilot-operator-status-vocabulary";
 import { fetchAdminConfigLintSummary } from "@/lib/fetch-admin-config-lint";
 import { fetchHealthReadySummary } from "@/lib/fetch-health-ready";
-import { OPERATOR_HOME_DISCLOSURE_STORAGE_KEYS } from "@/lib/operator-home-disclosure-storage";
-import { loadProjectRunsMergedWithDemoFallback } from "@/lib/operator-run-picker-client";
+import { OPERATOR_HOME_DISCLOSURE_STORAGE_KEYS } from "@/lib/operator/operator-home-disclosure-storage";
+import { loadProjectRunsMergedWithDemoFallback } from "@/lib/operator/operator-run-picker-client";
 import {
   buildCorePilotCommitContextFromRunItems,
   fetchTrialAnchoredCommit,

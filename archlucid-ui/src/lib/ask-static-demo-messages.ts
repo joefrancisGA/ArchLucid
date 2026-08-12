@@ -1,4 +1,4 @@
-import { isStaticDemoPayloadFallbackActiveForRun } from "@/lib/operator-static-demo";
+import { isStaticDemoPayloadFallbackActiveForRun } from "@/lib/operator/operator-static-demo";
 import { SHOWCASE_STATIC_DEMO_RUN_ID } from "@/lib/showcase-static-demo";
 import type { ConversationMessage } from "@/types/conversation";
 

@@ -3,7 +3,7 @@
 import { useCallback, useState } from "react";
 
 import { Button } from "@/components/ui/button";
-import { stripDangerousMarkupForPlainTextDisplay } from "@/lib/architecture-narrative-presentation";
+import { stripDangerousMarkupForPlainTextDisplay } from "@/lib/architecture/architecture-narrative-presentation";
 import { OPERATOR_TYPOGRAPHY } from "@/lib/design-tokens";
 import { cn } from "@/lib/utils";
 

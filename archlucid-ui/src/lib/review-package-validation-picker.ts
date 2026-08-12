@@ -1,6 +1,6 @@
 import type { RunSummary } from "@/types/authority";
 
-import { buyerFacingReviewTitleFromSummary } from "@/lib/buyer-facing-review-title";
+import { buyerFacingReviewTitleFromSummary } from "@/lib/buyer/buyer-facing-review-title";
 import { formatRecurrenceScheduleUtcLabel } from "@/lib/recurrence-schedule-utc-format";
 import type { ReplayValidationOutcome } from "@/lib/replay-validation-workflow";
 import { replayValidationOutcomeLabel } from "@/lib/replay-validation-workflow";

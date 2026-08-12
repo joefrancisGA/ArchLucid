@@ -1,7 +1,7 @@
 /**
  * Reviews list and dashboard copy — filters, tabs, empty states, and origin badges.
  *
- * Re-exported by `./index.ts`; import from `@/lib/buyer-polish-copy` or `@/lib/buyer-copy`.
+ * Re-exported by `./index.ts`; import from `@/lib/buyer/buyer-polish-copy` or `@/lib/buyer-copy`.
  */
 
 export const BUYER_RUNS_DASHBOARD_RECENT_LABEL = "Featured finalized review";

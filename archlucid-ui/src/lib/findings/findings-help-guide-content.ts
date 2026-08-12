@@ -1,4 +1,4 @@
-import type { HelpMarkdownHeading } from "@/lib/help-markdown-headings";
+import type { HelpMarkdownHeading } from "@/lib/help/help-markdown-headings";
 import {
   GOVERNANCE_RESOLUTION_PATH,
   GOVERNANCE_POLICY_PACKS_PATH,

@@ -1,7 +1,7 @@
 import { describe, expect, it } from "vitest";
 
 import { RUNS_EMPTY } from "@/lib/empty-state-presets";
-import { resolveHelpTopicPermanentRedirect } from "@/lib/help-topic-permanent-redirects";
+import { resolveHelpTopicPermanentRedirect } from "@/lib/help/help-topic-permanent-redirects";
 import { getProductDocumentationEntry, inAppHelpHref } from "@/lib/product-documentation-registry";
 import {
   prepareReviewGuideHelpBodyMarkdown,

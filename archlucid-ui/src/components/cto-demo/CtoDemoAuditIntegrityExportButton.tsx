@@ -3,12 +3,12 @@
 import { useCallback, useState } from "react";
 
 import { Button } from "@/components/ui/button";
-import { BUYER_CTO_DEMO_SHOWCASE_ANCHOR_ISO } from "@/lib/buyer-cto-demo-orchestration";
+import { BUYER_CTO_DEMO_SHOWCASE_ANCHOR_ISO } from "@/lib/buyer/buyer-cto-demo-orchestration";
 import {
   BUYER_CTO_DEMO_AUDIT_EXPORT_BUSY,
   BUYER_CTO_DEMO_AUDIT_EXPORT_CTA,
   BUYER_CTO_DEMO_AUDIT_EXPORT_SUCCESS,
-} from "@/lib/buyer-polish-copy";
+} from "@/lib/buyer/buyer-polish-copy";
 import { downloadAuditExportCsv } from "@/lib/api";
 import { isCtoDemoPackEnv } from "@/lib/cto-demo-presenter-pack";
 import { SHOWCASE_STATIC_DEMO_RUN_ID } from "@/lib/showcase-static-demo";

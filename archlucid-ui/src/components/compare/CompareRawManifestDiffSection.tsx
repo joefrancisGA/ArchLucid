@@ -12,7 +12,7 @@ import {
   BUYER_COMPARE_REVIEW_RECORD_DIFF_LOADING_BODY,
   BUYER_COMPARE_REVIEW_RECORD_DIFF_LOADING_HEADING,
   COMPARE_REVIEW_RECORD_DIFF_OPERATOR_INTRO,
-} from "@/lib/buyer-polish-copy";
+} from "@/lib/buyer/buyer-polish-copy";
 import { isBuyerPolishedOperatorShellEnv } from "@/lib/demo-ui-env";
 import { compareRunHeadingLabel } from "@/lib/compare-run-display";
 import { SIGNED_MANIFEST_LABEL } from "@/lib/usability/canonical-product-terms";

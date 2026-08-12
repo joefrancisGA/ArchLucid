@@ -10,7 +10,7 @@ import { OPERATOR_DISCLOSURE_TRIGGER_CLASS, OPERATOR_LAYOUT, OPERATOR_TYPOGRAPHY
 import {
   BUYER_CTO_DEMO_AUDIT_DEMO_FILTER_BANNER,
   BUYER_CTO_DEMO_AUDIT_SHOW_ALL_EVENTS_CTA,
-} from "@/lib/buyer-polish-copy";
+} from "@/lib/buyer/buyer-polish-copy";
 import { SHOWCASE_STATIC_DEMO_RUN_ID } from "@/lib/showcase-static-demo";
 import { AUTHORITY_RANK } from "@/lib/nav-authority";
 import {

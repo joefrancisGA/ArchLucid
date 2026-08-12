@@ -6,7 +6,7 @@ import { ProvenancePageWorkspace, type ProvenanceReviewContext } from "@/compone
 import type { ApiLoadFailureState } from "@/lib/api-load-failure";
 import { isApiNotFoundFailure, toApiLoadFailure } from "@/lib/api-load-failure";
 import { isInvalidGuidOrSlugRouteToken } from "@/lib/route-dynamic-param";
-import { tryStaticDemoProvenanceGraph } from "@/lib/operator-static-demo";
+import { tryStaticDemoProvenanceGraph } from "@/lib/operator/operator-static-demo";
 import { OPERATOR_TYPOGRAPHY } from "@/lib/design-tokens";
 import { type ApiResponseWithTrace, getArchitectureRunProvenance, getRunSummary } from "@/lib/api";
 import { provenanceReviewContextFromSummary } from "@/lib/provenance-review-context";

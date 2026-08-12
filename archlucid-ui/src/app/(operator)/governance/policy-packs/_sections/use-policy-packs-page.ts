@@ -21,7 +21,7 @@ import { isBuyerPolishedOperatorShellEnv } from "@/lib/demo-ui-env";
 import {
   mergePolicyPacksStateWithStaticDemo,
   staticDemoPolicyPacksFallbackBundle,
-} from "@/lib/operator-static-demo";
+} from "@/lib/operator/operator-static-demo";
 import { policyPackPublishSuccessMessage } from "@/lib/governance/governance-mutation-outcome-copy";
 import { showSuccess } from "@/lib/toast";
 import { useNavSurface } from "@/lib/use-nav-surface";

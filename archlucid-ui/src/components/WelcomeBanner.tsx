@@ -14,9 +14,9 @@ import { isBuyerPolishedOperatorShellEnv } from "@/lib/demo-ui-env";
 import { isJwtAuthMode } from "@/lib/oidc/config";
 import { isLikelySignedIn } from "@/lib/oidc/session";
 import { normalizeRunSummaryForDemoPicker } from "@/lib/demo-run-canonical";
-import { loadProjectRunsMergedWithDemoFallback } from "@/lib/operator-run-picker-client";
-import { tryStaticDemoRunSummariesPaged, isStaticDemoPayloadFallbackEnabled } from "@/lib/operator-static-demo";
-import { writeHasExistingRunsCache } from "@/lib/operator-run-presence";
+import { loadProjectRunsMergedWithDemoFallback } from "@/lib/operator/operator-run-picker-client";
+import { tryStaticDemoRunSummariesPaged, isStaticDemoPayloadFallbackEnabled } from "@/lib/operator/operator-static-demo";
+import { writeHasExistingRunsCache } from "@/lib/operator/operator-run-presence";
 import { mergeRegistrationScopeForProxy } from "@/lib/proxy-fetch-registration-scope";
 import { DESIGN_TOKENS, OPERATOR_TYPOGRAPHY, operatorSemanticBadge, operatorSemanticSurface } from "@/lib/design-tokens";
 

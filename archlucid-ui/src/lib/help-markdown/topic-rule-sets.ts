@@ -1,7 +1,7 @@
 import type {
   HelpMarkdownTopicContext,
   HelpMarkdownTopicRuleSet,
-} from "@/lib/help-markdown-presentation-pipeline";
+} from "@/lib/help/help-markdown-presentation-pipeline";
 import { getProductDocumentationEntry } from "@/lib/product-documentation-registry";
 
 import {

@@ -20,9 +20,9 @@ import {
   PATH_CHOOSER_HELP_PRIMARY_ACTIONS,
 } from "@/lib/path-chooser-help-guide-content";
 import { PATH_CHOOSER_HELP_RELATED_NEXT_STEPS } from "@/lib/path-chooser-help-evidence-copy";
-import { prepareHelpMarkdownForPresentation } from "@/lib/help-markdown-presentation";
+import { prepareHelpMarkdownForPresentation } from "@/lib/help/help-markdown-presentation";
 import { tryLoadProductDocumentation } from "@/lib/load-product-documentation";
-import { resolveHelpTopicPermanentRedirect } from "@/lib/help-topic-permanent-redirects";
+import { resolveHelpTopicPermanentRedirect } from "@/lib/help/help-topic-permanent-redirects";
 
 describe("HelpPathChooserGuideView", () => {
   const loaded = tryLoadProductDocumentation("choose-your-next-step");

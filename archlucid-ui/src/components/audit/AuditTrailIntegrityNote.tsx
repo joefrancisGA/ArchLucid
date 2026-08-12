@@ -1,5 +1,5 @@
 import { cn } from "@/lib/utils";
-import { AUDIT_TRAIL_INTEGRITY_NOTE } from "@/lib/buyer-polish-copy";
+import { AUDIT_TRAIL_INTEGRITY_NOTE } from "@/lib/buyer/buyer-polish-copy";
 import { OPERATOR_TYPOGRAPHY } from "@/lib/design-tokens";
 
 /** Tamper-evident framing for the operator audit log — procurement buyers look for append-only honesty. */

@@ -7,7 +7,7 @@ import {
   buildOverviewDiagramVocabulary,
   resolveOverviewDiagramPeerLink,
 } from "@/lib/vocabulary/overview-diagram-vocabulary";
-import { buildArchitectureWorkspaceTabHref } from "@/lib/architecture-workspace-tabs";
+import { buildArchitectureWorkspaceTabHref } from "@/lib/architecture/architecture-workspace-tabs";
 
 describe("overview-diagram-vocabulary (TB-2309)", () => {
   it("explains structured overview brief vs illustrative diagram", () => {

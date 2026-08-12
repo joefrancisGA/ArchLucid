@@ -8,7 +8,7 @@ import {
   GOVERNANCE_OVERVIEW_BACK_ACTION,
   GOVERNANCE_OVERVIEW_LOAD_REVIEW_ACTION,
 } from "@/lib/governance/governance-overview-copy";
-import { buyerFacingReviewLinkLabelFromRunId } from "@/lib/buyer-facing-review-title";
+import { buyerFacingReviewLinkLabelFromRunId } from "@/lib/buyer/buyer-facing-review-title";
 import {
   enterpriseMutationControlDisabledTitle,
   governanceWorkflowRefreshRunDataButtonLabel,

@@ -9,7 +9,7 @@ import { operatorCopyForProblem } from "@/lib/api-problem-copy";
 import { toDocsBlobUrl } from "@/lib/contextual-help-content";
 import { isBuyerPolishedOperatorShellEnv } from "@/lib/demo-ui-env";
 import { resolveInAppDocHref } from "@/lib/in-app-doc-href";
-import { classifyOperatorConnectivityFailure } from "@/lib/operator-connectivity-error-present";
+import { classifyOperatorConnectivityFailure } from "@/lib/operator/operator-connectivity-error-present";
 import { OperatorErrorCallout, OperatorWarningCallout } from "@/components/OperatorShellMessage";
 import { OperatorErrorUiReferenceLine } from "@/components/OperatorErrorUiReferenceLine";
 import { OperatorLayeredConnectivityError } from "@/components/OperatorLayeredConnectivityError";

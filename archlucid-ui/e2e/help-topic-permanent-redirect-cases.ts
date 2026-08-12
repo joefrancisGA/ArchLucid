@@ -1,4 +1,4 @@
-import { HELP_TOPIC_PERMANENT_REDIRECTS } from "@/lib/help-topic-permanent-redirects";
+import { HELP_TOPIC_PERMANENT_REDIRECTS } from "@/lib/help/help-topic-permanent-redirects";
 
 export type HelpTopicPermanentRedirectCase = {
   slug: string;

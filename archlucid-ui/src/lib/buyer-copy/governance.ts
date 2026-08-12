@@ -1,10 +1,10 @@
 /**
  * Governance workflow, findings, risk register, and exceptions copy.
  *
- * Re-exported by `./index.ts`; import from `@/lib/buyer-polish-copy` or `@/lib/buyer-copy`.
+ * Re-exported by `./index.ts`; import from `@/lib/buyer/buyer-polish-copy` or `@/lib/buyer-copy`.
  */
 
-import { CREATE_ARCHITECTURE_LABEL } from "@/lib/architecture-workflow-labels";
+import { CREATE_ARCHITECTURE_LABEL } from "@/lib/architecture/architecture-workflow-labels";
 import { RISK_EXCEPTIONS_EMPTY_BODY, RISK_EXCEPTIONS_PAGE_SUBTITLE } from "@/lib/risk-exceptions-page";
 
 export const BUYER_GOVERNANCE_CHANGE_MANAGEMENT_FOOTNOTE =

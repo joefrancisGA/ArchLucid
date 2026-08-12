@@ -34,7 +34,7 @@ import { useCorePilotCommitPresentationContext } from "@/lib/use-core-pilot-comm
 
 import { useCorePilotDerivedStepStatus } from "@/lib/use-core-pilot-derived-step-status";
 
-import { OPERATOR_HOME_DISCLOSURE_STORAGE_KEYS } from "@/lib/operator-home-disclosure-storage";
+import { OPERATOR_HOME_DISCLOSURE_STORAGE_KEYS } from "@/lib/operator/operator-home-disclosure-storage";
 
 import { OPERATOR_LINK, OPERATOR_TYPOGRAPHY } from "@/lib/design-tokens";
 

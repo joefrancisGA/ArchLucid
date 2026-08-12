@@ -1,10 +1,10 @@
-import { ARCHITECTURE_INTELLIGENCE_PATH } from "@/lib/architecture-intelligence-route";
-import { ARCHITECTURES_LIST_PATH } from "@/lib/architecture-routes";
+import { ARCHITECTURE_INTELLIGENCE_PATH } from "@/lib/architecture/architecture-intelligence-route";
+import { ARCHITECTURES_LIST_PATH } from "@/lib/architecture/architecture-routes";
 import { EXECUTIVE_DASHBOARD_HREF } from "@/lib/executive/executive-dashboard-route";
-import { ARCHITECTURE_DRAFTS_LIST_LABEL } from "@/lib/architecture-workflow-labels";
+import { ARCHITECTURE_DRAFTS_LIST_LABEL } from "@/lib/architecture/architecture-workflow-labels";
 import { describe, expect, it, vi, afterEach } from "vitest";
 
-import { OperatorAdminNavGroupBuilder } from "@/lib/operator-admin-nav-group-builder";
+import { OperatorAdminNavGroupBuilder } from "@/lib/operator/operator-admin-nav-group-builder";
 import { OperateGovernanceNavGroupBuilder } from "@/lib/operate-governance-nav-group-builder";
 import { PilotNavGroupBuilder } from "@/lib/pilot-nav-group-builder";
 

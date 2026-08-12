@@ -15,7 +15,7 @@ import {
   GOVERNANCE_QUICK_APPROVE_FAILURE_MESSAGE,
   GOVERNANCE_QUICK_APPROVE_SUCCESS_MESSAGE,
 } from "@/lib/governance/governance-mutation-outcome-copy";
-import { BUYER_GOVERNANCE_QUICK_APPROVE_LABEL } from "@/lib/buyer-polish-copy";
+import { BUYER_GOVERNANCE_QUICK_APPROVE_LABEL } from "@/lib/buyer/buyer-polish-copy";
 import { isBuyerPolishedOperatorShellEnv } from "@/lib/demo-ui-env";
 
 type LineagePhase = "loading" | "ready" | "error";

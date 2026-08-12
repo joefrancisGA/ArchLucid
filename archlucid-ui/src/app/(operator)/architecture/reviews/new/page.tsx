@@ -1,4 +1,4 @@
-import { START_REVIEW_LABEL } from "@/lib/architecture-workflow-labels";
+import { START_REVIEW_LABEL } from "@/lib/architecture/architecture-workflow-labels";
 import { OperatorPageContainer } from "@/components/OperatorPageContainer";
 import type { Metadata } from "next";
 import dynamic from "next/dynamic";

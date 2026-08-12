@@ -8,7 +8,7 @@ import {
   defaultLabelsForScopeIds,
   isDevDefaultScopeRecord,
   type OperatorScopeRecord,
-} from "@/lib/operator-scope-storage";
+} from "@/lib/operator/operator-scope-storage";
 
 export type WorkspaceScopeEmptyTeachingCopy = {
   readonly title: string;

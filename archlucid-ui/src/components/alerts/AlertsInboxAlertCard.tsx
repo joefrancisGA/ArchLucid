@@ -11,7 +11,7 @@ import {
   alertsTriageSuppressButtonLabelReaderInbox,
 } from "@/lib/enterprise-controls-context-copy";
 import { alertPrimaryFindingDetailHref } from "@/lib/alert-finding-navigation";
-import { getCanonicalReviewWorkspaceHref } from "@/lib/buyer-safe-review-navigation";
+import { getCanonicalReviewWorkspaceHref } from "@/lib/buyer/buyer-safe-review-navigation";
 import { ALERTS_INBOX_LABELS } from "@/lib/i18n";
 import { policyPacksRuleHref } from "@/lib/policy/policy-packs-deep-link";
 import { OPERATOR_LINK, OPERATOR_NAV_GROUP_LABEL, OPERATOR_TYPOGRAPHY } from "@/lib/design-tokens";

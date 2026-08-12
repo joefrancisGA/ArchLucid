@@ -13,7 +13,7 @@
  * as portfolio ROI framing. Distinct from TB-2258 (ROI summary ≠ sponsor export).
  */
 
-import { ARCHITECTURE_SCORECARD_PATH } from "@/lib/architecture-scorecard-route";
+import { ARCHITECTURE_SCORECARD_PATH } from "@/lib/architecture/architecture-scorecard-route";
 import { SPONSOR_REPORT_ROI_SUMMARY_PATH } from "@/lib/sponsor-report-navigation";
 
 export type ScorecardRoiSurfaceId = "scorecard" | "roi-summary";

@@ -1,7 +1,7 @@
 import type { AskResponse } from "@/types/conversation";
 import { getServerApiBaseUrl } from "@/lib/config";
 import { getServerUpstreamAuthHeaders } from "@/lib/legacy-arch-env";
-import { getEffectiveBrowserProxyScopeHeaders } from "@/lib/operator-scope-storage";
+import { getEffectiveBrowserProxyScopeHeaders } from "@/lib/operator/operator-scope-storage";
 import { getScopeHeaders } from "@/lib/scope";
 import { ensureOidcBearerReady, getBearerToken, isBrowser, withCorrelationHeaders } from "./http";
 

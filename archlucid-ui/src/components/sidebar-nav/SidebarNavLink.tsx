@@ -5,8 +5,8 @@ import Link from "next/link";
 import type { ReactElement, ReactNode } from "react";
 
 import type { NavLinkItem } from "@/lib/nav-config.types";
-import { stampRouteReferrer } from "@/lib/operator-navigation-referrer";
-import { trackNavLinkClick } from "@/lib/operator-navigation-telemetry";
+import { stampRouteReferrer } from "@/lib/operator/operator-navigation-referrer";
+import { trackNavLinkClick } from "@/lib/operator/operator-navigation-telemetry";
 import type { OperateNavUnlockPhase } from "@/lib/usability/operate-nav-progressive-unlock";
 import { Badge } from "@/components/ui/badge";
 import { DESIGN_TOKENS, OPERATOR_TYPOGRAPHY } from "@/lib/design-tokens";

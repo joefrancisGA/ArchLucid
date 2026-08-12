@@ -49,7 +49,7 @@ vi.mock("./QuickReviewWizardDeferredPanels", () => ({
 }));
 
 import { buildReviewGenerationRedirect } from "@/lib/review-generation-handoff";
-import { BUYER_START_ARCHITECTURE_REVIEW_CTA, CREATE_REVIEW_PACKAGE_HEADING, NEW_REVIEW_SAMPLE_ESCAPE_CTA } from "@/lib/buyer-polish-copy";
+import { BUYER_START_ARCHITECTURE_REVIEW_CTA, CREATE_REVIEW_PACKAGE_HEADING, NEW_REVIEW_SAMPLE_ESCAPE_CTA } from "@/lib/buyer/buyer-polish-copy";
 import { REVIEW_INTAKE_EVIDENCE_FIRST_PROGRESS_LEAD } from "@/lib/create-vs-review-intake-copy";
 import { showError } from "@/lib/toast";
 import { REVIEW_START_PREPARING_LABEL } from "@/lib/review-start-progress-copy";

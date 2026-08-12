@@ -1,6 +1,6 @@
 "use client";
 
-import { isStaticDemoPayloadFallbackActiveForRun } from "@/lib/operator-static-demo";
+import { isStaticDemoPayloadFallbackActiveForRun } from "@/lib/operator/operator-static-demo";
 import { canShowcaseAnonymousVisitorOpenOperatorDeepLinks } from "@/lib/showcase-quick-nav-contract";
 import {
   LIVE_DEMO_WALKTHROUGH_STEPS,

@@ -3,7 +3,7 @@ import { ChevronDown } from "lucide-react";
 
 import { OperatorSavedViewsBar } from "@/components/OperatorSavedViewsBar";
 import type { OperatorSavedView } from "@/lib/api/operator-saved-views";
-import type { OperatorSavedViewPayload } from "@/lib/operator-saved-view-types";
+import type { OperatorSavedViewPayload } from "@/lib/operator/operator-saved-view-types";
 
 import { Collapsible, CollapsibleContent, CollapsibleTrigger } from "@/components/ui/collapsible";
 import {
@@ -22,7 +22,7 @@ import {
 } from "@/lib/audit-trail-page-copy";
 import { pipelineEventTypeFriendlyLabel } from "@/lib/pipeline-event-type-labels";
 import { AUTHORITY_RANK } from "@/lib/nav-authority";
-import { buyerFacingReviewLinkLabelFromRunId } from "@/lib/buyer-facing-review-title";
+import { buyerFacingReviewLinkLabelFromRunId } from "@/lib/buyer/buyer-facing-review-title";
 import { SHOWCASE_STATIC_DEMO_RUN_ID } from "@/lib/showcase-static-demo";
 import { OPERATOR_TYPOGRAPHY } from "@/lib/design-tokens";
 import { auditRunIdInputDisplayValue, auditRunIdParseInputValue } from "./audit-page-helpers";

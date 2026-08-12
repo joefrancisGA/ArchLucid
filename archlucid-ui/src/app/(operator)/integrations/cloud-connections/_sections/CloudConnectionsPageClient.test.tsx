@@ -35,7 +35,7 @@ vi.mock("@/lib/api/gcp-cloud-connections-api", () => ({
 }));
 
 import { resetCloudPlatformScopeSessionStateForTests } from "@/lib/cloud-platform-scope-storage";
-import * as operatorScopeStorage from "@/lib/operator-scope-storage";
+import * as operatorScopeStorage from "@/lib/operator/operator-scope-storage";
 
 import { CloudConnectionsPageClient } from "./CloudConnectionsPageClient";
 

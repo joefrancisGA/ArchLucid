@@ -4,12 +4,12 @@ import { EvidenceGapForecastPanel } from "@/components/evidence/EvidenceGapForec
 import { RunDetailEvidenceInventorySection } from "@/components/RunDetailEvidenceInventorySection";
 import { RunDetailEvidenceScopeHeader } from "@/components/RunDetailEvidenceScopeHeader";
 import { deriveEvidencePresenceFromInventoryKinds } from "@/lib/evidence-gap-forecast";
-import type { RunDetailEvidenceInventoryItem } from "@/lib/run-detail-evidence-inventory";
+import type { RunDetailEvidenceInventoryItem } from "@/lib/runs/run-detail-evidence-inventory";
 import {
   countRunDetailEvidenceInventoryItems,
   deriveEvidenceScopeCoverageLine,
   deriveEvidenceScopeReadiness,
-} from "@/lib/run-detail-evidence-inventory";
+} from "@/lib/runs/run-detail-evidence-inventory";
 
 import { RunDetailCaptureEvidenceSectionDeferred } from "./run-detail-page-view-deferred-chunks";
 

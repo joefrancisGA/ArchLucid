@@ -46,8 +46,8 @@ import {
   OPERATOR_HOME_RECENT_REVIEWS_EXAMPLE_ONLY_OUTCOME,
   OPERATOR_HOME_WORKSPACE_EMPTY_BODY,
   OPERATOR_HOME_WORKSPACE_EMPTY_TITLE,
-} from "@/lib/buyer-polish-copy";
-import * as operatorStaticDemo from "@/lib/operator-static-demo";
+} from "@/lib/buyer/buyer-polish-copy";
+import * as operatorStaticDemo from "@/lib/operator/operator-static-demo";
 
 import { OperatorHomeWorkspaceActivityProvider } from "@/components/operator-home/operator-home-workspace-activity-context";
 

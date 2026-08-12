@@ -15,7 +15,7 @@ export type ShowcaseOutcomeStripProps = {
   primaryFindingId?: string | null | undefined;
   /**
    * When false, omit authenticated `/architecture/reviews/...` deep links (use manifest-only CTAs). Public marketing surfaces pass
-   * {@link import("@/lib/operator-static-demo").isStaticDemoPayloadFallbackEnabled} from a server parent.
+   * {@link import("@/lib/operator/operator-static-demo").isStaticDemoPayloadFallbackEnabled} from a server parent.
    */
   readonly isRunDetailAvailable?: boolean;
   /** Public demo / marketing preview — soften deliverable copy so it is not read as a live customer outcome. */

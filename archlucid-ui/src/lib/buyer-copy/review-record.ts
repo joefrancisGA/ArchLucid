@@ -1,7 +1,7 @@
 /**
  * Signed review record copy — sections, deliverables, and downloads.
  *
- * Re-exported by `./index.ts`; import from `@/lib/buyer-polish-copy` or `@/lib/buyer-copy`.
+ * Re-exported by `./index.ts`; import from `@/lib/buyer/buyer-polish-copy` or `@/lib/buyer-copy`.
  */
 
 export const BUYER_MANIFEST_DELIVERABLES_HEADING = "Deliverables";

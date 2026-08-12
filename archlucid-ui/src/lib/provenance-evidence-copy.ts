@@ -1,4 +1,4 @@
-import { REVIEWS_LIST_PATH, reviewDetailPath } from "@/lib/architecture-routes";
+import { REVIEWS_LIST_PATH, reviewDetailPath } from "@/lib/architecture/architecture-routes";
 import { inAppHelpHref } from "@/lib/product-documentation-registry";
 import type { EvidenceSourceLink } from "@/lib/evidence-surface-copy";
 

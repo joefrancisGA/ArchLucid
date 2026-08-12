@@ -10,7 +10,7 @@ import { SeverityTag } from "@/components/ui/severity-tag";
 import { StatusTag } from "@/components/ui/status-tag";
 import { FavoriteReviewToggle } from "@/components/reviews/FavoriteReviewToggle";
 import { PageContextualHelpButton } from "@/components/usability/PageContextualHelpButton";
-import { REVIEWS_LIST_PATH } from "@/lib/architecture-routes";
+import { REVIEWS_LIST_PATH } from "@/lib/architecture/architecture-routes";
 import { CTA_WIDTH, DESIGN_TOKENS, OPERATOR_LINK, OPERATOR_TYPOGRAPHY } from "@/lib/design-tokens";
 import type { RunDetailWorkspaceStatus } from "@/lib/run-detail-workspace-derive";
 

@@ -7,12 +7,12 @@ import {
   BUYER_HOME_EXAMPLE_PACKAGE_HEADING,
   BUYER_HOME_EXAMPLE_PACKAGE_LEAD,
   BUYER_HOME_EXAMPLE_PACKAGE_SHORTCUTS_ARIA,
-} from "@/lib/buyer-polish-copy";
+} from "@/lib/buyer/buyer-polish-copy";
 import {
   getCanonicalReviewWorkspaceHref,
   getShowcaseManifestHref,
   getShowcaseWalkthroughHref,
-} from "@/lib/buyer-safe-review-navigation";
+} from "@/lib/buyer/buyer-safe-review-navigation";
 import { CTA_WIDTH, OPERATOR_TYPE_SCALE } from "@/lib/design-tokens";
 import { SHOWCASE_STATIC_DEMO_RUN_ID } from "@/lib/showcase-static-demo";
 

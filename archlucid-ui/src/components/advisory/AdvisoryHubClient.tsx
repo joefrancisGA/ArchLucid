@@ -18,7 +18,7 @@ import {
 } from "@/lib/advisory-copy";
 import { buildAdvisoryHubHref } from "@/lib/advisory-hub-href";
 import { ADVISORY_HUB_TAB_IDS, advisoryHubTabFromSearchParam, type AdvisoryHubTabId } from "@/lib/advisory-hub-tab";
-import { scopedRunIdFromQuery } from "@/lib/architecture-risk-register-page";
+import { scopedRunIdFromQuery } from "@/lib/architecture/architecture-risk-register-page";
 import { OPERATOR_TYPOGRAPHY } from "@/lib/design-tokens";
 import { OPERATOR_NAV_LINK_LABELS } from "@/lib/i18n";
 

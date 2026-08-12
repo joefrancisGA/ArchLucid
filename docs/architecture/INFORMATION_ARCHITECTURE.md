@@ -73,4 +73,4 @@ When adding customer-facing prose, use **audience** doc to pick the source file 
 - [`docs/library/PRODUCT_DOCUMENTATION_PRESENTATION.md`](../library/PRODUCT_DOCUMENTATION_PRESENTATION.md) — in-app help presentation rules
 - [`docs/architecture/ui_routes.md`](ui_routes.md) — route inventory
 - [`archlucid-ui/src/lib/product-documentation-registry.ts`](../../archlucid-ui/src/lib/product-documentation-registry.ts) — `/help` topic registry
-- [`archlucid-ui/src/lib/help-center-catalog.ts`](../../archlucid-ui/src/lib/help-center-catalog.ts) — help center tiers (unchanged in TB-732)
+- [`archlucid-ui/src/lib/help/help-center-catalog.ts`](../../archlucid-ui/src/lib/help/help-center-catalog.ts) — help center tiers (unchanged in TB-732)

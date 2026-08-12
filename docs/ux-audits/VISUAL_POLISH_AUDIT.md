@@ -279,7 +279,7 @@ Replace the `"home"` variant `<details>`/`<summary>` block with `OperatorHomeDis
 
 ```tsx
 import { OperatorHomeDisclosureSection } from "@/components/operator-home/OperatorHomeDisclosureSection";
-import { OPERATOR_HOME_DISCLOSURE_STORAGE_KEYS } from "@/lib/operator-home-disclosure-storage";
+import { OPERATOR_HOME_DISCLOSURE_STORAGE_KEYS } from "@/lib/operator/operator-home-disclosure-storage";
 
 // In the "home" variant branch:
 return (

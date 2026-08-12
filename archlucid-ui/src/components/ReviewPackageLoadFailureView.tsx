@@ -18,7 +18,7 @@ import { getRunDetail } from "@/lib/api";
 import type { ApiLoadFailureState } from "@/lib/api-load-failure";
 import { OPERATOR_NAV_LINK_LABELS } from "@/lib/i18n";
 import { errorRecoveryContractForScenario } from "@/lib/error-recovery-contract-copy";
-import { readOperatorScopeFromStorage } from "@/lib/operator-scope-storage";
+import { readOperatorScopeFromStorage } from "@/lib/operator/operator-scope-storage";
 import {
   clearReviewGenerationHandoff,
   readReviewGenerationHandoff,

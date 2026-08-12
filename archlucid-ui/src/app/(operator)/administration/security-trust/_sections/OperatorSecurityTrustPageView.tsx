@@ -31,7 +31,7 @@ import {
   OPERATOR_SECURITY_TRUST_TENANT_ISOLATION_TITLE,
   type OperatorSecurityTrustLinkItem,
   type OperatorSecurityTrustMaturityTag,
-} from "@/lib/operator-security-trust-content";
+} from "@/lib/operator/operator-security-trust-content";
 import {
   OPERATOR_SECURITY_TRUST_BREADCRUMB_ADMINISTRATION_HREF,
   OPERATOR_SECURITY_TRUST_BREADCRUMB_ADMINISTRATION_LABEL,
@@ -39,7 +39,7 @@ import {
   OPERATOR_SECURITY_TRUST_PAGE_NAV_HREF,
   OPERATOR_SECURITY_TRUST_PRIMARY_TRUST_CENTER_LABEL,
   OPERATOR_SECURITY_TRUST_SECONDARY_MATERIALS_HEADING,
-} from "@/lib/operator-security-trust-page-copy";
+} from "@/lib/operator/operator-security-trust-page-copy";
 
 const securityTrustLinkClassName = cn(
   OPERATOR_TYPOGRAPHY.body,

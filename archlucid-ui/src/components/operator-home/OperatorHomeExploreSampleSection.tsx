@@ -16,12 +16,12 @@ import {
   OPERATOR_HOME_LEARNING_RESOURCES_LEAD,
   OPERATOR_HOME_OPEN_CREATION_EXAMPLE_CTA,
   OPERATOR_HOME_REVIEW_SAMPLE_FINDINGS_CTA,
-} from "@/lib/buyer-polish-copy";
+} from "@/lib/buyer/buyer-polish-copy";
 import { OPERATOR_CARD, OPERATOR_LAYOUT, OPERATOR_TYPE_SCALE } from "@/lib/design-tokens";
 import {
   OPERATOR_HOME_EXAMPLE_TEMPLATE_ID,
   reviewIntakeExampleTemplateHref,
-} from "@/lib/operator-home-example-request";
+} from "@/lib/operator/operator-home-example-request";
 import {
   OPERATOR_HOME_OPENING_CREATION_EXAMPLE_LABEL,
   OPERATOR_HOME_RUNNING_GUIDED_REVIEW_LABEL,

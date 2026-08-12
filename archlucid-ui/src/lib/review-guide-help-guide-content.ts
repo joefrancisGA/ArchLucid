@@ -1,4 +1,4 @@
-import { REVIEWS_NEW_PATH } from "@/lib/architecture-routes";
+import { REVIEWS_NEW_PATH } from "@/lib/architecture/architecture-routes";
 import { FIRST_REVIEW_GUIDE_PATH } from "@/lib/first-review-guide-route";
 import type { ProductDocumentationEntry } from "@/lib/product-documentation-registry";
 import { inAppHelpHref } from "@/lib/product-documentation-registry";

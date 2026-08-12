@@ -9,22 +9,22 @@ import { Button } from "@/components/ui/button";
 import { Label } from "@/components/ui/label";
 import { WhyDisabledCtaHint } from "@/components/usability/WhyDisabledCtaHint";
 import { useLlmMonthlyBudgetExecutionGate } from "@/hooks/use-llm-monthly-budget-execution-gate";
-import type { ArchitectureDraftFieldState } from "@/lib/architecture-draft-readiness";
+import type { ArchitectureDraftFieldState } from "@/lib/architecture/architecture-draft-readiness";
 import {
   buildArchitectureIntelligenceRunRequest,
   buildArchitectureIntelligenceSourcesFromDraftFields,
   primaryDescriptionFromSources,
   runArchitectureIntelligenceReasoning,
   type ClosedLoopReasoningResult,
-} from "@/lib/architecture-intelligence-api";
+} from "@/lib/architecture/architecture-intelligence-api";
 import {
   ARCHITECTURE_INTELLIGENCE_REVIEW_TIERS,
   architectureIntelligenceReviewTierLabel,
   isArchitectureIntelligenceReviewTier,
   type ArchitectureIntelligenceReviewTier,
-} from "@/lib/architecture-intelligence-review-tier";
-import { buildArchitectureIntelligenceRunHref } from "@/lib/architecture-intelligence-run-href";
-import { reviewDetailPath } from "@/lib/architecture-routes";
+} from "@/lib/architecture/architecture-intelligence-review-tier";
+import { buildArchitectureIntelligenceRunHref } from "@/lib/architecture/architecture-intelligence-run-href";
+import { reviewDetailPath } from "@/lib/architecture/architecture-routes";
 import { OPERATOR_LINK, OPERATOR_TYPOGRAPHY } from "@/lib/design-tokens";
 import { whyDisabledLlmBudgetExhausted } from "@/lib/why-disabled-cta";
 import { cn } from "@/lib/utils";

@@ -7,7 +7,7 @@ import { OperatorLoadingNotice } from "@/components/OperatorShellMessage";
 import { EvidenceTrailBuyerTraceTable } from "@/app/(operator)/insights/evidence-graph/_sections/EvidenceTrailBuyerTraceTable";
 import { getRunExplanationSummary } from "@/lib/api/architecture-runs";
 import { toApiLoadFailure, type ApiLoadFailureState } from "@/lib/api-load-failure";
-import { tryStaticDemoExplanationSummary } from "@/lib/operator-static-demo";
+import { tryStaticDemoExplanationSummary } from "@/lib/operator/operator-static-demo";
 import { resolveFindingTraceRowsFromSummary } from "@/lib/quick-decision-summary-derive";
 import { OPERATOR_LINK, OPERATOR_TYPOGRAPHY } from "@/lib/design-tokens";
 

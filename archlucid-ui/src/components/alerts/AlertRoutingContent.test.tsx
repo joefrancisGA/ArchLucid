@@ -7,7 +7,7 @@ import {
   alertRoutingCreateSubscriptionButtonLabelReaderRank,
   enterpriseMutationControlDisabledTitle,
 } from "@/lib/enterprise-controls-context-copy";
-import { OPERATOR_NOT_REFRESHED_LABEL } from "@/lib/operator-last-refreshed-label";
+import { OPERATOR_NOT_REFRESHED_LABEL } from "@/lib/operator/operator-last-refreshed-label";
 
 import { AlertRoutingContent } from "./AlertRoutingContent";
 

@@ -4,7 +4,7 @@ import { Button } from "@/components/ui/button";
 import {
   BUYER_CTO_DEMO_CONTACT_SUPPORT_CTA,
   BUYER_CTO_DEMO_TRY_AGAIN_CTA,
-} from "@/lib/buyer-polish-copy";
+} from "@/lib/buyer/buyer-polish-copy";
 import { OPERATOR_TYPE_SCALE } from "@/lib/design-tokens";
 import { cn } from "@/lib/utils";
 

@@ -13,7 +13,7 @@
  * procedural Help (TB-2308).
  */
 
-import { HELP_HUB_CANONICAL_PATH } from "@/lib/help-hub-evidence-copy";
+import { HELP_HUB_CANONICAL_PATH } from "@/lib/help/help-hub-evidence-copy";
 import { REPORT_PROBLEM_DIALOG_TITLE } from "@/lib/report-problem-copy";
 
 /**

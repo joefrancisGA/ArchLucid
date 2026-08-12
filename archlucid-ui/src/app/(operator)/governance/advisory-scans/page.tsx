@@ -1,6 +1,6 @@
 import { AdvisoryHubClient } from "@/components/advisory/AdvisoryHubClient";
 import { advisoryHubTabFromSearchParam } from "@/lib/advisory-hub-tab";
-import { scopedRunIdFromQuery } from "@/lib/architecture-risk-register-page";
+import { scopedRunIdFromQuery } from "@/lib/architecture/architecture-risk-register-page";
 
 type PageProps = {
   searchParams: Promise<{ tab?: string; runId?: string }>;

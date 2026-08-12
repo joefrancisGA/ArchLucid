@@ -2,7 +2,7 @@ import { render, screen } from "@testing-library/react";
 import { describe, expect, it, vi } from "vitest";
 
 import { ArchitectureCreatedClarificationsPanel } from "@/components/architecture/ArchitectureCreatedClarificationsPanel";
-import { buildArchitectureCreatedHomeModel } from "@/lib/architecture-created-home-model";
+import { buildArchitectureCreatedHomeModel } from "@/lib/architecture/architecture-created-home-model";
 
 describe("ArchitectureCreatedClarificationsPanel", () => {
   it("uses run-scoped guided questions href and omits intake wording", () => {

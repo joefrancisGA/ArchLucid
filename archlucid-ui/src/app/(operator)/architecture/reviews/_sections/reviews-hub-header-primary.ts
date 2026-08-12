@@ -1,5 +1,5 @@
-import { architectureDraftPath } from "@/lib/architecture-routes";
-import type { ArchitectureDraftRegistryEntry } from "@/lib/architecture-draft-registry";
+import { architectureDraftPath } from "@/lib/architecture/architecture-routes";
+import type { ArchitectureDraftRegistryEntry } from "@/lib/architecture/architecture-draft-registry";
 
 import {
   REVIEWS_HUB_PRIMARY_START_LABEL,

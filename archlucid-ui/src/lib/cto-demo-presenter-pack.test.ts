@@ -6,7 +6,7 @@ vi.mock("@/lib/demo-ui-env", () => ({
   isOperatorExperienceFullShellEnv: () => false,
 }));
 
-vi.mock("@/lib/operator-static-demo", () => ({
+vi.mock("@/lib/operator/operator-static-demo", () => ({
   isStaticDemoPayloadFallbackEnabled: () => false,
 }));
 

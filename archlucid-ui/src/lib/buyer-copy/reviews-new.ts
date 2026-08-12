@@ -1,10 +1,10 @@
 /**
  * Start-a-review copy — intake entry, specimen preview, and sample escape links.
  *
- * Re-exported by `./index.ts`; import from `@/lib/buyer-polish-copy` or `@/lib/buyer-copy`.
+ * Re-exported by `./index.ts`; import from `@/lib/buyer/buyer-polish-copy` or `@/lib/buyer-copy`.
  */
 
-import { CREATE_ARCHITECTURE_LABEL } from "@/lib/architecture-workflow-labels";
+import { CREATE_ARCHITECTURE_LABEL } from "@/lib/architecture/architecture-workflow-labels";
 import { CLOUD_NEUTRAL_PRIMARY_COPY } from "@/lib/cloud-neutral-primary-copy";
 
 export const NEW_REVIEW_SAMPLE_ESCAPE_CTA =

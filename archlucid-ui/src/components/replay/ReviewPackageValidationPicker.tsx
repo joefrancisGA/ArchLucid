@@ -6,7 +6,7 @@ import { useCallback, useEffect, useId, useMemo, useRef, useState } from "react"
 import { Input } from "@/components/ui/input";
 import { Label } from "@/components/ui/label";
 import { OPERATOR_LINK, OPERATOR_TYPOGRAPHY } from "@/lib/design-tokens";
-import { loadProjectRunsMergedWithDemoFallback } from "@/lib/operator-run-picker-client";
+import { loadProjectRunsMergedWithDemoFallback } from "@/lib/operator/operator-run-picker-client";
 import {
   REPLAY_PACKAGE_SELECTOR_HELPER,
   REPLAY_PACKAGE_SELECTOR_INLINE_HINT,
@@ -18,7 +18,7 @@ import {
 } from "@/lib/review-package-validation-picker";
 import type { ReplayValidationOutcome } from "@/lib/replay-validation-workflow";
 import type { RunSummary } from "@/types/authority";
-import { buyerFacingReviewTitleFromSummary } from "@/lib/buyer-facing-review-title";
+import { buyerFacingReviewTitleFromSummary } from "@/lib/buyer/buyer-facing-review-title";
 
 export type ReviewPackageValidationPickerProps = {
   readonly value: string;

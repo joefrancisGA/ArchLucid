@@ -9,7 +9,7 @@ import {
   BUYER_VALUE_REPORT_EMPTY_DESCRIPTION,
   BUYER_VALUE_REPORT_EMPTY_TITLE,
   BUYER_VIEW_SAMPLE_VALUE_REPORT_CTA,
-} from "@/lib/buyer-polish-copy";
+} from "@/lib/buyer/buyer-polish-copy";
 
 /** Empty state when the selected report period has no finalized reviews. */
 export function ValueReportEmptyState(): React.JSX.Element {

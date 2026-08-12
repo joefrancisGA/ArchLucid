@@ -11,7 +11,7 @@ import { OPERATOR_LINK, OPERATOR_TYPOGRAPHY } from "@/lib/design-tokens";
 import {
   operatorLastRefreshedExactLabel,
   operatorLastRefreshedLabel,
-} from "@/lib/operator-last-refreshed-label";
+} from "@/lib/operator/operator-last-refreshed-label";
 import {
   AZURE_BOARDS_ACTION_REFRESH,
   AZURE_BOARDS_ACTION_REFRESHING,

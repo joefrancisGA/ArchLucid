@@ -1,7 +1,7 @@
 /**
  * CTO demo tour, presenter controls, and demo-readiness copy.
  *
- * Re-exported by `./index.ts`; import from `@/lib/buyer-polish-copy` or `@/lib/buyer-copy`.
+ * Re-exported by `./index.ts`; import from `@/lib/buyer/buyer-polish-copy` or `@/lib/buyer-copy`.
  */
 
 export const BUYER_HOME_START_CTO_DEMO_HEADING = "Open example review";

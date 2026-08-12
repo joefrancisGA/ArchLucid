@@ -14,7 +14,7 @@
  * first-open coach (TB-2244), which teaches graph modes on first visit.
  */
 
-import { ARCHITECTURE_INTELLIGENCE_PATH } from "@/lib/architecture-intelligence-route";
+import { ARCHITECTURE_INTELLIGENCE_PATH } from "@/lib/architecture/architecture-intelligence-route";
 import { EVIDENCE_GRAPH_PATH } from "@/lib/evidence-graph-route";
 
 export type ArchitectureIntelligenceEvidenceGraphSurfaceId =

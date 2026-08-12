@@ -4,7 +4,7 @@ import { useMemo } from "react";
 import { useSearchParams } from "next/navigation";
 
 import { RunDetailSectionNav, type RunDetailSection } from "@/components/RunDetailSectionNav";
-import { filterRunDetailNavSectionsForTab } from "@/lib/run-detail-section-tab-map";
+import { filterRunDetailNavSectionsForTab } from "@/lib/runs/run-detail-section-tab-map";
 import {
   REVIEW_DETAIL_TAB_PARAM,
   resolveReviewDetailTab,

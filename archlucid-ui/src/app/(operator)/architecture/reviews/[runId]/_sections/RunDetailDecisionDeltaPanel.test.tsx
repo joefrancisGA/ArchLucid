@@ -6,8 +6,8 @@ import { deriveFindingTrustPresentation } from "@/lib/findings/finding-trust-pre
 import {
   RUN_DETAIL_DECISION_DELTA_PANEL_TEST_ID,
   RUN_DETAIL_DECISION_DELTA_ROW_TEST_ID,
-} from "@/lib/run-detail-decision-delta-alignment";
-import type { RunDetailDecisionDeltaView } from "@/lib/run-detail-decision-delta";
+} from "@/lib/runs/run-detail-decision-delta-alignment";
+import type { RunDetailDecisionDeltaView } from "@/lib/runs/run-detail-decision-delta";
 
 describe("RunDetailDecisionDeltaPanel", () => {
   it("renders top material findings with rule badges", () => {

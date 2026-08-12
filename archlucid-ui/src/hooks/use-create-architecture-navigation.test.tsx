@@ -23,7 +23,7 @@ vi.mock("next/navigation", () => ({
   usePathname: () => "/",
 }));
 
-vi.mock("@/lib/architecture-creation-session", () => ({
+vi.mock("@/lib/architecture/architecture-creation-session", () => ({
   clearArchitectureCreationDraftId: () => clearArchitectureCreationDraftId(),
 }));
 
@@ -35,7 +35,7 @@ import {
   CREATE_ARCHITECTURE_NAVIGATION_TIMEOUT_MS,
   useCreateArchitectureNavigation,
 } from "./use-create-architecture-navigation";
-import { ARCHITECTURES_NEW_PATH } from "@/lib/architecture-routes";
+import { ARCHITECTURES_NEW_PATH } from "@/lib/architecture/architecture-routes";
 
 describe("useCreateArchitectureNavigation", () => {
   const assign = vi.fn();

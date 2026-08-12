@@ -16,7 +16,7 @@ import {
 import {
   ARCHITECTURES_LIST_PATH,
   REVIEWS_LIST_PATH,
-} from "@/lib/architecture-routes";
+} from "@/lib/architecture/architecture-routes";
 
 describe("projects-recycle-drafts-package-vocabulary (TB-2251)", () => {
   it("explains the recycle / drafts / package triad and deep-links all three", () => {

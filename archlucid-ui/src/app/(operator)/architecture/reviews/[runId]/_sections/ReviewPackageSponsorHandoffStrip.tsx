@@ -18,7 +18,7 @@ import { buildReviewDetailTabHref } from "@/lib/review-detail-workspace-tabs";
 import {
   RUN_DETAIL_SPONSOR_HANDOFF_MORE_EXPORTS_LABEL,
   RUN_DETAIL_SPONSOR_HANDOFF_TITLE,
-} from "@/lib/run-detail-deliverables-copy";
+} from "@/lib/runs/run-detail-deliverables-copy";
 import type { ManifestSummary, RunTrustEvidenceCard } from "@/types/authority";
 
 export type ReviewPackageSponsorHandoffStripProps = {

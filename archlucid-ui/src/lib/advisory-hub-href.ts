@@ -1,5 +1,5 @@
 import type { AdvisoryHubTabId } from "@/lib/advisory-hub-tab";
-import { scopedRunIdFromQuery } from "@/lib/architecture-risk-register-page";
+import { scopedRunIdFromQuery } from "@/lib/architecture/architecture-risk-register-page";
 
 /** Builds `/governance/advisory-scans` hrefs while preserving optional `runId` deep-link scope. */
 export function buildAdvisoryHubHref(input: {

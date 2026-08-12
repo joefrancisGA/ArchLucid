@@ -4,8 +4,8 @@ import {
   getShowcaseCompareHref,
   getShowcaseExecutiveHref,
   getShowcaseManifestHref,
-} from "@/lib/buyer-safe-review-navigation";
-import { BUYER_COMPARE_OPEN_FULL_LINK_LABEL } from "@/lib/buyer-polish-copy";
+} from "@/lib/buyer/buyer-safe-review-navigation";
+import { BUYER_COMPARE_OPEN_FULL_LINK_LABEL } from "@/lib/buyer/buyer-polish-copy";
 import { BUYER_EXECUTIVE_SUMMARY_VOCABULARY, BUYER_SURFACE_VOCABULARY } from "@/lib/vocabulary/buyer-surface-vocabulary";
 import { SIGNED_MANIFEST_LABEL } from "@/lib/usability/canonical-product-terms";
 import {

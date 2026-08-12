@@ -23,13 +23,13 @@ import {
   runsDashboardTabLabel,
 } from "@/components/operator-home/runs-dashboard-helpers";
 import type { RunsDashboardLoadPhase, RunsDashboardTabId } from "@/components/operator-home/runs-dashboard-load-phase";
-import { useOptionalOperatorHomeRefresh } from "@/lib/operator-home-refresh-context";
+import { useOptionalOperatorHomeRefresh } from "@/lib/operator/operator-home-refresh-context";
 import {
   resolveRunsDashboardClientLoadMode,
   shouldShowRunsDashboardInitialSkeleton,
   shouldSkipRunsDashboardClientFetchOnMount,
   type RunsDashboardClientLoadMode,
-} from "@/lib/operator-home-runs-dashboard-client-fetch";
+} from "@/lib/operator/operator-home-runs-dashboard-client-fetch";
 import { Card, CardContent, CardHeader, CardTitle } from "@/components/ui/card";
 import { FilterChip } from "@/components/ui/filter-chip";
 import { Tabs, TabsContent, TabsList, TabsTrigger } from "@/components/ui/tabs";
@@ -40,14 +40,14 @@ import { dedupeRunSummariesByRunId, normalizeRunSummaryForDemoPicker } from "@/l
 import {
   getBuyerSafeReviewsTableLink,
   isBuyerSafePrimaryReviewNavigationPreferred,
-} from "@/lib/buyer-safe-review-navigation";
+} from "@/lib/buyer/buyer-safe-review-navigation";
 import {
   BUYER_RUNS_DASHBOARD_NO_APPROVED_PACKAGES,
   BUYER_RUNS_DASHBOARD_RECENT_LABEL_EMPTY,
   BUYER_RUNS_DASHBOARD_RECENT_SUMMARY,
   BUYER_RUNS_DASHBOARD_SECTION_HEADING,
-} from "@/lib/buyer-polish-copy";
-import { buyerFilterChipClass } from "@/lib/buyer-shell-home-present";
+} from "@/lib/buyer/buyer-polish-copy";
+import { buyerFilterChipClass } from "@/lib/buyer/buyer-shell-home-present";
 import {
   OPERATOR_CARD,
   OPERATOR_HOME_SECTION_HEADING,
@@ -56,14 +56,14 @@ import {
   OPERATOR_TYPE_SCALE,
 } from "@/lib/design-tokens";
 import { RUNS_DASHBOARD_LABELS } from "@/lib/i18n";
-import { OPERATOR_HOME_GOVERNANCE_WARNINGS_PARAM } from "@/lib/operator-home-metric-hrefs";
+import { OPERATOR_HOME_GOVERNANCE_WARNINGS_PARAM } from "@/lib/operator/operator-home-metric-hrefs";
 import {
   filterTenantOverviewRuns,
   formatOperatorHomeRecentReviewsOutcome,
   isExampleOnlyOverviewRunList,
-} from "@/lib/operator-home-recent-reviews-outcome";
-import { deriveOperatorHomeWorkspaceMetrics } from "@/lib/operator-home-workspace-metrics";
-import { coerceRunSummaryPaged } from "@/lib/operator-response-guards";
+} from "@/lib/operator/operator-home-recent-reviews-outcome";
+import { deriveOperatorHomeWorkspaceMetrics } from "@/lib/operator/operator-home-workspace-metrics";
+import { coerceRunSummaryPaged } from "@/lib/operator/operator-response-guards";
 import {
   buildDemoSeededOverviewRunSummary,
   resolveOverviewListProjectId,
@@ -73,8 +73,8 @@ import { isBuyerPolishedOperatorShellEnv } from "@/lib/demo-ui-env";
 import {
   getEffectiveBrowserProxyScopeHeaders,
   readOperatorScopeFromStorage,
-} from "@/lib/operator-scope-storage";
-import { isStaticDemoPayloadFallbackEnabled, tryStaticDemoRunSummariesPaged } from "@/lib/operator-static-demo";
+} from "@/lib/operator/operator-scope-storage";
+import { isStaticDemoPayloadFallbackEnabled, tryStaticDemoRunSummariesPaged } from "@/lib/operator/operator-static-demo";
 import type { RunSummary } from "@/types/authority";
 
 const DEFAULT_PROJECT_ID = "default";

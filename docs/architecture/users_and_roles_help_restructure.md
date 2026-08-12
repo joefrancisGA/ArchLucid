@@ -82,9 +82,9 @@ Customers saw engineering runbook content under the label **Users and roles**.
 - `archlucid-ui/src/lib/product-documentation-content-kinds.ts`
 - `archlucid-ui/src/lib/breadcrumb-map.ts`
 - `archlucid-ui/src/lib/in-app-doc-href.ts`
-- `archlucid-ui/src/lib/help-center-catalog.ts`
-- `archlucid-ui/src/lib/help-search-panel-catalog.ts`
-- `archlucid-ui/src/lib/help-topics.ts`
+- `archlucid-ui/src/lib/help/help-center-catalog.ts`
+- `archlucid-ui/src/lib/help/help-search-panel-catalog.ts`
+- `archlucid-ui/src/lib/help/help-topics.ts`
 - `archlucid-ui/src/lib/troubleshooting-help-guide-content.ts`
 - `archlucid-ui/src/components/OperatorJwtBearerRoleMappingCallout.tsx`
 

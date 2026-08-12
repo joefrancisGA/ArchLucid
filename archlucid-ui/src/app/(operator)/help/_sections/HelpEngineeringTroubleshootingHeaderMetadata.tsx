@@ -5,7 +5,7 @@ import {
   ENGINEERING_TROUBLESHOOTING_HELP_SOURCES_DISCLOSURE_TITLE,
 } from "@/lib/engineering-troubleshooting-help-guide-content";
 import { OPERATOR_TYPOGRAPHY } from "@/lib/design-tokens";
-import { humanizeMarkdownFileReference } from "@/lib/help-markdown-presentation";
+import { humanizeMarkdownFileReference } from "@/lib/help/help-markdown-presentation";
 import type { ProductDocumentationEntry } from "@/lib/product-documentation-registry";
 import { cn } from "@/lib/utils";
 

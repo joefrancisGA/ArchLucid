@@ -1,5 +1,5 @@
 import type { CurrentPrincipal } from "@/lib/current-principal";
-import type { OperatorScopeRecord } from "@/lib/operator-scope-storage";
+import type { OperatorScopeRecord } from "@/lib/operator/operator-scope-storage";
 import { readLastRegistrationPayload } from "@/lib/registration-session";
 
 export type AccessDeniedSupplementMessage = "missing-role" | "wrong-tenant";

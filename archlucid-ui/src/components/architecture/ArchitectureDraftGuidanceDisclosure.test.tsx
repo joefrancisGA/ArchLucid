@@ -8,8 +8,8 @@ import {
   ARCHITECTURE_DRAFT_GUIDANCE_DISCLOSURE_DETAIL,
   ARCHITECTURE_DRAFT_GUIDANCE_DISCLOSURE_LEAD,
   ARCHITECTURE_DRAFT_GUIDANCE_DISCLOSURE_SUMMARY,
-} from "@/lib/architecture-draft-guidance-copy";
-import { ARCHITECTURE_DRAFT_GUIDANCE_DISMISS_STORAGE_KEY } from "@/lib/architecture-draft-guidance-dismiss";
+} from "@/lib/architecture/architecture-draft-guidance-copy";
+import { ARCHITECTURE_DRAFT_GUIDANCE_DISMISS_STORAGE_KEY } from "@/lib/architecture/architecture-draft-guidance-dismiss";
 
 const mockUsePathname = vi.fn(() => "/architecture/architectures");
 

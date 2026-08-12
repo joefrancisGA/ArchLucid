@@ -7,10 +7,10 @@ import {
   ARCHITECTURE_CREATED_DEFINITION_STATUS_HEADING,
   ARCHITECTURE_CREATED_NEXT_STEP_HEADING,
   ARCHITECTURE_CREATED_SUMMARY_HEADING,
-} from "@/lib/architecture-created-home-copy";
-import type { ArchitectureCreatedHomeModel } from "@/lib/architecture-created-home-model";
-import type { ArchitectureCreationUserAssertions } from "@/lib/architecture-structured-content-types";
-import { readArchitectureWorkspaceTabFromHref, type ArchitectureWorkspaceTabId } from "@/lib/architecture-workspace-tabs";
+} from "@/lib/architecture/architecture-created-home-copy";
+import type { ArchitectureCreatedHomeModel } from "@/lib/architecture/architecture-created-home-model";
+import type { ArchitectureCreationUserAssertions } from "@/lib/architecture/architecture-structured-content-types";
+import { readArchitectureWorkspaceTabFromHref, type ArchitectureWorkspaceTabId } from "@/lib/architecture/architecture-workspace-tabs";
 import { OPERATOR_TYPOGRAPHY } from "@/lib/design-tokens";
 
 export type ArchitectureCreatedCompactFirstViewportProps = {

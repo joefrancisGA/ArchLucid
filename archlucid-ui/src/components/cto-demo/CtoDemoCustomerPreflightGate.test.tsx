@@ -5,10 +5,10 @@ import { CtoDemoCustomerPreflightGate } from "@/components/cto-demo/CtoDemoCusto
 import {
   BUYER_CTO_DEMO_PREFLIGHT_HEADING,
   BUYER_CTO_DEMO_START_FAILED_MESSAGE,
-} from "@/lib/buyer-polish-copy";
+} from "@/lib/buyer/buyer-polish-copy";
 
-vi.mock("@/lib/buyer-cto-demo-customer-start", async (importOriginal) => {
-  const actual = await importOriginal<typeof import("@/lib/buyer-cto-demo-customer-start")>();
+vi.mock("@/lib/buyer/buyer-cto-demo-customer-start", async (importOriginal) => {
+  const actual = await importOriginal<typeof import("@/lib/buyer/buyer-cto-demo-customer-start")>();
 
   return {
     ...actual,
@@ -19,7 +19,7 @@ vi.mock("@/lib/buyer-cto-demo-customer-start", async (importOriginal) => {
 
 import {
   evaluateBuyerCtoDemoCustomerStart,
-} from "@/lib/buyer-cto-demo-customer-start";
+} from "@/lib/buyer/buyer-cto-demo-customer-start";
 
 const mockEvaluate = vi.mocked(evaluateBuyerCtoDemoCustomerStart);
 

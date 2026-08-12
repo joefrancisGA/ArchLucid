@@ -15,7 +15,7 @@ import {
   CardTitle,
 } from "@/components/ui/card";
 import { getArtifactDownloadUrl } from "@/lib/api";
-import { reviewDetailPath } from "@/lib/architecture-routes";
+import { reviewDetailPath } from "@/lib/architecture/architecture-routes";
 import {
   getArtifactDisplayLabel,
   getArtifactFormatLabel,

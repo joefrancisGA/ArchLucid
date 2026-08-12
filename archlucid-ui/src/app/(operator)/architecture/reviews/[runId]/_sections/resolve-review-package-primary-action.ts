@@ -2,7 +2,7 @@ import {
   RUN_DETAIL_GOVERNANCE_CTA_LABEL,
   runDetailGovernanceWorkflowHref,
   shouldShowRunDetailGovernanceCta,
-} from "@/lib/run-detail-governance-cta-visibility";
+} from "@/lib/runs/run-detail-governance-cta-visibility";
 
 import { buildReviewDetailTabHref } from "@/lib/review-detail-workspace-tabs";
 import { shortenNextActionForPrimaryCta } from "@/lib/run-detail-workspace-derive";

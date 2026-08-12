@@ -3,7 +3,7 @@ import { beforeEach, describe, expect, it, vi } from "vitest";
 
 import { AdvisorySchedulesContent } from "@/components/advisory/AdvisorySchedulesContent";
 import { AUTHORITY_RANK } from "@/lib/nav-authority";
-import { writeOperatorScopeToStorage } from "@/lib/operator-scope-storage";
+import { writeOperatorScopeToStorage } from "@/lib/operator/operator-scope-storage";
 
 const apiMocks = vi.hoisted(() => ({
   listAdvisorySchedules: vi.fn(),

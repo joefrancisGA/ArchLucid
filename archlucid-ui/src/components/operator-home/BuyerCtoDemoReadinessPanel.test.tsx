@@ -2,7 +2,7 @@ import { render, screen, waitFor } from "@testing-library/react";
 import { beforeEach, describe, expect, it, vi } from "vitest";
 
 import { BuyerCtoDemoReadinessPanel } from "@/components/operator-home/BuyerCtoDemoReadinessPanel";
-import { BUYER_CTO_DEMO_READINESS_ARIA } from "@/lib/buyer-polish-copy";
+import { BUYER_CTO_DEMO_READINESS_ARIA } from "@/lib/buyer/buyer-polish-copy";
 
 vi.mock("@/lib/demo-ui-env", () => ({
   isBuyerPolishedOperatorShellEnv: () => true,
@@ -27,14 +27,14 @@ vi.mock("next/navigation", async (importOriginal) => {
   };
 });
 
-vi.mock("@/lib/buyer-cto-demo-orchestration", () => ({
+vi.mock("@/lib/buyer/buyer-cto-demo-orchestration", () => ({
   resetBuyerCtoDemoSession: vi.fn(async () => ({
     seedSucceeded: true,
     destinationHref: "/operator",
   })),
 }));
 
-vi.mock("@/lib/buyer-cto-demo-readiness", () => ({
+vi.mock("@/lib/buyer/buyer-cto-demo-readiness", () => ({
   buyerCtoDemoReadinessStatusKind: () => "ready",
   evaluateBuyerCtoDemoReadiness: vi.fn(async () => ({
     verdict: "ready",
@@ -61,7 +61,7 @@ vi.mock("@/lib/buyer-cto-demo-readiness", () => ({
   })),
 }));
 
-import { evaluateBuyerCtoDemoReadiness } from "@/lib/buyer-cto-demo-readiness";
+import { evaluateBuyerCtoDemoReadiness } from "@/lib/buyer/buyer-cto-demo-readiness";
 
 const mockEvaluate = vi.mocked(evaluateBuyerCtoDemoReadiness);
 

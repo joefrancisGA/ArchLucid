@@ -1,4 +1,4 @@
-import { ARCHITECTURE_SCORECARD_PATH } from "@/lib/architecture-scorecard-route";
+import { ARCHITECTURE_SCORECARD_PATH } from "@/lib/architecture/architecture-scorecard-route";
 
 /** Traffic workbook row ID for architecture scorecard. */
 export const ARCHITECTURE_SCORECARD_TRAFFIC_ROW_ID = "SCX";

@@ -14,13 +14,13 @@ import {
 } from "@/lib/design-tokens";
 import { EVIDENCE_INTAKE_HELP_PRIMARY_ACTION } from "@/lib/evidence-intake-help-evidence-copy";
 import { EVIDENCE_INTAKE_HELP_HERO_OVERVIEW } from "@/lib/evidence-intake-help-guide-content";
-import { extractHelpMarkdownHeadings } from "@/lib/help-markdown-headings";
-import { prepareHelpMarkdownForPresentation } from "@/lib/help-markdown-presentation";
+import { extractHelpMarkdownHeadings } from "@/lib/help/help-markdown-headings";
+import { prepareHelpMarkdownForPresentation } from "@/lib/help/help-markdown-presentation";
 import {
   HELP_PAGE_LAYOUT,
   HELP_PAGE_MIN_TOC_HEADINGS,
   resolveHelpPageContentGridClass,
-} from "@/lib/help-page-layout";
+} from "@/lib/help/help-page-layout";
 import type { ProductDocumentationEntry } from "@/lib/product-documentation-registry";
 import { cn } from "@/lib/utils";
 

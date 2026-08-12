@@ -33,44 +33,44 @@ import { useUnsavedChangesGuard } from "@/hooks/use-unsaved-changes-guard";
 import {
   applyArchitectureCreationDraftToFormState,
   architectureCreationDefaultActorSet,
-} from "@/lib/architecture-creation-init";
-import { writeArchitectureCreationDraftId } from "@/lib/architecture-creation-session";
+} from "@/lib/architecture/architecture-creation-init";
+import { writeArchitectureCreationDraftId } from "@/lib/architecture/architecture-creation-session";
 import {
   acknowledgeArchitectureDraftHandoff,
   architectureDraftSpawnedRunId,
   isArchitectureDraftHandoffAcknowledged,
   trackArchitectureDraftPostSpawnEdit,
-} from "@/lib/architecture-draft-handoff-gate";
+} from "@/lib/architecture/architecture-draft-handoff-gate";
 import {
   ARCHITECTURE_DRAFT_STATUS_LABELS,
   architectureDraftCustomerStatusTagKind,
   architectureDraftDisplayName,
   resolveArchitectureDraftCustomerStatus,
-} from "@/lib/architecture-draft-status";
+} from "@/lib/architecture/architecture-draft-status";
 import {
   buildArchitectureDraftRegistryEntry,
   upsertArchitectureDraftRegistryEntry,
-} from "@/lib/architecture-draft-registry";
+} from "@/lib/architecture/architecture-draft-registry";
 import {
   hasArchitectureDraftSaveableContent,
   validateArchitectureReviewReadiness,
-} from "@/lib/architecture-draft-readiness";
+} from "@/lib/architecture/architecture-draft-readiness";
 import {
   ARCHITECTURES_LIST_PATH,
   architectureDraftPath,
   isArchitectureNewDraftSegment,
   reviewDetailPath,
   startReviewFromArchitectureHref,
-} from "@/lib/architecture-routes";
+} from "@/lib/architecture/architecture-routes";
 import { getRunSummary } from "@/lib/api/architecture-runs";
 import { getDraftRequest, patchDraftRequest } from "@/lib/api/draft-intake-api";
 import {
   mergeScopeBulletsIntoBrief,
   type ScopeUnderstandingBullet,
-} from "@/lib/architecture-scope-understanding-check";
-import { buyerFacingReviewTitleFromSummary } from "@/lib/buyer-facing-review-title";
-import { CREATE_ARCHITECTURE_INTENT } from "@/lib/architecture-workflow-intent";
-import { BUYER_START_ARCHITECTURE_REVIEW_CTA } from "@/lib/buyer-polish-copy";
+} from "@/lib/architecture/architecture-scope-understanding-check";
+import { buyerFacingReviewTitleFromSummary } from "@/lib/buyer/buyer-facing-review-title";
+import { CREATE_ARCHITECTURE_INTENT } from "@/lib/architecture/architecture-workflow-intent";
+import { BUYER_START_ARCHITECTURE_REVIEW_CTA } from "@/lib/buyer/buyer-polish-copy";
 import {
   ARCHITECTURE_CREATION_NEW_DRAFT_SECTION_TITLE,
   ARCHITECTURE_CREATION_RESUME_FIRST_WORKSPACE_LEAD,

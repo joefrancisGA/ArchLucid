@@ -4,7 +4,7 @@ import { notFound } from "next/navigation";
 import { OperatorBrandedNotFound } from "@/components/OperatorBrandedNotFound";
 import { ReviewPackageLoadFailureView } from "@/components/ReviewPackageLoadFailureView";
 import { isInvalidGuidOrSlugRouteToken } from "@/lib/route-dynamic-param";
-import { CREATE_ARCHITECTURE_INTENT } from "@/lib/architecture-workflow-intent";
+import { CREATE_ARCHITECTURE_INTENT } from "@/lib/architecture/architecture-workflow-intent";
 import {
   isFromGenerationSearchParam,
   REVIEW_PACKAGE_OPEN_FAILURE_HEADING,

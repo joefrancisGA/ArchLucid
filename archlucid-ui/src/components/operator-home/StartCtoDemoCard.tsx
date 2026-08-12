@@ -11,8 +11,8 @@ import {
   BUYER_HOME_START_CTO_DEMO_CTA,
   BUYER_HOME_START_CTO_DEMO_HEADING,
   BUYER_HOME_START_CTO_DEMO_LEAD,
-} from "@/lib/buyer-polish-copy";
-import { buyerCtoDemoCustomerStartHref } from "@/lib/buyer-cto-demo-customer-start";
+} from "@/lib/buyer/buyer-polish-copy";
+import { buyerCtoDemoCustomerStartHref } from "@/lib/buyer/buyer-cto-demo-customer-start";
 import { useBuyerCtoDemoCustomerStart } from "@/hooks/use-buyer-cto-demo-customer-start";
 import { OPERATOR_TYPOGRAPHY } from "@/lib/design-tokens";
 import { cn } from "@/lib/utils";

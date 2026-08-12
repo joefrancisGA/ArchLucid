@@ -38,7 +38,7 @@ import {
   OPERATOR_LAYOUT,
   OPERATOR_SHELL_SCROLL_OFFSET_CLASS,
 } from "@/lib/design-tokens";
-import { HELP_PAGE_LAYOUT } from "@/lib/help-page-layout";
+import { HELP_PAGE_LAYOUT } from "@/lib/help/help-page-layout";
 import { operatorQueryKeys } from "@/lib/query/operator-query-keys";
 import type { ProductDocumentationEntry } from "@/lib/product-documentation-registry";
 import { showError } from "@/lib/toast";

@@ -3,7 +3,7 @@ import {
   OPERATOR_HOME_DO_THIS_NEXT_SETUP_BRIDGE,
   OPERATOR_HOME_OPEN_SAMPLE_PACKAGE_CTA,
   PILOT_FIRST_HOUR_NO_RUN_BRIDGE_COPY,
-} from "@/lib/buyer-polish-copy";
+} from "@/lib/buyer/buyer-polish-copy";
 import { isSelfHostedDeploymentEnv } from "@/lib/finish-setup-deployment";
 import {
   FINISH_SETUP_WIZARD_STEPS,
@@ -11,7 +11,7 @@ import {
   type FinishSetupWizardStep,
   resolveFinishSetupWizardSteps,
 } from "@/lib/finish-setup-wizard-steps";
-import { resolveOperatorHomeWorkspaceReadiness } from "@/lib/operator-home-workspace-readiness";
+import { resolveOperatorHomeWorkspaceReadiness } from "@/lib/operator/operator-home-workspace-readiness";
 import {
   GOLDEN_SPONSOR_PACKAGE_WALKTHROUGH_PRIMARY_CTA,
   buildGoldenSponsorPackageWalkthroughHref,

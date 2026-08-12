@@ -3,11 +3,11 @@
 import { useMemo } from "react";
 
 import { Button } from "@/components/ui/button";
-import { parseArchitectureGeneratedContent } from "@/lib/architecture-generated-content-parser";
+import { parseArchitectureGeneratedContent } from "@/lib/architecture/architecture-generated-content-parser";
 import type {
   ArchitectureCreationUserAssertions,
   ArchitectureStructuredSection,
-} from "@/lib/architecture-structured-content-types";
+} from "@/lib/architecture/architecture-structured-content-types";
 import { OPERATOR_TYPOGRAPHY } from "@/lib/design-tokens";
 import type { ReviewDetailTabId } from "@/lib/review-detail-workspace-tabs";
 import { cn } from "@/lib/utils";

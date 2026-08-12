@@ -2,8 +2,8 @@ import { render, screen } from "@testing-library/react";
 import { describe, expect, it } from "vitest";
 
 import { ArchitectureCreatedHomeViewport } from "@/components/architecture/ArchitectureCreatedHomeViewport";
-import { ARCHITECTURE_CREATED_CONFIRMATION } from "@/lib/architecture-created-home-copy";
-import { buildArchitectureCreatedHomeModel } from "@/lib/architecture-created-home-model";
+import { ARCHITECTURE_CREATED_CONFIRMATION } from "@/lib/architecture/architecture-created-home-copy";
+import { buildArchitectureCreatedHomeModel } from "@/lib/architecture/architecture-created-home-model";
 
 describe("ArchitectureCreatedHomeViewport", () => {
   it("renders architecture identity, summary, and a single primary action", () => {

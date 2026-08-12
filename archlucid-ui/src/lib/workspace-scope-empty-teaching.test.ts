@@ -1,6 +1,6 @@
 import { describe, expect, it } from "vitest";
 
-import type { OperatorScopeRecord } from "@/lib/operator-scope-storage";
+import type { OperatorScopeRecord } from "@/lib/operator/operator-scope-storage";
 import { DEV_SCOPE_PROJECT_ID, DEV_SCOPE_TENANT_ID, DEV_SCOPE_WORKSPACE_ID } from "@/lib/scope";
 import {
   WORKSPACE_SCOPE_EMPTY_TEACHING_CTA_LABEL,

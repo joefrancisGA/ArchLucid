@@ -11,7 +11,7 @@ import { CORE_PILOT_STEPS } from "@/lib/core-pilot-steps";
 import { OperatorFirstRunWorkflowPanel } from "./OperatorFirstRunWorkflowPanel";
 
 /** Avoid demo fallback rows flipping the panel to "explore completed output" mid-test (async merge). */
-vi.mock("@/lib/operator-run-picker-client", () => ({
+vi.mock("@/lib/operator/operator-run-picker-client", () => ({
   loadProjectRunsMergedWithDemoFallback: vi.fn(async () => ({ items: [], loadError: false })),
 }));
 

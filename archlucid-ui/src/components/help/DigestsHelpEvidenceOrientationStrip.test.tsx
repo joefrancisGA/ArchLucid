@@ -7,7 +7,7 @@ import {
   DIGESTS_HELP_FOLLOW_UPS_TITLE,
   DIGESTS_HELP_SOURCES,
 } from "@/lib/digests-help-evidence-copy";
-import { HELP_DILIGENCE_ARTIFACT_INDEX_TITLE } from "@/lib/help-diligence-artifact-index";
+import { HELP_DILIGENCE_ARTIFACT_INDEX_TITLE } from "@/lib/help/help-diligence-artifact-index";
 
 describe("DigestsHelpEvidenceOrientationStrip", () => {
   it("renders neutral claim discipline and cross-topic follow-up links", () => {

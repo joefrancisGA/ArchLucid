@@ -5,7 +5,7 @@ import { OPERATOR_TYPOGRAPHY } from "@/lib/design-tokens";
 import { useState, type ReactElement } from "react";
 
 import { Button } from "@/components/ui/button";
-import { BUYER_DOWNLOAD_REVIEW_RECORD_JSON } from "@/lib/buyer-polish-copy";
+import { BUYER_DOWNLOAD_REVIEW_RECORD_JSON } from "@/lib/buyer/buyer-polish-copy";
 import { fetchManifestJsonText, manifestJsonDownloadFileName } from "@/lib/manifest-json-fetch";
 
 type DownloadManifestButtonProps = {

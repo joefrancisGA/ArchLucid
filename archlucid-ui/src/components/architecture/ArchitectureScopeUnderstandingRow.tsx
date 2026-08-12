@@ -8,7 +8,7 @@ import {
   scopeReadOnlyHint,
   SCOPE_ITEM_MAX_LENGTH,
   type ScopeUnderstandingBullet,
-} from "@/lib/architecture-scope-understanding-check";
+} from "@/lib/architecture/architecture-scope-understanding-check";
 import { OPERATOR_TYPOGRAPHY } from "@/lib/design-tokens";
 import { cn } from "@/lib/utils";
 

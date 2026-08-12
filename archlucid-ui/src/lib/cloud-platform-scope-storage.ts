@@ -1,7 +1,7 @@
 import {
   ARCHLUCID_OPERATOR_SCOPE_CHANGED_EVENT,
   getEffectiveBrowserProxyScopeHeaders,
-} from "@/lib/operator-scope-storage";
+} from "@/lib/operator/operator-scope-storage";
 
 export type CloudPlatformId = "evidence-only" | "azure" | "aws" | "gcp";
 

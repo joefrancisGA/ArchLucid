@@ -9,12 +9,12 @@ import { RunDetailSectionNav } from "@/components/RunDetailSectionNav";
 import { deriveRunTrustEvidenceReadinessFromCard } from "@/components/RunTrustEvidenceCardSection";
 import { isBuyerPolishedOperatorShellEnv } from "@/lib/demo-ui-env";
 import { deriveEvidencePresenceFromInventoryKinds } from "@/lib/evidence-gap-forecast";
-import type { RunDetailEvidenceInventoryItem } from "@/lib/run-detail-evidence-inventory";
+import type { RunDetailEvidenceInventoryItem } from "@/lib/runs/run-detail-evidence-inventory";
 import {
   countRunDetailEvidenceInventoryItems,
   deriveEvidenceScopeCoverageLine,
   deriveEvidenceScopeReadiness,
-} from "@/lib/run-detail-evidence-inventory";
+} from "@/lib/runs/run-detail-evidence-inventory";
 
 import {
   RunDetailAdvancedAnalysisSectionDeferred,

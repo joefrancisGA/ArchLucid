@@ -29,14 +29,14 @@ import {
   architectureDraftCustomerStatusTagKind,
   formatArchitectureDraftCreatedLabel,
   type ArchitectureDraftCustomerStatus,
-} from "@/lib/architecture-draft-status";
-import type { ArchitectureDraftRegistryEntry } from "@/lib/architecture-draft-registry";
+} from "@/lib/architecture/architecture-draft-status";
+import type { ArchitectureDraftRegistryEntry } from "@/lib/architecture/architecture-draft-registry";
 import {
   architectureDraftPath,
   ARCHITECTURES_NEW_PATH,
   reviewDetailPath,
   startReviewFromArchitectureHref,
-} from "@/lib/architecture-routes";
+} from "@/lib/architecture/architecture-routes";
 import {
   ARCHITECTURES_HUB_EMPTY_BODY,
   ARCHITECTURES_HUB_EMPTY_FILTER_BODY,
@@ -61,8 +61,8 @@ import {
   ARCHITECTURES_HUB_TABLE_STATUS_COLUMN,
   ARCHITECTURES_HUB_TABLE_UPDATED_COLUMN,
 } from "@/lib/architectures-hub-copy";
-import { CREATE_ARCHITECTURE_LABEL } from "@/lib/architecture-workflow-labels";
-import { buyerFilterChipClass } from "@/lib/buyer-shell-home-present";
+import { CREATE_ARCHITECTURE_LABEL } from "@/lib/architecture/architecture-workflow-labels";
+import { buyerFilterChipClass } from "@/lib/buyer/buyer-shell-home-present";
 import { OPERATOR_TYPOGRAPHY } from "@/lib/design-tokens";
 import { formatRelativeTime } from "@/lib/relative-time";
 import { cn } from "@/lib/utils";

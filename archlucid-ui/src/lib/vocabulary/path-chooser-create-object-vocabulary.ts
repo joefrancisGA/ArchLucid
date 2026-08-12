@@ -16,8 +16,8 @@
 import {
   ARCHITECTURES_LIST_PATH,
   REVIEWS_NEW_PATH,
-} from "@/lib/architecture-routes";
-import { START_REVIEW_LABEL } from "@/lib/architecture-workflow-labels";
+} from "@/lib/architecture/architecture-routes";
+import { START_REVIEW_LABEL } from "@/lib/architecture/architecture-workflow-labels";
 import { PATH_CHOOSER_HELP_PATH } from "@/lib/path-chooser-help-route";
 
 export type PathChooserCreateObjectSurfaceId =

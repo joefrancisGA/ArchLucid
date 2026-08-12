@@ -7,12 +7,12 @@ import { useCallback, useEffect, useId, useMemo, useRef, useState } from "react"
 import { Input } from "@/components/ui/input";
 import { Label } from "@/components/ui/label";
 import { isNextPublicDemoMode } from "@/lib/demo-ui-env";
-import { loadProjectRunsMergedWithDemoFallback } from "@/lib/operator-run-picker-client";
+import { loadProjectRunsMergedWithDemoFallback } from "@/lib/operator/operator-run-picker-client";
 import { SHOWCASE_STATIC_DEMO_RUN_ID } from "@/lib/showcase-static-demo";
 import type { RunSummary } from "@/types/authority";
-import { buyerFacingReviewTitleFromSummary } from "@/lib/buyer-facing-review-title";
+import { buyerFacingReviewTitleFromSummary } from "@/lib/buyer/buyer-facing-review-title";
 import { compareRunBuyerDisplayLabel } from "@/lib/compare-run-display-label";
-import { runSummaryDisplayLabel } from "@/lib/run-summary-display-label";
+import { runSummaryDisplayLabel } from "@/lib/runs/run-summary-display-label";
 
 /** Preferred demo run id when multiple rows exist and demo mode is enabled (`NEXT_PUBLIC_DEMO_MODE`). */
 const DEMO_RUN_PREF_ID = "claims-intake-modernization";

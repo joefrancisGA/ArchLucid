@@ -16,7 +16,7 @@ import { hasFindingsWhatIfAnalysisContent } from "@/lib/findings/findings-what-i
 import type { FindingWireSnapshot, QuickDecisionFinding } from "@/lib/quick-decision-summary-derive";
 import type { RunExplanationSummary } from "@/types/explanation";
 import { RunDecisionExplainabilitySection } from "@/components/RunDecisionExplainabilitySection";
-import type { RunDecisionExplainabilityModel } from "@/lib/run-decision-explainability-from-detail";
+import type { RunDecisionExplainabilityModel } from "@/lib/runs/run-decision-explainability-from-detail";
 import { cn } from "@/lib/utils";
 
 import { RunDetailSponsorModeExplanationCard } from "./RunDetailSponsorModeExplanationCard";

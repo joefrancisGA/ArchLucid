@@ -12,7 +12,7 @@ import {
   ARCHLUCID_OPERATOR_SCOPE_CHANGED_EVENT,
   defaultLabelsForScopeIds,
   readOperatorScopeFromStorage,
-} from "@/lib/operator-scope-storage";
+} from "@/lib/operator/operator-scope-storage";
 import { mergeRegistrationScopeForProxy } from "@/lib/proxy-fetch-registration-scope";
 import {
   SCOPE_HELP_CURRENT_SCOPE_PANEL_TITLE,
@@ -26,7 +26,7 @@ import {
   type ScopeSwitcherWorkspaceOption,
 } from "@/lib/scope-switcher-display";
 import { DEV_SCOPE_PROJECT_ID, DEV_SCOPE_WORKSPACE_ID } from "@/lib/scope";
-import { BUYER_WORKSPACE_DISPLAY_NAME } from "@/lib/buyer-polish-copy";
+import { BUYER_WORKSPACE_DISPLAY_NAME } from "@/lib/buyer/buyer-polish-copy";
 import { cn } from "@/lib/utils";
 
 const WORKSPACES_PATH = `/api/proxy/${ApiV1Routes.tenantWorkspaces}`;

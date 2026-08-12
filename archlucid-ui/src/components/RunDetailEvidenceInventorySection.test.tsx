@@ -2,7 +2,7 @@ import { render, screen } from "@testing-library/react";
 import { describe, expect, it } from "vitest";
 
 import { RunDetailEvidenceInventorySection } from "@/components/RunDetailEvidenceInventorySection";
-import { REVIEWS_NEW_PATH } from "@/lib/architecture-routes";
+import { REVIEWS_NEW_PATH } from "@/lib/architecture/architecture-routes";
 
 describe("RunDetailEvidenceInventorySection", () => {
   it("shows upload guidance for in-progress reviews", () => {

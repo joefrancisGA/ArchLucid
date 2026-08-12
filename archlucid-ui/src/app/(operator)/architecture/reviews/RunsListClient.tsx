@@ -28,20 +28,20 @@ import { Label } from "@/components/ui/label";
 import { useFocusTrap } from "@/hooks/useFocusTrap";
 import { useViewportNarrow } from "@/hooks/useViewportNarrow";
 import { RunsListCompareSelectionBar } from "@/components/usability/RunsListCompareSelectionBar";
-import { partitionRunsIntoWorkQueueSections, workQueueSectionHeading } from "@/lib/run-work-queue-groups";
+import { partitionRunsIntoWorkQueueSections, workQueueSectionHeading } from "@/lib/runs/run-work-queue-groups";
 import { formatRelativeTime } from "@/lib/relative-time";
 import { isNextPublicDemoMode, isBuyerPolishedOperatorShellEnv, isBuyerVocabularyPassActive } from "@/lib/demo-ui-env";
-import { formatOperatorProjectIdDisplay } from "@/lib/operator-project-display";
-import { isStaticDemoPayloadFallbackEnabled } from "@/lib/operator-static-demo";
+import { formatOperatorProjectIdDisplay } from "@/lib/operator/operator-project-display";
+import { isStaticDemoPayloadFallbackEnabled } from "@/lib/operator/operator-static-demo";
 import {
   canonicalizeDemoRunId,
   dedupeRunSummariesByRunId,
   normalizeRunSummaryForDemoPicker,
 } from "@/lib/demo-run-canonical";
-import { getBuyerSafeReviewsTableLink, getBuyerSafeReviewsTableLinkForRun, getBuyerSafeSignedManifestTableLink } from "@/lib/buyer-safe-review-navigation";
-import { buyerDemoPackageCardMeta } from "@/lib/buyer-demo-package-card-meta";
-import { BUYER_PIPELINE_IN_PROGRESS_LABEL } from "@/lib/buyer-polish-copy";
-import { buyerFacingReviewTitleFromSummary } from "@/lib/buyer-facing-review-title";
+import { getBuyerSafeReviewsTableLink, getBuyerSafeReviewsTableLinkForRun, getBuyerSafeSignedManifestTableLink } from "@/lib/buyer/buyer-safe-review-navigation";
+import { buyerDemoPackageCardMeta } from "@/lib/buyer/buyer-demo-package-card-meta";
+import { BUYER_PIPELINE_IN_PROGRESS_LABEL } from "@/lib/buyer/buyer-polish-copy";
+import { buyerFacingReviewTitleFromSummary } from "@/lib/buyer/buyer-facing-review-title";
 import { OPERATOR_LINK, OPERATOR_NAV_GROUP_LABEL, OPERATOR_TYPOGRAPHY } from "@/lib/design-tokens";
 import { isRunCommittedForBaseline } from "@/lib/compare-baseline-run";
 import { SHOWCASE_STATIC_DEMO_RUN_ID, SHOWCASE_STATIC_DEMO_SPINE_COUNTS } from "@/lib/showcase-static-demo";

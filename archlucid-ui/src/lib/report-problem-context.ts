@@ -4,7 +4,7 @@ import {
   readClientDeploymentFingerprint,
 } from "@/lib/deployment-fingerprint";
 import type { VersionInfoResponse } from "@/lib/health-dashboard-types";
-import { getEffectiveBrowserProxyScopeHeaders } from "@/lib/operator-scope-storage";
+import { getEffectiveBrowserProxyScopeHeaders } from "@/lib/operator/operator-scope-storage";
 import { pathnameMatchesReportProblemRoute } from "@/lib/report-problem-surfaces";
 import { isSafeCorrelationId } from "@/lib/correlation";
 import { ensureCorrelationId } from "@/lib/usability/ensure-correlation-id";

@@ -1,6 +1,6 @@
-import { CREATE_ARCHITECTURE_LABEL } from "@/lib/architecture-workflow-labels";
+import { CREATE_ARCHITECTURE_LABEL } from "@/lib/architecture/architecture-workflow-labels";
 import type { AdminConfigLintSummary } from "@/lib/fetch-admin-config-lint";
-import { mapConfigLintReadinessForShell, shellHealthReadinessSummary } from "@/lib/buyer-shell-home-present";
+import { mapConfigLintReadinessForShell, shellHealthReadinessSummary } from "@/lib/buyer/buyer-shell-home-present";
 import type { CurrentPrincipal } from "@/lib/current-principal";
 import {
   FIRST_PILOT_READINESS_REVIEW_PERMISSIONS_CTA,

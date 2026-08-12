@@ -14,7 +14,7 @@ import {
   shouldShowBuyerLlmUsageBandHint,
   type LlmMonthlyDollarBudgetStatus,
 } from "@/lib/llm-monthly-budget-status";
-import { isStaticDemoPayloadFallbackEnabled } from "@/lib/operator-static-demo";
+import { isStaticDemoPayloadFallbackEnabled } from "@/lib/operator/operator-static-demo";
 
 const LLM_USAGE_BAND_POLL_MS = 60_000;
 

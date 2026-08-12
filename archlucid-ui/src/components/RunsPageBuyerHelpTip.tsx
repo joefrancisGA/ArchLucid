@@ -1,7 +1,7 @@
 "use client";
 
 import { FieldHelpTooltip } from "@/components/FieldHelpTooltip";
-import { isExplicitStaticDemoMarketingBuild } from "@/lib/buyer-demo-content-gating";
+import { isExplicitStaticDemoMarketingBuild } from "@/lib/buyer/buyer-demo-content-gating";
 
 export type RunsPageBuyerHelpTipProps = {
   readonly variant: "search" | "sample-workspace";

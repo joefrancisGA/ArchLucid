@@ -9,7 +9,7 @@ import {
   readStoredHourlyUsd,
   type RoiHoursSurfacedInput,
 } from "@/lib/roi-assumptions";
-import type { RunSavingsSummaryModel } from "@/lib/run-savings-summary-model";
+import type { RunSavingsSummaryModel } from "@/lib/runs/run-savings-summary-model";
 
 export type RoiResolutionInputs = Readonly<{
   serverSummary?: RunSavingsSummaryModel | null;

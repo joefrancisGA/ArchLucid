@@ -8,7 +8,7 @@ import {
   primaryFindingEvidenceNavigationHref,
   runDetailSectionHref,
 } from "@/lib/findings/finding-source-evidence-links";
-import { buildStaticDemoPrimaryFindingInspectPayload } from "@/lib/operator-static-demo";
+import { buildStaticDemoPrimaryFindingInspectPayload } from "@/lib/operator/operator-static-demo";
 import {
   SHOWCASE_STATIC_DEMO_MANIFEST_ID,
   SHOWCASE_STATIC_DEMO_PRIMARY_FINDING_ID,

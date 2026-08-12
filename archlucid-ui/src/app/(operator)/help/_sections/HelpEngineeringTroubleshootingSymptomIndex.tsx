@@ -10,7 +10,7 @@ import {
   ENGINEERING_TROUBLESHOOTING_HELP_SYMPTOM_ROWS,
 } from "@/lib/engineering-troubleshooting-help-guide-content";
 import { OPERATOR_LINK, OPERATOR_SHELL_SCROLL_OFFSET_CLASS, OPERATOR_TYPOGRAPHY } from "@/lib/design-tokens";
-import { HELP_PAGE_LAYOUT, HELP_PAGE_TOC } from "@/lib/help-page-layout";
+import { HELP_PAGE_LAYOUT, HELP_PAGE_TOC } from "@/lib/help/help-page-layout";
 import { cn } from "@/lib/utils";
 
 function matchesSymptomFilter(query: string, haystack: string): boolean {

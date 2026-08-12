@@ -17,7 +17,7 @@ import { useWorkspaceActiveRun } from "@/components/WorkspaceActiveRunContext";
 import { isApiRequestError } from "@/lib/api-request-error";
 import type { ApiLoadFailureState } from "@/lib/api-load-failure";
 import { toApiLoadFailure } from "@/lib/api-load-failure";
-import { OPERATOR_GRAPH_PAGE_SUBTITLE } from "@/lib/buyer-polish-copy";
+import { OPERATOR_GRAPH_PAGE_SUBTITLE } from "@/lib/buyer/buyer-polish-copy";
 import { BUYER_SURFACE_VOCABULARY } from "@/lib/vocabulary/buyer-surface-vocabulary";
 import { canonicalizeDemoRunId } from "@/lib/demo-run-canonical";
 import { cn } from "@/lib/utils";
@@ -39,7 +39,7 @@ import {
   isStaticDemoPayloadFallbackActiveForRun,
   isStaticDemoPayloadFallbackEnabled,
   tryStaticDemoProvenanceGraph,
-} from "@/lib/operator-static-demo";
+} from "@/lib/operator/operator-static-demo";
 import {
   isSampleGraphActive,
   resolveGraphReviewPickerState,
@@ -48,7 +48,7 @@ import {
   type AskRunListAvailability,
 } from "@/lib/graph-page-state";
 import { GraphSampleModeBanner } from "@/app/(operator)/insights/evidence-graph/_sections/GraphSampleModeBanner";
-import { coerceGraphViewModel } from "@/lib/operator-response-guards";
+import { coerceGraphViewModel } from "@/lib/operator/operator-response-guards";
 import { provenanceLinkageToGraphViewModel } from "@/lib/provenance-linkage-to-graph-vm";
 import {
   SHOWCASE_STATIC_DEMO_RUN_ID,
@@ -74,7 +74,7 @@ import { EvidenceTrailTracePanel } from "@/app/(operator)/insights/evidence-grap
 import { OperatorSavedViewsBar } from "@/components/OperatorSavedViewsBar";
 import { useOperateCapability } from "@/hooks/use-operate-capability";
 import type { OperatorSavedView } from "@/lib/api/operator-saved-views";
-import type { GraphSavedViewFilters } from "@/lib/operator-saved-view-types";
+import type { GraphSavedViewFilters } from "@/lib/operator/operator-saved-view-types";
 
 export function GraphPageContent() {
   const searchParams = useSearchParams();

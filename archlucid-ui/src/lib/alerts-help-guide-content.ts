@@ -1,4 +1,4 @@
-import type { HelpMarkdownHeading } from "@/lib/help-markdown-headings";
+import type { HelpMarkdownHeading } from "@/lib/help/help-markdown-headings";
 import {
   ALERTS_ACTION_OPEN_GOVERNANCE_SETUP_GUIDE_HREF,
   ALERTS_CONFIGURE_RULES_LINK_LABEL,

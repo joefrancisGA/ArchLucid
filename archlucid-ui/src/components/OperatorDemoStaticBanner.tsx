@@ -4,7 +4,7 @@ import { OPERATOR_TYPOGRAPHY } from "@/lib/design-tokens";
 import { cn } from "@/lib/utils";
 import { demoVsLiveChromeForFlags } from "@/lib/demo-vs-live-chrome";
 import { isNextPublicDemoMode } from "@/lib/demo-ui-env";
-import { isOperatorDemoStaticMode } from "@/lib/operator-static-demo";
+import { isOperatorDemoStaticMode } from "@/lib/operator/operator-static-demo";
 
 type OperatorDemoStaticBannerProps = {
   readonly emphasizeSampleData?: boolean;

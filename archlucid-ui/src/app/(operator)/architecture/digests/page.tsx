@@ -5,7 +5,7 @@ import { DemoWorkspaceCapabilityUnavailablePanel } from "@/components/DemoWorksp
 import { DigestsHubClient } from "@/components/digests/DigestsHubClient";
 import { isNextPublicDemoMode } from "@/lib/demo-ui-env";
 import { DIGESTS_PAGE_TITLE } from "@/lib/digests-browse-copy";
-import { isStaticDemoPayloadFallbackEnabled } from "@/lib/operator-static-demo";
+import { isStaticDemoPayloadFallbackEnabled } from "@/lib/operator/operator-static-demo";
 import { OPERATOR_TYPOGRAPHY } from "@/lib/design-tokens";
 
 export default function DigestsPage() {

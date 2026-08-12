@@ -26,7 +26,7 @@ vi.mock("@/components/OperatorNavAuthorityProvider", () => ({
   }),
 }));
 
-import { OPERATOR_HOME_ASSIGN_ADMIN_BLOCKER } from "@/lib/buyer-polish-copy";
+import { OPERATOR_HOME_ASSIGN_ADMIN_BLOCKER } from "@/lib/buyer/buyer-polish-copy";
 
 import { OperatorHomeContinueSetupSlot } from "./OperatorHomeContinueSetupSlot";
 

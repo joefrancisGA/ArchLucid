@@ -10,9 +10,9 @@
 |-------|------|
 | Route page | `archlucid-ui/src/app/(operator)/architectures/new/page.tsx` |
 | Bootstrap UI | `archlucid-ui/src/components/architecture/ArchitectureCreationBootstrap.tsx` |
-| Draft title helpers | `archlucid-ui/src/lib/architecture-draft-status.ts` |
-| Registry list sanitization | `archlucid-ui/src/lib/architecture-draft-registry.ts` |
-| Labels | `archlucid-ui/src/lib/architecture-workflow-labels.ts` |
+| Draft title helpers | `archlucid-ui/src/lib/architecture/architecture-draft-status.ts` |
+| Registry list sanitization | `archlucid-ui/src/lib/architecture/architecture-draft-registry.ts` |
+| Labels | `archlucid-ui/src/lib/architecture/architecture-workflow-labels.ts` |
 | Entry copy | `archlucid-ui/src/lib/create-vs-review-intake-copy.ts` |
 
 ## Breadcrumb correction
@@ -96,10 +96,10 @@ Now: stable empty guidance + explicit **Start new architecture** click required.
 - `archlucid-ui/src/app/(operator)/architectures/new/page.tsx` (lead copy via constant)
 - `archlucid-ui/src/components/architecture/ArchitectureCreationBootstrap.tsx`
 - `archlucid-ui/src/components/architecture/ArchitectureCreationBootstrap.test.tsx`
-- `archlucid-ui/src/lib/architecture-draft-status.ts`
-- `archlucid-ui/src/lib/architecture-draft-status.test.ts` (new)
-- `archlucid-ui/src/lib/architecture-draft-registry.ts`
-- `archlucid-ui/src/lib/architecture-workflow-labels.ts`
+- `archlucid-ui/src/lib/architecture/architecture-draft-status.ts`
+- `archlucid-ui/src/lib/architecture/architecture-draft-status.test.ts` (new)
+- `archlucid-ui/src/lib/architecture/architecture-draft-registry.ts`
+- `archlucid-ui/src/lib/architecture/architecture-workflow-labels.ts`
 - `archlucid-ui/src/lib/create-vs-review-intake-copy.ts`
 - `docs/architecture/create_architecture_entry_page_refinement.md` (this report)
 
@@ -110,7 +110,7 @@ From `archlucid-ui/`:
 ```text
 npx vitest run \
   src/components/architecture/ArchitectureCreationBootstrap.test.tsx \
-  src/lib/architecture-draft-status.test.ts \
+  src/lib/architecture/architecture-draft-status.test.ts \
   src/lib/breadcrumb-map.test.ts \
   src/lib/create-vs-review-intake-differentiation.test.ts
 ```

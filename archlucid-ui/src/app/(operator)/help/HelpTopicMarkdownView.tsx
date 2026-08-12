@@ -58,11 +58,11 @@ import {
   countSecurityTrustPostureTableRows,
 } from "@/lib/security-trust-help-presentation";
 
-import { extractHelpMarkdownHeadings } from "@/lib/help-markdown-headings";
+import { extractHelpMarkdownHeadings } from "@/lib/help/help-markdown-headings";
 
-import { prepareHelpMarkdownForPresentation } from "@/lib/help-markdown-presentation";
+import { prepareHelpMarkdownForPresentation } from "@/lib/help/help-markdown-presentation";
 
-import { HELP_PAGE_LAYOUT, resolveHelpPageContentGridClass } from "@/lib/help-page-layout";
+import { HELP_PAGE_LAYOUT, resolveHelpPageContentGridClass } from "@/lib/help/help-page-layout";
 
 import type { ProductDocumentationEntry } from "@/lib/product-documentation-registry";
 

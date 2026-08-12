@@ -2,9 +2,9 @@ import { fireEvent, render, screen, within } from "@testing-library/react";
 import { describe, expect, it, vi } from "vitest";
 
 import { ArchitectureCreatedOverviewPanel } from "@/components/architecture/ArchitectureCreatedOverviewPanel";
-import { buildArchitectureCreatedHomeModel } from "@/lib/architecture-created-home-model";
-import { ARCHITECTURE_CREATED_OVERVIEW_SOURCES } from "@/lib/architecture-created-overview-sources";
-import { ARCHITECTURE_STRUCTURED_RETRY_LABEL } from "@/lib/architecture-structured-content-copy";
+import { buildArchitectureCreatedHomeModel } from "@/lib/architecture/architecture-created-home-model";
+import { ARCHITECTURE_CREATED_OVERVIEW_SOURCES } from "@/lib/architecture/architecture-created-overview-sources";
+import { ARCHITECTURE_STRUCTURED_RETRY_LABEL } from "@/lib/architecture/architecture-structured-content-copy";
 
 function buildModel(overrides: Parameters<typeof buildArchitectureCreatedHomeModel>[0] = {}) {
   return buildArchitectureCreatedHomeModel({

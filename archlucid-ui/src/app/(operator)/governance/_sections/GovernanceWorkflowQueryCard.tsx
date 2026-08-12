@@ -14,7 +14,7 @@ import {
   governanceWorkflowRefreshRunDataButtonLabel,
   governanceWorkflowRefreshRunDataTitle,
 } from "@/lib/enterprise-controls-context-copy";
-import { buyerFacingReviewLinkLabelFromRunId } from "@/lib/buyer-facing-review-title";
+import { buyerFacingReviewLinkLabelFromRunId } from "@/lib/buyer/buyer-facing-review-title";
 import {
   GOVERNANCE_WORKFLOW_AUDIT_TRAIL_ACTOR_HELPER,
   GOVERNANCE_WORKFLOW_AUDIT_TRAIL_ACTOR_LABEL,

@@ -17,10 +17,10 @@ import { CtoDemoStorySelector } from "@/components/cto-demo/CtoDemoStorySelector
 import { Button } from "@/components/ui/button";
 import { StatusTag } from "@/components/ui/status-tag";
 
-import { CTO_DEMO_QUESTIONS } from "@/lib/buyer-cto-demo-cto-questions";
-import { buildCtoDemoProofHref } from "@/lib/buyer-cto-demo-proof-href";
-import { runBuyerCtoDemoSmokeCheck, type CtoDemoSmokeCheckResult } from "@/lib/buyer-cto-demo-smoke-check";
-import { findCtoDemoStory } from "@/lib/buyer-cto-demo-story-registry";
+import { CTO_DEMO_QUESTIONS } from "@/lib/buyer/buyer-cto-demo-cto-questions";
+import { buildCtoDemoProofHref } from "@/lib/buyer/buyer-cto-demo-proof-href";
+import { runBuyerCtoDemoSmokeCheck, type CtoDemoSmokeCheckResult } from "@/lib/buyer/buyer-cto-demo-smoke-check";
+import { findCtoDemoStory } from "@/lib/buyer/buyer-cto-demo-story-registry";
 
 import {
 
@@ -52,9 +52,9 @@ import {
   writeBuyerCtoDemoPresenterNotesVisible,
   writeBuyerCtoDemoVisitedStep,
   writeCtoDemoPresenterLayerVisible,
-} from "@/lib/buyer-cto-demo-tour";
+} from "@/lib/buyer/buyer-cto-demo-tour";
 
-import { BUYER_CTO_DEMO_COMPARE_HREF, BUYER_GOLDEN_JOURNEY_STEP_DEFINITIONS } from "@/lib/buyer-golden-journey-nav";
+import { BUYER_CTO_DEMO_COMPARE_HREF, BUYER_GOLDEN_JOURNEY_STEP_DEFINITIONS } from "@/lib/buyer/buyer-golden-journey-nav";
 import { emitDemoJourneyTelemetry } from "@/lib/demo-journey-telemetry";
 
 import {
@@ -111,7 +111,7 @@ import {
 
   buyerCtoDemoRemainingMinutesLabel,
 
-} from "@/lib/buyer-polish-copy";
+} from "@/lib/buyer/buyer-polish-copy";
 
 import { useBuyerCtoDemoTourKeyboard } from "@/hooks/useBuyerCtoDemoTourKeyboard";
 
@@ -120,7 +120,7 @@ import {
   ARCHLUCID_CTO_DEMO_PANIC_CHANGED_EVENT,
   readOperatorDemoPanicOffline,
   writeOperatorDemoPanicOffline,
-} from "@/lib/operator-static-demo";
+} from "@/lib/operator/operator-static-demo";
 
 /**
 

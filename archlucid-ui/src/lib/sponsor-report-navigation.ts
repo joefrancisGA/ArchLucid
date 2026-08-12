@@ -1,5 +1,5 @@
-import { ARCHITECTURE_SCORECARD_PATH } from "@/lib/architecture-scorecard-route";
-import { BUYER_VALUE_REPORT_PAGE_TITLE } from "@/lib/buyer-polish-copy";
+import { ARCHITECTURE_SCORECARD_PATH } from "@/lib/architecture/architecture-scorecard-route";
+import { BUYER_VALUE_REPORT_PAGE_TITLE } from "@/lib/buyer/buyer-polish-copy";
 
 /** Canonical URL segment for sponsor value reports (under Insights). */
 export const SPONSOR_REPORT_ROOT_SEGMENT = "insights";

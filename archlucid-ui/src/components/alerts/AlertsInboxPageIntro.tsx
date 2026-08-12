@@ -4,7 +4,7 @@ import { AlertsInboxRankCue } from "@/components/EnterpriseControlsContextHints"
 import { OperatorApiProblem } from "@/components/OperatorApiProblem";
 import { OperatorTryNext } from "@/components/OperatorShellMessage";
 import { OPERATOR_LINK, OPERATOR_TYPOGRAPHY } from "@/lib/design-tokens";
-import { shouldMergeOperatorDemoAlertSample } from "@/lib/operator-static-demo";
+import { shouldMergeOperatorDemoAlertSample } from "@/lib/operator/operator-static-demo";
 import { cn } from "@/lib/utils";
 import type { ApiLoadFailureState } from "@/lib/api-load-failure";
 

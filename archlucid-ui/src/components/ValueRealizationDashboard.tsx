@@ -9,7 +9,7 @@ import { Card, CardContent, CardHeader, CardTitle } from "@/components/ui/card";
 import { OperatorApiProblem } from "@/components/OperatorApiProblem";
 import { toApiLoadFailure } from "@/lib/api-load-failure";
 import type { ApiLoadFailureState } from "@/lib/api-load-failure";
-import { getEffectiveBrowserProxyScopeHeaders } from "@/lib/operator-scope-storage";
+import { getEffectiveBrowserProxyScopeHeaders } from "@/lib/operator/operator-scope-storage";
 import { DEFAULT_LOADED_HOURLY_USD, formatHours, formatUsd, readStoredHourlyUsd } from "@/lib/roi-assumptions";
 
 interface RoiTelemetry {

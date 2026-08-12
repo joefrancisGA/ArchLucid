@@ -1,10 +1,10 @@
 /**
  * Operator home / overview copy — hero, lifecycle steps, readiness, and sample panels.
  *
- * Re-exported by `./index.ts`; import from `@/lib/buyer-polish-copy` or `@/lib/buyer-copy`.
+ * Re-exported by `./index.ts`; import from `@/lib/buyer/buyer-polish-copy` or `@/lib/buyer-copy`.
  */
 
-import { CREATE_ARCHITECTURE_LABEL } from "@/lib/architecture-workflow-labels";
+import { CREATE_ARCHITECTURE_LABEL } from "@/lib/architecture/architecture-workflow-labels";
 
 export const BUYER_HOME_SAMPLE_PACKAGE_HEADLINE =
   "Explore a completed example review";

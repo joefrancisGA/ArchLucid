@@ -1,7 +1,7 @@
 /**
  * Compare-two-reviews copy — structured comparison and review record diff.
  *
- * Re-exported by `./index.ts`; import from `@/lib/buyer-polish-copy` or `@/lib/buyer-copy`.
+ * Re-exported by `./index.ts`; import from `@/lib/buyer/buyer-polish-copy` or `@/lib/buyer-copy`.
  */
 
 export const BUYER_COMPARE_PAGE_TITLE = "Compare reviews";

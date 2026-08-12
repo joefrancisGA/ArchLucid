@@ -54,9 +54,9 @@ import {
 
 } from "@/lib/data-handling-tenant-isolation-help-evidence-copy";
 
-import { extractHelpMarkdownHeadings } from "@/lib/help-markdown-headings";
+import { extractHelpMarkdownHeadings } from "@/lib/help/help-markdown-headings";
 
-import { prepareHelpMarkdownForPresentation } from "@/lib/help-markdown-presentation";
+import { prepareHelpMarkdownForPresentation } from "@/lib/help/help-markdown-presentation";
 
 import { getProductDocumentationEntry } from "@/lib/product-documentation-registry";
 

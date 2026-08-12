@@ -9,10 +9,10 @@ import {
   buildPackageEvidenceEvidenceGraphVocabulary,
   resolvePackageEvidenceEvidenceGraphPeerLink,
 } from "@/lib/vocabulary/package-evidence-evidence-graph-vocabulary";
-import { buildArchitectureWorkspaceTabHref } from "@/lib/architecture-workspace-tabs";
+import { buildArchitectureWorkspaceTabHref } from "@/lib/architecture/architecture-workspace-tabs";
 import { EVIDENCE_GRAPH_PATH } from "@/lib/evidence-graph-route";
 import { buildReviewDetailTabHref } from "@/lib/review-detail-workspace-tabs";
-import { REVIEWS_LIST_PATH } from "@/lib/architecture-routes";
+import { REVIEWS_LIST_PATH } from "@/lib/architecture/architecture-routes";
 
 describe("package-evidence-evidence-graph-vocabulary (TB-2300)", () => {
   it("explains package evidence capture vs evidence graph exploration", () => {

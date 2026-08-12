@@ -9,7 +9,7 @@ import {
   SAMPLE_REVIEW_AHA_EVIDENCE_LABEL,
   SAMPLE_REVIEW_AHA_FINDING_LABEL,
   SAMPLE_REVIEW_AHA_WHY_LABEL,
-} from "@/lib/buyer-polish-copy";
+} from "@/lib/buyer/buyer-polish-copy";
 import {
   OPERATOR_LAYOUT,
   OPERATOR_SURFACE_CARD_CLASS,

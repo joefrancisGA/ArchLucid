@@ -27,15 +27,15 @@ import {
   auditResultsSectionHeadingReader,
 } from "@/lib/enterprise-controls-context-copy";
 import { AUTHORITY_RANK } from "@/lib/nav-authority";
-import { buyerFacingReviewLinkLabelFromRunId } from "@/lib/buyer-facing-review-title";
+import { buyerFacingReviewLinkLabelFromRunId } from "@/lib/buyer/buyer-facing-review-title";
 import {
   BUYER_AUDIT_DOWNLOAD_CTA,
   BUYER_AUDIT_ENTERPRISE_WORKSPACE_FOLLOWUP,
   BUYER_AUDIT_ENTERPRISE_WORKSPACE_LEAD,
   BUYER_AUDIT_PACKAGE_READY_LEAD,
   BUYER_AUDIT_TRAIL_COMPLETE_HEADING,
-} from "@/lib/buyer-polish-copy";
-import { getShowcaseExecutiveHref } from "@/lib/buyer-safe-review-navigation";
+} from "@/lib/buyer/buyer-polish-copy";
+import { getShowcaseExecutiveHref } from "@/lib/buyer/buyer-safe-review-navigation";
 import { isNextPublicDemoMode } from "@/lib/demo-ui-env";
 import { AuditBuyerEmptyState } from "./AuditBuyerEmptyState";
 import { AuditEventsOperatorTable } from "./AuditEventsOperatorTable";

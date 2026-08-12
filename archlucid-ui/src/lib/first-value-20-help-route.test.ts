@@ -2,7 +2,7 @@ import { describe, expect, it } from "vitest";
 
 import { FIRST_VALUE_20_HELP_PATH } from "@/lib/first-value-20-help-route";
 import { FIRST_VALUE_20_HELP_ROUTE_METADATA } from "@/lib/first-value-20-help-route-metadata";
-import { resolveHelpTopicPermanentRedirect } from "@/lib/help-topic-permanent-redirects";
+import { resolveHelpTopicPermanentRedirect } from "@/lib/help/help-topic-permanent-redirects";
 
 describe("first-value-20-help-route", () => {
   it("keeps the canonical folded COR anchor and runbook-safe metadata", () => {

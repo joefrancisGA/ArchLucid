@@ -180,8 +180,8 @@ export const REVIEW_TERMINOLOGY_ARCHITECTURE_PACKAGE_LIST_NOUN_SURFACE_PATHS = [
  */
 export const REVIEW_TERMINOLOGY_ARCHITECT_WORKSPACE_SURFACE_PATHS = [
   "src/lib/contextual-help-content.ts",
-  "src/lib/help-markdown-presentation.ts",
-  "src/lib/help-topics.ts",
+  "src/lib/help/help-markdown-presentation.ts",
+  "src/lib/help/help-topics.ts",
   "src/lib/product-documentation-registry.ts",
   "src/lib/vocabulary/persona-shell-vocabulary.ts",
   "src/components/shell/OperatorShellTopBar.tsx",
@@ -197,7 +197,7 @@ export const REVIEW_TERMINOLOGY_ARCHITECT_WORKSPACE_SURFACE_PATHS = [
   "src/lib/first-pilot-operating-rail-copy.ts",
   "src/components/advisory/AdvisoryHubClient.tsx",
   "src/lib/core-pilot-first-review-copy.ts",
-  "src/lib/operator-co-architect-copy.ts",
+  "src/lib/operator/operator-co-architect-copy.ts",
 ] as const;
 
 /** Lowercase phrase fragments that must not appear in buyer-facing UI copy (manifest terminology sweep). */
@@ -241,12 +241,12 @@ export const REVIEW_TERMINOLOGY_BUYER_SURFACE_PATHS = [
 /** Core Pilot first-hour surfaces — `/architecture/reviews/new`, review detail handoff, sponsor export, home strip. */
 export const REVIEW_TERMINOLOGY_FIRST_HOUR_SURFACE_PATHS = [
   "src/lib/core-pilot-first-review-copy.ts",
-  "src/lib/operator-co-architect-copy.ts",
+  "src/lib/operator/operator-co-architect-copy.ts",
   "src/lib/contextual-help-content.ts",
   "src/lib/glossary-terms.ts",
   "src/lib/vocabulary/architecture-review-vocabulary.ts",
   "src/lib/vocabulary/governance-mode-vocabulary.ts",
-  "src/lib/operator-nav-labels.ts",
+  "src/lib/operator/operator-nav-labels.ts",
   "src/components/OperatorFirstRunWorkflowPanel.tsx",
   "src/components/WelcomeBanner.tsx",
   "src/components/EmailRunToSponsorBanner.tsx",
@@ -267,12 +267,12 @@ export const REVIEW_TERMINOLOGY_FIRST_HOUR_SURFACE_PATHS = [
 export const REVIEW_TERMINOLOGY_GOLDEN_PATH_SURFACE_PATHS = [
   "src/lib/reviews-new-path-copy.ts",
   "src/lib/reviews-new-evidence-copy.ts",
-  "src/lib/run-detail-deliverables-copy.ts",
+  "src/lib/runs/run-detail-deliverables-copy.ts",
   "src/app/(operator)/architecture/reviews/_sections/reviews-hub-copy.ts",
   "src/lib/core-pilot-first-review-copy.ts",
   "src/lib/first-pilot-operating-rail-copy.ts",
   "src/lib/invite-reviewer-evidence-copy.ts",
-  "src/lib/operator-home-evidence-copy.ts",
+  "src/lib/operator/operator-home-evidence-copy.ts",
   "src/components/operator-home/OperatorHomeGlossarySections.tsx",
   "src/app/(operator)/architecture/reviews/[runId]/_sections/RunDetailPreFinalizedEmptyState.tsx",
   "src/app/(operator)/architecture/reviews/new/ReviewsNewMoreWaysToStart.tsx",

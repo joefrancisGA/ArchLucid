@@ -17,7 +17,7 @@ import {
   shellBootstrapReadPrincipal,
   type CurrentPrincipal,
 } from "@/lib/current-principal";
-import { publishOperatorShellPrincipalSnapshot } from "@/lib/operator-shell-principal-snapshot";
+import { publishOperatorShellPrincipalSnapshot } from "@/lib/operator/operator-shell-principal-snapshot";
 import { AUTHORITY_RANK } from "@/lib/nav-authority";
 import { isJwtAuthMode } from "@/lib/oidc/config";
 import { isLikelySignedIn } from "@/lib/oidc/session";

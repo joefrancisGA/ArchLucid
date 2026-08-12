@@ -22,7 +22,7 @@ import type { OperatorHomeRunsDashboardModel } from "@/app/(operator)/_sections/
 import {
   OPERATOR_HOME_COMMAND_CENTER_TAGLINE,
   OPERATOR_HOME_RESUME_LATEST_DRAFT_CTA,
-} from "@/lib/buyer-polish-copy";
+} from "@/lib/buyer/buyer-polish-copy";
 import {
   OPERATOR_CARD,
   OPERATOR_LAYOUT,
@@ -30,8 +30,8 @@ import {
   OPERATOR_TYPE_SCALE,
 } from "@/lib/design-tokens";
 import { resolvePilotNextBestAction, type PilotNextBestAction } from "@/lib/resolve-pilot-next-best-action";
-import { resolveLiveRunsDashboardModel } from "@/lib/operator-home-live-runs-dashboard";
-import { deriveOperatorHomeWorkspaceMetrics } from "@/lib/operator-home-workspace-metrics";
+import { resolveLiveRunsDashboardModel } from "@/lib/operator/operator-home-live-runs-dashboard";
+import { deriveOperatorHomeWorkspaceMetrics } from "@/lib/operator/operator-home-workspace-metrics";
 import {
   resolveOperatorHomeLifecycleEmphasizedPath,
   resolveLatestArchitectureDraftHref,

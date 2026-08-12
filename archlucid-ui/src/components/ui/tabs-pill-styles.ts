@@ -1,5 +1,5 @@
 import { cn } from "@/lib/utils";
-import { buyerFilterChipClass } from "@/lib/buyer-shell-home-present";
+import { buyerFilterChipClass } from "@/lib/buyer/buyer-shell-home-present";
 import { DESIGN_TOKENS } from "@/lib/design-tokens";
 
 /** Tab list chrome for pill variant — matches `/architecture/reviews` filter row spacing. */

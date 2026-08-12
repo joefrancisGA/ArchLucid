@@ -1,7 +1,7 @@
 /**
  * First review guide and optional workspace setup copy.
  *
- * Re-exported by `./index.ts`; import from `@/lib/buyer-polish-copy` or `@/lib/buyer-copy`.
+ * Re-exported by `./index.ts`; import from `@/lib/buyer/buyer-polish-copy` or `@/lib/buyer-copy`.
  */
 
 /** Collapsed summary on `/architecture/first-review-guide` optional setup disclosure (TB-679). */

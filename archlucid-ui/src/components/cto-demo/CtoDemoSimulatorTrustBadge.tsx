@@ -7,7 +7,7 @@ import {
   BUYER_CTO_DEMO_DATA_SOURCE_LIVE_LABEL,
   BUYER_SIMULATOR_TRUST_BADGE_LABEL,
   BUYER_SIMULATOR_TRUST_BADGE_TOOLTIP,
-} from "@/lib/buyer-polish-copy";
+} from "@/lib/buyer/buyer-polish-copy";
 import { isBuyerPolishedOperatorShellEnv } from "@/lib/demo-ui-env";
 
 export type CtoDemoSimulatorTrustBadgeProps = {

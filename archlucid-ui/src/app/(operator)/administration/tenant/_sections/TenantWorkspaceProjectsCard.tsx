@@ -11,7 +11,7 @@ import { deleteTenantWorkspaceProject } from "@/lib/delete-tenant-workspace-proj
 import { OPERATOR_LINK, OPERATOR_TYPOGRAPHY } from "@/lib/design-tokens";
 import { ApiV1Routes } from "@/lib/api-v1-routes";
 import { AUTHORITY_RANK } from "@/lib/nav-authority";
-import { getEffectiveBrowserProxyScopeHeaders } from "@/lib/operator-scope-storage";
+import { getEffectiveBrowserProxyScopeHeaders } from "@/lib/operator/operator-scope-storage";
 import {
   PROJECT_DELETE_DEFAULT_PROJECT_DISABLED_REASON,
   PROJECT_DELETE_EXECUTE_DISABLED_REASON,

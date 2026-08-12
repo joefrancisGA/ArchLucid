@@ -50,7 +50,7 @@ vi.mock("@/lib/frictionless-trial-session", () => ({
   readFrictionlessTrialSessionEnabled: () => false,
 }));
 
-vi.mock("@/lib/operator-scope-storage", () => ({
+vi.mock("@/lib/operator/operator-scope-storage", () => ({
   ARCHLUCID_OPERATOR_SCOPE_CHANGED_EVENT: "archlucid:operator-scope-changed",
   readOperatorScopeFromStorage: () => ({
     tenantId: "tenant-1",

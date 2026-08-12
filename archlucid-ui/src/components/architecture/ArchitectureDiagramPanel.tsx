@@ -32,11 +32,11 @@ import {
   ARCHITECTURE_DIAGRAM_STORAGE_WRITE_FAILURE,
   ARCHITECTURE_DIAGRAM_MERMAID_SOURCE_DISCLOSURE,
   ARCHITECTURE_DIAGRAM_VIEW_MERMAID_ACTION,
-} from "@/lib/architecture-diagram-copy";
-import { generateArchitectureDiagramAsync } from "@/lib/architecture-diagram-generate";
-import { architectureDiagramModelToMermaid, isValidMermaidArchitectureDiagram } from "@/lib/architecture-diagram-mermaid";
-import { summarizeArchitectureDiagramProvenance } from "@/lib/architecture-diagram-provenance";
-import { formatArchitectureDiagramMissingExplanation } from "@/lib/architecture-diagram-readiness";
+} from "@/lib/architecture/architecture-diagram-copy";
+import { generateArchitectureDiagramAsync } from "@/lib/architecture/architecture-diagram-generate";
+import { architectureDiagramModelToMermaid, isValidMermaidArchitectureDiagram } from "@/lib/architecture/architecture-diagram-mermaid";
+import { summarizeArchitectureDiagramProvenance } from "@/lib/architecture/architecture-diagram-provenance";
+import { formatArchitectureDiagramMissingExplanation } from "@/lib/architecture/architecture-diagram-readiness";
 import {
   activateArchitectureDiagramVersion,
   appendArchitectureDiagramVersion,
@@ -44,10 +44,10 @@ import {
   readArchitectureDiagramCache,
   setArchitectureDiagramNodeOverrides,
   shouldRegenerateArchitectureDiagram,
-} from "@/lib/architecture-diagram-storage";
-import type { ArchitectureDiagramModel, ArchitectureDiagramNode, ArchitectureDiagramVersionSource } from "@/lib/architecture-diagram-types";
-import type { ArchitectureDiagramElementKind } from "@/lib/architecture-diagram-provenance";
-import type { ArchitectureCreationUserAssertions } from "@/lib/architecture-structured-content-types";
+} from "@/lib/architecture/architecture-diagram-storage";
+import type { ArchitectureDiagramModel, ArchitectureDiagramNode, ArchitectureDiagramVersionSource } from "@/lib/architecture/architecture-diagram-types";
+import type { ArchitectureDiagramElementKind } from "@/lib/architecture/architecture-diagram-provenance";
+import type { ArchitectureCreationUserAssertions } from "@/lib/architecture/architecture-structured-content-types";
 import { downloadBrowserTextFile, safeGraphExportFilenameSegment } from "@/lib/graph-view-model-export";
 import { useDocumentDarkMode } from "@/lib/use-document-dark-mode";
 import { OPERATOR_TYPOGRAPHY } from "@/lib/design-tokens";

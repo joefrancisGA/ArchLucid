@@ -12,7 +12,7 @@ import {
   OPERATOR_RECENT_VIEWS_STORAGE_KEY,
   parseStoredRecentViews,
   type OperatorRecentViewsState,
-} from "@/lib/operator-recent-views";
+} from "@/lib/operator/operator-recent-views";
 
 type CommandPaletteRecentViewsGroupProps = {
   readonly onNavigate: (href: string) => void;

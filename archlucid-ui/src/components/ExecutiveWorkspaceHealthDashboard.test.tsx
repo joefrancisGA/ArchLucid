@@ -82,7 +82,7 @@ vi.mock("@/lib/pilot-value-report-fetch", () => ({
   fetchPilotValueReportJson: vi.fn(),
 }));
 
-vi.mock("@/lib/operator-scope-storage", () => ({
+vi.mock("@/lib/operator/operator-scope-storage", () => ({
   getEffectiveBrowserProxyScopeHeaders: () => ({
     "x-tenant-id": "tenant-a",
     "x-workspace-id": "workspace-a",

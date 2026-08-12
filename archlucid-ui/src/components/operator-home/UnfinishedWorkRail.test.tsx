@@ -1,7 +1,7 @@
 import { fireEvent, render, screen } from "@testing-library/react";
 import { beforeEach, describe, expect, it, vi } from "vitest";
 
-import type { ArchitectureDraftRegistryEntry } from "@/lib/architecture-draft-registry";
+import type { ArchitectureDraftRegistryEntry } from "@/lib/architecture/architecture-draft-registry";
 import type { RunSummary } from "@/types/authority";
 
 let mockDraftEntries: ArchitectureDraftRegistryEntry[] = [];

@@ -28,7 +28,7 @@ const RETIRED_AI_USAGE_ADMIN_APP_DIR = join(
 
 const PRODUCT_AI_USAGE_SURFACES = [
   "archlucid-ui/src/lib/nav-shell-visibility.ts",
-  "archlucid-ui/src/lib/operator-admin-nav-group-builder.ts",
+  "archlucid-ui/src/lib/operator/operator-admin-nav-group-builder.ts",
 ] as const;
 
 describe("ai-usage legacy admin route (AAX / TB-1404–TB-1407)", () => {

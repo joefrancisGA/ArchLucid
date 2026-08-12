@@ -11,7 +11,7 @@ import {
   isActivityNewSinceLastVisit,
   markLastVisitedNow,
 } from "@/lib/usability/last-visited-watermark";
-import { BUYER_GOVERNANCE_FINDINGS_RISKS_SECTION_TITLE } from "@/lib/buyer-polish-copy";
+import { BUYER_GOVERNANCE_FINDINGS_RISKS_SECTION_TITLE } from "@/lib/buyer/buyer-polish-copy";
 import { GOVERNANCE_BULK_DISPOSITION_FAILURE_MESSAGE } from "@/lib/governance/governance-mutation-outcome-copy";
 import { OPERATOR_TYPOGRAPHY } from "@/lib/design-tokens";
 import { cn } from "@/lib/utils";

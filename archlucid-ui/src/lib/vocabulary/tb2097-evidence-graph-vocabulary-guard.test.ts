@@ -6,8 +6,8 @@ import { join } from "node:path";
 
 import { describe, expect, it } from "vitest";
 
-import { BUYER_GOLDEN_JOURNEY_STEP_DEFINITIONS } from "@/lib/buyer-golden-journey-nav";
-import { BUYER_EVIDENCE_GRAPH_EXPORT_EVIDENCE_TRAIL_CTA } from "@/lib/buyer-polish-copy";
+import { BUYER_GOLDEN_JOURNEY_STEP_DEFINITIONS } from "@/lib/buyer/buyer-golden-journey-nav";
+import { BUYER_EVIDENCE_GRAPH_EXPORT_EVIDENCE_TRAIL_CTA } from "@/lib/buyer/buyer-polish-copy";
 import { EVIDENCE_GRAPH_PAGE_TITLE } from "@/lib/evidence-graph-page";
 import { BUYER_SURFACE_VOCABULARY } from "@/lib/vocabulary/buyer-surface-vocabulary";
 

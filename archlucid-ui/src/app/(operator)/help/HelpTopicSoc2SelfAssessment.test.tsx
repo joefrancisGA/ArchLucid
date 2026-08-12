@@ -19,7 +19,7 @@ import {
   SOC2_SELF_ASSESSMENT_HELP_PRIMARY_ACTIONS,
   SOC2_SELF_ASSESSMENT_HELP_SOURCES,
 } from "@/lib/soc2-self-assessment-help-guide-content";
-import { prepareHelpMarkdownForPresentation } from "@/lib/help-markdown-presentation";
+import { prepareHelpMarkdownForPresentation } from "@/lib/help/help-markdown-presentation";
 import { tryLoadProductDocumentation } from "@/lib/load-product-documentation";
 
 describe("HelpSoc2SelfAssessmentGuideView", () => {

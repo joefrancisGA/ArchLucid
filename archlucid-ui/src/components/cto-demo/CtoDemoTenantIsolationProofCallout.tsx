@@ -2,7 +2,7 @@ import { cn } from "@/lib/utils";
 import {
   BUYER_CTO_DEMO_ISOLATION_PROOF_BODY,
   BUYER_CTO_DEMO_ISOLATION_PROOF_HEADING,
-} from "@/lib/buyer-polish-copy";
+} from "@/lib/buyer/buyer-polish-copy";
 import { DESIGN_TOKENS, OPERATOR_TYPOGRAPHY } from "@/lib/design-tokens";
 import { SHOWCASE_DEMO_TENANT_CATALOG_ID, SHOWCASE_DEMO_TENANT_NAME } from "@/lib/showcase-static-demo";
 

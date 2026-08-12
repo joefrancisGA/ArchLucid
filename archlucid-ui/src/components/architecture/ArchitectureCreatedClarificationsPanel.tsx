@@ -8,11 +8,11 @@ import { ArchitectureCreatedClarificationsEvidenceOrientationStrip } from "@/com
 import { ArchitectureStructuredSectionView } from "@/components/architecture/ArchitectureStructuredSectionView";
 import { ArchitectureStructuringFailureNotice } from "@/components/architecture/ArchitectureStructuringFailureNotice";
 import { ClarificationGapRow } from "@/components/architecture/ClarificationGapRow";
-import { clarificationGapImpactCopy } from "@/lib/architecture-clarification-gap-present";
-import { parseArchitectureGeneratedContent } from "@/lib/architecture-generated-content-parser";
-import type { ArchitectureCreatedHomeModel } from "@/lib/architecture-created-home-model";
-import type { ArchitectureCreationUserAssertions } from "@/lib/architecture-structured-content-types";
-import { readArchitectureWorkspaceTabFromHref, type ArchitectureWorkspaceTabId } from "@/lib/architecture-workspace-tabs";
+import { clarificationGapImpactCopy } from "@/lib/architecture/architecture-clarification-gap-present";
+import { parseArchitectureGeneratedContent } from "@/lib/architecture/architecture-generated-content-parser";
+import type { ArchitectureCreatedHomeModel } from "@/lib/architecture/architecture-created-home-model";
+import type { ArchitectureCreationUserAssertions } from "@/lib/architecture/architecture-structured-content-types";
+import { readArchitectureWorkspaceTabFromHref, type ArchitectureWorkspaceTabId } from "@/lib/architecture/architecture-workspace-tabs";
 import { REVIEWS_NEW_CREATE_ARCHITECTURE_HREF, REVIEWS_NEW_GUIDED_QUESTIONS_LABEL } from "@/lib/reviews-new-path-copy";
 import { OPERATOR_TYPOGRAPHY } from "@/lib/design-tokens";
 

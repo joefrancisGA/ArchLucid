@@ -7,7 +7,7 @@ import {
   RUN_SUMMARY_FALLBACK_POLL_MS,
   shouldRunRunSummaryFallbackPoll,
   type RunSummaryStreamPhase,
-} from "@/lib/run-summary-stream-poll-policy";
+} from "@/lib/runs/run-summary-stream-poll-policy";
 import { getRunSummary } from "@/lib/api";
 import type { RunSummary } from "@/types/authority";
 

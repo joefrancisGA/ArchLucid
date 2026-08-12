@@ -4,7 +4,7 @@ import { describe, expect, it } from "vitest";
 import {
   OPERATOR_HOME_ASSIGN_ADMIN_BLOCKER,
   OPERATOR_HOME_ONE_REQUIRED_ITEM_TITLE,
-} from "@/lib/buyer-polish-copy";
+} from "@/lib/buyer/buyer-polish-copy";
 
 import { OperatorHomeReadinessStrip } from "./OperatorHomeReadinessStrip";
 

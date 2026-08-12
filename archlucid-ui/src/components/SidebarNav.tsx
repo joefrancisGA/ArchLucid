@@ -14,7 +14,7 @@ import {
   ARCHLUCID_CTO_DEMO_PANIC_CHANGED_EVENT,
   isOperatorDemoStaticMode,
   readOperatorDemoPanicOffline,
-} from "@/lib/operator-static-demo";
+} from "@/lib/operator/operator-static-demo";
 import { isPublicDemoModeEnv } from "@/lib/public-demo-mode";
 import { findSidebarNavGroupIdsForActivePath } from "@/lib/sidebar-nav-active-group-expansion";
 import { applyBuyerDemoSecondaryNavCollapse } from "@/lib/sidebar-nav-buyer-demo-collapse";

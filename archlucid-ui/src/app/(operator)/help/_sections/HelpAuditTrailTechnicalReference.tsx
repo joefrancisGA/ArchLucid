@@ -11,7 +11,7 @@ import {
 } from "@/lib/audit-trail-help-guide-content";
 import { cn } from "@/lib/utils";
 import { DESIGN_TOKENS, OPERATOR_TYPOGRAPHY } from "@/lib/design-tokens";
-import { HELP_PAGE_LAYOUT } from "@/lib/help-page-layout";
+import { HELP_PAGE_LAYOUT } from "@/lib/help/help-page-layout";
 
 function technicalReferenceHashShouldOpen(): boolean {
   const hash = typeof window !== "undefined" ? window.location.hash.replace(/^#/, "").trim() : "";

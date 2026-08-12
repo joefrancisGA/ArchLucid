@@ -4,7 +4,7 @@ import Link from "next/link";
 import type { ReactElement } from "react";
 
 import type { ChangesSinceLastReviewCopy } from "@/lib/changes-since-last-review-summary";
-import { BUYER_COMPARE_OPEN_FULL_LINK_LABEL } from "@/lib/buyer-polish-copy";
+import { BUYER_COMPARE_OPEN_FULL_LINK_LABEL } from "@/lib/buyer/buyer-polish-copy";
 import { comparePageHrefAdaptive } from "@/lib/compare-url-query-params";
 import { isBuyerPolishedOperatorShellEnv } from "@/lib/demo-ui-env";
 

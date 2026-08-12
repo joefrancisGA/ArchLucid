@@ -8,8 +8,8 @@ import {
   DEVELOPER_TROUBLESHOOTING_HELP_PATH,
   ENGINEERING_TROUBLESHOOTING_HELP_PATH,
 } from "@/lib/developer-troubleshooting-help-route";
-import { HELP_CENTER_FEATURED_SLUGS } from "@/lib/help-center-catalog";
-import { resolveHelpTopicPermanentRedirect } from "@/lib/help-topic-permanent-redirects";
+import { HELP_CENTER_FEATURED_SLUGS } from "@/lib/help/help-center-catalog";
+import { resolveHelpTopicPermanentRedirect } from "@/lib/help/help-topic-permanent-redirects";
 import {
   getProductDocumentationEntry,
   inAppHelpHref,
@@ -24,9 +24,9 @@ const HELP_TOPIC_PAGE = join(process.cwd(), "src", "app", "(operator)", "help", 
 
 const PRODUCT_ENGINEERING_TROUBLESHOOTING_SURFACES = [
   "archlucid-ui/src/lib/in-app-doc-href.ts",
-  "archlucid-ui/src/lib/help-search-panel-catalog.ts",
+  "archlucid-ui/src/lib/help/help-search-panel-catalog.ts",
   "archlucid-ui/src/lib/product-documentation-content-kinds.ts",
-  "archlucid-ui/src/lib/help-center-catalog.ts",
+  "archlucid-ui/src/lib/help/help-center-catalog.ts",
 ] as const;
 
 const CANONICAL_ENGINEERING_TROUBLESHOOTING_HANDOFF_MARKERS = [

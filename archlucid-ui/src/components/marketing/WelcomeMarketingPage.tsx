@@ -9,7 +9,7 @@ import { WelcomeMarketingUseCasesSection } from "@/components/marketing/WelcomeM
 import { WelcomeMarketingWorkflowSection } from "@/components/marketing/WelcomeMarketingWorkflowSection";
 import { MarketingTierPricingSectionDeferred } from "@/components/marketing/welcome-marketing-deferred-chunks";
 import { WELCOME_SEE_IT_CTA_LABEL, WELCOME_PROOF_LADDER_PRIMARY_HREF } from "@/components/marketing/welcome-marketing-copy";
-import { BUYER_MARKETING_PRICING_PAGE_INTRO } from "@/lib/buyer-polish-copy";
+import { BUYER_MARKETING_PRICING_PAGE_INTRO } from "@/lib/buyer/buyer-polish-copy";
 import { MARKETING_LAYOUT, MARKETING_SURFACES, MARKETING_TYPOGRAPHY } from "@/lib/design-tokens";
 import type { PricingDoc } from "@/lib/pricing-types";
 import { CANONICAL_ANONYMOUS_PROOF_HREF } from "@/lib/showcase-static-demo";

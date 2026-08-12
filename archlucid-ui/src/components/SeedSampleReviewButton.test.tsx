@@ -31,13 +31,13 @@ vi.mock("@/lib/toast", () => ({
   showInfo: vi.fn(),
 }));
 
-vi.mock("@/lib/operator-query-invalidation", () => ({
+vi.mock("@/lib/operator/operator-query-invalidation", () => ({
   invalidateOperatorExecutiveRoiCaches: () => invalidateExecutiveMock(),
   invalidateOperatorHomeRunsCaches: () => invalidateHomeRunsMock(),
 }));
 
 import { EXECUTIVE_DASHBOARD_HREF } from "@/lib/executive-dashboard-route";
-import { BUYER_SEED_SAMPLE_WORKSPACE_SUCCESS } from "@/lib/buyer-polish-copy";
+import { BUYER_SEED_SAMPLE_WORKSPACE_SUCCESS } from "@/lib/buyer/buyer-polish-copy";
 import { SeedSampleReviewButton } from "./SeedSampleReviewButton";
 
 /**

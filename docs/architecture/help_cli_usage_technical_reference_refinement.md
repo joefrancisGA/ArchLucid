@@ -45,9 +45,9 @@ Refined `/help/cli-usage` from a single long markdown page with a flat right-rai
 
 ## Files changed
 
-- `archlucid-ui/src/lib/help-markdown-heading-groups.ts` (+ tests)
-- `archlucid-ui/src/lib/help-cli-usage-reference-content.ts`
-- `archlucid-ui/src/lib/help-page-layout.ts` (+ test)
+- `archlucid-ui/src/lib/help/help-markdown-heading-groups.ts` (+ tests)
+- `archlucid-ui/src/lib/help/help-cli-usage-reference-content.ts`
+- `archlucid-ui/src/lib/help/help-page-layout.ts` (+ test)
 - `archlucid-ui/src/components/help/HelpTechnicalReferenceNavigation.tsx` (+ test)
 - `archlucid-ui/src/components/help/HelpTopicSectionCopyLink.tsx`
 - `archlucid-ui/src/app/(operator)/help/_sections/HelpCliUsageTechnicalReferenceView.tsx`
@@ -63,4 +63,4 @@ Refined `/help/cli-usage` from a single long markdown page with a flat right-rai
 
 ## Tests run
 
-- `npx vitest run src/lib/help-markdown-heading-groups.test.ts src/components/help/HelpTechnicalReferenceNavigation.test.tsx src/app/(operator)/help/HelpTopicCliUsage.test.tsx src/lib/help-page-layout.test.ts`
+- `npx vitest run src/lib/help/help-markdown-heading-groups.test.ts src/components/help/HelpTechnicalReferenceNavigation.test.tsx src/app/(operator)/help/HelpTopicCliUsage.test.tsx src/lib/help/help-page-layout.test.ts`

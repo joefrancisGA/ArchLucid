@@ -10,8 +10,8 @@ import { isDocumentHidden } from "@/lib/document-visibility";
 import { isBuyerPolishedOperatorShellEnv, isNextPublicDemoMode } from "@/lib/demo-ui-env";
 import { fetchHealthReadySummary } from "@/lib/fetch-health-ready";
 import { isAzureServiceBusHealthUnhealthy } from "@/lib/health-dashboard-types";
-import { SERVICE_BUS_HEALTH_LABELS } from "@/lib/operator-health-labels";
-import { isStaticDemoPayloadFallbackEnabled } from "@/lib/operator-static-demo";
+import { SERVICE_BUS_HEALTH_LABELS } from "@/lib/operator/operator-health-labels";
+import { isStaticDemoPayloadFallbackEnabled } from "@/lib/operator/operator-static-demo";
 import { SHELL_BANNER_POLL_MS } from "@/lib/shell-banner-poll-policy";
 
 /**

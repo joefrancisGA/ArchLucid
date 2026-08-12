@@ -10,7 +10,7 @@ import { InlineMetadataLine } from "@/components/InlineMetadataLine";
 import { RunStatusBadge } from "@/components/RunStatusBadge";
 import { Button } from "@/components/ui/button";
 import { auditTrailNavHref } from "@/lib/audit-nav-paths";
-import { BUYER_RUN_INSPECTOR_FINALIZED_LABEL } from "@/lib/buyer-polish-copy";
+import { BUYER_RUN_INSPECTOR_FINALIZED_LABEL } from "@/lib/buyer/buyer-polish-copy";
 import { BUYER_SURFACE_VOCABULARY } from "@/lib/vocabulary/buyer-surface-vocabulary";
 import { SIGNED_MANIFEST_LABEL } from "@/lib/usability/canonical-product-terms";
 import {
@@ -19,7 +19,7 @@ import {
   isNextPublicDemoMode,
 } from "@/lib/demo-ui-env";
 import { formatInstantForBuyerGovernance, formatInstantForLocale } from "@/lib/locale-datetime";
-import { formatOperatorProjectIdDisplay } from "@/lib/operator-project-display";
+import { formatOperatorProjectIdDisplay } from "@/lib/operator/operator-project-display";
 import {
   getBuyerSafeReviewsTableLink,
   getBuyerSafeReviewsTableLinkForRun,
@@ -28,7 +28,7 @@ import {
   getShowcaseExecutiveHref,
   getShowcaseWalkthroughHref,
   isBuyerSafePrimaryReviewNavigationPreferred,
-} from "@/lib/buyer-safe-review-navigation";
+} from "@/lib/buyer/buyer-safe-review-navigation";
 import { comparePageHrefAdaptive } from "@/lib/compare-url-query-params";
 import {
   INLINE_METADATA_LABEL_CLASS,
@@ -37,8 +37,8 @@ import {
   OPERATOR_NAV_GROUP_LABEL,
   OPERATOR_TYPOGRAPHY,
 } from "@/lib/design-tokens";
-import { buyerDemoPackageCardMeta } from "@/lib/buyer-demo-package-card-meta";
-import { buyerFacingReviewTitleFromSummary } from "@/lib/buyer-facing-review-title";
+import { buyerDemoPackageCardMeta } from "@/lib/buyer/buyer-demo-package-card-meta";
+import { buyerFacingReviewTitleFromSummary } from "@/lib/buyer/buyer-facing-review-title";
 import { canonicalizeDemoRunId } from "@/lib/demo-run-canonical";
 import {
   SHOWCASE_STATIC_DEMO_PRIMARY_FINDING_ID,

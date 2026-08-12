@@ -1,7 +1,7 @@
 import {
   BUYER_EVIDENCE_TRAIL_GRAPH_MODE_FINDING,
   BUYER_EVIDENCE_TRAIL_LOAD_BUTTON,
-} from "@/lib/buyer-polish-copy";
+} from "@/lib/buyer/buyer-polish-copy";
 import { AZURE_REFERENCE_SAMPLE_GRAPH_CTA_LABEL } from "@/lib/empty-state-presets";
 import { EVIDENCE_GRAPH_PATH } from "@/lib/evidence-graph-route";
 import {

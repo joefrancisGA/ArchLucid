@@ -16,9 +16,9 @@ import {
   type ArchitectureDecisionRegisterEntry,
   type ArchitectureDecisionRegisterFilters,
 } from "@/lib/api/governance-stickiness-api";
-import { getEffectiveBrowserProxyScopeHeaders } from "@/lib/operator-scope-storage";
-import { projectIdFromScopeHeaders } from "@/lib/operator-resource-scope";
-import { BUYER_GOVERNANCE_DECISION_REGISTER_TITLE } from "@/lib/buyer-polish-copy";
+import { getEffectiveBrowserProxyScopeHeaders } from "@/lib/operator/operator-scope-storage";
+import { projectIdFromScopeHeaders } from "@/lib/operator/operator-resource-scope";
+import { BUYER_GOVERNANCE_DECISION_REGISTER_TITLE } from "@/lib/buyer/buyer-polish-copy";
 import { OPERATOR_TYPOGRAPHY } from "@/lib/design-tokens";
 
 import { DecisionRegisterDecisionCard } from "./DecisionRegisterDecisionCard";

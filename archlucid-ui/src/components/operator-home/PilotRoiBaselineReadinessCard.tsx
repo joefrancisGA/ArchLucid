@@ -12,7 +12,7 @@ import {
   OPERATOR_ROI_ESTIMATE_DISMISS_CTA,
   OPERATOR_ROI_ESTIMATE_PENDING_BODY,
   OPERATOR_ROI_ESTIMATE_PENDING_HEADLINE,
-} from "@/lib/buyer-home-status-copy";
+} from "@/lib/buyer/buyer-home-status-copy";
 import { isNextPublicDemoMode } from "@/lib/demo-ui-env";
 import {
   dismissPilotRoiBaselineReadinessCard,

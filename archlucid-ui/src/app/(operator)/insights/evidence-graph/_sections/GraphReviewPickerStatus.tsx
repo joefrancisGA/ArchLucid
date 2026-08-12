@@ -6,7 +6,7 @@ import {
   BUYER_EVIDENCE_GRAPH_PICKER_NO_SELECTION,
   BUYER_EVIDENCE_GRAPH_PICKER_REAL_REVIEW,
   BUYER_EVIDENCE_GRAPH_PICKER_SAMPLE_REVIEW,
-} from "@/lib/buyer-polish-copy";
+} from "@/lib/buyer/buyer-polish-copy";
 import { OPERATOR_TYPOGRAPHY } from "@/lib/design-tokens";
 import type { GraphReviewPickerState } from "@/lib/graph-page-state";
 

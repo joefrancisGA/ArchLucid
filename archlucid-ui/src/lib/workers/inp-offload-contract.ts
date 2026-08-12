@@ -1,4 +1,4 @@
-import type { ArchitectureManifestUnifiedLine } from "@/lib/architecture-manifest-line-diff";
+import type { ArchitectureManifestUnifiedLine } from "@/lib/architecture/architecture-manifest-line-diff";
 import type { CompareGovernanceDiffView } from "@/lib/compare-effective-governance-diff";
 import type { FindingEvidenceGraphViewMode } from "@/lib/findings/finding-evidence-graph-highlight";
 import type { MapGraphPresentation } from "@/lib/graph-mapper";

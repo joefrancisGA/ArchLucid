@@ -19,7 +19,7 @@ import {
   OPERATOR_CONNECTIVITY_TECHNICAL_DETAILS_LABEL,
   resolveOperatorConnectivityTechnicalDetails,
   type OperatorConnectivityPresentationInput,
-} from "@/lib/operator-connectivity-error-present";
+} from "@/lib/operator/operator-connectivity-error-present";
 import { isReportProblemEnabledForConnectivityError } from "@/lib/report-problem-surfaces";
 
 export type OperatorLayeredConnectivityErrorProps = OperatorConnectivityPresentationInput;

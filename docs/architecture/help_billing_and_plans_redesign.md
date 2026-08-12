@@ -129,8 +129,8 @@ The following are **not** stated on the new help page:
 | `archlucid-ui/src/lib/product-documentation-registry.ts` | Repointed billing entry; added `product-packaging` slug |
 | `archlucid-ui/src/lib/product-documentation-content-kinds.ts` | Added `product-packaging` kind |
 | `archlucid-ui/src/lib/in-app-doc-href.ts` | `product_packaging.md` → `/help/product-packaging` |
-| `archlucid-ui/src/lib/help-center-catalog.ts` | `product-packaging` → internal tier |
-| `archlucid-ui/src/lib/help-markdown-presentation.test.tsx` | Updated link rewrite expectations |
+| `archlucid-ui/src/lib/help/help-center-catalog.ts` | `product-packaging` → internal tier |
+| `archlucid-ui/src/lib/help/help-markdown-presentation.test.tsx` | Updated link rewrite expectations |
 | `archlucid-ui/src/app/(operator)/help/HelpTopicBillingAndPlans.test.tsx` | **Added** — 10 test cases |
 | `archlucid-ui/public/doc-index.json` | Regenerated (billing + product-packaging URLs fixed) |
 | `docs/architecture/help_billing_and_plans_redesign.md` | **Added** — this report |
@@ -140,7 +140,7 @@ The following are **not** stated on the new help page:
 ```text
 npx vitest run \
   "src/app/(operator)/help/HelpTopicBillingAndPlans.test.tsx" \
-  "src/lib/help-markdown-presentation.test.tsx"
+  "src/lib/help/help-markdown-presentation.test.tsx"
 ```
 
 ## Test results

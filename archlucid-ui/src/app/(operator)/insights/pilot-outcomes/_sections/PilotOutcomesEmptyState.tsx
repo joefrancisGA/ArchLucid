@@ -9,7 +9,7 @@ import {
   buildPilotOutcomesMostRecentFinalizedReviewHref,
   type PilotOutcomesEmptyDiagnostics,
 } from "@/lib/pilot-outcomes-report-diagnostics";
-import { BUYER_START_ARCHITECTURE_REVIEW_CTA } from "@/lib/buyer-polish-copy";
+import { BUYER_START_ARCHITECTURE_REVIEW_CTA } from "@/lib/buyer/buyer-polish-copy";
 
 type Props = {
   readonly diagnostics: PilotOutcomesEmptyDiagnostics;

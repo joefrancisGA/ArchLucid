@@ -3,7 +3,7 @@ import { describe, expect, it } from "vitest";
 import {
   BUYER_SCOPE_SAMPLE_WORKSPACE_COMPACT_LABEL,
   BUYER_SCOPE_SAMPLE_WORKSPACE_DEMO_HINT,
-} from "@/lib/buyer-polish-copy";
+} from "@/lib/buyer/buyer-polish-copy";
 import {
   countSelectableScopeOptions,
   formatScopeSwitcherSampleFullTitle,

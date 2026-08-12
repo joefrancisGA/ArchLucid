@@ -14,9 +14,9 @@ import {
 
 import { OPERATOR_TYPOGRAPHY } from "@/lib/design-tokens";
 
-import type { HelpMarkdownHeading } from "@/lib/help-markdown-headings";
+import type { HelpMarkdownHeading } from "@/lib/help/help-markdown-headings";
 
-import { humanizeMarkdownFileReference } from "@/lib/help-markdown-presentation";
+import { humanizeMarkdownFileReference } from "@/lib/help/help-markdown-presentation";
 
 import type { ProductDocumentationEntry } from "@/lib/product-documentation-registry";
 

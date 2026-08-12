@@ -9,9 +9,9 @@ import {
   DECISION_REGISTER_EMPTY_TEACHING_TITLE,
   buildDecisionRegisterEmptyTeaching,
 } from "@/lib/decision-register-empty-teaching";
-import { REVIEWS_LIST_PATH, REVIEWS_NEW_PATH } from "@/lib/architecture-routes";
+import { REVIEWS_LIST_PATH, REVIEWS_NEW_PATH } from "@/lib/architecture/architecture-routes";
 import { GOVERNANCE_FINDINGS_CANONICAL_PATH } from "@/lib/governance/governance-findings-evidence-copy";
-import { START_REVIEW_LABEL } from "@/lib/architecture-workflow-labels";
+import { START_REVIEW_LABEL } from "@/lib/architecture/architecture-workflow-labels";
 
 describe("decision-register-empty-teaching (TB-2263)", () => {
   it("teaches why the Decision register can be empty and deep-links next steps", () => {

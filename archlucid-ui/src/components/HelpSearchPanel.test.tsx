@@ -9,12 +9,12 @@ import {
   HELP_SEARCH_PANEL_SEARCH_PLACEHOLDER,
   HELP_SEARCH_PANEL_SUBTITLE,
   HELP_SEARCH_PANEL_SUPPORT_FOOTER_LABEL,
-} from "@/lib/help-search-panel-catalog";
+} from "@/lib/help/help-search-panel-catalog";
 import {
   HELP_ON_HELP_ON_THIS_PAGE_HEADING,
   HELP_ON_HELP_SEARCH_PLACEHOLDER,
   HELP_ON_HELP_SUBTITLE,
-} from "@/lib/help-on-help";
+} from "@/lib/help/help-on-help";
 
 const push = vi.fn();
 const pathnameMock = vi.hoisted(() => ({ value: "/" }));
@@ -43,7 +43,7 @@ vi.mock("@/components/usability/ProductConceptsGlossaryDialog", () => ({
   ProductConceptsGlossaryDialog: () => null,
 }));
 
-vi.mock("@/lib/help-index", () => ({
+vi.mock("@/lib/help/help-index", () => ({
   searchHelpDocumentation: vi.fn(() => []),
 }));
 

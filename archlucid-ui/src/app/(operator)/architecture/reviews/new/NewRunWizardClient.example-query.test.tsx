@@ -56,7 +56,7 @@ import { NewRunWizardClient } from "./NewRunWizardClient";
 import {
   OPERATOR_HOME_EXAMPLE_DESCRIPTION,
   OPERATOR_HOME_EXAMPLE_SYSTEM_NAME,
-} from "@/lib/operator-home-example-request";
+} from "@/lib/operator/operator-home-example-request";
 
 const WIZARD_MODE_STORAGE_KEY = "archlucid_new_run_wizard_mode_v1";
 

@@ -1,7 +1,7 @@
 import { useEffect } from "react";
 import { useRouter } from "next/navigation";
 
-import { getBuyerCtoDemoJourneyStepHref } from "@/lib/buyer-cto-demo-orchestration";
+import { getBuyerCtoDemoJourneyStepHref } from "@/lib/buyer/buyer-cto-demo-orchestration";
 import {
   ARCHLUCID_BUYER_CTO_DEMO_TOUR_START_EVENT,
   ARCHLUCID_CTO_DEMO_SPOTLIGHT_CHANGED_EVENT,
@@ -9,12 +9,12 @@ import {
   getStartCtoDemoTourHref,
   readBuyerCtoDemoSpotlight,
   writeBuyerCtoDemoSpotlight,
-} from "@/lib/buyer-cto-demo-tour";
+} from "@/lib/buyer/buyer-cto-demo-tour";
 import {
   ARCHLUCID_CTO_DEMO_PANIC_CHANGED_EVENT,
   readOperatorDemoPanicOffline,
   writeOperatorDemoPanicOffline,
-} from "@/lib/operator-static-demo";
+} from "@/lib/operator/operator-static-demo";
 
 export type BuyerCtoDemoTourKeyboardHandlers = {
   readonly onExploreToggle?: () => void;

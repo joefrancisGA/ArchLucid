@@ -1,9 +1,9 @@
 import type { RecentPilotRunDeltasPayload } from "@/components/BeforeAfterDelta/types";
-import type { OperatorScopeQueryKey } from "@/lib/operator-scope-query-key";
+import type { OperatorScopeQueryKey } from "@/lib/operator/operator-scope-query-key";
 import {
   getOperatorScopeQueryKeySnapshot,
   parseOperatorScopeQueryKey,
-} from "@/lib/operator-scope-query-key";
+} from "@/lib/operator/operator-scope-query-key";
 import { mergeRegistrationScopeForProxy } from "@/lib/proxy-fetch-registration-scope";
 import { operatorQueryKeys } from "@/lib/query/operator-query-keys";
 import { getOperatorQueryClient } from "@/lib/query/operator-query-client";

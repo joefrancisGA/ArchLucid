@@ -31,7 +31,7 @@ import {
 import {
   deriveRunDetailFindingsTriageCounts,
   formatFindingsExcludedSummaryLine,
-} from "@/lib/run-detail-findings-triage-counts";
+} from "@/lib/runs/run-detail-findings-triage-counts";
 
 export type RunDetailFindingsWorkspaceProps = {
   readonly runId: string;

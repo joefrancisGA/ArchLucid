@@ -4,7 +4,7 @@ import {
   resolveWorkspaceScopeLabelFromRecord,
   readActiveWorkspaceScopeLabel,
 } from "@/lib/active-workspace-scope-label";
-import type { OperatorScopeRecord } from "@/lib/operator-scope-storage";
+import type { OperatorScopeRecord } from "@/lib/operator/operator-scope-storage";
 import { DEV_SCOPE_PROJECT_ID, DEV_SCOPE_TENANT_ID, DEV_SCOPE_WORKSPACE_ID } from "@/lib/scope";
 
 function record(overrides: Partial<OperatorScopeRecord> = {}): OperatorScopeRecord {

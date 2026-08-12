@@ -1,7 +1,7 @@
 /**
  * Audit trail copy — timeline, integrity, and evidence bundle export.
  *
- * Re-exported by `./index.ts`; import from `@/lib/buyer-polish-copy` or `@/lib/buyer-copy`.
+ * Re-exported by `./index.ts`; import from `@/lib/buyer/buyer-polish-copy` or `@/lib/buyer-copy`.
  */
 
 export const BUYER_AUDIT_TIMELINE_INTRO = "Recorded timeline for this review.";

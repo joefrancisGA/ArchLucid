@@ -18,7 +18,7 @@ import {
   POLICY_PACK_DELTA_DEMO_HELP_PRIMARY_ACTIONS,
   POLICY_PACK_DELTA_DEMO_HELP_SOURCES,
 } from "@/lib/policy/policy-pack-delta-demo-help-guide-content";
-import { prepareHelpMarkdownForPresentation } from "@/lib/help-markdown-presentation";
+import { prepareHelpMarkdownForPresentation } from "@/lib/help/help-markdown-presentation";
 import { tryLoadProductDocumentation } from "@/lib/load-product-documentation";
 
 describe("HelpPolicyPackDeltaDemoGuideView (standalone internal runbook)", () => {

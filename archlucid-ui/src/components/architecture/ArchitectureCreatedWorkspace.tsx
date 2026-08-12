@@ -18,21 +18,21 @@ import {
   ARCHITECTURE_FINDINGS_DUAL_PANE_TOGGLE_OFF_LABEL,
   ARCHITECTURE_FINDINGS_DUAL_PANE_TOGGLE_ON_LABEL,
   resolveArchitectureFindingsDualPaneLayoutMode,
-} from "@/lib/architecture-findings-dual-pane";
+} from "@/lib/architecture/architecture-findings-dual-pane";
 import { Button } from "@/components/ui/button";
 import { Tabs, TabsContent, TabsList, TabsTrigger } from "@/components/ui/tabs";
 import {
   countClarificationGaps,
   countOpenClarifications,
   countOpenQuestionEntities,
-} from "@/lib/architecture-open-clarifications-count";
+} from "@/lib/architecture/architecture-open-clarifications-count";
 import {
   buildArchitectureCreatedHomeModel,
   mergeArchitectureCreatedHomeInput,
   type BuildArchitectureCreatedHomeModelInput,
-} from "@/lib/architecture-created-home-model";
-import { readArchitectureCreationHandoff } from "@/lib/architecture-creation-handoff";
-import type { ArchitectureCreationUserAssertions } from "@/lib/architecture-structured-content-types";
+} from "@/lib/architecture/architecture-created-home-model";
+import { readArchitectureCreationHandoff } from "@/lib/architecture/architecture-creation-handoff";
+import type { ArchitectureCreationUserAssertions } from "@/lib/architecture/architecture-structured-content-types";
 import {
   ARCHITECTURE_WORKSPACE_TAB_LABELS,
   ARCHITECTURE_WORKSPACE_TAB_PARAM,
@@ -40,7 +40,7 @@ import {
   type ArchitectureWorkspaceTabId,
   resolveArchitectureWorkspaceTab,
   resolveArchitectureWorkspaceTabFromHash,
-} from "@/lib/architecture-workspace-tabs";
+} from "@/lib/architecture/architecture-workspace-tabs";
 import {
   architectureOpenClarificationsPresentation,
   formatMetricCountHeadline,

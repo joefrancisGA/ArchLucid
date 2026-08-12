@@ -9,12 +9,12 @@ import { dispatchOnboardingTourStart } from "@/lib/onboarding-tour";
 import {
   setWelcomeModalVisible,
   WELCOME_MODAL_TOUR_START_DELAY_MS,
-} from "@/lib/operator-onboarding-coordination";
-import { coerceRunSummaryPaged } from "@/lib/operator-response-guards";
+} from "@/lib/operator/operator-onboarding-coordination";
+import { coerceRunSummaryPaged } from "@/lib/operator/operator-response-guards";
 import {
   persistHasSeenWelcomeOnboarding,
   readHasSeenWelcomeOnboarding,
-} from "@/lib/operator-welcome-onboarding-storage";
+} from "@/lib/operator/operator-welcome-onboarding-storage";
 
 export type OperatorWelcomeOnboardingProps = {
   /**

@@ -265,8 +265,8 @@ This is not primarily a design problem; it is a **defaults and disclosure** prob
 | Buyer vocabulary pass (demo-gated) | `archlucid-ui/src/lib/vocabulary/buyer-demo-vocabulary.ts` |
 | Nav labels / Service Bus banner copy | `archlucid-ui/src/lib/i18n.ts` |
 | Pilot nav — "Evidence intake" | `archlucid-ui/src/lib/pilot-nav-group-builder.ts` |
-| Start-review label overrides | `archlucid-ui/src/lib/operator-nav-labels.ts` |
-| Admin ops nav (COGS, RAG, DLQ) | `archlucid-ui/src/lib/operator-admin-nav-group-builder.ts` |
+| Start-review label overrides | `archlucid-ui/src/lib/operator/operator-nav-labels.ts` |
+| Admin ops nav (COGS, RAG, DLQ) | `archlucid-ui/src/lib/operator/operator-admin-nav-group-builder.ts` |
 | Analysis nav (system health, connectors) | `archlucid-ui/src/lib/operate-analysis-nav-group-builder.ts` |
 | Terminology guard tests | `archlucid-ui/src/lib/review-terminology-guard.test.ts` |
 | Intake wizard Azure steps | `archlucid-ui/src/app/(operator)/reviews/new/NewRunWizardClient.tsx` |

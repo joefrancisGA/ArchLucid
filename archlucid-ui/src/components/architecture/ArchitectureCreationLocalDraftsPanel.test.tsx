@@ -2,8 +2,8 @@ import { render, screen, waitFor } from "@testing-library/react";
 import { beforeEach, describe, expect, it, vi } from "vitest";
 
 import { ArchitectureCreationLocalDraftsPanel } from "@/components/architecture/ArchitectureCreationLocalDraftsPanel";
-import type { ArchitectureDraftRegistryEntry } from "@/lib/architecture-draft-registry";
-import { CONTINUE_DRAFT_LABEL } from "@/lib/architecture-workflow-labels";
+import type { ArchitectureDraftRegistryEntry } from "@/lib/architecture/architecture-draft-registry";
+import { CONTINUE_DRAFT_LABEL } from "@/lib/architecture/architecture-workflow-labels";
 import {
   ARCHITECTURE_CREATION_CONTINUE_SECTION_TITLE,
   ARCHITECTURE_CREATION_NO_DRAFTS_GUIDANCE,

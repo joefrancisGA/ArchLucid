@@ -22,8 +22,8 @@ vi.mock("@/lib/demo-ui-env", async (importOriginal) => {
   };
 });
 
-vi.mock("@/lib/operator-scope-storage", async (importOriginal) => {
-  const mod = await importOriginal<typeof import("@/lib/operator-scope-storage")>();
+vi.mock("@/lib/operator/operator-scope-storage", async (importOriginal) => {
+  const mod = await importOriginal<typeof import("@/lib/operator/operator-scope-storage")>();
 
   return {
     ...mod,
@@ -35,7 +35,7 @@ import { ScopeHelpCurrentScopePanel } from "@/components/help/ScopeHelpCurrentSc
 import {
   BUYER_SCOPE_SAMPLE_WORKSPACE_COMPACT_LABEL,
   BUYER_SCOPE_SAMPLE_WORKSPACE_DEMO_HINT,
-} from "@/lib/buyer-polish-copy";
+} from "@/lib/buyer/buyer-polish-copy";
 import {
   formatScopeSwitcherTriggerLabel,
   isEffectiveDevDefaultScope,

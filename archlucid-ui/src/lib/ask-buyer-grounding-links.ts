@@ -4,8 +4,8 @@ import {
   getShowcaseCompareHref,
   getShowcaseExecutiveHref,
   getShowcaseManifestHref,
-} from "@/lib/buyer-safe-review-navigation";
-import { BUYER_COMPARE_OPEN_FULL_LINK_LABEL } from "@/lib/buyer-polish-copy";
+} from "@/lib/buyer/buyer-safe-review-navigation";
+import { BUYER_COMPARE_OPEN_FULL_LINK_LABEL } from "@/lib/buyer/buyer-polish-copy";
 import { canonicalizeDemoRunId } from "@/lib/demo-run-canonical";
 import { GOVERNANCE_AUDIT_PATH } from "@/lib/governance/governance-route-paths";
 import {

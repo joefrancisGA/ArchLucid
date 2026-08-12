@@ -13,7 +13,7 @@ import {
   auditExportCsvButtonLabelRoleRestricted,
   auditExportExecuteRankAuditorRoleNote,
 } from "@/lib/enterprise-controls-context-copy";
-import { buildRunScopedAuditExportParams } from "@/lib/run-scoped-audit-export";
+import { buildRunScopedAuditExportParams } from "@/lib/runs/run-scoped-audit-export";
 import { showError } from "@/lib/toast";
 
 export type RunScopedAuditExportButtonProps = {

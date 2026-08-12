@@ -3,7 +3,7 @@ import type { LucideIcon } from "lucide-react";
 import type { ReactNode } from "react";
 
 import { OPERATOR_TYPOGRAPHY } from "@/lib/design-tokens";
-import { HELP_TOPIC_PAGE_ICON, isHelpTopicHref } from "@/lib/help-topic-page-icon";
+import { HELP_TOPIC_PAGE_ICON, isHelpTopicHref } from "@/lib/help/help-topic-page-icon";
 import { resolveNavIconForHref } from "@/lib/resolve-nav-link-for-pathname";
 
 const PAGE_HEADING_ICON_CLASS =

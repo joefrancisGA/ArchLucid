@@ -15,7 +15,7 @@ import {
   OPERATOR_CO_ARCHITECT_HOME_STRIP_BODY_BUYER,
   OPERATOR_CO_ARCHITECT_INTENT_STORAGE_KEY,
   type OperatorCoArchitectIntentFocus,
-} from "@/lib/operator-co-architect-copy";
+} from "@/lib/operator/operator-co-architect-copy";
 import { OPERATOR_TYPE_SCALE, OPERATOR_TYPOGRAPHY } from "@/lib/design-tokens";
 
 function writeStoredIntent(next: OperatorCoArchitectIntentFocus): void {

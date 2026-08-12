@@ -3,7 +3,7 @@ import type { Metadata } from "next";
 import { ArchitectureDraftListClient } from "@/components/architecture/ArchitectureDraftListClient";
 import { OperatorPageContainer } from "@/components/OperatorPageContainer";
 import { OperatorPageHeader } from "@/components/OperatorPageHeader";
-import { ARCHITECTURES_LIST_PATH } from "@/lib/architecture-routes";
+import { ARCHITECTURES_LIST_PATH } from "@/lib/architecture/architecture-routes";
 
 import { ArchitecturesHubHeaderActions } from "./_sections/ArchitecturesHubHeaderActions";
 import {

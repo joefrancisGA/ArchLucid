@@ -1,6 +1,6 @@
 import { describe, expect, it } from "vitest";
 
-import { REVIEWS_LIST_PATH } from "@/lib/architecture-routes";
+import { REVIEWS_LIST_PATH } from "@/lib/architecture/architecture-routes";
 import { GLOBAL_FIND_PAGE_SEARCH } from "@/lib/search-surface-disambiguation";
 import {
   COMMAND_PALETTE_FIND_A_PAGE_HREF,

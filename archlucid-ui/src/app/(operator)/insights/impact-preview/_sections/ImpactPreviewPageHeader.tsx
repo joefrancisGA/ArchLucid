@@ -9,7 +9,7 @@ import { OPERATOR_TYPOGRAPHY } from "@/lib/design-tokens";
 import {
   operatorLastRefreshedExactLabel,
   operatorLastRefreshedLabel,
-} from "@/lib/operator-last-refreshed-label";
+} from "@/lib/operator/operator-last-refreshed-label";
 import {
   IMPACT_PREVIEW_ACTION_REFRESH,
   IMPACT_PREVIEW_ACTION_REFRESHING,

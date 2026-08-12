@@ -8,7 +8,7 @@ import {
   peekArchitectureNarrativeRenderDiagnostic,
   prepareArchitectureNarrativeForPresentation,
   recordArchitectureNarrativeRenderDiagnostic,
-} from "@/lib/architecture-narrative-presentation";
+} from "@/lib/architecture/architecture-narrative-presentation";
 import { OPERATOR_PAGE_CONTAINER, OPERATOR_TYPOGRAPHY } from "@/lib/design-tokens";
 import { cn } from "@/lib/utils";
 

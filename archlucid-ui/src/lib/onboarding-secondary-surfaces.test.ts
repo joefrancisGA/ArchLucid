@@ -1,4 +1,4 @@
-import { CREATE_ARCHITECTURE_LABEL } from "@/lib/architecture-workflow-labels";
+import { CREATE_ARCHITECTURE_LABEL } from "@/lib/architecture/architecture-workflow-labels";
 import { describe, expect, it } from "vitest";
 
 import { FIRST_PILOT_BUYER_COPY } from "@/lib/first-pilot-buyer-copy";
@@ -20,7 +20,7 @@ import {
   READINESS_AZURE_EXTRACTOR_CTA,
   WELCOME_OPERATOR_EVIDENCE_STEP,
 } from "@/lib/onboarding-secondary-surfaces";
-import { PILOT_COMMAND_CENTER_CONNECT_AZURE, PILOT_PATH_PREVIEW_STEPS } from "@/lib/buyer-polish-copy";
+import { PILOT_COMMAND_CENTER_CONNECT_AZURE, PILOT_PATH_PREVIEW_STEPS } from "@/lib/buyer/buyer-polish-copy";
 
 describe("onboarding-secondary-surfaces (TB-342)", () => {
   it("uses multi-cloud inventory script guidance in readiness cloud evidence summary", () => {

@@ -1,4 +1,4 @@
-import { coerceRunSummaryPaged } from "@/lib/operator-response-guards";
+import { coerceRunSummaryPaged } from "@/lib/operator/operator-response-guards";
 import { isPublicDemoModeEnv } from "@/lib/public-demo-mode";
 import { operatorQueryKeys } from "@/lib/query/operator-query-keys";
 import { getOperatorQueryClient } from "@/lib/query/operator-query-client";

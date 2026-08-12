@@ -23,14 +23,14 @@ import { Input } from "@/components/ui/input";
 import { StatusTag } from "@/components/ui/status-tag";
 import { useArchitectureDraftRegistryEntries } from "@/hooks/use-architecture-draft-registry-entries";
 import { showcaseSampleReviewPackageHref } from "@/lib/showcase-sample-review-registry";
-import { buyerFilterChipClass } from "@/lib/buyer-shell-home-present";
+import { buyerFilterChipClass } from "@/lib/buyer/buyer-shell-home-present";
 import { OPERATOR_LINK, OPERATOR_TYPOGRAPHY } from "@/lib/design-tokens";
 import { finiteIntegerCountDisplay } from "@/lib/finite-count-display";
 import {
   ARCHLUCID_OPERATOR_SCOPE_CHANGED_EVENT,
   readOperatorScopeFromStorage,
   type OperatorScopeRecord,
-} from "@/lib/operator-scope-storage";
+} from "@/lib/operator/operator-scope-storage";
 import { reviewPackageOwnerLabel } from "@/lib/review-package-validation-picker";
 import {
   buildReviewsHubWorkspaceScopeEmptyTeaching,

@@ -6,7 +6,7 @@ import { describe, expect, it } from "vitest";
 import {
   HELP_TOPIC_BOOKMARK_ONLY_REDIRECT_SLUGS,
   HELP_TOPIC_PERMANENT_REDIRECTS,
-} from "@/lib/help-topic-permanent-redirects";
+} from "@/lib/help/help-topic-permanent-redirects";
 import { isInternalRunbookSlug } from "@/lib/product-documentation-content-kinds";
 import { PRODUCT_DOCUMENTATION_REGISTRY } from "@/lib/product-documentation-registry";
 import { textContainsGitHubBlobOrTreeUrl } from "@/lib/github-blob-url-contains";
@@ -17,7 +17,7 @@ const CUSTOMER_SURFACE_DIRS = [
   "src/app/(marketing)",
   "src/components",
   "src/lib/contextual-help-content.ts",
-  "src/lib/help-topics.ts",
+  "src/lib/help/help-topics.ts",
   "src/lib/docs-search-index.ts",
   "src/lib/in-app-doc-href.ts",
 ] as const;

@@ -35,7 +35,7 @@ import { AUTHORITY_RANK } from "@/lib/nav-authority";
 import {
   getEffectiveBrowserProxyScopeHeaders,
   readOperatorScopeFromStorage,
-} from "@/lib/operator-scope-storage";
+} from "@/lib/operator/operator-scope-storage";
 import {
   hoursSurfaced,
   formatHours,

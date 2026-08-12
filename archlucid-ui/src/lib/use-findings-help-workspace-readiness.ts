@@ -18,7 +18,7 @@ import type { EnterpriseStatusKind } from "@/lib/design-tokens";
 import {
   matchesRiskRegisterFilter,
   type RiskRegisterFilter,
-} from "@/lib/architecture-risk-register-page";
+} from "@/lib/architecture/architecture-risk-register-page";
 import {
   buildGovernanceFindingsQueueHref,
   workspaceOpenFindingsPresentation,

@@ -1,7 +1,7 @@
 import {
   EVIDENCE_UPLOAD_ACCEPTED_FORMAT_ROWS,
 } from "@/lib/evidence-upload-accepted-formats";
-import { HELP_PAGE_LAYOUT } from "@/lib/help-page-layout";
+import { HELP_PAGE_LAYOUT } from "@/lib/help/help-page-layout";
 import { OPERATOR_TYPOGRAPHY } from "@/lib/design-tokens";
 import { cn } from "@/lib/utils";
 

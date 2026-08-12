@@ -4,7 +4,7 @@ import {
   BUYER_SHOWCASE_RESIDUAL_RISK_MONITORING_CADENCE,
   BUYER_SHOWCASE_RESIDUAL_RISK_NEXT_REVIEW,
   BUYER_SHOWCASE_RESIDUAL_RISK_OWNER,
-} from "@/lib/buyer-polish-copy";
+} from "@/lib/buyer/buyer-polish-copy";
 import { isBuyerPolishedOperatorShellEnv } from "@/lib/demo-ui-env";
 import {
   SHOWCASE_STATIC_DEMO_PRIMARY_FINDING_ID,

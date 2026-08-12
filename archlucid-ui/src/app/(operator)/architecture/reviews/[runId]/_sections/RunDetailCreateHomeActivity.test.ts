@@ -8,7 +8,7 @@ import {
   RUN_DETAIL_ACTIVITY_PRE_COMMIT_CLAIM_DISCIPLINE,
   RUN_DETAIL_ACTIVITY_PRE_COMMIT_SOURCES,
   RUN_DETAIL_ACTIVITY_PRE_COMMIT_SOURCES_INTRO,
-} from "@/lib/run-detail-activity-sources";
+} from "@/lib/runs/run-detail-activity-sources";
 
 const pageViewSource = readFileSync(
   join(dirname(fileURLToPath(import.meta.url)), "RunDetailPageView.tsx"),

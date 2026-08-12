@@ -1,5 +1,5 @@
-import { CREATE_ARCHITECTURE_LABEL, START_REVIEW_LABEL } from "@/lib/architecture-workflow-labels";
-import { BUYER_ASK_PAGE_TITLE } from "@/lib/buyer-polish-copy";
+import { CREATE_ARCHITECTURE_LABEL, START_REVIEW_LABEL } from "@/lib/architecture/architecture-workflow-labels";
+import { BUYER_ASK_PAGE_TITLE } from "@/lib/buyer/buyer-polish-copy";
 import {
   GOVERNANCE_OVERVIEW_PAGE_TITLE,
   GOVERNANCE_REVIEW_CONTEXT_PAGE_TITLE,

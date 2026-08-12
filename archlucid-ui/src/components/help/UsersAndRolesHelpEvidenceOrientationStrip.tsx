@@ -2,7 +2,7 @@ import { EvidenceOrientationClaimCallout } from "@/components/evidence-orientati
 import { EvidenceOrientationMetaLine } from "@/components/evidence-orientation/EvidenceOrientationMetaLine";
 import { EvidenceOrientationSourcesSection } from "@/components/evidence-orientation/EvidenceOrientationSourcesSection";
 import { EvidenceOrientationStripShell } from "@/components/evidence-orientation/EvidenceOrientationStripShell";
-import { HELP_DILIGENCE_ARTIFACT_INDEX_TITLE } from "@/lib/help-diligence-artifact-index";
+import { HELP_DILIGENCE_ARTIFACT_INDEX_TITLE } from "@/lib/help/help-diligence-artifact-index";
 import {
   USERS_AND_ROLES_HELP_AS_OF_APPLICABILITY,
   USERS_AND_ROLES_HELP_AS_OF_LABEL,

@@ -2,9 +2,9 @@
  * Central dictionary for operator-facing domain terms and reusable UI labels.
  * @see docs/assessments/LATEST.md — simplify abstract nomenclature without hunting literals in components.
  */
-import { ARCHITECTURE_DRAFTS_LIST_LABEL, CREATE_ARCHITECTURE_LABEL } from "@/lib/architecture-workflow-labels";
+import { ARCHITECTURE_DRAFTS_LIST_LABEL, CREATE_ARCHITECTURE_LABEL } from "@/lib/architecture/architecture-workflow-labels";
 import { BUYER_EXECUTIVE_SUMMARY_VOCABULARY, BUYER_SURFACE_VOCABULARY, BUYER_TERMINOLOGY } from "@/lib/vocabulary/buyer-surface-vocabulary";
-import { BUYER_ONBOARDING_PAGE_TITLE } from "@/lib/buyer-polish-copy";
+import { BUYER_ONBOARDING_PAGE_TITLE } from "@/lib/buyer/buyer-polish-copy";
 import { EVIDENCE_TRAIL_SEARCH } from "@/lib/search-surface-disambiguation";
 
 // Canonical definitions live in the dependency-free leaf module `pipeline-status-labels.ts`
@@ -19,7 +19,7 @@ export {
   POST_COMMIT_INTEGRATION_LINK_TITLES,
   SERVICE_BUS_HEALTH_LABELS,
   WORKSPACE_SETUP_HEALTH_LABELS,
-} from "@/lib/operator-health-labels";
+} from "@/lib/operator/operator-health-labels";
 
 export const DOMAIN_TERMS = {
   goldenManifest: "Signed review record",

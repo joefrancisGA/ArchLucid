@@ -1,7 +1,7 @@
 import type { ApiLoadFailureState } from "@/lib/api-load-failure";
 import { compareRunBuyerDisplayLabel } from "@/lib/compare-run-display-label";
 import { canonicalizeDemoRunId } from "@/lib/demo-run-canonical";
-import { runSummaryDisplayLabel } from "@/lib/run-summary-display-label";
+import { runSummaryDisplayLabel } from "@/lib/runs/run-summary-display-label";
 import type { RunSummary } from "@/types/authority";
 
 export type ComparedPair = { left: string; right: string };

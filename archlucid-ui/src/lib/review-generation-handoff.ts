@@ -1,6 +1,6 @@
-import { CREATE_ARCHITECTURE_INTENT } from "@/lib/architecture-workflow-intent";
-import { writeOperatorScopeCookieFromHeaders } from "@/lib/operator-scope-cookie";
-import { getEffectiveBrowserProxyScopeHeaders } from "@/lib/operator-scope-storage";
+import { CREATE_ARCHITECTURE_INTENT } from "@/lib/architecture/architecture-workflow-intent";
+import { writeOperatorScopeCookieFromHeaders } from "@/lib/operator/operator-scope-cookie";
+import { getEffectiveBrowserProxyScopeHeaders } from "@/lib/operator/operator-scope-storage";
 
 /** Query key signaling app-initiated navigation immediately after review generation. */
 export const FROM_GENERATION_QUERY_KEY = "fromGeneration";

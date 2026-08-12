@@ -4,8 +4,8 @@ import { cn } from "@/lib/utils";
 import { Button } from "@/components/ui/button";
 import { StatusTag } from "@/components/ui/status-tag";
 import { DESIGN_TOKENS, OPERATOR_LINK, OPERATOR_TYPOGRAPHY, operatorSemanticSurface } from "@/lib/design-tokens";
-import { buildArchitectureActivityFinalizeReadinessHref } from "@/lib/architecture-created-finalize-readiness-href";
-import { buildArchitectureWorkspaceTabHref } from "@/lib/architecture-workspace-tabs";
+import { buildArchitectureActivityFinalizeReadinessHref } from "@/lib/architecture/architecture-created-finalize-readiness-href";
+import { buildArchitectureWorkspaceTabHref } from "@/lib/architecture/architecture-workspace-tabs";
 import {
   RUN_DETAIL_GOVERNANCE_PRE_COMMIT_APPROVAL_GATE_LABEL,
   RUN_DETAIL_GOVERNANCE_PRE_COMMIT_APPROVAL_GATE_VALUE,
@@ -19,14 +19,14 @@ import {
   RUN_DETAIL_GOVERNANCE_PRE_COMMIT_TITLE,
   RUN_DETAIL_GOVERNANCE_PRE_COMMIT_WHAT_HAPPENS_NEXT_HEADING,
   RUN_DETAIL_GOVERNANCE_PRE_COMMIT_WHAT_HAPPENS_NEXT_STEPS,
-} from "@/lib/run-detail-governance-pre-commit-copy";
+} from "@/lib/runs/run-detail-governance-pre-commit-copy";
 import {
   RUN_DETAIL_GOVERNANCE_PRE_COMMIT_CLAIM_DISCIPLINE,
   RUN_DETAIL_GOVERNANCE_PRE_COMMIT_HELP_CITES,
-} from "@/lib/run-detail-governance-sources";
+} from "@/lib/runs/run-detail-governance-sources";
 import { CanonicalObjectSecondaryViewStrip } from "@/components/usability/CanonicalObjectSecondaryViewStrip";
 import { buildCanonicalObjectSecondaryView } from "@/lib/canonical-object-home-registry";
-import { shouldShowRunDetailGovernanceCta, runDetailGovernanceWorkflowHref } from "@/lib/run-detail-governance-cta-visibility";
+import { shouldShowRunDetailGovernanceCta, runDetailGovernanceWorkflowHref } from "@/lib/runs/run-detail-governance-cta-visibility";
 
 export type RunDetailGovernanceDecisionSectionProps = {
   readonly runId: string;

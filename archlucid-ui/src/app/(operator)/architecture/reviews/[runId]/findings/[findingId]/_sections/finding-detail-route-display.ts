@@ -9,8 +9,8 @@ import {
 import {
   BUYER_SHOWCASE_RESIDUAL_RISK_NEXT_REVIEW,
   BUYER_SHOWCASE_RESIDUAL_RISK_OWNER,
-} from "@/lib/buyer-polish-copy";
-import { buyerFindingSeverityDisplayLabel } from "@/lib/buyer-finding-severity-display";
+} from "@/lib/buyer/buyer-polish-copy";
+import { buyerFindingSeverityDisplayLabel } from "@/lib/buyer/buyer-finding-severity-display";
 import { isBuyerPolishedOperatorShellEnv } from "@/lib/demo-ui-env";
 import type { FindingConfidenceLevel } from "@/types/explanation";
 import type { FindingInspectPayload } from "@/types/finding-inspect";

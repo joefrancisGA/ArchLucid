@@ -4,7 +4,7 @@ import { Download } from "lucide-react";
 import { useCallback, useState } from "react";
 
 import { Button } from "@/components/ui/button";
-import { buildStaticCtoDemoRecapPayload } from "@/lib/buyer-cto-demo-recap";
+import { buildStaticCtoDemoRecapPayload } from "@/lib/buyer/buyer-cto-demo-recap";
 import { SHOWCASE_STATIC_DEMO_RUN_ID } from "@/lib/showcase-static-demo";
 import { showError, showSuccess } from "@/lib/toast";
 

@@ -4,7 +4,7 @@ import type { ReactElement } from "react";
 import { isBuyerPolishedOperatorShellEnv } from "@/lib/demo-ui-env";
 import { formatUsd } from "@/lib/roi-assumptions";
 import { OPERATOR_NAV_GROUP_LABEL, OPERATOR_TYPOGRAPHY } from "@/lib/design-tokens";
-import type { RunSavingsSummaryModel, RunSavingsSummarySourceKind } from "@/lib/run-savings-summary-model";
+import type { RunSavingsSummaryModel, RunSavingsSummarySourceKind } from "@/lib/runs/run-savings-summary-model";
 
 function sourceBadgeLabel(sourceKind: RunSavingsSummarySourceKind): string {
   if (sourceKind === "server-findings") {

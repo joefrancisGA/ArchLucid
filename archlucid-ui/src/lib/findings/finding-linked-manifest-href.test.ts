@@ -1,10 +1,10 @@
 import { describe, expect, it, vi } from "vitest";
 
-vi.mock("@/lib/operator-static-demo", () => ({
+vi.mock("@/lib/operator/operator-static-demo", () => ({
   isDemoRunIdEligibleForStaticFallback: vi.fn(),
 }));
 
-import { isDemoRunIdEligibleForStaticFallback } from "@/lib/operator-static-demo";
+import { isDemoRunIdEligibleForStaticFallback } from "@/lib/operator/operator-static-demo";
 import { findingLinkedManifestDetailHrefForRun } from "@/lib/findings/finding-linked-manifest-href";
 import { SHOWCASE_STATIC_DEMO_MANIFEST_ID, SHOWCASE_STATIC_DEMO_RUN_ID } from "@/lib/showcase-static-demo";
 

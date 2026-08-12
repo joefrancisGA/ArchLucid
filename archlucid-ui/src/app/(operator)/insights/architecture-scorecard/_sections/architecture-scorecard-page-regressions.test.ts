@@ -1,6 +1,6 @@
 import { describe, expect, it } from "vitest";
 
-import { BUYER_START_ARCHITECTURE_REVIEW_CTA } from "@/lib/buyer-polish-copy";
+import { BUYER_START_ARCHITECTURE_REVIEW_CTA } from "@/lib/buyer/buyer-polish-copy";
 import { ARCHITECTURE_SCORECARD_TRAFFIC_PATH } from "@/lib/ui-route-traffic-architecture-scorecard";
 import {
   REVIEW_SCORECARD_EMPTY_PRIMARY_CTA,

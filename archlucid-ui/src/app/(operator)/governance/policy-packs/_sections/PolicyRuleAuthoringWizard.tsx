@@ -26,7 +26,7 @@ import {
   type CuratedRulesDocument,
   validateCuratedRulesDocument,
 } from "@/lib/policy/policy-pack-curated-rules-v1";
-import { coerceRunSummaryPaged } from "@/lib/operator-response-guards";
+import { coerceRunSummaryPaged } from "@/lib/operator/operator-response-guards";
 import type { components } from "@/lib/openapi-schemas";
 import type { PolicyPackContentDocument } from "@/types/policy-packs";
 import { presentPolicyPackSimulateToast } from "@/lib/policy/policy-pack-simulate-toast";

@@ -30,8 +30,8 @@ const CONNECTION_STATUS_APP_LAYOUT = join(
 );
 
 const PRODUCT_CONNECTION_STATUS_SURFACES = [
-  "archlucid-ui/src/lib/operator-admin-nav-group-builder.ts",
-  "archlucid-ui/src/lib/help-search-panel-catalog.ts",
+  "archlucid-ui/src/lib/operator/operator-admin-nav-group-builder.ts",
+  "archlucid-ui/src/lib/help/help-search-panel-catalog.ts",
   "archlucid-ui/src/app/(operator)/integrations/azure-boards/_sections/AzureBoardsIntegrationPageHeader.test.tsx",
 ] as const;
 

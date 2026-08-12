@@ -10,7 +10,7 @@ import { GOVERNANCE_APPROVAL_HELP_PATH } from "@/lib/governance/governance-appro
 
 import { GOVERNANCE_APPROVAL_HELP_RELATED_PRODUCT_DOCS } from "@/lib/governance/governance-approval-help-guide-content";
 
-import { HELP_CENTER_FEATURED_SLUGS } from "@/lib/help-center-catalog";
+import { HELP_CENTER_FEATURED_SLUGS } from "@/lib/help/help-center-catalog";
 
 import {
 
@@ -24,11 +24,11 @@ const HELP_TOPIC_PAGE = join(process.cwd(), "src", "app", "(operator)", "help", 
 
 const PRODUCT_GOVERNANCE_APPROVAL_HELP_SURFACES = [
 
-  "archlucid-ui/src/lib/help-center-catalog.ts",
+  "archlucid-ui/src/lib/help/help-center-catalog.ts",
 
   "archlucid-ui/src/lib/product-documentation-registry.ts",
 
-  "archlucid-ui/src/lib/help-search-panel-catalog.ts",
+  "archlucid-ui/src/lib/help/help-search-panel-catalog.ts",
 
   "archlucid-ui/src/lib/audit-trail-help-guide-content.ts",
 

@@ -4,7 +4,7 @@ import { beforeAll, describe, expect, it, vi } from "vitest";
 
 import type { UseValueReportPageModel } from "./use-value-report-page";
 import { ValueReportPageView } from "./ValueReportPageView";
-import { BUYER_VALUE_REPORT_OUTCOME_LEAD, BUYER_VALUE_REPORT_PAGE_SUBTITLE } from "@/lib/buyer-polish-copy";
+import { BUYER_VALUE_REPORT_OUTCOME_LEAD, BUYER_VALUE_REPORT_PAGE_SUBTITLE } from "@/lib/buyer/buyer-polish-copy";
 import { LAYER_PAGE_GUIDANCE } from "@/lib/layer-guidance";
 
 vi.mock("@/components/LayerHeader", () => ({

@@ -3,7 +3,7 @@ import type { ReactElement } from "react";
 import { cn } from "@/lib/utils";
 
 import { CROSS_REVIEW_FINDING_CORRELATION_PANEL_TITLE } from "@/lib/vocabulary/finding-correlation-vocabulary";
-import { BUYER_COMPARE_MANIFEST_DIFF_APPENDIX_LABEL, BUYER_COMPARE_TECHNICAL_APPENDIX_LABEL } from "@/lib/buyer-polish-copy";
+import { BUYER_COMPARE_MANIFEST_DIFF_APPENDIX_LABEL, BUYER_COMPARE_TECHNICAL_APPENDIX_LABEL } from "@/lib/buyer/buyer-polish-copy";
 import { OPERATOR_TYPOGRAPHY } from "@/lib/design-tokens";
 
 export type CompareResultsSectionNavProps = {

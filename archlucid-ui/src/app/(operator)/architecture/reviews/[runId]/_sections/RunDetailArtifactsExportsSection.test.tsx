@@ -9,7 +9,7 @@ vi.mock("next/navigation", () => ({
 import type { ManifestSummary } from "@/types/authority";
 import type { ManifestFeasibilityVerdict } from "@/types/feasibility-verdict";
 
-import { BUYER_MANIFEST_DELIVERABLES_HEADING } from "@/lib/buyer-polish-copy";
+import { BUYER_MANIFEST_DELIVERABLES_HEADING } from "@/lib/buyer/buyer-polish-copy";
 
 import { RunDetailArtifactsExportsSection } from "./RunDetailArtifactsExportsSection";
 

@@ -15,7 +15,7 @@ import {
   riskRegisterFilterFromQuery,
   scopedRunIdFromQuery,
   type RiskRegisterFilter,
-} from "@/lib/architecture-risk-register-page";
+} from "@/lib/architecture/architecture-risk-register-page";
 
 import {
   GOVERNANCE_FINDINGS_FILTER_PRESET_LABELS,

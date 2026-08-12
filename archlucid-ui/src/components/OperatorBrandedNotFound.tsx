@@ -4,7 +4,7 @@ import Link from "next/link";
 
 import { OperatorSectionRetryButton } from "@/components/OperatorSectionRetryButton";
 import { OperatorEmptyState } from "@/components/OperatorShellMessage";
-import { BUYER_START_ARCHITECTURE_REVIEW_CTA } from "@/lib/buyer-polish-copy";
+import { BUYER_START_ARCHITECTURE_REVIEW_CTA } from "@/lib/buyer/buyer-polish-copy";
 import { OPERATOR_NAV_LINK_LABELS } from "@/lib/i18n";
 import {
   BRANDED_NOT_FOUND_RETRY_HINT,
@@ -12,7 +12,7 @@ import {
   type BrandedNotFoundVariant,
   brandedNotFoundBody,
   brandedNotFoundTitle,
-} from "@/lib/operator-branded-not-found-copy";
+} from "@/lib/operator/operator-branded-not-found-copy";
 import { SHOWCASE_STATIC_DEMO_RUN_ID } from "@/lib/showcase-static-demo";
 
 const REVIEW_PACKAGES_HREF = "/architecture/reviews";

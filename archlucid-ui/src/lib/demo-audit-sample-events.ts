@@ -1,7 +1,7 @@
 import type { AuditEvent } from "@/lib/api";
 import { canonicalizeDemoRunId } from "@/lib/demo-run-canonical";
-import { isExplicitStaticDemoMarketingBuild } from "@/lib/buyer-demo-content-gating";
-import { sanitizeAuditEventsForBuyerPolishedShell } from "@/lib/buyer-demo-persona-labels";
+import { isExplicitStaticDemoMarketingBuild } from "@/lib/buyer/buyer-demo-content-gating";
+import { sanitizeAuditEventsForBuyerPolishedShell } from "@/lib/buyer/buyer-demo-persona-labels";
 import { isBuyerPolishedOperatorShellEnv } from "@/lib/demo-ui-env";
 import {
   SHOWCASE_STATIC_DEMO_MANIFEST_ID,

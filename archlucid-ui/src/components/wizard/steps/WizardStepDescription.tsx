@@ -15,7 +15,7 @@ import { WizardStepPanel } from "@/components/wizard/WizardStepPanel";
 import { ChatIntakePanel } from "@/components/wizard/ChatIntakePanel";
 import { ConnectorIntakePanel } from "@/components/wizard/ConnectorIntakePanel";
 import { draftArchitectureRequest } from "@/lib/api";
-import { ARCHITECTURE_REQUEST_DESCRIPTION_MAX_LENGTH } from "@/lib/architecture-request-limits";
+import { ARCHITECTURE_REQUEST_DESCRIPTION_MAX_LENGTH } from "@/lib/architecture/architecture-request-limits";
 import { isApiRequestError } from "@/lib/api-request-error";
 import type { ApiProblemDetails } from "@/lib/api-problem";
 import { useWizardAiSuggestedFields } from "@/lib/wizard-ai-suggested-fields";

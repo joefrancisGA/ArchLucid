@@ -1,4 +1,4 @@
-import { CREATE_ARCHITECTURE_LABEL, START_REVIEW_LABEL } from "@/lib/architecture-workflow-labels";
+import { CREATE_ARCHITECTURE_LABEL, START_REVIEW_LABEL } from "@/lib/architecture/architecture-workflow-labels";
 import {
   EXECUTIVE_DASHBOARD_HREF,
   EXECUTIVE_DASHBOARD_WORKSPACE_HEALTH_HREF,

@@ -11,7 +11,7 @@ import { OPERATOR_TYPOGRAPHY } from "@/lib/design-tokens";
 import {
   operatorLastRefreshedExactLabel,
   operatorLastRefreshedLabel,
-} from "@/lib/operator-last-refreshed-label";
+} from "@/lib/operator/operator-last-refreshed-label";
 import {
   AUDIT_TRAIL_LAST_UPDATED_PREFIX,
   AUDIT_TRAIL_REFRESH_ACTION,

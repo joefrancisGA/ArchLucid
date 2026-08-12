@@ -9,7 +9,7 @@ import {
   fitMermaidSvgElementToHost,
   prepareMermaidSvgForResponsiveLayout,
   sanitizeMermaidRenderId,
-} from "@/lib/help-mermaid";
+} from "@/lib/help/help-mermaid";
 
 export type MermaidDiagramProps = {
   readonly source: string;

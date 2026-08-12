@@ -56,7 +56,7 @@ import { AUTHORITY_RANK } from "@/lib/nav-authority";
 import {
   ARCHLUCID_OPERATOR_SCOPE_CHANGED_EVENT,
   readOperatorScopeFromStorage,
-} from "@/lib/operator-scope-storage";
+} from "@/lib/operator/operator-scope-storage";
 import type { AdvisoryScanExecution, AdvisoryScanSchedule } from "@/types/advisory-scheduling";
 
 /**

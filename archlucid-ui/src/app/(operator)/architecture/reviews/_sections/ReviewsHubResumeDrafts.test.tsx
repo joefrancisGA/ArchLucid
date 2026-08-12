@@ -8,7 +8,7 @@ vi.mock("@/hooks/use-architecture-draft-registry-entries", () => ({
   useArchitectureDraftRegistryHydrated: () => true,
 }));
 
-vi.mock("@/lib/architecture-draft-resume-telemetry", () => ({
+vi.mock("@/lib/architecture/architecture-draft-resume-telemetry", () => ({
   trackArchitectureDraftResumeClick: vi.fn(),
 }));
 

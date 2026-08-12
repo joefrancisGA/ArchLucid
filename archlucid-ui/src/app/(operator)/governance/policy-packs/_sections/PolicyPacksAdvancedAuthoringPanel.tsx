@@ -4,7 +4,7 @@ import { cn } from "@/lib/utils";
 import type { ReactElement } from "react";
 
 import { AdvancedOptionsAccordion } from "@/components/AdvancedOptionsAccordion";
-import { isStaticDemoPayloadFallbackEnabled } from "@/lib/operator-static-demo";
+import { isStaticDemoPayloadFallbackEnabled } from "@/lib/operator/operator-static-demo";
 import { OPERATOR_TYPOGRAPHY } from "@/lib/design-tokens";
 
 import { PolicyPackGeneratorSection } from "./PolicyPackGeneratorSection";

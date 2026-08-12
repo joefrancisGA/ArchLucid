@@ -1,4 +1,4 @@
-import { tryStaticDemoGovernanceApprovalLineage } from "@/lib/operator-static-demo";
+import { tryStaticDemoGovernanceApprovalLineage } from "@/lib/operator/operator-static-demo";
 import type { GovernanceLineageResult } from "@/types/governance-dashboard";
 
 function isBlank(value: string | null | undefined): boolean {

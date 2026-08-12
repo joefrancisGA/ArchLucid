@@ -15,7 +15,7 @@ import {
   CONTINUE_DRAFT_LABEL,
   CREATE_ARCHITECTURE_LABEL,
   START_NEW_ARCHITECTURE_LABEL,
-} from "@/lib/architecture-workflow-labels";
+} from "@/lib/architecture/architecture-workflow-labels";
 
 describe("create-vs-review-intake-copy (TB-1459)", () => {
   it("discloses device-local scope without implying session-only loss", () => {

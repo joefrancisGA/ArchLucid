@@ -2,7 +2,7 @@ import { render, screen } from "@testing-library/react";
 import { describe, expect, it } from "vitest";
 
 import { GraphReviewPickerStatus } from "@/app/(operator)/insights/evidence-graph/_sections/GraphReviewPickerStatus";
-import { BUYER_EVIDENCE_GRAPH_PICKER_SAMPLE_REVIEW } from "@/lib/buyer-polish-copy";
+import { BUYER_EVIDENCE_GRAPH_PICKER_SAMPLE_REVIEW } from "@/lib/buyer/buyer-polish-copy";
 
 describe("GraphReviewPickerStatus (TB-1363)", () => {
   it("labels sample-review picker state as Claims Intake sample, not workspace", () => {

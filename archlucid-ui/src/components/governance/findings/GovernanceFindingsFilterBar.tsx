@@ -4,14 +4,14 @@ import { memo, useState, type ReactElement } from "react";
 
 import { ConfirmationDialog } from "@/components/ConfirmationDialog";
 import { Button } from "@/components/ui/button";
-import { downloadArchitectureRiskRegisterCsv } from "@/lib/architecture-risk-register-csv";
+import { downloadArchitectureRiskRegisterCsv } from "@/lib/architecture/architecture-risk-register-csv";
 import {
   matchesRiskRegisterFilter,
   RISK_REGISTER_FILTER_LABELS,
   RISK_REGISTER_QUICK_FILTERS,
   type RiskRegisterFilter,
-} from "@/lib/architecture-risk-register-page";
-import { downloadGovernanceFindingsItsmJsonExport } from "@/lib/run-findings-itsm-export";
+} from "@/lib/architecture/architecture-risk-register-page";
+import { downloadGovernanceFindingsItsmJsonExport } from "@/lib/runs/run-findings-itsm-export";
 import { OPERATOR_NAV_GROUP_LABEL, OPERATOR_TYPOGRAPHY } from "@/lib/design-tokens";
 import { cn } from "@/lib/utils";
 

@@ -2,13 +2,13 @@ import type { EvidenceSourceLink } from "@/lib/evidence-surface-copy";
 import {
   ARCHITECTURE_DRAFTS_LIST_LABEL,
   CREATE_ARCHITECTURE_LABEL,
-} from "@/lib/architecture-workflow-labels";
+} from "@/lib/architecture/architecture-workflow-labels";
 import {
   ARCHITECTURES_LIST_PATH,
   ARCHITECTURES_NEW_PATH,
   REVIEWS_NEW_PATH,
   parseArchitectureDraftIdFromPath,
-} from "@/lib/architecture-routes";
+} from "@/lib/architecture/architecture-routes";
 import { inAppHelpHref } from "@/lib/product-documentation-registry";
 
 export const ARCHITECTURES_DRAFT_CLAIM_DISCIPLINE =

@@ -1,12 +1,12 @@
-import { buyerDemoPackageCardMeta } from "@/lib/buyer-demo-package-card-meta";
+import { buyerDemoPackageCardMeta } from "@/lib/buyer/buyer-demo-package-card-meta";
 import {
   getBuyerSafeReviewsTableLinkForRun,
   type PrimaryReviewExploreLink,
-} from "@/lib/buyer-safe-review-navigation";
-import { buyerFacingReviewTitleFromSummary } from "@/lib/buyer-facing-review-title";
+} from "@/lib/buyer/buyer-safe-review-navigation";
+import { buyerFacingReviewTitleFromSummary } from "@/lib/buyer/buyer-facing-review-title";
 import { canonicalizeDemoRunId } from "@/lib/demo-run-canonical";
 import { formatRelativeTime } from "@/lib/relative-time";
-import { isStaticDemoPayloadFallbackEnabled } from "@/lib/operator-static-demo";
+import { isStaticDemoPayloadFallbackEnabled } from "@/lib/operator/operator-static-demo";
 import { reviewPackageArchitectureName, reviewPackageOwnerLabel } from "@/lib/review-package-validation-picker";
 import { SHOWCASE_STATIC_DEMO_RUN_ID, SHOWCASE_STATIC_DEMO_SPINE_COUNTS } from "@/lib/showcase-static-demo";
 import type { RunSummary } from "@/types/authority";

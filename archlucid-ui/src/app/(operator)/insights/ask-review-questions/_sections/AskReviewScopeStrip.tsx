@@ -7,11 +7,11 @@ import {
   BUYER_ASK_SCOPE_PREFIX,
   BUYER_COMPARE_OPEN_FULL_LINK_LABEL,
   BUYER_OPEN_SIGNED_RECORD_CTA,
-} from "@/lib/buyer-polish-copy";
-import { buyerFacingReviewLinkLabelFromRunId } from "@/lib/buyer-facing-review-title";
+} from "@/lib/buyer/buyer-polish-copy";
+import { buyerFacingReviewLinkLabelFromRunId } from "@/lib/buyer/buyer-facing-review-title";
 import { OPERATOR_DISCLOSURE_TRIGGER_CLASS, OPERATOR_LINK, OPERATOR_TYPOGRAPHY } from "@/lib/design-tokens";
 import { canonicalizeDemoRunId } from "@/lib/demo-run-canonical";
-import { getShowcaseCompareHref } from "@/lib/buyer-safe-review-navigation";
+import { getShowcaseCompareHref } from "@/lib/buyer/buyer-safe-review-navigation";
 import { signedRecordDetailPath } from "@/lib/signed-records-paths";
 import { SHOWCASE_STATIC_DEMO_MANIFEST_ID, SHOWCASE_STATIC_DEMO_RUN_ID } from "@/lib/showcase-static-demo";
 

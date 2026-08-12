@@ -16,7 +16,7 @@ import {
   BUYER_ONBOARDING_PAGE_LEAD,
   BUYER_ONBOARDING_PAGE_TITLE,
   FIRST_REVIEW_GUIDE_PROGRESS_SECTION_TITLE,
-} from "@/lib/buyer-polish-copy";
+} from "@/lib/buyer/buyer-polish-copy";
 import { OPERATOR_TYPOGRAPHY } from "@/lib/design-tokens";
 
 import { FirstReviewGuideProgressSummary } from "./FirstReviewGuideProgressSummary";

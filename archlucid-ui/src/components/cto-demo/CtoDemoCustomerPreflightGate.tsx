@@ -5,7 +5,7 @@ import { useCallback, useEffect } from "react";
 import { CtoDemoCustomerStartError } from "@/components/cto-demo/CtoDemoCustomerStartError";
 import { ReviewStartInlineSpinner } from "@/components/review-intake/ReviewStartInlineSpinner";
 import { useBuyerCtoDemoCustomerStart } from "@/hooks/use-buyer-cto-demo-customer-start";
-import { BUYER_CTO_DEMO_PREFLIGHT_HEADING } from "@/lib/buyer-polish-copy";
+import { BUYER_CTO_DEMO_PREFLIGHT_HEADING } from "@/lib/buyer/buyer-polish-copy";
 import { OPERATOR_TYPOGRAPHY } from "@/lib/design-tokens";
 import { cn } from "@/lib/utils";
 

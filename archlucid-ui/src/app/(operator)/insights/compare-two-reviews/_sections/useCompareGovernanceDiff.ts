@@ -13,7 +13,7 @@ import { runInpOffloadTask } from "@/lib/workers/inp-offload-client";
 import {
   tryStaticDemoGoldenManifestJsonForExport,
   isStaticDemoPayloadFallbackEnabled,
-} from "@/lib/operator-static-demo";
+} from "@/lib/operator/operator-static-demo";
 import { canonicalizeDemoRunId } from "@/lib/demo-run-canonical";
 
 export type CompareGovernanceDiffLoadState = {

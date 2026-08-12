@@ -65,7 +65,7 @@ import { useWizardBaselineMetricsActions } from "@/lib/use-wizard-baseline-metri
 import {
   resolveReviewIntakeExampleTemplateFromSearchParams,
   type ReviewIntakeExampleTemplate,
-} from "@/lib/operator-home-example-request";
+} from "@/lib/operator/operator-home-example-request";
 import { resolveSpecialtyReviewCloudFromSearchParam } from "@/lib/specialty-review-templates";
 import {
   buildDefaultWizardValues,

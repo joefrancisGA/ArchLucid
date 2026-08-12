@@ -9,13 +9,13 @@ import {
   OPERATOR_HOME_ARCHITECTURE_LIFECYCLE_INTRO,
   OPERATOR_HOME_ARCHITECTURE_LIFECYCLE_INTRO_BODY,
   OPERATOR_HOME_ARCHITECTURE_LIFECYCLE_INTRO_LABEL,
-} from "@/lib/buyer-polish-copy";
+} from "@/lib/buyer/buyer-polish-copy";
 import {
   OPERATOR_HOME_ACTION_REFRESH,
   OPERATOR_HOME_ACTION_REFRESHING,
   OPERATOR_HOME_PAGE_TITLE,
-} from "@/lib/operator-home-page-copy";
-import { useOperatorHomeRefresh } from "@/lib/operator-home-refresh-context";
+} from "@/lib/operator/operator-home-page-copy";
+import { useOperatorHomeRefresh } from "@/lib/operator/operator-home-refresh-context";
 
 export type OperatorHomePageHeaderProps = {
   readonly subtitle: string;

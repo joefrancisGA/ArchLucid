@@ -22,7 +22,7 @@ import {
   CORE_PILOT_ADVANCED_TOOLS_DEFERRAL_NOTE,
   CORE_PILOT_FIRST_SESSION_GUIDANCE_BULLETS,
 } from "@/lib/core-pilot-first-review-copy";
-import { OPERATOR_HOME_DISCLOSURE_STORAGE_KEYS } from "@/lib/operator-home-disclosure-storage";
+import { OPERATOR_HOME_DISCLOSURE_STORAGE_KEYS } from "@/lib/operator/operator-home-disclosure-storage";
 import { AUTHORITY_RANK } from "@/lib/nav-authority";
 
 /**

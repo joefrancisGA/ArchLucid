@@ -3,7 +3,7 @@ import { afterEach, describe, expect, it, vi } from "vitest";
 
 import { TenantWorkspaceBoundaryBadge } from "@/components/shell/TenantWorkspaceBoundaryBadge";
 import { DEV_SCOPE_TENANT_ID } from "@/lib/scope";
-import { writeOperatorScopeToStorage } from "@/lib/operator-scope-storage";
+import { writeOperatorScopeToStorage } from "@/lib/operator/operator-scope-storage";
 
 const buyerPolishedMock = vi.hoisted(() => ({ value: false }));
 

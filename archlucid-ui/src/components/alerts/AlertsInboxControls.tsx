@@ -20,7 +20,7 @@ import {
 } from "@/lib/enterprise-controls-context-copy";
 import { ALERTS_INBOX_LABELS } from "@/lib/i18n";
 import { OPERATOR_TYPOGRAPHY } from "@/lib/design-tokens";
-import { OPERATOR_NOT_REFRESHED_LABEL } from "@/lib/operator-last-refreshed-label";
+import { OPERATOR_NOT_REFRESHED_LABEL } from "@/lib/operator/operator-last-refreshed-label";
 import { formatRelativeTime } from "@/lib/relative-time";
 
 export type AlertsInboxControlsProps = {

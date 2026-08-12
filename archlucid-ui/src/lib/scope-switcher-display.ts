@@ -3,7 +3,7 @@ import {
   BUYER_SCOPE_SAMPLE_WORKSPACE_DEMO_HINT,
   BUYER_SCOPE_SAMPLE_WORKSPACE_FULL_NAME,
   BUYER_WORKSPACE_SHORT_NAME,
-} from "@/lib/buyer-polish-copy";
+} from "@/lib/buyer/buyer-polish-copy";
 import { DEV_SCOPE_PROJECT_ID, DEV_SCOPE_WORKSPACE_ID } from "@/lib/scope";
 
 export type ScopeSwitcherWorkspaceOption = {

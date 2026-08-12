@@ -1,6 +1,6 @@
 import { describe, expect, it } from "vitest";
 
-import type { ArchitectureDraftRegistryEntry } from "@/lib/architecture-draft-registry";
+import type { ArchitectureDraftRegistryEntry } from "@/lib/architecture/architecture-draft-registry";
 import {
   resolveLatestArchitectureDraftHref,
   resolveOperatorHomeLifecycleEmphasizedPath,

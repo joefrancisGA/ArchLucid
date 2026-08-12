@@ -1,7 +1,7 @@
 /** Insights and executive reporting routes (`/insights/**`, executive dashboard). */
 
 import type { PageContextualHelpRow } from "@/lib/contextual-help/types";
-import { REVIEWS_LIST_PATH, REVIEWS_NEW_PATH } from "@/lib/architecture-routes";
+import { REVIEWS_LIST_PATH, REVIEWS_NEW_PATH } from "@/lib/architecture/architecture-routes";
 import { EXECUTIVE_DASHBOARD_HREF } from "@/lib/executive/executive-dashboard-route";
 import { GOVERNANCE_APPROVAL_QUEUE_PATH } from "@/lib/governance/governance-route-paths";
 import { PLANNING_PATH } from "@/lib/planning-route";

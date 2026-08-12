@@ -11,7 +11,7 @@ import {
   dismissScopeChangeConsequence,
   isScopeChangeConsequenceDismissed,
 } from "@/lib/scope-change-consequence-banner";
-import type { OperatorScopeRecord } from "@/lib/operator-scope-storage";
+import type { OperatorScopeRecord } from "@/lib/operator/operator-scope-storage";
 
 describe("scope-change-consequence-banner (TB-2288)", () => {
   afterEach(() => {

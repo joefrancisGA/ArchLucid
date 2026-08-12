@@ -3,7 +3,7 @@
  * Prefer warn-and-continue over blocking export when baselines are missing.
  */
 
-import { ARCHITECTURE_SCORECARD_PATH } from "@/lib/architecture-scorecard-route";
+import { ARCHITECTURE_SCORECARD_PATH } from "@/lib/architecture/architecture-scorecard-route";
 
 export type SponsorRoiBaselineGateStatus = "ready" | "missing-baselines" | "not-applicable";
 

@@ -3,7 +3,7 @@
 import { useEffect, useState } from "react";
 
 import { fetchHealthReadySummary } from "@/lib/fetch-health-ready";
-import { isStaticDemoPayloadFallbackEnabled } from "@/lib/operator-static-demo";
+import { isStaticDemoPayloadFallbackEnabled } from "@/lib/operator/operator-static-demo";
 
 const LIVE_API_CACHE_MS = 30_000;
 

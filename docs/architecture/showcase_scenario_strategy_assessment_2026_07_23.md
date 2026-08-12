@@ -59,7 +59,7 @@ This partially confirms and partially corrects the expected outcome ("generic pr
 | Source | Role |
 |---|---|
 | `archlucid-ui/src/lib/showcase-static-demo.ts` | Canonical marketing payload, IDs, spine counts, decisions, provenance |
-| `archlucid-ui/src/lib/operator-static-demo.ts` | Operator offline spine (runs, compare, audit, approvals, graph) ΓÇö densest healthcare-term file (~100+ hits) |
+| `archlucid-ui/src/lib/operator/operator-static-demo.ts` | Operator offline spine (runs, compare, audit, approvals, graph) ΓÇö densest healthcare-term file (~100+ hits) |
 | `archlucid-ui/src/lib/showcase-created-static-demo.ts` | Northwind Copilot RAG created-package showcase |
 | `archlucid-ui/public/demo-preview-snapshot.json` | Offline `/demo/preview` fallback (mentions "healthcare claims intake modernization"; different UUIDs from the spine) |
 | `ArchLucid.Application/Bootstrap/DemoSeedService.cs` | SQL seed ΓÇö **Contoso Retail + Northwind tour + Alpine/Meridian regulated + Northwind created**; does **not** create the Claims slug |
@@ -456,7 +456,7 @@ Sufficient evidence to flip the default: (a) TB-891 scenario-tagged funnel data 
 | Topic | Location |
 |---|---|
 | Static showcase payload + IDs | `archlucid-ui/src/lib/showcase-static-demo.ts` |
-| Operator static spine | `archlucid-ui/src/lib/operator-static-demo.ts` |
+| Operator static spine | `archlucid-ui/src/lib/operator/operator-static-demo.ts` |
 | Static-first gating | `archlucid-ui/src/lib/showcase-page-resolution.ts` |
 | Slug canonicalization + aliases | `archlucid-ui/src/lib/demo-run-canonical.ts`, `archlucid-ui/next.config.ts` |
 | Marketing API slug resolution (Contoso-only) | `ArchLucid.Api/Controllers/Marketing/MarketingShowcaseController.cs` |

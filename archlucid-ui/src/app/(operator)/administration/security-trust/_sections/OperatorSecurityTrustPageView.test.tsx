@@ -20,7 +20,7 @@ import {
 
   OPERATOR_SECURITY_TRUST_PRIMARY_TRUST_CENTER_LABEL,
 
-} from "@/lib/operator-security-trust-page-copy";
+} from "@/lib/operator/operator-security-trust-page-copy";
 
 import { SETTINGS_SECURITY_TRUST_PATH } from "@/lib/settings-admin-route-paths";
 

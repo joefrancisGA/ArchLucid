@@ -4,7 +4,7 @@ import type { CorePilotCommitContext } from "@/lib/core-pilot-commit-context";
 import {
   OPERATOR_HOME_RECOMMENDED_NEXT_OPEN_SAMPLE,
   OPERATOR_HOME_RECOMMENDED_NEXT_OPEN_LATEST,
-} from "@/lib/buyer-polish-copy";
+} from "@/lib/buyer/buyer-polish-copy";
 import {
   resolveOperatorHomeRecommendedNextAction,
   resolveOperatorHomeRecommendedNextFallback,

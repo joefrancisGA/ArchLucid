@@ -21,7 +21,7 @@ vi.mock("@/components/help/HelpTopicPrintButton", () => ({
 
 import { HelpEvidenceTrailGuideView } from "@/app/(operator)/help/_sections/HelpEvidenceTrailGuideView";
 import { AZURE_REFERENCE_SAMPLE_GRAPH_CTA_LABEL } from "@/lib/empty-state-presets";
-import { BUYER_EVIDENCE_TRAIL_LOAD_BUTTON } from "@/lib/buyer-polish-copy";
+import { BUYER_EVIDENCE_TRAIL_LOAD_BUTTON } from "@/lib/buyer/buyer-polish-copy";
 import {
   EVIDENCE_TRAIL_HELP_CLAIM_DISCIPLINE,
   EVIDENCE_TRAIL_HELP_PRIMARY_ACTION,

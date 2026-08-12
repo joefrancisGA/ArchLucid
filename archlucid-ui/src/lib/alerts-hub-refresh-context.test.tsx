@@ -5,7 +5,7 @@ import {
   AlertRulesHubRefreshProvider,
   useAlertRulesHubRefresh,
 } from "./alerts-hub-refresh-context";
-import { OPERATOR_NOT_REFRESHED_LABEL } from "./operator-last-refreshed-label";
+import { OPERATOR_NOT_REFRESHED_LABEL } from "@/lib/operator/operator-last-refreshed-label";
 
 function Probe(): React.JSX.Element {
   const { lastRefreshedAt, reportTabLoaded, registerTabLoader } = useAlertRulesHubRefresh();

@@ -7,7 +7,7 @@
  */
 import { expect, test } from "@playwright/test";
 
-import { START_REVIEW_LABEL } from "@/lib/architecture-workflow-labels";
+import { START_REVIEW_LABEL } from "@/lib/architecture/architecture-workflow-labels";
 
 import {
   acceptInvitationAsPlatformUser,

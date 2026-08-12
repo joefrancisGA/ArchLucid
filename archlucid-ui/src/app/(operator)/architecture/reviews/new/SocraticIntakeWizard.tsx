@@ -36,31 +36,31 @@ import {
   skipDraftQuestion,
   submitDraftRequest,
 } from "@/lib/api/draft-intake-api";
-import { architectureDraftPath, SOURCE_ARCHITECTURE_QUERY_PARAM } from "@/lib/architecture-routes";
-import { architectureDraftDisplayName } from "@/lib/architecture-draft-status";
+import { architectureDraftPath, SOURCE_ARCHITECTURE_QUERY_PARAM } from "@/lib/architecture/architecture-routes";
+import { architectureDraftDisplayName } from "@/lib/architecture/architecture-draft-status";
 import {
   architectureCreationDefaultActorSet,
   applyArchitectureCreationDraftToFormState,
   initializeArchitectureCreation,
-} from "@/lib/architecture-creation-init";
+} from "@/lib/architecture/architecture-creation-init";
 import {
   CREATE_ARCHITECTURE_INTENT,
   isCreateArchitectureIntent,
   resolveArchitectureWorkflowIntent,
   START_REVIEW_INTENT,
-} from "@/lib/architecture-workflow-intent";
-import { writeArchitectureCreationDraftId } from "@/lib/architecture-creation-session";
+} from "@/lib/architecture/architecture-workflow-intent";
+import { writeArchitectureCreationDraftId } from "@/lib/architecture/architecture-creation-session";
 import { comparePageHrefAdaptive } from "@/lib/compare-url-query-params";
 import { CREATE_ARCHITECTURE_STARTING_LABEL, REVIEW_START_LOADING_LABEL } from "@/lib/review-start-progress-copy";
 import { runDetailHrefWithParentRun } from "@/lib/draft-branch-compare-navigation";
 import { buildReviewGenerationRedirect } from "@/lib/review-generation-handoff";
-import { recordArchitectureCreationHandoff } from "@/lib/architecture-creation-handoff";
+import { recordArchitectureCreationHandoff } from "@/lib/architecture/architecture-creation-handoff";
 import {
   mergeScopeBulletsIntoBrief,
   scopeBriefLines,
   SCOPE_UNDERSTANDING_READY_TO_CONTINUE_HINT,
   type ScopeUnderstandingBullet,
-} from "@/lib/architecture-scope-understanding-check";
+} from "@/lib/architecture/architecture-scope-understanding-check";
 import { isApiRequestError } from "@/lib/api-request-error";
 import { deriveEvidencePresenceFromFileNames } from "@/lib/evidence-gap-forecast";
 import { recordFirstTenantFunnelEvent } from "@/lib/first-tenant-funnel-telemetry";
@@ -74,7 +74,7 @@ import type { WizardStepDefinition } from "@/lib/wizard-step-sequence";
 import {
   normalizeActorSetForAdmission,
 } from "@/lib/draft-intake-actor-suggestions";
-import { BUYER_START_ARCHITECTURE_REVIEW_CTA, CREATE_REVIEW_PACKAGE_HEADING } from "@/lib/buyer-polish-copy";
+import { BUYER_START_ARCHITECTURE_REVIEW_CTA, CREATE_REVIEW_PACKAGE_HEADING } from "@/lib/buyer/buyer-polish-copy";
 import {
   GUIDED_INTAKE_ARCHITECTURE_INTENT_LABEL,
   GUIDED_INTAKE_ARCHITECTURE_INTENT_MIN_CHARS,
@@ -106,7 +106,7 @@ import {
   guidedIntakeCreationArchitectureOverviewHelperText,
 } from "@/lib/guided-intake-copy";
 import type { ActorSet, BranchDraftResponse, DraftElicitationQuestion } from "@/types/draft-intake";
-import { resolveReviewIntakeExampleTemplateFromSearchParams } from "@/lib/operator-home-example-request";
+import { resolveReviewIntakeExampleTemplateFromSearchParams } from "@/lib/operator/operator-home-example-request";
 import { REVIEWS_NEW_GUIDED_QUESTIONS_LABEL } from "@/lib/reviews-new-path-copy";
 import type { ManifestFeasibilityVerdict } from "@/types/feasibility-verdict";
 import { WIZARD_SESSION_IDS, wizardSessionHasTextContent } from "@/lib/wizard-session-persistence";

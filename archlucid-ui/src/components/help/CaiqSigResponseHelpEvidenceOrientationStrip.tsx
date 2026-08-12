@@ -11,7 +11,7 @@ import {
   CAIQ_SIG_RESPONSE_HELP_SOURCES_INTRO,
 } from "@/lib/caiq-sig-response-help-evidence-copy";
 import { OPERATOR_TYPOGRAPHY } from "@/lib/design-tokens";
-import { HELP_DILIGENCE_ARTIFACT_INDEX_TITLE } from "@/lib/help-diligence-artifact-index";
+import { HELP_DILIGENCE_ARTIFACT_INDEX_TITLE } from "@/lib/help/help-diligence-artifact-index";
 import { cn } from "@/lib/utils";
 
 /** Claim discipline + diligence artifact index for `/help/caiq-sig-response`. */

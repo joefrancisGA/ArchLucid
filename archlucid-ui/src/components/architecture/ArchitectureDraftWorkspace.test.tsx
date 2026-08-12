@@ -71,9 +71,9 @@ vi.mock("@/components/architecture/ArchitectureDraftAiRefinePanel", () => ({
   ),
 }));
 
-vi.mock("@/lib/architecture-draft-handoff-gate", async () => {
-  const actual = await vi.importActual<typeof import("@/lib/architecture-draft-handoff-gate")>(
-    "@/lib/architecture-draft-handoff-gate",
+vi.mock("@/lib/architecture/architecture-draft-handoff-gate", async () => {
+  const actual = await vi.importActual<typeof import("@/lib/architecture/architecture-draft-handoff-gate")>(
+    "@/lib/architecture/architecture-draft-handoff-gate",
   );
 
   return {
@@ -91,9 +91,9 @@ vi.mock("@/lib/toast", () => ({
 
 import { ArchitectureDraftWorkspace } from "./ArchitectureDraftWorkspace";
 import { ARCHITECTURE_DRAFT_WORKSPACE_LEAD, ARCHITECTURE_CREATION_AUTOSAVE_REASSURANCE, ARCHITECTURE_CREATION_NEW_DRAFT_SECTION_TITLE, ARCHITECTURE_CREATION_NO_DRAFTS_GUIDANCE, ARCHITECTURE_CREATION_RESUME_FIRST_WORKSPACE_LEAD } from "@/lib/create-vs-review-intake-copy";
-import { ARCHITECTURE_DRAFT_GUIDANCE_DISMISS_STORAGE_KEY } from "@/lib/architecture-draft-guidance-dismiss";
-import { ARCHITECTURE_NEW_DRAFT_SEGMENT } from "@/lib/architecture-routes";
-import { BUYER_START_ARCHITECTURE_REVIEW_CTA } from "@/lib/buyer-polish-copy";
+import { ARCHITECTURE_DRAFT_GUIDANCE_DISMISS_STORAGE_KEY } from "@/lib/architecture/architecture-draft-guidance-dismiss";
+import { ARCHITECTURE_NEW_DRAFT_SEGMENT } from "@/lib/architecture/architecture-routes";
+import { BUYER_START_ARCHITECTURE_REVIEW_CTA } from "@/lib/buyer/buyer-polish-copy";
 import { useArchitectureDraftAutosave } from "@/hooks/use-architecture-draft-autosave";
 import { useArchitectureDraftRegistryEntries } from "@/hooks/use-architecture-draft-registry-entries";
 import { showError } from "@/lib/toast";

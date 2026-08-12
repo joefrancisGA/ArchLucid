@@ -12,7 +12,7 @@
  * intelligence ≠ Evidence graph (TB-2273).
  */
 
-import { REVIEWS_LIST_PATH } from "@/lib/architecture-routes";
+import { REVIEWS_LIST_PATH } from "@/lib/architecture/architecture-routes";
 import { EVIDENCE_GRAPH_PATH } from "@/lib/evidence-graph-route";
 
 export type RunProvenanceEvidenceGraphSurfaceId = "run-provenance" | "evidence-graph";

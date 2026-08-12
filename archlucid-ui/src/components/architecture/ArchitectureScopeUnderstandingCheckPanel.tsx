@@ -24,7 +24,7 @@ import {
   SCOPE_UNDERSTANDING_READY_HINT,
   type DeriveScopeUnderstandingBulletsInput,
   type ScopeUnderstandingBullet,
-} from "@/lib/architecture-scope-understanding-check";
+} from "@/lib/architecture/architecture-scope-understanding-check";
 import { DESIGN_TOKENS, OPERATOR_TYPOGRAPHY } from "@/lib/design-tokens";
 import { cn } from "@/lib/utils";
 

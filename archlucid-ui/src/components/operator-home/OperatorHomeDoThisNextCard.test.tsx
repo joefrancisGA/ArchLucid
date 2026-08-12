@@ -2,7 +2,7 @@ import { render, screen, waitFor, within } from "@testing-library/react";
 import { beforeEach, describe, expect, it, vi } from "vitest";
 
 import { OperatorHomeDoThisNextCard } from "@/components/operator-home/OperatorHomeDoThisNextCard";
-import { OPERATOR_HOME_OPEN_SAMPLE_PACKAGE_CTA } from "@/lib/buyer-polish-copy";
+import { OPERATOR_HOME_OPEN_SAMPLE_PACKAGE_CTA } from "@/lib/buyer/buyer-polish-copy";
 import { SHOWCASE_SAMPLE_REVIEW_REGISTRY } from "@/lib/showcase-sample-review-registry";
 
 const shouldInjectDemoSeededOverviewSample = vi.fn();
@@ -23,7 +23,7 @@ vi.mock("@/hooks/use-featured-completed-sample-query", () => ({
   useFeaturedCompletedSampleQuery: vi.fn(),
 }));
 
-vi.mock("@/lib/operator-scope-storage", () => ({
+vi.mock("@/lib/operator/operator-scope-storage", () => ({
   ARCHLUCID_OPERATOR_SCOPE_CHANGED_EVENT: "archlucid:operator-scope-changed",
   getEffectiveBrowserProxyScopeHeaders: () => ({
     "x-tenant-id": "11111111-1111-1111-1111-111111111111",
@@ -33,7 +33,7 @@ vi.mock("@/lib/operator-scope-storage", () => ({
   readOperatorScopeFromStorage: () => null,
 }));
 
-vi.mock("@/lib/operator-static-demo", () => ({
+vi.mock("@/lib/operator/operator-static-demo", () => ({
   isStaticDemoPayloadFallbackEnabled: () => false,
 }));
 

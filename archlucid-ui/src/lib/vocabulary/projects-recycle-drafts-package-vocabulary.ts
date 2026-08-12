@@ -18,7 +18,7 @@
 import {
   ARCHITECTURES_LIST_PATH,
   REVIEWS_LIST_PATH,
-} from "@/lib/architecture-routes";
+} from "@/lib/architecture/architecture-routes";
 
 /** Canonical projects recycle bin path (administration tenant scope). */
 export const PROJECTS_RECYCLE_BIN_PATH = "/administration/tenant/recycle-bin" as const;

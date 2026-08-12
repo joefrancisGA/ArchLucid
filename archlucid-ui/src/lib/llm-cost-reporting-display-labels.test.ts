@@ -1,6 +1,6 @@
 import { afterEach, describe, expect, it, vi } from "vitest";
 
-import { BUYER_SCOPE_SAMPLE_WORKSPACE_COMPACT_LABEL } from "@/lib/buyer-polish-copy";
+import { BUYER_SCOPE_SAMPLE_WORKSPACE_COMPACT_LABEL } from "@/lib/buyer/buyer-polish-copy";
 import {
   formatCostReportingWorkspaceLabel,
   hasLlmUsageInDailyBuckets,
@@ -12,7 +12,7 @@ vi.mock("@/lib/internal-operator-env", () => ({
   isArchLucidInternalOperatorShellEnv: () => false,
 }));
 
-vi.mock("@/lib/operator-scope-storage", () => ({
+vi.mock("@/lib/operator/operator-scope-storage", () => ({
   readOperatorScopeFromStorage: () => null,
 }));
 

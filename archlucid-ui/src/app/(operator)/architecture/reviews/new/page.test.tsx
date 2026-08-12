@@ -1,4 +1,4 @@
-import { START_REVIEW_LABEL } from "@/lib/architecture-workflow-labels";
+import { START_REVIEW_LABEL } from "@/lib/architecture/architecture-workflow-labels";
 import { render, screen } from "@testing-library/react";
 import { describe, expect, it, vi } from "vitest";
 
@@ -10,7 +10,7 @@ vi.mock("next/navigation", () => ({
   usePathname: () => "/architecture/reviews/new",
 }));
 
-import { REVIEWS_NEW_PAGE_LEAD } from "@/lib/buyer-polish-copy";
+import { REVIEWS_NEW_PAGE_LEAD } from "@/lib/buyer/buyer-polish-copy";
 
 import NewRunPage from "./page";
 

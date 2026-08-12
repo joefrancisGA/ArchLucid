@@ -10,7 +10,7 @@ import {
   dispositionClass,
   dispositionLabel,
   type OperatorAiQualitySnapshot,
-} from "@/lib/operator-ai-quality-snapshot";
+} from "@/lib/operator/operator-ai-quality-snapshot";
 
 function formatMetric(value: number | null, digits: number): string {
   if (value === null || !Number.isFinite(value)) {

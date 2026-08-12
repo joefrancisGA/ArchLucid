@@ -28,13 +28,13 @@ vi.mock("next/navigation", async (importOriginal) => {
 });
 
 import NotFound from "./not-found";
-import { BUYER_START_ARCHITECTURE_REVIEW_CTA } from "@/lib/buyer-polish-copy";
+import { BUYER_START_ARCHITECTURE_REVIEW_CTA } from "@/lib/buyer/buyer-polish-copy";
 import {
   BRANDED_NOT_FOUND_GENERIC_BODY,
   BRANDED_NOT_FOUND_GENERIC_TITLE,
   BRANDED_NOT_FOUND_RETRY_HINT,
   BRANDED_NOT_FOUND_WORKSPACE_HINT,
-} from "@/lib/operator-branded-not-found-copy";
+} from "@/lib/operator/operator-branded-not-found-copy";
 
 describe("not-found", () => {
   it("renders operator-facing copy and navigation links", () => {

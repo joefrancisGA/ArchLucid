@@ -6,7 +6,7 @@ import { useCallback, useEffect, useMemo, useState } from "react";
 import { replayRun } from "@/lib/api";
 import type { ApiLoadFailureState } from "@/lib/api-load-failure";
 import { toApiLoadFailure } from "@/lib/api-load-failure";
-import { coerceReplayResponse } from "@/lib/operator-response-guards";
+import { coerceReplayResponse } from "@/lib/operator/operator-response-guards";
 import {
   latestValidationOutcomeByRunId,
   loadReplayValidationAuditHistory,

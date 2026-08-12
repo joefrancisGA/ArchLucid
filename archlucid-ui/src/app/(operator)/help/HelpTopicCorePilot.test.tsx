@@ -12,7 +12,7 @@ vi.mock("@/hooks/use-core-pilot-commit-context-query", () => ({
 }));
 
 import { HelpCorePilotGuideView } from "@/app/(operator)/help/_sections/HelpCorePilotGuideView";
-import { BUYER_START_ARCHITECTURE_REVIEW_CTA } from "@/lib/buyer-polish-copy";
+import { BUYER_START_ARCHITECTURE_REVIEW_CTA } from "@/lib/buyer/buyer-polish-copy";
 import {
   CORE_PILOT_HELP_DISCLOSURE,
   CORE_PILOT_HELP_IN_PRODUCT_CHECKLIST_LABEL,

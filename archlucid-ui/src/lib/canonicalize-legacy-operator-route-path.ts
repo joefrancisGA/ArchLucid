@@ -6,7 +6,7 @@ import {
   LEGACY_REVIEWS_LIST_PATH,
   LEGACY_RUNS_LIST_PATH,
   REVIEWS_LIST_PATH,
-} from "@/lib/architecture-routes";
+} from "@/lib/architecture/architecture-routes";
 import { DIGESTS_HUB_PATH, LEGACY_DIGESTS_HUB_PATH } from "@/lib/digests-route-paths";
 import {
   GOVERNANCE_ALERT_RULES_PATH,

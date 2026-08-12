@@ -11,7 +11,7 @@ import {
   buildFavoriteReviewsVsNavPinsVocabulary,
   resolveFavoriteReviewsVsNavPinsPeerLink,
 } from "@/lib/vocabulary/favorite-reviews-vs-nav-pins-vocabulary";
-import { REVIEWS_LIST_PATH } from "@/lib/architecture-routes";
+import { REVIEWS_LIST_PATH } from "@/lib/architecture/architecture-routes";
 
 describe("favorite-reviews-vs-nav-pins-vocabulary (TB-2269)", () => {
   it("explains pinned packages vs nav route pins", () => {

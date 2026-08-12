@@ -9,7 +9,7 @@ import {
   OPERATOR_HOME_DEMO_SEEDED_SAMPLE_BRIDGE,
   OPERATOR_HOME_OPEN_SAMPLE_PACKAGE_CTA,
   PILOT_FIRST_HOUR_NO_RUN_BRIDGE_COPY,
-} from "@/lib/buyer-polish-copy";
+} from "@/lib/buyer/buyer-polish-copy";
 import { FINISH_SETUP_SYSTEM_HEALTH_PATH } from "@/lib/finish-setup-wizard-steps";
 import { resolveEmptyHomeDoThisNext } from "@/lib/resolve-empty-home-do-this-next";
 import { SETTINGS_USERS_PATH } from "@/lib/settings-admin-route-paths";

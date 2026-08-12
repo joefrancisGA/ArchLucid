@@ -10,7 +10,7 @@ import {
   HELP_TOPIC_BOOKMARK_ONLY_REDIRECT_SLUGS,
   HELP_TOPIC_PERMANENT_REDIRECTS,
   resolveHelpTopicPermanentRedirect,
-} from "@/lib/help-topic-permanent-redirects";
+} from "@/lib/help/help-topic-permanent-redirects";
 import { getProductDocumentationEntry, inAppHelpHref } from "@/lib/product-documentation-registry";
 import {
   retiredHelpTopicAliasHonestyGuardEntries,
@@ -28,8 +28,8 @@ const REDIRECT_ONLY_HYPHEN_CLOUD_HELP_PATHS = Object.keys(
 ).map((slug) => `/help/${slug}`);
 
 const GLOBAL_BUYER_HELP_DEEP_LINK_SURFACES = [
-  "src/lib/help-search-panel-catalog.ts",
-  "src/lib/help-markdown-presentation.ts",
+  "src/lib/help/help-search-panel-catalog.ts",
+  "src/lib/help/help-markdown-presentation.ts",
   "src/lib/configuration-reference-help-guide-content.ts",
   "src/lib/users-and-roles-help-evidence-copy.ts",
   "src/lib/azure-boards-help-evidence-copy.ts",

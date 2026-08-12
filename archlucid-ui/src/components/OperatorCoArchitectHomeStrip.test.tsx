@@ -8,7 +8,7 @@ import {
   OPERATOR_CO_ARCHITECT_CTA_DESCRIBE_SECONDARY,
   OPERATOR_CO_ARCHITECT_CTA_REVIEW_PRIMARY,
   OPERATOR_CO_ARCHITECT_INTENT_STORAGE_KEY,
-} from "@/lib/operator-co-architect-copy";
+} from "@/lib/operator/operator-co-architect-copy";
 
 afterEach(() => {
   localStorage.clear();

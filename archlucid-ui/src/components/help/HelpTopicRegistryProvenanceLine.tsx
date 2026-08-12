@@ -1,7 +1,7 @@
 import { cn } from "@/lib/utils";
 
 import { OPERATOR_TYPOGRAPHY } from "@/lib/design-tokens";
-import { formatHelpTopicApplicabilityMetadata } from "@/lib/help-topic-applicability-metadata";
+import { formatHelpTopicApplicabilityMetadata } from "@/lib/help/help-topic-applicability-metadata";
 import type { ProductDocumentationEntry } from "@/lib/product-documentation-registry";
 
 type HelpTopicRegistryProvenanceLineProps = {

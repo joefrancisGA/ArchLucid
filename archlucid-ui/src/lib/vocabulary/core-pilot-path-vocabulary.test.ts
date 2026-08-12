@@ -6,7 +6,7 @@ import {
   isStreamlinedCorePilotPath,
   listCorePilotPathCopyViolations,
 } from "@/lib/vocabulary/core-pilot-path-vocabulary";
-import { PILOT_PATH_PREVIEW_STEPS } from "@/lib/buyer-polish-copy";
+import { PILOT_PATH_PREVIEW_STEPS } from "@/lib/buyer/buyer-polish-copy";
 import { FOCUSED_PILOT_MODE_COPY } from "@/lib/focused-pilot-mode-policy-packs";
 
 describe("core-pilot-path-vocabulary", () => {

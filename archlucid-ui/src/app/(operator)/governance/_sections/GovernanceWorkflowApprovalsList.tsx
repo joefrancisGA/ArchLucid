@@ -28,8 +28,8 @@ import {
   GOVERNANCE_WORKFLOW_RELEASE_TO_ENVIRONMENT_BUTTON,
   GOVERNANCE_WORKFLOW_RELEASE_TO_ENVIRONMENT_BUTTON_READER,
 } from "@/lib/governance/governance-workflow-release-copy";
-import { buyerSafeGovernanceActorLabel } from "@/lib/buyer-demo-persona-labels";
-import { buyerGovernanceWorkflowStatusLabel } from "@/lib/buyer-governance-workflow-status-labels";
+import { buyerSafeGovernanceActorLabel } from "@/lib/buyer/buyer-demo-persona-labels";
+import { buyerGovernanceWorkflowStatusLabel } from "@/lib/buyer/buyer-governance-workflow-status-labels";
 import type { ApiLoadFailureState } from "@/lib/api-load-failure";
 import type { GovernanceApprovalRequest } from "@/types/governance-workflow";
 import type { MutableRefObject } from "react";

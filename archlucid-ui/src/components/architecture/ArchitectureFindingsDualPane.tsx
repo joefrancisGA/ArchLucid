@@ -15,7 +15,7 @@ import {
   resolveFindingDiagramSelectionSync,
   type ArchitectureFindingsDualPaneDiagramNode,
   type ArchitectureFindingsDualPaneFindingRef,
-} from "@/lib/architecture-findings-dual-pane";
+} from "@/lib/architecture/architecture-findings-dual-pane";
 import {
   severityBadgeLabel,
   severityKindFromNumericValue,

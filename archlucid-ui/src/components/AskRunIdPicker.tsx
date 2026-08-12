@@ -14,15 +14,15 @@ import {
   SelectValue,
 } from "@/components/ui/select";
 import { useAskProjectRunsQuery } from "@/hooks/use-ask-project-runs-query";
-import { buyerFacingReviewTitleFromSummary } from "@/lib/buyer-facing-review-title";
-import { shouldMergeOperatorDemoAlertSample } from "@/lib/operator-static-demo";
+import { buyerFacingReviewTitleFromSummary } from "@/lib/buyer/buyer-facing-review-title";
+import { shouldMergeOperatorDemoAlertSample } from "@/lib/operator/operator-static-demo";
 import { isShowcaseDemoRunId } from "@/lib/graph-page-state";
 import { isBuyerPolishedOperatorShellEnv } from "@/lib/demo-ui-env";
 import {
   BUYER_EVIDENCE_GRAPH_EMPTY_LIST_HINT,
   BUYER_EVIDENCE_GRAPH_SAMPLE_LINK_LABEL,
   BUYER_EVIDENCE_GRAPH_SYNTHETIC_LOAD_ERROR_HINT,
-} from "@/lib/buyer-polish-copy";
+} from "@/lib/buyer/buyer-polish-copy";
 import { SHOWCASE_STATIC_DEMO_RUN_ID } from "@/lib/showcase-static-demo";
 import type { RunSummary } from "@/types/authority";
 

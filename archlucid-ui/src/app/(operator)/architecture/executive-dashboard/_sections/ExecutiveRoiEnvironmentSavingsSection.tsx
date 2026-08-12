@@ -12,7 +12,7 @@ import { OPERATOR_KPI_CARD_DESCRIPTION, OPERATOR_TYPOGRAPHY } from "@/lib/design
 import {
   BUYER_EXECUTIVE_DATA_SOURCE_NOTE,
   BUYER_EXECUTIVE_ENVIRONMENT_SAVINGS_DESCRIPTION,
-} from "@/lib/buyer-polish-copy";
+} from "@/lib/buyer/buyer-polish-copy";
 
 const SLICE_COLORS = ["#059669", "#2563eb", "#d97706", "#7c3aed", "#dc2626", "#64748b"];
 

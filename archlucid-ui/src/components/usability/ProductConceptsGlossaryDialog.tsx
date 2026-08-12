@@ -14,7 +14,7 @@ import {
   DialogHeader,
   DialogTitle,
 } from "@/components/ui/dialog";
-import { PRODUCT_CONCEPTS_GLOSSARY_DIALOG_DESCRIPTION, PRODUCT_CONCEPTS_GLOSSARY_DIALOG_TITLE } from "@/lib/buyer-polish-copy";
+import { PRODUCT_CONCEPTS_GLOSSARY_DIALOG_DESCRIPTION, PRODUCT_CONCEPTS_GLOSSARY_DIALOG_TITLE } from "@/lib/buyer/buyer-polish-copy";
 
 type ProductConceptsGlossaryDialogProps = {
   readonly open?: boolean;

@@ -13,13 +13,13 @@ import {
   BUYER_CTO_DEMO_READINESS_NOT_READY_LABEL,
   BUYER_CTO_DEMO_READINESS_READY_LABEL,
   BUYER_CTO_DEMO_READINESS_STATIC_LABEL,
-} from "@/lib/buyer-polish-copy";
+} from "@/lib/buyer/buyer-polish-copy";
 import {
   buyerCtoDemoReadinessStatusKind,
   evaluateBuyerCtoDemoReadiness,
   type BuyerCtoDemoReadinessResult,
-} from "@/lib/buyer-cto-demo-readiness";
-import { writeBuyerCtoDemoPreflightAcknowledged } from "@/lib/buyer-cto-demo-tour";
+} from "@/lib/buyer/buyer-cto-demo-readiness";
+import { writeBuyerCtoDemoPreflightAcknowledged } from "@/lib/buyer/buyer-cto-demo-tour";
 import { CTA_WIDTH, OPERATOR_TYPOGRAPHY } from "@/lib/design-tokens";
 
 export type CtoDemoPreflightGateProps = {

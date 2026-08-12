@@ -97,8 +97,8 @@ const apiHoisted = vi.hoisted(() => ({
  * ({@link isStaticDemoPayloadFallbackEnabled}); CI sometimes sets demo env vars globally.
  * This suite asserts mutation gates on real controls, so keep demo-style suppression off here.
  */
-vi.mock("@/lib/operator-static-demo", async (importOriginal) => {
-  const mod = await importOriginal<typeof import("@/lib/operator-static-demo")>();
+vi.mock("@/lib/operator/operator-static-demo", async (importOriginal) => {
+  const mod = await importOriginal<typeof import("@/lib/operator/operator-static-demo")>();
 
   return {
     ...mod,

@@ -15,7 +15,7 @@ import {
 const HELP_TOPIC_PAGE = join(process.cwd(), "src", "app", "(operator)", "help", "[...topic]", "page.tsx");
 
 const PRODUCT_EXECUTIVE_SUMMARY_HELP_SURFACES = [
-  "archlucid-ui/src/lib/help-center-catalog.ts",
+  "archlucid-ui/src/lib/help/help-center-catalog.ts",
   "archlucid-ui/src/lib/usability/page-help-topic-map.ts",
 ] as const;
 

@@ -9,7 +9,7 @@ import { OPERATOR_HOME_CARD_SECTION_HEADING } from "@/lib/design-tokens";
 import {
   OPERATOR_HOME_ASSIGN_ADMIN_BLOCKER,
   OPERATOR_HOME_ONE_REQUIRED_ITEM_TITLE,
-} from "@/lib/buyer-polish-copy";
+} from "@/lib/buyer/buyer-polish-copy";
 
 import { OperatorHomeContinueSetupCard } from "./OperatorHomeContinueSetupCard";
 

@@ -9,7 +9,7 @@ import {
   BUYER_SCOPE_SAMPLE_WORKSPACE_FULL_NAME,
   BUYER_SCOPE_SAMPLE_WORKSPACE_LABEL,
   OPERATOR_HOME_OPEN_SAMPLE_PACKAGE_CTA,
-} from "@/lib/buyer-polish-copy";
+} from "@/lib/buyer/buyer-polish-copy";
 import {
   DEMO_WORKSPACE_A_RUN_ID,
   DEMO_WORKSPACE_B_RUN_ID,

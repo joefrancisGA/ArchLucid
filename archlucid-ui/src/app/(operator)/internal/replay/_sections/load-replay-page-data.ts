@@ -1,5 +1,5 @@
 import { isNextPublicDemoMode } from "@/lib/demo-ui-env";
-import { isStaticDemoPayloadFallbackEnabled } from "@/lib/operator-static-demo";
+import { isStaticDemoPayloadFallbackEnabled } from "@/lib/operator/operator-static-demo";
 
 export type ReplayPageServerLoadResult = { kind: "demo" } | { kind: "live" };
 

@@ -9,7 +9,7 @@ import {
   OPERATOR_RECENT_VIEWS_STORAGE_KEY,
   parseStoredRecentViews,
   type OperatorRecentViewsState,
-} from "@/lib/operator-recent-views";
+} from "@/lib/operator/operator-recent-views";
 import { OPERATOR_TYPOGRAPHY } from "@/lib/design-tokens";
 
 /** Home panel: resume recently viewed reviews, findings, and operator pages. */

@@ -1,4 +1,4 @@
-import { buildArchitectureManifestUnifiedLines } from "@/lib/architecture-manifest-line-diff";
+import { buildArchitectureManifestUnifiedLines } from "@/lib/architecture/architecture-manifest-line-diff";
 import {
   buildCompareGovernanceDiffView,
 } from "@/lib/compare-effective-governance-diff";

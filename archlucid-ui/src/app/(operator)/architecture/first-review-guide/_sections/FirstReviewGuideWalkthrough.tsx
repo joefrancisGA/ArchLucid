@@ -5,7 +5,7 @@ import Link from "next/link";
 
 import { StatusTag } from "@/components/ui/status-tag";
 import { Button } from "@/components/ui/button";
-import { FIRST_REVIEW_GUIDE_NEXT_STEP_LABEL } from "@/lib/buyer-polish-copy";
+import { FIRST_REVIEW_GUIDE_NEXT_STEP_LABEL } from "@/lib/buyer/buyer-polish-copy";
 import { OPERATOR_LINK, OPERATOR_SURFACE_CARD_CLASS, OPERATOR_TYPOGRAPHY } from "@/lib/design-tokens";
 import type { FirstReviewGuideStepPresentation } from "@/lib/first-review-guide-state";
 

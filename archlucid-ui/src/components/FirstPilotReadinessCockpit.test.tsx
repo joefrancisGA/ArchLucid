@@ -15,7 +15,7 @@ vi.mock("@/lib/fetch-health-ready", () => ({
   fetchHealthReadySummary: vi.fn(async () => ({ status: "Healthy" })),
 }));
 
-vi.mock("@/lib/operator-run-picker-client", () => ({
+vi.mock("@/lib/operator/operator-run-picker-client", () => ({
   loadProjectRunsMergedWithDemoFallback: vi.fn(async () => ({ items: [], loadError: false })),
 }));
 

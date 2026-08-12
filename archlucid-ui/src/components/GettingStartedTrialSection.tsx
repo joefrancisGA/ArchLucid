@@ -4,7 +4,7 @@ import { cn } from "@/lib/utils";
 import { useEffect, useState } from "react";
 
 import { OnboardingStartClient } from "@/components/OnboardingStartClient";
-import { GETTING_STARTED_TRIAL_POST_REGISTRATION_LEAD } from "@/lib/buyer-polish-copy";
+import { GETTING_STARTED_TRIAL_POST_REGISTRATION_LEAD } from "@/lib/buyer/buyer-polish-copy";
 import { OPERATOR_TYPOGRAPHY } from "@/lib/design-tokens";
 import { readLastRegistrationPayload } from "@/lib/registration-session";
 

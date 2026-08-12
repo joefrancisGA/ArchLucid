@@ -11,8 +11,8 @@ import {
   stripDuplicateMarkdownTitle,
   stripInternalEngineeringBatchLabels,
   stripLeadingContributorScopeBlockquote,
-} from "@/lib/help-markdown-presentation";
-import { extractMarkdownSectionsByAnchor } from "@/lib/help-markdown-sections";
+} from "@/lib/help/help-markdown-presentation";
+import { extractMarkdownSectionsByAnchor } from "@/lib/help/help-markdown-sections";
 
 export type LoadedProductDocumentation = {
   entry: ProductDocumentationEntry;

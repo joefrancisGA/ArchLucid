@@ -6,7 +6,7 @@ import {
   CLOUD_FIRST_INVENTORY_COACH_TITLE,
   CLOUD_FIRST_INVENTORY_START_REVIEW_HREF,
 } from "@/lib/cloud-first-inventory-coach";
-import { BUYER_START_ARCHITECTURE_REVIEW_CTA } from "@/lib/buyer-polish-copy";
+import { BUYER_START_ARCHITECTURE_REVIEW_CTA } from "@/lib/buyer/buyer-polish-copy";
 
 describe("CloudFirstInventoryCoach (TB-2222)", () => {
   it("renders attach and start-review steps with CTA after successful pull", () => {

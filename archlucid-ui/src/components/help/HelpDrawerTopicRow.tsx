@@ -7,9 +7,9 @@ import {
   HELP_DRAWER_CHEVRON_CLASS,
   helpDrawerRowButtonClass,
 } from "@/components/help/help-drawer-row-class";
-import type { HelpSearchPanelTopic } from "@/lib/help-search-panel-catalog";
+import type { HelpSearchPanelTopic } from "@/lib/help/help-search-panel-catalog";
 import { OPERATOR_TYPOGRAPHY } from "@/lib/design-tokens";
-import { resolveHelpDrawerBrowseLabel, resolveHelpTopicBrowseLabel } from "@/lib/help-center-browse-labels";
+import { resolveHelpDrawerBrowseLabel, resolveHelpTopicBrowseLabel } from "@/lib/help/help-center-browse-labels";
 
 export type HelpDrawerTopicRowProps = {
   readonly topic: HelpSearchPanelTopic;

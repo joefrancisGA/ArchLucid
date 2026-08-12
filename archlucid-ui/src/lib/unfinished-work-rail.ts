@@ -1,7 +1,7 @@
-import type { ArchitectureDraftRegistryEntry } from "@/lib/architecture-draft-registry";
-import { ARCHITECTURE_DRAFT_STATUS_LABELS } from "@/lib/architecture-draft-status";
-import { architectureDraftPath, reviewDetailPath, REVIEWS_NEW_PATH } from "@/lib/architecture-routes";
-import { buyerFacingReviewTitleFromSummary } from "@/lib/buyer-facing-review-title";
+import type { ArchitectureDraftRegistryEntry } from "@/lib/architecture/architecture-draft-registry";
+import { ARCHITECTURE_DRAFT_STATUS_LABELS } from "@/lib/architecture/architecture-draft-status";
+import { architectureDraftPath, reviewDetailPath, REVIEWS_NEW_PATH } from "@/lib/architecture/architecture-routes";
+import { buyerFacingReviewTitleFromSummary } from "@/lib/buyer/buyer-facing-review-title";
 import { isShowcaseStaticDemoRunId } from "@/lib/demo-run-canonical";
 import { SHOWCASE_BUYER_REVIEW_TITLE } from "@/lib/showcase-static-demo";
 import {

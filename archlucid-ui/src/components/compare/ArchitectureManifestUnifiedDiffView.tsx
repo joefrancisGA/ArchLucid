@@ -5,8 +5,8 @@ import { OPERATOR_TYPOGRAPHY } from "@/lib/design-tokens";
 import { useMemo } from "react";
 
 import { useInpOffloadTask } from "@/lib/workers/inp-offload-client";
-import { buildArchitectureManifestUnifiedLines } from "@/lib/architecture-manifest-line-diff";
-import type { ArchitectureManifestUnifiedLine } from "@/lib/architecture-manifest-line-diff";
+import { buildArchitectureManifestUnifiedLines } from "@/lib/architecture/architecture-manifest-line-diff";
+import type { ArchitectureManifestUnifiedLine } from "@/lib/architecture/architecture-manifest-line-diff";
 
 function rowClass(line: ArchitectureManifestUnifiedLine): string {
   if (line.kind === "add") {

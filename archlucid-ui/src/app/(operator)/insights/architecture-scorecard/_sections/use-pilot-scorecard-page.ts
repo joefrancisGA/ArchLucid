@@ -11,7 +11,7 @@ import {
   parseArchitectureScorecardRoiAssumptions,
   type ArchitectureScorecardAssumptionFieldErrors,
   type ArchitectureScorecardRoiPreview,
-} from "@/lib/architecture-scorecard-roi-preview";
+} from "@/lib/architecture/architecture-scorecard-roi-preview";
 import { formatUsd } from "@/lib/roi-assumptions";
 import { buildExecutiveServerSavingsSummary, resolveRunSavingsUsd } from "@/lib/roi-resolution-priority";
 import { showError, showSuccess } from "@/lib/toast";

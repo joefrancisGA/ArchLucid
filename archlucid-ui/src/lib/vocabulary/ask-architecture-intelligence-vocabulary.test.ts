@@ -9,7 +9,7 @@ import {
   buildAskArchitectureIntelligenceVocabulary,
   resolveAskArchitectureIntelligencePeerLink,
 } from "@/lib/vocabulary/ask-architecture-intelligence-vocabulary";
-import { ARCHITECTURE_INTELLIGENCE_PATH } from "@/lib/architecture-intelligence-route";
+import { ARCHITECTURE_INTELLIGENCE_PATH } from "@/lib/architecture/architecture-intelligence-route";
 import { ASK_REVIEW_QUESTIONS_PATH } from "@/lib/ask-review-questions-route";
 
 describe("ask-architecture-intelligence-vocabulary (TB-2313)", () => {

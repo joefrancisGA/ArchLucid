@@ -29,8 +29,8 @@ vi.mock("@/hooks/use-llm-monthly-budget-execution-gate", () => ({
   }),
 }));
 
-vi.mock("@/lib/architecture-intelligence-api", async (importOriginal) => {
-  const actual = await importOriginal<typeof import("@/lib/architecture-intelligence-api")>();
+vi.mock("@/lib/architecture/architecture-intelligence-api", async (importOriginal) => {
+  const actual = await importOriginal<typeof import("@/lib/architecture/architecture-intelligence-api")>();
 
   return {
     ...actual,

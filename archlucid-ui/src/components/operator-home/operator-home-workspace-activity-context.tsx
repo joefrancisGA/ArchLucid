@@ -4,8 +4,8 @@ import { createContext, useCallback, useContext, useMemo, useState, type ReactNo
 
 import { isRunNeedingAttention } from "@/components/operator-home/runs-dashboard-helpers";
 import { isDemoSeededOverviewInjectedRun } from "@/lib/demo-seeded-overview";
-import type { OperatorHomeLiveRunsSnapshot } from "@/lib/operator-home-live-runs-dashboard";
-import { deriveOperatorHomeWorkspaceMetrics } from "@/lib/operator-home-workspace-metrics";
+import type { OperatorHomeLiveRunsSnapshot } from "@/lib/operator/operator-home-live-runs-dashboard";
+import { deriveOperatorHomeWorkspaceMetrics } from "@/lib/operator/operator-home-workspace-metrics";
 import type { RunSummary } from "@/types/authority";
 
 type OperatorHomeWorkspaceActivityContextValue = {

@@ -6,11 +6,11 @@ import { useMemo, useState } from "react";
 
 import { ArchitectureStructuredSectionView } from "@/components/architecture/ArchitectureStructuredSectionView";
 import { ArchitectureStructuringFailureNotice } from "@/components/architecture/ArchitectureStructuringFailureNotice";
-import { parseArchitectureGeneratedContent } from "@/lib/architecture-generated-content-parser";
+import { parseArchitectureGeneratedContent } from "@/lib/architecture/architecture-generated-content-parser";
 import {
   ARCHITECTURE_STRUCTURED_VIEW_SOURCE_LABEL,
-} from "@/lib/architecture-structured-content-copy";
-import type { ArchitectureCreationUserAssertions } from "@/lib/architecture-structured-content-types";
+} from "@/lib/architecture/architecture-structured-content-copy";
+import type { ArchitectureCreationUserAssertions } from "@/lib/architecture/architecture-structured-content-types";
 import { OPERATOR_TYPOGRAPHY } from "@/lib/design-tokens";
 
 export type ArchitectureStructuredContentPanelProps = {

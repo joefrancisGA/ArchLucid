@@ -36,7 +36,7 @@ import {
   tryStaticDemoGovernanceApprovalRequests,
   tryStaticDemoGovernancePromotions,
   warnStaticDemoPayloadFallbackOutsidePackagedDeployOnce,
-} from "@/lib/operator-static-demo";
+} from "@/lib/operator/operator-static-demo";
 import { auditTrailNavHref } from "@/lib/audit-nav-paths";
 import {
   GOVERNANCE_OVERVIEW_HOW_IT_WORKS_TRIGGER,
@@ -52,7 +52,7 @@ import { governanceApprovalQueueHref, GOVERNANCE_WORKSPACE_HEALTH_HREF } from "@
 import {
   BUYER_GOVERNANCE_APPROVAL_RECORD_LEAD,
   BUYER_GOVERNANCE_GOVERNED_USE_SCOPE,
-} from "@/lib/buyer-polish-copy";
+} from "@/lib/buyer/buyer-polish-copy";
 import {
   GOVERNANCE_WORKFLOW_ACTIVATE_AUDIT_NAME_REQUIRED,
   GOVERNANCE_WORKFLOW_APPROVAL_SUBMITTED_SUCCESS,

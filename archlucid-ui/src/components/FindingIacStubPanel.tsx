@@ -9,7 +9,7 @@ import { OperatorApiProblem } from "@/components/OperatorApiProblem";
 import { Button } from "@/components/ui/button";
 import { getRunDetail } from "@/lib/api";
 import { isApiRequestError } from "@/lib/api-request-error";
-import { coerceRunDetail } from "@/lib/operator-response-guards";
+import { coerceRunDetail } from "@/lib/operator/operator-response-guards";
 import { extractIacStubForFinding } from "@/lib/quick-decision-summary-derive";
 
 type FindingIacStubPanelProps = {

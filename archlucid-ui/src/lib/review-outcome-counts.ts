@@ -1,5 +1,5 @@
 import { canonicalizeDemoRunId } from "@/lib/demo-run-canonical";
-import { isStaticDemoPayloadFallbackActiveForRun } from "@/lib/operator-static-demo";
+import { isStaticDemoPayloadFallbackActiveForRun } from "@/lib/operator/operator-static-demo";
 import { SHOWCASE_STATIC_DEMO_RUN_ID, SHOWCASE_STATIC_DEMO_SPINE_COUNTS } from "@/lib/showcase-static-demo";
 import type { ManifestSummary } from "@/types/authority";
 import type { RunExplanationSummary } from "@/types/explanation";

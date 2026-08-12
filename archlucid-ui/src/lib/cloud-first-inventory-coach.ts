@@ -3,7 +3,7 @@
  * Replaces idle "no collection activity" dead-ends with attach -> start review guidance.
  */
 
-import { BUYER_START_ARCHITECTURE_REVIEW_CTA } from "@/lib/buyer-polish-copy";
+import { BUYER_START_ARCHITECTURE_REVIEW_CTA } from "@/lib/buyer/buyer-polish-copy";
 import { cloudProviderDetailPath } from "@/lib/cloud-connections-paths";
 import {
   CLOUD_PROVIDER_NEUTRAL_ORDER,

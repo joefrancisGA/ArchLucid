@@ -2,7 +2,7 @@ import type { ReactElement } from "react";
 
 import { CollapsibleSection } from "@/components/CollapsibleSection";
 import { PostCommitAdvancedAnalysisHint } from "@/components/PostCommitAdvancedAnalysisHint";
-import { BUYER_TECHNICAL_APPENDIX_LABEL } from "@/lib/buyer-polish-copy";
+import { BUYER_TECHNICAL_APPENDIX_LABEL } from "@/lib/buyer/buyer-polish-copy";
 
 type RunDetailAdvancedAnalysisSectionProps = {
   readonly runId: string;

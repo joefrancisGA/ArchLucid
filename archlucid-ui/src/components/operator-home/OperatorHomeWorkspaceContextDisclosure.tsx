@@ -16,8 +16,8 @@ import {
   OPERATOR_HOME_DISCLOSURE_STORAGE_KEYS,
   readOperatorHomeDisclosureExpanded,
   writeOperatorHomeDisclosureExpanded,
-} from "@/lib/operator-home-disclosure-storage";
-import { deriveOperatorHomeWorkspaceMetrics } from "@/lib/operator-home-workspace-metrics";
+} from "@/lib/operator/operator-home-disclosure-storage";
+import { deriveOperatorHomeWorkspaceMetrics } from "@/lib/operator/operator-home-workspace-metrics";
 import {
   OPERATOR_CARD,
   OPERATOR_LAYOUT,

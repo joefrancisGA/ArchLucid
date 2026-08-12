@@ -1,4 +1,4 @@
-import { OPERATOR_HOME_ONE_REQUIRED_ITEM_TITLE } from "@/lib/buyer-polish-copy";
+import { OPERATOR_HOME_ONE_REQUIRED_ITEM_TITLE } from "@/lib/buyer/buyer-polish-copy";
 import { OPERATOR_TYPE_SCALE } from "@/lib/design-tokens";
 import { cn } from "@/lib/utils";
 

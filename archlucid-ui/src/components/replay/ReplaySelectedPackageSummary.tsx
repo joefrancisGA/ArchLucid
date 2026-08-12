@@ -13,7 +13,7 @@ import {
 } from "@/lib/review-package-validation-picker";
 import { replayValidationModeDefinition } from "@/lib/replay-validation-workflow";
 import type { ReplayValidationOutcome } from "@/lib/replay-validation-workflow";
-import { buyerFacingReviewTitleFromSummary } from "@/lib/buyer-facing-review-title";
+import { buyerFacingReviewTitleFromSummary } from "@/lib/buyer/buyer-facing-review-title";
 import type { RunSummary } from "@/types/authority";
 
 export type ReplaySelectedPackageSummaryProps = {

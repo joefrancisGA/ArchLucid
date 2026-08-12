@@ -8,8 +8,8 @@ import { useEffect, useState } from "react";
 import { isBuyerPolishedOperatorShellEnv, isNextPublicDemoMode } from "@/lib/demo-ui-env";
 import { fetchHealthReadySummary } from "@/lib/fetch-health-ready";
 import { isDataArchivalHealthDegraded } from "@/lib/health-dashboard-types";
-import { DATA_ARCHIVAL_HEALTH_LABELS } from "@/lib/operator-health-labels";
-import { isStaticDemoPayloadFallbackEnabled } from "@/lib/operator-static-demo";
+import { DATA_ARCHIVAL_HEALTH_LABELS } from "@/lib/operator/operator-health-labels";
+import { isStaticDemoPayloadFallbackEnabled } from "@/lib/operator/operator-static-demo";
 
 /**
  * Warning when worker data archival last failed (`data_archival` on `GET /health/ready`).

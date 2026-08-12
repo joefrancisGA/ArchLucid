@@ -6,8 +6,8 @@ import type { RunSummary } from "@/types/authority";
 const listArchitectureDraftRegistryEntries = vi.fn();
 const readOperatorScopeFromStorage = vi.fn();
 
-vi.mock("@/lib/architecture-draft-registry", async (importOriginal) => {
-  const actual = await importOriginal<typeof import("@/lib/architecture-draft-registry")>();
+vi.mock("@/lib/architecture/architecture-draft-registry", async (importOriginal) => {
+  const actual = await importOriginal<typeof import("@/lib/architecture/architecture-draft-registry")>();
 
   return {
     ...actual,
@@ -18,9 +18,9 @@ vi.mock("@/lib/architecture-draft-registry", async (importOriginal) => {
   };
 });
 
-vi.mock("@/lib/operator-scope-storage", async () => {
-  const actual = await vi.importActual<typeof import("@/lib/operator-scope-storage")>(
-    "@/lib/operator-scope-storage",
+vi.mock("@/lib/operator/operator-scope-storage", async () => {
+  const actual = await vi.importActual<typeof import("@/lib/operator/operator-scope-storage")>(
+    "@/lib/operator/operator-scope-storage",
   );
 
   return {

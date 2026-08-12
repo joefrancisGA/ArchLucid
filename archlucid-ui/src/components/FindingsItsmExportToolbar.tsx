@@ -10,7 +10,7 @@ import {
   downloadQuickDecisionFindingsCsv,
   downloadRunFindingsItsmJsonExport,
   PRE_FINALIZE_FINDINGS_EXPORT_MARKER,
-} from "@/lib/run-findings-itsm-export";
+} from "@/lib/runs/run-findings-itsm-export";
 import type { QuickDecisionFinding } from "@/lib/quick-decision-summary-derive";
 
 export type FindingsItsmExportToolbarProps = {

@@ -9,7 +9,7 @@ import {
   buildArchitectureIntelligenceEvidenceGraphVocabulary,
   resolveArchitectureIntelligenceEvidenceGraphPeerLink,
 } from "@/lib/vocabulary/architecture-intelligence-evidence-graph-vocabulary";
-import { ARCHITECTURE_INTELLIGENCE_PATH } from "@/lib/architecture-intelligence-route";
+import { ARCHITECTURE_INTELLIGENCE_PATH } from "@/lib/architecture/architecture-intelligence-route";
 import { EVIDENCE_GRAPH_PATH } from "@/lib/evidence-graph-route";
 
 describe("architecture-intelligence-evidence-graph-vocabulary (TB-2273)", () => {

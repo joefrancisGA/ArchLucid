@@ -4,7 +4,7 @@ import { useEffect, useState, type ReactNode } from "react";
 
 import { OperatorShellAccessGateLoading } from "@/components/OperatorShellAccessGateLoading";
 import { AUTH_MODE } from "@/lib/auth-config";
-import { operatorHomeGateAllowsInitialPaint } from "@/lib/operator-shell-access-gate";
+import { operatorHomeGateAllowsInitialPaint } from "@/lib/operator/operator-shell-access-gate";
 import { isJwtAuthMode } from "@/lib/oidc/config";
 import { isLikelySignedIn } from "@/lib/oidc/session";
 import { publicSiteHref } from "@/lib/site-urls";

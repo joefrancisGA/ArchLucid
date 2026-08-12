@@ -10,7 +10,7 @@ vi.mock("@/lib/api", () => ({
   listRunsByProjectPaged: (...args: unknown[]) => listRunsByProjectPaged(...args),
 }));
 
-vi.mock("@/lib/operator-run-picker-client", () => ({
+vi.mock("@/lib/operator/operator-run-picker-client", () => ({
   loadProjectRunsMergedWithDemoFallback: (...args: unknown[]) =>
     loadProjectRunsMergedWithDemoFallbackMock(...args),
 }));

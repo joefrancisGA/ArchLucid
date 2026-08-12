@@ -4,7 +4,7 @@ import { useMemo } from "react";
 
 import type { OperatorHomeRunsDashboardModel } from "@/app/(operator)/_sections/operator-home-runs-dashboard-model";
 import { useOperatorHomeWorkspaceActivity } from "@/components/operator-home/operator-home-workspace-activity-context";
-import { resolveLiveRunsDashboardModel } from "@/lib/operator-home-live-runs-dashboard";
+import { resolveLiveRunsDashboardModel } from "@/lib/operator/operator-home-live-runs-dashboard";
 
 /**
  * Runs dashboard model for home surfaces: the refreshed client snapshot once the reviews panel has

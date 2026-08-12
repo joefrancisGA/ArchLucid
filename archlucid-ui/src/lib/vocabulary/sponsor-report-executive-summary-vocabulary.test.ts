@@ -1,6 +1,6 @@
 import { describe, expect, it } from "vitest";
 
-import { BUYER_VALUE_REPORT_PAGE_TITLE } from "@/lib/buyer-polish-copy";
+import { BUYER_VALUE_REPORT_PAGE_TITLE } from "@/lib/buyer/buyer-polish-copy";
 import { ROUTE_TITLES } from "@/lib/route-static-titles";
 import {
   EXECUTIVE_SUMMARY_PAGE_TITLE,

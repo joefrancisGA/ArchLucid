@@ -16,7 +16,7 @@ vi.mock("next/link", () => ({
   ),
 }));
 
-import { getShowcaseManifestHref } from "@/lib/buyer-safe-review-navigation";
+import { getShowcaseManifestHref } from "@/lib/buyer/buyer-safe-review-navigation";
 import { SHOWCASE_HOME_AHA_MOMENT } from "@/lib/showcase-home-aha-moment";
 
 import { SampleReviewPackageSummary } from "./SampleReviewPackageSummary";

@@ -10,13 +10,13 @@ import {
   BUYER_CTO_DEMO_AUDIT_VERIFY_CTA,
   BUYER_CTO_DEMO_AUDIT_VERIFY_FAIL,
   BUYER_CTO_DEMO_AUDIT_VERIFY_SUCCESS,
-} from "@/lib/buyer-polish-copy";
+} from "@/lib/buyer/buyer-polish-copy";
 import {
   formatAuditIntegrityHeadHash,
   type AuditIntegrityVerificationResult,
   verifyAuditIntegrityChain,
 } from "@/lib/cto-demo-audit-integrity-chain";
-import { readBuyerCtoDemoTourActive } from "@/lib/buyer-cto-demo-tour";
+import { readBuyerCtoDemoTourActive } from "@/lib/buyer/buyer-cto-demo-tour";
 import { isCtoDemoPackEnv } from "@/lib/cto-demo-presenter-pack";
 import { getDemoSampleAuditTrailEvents } from "@/lib/demo-audit-sample-events";
 import { isBuyerPolishedOperatorShellEnv } from "@/lib/demo-ui-env";

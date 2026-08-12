@@ -9,7 +9,7 @@ import { isBuyerPolishedOperatorShellEnv, isNextPublicDemoMode, isOperatorExperi
 import { isShowSystemAdministrationNavEnabled } from "@/lib/features";
 import { mergeRegistrationScopeForProxy } from "@/lib/proxy-fetch-registration-scope";
 import { buildCriticalDependencyRows } from "@/lib/system-health-critical-dependencies";
-import { isStaticDemoPayloadFallbackEnabled } from "@/lib/operator-static-demo";
+import { isStaticDemoPayloadFallbackEnabled } from "@/lib/operator/operator-static-demo";
 
 import type { SystemHealthPageViewModel } from "./system-health-page-view-model";
 

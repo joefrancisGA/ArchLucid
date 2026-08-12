@@ -2,7 +2,7 @@ import { render, screen, waitFor } from "@testing-library/react";
 import { beforeEach, describe, expect, it, vi } from "vitest";
 
 import { OperatorHomeAdvancedGuidanceSection } from "@/components/operator-home/OperatorHomeAdvancedGuidanceSection";
-import { OPERATOR_HOME_ADVANCED_GUIDANCE_TITLE } from "@/lib/buyer-polish-copy";
+import { OPERATOR_HOME_ADVANCED_GUIDANCE_TITLE } from "@/lib/buyer/buyer-polish-copy";
 
 vi.mock("@/lib/cto-demo-presenter-pack", () => ({
   isCtoDemoOperatorToolingEnv: () => false,

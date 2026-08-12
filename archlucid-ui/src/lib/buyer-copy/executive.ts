@@ -1,7 +1,7 @@
 /**
  * Executive dashboard, scorecard, and sponsor value report copy.
  *
- * Re-exported by `./index.ts`; import from `@/lib/buyer-polish-copy` or `@/lib/buyer-copy`.
+ * Re-exported by `./index.ts`; import from `@/lib/buyer/buyer-polish-copy` or `@/lib/buyer-copy`.
  */
 
 /** Help guide step 1 — executive-first walkthrough (distinct from home hero CTA). */

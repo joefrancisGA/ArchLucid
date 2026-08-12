@@ -12,7 +12,7 @@
  * (TB-2300).
  */
 
-import { buildArchitectureWorkspaceTabHref } from "@/lib/architecture-workspace-tabs";
+import { buildArchitectureWorkspaceTabHref } from "@/lib/architecture/architecture-workspace-tabs";
 
 export type OverviewDiagramSurfaceId = "overview" | "diagram";
 

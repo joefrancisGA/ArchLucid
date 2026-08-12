@@ -25,8 +25,8 @@ import {
   DPA_TEMPLATE_HELP_PROVENANCE,
   formatDpaTemplateHelpProvenanceLine,
 } from "@/lib/dpa-template-help-guide-content";
-import { HELP_PAGE_LAYOUT } from "@/lib/help-page-layout";
-import { prepareHelpMarkdownForPresentation } from "@/lib/help-markdown-presentation";
+import { HELP_PAGE_LAYOUT } from "@/lib/help/help-page-layout";
+import { prepareHelpMarkdownForPresentation } from "@/lib/help/help-markdown-presentation";
 import { resolvePublicHelpTopicPdfHref } from "@/lib/product-documentation-pdf-href";
 import { tryLoadProductDocumentation } from "@/lib/load-product-documentation";
 

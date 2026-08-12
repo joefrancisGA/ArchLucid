@@ -10,7 +10,7 @@ import {
   SelectTrigger,
   SelectValue,
 } from "@/components/ui/select";
-import { BUYER_EXECUTIVE_SCORECARD_WINDOW_HELP } from "@/lib/buyer-polish-copy";
+import { BUYER_EXECUTIVE_SCORECARD_WINDOW_HELP } from "@/lib/buyer/buyer-polish-copy";
 import { OPERATOR_TYPOGRAPHY } from "@/lib/design-tokens";
 import type { ExecutiveTimeRange } from "@/lib/executive/executive-time-range";
 

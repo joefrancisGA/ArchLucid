@@ -16,14 +16,14 @@ import {
   runArchitectureIntelligenceReasoning,
   type ClosedLoopReasoningResult,
   type ClosedLoopReasoningSourceText,
-} from "@/lib/architecture-intelligence-api";
+} from "@/lib/architecture/architecture-intelligence-api";
 import {
   ARCHITECTURE_INTELLIGENCE_REVIEW_TIERS,
   architectureIntelligenceReviewTierLabel,
   isArchitectureIntelligenceReviewTier,
   type ArchitectureIntelligenceReviewTier,
-} from "@/lib/architecture-intelligence-review-tier";
-import { buildArchitectureIntelligenceRunHref } from "@/lib/architecture-intelligence-run-href";
+} from "@/lib/architecture/architecture-intelligence-review-tier";
+import { buildArchitectureIntelligenceRunHref } from "@/lib/architecture/architecture-intelligence-run-href";
 import { OPERATOR_LINK, OPERATOR_TYPOGRAPHY } from "@/lib/design-tokens";
 import { whyDisabledLlmBudgetExhausted } from "@/lib/why-disabled-cta";
 import { cn } from "@/lib/utils";

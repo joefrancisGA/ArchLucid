@@ -8,8 +8,8 @@ import {
   filterHelpMarkdownHeadingGroups,
   flattenHelpMarkdownHeadingGroups,
   type HelpMarkdownHeadingGroup,
-} from "@/lib/help-markdown-heading-groups";
-import { HELP_PAGE_TOC } from "@/lib/help-page-layout";
+} from "@/lib/help/help-markdown-heading-groups";
+import { HELP_PAGE_TOC } from "@/lib/help/help-page-layout";
 
 export type HelpTechnicalReferenceNavigationProps = {
   readonly groups: readonly HelpMarkdownHeadingGroup[];

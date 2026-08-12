@@ -14,7 +14,7 @@ import {
   SCOPE_UNDERSTANDING_HEADING,
   SCOPE_UNDERSTANDING_HELPER,
   type ScopeUnderstandingBullet,
-} from "@/lib/architecture-scope-understanding-check";
+} from "@/lib/architecture/architecture-scope-understanding-check";
 
 import { ArchitectureScopeUnderstandingCheckPanel } from "./ArchitectureScopeUnderstandingCheckPanel";
 

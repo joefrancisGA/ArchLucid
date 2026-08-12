@@ -1,7 +1,7 @@
 import { fireEvent, render, screen } from "@testing-library/react";
 import { describe, expect, it, vi } from "vitest";
 
-import { operatorHomePageSubtitle } from "@/lib/operator-home-page-copy";
+import { operatorHomePageSubtitle } from "@/lib/operator/operator-home-page-copy";
 
 vi.mock("next/navigation", () => ({
   usePathname: () => "/",
@@ -13,7 +13,7 @@ vi.mock("@/components/usability/PageContextualHelpButton", () => ({
 
 const requestRefresh = vi.fn();
 
-vi.mock("@/lib/operator-home-refresh-context", () => ({
+vi.mock("@/lib/operator/operator-home-refresh-context", () => ({
   useOperatorHomeRefresh: () => ({
     refreshing: false,
     lastRefreshedAt: new Date("2026-07-09T12:00:00.000Z"),

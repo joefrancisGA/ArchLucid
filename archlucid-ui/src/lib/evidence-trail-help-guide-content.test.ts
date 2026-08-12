@@ -7,7 +7,7 @@ import {
   EVIDENCE_TRAIL_HELP_RELATED_GUIDES,
 } from "@/lib/evidence-trail-help-guide-content";
 import { AZURE_REFERENCE_SAMPLE_GRAPH_CTA_LABEL } from "@/lib/empty-state-presets";
-import { BUYER_EVIDENCE_TRAIL_LOAD_BUTTON } from "@/lib/buyer-polish-copy";
+import { BUYER_EVIDENCE_TRAIL_LOAD_BUTTON } from "@/lib/buyer/buyer-polish-copy";
 import { EVIDENCE_GRAPH_PATH } from "@/lib/evidence-graph-route";
 import {
   FINDING_EVIDENCE_GRAPH_DEFAULT_MODE,

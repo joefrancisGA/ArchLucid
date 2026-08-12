@@ -7,7 +7,7 @@ import {
 } from "@/components/operator-home/runs-dashboard-helpers";
 import type { RunsDashboardLoadPhase } from "@/components/operator-home/runs-dashboard-load-phase";
 import { RUNS_DASHBOARD_LABELS } from "@/lib/i18n";
-import { formatRunHomeListInsightLine } from "@/lib/operator-home-run-list-insight";
+import { formatRunHomeListInsightLine } from "@/lib/operator/operator-home-run-list-insight";
 import { OPERATOR_TYPOGRAPHY } from "@/lib/design-tokens";
 import type { ApiLoadFailureState } from "@/lib/api-load-failure";
 import type { RunSummary } from "@/types/authority";

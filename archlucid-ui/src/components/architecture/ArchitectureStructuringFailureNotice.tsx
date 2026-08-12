@@ -7,7 +7,7 @@ import {
   ARCHITECTURE_STRUCTURED_PARSE_FAILURE_MESSAGE,
   ARCHITECTURE_STRUCTURED_REPORT_ISSUE_LABEL,
   ARCHITECTURE_STRUCTURED_RETRY_LABEL,
-} from "@/lib/architecture-structured-content-copy";
+} from "@/lib/architecture/architecture-structured-content-copy";
 import { SETTINGS_SUPPORT_PATH } from "@/lib/settings-admin-route-paths";
 import { OPERATOR_TYPOGRAPHY } from "@/lib/design-tokens";
 import { cn } from "@/lib/utils";

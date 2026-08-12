@@ -7,7 +7,7 @@ import {
   buildClarificationsFindingsVocabulary,
   resolveClarificationsFindingsPeerLink,
 } from "@/lib/vocabulary/clarifications-findings-vocabulary";
-import { buildArchitectureWorkspaceTabHref } from "@/lib/architecture-workspace-tabs";
+import { buildArchitectureWorkspaceTabHref } from "@/lib/architecture/architecture-workspace-tabs";
 
 describe("clarifications-findings-vocabulary (TB-2298)", () => {
   it("explains clarifications gaps vs findings triage with run-scoped archTab links", () => {

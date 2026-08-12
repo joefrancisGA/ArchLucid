@@ -23,11 +23,11 @@ import {
   parseProcurementFaqQuestionNumber,
   resolveProcurementFaqPostureForQuestion,
 } from "@/lib/procurement-help-presentation";
-import { createHelpHeadingSlugAllocator, resolveHelpHeadingId } from "@/lib/help-heading-slug";
-import { isMermaidDiagramSource } from "@/lib/help-mermaid";
-import { HELP_PAGE_LAYOUT } from "@/lib/help-page-layout";
+import { createHelpHeadingSlugAllocator, resolveHelpHeadingId } from "@/lib/help/help-heading-slug";
+import { isMermaidDiagramSource } from "@/lib/help/help-mermaid";
+import { HELP_PAGE_LAYOUT } from "@/lib/help/help-page-layout";
 import { PRIVACY_POLICY_PROSE } from "@/lib/privacy-policy-layout";
-import { prepareHelpMarkdownForPresentation, sanitizeBareMarkdownFileReferences } from "@/lib/help-markdown-presentation";
+import { prepareHelpMarkdownForPresentation, sanitizeBareMarkdownFileReferences } from "@/lib/help/help-markdown-presentation";
 import { isSecurityTrustHelpTopic } from "@/lib/security-trust-help-presentation";
 
 type RenderInlineOptions = {

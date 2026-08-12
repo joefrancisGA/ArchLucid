@@ -1,6 +1,6 @@
 import type { ExecutiveTimeRange } from "@/lib/executive/executive-time-range";
 import type { RunsByProjectPagedParams } from "@/lib/query/runs-by-project-paged-params";
-import type { OperatorScopeQueryKey } from "@/lib/operator-scope-query-key";
+import type { OperatorScopeQueryKey } from "@/lib/operator/operator-scope-query-key";
 
 export const operatorQueryKeys = {
   tenantTrialStatus: ["operator", "tenant", "trial-status"] as const,

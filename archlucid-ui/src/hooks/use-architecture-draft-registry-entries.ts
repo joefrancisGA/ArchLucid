@@ -7,7 +7,7 @@ import {
   getArchitectureDraftRegistrySnapshot,
   subscribeArchitectureDraftRegistry,
   type ArchitectureDraftRegistryEntry,
-} from "@/lib/architecture-draft-registry";
+} from "@/lib/architecture/architecture-draft-registry";
 
 function subscribeArchitectureDraftRegistryHydration(_onStoreChange: () => void): () => void {
   return () => {};

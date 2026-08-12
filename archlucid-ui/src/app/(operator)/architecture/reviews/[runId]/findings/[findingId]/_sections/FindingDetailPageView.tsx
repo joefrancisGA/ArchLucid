@@ -32,9 +32,9 @@ import { findingCausalMiniChainFromInspectPayload } from "@/lib/findings/finding
 import { FindingDerivationLine } from "@/components/usability/FindingDerivationLine";
 import { FindingCausalMiniChain } from "@/components/usability/FindingCausalMiniChain";
 import { findingSeverityAudienceCopy } from "@/lib/findings/finding-explainability-summary";
-import { getShowcaseManifestHref } from "@/lib/buyer-safe-review-navigation";
+import { getShowcaseManifestHref } from "@/lib/buyer/buyer-safe-review-navigation";
 import { isNextPublicDemoMode, isOperatorExperienceFullShellEnv } from "@/lib/demo-ui-env";
-import { isDemoRunIdEligibleForStaticFallback } from "@/lib/operator-static-demo";
+import { isDemoRunIdEligibleForStaticFallback } from "@/lib/operator/operator-static-demo";
 import { DESIGN_TOKENS, OPERATOR_LINK, OPERATOR_NAV_GROUP_LABEL, OPERATOR_TYPOGRAPHY } from "@/lib/design-tokens";
 import { getFindingEvidenceTraceHref } from "@/lib/findings/finding-evidence-navigation";
 import { graphEvidenceHrefFromInspect } from "@/lib/findings/finding-inspect-graph-evidence";

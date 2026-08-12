@@ -3,7 +3,7 @@ import {
   ARCHITECTURE_CREATED_FINDINGS_CLAIM_DISCIPLINE,
   ARCHITECTURE_CREATED_FINDINGS_SOURCES,
   ARCHITECTURE_CREATED_FINDINGS_SOURCES_INTRO,
-} from "@/lib/architecture-created-findings-sources";
+} from "@/lib/architecture/architecture-created-findings-sources";
 
 /** Sources and claim discipline for create-home Findings tab (REF). */
 export function ArchitectureCreatedFindingsEvidenceOrientationStrip(): React.JSX.Element {

@@ -2,7 +2,7 @@ import {
   OPERATOR_HOME_RECOMMENDED_NEXT_OPEN_LATEST,
   OPERATOR_HOME_RECOMMENDED_NEXT_OPEN_SAMPLE,
   OPERATOR_HOME_RECOMMENDED_NEXT_START_REVIEW,
-} from "@/lib/buyer-polish-copy";
+} from "@/lib/buyer/buyer-polish-copy";
 import type { CorePilotCommitContext } from "@/lib/core-pilot-commit-context";
 import {
   SHOWCASE_SAMPLE_REVIEW_REGISTRY,

@@ -2,8 +2,8 @@
 
 import { useCallback } from "react";
 
-import { clearArchitectureCreationDraftId } from "@/lib/architecture-creation-session";
-import { ARCHITECTURES_NEW_PATH } from "@/lib/architecture-routes";
+import { clearArchitectureCreationDraftId } from "@/lib/architecture/architecture-creation-session";
+import { ARCHITECTURES_NEW_PATH } from "@/lib/architecture/architecture-routes";
 import {
   CREATE_ARCHITECTURE_NAVIGATION_FAILED_MESSAGE,
   CREATE_ARCHITECTURE_STARTING_LABEL,

@@ -9,7 +9,7 @@ import {
   resolveProductDocumentationContentKind,
   type ProductDocumentationContentKind,
 } from "@/lib/product-documentation-content-kinds";
-import { resolveHelpTopicPermanentRedirect } from "@/lib/help-topic-permanent-redirects";
+import { resolveHelpTopicPermanentRedirect } from "@/lib/help/help-topic-permanent-redirects";
 import {
   cloudConnectionsHelpPathSegmentForRegistrySlug,
   normalizeCloudConnectionsSlashHelpTopicSlug,

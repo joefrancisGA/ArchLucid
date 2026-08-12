@@ -3,12 +3,12 @@ import Link from "next/link";
 import type { ReactElement } from "react";
 
 import { CtoDemoExecutiveTenantIsolationCallout } from "@/components/cto-demo/CtoDemoExecutiveTenantIsolationCallout";
-import { BUYER_GOLDEN_JOURNEY_STEP_DEFINITIONS } from "@/lib/buyer-golden-journey-nav";
+import { BUYER_GOLDEN_JOURNEY_STEP_DEFINITIONS } from "@/lib/buyer/buyer-golden-journey-nav";
 import {
   buildStaticCtoDemoRecapPayload,
   formatCtoDemoHeroStat,
   formatCtoDemoHeroSubStat,
-} from "@/lib/buyer-cto-demo-recap";
+} from "@/lib/buyer/buyer-cto-demo-recap";
 import { isCtoDemoPackEnv } from "@/lib/cto-demo-presenter-pack";
 import { DESIGN_TOKENS, OPERATOR_TYPOGRAPHY, operatorSemanticBadge } from "@/lib/design-tokens";
 import { getFindingEvidenceInspectHref } from "@/lib/findings/finding-evidence-navigation";

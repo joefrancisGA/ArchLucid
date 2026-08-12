@@ -1,11 +1,11 @@
 import { fireEvent, render, screen, waitFor } from "@testing-library/react";
 import { beforeEach, describe, expect, it, vi } from "vitest";
 
-import { CREATE_ARCHITECTURE_LABEL } from "@/lib/architecture-workflow-labels";
+import { CREATE_ARCHITECTURE_LABEL } from "@/lib/architecture/architecture-workflow-labels";
 
 import RiskExceptionsClient from "@/components/governance/RiskExceptionsClient";
 import * as governanceApi from "@/lib/api/governance-stickiness-api";
-import { BUYER_RISK_EXCEPTIONS_EMPTY_TERTIARY_ACTION } from "@/lib/buyer-polish-copy";
+import { BUYER_RISK_EXCEPTIONS_EMPTY_TERTIARY_ACTION } from "@/lib/buyer/buyer-polish-copy";
 import { routeViewExplanationForPathname } from "@/lib/usability/route-view-explanations";
 
 vi.mock("@/hooks/use-operate-capability", () => ({

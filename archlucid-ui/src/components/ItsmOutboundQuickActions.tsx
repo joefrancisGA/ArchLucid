@@ -9,7 +9,7 @@ import {
   createItsmOutboundIssue,
   type ItsmFindingCorrelationListItem,
 } from "@/lib/api/itsm-outbound-api";
-import { BUYER_DEMO_ITSM_LINKAGE_UNAVAILABLE } from "@/lib/buyer-polish-copy";
+import { BUYER_DEMO_ITSM_LINKAGE_UNAVAILABLE } from "@/lib/buyer/buyer-polish-copy";
 import { isBuyerPolishedOperatorShellEnv } from "@/lib/demo-ui-env";
 import { invalidateItsmFindingCorrelations } from "@/lib/itsm/itsm-finding-correlations-store";
 import { useItsmNativeCreateEnabled } from "@/lib/use-itsm-native-create-enabled";

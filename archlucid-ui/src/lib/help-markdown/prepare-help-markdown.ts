@@ -2,8 +2,8 @@ import {
   applyHelpMarkdownPresentationRules,
   applyHelpMarkdownTopicRules,
   type HelpMarkdownTopicContext,
-} from "@/lib/help-markdown-presentation-pipeline";
-import { applyHelpTopicProductLanguage } from "@/lib/help-product-language";
+} from "@/lib/help/help-markdown-presentation-pipeline";
+import { applyHelpTopicProductLanguage } from "@/lib/help/help-product-language";
 import { rewriteProcurementFaqBuyerPresentation } from "@/lib/procurement-help-presentation";
 
 import {

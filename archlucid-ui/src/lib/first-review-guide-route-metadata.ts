@@ -6,7 +6,7 @@ import {
 
   BUYER_ONBOARDING_PAGE_TITLE,
 
-} from "@/lib/buyer-polish-copy";
+} from "@/lib/buyer/buyer-polish-copy";
 
 /**
 

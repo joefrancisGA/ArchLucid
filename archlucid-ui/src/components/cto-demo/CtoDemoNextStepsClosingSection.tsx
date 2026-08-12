@@ -11,7 +11,7 @@ import {
   BUYER_CTO_DEMO_NEXT_STEPS_SECURITY_REVIEW_CTA,
   BUYER_CTO_DEMO_NEXT_STEPS_SUBTEXT,
   BUYER_CTO_DEMO_NEXT_STEPS_TRUST_PACK_CTA,
-} from "@/lib/buyer-polish-copy";
+} from "@/lib/buyer/buyer-polish-copy";
 
 /** Explicit conversion CTAs at the end of the audit closing beat. */
 export function CtoDemoNextStepsClosingSection(): React.JSX.Element {

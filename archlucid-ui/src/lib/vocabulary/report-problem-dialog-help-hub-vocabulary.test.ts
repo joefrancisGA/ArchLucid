@@ -1,6 +1,6 @@
 import { describe, expect, it } from "vitest";
 
-import { HELP_HUB_CANONICAL_PATH } from "@/lib/help-hub-evidence-copy";
+import { HELP_HUB_CANONICAL_PATH } from "@/lib/help/help-hub-evidence-copy";
 import { REPORT_PROBLEM_DIALOG_TITLE } from "@/lib/report-problem-copy";
 import {
   REPORT_PROBLEM_DIALOG_HELP_HUB_COMPACT_LINE,

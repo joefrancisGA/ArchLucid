@@ -2,7 +2,7 @@
 
 import { useEffect, useState } from "react";
 
-import { loadProjectRunsMergedWithDemoFallback } from "@/lib/operator-run-picker-client";
+import { loadProjectRunsMergedWithDemoFallback } from "@/lib/operator/operator-run-picker-client";
 
 export type ImpactPreviewBaselineAvailability = {
   readonly loading: boolean;

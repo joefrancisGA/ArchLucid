@@ -2,7 +2,7 @@ import { fireEvent, render, screen } from "@testing-library/react";
 import { describe, expect, it, vi } from "vitest";
 
 import { ArchitectureStructuringFailureNotice } from "@/components/architecture/ArchitectureStructuringFailureNotice";
-import { ARCHITECTURE_STRUCTURED_RETRY_LABEL } from "@/lib/architecture-structured-content-copy";
+import { ARCHITECTURE_STRUCTURED_RETRY_LABEL } from "@/lib/architecture/architecture-structured-content-copy";
 
 describe("ArchitectureStructuringFailureNotice", () => {
   it("renders retry and report issue actions", () => {

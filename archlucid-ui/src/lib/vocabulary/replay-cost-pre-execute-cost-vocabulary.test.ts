@@ -1,6 +1,6 @@
 import { describe, expect, it } from "vitest";
 
-import { REVIEWS_NEW_PATH } from "@/lib/architecture-routes";
+import { REVIEWS_NEW_PATH } from "@/lib/architecture/architecture-routes";
 import { COMPARE_TWO_REVIEWS_PATH } from "@/lib/compare-two-reviews-route";
 import {
   REPLAY_COST_PRE_EXECUTE_COST_COMPACT_LINE,

@@ -8,7 +8,7 @@ import {
   resolveRecordedDecisionConfidenceNote,
 } from "@/lib/decision-explainability-buyer-copy";
 import { isBuyerPolishedOperatorShellEnv } from "@/lib/demo-ui-env";
-import type { RunDecisionExplainabilityModel } from "@/lib/run-decision-explainability-from-detail";
+import type { RunDecisionExplainabilityModel } from "@/lib/runs/run-decision-explainability-from-detail";
 
 function formatConfidence(confidence: number | null): string {
   const normalized = normalizeDecisionConfidencePercent(confidence);

@@ -36,7 +36,7 @@ import { AUTHORITY_RANK } from "@/lib/nav-authority";
 import { auditTrailNavHref } from "@/lib/audit-nav-paths";
 import { GOVERNANCE_AUDIT_PATH } from "@/lib/governance/governance-route-paths";
 import { resolveOperatorShellAuditRunId } from "@/lib/resolve-operator-shell-audit-run-id";
-import { readBuyerCtoDemoTourActive } from "@/lib/buyer-cto-demo-tour";
+import { readBuyerCtoDemoTourActive } from "@/lib/buyer/buyer-cto-demo-tour";
 import {
   CTO_DEMO_AUDIT_FILTER_QUERY_PARAM,
   CTO_DEMO_AUDIT_FILTER_VALUE,
@@ -52,7 +52,7 @@ import {
 } from "@/lib/audit-trail-view-mode";
 
 import type { OperatorSavedView } from "@/lib/api/operator-saved-views";
-import type { AuditSavedViewFilters } from "@/lib/operator-saved-view-types";
+import type { AuditSavedViewFilters } from "@/lib/operator/operator-saved-view-types";
 import type { AuditPageViewProps } from "./audit-page-view-props";
 import type { AuditPageServerLoad } from "./load-audit-page-data";
 import {

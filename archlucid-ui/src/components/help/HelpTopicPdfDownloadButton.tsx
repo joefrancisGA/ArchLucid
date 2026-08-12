@@ -3,7 +3,7 @@
 import { useState } from "react";
 
 import { Button } from "@/components/ui/button";
-import { downloadHelpTopicPdf } from "@/lib/help-topic-pdf-download";
+import { downloadHelpTopicPdf } from "@/lib/help/help-topic-pdf-download";
 import { resolvePublicHelpTopicPdfHref } from "@/lib/product-documentation-pdf-href";
 import type { ProductDocumentationEntry } from "@/lib/product-documentation-registry";
 

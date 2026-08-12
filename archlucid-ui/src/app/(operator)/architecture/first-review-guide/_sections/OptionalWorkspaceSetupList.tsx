@@ -13,7 +13,7 @@ import {
 } from "@/lib/finish-setup-wizard-steps";
 import { SETTINGS_USERS_PATH } from "@/lib/settings-admin-route-paths";
 import { OPERATOR_LINK, OPERATOR_TYPOGRAPHY } from "@/lib/design-tokens";
-import { ONBOARDING_OPTIONAL_SETUP_DISMISS_LABEL } from "@/lib/buyer-polish-copy";
+import { ONBOARDING_OPTIONAL_SETUP_DISMISS_LABEL } from "@/lib/buyer/buyer-polish-copy";
 
 type OptionalWorkspaceSetupRow = {
   readonly id: string;

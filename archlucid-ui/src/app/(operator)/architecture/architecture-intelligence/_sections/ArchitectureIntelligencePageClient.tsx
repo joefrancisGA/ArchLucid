@@ -23,7 +23,7 @@ import {
   architectureIntelligenceReviewTierLabel,
   isArchitectureIntelligenceReviewTier,
   type ArchitectureIntelligenceReviewTier,
-} from "@/lib/architecture-intelligence-review-tier";
+} from "@/lib/architecture/architecture-intelligence-review-tier";
 import { OPERATOR_LAYOUT, OPERATOR_LINK, OPERATOR_TYPOGRAPHY } from "@/lib/design-tokens";
 import { cn } from "@/lib/utils";
 

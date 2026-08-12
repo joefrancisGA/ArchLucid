@@ -1,5 +1,5 @@
 import { isNextPublicDemoMode } from "@/lib/demo-ui-env";
-import { isStaticDemoPayloadFallbackEnabled } from "@/lib/operator-static-demo";
+import { isStaticDemoPayloadFallbackEnabled } from "@/lib/operator/operator-static-demo";
 
 /** Admin directory payloads stay client-fetched only — server exposes demo routing parity without risking privileged prefetch before authority resolves. */
 export type SettingsRolesPageServerLoad = {

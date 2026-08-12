@@ -6,7 +6,7 @@ import {
   REVIEWS_NEW_SPECIMEN_PREVIEW_FINDINGS_LINK,
   REVIEWS_NEW_SPECIMEN_PREVIEW_PRIMARY_CTA,
   REVIEWS_NEW_SPECIMEN_PREVIEW_TITLE,
-} from "@/lib/buyer-polish-copy";
+} from "@/lib/buyer/buyer-polish-copy";
 import {
   showcaseSpecimenFindingsHref,
   showcaseSpecimenSignedReviewRecordHref,

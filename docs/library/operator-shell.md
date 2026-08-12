@@ -180,7 +180,7 @@ npx vitest run src/review-workflow
 npx vitest run src/components/ArtifactListTable.test.tsx src/components/ArtifactReviewContent.test.tsx
 npx vitest run src/components/GraphViewer.test.tsx
 npx vitest run src/review-workflow/compare-views.test.tsx
-npx vitest run src/lib/api.review-workflow.test.ts src/lib/operator-response-guards.test.ts
+npx vitest run src/lib/api.review-workflow.test.ts src/lib/operator/operator-response-guards.test.ts
 ```
 
 Full detail: [archlucid-ui/docs/TESTING_AND_TROUBLESHOOTING.md](../../archlucid-ui/docs/TESTING_AND_TROUBLESHOOTING.md).

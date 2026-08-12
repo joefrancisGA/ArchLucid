@@ -5,7 +5,7 @@ import {
   shouldPreferCuratedAuditTrailForBuyerShell,
 } from "@/lib/demo-audit-sample-events";
 import { isDemoStrictNavigationRedirectsBypassedForE2E } from "@/lib/demo-ui-env";
-import { shouldMergeOperatorDemoAlertSample } from "@/lib/operator-static-demo";
+import { shouldMergeOperatorDemoAlertSample } from "@/lib/operator/operator-static-demo";
 
 import type { AuditFilterFields } from "./audit-page-helpers";
 

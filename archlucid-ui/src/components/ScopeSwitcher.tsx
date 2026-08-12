@@ -35,7 +35,7 @@ import {
   BUYER_SCOPE_SWITCHER_LEARN_ABOUT_WORKSPACES,
   BUYER_SCOPE_SWITCHER_LOAD_ERROR,
   BUYER_WORKSPACE_DISPLAY_NAME,
-} from "@/lib/buyer-polish-copy";
+} from "@/lib/buyer/buyer-polish-copy";
 import { isBuyerPolishedOperatorShellEnv } from "@/lib/demo-ui-env";
 import { AUTHORITY_RANK } from "@/lib/nav-authority";
 import {
@@ -46,7 +46,7 @@ import {
   readOperatorScopeFromStorage,
   type OperatorScopeRecord,
   writeOperatorScopeToStorage,
-} from "@/lib/operator-scope-storage";
+} from "@/lib/operator/operator-scope-storage";
 import { mergeRegistrationScopeForProxy } from "@/lib/proxy-fetch-registration-scope";
 import {
   formatScopeSwitcherSampleFullTitle,

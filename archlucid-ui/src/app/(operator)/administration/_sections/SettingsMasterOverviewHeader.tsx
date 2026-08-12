@@ -6,7 +6,7 @@ import { PageContextualHelpButton } from "@/components/usability/PageContextualH
 import { OPERATOR_TYPOGRAPHY } from "@/lib/design-tokens";
 import { SETTINGS_ROOT_PATH } from "@/lib/settings-admin-route-paths";
 
-import type { OperatorScopeRecord } from "@/lib/operator-scope-storage";
+import type { OperatorScopeRecord } from "@/lib/operator/operator-scope-storage";
 
 type SettingsMasterOverviewHeaderProps = {
   readonly scope: OperatorScopeRecord | null;

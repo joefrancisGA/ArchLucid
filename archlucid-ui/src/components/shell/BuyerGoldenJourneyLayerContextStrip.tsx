@@ -3,9 +3,9 @@
 import { usePathname, useSearchParams } from "next/navigation";
 
 import { LayerContextStrip } from "@/components/LayerContextStrip";
-import { resolveBuyerGoldenJourneyNav } from "@/lib/buyer-golden-journey-nav";
-import { buyerPolishedRouteOrientation } from "@/lib/buyer-polished-route-orientation";
-import { resolveBuyerOperateBackLink } from "@/lib/buyer-polished-operate-back-link";
+import { resolveBuyerGoldenJourneyNav } from "@/lib/buyer/buyer-golden-journey-nav";
+import { buyerPolishedRouteOrientation } from "@/lib/buyer/buyer-polished-route-orientation";
+import { resolveBuyerOperateBackLink } from "@/lib/buyer/buyer-polished-operate-back-link";
 import { isBuyerPolishedOperatorShellEnv } from "@/lib/demo-ui-env";
 import { getLayerForRoute } from "@/lib/getLayerForRoute";
 

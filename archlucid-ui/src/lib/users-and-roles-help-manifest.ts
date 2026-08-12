@@ -7,7 +7,7 @@ import {
   BUILTIN_ROLE_SUMMARIES,
   type BuiltinRoleName,
 } from "@/app/(operator)/administration/users/_sections/roles-matrix-constants";
-import type { HelpMarkdownHeading } from "@/lib/help-markdown-headings";
+import type { HelpMarkdownHeading } from "@/lib/help/help-markdown-headings";
 import { roleDisplayLabel } from "@/lib/role-display-labels";
 import { SETTINGS_USERS_USERS_TAB_PATH } from "@/lib/settings-admin-route-paths";
 import { inAppHelpHref } from "@/lib/product-documentation-registry";

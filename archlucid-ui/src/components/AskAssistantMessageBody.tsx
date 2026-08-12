@@ -5,7 +5,7 @@ import { OPERATOR_TYPOGRAPHY } from "@/lib/design-tokens";
 import Link from "next/link";
 import { Fragment, type ReactNode } from "react";
 
-import { BUYER_ASK_GROUNDING_PRIMARY_SOURCE_LIMIT, BUYER_ASK_UNSTRUCTURED_EXECUTIVE_FALLBACK_LEAD } from "@/lib/buyer-polish-copy";
+import { BUYER_ASK_GROUNDING_PRIMARY_SOURCE_LIMIT, BUYER_ASK_UNSTRUCTURED_EXECUTIVE_FALLBACK_LEAD } from "@/lib/buyer/buyer-polish-copy";
 import { splitBuyerAskExecutiveLead } from "@/lib/ask-executive-lead";
 import { parseAskAssistantStructuredSections } from "@/lib/ask-assistant-section-parser";
 

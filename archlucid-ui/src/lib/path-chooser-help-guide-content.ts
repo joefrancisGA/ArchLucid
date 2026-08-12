@@ -1,4 +1,4 @@
-import { BUYER_START_ARCHITECTURE_REVIEW_CTA } from "@/lib/buyer-polish-copy";
+import { BUYER_START_ARCHITECTURE_REVIEW_CTA } from "@/lib/buyer/buyer-polish-copy";
 import { PATH_CHOOSER_HELP_PATH } from "@/lib/path-chooser-help-route";
 import { inAppHelpHref } from "@/lib/product-documentation-registry";
 

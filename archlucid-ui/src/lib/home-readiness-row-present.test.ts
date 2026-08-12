@@ -3,7 +3,7 @@ import { describe, expect, it, vi } from "vitest";
 import type { FirstPilotReadinessRow } from "@/lib/first-pilot-readiness-cockpit";
 import { applyHomeReadinessRowPresentation } from "@/lib/home-readiness-row-present";
 
-vi.mock("@/lib/buyer-shell-home-present", () => ({
+vi.mock("@/lib/buyer/buyer-shell-home-present", () => ({
   isBuyerShellHomePresentation: () => true,
 }));
 

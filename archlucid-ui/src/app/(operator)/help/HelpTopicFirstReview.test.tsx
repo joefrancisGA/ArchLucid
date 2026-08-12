@@ -18,9 +18,9 @@ import {
   FIRST_REVIEW_HELP_PRIMARY_ACTIONS,
   FIRST_REVIEW_HELP_SOURCES,
 } from "@/lib/first-review-help-guide-content";
-import { prepareHelpMarkdownForPresentation } from "@/lib/help-markdown-presentation";
+import { prepareHelpMarkdownForPresentation } from "@/lib/help/help-markdown-presentation";
 import { tryLoadFoldedInternalRunbook } from "@/lib/load-product-documentation";
-import { resolveHelpTopicPermanentRedirect } from "@/lib/help-topic-permanent-redirects";
+import { resolveHelpTopicPermanentRedirect } from "@/lib/help/help-topic-permanent-redirects";
 
 const FIRST_REVIEW_HELP_BANNED_SUBSTRINGS = [
   "GET /health/ready",

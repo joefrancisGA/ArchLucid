@@ -1,7 +1,7 @@
 /**
  * Claims Intake showcase specimen metadata — roles, policy pack, and residual risk.
  *
- * Re-exported by `./index.ts`; import from `@/lib/buyer-polish-copy` or `@/lib/buyer-copy`.
+ * Re-exported by `./index.ts`; import from `@/lib/buyer/buyer-polish-copy` or `@/lib/buyer-copy`.
  */
 
 /** Residual-risk monitoring metadata for the Claims Intake showcase review. */

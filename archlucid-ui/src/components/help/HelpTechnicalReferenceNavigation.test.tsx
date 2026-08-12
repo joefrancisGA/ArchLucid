@@ -2,8 +2,8 @@ import { fireEvent, render, screen, within } from "@testing-library/react";
 import { describe, expect, it } from "vitest";
 
 import { HelpTechnicalReferenceNavigation } from "@/components/help/HelpTechnicalReferenceNavigation";
-import { groupHelpMarkdownHeadings } from "@/lib/help-markdown-heading-groups";
-import type { HelpMarkdownHeading } from "@/lib/help-markdown-headings";
+import { groupHelpMarkdownHeadings } from "@/lib/help/help-markdown-heading-groups";
+import type { HelpMarkdownHeading } from "@/lib/help/help-markdown-headings";
 
 const SAMPLE_HEADINGS: readonly HelpMarkdownHeading[] = [
   { id: "running-the-cli", title: "Running the CLI", level: 2 },

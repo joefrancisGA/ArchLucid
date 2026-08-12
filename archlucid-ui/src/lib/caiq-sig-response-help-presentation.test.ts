@@ -12,7 +12,7 @@ import {
   resolveCaiqSigStatusTagLabel,
   sumCaiqSigResponsePostureCounts,
 } from "@/lib/caiq-sig-response-help-presentation";
-import { extractHelpMarkdownHeadings } from "@/lib/help-markdown-headings";
+import { extractHelpMarkdownHeadings } from "@/lib/help/help-markdown-headings";
 import { tryLoadProductDocumentation } from "@/lib/load-product-documentation";
 
 describe("caiq-sig-response-help-presentation", () => {

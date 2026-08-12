@@ -9,7 +9,7 @@ import {
   buildStaticCtoDemoRecapPayload,
   formatCtoDemoRecapMarkdown,
   type CtoDemoRecapPayload,
-} from "@/lib/buyer-cto-demo-recap";
+} from "@/lib/buyer/buyer-cto-demo-recap";
 import {
   BUYER_CTO_DEMO_RECAP_BOARD_PACKET_BUSY_CTA,
   BUYER_CTO_DEMO_RECAP_BOARD_PACKET_CTA,
@@ -17,7 +17,7 @@ import {
   BUYER_CTO_DEMO_RECAP_DOWNLOAD_CTA,
   BUYER_CTO_DEMO_RECAP_HEADING,
   BUYER_CTO_DEMO_RECAP_SNAPSHOT_COPY_CTA,
-} from "@/lib/buyer-polish-copy";
+} from "@/lib/buyer/buyer-polish-copy";
 import { CtoDemoLeaveBehindExportButton } from "@/components/cto-demo/CtoDemoLeaveBehindExportButton";
 import { CtoDemoShareSnapshotButton } from "@/components/cto-demo/CtoDemoShareSnapshotButton";
 import { downloadFirstValueReportPdf } from "@/lib/api";

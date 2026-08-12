@@ -4,7 +4,7 @@ import { StatusTag } from "@/components/ui/status-tag";
 import {
   BUYER_CTO_DEMO_LATENCY_EXCEEDED,
   BUYER_CTO_DEMO_LATENCY_OK,
-} from "@/lib/buyer-polish-copy";
+} from "@/lib/buyer/buyer-polish-copy";
 
 export type CtoDemoLatencyBudgetIndicatorProps = {
   readonly running: boolean;

@@ -1,6 +1,6 @@
 import { describe, expect, it } from "vitest";
 
-import { BUYER_NEW_REVIEW_NAV_LABEL } from "./operator-nav-labels";
+import { BUYER_NEW_REVIEW_NAV_LABEL } from "@/lib/operator/operator-nav-labels";
 import {
   ALERTS_PAGE_SHORTCUTS,
   SHORTCUTS,

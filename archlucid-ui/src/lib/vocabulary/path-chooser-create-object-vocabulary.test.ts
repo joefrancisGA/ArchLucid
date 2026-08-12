@@ -14,7 +14,7 @@ import {
 import {
   ARCHITECTURES_LIST_PATH,
   REVIEWS_NEW_PATH,
-} from "@/lib/architecture-routes";
+} from "@/lib/architecture/architecture-routes";
 import { PATH_CHOOSER_HELP_PATH } from "@/lib/path-chooser-help-route";
 
 describe("path-chooser-create-object-vocabulary (TB-2260)", () => {

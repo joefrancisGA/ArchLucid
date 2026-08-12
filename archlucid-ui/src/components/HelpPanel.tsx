@@ -27,7 +27,7 @@ import {
   helpTopicsForGuidesTab,
   helpTopicsForTroubleshootingTab,
   type HelpTopic,
-} from "@/lib/help-topics";
+} from "@/lib/help/help-topics";
 import { SIGNED_MANIFEST_LABEL } from "@/lib/usability/canonical-product-terms";
 import { OPERATOR_LINK, OPERATOR_NAV_GROUP_LABEL, OPERATOR_TYPOGRAPHY } from "@/lib/design-tokens";
 import { SupportBundleDownloadButton } from "@/components/SupportBundleDownloadButton";

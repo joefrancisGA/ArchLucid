@@ -15,8 +15,8 @@ import {
   type ImpactPreviewBaselineOption,
   type ImpactPreviewComparisonScope,
 } from "@/lib/impact-preview-page-types";
-import { loadProjectRunsMergedWithDemoFallback } from "@/lib/operator-run-picker-client";
-import { runSummaryDisplayLabel } from "@/lib/run-summary-display-label";
+import { loadProjectRunsMergedWithDemoFallback } from "@/lib/operator/operator-run-picker-client";
+import { runSummaryDisplayLabel } from "@/lib/runs/run-summary-display-label";
 import type { EvolutionCandidateChangeSetResponse, EvolutionResultsResponse } from "@/types/evolution";
 
 import type { EvolutionReviewPageViewModel } from "./evolution-review-view-model";

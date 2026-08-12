@@ -11,11 +11,11 @@ vi.mock("@/lib/api/governance-stickiness-api", () => ({
   getArchitectureDecisionRegister: vi.fn(),
 }));
 
-vi.mock("@/lib/operator-scope-storage", () => ({
+vi.mock("@/lib/operator/operator-scope-storage", () => ({
   getEffectiveBrowserProxyScopeHeaders: () => ({}),
 }));
 
-vi.mock("@/lib/operator-resource-scope", () => ({
+vi.mock("@/lib/operator/operator-resource-scope", () => ({
   projectIdFromScopeHeaders: () => "default",
 }));
 

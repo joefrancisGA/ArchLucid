@@ -1,6 +1,6 @@
 import { describe, expect, it } from "vitest";
 
-import { prepareHelpMarkdownForPresentation } from "@/lib/help-markdown-presentation";
+import { prepareHelpMarkdownForPresentation } from "@/lib/help/help-markdown-presentation";
 import { rewriteProcurementFaqBuyerPresentation } from "@/lib/procurement-help-presentation";
 import {
   PROCUREMENT_HELP_CUSTOM_POLICY_PACK_QUOTE_HREF,

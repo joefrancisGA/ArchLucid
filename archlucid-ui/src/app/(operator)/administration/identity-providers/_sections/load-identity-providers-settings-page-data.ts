@@ -1,5 +1,5 @@
 import { isNextPublicDemoMode } from "@/lib/demo-ui-env";
-import { isStaticDemoPayloadFallbackEnabled } from "@/lib/operator-static-demo";
+import { isStaticDemoPayloadFallbackEnabled } from "@/lib/operator/operator-static-demo";
 
 /** Server passes demo flags for routing/SSR parity; identity catalog still loads client-side via proxy in all modes. */
 export type IdentityProvidersSettingsPageServerLoad = {

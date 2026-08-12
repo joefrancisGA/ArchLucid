@@ -1,5 +1,5 @@
 import { resolveQuickDecisionFindingsForRunDetail } from "@/lib/quick-decision-summary-derive";
-import { resolveRunDetailDecisionDeltaView } from "@/lib/run-detail-decision-delta";
+import { resolveRunDetailDecisionDeltaView } from "@/lib/runs/run-detail-decision-delta";
 import type { RunDetail } from "@/types/authority";
 import type { RunExplanationSummary } from "@/types/explanation";
 

@@ -8,7 +8,7 @@ import { useCallback, useEffect, useReducer, useState } from "react";
 
 import { GlossaryTooltip } from "@/components/GlossaryTooltip";
 import { InAppHelpLink } from "@/components/InAppHelpLink";
-import { BUYER_ONBOARDING_PAGE_TITLE } from "@/lib/buyer-polish-copy";
+import { BUYER_ONBOARDING_PAGE_TITLE } from "@/lib/buyer/buyer-polish-copy";
 import { Button } from "@/components/ui/button";
 import {
   Dialog,

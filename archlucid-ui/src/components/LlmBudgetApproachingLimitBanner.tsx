@@ -12,7 +12,7 @@ import {
   llmBudgetUtilizationPercent,
   resolveLlmBudgetUtilizationTone,
 } from "@/lib/llm-monthly-budget-status";
-import { isStaticDemoPayloadFallbackEnabled } from "@/lib/operator-static-demo";
+import { isStaticDemoPayloadFallbackEnabled } from "@/lib/operator/operator-static-demo";
 import {
   shouldPollLlmBudgetApproachingBanner,
 } from "@/lib/shell-banner-poll-policy";

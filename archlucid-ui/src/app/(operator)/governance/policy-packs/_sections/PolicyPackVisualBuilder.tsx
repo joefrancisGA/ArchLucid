@@ -10,7 +10,7 @@ import { PolicySimulator } from "@/components/governance/PolicySimulator";
 import { listRunsByProjectPaged, simulatePolicyPackAgainstRun } from "@/lib/api";
 import { toApiLoadFailure, uiFailureFromMessage } from "@/lib/api-load-failure";
 import type { ApiLoadFailureState } from "@/lib/api-load-failure";
-import { coerceRunSummaryPaged } from "@/lib/operator-response-guards";
+import { coerceRunSummaryPaged } from "@/lib/operator/operator-response-guards";
 import type { components } from "@/lib/openapi-schemas";
 import {
   canAddNestedGroup,

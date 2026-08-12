@@ -10,9 +10,9 @@ import {
 } from "@/lib/api-contracts-help-guide-content";
 import { API_CONTRACTS_HELP_REFERENCE_LANDING } from "@/lib/api-contracts-help-reference-content";
 import { AUTHORITY_RANK } from "@/lib/nav-authority";
-import { extractHelpMarkdownHeadings } from "@/lib/help-markdown-headings";
-import { groupHelpMarkdownHeadings } from "@/lib/help-markdown-heading-groups";
-import { prepareHelpMarkdownForPresentation } from "@/lib/help-markdown-presentation";
+import { extractHelpMarkdownHeadings } from "@/lib/help/help-markdown-headings";
+import { groupHelpMarkdownHeadings } from "@/lib/help/help-markdown-heading-groups";
+import { prepareHelpMarkdownForPresentation } from "@/lib/help/help-markdown-presentation";
 import { tryLoadProductDocumentation } from "@/lib/load-product-documentation";
 import { getProductDocumentationEntry, listProductDocumentationEntries, normalizeHelpTopicSlug } from "@/lib/product-documentation-registry";
 

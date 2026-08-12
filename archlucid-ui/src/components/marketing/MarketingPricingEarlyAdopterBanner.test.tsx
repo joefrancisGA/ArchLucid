@@ -2,7 +2,7 @@ import { render, screen } from "@testing-library/react";
 import { describe, expect, it } from "vitest";
 
 import { MarketingPricingEarlyAdopterBanner } from "./MarketingPricingEarlyAdopterBanner";
-import { BUYER_EARLY_ADOPTER_PRICING_BANNER_SUMMARY } from "@/lib/buyer-polish-copy";
+import { BUYER_EARLY_ADOPTER_PRICING_BANNER_SUMMARY } from "@/lib/buyer/buyer-polish-copy";
 
 describe("MarketingPricingEarlyAdopterBanner", () => {
   it("renders a compact early-adopter summary with expandable full terms", () => {

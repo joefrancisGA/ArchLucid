@@ -9,7 +9,7 @@ import {
   buildScorecardRoiVocabulary,
   resolveScorecardRoiPeerLink,
 } from "@/lib/vocabulary/scorecard-roi-vocabulary";
-import { ARCHITECTURE_SCORECARD_PATH } from "@/lib/architecture-scorecard-route";
+import { ARCHITECTURE_SCORECARD_PATH } from "@/lib/architecture/architecture-scorecard-route";
 import { SPONSOR_REPORT_ROI_SUMMARY_PATH } from "@/lib/sponsor-report-navigation";
 
 describe("scorecard-roi-vocabulary (TB-2265)", () => {

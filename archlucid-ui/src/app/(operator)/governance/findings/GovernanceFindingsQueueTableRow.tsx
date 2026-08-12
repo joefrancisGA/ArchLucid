@@ -21,7 +21,7 @@ import {
   EnterpriseTableCell,
   EnterpriseTableRow,
 } from "@/components/ui/enterprise-table";
-import { BUYER_GOVERNANCE_FINDINGS_VIEW_OBSERVATION_CTA } from "@/lib/buyer-polish-copy";
+import { BUYER_GOVERNANCE_FINDINGS_VIEW_OBSERVATION_CTA } from "@/lib/buyer/buyer-polish-copy";
 import { DESIGN_TOKENS, OPERATOR_LINK, OPERATOR_TYPOGRAPHY } from "@/lib/design-tokens";
 import { findingDerivationFromGovernanceQueueRow } from "@/lib/findings/finding-derivation-sentence";
 import { CopyGovernanceQueueWorkItemButton } from "@/components/CopyFindingAsWorkItemButton";
@@ -33,7 +33,7 @@ import {
   governanceFindingInspectHref,
   governanceQueueGraphEvidenceHref,
 } from "@/components/governance/findings/governance-findings-navigation";
-import { governanceQueueDispositionLabel } from "@/lib/architecture-risk-register-page";
+import { governanceQueueDispositionLabel } from "@/lib/architecture/architecture-risk-register-page";
 
 import {
   formatGovernanceQueueRecordKind,

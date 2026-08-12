@@ -1,4 +1,4 @@
-import { buildArchitectureWorkspaceTabHref } from "@/lib/architecture-workspace-tabs";
+import { buildArchitectureWorkspaceTabHref } from "@/lib/architecture/architecture-workspace-tabs";
 import { buildReviewDetailTabHref } from "@/lib/review-detail-workspace-tabs";
 
 import {

@@ -12,7 +12,7 @@ import {
   BUYER_EVIDENCE_GRAPH_SHOW_SELECTED_PATH_CTA,
   BUYER_EVIDENCE_GRAPH_TRACE_PATH_CTA,
   BUYER_EVIDENCE_GRAPH_ZOOM_100_CTA,
-} from "@/lib/buyer-polish-copy";
+} from "@/lib/buyer/buyer-polish-copy";
 
 describe("GraphBuyerCanvasToolbar", () => {
   const noopHandlers = {

@@ -1,7 +1,7 @@
 /**
  * Ask-review-questions copy — prompts, grounding, and anchors.
  *
- * Re-exported by `./index.ts`; import from `@/lib/buyer-polish-copy` or `@/lib/buyer-copy`.
+ * Re-exported by `./index.ts`; import from `@/lib/buyer/buyer-polish-copy` or `@/lib/buyer-copy`.
  */
 
 export const BUYER_ASK_PAGE_TITLE = "Evidence-backed review questions";

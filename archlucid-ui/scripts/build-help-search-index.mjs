@@ -1,6 +1,6 @@
 /**
  * Build-time: parses curated Markdown docs into a static search index (no runtime fetch).
- * Writes src/lib/help-index.generated.ts
+ * Writes src/lib/help/help-index.generated.ts
  */
 import { mkdirSync, readFileSync, writeFileSync } from "node:fs";
 import { dirname, join } from "node:path";
@@ -11,7 +11,7 @@ const UI_ROOT = join(__dirname, "..");
 const REPO_ROOT = join(UI_ROOT, "..");
 
 /**
- * Keep in sync with `src/lib/help-product-language.ts` — normalizes help search excerpts.
+ * Keep in sync with `src/lib/help/help-product-language.ts` — normalizes help search excerpts.
  * @param {string} text
  */
 function applyHelpTopicProductLanguage(text) {

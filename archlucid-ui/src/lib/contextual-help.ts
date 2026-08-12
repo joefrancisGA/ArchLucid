@@ -1,5 +1,5 @@
-import { getDocHref } from "@/lib/help-topics";
-import { REVIEWS_LIST_PATH } from "@/lib/architecture-routes";
+import { getDocHref } from "@/lib/help/help-topics";
+import { REVIEWS_LIST_PATH } from "@/lib/architecture/architecture-routes";
 import { GOVERNANCE_ALERTS_PATH, GOVERNANCE_AUDIT_PATH } from "@/lib/governance/governance-route-paths";
 
 /**

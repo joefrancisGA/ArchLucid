@@ -2,8 +2,8 @@
  * Canonical labels for buyer-polished surfaces — keeps “evidence graph”, “audit trail”,
  * and “approval path” consistent across Review, Manifest, Graph, Governance, and Audit.
  */
-import { CREATE_ARCHITECTURE_LABEL } from "@/lib/architecture-workflow-labels";
-import { BUYER_START_ARCHITECTURE_REVIEW_CTA } from "@/lib/buyer-polish-copy";
+import { CREATE_ARCHITECTURE_LABEL } from "@/lib/architecture/architecture-workflow-labels";
+import { BUYER_START_ARCHITECTURE_REVIEW_CTA } from "@/lib/buyer/buyer-polish-copy";
 import { REVIEW_SCORECARD_SAMPLE_HREF } from "@/lib/review-scorecard-empty-state";
 
 export const BUYER_SURFACE_VOCABULARY = {

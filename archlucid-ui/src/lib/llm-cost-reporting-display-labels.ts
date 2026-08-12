@@ -1,6 +1,6 @@
-import { BUYER_SCOPE_SAMPLE_WORKSPACE_COMPACT_LABEL } from "@/lib/buyer-polish-copy";
+import { BUYER_SCOPE_SAMPLE_WORKSPACE_COMPACT_LABEL } from "@/lib/buyer/buyer-polish-copy";
 import { isArchLucidInternalOperatorShellEnv } from "@/lib/internal-operator-env";
-import { readOperatorScopeFromStorage } from "@/lib/operator-scope-storage";
+import { readOperatorScopeFromStorage } from "@/lib/operator/operator-scope-storage";
 import type { LlmCostDailyBucket, LlmCostReportingDashboard, LlmCostWorkspaceProjectRow } from "@/lib/llm-cost-reporting";
 
 const INTERNAL_WORKSPACE_NAME_PATTERN = /^development default tenant$/i;

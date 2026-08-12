@@ -13,7 +13,7 @@ import {
   GCP_WIF_STARTER_SCRIPT_INTRO,
   GCP_WIF_STARTER_SCRIPT_REPLACE_HINT,
 } from "@/lib/gcp-cloud-connection-wif-starter";
-import { HELP_PAGE_LAYOUT } from "@/lib/help-page-layout";
+import { HELP_PAGE_LAYOUT } from "@/lib/help/help-page-layout";
 import { cn } from "@/lib/utils";
 
 /** Federation identifiers and copyable gcloud starter for GCP identity setup (TB-1775). */

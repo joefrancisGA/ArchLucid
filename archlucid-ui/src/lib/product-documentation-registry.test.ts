@@ -10,14 +10,14 @@ import {
   PRODUCT_DOCUMENTATION_CONTENT_KIND_BY_SLUG,
   type ProductDocumentationContentKind,
 } from "@/lib/product-documentation-content-kinds";
-import { resolveHelpTopicPermanentRedirect } from "@/lib/help-topic-permanent-redirects";
+import { resolveHelpTopicPermanentRedirect } from "@/lib/help/help-topic-permanent-redirects";
 import {
   getProductDocumentationEntry,
   inAppHelpHref,
   listProductDocumentationEntries,
   type ProductDocumentationEntry,
 } from "@/lib/product-documentation-registry";
-import { getHelpCenterTier } from "@/lib/help-center-catalog";
+import { getHelpCenterTier } from "@/lib/help/help-center-catalog";
 import { tryLoadProductDocumentation } from "@/lib/load-product-documentation";
 
 const REDIRECT_STUB_MARKERS = [/moved\s+—/i, /^#\s*moved\b/i];

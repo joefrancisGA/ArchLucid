@@ -7,11 +7,11 @@ import Link from "next/link";
 import { RunStatusBadge } from "@/components/RunStatusBadge";
 import { Button } from "@/components/ui/button";
 import { Card, CardContent, CardFooter, CardHeader, CardTitle } from "@/components/ui/card";
-import { buyerDemoPackageCardMeta } from "@/lib/buyer-demo-package-card-meta";
-import { getBuyerSafeReviewsTableLink } from "@/lib/buyer-safe-review-navigation";
+import { buyerDemoPackageCardMeta } from "@/lib/buyer/buyer-demo-package-card-meta";
+import { getBuyerSafeReviewsTableLink } from "@/lib/buyer/buyer-safe-review-navigation";
 import { BUYER_SURFACE_VOCABULARY } from "@/lib/vocabulary/buyer-surface-vocabulary";
 import { SHOWCASE_STATIC_DEMO_SPINE_COUNTS } from "@/lib/showcase-static-demo";
-import { buyerFacingReviewTitleFromSummary } from "@/lib/buyer-facing-review-title";
+import { buyerFacingReviewTitleFromSummary } from "@/lib/buyer/buyer-facing-review-title";
 import { canonicalizeDemoRunId, isShowcaseStaticDemoRunId } from "@/lib/demo-run-canonical";
 import type { RunSummary } from "@/types/authority";
 

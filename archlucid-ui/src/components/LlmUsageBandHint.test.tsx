@@ -14,7 +14,7 @@ vi.mock("@/lib/llm-monthly-budget-status", async (importOriginal) => {
   };
 });
 
-vi.mock("@/lib/operator-static-demo", () => ({
+vi.mock("@/lib/operator/operator-static-demo", () => ({
   isStaticDemoPayloadFallbackEnabled: () => false,
 }));
 

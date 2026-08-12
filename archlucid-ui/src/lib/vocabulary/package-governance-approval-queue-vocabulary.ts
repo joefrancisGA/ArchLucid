@@ -12,8 +12,8 @@
  * workflow. Distinct from Approval lineage ≠ Approval queue (TB-2260 family).
  */
 
-import { REVIEWS_LIST_PATH } from "@/lib/architecture-routes";
-import { buildArchitectureWorkspaceTabHref } from "@/lib/architecture-workspace-tabs";
+import { REVIEWS_LIST_PATH } from "@/lib/architecture/architecture-routes";
+import { buildArchitectureWorkspaceTabHref } from "@/lib/architecture/architecture-workspace-tabs";
 import {
   GOVERNANCE_APPROVAL_QUEUE_PATH,
   governanceApprovalQueueHref,

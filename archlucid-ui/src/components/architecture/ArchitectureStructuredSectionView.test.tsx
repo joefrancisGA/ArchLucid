@@ -5,8 +5,8 @@ import { ArchitectureStructuredSectionView } from "@/components/architecture/Arc
 import {
   ARCHITECTURE_STRUCTURED_ASSERTED_LABEL,
   ARCHITECTURE_STRUCTURED_INFERRED_LABEL,
-} from "@/lib/architecture-structured-content-copy";
-import type { ArchitectureStructuredSection } from "@/lib/architecture-structured-content-types";
+} from "@/lib/architecture/architecture-structured-content-copy";
+import type { ArchitectureStructuredSection } from "@/lib/architecture/architecture-structured-content-types";
 
 const assertedSection: ArchitectureStructuredSection = {
   key: "executive-summary",

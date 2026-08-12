@@ -12,7 +12,7 @@ import { OPERATOR_LINK, OPERATOR_TYPOGRAPHY } from "@/lib/design-tokens";
 import {
   operatorLastRefreshedExactLabel,
   operatorLastRefreshedLabel,
-} from "@/lib/operator-last-refreshed-label";
+} from "@/lib/operator/operator-last-refreshed-label";
 import {
   EXECUTIVE_DASHBOARD_ACTION_REFRESH,
   EXECUTIVE_DASHBOARD_ACTION_REFRESHING,

@@ -8,7 +8,7 @@ import { DemoVsLiveChromeBanner } from "@/components/usability/DemoVsLiveChromeB
 import { ExplainThisViewBanner } from "@/components/usability/ExplainThisViewBanner";
 import { FirstVisitHelpAutoOpen } from "@/components/usability/FirstVisitHelpAutoOpen";
 import { ReviewsListReturnStateTracker } from "@/components/usability/ReviewsListReturnStateTracker";
-import { isExplicitStaticDemoMarketingBuild } from "@/lib/buyer-demo-content-gating";
+import { isExplicitStaticDemoMarketingBuild } from "@/lib/buyer/buyer-demo-content-gating";
 
 /** Non-critical main-column affordances loaded after the shell paints. */
 export function AppShellMainAffordances() {

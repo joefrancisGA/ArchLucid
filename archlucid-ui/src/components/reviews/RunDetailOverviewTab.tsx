@@ -1,7 +1,7 @@
 "use client";
 
 import { RunDetailArchitectureSummaryCard } from "@/components/reviews/RunDetailArchitectureSummaryCard";
-import type { ArchitectureCreationUserAssertions } from "@/lib/architecture-structured-content-types";
+import type { ArchitectureCreationUserAssertions } from "@/lib/architecture/architecture-structured-content-types";
 import type { RunDetailWorkspaceRecommendedAction } from "@/lib/run-detail-workspace-derive";
 import type { ReviewDetailTabId } from "@/lib/review-detail-workspace-tabs";
 

@@ -6,8 +6,8 @@ import { OperatorPageHeader } from "@/components/OperatorPageHeader";
 import { InlineGlossaryChip } from "@/components/InlineGlossaryChip";
 import { PathChooserCreateObjectVocabularyRail } from "@/components/PathChooserCreateObjectVocabularyRail";
 import { PageContextualHelpButton } from "@/components/usability/PageContextualHelpButton";
-import { START_REVIEW_LABEL } from "@/lib/architecture-workflow-labels";
-import { REVIEWS_NEW_PAGE_LEAD } from "@/lib/buyer-polish-copy";
+import { START_REVIEW_LABEL } from "@/lib/architecture/architecture-workflow-labels";
+import { REVIEWS_NEW_PAGE_LEAD } from "@/lib/buyer/buyer-polish-copy";
 import { OPERATOR_LINK, OPERATOR_TYPOGRAPHY } from "@/lib/design-tokens";
 import {
   REVIEWS_NEW_CLOUD_CONNECTIONS_HELP_HREF,

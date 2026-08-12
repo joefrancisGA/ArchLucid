@@ -10,7 +10,7 @@ import { getComplianceDriftTrend } from "@/lib/api";
 import {
   BUYER_EXECUTIVE_COMPLIANCE_DRIFT_TREND_DESCRIPTION,
   BUYER_EXECUTIVE_DATA_SOURCE_NOTE,
-} from "@/lib/buyer-polish-copy";
+} from "@/lib/buyer/buyer-polish-copy";
 import { OPERATOR_KPI_CARD_DESCRIPTION, OPERATOR_LINK, OPERATOR_TYPOGRAPHY } from "@/lib/design-tokens";
 import { GOVERNANCE_WORKSPACE_HEALTH_HREF } from "@/lib/governance/governance-route-paths";
 import type { ComplianceDriftTrendPoint } from "@/types/governance-dashboard";

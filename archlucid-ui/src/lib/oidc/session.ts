@@ -1,5 +1,5 @@
 import { clearCachedColorModePreference } from "@/lib/color-mode-preference";
-import { clearOperatorScopeStorage } from "@/lib/operator-scope-storage";
+import { clearOperatorScopeStorage } from "@/lib/operator/operator-scope-storage";
 import {
   getOidcAuthority,
   getOidcClientId,

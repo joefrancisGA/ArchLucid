@@ -10,7 +10,7 @@ import { operatorPrincipalLacksArchLucidAccess } from "@/lib/access-denied-conte
 import {
   pathnameExemptFromOperatorAccessGate,
   shouldDeferOperatorShellChrome,
-} from "@/lib/operator-shell-access-gate";
+} from "@/lib/operator/operator-shell-access-gate";
 import { isJwtAuthMode } from "@/lib/oidc/config";
 import { isLikelySignedIn } from "@/lib/oidc/session";
 

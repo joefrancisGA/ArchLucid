@@ -20,7 +20,7 @@ import { StatusTag } from "@/components/ui/status-tag";
 import { getTechnologyLedger, patchTechnologyLedgerEntry } from "@/lib/api/technology-ledger";
 import { isApiRequestError } from "@/lib/api-request-error";
 import { OPERATOR_CARD, OPERATOR_TYPOGRAPHY } from "@/lib/design-tokens";
-import { tryStaticDemoTechnologyLedger } from "@/lib/operator-static-demo-technology-ledger";
+import { tryStaticDemoTechnologyLedger } from "@/lib/operator/operator-static-demo-technology-ledger";
 import {
   technologyLedgerProviderLabel,
   technologyLedgerRoleLabel,

@@ -8,12 +8,12 @@ import {
   formatSetupReadinessLabel,
   OPERATOR_HOME_WORKSPACE_METRICS_EMPTY_COPY,
   type OperatorHomeWorkspaceMetricsSnapshot,
-} from "@/lib/operator-home-workspace-metrics";
+} from "@/lib/operator/operator-home-workspace-metrics";
 import {
   OPERATOR_HOME_ARCHITECTURE_PACKAGES_HREF,
   OPERATOR_HOME_GOVERNANCE_WARNINGS_HREF,
   OPERATOR_HOME_SETUP_READINESS_HREF,
-} from "@/lib/operator-home-metric-hrefs";
+} from "@/lib/operator/operator-home-metric-hrefs";
 import { workspaceOpenFindingsPresentation } from "@/lib/metric-count-presentation";
 import { SelfDescribingMetricCount } from "@/components/usability/SelfDescribingMetricCount";
 import { OPERATOR_LINK, OPERATOR_TYPOGRAPHY, OPERATOR_TYPE_SCALE } from "@/lib/design-tokens";

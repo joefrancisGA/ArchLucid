@@ -8,9 +8,9 @@ import { Component, type ErrorInfo, type ReactNode } from "react";
 import { RunsListClient, type RunsListClientProps } from "@/app/(operator)/architecture/reviews/RunsListClient";
 import { OperatorDemoStaticBanner } from "@/components/OperatorDemoStaticBanner";
 import { Button } from "@/components/ui/button";
-import { getBuyerSafeReviewsTableLink } from "@/lib/buyer-safe-review-navigation";
+import { getBuyerSafeReviewsTableLink } from "@/lib/buyer/buyer-safe-review-navigation";
 import { isBuyerPolishedOperatorShellEnv } from "@/lib/demo-ui-env";
-import { tryStaticDemoRunSummariesPaged } from "@/lib/operator-static-demo";
+import { tryStaticDemoRunSummariesPaged } from "@/lib/operator/operator-static-demo";
 import type { RunSummary } from "@/types/authority";
 
 function runListPrimaryTitle(run: RunSummary): string {

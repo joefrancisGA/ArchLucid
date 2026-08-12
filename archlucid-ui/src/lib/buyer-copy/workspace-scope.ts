@@ -1,7 +1,7 @@
 /**
  * Workspace scope, demo workspace, and sample-data copy.
  *
- * Re-exported by `./index.ts`; import from `@/lib/buyer-polish-copy` or `@/lib/buyer-copy`.
+ * Re-exported by `./index.ts`; import from `@/lib/buyer/buyer-polish-copy` or `@/lib/buyer-copy`.
  */
 
 export const BUYER_WORKSPACE_DISPLAY_NAME = "Claims Intake Workspace";

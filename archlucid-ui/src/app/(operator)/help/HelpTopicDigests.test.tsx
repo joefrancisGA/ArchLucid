@@ -22,7 +22,7 @@ import {
   DIGESTS_HELP_SAMPLE_DIGEST_BROWSE_LABEL,
 } from "@/lib/digests-help-guide-content";
 import { DIGESTS_BROWSE_TAB_PATH, DIGESTS_SCHEDULE_TAB_PATH } from "@/lib/digests-route-paths";
-import { HELP_DILIGENCE_ARTIFACT_INDEX_TITLE } from "@/lib/help-diligence-artifact-index";
+import { HELP_DILIGENCE_ARTIFACT_INDEX_TITLE } from "@/lib/help/help-diligence-artifact-index";
 import { getProductDocumentationEntry } from "@/lib/product-documentation-registry";
 
 describe("HelpDigestsGuideView", () => {

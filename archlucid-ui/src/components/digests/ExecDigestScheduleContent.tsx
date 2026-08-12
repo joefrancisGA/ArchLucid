@@ -68,7 +68,7 @@ import {
   hasExecDigestScheduleLivePreviewPinContent,
   OPERATOR_LIVE_PREVIEW_READINESS_RAIL_KIND,
   shouldPinLivePreviewReadinessRail,
-} from "@/lib/operator-live-preview-readiness-rail";
+} from "@/lib/operator/operator-live-preview-readiness-rail";
 import type { ExecDigestPreferencesResponse } from "@/types/exec-digest-preferences";
 import type { WeeklyDigestHealthDto } from "@/types/operate-rhythm";
 

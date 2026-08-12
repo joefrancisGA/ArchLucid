@@ -19,8 +19,8 @@ import { OPERATOR_BILLING_TIER_CTAS } from "@/lib/marketing/marketing-public-pri
 import {
   ARCHLUCID_OPERATOR_SCOPE_CHANGED_EVENT,
   readOperatorScopeFromStorage,
-} from "@/lib/operator-scope-storage";
-import { resolveOperatorBillingCurrentPlan } from "@/lib/operator-billing-current-plan";
+} from "@/lib/operator/operator-scope-storage";
+import { resolveOperatorBillingCurrentPlan } from "@/lib/operator/operator-billing-current-plan";
 import { AUTHORITY_RANK } from "@/lib/nav-authority";
 import { OPERATOR_LINK, OPERATOR_TYPOGRAPHY } from "@/lib/design-tokens";
 

@@ -4,7 +4,7 @@ import { afterEach, describe, expect, it, vi } from "vitest";
 import { OnboardingTour } from "@/components/OnboardingTour";
 import { WelcomeModal } from "@/components/ui/welcome-modal";
 import { ARCHLUCID_ONBOARDING_TOUR_START_EVENT } from "@/lib/onboarding-tour";
-import { isWelcomeModalVisible, setWelcomeModalVisible } from "@/lib/operator-onboarding-coordination";
+import { isWelcomeModalVisible, setWelcomeModalVisible } from "@/lib/operator/operator-onboarding-coordination";
 
 vi.mock("next/navigation", async (importOriginal) => {
   const actual = await importOriginal<typeof import("next/navigation")>();

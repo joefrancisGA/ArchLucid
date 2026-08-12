@@ -23,7 +23,7 @@ vi.mock("@/lib/api/draft-intake-api", () => ({
   patchDraftRequest: (...args: unknown[]) => patchDraftRequest(...args),
 }));
 
-vi.mock("@/lib/architecture-draft-registry", () => ({
+vi.mock("@/lib/architecture/architecture-draft-registry", () => ({
   buildArchitectureDraftRegistryEntry: (draft: { draftId: string }) => ({
     architectureId: draft.draftId,
   }),
@@ -31,7 +31,7 @@ vi.mock("@/lib/architecture-draft-registry", () => ({
 }));
 
 import { useArchitectureDraftAutosave } from "@/hooks/use-architecture-draft-autosave";
-import type { ArchitectureDraftFieldState } from "@/lib/architecture-draft-readiness";
+import type { ArchitectureDraftFieldState } from "@/lib/architecture/architecture-draft-readiness";
 import type { ActorSet } from "@/types/draft-intake";
 
 const actorSet: ActorSet = {

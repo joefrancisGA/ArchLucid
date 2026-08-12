@@ -1,4 +1,4 @@
-import type { BuyerCtoDemoReadinessCheckStatus } from "@/lib/buyer-cto-demo-readiness";
+import type { BuyerCtoDemoReadinessCheckStatus } from "@/lib/buyer/buyer-cto-demo-readiness";
 
 /** Status vocabulary for demo-readiness check rows — not the long check title (TB-1413). */
 export function demoReadinessCheckStatusLabel(status: BuyerCtoDemoReadinessCheckStatus): string {

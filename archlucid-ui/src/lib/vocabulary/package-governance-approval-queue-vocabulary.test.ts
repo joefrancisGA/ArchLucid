@@ -9,10 +9,10 @@ import {
   buildPackageGovernanceApprovalQueueVocabulary,
   resolvePackageGovernanceApprovalQueuePeerLink,
 } from "@/lib/vocabulary/package-governance-approval-queue-vocabulary";
-import { buildArchitectureWorkspaceTabHref } from "@/lib/architecture-workspace-tabs";
+import { buildArchitectureWorkspaceTabHref } from "@/lib/architecture/architecture-workspace-tabs";
 import { GOVERNANCE_APPROVAL_QUEUE_PATH } from "@/lib/governance/governance-route-paths";
 import { buildReviewDetailTabHref } from "@/lib/review-detail-workspace-tabs";
-import { REVIEWS_LIST_PATH } from "@/lib/architecture-routes";
+import { REVIEWS_LIST_PATH } from "@/lib/architecture/architecture-routes";
 
 describe("package-governance-approval-queue-vocabulary (TB-2304)", () => {
   it("explains package governance readiness vs live approval queue", () => {

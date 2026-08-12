@@ -9,7 +9,7 @@ import {
   recentViewKindFromPathname,
   recentViewLabelFromPathname,
   recordRecentView,
-} from "@/lib/operator-recent-views";
+} from "@/lib/operator/operator-recent-views";
 
 /** Records the current route in localStorage for {@link OperatorRecentViewsPanel}. */
 export function OperatorRecentViewsTracker(): null {

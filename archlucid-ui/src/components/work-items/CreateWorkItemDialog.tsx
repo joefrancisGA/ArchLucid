@@ -31,7 +31,7 @@ import {
   buildArchitectureWorkItemClipboardBody,
   clipboardFormatForItsmProvider,
   type ArchitectureWorkItemPreview,
-} from "@/lib/architecture-work-item-model";
+} from "@/lib/architecture/architecture-work-item-model";
 import { writeWorkItemBodyToClipboard } from "@/lib/copy-finding-as-work-item";
 import {
   CREATE_WORK_ITEM_API_FAILURE,

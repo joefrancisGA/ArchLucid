@@ -1,5 +1,5 @@
 import { signedRecordDetailPath } from "@/lib/signed-records-paths";
-import { isDemoRunIdEligibleForStaticFallback } from "@/lib/operator-static-demo";
+import { isDemoRunIdEligibleForStaticFallback } from "@/lib/operator/operator-static-demo";
 import { SHOWCASE_STATIC_DEMO_MANIFEST_ID } from "@/lib/showcase-static-demo";
 
 /**

@@ -6,7 +6,7 @@ import {
   FIRST_ARCHITECTURE_REVIEW_ORIENTATION_BODY,
   FIRST_ARCHITECTURE_REVIEW_PAGE_TITLE,
 } from "@/lib/first-architecture-review-help-copy";
-import { getHelpCenterDisplay, getHelpCenterTier } from "@/lib/help-center-catalog";
+import { getHelpCenterDisplay, getHelpCenterTier } from "@/lib/help/help-center-catalog";
 import { getProductDocumentationEntry } from "@/lib/product-documentation-registry";
 
 describe("OperatorPilotOrientationBanner", () => {

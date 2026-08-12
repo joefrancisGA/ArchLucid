@@ -11,7 +11,7 @@ import {
   ONBOARDING_WORKSPACE_SETUP_ADMIN_DELEGATION,
   FIRST_REVIEW_GUIDE_OPTIONAL_SETUP_LEAD,
   FIRST_REVIEW_GUIDE_OPTIONAL_SETUP_TITLE,
-} from "@/lib/buyer-polish-copy";
+} from "@/lib/buyer/buyer-polish-copy";
 import { OPERATOR_TYPOGRAPHY } from "@/lib/design-tokens";
 
 import {

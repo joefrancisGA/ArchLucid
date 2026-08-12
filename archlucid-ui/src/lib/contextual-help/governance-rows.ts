@@ -2,7 +2,7 @@
 
 import type { PageContextualHelpRow } from "@/lib/contextual-help/types";
 import { ADVISORY_SCANS_SCHEDULES_HREF } from "@/lib/advisory-scans-route";
-import { REVIEWS_LIST_PATH } from "@/lib/architecture-routes";
+import { REVIEWS_LIST_PATH } from "@/lib/architecture/architecture-routes";
 import {
   GOVERNANCE_APPROVAL_QUEUE_PATH,
   GOVERNANCE_WORKSPACE_HEALTH_HREF,

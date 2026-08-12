@@ -1,4 +1,4 @@
-import type { ArchitectureDraftRegistryEntry } from "@/lib/architecture-draft-registry";
+import type { ArchitectureDraftRegistryEntry } from "@/lib/architecture/architecture-draft-registry";
 import {
   OPERATOR_HOME_ACTIVE_REVIEWS_HEADING,
   OPERATOR_HOME_ACTIVE_REVIEWS_LEAD,
@@ -7,7 +7,7 @@ import {
   formatOperatorHomeContinueDraftHeading,
   OPERATOR_HOME_INTENT_CHOOSER_HEADING,
   OPERATOR_HOME_WORKSPACE_OVERVIEW_HEADING,
-} from "@/lib/buyer-polish-copy";
+} from "@/lib/buyer/buyer-polish-copy";
 
 export type OperatorHomeLifecyclePath =
   | "explore-completed-review"

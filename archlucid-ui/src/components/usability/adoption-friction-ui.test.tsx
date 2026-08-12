@@ -9,7 +9,7 @@ import { proofScopeToRequiredCapabilities } from "./QuickReviewProofScopeField";
 import {
   OPERATOR_HOME_OPEN_SAMPLE_PACKAGE_CTA,
   PILOT_COMMAND_CENTER_OPTIONAL_SETUP_LABEL,
-} from "@/lib/buyer-polish-copy";
+} from "@/lib/buyer/buyer-polish-copy";
 
 vi.mock("@/components/OperatorNavAuthorityProvider", () => ({
   useNavCommittedArchitectureReview: vi.fn(() => false),

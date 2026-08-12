@@ -2,7 +2,7 @@ import { fireEvent, render, screen } from "@testing-library/react";
 import { afterEach, describe, expect, it, vi } from "vitest";
 
 import { FirstPilotProofStatusStrip } from "@/components/FirstPilotProofStatusStrip";
-import { BUYER_PILOT_EVIDENCE_PENDING } from "@/lib/buyer-home-status-copy";
+import { BUYER_PILOT_EVIDENCE_PENDING } from "@/lib/buyer/buyer-home-status-copy";
 import {
   FIRST_PILOT_PROOF_REFRESH_CLI_COMMAND,
   FIRST_PILOT_PROOF_STATUS_UNAVAILABLE,

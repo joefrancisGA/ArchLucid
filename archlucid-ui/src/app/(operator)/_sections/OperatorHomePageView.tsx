@@ -11,9 +11,9 @@ import {
   OPERATOR_HOME_PRIMARY_SECTION_HEADING,
   OPERATOR_LAYOUT,
 } from "@/lib/design-tokens";
-import { deriveOperatorHomeWorkspaceMetrics } from "@/lib/operator-home-workspace-metrics";
-import { OperatorHomeRefreshProvider } from "@/lib/operator-home-refresh-context";
-import { OPERATOR_HOME_RECENT_REVIEWS_HEADING } from "@/lib/operator-home-recent-reviews-heading";
+import { deriveOperatorHomeWorkspaceMetrics } from "@/lib/operator/operator-home-workspace-metrics";
+import { OperatorHomeRefreshProvider } from "@/lib/operator/operator-home-refresh-context";
+import { OPERATOR_HOME_RECENT_REVIEWS_HEADING } from "@/lib/operator/operator-home-recent-reviews-heading";
 import {
   BuyerPolishedHomeHeroSectionDeferred,
   OperatorHomeBelowFoldPanelsDeferred,
@@ -25,7 +25,7 @@ import { OperatorHomePageHeader } from "./OperatorHomePageHeader";
 import type { OperatorHomePageViewModel } from "./operator-home-page-view-model";
 import {
   operatorHomePageSubtitle,
-} from "@/lib/operator-home-page-copy";
+} from "@/lib/operator/operator-home-page-copy";
 
 type OperatorHomePageViewProps = {
   model: OperatorHomePageViewModel;

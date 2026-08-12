@@ -1,6 +1,6 @@
 import { describe, expect, it } from "vitest";
 
-import { prepareHelpMarkdownForPresentation } from "@/lib/help-markdown-presentation";
+import { prepareHelpMarkdownForPresentation } from "@/lib/help/help-markdown-presentation";
 import { tryLoadProductDocumentation } from "@/lib/load-product-documentation";
 import {
   REPEAT_REVIEW_LOOP_HELP_PAGE_SUBTITLE,

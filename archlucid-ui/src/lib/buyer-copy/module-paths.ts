@@ -2,7 +2,7 @@
  * Repo-relative paths of every buyer copy surface module.
  *
  * Guards that scan copy as text (terminology, vocabulary, and concept-leakage sweeps) read these
- * paths rather than `@/lib/buyer-polish-copy`, which is a re-export barrel holding no literals.
+ * paths rather than `@/lib/buyer/buyer-polish-copy`, which is a re-export barrel holding no literals.
  * Kept free of copy imports so those registries stay cheap to load.
  *
  * `./buyer-copy-module-registry.test.ts` fails when a module is added without registering it here.

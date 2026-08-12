@@ -121,7 +121,7 @@ vi.mock("./SocraticIntakeWizardDeferredPanels", async () => {
 });
 
 import { ApiRequestError } from "@/lib/api-request-error";
-import { SCOPE_UNDERSTANDING_SECTION_HEADER } from "@/lib/architecture-scope-understanding-check";
+import { SCOPE_UNDERSTANDING_SECTION_HEADER } from "@/lib/architecture/architecture-scope-understanding-check";
 import {
   GUIDED_INTAKE_ARCHITECTURE_INTENT_MIN_HELPER,
   GUIDED_INTAKE_ARCHITECTURE_INTENT_PLACEHOLDER,
@@ -132,7 +132,7 @@ import { showError } from "@/lib/toast";
 import {
   OPERATOR_HOME_EXAMPLE_DESCRIPTION,
   OPERATOR_HOME_EXAMPLE_SYSTEM_NAME,
-} from "@/lib/operator-home-example-request";
+} from "@/lib/operator/operator-home-example-request";
 
 import { SocraticIntakeWizard } from "./SocraticIntakeWizard";
 

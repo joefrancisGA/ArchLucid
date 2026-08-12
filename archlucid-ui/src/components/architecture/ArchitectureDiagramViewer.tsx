@@ -19,8 +19,8 @@ import {
   ARCHITECTURE_DIAGRAM_RETRY_ACTION,
   ARCHITECTURE_DIAGRAM_ZOOM_IN_LABEL,
   ARCHITECTURE_DIAGRAM_ZOOM_OUT_LABEL,
-} from "@/lib/architecture-diagram-copy";
-import { sanitizeMermaidRenderId } from "@/lib/help-mermaid";
+} from "@/lib/architecture/architecture-diagram-copy";
+import { sanitizeMermaidRenderId } from "@/lib/help/help-mermaid";
 import { useDocumentDarkMode } from "@/lib/use-document-dark-mode";
 import { OPERATOR_TYPOGRAPHY } from "@/lib/design-tokens";
 

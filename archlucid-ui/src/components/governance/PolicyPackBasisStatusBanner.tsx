@@ -7,7 +7,7 @@ import {
   POLICY_PACK_BASIS_VIEW_EVIDENCE_TRAIL,
   POLICY_PACK_BASIS_VIEW_SIGNED_RECORD,
 } from "@/lib/policy/policy-packs-page";
-import { getShowcaseManifestHref } from "@/lib/buyer-safe-review-navigation";
+import { getShowcaseManifestHref } from "@/lib/buyer/buyer-safe-review-navigation";
 import { DESIGN_TOKENS, OPERATOR_TYPOGRAPHY } from "@/lib/design-tokens";
 import { SHOWCASE_PHI_FINDING_GRAPH_NODE_ID } from "@/lib/findings/finding-inspect-graph-evidence";
 import { auditTrailNavHref } from "@/lib/audit-nav-paths";

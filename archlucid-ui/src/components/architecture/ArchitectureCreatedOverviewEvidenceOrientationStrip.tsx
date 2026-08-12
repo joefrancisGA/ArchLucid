@@ -7,7 +7,7 @@ import {
   ARCHITECTURE_CREATED_OVERVIEW_CLAIM_DISCIPLINE,
   ARCHITECTURE_CREATED_OVERVIEW_SOURCES,
   ARCHITECTURE_CREATED_OVERVIEW_SOURCES_INTRO,
-} from "@/lib/architecture-created-overview-sources";
+} from "@/lib/architecture/architecture-created-overview-sources";
 
 /** Sources and claim discipline for create-home Overview tab (REO). */
 export function ArchitectureCreatedOverviewEvidenceOrientationStrip(): React.JSX.Element {

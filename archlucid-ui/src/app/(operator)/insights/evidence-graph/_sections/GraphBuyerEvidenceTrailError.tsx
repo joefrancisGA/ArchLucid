@@ -15,7 +15,7 @@ import {
   OPERATOR_GRAPH_LOAD_ERROR_BODY,
   OPERATOR_GRAPH_LOAD_ERROR_HEADING,
   OPERATOR_GRAPH_LOAD_ERROR_TRY_NEXT,
-} from "@/lib/buyer-polish-copy";
+} from "@/lib/buyer/buyer-polish-copy";
 import { resolveInAppDocHref } from "@/lib/in-app-doc-href";
 import { ensureCorrelationId } from "@/lib/usability/ensure-correlation-id";
 import { OPERATOR_DISCLOSURE_TRIGGER_CLASS, OPERATOR_TYPOGRAPHY } from "@/lib/design-tokens";

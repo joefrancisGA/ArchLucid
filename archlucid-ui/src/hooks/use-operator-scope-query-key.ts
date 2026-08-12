@@ -8,7 +8,7 @@ import {
   parseOperatorScopeQueryKey,
   subscribeOperatorScopeQueryKey,
   type OperatorScopeQueryKey,
-} from "@/lib/operator-scope-query-key";
+} from "@/lib/operator/operator-scope-query-key";
 
 export function useOperatorScopeQueryKey(): OperatorScopeQueryKey {
   const serializedScope = useSyncExternalStore(

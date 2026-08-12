@@ -8,7 +8,7 @@ vi.mock("@/components/help/MermaidDiagram", () => ({
 }));
 
 import { HelpRepeatReviewLoopGuideView } from "@/app/(operator)/help/_sections/HelpRepeatReviewLoopGuideView";
-import { prepareHelpMarkdownForPresentation } from "@/lib/help-markdown-presentation";
+import { prepareHelpMarkdownForPresentation } from "@/lib/help/help-markdown-presentation";
 import { tryLoadProductDocumentation } from "@/lib/load-product-documentation";
 import { REPEAT_REVIEW_LOOP_HELP_DIAGRAM_SOURCE } from "@/lib/repeat-review-loop-help-guide-content";
 

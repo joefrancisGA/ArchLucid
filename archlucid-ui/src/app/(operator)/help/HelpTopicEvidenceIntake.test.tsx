@@ -21,7 +21,7 @@ import {
   EVIDENCE_UPLOAD_ACCEPTED_EXTENSIONS,
   EVIDENCE_UPLOAD_ACCEPTED_FORMAT_ROWS,
 } from "@/lib/evidence-upload-accepted-formats";
-import { prepareHelpMarkdownForPresentation } from "@/lib/help-markdown-presentation";
+import { prepareHelpMarkdownForPresentation } from "@/lib/help/help-markdown-presentation";
 import { getProductDocumentationEntry } from "@/lib/product-documentation-registry";
 import {
   REVIEWS_NEW_DETAILED_HREF,

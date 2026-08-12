@@ -1,7 +1,7 @@
 /**
  * Evidence trail and evidence graph copy — buyer and operator graph surfaces.
  *
- * Re-exported by `./index.ts`; import from `@/lib/buyer-polish-copy` or `@/lib/buyer-copy`.
+ * Re-exported by `./index.ts`; import from `@/lib/buyer/buyer-polish-copy` or `@/lib/buyer-copy`.
  */
 
 export const BUYER_EVIDENCE_CHAIN_SOURCE_LINE =

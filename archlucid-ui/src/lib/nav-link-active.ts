@@ -2,7 +2,7 @@ import {
   ARCHITECTURES_LIST_PATH,
   REVIEWS_LIST_PATH,
   REVIEWS_NEW_PATH,
-} from "@/lib/architecture-routes";
+} from "@/lib/architecture/architecture-routes";
 
 /**
  * Whether a sidebar / drawer link should show the active style for the current pathname.

@@ -12,7 +12,7 @@ import {
   readNavigatorOnline,
   retryOperatorOfflineConnection,
   shouldShowOperatorOfflineReconnectBanner,
-} from "@/lib/operator-offline-reconnect";
+} from "@/lib/operator/operator-offline-reconnect";
 import { cn } from "@/lib/utils";
 
 /**

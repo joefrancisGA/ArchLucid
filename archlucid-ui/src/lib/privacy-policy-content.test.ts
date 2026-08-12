@@ -1,6 +1,6 @@
 import { describe, expect, it } from "vitest";
 
-import { extractHelpMarkdownHeadings } from "@/lib/help-markdown-headings";
+import { extractHelpMarkdownHeadings } from "@/lib/help/help-markdown-headings";
 import {
   parsePrivacyPolicyEffectiveDate,
   parsePrivacyPolicyMetadata,

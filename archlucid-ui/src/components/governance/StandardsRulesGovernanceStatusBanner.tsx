@@ -7,7 +7,7 @@ import {
   STANDARDS_RULES_VIEW_EVIDENCE_TRAIL,
   STANDARDS_RULES_VIEW_SIGNED_RECORD,
 } from "@/lib/standards-rules-page";
-import { getShowcaseManifestHref } from "@/lib/buyer-safe-review-navigation";
+import { getShowcaseManifestHref } from "@/lib/buyer/buyer-safe-review-navigation";
 import { DESIGN_TOKENS, OPERATOR_TYPOGRAPHY } from "@/lib/design-tokens";
 import { SHOWCASE_PHI_FINDING_GRAPH_NODE_ID } from "@/lib/findings/finding-inspect-graph-evidence";
 import { auditTrailNavHref } from "@/lib/audit-nav-paths";

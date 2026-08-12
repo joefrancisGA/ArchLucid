@@ -12,7 +12,7 @@
  */
 
 import { GLOSSARY_HELP_CANONICAL_PATH } from "@/lib/glossary-help-evidence-copy";
-import { HELP_HUB_CANONICAL_PATH } from "@/lib/help-hub-evidence-copy";
+import { HELP_HUB_CANONICAL_PATH } from "@/lib/help/help-hub-evidence-copy";
 
 export type GlossaryProceduralHelpSurfaceId = "glossary" | "help-hub";
 

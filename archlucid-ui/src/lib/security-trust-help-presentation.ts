@@ -1,5 +1,5 @@
 import type { EnterpriseStatusKind } from "@/lib/design-tokens";
-import type { HelpMarkdownHeading } from "@/lib/help-markdown-headings";
+import type { HelpMarkdownHeading } from "@/lib/help/help-markdown-headings";
 import type { HelpTopicTocGroup } from "@/lib/caiq-sig-response-help-presentation";
 
 export function isSecurityTrustHelpTopic(helpTopicSlug: string | undefined): boolean {

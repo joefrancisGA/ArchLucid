@@ -2,7 +2,7 @@ import { cn } from "@/lib/utils";
 import type { ReactElement } from "react";
 
 import { EnterpriseCompactEmptyState } from "@/components/EnterpriseCompactEmptyState";
-import { REVIEWS_NEW_PATH } from "@/lib/architecture-routes";
+import { REVIEWS_NEW_PATH } from "@/lib/architecture/architecture-routes";
 import {
   EnterpriseTable,
   EnterpriseTableBody,
@@ -13,7 +13,7 @@ import {
 } from "@/components/ui/enterprise-table";
 import { formatInstantForLocale } from "@/lib/locale-datetime";
 import { OPERATOR_TYPOGRAPHY } from "@/lib/design-tokens";
-import type { RunDetailEvidenceInventoryItem } from "@/lib/run-detail-evidence-inventory";
+import type { RunDetailEvidenceInventoryItem } from "@/lib/runs/run-detail-evidence-inventory";
 
 export type RunDetailEvidenceInventorySectionProps = {
   readonly items: readonly RunDetailEvidenceInventoryItem[];

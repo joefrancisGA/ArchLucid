@@ -11,8 +11,8 @@ import {
   SAMPLE_REVIEW_PACKAGE_AHA_HEADING,
   SAMPLE_REVIEW_PACKAGE_AHA_LEAD,
   SAMPLE_REVIEW_AHA_DEMO_LABEL,
-} from "@/lib/buyer-polish-copy";
-import { getShowcaseManifestHref } from "@/lib/buyer-safe-review-navigation";
+} from "@/lib/buyer/buyer-polish-copy";
+import { getShowcaseManifestHref } from "@/lib/buyer/buyer-safe-review-navigation";
 import { SHOWCASE_HOME_AHA_MOMENT, showcasePrimaryFindingHref } from "@/lib/showcase-home-aha-moment";
 import { SHOWCASE_STATIC_DEMO_SPINE_COUNTS } from "@/lib/showcase-static-demo";
 

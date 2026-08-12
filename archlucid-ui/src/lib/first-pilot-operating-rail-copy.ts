@@ -3,7 +3,7 @@ import {
   type FirstPilotOperatingRailStepDefinition,
   type FirstPilotOperatingRailStepId,
 } from "@/lib/first-pilot-operating-rail-steps";
-import { BUYER_START_ARCHITECTURE_REVIEW_CTA, CREATE_REVIEW_PACKAGE_HEADING } from "@/lib/buyer-polish-copy";
+import { BUYER_START_ARCHITECTURE_REVIEW_CTA, CREATE_REVIEW_PACKAGE_HEADING } from "@/lib/buyer/buyer-polish-copy";
 
 export type FirstPilotOperatingRailShellCopy = {
   readonly heading: string;

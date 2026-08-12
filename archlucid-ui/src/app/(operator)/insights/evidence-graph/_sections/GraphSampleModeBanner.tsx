@@ -6,7 +6,7 @@ import {
   BUYER_EVIDENCE_GRAPH_SAMPLE_BANNER_BODY,
   BUYER_EVIDENCE_GRAPH_SAMPLE_BANNER_TITLE,
   BUYER_EVIDENCE_GRAPH_USE_MY_REVIEW_CTA,
-} from "@/lib/buyer-polish-copy";
+} from "@/lib/buyer/buyer-polish-copy";
 import { OPERATOR_CALLOUT_WARN_CLASS, OPERATOR_TYPOGRAPHY } from "@/lib/design-tokens";
 
 export type GraphSampleModeBannerProps = {

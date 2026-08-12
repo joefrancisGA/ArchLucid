@@ -185,4 +185,4 @@ Scoping note: this audit covers the standard architect workspace (`OperatorHomeP
 | Recommended first session path | `archlucid-ui/src/components/FirstWeekRouteGuidance.tsx`, `archlucid-ui/src/lib/first-week-route-guidance.ts` |
 | Duplicate progress banner | `archlucid-ui/src/components/usability/CorePilotProgressTrackerBanner.tsx` |
 | Dead first-hour path implementation | `archlucid-ui/src/components/operator-home/OperatorHomeFirstReviewSection.tsx`, `OperatorHomeFirstReviewPathStrip.tsx`, `OperatorHomeFirstReviewProgressCard.tsx` |
-| Shared Overview copy constants | `archlucid-ui/src/lib/buyer-polish-copy.ts` |
+| Shared Overview copy constants | `archlucid-ui/src/lib/buyer/buyer-polish-copy.ts` |

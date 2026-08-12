@@ -26,8 +26,8 @@ vi.mock("@/lib/demo-ui-env", async (importOriginal) => {
   };
 });
 
-vi.mock("@/lib/operator-static-demo", async (importOriginal) => {
-  const mod = await importOriginal<typeof import("@/lib/operator-static-demo")>();
+vi.mock("@/lib/operator/operator-static-demo", async (importOriginal) => {
+  const mod = await importOriginal<typeof import("@/lib/operator/operator-static-demo")>();
 
   return {
     ...mod,
@@ -123,7 +123,7 @@ vi.mock("@/lib/use-nav-surface", () => ({
   }),
 }));
 
-import { buyerPolishedRouteOrientation } from "@/lib/buyer-polished-route-orientation";
+import { buyerPolishedRouteOrientation } from "@/lib/buyer/buyer-polished-route-orientation";
 
 import { GovernanceWorkflowPageContent } from "./GovernanceWorkflowPageContent";
 

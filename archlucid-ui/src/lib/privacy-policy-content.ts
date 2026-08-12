@@ -1,9 +1,9 @@
-import { extractHelpMarkdownHeadings } from "@/lib/help-markdown-headings";
-import type { HelpMarkdownHeading } from "@/lib/help-markdown-headings";
+import { extractHelpMarkdownHeadings } from "@/lib/help/help-markdown-headings";
+import type { HelpMarkdownHeading } from "@/lib/help/help-markdown-headings";
 import {
   rewriteHelpMarkdownDocLinks,
   sanitizeBareMarkdownFileReferences,
-} from "@/lib/help-markdown-presentation";
+} from "@/lib/help/help-markdown-presentation";
 import { resolveInAppDocHref } from "@/lib/in-app-doc-href";
 
 import {

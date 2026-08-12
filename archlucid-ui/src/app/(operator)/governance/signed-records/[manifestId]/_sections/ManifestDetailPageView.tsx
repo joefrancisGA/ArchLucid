@@ -18,7 +18,7 @@ import {
 } from "@/components/OperatorShellMessage";
 import { Button } from "@/components/ui/button";
 import { Card, CardContent, CardDescription, CardHeader, CardTitle } from "@/components/ui/card";
-import { shouldShowOperatorDemoMarketingChrome } from "@/lib/buyer-demo-content-gating";
+import { shouldShowOperatorDemoMarketingChrome } from "@/lib/buyer/buyer-demo-content-gating";
 import { canonicalizeDemoRunId } from "@/lib/demo-run-canonical";
 import { getBundleDownloadUrl } from "@/lib/api";
 import {
@@ -32,7 +32,7 @@ import {
   BUYER_MANIFEST_SECTION_EVIDENCE,
   BUYER_MANIFEST_TOP_RISK_CTA,
   BUYER_SIGNED_DECISION_RECORD_LABEL,
-} from "@/lib/buyer-polish-copy";
+} from "@/lib/buyer/buyer-polish-copy";
 import {
   SHOWCASE_BUYER_REVIEW_TITLE,
   SHOWCASE_STATIC_DEMO_MANIFEST_ID,

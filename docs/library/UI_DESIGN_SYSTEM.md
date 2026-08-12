@@ -196,7 +196,7 @@ Carbon **side panels** (drawers / modal panels) remain valid for transient focus
 | **TOC / wizard** | Yes | Help TOC or multi-step wizard navigation that is the reading/progress affordance. |
 | **Teaching / workflow helper** | **Banned** as a persistent rail | Restates Next step or How-it-works beside the form. Demote to collapsed disclosure, inline tip, or remove. **Anti-exemplar Done (TB-1573):** Recurrence `RecurrenceSchedulesWorkflowHelperCard` is a collapsed `CollapsibleSection` (empty-hide already Done **TB-1133**). |
 | **Static scope** | **Banned** as a persistent rail | Project + prose “scope” column that creates thin voids beside forms. Move inline near the field. **Anti-exemplar Done (TB-1573):** Advisory Schedules scope is inline on `AdvisoryScheduleCreateForm` (coordinate remaining whitespace **TB-1477** — do not duplicate that surface ticket). |
-| **About aside** | **Banned** as a competing rail | Integration “about” columns that compete with `StatusTag` + page help. **Done (TB-1575):** inventory in `archlucid-ui/src/lib/operator-side-rail-inventory.ts`; Teams/Slack/Azure Boards/ServiceNow demoted to single-column (disclosures or stacked setup StatusTags). |
+| **About aside** | **Banned** as a competing rail | Integration “about” columns that compete with `StatusTag` + page help. **Done (TB-1575):** inventory in `archlucid-ui/src/lib/operator/operator-side-rail-inventory.ts`; Teams/Slack/Azure Boards/ServiceNow demoted to single-column (disclosures or stacked setup StatusTags). |
 
 **Layout rules when a rail is allowed:**
 
@@ -263,7 +263,7 @@ Bans playful empties — this section defines **empty kinds**, Compact-vs-center
 | Centered `EmptyState` | Reserve for rare full-page first-run where `gettingStarted` steps **are** the product — or fold steps into collapsed How-it-works under Compact. Dense operator hubs use Compact (**TB-1554** inventory). |
 | Copy | Not-configured → “No {thing} yet” + one sentence on the page job — not playful illustration. |
 | Presets | Reuse `archlucid-ui/src/lib/enterprise-compact-empty-state-presets.ts` and kind helpers in `operator-empty-state-kind-presets.ts` (**TB-1555**). |
-| Migration inventory | Dense-hub allowlist: `archlucid-ui/src/lib/operator-empty-state-migration-inventory.ts` (**TB-1554** Done); Vitest guard **TB-1556**. |
+| Migration inventory | Dense-hub allowlist: `archlucid-ui/src/lib/operator/operator-empty-state-migration-inventory.ts` (**TB-1554** Done); Vitest guard **TB-1556**. |
 
 **Exemplars:** Digests browse (Compact under master-detail), Recurrence (empty footer Create + collapsed helper, **TB-1540**), Reviews hub (**TB-1553**), Advisory Schedules empty-first + header Create (**TB-1542**).
 

@@ -13,7 +13,7 @@
  * evidence (TB-2231) and Architecture intelligence ≠ Evidence graph.
  */
 
-import { ARCHITECTURE_INTELLIGENCE_PATH } from "@/lib/architecture-intelligence-route";
+import { ARCHITECTURE_INTELLIGENCE_PATH } from "@/lib/architecture/architecture-intelligence-route";
 import { ASK_REVIEW_QUESTIONS_PATH } from "@/lib/ask-review-questions-route";
 
 export type AskArchitectureIntelligenceSurfaceId =

@@ -5,11 +5,11 @@ import { BuyerCtoDemoTourOverlay } from "@/components/BuyerCtoDemoTourOverlay";
 import {
   BUYER_CTO_DEMO_TOUR_ACTIVE_STORAGE_KEY,
   BUYER_CTO_DEMO_TOUR_COLLAPSED_STORAGE_KEY,
-} from "@/lib/buyer-cto-demo-tour";
-import { BUYER_CTO_DEMO_COMPARE_HREF } from "@/lib/buyer-golden-journey-nav";
-import { getShowcaseExecutiveHref, getShowcaseManifestHref } from "@/lib/buyer-safe-review-navigation";
+} from "@/lib/buyer/buyer-cto-demo-tour";
+import { BUYER_CTO_DEMO_COMPARE_HREF } from "@/lib/buyer/buyer-golden-journey-nav";
+import { getShowcaseExecutiveHref, getShowcaseManifestHref } from "@/lib/buyer/buyer-safe-review-navigation";
 import { SHOWCASE_STATIC_DEMO_RUN_ID } from "@/lib/showcase-static-demo";
-import { OPERATOR_DEMO_STATIC_PANIC_STORAGE_KEY } from "@/lib/operator-static-demo";
+import { OPERATOR_DEMO_STATIC_PANIC_STORAGE_KEY } from "@/lib/operator/operator-static-demo";
 
 const replaceMock = vi.fn();
 const prefetchMock = vi.fn();

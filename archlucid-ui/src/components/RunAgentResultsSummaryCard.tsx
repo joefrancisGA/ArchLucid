@@ -8,7 +8,7 @@ import { useState, type ReactElement } from "react";
 import { Card, CardContent, CardHeader, CardTitle } from "@/components/ui/card";
 import { buyerLabelForAgentType } from "@/lib/agent-type-buyer-label";
 import { executeArchitectureRunSelective } from "@/lib/api/architecture-runs";
-import { resolveFailedAgentTypesForSelectiveRetry } from "@/lib/run-detail-selective-agent-retry";
+import { resolveFailedAgentTypesForSelectiveRetry } from "@/lib/runs/run-detail-selective-agent-retry";
 import type { RunDetailAgentResult, RunRetrievalGroundingSummary } from "@/types/authority";
 
 export type AgentExecutionOutcomeRow = {

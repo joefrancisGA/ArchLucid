@@ -4,8 +4,8 @@ import { cn } from "@/lib/utils";
 import { usePathname } from "next/navigation";
 import { useEffect, useState } from "react";
 
-import { buyerCtoDemoAudienceCaption } from "@/lib/buyer-cto-demo-orchestration";
-import { readBuyerCtoDemoTourActive, resolveBuyerCtoDemoTourNavigation } from "@/lib/buyer-cto-demo-tour";
+import { buyerCtoDemoAudienceCaption } from "@/lib/buyer/buyer-cto-demo-orchestration";
+import { readBuyerCtoDemoTourActive, resolveBuyerCtoDemoTourNavigation } from "@/lib/buyer/buyer-cto-demo-tour";
 import { isBuyerPolishedOperatorShellEnv } from "@/lib/demo-ui-env";
 import { OPERATOR_TYPE_SCALE, OPERATOR_TYPOGRAPHY } from "@/lib/design-tokens";
 

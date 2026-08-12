@@ -12,7 +12,7 @@
  * pins as package favorites (or the reverse).
  */
 
-import { REVIEWS_LIST_PATH } from "@/lib/architecture-routes";
+import { REVIEWS_LIST_PATH } from "@/lib/architecture/architecture-routes";
 
 /** Reviews hub hosts pinned architecture packages (favorites). */
 export const FAVORITE_REVIEWS_SURFACE_PATH = REVIEWS_LIST_PATH;

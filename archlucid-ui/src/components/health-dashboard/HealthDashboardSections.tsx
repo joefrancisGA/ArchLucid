@@ -27,7 +27,7 @@ import {
   operatorLastRefreshedClockLabel,
   operatorLastRefreshedExactLabel,
   operatorLastRefreshedLabel,
-} from "@/lib/operator-last-refreshed-label";
+} from "@/lib/operator/operator-last-refreshed-label";
 import type { HealthDisplaySeverity } from "@/lib/health-readiness-presentation";
 
 export const HEALTH_DASHBOARD_PAGE_CLASS = cn(OPERATOR_PAGE_CONTAINER.variant.workflow, "max-w-[1120px]");

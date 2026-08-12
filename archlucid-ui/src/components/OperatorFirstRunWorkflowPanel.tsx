@@ -7,7 +7,7 @@ import Link from "next/link";
 
 import { useEffect, useMemo, useRef, useState } from "react";
 
-import { loadProjectRunsMergedWithDemoFallback } from "@/lib/operator-run-picker-client";
+import { loadProjectRunsMergedWithDemoFallback } from "@/lib/operator/operator-run-picker-client";
 import {
   fetchCorePilotTeamChecklist,
   putCorePilotTeamChecklistStep,
@@ -25,9 +25,9 @@ import {
 } from "@/lib/core-pilot-first-review-copy";
 import { CORE_PILOT_STEPS } from "@/lib/core-pilot-steps";
 import { BUYER_FIRST_REVIEW_HELP_HREF } from "@/lib/first-review-90min-playbook-alignment";
-import { OPERATOR_CO_ARCHITECT_CHECKLIST_KICKER } from "@/lib/operator-co-architect-copy";
-import { readHasExistingRunsCache, writeHasExistingRunsCache } from "@/lib/operator-run-presence";
-import { getShowcaseManifestHref, getShowcaseWalkthroughHref } from "@/lib/buyer-safe-review-navigation";
+import { OPERATOR_CO_ARCHITECT_CHECKLIST_KICKER } from "@/lib/operator/operator-co-architect-copy";
+import { readHasExistingRunsCache, writeHasExistingRunsCache } from "@/lib/operator/operator-run-presence";
+import { getShowcaseManifestHref, getShowcaseWalkthroughHref } from "@/lib/buyer/buyer-safe-review-navigation";
 import { SHOWCASE_STATIC_DEMO_RUN_ID } from "@/lib/showcase-static-demo";
 import { SIGNED_MANIFEST_LABEL } from "@/lib/usability/canonical-product-terms";
 

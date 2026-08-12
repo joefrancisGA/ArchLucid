@@ -20,7 +20,7 @@ import {
   BUYER_ASK_CONVERSATION_EMPTY_BODY,
   BUYER_ASK_CONVERSATION_EMPTY_TITLE,
   BUYER_ASK_RETRIEVAL_DEGRADED_LABEL,
-} from "@/lib/buyer-polish-copy";
+} from "@/lib/buyer/buyer-polish-copy";
 import { OPERATOR_NAV_GROUP_LABEL, OPERATOR_TYPOGRAPHY } from "@/lib/design-tokens";
 import { ASK_BUYER_PROMPT_GROUPS } from "@/app/(operator)/insights/ask-review-questions/_sections/ask-page-constants";
 import type { ConversationMessage } from "@/types/conversation";

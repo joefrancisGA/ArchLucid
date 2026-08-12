@@ -1,8 +1,8 @@
-import type { ArchitectureCreatedHomeModel, BuildArchitectureCreatedHomeModelInput } from "@/lib/architecture-created-home-model";
-import { buildArchitectureCreatedHomeModel } from "@/lib/architecture-created-home-model";
+import type { ArchitectureCreatedHomeModel, BuildArchitectureCreatedHomeModelInput } from "@/lib/architecture/architecture-created-home-model";
+import { buildArchitectureCreatedHomeModel } from "@/lib/architecture/architecture-created-home-model";
 import { deriveArchitectureGapBaselineFromSubmittedText } from "@/lib/derive-architecture-gap-baseline";
-import { isBuyerGoldenReviewPackagePageReady } from "@/lib/buyer-golden-spine-run-id";
-import { shouldShowOperatorDemoMarketingChrome } from "@/lib/buyer-demo-content-gating";
+import { isBuyerGoldenReviewPackagePageReady } from "@/lib/buyer/buyer-golden-spine-run-id";
+import { shouldShowOperatorDemoMarketingChrome } from "@/lib/buyer/buyer-demo-content-gating";
 import { isShowcaseStaticDemoRunId } from "@/lib/demo-run-canonical";
 import { formatInstantForLocale } from "@/lib/locale-datetime";
 import { policyPackBuyerLabel } from "@/lib/policy/policy-pack-buyer-label";
@@ -11,14 +11,14 @@ import {
   resolveQuickDecisionFindingsForRunDetail,
 } from "@/lib/quick-decision-summary-derive";
 import type { QuickDecisionFinding } from "@/lib/quick-decision-summary-derive";
-import { resolvePartialRunCommitBlockPresentation } from "@/lib/run-detail-partial-run-commit-block";
+import { resolvePartialRunCommitBlockPresentation } from "@/lib/runs/run-detail-partial-run-commit-block";
 import {
   countRunDetailEvidenceInventoryItems,
   deriveRunDetailEvidenceInventory,
-} from "@/lib/run-detail-evidence-inventory";
-import type { RunDetailEvidenceInventoryItem } from "@/lib/run-detail-evidence-inventory";
-import { deriveRunDetailFindingsTriageCounts } from "@/lib/run-detail-findings-triage-counts";
-import { shouldShowRunDetailGovernanceCta } from "@/lib/run-detail-governance-cta-visibility";
+} from "@/lib/runs/run-detail-evidence-inventory";
+import type { RunDetailEvidenceInventoryItem } from "@/lib/runs/run-detail-evidence-inventory";
+import { deriveRunDetailFindingsTriageCounts } from "@/lib/runs/run-detail-findings-triage-counts";
+import { shouldShowRunDetailGovernanceCta } from "@/lib/runs/run-detail-governance-cta-visibility";
 import type {
   EvidenceCoverageSummary,
   ExecutiveBottomLineContent,

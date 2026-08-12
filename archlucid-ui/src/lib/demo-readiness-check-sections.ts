@@ -1,4 +1,4 @@
-import type { BuyerCtoDemoReadinessCheck } from "@/lib/buyer-cto-demo-readiness";
+import type { BuyerCtoDemoReadinessCheck } from "@/lib/buyer/buyer-cto-demo-readiness";
 
 export type DemoReadinessCheckSection = {
   readonly id: string;

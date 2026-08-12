@@ -171,14 +171,14 @@ archlucid-ui/src/lib/vocabulary/buyer-surface-vocabulary.ts
 archlucid-ui/src/lib/vocabulary/core-pilot-path-vocabulary.ts
   evaluationStandards: "Evaluation standards" → "Review standards"
 
-archlucid-ui/src/lib/buyer-polish-copy.ts
+archlucid-ui/src/lib/buyer/buyer-polish-copy.ts
   AUDIT_TRAIL_INTEGRITY_NOTE: full replacement (remove "demo integrity tools" clause)
 ```
 
 ### Batch 2: P1 commit→finalize sweep
 
 ```
-archlucid-ui/src/lib/buyer-polish-copy.ts
+archlucid-ui/src/lib/buyer/buyer-polish-copy.ts
   PILOT_PATH_PREVIEW_STEPS[2].label: "Commit review package" → "Finalize architecture package"
   BUYER_EXECUTIVE_SCORECARD_COMMITTED_LABEL: "Committed reviews" → "Finalized reviews"
   OPERATOR_GRAPH_PAGE_SUBTITLE: "committed review package" → "finalized architecture package"
@@ -191,7 +191,7 @@ archlucid-ui/src/lib/vocabulary/buyer-surface-vocabulary.ts
 ### Batch 3: P1 Azure-first sweep
 
 ```
-archlucid-ui/src/lib/buyer-polish-copy.ts
+archlucid-ui/src/lib/buyer/buyer-polish-copy.ts
   PILOT_COMMAND_CENTER_LEAD: "...or an optional Azure import." → "...or an optional cloud connection."
   PILOT_COMMAND_CENTER_CONNECT_AZURE: "Connect Azure" → "Connect cloud"
 
@@ -203,7 +203,7 @@ archlucid-ui/src/lib/i18n.ts
 ### Batch 4: P1 pilot/demo language sweep
 
 ```
-archlucid-ui/src/lib/buyer-polish-copy.ts
+archlucid-ui/src/lib/buyer/buyer-polish-copy.ts
   BUYER_VALUE_REPORT_PAGE_TITLE: "Sponsor value report" → "Executive value report"
   PRODUCT_CONCEPTS_GLOSSARY_DIALOG_DESCRIPTION: remove "during a pilot"
   BUYER_WHY_ARCHLUCID_SPONSOR_PACK_SOURCE_LINE: remove "seeded"
@@ -214,7 +214,7 @@ archlucid-ui/src/lib/buyer-polish-copy.ts
 ### Batch 5: P2 polish
 
 ```
-archlucid-ui/src/lib/buyer-polish-copy.ts
+archlucid-ui/src/lib/buyer/buyer-polish-copy.ts
   SAMPLE_REVIEW_AHA_DEMO_LABEL: "Demo-derived sample" → "Example review"
   OPERATOR_HOME_SAMPLE_FINDINGS_DEFENSIBLE_LAYER: full replacement
   BUYER_SIMULATOR_TRUST_BADGE_LABEL: "Simulator mode…" → "Rule-based analysis…"
@@ -233,7 +233,7 @@ archlucid-ui/src/app/(operator)/settings/roles/_sections/custom-role-permission-
 ### Batch 6: P3 cleanup
 
 ```
-archlucid-ui/src/lib/buyer-polish-copy.ts
+archlucid-ui/src/lib/buyer/buyer-polish-copy.ts
   BUYER_CTO_DEMO_LATENCY_EXCEEDED: "seeded showcase" → "example review"
 ```
 

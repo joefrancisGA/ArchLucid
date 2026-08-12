@@ -1,4 +1,4 @@
-import { BUYER_PILOT_EVIDENCE_PENDING } from "@/lib/buyer-home-status-copy";
+import { BUYER_PILOT_EVIDENCE_PENDING } from "@/lib/buyer/buyer-home-status-copy";
 import { isBuyerPolishedOperatorShellEnv } from "@/lib/demo-ui-env";
 
 /** Operator-safe proof/diagnostics messaging — CLI details stay behind disclosures. */

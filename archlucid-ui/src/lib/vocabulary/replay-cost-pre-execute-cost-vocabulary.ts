@@ -13,7 +13,7 @@
  * one cost estimate as the other.
  */
 
-import { REVIEWS_NEW_PATH } from "@/lib/architecture-routes";
+import { REVIEWS_NEW_PATH } from "@/lib/architecture/architecture-routes";
 import { COMPARE_TWO_REVIEWS_PATH } from "@/lib/compare-two-reviews-route";
 
 export type ReplayCostPreExecuteCostSurfaceId = "replay-cost" | "pre-execute-cost";

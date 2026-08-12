@@ -9,12 +9,12 @@ import {
   ARCHLUCID_CTO_DEMO_PANIC_CHANGED_EVENT,
   readOperatorDemoPanicOffline,
   writeOperatorDemoPanicOffline,
-} from "@/lib/operator-static-demo";
+} from "@/lib/operator/operator-static-demo";
 import { isBuyerPolishedOperatorShellEnv } from "@/lib/demo-ui-env";
 import {
   BUYER_CTO_DEMO_PANIC_BANNER,
   BUYER_CTO_DEMO_PANIC_DISABLE_CTA,
-} from "@/lib/buyer-polish-copy";
+} from "@/lib/buyer/buyer-polish-copy";
 
 export function CtoDemoPanicModeBanner(): React.JSX.Element | null {
   const router = useRouter();

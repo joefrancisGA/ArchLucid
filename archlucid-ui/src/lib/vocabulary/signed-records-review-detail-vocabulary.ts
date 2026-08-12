@@ -11,7 +11,7 @@
  * working inside one architecture package. Open the peer when you need both.
  */
 
-import { REVIEWS_LIST_PATH } from "@/lib/architecture-routes";
+import { REVIEWS_LIST_PATH } from "@/lib/architecture/architecture-routes";
 import { SIGNED_RECORDS_LIST_PATH } from "@/lib/signed-records-paths";
 
 export type SignedRecordsReviewDetailSurfaceId = "signed-records" | "review-detail";

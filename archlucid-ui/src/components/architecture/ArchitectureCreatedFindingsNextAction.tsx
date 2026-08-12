@@ -1,8 +1,8 @@
 import Link from "next/link";
 
 import { Button } from "@/components/ui/button";
-import { buildArchitectureGovernanceFinalizeReadinessHref } from "@/lib/architecture-created-finalize-readiness-href";
-import { buildArchitectureWorkspaceTabHref } from "@/lib/architecture-workspace-tabs";
+import { buildArchitectureGovernanceFinalizeReadinessHref } from "@/lib/architecture/architecture-created-finalize-readiness-href";
+import { buildArchitectureWorkspaceTabHref } from "@/lib/architecture/architecture-workspace-tabs";
 import { OPERATOR_TYPOGRAPHY } from "@/lib/design-tokens";
 import { applyFindingsConfidenceVisibility } from "@/lib/findings/finding-confidence-filter";
 import {

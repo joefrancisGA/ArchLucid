@@ -12,7 +12,7 @@ import {
   BUYER_MANIFEST_SUMMARY_LOAD_ERROR_HEADING,
   BUYER_MANIFEST_SUMMARY_MALFORMED_HEADING,
   BUYER_MANIFEST_SUMMARY_MISSING_HEADING,
-} from "@/lib/buyer-polish-copy";
+} from "@/lib/buyer/buyer-polish-copy";
 import type { ApiLoadFailureState } from "@/lib/api-load-failure";
 import { isApiTransientLoadFailure } from "@/lib/api-load-failure";
 import { OPERATOR_LINK, OPERATOR_TYPOGRAPHY } from "@/lib/design-tokens";

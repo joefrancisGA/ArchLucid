@@ -11,7 +11,7 @@ import {
   buildAskVsFrontierAiDifferentiation,
 } from "@/lib/ask-vs-frontier-ai-differentiation";
 import { ASK_REVIEW_QUESTIONS_PATH } from "@/lib/ask-review-questions-route";
-import { BUYER_ASK_GROUNDING_ONCE } from "@/lib/buyer-polish-copy";
+import { BUYER_ASK_GROUNDING_ONCE } from "@/lib/buyer/buyer-polish-copy";
 
 describe("ask-vs-frontier-ai-differentiation (TB-2191)", () => {
   it("exports a non-empty title and three differentiation columns", () => {

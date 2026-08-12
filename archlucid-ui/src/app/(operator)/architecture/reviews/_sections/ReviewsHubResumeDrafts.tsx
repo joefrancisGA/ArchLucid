@@ -5,17 +5,17 @@ import Link from "next/link";
 import { Button } from "@/components/ui/button";
 import { StatusTag } from "@/components/ui/status-tag";
 import { useArchitectureDraftRegistryEntries } from "@/hooks/use-architecture-draft-registry-entries";
-import { isArchitectureDraftEligibleToStartReview } from "@/lib/architecture-draft-ready-for-review";
-import { trackArchitectureDraftResumeClick } from "@/lib/architecture-draft-resume-telemetry";
+import { isArchitectureDraftEligibleToStartReview } from "@/lib/architecture/architecture-draft-ready-for-review";
+import { trackArchitectureDraftResumeClick } from "@/lib/architecture/architecture-draft-resume-telemetry";
 import {
   ARCHITECTURE_DRAFT_STATUS_LABELS,
   architectureDraftCustomerStatusTagKind,
-} from "@/lib/architecture-draft-status";
+} from "@/lib/architecture/architecture-draft-status";
 import {
   architectureDraftPath,
   ARCHITECTURES_LIST_PATH,
   startReviewFromArchitectureHref,
-} from "@/lib/architecture-routes";
+} from "@/lib/architecture/architecture-routes";
 import { OPERATOR_NAV_GROUP_LABEL, OPERATOR_TYPOGRAPHY } from "@/lib/design-tokens";
 import { parseIsoUtcMs } from "@/lib/format-iso-utc";
 import { formatRelativeTime } from "@/lib/relative-time";

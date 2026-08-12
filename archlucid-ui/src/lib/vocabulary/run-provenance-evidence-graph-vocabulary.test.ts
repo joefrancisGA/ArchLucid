@@ -9,7 +9,7 @@ import {
   buildRunProvenanceEvidenceGraphVocabulary,
   resolveRunProvenanceEvidenceGraphPeerLink,
 } from "@/lib/vocabulary/run-provenance-evidence-graph-vocabulary";
-import { REVIEWS_LIST_PATH } from "@/lib/architecture-routes";
+import { REVIEWS_LIST_PATH } from "@/lib/architecture/architecture-routes";
 import { EVIDENCE_GRAPH_PATH } from "@/lib/evidence-graph-route";
 
 describe("run-provenance-evidence-graph-vocabulary (TB-2296)", () => {

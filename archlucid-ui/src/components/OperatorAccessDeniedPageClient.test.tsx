@@ -29,8 +29,8 @@ vi.mock("@/lib/oidc/session", () => ({
   signOutAndRedirectHome: mocks.signOutAndRedirectHome,
 }));
 
-vi.mock("@/lib/operator-scope-storage", async (importOriginal) => {
-  const actual = await importOriginal<typeof import("@/lib/operator-scope-storage")>();
+vi.mock("@/lib/operator/operator-scope-storage", async (importOriginal) => {
+  const actual = await importOriginal<typeof import("@/lib/operator/operator-scope-storage")>();
 
   return {
     ...actual,

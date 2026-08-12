@@ -13,7 +13,7 @@ import {
   BUYER_SHOWCASE_RESIDUAL_RISK_MONITORING_CADENCE,
   BUYER_SHOWCASE_RESIDUAL_RISK_NEXT_REVIEW,
   BUYER_SHOWCASE_RESIDUAL_RISK_OWNER,
-} from "@/lib/buyer-polish-copy";
+} from "@/lib/buyer/buyer-polish-copy";
 import { formatInstantForBuyerGovernance } from "@/lib/locale-datetime";
 import type { GovernanceApprovalRequest } from "@/types/governance-workflow";
 

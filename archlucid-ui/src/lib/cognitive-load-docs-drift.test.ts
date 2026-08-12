@@ -3,7 +3,7 @@ import path from "node:path";
 
 import { describe, expect, it } from "vitest";
 
-import { HELP_TOPICS } from "@/lib/help-topics";
+import { HELP_TOPICS } from "@/lib/help/help-topics";
 import { buildOnboardingRedirectPath } from "@/lib/legacy-onboarding-redirect";
 
 /** Vitest runs with cwd = `archlucid-ui` (`npm test` in package). */

@@ -3,12 +3,12 @@
 import Link from "next/link";
 
 import { Button } from "@/components/ui/button";
-import { reviewDetailPath } from "@/lib/architecture-routes";
+import { reviewDetailPath } from "@/lib/architecture/architecture-routes";
 import {
   ARCHITECTURE_DRAFT_HANDOFF_ACKNOWLEDGE_LABEL,
   ARCHITECTURE_DRAFT_HANDOFF_BANNER_LEAD,
   buildArchitectureDraftHandoffBannerTitle,
-} from "@/lib/architecture-draft-handoff-gate";
+} from "@/lib/architecture/architecture-draft-handoff-gate";
 import { OPERATOR_TYPOGRAPHY } from "@/lib/design-tokens";
 import { cn } from "@/lib/utils";
 

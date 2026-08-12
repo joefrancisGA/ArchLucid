@@ -7,7 +7,7 @@ import { Button } from "@/components/ui/button";
 import {
   buildRunDetailFirstScreenProofSummary,
   type RunDetailFirstScreenProofSummary,
-} from "@/lib/run-detail-first-screen-proof-status";
+} from "@/lib/runs/run-detail-first-screen-proof-status";
 import type { PilotRunDeltasProofSummaryJson } from "@/lib/pilot-proof-readiness";
 import { OPERATOR_TYPOGRAPHY } from "@/lib/design-tokens";
 

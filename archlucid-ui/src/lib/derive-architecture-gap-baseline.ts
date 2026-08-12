@@ -1,6 +1,6 @@
-import { parseArchitectureGeneratedContent } from "@/lib/architecture-generated-content-parser";
-import type { ArchitectureGapAssertionFlags } from "@/lib/architecture-created-home-model";
-import type { ArchitectureStructuredSection } from "@/lib/architecture-structured-content-types";
+import { parseArchitectureGeneratedContent } from "@/lib/architecture/architecture-generated-content-parser";
+import type { ArchitectureGapAssertionFlags } from "@/lib/architecture/architecture-created-home-model";
+import type { ArchitectureStructuredSection } from "@/lib/architecture/architecture-structured-content-types";
 
 export type ArchitectureGapBaselineDerived = {
   readonly businessOutcome: string;

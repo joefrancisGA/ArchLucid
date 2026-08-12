@@ -7,10 +7,10 @@ import { OperatorPageHeader } from "@/components/OperatorPageHeader";
 import { SignedRecordsReviewDetailVocabularyRail } from "@/components/SignedRecordsReviewDetailVocabularyRail";
 import { PageContextualHelpButton } from "@/components/usability/PageContextualHelpButton";
 import { listRunsByProjectPaged } from "@/lib/api";
-import { coerceRunSummaryPaged } from "@/lib/operator-response-guards";
-import { getEffectiveBrowserProxyScopeHeaders } from "@/lib/operator-scope-storage";
-import { projectIdFromScopeHeaders } from "@/lib/operator-resource-scope";
-import { tryStaticDemoRunSummariesPaged } from "@/lib/operator-static-demo";
+import { coerceRunSummaryPaged } from "@/lib/operator/operator-response-guards";
+import { getEffectiveBrowserProxyScopeHeaders } from "@/lib/operator/operator-scope-storage";
+import { projectIdFromScopeHeaders } from "@/lib/operator/operator-resource-scope";
+import { tryStaticDemoRunSummariesPaged } from "@/lib/operator/operator-static-demo";
 import { OPERATOR_TYPOGRAPHY } from "@/lib/design-tokens";
 import { cn } from "@/lib/utils";
 

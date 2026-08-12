@@ -3,8 +3,8 @@
 import { usePathname } from "next/navigation";
 import { useEffect, useRef } from "react";
 
-import { consumeRouteReferrer } from "@/lib/operator-navigation-referrer";
-import { trackRouteEntered } from "@/lib/operator-navigation-telemetry";
+import { consumeRouteReferrer } from "@/lib/operator/operator-navigation-referrer";
+import { trackRouteEntered } from "@/lib/operator/operator-navigation-telemetry";
 
 /** Emits RouteEntered when the operator shell pathname changes (IA-019). */
 export function OperatorRouteEnteredTelemetry() {

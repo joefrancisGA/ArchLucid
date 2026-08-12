@@ -8,7 +8,7 @@ import {
   BUYER_EVIDENCE_GRAPH_SHOW_SELECTED_PATH_CTA,
   BUYER_EVIDENCE_GRAPH_TRACE_PATH_CTA,
   BUYER_EVIDENCE_GRAPH_ZOOM_100_CTA,
-} from "@/lib/buyer-polish-copy";
+} from "@/lib/buyer/buyer-polish-copy";
 
 /** Accessible name for the buyer Evidence graph canvas control group (TB-2102). */
 export const GRAPH_CANVAS_CONTROLS_GROUP_LABEL = "Graph canvas controls";

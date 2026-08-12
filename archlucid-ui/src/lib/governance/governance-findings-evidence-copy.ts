@@ -1,4 +1,4 @@
-import { REVIEWS_LIST_PATH } from "@/lib/architecture-routes";
+import { REVIEWS_LIST_PATH } from "@/lib/architecture/architecture-routes";
 import {
   GOVERNANCE_ALERTS_PATH,
   GOVERNANCE_AUDIT_PATH,

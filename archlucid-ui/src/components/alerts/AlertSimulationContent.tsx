@@ -23,7 +23,7 @@ import { alertSimulationOutcomesEmptyGettingStarted } from "@/lib/alerts-hub-emp
 import { DESIGN_TOKENS, OPERATOR_TYPOGRAPHY } from "@/lib/design-tokens";
 import type { ApiLoadFailureState } from "@/lib/api-load-failure";
 import { toApiLoadFailure } from "@/lib/api-load-failure";
-import { readOperatorScopeFromStorage } from "@/lib/operator-scope-storage";
+import { readOperatorScopeFromStorage } from "@/lib/operator/operator-scope-storage";
 import type {
   RuleCandidateComparisonResult,
   RuleSimulationResult,

@@ -6,8 +6,8 @@ import { OPERATOR_TYPOGRAPHY, operatorConfidenceSurface } from "@/lib/design-tok
 import {
   buildExplanationConfidenceSummary,
   type ExplanationConfidenceDisposition,
-} from "@/lib/run-explanation-confidence-disposition";
-import { buyerExplanationConfidenceDispositionLabel } from "@/lib/buyer-explanation-confidence-labels";
+} from "@/lib/runs/run-explanation-confidence-disposition";
+import { buyerExplanationConfidenceDispositionLabel } from "@/lib/buyer/buyer-explanation-confidence-labels";
 import { isBuyerPolishedOperatorShellEnv } from "@/lib/demo-ui-env";
 import type { RunExplanationSummary } from "@/types/explanation";
 

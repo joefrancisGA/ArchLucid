@@ -9,7 +9,7 @@
  * current change event (sessionStorage) so a later switch can show again.
  */
 
-import type { OperatorScopeRecord } from "@/lib/operator-scope-storage";
+import type { OperatorScopeRecord } from "@/lib/operator/operator-scope-storage";
 
 export const SCOPE_CHANGE_CONSEQUENCE_DISMISS_KEY_PREFIX =
   "archlucid_scope_change_consequence_dismissed_v1:" as const;

@@ -2,7 +2,7 @@
 
 import { InlineMetadataLine } from "@/components/InlineMetadataLine";
 import { StatusTag } from "@/components/ui/status-tag";
-import { buyerFacingReviewTitleFromSummary } from "@/lib/buyer-facing-review-title";
+import { buyerFacingReviewTitleFromSummary } from "@/lib/buyer/buyer-facing-review-title";
 import {
   BUYER_ARCHITECTURE_PACKAGE_ORIGIN_CREATED_BADGE,
   BUYER_ARCHITECTURE_PACKAGE_ORIGIN_METADATA_LABEL,
@@ -11,15 +11,15 @@ import {
   BUYER_RUNS_DASHBOARD_TAB_APPROVED,
   BUYER_RUNS_DASHBOARD_TAB_NEEDS_ATTENTION,
   BUYER_RUNS_DASHBOARD_TAB_UNDER_MONITORING,
-} from "@/lib/buyer-polish-copy";
+} from "@/lib/buyer/buyer-polish-copy";
 import { isShowcaseStaticDemoRunId } from "@/lib/demo-run-canonical";
 import { RUNS_DASHBOARD_LABELS } from "@/lib/i18n";
 import type { EnterpriseStatusKind } from "@/lib/design-tokens";
 import {
   resolveRunSummaryPackageOrigin,
   type ArchitecturePackageOriginToken,
-} from "@/lib/architecture-package-origin";
-import { OPERATOR_HOME_EXAMPLE_RUN_DESCRIPTION_TOKEN } from "@/lib/operator-home-example-request";
+} from "@/lib/architecture/architecture-package-origin";
+import { OPERATOR_HOME_EXAMPLE_RUN_DESCRIPTION_TOKEN } from "@/lib/operator/operator-home-example-request";
 import { SHOWCASE_BUYER_REVIEW_TITLE, SHOWCASE_STATIC_DEMO_RUN_ID } from "@/lib/showcase-static-demo";
 import type { RunSummary } from "@/types/authority";
 

@@ -10,8 +10,8 @@ vi.mock("next/navigation", () => ({
 }));
 
 import { HelpProcurementGuideView } from "@/app/(operator)/help/_sections/HelpProcurementGuideView";
-import { extractHelpMarkdownHeadings } from "@/lib/help-markdown-headings";
-import { prepareHelpMarkdownForPresentation } from "@/lib/help-markdown-presentation";
+import { extractHelpMarkdownHeadings } from "@/lib/help/help-markdown-headings";
+import { prepareHelpMarkdownForPresentation } from "@/lib/help/help-markdown-presentation";
 import {
   PROCUREMENT_HELP_CUSTOM_POLICY_PACK_QUOTE_HREF,
   PROCUREMENT_HELP_NDA_REQUEST_HREF,

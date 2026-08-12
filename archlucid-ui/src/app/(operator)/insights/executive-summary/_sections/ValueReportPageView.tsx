@@ -23,7 +23,7 @@ import {
   BUYER_VALUE_REPORT_PAGE_TITLE,
   BUYER_VALUE_REPORT_PERIOD_EXPORTS_TITLE,
   BUYER_VALUE_REPORT_PERIOD_UTC_HELP,
-} from "@/lib/buyer-polish-copy";
+} from "@/lib/buyer/buyer-polish-copy";
 import { isNextPublicDemoMode, isBuyerPolishedOperatorShellEnv } from "@/lib/demo-ui-env";
 import { DESIGN_TOKENS, OPERATOR_TYPOGRAPHY } from "@/lib/design-tokens";
 

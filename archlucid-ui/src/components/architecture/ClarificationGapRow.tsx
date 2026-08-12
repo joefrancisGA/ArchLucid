@@ -4,10 +4,10 @@ import Link from "next/link";
 
 import { Button } from "@/components/ui/button";
 import { StatusTag } from "@/components/ui/status-tag";
-import { formatClarificationGapSourceLabel } from "@/lib/architecture-clarification-gap-present";
-import type { ArchitectureMissingItem } from "@/lib/architecture-created-home-model";
+import { formatClarificationGapSourceLabel } from "@/lib/architecture/architecture-clarification-gap-present";
+import type { ArchitectureMissingItem } from "@/lib/architecture/architecture-created-home-model";
 import { REVIEWS_NEW_GUIDED_QUESTIONS_LABEL } from "@/lib/reviews-new-path-copy";
-import { readArchitectureWorkspaceTabFromHref, type ArchitectureWorkspaceTabId } from "@/lib/architecture-workspace-tabs";
+import { readArchitectureWorkspaceTabFromHref, type ArchitectureWorkspaceTabId } from "@/lib/architecture/architecture-workspace-tabs";
 import type { EnterpriseStatusKind } from "@/lib/design-tokens";
 import { OPERATOR_TYPOGRAPHY } from "@/lib/design-tokens";
 import { cn } from "@/lib/utils";

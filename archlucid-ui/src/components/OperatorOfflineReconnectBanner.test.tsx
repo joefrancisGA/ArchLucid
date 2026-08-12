@@ -5,7 +5,7 @@ import { OperatorOfflineReconnectBanner } from "@/components/OperatorOfflineReco
 import {
   OPERATOR_OFFLINE_RECONNECT_BODY,
   OPERATOR_OFFLINE_RECONNECT_TITLE,
-} from "@/lib/operator-offline-reconnect";
+} from "@/lib/operator/operator-offline-reconnect";
 import { createOperatorQueryClient } from "@/lib/query/operator-query-client";
 import { renderWithOperatorQuery } from "@/testing/operator-query-test-helpers";
 

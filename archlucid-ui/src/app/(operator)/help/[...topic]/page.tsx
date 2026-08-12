@@ -34,9 +34,9 @@ import {
   getProductDocumentationEntry,
   listProductDocumentationEntries,
 } from "@/lib/product-documentation-registry";
-import { HELP_TOPIC_PERMANENT_REDIRECTS } from "@/lib/help-topic-permanent-redirects";
+import { HELP_TOPIC_PERMANENT_REDIRECTS } from "@/lib/help/help-topic-permanent-redirects";
 import { getInboundAuthenticatedServerPrincipal } from "@/lib/server-current-principal";
-import { resolveHelpTopicPermanentRedirect } from "@/lib/help-topic-permanent-redirects";
+import { resolveHelpTopicPermanentRedirect } from "@/lib/help/help-topic-permanent-redirects";
 import { resolveInternalRunbookHelpRouteMetadata } from "@/lib/resolve-internal-runbook-help-route-metadata";
 
 export const revalidate = 3600;

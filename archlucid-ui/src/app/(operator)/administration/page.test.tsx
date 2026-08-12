@@ -25,7 +25,7 @@ vi.mock("@/lib/finish-setup-deployment", () => ({
   isSelfHostedDeploymentEnv: () => false,
 }));
 
-vi.mock("@/lib/operator-scope-storage", () => ({
+vi.mock("@/lib/operator/operator-scope-storage", () => ({
   readOperatorScopeFromStorage: () => ({
     tenantId: "tenant-1",
     workspaceId: "workspace-1",

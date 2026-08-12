@@ -1,5 +1,5 @@
 import { OperatorHomeCardSectionTitle } from "@/components/operator-home/OperatorHomeCardSectionTitle";
-import { OPERATOR_HOME_ONE_REQUIRED_ITEM_TITLE } from "@/lib/buyer-polish-copy";
+import { OPERATOR_HOME_ONE_REQUIRED_ITEM_TITLE } from "@/lib/buyer/buyer-polish-copy";
 import { OPERATOR_LAYOUT, OPERATOR_SURFACE_CARD_CLASS, OPERATOR_CARD, OPERATOR_TYPE_SCALE } from "@/lib/design-tokens";
 import { cn } from "@/lib/utils";
 

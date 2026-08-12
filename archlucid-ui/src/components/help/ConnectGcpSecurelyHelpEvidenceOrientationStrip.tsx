@@ -7,7 +7,7 @@ import {
   CONNECT_GCP_SECURELY_SOURCES,
   CONNECT_GCP_SECURELY_SOURCES_INTRO,
 } from "@/lib/connect-gcp-securely-help-evidence-copy";
-import { HELP_DILIGENCE_ARTIFACT_INDEX_TITLE } from "@/lib/help-diligence-artifact-index";
+import { HELP_DILIGENCE_ARTIFACT_INDEX_TITLE } from "@/lib/help/help-diligence-artifact-index";
 
 export const CONNECT_GCP_SECURELY_CLAIM_DISCIPLINE_HEADING = "Connector setup orientation";
 

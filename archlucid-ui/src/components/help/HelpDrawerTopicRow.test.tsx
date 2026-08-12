@@ -2,7 +2,7 @@ import { render, screen } from "@testing-library/react";
 import { describe, expect, it, vi } from "vitest";
 
 import { HelpDrawerTopicRow } from "@/components/help/HelpDrawerTopicRow";
-import type { HelpSearchPanelTopic } from "@/lib/help-search-panel-catalog";
+import type { HelpSearchPanelTopic } from "@/lib/help/help-search-panel-catalog";
 
 describe("HelpDrawerTopicRow (TB-734)", () => {
   it("shows a Documentation browse label for technical help slugs", () => {

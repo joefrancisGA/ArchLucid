@@ -1,6 +1,5 @@
 import { readFileSync } from "node:fs";
-import { dirname, join } from "node:path";
-import { fileURLToPath } from "node:url";
+import { join } from "node:path";
 
 import { describe, expect, it } from "vitest";
 
@@ -8,11 +7,10 @@ import {
   ITSM_NATIVE_CREATE_ADMIN_HREF,
   ITSM_NATIVE_CREATE_REQUIRED_UI_TEST_IDS,
 } from "@/lib/itsm/itsm-native-create-readiness-alignment";
-
-const repoRoot = join(dirname(fileURLToPath(import.meta.url)), "..", "..", "..");
+import { REPO_ROOT } from "@/lib/testing/repo-paths";
 
 function readRepoFile(relativePath: string): string {
-  return readFileSync(join(repoRoot, relativePath), "utf8");
+  return readFileSync(join(REPO_ROOT, relativePath), "utf8");
 }
 
 describe("itsm-native-create-readiness-alignment", () => {

@@ -9,10 +9,10 @@ import { useArchitectureDraftRegistryEntries } from "@/hooks/use-architecture-dr
 import {
   ARCHITECTURE_DRAFT_STATUS_LABELS,
   architectureDraftCustomerStatusTagKind,
-} from "@/lib/architecture-draft-status";
-import { trackArchitectureDraftResumeClick } from "@/lib/architecture-draft-resume-telemetry";
-import { architectureDraftPath, ARCHITECTURES_LIST_PATH } from "@/lib/architecture-routes";
-import { CONTINUE_DRAFT_LABEL } from "@/lib/architecture-workflow-labels";
+} from "@/lib/architecture/architecture-draft-status";
+import { trackArchitectureDraftResumeClick } from "@/lib/architecture/architecture-draft-resume-telemetry";
+import { architectureDraftPath, ARCHITECTURES_LIST_PATH } from "@/lib/architecture/architecture-routes";
+import { CONTINUE_DRAFT_LABEL } from "@/lib/architecture/architecture-workflow-labels";
 import {
   ARCHITECTURE_CREATION_CONTINUE_SECTION_TITLE,
   ARCHITECTURE_CREATION_NO_DRAFTS_GUIDANCE,

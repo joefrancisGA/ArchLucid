@@ -5,7 +5,7 @@ import { getBundleDownloadUrl } from "@/lib/api";
 import {
   BUYER_MANIFEST_BUNDLE_DOWNLOAD_DETAILS_SUMMARY,
   BUYER_MANIFEST_BUNDLE_DOWNLOAD_ZIP_NOTE,
-} from "@/lib/buyer-polish-copy";
+} from "@/lib/buyer/buyer-polish-copy";
 
 export type ManifestBuyerBundleDownloadSectionProps = {
   readonly manifestId: string;

@@ -2,18 +2,18 @@
 
 import { useCallback, useEffect, useMemo, useRef, useState } from "react";
 
-import { ARCHITECTURE_CREATION_BOOTSTRAP_INTENT } from "@/lib/architecture-creation-bootstrap";
+import { ARCHITECTURE_CREATION_BOOTSTRAP_INTENT } from "@/lib/architecture/architecture-creation-bootstrap";
 import {
   buildArchitectureDraftRegistryEntry,
   upsertArchitectureDraftRegistryEntry,
-} from "@/lib/architecture-draft-registry";
-import type { ArchitectureDraftFieldState } from "@/lib/architecture-draft-readiness";
+} from "@/lib/architecture/architecture-draft-registry";
+import type { ArchitectureDraftFieldState } from "@/lib/architecture/architecture-draft-readiness";
 import {
   hasArchitectureDraftSaveableContent,
   validateArchitectureDraftIntegrity,
-} from "@/lib/architecture-draft-readiness";
+} from "@/lib/architecture/architecture-draft-readiness";
 import { buildDefaultActorSet, createDraftRequest, getDraftRequest, patchDraftRequest } from "@/lib/api/draft-intake-api";
-import { CREATE_ARCHITECTURE_INTENT } from "@/lib/architecture-workflow-intent";
+import { CREATE_ARCHITECTURE_INTENT } from "@/lib/architecture/architecture-workflow-intent";
 import { normalizeActorSetForAdmission } from "@/lib/draft-intake-actor-suggestions";
 import type { ActorSet, DraftRequestResponse } from "@/types/draft-intake";
 

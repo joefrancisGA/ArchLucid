@@ -3,7 +3,7 @@ import path from "node:path";
 
 import { describe, expect, it } from "vitest";
 
-import { isTypedHelpGuideSlug } from "@/lib/help-typed-guide-slugs";
+import { isTypedHelpGuideSlug } from "@/lib/help/help-typed-guide-slugs";
 import { listProductDocumentationEntries } from "@/lib/product-documentation-registry";
 
 /** Ensures Container Apps UI images ship markdown for non-typed `/help/{topic}` routes. */

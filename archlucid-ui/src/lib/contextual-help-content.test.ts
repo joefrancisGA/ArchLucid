@@ -1,7 +1,7 @@
 import { describe, expect, it } from "vitest";
 
-import { extractHelpMarkdownHeadings } from "./help-markdown-headings";
-import { prepareHelpMarkdownForPresentation } from "./help-markdown-presentation";
+import { extractHelpMarkdownHeadings } from "@/lib/help/help-markdown-headings";
+import { prepareHelpMarkdownForPresentation } from "@/lib/help/help-markdown-presentation";
 import { tryLoadProductDocumentation } from "./load-product-documentation";
 import {
   contextualHelpByKey,

@@ -1,5 +1,5 @@
-import { ARCHITECTURE_INTELLIGENCE_PATH } from "@/lib/architecture-intelligence-route";
-import { ARCHITECTURES_NEW_PATH } from "@/lib/architecture-routes";
+import { ARCHITECTURE_INTELLIGENCE_PATH } from "@/lib/architecture/architecture-intelligence-route";
+import { ARCHITECTURES_NEW_PATH } from "@/lib/architecture/architecture-routes";
 import type { UiRouteTrafficRow } from "@/lib/ui-route-traffic/types";
 
 /** Traffic workbook rows for the `core-review` workbook section. */

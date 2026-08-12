@@ -9,7 +9,7 @@ import {
   visibleLandingPlatformCards,
   writeCloudPlatformScopeToStorage,
 } from "@/lib/cloud-platform-scope-storage";
-import * as operatorScopeStorage from "@/lib/operator-scope-storage";
+import * as operatorScopeStorage from "@/lib/operator/operator-scope-storage";
 
 describe("cloud-platform-scope-storage", () => {
   afterEach(() => {

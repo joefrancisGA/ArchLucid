@@ -12,7 +12,7 @@ import { StatusTag } from "@/components/ui/status-tag";
 import { DemoDataBadge } from "@/components/usability/DemoDataBadge";
 import { isShowcaseStaticDemoRunId } from "@/lib/demo-run-canonical";
 import { isDemoSeededOverviewInjectedRun } from "@/lib/demo-seeded-overview";
-import { BUYER_FINDINGS_COUNT_WITH_MONITORED_RISK } from "@/lib/buyer-polish-copy";
+import { BUYER_FINDINGS_COUNT_WITH_MONITORED_RISK } from "@/lib/buyer/buyer-polish-copy";
 import {
   INLINE_METADATA_LABEL_CLASS,
   OPERATOR_CARD,
@@ -26,7 +26,7 @@ import {
   formatRunHomeListUpdatedLabel,
   resolveRunFindingCountDisplay,
   resolveRunWarningCountDisplay,
-} from "@/lib/operator-home-run-list-insight";
+} from "@/lib/operator/operator-home-run-list-insight";
 import { SHOWCASE_STATIC_DEMO_SPINE_COUNTS } from "@/lib/showcase-static-demo";
 import { cn } from "@/lib/utils";
 import type { RunSummary } from "@/types/authority";

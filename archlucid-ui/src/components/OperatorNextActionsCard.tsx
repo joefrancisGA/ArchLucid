@@ -7,7 +7,7 @@ import { useEffect, useState } from "react";
 
 import { fetchOperatorNextBestActions, type OperatorNextBestActionDto } from "@/lib/api";
 import { isBuyerPolishedOperatorShellEnv, isNextPublicDemoMode } from "@/lib/demo-ui-env";
-import { isStaticDemoPayloadFallbackEnabled } from "@/lib/operator-static-demo";
+import { isStaticDemoPayloadFallbackEnabled } from "@/lib/operator/operator-static-demo";
 
 /**
  * Tenant-scoped next-best-action rail for operator home. Data comes from SQL-backed signals via

@@ -1,7 +1,7 @@
 import {
   trackUnlockPhaseChanged,
   type OperateNavUnlockPhaseChangeReason,
-} from "@/lib/operator-navigation-telemetry";
+} from "@/lib/operator/operator-navigation-telemetry";
 
 /**
  * Progressive Operate nav unlock phase (persisted for telemetry / legacy callers).

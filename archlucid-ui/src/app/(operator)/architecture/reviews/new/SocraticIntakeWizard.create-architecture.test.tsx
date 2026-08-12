@@ -26,7 +26,7 @@ vi.mock("@/hooks/use-llm-monthly-budget-execution-gate", () => ({
   }),
 }));
 
-vi.mock("@/lib/architecture-creation-init", () => ({
+vi.mock("@/lib/architecture/architecture-creation-init", () => ({
   initializeArchitectureCreation: (...args: unknown[]) => initializeArchitectureCreation(...args),
   applyArchitectureCreationDraftToFormState: () => ({
     freeTextIntent: "",
@@ -97,7 +97,7 @@ vi.mock("@/lib/toast", () => ({
 }));
 
 import { SocraticIntakeWizard } from "@/app/(operator)/architecture/reviews/new/SocraticIntakeWizard";
-import { CREATE_ARCHITECTURE_INTENT } from "@/lib/architecture-workflow-intent";
+import { CREATE_ARCHITECTURE_INTENT } from "@/lib/architecture/architecture-workflow-intent";
 import {
   GUIDED_INTAKE_CONTINUE_TO_DISCOVERY,
   GUIDED_INTAKE_CREATION_ARCHITECTURE_OVERVIEW_LABEL,

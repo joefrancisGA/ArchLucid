@@ -11,7 +11,7 @@ import {
   ONBOARDING_TOUR_WELCOME_BODY,
   OPERATOR_ONBOARDING_TOUR_STEPS,
   type OperatorOnboardingTourStepCopy,
-} from "@/lib/operator-onboarding-tour-steps";
+} from "@/lib/operator/operator-onboarding-tour-steps";
 
 export {
   ONBOARDING_TOUR_DONE_LINK_HREF,

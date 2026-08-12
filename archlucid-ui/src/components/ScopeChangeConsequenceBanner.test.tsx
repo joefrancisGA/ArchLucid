@@ -5,7 +5,7 @@ import { ScopeChangeConsequenceBanner } from "@/components/ScopeChangeConsequenc
 import {
   writeOperatorScopeToStorage,
   type OperatorScopeRecord,
-} from "@/lib/operator-scope-storage";
+} from "@/lib/operator/operator-scope-storage";
 import {
   SCOPE_CHANGE_CONSEQUENCE_HEADING,
   SCOPE_CHANGE_CONSEQUENCE_HONESTY,

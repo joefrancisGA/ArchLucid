@@ -3,7 +3,7 @@ import { join } from "node:path";
 
 import { describe, expect, it } from "vitest";
 
-import { BUYER_EXECUTIVE_SCORECARD_WINDOW_HELP } from "@/lib/buyer-polish-copy";
+import { BUYER_EXECUTIVE_SCORECARD_WINDOW_HELP } from "@/lib/buyer/buyer-polish-copy";
 import {
   EXECUTIVE_DASHBOARD_PAGE_SUBTITLE_BUYER,
   executiveDashboardPageSubtitle,

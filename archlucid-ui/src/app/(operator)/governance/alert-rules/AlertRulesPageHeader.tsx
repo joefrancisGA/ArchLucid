@@ -12,7 +12,7 @@ import { OPERATOR_TYPOGRAPHY } from "@/lib/design-tokens";
 import {
   operatorFreshnessMetadataLabel,
   operatorLastRefreshedExactLabel,
-} from "@/lib/operator-last-refreshed-label";
+} from "@/lib/operator/operator-last-refreshed-label";
 import {
   ALERTS_CONFIGURATION_ACTION_REFRESH,
   ALERTS_CONFIGURATION_ACTION_REFRESHING,

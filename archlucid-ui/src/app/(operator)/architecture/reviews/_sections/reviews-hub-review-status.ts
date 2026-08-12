@@ -1,4 +1,4 @@
-import { buyerDemoPackageCardMeta } from "@/lib/buyer-demo-package-card-meta";
+import { buyerDemoPackageCardMeta } from "@/lib/buyer/buyer-demo-package-card-meta";
 import type { EnterpriseStatusKind } from "@/lib/design-tokens";
 import type { RunSummary } from "@/types/authority";
 

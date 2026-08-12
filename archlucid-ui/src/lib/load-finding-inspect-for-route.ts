@@ -1,7 +1,7 @@
 import { getFindingInspect } from "@/lib/api";
 import type { ApiLoadFailureState } from "@/lib/api-load-failure";
 import { isApiNotFoundFailure, toApiLoadFailure } from "@/lib/api-load-failure";
-import { tryStaticDemoFindingInspect } from "@/lib/operator-static-demo";
+import { tryStaticDemoFindingInspect } from "@/lib/operator/operator-static-demo";
 import type { FindingInspectPayload } from "@/types/finding-inspect";
 
 export type LoadFindingInspectForRouteResult = {

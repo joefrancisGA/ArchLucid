@@ -17,7 +17,7 @@ import { Label } from "@/components/ui/label";
 import { StatusTag } from "@/components/ui/status-tag";
 import { useOperateCapability } from "@/hooks/use-operate-capability";
 import { recordSponsorPreliminaryArchitectureShare } from "@/lib/api/architecture-sponsor-sharing-api";
-import type { BuildArchitectureCreatedHomeModelInput } from "@/lib/architecture-created-home-model";
+import type { BuildArchitectureCreatedHomeModelInput } from "@/lib/architecture/architecture-created-home-model";
 import {
   ARCHITECTURE_SPONSOR_AUDIT_RECORDED,
   ARCHITECTURE_SPONSOR_COPY_SUMMARY_ACTION,
@@ -38,12 +38,12 @@ import {
   ARCHITECTURE_SPONSOR_SHARE_PRELIMINARY_ACTION,
   ARCHITECTURE_SPONSOR_SHARING_PERMISSION_DENIED,
   ARCHITECTURE_SPONSOR_UNRESOLVED_HEADING,
-} from "@/lib/architecture-sponsor-readiness-copy";
+} from "@/lib/architecture/architecture-sponsor-readiness-copy";
 import {
   assessArchitectureSponsorReadiness,
   type SponsorReadinessStatus,
-} from "@/lib/architecture-sponsor-readiness";
-import { buildArchitectureSponsorShareMarkdown } from "@/lib/architecture-sponsor-preliminary-draft";
+} from "@/lib/architecture/architecture-sponsor-readiness";
+import { buildArchitectureSponsorShareMarkdown } from "@/lib/architecture/architecture-sponsor-preliminary-draft";
 import { writeWorkItemBodyToClipboard } from "@/lib/copy-finding-as-work-item";
 import { OPERATOR_TYPOGRAPHY, type EnterpriseStatusKind } from "@/lib/design-tokens";
 import type { QuickDecisionFinding } from "@/lib/quick-decision-summary-derive";

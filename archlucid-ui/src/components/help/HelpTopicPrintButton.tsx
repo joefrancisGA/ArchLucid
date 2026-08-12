@@ -1,7 +1,7 @@
 "use client";
 
 import { Button } from "@/components/ui/button";
-import { printHelpTopicPage } from "@/lib/help-topic-print";
+import { printHelpTopicPage } from "@/lib/help/help-topic-print";
 import type { ProductDocumentationEntry } from "@/lib/product-documentation-registry";
 
 type HelpTopicPrintButtonProps = {

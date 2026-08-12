@@ -23,11 +23,11 @@ import {
   resolveOperatorBillingCurrentPlan,
   type OperatorBillingPlanKind,
   type OperatorBillingSubscriptionLoadState,
-} from "@/lib/operator-billing-current-plan";
+} from "@/lib/operator/operator-billing-current-plan";
 import {
   ARCHLUCID_OPERATOR_SCOPE_CHANGED_EVENT,
   readOperatorScopeFromStorage,
-} from "@/lib/operator-scope-storage";
+} from "@/lib/operator/operator-scope-storage";
 import type { TeamExpansionNudgeStatusPayload } from "@/lib/team-expansion-nudge-trigger";
 import { fetchTenantUsageStatusCached } from "@/lib/tenant-usage-status-client";
 import { cn } from "@/lib/utils";

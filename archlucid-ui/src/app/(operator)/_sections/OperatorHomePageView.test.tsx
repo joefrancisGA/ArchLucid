@@ -74,7 +74,7 @@ vi.mock("@/components/usability/PageContextualHelpButton", () => ({
 
 import { OperatorHomePageView } from "./OperatorHomePageView";
 import { OPERATOR_HOME_PRIMARY_SECTION_HEADING } from "@/lib/design-tokens";
-import { OPERATOR_HOME_RECENT_REVIEWS_HEADING } from "@/lib/operator-home-recent-reviews-heading";
+import { OPERATOR_HOME_RECENT_REVIEWS_HEADING } from "@/lib/operator/operator-home-recent-reviews-heading";
 import type { OperatorHomePageViewModel } from "./operator-home-page-view-model";
 
 const mockRunsDashboard: OperatorHomePageViewModel["runsDashboard"] = {

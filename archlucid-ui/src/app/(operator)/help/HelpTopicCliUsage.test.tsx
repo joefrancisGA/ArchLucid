@@ -17,10 +17,10 @@ import { HelpCliUsageTechnicalReferenceView } from "@/app/(operator)/help/_secti
 import {
   CLI_USAGE_HELP_PROHIBITED_AUDIENCE_TERMS,
   CLI_USAGE_HELP_REFERENCE_LANDING,
-} from "@/lib/help-cli-usage-reference-content";
-import { extractHelpMarkdownHeadings } from "@/lib/help-markdown-headings";
-import { groupHelpMarkdownHeadings } from "@/lib/help-markdown-heading-groups";
-import { prepareHelpMarkdownForPresentation } from "@/lib/help-markdown-presentation";
+} from "@/lib/help/help-cli-usage-reference-content";
+import { extractHelpMarkdownHeadings } from "@/lib/help/help-markdown-headings";
+import { groupHelpMarkdownHeadings } from "@/lib/help/help-markdown-heading-groups";
+import { prepareHelpMarkdownForPresentation } from "@/lib/help/help-markdown-presentation";
 import { tryLoadProductDocumentation } from "@/lib/load-product-documentation";
 import { getProductDocumentationEntry } from "@/lib/product-documentation-registry";
 

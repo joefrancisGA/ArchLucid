@@ -24,7 +24,7 @@
 | Primary finding (PHI storyline) | `phi-minimization-risk` — `/reviews/claims-intake-modernization/findings/phi-minimization-risk` |
 | Compare pair (optional, Operate) | `claims-intake-run-v1` vs `claims-intake-run-v2` — `/compare?priorRunId=claims-intake-run-v1&laterRunId=claims-intake-run-v2` |
 
-Static operator/demo mode serves curated payloads from `archlucid-ui/src/lib/operator-static-demo.ts` and `showcase-static-demo.ts` when APIs are unavailable.
+Static operator/demo mode serves curated payloads from `archlucid-ui/src/lib/operator/operator-static-demo.ts` and `showcase-static-demo.ts` when APIs are unavailable.
 
 ---
 

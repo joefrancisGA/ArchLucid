@@ -6,7 +6,7 @@ import { describe, expect, it } from "vitest";
 import {
   BUYER_SALES_LED_PRICING_NOTE,
   FORBIDDEN_WORKSPACE_ADMIN_ACCESS_MESSAGE,
-} from "@/lib/buyer-polish-copy";
+} from "@/lib/buyer/buyer-polish-copy";
 import { RUNS_EMPTY } from "@/lib/empty-state-presets";
 import { PILOT_OUTCOMES_PAGE_TITLE } from "@/lib/sponsor-report-navigation";
 import { ROUTE_TITLES } from "@/lib/route-static-titles";
@@ -14,7 +14,7 @@ import {
   INTERNAL_CONCEPT_LEAKAGE_BANNED_PATTERNS,
   INTERNAL_CONCEPT_LEAKAGE_SURFACES,
 } from "@/lib/internal-concept-leakage-surfaces";
-import { resolveHelpTopicPermanentRedirect } from "@/lib/help-topic-permanent-redirects";
+import { resolveHelpTopicPermanentRedirect } from "@/lib/help/help-topic-permanent-redirects";
 import {
   getProductDocumentationEntry,
   inAppHelpHref,

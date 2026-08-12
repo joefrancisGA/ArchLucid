@@ -3,9 +3,9 @@
 import { cn } from "@/lib/utils";
 import { useEffect, useMemo, useState } from "react";
 
-import type { HelpMarkdownHeading } from "@/lib/help-markdown-headings";
+import type { HelpMarkdownHeading } from "@/lib/help/help-markdown-headings";
 import type { HelpTopicTocGroup } from "@/lib/caiq-sig-response-help-presentation";
-import { HELP_PAGE_TOC } from "@/lib/help-page-layout";
+import { HELP_PAGE_TOC } from "@/lib/help/help-page-layout";
 
 export type HelpTopicTableOfContentsProps = {
   readonly headings: readonly HelpMarkdownHeading[];

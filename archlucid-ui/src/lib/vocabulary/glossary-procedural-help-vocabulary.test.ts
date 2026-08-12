@@ -10,7 +10,7 @@ import {
   resolveGlossaryProceduralHelpPeerLink,
 } from "@/lib/vocabulary/glossary-procedural-help-vocabulary";
 import { GLOSSARY_HELP_CANONICAL_PATH } from "@/lib/glossary-help-evidence-copy";
-import { HELP_HUB_CANONICAL_PATH } from "@/lib/help-hub-evidence-copy";
+import { HELP_HUB_CANONICAL_PATH } from "@/lib/help/help-hub-evidence-copy";
 
 describe("glossary-procedural-help-vocabulary (TB-2308)", () => {
   it("explains term definitions vs how-to help hub", () => {

@@ -10,8 +10,8 @@ import {
   ARCHITECTURE_CREATED_NEXT_STEP_HEADING,
   ARCHITECTURE_CREATED_OVERFLOW_LABEL,
   ARCHITECTURE_CREATED_SUMMARY_HEADING,
-} from "@/lib/architecture-created-home-copy";
-import type { ArchitectureCreatedHomeModel } from "@/lib/architecture-created-home-model";
+} from "@/lib/architecture/architecture-created-home-copy";
+import type { ArchitectureCreatedHomeModel } from "@/lib/architecture/architecture-created-home-model";
 import { OPERATOR_TYPOGRAPHY } from "@/lib/design-tokens";
 
 export type ArchitectureCreatedHomeViewportProps = {

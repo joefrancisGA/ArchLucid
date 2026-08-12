@@ -6,7 +6,7 @@ import Link from "next/link";
 import { useSetupHealthPresentation } from "@/hooks/useSetupHealthPresentation";
 import { isBuyerPolishedOperatorShellEnv, isNextPublicDemoMode } from "@/lib/demo-ui-env";
 import { OPERATOR_CALLOUT_WARN_CLASS } from "@/lib/design-tokens";
-import { isStaticDemoPayloadFallbackEnabled } from "@/lib/operator-static-demo";
+import { isStaticDemoPayloadFallbackEnabled } from "@/lib/operator/operator-static-demo";
 
 type SetupHealthShellBannerProps = {
   readonly className?: string;

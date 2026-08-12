@@ -13,14 +13,14 @@ import {
   FIRST_REVIEW_GUIDE_OUTCOMES_TITLE,
   FIRST_REVIEW_GUIDE_TEMPLATE_CHOOSE_ACTION,
   FIRST_REVIEW_GUIDE_TEMPLATE_LABEL,
-} from "@/lib/buyer-polish-copy";
+} from "@/lib/buyer/buyer-polish-copy";
 import { OPERATOR_LINK, OPERATOR_SURFACE_CARD_CLASS, OPERATOR_TYPOGRAPHY } from "@/lib/design-tokens";
 import { FIRST_ARCHITECTURE_REVIEW_PAGE_TITLE } from "@/lib/first-architecture-review-help-copy";
 import {
   OPERATOR_HOME_EXAMPLE_TEMPLATE_ID,
   REVIEW_INTAKE_EXAMPLE_TEMPLATES,
   reviewIntakeExampleTemplateHref,
-} from "@/lib/operator-home-example-request";
+} from "@/lib/operator/operator-home-example-request";
 import { SHOWCASE_STATIC_DEMO_RUN_ID } from "@/lib/showcase-static-demo";
 
 function resolveDefaultTemplateTitle(): string {

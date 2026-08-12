@@ -1,10 +1,10 @@
-import { buyerFacingReviewTitleFromSummary } from "@/lib/buyer-facing-review-title";
+import { buyerFacingReviewTitleFromSummary } from "@/lib/buyer/buyer-facing-review-title";
 import { deriveRunListPipelineLabel } from "@/components/RunStatusBadge";
 import { governanceGateLabelFromManifestStatus } from "@/lib/governance/governance-gate-display";
 import { manifestStatusForDisplay } from "@/lib/manifest-status-display";
 import { PIPELINE_STATUS_LABELS } from "@/lib/pipeline-status-labels";
 import { policyPackBuyerLabel } from "@/lib/policy/policy-pack-buyer-label";
-import { shouldShowRunDetailGovernanceCta } from "@/lib/run-detail-governance-cta-visibility";
+import { shouldShowRunDetailGovernanceCta } from "@/lib/runs/run-detail-governance-cta-visibility";
 import {
   humanReviewStatusDisplay,
   severityBadgeLabel,

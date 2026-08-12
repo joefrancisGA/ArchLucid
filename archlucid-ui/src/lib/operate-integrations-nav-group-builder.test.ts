@@ -10,7 +10,7 @@ import {
 import { OPERATOR_NAV_LINK_LABELS } from "@/lib/i18n";
 import { AZURE_BOARDS_SURFACE_ICON } from "@/lib/azure-boards-surface-icon";
 import { OperateIntegrationsNavGroupBuilder } from "@/lib/operate-integrations-nav-group-builder";
-import { OperatorAdminNavGroupBuilder } from "@/lib/operator-admin-nav-group-builder";
+import { OperatorAdminNavGroupBuilder } from "@/lib/operator/operator-admin-nav-group-builder";
 import { WEBHOOKS_SURFACE_ICON } from "@/lib/webhooks-surface-icon";
 
 describe("OperateIntegrationsNavGroupBuilder", () => {

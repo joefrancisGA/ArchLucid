@@ -32,14 +32,14 @@ import { COMMAND_PALETTE_CURATED_TASKS } from "@/lib/command-palette-curated-tas
 import { DOCUMENTATION_SEARCH_ITEMS, resolveDocumentationHref } from "@/lib/docs-search-index";
 import { NAV_GROUPS } from "@/lib/nav-config";
 import { isExecutiveDashboardPath } from "@/lib/executive-dashboard-route";
-import { resetBuyerCtoDemoSession } from "@/lib/buyer-cto-demo-orchestration";
+import { resetBuyerCtoDemoSession } from "@/lib/buyer/buyer-cto-demo-orchestration";
 import {
   ARCHLUCID_BUYER_CTO_DEMO_TOUR_START_EVENT,
-} from "@/lib/buyer-cto-demo-tour";
+} from "@/lib/buyer/buyer-cto-demo-tour";
 import {
   COMMAND_PALETTE_RESET_DEMO_LABEL,
   COMMAND_PALETTE_START_CTO_DEMO_LABEL,
-} from "@/lib/buyer-polish-copy";
+} from "@/lib/buyer/buyer-polish-copy";
 import { isBuyerPolishedOperatorShellEnv } from "@/lib/demo-ui-env";
 import { isShowSystemAdministrationNavEnabled } from "@/lib/features";
 import { isCtoDemoPackEnv } from "@/lib/cto-demo-presenter-pack";
@@ -53,7 +53,7 @@ import { applyPatternLibraryHrefSetGate, applyPatternLibraryNavGate } from "@/li
 import { usePatternLibraryNavVisible } from "@/hooks/use-pattern-library-nav-visible";
 import { CommandPaletteRecentViewsGroup } from "@/components/usability/CommandPaletteRecentViewsGroup";
 import { CommandPaletteSidebarVocabularyRail } from "@/components/CommandPaletteSidebarVocabularyRail";
-import { stampRouteReferrer } from "@/lib/operator-navigation-referrer";
+import { stampRouteReferrer } from "@/lib/operator/operator-navigation-referrer";
 import { OPEN_COMMAND_PALETTE_EVENT, SHORTCUTS } from "@/lib/shortcut-registry";
 
 const RUN_ID_LIKE = /^[0-9a-f]{8}-[0-9a-f]{4}-[0-9a-f]{4}-[0-9a-f]{4}-[0-9a-f]{12}$/i;

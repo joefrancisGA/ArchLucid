@@ -13,8 +13,8 @@
  * audit log. Distinct from Audit trail ≠ Evidence graph / Search (TB-2255).
  */
 
-import { REVIEWS_LIST_PATH } from "@/lib/architecture-routes";
-import { buildArchitectureWorkspaceTabHref } from "@/lib/architecture-workspace-tabs";
+import { REVIEWS_LIST_PATH } from "@/lib/architecture/architecture-routes";
+import { buildArchitectureWorkspaceTabHref } from "@/lib/architecture/architecture-workspace-tabs";
 import { GOVERNANCE_AUDIT_PATH } from "@/lib/governance/governance-route-paths";
 import { buildReviewDetailTabHref } from "@/lib/review-detail-workspace-tabs";
 

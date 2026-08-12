@@ -13,7 +13,7 @@ import { Button } from "@/components/ui/button";
 import { Collapsible, CollapsibleContent, CollapsibleTrigger } from "@/components/ui/collapsible";
 import { getFindingEvidenceChain, getFindingLlmAudit, postFindingFeedback } from "@/lib/api";
 import { buyerLabelForAgentType } from "@/lib/agent-type-buyer-label";
-import { BUYER_EVIDENCE_CHAIN_SOURCE_LINE } from "@/lib/buyer-polish-copy";
+import { BUYER_EVIDENCE_CHAIN_SOURCE_LINE } from "@/lib/buyer/buyer-polish-copy";
 import { isBuyerPolishedOperatorShellEnv } from "@/lib/demo-ui-env";
 import { recordFirstTenantFunnelEvent } from "@/lib/first-tenant-funnel-telemetry";
 import type { ApiLoadFailureState } from "@/lib/api-load-failure";

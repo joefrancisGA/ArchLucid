@@ -9,7 +9,7 @@ import {
 import {
   clearOperatorScopeStorage,
   writeOperatorScopeToStorage,
-} from "@/lib/operator-scope-storage";
+} from "@/lib/operator/operator-scope-storage";
 
 vi.mock("@/hooks/use-operate-capability", () => ({
   useOperateCapability: () => true,

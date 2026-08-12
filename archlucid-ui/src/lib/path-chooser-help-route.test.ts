@@ -5,12 +5,12 @@ import { describe, expect, it } from "vitest";
 
 import { PATH_CHOOSER_HELP_ROUTE_METADATA } from "@/lib/path-chooser-help-route-metadata";
 import { PATH_CHOOSER_HELP_PATH } from "@/lib/path-chooser-help-route";
-import { HELP_CENTER_FEATURED_SLUGS } from "@/lib/help-center-catalog";
-import { findHelpMarkdownTopicRuleSet } from "@/lib/help-markdown-presentation-pipeline";
+import { HELP_CENTER_FEATURED_SLUGS } from "@/lib/help/help-center-catalog";
+import { findHelpMarkdownTopicRuleSet } from "@/lib/help/help-markdown-presentation-pipeline";
 import {
   HELP_MARKDOWN_TOPIC_RULE_STAGES,
   stripPathChooserContributorLeakage,
-} from "@/lib/help-markdown-presentation";
+} from "@/lib/help/help-markdown-presentation";
 import {
   MARKETING_ROBOTS_DISALLOW_PREFIXES,
   MARKETING_SITEMAP_PATHNAMES,
@@ -18,7 +18,7 @@ import {
 
 const HELP_TOPIC_PAGE = join(process.cwd(), "src", "app", "(operator)", "help", "[...topic]", "page.tsx");
 const PRODUCT_PATH_CHOOSER_HELP_SURFACES = [
-  "archlucid-ui/src/lib/help-search-panel-catalog.ts",
+  "archlucid-ui/src/lib/help/help-search-panel-catalog.ts",
   "archlucid-ui/src/lib/in-app-doc-href.ts",
   "archlucid-ui/src/app/(operator)/help/HelpDocsClient.tsx",
   "archlucid-ui/src/lib/product-documentation-registry.ts",

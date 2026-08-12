@@ -16,8 +16,8 @@ import {
   ARCHITECTURE_DIAGRAM_RENDER_FAILURE,
   ARCHITECTURE_DIAGRAM_RETRY_ACTION,
   ARCHITECTURE_DIAGRAM_VIEW_MERMAID_ACTION,
-} from "@/lib/architecture-diagram-copy";
-import * as generateModule from "@/lib/architecture-diagram-generate";
+} from "@/lib/architecture/architecture-diagram-copy";
+import * as generateModule from "@/lib/architecture/architecture-diagram-generate";
 
 const sufficientSource = `## Systems and services
 - Claims API

@@ -12,7 +12,7 @@ import {
   DATA_HANDLING_TENANT_ISOLATION_HELP_PRIMARY_ACTIONS,
   DATA_HANDLING_TENANT_ISOLATION_HELP_RELATED,
 } from "@/lib/data-handling-tenant-isolation-help-guide-content";
-import { getHelpCenterDisplay } from "@/lib/help-center-catalog";
+import { getHelpCenterDisplay } from "@/lib/help/help-center-catalog";
 import { getProductDocumentationEntry } from "@/lib/product-documentation-registry";
 
 describe("data-handling-tenant-isolation-help-guide-content", () => {

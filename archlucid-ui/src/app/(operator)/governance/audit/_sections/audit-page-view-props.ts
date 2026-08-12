@@ -3,7 +3,7 @@ import type { Dispatch, SetStateAction } from "react";
 import type { AuditEvent } from "@/lib/api";
 import type { OperatorSavedView } from "@/lib/api/operator-saved-views";
 import type { ApiLoadFailureState } from "@/lib/api-load-failure";
-import type { OperatorSavedViewPayload } from "@/lib/operator-saved-view-types";
+import type { OperatorSavedViewPayload } from "@/lib/operator/operator-saved-view-types";
 import type { AuditTrailViewMode } from "@/lib/audit-trail-view-mode";
 export type AuditPageEventGroup = {
   readonly stage: string;

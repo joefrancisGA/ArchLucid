@@ -5,7 +5,7 @@ import { describe, expect, it } from "vitest";
 
 import { API_CONTRACTS_HELP_ROUTE_METADATA } from "@/lib/api-contracts-help-route-metadata";
 import { API_CONTRACTS_HELP_PATH } from "@/lib/api-contracts-help-route";
-import { HELP_CENTER_FEATURED_SLUGS } from "@/lib/help-center-catalog";
+import { HELP_CENTER_FEATURED_SLUGS } from "@/lib/help/help-center-catalog";
 import {
   MARKETING_ROBOTS_DISALLOW_PREFIXES,
   MARKETING_SITEMAP_PATHNAMES,
@@ -13,7 +13,7 @@ import {
 import {
   HELP_TOPIC_PERMANENT_REDIRECTS,
   resolveHelpTopicPermanentRedirect,
-} from "@/lib/help-topic-permanent-redirects";
+} from "@/lib/help/help-topic-permanent-redirects";
 import { listProductDocumentationEntries } from "@/lib/product-documentation-registry";
 
 const HELP_TOPIC_PAGE = join(process.cwd(), "src", "app", "(operator)", "help", "[...topic]", "page.tsx");
@@ -21,7 +21,7 @@ const HELP_TOPIC_PAGE = join(process.cwd(), "src", "app", "(operator)", "help", 
 const PRODUCT_API_CONTRACTS_SURFACES = [
   "archlucid-ui/src/lib/in-app-doc-href.ts",
   "archlucid-ui/src/lib/product-documentation-content-kinds.ts",
-  "archlucid-ui/src/lib/help-center-catalog.ts",
+  "archlucid-ui/src/lib/help/help-center-catalog.ts",
 ] as const;
 
 const CANONICAL_API_CONTRACTS_HANDOFF_MARKERS = [

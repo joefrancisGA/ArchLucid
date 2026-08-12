@@ -4,10 +4,10 @@ import { OPERATOR_TYPOGRAPHY } from "@/lib/design-tokens";
 
 import { useEffect, useState } from "react";
 
-import { BUYER_CTO_DEMO_STATIC_PRESENTER_BANNER } from "@/lib/buyer-polish-copy";
-import { readBuyerCtoDemoTourActive } from "@/lib/buyer-cto-demo-tour";
+import { BUYER_CTO_DEMO_STATIC_PRESENTER_BANNER } from "@/lib/buyer/buyer-polish-copy";
+import { readBuyerCtoDemoTourActive } from "@/lib/buyer/buyer-cto-demo-tour";
 import { isBuyerPolishedOperatorShellEnv } from "@/lib/demo-ui-env";
-import { isStaticDemoPayloadFallbackEnabled } from "@/lib/operator-static-demo";
+import { isStaticDemoPayloadFallbackEnabled } from "@/lib/operator/operator-static-demo";
 
 /** Presenter-only notice when cached showcase data is in use (#13). */
 export function CtoDemoStaticFallbackPresenterBanner(): React.JSX.Element | null {

@@ -26,10 +26,10 @@ import {
   DATA_HANDLING_TENANT_ISOLATION_HELP_SOURCES_INTRO,
 } from "@/lib/data-handling-tenant-isolation-help-evidence-copy";
 import { OPERATOR_LAYOUT } from "@/lib/design-tokens";
-import { extractHelpMarkdownHeadings } from "@/lib/help-markdown-headings";
-import { prepareHelpMarkdownForPresentation } from "@/lib/help-markdown-presentation";
-import { omitMarkdownSectionsByAnchor } from "@/lib/help-markdown-sections";
-import { HELP_PAGE_LAYOUT } from "@/lib/help-page-layout";
+import { extractHelpMarkdownHeadings } from "@/lib/help/help-markdown-headings";
+import { prepareHelpMarkdownForPresentation } from "@/lib/help/help-markdown-presentation";
+import { omitMarkdownSectionsByAnchor } from "@/lib/help/help-markdown-sections";
+import { HELP_PAGE_LAYOUT } from "@/lib/help/help-page-layout";
 import { inAppHelpHref } from "@/lib/product-documentation-registry";
 import type { ProductDocumentationEntry } from "@/lib/product-documentation-registry";
 import { cn } from "@/lib/utils";

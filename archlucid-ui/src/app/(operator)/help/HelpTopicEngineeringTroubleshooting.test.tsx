@@ -38,9 +38,9 @@ import {
 
 } from "@/lib/engineering-troubleshooting-help-guide-content";
 
-import { extractHelpMarkdownHeadings } from "@/lib/help-markdown-headings";
+import { extractHelpMarkdownHeadings } from "@/lib/help/help-markdown-headings";
 
-import { prepareHelpMarkdownForPresentation } from "@/lib/help-markdown-presentation";
+import { prepareHelpMarkdownForPresentation } from "@/lib/help/help-markdown-presentation";
 
 import { tryLoadProductDocumentation } from "@/lib/load-product-documentation";
 

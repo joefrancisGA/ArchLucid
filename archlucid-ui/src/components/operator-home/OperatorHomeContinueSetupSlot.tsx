@@ -3,7 +3,7 @@
 import { useNavCommittedArchitectureReview } from "@/components/OperatorNavAuthorityProvider";
 import { OperatorHomeContinueSetupCard } from "@/components/operator-home/OperatorHomeContinueSetupCard";
 import { useFinishSetupReadinessContext } from "@/hooks/use-finish-setup-readiness-context";
-import { resolveOperatorHomeWorkspaceReadiness } from "@/lib/operator-home-workspace-readiness";
+import { resolveOperatorHomeWorkspaceReadiness } from "@/lib/operator/operator-home-workspace-readiness";
 
 type OperatorHomeContinueSetupSlotProps = {
   readonly placement: "prominent" | "hidden";
