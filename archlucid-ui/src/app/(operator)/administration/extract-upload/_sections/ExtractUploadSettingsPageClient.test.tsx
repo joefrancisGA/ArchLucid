@@ -11,12 +11,118 @@ vi.mock("@/lib/toast", () => ({
   showSuccess: vi.fn(),
 }));
 
+import { PAGE_HELP_SHORT_TRIGGER_TEXT } from "@/components/usability/PageContextualHelpButton";
+import {
+  EXTRACT_UPLOAD_EVIDENCE_TRAIL_HREF,
+  EXTRACT_UPLOAD_INVENTORY_ON_FILE_STATUS_LABEL,
+  EXTRACT_UPLOAD_NO_INVENTORY_STATUS_LABEL,
+} from "@/lib/extract-upload-settings-page-copy";
 import { ExtractUploadSettingsPageClient } from "./ExtractUploadSettingsPageClient";
+
+function baselineArtifactsResponse(payload: {
+  hasBaselineArtifacts: boolean;
+  extractorScriptVersion?: string | null;
+}): Response {
+  return new Response(JSON.stringify(payload), {
+    status: 200,
+    headers: { "Content-Type": "application/json" },
+  });
+}
+
+function scriptVersionResponse(version: string): Response {
+  return new Response(`$scriptVersion = "${version}"`, { status: 200 });
+}
 
 describe("ExtractUploadSettingsPageClient", () => {
   afterEach(() => {
     vi.unstubAllGlobals();
     vi.clearAllMocks();
+  });
+
+  it("renders header breadcrumb, short help trigger, and workflow layout", async () => {
+    const fetchMock = vi.fn(async (input: RequestInfo | URL) => {
+      const url = String(input);
+
+      if (url.includes("workspace-baseline-artifacts")) {
+        return baselineArtifactsResponse({ hasBaselineArtifacts: false, extractorScriptVersion: "1.0.0" });
+      }
+
+      if (url.includes("Get-ArchLucidAzurePackage.ps1")) {
+        return scriptVersionResponse("1.0.0");
+      }
+
+      return new Response("not found", { status: 404 });
+    });
+
+    vi.stubGlobal("fetch", fetchMock);
+
+    render(<ExtractUploadSettingsPageClient />);
+
+    expect(screen.getByTestId("extract-upload-page-breadcrumb")).toHaveTextContent("Administration");
+    expect(screen.getByTestId("extract-upload-page-breadcrumb")).toHaveTextContent("Extract & Upload");
+    expect(screen.getByTestId("page-contextual-help-button")).toHaveTextContent(PAGE_HELP_SHORT_TRIGGER_TEXT);
+    expect(screen.getByTestId("extract-upload-page-layout")).toBeInTheDocument();
+    expect(screen.getByTestId("extract-upload-page-aside")).toBeInTheDocument();
+    expect(screen.getByTestId("extract-upload-evidence-trail-link")).toHaveAttribute(
+      "href",
+      EXTRACT_UPLOAD_EVIDENCE_TRAIL_HREF,
+    );
+
+    await waitFor(() => {
+      expect(screen.getByTestId("extract-upload-header-inventory-status")).toHaveTextContent(
+        EXTRACT_UPLOAD_NO_INVENTORY_STATUS_LABEL,
+      );
+    });
+  });
+
+  it("shows inventory-on-file status and extractor version metadata when baseline artifacts exist", async () => {
+    const fetchMock = vi.fn(async (input: RequestInfo | URL) => {
+      const url = String(input);
+
+      if (url.includes("workspace-baseline-artifacts")) {
+        return baselineArtifactsResponse({ hasBaselineArtifacts: true, extractorScriptVersion: "2.4.1" });
+      }
+
+      if (url.includes("Get-ArchLucidAzurePackage.ps1")) {
+        return scriptVersionResponse("2.4.1");
+      }
+
+      return new Response("not found", { status: 404 });
+    });
+
+    vi.stubGlobal("fetch", fetchMock);
+
+    render(<ExtractUploadSettingsPageClient />);
+
+    await waitFor(() => {
+      expect(screen.getByTestId("extract-upload-header-inventory-status")).toHaveTextContent(
+        EXTRACT_UPLOAD_INVENTORY_ON_FILE_STATUS_LABEL,
+      );
+    });
+
+    expect(screen.getByTestId("extract-upload-header-extractor-version")).toHaveTextContent("Extractor script: v2.4.1");
+  });
+
+  it("uses unbroken Step 1 and Step 2 numbering with demo in the aside", () => {
+    const fetchMock = vi.fn(async (input: RequestInfo | URL) => {
+      const url = String(input);
+
+      if (url.includes("workspace-baseline-artifacts") || url.includes("Get-ArchLucidAzurePackage.ps1")) {
+        return new Response("{}", { status: 404 });
+      }
+
+      return new Response("not found", { status: 404 });
+    });
+
+    vi.stubGlobal("fetch", fetchMock);
+
+    render(<ExtractUploadSettingsPageClient />);
+
+    expect(screen.getByText("Step 1 — Collect inventory locally")).toBeInTheDocument();
+    expect(screen.getByText("Step 2 — Upload ZIP")).toBeInTheDocument();
+    expect(screen.queryByText("Step 3 — Upload ZIP")).not.toBeInTheDocument();
+    expect(screen.getByTestId("extract-upload-demo-aside")).toBeInTheDocument();
+    expect(screen.getByTestId("extract-upload-validate-disclosure")).toBeInTheDocument();
   });
 
   it("renders structured upload failure with semantic error code and doc link", async () => {

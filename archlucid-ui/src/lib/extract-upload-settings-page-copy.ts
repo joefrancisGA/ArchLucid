@@ -1,0 +1,52 @@
+import { EXTRACT_UPLOAD_SETTINGS_PATH } from "@/lib/core-pilot-steps";
+import { EVIDENCE_GRAPH_PATH } from "@/lib/evidence-graph-route";
+import { SETTINGS_ROOT_PATH } from "@/lib/settings-admin-route-paths";
+
+export const EXTRACT_UPLOAD_SETTINGS_PAGE_TITLE = "Extract & Upload" as const;
+
+export const EXTRACT_UPLOAD_SETTINGS_PAGE_SUBTITLE =
+  "Run the read-only Azure extractor locally, validate the ZIP, then upload it for architecture reviews." as const;
+
+export const EXTRACT_UPLOAD_SETTINGS_BREADCRUMB_ADMINISTRATION_LABEL = "Administration" as const;
+
+export const EXTRACT_UPLOAD_SETTINGS_BREADCRUMB_ADMINISTRATION_HREF = SETTINGS_ROOT_PATH;
+
+export const EXTRACT_UPLOAD_SETTINGS_NAV_HREF = EXTRACT_UPLOAD_SETTINGS_PATH;
+
+export const EXTRACT_UPLOAD_INVENTORY_ON_FILE_STATUS_LABEL = "Inventory on file" as const;
+
+export const EXTRACT_UPLOAD_NO_INVENTORY_STATUS_LABEL = "No inventory on file" as const;
+
+export const EXTRACT_UPLOAD_INVENTORY_CHECKING_STATUS_LABEL = "Checking inventory…" as const;
+
+export const EXTRACT_UPLOAD_EXTRACTOR_VERSION_METADATA_PREFIX = "Extractor script" as const;
+
+export const EXTRACT_UPLOAD_EVIDENCE_TRAIL_LINK_LABEL = "Evidence trail" as const;
+
+export const EXTRACT_UPLOAD_EVIDENCE_TRAIL_HREF = EVIDENCE_GRAPH_PATH;
+
+export const EXTRACT_UPLOAD_VALIDATE_DISCLOSURE_SUMMARY = "Validate before upload (CLI)" as const;
+
+export const EXTRACT_UPLOAD_VALIDATE_CLI_COMMAND =
+  "archlucid azure validate-zip --path <your-package.zip>" as const;
+
+export const EXTRACT_UPLOAD_DEMO_ASIDE_TITLE = "Try demo data" as const;
+
+export const EXTRACT_UPLOAD_DEMO_ASIDE_DESCRIPTION =
+  "Upload a bundled synthetic Azure extractor ZIP — same schema as Get-ArchLucidAzurePackage.ps1 output — without running the extractor locally." as const;
+
+export const EXTRACT_UPLOAD_STEP_COLLECT_TITLE = "Step 1 — Collect inventory locally" as const;
+
+export const EXTRACT_UPLOAD_STEP_COLLECT_DESCRIPTION =
+  "Copy the quick-start command, run it from your ArchLucid checkout, then upload the ZIP in Step 2. Use -DryRun on the advanced script when you need a preview first." as const;
+
+export const EXTRACT_UPLOAD_STEP_UPLOAD_TITLE = "Step 2 — Upload ZIP" as const;
+
+export const EXTRACT_UPLOAD_STEP_UPLOAD_DESCRIPTION =
+  "Drag and drop or browse. Client-side checks validate manifest.json schemaVersion before the API call." as const;
+
+export const EXTRACT_UPLOAD_ADVANCED_COMMAND_DISCLOSURE_SUMMARY =
+  "Advanced: full Get-ArchLucidAzurePackage.ps1 command" as const;
+
+export const EXTRACT_UPLOAD_SCRIPT_DOWNLOAD_LABEL =
+  "Download Get-ArchLucidAzurePackage.ps1 (inspect before running)" as const;
