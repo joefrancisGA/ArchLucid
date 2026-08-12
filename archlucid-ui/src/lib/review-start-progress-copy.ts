@@ -71,3 +71,19 @@ export const REVIEW_START_DEMO_MODE_SUBMIT_MESSAGE =
 
 /** Delay before showing staged progress during navigation or creation. */
 export const REVIEW_START_STAGED_PANEL_DELAY_MS = 2000;
+
+/**
+ * Ceiling for a soft navigation to the review start page before we offer a direct open.
+ * Deliberately longer than the generic soft-nav budget: clearing the progress chrome while the App
+ * Router is still fetching the route reads to the operator as "nothing happened".
+ */
+export const REVIEW_START_NAVIGATION_STALL_TIMEOUT_MS = 60_000;
+
+/**
+ * Shown when the soft navigation is still outstanding at the ceiling. Framed as slow, not failed —
+ * the draft is already saved and the pending navigation is not cancelled by this notice.
+ */
+export const REVIEW_START_NAVIGATION_STALL_MESSAGE =
+  "The review start page is taking longer than usual to open. Your architecture draft is saved — nothing was lost. Keep waiting, or open the page directly.";
+
+export const REVIEW_START_OPEN_DIRECTLY_CTA = "Open the review start page";

@@ -537,6 +537,56 @@ describe("ArchitectureDraftWorkspace", () => {
     expect(vi.mocked(showError)).not.toHaveBeenCalled();
   });
 
+  it("shows staged progress while Start review prepares the draft, before any navigation", async () => {
+    const longOverview =
+      "Claims intake modernization covering intake channels, routing rules, exception queues, and operator handoffs across the claims workspace.";
+
+    getDraftRequest.mockResolvedValue({
+      ...spawnedDraft,
+      status: "Drafting",
+      spawnedRunId: null,
+      document: {
+        ...spawnedDraft.document,
+        freeTextIntent: longOverview,
+        businessOutcome: "Reduce manual routing",
+        workflowIntent: "create-architecture",
+      },
+    });
+
+    let resolveSave: (value: boolean) => void = () => {};
+    saveDraft.mockReturnValue(
+      new Promise<boolean>((resolve) => {
+        resolveSave = resolve;
+      }),
+    );
+
+    render(<ArchitectureDraftWorkspace architectureId="arch-001" />);
+
+    await waitFor(() => {
+      expect(screen.getByTestId("architecture-scope-understanding-confirm")).toBeInTheDocument();
+    });
+
+    fireEvent.click(screen.getByTestId("architecture-scope-understanding-confirm"));
+
+    await waitFor(() => {
+      expect(screen.getByTestId("architecture-start-review")).not.toBeDisabled();
+    });
+
+    fireEvent.click(screen.getByTestId("architecture-start-review"));
+
+    await waitFor(() => {
+      expect(screen.getByTestId("architecture-start-review-progress")).toBeInTheDocument();
+    });
+
+    expect(screen.getByTestId("architecture-start-review-progress")).toHaveTextContent(
+      /Creating review workspace/i,
+    );
+    expect(screen.getByTestId("architecture-start-review")).toHaveAttribute("data-loading", "true");
+    expect(screen.queryByTestId("architecture-start-review-stall")).toBeNull();
+
+    resolveSave(true);
+  });
+
   it("keeps Start review disabled for scope until confirm, with on-form hint and no validation toast (TB-2006)", async () => {
     const longOverview =
       "Claims intake modernization covering intake channels, routing rules, exception queues, and operator handoffs across the claims workspace.";

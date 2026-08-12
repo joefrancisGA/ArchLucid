@@ -20,11 +20,14 @@ import { PageContextualHelpButton } from "@/components/usability/PageContextualH
 import { PreExecuteCostEstimateNotice } from "@/components/usability/PreExecuteCostEstimateNotice";
 import { Button } from "@/components/ui/button";
 import { ReviewStartLoadingButton } from "@/components/review-intake/ReviewStartLoadingButton";
+import { ReviewStartNavigationStallNotice } from "@/components/review-intake/ReviewStartNavigationStallNotice";
+import { ReviewStartStagedProgress } from "@/components/review-intake/ReviewStartStagedProgress";
 import { Card, CardContent } from "@/components/ui/card";
 import { StatusTag } from "@/components/ui/status-tag";
 import { useArchitectureDraftRegistryEntries } from "@/hooks/use-architecture-draft-registry-entries";
 import { useArchitectureDraftAutosave, type ArchitectureDraftSaveState } from "@/hooks/use-architecture-draft-autosave";
 import { useLlmMonthlyBudgetExecutionGate } from "@/hooks/use-llm-monthly-budget-execution-gate";
+import { useReviewStartNavigationProgress } from "@/hooks/use-review-start-navigation-progress";
 import { SOFT_NAVIGATION_TIMEOUT_MS } from "@/hooks/use-soft-navigation-loading";
 import { useUnsavedChangesGuard } from "@/hooks/use-unsaved-changes-guard";
 import {
@@ -68,7 +71,6 @@ import {
 import { buyerFacingReviewTitleFromSummary } from "@/lib/buyer-facing-review-title";
 import { CREATE_ARCHITECTURE_INTENT } from "@/lib/architecture-workflow-intent";
 import { BUYER_START_ARCHITECTURE_REVIEW_CTA } from "@/lib/buyer-polish-copy";
-import { REVIEW_START_PREPARING_LABEL } from "@/lib/review-start-progress-copy";
 import {
   ARCHITECTURE_CREATION_NEW_DRAFT_SECTION_TITLE,
   ARCHITECTURE_CREATION_RESUME_FIRST_WORKSPACE_LEAD,
@@ -98,7 +100,6 @@ export function ArchitectureDraftWorkspace(props: ArchitectureDraftWorkspaceProp
   });
   const [actorSet, setActorSet] = useState<ActorSet>(() => architectureCreationDefaultActorSet());
   const [exitPending, setExitPending] = useState(false);
-  const [startReviewPending, setStartReviewPending] = useState(false);
   const [scopeGateOpen, setScopeGateOpen] = useState(false);
   const [scopeBullets, setScopeBullets] = useState<ScopeUnderstandingBullet[]>([]);
   const [startReviewError, setStartReviewError] = useState<string | null>(null);
@@ -108,7 +109,7 @@ export function ArchitectureDraftWorkspace(props: ArchitectureDraftWorkspaceProp
   const [registryHydrated, setRegistryHydrated] = useState(false);
   const previousSaveStateRef = useRef<ArchitectureDraftSaveState>("saved");
   const exitTimeoutIdRef = useRef<number | null>(null);
-  const startReviewTimeoutIdRef = useRef<number | null>(null);
+  const reviewStartProgress = useReviewStartNavigationProgress();
 
   const linkedReviewId = architectureDraftSpawnedRunId(draft);
   const handoffEditorLocked = linkedReviewId !== null && !handoffAcknowledged;
@@ -354,7 +355,7 @@ export function ArchitectureDraftWorkspace(props: ArchitectureDraftWorkspaceProp
   }, [fields, hasPersistedDraft, isNewDraft, router, saveDraft]);
 
   const handleStartReview = useCallback(async () => {
-    if (startReviewPending) {
+    if (reviewStartProgress.isPending) {
       return;
     }
 
@@ -363,33 +364,22 @@ export function ArchitectureDraftWorkspace(props: ArchitectureDraftWorkspaceProp
       return;
     }
 
-    if (startReviewTimeoutIdRef.current !== null) {
-      window.clearTimeout(startReviewTimeoutIdRef.current);
-    }
-
     setStartReviewError(null);
-    setStartReviewPending(true);
-
-    // Soft-nav stall must not leave Start review depressed forever.
-    startReviewTimeoutIdRef.current = window.setTimeout(() => {
-      setStartReviewPending(false);
-      startReviewTimeoutIdRef.current = null;
-    }, SOFT_NAVIGATION_TIMEOUT_MS);
+    // Staged progress starts before the save round-trip — the whole wait is server-bound, so the
+    // operator must see named stages instead of an unchanged page.
+    reviewStartProgress.begin();
 
     try {
       const saved = await saveDraft();
 
       if (!saved) {
-        if (startReviewTimeoutIdRef.current !== null) {
-          window.clearTimeout(startReviewTimeoutIdRef.current);
-          startReviewTimeoutIdRef.current = null;
-        }
-
-        setStartReviewPending(false);
+        reviewStartProgress.reset();
         setStartReviewError("Save the architecture draft before starting a review.");
 
         return;
       }
+
+      reviewStartProgress.markPreparingQuestions();
 
       // Confirmed scope belongs on the server copy of the brief only. Mirroring it into local
       // fields would put the block in the operator's own text and feed it back to the panel.
@@ -406,14 +396,9 @@ export function ArchitectureDraftWorkspace(props: ArchitectureDraftWorkspaceProp
         }),
       );
 
-      router.push(startReviewFromArchitectureHref(props.architectureId));
+      reviewStartProgress.openReview(startReviewFromArchitectureHref(props.architectureId));
     } catch {
-      if (startReviewTimeoutIdRef.current !== null) {
-        window.clearTimeout(startReviewTimeoutIdRef.current);
-        startReviewTimeoutIdRef.current = null;
-      }
-
-      setStartReviewPending(false);
+      reviewStartProgress.reset();
       setStartReviewError("Could not start the architecture review. Try again.");
     }
   }, [
@@ -423,10 +408,9 @@ export function ArchitectureDraftWorkspace(props: ArchitectureDraftWorkspaceProp
     isNewDraft,
     linkedReviewId,
     props.architectureId,
-    router,
+    reviewStartProgress,
     saveDraft,
     scopeBullets,
-    startReviewPending,
   ]);
 
   const handleAcknowledgeHandoff = useCallback(() => {
@@ -575,7 +559,7 @@ export function ArchitectureDraftWorkspace(props: ArchitectureDraftWorkspaceProp
       {linkedReviewId === null ? (
         <ArchitectureScopeUnderstandingCheckPanel
           input={scopeUnderstandingInput}
-          disabled={handoffEditorLocked || exitPending || startReviewPending}
+          disabled={handoffEditorLocked || exitPending || reviewStartProgress.isPending}
           onBulletsChange={setScopeBullets}
           onGateChange={setScopeGateOpen}
         />
@@ -613,6 +597,21 @@ export function ArchitectureDraftWorkspace(props: ArchitectureDraftWorkspaceProp
             Confirm the in-scope understanding before starting a review.
           </p>
         ) : null}
+        {reviewStartProgress.stageId !== null ? (
+          <ReviewStartStagedProgress
+            stages={reviewStartProgress.stages}
+            activeStageId={reviewStartProgress.stageId}
+            headline={reviewStartProgress.loadingLabel}
+            detail={reviewStartProgress.waitCopy.detail}
+            testId="architecture-start-review-progress"
+          />
+        ) : null}
+        {reviewStartProgress.stalled ? (
+          <ReviewStartNavigationStallNotice
+            href={startReviewFromArchitectureHref(props.architectureId)}
+            testId="architecture-start-review-stall"
+          />
+        ) : null}
         {startReviewError !== null ? (
           <OperatorMutationInlineError
             message={startReviewError}
@@ -638,9 +637,9 @@ export function ArchitectureDraftWorkspace(props: ArchitectureDraftWorkspaceProp
               variant="primary"
               size="sm"
               disabled={!canStartReview}
-              isLoading={startReviewPending}
+              isLoading={reviewStartProgress.isPending}
               idleLabel={BUYER_START_ARCHITECTURE_REVIEW_CTA}
-              loadingLabel={REVIEW_START_PREPARING_LABEL}
+              loadingLabel={reviewStartProgress.loadingLabel}
               onClick={() => {
                 void handleStartReview();
               }}
