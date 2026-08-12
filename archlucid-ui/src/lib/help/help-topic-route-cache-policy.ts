@@ -1,6 +1,8 @@
 /**
  * Help catch-all caching contract (TB-1600).
  * Buyer topics prerender via `generateStaticParams` + ISR; internal-runbook bearer checks stay request-time only.
+ *
+ * Next.js requires a literal `export const revalidate` in `help/[...topic]/page.tsx` — keep the numeric value in sync here.
  */
 export const HELP_TOPIC_ROUTE_REVALIDATE_SECONDS = 3600;
 

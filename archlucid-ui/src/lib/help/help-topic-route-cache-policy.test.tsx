@@ -48,6 +48,7 @@ describe("help-topic-route-cache-policy TB-1600", () => {
     const pageSource = readFileSync(HELP_TOPIC_PAGE_PATH, "utf8");
     const layoutSource = readFileSync(HELP_LAYOUT_PATH, "utf8");
 
+    expect(pageSource).toContain("export const revalidate = 3600");
     expect(pageSource).toContain("HELP_TOPIC_ROUTE_REVALIDATE_SECONDS");
     expect(pageSource).not.toContain('dynamic = "force-dynamic"');
     expect(pageSource).toContain("generateStaticParams");
