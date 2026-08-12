@@ -18,6 +18,9 @@ import { ACCOUNT_SETTINGS_MENU_ARIA_LABEL } from "@/components/shell/AccountSett
 import { DESIGN_TOKENS, OPERATOR_TYPOGRAPHY } from "@/lib/design-tokens";
 import {
   ACCOUNT_SECURITY_DEMO_GATE_MESSAGE,
+  ACCOUNT_SECURITY_EMPTY_METHODS_HELP_CTA,
+  ACCOUNT_SECURITY_EMPTY_METHODS_MESSAGE,
+  ACCOUNT_SECURITY_INACTIVE_METHOD_HELPER,
   ACCOUNT_SECURITY_PAGE_SUBTITLE,
   ACCOUNT_SECURITY_PAGE_TITLE,
   ACCOUNT_SECURITY_RECENT_AUTH_LIST_UNAVAILABLE,
@@ -48,6 +51,7 @@ import {
   type SignInMethodsProblem,
 } from "@/lib/sign-in-methods-problem";
 import { buildAuthSignInHref } from "@/lib/navigation/auth-sign-in-href";
+import { inAppHelpHref } from "@/lib/product-documentation-registry";
 import { SETTINGS_ACCOUNT_SECURITY_PATH } from "@/lib/settings-admin-route-paths";
 import { appSiteHref } from "@/lib/site-urls";
 import { resolveSignInMethodRemoveBlockedReason } from "@/lib/sign-in-method-remove-blocked-copy";
@@ -428,20 +432,36 @@ export function AccountSecurityPageClient() {
               {ACCOUNT_SECURITY_RECENT_AUTH_LIST_UNAVAILABLE}
             </p>
           ) : listLoaded && methods.length === 0 ? (
-            <div className="space-y-2">
+            <div className="space-y-3" data-testid="account-security-empty-methods">
               <p className={cn("m-0 text-al-text-secondary", OPERATOR_TYPOGRAPHY.body)}>
-                No sign-in methods are linked yet.
+                {ACCOUNT_SECURITY_EMPTY_METHODS_MESSAGE}
               </p>
-              <Button
-                type="button"
-                size="sm"
-                variant="outline"
-                onClick={() => {
-                  document.getElementById("link-email")?.focus();
-                }}
-              >
-                Add a sign-in method
-              </Button>
+              <div className="flex flex-wrap gap-2">
+                <Button type="button" size="sm" variant="primary" asChild>
+                  <Link href={inAppHelpHref("authentication-sign-in")}>{ACCOUNT_SECURITY_EMPTY_METHODS_HELP_CTA}</Link>
+                </Button>
+                <Button
+                  type="button"
+                  size="sm"
+                  variant="outline"
+                  disabled={busy}
+                  onClick={() => {
+                    void refreshMethods();
+                  }}
+                >
+                  Try again
+                </Button>
+                <Button
+                  type="button"
+                  size="sm"
+                  variant="outline"
+                  onClick={() => {
+                    document.getElementById("link-email")?.focus();
+                  }}
+                >
+                  Add a sign-in method
+                </Button>
+              </div>
             </div>
           ) : listLoaded ? (
             <ul className="m-0 list-none space-y-3 p-0">
@@ -458,6 +478,14 @@ export function AccountSecurityPageClient() {
                       </p>
                       <BooleanStatusChip value={method.isActive} />
                     </div>
+                    {!method.isActive ? (
+                      <p
+                        className={cn("m-0 text-al-text-secondary", OPERATOR_TYPOGRAPHY.helper)}
+                        data-testid={`sign-in-method-inactive-helper-${method.identityId}`}
+                      >
+                        {ACCOUNT_SECURITY_INACTIVE_METHOD_HELPER}
+                      </p>
+                    ) : null}
                     {method.maskedIdentifier ? (
                       <p className={cn("m-0 text-al-text-secondary", OPERATOR_TYPOGRAPHY.body)}>
                         {method.maskedIdentifier}

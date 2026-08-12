@@ -91,8 +91,17 @@ import { useNewRunWizardMode } from "./use-new-run-wizard-mode";
 import { useNewRunWizardPendingEvidence } from "./use-new-run-wizard-pending-evidence";
 import { useNewRunWizardQueryPrefill } from "./use-new-run-wizard-query-prefill";
 
+export type NewRunWizardClientProps = {
+  /**
+   * Panel-only mount inside `ReviewsNewPathSwitcher` (Templates and imports tab).
+   * Forces templates-first full wizard and skips nested `OperatorPageContainer`.
+   */
+  readonly embeddedInPathSwitcher?: boolean;
+};
+
 /** Full wizard client: react-hook-form + zod, create run, poll summary with live region + toast. */
-export function NewRunWizardClient() {
+export function NewRunWizardClient(props: NewRunWizardClientProps = {}) {
+  const embeddedInPathSwitcher = props.embeddedInPathSwitcher === true;
   const params = useNewRunWizardIntakeParams();
   const {
     baselineFirst,
@@ -117,6 +126,14 @@ export function NewRunWizardClient() {
     });
 
   const { wizardMode, persistWizardMode } = useNewRunWizardMode(baselineFirst);
+
+  useEffect(() => {
+    if (!embeddedInPathSwitcher || baselineFirst) {
+      return;
+    }
+
+    persistWizardMode("full");
+  }, [baselineFirst, embeddedInPathSwitcher, persistWizardMode]);
   const [focusedPilotModeEnabled, setFocusedPilotModeEnabled] = useState(true);
   const [advancedConfigurationOptIn, setAdvancedConfigurationOptIn] = useState(false);
   const [submitting, setSubmitting] = useState(false);
@@ -362,12 +379,15 @@ export function NewRunWizardClient() {
   const showFullWizardShell = wizardMode === "full" && !showQuickTrack;
   const showSimplifiedPilotWizard = baselineFirst && wizardMode === "quick" && !showQuickTrack;
   const showQuickStartWizard = !baselineFirst && wizardMode === "quick" && !showQuickTrack;
-  const showWizardModeToggle = shouldShowWizardModeToggle(
-    commitPresentationContext.hasCommittedManifest,
-    advancedConfigurationOptIn,
-  );
+  const showWizardModeToggle =
+    !embeddedInPathSwitcher &&
+    shouldShowWizardModeToggle(commitPresentationContext.hasCommittedManifest, advancedConfigurationOptIn);
   const showFirstRunProgressBanner =
-    wizardMode === "quick" && !showQuickTrack && !commitPresentationContext.hasCommittedManifest;
+    !embeddedInPathSwitcher &&
+    wizardMode === "quick" &&
+    !showQuickTrack &&
+    !commitPresentationContext.hasCommittedManifest;
+  const showDetailedPathStepperChrome = showFullWizardShell && !(embeddedInPathSwitcher && stepIndex === 0);
   const fullWizardStepCountLabel: number = stepDefinitions.length;
   const quickModeLabel = baselineFirst ? "Pilot baseline (4 steps)" : "Quick start (3 steps)";
   const showStepRecap =
@@ -413,10 +433,8 @@ export function NewRunWizardClient() {
     />
   );
 
-  return (
-    <FormProvider {...form}>
-      <WizardAiSuggestedFieldsProvider>
-      <OperatorPageContainer ref={wizardReadyRef} variant="workflow" className="space-y-4 pb-36">
+  const wizardBody = (
+    <>
           {followUpSourceRunId !== null ? (
             <p
               className={cn(
@@ -503,46 +521,61 @@ export function NewRunWizardClient() {
               onDismiss={templateWizardSession.dismissRestore}
             />
           ) : null}
-          <div className="flex flex-wrap items-start justify-between gap-2" data-testid="new-run-wizard-progress">
-            <div className="min-w-0 flex-1 space-y-1">
-            <p
-              className="m-0 font-medium text-neutral-900 dark:text-neutral-100"
-              data-testid="new-run-wizard-stage-line"
-            >
-              Stage {macroStep + 1} of {MACRO_WIZARD_STEP_DEFINITIONS.length} —{" "}
-              {MACRO_WIZARD_STEP_DEFINITIONS[macroStep].label}
-            </p>
-            <p
-              className={cn("m-0", OPERATOR_TYPOGRAPHY.helper)}
-              data-testid="new-run-wizard-step-line"
-            >
-              Step {stepIndex + 1}: {stepDefinitions[stepIndex].label}
-            </p>
-            </div>
-            <div className="flex shrink-0 flex-wrap items-center justify-end gap-2">
-              <WizardSessionSaveStatus
-                saveState={templateWizardSession.saveState}
-                lastSavedUtc={templateWizardSession.lastSavedUtc}
+          {showDetailedPathStepperChrome ? (
+            <>
+              <div className="flex flex-wrap items-start justify-between gap-2" data-testid="new-run-wizard-progress">
+                <div className="min-w-0 flex-1 space-y-1">
+                  <p
+                    className="m-0 font-medium text-neutral-900 dark:text-neutral-100"
+                    data-testid="new-run-wizard-stage-line"
+                  >
+                    Stage {macroStep + 1} of {MACRO_WIZARD_STEP_DEFINITIONS.length} —{" "}
+                    {MACRO_WIZARD_STEP_DEFINITIONS[macroStep].label}
+                  </p>
+                  <p
+                    className={cn("m-0", OPERATOR_TYPOGRAPHY.helper)}
+                    data-testid="new-run-wizard-step-line"
+                  >
+                    Step {stepIndex + 1}: {stepDefinitions[stepIndex].label}
+                  </p>
+                </div>
+                <div className="flex shrink-0 flex-wrap items-center justify-end gap-2">
+                  <WizardSessionSaveStatus
+                    saveState={templateWizardSession.saveState}
+                    lastSavedUtc={templateWizardSession.lastSavedUtc}
+                  />
+                  <ArchitectureRequestWizardHelpDrawer />
+                </div>
+              </div>
+
+              <WizardStepper
+                steps={[...MACRO_WIZARD_STEP_DEFINITIONS]}
+                currentStep={macroStep}
+                completedSteps={completedMacroSteps}
               />
-              <ArchitectureRequestWizardHelpDrawer />
-            </div>
-          </div>
+            </>
+          ) : null}
 
-          <WizardStepper
-            steps={[...MACRO_WIZARD_STEP_DEFINITIONS]}
-            currentStep={macroStep}
-            completedSteps={completedMacroSteps}
-          />
-
-          {showStepRecap ? <NewRunWizardStepRecap stepIndex={stepIndex} /> : null}
+          {showDetailedPathStepperChrome && showStepRecap ? <NewRunWizardStepRecap stepIndex={stepIndex} /> : null}
 
           {stepIndex === 0 ? (
-            <WizardStepPreset
-              baselineFirst={baselineFirst}
-              featuredSampleRunId={featuredSampleRunId}
-              onStartingPointCommitted={() => goToStep(1)}
-              onWizardNotice={(kind, message) => showToast(kind === "ok" ? "ok" : "err", message)}
-            />
+            embeddedInPathSwitcher ? (
+              <div data-testid="reviews-new-detailed-template-entry">
+                <WizardStepPreset
+                  baselineFirst={baselineFirst}
+                  featuredSampleRunId={featuredSampleRunId}
+                  onStartingPointCommitted={() => goToStep(1)}
+                  onWizardNotice={(kind, message) => showToast(kind === "ok" ? "ok" : "err", message)}
+                />
+              </div>
+            ) : (
+              <WizardStepPreset
+                baselineFirst={baselineFirst}
+                featuredSampleRunId={featuredSampleRunId}
+                onStartingPointCommitted={() => goToStep(1)}
+                onWizardNotice={(kind, message) => showToast(kind === "ok" ? "ok" : "err", message)}
+              />
+            )
           ) : null}
           {stepIndex === FULL_WIZARD_EVIDENCE_STEP_INDEX && !baselineFirst ? (
             <WizardStepEvidenceUpload
@@ -636,8 +669,22 @@ export function NewRunWizardClient() {
               <LlmUsageBandHint />
             </div>
           ) : null}
-        </OperatorPageContainer>
+    </>
+  );
+
+  return (
+    <FormProvider {...form}>
+      <WizardAiSuggestedFieldsProvider>
+        {embeddedInPathSwitcher ? (
+          <div ref={wizardReadyRef} className="space-y-4 pb-36" data-testid="new-run-wizard-panel">
+            {wizardBody}
+          </div>
+        ) : (
+          <OperatorPageContainer ref={wizardReadyRef} variant="workflow" className="space-y-4 pb-36">
+            {wizardBody}
+          </OperatorPageContainer>
+        )}
       </WizardAiSuggestedFieldsProvider>
-      </FormProvider>
+    </FormProvider>
   );
 }

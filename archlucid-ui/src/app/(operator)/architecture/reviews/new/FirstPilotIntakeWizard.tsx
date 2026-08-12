@@ -14,7 +14,6 @@ import { ReviewIntakeExampleTemplateCallout } from "@/components/review-intake/R
 import { ReviewPathTimeEstimateBanner } from "@/components/ReviewPathTimeEstimateBanner";
 import { ArchitectureScopeUnderstandingCheckPanel } from "@/components/architecture/ArchitectureScopeUnderstandingCheckPanel";
 import { EvidenceGapForecastPanel } from "@/components/evidence/EvidenceGapForecastPanel";
-import { Card, CardContent, CardDescription, CardHeader, CardTitle } from "@/components/ui/card";
 import { Input } from "@/components/ui/input";
 import { Label } from "@/components/ui/label";
 import { Textarea } from "@/components/ui/textarea";
@@ -329,12 +328,19 @@ export function FirstPilotIntakeWizard(props: FirstPilotIntakeWizardProps) {
       {llmBudgetStatus !== null ? <LlmMonthlyBudgetExceededBanner status={llmBudgetStatus} /> : null}
       {exampleTemplate !== null ? <ReviewIntakeExampleTemplateCallout template={exampleTemplate} /> : null}
 
-      <Card>
-        <CardHeader>
-          <CardTitle>{CREATE_REVIEW_PACKAGE_HEADING}</CardTitle>
-          <CardDescription>{REVIEW_INTAKE_EVIDENCE_FIRST_PROGRESS_LEAD}</CardDescription>
-        </CardHeader>
-        <CardContent className="space-y-4">
+      <section className="space-y-4" data-testid="first-pilot-intake-panel">
+        <div className="space-y-1">
+          <h2
+            className={cn("font-semibold text-neutral-900 dark:text-neutral-100", OPERATOR_TYPOGRAPHY.cardTitle)}
+          >
+            {CREATE_REVIEW_PACKAGE_HEADING}
+          </h2>
+          <p className={cn("m-0 text-neutral-600 dark:text-neutral-400", OPERATOR_TYPOGRAPHY.helper)}>
+            {REVIEW_INTAKE_EVIDENCE_FIRST_PROGRESS_LEAD}
+          </p>
+        </div>
+
+        <div className="space-y-4">
           <div className="space-y-2">
             <IntakeFieldLabel htmlFor="first-pilot-title" label="Review title" required />
             <Input
@@ -485,8 +491,8 @@ export function FirstPilotIntakeWizard(props: FirstPilotIntakeWizardProps) {
             />
             <NewReviewSampleEscapeLink presentation="inline" />
           </div>
-        </CardContent>
-      </Card>
+        </div>
+      </section>
 
       <FocusedPilotPolicyPackAppliedCallout />
     </div>

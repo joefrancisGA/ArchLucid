@@ -77,12 +77,21 @@ describe("FirstPilotIntakeWizard", () => {
     expect(FIRST_PILOT_INTAKE_SUBMIT_VALIDATION_MESSAGE.toLowerCase()).not.toContain("evidence file");
   });
 
-  it("states the evidence-or-context rule once, on the form card (TB-747)", () => {
+  it("states the evidence-or-context rule once on the workflow panel (TB-747, TB-1874)", () => {
     render(<FirstPilotIntakeWizard />);
 
+    expect(screen.getByTestId("first-pilot-intake-panel")).toBeInTheDocument();
     expect(screen.getAllByText(REVIEW_INTAKE_EVIDENCE_FIRST_PROGRESS_LEAD)).toHaveLength(1);
     expect(screen.queryByTestId("first-pilot-intake-progress")).not.toBeInTheDocument();
     expect(screen.queryByTestId("first-run-intake-step-guide")).not.toBeInTheDocument();
+  });
+
+  it("does not require Card chrome for the quick-start intake panel (TB-1874)", () => {
+    render(<FirstPilotIntakeWizard />);
+
+    expect(screen.getByRole("heading", { name: CREATE_REVIEW_PACKAGE_HEADING })).toBeInTheDocument();
+    expect(screen.getByTestId("first-pilot-title")).toBeInTheDocument();
+    expect(screen.getByTestId("first-pilot-start")).toBeInTheDocument();
   });
 
   it("names the remaining gap beside the start button and surfaces validation on click", () => {

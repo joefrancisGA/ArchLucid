@@ -13,6 +13,9 @@ import { SignInMethodsApiError } from "@/lib/sign-in-methods-problem";
 import {
   ACCOUNT_SECURITY_AUTH_GATE_MESSAGE,
   ACCOUNT_SECURITY_DEMO_GATE_MESSAGE,
+  ACCOUNT_SECURITY_EMPTY_METHODS_HELP_CTA,
+  ACCOUNT_SECURITY_EMPTY_METHODS_MESSAGE,
+  ACCOUNT_SECURITY_INACTIVE_METHOD_HELPER,
   ACCOUNT_SECURITY_RECENT_AUTH_LIST_UNAVAILABLE,
 } from "@/lib/account-security-page-copy";
 import { SETTINGS_ACCOUNT_SECURITY_PATH } from "@/lib/settings-admin-route-paths";
@@ -82,7 +85,7 @@ describe("AccountSecurityPageClient", () => {
     expect(emptyState.textContent).not.toContain("{");
     expect(emptyState.textContent).not.toContain("correlationId");
     expect(emptyState).toHaveTextContent(ACCOUNT_SECURITY_AUTH_GATE_MESSAGE);
-    expect(screen.queryByText("No sign-in methods are linked yet.")).not.toBeInTheDocument();
+    expect(screen.queryByText(ACCOUNT_SECURITY_EMPTY_METHODS_MESSAGE)).not.toBeInTheDocument();
     expect(screen.queryByTestId("add-sign-in-method-card")).not.toBeInTheDocument();
     expect(screen.queryByTestId("account-security-auth-gate")).not.toBeInTheDocument();
 
@@ -149,12 +152,18 @@ describe("AccountSecurityPageClient", () => {
     expect(breadcrumb).toHaveTextContent("Sign-in methods");
   });
 
-  it("shows empty copy only after a successful empty list load", async () => {
+  it("shows empty copy with authentication help CTA only after a successful empty list load (TB-1884)", async () => {
     vi.mocked(fetchSignInMethods).mockResolvedValue([]);
 
     render(<AccountSecurityPageClient />);
 
-    expect(await screen.findByText("No sign-in methods are linked yet.")).toBeInTheDocument();
+    const emptyState = await screen.findByTestId("account-security-empty-methods");
+
+    expect(emptyState).toHaveTextContent(ACCOUNT_SECURITY_EMPTY_METHODS_MESSAGE);
+    expect(screen.getByRole("link", { name: ACCOUNT_SECURITY_EMPTY_METHODS_HELP_CTA })).toHaveAttribute(
+      "href",
+      "/help/authentication-sign-in",
+    );
     expect(screen.queryByTestId("account-security-auth-gate")).not.toBeInTheDocument();
   });
 
@@ -245,6 +254,21 @@ describe("AccountSecurityPageClient", () => {
 
     expect(await screen.findByText(SIGN_IN_METHOD_LAST_REMAINING_BLOCKED_REASON)).toBeInTheDocument();
     expect(screen.queryByTestId("sign-in-method-remove-id-1")).not.toBeInTheDocument();
+  });
+
+  it("explains inactive sign-in methods with recovery copy (TB-1884)", async () => {
+    vi.mocked(fetchSignInMethods).mockResolvedValue([
+      {
+        ...activeMethod,
+        isActive: false,
+      },
+    ]);
+
+    render(<AccountSecurityPageClient />);
+
+    expect(await screen.findByTestId("sign-in-method-inactive-helper-id-1")).toHaveTextContent(
+      ACCOUNT_SECURITY_INACTIVE_METHOD_HELPER,
+    );
   });
 
   it("opens AlertDialog for remove and never calls window.confirm", async () => {

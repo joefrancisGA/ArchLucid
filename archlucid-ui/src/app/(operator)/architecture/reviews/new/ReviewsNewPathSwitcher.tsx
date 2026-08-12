@@ -5,8 +5,6 @@ import dynamic from "next/dynamic";
 import { usePathname, useRouter, useSearchParams } from "next/navigation";
 import { Suspense, useEffect, useMemo, useState } from "react";
 
-import { OperatorPageContainer } from "@/components/operator/OperatorPageContainer";
-import { NewRunWizardSkeleton } from "@/components/skeletons/NewRunWizardSkeleton";
 import { InlineGuidanceText } from "@/components/InlineGuidanceText";
 import { Button } from "@/components/ui/button";
 import { isAcceleratorPackId } from "@/lib/accelerator-wizard-presets";
@@ -79,7 +77,7 @@ function ReviewsNewActiveWizard(props: { readonly activePath: ReviewsNewActivePa
   }
 
   if (activePath === "detailed") {
-    return <NewRunWizardClient />;
+    return <NewRunWizardClient embeddedInPathSwitcher />;
   }
 
   return <FirstPilotIntakeWizard />;
@@ -159,7 +157,7 @@ export function ReviewsNewPathSwitcher() {
   };
 
   return (
-    <OperatorPageContainer variant="workflow" className="space-y-5">
+    <div className="space-y-5" data-testid="reviews-new-path-switcher">
       <Suspense fallback={null}>
         <ReviewsNewDeferredIntentCallout />
       </Suspense>
@@ -243,13 +241,13 @@ export function ReviewsNewPathSwitcher() {
               <SocraticIntakeWizard />
             </TabsContent>
             <TabsContent value="detailed" className="mt-0 pt-1" data-testid="reviews-new-path-panel">
-              <NewRunWizardClient />
+              <NewRunWizardClient embeddedInPathSwitcher />
             </TabsContent>
           </Tabs>
         )
       ) : (
         <p className={OPERATOR_TYPOGRAPHY.helper}>Loading…</p>
       )}
-    </OperatorPageContainer>
+    </div>
   );
 }
