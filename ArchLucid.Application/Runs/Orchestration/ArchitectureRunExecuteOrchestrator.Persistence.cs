@@ -201,4 +201,29 @@ public sealed partial class ArchitectureRunExecuteOrchestrator
                 cancellationToken);
         }
     }
+
+
+    private async Task<RunRecord?> TryLoadRunHeaderForStampingAsync(
+        string runId,
+        ScopeContext scope,
+        CancellationToken cancellationToken)
+    {
+        if (!TryParseRunGuid(runId, out Guid runGuid))
+            return null;
+
+        return await runRepository.GetByIdAsync(scope, runGuid, cancellationToken);
+    }
+
+
+    private void StampTaskExecutionModesOnResults(IReadOnlyList<AgentResult> results, RunRecord? header)
+    {
+        bool isSimulatorHost = !_agentExecutionOptions.Value.Mode.Equals("Real", StringComparison.OrdinalIgnoreCase);
+        bool realModeFellBackToSimulator = header?.RealModeFellBackToSimulator ?? false;
+
+        AgentResultTaskExecutionModePersistStamper.EnsureStamped(
+            results,
+            _agentExecutionOptions.Value,
+            realModeFellBackToSimulator,
+            isSimulatorHost);
+    }
 }
