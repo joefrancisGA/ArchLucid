@@ -1,5 +1,5 @@
-import { fireEvent, render, screen } from "@testing-library/react";
-import { afterEach, describe, expect, it, vi } from "vitest";
+import { fireEvent, screen } from "@testing-library/react";
+import { afterEach, beforeEach, describe, expect, it, vi } from "vitest";
 
 import {
   CORE_PILOT_FIRST_REVIEW_HEADING,
@@ -7,12 +7,20 @@ import {
   CORE_PILOT_WORKFLOW_SUMMARY_LINE,
 } from "@/lib/core-pilot-first-review-copy";
 import { CORE_PILOT_STEPS } from "@/lib/core-pilot-steps";
+import { getShowcaseManifestHref, getShowcaseWalkthroughHref } from "@/lib/buyer/buyer-safe-review-navigation";
+import { SHOWCASE_STATIC_DEMO_RUN_ID } from "@/lib/showcase-static-demo";
+import { resetOperatorQueryClientForTests } from "@/lib/query/operator-query-client";
+import { renderWithOperatorQuery } from "@/testing/render-with-operator-query";
 
 import { OperatorFirstRunWorkflowPanel } from "@/components/operator/OperatorFirstRunWorkflowPanel";
 
 /** Avoid demo fallback rows flipping the panel to "explore completed output" mid-test (async merge). */
 vi.mock("@/lib/operator/operator-run-picker-client", () => ({
   loadProjectRunsMergedWithDemoFallback: vi.fn(async () => ({ items: [], loadError: false })),
+}));
+
+vi.mock("@/lib/query/operator-query-persist-client", () => ({
+  setupOperatorQueryClientPersistence: () => {},
 }));
 
 vi.mock("@/lib/core-pilot-commit-context", async (importOriginal) => {
@@ -32,13 +40,19 @@ vi.mock("@/lib/api", async () => {
 });
 
 describe("OperatorFirstRunWorkflowPanel", () => {
+  beforeEach(() => {
+    sessionStorage.clear();
+    resetOperatorQueryClientForTests();
+  });
+
   afterEach(() => {
     localStorage.clear();
+    sessionStorage.clear();
     vi.restoreAllMocks();
   });
 
   it("after hydrate shows workflow heading, summary, and checklist anchor", async () => {
-    render(<OperatorFirstRunWorkflowPanel />);
+    renderWithOperatorQuery(<OperatorFirstRunWorkflowPanel />);
 
     const heading = await screen.findByRole("heading", { name: CORE_PILOT_FIRST_REVIEW_HEADING });
     expect(heading).toBeInTheDocument();
@@ -56,7 +70,7 @@ describe("OperatorFirstRunWorkflowPanel", () => {
   });
 
   it("hide guide persists and show restores panel", async () => {
-    render(<OperatorFirstRunWorkflowPanel />);
+    renderWithOperatorQuery(<OperatorFirstRunWorkflowPanel />);
 
     await screen.findByRole("heading", { name: CORE_PILOT_FIRST_REVIEW_HEADING });
 
@@ -72,20 +86,20 @@ describe("OperatorFirstRunWorkflowPanel", () => {
   });
 
   it("exploreCompletedOutput lists manifest link before review detail and walkthrough", async () => {
-    render(<OperatorFirstRunWorkflowPanel exploreCompletedOutput />);
+    renderWithOperatorQuery(<OperatorFirstRunWorkflowPanel exploreCompletedOutput />);
 
     expect(await screen.findByRole("heading", { name: "Sample review shortcuts" })).toBeInTheDocument();
     expect(screen.getByRole("link", { name: "View signed record summary" })).toHaveAttribute(
       "href",
-      "/governance/signed-records/a1c2e3f4-a5b6-7890-abcd-ef1234567890",
+      getShowcaseManifestHref(),
     );
     expect(screen.getByRole("link", { name: "Open review detail" })).toHaveAttribute(
       "href",
-      "/architecture/reviews/claims-intake-modernization",
+      `/architecture/reviews/${SHOWCASE_STATIC_DEMO_RUN_ID}`,
     );
     expect(screen.getByRole("link", { name: "Read-only walkthrough" })).toHaveAttribute(
       "href",
-      "/showcase/claims-intake-modernization",
+      getShowcaseWalkthroughHref(),
     );
   });
 });

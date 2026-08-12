@@ -7,14 +7,12 @@ import Link from "next/link";
 
 import { useEffect, useMemo, useRef, useState } from "react";
 
-import { loadProjectRunsMergedWithDemoFallback } from "@/lib/operator/operator-run-picker-client";
-import {
-  fetchCorePilotTeamChecklist,
-  putCorePilotTeamChecklistStep,
-} from "@/lib/api";
+import { useAskProjectRunsQuery } from "@/hooks/use-ask-project-runs-query";
+import { useCorePilotCommitContextQuery } from "@/hooks/use-core-pilot-commit-context-query";
+import { useCorePilotTeamChecklistQuery } from "@/hooks/use-core-pilot-team-checklist-query";
+import { putCorePilotTeamChecklistStep } from "@/lib/api";
 import { corePilotStepDoneStorageKey, emitCorePilotChecklistChanged } from "@/lib/core-pilot-checklist-storage";
 import type { CorePilotCommitContext } from "@/lib/core-pilot-commit-context";
-import { fetchCorePilotCommitContextCached } from "@/lib/core-pilot-commit-context";
 import {
   CORE_PILOT_FIRST_REVIEW_HEADING,
   CORE_PILOT_FIRST_REVIEW_HEADING_COMPACT,
@@ -66,35 +64,14 @@ export function OperatorFirstRunWorkflowPanel(props: { exploreCompletedOutput?: 
   const [graduated, setGraduated] = useState(false);
   const [doneByIndex, setDoneByIndex] = useState<boolean[]>(() => corePilotSteps.map(() => false));
   const [hasAnyRun, setHasAnyRun] = useState(false);
-  const [commitCtx, setCommitCtx] = useState<CorePilotCommitContext>(() =>
-    exploreCompletedOutput ? showcaseCommitContext : emptyCommitContext,
-  );
 
-  useEffect(() => {
-    if (exploreCompletedOutput) {
-      return;
-    }
+  const commitContextQuery = useCorePilotCommitContextQuery({ enabled: !exploreCompletedOutput });
+  const runsQuery = useAskProjectRunsQuery("default");
+  const checklistQuery = useCorePilotTeamChecklistQuery({ enabled: hydrated && !exploreCompletedOutput });
 
-    let canceled = false;
-
-    void (async () => {
-      try {
-        const ctx = await fetchCorePilotCommitContextCached();
-
-        if (!canceled) {
-          setCommitCtx(ctx);
-        }
-      } catch {
-        if (!canceled) {
-          setCommitCtx(emptyCommitContext);
-        }
-      }
-    })();
-
-    return () => {
-      canceled = true;
-    };
-  }, [exploreCompletedOutput]);
+  const commitCtx = exploreCompletedOutput
+    ? showcaseCommitContext
+    : (commitContextQuery.data ?? emptyCommitContext);
 
   useEffect(() => {
     const nextDone: boolean[] = [];
@@ -143,88 +120,66 @@ export function OperatorFirstRunWorkflowPanel(props: { exploreCompletedOutput?: 
   }, []);
 
   useEffect(() => {
-    if (!hydrated || exploreCompletedOutput) {
+    if (!hydrated || exploreCompletedOutput || checklistQuery.isPending) {
       return;
     }
 
-    let canceled = false;
+    if (checklistQuery.isError) {
+      return;
+    }
 
-    void (async () => {
-      try {
-        const rows = await fetchCorePilotTeamChecklist();
+    const rows = checklistQuery.data ?? [];
+    const serverDone = corePilotSteps.map(() => false);
 
-        if (canceled) {
-          return;
-        }
-
-        const serverDone = corePilotSteps.map(() => false);
-
-        for (const r of rows) {
-          if (r.stepIndex >= 0 && r.stepIndex < serverDone.length && r.isCompleted) {
-            serverDone[r.stepIndex] = true;
-          }
-        }
-
-        setDoneByIndex((prev) => {
-          const merged = prev.map((p, i) => p || serverDone[i]);
-
-          for (let i = 0; i < merged.length; i++) {
-            try {
-              if (merged[i]) {
-                window.localStorage.setItem(corePilotStepDoneStorageKey(i), "1");
-              } else {
-                window.localStorage.removeItem(corePilotStepDoneStorageKey(i));
-              }
-            } catch {
-              /* private mode */
-            }
-          }
-
-          for (let i = 0; i < merged.length; i++) {
-            if (merged[i] && !serverDone[i]) {
-              void putCorePilotTeamChecklistStep(i, true).catch(() => {});
-            }
-          }
-
-          return merged;
-        });
-        emitCorePilotChecklistChanged();
-      } catch {
-        /* unauthenticated / offline — keep local-only checklist */
+    for (const r of rows) {
+      if (r.stepIndex >= 0 && r.stepIndex < serverDone.length && r.isCompleted) {
+        serverDone[r.stepIndex] = true;
       }
-    })();
+    }
 
-    return () => {
-      canceled = true;
-    };
-  }, [exploreCompletedOutput, hydrated]);
+    setDoneByIndex((prev) => {
+      const merged = prev.map((p, i) => p || serverDone[i]);
+
+      for (let i = 0; i < merged.length; i++) {
+        try {
+          if (merged[i]) {
+            window.localStorage.setItem(corePilotStepDoneStorageKey(i), "1");
+          } else {
+            window.localStorage.removeItem(corePilotStepDoneStorageKey(i));
+          }
+        } catch {
+          /* private mode */
+        }
+      }
+
+      for (let i = 0; i < merged.length; i++) {
+        if (merged[i] && !serverDone[i]) {
+          void putCorePilotTeamChecklistStep(i, true).catch(() => {});
+        }
+      }
+
+      return merged;
+    });
+    emitCorePilotChecklistChanged();
+  }, [
+    checklistQuery.data,
+    checklistQuery.isError,
+    checklistQuery.isPending,
+    exploreCompletedOutput,
+    hydrated,
+  ]);
 
   useEffect(() => {
     setHasAnyRun(readHasExistingRunsCache());
-    let canceled = false;
 
-    void (async () => {
-      try {
-        const merged = await loadProjectRunsMergedWithDemoFallback("default");
-        const next = merged.items.length > 0;
+    if (!runsQuery.data) {
+      return;
+    }
 
-        if (canceled) {
-          return;
-        }
-
-        setHasAnyRun(next);
-        writeHasExistingRunsCache(next);
-      } catch {
-        if (!canceled) {
-          setHasAnyRun(false);
-        }
-      }
-    })();
-
-    return () => {
-      canceled = true;
-    };
-  }, []);
+    const next = runsQuery.data.items.length > 0;
+    setHasAnyRun(next);
+    writeHasExistingRunsCache(next);
+  }, [runsQuery.data]);
 
   const doneCount = useMemo(() => doneByIndex.filter(Boolean).length, [doneByIndex]);
   const allDone = doneCount === corePilotSteps.length;

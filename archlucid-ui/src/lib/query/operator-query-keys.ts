@@ -28,6 +28,7 @@ export const operatorQueryKeys = {
   ) =>
     ["operator", "governance", "findings-queue", scope, { useCuratedDemoSpine }] as const,
   corePilotCommitContext: ["operator", "core-pilot", "commit-context"] as const,
+  corePilotTeamChecklist: ["operator", "tenant", "core-pilot-team-checklist"] as const,
   pilotRecentDeltas: (scope: OperatorScopeQueryKey, count: number) =>
     ["operator", "pilots", "recent-deltas", scope, { count }] as const,
   runsByProjectPaged: (params: RunsByProjectPagedParams) => ["operator", "runs", "paged", params] as const,
