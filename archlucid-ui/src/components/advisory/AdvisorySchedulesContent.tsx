@@ -82,6 +82,7 @@ export function AdvisorySchedulesContent(): ReactElement {
   const [failure, setFailure] = useState<ApiLoadFailureState | null>(null);
   const [statusMessage, setStatusMessage] = useState<string | null>(null);
   const [formResetKey, setFormResetKey] = useState(0);
+  const [showCreatePanel, setShowCreatePanel] = useState(false);
   const [projectLabel, setProjectLabel] = useState("Current project");
   const [runProjectSlug, setRunProjectSlug] = useState("default");
   const [displayTimeZoneId] = useState(() => resolveBrowserTimeZoneId());
@@ -176,6 +177,7 @@ export function AdvisorySchedulesContent(): ReactElement {
       setCreateSuccess(true);
       setStatusMessage(ADVISORY_SCANS_SCHEDULES_CREATE_SUCCESS);
       setFormResetKey((value) => value + 1);
+      setShowCreatePanel(false);
 
       window.setTimeout(() => {
         const node = document.querySelector(
@@ -221,16 +223,35 @@ export function AdvisorySchedulesContent(): ReactElement {
     }
   }
 
+  const isEmpty = schedules.length === 0;
+  const showCreateForm = !canMutateSchedules || showCreatePanel;
+
+  const createScheduleButton =
+    canMutateSchedules && !showCreatePanel ? (
+      <Button
+        type="button"
+        size="sm"
+        variant="primary"
+        data-testid="advisory-schedules-create-action"
+        onClick={() => setShowCreatePanel(true)}
+      >
+        Create schedule
+      </Button>
+    ) : null;
+
   return (
     <div className="w-full max-w-[1200px] px-4 py-6" data-testid="advisory-schedules-content">
       <DocumentLayout>
-        <div className="m-0 mb-1">
-          <p className={cn("m-0 text-neutral-600 dark:text-neutral-400", OPERATOR_TYPOGRAPHY.helper)}>
-            Advisory scans
-          </p>
-          <h2 className={cn("m-0 font-bold text-neutral-900 dark:text-neutral-50", OPERATOR_TYPOGRAPHY.pageTitle)}>
-            {ADVISORY_SCANS_SCHEDULES_PAGE_HEADING}
-          </h2>
+        <div className="m-0 mb-1 flex flex-wrap items-start justify-between gap-2">
+          <div>
+            <p className={cn("m-0 text-neutral-600 dark:text-neutral-400", OPERATOR_TYPOGRAPHY.helper)}>
+              Advisory scans
+            </p>
+            <h2 className={cn("m-0 font-bold text-neutral-900 dark:text-neutral-50", OPERATOR_TYPOGRAPHY.pageTitle)}>
+              {ADVISORY_SCANS_SCHEDULES_PAGE_HEADING}
+            </h2>
+          </div>
+          {createScheduleButton}
         </div>
         <AdvisoryResultsSchedulesVocabularyRail currentSurfaceId="advisory-schedules" />
         <AdvisoryRecurrenceScheduleVocabularyRail currentSurfaceId="advisory-schedules" />
@@ -272,20 +293,22 @@ export function AdvisorySchedulesContent(): ReactElement {
           </p>
         ) : null}
 
-        {/* TB-1573 / TB-1477: single-column create story; compact empty list tucked under the form. */}
+        {/* TB-1542 / TB-1477: empty-first — compact empty + header Create reveals form. */}
         <div className="mt-4 min-w-0 space-y-4" data-testid="advisory-schedules-layout">
-          <AdvisoryScheduleCreateForm
-            canEdit={canMutateSchedules}
-            sampleModeBlocked={sampleModeBlocked}
-            creating={creating}
-            createSuccess={createSuccess}
-            projectLabel={projectLabel}
-            runProjectSlug={runProjectSlug}
-            formResetKey={formResetKey}
-            onCreate={onCreate}
-          />
+          {showCreateForm ? (
+            <AdvisoryScheduleCreateForm
+              canEdit={canMutateSchedules}
+              sampleModeBlocked={sampleModeBlocked}
+              creating={creating}
+              createSuccess={createSuccess}
+              projectLabel={projectLabel}
+              runProjectSlug={runProjectSlug}
+              formResetKey={formResetKey}
+              onCreate={onCreate}
+            />
+          ) : null}
 
-          {schedules.length === 0 ? (
+          {isEmpty && !showCreatePanel ? (
             <section data-testid="advisory-schedules-existing">
               <h3 className={cn("m-0 mb-2 font-semibold text-al-text-primary", OPERATOR_TYPOGRAPHY.cardTitle)}>
                 {canMutateSchedules ? advisorySchedulesListHeadingOperator : advisorySchedulesListHeadingReader}

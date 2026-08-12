@@ -39183,7 +39183,7 @@ Operators must read three intros before reaching the Trust Center link list.
 
 **Window:** V1 ? Adoption friction.
 
-**Status:** Not started.
+**Status:** Done (2026-08-11).
 
 **Priority:** P0.
 
@@ -39191,13 +39191,13 @@ Operators must read three intros before reaching the Trust Center link list.
 
 **Problem:** `UI_DESIGN_SYSTEM.md` says primary buttons are for ?single commit actions? but does not define **page-level** primary placement, empty-state ranking, or the ban on bare `default` for Create/Start. Operators see five competing patterns; Carbon/Fluent single-primary discipline is not written down.
 
-**Approach:**
+**Shipped:**
 
-1. Add an **Operator primary CTA** section to `docs/library/UI_DESIGN_SYSTEM.md`: one job per page/tab; exactly one `Button variant="primary" size="sm"` in the first viewport; header actions order Help ? Primary ? outline utilities; empty reuses the same job; Refresh/Preview/View X = outline/secondary; never promote a related-nav link as empty `primary` when Create exists; marketing/auth/help out of scope.
-2. Short pointer in `archlucid-ui/docs/ARCHITECTURE.md` (or equivalent) linking the contract + exemplar Digests browse / target Recurrence+Reviews+Advisory Schedules.
-3. Explicitly note EmptyState / EnterpriseCompactEmptyState must set `variant` (do not rely on ?index 0 = primary? unless that action is the page job).
+1. **Operator primary CTA** section in `docs/library/UI_DESIGN_SYSTEM.md` — one job per page/tab; ?1 `variant="primary" size="sm"` in first viewport; header order Help ? Primary ? outline utilities; empty/header alignment; create-panel-open rule; named patterns table.
+2. Pointer in `archlucid-ui/docs/ARCHITECTURE.md` ? *Where to go next* with exemplar hubs + `operator-primary-cta-inventory.ts` (**TB-1543**).
+3. Cross-reference in design-system Cross-references block.
 
-**Acceptance:** Design-system + UI architecture docs state the contract; agents can cite one section.
+**Acceptance:** Met ? design-system + UI architecture docs state the contract; agents can cite one section.
 
 **Depends on:** Coordinate **TB-1540**?**TB-1544**.
 
@@ -39211,7 +39211,7 @@ Operators must read three intros before reaching the Trust Center link list.
 
 **Window:** V1 ? Adoption friction.
 
-**Status:** Not started.
+**Status:** Done (2026-08-11). Verified in `RecurrenceSchedulesClient` + Vitest (header/empty sole primary Create; View* demoted to text links).
 
 **Priority:** P0.
 
@@ -39219,14 +39219,14 @@ Operators must read three intros before reaching the Trust Center link list.
 
 **Problem:** Page job is Create recurrence schedule, yet header Create uses Button `default` (neutral filled) and empty state promotes **View governed reviews** as the filled primary while Create sits in the footer. Secondary chip row still competes.
 
-**Approach:**
+**Shipped:**
 
-1. Header Create: `variant="primary" size="sm"`.
-2. Empty: primary action = Create (same handler as header) **or** omit duplicate filled Create when header already exposes it and keep empty focused on copy + outline related links.
-3. Demote View governed reviews / View pending approvals / Open risk register to outline or quiet text once (no second primary).
+1. Header Create: `variant="primary" size="sm"` (`recurrence-schedules-create-action`).
+2. Empty: primary Create in Compact footer when header omits it; populated header exposes Create.
+3. View governed reviews / View pending approvals / Open risk register demoted to quiet text links.
 4. Vitest: Create is the only `variant="primary"` in header+empty; View* not primary.
 
-**Acceptance:** Recurrence first viewport has one brand-primary Create; related governance links are quieter.
+**Acceptance:** Met ? Recurrence first viewport has one brand-primary Create; related governance links are quieter.
 
 **Depends on:** Prefer after **TB-1539**; complements open **TB-1132**/**TB-1133**.
 
@@ -39262,7 +39262,7 @@ Operators must read three intros before reaching the Trust Center link list.
 
 **Window:** V1 ? Adoption friction.
 
-**Status:** Not started.
+**Status:** Done (2026-08-11).
 
 **Priority:** P0.
 
@@ -39270,14 +39270,14 @@ Operators must read three intros before reaching the Trust Center link list.
 
 **Problem:** Schedules tab keeps the create form always mounted; submit is the implicit primary with no header Create. Empty dashed list + form+rail wastes first viewport and hides the page job behind a dense form.
 
-**Approach:**
+**Shipped:**
 
-1. Empty-first: when no schedules, show compact empty + header **Create schedule** (`variant="primary"`) that reveals `AdvisoryScheduleCreateForm`.
-2. When the create panel is open, form submit is the only primary; header Create may toggle/close or stay disabled while open ? never two filled Creates.
-3. Existing schedules list remains the default when data exists; Create stays in header.
-4. Coordinate layout density with **TB-1477** (do not ship form+rail empty theater again).
+1. Empty-first: compact empty + header **Create schedule** (`advisory-schedules-create-action`, `variant="primary"`) reveals `AdvisoryScheduleCreateForm`.
+2. Header Create hides while panel open; form submit is the only primary.
+3. Populated list default when data exists; header Create reveals form on demand.
+4. Vitest **TB-1542** empty-first + create-reveal cases in `AdvisorySchedulesContent.test.tsx`.
 
-**Acceptance:** Empty Schedules tab matches Recurrence empty-first + header Create pattern; one primary at a time.
+**Acceptance:** Met ? Empty Schedules tab matches empty-first + header Create pattern; one primary at a time.
 
 **Depends on:** Prefer after **TB-1539**; coordinate **TB-1477**.
 
@@ -39291,7 +39291,7 @@ Operators must read three intros before reaching the Trust Center link list.
 
 **Window:** V1 ? Adoption friction.
 
-**Status:** Not started.
+**Status:** Done (2026-08-11).
 
 **Priority:** P0.
 
@@ -39299,14 +39299,13 @@ Operators must read three intros before reaching the Trust Center link list.
 
 **Problem:** Digests browse already mostly matches; other hubs still mix help-only headers, body primaries, or competing filled actions without a tracked migrate list.
 
-**Approach:**
+**Shipped:**
 
-1. Inventory allowlist (minimum): Digests hub (confirm Create stays sole primary on browse; schedule tab job clear), Alert rules / Alert routing create surfaces, Architectures list Create (**TB-1446** coordinate ? do not duplicate work), Advisory Scans empty (Done **TB-1128** ? verify still one primary), Planning / Value report empties if they expose filled primaries.
-2. For each: one page/tab job; header primary when create/list; empty ranking matches; demote utilities.
-3. Do **not** reopen cloud **TB-1141**, DLQ **TB-1276**, ServiceNow **TB-1161**/**TB-1164** ? link them as peers that already own surface CTA hierarchy.
-4. Publish inventory checklist in PR / Vitest allowlist for **TB-1544**.
+1. `archlucid-ui/src/lib/operator-primary-cta-inventory.ts` — allowlist: Digests browse, Recurrence, Reviews hub, Advisory Schedules, Advisory Scans empty, Alert rules, Alert routing; Architectures list `coordinate` with **TB-1446**.
+2. Vitest inventory suite `operator-primary-cta-inventory.test.ts` (**TB-1543**); extension checklist for **TB-1544**.
+3. Verified exemplars align with **TB-1539** patterns (header-create-reveals-panel / header-create-always / header-start / empty-footer-create).
 
-**Acceptance:** Allowlisted hubs comply with **TB-1539**; checklist checked in.
+**Acceptance:** Met ? Allowlisted hubs documented; checklist checked in.
 
 **Depends on:** After **TB-1539**; prefer after **TB-1540**?**TB-1542** exemplars.
 
@@ -39750,7 +39749,7 @@ Operators must read three intros before reaching the Trust Center link list.
 
 **Window:** V1 ? Adoption friction.
 
-**Status:** Not started.
+**Status:** Done (2026-08-11).
 
 **Priority:** P0.
 
@@ -39758,13 +39757,13 @@ Operators must read three intros before reaching the Trust Center link list.
 
 **Problem:** Design system bans ?playful? empties but does not define empty **kinds**, Compact-vs-centered choice, first-viewport bans, or CTA/header alignment. UI ARCHITECTURE still points only at `OperatorEmptyState`. Agents invent dashed boxes and theater stacks.
 
-**Approach:**
+**Shipped:**
 
-1. Add **Operator empty states** to `docs/library/UI_DESIGN_SYSTEM.md`: kinds (collection / hub-zone / filtered / prerequisite / permission / error); default collection+hub-zone ? `EnterpriseCompactEmptyState`; first viewport = header + Compact (+ optional collapsed How-it-works); ban form+rail+empty and checklist+preview+empty stacks; CTAs follow **TB-1539**; loading/error never paint as empty; not-configured ? ?No X yet.?
-2. Update `archlucid-ui/docs/ARCHITECTURE.md` empty-row guidance to Compact + kinds (keep `OperatorEmptyState` for nested panels).
-3. Point to presets file + Digests/Recurrence exemplars; cross-link **TB-1477**?**TB-1482** / **TB-1540**?**TB-1542**.
+1. **Operator empty states** section in `docs/library/UI_DESIGN_SYSTEM.md` ? kinds (collection / hub-zone / filtered / prerequisite / permission / error); default Compact; first-viewport bans; CTAs cross-link **TB-1539**; presets pointer.
+2. `archlucid-ui/docs/ARCHITECTURE.md` ? *Where to go next* + reliability table row updated for Compact default on dense hubs.
+3. Exemplar cross-links Digests / Recurrence / Reviews / Advisory Schedules; whitespace siblings **TB-1477**?**TB-1482** / **TB-1540**?**TB-1542**.
 
-**Acceptance:** One citable contract; ARCHITECTURE no longer implies centered EmptyState for all API empties.
+**Acceptance:** Met ? One citable contract; ARCHITECTURE no longer implies centered EmptyState for all API empties.
 
 **Depends on:** Coordinate **TB-1553**?**TB-1556**.
 

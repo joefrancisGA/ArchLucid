@@ -48,6 +48,10 @@ vi.mock("@/lib/demo-ui-env", async (importOriginal) => {
 });
 
 describe("AdvisorySchedulesContent", () => {
+  async function revealCreateForm(): Promise<void> {
+    fireEvent.click(await screen.findByTestId("advisory-schedules-create-action"));
+  }
+
   beforeEach(() => {
     authMock.rank = AUTHORITY_RANK.AdminAuthority;
     demoEnvMock.buyerPolished = false;
@@ -97,6 +101,8 @@ describe("AdvisorySchedulesContent", () => {
   it("uses current project context instead of a slug field", async () => {
     render(<AdvisorySchedulesContent />);
 
+    await revealCreateForm();
+
     await waitFor(() => {
       expect(screen.getByText(/Current project: claims-intake/i)).toBeInTheDocument();
     });
@@ -106,6 +112,8 @@ describe("AdvisorySchedulesContent", () => {
 
   it("hides advanced cron by default and shows upcoming-run preview", async () => {
     render(<AdvisorySchedulesContent />);
+
+    await revealCreateForm();
 
     await waitFor(() => {
       expect(screen.getByTestId("advisory-schedule-upcoming-preview")).toBeInTheDocument();
@@ -119,6 +127,7 @@ describe("AdvisorySchedulesContent", () => {
   it("reveals advanced cron behind Advanced scheduling", async () => {
     render(<AdvisorySchedulesContent />);
 
+    await revealCreateForm();
     fireEvent.click(screen.getByTestId("advisory-schedule-advanced-toggle"));
 
     expect(await screen.findByTestId("cron-expression-input")).toBeInTheDocument();
@@ -159,6 +168,8 @@ describe("AdvisorySchedulesContent", () => {
 
     render(<AdvisorySchedulesContent />);
 
+    await revealCreateForm();
+
     await waitFor(() => {
       expect(screen.getByTestId("advisory-schedule-create-submit")).toBeEnabled();
     });
@@ -185,6 +196,8 @@ describe("AdvisorySchedulesContent", () => {
 
     render(<AdvisorySchedulesContent />);
 
+    await revealCreateForm();
+
     await waitFor(() => {
       expect(screen.getByTestId("advisory-schedule-create-submit")).toBeEnabled();
     });
@@ -209,9 +222,23 @@ describe("AdvisorySchedulesContent", () => {
     expect(
       screen.getByText(/Create a schedule to generate follow-up recommendations automatically/i),
     ).toBeInTheDocument();
+    expect(screen.queryByTestId("advisory-schedule-create-submit")).toBeNull();
     expect(screen.getByTestId("advisory-schedules-layout").contains(screen.getByTestId("advisory-schedules-empty"))).toBe(
       true,
     );
+  });
+
+  it("empty-first: header Create reveals form and hides duplicate header primary (TB-1542)", async () => {
+    render(<AdvisorySchedulesContent />);
+
+    const createButton = await screen.findByTestId("advisory-schedules-create-action");
+    expect(createButton.className).toContain("al-primary-action-bg");
+    expect(screen.queryByTestId("advisory-schedule-create-submit")).toBeNull();
+
+    fireEvent.click(createButton);
+
+    expect(screen.queryByTestId("advisory-schedules-create-action")).toBeNull();
+    expect(await screen.findByTestId("advisory-schedule-create-submit")).toBeInTheDocument();
   });
 
   it("renders existing schedules with status and actions", async () => {
@@ -264,6 +291,8 @@ describe("AdvisorySchedulesContent", () => {
   it("supports weekly frequency selection and keyboard focus on frequency control", async () => {
     render(<AdvisorySchedulesContent />);
 
+    await revealCreateForm();
+
     const frequency = await screen.findByLabelText("How often");
     frequency.focus();
     expect(frequency).toHaveFocus();
@@ -277,6 +306,8 @@ describe("AdvisorySchedulesContent", () => {
 
   it("uses a single-column layout with inline scope (TB-1573)", async () => {
     render(<AdvisorySchedulesContent />);
+
+    await revealCreateForm();
 
     await waitFor(() => {
       expect(apiMocks.listAdvisorySchedules).toHaveBeenCalled();
@@ -298,6 +329,7 @@ describe("AdvisorySchedulesContent", () => {
 
     render(<AdvisorySchedulesContent />);
 
+    await revealCreateForm();
     fireEvent.click(screen.getByTestId("advisory-schedule-advanced-toggle"));
     const input = await screen.findByTestId("cron-expression-input");
     fireEvent.change(input, { target: { value: "not-a-real-cron" } });

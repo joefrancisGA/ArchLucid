@@ -211,6 +211,65 @@ Carbon **side panels** (drawers / modal panels) remain valid for transient focus
 
 **UI architecture pointer:** `archlucid-ui/docs/ARCHITECTURE.md` § *Where to go next* — layout guidance cites this contract; do not treat two-column operator layouts as free-form.
 
+### Operator primary CTA (**TB-1539** — done 2026-08-11)
+
+Carbon and Fluent both enforce **one filled primary action** per viewport. This section owns **page-level** primary placement on operator hubs — not marketing/auth/help surfaces.
+
+**Default:** name the page/tab job (Create schedule, Start review, Create subscription, …). Paint **exactly one** `Button` with `variant="primary"` and `size="sm"` in the **first viewport** (header actions + empty-state region combined).
+
+| Rule | Required behavior |
+|------|-------------------|
+| One job | One primary action per page/tab — the commit that advances the page job. |
+| Header order | `PageContextualHelpButton` → **primary** → outline utilities (Refresh, Preview, Export, …). |
+| Empty alignment | Empty-state primary must be the **same job** as header primary — reuse the same handler or omit duplicate filled Create when header already exposes it. |
+| Secondary demotion | Refresh / Preview / View* / Open* = `variant="outline"` or quiet text links — never a second filled primary beside Create/Start. |
+| Related nav | Do not promote a related-nav link as empty `primary` when a Create/Start control exists for the page job. |
+| Explicit variant | `EmptyState` / `EnterpriseCompactEmptyState` footer actions must set `variant` explicitly — do not rely on “index 0 = primary” unless that action is the page job. |
+| Create panel open | When a create panel is revealed, form submit is the only primary; header Create hides or toggles closed — never two filled Creates. |
+
+**Patterns (name in PR notes):**
+
+| Pattern | When | Exemplar |
+|---------|------|----------|
+| **Header create reveals panel** | Empty-first collection hubs with a dense create form | Advisory Schedules (**TB-1542**), Recurrence (**TB-1540**) |
+| **Header create always** | Browse/list hubs where create is lightweight | Digests browse (`digests-primary-action`) |
+| **Header start** | Hub whose job is starting a workflow | Reviews hub (`runs-page-start-review`, **TB-1541**) |
+
+**Out of scope here:** Marketing/auth/help CTAs; Vitest dual-primary guard (**TB-1544** — extend from `operator-primary-cta-inventory.ts`).
+
+**UI architecture pointer:** `archlucid-ui/docs/ARCHITECTURE.md` § *Where to go next*.
+
+### Operator empty states (**TB-1552** — done 2026-08-11)
+
+Bans playful empties — this section defines **empty kinds**, Compact-vs-centered choice, first-viewport composition, and CTA/header alignment. CTAs follow the operator primary-CTA contract above (**TB-1539**).
+
+**Name an empty kind:**
+
+| Kind | Default chrome | When |
+|------|----------------|------|
+| **Collection** | `EnterpriseCompactEmptyState` | API returned zero rows for a list/inventory the page owns. |
+| **Hub-zone** | `EnterpriseCompactEmptyState` | A tab/section of a multi-job hub has no data yet (e.g. Schedules tab empty). |
+| **Filtered** | Compact + “no matches” copy | Filters/search yield zero rows while the backing collection is non-empty. |
+| **Prerequisite** | Compact or inline callout | Operator must complete a prerequisite (scope, connection, finalized review) before the job can run. |
+| **Permission** | Compact or helper text | Caller lacks mutation rank — no fake primary; explain read-only. |
+| **Error** | `OperatorApiProblem` / alert — **not** an empty | Load/mutation failure must not paint as “no data yet.” |
+
+**First-viewport composition (collection + hub-zone):**
+
+| Rule | Required behavior |
+|------|-------------------|
+| Default | Page header + **Compact** empty (+ optional collapsed How-it-works). |
+| Banned stacks | **No** always-on create form + side rail + dashed empty in the first viewport (whitespace **TB-1477**–**TB-1482**). **No** checklist + live preview + empty theater stacks. |
+| Centered `EmptyState` | Reserve for rare full-page first-run where `gettingStarted` steps **are** the product — or fold steps into collapsed How-it-works under Compact. Dense operator hubs use Compact (**TB-1554** inventory). |
+| Copy | Not-configured → “No {thing} yet” + one sentence on the page job — not playful illustration. |
+| Presets | Reuse `archlucid-ui/src/lib/enterprise-compact-empty-state-presets.ts` where possible. |
+
+**Exemplars:** Digests browse (Compact under master-detail), Recurrence (empty footer Create + collapsed helper, **TB-1540**), Reviews hub (**TB-1553**), Advisory Schedules empty-first + header Create (**TB-1542**).
+
+**Out of scope here:** Migrating every hub (**TB-1554**–**TB-1556**); nested compare/diff panel empties.
+
+**UI architecture pointer:** `archlucid-ui/docs/ARCHITECTURE.md` § *Where to go next* — `OperatorEmptyState` remains valid for nested panels and server-page empty collections.
+
 ### Operator populated lists (**TB-1646** — done 2026-08-11)
 
 `EnterpriseTable` + `StatusTag` are already mandated components — this section owns **which list kind** a populated operator surface must name, when cards are allowed, and when raw HTML tables are forbidden. Agents invent card stacks and parallel table dialects for the same inventory job without a kind.
@@ -475,4 +534,6 @@ Headline counts on golden-path surfaces must be **self-describing** and **click-
 - Page-scoped **Learn more** job match: this file § *Operator page contextual help — Learn more job match* (**TB-2048** Done); Digests/secondary remaps **TB-2049**–**TB-2052**
 - Page-header help **borderless carve-out**: this file § *Visible-boundary `Button` contract* → *Carve-out — page-header contextual help* (owner decision 2026-08-11) — shared chrome in `components/usability/page-contextual-help-trigger.ts`; shell top-bar `Help` stays `variant="outline"`
 - Operator **side rails** contract: this file § *Operator side rails* (**TB-1572** Done) — single-column default; allow working-object / master-detail / live-when-live / TOC-wizard; ban teaching / static-scope / about-aside persistent rails; live pin policy **TB-1574** Done; hub inventory + about-aside demotion **TB-1575** Done (`operator-side-rail-inventory.ts`); Vitest allowlist **TB-1576**
+- Operator **primary CTA** contract: this file § *Operator primary CTA* (**TB-1539** Done) — one page job; ≤1 `variant="primary"` in first viewport; header order Help → Primary → outline utilities; hub inventory **TB-1543** Done (`operator-primary-cta-inventory.ts`); Vitest dual-primary guard **TB-1544**
+- Operator **empty states** contract: this file § *Operator empty states* (**TB-1552** Done) — name empty kind; default collection/hub-zone → `EnterpriseCompactEmptyState`; ban form+rail+empty stacks; presets in `enterprise-compact-empty-state-presets.ts`
 - Operator **populated lists** contract: this file § *Operator populated lists* (**TB-1646** Done) — name list kind; default inventory/master-detail → `EnterpriseTable` + `StatusTag`; entity-summary cards only when justified; ≤2 visible row actions; ban parallel raw HTML tables; apply **TB-1647**–**TB-1650**

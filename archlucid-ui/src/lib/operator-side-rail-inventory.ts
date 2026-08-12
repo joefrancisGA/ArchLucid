@@ -69,7 +69,7 @@ export const OPERATOR_SIDE_RAIL_INVENTORY: readonly OperatorSideRailInventoryEnt
     kind: "none",
     disposition: "demoted-single-column",
     markerTestId: null,
-    notes: "Static scope inline on create form (**TB-1573**); residual whitespace **TB-1477**.",
+    notes: "Empty-first Compact + header Create reveals form (**TB-1542** Done); scope inline on create form.",
   },
   {
     id: "digests-schedule",
