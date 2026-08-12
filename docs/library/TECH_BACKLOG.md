@@ -1089,9 +1089,9 @@ All **P0** **V1**: visible-boundary button contract + design-system rule (**TB-2
 | TB-1783 | ~~Atlassian OAuth callback ? success copy + primary Open Jira CTA~~ **Done** 2026-08-12 ? Jira-only success copy + primary Open Jira button; Vitest bans ITSM settings | Adoption friction P1 ? **V1**; with **TB-1781** | S |
 | TB-1788 | Recommendation-learning ops ? Load persisted vs Refresh toolbar honesty; see ## TB-1788 below | Adoption friction P1 ? **V1**; with **TB-1786** | S |
 | TB-1789 | Recommendation-learning ops ? enterprise chrome (header/StatusTag/EnterpriseTable); see ## TB-1789 below | Adoption friction P1 ? **V1**; with **TB-1786**; pairs **TB-116**/**TB-1646** | M |
-| TB-1794 | `/login` ? traffic redirect-only + canonicalize inbound links; see ## TB-1794 below | Adoption friction P1 ? **V1**; with **TB-1791**; pairs **TB-1443**/**TB-1779** | S |
-| TB-1798 | `/onboard` ? traffic redirect-only workbook honesty; see ## TB-1798 below | Adoption friction P1 ? **V1**; with **TB-1796**; pairs **TB-1794** | S |
-| TB-1801 | `/onboarding/start` traffic redirect-only workbook honesty; see ## TB-1801 below | Adoption friction P1 ? **V1**; owner review ~12/100 2026-07-27; traffic **ONS**; pairs **TB-1798** | S |
+| TB-1794 | ~~`/login` ? traffic redirect-only + canonicalize inbound links~~ **Done** 2026-08-12 ? LOG redirect-shim workbook row + Vitest; see ## TB-1794 below | Adoption friction P1 ? **V1**; with **TB-1791**; pairs **TB-1443**/**TB-1779** | S |
+| TB-1798 | ~~`/onboard` ? traffic redirect-only workbook honesty~~ **Done** 2026-08-12 ? OXX redirect-shim workbook row + Vitest; see ## TB-1798 below | Adoption friction P1 ? **V1**; with **TB-1796**; pairs **TB-1794** | S |
+| TB-1801 | ~~`/onboarding/start` traffic redirect-only workbook honesty~~ **Done** 2026-08-12 ? OSX redirect-shim workbook row + Vitest; see ## TB-1801 below | Adoption friction P1 ? **V1**; owner review ~12/100 2026-07-27; traffic **ONS**; pairs **TB-1798** | S |
 | TB-1806 | `/operate/architecture-graph` traffic redirect-only workbook honesty; see ## TB-1806 below | Adoption friction P1 ? **V1**; owner review ~12/100 2026-07-27; traffic **OPR** | S |
 | TB-1808 | Preserve query on `/operate/architecture-graph` ? `/graph` redirect; see ## TB-1808 below | Adoption friction P1 ? **V1**; with **TB-1806** | S |
 | TB-1812 | `/patterns/[patternKey]` ? contextual peer-compare (not hard-coded BFF); see ## TB-1812 below | Adoption friction P1 ? **V1**; with **TB-1811** | S |
@@ -43299,11 +43299,13 @@ Operators must read three intros before reaching the Trust Center link list.
 
 ## TB-1794 ? `/login` ? traffic redirect-only + canonicalize inbound links (P0)
 
-**Window:** V1 ? Adoption friction. **Status:** Not started. **Priority:** P0.
+**Window:** V1 ? Adoption friction. **Status:** **Done** (2026-08-12) ? LOG workbook row (`Redirect shim` section) + `ui-route-traffic-legacy-login.test.ts`; product inbound links already canonicalize to `/auth/signin`. **Priority:** P0.
 
 **Problem:** Traffic **LOX** reads as live Auth UI; product links may still emit `/login`.
 
 **Approach:** Workbook Notes redirect-only; prefer `/auth/signin` in nav/CTAs while keeping shim. Pairs **TB-1443**/**TB-1779**.
+
+**Shipped:** Registry + template row **LOG** documents redirect-only shim (idle-timeout ? session-expired); Vitest pins registry/template parity.
 
 **Acceptance:** Workbook + inbound links honest. **Size estimate:** S.
 
@@ -43351,11 +43353,13 @@ Operators must read three intros before reaching the Trust Center link list.
 
 ## TB-1798 ? `/onboard` ? traffic redirect-only workbook honesty (P0)
 
-**Window:** V1 ? Adoption friction. **Status:** Not started. **Priority:** P0.
+**Window:** V1 ? Adoption friction. **Status:** **Done** (2026-08-12) ? OXX workbook row (`Redirect shim` section) + `ui-route-traffic-legacy-onboard.test.ts`. **Priority:** P0.
 
 **Problem:** Traffic **ON** reads as live Onboarding UI.
 
 **Approach:** Notes redirect-only; optional fold toward `/onboarding` traffic. Pairs **TB-1794**.
+
+**Shipped:** Registry + template row **OXX** documents redirect-only shim to `/architecture/first-review-guide`; Vitest pins registry/template parity.
 
 **Acceptance:** Workbook honesty for shim. **Size estimate:** S.
 
@@ -43391,13 +43395,15 @@ Operators must read three intros before reaching the Trust Center link list.
 
 ## TB-1801 ? `/onboarding/start` traffic redirect-only workbook honesty (P0)
 
-**Window:** V1 ? Adoption friction. **Status:** Not started. **Priority:** P0.
+**Window:** V1 ? Adoption friction. **Status:** **Done** (2026-08-12) ? OSX workbook row (`Redirect shim` section) + `ui-route-traffic-legacy-onboarding-start.test.ts`; traffic note aligned to `/architecture/first-review-guide`. **Priority:** P0.
 
 **Source:** Owner ONS ~12/100 2026-07-27.
 
 **Problem:** Traffic **ONS** reads as live Onboarding UI while the route only 308s to `/onboarding`.
 
 **Approach:** Notes redirect-only; optional fold toward `/onboarding`. Pairs **TB-1798**.
+
+**Shipped:** Registry + template row **OSX** documents redirect-only shim to `/architecture/first-review-guide`; Vitest pins registry/template parity.
 
 **Acceptance:** Workbook honesty for shim. **Size estimate:** S.
 

@@ -177,7 +177,14 @@ REDIRECT_ONLY_APP_PATHS = frozenset(
 # /settings/alerts retired from the workbook (SEA removed, TB-1886–TB-1890); migration still maps to SAX.
 # /settings/exec-digest retired from the workbook (EEX removed); migration still maps to DIS.
 # Batch C folded FIR `/help/first-pilot-path` into COR — permanent redirect only (no traffic-tracked bookmark).
-TRAFFIC_TRACKED_REDIRECT_BOOKMARKS: frozenset[str] = frozenset()
+# TB-1794 / TB-1798 / TB-1801: legacy auth/onboarding bookmarks stay as redirect-shim workbook rows (LOG/OXX/OSX).
+TRAFFIC_TRACKED_REDIRECT_BOOKMARKS: frozenset[str] = frozenset(
+    {
+        "/login",
+        "/onboard",
+        "/onboarding/start",
+    }
+)
 
 # Operator-shell overlays scored in the workbook but not App Router pages.
 SHELL_OVERLAY_TRAFFIC_ENTRIES: dict[str, str] = {
