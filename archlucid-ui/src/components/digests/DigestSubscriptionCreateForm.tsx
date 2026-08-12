@@ -10,6 +10,7 @@ import { DigestPreviewBeforeSubscribePanel } from "@/components/digests/DigestPr
 import { Button } from "@/components/ui/button";
 import { Input } from "@/components/ui/input";
 import { Label } from "@/components/ui/label";
+import { WhyDisabledCtaHint } from "@/components/usability/WhyDisabledCtaHint";
 import {
   channelDestinationFieldLabel,
   channelDestinationHelper,
@@ -31,8 +32,8 @@ import {
 } from "@/lib/digest-subscriptions-workflow";
 import {
   digestSubscriptionsCreateSubscriptionButtonLabelReaderRank,
-  enterpriseMutationControlDisabledTitle,
 } from "@/lib/enterprise-controls-context-copy";
+import { whyDisabledEnterpriseMutationControl } from "@/lib/why-disabled-cta";
 import { fetchTenantIntegrationsOperations } from "@/lib/api/tenant-customer-success";
 import { isBuyerPolishedOperatorShellEnv, isOperatorExperienceFullShellEnv } from "@/lib/demo-ui-env";
 import type { DigestSubscription } from "@/types/digest-subscriptions";
@@ -150,6 +151,8 @@ export function DigestSubscriptionCreateForm(props: DigestSubscriptionCreateForm
   const showDigestType: boolean = shouldShowDigestTypeSelector();
   const digestTypeLabel: string =
     DIGEST_TYPE_OPTIONS.find((option) => option.value === digestType)?.label ?? "Architecture digest";
+  const mutationDisabledReason = props.canMutate ? null : whyDisabledEnterpriseMutationControl();
+  const mutationDisabledHintId = "digest-subscription-create-mutate-disabled-hint";
 
   if (!expanded) {
     return (
@@ -161,16 +164,24 @@ export function DigestSubscriptionCreateForm(props: DigestSubscriptionCreateForm
           <h3 className={cn("m-0 font-semibold text-al-text-primary", OPERATOR_TYPOGRAPHY.cardTitle)}>
             Add delivery destination
           </h3>
-          <Button
-            type="button"
-            size="sm"
-            variant="primary"
-            onClick={() => setExpanded(true)}
-            disabled={!canEdit}
-            title={canEdit ? undefined : enterpriseMutationControlDisabledTitle}
-          >
-            {canEdit ? "Create subscription" : digestSubscriptionsCreateSubscriptionButtonLabelReaderRank}
-          </Button>
+          <div className="flex flex-col items-end gap-1">
+            <Button
+              type="button"
+              size="sm"
+              variant="primary"
+              onClick={() => setExpanded(true)}
+              disabled={!canEdit}
+              aria-describedby={mutationDisabledReason === null ? undefined : mutationDisabledHintId}
+            >
+              {canEdit ? "Create subscription" : digestSubscriptionsCreateSubscriptionButtonLabelReaderRank}
+            </Button>
+            <WhyDisabledCtaHint
+              id={mutationDisabledHintId}
+              reason={mutationDisabledReason}
+              testId="digest-subscription-create-mutate-disabled-hint"
+              className="text-right"
+            />
+          </div>
         </div>
       </section>
     );
@@ -208,7 +219,6 @@ export function DigestSubscriptionCreateForm(props: DigestSubscriptionCreateForm
             onBlur={() => setNameTouched(true)}
             placeholder={suggestedSubscriptionName(channelType)}
             readOnly={!canEdit}
-            title={canEdit ? undefined : enterpriseMutationControlDisabledTitle}
           />
           {!nameTouched && name.trim().length === 0 ? (
             <p className={cn("m-0 text-neutral-500 dark:text-neutral-400", OPERATOR_TYPOGRAPHY.helper)}>
@@ -232,7 +242,6 @@ export function DigestSubscriptionCreateForm(props: DigestSubscriptionCreateForm
               }
             }}
             disabled={!canEdit}
-            title={canEdit ? undefined : enterpriseMutationControlDisabledTitle}
             className={cn(
               "flex h-9 w-full rounded-md border border-neutral-200 bg-transparent px-3 py-1 shadow-sm focus-visible:outline-none focus-visible:ring-1 focus-visible:ring-neutral-400 disabled:cursor-not-allowed disabled:opacity-50 dark:border-neutral-800",
               OPERATOR_TYPOGRAPHY.body,
@@ -255,7 +264,6 @@ export function DigestSubscriptionCreateForm(props: DigestSubscriptionCreateForm
             onBlur={() => setDestinationTouched(true)}
             placeholder={channelDestinationPlaceholder(channelType)}
             readOnly={!canEdit}
-            title={canEdit ? undefined : enterpriseMutationControlDisabledTitle}
             aria-invalid={destinationTouched && destinationError !== null}
             aria-describedby="digest-subscription-destination-help"
           />
@@ -298,7 +306,6 @@ export function DigestSubscriptionCreateForm(props: DigestSubscriptionCreateForm
               value={digestType}
               onChange={(event) => setDigestType(event.target.value)}
               disabled={!canEdit}
-              title={canEdit ? undefined : enterpriseMutationControlDisabledTitle}
               className={cn(
                 "flex h-9 w-full rounded-md border border-neutral-200 bg-transparent px-3 py-1 shadow-sm focus-visible:outline-none focus-visible:ring-1 focus-visible:ring-neutral-400 disabled:cursor-not-allowed disabled:opacity-50 dark:border-neutral-800",
                 OPERATOR_TYPOGRAPHY.body,
@@ -328,7 +335,6 @@ export function DigestSubscriptionCreateForm(props: DigestSubscriptionCreateForm
               checked={createEnabled}
               onChange={(event) => setCreateEnabled(event.target.checked)}
               disabled={!canEdit}
-              title={canEdit ? undefined : enterpriseMutationControlDisabledTitle}
             />
             <span>{activationCheckboxLabel(createEnabled)}</span>
           </label>
@@ -357,39 +363,46 @@ export function DigestSubscriptionCreateForm(props: DigestSubscriptionCreateForm
         digestTypeLabel={digestTypeLabel}
       />
 
-      <div className="mt-3 flex flex-wrap items-center gap-2">
-        <Button
-          type="button"
-          size="sm"
-          variant="primary"
-          onClick={() =>
-            void props.onCreate({
-              name: name.trim() || suggestedSubscriptionName(channelType),
-              channelType,
-              destination: destination.trim(),
-              digestType,
-              isEnabled: createEnabled,
-            })
-          }
-          disabled={!formValid || props.creating || !canEdit}
-          title={canEdit ? undefined : enterpriseMutationControlDisabledTitle}
-          data-testid="digest-subscription-create-button"
-        >
-          {props.creating
-            ? "Saving…"
-            : canEdit
-              ? "Save subscription"
-              : digestSubscriptionsCreateSubscriptionButtonLabelReaderRank}
-        </Button>
-        {props.createSuccess ? (
-          <span
-            className={cn("text-emerald-800 dark:text-emerald-200", OPERATOR_TYPOGRAPHY.helper)}
-            data-testid="digest-subscription-create-success"
-            role="status"
+      <div className="mt-3 flex flex-col items-start gap-2">
+        <div className="flex flex-wrap items-center gap-2">
+          <Button
+            type="button"
+            size="sm"
+            variant="primary"
+            onClick={() =>
+              void props.onCreate({
+                name: name.trim() || suggestedSubscriptionName(channelType),
+                channelType,
+                destination: destination.trim(),
+                digestType,
+                isEnabled: createEnabled,
+              })
+            }
+            disabled={!formValid || props.creating || !canEdit}
+            aria-describedby={mutationDisabledReason === null ? undefined : mutationDisabledHintId}
+            data-testid="digest-subscription-create-button"
           >
-            Subscription saved
-          </span>
-        ) : null}
+            {props.creating
+              ? "Saving…"
+              : canEdit
+                ? "Save subscription"
+                : digestSubscriptionsCreateSubscriptionButtonLabelReaderRank}
+          </Button>
+          {props.createSuccess ? (
+            <span
+              className={cn("text-emerald-800 dark:text-emerald-200", OPERATOR_TYPOGRAPHY.helper)}
+              data-testid="digest-subscription-create-success"
+              role="status"
+            >
+              Subscription saved
+            </span>
+          ) : null}
+        </div>
+        <WhyDisabledCtaHint
+          id={mutationDisabledHintId}
+          reason={mutationDisabledReason}
+          testId="digest-subscription-create-mutate-disabled-hint"
+        />
       </div>
     </section>
   );

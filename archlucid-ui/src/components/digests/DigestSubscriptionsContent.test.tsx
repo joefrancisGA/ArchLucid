@@ -2,7 +2,7 @@ import { fireEvent, screen, waitFor } from "@testing-library/react";
 import { beforeEach, describe, expect, it, vi } from "vitest";
 
 import { DigestSubscriptionsContent } from "@/components/digests/DigestSubscriptionsContent";
-import { digestSubscriptionsCreateSubscriptionButtonLabelReaderRank } from "@/lib/enterprise-controls-context-copy";
+import { digestSubscriptionsCreateSubscriptionButtonLabelReaderRank, enterpriseMutationControlDisabledTitle } from "@/lib/enterprise-controls-context-copy";
 import { renderWithOperatorQuery } from "@/testing/operator-query-test-helpers";
 
 const mutateCapability = vi.hoisted(() => ({ current: true }));
@@ -146,9 +146,15 @@ describe("DigestSubscriptionsContent", () => {
       expect(listDigestSubscriptions).toHaveBeenCalled();
     });
 
-    expect(
-      screen.getByRole("button", { name: digestSubscriptionsCreateSubscriptionButtonLabelReaderRank }),
-    ).toBeDisabled();
+    const createButton = screen.getByRole("button", {
+      name: digestSubscriptionsCreateSubscriptionButtonLabelReaderRank,
+    });
+
+    expect(createButton).toBeDisabled();
+    expect(screen.getByTestId("digest-subscription-create-mutate-disabled-hint")).toHaveTextContent(
+      enterpriseMutationControlDisabledTitle,
+    );
+    expect(createButton).toHaveAttribute("aria-describedby", "digest-subscription-create-mutate-disabled-hint");
   });
 
   it("renders subscription table with status and actions when rows exist", async () => {
@@ -221,6 +227,36 @@ describe("DigestSubscriptionsContent", () => {
     await waitFor(() => {
       expect(toggleDigestSubscription).toHaveBeenCalledWith("s1");
     });
+  });
+
+  it("shows visible WhyDisabled hint on list row actions when mutation is unavailable (TB-2360)", async () => {
+    mutateCapability.current = false;
+    vi.mocked(listDigestSubscriptions).mockResolvedValue([
+      {
+        subscriptionId: "s1",
+        tenantId: "t",
+        workspaceId: "w",
+        projectId: "p",
+        name: "Ops mailbox",
+        channelType: "Email",
+        destination: "ops@example.com",
+        isEnabled: true,
+        createdUtc: "2026-07-01T00:00:00Z",
+        metadataJson: "{}",
+      },
+    ]);
+
+    renderWithOperatorQuery(<DigestSubscriptionsContent healthSnap={null} />);
+
+    await screen.findByRole("table", { name: "Digest subscriptions" });
+
+    const hint = screen.getByTestId("digest-subscriptions-mutate-disabled-hint");
+
+    expect(hint).toHaveTextContent(enterpriseMutationControlDisabledTitle);
+    expect(screen.getByTestId("digest-subscription-toggle-s1")).toHaveAttribute(
+      "aria-describedby",
+      "digest-subscriptions-mutate-disabled-hint",
+    );
   });
 
   it("prefills the create form when Edit is clicked", async () => {

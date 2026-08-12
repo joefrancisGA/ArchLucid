@@ -18,6 +18,7 @@ import {
   EnterpriseTableRow,
 } from "@/components/ui/enterprise-table";
 import { StatusTag } from "@/components/ui/status-tag";
+import { WhyDisabledCtaHint } from "@/components/usability/WhyDisabledCtaHint";
 import { formatDigestInstant } from "@/lib/digest-setup-gap-actions";
 import {
   channelDisplayLabel,
@@ -40,8 +41,8 @@ import {
   digestSubscriptionsToggleToEnabledReaderRank,
   digestSubscriptionsYourSubscriptionsHeadingOperator,
   digestSubscriptionsYourSubscriptionsHeadingReader,
-  enterpriseMutationControlDisabledTitle,
 } from "@/lib/enterprise-controls-context-copy";
+import { whyDisabledEnterpriseMutationControl } from "@/lib/why-disabled-cta";
 import type { DigestDeliveryAttempt, DigestSubscription } from "@/types/digest-subscriptions";
 
 export type DigestSubscriptionListProps = {
@@ -61,6 +62,8 @@ export function DigestSubscriptionList(props: DigestSubscriptionListProps): Reac
   const heading: string = props.canMutate
     ? digestSubscriptionsYourSubscriptionsHeadingOperator
     : digestSubscriptionsYourSubscriptionsHeadingReader;
+  const mutationDisabledReason = props.canMutate ? null : whyDisabledEnterpriseMutationControl();
+  const mutationDisabledHintId = "digest-subscriptions-mutate-disabled-hint";
 
   return (
     <section className="rounded-lg border border-neutral-200 bg-white p-4 dark:border-neutral-700 dark:bg-neutral-950">
@@ -77,6 +80,13 @@ export function DigestSubscriptionList(props: DigestSubscriptionListProps): Reac
           {props.loading ? "Refreshing…" : "Refresh"}
         </Button>
       </div>
+
+      <WhyDisabledCtaHint
+        id={mutationDisabledHintId}
+        reason={mutationDisabledReason}
+        testId="digest-subscriptions-mutate-disabled-hint"
+        className="mt-2"
+      />
 
       {!props.loading && props.items.length === 0 ? (
         <div className="mt-3" data-testid="digest-subscriptions-empty-state">
@@ -142,7 +152,10 @@ export function DigestSubscriptionList(props: DigestSubscriptionListProps): Reac
                           title={
                             props.canMutate
                               ? "Copy this destination into the add form to create a replacement subscription."
-                              : enterpriseMutationControlDisabledTitle
+                              : undefined
+                          }
+                          aria-describedby={
+                            mutationDisabledReason === null ? undefined : mutationDisabledHintId
                           }
                           onClick={() => props.onPrefillCreate(item)}
                         >
@@ -161,7 +174,9 @@ export function DigestSubscriptionList(props: DigestSubscriptionListProps): Reac
                             props.onToggle(item.subscriptionId, item.isEnabled === true, item.name)
                           }
                           disabled={!props.canMutate}
-                          title={props.canMutate ? undefined : enterpriseMutationControlDisabledTitle}
+                          aria-describedby={
+                            mutationDisabledReason === null ? undefined : mutationDisabledHintId
+                          }
                           data-testid={`digest-subscription-toggle-${item.subscriptionId}`}
                         >
                           {props.canMutate
