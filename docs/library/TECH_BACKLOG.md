@@ -41466,7 +41466,9 @@ Operators must read three intros before reaching the Trust Center link list.
 
 **Window:** V1 ? Testability.
 
-**Status:** Not started.
+**Status:** **Done** (2026-08-12) ? `operator-line-tabs-drift-guard.test.ts` scans every `src/**/*.tsx`: bans the documented `TabsList`/`TabsTrigger` override fragments and bans hand-rolled `role="tablist"` outside `components/ui/tabs.tsx`. Fixed two dead detector regexes in `operator-line-tabs-surfaces.ts` (interpolation inside a regex literal meant banned chrome was **never** matched) and moved tag scanning onto shared `jsx-opening-tag.ts` so a `>` inside a JSX expression no longer truncates the tag. Closed the last hand-rolled tablist by migrating `ProvenanceViewModeTabs` ? `ProvenanceViewModeSwitcher` (segmented `aria-pressed` via `OperatorSegmentedModeToolbar`; panels are `role="region"`) ? **TB-1664** residual.
+
+**Residual (owner decision):** seven surfaces carry no override classes but still inherit the primitive's legacy `pill` default (`OPERATOR_LINE_TABS_PILL_DEFAULT_RESIDUAL`) ? digests hub, Settings roles, reviews new, architect workspace, policy packs, graph presentation, Azure permissions setup. Making them line tabs is a `tabs.tsx` default flip (or per-call-site `variant="line"`) and visibly restyles those hubs, so it is pinned by the guard rather than changed silently.
 
 **Priority:** P0.
 

@@ -5,7 +5,9 @@
  * Vitest follow-on: **TB-1665**.
  */
 
-export type OperatorLineTabsSurfaceKind = "tabs-line" | "sections-no-tabs";
+import { collectJsxOpeningTags } from "@/lib/operator/jsx-opening-tag";
+
+export type OperatorLineTabsSurfaceKind = "tabs-line" | "tabs-pill-default" | "sections-no-tabs";
 
 export type OperatorLineTabsSurfaceEntry = {
   readonly id: string;
@@ -56,19 +58,107 @@ export const OPERATOR_LINE_TABS_TB1663_SURFACES: readonly OperatorLineTabsSurfac
   },
 ];
 
-/** Combined inventory for **TB-1665** allowlist extension. */
+/** Surface that already declared `variant="line"` before the **TB-1662** wave. */
+export const OPERATOR_LINE_TABS_GOLD_SURFACES: readonly OperatorLineTabsSurfaceEntry[] = [
+  {
+    id: "review-detail-workspace",
+    modulePath: "components/reviews/ReviewDetailWorkspace.tsx",
+    kind: "tabs-line",
+    notes: "Review detail workspace sections — declares variant=\"line\".",
+  },
+];
+
+/**
+ * Call sites that still inherit the primitive's legacy `pill` default.
+ *
+ * `tabs.tsx` defaults `variant` to `pill` even though **TB-1661** makes line tabs
+ * normative, so these render pills without any per-call-site override. They carry no
+ * banned chrome, so the fix is a primitive-level default flip (or an explicit
+ * `variant="line"` per call site) rather than a class strip — an owner-visible restyle
+ * of these hubs, tracked as the **TB-1665** residual.
+ */
+export const OPERATOR_LINE_TABS_PILL_DEFAULT_RESIDUAL: readonly OperatorLineTabsSurfaceEntry[] = [
+  {
+    id: "digests-hub",
+    modulePath: "components/digests/DigestsHubClient.tsx",
+    kind: "tabs-pill-default",
+    notes: "Named a gold exemplar in the contract but inherits the pill default.",
+  },
+  {
+    id: "settings-roles",
+    modulePath: "app/(operator)/administration/users/_sections/SettingsRolesPageView.tsx",
+    kind: "tabs-pill-default",
+    notes: "Users / roles / invitations.",
+  },
+  {
+    id: "reviews-new-path-switcher",
+    modulePath: "app/(operator)/architecture/reviews/new/ReviewsNewPathSwitcher.tsx",
+    kind: "tabs-pill-default",
+    notes: "Review creation paths — overflow helpers only, no pill override.",
+  },
+  {
+    id: "architecture-created-workspace",
+    modulePath: "components/architecture/ArchitectureCreatedWorkspace.tsx",
+    kind: "tabs-pill-default",
+    notes: "Architect workspace tabs.",
+  },
+  {
+    id: "policy-packs",
+    modulePath: "app/(operator)/governance/policy-packs/_sections/PolicyPacksPageView.tsx",
+    kind: "tabs-pill-default",
+    notes: "My packs / catalog.",
+  },
+  {
+    id: "graph-presentation",
+    modulePath: "app/(operator)/insights/evidence-graph/_sections/GraphPageContent.tsx",
+    kind: "tabs-pill-default",
+    notes: "Graph / trace presentation switch — <Tabs> root lives in GraphPageContent.",
+  },
+  {
+    id: "help-azure-permissions-setup",
+    modulePath: "app/(operator)/help/_sections/HelpAzurePermissionsSetupSection.tsx",
+    kind: "tabs-pill-default",
+    notes: "Portal / CLI setup steps.",
+  },
+];
+
+/** Combined inventory for the **TB-1665** allowlist. */
 export const OPERATOR_LINE_TABS_MIGRATED_SURFACES: readonly OperatorLineTabsSurfaceEntry[] = [
   ...OPERATOR_LINE_TABS_TB1662_SURFACES,
   ...OPERATOR_LINE_TABS_TB1663_SURFACES,
 ];
 
-const TABS_LIST_BANNED_CLASS_FRAGMENTS = [
+/** Every surface the **TB-1665** guard holds to the line-tab visual contract. */
+export const OPERATOR_LINE_TABS_ALLOWLIST: readonly OperatorLineTabsSurfaceEntry[] = [
+  ...OPERATOR_LINE_TABS_GOLD_SURFACES,
+  ...OPERATOR_LINE_TABS_MIGRATED_SURFACES,
+  ...OPERATOR_LINE_TABS_PILL_DEFAULT_RESIDUAL,
+];
+
+export function operatorLineTabsSurfacesByKind(
+  kind: OperatorLineTabsSurfaceKind,
+): readonly OperatorLineTabsSurfaceEntry[] {
+  return OPERATOR_LINE_TABS_ALLOWLIST.filter((entry) => entry.kind === kind);
+}
+
+/**
+ * Override classes that turn the Carbon line-tab strip into a pill row, chip pair, or
+ * segmented tray. `border-0` is banned because it removes the list's bottom rule, which
+ * is the affordance that makes the strip read as tabs at all.
+ */
+export const TABS_LIST_BANNED_CLASS_FRAGMENTS = [
   "border-0",
   "rounded-full",
   "rounded-md border",
+  "bg-neutral-50 p-0.5",
+  "bg-neutral-100 p-0.5",
 ] as const;
 
-const TABS_TRIGGER_BANNED_CLASS_FRAGMENTS = ["rounded-full", "rounded-md"] as const;
+export const TABS_TRIGGER_BANNED_CLASS_FRAGMENTS = [
+  "rounded-full",
+  "rounded-md",
+  "bg-neutral-900",
+] as const;
 
 export function operatorLineTabsModuleUsesLineVariant(source: string): boolean {
   return /variant\s*=\s*["']line["']/.test(source);
@@ -107,13 +197,67 @@ function findBannedTabsTriggerClassFragments(source: string): string[] {
 }
 
 function tabsListClassNameIncludes(source: string, fragment: string): boolean {
-  return /<TabsList\b[^>]*className=\{?["'`][^"'`]*\b${escapeRegExp(fragment)}\b/.test(source);
+  return tabClassNameIncludes(source, "TabsList", fragment);
 }
 
 function tabsTriggerClassNameIncludes(source: string, fragment: string): boolean {
-  return /<TabsTrigger\b[^>]*className=\{?["'`][^"'`]*\b${escapeRegExp(fragment)}\b/.test(source);
+  return tabClassNameIncludes(source, "TabsTrigger", fragment);
 }
 
-function escapeRegExp(value: string): string {
-  return value.replace(/[.*+?^${}()|[\]\\]/g, "\\$&");
+/** True when any opening tag for `element` carries `fragment` in its own attributes. */
+function tabClassNameIncludes(source: string, element: string, fragment: string): boolean {
+  return collectJsxOpeningTags(source, element).some((tag) => tag.includes(fragment));
+}
+
+/** Hand-rolled tablists are only legitimate inside the shared primitive itself. */
+export const HAND_ROLLED_TABLIST_ALLOWED_PATHS = new Set<string>(["components/ui/tabs.tsx"]);
+
+export function hasHandRolledTablist(source: string): boolean {
+  return /role\s*=\s*["']tablist["']/.test(source);
+}
+
+export function findHandRolledTablistPaths(
+  sources: ReadonlyMap<string, string>,
+): readonly string[] {
+  const offenders: string[] = [];
+
+  for (const [relativePath, source] of sources) {
+    if (HAND_ROLLED_TABLIST_ALLOWED_PATHS.has(relativePath)) {
+      continue;
+    }
+
+    if (hasHandRolledTablist(source)) {
+      offenders.push(relativePath);
+    }
+  }
+
+  return offenders.sort();
+}
+
+export type OperatorLineTabsChromeViolation = {
+  readonly relativePath: string;
+  readonly element: "TabsList" | "TabsTrigger";
+  readonly fragment: string;
+};
+
+export function findOperatorLineTabsChromeViolations(
+  sources: ReadonlyMap<string, string>,
+): readonly OperatorLineTabsChromeViolation[] {
+  const violations: OperatorLineTabsChromeViolation[] = [];
+
+  for (const [relativePath, source] of sources) {
+    if (HAND_ROLLED_TABLIST_ALLOWED_PATHS.has(relativePath)) {
+      continue;
+    }
+
+    for (const fragment of operatorLineTabsModuleHasBannedListChrome(source)) {
+      violations.push({ relativePath, element: "TabsList", fragment });
+    }
+
+    for (const fragment of operatorLineTabsModuleHasBannedTriggerChrome(source)) {
+      violations.push({ relativePath, element: "TabsTrigger", fragment });
+    }
+  }
+
+  return violations;
 }

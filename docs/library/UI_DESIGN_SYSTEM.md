@@ -467,7 +467,7 @@ Product separator is a colon (`Label: value`), not a comma.
 
 | Rule | Required behavior |
 |------|-------------------|
-| Primitive | `<Tabs variant="line">` (styles in `tabs.tsx`). Until **TB-1662** migrates call sites, the shared default may still be `pill` — do **not** add new pill overrides or hand-rolled tab chrome. |
+| Primitive | `<Tabs variant="line">` (styles in `tabs.tsx`). The shared default is still `pill`, so call sites must pass `variant="line"` explicitly until that default flips. Do **not** add new pill overrides or hand-rolled tab chrome. Surfaces still inheriting the `pill` default are pinned in `operator-line-tabs-surfaces.ts` (`OPERATOR_LINE_TABS_PILL_DEFAULT_RESIDUAL`, **TB-1665**). |
 | `TabsList` | Horizontal: `border-b border-neutral-200` under the full strip. **Ban** `border-0` on `TabsList`, pill trays, `rounded-full` chip rows, segmented `rounded-md` containers, and folder-tab stacks. |
 | `TabsTrigger` | Plain label text; active = `border-b-2` teal underline. **Ban** `rounded-full`, filled chip backgrounds, bordered pill chrome, and per-call-site `className` overrides that restyle triggers into pills, chips, or segmented trays. |
 | Overflow | `whitespace-nowrap`, `shrink-0`, and a horizontal scroll wrapper on `TabsList` are allowed. Optional count badge **inside** the label only. |
@@ -475,7 +475,9 @@ Product separator is a colon (`Label: value`), not a comma.
 | Cross-route switchers | Route-level section changes (sidebar destinations, breadcrumbs) are **navigation** (`Link`, `aria-current`) — not `role="tab"`. |
 | In-panel modes | 2–4 compact modes on one dataset without dedicated `tabpanel`s stay **segmented** (`aria-pressed` / radiogroup) per **TB-671** — not fake `Tabs`. |
 
-**Gold exemplars (line-tab chrome):** `/architecture/digests` (`DigestsHubClient`), Settings roles (`SettingsRolesPageView`), `/architecture/reviews/new` (`ReviewsNewPathSwitcher`), review detail workspace tab strip.
+**Gold exemplars (line-tab chrome):** review detail workspace tab strip (`ReviewDetailWorkspace`), Advisory hub (`AdvisoryHubClient`), shell help drawer (`HelpPanel`), reviews dashboard status filters (`RunsDashboardPanelClient`), alert rules hub (`AlertRulesHubClient`) — all declare `variant="line"`.
+
+**Known residual (TB-1665):** `/architecture/digests`, Settings roles, `/architecture/reviews/new`, architect workspace, policy packs, graph presentation, and Azure permissions setup carry **no** override classes but still inherit the `pill` default, so they render pills rather than line tabs. Closing this is a primitive default flip (or a per-call-site `variant="line"`), which restyles those hubs — see `OPERATOR_LINE_TABS_PILL_DEFAULT_RESIDUAL`.
 
 **Code migration:** strip override classes and migrate remaining pill call sites under **TB-1662**–**TB-1665** (do not reopen Done **TB-665**–**TB-672** semantics work).
 

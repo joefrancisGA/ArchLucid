@@ -105,7 +105,7 @@ describe("ProvenancePageWorkspace", () => {
       expect(screen.getByTestId("provenance-node-detail")).toBeInTheDocument();
     });
 
-    fireEvent.click(screen.getByRole("tab", { name: "Tables" }));
+    fireEvent.click(screen.getByRole("button", { name: "Tables" }));
     const row = document.getElementById("prov-node-row-n-find");
 
     expect(row?.className).toMatch(/color-mix/);
@@ -117,11 +117,11 @@ describe("ProvenancePageWorkspace", () => {
     expect(screen.getByTestId("provenance-graph-viewport")).toBeInTheDocument();
     expect(screen.queryByTestId("provenance-timeline-table")).not.toBeInTheDocument();
 
-    fireEvent.click(screen.getByRole("tab", { name: "Timeline" }));
+    fireEvent.click(screen.getByRole("button", { name: "Timeline" }));
     expect(screen.queryByTestId("provenance-graph-viewport")).not.toBeInTheDocument();
     expect(screen.getByTestId("provenance-timeline-table")).toBeInTheDocument();
 
-    fireEvent.click(screen.getByRole("tab", { name: "Tables" }));
+    fireEvent.click(screen.getByRole("button", { name: "Tables" }));
     expect(screen.queryByTestId("provenance-graph-viewport")).not.toBeInTheDocument();
     expect(screen.getByTestId("provenance-timeline-table")).toBeInTheDocument();
     expect(screen.getByTestId("provenance-nodes-table")).toBeInTheDocument();
@@ -139,18 +139,21 @@ describe("ProvenancePageWorkspace", () => {
   it("hides graph filters outside graph view", () => {
     render(<ProvenancePageWorkspace runId="demo-run" graph={graph} provenanceTraceId={null} />);
 
-    fireEvent.click(screen.getByRole("tab", { name: "Timeline" }));
+    fireEvent.click(screen.getByRole("button", { name: "Timeline" }));
     expect(screen.queryByTestId("provenance-graph-filters")).not.toBeInTheDocument();
   });
 
-  it("supports arrow-key navigation on view tabs", () => {
+  it("exposes view modes as a segmented group rather than tabs (TB-1664)", () => {
     render(<ProvenancePageWorkspace runId="demo-run" graph={graph} provenanceTraceId={null} />);
 
-    const timelineTab = screen.getByRole("tab", { name: "Timeline" });
-    timelineTab.focus();
-    fireEvent.keyDown(timelineTab, { key: "ArrowRight" });
+    expect(screen.getByRole("group", { name: "Provenance view" })).toBeInTheDocument();
+    expect(screen.queryByRole("tablist")).not.toBeInTheDocument();
+    expect(screen.queryByRole("tab")).not.toBeInTheDocument();
 
-    expect(screen.getByRole("tab", { name: "Tables" })).toHaveAttribute("aria-selected", "true");
+    fireEvent.click(screen.getByRole("button", { name: "Tables" }));
+
+    expect(screen.getByRole("button", { name: "Tables" })).toHaveAttribute("aria-pressed", "true");
+    expect(screen.getByRole("button", { name: "Timeline" })).toHaveAttribute("aria-pressed", "false");
   });
 
   it("shows filter notice without removing table data", () => {
@@ -163,7 +166,7 @@ describe("ProvenancePageWorkspace", () => {
     ).toBeInTheDocument();
     expect(screen.getByText(/Showing 1 of 3 nodes in the graph/i)).toBeInTheDocument();
 
-    fireEvent.click(screen.getByRole("tab", { name: "Tables" }));
+    fireEvent.click(screen.getByRole("button", { name: "Tables" }));
     expect(screen.getByTestId("provenance-nodes-table")).toBeInTheDocument();
     expect(within(screen.getByTestId("provenance-nodes-table")).getAllByRole("row").length).toBeGreaterThan(3);
   });
@@ -171,14 +174,14 @@ describe("ProvenancePageWorkspace", () => {
   it("expands the edges table by default for small graphs in Tables view", () => {
     render(<ProvenancePageWorkspace runId="demo-run" graph={graph} provenanceTraceId={null} />);
 
-    fireEvent.click(screen.getByRole("tab", { name: "Tables" }));
+    fireEvent.click(screen.getByRole("button", { name: "Tables" }));
     expect(screen.getByTestId("provenance-edges-table")).toBeInTheDocument();
   });
 
   it("highlights edges when an edge row is clicked", () => {
     render(<ProvenancePageWorkspace runId="demo-run" graph={graph} provenanceTraceId={null} />);
 
-    fireEvent.click(screen.getByRole("tab", { name: "Tables" }));
+    fireEvent.click(screen.getByRole("button", { name: "Tables" }));
     const edgesTable = screen.getByTestId("provenance-edges-table");
     fireEvent.click(within(edgesTable).getByText(/Reviewed source context → PHI minimization risk/));
 

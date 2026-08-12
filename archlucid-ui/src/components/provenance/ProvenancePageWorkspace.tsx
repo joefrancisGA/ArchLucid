@@ -11,10 +11,10 @@ import { ProvenanceSectionNav, type ProvenanceSection } from "@/components/prove
 import { ProvenanceWayfinding } from "@/components/provenance/ProvenanceWayfinding";
 import { RunProvenanceEvidenceGraphVocabularyRail } from "@/components/runs/RunProvenanceEvidenceGraphVocabularyRail";
 import {
-  ProvenanceViewModeTabs,
+  ProvenanceViewModeSwitcher,
   provenanceViewPanelProps,
   type ProvenanceViewMode,
-} from "@/components/provenance/ProvenanceViewModeTabs";
+} from "@/components/provenance/ProvenanceViewModeSwitcher";
 import { ProvenanceNodeExplainCell } from "@/components/ProvenanceNodeExplainCell";
 import { ProvenanceReferenceLink } from "@/components/ProvenanceReferenceLink";
 import { OperatorDemoStaticBanner } from "@/components/operator/OperatorDemoStaticBanner";
@@ -384,7 +384,7 @@ export function ProvenancePageWorkspace(props: ProvenancePageWorkspaceProps): Re
           ) : null}
 
           <div className="flex flex-col gap-3 sm:flex-row sm:flex-wrap sm:items-center sm:justify-between">
-            <ProvenanceViewModeTabs
+            <ProvenanceViewModeSwitcher
               options={VIEW_MODE_OPTIONS}
               viewMode={viewMode}
               onViewModeChange={setViewMode}
