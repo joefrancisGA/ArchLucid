@@ -26,11 +26,27 @@ describe("routeViewExplanationForPathname (TB-2216 / TB-2257)", () => {
     expect(routeViewExplanationForPathname("/administration/identity-providers/diagnostics")).toBeNull();
   });
 
+  it("describes SAML next steps without claiming the wizard enables sign-in", () => {
+    const saml = routeViewExplanationForPathname("/administration/identity-providers/saml");
+
+    expect(saml?.nextAction).toContain("test the saved mapping");
+    expect(saml?.nextAction).toContain("does not switch anyone to SAML sign-in");
+    // The wizard Activate step posts to the same tenant-only /activate endpoint, so it enables nothing.
+    expect(saml?.nextAction).not.toMatch(/enable SAML sign-in separately/i);
+    expect(saml?.nextActionLinks).toEqual([
+      {
+        label: "SSO setup wizard",
+        href: "/administration/identity/sso-wizard",
+      },
+    ]);
+  });
+
   it("covers TB-2257 explain-this-view expansions with buyer nouns", () => {
     const digests = routeViewExplanationForPathname(DIGESTS_HUB_PATH);
     expect(digests?.title).toBe("Digests");
     expect(digests?.summary.toLowerCase()).toContain("digest");
     expect(digests?.summary.toLowerCase()).toContain("content cadence");
+    expect(routeViewExplanationForPathname(DIGESTS_HUB_PATH, { search: "tab=subscriptions" })).toBeNull();
 
     const aiUsage = routeViewExplanationForPathname(AI_USAGE_SETTINGS_PATH);
     expect(aiUsage?.title).toBe("AI usage");

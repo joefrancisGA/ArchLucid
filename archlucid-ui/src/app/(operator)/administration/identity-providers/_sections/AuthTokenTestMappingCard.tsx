@@ -8,7 +8,11 @@ import { Card, CardContent, CardDescription, CardHeader, CardTitle } from "@/com
 import { Label } from "@/components/ui/label";
 import { Textarea } from "@/components/ui/textarea";
 import { buildApiRequestErrorFromParts } from "@/lib/api-error";
-import { OPERATOR_TYPOGRAPHY } from "@/lib/design-tokens";
+import { OPERATOR_LINK, OPERATOR_TYPOGRAPHY } from "@/lib/design-tokens";
+import {
+  IDENTITY_PROVIDERS_SAML_TEST_MAPPING_CARD_DESCRIPTION,
+  IDENTITY_PROVIDERS_SAML_TEST_MAPPING_CARD_TITLE,
+} from "@/lib/identity-providers-settings-copy";
 import type { components } from "@/lib/openapi-schemas";
 import { mergeRegistrationScopeForProxy } from "@/lib/proxy-fetch-registration-scope";
 import { showError, showSuccess } from "@/lib/toast";
@@ -18,7 +22,12 @@ type AdminTokenClaimsDiagnosticResponse = components["schemas"]["AdminTokenClaim
 /**
  * Dry-run JWT role mapping against current tenant configuration via POST /v1/admin/auth/diagnose-token.
  */
-export function AuthTokenTestMappingCard(props: { readonly showTechnicalDetails?: boolean } = {}): React.JSX.Element {
+export function AuthTokenTestMappingCard(
+  props: {
+    readonly showTechnicalDetails?: boolean;
+    readonly unsavedEditsNotice?: string | null;
+  } = {},
+): React.JSX.Element {
   const [bearerToken, setBearerToken] = useState("");
   const [busy, setBusy] = useState(false);
   const [result, setResult] = useState<AdminTokenClaimsDiagnosticResponse | null>(null);
@@ -76,14 +85,25 @@ export function AuthTokenTestMappingCard(props: { readonly showTechnicalDetails?
   return (
     <Card data-testid="auth-token-test-mapping-card">
       <CardHeader>
-        <CardTitle className={OPERATOR_TYPOGRAPHY.cardTitle}>Test mapping</CardTitle>
+        <CardTitle className={OPERATOR_TYPOGRAPHY.cardTitle}>
+          {props.showTechnicalDetails === true ? "Test mapping" : IDENTITY_PROVIDERS_SAML_TEST_MAPPING_CARD_TITLE}
+        </CardTitle>
         <CardDescription>
           {props.showTechnicalDetails === true
             ? "Paste a sample JWT from your IdP (payload only — signature is not validated). ArchLucid evaluates claim mappings and returns resolved roles without changing tenant configuration."
-            : "Evaluate how a sample identity token maps to ArchLucid workspace roles without changing tenant configuration."}
+            : IDENTITY_PROVIDERS_SAML_TEST_MAPPING_CARD_DESCRIPTION}
         </CardDescription>
       </CardHeader>
       <CardContent className="space-y-3">
+        {props.unsavedEditsNotice !== undefined && props.unsavedEditsNotice !== null ? (
+          <p
+            className={cn("m-0 text-al-text-secondary", OPERATOR_TYPOGRAPHY.helper)}
+            data-testid="auth-test-mapping-unsaved-notice"
+            role="status"
+          >
+            {props.unsavedEditsNotice}
+          </p>
+        ) : null}
         <div className="space-y-1">
           <Label htmlFor="auth-test-mapping-token">Sample bearer token</Label>
           <Textarea

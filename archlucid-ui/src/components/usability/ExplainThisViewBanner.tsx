@@ -3,27 +3,27 @@
 import { cn } from "@/lib/utils";
 import { OPERATOR_TYPOGRAPHY } from "@/lib/design-tokens";
 
-import { usePathname } from "next/navigation";
+import { usePathname, useSearchParams } from "next/navigation";
 import { useEffect, useState } from "react";
 
 import { InlineGuidanceLabel } from "@/components/InlineGuidanceLabel";
 import { DismissControl } from "@/components/usability/DismissControl";
 import { useAiUsageRouteShellState } from "@/app/(operator)/administration/ai-usage/_sections/ai-usage-route-shell-context";
 import { AI_USAGE_SETTINGS_PATH } from "@/lib/ai-usage-nav-paths";
-import { routeViewExplanationForPathname } from "@/lib/usability/route-view-explanations";
-
-function explainViewDismissKey(pathname: string): string {
-  return `archlucid.explain-view.dismissed.${pathname}`;
-}
+import { OPERATOR_LINK } from "@/lib/design-tokens";
+import Link from "next/link";
+import { routeViewExplanationForPathname, explainViewDismissKey } from "@/lib/usability/route-view-explanations";
 
 /** Compact per-route orientation — merged into the main column, not a competing right-side hero card. */
 export function ExplainThisViewBanner() {
   const pathname = usePathname() ?? "/";
+  const searchParams = useSearchParams();
   const aiUsageShell = useAiUsageRouteShellState();
   const quietEmptyPeriod =
     pathname === AI_USAGE_SETTINGS_PATH && aiUsageShell?.isQuietEmptyPeriod === true;
   const explanation = routeViewExplanationForPathname(pathname, {
     isAiUsageQuietEmptyPeriod: quietEmptyPeriod,
+    search: searchParams.toString(),
   });
   const [dismissed, setDismissed] = useState(false);
 
@@ -53,6 +53,15 @@ export function ExplainThisViewBanner() {
         {/* Title is intentionally not shown: the page H1 and active nav item already name the route. */}
         <p className="m-0 text-neutral-700 dark:text-neutral-300">
           <InlineGuidanceLabel label="Next:" testId="inline-guidance-what-to-do-next" /> {explanation.nextAction}
+          {explanation.nextActionLinks?.map((link) => (
+            <span key={link.href}>
+              {" "}
+              <Link href={link.href} className={OPERATOR_LINK.inline}>
+                {link.label}
+              </Link>
+            </span>
+          ))}
+          {explanation.nextActionLinks !== undefined && explanation.nextActionLinks.length > 0 ? "." : null}
         </p>
       </div>
       <DismissControl

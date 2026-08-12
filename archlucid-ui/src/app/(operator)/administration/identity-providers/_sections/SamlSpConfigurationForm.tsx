@@ -91,6 +91,26 @@ function serializeSamlSpConfigurationValues(values: SamlSpConfigurationFormValue
   });
 }
 
+type SamlSpConfigurationTouchedFields = {
+  readonly issuerUri: boolean;
+  readonly roleClaimName: boolean;
+  readonly mappings: boolean;
+};
+
+function hasUnsavedConfigurationEdits(
+  savedSnapshot: string | null,
+  values: SamlSpConfigurationFormValues,
+  touched: SamlSpConfigurationTouchedFields,
+): boolean {
+  // A null snapshot means the saved configuration could not be read, so edits cannot be diffed against
+  // it. Fall back to touch state so the test-mapping card still warns that it evaluates saved values.
+  if (savedSnapshot === null) {
+    return touched.issuerUri || touched.roleClaimName || touched.mappings;
+  }
+
+  return serializeSamlSpConfigurationValues(values) !== savedSnapshot;
+}
+
 /** Admin form for SAML 2.0 SP tenant configuration (issuer, IdP metadata URL, claim mappings). */
 export function SamlSpConfigurationForm(props: SamlSpConfigurationFormProps = {}) {
   const [values, setValues] = useState<SamlSpConfigurationFormValues>(() => createDefaultSamlSpConfigurationFormValues());
@@ -110,8 +130,7 @@ export function SamlSpConfigurationForm(props: SamlSpConfigurationFormProps = {}
 
   const validationErrors = useMemo(() => resolveSamlSpConfigurationValidationErrors(values), [values]);
   const fieldErrors = useMemo(() => resolveSamlSpConfigurationFieldErrors(values), [values]);
-  const hasUnsavedEdits =
-    savedSnapshot !== null && serializeSamlSpConfigurationValues(values) !== savedSnapshot;
+  const hasUnsavedEdits = hasUnsavedConfigurationEdits(savedSnapshot, values, touchedFields);
 
   const loadConfiguration = useCallback(async () => {
     setLoading(true);

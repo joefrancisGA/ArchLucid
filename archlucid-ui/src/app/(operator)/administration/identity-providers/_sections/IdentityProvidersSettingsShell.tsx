@@ -9,6 +9,7 @@ import {
   IDENTITY_PROVIDERS_NAV_OVERVIEW,
   IDENTITY_PROVIDERS_NAV_ROLE_MAPPING,
   IDENTITY_PROVIDERS_NAV_SAML,
+  IDENTITY_PROVIDERS_ADMIN_FALLBACK_NOTICE,
   IDENTITY_PROVIDERS_PAGE_INTRO,
   IDENTITY_PROVIDERS_PAGE_TITLE,
   IDENTITY_PROVIDERS_SAFETY_NOTICE,
@@ -85,6 +86,7 @@ export type IdentityProvidersSettingsShellProps = {
   readonly refreshing: boolean;
   readonly lastRefreshedAt: Date | null;
   readonly diagnosticsDataUnavailable?: boolean;
+  readonly showAdminFallbackNotice?: boolean;
   readonly onRefresh: () => void;
   readonly children: React.ReactNode;
 };
@@ -131,6 +133,15 @@ export function IdentityProvidersSettingsShell(props: IdentityProvidersSettingsS
             {IDENTITY_PROVIDERS_SAFETY_NOTICE}
           </p>
         </div>
+      ) : null}
+
+      {props.showAdminFallbackNotice === true ? (
+        <p
+          className={cn("m-0 max-w-3xl text-al-text-secondary", OPERATOR_TYPOGRAPHY.helper)}
+          data-testid="identity-providers-admin-fallback-notice"
+        >
+          {IDENTITY_PROVIDERS_ADMIN_FALLBACK_NOTICE}
+        </p>
       ) : null}
 
       <nav aria-label="Identity provider sections" data-testid="identity-providers-settings-nav">

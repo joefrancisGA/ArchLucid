@@ -1,13 +1,14 @@
 import {
   firstWhyDisabledCtaReason,
   whyDisabledBusy,
+  whyDisabledIncompleteInput,
   whyDisabledNeedsPrerequisite,
   type WhyDisabledCtaReason,
 } from "@/lib/why-disabled-cta";
 
 import {
   isSamlSpConfigurationFormValid,
-  resolveSamlSpConfigurationValidationError,
+  resolveSamlSpConfigurationValidationErrors,
   type SamlSpConfigurationFormValues,
 } from "@/lib/saml-sp-configuration-form-state";
 
@@ -32,13 +33,10 @@ export function resolveSamlSpSaveDisabledReason(
     return null;
   }
 
-  const validationError = resolveSamlSpConfigurationValidationError(input.values);
+  const validationErrors = resolveSamlSpConfigurationValidationErrors(input.values);
 
-  if (validationError !== null) {
-    return {
-      kind: "prerequisite",
-      message: validationError,
-    };
+  if (validationErrors.length > 0) {
+    return whyDisabledIncompleteInput(validationErrors.join(" "));
   }
 
   return whyDisabledNeedsPrerequisite("a complete SAML configuration");

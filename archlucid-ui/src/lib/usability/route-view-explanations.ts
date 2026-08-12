@@ -4,16 +4,22 @@
  * unless explicitly opted into the table below (TB-2216 / TB-2257).
  */
 
+export type RouteViewExplanationLink = {
+  readonly label: string;
+  readonly href: string;
+};
+
 export type RouteViewExplanation = {
   readonly title: string;
   readonly summary: string;
   readonly nextAction: string;
+  readonly nextActionLinks?: readonly RouteViewExplanationLink[];
 };
 
 import { AI_USAGE_SETTINGS_PATH } from "@/lib/ai-usage-nav-paths";
 import { ARCHITECTURES_LIST_PATH } from "@/lib/architecture/architecture-routes";
 import { SETTINGS_BILLING_PATH } from "@/lib/billing-and-plans-help-route";
-import { DIGESTS_HUB_PATH } from "@/lib/digests-route-paths";
+import { DIGESTS_HUB_PATH, digestsHubTabFromLocation } from "@/lib/digests-route-paths";
 import { GOVERNANCE_ALERTS_PATH } from "@/lib/governance/governance-route-paths";
 import { IMPACT_PREVIEW_PATH } from "@/lib/impact-preview-route";
 
@@ -132,8 +138,15 @@ const ROUTE_VIEW_EXPLANATIONS: readonly { prefix: string; explanation: RouteView
     explanation: {
       title: "SAML configuration",
       summary:
-        "Configure SAML metadata, issuer, and group-to-role mapping before enabling SAML sign-in for all users.",
-      nextAction: "Complete SAML metadata and role mapping, then validate sign-in with a test user from your IdP.",
+        "Configure SAML metadata, issuer, and group-to-role mapping for every workspace in this organization.",
+      nextAction:
+        "Fetch IdP metadata, map at least one group, then test the saved mapping below. Saving stores configuration for the whole organization and does not switch anyone to SAML sign-in. For a guided setup with a sandbox sign-in test, use the",
+      nextActionLinks: [
+        {
+          label: "SSO setup wizard",
+          href: "/administration/identity/sso-wizard",
+        },
+      ],
     },
   },
   {
@@ -166,9 +179,20 @@ function isGovernanceExplainOptIn(path: string): boolean {
 /** Returns compact orientation copy only when the route does not already own header guidance. */
 export function routeViewExplanationForPathname(
   pathname: string,
-  options?: { readonly isAiUsageQuietEmptyPeriod?: boolean },
+  options?: {
+    readonly isAiUsageQuietEmptyPeriod?: boolean;
+    readonly search?: string | null;
+  },
 ): RouteViewExplanation | null {
   const path = (pathname ?? "").split("?")[0] ?? "";
+
+  if (path === DIGESTS_HUB_PATH || path.startsWith(`${DIGESTS_HUB_PATH}/`)) {
+    const tab = digestsHubTabFromLocation(path, new URLSearchParams(options?.search ?? "").get("tab"));
+
+    if (tab === "subscriptions") {
+      return null;
+    }
+  }
 
   // Most governance surfaces own orientation via page headers; only the alerts inbox is opted in.
   if (path.startsWith("/governance")) {

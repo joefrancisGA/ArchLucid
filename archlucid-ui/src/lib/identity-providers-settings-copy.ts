@@ -116,7 +116,7 @@ export const IDENTITY_PROVIDERS_ROLE_MAPPING_HELPER =
   "Map identity provider groups to ArchLucid workspace roles.";
 
 export const IDENTITY_PROVIDERS_ROLE_MAPPING_SEMANTICS_HELPER =
-  "Unmapped IdP groups or role values receive no ArchLucid role. A user can match multiple mappings and receive every matching role. Each IdP value can map to only one ArchLucid role — duplicate values use the first row in the table.";
+  "Unmapped IdP groups or role values receive no ArchLucid role. A user can match multiple mappings and receive every matching role. Each IdP value maps to one ArchLucid role — the same value cannot be used in two rows.";
 
 export const IDENTITY_PROVIDERS_ROLE_MAPPING_EXAMPLES = [
   { idpValue: "archlucid-admins", archLucidRole: "Admin" },
