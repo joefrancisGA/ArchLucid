@@ -367,7 +367,7 @@ export function SettingsRolesPageView(props: Props) {
                       description={settingsRolesEmptyStateDescription(m.keysNote, "api_keys")}
                     />
                     <div className="flex flex-wrap gap-2">
-                      <Button asChild size="sm" data-testid="settings-roles-keys-open-api-keys">
+                      <Button asChild variant="primary" size="sm" data-testid="settings-roles-keys-open-api-keys">
                         <Link href={SETTINGS_ROLES_KEYS_TAB_LIFECYCLE_HREF}>{SETTINGS_ROLES_KEYS_TAB_OPEN_CTA_LABEL}</Link>
                       </Button>
                       <Button type="button" variant="secondary" size="sm" onClick={() => void m.load()}>
@@ -377,7 +377,11 @@ export function SettingsRolesPageView(props: Props) {
                   </div>
                 ) : null}
                 {!m.loading && apiKeyRows.length > 0 ? (
-                  <SettingsRolesPrincipalTable rows={apiKeyRows} onRoleChange={m.onRoleChange} />
+                  <SettingsRolesPrincipalTable
+                    rows={apiKeyRows}
+                    tableContext="api_keys"
+                    onRoleChange={m.onRoleChange}
+                  />
                 ) : null}
                 {!m.loading && m.keysNote === null && apiKeyRows.length === 0 ? (
                   <div className="space-y-4" data-testid="settings-roles-keys-empty">
@@ -385,7 +389,7 @@ export function SettingsRolesPageView(props: Props) {
                       title={settingsRolesEmptyStateTitle("empty_response", "api_keys")}
                       description={settingsRolesEmptyStateDescription("empty_response", "api_keys")}
                     />
-                    <Button asChild size="sm" data-testid="settings-roles-keys-open-api-keys">
+                    <Button asChild variant="primary" size="sm" data-testid="settings-roles-keys-open-api-keys">
                       <Link href={SETTINGS_ROLES_KEYS_TAB_LIFECYCLE_HREF}>{SETTINGS_ROLES_KEYS_TAB_OPEN_CTA_LABEL}</Link>
                     </Button>
                   </div>

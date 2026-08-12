@@ -31,6 +31,7 @@ vi.mock("@/components/operator/OperatorNavAuthorityProvider", () => ({
 
 import { requestPrincipalAppRoleAssignment } from "@/lib/admin-role-assignment-request";
 
+import { SETTINGS_ROLES_KEYS_TABLE_KEY_HINT_HEADER } from "./settings-roles-page-keys-tab-copy";
 import { SettingsRolesPrincipalTable } from "./SettingsRolesPrincipalTable";
 
 describe("SettingsRolesPrincipalTable (SSU P0)", () => {
@@ -112,5 +113,28 @@ describe("SettingsRolesPrincipalTable (SSU P0)", () => {
     await waitFor(() => {
       expect(screen.getByTestId("settings-roles-save-status-user:u3")).toHaveTextContent("Not saved");
     });
+  });
+
+  it("uses automation-key column headers on the keys tab table (TB-1934)", () => {
+    render(
+      <SettingsRolesPrincipalTable
+        tableContext="api_keys"
+        rows={[
+          {
+            id: "key-1",
+            kind: "api_key",
+            name: "ci-deploy",
+            detail: "al_…4f2a",
+            role: "Operator",
+          },
+        ]}
+        onRoleChange={vi.fn(async () => "saved")}
+      />,
+    );
+
+    expect(screen.getByTestId("settings-roles-principal-identity-column-header")).toHaveTextContent(
+      SETTINGS_ROLES_KEYS_TABLE_KEY_HINT_HEADER,
+    );
+    expect(screen.queryByText("Email / hint")).not.toBeInTheDocument();
   });
 });

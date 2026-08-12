@@ -123,7 +123,7 @@ describe("SettingsRolesPageView (SSU P0)", () => {
     );
   });
 
-  it("uses invite-first empty composition without stacked empty cards (TB-1214)", () => {
+  it("uses invite-first empty composition without stacked empty cards (TB-1214, TB-1937)", () => {
     render(<SettingsRolesPageView model={buildModel({ usersNote: null })} />);
 
     expect(screen.getByTestId("settings-roles-users-empty-composition")).toBeInTheDocument();
@@ -194,7 +194,7 @@ describe("SettingsRolesPageView (SEU / keys tab)", () => {
     expect(within(keysPanel).queryByText(/principal/i)).not.toBeInTheDocument();
   });
 
-  it("exposes Open API keys primary CTA on keys empty path (TB-1213)", () => {
+  it("exposes primary Open CLI usage help CTA on keys empty path (TB-1213, TB-1932)", () => {
     render(<SettingsRolesPageView model={buildModel({ usersNote: null, keysNote: null })} />);
 
     fireEvent.click(screen.getByTestId("settings-roles-tab-keys"));
@@ -205,6 +205,7 @@ describe("SettingsRolesPageView (SEU / keys tab)", () => {
     expect(within(keysPanel).getByTestId("settings-roles-keys-empty")).toBeInTheDocument();
     expect(openCta).toHaveTextContent(SETTINGS_ROLES_KEYS_TAB_OPEN_CTA_LABEL);
     expect(openCta).toHaveAttribute("href", SETTINGS_ROLES_KEYS_TAB_LIFECYCLE_HREF);
+    expect(openCta.className).toContain("al-primary-action-bg");
     expect(within(keysPanel).queryByText(/No principals found/i)).not.toBeInTheDocument();
   });
 });

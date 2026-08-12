@@ -264,6 +264,19 @@ describe("SamlSpConfigurationForm", () => {
     const form = screen.getByTestId("saml-sp-configuration-form");
     expect(within(form).queryByRole("heading", { name: IDENTITY_PROVIDERS_SAML_PAGE_TITLE })).toBeNull();
   });
+
+  it("uses design-system Select for ArchLucid role mapping and collapses regex under Advanced (TB-1924)", async () => {
+    render(<SamlSpConfigurationForm />);
+
+    await waitFor(() => {
+      expect(screen.getByTestId("saml-mapping-role-Admin")).toBeInTheDocument();
+    });
+
+    expect(screen.getByTestId("saml-sp-configuration-form").querySelector("select")).toBeNull();
+    expect(screen.getByTestId("saml-advanced-settings")).toBeInTheDocument();
+    expect(screen.getByTestId("saml-advanced-settings")).not.toHaveAttribute("open");
+    expect(within(screen.getByTestId("saml-advanced-settings")).getByTestId("saml-group-regex")).toBeInTheDocument();
+  });
 });
 
 describe("IdentityProvidersSamlPageClient", () => {
@@ -280,6 +293,12 @@ describe("IdentityProvidersSamlPageClient", () => {
 
     expect(await screen.findByText(IDENTITY_PROVIDERS_SAML_PAGE_SUBTITLE)).toBeInTheDocument();
     expect(screen.getByRole("heading", { name: IDENTITY_PROVIDERS_SAML_PAGE_TITLE })).toBeInTheDocument();
+  });
+
+  it("shows SAML operational health strip when model data is available (TB-1924)", async () => {
+    render(<IdentityProvidersSamlPageClient loaded={loaded} />);
+
+    expect(await screen.findByTestId("saml-operational-health-card")).toBeInTheDocument();
   });
 });
 

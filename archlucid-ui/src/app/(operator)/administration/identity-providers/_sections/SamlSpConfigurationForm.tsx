@@ -12,6 +12,13 @@ import { Card, CardContent, CardHeader } from "@/components/ui/card";
 import { Input } from "@/components/ui/input";
 import { Label } from "@/components/ui/label";
 import {
+  Select,
+  SelectContent,
+  SelectItem,
+  SelectTrigger,
+  SelectValue,
+} from "@/components/ui/select";
+import {
   activateTenantSamlIdentityProvider,
   discoverIdentityProviderMetadata,
   fetchTenantIdentityProviderConfiguration,
@@ -29,6 +36,7 @@ import {
   IDENTITY_PROVIDERS_ACTION_FETCH_IDP_METADATA,
   IDENTITY_PROVIDERS_ACTION_SAVE,
   IDENTITY_PROVIDERS_ROLE_MAPPING_HELPER,
+  IDENTITY_PROVIDERS_SAML_ADVANCED_SETTINGS_TITLE,
   IDENTITY_PROVIDERS_SAML_GROUP_REGEX_LABEL,
   IDENTITY_PROVIDERS_SAML_ISSUER_LABEL,
   IDENTITY_PROVIDERS_SAML_METADATA_URL_LABEL,
@@ -276,15 +284,9 @@ export function SamlSpConfigurationForm() {
                         />
                       </td>
                       <td className="py-2">
-                        <select
-                          className={cn(
-                            "w-full rounded-md border border-neutral-300 bg-white px-2 py-2 dark:border-neutral-600 dark:bg-neutral-900",
-                            OPERATOR_TYPOGRAPHY.body,
-                          )}
+                        <Select
                           value={row.archLucidRole}
-                          onChange={(e) => {
-                            const archLucidRole = e.target.value;
-
+                          onValueChange={(archLucidRole) => {
                             setValues((prev) => {
                               const mappings = [...prev.mappings];
                               mappings[index] = { ...mappings[index], archLucidRole };
@@ -293,12 +295,21 @@ export function SamlSpConfigurationForm() {
                             });
                           }}
                         >
-                          {ARCHLUCID_ROLES.map((role) => (
-                            <option key={role} value={role}>
-                              {role}
-                            </option>
-                          ))}
-                        </select>
+                          <SelectTrigger
+                            className="h-9 w-full"
+                            aria-label={`ArchLucid role for ${row.archLucidRole} mapping`}
+                            data-testid={`saml-mapping-role-${row.archLucidRole}`}
+                          >
+                            <SelectValue />
+                          </SelectTrigger>
+                          <SelectContent>
+                            {ARCHLUCID_ROLES.map((role) => (
+                              <SelectItem key={role} value={role}>
+                                {role}
+                              </SelectItem>
+                            ))}
+                          </SelectContent>
+                        </Select>
                       </td>
                     </tr>
                   ))}
@@ -306,18 +317,26 @@ export function SamlSpConfigurationForm() {
               </table>
             </div>
 
-            <div className="space-y-2">
-              <Label htmlFor="saml-group-regex">{IDENTITY_PROVIDERS_SAML_GROUP_REGEX_LABEL}</Label>
-              <Input
-                id="saml-group-regex"
-                data-testid="saml-group-regex"
-                value={values.customGroupClaimRegex}
-                onChange={(e) => {
-                  setValues((prev) => ({ ...prev, customGroupClaimRegex: e.target.value }));
-                }}
-                placeholder="^AL-(Admin|Operator)-.*$"
-              />
-            </div>
+            <details
+              className="rounded-lg border border-neutral-200 p-4 dark:border-neutral-800"
+              data-testid="saml-advanced-settings"
+            >
+              <summary className={cn("cursor-pointer font-medium text-al-text-primary", OPERATOR_TYPOGRAPHY.cardTitle)}>
+                {IDENTITY_PROVIDERS_SAML_ADVANCED_SETTINGS_TITLE}
+              </summary>
+              <div className="mt-4 space-y-2">
+                <Label htmlFor="saml-group-regex">{IDENTITY_PROVIDERS_SAML_GROUP_REGEX_LABEL}</Label>
+                <Input
+                  id="saml-group-regex"
+                  data-testid="saml-group-regex"
+                  value={values.customGroupClaimRegex}
+                  onChange={(e) => {
+                    setValues((prev) => ({ ...prev, customGroupClaimRegex: e.target.value }));
+                  }}
+                  placeholder="^AL-(Admin|Operator)-.*$"
+                />
+              </div>
+            </details>
 
             <div className="flex flex-col gap-2">
               <div className="flex flex-wrap items-center gap-3">

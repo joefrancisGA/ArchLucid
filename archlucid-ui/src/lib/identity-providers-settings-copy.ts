@@ -136,6 +136,8 @@ export const IDENTITY_PROVIDERS_SAML_ISSUER_LABEL = "Issuer / entity ID";
 export const IDENTITY_PROVIDERS_SAML_ROLE_CLAIM_LABEL = "Attribute used for roles/groups";
 export const IDENTITY_PROVIDERS_SAML_GROUP_REGEX_LABEL = "Optional custom group claim regex";
 
+export const IDENTITY_PROVIDERS_SAML_ADVANCED_SETTINGS_TITLE = "Advanced settings";
+
 export const IDENTITY_PROVIDERS_ACTION_SAVE = "Save configuration";
 export const IDENTITY_PROVIDERS_ACTION_VALIDATE = "Validate configuration";
 export const IDENTITY_PROVIDERS_ACTION_FETCH_IDP_METADATA = "Fetch IdP metadata";

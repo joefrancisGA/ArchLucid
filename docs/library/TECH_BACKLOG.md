@@ -1127,11 +1127,11 @@ All **P0** **V1**: visible-boundary button contract + design-system rule (**TB-2
 | TB-1909 | **Done** (2026-08-12) ? Identity diagnostics ? loading/empty when strips not yet loaded; Vitest; see `## TB-1909` below | Adoption friction P1 ? **V1**; with **TB-1906** | S |
 | TB-1914 | **Done** (2026-08-10) ? OIDC/JWT tab loading/empty states + protocol-aware CTA hierarchy; Vitest; see `## TB-1914` below | Adoption friction P1 ? **V1**; with **TB-1911** | S |
 | TB-1919 | **Done** (2026-08-10) ? Role mapping tab protocol-aware primary CTA + Open identity diagnostics + loading; Vitest; see `## TB-1919` below | Adoption friction P1 ? **V1**; with **TB-1916** | S |
-| TB-1924 | SAML tab ? DS Select + advanced regex disclosure + optional health strip; see ## TB-1924 below | Adoption friction P1 ? **V1**; with **TB-1921** | S |
+| TB-1924 | **Done** (2026-08-12) ? SAML tab DS Select + advanced regex disclosure + optional health strip; Vitest; see `## TB-1924` below | Adoption friction P1 ? **V1**; with **TB-1921** | S |
 | TB-1929 | **Done** (2026-08-01) ? Model governance isolates catalog/profile fetch + empty registry; Vitest; see `## TB-1929` below | Adoption friction P1 ? **V1**; with **TB-1926** | S |
-| TB-1932 | Users API keys tab ? execute primary Open API keys CTA with **TB-1213**; see ## TB-1932 below | Adoption friction P1 ? **V1**; with **TB-1931**; do not reopen **TB-1213** | S |
-| TB-1934 | Users API keys tab ? column headers for automation keys + Link/Button; see ## TB-1934 below | Adoption friction P1 ? **V1**; with **TB-1931** | S |
-| TB-1937 | Users tab ? execute empty composition with **TB-1214**; see ## TB-1937 below | Adoption friction P1 ? **V1**; with **TB-1936**; do not reopen **TB-1214** | S |
+| TB-1932 | **Done** (2026-08-12) ? Users API keys tab primary Open CLI usage help CTA with **TB-1213**; Vitest; see `## TB-1932` below | Adoption friction P1 ? **V1**; with **TB-1931**; do not reopen **TB-1213** | S |
+| TB-1934 | **Done** (2026-08-12) ? Users API keys tab automation-keys column headers + Link/Button; Vitest; see `## TB-1934` below | Adoption friction P1 ? **V1**; with **TB-1931** | S |
+| TB-1937 | **Done** (2026-08-12) ? Users tab empty composition with **TB-1214**; Vitest; see `## TB-1937` below | Adoption friction P1 ? **V1**; with **TB-1936**; do not reopen **TB-1214** | S |
 | TB-1939 | Users tab ? Invite primary + demote pending/users empty Cards; see ## TB-1939 below | Adoption friction P1 ? **V1**; with **TB-1936**; pairs **TB-1214** | S |
 | TB-1944 | Signed records list ? dedupe Open review CTAs + page-1/100 + N+1 enrich; see ## TB-1944 below | Adoption friction P1 ? **V1**; with **TB-1941** | M |
 | TB-1959 | **Done** (2026-08-02) ? Architecture scorecard mounts PageContextualHelp; pilot-roi-model topic map; Vitest; see `## TB-1959` below | Adoption friction P1 ? **V1**; with **TB-1956**; do not reopen **TB-1668** | S |
@@ -45006,11 +45006,13 @@ Operators must read three intros before reaching the Trust Center link list.
 
 ## TB-1924 ? SAML tab ? DS Select + advanced regex disclosure + optional health strip (P1)
 
-**Window:** V1 ? Adoption friction. **Status:** Not started. **Priority:** P1.
+**Window:** V1 ? Adoption friction. **Status:** **Done** (2026-08-12). **Priority:** P1.
 
 **Problem:** Native role `<select>`; custom group regex is primary field; page drops gate `model` (no SAML health strip).
 
 **Approach:** Design-system Select; collapse regex under Advanced; optional `SamlOperationalHealthStrip` from loaded model.
+
+**Closure (2026-08-12):** `SamlSpConfigurationForm` uses DS `Select` for role mapping and `<details>` Advanced for group regex; `IdentityProvidersSamlPageClient` mounts `SamlOperationalHealthStrip` from gate model; Vitest in `SamlSpConfigurationForm.test.tsx`.
 
 **Acceptance:** Role picker DS; regex advanced; health visible when available. **Size estimate:** S.
 
@@ -45106,11 +45108,13 @@ Operators must read three intros before reaching the Trust Center link list.
 
 ## TB-1932 ? Users API keys tab ? execute primary Open API keys CTA with **TB-1213** (P0)
 
-**Window:** V1 ? Adoption friction. **Status:** Not started. **Priority:** P0.
+**Window:** V1 ? Adoption friction. **Status:** **Done** (2026-08-12). **Priority:** P0.
 
 **Problem:** Empty path still lacks primary Button CTA to `/administration/settings/api-keys` (open **TB-1213**).
 
 **Approach:** Land **TB-1213** primary CTA here; Vitest. Do not reopen **TB-1213**.
+
+**Closure (2026-08-12):** Keys empty/error paths use `variant="primary"` `settings-roles-keys-open-api-keys` Button+Link to CLI usage help; Vitest primary-class guard in `SettingsRolesPageView.test.tsx`.
 
 **Acceptance:** Empty keys tab has primary Open API keys control. **Size estimate:** S.
 
@@ -45132,11 +45136,13 @@ Operators must read three intros before reaching the Trust Center link list.
 
 ## TB-1934 ? Users API keys tab ? column headers for automation keys + Link/Button (P1)
 
-**Window:** V1 ? Adoption friction. **Status:** Not started. **Priority:** P1.
+**Window:** V1 ? Adoption friction. **Status:** **Done** (2026-08-12). **Priority:** P1.
 
 **Problem:** Shared PrincipalTable uses **Email / hint**; lifecycle link is bare `<a>`.
 
 **Approach:** Keys-aware columns (e.g. Key / hint); Next Link or Button for lifecycle. Vitest headers.
+
+**Closure (2026-08-12):** `SettingsRolesPrincipalTable` `tableContext="api_keys"` renders **Key / hint** header; keys tab passes context; lifecycle lead uses Next `Link`; Vitest in `SettingsRolesPrincipalTable.test.tsx`.
 
 **Acceptance:** Keys table headers match automation keys; lifecycle uses Button/Link. **Size estimate:** S.
 
@@ -45170,11 +45176,13 @@ Operators must read three intros before reaching the Trust Center link list.
 
 ## TB-1937 ? Users tab ? execute empty composition with **TB-1214** (P0)
 
-**Window:** V1 ? Adoption friction. **Status:** Not started. **Priority:** P0.
+**Window:** V1 ? Adoption friction. **Status:** **Done** (2026-08-12). **Priority:** P0.
 
 **Problem:** Empty workspace still stacks Invite + pending empty + users empty (open **TB-1214**).
 
 **Approach:** Land **TB-1214** here. Do not reopen **TB-1214**.
+
+**Closure (2026-08-12):** `usersTabInviteFirstLayout` invite-first composition already shipped with **TB-1214**; Vitest alias **TB-1937** in `SettingsRolesPageView.test.tsx`.
 
 **Acceptance:** One clear invite path without triple empty theater. **Size estimate:** S.
 

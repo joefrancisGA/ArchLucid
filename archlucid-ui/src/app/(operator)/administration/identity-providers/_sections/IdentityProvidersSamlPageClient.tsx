@@ -8,6 +8,7 @@ import {
 import { IdentityProvidersSettingsGate } from "./IdentityProvidersSettingsGate";
 import { IdentityProvidersSettingsShell } from "./IdentityProvidersSettingsShell";
 import type { IdentityProvidersSettingsPageServerLoad } from "./load-identity-providers-settings-page-data";
+import { SamlOperationalHealthStrip } from "./SamlOperationalHealthStrip";
 import { SamlSpConfigurationForm } from "./SamlSpConfigurationForm";
 
 type Props = {
@@ -25,7 +26,15 @@ export function IdentityProvidersSamlPageClient(props: Props): React.JSX.Element
           lastRefreshedAt={model.lastRefreshedAt}
           onRefresh={() => void model.refresh()}
         >
-          <SamlSpConfigurationForm />
+          <div className="space-y-4">
+            {model.samlOperationalHealthLoaded ? (
+              <SamlOperationalHealthStrip
+                payload={model.samlOperationalHealth}
+                fetchNote={model.samlOperationalHealthNote}
+              />
+            ) : null}
+            <SamlSpConfigurationForm />
+          </div>
         </IdentityProvidersSettingsShell>
       )}
     </IdentityProvidersSettingsGate>

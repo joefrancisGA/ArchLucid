@@ -16,3 +16,6 @@ export const SETTINGS_ROLES_KEYS_TAB_LIFECYCLE_LINK_LABEL = "CLI usage help";
 
 /** Primary empty-path CTA — host credential guidance lives in CLI usage help (TB-1213). */
 export const SETTINGS_ROLES_KEYS_TAB_OPEN_CTA_LABEL = "Open CLI usage help";
+
+/** Automation-keys table column when assigning API key roles (TB-1934). */
+export const SETTINGS_ROLES_KEYS_TABLE_KEY_HINT_HEADER = "Key / hint";
