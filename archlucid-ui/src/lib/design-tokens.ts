@@ -99,6 +99,10 @@ export const OPERATOR_LAYOUT = {
     bodyOffset: "mt-4",
     bodyOffsetSlim: "mt-3",
   },
+  /** Primary column + sticky setup aside (~17.5rem) at lg+. */
+  mainWithStickyAside: "grid gap-6 lg:grid-cols-[minmax(0,1fr)_17.5rem] lg:items-start",
+  /** Sticky positioning for setup-progress aside columns. */
+  stickyAsideTop: "lg:sticky lg:top-4",
 } as const;
 
 /** Operator workflow page width variants — left-aligned rails (no `mx-auto`). */

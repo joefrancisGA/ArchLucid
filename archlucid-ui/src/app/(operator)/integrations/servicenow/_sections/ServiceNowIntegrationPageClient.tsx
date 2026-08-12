@@ -6,14 +6,11 @@ import { useCallback, useEffect, useMemo, useState } from "react";
 
 import { OperatorLoadingNotice } from "@/components/operator/OperatorShellMessage";
 import { ItsmConnectorProviderChooserRail } from "@/components/itsm/ItsmConnectorProviderChooserRail";
-import { ItsmConnectorsBuyerJiraServicenowVocabularyRail } from "@/components/itsm/ItsmConnectorsBuyerJiraServicenowVocabularyRail";
 import { useNavCallerAuthorityRank } from "@/components/operator/OperatorNavAuthorityProvider";
-import { PageHeading } from "@/components/PageHeading";
 import { Button } from "@/components/ui/button";
 import { Checkbox } from "@/components/ui/checkbox";
 import { Label } from "@/components/ui/label";
 import { StatusTag } from "@/components/ui/status-tag";
-import { PageContextualHelpButton } from "@/components/usability/PageContextualHelpButton";
 import { useOperateCapability } from "@/hooks/use-operate-capability";
 import {
   fetchItsmIntegrationHealth,
@@ -27,7 +24,7 @@ import {
 import { DESIGN_TOKENS, OPERATOR_DISCLOSURE_TRIGGER_CLASS, OPERATOR_LAYOUT, OPERATOR_LINK, OPERATOR_TYPOGRAPHY } from "@/lib/design-tokens";
 import { enterpriseMutationControlDisabledTitle } from "@/lib/enterprise-controls-context-copy";
 import { isShowSystemAdministrationNavEnabled } from "@/lib/features";
-import { INTEGRATIONS_READINESS_PATH, INTEGRATIONS_SERVICENOW_PATH } from "@/lib/integrations-nav-paths";
+import { itsmConnectionStatusTagKind } from "@/lib/itsm/itsm-connection-status-tag-kind";
 import {
   SERVICENOW_CMDB_AUTO_CREATE_HELPER,
   SERVICENOW_CMDB_AUTO_CREATE_LABEL,
@@ -49,7 +46,6 @@ import {
   SERVICENOW_INCIDENT_SETTINGS_LEAD,
   SERVICENOW_INCIDENT_SETTINGS_TITLE,
   SERVICENOW_INCIDENT_SETTINGS_UNAVAILABLE_LEAD,
-  SERVICENOW_INTEGRATION_PAGE_DESCRIPTION,
   SERVICENOW_INTEGRATION_PAGE_TITLE,
   SERVICENOW_INSTANCE_URL_NOT_SET,
   SERVICENOW_LOADING_MESSAGE,
@@ -75,23 +71,7 @@ import { AUTHORITY_RANK } from "@/lib/nav-authority";
 
 import { ItsmNotConfiguredNextStep } from "../../_sections/itsm/ItsmNotConfiguredNextStep";
 import { ServiceNowIntegrationAside } from "./ServiceNowIntegrationAside";
-function statusTagKind(
-  status: ReturnType<typeof resolveServiceNowConnectionStatus>["status"],
-): "ready" | "needs-attention" | "neutral" | "in-progress" {
-  if (status === "connected") {
-    return "ready";
-  }
-
-  if (status === "connection-issue") {
-    return "needs-attention";
-  }
-
-  if (status === "testing") {
-    return "in-progress";
-  }
-
-  return "neutral";
-}
+import { ServiceNowIntegrationPageHeader } from "./ServiceNowIntegrationPageHeader";
 
 export function ServiceNowIntegrationPageClient(): React.ReactElement {
   const canMutate = useOperateCapability();
@@ -115,6 +95,7 @@ export function ServiceNowIntegrationPageClient(): React.ReactElement {
   const [lastTestAt, setLastTestAt] = useState<string | null>(null);
   const [lastTestSummary, setLastTestSummary] = useState<string | null>(null);
   const [lastTestSuccess, setLastTestSuccess] = useState<boolean | null>(null);
+  const [lastCheckedAt, setLastCheckedAt] = useState<Date | null>(null);
 
   const applySettings = useCallback((loaded: TenantItsmOutboundSettingsResponse | null) => {
     setSettings(loaded);
@@ -155,6 +136,7 @@ export function ServiceNowIntegrationPageClient(): React.ReactElement {
     }
 
     setLoadError(loaded.loadError);
+    setLastCheckedAt(new Date());
     setIsLoading(false);
   }, [applySettings]);
 
@@ -178,9 +160,10 @@ export function ServiceNowIntegrationPageClient(): React.ReactElement {
         isTesting,
         nativeEnabled,
         credentialsReady,
+        canConfigureAdmin,
         probe,
       }),
-    [connectionStatusLoadError, credentialsReady, isLoading, isTesting, nativeEnabled, probe],
+    [canConfigureAdmin, connectionStatusLoadError, credentialsReady, isLoading, isTesting, nativeEnabled, probe],
   );
 
   const incidentSettingsEditable = canMutate && !settingsLoadFailed && settings !== null;
@@ -376,39 +359,25 @@ export function ServiceNowIntegrationPageClient(): React.ReactElement {
 
   return (
     <div
-      className="w-full max-w-[68rem] space-y-8 px-4 py-8 sm:px-6 lg:px-8"
+      className={cn("w-full max-w-[68rem] px-4 py-4 sm:px-6 lg:px-8", OPERATOR_LAYOUT.majorSectionGap)}
       data-testid="integrations-servicenow-page"
     >
-      <PageHeading
-        navHref={INTEGRATIONS_SERVICENOW_PATH}
-        title={SERVICENOW_INTEGRATION_PAGE_TITLE}
-        variant="integration"
-        bordered
-        actions={<PageContextualHelpButton />}
-        description={
-          <>
-            <p className={cn("m-0 max-w-2xl leading-relaxed", OPERATOR_TYPOGRAPHY.body)}>
-              {SERVICENOW_INTEGRATION_PAGE_DESCRIPTION}
-            </p>
-            <p className={cn("m-0 max-w-2xl", OPERATOR_TYPOGRAPHY.helper)}>
-              <Link href={INTEGRATIONS_READINESS_PATH} className={cn("underline-offset-2 hover:underline", DESIGN_TOKENS.accent.link)}>
-                Integration readiness
-              </Link>
-              {" — status across ServiceNow, Jira, Teams, Slack, cloud connections, and webhooks."}
-            </p>
-          </>
-        }
+      <ServiceNowIntegrationPageHeader
+        connectionStatus={connectionStatus}
+        refreshing={isLoading}
+        refreshDisabled={isLoading || isSaving || isTesting}
+        lastCheckedAt={lastCheckedAt}
+        onRefresh={() => void refresh()}
       />
-
-      <ItsmConnectorsBuyerJiraServicenowVocabularyRail currentSurfaceId="servicenow" />
 
       <ItsmConnectorProviderChooserRail currentProviderId="servicenow" />
 
-{isLoading && health === null && settings === null ? (
+      {isLoading && health === null && settings === null ? (
         <OperatorLoadingNotice>{SERVICENOW_LOADING_MESSAGE}</OperatorLoadingNotice>
       ) : (
         <div
-          className={cn(OPERATOR_LAYOUT.majorSectionGap)}
+          className={cn(OPERATOR_LAYOUT.mainWithStickyAside)}
+          data-testid="servicenow-page-layout"
           data-operator-side-rail-kind="none"
         >
           <div className="min-w-0 space-y-8" data-testid="servicenow-page-main">
@@ -430,7 +399,7 @@ export function ServiceNowIntegrationPageClient(): React.ReactElement {
                 <h2 id="servicenow-status-heading" className={OPERATOR_TYPOGRAPHY.sectionTitle}>
                   {SERVICENOW_CONNECTION_STATUS_HEADING}
                 </h2>
-                <StatusTag kind={statusTagKind(connectionStatus.status)} label={connectionStatus.label} />
+                <StatusTag kind={itsmConnectionStatusTagKind(connectionStatus.status)} label={connectionStatus.label} />
               </div>
               <p className={cn("m-0 text-al-text-primary", OPERATOR_TYPOGRAPHY.body)} role="status">
                 {connectionStatus.explanation}
@@ -569,6 +538,7 @@ export function ServiceNowIntegrationPageClient(): React.ReactElement {
           </div>
 
           <ServiceNowIntegrationAside
+            className={OPERATOR_LAYOUT.stickyAsideTop}
             status={connectionStatus}
             setupSteps={setupSteps}
             emphasizedSetupStepId={pageComposition.emphasizedSetupStepId}

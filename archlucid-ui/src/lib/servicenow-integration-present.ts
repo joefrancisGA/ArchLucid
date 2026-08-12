@@ -9,6 +9,8 @@ import {
   SERVICENOW_AUTH_METHOD_UNKNOWN,
   SERVICENOW_AUTH_OAUTH_CLIENT,
   SERVICENOW_AUTH_OAUTH_REFRESH,
+  SERVICENOW_NEXT_ACTION_SETUP_INCOMPLETE_ADMIN,
+  SERVICENOW_NEXT_ACTION_SETUP_INCOMPLETE_OPERATOR,
 } from "./servicenow-integration-page-copy";
 
 export type ServiceNowConnectionStatus =
@@ -86,6 +88,7 @@ export function resolveServiceNowConnectionStatus(input: {
   readonly isTesting: boolean;
   readonly nativeEnabled: boolean;
   readonly credentialsReady: boolean;
+  readonly canConfigureAdmin: boolean;
   readonly probe: ItsmIntegrationHealthResponse["serviceNow"] | null | undefined;
 }): ServiceNowConnectionStatusPresentation {
   if (input.isTesting) {
@@ -129,7 +132,9 @@ export function resolveServiceNowConnectionStatus(input: {
       status: "setup-incomplete",
       label: STATUS_LABELS["setup-incomplete"],
       explanation: "ServiceNow credentials and instance details are not configured yet.",
-      nextAction: "Ask an ArchLucid administrator to complete secure credential setup.",
+      nextAction: input.canConfigureAdmin
+        ? SERVICENOW_NEXT_ACTION_SETUP_INCOMPLETE_ADMIN
+        : SERVICENOW_NEXT_ACTION_SETUP_INCOMPLETE_OPERATOR,
     };
   }
 

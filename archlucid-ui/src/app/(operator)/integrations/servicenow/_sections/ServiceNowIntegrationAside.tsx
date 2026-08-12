@@ -21,6 +21,7 @@ import type { ServiceNowConnectionStatusPresentation, ServiceNowSetupStep } from
 import { cn } from "@/lib/utils";
 
 type Props = {
+  readonly className?: string;
   readonly status: ServiceNowConnectionStatusPresentation;
   readonly setupSteps: readonly ServiceNowSetupStep[];
   readonly emphasizedSetupStepId: string;
@@ -34,7 +35,7 @@ type Props = {
 export function ServiceNowIntegrationAside(props: Props): React.ReactElement {
   return (
     <aside
-      className="space-y-4"
+      className={cn("space-y-4", props.className)}
       data-testid="servicenow-integration-aside"
       data-operator-side-rail-kind="none"
     >

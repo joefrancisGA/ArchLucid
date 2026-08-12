@@ -10,6 +10,7 @@ import { PageContextualHelpButton } from "@/components/usability/PageContextualH
 import { WhyDisabledCtaHint } from "@/components/usability/WhyDisabledCtaHint";
 import { OPERATOR_LINK, OPERATOR_TYPOGRAPHY } from "@/lib/design-tokens";
 import { INTEGRATIONS_JIRA_PATH, INTEGRATIONS_READINESS_PATH } from "@/lib/integrations-nav-paths";
+import { itsmConnectionStatusTagKind } from "@/lib/itsm/itsm-connection-status-tag-kind";
 import {
   JIRA_ACTION_REFRESH,
   JIRA_ACTION_REFRESHING,
@@ -38,24 +39,6 @@ export type JiraIntegrationPageHeaderProps = {
   readonly isConnecting: boolean;
 };
 
-function statusTagKind(
-  status: JiraConnectionStatusPresentation["status"],
-): "ready" | "needs-attention" | "neutral" | "in-progress" {
-  if (status === "connected") {
-    return "ready";
-  }
-
-  if (status === "connection-issue" || status === "setup-incomplete") {
-    return "needs-attention";
-  }
-
-  if (status === "testing") {
-    return "in-progress";
-  }
-
-  return "neutral";
-}
-
 export function JiraIntegrationPageHeader(props: JiraIntegrationPageHeaderProps): React.JSX.Element {
   return (
     <OperatorPageHeader
@@ -66,7 +49,7 @@ export function JiraIntegrationPageHeader(props: JiraIntegrationPageHeaderProps)
       subtitle={JIRA_PAGE_SUBTITLE}
       statusBadge={
         <StatusTag
-          kind={statusTagKind(props.connectionStatus.status)}
+          kind={itsmConnectionStatusTagKind(props.connectionStatus.status)}
           label={props.connectionStatus.label}
           data-testid="jira-header-status-badge"
         />

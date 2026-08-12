@@ -9,6 +9,10 @@ import {
   sanitizeServiceNowLoadErrorForConnectionStatus,
   SERVICENOW_LOAD_FAILURE_STATUS_EXPLANATION,
 } from "./servicenow-integration-present";
+import {
+  SERVICENOW_NEXT_ACTION_SETUP_INCOMPLETE_ADMIN,
+  SERVICENOW_NEXT_ACTION_SETUP_INCOMPLETE_OPERATOR,
+} from "./servicenow-integration-page-copy";
 
 describe("servicenow-integration-present", () => {
   it("never puts Database Query Failed into connection status explanation (TB-1163)", () => {
@@ -25,6 +29,7 @@ describe("servicenow-integration-present", () => {
       isTesting: false,
       nativeEnabled: true,
       credentialsReady: false,
+      canConfigureAdmin: false,
       probe: null,
     });
 
@@ -46,11 +51,40 @@ describe("servicenow-integration-present", () => {
       isTesting: false,
       nativeEnabled: true,
       credentialsReady: false,
+      canConfigureAdmin: false,
       probe: { locallyConfigured: false, summary: "missing" },
     });
 
     expect(status.status).toBe("setup-incomplete");
     expect(status.label).toBe("Setup incomplete");
+  });
+
+  it("uses admin next action when credentials are missing and caller can configure", () => {
+    const status = resolveServiceNowConnectionStatus({
+      isLoading: false,
+      loadError: null,
+      isTesting: false,
+      nativeEnabled: true,
+      credentialsReady: false,
+      canConfigureAdmin: true,
+      probe: { locallyConfigured: false, summary: "missing" },
+    });
+
+    expect(status.nextAction).toBe(SERVICENOW_NEXT_ACTION_SETUP_INCOMPLETE_ADMIN);
+  });
+
+  it("uses operator next action when credentials are missing and caller cannot configure", () => {
+    const status = resolveServiceNowConnectionStatus({
+      isLoading: false,
+      loadError: null,
+      isTesting: false,
+      nativeEnabled: true,
+      credentialsReady: false,
+      canConfigureAdmin: false,
+      probe: { locallyConfigured: false, summary: "missing" },
+    });
+
+    expect(status.nextAction).toBe(SERVICENOW_NEXT_ACTION_SETUP_INCOMPLETE_OPERATOR);
   });
 
   it("reports connected when probe is reachable", () => {
@@ -60,6 +94,7 @@ describe("servicenow-integration-present", () => {
       isTesting: false,
       nativeEnabled: true,
       credentialsReady: true,
+      canConfigureAdmin: false,
       probe: { locallyConfigured: true, reachable: true, summary: "ok" },
     });
 
@@ -73,6 +108,7 @@ describe("servicenow-integration-present", () => {
       isTesting: false,
       nativeEnabled: true,
       credentialsReady: true,
+      canConfigureAdmin: false,
       probe: { locallyConfigured: true, reachable: false, summary: "401 unauthorized" },
     });
 

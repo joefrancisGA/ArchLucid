@@ -75,6 +75,7 @@ import {
   sanitizeCustomerFacingJiraProbeSummary,
 } from "@/lib/jira-integration-present";
 import { buildJiraPageLoadResult } from "@/lib/jira-page-load";
+import { itsmConnectionStatusTagKind } from "@/lib/itsm/itsm-connection-status-tag-kind";
 import { AUTHORITY_RANK } from "@/lib/nav-authority";
 
 import { ItsmNotConfiguredNextStep } from "../../_sections/itsm/ItsmNotConfiguredNextStep";
@@ -82,24 +83,6 @@ import { JiraIssueTypeBySeverityField } from "../../_sections/itsm/JiraIssueType
 import { validateJiraIssueTypeBySeverityJson } from "../../_sections/itsm/jira-issue-type-by-severity";
 import { JiraIntegrationAside } from "./JiraIntegrationAside";
 import { JiraIntegrationPageHeader } from "./JiraIntegrationPageHeader";
-
-function statusTagKind(
-  status: ReturnType<typeof resolveJiraConnectionStatus>["status"],
-): "ready" | "needs-attention" | "neutral" | "in-progress" {
-  if (status === "connected") {
-    return "ready";
-  }
-
-  if (status === "connection-issue" || status === "setup-incomplete") {
-    return "needs-attention";
-  }
-
-  if (status === "testing") {
-    return "in-progress";
-  }
-
-  return "neutral";
-}
 
 export function JiraIntegrationPageClient(): React.ReactElement {
   const canMutate = useOperateCapability();
@@ -484,7 +467,7 @@ export function JiraIntegrationPageClient(): React.ReactElement {
                 <h2 id="jira-status-heading" className={OPERATOR_TYPOGRAPHY.sectionTitle}>
                   {JIRA_CONNECTION_STATUS_HEADING}
                 </h2>
-                <StatusTag kind={statusTagKind(connectionStatus.status)} label={connectionStatus.label} />
+                <StatusTag kind={itsmConnectionStatusTagKind(connectionStatus.status)} label={connectionStatus.label} />
               </div>
               <p className={cn("m-0 text-al-text-primary", OPERATOR_TYPOGRAPHY.body)} role="status">
                 {connectionStatus.explanation}
