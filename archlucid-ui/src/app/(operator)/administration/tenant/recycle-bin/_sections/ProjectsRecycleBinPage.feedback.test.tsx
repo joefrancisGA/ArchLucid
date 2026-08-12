@@ -6,6 +6,7 @@ import {
   PROJECTS_RECYCLE_BIN_RESTORE_CONFLICT_STATUS_LABEL,
   PROJECTS_RECYCLE_BIN_RESTORE_SUCCESS_STATUS_LABEL,
 } from "@/lib/projects-recycle-bin-page-copy";
+import { PROJECTS_RECYCLE_BIN_RESTORE_CONFIRM_ACTION_LABEL } from "@/lib/projects-recycle-bin-restore-confirm-copy";
 
 vi.mock("next/navigation", () => ({
   usePathname: () => "/administration/tenant/recycle-bin",
@@ -84,7 +85,7 @@ describe("ProjectsRecycleBinPage feedback (TB-1182)", () => {
     });
 
     fireEvent.click(screen.getByRole("button", { name: "Restore project Contoso Core" }));
-    fireEvent.click(screen.getByTestId("projects-recycle-bin-restore-confirm-confirm"));
+    fireEvent.click(screen.getByRole("button", { name: PROJECTS_RECYCLE_BIN_RESTORE_CONFIRM_ACTION_LABEL }));
 
     const feedback = await screen.findByTestId("projects-recycle-bin-restore-message");
 

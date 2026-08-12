@@ -19,6 +19,7 @@ vi.mock("@/components/OperatorNavAuthorityProvider", () => ({
 }));
 
 import { ProjectsRecycleBinPage } from "@/app/(operator)/administration/tenant/recycle-bin/_sections/ProjectsRecycleBinPage";
+import { PROJECTS_RECYCLE_BIN_RESTORE_CONFIRM_ACTION_LABEL, PROJECTS_RECYCLE_BIN_RESTORE_CONFIRM_TITLE } from "@/lib/projects-recycle-bin-restore-confirm-copy";
 
 const recycleBinPayload = {
   retentionDays: 30,
@@ -68,10 +69,12 @@ describe("ProjectsRecycleBinPage restore confirm (TB-1290)", () => {
 
     fireEvent.click(screen.getByRole("button", { name: "Restore project Contoso Core" }));
 
-    expect(screen.getByTestId("projects-recycle-bin-restore-confirm-dialog")).toBeInTheDocument();
+    expect(
+      screen.getByRole("heading", { name: PROJECTS_RECYCLE_BIN_RESTORE_CONFIRM_TITLE }),
+    ).toBeInTheDocument();
     expect(fetchMock).toHaveBeenCalledTimes(1);
 
-    fireEvent.click(screen.getByTestId("projects-recycle-bin-restore-confirm-confirm"));
+    fireEvent.click(screen.getByRole("button", { name: PROJECTS_RECYCLE_BIN_RESTORE_CONFIRM_ACTION_LABEL }));
 
     await waitFor(() => {
       expect(fetchMock.mock.calls.some((call) => String(call[0]).includes("/restore"))).toBe(true);
