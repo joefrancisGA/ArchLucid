@@ -2,7 +2,7 @@
  * TB-1674 — Migrated inline-link surfaces (finding badges + secondary hubs).
  * Contract: `docs/library/UI_DESIGN_SYSTEM.md` § *Operator / marketing inline links* (**TB-1671**).
  *
- * Residual bare-link sweeps and Vitest guard: **TB-1675**.
+ * Residual bare-link sweeps: **TB-1675** Vitest guard + baseline (`operator-inline-link-affordance-guard.test.ts`).
  */
 
 export type OperatorInlineLinkTb1674Surface = {
@@ -61,12 +61,10 @@ export const OPERATOR_INLINE_LINK_TB1674_MIGRATED_SURFACES: readonly OperatorInl
 ];
 
 /**
- * Known residuals intentionally deferred to **TB-1675** (not exhaustive — Vitest guard will grow the list).
+ * Known residuals grandfathered in `operator-inline-link-affordance-baseline.ts` (**TB-1675**).
+ * Shrink the baseline when migrating a call site to OPERATOR_LINK.
  */
 export const OPERATOR_INLINE_LINK_TB1675_RESIDUAL_HINTS: readonly string[] = [
-  "components/CorePilotNextStepsCard.tsx — ad-hoc text-blue-700 marketing/operator links",
-  "components/runs/RunInspectorPreview.tsx — bare View evidence graph links",
-  "components/ArchitectureGraphViewer.tsx — mixed link styling on graph explorer",
-  "app/(operator)/architecture/reviews/[runId]/_sections/RunDetailArchitectureGraphSection.tsx — bare Open evidence graph",
+  "See operator-inline-link-affordance-baseline.ts for the canonical path:line inventory.",
   "Ghost Button asChild link wrappers — TB-2170–TB-2173 sweeps",
 ];

@@ -1,9 +1,9 @@
-import { cn } from "@/lib/utils";
 import { OPERATOR_LINK, OPERATOR_TYPOGRAPHY } from "@/lib/design-tokens";
 import Link from "next/link";
 import type { ReactElement } from "react";
 import type { EvolutionSimulationRunWithEvaluationResponse } from "@/types/evolution";
 import { parseEvolutionOutcomeJson } from "@/lib/evolution-outcome";
+import { cn } from "@/lib/utils";
 
 const cardCls = "mb-3.5 overflow-hidden rounded-lg border border-neutral-200 dark:border-neutral-700";
 const headerCls = cn(
@@ -14,7 +14,7 @@ const colCls = (cn("p-3.5 leading-normal align-top", OPERATOR_TYPOGRAPHY.helper)
 const colBeforeCls = `${colCls} border-r-[3px] border-neutral-300 bg-al-surface-raised dark:border-neutral-600`;
 const colAfterCls = `${colCls} bg-al-surface-raised dark:bg-neutral-900/50`;
 const labelCls = (cn("mb-1.5 font-bold uppercase tracking-wide text-neutral-500 dark:text-neutral-400", OPERATOR_TYPOGRAPHY.helper));
-const monoLinkCls = cn(OPERATOR_LINK.inline, "font-mono break-all");
+const monoCls = cn("font-mono break-all", OPERATOR_TYPOGRAPHY.helper);
 
 function formatScore(n: number | null | undefined): string {
   if (n === null || n === undefined) {
@@ -45,7 +45,7 @@ export function SimulationRunDiffCard(props: SimulationRunDiffCardProps): ReactE
       <div className={headerCls} id={`sim-run-${run.simulationRunId}`}>
         <span>
           <strong>Review baseline</strong>{" "}
-          <Link href={`/architecture/reviews/${encodeURIComponent(baselineId)}`} className={monoLinkCls}>
+          <Link href={`/architecture/reviews/${encodeURIComponent(baselineId)}`} className={cn(OPERATOR_LINK.inline, "font-mono break-all")}>
             {baselineId}
           </Link>
         </span>
@@ -70,7 +70,7 @@ export function SimulationRunDiffCard(props: SimulationRunDiffCardProps): ReactE
                   Linked reviews:{" "}
                   {planLinkedRunIds.map((id, idx) => (
                     <span key={`${id}-${idx}`} className="block">
-                      <Link href={`/architecture/reviews/${encodeURIComponent(id)}`} className={monoLinkCls}>
+                      <Link href={`/architecture/reviews/${encodeURIComponent(id)}`} className={cn(OPERATOR_LINK.inline, "font-mono break-all")}>
                         {id}
                       </Link>
                       {id === baselineId ? " ← this row" : null}

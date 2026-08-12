@@ -29,5 +29,6 @@ describe("TB-1674 inline-link migration inventory", () => {
   it("documents TB-1675 residual hints for follow-on Vitest guard", () => {
     expect(OPERATOR_INLINE_LINK_TB1675_RESIDUAL_HINTS.length).toBeGreaterThan(0);
     expect(OPERATOR_INLINE_LINK_TB1675_RESIDUAL_HINTS.join("\n")).toMatch(/TB-1675|TB-2170/);
+    expect(OPERATOR_INLINE_LINK_TB1675_RESIDUAL_HINTS.join("\n")).toContain("operator-inline-link-affordance-baseline");
   });
 });
