@@ -46,7 +46,6 @@ export const TITLE_ATTRIBUTE_LEGACY_SURFACES = [
   "src/app/(operator)/insights/impact-preview/_sections/ImpactPreviewPageHeader.tsx",
   "src/app/(operator)/integrations/azure-boards/_sections/AzureBoardsIntegrationPageHeader.tsx",
   "src/app/(operator)/integrations/slack/_sections/SlackDestinationForm.tsx",
-  "src/app/(operator)/integrations/webhooks/WebhooksSettingsClient.tsx",
   "src/app/(operator)/internal/trial-funnel/_sections/TrialFunnelOpsPageClient.tsx",
   "src/components/AgentEvidenceFaithfulnessBadge.tsx",
   "src/components/alerts/AlertRoutingContent.tsx",

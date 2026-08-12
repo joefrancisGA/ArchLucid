@@ -35,7 +35,6 @@ const TITLE_ONLY_DISABLED_EXPLANATION_BASELINE: ReadonlySet<string> = new Set([
   "app/(operator)/integrations/slack/_sections/SlackDestinationsPanel.tsx",
   "app/(operator)/integrations/teams/_sections/TeamsNotificationsIntegrationPageView.tsx",
   "app/(operator)/integrations/teams/_sections/TeamsNotificationsSelector.tsx",
-  "app/(operator)/integrations/webhooks/WebhooksSettingsClient.tsx",
   "app/(operator)/internal/integration-events/dlq/_sections/IntegrationEventsDlqPageClient.tsx",
   "components/EmailRunToSponsorBanner.tsx",
   "components/GraphBuyerCanvasToolbar.tsx",
