@@ -7,14 +7,16 @@ vi.mock("@/lib/demo-ui-env", async (importOriginal) => {
   const actual = await importOriginal<typeof import("@/lib/demo-ui-env")>();
   return {
     ...actual,
-  isNextPublicDemoMode: () => false,
-};
+    isNextPublicDemoMode: () => false,
+  };
 });
 
 vi.mock("@/lib/toast", () => ({
   showError: vi.fn(),
   showSuccess: vi.fn(),
 }));
+
+import { showError } from "@/lib/toast";
 
 describe("PilotBaselineWizard", () => {
   it("shows simplified copy and Skip for now on step one", () => {
@@ -34,5 +36,23 @@ describe("PilotBaselineWizard", () => {
     fireEvent.click(screen.getByTestId("pilot-baseline-wizard-skip"));
 
     expect(onOpenChange).toHaveBeenCalledWith(false);
+  });
+
+  it("disables Next until review hours are valid and shows inline errors without validation toast (TB-2007)", () => {
+    render(<PilotBaselineWizard open onOpenChange={vi.fn()} />);
+
+    expect(screen.getByRole("button", { name: "Next" })).toBeDisabled();
+
+    fireEvent.change(screen.getByTestId("pilot-baseline-wizard-review-hours"), {
+      target: { value: "24" },
+    });
+
+    expect(screen.getByRole("button", { name: "Next" })).toBeEnabled();
+
+    fireEvent.click(screen.getByRole("button", { name: "Next" }));
+
+    expect(screen.getByRole("heading", { name: "Manual preparation baseline" })).toBeInTheDocument();
+    expect(screen.getByRole("button", { name: "Save baseline" })).toBeDisabled();
+    expect(showError).not.toHaveBeenCalled();
   });
 });

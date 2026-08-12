@@ -2,7 +2,7 @@
  * Baseline for the `title`-attribute-as-help ban (UI_DESIGN_SYSTEM.md § Operator page contextual
  * help — mount + interaction contract, TB-1666).
  *
- * These 92 files carried a native `title` attribute when the rule landed on 2026-08-09. The rule is
+ * These 90 files carried a native `title` attribute when the rule landed on 2026-08-09. The rule is
  * an error everywhere else so new hover-only help cannot be introduced; this list exists only so the
  * rule could land without a 135-site refactor in one change. Sweeping it is TB-2147.
  *
@@ -34,7 +34,6 @@ export const TITLE_ATTRIBUTE_LEGACY_SURFACES = [
   "src/app/(operator)/governance/audit/_sections/BuyerAuditEventsTechnicalAppendix.tsx",
   "src/app/(operator)/governance/policy-packs/_sections/PolicyPackGeneratorSection.tsx",
   "src/app/(operator)/governance/policy-packs/_sections/PolicyPacksInspectSection.tsx",
-  "src/app/(operator)/governance/policy-packs/_sections/PolicyPacksLifecycleSection.tsx",
   "src/app/(operator)/governance/policy-packs/_sections/PolicyPacksPageHeader.tsx",
   "src/app/(operator)/governance/policy-packs/_sections/PolicyPacksRegisteredListSection.tsx",
   "src/app/(operator)/governance/policy-packs/_sections/PolicyRuleAuthoringWizard.tsx",
@@ -49,7 +48,6 @@ export const TITLE_ATTRIBUTE_LEGACY_SURFACES = [
   "src/app/(operator)/internal/trial-funnel/_sections/TrialFunnelOpsPageClient.tsx",
   "src/components/AgentEvidenceFaithfulnessBadge.tsx",
   "src/components/alerts/AlertRoutingContent.tsx",
-  "src/components/alerts/AlertRoutingCriteriaFields.tsx",
   "src/components/alerts/AlertRoutingDestinationList.tsx",
   "src/components/alerts/AlertRulesContent.tsx",
   "src/components/alerts/AlertSimulationContent.tsx",

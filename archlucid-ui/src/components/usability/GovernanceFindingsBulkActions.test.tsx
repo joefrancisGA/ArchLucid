@@ -27,7 +27,7 @@ describe("GovernanceFindingsBulkActions", () => {
     vi.clearAllMocks();
   });
 
-  it("shows inline error when reason is missing", () => {
+  it("disables bulk disposition buttons until a shared reason is entered (TB-2008)", () => {
     render(
       <GovernanceFindingsBulkActions
         selectedFindingIds={["f1", "f2"]}
@@ -36,13 +36,11 @@ describe("GovernanceFindingsBulkActions", () => {
       />,
     );
 
-    fireEvent.click(screen.getByRole("button", { name: "Accept all" }));
-
-    expect(screen.getByTestId("governance-bulk-disposition-inline-error")).toHaveTextContent(
-      GOVERNANCE_BULK_DISPOSITION_REASON_REQUIRED,
-    );
+    expect(screen.getByRole("button", { name: "Accept all" })).toBeDisabled();
+    expect(screen.getByRole("button", { name: "Waive all" })).toBeDisabled();
+    expect(screen.getByRole("button", { name: "Defer all" })).toBeDisabled();
+    expect(screen.getByText(GOVERNANCE_BULK_DISPOSITION_REASON_REQUIRED)).toBeInTheDocument();
     expect(showError).not.toHaveBeenCalled();
-    expect(showSuccess).not.toHaveBeenCalled();
   });
 
   it("notifies parent with durable success message after bulk disposition succeeds", async () => {

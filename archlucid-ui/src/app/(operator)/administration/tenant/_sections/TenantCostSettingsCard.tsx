@@ -1,8 +1,9 @@
 "use client";
 
 import { cn } from "@/lib/utils";
-import { useCallback, useEffect, useState, type FormEvent } from "react";
+import { useCallback, useEffect, useMemo, useState, type FormEvent } from "react";
 
+import { BaselineFieldMessage } from "@/components/forms/BaselineFieldMessage";
 import { Button } from "@/components/ui/button";
 import { OperatorSuccessCallout } from "@/components/operator/OperatorSuccessCallout";
 import { Card, CardContent, CardHeader, CardTitle } from "@/components/ui/card";
@@ -13,27 +14,12 @@ import { OPERATOR_TYPOGRAPHY } from "@/lib/design-tokens";
 import { toApiLoadFailure } from "@/lib/api-load-failure";
 import { isNextPublicDemoMode } from "@/lib/demo-ui-env";
 import { showError } from "@/lib/toast";
+import { validateTenantCostSettingsFields } from "@/lib/tenant-cost-settings-validation";
 import type { TenantCostSettingsPutRequest, TenantCostSettingsResponse } from "@/types/tenant-cost-settings";
 
 type TenantCostSettingsCardProps = {
   readonly canEdit: boolean;
 };
-
-function parseUsdField(raw: string): number | null {
-  const trimmed = raw.trim();
-
-  if (trimmed.length === 0) {
-    return null;
-  }
-
-  const value = Number(trimmed);
-
-  if (!Number.isFinite(value)) {
-    return Number.NaN;
-  }
-
-  return value;
-}
 
 /** ROI cost assumptions for estimated USD savings on pilot deltas and executive summaries. */
 export function TenantCostSettingsCard({ canEdit }: TenantCostSettingsCardProps) {
@@ -46,6 +32,10 @@ export function TenantCostSettingsCard({ canEdit }: TenantCostSettingsCardProps)
   const [incidentCost, setIncidentCost] = useState("");
   const [eaDiscountPercentage, setEaDiscountPercentage] = useState("0");
   const [saveConfirmation, setSaveConfirmation] = useState<string | null>(null);
+  const fieldValidation = useMemo(
+    () => validateTenantCostSettingsFields(hourlyRate, incidentCost, eaDiscountPercentage),
+    [eaDiscountPercentage, hourlyRate, incidentCost],
+  );
 
   const load = useCallback(async () => {
     if (demoMode) {
@@ -89,38 +79,13 @@ export function TenantCostSettingsCard({ canEdit }: TenantCostSettingsCardProps)
     async (event: FormEvent) => {
       event.preventDefault();
 
-      if (!canEdit || demoMode) {
+      if (!canEdit || demoMode || !fieldValidation.valid) {
         return;
       }
 
-      const architectHourlyRateUsd = parseUsdField(hourlyRate);
-      const averageIncidentCostUsd = parseUsdField(incidentCost);
-      const eaDiscountPct = parseUsdField(eaDiscountPercentage);
-
-      if (
-        architectHourlyRateUsd === null ||
-        averageIncidentCostUsd === null ||
-        eaDiscountPct === null ||
-        Number.isNaN(architectHourlyRateUsd) ||
-        Number.isNaN(averageIncidentCostUsd) ||
-        Number.isNaN(eaDiscountPct)
-      ) {
-        showError("Invalid values", "Enter numeric values for all fields.");
-
-        return;
-      }
-
-      if (architectHourlyRateUsd <= 0 || averageIncidentCostUsd <= 0) {
-        showError("Invalid values", "Both USD amounts must be greater than zero.");
-
-        return;
-      }
-
-      if (eaDiscountPct < 0 || eaDiscountPct > 100) {
-        showError("Invalid EA discount", "EA discount percentage must be between 0 and 100.");
-
-        return;
-      }
+      const architectHourlyRateUsd = Number(hourlyRate.trim());
+      const averageIncidentCostUsd = Number(incidentCost.trim());
+      const eaDiscountPct = Number(eaDiscountPercentage.trim());
 
       const body: TenantCostSettingsPutRequest = {
         architectHourlyRateUsd,
@@ -158,7 +123,7 @@ export function TenantCostSettingsCard({ canEdit }: TenantCostSettingsCardProps)
         setSaving(false);
       }
     },
-    [canEdit, demoMode, hourlyRate, incidentCost, eaDiscountPercentage],
+    [canEdit, demoMode, fieldValidation.valid, hourlyRate, incidentCost, eaDiscountPercentage],
   );
 
   if (demoMode) {
@@ -217,7 +182,9 @@ export function TenantCostSettingsCard({ canEdit }: TenantCostSettingsCardProps)
                   onChange={(ev) => setHourlyRate(ev.target.value)}
                   readOnly={!canEdit}
                   data-testid="tenant-cost-hourly-rate"
+                  aria-invalid={fieldValidation.hourlyError !== null}
                 />
+                <BaselineFieldMessage error={fieldValidation.hourlyError} />
               </div>
               <div>
                 <Label htmlFor="average-incident-cost">Average incident cost (USD)</Label>
@@ -228,7 +195,9 @@ export function TenantCostSettingsCard({ canEdit }: TenantCostSettingsCardProps)
                   onChange={(ev) => setIncidentCost(ev.target.value)}
                   readOnly={!canEdit}
                   data-testid="tenant-cost-incident-cost"
+                  aria-invalid={fieldValidation.incidentError !== null}
                 />
+                <BaselineFieldMessage error={fieldValidation.incidentError} />
               </div>
             </div>
 
@@ -241,7 +210,9 @@ export function TenantCostSettingsCard({ canEdit }: TenantCostSettingsCardProps)
                 onChange={(ev) => setEaDiscountPercentage(ev.target.value)}
                 readOnly={!canEdit}
                 data-testid="tenant-cost-ea-percentage"
+                aria-invalid={fieldValidation.eaError !== null}
               />
+              <BaselineFieldMessage error={fieldValidation.eaError} />
               <p className={cn("m-0 mt-1 text-al-text-secondary", OPERATOR_TYPOGRAPHY.helper)}>
                 0 = list pricing. 15 applies EffectivePrice = RetailPrice × 0.85 to Cost-category ROI savings.
               </p>
@@ -254,7 +225,11 @@ export function TenantCostSettingsCard({ canEdit }: TenantCostSettingsCardProps)
             ) : null}
 
             <div>
-              <Button type="submit" disabled={!canEdit || saving} data-testid="tenant-cost-settings-save">
+              <Button
+                type="submit"
+                disabled={!canEdit || saving || !fieldValidation.valid}
+                data-testid="tenant-cost-settings-save"
+              >
                 {saving ? "Saving…" : "Save cost settings"}
               </Button>
             </div>

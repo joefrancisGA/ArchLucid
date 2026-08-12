@@ -160,7 +160,7 @@ Every navigable operator surface must teach its own job in place. The shell top-
 | Banned — dead `helpKey` | `OperatorPageHeader` `helpKey` is deprecated and renders **no** affordance. Do not add new `helpKey` props as a help mechanism. |
 | Supplements, not replacements | Field tooltips, `InAppHelpLink`, `InlineGlossaryChip`, and the `/reviews/new` wizard BookOpen drawer supplement page-scoped help. None of them satisfies this contract on their own. |
 
-**Truncation reveal is a separate problem.** `<td className="truncate" title={fullText}>` is overflow recovery, not help, and it is still mouse-only. Prefer widening the column, wrapping, or a press-triggered disclosure; where a hover reveal is genuinely the best option, it needs a real tooltip. Tracked in **TB-2147** alongside the `title` sweep — do not treat it as ratified.
+**Truncation reveal is a separate problem (ratified TB-2147 batch 1).** `<td className="truncate" title={fullText}>` is overflow recovery, not help, and it is still mouse-only. Prefer, in order: widen the column, wrap text, or a press-triggered disclosure (`CollapsibleSection`, row expand). Use `FieldHelpTooltip` only when a hover/focus tooltip is genuinely the best recovery for non-tabular overflow. Remaining baselined truncation sites sweep under **TB-2147**.
 
 **Code touchpoints:** `PageContextualHelpButton` / `PageScopedContextualHelpPanel`, `page-help-topic-map.ts`, `contextual-help-registry.ts`, `components/ui/help-popover.tsx`, `components/ui/popover.tsx`.
 

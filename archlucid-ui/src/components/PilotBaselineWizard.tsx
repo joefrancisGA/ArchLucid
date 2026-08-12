@@ -5,6 +5,7 @@ import { OPERATOR_TYPOGRAPHY } from "@/lib/design-tokens";
 import Link from "next/link";
 import { useCallback, useMemo, useState, type FormEvent, type ReactElement } from "react";
 
+import { BaselineFieldMessage } from "@/components/forms/BaselineFieldMessage";
 import { InAppHelpLink } from "@/components/InAppHelpLink";
 import { WizardSessionResumePrompt } from "@/components/wizard/WizardSessionResumePrompt";
 import { WizardSessionSaveStatus } from "@/components/wizard/WizardSessionSaveStatus";
@@ -22,6 +23,10 @@ import { Input } from "@/components/ui/input";
 import { Label } from "@/components/ui/label";
 import { Progress } from "@/components/ui/progress";
 import { isNextPublicDemoMode } from "@/lib/demo-ui-env";
+import {
+  validatePilotBaselineManualStep,
+  validatePilotBaselineReviewStep,
+} from "@/lib/pilot-baseline-wizard-validation";
 import { PILOT_BASELINE_WIZARD_SAVED_EVENT } from "@/lib/pilot-baseline-wizard-events";
 import { showError, showSuccess } from "@/lib/toast";
 import { WIZARD_SESSION_IDS, wizardSessionHasTextContent } from "@/lib/wizard-session-persistence";
@@ -92,6 +97,14 @@ export function PilotBaselineWizard({ open, onOpenChange, onSaved }: PilotBaseli
     }),
     [manualPrep, people, reviewHours, reviewNote],
   );
+  const reviewStepValidation = useMemo(
+    () => validatePilotBaselineReviewStep(reviewHours, reviewNote),
+    [reviewHours, reviewNote],
+  );
+  const manualStepValidation = useMemo(
+    () => validatePilotBaselineManualStep(manualPrep, people),
+    [manualPrep, people],
+  );
   const handleSessionRestore = useCallback((snapshot: { stepIndex: number; state: PilotBaselineSessionState }) => {
     setStepIndex(snapshot.stepIndex);
     setReviewHours(snapshot.state.reviewHours);
@@ -138,70 +151,10 @@ export function PilotBaselineWizard({ open, onOpenChange, onSaved }: PilotBaseli
     handleDialogChange(false);
   }, [handleDialogChange]);
 
-  function validateReviewStep(): boolean {
-    const hours = parsePositiveHours(reviewHours);
-
-    if (Number.isNaN(hours)) {
-      showError("Review-cycle baseline", "Median hours must be a positive number.");
-
-      return false;
-    }
-
-    if (hours === null || hours <= 0 || hours > 10_000) {
-      showError("Review-cycle baseline", "Median hours must be between 0 and 10,000 (exclusive of zero).");
-
-      return false;
-    }
-
-    if (reviewNote.trim().length > 500) {
-      showError("Review-cycle baseline", "Notes must be 500 characters or fewer.");
-
-      return false;
-    }
-
-    return true;
-  }
-
-  function validateManualStep(): boolean {
-    const prep = parsePositiveHours(manualPrep);
-
-    if (Number.isNaN(prep)) {
-      showError("Review-cycle baseline", "Manual preparation hours must be a positive number.");
-
-      return false;
-    }
-
-    if (prep === null || prep <= 0 || prep > 10_000) {
-      showError("Review-cycle baseline", "Manual preparation hours must be between 0 and 10,000 (exclusive of zero).");
-
-      return false;
-    }
-
-    const peopleN = parsePeopleOrNull(people);
-
-    if (Number.isNaN(peopleN)) {
-      showError("Review-cycle baseline", "People per review must be a whole number (or leave blank).");
-
-      return false;
-    }
-
-    if (peopleN != null && (peopleN <= 0 || peopleN > 10_000 || !Number.isInteger(peopleN))) {
-      showError("Review-cycle baseline", "People per review must be between 1 and 10,000 when set.");
-
-      return false;
-    }
-
-    return true;
-  }
-
   async function onSubmit(e: FormEvent): Promise<void> {
     e.preventDefault();
 
-    if (demoMode || saving) {
-      return;
-    }
-
-    if (!validateManualStep()) {
+    if (demoMode || saving || !manualStepValidation.valid) {
       return;
     }
 
@@ -336,7 +289,9 @@ export function PilotBaselineWizard({ open, onOpenChange, onSaved }: PilotBaseli
                   value={reviewHours}
                   onChange={(x) => setReviewHours(x.target.value)}
                   placeholder="Example: 24"
+                  aria-invalid={reviewStepValidation.hoursError !== null}
                 />
+                <BaselineFieldMessage error={reviewStepValidation.hoursError} />
               </div>
 
               <div>
@@ -349,7 +304,9 @@ export function PilotBaselineWizard({ open, onOpenChange, onSaved }: PilotBaseli
                   value={reviewNote}
                   onChange={(x) => setReviewNote(x.target.value)}
                   placeholder="Example: Based on last three architecture council reviews."
+                  aria-invalid={reviewStepValidation.noteError !== null}
                 />
+                <BaselineFieldMessage error={reviewStepValidation.noteError} />
               </div>
             </div>
           ) : (
@@ -372,7 +329,9 @@ export function PilotBaselineWizard({ open, onOpenChange, onSaved }: PilotBaseli
                   onChange={(x) => setManualPrep(x.target.value)}
                   placeholder="Example: 8"
                   required
+                  aria-invalid={manualStepValidation.prepError !== null}
                 />
+                <BaselineFieldMessage error={manualStepValidation.prepError} />
               </div>
 
               <div>
@@ -387,7 +346,9 @@ export function PilotBaselineWizard({ open, onOpenChange, onSaved }: PilotBaseli
                   data-testid="pilot-baseline-wizard-people"
                   value={people}
                   onChange={(x) => setPeople(x.target.value)}
+                  aria-invalid={manualStepValidation.peopleError !== null}
                 />
+                <BaselineFieldMessage error={manualStepValidation.peopleError} />
               </div>
             </form>
           )}
@@ -426,15 +387,9 @@ export function PilotBaselineWizard({ open, onOpenChange, onSaved }: PilotBaseli
               <Button
                 type="button"
                 variant="primary"
-                disabled={demoMode}
+                disabled={demoMode || !reviewStepValidation.valid}
                 data-testid="pilot-baseline-wizard-continue"
-                onClick={() => {
-                  if (!validateReviewStep()) {
-                    return;
-                  }
-
-                  setStepIndex(1);
-                }}
+                onClick={() => setStepIndex(1)}
               >
                 Next
               </Button>
@@ -443,7 +398,7 @@ export function PilotBaselineWizard({ open, onOpenChange, onSaved }: PilotBaseli
                 type="submit"
                 form="pilot-baseline-manual-form"
                 variant="primary"
-                disabled={saving || demoMode}
+                disabled={saving || demoMode || !manualStepValidation.valid}
                 data-testid="pilot-baseline-wizard-save"
               >
                 {saving ? "Saving…" : "Save baseline"}
