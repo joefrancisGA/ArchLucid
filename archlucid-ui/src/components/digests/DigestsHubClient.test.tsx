@@ -169,7 +169,8 @@ describe("DigestsHubClient", () => {
     expect(screen.queryByTestId("digest-setup-gaps")).not.toBeInTheDocument();
     expect(screen.queryByTestId("digests-browse-next-best-action")).not.toBeInTheDocument();
     expect(screen.queryByTestId("digests-browse-setup-message")).not.toBeInTheDocument();
-    expect(screen.queryByTestId("digest-status-compact-facts")).not.toBeInTheDocument();
+    expect(screen.getByTestId("digest-status-compact-facts")).toBeInTheDocument();
+    expect(screen.queryByTestId("explain-this-view-banner")).not.toBeInTheDocument();
     expect(await screen.findByTestId("digests-browse-setup-checklist")).toBeInTheDocument();
   });
 
@@ -224,5 +225,10 @@ describe("DigestsHubClient", () => {
     expect(screen.queryByTestId("digests-schedule-orientation")).toBeNull(); // TB-2092
     expect(screen.queryByTestId("digests-orientation")).not.toBeInTheDocument();
     expect(await screen.findByTestId("exec-digest-schedule-content")).toBeInTheDocument();
+    expect(screen.getByTestId("digests-advisory-scans-vocabulary")).toBeInTheDocument();
+    expect(screen.queryByTestId("digests-notifications-vocabulary")).not.toBeInTheDocument();
+    expect(screen.queryByTestId("digests-teams-slack-vocabulary")).not.toBeInTheDocument();
+    expect(screen.queryByTestId("digests-browse-schedule-subscriptions-vocabulary")).not.toBeInTheDocument();
+    expect(screen.queryByTestId("digest-recurrence-schedule-vocabulary")).not.toBeInTheDocument();
   });
 });

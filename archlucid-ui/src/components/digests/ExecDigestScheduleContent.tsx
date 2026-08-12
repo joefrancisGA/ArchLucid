@@ -195,7 +195,9 @@ export function ExecDigestScheduleContent(props: ExecDigestScheduleContentProps 
     : DIGESTS_HUB_PATH;
   const busy: boolean = saving || enabling || pausing;
   const liveScheduleSummary: string | null =
-    form !== null ? formatExecDigestLiveScheduleSummary(form) : null;
+    form !== null && prefs !== null
+      ? formatExecDigestLiveScheduleSummary(form, prefs.isConfigured)
+      : null;
 
   // TB-1574: pin delivery readiness rail only when schedule/recipients/preview give it a job.
   const pinLivePreviewRail =
@@ -311,9 +313,6 @@ export function ExecDigestScheduleContent(props: ExecDigestScheduleContentProps 
   return (
     <div className="w-full space-y-4" data-testid="exec-digest-schedule-content">
       <div>
-        <p className={cn("m-0 text-neutral-600 dark:text-neutral-400", OPERATOR_TYPOGRAPHY.helper)}>
-          Architecture digests
-        </p>
         <h2
           className={cn("m-0 font-bold text-neutral-900 dark:text-neutral-50", OPERATOR_TYPOGRAPHY.pageTitle)}
           data-testid="exec-digest-schedule-heading"
@@ -369,47 +368,48 @@ export function ExecDigestScheduleContent(props: ExecDigestScheduleContentProps 
           Loading schedule…
         </p>
       ) : (
-        <OperatorLivePreviewPinLayout
-          pinRail={pinLivePreviewRail}
-          testId="exec-digest-schedule-layout"
-          primary={
-            <>
+        (() => {
+          const deliveryReadinessSection = (
             <section
-              className="rounded-lg border border-neutral-200 bg-white p-4 dark:border-neutral-700 dark:bg-neutral-950"
-              data-testid="exec-digest-status-block"
-              aria-labelledby="exec-digest-status-heading"
+              className={cn(
+                "rounded-lg border border-neutral-200 bg-white dark:border-neutral-700 dark:bg-neutral-950",
+                pinLivePreviewRail ? "p-4" : "p-3",
+              )}
+              data-testid="exec-digest-delivery-readiness"
+              aria-labelledby="exec-digest-delivery-readiness-heading"
             >
-              <div className="flex flex-wrap items-start justify-between gap-3">
-                <div>
-                  <h3
-                    id="exec-digest-status-heading"
-                    className={cn(
-                      "m-0 font-semibold text-neutral-900 dark:text-neutral-100",
-                      OPERATOR_TYPOGRAPHY.cardTitle,
-                    )}
-                  >
-                    Delivery status
-                  </h3>
-                </div>
-                {status !== null ? (
-                  <StatusTag kind={status.statusTagKind} label={status.label} data-testid="exec-digest-status-tag" />
+              <div className="flex flex-wrap items-start justify-between gap-2">
+                <h3
+                  id="exec-digest-delivery-readiness-heading"
+                  className={cn(
+                    "m-0 font-semibold text-neutral-900 dark:text-neutral-100",
+                    OPERATOR_TYPOGRAPHY.cardTitle,
+                  )}
+                >
+                  Delivery readiness
+                </h3>
+                {readiness !== null ? (
+                  <StatusTag
+                    kind={readiness.overallStatusTagKind}
+                    label={readiness.overallLabel}
+                    data-testid="exec-digest-status-tag"
+                  />
                 ) : null}
               </div>
-
-              <p
-                className={cn("m-0 mt-3 text-neutral-700 dark:text-neutral-300", OPERATOR_TYPOGRAPHY.body)}
-                role="status"
-              >
-                {status?.summary}
-              </p>
-
-              <dl className="m-0 mt-4 grid gap-3 sm:grid-cols-2" data-testid="exec-digest-status-summary">
+              {status !== null ? (
+                <p
+                  className={cn("m-0 mt-2 text-neutral-700 dark:text-neutral-300", OPERATOR_TYPOGRAPHY.body)}
+                  role="status"
+                >
+                  {status.summary}
+                </p>
+              ) : null}
+              <dl className="m-0 mt-3 grid gap-3 sm:grid-cols-2" data-testid="exec-digest-status-summary">
+                <OperatorFormSummaryRow label="Configured schedule" value={liveScheduleSummary ?? "—"} />
                 <OperatorFormSummaryRow
-                  label="Configured schedule"
-                  value={liveScheduleSummary ?? "—"}
+                  label="Next send"
+                  value={formatExecDigestNextSendLabel(form, prefs.isConfigured)}
                 />
-                <OperatorFormSummaryRow label="Delivery status" value={status?.label ?? "—"} />
-                <OperatorFormSummaryRow label="Next send" value={formatExecDigestNextSendLabel(form)} />
                 <OperatorFormSummaryRow
                   label="Recipients"
                   value={
@@ -419,8 +419,122 @@ export function ExecDigestScheduleContent(props: ExecDigestScheduleContentProps 
                   }
                 />
               </dl>
+              {readiness?.nextAction !== null && readiness !== null ? (
+                <p
+                  className={cn("m-0 mt-3 text-neutral-700 dark:text-neutral-300", OPERATOR_TYPOGRAPHY.body)}
+                  data-testid="exec-digest-readiness-next-action"
+                >
+                  {readiness.nextAction}
+                </p>
+              ) : null}
+              <ul className="m-0 mt-3 list-none space-y-3 p-0">
+                {readiness?.items.map((item) => (
+                  <li key={item.id} className="flex flex-wrap items-start justify-between gap-2">
+                    <div>
+                      <p className={cn("m-0 font-medium text-al-text-primary", OPERATOR_TYPOGRAPHY.body)}>
+                        {item.label}
+                      </p>
+                      <p className={cn("m-0 mt-0.5 text-al-text-secondary", OPERATOR_TYPOGRAPHY.helper)}>
+                        {item.value}
+                      </p>
+                    </div>
+                    {item.actionHref !== undefined && item.actionLabel !== undefined ? (
+                      <Button asChild size="sm" variant="outline">
+                        <Link href={item.actionHref}>{item.actionLabel}</Link>
+                      </Button>
+                    ) : null}
+                  </li>
+                ))}
+              </ul>
+              {onRefresh !== undefined ? (
+                <RefreshButton
+                  busy={refreshing}
+                  label="Refresh status"
+                  className="mt-4"
+                  data-testid="exec-digest-refresh-status"
+                  onClick={onRefresh}
+                />
+              ) : null}
             </section>
+          );
 
+          const latestGeneratedSection = (
+            <section
+              className="rounded-lg border border-neutral-200 bg-white p-4 dark:border-neutral-700 dark:bg-neutral-950"
+              data-testid="exec-digest-latest-generated"
+            >
+              <h3
+                className={cn(
+                  "m-0 font-semibold text-neutral-900 dark:text-neutral-100",
+                  OPERATOR_TYPOGRAPHY.cardTitle,
+                )}
+              >
+                Latest architecture digest
+              </h3>
+              {hasPreviewDigest ? (
+                <>
+                  <p className={cn("m-0 mt-2 text-al-text-secondary", OPERATOR_TYPOGRAPHY.body)}>
+                    Generated {formatDigestInstant(healthSnap?.latestArchitectureDigestGeneratedUtc)}
+                  </p>
+                  <Button asChild size="sm" variant="outline" className="mt-3" data-testid="exec-digest-preview-action">
+                    <Link href={previewHref}>{DIGESTS_SCHEDULE_PREVIEW_LABEL}</Link>
+                  </Button>
+                  <p className={cn("m-0 mt-2 text-al-text-secondary", OPERATOR_TYPOGRAPHY.helper)}>
+                    {EXEC_DIGEST_PREVIEW_HELPER}
+                  </p>
+                </>
+              ) : (
+                <>
+                  <p className={cn("m-0 mt-2 text-al-text-primary", OPERATOR_TYPOGRAPHY.body)}>
+                    No digest has been generated yet.
+                  </p>
+                  <p
+                    id="exec-digest-preview-unavailable-hint"
+                    className={cn("m-0 mt-1 text-al-text-secondary", OPERATOR_TYPOGRAPHY.helper)}
+                  >
+                    {EXEC_DIGEST_PREVIEW_UNAVAILABLE}
+                  </p>
+                  <Button
+                    size="sm"
+                    variant="outline"
+                    className="mt-3"
+                    disabled
+                    data-testid="exec-digest-preview-action"
+                    aria-describedby="exec-digest-preview-unavailable-hint"
+                  >
+                    {DIGESTS_SCHEDULE_PREVIEW_LABEL}
+                  </Button>
+                </>
+              )}
+
+              {!sampleModeBlocked ? (
+                <div className="mt-4 border-t border-neutral-200 pt-3 dark:border-neutral-800">
+                  <Button asChild size="sm" variant="outline" data-testid="exec-digest-test-action">
+                    <Link href={ADVISORY_SCANS_SCHEDULES_HREF} title={EXEC_DIGEST_TEST_GENERATION_HELPER}>
+                      {DIGESTS_SCHEDULE_GENERATE_TEST_LABEL}
+                    </Link>
+                  </Button>
+                  <p className={cn("m-0 mt-2 text-al-text-secondary", OPERATOR_TYPOGRAPHY.helper)}>
+                    {EXEC_DIGEST_TEST_GENERATION_HELPER}
+                  </p>
+                </div>
+              ) : (
+                <p
+                  className={cn("m-0 mt-4 text-al-text-secondary", OPERATOR_TYPOGRAPHY.helper)}
+                  data-testid="exec-digest-test-sample-blocked"
+                >
+                  Test generation and email delivery are unavailable in the sample workspace.
+                </p>
+              )}
+            </section>
+          );
+
+          return (
+        <OperatorLivePreviewPinLayout
+          pinRail={pinLivePreviewRail}
+          testId="exec-digest-schedule-layout"
+          primary={
+            <>
             <section
               className="space-y-4 rounded-lg border border-neutral-200 bg-white p-4 dark:border-neutral-700 dark:bg-neutral-950"
               aria-labelledby="exec-digest-delivery-settings-heading"
@@ -536,6 +650,8 @@ export function ExecDigestScheduleContent(props: ExecDigestScheduleContentProps 
                 cadenceSummary={liveScheduleSummary ?? undefined}
               />
 
+              {!pinLivePreviewRail ? deliveryReadinessSection : null}
+
               <div className="flex flex-wrap items-center gap-2 border-t border-neutral-200 pt-4 dark:border-neutral-800">
                 <Button
                   type="button"
@@ -602,67 +718,7 @@ export function ExecDigestScheduleContent(props: ExecDigestScheduleContentProps 
           }
           aside={
             <>
-            <section
-              className={cn(
-                "rounded-lg border border-neutral-200 bg-white dark:border-neutral-700 dark:bg-neutral-950",
-                pinLivePreviewRail ? "p-4" : "p-3",
-              )}
-              data-testid="exec-digest-delivery-readiness"
-            >
-              <div className="flex flex-wrap items-start justify-between gap-2">
-                <h3
-                  className={cn(
-                    "m-0 font-semibold text-neutral-900 dark:text-neutral-100",
-                    OPERATOR_TYPOGRAPHY.cardTitle,
-                  )}
-                >
-                  Delivery readiness
-                </h3>
-                {readiness !== null ? (
-                  <StatusTag
-                    kind={readiness.overallStatusTagKind}
-                    label={readiness.overallLabel}
-                    data-testid="exec-digest-readiness-overall"
-                  />
-                ) : null}
-              </div>
-              {readiness?.nextAction !== null && readiness !== null ? (
-                <p
-                  className={cn("m-0 mt-2 text-neutral-700 dark:text-neutral-300", OPERATOR_TYPOGRAPHY.body)}
-                  data-testid="exec-digest-readiness-next-action"
-                >
-                  {readiness.nextAction}
-                </p>
-              ) : null}
-              <ul className="m-0 mt-3 list-none space-y-3 p-0">
-                {readiness?.items.map((item) => (
-                  <li key={item.id} className="flex flex-wrap items-start justify-between gap-2">
-                    <div>
-                      <p className={cn("m-0 font-medium text-al-text-primary", OPERATOR_TYPOGRAPHY.body)}>
-                        {item.label}
-                      </p>
-                      <p className={cn("m-0 mt-0.5 text-al-text-secondary", OPERATOR_TYPOGRAPHY.helper)}>
-                        {item.value}
-                      </p>
-                    </div>
-                    {item.actionHref !== undefined && item.actionLabel !== undefined ? (
-                      <Button asChild size="sm" variant="outline">
-                        <Link href={item.actionHref}>{item.actionLabel}</Link>
-                      </Button>
-                    ) : null}
-                  </li>
-                ))}
-              </ul>
-              {onRefresh !== undefined ? (
-                <RefreshButton
-                  busy={refreshing}
-                  label="Refresh status"
-                  className="mt-4"
-                  data-testid="exec-digest-refresh-status"
-                  onClick={onRefresh}
-                />
-              ) : null}
-            </section>
+            {pinLivePreviewRail ? deliveryReadinessSection : null}
 
             {pinLivePreviewRail && savedSummary !== null && prefs.isConfigured ? (
               <section
@@ -692,79 +748,12 @@ export function ExecDigestScheduleContent(props: ExecDigestScheduleContentProps 
               </section>
             ) : null}
 
-            {pinLivePreviewRail ? (
-            <section
-              className="rounded-lg border border-neutral-200 bg-white p-4 dark:border-neutral-700 dark:bg-neutral-950"
-              data-testid="exec-digest-latest-generated"
-            >
-              <h3
-                className={cn(
-                  "m-0 font-semibold text-neutral-900 dark:text-neutral-100",
-                  OPERATOR_TYPOGRAPHY.cardTitle,
-                )}
-              >
-                Latest architecture digest
-              </h3>
-              {hasPreviewDigest ? (
-                <>
-                  <p className={cn("m-0 mt-2 text-al-text-secondary", OPERATOR_TYPOGRAPHY.body)}>
-                    Generated {formatDigestInstant(healthSnap?.latestArchitectureDigestGeneratedUtc)}
-                  </p>
-                  <Button asChild size="sm" variant="outline" className="mt-3" data-testid="exec-digest-preview-action">
-                    <Link href={previewHref}>{DIGESTS_SCHEDULE_PREVIEW_LABEL}</Link>
-                  </Button>
-                  <p className={cn("m-0 mt-2 text-al-text-secondary", OPERATOR_TYPOGRAPHY.helper)}>
-                    {EXEC_DIGEST_PREVIEW_HELPER}
-                  </p>
-                </>
-              ) : (
-                <>
-                  <p className={cn("m-0 mt-2 text-al-text-primary", OPERATOR_TYPOGRAPHY.body)}>
-                    No digest has been generated yet.
-                  </p>
-                  <p
-                    id="exec-digest-preview-unavailable-hint"
-                    className={cn("m-0 mt-1 text-al-text-secondary", OPERATOR_TYPOGRAPHY.helper)}
-                  >
-                    {EXEC_DIGEST_PREVIEW_UNAVAILABLE}
-                  </p>
-                  <Button
-                    size="sm"
-                    variant="outline"
-                    className="mt-3"
-                    disabled
-                    data-testid="exec-digest-preview-action"
-                    aria-describedby="exec-digest-preview-unavailable-hint"
-                  >
-                    {DIGESTS_SCHEDULE_PREVIEW_LABEL}
-                  </Button>
-                </>
-              )}
-
-              {!sampleModeBlocked ? (
-                <div className="mt-4 border-t border-neutral-200 pt-3 dark:border-neutral-800">
-                  <Button asChild size="sm" variant="outline" data-testid="exec-digest-test-action">
-                    <Link href={ADVISORY_SCANS_SCHEDULES_HREF} title={EXEC_DIGEST_TEST_GENERATION_HELPER}>
-                      {DIGESTS_SCHEDULE_GENERATE_TEST_LABEL}
-                    </Link>
-                  </Button>
-                  <p className={cn("m-0 mt-2 text-al-text-secondary", OPERATOR_TYPOGRAPHY.helper)}>
-                    {EXEC_DIGEST_TEST_GENERATION_HELPER}
-                  </p>
-                </div>
-              ) : (
-                <p
-                  className={cn("m-0 mt-4 text-al-text-secondary", OPERATOR_TYPOGRAPHY.helper)}
-                  data-testid="exec-digest-test-sample-blocked"
-                >
-                  Test generation and email delivery are unavailable in the sample workspace.
-                </p>
-              )}
-            </section>
-            ) : null}
+            {latestGeneratedSection}
             </>
           }
         />
+          );
+        })()
       )}
     </div>
   );

@@ -83,17 +83,34 @@ describe("ExecDigestScheduleContent", () => {
     });
   });
 
-  it("uses Architecture digests / Schedule executive digest identity and relationship copy", async () => {
+  it("uses Schedule executive digest identity and relationship copy", async () => {
     render(<ExecDigestScheduleContent />);
 
-    expect(await screen.findByText("Architecture digests")).toBeInTheDocument();
-    expect(screen.getByTestId("exec-digest-schedule-heading")).toHaveTextContent("Schedule executive digest");
+    expect(screen.queryByText("Architecture digests")).toBeNull();
+    expect(await screen.findByTestId("exec-digest-schedule-heading")).toHaveTextContent("Schedule executive digest");
     expect(screen.getByText(/weekly rollup of architecture and review activity/i)).toBeInTheDocument();
     expect(screen.getByText(/Architecture digests generated from advisory scans/i)).toBeInTheDocument();
     expect(screen.queryByText(/Schema version/i)).toBeNull();
     expect(screen.queryByTestId("exec-digest-schedule-technical-details")).toBeNull();
     expect(screen.queryByLabelText("Send executive digest")).toBeNull();
     expect(screen.queryByTestId("exec-digest-enable-action")).toBeNull();
+  });
+
+  it("does not use paused language before the schedule is configured", async () => {
+    render(<ExecDigestScheduleContent />);
+
+    await screen.findByTestId("exec-digest-status-summary");
+    expect(screen.getByTestId("exec-digest-status-summary")).toHaveTextContent(/until delivery is enabled/i);
+    expect(screen.getByTestId("exec-digest-status-summary")).not.toHaveTextContent(/paused/i);
+  });
+
+  it("renders only one overall delivery status tag", async () => {
+    render(<ExecDigestScheduleContent />);
+
+    await screen.findByTestId("exec-digest-status-tag");
+    expect(screen.getAllByTestId("exec-digest-status-tag")).toHaveLength(1);
+    expect(screen.queryByTestId("exec-digest-readiness-overall")).toBeNull();
+    expect(screen.queryByTestId("exec-digest-status-block")).toBeNull();
   });
 
   it("shows setup-incomplete status without a contradictory enable checkbox", async () => {
@@ -105,6 +122,15 @@ describe("ExecDigestScheduleContent", () => {
     expect(screen.getByTestId("digest-preview-before-subscribe")).toBeInTheDocument();
   });
 
+  it("places delivery readiness before save and enable actions when unpinned", async () => {
+    render(<ExecDigestScheduleContent />);
+
+    const readiness = await screen.findByTestId("exec-digest-delivery-readiness");
+    const save = screen.getByTestId("exec-digest-save-schedule");
+
+    expect(readiness.compareDocumentPosition(save) & Node.DOCUMENT_POSITION_FOLLOWING).toBeTruthy();
+  });
+
   it("stacks delivery readiness rail when schedule is sparse empty (TB-1574)", async () => {
     render(<ExecDigestScheduleContent />);
 
@@ -112,7 +138,7 @@ describe("ExecDigestScheduleContent", () => {
     expect(layout).toHaveAttribute("data-live-rail-pinned", "false");
     expect(layout.className).not.toMatch(/xl:grid-cols-/);
     expect(screen.getByTestId("exec-digest-delivery-readiness")).toBeInTheDocument();
-    expect(screen.queryByTestId("exec-digest-latest-generated")).not.toBeInTheDocument();
+    expect(screen.getByTestId("exec-digest-latest-generated")).toBeInTheDocument();
   });
 
   it("pins delivery readiness rail after a recipient is added (TB-1574)", async () => {
@@ -249,9 +275,9 @@ describe("ExecDigestScheduleContent", () => {
       updatedUtc: "2026-07-08T13:00:00Z",
     });
 
-    render(<ExecDigestScheduleContent />);
+    render(<ExecDigestScheduleContent healthSnap={baseHealth} />);
 
-    expect(await screen.findByTestId("exec-digest-status-tag")).toHaveTextContent("Active");
+    expect(await screen.findByTestId("exec-digest-status-tag")).toHaveTextContent("Ready");
     fireEvent.click(screen.getByTestId("exec-digest-pause-delivery"));
 
     await waitFor(() => {
@@ -278,8 +304,9 @@ describe("ExecDigestScheduleContent", () => {
 
     const preview = await screen.findByTestId("exec-digest-preview-action");
     expect(preview).toBeDisabled();
-    expect(preview).toHaveAttribute("title", expect.stringMatching(/after the first architecture digest/i));
+    expect(preview).toHaveAttribute("aria-describedby", "exec-digest-preview-unavailable-hint");
     expect(screen.getByText(/No digest has been generated yet/i)).toBeInTheDocument();
+    expect(screen.getByText(/after the first architecture digest/i)).toBeInTheDocument();
 
     expect(screen.getByRole("link", { name: "Generate architecture digest test" })).toHaveAttribute(
       "href",
@@ -343,7 +370,7 @@ describe("ExecDigestScheduleContent", () => {
       />,
     );
 
-    expect(await screen.findByTestId("exec-digest-readiness-overall")).toBeInTheDocument();
+    expect(await screen.findByTestId("exec-digest-status-tag")).toHaveTextContent("Delivery issue");
     expect(screen.getByTestId("exec-digest-readiness-next-action")).toBeInTheDocument();
 
     const refresh = screen.getByTestId("exec-digest-refresh-status");

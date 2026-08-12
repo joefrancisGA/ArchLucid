@@ -4,6 +4,9 @@ import {
   buildExecDigestDeliveryReadiness,
   buildExecDigestRecipientSummary,
   buildExecDigestSavedScheduleSummary,
+  formatExecDigestNextSendLabel,
+  formatExecDigestOutboundEmailStatusLabel,
+  resolveExecDigestOutboundEmailStatus,
   resolveExecDigestStatus,
 } from "@/lib/exec-digest-schedule-page-model";
 import type { ExecDigestPreferencesResponse } from "@/types/exec-digest-preferences";
@@ -72,10 +75,41 @@ describe("exec-digest-schedule-page-model", () => {
     expect(summary.subscriptionDestinationCount).toBe(1);
   });
 
+  it("does not use paused language for next send when never configured", () => {
+    const form = {
+      emailEnabled: false,
+      recipients: "",
+      ianaTimeZoneId: "UTC",
+      dayOfWeek: 1,
+      hourOfDay: 8,
+    };
+
+    expect(formatExecDigestNextSendLabel(form, false)).toMatch(/until delivery is enabled/i);
+    expect(formatExecDigestNextSendLabel(form, false)).not.toMatch(/paused/i);
+  });
+
   it("summarizes direct recipients and subscription destinations separately", () => {
-    expect(buildExecDigestRecipientSummary(2, 3)).toMatch(/2 direct recipients/i);
-    expect(buildExecDigestRecipientSummary(2, 3)).toMatch(/3 subscription destinations/i);
-    expect(buildExecDigestRecipientSummary(2, 3)).toMatch(/executive digest/i);
+    expect(buildExecDigestRecipientSummary(2, 3)).toBe("2 direct, 3 subscription");
+  });
+
+  it("reports outbound email as not verified when health is unknown", () => {
+    expect(resolveExecDigestOutboundEmailStatus(null)).toBe("not-verified");
+    expect(formatExecDigestOutboundEmailStatusLabel("not-verified")).toBe("Not verified");
+
+    const form = {
+      emailEnabled: true,
+      recipients: "ops@example.com",
+      ianaTimeZoneId: "UTC",
+      dayOfWeek: 1,
+      hourOfDay: 8,
+    };
+
+    const unknownHealth = buildExecDigestDeliveryReadiness(basePrefs, form, null, false);
+    const outbound = unknownHealth.items.find((item) => item.id === "outbound-email");
+
+    expect(outbound?.value).toBe("Not verified");
+    expect(outbound?.blocking).toBe(false);
+    expect(unknownHealth.overallLabel).toBe("Verifying delivery");
   });
 
   it("builds readiness overall states including delivery issues", () => {

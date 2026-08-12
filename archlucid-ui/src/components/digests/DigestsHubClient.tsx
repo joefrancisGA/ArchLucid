@@ -41,7 +41,6 @@ import {
 } from "@/lib/digests-route-paths";
 import type { WeeklyDigestHealthDto } from "@/types/operate-rhythm";
 
-import { DigestRecurrenceScheduleVocabularyRail } from "@/components/DigestRecurrenceScheduleVocabularyRail";
 import { DigestsAdvisoryScansVocabularyRail } from "@/components/DigestsAdvisoryScansVocabularyRail";
 import { DigestsBrowseScheduleSubscriptionsVocabularyRail } from "@/components/DigestsBrowseScheduleSubscriptionsVocabularyRail";
 import { DigestsNotificationsVocabularyRail } from "@/components/DigestsNotificationsVocabularyRail";
@@ -155,7 +154,8 @@ export function DigestsHubClient(): ReactElement {
    * step only when the Browse checklist is not already guiding setup.
    */
   const nextBestAction = healthSnap !== null ? resolveDigestNextBestAction(healthSnap) : null;
-  const showHeaderSetupAction: boolean = nextBestAction !== null && !browseSetupGuidesChecklist;
+  const showHeaderSetupAction: boolean =
+    activeTab !== "schedule" && nextBestAction !== null && !browseSetupGuidesChecklist;
   const previewIsPrimary: boolean = !showHeaderSetupAction && hasPreviewDigest;
 
   const pageSubtitle: string =
@@ -246,7 +246,9 @@ export function DigestsHubClient(): ReactElement {
           })}
         </TabsList>
 
-        {activeTab === "subscriptions" ? (
+        {activeTab === "schedule" ? (
+          <DigestsAdvisoryScansVocabularyRail currentSurfaceId="digests" />
+        ) : activeTab === "subscriptions" ? (
           <DigestsBrowseScheduleSubscriptionsVocabularyRail currentSurfaceId="subscriptions" />
         ) : (
           <>
@@ -256,10 +258,6 @@ export function DigestsHubClient(): ReactElement {
             <DigestsBrowseScheduleSubscriptionsVocabularyRail currentSurfaceId={activeTab} />
           </>
         )}
-
-        {activeTab === "schedule" ? (
-          <DigestRecurrenceScheduleVocabularyRail currentSurfaceId="digest-executive-schedule" />
-        ) : null}
 
         {activeTab === "schedule" ? (
           <WeeklyDigestHealthBanner
