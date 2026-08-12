@@ -2,6 +2,6 @@ export type {
   QuickDecisionSummaryAdvisoryVisibility,
   QuickDecisionSummaryConfidenceVisibility,
   QuickDecisionSummaryProps,
-} from "./quick-decision-summary";
+} from "./types";
 
-export { QuickDecisionSummary } from "./quick-decision-summary";
+export { QuickDecisionSummary } from "./QuickDecisionSummary";

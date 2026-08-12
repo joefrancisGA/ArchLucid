@@ -311,5 +311,5 @@ export const REVIEW_TERMINOLOGY_REVIEW_PACKAGE_DETAIL_SURFACE_PATHS = [
   "src/components/RunDetailOutcomeCards.tsx",
   "src/components/usability/ReviewPackagePlainSummary.tsx",
   "src/components/usability/ReviewPackageEvidenceDensityStrip.tsx",
-  "src/components/QuickDecisionSummary.tsx",
+  "src/components/quick-decision-summary/QuickDecisionSummary.tsx",
 ] as const;

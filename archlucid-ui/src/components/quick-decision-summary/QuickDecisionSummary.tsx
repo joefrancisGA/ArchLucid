@@ -1,0 +1,274 @@
+"use client";
+
+import { useMemo, useState } from "react";
+import type { ReactElement } from "react";
+
+import type { QuickDecisionWorkspaceCardContext } from "@/components/findings/QuickDecisionWorkspaceFindingSupportingDetails";
+import { useOperateCapability } from "@/hooks/use-operate-capability";
+import { useOptionallyControlledBoolean } from "@/hooks/use-optionally-controlled-boolean";
+import {
+  aggregateFindingProvenance,
+  formatFindingProvenanceAggregateLine,
+} from "@/lib/finding-provenance-display";
+import {
+  formatHiddenLowConfidenceHint,
+  partitionQuickDecisionFindingsByConfidence,
+} from "@/lib/finding-confidence-filter";
+import {
+  groupQuickDecisionFindingsByPolicyPack,
+  summarizePolicyPackFindingImpact,
+} from "@/lib/group-findings-by-policy-pack";
+import type { QuickDecisionFinding } from "@/lib/quick-decision-summary-derive";
+import {
+  partitionQuickDecisionFindings,
+  sortQuickDecisionFindings,
+} from "@/lib/quick-decision-summary-derive";
+import { usePrefetchItsmFindingCorrelations } from "@/lib/use-itsm-finding-correlations";
+
+import { QuickDecisionSummaryCardView } from "./QuickDecisionSummaryCardView";
+import { QuickDecisionSummaryDialogs } from "./QuickDecisionSummaryDialogs";
+import { QuickDecisionSummaryWorkspaceView } from "./QuickDecisionSummaryWorkspaceView";
+import type {
+  QuickDecisionSummaryDerivedData,
+  QuickDecisionSummaryInteractionState,
+  QuickDecisionSummaryProps,
+} from "./types";
+
+function useQuickDecisionSummaryDerivedData(props: QuickDecisionSummaryProps): QuickDecisionSummaryDerivedData {
+  const sorted = sortQuickDecisionFindings(props.findings);
+  const confidenceManagedExternally = props.confidenceVisibility?.managedExternally === true;
+  const [showMuted, setShowMuted] = useState(false);
+  const [showLowConfidence, setShowLowConfidence] = useOptionallyControlledBoolean(
+    confidenceManagedExternally && props.confidenceVisibility
+      ? {
+          value: props.confidenceVisibility.showLowConfidence,
+          onChange: props.confidenceVisibility.onShowLowConfidenceChange,
+          managedExternally: true,
+        }
+      : undefined,
+  );
+  const [showAdvisory, setShowAdvisory] = useOptionallyControlledBoolean(
+    props.advisoryVisibility?.managedExternally === true && props.advisoryVisibility
+      ? {
+          value: props.advisoryVisibility.showAdvisory,
+          onChange: props.advisoryVisibility.onShowAdvisoryChange,
+          managedExternally: true,
+        }
+      : undefined,
+  );
+  const afterMuteFilter = showMuted ? sorted : sorted.filter((finding) => !finding.isMuted);
+  const confidencePartition = confidenceManagedExternally
+    ? {
+        trustedFindings: afterMuteFilter,
+        lowConfidenceFindings: [] as QuickDecisionFinding[],
+      }
+    : partitionQuickDecisionFindingsByConfidence(afterMuteFilter);
+  const { trustedFindings, lowConfidenceFindings } = confidencePartition;
+  const hiddenLowConfidenceCount = confidenceManagedExternally
+    ? (props.confidenceVisibility?.hiddenByConfidenceCount ?? 0)
+    : showLowConfidence
+      ? 0
+      : lowConfidenceFindings.length;
+  const hiddenLowConfidenceHint = formatHiddenLowConfidenceHint(hiddenLowConfidenceCount);
+  const { policyViolations, advisoryNotes } = partitionQuickDecisionFindings(trustedFindings);
+  const {
+    policyViolations: lowConfidencePolicyViolations,
+    advisoryNotes: lowConfidenceAdvisoryNotes,
+  } = partitionQuickDecisionFindings(lowConfidenceFindings);
+  const topGroups = groupQuickDecisionFindingsByPolicyPack(
+    policyViolations,
+    props.manifestRuleSetId,
+    props.manifestRuleSetVersion,
+  );
+  const policyPackImpact = summarizePolicyPackFindingImpact(
+    afterMuteFilter,
+    props.manifestRuleSetId,
+    props.manifestRuleSetVersion,
+  );
+  const policyPackSummary = policyPackImpact.groups;
+  const hasSourceFindings =
+    typeof props.sourceFindingsCount === "number" ? props.sourceFindingsCount > 0 : props.findings.length > 0;
+  const itsmFindingIds = useMemo(
+    () => props.findings.map((finding) => finding.findingId),
+    [props.findings],
+  );
+  usePrefetchItsmFindingCorrelations(
+    itsmFindingIds,
+    props.packageCommitted !== false && props.workspaceCardMode !== true,
+  );
+  const provenanceAggregateLine = formatFindingProvenanceAggregateLine(
+    aggregateFindingProvenance(
+      props.findings.map((finding) => ({
+        trustLabel: finding.trustLabel,
+        policyRuleId: finding.policyRuleId,
+        evidenceRefCount: finding.evidenceRefCount,
+        confidenceLevel: finding.confidenceLevel,
+      })),
+    ),
+  );
+
+  return {
+    buyerPolishedShell: props.buyerPolishedShell === true,
+    headlineFindingCount: props.headlineFindingCount,
+    headlineWarningCount: props.headlineWarningCount,
+    confidenceManagedExternally,
+    afterMuteFilter,
+    trustedFindings,
+    lowConfidenceFindings,
+    hiddenLowConfidenceHint,
+    policyViolations,
+    advisoryNotes,
+    lowConfidencePolicyViolations,
+    lowConfidenceAdvisoryNotes,
+    topGroups,
+    policyPackSummary,
+    policyPackImpact,
+    hasSourceFindings,
+    provenanceAggregateLine,
+    showMuted,
+    setShowMuted,
+    showLowConfidence,
+    setShowLowConfidence,
+    showAdvisory,
+    setShowAdvisory,
+  };
+}
+
+type QuickDecisionSummaryDerivedState = QuickDecisionSummaryDerivedData & {
+  readonly showMuted: boolean;
+  readonly setShowMuted: (value: boolean) => void;
+  readonly showLowConfidence: boolean;
+  readonly setShowLowConfidence: (value: boolean) => void;
+  readonly showAdvisory: boolean;
+  readonly setShowAdvisory: (value: boolean) => void;
+};
+
+function splitDerivedState(state: QuickDecisionSummaryDerivedState): {
+  derived: QuickDecisionSummaryDerivedData;
+  filters: Pick<
+    QuickDecisionSummaryInteractionState,
+    "showMuted" | "setShowMuted" | "showLowConfidence" | "setShowLowConfidence" | "showAdvisory" | "setShowAdvisory"
+  >;
+} {
+  const {
+    showMuted,
+    setShowMuted,
+    showLowConfidence,
+    setShowLowConfidence,
+    showAdvisory,
+    setShowAdvisory,
+    ...derived
+  } = state;
+
+  return {
+    derived,
+    filters: {
+      showMuted,
+      setShowMuted,
+      showLowConfidence,
+      setShowLowConfidence,
+      showAdvisory,
+      setShowAdvisory,
+    },
+  };
+}
+
+/** Top severity-ranked actionable findings from run detail agent results (no extra API calls). */
+export function QuickDecisionSummary(props: QuickDecisionSummaryProps): ReactElement {
+  const canMutate = useOperateCapability();
+  const derivedState = useQuickDecisionSummaryDerivedData(props);
+  const { derived, filters } = splitDerivedState(derivedState);
+  const [reasoningOpen, setReasoningOpen] = useState(false);
+  const [activeReasoning, setActiveReasoning] = useState<QuickDecisionFinding | null>(null);
+  const [muteOpen, setMuteOpen] = useState(false);
+  const [muteTarget, setMuteTarget] = useState<QuickDecisionFinding | null>(null);
+  const [askFindingId, setAskFindingId] = useState<string | null>(null);
+
+  function handleMuteDialogOpenChange(open: boolean): void {
+    setMuteOpen(open);
+
+    if (!open) {
+      setMuteTarget(null);
+    }
+  }
+
+  function openMuteDialog(finding: QuickDecisionFinding): void {
+    setMuteTarget(finding);
+    setMuteOpen(true);
+  }
+
+  function openReasoningDialog(finding: QuickDecisionFinding): void {
+    setActiveReasoning(finding);
+    setReasoningOpen(true);
+  }
+
+  function toggleAskPanel(finding: QuickDecisionFinding): void {
+    setAskFindingId((current) => (current === finding.findingId ? null : finding.findingId));
+  }
+
+  const interaction: QuickDecisionSummaryInteractionState = {
+    canMutate,
+    ...filters,
+    reasoningOpen,
+    setReasoningOpen,
+    activeReasoning,
+    setActiveReasoning,
+    muteOpen,
+    muteTarget,
+    askFindingId,
+    setAskFindingId,
+    handleMuteDialogOpenChange,
+    openMuteDialog,
+    openReasoningDialog,
+    toggleAskPanel,
+  };
+
+  const workspaceCardContext: QuickDecisionWorkspaceCardContext = {
+    runId: props.runId,
+    allFindings: props.findings,
+    packageCommitted: props.packageCommitted,
+    providerNeutralWorkItems: props.providerNeutralWorkItems,
+    architectureWorkItemContext: props.architectureWorkItemContext,
+  };
+
+  if (props.workspaceCardMode === true) {
+    return (
+      <>
+        <QuickDecisionSummaryWorkspaceView
+          props={props}
+          derived={derived}
+          interaction={interaction}
+          workspaceCardContext={workspaceCardContext}
+        />
+        <QuickDecisionSummaryDialogs
+          runId={props.runId}
+          reasoningOpen={reasoningOpen}
+          setReasoningOpen={setReasoningOpen}
+          activeReasoning={activeReasoning}
+          setActiveReasoning={setActiveReasoning}
+          muteOpen={muteOpen}
+          muteTarget={muteTarget}
+          onMuteDialogOpenChange={handleMuteDialogOpenChange}
+          muteReasonInputId="finding-mute-reason-workspace"
+        />
+      </>
+    );
+  }
+
+  return (
+    <>
+      <QuickDecisionSummaryCardView props={props} derived={derived} interaction={interaction} />
+      <QuickDecisionSummaryDialogs
+        runId={props.runId}
+        reasoningOpen={reasoningOpen}
+        setReasoningOpen={setReasoningOpen}
+        activeReasoning={activeReasoning}
+        setActiveReasoning={setActiveReasoning}
+        muteOpen={muteOpen}
+        muteTarget={muteTarget}
+        onMuteDialogOpenChange={handleMuteDialogOpenChange}
+        muteReasonInputId="finding-mute-reason"
+      />
+    </>
+  );
+}
