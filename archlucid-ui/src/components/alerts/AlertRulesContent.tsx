@@ -37,7 +37,7 @@ import {
   hasAlertRulesLivePreviewPinContent,
   OPERATOR_LIVE_PREVIEW_READINESS_RAIL_KIND,
   shouldPinLivePreviewReadinessRail,
-} from "@/lib/operator-live-preview-readiness-rail";
+} from "@/lib/operator/operator-live-preview-readiness-rail";
 import {
   ALERT_RULES_ALERT_PRIORITY_HELP,
   ALERT_RULES_ALERT_PRIORITY_LABEL,
@@ -63,7 +63,7 @@ import {
   alertRulesCreateButtonLabelReaderRank,
 } from "@/lib/enterprise-controls-context-copy";
 import { whyDisabledEnterpriseMutationControl } from "@/lib/why-disabled-cta";
-import { readOperatorScopeFromStorage } from "@/lib/operator-scope-storage";
+import { readOperatorScopeFromStorage } from "@/lib/operator/operator-scope-storage";
 import type { AlertRule } from "@/types/alerts";
 import type { AlertRoutingSubscription } from "@/types/alert-routing";
 
@@ -210,7 +210,9 @@ export function AlertRulesContent() {
   return (
     <div className="min-w-0">
       <div className="mb-2 flex flex-wrap items-start justify-between gap-2">
-        <h2 className={cn("m-0", OPERATOR_TYPOGRAPHY.sectionTitle)}>Alert conditions</h2>
+        <h3 id="alert-rules-conditions-heading" className={cn("m-0", OPERATOR_TYPOGRAPHY.sectionTitle)}>
+          Alert conditions
+        </h3>
         {emptyIntroMode ? (
           <Button
             type="button"

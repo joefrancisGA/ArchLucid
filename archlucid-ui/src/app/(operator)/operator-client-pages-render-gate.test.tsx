@@ -210,9 +210,10 @@ describe("operator client pages — render gate", () => {
     expect(screen.getByTestId("alerts-inbox-summary-row")).toBeInTheDocument();
   });
 
-  it("Alert rules content renders primary heading", () => {
+  it("Alert rules content renders without a duplicate hub page-title h2 (TB-1584)", () => {
     render(<AlertRulesContent />);
-    expect(screen.getByRole("heading", { level: 2, name: "Alert conditions" })).toBeInTheDocument();
+    expect(screen.queryByRole("heading", { level: 2, name: "Alert conditions" })).not.toBeInTheDocument();
+    expect(screen.getByRole("heading", { level: 3, name: "Alert conditions" })).toBeInTheDocument();
   });
 
   it("Alert routing content renders primary heading", () => {

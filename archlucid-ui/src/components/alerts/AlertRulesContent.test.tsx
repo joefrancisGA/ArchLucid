@@ -1,4 +1,6 @@
 ﻿import { fireEvent, render, screen, waitFor } from "@testing-library/react";
+import { readFileSync } from "node:fs";
+import { join } from "node:path";
 import { beforeEach, describe, expect, it, vi } from "vitest";
 
 import { AlertRulesContent } from "@/components/alerts/AlertRulesContent";
@@ -13,7 +15,7 @@ import { alertRulesCreateButtonLabelReaderRank, enterpriseMutationControlDisable
 import {
   clearOperatorScopeStorage,
   writeOperatorScopeToStorage,
-} from "@/lib/operator-scope-storage";
+} from "@/lib/operator/operator-scope-storage";
 
 const mutateCapability = vi.hoisted(() => ({ current: true }));
 
@@ -124,6 +126,23 @@ describe("AlertRulesContent", () => {
 
     expect(screen.getByTestId("alert-rules-layout")).toHaveAttribute("data-empty-intro", "false");
     expect(screen.queryByTestId("alert-rules-create-action")).toBeNull();
+  });
+
+  it("TB-1584: demotes Conditions tab lead to h3 under the hub page title", async () => {
+    render(<AlertRulesContent />);
+
+    await waitFor(() => {
+      expect(screen.getByRole("heading", { level: 3, name: "Alert conditions" })).toBeInTheDocument();
+    });
+
+    expect(screen.queryByRole("heading", { level: 2, name: "Alert conditions" })).not.toBeInTheDocument();
+  });
+
+  it("TB-1584: Conditions tab source avoids page-title h2 chrome", () => {
+    const source = readFileSync(join(process.cwd(), "src", "components", "alerts", "AlertRulesContent.tsx"), "utf8");
+
+    expect(source).not.toMatch(/<h2\b/);
+    expect(source).not.toContain("OPERATOR_TYPOGRAPHY.pageTitle");
   });
 
   it("stacks live preview rail when empty list uses default draft (TB-1574)", async () => {
