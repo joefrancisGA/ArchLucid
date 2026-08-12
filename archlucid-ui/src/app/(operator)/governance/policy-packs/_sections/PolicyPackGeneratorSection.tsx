@@ -148,7 +148,7 @@ export function PolicyPackGeneratorSection(props: PolicyPackGeneratorSectionProp
             <Button
               type="button"
               disabled={!canMutatePacks || loading || name.trim().length === 0}
-              title={canMutatePacks ? undefined : enterpriseMutationControlDisabledTitle}
+              aria-describedby={!canMutatePacks ? "policy-pack-generator-mutate-disabled-hint" : undefined}
               data-testid="policy-pack-generator-create"
               onClick={() => {
                 setCreateAttempted(true);
@@ -161,7 +161,7 @@ export function PolicyPackGeneratorSection(props: PolicyPackGeneratorSectionProp
               type="button"
               variant="outline"
               disabled={!canMutatePacks}
-              title={canMutatePacks ? undefined : enterpriseMutationControlDisabledTitle}
+              aria-describedby={!canMutatePacks ? "policy-pack-generator-mutate-disabled-hint" : undefined}
               data-testid="policy-pack-generator-open-wizard"
               onClick={onOpenAuthoringWizard}
             >
@@ -178,7 +178,10 @@ export function PolicyPackGeneratorSection(props: PolicyPackGeneratorSectionProp
       ) : null}
 
       {!canMutatePacks ? (
-        <p className={cn("text-al-text-secondary", OPERATOR_TYPOGRAPHY.body)}>
+        <p
+          id="policy-pack-generator-mutate-disabled-hint"
+          className={cn("text-al-text-secondary", OPERATOR_TYPOGRAPHY.body)}
+        >
           Pack generation is read-only in this workspace context. Switch to an execute-capable operator scope to create
           tenant-owned packs.
         </p>

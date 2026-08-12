@@ -15,7 +15,8 @@ import {
   EnterpriseTableRow,
 } from "@/components/ui/enterprise-table";
 import { OPERATOR_TYPOGRAPHY } from "@/lib/design-tokens";
-import { enterpriseMutationControlDisabledTitle } from "@/lib/enterprise-controls-context-copy";
+import { WhyDisabledCtaHint } from "@/components/usability/WhyDisabledCtaHint";
+import { whyDisabledEnterpriseMutationControl } from "@/lib/why-disabled-cta";
 import { labelForSlackIntegrationEventId } from "@/lib/slack-integration-form-schema";
 import {
   SLACK_DESTINATIONS_REFRESH_LABEL,
@@ -56,6 +57,8 @@ export function SlackDestinationsPanel(props: SlackDestinationsPanelProps): Reac
     onTest,
     onToggle,
   } = props;
+  const mutationDisabledHintId = "slack-destinations-mutate-disabled-hint";
+  const mutationDisabledReason = canMutate ? null : whyDisabledEnterpriseMutationControl();
 
   return (
     <section aria-labelledby="slack-destinations-heading" className="space-y-4">
@@ -83,6 +86,12 @@ export function SlackDestinationsPanel(props: SlackDestinationsPanelProps): Reac
           {loading ? SLACK_DESTINATIONS_REFRESHING_LABEL : SLACK_DESTINATIONS_REFRESH_LABEL}
         </Button>
       </div>
+
+      <WhyDisabledCtaHint
+        id={mutationDisabledHintId}
+        reason={mutationDisabledReason}
+        testId={mutationDisabledHintId}
+      />
 
       {destinations.length === 0 ? (
         <EnterpriseCompactEmptyState
@@ -145,7 +154,7 @@ export function SlackDestinationsPanel(props: SlackDestinationsPanelProps): Reac
                         size="sm"
                         variant="outline"
                         disabled={!canMutate || loading}
-                        title={canMutate ? undefined : enterpriseMutationControlDisabledTitle}
+                        aria-describedby={!canMutate ? mutationDisabledHintId : undefined}
                         onClick={() => onToggle(row.routingSubscriptionId, row.isEnabled === true, row.name)}
                         data-testid={`slack-toggle-${row.routingSubscriptionId}`}
                       >

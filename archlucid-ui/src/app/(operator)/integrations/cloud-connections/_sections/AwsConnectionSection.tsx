@@ -9,8 +9,9 @@ import { StatusTag } from "@/components/ui/status-tag";
 import { disconnectAwsTier2Connection } from "@/lib/api/aws-cloud-connections-api";
 import { OPERATOR_TYPOGRAPHY } from "@/lib/design-tokens";
 import { AWS_CONNECTION_DISCONNECT_FAILED_ERROR } from "@/lib/aws-cloud-connection-copy";
+import { WhyDisabledCtaHint } from "@/components/usability/WhyDisabledCtaHint";
 import { awsConnectionStatusTagKind, formatAwsConnectionTimestamp } from "@/lib/aws-connection-present";
-import { enterpriseMutationControlDisabledTitle } from "@/lib/enterprise-controls-context-copy";
+import { whyDisabledEnterpriseMutationControl } from "@/lib/why-disabled-cta";
 
 import {
   AwsConnectionDisconnectDialog,
@@ -37,6 +38,8 @@ export function AwsConnectionSection(props: { readonly embedded?: boolean }) {
   } = useAwsConnectionData();
   const [isDisconnecting, setIsDisconnecting] = useState(false);
   const [disconnectTarget, setDisconnectTarget] = useState<AwsConnectionDisconnectTarget | null>(null);
+  const mutationDisabledHintId = "aws-connection-mutate-disabled-hint";
+  const mutationDisabledReason = canMutate ? null : whyDisabledEnterpriseMutationControl();
 
   const hasConnection = !isLoading && connections.length > 0;
 
@@ -99,6 +102,11 @@ export function AwsConnectionSection(props: { readonly embedded?: boolean }) {
 
       {hasConnection ? (
         <div className="space-y-4" data-testid="aws-connection-list">
+          <WhyDisabledCtaHint
+            id={mutationDisabledHintId}
+            reason={mutationDisabledReason}
+            testId={mutationDisabledHintId}
+          />
           {connections.map((connection) => (
             <div key={connection.connectionId} className="rounded-md border p-4 space-y-3">
               <div className="flex flex-wrap items-center justify-between gap-2">
@@ -121,7 +129,7 @@ export function AwsConnectionSection(props: { readonly embedded?: boolean }) {
                   variant="primary"
                   data-testid={`aws-repoll-${connection.connectionId}`}
                   disabled={pollingConnectionId === connection.connectionId || !canMutate}
-                  title={canMutate ? undefined : enterpriseMutationControlDisabledTitle}
+                  aria-describedby={!canMutate ? mutationDisabledHintId : undefined}
                   onClick={() => void triggerRePoll(connection, "connection")}
                 >
                   {pollingConnectionId === connection.connectionId ? "Polling…" : "Re-poll now"}
@@ -131,7 +139,7 @@ export function AwsConnectionSection(props: { readonly embedded?: boolean }) {
                   variant="outline"
                   data-testid={`aws-disconnect-${connection.connectionId}`}
                   disabled={!canMutate || isDisconnecting}
-                  title={canMutate ? undefined : enterpriseMutationControlDisabledTitle}
+                  aria-describedby={!canMutate ? mutationDisabledHintId : undefined}
                   onClick={() =>
                     setDisconnectTarget({
                       connectionId: connection.connectionId,

@@ -31,7 +31,11 @@ import {
   SLACK_INTEGRATION_SECRET_HELPER,
 } from "@/lib/slack-integration-page-copy";
 import type { SlackIntegrationTestFeedback } from "@/lib/slack-integration-test-feedback";
-import type { WhyDisabledCtaReason } from "@/lib/why-disabled-cta";
+import {
+  firstWhyDisabledCtaReason,
+  whyDisabledEnterpriseMutationControl,
+  type WhyDisabledCtaReason,
+} from "@/lib/why-disabled-cta";
 import { cn } from "@/lib/utils";
 
 type SlackDestinationFormProps = {
@@ -138,6 +142,11 @@ export function SlackDestinationForm(props: SlackDestinationFormProps): React.Re
   const saveDisabledReason: WhyDisabledCtaReason | null = cta.showSaveDisabledHelper
     ? { kind: "prerequisite", message: SLACK_INTEGRATION_SAVE_DISABLED_HELPER }
     : null;
+  const saveHintId = "slack-save-disabled-helper";
+  const saveHintReason = firstWhyDisabledCtaReason([
+    !canMutate ? whyDisabledEnterpriseMutationControl() : null,
+    saveDisabledReason,
+  ]);
 
   useEffect(() => {
     if (previousWebhookUrlRef.current === webhookUrl) {
@@ -298,7 +307,7 @@ export function SlackDestinationForm(props: SlackDestinationFormProps): React.Re
             type="button"
             variant={cta.saveVariant}
             disabled={cta.saveDisabled}
-            title={canMutate ? undefined : enterpriseMutationControlDisabledTitle}
+            aria-describedby={saveHintReason !== null ? saveHintId : undefined}
             data-testid="slack-save-button"
             onClick={onSave}
           >
@@ -306,8 +315,9 @@ export function SlackDestinationForm(props: SlackDestinationFormProps): React.Re
           </Button>
         </div>
         <WhyDisabledCtaHint
-          reason={saveDisabledReason}
-          testId="slack-save-disabled-helper"
+          id={saveHintId}
+          reason={saveHintReason}
+          testId={saveHintId}
           className="max-w-3xl"
         />
       </div>
