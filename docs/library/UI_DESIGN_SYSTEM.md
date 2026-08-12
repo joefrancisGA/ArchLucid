@@ -164,7 +164,7 @@ Every navigable operator surface must teach its own job in place. The shell top-
 
 **Code touchpoints:** `PageContextualHelpButton` / `PageScopedContextualHelpPanel`, `page-help-topic-map.ts`, `contextual-help-registry.ts`, `components/ui/help-popover.tsx`, `components/ui/popover.tsx`.
 
-**Good exemplars:** `/architecture/reviews`, `/architecture/architectures`, findings / alerts / alert-rules / advisory-scans, `/architecture/digests`, improvement planning, executive summary, readiness. Remaining mount gaps are owned by **TB-1667**–**TB-1669**; the Vitest allowlist + non-null topic guard is **TB-1670**. **Learn more** destinations are governed by the next section (**TB-2048**) — this section owns mount, trigger, and panel semantics only.
+**Good exemplars:** `/architecture/reviews`, `/architecture/architectures`, findings / alerts / alert-rules / advisory-scans, `/architecture/digests`, improvement planning, executive summary, readiness. Mount waves **TB-1667**–**TB-1669** Done; Vitest allowlist + non-null topic guard **TB-1670** Done. **Learn more** destinations are governed by the next section (**TB-2048**) — this section owns mount, trigger, and panel semantics only.
 
 ### Operator page contextual help — Learn more job match (**TB-2048** — done 2026-08-05)
 
@@ -181,6 +181,28 @@ Every navigable operator surface must teach its own job in place. The shell top-
 **Code touchpoints (apply in follow-on rows):** `page-help-topic-map.ts` (`pageHelpTopicForPathname`), `PageContextualHelpButton` / `PageScopedContextualHelpPanel` Learn more href. Remaps: Digests golden **TB-2049** Done; secondary-hub sweep **TB-2050** Done (2026-08-05); popover deep-link CTAs **TB-2051** Done (2026-08-05); Vitest suite **TB-2052** Done (2026-08-06) — `learn-more-job-match.test.ts` + `learn-more-job-match-inventory.ts`.
 
 **Good exemplar (target state):** Digests Category-1 answers discuss Schedule/recipients; Learn more must open digests-relevant help (or omit) — not `/help/getting-started`. Category-1 what-to-do-next / where-to-configure fields that name a tab or operator route should expose optional `{ label, href }` actions (`PageContextualHelpAction`) rendered in `PageScopedContextualHelpPanel`.
+
+### Operator / marketing inline links — affordance contract (**TB-1671** — done 2026-08-12)
+
+`globals.css` sets `a { color: inherit }`, so a bare Next `<Link>` or `<a>` without explicit link styling reads as body copy. `.cursor/rules/UI-Accessibility-Baseline.mdc` requires links to look like links at rest — not only on `:hover`. This section is the normative contract for **text-styled navigation**; it pairs with § *Visible-boundary `Button` contract* (**TB-2168**) — buttons need borders or fills; inline navigation uses link tokens, not `Button variant="link"` or ghost `Button asChild`.
+
+| Rule | Required behavior |
+|------|-------------------|
+| Resting affordance | Body and inline navigational anchors must show a **resting** underline or explicit link-color token. Hover may deepen color or decoration; hover-only reveal is not sufficient. |
+| Operator tokens | Use `OPERATOR_LINK` in `design-tokens.ts`: **`nav`** — accent link + underline for hub/table primary columns and wayfinding; **`inline`** — primary text + subdued underline, accent on hover (default body copy links); **`optional`** — helper-sized secondary links in captions; **`step`** / **`stepPill`** / **`stepPillCurrent`** / **`stepPillRecommended`** — numbered journey steps (bordered pills are their own chrome). |
+| Marketing body links | Use `MARKETING_SURFACES.inlineLink` on marketing and public pages. |
+| Banned — hover-only | `no-underline` with `hover:underline` (or equivalent) as the **sole** affordance on body/inline links. |
+| Banned — inherit-only | Bare `<a>` / `<Link>` with only inherited body color and no underline or link token. |
+| Banned — nav underline strip | Do not remove `OPERATOR_LINK.nav` resting underline from table titles or hub list primary columns (e.g. Reviews hub row titles — remediated under **TB-1673**). |
+| StatusTag-as-link | When a `StatusTag`, badge, or chip is the only hit target for navigation, pair it with a visible text link **or** apply an explicit underline/link cue on the tag. Anti-exemplars and inventory: **TB-1674**. |
+| Ghost `Button asChild` | **In scope** (amended 2026-08-09, **TB-2168** cluster): ghost-variant `Button asChild` around `<Link>` is a bare link wearing button chrome (~25 sites). Strip the ghost wrapper and apply `OPERATOR_LINK` / `MARKETING_SURFACES.inlineLink` — **do not** convert these to bordered buttons. Sweeps: **TB-2170**–**TB-2173**. |
+| Excluded — filled/outline CTA | Filled or `outline` `Button asChild` around `<Link>` remains button chrome — primary CTA hierarchy stays **TB-1539**. |
+| Excluded — shell nav | Sidebar `shell-nav-link` and global shell nav rows (dedicated nav styling). |
+| Excluded — card/jump chrome | Bordered card wrappers, jump-to-section chips, and controls that already supply their own visible boundary or hit-target chrome. |
+
+**Code touchpoints:** `OPERATOR_LINK`, `MARKETING_SURFACES.inlineLink`, `archlucid-ui/src/lib/design-tokens.ts`, `archlucid-ui/src/app/globals.css` (`a { color: inherit }` — intentional; call sites must opt into tokens).
+
+**Good exemplars:** `RunDetailSectionNav` (resting underline on in-page section jumps), Digests `text-al-link` helpers (`DigestsBrowseContent`, `DigestSubscriptionsReadinessPanel`, subscription/create forms). **Surface migrations:** compare + provenance bare links **TB-1672**; home/Reviews/signup weak links **TB-1673** Done; badges + secondary surfaces **TB-1674**; Vitest allowlist **TB-1675**.
 
 ### Operator side rails (**TB-1572** — done 2026-08-11)
 
@@ -487,7 +509,7 @@ Every `Button` must have a **visible boundary** — a **border** or a **solid fi
 
 **Banned:** `ghost` and `link` variants — they render with neither border nor fill and are indistinguishable from body copy on dense governance surfaces.
 
-**Text-styled navigation** (wordmarks, inline “learn more”, help deep-links) uses **`OPERATOR_LINK`** / `<Link>` styling — not `Button variant="link"` or ghost `Button asChild` wrappers. Link-as-button carve-outs are tracked in **TB-1671**–**TB-1675**.
+**Text-styled navigation** (wordmarks, inline “learn more”, help deep-links) uses **`OPERATOR_LINK`** / `<Link>` styling — not `Button variant="link"` or ghost `Button asChild` wrappers. Normative contract: § *Operator / marketing inline links — affordance contract* (**TB-1671** Done); surface migrations **TB-1672**–**TB-1675**, ghost-wrapper sweeps **TB-2170**–**TB-2173**.
 
 *Wordmark applied 2026-08-11:* the shell/marketing brand mark no longer sits inside `Button variant="outline"` (`OperatorShellTopBar`, `AppShellClient`, `ExecutiveShellFrame`, `MarketingPublicHeader`) — a bordered logo reads as an unstyled button. `ArchLucidWordmarkLink` now owns its own `focus-visible` ring; do **not** reintroduce a wrapper to supply focus styling.
 
@@ -547,7 +569,8 @@ Headline counts on golden-path surfaces must be **self-describing** and **click-
 - Deferred UI architecture: `docs/library/UI_ARCHITECTURE_V1_1.md`
 - Cursor rules: `.cursor/rules/UI-React-Next-Conventions.mdc`, `.cursor/rules/UI-Accessibility-Baseline.mdc`, `.cursor/rules/UI-Form-Validation-Affordances.mdc` (**TB-2005**)
 - Agent guidance: `archlucid-ui/AGENTS.md`
-- Page-scoped help **mount + interaction** contract: this file § *Operator page contextual help — mount + interaction contract* (**TB-1666** Done) — press-only triggers, shared `HelpPopover`, `title`-as-help banned (sweep **TB-2147**); remaining mount waves **TB-1667**–**TB-1670**
+- Page-scoped help **mount + interaction** contract: this file § *Operator page contextual help — mount + interaction contract* (**TB-1666** Done) — press-only triggers, shared `HelpPopover`, `title`-as-help banned (sweep **TB-2147**); mount waves **TB-1667**–**TB-1670** Done
+- Operator / marketing **inline links** affordance contract: this file § *Operator / marketing inline links — affordance contract* (**TB-1671** Done) — `OPERATOR_LINK` / `MARKETING_SURFACES.inlineLink`; ban hover-only and inherit-only body anchors; ghost `Button asChild` → link tokens; surface migrations **TB-1672**–**TB-1675**
 - Page-scoped **Learn more** job match: this file § *Operator page contextual help — Learn more job match* (**TB-2048** Done); Digests/secondary remaps **TB-2049**–**TB-2052**
 - Page-header help **borderless carve-out**: this file § *Visible-boundary `Button` contract* → *Carve-out — page-header contextual help* (owner decision 2026-08-11) — shared chrome in `components/usability/page-contextual-help-trigger.ts`; shell top-bar `Help` stays `variant="outline"`
 - Operator **side rails** contract: this file § *Operator side rails* (**TB-1572** Done) — single-column default; allow working-object / master-detail / live-when-live / TOC-wizard; ban teaching / static-scope / about-aside persistent rails; live pin policy **TB-1574** Done; hub inventory + about-aside demotion **TB-1575** Done (`operator-side-rail-inventory.ts`); Vitest allowlist **TB-1576**
