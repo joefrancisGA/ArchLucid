@@ -131,7 +131,9 @@ export function DigestPreviewBeforeSubscribePanel(
           size="sm"
           variant="outline"
           disabled={!sendToMeAvailable}
-          title={sendToMeAvailable ? undefined : DIGEST_PREVIEW_SEND_TO_ME_UNAVAILABLE_REASON}
+          aria-describedby={
+            sendToMeAvailable ? undefined : "digest-preview-before-subscribe-send-to-me-reason"
+          }
           aria-disabled={!sendToMeAvailable}
           data-testid="digest-preview-before-subscribe-send-to-me"
         >
@@ -139,6 +141,7 @@ export function DigestPreviewBeforeSubscribePanel(
         </Button>
         {!sendToMeAvailable ? (
           <p
+            id="digest-preview-before-subscribe-send-to-me-reason"
             className={cn("m-0 max-w-3xl text-al-text-secondary", OPERATOR_TYPOGRAPHY.helper)}
             data-testid="digest-preview-before-subscribe-send-to-me-reason"
           >

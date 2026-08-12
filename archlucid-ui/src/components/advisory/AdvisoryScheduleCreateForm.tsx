@@ -8,6 +8,7 @@ import { useEffect, useMemo, useState, type FormEvent, type ReactElement } from 
 
 import { CronExpressionBuilder } from "@/components/advisory/CronExpressionBuilder";
 import { Button } from "@/components/ui/button";
+import { WhyDisabledCtaHint } from "@/components/usability/WhyDisabledCtaHint";
 import { Input } from "@/components/ui/input";
 import { Label } from "@/components/ui/label";
 import {
@@ -40,7 +41,7 @@ import {
   ADVISORY_SCANS_SCHEDULES_SCOPE_HELPER,
   ADVISORY_SCANS_SCHEDULES_TIMING_NOTE,
 } from "@/lib/advisory-copy";
-import { enterpriseMutationControlDisabledTitle } from "@/lib/enterprise-controls-context-copy";
+import { whyDisabledEnterpriseMutationControl } from "@/lib/why-disabled-cta";
 import {
   formatIanaTimeZoneOptionLabel,
   getIanaTimeZoneSelectOptions,
@@ -73,6 +74,8 @@ export function AdvisoryScheduleCreateForm(props: AdvisoryScheduleCreateFormProp
   const [advancedOpen, setAdvancedOpen] = useState(false);
   const [preview, setPreview] = useState<AdvisorySchedulePreviewState>(EMPTY_ADVISORY_SCHEDULE_PREVIEW);
   const ianaOptions = useMemo(() => getIanaTimeZoneSelectOptions(), []);
+  const mutationDisabledHintId = "advisory-schedule-create-mutate-disabled-hint";
+  const mutationDisabledReason = props.canEdit ? null : whyDisabledEnterpriseMutationControl();
 
   useEffect(() => {
     setForm(createDefaultAdvisoryScheduleFormState());
@@ -183,7 +186,6 @@ export function AdvisoryScheduleCreateForm(props: AdvisoryScheduleCreateFormProp
             placeholder={suggestedName}
             onChange={(event) => updateForm({ name: event.target.value, nameTouched: true })}
             readOnly={!props.canEdit}
-            title={props.canEdit ? undefined : enterpriseMutationControlDisabledTitle}
           />
         </div>
 
@@ -405,11 +407,16 @@ export function AdvisoryScheduleCreateForm(props: AdvisoryScheduleCreateFormProp
           <Button
             type="submit"
             disabled={!props.canEdit || props.creating || !formReady}
-            title={props.canEdit ? undefined : enterpriseMutationControlDisabledTitle}
+            aria-describedby={mutationDisabledReason === null ? undefined : mutationDisabledHintId}
             data-testid="advisory-schedule-create-submit"
           >
             {props.creating ? ADVISORY_SCANS_SCHEDULES_CREATE_WORKING : "Create schedule"}
           </Button>
+          <WhyDisabledCtaHint
+            id={mutationDisabledHintId}
+            reason={mutationDisabledReason}
+            testId={mutationDisabledHintId}
+          />
           {props.createSuccess ? (
             <p className={cn("m-0 text-teal-800 dark:text-teal-300", OPERATOR_TYPOGRAPHY.body)} role="status">
               Schedule created.

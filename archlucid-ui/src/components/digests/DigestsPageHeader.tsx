@@ -74,7 +74,7 @@ export function DigestsPageHeader(props: DigestsPageHeaderProps): React.JSX.Elem
               onClick={props.onRefresh}
               disabled={props.refreshing}
               data-testid="digests-refresh-button"
-              title={props.refreshButtonTitle}
+              aria-label={props.refreshButtonTitle}
             >
               {props.refreshing ? "Refreshing…" : "Refresh"}
             </Button>

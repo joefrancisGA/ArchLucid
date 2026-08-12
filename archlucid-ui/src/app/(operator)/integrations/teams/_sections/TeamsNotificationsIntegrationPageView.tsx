@@ -13,8 +13,9 @@ import { Button } from "@/components/ui/button";
 import { Input } from "@/components/ui/input";
 import { Label } from "@/components/ui/label";
 import { PageContextualHelpButton } from "@/components/usability/PageContextualHelpButton";
+import { WhyDisabledCtaHint } from "@/components/usability/WhyDisabledCtaHint";
 import { DESIGN_TOKENS, OPERATOR_LAYOUT, OPERATOR_TYPOGRAPHY } from "@/lib/design-tokens";
-import { enterpriseMutationControlDisabledTitle } from "@/lib/enterprise-controls-context-copy";
+import { whyDisabledEnterpriseMutationControl } from "@/lib/why-disabled-cta";
 import { INTEGRATIONS_TEAMS_PATH } from "@/lib/integrations-nav-paths";
 import { resolveTeamsConnectCtaPresentation } from "@/lib/teams-integration-connect-cta";
 import {
@@ -80,6 +81,8 @@ export function TeamsNotificationsIntegrationPageView(props: Props): React.React
     secretNameEmpty: m.secretName.trim().length === 0,
     canSendTest: m.canSendTest,
   });
+  const teamsMutateHintId = "teams-integration-mutate-disabled-hint";
+  const teamsMutateReason = m.canMutate ? null : whyDisabledEnterpriseMutationControl();
 
   return (
     <div
@@ -258,7 +261,7 @@ export function TeamsNotificationsIntegrationPageView(props: Props): React.React
                     type="button"
                     variant={cta.validateVariant}
                     disabled={!m.canMutate || m.saving || m.validating || m.secretName.trim().length === 0}
-                    title={m.canMutate ? undefined : enterpriseMutationControlDisabledTitle}
+                    aria-describedby={teamsMutateReason !== null ? teamsMutateHintId : undefined}
                     data-testid="teams-validate-button"
                     onClick={() => void m.onValidateSecret()}
                   >
@@ -277,7 +280,7 @@ export function TeamsNotificationsIntegrationPageView(props: Props): React.React
                     type="button"
                     variant={cta.saveVariant}
                     disabled={cta.saveDisabled}
-                    title={m.canMutate ? undefined : enterpriseMutationControlDisabledTitle}
+                    aria-describedby={teamsMutateReason !== null ? teamsMutateHintId : undefined}
                     data-testid="teams-save-button"
                     onClick={() => void m.onSave()}
                   >
@@ -297,6 +300,11 @@ export function TeamsNotificationsIntegrationPageView(props: Props): React.React
                     </Button>
                   ) : null}
                 </div>
+                <WhyDisabledCtaHint
+                  id={teamsMutateHintId}
+                  reason={teamsMutateReason}
+                  testId={teamsMutateHintId}
+                />
                 {cta.showTestDisabledHelper ? (
                   <p
                     className={cn("m-0 text-al-text-secondary", OPERATOR_TYPOGRAPHY.helper)}

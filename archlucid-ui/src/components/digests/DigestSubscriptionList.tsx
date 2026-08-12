@@ -175,11 +175,6 @@ export function DigestSubscriptionList(props: DigestSubscriptionListProps): Reac
                               size="sm"
                               variant="outline"
                               disabled={!props.canMutate}
-                              title={
-                                props.canMutate
-                                  ? "Copy this destination into the add form to create a replacement subscription."
-                                  : undefined
-                              }
                               aria-describedby={
                                 mutationDisabledReason === null ? undefined : mutationDisabledHintId
                               }

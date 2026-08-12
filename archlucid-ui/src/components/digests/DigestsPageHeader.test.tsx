@@ -32,7 +32,7 @@ describe("DigestsPageHeader", () => {
     expect(screen.getByText(DIGESTS_BROWSE_PAGE_SUBTITLE)).toBeInTheDocument();
     expect(screen.getByTestId("page-contextual-help-button")).toBeInTheDocument();
     expect(screen.getByTestId("digests-header-actions")).toBeInTheDocument();
-    expect(screen.getByTestId("digests-refresh-button")).toHaveAttribute("title", "Refresh digest list");
+    expect(screen.getByTestId("digests-refresh-button")).toHaveAttribute("aria-label", "Refresh digest list");
     expect(screen.getByTestId("digests-last-updated")).toHaveTextContent(/Last updated:/i);
 
     fireEvent.click(screen.getByTestId("digests-refresh-button"));

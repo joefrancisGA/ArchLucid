@@ -40,7 +40,11 @@ describe("DigestPreviewBeforeSubscribePanel (TB-2211)", () => {
     const sendButton = screen.getByTestId("digest-preview-before-subscribe-send-to-me");
 
     expect(sendButton).toBeDisabled();
-    expect(sendButton).toHaveAttribute("title", DIGEST_PREVIEW_SEND_TO_ME_UNAVAILABLE_REASON);
+    expect(sendButton).toHaveAttribute(
+      "aria-describedby",
+      "digest-preview-before-subscribe-send-to-me-reason",
+    );
+    expect(sendButton).not.toHaveAttribute("title");
     expect(sendButton).toHaveTextContent(DIGEST_PREVIEW_SEND_TO_ME_LABEL);
     expect(screen.getByTestId("digest-preview-before-subscribe-send-to-me-reason")).toHaveTextContent(
       DIGEST_PREVIEW_SEND_TO_ME_UNAVAILABLE_REASON,

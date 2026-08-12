@@ -12,6 +12,7 @@ import { LayerHeader } from "@/components/LayerHeader";
 import { OperatorPageHeader } from "@/components/operator/OperatorPageHeader";
 import { RiskExceptionsFindingsVocabularyRail } from "@/components/RiskExceptionsFindingsVocabularyRail";
 import { PageContextualHelpButton } from "@/components/usability/PageContextualHelpButton";
+import { WhyDisabledCtaHint } from "@/components/usability/WhyDisabledCtaHint";
 import { Button } from "@/components/ui/button";
 import {
   EnterpriseTable,
@@ -42,7 +43,7 @@ import {
 } from "@/lib/buyer/buyer-polish-copy";
 import { isBuyerPolishedOperatorShellEnv } from "@/lib/demo-ui-env";
 import { OPERATOR_LAYOUT, OPERATOR_LINK, OPERATOR_TYPOGRAPHY } from "@/lib/design-tokens";
-import { enterpriseMutationControlDisabledTitle } from "@/lib/enterprise-controls-context-copy";
+import { whyDisabledEnterpriseMutationControl } from "@/lib/why-disabled-cta";
 import {
   RISK_EXCEPTIONS_EMPTY_BODY,
   RISK_EXCEPTIONS_EMPTY_TITLE,
@@ -92,6 +93,8 @@ function toDatetimeLocalInputValue(isoUtc: string): string {
 /** TB-226 — cross-finding risk exception (waiver) register with renew/revoke. */
 export default function RiskExceptionsClient() {
   const canMutate = useOperateCapability();
+  const mutationDisabledHintId = "risk-exceptions-mutate-disabled-hint";
+  const mutationDisabledReason = canMutate ? null : whyDisabledEnterpriseMutationControl();
   const buyerPolishedShell = isBuyerPolishedOperatorShellEnv();
   const [records, setRecords] = useState<RiskExceptionRecord[]>([]);
   const [loadError, setLoadError] = useState<string | null>(null);
@@ -225,6 +228,12 @@ export default function RiskExceptionsClient() {
             }
           />
         ) : (
+          <>
+          <WhyDisabledCtaHint
+            id={mutationDisabledHintId}
+            reason={mutationDisabledReason}
+            testId={mutationDisabledHintId}
+          />
           <EnterpriseTable ariaLabel="Risk exceptions">
             <EnterpriseTableHead>
               <EnterpriseTableHeadRow>
@@ -297,7 +306,7 @@ export default function RiskExceptionsClient() {
                               type="submit"
                               size="sm"
                               disabled={busyId === record.riskExceptionId || !canMutate}
-                              title={canMutate ? undefined : enterpriseMutationControlDisabledTitle}
+                              aria-describedby={mutationDisabledReason === null ? undefined : mutationDisabledHintId}
                             >
                               Save renewal
                             </Button>
@@ -313,7 +322,7 @@ export default function RiskExceptionsClient() {
                             size="sm"
                             variant="outline"
                             disabled={busyId === record.riskExceptionId || !canMutate}
-                            title={canMutate ? undefined : enterpriseMutationControlDisabledTitle}
+                            aria-describedby={mutationDisabledReason === null ? undefined : mutationDisabledHintId}
                             onClick={() => {
                               setRenewingId(record.riskExceptionId);
                               setRenewExpiresAtUtc(defaultRiskExceptionExpiresAtUtc());
@@ -327,7 +336,7 @@ export default function RiskExceptionsClient() {
                             size="sm"
                             variant="outline"
                             disabled={busyId === record.riskExceptionId || !canMutate}
-                            title={canMutate ? undefined : enterpriseMutationControlDisabledTitle}
+                            aria-describedby={mutationDisabledReason === null ? undefined : mutationDisabledHintId}
                             onClick={() => {
                               setPendingRevoke(record);
                             }}
@@ -343,6 +352,7 @@ export default function RiskExceptionsClient() {
               })}
             </EnterpriseTableBody>
           </EnterpriseTable>
+          </>
         )}
       </div>
 

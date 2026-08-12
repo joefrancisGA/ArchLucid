@@ -9,6 +9,7 @@ import { Input } from "@/components/ui/input";
 import { Label } from "@/components/ui/label";
 import { Textarea } from "@/components/ui/textarea";
 import { MutationReversibilityNotice } from "@/components/operator/MutationReversibilityNotice";
+import { WhyDisabledCtaHint } from "@/components/usability/WhyDisabledCtaHint";
 import {
   enterpriseMutationControlDisabledTitle,
   governanceWorkflowApproveButtonLabelReaderRank,
@@ -34,6 +35,7 @@ import type { ApiLoadFailureState } from "@/lib/api-load-failure";
 import type { GovernanceApprovalRequest } from "@/types/governance-workflow";
 import type { MutableRefObject } from "react";
 import { OPERATOR_TYPOGRAPHY } from "@/lib/design-tokens";
+import { whyDisabledEnterpriseMutationControl } from "@/lib/why-disabled-cta";
 import {
   formatGovernanceBusinessInstant,
   governanceApprovalCardTitle,
@@ -89,6 +91,8 @@ export function GovernanceWorkflowApprovalsList(props: GovernanceWorkflowApprova
   } = props;
 
   const compactSupportingRows = emphasizeDecisionRecord && workflowState.canShowCompletionMessaging;
+  const mutationDisabledHintId = "governance-workflow-approvals-mutate-disabled-hint";
+  const mutationDisabledReason = canMutateWorkflow ? null : whyDisabledEnterpriseMutationControl();
 
   return (
     <div className="mt-6 grid gap-4">
@@ -114,6 +118,14 @@ export function GovernanceWorkflowApprovalsList(props: GovernanceWorkflowApprova
             />
           </div>
         </OperatorEmptyState>
+      ) : null}
+
+      {approvals.length > 0 ? (
+        <WhyDisabledCtaHint
+          id={mutationDisabledHintId}
+          reason={mutationDisabledReason}
+          testId={mutationDisabledHintId}
+        />
       ) : null}
 
       {approvals.map((row) => (
@@ -211,7 +223,9 @@ export function GovernanceWorkflowApprovalsList(props: GovernanceWorkflowApprova
                           variant={canMutateWorkflow ? "default" : "outline"}
                           onClick={() => void onConfirmReview()}
                           disabled={reviewBusy || !canMutateWorkflow}
-                          title={canMutateWorkflow ? undefined : enterpriseMutationControlDisabledTitle}
+                          aria-describedby={
+                            mutationDisabledReason === null ? undefined : mutationDisabledHintId
+                          }
                         >
                           {reviewBusy
                             ? "Saving…"
@@ -255,7 +269,9 @@ export function GovernanceWorkflowApprovalsList(props: GovernanceWorkflowApprova
                       size="sm"
                       variant={canMutateWorkflow ? "default" : "outline"}
                       disabled={!canMutateWorkflow}
-                      title={canMutateWorkflow ? undefined : enterpriseMutationControlDisabledTitle}
+                      aria-describedby={
+                        mutationDisabledReason === null ? undefined : mutationDisabledHintId
+                      }
                       onClick={() => {
                         setPendingReview({ approvalRequestId: row.approvalRequestId, mode: "approve" });
                         setPendingPromote(null);
@@ -270,7 +286,9 @@ export function GovernanceWorkflowApprovalsList(props: GovernanceWorkflowApprova
                       variant="outline"
                       className="border-rose-600/40 text-al-text-primary hover:bg-[var(--al-layer-hover)] dark:border-rose-800/50"
                       disabled={!canMutateWorkflow}
-                      title={canMutateWorkflow ? undefined : enterpriseMutationControlDisabledTitle}
+                      aria-describedby={
+                        mutationDisabledReason === null ? undefined : mutationDisabledHintId
+                      }
                       onClick={() => {
                         setPendingReview({ approvalRequestId: row.approvalRequestId, mode: "reject" });
                         setPendingPromote(null);
@@ -293,7 +311,9 @@ export function GovernanceWorkflowApprovalsList(props: GovernanceWorkflowApprova
                           : undefined
                       }
                       disabled={pendingPromote !== null || !canMutateWorkflow}
-                      title={canMutateWorkflow ? undefined : enterpriseMutationControlDisabledTitle}
+                      aria-describedby={
+                        mutationDisabledReason === null ? undefined : mutationDisabledHintId
+                      }
                       onClick={() => {
                         pendingPromoteRequestRef.current = row;
                         setPendingPromote({

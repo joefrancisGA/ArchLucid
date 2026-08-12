@@ -20,6 +20,7 @@ import {
 import { useOperatorRecipientDraft } from "@/components/advisory/useOperatorRecipientDraft";
 import { DigestPreviewBeforeSubscribePanel } from "@/components/digests/DigestPreviewBeforeSubscribePanel";
 import { OperatorApiProblem } from "@/components/operator/OperatorApiProblem";
+import { WhyDisabledCtaHint } from "@/components/usability/WhyDisabledCtaHint";
 import { Button } from "@/components/ui/button";
 import { Label } from "@/components/ui/label";
 import { StatusTag } from "@/components/ui/status-tag";
@@ -74,6 +75,7 @@ import {
   normalizeIanaTimeZoneForSelect,
   toStoredIanaTimeZoneId,
 } from "@/lib/iana-time-zone-select";
+import { whyDisabledIncompleteInput } from "@/lib/why-disabled-cta";
 import {
   hasExecDigestScheduleLivePreviewPinContent,
   shouldPinLivePreviewReadinessRail,
@@ -180,6 +182,11 @@ export function ExecDigestScheduleContent(props: ExecDigestScheduleContentProps 
       ? buildExecDigestDeliveryReadiness(prefs, form, healthSnap, unsavedChanges)
       : null;
   const recipientCount: number = recipientEmails.length;
+  const enableDeliveryRecipientRequiredHintId = "exec-digest-enable-delivery-recipient-required-hint";
+  const enableDeliveryRecipientRequiredReason =
+    recipientCount === 0 && canMutate
+      ? whyDisabledIncompleteInput("Add at least one recipient before enabling scheduled delivery.")
+      : null;
   const subscriptionDestinationCount: number = healthSnap?.enabledDigestSubscriptionCount ?? 0;
   const latestDigestId: string = healthSnap?.latestArchitectureDigestId?.trim() ?? "";
   const hasPreviewDigest: boolean = latestDigestId.length > 0;
@@ -557,18 +564,24 @@ export function ExecDigestScheduleContent(props: ExecDigestScheduleContentProps 
                     size="sm"
                     variant="outline"
                     disabled={!canMutate || busy || recipientCount === 0 || !recipientValidation.valid}
+                    aria-describedby={
+                      enableDeliveryRecipientRequiredReason === null
+                        ? undefined
+                        : enableDeliveryRecipientRequiredHintId
+                    }
                     onClick={() => void onEnableDelivery()}
                     data-testid="exec-digest-enable-delivery"
-                    title={
-                      recipientCount === 0
-                        ? "Add at least one recipient before enabling scheduled delivery."
-                        : undefined
-                    }
                   >
                     {enabling ? "Enabling delivery…" : "Enable scheduled delivery"}
                   </Button>
                 )}
               </div>
+
+              <WhyDisabledCtaHint
+                id={enableDeliveryRecipientRequiredHintId}
+                reason={enableDeliveryRecipientRequiredReason}
+                testId={enableDeliveryRecipientRequiredHintId}
+              />
 
               <div className="flex flex-wrap items-center gap-2">
                 {unsavedChanges ? (
@@ -715,7 +728,10 @@ export function ExecDigestScheduleContent(props: ExecDigestScheduleContentProps 
                   <p className={cn("m-0 mt-2 text-al-text-primary", OPERATOR_TYPOGRAPHY.body)}>
                     No digest has been generated yet.
                   </p>
-                  <p className={cn("m-0 mt-1 text-al-text-secondary", OPERATOR_TYPOGRAPHY.helper)}>
+                  <p
+                    id="exec-digest-preview-unavailable-hint"
+                    className={cn("m-0 mt-1 text-al-text-secondary", OPERATOR_TYPOGRAPHY.helper)}
+                  >
                     {EXEC_DIGEST_PREVIEW_UNAVAILABLE}
                   </p>
                   <Button
@@ -724,7 +740,7 @@ export function ExecDigestScheduleContent(props: ExecDigestScheduleContentProps 
                     className="mt-3"
                     disabled
                     data-testid="exec-digest-preview-action"
-                    title={EXEC_DIGEST_PREVIEW_UNAVAILABLE}
+                    aria-describedby="exec-digest-preview-unavailable-hint"
                   >
                     {DIGESTS_SCHEDULE_PREVIEW_LABEL}
                   </Button>
