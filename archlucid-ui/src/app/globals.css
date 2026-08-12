@@ -30,8 +30,9 @@ body {
   --al-status-warn-fg: #92400e;
   --al-status-blocked-bg: #fff1f2;
   --al-status-blocked-fg: #9f1239;
-  --al-status-approved-bg: #ecfdf5;
-  --al-status-approved-fg: #065f46;
+  /* Approved shares the positive status surface with Ready; the tag label carries the distinction. */
+  --al-status-approved-bg: var(--al-status-ready-bg);
+  --al-status-approved-fg: var(--al-status-ready-fg);
   --al-status-approved-monitoring-bg: #f0fdfa;
   --al-status-approved-monitoring-fg: #115e59;
   --al-danger-action-bg: #dc2626;
@@ -83,8 +84,8 @@ html {
   --al-status-warn-fg: #fde68a;
   --al-status-blocked-bg: #4c0519;
   --al-status-blocked-fg: #fecdd3;
-  --al-status-approved-bg: #052e16;
-  --al-status-approved-fg: #a7f3d0;
+  --al-status-approved-bg: var(--al-status-ready-bg);
+  --al-status-approved-fg: var(--al-status-ready-fg);
   --al-status-approved-monitoring-bg: #042f2e;
   --al-status-approved-monitoring-fg: #99f6e4;
   --al-danger-action-bg: #dc2626;

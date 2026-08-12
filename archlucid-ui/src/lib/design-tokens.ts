@@ -540,7 +540,7 @@ export function enterpriseStatusTagClass(kind: EnterpriseStatusKind): string {
       return `${STATUS_TAG_BASE} ${STATUS_TAG_SHAPE} border-l-rose-600 bg-[var(--al-status-blocked-bg)] text-[var(--al-status-blocked-fg)] dark:border-l-rose-500`;
 
     case "approved":
-      return `${STATUS_TAG_BASE} ${STATUS_TAG_SHAPE} border-l-emerald-700 bg-[var(--al-status-approved-bg)] text-[var(--al-status-approved-fg)] dark:border-l-emerald-500`;
+      return `${STATUS_TAG_BASE} ${STATUS_TAG_SHAPE} border-l-emerald-600 bg-[var(--al-status-approved-bg)] text-[var(--al-status-approved-fg)] dark:border-l-emerald-500`;
 
     case "approved-with-monitoring":
       return `${STATUS_TAG_BASE} ${STATUS_TAG_SHAPE} border-l-teal-700 bg-[var(--al-status-approved-monitoring-bg)] text-[var(--al-status-approved-monitoring-fg)] dark:border-l-teal-500`;
