@@ -110,8 +110,10 @@ describe("TenantWorkspaceProjectsCard (TB-1179)", () => {
 
     const deleteButtons = screen.getAllByTestId("tenant-workspace-project-delete");
     expect(deleteButtons[0]).toBeDisabled();
-    expect(deleteButtons[0]).toHaveAttribute("title", PROJECT_DELETE_DEFAULT_PROJECT_DISABLED_REASON);
+    expect(deleteButtons[0]).toHaveAttribute("aria-describedby", "tenant-project-delete-hint-proj-default");
+    expect(screen.getByText(PROJECT_DELETE_DEFAULT_PROJECT_DISABLED_REASON)).toBeInTheDocument();
     expect(deleteButtons[1]).not.toBeDisabled();
+    expect(deleteButtons[1]).not.toHaveAttribute("aria-describedby");
   });
 
   it("requires confirm before DELETE and calls the tenant project endpoint", async () => {
@@ -141,7 +143,11 @@ describe("TenantWorkspaceProjectsCard (TB-1179)", () => {
     const deleteButtons = await screen.findAllByTestId("tenant-workspace-project-delete");
     for (const button of deleteButtons) {
       expect(button).toBeDisabled();
-      expect(button).toHaveAttribute("title", PROJECT_DELETE_EXECUTE_DISABLED_REASON);
+      expect(button.getAttribute("aria-describedby")).toMatch(/^tenant-project-delete-hint-/);
     }
+
+    expect(screen.getAllByText(PROJECT_DELETE_EXECUTE_DISABLED_REASON).length).toBeGreaterThanOrEqual(
+      deleteButtons.length,
+    );
   });
 });

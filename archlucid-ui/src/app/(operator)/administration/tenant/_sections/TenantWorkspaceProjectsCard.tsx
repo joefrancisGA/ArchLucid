@@ -239,32 +239,36 @@ export function TenantWorkspaceProjectsCard(): React.JSX.Element {
                     ) : null}
                   </div>
                   <div className="flex flex-col items-end gap-1">
-                  <Button
-                    type="button"
-                    variant="outline"
-                    size="sm"
-                    disabled={disabledReason !== undefined || deleteBusyProjectId !== null}
-                    aria-describedby={disabledReason !== undefined ? `tenant-project-delete-hint-${project.projectId}` : undefined}
-                    data-testid="tenant-workspace-project-delete"
-                    onClick={() => {
-                      setPendingDelete({
-                        workspaceId: workspaceContext.workspaceId,
-                        workspaceName: workspaceContext.workspaceName,
-                        projectId: project.projectId,
-                        projectName: project.name,
-                      });
-                    }}
-                  >
-                    Delete project
-                  </Button>
-                  {disabledReason !== undefined ? (
-                    <p
-                      id={`tenant-project-delete-hint-${project.projectId}`}
-                      className={cn("m-0 text-right text-al-text-secondary", OPERATOR_TYPOGRAPHY.helper)}
+                    <Button
+                      type="button"
+                      variant="outline"
+                      size="sm"
+                      disabled={disabledReason !== undefined || deleteBusyProjectId !== null}
+                      aria-describedby={
+                        disabledReason !== undefined
+                          ? `tenant-project-delete-hint-${project.projectId}`
+                          : undefined
+                      }
+                      data-testid="tenant-workspace-project-delete"
+                      onClick={() => {
+                        setPendingDelete({
+                          workspaceId: workspaceContext.workspaceId,
+                          workspaceName: workspaceContext.workspaceName,
+                          projectId: project.projectId,
+                          projectName: project.name,
+                        });
+                      }}
                     >
-                      {disabledReason}
-                    </p>
-                  ) : null}
+                      Delete project
+                    </Button>
+                    {disabledReason !== undefined ? (
+                      <p
+                        id={`tenant-project-delete-hint-${project.projectId}`}
+                        className={cn("m-0 text-right text-al-text-secondary", OPERATOR_TYPOGRAPHY.helper)}
+                      >
+                        {disabledReason}
+                      </p>
+                    ) : null}
                   </div>
                 </li>
               );
