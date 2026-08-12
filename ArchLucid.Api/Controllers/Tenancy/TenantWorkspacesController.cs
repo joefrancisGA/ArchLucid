@@ -63,8 +63,12 @@ public sealed class TenantWorkspacesController(
 
         ILookup<Guid, ArchitectureProjectRecord> byWorkspace = projects.ToLookup(static p => p.WorkspaceId);
 
+        int retentionDays =
+            ArchitectureProjectRetentionSchedule.ClampRetentionDays(_retentionPurgeOptions.CurrentValue.RetentionDays);
+
         TenantWorkspacesListResponse body = new()
         {
+            RetentionDays = retentionDays,
             Workspaces = workspaces
                 .Select(
                     w => new TenantWorkspaceApiDto

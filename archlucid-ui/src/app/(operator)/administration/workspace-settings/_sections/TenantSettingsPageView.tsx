@@ -134,6 +134,8 @@ export function TenantSettingsPageView(props: Props) {
 
   const [tenantDisplayName, setTenantDisplayName] = useState(() => m.tenantDisplayName);
 
+  const [advancedQualityOpen, setAdvancedQualityOpen] = useState(false);
+
 
 
   const refreshScopeBoundUi = useCallback(() => {
@@ -508,6 +510,10 @@ export function TenantSettingsPageView(props: Props) {
 
         defaultOpen={false}
 
+        open={advancedQualityOpen}
+
+        onToggle={setAdvancedQualityOpen}
+
         sectionTestId="tenant-advanced-section"
 
       >
@@ -524,7 +530,7 @@ export function TenantSettingsPageView(props: Props) {
 
           <TenantLlmJudgeGuideCard />
 
-          <TenantQualityGatesCard />
+          {advancedQualityOpen ? <TenantQualityGatesCard /> : null}
 
         </div>
 

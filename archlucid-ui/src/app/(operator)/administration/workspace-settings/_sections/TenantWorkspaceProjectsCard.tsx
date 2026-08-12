@@ -1,15 +1,15 @@
 "use client";
 
 import Link from "next/link";
-import { useCallback, useEffect, useMemo, useState } from "react";
+import { useMemo, useState } from "react";
 import { toast } from "sonner";
 
 import { useOperatorNavAuthority } from "@/components/operator/OperatorNavAuthorityProvider";
 import { Button } from "@/components/ui/button";
 import { Card, CardContent, CardHeader, CardTitle } from "@/components/ui/card";
+import { useTenantWorkspacesListQuery } from "@/hooks/use-tenant-workspaces-list-query";
 import { deleteTenantWorkspaceProject } from "@/lib/delete-tenant-workspace-project";
 import { OPERATOR_LINK, OPERATOR_TYPOGRAPHY } from "@/lib/design-tokens";
-import { ApiV1Routes } from "@/lib/api-v1-routes";
 import { AUTHORITY_RANK } from "@/lib/nav-authority";
 import { getEffectiveBrowserProxyScopeHeaders } from "@/lib/operator/operator-scope-storage";
 import {
@@ -22,18 +22,15 @@ import {
 } from "@/lib/projects-delete-confirm-copy";
 import { DEFAULT_RECYCLE_BIN_RETENTION_DAYS } from "@/lib/projects-recycle-bin-payload";
 import { PROJECTS_RECYCLE_BIN_PATH } from "@/lib/vocabulary/projects-recycle-drafts-package-vocabulary";
-import { mergeRegistrationScopeForProxy } from "@/lib/proxy-fetch-registration-scope";
 import {
   findTenantWorkspaceRow,
   isWorkspaceDefaultProject,
-  parseTenantWorkspacesListPayload,
   type TenantWorkspaceProjectRow,
 } from "@/lib/tenant-workspaces-list-payload";
+import { invalidateTenantWorkspacesListCache } from "@/lib/tenant-workspaces-list-client";
 import { cn } from "@/lib/utils";
 
 import { ProjectDeleteConfirmDialog, type ProjectDeletePending } from "./ProjectDeleteConfirmDialog";
-
-const WORKSPACES_PATH = `/api/proxy/${ApiV1Routes.tenantWorkspaces}`;
 
 function resolveDeleteDisabledReason(input: {
   readonly canDelete: boolean;
@@ -59,83 +56,56 @@ export function TenantWorkspaceProjectsCard(): React.JSX.Element {
   const workspaceId = scope["x-workspace-id"]?.trim() ?? "";
   const activeProjectId = scope["x-project-id"]?.trim() ?? "";
 
-  const [loading, setLoading] = useState(true);
-  const [error, setError] = useState<string | null>(null);
-  const [workspaceName, setWorkspaceName] = useState("Workspace");
-  const [defaultProjectId, setDefaultProjectId] = useState<string | null>(null);
-  const [projects, setProjects] = useState<ReadonlyArray<TenantWorkspaceProjectRow>>([]);
-  const [retentionDays, setRetentionDays] = useState(DEFAULT_RECYCLE_BIN_RETENTION_DAYS);
+  const workspacesQuery = useTenantWorkspacesListQuery();
   const [pendingDelete, setPendingDelete] = useState<ProjectDeletePending | null>(null);
   const [deleteBusyProjectId, setDeleteBusyProjectId] = useState<string | null>(null);
+  const [actionError, setActionError] = useState<string | null>(null);
 
-  const reload = useCallback(async (): Promise<void> => {
-    setLoading(true);
-    setError(null);
+  const workspaceContext = useMemo(() => {
+    const payload = workspacesQuery.data;
 
-    try {
-      const [workspacesResponse, recycleBinResponse] = await Promise.all([
-        fetch(WORKSPACES_PATH, mergeRegistrationScopeForProxy({ headers: { Accept: "application/json" }, cache: "no-store" })),
-        fetch(
-          `/api/proxy/${ApiV1Routes.tenantWorkspacesRecycleBin}`,
-          mergeRegistrationScopeForProxy({ headers: { Accept: "application/json" }, cache: "no-store" }),
-        ),
-      ]);
-
-      if (!workspacesResponse.ok) {
-        setProjects([]);
-        setError(`Could not load projects (${workspacesResponse.status}).`);
-
-        return;
-      }
-
-      const workspacesJson: unknown = await workspacesResponse.json();
-      const parsed = parseTenantWorkspacesListPayload(workspacesJson);
-      const workspace = findTenantWorkspaceRow(parsed, workspaceId);
-
-      if (workspace === null) {
-        setProjects([]);
-        setWorkspaceName("Workspace");
-        setDefaultProjectId(null);
-        setError("Select a workspace in the header switcher to manage its projects.");
-
-        return;
-      }
-
-      setWorkspaceName(workspace.name);
-      setDefaultProjectId(workspace.defaultProjectId);
-      setProjects(workspace.projects);
-
-      if (recycleBinResponse.ok) {
-        const recycleJson: unknown = await recycleBinResponse.json();
-
-        if (recycleJson !== null && typeof recycleJson === "object") {
-          const days = (recycleJson as { retentionDays?: unknown }).retentionDays;
-
-          if (typeof days === "number" && Number.isFinite(days) && days > 0) {
-            setRetentionDays(days);
-          }
-        }
-      }
-    } catch (loadError) {
-      setProjects([]);
-      setError(loadError instanceof Error ? loadError.message : "Could not load projects.");
-    } finally {
-      setLoading(false);
+    if (payload === undefined) {
+      return {
+        workspaceId,
+        workspaceName: "Workspace",
+        defaultProjectId: null as string | null,
+        projects: [] as ReadonlyArray<TenantWorkspaceProjectRow>,
+        retentionDays: DEFAULT_RECYCLE_BIN_RETENTION_DAYS,
+        loadError: null as string | null,
+      };
     }
-  }, [workspaceId]);
 
-  useEffect(() => {
-    void reload();
-  }, [reload]);
+    const workspace = findTenantWorkspaceRow(payload, workspaceId);
 
-  const workspaceContext = useMemo(
-    () => ({
-      workspaceId,
-      workspaceName,
-      defaultProjectId,
-    }),
-    [defaultProjectId, workspaceId, workspaceName],
-  );
+    if (workspace === null) {
+      return {
+        workspaceId,
+        workspaceName: "Workspace",
+        defaultProjectId: null,
+        projects: [],
+        retentionDays: payload.retentionDays,
+        loadError: "Select a workspace in the header switcher to manage its projects.",
+      };
+    }
+
+    return {
+      workspaceId: workspace.workspaceId,
+      workspaceName: workspace.name,
+      defaultProjectId: workspace.defaultProjectId,
+      projects: workspace.projects,
+      retentionDays: payload.retentionDays,
+      loadError: null,
+    };
+  }, [workspaceId, workspacesQuery.data]);
+
+  const loading = workspacesQuery.isPending;
+  const error =
+    actionError
+    ?? (workspacesQuery.isError
+      ? workspacesQuery.error instanceof Error
+        ? workspacesQuery.error.message
+        : "Could not load projects."
+      : workspaceContext.loadError);
 
   async function confirmDelete(): Promise<void> {
     if (pendingDelete === null) {
@@ -143,6 +113,7 @@ export function TenantWorkspaceProjectsCard(): React.JSX.Element {
     }
 
     setDeleteBusyProjectId(pendingDelete.projectId);
+    setActionError(null);
 
     const result = await deleteTenantWorkspaceProject(pendingDelete.workspaceId, pendingDelete.projectId);
 
@@ -158,17 +129,17 @@ export function TenantWorkspaceProjectsCard(): React.JSX.Element {
       });
       setPendingDelete(null);
       setDeleteBusyProjectId(null);
-      await reload();
+      await invalidateTenantWorkspacesListCache();
 
       return;
     }
 
     if (result.status === 404) {
-      setError(PROJECT_DELETE_NOT_FOUND_MESSAGE);
+      setActionError(PROJECT_DELETE_NOT_FOUND_MESSAGE);
     } else if (result.status === 409) {
-      setError(PROJECT_DELETE_NAME_CONFLICT_MESSAGE);
+      setActionError(PROJECT_DELETE_NAME_CONFLICT_MESSAGE);
     } else {
-      setError(result.message);
+      setActionError(result.message);
     }
 
     setPendingDelete(null);
@@ -186,7 +157,7 @@ export function TenantWorkspaceProjectsCard(): React.JSX.Element {
           <Link className={OPERATOR_LINK.inline} href={PROJECTS_RECYCLE_BIN_PATH}>
             projects recycle bin
           </Link>{" "}
-          for {retentionDays} days. Committed architecture packages and audit history are not erased.
+          for {workspaceContext.retentionDays} days. Committed architecture packages and audit history are not erased.
         </p>
 
         {loading ? <p className="m-0">Loading projects…</p> : null}
@@ -197,20 +168,21 @@ export function TenantWorkspaceProjectsCard(): React.JSX.Element {
           </p>
         ) : null}
 
-        {!loading && error === null && projects.length === 0 ? (
+        {!loading && error === null && workspaceContext.projects.length === 0 ? (
           <p className="m-0">No active projects are visible for the selected workspace.</p>
         ) : null}
 
-        {!loading && error === null && projects.length > 0 ? (
+        {!loading && error === null && workspaceContext.projects.length > 0 ? (
           <ul className="m-0 list-none space-y-2 p-0" data-testid="tenant-workspace-projects-list">
-            {projects.map((project) => {
+            {workspaceContext.projects.map((project) => {
               const isDefaultProject =
-                defaultProjectId !== null && isWorkspaceDefaultProject(
+                workspaceContext.defaultProjectId !== null
+                && isWorkspaceDefaultProject(
                   {
                     workspaceId: workspaceContext.workspaceId,
                     name: workspaceContext.workspaceName,
                     defaultProjectId: workspaceContext.defaultProjectId,
-                    projects,
+                    projects: workspaceContext.projects,
                   },
                   project.projectId,
                 );
@@ -283,7 +255,7 @@ export function TenantWorkspaceProjectsCard(): React.JSX.Element {
 
       <ProjectDeleteConfirmDialog
         pending={pendingDelete}
-        retentionDays={retentionDays}
+        retentionDays={workspaceContext.retentionDays}
         busy={deleteBusyProjectId !== null}
         onCancel={() => {
           if (deleteBusyProjectId === null) {

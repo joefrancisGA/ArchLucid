@@ -1,3 +1,5 @@
+import { DEFAULT_RECYCLE_BIN_RETENTION_DAYS } from "@/lib/projects-recycle-bin-payload";
+
 export type TenantWorkspaceProjectRow = Readonly<{
   projectId: string;
   name: string;
@@ -11,10 +13,12 @@ export type TenantWorkspaceListRow = Readonly<{
 }>;
 
 export type TenantWorkspacesListPayload = Readonly<{
+  retentionDays: number;
   workspaces: ReadonlyArray<TenantWorkspaceListRow>;
 }>;
 
 type WorkspacesListJson = {
+  retentionDays?: number;
   workspaces?: ReadonlyArray<{
     workspaceId?: string;
     id?: string;
@@ -30,16 +34,25 @@ type WorkspacesListJson = {
   }>;
 };
 
+function parseRetentionDays(value: unknown): number | null {
+  if (typeof value !== "number" || !Number.isFinite(value) || value <= 0) {
+    return null;
+  }
+
+  return value;
+}
+
 export function parseTenantWorkspacesListPayload(json: unknown): TenantWorkspacesListPayload {
   if (json === null || typeof json !== "object") {
-    return { workspaces: [] };
+    return { retentionDays: DEFAULT_RECYCLE_BIN_RETENTION_DAYS, workspaces: [] };
   }
 
   const root = json as WorkspacesListJson;
   const raw = root.workspaces;
+  const retentionDays = parseRetentionDays(root.retentionDays) ?? DEFAULT_RECYCLE_BIN_RETENTION_DAYS;
 
   if (!Array.isArray(raw)) {
-    return { workspaces: [] };
+    return { retentionDays, workspaces: [] };
   }
 
   const workspaces: TenantWorkspaceListRow[] = [];
@@ -106,7 +119,7 @@ export function parseTenantWorkspacesListPayload(json: unknown): TenantWorkspace
     workspaces.push({ workspaceId, name, defaultProjectId, projects });
   }
 
-  return { workspaces };
+  return { retentionDays, workspaces };
 }
 
 export function findTenantWorkspaceRow(

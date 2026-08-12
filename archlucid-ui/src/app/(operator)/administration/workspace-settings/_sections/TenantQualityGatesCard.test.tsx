@@ -1,5 +1,7 @@
-import { fireEvent, render, screen, waitFor, within } from "@testing-library/react";
+import { fireEvent, screen, waitFor, within } from "@testing-library/react";
 import { afterEach, describe, expect, it, vi } from "vitest";
+
+import { renderWithOperatorQuery } from "@/testing/operator-query-test-helpers";
 
 import { TenantQualityGatesCard } from "./TenantQualityGatesCard";
 
@@ -37,7 +39,7 @@ describe("TenantQualityGatesCard", () => {
 
     vi.stubGlobal("fetch", fetchMock);
 
-    render(<TenantQualityGatesCard />);
+    renderWithOperatorQuery(<TenantQualityGatesCard />);
 
     await waitFor(() => {
       expect(screen.getByTestId("quality-gate-mode-controls")).toBeInTheDocument();

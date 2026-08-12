@@ -1,5 +1,6 @@
 "use client";
 
+import { useMutation, useQueryClient } from "@tanstack/react-query";
 import { cn } from "@/lib/utils";
 import Link from "next/link";
 import { useCallback, useEffect, useMemo, useState, type FormEvent, type ReactNode } from "react";
@@ -11,12 +12,17 @@ import { Card, CardContent, CardHeader, CardTitle } from "@/components/ui/card";
 import { Input } from "@/components/ui/input";
 import { Label } from "@/components/ui/label";
 import { StatusTag } from "@/components/ui/status-tag";
+import { useTenantCostSettingsQuery } from "@/hooks/use-tenant-cost-settings-query";
 import { BUYER_DEMO_CAPABILITY_UNAVAILABLE_TITLE } from "@/lib/buyer/buyer-polish-copy";
 import { OPERATOR_LINK, OPERATOR_TYPOGRAPHY } from "@/lib/design-tokens";
 import { toApiLoadFailure } from "@/lib/api-load-failure";
 import { isNextPublicDemoMode } from "@/lib/demo-ui-env";
 import { formatRelativeTime } from "@/lib/relative-time";
+import { operatorQueryKeys } from "@/lib/query/operator-query-keys";
 import { showError } from "@/lib/toast";
+import {
+  saveTenantCostSettings,
+} from "@/lib/tenant-cost-settings-client";
 import {
   TENANT_COST_SETTINGS_AUDIT_HREF,
   TENANT_COST_SETTINGS_AUDIT_TRAIL_LINK_LABEL,
@@ -84,8 +90,9 @@ function CostSettingsLastChangedAttribution(props: CostSettingsLastChangedProps)
   return (
     <p className={cn("m-0 text-al-text-secondary", OPERATOR_TYPOGRAPHY.helper)}>
       <span data-testid="tenant-cost-settings-last-changed">
-        {TENANT_COST_SETTINGS_LAST_CHANGED_PREFIX}: {formatRelativeTime(changedAt)}
-      </span>{" "}
+        {TENANT_COST_SETTINGS_LAST_CHANGED_PREFIX} {formatRelativeTime(changedAt)}
+      </span>
+      {" — "}
       <Link
         className={OPERATOR_LINK.inline}
         href={TENANT_COST_SETTINGS_AUDIT_HREF}
@@ -124,65 +131,76 @@ function CostSettingsCardHeader(props: CostSettingsCardHeaderProps) {
   );
 }
 
+function applyLoadedSettingsToForm(
+  data: TenantCostSettingsResponse,
+  setters: {
+    readonly setIsTenantConfigured: (value: boolean) => void;
+    readonly setUpdatedUtc: (value: string | null) => void;
+    readonly setHourlyRate: (value: string) => void;
+    readonly setIncidentCost: (value: string) => void;
+    readonly setEaDiscountPercentage: (value: string) => void;
+  },
+): void {
+  setters.setIsTenantConfigured(data.isTenantConfigured);
+  setters.setUpdatedUtc(data.updatedUtc);
+  setters.setHourlyRate(String(data.architectHourlyRateUsd));
+  setters.setIncidentCost(String(data.averageIncidentCostUsd));
+  setters.setEaDiscountPercentage(String(data.eaDiscountPercentage ?? 0));
+}
+
 /** ROI cost assumptions for estimated USD savings on pilot deltas and executive summaries. */
 export function TenantCostSettingsCard({ canEdit }: TenantCostSettingsCardProps) {
   const demoMode = isNextPublicDemoMode();
-  const [loading, setLoading] = useState(!demoMode);
+  const queryClient = useQueryClient();
+  const costSettingsQuery = useTenantCostSettingsQuery({ enabled: !demoMode });
+
   const [saving, setSaving] = useState(false);
-  const [loadFailure, setLoadFailure] = useState<string | null>(null);
   const [isTenantConfigured, setIsTenantConfigured] = useState(false);
   const [updatedUtc, setUpdatedUtc] = useState<string | null>(null);
   const [hourlyRate, setHourlyRate] = useState("");
   const [incidentCost, setIncidentCost] = useState("");
   const [eaDiscountPercentage, setEaDiscountPercentage] = useState("0");
   const [saveConfirmation, setSaveConfirmation] = useState<string | null>(null);
+
   const fieldValidation = useMemo(
     () => validateTenantCostSettingsFields(hourlyRate, incidentCost, eaDiscountPercentage),
     [eaDiscountPercentage, hourlyRate, incidentCost],
   );
 
-  const applyLoadedSettings = useCallback((data: TenantCostSettingsResponse) => {
-    setIsTenantConfigured(data.isTenantConfigured);
-    setUpdatedUtc(data.updatedUtc);
-    setHourlyRate(String(data.architectHourlyRateUsd));
-    setIncidentCost(String(data.averageIncidentCostUsd));
-    setEaDiscountPercentage(String(data.eaDiscountPercentage ?? 0));
-  }, []);
-
-  const load = useCallback(async () => {
-    if (demoMode) {
+  useEffect(() => {
+    if (costSettingsQuery.data === undefined) {
       return;
     }
 
-    setLoading(true);
-    setLoadFailure(null);
+    applyLoadedSettingsToForm(costSettingsQuery.data, {
+      setIsTenantConfigured,
+      setUpdatedUtc,
+      setHourlyRate,
+      setIncidentCost,
+      setEaDiscountPercentage,
+    });
+  }, [costSettingsQuery.data]);
 
-    try {
-      const res = await fetch("/api/proxy/v1/tenant/cost-settings", {
-        method: "GET",
-        headers: { Accept: "application/json" },
-        credentials: "include",
+  const saveMutation = useMutation({
+    mutationFn: saveTenantCostSettings,
+    onSuccess: async (saved) => {
+      applyLoadedSettingsToForm(saved, {
+        setIsTenantConfigured,
+        setUpdatedUtc,
+        setHourlyRate,
+        setIncidentCost,
+        setEaDiscountPercentage,
       });
-
-      if (!res.ok) {
-        const text = await res.text();
-
-        throw { status: res.status, body: text };
-      }
-
-      const data = (await res.json()) as TenantCostSettingsResponse;
-
-      applyLoadedSettings(data);
-    } catch (error: unknown) {
-      setLoadFailure(toApiLoadFailure(error).message);
-    } finally {
-      setLoading(false);
-    }
-  }, [applyLoadedSettings, demoMode]);
-
-  useEffect(() => {
-    void load();
-  }, [load]);
+      setSaveConfirmation("Cost settings saved.");
+      await queryClient.setQueryData(operatorQueryKeys.tenantCostSettings, saved);
+    },
+    onError: (error: unknown) => {
+      showError("Could not save cost settings", toApiLoadFailure(error).message);
+    },
+    onSettled: () => {
+      setSaving(false);
+    },
+  });
 
   const onSave = useCallback(
     async (event: FormEvent) => {
@@ -204,33 +222,16 @@ export function TenantCostSettingsCard({ canEdit }: TenantCostSettingsCardProps)
 
       setSaving(true);
       setSaveConfirmation(null);
-
-      try {
-        const res = await fetch("/api/proxy/v1/tenant/cost-settings", {
-          method: "PUT",
-          headers: { Accept: "application/json", "Content-Type": "application/json" },
-          credentials: "include",
-          body: JSON.stringify(body),
-        });
-
-        if (!res.ok) {
-          const text = await res.text();
-
-          throw { status: res.status, body: text };
-        }
-
-        const saved = (await res.json()) as TenantCostSettingsResponse;
-
-        applyLoadedSettings(saved);
-        setSaveConfirmation("Cost settings saved.");
-      } catch (error: unknown) {
-        showError("Could not save cost settings", toApiLoadFailure(error).message);
-      } finally {
-        setSaving(false);
-      }
+      saveMutation.mutate(body);
     },
-    [applyLoadedSettings, canEdit, demoMode, fieldValidation.valid, hourlyRate, incidentCost, eaDiscountPercentage],
+    [canEdit, demoMode, eaDiscountPercentage, fieldValidation.valid, hourlyRate, incidentCost, saveMutation],
   );
+
+  const loadFailure =
+    costSettingsQuery.isError
+      ? toApiLoadFailure(costSettingsQuery.error).message
+      : null;
+  const loading = costSettingsQuery.isPending;
 
   const helperCopy = isTenantConfigured
     ? "These values are used to estimate review savings and executive ROI when actual cost evidence is unavailable."

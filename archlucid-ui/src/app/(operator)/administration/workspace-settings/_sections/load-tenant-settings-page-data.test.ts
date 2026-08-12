@@ -1,10 +1,5 @@
 import { afterEach, describe, expect, it, vi } from "vitest";
 
-// Digest preferences are no longer loaded here — the schedule editor lives on the Digests hub.
-vi.mock("@/lib/api", () => ({
-  tryGetTenantTrialStatus: vi.fn(() => Promise.resolve(null)),
-}));
-
 describe("loadTenantSettingsPageData", () => {
   const originalDemo = process.env.NEXT_PUBLIC_DEMO_MODE;
   const originalStaticOperator = process.env.NEXT_PUBLIC_DEMO_STATIC_OPERATOR;

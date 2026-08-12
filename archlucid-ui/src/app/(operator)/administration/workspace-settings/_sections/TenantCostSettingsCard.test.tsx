@@ -1,5 +1,7 @@
-import { fireEvent, render, screen, waitFor } from "@testing-library/react";
+import { fireEvent, screen, waitFor } from "@testing-library/react";
 import { describe, expect, it, vi } from "vitest";
+
+import { renderWithOperatorQuery } from "@/testing/operator-query-test-helpers";
 
 import { TenantCostSettingsCard } from "@/app/(operator)/administration/workspace-settings/_sections/TenantCostSettingsCard";
 import {
@@ -40,7 +42,7 @@ describe("TenantCostSettingsCard", () => {
 
     vi.stubGlobal("fetch", fetchMock);
 
-    render(<TenantCostSettingsCard canEdit />);
+    renderWithOperatorQuery(<TenantCostSettingsCard canEdit />);
 
     await waitFor(() => {
       expect(screen.getByTestId("tenant-cost-settings-save")).toBeInTheDocument();
@@ -89,12 +91,13 @@ describe("TenantCostSettingsCard", () => {
 
     vi.stubGlobal("fetch", fetchMock);
 
-    render(<TenantCostSettingsCard canEdit />);
+    renderWithOperatorQuery(<TenantCostSettingsCard canEdit />);
 
     await waitFor(() => {
       expect(screen.getByTestId("tenant-cost-settings-defaults-status")).toHaveTextContent(
         TENANT_COST_SETTINGS_DEFAULTS_STATUS_LABEL,
       );
+      expect(screen.getByTestId("tenant-cost-hourly-rate")).toBeInTheDocument();
     });
 
     expect(screen.getByTestId("tenant-cost-hourly-rate")).toHaveClass("pl-7");

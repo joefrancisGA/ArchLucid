@@ -1,4 +1,4 @@
-import { render, screen } from "@testing-library/react";
+import { screen } from "@testing-library/react";
 import { afterEach, beforeEach, describe, expect, it, vi } from "vitest";
 
 vi.mock("@/lib/toast", () => ({
@@ -43,13 +43,10 @@ vi.mock("./_sections/load-tenant-settings-page-data", () => ({
   loadTenantSettingsPageData: () =>
     Promise.resolve({
       mode: "visible" as const,
-      trial: { status: "Active", daysRemaining: 7 },
     }),
 }));
 
-vi.mock("@/lib/api", () => ({
-  tryGetTenantTrialStatus: vi.fn(() => Promise.resolve({ status: "Active", daysRemaining: 7 })),
-}));
+import { renderWithOperatorQuery } from "@/testing/operator-query-test-helpers";
 
 import { AUTHORITY_RANK } from "@/lib/nav-authority";
 import { DIGESTS_SCHEDULE_TAB_PATH } from "@/lib/settings-admin-route-paths";
@@ -97,16 +94,10 @@ describe("TenantSettingsPage", () => {
           );
         }
 
-        if (url.includes("/v1/tenant/workspaces/recycle-bin")) {
-          return new Response(JSON.stringify({ retentionDays: 30, workspaces: [] }), {
-            status: 200,
-            headers: { "Content-Type": "application/json" },
-          });
-        }
-
         if (url.includes("/v1/tenant/workspaces")) {
           return new Response(
             JSON.stringify({
+              retentionDays: 30,
               workspaces: [
                 {
                   workspaceId: "workspace-1",
@@ -118,6 +109,13 @@ describe("TenantSettingsPage", () => {
             }),
             { status: 200, headers: { "Content-Type": "application/json" } },
           );
+        }
+
+        if (url.includes("/v1/tenant/trial-status")) {
+          return new Response(JSON.stringify({ status: "Active", daysRemaining: 7 }), {
+            status: 200,
+            headers: { "Content-Type": "application/json" },
+          });
         }
 
         return new Response("{}", { status: 404 });
@@ -132,7 +130,7 @@ describe("TenantSettingsPage", () => {
   it("renders workspace settings for tenant administrators", async () => {
     const page = await TenantSettingsPage();
 
-    render(page);
+    renderWithOperatorQuery(page);
 
     expect(await screen.findByTestId("tenant-settings-page")).toBeInTheDocument();
     expect(await screen.findByTestId("tenant-settings-page-title")).toHaveTextContent("Workspace settings");
@@ -152,7 +150,7 @@ describe("TenantSettingsPage", () => {
   it("delegates the executive digest schedule to the Digests hub instead of duplicating the editor", async () => {
     const page = await TenantSettingsPage();
 
-    render(page);
+    renderWithOperatorQuery(page);
 
     expect(await screen.findByRole("link", { name: "Open digest schedule" })).toHaveAttribute(
       "href",
@@ -164,7 +162,7 @@ describe("TenantSettingsPage", () => {
   it("exposes the projects recycle bin link outside technical details (TB-1181)", async () => {
     const page = await TenantSettingsPage();
 
-    render(page);
+    renderWithOperatorQuery(page);
 
     const recycleLink = await screen.findByTestId("tenant-settings-recycle-bin-link");
 
@@ -181,7 +179,7 @@ describe("TenantSettingsPage", () => {
 
     const page = await TenantSettingsPage();
 
-    render(page);
+    renderWithOperatorQuery(page);
 
     expect(await screen.findByTestId("tenant-settings-restricted")).toBeInTheDocument();
     expect(screen.queryByTestId("tenant-settings-page")).not.toBeInTheDocument();

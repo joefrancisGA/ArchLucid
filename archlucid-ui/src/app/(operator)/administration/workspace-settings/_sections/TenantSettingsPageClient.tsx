@@ -9,8 +9,8 @@ type Props = {
   readonly loaded: TenantSettingsVisibleLoad;
 };
 
-export function TenantSettingsPageClient(props: Props) {
-  const model = useTenantSettingsPage(props.loaded);
+export function TenantSettingsPageClient(_props: Props) {
+  const model = useTenantSettingsPage();
 
   if (!model.isTenantAdmin) {
     return <TenantSettingsRestrictedState />;

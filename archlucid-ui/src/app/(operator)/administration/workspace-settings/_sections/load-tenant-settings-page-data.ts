@@ -1,7 +1,5 @@
-import { tryGetTenantTrialStatus } from "@/lib/api";
 import { isNextPublicDemoMode } from "@/lib/demo-ui-env";
 import { isStaticDemoPayloadFallbackEnabled } from "@/lib/operator/operator-static-demo";
-import type { TenantTrialStatusPayload } from "@/types/tenant-trial-status";
 
 export type TenantSettingsHiddenLoad = {
   readonly mode: "hidden";
@@ -9,7 +7,6 @@ export type TenantSettingsHiddenLoad = {
 
 export type TenantSettingsVisibleLoad = {
   readonly mode: "visible";
-  readonly trial: TenantTrialStatusPayload | null;
 };
 
 export type TenantSettingsPageServerLoad = TenantSettingsHiddenLoad | TenantSettingsVisibleLoad;
@@ -24,10 +21,5 @@ export async function loadTenantSettingsPageData(): Promise<TenantSettingsPageSe
     return { mode: "hidden" };
   }
 
-  const trial = await tryGetTenantTrialStatus();
-
-  return {
-    mode: "visible",
-    trial,
-  };
+  return { mode: "visible" };
 }

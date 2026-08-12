@@ -1,4 +1,4 @@
-import { fireEvent, render, screen, waitFor } from "@testing-library/react";
+import { fireEvent, screen, waitFor } from "@testing-library/react";
 import { afterEach, beforeEach, describe, expect, it, vi } from "vitest";
 
 import { AUTHORITY_RANK } from "@/lib/nav-authority";
@@ -26,9 +26,12 @@ vi.mock("sonner", () => ({
   },
 }));
 
+import { renderWithOperatorQuery } from "@/testing/operator-query-test-helpers";
+
 import { TenantWorkspaceProjectsCard } from "@/app/(operator)/administration/workspace-settings/_sections/TenantWorkspaceProjectsCard";
 
 const WORKSPACES_PAYLOAD = {
+  retentionDays: 30,
   workspaces: [
     {
       workspaceId: "ws-1",
@@ -73,13 +76,6 @@ describe("TenantWorkspaceProjectsCard (TB-1179)", () => {
         const url = String(input);
         const method = init?.method ?? "GET";
 
-        if (url.includes("/v1/tenant/workspaces/recycle-bin") && method === "GET") {
-          return new Response(JSON.stringify({ retentionDays: 30, workspaces: [] }), {
-            status: 200,
-            headers: { "Content-Type": "application/json" },
-          });
-        }
-
         if (url.includes("/v1/tenant/workspaces") && method === "GET") {
           return new Response(JSON.stringify(WORKSPACES_PAYLOAD), {
             status: 200,
@@ -102,7 +98,7 @@ describe("TenantWorkspaceProjectsCard (TB-1179)", () => {
   });
 
   it("lists projects and disables delete for the workspace default project", async () => {
-    render(<TenantWorkspaceProjectsCard />);
+    renderWithOperatorQuery(<TenantWorkspaceProjectsCard />);
 
     expect(await screen.findByTestId("tenant-workspace-projects-list")).toBeInTheDocument();
     expect(screen.getByText("Core")).toBeInTheDocument();
@@ -117,7 +113,7 @@ describe("TenantWorkspaceProjectsCard (TB-1179)", () => {
   });
 
   it("requires confirm before DELETE and calls the tenant project endpoint", async () => {
-    render(<TenantWorkspaceProjectsCard />);
+    renderWithOperatorQuery(<TenantWorkspaceProjectsCard />);
 
     const deleteButtons = await screen.findAllByTestId("tenant-workspace-project-delete");
     fireEvent.click(deleteButtons[1]!);
@@ -138,7 +134,7 @@ describe("TenantWorkspaceProjectsCard (TB-1179)", () => {
   it("disables delete affordances below Execute authority", async () => {
     navAuth.callerAuthorityRank = 1;
 
-    render(<TenantWorkspaceProjectsCard />);
+    renderWithOperatorQuery(<TenantWorkspaceProjectsCard />);
 
     const deleteButtons = await screen.findAllByTestId("tenant-workspace-project-delete");
     for (const button of deleteButtons) {

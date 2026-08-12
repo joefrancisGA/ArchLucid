@@ -1,45 +1,22 @@
 "use client";
 
+import { useMutation, useQueryClient } from "@tanstack/react-query";
 import { cn } from "@/lib/utils";
-import { useCallback, useEffect, useState } from "react";
+import { useCallback, useState } from "react";
 
-import type { components } from "@/lib/api-types.generated";
 import { Button } from "@/components/ui/button";
 import { Card, CardContent, CardHeader, CardTitle } from "@/components/ui/card";
-import { mergeRegistrationScopeForProxy } from "@/lib/proxy-fetch-registration-scope";
+import { useAgentOutputQualityGateModeQuery } from "@/hooks/use-agent-output-quality-gate-mode-query";
+import {
+  clearAgentOutputQualityGateModeOverride,
+  type QualityGateMode,
+  type TenantAgentOutputQualityGateModeResponse,
+  updateAgentOutputQualityGateMode,
+} from "@/lib/agent-output-quality-gate-mode-client";
 import { buyerLabelForQualityGateMode } from "@/lib/quality-gate-mode-buyer-label";
+import { operatorQueryKeys } from "@/lib/query/operator-query-keys";
 import { STRICT_AI_QUALITY_MODE_BUYER_LABEL, WARN_ONLY_QUALITY_MODE_BUYER_LABEL } from "@/lib/usability/canonical-product-terms";
 import { OPERATOR_TYPOGRAPHY } from "@/lib/design-tokens";
-
-type TenantAgentOutputQualityGateModeResponse = components["schemas"]["TenantAgentOutputQualityGateModeResponse"];
-
-type QualityGateMode = "WarnOnly" | "PilotStrict";
-
-type LoadState =
-  | { status: "idle" }
-  | { status: "loading" }
-  | {
-      status: "ready";
-      mode: TenantAgentOutputQualityGateModeResponse;
-    }
-  | { status: "blocked"; note: string };
-
-const modeEndpoint = "/api/proxy/v1/admin/settings/agent-output-quality-gate-mode";
-
-function parseModeSettings(body: unknown): TenantAgentOutputQualityGateModeResponse | null {
-  if (body == null || typeof body !== "object") return null;
-
-  const record = body as TenantAgentOutputQualityGateModeResponse;
-  const effectiveMode = record.effectiveMode;
-  const source = record.source;
-  const hostDefaultMode = record.hostDefaultMode;
-
-  if (effectiveMode !== "WarnOnly" && effectiveMode !== "PilotStrict") return null;
-  if (hostDefaultMode !== "WarnOnly" && hostDefaultMode !== "PilotStrict") return null;
-  if (source !== "HostDefault" && source !== "TenantOverride") return null;
-
-  return record;
-}
 
 type QualityGateModeControlsProps = {
   mode: TenantAgentOutputQualityGateModeResponse;
@@ -95,110 +72,52 @@ function QualityGateModeControls(props: QualityGateModeControlsProps) {
 }
 
 export function TenantQualityGatesCard() {
-  const [state, setState] = useState<LoadState>({ status: "idle" });
-  const [saving, setSaving] = useState(false);
+  const queryClient = useQueryClient();
+  const modeQuery = useAgentOutputQualityGateModeQuery();
+  const [mutationError, setMutationError] = useState<string | null>(null);
 
-  const load = useCallback(async () => {
-    setState({ status: "loading" });
+  const applyModeMutation = useMutation({
+    mutationFn: updateAgentOutputQualityGateMode,
+    onSuccess: async () => {
+      setMutationError(null);
+      await queryClient.invalidateQueries({ queryKey: operatorQueryKeys.agentOutputQualityGateMode });
+    },
+    onError: (error: unknown) => {
+      setMutationError(error instanceof Error ? error.message : String(error));
+    },
+  });
 
-    try {
-      const fetchOpts = mergeRegistrationScopeForProxy({
-        headers: { Accept: "application/json" },
-        cache: "no-store",
-      });
+  const clearOverrideMutation = useMutation({
+    mutationFn: clearAgentOutputQualityGateModeOverride,
+    onSuccess: async () => {
+      setMutationError(null);
+      await queryClient.invalidateQueries({ queryKey: operatorQueryKeys.agentOutputQualityGateMode });
+    },
+    onError: (error: unknown) => {
+      setMutationError(error instanceof Error ? error.message : String(error));
+    },
+  });
 
-      const modeRes = await fetch(modeEndpoint, fetchOpts);
-
-      if (!modeRes.ok) {
-        setState({
-          status: "blocked",
-          note:
-            modeRes.status === 401 || modeRes.status === 403
-              ? "Admin session required to manage quality gate mode."
-              : `Quality gate settings unavailable (HTTP ${modeRes.status}).`,
-        });
-
-        return;
-      }
-
-      const modeBody = parseModeSettings(await modeRes.json());
-
-      if (modeBody == null) {
-        setState({ status: "blocked", note: "Unexpected quality gate mode response from the API." });
-
-        return;
-      }
-
-      setState({
-        status: "ready",
-        mode: modeBody,
-      });
-    } catch (e: unknown) {
-      setState({ status: "blocked", note: e instanceof Error ? e.message : String(e) });
-    }
-  }, []);
-
-  useEffect(() => {
-    void load();
-  }, [load]);
+  const saving = applyModeMutation.isPending || clearOverrideMutation.isPending;
 
   const applyMode = useCallback(
-    async (mode: QualityGateMode) => {
-      setSaving(true);
-
-      try {
-        const res = await fetch(modeEndpoint, {
-          ...mergeRegistrationScopeForProxy({
-            method: "PUT",
-            headers: { Accept: "application/json", "Content-Type": "application/json" },
-          }),
-          body: JSON.stringify({ mode }),
-        });
-
-        if (!res.ok) {
-          setState({
-            status: "blocked",
-            note: `Failed to update quality gate mode (HTTP ${res.status}).`,
-          });
-
-          return;
-        }
-
-        await load();
-      } catch (e: unknown) {
-        setState({ status: "blocked", note: e instanceof Error ? e.message : String(e) });
-      } finally {
-        setSaving(false);
-      }
+    (mode: QualityGateMode) => {
+      applyModeMutation.mutate(mode);
     },
-    [load],
+    [applyModeMutation],
   );
 
-  const clearOverride = useCallback(async () => {
-    setSaving(true);
+  const clearOverride = useCallback(() => {
+    clearOverrideMutation.mutate();
+  }, [clearOverrideMutation]);
 
-    try {
-      const res = await fetch(
-        modeEndpoint,
-        mergeRegistrationScopeForProxy({ method: "DELETE", headers: { Accept: "application/json" } }),
-      );
-
-      if (!res.ok) {
-        setState({
-          status: "blocked",
-          note: `Failed to reset quality gate mode (HTTP ${res.status}).`,
-        });
-
-        return;
-      }
-
-      await load();
-    } catch (e: unknown) {
-      setState({ status: "blocked", note: e instanceof Error ? e.message : String(e) });
-    } finally {
-      setSaving(false);
-    }
-  }, [load]);
+  const loadError =
+    mutationError
+    ?? (modeQuery.isError
+      ? modeQuery.error instanceof Error
+        ? modeQuery.error.message
+        : "Quality gate settings unavailable."
+      : null);
 
   return (
     <Card data-testid="tenant-quality-gates-card">
@@ -212,15 +131,17 @@ export function TenantQualityGatesCard() {
           runs that miss evidence or score floors.
         </p>
 
-        {state.status === "loading" ? <p className={cn("m-0 text-al-text-secondary", OPERATOR_TYPOGRAPHY.body)}>Loading quality gate settings…</p> : null}
-        {state.status === "blocked" ? (
+        {modeQuery.isPending ? (
+          <p className={cn("m-0 text-al-text-secondary", OPERATOR_TYPOGRAPHY.body)}>Loading quality gate settings…</p>
+        ) : null}
+        {loadError !== null ? (
           <p className={cn("m-0 text-rose-800 dark:text-rose-200", OPERATOR_TYPOGRAPHY.body)} role="alert">
-            {state.note}
+            {loadError}
           </p>
         ) : null}
-        {state.status === "ready" ? (
+        {modeQuery.data !== undefined && loadError === null ? (
           <QualityGateModeControls
-            mode={state.mode}
+            mode={modeQuery.data}
             saving={saving}
             onSelectMode={applyMode}
             onClearOverride={clearOverride}
