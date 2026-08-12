@@ -36,9 +36,9 @@ import {
   ITSM_TENANT_OVERRIDES_COLLAPSED_SUMMARY,
   sanitizeItsmCustomerFacingProbeSummary,
   type ItsmProductId,
-} from "@/lib/itsm-product-integration-page-copy";
+} from "@/lib/itsm/itsm-product-integration-page-copy";
 import { AUTHORITY_RANK } from "@/lib/nav-authority";
-import { ITSM_CONNECTORS_ADMIN_PATH } from "@/lib/itsm-connectors-admin-scope";
+import { ITSM_CONNECTORS_ADMIN_PATH } from "@/lib/itsm/itsm-connectors-admin-scope";
 import { INTEGRATIONS_READINESS_PATH } from "@/lib/integrations-nav-paths";
 
 const BANNED_PATTERNS = [
@@ -246,5 +246,25 @@ describe("ItsmProductIntegrationPageClient", () => {
 
     expect(await screen.findByRole("alert")).toHaveTextContent(/network down|Could not load/i);
     expect(screen.queryByTestId("integrations-jira-not-configured-next-step")).not.toBeInTheDocument();
+  });
+
+  it("renders structured issue-type-by-severity rows instead of a raw JSON textarea (TB-1149)", async () => {
+    mockFetchHealth.mockResolvedValue({
+      nativeEnabled: true,
+      jira: { locallyConfigured: true, reachable: true, summary: "ready" },
+      serviceNow: { locallyConfigured: false, summary: "skip" },
+    });
+    mockFetchSettings.mockResolvedValue({
+      ...baseSettings(),
+      jiraIssueTypeBySeverityJson: '{"Critical":"Bug","Warning":"Task"}',
+    });
+
+    render(<ItsmProductIntegrationPageClient product="jira" />);
+
+    expect(await screen.findByTestId("jira-issue-type-by-severity-field")).toBeInTheDocument();
+    expect(screen.getByTestId("jira-issue-type-by-severity-critical")).toHaveValue("Bug");
+    expect(screen.getByTestId("jira-issue-type-by-severity-warning")).toHaveValue("Task");
+    expect(screen.queryByLabelText(/JSON object/i)).not.toBeInTheDocument();
+    expect(screen.queryByPlaceholderText('{"Critical":"Bug","Warning":"Task"}')).not.toBeInTheDocument();
   });
 });

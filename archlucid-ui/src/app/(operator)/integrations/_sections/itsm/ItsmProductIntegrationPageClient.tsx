@@ -9,7 +9,6 @@ import { Card, CardContent, CardDescription, CardHeader, CardTitle } from "@/com
 import { Checkbox } from "@/components/ui/checkbox";
 import { Input } from "@/components/ui/input";
 import { Label } from "@/components/ui/label";
-import { Textarea } from "@/components/ui/textarea";
 import { PageContextualHelpButton } from "@/components/usability/PageContextualHelpButton";
 import { ItsmConnectorProviderChooserRail } from "@/components/ItsmConnectorProviderChooserRail";
 import { ItsmConnectorsBuyerJiraServicenowVocabularyRail } from "@/components/ItsmConnectorsBuyerJiraServicenowVocabularyRail";
@@ -36,13 +35,15 @@ import {
   ITSM_TENANT_OVERRIDES_UNAVAILABLE_LEAD,
   sanitizeItsmCustomerFacingProbeSummary,
   type ItsmProductId,
-} from "@/lib/itsm-product-integration-page-copy";
-import { isItsmNativeCreateDefaultPathReady } from "@/lib/itsm-native-create-readiness";
+} from "@/lib/itsm/itsm-product-integration-page-copy";
+import { isItsmNativeCreateDefaultPathReady } from "@/lib/itsm/itsm-native-create-readiness";
 import { AUTHORITY_RANK } from "@/lib/nav-authority";
 import { useOperateCapability } from "@/hooks/use-operate-capability";
 
 import { ItsmConnectorProbeCard } from "./ItsmConnectorProbeCard";
 import { ItsmNotConfiguredNextStep } from "./ItsmNotConfiguredNextStep";
+import { JiraIssueTypeBySeverityField } from "./JiraIssueTypeBySeverityField";
+import { validateJiraIssueTypeBySeverityJson } from "./jira-issue-type-by-severity";
 type Props = {
   readonly product: ItsmProductId;
 };
@@ -138,11 +139,22 @@ export function ItsmProductIntegrationPageClient(props: Props): React.ReactEleme
     setIsSaving(true);
     setSaveError(null);
 
+    const issueTypeJsonTrimmed = issueTypeJson.trim();
+    const issueTypeValidationError = validateJiraIssueTypeBySeverityJson(
+      issueTypeJsonTrimmed.length > 0 ? issueTypeJsonTrimmed : "",
+    );
+
+    if (issueTypeValidationError !== null) {
+      setSaveError(issueTypeValidationError);
+      setIsSaving(false);
+      return;
+    }
+
     try {
       const saved = await upsertTenantItsmOutboundSettings({
         jiraProjectKeyOverride: jiraProjectKey.trim().length > 0 ? jiraProjectKey.trim() : null,
         jiraSendInfoSeverity: jiraSendInfo,
-        jiraIssueTypeBySeverityJson: issueTypeJson.trim().length > 0 ? issueTypeJson.trim() : null,
+        jiraIssueTypeBySeverityJson: issueTypeJsonTrimmed.length > 0 ? issueTypeJsonTrimmed : null,
         serviceNowAutoCreateCmdbCi: snowAutoCmdb,
       });
       applySettings(saved);
@@ -213,17 +225,11 @@ export function ItsmProductIntegrationPageClient(props: Props): React.ReactEleme
             />
             <Label htmlFor="jira-send-info">Send informational findings to Jira at low priority</Label>
           </div>
-          <div className="space-y-2">
-            <Label htmlFor="jira-issue-map">Jira issue type by severity (JSON object)</Label>
-            <Textarea
-              id="jira-issue-map"
-              value={issueTypeJson}
-              onChange={(event) => setIssueTypeJson(event.target.value)}
-              disabled={overridesInteractionDisabled}
-              rows={4}
-              placeholder='{"Critical":"Bug","Warning":"Task"}'
-            />
-          </div>
+          <JiraIssueTypeBySeverityField
+            value={issueTypeJson}
+            onChange={setIssueTypeJson}
+            disabled={overridesInteractionDisabled}
+          />
         </>
       ) : (
         <div className="flex items-center gap-2">
