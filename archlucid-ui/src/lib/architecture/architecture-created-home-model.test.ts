@@ -74,4 +74,20 @@ describe("buildArchitectureCreatedHomeModel", () => {
 
     expect(model.clarificationGaps.some((item) => item.id === "business-outcome")).toBe(false);
   });
+
+  it("uses run-scoped correction href for clarification gaps when correctionHref is absent (TB-1837)", () => {
+    const model = buildArchitectureCreatedHomeModel({
+      ...baseInput,
+      architectureOverview: "",
+      businessOutcome: "",
+      peopleAndSystems: [],
+      architectureName: "",
+      correctionHref: null,
+    });
+
+    const clarificationGap = model.clarificationGaps[0];
+
+    expect(clarificationGap).toBeDefined();
+    expect(clarificationGap?.href).toContain("rerun=run-1");
+  });
 });

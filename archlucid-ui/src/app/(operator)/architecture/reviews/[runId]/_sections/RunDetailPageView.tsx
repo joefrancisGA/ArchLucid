@@ -39,6 +39,7 @@ import {
   RecurrenceSchedulePostCommitCardDeferred,
   RunDetailSubmittedArchitectureSectionDeferred,
   RunDetailActivitySourcesPanelDeferred,
+  RunDetailCreateHomeActivityPanelDeferred,
   RunDetailCreateHomeEvidencePanelDeferred,
   RunDetailReviewPackageDoThisNextResolvedDeferred,
   RunDetailReviewPackageSponsorHandoffGateDeferred,
@@ -339,51 +340,26 @@ export async function RunDetailPageView(props: {
                         </>
                       ),
                       activity: (
-                        <div className="space-y-4" data-testid="run-detail-create-home-activity">
-                          <h2 className={cn("m-0 text-al-text-primary", OPERATOR_TYPOGRAPHY.sectionTitle)}>
-                            Assessment progress
-                          </h2>
-                          <p
-                            className={cn(
-                              "m-0 rounded-md border border-neutral-200 bg-al-surface-raised font-medium leading-snug dark:border-neutral-800 p-3",
-                              OPERATOR_TYPOGRAPHY.body,
-                            )}
-                            role="status"
-                            data-testid="run-detail-activity-status-headline"
-                          >
-                            {createHomeActivityStatusLine}
-                          </p>
-                          {!m.manifestId ? (
-                            <div id="architecture-assessment-progress" className="scroll-mt-24">
-                              <RunDetailProgressTrackerDeferred
-                                runId={m.routeRunId}
-                                initialSummary={m.progressForPipelineUi}
-                                preFinalizeReadyToFinalize={createHomePreFinalizeReadyToFinalize}
-                                buyerAssessmentCopy
+                        <RunDetailCreateHomeActivityPanelDeferred
+                          runId={m.resolvedDetail.run.runId}
+                          routeRunId={m.routeRunId}
+                          manifestId={m.manifestId}
+                          showProgressTracker={m.showProgressTracker}
+                          statusLine={createHomeActivityStatusLine}
+                          provenanceAsOfLabel={createHomeActivityProvenanceAsOfLabel}
+                          preFinalizeReadyToFinalize={createHomePreFinalizeReadyToFinalize}
+                          progressForPipelineUi={m.progressForPipelineUi}
+                          outcomeCards={createHomeActivityOutcomeCardsEl}
+                          midDeferred={
+                            <Suspense fallback={<RunDetailMidDeferredSkeleton />}>
+                              <RunDetailMidDeferredSections
+                                context={deferredContext}
+                                includeSavingsSummary={false}
                               />
-                            </div>
-                          ) : null}
-                          <p className={cn("m-0", OPERATOR_TYPOGRAPHY.body)}>
-                            <Link
-                              className={OPERATOR_LINK.nav}
-                              href={`/architecture/reviews/${encodeURIComponent(m.resolvedDetail.run.runId)}/provenance`}
-                              data-testid="run-detail-provenance-link"
-                            >
-                              Full provenance view
-                            </Link>
-                            {createHomeActivityProvenanceAsOfLabel !== "—" ? (
-                              <span className="text-al-text-secondary"> (as of {createHomeActivityProvenanceAsOfLabel})</span>
-                            ) : null}
-                          </p>
-                          <details className="rounded-md border border-neutral-200 p-3 dark:border-neutral-800" open={false}>
-                            <summary className="cursor-pointer font-semibold">Outcome metrics and taxonomy</summary>
-                            <div className="mt-3">{createHomeActivityOutcomeCardsEl}</div>
-                          </details>
-                          <Suspense fallback={<RunDetailMidDeferredSkeleton />}>
-                            <RunDetailMidDeferredSections context={deferredContext} includeSavingsSummary={false} />
-                          </Suspense>
-                          <RunDetailActivitySourcesPanelDeferred />
-                        </div>
+                            </Suspense>
+                          }
+                          sourcesPanel={<RunDetailActivitySourcesPanelDeferred />}
+                        />
                       ),
                       submittedArchitecture: (
                         <RunDetailSubmittedArchitectureSectionDeferred

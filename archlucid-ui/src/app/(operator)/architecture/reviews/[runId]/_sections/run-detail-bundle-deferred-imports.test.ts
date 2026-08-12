@@ -110,6 +110,7 @@ describe("run detail bundle deferred imports (TB-697 / TB-933 / TB-2021 / TB-211
     expect(pageViewSource).toContain("RunDetailReviewPackageDoThisNextResolvedDeferred");
     expect(pageViewSource).toContain("RunDetailReviewPackageSponsorHandoffGateDeferred");
     expect(pageViewSource).toContain("RunDetailCreateHomeEvidencePanelDeferred");
+    expect(pageViewSource).toContain("RunDetailCreateHomeActivityPanelDeferred");
     expect(pageViewSource).toContain("RunDetailActivitySourcesPanelDeferred");
     expect(pageViewSource).not.toContain("ReviewPackageDoThisNextStripDeferred");
     expect(pageViewSource).not.toContain("RunDetailWorkspaceStickyActionsDeferred");
@@ -216,6 +217,7 @@ describe("run detail bundle deferred imports (TB-697 / TB-933 / TB-2021 / TB-211
     expect(deferredChunksSource).toContain("RunDetailReviewPackageSponsorHandoffGateDeferred");
     expect(deferredChunksSource).toContain('import("./RunDetailReviewPackageSponsorHandoffGate")');
     expect(deferredChunksSource).toContain("RunDetailCreateHomeEvidencePanelDeferred");
+    expect(deferredChunksSource).toContain("RunDetailCreateHomeActivityPanelDeferred");
     expect(deferredChunksSource).toContain('import("./RunDetailCreateHomeEvidencePanel")');
     expect(deferredChunksSource).toContain("RunDetailActivitySourcesPanelDeferred");
     expect(deferredChunksSource).toContain('import("./RunDetailActivitySourcesPanel")');

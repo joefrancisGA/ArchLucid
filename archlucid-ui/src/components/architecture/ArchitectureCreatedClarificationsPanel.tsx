@@ -8,12 +8,17 @@ import { ArchitectureCreatedClarificationsEvidenceOrientationStrip } from "@/com
 import { ArchitectureStructuredSectionView } from "@/components/architecture/ArchitectureStructuredSectionView";
 import { ArchitectureStructuringFailureNotice } from "@/components/architecture/ArchitectureStructuringFailureNotice";
 import { ClarificationGapRow } from "@/components/architecture/ClarificationGapRow";
+import { Button } from "@/components/ui/button";
 import { clarificationGapImpactCopy } from "@/lib/architecture/architecture-clarification-gap-present";
+import { buildArchitectureCorrectionHref } from "@/lib/architecture/architecture-correction-href";
 import { parseArchitectureGeneratedContent } from "@/lib/architecture/architecture-generated-content-parser";
 import type { ArchitectureCreatedHomeModel } from "@/lib/architecture/architecture-created-home-model";
 import type { ArchitectureCreationUserAssertions } from "@/lib/architecture/architecture-structured-content-types";
-import { readArchitectureWorkspaceTabFromHref, type ArchitectureWorkspaceTabId } from "@/lib/architecture/architecture-workspace-tabs";
-import { REVIEWS_NEW_CREATE_ARCHITECTURE_HREF, REVIEWS_NEW_GUIDED_QUESTIONS_LABEL } from "@/lib/reviews-new-path-copy";
+import {
+  buildArchitectureWorkspaceTabHref,
+  type ArchitectureWorkspaceTabId,
+} from "@/lib/architecture/architecture-workspace-tabs";
+import { REVIEWS_NEW_GUIDED_QUESTIONS_LABEL } from "@/lib/reviews-new-path-copy";
 import { OPERATOR_TYPOGRAPHY } from "@/lib/design-tokens";
 
 export type ArchitectureCreatedClarificationsPanelProps = {
@@ -26,12 +31,21 @@ export type ArchitectureCreatedClarificationsPanelProps = {
   readonly onNavigateTab: (tab: ArchitectureWorkspaceTabId) => void;
 };
 
+function hasOpenQuestionEntities(
+  section: ReturnType<typeof parseArchitectureGeneratedContent>["sections"][number] | undefined,
+): boolean {
+  return (section?.entities.length ?? 0) > 0;
+}
+
 /** Clarifications tab — unanswered gaps, open questions, and confidence impact. */
 export function ArchitectureCreatedClarificationsPanel(
   props: ArchitectureCreatedClarificationsPanelProps,
 ): React.JSX.Element {
   const [parseAttempt, setParseAttempt] = useState(0);
-  const continueClarifyingHref = props.correctionHref ?? REVIEWS_NEW_CREATE_ARCHITECTURE_HREF;
+  const continueClarifyingHref = buildArchitectureCorrectionHref(props.model.runId, props.correctionHref);
+  const diagramTabHref = buildArchitectureWorkspaceTabHref(props.model.runId, "diagram");
+  const findingsTabHref = buildArchitectureWorkspaceTabHref(props.model.runId, "findings");
+  const activityTabHref = buildArchitectureWorkspaceTabHref(props.model.runId, "activity");
 
   const parseResult = useMemo(
     () => {
@@ -51,15 +65,20 @@ export function ArchitectureCreatedClarificationsPanel(
     visibleClarificationGaps.length > 0 ||
     props.model.evidenceGaps.length > 0 ||
     props.model.assessmentItems.length > 0;
+  const hasOpenQuestions = hasOpenQuestionEntities(openQuestions);
+  const isZeroGapSuccess =
+    !parseResult.hasPartialParseFailure && !hasVisibleWorkQueue && !hasOpenQuestions;
 
   return (
     <div className="space-y-5" data-testid="architecture-workspace-clarifications-panel">
       <h2 className={cn("m-0 text-al-text-primary", OPERATOR_TYPOGRAPHY.cardTitle)}>Clarifications</h2>
 
-      <p className={cn("m-0 text-neutral-600 dark:text-neutral-400", OPERATOR_TYPOGRAPHY.body)}>
-        Unresolved clarifications reduce assessment confidence. Answer open questions or add evidence before sharing
-        with sponsors or creating work items.
-      </p>
+      {!isZeroGapSuccess ? (
+        <p className={cn("m-0 text-neutral-600 dark:text-neutral-400", OPERATOR_TYPOGRAPHY.body)}>
+          Unresolved clarifications reduce assessment confidence. Answer open questions or add evidence before sharing
+          with sponsors or creating work items.
+        </p>
+      ) : null}
 
       {parseResult.hasPartialParseFailure ? (
         <ArchitectureStructuringFailureNotice
@@ -70,7 +89,31 @@ export function ArchitectureCreatedClarificationsPanel(
         />
       ) : null}
 
-      {hasVisibleWorkQueue ? (
+      {isZeroGapSuccess ? (
+        <div
+          className="space-y-3 rounded-lg border border-neutral-200 bg-al-surface-raised p-4 dark:border-neutral-800"
+          data-testid="architecture-clarifications-empty-success"
+        >
+          <h3 className={cn("m-0 text-al-text-primary", OPERATOR_TYPOGRAPHY.cardTitle)}>
+            No open clarifications
+          </h3>
+          <p className={cn("m-0 text-neutral-600 dark:text-neutral-400", OPERATOR_TYPOGRAPHY.body)}>
+            Your brief covers the required context. Review the diagram, run an assessment, or open findings when you are
+            ready for the next step.
+          </p>
+          <div className="flex flex-wrap gap-2">
+            <Button type="button" variant="primary" size="sm" asChild>
+              <Link href={diagramTabHref}>Review diagram</Link>
+            </Button>
+            <Button type="button" variant="outline" size="sm" asChild>
+              <Link href={findingsTabHref}>Review findings</Link>
+            </Button>
+            <Button type="button" variant="outline" size="sm" asChild>
+              <Link href={activityTabHref}>View assessment progress</Link>
+            </Button>
+          </div>
+        </div>
+      ) : hasVisibleWorkQueue ? (
         <div className="space-y-4">
           {visibleClarificationGaps.length > 0 ? (
             <section className="space-y-2" aria-labelledby="architecture-open-clarifications-heading">
@@ -154,7 +197,7 @@ export function ArchitectureCreatedClarificationsPanel(
         </p>
       )}
 
-      {openQuestions !== undefined ? (
+      {hasOpenQuestions && openQuestions !== undefined ? (
         <ArchitectureStructuredSectionView
           section={openQuestions}
           defaultOpen
@@ -180,20 +223,22 @@ export function ArchitectureCreatedClarificationsPanel(
         </details>
       ) : null}
 
-      <div className="rounded-lg border border-neutral-200 bg-al-surface-raised p-4 dark:border-neutral-800">
-        <h3 className={cn("m-0 text-al-text-primary", OPERATOR_TYPOGRAPHY.cardTitle)}>
-          Confidence impact
-        </h3>
-        <p className={cn("m-0 mt-2 text-neutral-700 dark:text-neutral-300", OPERATOR_TYPOGRAPHY.body)}>
-          Each missing business outcome, system boundary, or evidence artifact lowers how confidently ArchLucid can
-          assess risks and recommend remediation. Clarify gaps before running a final assessment or sponsor share.
-        </p>
-        <p className={cn("m-0 mt-3", OPERATOR_TYPOGRAPHY.helper)}>
-          <Link href={continueClarifyingHref} className="font-medium text-teal-800 dark:text-teal-300">
-            Continue clarifying · {REVIEWS_NEW_GUIDED_QUESTIONS_LABEL}
-          </Link>
-        </p>
-      </div>
+      {!isZeroGapSuccess ? (
+        <div className="rounded-lg border border-neutral-200 bg-al-surface-raised p-4 dark:border-neutral-800">
+          <h3 className={cn("m-0 text-al-text-primary", OPERATOR_TYPOGRAPHY.cardTitle)}>
+            Confidence impact
+          </h3>
+          <p className={cn("m-0 mt-2 text-neutral-700 dark:text-neutral-300", OPERATOR_TYPOGRAPHY.body)}>
+            Each missing business outcome, system boundary, or evidence artifact lowers how confidently ArchLucid can
+            assess risks and recommend remediation. Clarify gaps before running a final assessment or sponsor share.
+          </p>
+          <p className={cn("m-0 mt-3", OPERATOR_TYPOGRAPHY.helper)}>
+            <Link href={continueClarifyingHref} className="font-medium text-teal-800 dark:text-teal-300">
+              Continue clarifying · {REVIEWS_NEW_GUIDED_QUESTIONS_LABEL}
+            </Link>
+          </p>
+        </div>
+      ) : null}
 
       <ArchitectureCreatedClarificationsEvidenceOrientationStrip />
     </div>

@@ -4,10 +4,10 @@ import {
   ARCHITECTURE_SUMMARY_LABELS,
 } from "@/lib/architecture/architecture-created-home-copy";
 import { buildClarificationGapSourcePresentation } from "@/lib/architecture/architecture-clarification-gap-present";
+import { buildArchitectureCorrectionHref } from "@/lib/architecture/architecture-correction-href";
 import type { ArchitectureCreationHandoffSnapshot } from "@/lib/architecture/architecture-creation-handoff";
-import { REVIEWS_NEW_CREATE_ARCHITECTURE_HREF } from "@/lib/reviews-new-path-copy";
-import type { RunDetailWorkspaceStatus } from "@/lib/run-detail-workspace-derive";
 import { buildArchitectureWorkspaceTabHref } from "@/lib/architecture/architecture-workspace-tabs";
+import type { RunDetailWorkspaceStatus } from "@/lib/run-detail-workspace-derive";
 
 export type ArchitectureDefinitionStatusKind =
   | "strong-foundation"
@@ -190,7 +190,7 @@ function buildSummaryFields(input: BuildArchitectureCreatedHomeModelInput): Arch
 }
 
 function resolveClarifyHref(input: BuildArchitectureCreatedHomeModelInput): string {
-  return input.correctionHref ?? REVIEWS_NEW_CREATE_ARCHITECTURE_HREF;
+  return buildArchitectureCorrectionHref(input.runId, input.correctionHref);
 }
 
 function buildGapSource(input: BuildArchitectureCreatedHomeModelInput): ClarificationGapSource {

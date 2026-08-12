@@ -15,6 +15,11 @@ const pageViewSource = readFileSync(
   "utf8",
 );
 
+const activityPanelSource = readFileSync(
+  join(dirname(fileURLToPath(import.meta.url)), "RunDetailCreateHomeActivityPanel.tsx"),
+  "utf8",
+);
+
 const midDeferredSource = readFileSync(
   join(dirname(fileURLToPath(import.meta.url)), "RunDetailMidDeferredSections.tsx"),
   "utf8",
@@ -35,22 +40,16 @@ describe("create-home Activity tab P0 wiring", () => {
     expect(RUN_DETAIL_ACTIVITY_PRE_COMMIT_CLAIM_DISCIPLINE.length).toBeGreaterThan(0);
   });
 
-  it("does not duplicate technology baseline inside create-home activity panel", () => {
-    const activityPanelStart = pageViewSource.indexOf("run-detail-create-home-activity");
-    const activityPanelEnd = pageViewSource.indexOf("submittedArchitecture:", activityPanelStart);
-
-    expect(activityPanelStart).toBeGreaterThan(-1);
-    expect(activityPanelEnd).toBeGreaterThan(activityPanelStart);
-
-    const activityPanelSlice = pageViewSource.slice(activityPanelStart, activityPanelEnd);
-
-    expect(activityPanelSlice).not.toContain("RunDetailTechnologyBaselineSection");
-    expect(activityPanelSlice).toContain("RunDetailActivitySourcesPanel");
-    expect(activityPanelSlice).toContain("Assessment progress");
-    expect(activityPanelSlice).toContain("run-detail-activity-status-headline");
-    expect(activityPanelSlice).toContain("buyerAssessmentCopy");
-    expect(activityPanelSlice).toContain("includeSavingsSummary={false}");
-    expect(activityPanelSlice).toContain("(as of");
+  it("delegates create-home activity to RunDetailCreateHomeActivityPanel (TB-1832/TB-1834)", () => {
+    expect(pageViewSource).toContain("RunDetailCreateHomeActivityPanelDeferred");
+    expect(activityPanelSource).toContain("run-detail-create-home-activity");
+    expect(activityPanelSource).toContain("architecture-activity-primary-region");
+    expect(activityPanelSource).toContain("architecture-activity-orientation");
+    expect(activityPanelSource).toContain("architecture-activity-technical-detail");
+    expect(activityPanelSource).not.toContain("RunDetailTechnologyBaselineSection");
+    expect(activityPanelSource).toContain("run-detail-activity-status-headline");
+    expect(activityPanelSource).toContain("buyerAssessmentCopy");
+    expect(activityPanelSource).toContain("(as of");
   });
 
   it("supports skipping savings summary in mid deferred sections", () => {

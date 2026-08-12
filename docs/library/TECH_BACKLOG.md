@@ -15,7 +15,7 @@ Regenerate after opening or closing summary-table rows:
 | Deployability | 4 |
 | AI/Agent readiness | 12 |
 | Architectural integrity | 9 |
-| Adoption friction | 139 |
+| Adoption friction | 140 |
 | Commercial / marketability | 4 |
 | Cutting-edge AI | 3 |
 | Explainability | 1 |
@@ -33,9 +33,9 @@ Regenerate after opening or closing summary-table rows:
 | Differentiability | 3 |
 | Operability | 1 |
 | Other / uncategorized | 8 |
-| **Total (unique open)** | **355** |
+| **Total (unique open)** | **356** |
 
-**By priority band:** P0 **2** | P1 **243** | P2 **93** | P3 **9** | unlabeled **8**.
+**By priority band:** P0 **2** | P1 **244** | P2 **93** | P3 **9** | unlabeled **8**.
 
 <!-- tech-backlog-open-by-category:end -->
 
@@ -43839,7 +43839,7 @@ Operators must read three intros before reaching the Trust Center link list.
 
 ## TB-1834 ? Activity tab density ? primary timeline vs deferred forensics (P0)
 
-**Window:** V1 ? Adoption friction. **Status:** Not started. **Priority:** P0.
+**Window:** V1 ? Adoption friction. **Status:** **Done** (2026-08-12) ? `architecture-activity-primary-region` hero + `architecture-activity-technical-detail` disclosure for outcome/mid/sources; Vitest. **Priority:** P0.
 
 **Problem:** Progress tracker competes with collapsed Technology baseline, Detailed outcome cards, mid deferred, and what-if banner ? no clear primary job.
 
@@ -43877,7 +43877,7 @@ Operators must read three intros before reaching the Trust Center link list.
 
 ## TB-1837 ? Clarifications CTAs must use run-scoped correction (not bare new create) (P0)
 
-**Window:** V1 ? Adoption friction. **Status:** Not started. **Priority:** P0.
+**Window:** V1 ? Adoption friction. **Status:** **Done** (2026-08-12) ? `buildArchitectureCorrectionHref` threads rerun into gap rows and continue CTA; Vitest `architecture-correction-href.test.ts`, `ArchitectureCreatedClarificationsPanel.test.tsx`, `architecture-created-home-model.test.ts`. **Priority:** P0.
 
 **Problem:** Missing-item hrefs and ?Continue clarifying in intake? start a fresh create (`REVIEWS_NEW_CREATE_ARCHITECTURE_HREF`) instead of `correctionHref` (`/reviews/new?path=guided-intake&rerun={runId}`).
 
@@ -43901,7 +43901,7 @@ Operators must read three intros before reaching the Trust Center link list.
 
 ## TB-1839 ? Clarifications empty/zero-gap composition (demote confidence theater) (P0)
 
-**Window:** V1 ? Adoption friction. **Status:** Not started. **Priority:** P0.
+**Window:** V1 ? Adoption friction. **Status:** **Done** (2026-08-12) ? `architecture-clarifications-empty-success` done state; confidence-impact hidden when zero gaps; Vitest. **Priority:** P0.
 
 **Problem:** When no missing items and no open questions, the page still leads with a confidence-impact essay and a create CTA ? empty theater.
 

@@ -601,6 +601,21 @@ export const RunDetailCreateHomeEvidencePanelDeferred = dynamic(
   { ssr: false, loading: () => createHomeEvidenceLoading },
 );
 
+const createHomeActivityLoading = (
+  <div
+    className="h-40 animate-pulse rounded-md border border-neutral-200 bg-neutral-100 dark:border-neutral-700 dark:bg-neutral-800"
+    role="status"
+    aria-label="Loading activity panel"
+  />
+);
+
+/** Perf wave 14 — create-home activity archTab off sync First Load JS (TB-1832/TB-1834). */
+export const RunDetailCreateHomeActivityPanelDeferred = dynamic(
+  () =>
+    import("./RunDetailCreateHomeActivityPanel").then((module) => module.RunDetailCreateHomeActivityPanel),
+  { ssr: false, loading: () => createHomeActivityLoading },
+);
+
 const activitySourcesLoading = (
   <div
     className="h-32 animate-pulse rounded-md border border-neutral-200 bg-neutral-100 dark:border-neutral-700 dark:bg-neutral-800"

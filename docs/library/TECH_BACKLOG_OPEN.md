@@ -575,12 +575,12 @@ In `TECH_BACKLOG.md` summary table: **V1 / V1.1 first** (cluster order); **`### 
 | TB-1828 | Evidence-trace → finding detail primary wayfinding | Adoption friction P1 **V1** — with **TB-1826** — **Done** 2026-08-12 |
 | TB-1829 | Evidence-trace heading hierarchy + region density | Accessibility P1 **V1** — with **TB-1826** — **Done** 2026-08-12 |
 | TB-1830 | Evidence-trace Vitest anti-regress + pair **TB-987** stickiness honesty | Testability P2 **V1** — with **TB-1826** |
-| TB-1832 | Activity tab orientation when progress tracker absent / all sections collapsed | Adoption friction P1 **V1** — with **TB-1831** |
-| TB-1834 | Activity tab density — primary timeline vs deferred forensics | Adoption friction P1 **V1** — with **TB-1831** |
+| TB-1832 | ~~Activity tab orientation when progress tracker absent / all sections collapsed~~ **Done** 2026-08-12 | Adoption friction P1 **V1** — with **TB-1831** |
+| TB-1834 | ~~Activity tab density — primary timeline vs deferred forensics~~ **Done** 2026-08-12 | Adoption friction P1 **V1** — with **TB-1831** |
 | TB-1835 | archTab Activity — Vitest dual-param + panel orientation guards | Testability P2 **V1** — with **TB-1831** |
 | TB-1836 | Traffic honesty — `archTab=clarifications` create-home only | Trustworthiness P1 **V1** — REC ~44 |
-| TB-1837 | Clarifications CTAs must use run-scoped correction (not bare new create) | Adoption friction P1 **V1** — with **TB-1836** |
-| TB-1839 | Clarifications empty/zero-gap composition (demote confidence theater) | Adoption friction P1 **V1** — with **TB-1836** |
+| TB-1837 | ~~Clarifications CTAs must use run-scoped correction (not bare new create)~~ **Done** 2026-08-12 | Adoption friction P1 **V1** — with **TB-1836** |
+| TB-1839 | ~~Clarifications empty/zero-gap composition (demote confidence theater)~~ **Done** 2026-08-12 | Adoption friction P1 **V1** — with **TB-1836** |
 | TB-1840 | Clarifications tab — Vitest CTA + badge + traffic honesty | Testability P2 **V1** — with **TB-1836** |
 | TB-1841 | Traffic honesty — `archTab=diagram` create-home only | Trustworthiness P1 **V1** — RED ~50 |
 | TB-1842 | Diagram tab clarify CTA must be run-scoped (not bare new create) | Adoption friction P1 **V1** — with **TB-1841** |
@@ -876,7 +876,7 @@ Canonical: [`GTM_BACKLOG.md`](../go-to-market/GTM_BACKLOG.md) only (see wave-3 c
 | Pilot outcomes (`/sponsor-report/pilot-outcomes`) | — | **TB-1966**–**TB-1970** Done; traffic **SPP**; sibling SPR |
 | ROI summary (`/sponsor-report/roi-summary`) | — | **TB-1971**–**TB-1975** Done; traffic **SPR** |
 | Finding evidence-trace (`/…/evidence-trace`) | **TB-1830** (open P2 **V1**; **TB-1826**–**TB-1829** **Done** 2026-08-12) | Finding-first H1; no footer self-link; back to finding detail; heading hierarchy shipped; **TB-1830** Vitest bundle + **TB-987** stickiness honesty; traffic **ERU** |
-| Create-home Activity (`archTab=activity`) | **TB-1832**–**TB-1835** (open P1/P2 **V1**; traffic honesty **TB-1831** **Done** 2026-08-10) | Orientation; no forced create-intent; density; Vitest; ~42/100; traffic **REA**; siblings **REC**–**REO** |
+| Create-home Activity (`archTab=activity`) | **TB-1835** (open P1/P2 **V1**; **TB-1832**/**TB-1834** **Done** 2026-08-12; traffic honesty **TB-1831** **Done** 2026-08-10) | Vitest dual-param guards remain; ~42/100; traffic **REA**; siblings **REC**–**REO** |
 | Create-home Clarifications (`archTab=clarifications`) | **TB-1836**–**TB-1840** (open P1 **V1**) | Traffic honesty; run-scoped CTAs; badge count; empty composition; Vitest; ~44/100; traffic **REC**; pairs **TB-1831**; href builder **TB-1833** **Done** |
 | Create-home Diagram (`archTab=diagram`) | **TB-1841**–**TB-1845** (open P1 **V1**) | Traffic honesty; run-scoped clarify; insufficient CTA; buyer Mermaid honesty; Vitest; ~50/100; traffic **RED**; pairs **TB-1831**/**TB-1837** |
 | Create-home Evidence (`archTab=evidence`) | **TB-1846**–**TB-1850** (open **V1**) | Traffic honesty; inventory; diagram cross-link; naming/chrome; Vitest; ~46/100; traffic **REE**; pairs **TB-1831** |
