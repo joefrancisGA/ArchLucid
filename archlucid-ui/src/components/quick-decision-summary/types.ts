@@ -42,6 +42,8 @@ export type QuickDecisionSummaryProps = {
   readonly analysisStagesComplete?: boolean;
   /** Create-home: navigate to Activity tab from in-progress empty state. */
   readonly onNavigateActivity?: () => void;
+  /** Create-home: navigate to Clarifications tab from in-progress empty state. */
+  readonly onNavigateClarifications?: () => void;
   /**
    * When the parent already applied toolbar/confidence filters to `findings`, pass the
    * unfiltered source length so create-home empty states do not fire on filtered-empty lists.

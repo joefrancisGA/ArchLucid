@@ -52,6 +52,7 @@ export type RunDetailFindingsWorkspaceProps = {
   readonly analysisStagesComplete?: boolean;
   readonly triageVisibleCount?: number;
   readonly onNavigateActivity?: () => void;
+  readonly onNavigateClarifications?: () => void;
 };
 
 /** Findings list with workspace toolbar filters for the review detail page. */
@@ -146,6 +147,7 @@ export function RunDetailFindingsWorkspace(props: RunDetailFindingsWorkspaceProp
       packageCommitted={props.packageCommitted}
       analysisStagesComplete={props.analysisStagesComplete}
       onNavigateActivity={props.onNavigateActivity}
+      onNavigateClarifications={props.onNavigateClarifications}
       confidenceVisibility={{
         showLowConfidence,
         onShowLowConfidenceChange: setShowLowConfidence,

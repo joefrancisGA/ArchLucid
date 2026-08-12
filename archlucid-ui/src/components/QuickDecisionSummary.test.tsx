@@ -52,6 +52,33 @@ describe("QuickDecisionSummary", () => {
       "href",
       expect.stringContaining("archTab=activity"),
     );
+    expect(screen.getByRole("link", { name: /Open clarifications/i })).toHaveAttribute(
+      "href",
+      expect.stringContaining("archTab=clarifications"),
+    );
+  });
+
+  it("invokes create-home navigation callbacks from in-progress empty state", () => {
+    const onNavigateActivity = vi.fn();
+    const onNavigateClarifications = vi.fn();
+
+    render(
+      <QuickDecisionSummary
+        runId="run-1"
+        findings={[]}
+        packageCommitted={false}
+        analysisStagesComplete={false}
+        workspaceCardMode
+        onNavigateActivity={onNavigateActivity}
+        onNavigateClarifications={onNavigateClarifications}
+      />,
+    );
+
+    fireEvent.click(screen.getByRole("button", { name: /View assessment progress on the Activity tab/i }));
+    fireEvent.click(screen.getByRole("button", { name: /Open clarifications/i }));
+
+    expect(onNavigateActivity).toHaveBeenCalledTimes(1);
+    expect(onNavigateClarifications).toHaveBeenCalledTimes(1);
   });
 
   it("shows create-home finalize-eligible empty state when stages complete", () => {

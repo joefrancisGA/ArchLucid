@@ -4,6 +4,7 @@ import type { ReactElement } from "react";
 import {
   ARCHITECTURE_CREATED_FINDINGS_FINALIZE_ELIGIBLE_EMPTY,
   ARCHITECTURE_CREATED_FINDINGS_IN_PROGRESS_ACTIVITY_LINK,
+  ARCHITECTURE_CREATED_FINDINGS_IN_PROGRESS_CLARIFICATIONS_LINK,
   ARCHITECTURE_CREATED_FINDINGS_IN_PROGRESS_EMPTY,
 } from "@/lib/architecture/architecture-created-findings-sources";
 import { buildArchitectureWorkspaceTabHref } from "@/lib/architecture/architecture-workspace-tabs";
@@ -65,25 +66,43 @@ export function QuickDecisionSummaryEmptyState({
     const activityHref = buildArchitectureWorkspaceTabHref(props.runId, "activity", {
       includeCreateIntent: true,
     });
+    const clarificationsHref = buildArchitectureWorkspaceTabHref(props.runId, "clarifications", {
+      includeCreateIntent: true,
+    });
 
     return (
       <div className="space-y-2" data-testid="quick-decision-create-home-in-progress-empty">
         <p className="m-0 text-neutral-600 dark:text-neutral-400">
           {ARCHITECTURE_CREATED_FINDINGS_IN_PROGRESS_EMPTY}
         </p>
-        {props.onNavigateActivity !== undefined ? (
-          <button
-            type="button"
-            className={cn("h-auto border-0 bg-transparent p-0", OPERATOR_LINK.nav)}
-            onClick={props.onNavigateActivity}
-          >
-            {ARCHITECTURE_CREATED_FINDINGS_IN_PROGRESS_ACTIVITY_LINK}
-          </button>
-        ) : (
-          <Link href={activityHref} className={OPERATOR_LINK.nav}>
-            {ARCHITECTURE_CREATED_FINDINGS_IN_PROGRESS_ACTIVITY_LINK}
-          </Link>
-        )}
+        <div className="flex flex-wrap gap-x-4 gap-y-1">
+          {props.onNavigateActivity !== undefined ? (
+            <button
+              type="button"
+              className={cn("h-auto border-0 bg-transparent p-0", OPERATOR_LINK.nav)}
+              onClick={props.onNavigateActivity}
+            >
+              {ARCHITECTURE_CREATED_FINDINGS_IN_PROGRESS_ACTIVITY_LINK}
+            </button>
+          ) : (
+            <Link href={activityHref} className={OPERATOR_LINK.nav}>
+              {ARCHITECTURE_CREATED_FINDINGS_IN_PROGRESS_ACTIVITY_LINK}
+            </Link>
+          )}
+          {props.onNavigateClarifications !== undefined ? (
+            <button
+              type="button"
+              className={cn("h-auto border-0 bg-transparent p-0", OPERATOR_LINK.nav)}
+              onClick={props.onNavigateClarifications}
+            >
+              {ARCHITECTURE_CREATED_FINDINGS_IN_PROGRESS_CLARIFICATIONS_LINK}
+            </button>
+          ) : (
+            <Link href={clarificationsHref} className={OPERATOR_LINK.nav}>
+              {ARCHITECTURE_CREATED_FINDINGS_IN_PROGRESS_CLARIFICATIONS_LINK}
+            </Link>
+          )}
+        </div>
       </div>
     );
   }

@@ -29,5 +29,7 @@ export const ARCHITECTURE_CREATED_FINDINGS_IN_PROGRESS_EMPTY =
 export const ARCHITECTURE_CREATED_FINDINGS_IN_PROGRESS_ACTIVITY_LINK =
   "View assessment progress on the Activity tab";
 
+export const ARCHITECTURE_CREATED_FINDINGS_IN_PROGRESS_CLARIFICATIONS_LINK = "Open clarifications";
+
 export const ARCHITECTURE_CREATED_FINDINGS_FINALIZE_ELIGIBLE_EMPTY =
   "Assessment stages are complete and no findings were surfaced. You can finalize when governance readiness checks pass.";
