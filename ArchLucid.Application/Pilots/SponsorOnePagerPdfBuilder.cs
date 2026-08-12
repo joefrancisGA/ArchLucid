@@ -1,4 +1,4 @@
-﻿using System.Globalization;
+using System.Globalization;
 
 using ArchLucid.Application.Rendering;
 using ArchLucid.Contracts.Architecture;
@@ -77,7 +77,7 @@ public sealed class SponsorOnePagerPdfBuilder(
                 {
                     column.Item().Text($"Run: {run.RunId}").FontSize(11);
                     column.Item().Text($"Generated (UTC): {TimeProvider.System.UtcNowDateTime():O}");
-                    column.Item().PaddingTop(8).LineHorizontal(1).LineColor(Colors.Gray.Lighten2);
+                    column.Item().PaddingTop(8).LineHorizontal(1).LineColor(Colors.Grey.Lighten2);
                     column.Item().PaddingTop(8).Text("Computed deltas (this run)").Bold().FontSize(12);
                     column.Item().Element(c => RenderComputedDeltasTable(c, deltas));
                     column.Item().PaddingTop(4)
@@ -104,7 +104,7 @@ public sealed class SponsorOnePagerPdfBuilder(
                         float h3 = Math.Max(4, 80 - h2);
                         row.RelativeItem().Column(c =>
                         {
-                            c.Item().Height(h1).Background(Colors.Gray.Lighten3);
+                            c.Item().Height(h1).Background(Colors.Grey.Lighten3);
                             c.Item().Text("Runs in window").FontSize(8).AlignCenter();
                         });
                         row.RelativeItem().Column(c =>

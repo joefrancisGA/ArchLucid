@@ -91,7 +91,7 @@ public sealed class FirstValueReportPdfBuilder(FirstValueReportBuilder markdownB
                 page.Footer().Column(foot =>
                 {
                     if (showSponsorCirculationWatermark)
-                        foot.Item().AlignCenter().Text(watermarkBannerText).FontSize(9).Italic().FontColor(Colors.Gray.Medium);
+                        foot.Item().AlignCenter().Text(watermarkBannerText).FontSize(9).Italic().FontColor(Colors.Grey.Medium);
 
                     foot.Item().AlignCenter().Text(text =>
                     {

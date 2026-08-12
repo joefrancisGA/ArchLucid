@@ -241,13 +241,13 @@ public sealed class EndToEndReplayComparisonExportService(IEndToEndReplayCompari
                 {
                     column.Item().PaddingBottom(5).Text($"Left: {report.LeftRunId}  |  Right: {report.RightRunId}  |  Profile: {p}");
                     column.Item().PaddingBottom(10).Text($"Generated: {TimeProvider.System.UtcNowDateTime():O}");
-                    column.Item().PaddingBottom(10).LineHorizontal(1).LineColor(Colors.Gray.Lighten2);
+                    column.Item().PaddingBottom(10).LineHorizontal(1).LineColor(Colors.Grey.Lighten2);
                     column.Item().PaddingBottom(5).Text("Summary").Bold().FontSize(12);
                     column.Item().PaddingBottom(10).Text(summaryFormatter.FormatMarkdown(report).Trim());
 
                     if (EndToEndComparisonExportProfile.IsShort(p))
                     {
-                        column.Item().PaddingTop(10).LineHorizontal(1).LineColor(Colors.Gray.Lighten2);
+                        column.Item().PaddingTop(10).LineHorizontal(1).LineColor(Colors.Grey.Lighten2);
                         column.Item().PaddingTop(5).Text("Interpretation Notes").Bold();
                     }
                     else
@@ -271,7 +271,7 @@ public sealed class EndToEndReplayComparisonExportService(IEndToEndReplayCompari
                                 $"Manifest: +{report.ManifestDiff.AddedServices.Count} / -{report.ManifestDiff.RemovedServices.Count} services; +{report.ManifestDiff.AddedDatastores.Count} / -{report.ManifestDiff.RemovedDatastores.Count} datastores");
 
                         column.Item().Text($"Export diffs: {report.ExportDiffs.Count}");
-                        column.Item().PaddingTop(10).LineHorizontal(1).LineColor(Colors.Gray.Lighten2);
+                        column.Item().PaddingTop(10).LineHorizontal(1).LineColor(Colors.Grey.Lighten2);
                         column.Item().PaddingTop(5).Text("Interpretation Notes").Bold();
                     }
 
