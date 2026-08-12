@@ -2,7 +2,9 @@
 import { cn } from "@/lib/utils";
 import {
   INLINE_GUIDANCE_LABEL_CLASS,
+  OPERATOR_FORM_FIELD_HELPER_CLASS,
   OPERATOR_FORM_FIELD_LABEL_CLASS,
+  OPERATOR_FORM_FIELD_STACK_CLASS,
   OPERATOR_TYPOGRAPHY,
 } from "@/lib/design-tokens";
 
@@ -191,7 +193,7 @@ export function DraftIntakeActorEditor(props: DraftIntakeActorEditorProps) {
 
   return (
     <div className="draft-intake-actor-editor space-y-4" data-testid="draft-intake-actor-editor">
-      <div className="space-y-1">
+      <div className={OPERATOR_FORM_FIELD_STACK_CLASS}>
         <div className="flex flex-wrap items-center justify-between gap-2">
           <p className={cn("m-0", OPERATOR_FORM_FIELD_LABEL_CLASS)}>
             {GUIDED_INTAKE_ACTORS_SECTION_HEADING}
@@ -209,11 +211,14 @@ export function DraftIntakeActorEditor(props: DraftIntakeActorEditorProps) {
             {suggestActorsButtonLabel}
           </Button>
         </div>
-        <p className={cn("m-0 text-neutral-600 dark:text-neutral-400", OPERATOR_TYPOGRAPHY.helper)}>
+        <p className={cn("m-0 text-neutral-600 dark:text-neutral-400", OPERATOR_FORM_FIELD_HELPER_CLASS)}>
           {sectionHint}
         </p>
         {!canSuggestFromIntent ? (
-          <p className={cn("m-0 text-neutral-500", OPERATOR_TYPOGRAPHY.helper)} data-testid="draft-intake-actor-suggest-hint">
+          <p
+            className={cn("m-0 text-neutral-500", OPERATOR_FORM_FIELD_HELPER_CLASS)}
+            data-testid="draft-intake-actor-suggest-hint"
+          >
             {suggestActorsDisabledHint}
           </p>
         ) : null}
@@ -339,7 +344,7 @@ export function DraftIntakeActorEditor(props: DraftIntakeActorEditorProps) {
             </div>
           </div>
 
-          <div className="space-y-2">
+          <div className="space-y-3">
             <Label htmlFor={`draft-intake-actor-label-${index}`}>Label (optional)</Label>
             <Input
               id={`draft-intake-actor-label-${index}`}
@@ -356,7 +361,7 @@ export function DraftIntakeActorEditor(props: DraftIntakeActorEditorProps) {
           </div>
 
           <div className="grid gap-3 sm:grid-cols-3">
-            <div className="space-y-2">
+            <div className={OPERATOR_FORM_FIELD_STACK_CLASS}>
               <Label htmlFor={`draft-intake-actor-kind-${index}`}>Kind</Label>
               <Select
                 value={actor.kind}
@@ -382,7 +387,7 @@ export function DraftIntakeActorEditor(props: DraftIntakeActorEditorProps) {
               </Select>
             </div>
 
-            <div className="space-y-2">
+            <div className={OPERATOR_FORM_FIELD_STACK_CLASS}>
               <Label htmlFor={`draft-intake-actor-trust-${index}`}>Trust origin</Label>
               <Select
                 value={actor.trustOrigin}
@@ -408,7 +413,7 @@ export function DraftIntakeActorEditor(props: DraftIntakeActorEditorProps) {
               </Select>
             </div>
 
-            <div className="space-y-2">
+            <div className={OPERATOR_FORM_FIELD_STACK_CLASS}>
               <Label htmlFor={`draft-intake-actor-contract-${index}`}>Interaction</Label>
               <Select
                 value={actor.contract}
@@ -437,7 +442,7 @@ export function DraftIntakeActorEditor(props: DraftIntakeActorEditorProps) {
               </Select>
               <p
                 id={`draft-intake-actor-contract-hint-${index}`}
-                className={cn("m-0 text-neutral-600 dark:text-neutral-400", OPERATOR_TYPOGRAPHY.helper)}
+                className={cn("m-0 text-neutral-600 dark:text-neutral-400", OPERATOR_FORM_FIELD_HELPER_CLASS)}
                 data-testid={`draft-intake-actor-contract-hint-${index}`}
               >
                 {GUIDED_INTAKE_INTERACTION_TIMING_HINT}

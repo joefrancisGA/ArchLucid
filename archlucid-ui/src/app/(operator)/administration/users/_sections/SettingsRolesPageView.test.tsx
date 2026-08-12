@@ -92,7 +92,7 @@ describe("SettingsRolesPageView (SSU P0)", () => {
   });
 
   it("exposes a persistent Invite user primary action and section headings", () => {
-    render(<SettingsRolesPageView model={buildModel({ usersNote: null })} />);
+    render(<SettingsRolesPageView model={buildModel({ usersNote: "load_failed" })} />);
 
     expect(screen.getByTestId("settings-roles-invite-primary-action")).toHaveTextContent("Invite user");
     expect(screen.getByRole("heading", { level: 1, name: OPERATOR_NAV_LINK_LABELS.usersAndRoles })).toBeInTheDocument();
@@ -123,12 +123,18 @@ describe("SettingsRolesPageView (SSU P0)", () => {
     );
   });
 
-  it("uses invite-first empty composition without stacked empty cards (TB-1214, TB-1937)", () => {
+  it("uses invite-first empty composition without stacked empty cards (TB-1214, TB-1937, TB-1939)", () => {
     render(<SettingsRolesPageView model={buildModel({ usersNote: null })} />);
 
-    expect(screen.getByTestId("settings-roles-users-empty-composition")).toBeInTheDocument();
+    const inviteRegion = screen.getByTestId("settings-roles-invite-primary-region");
+    const emptyComposition = screen.getByTestId("settings-roles-users-empty-composition");
+
+    expect(inviteRegion).toBeInTheDocument();
+    expect(emptyComposition).toBeInTheDocument();
+    expect(inviteRegion.compareDocumentPosition(emptyComposition) & Node.DOCUMENT_POSITION_FOLLOWING).toBeTruthy();
     expect(screen.getByTestId("settings-roles-users-empty-status")).toHaveTextContent(/No users yet/i);
-    expect(screen.getByTestId("settings-roles-invite-section")).toHaveAttribute("open");
+    expect(screen.getByTestId("settings-roles-invite-form")).toBeInTheDocument();
+    expect(screen.queryByTestId("settings-roles-invite-section")).not.toBeInTheDocument();
     expect(screen.queryByRole("heading", { level: 2, name: /Members/ })).not.toBeInTheDocument();
     expect(screen.queryByRole("heading", { level: 2, name: /Pending invitations/ })).not.toBeInTheDocument();
     expect(screen.queryByText(/No pending invitations/i)).not.toBeInTheDocument();

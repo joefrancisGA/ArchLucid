@@ -183,7 +183,7 @@ export function ReviewsNewPathSwitcher() {
                 >
                   <InlineGuidanceText text={pathHints[activePath]} />
                 </p>
-                <div className="pt-1" data-testid="reviews-new-path-panel">
+                <div className="pt-2" data-testid="reviews-new-path-panel">
                   <ReviewsNewActiveWizard activePath={activePath} />
                 </div>
                 {activePath === "quick-review" ? (
@@ -210,7 +210,7 @@ export function ReviewsNewPathSwitcher() {
             onValueChange={(next) => {
               selectPath(next as ReviewsNewActivePath);
             }}
-            className="space-y-3"
+            className="space-y-4"
           >
             <SpecimenDeliverablePreviewCallout />
             <TabsList
@@ -235,13 +235,13 @@ export function ReviewsNewPathSwitcher() {
             >
               <InlineGuidanceText text={pathHints[activePath]} />
             </p>
-            <TabsContent value="quick-review" className="mt-0 pt-1" data-testid="reviews-new-path-panel">
+            <TabsContent value="quick-review" className="mt-0 pt-2" data-testid="reviews-new-path-panel">
               <FirstPilotIntakeWizard />
             </TabsContent>
-            <TabsContent value="guided-intake" className="mt-0 pt-1" data-testid="reviews-new-path-panel">
+            <TabsContent value="guided-intake" className="mt-0 pt-2" data-testid="reviews-new-path-panel">
               <SocraticIntakeWizard />
             </TabsContent>
-            <TabsContent value="detailed" className="mt-0 pt-1" data-testid="reviews-new-path-panel">
+            <TabsContent value="detailed" className="mt-0 pt-2" data-testid="reviews-new-path-panel">
               <NewRunWizardClient embeddedInPathSwitcher />
             </TabsContent>
           </Tabs>

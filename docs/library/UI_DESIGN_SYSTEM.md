@@ -472,6 +472,26 @@ Done **TB-118** sets **page** density (`space-y-4`, compact cards). This section
 
 ---
 
+## Short operator helper and intro measure (TB-2038)
+
+Done **TB-118** compact page density and **TB-2000** form breathing room address **vertical** rhythm. This section addresses **horizontal** measure on short operator copy.
+
+| Surface | Token / class | Rule |
+|---------|---------------|------|
+| Dashboard / hub intros, page subtitles, card leads, disclosure one-liners | `OPERATOR_SHORT_HELPER_MEASURE_CLASS` (`max-w-none`) | Use the work-surface width — **do not** apply `max-w-prose`, `max-w-2xl`, or `max-w-3xl` to short helpers that sit inside full-width cards or operator shells |
+| Long reading bodies | `max-w-prose` / `OperatorPageContainer` `reading` variant | Help center articles, marketing long-form, specialty guide prose |
+| Shared page chrome defaults | **TB-2039** | `OperatorPageHeader` / `PageHeading` subtitle measure caps |
+
+**Reference composition:** operator Overview (`/`) — home dual-path, resume bridge, do-this-next, and disclosure helpers use full-width leads without premature wrap bands.
+
+**Coexists with:** compact page spacing (**TB-118**), form field stacks (**TB-2000**).
+
+**Do not:** stretch this to marketing hero measure or help long-form; per-hub inventory sweeps remain **TB-2040**.
+
+**Apply surfaces:** **TB-2039** (shared page chrome), **TB-2040** (dashboard inventory), **TB-2041** (Vitest guard) — not this contract row alone.
+
+---
+
 ## Components (TB-116, TB-117) — done 2026-05-31
 
 | Component | Path | Migrated surfaces |

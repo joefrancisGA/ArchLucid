@@ -23,7 +23,11 @@ import { architectureDraftPath } from "@/lib/architecture/architecture-routes";
 import { comparePageHrefAdaptive } from "@/lib/compare-url-query-params";
 import { CREATE_ARCHITECTURE_STARTING_LABEL, REVIEW_START_LOADING_LABEL } from "@/lib/review-start-progress-copy";
 import { SCOPE_UNDERSTANDING_READY_TO_CONTINUE_HINT } from "@/lib/architecture/architecture-scope-understanding-check";
-import { OPERATOR_TYPOGRAPHY } from "@/lib/design-tokens";
+import {
+  OPERATOR_FORM_FIELD_HELPER_CLASS,
+  OPERATOR_FORM_FIELD_STACK_CLASS,
+  OPERATOR_TYPOGRAPHY,
+} from "@/lib/design-tokens";
 import {
   WIZARD_STICKY_PROGRESS_CLASS,
   WIZARD_STICKY_PROGRESS_TEST_ID,
@@ -237,7 +241,7 @@ export function SocraticIntakeWizard() {
           ) : null}
           <CardContent className={cn(isCreateArchitectureFlow ? "space-y-6" : "space-y-4", isCreateArchitectureFlow && "pt-4")}>
             {isCreateArchitectureFlow ? (
-              <div className="space-y-2">
+              <div className={OPERATOR_FORM_FIELD_STACK_CLASS}>
                 <IntakeFieldLabel
                   htmlFor="socratic-system-name"
                   label={GUIDED_INTAKE_CREATION_SYSTEM_NAME_LABEL}
@@ -255,7 +259,7 @@ export function SocraticIntakeWizard() {
               </div>
             ) : null}
 
-            <div className="space-y-2">
+            <div className={OPERATOR_FORM_FIELD_STACK_CLASS}>
               <IntakeFieldLabel htmlFor="socratic-intent" label={intentFieldLabel} required />
               <Textarea
                 id="socratic-intent"
@@ -275,7 +279,7 @@ export function SocraticIntakeWizard() {
               />
               <p
                 id="socratic-intent-helper"
-                className={cn(OPERATOR_TYPOGRAPHY.helper, "text-neutral-600 dark:text-neutral-400")}
+                className={cn(OPERATOR_FORM_FIELD_HELPER_CLASS, "text-neutral-600 dark:text-neutral-400")}
                 role={intentTrimmedLength > 0 && !intentMeetsMinimum ? "alert" : "status"}
                 data-testid="socratic-intent-helper"
               >
@@ -286,7 +290,7 @@ export function SocraticIntakeWizard() {
             </div>
 
             {isCreateArchitectureFlow ? (
-              <div className="space-y-2">
+              <div className={OPERATOR_FORM_FIELD_STACK_CLASS}>
                 <IntakeFieldLabel
                   htmlFor="socratic-outcome"
                   label={GUIDED_INTAKE_CREATION_BUSINESS_OUTCOME_LABEL}
@@ -306,7 +310,7 @@ export function SocraticIntakeWizard() {
                 />
                 <p
                   id="socratic-outcome-helper"
-                  className={cn(OPERATOR_TYPOGRAPHY.helper, "text-neutral-600 dark:text-neutral-400")}
+                  className={cn(OPERATOR_FORM_FIELD_HELPER_CLASS, "text-neutral-600 dark:text-neutral-400")}
                   role={outcomeTrimmedLength > 0 && !outcomeMeetsMinimum ? "alert" : "status"}
                   data-testid="socratic-outcome-helper"
                 >
@@ -319,7 +323,7 @@ export function SocraticIntakeWizard() {
               </div>
             ) : (
               <>
-                <div className="space-y-2">
+                <div className={OPERATOR_FORM_FIELD_STACK_CLASS}>
                   <IntakeFieldLabel htmlFor="socratic-system-name" label="System name" required={false} />
                   <Input
                     id="socratic-system-name"
@@ -329,7 +333,7 @@ export function SocraticIntakeWizard() {
                     data-testid="socratic-system-name"
                   />
                 </div>
-                <div className="space-y-2">
+                <div className={OPERATOR_FORM_FIELD_STACK_CLASS}>
                   <IntakeFieldLabel htmlFor="socratic-outcome" label="Business outcome" required />
                   <Textarea
                     id="socratic-outcome"
@@ -503,7 +507,7 @@ export function SocraticIntakeWizard() {
               Answer or skip each clarification. You can review everything before starting the architecture review.
             </p>
 
-            <div className="space-y-2">
+            <div className={OPERATOR_FORM_FIELD_STACK_CLASS}>
               {!allClarificationsHandled ? (
                 <p className={cn("m-0", OPERATOR_TYPOGRAPHY.helper)} data-testid="socratic-review-answers-hint">
                   Handle all required clarifications first.

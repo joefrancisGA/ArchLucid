@@ -1,6 +1,6 @@
 "use client";
 import { cn } from "@/lib/utils";
-import { OPERATOR_FORM_FIELD_LABEL_CLASS, OPERATOR_TYPOGRAPHY } from "@/lib/design-tokens";
+import { OPERATOR_FORM_CONTROL_DESCRIPTION_GAP_CLASS, OPERATOR_FORM_FIELD_HELPER_CLASS, OPERATOR_FORM_FIELD_LABEL_CLASS, OPERATOR_FORM_FIELD_STACK_CLASS, OPERATOR_TYPOGRAPHY } from "@/lib/design-tokens";
 
 import { useState } from "react";
 
@@ -45,10 +45,14 @@ function FocusedPilotModeCheckbox(props: PilotModePolicyPackToggleProps): React.
   const inputId = `${testId}-input`;
 
   return (
-    <div className={cn("space-y-2", className)} data-testid={`${testId}-wrap`}>
+    <div className={cn(OPERATOR_FORM_FIELD_STACK_CLASS, className)} data-testid={`${testId}-wrap`}>
       <label
         htmlFor={inputId}
-        className={cn("flex cursor-pointer items-start gap-2 rounded-md border border-neutral-200 px-3 py-2 text-neutral-800 dark:border-neutral-700 dark:text-neutral-100", OPERATOR_TYPOGRAPHY.helper)}
+        className={cn(
+          "flex cursor-pointer items-start rounded-md border border-neutral-200 px-3 py-2 text-neutral-800 dark:border-neutral-700 dark:text-neutral-100",
+          OPERATOR_FORM_CONTROL_DESCRIPTION_GAP_CLASS,
+          OPERATOR_TYPOGRAPHY.helper,
+        )}
       >
         <input
           id={inputId}
@@ -67,7 +71,7 @@ function FocusedPilotModeCheckbox(props: PilotModePolicyPackToggleProps): React.
         />
         <span className="min-w-0 leading-snug">
           <span className="block font-medium">{FOCUSED_PILOT_MODE_COPY.toggleLabel}</span>
-          <span className={cn("mt-1 block font-normal text-neutral-600 dark:text-neutral-400", OPERATOR_TYPOGRAPHY.helper)}>
+          <span className={cn("block font-normal text-neutral-600 dark:text-neutral-400", OPERATOR_FORM_FIELD_HELPER_CLASS)}>
             {FOCUSED_PILOT_MODE_COPY.toggleDescription}
           </span>
         </span>
@@ -139,7 +143,7 @@ function FocusedPilotModeScopeCard(props: PilotModePolicyPackToggleProps): React
       {expanded ? (
         <label
           htmlFor={inputId}
-          className={cn("flex cursor-pointer items-start gap-2", OPERATOR_TYPOGRAPHY.helper)}
+          className={cn("flex cursor-pointer items-start", OPERATOR_FORM_CONTROL_DESCRIPTION_GAP_CLASS, OPERATOR_TYPOGRAPHY.helper)}
         >
           <input
             id={inputId}
@@ -160,7 +164,7 @@ function FocusedPilotModeScopeCard(props: PilotModePolicyPackToggleProps): React
             <span className="block font-medium text-neutral-900 dark:text-neutral-100">
               Limit to selected standards
             </span>
-            <span className="mt-1 block font-normal text-neutral-600 dark:text-neutral-400">
+            <span className={cn("block font-normal text-neutral-600 dark:text-neutral-400", OPERATOR_FORM_FIELD_HELPER_CLASS)}>
               {FOCUSED_PILOT_MODE_COPY.toggleDescription}
             </span>
           </span>
@@ -174,15 +178,16 @@ function FocusedPilotModeChoiceGroup(props: PilotModePolicyPackToggleProps): Rea
   const { enabled, onEnabledChange, className, testId = "pilot-mode-policy-pack-toggle" } = props;
 
   return (
-    <fieldset className={cn("space-y-2", className)} data-testid={`${testId}-wrap`}>
+    <fieldset className={cn(OPERATOR_FORM_FIELD_STACK_CLASS, className)} data-testid={`${testId}-wrap`}>
       <legend className={OPERATOR_FORM_FIELD_LABEL_CLASS}>{FOCUSED_PILOT_MODE_COPY.choiceLegend}</legend>
-      <div className="space-y-2">
+      <div className={OPERATOR_FORM_FIELD_STACK_CLASS}>
         {REVIEW_SCOPE_CHOICES.map((choice) => (
           <label
             key={choice.id}
             htmlFor={`${testId}-${choice.id}`}
             className={cn(
-              "flex cursor-pointer items-start gap-2 rounded-md border px-3 py-2",
+              "flex cursor-pointer items-start rounded-md border px-3 py-2",
+              OPERATOR_FORM_CONTROL_DESCRIPTION_GAP_CLASS,
               OPERATOR_TYPOGRAPHY.helper,
               choice.focused === enabled
                 ? "border-[var(--al-accent-interactive)] bg-al-surface-raised"
@@ -202,7 +207,9 @@ function FocusedPilotModeChoiceGroup(props: PilotModePolicyPackToggleProps): Rea
             />
             <span className="min-w-0 leading-snug">
               <span className="block font-medium text-al-text-primary">{choice.label}</span>
-              <span className="mt-1 block font-normal text-al-text-secondary">{choice.description}</span>
+              <span className={cn("block font-normal text-al-text-secondary", OPERATOR_FORM_FIELD_HELPER_CLASS)}>
+                {choice.description}
+              </span>
             </span>
           </label>
         ))}

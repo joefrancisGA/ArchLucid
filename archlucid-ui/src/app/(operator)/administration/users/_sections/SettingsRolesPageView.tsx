@@ -57,6 +57,7 @@ const ALL_TABS: readonly { id: SettingsUsersTabId; label: string }[] = [
 const MEMBERS_HEADING_ID = "settings-roles-members-heading";
 const PENDING_INVITATIONS_HEADING_ID = "settings-roles-pending-invitations-heading";
 const INVITE_SECTION_SUMMARY_ID = "settings-roles-invite-section-summary";
+const INVITE_PRIMARY_HEADING_ID = "settings-roles-invite-primary-heading";
 
 function visibleTabs(canManageApiKeys: boolean): readonly { id: SettingsUsersTabId; label: string }[] {
   if (canManageApiKeys) {
@@ -156,6 +157,10 @@ export function SettingsRolesPageView(props: Props) {
 
   const openInviteSection = useCallback(() => {
     setInviteSectionOpen(true);
+
+    window.setTimeout(() => {
+      inviteEmailInputRef.current?.focus();
+    }, 0);
   }, []);
 
   if (m.surface === "demo") {
@@ -235,24 +240,46 @@ export function SettingsRolesPageView(props: Props) {
         <TabsContent value="users" data-testid="settings-roles-tabpanel-users">
           <div className="space-y-6">
             {usersTabInviteFirstLayout ? (
-              <div className="space-y-3" data-testid="settings-roles-users-empty-composition">
-                {usersTabEmptyWorkspace ? (
-                  <StatusTag
-                    kind="draft"
-                    label="No users yet — send an invite below."
-                    data-testid="settings-roles-users-empty-status"
+              <>
+                <Card
+                  aria-labelledby={INVITE_PRIMARY_HEADING_ID}
+                  data-testid="settings-roles-invite-primary-region"
+                >
+                  <CardHeader>
+                    <CardTitle id={INVITE_PRIMARY_HEADING_ID} as="h2" className={OPERATOR_TYPOGRAPHY.cardTitle}>
+                      Invite user
+                    </CardTitle>
+                  </CardHeader>
+                  <CardContent>
+                    <SettingsRolesInvitePanel
+                      emailInputRef={inviteEmailInputRef}
+                      onInviteSent={(invitation) => {
+                        setSeededInvitations((current) => {
+                          const without = current.filter((row) => row.id !== invitation.id);
+
+                          return [invitation, ...without];
+                        });
+                        setInvitationsRefreshKey((key) => key + 1);
+                      }}
+                    />
+                  </CardContent>
+                </Card>
+                <div className="space-y-2" data-testid="settings-roles-users-empty-composition">
+                  {usersTabEmptyWorkspace ? (
+                    <StatusTag
+                      kind="draft"
+                      label="No users yet — members appear after the first invite is accepted."
+                      data-testid="settings-roles-users-empty-status"
+                    />
+                  ) : null}
+                  <PendingInvitationsPanel
+                    refreshKey={invitationsRefreshKey}
+                    seededInvitations={seededInvitations}
+                    onCountChange={setPendingInvitationCount}
+                    suppressEmptyPresentation
                   />
-                ) : null}
-                <p className={cn("m-0 text-al-text-secondary", OPERATOR_TYPOGRAPHY.helper)}>
-                  Members and pending invitations appear here after someone accepts an invite.
-                </p>
-                <PendingInvitationsPanel
-                  refreshKey={invitationsRefreshKey}
-                  seededInvitations={seededInvitations}
-                  onCountChange={setPendingInvitationCount}
-                  suppressEmptyPresentation
-                />
-              </div>
+                </div>
+              </>
             ) : (
               <>
                 <Card aria-labelledby={MEMBERS_HEADING_ID}>
@@ -306,28 +333,30 @@ export function SettingsRolesPageView(props: Props) {
               </>
             )}
 
-            <CollapsibleSection
-              title="Invite user"
-              headingLevel={2}
-              summaryLine="Send a workspace invitation by email."
-              summaryId={INVITE_SECTION_SUMMARY_ID}
-              defaultOpen={false}
-              open={inviteSectionOpen}
-              onToggle={setInviteSectionOpen}
-              sectionTestId="settings-roles-invite-section"
-            >
-              <SettingsRolesInvitePanel
-                emailInputRef={inviteEmailInputRef}
-                onInviteSent={(invitation) => {
-                  setSeededInvitations((current) => {
-                    const without = current.filter((row) => row.id !== invitation.id);
+            {!usersTabInviteFirstLayout ? (
+              <CollapsibleSection
+                title="Invite user"
+                headingLevel={2}
+                summaryLine="Send a workspace invitation by email."
+                summaryId={INVITE_SECTION_SUMMARY_ID}
+                defaultOpen={false}
+                open={inviteSectionOpen}
+                onToggle={setInviteSectionOpen}
+                sectionTestId="settings-roles-invite-section"
+              >
+                <SettingsRolesInvitePanel
+                  emailInputRef={inviteEmailInputRef}
+                  onInviteSent={(invitation) => {
+                    setSeededInvitations((current) => {
+                      const without = current.filter((row) => row.id !== invitation.id);
 
-                    return [invitation, ...without];
-                  });
-                  setInvitationsRefreshKey((key) => key + 1);
-                }}
-              />
-            </CollapsibleSection>
+                      return [invitation, ...without];
+                    });
+                    setInvitationsRefreshKey((key) => key + 1);
+                  }}
+                />
+              </CollapsibleSection>
+            ) : null}
           </div>
         </TabsContent>
 

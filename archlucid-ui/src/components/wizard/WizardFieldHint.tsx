@@ -1,9 +1,8 @@
 "use client";
-import { cn } from "@/lib/utils";
-import { OPERATOR_TYPOGRAPHY } from "@/lib/design-tokens";
 
 import { InlineInfoTooltip } from "@/components/InlineInfoTooltip";
 import { Label } from "@/components/ui/label";
+import { OPERATOR_FORM_FIELD_LABEL_CLASS } from "@/lib/design-tokens";
 
 export type WizardFieldHintProps = {
   /** When set, associates the visible label with a form control via Radix Label. Omit for section-only hints. */
@@ -18,11 +17,11 @@ export function WizardFieldHint({ htmlFor, label, hint }: WizardFieldHintProps) 
     htmlFor !== undefined && htmlFor.length > 0 ? (
       <Label htmlFor={htmlFor}>{label}</Label>
     ) : (
-      <span className={cn("font-medium leading-none text-neutral-900 dark:text-neutral-100", OPERATOR_TYPOGRAPHY.body)}>{label}</span>
+      <span className={OPERATOR_FORM_FIELD_LABEL_CLASS}>{label}</span>
     );
 
   return (
-    <div className="mb-1 flex flex-wrap items-center gap-1">
+    <div className="flex flex-wrap items-center gap-1" data-testid="wizard-field-hint">
       {labelNode}
       <InlineInfoTooltip label={label} hint={hint} />
     </div>
