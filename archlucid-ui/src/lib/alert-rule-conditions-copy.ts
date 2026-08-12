@@ -1,10 +1,12 @@
 /** Buyer-facing copy for `/governance/alert-rules` Conditions tab (TB-936). */
 
+/** Hub tab lead (`AlertRulesHubClient` rules subtitle) owns first-viewport orientation — do not restack PAGE_LEAD here (TB-1585). */
 export const ALERT_RULES_CONDITIONS_PAGE_LEAD =
   "Define when completed architecture reviews should raise an alert in your workspace.";
 
-export const ALERT_RULES_CONDITIONS_FINDINGS_HELPER =
-  "Conditions evaluate findings from completed reviews. Configuring a condition does not set up external notification delivery.";
+/** Field help under Condition type — carries findings + notification-delivery honesty formerly in a stacked tab lead (TB-1585). */
+export const ALERT_RULES_RULE_TYPE_HELP =
+  "Evaluates findings from completed reviews. Saving a condition does not configure external notification delivery.";
 
 /** Distinct from the page title so the list is not a second "Alert rules" heading under it. */
 export const ALERT_RULES_LIST_HEADING = "Configured rules";

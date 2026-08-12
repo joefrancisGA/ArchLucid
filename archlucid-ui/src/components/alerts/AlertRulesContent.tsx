@@ -41,7 +41,6 @@ import {
 import {
   ALERT_RULES_ALERT_PRIORITY_HELP,
   ALERT_RULES_ALERT_PRIORITY_LABEL,
-  ALERT_RULES_CONDITIONS_FINDINGS_HELPER,
   ALERT_RULES_CREATE_BLOCKED_HINT,
   ALERT_RULES_CREATE_BUTTON_LABEL,
   ALERT_RULES_CREATE_HEADING,
@@ -50,6 +49,7 @@ import {
   ALERT_RULES_FORM_SECTION_ARIA_LABEL,
   ALERT_RULES_LIST_HEADING,
   ALERT_RULES_NAME_LABEL,
+  ALERT_RULES_RULE_TYPE_HELP,
   ALERT_RULES_RULE_TYPE_LABEL,
   ALERT_RULES_SAMPLE_MODE_BANNER,
   ALERT_RULES_SAMPLE_MODE_CTA_HREF,
@@ -225,9 +225,6 @@ export function AlertRulesContent() {
           </Button>
         ) : null}
       </div>
-      <p className={cn("mb-4 max-w-3xl leading-snug text-al-text-secondary", OPERATOR_TYPOGRAPHY.helper)}>
-        {ALERT_RULES_CONDITIONS_FINDINGS_HELPER}
-      </p>
 
       {sampleModeBlocked ? (
         <div
@@ -341,6 +338,9 @@ export function AlertRulesContent() {
                     </option>
                   ))}
                 </select>
+                <p className={cn("mt-1 text-al-text-secondary", OPERATOR_TYPOGRAPHY.helper)}>
+                  {ALERT_RULES_RULE_TYPE_HELP}
+                </p>
               </div>
 
               <div>

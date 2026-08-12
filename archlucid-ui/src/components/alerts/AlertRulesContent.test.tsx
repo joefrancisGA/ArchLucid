@@ -10,6 +10,7 @@ import {
   ALERT_RULES_LIST_EMPTY_TITLE,
   ALERT_RULES_NAME_LABEL,
   ALERT_RULES_PREVIEW_DRAFT_STATUS_LABEL,
+  ALERT_RULES_RULE_TYPE_HELP,
 } from "@/lib/alert-rule-conditions-copy";
 import { alertRulesCreateButtonLabelReaderRank, enterpriseMutationControlDisabledTitle } from "@/lib/enterprise-controls-context-copy";
 import {
@@ -143,6 +144,21 @@ describe("AlertRulesContent", () => {
 
     expect(source).not.toMatch(/<h2\b/);
     expect(source).not.toContain("OPERATOR_TYPOGRAPHY.pageTitle");
+  });
+
+  it("TB-1585: Conditions tab source avoids stacked tab-lead helper paragraph", () => {
+    const source = readFileSync(join(process.cwd(), "src", "components", "alerts", "AlertRulesContent.tsx"), "utf8");
+
+    expect(source).not.toContain("ALERT_RULES_CONDITIONS_FINDINGS_HELPER");
+    expect(source).toContain("ALERT_RULES_RULE_TYPE_HELP");
+  });
+
+  it("TB-1585: surfaces findings and notification honesty on condition type field help", async () => {
+    render(<AlertRulesContent />);
+
+    await revealCreateForm();
+
+    expect(screen.getByText(ALERT_RULES_RULE_TYPE_HELP)).toBeInTheDocument();
   });
 
   it("stacks live preview rail when empty list uses default draft (TB-1574)", async () => {
