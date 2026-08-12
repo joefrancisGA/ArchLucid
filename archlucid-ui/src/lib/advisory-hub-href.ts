@@ -12,9 +12,8 @@ export function buildAdvisoryHubHref(input: {
   const tab = input.tab ?? "scans";
   const runId = scopedRunIdFromQuery(input.runId);
 
-  if (tab !== "scans") {
-    params.set("tab", tab);
-  }
+  // Always carry `?tab=` so shared and traffic deep links survive tab selection (TB-1565 / TB-1505).
+  params.set("tab", tab);
 
   if (runId !== null) {
     params.set("runId", runId);

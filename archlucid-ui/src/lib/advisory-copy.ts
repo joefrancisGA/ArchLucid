@@ -60,9 +60,11 @@ export const ADVISORY_SCANS_EMPTY_TITLE = "No advisory scan generated yet";
 export const ADVISORY_SCANS_EMPTY_BODY =
   "Select a finalized review to generate recommendations, or view a sample advisory scan.";
 
-/** Single empty/demo next-story lead when no scan results yet (TB-1126). */
+/** Single empty/demo next-story lead when no scan results yet (TB-1126 / TB-1567). */
 export const ADVISORY_SCANS_EMPTY_NEXT_STORY_LEAD =
-  "No advisory scan yet. Preview a sample recommendation below, then select a finalized review above to generate your own.";
+  "No advisory scan yet. Choose a finalized review to generate recommendations, or preview a sample advisory scan.";
+
+export const ADVISORY_SCANS_CHOOSE_REVIEW_LABEL = "Choose review";
 
 export const ADVISORY_SCANS_VIEW_SAMPLE_LABEL = "View sample advisory scan";
 
@@ -114,6 +116,17 @@ export const ADVISORY_SCANS_DISPOSITION_DEFER_HINT = "Keeps recommendation visib
 export const ADVISORY_SCANS_DISPOSITION_REJECT_HINT = "Records why it will not be pursued";
 
 export const ADVISORY_SCANS_DISPOSITION_IMPLEMENTED_HINT = "Records completion";
+
+export const ADVISORY_SCANS_DISPOSITION_DIALOG_TITLE = "Record recommendation disposition";
+
+export const ADVISORY_SCANS_DISPOSITION_DIALOG_DESCRIPTION =
+  "Optional comment and rationale are stored with the governance disposition for audit and follow-up.";
+
+export const ADVISORY_SCANS_DISPOSITION_COMMENT_LABEL = "Comment (optional)";
+
+export const ADVISORY_SCANS_DISPOSITION_RATIONALE_LABEL = "Rationale (optional)";
+
+export const ADVISORY_SCANS_DISPOSITION_CONFIRM_LABEL = "Confirm disposition";
 
 export const ADVISORY_SCANS_CARD_IMPACT_LABEL = "Impact level";
 

@@ -10,10 +10,10 @@ import { useAdvisoryRecommendationsQuery } from "@/hooks/use-advisory-recommenda
 import { useOperatorScopeQueryKey } from "@/hooks/use-operator-scope-query-key";
 
 import { AdvisoryRecommendationCard } from "@/components/advisory/AdvisoryRecommendationCard";
+import { AdvisoryRecommendationDispositionDialog } from "@/components/advisory/AdvisoryRecommendationDispositionDialog";
 import { AdvisorySampleRecommendationPreview } from "@/components/advisory/AdvisorySampleRecommendationPreview";
 import { AdvisoryScanSummaryPanel } from "@/components/advisory/AdvisoryScanSummaryPanel";
 import { AdvisoryResultsSchedulesVocabularyRail } from "@/components/AdvisoryResultsSchedulesVocabularyRail";
-import { DocumentLayout } from "@/components/DocumentLayout";
 import { OperatorApiProblem } from "@/components/OperatorApiProblem";
 import { useNavCallerAuthorityRank } from "@/components/OperatorNavAuthorityProvider";
 import { RunIdPicker } from "@/components/RunIdPicker";
@@ -26,6 +26,11 @@ import {
   ADVISORY_SCANS_BASELINE_REVIEW_PLACEHOLDER,
   ADVISORY_SCANS_CANT_FIND_REVIEW_BODY,
   ADVISORY_SCANS_CANT_FIND_REVIEW_SUMMARY,
+  ADVISORY_SCANS_CHOOSE_REVIEW_LABEL,
+  ADVISORY_SCANS_DISPOSITION_ACCEPT,
+  ADVISORY_SCANS_DISPOSITION_DEFER,
+  ADVISORY_SCANS_DISPOSITION_IMPLEMENTED,
+  ADVISORY_SCANS_DISPOSITION_REJECT,
   ADVISORY_SCANS_EMPTY_NEXT_STORY_LEAD,
   ADVISORY_SCANS_FINALIZED_REVIEW_LABEL,
   ADVISORY_SCANS_FINALIZED_REVIEW_PLACEHOLDER,
@@ -59,6 +64,17 @@ export type AdvisoryScansContentProps = {
   readonly initialRunId?: string | null;
 };
 
+const DISPOSITION_ACTION_LABELS: Readonly<Record<string, string>> = {
+  Accept: ADVISORY_SCANS_DISPOSITION_ACCEPT,
+  Defer: ADVISORY_SCANS_DISPOSITION_DEFER,
+  Reject: ADVISORY_SCANS_DISPOSITION_REJECT,
+  MarkImplemented: ADVISORY_SCANS_DISPOSITION_IMPLEMENTED,
+};
+
+function dispositionActionLabel(action: string): string {
+  return DISPOSITION_ACTION_LABELS[action] ?? action;
+}
+
 /**
  * Scans tab: governance follow-up workspace for advisory recommendations.
  */
@@ -75,6 +91,14 @@ export function AdvisoryScansContent(props: AdvisoryScansContentProps = {}): Rea
   const [recommendations, setRecommendations] = useState<RecommendationRecord[]>([]);
   const [loading, setLoading] = useState(false);
   const [failure, setFailure] = useState<ApiLoadFailureState | null>(null);
+  const [showScanForm, setShowScanForm] = useState(bootstrappedRunId.length > 0);
+  const [showSamplePreview, setShowSamplePreview] = useState(false);
+  const [pendingDisposition, setPendingDisposition] = useState<{
+    readonly recommendationId: string;
+    readonly action: string;
+  } | null>(null);
+  const [dispositionBusy, setDispositionBusy] = useState(false);
+  const [dispositionError, setDispositionError] = useState<string | null>(null);
   const bootstrapRecommendationsQuery = useAdvisoryRecommendationsQuery(bootstrappedRunId, {
     enabled: bootstrappedRunId.length > 0,
   });
@@ -91,6 +115,9 @@ export function AdvisoryScansContent(props: AdvisoryScansContentProps = {}): Rea
 
   const reviewSelected = runId.trim().length > 0;
   const hasResults = planSummary !== null || recommendations.length > 0;
+  const emptyIntroMode =
+    !hasResults && bootstrappedRunId.length === 0 && !showScanForm && !reviewSelected;
+  const showGenerateForm = !emptyIntroMode;
 
   useEffect(() => {
     const next = (props.initialRunId ?? "").trim();
@@ -100,6 +127,7 @@ export function AdvisoryScansContent(props: AdvisoryScansContentProps = {}): Rea
     }
 
     setRunId(next);
+    setShowScanForm(true);
   }, [props.initialRunId]);
 
   useEffect(() => {
@@ -119,6 +147,14 @@ export function AdvisoryScansContent(props: AdvisoryScansContentProps = {}): Rea
     setFailure(toApiLoadFailure(bootstrapRecommendationsQuery.error));
     setLoading(false);
   }, [bootstrapRecommendationsQuery.error, bootstrapRecommendationsQuery.isError]);
+
+  useEffect(() => {
+    if (!reviewSelected) {
+      return;
+    }
+
+    setShowScanForm(true);
+  }, [reviewSelected]);
 
   const fetchPersistedRecommendations = useCallback(
     async (rid: string): Promise<RecommendationRecord[]> => {
@@ -140,26 +176,38 @@ export function AdvisoryScansContent(props: AdvisoryScansContentProps = {}): Rea
     [compareToRunId, planSummary, recommendations],
   );
 
-  const takeAction = useCallback(
-    async (recommendationId: string, action: string) => {
-      const comment = window.prompt(`Optional comment for ${action}:`) ?? "";
-      const rationale = window.prompt(`Optional rationale for ${action}:`) ?? "";
+  const submitDisposition = useCallback(
+    async (comment: string, rationale: string): Promise<void> => {
+      if (pendingDisposition === null) {
+        return;
+      }
 
+      setDispositionBusy(true);
+      setDispositionError(null);
       setFailure(null);
 
       try {
-        await applyRecommendationAction(recommendationId, action, comment, rationale);
+        await applyRecommendationAction(
+          pendingDisposition.recommendationId,
+          pendingDisposition.action,
+          comment,
+          rationale,
+        );
         const rid = runId.trim();
 
         if (rid.length > 0) {
           const refreshed = await fetchPersistedRecommendations(rid);
           setRecommendations(refreshed);
         }
+
+        setPendingDisposition(null);
       } catch (error) {
-        setFailure(toApiLoadFailure(error));
+        setDispositionError(toApiLoadFailure(error).message);
+      } finally {
+        setDispositionBusy(false);
       }
     },
-    [fetchPersistedRecommendations, runId],
+    [fetchPersistedRecommendations, pendingDisposition, runId],
   );
 
   const loadAdvice = useCallback(async () => {
@@ -206,19 +254,76 @@ export function AdvisoryScansContent(props: AdvisoryScansContentProps = {}): Rea
     }
   }, [fetchPersistedRecommendations, runId]);
 
+  const revealSamplePreview = useCallback((): void => {
+    setShowSamplePreview(true);
+
+    if (typeof document !== "undefined") {
+      const anchor = document.querySelector(ADVISORY_SCANS_SAMPLE_ANCHOR_HREF);
+
+      if (anchor instanceof HTMLElement) {
+        anchor.scrollIntoView({ behavior: "smooth", block: "start" });
+      }
+    }
+  }, []);
+
   return (
-    <div className="w-full max-w-[1200px] px-4 py-6">
-      <DocumentLayout>
-        <AdvisoryResultsSchedulesVocabularyRail currentSurfaceId="advisory-results" />
+    <div className="w-full max-w-[1200px]" data-testid="advisory-scans-content">
+      <AdvisoryResultsSchedulesVocabularyRail currentSurfaceId="advisory-results" />
+
+      {emptyIntroMode ? (
+        <div className="space-y-3" data-testid="advisory-empty-next-story">
+          <p
+            className={cn("m-0 max-w-3xl text-neutral-600 dark:text-neutral-400", OPERATOR_TYPOGRAPHY.body)}
+            data-testid="advisory-empty-next-story-lead"
+          >
+            {ADVISORY_SCANS_EMPTY_NEXT_STORY_LEAD}
+          </p>
+
+          <div className="flex flex-wrap items-center gap-2" data-testid="advisory-empty-cta-row">
+            <Button
+              type="button"
+              size="sm"
+              variant="primary"
+              data-testid="advisory-choose-review-cta"
+              onClick={() => {
+                setShowScanForm(true);
+              }}
+            >
+              {ADVISORY_SCANS_CHOOSE_REVIEW_LABEL}
+            </Button>
+
+            <Button
+              type="button"
+              size="sm"
+              variant="outline"
+              data-testid="advisory-empty-view-sample-cta"
+              onClick={revealSamplePreview}
+            >
+              {ADVISORY_SCANS_VIEW_SAMPLE_LABEL}
+            </Button>
+
+            <Button asChild size="sm" variant="outline">
+              <Link
+                href={ADVISORY_SCANS_OPEN_REVIEW_PACKAGES_HREF}
+                data-testid="advisory-empty-open-reviews-link"
+              >
+                {ADVISORY_SCANS_OPEN_REVIEW_PACKAGES_LABEL}
+              </Link>
+            </Button>
+          </div>
+        </div>
+      ) : null}
+
+      {showGenerateForm ? (
         <section
-          className={cn(DESIGN_TOKENS.surface.card, "mb-6 space-y-4 p-5")}
+          className={cn(DESIGN_TOKENS.surface.card, "mb-6 space-y-4 p-5", emptyIntroMode ? "" : "mt-0")}
           aria-label={ADVISORY_SCANS_FORM_SECTION_TITLE}
           data-testid="advisory-scan-form"
         >
           <div className="space-y-1">
-            <h2 className={cn("m-0 font-semibold text-al-text-primary", OPERATOR_TYPOGRAPHY.cardTitle)}>
+            <h3 className={cn("m-0 font-semibold text-al-text-primary", OPERATOR_TYPOGRAPHY.cardTitle)}>
               {ADVISORY_SCANS_FORM_SECTION_TITLE}
-            </h2>
+            </h3>
           </div>
 
           {bootstrappedRunId.length > 0 ? (
@@ -354,112 +459,104 @@ export function AdvisoryScansContent(props: AdvisoryScansContentProps = {}): Rea
             )}
           </div>
         </section>
+      ) : null}
 
-        {failure !== null ? (
-          <div role="alert">
-            <OperatorApiProblem
-              problem={failure.problem}
-              fallbackMessage={failure.message}
-              correlationId={failure.correlationId}
-            />
-          </div>
-        ) : null}
+      {failure !== null ? (
+        <div role="alert">
+          <OperatorApiProblem
+            problem={failure.problem}
+            fallbackMessage={failure.message}
+            correlationId={failure.correlationId}
+          />
+        </div>
+      ) : null}
 
-        {isExperimentalAdvisoryPanelsEnabled() ? (
-          <section
-            aria-label="Experimental advisory panels"
-            className="mb-4 rounded-lg border border-dashed border-neutral-400 p-3 dark:border-neutral-500"
-          >
-            <h3 className={cn("m-0 font-semibold text-al-text-primary", OPERATOR_TYPOGRAPHY.cardTitle)}>Experimental</h3>
-            <p className={cn("m-0 text-neutral-600 dark:text-neutral-400", OPERATOR_TYPOGRAPHY.body)}>
-              Optional panels for in-development advisory UX. Enable with{" "}
-              <code
-                className={cn("rounded bg-neutral-200 px-1 dark:bg-neutral-800", OPERATOR_TYPOGRAPHY.helper)}
-              >
-                NEXT_PUBLIC_EXPERIMENTAL_ADVISORY_PANELS=true
-              </code>{" "}
-              at build time.
-            </p>
-          </section>
-        ) : null}
-
-        {hasResults ? <AdvisoryScanSummaryPanel summary={scanSummary} /> : null}
-
-        {planSummary !== null && planSummary.summaryNotes.length > 0 ? (
-          <section className="mb-6 space-y-2">
-            <h3 className={cn("m-0 font-semibold text-al-text-primary", OPERATOR_TYPOGRAPHY.cardTitle)}>
-              Scan notes
-            </h3>
-            <ul className={cn("m-0 list-disc space-y-1 pl-5 leading-relaxed", OPERATOR_TYPOGRAPHY.body)}>
-              {planSummary.summaryNotes.map((note, index) => (
-                <li key={index}>{note}</li>
-              ))}
-            </ul>
-          </section>
-        ) : null}
-
-        {recommendations.length > 0 ? (
-          <section className="space-y-4" data-testid="advisory-recommendations-list">
-            <div className="space-y-1">
-              <h3 className={cn("m-0 font-semibold text-al-text-primary", OPERATOR_TYPOGRAPHY.cardTitle)}>
-                {ADVISORY_SCANS_RECOMMENDATIONS_SECTION_TITLE}
-              </h3>
-              <p className={cn("m-0 text-neutral-600 dark:text-neutral-400", OPERATOR_TYPOGRAPHY.body)}>
-                {ADVISORY_SCANS_RECOMMENDATIONS_SECTION_BODY}
-              </p>
-            </div>
-
-            <div className="grid gap-4">
-              {recommendations.map((recommendation) => (
-                <AdvisoryRecommendationCard
-                  key={recommendation.recommendationId}
-                  recommendation={recommendation}
-                  onAction={(recommendationId, action) => {
-                    void takeAction(recommendationId, action);
-                  }}
-                />
-              ))}
-            </div>
-          </section>
-        ) : planSummary !== null && recommendations.length === 0 ? (
+      {isExperimentalAdvisoryPanelsEnabled() ? (
+        <section
+          aria-label="Experimental advisory panels"
+          className="mb-4 rounded-lg border border-dashed border-neutral-400 p-3 dark:border-neutral-500"
+        >
+          <h3 className={cn("m-0 font-semibold text-al-text-primary", OPERATOR_TYPOGRAPHY.cardTitle)}>Experimental</h3>
           <p className={cn("m-0 text-neutral-600 dark:text-neutral-400", OPERATOR_TYPOGRAPHY.body)}>
-            No persisted recommendations returned for this architecture review.
+            Optional panels for in-development advisory UX. Enable with{" "}
+            <code
+              className={cn("rounded bg-neutral-200 px-1 dark:bg-neutral-800", OPERATOR_TYPOGRAPHY.helper)}
+            >
+              NEXT_PUBLIC_EXPERIMENTAL_ADVISORY_PANELS=true
+            </code>{" "}
+            at build time.
           </p>
-        ) : null}
+        </section>
+      ) : null}
 
-        {!hasResults ? (
-          <div className="space-y-3" data-testid="advisory-empty-next-story">
-            <p
-              className={cn("m-0 max-w-3xl text-neutral-600 dark:text-neutral-400", OPERATOR_TYPOGRAPHY.body)}
-              data-testid="advisory-empty-next-story-lead"
-            >
-              {ADVISORY_SCANS_EMPTY_NEXT_STORY_LEAD}
+      {hasResults ? <AdvisoryScanSummaryPanel summary={scanSummary} /> : null}
+
+      {planSummary !== null && planSummary.summaryNotes.length > 0 ? (
+        <section className="mb-6 space-y-2">
+          <h3 className={cn("m-0 font-semibold text-al-text-primary", OPERATOR_TYPOGRAPHY.cardTitle)}>
+            Scan notes
+          </h3>
+          <ul className={cn("m-0 list-disc space-y-1 pl-5 leading-relaxed", OPERATOR_TYPOGRAPHY.body)}>
+            {planSummary.summaryNotes.map((note, index) => (
+              <li key={index}>{note}</li>
+            ))}
+          </ul>
+        </section>
+      ) : null}
+
+      {recommendations.length > 0 ? (
+        <section className="space-y-4" data-testid="advisory-recommendations-list">
+          <div className="space-y-1">
+            <h3 className={cn("m-0 font-semibold text-al-text-primary", OPERATOR_TYPOGRAPHY.cardTitle)}>
+              {ADVISORY_SCANS_RECOMMENDATIONS_SECTION_TITLE}
+            </h3>
+            <p className={cn("m-0 text-neutral-600 dark:text-neutral-400", OPERATOR_TYPOGRAPHY.body)}>
+              {ADVISORY_SCANS_RECOMMENDATIONS_SECTION_BODY}
             </p>
-
-            <div
-              className="flex flex-wrap items-center gap-2"
-              data-testid="advisory-empty-cta-row"
-            >
-              {!reviewSelected ? (
-                <Button asChild size="sm" variant="primary" data-testid="advisory-empty-primary-cta">
-                  <a href={ADVISORY_SCANS_SAMPLE_ANCHOR_HREF}>{ADVISORY_SCANS_VIEW_SAMPLE_LABEL}</a>
-                </Button>
-              ) : null}
-
-              <Button asChild size="sm" variant="outline">
-                <Link
-                  href={ADVISORY_SCANS_OPEN_REVIEW_PACKAGES_HREF}
-                  data-testid="advisory-empty-open-reviews-link"
-                >
-                  {ADVISORY_SCANS_OPEN_REVIEW_PACKAGES_LABEL}
-                </Link>
-              </Button>
-            </div>
-
-            <AdvisorySampleRecommendationPreview />
           </div>
-        ) : null}
-      </DocumentLayout>
+
+          <div className="grid gap-4">
+            {recommendations.map((recommendation) => (
+              <AdvisoryRecommendationCard
+                key={recommendation.recommendationId}
+                recommendation={recommendation}
+                onAction={(recommendationId, action) => {
+                  setDispositionError(null);
+                  setPendingDisposition({ recommendationId, action });
+                }}
+              />
+            ))}
+          </div>
+        </section>
+      ) : planSummary !== null && recommendations.length === 0 ? (
+        <p className={cn("m-0 text-neutral-600 dark:text-neutral-400", OPERATOR_TYPOGRAPHY.body)}>
+          No persisted recommendations returned for this architecture review.
+        </p>
+      ) : null}
+
+      {!hasResults && showSamplePreview ? (
+        <div className="mt-4 space-y-3" data-testid="advisory-sample-preview-region">
+          <AdvisorySampleRecommendationPreview />
+        </div>
+      ) : null}
+
+      <AdvisoryRecommendationDispositionDialog
+        open={pendingDisposition !== null}
+        onOpenChange={(open) => {
+          if (!open && !dispositionBusy) {
+            setPendingDisposition(null);
+            setDispositionError(null);
+          }
+        }}
+        actionLabel={
+          pendingDisposition !== null ? dispositionActionLabel(pendingDisposition.action) : null
+        }
+        busy={dispositionBusy}
+        errorMessage={dispositionError}
+        onConfirm={(comment, rationale) => {
+          void submitDisposition(comment, rationale);
+        }}
+      />
     </div>
   );
 }

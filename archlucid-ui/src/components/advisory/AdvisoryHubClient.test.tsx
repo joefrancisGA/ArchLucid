@@ -78,4 +78,12 @@ describe("AdvisoryHubClient (TB-670)", () => {
 
     expect(pushMock).toHaveBeenCalledWith("/governance/advisory-scans?tab=schedules&runId=run-abc");
   });
+
+  it("keeps ?tab=scans when selecting the Scans tab (TB-1565)", () => {
+    render(<AdvisoryHubClient initialTab="schedules" />);
+
+    fireEvent.click(screen.getByRole("tab", { name: "Scans" }));
+
+    expect(pushMock).toHaveBeenCalledWith("/governance/advisory-scans?tab=scans");
+  });
 });

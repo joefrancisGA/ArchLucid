@@ -1036,11 +1036,11 @@ All **P0** **V1**: visible-boundary button contract + design-system rule (**TB-2
 | TB-1552 | Operator empty-state contract ? document in UI_DESIGN_SYSTEM (+ UI ARCHITECTURE pointer); see ## TB-1552 below | Adoption friction P1 ? **V1**; owner empty-state convention pass 2026-07-27; pairs CTA **TB-1539**?**TB-1544** / whitespace **TB-1477**?**TB-1482** | S |
 | TB-1554 | Operator EmptyState ? Compact migration inventory (dense hubs); see ## TB-1554 below | Adoption friction P1 ? **V1**; with **TB-1552** | M |
 | TB-1555 | Empty-kind presets/helpers ? collection / hub-zone / filtered / permission conventions; see ## TB-1555 below | Adoption friction P1 ? **V1**; with **TB-1552**; extend `enterprise-compact-empty-state-presets.ts` | S |
-| TB-1565 | Advisory Scans tab ? keep `?tab=scans` deep-link stable; see ## TB-1565 below | Adoption friction P1 ? **V1**; owner review ~52/100 2026-07-27; traffic **ADS**; pairs **TB-1505** | XS |
-| TB-1566 | Advisory recommendation disposition ? replace `window.prompt` with on-system dialog; see ## TB-1566 below | Adoption friction P1 ? **V1**; with **TB-1565**; after Done **TB-1127** affordance | S |
-| TB-1567 | Advisory Scans tab ? empty/form first-viewport composition (one next story); see ## TB-1567 below | Adoption friction P1 ? **V1**; with **TB-1565**; pairs **TB-1552**/**TB-1477**; after Done **TB-1126**/**TB-1128** | S |
-| TB-1568 | Advisory Scans tab ? demote secondary h2 + DocumentLayout padding under hub; see ## TB-1568 below | Adoption friction P1 ? **V1**; with **TB-1565**; pairs **TB-1511**/**TB-1508** | S |
-| TB-1569 | Advisory Scans tab ? one primary CTA locus (align TB-1539); see ## TB-1569 below | Adoption friction P1 ? **V1**; with **TB-1565**; pairs **TB-1539**/**TB-1542** | S |
+| TB-1565 | **Done** (2026-08-11) ? Advisory Scans tab ? keep `?tab=scans` deep-link stable; see ## TB-1565 below | Adoption friction P1 ? **V1**; owner review ~52/100 2026-07-27; traffic **ADS**; pairs **TB-1505** | XS |
+| TB-1566 | **Done** (2026-08-11) ? Advisory recommendation disposition ? replace `window.prompt` with on-system dialog; see ## TB-1566 below | Adoption friction P1 ? **V1**; with **TB-1565**; after Done **TB-1127** affordance | S |
+| TB-1567 | **Done** (2026-08-11) ? Advisory Scans tab ? empty/form first-viewport composition (one next story); see ## TB-1567 below | Adoption friction P1 ? **V1**; with **TB-1565**; pairs **TB-1552**/**TB-1477**; after Done **TB-1126**/**TB-1128** | S |
+| TB-1568 | **Done** (2026-08-11) ? Advisory Scans tab ? demote secondary h2 + DocumentLayout padding under hub; see ## TB-1568 below | Adoption friction P1 ? **V1**; with **TB-1565**; pairs **TB-1511**/**TB-1508** | S |
+| TB-1569 | **Done** (2026-08-11) ? Advisory Scans tab ? one primary CTA locus (align TB-1539); see ## TB-1569 below | Adoption friction P1 ? **V1**; with **TB-1565**; pairs **TB-1539**/**TB-1542** | S |
 | TB-1572 | **Done** (2026-08-11) ? Operator side-rail contract in `UI_DESIGN_SYSTEM.md` + `ARCHITECTURE.md` pointer; single-column default; allow/ban kinds; see `## TB-1572` below | Adoption friction P1 ? **V1**; owner side-rail convention pass 2026-07-27; pairs empty **TB-1552**?**TB-1556** / whitespace **TB-1477**?**TB-1482** | S |
 | TB-1573 | **Done** (2026-08-11) ? Ban teaching/static side rails ? Recurrence helper collapsed disclosure + Advisory scope inline; see ## TB-1573 below | Adoption friction P1 ? **V1**; with **TB-1572**; pairs Done **TB-1133** / open **TB-1477** | S |
 | TB-1574 | **Done** (2026-08-11) ? Live preview/readiness rails hide or stack when empty/sparse; `operator-live-preview-readiness-rail`; Digests Schedule + Alert rules; Vitest; see `## TB-1574` below | Adoption friction P1 ? **V1**; with **TB-1572**; coordinate **TB-1478**/**TB-1479** (do not reopen) | S |
@@ -39886,7 +39886,7 @@ Operators must read three intros before reaching the Trust Center link list.
 
 **Window:** V1 ? Adoption friction.
 
-**Status:** Not started.
+**Status:** Done (2026-08-11).
 
 **Priority:** P0.
 
@@ -39903,6 +39903,8 @@ Operators must read three intros before reaching the Trust Center link list.
 
 **Acceptance:** ADS deep links stay stable.
 
+**Shipped:** `buildAdvisoryHubHref` always sets `?tab=` (TB-1505 parity); `AdvisoryHubClient.test.tsx` Scans tab push assertion.
+
 **Depends on:** Coordinate **TB-1566**?**TB-1569**.
 
 **Out of scope:** Schedules tab UX (**TB-1542**).
@@ -39915,7 +39917,7 @@ Operators must read three intros before reaching the Trust Center link list.
 
 **Window:** V1 ? Adoption friction.
 
-**Status:** Not started.
+**Status:** Done (2026-08-11).
 
 **Priority:** P0.
 
@@ -39931,6 +39933,8 @@ Operators must read three intros before reaching the Trust Center link list.
 
 **Acceptance:** Accept/Defer/Reject/Mark flows are on-system.
 
+**Shipped:** `AdvisoryRecommendationDispositionDialog.tsx`; wired from `AdvisoryScansContent`; Vitest disposition dialog.
+
 **Depends on:** Prefer with **TB-1565**.
 
 **Out of scope:** Changing recommendation state machine.
@@ -39943,7 +39947,7 @@ Operators must read three intros before reaching the Trust Center link list.
 
 **Window:** V1 ? Adoption friction.
 
-**Status:** Not started.
+**Status:** Done (2026-08-11).
 
 **Priority:** P0.
 
@@ -39959,6 +39963,8 @@ Operators must read three intros before reaching the Trust Center link list.
 
 **Acceptance:** Scans empty reads as one guided composition.
 
+**Shipped:** Empty intro with Choose review / View sample CTAs; form and sample preview revealed on demand; Vitest **TB-1567**.
+
 **Depends on:** Prefer with **TB-1565**; coordinate **TB-1552**/**TB-1569**.
 
 **Out of scope:** Schedules form+rail (**TB-1477**/**TB-1542**).
@@ -39971,7 +39977,7 @@ Operators must read three intros before reaching the Trust Center link list.
 
 **Window:** V1 ? Adoption friction.
 
-**Status:** Not started.
+**Status:** Done (2026-08-11).
 
 **Priority:** P0.
 
@@ -39987,6 +39993,8 @@ Operators must read three intros before reaching the Trust Center link list.
 
 **Acceptance:** One page title (hub); scans content is a tab panel.
 
+**Shipped:** Removed `DocumentLayout` + outer tab padding; form title uses `h3` + `cardTitle`; Vitest source guard.
+
 **Depends on:** Prefer with **TB-1565**; coordinate header **TB-1508**?**TB-1513** when landing.
 
 **Out of scope:** Renaming nav label Architecture advisory.
@@ -39999,7 +40007,7 @@ Operators must read three intros before reaching the Trust Center link list.
 
 **Window:** V1 ? Adoption friction.
 
-**Status:** Not started.
+**Status:** Done (2026-08-11).
 
 **Priority:** P0.
 
@@ -40014,6 +40022,8 @@ Operators must read three intros before reaching the Trust Center link list.
 3. Vitest: feeds **TB-1544** allowlist for advisory scans tab.
 
 **Acceptance:** Scans tab has one obvious primary next step per state.
+
+**Shipped:** Empty intro: sole primary **Choose review**; View sample outline; Generate primary only after review selected; inventory updated (**TB-1543**).
 
 **Depends on:** Prefer with **TB-1567**; after/with **TB-1539**.
 
