@@ -83,6 +83,11 @@ public sealed class RepositorySqlExtractionRatchetTests
                 "ArchLucid.Persistence/GoldenManifests/GoldenManifestRelationalWriter.cs",
                 "GoldenManifestWriteSql",
                 "ArchLucid.Persistence/Sql/GoldenManifestWriteSql.cs"
+            },
+            {
+                "ArchLucid.Persistence/Repositories/SqlRunRepository.cs",
+                "RunRepositorySql",
+                "ArchLucid.Persistence/Sql/RunRepositorySql.cs"
             }
         };
 
