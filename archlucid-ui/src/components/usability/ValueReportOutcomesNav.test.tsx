@@ -24,27 +24,32 @@ vi.mock("@/lib/features", () => ({
 const mockIsShowSystemAdministrationNavEnabled = vi.mocked(isShowSystemAdministrationNavEnabled);
 
 describe("ValueReportOutcomesNav", () => {
-  it("renders tablist semantics with all outcomes tabs when system-administration nav is enabled", () => {
+  it("renders cross-route nav links with aria-current, not tab roles (TB-1664)", () => {
     mockIsShowSystemAdministrationNavEnabled.mockReturnValue(true);
 
     render(<ValueReportOutcomesNav />);
 
     expect(screen.getByTestId("value-report-outcomes-nav")).toBeInTheDocument();
-    expect(screen.getByRole("tablist", { name: "Sponsor report sections" })).toBeInTheDocument();
-    expect(screen.getByRole("tab", { name: EXECUTIVE_SUMMARY_PAGE_TITLE })).toHaveAttribute("aria-selected", "true");
-    expect(screen.getByRole("tab", { name: "Pilot outcomes" })).toBeInTheDocument();
-    expect(screen.getByRole("tab", { name: "ROI summary" })).toBeInTheDocument();
-    expect(screen.getByRole("tab", { name: "Architecture scorecard" })).toBeInTheDocument();
+    expect(screen.getByRole("navigation", { name: "Sponsor report sections" })).toBeInTheDocument();
+    expect(screen.queryByRole("tablist")).not.toBeInTheDocument();
+    expect(screen.queryByRole("tab")).not.toBeInTheDocument();
+    expect(screen.getByRole("link", { name: EXECUTIVE_SUMMARY_PAGE_TITLE })).toHaveAttribute(
+      "aria-current",
+      "page",
+    );
+    expect(screen.getByRole("link", { name: "Pilot outcomes" })).toBeInTheDocument();
+    expect(screen.getByRole("link", { name: "ROI summary" })).toBeInTheDocument();
+    expect(screen.getByRole("link", { name: "Architecture scorecard" })).toBeInTheDocument();
   });
 
-  it("shows pilot outcomes and ROI tabs for all visitors (TB-643 nav placement)", () => {
+  it("shows pilot outcomes and ROI links for all visitors (TB-643 nav placement)", () => {
     mockIsShowSystemAdministrationNavEnabled.mockReturnValue(false);
 
     render(<ValueReportOutcomesNav />);
 
-    expect(screen.getByRole("tab", { name: EXECUTIVE_SUMMARY_PAGE_TITLE })).toBeInTheDocument();
-    expect(screen.getByRole("tab", { name: "Architecture scorecard" })).toBeInTheDocument();
-    expect(screen.getByRole("tab", { name: "Pilot outcomes" })).toBeInTheDocument();
-    expect(screen.getByRole("tab", { name: "ROI summary" })).toBeInTheDocument();
+    expect(screen.getByRole("link", { name: EXECUTIVE_SUMMARY_PAGE_TITLE })).toBeInTheDocument();
+    expect(screen.getByRole("link", { name: "Architecture scorecard" })).toBeInTheDocument();
+    expect(screen.getByRole("link", { name: "Pilot outcomes" })).toBeInTheDocument();
+    expect(screen.getByRole("link", { name: "ROI summary" })).toBeInTheDocument();
   });
 });

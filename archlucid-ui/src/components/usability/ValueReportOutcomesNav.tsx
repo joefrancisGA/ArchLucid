@@ -24,14 +24,11 @@ export function ValueReportOutcomesNav(): React.JSX.Element | null {
 
   return (
     <nav
-      className="border-b border-neutral-200 dark:border-neutral-700"
+      className="border-b border-neutral-200 dark:border-neutral-800"
       data-testid="value-report-outcomes-nav"
+      aria-label="Sponsor report sections"
     >
-      <div
-        className="-mb-px flex flex-wrap gap-1"
-        role="tablist"
-        aria-label="Sponsor report sections"
-      >
+      <div className="-mb-px flex flex-wrap gap-1">
         {visibleTabs.map((tab) => {
           const active = tab.match(pathname);
 
@@ -39,15 +36,15 @@ export function ValueReportOutcomesNav(): React.JSX.Element | null {
             <Link
               key={tab.href}
               href={tab.href}
-              role="tab"
-              aria-selected={active}
+              aria-current={active ? "page" : undefined}
               className={cn(
-                "rounded-t-md border border-b-0 px-3 py-2 no-underline",
+                "px-4 py-2 no-underline outline-none transition-colors",
                 OPERATOR_TYPOGRAPHY.body,
-                "font-medium",
+                "-mb-px border-b-2",
                 active
-                  ? "border-neutral-200 border-b-2 border-b-[var(--al-accent-interactive)] bg-white text-al-text-primary dark:border-neutral-700 dark:bg-neutral-950"
-                  : "border-transparent bg-transparent text-al-text-secondary hover:bg-neutral-100 hover:text-al-text-primary dark:hover:bg-neutral-900",
+                  ? "border-teal-600 font-semibold text-al-text-primary dark:border-teal-400 dark:text-teal-300"
+                  : "border-transparent font-medium text-neutral-700 hover:text-neutral-900 dark:text-neutral-300 dark:hover:text-neutral-100",
+                "focus-visible:ring-2 focus-visible:ring-[var(--al-accent-border-focus)] focus-visible:ring-offset-2",
               )}
             >
               {tab.label}
