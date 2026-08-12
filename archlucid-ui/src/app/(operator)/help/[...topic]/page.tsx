@@ -1,7 +1,7 @@
 import type { Metadata } from "next";
 import dynamic from "next/dynamic";
 import { headers } from "next/headers";
-import { notFound, permanentRedirect } from "next/navigation";
+import { permanentRedirect } from "next/navigation";
 
 import { HelpTopicMarkdownView } from "../HelpTopicMarkdownView";
 import { CaiqSigResponseHelpEvidenceOrientationStrip } from "@/components/help/CaiqSigResponseHelpEvidenceOrientationStrip";
@@ -596,7 +596,7 @@ export default async function HelpTopicPage(props: HelpTopicPageProps): Promise<
   const entry = getProductDocumentationEntry(slug);
 
   if (entry === null) {
-    notFound();
+    return <HelpTopicNotFoundView />;
   }
 
   if (entry.contentKind === "internal-runbook") {
@@ -606,13 +606,13 @@ export default async function HelpTopicPage(props: HelpTopicPageProps): Promise<
       const principal = await getInboundAuthenticatedServerPrincipal();
 
       if (!principalCanAccessHelpTopic(entry, principal)) {
-        notFound();
+        return <HelpTopicNotFoundView />;
       }
 
       const loaded = tryLoadProductDocumentation(slug);
 
       if (loaded === null) {
-        notFound();
+        return <HelpTopicNotFoundView />;
       }
 
       return (
@@ -632,7 +632,7 @@ export default async function HelpTopicPage(props: HelpTopicPageProps): Promise<
   const loaded = tryLoadProductDocumentation(slug);
 
   if (loaded === null) {
-    notFound();
+    return <HelpTopicNotFoundView />;
   }
 
   return renderHelpTopicView(loaded, resolvedSearchParams);
