@@ -921,6 +921,112 @@
         },
         "type": "object"
       },
+      "AdminQuickScanBudgetSnapshotResponse": {
+        "properties": {
+          "dailyCeilingUsd": {
+            "format": "double",
+            "pattern": "^-?(?:0|[1-9]\\d*)(?:\\.\\d\u002B)?$",
+            "type": [
+              "number",
+              "string"
+            ]
+          },
+          "dayBucketKey": {
+            "type": "string"
+          },
+          "dayCommittedUsd": {
+            "format": "double",
+            "pattern": "^-?(?:0|[1-9]\\d*)(?:\\.\\d\u002B)?$",
+            "type": [
+              "number",
+              "string"
+            ]
+          },
+          "dayReservedUsd": {
+            "format": "double",
+            "pattern": "^-?(?:0|[1-9]\\d*)(?:\\.\\d\u002B)?$",
+            "type": [
+              "number",
+              "string"
+            ]
+          },
+          "expiredPendingReservationCount": {
+            "format": "int32",
+            "type": "integer"
+          },
+          "hourBucketKey": {
+            "type": "string"
+          },
+          "hourCommittedUsd": {
+            "format": "double",
+            "pattern": "^-?(?:0|[1-9]\\d*)(?:\\.\\d\u002B)?$",
+            "type": [
+              "number",
+              "string"
+            ]
+          },
+          "hourReservedUsd": {
+            "format": "double",
+            "pattern": "^-?(?:0|[1-9]\\d*)(?:\\.\\d\u002B)?$",
+            "type": [
+              "number",
+              "string"
+            ]
+          },
+          "hourlyCeilingUsd": {
+            "format": "double",
+            "pattern": "^-?(?:0|[1-9]\\d*)(?:\\.\\d\u002B)?$",
+            "type": [
+              "number",
+              "string"
+            ]
+          },
+          "lastReconciliationExpiredCount": {
+            "format": "int32",
+            "type": "integer"
+          },
+          "lastReconciliationUtc": {
+            "format": "date-time",
+            "type": [
+              "null",
+              "string"
+            ]
+          },
+          "operationalMode": {
+            "type": "string"
+          },
+          "pendingReservationCount": {
+            "format": "int32",
+            "type": "integer"
+          },
+          "recentUsage": {
+            "items": {
+              "$ref": "#/components/schemas/AdminQuickScanUsageRecordRow"
+            },
+            "type": "array"
+          },
+          "safetyEnabled": {
+            "type": "boolean"
+          }
+        },
+        "required": [
+          "dailyCeilingUsd",
+          "dayBucketKey",
+          "dayCommittedUsd",
+          "dayReservedUsd",
+          "expiredPendingReservationCount",
+          "hourBucketKey",
+          "hourCommittedUsd",
+          "hourReservedUsd",
+          "hourlyCeilingUsd",
+          "lastReconciliationExpiredCount",
+          "operationalMode",
+          "pendingReservationCount",
+          "recentUsage",
+          "safetyEnabled"
+        ],
+        "type": "object"
+      },
       "AdminQuickScanSafetySnapshotResponse": {
         "properties": {
           "actorUserId": {
@@ -982,6 +1088,82 @@
         "required": [
           "operationalMode",
           "reason"
+        ],
+        "type": "object"
+      },
+      "AdminQuickScanUsageRecordRow": {
+        "properties": {
+          "actualCostUsd": {
+            "format": "double",
+            "pattern": "^-?(?:0|[1-9]\\d*)(?:\\.\\d\u002B)?$",
+            "type": [
+              "null",
+              "number",
+              "string"
+            ]
+          },
+          "durationMs": {
+            "format": "int32",
+            "type": "integer"
+          },
+          "inputTokens": {
+            "format": "int32",
+            "type": [
+              "null",
+              "integer"
+            ]
+          },
+          "modelLabel": {
+            "type": [
+              "null",
+              "string"
+            ]
+          },
+          "occurredUtc": {
+            "format": "date-time",
+            "type": "string"
+          },
+          "outputTokens": {
+            "format": "int32",
+            "type": [
+              "null",
+              "integer"
+            ]
+          },
+          "rejectionReason": {
+            "type": [
+              "null",
+              "string"
+            ]
+          },
+          "reservationId": {
+            "format": "uuid",
+            "type": [
+              "null",
+              "string"
+            ]
+          },
+          "reservedUsd": {
+            "format": "double",
+            "pattern": "^-?(?:0|[1-9]\\d*)(?:\\.\\d\u002B)?$",
+            "type": [
+              "null",
+              "number",
+              "string"
+            ]
+          },
+          "routeKind": {
+            "type": "string"
+          },
+          "status": {
+            "type": "string"
+          }
+        },
+        "required": [
+          "durationMs",
+          "occurredUtc",
+          "routeKind",
+          "status"
         ],
         "type": "object"
       },
@@ -42962,6 +43144,146 @@
         },
         "tags": [
           "PromptVariantsAdmin"
+        ],
+        "x-archlucid-audience": "operator"
+      }
+    },
+    "/v1/admin/quick-scan/budget": {
+      "get": {
+        "responses": {
+          "200": {
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/AdminQuickScanBudgetSnapshotResponse"
+                }
+              },
+              "text/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/AdminQuickScanBudgetSnapshotResponse"
+                }
+              },
+              "text/plain": {
+                "schema": {
+                  "$ref": "#/components/schemas/AdminQuickScanBudgetSnapshotResponse"
+                }
+              }
+            },
+            "description": "OK"
+          },
+          "400": {
+            "content": {
+              "application/problem\u002Bjson": {
+                "schema": {
+                  "$ref": "#/components/schemas/ProblemDetails"
+                }
+              }
+            },
+            "description": "Bad Request (validation or malformed input)."
+          },
+          "401": {
+            "content": {
+              "application/problem\u002Bjson": {
+                "schema": {
+                  "$ref": "#/components/schemas/ProblemDetails"
+                }
+              }
+            },
+            "description": "Unauthorized."
+          },
+          "403": {
+            "content": {
+              "application/problem\u002Bjson": {
+                "schema": {
+                  "$ref": "#/components/schemas/ProblemDetails"
+                }
+              }
+            },
+            "description": "Forbidden."
+          },
+          "404": {
+            "content": {
+              "application/problem\u002Bjson": {
+                "schema": {
+                  "$ref": "#/components/schemas/ProblemDetails"
+                }
+              }
+            },
+            "description": "Not Found."
+          },
+          "405": {
+            "content": {
+              "application/problem\u002Bjson": {
+                "schema": {
+                  "$ref": "#/components/schemas/ProblemDetails"
+                }
+              }
+            },
+            "description": "Method Not Allowed."
+          },
+          "409": {
+            "content": {
+              "application/problem\u002Bjson": {
+                "schema": {
+                  "$ref": "#/components/schemas/ProblemDetails"
+                }
+              }
+            },
+            "description": "Conflict."
+          },
+          "415": {
+            "content": {
+              "application/problem\u002Bjson": {
+                "schema": {
+                  "$ref": "#/components/schemas/ProblemDetails"
+                }
+              }
+            },
+            "description": "Unsupported Media Type."
+          },
+          "422": {
+            "content": {
+              "application/problem\u002Bjson": {
+                "schema": {
+                  "$ref": "#/components/schemas/ProblemDetails"
+                }
+              }
+            },
+            "description": "Unprocessable Entity."
+          },
+          "429": {
+            "content": {
+              "application/problem\u002Bjson": {
+                "schema": {
+                  "$ref": "#/components/schemas/ProblemDetails"
+                }
+              }
+            },
+            "description": "Too Many Requests."
+          },
+          "500": {
+            "content": {
+              "application/problem\u002Bjson": {
+                "schema": {
+                  "$ref": "#/components/schemas/ProblemDetails"
+                }
+              }
+            },
+            "description": "Internal Server Error."
+          },
+          "503": {
+            "content": {
+              "application/problem\u002Bjson": {
+                "schema": {
+                  "$ref": "#/components/schemas/ProblemDetails"
+                }
+              }
+            },
+            "description": "Service Unavailable."
+          }
+        },
+        "tags": [
+          "AdminQuickScanBudget"
         ],
         "x-archlucid-audience": "operator"
       }
@@ -149792,6 +150114,9 @@
     },
     {
       "name": "AdminQualityGateDiagnostics"
+    },
+    {
+      "name": "AdminQuickScanBudget"
     },
     {
       "name": "AdminQuickScanSafety"
