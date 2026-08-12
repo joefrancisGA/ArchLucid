@@ -7,9 +7,10 @@ import {
 } from "@/lib/buyer/buyer-polish-copy";
 import { isBuyerPolishedOperatorShellEnv } from "@/lib/demo-ui-env";
 import {
-  SHOWCASE_STATIC_DEMO_PRIMARY_FINDING_ID,
-  SHOWCASE_STATIC_DEMO_PRIMARY_FINDING_TITLE,
-} from "@/lib/showcase-static-demo";
+  getActiveSampleScenario,
+  isActiveSampleHeroFindingId,
+  sampleCategoryTokenMatches,
+} from "@/lib/samples/registry";
 import { BUYER_SURFACE_VOCABULARY } from "@/lib/vocabulary/buyer-surface-vocabulary";
 import type { FindingInspectPayload } from "@/types/finding-inspect";
 
@@ -95,23 +96,25 @@ export function findingInspectNarrativeFields(payload: FindingInspectPayload): {
 }
 
 export function isPhiMinimizationFindingId(findingId: string | null | undefined): boolean {
-  const normalized = findingId?.trim().toLowerCase() ?? "";
+  if (isActiveSampleHeroFindingId(findingId)) {
+    return true;
+  }
 
-  return normalized === SHOWCASE_STATIC_DEMO_PRIMARY_FINDING_ID.toLowerCase() || normalized.includes("phi");
+  return sampleCategoryTokenMatches(findingId ?? "");
 }
 
 /**
  * Preferred page title for Finding detail — human narrative first, then rule context, generic last.
  */
 function isShowcasePrimaryPhiFindingId(findingId: string | null | undefined): boolean {
-  const normalized = findingId?.trim().toLowerCase() ?? "";
-
-  return normalized === SHOWCASE_STATIC_DEMO_PRIMARY_FINDING_ID.toLowerCase();
+  return isActiveSampleHeroFindingId(findingId);
 }
 
 export function findingDetailHeadingTitle(payload: FindingInspectPayload): string {
+  const scenario = getActiveSampleScenario();
+
   if (isShowcasePrimaryPhiFindingId(payload.findingId)) {
-    return SHOWCASE_STATIC_DEMO_PRIMARY_FINDING_TITLE;
+    return scenario.primaryFindingTitle;
   }
 
   if (isPhiMinimizationSampleFinding(payload)) {
@@ -145,8 +148,10 @@ export function findingDetailHeadingTitleForRoute(
   findingId: string,
   payload: FindingInspectPayload | null
 ): string {
+  const scenario = getActiveSampleScenario();
+
   if (isShowcasePrimaryPhiFindingId(findingId)) {
-    return SHOWCASE_STATIC_DEMO_PRIMARY_FINDING_TITLE;
+    return scenario.primaryFindingTitle;
   }
 
   if (isPhiMinimizationFindingId(findingId)) {
@@ -215,7 +220,7 @@ export function isPhiMinimizationSampleFinding(payload: FindingInspectPayload): 
     typedPayloadLookupString(payload, "Category") ??
     "";
 
-  return cat.toLowerCase().includes("phi");
+  return sampleCategoryTokenMatches(cat);
 }
 
 /**

@@ -1313,9 +1313,9 @@ All **P0** **V1**: visible-boundary button contract + design-system rule (**TB-2
 | TB-182 | **Done** (2026-08-12) ? `Write-AiReadinessPosture.ps1` + Pester; see `scripts/tests/Write-AiReadinessPosture.Tests.ps1` | AI/Agent readiness P1 ? **V1**; wired in `collect-first-pilot-proof.ps1` | M |
 | TB-1196 | **Done** (2026-08-12) ? Agent?decisioning Real-variance isolation contract; see `## TB-1196` below | AI/Agent readiness P1 ? **V1**; `AGENT_OUTPUT_DECISIONING_REAL_VARIANCE_ISOLATION_CONTRACT.md`; GTM **M-203**/**M-204** | S |
 | TB-1228 | **Done** (2026-08-12) ? Faithfulness/support-ratio scoring lane positioning contract; see `## TB-1228` below | AI/Agent readiness P1 ? **V1**; `FAITHFULNESS_SUPPORT_RATIO_SCORING_LANE_POSITIONING_CONTRACT.md`; GTM **M-209**/**M-210** | S |
-| TB-1230 | Shared hallucination defense plane (anti mode-fork) contract; see `## TB-1230` below | AI/Agent readiness P1 ? **V1**; PA Q7 defense placement; GTM **M-211**/**M-212** | S |
-| TB-1369 | AgentTask?decisioning ungated leak seams (Real vs Simulator mode-blind matrix); see `## TB-1369` below | AI/Agent readiness P1 ? **V1**; PA Real/Sim leak map; GTM **M-247**/**M-248**; complements **TB-1196** | S |
-| TB-979 | Typed sample-definition extraction ? per-scenario package owns IDs/counts/labels for static+SQL+marketing pins; see `## TB-979` below | Maintainability P1 ? **V1**; after/with **TB-978**; prerequisite for **TB-980**; PA Q15 2026-07-25 | L |
+| TB-1230 | **Done** (2026-08-12) ? Shared hallucination defense plane (anti mode-fork) contract; see `## TB-1230` below | AI/Agent readiness P1 ? **V1**; PA Q7 defense placement; GTM **M-211**/**M-212** | S |
+| TB-1369 | **Done** (2026-08-12) ? AgentTask?decisioning ungated leak seams (Real vs Simulator mode-blind matrix); see `## TB-1369` below | AI/Agent readiness P1 ? **V1**; PA Real/Sim leak map; GTM **M-247**/**M-248**; complements **TB-1196** | S |
+| TB-979 | **Done** (2026-08-12) ? Typed sample-definition extraction ? per-scenario package owns IDs/counts/labels for static+SQL+marketing pins; see `## TB-979` below | Maintainability P1 ? **V1**; after/with **TB-978**; prerequisite for **TB-980**; PA Q15 2026-07-25 | L |
 | TB-988 | **Done** (2026-08-11) ? Concurrent finding disposition / HumanReviewStatus race regression + CI; see `## TB-988` below | Testability P1 ? **V1**; after **TB-987**; pairs approval-request concurrent transition tests | M |
 | TB-989 | **Done** (2026-08-11) ? [`SOLO_OPERATOR_PAGES_VS_SUPPORT_EMAIL_CONTRACT.md`](../operations/SOLO_OPERATOR_PAGES_VS_SUPPORT_EMAIL_CONTRACT.md) pages vs support-email matrix; see `## TB-989` below | Supportability P1 ? **V1**; PA Q17 2026-07-24; GTM **M-142**/**M-143**; extends Done **TB-957**; pairs Done **TB-958**/**TB-959** | S |
 | TB-990 | **Done** (2026-08-11) ? MVO quiet/firing classification in `SUPPORT_PROBLEM_REPORT_TRIAGE.md`; see `## TB-990` below | Supportability P1 ? **V1**; after **TB-989**; extends Done **TB-792** `SUPPORT_PROBLEM_REPORT_TRIAGE.md` | M |
@@ -1324,7 +1324,7 @@ All **P0** **V1**: visible-boundary button contract + design-system rule (**TB-2
 | TB-1157 | **Done** (2026-08-12) ? [`MANIFEST_HASH_HASHER_BASELINE.md`](MANIFEST_HASH_HASHER_BASELINE.md) + `assert_manifest_hash_hasher_baseline_locked.py`; see `## TB-1157` below | Testability P1 ? **V1**; after **TB-1156**; pairs **M-198** | M |
 | TB-1204 | **Done** (2026-08-12) ? [`POST_STRANGLER_RESIDUAL_COUPLING_AND_DISCIPLINE_TEST_RETIREMENT_CONTRACT.md`](POST_STRANGLER_RESIDUAL_COUPLING_AND_DISCIPLINE_TEST_RETIREMENT_CONTRACT.md); see `## TB-1204` below | Architectural integrity P1 ? **V1**; PA Q4 strangler residual; GTM **M-205**/**M-206** | S |
 | TB-1263 | **Done** (2026-08-12) ? [`DAPPER_DDL_SATELLITE_BREAKDOWN_SIGNALS_CONTRACT.md`](DAPPER_DDL_SATELLITE_BREAKDOWN_SIGNALS_CONTRACT.md); see `## TB-1263` below | Maintainability P1 ? **V1**; PA Q11 data-access; GTM **M-219**/**M-220** | S |
-| TB-1311 | First async-orchestration forcing workload + run state machine freeze (commit-safe split); see `## TB-1311` below | Architectural integrity P1 ? **V1**; PA 2026-07-26 async/DTF; GTM **M-231**/**M-232** | S |
+| TB-1311 | **Done** (2026-08-12) ? First async-orchestration forcing workload + run state machine freeze (commit-safe split); see `## TB-1311` below | Architectural integrity P1 ? **V1**; PA 2026-07-26 async/DTF; GTM **M-231**/**M-232** | S |
 | TB-1324 | Policy-pack / rule-set evaluation hybrid (versioned data plane + compiled interpreter) contract; see `## TB-1324` below | Architectural integrity P1 ? **V1**; PA Q19 packs?frameworks; GTM **M-235**/**M-236** | S |
 | TB-1624 | **Done** (2026-08-11) ? [`POLICY_PACK_CUSTOMER_RULE_SANDBOX_PIN_BLAST_RADIUS_CLAIM_MAP.md`](POLICY_PACK_CUSTOMER_RULE_SANDBOX_PIN_BLAST_RADIUS_CLAIM_MAP.md); see `## TB-1624` below | Architectural integrity P1 ? **V1**; PA pack extensibility Q; GTM **M-298**/**M-299**; see `POLICY_PACK_CUSTOMER_RULE_SANDBOX_PIN_BLAST_RADIUS_CLAIM_MAP.md`; orchestrates **TB-1324**/**TB-1022** | S |
 | TB-1824 | ~~Pair MAM `/signed-records/.../artifacts/...` with RER restore~~ **Done** 2026-08-03 ? via **TB-1947** GAR | Architectural integrity P1 ? **V1**; with **TB-1821**; traffic **MAM**?**GAR** | M |
@@ -26477,30 +26477,17 @@ Plus visual regression: overview, technical index, one expanded object, one fiel
 
 **Window:** V1 ? Maintainability; prerequisite for second scenario.
 
-**Status:** Not started.
+**Status:** **Done** (2026-08-12).
 
 **Priority:** P1.
 
-**Source:** Assessment 2026-07-23 ?4.2 / ?12?13 / F-03 / F-04. Enriched 2026-07-25 PA Q15: *Showcase/static demo vs live SQL seed ? sample packages so marketing and trial never disagree on universe or IDs.*
+**Shipped:**
 
-**Problem:** ~15 shared UI helpers branch on PHI/healthcare identifiers (`finding-display-from-inspect.ts`, `graph-mapper.ts`, `policy-pack-detail-resolver.ts`, `HealthcareClaimsPolicyPackDetail`, etc.). 80+ tests lock literal healthcare strings. Blocks a clean second scenario and makes rename-in-place unsafe. Separately, static showcase IDs/counts, SQL `DemoWorkspaceStableIds`, marketing deep links, and `trialSampleRunId` can drift into **two fictional universes** unless each scenario is one pinned sample-definition package.
+1. `archlucid-ui/src/lib/samples/` ? `SampleScenarioDefinition` type, `claims-intake/definition.ts` package, and `registry.ts` (active scenario + hero finding / run / policy-pack resolution).
+2. Refactored `finding-display-from-inspect.ts`, `graph-mapper.ts`, `policy-pack-detail-resolver.ts`, `showcase-sample-review-registry.ts`, and `demo-sample-universe.ts` to read from the active definition (no hard-coded healthcare branches in generic helpers).
+3. `showcase-static-demo.ts` re-exports claims-intake definition constants; Vitest `samples/registry.test.ts` + existing helper suites green.
 
-**Approach:**
-
-1. Introduce typed per-scenario `SampleScenarioDefinition` modules (TS packages under e.g. `archlucid-ui/src/lib/samples/{slug}/`) exporting architecture, reviews, findings, evidence, decisions, sponsor metrics, policy-assignment labels, hero finding id, graph hero node, **stable run/manifest/finding IDs**, **spine counts**, **buyer universe labels**, **disclosure kind**, and **canonical deep-link paths**.
-2. Refactor the ?4.2 helpers to read from the active definition (no `"phi"` substring branches in generic components).
-3. Migrate Claims Intake payload from `showcase-static-demo.ts` / `operator-static-demo.ts` into the claims definition without visible behavior change.
-4. Migrate tests to assert against definition fields (kill literal ?PHI Minimization Risk? / pack-label locks where possible).
-5. Keep route aliases/redirects for Claims slug stable; document that SQL A/B pins remain `fixtures/demo-workspaces/demo-workspaces.fixture.manifest.json` + `DemoWorkspaceFixtureManifestParityTests` / `DEMO_WORKSPACES.md` living-fixture co-change ? definition modules must not invent a third ID source for the same universe.
-6. Registry rule: one scenario ? one package; static / `api` / `api_fallback` / marketing CTA / trial bootstrap that claim the same universe must resolve the same IDs and counts (alias collapse is presentation only).
-
-**Acceptance:** Existing Claims spine E2E/unit suite green with no buyer-visible change; helpers have no hard-coded healthcare branches; definition registry documents how to add a second scenario and how pins relate to the demo-workspaces fixture manifest. Unblocks **TB-980** / **TB-981**.
-
-**Depends on:** Prefer after/with **TB-978**. Does **not** require SQL seed GUID renames.
-
-**Out of scope:** Renaming Claims slug; deleting Contoso/Northwind seeds; industry skins framework; reopening Done **TB-887**?**TB-890**.
-
-**Size estimate:** L.
+**Acceptance:** Met ? Claims spine behavior unchanged; one scenario ? one package; unblocks **TB-980** / **TB-981**.
 
 ---
 
@@ -31063,31 +31050,16 @@ Operators must read three intros before reaching the Trust Center link list.
 
 **Window:** V1 ? AI/Agent readiness.
 
-**Status:** Not started.
+**Status:** **Done** (2026-08-12).
 
 **Priority:** P1.
 
-**Source:** Owner / PA question 2026-07-25: *Where should hallucination defenses live when the same manifest can be produced by a simulator, a base model, or a fine-tuned model ? and how do we stop defense logic from forking per execution mode?*
+**Shipped:**
 
-**Problem:** Simulator, base Real, and fine-tuned Real can all feed the same commit path. Heuristic defenses already run through one post-execute plane, but optional LLM judges skip Simulator and content safety wraps Real completions only ? easy to grow into parallel ?Simulator defenses? vs ?Real defenses.? Product risk is also claim-side: Simulator PilotStrict green looks defense-passed without Real proof (**M-166**).
+1. [`SHARED_HALLUCINATION_DEFENSE_PLANE_CONTRACT.md`](SHARED_HALLUCINATION_DEFENSE_PLANE_CONTRACT.md) ? shared plane vs config-only forks / never-fork matrix / **TB-1231** CI anchors.
+2. Cross-links **TB-1196**/**TB-1221**/**TB-1228**, **M-166**, Done **TB-684**.
 
-**Approach:**
-
-1. Author `docs/library/SHARED_HALLUCINATION_DEFENSE_PLANE_CONTRACT.md` with tables:
-   - **Owned by shared plane (must not fork):** schema/`AgentResultParser`; structural + heuristic semantic evaluators; deterministic `AgentResultEvidenceFaithfulnessChecker` semantics; Critic/insight-density post-processors; `AgentOutputQualityGate` disposition; planned provenance fail-closed + validate-before-overlay (**TB-1221**/**TB-1196**); INV-002 mode labeling on every result/run.
-   - **Executor/mode may vary (config/cost only):** AOAI vs fixture vs FT deployment selection; `SkipWhenSimulator` for expensive LLM judges; content-safety on live completions; host threshold profiles (WarnOnly vs PilotStrict Enforce/Block).
-   - **Never:** separate Validator/Gate class trees per execution mode; skip schema/heuristic plane for Simulator; promote Simulator?Real; treat FT promotion cohort ratios as per-run defense.
-   - **Relationship to **TB-1228** lanes:** shared plane implements Lane A structural/light-heuristic; Lane B/C stay async/promotion.
-2. Cross-link **TB-1196**/**TB-1221**/**TB-1228**, **M-166**, Done **TB-684**, GTM **M-211**/**M-212**.
-3. Name CI anchors for **TB-1231**.
-
-**Acceptance:** Contract published; GTM can cite ?one defense plane; mode labels and thresholds, not forked stacks.?
-
-**Depends on:** None (docs).
-
-**Out of scope:** Implementing validate-before-overlay / provenance validators; changing FT activation (**TB-690**); reopening Done **TB-684**.
-
-**Size estimate:** S.
+**Acceptance:** Met ? contract published; GTM can cite one defense plane; pairs **M-211**.
 
 ---
 
@@ -32134,35 +32106,16 @@ Operators must read three intros before reaching the Trust Center link list.
 
 **Window:** V1 ? Architectural integrity.
 
-**Status:** Not started.
+**Status:** **Done** (2026-08-12).
 
 **Priority:** P1.
 
-**Source:** Owner / PA question 2026-07-26: *Everything runs in-process today (API orchestrates agents synchronously). What's the first workload that forces async orchestration (Service Bus / durable execution), and how do we design the run state machine now so that split doesn't require rewriting commit semantics?*
+**Shipped:**
 
-**Problem:** Marketing/eng docs can imply all orchestration is still request-thread in-process, or that Service Bus/DTF is required next for agents. Shipped reality: authority pipeline already queues on SQL (`AsyncAuthorityPipeline`, ADR 0038); agent execute remains sync on the API. Without a pinned **first-force ranking** and **commit-safe state machine**, a future async agent or DTF cutover risks folding finalize into the orchestrator and rewriting `sp_FinalizeManifest` / CAS semantics (**TB-1270**/**TB-1011**).
+1. [`ASYNC_ORCHESTRATION_FIRST_FORCE_AND_RUN_STATE_MACHINE_CONTRACT.md`](ASYNC_ORCHESTRATION_FIRST_FORCE_AND_RUN_STATE_MACHINE_CONTRACT.md) ? authority SQL queue correction / first-force ranking / commit-safe state machine / **TB-1312** CI anchors.
+2. Cross-links **TB-921**/**TB-924**/**TB-943**/**TB-1007**/**TB-1011**/**TB-1270**, GTM **M-231**/**M-232**.
 
-**Approach:**
-
-1. Author `docs/library/ASYNC_ORCHESTRATION_FIRST_FORCE_AND_RUN_STATE_MACHINE_CONTRACT.md` (or ADR 0038 / ?6f addendum) with:
-   - **Correction:** authority already async-by-default on SQL; agent execute is the remaining sync hot path.
-   - **First product force (async agent):** multi-agent Real execute that exceeds API / Container Apps request lifetime ? SQL outbox + Worker resume (ADR 0038 pattern; lease/zombie **TB-943**); **not** Service Bus or DTF as the first step.
-   - **First DTF / durable-timer force:** **TB-921** checklist (?2 criteria); concrete candidate = governance SLA **auto-act** (**TB-923**), not ?agents are slow.?
-   - **Service Bus role today:** integration-event fan-out (ADR 0004/0019) ? do not equate SB presence with agent orchestration substrate.
-   - **Run state machine freeze (commit-safe):**
-     - Phases: Create ? Authority pipeline (queued OK) ? Agent execute (`TasksGenerated` / `WaitingForResults` ? `ReadyForCommit` | `PartiallyCompleted` | `Failed*`) ? **Commit/Finalize** (separate verb, CAS) ? post-commit outboxes.
-     - Execute may move hosts; **commit must not** move into agent orchestration activities; ReadyForCommit precondition + `sp_FinalizeManifest` / finalize UoW stay authoritative.
-     - Persist `(RunId, TaskId)` before LLM; never rewrite sealed package from async worker except via commit verb.
-2. Cross-link **TB-921**/**TB-924**/**TB-943**/**TB-1007**/**TB-1011**/**TB-1270**, GTM **M-231**/**M-232**/**M-162**/**M-145**.
-3. Name CI anchors for **TB-1312**.
-
-**Acceptance:** Contract published; GTM can cite first-force ranking + ?commit stays a separate CAS verb? without implying DTF for V1 GA.
-
-**Depends on:** None (docs). Complements **TB-921** without replacing the DTF gate.
-
-**Out of scope:** Implementing async agent outbox; starting gated **TB-924**; changing finalize SQL.
-
-**Size estimate:** S.
+**Acceptance:** Met ? contract published; GTM can cite first-force ranking + separate commit verb; pairs **M-231**.
 
 ---
 
@@ -34864,34 +34817,16 @@ Operators must read three intros before reaching the Trust Center link list.
 
 **Window:** V1 ? AI/Agent readiness.
 
-**Status:** Not started.
+**Status:** **Done** (2026-08-12).
 
 **Priority:** P1.
 
-**Source:** Owner / PA question 2026-07-26: *For Real vs Simulator mode, where can AgentTask output still leak into decisioning without typed/provenance gates?*
+**Shipped:**
 
-**Problem:** Open **TB-1196** owns the isolation *contract* (typed proposals, validate-before-overlay). PA still lacks a ranked **leak inventory** showing that Simulator and Real share the same ungated AgentTask?decisioning seams (mode-blind), so ?Simulator is safe / Real is the only risk? is false. Concrete seams today:
+1. [`AGENTTASK_DECISIONING_UNGATED_LEAK_SEAMS_CONTRACT.md`](AGENTTASK_DECISIONING_UNGATED_LEAK_SEAMS_CONTRACT.md) ? ranked mode-blind leak inventory / pins / **TB-1370** CI anchors.
+2. Cross-links **M-247**/**M-248**, **TB-1196**/**TB-1221**/**TB-1230**/**TB-1007**.
 
-1. **Commit graph overlay** ? `AuthorityDrivenArchitectureRunCommitOrchestrator` ? `AgentTopologyProposalGraphMerge.WithMergedTopologyProposals` merges Topology `ProposedChanges` into the graph used for decision/projection; copies `ReasoningTrace` onto nodes; no domain provenance gate; no mode branch.
-2. **AgentTask merge path** ? `DecisionEngineService.MergeResults` ? `AgentProposalManifestMerger` (execute/result/commit loop, `ReplayRunService`, golden corpus): schema-only `DecisionMergeInputGate` then merges services/datastores/relationships/`RequiredControls`; `ApplyFindingsToGovernance` lifts Compliance `finding.Message` ? `Governance.ComplianceTags`.
-3. **DecisionEngineV2 AcceptPrior** ? strategies can consume agent calibrated/raw confidence into decision nodes materialized at/after commit.
-4. **Finding dual pipeline** ? LLM `ArchitectureFinding` emission with empty `EvidenceRefs` / citations (**TB-1221**); Critic confidence/density mutation without fail-closed per-finding provenance.
-5. **Quality WarnOnly** ? PilotStrict/quality green ? typed gate on overlays (**M-166** / **TB-1196**).
-
-**Approach:**
-
-1. Author `docs/library/AGENTTASK_DECISIONING_UNGATED_LEAK_SEAMS_CONTRACT.md` with table: **seam ? code ? Simulator vs Real (same/different) ? gate present (schema/typed/provenance/none) ? buyer impact ? residual owner** (**TB-1196** validate-before-overlay, **TB-1221** provenance, **TB-1230** defense plane, **TB-1007** AgentTask loop).
-2. Pin: Authority typed-findings decide is the intended chokepoint; leaks above are the residual AgentTask influence surfaces; mode label (INV-002) does not add gates.
-3. Cross-link **M-247**/**M-248**, **M-203**/**M-204**, **M-166**, **M-207**.
-4. Name CI anchors for **TB-1370**.
-
-**Acceptance:** Contract published; PA/GTM can cite ranked mode-blind leak seams without inventing a separate Simulator decide stack.
-
-**Depends on:** None (docs). Complements **TB-1196** (does not replace validate-before-overlay ship).
-
-**Out of scope:** Implementing validate-before-overlay (owned by **TB-1196** follow-on ship); making Real deterministic; reopening Done **TB-684**.
-
-**Size estimate:** S.
+**Acceptance:** Met ? contract published; PA/GTM can cite ranked leaks without inventing a separate Simulator decide stack; pairs **M-247**.
 
 ---
 

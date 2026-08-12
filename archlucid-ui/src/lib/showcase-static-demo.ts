@@ -1,54 +1,47 @@
 import type { DemoCommitPagePreviewResponse } from "@/types/demo-preview";
 
 import type { FindingProvenance } from "@/lib/api/finding-provenance";
+import {
+  CLAIMS_INTAKE_BUYER_REVIEW_PACKAGE_TITLE,
+  CLAIMS_INTAKE_BUYER_REVIEW_TITLE,
+  CLAIMS_INTAKE_CANONICAL_PROOF_HREF,
+  CLAIMS_INTAKE_DEMO_TENANT_CATALOG_ID,
+  CLAIMS_INTAKE_DEMO_TENANT_NAME,
+  CLAIMS_INTAKE_LATER_COMPARE_RUN_ID,
+  CLAIMS_INTAKE_MANIFEST_ID,
+  CLAIMS_INTAKE_POLICY_PACK_DETAIL_HREF,
+  CLAIMS_INTAKE_PRIMARY_FINDING_ID,
+  CLAIMS_INTAKE_PRIMARY_FINDING_TITLE,
+  CLAIMS_INTAKE_PRIOR_COMPARE_RUN_ID,
+  CLAIMS_INTAKE_SAMPLE_DEFINITION,
+  CLAIMS_INTAKE_SAMPLE_RUN_ID,
+} from "@/lib/samples/claims-intake/definition";
 import { DEV_SCOPE_PROJECT_ID } from "@/lib/scope";
 import { SIGNED_MANIFEST_LABEL } from "@/lib/usability/canonical-product-terms";
 
-/** Public-marketing slug for demos and screenshots — no fixture-style token. */
-export const SHOWCASE_STATIC_DEMO_RUN_ID = "claims-intake-modernization";
+export const SHOWCASE_STATIC_DEMO_RUN_ID = CLAIMS_INTAKE_SAMPLE_RUN_ID;
 
-/**
- * M-107 Option A — canonical anonymous public proof path (Claims-static showcase).
- * Contoso `/demo/preview` stays a secondary, Contoso-labeled sample (self-demo / Product Tour).
- */
-export const CANONICAL_ANONYMOUS_PROOF_HREF = `/showcase/${SHOWCASE_STATIC_DEMO_RUN_ID}` as const;
+export const CANONICAL_ANONYMOUS_PROOF_HREF = CLAIMS_INTAKE_CANONICAL_PROOF_HREF;
 
-/** Prior vs later finalized reviews for the Claims Intake compare walkthrough. */
-export const SHOWCASE_STATIC_DEMO_PRIOR_COMPARE_RUN_ID = "claims-intake-run-v1";
+export const SHOWCASE_STATIC_DEMO_PRIOR_COMPARE_RUN_ID = CLAIMS_INTAKE_PRIOR_COMPARE_RUN_ID;
 
-export const SHOWCASE_STATIC_DEMO_LATER_COMPARE_RUN_ID = "claims-intake-run-v2";
+export const SHOWCASE_STATIC_DEMO_LATER_COMPARE_RUN_ID = CLAIMS_INTAKE_LATER_COMPARE_RUN_ID;
 
-/** Stable buyer-facing name for review detail H1s, pickers, and breadcrumbs (matches marketing short form). */
-export const SHOWCASE_BUYER_REVIEW_TITLE = "Claims Intake Modernization Review";
+export const SHOWCASE_BUYER_REVIEW_TITLE = CLAIMS_INTAKE_BUYER_REVIEW_TITLE;
 
-/**
- * Short list/link label for the curated sample review (architecture/system name).
- */
-export const SHOWCASE_BUYER_REVIEW_PACKAGE_TITLE = "Claims Intake Modernization";
+export const SHOWCASE_BUYER_REVIEW_PACKAGE_TITLE = CLAIMS_INTAKE_BUYER_REVIEW_PACKAGE_TITLE;
 
-/** Canonical manifest UUID for the static showcase payload (matches operator mock + marketing body). */
-export const SHOWCASE_STATIC_DEMO_MANIFEST_ID = "a1c2e3f4-a5b6-7890-abcd-ef1234567890";
+export const SHOWCASE_STATIC_DEMO_MANIFEST_ID = CLAIMS_INTAKE_MANIFEST_ID;
 
-/**
- * Governance deep link for the seeded Healthcare Claims demonstration pack (aligned with
- * {@link tryStaticDemoPolicyPacksList} in operator static demo).
- */
-export const SHOWCASE_STATIC_DEMO_POLICY_PACK_DETAIL_HREF = "/governance/policy-packs/demo-healthcare-claims-pack";
+export const SHOWCASE_STATIC_DEMO_POLICY_PACK_DETAIL_HREF = CLAIMS_INTAKE_POLICY_PACK_DETAIL_HREF;
 
-/**
- * Deterministic finding id for deep links from manifest “Related findings” (aligned with demo narrative;
- * resolves when the API seeds this finding for the showcase run).
- */
-export const SHOWCASE_STATIC_DEMO_PRIMARY_FINDING_ID = "phi-minimization-risk";
+export const SHOWCASE_STATIC_DEMO_PRIMARY_FINDING_ID = CLAIMS_INTAKE_PRIMARY_FINDING_ID;
 
-/** Canonical headline for PHI finding deep links (queues, graph, finding detail H1). */
-export const SHOWCASE_STATIC_DEMO_PRIMARY_FINDING_TITLE = "PHI Minimization Risk";
+export const SHOWCASE_STATIC_DEMO_PRIMARY_FINDING_TITLE = CLAIMS_INTAKE_PRIMARY_FINDING_TITLE;
 
-/** Demo tenant label for isolation cues in buyer-polished shell. */
-export const SHOWCASE_DEMO_TENANT_NAME = "Claims Intake Showcase";
+export const SHOWCASE_DEMO_TENANT_NAME = CLAIMS_INTAKE_DEMO_TENANT_NAME;
 
-/** Isolated SQL catalog for the showcase tenant — shown in tenant-isolation proof UI. */
-export const SHOWCASE_DEMO_TENANT_CATALOG_ID = "al-tenant-claims-intake-showcase";
+export const SHOWCASE_DEMO_TENANT_CATALOG_ID = CLAIMS_INTAKE_DEMO_TENANT_CATALOG_ID;
 
 /** Static provenance chains for showcase finding deep links when the API is unavailable. */
 export const SHOWCASE_FINDING_PROVENANCE: Readonly<Record<string, FindingProvenance>> = {
@@ -87,17 +80,14 @@ export const SHOWCASE_FINDING_PROVENANCE: Readonly<Record<string, FindingProvena
  * Canonical counts for the static Claims Intake demo spine — Run detail, manifest summary, and showcase should
  * reflect the same numbers when serving this payload (see {@link getShowcaseStaticDemoPayload}).
  */
-export const SHOWCASE_STATIC_DEMO_SPINE_COUNTS = {
-  findingCount: 9,
-  warningCount: 1,
-  decisionCount: 12,
-} as const;
+export const SHOWCASE_STATIC_DEMO_SPINE_COUNTS = CLAIMS_INTAKE_SAMPLE_DEFINITION.spineCounts;
 
 /**
  * Sponsor-facing headline used only when **`usedStaticDemoRun`** serves the Claims Intake static payload —
  * illustrative until live `cost-actual.json` + `orphan-candidates.json` artifacts exist on tenants.
  */
-export const SHOWCASE_STATIC_DEMO_ILLUSTRATIVE_ANNUALIZED_EXTRACTION_USD = 94_360;
+export const SHOWCASE_STATIC_DEMO_ILLUSTRATIVE_ANNUALIZED_EXTRACTION_USD =
+  CLAIMS_INTAKE_SAMPLE_DEFINITION.illustrativeAnnualizedExtractionUsd;
 
 /** Grouped decision bullets for manifest detail (synopses are {@link SHOWCASE_STATIC_DEMO_DECISION_SYNOPSES}). */
 export type ShowcaseStaticDemoDecisionItem = {
@@ -129,9 +119,11 @@ export const SHOWCASE_STATIC_DEMO_DECISION_SYNOPSES: readonly string[] = SHOWCAS
 );
 
 /** Buyer “at a glance” counts aligned with the demo graph and audit sample. */
-export const SHOWCASE_STATIC_DEMO_GRAPH_LINKED_RECORD_COUNT = 15;
+export const SHOWCASE_STATIC_DEMO_GRAPH_LINKED_RECORD_COUNT =
+  CLAIMS_INTAKE_SAMPLE_DEFINITION.graphLinkedRecordCount;
 
-export const SHOWCASE_STATIC_DEMO_AUDIT_TRAIL_EVENT_COUNT = 7;
+export const SHOWCASE_STATIC_DEMO_AUDIT_TRAIL_EVENT_COUNT =
+  CLAIMS_INTAKE_SAMPLE_DEFINITION.auditTrailEventCount;
 
 /** Single curated warning matching `manifest.warningCount` for the static showcase. */
 export const SHOWCASE_STATIC_DEMO_WARNING_SYNOPSES: readonly string[] = [

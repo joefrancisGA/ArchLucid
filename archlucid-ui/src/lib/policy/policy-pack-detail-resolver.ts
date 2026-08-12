@@ -1,5 +1,6 @@
 import type { PolicyPack } from "@/types/policy-packs";
 
+import { isActiveSamplePolicyPackId } from "@/lib/samples/registry";
 import { RESPONSIBLE_AI_POLICY_PACK_BREADCRUMB_LABEL } from "@/lib/responsible-ai-policy-pack-detail-content";
 
 export type PolicyPackDetailKind = "responsible-ai" | "healthcare-claims" | "unknown";
@@ -17,13 +18,7 @@ function normalizePolicyPackToken(value: string): string {
 }
 
 function isHealthcareClaimsPolicyPackId(policyPackId: string): boolean {
-  const normalized = normalizePolicyPackToken(policyPackId);
-
-  return (
-    normalized === "demo-healthcare-claims-pack" ||
-    normalized.includes("healthcare-claims") ||
-    normalized.includes("healthcare_claims")
-  );
+  return isActiveSamplePolicyPackId(policyPackId);
 }
 
 function isResponsibleAiPolicyPackName(name: string): boolean {
