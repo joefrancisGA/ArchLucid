@@ -3660,9 +3660,40 @@ jobs:
           npm ci
           npm run test:axe-components
 
+  ui-typecheck:
+    name: "Operator UI: typecheck (blocking)"
+    # Blocking on every ref, including pull requests. The wider `ui-static-quality` job below stays
+    # warn-only and push-only, which let a 109-error `tsc` break reach master unnoticed: nothing ran
+    # the typechecker on PRs, and on pushes its failure could not fail the run. This lane is kept
+    # narrow on purpose — no lint, no production build, no bundle budget — so it stays fast and only
+    # fails for genuine type errors.
+    needs: gitleaks
+    runs-on: ubuntu-latest
+    timeout-minutes: 20
+    steps:
+      - uses: actions/checkout@v5
+
+      - uses: actions/setup-node@v6
+        with:
+          node-version: "22"
+          cache: npm
+          cache-dependency-path: archlucid-ui/package-lock.json
+
+      - name: Install and typecheck
+        working-directory: archlucid-ui
+        env:
+          CI: true
+          NODE_OPTIONS: --max-old-space-size=6144
+        # `npm run typecheck` runs `build:api-types` first, which emits the gitignored
+        # packages/api-types generated module that tsconfig references.
+        run: |
+          npm ci
+          npm run typecheck
+
   ui-static-quality:
     name: "Operator UI: lint, typecheck, production build"
     # Warn-only (deploy gate exclusion): failure surfaces but does not fail the CI run / block CD.
+    # Typecheck is additionally enforced by the blocking `ui-typecheck` lane above.
     continue-on-error: true
     needs: gitleaks
     if: github.event_name != 'pull_request'
