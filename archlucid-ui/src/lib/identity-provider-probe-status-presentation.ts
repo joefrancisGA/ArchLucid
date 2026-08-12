@@ -9,6 +9,7 @@ import {
   IDENTITY_PROVIDERS_STATUS_NEEDS_REVIEW,
   IDENTITY_PROVIDERS_STATUS_NOT_APPLICABLE,
   IDENTITY_PROVIDERS_STATUS_NOT_CONFIGURED,
+  IDENTITY_PROVIDERS_STATUS_UNKNOWN,
 } from "@/lib/identity-providers-settings-copy";
 
 export type IdentityProviderStatusPresentation = {
@@ -46,6 +47,7 @@ export function identityProviderCustomerStatusPresentation(
     case IDENTITY_PROVIDERS_STATUS_DISABLED:
     case IDENTITY_PROVIDERS_STATUS_NOT_CONFIGURED:
     case IDENTITY_PROVIDERS_STATUS_NOT_APPLICABLE:
+    case IDENTITY_PROVIDERS_STATUS_UNKNOWN:
       return { kind: "neutral", label: status };
     default: {
       const _exhaustive: never = status;

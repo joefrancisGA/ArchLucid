@@ -1,5 +1,6 @@
 import { cn } from "@/lib/utils";
 import { Card, CardContent } from "@/components/ui/card";
+import { OperatorPageContainer } from "@/components/operator/OperatorPageContainer";
 import { OperatorPageHeader } from "@/components/operator/OperatorPageHeader";
 import {
   IDENTITY_PROVIDERS_RESTRICTED_DESCRIPTION,
@@ -9,7 +10,7 @@ import { OPERATOR_TYPOGRAPHY } from "@/lib/design-tokens";
 
 export function IdentityProvidersSettingsRestrictedState(): React.JSX.Element {
   return (
-    <div className="w-full max-w-3xl space-y-6" data-testid="identity-providers-settings-restricted">
+    <OperatorPageContainer variant="settings" className="space-y-6" data-testid="identity-providers-settings-restricted">
       <OperatorPageHeader
         title={IDENTITY_PROVIDERS_RESTRICTED_TITLE}
         headingLevel="h1"
@@ -25,6 +26,6 @@ export function IdentityProvidersSettingsRestrictedState(): React.JSX.Element {
           </p>
         </CardContent>
       </Card>
-    </div>
+    </OperatorPageContainer>
   );
 }

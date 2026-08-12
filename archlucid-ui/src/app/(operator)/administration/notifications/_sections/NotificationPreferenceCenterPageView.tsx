@@ -2,6 +2,7 @@
 
 import Link from "next/link";
 
+import { OperatorPageContainer } from "@/components/operator/OperatorPageContainer";
 import { OperatorPageHeader } from "@/components/operator/OperatorPageHeader";
 import { StatusTag } from "@/components/StatusTag";
 import { Button } from "@/components/ui/button";
@@ -23,7 +24,7 @@ export function NotificationPreferenceCenterPageView() {
   const { statusByChannelId } = useNotificationChannelDeliveryStatus();
 
   return (
-    <div className="w-full max-w-[62rem] space-y-6" data-testid="notification-preference-center-page">
+    <OperatorPageContainer variant="settings" className="space-y-6" data-testid="notification-preference-center-page">
       <OperatorPageHeader
         title={NOTIFICATION_PREFERENCE_CENTER_PAGE_TITLE}
         subtitle={NOTIFICATION_PREFERENCE_CENTER_PAGE_SUBTITLE}
@@ -124,6 +125,6 @@ export function NotificationPreferenceCenterPageView() {
           ))}
         </div>
       </details>
-    </div>
+    </OperatorPageContainer>
   );
 }

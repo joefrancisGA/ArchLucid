@@ -46,7 +46,7 @@ internal static class ProductDocumentationPdfCoverFooterComposer
                     .AlignCenter()
                     .Text($"Version date: {metadata.VersionDateLabel.Trim()}")
                     .FontSize(11)
-                    .FontColor(Colors.Grey.Darken2);
+                    .FontColor(Colors.Gray.Darken2);
                 column.Item().Height(8);
             }
 
@@ -56,7 +56,7 @@ internal static class ProductDocumentationPdfCoverFooterComposer
                     .AlignCenter()
                     .Text($"Audience: {metadata.AudienceLabel.Trim()}")
                     .FontSize(11)
-                    .FontColor(Colors.Grey.Darken2);
+                    .FontColor(Colors.Gray.Darken2);
                 column.Item().Height(12);
             }
 
@@ -65,14 +65,14 @@ internal static class ProductDocumentationPdfCoverFooterComposer
                 column.Item()
                     .AlignCenter()
                     .Border(1)
-                    .BorderColor(Colors.Grey.Darken2)
-                    .Background(Colors.Grey.Lighten4)
+                    .BorderColor(Colors.Gray.Darken2)
+                    .Background(Colors.Gray.Lighten4)
                     .PaddingHorizontal(12)
                     .PaddingVertical(4)
                     .Text(metadata.StatusLabel.Trim())
                     .SemiBold()
                     .FontSize(10)
-                    .FontColor(Colors.Grey.Darken3);
+                    .FontColor(Colors.Gray.Darken3);
             }
         });
     }
@@ -92,7 +92,7 @@ internal static class ProductDocumentationPdfCoverFooterComposer
     {
         container.AlignCenter().Text(text =>
         {
-            text.DefaultTextStyle(x => x.FontSize(8).FontColor(Colors.Grey.Darken1));
+            text.DefaultTextStyle(x => x.FontSize(8).FontColor(Colors.Gray.Darken1));
             text.Span(CopyrightFooterLine);
             text.Span("  ·  Page ");
             text.CurrentPageNumber();

@@ -72,7 +72,7 @@ curl -sS -X POST "$ARCHLUCID_API_URL/v1/pilots/board-pack.pdf" \
 | `completions bash` \| `zsh` \| `powershell` | — | Print a shell completion script to stdout (source from your profile). |
 | `new <projectName>` | — | Create a new project: `archlucid.json`, `inputs/brief.md`, `outputs/`, `plugins/plugin-lock.json`, optional Terraform stubs, `docs/README.md`. Set `apiUrl` or `ARCHLUCID_API_URL` before API commands. |
 | `second-run <SECOND_RUN.toml\|json> [--api-base-url <url>] [--ui-base-url <url>] [--no-open] [--commit-deadline <secs>]` | ExecuteAuthority | Adoption path from demo to a real committed run using a one-page TOML/JSON file. See **`second-run`** workflow in product onboarding docs. |
-| `trial smoke --org <name> --email <email> [--display-name <name>] [--baseline-hours <n>] [--baseline-source <text>] [--api-base-url <url>] [--skip-pilot-run-deltas]` | — | Pure-HTTP smoke loop for the **public trial signup funnel** against any hosted API. Calls **`POST /v1/register`** → **`GET /v1/tenant/trial-status`** → optional pilot-run deltas. **No Docker on your laptop.** Honours global **`--json`**. See **[archlucid trial smoke](#archlucid-trial-smoke)**. |
+| `trial smoke --org <name> --email <email> [--display-name <name>] [--baseline-hours <n>] [--baseline-source <text>] [--api-base-url <url>] [--skip-pilot-run-deltas]` | — | Pure-HTTP smoke loop for the **public trial signup funnel** against any hosted API. Calls **`POST /v1/register`** → **`GET /v1/tenant/trial-status`** → optional pilot-run deltas. **No Docker on your laptop.** Honors global **`--json`**. See **[archlucid trial smoke](#archlucid-trial-smoke)**. |
 
 ### Run a review
 

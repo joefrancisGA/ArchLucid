@@ -25,6 +25,56 @@ export const MODEL_GOVERNANCE_REGISTRY_EMPTY_COPY =
 export const MODEL_GOVERNANCE_PROFILE_MAPPINGS_EMPTY_COPY =
   "No profile-to-alias mappings are available yet. Mappings appear here when the governed alias catalog is configured.";
 
+export const MODEL_GOVERNANCE_PROFILE_CONFIRM_TITLE_COPY = "Change workspace execution profile?";
+
+export const MODEL_GOVERNANCE_PROFILE_CONFIRM_DESCRIPTION_COPY =
+  "This applies a workspace-wide model execution profile for all future architecture reviews.";
+
+export const MODEL_GOVERNANCE_PROFILE_CONFIRM_CLEAR_TITLE_COPY = "Use workspace default profile?";
+
+export const MODEL_GOVERNANCE_PROFILE_CONFIRM_CLEAR_DESCRIPTION_COPY =
+  "This removes the tenant override and restores the workspace default execution profile.";
+
+export const MODEL_GOVERNANCE_PROFILE_CONFIRM_LABEL_COPY = "Apply profile";
+
+export const MODEL_GOVERNANCE_PROFILE_CONFIRM_CLEAR_LABEL_COPY = "Use workspace default";
+
+export const MODEL_GOVERNANCE_PROFILE_SUCCESS_COPY = "Workspace execution profile updated.";
+
+export const MODEL_GOVERNANCE_PROFILE_CLEAR_SUCCESS_COPY = "Workspace execution profile override cleared.";
+
+export const MODEL_GOVERNANCE_PROFILE_LAST_CHANGED_UNAVAILABLE_COPY =
+  "Last profile change is not available yet.";
+
+export const MODEL_GOVERNANCE_PROFILE_AUDIT_DEEP_LINK_EVENT_TYPE =
+  "Workspace.ModelExecutionProfileUpdated" as const;
+
+export const MODEL_GOVERNANCE_CONNECTION_STATEMENT_COPY =
+  "Provider connections run through ArchLucid-managed trust boundaries.";
+
+export const MODEL_GOVERNANCE_CONNECTION_TRUST_CENTER_LABEL = "Security & Trust";
+
+export const MODEL_GOVERNANCE_MUTATION_RETRY_LABEL = "Try again";
+
+export function modelGovernanceProfileSuccessMessage(profileLabel: string): string {
+  return `Workspace execution profile updated to ${profileLabel}.`;
+}
+
+export function modelGovernanceProfileLastChangedCopy(actor: string, changedAtLabel: string): string {
+  return `Last changed by ${actor} · ${changedAtLabel}`;
+}
+
+export function modelGovernanceProfileSourceLabel(source: string): string {
+  switch (source) {
+    case "TenantOverride":
+      return "Tenant override";
+    case "WorkspaceDefault":
+      return "Workspace default";
+    default:
+      return source;
+  }
+}
+
 export function modelGovernanceLoadBlockedMessage(status: number): string {
   if (status === 401 || status === 403) {
     return MODEL_GOVERNANCE_ADMIN_REQUIRED_COPY;

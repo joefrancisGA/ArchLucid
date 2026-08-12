@@ -55,6 +55,7 @@ export function IdentityProvidersSettingsPageHeader(
   const onDiagnosticsPage = pathname.startsWith(IDENTITY_PROVIDERS_DIAGNOSTICS_LINK_HREF);
   const onOidcPage = pathname.startsWith("/administration/identity-providers/oidc");
   const onSamlPage = pathname.startsWith("/administration/identity-providers/saml");
+  const onHubPage = pageTitle === IDENTITY_PROVIDERS_PAGE_TITLE;
   const showDiagnosticsLink = !onDiagnosticsPage && !onOidcPage;
   const showTenantScopeMetadata = !onSamlPage;
   const [currentWorkspaceLabel, setCurrentWorkspaceLabel] = useState<string | null>(null);
@@ -92,17 +93,27 @@ export function IdentityProvidersSettingsPageHeader(
       breadcrumb={
         <OperatorPageBreadcrumb
           data-testid="identity-providers-page-breadcrumb"
-          items={[
-            {
-              label: IDENTITY_PROVIDERS_BREADCRUMB_ADMINISTRATION_LABEL,
-              href: SETTINGS_ROOT_PATH,
-            },
-            {
-              label: IDENTITY_PROVIDERS_PAGE_TITLE,
-              href: IDENTITY_PROVIDERS_BREADCRUMB_HUB_HREF,
-            },
-            { label: pageTitle },
-          ]}
+          items={
+            onHubPage
+              ? [
+                  {
+                    label: IDENTITY_PROVIDERS_BREADCRUMB_ADMINISTRATION_LABEL,
+                    href: SETTINGS_ROOT_PATH,
+                  },
+                  { label: IDENTITY_PROVIDERS_PAGE_TITLE },
+                ]
+              : [
+                  {
+                    label: IDENTITY_PROVIDERS_BREADCRUMB_ADMINISTRATION_LABEL,
+                    href: SETTINGS_ROOT_PATH,
+                  },
+                  {
+                    label: IDENTITY_PROVIDERS_PAGE_TITLE,
+                    href: IDENTITY_PROVIDERS_BREADCRUMB_HUB_HREF,
+                  },
+                  { label: pageTitle },
+                ]
+          }
         />
       }
       actions={
@@ -133,7 +144,7 @@ export function IdentityProvidersSettingsPageHeader(
         <>
           {showTenantScopeMetadata ? (
             <span
-              className={cn("text-al-text-secondary", OPERATOR_TYPOGRAPHY.helper)}
+              className={cn("text-al-text-primary", OPERATOR_TYPOGRAPHY.body)}
               data-testid="identity-providers-tenant-scope"
             >
               {tenantScopeLine}

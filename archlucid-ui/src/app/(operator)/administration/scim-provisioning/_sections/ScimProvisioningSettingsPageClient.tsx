@@ -7,6 +7,7 @@ import { useCallback, useEffect, useMemo, useState } from "react";
 import { OperatorApiProblem } from "@/components/operator/OperatorApiProblem";
 import { OperatorMutationInlineError } from "@/components/operator/OperatorMutationInlineError";
 import { OperatorSuccessCallout } from "@/components/operator/OperatorSuccessCallout";
+import { OperatorPageContainer } from "@/components/operator/OperatorPageContainer";
 import { OperatorPageHeader } from "@/components/operator/OperatorPageHeader";
 import { CollapsibleSection } from "@/components/CollapsibleSection";
 import { ScimIdentityProvidersVocabularyRail } from "@/components/ScimIdentityProvidersVocabularyRail";
@@ -403,8 +404,9 @@ export function ScimProvisioningSettingsPageClient() {
   const createDisabled = issuing || issuedToken !== null;
 
   return (
-    <div
-      className="w-full max-w-[62rem] space-y-6"
+    <OperatorPageContainer
+      variant="settings"
+      className="space-y-6"
       data-testid="scim-provisioning-settings-page"
     >
       <OperatorPageHeader
@@ -713,6 +715,6 @@ export function ScimProvisioningSettingsPageClient() {
           }
         }}
       />
-    </div>
+    </OperatorPageContainer>
   );
 }

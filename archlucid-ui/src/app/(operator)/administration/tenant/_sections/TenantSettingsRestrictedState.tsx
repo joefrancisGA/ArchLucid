@@ -1,4 +1,5 @@
 import { Card, CardContent } from "@/components/ui/card";
+import { OperatorPageContainer } from "@/components/operator/OperatorPageContainer";
 import { OperatorPageHeader } from "@/components/operator/OperatorPageHeader";
 import { OPERATOR_TYPOGRAPHY } from "@/lib/design-tokens";
 import { OPERATOR_NAV_LINK_LABELS } from "@/lib/i18n";
@@ -15,7 +16,7 @@ export const TENANT_SETTINGS_RESTRICTED_DESCRIPTION =
  */
 export function TenantSettingsRestrictedState(): React.JSX.Element {
   return (
-    <div className="w-full max-w-3xl space-y-6" data-testid="tenant-settings-restricted">
+    <OperatorPageContainer variant="settings" className="space-y-6" data-testid="tenant-settings-restricted">
       <OperatorPageHeader
         title={OPERATOR_NAV_LINK_LABELS.workspaceSettings}
         headingLevel="h1"
@@ -30,6 +31,6 @@ export function TenantSettingsRestrictedState(): React.JSX.Element {
           </p>
         </CardContent>
       </Card>
-    </div>
+    </OperatorPageContainer>
   );
 }

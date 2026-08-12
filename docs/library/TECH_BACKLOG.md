@@ -15,7 +15,7 @@ Regenerate after opening or closing summary-table rows:
 | Deployability | 4 |
 | AI/Agent readiness | 12 |
 | Architectural integrity | 9 |
-| Adoption friction | 107 |
+| Adoption friction | 106 |
 | Commercial / marketability | 4 |
 | Cutting-edge AI | 3 |
 | Explainability | 1 |
@@ -35,7 +35,7 @@ Regenerate after opening or closing summary-table rows:
 | Other / uncategorized | 8 |
 | **Total (unique open)** | **316** |
 
-**By priority band:** P0 **2** | P1 **209** | P2 **88** | P3 **9** | unlabeled **8**.
+**By priority band:** P0 **2** | P1 **208** | P2 **88** | P3 **9** | unlabeled **8**.
 
 <!-- tech-backlog-open-by-category:end -->
 
@@ -1108,7 +1108,7 @@ All **P0** **V1**: visible-boundary button contract + design-system rule (**TB-2
 | TB-1839 | ~~Clarifications empty/zero-gap composition (demote confidence theater)~~ **Done** 2026-08-12 ? empty-success state; Vitest; see ## TB-1839 below | Adoption friction P1 ? **V1**; with **TB-1836** | S |
 | TB-1842 | **Done** (2026-08-12) ? Diagram tab clarify CTA run-scoped via `buildArchitectureCorrectionHref`; Vitest; see ## TB-1842 below | Adoption friction P1 ? **V1**; with **TB-1841**; pairs **TB-1837** | S |
 | TB-1843 | **Done** (2026-08-12) ? Diagram insufficient orientation + Clarify architecture primary CTA; Vitest; see ## TB-1843 below | Adoption friction P1 ? **V1**; with **TB-1841** | M |
-| TB-1847 | Create-home Evidence ? orientation + uploaded inventory (not upload-only); see ## TB-1847 below | Adoption friction P1 ? **V1**; with **TB-1846** | M |
+| TB-1847 | **Done** (2026-08-12) ? Create-home Evidence orientation + uploaded captures inventory; Vitest; see ## TB-1847 below | Adoption friction P1 ? **V1**; with **TB-1846** | M |
 | TB-1848 | Create-home Evidence ? cross-link Diagram as supporting evidence; see ## TB-1848 below | Adoption friction P1 ? **V1**; with **TB-1846** | S |
 | TB-1849 | Evidence tab chrome ? Capture/Add naming + card density; see ## TB-1849 below | Adoption friction P1 ? **V1**; with **TB-1846** | XS |
 | TB-1852 | Create-home Findings ? pre-commit assessment orientation; see ## TB-1852 below | Adoption friction P1 ? **V1**; with **TB-1851** | S |
@@ -1309,9 +1309,9 @@ All **P0** **V1**: visible-boundary button contract + design-system rule (**TB-2
 | TB-1336 | 100? review-volume fail-first order + option-preserving capacity ledger contract; see `## TB-1336` below | Scalability P1 ? **V1**; PA Q20 100? reviews; GTM **M-237**/**M-238** | S |
 | TB-1577 | **Done** (2026-08-11) ? [`SHARED_AOAI_TPM_NOISY_NEIGHBOR_FAIRNESS_CLAIM_MAP.md`](SHARED_AOAI_TPM_NOISY_NEIGHBOR_FAIRNESS_CLAIM_MAP.md); see `## TB-1577` below | Scalability P1 ? **V1**; PA noisy-neighbor / TPM fairness Q; GTM **M-296**/**M-297**; orchestrates **TB-1336**/**TB-1299**/**TB-947** | S |
 | TB-946 | ~~Single-signal scale micro-drill harness~~ **Done** 2026-08-09 ? `SCALE_MICRO_DRILL.md` + k6 drills A/B/C + `run_scale_micro_drill.sh` + results append; TB-905 Phase C gate; CI smoke; see ## TB-946 below | Performance / testability P0 ? **V1** (promoted P0 2026-08-09 with perf wave 6; was P1); validates **TB-915**; owner **G-SCALE-01**; before **TB-905** launch-load half | M |
-| TB-1032 | Launch-load hot-path failure order + graceful degradation matrix (HTTP / SQL / AOAI 429 / worker); see `## TB-1032` below | Reliability / scalability P1 ? **V1**; PA Q19 2026-07-25; GTM **M-182**/**M-183**; cites `LAUNCH_LOAD_DRILL` / `DEGRADED_MODE`; complements **TB-915**/**TB-905** / **G-SCALE-*** | S |
-| TB-182 | `Write-AiReadinessPosture.ps1` ? automate production of `ai-readiness-posture.json` from evidence artifacts | AI/Agent readiness P1 ? **V1**; every pilot delivery currently requires manual JSON fill; schema stable | M |
-| TB-1196 | Agent?decisioning Real-variance isolation contract (typed proposals only); see `## TB-1196` below | AI/Agent readiness P1 ? **V1**; PA Q3 agent/decisioning; GTM **M-203**/**M-204** | S |
+| TB-1032 | **Done** (2026-08-12) ? Launch-load hot-path failure order + graceful degradation matrix; see `## TB-1032` below | Reliability / scalability P1 ? **V1**; `LAUNCH_LOAD_FAILURE_ORDER_DEGRADATION_CONTRACT.md`; GTM **M-182**/**M-183** | S |
+| TB-182 | **Done** (2026-08-12) ? `Write-AiReadinessPosture.ps1` + Pester; see `scripts/tests/Write-AiReadinessPosture.Tests.ps1` | AI/Agent readiness P1 ? **V1**; wired in `collect-first-pilot-proof.ps1` | M |
+| TB-1196 | **Done** (2026-08-12) ? Agent?decisioning Real-variance isolation contract; see `## TB-1196` below | AI/Agent readiness P1 ? **V1**; `AGENT_OUTPUT_DECISIONING_REAL_VARIANCE_ISOLATION_CONTRACT.md`; GTM **M-203**/**M-204** | S |
 | TB-1228 | Faithfulness/support-ratio scoring lane positioning contract; see `## TB-1228` below | AI/Agent readiness P1 ? **V1**; PA Q6 scoring lanes; GTM **M-209**/**M-210** | S |
 | TB-1230 | Shared hallucination defense plane (anti mode-fork) contract; see `## TB-1230` below | AI/Agent readiness P1 ? **V1**; PA Q7 defense placement; GTM **M-211**/**M-212** | S |
 | TB-1369 | AgentTask?decisioning ungated leak seams (Real vs Simulator mode-blind matrix); see `## TB-1369` below | AI/Agent readiness P1 ? **V1**; PA Real/Sim leak map; GTM **M-247**/**M-248**; complements **TB-1196** | S |
@@ -27760,11 +27760,7 @@ Plus visual regression: overview, technical index, one expanded object, one fiel
 
 **Window:** V1 ? Reliability / scalability clarity.
 
-**Status:** Not started.
-
-**Priority:** P1.
-
-**Source:** Owner / PA question 2026-07-25: *Under launch load, which hot path fails first (HTTP, SQL, AOAI 429, worker), and what is the graceful degradation design?*
+**Status:** Done (2026-08-12). Contract: `docs/library/LAUNCH_LOAD_FAILURE_ORDER_DEGRADATION_CONTRACT.md`.
 
 **Problem:** Scale drills (**TB-946** / **G-SCALE-01**), launch-load execution (**TB-905** / **G-SCALE-02**), AOAI TPM ceiling (**TB-947**), and LLM degraded-mode docs exist as separate pieces, but PA/sales lack one matrix that states **which path fails first by load shape** and the **graceful degradation** for HTTP vs SQL vs AOAI 429 vs worker ? without implying measured staging evidence already exists.
 
@@ -30116,11 +30112,7 @@ Plus visual regression: overview, technical index, one expanded object, one fiel
 
 **Window:** V1 ? AI/Agent readiness.
 
-**Status:** Not started.
-
-**Priority:** P1.
-
-**Source:** Owner / PA question 2026-07-25: *Our multi-agent execution (Topology, Compliance, Cost, Critic) runs deterministically in Simulator mode but non-deterministically against real LLMs. How should the contract between agent output and downstream decisioning be designed so real-mode variance can't corrupt committed manifests?*
+**Status:** Done (2026-08-12). Contract: `docs/library/AGENT_OUTPUT_DECISIONING_REAL_VARIANCE_ISOLATION_CONTRACT.md`.
 
 **Problem:** Simulator fixtures are stable; Real LLM outputs vary. Authority decide already builds from typed finding engines + rules (`RuleBasedDecisionEngine` ? `ManifestDocument` ? hash). Corruption path today is mainly **commit-time topology overlay** from agent `ProposedChanges` (`AgentTopologyProposalGraphMerge`) and any legacy merge that lifts finding `Message` into governance tags ? schema-valid but semantically wrong Real JSON becomes committed topology. Quality gate may be WarnOnly in Dev; PilotStrict green ? Real proof (**M-166**).
 
@@ -31052,11 +31044,7 @@ Operators must read three intros before reaching the Trust Center link list.
 
 **Window:** V1 ? AI/Agent readiness.
 
-**Status:** Not started.
-
-**Priority:** P1.
-
-**Source:** Owner / PA question 2026-07-25: *How should faithfulness/support-ratio scoring be positioned architecturally ? inline gate on commit, async quality signal, or promotion gate for model changes ? and what are the trade-offs of each?*
+**Status:** Done (2026-08-12). Contract: `docs/library/FAITHFULNESS_SUPPORT_RATIO_SCORING_LANE_POSITIONING_CONTRACT.md`.
 
 **Problem:** Multiple scores share ?faithfulness / support-ratio? language but sit on different lanes: PilotStrict heuristic floors can deny commit-ready status; RAG-V1-005 / nightly eval / embedding cosine are async; `GoldenCohortFineTuningPromotionGate` is model promotion. Without a PA matrix, buyers and contributors conflate them ? and inert `FindingCitationCoverageRatio` plus warn-only nightly (**G-FAITH-01**) make overclaims easy.
 
@@ -44021,7 +44009,7 @@ Operators must read three intros before reaching the Trust Center link list.
 
 ## TB-1847 ? Create-home Evidence ? orientation + uploaded inventory (not upload-only) (P1)
 
-**Window:** V1 ? Adoption friction. **Status:** Not started. **Priority:** P1.
+**Window:** V1 ? Adoption friction. **Status:** **Done** (2026-08-12) ? `RunDetailCreateHomeEvidencePanel` orientation lead; `RunDetailCreateHomeCapturedEvidenceInventory` + capture region merges run artifacts and post-upload descriptors; `BulkEvidenceUpload.onUploadSummary`; Vitest in `RunDetailCreateHomeEvidencePanel.test.tsx`, `RunDetailCreateHomeEvidenceCaptureRegion.test.tsx`, and `run-detail-create-home-captured-evidence.test.ts`. **Priority:** P1.
 
 **Problem:** Create-home Evidence is only `RunDetailCaptureEvidenceSection` ? no list/count of evidence already on the run after upload.
 

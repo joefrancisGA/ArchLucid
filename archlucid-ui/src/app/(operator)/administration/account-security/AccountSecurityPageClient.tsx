@@ -5,6 +5,7 @@ import { useCallback, useEffect, useRef, useState } from "react";
 
 import { AccountSecurityAuthDomainsVocabularyRail } from "@/components/AccountSecurityAuthDomainsVocabularyRail";
 import { EnterpriseCompactEmptyState } from "@/components/EnterpriseCompactEmptyState";
+import { OperatorPageContainer } from "@/components/operator/OperatorPageContainer";
 import { OperatorPageHeader } from "@/components/operator/OperatorPageHeader";
 import { OperatorPageBreadcrumb } from "@/components/operator/OperatorPageBreadcrumb";
 import { BooleanStatusChip } from "@/components/ui/boolean-status-chip";
@@ -369,7 +370,7 @@ export function AccountSecurityPageClient() {
       };
 
   return (
-    <div className="w-full max-w-[62rem] space-y-6" data-testid="account-security-page">
+    <OperatorPageContainer variant="settings" className="space-y-6" data-testid="account-security-page">
       <OperatorPageHeader
         title={ACCOUNT_SECURITY_PAGE_TITLE}
         subtitle={ACCOUNT_SECURITY_PAGE_SUBTITLE}
@@ -716,7 +717,7 @@ export function AccountSecurityPageClient() {
           void handleConfirmRemove();
         }}
       />
-    </div>
+    </OperatorPageContainer>
   );
 }
 

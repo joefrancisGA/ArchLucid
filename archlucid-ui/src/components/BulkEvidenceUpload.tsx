@@ -35,6 +35,7 @@ export interface BulkEvidenceUploadProps {
   runId: string;
   /** When true, renders body only — parent owns card chrome and heading. */
   embedded?: boolean;
+  readonly onUploadSummary?: (summary: BulkEvidenceUploadSummary) => void;
 }
 
 type BulkEvidenceUploadError = {
@@ -69,7 +70,7 @@ function recoveryPresentationForError(error: BulkEvidenceUploadError) {
  * Bulk evidence upload for a review run (`POST /v1/architecture/review/{runId}/evidence/bulk`).
  * @see `BulkEvidenceUpload.test.tsx`
  */
-export function BulkEvidenceUpload({ runId, embedded = false }: BulkEvidenceUploadProps) {
+export function BulkEvidenceUpload({ runId, embedded = false, onUploadSummary }: BulkEvidenceUploadProps) {
   const [files, setFiles] = useState<File[]>([]);
   const [error, setError] = useState<BulkEvidenceUploadError | null>(null);
   const [uploading, setUploading] = useState(false);
@@ -177,6 +178,7 @@ export function BulkEvidenceUpload({ runId, embedded = false }: BulkEvidenceUplo
         );
 
         setUploadSummary(summary);
+        onUploadSummary?.(summary);
 
         if (!summary.isPartial) {
           setFiles([]);
@@ -197,6 +199,7 @@ export function BulkEvidenceUpload({ runId, embedded = false }: BulkEvidenceUplo
         );
 
         setUploadSummary(summary);
+        onUploadSummary?.(summary);
 
         return;
       }

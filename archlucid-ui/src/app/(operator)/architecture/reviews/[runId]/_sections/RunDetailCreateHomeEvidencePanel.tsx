@@ -1,5 +1,7 @@
 import type { ReactElement } from "react";
 
+import { cn } from "@/lib/utils";
+
 import { EvidenceGapForecastPanel } from "@/components/evidence/EvidenceGapForecastPanel";
 import { RunDetailEvidenceInventorySection } from "@/components/runs/RunDetailEvidenceInventorySection";
 import { RunDetailEvidenceScopeHeader } from "@/components/runs/RunDetailEvidenceScopeHeader";
@@ -10,8 +12,10 @@ import {
   deriveEvidenceScopeCoverageLine,
   deriveEvidenceScopeReadiness,
 } from "@/lib/runs/run-detail-evidence-inventory";
+import { RUN_DETAIL_CREATE_HOME_EVIDENCE_ORIENTATION_LEAD } from "@/lib/runs/run-detail-create-home-evidence-copy";
+import { OPERATOR_TYPOGRAPHY } from "@/lib/design-tokens";
 
-import { RunDetailCaptureEvidenceSectionDeferred } from "./run-detail-page-view-deferred-chunks";
+import { RunDetailCreateHomeEvidenceCaptureRegion } from "./RunDetailCreateHomeEvidenceCaptureRegion";
 
 export type RunDetailCreateHomeEvidencePanelProps = {
   readonly packageName: string;
@@ -21,6 +25,7 @@ export type RunDetailCreateHomeEvidencePanelProps = {
   readonly linkedFindingCount: number;
   readonly openFindingCount: number;
   readonly items: readonly RunDetailEvidenceInventoryItem[];
+  readonly artifacts: readonly { readonly artifactId: string; readonly name: string; readonly createdUtc: string }[];
   readonly runId: string;
   readonly buyerPolished: boolean;
 };
@@ -45,6 +50,14 @@ export function RunDetailCreateHomeEvidencePanel(props: RunDetailCreateHomeEvide
 
   return (
     <div className="space-y-4" data-testid="run-detail-create-home-evidence">
+      <div
+        className="rounded-md border border-neutral-200 bg-al-surface-raised p-3 dark:border-neutral-800"
+        data-testid="run-detail-create-home-evidence-orientation"
+      >
+        <p className={cn("m-0 text-neutral-700 dark:text-neutral-300", OPERATOR_TYPOGRAPHY.body)}>
+          {RUN_DETAIL_CREATE_HOME_EVIDENCE_ORIENTATION_LEAD}
+        </p>
+      </div>
       <RunDetailEvidenceScopeHeader
         packageName={props.packageName}
         reviewDateLabel={props.reviewDateLabel}
@@ -56,7 +69,11 @@ export function RunDetailCreateHomeEvidencePanel(props: RunDetailCreateHomeEvide
       />
       <EvidenceGapForecastPanel presence={evidencePresence} />
       <RunDetailEvidenceInventorySection items={props.items} hasManifest={false} />
-      <RunDetailCaptureEvidenceSectionDeferred runId={props.runId} buyerPolished={props.buyerPolished} />
+      <RunDetailCreateHomeEvidenceCaptureRegion
+        runId={props.runId}
+        buyerPolished={props.buyerPolished}
+        artifacts={props.artifacts}
+      />
     </div>
   );
 }

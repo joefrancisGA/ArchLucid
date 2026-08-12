@@ -7,6 +7,7 @@ import { AuthDomainsIdentityProvidersVocabularyRail } from "@/components/AuthDom
 import { EnterpriseCompactEmptyState } from "@/components/EnterpriseCompactEmptyState";
 import { EvidenceOrientationClaimAndSourcesStrip } from "@/components/evidence-orientation/EvidenceOrientationClaimAndSourcesStrip";
 import { OperatorMutationInlineError } from "@/components/operator/OperatorMutationInlineError";
+import { OperatorPageContainer } from "@/components/operator/OperatorPageContainer";
 import { OperatorPageBreadcrumb } from "@/components/operator/OperatorPageBreadcrumb";
 import { OperatorPageHeader } from "@/components/operator/OperatorPageHeader";
 import { BooleanStatusChip } from "@/components/ui/boolean-status-chip";
@@ -492,7 +493,7 @@ export function AuthDomainsPageClient() {
   }
 
   return (
-    <div className="w-full max-w-4xl space-y-6" data-testid="auth-domains-page">
+    <OperatorPageContainer variant="settings" className="space-y-6" data-testid="auth-domains-page">
       <OperatorPageHeader
         title={AUTH_DOMAINS_PAGE_TITLE}
         subtitle={AUTH_DOMAINS_PAGE_SUBTITLE}
@@ -948,6 +949,6 @@ export function AuthDomainsPageClient() {
         onCancel={() => setPendingConfirm(null)}
         onConfirm={() => void handleConfirmPendingAction()}
       />
-    </div>
+    </OperatorPageContainer>
   );
 }

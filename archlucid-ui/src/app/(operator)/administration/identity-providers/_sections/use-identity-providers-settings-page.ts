@@ -3,9 +3,12 @@
 import { useCallback, useEffect, useMemo, useState } from "react";
 
 import {
+  IDENTITY_PROVIDERS_CONFIG_SUMMARY_LOAD_ERROR_NOTE,
   IDENTITY_PROVIDERS_FORBIDDEN_NOTE,
-  IDENTITY_PROVIDERS_LOAD_ERROR_NOTE,
+  IDENTITY_PROVIDERS_STATUS_LOAD_ERROR_NOTE,
 } from "@/lib/identity-providers-settings-copy";
+import type { IdentityProvidersFetchNote } from "@/lib/identity-providers-fetch-note";
+import { formatIdentityProvidersFetchNote } from "@/lib/identity-providers-fetch-note";
 import type { IdentityProvidersOverviewModel } from "@/lib/identity-providers-settings-types";
 import type { components } from "@/lib/openapi-schemas";
 import { mergeRegistrationScopeForProxy } from "@/lib/proxy-fetch-registration-scope";
@@ -42,6 +45,7 @@ export type UseIdentityProvidersSettingsPageModel = {
   readonly refreshing: boolean;
   readonly lastRefreshedAt: Date | null;
   readonly diagnosticsDataUnavailable: boolean;
+  readonly overviewStatusFailure: IdentityProvidersFetchNote | null;
   readonly refresh: () => Promise<void>;
   readonly accessDenied: boolean;
   readonly overview: IdentityProvidersOverviewModel;
@@ -49,6 +53,10 @@ export type UseIdentityProvidersSettingsPageModel = {
 
 function isForbiddenStatus(status: number): boolean {
   return status === 401 || status === 403;
+}
+
+function diagnosticsUnavailableNote(message: string, status: number): string {
+  return formatIdentityProvidersFetchNote({ message, statusCode: status });
 }
 
 export function useIdentityProvidersSettingsPage(
@@ -61,6 +69,7 @@ export function useIdentityProvidersSettingsPage(
   const [accessDenied, setAccessDenied] = useState(false);
   const [refreshing, setRefreshing] = useState(false);
   const [lastRefreshedAt, setLastRefreshedAt] = useState<Date | null>(null);
+  const [overviewFailureStatusCode, setOverviewFailureStatusCode] = useState<number | undefined>(undefined);
 
   const [identityProviderDiagnostics, setIdentityProviderDiagnostics] =
     useState<AdminIdentityProviderDiagnosticsResponse | null>(null);
@@ -84,6 +93,7 @@ export function useIdentityProvidersSettingsPage(
     setNote(null);
     setRows(null);
     setAccessDenied(false);
+    setOverviewFailureStatusCode(undefined);
     setIdentityProviderDiagnostics(null);
     setIdentityProviderDiagnosticsNote(null);
     setIdentityProviderDiagnosticsLoaded(false);
@@ -120,7 +130,12 @@ export function useIdentityProvidersSettingsPage(
           setAccessDenied(true);
           setNote(IDENTITY_PROVIDERS_FORBIDDEN_NOTE);
         } else {
-          setNote(`${IDENTITY_PROVIDERS_LOAD_ERROR_NOTE} (HTTP ${summaryRes.status}).`);
+          setNote(
+            formatIdentityProvidersFetchNote({
+              message: IDENTITY_PROVIDERS_CONFIG_SUMMARY_LOAD_ERROR_NOTE,
+              statusCode: summaryRes.status,
+            }),
+          );
         }
       } else {
         const body = (await summaryRes.json()) as AdminConfigSummaryResponse;
@@ -132,10 +147,11 @@ export function useIdentityProvidersSettingsPage(
 
       if (!diagnosticsRes.ok) {
         setIdentityProviderDiagnostics(null);
+        setOverviewFailureStatusCode((current) => current ?? diagnosticsRes.status);
         setIdentityProviderDiagnosticsNote(
           isForbiddenStatus(diagnosticsRes.status)
             ? IDENTITY_PROVIDERS_FORBIDDEN_NOTE
-            : `Identity provider diagnostics unavailable (HTTP ${diagnosticsRes.status}).`,
+            : diagnosticsUnavailableNote("Identity provider diagnostics unavailable", diagnosticsRes.status),
         );
       } else {
         const body = (await diagnosticsRes.json()) as AdminIdentityProviderDiagnosticsResponse;
@@ -147,10 +163,11 @@ export function useIdentityProvidersSettingsPage(
 
       if (!authConfigRes.ok) {
         setAuthConfigurationDiagnostics(null);
+        setOverviewFailureStatusCode((current) => current ?? authConfigRes.status);
         setAuthConfigurationDiagnosticsNote(
           isForbiddenStatus(authConfigRes.status)
             ? IDENTITY_PROVIDERS_FORBIDDEN_NOTE
-            : `Auth configuration diagnostics unavailable (HTTP ${authConfigRes.status}).`,
+            : diagnosticsUnavailableNote("Auth configuration diagnostics unavailable", authConfigRes.status),
         );
       } else {
         const body = (await authConfigRes.json()) as AdminAuthConfigurationDiagnosticsResponse;
@@ -162,10 +179,11 @@ export function useIdentityProvidersSettingsPage(
 
       if (!oidcRes.ok) {
         setOidcDiagnostics(null);
+        setOverviewFailureStatusCode((current) => current ?? oidcRes.status);
         setOidcDiagnosticsNote(
           isForbiddenStatus(oidcRes.status)
             ? IDENTITY_PROVIDERS_FORBIDDEN_NOTE
-            : `OIDC diagnostics unavailable (HTTP ${oidcRes.status}).`,
+            : diagnosticsUnavailableNote("OIDC diagnostics unavailable", oidcRes.status),
         );
       } else {
         const body = (await oidcRes.json()) as AdminOidcDiagnosticsResponse;
@@ -177,10 +195,11 @@ export function useIdentityProvidersSettingsPage(
 
       if (!samlRes.ok) {
         setSamlOperationalHealth(null);
+        setOverviewFailureStatusCode((current) => current ?? samlRes.status);
         setSamlOperationalHealthNote(
           isForbiddenStatus(samlRes.status)
             ? IDENTITY_PROVIDERS_FORBIDDEN_NOTE
-            : `SAML operational health unavailable (HTTP ${samlRes.status}).`,
+            : diagnosticsUnavailableNote("SAML operational health unavailable", samlRes.status),
         );
       } else {
         const body = (await samlRes.json()) as AdminSamlOperationalHealthResponse;
@@ -191,15 +210,15 @@ export function useIdentityProvidersSettingsPage(
       }
     } catch (e: unknown) {
       setRows(null);
-      setNote(e instanceof Error ? e.message : IDENTITY_PROVIDERS_LOAD_ERROR_NOTE);
+      setNote(e instanceof Error ? e.message : IDENTITY_PROVIDERS_STATUS_LOAD_ERROR_NOTE);
       setIdentityProviderDiagnostics(null);
-      setIdentityProviderDiagnosticsNote(IDENTITY_PROVIDERS_LOAD_ERROR_NOTE);
+      setIdentityProviderDiagnosticsNote(IDENTITY_PROVIDERS_STATUS_LOAD_ERROR_NOTE);
       setAuthConfigurationDiagnostics(null);
-      setAuthConfigurationDiagnosticsNote(IDENTITY_PROVIDERS_LOAD_ERROR_NOTE);
+      setAuthConfigurationDiagnosticsNote(IDENTITY_PROVIDERS_STATUS_LOAD_ERROR_NOTE);
       setOidcDiagnostics(null);
-      setOidcDiagnosticsNote(IDENTITY_PROVIDERS_LOAD_ERROR_NOTE);
+      setOidcDiagnosticsNote(IDENTITY_PROVIDERS_STATUS_LOAD_ERROR_NOTE);
       setSamlOperationalHealth(null);
-      setSamlOperationalHealthNote(IDENTITY_PROVIDERS_LOAD_ERROR_NOTE);
+      setSamlOperationalHealthNote(IDENTITY_PROVIDERS_STATUS_LOAD_ERROR_NOTE);
     } finally {
       setRefreshing(false);
 
@@ -233,8 +252,11 @@ export function useIdentityProvidersSettingsPage(
     () =>
       resolveIdentityProvidersOverview({
         authConfigurationDiagnostics: dataLoaded ? authConfigurationDiagnostics : null,
+        authConfigurationDiagnosticsAvailable: dataLoaded && authConfigurationDiagnostics !== null,
         identityProviderDiagnostics: dataLoaded ? identityProviderDiagnostics : null,
+        identityProviderDiagnosticsAvailable: dataLoaded && identityProviderDiagnostics !== null,
         oidcDiagnostics: dataLoaded ? oidcDiagnostics : null,
+        oidcDiagnosticsAvailable: dataLoaded && oidcDiagnostics !== null,
       }),
     [authConfigurationDiagnostics, dataLoaded, identityProviderDiagnostics, oidcDiagnostics],
   );
@@ -249,6 +271,13 @@ export function useIdentityProvidersSettingsPage(
     && authConfigurationDiagnosticsNote !== null
     && oidcDiagnosticsNote !== null
     && samlOperationalHealthNote !== null;
+
+  const overviewStatusFailure = diagnosticsDataUnavailable
+    ? {
+        message: IDENTITY_PROVIDERS_STATUS_LOAD_ERROR_NOTE,
+        statusCode: overviewFailureStatusCode,
+      }
+    : null;
 
   return {
     note,
@@ -269,6 +298,7 @@ export function useIdentityProvidersSettingsPage(
     refreshing,
     lastRefreshedAt,
     diagnosticsDataUnavailable,
+    overviewStatusFailure,
     refresh: load,
     accessDenied,
     overview,

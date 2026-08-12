@@ -15,7 +15,7 @@ describe("routeViewExplanationForPathname (TB-2216 / TB-2257)", () => {
     expect(routeViewExplanationForPathname(GOVERNANCE_ALERTS_PATH)?.title).toBe("Alerts");
     expect(routeViewExplanationForPathname("/alerts")?.title).toBe("Alerts");
     expect(routeViewExplanationForPathname("/administration/identity/sso-wizard")?.title).toBe("SSO wizard");
-    expect(routeViewExplanationForPathname("/administration/identity-providers")?.title).toBe("SSO and identity");
+    expect(routeViewExplanationForPathname("/administration/identity-providers")).toBeNull();
     expect(routeViewExplanationForPathname("/administration/identity-providers/saml")?.title).toBe(
       "SAML configuration",
     );

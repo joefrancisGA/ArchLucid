@@ -305,6 +305,7 @@ export async function RunDetailPageView(props: {
                           linkedFindingCount={evidenceCoverageSummary.linkedCount}
                           openFindingCount={evidenceCoverageSummary.totalCount}
                           items={evidenceInventoryItems}
+                          artifacts={m.artifacts}
                           runId={m.resolvedDetail.run.runId}
                           buyerPolished={m.buyerPolishedArtifactTable ?? false}
                         />

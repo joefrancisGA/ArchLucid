@@ -36,7 +36,7 @@ Canonical route and HTTP map: [OPERATOR_ATLAS.md](../OPERATOR_ATLAS.md). **[`STA
 **Steps**
 
 1. **Triage in UI** — Open `/architecture/reviews/{runId}`; drill **findings** (`/architecture/reviews/{runId}/findings/{findingId}`) and confirm severity labels match your pack intent.
-2. **Assign / confirm policy** — UI: `/policy-packs` Â· API: `/v1/policy-packs…` Â· Behaviour matrix: [PRE_COMMIT_GOVERNANCE_GATE.md](../PRE_COMMIT_GOVERNANCE_GATE.md) (`BlockCommitOnCritical`, `BlockCommitMinimumSeverity`).
+2. **Assign / confirm policy** — UI: `/policy-packs` Â· API: `/v1/policy-packs…` Â· Behavior matrix: [PRE_COMMIT_GOVERNANCE_GATE.md](../PRE_COMMIT_GOVERNANCE_GATE.md) (`BlockCommitOnCritical`, `BlockCommitMinimumSeverity`).
 3. **Pre-finalize dry run** — API: `POST /v1/governance/approval-requests?dryRun=true` (validation path per [GOVERNANCE.md](../contributor-reference/GOVERNANCE.md)).
 4. **Workflow** — UI: `/governance?runId={runId}`, `/governance/dashboard` Â· API: `POST /v1/governance/approval-requests`, promote/activate routes on `GovernanceController` as needed ([GOVERNANCE.md](../contributor-reference/GOVERNANCE.md)).
 5. **Audit trail** — UI: `/audit?runId={runId}` (scoped review events; avoid unscoped `/audit` without a review id) Â· API: `GET /v1/audit/search?runId=…`.

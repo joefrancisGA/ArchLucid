@@ -106,7 +106,7 @@ export const OPERATOR_LAYOUT = {
 } as const;
 
 /** Operator workflow page width variants — left-aligned rails (no `mx-auto`). */
-export type OperatorPageContainerVariant = "full" | "workflow" | "dashboard" | "reading";
+export type OperatorPageContainerVariant = "full" | "workflow" | "dashboard" | "reading" | "settings";
 
 export const OPERATOR_PAGE_CONTAINER = {
   /** Shared operator page rail — shell already applies horizontal padding. */
@@ -120,6 +120,8 @@ export const OPERATOR_PAGE_CONTAINER = {
     dashboard: "w-full max-w-[1440px]",
     /** Onboarding, settings forms, help prose (~768px) — still left-aligned to the rail. */
     reading: "w-full max-w-3xl",
+    /** Administration settings and identity surfaces (~992px) — SCIM, SSO, account security rail. */
+    settings: "w-full max-w-[62rem]",
   },
 } as const;
 

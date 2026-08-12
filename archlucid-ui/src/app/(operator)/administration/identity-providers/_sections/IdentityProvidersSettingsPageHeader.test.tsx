@@ -23,6 +23,7 @@ vi.mock("@/components/usability/PageContextualHelpButton", () => ({
 }));
 
 import { IdentityProvidersSettingsPageHeader } from "@/app/(operator)/administration/identity-providers/_sections/IdentityProvidersSettingsPageHeader";
+import { IDENTITY_PROVIDERS_PAGE_TITLE } from "@/lib/identity-providers-settings-copy";
 
 describe("IdentityProvidersSettingsPageHeader", () => {
   it("renders breadcrumb, short help trigger, refresh, diagnostics link, tenant scope, and status badge", () => {
@@ -41,6 +42,10 @@ describe("IdentityProvidersSettingsPageHeader", () => {
     expect(screen.getByRole("heading", { level: 2, name: "Identity providers" })).toBeInTheDocument();
     expect(screen.getByText(identityProvidersPageSubtitle(false))).toBeInTheDocument();
     expect(screen.getByTestId("identity-providers-page-breadcrumb")).toHaveTextContent("Administration");
+    expect(screen.getByTestId("identity-providers-page-breadcrumb")).toHaveTextContent(IDENTITY_PROVIDERS_PAGE_TITLE);
+    expect(screen.getByTestId("identity-providers-page-breadcrumb").textContent).not.toMatch(
+      /Identity providers\s+Identity providers/,
+    );
     expect(screen.getByTestId("page-contextual-help-button")).toHaveTextContent("Help");
     expect(screen.getByTestId("identity-providers-header-actions")).toBeInTheDocument();
     expect(screen.getByTestId("identity-providers-refresh-button")).toBeInTheDocument();

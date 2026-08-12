@@ -2158,12 +2158,12 @@ Do not sell agent free text / unvalidated `ProposedChanges` as the signed archit
 
 ### Residuals (honest)
 
-- **TB-1196** / **TB-1197** own the Real-variance isolation contract and honesty CI.
+- **TB-1196** **Done** — [`AGENT_OUTPUT_DECISIONING_REAL_VARIANCE_ISOLATION_CONTRACT.md`](../library/AGENT_OUTPUT_DECISIONING_REAL_VARIANCE_ISOLATION_CONTRACT.md); **TB-1197** honesty CI (open).
 - Cite `AgentTopologyProposalGraphMerge`, `RuleBasedDecisionEngine`, `DecisionMergeInputGate`, quality Enforce/Block.
 - Complements **M-154**, **M-158**/**M-159**, **M-166**/**M-167**, **M-247**/**M-248**; pairs claim-honesty **M-203**.
 - This handout does not claim CPA SOC 2 or a published third-party penetration test.
 
-**Related:** [AgentTask→decisioning leak seams (M-248)](#agenttask-decisioning-ungated-leak-seams-m-248) Â· [Authority vs AgentTask (M-159)](#authority-vs-agenttask-loop-m-159) Â· [PilotStrict vs execution mode (M-167)](#pilotstrict-vs-execution-mode-m-167) Â· [Committed golden manifest (M-155)](#committed-golden-manifest-unit-of-truth-m-155) Â· [Decision-grade finding provenance (M-208)](#decision-grade-finding-provenance-m-208) Â· [Golden-cohort re-lock (M-202)](#golden-cohort-relock-vs-rubber-stamp-m-202) Â· [`PUBLIC_CLAIM_BOUNDARY_GUIDE.md#gtm-do-not-promise`](../library/PUBLIC_CLAIM_BOUNDARY_GUIDE.md#gtm-do-not-promise) Â· [`PA_CLAIM_HONESTY_INDEX.md`](PA_CLAIM_HONESTY_INDEX.md).
+**Related:** [AgentTask→decisioning leak seams (M-248)](#agenttask-decisioning-ungated-leak-seams-m-248) Â· [Authority vs AgentTask (M-159)](#authority-vs-agenttask-loop-m-159) Â· [PilotStrict vs execution mode (M-167)](#pilotstrict-vs-execution-mode-m-167) Â· [Committed golden manifest (M-155)](#committed-golden-manifest-unit-of-truth-m-155) Â· [Decision-grade finding provenance (M-208)](#decision-grade-finding-provenance-m-208) Â· [Golden-cohort re-lock (M-202)](#golden-cohort-relock-vs-rubber-stamp-m-202) Â· [`AGENT_OUTPUT_DECISIONING_REAL_VARIANCE_ISOLATION_CONTRACT.md`](../library/AGENT_OUTPUT_DECISIONING_REAL_VARIANCE_ISOLATION_CONTRACT.md) (**TB-1196**) Â· [`PUBLIC_CLAIM_BOUNDARY_GUIDE.md#gtm-do-not-promise`](../library/PUBLIC_CLAIM_BOUNDARY_GUIDE.md#gtm-do-not-promise) Â· [`PA_CLAIM_HONESTY_INDEX.md`](PA_CLAIM_HONESTY_INDEX.md).
 
 ## Golden-cohort re-lock vs rubber-stamp (M-202) {#golden-cohort-relock-vs-rubber-stamp-m-202}
 
@@ -2408,13 +2408,13 @@ Do not claim RAG support-ratio, LLM faithfulness, nightly eval, or embedding cos
 
 ### Residuals (honest)
 
-- **TB-1228** / **TB-1229** own the lane-split contract and honesty CI.
+- **TB-1228** **Done** — [`FAITHFULNESS_SUPPORT_RATIO_SCORING_LANE_POSITIONING_CONTRACT.md`](../library/FAITHFULNESS_SUPPORT_RATIO_SCORING_LANE_POSITIONING_CONTRACT.md); **TB-1229** honesty CI (open).
 - Shared defense-plane ownership is **M-212** / **TB-1230**; structural provenance is **M-207**/**M-208**; FT decision-record fields are **M-227**/**M-228** (do not fork).
 - Cite `AgentOutputQualityGate`, `AgentResultEvidenceFaithfulnessChecker`, `RetrievalFaithfulnessEvaluator`, `GoldenCohortFineTuningPromotionGate`.
 - Complements **M-166**/**M-167**; pairs claim-honesty **M-209**.
 - This handout does not claim CPA SOC 2, a published third-party penetration test, or hallucination-proof output.
 
-**Related:** [Decision-grade finding provenance (M-208)](#decision-grade-finding-provenance-m-208) Â· [Shared hallucination defense plane (M-212)](#shared-hallucination-defense-plane-m-212) Â· [PilotStrict vs execution mode (M-167)](#pilotstrict-vs-execution-mode-m-167) Â· [FT promotion decision record (M-228)](#ft-promotion-decision-record-m-228) Â· [Model-failed vs quality-rejected (M-124)](#model-failed-vs-quality-rejected-m-124) Â· [`PUBLIC_CLAIM_BOUNDARY_GUIDE.md#gtm-do-not-promise`](../library/PUBLIC_CLAIM_BOUNDARY_GUIDE.md#gtm-do-not-promise) Â· [`PA_CLAIM_HONESTY_INDEX.md`](PA_CLAIM_HONESTY_INDEX.md).
+**Related:** [Decision-grade finding provenance (M-208)](#decision-grade-finding-provenance-m-208) Â· [Shared hallucination defense plane (M-212)](#shared-hallucination-defense-plane-m-212) Â· [PilotStrict vs execution mode (M-167)](#pilotstrict-vs-execution-mode-m-167) Â· [FT promotion decision record (M-228)](#ft-promotion-decision-record-m-228) Â· [Model-failed vs quality-rejected (M-124)](#model-failed-vs-quality-rejected-m-124) Â· [`FAITHFULNESS_SUPPORT_RATIO_SCORING_LANE_POSITIONING_CONTRACT.md`](../library/FAITHFULNESS_SUPPORT_RATIO_SCORING_LANE_POSITIONING_CONTRACT.md) (**TB-1228**) Â· [`PUBLIC_CLAIM_BOUNDARY_GUIDE.md#gtm-do-not-promise`](../library/PUBLIC_CLAIM_BOUNDARY_GUIDE.md#gtm-do-not-promise) Â· [`PA_CLAIM_HONESTY_INDEX.md`](PA_CLAIM_HONESTY_INDEX.md).
 
 ## TB-881 org-registration race — ship-blocker classification (M-250) {#tb881-org-registration-race-ship-blocker-m-250}
 
@@ -3477,12 +3477,12 @@ Do not sell API scale-out as removing AOAI 429/TPM limits, claim launch load is 
 
 ### Residuals (honest)
 
-- **TB-1032** / **TB-1033** own the design contract and language guards.
+- **TB-1032** **Done** — [`LAUNCH_LOAD_FAILURE_ORDER_DEGRADATION_CONTRACT.md`](../library/LAUNCH_LOAD_FAILURE_ORDER_DEGRADATION_CONTRACT.md); **TB-1033** language guards (open).
 - Measured evidence: owner **G-SCALE-01** / **G-SCALE-02**; cite [`../architecture/LAUNCH_LOAD_DRILL.md`](../architecture/LAUNCH_LOAD_DRILL.md) + [`../library/DEGRADED_MODE.md`](../library/DEGRADED_MODE.md).
 - Complements **M-229**/**M-230** (execute throttle) and **M-237**/**M-238** (100Ã— — do not fold into launch-burst talk-track).
 - This handout does not claim CPA SOC 2 or a published third-party penetration test.
 
-**Related:** [Customer policy-pack sandbox (M-299)](#policy-pack-customer-rule-sandbox-m-299) Â· [Marketing static vs live boundary (M-179)](#marketing-static-vs-live-demo-boundary-m-179) Â· [100Ã— review-volume capacity (M-238)](#review-volume-100x-capacity-m-238) Â· [Shared TPM fairness (M-297)](#shared-aoai-tpm-noisy-neighbor-m-297) Â· [Real-execute AOAI throttle (M-230)](#real-execute-aoai-throttle-m-230) Â· [`../architecture/LAUNCH_LOAD_DRILL.md`](../architecture/LAUNCH_LOAD_DRILL.md) Â· [`../library/DEGRADED_MODE.md`](../library/DEGRADED_MODE.md) Â· [`PUBLIC_CLAIM_BOUNDARY_GUIDE.md#gtm-do-not-promise`](../library/PUBLIC_CLAIM_BOUNDARY_GUIDE.md#gtm-do-not-promise) Â· [`PA_CLAIM_HONESTY_INDEX.md`](PA_CLAIM_HONESTY_INDEX.md).
+**Related:** [Customer policy-pack sandbox (M-299)](#policy-pack-customer-rule-sandbox-m-299) Â· [Marketing static vs live boundary (M-179)](#marketing-static-vs-live-demo-boundary-m-179) Â· [100Ã— review-volume capacity (M-238)](#review-volume-100x-capacity-m-238) Â· [Shared TPM fairness (M-297)](#shared-aoai-tpm-noisy-neighbor-m-297) Â· [Real-execute AOAI throttle (M-230)](#real-execute-aoai-throttle-m-230) Â· [`LAUNCH_LOAD_FAILURE_ORDER_DEGRADATION_CONTRACT.md`](../library/LAUNCH_LOAD_FAILURE_ORDER_DEGRADATION_CONTRACT.md) (**TB-1032**) Â· [`../architecture/LAUNCH_LOAD_DRILL.md`](../architecture/LAUNCH_LOAD_DRILL.md) Â· [`../library/DEGRADED_MODE.md`](../library/DEGRADED_MODE.md) Â· [`PUBLIC_CLAIM_BOUNDARY_GUIDE.md#gtm-do-not-promise`](../library/PUBLIC_CLAIM_BOUNDARY_GUIDE.md#gtm-do-not-promise) Â· [`PA_CLAIM_HONESTY_INDEX.md`](PA_CLAIM_HONESTY_INDEX.md).
 
 ## Marketing static vs anonymous-live vs tenant boundary (M-179) {#marketing-static-vs-live-demo-boundary-m-179}
 

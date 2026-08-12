@@ -1,10 +1,10 @@
 export const IDENTITY_PROVIDERS_PAGE_TITLE = "Identity providers";
 
 export const IDENTITY_PROVIDERS_PAGE_SUBTITLE =
-  "Configure workspace sign-in, SSO, and role mapping.";
+  "Configure organization sign-in, SSO, and role mapping.";
 
 export const BUYER_IDENTITY_PROVIDERS_PAGE_SUBTITLE =
-  "Sign-in, SSO, and role mapping for this workspace.";
+  "Sign-in, SSO, and role mapping for every workspace in this organization.";
 
 export const IDENTITY_PROVIDERS_PAGE_SUBTITLE_OPERATOR = IDENTITY_PROVIDERS_PAGE_SUBTITLE;
 
@@ -48,7 +48,7 @@ export function identityProvidersTenantScopeLine(currentWorkspaceLabel: string |
 }
 
 export const IDENTITY_PROVIDERS_PAGE_INTRO =
-  "Configure sign-in, single sign-on, and role mapping for this workspace.";
+  "Configure sign-in, single sign-on, and role mapping for every workspace in this organization.";
 
 export const IDENTITY_PROVIDERS_SAFETY_NOTICE =
   "Changes to identity provider settings can affect user access. Validate configuration before relying on it for production sign-in.";
@@ -69,7 +69,9 @@ export const IDENTITY_PROVIDERS_SUMMARY_SSO_LABEL = "Single sign-on";
 export const IDENTITY_PROVIDERS_SUMMARY_SAML_LABEL = "SAML";
 export const IDENTITY_PROVIDERS_SUMMARY_OIDC_LABEL = "OIDC/JWT";
 export const IDENTITY_PROVIDERS_SUMMARY_ROLE_MAPPING_LABEL = "Role mapping";
-export const IDENTITY_PROVIDERS_SUMMARY_LAST_VALIDATION_LABEL = "Last validation";
+export const IDENTITY_PROVIDERS_SUMMARY_VALIDATION_STATUS_LABEL = "Validation status";
+/** @deprecated Use IDENTITY_PROVIDERS_SUMMARY_VALIDATION_STATUS_LABEL */
+export const IDENTITY_PROVIDERS_SUMMARY_LAST_VALIDATION_LABEL = IDENTITY_PROVIDERS_SUMMARY_VALIDATION_STATUS_LABEL;
 export const IDENTITY_PROVIDERS_RECOMMENDED_NEXT_LABEL = "Recommended next step";
 
 export const IDENTITY_PROVIDERS_STATUS_ENABLED = "Enabled";
@@ -79,6 +81,11 @@ export const IDENTITY_PROVIDERS_STATUS_ACTION_NEEDED = "Action needed";
 export const IDENTITY_PROVIDERS_STATUS_NOT_APPLICABLE = "Not applicable";
 export const IDENTITY_PROVIDERS_STATUS_HEALTHY = "Healthy";
 export const IDENTITY_PROVIDERS_STATUS_NEEDS_REVIEW = "Needs review";
+export const IDENTITY_PROVIDERS_STATUS_UNKNOWN = "Unknown";
+export const IDENTITY_PROVIDERS_STATUS_SOURCE_UNAVAILABLE = "Status source unavailable";
+export const IDENTITY_PROVIDERS_VALIDATION_STATUS_NOT_VALIDATED_YET = "Not validated yet";
+export const IDENTITY_PROVIDERS_ROLE_MAPPING_LOCAL_DEV_REASON =
+  "Local development sign-in issues no IdP group claims.";
 
 export const IDENTITY_PROVIDERS_DISCOVERY_STATUS_NOT_ATTEMPTED = "Not attempted";
 
@@ -212,7 +219,9 @@ export const IDENTITY_PROVIDERS_SAVE_CONFIRM_DESCRIPTION =
 export const IDENTITY_PROVIDERS_RECOMMENDED_CONFIGURE_SAML = "Configure SAML metadata";
 export const IDENTITY_PROVIDERS_RECOMMENDED_VALIDATE_ROLE_MAPPING = "Validate role mapping";
 export const IDENTITY_PROVIDERS_RECOMMENDED_CONFIGURE_PRODUCTION_SIGN_IN =
-  "Configure production sign-in before shared workspace use";
+  "Open SSO setup wizard to configure and test";
+export const IDENTITY_PROVIDERS_RECOMMENDED_CONFIGURE_PRODUCTION_SIGN_IN_DETAIL =
+  "Saving configuration writes your IdP settings to the identity provider record. It does not change how anyone signs in today — turning on SSO sign-in is a separate platform configuration change.";
 export const IDENTITY_PROVIDERS_RECOMMENDED_VALIDATE_OIDC = "Validate OIDC discovery";
 export const IDENTITY_PROVIDERS_RECOMMENDED_OPEN_DIAGNOSTICS = "Review identity diagnostics";
 
@@ -223,5 +232,11 @@ export const IDENTITY_PROVIDERS_AUTH_MODE_API_KEY = "API key";
 export const IDENTITY_PROVIDERS_FORBIDDEN_NOTE =
   "Workspace administrator access is required to view identity provider settings.";
 
-export const IDENTITY_PROVIDERS_LOAD_ERROR_NOTE =
+export const IDENTITY_PROVIDERS_STATUS_LOAD_ERROR_NOTE =
   "Identity provider status could not be loaded. Try again or open diagnostics for more detail.";
+export const IDENTITY_PROVIDERS_CONFIG_SUMMARY_LOAD_ERROR_NOTE =
+  "Configuration key catalog could not be loaded. Try again or open diagnostics for more detail.";
+/** @deprecated Use IDENTITY_PROVIDERS_STATUS_LOAD_ERROR_NOTE or IDENTITY_PROVIDERS_CONFIG_SUMMARY_LOAD_ERROR_NOTE */
+export const IDENTITY_PROVIDERS_LOAD_ERROR_NOTE = IDENTITY_PROVIDERS_STATUS_LOAD_ERROR_NOTE;
+export const IDENTITY_PROVIDERS_OVERVIEW_STATUS_FAILURE_TITLE = "Identity provider status unavailable";
+export const IDENTITY_PROVIDERS_OVERVIEW_RELATED_SURFACES_TITLE = "Related identity surfaces";

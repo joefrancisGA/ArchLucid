@@ -140,7 +140,7 @@ describe("IdentityProvidersSettingsPage", () => {
     expect(screen.getByTestId("identity-providers-last-refreshed")).toHaveTextContent(/Last refreshed:/i);
     expect(screen.getByTestId("identity-providers-settings-nav")).toBeInTheDocument();
     expect(screen.getByTestId("identity-providers-overview-summary")).toBeInTheDocument();
-    expect(screen.getByTestId("identity-providers-recommended-next-card")).toBeInTheDocument();
+    expect(screen.getByTestId("identity-providers-primary-next-step-button")).toBeInTheDocument();
     expect(screen.getByTestId("identity-providers-overview-links")).toBeInTheDocument();
     expect(screen.queryByTestId("identity-providers-table")).not.toBeInTheDocument();
     expect(screen.queryByTestId("saml-sp-configuration-form")).not.toBeInTheDocument();
@@ -201,8 +201,9 @@ describe("IdentityProvidersSettingsPage", () => {
 
     render(page);
 
-    expect(await screen.findByTestId("identity-providers-local-dev-notice")).toBeInTheDocument();
+    expect(await screen.findByTestId("identity-providers-primary-next-step-button")).toBeInTheDocument();
     expect(screen.getAllByText(/Local development sign-in/i).length).toBeGreaterThan(0);
     expect(screen.queryByText(/DevelopmentBypass/i)).not.toBeInTheDocument();
+    expect(screen.queryByTestId("identity-providers-local-dev-notice")).toBeNull();
   });
 });

@@ -9,6 +9,8 @@ public sealed class WorkspaceModelExecutionProfileService(
     IScopeContextProvider scopeContextProvider,
     ITenantSettingsRepository tenantSettingsRepository) : IWorkspaceModelExecutionProfileService
 {
+    public static AgentModelExecutionProfile WorkspaceDefaultProfile => AgentModelExecutionProfile.Balanced;
+
     private readonly IScopeContextProvider _scopeContextProvider =
         scopeContextProvider ?? throw new ArgumentNullException(nameof(scopeContextProvider));
 
@@ -31,7 +33,7 @@ public sealed class WorkspaceModelExecutionProfileService(
         }
 
         return new WorkspaceModelExecutionProfileSnapshot(
-            AgentModelExecutionProfile.Balanced,
+            WorkspaceDefaultProfile,
             WorkspaceModelExecutionProfileSource.WorkspaceDefault);
     }
 

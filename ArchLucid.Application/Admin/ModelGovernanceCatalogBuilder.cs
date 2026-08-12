@@ -21,7 +21,8 @@ public sealed class ModelGovernanceCatalogBuilder(IAgentModelAliasRegistry alias
             {
                 EffectiveProfile = AgentModelExecutionProfileParser.Format(workspaceProfile.EffectiveProfile),
                 Source = workspaceProfile.Source.ToString(),
-                WorkspaceDefaultProfile = AgentModelExecutionProfileParser.Format(AgentModelExecutionProfile.Balanced)
+                WorkspaceDefaultProfile = AgentModelExecutionProfileParser.Format(
+                    WorkspaceModelExecutionProfileService.WorkspaceDefaultProfile)
             },
             RegistryEntries = _aliasRegistry
                 .ListEntries()

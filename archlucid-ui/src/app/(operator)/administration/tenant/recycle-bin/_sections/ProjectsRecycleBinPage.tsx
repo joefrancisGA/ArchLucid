@@ -6,6 +6,7 @@ import { cn } from "@/lib/utils";
 import { useCallback, useEffect, useState } from "react";
 
 import { useOperatorNavAuthority } from "@/components/operator/OperatorNavAuthorityProvider";
+import { OperatorPageContainer } from "@/components/operator/OperatorPageContainer";
 import { ProjectsRecycleDraftsPackageVocabularyRail } from "@/components/ProjectsRecycleDraftsPackageVocabularyRail";
 import { Button } from "@/components/ui/button";
 import {
@@ -281,7 +282,11 @@ export function ProjectsRecycleBinPage() {
   const pageDescription = recycleBinPageDescription(retentionDays);
 
   return (
-    <div className={cn("w-full max-w-3xl", OPERATOR_LAYOUT.sectionStack)} data-testid="projects-recycle-bin-page">
+    <OperatorPageContainer
+      variant="settings"
+      className={OPERATOR_LAYOUT.sectionStack}
+      data-testid="projects-recycle-bin-page"
+    >
       <ProjectsRecycleBinPageHeader
         loading={loading}
         subtitle={pageDescription}
@@ -379,6 +384,6 @@ export function ProjectsRecycleBinPage() {
         </Link>
         .
       </p>
-    </div>
+    </OperatorPageContainer>
   );
 }

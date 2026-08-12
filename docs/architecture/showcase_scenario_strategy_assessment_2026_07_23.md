@@ -198,7 +198,7 @@ Confidence on effort: **Likely** (derived from file counts and coupling inventor
 
 **Weights** (sum 100): immediate comprehensibility 10, cross-industry relevance 10, architectural richness 8, findings 8, evidence 7, governance 7, remediation 4, creation 5, AI governance 5, cloud neutrality 3 (*deliberately low ΓÇö ADR 0020 makes Azure-primary a fixed constraint, not a variable*), regulated credibility 8, differentiation 6, marketing clarity 7, implementation effort 6 (higher = cheaper), maintenance 4 (higher = cheaper), staleness risk 2 (higher = lower risk).
 
-| Criterion (wt) | A Claims | B Ent. Intake | C Onboarding | D AI Assistant | E Order/Fulfil. | F Reg. Case Mgmt | G In-repo AI-gov* |
+| Criterion (wt) | A Claims | B Ent. Intake | C Onboarding | D AI Assistant | E Order/Fulfill. | F Reg. Case Mgmt | G In-repo AI-gov* |
 |---|---|---|---|---|---|---|---|
 | Comprehensibility (10) | 55 | 75 | 80 | 70 | 85 | 60 | 65 |
 | Cross-industry (10) | 40 | 90 | 75 | 85 | 60 | 45 | 80 |

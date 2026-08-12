@@ -1864,6 +1864,10 @@ jobs:
         shell: pwsh
         run: Invoke-Pester -Strict -EnableExit -Path 'scripts/tests/Get-ArchLucidAwsPackage.Tests.ps1'
 
+      - name: Write-AiReadinessPosture.Tests.ps1
+        shell: pwsh
+        run: Invoke-Pester -Strict -EnableExit -Path 'scripts/tests/Write-AiReadinessPosture.Tests.ps1'
+
       - name: Get-ArchLucidGcpPackage.Tests.ps1
         shell: pwsh
         run: Invoke-Pester -Strict -EnableExit -Path 'scripts/tests/Get-ArchLucidGcpPackage.Tests.ps1'

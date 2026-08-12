@@ -15,6 +15,7 @@ import {
   IDENTITY_PROVIDERS_STATUS_NEEDS_REVIEW,
   IDENTITY_PROVIDERS_STATUS_NOT_APPLICABLE,
   IDENTITY_PROVIDERS_STATUS_NOT_CONFIGURED,
+  IDENTITY_PROVIDERS_STATUS_UNKNOWN,
 } from "@/lib/identity-providers-settings-copy";
 
 describe("identity-provider-probe-status-presentation", () => {
@@ -59,6 +60,10 @@ describe("identity-provider-probe-status-presentation", () => {
     expect(identityProviderCustomerStatusPresentation(IDENTITY_PROVIDERS_STATUS_NOT_CONFIGURED)).toEqual({
       kind: "neutral",
       label: IDENTITY_PROVIDERS_STATUS_NOT_CONFIGURED,
+    });
+    expect(identityProviderCustomerStatusPresentation(IDENTITY_PROVIDERS_STATUS_UNKNOWN)).toEqual({
+      kind: "neutral",
+      label: IDENTITY_PROVIDERS_STATUS_UNKNOWN,
     });
   });
 

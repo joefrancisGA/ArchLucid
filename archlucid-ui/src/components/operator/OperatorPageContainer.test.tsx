@@ -39,4 +39,16 @@ describe("OperatorPageContainer", () => {
     expect(surface).toHaveClass("w-full", "max-w-3xl");
     expect(surface.className).not.toMatch(/mx-auto/);
   });
+
+  it("renders settings variant for administration surfaces", () => {
+    render(
+      <OperatorPageContainer variant="settings" data-testid="settings-page">
+        Administration
+      </OperatorPageContainer>,
+    );
+
+    const surface = screen.getByTestId("settings-page");
+    expect(surface).toHaveClass("w-full", "max-w-[62rem]");
+    expect(surface.className).not.toMatch(/mx-auto/);
+  });
 });

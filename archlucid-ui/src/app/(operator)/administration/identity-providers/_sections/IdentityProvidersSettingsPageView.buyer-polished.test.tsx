@@ -52,6 +52,7 @@ function buildModel(
     refreshing: false,
     lastRefreshedAt: new Date("2026-07-09T12:00:00.000Z"),
     diagnosticsDataUnavailable: false,
+    overviewStatusFailure: null,
     refresh: vi.fn(async () => undefined),
     accessDenied: false,
     overview: {
@@ -61,9 +62,11 @@ function buildModel(
       samlStatus: "Not configured",
       oidcStatus: "Healthy",
       roleMappingStatus: "Configured",
-      lastValidationLabel: "Today",
+      validationStatusLabel: "Today",
+      tileCaptions: {},
       recommendedNextStep: "Validate role mapping",
       recommendedNextHref: "/administration/identity-providers/role-mapping",
+      headerStatusAvailable: true,
     },
     ...overrides,
   };
@@ -75,6 +78,7 @@ describe("IdentityProvidersSettingsPageView buyer-polished shell", () => {
 
     expect(screen.getByText(BUYER_IDENTITY_PROVIDERS_PAGE_SUBTITLE)).toBeInTheDocument();
     expect(screen.queryByText(IDENTITY_PROVIDERS_PAGE_SUBTITLE)).not.toBeInTheDocument();
+    expect(screen.queryByText(/for this workspace/i)).not.toBeInTheDocument();
     expect(screen.getByTestId("page-contextual-help-button")).toBeInTheDocument();
     expect(screen.getByTestId("identity-providers-refresh-button")).toBeInTheDocument();
     expect(screen.queryByTestId("identity-providers-scope-details")).toBeNull(); // TB-2093

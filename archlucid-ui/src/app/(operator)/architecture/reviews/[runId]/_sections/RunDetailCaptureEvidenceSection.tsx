@@ -10,12 +10,14 @@ import {
 } from "@/lib/bulk-evidence-upload-copy";
 import { OPERATOR_CARD, OPERATOR_LINK, OPERATOR_TYPOGRAPHY } from "@/lib/design-tokens";
 import type { EvidencePresenceFlags } from "@/lib/evidence-gap-forecast";
+import type { BulkEvidenceUploadSummary } from "@/lib/bulk-evidence-upload-outcome";
 
 export type RunDetailCaptureEvidenceSectionProps = {
   readonly runId: string;
   /** Retained for call-site compatibility; capture chrome no longer branches on polish mode. */
   readonly buyerPolished?: boolean;
   readonly evidencePresence?: EvidencePresenceFlags;
+  readonly onUploadSummary?: (summary: BulkEvidenceUploadSummary) => void;
 };
 
 export function RunDetailCaptureEvidenceSection(props: RunDetailCaptureEvidenceSectionProps): ReactElement {
@@ -46,7 +48,7 @@ export function RunDetailCaptureEvidenceSection(props: RunDetailCaptureEvidenceS
               <EvidenceGapForecastPanel presence={props.evidencePresence} />
             </div>
           ) : null}
-          <BulkEvidenceUpload runId={runId} embedded />
+          <BulkEvidenceUpload runId={runId} embedded onUploadSummary={props.onUploadSummary} />
         </div>
       </div>
     </section>

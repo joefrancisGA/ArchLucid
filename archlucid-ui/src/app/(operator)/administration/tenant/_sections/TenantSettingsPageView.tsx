@@ -6,6 +6,7 @@ import type { ReactNode } from "react";
 import Link from "next/link";
 
 import { CollapsibleSection } from "@/components/CollapsibleSection";
+import { OperatorPageContainer } from "@/components/operator/OperatorPageContainer";
 import { OperatorPageHeader } from "@/components/operator/OperatorPageHeader";
 import { SupportBundleDownloadButton } from "@/components/SupportBundleDownloadButton";
 import { TenantLlmJudgeGuideCard } from "@/components/TenantLlmJudgeGuideCard";
@@ -44,7 +45,7 @@ export function TenantSettingsPageView(props: Props) {
   const scope = getEffectiveBrowserProxyScopeHeaders();
 
   return (
-    <div className="w-full max-w-3xl space-y-6" data-testid="tenant-settings-page">
+    <OperatorPageContainer variant="settings" className="space-y-6" data-testid="tenant-settings-page">
       <OperatorPageHeader
         title={OPERATOR_NAV_LINK_LABELS.workspaceSettings}
         subtitle="Workspace defaults and tenant-wide configuration."
@@ -52,7 +53,7 @@ export function TenantSettingsPageView(props: Props) {
         actions={<PageContextualHelpButton />}
       />
       <WorkspaceScopeTenantSettingsVocabularyRail currentSurfaceId="tenant-settings" />
-<SectionHeading>General</SectionHeading>
+      <SectionHeading>General</SectionHeading>
 
       <Card>
         <CardHeader>
@@ -189,6 +190,6 @@ export function TenantSettingsPageView(props: Props) {
           <TenantQualityGatesCard />
         </div>
       </CollapsibleSection>
-    </div>
+    </OperatorPageContainer>
   );
 }

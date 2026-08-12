@@ -48,6 +48,7 @@ function buildModel(
     refreshing: false,
     lastRefreshedAt: new Date("2026-07-09T12:00:00.000Z"),
     diagnosticsDataUnavailable: false,
+    overviewStatusFailure: null,
     refresh: vi.fn(async () => undefined),
     accessDenied: false,
     overview: {
@@ -57,9 +58,11 @@ function buildModel(
       samlStatus: "Not configured",
       oidcStatus: "Healthy",
       roleMappingStatus: "Configured",
-      lastValidationLabel: "Today",
+      validationStatusLabel: "Today",
+      tileCaptions: {},
       recommendedNextStep: "Validate role mapping",
       recommendedNextHref: "/administration/identity-providers/role-mapping",
+      headerStatusAvailable: true,
     },
     ...overrides,
   };

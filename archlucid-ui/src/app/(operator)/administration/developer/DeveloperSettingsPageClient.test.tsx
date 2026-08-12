@@ -13,6 +13,7 @@ vi.mock("next/link", () => ({
 }));
 
 vi.mock("@/components/usability/PageContextualHelpButton", () => ({
+  PAGE_HELP_SHORT_TRIGGER_TEXT: "Help",
   PageContextualHelpButton: () => <button type="button">Page help</button>,
 }));
 
@@ -30,5 +31,27 @@ describe("DeveloperSettingsPageClient", () => {
     expect(screen.queryByTestId("developer-settings-sources")).toBeNull(); // TB-2092
     // No unshipped Diagnostics product widget — Sources may still link admin-diagnostics help.
     expect(screen.queryByRole("heading", { name: /^Diagnostics$/i })).not.toBeInTheDocument();
+  });
+
+  it("leads with tool cards before access copy and related surfaces footer", () => {
+    render(<DeveloperSettingsPageClient />);
+
+    const page = screen.getByTestId("developer-settings-page");
+    expect(page).toHaveClass("w-full", "max-w-[62rem]");
+
+    const themeSelector = screen.getByTestId("authority-theme-dev-selector");
+    const cliCard = screen.getByTestId("try-cli-demo-card");
+    const accessNote = screen.getByTestId("developer-settings-access-note");
+    const relatedSurfacesHeading = screen.getByRole("heading", { name: "Related surfaces" });
+
+    expect(
+      themeSelector.compareDocumentPosition(cliCard) & Node.DOCUMENT_POSITION_FOLLOWING,
+    ).toBeTruthy();
+    expect(
+      cliCard.compareDocumentPosition(accessNote) & Node.DOCUMENT_POSITION_FOLLOWING,
+    ).toBeTruthy();
+    expect(
+      accessNote.compareDocumentPosition(relatedSurfacesHeading) & Node.DOCUMENT_POSITION_FOLLOWING,
+    ).toBeTruthy();
   });
 });

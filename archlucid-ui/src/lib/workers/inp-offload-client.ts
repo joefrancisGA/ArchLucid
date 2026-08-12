@@ -145,7 +145,7 @@ export function useInpOffloadTask<K extends InpOffloadTaskKind>(
         }
       })
       .catch((caught: unknown) => {
-        if (!cancelled) {
+        if (!canceled) {
           const message = caught instanceof Error ? caught.message : "INP offload task failed";
           setError(message);
           setResult(null);

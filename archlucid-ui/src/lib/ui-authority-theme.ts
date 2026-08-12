@@ -82,6 +82,26 @@ export function persistAuthorityTheme(theme: UiAuthorityTheme): void {
   applyAuthorityThemeToDocument(theme);
 }
 
+/** True when localStorage holds an explicit theme override (not the env build default). */
+export function hasStoredAuthorityThemeOverride(): boolean {
+  return readStoredAuthorityTheme() !== null;
+}
+
+/** Clears the browser override and reapplies the build-time default from env. */
+export function clearStoredAuthorityTheme(envDefault: UiAuthorityTheme): void {
+  if (typeof window === "undefined") {
+    return;
+  }
+
+  try {
+    window.localStorage.removeItem(AUTHORITY_THEME_STORAGE_KEY);
+  } catch {
+    // ignore
+  }
+
+  applyAuthorityThemeToDocument(envDefault);
+}
+
 export function buildAuthorityThemeToggleLabel(theme: UiAuthorityTheme): string {
   const next: UiAuthorityTheme = theme === "charcoal" ? "default" : "charcoal";
   const currentLabel = theme === "charcoal" ? "Charcoal authority" : "Default teal accent";

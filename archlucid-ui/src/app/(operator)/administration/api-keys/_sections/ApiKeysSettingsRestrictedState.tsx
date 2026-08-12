@@ -1,6 +1,7 @@
 "use client";
 
 import { EnterpriseCompactEmptyState } from "@/components/EnterpriseCompactEmptyState";
+import { OperatorPageContainer } from "@/components/operator/OperatorPageContainer";
 import { OperatorPageBreadcrumb } from "@/components/operator/OperatorPageBreadcrumb";
 import { OperatorPageHeader } from "@/components/operator/OperatorPageHeader";
 import { PageContextualHelpButton } from "@/components/usability/PageContextualHelpButton";
@@ -39,7 +40,7 @@ export function ApiKeysSettingsRestrictedState(props: ApiKeysSettingsRestrictedS
   const emptyCompact = resolveRestrictedEmptyCompact(props.reason);
 
   return (
-    <div className="w-full max-w-3xl space-y-6" data-testid="api-keys-settings-restricted">
+    <OperatorPageContainer variant="settings" className="space-y-6" data-testid="api-keys-settings-restricted">
       <OperatorPageHeader
         title={resolveRestrictedTitle(props.reason)}
         headingLevel="h1"
@@ -61,6 +62,6 @@ export function ApiKeysSettingsRestrictedState(props: ApiKeysSettingsRestrictedS
         actions={emptyCompact.actions}
         testId={emptyCompact.testId}
       />
-    </div>
+    </OperatorPageContainer>
   );
 }

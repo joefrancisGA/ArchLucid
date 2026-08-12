@@ -8,6 +8,7 @@ import { BaselineRoiVocabularyRail } from "@/components/BaselineRoiVocabularyRai
 import { CollapsibleSection } from "@/components/CollapsibleSection";
 import { DemoUnavailableNotice } from "@/components/DemoUnavailableNotice";
 import { OperatorApiProblem } from "@/components/operator/OperatorApiProblem";
+import { OperatorPageContainer } from "@/components/operator/OperatorPageContainer";
 import { OperatorPageBreadcrumb } from "@/components/operator/OperatorPageBreadcrumb";
 import { OperatorPageHeader } from "@/components/operator/OperatorPageHeader";
 import { Button } from "@/components/ui/button";
@@ -380,7 +381,7 @@ export function BaselineSettingsClient() {
   const hasSavedBaseline = loadedSnapshot !== null && hasSavedWorkspaceBaseline(loadedSnapshot);
 
   return (
-    <div className="w-full max-w-3xl space-y-4">
+    <OperatorPageContainer variant="settings" className="space-y-4">
       <OperatorPageHeader
         title={BASELINE_SETTINGS_PAGE_TITLE}
         subtitle={BASELINE_SETTINGS_PAGE_SUBTITLE}
@@ -677,6 +678,6 @@ export function BaselineSettingsClient() {
       {!demoMode && loading ? (
         <p className={cn("text-al-text-secondary", OPERATOR_TYPOGRAPHY.body)}>Loading…</p>
       ) : null}
-    </div>
+    </OperatorPageContainer>
   );
 }

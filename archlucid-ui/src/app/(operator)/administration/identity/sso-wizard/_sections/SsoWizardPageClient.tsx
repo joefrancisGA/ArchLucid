@@ -11,6 +11,7 @@ import { WizardSessionResumePrompt } from "@/components/wizard/WizardSessionResu
 import { WizardSessionSaveStatus } from "@/components/wizard/WizardSessionSaveStatus";
 import { useWizardSessionPersistence } from "@/hooks/use-wizard-session-persistence";
 import { OperatorSuccessCallout } from "@/components/operator/OperatorSuccessCallout";
+import { OperatorPageContainer } from "@/components/operator/OperatorPageContainer";
 import { OperatorPageHeader } from "@/components/operator/OperatorPageHeader";
 import { IdentityProvidersSsoWizardVocabularyRail } from "@/components/IdentityProvidersSsoWizardVocabularyRail";
 import { SsoWizardScimVocabularyRail } from "@/components/SsoWizardScimVocabularyRail";
@@ -362,7 +363,7 @@ export function SsoWizardPageClient() {
   const currentStepMeta = SSO_WIZARD_STEPS[step];
 
   return (
-    <div className="w-full max-w-[62rem] space-y-6 px-1 sm:px-0" data-testid="sso-wizard-page">
+    <OperatorPageContainer variant="settings" className="space-y-6 px-1 sm:px-0" data-testid="sso-wizard-page">
       <header className="space-y-3">
         <p className={cn("m-0", OPERATOR_TYPOGRAPHY.helper)}>
           <Link href={SSO_WIZARD_IDENTITY_PROVIDERS_HREF} className={OPERATOR_LINK.nav} data-testid="sso-wizard-back-link">
@@ -681,6 +682,6 @@ export function SsoWizardPageClient() {
           leaveWizard();
         }}
       />
-    </div>
+    </OperatorPageContainer>
   );
 }

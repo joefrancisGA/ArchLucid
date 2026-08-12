@@ -19,7 +19,7 @@ ArchLucid acts as a **SCIM 2.0 Service Provider** (RFC 7644). Your identity prov
 2. **Seat limit** — `EnterpriseSeatsLimit` may be set on the tenant row; active SCIM users count toward `EnterpriseSeatsUsed`.
 3. **Admin issues SCIM token** — `POST /v1/admin/scim/tokens` (interactive admin session, not SCIM bearer).
 
-## Behaviour highlights
+## Behavior highlights
 
 - **No anonymous SCIM** — unauthenticated calls receive **401**.
 - **Filter support** — `eq`, `ne`, `co`, `sw`, `ew`, `gt`, `lt`, `ge`, `le`, `pr`, `and`, `or`, `not` over flat user attributes mapped to SQL (or in-memory evaluator in dev).

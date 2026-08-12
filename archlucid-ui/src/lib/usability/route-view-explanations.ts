@@ -209,6 +209,10 @@ export function routeViewExplanationForPathname(
     return null;
   }
 
+  if (path === "/administration/identity-providers") {
+    return null;
+  }
+
   const sorted = [...ROUTE_VIEW_EXPLANATIONS].sort((left, right) => right.prefix.length - left.prefix.length);
 
   for (const row of sorted) {

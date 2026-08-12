@@ -1,4 +1,5 @@
 import { ModelGovernanceAiUsageVocabularyRail } from "@/components/ModelGovernanceAiUsageVocabularyRail";
+import { OperatorPageContainer } from "@/components/operator/OperatorPageContainer";
 import { OperatorPageHeader } from "@/components/operator/OperatorPageHeader";
 import { PageContextualHelpButton } from "@/components/usability/PageContextualHelpButton";
 
@@ -7,7 +8,7 @@ import { ModelGovernanceSettingsCard } from "./_sections/ModelGovernanceSettings
 /** Admin workspace model governance: default execution profile, alias registry, and profile mappings (TB-871). */
 export default function ModelGovernanceSettingsPage() {
   return (
-    <div className="w-full max-w-4xl space-y-6 p-6" data-testid="model-governance-settings-page">
+    <OperatorPageContainer variant="settings" className="space-y-6 p-6" data-testid="model-governance-settings-page">
       <OperatorPageHeader
         headingLevel="h1"
         title="AI and model governance"
@@ -16,6 +17,6 @@ export default function ModelGovernanceSettingsPage() {
       />
       <ModelGovernanceAiUsageVocabularyRail currentSurfaceId="model-governance" />
       <ModelGovernanceSettingsCard />
-    </div>
+    </OperatorPageContainer>
   );
 }

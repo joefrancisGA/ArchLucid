@@ -1,5 +1,6 @@
 "use client";
 
+import { OperatorPageContainer } from "@/components/operator/OperatorPageContainer";
 import { OperatorPageHeader } from "@/components/operator/OperatorPageHeader";
 import { PreferencesNotificationsVocabularyRail } from "@/components/PreferencesNotificationsVocabularyRail";
 import { ShellThemePreferencesAppearanceVocabularyRail } from "@/components/ShellThemePreferencesAppearanceVocabularyRail";
@@ -11,7 +12,7 @@ import { cn } from "@/lib/utils";
 
 export function PreferencesSettingsPageView() {
   return (
-    <div className="w-full max-w-[62rem] space-y-6" data-testid="preferences-settings-page">
+    <OperatorPageContainer variant="settings" className="space-y-6" data-testid="preferences-settings-page">
       <OperatorPageHeader
         title="Preferences"
         subtitle="Personal settings saved to your account."
@@ -35,6 +36,6 @@ export function PreferencesSettingsPageView() {
           <ThemePreferenceSelector />
         </CardContent>
       </Card>
-    </div>
+    </OperatorPageContainer>
   );
 }

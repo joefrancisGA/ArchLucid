@@ -21,6 +21,7 @@ import {
   OPERATOR_LINK,
   OPERATOR_TYPOGRAPHY,
 } from "@/lib/design-tokens";
+import { OperatorPageContainer } from "@/components/operator/OperatorPageContainer";
 import { IdentityProvidersSettingsPageHeader } from "./IdentityProvidersSettingsPageHeader";
 const NAV_ITEMS: ReadonlyArray<{ readonly id: IdentityProvidersNavId; readonly label: string; readonly href: string }> = [
   { id: "overview", label: IDENTITY_PROVIDERS_NAV_OVERVIEW, href: "/administration/identity-providers" },
@@ -104,12 +105,14 @@ export function IdentityProvidersSettingsShell(props: IdentityProvidersSettingsS
       : (props.pageIntro ?? IDENTITY_PROVIDERS_PAGE_INTRO));
 
   return (
-    <div className="w-full max-w-4xl space-y-6" data-testid="identity-providers-settings-shell">
+    <OperatorPageContainer variant="settings" className="space-y-6" data-testid="identity-providers-settings-shell">
       <IdentityProvidersSettingsPageHeader
         pageTitle={resolvedTitle}
         subtitle={headerSubtitle}
         statusLabel={
-          props.statusBadgeReady === false || props.diagnosticsDataUnavailable === true
+          props.statusBadgeReady === false
+            || props.diagnosticsDataUnavailable === true
+            || props.overview?.headerStatusAvailable === false
             ? undefined
             : resolveHeaderStatusLabel(activeNavId, props.overview)
         }
@@ -127,7 +130,7 @@ export function IdentityProvidersSettingsShell(props: IdentityProvidersSettingsS
             </p>
           ) : null}
           <p
-            className={cn("m-0 max-w-3xl text-al-text-secondary", OPERATOR_TYPOGRAPHY.helper)}
+            className={cn("m-0 max-w-3xl text-al-text-primary", OPERATOR_TYPOGRAPHY.body)}
             data-testid="identity-providers-safety-notice"
           >
             {IDENTITY_PROVIDERS_SAFETY_NOTICE}
@@ -172,6 +175,6 @@ export function IdentityProvidersSettingsShell(props: IdentityProvidersSettingsS
       </nav>
 
       {props.children}
-    </div>
+    </OperatorPageContainer>
   );
 }
