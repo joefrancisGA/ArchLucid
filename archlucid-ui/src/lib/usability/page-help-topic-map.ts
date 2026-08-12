@@ -147,6 +147,10 @@ const PAGE_HELP_TOPICS: readonly { prefix: string; topic: PageHelpTopic }[] = [
     topic: { slug: "review-packages", label: "Signed review records" },
   },
   { prefix: EXECUTIVE_DASHBOARD_HREF, topic: { slug: "executive-summary", label: "Executive dashboard" } },
+  {
+    prefix: "/insights/ask-review-questions",
+    topic: { slug: "prior-manifest-retrieval", label: OPERATOR_NAV_LINK_LABELS.askReview },
+  },
   { prefix: "/insights/evidence-graph", topic: { slug: "evidence-trail", label: OPERATOR_NAV_LINK_LABELS.evidenceGraph } },
   {
     prefix: "/insights/search-review-evidence",
@@ -159,6 +163,7 @@ const PAGE_HELP_TOPICS: readonly { prefix: string; topic: PageHelpTopic }[] = [
     topic: { label: "Pattern library" },
   },
   { prefix: "/replay", topic: { slug: "comparison-replay", label: "Compare and replay" } },
+  { prefix: "/internal/replay", topic: { slug: "comparison-replay", label: "Validate review" } },
   { prefix: "/governance/findings", topic: { slug: "governance-approval", label: OPERATOR_NAV_LINK_LABELS.findings } },
   {
     prefix: "/governance/approval-queue",

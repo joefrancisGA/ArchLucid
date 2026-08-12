@@ -36,7 +36,8 @@ describe("usability lib", () => {
     expect(pageHelpTopicForPathname("/administration")?.label).toBe("Settings help");
     expect(pageHelpTopicForPathname("/administration")?.slug).toBeUndefined();
     expect(pageHelpTopicForPathname("/administration/settings")?.label).toBe("Settings help");
-    expect(pageHelpTopicForPathname("/administration/notifications")?.slug).toBeUndefined();
+    expect(pageHelpTopicForPathname("/administration/notifications")?.slug).toBe("integration-readiness");
+    expect(pageHelpTopicForPathname("/administration/notifications")?.label).toBe("Notification channels");
     expect(pageHelpTopicForPathname("/help/billing-and-plans")?.slug).toBe("billing-and-plans");
     expect(pageHelpTopicForPathname("/help/billing-and-plans")?.label).toBe("Billing and plans");
     expect(pageHelpTopicForPathname("/help/repeat-review-loop")?.slug).toBe("repeat-review-loop");
@@ -63,6 +64,8 @@ describe("usability lib", () => {
       "pilot-roi-measurement",
     );
     expect(pageHelpTopicForPathname("/insights/architecture-scorecard")?.label).toBe("Architecture scorecard");
+    expect(pageHelpTopicForPathname("/insights/ask-review-questions")?.slug).toBe("prior-manifest-retrieval");
+    expect(pageHelpTopicForPathname("/internal/replay")?.slug).toBe("comparison-replay");
   });
 
   it("searchHelpTopics finds pilot guide", () => {

@@ -12,6 +12,7 @@ import { Tabs, TabsContent } from "@/components/ui/tabs";
 import type { EmptyStateProps } from "@/components/EmptyState";
 import { EvidenceGraphFirstOpenCoach } from "@/components/EvidenceGraphFirstOpenCoach";
 import { OperatorPageHeader } from "@/components/operator/OperatorPageHeader";
+import { PageContextualHelpButton } from "@/components/usability/PageContextualHelpButton";
 import { CtoDemoBuyerValueStrip } from "@/components/cto-demo/CtoDemoBuyerValueStrip";
 import { useWorkspaceActiveRun } from "@/components/WorkspaceActiveRunContext";
 import { isApiRequestError } from "@/lib/api-request-error";
@@ -707,7 +708,12 @@ export function GraphPageContent() {
       {buyerPolishedShell ? null : (
         <CtoDemoBuyerValueStrip stepIndex={2} />
       )}
-      <OperatorPageHeader title={pageTitle} subtitle={pageSubtitle} navHref="/insights/evidence-graph" />
+      <OperatorPageHeader
+        title={pageTitle}
+        subtitle={pageSubtitle}
+        navHref="/insights/evidence-graph"
+        actions={<PageContextualHelpButton />}
+      />
       <ArchitectureIntelligenceEvidenceGraphVocabularyRail currentSurfaceId="evidence-graph" />
       <AuditEvidenceTrailVocabularyRail currentSurfaceId="evidence-graph" />
       <RunProvenanceEvidenceGraphVocabularyRail currentSurfaceId="evidence-graph" />
