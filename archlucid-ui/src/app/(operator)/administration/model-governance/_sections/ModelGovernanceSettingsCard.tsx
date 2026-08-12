@@ -221,13 +221,13 @@ function ProfileSegmentedControl(props: ProfileSegmentedControlProps) {
   );
 }
 
-function ProfileTradeoffComparison(props: { profile: ModelExecutionProfile }) {
+function ProfileTradeoffComparison(props: { profile: ModelExecutionProfile; "data-testid"?: string }) {
   const descriptor = modelExecutionProfileDescriptor(props.profile);
 
   return (
     <div
       className="space-y-1 rounded-md border border-neutral-200 p-3 dark:border-neutral-700"
-      data-testid="model-execution-profile-tradeoffs"
+      data-testid={props["data-testid"] ?? "model-execution-profile-tradeoffs"}
     >
       <p className={cn("m-0 font-medium text-al-text-primary", OPERATOR_TYPOGRAPHY.body)}>
         {modelExecutionProfileLabel(props.profile)} trade-offs
@@ -650,7 +650,9 @@ export function ModelGovernanceSettingsCard() {
         busy={saving}
         onConfirm={confirmMutation}
         extraContent={
-          confirmProfile != null ? <ProfileTradeoffComparison profile={confirmProfile} /> : undefined
+          confirmProfile != null ? (
+            <ProfileTradeoffComparison profile={confirmProfile} data-testid="model-execution-profile-confirm-tradeoffs" />
+          ) : undefined
         }
       />
     </Card>

@@ -1,5 +1,4 @@
-import { render, screen, waitFor, within } from "@testing-library/react";
-import userEvent from "@testing-library/user-event";
+import { fireEvent, render, screen, waitFor, within } from "@testing-library/react";
 import { describe, expect, it, vi } from "vitest";
 
 import { ModelGovernanceSettingsCard } from "@/app/(operator)/administration/model-governance/_sections/ModelGovernanceSettingsCard";
@@ -179,7 +178,6 @@ describe("ModelGovernanceSettingsCard", () => {
   });
 
   it("keeps catalog visible with inline mutation error and retry (P0-4)", async () => {
-    const user = userEvent.setup();
     let putAttempts = 0;
 
     const fetchMock = vi.fn(async (input: RequestInfo | URL, init?: RequestInit) => {
@@ -224,8 +222,8 @@ describe("ModelGovernanceSettingsCard", () => {
       expect(screen.getByTestId("model-execution-profile-segmented-control")).toBeInTheDocument();
     });
 
-    await user.click(screen.getByTestId("model-execution-profile-option-HighAssurance"));
-    await user.click(screen.getByRole("button", { name: MODEL_GOVERNANCE_PROFILE_CONFIRM_LABEL_COPY }));
+    fireEvent.click(screen.getByTestId("model-execution-profile-option-HighAssurance"));
+    fireEvent.click(screen.getByRole("button", { name: MODEL_GOVERNANCE_PROFILE_CONFIRM_LABEL_COPY }));
 
     await waitFor(() => {
       expect(screen.getByTestId("model-execution-profile-mutation-error")).toHaveTextContent(
@@ -236,7 +234,7 @@ describe("ModelGovernanceSettingsCard", () => {
     expect(screen.getByTestId("model-governance-registry")).toBeInTheDocument();
     expectAlertWithoutEngineeringLeakage();
 
-    await user.click(screen.getByRole("button", { name: MODEL_GOVERNANCE_MUTATION_RETRY_LABEL }));
+    fireEvent.click(screen.getByRole("button", { name: MODEL_GOVERNANCE_MUTATION_RETRY_LABEL }));
 
     await waitFor(() => {
       expect(screen.getByRole("status")).toHaveTextContent("Workspace execution profile updated to High assurance.");
@@ -244,7 +242,6 @@ describe("ModelGovernanceSettingsCard", () => {
   });
 
   it("requires confirmation before profile change and shows success receipt (P0-1)", async () => {
-    const user = userEvent.setup();
 
     const fetchMock = vi.fn(async (input: RequestInfo | URL, init?: RequestInit) => {
       const url = String(input);
@@ -282,12 +279,12 @@ describe("ModelGovernanceSettingsCard", () => {
       expect(screen.getByTestId("model-execution-profile-segmented-control")).toBeInTheDocument();
     });
 
-    await user.click(screen.getByTestId("model-execution-profile-option-HighAssurance"));
+    fireEvent.click(screen.getByTestId("model-execution-profile-option-HighAssurance"));
 
     expect(screen.getByRole("alertdialog")).toBeInTheDocument();
-    expect(screen.getByTestId("model-execution-profile-tradeoffs")).toHaveTextContent("High assurance trade-offs");
+    expect(screen.getByTestId("model-execution-profile-confirm-tradeoffs")).toHaveTextContent("High assurance trade-offs");
 
-    await user.click(screen.getByRole("button", { name: MODEL_GOVERNANCE_PROFILE_CONFIRM_LABEL_COPY }));
+    fireEvent.click(screen.getByRole("button", { name: MODEL_GOVERNANCE_PROFILE_CONFIRM_LABEL_COPY }));
 
     await waitFor(() => {
       expect(screen.getByRole("status")).toHaveTextContent("Workspace execution profile updated to High assurance.");
@@ -521,7 +518,6 @@ describe("ModelGovernanceSettingsCard", () => {
   });
 
   it("confirms clear override and surfaces clear failure copy", async () => {
-    const user = userEvent.setup();
 
     const fetchMock = vi.fn(async (input: RequestInfo | URL, init?: RequestInit) => {
       const url = String(input);
@@ -556,8 +552,8 @@ describe("ModelGovernanceSettingsCard", () => {
       expect(screen.getByTestId("model-execution-profile-clear-override")).toBeInTheDocument();
     });
 
-    await user.click(screen.getByTestId("model-execution-profile-clear-override"));
-    await user.click(screen.getByRole("button", { name: "Use workspace default" }));
+    fireEvent.click(screen.getByTestId("model-execution-profile-clear-override"));
+    fireEvent.click(screen.getByRole("button", { name: "Use workspace default" }));
 
     await waitFor(() => {
       expect(screen.getByTestId("model-execution-profile-mutation-error")).toHaveTextContent(
