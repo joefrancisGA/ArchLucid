@@ -13,6 +13,7 @@ import {
   EnterpriseTableHeadRow,
   EnterpriseTableRow,
 } from "@/components/ui/enterprise-table";
+import { EnterpriseTableSkeletonRows } from "@/components/ui/enterprise-table-skeleton-rows";
 import { SeverityTag } from "@/components/ui/severity-tag";
 import { useOperatorNavAuthority } from "@/components/operator/OperatorNavAuthorityProvider";
 import { OperatorPageHeader } from "@/components/operator/OperatorPageHeader";
@@ -122,6 +123,13 @@ export function RagHealthAdminPageClient() {
           </EnterpriseTableHeadRow>
         </EnterpriseTableHead>
         <EnterpriseTableBody>
+          {loading && corpora.length === 0 ? (
+            <EnterpriseTableSkeletonRows
+              columns={5}
+              label="Loading corpus health…"
+              testId="rag-health-skeleton"
+            />
+          ) : null}
           {corpora.map((row) => (
             <EnterpriseTableRow key={row.corpusKind}>
               <EnterpriseTableCell>{row.corpusKind}</EnterpriseTableCell>

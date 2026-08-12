@@ -13,6 +13,7 @@ import {
   EnterpriseTableHeadRow,
   EnterpriseTableRow,
 } from "@/components/ui/enterprise-table";
+import { EnterpriseTableSkeletonRows } from "@/components/ui/enterprise-table-skeleton-rows";
 import { SeverityTag } from "@/components/ui/severity-tag";
 import { useOperatorNavAuthority } from "@/components/operator/OperatorNavAuthorityProvider";
 import { OperatorPageHeader } from "@/components/operator/OperatorPageHeader";
@@ -125,6 +126,13 @@ export function TenantHealthAdminPageClient() {
           </EnterpriseTableHeadRow>
         </EnterpriseTableHead>
         <EnterpriseTableBody>
+          {loading && sortedItems.length === 0 ? (
+            <EnterpriseTableSkeletonRows
+              columns={6}
+              label="Loading tenant health…"
+              testId="tenant-health-skeleton"
+            />
+          ) : null}
           {sortedItems.map((row) => (
             <EnterpriseTableRow key={`${row.tenantId}-${row.workspaceId}-${row.projectId}`}>
               <EnterpriseTableCell className={cn("font-mono text-al-text-primary", OPERATOR_TYPOGRAPHY.micro)}>
