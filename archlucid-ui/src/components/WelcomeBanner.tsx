@@ -3,30 +3,23 @@
 import { cn } from "@/lib/utils";
 import { ClipboardCheck, FileCheck2, Package, Target } from "lucide-react";
 import Link from "next/link";
-import { useEffect, useId, useState } from "react";
+import { useEffect, useId, useMemo, useState } from "react";
 import type { CSSProperties } from "react";
 
 import { OptInTourLauncher } from "@/components/tour/OptInTourLauncher";
 import { GlossaryTooltip } from "@/components/GlossaryTooltip";
 import { Button } from "@/components/ui/button";
-import { AUTH_MODE } from "@/lib/auth-config";
+import { useAskProjectRunsQuery } from "@/hooks/use-ask-project-runs-query";
+import { useTenantTrialStatusQuery } from "@/hooks/use-tenant-trial-status-query";
 import { isBuyerPolishedOperatorShellEnv } from "@/lib/demo-ui-env";
-import { isJwtAuthMode } from "@/lib/oidc/config";
-import { isLikelySignedIn } from "@/lib/oidc/session";
 import { normalizeRunSummaryForDemoPicker } from "@/lib/demo-run-canonical";
-import { loadProjectRunsMergedWithDemoFallback } from "@/lib/operator/operator-run-picker-client";
 import { tryStaticDemoRunSummariesPaged, isStaticDemoPayloadFallbackEnabled } from "@/lib/operator/operator-static-demo";
 import { writeHasExistingRunsCache } from "@/lib/operator/operator-run-presence";
-import { mergeRegistrationScopeForProxy } from "@/lib/proxy-fetch-registration-scope";
+import { shouldSkipTenantTrialStatusFetch } from "@/lib/tenant-trial-status-client";
 import { DESIGN_TOKENS, OPERATOR_TYPOGRAPHY, operatorSemanticBadge, operatorSemanticSurface } from "@/lib/design-tokens";
 import { CANONICAL_ANONYMOUS_PROOF_HREF } from "@/lib/showcase-static-demo";
 
 const SESSION_DISMISS_KEY = "archlucid_welcome_dismissed_session";
-
-type TrialStatusPayload = {
-  status?: string;
-  daysRemaining?: number | null;
-};
 
 /**
  * Operator-home welcome: trial badge from `GET /v1/tenant/trial-status` (defers until load); first-run vs returning
@@ -46,10 +39,36 @@ export function WelcomeBanner() {
   const patternId = useId().replaceAll(":", "");
   const [dismissed, setDismissed] = useState(true);
   const [hydrated, setHydrated] = useState(false);
-  const [trial, setTrial] = useState<TrialStatusPayload | null>(null);
-  const [trialStatusResolved, setTrialStatusResolved] = useState(false);
-  const [runsPresenceResolved, setRunsPresenceResolved] = useState(false);
-  const [hasExistingRuns, setHasExistingRuns] = useState(false);
+
+  const skipShellProbes = shouldSkipTenantTrialStatusFetch();
+  const runsQueryEnabled = hydrated && !dismissed && !skipShellProbes;
+
+  const trialQuery = useTenantTrialStatusQuery();
+  const runsQuery = useAskProjectRunsQuery(DEFAULT_PROJECT_ID, { enabled: runsQueryEnabled });
+
+  const trialStatusResolved = skipShellProbes || !trialQuery.isPending;
+  const runsPresenceResolved = skipShellProbes || !runsQuery.isPending;
+  const trial = trialQuery.data;
+
+  const resolvedRunItems = useMemo(() => {
+    if (!runsQuery.data) {
+      return [];
+    }
+
+    let items = runsQuery.data.items;
+
+    if (items.length === 0 && isStaticDemoPayloadFallbackEnabled()) {
+      const injected = tryStaticDemoRunSummariesPaged(DEFAULT_PROJECT_ID, { afterEmptyLiveList: true });
+
+      if (injected !== null && injected.items.length > 0) {
+        items = injected.items.map(normalizeRunSummaryForDemoPicker);
+      }
+    }
+
+    return items;
+  }, [runsQuery.data]);
+
+  const hasExistingRuns = resolvedRunItems.length > 0;
 
   useEffect(() => {
     try {
@@ -60,81 +79,18 @@ export function WelcomeBanner() {
       }
     } catch {
       setDismissed(false);
-      setHasExistingRuns(false);
     }
 
     setHydrated(true);
   }, []);
 
   useEffect(() => {
-    if (!hydrated || dismissed) {
+    if (!runsPresenceResolved) {
       return;
     }
 
-    if (AUTH_MODE !== "development-bypass" && isJwtAuthMode() && !isLikelySignedIn()) {
-      setTrialStatusResolved(true);
-      setRunsPresenceResolved(true);
-
-      return;
-    }
-
-    let canceled = false;
-
-    void (async () => {
-      try {
-        const res = await fetch(
-          "/api/proxy/v1/tenant/trial-status",
-          mergeRegistrationScopeForProxy({ headers: { Accept: "application/json" } }),
-        );
-
-        if (!canceled && res.ok) {
-          const json = (await res.json()) as TrialStatusPayload;
-          setTrial(json);
-        }
-      } catch {
-        /* ignore */
-      } finally {
-        if (!canceled) {
-          setTrialStatusResolved(true);
-        }
-      }
-
-      try {
-        const merged = await loadProjectRunsMergedWithDemoFallback(DEFAULT_PROJECT_ID);
-        let items = merged.items;
-
-        if (items.length === 0 && isStaticDemoPayloadFallbackEnabled()) {
-          const injected = tryStaticDemoRunSummariesPaged(DEFAULT_PROJECT_ID, { afterEmptyLiveList: true });
-
-          if (injected !== null && injected.items.length > 0) {
-            items = injected.items.map(normalizeRunSummaryForDemoPicker);
-          }
-        }
-
-        const next = items.length > 0;
-
-        if (canceled) {
-          return;
-        }
-
-        setHasExistingRuns(next);
-        writeHasExistingRunsCache(next);
-      } catch {
-        if (!canceled) {
-          setHasExistingRuns(false);
-          writeHasExistingRunsCache(false);
-        }
-      } finally {
-        if (!canceled) {
-          setRunsPresenceResolved(true);
-        }
-      }
-    })();
-
-    return () => {
-      canceled = true;
-    };
-  }, [hydrated, dismissed]);
+    writeHasExistingRunsCache(hasExistingRuns);
+  }, [hasExistingRuns, runsPresenceResolved]);
 
   if (!hydrated) {
     return null;

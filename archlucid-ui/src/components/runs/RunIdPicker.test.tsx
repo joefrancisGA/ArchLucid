@@ -1,25 +1,30 @@
-import { fireEvent, render, screen, waitFor } from "@testing-library/react";
-import { describe, expect, it, vi } from "vitest";
-
-vi.mock("@/lib/api", () => ({
-  listRunsByProjectPaged: vi.fn(),
-  listRunsInScopePaged: vi.fn(),
-  shouldListReviewsAcrossProjectSlugs: vi.fn((projectId: string | null | undefined) => {
-    const trimmed = projectId?.trim() ?? "";
-
-    return trimmed.length === 0 || trimmed.toLowerCase() === "default";
-  }),
-}));
-
-import { listRunsInScopePaged } from "@/lib/api";
+import { fireEvent, screen, waitFor } from "@testing-library/react";
+import { beforeEach, describe, expect, it, vi } from "vitest";
 
 import { RunIdPicker } from "@/components/runs/RunIdPicker";
+import { resetOperatorQueryClientForTests } from "@/lib/query/operator-query-client";
+import { renderWithOperatorQuery } from "@/testing/render-with-operator-query";
 
-const mockListInScope = vi.mocked(listRunsInScopePaged);
+const loadProjectRunsMergedWithDemoFallbackMock = vi.hoisted(() => vi.fn());
+
+vi.mock("@/lib/query/operator-query-persist-client", () => ({
+  setupOperatorQueryClientPersistence: () => {},
+}));
+
+vi.mock("@/lib/operator/operator-run-picker-client", () => ({
+  loadProjectRunsMergedWithDemoFallback: (...args: unknown[]) =>
+    loadProjectRunsMergedWithDemoFallbackMock(...args),
+}));
 
 describe("RunIdPicker", () => {
+  beforeEach(() => {
+    sessionStorage.clear();
+    resetOperatorQueryClientForTests();
+    loadProjectRunsMergedWithDemoFallbackMock.mockReset();
+  });
+
   it("loads runs on focus", async () => {
-    mockListInScope.mockResolvedValue({
+    loadProjectRunsMergedWithDemoFallbackMock.mockResolvedValue({
       items: [
         {
           runId: "11111111-1111-1111-1111-111111111111",
@@ -28,26 +33,23 @@ describe("RunIdPicker", () => {
           description: "Alpha run",
         },
       ],
-      totalCount: 1,
-      page: 1,
-      pageSize: 50,
-      hasMore: false,
+      loadError: false,
     });
 
     const onChange = vi.fn();
-    render(
+    renderWithOperatorQuery(
       <RunIdPicker preferAutoPick={false} value="" onChange={onChange} label="Review" placeholder="Review ID" />,
     );
 
     fireEvent.focus(screen.getByPlaceholderText("Review ID"));
 
     await waitFor(() => {
-      expect(mockListInScope).toHaveBeenCalledWith(1, 50);
+      expect(loadProjectRunsMergedWithDemoFallbackMock).toHaveBeenCalled();
     });
   });
 
   it("selecting a suggestion sets the run id", async () => {
-    mockListInScope.mockResolvedValue({
+    loadProjectRunsMergedWithDemoFallbackMock.mockResolvedValue({
       items: [
         {
           runId: "22222222-2222-2222-2222-222222222222",
@@ -56,14 +58,11 @@ describe("RunIdPicker", () => {
           description: "Beta",
         },
       ],
-      totalCount: 1,
-      page: 1,
-      pageSize: 50,
-      hasMore: false,
+      loadError: false,
     });
 
     const onChange = vi.fn();
-    render(
+    renderWithOperatorQuery(
       <RunIdPicker preferAutoPick={false} value="" onChange={onChange} label="Review" placeholder="Pick" />,
     );
 
@@ -76,7 +75,7 @@ describe("RunIdPicker", () => {
   });
 
   it("opens the list again when clicking the input after picking an option (input stays focused)", async () => {
-    mockListInScope.mockResolvedValue({
+    loadProjectRunsMergedWithDemoFallbackMock.mockResolvedValue({
       items: [
         {
           runId: "aaaaaaaa-aaaa-aaaa-aaaa-aaaaaaaaaaaa",
@@ -91,14 +90,11 @@ describe("RunIdPicker", () => {
           description: "Second row",
         },
       ],
-      totalCount: 2,
-      page: 1,
-      pageSize: 50,
-      hasMore: false,
+      loadError: false,
     });
 
     const onChange = vi.fn();
-    render(
+    renderWithOperatorQuery(
       <RunIdPicker
         preferAutoPick={false}
         value="aaaaaaaa-aaaa-aaaa-aaaa-aaaaaaaaaaaa"
@@ -134,12 +130,9 @@ describe("RunIdPicker", () => {
       description: `Review title ${index}`,
     }));
 
-    mockListInScope.mockResolvedValue({
+    loadProjectRunsMergedWithDemoFallbackMock.mockResolvedValue({
       items: runs,
-      totalCount: runs.length,
-      page: 1,
-      pageSize: 50,
-      hasMore: false,
+      loadError: false,
     });
 
     let currentValue = "";
@@ -147,7 +140,7 @@ describe("RunIdPicker", () => {
       currentValue = next;
     });
 
-    const { rerender } = render(
+    const { rerender } = renderWithOperatorQuery(
       <RunIdPicker
         preferAutoPick={false}
         value={currentValue}

@@ -2,12 +2,18 @@ import { render, screen, waitFor, within } from "@testing-library/react";
 import { afterEach, beforeEach, describe, expect, it, vi } from "vitest";
 
 import type { RunSummary } from "@/types/authority";
+import { resetOperatorQueryClientForTests } from "@/lib/query/operator-query-client";
+import { renderWithOperatorQuery } from "@/testing/render-with-operator-query";
 
 const listRunsByProjectPaged = vi.fn();
 const loadProjectRunsMergedWithDemoFallbackMock = vi.hoisted(() => vi.fn());
 
 vi.mock("@/lib/api", () => ({
   listRunsByProjectPaged: (...args: unknown[]) => listRunsByProjectPaged(...args),
+}));
+
+vi.mock("@/lib/query/operator-query-persist-client", () => ({
+  setupOperatorQueryClientPersistence: () => {},
 }));
 
 vi.mock("@/lib/operator/operator-run-picker-client", () => ({
@@ -32,7 +38,7 @@ import { WelcomeBanner } from "./WelcomeBanner";
 const SESSION_DISMISS_KEY = "archlucid_welcome_dismissed_session";
 
 function renderHomeWithCoArchitectStrip() {
-  render(
+  renderWithOperatorQuery(
     <>
       <OperatorCoArchitectHomeStrip />
       <WelcomeBanner />
@@ -55,6 +61,8 @@ afterEach(() => {
 });
 
 beforeEach(() => {
+  sessionStorage.clear();
+  resetOperatorQueryClientForTests();
   demoUiEnvMock.buyerPolishedShell = false;
   listRunsByProjectPaged.mockResolvedValue(emptyRunsPage);
   loadProjectRunsMergedWithDemoFallbackMock.mockResolvedValue({ items: [], loadError: false });

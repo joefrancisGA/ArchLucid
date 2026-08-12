@@ -2,12 +2,12 @@
 import { cn } from "@/lib/utils";
 import { OPERATOR_TYPOGRAPHY } from "@/lib/design-tokens";
 
-import { useCallback, useEffect, useId, useMemo, useRef, useState } from "react";
+import { useEffect, useId, useMemo, useRef, useState } from "react";
 
 import { Input } from "@/components/ui/input";
 import { Label } from "@/components/ui/label";
+import { useAskProjectRunsQuery } from "@/hooks/use-ask-project-runs-query";
 import { isNextPublicDemoMode } from "@/lib/demo-ui-env";
-import { loadProjectRunsMergedWithDemoFallback } from "@/lib/operator/operator-run-picker-client";
 import { SHOWCASE_STATIC_DEMO_RUN_ID } from "@/lib/showcase-static-demo";
 import type { RunSummary } from "@/types/authority";
 import { buyerFacingReviewTitleFromSummary } from "@/lib/buyer/buyer-facing-review-title";
@@ -100,14 +100,31 @@ export function RunIdPicker({
   const containerRef = useRef<HTMLDivElement>(null);
   const blurTimerRef = useRef<number | null>(null);
   const [query, setQuery] = useState(value);
-  const [runs, setRuns] = useState<RunSummary[]>([]);
   const [open, setOpen] = useState(false);
-  const [loading, setLoading] = useState(false);
-  const [loadError, setLoadError] = useState<string | null>(null);
+  const [loadRequested, setLoadRequested] = useState(preferAutoPick);
   const [activeIndex, setActiveIndex] = useState(-1);
   const autoPickAppliedRef = useRef(false);
   const previousValueRef = useRef(value);
   const [listFilter, setListFilter] = useState("");
+
+  const runsQuery = useAskProjectRunsQuery(projectId, {
+    forCompare,
+    committedOnly,
+    enabled: loadRequested,
+  });
+
+  const loading = loadRequested && runsQuery.isPending;
+  const runs = runsQuery.data?.items ?? [];
+  const loadError =
+    runsQuery.isError || runsQuery.data?.loadError === true ? "Could not load reviews list." : null;
+
+  const requestRunsLoad = (): void => {
+    setLoadRequested(true);
+
+    if (runsQuery.isFetched) {
+      void runsQuery.refetch();
+    }
+  };
 
   useEffect(() => {
     if (previousValueRef.current === value) {
@@ -142,30 +159,6 @@ export function RunIdPicker({
     setQuery(value);
     setListFilter(value);
   }, [value, runs, useBuyerFacingRunLabels]);
-
-  const loadRuns = useCallback(async () => {
-    setLoading(true);
-    setLoadError(null);
-
-    try {
-      const merged = await loadProjectRunsMergedWithDemoFallback(projectId, { forCompare, committedOnly });
-      setRuns(merged.items ?? []);
-      setLoadError(merged.loadError ? "Could not load reviews list." : null);
-    } catch {
-      setRuns([]);
-      setLoadError("Could not load reviews list.");
-    } finally {
-      setLoading(false);
-    }
-  }, [projectId, forCompare, committedOnly]);
-
-  useEffect(() => {
-    if (!preferAutoPick) {
-      return;
-    }
-
-    void loadRuns();
-  }, [preferAutoPick, loadRuns]);
 
   useEffect(() => {
     if (!preferAutoPick) {
@@ -341,7 +334,7 @@ export function RunIdPicker({
         onFocus={() => {
           setOpen(true);
           setListFilter("");
-          void loadRuns();
+          requestRunsLoad();
         }}
         /**
          * Options use `onMouseDown` + `preventDefault` so the input keeps focus while picking. That means another
@@ -350,7 +343,7 @@ export function RunIdPicker({
         onClick={() => {
           setOpen(true);
           setListFilter("");
-          void loadRuns();
+          requestRunsLoad();
         }}
         onBlur={scheduleClose}
         onKeyDown={(event) => {

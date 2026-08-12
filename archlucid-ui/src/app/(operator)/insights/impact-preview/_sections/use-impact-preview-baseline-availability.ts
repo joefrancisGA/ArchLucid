@@ -1,8 +1,6 @@
 "use client";
 
-import { useEffect, useState } from "react";
-
-import { loadProjectRunsMergedWithDemoFallback } from "@/lib/operator/operator-run-picker-client";
+import { useAskProjectRunsQuery } from "@/hooks/use-ask-project-runs-query";
 
 export type ImpactPreviewBaselineAvailability = {
   readonly loading: boolean;
@@ -11,37 +9,15 @@ export type ImpactPreviewBaselineAvailability = {
 
 /** Loads committed reviews available as impact preview baselines. */
 export function useImpactPreviewBaselineAvailability(): ImpactPreviewBaselineAvailability {
-  const [loading, setLoading] = useState(true);
-  const [finalizedCount, setFinalizedCount] = useState(0);
+  const { data, isPending } = useAskProjectRunsQuery("default", {
+    forCompare: true,
+    committedOnly: true,
+  });
 
-  useEffect(() => {
-    let canceled = false;
-
-    void loadProjectRunsMergedWithDemoFallback("default", { forCompare: true, committedOnly: true })
-      .then((merged) => {
-        if (canceled) {
-          return;
-        }
-
-        setFinalizedCount(merged.items.length);
-        setLoading(false);
-      })
-      .catch(() => {
-        if (canceled) {
-          return;
-        }
-
-        setFinalizedCount(0);
-        setLoading(false);
-      });
-
-    return () => {
-      canceled = true;
-    };
-  }, []);
+  const finalizedCount = data?.items.length ?? 0;
 
   return {
-    loading,
+    loading: isPending,
     finalizedCount,
   };
 }

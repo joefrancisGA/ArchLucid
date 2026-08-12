@@ -6,15 +6,25 @@ import { loadProjectRunsMergedWithDemoFallback } from "@/lib/operator/operator-r
 import { operatorQueryKeys } from "@/lib/query/operator-query-keys";
 import { OPERATOR_QUERY_STALE_MS } from "@/lib/query/operator-query-stale-time";
 
+type AskProjectRunsQueryOptions = {
+  readonly committedOnly?: boolean;
+  readonly forCompare?: boolean;
+  readonly enabled?: boolean;
+};
+
 export function useAskProjectRunsQuery(
   projectId = "default",
-  options?: { readonly committedOnly?: boolean; readonly enabled?: boolean },
+  options?: AskProjectRunsQueryOptions,
 ) {
+  const committedOnly = options?.committedOnly ?? false;
+  const forCompare = options?.forCompare ?? false;
+
   return useQuery({
-    queryKey: [...operatorQueryKeys.askProjectRuns(projectId), options?.committedOnly ?? false] as const,
+    queryKey: [...operatorQueryKeys.askProjectRuns(projectId), committedOnly, forCompare] as const,
     queryFn: () =>
       loadProjectRunsMergedWithDemoFallback(projectId, {
-        committedOnly: options?.committedOnly ?? false,
+        committedOnly,
+        forCompare,
       }),
     enabled: options?.enabled ?? true,
     staleTime: OPERATOR_QUERY_STALE_MS,
