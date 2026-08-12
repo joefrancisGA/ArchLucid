@@ -19,7 +19,7 @@ const runDetailPagePath = join(
   "_sections",
   "RunDetailPageView.tsx",
 );
-const outcomeCardsPath = join(SRC_ROOT, "components", "RunDetailOutcomeCards.tsx");
+const outcomeCardsPath = join(SRC_ROOT, "components", "runs", "RunDetailOutcomeCards.tsx");
 
 describe("RUN_DETAIL_KPI_SEMANTIC_CONTRACT (TB-320)", () => {
   it("loads required server-authoritative run-detail fields", () => {

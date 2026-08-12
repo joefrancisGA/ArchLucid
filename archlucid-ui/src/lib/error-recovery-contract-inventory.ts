@@ -36,12 +36,12 @@ export const ERROR_RECOVERY_CONTRACT_GUARDED_SURFACES: readonly ErrorRecoveryCon
   },
   {
     id: "operator-api-problem",
-    sourceRoots: ["components/OperatorApiProblem.tsx"],
+    sourceRoots: ["components/operator/OperatorApiProblem.tsx"],
     requiredMarkers: ERROR_RECOVERY_CONTRACT_WIRED_ROOT_MARKERS,
   },
   {
     id: "operator-connectivity-error",
-    sourceRoots: ["components/OperatorLayeredConnectivityError.tsx"],
+    sourceRoots: ["components/operator/OperatorLayeredConnectivityError.tsx"],
     requiredMarkers: ERROR_RECOVERY_CONTRACT_WIRED_ROOT_MARKERS,
   },
   {

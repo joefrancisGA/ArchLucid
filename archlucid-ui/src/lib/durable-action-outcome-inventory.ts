@@ -132,12 +132,18 @@ export const DURABLE_ACTION_OUTCOME_GUARDED_SURFACES: readonly DurableActionOutc
   },
   {
     id: "review-start-quick-start",
-    sourceRoots: ["app/(operator)/architecture/reviews/new/QuickStartWizard.tsx"],
+    sourceRoots: [
+      "app/(operator)/architecture/reviews/new/QuickStartWizard.tsx",
+      "components/wizard/WizardStickyFooter.tsx",
+    ],
     requiredDurableMarkers: ["ReviewStartInlineError"],
   },
   {
     id: "review-start-simplified-pilot",
-    sourceRoots: ["app/(operator)/architecture/reviews/new/SimplifiedPilotWizard.tsx"],
+    sourceRoots: [
+      "app/(operator)/architecture/reviews/new/SimplifiedPilotWizard.tsx",
+      "components/wizard/WizardStickyFooter.tsx",
+    ],
     requiredDurableMarkers: ["ReviewStartInlineError"],
   },
   {
@@ -148,8 +154,8 @@ export const DURABLE_ACTION_OUTCOME_GUARDED_SURFACES: readonly DurableActionOutc
   {
     id: "governance-quick-approve",
     sourceRoots: [
-      "components/GovernanceQuickApproveButton.tsx",
-      "components/GovernanceQuickApproveDialog.tsx",
+      "components/governance/GovernanceQuickApproveButton.tsx",
+      "components/governance/GovernanceQuickApproveDialog.tsx",
     ],
     requiredDurableMarkers: ["OperatorSuccessCallout", "OperatorMutationInlineError"],
   },
@@ -182,7 +188,11 @@ export const DURABLE_ACTION_OUTCOME_GUARDED_SURFACES: readonly DurableActionOutc
     id: "admin-cloud-connection-save",
     sourceRoots: ["app/(operator)/integrations/cloud-connections/_sections/Tier2ConnectionWizard.tsx"],
     requiredDurableMarkers: ["OperatorSuccessCallout", "OperatorMutationInlineError"],
-    allowedToastLinePatterns: [/Setup script copied/i, /Could not write to clipboard/i],
+    allowedToastLinePatterns: [
+      /Setup script copied/i,
+      /Could not write to clipboard/i,
+      /Could not copy /i,
+    ],
   },
   {
     id: "admin-sso-wizard",
@@ -231,7 +241,7 @@ export const DURABLE_ACTION_OUTCOME_DUAL_TOAST_TEST_PATHS: readonly string[] = [
   "app/(operator)/integrations/slack/SlackIntegrationPageClient.test.tsx",
   "app/(operator)/integrations/teams/TeamsNotificationsIntegrationPageClient.test.tsx",
   "app/(operator)/administration/billing/page.test.tsx",
-  "components/GovernanceQuickApproveButton.test.tsx",
+  "components/governance/GovernanceQuickApproveButton.test.tsx",
   "components/usability/GovernanceFindingsBulkActions.test.tsx",
   "components/governance/findings/GovernanceFindingsList.bulk-disposition.test.tsx",
   "app/(operator)/governance/policy-packs/_sections/PolicyPacksPageView.tabs.test.tsx",

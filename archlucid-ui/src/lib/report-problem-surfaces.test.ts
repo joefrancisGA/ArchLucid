@@ -95,7 +95,7 @@ describe("report-problem-surfaces guard (TB-791)", () => {
   });
 
   it("readSurfaceSourceBundle returns file contents without exists-then-read", () => {
-    const source = readSurfaceSourceBundle(UI_ROOT, "components/OperatorApiProblem.tsx");
+    const source = readSurfaceSourceBundle(UI_ROOT, "components/operator/OperatorApiProblem.tsx");
 
     expect(source.length).toBeGreaterThan(0);
     expect(source).toContain("OperatorApiProblem");

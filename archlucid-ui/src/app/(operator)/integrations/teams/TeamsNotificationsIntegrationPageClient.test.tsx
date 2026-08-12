@@ -231,7 +231,7 @@ describe("TeamsNotificationsIntegrationPageClient", () => {
     expect(page.className).not.toContain("py-8");
   });
 
-  it("shows durable success callout after saving a Teams connection", async () => {
+  it("rejects a webhook URL pasted into the secret name field", async () => {
     render(
       <TeamsNotificationsIntegrationPageClient
         loaded={{ mode: "live", conn: null, catalog: CATALOG, failure: null }}
@@ -246,6 +246,37 @@ describe("TeamsNotificationsIntegrationPageClient", () => {
 
     expect(await screen.findByText(TEAMS_INTEGRATION_SECRET_NAME_NOT_URL_MESSAGE)).toBeInTheDocument();
     expect(mockValidate).not.toHaveBeenCalled();
+  });
+
+  it("shows durable success callout after saving a Teams connection", async () => {
+    render(
+      <TeamsNotificationsIntegrationPageClient
+        loaded={{
+          mode: "live",
+          conn: {
+            tenantId: "t",
+            isConfigured: true,
+            label: "Ops channel",
+            keyVaultSecretName: "teams-ops",
+            enabledTriggers: [...TEAMS_RECOMMENDED_EVENT_TYPES],
+            updatedUtc: "2026-01-01T00:00:00Z",
+          },
+          catalog: CATALOG,
+          failure: null,
+        }}
+      />,
+    );
+
+    fireEvent.click(await screen.findByTestId("teams-save-button"));
+
+    await waitFor(() => {
+      expect(mockUpsert).toHaveBeenCalled();
+    });
+
+    expect(await screen.findByTestId("teams-integration-mutation-success-callout")).toHaveTextContent(
+      TEAMS_INTEGRATION_SAVE_SUCCESS_MESSAGE,
+    );
+    expect(showSuccess).not.toHaveBeenCalled();
   });
 
   it("confirms before removing a Teams connection instead of window.confirm", async () => {

@@ -75,7 +75,7 @@ export const TITLE_ATTRIBUTE_LEGACY_SURFACES = [
   "src/components/EstimatedLlmCostBarChart.tsx",
   "src/components/executive/ExecutiveDashboardPageHero.tsx",
   "src/components/ExplanationEvidenceBasisBadges.tsx",
-  "src/components/FindingExplainabilityDialog.tsx",
+  "src/components/findings/FindingExplainabilityDialog.tsx",
   "src/components/FindingPolicyPackBadge.tsx",
   "src/components/FindingPolicyRuleBadge.tsx",
   "src/components/FindingsWhatIfAnalysisPanel.tsx",

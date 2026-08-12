@@ -82,7 +82,7 @@ export const DURABLE_MUTATION_GUARDED_SURFACE_PATHS: readonly string[] = [
   "app/(operator)/integrations/slack/_sections/SlackIntegrationPageClient.tsx",
   "app/(operator)/integrations/teams/_sections/TeamsNotificationsIntegrationPageView.tsx",
   "app/(operator)/administration/billing/OperatorBillingPlansClient.tsx",
-  "components/GovernanceQuickApproveButton.tsx",
+  "components/governance/GovernanceQuickApproveButton.tsx",
   "components/governance/findings/GovernanceFindingsList.tsx",
   "components/usability/GovernanceFindingsBulkActions.tsx",
   "app/(operator)/governance/_sections/GovernanceWorkflowPageContent.tsx",
@@ -91,6 +91,7 @@ export const DURABLE_MUTATION_GUARDED_SURFACE_PATHS: readonly string[] = [
   "app/(operator)/architecture/reviews/new/QuickReviewWizard.tsx",
   "app/(operator)/architecture/reviews/new/QuickStartWizard.tsx",
   "app/(operator)/architecture/reviews/new/SimplifiedPilotWizard.tsx",
+  "components/wizard/WizardStickyFooter.tsx",
   "components/review-intake/ReviewGenerationCreatedNotice.tsx",
 ];
 
@@ -118,7 +119,7 @@ export const DURABLE_MUTATION_DUAL_TOAST_TEST_PATHS: readonly string[] = [
   "app/(operator)/integrations/slack/SlackIntegrationPageClient.test.tsx",
   "app/(operator)/integrations/teams/TeamsNotificationsIntegrationPageClient.test.tsx",
   "app/(operator)/administration/billing/page.test.tsx",
-  "components/GovernanceQuickApproveButton.test.tsx",
+  "components/governance/GovernanceQuickApproveButton.test.tsx",
   "components/usability/GovernanceFindingsBulkActions.test.tsx",
   "components/governance/findings/GovernanceFindingsList.bulk-disposition.test.tsx",
   "app/(operator)/governance/policy-packs/_sections/PolicyPacksPageView.tabs.test.tsx",
