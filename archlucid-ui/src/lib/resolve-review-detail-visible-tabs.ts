@@ -1,6 +1,7 @@
 import {
   REVIEW_DETAIL_DEFAULT_TAB,
   REVIEW_DETAIL_TAB_IDS,
+  isReviewDetailTabId,
   type ReviewDetailTabId,
 } from "@/lib/review-detail-workspace-tabs";
 
@@ -76,7 +77,9 @@ function defaultTabForStage(stage: ReviewDetailTabLifecycleStage): ReviewDetailT
     case "draft":
       return "overview";
     case "analysis-in-progress":
-      return "overview";
+      // Progress (stage, elapsed, duration band) only renders on Activity, so landing on Overview
+      // during analysis hides the one thing the reader came back to check.
+      return "activity";
     case "pre-commit-complete":
       return "findings";
     case "committed":
@@ -128,6 +131,25 @@ export function coerceReviewDetailTabToVisible(
   }
 
   return resolved.visibleTabIds[0] ?? REVIEW_DETAIL_DEFAULT_TAB;
+}
+
+/**
+ * Effective tab for a visit that may not name one.
+ *
+ * `resolveReviewDetailTab` collapses an absent `reviewTab` to "overview", which is indistinguishable
+ * from an explicit request for Overview. Because Overview is visible at every stage,
+ * `coerceReviewDetailTabToVisible` always kept it and the per-stage `defaultTabId` never applied.
+ * Passing the raw param through here keeps "unspecified" separate from "asked for Overview".
+ */
+export function resolveReviewDetailTabForVisit(
+  paramValue: string | null | undefined,
+  resolved: ReviewDetailVisibleTabs,
+): ReviewDetailTabId {
+  if (!isReviewDetailTabId(paramValue)) {
+    return resolved.defaultTabId;
+  }
+
+  return coerceReviewDetailTabToVisible(paramValue, resolved);
 }
 
 export function isReviewDetailTabAdvanced(

@@ -31,8 +31,8 @@ import {
   writeReviewDetailTabToUrl,
 } from "@/lib/review-detail-workspace-tabs";
 import {
-  coerceReviewDetailTabToVisible,
   isReviewDetailTabAdvanced,
+  resolveReviewDetailTabForVisit,
   resolveReviewDetailVisibleTabs,
   type ResolveReviewDetailVisibleTabsInput,
 } from "@/lib/resolve-review-detail-visible-tabs";
@@ -99,11 +99,11 @@ export function ReviewDetailWorkspace(props: ReviewDetailWorkspaceProps): React.
       defaultTabId: REVIEW_DETAIL_DEFAULT_TAB,
     };
   }, [props.tabLifecycle]);
-  const searchParamTabRaw = resolveReviewDetailTab(searchParams.get(REVIEW_DETAIL_TAB_PARAM));
+  const rawTabParam = searchParams.get(REVIEW_DETAIL_TAB_PARAM);
   const searchParamTab =
     props.tabLifecycle !== undefined
-      ? coerceReviewDetailTabToVisible(searchParamTabRaw, resolved)
-      : searchParamTabRaw;
+      ? resolveReviewDetailTabForVisit(rawTabParam, resolved)
+      : resolveReviewDetailTab(rawTabParam);
   const [activeTab, setActiveTab] = useState<ReviewDetailTabId>(searchParamTab);
   const tabActivityAt = props.tabActivityAt ?? {};
   const {
