@@ -17,6 +17,8 @@ describe("JiraIssueTypeBySeverityField (TB-1149)", () => {
     expect(screen.getByTestId("jira-issue-type-by-severity-critical")).toHaveValue("Bug");
     expect(screen.getByTestId("jira-issue-type-by-severity-warning")).toHaveValue("Task");
     expect(screen.queryByPlaceholderText('{"Critical":"Bug","Warning":"Task"}')).not.toBeInTheDocument();
+    expect(screen.queryByPlaceholderText("Bug")).not.toBeInTheDocument();
+    expect(screen.queryByPlaceholderText("Task")).not.toBeInTheDocument();
 
     fireEvent.change(screen.getByTestId("jira-issue-type-by-severity-error"), {
       target: { value: "Incident" },

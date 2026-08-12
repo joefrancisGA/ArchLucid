@@ -86,7 +86,7 @@ export function JiraIssueTypeBySeverityField(props: JiraIssueTypeBySeverityField
               value={rows[level] ?? ""}
               onChange={(event) => updateRows(level, event.target.value)}
               disabled={disabled || advancedOpen}
-              placeholder={level === "Critical" ? "Bug" : level === "Warning" ? "Task" : "Task"}
+              placeholder="Issue type name"
               autoComplete="off"
               data-testid={`jira-issue-type-by-severity-${level.toLowerCase()}`}
             />

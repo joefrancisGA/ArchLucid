@@ -16,7 +16,7 @@ const ITSM_PRODUCT_DEEP_LINK_SCAN_SURFACES = [
   "archlucid-ui/src/lib/usability/page-help-topic-map.ts",
   "archlucid-ui/src/lib/itsm/itsm-connectors-admin-scope.ts",
   "archlucid-ui/src/lib/itsm/itsm-oauth-callback-evidence-copy.ts",
-  "archlucid-ui/src/app/(operator)/integrations/_sections/itsm/ItsmProductIntegrationPageClient.tsx",
+  "archlucid-ui/src/app/(operator)/integrations/jira/_sections/JiraIntegrationAside.tsx",
   "archlucid-ui/src/app/(operator)/integrations/servicenow/_sections/ServiceNowIntegrationAside.tsx",
   "archlucid-ui/src/components/findings/FindingItsmExportPanel.tsx",
   "archlucid-ui/src/components/work-items/CreateWorkItemDialog.tsx",

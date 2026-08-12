@@ -51,7 +51,6 @@ const HAND_ROLLED_PAGE_TITLE_BASELINE: ReadonlySet<string> = new Set([
   "app/(operator)/insights/executive-summary/_sections/ValueReportPageView.tsx",
   "app/(operator)/insights/pilot-outcomes/_sections/PilotValueReportPageView.tsx",
   "app/(operator)/insights/roi-summary/_sections/RoiSummaryPageView.tsx",
-  "app/(operator)/integrations/_sections/itsm/ItsmProductIntegrationPageClient.tsx",
   "app/(operator)/internal/configuration/_sections/AdminConfigurationPageView.tsx",
   "app/(operator)/internal/evidence-proposals/_sections/AdminEvidenceProposalsPageClient.tsx",
   "app/(operator)/internal/health/_sections/AdminHealthPageView.tsx",
