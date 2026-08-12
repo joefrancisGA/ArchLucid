@@ -2,6 +2,7 @@ using System.Collections.Immutable;
 using System.Diagnostics.Metrics;
 
 using ArchLucid.AgentRuntime.Tests.Support;
+using ArchLucid.Application.Budgeting;
 using ArchLucid.Contracts.Common;
 using ArchLucid.Core.Audit;
 using ArchLucid.Core.Budgeting;
@@ -367,6 +368,7 @@ public sealed class LlmCompletionAccountingClientTests
             new FixedValueOptionsMonitor<LlmMonthlyTenantDollarBudgetOptions>(monthlyOptsBinding),
             costEstimator.Object,
             monthlyRepoBinding,
+            new InMemoryLlmMonthlyTenantBudgetReservationStore(monthlyRepoBinding, TimeProvider.System),
             new NoOpLlmTenantWalletService(),
             new PassthroughTenantLlmMonthlyBudgetCapResolver(),
             new ConfigurationBuilder().Build(),
