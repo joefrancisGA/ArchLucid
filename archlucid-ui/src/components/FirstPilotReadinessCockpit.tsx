@@ -9,6 +9,7 @@ import { FirstPilotReadinessCockpitLoadingBody } from "@/components/FirstPilotRe
 import { FirstPilotReadinessGroupTable } from "@/components/FirstPilotReadinessGroupTable";
 import { FirstPilotTechnicalCommandDisclosure } from "@/components/FirstPilotTechnicalCommandDisclosure";
 import { useOperatorNavAuthority } from "@/components/operator/OperatorNavAuthorityProvider";
+import { useAdminConfigLintSummaryQuery } from "@/hooks/use-admin-config-lint-summary-query";
 import { useHealthReadySummaryQuery } from "@/hooks/use-health-ready-summary-query";
 import { OperatorAiQualityProofCard } from "@/components/operator/OperatorAiQualityProofCard";
 import { buildTier1InventoryExtractorCommandLines } from "@/lib/get-archlucid-cloud-package-command";
@@ -44,7 +45,6 @@ import {
   shellReadinessStatusTagLabel,
 } from "@/lib/buyer/buyer-shell-home-present";
 import { mapReadinessStatusToEnterpriseKind } from "@/lib/vocabulary/first-pilot-operator-status-vocabulary";
-import { fetchAdminConfigLintSummary } from "@/lib/fetch-admin-config-lint";
 import { OPERATOR_HOME_DISCLOSURE_STORAGE_KEYS } from "@/lib/operator/operator-home-disclosure-storage";
 import { loadProjectRunsMergedWithDemoFallback } from "@/lib/operator/operator-run-picker-client";
 import {
@@ -172,8 +172,12 @@ export function FirstPilotReadinessCockpit() {
   const principal: CurrentPrincipal = currentPrincipal;
   const adminConfigProbeEnabled = principal.authorityRank >= AUTHORITY_RANK.AdminAuthority;
   const healthQueryEnabled = !isAuthorityLoading;
+  const configLintQueryEnabled = adminConfigProbeEnabled && !isAuthorityLoading;
   const { data: healthData, isPending: healthPending } = useHealthReadySummaryQuery({ enabled: healthQueryEnabled });
-  const initialPendingProbes = adminConfigProbeEnabled ? 3 : 2;
+  const { data: configLintData, isPending: configLintPending } = useAdminConfigLintSummaryQuery({
+    enabled: configLintQueryEnabled,
+  });
+  const initialPendingProbes = 2;
 
   const [pendingProbes, setPendingProbes] = useState(initialPendingProbes);
   const [runs, setRuns] = useState<readonly RunSummary[]>([]);
@@ -181,10 +185,10 @@ export function FirstPilotReadinessCockpit() {
   const [scorecard, setScorecard] = useState<PilotScorecardJson | null>(null);
   const [runsLoadFailed, setRunsLoadFailed] = useState(false);
   const [scorecardLoadFailed, setScorecardLoadFailed] = useState(false);
-  const [configLint, setConfigLint] = useState<Awaited<ReturnType<typeof fetchAdminConfigLintSummary>> | null>(null);
 
   const healthStatus = healthData?.status ?? null;
   const healthLoadFailed = healthQueryEnabled && !healthPending && healthData === null;
+  const configLint = adminConfigProbeEnabled ? (configLintData ?? null) : null;
 
   const finishProbe = useCallback(() => {
     setPendingProbes((count) => Math.max(0, count - 1));
@@ -210,7 +214,7 @@ export function FirstPilotReadinessCockpit() {
 
     let canceled = false;
 
-    setPendingProbes(adminConfigProbeEnabled ? 3 : 2);
+    setPendingProbes(2);
 
     void getPilotScorecard()
       .then((loadedScorecard) => {
@@ -263,26 +267,10 @@ export function FirstPilotReadinessCockpit() {
       }
     })();
 
-    if (adminConfigProbeEnabled) {
-      void fetchAdminConfigLintSummary()
-        .then((loadedConfigLint) => {
-          if (canceled) {
-            return;
-          }
-
-          setConfigLint(loadedConfigLint);
-        })
-        .finally(() => {
-          if (!canceled) {
-            finishProbe();
-          }
-        });
-    }
-
     return () => {
       canceled = true;
     };
-  }, [adminConfigProbeEnabled, finishProbe, isAuthorityLoading]);
+  }, [finishProbe, isAuthorityLoading]);
 
   const rows = useMemo(
     () =>
@@ -322,7 +310,11 @@ export function FirstPilotReadinessCockpit() {
     [signals, baselinesEntered, canExecute, blocker],
   );
 
-  const probesLoading = isAuthorityLoading || healthPending || pendingProbes > 0;
+  const probesLoading =
+    isAuthorityLoading
+    || healthPending
+    || (configLintQueryEnabled && configLintPending)
+    || pendingProbes > 0;
   const curatedHome = isBuyerShellHomePresentation();
   const reviewPackageHref =
     commitCtx.firstCommittedRunId !== null

@@ -4,9 +4,14 @@ import type { OperatorScopeQueryKey } from "@/lib/operator/operator-scope-query-
 
 export const operatorQueryKeys = {
   tenantTrialStatus: ["operator", "tenant", "trial-status"] as const,
+  tenantWorkspacesList: (scope: OperatorScopeQueryKey) =>
+    ["operator", "tenant", "workspaces", scope] as const,
+  tenantCostSettings: ["operator", "tenant", "cost-settings"] as const,
+  agentOutputQualityGateMode: ["operator", "admin", "agent-output-quality-gate-mode"] as const,
   tenantUsageStatus: ["operator", "tenant", "usage-status"] as const,
   billingSubscriptionStatus: ["operator", "tenant", "billing-subscription-status"] as const,
   operatorStickinessSnapshot: ["operator", "tenant", "stickiness-snapshot"] as const,
+  adminConfigLintSummary: ["operator", "admin", "config-lint-summary"] as const,
   healthReadySummary: ["operator", "health", "ready-summary"] as const,
   /** Throws when readiness cannot be loaded — preserves last payload on refetch errors. */
   healthReadySummaryStrict: ["operator", "health", "ready-summary", "strict"] as const,

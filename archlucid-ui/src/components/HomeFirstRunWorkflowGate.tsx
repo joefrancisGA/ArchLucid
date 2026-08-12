@@ -2,14 +2,13 @@
 
 import { OperatorFirstRunWorkflowPanel } from "@/components/operator/OperatorFirstRunWorkflowPanel";
 import { SamplePackageShortcutsCard } from "@/components/operator-home/SamplePackageShortcutsCard";
+import { useCorePilotCommitContextQuery } from "@/hooks/use-core-pilot-commit-context-query";
 import type { CorePilotCommitContext } from "@/lib/core-pilot-commit-context";
-import { fetchCorePilotCommitContextCached } from "@/lib/core-pilot-commit-context";
 import {
   isBuyerPolishedOperatorShellEnv,
   isBuyerSafeDemoMarketingChromeEnv,
   isOperatorExperienceFullShellEnv,
 } from "@/lib/demo-ui-env";
-import { useEffect, useState } from "react";
 
 const emptyCommitContext: CorePilotCommitContext = {
   hasCommittedManifest: false,
@@ -33,7 +32,9 @@ export function HomeFirstRunWorkflowGate() {
   const buyerPolishedShell = isBuyerPolishedOperatorShellEnv();
   const needsCommitProbe = !exploreCompletedOutput && !curatedShortcutsRail && !buyerPolishedShell;
 
-  const [commitCtx, setCommitCtx] = useState<CorePilotCommitContext | null>(() => {
+  const commitContextQuery = useCorePilotCommitContextQuery({ enabled: needsCommitProbe });
+
+  const commitCtx: CorePilotCommitContext | null = (() => {
     if (exploreCompletedOutput) {
       return { ...emptyCommitContext, hasCommittedManifest: true };
     }
@@ -42,34 +43,16 @@ export function HomeFirstRunWorkflowGate() {
       return emptyCommitContext;
     }
 
-    return null;
-  });
-
-  useEffect(() => {
-    if (!needsCommitProbe) {
-      return;
+    if (commitContextQuery.isPending) {
+      return null;
     }
 
-    let canceled = false;
+    if (commitContextQuery.isError) {
+      return emptyCommitContext;
+    }
 
-    void (async () => {
-      try {
-        const ctx = await fetchCorePilotCommitContextCached();
-
-        if (!canceled) {
-          setCommitCtx(ctx);
-        }
-      } catch {
-        if (!canceled) {
-          setCommitCtx(emptyCommitContext);
-        }
-      }
-    })();
-
-    return () => {
-      canceled = true;
-    };
-  }, [needsCommitProbe]);
+    return commitContextQuery.data ?? emptyCommitContext;
+  })();
 
   if (buyerPolishedShell) {
     return null;

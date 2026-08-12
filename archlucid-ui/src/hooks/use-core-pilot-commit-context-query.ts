@@ -13,5 +13,6 @@ export function useCorePilotCommitContextQuery(options?: { enabled?: boolean }) 
     queryKey: operatorQueryKeys.corePilotCommitContext,
     queryFn: fetchCorePilotCommitContext,
     enabled: options?.enabled ?? true,
+    retry: false,
   });
 }
