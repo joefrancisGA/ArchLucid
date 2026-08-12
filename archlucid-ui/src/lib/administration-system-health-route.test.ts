@@ -66,7 +66,7 @@ describe("administration-system-health-route (ADY)", () => {
 
     expect(pageSource).toContain("SystemHealthPageClient");
     expect(layoutSource).toContain("ADMINISTRATION_SYSTEM_HEALTH_ROUTE_METADATA");
-    expect(layoutSource).toContain("OperatorDataRouteLayout");
+    expect(layoutSource).toContain("OperatorClientDrivenRouteLayout");
   });
 
   it("keeps marketing SEO inventory off the Administration system-health path", () => {

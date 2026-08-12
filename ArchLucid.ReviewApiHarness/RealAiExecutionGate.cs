@@ -8,7 +8,8 @@ public static class RealAiExecutionGate
     public static ResponseValidationResult Evaluate(
         string? structuralExecutionMode,
         bool realModeFellBackToSimulator,
-        long totalLlmTokens)
+        long totalLlmTokens,
+        bool requireNonZeroLlmTokens = true)
     {
         List<string> errors = [];
 
@@ -27,7 +28,7 @@ public static class RealAiExecutionGate
         if (realModeFellBackToSimulator)
             errors.Add("realModeFellBackToSimulator=true — run substituted simulator output; not real-AI evidence.");
 
-        if (totalLlmTokens <= 0)
+        if (requireNonZeroLlmTokens && totalLlmTokens <= 0)
         {
             errors.Add(
                 "Persisted LLM token totals are zero — expected non-zero prompt+completion tokens for real AI.");
@@ -65,6 +66,19 @@ public static class RealAiExecutionGate
             tokens += ReadLong(counts, "completion");
             tokens += ReadLong(counts, "Prompt");
             tokens += ReadLong(counts, "Completion");
+        }
+
+        if (tokens <= 0 &&
+            detail.TryGetProperty("results", out JsonElement results) &&
+            results.ValueKind == JsonValueKind.Array)
+        {
+            foreach (JsonElement result in results.EnumerateArray())
+            {
+                tokens += ReadLong(result, "promptTokens");
+                tokens += ReadLong(result, "completionTokens");
+                tokens += ReadLong(result, "PromptTokens");
+                tokens += ReadLong(result, "CompletionTokens");
+            }
         }
 
         return (mode, fellBack, tokens);

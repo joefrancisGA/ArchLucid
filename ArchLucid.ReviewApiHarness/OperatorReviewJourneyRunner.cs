@@ -136,7 +136,11 @@ public sealed class OperatorReviewJourneyRunner
             finalStatus = ArchitectureRunStatusReader.ReadStatus(pollDoc.RootElement);
             (structuralMode, bool fellBack, totalTokens) = RealAiExecutionGate.ReadFromRunDetail(pollDoc.RootElement);
 
-            ResponseValidationResult realGate = RealAiExecutionGate.Evaluate(structuralMode, fellBack, totalTokens);
+            ResponseValidationResult realGate = RealAiExecutionGate.Evaluate(
+                structuralMode,
+                fellBack,
+                totalTokens,
+                _options.RequireNonZeroLlmTokens);
             Stopwatch gateWatch = Stopwatch.StartNew();
             gateWatch.Stop();
 

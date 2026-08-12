@@ -15,15 +15,22 @@ describe("RunDetailPageView progressive disclosure", () => {
     expect(source).not.toContain('from "./RunDetailBreadcrumb"');
   });
 
-  it("shows the primary CTA inline only below the lg breakpoint when sticky actions are present", () => {
-    const stickyIndex = source.indexOf("<RunDetailWorkspaceStickyActions");
-    const inlinePrimaryWrapperIndex = source.indexOf('<div className="lg:hidden">', stickyIndex);
-    const primaryIndex = source.indexOf("<ReviewPackagePrimaryAction", inlinePrimaryWrapperIndex);
+  it("keeps sticky chrome out of sync PageView and defers sticky plus primary actions", () => {
+    expect(source).toContain("stickyActions={null}");
+    expect(source).not.toContain("<RunDetailWorkspaceStickyActions");
+    expect(source).not.toContain("<ReviewPackagePrimaryAction");
 
-    expect(stickyIndex).toBeGreaterThan(-1);
-    expect(inlinePrimaryWrapperIndex).toBeGreaterThan(stickyIndex);
-    expect(primaryIndex).toBeGreaterThan(inlinePrimaryWrapperIndex);
-    expect(primaryIndex - inlinePrimaryWrapperIndex).toBeLessThan(120);
+    const deferredSource = readFileSync(
+      join(dirname(fileURLToPath(import.meta.url)), "run-detail-page-view-deferred-chunks.tsx"),
+      "utf8",
+    );
+
+    expect(deferredSource).toContain("RunDetailWorkspaceStickyActionsDeferred");
+    expect(deferredSource).toContain("ReviewPackagePrimaryActionDeferred");
+  });
+
+  it("surfaces recommended next step via DoThisNext deferred strip on PageView", () => {
+    expect(source).toContain("RunDetailReviewPackageDoThisNextResolvedDeferred");
   });
 
   it("prioritizes first-screen proof status in overview tab", () => {

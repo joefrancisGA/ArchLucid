@@ -77,4 +77,13 @@ public sealed class JourneyOptions
         get;
         init;
     }
+
+    /// <summary>
+    ///     When <see langword="false" />, mocked journeys may pass the real-AI gate without persisted LLM token totals.
+    /// </summary>
+    public bool RequireNonZeroLlmTokens
+    {
+        get;
+        init;
+    } = true;
 }

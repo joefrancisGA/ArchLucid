@@ -7,26 +7,40 @@ public static class ArchitectureRunStatusReader
 {
     public static string? ReadRunId(JsonElement createOrDetail)
     {
-        if (createOrDetail.TryGetProperty("run", out JsonElement run) &&
-            run.TryGetProperty("runId", out JsonElement runIdEl))
-        {
-            return runIdEl.GetString();
-        }
-
-        return null;
-    }
-
-    public static string? ReadStatus(JsonElement detail)
-    {
-        if (!detail.TryGetProperty("run", out JsonElement run) ||
-            !run.TryGetProperty("status", out JsonElement statusEl))
+        if (!createOrDetail.TryGetProperty("run", out JsonElement run) ||
+            !run.TryGetProperty("runId", out JsonElement runIdEl))
         {
             return null;
         }
 
-        return statusEl.ValueKind == JsonValueKind.Number
-            ? statusEl.GetRawText()
-            : statusEl.GetString();
+        if (runIdEl.ValueKind == JsonValueKind.String)
+            return runIdEl.GetString();
+
+        if (runIdEl.ValueKind == JsonValueKind.Number)
+            return runIdEl.GetRawText();
+
+        return runIdEl.GetRawText();
+    }
+
+    public static string? ReadStatus(JsonElement detail)
+    {
+        if (!detail.TryGetProperty("run", out JsonElement run))
+            return null;
+
+        if (run.TryGetProperty("status", out JsonElement statusEl))
+            return ReadJsonStringOrNumber(statusEl);
+
+        if (run.TryGetProperty("legacyRunStatus", out JsonElement legacyStatusEl))
+            return ReadJsonStringOrNumber(legacyStatusEl);
+
+        return null;
+    }
+
+    private static string? ReadJsonStringOrNumber(JsonElement value)
+    {
+        return value.ValueKind == JsonValueKind.Number
+            ? value.GetRawText()
+            : value.GetString();
     }
 
     public static bool IsReadyForCommitOrCommitted(string? status)

@@ -68,6 +68,51 @@ vi.mock("./_sections/operator-home-page-view-deferred-chunks", async () => {
     );
   }
 
+  const deferredExports = {
+    PilotCommandCenterCardDeferred: DualPathHeroMock,
+    BuyerPolishedHomeHeroSectionDeferred: () => (
+      <section data-testid="operator-home-hero-section">
+        <DualPathHeroMock />
+      </section>
+    ),
+    OperatorHomeExecutiveRoiStripDeferred: () => null,
+    OperatorHomeBelowFoldPanelsDeferred: () => (
+      <section data-testid="operator-home-explore-sample-section">
+        <Link
+          data-testid="operator-home-explore-run-sample-review"
+          href="/architecture/reviews/new?template=claims-intake-modernization"
+        >
+          {OPERATOR_HOME_REVIEW_SAMPLE_FINDINGS_CTA}
+        </Link>
+      </section>
+    ),
+    OperatorHomeGateDeferred: ({ children }: { children: import("react").ReactNode }) => <>{children}</>,
+    CtoDemoExecutiveLandingRedirectDeferred: () => null,
+  };
+
+  return deferredExports;
+});
+
+vi.mock("@/app/(operator)/_sections/operator-home-page-view-deferred-chunks", async () => {
+  const Link = (await import("next/link")).default;
+  const { CREATE_ARCHITECTURE_LABEL, START_REVIEW_LABEL } = await import("@/lib/architecture-workflow-labels");
+  const {
+    OPERATOR_HOME_OPEN_COMPLETED_REVIEW_CTA,
+    OPERATOR_HOME_REVIEW_SAMPLE_FINDINGS_CTA,
+  } = await import("@/lib/buyer-polish-copy");
+
+  function DualPathHeroMock() {
+    return (
+      <div data-testid="pilot-command-center-card">
+        <div data-testid="operator-home-dual-path-cards">
+          <button type="button">{CREATE_ARCHITECTURE_LABEL}</button>
+          <button type="button">{START_REVIEW_LABEL}</button>
+          <Link href="/architecture/reviews/claims-intake-modernization">{OPERATOR_HOME_OPEN_COMPLETED_REVIEW_CTA}</Link>
+        </div>
+      </div>
+    );
+  }
+
   return {
     PilotCommandCenterCardDeferred: DualPathHeroMock,
     BuyerPolishedHomeHeroSectionDeferred: () => (
@@ -159,23 +204,6 @@ vi.mock("@/components/operator-home/OperatorHomeDeferredPanels", async () => {
         ) : null}
       </div>
     ),
-  };
-});
-
-// TB-2145 — home uses next/dynamic deferred wrappers; resolve them to leaf mocks above.
-vi.mock("@/app/(operator)/_sections/operator-home-page-view-deferred-chunks", async () => {
-  const { PilotCommandCenterCard } = await import("@/components/usability/PilotCommandCenterCard");
-  const { OperatorHomeBelowFoldPanels } = await import(
-    "@/app/(operator)/_sections/OperatorHomeBelowFoldPanels"
-  );
-  const { OperatorHomeExecutiveRoiStrip } = await import("@/components/operator-home/OperatorHomeExecutiveRoiStrip");
-  const { CtoDemoExecutiveLandingRedirect } = await import("@/components/cto-demo/CtoDemoExecutiveLandingRedirect");
-
-  return {
-    PilotCommandCenterCardDeferred: PilotCommandCenterCard,
-    OperatorHomeBelowFoldPanelsDeferred: OperatorHomeBelowFoldPanels,
-    OperatorHomeExecutiveRoiStripDeferred: OperatorHomeExecutiveRoiStrip,
-    CtoDemoExecutiveLandingRedirectDeferred: CtoDemoExecutiveLandingRedirect,
   };
 });
 

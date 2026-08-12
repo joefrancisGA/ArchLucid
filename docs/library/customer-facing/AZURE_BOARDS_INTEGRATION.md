@@ -74,4 +74,5 @@ Informational findings may be skipped when severity mapping does not apply.
 
 ## Related
 
+- [Integration readiness](/help/integration-readiness) — connector health and prerequisites
 - [Findings](/help/findings) — how findings become remediation work

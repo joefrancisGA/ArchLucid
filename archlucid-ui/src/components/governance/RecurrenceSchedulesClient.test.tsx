@@ -1,6 +1,17 @@
 import { fireEvent, render, screen, waitFor } from "@testing-library/react";
 import { beforeEach, describe, expect, it, vi } from "vitest";
 
+vi.mock("@/lib/recurrence-local-time", async () => {
+  const actual = await vi.importActual<typeof import("@/lib/recurrence-local-time")>(
+    "@/lib/recurrence-local-time",
+  );
+
+  return {
+    ...actual,
+    resolveRecurrenceDisplayTimeZoneId: () => "America/New_York",
+  };
+});
+
 vi.mock("@/lib/api/governance-stickiness-api", () => ({
   createArchitectureReviewRecurrenceSchedule: vi.fn(),
   listArchitectureReviewRecurrenceSchedules: vi.fn(),
@@ -229,7 +240,12 @@ describe("RecurrenceSchedulesClient", () => {
     expect(screen.getByTestId("recurrence-schedule-create-panel")).toBeInTheDocument();
     expect(screen.getByTestId("recurrence-schedule-name")).toHaveValue(example.title);
     expect(screen.getByTestId("cron-expression-input")).toHaveValue(example.cronExpression);
-    expect(screen.getByText(example.humanCadence)).toBeInTheDocument();
+
+    const humanCadenceLines = screen.getAllByTestId("recurrence-schedule-example-human-cadence");
+    const matchingLine = humanCadenceLines.find((line) => line.textContent?.includes(example.humanCadence));
+
+    expect(matchingLine).toBeDefined();
+    expect(matchingLine!.textContent).toMatch(/America\/New_York/);
   });
 
   it("moves Create to the header when schedules exist (TB-1131)", async () => {

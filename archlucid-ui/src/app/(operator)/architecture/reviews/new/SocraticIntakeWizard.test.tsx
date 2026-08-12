@@ -25,6 +25,16 @@ vi.mock("next/navigation", async (importOriginal) => {
   };
 });
 
+vi.mock("@/components/architecture/ArchitectureScopeUnderstandingCheckPanel", async () => {
+  const { ArchitectureScopeUnderstandingCheckPanelVitestMock } = await import(
+    "@/testing/architecture-scope-understanding-check-vitest-mock"
+  );
+
+  return {
+    ArchitectureScopeUnderstandingCheckPanel: ArchitectureScopeUnderstandingCheckPanelVitestMock,
+  };
+});
+
 vi.mock("@/hooks/use-llm-monthly-budget-execution-gate", () => ({
   useLlmMonthlyBudgetExecutionGate: () => ({
     loading: false,
