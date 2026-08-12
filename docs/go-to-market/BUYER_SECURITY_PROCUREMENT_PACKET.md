@@ -4496,7 +4496,7 @@ Former standalone body: `docs/go-to-market/SOLO_OPERATOR_PAGES_VS_SUPPORT_EMAIL_
 | Critical fleet MVO P0 | Operator page | Fleet-critical action group visibility |
 | Warn, SLO, agent-output signals | Operations email | Notification, not guaranteed page |
 | Report Problem | Support inbox | Customer-initiated intake |
-| Stuck tenant run / lifecycle canary | Open gap | Not yet a completed paging claim |
+| Stuck tenant run / lifecycle canary | **TB-958** / **TB-959** Done — owner enablement gates paging claim | Engineering shipped; **M-120** + env flags required |
 
 Done **TB-957** documents six fleet MVO P0s. It does not prove that an individual tenant’s stuck run or a create→execute→finalize failure pages the operator.
 
@@ -4517,11 +4517,11 @@ Do not say “we page on every customer-impacting failure” or “support email
 
 | Needed outcome | Tracking |
 | --- | --- |
-| Pages-versus-email decision matrix | **TB-989** |
+| Pages-versus-email decision matrix | Done **TB-989** — [`SOLO_OPERATOR_PAGES_VS_SUPPORT_EMAIL_CONTRACT.md`](../operations/SOLO_OPERATOR_PAGES_VS_SUPPORT_EMAIL_CONTRACT.md) |
 | Support Problem to MVO triage routine | **TB-990** |
-| Claim regression guard | **TB-991** |
-| Per-tenant stuck-run coverage | **TB-958** |
-| Create/execute/finalize canary | **TB-959** |
+| Claim regression guard | Done **TB-991** |
+| Per-tenant stuck-run coverage | Done **TB-958** — owner enablement checklist |
+| Create/execute/finalize canary | Done **TB-959** — opt-in + paging secret |
 
 This work does not reopen the shipped fleet alerting baseline in **TB-957**.
 
@@ -4533,9 +4533,13 @@ Former standalone body: `docs/go-to-market/FIRST_SECURITY_REVIEW_PA_ONE_PAGER_SH
 
 **Path-stable alias:** [`FIRST_SECURITY_REVIEW_PA_ONE_PAGER_SHIP_ORDER_PA_ONE_PAGER.md`](FIRST_SECURITY_REVIEW_PA_ONE_PAGER_SHIP_ORDER_PA_ONE_PAGER.md).
 
+**Contributor contract:** [`FIRST_SECURITY_REVIEW_PA_ONE_PAGER_SHIP_ORDER_CONTRACT.md`](../library/FIRST_SECURITY_REVIEW_PA_ONE_PAGER_SHIP_ORDER_CONTRACT.md). Honesty CI: **TB-1121** (`check_security_review_ready_without_musts_honesty.py`).
+
 **Audience:** Founder preparing a controlled-pilot security conversation; PA diligence.
 
 **Claim:** “Ready for first buyer security review” means the **must** handouts below exist and talk-tracks match shipped controls — not that CPA SOC 2 or a published third-party pen test exists (**G-REAL-05** / **G-ASSURANCE-02** remain owner programs; tech **TB-135**/**TB-136** Done tracking only).
+
+**Engineering SoT:** [`../library/FIRST_SECURITY_REVIEW_PA_ONE_PAGER_SHIP_ORDER_CONTRACT.md`](../library/FIRST_SECURITY_REVIEW_PA_ONE_PAGER_SHIP_ORDER_CONTRACT.md) (**TB-1120**). Honesty CI: **TB-1121** (**Done** — `check_security_review_ready_without_musts_honesty.py`).
 
 ### Ship order
 
@@ -4557,9 +4561,15 @@ Use [principal architect falsification script](#principal-architect-falsificatio
 | Too strong | Safe |
 | --- | --- |
 | “Security review ready = SOC 2 / 3P pen tested” | Self-attested pack + these handouts; CPA/3P are separate owner rows |
+| “Ready for first security review” with only **M-114** | Must **M-151** + **M-118** (+ **M-114**); cite **TB-1120** / this ship-order section |
+| “First security review requires **M-171** / FinOps idempotency” | Defer **M-171** — FinOps / second pass |
 | “All PA one-pagers must ship before first conversation” | Must = **M-151** + **M-118** (+ **M-114**); others agenda-driven |
 
-**Related:** [Minimum pilot trust packet (M-191)](#minimum-pilot-trust-packet-m-191) Â· [`PA_CLAIM_HONESTY_INDEX.md`](PA_CLAIM_HONESTY_INDEX.md).
+### CI anchors for **TB-1121**
+
+Honesty CI **TB-1121** Done — `scripts/ci/check_security_review_ready_without_musts_honesty.py` wired in `run_buyer_surface_strict_guards.py`. Fails stubs that claim first-review readiness with only **M-114**, require **M-171** as a first-review must, equate readiness with CPA SOC 2 / published third-party pen test, or omit **TB-1120** / ship-order citation near “security review ready” language.
+
+**Related:** [Minimum pilot trust packet (M-191)](#minimum-pilot-trust-packet-m-191) Â· [`FIRST_SECURITY_REVIEW_PA_ONE_PAGER_SHIP_ORDER_CONTRACT.md`](../library/FIRST_SECURITY_REVIEW_PA_ONE_PAGER_SHIP_ORDER_CONTRACT.md) (**TB-1120**) Â· [`PA_CLAIM_HONESTY_INDEX.md`](PA_CLAIM_HONESTY_INDEX.md).
 
 ## PA claim-honesty short rows (M-115+) {#pa-claim-honesty-short-rows}
 
