@@ -9,12 +9,41 @@ import {
 import {
   AZURE_REFERENCE_SAMPLE_REVIEW_CTA_LABEL,
 } from "@/lib/empty-state-presets";
-import { GOVERNANCE_APPROVAL_QUEUE_PATH } from "@/lib/governance-route-paths";
+import { GOVERNANCE_APPROVAL_QUEUE_PATH, governanceAlertRulesTabHref } from "@/lib/governance-route-paths";
+import {
+  ALERT_RULES_LIST_EMPTY_BODY,
+} from "@/lib/alert-rule-conditions-copy";
+import {
+  ADVISORY_SCANS_SCHEDULES_EMPTY_BODY,
+} from "@/lib/advisory-copy";
+import {
+  ALERTS_ACTION_OPEN_GOVERNANCE_SETUP_GUIDE,
+  ALERTS_ACTION_OPEN_GOVERNANCE_SETUP_GUIDE_HREF,
+  ALERTS_ACTION_OPEN_GOVERNANCE_WORKFLOW,
+  ALERTS_ACTION_OPEN_GOVERNANCE_WORKFLOW_HREF,
+  ALERTS_ACTION_OPEN_REVIEW_PACKAGES,
+  ALERTS_ACTION_OPEN_REVIEW_PACKAGES_HREF,
+  ALERTS_ACTION_START_ARCHITECTURE_REVIEW,
+  ALERTS_ACTION_START_ARCHITECTURE_REVIEW_HREF,
+  ALERTS_CONFIGURE_RULES_LINK_LABEL,
+  ALERTS_EMPTY_FILTERED_BODY,
+  ALERTS_EMPTY_FILTERED_TITLE,
+  ALERTS_EMPTY_HEALTHY_BODY,
+  ALERTS_EMPTY_HEALTHY_TITLE,
+  ALERTS_EMPTY_NO_REVIEWS_BODY,
+  ALERTS_EMPTY_NO_REVIEWS_TITLE,
+  ALERTS_EMPTY_NO_RULES_BODY,
+  ALERTS_EMPTY_NO_RULES_TITLE,
+} from "@/lib/alerts-page-copy";
 import {
   STANDARDS_RULES_EMPTY_BODY,
   STANDARDS_RULES_EMPTY_HEADING,
 } from "@/lib/standards-rules-page";
 import { SHOWCASE_STATIC_DEMO_RUN_ID } from "@/lib/showcase-static-demo";
+import {
+  buildOperatorFilteredEmptyCompact,
+  buildOperatorHubZoneEmptyCompact,
+} from "@/lib/operator-empty-state-kind-presets";
 
 /** Reviews list when the project has zero reviews. */
 export const RUNS_EMPTY_COMPACT: EnterpriseCompactEmptyStateProps = {
@@ -160,12 +189,13 @@ export const STANDARDS_RULES_EMPTY_COMPACT: EnterpriseCompactEmptyStateProps = {
 };
 
 /** Governance findings queue when rows exist but the active filter hides all of them. */
-export const GOVERNANCE_FINDINGS_FILTER_NO_MATCH_COMPACT: EnterpriseCompactEmptyStateProps = {
-  testId: "governance-findings-filter-no-match-empty-state",
-  title: "No risks match this filter",
-  description: "Try All or choose a different operational filter to see findings in the register.",
-  actions: [],
-};
+export const GOVERNANCE_FINDINGS_FILTER_NO_MATCH_COMPACT: EnterpriseCompactEmptyStateProps =
+  buildOperatorFilteredEmptyCompact({
+    testId: "governance-findings-filter-no-match-empty-state",
+    nounPhrase: "risks",
+    description: "Try All or choose a different operational filter to see findings in the register.",
+    actions: [],
+  });
 
 /** Governance findings queue when the register fetch failed — distinct from a genuinely empty register. */
 export const GOVERNANCE_FINDINGS_LOAD_FAILED_COMPACT: EnterpriseCompactEmptyStateProps = {
@@ -192,5 +222,91 @@ export const COMPARE_WAITING_BUYER_COMPACT: EnterpriseCompactEmptyStateProps = {
   description: "Choose a baseline and updated review to continue.",
   actions: [
     { label: "Open reviews", href: "/architecture/reviews", variant: "primary" },
+  ],
+};
+
+/** Alert rules Conditions tab when no rules exist yet (TB-1555 hub-zone preset). */
+export const ALERT_RULES_LIST_EMPTY_COMPACT: EnterpriseCompactEmptyStateProps = buildOperatorHubZoneEmptyCompact(
+  "alert rules",
+  {
+    testId: "alert-rules-empty",
+    description: ALERT_RULES_LIST_EMPTY_BODY,
+  },
+);
+
+/** Advisory Schedules tab when no schedules exist yet (TB-1555 hub-zone preset). */
+export const ADVISORY_SCHEDULES_EMPTY_COMPACT: EnterpriseCompactEmptyStateProps = buildOperatorHubZoneEmptyCompact(
+  "advisory-scan schedules",
+  {
+    testId: "advisory-schedules-empty",
+    description: ADVISORY_SCANS_SCHEDULES_EMPTY_BODY,
+  },
+);
+
+/** Alerts inbox — status filter yields zero rows while alerts exist (TB-1555 filtered preset). */
+export const ALERTS_INBOX_FILTERED_EMPTY_COMPACT: EnterpriseCompactEmptyStateProps = {
+  testId: "alerts-inbox-empty-state",
+  title: ALERTS_EMPTY_FILTERED_TITLE,
+  description: ALERTS_EMPTY_FILTERED_BODY,
+  actions: [
+    { label: ALERTS_ACTION_OPEN_REVIEW_PACKAGES, href: ALERTS_ACTION_OPEN_REVIEW_PACKAGES_HREF, variant: "primary" },
+    {
+      label: ALERTS_ACTION_OPEN_GOVERNANCE_WORKFLOW,
+      href: ALERTS_ACTION_OPEN_GOVERNANCE_WORKFLOW_HREF,
+      variant: "outline",
+    },
+  ],
+};
+
+/** Alerts inbox — workspace has reviews but no alert rules (TB-1555 prerequisite preset). */
+export const ALERTS_INBOX_NO_RULES_EMPTY_COMPACT: EnterpriseCompactEmptyStateProps = {
+  testId: "alerts-inbox-empty-state",
+  title: ALERTS_EMPTY_NO_RULES_TITLE,
+  description: ALERTS_EMPTY_NO_RULES_BODY,
+  actions: [
+    {
+      label: ALERTS_ACTION_OPEN_GOVERNANCE_SETUP_GUIDE,
+      href: ALERTS_ACTION_OPEN_GOVERNANCE_SETUP_GUIDE_HREF,
+      variant: "primary",
+    },
+    {
+      label: ALERTS_CONFIGURE_RULES_LINK_LABEL,
+      href: governanceAlertRulesTabHref("rules"),
+      variant: "outline",
+    },
+  ],
+};
+
+/** Alerts inbox — workspace has rules but no reviews yet (TB-1555 prerequisite preset). */
+export const ALERTS_INBOX_NO_REVIEWS_EMPTY_COMPACT: EnterpriseCompactEmptyStateProps = {
+  testId: "alerts-inbox-empty-state",
+  title: ALERTS_EMPTY_NO_REVIEWS_TITLE,
+  description: ALERTS_EMPTY_NO_REVIEWS_BODY,
+  actions: [
+    {
+      label: ALERTS_ACTION_START_ARCHITECTURE_REVIEW,
+      href: ALERTS_ACTION_START_ARCHITECTURE_REVIEW_HREF,
+      variant: "primary",
+    },
+    {
+      label: ALERTS_ACTION_OPEN_GOVERNANCE_SETUP_GUIDE,
+      href: ALERTS_ACTION_OPEN_GOVERNANCE_SETUP_GUIDE_HREF,
+      variant: "outline",
+    },
+  ],
+};
+
+/** Alerts inbox — healthy workspace with no open alerts (TB-1555 collection preset). */
+export const ALERTS_INBOX_HEALTHY_EMPTY_COMPACT: EnterpriseCompactEmptyStateProps = {
+  testId: "alerts-inbox-empty-state",
+  title: ALERTS_EMPTY_HEALTHY_TITLE,
+  description: ALERTS_EMPTY_HEALTHY_BODY,
+  actions: [
+    { label: ALERTS_ACTION_OPEN_REVIEW_PACKAGES, href: ALERTS_ACTION_OPEN_REVIEW_PACKAGES_HREF, variant: "primary" },
+    {
+      label: ALERTS_ACTION_OPEN_GOVERNANCE_WORKFLOW,
+      href: ALERTS_ACTION_OPEN_GOVERNANCE_WORKFLOW_HREF,
+      variant: "outline",
+    },
   ],
 };

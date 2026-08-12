@@ -20,8 +20,6 @@ import {
   ADVISORY_SCANS_SCHEDULES_CREATE_FAILURE,
   ADVISORY_SCANS_SCHEDULES_CREATE_SUCCESS,
   ADVISORY_SCANS_SCHEDULES_ELIGIBILITY,
-  ADVISORY_SCANS_SCHEDULES_EMPTY_BODY,
-  ADVISORY_SCANS_SCHEDULES_EMPTY_TITLE,
   ADVISORY_SCANS_SCHEDULES_INTRO,
   ADVISORY_SCANS_SCHEDULES_PAGE_HEADING,
   ADVISORY_SCANS_SCHEDULES_READ_ONLY,
@@ -29,6 +27,7 @@ import {
   ADVISORY_SCANS_SCHEDULES_RECURRENCE_LINK_HELPER,
   ADVISORY_SCANS_SCHEDULES_RECURRENCE_LINK_LABEL,
 } from "@/lib/advisory-copy";
+import { ADVISORY_SCHEDULES_EMPTY_COMPACT } from "@/lib/enterprise-compact-empty-state-presets";
 import { resolveAdvisoryRunProjectSlug, resolveBrowserTimeZoneId } from "@/lib/advisory-schedule-form";
 import {
   buildAdvisoryScheduleListItemView,
@@ -313,11 +312,7 @@ export function AdvisorySchedulesContent(): ReactElement {
               <h3 className={cn("m-0 mb-2 font-semibold text-al-text-primary", OPERATOR_TYPOGRAPHY.cardTitle)}>
                 {canMutateSchedules ? advisorySchedulesListHeadingOperator : advisorySchedulesListHeadingReader}
               </h3>
-              <EnterpriseCompactEmptyState
-                title={ADVISORY_SCANS_SCHEDULES_EMPTY_TITLE}
-                description={ADVISORY_SCANS_SCHEDULES_EMPTY_BODY}
-                testId="advisory-schedules-empty"
-              />
+              <EnterpriseCompactEmptyState {...ADVISORY_SCHEDULES_EMPTY_COMPACT} />
             </section>
           ) : null}
         </div>

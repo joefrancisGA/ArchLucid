@@ -48,8 +48,6 @@ import {
   ALERT_RULES_CREATE_PENDING_LABEL,
   ALERT_RULES_CREATE_SUCCESS_MESSAGE,
   ALERT_RULES_FORM_SECTION_ARIA_LABEL,
-  ALERT_RULES_LIST_EMPTY_BODY,
-  ALERT_RULES_LIST_EMPTY_TITLE,
   ALERT_RULES_LIST_HEADING,
   ALERT_RULES_NAME_LABEL,
   ALERT_RULES_RULE_TYPE_LABEL,
@@ -58,6 +56,7 @@ import {
   ALERT_RULES_SAMPLE_MODE_CTA_LABEL,
   ALERT_RULES_STATUS_LIVE_REGION_LABEL,
 } from "@/lib/alert-rule-conditions-copy";
+import { ALERT_RULES_LIST_EMPTY_COMPACT } from "@/lib/enterprise-compact-empty-state-presets";
 import { isBuyerPolishedOperatorShellEnv, isOperatorExperienceFullShellEnv } from "@/lib/demo-ui-env";
 import { OPERATOR_TYPOGRAPHY } from "@/lib/design-tokens";
 import {
@@ -294,19 +293,11 @@ export function AlertRulesContent() {
           ) : null}
 
           {emptyIntroMode ? (
-            <EnterpriseCompactEmptyState
-              title={ALERT_RULES_LIST_EMPTY_TITLE}
-              description={ALERT_RULES_LIST_EMPTY_BODY}
-              testId="alert-rules-empty"
-            />
+            <EnterpriseCompactEmptyState {...ALERT_RULES_LIST_EMPTY_COMPACT} />
           ) : null}
 
           {isEmpty && !canEdit ? (
-            <EnterpriseCompactEmptyState
-              title={ALERT_RULES_LIST_EMPTY_TITLE}
-              description={ALERT_RULES_LIST_EMPTY_BODY}
-              testId="alert-rules-empty"
-            />
+            <EnterpriseCompactEmptyState {...ALERT_RULES_LIST_EMPTY_COMPACT} />
           ) : null}
 
           {showCreateForm ? (

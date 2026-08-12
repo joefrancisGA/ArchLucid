@@ -262,7 +262,7 @@ Bans playful empties — this section defines **empty kinds**, Compact-vs-center
 | Banned stacks | **No** always-on create form + side rail + dashed empty in the first viewport (whitespace **TB-1477**–**TB-1482**). **No** checklist + live preview + empty theater stacks. |
 | Centered `EmptyState` | Reserve for rare full-page first-run where `gettingStarted` steps **are** the product — or fold steps into collapsed How-it-works under Compact. Dense operator hubs use Compact (**TB-1554** inventory). |
 | Copy | Not-configured → “No {thing} yet” + one sentence on the page job — not playful illustration. |
-| Presets | Reuse `archlucid-ui/src/lib/enterprise-compact-empty-state-presets.ts` where possible. |
+| Presets | Reuse `archlucid-ui/src/lib/enterprise-compact-empty-state-presets.ts` and kind helpers in `operator-empty-state-kind-presets.ts` (**TB-1555**). |
 | Migration inventory | Dense-hub allowlist: `archlucid-ui/src/lib/operator-empty-state-migration-inventory.ts` (**TB-1554** Done); Vitest guard **TB-1556**. |
 
 **Exemplars:** Digests browse (Compact under master-detail), Recurrence (empty footer Create + collapsed helper, **TB-1540**), Reviews hub (**TB-1553**), Advisory Schedules empty-first + header Create (**TB-1542**).

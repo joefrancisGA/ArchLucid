@@ -1,24 +1,12 @@
-import {
-  ALERTS_ACTION_OPEN_GOVERNANCE_SETUP_GUIDE,
-  ALERTS_ACTION_OPEN_GOVERNANCE_SETUP_GUIDE_HREF,
-  ALERTS_ACTION_OPEN_GOVERNANCE_WORKFLOW,
-  ALERTS_ACTION_OPEN_GOVERNANCE_WORKFLOW_HREF,
-  ALERTS_ACTION_OPEN_REVIEW_PACKAGES,
-  ALERTS_ACTION_OPEN_REVIEW_PACKAGES_HREF,
-  ALERTS_ACTION_START_ARCHITECTURE_REVIEW,
-  ALERTS_ACTION_START_ARCHITECTURE_REVIEW_HREF,
-  ALERTS_CONFIGURE_RULES_LINK_LABEL,
-  ALERTS_EMPTY_FILTERED_BODY,
-  ALERTS_EMPTY_FILTERED_TITLE,
-  ALERTS_EMPTY_HEALTHY_BODY,
-  ALERTS_EMPTY_HEALTHY_TITLE,
-  ALERTS_EMPTY_NO_REVIEWS_BODY,
-  ALERTS_EMPTY_NO_REVIEWS_TITLE,
-  ALERTS_EMPTY_NO_RULES_BODY,
-  ALERTS_EMPTY_NO_RULES_TITLE,
-} from "@/lib/alerts-page-copy";
-import type { EnterpriseCompactEmptyStateProps, EnterpriseCompactEmptyStateAction } from "@/components/EnterpriseCompactEmptyState";
+import type { EnterpriseCompactEmptyStateProps } from "@/components/EnterpriseCompactEmptyState";
+import { ALERTS_ACTION_OPEN_REVIEW_PACKAGES_HREF } from "@/lib/alerts-page-copy";
 import { resolveAdvisoryRunProjectSlug } from "@/lib/advisory-schedule-form";
+import {
+  ALERTS_INBOX_FILTERED_EMPTY_COMPACT,
+  ALERTS_INBOX_HEALTHY_EMPTY_COMPACT,
+  ALERTS_INBOX_NO_REVIEWS_EMPTY_COMPACT,
+  ALERTS_INBOX_NO_RULES_EMPTY_COMPACT,
+} from "@/lib/enterprise-compact-empty-state-presets";
 import { governanceAlertRulesTabHref } from "@/lib/governance-route-paths";
 
 export const ALERTS_INBOX_DEFAULT_PROJECT_ID = "default";
@@ -30,6 +18,30 @@ export type AlertsInboxWorkspaceContext = {
 };
 
 export type AlertsInboxEmptyVariant = "healthy_clear" | "no_reviews" | "no_rules" | "filtered";
+
+const ALERTS_INBOX_EMPTY_PRESETS: Record<AlertsInboxEmptyVariant, EnterpriseCompactEmptyStateProps> = {
+  filtered: ALERTS_INBOX_FILTERED_EMPTY_COMPACT,
+  no_rules: ALERTS_INBOX_NO_RULES_EMPTY_COMPACT,
+  no_reviews: ALERTS_INBOX_NO_REVIEWS_EMPTY_COMPACT,
+  healthy_clear: ALERTS_INBOX_HEALTHY_EMPTY_COMPACT,
+};
+
+function withOpenReviewPackagesHref(
+  preset: EnterpriseCompactEmptyStateProps,
+  openReviewPackagesHref: string,
+): Pick<EnterpriseCompactEmptyStateProps, "title" | "description" | "actions"> {
+  const actions = preset.actions?.map((action) =>
+    action.href === ALERTS_ACTION_OPEN_REVIEW_PACKAGES_HREF
+      ? { ...action, href: openReviewPackagesHref }
+      : action,
+  );
+
+  return {
+    title: preset.title,
+    description: preset.description,
+    actions,
+  };
+}
 
 export function resolveAlertsInboxEmptyVariant(
   context: AlertsInboxWorkspaceContext,
@@ -90,76 +102,9 @@ export function buildAlertsInboxEmptyStateProps(
   options: BuildAlertsInboxEmptyStateOptions = {},
 ): Pick<EnterpriseCompactEmptyStateProps, "title" | "description" | "actions"> {
   const openReviewPackagesHref = options.openReviewPackagesHref ?? ALERTS_ACTION_OPEN_REVIEW_PACKAGES_HREF;
-  const governanceSetupSecondary = {
-    label: ALERTS_ACTION_OPEN_GOVERNANCE_SETUP_GUIDE,
-    href: ALERTS_ACTION_OPEN_GOVERNANCE_SETUP_GUIDE_HREF,
-    variant: "outline" as const,
-  };
+  const preset = ALERTS_INBOX_EMPTY_PRESETS[variant];
 
-  if (variant === "filtered") {
-    return {
-      title: ALERTS_EMPTY_FILTERED_TITLE,
-      description: ALERTS_EMPTY_FILTERED_BODY,
-      actions: [
-        { label: ALERTS_ACTION_OPEN_REVIEW_PACKAGES, href: openReviewPackagesHref, variant: "primary" },
-        {
-          label: ALERTS_ACTION_OPEN_GOVERNANCE_WORKFLOW,
-          href: ALERTS_ACTION_OPEN_GOVERNANCE_WORKFLOW_HREF,
-          variant: "outline",
-        },
-      ],
-    };
-  }
-
-  if (variant === "no_rules") {
-    return {
-      title: ALERTS_EMPTY_NO_RULES_TITLE,
-      description: ALERTS_EMPTY_NO_RULES_BODY,
-      actions: [
-        {
-          label: ALERTS_ACTION_OPEN_GOVERNANCE_SETUP_GUIDE,
-          href: ALERTS_ACTION_OPEN_GOVERNANCE_SETUP_GUIDE_HREF,
-          variant: "primary",
-        },
-        {
-          label: ALERTS_CONFIGURE_RULES_LINK_LABEL,
-          href: governanceAlertRulesTabHref("rules"),
-          variant: "outline",
-        },
-      ],
-    };
-  }
-
-  if (variant === "no_reviews") {
-    return {
-      title: ALERTS_EMPTY_NO_REVIEWS_TITLE,
-      description: ALERTS_EMPTY_NO_REVIEWS_BODY,
-      actions: [
-        {
-          label: ALERTS_ACTION_START_ARCHITECTURE_REVIEW,
-          href: ALERTS_ACTION_START_ARCHITECTURE_REVIEW_HREF,
-          variant: "primary",
-        },
-        governanceSetupSecondary,
-      ],
-    };
-  }
-
-  // healthy_clear: header link owns configure-rules; do not push a third CTA (TB-2103).
-  const actions: EnterpriseCompactEmptyStateAction[] = [
-    { label: ALERTS_ACTION_OPEN_REVIEW_PACKAGES, href: openReviewPackagesHref, variant: "primary" },
-    {
-      label: ALERTS_ACTION_OPEN_GOVERNANCE_WORKFLOW,
-      href: ALERTS_ACTION_OPEN_GOVERNANCE_WORKFLOW_HREF,
-      variant: "outline",
-    },
-  ];
-
-  return {
-    title: ALERTS_EMPTY_HEALTHY_TITLE,
-    description: ALERTS_EMPTY_HEALTHY_BODY,
-    actions,
-  };
+  return withOpenReviewPackagesHref(preset, openReviewPackagesHref);
 }
 
 /** Empty-state + header configure-rules affordance count for a resolved variant (TB-2103). */
