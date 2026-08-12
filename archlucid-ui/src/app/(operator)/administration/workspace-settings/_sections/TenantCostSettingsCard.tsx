@@ -112,7 +112,7 @@ function CostSettingsCardHeader(props: CostSettingsCardHeaderProps) {
         </CardTitle>
         {!props.isTenantConfigured ? (
           <StatusTag
-            kind="warn"
+            kind="neutral"
             label={TENANT_COST_SETTINGS_DEFAULTS_STATUS_LABEL}
             data-testid="tenant-cost-settings-defaults-status"
           />

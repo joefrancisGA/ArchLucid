@@ -35,7 +35,7 @@ export function ServiceBusHealthBanner() {
     return null;
   }
 
-  const showWarning = data !== undefined && isAzureServiceBusHealthUnhealthy(data.entries);
+  const showWarning = data !== undefined && data !== null && isAzureServiceBusHealthUnhealthy(data.entries);
   const refreshFailed = isError || isRefetchError;
 
   if (!showWarning && !refreshFailed) {

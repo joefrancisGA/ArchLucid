@@ -73,7 +73,10 @@ function directoryNoteReliableForAssignmentCounts(note: SettingsRolesPageViewMod
   return note === null || note === "empty_response";
 }
 
-function isUsersNoteLoadFailure(note: SettingsRolesPageViewModel["usersNote"]): boolean {
+/** Predicate, not a plain boolean, so callers can pass the narrowed note to the copy helpers. */
+function isUsersNoteLoadFailure(
+  note: SettingsRolesPageViewModel["usersNote"],
+): note is "api_unavailable" | "load_failed" {
   return note === "api_unavailable" || note === "load_failed";
 }
 
