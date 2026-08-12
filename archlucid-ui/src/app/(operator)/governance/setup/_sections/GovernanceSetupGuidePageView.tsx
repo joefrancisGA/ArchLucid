@@ -1,6 +1,7 @@
 import { cn } from "@/lib/utils";
 
 import { OperatorPageHeader } from "@/components/operator/OperatorPageHeader";
+import { PageContextualHelpButton } from "@/components/usability/PageContextualHelpButton";
 import { GovernanceSetupConfigHubsVocabularyRail } from "@/components/governance/GovernanceSetupConfigHubsVocabularyRail";
 import { OPERATOR_TYPOGRAPHY } from "@/lib/design-tokens";
 import { GOVERNANCE_SETUP_PAGE_SUBTITLE } from "@/lib/governance/governance-setup-route";
@@ -28,6 +29,7 @@ export function GovernanceSetupGuidePageView({ model }: GovernanceSetupGuidePage
         title="Governance setup"
         titleTestId="governance-setup-page-title"
         subtitle={GOVERNANCE_SETUP_PAGE_SUBTITLE}
+        actions={<PageContextualHelpButton />}
       >
         <GovernanceSetupGuideProgressSummary summary={progress} />
       </OperatorPageHeader>

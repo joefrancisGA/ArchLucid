@@ -10,6 +10,8 @@ import {
   BUYER_ONBOARDING_PAGE_TITLE,
   OPERATOR_HOME_EXPLORE_REVIEW_WALKTHROUGH_HEADING,
 } from "@/lib/buyer/buyer-polish-copy";
+import { GOVERNANCE_EXCEPTIONS_PATH } from "@/lib/governance/governance-route-paths";
+import { GOVERNANCE_SETUP_HREF } from "@/lib/governance/governance-setup-route";
 import { EXECUTIVE_DASHBOARD_HREF } from "@/lib/executive/executive-dashboard-route";
 import { OPERATOR_NAV_LINK_LABELS } from "@/lib/i18n";
 import { PROVENANCE_HELP_TOPIC, pathIsRunProvenance } from "@/lib/provenance-evidence-copy";
@@ -165,6 +167,18 @@ const PAGE_HELP_TOPICS: readonly { prefix: string; topic: PageHelpTopic }[] = [
   { prefix: "/replay", topic: { slug: "comparison-replay", label: "Compare and replay" } },
   { prefix: "/internal/replay", topic: { slug: "comparison-replay", label: "Validate review" } },
   { prefix: "/governance/findings", topic: { slug: "governance-approval", label: OPERATOR_NAV_LINK_LABELS.findings } },
+  {
+    prefix: GOVERNANCE_SETUP_HREF,
+    topic: { slug: "governance-approval", label: OPERATOR_NAV_LINK_LABELS.governanceSetupGuide },
+  },
+  {
+    prefix: "/governance/recurrence-schedules",
+    topic: { slug: "digests", label: OPERATOR_NAV_LINK_LABELS.recurrenceSchedules },
+  },
+  {
+    prefix: GOVERNANCE_EXCEPTIONS_PATH,
+    topic: { slug: "governance-approval", label: OPERATOR_NAV_LINK_LABELS.riskExceptions },
+  },
   {
     prefix: "/governance/approval-queue",
     topic: { slug: "governance-approval", label: "Approval queue" },

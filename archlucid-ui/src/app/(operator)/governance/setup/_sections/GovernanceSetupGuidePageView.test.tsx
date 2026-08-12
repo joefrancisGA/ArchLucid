@@ -1,5 +1,5 @@
 import { render, screen } from "@testing-library/react";
-import { describe, expect, it } from "vitest";
+import { describe, expect, it, vi } from "vitest";
 
 import { GovernanceSetupGuidePageView } from "@/app/(operator)/governance/setup/_sections/GovernanceSetupGuidePageView";
 import {
@@ -11,6 +11,10 @@ import {
   GOVERNANCE_SETUP_PAGE_SUBTITLE,
 } from "@/lib/governance/governance-setup-route";
 import { GOVERNANCE_WORKSPACE_HEALTH_HREF } from "@/lib/governance/governance-route-paths";
+
+vi.mock("@/components/usability/PageContextualHelpButton", () => ({
+  PageContextualHelpButton: () => <div data-testid="page-contextual-help-button" />,
+}));
 
 describe("GovernanceSetupGuidePageView", () => {
   it("renders outcome-framed setup copy without implementation jargon", () => {
@@ -25,6 +29,7 @@ describe("GovernanceSetupGuidePageView", () => {
     );
 
     expect(screen.getByTestId("governance-setup-page-title")).toHaveTextContent("Governance setup");
+    expect(screen.getByTestId("page-contextual-help-button")).toBeInTheDocument();
     expect(screen.getByText(GOVERNANCE_SETUP_PAGE_SUBTITLE)).toBeInTheDocument();
     // TB-1135: no orphan program chip competing with the H1 product name.
     expect(screen.queryByText("First 30 days")).not.toBeInTheDocument();
