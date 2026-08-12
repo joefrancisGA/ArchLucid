@@ -1,16 +1,6 @@
 "use client";
 
-import {
-  AlertDialog,
-  AlertDialogAction,
-  AlertDialogCancel,
-  AlertDialogContent,
-  AlertDialogDescription,
-  AlertDialogFooter,
-  AlertDialogHeader,
-  AlertDialogTitle,
-} from "@/components/ui/alert-dialog";
-import { buttonVariants } from "@/components/ui/button";
+import { ConfirmationDialog } from "@/components/ConfirmationDialog";
 import { OPERATOR_TYPOGRAPHY } from "@/lib/design-tokens";
 import { cn } from "@/lib/utils";
 
@@ -27,30 +17,35 @@ type AwsConnectionDisconnectDialogProps = {
   readonly onConfirm: () => void;
 };
 
+function resolveDisconnectTitle(accountId: string): string {
+  if (accountId.length > 0) {
+    return `Disconnect AWS account ${accountId}?`;
+  }
+
+  return "Disconnect AWS account?";
+}
+
+/** Domain wrapper over {@link ConfirmationDialog} for AWS disconnect (TB-2371). */
 export function AwsConnectionDisconnectDialog(props: AwsConnectionDisconnectDialogProps): React.JSX.Element {
   const accountId = props.target?.accountId ?? "";
   const errorMessage = props.errorMessage ?? null;
 
   return (
-    <AlertDialog
+    <ConfirmationDialog
       open={props.target !== null}
       onOpenChange={(open) => {
-        if (!open) {
+        if (!open && !props.busy) {
           props.onCancel();
         }
       }}
-    >
-      <AlertDialogContent data-testid="aws-connection-disconnect-dialog">
-        <AlertDialogHeader>
-          <AlertDialogTitle className={OPERATOR_TYPOGRAPHY.sectionTitle}>
-            {accountId.length > 0 ? `Disconnect AWS account ${accountId}?` : "Disconnect AWS account?"}
-          </AlertDialogTitle>
-          <AlertDialogDescription className={cn(OPERATOR_TYPOGRAPHY.body, "text-al-text-secondary")}>
-            Scheduled read-only inventory collection for this AWS account will stop. Previously collected inventory
-            packages and any signed review records that cite them are retained.
-          </AlertDialogDescription>
-        </AlertDialogHeader>
-        {errorMessage !== null ? (
+      title={resolveDisconnectTitle(accountId)}
+      description="Scheduled read-only inventory collection for this AWS account will stop. Previously collected inventory packages and any signed review records that cite them are retained."
+      confirmLabel="Disconnect"
+      variant="destructive"
+      busy={props.busy}
+      onConfirm={props.onConfirm}
+      extraContent={
+        errorMessage !== null ? (
           <p
             className={cn(OPERATOR_TYPOGRAPHY.body, "text-red-600 dark:text-red-400")}
             role="alert"
@@ -58,24 +53,8 @@ export function AwsConnectionDisconnectDialog(props: AwsConnectionDisconnectDial
           >
             {errorMessage}
           </p>
-        ) : null}
-        <AlertDialogFooter>
-          <AlertDialogCancel disabled={props.busy} data-testid="aws-connection-disconnect-cancel">
-            Cancel
-          </AlertDialogCancel>
-          <AlertDialogAction
-            disabled={props.busy}
-            data-testid="aws-connection-disconnect-confirm"
-            className={cn(buttonVariants({ variant: "destructive" }))}
-            onClick={(event) => {
-              event.preventDefault();
-              props.onConfirm();
-            }}
-          >
-            Disconnect
-          </AlertDialogAction>
-        </AlertDialogFooter>
-      </AlertDialogContent>
-    </AlertDialog>
+        ) : null
+      }
+    />
   );
 }
