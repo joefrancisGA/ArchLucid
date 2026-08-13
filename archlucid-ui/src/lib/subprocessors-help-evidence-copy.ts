@@ -15,7 +15,7 @@ export const SUBPROCESSORS_HELP_SOURCES: readonly EvidenceSourceLink[] = [
   { label: "DPA template", href: inAppHelpHref("dpa-template") },
   { label: "Security and trust", href: inAppHelpHref("security-trust") },
   { label: "Data handling", href: inAppHelpHref("data-handling") },
-  { label: "Tenant isolation", href: inAppHelpHref("data-handling-tenant-isolation") },
+  { label: "Tenant isolation", href: inAppHelpHref("data-handling") },
   { label: "Procurement", href: inAppHelpHref("procurement") },
 ] as const;
 
