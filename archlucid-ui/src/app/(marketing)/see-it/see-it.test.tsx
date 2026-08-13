@@ -1,6 +1,11 @@
 import { render, screen } from "@testing-library/react";
 import { afterEach, describe, expect, it, vi } from "vitest";
 
+import { CLAIMS_INTAKE_SAMPLE_RUN_ID } from "@/lib/samples/claims-intake/definition";
+import {
+  CUSTOMER_INTAKE_BUYER_REVIEW_TITLE,
+  CUSTOMER_INTAKE_SAMPLE_RUN_ID,
+} from "@/lib/samples/customer-intake-modernization/definition";
 import type { DemoCommitPagePreviewResponse } from "@/types/demo-preview";
 
 import {
@@ -10,7 +15,7 @@ import {
 
 import { loadSeeItDemoPreview } from "./load-see-it-demo-preview";
 import { createMinimalDemoPreviewPayload } from "./see-it.fixtures";
-import { resolveSeeItDemoUniverse, seeItUniverseBannerTitle } from "./see-it-demo-universe";
+import { resolveSeeItDemoUniverse, seeItUniverseBannerTitleForPayload } from "./see-it-demo-universe";
 import { SeeItDeliverablePreview } from "./SeeItDeliverablePreview";
 import { SeeItMarketingBody } from "./SeeItMarketingBody";
 
@@ -20,12 +25,12 @@ describe("loadSeeItDemoPreview", () => {
     vi.restoreAllMocks();
   });
 
-  it("returns live payload when fetch returns Claims-universe 200 JSON (M-107 Option A)", async () => {
+  it("returns live payload when fetch returns primary showcase-universe 200 JSON (TB-981)", async () => {
     vi.stubEnv("NEXT_PUBLIC_DEMO_API_BASE", "https://demo-api.test");
 
     const livePayload = createMinimalDemoPreviewPayload();
     livePayload.run.runId = SHOWCASE_STATIC_DEMO_RUN_ID;
-    livePayload.run.description = "Claims Intake Modernization Review";
+    livePayload.run.description = CUSTOMER_INTAKE_BUYER_REVIEW_TITLE;
     const fetchFn = vi.fn().mockResolvedValue(
       new Response(JSON.stringify(livePayload), {
         status: 200,
@@ -36,7 +41,7 @@ describe("loadSeeItDemoPreview", () => {
     const result = await loadSeeItDemoPreview({
       fetchFn,
       readSnapshotFile: () => {
-        throw new Error("snapshot must not be read on Claims live success path");
+        throw new Error("snapshot must not be read on showcase live success path");
       },
     });
 
@@ -49,7 +54,7 @@ describe("loadSeeItDemoPreview", () => {
     );
   });
 
-  it("falls back to Claims snapshot when live payload is Contoso (M-107 Option A)", async () => {
+  it("falls back to showcase snapshot when live payload is Contoso (TB-981)", async () => {
     vi.stubEnv("NEXT_PUBLIC_DEMO_API_BASE", "https://demo-api.test");
 
     const livePayload = createMinimalDemoPreviewPayload();
@@ -58,7 +63,7 @@ describe("loadSeeItDemoPreview", () => {
 
     const snapshotPayload = createMinimalDemoPreviewPayload();
     snapshotPayload.run.runId = SHOWCASE_STATIC_DEMO_RUN_ID;
-    snapshotPayload.run.description = "Claims Intake Modernization Review";
+    snapshotPayload.run.description = CUSTOMER_INTAKE_BUYER_REVIEW_TITLE;
 
     const fetchFn = vi.fn().mockResolvedValue(
       new Response(JSON.stringify(livePayload), {
@@ -76,7 +81,7 @@ describe("loadSeeItDemoPreview", () => {
     expect(result.payload.run.runId).toBe(SHOWCASE_STATIC_DEMO_RUN_ID);
   });
 
-  it("falls back to Claims snapshot when live payload universe is unknown (M-107 Option A)", async () => {
+  it("falls back to showcase snapshot when live payload universe is unknown (TB-981)", async () => {
     vi.stubEnv("NEXT_PUBLIC_DEMO_API_BASE", "https://demo-api.test");
 
     const livePayload = createMinimalDemoPreviewPayload();
@@ -148,13 +153,23 @@ describe("loadSeeItDemoPreview", () => {
 });
 
 describe("resolveSeeItDemoUniverse", () => {
-  it("classifies Claims showcase run id as claims", () => {
+  it("classifies primary customer-intake showcase run id as claims universe", () => {
     const payload = createMinimalDemoPreviewPayload();
-    payload.run.runId = SHOWCASE_STATIC_DEMO_RUN_ID;
+    payload.run.runId = CUSTOMER_INTAKE_SAMPLE_RUN_ID;
+    payload.run.description = CUSTOMER_INTAKE_BUYER_REVIEW_TITLE;
+
+    expect(resolveSeeItDemoUniverse(payload)).toBe("claims");
+    expect(seeItUniverseBannerTitleForPayload(payload)).toContain("Enterprise customer intake");
+    expect(seeItUniverseBannerTitleForPayload(payload)).not.toMatch(/Healthcare claims/i);
+  });
+
+  it("classifies regulated Claims showcase run id with healthcare banner", () => {
+    const payload = createMinimalDemoPreviewPayload();
+    payload.run.runId = CLAIMS_INTAKE_SAMPLE_RUN_ID;
     payload.run.description = "Claims Intake Modernization Review";
 
     expect(resolveSeeItDemoUniverse(payload)).toBe("claims");
-    expect(seeItUniverseBannerTitle("claims")).toContain("Healthcare claims");
+    expect(seeItUniverseBannerTitleForPayload(payload)).toContain("Healthcare claims");
   });
 
   it("classifies Contoso Retail demo run id as contoso", () => {
@@ -167,7 +182,7 @@ describe("resolveSeeItDemoUniverse", () => {
 
   it("fails closed to unknown when Claims and Contoso signals collide", () => {
     const payload = createMinimalDemoPreviewPayload();
-    payload.run.runId = SHOWCASE_STATIC_DEMO_RUN_ID;
+    payload.run.runId = CUSTOMER_INTAKE_SAMPLE_RUN_ID;
     payload.run.description = "Contoso Retail claims intake hybrid";
 
     expect(resolveSeeItDemoUniverse(payload)).toBe("unknown");
@@ -211,9 +226,23 @@ describe("SeeItMarketingBody", () => {
     expect(screen.getByTestId("see-it-demo-banner-title")).not.toHaveTextContent(/Healthcare claims/i);
   });
 
-  it("shows Claims banner only when payload is Claims universe", () => {
+  it("shows customer-intake banner when payload is the primary showcase universe (TB-1029)", () => {
     const payload = createMinimalDemoPreviewPayload();
     payload.run.runId = SHOWCASE_STATIC_DEMO_RUN_ID;
+    payload.run.description = CUSTOMER_INTAKE_BUYER_REVIEW_TITLE;
+
+    render(<SeeItMarketingBody source="live" payload={payload} />);
+
+    expect(screen.getByTestId("see-it-demo-banner")).toHaveAttribute("data-see-it-universe", "claims");
+    expect(screen.getByTestId("see-it-demo-banner-title")).toHaveTextContent(
+      "Enterprise customer intake sample — public evaluation preview",
+    );
+    expect(screen.getByTestId("see-it-demo-banner-title")).not.toHaveTextContent(/Healthcare claims/i);
+  });
+
+  it("shows healthcare Claims banner only when payload is the regulated Claims showcase", () => {
+    const payload = createMinimalDemoPreviewPayload();
+    payload.run.runId = CLAIMS_INTAKE_SAMPLE_RUN_ID;
     payload.run.description = "Claims Intake Modernization Review";
 
     render(<SeeItMarketingBody source="live" payload={payload} />);
@@ -246,7 +275,7 @@ describe("SeeItMarketingBody", () => {
   it("normalizes the secondary CTA row to a single PDF outline action (TB-1282)", () => {
     const payload = createMinimalDemoPreviewPayload();
     payload.run.runId = SHOWCASE_STATIC_DEMO_RUN_ID;
-    payload.run.description = "Claims Intake Modernization Review";
+    payload.run.description = CUSTOMER_INTAKE_BUYER_REVIEW_TITLE;
 
     render(<SeeItMarketingBody source="live" payload={payload} />);
 
@@ -258,10 +287,10 @@ describe("SeeItMarketingBody", () => {
     expect(screen.queryByTestId("see-it-full-preview-link")).toBeNull();
   });
 
-  it("never deep-links Contoso /demo/preview from Claims /see-it (TB-1028 Option A)", () => {
+  it("never deep-links Contoso /demo/preview from primary /see-it (TB-1028 / TB-1029)", () => {
     const payload = createMinimalDemoPreviewPayload();
     payload.run.runId = SHOWCASE_STATIC_DEMO_RUN_ID;
-    payload.run.description = "Claims Intake Modernization Review";
+    payload.run.description = CUSTOMER_INTAKE_BUYER_REVIEW_TITLE;
 
     const { container } = render(<SeeItMarketingBody source="live" payload={payload} />);
 
@@ -272,7 +301,7 @@ describe("SeeItMarketingBody", () => {
 });
 
 describe("SeeItDeliverablePreview", () => {
-  it("links the visual proof stack to the Claims showcase", () => {
+  it("links the visual proof stack to the primary showcase (TB-1029)", () => {
     render(<SeeItDeliverablePreview />);
 
     expect(screen.getByTestId("see-it-deliverable-preview")).toHaveAttribute(
@@ -281,5 +310,6 @@ describe("SeeItDeliverablePreview", () => {
     );
     expect(screen.getByText(/Executive summary/i)).toBeInTheDocument();
     expect(screen.getByText(/Audit trail/i)).toBeInTheDocument();
+    expect(screen.queryByText(/Healthcare Claims/i)).toBeNull();
   });
 });

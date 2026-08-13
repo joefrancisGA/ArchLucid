@@ -10,32 +10,29 @@ Regenerate after opening or closing summary-table rows:
 | Architectural quality | Open |
 | --- | ---: |
 | Correctness | 1 |
-| Testability | 92 |
-| Reliability | 7 |
-| Deployability | 4 |
-| AI/Agent readiness | 12 |
-| Architectural integrity | 9 |
-| Adoption friction | 103 |
-| Commercial / marketability | 4 |
+| Testability | 65 |
+| Reliability | 6 |
+| Deployability | 3 |
+| AI/Agent readiness | 7 |
+| Architectural integrity | 5 |
+| Adoption friction | 96 |
+| Commercial / marketability | 2 |
 | Cutting-edge AI | 3 |
 | Explainability | 1 |
 | Trustworthiness | 35 |
-| Maintainability | 6 |
-| Traceability | 3 |
-| Interoperability | 4 |
+| Maintainability | 3 |
+| Interoperability | 2 |
 | Compliance readiness | 1 |
 | Performance | 5 |
-| Scalability | 1 |
 | Cost-effectiveness | 5 |
 | Code hygiene | 1 |
 | Stickiness | 1 |
 | Accessibility | 1 |
 | Differentiability | 3 |
-| Operability | 1 |
-| Other / uncategorized | 8 |
-| **Total (unique open)** | **314** |
+| Other / uncategorized | 7 |
+| **Total (unique open)** | **253** |
 
-**By priority band:** P0 **2** | P1 **207** | P2 **87** | P3 **9** | unlabeled **8**.
+**By priority band:** P0 **2** | P1 **148** | P2 **87** | P3 **9** | unlabeled **7**.
 
 <!-- tech-backlog-open-by-category:end -->
 
@@ -1344,7 +1341,7 @@ All **P0** **V1**: visible-boundary button contract + design-system rule (**TB-2
 | TB-1023 | **Done** (2026-08-12) ? Anti-pack-equals-certification / priorityFloor-blocks / SoD-on-commit honesty CI; see `## TB-1023` below | Testability P1 ? **V1**; after **TB-1022**; pairs **M-172** | S |
 | TB-1025 | Anti-artifact-mode-equals-stable / live-UI-verify honesty CI; see `## TB-1025` below | Testability P1 ? **V1**; after **TB-1024**; pairs **M-174** | S |
 | TB-1027 | Anti-finding-as-primary / dual-product-create-review honesty CI; see `## TB-1027` below | Testability P1 ? **V1**; after **TB-1026**; pairs **M-176** | S |
-| TB-1029 | Anti-see-it-Claims-banner-Contoso-payload honesty CI; see `## TB-1029` below | Testability P1 ? **V1**; after **TB-1028**; pairs **M-178** | S |
+| TB-1029 | **Done** (2026-08-12) ? Anti-see-it-Claims-banner-Contoso-payload honesty CI; `check_see_it_universe_honesty.py` + Vitest; see `## TB-1029` below | Testability P1 ? **V1**; after **TB-1028**; pairs **M-178** | S |
 | TB-1031 | Anti-15-min-product-led-without-spine / founder-narration-required honesty CI; see `## TB-1031` below | Testability P1 ? **V1**; after **TB-1030**; pairs **M-180** | S |
 | TB-1033 | Anti-replicas-fix-AOAI / launch-load-proven-without-drill honesty CI; see `## TB-1033` below | Testability P1 ? **V1**; after **TB-1032**; pairs **M-182** | S |
 | TB-1035 | Anti-dual-default-run-lifecycle / result-as-finalize / legacy-coordinator-storage honesty CI; see `## TB-1035` below | Testability P1 ? **V1**; after **TB-1034**; pairs **M-184** | S |
@@ -27597,7 +27594,7 @@ Plus visual regression: overview, technical index, one expanded object, one fiel
 
 **Window:** V1 ? Testability.
 
-**Status:** Not started.
+**Status:** **Done** (2026-08-12).
 
 **Priority:** P1.
 
@@ -27605,16 +27602,16 @@ Plus visual regression: overview, technical index, one expanded object, one fiel
 
 **Problem:** Welcome/`/see-it` copy and creatives can claim Healthcare Claims while the preview API/snapshot is Contoso; docs can imply anonymous preview is tenant-accurate; marketing can claim ?one demo story? while the primary funnel still mixes universes.
 
-**Approach:**
+**Shipped:**
 
-1. Doc/CI guard: fail WHAT_NOT_TO_PROMISE-adjacent / welcome/`see-it` stubs that pair Claims/healthcare sample language with Contoso preview/seed without **TB-1028** caveats.
-2. Require **TB-1028** (or ADR 0027 + universe match) near `/see-it` / ?30 seconds? / anonymous commit-preview language; fail claims that Option D / Contoso SQL rename is required before the **minimum** A/B funnel bar can ship.
-3. Optional: Vitest fixture asserting `SeeItMarketingBody` + sample Contoso runId does not keep Claims banner; Playwright on `/see-it` source badge vs title universe; Option A CTA not Contoso `/demo/preview`.
-4. Point Verification at test/script names; pair **M-178**.
+1. `scripts/ci/check_see_it_universe_honesty.py` ? fails Healthcare Claims primary chrome, `/demo/preview` deep links, and missing contract anchors on `/see-it` surfaces; wired into `run_buyer_surface_strict_guards.py`.
+2. `seeItUniverseBannerTitleForPayload` ? scenario-aware banner (customer-intake primary vs `claims-intake` regulated-depth) in `see-it-demo-universe.ts`; `SeeItDeliverablePreview` aligned to customer-intake (**TB-981**).
+3. `preferShowcaseStaticSnapshot` rename + contract refresh in `MARKETING_STATIC_VS_LIVE_DEMO_BOUNDARY_CONTRACT.md`.
+4. Vitest: `see-it.test.tsx` + `see-it-universe-honesty.test.ts`; Python unit tests `test_check_see_it_universe_honesty.py`.
 
-**Acceptance:** CI fails on dishonest Claims+Contoso `/see-it` mixes and ?must rename SQL before funnel honesty? overclaims; pairs **M-178**.
+**Acceptance:** Met ? CI fails on dishonest Claims+Contoso `/see-it` mixes and ?must rename SQL before funnel honesty? overclaims; pairs **M-178**.
 
-**Depends on:** **TB-1028**.
+**Depends on:** **TB-1028** (**Done**).
 
 **Out of scope:** Changing Product Tour seed content; SEO keyword strategy beyond honesty.
 

@@ -3,6 +3,10 @@ import Link from "next/link";
 import { SeverityTag } from "@/components/ui/severity-tag";
 import { StatusTag } from "@/components/ui/status-tag";
 import { MARKETING_MOTION, MARKETING_TYPOGRAPHY } from "@/lib/design-tokens";
+import {
+  CUSTOMER_INTAKE_BUYER_REVIEW_PACKAGE_TITLE,
+  CUSTOMER_INTAKE_PRIMARY_FINDING_TITLE,
+} from "@/lib/samples/customer-intake-modernization/definition";
 import { CANONICAL_ANONYMOUS_PROOF_HREF } from "@/lib/showcase-static-demo";
 import { cn } from "@/lib/utils";
 
@@ -36,7 +40,7 @@ const PREVIEW_LAYERS = [
 
 /**
  * Static deliverable stack for the `/see-it` hero — fills the empty marketing rail
- * with a show-don't-tell preview of the proof package (links to the Claims showcase).
+ * with a show-don't-tell preview of the proof package (links to the primary showcase).
  */
 export function SeeItDeliverablePreview(): React.JSX.Element {
   return (
@@ -49,12 +53,12 @@ export function SeeItDeliverablePreview(): React.JSX.Element {
         MARKETING_MOTION.heroVisual,
       )}
       data-testid="see-it-deliverable-preview"
-      aria-label="Open interactive sample review — preview of deliverables in the healthcare claims package"
+      aria-label="Open interactive sample review — preview of deliverables in the enterprise customer intake package"
     >
       <div className="border-b border-neutral-200 px-4 py-3 dark:border-neutral-800">
         <div className="flex flex-wrap items-center gap-2">
           <p className={cn("m-0 font-semibold text-al-text-primary", MARKETING_TYPOGRAPHY.cardTitle)}>
-            Healthcare Claims intake modernization
+            {CUSTOMER_INTAKE_BUYER_REVIEW_PACKAGE_TITLE}
           </p>
           <StatusTag kind="approved" className="px-2.5 py-1 text-sm font-semibold" />
         </div>
@@ -68,11 +72,11 @@ export function SeeItDeliverablePreview(): React.JSX.Element {
           <div className="flex flex-wrap items-center gap-2">
             <SeverityTag severity="high" />
             <p className={cn("m-0 font-semibold text-al-text-primary", MARKETING_TYPOGRAPHY.cardTitle)}>
-              Cross-region data residency gap
+              {CUSTOMER_INTAKE_PRIMARY_FINDING_TITLE}
             </p>
           </div>
           <p className={cn("m-0 mt-2 text-al-text-secondary", MARKETING_TYPOGRAPHY.body)}>
-            PHI processing region does not match the declared backup residency control.
+            Intake attachments may retain sensitive fields longer than the declared minimization policy allows.
           </p>
         </div>
 

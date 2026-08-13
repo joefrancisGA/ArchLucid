@@ -2,6 +2,7 @@ import {
   type DemoSampleUniverse,
   resolveDemoSampleUniverse,
 } from "@/lib/demo-sample-universe";
+import { resolveSampleScenarioByRunId } from "@/lib/samples/registry";
 import type { DemoCommitPagePreviewResponse } from "@/types/demo-preview";
 
 export type SeeItDemoUniverse = DemoSampleUniverse;
@@ -20,19 +21,23 @@ export function resolveSeeItDemoUniverse(payload: DemoCommitPagePreviewResponse)
   });
 }
 
-/** Banner title must match the classified universe — never hardcode Claims over an unmatched body. */
-export function seeItUniverseBannerTitle(universe: SeeItDemoUniverse): string {
-  switch (universe) {
-    case "claims":
-      return "Healthcare claims sample — public evaluation preview";
-    case "contoso":
-      return "Retail baseline sample — public evaluation preview";
-    case "unknown":
-      return "Public sample preview";
-    default: {
-      const _exhaustive: never = universe;
+/** Banner title must match the classified universe and resolved sample scenario (TB-1279 / TB-1029). */
+export function seeItUniverseBannerTitleForPayload(payload: DemoCommitPagePreviewResponse): string {
+  const universe = resolveSeeItDemoUniverse(payload);
 
-      return _exhaustive;
-    }
+  if (universe === "contoso") {
+    return "Retail baseline sample — public evaluation preview";
   }
+
+  if (universe === "unknown") {
+    return "Public sample preview";
+  }
+
+  const scenario = resolveSampleScenarioByRunId(payload.run?.runId);
+
+  if (scenario?.slug === "claims-intake") {
+    return "Healthcare claims sample — public evaluation preview";
+  }
+
+  return "Enterprise customer intake sample — public evaluation preview";
 }

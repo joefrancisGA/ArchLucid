@@ -13,16 +13,14 @@ import {
   SEE_IT_MARKETING_PDF_HREF,
 } from "@/lib/see-it-page-copy";
 import { policyPackBuyerLabel } from "@/lib/policy/policy-pack-buyer-label";
-import {
-  SHOWCASE_BUYER_REVIEW_TITLE,
-} from "@/lib/showcase-static-demo";
+import { resolveSampleScenarioByRunId } from "@/lib/samples/registry";
 import { cn } from "@/lib/utils";
 import type { DemoCommitPagePreviewResponse } from "@/types/demo-preview";
 
 import { SeeItKeyDeliverables } from "./SeeItKeyDeliverables";
 import { SeeItPackageSummary } from "./SeeItPackageSummary";
 import type { SeeItPreviewSource } from "./load-see-it-demo-preview";
-import { resolveSeeItDemoUniverse, seeItUniverseBannerTitle } from "./see-it-demo-universe";
+import { resolveSeeItDemoUniverse, seeItUniverseBannerTitleForPayload } from "./see-it-demo-universe";
 
 export type SeeItMarketingBodyProps = {
   source: SeeItPreviewSource;
@@ -54,12 +52,13 @@ export function SeeItMarketingBody({ source, payload }: SeeItMarketingBodyProps)
   const findingCountDisplay = formatCount(runExplanation?.findingCount);
   const complianceGapDisplay = formatCount(runExplanation?.complianceGapCount);
   const universe = resolveSeeItDemoUniverse(payload);
-  const bannerTitle = seeItUniverseBannerTitle(universe);
+  const bannerTitle = seeItUniverseBannerTitleForPayload(payload);
   const description = (payload.run?.description ?? "").trim();
+  const scenario = resolveSampleScenarioByRunId(payload.run?.runId);
   // Review title follows the same fail-closed universe as the banner (TB-1279) — never Claims title on unknown/Contoso.
   const reviewTitle =
-    universe === "claims"
-      ? SHOWCASE_BUYER_REVIEW_TITLE
+    universe === "claims" && scenario !== null
+      ? scenario.buyerReviewTitle
       : description.length > 0
         ? description
         : "Architecture review";

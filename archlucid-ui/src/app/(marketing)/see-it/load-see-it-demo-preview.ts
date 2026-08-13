@@ -74,10 +74,10 @@ function tryReadOptionalEtagFromPublic(): string | undefined {
 }
 
 /**
- * M-107 Option A: `/see-it` stays Claims-static. Contoso (or unknown) live payloads fall back to the
- * checked-in Claims snapshot so welcome→see-it never mixes Contoso under Claims chrome.
+ * TB-981 / M-107: `/see-it` stays showcase-static. Contoso (or unknown) live payloads fall back to the
+ * checked-in primary showcase snapshot so welcome→see-it never mixes Contoso under mismatched chrome.
  */
-function preferClaimsStaticSnapshot(
+function preferShowcaseStaticSnapshot(
   live: SeeItLoadResult,
   readSnapshot: () => DemoCommitPagePreviewResponse,
 ): SeeItLoadResult {
@@ -94,8 +94,8 @@ function preferClaimsStaticSnapshot(
 
 /**
  * Fetches `GET /v1/demo/preview` (rate limiting applies on the API host; single request, no auth).
- * On non-2xx, timeout, network error, empty base, or Contoso/unknown live payload (M-107 Option A):
- * returns the checked-in Claims snapshot from `public/demo-preview-snapshot.json`.
+ * On non-2xx, timeout, network error, empty base, or Contoso/unknown live payload (TB-981 showcase-static):
+ * returns the checked-in primary showcase snapshot from `public/demo-preview-snapshot.json`.
  */
 export async function loadSeeItDemoPreview(options?: LoadSeeItDemoPreviewOptions): Promise<SeeItLoadResult> {
   const fetchFn = options?.fetchFn ?? ((input: RequestInfo | URL, init?: SeeItFetchInit) => fetch(input, init));
@@ -130,7 +130,7 @@ export async function loadSeeItDemoPreview(options?: LoadSeeItDemoPreviewOptions
     const etag = response.headers.get("ETag")?.trim() ?? undefined;
     const payload = (await response.json()) as DemoCommitPagePreviewResponse;
 
-    return preferClaimsStaticSnapshot({ source: "live", etag, payload }, readSnapshot);
+    return preferShowcaseStaticSnapshot({ source: "live", etag, payload }, readSnapshot);
   } catch {
     return { source: "snapshot", payload: readSnapshot() };
   }
