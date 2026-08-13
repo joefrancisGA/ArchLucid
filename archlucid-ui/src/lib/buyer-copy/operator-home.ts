@@ -52,7 +52,8 @@ export const OPERATOR_HOME_GUIDED_REVIEW_EXAMPLE_BODY =
 export const OPERATOR_HOME_COMMAND_CENTER_TAGLINE =
   "Create architecture drafts, govern AI-assisted reviews, track evidence, and produce auditable decisions your organization can trust.";
 
-export const OPERATOR_HOME_INTENT_CHOOSER_HEADING = "Start the architecture review lifecycle";
+/** ADR 0067 — names both co-equal jobs; must not imply one precedes the other. */
+export const OPERATOR_HOME_INTENT_CHOOSER_HEADING = "Create or review an architecture";
 
 export const OPERATOR_HOME_CONTINUE_ARCHITECTURE_HEADING = "Continue your architecture";
 
@@ -116,24 +117,27 @@ export const OPERATOR_HOME_CONTACT_WORKSPACE_OWNER_HINT = "Contact the workspace
 
 export const OPERATOR_HOME_COMPACT_STARTING_ACTIONS_HEADING = "Start another review";
 
-/** Bold lead label on Overview subtitle (buyer-polished shell). */
-export const OPERATOR_HOME_ARCHITECTURE_LIFECYCLE_INTRO_LABEL = "One lifecycle:";
+/**
+ * Bold lead label on Overview subtitle (buyer-polished shell).
+ * ADR 0067 — the pair is co-equal, so this lead must not number the paths or rank one above the other.
+ */
+export const OPERATOR_HOME_ARCHITECTURE_LIFECYCLE_INTRO_LABEL = "Two ways in:";
 
 export const OPERATOR_HOME_ARCHITECTURE_LIFECYCLE_INTRO_BODY =
-  "Describe, upload evidence, or connect live cloud inventory—then run a governed review, the durable work item.";
+  "Create an architecture from a description, uploaded evidence, or connected cloud inventory—or review an architecture you already have.";
 
 export const OPERATOR_HOME_ARCHITECTURE_LIFECYCLE_INTRO =
   `${OPERATOR_HOME_ARCHITECTURE_LIFECYCLE_INTRO_LABEL} ${OPERATOR_HOME_ARCHITECTURE_LIFECYCLE_INTRO_BODY}`;
 
-export const OPERATOR_HOME_CREATE_ARCHITECTURE_CARD_TITLE = "Step 1 — Describe, import, or connect";
+export const OPERATOR_HOME_CREATE_ARCHITECTURE_CARD_TITLE = "Create architecture";
 
 export const OPERATOR_HOME_CREATE_ARCHITECTURE_CARD_BODY =
-  "Start from an architecture draft, uploaded briefs and diagrams, or read-only cloud inventory from Azure, AWS, or Google Cloud. Saving a draft does not start a review.";
+  "Describe a new architecture, upload briefs and diagrams, or connect read-only cloud inventory from Azure, AWS, or Google Cloud. It produces an architecture draft you can revise, then review when ready.";
 
-export const OPERATOR_HOME_REVIEW_ARCHITECTURE_CARD_TITLE = "Step 2 — Run a governed review";
+export const OPERATOR_HOME_REVIEW_ARCHITECTURE_CARD_TITLE = "Review architecture";
 
 export const OPERATOR_HOME_REVIEW_ARCHITECTURE_CARD_BODY =
-  "Attach architecture information you already have—diagrams, documents, inventory exports, or connected cloud evidence—then start the governed review.";
+  "Attach architecture information you already have—diagrams, documents, inventory exports, or connected cloud evidence. It produces findings and evidence you can finalize into a signed review record.";
 
 /** @deprecated Merged into {@link OPERATOR_HOME_REVIEW_ARCHITECTURE_CARD_BODY} on the home review card. */
 export const OPERATOR_HOME_REVIEW_ARCHITECTURE_SUPPORT = OPERATOR_HOME_REVIEW_ARCHITECTURE_CARD_BODY;
@@ -304,7 +308,7 @@ export const OPERATOR_HOME_INVITE_COLLABORATORS_BODY =
 
 export const OPERATOR_HOME_SETUP_NEXT_OPEN_GUIDE = "Open the first review guide.";
 
-export const OPERATOR_HOME_SETUP_NEXT_CHOOSE_PATH = "Continue the architecture review lifecycle.";
+export const OPERATOR_HOME_SETUP_NEXT_CHOOSE_PATH = "Create an architecture or start a review.";
 
 export const OPERATOR_HOME_EXAMPLES_AND_LEARNING_HEADING = "Examples and learning";
 

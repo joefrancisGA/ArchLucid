@@ -6,9 +6,12 @@ export const REVIEWS_HUB_PAGE_TITLE = "Reviews";
 export const REVIEWS_HUB_PAGE_SUBTITLE =
   "Create, refine, evaluate, and approve architecture reviews.";
 
-/** Extra orientation for empty inventory — kept out of the page subtitle for density. */
-export const REVIEWS_HUB_DURABLE_WORK_ITEM_HINT =
-  "Describe or import an architecture in the review flow — the review remains the durable work item.";
+/**
+ * Extra orientation for empty inventory — kept out of the page subtitle for density.
+ * ADR 0067 — states what the review path accepts without ranking it above Create architecture.
+ */
+export const REVIEWS_HUB_ARCHITECTURE_INPUT_HINT =
+  "Describe or import an architecture here, or start from an architecture draft you already created.";
 
 export const REVIEWS_HUB_MORE_WAYS_TITLE = "Samples and what a review includes";
 
@@ -62,7 +65,7 @@ export const REVIEWS_HUB_COMPARE_HINT = "Compare changes between finalized revie
 export const REVIEWS_HUB_RECENT_EMPTY_TITLE = "No reviews yet";
 
 export const REVIEWS_HUB_RECENT_EMPTY_BODY =
-  `Architecture reviews are where findings, evidence, approvals, and governance decisions are recorded. ${REVIEWS_HUB_DURABLE_WORK_ITEM_HINT}`;
+  `Architecture reviews are where findings, evidence, approvals, and governance decisions are recorded. ${REVIEWS_HUB_ARCHITECTURE_INPUT_HINT}`;
 
 export const REVIEWS_HUB_RECENT_EMPTY_PRIMARY_LABEL = BUYER_START_ARCHITECTURE_REVIEW_CTA;
 

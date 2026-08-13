@@ -62,6 +62,7 @@ Short, durable decisions for ArchLucid. Each file is **immutable** once accepted
 | [0061](0061-ddos-protection-posture-v1.md) | DDoS protection posture for V1 — Front Door platform DDoS; defer Network Protection (~$2,944/mo) until revisit triggers (**Status: Accepted** 2026-07-21; TB-908) |
 | [0064](0064-buyer-vocabulary-api-and-schema-alignment.md) | Buyer-vocabulary API + spine SQL rename on **v1** (no v2) — review/finalize/signed-review-record (**Status: Accepted** 2026-08-05) |
 | [0065](0065-curated-multi-engine-model-catalog.md) | Multi-engine model catalog — informed user choice with evaluation evidence **attached not gating**, fail-closed capability ladder + data boundary, two-tier selection authority; **supersedes ADR 0060 D1** (**Status: Accepted** 2026-08-07; TB-2103–TB-2110) |
+| [0067](0067-create-architecture-and-review-co-equal-entry-points.md) | **Create architecture** and **Review** as co-equal entry points — no ordinal/funnel framing on the pair, symmetric CTA-inventory guard coverage; parity of entry points **not** of artifacts (**Status: Accepted** 2026-08-12) |
 | [**Template (strict sections)**](template.md) | **MUST** include Trade-offs, Constraints, Expected |
 | [**Template (full skeleton)**](adr-template-full.md) | Longer skeleton for new numbered ADRs *(not an ADR)* |
 
