@@ -254,7 +254,7 @@ async function forwardMutatingWithBody(
     });
   }
 
-  return passThrough(res);
+  return await passThrough(res);
 }
 
 /** Forwards GET/POST/PUT/PATCH/DELETE after applying rate limits, sandbox mocks, and upstream config validation. */
@@ -361,7 +361,7 @@ async function forward(
       });
     }
 
-    return passThrough(res);
+    return await passThrough(res);
   }
 
   let res: Response;
@@ -430,7 +430,7 @@ async function forward(
     });
   }
 
-  return passThrough(res, authMePrivateCacheSeconds);
+  return await passThrough(res, authMePrivateCacheSeconds);
 }
 
 /** HTTP statuses that must not carry a body (undici/Next throw if a stream is attached). */
@@ -442,10 +442,25 @@ function isNullBodyStatus(status: number): boolean {
  * Passes the upstream response body and key headers (Content-Type, Content-Disposition) to the browser.
  * Optional **private** cache hints apply only to successful GET responses when callers opt in (e.g. `/api/auth/me`).
  */
-function passThrough(res: Response, cacheControlPrivateMaxAgeSeconds?: number): NextResponse {
+async function passThrough(res: Response, cacheControlPrivateMaxAgeSeconds?: number): Promise<NextResponse> {
+  let body: BodyInit | null;
+
+  if (isNullBodyStatus(res.status)) {
+    body = null;
+  } else {
+    const contentType = res.headers.get("content-type") ?? "";
+
+    if (res.ok && contentType.includes("application/json")) {
+      const text = await res.text();
+      body = text.trim().length === 0 ? "{}" : text;
+    } else {
+      body = res.body;
+    }
+  }
+
   // Upstream 204 (e.g. marketing quote-request) may expose an empty ReadableStream; attaching it
   // to NextResponse throws and surfaces as 500 to the browser form.
-  const out = new NextResponse(isNullBodyStatus(res.status) ? null : res.body, { status: res.status });
+  const out = new NextResponse(body, { status: res.status });
 
   const contentType = res.headers.get("content-type");
 

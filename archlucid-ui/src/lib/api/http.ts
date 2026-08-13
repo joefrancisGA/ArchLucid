@@ -10,6 +10,7 @@ import { ensureAccessTokenFresh, getAccessTokenForApi } from "@/lib/oidc/session
 import { getEffectiveBrowserProxyScopeHeaders } from "@/lib/operator/operator-scope-storage";
 import { getScopeHeaders } from "@/lib/scope";
 import { SERVER_UPSTREAM_FETCH_TIMEOUT_MS } from "@/lib/server-fetch-timeouts";
+import { tryParseJsonResponseText } from "@/lib/parse-json-response-text";
 import { trySandboxMockJsonForApiGet } from "@/lib/sandbox-api-mocks";
 import { fetchWithWarmupRetry } from "@/lib/warmup-retry";
 
@@ -250,7 +251,13 @@ export async function apiGetJsonWithTrace<T>(
     throwApiRequestError(response, text, correlationId);
   }
 
-  return { data: JSON.parse(text) as T, traceId };
+  const parsed = tryParseJsonResponseText<T>(text);
+
+  if (parsed === null) {
+    throwApiRequestError(response, text, correlationId);
+  }
+
+  return { data: parsed, traceId };
 }
 
 /** GETs JSON from the ArchLucid API. Throws {@link ApiRequestError} on HTTP errors. */
