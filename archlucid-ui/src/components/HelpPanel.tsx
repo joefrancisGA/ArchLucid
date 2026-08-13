@@ -26,6 +26,7 @@ import {
 } from "@/lib/shortcut-registry";
 import { corePilotHelpStepForPath } from "@/lib/core-pilot-help-step-for-path";
 import { CORE_PILOT_STEPS } from "@/lib/core-pilot-steps";
+import { FIRST_ARCHITECTURE_REVIEW_PAGE_TITLE } from "@/lib/first-architecture-review-help-copy";
 import {
   getDocHref,
   getHelpTopicHref,
@@ -210,7 +211,7 @@ export function HelpPanel({ open, onOpenChange, initialTab = "guides" }: HelpPan
     return (
       <div className="rounded-md border border-neutral-200 bg-al-surface-raised p-3 dark:border-neutral-800">
         <h3 className={cn("m-0 font-semibold text-teal-900 dark:text-teal-200", OPERATOR_NAV_GROUP_LABEL)}>
-          Core Pilot — suggested next step
+          {FIRST_ARCHITECTURE_REVIEW_PAGE_TITLE} — suggested next step
         </h3>
         <p className={cn("m-0 mt-2 font-medium text-neutral-900 dark:text-neutral-100", OPERATOR_TYPOGRAPHY.body)}>
           Step {pilotCtx.stepIndex + 1} of {CORE_PILOT_STEPS.length}: {pilotCtx.step.title}
@@ -226,7 +227,7 @@ export function HelpPanel({ open, onOpenChange, initialTab = "guides" }: HelpPan
             {corePilotGuideHref ? (
               <Button asChild size="sm" variant="outline">
                 <Link href={corePilotGuideHref} onClick={() => onOpenChange(false)}>
-                  Open Core Pilot guide
+                  {FIRST_ARCHITECTURE_REVIEW_PAGE_TITLE}
                 </Link>
               </Button>
             ) : null}

@@ -16,6 +16,7 @@ import {
   type CorePilotCommitProgressState,
 } from "@/lib/core-pilot-commit-progress";
 import { EXECUTIVE_DASHBOARD_HREF } from "@/lib/executive-dashboard-route";
+import { FIRST_ARCHITECTURE_REVIEW_PAGE_TITLE } from "@/lib/first-architecture-review-help-copy";
 import { GOVERNANCE_WORKSPACE_HEALTH_HREF } from "@/lib/governance/governance-route-paths";
 import { OPERATOR_HOME_DISCLOSURE_STORAGE_KEYS } from "@/lib/operator/operator-home-disclosure-storage";
 import { OPERATOR_START_REVIEW_QUICK_ACTION_LABEL } from "@/lib/operator/operator-nav-labels";
@@ -235,7 +236,7 @@ function RescueLink() {
         Help
       </Link>
       {" "}or use the{" "}
-      <InAppHelpLink helpSlug="first-architecture-review" label="Core Pilot guide" variant="text" />
+      <InAppHelpLink helpSlug="first-architecture-review" label={FIRST_ARCHITECTURE_REVIEW_PAGE_TITLE} variant="text" />
     </p>
   );
 }
@@ -353,7 +354,11 @@ export function CorePilotNextStepsCard() {
           firstCommittedRunId={firstCommittedRunId}
           latestRunReadyToFinalize={latestRunReadyToFinalize}
         />
-        <OperatorHomeGuidanceLink helpSlug="first-architecture-review" label="Open Core Pilot guide" className="mb-2 inline-block" />
+        <OperatorHomeGuidanceLink
+          helpSlug="first-architecture-review"
+          label={FIRST_ARCHITECTURE_REVIEW_PAGE_TITLE}
+          className="mb-2 inline-block"
+        />
 
         {latestRunId !== null ? <RunIdNote runId={latestRunId} /> : null}
 
@@ -417,7 +422,11 @@ export function CorePilotNextStepsCard() {
         firstCommittedRunId={firstCommittedRunId}
         latestRunReadyToFinalize={latestRunReadyToFinalize}
       />
-      <OperatorHomeGuidanceLink helpSlug="first-architecture-review" label="Open Core Pilot guide" className="mb-2 inline-block" />
+      <OperatorHomeGuidanceLink
+        helpSlug="first-architecture-review"
+        label={FIRST_ARCHITECTURE_REVIEW_PAGE_TITLE}
+        className="mb-2 inline-block"
+      />
 
       <ol className={cn("m-0 mt-0 list-none space-y-2 p-0 text-neutral-800 dark:text-neutral-200", OPERATOR_TYPOGRAPHY.body)}>
         <li className="flex items-start gap-2" aria-label="Step 1 active">
