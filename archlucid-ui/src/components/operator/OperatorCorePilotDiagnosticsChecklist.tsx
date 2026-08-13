@@ -17,7 +17,6 @@ import {
   getCorePilotChecklistStorageSnapshot,
   subscribeCorePilotChecklist,
 } from "@/lib/core-pilot-checklist-storage";
-import type { OperatorTaskSuccessRates } from "@/lib/fetch-operator-task-success-rates";
 import {
   CORE_PILOT_ADVANCED_TOOLS_DEFERRAL_NOTE,
   CORE_PILOT_FIRST_SESSION_GUIDANCE_BULLETS,
