@@ -98,6 +98,45 @@ const REQUIRED_CHECKS: Readonly<
             },
           ],
   ],
+  "alert-rules-rules-tab": [
+    (source) =>
+      /hasAlertRulesLivePreviewPinContent/.test(source)
+      && /pinLivePreviewRail = shouldPinLivePreviewReadinessRail/.test(source)
+        ? []
+        : [
+            {
+              code: "always-on-readiness-rail",
+              message: "Alert rules must pin preview/readiness only via pinLivePreviewRail policy.",
+            },
+          ],
+    (source) =>
+      /data-empty-intro=\{/.test(source)
+        ? []
+        : [
+            {
+              code: "missing-empty-composition-marker",
+              message: "Alert rules empty intro must expose data-empty-intro on the layout root.",
+            },
+          ],
+    (source) =>
+      /EnterpriseCompactEmptyState/.test(source)
+        ? []
+        : [
+            {
+              code: "missing-compact-empty",
+              message: "Alert rules empty list must use EnterpriseCompactEmptyState.",
+            },
+          ],
+    (source) =>
+      /sectionGap = pinLivePreviewRail \? "gap-8" : "gap-4"/.test(source)
+        ? []
+        : [
+            {
+              code: "empty-gap-8",
+              message: "Alert rules must use gap-4 unless the live preview rail is pinned.",
+            },
+          ],
+  ],
 };
 
 export function findOperatorEmptyFormRailWhitespaceViolations(

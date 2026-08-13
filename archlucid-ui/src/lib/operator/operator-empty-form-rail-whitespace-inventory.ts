@@ -38,8 +38,8 @@ export const OPERATOR_EMPTY_FORM_RAIL_WHITESPACE_INVENTORY: readonly OperatorEmp
     {
       id: "alert-rules-rules-tab",
       modulePaths: ["components/alerts/AlertRulesContent.tsx"],
-      migrated: false,
-      notes: "Open **TB-1479** — empty Rules tab still stacks list+create+preview voids.",
+      migrated: true,
+      notes: "Done **TB-1479** / **TB-1574** — compact empty + create form; preview/readiness rail pins only when draft or rules exist.",
     },
     {
       id: "digests-browse",
