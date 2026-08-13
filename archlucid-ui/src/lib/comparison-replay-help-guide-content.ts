@@ -21,6 +21,13 @@ export const COMPARISON_REPLAY_HELP_PRIMARY_ACTIONS = {
 
 export const COMPARISON_REPLAY_HELP_DECISION_PANEL_TITLE = "Choose your next step" as const;
 
+/** TB-1639 — first-viewport compare vs replay job chrome before deferred markdown detail. */
+export const COMPARISON_REPLAY_HELP_FIRST_VIEWPORT_TEST_ID = "help-comparison-replay-first-viewport";
+
+export const COMPARISON_REPLAY_HELP_DECISION_PANEL_TEST_ID = "help-comparison-replay-decision-panel";
+
+export const COMPARISON_REPLAY_HELP_DEFERRED_JOB_DETAIL_HEADING = "## When to compare";
+
 export const COMPARISON_REPLAY_HELP_DECISION_COMPARE = {
   title: "Compare two reviews",
   summary:

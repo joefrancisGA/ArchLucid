@@ -29,8 +29,12 @@ import {
   COMPARISON_REPLAY_HELP_JOB_MATRIX_TEST_ID,
 } from "@/lib/compare-repeat-review-help-ia-dual";
 import {
+  COMPARISON_REPLAY_HELP_DECISION_COMPARE,
+  COMPARISON_REPLAY_HELP_DECISION_PANEL_TEST_ID,
+  COMPARISON_REPLAY_HELP_DECISION_VALIDATE,
   COMPARISON_REPLAY_HELP_DIAGRAM_ACCESSIBLE_NAME,
   COMPARISON_REPLAY_HELP_DIAGRAM_TEXT_ALTERNATIVE,
+  COMPARISON_REPLAY_HELP_FIRST_VIEWPORT_TEST_ID,
   COMPARISON_REPLAY_HELP_PRIMARY_ACTIONS,
 } from "@/lib/comparison-replay-help-guide-content";
 import { REPEAT_REVIEW_LOOP_HELP_PAGE_TITLE } from "@/lib/repeat-review-loop-help-guide-content";
@@ -83,6 +87,36 @@ describe("HelpTopicComparisonReplay (CO)", () => {
       `Open ${OPERATOR_NAV_LINK_LABELS.replayReview}`,
     );
     expect(OPERATOR_NAV_LINK_LABELS.replayReview).toBe("Validate review");
+  });
+
+  it("forces compare vs replay job chrome above deferred markdown detail (TB-1639)", () => {
+    if (loaded === null) {
+      throw new Error("Expected comparison-replay documentation to load.");
+    }
+
+    demoEnv.isDemoStrictNavigationRedirectsActive.mockReturnValue(false);
+
+    render(<HelpComparisonReplayGuideView entry={loaded.entry} markdown={loaded.markdown} />);
+
+    const firstViewport = screen.getByTestId(COMPARISON_REPLAY_HELP_FIRST_VIEWPORT_TEST_ID);
+
+    expect(within(firstViewport).getByTestId(COMPARISON_REPLAY_HELP_DECISION_PANEL_TEST_ID)).toBeInTheDocument();
+    expect(
+      within(firstViewport).getByRole("heading", { name: COMPARISON_REPLAY_HELP_DECISION_COMPARE.title }),
+    ).toBeInTheDocument();
+    expect(
+      within(firstViewport).getByRole("heading", { name: COMPARISON_REPLAY_HELP_DECISION_VALIDATE.title }),
+    ).toBeInTheDocument();
+    expect(within(firstViewport).getByTestId("help-comparison-replay-decision-diagram-panel")).toBeInTheDocument();
+
+    const decisionPanel = screen.getByTestId(COMPARISON_REPLAY_HELP_DECISION_PANEL_TEST_ID);
+    const whenToCompare = screen.getByRole("heading", { name: "When to compare" });
+
+    expect(decisionPanel.compareDocumentPosition(whenToCompare) & Node.DOCUMENT_POSITION_FOLLOWING).toBeTruthy();
+
+    const jobMatrix = screen.getByTestId(COMPARISON_REPLAY_HELP_JOB_MATRIX_TEST_ID);
+
+    expect(decisionPanel.compareDocumentPosition(jobMatrix) & Node.DOCUMENT_POSITION_FOLLOWING).toBeTruthy();
   });
 
   it("renders primary actions, provenance, evidence strip, and visible decision diagram", () => {
