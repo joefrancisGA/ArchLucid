@@ -2,7 +2,9 @@
 
 import { cn } from "@/lib/utils";
 import Link from "next/link";
-import { useEffect, useState } from "react";
+import { useMemo } from "react";
+
+import { useAskProjectRunsQuery } from "@/hooks/use-ask-project-runs-query";
 
 import { Card, CardContent, CardDescription, CardHeader, CardTitle } from "@/components/ui/card";
 import { Button } from "@/components/ui/button";
@@ -15,7 +17,6 @@ import { EXECUTIVE_DASHBOARD_HREF } from "@/lib/executive-dashboard-route";
 import { OPERATOR_TYPOGRAPHY } from "@/lib/design-tokens";
 import { isExplicitStaticDemoMarketingBuild } from "@/lib/buyer/buyer-demo-content-gating";
 import { filterCommittedRunsForPicker } from "@/lib/committed-run-picker";
-import { loadProjectRunsMergedWithDemoFallback } from "@/lib/operator/operator-run-picker-client";
 
 type SponsorDocxTarget = {
   readonly runId: string;
@@ -105,28 +106,21 @@ export function SponsorExportsSection({
   const executiveSurface = surface === "executive";
   const v = BUYER_EXECUTIVE_SUMMARY_VOCABULARY;
   const exportsLocked = !hasCommittedReviews;
-  const [sponsorDocx, setSponsorDocx] = useState<SponsorDocxTarget | null>(null);
+  const runsQuery = useAskProjectRunsQuery("default", {
+    committedOnly: true,
+    mergeDemoOnEmpty: isExplicitStaticDemoMarketingBuild(),
+  });
 
-  useEffect(() => {
-    let canceled = false;
+  const sponsorDocx = useMemo((): SponsorDocxTarget | null => {
+    if (runsQuery.data === undefined) {
+      return null;
+    }
 
-    void (async () => {
-      const { items } = await loadProjectRunsMergedWithDemoFallback("default", {
-        committedOnly: true,
-        mergeDemoOnEmpty: isExplicitStaticDemoMarketingBuild(),
-      });
-      const committed = filterCommittedRunsForPicker(items);
-      const first = committed[0];
+    const committed = filterCommittedRunsForPicker(runsQuery.data.items);
+    const first = committed[0];
 
-      if (first !== undefined && !canceled) {
-        setSponsorDocx({ runId: first.runId });
-      }
-    })();
-
-    return () => {
-      canceled = true;
-    };
-  }, []);
+    return first !== undefined ? { runId: first.runId } : null;
+  }, [runsQuery.data]);
 
   return (
     <section
