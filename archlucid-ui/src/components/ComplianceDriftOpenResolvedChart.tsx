@@ -93,7 +93,7 @@ function OpenResolvedStackedBars(props: {
         const stackPx = stack === 0 ? 0 : Math.max(2, (stack / maxStack) * barMaxPx);
         const openPx = stack === 0 ? 0 : (point.openCount / stack) * stackPx;
         const resolvedPx = stackPx - openPx;
-        const title = `Opened ${point.openCount}, resolved ${point.resolvedCount}`;
+        const barAriaLabel = `Opened ${point.openCount}, resolved ${point.resolvedCount}`;
 
         return (
           <div
@@ -103,7 +103,8 @@ function OpenResolvedStackedBars(props: {
             <div
               className="flex w-full max-w-[2rem] flex-col justify-end overflow-hidden rounded-t"
               style={{ height: stackPx }}
-              title={title}
+              tabIndex={0}
+              aria-label={barAriaLabel}
             >
               {resolvedPx > 0 ? (
                 <div className="w-full bg-teal-700/90 dark:bg-teal-500/90" style={{ height: resolvedPx }} />
