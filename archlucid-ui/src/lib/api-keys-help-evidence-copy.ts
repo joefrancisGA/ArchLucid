@@ -1,26 +1,16 @@
 import type { EvidenceSourceLink } from "@/lib/evidence-surface-copy";
-import {
-  API_KEYS_OPERATOR_CANONICAL_PATH,
-  API_KEYS_SETTINGS_CLAIM_DISCIPLINE,
-  API_KEYS_SETTINGS_SOURCES_INTRO,
-} from "@/lib/api-keys-settings-evidence-copy";
+import { API_KEYS_SETTINGS_SOURCES } from "@/lib/api-keys-settings-evidence-copy";
+import { HELP_DILIGENCE_ARTIFACT_INDEX_TITLE } from "@/lib/help/help-diligence-artifact-index";
 
 export const API_KEYS_HELP_CANONICAL_PATH = "/help/api-keys" as const;
 
 export const API_KEYS_HELP_CLAIM_DISCIPLINE =
-  "This guide explains workspace API key rotation and automation credentials — it is not a signed-review diligence Sources package.";
+  `API key management is not available in this release — host automation credentials live in deployment configuration and people access is governed under Users and roles. This guide is not the ${HELP_DILIGENCE_ARTIFACT_INDEX_TITLE} for a signed review record. Open Assurance status, Audit, or CLI usage help when diligence needs citations beyond this orientation.`;
 
 export const API_KEYS_HELP_FOLLOW_UPS_TITLE = "Where to go next";
 
-export const API_KEYS_HELP_SOURCES_INTRO = API_KEYS_SETTINGS_SOURCES_INTRO;
+export const API_KEYS_HELP_SOURCES_INTRO =
+  "Use these follow-ups when automation credential questions turn into membership setup, scripting guidance, audit trails, or trust citations.";
 
-export const API_KEYS_HELP_SOURCES: readonly EvidenceSourceLink[] = [
-  { label: "API keys", href: API_KEYS_OPERATOR_CANONICAL_PATH },
-  { label: "Users and roles", href: "/administration/users" },
-  { label: "Users and roles help", href: "/help/users-and-roles" },
-  { label: "CLI usage help", href: "/help/cli-usage" },
-  { label: "Audit", href: "/governance/audit" },
-  { label: "Assurance status", href: "/security-trust" },
-] as const;
-
-export const API_KEYS_HELP_OPERATOR_CLAIM = API_KEYS_SETTINGS_CLAIM_DISCIPLINE;
+/** Operator Sources — reuses settings band links (no self-href to retired `/administration/api-keys`). */
+export const API_KEYS_HELP_SOURCES: readonly EvidenceSourceLink[] = API_KEYS_SETTINGS_SOURCES;
