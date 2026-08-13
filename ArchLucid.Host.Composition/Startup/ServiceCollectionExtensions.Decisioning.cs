@@ -45,11 +45,15 @@ public static partial class ServiceCollectionExtensions
         services.AddSingleton<IComplianceEvaluator, GraphComplianceEvaluator>();
 
         services.AddScoped<Di.IFindingEngine, Ds.RequirementFindingEngine>();
+        services.AddScoped<Di.IFindingEngine, Ds.RequirementExpectationFindingEngine>();
+        services.AddScoped<Di.IFindingEngine, Ds.RequirementGapFindingEngine>();
         services.AddScoped<Di.IFindingEngine, Ds.TopologyCoverageFindingEngine>();
         services.AddScoped<Di.IFindingEngine, Ds.TopologyStructureFindingEngine>();
         services.AddScoped<Di.IFindingEngine, Ds.TopologyCrossRunDiffFindingEngine>();
         services.AddScoped<Di.IFindingEngine, Ds.TopologyAntiPatternFindingEngine>();
         services.AddScoped<Di.IFindingEngine, Ds.SecurityBaselineFindingEngine>();
+        services.AddScoped<Di.IFindingEngine, Ds.SecurityBaselineExpectationFindingEngine>();
+        services.AddScoped<Di.IFindingEngine, Ds.SecurityGapFindingEngine>();
         services.AddScoped<Di.IFindingEngine, Ds.SecurityCoverageFindingEngine>();
         services.AddScoped<Di.IFindingEngine, Ds.PolicyApplicabilityFindingEngine>();
         services.AddScoped<Di.IFindingEngine, Ds.PolicyCoverageFindingEngine>();

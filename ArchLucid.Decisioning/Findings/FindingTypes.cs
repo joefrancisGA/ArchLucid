@@ -18,4 +18,8 @@ public static class FindingTypes
     public const string SecurityCoverageFinding = "SecurityCoverageFinding";
     public const string PolicyCoverageFinding = "PolicyCoverageFinding";
     public const string RequirementCoverageFinding = "RequirementCoverageFinding";
+    public const string RequirementExpectationFinding = "RequirementExpectationFinding";
+    public const string RequirementGap = "RequirementGap";
+    public const string SecurityBaselineExpectationFinding = "SecurityBaselineExpectationFinding";
+    public const string SecurityGap = "SecurityGap";
 }

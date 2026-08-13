@@ -66,6 +66,72 @@ public static class FindingFactory
         };
     }
 
+    public static Finding CreateRequirementGapFinding(
+        string engineType,
+        string title,
+        string rationale,
+        string gapCode,
+        string description,
+        string impact,
+        FindingSeverity severity = FindingSeverity.Warning,
+        IEnumerable<string>? relatedNodeIds = null)
+    {
+        return new Finding
+        {
+            FindingSchemaVersion = FindingsSchema.CurrentFindingVersion,
+            FindingType = FindingTypes.RequirementGap,
+            Category = "Requirement",
+            EngineType = engineType,
+            Severity = severity,
+            Title = title,
+            Rationale = rationale,
+            RelatedNodeIds = relatedNodeIds?.ToList() ?? [],
+            PayloadType = nameof(TopologyGapFindingPayload),
+            Payload =
+                new TopologyGapFindingPayload { GapCode = gapCode, Description = description, Impact = impact },
+            Trace = new ExplainabilityTrace
+            {
+                GraphNodeIdsExamined = relatedNodeIds?.ToList() ?? [],
+                RulesApplied = [$"requirement-gap-{gapCode}"],
+                DecisionsTaken = [$"Detected requirement traceability gap: {description}"],
+                AlternativePathsConsidered = [ExplainabilityMarkers.RuleBasedDeterministicSinglePathNote]
+            }
+        };
+    }
+
+    public static Finding CreateSecurityGapFinding(
+        string engineType,
+        string title,
+        string rationale,
+        string gapCode,
+        string description,
+        string impact,
+        FindingSeverity severity = FindingSeverity.Warning,
+        IEnumerable<string>? relatedNodeIds = null)
+    {
+        return new Finding
+        {
+            FindingSchemaVersion = FindingsSchema.CurrentFindingVersion,
+            FindingType = FindingTypes.SecurityGap,
+            Category = "Security",
+            EngineType = engineType,
+            Severity = severity,
+            Title = title,
+            Rationale = rationale,
+            RelatedNodeIds = relatedNodeIds?.ToList() ?? [],
+            PayloadType = nameof(TopologyGapFindingPayload),
+            Payload =
+                new TopologyGapFindingPayload { GapCode = gapCode, Description = description, Impact = impact },
+            Trace = new ExplainabilityTrace
+            {
+                GraphNodeIdsExamined = relatedNodeIds?.ToList() ?? [],
+                RulesApplied = [$"security-gap-{gapCode}"],
+                DecisionsTaken = [$"Detected security traceability gap: {description}"],
+                AlternativePathsConsidered = [ExplainabilityMarkers.RuleBasedDeterministicSinglePathNote]
+            }
+        };
+    }
+
     public static Finding CreatePolicyApplicabilityFinding(
         string engineType,
         GraphNode policyNode,
