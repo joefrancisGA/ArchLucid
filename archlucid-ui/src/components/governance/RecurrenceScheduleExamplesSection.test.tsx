@@ -16,15 +16,14 @@ vi.mock("@/lib/recurrence-local-time", async () => {
 });
 
 describe("RecurrenceScheduleExamplesSection (TB-1132 / TB-2210)", () => {
-  it("shows local cadence as the primary subtitle and demotes UTC + cron", () => {
+  it("shows local cadence as the primary subtitle and authored UTC cadence as secondary", () => {
     render(<RecurrenceScheduleExamplesSection />);
 
-    const first = RECURRENCE_SCHEDULE_EXAMPLES[0];
+    const first = RECURRENCE_SCHEDULE_EXAMPLES[0]!;
 
-    expect(first).toBeDefined();
-    expect(screen.getByText(/Quarterly on the 1st at \d{1,2}:\d{2} [AP]M \(America\/New_York\)/)).toBeInTheDocument();
+    expect(screen.getByText(/Quarterly on the 1st at 4:00 AM EDT/i)).toBeInTheDocument();
     expect(screen.getAllByText(/Server schedule \(UTC\):/).length).toBe(RECURRENCE_SCHEDULE_EXAMPLES.length);
-    expect(screen.getByText(`Cron (UTC): ${first!.cronExpression}`)).toBeInTheDocument();
+    expect(screen.getByText(`Cron (UTC): ${first.cronExpression}`)).toBeInTheDocument();
 
     const humanLines = screen.getAllByTestId("recurrence-schedule-example-human-cadence");
     const cronLines = screen.getAllByTestId("recurrence-schedule-example-cron");
@@ -32,26 +31,52 @@ describe("RecurrenceScheduleExamplesSection (TB-1132 / TB-2210)", () => {
     expect(humanLines).toHaveLength(RECURRENCE_SCHEDULE_EXAMPLES.length);
     expect(cronLines).toHaveLength(RECURRENCE_SCHEDULE_EXAMPLES.length);
 
-    for (const line of humanLines) {
+    for (const [index, line] of humanLines.entries()) {
+      const example = RECURRENCE_SCHEDULE_EXAMPLES[index]!;
+
       expect(line.textContent).not.toMatch(/^\d+\s+\d+\s+/);
-      expect(line.textContent).toMatch(/America\/New_York/);
+      expect(line.textContent).toContain(example.humanCadence);
       expect(line.textContent).toMatch(/Server schedule \(UTC\):/);
     }
-
-    expect(humanLines[0]?.textContent).toContain(first!.humanCadence);
   });
 
-  it("renders compact chooser without when-to-use card body (TB-1133)", () => {
-    render(<RecurrenceScheduleExamplesSection variant="compact" />);
+  it("renders annual preset as annually, not monthly", () => {
+    render(<RecurrenceScheduleExamplesSection />);
+
+    const annual = RECURRENCE_SCHEDULE_EXAMPLES[1]!;
+
+    expect(screen.getByText(annual.title)).toBeInTheDocument();
+    expect(screen.getByText(/Annually on January 1 at 3:00 AM EST/i)).toBeInTheDocument();
+    expect(screen.getByText(`Server schedule (UTC): ${annual.humanCadence}`)).toBeInTheDocument();
+
+    const annualCadence = screen.getAllByTestId("recurrence-schedule-example-human-cadence")[1];
+
+    expect(annualCadence?.textContent ?? "").not.toMatch(/Monthly on the 1st/i);
+  });
+
+  it("renders compact chooser with when-to-use and action affordance (TB-1133 / P0-4)", () => {
+    render(<RecurrenceScheduleExamplesSection variant="compact" onApplyExample={() => undefined} />);
 
     expect(screen.getByTestId("recurrence-schedule-examples")).toHaveAttribute("data-variant", "compact");
     expect(screen.getByText("Start from a common cadence")).toBeInTheDocument();
-    expect(screen.queryByText(RECURRENCE_SCHEDULE_EXAMPLES[0]!.whenToUse)).not.toBeInTheDocument();
-    expect(screen.getByText(/Quarterly on the 1st at \d{1,2}:\d{2} [AP]M \(America\/New_York\)/)).toBeInTheDocument();
 
-    const humanLines = screen.getAllByTestId("recurrence-schedule-example-human-cadence");
+    for (const example of RECURRENCE_SCHEDULE_EXAMPLES) {
+      expect(screen.getByText(example.whenToUse)).toBeInTheDocument();
 
-    expect(humanLines[0]?.textContent).toContain(RECURRENCE_SCHEDULE_EXAMPLES[0]!.humanCadence);
+      // The visible cadence is aria-hidden inside the button, so the accessible name is the only
+      // thing telling assistive tech which cadence this row selects. Assert on the parts that
+      // carry meaning rather than the exact sentence, so wording can change but coverage cannot.
+      const applyButton = screen.getByRole("button", {
+        name: (accessibleName: string) =>
+          accessibleName.includes(example.title)
+          && accessibleName.includes(example.humanCadence)
+          && accessibleName.includes("Opens the create recurrence schedule form"),
+      });
+
+      expect(applyButton).toBeInTheDocument();
+    }
+
+    expect(screen.getAllByText("Use this cadence").length).toBe(RECURRENCE_SCHEDULE_EXAMPLES.length);
   });
 
   it("invokes onApplyExample with cron when an example is clicked", () => {

@@ -226,7 +226,7 @@ export const LAYER_PAGE_GUIDANCE: Record<LayerGuidancePageKey, LayerGuidanceBloc
   "recurrence-schedules": {
     layerBadge: "Governance",
     headline:
-      "Define repeatable review cadences for committed architecture records — quarterly control reviews, annual policy attestations, post-remediation follow-ups, and architecture board checkpoints.",
+      "Define repeatable review cadences for finalized architecture reviews — quarterly control reviews, annual policy attestations, post-remediation follow-ups, and architecture board checkpoints.",
     useWhen:
       "Create a schedule when a governed review must be re-reviewed on a fixed cadence so accepted risks, policy exceptions, and control obligations do not lapse after approval.",
     firstPilotNote:

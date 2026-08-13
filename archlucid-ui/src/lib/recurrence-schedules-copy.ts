@@ -10,12 +10,12 @@ export const RECURRENCE_SCHEDULES_HOW_IT_WORKS_TITLE = "How recurrence schedules
 
 /** Folded value + trust copy — shown only inside How-it-works disclosure (TB-1130). */
 export const RECURRENCE_SCHEDULES_HOW_IT_WORKS_BODY =
-  "Define repeatable review cadences for committed architecture records — quarterly control reviews, annual policy attestations, post-remediation follow-ups, and architecture board checkpoints. Schedules help ensure that accepted risks, policy exceptions, and governed architecture decisions are reviewed on time instead of being forgotten after approval.";
+  "Define repeatable review cadences for finalized architecture reviews — quarterly control reviews, annual policy attestations, post-remediation follow-ups, and architecture board checkpoints. When a schedule comes due, ArchLucid creates a follow-up architecture review from the source review. Schedules help ensure that accepted risks, policy exceptions, and governed architecture decisions are reviewed on time instead of being forgotten after approval.";
 
 export const RECURRENCE_SCHEDULES_EMPTY_TITLE = "No recurrence schedules yet";
 
 export const RECURRENCE_SCHEDULES_EMPTY_DESCRIPTION =
-  "Create a schedule when a governed review needs periodic re-review.";
+  "When a schedule comes due, ArchLucid creates a follow-up architecture review from the source review. You need a finalized architecture review before you can schedule one.";
 
 /** @deprecated Prefer `RECURRENCE_SCHEDULES_HOW_IT_WORKS_BODY` — folded under How-it-works (TB-1130). */
 export const RECURRENCE_SCHEDULES_EMPTY_SUPPORTING =
@@ -24,10 +24,10 @@ export const RECURRENCE_SCHEDULES_EMPTY_SUPPORTING =
 export const RECURRENCE_SCHEDULES_HELPER_TITLE = "Governance workflow";
 
 export const RECURRENCE_SCHEDULES_HELPER_BODY =
-  "Use recurrence schedules to make sure governed architecture reviews are reviewed again when risks, policy exceptions, or control obligations require follow-up.";
+  "Use recurrence schedules to create follow-up architecture reviews when governed reviews need periodic re-review. Recipients and notifications are not configured on this page.";
 
 export const RECURRENCE_SCHEDULES_HELPER_NEXT_STEP =
-  "Start by choosing a governed review, then define the review cadence and owner.";
+  "Start with a finalized architecture review, then define the review cadence.";
 
 export const RECURRENCE_SCHEDULES_EXAMPLES_HEADING = "Common schedule examples";
 

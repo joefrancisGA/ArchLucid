@@ -153,7 +153,7 @@ describe("RecurrenceSchedulesClient", () => {
 
     expect(examples).toHaveAttribute("data-variant", "compact");
     expect(screen.getByText("Start from a common cadence")).toBeInTheDocument();
-    expect(screen.queryByText(RECURRENCE_SCHEDULE_EXAMPLES[0]!.whenToUse)).not.toBeInTheDocument();
+    expect(screen.getByText(RECURRENCE_SCHEDULE_EXAMPLES[0]!.whenToUse)).toBeInTheDocument();
   });
 
   it("links the empty secondary action to governed reviews", async () => {
