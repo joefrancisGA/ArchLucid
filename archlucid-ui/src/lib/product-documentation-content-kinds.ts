@@ -20,7 +20,7 @@ export const PRODUCT_DOCUMENTATION_CONTENT_KIND_BY_SLUG: Readonly<
   Record<string, ProductDocumentationContentKind>
 > = {
   "accelerator-chooser": "product-help",
-  "admin-diagnostics": "technical-documentation",
+  "admin-diagnostics": "product-help",
   alerts: "product-help",
   digests: "product-help",
   "recurrence-schedules": "product-help",

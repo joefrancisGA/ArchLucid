@@ -1,10 +1,11 @@
+import { ADMIN_DIAGNOSTICS_HELP_PAGE_TITLE } from "@/lib/admin-diagnostics-help-page-copy";
 import type { EvidenceAdminSourceLink } from "@/lib/evidence-surface-copy";
 import { OPERATOR_NAV_LINK_LABELS } from "@/lib/i18n";
 import { inAppHelpHref } from "@/lib/product-documentation-registry";
 
-export const ADMIN_DIAGNOSTICS_HELP_CANONICAL_PATH = "/help/admin-diagnostics" as const;
+export { ADMIN_DIAGNOSTICS_HELP_PAGE_TITLE };
 
-export const ADMIN_DIAGNOSTICS_HELP_PAGE_TITLE = "Admin diagnostics" as const;
+export const ADMIN_DIAGNOSTICS_HELP_CANONICAL_PATH = "/help/admin-diagnostics" as const;
 
 export const ADMIN_DIAGNOSTICS_HELP_PAGE_SUBTITLE =
   "Orientation for system health, workspace readiness, assistant diagnostics, and observability signals." as const;

@@ -117,8 +117,8 @@ In `TECH_BACKLOG.md` summary table: **V1 / V1.1 first** (cluster order); **`### 
 | Alert rules Test (`/governance/alert-rules?tab=simulation`) | **TB-1589**–**TB-1591**, **TB-1593** (open P1 **V1**); **TB-1592** **Done** | Demote dual h2; DS form; human sub-tabs; tuning score density; ~47/100; traffic **GOS**; GUID/slug honesty shipped |
 | Alerts inbox tab (`/governance/alerts?tab=inbox`) | **TB-1594**–**TB-1596** (**Done** 2026-08-11); **TB-1597**–**TB-1598** (open P1 **V1**) | Canonicalize `?tab=inbox` + traffic/CI **Done**; zero-theater summary; default-project CTA + skeleton; ~53/100; traffic **GOI** |
 | Help catch-all (`/help/[...topic]`) | **TB-1599**–**TB-1603** (open P1/P2 **V1**) | NotFound recovery; loading/dynamic honesty; fallthrough↔**TB-1414**; traffic router-meta; dispatch CI; ~49/100; traffic **HE.** |
-| Accelerator chooser (`/help/accelerator-chooser`) | **TB-1605**, **TB-1607** (open P1 **V1**); **TB-1604**/**TB-1606**/**TB-1608** Done | Title/tier + TS SoT remain; specialty + Start CTAs shipped |
-| Admin diagnostics (`/help/admin-diagnostics`) | **TB-1609**–**TB-1613** (open P1 **V1**) | Specialty + `/administration/system-health` CTA; title; kind/tier; eng Related demote; inbound/doc-href; ~48/100; traffic **HAE** |
+| Accelerator chooser (`/help/accelerator-chooser`) | **TB-1605**/**TB-1607** **Done** 2026-08-13; **TB-1604**/**TB-1606**/**TB-1608** Done | TS SoT + title/tier honesty shipped |
+| Admin diagnostics (`/help/admin-diagnostics`) | **TB-1609**–**TB-1611** **Done** 2026-08-13; **TB-1612**–**TB-1613** (open P1 **V1**) | Specialty + System health CTA; Platform health title; product-help tier; eng Related demote + inbound remain |
 | Authentication sign-in (`/help/authentication-sign-in`) | **TB-1614**–**TB-1618** (open P1 **V1**) | Specialty + Sign in CTA; eval/invite CTAs; viewport density; Related; auth-shell label; ~55/100; traffic **HEU** |
 | Azure Boards help (`/help/azure-boards`) | **TB-1619**–**TB-1622** (open P1 **V1**); **TB-1623** **Done** (HEZ redirect/fold) | Specialty + Open CTA; setup links; smoke leak; Phase-1 jargon; ~51/100; traffic **HAZ** |
 | Azure permissions (`/help/azure-permissions`) | **TB-1626**–**TB-1630** (open P1 **V1**) | Primary CTA; viewport density; Tier/contract jargon; Connect-Azure IA; skeleton; ~63/100; traffic **HEA** |
@@ -385,12 +385,12 @@ In `TECH_BACKLOG.md` summary table: **V1 / V1.1 first** (cluster order); **`### 
 | TB-1602 | Help catch-all — traffic HE. router-meta / no double-count | Adoption friction P1 **V1** — with **TB-1599** |
 | TB-1603 | Help catch-all — specialty dispatch inventory CI | Testability P2 **V1** — with **TB-1599** |
 | TB-1604 | ~~`/help/accelerator-chooser` specialty starter-pack companion + Start CTAs~~ **Done** 2026-08-13 | Adoption friction P1 **V1** — HAX ~42/100 |
-| TB-1605 | Accelerator chooser help — title/tier honesty | Trustworthiness P1 **V1** — with **TB-1604** |
-| TB-1607 | Accelerator chooser help — single SoT with ACCELERATOR_CHOOSER_ENTRIES | Adoption friction P1 **V1** — with **TB-1604** |
-| TB-1608 | Accelerator chooser — home inbound jargon + repo honesty | Adoption friction P1 **V1** — with **TB-1604** |
-| TB-1609 | `/help/admin-diagnostics` specialty platform-health companion + Open `/administration/system-health` CTA | Adoption friction P1 **V1** — HAE ~48/100 |
-| TB-1610 | Admin diagnostics help — title honesty | Adoption friction P1 **V1** — with **TB-1609** |
-| TB-1611 | Admin diagnostics help — contentKind/tier honesty | Trustworthiness P1 **V1** — with **TB-1609**; pairs **TB-1250** |
+| TB-1605 | ~~Accelerator chooser help — title/tier honesty~~ **Done** 2026-08-13 | Trustworthiness P1 **V1** — with **TB-1604** |
+| TB-1607 | ~~Accelerator chooser help — single SoT with ACCELERATOR_CHOOSER_ENTRIES~~ **Done** 2026-08-13 | Adoption friction P1 **V1** — with **TB-1604** |
+| TB-1608 | ~~Accelerator chooser — home inbound jargon + repo honesty~~ **Done** 2026-08-12 | Adoption friction P1 **V1** — with **TB-1604** |
+| TB-1609 | ~~`/help/admin-diagnostics` specialty platform-health companion + System health CTA~~ **Done** 2026-08-13 | Adoption friction P1 **V1** — HAE |
+| TB-1610 | ~~Admin diagnostics help — title honesty~~ **Done** 2026-08-13 | Adoption friction P1 **V1** — with **TB-1609** |
+| TB-1611 | ~~Admin diagnostics help — contentKind/tier honesty~~ **Done** 2026-08-13 | Trustworthiness P1 **V1** — with **TB-1609**; pairs **TB-1250** |
 | TB-1612 | Admin diagnostics help — Related eng deep-link demote | Trustworthiness P1 **V1** — with **TB-1609** |
 | TB-1613 | Admin diagnostics — inbound label honesty + doc-href map | Adoption friction P1 **V1** — with **TB-1609** |
 | TB-1614 | `/help/authentication-sign-in` specialty sign-in companion + Sign in CTA | Adoption friction P1 **V1** — HEU ~55/100 |

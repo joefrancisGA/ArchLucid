@@ -71,7 +71,7 @@ describe("HelpAdminDiagnosticsGuideView (HAE)", () => {
       "data-nav-href",
       ADMIN_DIAGNOSTICS_HELP_CANONICAL_PATH,
     );
-    expect(screen.getByRole("heading", { level: 1, name: "Admin diagnostics" })).toBeInTheDocument();
+    expect(screen.getByRole("heading", { level: 1, name: "Platform health" })).toBeInTheDocument();
     expect(screen.getByTestId("help-admin-diagnostics-page-scope")).toHaveTextContent(
       ADMIN_DIAGNOSTICS_HELP_PAGE_SCOPE,
     );

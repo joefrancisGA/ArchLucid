@@ -17,7 +17,8 @@ describe("admin diagnostics inbound copy (TB-1613)", () => {
   });
 
   it("uses buyer-facing inbound link label aligned with Help search chrome", () => {
-    expect(ADMIN_DIAGNOSTICS_INBOUND_GUIDANCE_LINK_LABEL).toBe("Open the Admin diagnostics guide");
+    expect(ADMIN_DIAGNOSTICS_INBOUND_GUIDANCE_LINK_LABEL).toBe("Open the Platform health guide");
     expect(ADMIN_DIAGNOSTICS_INBOUND_GUIDANCE_LINK_LABEL.toLowerCase()).not.toBe("open admin diagnostics");
+    expect(ADMIN_DIAGNOSTICS_INBOUND_GUIDANCE_LINK_LABEL.toLowerCase()).not.toContain("admin diagnostics");
   });
 });

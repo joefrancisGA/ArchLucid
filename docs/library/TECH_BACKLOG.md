@@ -1488,9 +1488,9 @@ All **P0** **V1**: visible-boundary button contract + design-system rule (**TB-2
 | TB-1604 | **Done** (2026-08-13) — `/help/accelerator-chooser` specialty starter-pack companion + Start CTAs; see ## TB-1604 below | Adoption friction P1 ? **V1**; owner review ~42/100 2026-07-27; traffic **HAX**; after Done **TB-170**; pairs **TB-1414** | S |
 | TB-1605 | **Done** (2026-08-13) — accelerator-chooser help title/tier honesty (`Starter proof packs` + product-help); see ## TB-1605 below | Trustworthiness P1 ? **V1**; with **TB-1604**; pairs **TB-1397** | S |
 | TB-1607 | **Done** (2026-08-13) — accelerator chooser single SoT with `ACCELERATOR_CHOOSER_ENTRIES` + grid parity Vitest; see ## TB-1607 below | Adoption friction P1 ? **V1**; with **TB-1604** | S |
-| TB-1609 | `/help/admin-diagnostics` specialty platform-health companion + Open `/health` CTA; see ## TB-1609 below | Adoption friction P1 ? **V1**; owner review ~48/100 2026-07-27; traffic **HAE**; pairs **TB-1414** | S |
-| TB-1610 | Admin diagnostics help ? title honesty (not eng ?Admin diagnostics?); see ## TB-1610 below | Adoption friction P1 ? **V1**; with **TB-1609** | XS |
-| TB-1611 | Admin diagnostics help ? contentKind/tier honesty (not ungated technical-doc); see ## TB-1611 below | Trustworthiness P1 ? **V1**; with **TB-1609**; pairs **TB-1250**/**TB-735** (do not reopen) | S |
+| TB-1609 | **Done** (2026-08-13) — `/help/admin-diagnostics` specialty platform-health companion + System health CTA; see ## TB-1609 below | Adoption friction P1 ? **V1**; traffic **HAE**; pairs **TB-1414** | S |
+| TB-1610 | **Done** (2026-08-13) — admin diagnostics help title honesty (`Platform health`); see ## TB-1610 below | Adoption friction P1 ? **V1** | XS |
+| TB-1611 | **Done** (2026-08-13) — admin diagnostics help contentKind/tier honesty (`product-help`); see ## TB-1611 below | Trustworthiness P1 ? **V1**; pairs **TB-1250**/**TB-735** (do not reopen) | S |
 | TB-1612 | Admin diagnostics help ? Related eng deep-link demote (developer-troubleshooting / cli-usage); see ## TB-1612 below | Trustworthiness P1 ? **V1**; with **TB-1609**; pairs **TB-1246** | S |
 | TB-1614 | `/help/authentication-sign-in` specialty sign-in companion + Sign in CTA; see ## TB-1614 below | Adoption friction P1 ? **V1**; owner review ~55/100 2026-07-27; traffic **HEU**; pairs **TB-1414**/**TB-1313** | S |
 | TB-1615 | Authentication help ? Start evaluation / invite secondary CTAs; see ## TB-1615 below | Adoption friction P1 ? **V1**; with **TB-1614** | S |

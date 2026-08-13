@@ -7,7 +7,7 @@ import {
 export const ADMIN_DIAGNOSTICS_INBOUND_SECTION_TITLE = ADMIN_DIAGNOSTICS_HELP_PAGE_TITLE;
 
 /** Inbound guidance link label — aligned with Help search title, not lowercase engineering shorthand (TB-1613). */
-export const ADMIN_DIAGNOSTICS_INBOUND_GUIDANCE_LINK_LABEL = "Open the Admin diagnostics guide";
+export const ADMIN_DIAGNOSTICS_INBOUND_GUIDANCE_LINK_LABEL = `Open the ${ADMIN_DIAGNOSTICS_HELP_PAGE_TITLE} guide`;
 
 /** Canonical help destination for inbound guidance links (TB-1613). */
 export const ADMIN_DIAGNOSTICS_INBOUND_GUIDANCE_HREF = ADMIN_DIAGNOSTICS_HELP_CANONICAL_PATH;
