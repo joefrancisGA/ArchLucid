@@ -1,5 +1,5 @@
 /**
- * TB-2231 — Ask ↔ Search evidence job rail.
+ * TB-2231 — Ask ↔ Search evidence peer rail.
  *
  * Why two “evidence” surfaces exist:
  * - Ask (`/insights/ask-review-questions`) answers questions about a finalized
@@ -7,7 +7,7 @@
  * - Search (`/insights/search-review-evidence`) finds findings, decisions, and
  *   signed review records across architecture packages in the evidence trail.
  *
- * They stay separate because Q&A with citations is not the same job as
+ * They stay separate because Q&A with citations is not the same task as
  * retrieval across packages. Do not confuse Search review evidence with the
  * header find-a-page control (`search-surface-disambiguation`).
  */
@@ -32,7 +32,7 @@ export type AskSearchEvidenceVocabularyModel = {
   readonly searchLink: AskSearchEvidenceLink;
 };
 
-export const ASK_SEARCH_EVIDENCE_HEADING = "Ask and Search do different jobs" as const;
+export const ASK_SEARCH_EVIDENCE_HEADING = "Ask and Search serve different purposes" as const;
 
 export const ASK_SEARCH_EVIDENCE_WHY_TWO =
   "Ask answers questions about a finalized review and cites evidence from the signed review record. Search finds findings, decisions, and signed review records across architecture packages in the evidence trail. Use Ask when you have a question; open Search when you need to locate evidence across packages." as const;

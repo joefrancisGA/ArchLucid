@@ -36,7 +36,7 @@ export const DEPLOYMENT_STATUS_SYSTEM_HEALTH_HEADING =
   "Deployment status and system health stay separate" as const;
 
 export const DEPLOYMENT_STATUS_SYSTEM_HEALTH_WHY_TWO =
-  "Deployment status shows release identity and component agreement for this Internal Operations build. System health shows platform readiness and dependency probes for this deployment. BUILD agreement is not live dependency probes — open the peer link when you need the other job." as const;
+  "Deployment status shows release identity and component agreement for this Internal Operations build. System health shows platform readiness and dependency probes for this deployment. BUILD agreement is not live dependency probes." as const;
 
 export const DEPLOYMENT_STATUS_SYSTEM_HEALTH_COMPACT_LINE =
   "Deployment status is release identity; System health is platform probes — open the other when you need both." as const;

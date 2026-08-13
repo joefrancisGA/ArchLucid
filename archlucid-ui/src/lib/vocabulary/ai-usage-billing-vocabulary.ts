@@ -37,7 +37,7 @@ export type AiUsageBillingVocabularyModel = {
 export const AI_USAGE_BILLING_HEADING = "AI usage and Billing stay separate" as const;
 
 export const AI_USAGE_BILLING_WHY_TWO =
-  "AI usage shows estimated spend, budgets, and workflow cost drivers for this workspace. Billing & plans manages commercial plan, invoices, and payment. Usage estimates are not invoices — open the peer link when you need the other job." as const;
+  "AI usage shows estimated spend, budgets, and workflow cost drivers for this workspace. Billing & plans manages commercial plan, invoices, and payment. Usage estimates are not invoices." as const;
 
 export const AI_USAGE_BILLING_COMPACT_LINE =
   "AI usage shows cost estimates; Billing manages plans and invoices — open the other when you need both." as const;

@@ -8,7 +8,7 @@
  *   guides, and runbooks.
  *
  * They stay separate because filing a defect from the dialog is not the same
- * job as browsing Help. Distinct from Report a problem ≠ Support workspace
+ * task as browsing Help. Distinct from Report a problem ≠ Support workspace
  * (TB-2306), Report a problem ≠ Audit trail (TB-2267), and Glossary ≠
  * procedural Help (TB-2308).
  */
@@ -42,13 +42,13 @@ export type ReportProblemDialogHelpHubVocabularyModel = {
 };
 
 export const REPORT_PROBLEM_DIALOG_HELP_HUB_HEADING =
-  "Report a problem and Help do different jobs" as const;
+  "Report a problem and Help serve different purposes" as const;
 
 export const REPORT_PROBLEM_DIALOG_HELP_HUB_WHY_TWO =
   "Report a problem is the dialog that submits a structured defect report with route, correlation, and consent context from the current surface. Help is the hub for how-to topics, guides, and runbooks. Filing a defect is not the same as browsing procedural Help." as const;
 
 export const REPORT_PROBLEM_DIALOG_HELP_HUB_COMPACT_LINE =
-  "Report a problem files a defect from this surface; Help browses how-to topics — open the other when you need that job." as const;
+  "Report a problem files a defect from this surface; Help browses how-to topics." as const;
 
 export const REPORT_PROBLEM_DIALOG_HELP_HUB_DIALOG_LINK: ReportProblemDialogHelpHubLink =
   {

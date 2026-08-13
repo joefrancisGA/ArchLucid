@@ -7,7 +7,7 @@
  * - Demo readiness (`/internal/demo-readiness`) is the *presenter preflight* —
  *   employee-only CTO demo diagnostics before a live buyer walkthrough.
  *
- * They stay separate because measuring trial conversion is not the same job as
+ * They stay separate because measuring trial conversion is not the same task as
  * checking whether a demo environment is ready to present.
  */
 
@@ -34,7 +34,7 @@ export type TrialFunnelDemoReadinessVocabularyModel = {
 };
 
 export const TRIAL_FUNNEL_DEMO_READINESS_HEADING =
-  "Trial funnel and demo readiness do different jobs" as const;
+  "Trial funnel and demo readiness serve different purposes" as const;
 
 export const TRIAL_FUNNEL_DEMO_READINESS_WHY_TWO =
   "Trial funnel shows conversion metrics — cohort stages, timing, and first-review cost for trial-to-paid funnel ops. Demo readiness is the presenter preflight for employee-only CTO demo diagnostics before a live buyer walkthrough. Measuring trial conversion is not the same as checking whether a demo environment is ready to present." as const;

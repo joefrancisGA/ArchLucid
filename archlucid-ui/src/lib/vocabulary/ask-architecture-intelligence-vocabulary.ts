@@ -8,7 +8,7 @@
  *   closed-loop architecture reasoning or the golden regression harness against
  *   a free-form description.
  *
- * They stay separate because Q&A on a signed review is not the same job as
+ * They stay separate because Q&A on a signed review is not the same task as
  * running closed-loop architecture reasoning. Distinct from Ask ≠ Search
  * evidence (TB-2231) and Architecture intelligence ≠ Evidence graph.
  */
@@ -36,13 +36,13 @@ export type AskArchitectureIntelligenceVocabularyModel = {
 };
 
 export const ASK_ARCHITECTURE_INTELLIGENCE_HEADING =
-  "Ask review questions and Architecture intelligence do different jobs" as const;
+  "Ask review questions and Architecture intelligence serve different purposes" as const;
 
 export const ASK_ARCHITECTURE_INTELLIGENCE_WHY_TWO =
   "Ask review questions answers questions about a finalized review and cites evidence from the signed review record. Architecture intelligence runs closed-loop architecture reasoning or the golden regression harness against a free-form description. Asking about a signed review is not the same as running closed-loop reasoning." as const;
 
 export const ASK_ARCHITECTURE_INTELLIGENCE_COMPACT_LINE =
-  "Ask review questions is Q&A on a signed review; Architecture intelligence runs closed-loop reasoning — open the other when you need that job." as const;
+  "Ask review questions is Q&A on a signed review; Architecture intelligence runs closed-loop reasoning." as const;
 
 export const ASK_ARCHITECTURE_INTELLIGENCE_ASK_LINK: AskArchitectureIntelligenceLink = {
   id: "ask-review-questions",

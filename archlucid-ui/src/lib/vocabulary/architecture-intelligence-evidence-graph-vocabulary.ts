@@ -10,7 +10,7 @@
  *   linkage* for an architecture package’s evidence trail.
  *
  * They stay separate because generating closed-loop reasoning is not the same
- * job as exploring the evidence graph. Distinct from the Evidence graph
+ * task as exploring the evidence graph. Distinct from the Evidence graph
  * first-open coach (TB-2244), which teaches graph modes on first visit.
  */
 
@@ -37,10 +37,10 @@ export type ArchitectureIntelligenceEvidenceGraphVocabularyModel = {
 };
 
 export const ARCHITECTURE_INTELLIGENCE_EVIDENCE_GRAPH_HEADING =
-  "Architecture intelligence and Evidence graph do different jobs" as const;
+  "Architecture intelligence and Evidence graph serve different purposes" as const;
 
 export const ARCHITECTURE_INTELLIGENCE_EVIDENCE_GRAPH_WHY_TWO =
-  "Architecture intelligence runs closed-loop architecture reasoning against a free-form description. Evidence graph visualizes provenance and linkage in an architecture package’s evidence trail. Reasoning is not graph exploration — open the peer when you need the other job." as const;
+  "Architecture intelligence runs closed-loop architecture reasoning against a free-form description. Evidence graph visualizes provenance and linkage in an architecture package’s evidence trail. Reasoning is not graph exploration." as const;
 
 export const ARCHITECTURE_INTELLIGENCE_EVIDENCE_GRAPH_COMPACT_LINE =
   "Architecture intelligence runs closed-loop reasoning; Evidence graph shows provenance linkage — open the other when you need both." as const;

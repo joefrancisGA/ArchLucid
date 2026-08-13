@@ -38,10 +38,10 @@ export type ConnectionStatusCloudConnectionsVocabularyModel = {
 };
 
 export const CONNECTION_STATUS_CLOUD_CONNECTIONS_HEADING =
-  "Connection status and cloud connections do different jobs" as const;
+  "Connection status and cloud connections serve different purposes" as const;
 
 export const CONNECTION_STATUS_CLOUD_CONNECTIONS_WHY_TWO =
-  "Connection status shows which notification, ticketing, publishing, and delivery integrations are ready for this workspace. Cloud connections configures Azure, AWS, and GCP inventory connections that collect architecture evidence. Both use the word “connection,” but one is integration readiness and the other is cloud inventory setup — open the peer link when you need the other job." as const;
+  "Connection status shows which notification, ticketing, publishing, and delivery integrations are ready for this workspace. Cloud connections configures Azure, AWS, and GCP inventory connections that collect architecture evidence. Both use the word “connection,” but one is integration readiness and the other is cloud inventory setup." as const;
 
 export const CONNECTION_STATUS_CLOUD_CONNECTIONS_COMPACT_LINE =
   "Connection status is integration readiness; Cloud connections configures cloud inventory — open the other when you need both." as const;

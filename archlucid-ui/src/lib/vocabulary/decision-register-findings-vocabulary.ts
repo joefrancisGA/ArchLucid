@@ -34,13 +34,13 @@ export type DecisionRegisterFindingsVocabularyModel = {
 };
 
 export const DECISION_REGISTER_FINDINGS_HEADING =
-  "Decision register and Findings queue do different jobs" as const;
+  "Decision register and Findings queue serve different purposes" as const;
 
 export const DECISION_REGISTER_FINDINGS_WHY_TWO =
   "The decision register records locked architecture dispositions from completed reviews. The findings queue is risk disposition work for open governance findings. Locked decisions are not the same list as findings triage." as const;
 
 export const DECISION_REGISTER_FINDINGS_COMPACT_LINE =
-  "Decision register holds locked dispositions; Findings queue triages open risk work — open the other when you need that job." as const;
+  "Decision register holds locked dispositions; Findings queue triages open risk work." as const;
 
 export const DECISION_REGISTER_FINDINGS_REGISTER_LINK: DecisionRegisterFindingsLink = {
   id: "decision-register",

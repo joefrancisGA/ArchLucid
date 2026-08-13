@@ -33,10 +33,10 @@ export type PlanningReviewsVocabularyModel = {
   readonly reviewsLink: PlanningReviewsLink;
 };
 
-export const PLANNING_REVIEWS_HEADING = "Planning and reviews do different jobs" as const;
+export const PLANNING_REVIEWS_HEADING = "Planning and reviews serve different purposes" as const;
 
 export const PLANNING_REVIEWS_WHY_TWO =
-  "Improvement planning derives themes and plans from review feedback across architecture packages. Architecture reviews is the hub for starting and managing architecture packages. Planning does not replace the reviews inventory — open the peer link when you need the other job." as const;
+  "Improvement planning derives themes and plans from review feedback across architecture packages. Architecture reviews is the hub for starting and managing architecture packages. Planning does not replace the reviews inventory." as const;
 
 export const PLANNING_REVIEWS_COMPACT_LINE =
   "Planning derives improvement themes; Reviews manage architecture packages — open the other when you need both." as const;

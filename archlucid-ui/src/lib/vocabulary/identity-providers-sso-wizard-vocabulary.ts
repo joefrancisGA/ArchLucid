@@ -8,7 +8,7 @@
  *   that records and verifies a single SSO connection.
  *
  * They stay separate because browsing provider health and config areas is not
- * the same job as walking the setup wizard.
+ * the same task as walking the setup wizard.
  */
 
 import { SSO_WIZARD_IDENTITY_PROVIDERS_HREF } from "@/lib/sso-wizard-copy";
@@ -32,7 +32,7 @@ export type IdentityProvidersSsoWizardVocabularyModel = {
 };
 
 export const IDENTITY_PROVIDERS_SSO_WIZARD_HEADING =
-  "Identity providers and the SSO wizard do different jobs" as const;
+  "Identity providers and the SSO wizard serve different purposes" as const;
 
 export const IDENTITY_PROVIDERS_SSO_WIZARD_WHY_TWO =
   "Identity providers is the hub for sign-in overview, SAML and OIDC configuration areas, role mapping, and diagnostics. The SSO wizard is guided setup that records and verifies a single SSO connection. Browsing provider health is not the same as walking the setup wizard." as const;

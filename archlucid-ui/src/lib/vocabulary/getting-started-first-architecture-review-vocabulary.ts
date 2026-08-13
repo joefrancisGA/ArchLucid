@@ -7,7 +7,7 @@
  * - Your first architecture review (`/help/first-architecture-review`) is the
  *   action-oriented guided path for completing a first review end-to-end.
  *
- * They stay separate because product orientation is not the same job as walking
+ * They stay separate because product orientation is not the same task as walking
  * the first-review checklist and stepper.
  */
 
@@ -34,13 +34,13 @@ export type GettingStartedFirstArchitectureReviewVocabularyModel = {
 };
 
 export const GETTING_STARTED_FIRST_ARCHITECTURE_REVIEW_HEADING =
-  "Getting started and Your first architecture review do different jobs" as const;
+  "Getting started and Your first architecture review serve different purposes" as const;
 
 export const GETTING_STARTED_FIRST_ARCHITECTURE_REVIEW_WHY_TWO =
   "Getting started orients you on how ArchLucid turns architecture evidence into findings, decisions, and governance-ready outputs. Your first architecture review is the guided, action-oriented path for completing a first review end-to-end. Reading product orientation is not the same as walking the first-review checklist." as const;
 
 export const GETTING_STARTED_FIRST_ARCHITECTURE_REVIEW_COMPACT_LINE =
-  "Getting started is product orientation; Your first architecture review is the guided first-review path — open the other when you need that job." as const;
+  "Getting started is product orientation; Your first architecture review is the guided first-review path." as const;
 
 export const GETTING_STARTED_FIRST_ARCHITECTURE_REVIEW_GETTING_STARTED_LINK: GettingStartedFirstArchitectureReviewLink =
   {

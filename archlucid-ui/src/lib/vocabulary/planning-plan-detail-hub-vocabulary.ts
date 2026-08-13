@@ -32,10 +32,10 @@ export type PlanningPlanDetailHubVocabularyModel = {
 };
 
 export const PLANNING_PLAN_DETAIL_HUB_HEADING =
-  "Plan detail and Improvement planning do different jobs" as const;
+  "Plan detail and Improvement planning serve different purposes" as const;
 
 export const PLANNING_PLAN_DETAIL_HUB_WHY_TWO =
-  "Improvement planning is the hub for derived themes and plans from architecture package feedback. Plan detail inspects one derived improvement plan. The hub is not a single plan workspace — open the peer when you need the other job." as const;
+  "Improvement planning is the hub for derived themes and plans from architecture package feedback. Plan detail inspects one derived improvement plan. The hub is not a single plan workspace." as const;
 
 export const PLANNING_PLAN_DETAIL_HUB_COMPACT_LINE =
   "Improvement planning lists themes and plans; Plan detail inspects one plan — open the other when you need both." as const;

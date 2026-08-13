@@ -36,7 +36,7 @@ export const RAG_HEALTH_SYSTEM_HEALTH_HEADING =
   "RAG health and system health stay separate" as const;
 
 export const RAG_HEALTH_SYSTEM_HEALTH_WHY_TWO =
-  "RAG corpus health shows per-corpus chunk counts and last-indexed timestamps for retrieval on this API host. System health shows platform readiness and dependency probes for this deployment. Corpus indexing posture is not platform probes — open the peer link when you need the other job." as const;
+  "RAG corpus health shows per-corpus chunk counts and last-indexed timestamps for retrieval on this API host. System health shows platform readiness and dependency probes for this deployment. Corpus indexing posture is not platform probes." as const;
 
 export const RAG_HEALTH_SYSTEM_HEALTH_COMPACT_LINE =
   "RAG health is corpus indexing; System health is platform probes — open the other when you need both." as const;

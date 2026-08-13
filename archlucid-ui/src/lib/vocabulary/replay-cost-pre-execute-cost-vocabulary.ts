@@ -29,7 +29,7 @@ export type ReplayCostPreExecuteCostVocabularyModel = {
   readonly heading: string;
   readonly whyTwo: string;
   readonly compactLine: string;
-  /** Both figures are estimates for different jobs — not invoices. */
+  /** Both figures are estimates for different purposes — not invoices. */
   readonly estimatesHonesty: string;
   readonly replayCostLink: ReplayCostPreExecuteCostLink;
   readonly preExecuteCostLink: ReplayCostPreExecuteCostLink;
@@ -39,13 +39,13 @@ export const REPLAY_COST_PRE_EXECUTE_COST_HEADING =
   "Replay cost and pre-execute cost stay separate" as const;
 
 export const REPLAY_COST_PRE_EXECUTE_COST_WHY_TWO =
-  "Comparison replay cost estimates the relative cost band of replaying a saved comparison record. Pre-execute cost explains what starting a new architecture package may consume against allotment. One estimate does not replace the other — open the peer link when you need that job." as const;
+  "Comparison replay cost estimates the relative cost band of replaying a saved comparison record. Pre-execute cost explains what starting a new architecture package may consume against allotment. One estimate does not replace the other." as const;
 
 export const REPLAY_COST_PRE_EXECUTE_COST_COMPACT_LINE =
   "Replay cost is comparison-replay bands; Pre-execute cost is start-review allotment teaching — open the other when you need both." as const;
 
 export const REPLAY_COST_PRE_EXECUTE_COST_ESTIMATES_HONESTY =
-  "Both figures are estimates for different jobs — they are not invoices or billed amounts." as const;
+  "Both figures are estimates for different purposes — they are not invoices or billed amounts." as const;
 
 export const REPLAY_COST_PRE_EXECUTE_COST_REPLAY_LINK: ReplayCostPreExecuteCostLink = {
   id: "replay-cost",

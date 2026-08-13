@@ -7,7 +7,7 @@
  * - Alert rules, Policy packs, and Standards & rules are the *live* configuration
  *   hubs where changes are made and audited.
  *
- * Completing the guide is not the same job as editing live rules, packs, or standards.
+ * Completing the guide is not the same task as editing live rules, packs, or standards.
  */
 
 import {
@@ -47,7 +47,7 @@ export const GOVERNANCE_SETUP_CONFIG_HUBS_WHY_SEPARATE =
   "Governance setup is a readiness checklist that deep-links configuration areas. Alert rules, Policy packs, and Standards & rules are the live hubs where changes are made and audited. Finishing the guide does not edit live configuration — open the hub when you need to change rules, packs, or standards." as const;
 
 export const GOVERNANCE_SETUP_CONFIG_HUBS_COMPACT_LINE =
-  "Setup is a readiness guide; Alert rules, Policy packs, and Standards are live config — open the other when you need that job." as const;
+  "Setup is a readiness guide; Alert rules, Policy packs, and Standards are live config." as const;
 
 export const GOVERNANCE_SETUP_CONFIG_HUBS_SETUP_LINK: GovernanceSetupConfigHubsLink = {
   id: "setup",

@@ -7,7 +7,7 @@
  * - Auth domains (`/administration/auth-domains`) verifies tenant email-domain
  *   ownership and single sign-on enforcement readiness.
  *
- * They stay separate because personal sign-in methods are not the same job as
+ * They stay separate because personal sign-in methods are not the same task as
  * tenant-wide email-domain allowlists and single sign-on enforcement.
  */
 
@@ -32,13 +32,13 @@ export type AccountSecurityAuthDomainsVocabularyModel = {
 };
 
 export const ACCOUNT_SECURITY_AUTH_DOMAINS_HEADING =
-  "Sign-in methods and Sign-in domains do different jobs" as const;
+  "Sign-in methods and Sign-in domains serve different purposes" as const;
 
 export const ACCOUNT_SECURITY_AUTH_DOMAINS_WHY_TWO =
   "Sign-in methods manages your linked identities and email one-time-code recovery. Sign-in domains verifies tenant email-domain ownership and single sign-on enforcement. Personal sign-in setup does not configure organization-wide domain allowlists." as const;
 
 export const ACCOUNT_SECURITY_AUTH_DOMAINS_COMPACT_LINE =
-  "Sign-in methods is your personal sign-in setup; Sign-in domains is tenant domain allowlist — open the other when you need that job." as const;
+  "Sign-in methods is your personal sign-in setup; Sign-in domains is tenant domain allowlist." as const;
 
 export const ACCOUNT_SECURITY_AUTH_DOMAINS_SECURITY_LINK: AccountSecurityAuthDomainsLink = {
   id: "account-security",

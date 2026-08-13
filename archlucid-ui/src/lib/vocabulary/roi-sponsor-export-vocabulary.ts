@@ -9,7 +9,7 @@
  *   sponsor exports) is the *per-package send* — download the executive review
  *   summary or architecture report for a finalized architecture package.
  *
- * They stay separate because portfolio KPI framing is not the same job as
+ * They stay separate because portfolio KPI framing is not the same task as
  * handing off one signed review record to a sponsor.
  */
 
@@ -38,7 +38,7 @@ export type RoiSponsorExportVocabularyModel = {
 };
 
 export const ROI_SPONSOR_EXPORT_HEADING =
-  "ROI summary and sponsor export do different jobs" as const;
+  "ROI summary and sponsor export serve different purposes" as const;
 
 export const ROI_SPONSOR_EXPORT_WHY_TWO =
   "ROI summary shows portfolio KPIs — review-cycle reduction, estimated effort saved, and governance-ready artifacts across the reporting window. Sponsor export sends a per-package executive review summary or architecture report for one finalized architecture package. Portfolio framing is not the same as handing off a single signed review record." as const;
@@ -81,7 +81,7 @@ export function buildRoiSponsorExportVocabulary(): RoiSponsorExportVocabularyMod
 }
 
 /**
- * Peer deep-link for the job you are not currently on.
+ * Peer deep-link for the task you are not currently on.
  * ROI summary ↔ sponsor export (handoff or executive dashboard exports).
  */
 export function resolveRoiSponsorExportPeerLink(

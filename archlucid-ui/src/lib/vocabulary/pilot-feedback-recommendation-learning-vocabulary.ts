@@ -8,7 +8,7 @@
  *   rebuilds the advisory recommendation-ranking profile from historical
  *   accepted, deferred, rejected, and implemented outcomes.
  *
- * They stay separate because reading pilot outcome themes is not the same job
+ * They stay separate because reading pilot outcome themes is not the same task
  * as tuning recommendation-ranking weights.
  */
 
@@ -35,13 +35,13 @@ export type PilotFeedbackRecommendationLearningVocabularyModel = {
 };
 
 export const PILOT_FEEDBACK_RECOMMENDATION_LEARNING_HEADING =
-  "Pilot feedback and Recommendation learning do different jobs" as const;
+  "Pilot feedback and Recommendation learning serve different purposes" as const;
 
 export const PILOT_FEEDBACK_RECOMMENDATION_LEARNING_WHY_TWO =
   "Pilot feedback tracks feedback on review outputs, recurring issues, and improvement opportunities from pilots. Recommendation learning inspects and rebuilds the advisory recommendation-ranking profile from historical outcomes. Reading pilot themes is not the same as tuning recommendation weights." as const;
 
 export const PILOT_FEEDBACK_RECOMMENDATION_LEARNING_COMPACT_LINE =
-  "Pilot feedback is outcome themes; Recommendation learning tunes ranking weights — open the other when you need that job." as const;
+  "Pilot feedback is outcome themes; Recommendation learning tunes ranking weights." as const;
 
 export const PILOT_FEEDBACK_RECOMMENDATION_LEARNING_PILOT_LINK: PilotFeedbackRecommendationLearningLink =
   {

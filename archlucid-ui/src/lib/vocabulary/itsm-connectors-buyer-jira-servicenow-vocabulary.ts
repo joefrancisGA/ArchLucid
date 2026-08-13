@@ -41,13 +41,13 @@ export type ItsmConnectorsBuyerJiraServicenowVocabularyModel = {
 };
 
 export const ITSM_CONNECTORS_BUYER_JIRA_SERVICENOW_HEADING =
-  "ITSM connectors, Jira, and ServiceNow do different jobs" as const;
+  "ITSM connectors, Jira, and ServiceNow serve different purposes" as const;
 
 export const ITSM_CONNECTORS_BUYER_JIRA_SERVICENOW_WHY_THREE =
   "ITSM connectors is the admin surface for connector credentials, routing, and connector health. Jira and ServiceNow under Integrations are buyer product integration setup for those tools. Configuring admin connector credentials and health is not the same as buyer Jira or ServiceNow product integration setup." as const;
 
 export const ITSM_CONNECTORS_BUYER_JIRA_SERVICENOW_COMPACT_LINE =
-  "ITSM connectors is admin credentials/health; Jira and ServiceNow are buyer product integration setup — open the other when you need that job." as const;
+  "ITSM connectors is admin credentials/health; Jira and ServiceNow are buyer product integration setup." as const;
 
 export const ITSM_CONNECTORS_BUYER_JIRA_SERVICENOW_CONNECTORS_LINK: ItsmConnectorsBuyerJiraServicenowLink =
   {

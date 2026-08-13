@@ -36,13 +36,13 @@ export type ConnectionStatusWebhooksVocabularyModel = {
 };
 
 export const CONNECTION_STATUS_WEBHOOKS_HEADING =
-  "Connection status and Webhooks do different jobs" as const;
+  "Connection status and Webhooks serve different purposes" as const;
 
 export const CONNECTION_STATUS_WEBHOOKS_WHY_TWO =
   "Connection status shows which notification, ticketing, publishing, and outbound webhook integrations are ready for this workspace. Webhooks edits webhook subscriptions and delivery destinations. Checking readiness does not configure subscriptions." as const;
 
 export const CONNECTION_STATUS_WEBHOOKS_COMPACT_LINE =
-  "Connection status is integration readiness; Webhooks edits subscriptions — open the other when you need that job." as const;
+  "Connection status is integration readiness; Webhooks edits subscriptions." as const;
 
 export const CONNECTION_STATUS_WEBHOOKS_STATUS_LINK: ConnectionStatusWebhooksLink = {
   id: "connection-status",

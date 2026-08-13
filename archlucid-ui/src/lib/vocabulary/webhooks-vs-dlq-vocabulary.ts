@@ -9,7 +9,7 @@
  *   retries and need inspect / retry / suppress.
  *
  * They stay separate because configuring a webhook destination is not the same
- * job as reclaiming failed outbox rows after a publish outage.
+ * task as reclaiming failed outbox rows after a publish outage.
  */
 
 import { INTEGRATIONS_WEBHOOKS_PATH } from "@/lib/integrations-nav-paths";
@@ -33,7 +33,7 @@ export type WebhooksVsDlqVocabularyModel = {
 };
 
 export const WEBHOOKS_VS_DLQ_HEADING =
-  "Webhooks and dead letters do different jobs" as const;
+  "Webhooks and dead letters serve different purposes" as const;
 
 export const WEBHOOKS_VS_DLQ_WHY_TWO =
   "Webhooks configure outbound delivery — destination URLs, subscribed events, and signing for customer webhook subscriptions. Integration event dead letters are the ops recovery queue for outbound events that exceeded publish retries. Setting up a webhook is not the same as retrying a failed outbox row after a publish outage." as const;

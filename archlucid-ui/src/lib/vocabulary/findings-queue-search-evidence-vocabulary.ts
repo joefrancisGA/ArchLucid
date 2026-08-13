@@ -8,7 +8,7 @@
  *   findings, decisions, and signed review records across architecture packages
  *   in the evidence trail.
  *
- * They stay separate because triage disposition is not the same job as
+ * They stay separate because triage disposition is not the same task as
  * cross-package retrieval. Distinct from Ask ↔ Search (TB-2231): Ask answers
  * questions with citations; this rail pairs the findings queue with Search.
  */
@@ -34,7 +34,7 @@ export type FindingsQueueSearchEvidenceVocabularyModel = {
 };
 
 export const FINDINGS_QUEUE_SEARCH_EVIDENCE_HEADING =
-  "Findings queue and Search review evidence do different jobs" as const;
+  "Findings queue and Search review evidence serve different purposes" as const;
 
 export const FINDINGS_QUEUE_SEARCH_EVIDENCE_WHY_TWO =
   "The findings queue is the governance triage inbox for dispositioning risks, assigning owners, and clearing open items. Search review evidence finds findings, decisions, and signed review records across architecture packages in the evidence trail. Use the findings queue to triage; open Search when you need to locate evidence across packages." as const;

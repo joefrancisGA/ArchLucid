@@ -38,7 +38,7 @@ export type ApiKeysUsersVocabularyModel = {
 export const API_KEYS_USERS_HEADING = "API keys and users stay separate" as const;
 
 export const API_KEYS_USERS_WHY_TWO =
-  "API keys are automation credentials for approved enterprise configurations. Users and roles manage people, invitations, and workspace access. Rotating a key does not invite a person — and inviting a user does not issue an API key. Open the peer link when you need the other job." as const;
+  "API keys are automation credentials for approved enterprise configurations. Users and roles manage people, invitations, and workspace access. Rotating a key does not invite a person — and inviting a user does not issue an API key." as const;
 
 export const API_KEYS_USERS_COMPACT_LINE =
   "API keys rotate credentials; Users manage people and roles — open the other when you need both." as const;

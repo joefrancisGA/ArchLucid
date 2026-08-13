@@ -47,13 +47,13 @@ export type ProjectsRecycleDraftsPackageVocabularyModel = {
 };
 
 export const PROJECTS_RECYCLE_DRAFTS_PACKAGE_HEADING =
-  "Recycle, drafts, and packages are three different jobs" as const;
+  "Recycle, drafts, and packages serve three different purposes" as const;
 
 export const PROJECTS_RECYCLE_DRAFTS_PACKAGE_WHY_THREE =
   "The projects recycle bin restores soft-deleted projects within the retention window. Architecture drafts are saved work before a review starts. Architecture packages live on the reviews hub as the review inventory. Soft-delete is not erase for packages — restore returns project residue; drafts and packages stay separate objects." as const;
 
 export const PROJECTS_RECYCLE_DRAFTS_PACKAGE_COMPACT_LINE =
-  "Recycle restores soft-deleted projects; drafts are pre-review; packages are architecture packages — open the other when you need that job." as const;
+  "Recycle restores soft-deleted projects; drafts are pre-review; packages are architecture packages." as const;
 
 export const PROJECTS_RECYCLE_DRAFTS_PACKAGE_RESTORE_RESIDUE_HONESTY =
   "Soft-delete does not erase architecture packages. Restore brings back project residue; drafts and packages remain distinct from the recycle bin." as const;

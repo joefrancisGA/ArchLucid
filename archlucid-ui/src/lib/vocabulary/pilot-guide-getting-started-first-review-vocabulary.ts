@@ -10,7 +10,7 @@
  *   guided path for completing a first review end-to-end.
  *
  * They stay separate because pilot prep is not product orientation, and
- * orientation is not the same job as walking the first-review checklist.
+ * orientation is not the same task as walking the first-review checklist.
  * Distinct from Getting started ≠ First architecture review pair (TB-2312).
  */
 
@@ -40,13 +40,13 @@ export type PilotGuideGettingStartedFirstReviewVocabularyModel = {
 };
 
 export const PILOT_GUIDE_GETTING_STARTED_FIRST_REVIEW_HEADING =
-  "Pilot guide, Getting started, and Your first architecture review do different jobs" as const;
+  "Pilot guide, Getting started, and Your first architecture review serve different purposes" as const;
 
 export const PILOT_GUIDE_GETTING_STARTED_FIRST_REVIEW_WHY_THREE =
   "Pilot guide prepares an evaluation pilot — navigation, cadence, and how to interpret pilot outputs. Getting started orients you on how ArchLucid turns evidence into findings and governance-ready outputs. Your first architecture review is the guided path for completing a first review end-to-end. Pilot prep is not product orientation, and orientation is not the first-review checklist." as const;
 
 export const PILOT_GUIDE_GETTING_STARTED_FIRST_REVIEW_COMPACT_LINE =
-  "Pilot guide is pilot prep; Getting started is product orientation; Your first architecture review is the guided first-review path — open the other when you need that job." as const;
+  "Pilot guide is pilot prep; Getting started is product orientation; Your first architecture review is the guided first-review path." as const;
 
 export const PILOT_GUIDE_GETTING_STARTED_FIRST_REVIEW_PILOT_GUIDE_LINK: PilotGuideGettingStartedFirstReviewLink =
   {

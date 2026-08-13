@@ -37,10 +37,10 @@ export type AdvisoryResultsSchedulesVocabularyModel = {
 };
 
 export const ADVISORY_RESULTS_SCHEDULES_HEADING =
-  "Advisory scans and Advisory schedules do different jobs" as const;
+  "Advisory scans and Advisory schedules serve different purposes" as const;
 
 export const ADVISORY_RESULTS_SCHEDULES_WHY_TWO =
-  "Advisory scans generate and browse prioritized recommendations from finalized reviews. Advisory schedules automate recurring advisory scans on a cadence. Running a scan is not the same as scheduling scans — open the peer when you need the other job." as const;
+  "Advisory scans generate and browse prioritized recommendations from finalized reviews. Advisory schedules automate recurring advisory scans on a cadence. Running a scan is not the same as scheduling scans." as const;
 
 export const ADVISORY_RESULTS_SCHEDULES_COMPACT_LINE =
   "Advisory scans browse recommendations; Advisory schedules automate recurring scans — open the other when you need both." as const;

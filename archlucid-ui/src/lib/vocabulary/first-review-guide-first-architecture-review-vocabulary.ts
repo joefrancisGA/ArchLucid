@@ -7,7 +7,7 @@
  * - Your first architecture review (`/help/first-architecture-review`) is the
  *   help-center guided path for completing a first review end-to-end.
  *
- * They stay separate because the in-product checklist is not the same job as
+ * They stay separate because the in-product checklist is not the same task as
  * the help-topic guided path. Distinct from Getting started ≠ First architecture
  * review (TB-2312) and the Pilot guide triad (TB-2322).
  */
@@ -35,13 +35,13 @@ export type FirstReviewGuideFirstArchitectureReviewVocabularyModel = {
 };
 
 export const FIRST_REVIEW_GUIDE_FIRST_ARCHITECTURE_REVIEW_HEADING =
-  "First review guide and Your first architecture review do different jobs" as const;
+  "First review guide and Your first architecture review serve different purposes" as const;
 
 export const FIRST_REVIEW_GUIDE_FIRST_ARCHITECTURE_REVIEW_WHY_TWO =
-  "First review guide is the in-product checklist hub with readiness, walkthrough steps, and next actions. Your first architecture review is the help-center guided path for completing a first review end-to-end. The in-product checklist is not the same job as the help-topic guided path." as const;
+  "First review guide is the in-product checklist hub with readiness, walkthrough steps, and next actions. Your first architecture review is the help-center guided path for completing a first review end-to-end. The in-product checklist is not the same task as the help-topic guided path." as const;
 
 export const FIRST_REVIEW_GUIDE_FIRST_ARCHITECTURE_REVIEW_COMPACT_LINE =
-  "First review guide is the in-product checklist; Your first architecture review is the help guided path — open the other when you need that job." as const;
+  "First review guide is the in-product checklist; Your first architecture review is the help guided path." as const;
 
 export const FIRST_REVIEW_GUIDE_FIRST_ARCHITECTURE_REVIEW_GUIDE_LINK: FirstReviewGuideFirstArchitectureReviewLink =
   {

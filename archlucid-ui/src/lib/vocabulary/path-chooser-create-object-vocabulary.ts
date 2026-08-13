@@ -3,14 +3,14 @@
  *
  * Three related create / choose surfaces:
  * - Path chooser help (`/help/choose-your-next-step`) orients procurement and
- *   evaluators on which product job to open next.
+ *   evaluators on which product area to open next.
  * - Architecture drafts (`/architecture/architectures`) is the draft registry
  *   before a review starts.
  * - Start a review (`/architecture/reviews/new`) creates a new architecture
  *   review that becomes an architecture package.
  *
  * They stay separate because choosing a next step is not saving a draft, and
- * drafts are not the same job as starting a review.
+ * drafts are not the same task as starting a review.
  */
 
 import {
@@ -42,19 +42,19 @@ export type PathChooserCreateObjectVocabularyModel = {
 };
 
 export const PATH_CHOOSER_CREATE_OBJECT_HEADING =
-  "Path chooser, drafts, and Start review are three different jobs" as const;
+  "Path chooser, drafts, and Start review serve three different purposes" as const;
 
 export const PATH_CHOOSER_CREATE_OBJECT_WHY_THREE =
-  "Choose your next step orients which product job to open. Architecture drafts save work before a review starts. Start review creates a new architecture review that becomes an architecture package. Choosing a path is not saving a draft — and a draft is not the same as starting a review." as const;
+  "Choose your next step orients which product area to open. Architecture drafts save work before a review starts. Start review creates a new architecture review that becomes an architecture package. Choosing a path is not saving a draft — and a draft is not the same as starting a review." as const;
 
 export const PATH_CHOOSER_CREATE_OBJECT_COMPACT_LINE =
-  "Path chooser orients next steps; drafts save pre-review work; Start review creates a review — open the other when you need that job." as const;
+  "Path chooser orients next steps; drafts save pre-review work; Start review creates a review." as const;
 
 export const PATH_CHOOSER_CREATE_OBJECT_PATH_CHOOSER_LINK: PathChooserCreateObjectLink = {
   id: "path-chooser",
   label: "Choose your next step",
   href: PATH_CHOOSER_HELP_PATH,
-  whenToUse: "Pick which product job to open next (procurement and evaluator orientation).",
+  whenToUse: "Pick which product area to open next (procurement and evaluator orientation).",
 };
 
 export const PATH_CHOOSER_CREATE_OBJECT_DRAFTS_LINK: PathChooserCreateObjectLink = {

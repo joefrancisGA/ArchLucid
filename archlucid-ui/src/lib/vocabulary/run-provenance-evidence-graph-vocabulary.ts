@@ -7,7 +7,7 @@
  * - Evidence graph (`/insights/evidence-graph`) is the cross-package graph explorer
  *   for evidence trails and linkage.
  *
- * They stay separate because walking one package’s provenance is not the same job
+ * They stay separate because walking one package’s provenance is not the same task
  * as exploring the evidence graph across packages. Distinct from Architecture
  * intelligence ≠ Evidence graph (TB-2273).
  */
@@ -33,13 +33,13 @@ export type RunProvenanceEvidenceGraphVocabularyModel = {
 };
 
 export const RUN_PROVENANCE_EVIDENCE_GRAPH_HEADING =
-  "Package provenance and Evidence graph do different jobs" as const;
+  "Package provenance and Evidence graph serve different purposes" as const;
 
 export const RUN_PROVENANCE_EVIDENCE_GRAPH_WHY_TWO =
   "Package provenance walks linkage for one architecture review. Evidence graph explores provenance and evidence trails across packages. Opening one package’s provenance walk is not the same as exploring the cross-package graph." as const;
 
 export const RUN_PROVENANCE_EVIDENCE_GRAPH_COMPACT_LINE =
-  "Package provenance is per-review; Evidence graph explores across packages — open the other when you need that job." as const;
+  "Package provenance is per-review; Evidence graph explores across packages." as const;
 
 /**
  * Peer from Evidence graph: Reviews hub, because provenance is run-scoped

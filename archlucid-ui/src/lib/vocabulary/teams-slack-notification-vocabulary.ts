@@ -5,7 +5,7 @@
  * - Microsoft Teams (`/integrations/teams`) configures Teams webhook delivery
  *   for governance alerts in this workspace.
  * - Slack (`/integrations/slack`) configures Slack webhook destinations for the
- *   same alert routing job on a different channel.
+ *   same alert routing task on a different channel.
  *
  * The notifications hub (`/administration/notifications`) links both as
  * separate channels. They stay separate because Teams and Slack are different

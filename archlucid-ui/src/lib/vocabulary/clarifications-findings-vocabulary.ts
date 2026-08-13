@@ -32,13 +32,13 @@ export type ClarificationsFindingsVocabularyModel = {
 };
 
 export const CLARIFICATIONS_FINDINGS_HEADING =
-  "Clarifications and Findings do different jobs" as const;
+  "Clarifications and Findings serve different purposes" as const;
 
 export const CLARIFICATIONS_FINDINGS_WHY_TWO =
   "Clarifications are gaps and open questions that reduce assessment confidence until answered or evidenced. Findings are the assessment findings list for this review — risk and quality issues to triage. Open questions are not the same queue as findings." as const;
 
 export const CLARIFICATIONS_FINDINGS_COMPACT_LINE =
-  "Clarifications are gaps and open questions; Findings are assessment issues to triage — open the other when you need that job." as const;
+  "Clarifications are gaps and open questions; Findings are assessment issues to triage." as const;
 
 /** Build run-scoped Clarifications ↔ Findings vocabulary (create-home archTab links). */
 export function buildClarificationsFindingsVocabulary(

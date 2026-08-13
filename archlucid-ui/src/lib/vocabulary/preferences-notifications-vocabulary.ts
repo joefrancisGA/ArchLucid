@@ -7,7 +7,7 @@
  * - Notifications (`/administration/notifications`) is the channel preference
  *   launcher for digests, alerts, Teams, and Slack configure pages.
  *
- * They stay separate because choosing a theme is not the same job as choosing
+ * They stay separate because choosing a theme is not the same task as choosing
  * which notification channels to configure. Distinct from Digests≠Notifications
  * (TB-2254).
  */
@@ -35,13 +35,13 @@ export type PreferencesNotificationsVocabularyModel = {
 };
 
 export const PREFERENCES_NOTIFICATIONS_HEADING =
-  "Preferences and Notifications do different jobs" as const;
+  "Preferences and Notifications serve different purposes" as const;
 
 export const PREFERENCES_NOTIFICATIONS_WHY_TWO =
   "Preferences is personal appearance and theme settings for your account. Notifications is the channel preference launcher for digests, alerts, Teams, and Slack. Changing your theme does not configure notification channels." as const;
 
 export const PREFERENCES_NOTIFICATIONS_COMPACT_LINE =
-  "Preferences is appearance; Notifications launches channel settings — open the other when you need that job." as const;
+  "Preferences is appearance; Notifications launches channel settings." as const;
 
 export const PREFERENCES_NOTIFICATIONS_PREFERENCES_LINK: PreferencesNotificationsLink = {
   id: "preferences",

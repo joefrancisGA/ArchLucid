@@ -35,13 +35,13 @@ export type ItsmConnectorsFindingTicketVocabularyModel = {
 };
 
 export const ITSM_CONNECTORS_FINDING_TICKET_HEADING =
-  "ITSM connectors and Finding ticket linkage do different jobs" as const;
+  "ITSM connectors and Finding ticket linkage serve different purposes" as const;
 
 export const ITSM_CONNECTORS_FINDING_TICKET_WHY_TWO =
   "ITSM connectors configures Jira and ServiceNow credentials, routing, and connector health. Finding ticket linkage creates or links an external ticket for one finding. Configuring connectors does not open a ticket from a finding." as const;
 
 export const ITSM_CONNECTORS_FINDING_TICKET_COMPACT_LINE =
-  "ITSM connectors configures Jira/ServiceNow; Finding ticket linkage opens a ticket from a finding — open the other when you need that job." as const;
+  "ITSM connectors configures Jira/ServiceNow; Finding ticket linkage opens a ticket from a finding." as const;
 
 export const ITSM_CONNECTORS_FINDING_TICKET_CONNECTORS_LINK: ItsmConnectorsFindingTicketLink =
   {

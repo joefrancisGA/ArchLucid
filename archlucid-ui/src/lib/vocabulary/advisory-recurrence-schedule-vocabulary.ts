@@ -35,7 +35,7 @@ export type AdvisoryRecurrenceScheduleVocabularyModel = {
 };
 
 export const ADVISORY_RECURRENCE_SCHEDULE_HEADING =
-  "Advisory and recurrence schedules do different jobs" as const;
+  "Advisory and recurrence schedules serve different purposes" as const;
 
 export const ADVISORY_RECURRENCE_SCHEDULE_WHY_TWO =
   "Advisory schedules automate recurring advisory scans that surface governance findings on architecture packages. Recurrence schedules automate re-review of architecture packages on a repeating cadence. Both are schedules, but one runs advisory scans and the other starts follow-up reviews — open the peer link when you need the other kind." as const;

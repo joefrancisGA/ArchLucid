@@ -32,13 +32,13 @@ export type OverviewDiagramVocabularyModel = {
 };
 
 export const OVERVIEW_DIAGRAM_HEADING =
-  "Overview and Diagram do different jobs" as const;
+  "Overview and Diagram serve different purposes" as const;
 
 export const OVERVIEW_DIAGRAM_WHY_TWO =
   "Overview is the structured brief summary for this architecture package. Diagram is an illustrative sketch of the architecture — not the authoritative brief. Reading the summary is not the same as viewing the sketch." as const;
 
 export const OVERVIEW_DIAGRAM_COMPACT_LINE =
-  "Overview is the structured brief; Diagram is an illustrative sketch — open the other when you need that job." as const;
+  "Overview is the structured brief; Diagram is an illustrative sketch." as const;
 
 /** Build run-scoped Overview ↔ Diagram vocabulary (create-home archTab links). */
 export function buildOverviewDiagramVocabulary(runId: string): OverviewDiagramVocabularyModel {

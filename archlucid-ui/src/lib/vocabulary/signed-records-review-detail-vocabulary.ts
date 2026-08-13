@@ -7,7 +7,7 @@
  * - Review detail (`/architecture/reviews/[runId]`) is the *architecture
  *   package* workspace for one review — findings, evidence, and finalize.
  *
- * They stay separate because browsing signed records is not the same job as
+ * They stay separate because browsing signed records is not the same task as
  * working inside one architecture package. Open the peer when you need both.
  */
 
@@ -32,10 +32,10 @@ export type SignedRecordsReviewDetailVocabularyModel = {
 };
 
 export const SIGNED_RECORDS_REVIEW_DETAIL_HEADING =
-  "Signed review records and review detail do different jobs" as const;
+  "Signed review records and review detail serve different purposes" as const;
 
 export const SIGNED_RECORDS_REVIEW_DETAIL_WHY_TWO =
-  "Signed review records is the inventory of finalized signed review records for diligence and governance follow-up. Review detail is the architecture package workspace for one review — findings, evidence, and finalize. The inventory is not the package workspace — open the peer when you need the other job." as const;
+  "Signed review records is the inventory of finalized signed review records for diligence and governance follow-up. Review detail is the architecture package workspace for one review — findings, evidence, and finalize. The inventory is not the package workspace." as const;
 
 export const SIGNED_RECORDS_REVIEW_DETAIL_COMPACT_LINE =
   "Signed review records lists finalized records; review detail is one architecture package — open the other when you need both." as const;

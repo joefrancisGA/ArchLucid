@@ -9,7 +9,7 @@
  *   hub for procurement-ready materials inside the product.
  *
  * They stay separate because a public trust pack, a public assurance ladder, and
- * an in-product admin hub are three different jobs that buyers often conflate.
+ * an in-product admin hub serve three different purposes that buyers often conflate.
  */
 
 import {
@@ -42,13 +42,13 @@ export type TrustAssuranceSecurityTrustVocabularyModel = {
 };
 
 export const TRUST_ASSURANCE_SECURITY_TRUST_HEADING =
-  "Trust Center, Assurance status, and Security & Trust do different jobs" as const;
+  "Trust Center, Assurance status, and Security & Trust serve different purposes" as const;
 
 export const TRUST_ASSURANCE_SECURITY_TRUST_WHY_THREE =
   "Trust Center is the public procurement trust pack and downloads. Assurance status is the public assurance ladder for diligence reviewers. Security & Trust is the in-product operator hub for workspace procurement materials. Opening one does not replace the other two." as const;
 
 export const TRUST_ASSURANCE_SECURITY_TRUST_COMPACT_LINE =
-  "Trust Center is the public pack; Assurance status is the public ladder; Security & Trust is the in-product hub — open the other when you need that job." as const;
+  "Trust Center is the public pack; Assurance status is the public ladder; Security & Trust is the in-product hub." as const;
 
 export const TRUST_ASSURANCE_SECURITY_TRUST_CENTER_LINK: TrustAssuranceSecurityTrustLink = {
   id: "trust-center",

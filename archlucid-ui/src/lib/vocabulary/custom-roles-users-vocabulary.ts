@@ -34,10 +34,10 @@ export type CustomRolesUsersVocabularyModel = {
 };
 
 export const CUSTOM_ROLES_USERS_HEADING =
-  "Custom roles and users people do different jobs" as const;
+  "Custom roles and users people serve different purposes" as const;
 
 export const CUSTOM_ROLES_USERS_WHY_TWO =
-  "Users and invitations manage people, pending invitations, and workspace membership. Roles and permissions define what authority each role grants in the custom roles matrix. Inviting a person is not editing role permissions — and changing a role’s grants is not the same as assigning that role to a member. Open the peer tab when you need the other job." as const;
+  "Users and invitations manage people, pending invitations, and workspace membership. Roles and permissions define what authority each role grants in the custom roles matrix. Inviting a person is not editing role permissions — and changing a role’s grants is not the same as assigning that role to a member." as const;
 
 export const CUSTOM_ROLES_USERS_COMPACT_LINE =
   "Users manage people and invitations; Roles edit permissions — open the other tab when you need both." as const;

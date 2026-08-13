@@ -39,13 +39,13 @@ export type FirstPilotOperateUnlockVocabularyModel = {
 };
 
 export const FIRST_PILOT_OPERATE_UNLOCK_HEADING =
-  "First pilot and Operate unlock do different jobs" as const;
+  "First pilot and Operate unlock serve different purposes" as const;
 
 export const FIRST_PILOT_OPERATE_UNLOCK_WHY_TWO =
-  "The first-pilot command center steers the next best action for starting and finalizing a review. Operate unlock reveals Compare, evidence graph, Ask, and related analysis nav that stay hidden on the focused pilot path. Pilot next-best-action is not the same job as unlocking Operate analysis routes." as const;
+  "The first-pilot command center steers the next best action for starting and finalizing a review. Operate unlock reveals Compare, evidence graph, Ask, and related analysis nav that stay hidden on the focused pilot path. Pilot next-best-action is not the same task as unlocking Operate analysis routes." as const;
 
 export const FIRST_PILOT_OPERATE_UNLOCK_COMPACT_LINE =
-  "First pilot steers the next review action; Operate unlock reveals Compare/graph/Ask — open the other when you need that job." as const;
+  "First pilot steers the next review action; Operate unlock reveals Compare/graph/Ask." as const;
 
 export const FIRST_PILOT_OPERATE_UNLOCK_FIRST_PILOT_LINK: FirstPilotOperateUnlockLink = {
   id: "first-pilot",

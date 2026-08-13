@@ -35,7 +35,7 @@ export type ValidateCompareVocabularyModel = {
 export const VALIDATE_COMPARE_HEADING = "Validate and compare stay separate" as const;
 
 export const VALIDATE_COMPARE_WHY_TWO =
-  "Validate review re-checks one finalized architecture package (reconstruct, rebuild, or regenerate). Compare two reviews diffs two packages side by side. Running validation depth is not a pairwise diff — open the peer link when you need the other job." as const;
+  "Validate review re-checks one finalized architecture package (reconstruct, rebuild, or regenerate). Compare two reviews diffs two packages side by side. Running validation depth is not a pairwise diff." as const;
 
 export const VALIDATE_COMPARE_COMPACT_LINE =
   "Validate re-checks one architecture package; Compare diffs two — open the other when you need both." as const;

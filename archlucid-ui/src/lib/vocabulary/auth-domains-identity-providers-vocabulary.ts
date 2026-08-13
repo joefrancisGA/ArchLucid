@@ -8,7 +8,7 @@
  *   federation for sign-in, role mapping, and diagnostics.
  *
  * They stay separate because verifying who may sign in by email domain is not the
- * same job as configuring the federation protocol. Distinct from Account security
+ * same task as configuring the federation protocol. Distinct from Account security
  * ≠ Sign-in domains (TB-2293), IdP ≠ SSO wizard (TB-2277), and SCIM ≠ IdP (TB-2294).
  */
 

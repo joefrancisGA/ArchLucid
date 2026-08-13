@@ -34,10 +34,10 @@ export type ImpactPreviewCompareVocabularyModel = {
 };
 
 export const IMPACT_PREVIEW_COMPARE_HEADING =
-  "Impact preview and Compare do different jobs" as const;
+  "Impact preview and Compare serve different purposes" as const;
 
 export const IMPACT_PREVIEW_COMPARE_WHY_TWO =
-  "Impact preview simulates the expected impact of a proposed architecture change against a baseline architecture package. Compare two reviews diffs two finalized architecture packages side by side. A change simulation is not a pairwise review diff — open the peer link when you need the other job." as const;
+  "Impact preview simulates the expected impact of a proposed architecture change against a baseline architecture package. Compare two reviews diffs two finalized architecture packages side by side. A change simulation is not a pairwise review diff." as const;
 
 export const IMPACT_PREVIEW_COMPARE_COMPACT_LINE =
   "Impact preview simulates proposed changes; Compare diffs two architecture packages — open the other when you need both." as const;

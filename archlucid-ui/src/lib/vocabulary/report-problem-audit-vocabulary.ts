@@ -8,7 +8,7 @@
  * - Audit trail (`/governance/audit`) is the *governance audit trail* for
  *   governance and review events (filters, integrity export/verify).
  *
- * They stay separate because opening support intake is not the same job as
+ * They stay separate because opening support intake is not the same task as
  * searching the governance audit trail. Distinct from TB-2255 (Audit ≠
  * evidence trail surfaces).
  */
@@ -34,7 +34,7 @@ export type ReportProblemAuditVocabularyModel = {
 };
 
 export const REPORT_PROBLEM_AUDIT_HEADING =
-  "Report a problem and Audit trail do different jobs" as const;
+  "Report a problem and Audit trail serve different purposes" as const;
 
 export const REPORT_PROBLEM_AUDIT_WHY_TWO =
   "Report a problem is support intake — structured defect reporting with correlation identifiers and a next-business-day response commitment. Audit trail is the governance audit trail for governance and review events. Opening support intake is not the same as searching the audit trail." as const;

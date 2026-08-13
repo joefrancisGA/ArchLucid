@@ -37,7 +37,7 @@ export type WebhooksApiKeysVocabularyModel = {
 export const WEBHOOKS_API_KEYS_HEADING = "Webhooks and API keys stay separate" as const;
 
 export const WEBHOOKS_API_KEYS_WHY_TWO =
-  "Webhooks push selected ArchLucid events to an HTTPS endpoint you manage. API keys are automation credentials for approved enterprise configurations. Configuring a destination is not the same as rotating a key — open the peer link when you need the other job." as const;
+  "Webhooks push selected ArchLucid events to an HTTPS endpoint you manage. API keys are automation credentials for approved enterprise configurations. Configuring a destination is not the same as rotating a key." as const;
 
 export const WEBHOOKS_API_KEYS_COMPACT_LINE =
   "Webhooks push events outbound; API keys rotate credentials — open the other when you need both." as const;

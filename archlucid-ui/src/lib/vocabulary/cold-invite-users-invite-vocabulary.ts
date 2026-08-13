@@ -35,13 +35,13 @@ export type ColdInviteUsersInviteVocabularyModel = {
 };
 
 export const COLD_INVITE_USERS_INVITE_HEADING =
-  "Accepting an invitation and sending one do different jobs" as const;
+  "Accepting an invitation and sending one serve different purposes" as const;
 
 export const COLD_INVITE_USERS_INVITE_WHY_TWO =
   "Accept invitation validates a cold invite token and continues to sign in before joining the workspace. Users invite and Invite reviewer send a workspace invitation by email with a role. Accepting an invitation is not the same as inviting a reviewer or other member." as const;
 
 export const COLD_INVITE_USERS_INVITE_COMPACT_LINE =
-  "Accept invitation is the recipient handoff; Users invite sends invitations — open the other when you need that job." as const;
+  "Accept invitation is the recipient handoff; Users invite sends invitations." as const;
 
 export const COLD_INVITE_USERS_INVITE_COLD_LINK: ColdInviteUsersInviteLink = {
   id: "cold-invite",
@@ -57,7 +57,7 @@ export const COLD_INVITE_USERS_INVITE_USERS_LINK: ColdInviteUsersInviteLink = {
   whenToUse: "Send a workspace invitation with Reader or Auditor access.",
 };
 
-/** Alternate admin deep-link for the Users tab invite panel (same send job). */
+/** Alternate admin deep-link for the Users tab invite panel (same send task). */
 export const COLD_INVITE_USERS_INVITE_USERS_TAB_HREF = SETTINGS_USERS_USERS_TAB_PATH;
 
 /** Full vocabulary model (heading, why-two copy, and deep links). */

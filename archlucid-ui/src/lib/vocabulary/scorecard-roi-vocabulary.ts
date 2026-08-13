@@ -9,7 +9,7 @@
  *   review-cycle reduction, effort saved, and governance-ready artifacts across
  *   the reporting window.
  *
- * They stay separate because scorecard tiles for one pilot are not the same job
+ * They stay separate because scorecard tiles for one pilot are not the same task
  * as portfolio ROI framing. Distinct from TB-2258 (ROI summary ≠ sponsor export).
  */
 
@@ -34,7 +34,7 @@ export type ScorecardRoiVocabularyModel = {
 };
 
 export const SCORECARD_ROI_HEADING =
-  "Architecture scorecard and ROI summary do different jobs" as const;
+  "Architecture scorecard and ROI summary serve different purposes" as const;
 
 export const SCORECARD_ROI_WHY_TWO =
   "Architecture scorecard shows pilot operational KPIs and directional savings tiles for the current workspace window. ROI summary shows portfolio KPIs — review-cycle reduction, estimated effort saved, and governance-ready artifacts across the reporting window. Pilot scorecard tiles are not the same as portfolio ROI framing." as const;

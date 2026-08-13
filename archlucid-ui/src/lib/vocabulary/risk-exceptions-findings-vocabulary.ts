@@ -39,7 +39,7 @@ export const RISK_EXCEPTIONS_FINDINGS_HEADING =
   "Risk exceptions and findings stay separate" as const;
 
 export const RISK_EXCEPTIONS_FINDINGS_WHY_TWO =
-  "Risk exceptions are time-bounded waivers against findings — renew or revoke them here. The findings queue is the risk register for disposition and ownership on the underlying findings. A waiver does not dispose a finding, and disposing a finding is not the same as managing the exception register — open the peer link when you need the other job." as const;
+  "Risk exceptions are time-bounded waivers against findings — renew or revoke them here. The findings queue is the risk register for disposition and ownership on the underlying findings. A waiver does not dispose a finding, and disposing a finding is not the same as managing the exception register." as const;
 
 export const RISK_EXCEPTIONS_FINDINGS_COMPACT_LINE =
   "Risk exceptions waive findings; the findings queue disposes risks — open the other when you need both." as const;

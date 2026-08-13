@@ -35,10 +35,10 @@ export type ConfigurationSystemHealthVocabularyModel = {
 };
 
 export const CONFIGURATION_SYSTEM_HEALTH_HEADING =
-  "Configuration summary and System health do different jobs" as const;
+  "Configuration summary and System health serve different purposes" as const;
 
 export const CONFIGURATION_SYSTEM_HEALTH_WHY_TWO =
-  "Configuration summary browses effective deployment knobs and catalog lint for this tenant. System health shows live platform readiness and critical dependency probes. Reading settings is not the same as watching probes — open the peer when you need the other job." as const;
+  "Configuration summary browses effective deployment knobs and catalog lint for this tenant. System health shows live platform readiness and critical dependency probes. Reading settings is not the same as watching probes." as const;
 
 export const CONFIGURATION_SYSTEM_HEALTH_COMPACT_LINE =
   "Configuration summary browses knobs and lint; System health shows live dependency probes — open the other when you need both." as const;

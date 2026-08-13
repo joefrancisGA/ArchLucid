@@ -7,7 +7,7 @@
  * - Policy packs (`/governance/policy-packs`) are enforceable governance rule sets
  *   applied to reviews and findings.
  *
- * They stay separate because browsing pattern intelligence is not the same job as
+ * They stay separate because browsing pattern intelligence is not the same task as
  * authoring or activating enforceable policy packs.
  */
 
@@ -32,13 +32,13 @@ export type PatternLibraryPolicyPacksVocabularyModel = {
 };
 
 export const PATTERN_LIBRARY_POLICY_PACKS_HEADING =
-  "Pattern library and Policy packs do different jobs" as const;
+  "Pattern library and Policy packs serve different purposes" as const;
 
 export const PATTERN_LIBRARY_POLICY_PACKS_WHY_TWO =
   "The pattern library catalogs recurring architecture patterns from reviews. Policy packs are enforceable governance rule sets applied to reviews and findings. Browsing patterns does not author or activate policy packs." as const;
 
 export const PATTERN_LIBRARY_POLICY_PACKS_COMPACT_LINE =
-  "Pattern library catalogs observed patterns; Policy packs enforce governance rules — open the other when you need that job." as const;
+  "Pattern library catalogs observed patterns; Policy packs enforce governance rules." as const;
 
 export const PATTERN_LIBRARY_POLICY_PACKS_LIBRARY_LINK: PatternLibraryPolicyPacksLink = {
   id: "pattern-library",

@@ -9,7 +9,7 @@
  *   hub to submit, approve, or reject governance approvals.
  *
  * They stay separate because inspecting one request’s lineage is not the same
- * job as working the approval queue. Distinct from findings triage and audit.
+ * task as working the approval queue. Distinct from findings triage and audit.
  */
 
 import { APPROVAL_LINEAGE_CANONICAL_PATH_PATTERN } from "@/lib/approval-lineage-evidence-copy";
@@ -33,10 +33,10 @@ export type ApprovalLineageQueueVocabularyModel = {
 };
 
 export const APPROVAL_LINEAGE_QUEUE_HEADING =
-  "Approval lineage and Approval queue do different jobs" as const;
+  "Approval lineage and Approval queue serve different purposes" as const;
 
 export const APPROVAL_LINEAGE_QUEUE_WHY_TWO =
-  "Approval lineage links one approval request to its architecture review, findings, and signed review record version — a governance linkage view. The approval queue is the decision workflow to submit, approve, or reject requests. Lineage is not the queue — open the peer when you need the other job." as const;
+  "Approval lineage links one approval request to its architecture review, findings, and signed review record version — a governance linkage view. The approval queue is the decision workflow to submit, approve, or reject requests. Lineage is not the queue." as const;
 
 export const APPROVAL_LINEAGE_QUEUE_COMPACT_LINE =
   "Lineage links one approval request; the queue is the decision workflow — open the other when you need both." as const;

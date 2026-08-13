@@ -7,7 +7,7 @@
  * - Help hub (`/help`) is the procedural help landing for how-to topics,
  *   guides, and runbooks.
  *
- * They stay separate because looking up a term definition is not the same job
+ * They stay separate because looking up a term definition is not the same task
  * as following a how-to topic or runbook.
  */
 
@@ -32,13 +32,13 @@ export type GlossaryProceduralHelpVocabularyModel = {
 };
 
 export const GLOSSARY_PROCEDURAL_HELP_HEADING =
-  "Glossary and Help do different jobs" as const;
+  "Glossary and Help serve different purposes" as const;
 
 export const GLOSSARY_PROCEDURAL_HELP_WHY_TWO =
   "Glossary defines product terms for architects and buyers — orientation vocabulary and definitions. Help is the hub for how-to topics, guides, and runbooks. Looking up a term is not the same as following a procedural guide." as const;
 
 export const GLOSSARY_PROCEDURAL_HELP_COMPACT_LINE =
-  "Glossary is term definitions; Help is how-to topics and runbooks — open the other when you need that job." as const;
+  "Glossary is term definitions; Help is how-to topics and runbooks." as const;
 
 export const GLOSSARY_PROCEDURAL_HELP_GLOSSARY_LINK: GlossaryProceduralHelpLink = {
   id: "glossary",

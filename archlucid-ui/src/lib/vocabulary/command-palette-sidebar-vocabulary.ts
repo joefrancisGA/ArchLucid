@@ -7,7 +7,7 @@
  * - Sidebar navigation is the persistent left-nav chrome for browsing grouped
  *   routes in the operator shell.
  *
- * They stay separate because keyboard find-a-page is not the same job as
+ * They stay separate because keyboard find-a-page is not the same task as
  * browsing the sidebar. Distinct from search-surface-disambiguation (Find a
  * page ≠ Search review evidence) and Ask ≠ Search evidence vocabulary.
  */
@@ -42,13 +42,13 @@ export type CommandPaletteSidebarVocabularyModel = {
 };
 
 export const COMMAND_PALETTE_SIDEBAR_HEADING =
-  "Find a page and Sidebar navigation do different jobs" as const;
+  "Find a page and Sidebar navigation serve different purposes" as const;
 
 export const COMMAND_PALETTE_SIDEBAR_WHY_TWO =
-  "Find a page jumps to a page, review, finding, policy pack, or help topic by typing (Ctrl+K). Sidebar navigation browses grouped routes in the left nav. Typing to jump is not the same job as browsing the sidebar tree." as const;
+  "Find a page jumps to a page, review, finding, policy pack, or help topic by typing (Ctrl+K). Sidebar navigation browses grouped routes in the left nav. Typing to jump is not the same task as browsing the sidebar tree." as const;
 
 export const COMMAND_PALETTE_SIDEBAR_COMPACT_LINE =
-  "Find a page jumps by typing; Sidebar browses the left nav — open the other when you need that job." as const;
+  "Find a page jumps by typing; Sidebar browses the left nav." as const;
 
 export const COMMAND_PALETTE_SIDEBAR_COMMAND_PALETTE_LINK: CommandPaletteSidebarLink = {
   id: "command-palette",

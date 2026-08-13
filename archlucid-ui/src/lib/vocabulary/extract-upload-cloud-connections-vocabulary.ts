@@ -35,10 +35,10 @@ export type ExtractUploadCloudConnectionsVocabularyModel = {
 };
 
 export const EXTRACT_UPLOAD_CLOUD_CONNECTIONS_HEADING =
-  "Extract & Upload and Cloud connections do different jobs" as const;
+  "Extract & Upload and Cloud connections serve different purposes" as const;
 
 export const EXTRACT_UPLOAD_CLOUD_CONNECTIONS_WHY_TWO =
-  "Extract & Upload is the offline ZIP and extractor settings path for uploading an Azure inventory package into architecture reviews. Cloud connections configures live Azure, AWS, and GCP inventory connections that collect architecture evidence. Uploading a package is not the same as configuring live cloud inventory — open the peer when you need the other job." as const;
+  "Extract & Upload is the offline ZIP and extractor settings path for uploading an Azure inventory package into architecture reviews. Cloud connections configures live Azure, AWS, and GCP inventory connections that collect architecture evidence. Uploading a package is not the same as configuring live cloud inventory." as const;
 
 export const EXTRACT_UPLOAD_CLOUD_CONNECTIONS_COMPACT_LINE =
   "Extract & Upload uploads an offline inventory ZIP; Cloud connections configures live cloud inventory — open the other when you need both." as const;

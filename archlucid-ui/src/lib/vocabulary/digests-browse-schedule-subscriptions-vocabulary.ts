@@ -8,7 +8,7 @@
  *   architecture digests after advisory scans.
  *
  * They stay separate because browsing history is not configuring cadence, and
- * cadence is not the same job as managing subscription destinations. Distinct
+ * cadence is not the same task as managing subscription destinations. Distinct
  * from Digests ≠ Notifications (TB-2254) and Digest ≠ recurrence (TB-2226).
  */
 

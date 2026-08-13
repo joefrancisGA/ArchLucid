@@ -8,7 +8,7 @@
  *   and linkage explorer.
  *
  * They stay separate because uploading or inventorying evidence on one package
- * is not the same job as exploring the evidence graph. Distinct from Run
+ * is not the same task as exploring the evidence graph. Distinct from Run
  * provenance ≠ Evidence graph (TB-2296) and Architecture intelligence ≠ Evidence
  * graph (TB-2273).
  */
@@ -38,13 +38,13 @@ export type PackageEvidenceEvidenceGraphVocabularyModel = {
 };
 
 export const PACKAGE_EVIDENCE_EVIDENCE_GRAPH_HEADING =
-  "Package Evidence and Evidence graph do different jobs" as const;
+  "Package Evidence and Evidence graph serve different purposes" as const;
 
 export const PACKAGE_EVIDENCE_EVIDENCE_GRAPH_WHY_TWO =
   "Package Evidence captures and inventories evidence for one architecture package. Evidence graph explores provenance and evidence trails across packages. Capturing evidence on one review is not the same as exploring the cross-package graph." as const;
 
 export const PACKAGE_EVIDENCE_EVIDENCE_GRAPH_COMPACT_LINE =
-  "Package Evidence is capture and inventory for one review; Evidence graph explores across packages — open the other when you need that job." as const;
+  "Package Evidence is capture and inventory for one review; Evidence graph explores across packages." as const;
 
 /**
  * Peer from Evidence graph: Reviews hub, because Evidence is package-scoped

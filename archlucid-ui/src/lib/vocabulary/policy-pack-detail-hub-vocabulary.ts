@@ -32,10 +32,10 @@ export type PolicyPackDetailHubVocabularyModel = {
 };
 
 export const POLICY_PACK_DETAIL_HUB_HEADING =
-  "Pack detail and Policy packs do different jobs" as const;
+  "Pack detail and Policy packs serve different purposes" as const;
 
 export const POLICY_PACK_DETAIL_HUB_WHY_TWO =
-  "Policy packs is the hub to assign, author, and browse governance policy packs for a scope. Pack detail inspects one pack’s narrative and metadata. The library is not a single pack workspace — open the peer when you need the other job." as const;
+  "Policy packs is the hub to assign, author, and browse governance policy packs for a scope. Pack detail inspects one pack’s narrative and metadata. The library is not a single pack workspace." as const;
 
 export const POLICY_PACK_DETAIL_HUB_COMPACT_LINE =
   "Policy packs assigns and browses the library; Pack detail inspects one pack — open the other when you need both." as const;

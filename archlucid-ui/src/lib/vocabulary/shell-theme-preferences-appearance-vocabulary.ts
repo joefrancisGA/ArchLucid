@@ -8,7 +8,7 @@
  *   `ThemePreferenceSelector`) is the durable account theme setting saved to
  *   the user preferences API.
  *
- * They stay separate because a quick chrome cycle is not the same job as
+ * They stay separate because a quick chrome cycle is not the same task as
  * saving your account appearance preference. Distinct from Preferences ≠
  * Notifications (TB-2295).
  */
@@ -42,10 +42,10 @@ export type ShellThemePreferencesAppearanceVocabularyModel = {
 };
 
 export const SHELL_THEME_PREFERENCES_APPEARANCE_HEADING =
-  "Shell theme toggle and Preferences appearance do different jobs" as const;
+  "Shell theme toggle and Preferences appearance serve different purposes" as const;
 
 export const SHELL_THEME_PREFERENCES_APPEARANCE_WHY_TWO =
-  "The top-bar theme toggle quickly cycles light, dark, or system in shell chrome. Preferences Appearance is the durable account theme setting. A quick chrome cycle is not the same job as saving your account appearance preference." as const;
+  "The top-bar theme toggle quickly cycles light, dark, or system in shell chrome. Preferences Appearance is the durable account theme setting. A quick chrome cycle is not the same task as saving your account appearance preference." as const;
 
 export const SHELL_THEME_PREFERENCES_APPEARANCE_COMPACT_LINE =
   "Shell toggle cycles light/dark/system quickly; Preferences Appearance saves your account theme — open Preferences when you need the durable setting." as const;

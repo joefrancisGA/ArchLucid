@@ -9,7 +9,7 @@
  *   workspace* for contact workflows, redacted support bundles, and guided
  *   troubleshooting shortcuts.
  *
- * They stay separate because reading the intake help topic is not the same job
+ * They stay separate because reading the intake help topic is not the same task
  * as gathering diagnostics in Administration → Support. Distinct from Report a
  * problem ≠ Audit trail (TB-2267).
  */
@@ -37,13 +37,13 @@ export type ReportProblemSupportWorkspaceVocabularyModel = {
 };
 
 export const REPORT_PROBLEM_SUPPORT_WORKSPACE_HEADING =
-  "Report a problem and Support workspace do different jobs" as const;
+  "Report a problem and Support workspace serve different purposes" as const;
 
 export const REPORT_PROBLEM_SUPPORT_WORKSPACE_WHY_TWO =
   "Report a problem is the help topic for support intake — structured defect reporting with correlation identifiers and a next-business-day response commitment. Support workspace is Administration → Support for contact workflows, redacted support bundles, and guided troubleshooting. Reading intake guidance is not the same as gathering diagnostics in the support workspace." as const;
 
 export const REPORT_PROBLEM_SUPPORT_WORKSPACE_COMPACT_LINE =
-  "Report a problem is support intake help; Support workspace gathers bundles and contact paths — open the other when you need that job." as const;
+  "Report a problem is support intake help; Support workspace gathers bundles and contact paths." as const;
 
 export const REPORT_PROBLEM_SUPPORT_WORKSPACE_REPORT_A_PROBLEM_LINK: ReportProblemSupportWorkspaceLink =
   {

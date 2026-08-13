@@ -33,13 +33,13 @@ export type ScimIdentityProvidersVocabularyModel = {
 };
 
 export const SCIM_IDENTITY_PROVIDERS_HEADING =
-  "SCIM provisioning and Identity providers do different jobs" as const;
+  "SCIM provisioning and Identity providers serve different purposes" as const;
 
 export const SCIM_IDENTITY_PROVIDERS_WHY_TWO =
   "SCIM provisioning issues directory-sync tokens so an identity provider can push users and groups. Identity providers configures SAML and OIDC federation for sign-in, role mapping, and diagnostics. Creating a SCIM token does not set up SSO — and configuring SSO does not provision directory sync." as const;
 
 export const SCIM_IDENTITY_PROVIDERS_COMPACT_LINE =
-  "SCIM is directory sync tokens; Identity providers is SAML/OIDC federation — open the other when you need that job." as const;
+  "SCIM is directory sync tokens; Identity providers is SAML/OIDC federation." as const;
 
 export const SCIM_IDENTITY_PROVIDERS_SCIM_LINK: ScimIdentityProvidersLink = {
   id: "scim-provisioning",

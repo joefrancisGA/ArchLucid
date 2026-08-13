@@ -38,7 +38,7 @@ export type AuditEvidenceTrailVocabularyModel = {
 };
 
 export const AUDIT_EVIDENCE_TRAIL_HEADING =
-  "Audit trail and evidence surfaces do different jobs" as const;
+  "Audit trail and evidence surfaces serve different purposes" as const;
 
 export const AUDIT_EVIDENCE_TRAIL_WHY_THREE =
   "Audit trail is the operator activity log for governance and review events. Evidence graph visualizes the signed-record evidence trail for an architecture package. Search review evidence finds findings, decisions, and signed review records across packages. Do not treat the audit log as the diligence evidence trail — open the peer evidence surface when you need signed-record proof or cross-package retrieval." as const;

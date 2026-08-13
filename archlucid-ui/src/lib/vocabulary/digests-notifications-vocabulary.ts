@@ -8,7 +8,7 @@
  *   hub that routes operators to digests, alerts, Teams, and Slack configure pages.
  *
  * They stay separate because browsing and scheduling digest content is not the
- * same job as choosing which channel surfaces to configure. Digests appear as
+ * same task as choosing which channel surfaces to configure. Digests appear as
  * one channel on the notifications hub — they are not the same page.
  */
 
@@ -34,7 +34,7 @@ export type DigestsNotificationsVocabularyModel = {
 };
 
 export const DIGESTS_NOTIFICATIONS_HEADING =
-  "Digests and Notifications do different jobs" as const;
+  "Digests and Notifications serve different purposes" as const;
 
 export const DIGESTS_NOTIFICATIONS_WHY_TWO =
   "Digests are the content cadence for architecture summary emails and subscriptions. Notifications is the preference launcher that opens digests, alerts, Teams, and Slack configure pages. Schedule and browse digest content on Digests; use Notifications when you need to choose which channel to configure." as const;

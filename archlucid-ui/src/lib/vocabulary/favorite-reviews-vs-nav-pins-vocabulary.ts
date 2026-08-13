@@ -7,7 +7,7 @@
  * - Nav pins (sidebar `#nav-pinned-links-panel`) pin *nav routes* for quick
  *   access to pages — not packages.
  *
- * They stay separate because pinning a package is not the same job as pinning
+ * They stay separate because pinning a package is not the same task as pinning
  * a navigation route. Operators need both so they do not treat sidebar route
  * pins as package favorites (or the reverse).
  */
@@ -41,10 +41,10 @@ export type FavoriteReviewsVsNavPinsVocabularyModel = {
 };
 
 export const FAVORITE_REVIEWS_VS_NAV_PINS_HEADING =
-  "Pinned packages and nav pins do different jobs" as const;
+  "Pinned packages and nav pins serve different purposes" as const;
 
 export const FAVORITE_REVIEWS_VS_NAV_PINS_WHY_TWO =
-  "Pinned reviews save architecture packages you reopen often so you can skip inventory search. Nav pins save sidebar routes for quick page access. Pinning a package is not the same as pinning a navigation route — open the peer when you need the other job." as const;
+  "Pinned reviews save architecture packages you reopen often so you can skip inventory search. Nav pins save sidebar routes for quick page access. Pinning a package is not the same as pinning a navigation route." as const;
 
 export const FAVORITE_REVIEWS_VS_NAV_PINS_COMPACT_LINE =
   "Pinned reviews pin architecture packages; nav pins pin routes — open the other when you need both." as const;
