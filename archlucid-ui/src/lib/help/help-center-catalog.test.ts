@@ -207,6 +207,14 @@ describe("help center tiers", () => {
     expect(HELP_CENTER_FEATURED_SLUGS).not.toContain("caiq-sig-response");
   });
 
+  it("classifies integration-readiness as product tier for operator product-help (TB-1697)", () => {
+    const entry = getProductDocumentationEntry("integration-readiness");
+
+    expect(entry).not.toBeNull();
+    expect(entry?.audience).toBe("operator");
+    expect(getHelpCenterTier(entry!)).toBe("product");
+  });
+
   it("classifies accelerator chooser as product tier with canonical buyer title (TB-1605)", () => {
     const entry = getProductDocumentationEntry("accelerator-chooser");
 

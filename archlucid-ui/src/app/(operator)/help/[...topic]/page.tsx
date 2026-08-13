@@ -6,7 +6,6 @@ import { permanentRedirect } from "next/navigation";
 import { HelpTopicMarkdownView } from "../HelpTopicMarkdownView";
 import { ScopeHelpCurrentScopePanel } from "@/components/help/ScopeHelpCurrentScopePanel";
 import { ScopeHelpEvidenceOrientationStrip } from "@/components/help/ScopeHelpEvidenceOrientationStrip";
-import { IntegrationReadinessHelpEvidenceOrientationStrip } from "@/components/help/IntegrationReadinessHelpEvidenceOrientationStrip";
 import { SecurityTrustHelpEvidenceOrientationStrip } from "@/components/help/SecurityTrustHelpEvidenceOrientationStrip";
 import { SubprocessorsHelpEvidenceOrientationStrip } from "@/components/help/SubprocessorsHelpEvidenceOrientationStrip";
 import { ReportProblemHelpOrientationStack } from "@/components/help/ReportProblemHelpOrientationStack";
@@ -42,6 +41,11 @@ import { resolveInternalRunbookHelpRouteMetadata } from "@/lib/resolve-internal-
 /** ISR for buyer help topics — keep in sync with `HELP_TOPIC_ROUTE_REVALIDATE_SECONDS` (TB-1600). */
 export const revalidate = 3600;
 
+const HelpIntegrationReadinessGuideView = dynamic(() =>
+  import("../_sections/HelpIntegrationReadinessGuideView").then(
+    (module) => module.HelpIntegrationReadinessGuideView,
+  ),
+);
 const HelpPathChooserGuideView = dynamic(() =>
   import("../_sections/HelpPathChooserGuideView").then((module) => module.HelpPathChooserGuideView),
 );
@@ -675,14 +679,7 @@ function renderHelpTopicView(
   }
 
   if (loaded.entry.slug === "integration-readiness") {
-    return (
-      <HelpTopicMarkdownView
-        entry={loaded.entry}
-        markdown={loaded.markdown}
-        showContextualHelp
-        evidenceOrientation={<IntegrationReadinessHelpEvidenceOrientationStrip />}
-      />
-    );
+    return <HelpIntegrationReadinessGuideView entry={loaded.entry} markdown={loaded.markdown} />;
   }
 
   if (loaded.entry.slug === "pilot-feedback") {
