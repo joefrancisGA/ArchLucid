@@ -37815,7 +37815,7 @@ Operators must read three intros before reaching the Trust Center link list.
 
 **Window:** V1 ? Testability.
 
-**Status:** Not started.
+**Status:** **Done** (2026-08-12) ? `operator-empty-form-rail-whitespace-contract.test.ts` + inventory/patterns for migrated **TB-1477**?**TB-1481** surfaces; **TB-1479** remains open in inventory.
 
 **Priority:** P0.
 
