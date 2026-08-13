@@ -1932,6 +1932,36 @@
               }
             ]
           },
+          "recordedRejectReasonCategory": {
+            "type": [
+              "null",
+              "string"
+            ]
+          },
+          "recordedSemanticScore": {
+            "format": "double",
+            "pattern": "^-?(?:0|[1-9]\\d*)(?:\\.\\d\u002B)?(?:[eE][\u002B-]?\\d\u002B)?$",
+            "type": [
+              "null",
+              "number",
+              "string"
+            ]
+          },
+          "recordedStructuralCompletenessRatio": {
+            "format": "double",
+            "pattern": "^-?(?:0|[1-9]\\d*)(?:\\.\\d\u002B)?(?:[eE][\u002B-]?\\d\u002B)?$",
+            "type": [
+              "null",
+              "number",
+              "string"
+            ]
+          },
+          "recordedTriageScenarioId": {
+            "type": [
+              "null",
+              "string"
+            ]
+          },
           "runId": {
             "type": "string"
           },
@@ -2177,6 +2207,18 @@
           },
           "qualityWarning": {
             "type": "boolean"
+          },
+          "recordedRejectReasonCategory": {
+            "type": [
+              "null",
+              "string"
+            ]
+          },
+          "recordedTriageScenarioId": {
+            "type": [
+              "null",
+              "string"
+            ]
           },
           "semantic": {
             "anyOf": [
@@ -8440,6 +8482,110 @@
         },
         "type": "object"
       },
+      "CrossReviewFindingLifecycleRecord": {
+        "properties": {
+          "category": {
+            "type": "string"
+          },
+          "correlationMethod": {
+            "$ref": "#/components/schemas/FindingCorrelationMethod"
+          },
+          "currentFindingId": {
+            "type": [
+              "null",
+              "string"
+            ]
+          },
+          "latestDisposition": {
+            "anyOf": [
+              {
+                "type": "null"
+              },
+              {
+                "$ref": "#/components/schemas/FindingDisposition"
+              }
+            ]
+          },
+          "message": {
+            "type": "string"
+          },
+          "priorFindingId": {
+            "type": [
+              "null",
+              "string"
+            ]
+          },
+          "resolutionBasis": {
+            "$ref": "#/components/schemas/CrossReviewFindingResolutionBasis"
+          },
+          "severity": {
+            "$ref": "#/components/schemas/FindingSeverity"
+          },
+          "sourceAgent": {
+            "$ref": "#/components/schemas/AgentType"
+          },
+          "state": {
+            "$ref": "#/components/schemas/CrossReviewFindingLifecycleState"
+          }
+        },
+        "required": [
+          "correlationMethod",
+          "resolutionBasis",
+          "severity",
+          "sourceAgent",
+          "state"
+        ],
+        "type": "object"
+      },
+      "CrossReviewFindingLifecycleState": {
+        "enum": [
+          "NewlyIdentified",
+          "PreviouslyIdentifiedStillPresent",
+          "CandidateResolved"
+        ],
+        "type": "string"
+      },
+      "CrossReviewFindingLifecycleSummary": {
+        "properties": {
+          "absenceNotInformativeCount": {
+            "format": "int32",
+            "type": "integer"
+          },
+          "candidateResolvedCount": {
+            "format": "int32",
+            "type": "integer"
+          },
+          "confirmedResolvedCount": {
+            "format": "int32",
+            "type": "integer"
+          },
+          "honestyNote": {
+            "type": "string"
+          },
+          "newlyIdentifiedCount": {
+            "format": "int32",
+            "type": "integer"
+          },
+          "previouslyIdentifiedStillPresentCount": {
+            "format": "int32",
+            "type": "integer"
+          },
+          "unverifiedResolvedCount": {
+            "format": "int32",
+            "type": "integer"
+          }
+        },
+        "type": "object"
+      },
+      "CrossReviewFindingResolutionBasis": {
+        "enum": [
+          "NotApplicable",
+          "ConfirmedByDisposition",
+          "Unverified",
+          "AbsenceNotInformative"
+        ],
+        "type": "string"
+      },
       "CrossTenantPortfolioSummaryResponse": {
         "properties": {
           "headlineSavingsScopeCode": {
@@ -10426,6 +10572,22 @@
               }
             ]
           },
+          "findingLifecycle": {
+            "anyOf": [
+              {
+                "type": "null"
+              },
+              {
+                "$ref": "#/components/schemas/CrossReviewFindingLifecycleSummary"
+              }
+            ]
+          },
+          "findingLifecycleRecords": {
+            "items": {
+              "$ref": "#/components/schemas/CrossReviewFindingLifecycleRecord"
+            },
+            "type": "array"
+          },
           "interpretationNotes": {
             "items": {
               "type": "string"
@@ -12386,6 +12548,14 @@
           "Low",
           null
         ]
+      },
+      "FindingCorrelationMethod": {
+        "enum": [
+          "None",
+          "PolicyRuleAndFingerprint",
+          "MessageCategoryFuzzy"
+        ],
+        "type": "string"
       },
       "FindingDisposition": {
         "type": "integer"
@@ -28534,6 +28704,10 @@
       },
       "TenantWorkspacesListResponse": {
         "properties": {
+          "retentionDays": {
+            "format": "int32",
+            "type": "integer"
+          },
           "workspaces": {
             "items": {
               "$ref": "#/components/schemas/TenantWorkspaceApiDto"
@@ -29695,6 +29869,19 @@
         "properties": {
           "effectiveProfile": {
             "type": "string"
+          },
+          "lastChangedAtUtc": {
+            "format": "date-time",
+            "type": [
+              "null",
+              "string"
+            ]
+          },
+          "lastChangedBy": {
+            "type": [
+              "null",
+              "string"
+            ]
           },
           "source": {
             "type": "string"
@@ -115122,6 +115309,14 @@
               "default": 200,
               "format": "int32",
               "type": "integer"
+            }
+          },
+          {
+            "in": "query",
+            "name": "assignedToMe",
+            "schema": {
+              "default": false,
+              "type": "boolean"
             }
           }
         ],
