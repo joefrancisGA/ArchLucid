@@ -117,10 +117,18 @@ export async function expandAuditBuyerFiltersIfPresent(page: Page): Promise<void
     return;
   }
 
-  if ((await trigger.getAttribute("aria-expanded")) !== "true") {
-    await trigger.click();
-    await expect(trigger).toHaveAttribute("aria-expanded", "true", { timeout: 10_000 });
-  }
+  await trigger.scrollIntoViewIfNeeded();
+
+  await expect(async () => {
+    const expanded = await trigger.getAttribute("aria-expanded");
+
+    if (expanded === "true") {
+      return;
+    }
+
+    await trigger.click({ force: true });
+    await expect(trigger).toHaveAttribute("aria-expanded", "true");
+  }).toPass({ timeout: 15_000 });
 }
 
 /** Asserts audit search completed with an empty result set (summary + empty-state line). */
@@ -257,8 +265,9 @@ export async function expandCompareRunPickersIfCollapsed(page: Page): Promise<vo
   }
 
   const leftInput = comparePageLeftRunInput(page);
-  const collapsedPickers = page.locator("details").filter({ has: leftInput });
-  const summary = collapsedPickers.locator("summary");
+  // Outer "Change compared reviews" fold only — nested Advanced details also has a summary.
+  const collapsedPickers = page.locator("details").filter({ has: leftInput }).first();
+  const summary = collapsedPickers.locator(":scope > summary");
 
   if ((await summary.count()) === 0) {
     return;
@@ -427,7 +436,23 @@ export async function expectBuyerPolishedReviewDetailWorkspaceCore(
   await expect(buyerPolishedReviewDetailWorkspace(page)).toBeVisible({ timeout });
 
   for (const tab of BUYER_POLISHED_REVIEW_DETAIL_CORE_WORKSPACE_TABS) {
-    await expect(page.getByTestId(`review-detail-workspace-tab-${tab}`)).toBeVisible({ timeout });
+    const tabLocator = page.getByTestId(`review-detail-workspace-tab-${tab}`);
+
+    await expect(async () => {
+      if (!(await tabLocator.isVisible())) {
+        const moreTabs = page.getByTestId("review-detail-workspace-more-tabs");
+
+        if ((await moreTabs.count()) > 0) {
+          await moreTabs.first().evaluate((element) => {
+            if (element instanceof HTMLDetailsElement) {
+              element.open = true;
+            }
+          });
+        }
+      }
+
+      await expect(tabLocator).toBeVisible();
+    }).toPass({ timeout });
   }
 }
 
@@ -466,6 +491,34 @@ function reviewDetailWorkspacePanel(page: Page, tab: ReviewDetailTabId): Locator
   return page.getByTestId(`review-detail-workspace-panel-${tab}`);
 }
 
+/** "More sections" collapses advanced workspace tabs — expand before clicking hidden triggers. */
+async function ensureReviewDetailWorkspaceTabTriggerVisible(
+  page: Page,
+  tab: ReviewDetailTabId,
+  options?: { timeoutMs?: number },
+): Promise<Locator> {
+  const timeout = options?.timeoutMs ?? 15_000;
+  const trigger = page.getByTestId(`review-detail-workspace-tab-${tab}`);
+
+  await expect(async () => {
+    if (!(await trigger.isVisible())) {
+      const moreTabs = page.getByTestId("review-detail-workspace-more-tabs");
+
+      if ((await moreTabs.count()) > 0) {
+        await moreTabs.first().evaluate((element) => {
+          if (element instanceof HTMLDetailsElement) {
+            element.open = true;
+          }
+        });
+      }
+    }
+
+    await expect(trigger).toBeVisible();
+  }).toPass({ timeout });
+
+  return trigger;
+}
+
 /** Radix tab panels hide inactive workspace content — open the tab before tab-scoped assertions. */
 export async function openReviewDetailWorkspaceTab(
   page: Page,
@@ -487,17 +540,30 @@ export async function openReviewDetailWorkspaceTab(
 
   // Prefer in-place tab activation — full page.goto drops cold-start scope races on demo/tenant shells.
   if (onRunDetail && (await trigger.count()) > 0) {
-    if ((await trigger.getAttribute("data-state")) !== "active") {
-      await trigger.click();
+    const visibleTrigger = await ensureReviewDetailWorkspaceTabTriggerVisible(page, tab);
+    const dataState = await visibleTrigger.getAttribute("data-state");
+    const ariaCurrent = await visibleTrigger.getAttribute("aria-current");
+    const alreadyActive = dataState === "active" || ariaCurrent === "page";
+
+    if (!alreadyActive) {
+      await visibleTrigger.click();
     }
   } else {
     await page.goto(href);
   }
 
   await expect(reviewDetailWorkspacePanel(page, tab)).toBeVisible({ timeout: 60_000 });
-  await expect(page.getByTestId(`review-detail-workspace-tab-${tab}`)).toHaveAttribute("data-state", "active", {
-    timeout: 15_000,
-  });
+  // Primary tabs use TabsTrigger `data-state`; "More sections" buttons use `aria-current="page"`.
+  const activeTab = page.getByTestId(`review-detail-workspace-tab-${tab}`);
+
+  await expect
+    .poll(async () => {
+      const dataState = await activeTab.getAttribute("data-state");
+      const ariaCurrent = await activeTab.getAttribute("aria-current");
+
+      return dataState === "active" || ariaCurrent === "page";
+    }, { timeout: 15_000 })
+    .toBe(true);
 }
 
 function reviewDetailOutcomeCardsDetails(page: Page): Locator {
@@ -642,31 +708,71 @@ export async function expectBuyerPipelineTimelineSectionVisible(
   options?: { timeoutMs?: number; runId?: string },
 ): Promise<void> {
   const timeout = options?.timeoutMs ?? 60_000;
-  const sectionNav = buyerPolishedReviewDetailSectionNav(page);
+  const trimmedRunId = options?.runId?.trim() ?? "";
 
-  if ((await sectionNav.count()) > 0) {
-    await buyerPolishedReviewDetailSectionNavLink(sectionNav, "pipeline-timeline").click();
-  } else if (options?.runId !== undefined && options.runId.trim().length > 0) {
-    await openReviewDetailWorkspaceTab(page, options.runId, "activity");
-  } else {
-    await page.getByTestId("review-detail-workspace-tab-activity").click();
-    await expect(reviewDetailWorkspacePanel(page, "activity")).toBeVisible({ timeout });
-  }
+  await expect(async () => {
+    if (trimmedRunId.length > 0) {
+      await page.goto(buildReviewDetailTabHref(trimmedRunId, "activity", { hash: "pipeline-timeline" }), {
+        waitUntil: "domcontentloaded",
+      });
+      await expect(reviewDetailWorkspacePanel(page, "activity")).toBeVisible({ timeout: 30_000 });
+    } else {
+      const activityTrigger = await ensureReviewDetailWorkspaceTabTriggerVisible(page, "activity", {
+        timeoutMs: 30_000,
+      });
 
-  const collapsible = page.getByTestId("run-pipeline-timeline-collapsible");
+      await activityTrigger.click();
+      await expect(reviewDetailWorkspacePanel(page, "activity")).toBeVisible({ timeout: 30_000 });
+    }
 
-  await expect(collapsible).toBeVisible({ timeout });
-  await expect(
-    collapsible.locator("summary", { hasText: /Recent lifecycle events|Pipeline timeline/i }),
-  ).toBeVisible({ timeout });
+    const belowFoldLoading = page.getByRole("status", {
+      name: /Loading review technical sections|Loading pipeline timeline/i,
+    });
 
-  const heading = page.locator("#pipeline-timeline").getByRole("heading", {
-    name: /Recent lifecycle events|Pipeline timeline/i,
-  });
+    const loadingCount = await belowFoldLoading.count();
 
-  if ((await heading.count()) > 0) {
-    await expect(heading.first()).toBeVisible({ timeout });
-  }
+    if (loadingCount > 0) {
+      const anyVisible = await belowFoldLoading
+        .first()
+        .isVisible()
+        .catch(() => false);
+
+      if (anyVisible) {
+        throw new Error("below-fold pipeline sections still loading");
+      }
+    }
+
+    const sectionNav = page.getByTestId("provenance-section-nav-desktop");
+
+    if ((await sectionNav.count()) > 0) {
+      const pipelineNavLink = sectionNav.getByRole("link", { name: /Recent lifecycle events/i });
+
+      if ((await pipelineNavLink.count()) > 0) {
+        await pipelineNavLink.first().click();
+      }
+    }
+
+    const pipelineSection = page.locator("#pipeline-timeline").first();
+    const collapsible = page.getByTestId("run-pipeline-timeline-collapsible").first();
+    const pipelineSurface = collapsible.or(pipelineSection).first();
+
+    await expect(pipelineSurface).toBeVisible({ timeout: 10_000 });
+    await pipelineSurface.scrollIntoViewIfNeeded();
+
+    if ((await collapsible.count()) > 0 && (await collapsible.isVisible())) {
+      await expect(
+        collapsible.locator("summary", { hasText: /Recent lifecycle events|Pipeline timeline/i }),
+      ).toBeVisible({ timeout: 10_000 });
+
+      return;
+    }
+
+    const heading = pipelineSection.getByRole("heading", {
+      name: /Recent lifecycle events|Pipeline timeline/i,
+    });
+
+    await expect(heading.first()).toBeVisible({ timeout: 10_000 });
+  }).toPass({ timeout });
 }
 
 /** Buyer-polished run detail collapses `#artifacts-exports` deliverables by default — expand before export assertions. */
@@ -840,12 +946,13 @@ export async function expandCompareStructuredDecisionChanges(page: Page): Promis
 }
 
 /**
- * Sponsor callout on the comparison verdict summary (sibling above `#compare-structured`).
+ * Top change highlight on the comparison verdict summary (sibling above `#compare-structured`).
  * Uses `data-testid` — buyer-polished shells rewrite fixture highlight prose (see
  * {@link applyBuyerPolishedGoldenManifestSummaryHighlights}), so asserting raw fixture copy flakes in mock CI.
+ * Formerly `compare-sponsor-recommendation` (RC28); renamed with CompareVerdictSummary verdict lead.
  */
 export function structuredCompareSponsorRecommendationParagraph(page: Page): Locator {
-  return page.getByTestId("compare-sponsor-recommendation");
+  return page.getByTestId("compare-top-change-highlight");
 }
 
 /** Navigates to `/architecture/reviews/{runId}` with encoded id and DOM-ready wait (live API E2E parity). */

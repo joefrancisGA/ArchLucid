@@ -17,8 +17,8 @@ describe("PackagePrintPageView (TB-2205)", () => {
           title: "Payments edge",
           statusLabel: "Finalized",
           statusKind: "approved",
-          findingsSummary: "3 findings · 1 warning. Included in the finalized architecture package.",
-          sponsorSynopsis: 'Sponsor synopsis for "Payments edge": finalized architecture package with 3 findings recorded.',
+          findingsSummary: "3 findings · 1 warning. Included in the finalized architecture review.",
+          sponsorSynopsis: 'Sponsor synopsis for "Payments edge": finalized architecture review with 3 findings recorded.',
           createdUtc: "2026-08-01T12:00:00Z",
           runId: "aaaaaaaa-aaaa-aaaa-aaaa-aaaaaaaaaaaa",
         }}

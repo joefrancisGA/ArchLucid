@@ -18,15 +18,6 @@ using Moq;
 
 namespace ArchLucid.Application.Tests.Orchestration;
 
-public sealed record ArchitectureRunExecuteOrchestratorTailDependencies(
-    TechnologyLedgerTopologyProposalSeeder TopologyProposalSeeder,
-    DemoExpensiveActionGate DemoExpensiveActionGate,
-    IRunScopedLlmBudgetReservationService RunScopedLlmBudgetReservationService,
-    IOperationCancellationRegistry OperationCancellationRegistry,
-    OperationRunCancellationMarker RunCancellationMarker,
-    IRunExecuteOwnershipLeaseService RunExecuteOwnershipLeaseService,
-    ILogger<ArchitectureRunExecuteOrchestrator> Logger);
-
 public static class ArchitectureRunExecuteOrchestratorTestFactory
 {
     internal static ArchitectureRunExecuteOrchestratorTailDependencies CreateStandardTailDependencies(
@@ -41,7 +32,7 @@ public static class ArchitectureRunExecuteOrchestratorTestFactory
             CreatePassThroughRunScopedLlmBudgetReservationService(),
             new OperationCancellationRegistry(),
             new OperationRunCancellationMarker(runs),
-            DisabledRunExecuteOwnershipLeaseService.Instance,
+            new DisabledRunExecuteOwnershipLeaseService(),
             NullLogger<ArchitectureRunExecuteOrchestrator>.Instance);
     }
 

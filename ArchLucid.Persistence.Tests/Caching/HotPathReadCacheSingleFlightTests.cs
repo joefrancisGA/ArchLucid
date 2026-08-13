@@ -48,11 +48,12 @@ public sealed class HotPathReadCacheSingleFlightTests
 
                 Func<Task> act = () => HotPathReadCacheSingleFlight.CoalesceAsync<string>(
                     "fault-key",
-                    async _ =>
+                    async ct =>
                     {
                         Interlocked.Increment(ref calls);
 
-                        await Task.Yield();
+                        // Hold long enough for sibling waiters to attach (same idea as the success test).
+                        await Task.Delay(40, ct);
 
                         throw new InvalidOperationException("boom");
                     },

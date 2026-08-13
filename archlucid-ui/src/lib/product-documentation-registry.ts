@@ -446,7 +446,7 @@ const PRODUCT_DOCUMENTATION_REGISTRY_INPUT: readonly ProductDocumentationRegistr
     summary:
       "Map buyer jobs to existing accelerator packs after your first finalized architecture review — inputs, outputs, and when not to use each pack.",
     audience: "operator",
-    sourcePaths: [],
+    sourcePaths: ["docs/go-to-market/DEMO_QUICKSTART.md"],
     sectionAnchors: ["accelerator-chooser"],
     pdfStatus: null,
   },

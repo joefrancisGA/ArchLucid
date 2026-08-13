@@ -55,7 +55,7 @@ public sealed class RunQueryControllerTests
     {
         Mock<IRunDetailQueryService> runDetail = new();
         runDetail
-            .Setup(s => s.GetRunDetailAsync(RunId, It.IsAny<CancellationToken>()))
+            .Setup(s => s.GetRunDetailForOperatorEnrichAsync(RunId, It.IsAny<CancellationToken>()))
             .ReturnsAsync((ArchitectureRunDetail?)null);
 
         RunQueryController controller = CreateController(runDetailQueryService: runDetail.Object);
@@ -81,7 +81,7 @@ public sealed class RunQueryControllerTests
 
         Mock<IRunDetailQueryService> runDetail = new();
         runDetail
-            .Setup(s => s.GetRunDetailAsync(RunId, It.IsAny<CancellationToken>()))
+            .Setup(s => s.GetRunDetailForOperatorEnrichAsync(RunId, It.IsAny<CancellationToken>()))
             .ReturnsAsync(detail);
 
         Mock<IRunRepository> runs = new();
@@ -109,7 +109,7 @@ public sealed class RunQueryControllerTests
 
         Mock<IRunDetailQueryService> runDetail = new();
         runDetail
-            .Setup(s => s.GetRunDetailAsync(RunId, It.IsAny<CancellationToken>()))
+            .Setup(s => s.GetRunDetailForOperatorEnrichAsync(RunId, It.IsAny<CancellationToken>()))
             .ReturnsAsync(detail);
 
         Mock<IRunRepository> runs = new();
@@ -147,7 +147,7 @@ public sealed class RunQueryControllerTests
 
         Mock<IRunDetailQueryService> runDetail = new();
         runDetail
-            .Setup(s => s.GetRunDetailAsync(RunId, It.IsAny<CancellationToken>()))
+            .Setup(s => s.GetRunDetailForOperatorEnrichAsync(RunId, It.IsAny<CancellationToken>()))
             .ReturnsAsync(detail);
 
         Mock<IRunRoiEstimator> estimator = new();

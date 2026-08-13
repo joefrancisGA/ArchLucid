@@ -1,4 +1,4 @@
-> **Scope:** Engineering source of truth — product Real execute policy when Azure OpenAI is degraded or throttled (**TB-1299**). Distinct from per-call Polly transport resilience.
+> **Scope:** Contributor-reference — product Real execute policy when Azure OpenAI is degraded or throttled (**TB-1299**). Distinct from per-call Polly transport resilience.
 
 # Real execute AOAI throttle policy (TB-1299)
 

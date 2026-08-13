@@ -89,7 +89,7 @@ describe("operator analysis pages — axe (Vitest)", () => {
   it(
     "EvolutionReviewPage has no serious axe violations",
     async () => {
-      const page = await EvolutionReviewPage();
+      const page = await EvolutionReviewPage({});
       const { container } = render(page);
 
       expect(await axe(container)).toHaveNoViolations();

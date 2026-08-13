@@ -322,6 +322,13 @@ public sealed class RbacBoundaryIntegrationTests(ApiKeyReaderAndAdminArchLucidAp
             return true;
         }
 
+        if (string.Equals(name, "packVersion", StringComparison.OrdinalIgnoreCase))
+        {
+            value = "1.0.0";
+
+            return true;
+        }
+
         if (string.Equals(name, "decisionKey", StringComparison.OrdinalIgnoreCase) ||
             string.Equals(name, "key", StringComparison.OrdinalIgnoreCase) ||
             string.Equals(name, "slug", StringComparison.OrdinalIgnoreCase))

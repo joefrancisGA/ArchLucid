@@ -2,6 +2,9 @@ import { FIRST_REVIEW_GUIDE_PATH } from "@/lib/first-review-guide-route";
 import { inAppHelpHref } from "@/lib/product-documentation-registry";
 import type { EvidenceSourceLink } from "@/lib/evidence-surface-copy";
 
+/** Alias kept for call sites that name the core-pilot Sources row type explicitly. */
+export type CorePilotHelpSourceLink = EvidenceSourceLink;
+
 export const CORE_PILOT_HELP_CANONICAL_PATH = "/help/first-architecture-review" as const;
 
 export const CORE_PILOT_HELP_CLAIM_DISCIPLINE =

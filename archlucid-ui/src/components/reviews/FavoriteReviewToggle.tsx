@@ -14,13 +14,13 @@ type FavoriteReviewToggleProps = {
 };
 
 /**
- * Star toggle to pin an architecture package for quick return (TB-2206).
+ * Star toggle to pin an architecture review for quick return (TB-2206).
  * Persists in localStorage via {@link useFavoriteReviews}.
  */
 export function FavoriteReviewToggle(props: FavoriteReviewToggleProps): React.JSX.Element {
   const { isFavorite, toggleFavorite } = useFavoriteReviews();
   const favorited = isFavorite(props.runId);
-  const label = favorited ? "Unpin architecture package" : "Pin architecture package";
+  const label = favorited ? "Unpin architecture review" : "Pin architecture review";
   const size = props.size ?? "icon";
 
   return (

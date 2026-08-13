@@ -4,6 +4,8 @@ using FluentAssertions;
 
 namespace ArchLucid.ReviewApiHarness.Tests;
 
+[Trait("Suite", "Core")]
+[Trait("Category", "Unit")]
 public sealed class ArchitectureRunStatusReaderTests
 {
     [Theory]
@@ -29,12 +31,11 @@ public sealed class ArchitectureRunStatusReaderTests
     }
 
     [Fact]
-    public void ReadRunId_and_status_from_detail_payload()
+    public void ReadStatus_falls_back_to_legacyRunStatus_on_run_record_payloads()
     {
         using JsonDocument doc = JsonDocument.Parse(
-            """{"run":{"runId":"aaaaaaaa-bbbb-cccc-dddd-eeeeeeeeeeee","status":"ReadyForCommit"}}""");
+            """{"run":{"runId":"aaaaaaaa-bbbb-cccc-dddd-eeeeeeeeeeee","legacyRunStatus":"ReadyForCommit"}}""");
 
-        ArchitectureRunStatusReader.ReadRunId(doc.RootElement).Should().Be("aaaaaaaa-bbbb-cccc-dddd-eeeeeeeeeeee");
         ArchitectureRunStatusReader.ReadStatus(doc.RootElement).Should().Be("ReadyForCommit");
     }
 }

@@ -8,7 +8,7 @@ export const RECOMMENDATION_LEARNING_TRAFFIC_ROW_ID = "INE";
 export const RECOMMENDATION_LEARNING_TRAFFIC_PATH = "/internal/recommendation-learning";
 
 /** Workbook Section column value (owner catalog). */
-export const RECOMMENDATION_LEARNING_TRAFFIC_SECTION = "Internal Ops";
+export const RECOMMENDATION_LEARNING_TRAFFIC_SECTION = "Admin";
 
 /**
  * Owner workbook Notes for INE - documents Evidence chrome on recommendation learning.

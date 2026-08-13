@@ -45,6 +45,7 @@
         "src/app/(operator)/why-archlucid",
         "src/app/(operator)/onboarding-redirects.test.ts",
         "src/app/(operator)/page.test.tsx",
+        "src/app/(operator)/page.streaming.test.ts",
         "src/app/(operator)/search-ask-pages-render.test.tsx"
       ]
     },

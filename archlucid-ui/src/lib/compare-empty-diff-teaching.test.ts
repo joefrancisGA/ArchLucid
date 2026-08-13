@@ -29,10 +29,10 @@ describe("buildCompareEmptyDiffTeaching", () => {
     },
   );
 
-  it("explains no-run-level-diffs with package-level sameness", () => {
+  it("explains no-run-level-diffs with review-level sameness", () => {
     const teaching = buildCompareEmptyDiffTeaching("no-run-level-diffs");
 
-    expect(teaching.title).toMatch(/architecture packages/i);
+    expect(teaching.title).toMatch(/architecture reviews/i);
     expect(teaching.body).toMatch(/findings/i);
     expect(teaching.body).toMatch(/decisions/i);
     expect(teaching.body).toMatch(/evidence/i);
@@ -65,7 +65,7 @@ describe("listCompareEmptyDiffTeachings", () => {
 describe("COMPARE_VERDICT_ZERO_CHANGES_TEACHING", () => {
   it("uses buyer nouns and next-step guidance", () => {
     expect(COMPARE_VERDICT_ZERO_CHANGES_TEACHING).not.toMatch(ENGINEERING_JARGON);
-    expect(COMPARE_VERDICT_ZERO_CHANGES_TEACHING).toMatch(/architecture packages/i);
+    expect(COMPARE_VERDICT_ZERO_CHANGES_TEACHING).toMatch(/architecture reviews/i);
     expect(COMPARE_VERDICT_ZERO_CHANGES_TEACHING).toMatch(/baseline/i);
   });
 });

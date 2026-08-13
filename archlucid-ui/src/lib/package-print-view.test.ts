@@ -32,7 +32,7 @@ function summary(overrides: Partial<RunSummary> = {}): RunSummary {
 
 describe("package-print-view (TB-2205)", () => {
   it("exposes stable print copy", () => {
-    expect(PACKAGE_PRINT_PAGE_TITLE).toBe("Architecture package");
+    expect(PACKAGE_PRINT_PAGE_TITLE).toBe("Architecture review");
     expect(PACKAGE_PRINT_BUTTON_LABEL).toBe("Print / Save as PDF");
     expect(PACKAGE_PRINT_OPEN_LABEL).toBe("Print / Save as PDF");
     expect(PACKAGE_PRINT_INSTRUCTIONS.toLowerCase()).toContain("print");

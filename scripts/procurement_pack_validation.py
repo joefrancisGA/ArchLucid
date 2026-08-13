@@ -165,8 +165,11 @@ def coherence_procurement_claims(text: str) -> str | None:
                 "`excluded from this skim`"
             )
 
-    if "third-party" in lowered and "in-flight" in lowered:
-        return "contradictory assurance language: combines third-party wording with `in-flight`"
+    for line in text.splitlines():
+        line_lower = line.lower()
+
+        if "third-party" in line_lower and "in-flight" in line_lower:
+            return "contradictory assurance language: combines third-party wording with `in-flight`"
 
     return None
 

@@ -143,6 +143,14 @@ vi.mock("next/link", () => ({
   }) => <a href={href}>{children}</a>,
 }));
 
+vi.mock("./governance/_sections/governance-workflow-deferred-chunks", async () => {
+  const { buildGovernanceWorkflowDeferredChunksVitestMock } = await import(
+    "@/testing/governance-workflow-deferred-chunks-vitest-mock"
+  );
+
+  return await buildGovernanceWorkflowDeferredChunksVitestMock();
+});
+
 vi.mock("./governance/policy-packs/_sections/load-policy-packs-page-data", () => ({
   loadPolicyPacksPageData: () =>
     Promise.resolve({

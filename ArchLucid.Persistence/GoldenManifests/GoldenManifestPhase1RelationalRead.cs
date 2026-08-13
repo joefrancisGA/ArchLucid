@@ -1,6 +1,5 @@
 using ArchLucid.Core.Manifest;
 using ArchLucid.Core.Manifest.Sections;
-using ArchLucid.Persistence.RelationalRead;
 using ArchLucid.Persistence.Serialization;
 
 using Dapper;
@@ -196,6 +195,7 @@ internal static class GoldenManifestPhase1RelationalRead
                 cancellationToken: ct))).ToList();
 
         Dictionary<string, List<string>> evidenceByDecision = new(StringComparer.Ordinal);
+
         foreach (DecisionEvidenceRow er in evidenceRows)
         {
             if (!evidenceByDecision.TryGetValue(er.DecisionId, out List<string>? list))
@@ -208,6 +208,7 @@ internal static class GoldenManifestPhase1RelationalRead
         }
 
         Dictionary<string, List<string>> nodesByDecision = new(StringComparer.Ordinal);
+
         foreach (DecisionNodeRow nr in nodeRows)
         {
             if (!nodesByDecision.TryGetValue(nr.DecisionId, out List<string>? list))
@@ -220,6 +221,7 @@ internal static class GoldenManifestPhase1RelationalRead
         }
 
         List<ResolvedArchitectureDecision> result = [];
+
         foreach (ManifestDecisionRow dr in decisionRows)
         {
             evidenceByDecision.TryGetValue(dr.DecisionId, out List<string>? ev);
@@ -432,58 +434,21 @@ internal static class GoldenManifestPhase1RelationalRead
         Guid manifestId,
         CancellationToken ct)
     {
-        Task<int> assumptionsTask = SqlRelationalScalarCount.ExecuteAsync(
-            connection,
-            null,
-            "SELECT COUNT(1) FROM dbo.GoldenManifestAssumptions WHERE ManifestId = @ManifestId",
-            new { ManifestId = manifestId },
-            ct);
+        // Single round-trip avoids parallel commands on one connection (MARS is off in production pools).
+        const string sql = """
+                           SELECT
+                               (SELECT COUNT(1) FROM dbo.GoldenManifestAssumptions WHERE ManifestId = @ManifestId) AS AssumptionsCount,
+                               (SELECT COUNT(1) FROM dbo.GoldenManifestWarnings WHERE ManifestId = @ManifestId) AS WarningsCount,
+                               (SELECT COUNT(1) FROM dbo.GoldenManifestDecisions WHERE ManifestId = @ManifestId) AS DecisionsCount,
+                               (SELECT COUNT(1) FROM dbo.GoldenManifestProvenanceSourceFindings WHERE ManifestId = @ManifestId) AS ProvenanceFindingCount,
+                               (SELECT COUNT(1) FROM dbo.GoldenManifestProvenanceSourceGraphNodes WHERE ManifestId = @ManifestId) AS ProvenanceNodeCount,
+                               (SELECT COUNT(1) FROM dbo.GoldenManifestProvenanceAppliedRules WHERE ManifestId = @ManifestId) AS ProvenanceRuleCount;
+                           """;
 
-        Task<int> warningsTask = SqlRelationalScalarCount.ExecuteAsync(
-            connection,
-            null,
-            "SELECT COUNT(1) FROM dbo.GoldenManifestWarnings WHERE ManifestId = @ManifestId",
-            new { ManifestId = manifestId },
-            ct);
+        ManifestSliceCounts counts = await connection.QuerySingleAsync<ManifestSliceCounts>(
+            new CommandDefinition(sql, new { ManifestId = manifestId }, cancellationToken: ct)).ConfigureAwait(false);
 
-        Task<int> decisionsTask = SqlRelationalScalarCount.ExecuteAsync(
-            connection,
-            null,
-            "SELECT COUNT(1) FROM dbo.GoldenManifestDecisions WHERE ManifestId = @ManifestId",
-            new { ManifestId = manifestId },
-            ct);
-
-        Task<int> provFindingTask = SqlRelationalScalarCount.ExecuteAsync(
-            connection,
-            null,
-            "SELECT COUNT(1) FROM dbo.GoldenManifestProvenanceSourceFindings WHERE ManifestId = @ManifestId",
-            new { ManifestId = manifestId },
-            ct);
-
-        Task<int> provNodeTask = SqlRelationalScalarCount.ExecuteAsync(
-            connection,
-            null,
-            "SELECT COUNT(1) FROM dbo.GoldenManifestProvenanceSourceGraphNodes WHERE ManifestId = @ManifestId",
-            new { ManifestId = manifestId },
-            ct);
-
-        Task<int> provRuleTask = SqlRelationalScalarCount.ExecuteAsync(
-            connection,
-            null,
-            "SELECT COUNT(1) FROM dbo.GoldenManifestProvenanceAppliedRules WHERE ManifestId = @ManifestId",
-            new { ManifestId = manifestId },
-            ct);
-
-        await Task.WhenAll(assumptionsTask, warningsTask, decisionsTask, provFindingTask, provNodeTask, provRuleTask)
-            .ConfigureAwait(false);
-
-        return new ManifestSliceCounts(
-            await assumptionsTask.ConfigureAwait(false),
-            await warningsTask.ConfigureAwait(false),
-            await decisionsTask.ConfigureAwait(false),
-            await provFindingTask.ConfigureAwait(false),
-            await provNodeTask.ConfigureAwait(false),
-            await provRuleTask.ConfigureAwait(false));
+        return counts;
     }
 
     private sealed record ManifestSliceCounts(

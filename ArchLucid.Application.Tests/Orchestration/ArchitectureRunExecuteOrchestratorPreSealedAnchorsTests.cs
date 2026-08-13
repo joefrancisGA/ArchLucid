@@ -193,7 +193,7 @@ public sealed class ArchitectureRunExecuteOrchestratorPreSealedAnchorsTests
             ArchitectureRunExecuteOrchestratorTestFactory.CreatePassThroughRunScopedLlmBudgetReservationService(),
             tail.OperationCancellationRegistry,
             tail.RunCancellationMarker,
-            DisabledRunExecuteOwnershipLeaseService.Instance,
+            new DisabledRunExecuteOwnershipLeaseService(),
             NullLogger<ArchitectureRunExecuteOrchestrator>.Instance);
 
         await sut.ExecuteRunAsync(runId);

@@ -35,9 +35,9 @@ export type ColdSharedLinkUnpackPresentation = {
 };
 
 const WHY_YOU_ARE_HERE_BY_SIGNAL: Record<Exclude<ColdSharedLinkEntrySignal, "none">, string> = {
-  invitation_token: "You were invited to review this architecture package.",
-  read_only_query: "Someone shared a read-only link to this architecture package with you.",
-  shared_query: "You opened a shared link to this architecture package.",
+  invitation_token: "You were invited to review this architecture review.",
+  read_only_query: "Someone shared a read-only link to this architecture review with you.",
+  shared_query: "You opened a shared link to this architecture review.",
 };
 
 /** Pure resolver for the one-time cold-open unpack panel (TB-2181). */

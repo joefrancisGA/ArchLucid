@@ -1,6 +1,6 @@
 /**
  * Buyer-facing finalize consequence preview (TB-2224).
- * What locks, what stays editable, and what exports unlock - architecture package nouns.
+ * What locks, what stays editable, and what exports unlock - architecture review nouns.
  */
 
 import { BUYER_SURFACE_VOCABULARY } from "@/lib/vocabulary/buyer-surface-vocabulary";
@@ -38,12 +38,12 @@ export function buildFinalizeConsequencePreview(): FinalizeConsequencePreview {
 
   return {
     title: FINALIZE_CONSEQUENCE_PREVIEW_TITLE,
-    summary: `Finalizing locks this architecture package as a ${signedReviewRecord.toLowerCase()}.`,
+    summary: `Finalizing locks this architecture review as a ${signedReviewRecord.toLowerCase()}.`,
     rows: [
       {
         id: "locks",
         label: "What locks",
-        detail: `The reviewed architecture snapshot and decision traces become the ${signedReviewRecord.toLowerCase()} for this package.`,
+        detail: `The reviewed architecture snapshot and decision traces become the ${signedReviewRecord.toLowerCase()} for this review.`,
       },
       {
         id: "staysEditable",
@@ -55,7 +55,7 @@ export function buildFinalizeConsequencePreview(): FinalizeConsequencePreview {
         id: "exportsUnlock",
         label: "What exports unlock",
         detail:
-          "Sponsor handoff, deliverable exports, and audit-ready packages unlock for this architecture package.",
+          "Sponsor handoff, deliverable exports, and audit-ready packages unlock for this architecture review.",
       },
     ],
     replayNote: FINALIZE_REPLAY_COMPARE_NOTE,

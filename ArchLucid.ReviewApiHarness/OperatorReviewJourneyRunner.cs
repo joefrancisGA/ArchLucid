@@ -136,7 +136,11 @@ public sealed class OperatorReviewJourneyRunner
             finalStatus = ArchitectureRunStatusReader.ReadStatus(pollDoc.RootElement);
             (structuralMode, bool fellBack, totalTokens) = RealAiExecutionGate.ReadFromRunDetail(pollDoc.RootElement);
 
-            ResponseValidationResult realGate = RealAiExecutionGate.Evaluate(structuralMode, fellBack, totalTokens);
+            ResponseValidationResult realGate = RealAiExecutionGate.Evaluate(
+                structuralMode,
+                fellBack,
+                totalTokens,
+                _options.RequireNonZeroLlmTokens);
             Stopwatch gateWatch = Stopwatch.StartNew();
             gateWatch.Stop();
 
@@ -347,6 +351,7 @@ public sealed class OperatorReviewJourneyRunner
             if (!detail.Step.Passed)
             {
                 // Transient 5xx: keep polling until deadline.
+
                 if (detail.Step.Detail.Contains("HTTP 5", StringComparison.Ordinal))
                 {
                     await Task.Delay(interval, cancellationToken);
