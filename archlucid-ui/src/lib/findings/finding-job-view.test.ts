@@ -91,6 +91,6 @@ describe("finding-job-view", () => {
 
   it("resolveEffectiveFindingJobView skips persisted job view when the filter bar is hidden", () => {
     expect(resolveEffectiveFindingJobView("ready-for-sponsor-packet", true)).toBe("ready-for-sponsor-packet");
-    expect(resolveEffectiveFindingJobView("ready-for-sponsor-packet", false)).toBe("needs-my-decision");
+    expect(resolveEffectiveFindingJobView("ready-for-sponsor-packet", false)).toBeNull();
   });
 });

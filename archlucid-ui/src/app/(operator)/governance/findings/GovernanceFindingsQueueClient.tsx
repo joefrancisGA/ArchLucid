@@ -103,11 +103,11 @@ export default function GovernanceFindingsQueueClient({
     () => readGovernanceFindingsQueueFacets().nlFacets,
   );
   const isAssignedToMe = mode === "assigned-to-me";
-  const tenantQuery = useGovernanceFindingsQuery();
-  const assignedToMeQuery = useAssignedToMeFindingsQuery();
+  const tenantQuery = useGovernanceFindingsQuery(!isAssignedToMe);
+  const assignedToMeQuery = useAssignedToMeFindingsQuery(isAssignedToMe);
   const activeQuery = isAssignedToMe ? assignedToMeQuery : tenantQuery;
   const { rows, loading, loadFailed, refresh } = activeQuery;
-  const loadFailure = isAssignedToMe ? assignedToMeQuery.loadFailure : null;
+  const loadFailure = isAssignedToMe ? assignedToMeQuery.loadFailure : tenantQuery.loadFailure;
   const {
     registerFilter,
     setRegisterFilter,
@@ -137,26 +137,27 @@ export default function GovernanceFindingsQueueClient({
     () => rows.filter((row) => matchesGovernanceFindingsRunScope(row, scopedRunId)),
     [rows, scopedRunId],
   );
-  const displayedRows = useMemo(
-    () =>
-      filterGovernanceRowsForJobView(
-        scopedRows.filter(
-          (row) =>
-            matchesRiskRegisterFilter(row, registerFilter) &&
-            matchesFindingsNaturalLanguageFacets(
-              {
-                title: row.title,
-                severity: row.severity,
-                status: row.status,
-                latestDisposition: row.latestDisposition,
-              },
-              nlFacets,
-            ),
+  const displayedRows = useMemo(() => {
+    const facetFilteredRows = scopedRows.filter(
+      (row) =>
+        matchesRiskRegisterFilter(row, registerFilter) &&
+        matchesFindingsNaturalLanguageFacets(
+          {
+            title: row.title,
+            severity: row.severity,
+            status: row.status,
+            latestDisposition: row.latestDisposition,
+          },
+          nlFacets,
         ),
-        effectiveJobView,
-      ),
-    [scopedRows, registerFilter, effectiveJobView, nlFacets],
-  );
+    );
+
+    if (effectiveJobView === null) {
+      return facetFilteredRows;
+    }
+
+    return filterGovernanceRowsForJobView(facetFilteredRows, effectiveJobView);
+  }, [scopedRows, registerFilter, effectiveJobView, nlFacets]);
   const registerSummary = useMemo(() => computeArchitectureRiskRegisterSummary(rows), [rows]);
   const findingIds = useMemo(
     () => displayedRows.filter((row) => row.recordKind === "finding").map((row) => row.findingId),

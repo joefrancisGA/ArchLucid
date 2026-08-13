@@ -23,7 +23,7 @@ export type AssignedToMeFindingsQueryState = {
   readonly refresh: () => void;
 };
 
-export function useAssignedToMeFindingsQuery(): AssignedToMeFindingsQueryState {
+export function useAssignedToMeFindingsQuery(enabled = true): AssignedToMeFindingsQueryState {
   const scope = useOperatorScopeQueryKey();
 
   const query = useQuery({
@@ -31,6 +31,7 @@ export function useAssignedToMeFindingsQuery(): AssignedToMeFindingsQueryState {
     queryFn: () => fetchAssignedToMeFindingQueueRows(),
     staleTime: OPERATOR_QUERY_STALE_MS,
     gcTime: OPERATOR_QUERY_GC_MS,
+    enabled,
   });
 
   const refresh = useCallback(() => {
@@ -39,7 +40,7 @@ export function useAssignedToMeFindingsQuery(): AssignedToMeFindingsQueryState {
 
   return {
     rows: query.data?.rows ?? [],
-    loading: query.isPending || query.isFetching,
+    loading: query.isPending,
     loadFailed: query.data?.loadFailed ?? false,
     loadFailure: query.data?.failure ?? null,
     refresh,

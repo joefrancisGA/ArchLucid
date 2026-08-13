@@ -170,14 +170,14 @@ export function filterGovernanceRowsForJobView(
   return rows.filter((row) => matchesGovernanceFindingJobView(row, jobView));
 }
 
-/** Skip persisted job-view filtering when the toggle is not mounted (GOF P0-4). */
+/** Returns null when the job-view filter bar is hidden so callers skip row filtering (GOF P0-4). */
 export function resolveEffectiveFindingJobView(
   jobView: FindingJobView,
   filterBarVisible: boolean,
-): FindingJobView {
+): FindingJobView | null {
   if (filterBarVisible) {
     return jobView;
   }
 
-  return DEFAULT_FINDING_JOB_VIEW;
+  return null;
 }

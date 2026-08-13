@@ -217,7 +217,6 @@ describe("GovernanceFindingsQueueClient", () => {
   it("retries the risk register load from the failure state", async () => {
     vi.mocked(governanceApi.getArchitectureRiskRegister)
       .mockRejectedValueOnce(new Error("network"))
-      .mockRejectedValueOnce(new Error("network"))
       .mockResolvedValue({ entries: [loadedRiskRow] });
 
     renderGovernanceFindingsQueue();
