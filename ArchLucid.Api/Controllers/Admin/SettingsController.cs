@@ -285,8 +285,11 @@ public sealed class SettingsController(
 
         await Task.WhenAll(updatedTask, clearedTask).ConfigureAwait(false);
 
-        AuditEvent? latest = updatedTask.Result
-            .Concat(clearedTask.Result)
+        IReadOnlyList<AuditEvent> updatedEvents = updatedTask.Result ?? Array.Empty<AuditEvent>();
+        IReadOnlyList<AuditEvent> clearedEvents = clearedTask.Result ?? Array.Empty<AuditEvent>();
+
+        AuditEvent? latest = updatedEvents
+            .Concat(clearedEvents)
             .OrderByDescending(static auditEvent => auditEvent.OccurredUtc)
             .FirstOrDefault();
 

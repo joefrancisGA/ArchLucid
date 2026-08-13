@@ -75,6 +75,7 @@ public sealed class AuditPathClassificationArchitectureTests
         "PolicyPackDryRunService",
         "PolicyPackGovernanceDryRunService",
         "ArchitectureRunCreateOrchestrator",
+        "ArchitectureRunBatchCreateOrchestrator",
         "ArchitectureRunExecuteOrchestrator",
         "TenantProvisioningService",
         "TrialLifecycleTransitionEngine",

@@ -3,7 +3,7 @@ import { expect, test } from "@playwright/test";
 import {
   BUYER_ONBOARDING_PAGE_TITLE,
   FIRST_REVIEW_GUIDE_PROGRESS_SECTION_TITLE,
-} from "@/lib/buyer-polish-copy";
+} from "@/lib/buyer/buyer-polish-copy";
 
 import { SHOWCASE_DEMO_RUN_ID } from "../e2e/fixtures/ids";
 import { registerFreshTenantOnboardingMocks } from "../e2e/helpers/register-onboarding-mocks";

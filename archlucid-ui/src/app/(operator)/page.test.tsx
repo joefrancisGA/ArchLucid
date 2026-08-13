@@ -99,7 +99,7 @@ vi.mock("@/app/(operator)/_sections/operator-home-page-view-deferred-chunks", as
   const {
     OPERATOR_HOME_OPEN_COMPLETED_REVIEW_CTA,
     OPERATOR_HOME_REVIEW_SAMPLE_FINDINGS_CTA,
-  } = await import("@/lib/buyer-polish-copy");
+  } = await import("@/lib/buyer/buyer-polish-copy");
 
   function DualPathHeroMock() {
     return (

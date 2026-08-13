@@ -11,6 +11,8 @@ using Moq;
 
 namespace ArchLucid.Application.Tests.Architecture;
 
+[Trait("Suite", "Core")]
+[Trait("Category", "Unit")]
 public sealed class QuickScanBudgetMonitoringServiceTests
 {
     [Fact]
