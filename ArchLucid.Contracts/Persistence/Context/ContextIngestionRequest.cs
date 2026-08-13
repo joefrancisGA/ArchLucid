@@ -62,4 +62,16 @@ public class ContextIngestionRequest
         get;
         set;
     } = [];
+
+    public List<string> RequiredCapabilities
+    {
+        get;
+        set;
+    } = [];
+
+    public List<string> Constraints
+    {
+        get;
+        set;
+    } = [];
 }

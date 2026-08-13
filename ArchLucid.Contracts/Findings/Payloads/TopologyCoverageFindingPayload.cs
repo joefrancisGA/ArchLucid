@@ -19,4 +19,10 @@ public class TopologyCoverageFindingPayload
         get;
         set;
     } = [];
+
+    public List<string> ExpectedCategories
+    {
+        get;
+        set;
+    } = [];
 }

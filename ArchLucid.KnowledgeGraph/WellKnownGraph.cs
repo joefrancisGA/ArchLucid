@@ -34,4 +34,6 @@ public static class GraphTopologyCategories
     public const string Storage = "storage";
     public const string Compute = "compute";
     public const string Data = "data";
+
+    public const string Identity = "identity";
 }
