@@ -17971,6 +17971,119 @@
         },
         "type": "object"
       },
+      "OperatorShellStatusResult": {
+        "properties": {
+          "alertsInboxSummary": {
+            "anyOf": [
+              {
+                "type": "null"
+              },
+              {
+                "$ref": "#/components/schemas/AlertsInboxSummaryDto"
+              }
+            ]
+          },
+          "catalogMigration": {
+            "anyOf": [
+              {
+                "type": "null"
+              },
+              {
+                "$ref": "#/components/schemas/TenantMigrationStatusSnapshot"
+              }
+            ]
+          },
+          "llmMonthlyBudgetStatus": {
+            "anyOf": [
+              {
+                "type": "null"
+              },
+              {
+                "$ref": "#/components/schemas/LlmMonthlyTenantDollarBudgetStatusResult"
+              }
+            ]
+          },
+          "trialStatus": {
+            "anyOf": [
+              {
+                "type": "null"
+              },
+              {
+                "$ref": "#/components/schemas/OperatorShellTrialStatusSnapshot"
+              }
+            ]
+          },
+          "usageStatus": {
+            "anyOf": [
+              {
+                "type": "null"
+              },
+              {
+                "$ref": "#/components/schemas/TenantUsageStatusSnapshot"
+              }
+            ]
+          }
+        },
+        "type": "object"
+      },
+      "OperatorShellTrialStatusSnapshot": {
+        "properties": {
+          "daysRemaining": {
+            "format": "int32",
+            "type": [
+              "null",
+              "integer"
+            ]
+          },
+          "firstCommitUtc": {
+            "format": "date-time",
+            "type": [
+              "null",
+              "string"
+            ]
+          },
+          "status": {
+            "type": "string"
+          },
+          "trialRunsLimit": {
+            "format": "int32",
+            "type": [
+              "null",
+              "integer"
+            ]
+          },
+          "trialRunsUsed": {
+            "format": "int32",
+            "type": "integer"
+          },
+          "trialSampleRunId": {
+            "format": "uuid",
+            "type": [
+              "null",
+              "string"
+            ]
+          },
+          "trialSeatsLimit": {
+            "format": "int32",
+            "type": [
+              "null",
+              "integer"
+            ]
+          },
+          "trialSeatsUsed": {
+            "format": "int32",
+            "type": "integer"
+          },
+          "trialWelcomeRunId": {
+            "format": "uuid",
+            "type": [
+              "null",
+              "string"
+            ]
+          }
+        },
+        "type": "object"
+      },
       "OperatorStickinessSnapshotResponse": {
         "properties": {
           "comparisonEventsLast30Days": {
@@ -27930,6 +28043,45 @@
         },
         "type": "object"
       },
+      "TenantMigrationStatusSnapshot": {
+        "properties": {
+          "correlationId": {
+            "type": [
+              "null",
+              "string"
+            ]
+          },
+          "inMigration": {
+            "type": "boolean"
+          },
+          "lastVerificationError": {
+            "type": [
+              "null",
+              "string"
+            ]
+          },
+          "message": {
+            "type": [
+              "null",
+              "string"
+            ]
+          },
+          "migrationId": {
+            "format": "uuid",
+            "type": [
+              "null",
+              "string"
+            ]
+          },
+          "stage": {
+            "type": [
+              "null",
+              "string"
+            ]
+          }
+        },
+        "type": "object"
+      },
       "TenantNotificationChannelPreferencesResponse": {
         "properties": {
           "emailCustomerNotificationsEnabled": {
@@ -28631,6 +28783,50 @@
             "type": "integer"
           }
         },
+        "type": "object"
+      },
+      "TenantUsageStatusSnapshot": {
+        "properties": {
+          "commercialTier": {
+            "type": [
+              "null",
+              "string"
+            ]
+          },
+          "isTrial": {
+            "type": "boolean"
+          },
+          "seatsLimit": {
+            "format": "int32",
+            "type": [
+              "null",
+              "integer"
+            ]
+          },
+          "seatsUsed": {
+            "format": "int32",
+            "type": "integer"
+          },
+          "workspacesLimit": {
+            "format": "int32",
+            "type": [
+              "null",
+              "integer"
+            ]
+          },
+          "workspacesUsed": {
+            "format": "int32",
+            "type": "integer"
+          }
+        },
+        "required": [
+          "commercialTier",
+          "isTrial",
+          "seatsLimit",
+          "seatsUsed",
+          "workspacesLimit",
+          "workspacesUsed"
+        ],
         "type": "object"
       },
       "TenantUsageSummary": {
@@ -131036,6 +131232,146 @@
         "x-archlucid-audience": "operator"
       }
     },
+    "/v1/operator/shell-status": {
+      "get": {
+        "responses": {
+          "200": {
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/OperatorShellStatusResult"
+                }
+              },
+              "text/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/OperatorShellStatusResult"
+                }
+              },
+              "text/plain": {
+                "schema": {
+                  "$ref": "#/components/schemas/OperatorShellStatusResult"
+                }
+              }
+            },
+            "description": "OK"
+          },
+          "400": {
+            "content": {
+              "application/problem\u002Bjson": {
+                "schema": {
+                  "$ref": "#/components/schemas/ProblemDetails"
+                }
+              }
+            },
+            "description": "Bad Request (validation or malformed input)."
+          },
+          "401": {
+            "content": {
+              "application/problem\u002Bjson": {
+                "schema": {
+                  "$ref": "#/components/schemas/ProblemDetails"
+                }
+              }
+            },
+            "description": "Unauthorized."
+          },
+          "403": {
+            "content": {
+              "application/problem\u002Bjson": {
+                "schema": {
+                  "$ref": "#/components/schemas/ProblemDetails"
+                }
+              }
+            },
+            "description": "Forbidden."
+          },
+          "404": {
+            "content": {
+              "application/problem\u002Bjson": {
+                "schema": {
+                  "$ref": "#/components/schemas/ProblemDetails"
+                }
+              }
+            },
+            "description": "Not Found."
+          },
+          "405": {
+            "content": {
+              "application/problem\u002Bjson": {
+                "schema": {
+                  "$ref": "#/components/schemas/ProblemDetails"
+                }
+              }
+            },
+            "description": "Method Not Allowed."
+          },
+          "409": {
+            "content": {
+              "application/problem\u002Bjson": {
+                "schema": {
+                  "$ref": "#/components/schemas/ProblemDetails"
+                }
+              }
+            },
+            "description": "Conflict."
+          },
+          "415": {
+            "content": {
+              "application/problem\u002Bjson": {
+                "schema": {
+                  "$ref": "#/components/schemas/ProblemDetails"
+                }
+              }
+            },
+            "description": "Unsupported Media Type."
+          },
+          "422": {
+            "content": {
+              "application/problem\u002Bjson": {
+                "schema": {
+                  "$ref": "#/components/schemas/ProblemDetails"
+                }
+              }
+            },
+            "description": "Unprocessable Entity."
+          },
+          "429": {
+            "content": {
+              "application/problem\u002Bjson": {
+                "schema": {
+                  "$ref": "#/components/schemas/ProblemDetails"
+                }
+              }
+            },
+            "description": "Too Many Requests."
+          },
+          "500": {
+            "content": {
+              "application/problem\u002Bjson": {
+                "schema": {
+                  "$ref": "#/components/schemas/ProblemDetails"
+                }
+              }
+            },
+            "description": "Internal Server Error."
+          },
+          "503": {
+            "content": {
+              "application/problem\u002Bjson": {
+                "schema": {
+                  "$ref": "#/components/schemas/ProblemDetails"
+                }
+              }
+            },
+            "description": "Service Unavailable."
+          }
+        },
+        "tags": [
+          "OperatorShellStatus"
+        ],
+        "x-archlucid-audience": "operator"
+      }
+    },
     "/v1/pilots/board-pack.pdf": {
       "post": {
         "requestBody": {
@@ -151399,6 +151735,9 @@
     },
     {
       "name": "OperatorSavedViews"
+    },
+    {
+      "name": "OperatorShellStatus"
     },
     {
       "name": "OperatorTaskSuccessDiagnostics"
