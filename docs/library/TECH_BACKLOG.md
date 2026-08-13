@@ -1306,7 +1306,7 @@ All **P0** **V1**: visible-boundary button contract + design-system rule (**TB-2
 | TB-1530 | ~~ITSM outbox/DLQ delivery guarantee map~~ ? **Done** (2026-08-12); see `## TB-1530` below | Interoperability P1 ? **V1**; PA ITSM delivery Q; GTM **M-280**/**M-281**; see `ITSM_OUTBOX_DLQ_DELIVERY_GUARANTEE_MAP.md`; complements **TB-992** | S |
 | TB-899 | ~~Quick Scan cost telemetry, dashboards, reconciliation, alerts~~ ? **Done** (2026-08-12); monitoring runbook; see `## TB-899` below | Operability P1 ? **V1**; after **TB-894**; prompts Prompt 9 | L |
 | TB-1317 | **Done** (2026-08-12) ? Container Apps Terraform drift escape classes + provably authoritative state contract; see `## TB-1317` below | Deployability P1 ? **V1**; PA 2026-07-26 CA/IaC drift; GTM **M-233**/**M-234** | S |
-| TB-1336 | **Done** (2026-08-12) ? 100× review-volume fail-first order + option-preserving capacity ledger contract; see `## TB-1336` below | Scalability P1 ? **V1**; PA Q20 100× reviews; GTM **M-237**/**M-238** | S |
+| TB-1336 | **Done** (2026-08-12) ? 100? review-volume fail-first order + option-preserving capacity ledger contract; see `## TB-1336` below | Scalability P1 ? **V1**; PA Q20 100? reviews; GTM **M-237**/**M-238** | S |
 | TB-1577 | **Done** (2026-08-11) ? [`SHARED_AOAI_TPM_NOISY_NEIGHBOR_FAIRNESS_CLAIM_MAP.md`](SHARED_AOAI_TPM_NOISY_NEIGHBOR_FAIRNESS_CLAIM_MAP.md); see `## TB-1577` below | Scalability P1 ? **V1**; PA noisy-neighbor / TPM fairness Q; GTM **M-296**/**M-297**; orchestrates **TB-1336**/**TB-1299**/**TB-947** | S |
 | TB-946 | ~~Single-signal scale micro-drill harness~~ **Done** 2026-08-09 ? `SCALE_MICRO_DRILL.md` + k6 drills A/B/C + `run_scale_micro_drill.sh` + results append; TB-905 Phase C gate; CI smoke; see ## TB-946 below | Performance / testability P0 ? **V1** (promoted P0 2026-08-09 with perf wave 6; was P1); validates **TB-915**; owner **G-SCALE-01**; before **TB-905** launch-load half | M |
 | TB-1032 | **Done** (2026-08-12) ? Launch-load hot-path failure order + graceful degradation matrix; see `## TB-1032` below | Reliability / scalability P1 ? **V1**; `LAUNCH_LOAD_FAILURE_ORDER_DEGRADATION_CONTRACT.md`; GTM **M-182**/**M-183** | S |
@@ -1375,12 +1375,12 @@ All **P0** **V1**: visible-boundary button contract + design-system rule (**TB-2
 | TB-1368 | Anti-two-weeks-to-two-hours / every-finding-trace / gate-always-on honesty CI; see `## TB-1368` below | Testability P1 ? **V1**; after **TB-1367**; pairs **M-245** | S |
 | TB-1370 | Anti-Simulator-decide-differently-gated / schema-equals-provenance honesty CI; see `## TB-1370` below | Testability P1 ? **V1**; after **TB-1369**; pairs **M-247** | S |
 | TB-1372 | Anti-TB-881-blocks-pilots / reopen-Done-TB-881 honesty CI + OPEN hygiene; see `## TB-1372` below | Testability P1 ? **V1**; after **TB-1371**; pairs **M-249** | S |
-| TB-1417 | Anti-decide-once-equals-package-truth / triad-closed honesty CI; see `## TB-1417` below | Testability P1 ? **V1**; after **TB-1416**; pairs **M-253** | S |
+| TB-1417 | **Done** (2026-08-12) ? Anti-decide-once-equals-package-truth / triad-closed honesty CI; see `## TB-1417` below | Testability P1 ? **V1**; after **TB-1416**; pairs **M-253** | S |
 | ~~TB-1457~~ | ~~Anti-EA-fake-loss / smarter-than-GPT / unmeasured-kill-rate honesty CI~~ **Done** 2026-08-09; see `## TB-1457` below | Testability P1 ? **V1**; after **TB-1456**; pairs **M-261** | S |
 | TB-1464 | **Done** (2026-08-10) ? anti-stale WNTP connector / two-weeks-two-hours / Live-demo honesty CI; see ## TB-1464 below | Testability P1 ? **V1**; after **TB-1463**; pairs **M-263** | S |
-| TB-1471 | Anti-append-only-forever / complete-erasure-including-Search honesty CI; see `## TB-1471` below | Testability P1 ? **V1**; after **TB-1470**; pairs **M-265** | S |
-| TB-1489 | Anti-fully-offline-ManifestHash / post-purge-verify honesty CI; see `## TB-1489` below | Testability P1 ? **V1**; after **TB-1488**; pairs **M-267** | S |
-| TB-1491 | Anti-append-only-survives-PITR / restored-equals-untampered honesty CI; see `## TB-1491` below | Testability P1 ? **V1**; after **TB-1490**; pairs **M-269** | S |
+| TB-1471 | **Done** (2026-08-12) ? Anti-append-only-forever / complete-erasure-including-Search honesty CI; see `## TB-1471` below | Testability P1 ? **V1**; after **TB-1470**; pairs **M-265** | S |
+| TB-1489 | **Done** (2026-08-12) ? Anti-fully-offline-ManifestHash / post-purge-verify honesty CI; see `## TB-1489` below | Testability P1 ? **V1**; after **TB-1488**; pairs **M-267** | S |
+| TB-1491 | **Done** (2026-08-12) ? Anti-append-only-survives-PITR / restored-equals-untampered honesty CI; see `## TB-1491` below | Testability P1 ? **V1**; after **TB-1490**; pairs **M-269** | S |
 | TB-1498 | Anti-project-purge-erases-evidence / no-trace-after-bin honesty CI; see `## TB-1498` below | Testability P1 ? **V1**; after **TB-1497**; pairs **M-271** | S |
 | TB-1500 | **Done** (2026-08-10) ? Anti-bit-identical-Real-reexecute / auto-upgrade-as-continuity honesty CI; see `## TB-1500` below | Testability P1 ? **V1**; after **TB-1499**; pairs **M-273** | S |
 | TB-1507 | **Done** (2026-08-10) ? Anti-TB-683-as-live-model-tripwire / nightly-catches-Azure-rev honesty CI; see `## TB-1507` below | Testability P1 ? **V1**; after **TB-1506**; pairs **M-275** | S |
@@ -36069,7 +36069,7 @@ Operators must read three intros before reaching the Trust Center link list.
 
 **Window:** V1 ? Testability.
 
-**Status:** Not started.
+**Status:** **Done** (2026-08-12) ? `scripts/ci/check_decide_once_triad_honesty.py` + unit tests; pairs **M-253**.
 
 **Priority:** P1.
 
@@ -37491,7 +37491,7 @@ Operators must read three intros before reaching the Trust Center link list.
 
 **Window:** V1 ? Testability.
 
-**Status:** Not started.
+**Status:** **Done** (2026-08-12) ? `scripts/ci/check_gdpr_erasure_append_only_honesty.py` + unit tests; pairs **M-265**.
 
 **Priority:** P1.
 
@@ -38003,7 +38003,7 @@ Operators must read three intros before reaching the Trust Center link list.
 
 **Window:** V1 ? Testability.
 
-**Status:** Not started.
+**Status:** **Done** (2026-08-12) ? `scripts/ci/check_offline_export_portability_honesty.py` + unit tests; pairs **M-267**.
 
 **Priority:** P1.
 
@@ -38063,7 +38063,7 @@ Operators must read three intros before reaching the Trust Center link list.
 
 **Window:** V1 ? Testability.
 
-**Status:** Not started.
+**Status:** **Done** (2026-08-12) ? `scripts/ci/check_evidence_backup_restore_honesty.py` + unit tests; pairs **M-269**.
 
 **Priority:** P1.
 

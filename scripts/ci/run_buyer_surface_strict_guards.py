@@ -219,8 +219,33 @@ GUARDS: tuple[GuardCommand, ...] = (
         None,
     ),
     GuardCommand(
+        "see-it universe honesty",
+        ("python", "scripts/ci/check_see_it_universe_honesty.py"),
+        None,
+    ),
+    GuardCommand(
         "wntp buyer ui honesty",
         ("python", "scripts/ci/check_wntp_buyer_ui_honesty.py"),
+        None,
+    ),
+    GuardCommand(
+        "decide once triad honesty",
+        ("python", "scripts/ci/check_decide_once_triad_honesty.py"),
+        None,
+    ),
+    GuardCommand(
+        "gdpr erasure append-only honesty",
+        ("python", "scripts/ci/check_gdpr_erasure_append_only_honesty.py"),
+        None,
+    ),
+    GuardCommand(
+        "offline export portability honesty",
+        ("python", "scripts/ci/check_offline_export_portability_honesty.py"),
+        None,
+    ),
+    GuardCommand(
+        "evidence backup restore honesty",
+        ("python", "scripts/ci/check_evidence_backup_restore_honesty.py"),
         None,
     ),
     GuardCommand(

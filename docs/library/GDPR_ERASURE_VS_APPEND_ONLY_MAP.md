@@ -74,8 +74,18 @@ Orchestration: `TenantDeletionService` → (1) blob prefixes → (2) `ITenantHar
 ## 5. Engineering follow-ons implied by this map
 
 1. **Document** Search residual (this file) until a tenant-scoped Search purge is wired into `TenantDeletionService` (or explicitly deferred with buyer-visible honesty).
-2. **Honesty CI** — fail “append-only forever” and “complete erasure including Search/backups” without caveats (**TB-1471**).
+2. **Honesty CI** — fail “append-only forever” and “complete erasure including Search/backups” without caveats (**TB-1471** Done).
 3. Keep **per-user DSAR** vs **tenant hard purge** language separate in trust center and PA one-pager (**M-266**).
+
+## CI anchors for **TB-1471**
+
+| Anchor | Role |
+| --- | --- |
+| `scripts/ci/check_gdpr_erasure_append_only_honesty.py` | Fail immutable-forever / complete-erasure / Search-purged-on-offboard overclaims |
+| `ArchLucid.Application/Tenancy/TenantDeletionService.cs` | Hard-purge orchestration code anchor |
+| `ArchLucid.Persistence/Tenancy/SqlTenantHardPurgeService.cs` | SQL/blob purge scope code anchor |
+
+Honesty CI shipped: **TB-1471**.
 
 ---
 
