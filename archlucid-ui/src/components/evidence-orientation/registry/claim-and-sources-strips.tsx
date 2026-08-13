@@ -642,6 +642,18 @@ export function PilotFeedbackHelpEvidenceOrientationStrip(): React.JSX.Element {
   );
 }
 
+export function PriorManifestRetrievalHelpEvidenceOrientationStrip(): React.JSX.Element {
+  return (
+    <EvidenceOrientationClaimAndSourcesStrip
+      slug="help-prior-manifest-retrieval"
+      claim={PRIOR_MANIFEST_RETRIEVAL_HELP_CLAIM_DISCIPLINE}
+      claimElement="div"
+      sourcesIntro={PRIOR_MANIFEST_RETRIEVAL_HELP_SOURCES_INTRO}
+      sources={PRIOR_MANIFEST_RETRIEVAL_HELP_SOURCES}
+    />
+  );
+}
+
 export function PolicyPacksHelpEvidenceOrientationStrip(): React.JSX.Element {
   return (
     <EvidenceOrientationClaimAndSourcesStrip
