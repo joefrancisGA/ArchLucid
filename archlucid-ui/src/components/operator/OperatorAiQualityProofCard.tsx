@@ -40,7 +40,7 @@ export function OperatorAiQualityProofCard(props: { readonly embedded?: boolean 
     );
   }
 
-  if (snapshot === null) {
+  if (snapshot === null || snapshot === undefined) {
     return (
       <section className={shellClassName} data-testid="operator-ai-quality-proof-card">
         <h2 className={cn("m-0 font-semibold text-al-text-primary", OPERATOR_TYPOGRAPHY.cardTitle)}>Assistant readiness</h2>

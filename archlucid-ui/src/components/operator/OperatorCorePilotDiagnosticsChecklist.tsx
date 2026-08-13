@@ -97,7 +97,7 @@ export function OperatorCorePilotDiagnosticsChecklist() {
           </p>
         ) : null}
 
-        {rates !== null ? (
+        {rates != null ? (
           <dl className="m-0 mt-3 grid grid-cols-3 gap-2 text-center">
             <div className={cn("rounded-md border border-neutral-200 dark:border-neutral-700", OPERATOR_CARD.nested)}>
               <dt className={cn("font-medium text-neutral-500 dark:text-neutral-400", OPERATOR_TYPOGRAPHY.badge)}>Sessions</dt>
@@ -118,7 +118,7 @@ export function OperatorCorePilotDiagnosticsChecklist() {
           </dl>
         ) : null}
 
-        {rates !== null ? (
+        {rates != null ? (
           <p className={cn("m-0 mt-2 text-center text-neutral-400 dark:text-neutral-500", OPERATOR_TYPOGRAPHY.badge)}>{rates.windowNote}</p>
         ) : null}
 
