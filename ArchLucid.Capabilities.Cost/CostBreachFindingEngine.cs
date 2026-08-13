@@ -108,6 +108,12 @@ public sealed class CostBreachFindingEngine : IFindingEngine
 
     private static decimal? ResolveProjectedMonthlySpend(GraphNode node)
     {
+        if (node.Properties.TryGetValue("projectedMonthlySpendUsd", out string? projectedRaw)
+            && TryParseDecimal(projectedRaw) is decimal projectedSpend)
+        {
+            return projectedSpend;
+        }
+
         if (node.Properties.TryGetValue("projectedImpactUsdUpperBound", out string? upperBoundRaw)
             && TryParseDecimal(upperBoundRaw) is decimal upperBound)
         {
@@ -119,9 +125,6 @@ public sealed class CostBreachFindingEngine : IFindingEngine
         {
             return lowerBound;
         }
-
-        if (node.Properties.TryGetValue("projectedMonthlySpendUsd", out string? projectedRaw))
-            return TryParseDecimal(projectedRaw);
 
         return null;
     }

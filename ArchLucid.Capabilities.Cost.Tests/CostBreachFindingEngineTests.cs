@@ -40,6 +40,33 @@ public sealed class CostBreachFindingEngineTests
     }
 
     [Fact]
+    public async Task AnalyzeAsync_prefers_projected_monthly_spend_over_impact_bounds()
+    {
+        GraphSnapshot graph = new()
+        {
+            Nodes =
+            [
+                new GraphNode
+                {
+                    NodeId = "c1",
+                    NodeType = "CostConstraint",
+                    Label = "prod-budget",
+                    Properties = new Dictionary<string, string>
+                    {
+                        ["maxMonthlyCost"] = "5000",
+                        ["projectedMonthlySpendUsd"] = "4500",
+                        ["projectedImpactUsdUpperBound"] = "6200"
+                    }
+                }
+            ]
+        };
+
+        IReadOnlyList<Finding> findings = await _sut.AnalyzeAsync(graph, CancellationToken.None);
+
+        findings.Should().BeEmpty();
+    }
+
+    [Fact]
     public async Task AnalyzeAsync_emits_breach_when_upper_bound_exceeds_cap()
     {
         GraphSnapshot graph = new()
