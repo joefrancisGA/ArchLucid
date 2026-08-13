@@ -4,7 +4,7 @@
 
 **Audience:** Engineering, security reviewers, principal-architect diligence. Not a buyer brochure.
 
-**Status:** **Done** (**TB-1557**, 2026-08-10). GTM **M-286** / **M-287**. Pair honesty CI **TB-1558** / **M-286**.
+**Status:** **Done** (**TB-1557**, 2026-08-10). GTM **M-286** / **M-287**. Pair honesty CI **TB-1558** / **M-286** Done.
 
 **Buyer / PA one-pager:** [`BUYER_SECURITY_PROCUREMENT_PACKET.md#zero-downtime-sql-migration-m-287`](../go-to-market/BUYER_SECURITY_PROCUREMENT_PACKET.md#zero-downtime-sql-migration-m-287) (GTM **M-287**).  
 **Claim honesty:** [`PUBLIC_CLAIM_BOUNDARY_GUIDE.md#gtm-do-not-promise`](PUBLIC_CLAIM_BOUNDARY_GUIDE.md#gtm-do-not-promise) (GTM **M-286**).
@@ -82,7 +82,20 @@ There is **no** “migration job completes before any pod starts” gate in the 
 | [`MIGRATION_ROLLBACK.md`](MIGRATION_ROLLBACK.md) § Rolling deploy | Expand/contract + coordinated list |
 | `check_migration_rolling_deploy_patterns.py` | Done **TB-068** CI lint |
 | Done **TB-1557** / **M-286** | This migration-model claim map |
-| Open **TB-1558** / **M-286** | Honesty CI follow-on |
+| Done **TB-1558** / **M-286** | Honesty CI |
+
+---
+
+## CI anchors for **TB-1558**
+
+| Anchor | Role |
+| --- | --- |
+| `scripts/ci/check_zero_downtime_sql_migration_honesty.py` | Fail separate-migrator / always-ZDT / least-privilege-while-bootstrap overclaims |
+| `ZERO_DOWNTIME_SQL_MIGRATION_CLAIM_MAP.md` | Drift guard (this file) |
+| `DatabaseMigrator` / `ArchLucidPersistenceStartup` | In-process DbUp executor |
+| `check_migration_rolling_deploy_patterns.py` | Expand/contract lint (**TB-068**) |
+
+Honesty CI shipped: **TB-1558**.
 
 ---
 

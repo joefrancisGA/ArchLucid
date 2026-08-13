@@ -9,7 +9,7 @@
 **Path-stable alias:** [`DECISION_GRADE_FINDING_PROVENANCE_FAIL_CLOSED_PA_ONE_PAGER.md`](../go-to-market/DECISION_GRADE_FINDING_PROVENANCE_FAIL_CLOSED_PA_ONE_PAGER.md).  
 **Committed package unit of truth:** [`COMMITTED_GOLDEN_MANIFEST_UNIT_OF_TRUTH_CONTRACT.md`](COMMITTED_GOLDEN_MANIFEST_UNIT_OF_TRUTH_CONTRACT.md) (**TB-1003**).  
 **Prose quarantine / validate-before-overlay:** **TB-1196** (open).  
-**Honesty CI:** **TB-1222** (open).  
+**Honesty CI:** **TB-1222** Done.  
 **Semantic faithfulness lane:** **TB-1228** / GTM **M-209**/**M-210** — separate from structural provenance.
 
 ---
@@ -111,14 +111,16 @@ Commit does **not** today require per-finding provenance — buyers must not be 
 
 ---
 
-## TB-1222 CI anchors (named, not implemented here)
+## CI anchors for **TB-1222**
 
-| Anchor | Purpose |
-|--------|---------|
-| Buyer/proof stub guards | Fail “all findings evidence-grounded” without fail-closed language or shipped gates |
-| `DECISION_GRADE_FINDING_PROVENANCE_FAIL_CLOSED_CONTRACT.md` presence | Contract drift guard (this file) |
-| `FindingFactory` / `AgentResultParser` / `AgentOutputQualityGate` inventory | Fail claims that Critic or top-level refs alone guarantee per-finding provenance |
-| Empty `EvidenceRefs` persistence tests | Document residual until emission gate ships |
+| Anchor | Role |
+| --- | --- |
+| `scripts/ci/check_decision_grade_finding_provenance_honesty.py` | Fail all-findings-evidence-grounded / empty-EvidenceRefs-as-proof overclaims |
+| `DECISION_GRADE_FINDING_PROVENANCE_FAIL_CLOSED_CONTRACT.md` | Drift guard (this file) |
+| `FindingFactory` / `AgentResultParser` / `AgentOutputQualityGate` | Verification cite list |
+| `FindingCitationCoverageRatio` | Inert until emission/commit gates ship |
+
+Honesty CI shipped: **TB-1222**.
 
 ---
 

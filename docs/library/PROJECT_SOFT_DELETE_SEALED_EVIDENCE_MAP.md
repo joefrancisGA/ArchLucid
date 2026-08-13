@@ -4,7 +4,7 @@
 
 **Audience:** Engineering, privacy/procurement, principal-architect diligence. Not a buyer brochure.
 
-**Status:** **Done** (**TB-1497**, 2026-08-10). GTM **M-271** / **M-272**. Pair honesty CI **TB-1498** / **M-271**.
+**Status:** **Done** (**TB-1497**, 2026-08-10). GTM **M-271** / **M-272**. Pair honesty CI **TB-1498** / **M-271** Done.
 
 **Buyer / PA one-pager:** [`BUYER_SECURITY_PROCUREMENT_PACKET.md#project-soft-delete-sealed-evidence-m-272`](../go-to-market/BUYER_SECURITY_PROCUREMENT_PACKET.md#project-soft-delete-sealed-evidence-m-272) (GTM **M-272**).  
 **Claim honesty:** [`PUBLIC_CLAIM_BOUNDARY_GUIDE.md#gtm-do-not-promise`](PUBLIC_CLAIM_BOUNDARY_GUIDE.md#gtm-do-not-promise) (GTM **M-271**).
@@ -90,3 +90,17 @@ Sealed-evidence DENY (Done **TB-303**) means the recycle-bin worker **must not**
 | Retention options | `ArchLucid.Core/Configuration/ArchitectureProjectRetentionPurgeOptions.cs` |
 | Audit event types | `ArchLucid.Core/Audit/AuditEventTypes.cs` (`ArchitectureProjectSoftDeleted`, `ArchitectureProjectHardPurgedRetention`) |
 | Sealed evidence DENY | `ArchLucid.Host.Core/Startup/Validation/Rules/SqlSealedEvidenceImmutabilityRules.cs` |
+
+---
+
+## CI anchors for **TB-1498**
+
+| Anchor | Role |
+| --- | --- |
+| `scripts/ci/check_project_soft_delete_sealed_evidence_honesty.py` | Fail project-purge-erases-evidence / no-trace-after-bin overclaims |
+| `PROJECT_SOFT_DELETE_SEALED_EVIDENCE_MAP.md` | Drift guard (this file) |
+| `SqlArchitectureProjectRetentionPurgeService` | Hard purge deletes project row only |
+| `DapperArchitectureProjectRepository` | Soft delete flags |
+| `AuditEventTypes.Tenant` | Soft/hard purge audit append |
+
+Honesty CI shipped: **TB-1498**.

@@ -5,7 +5,7 @@
 > **Audience:** Maintainers evaluating “strangler complete” language and anti-resurrection pins.  
 > **Buyer summary:** [`BUYER_SECURITY_PROCUREMENT_PACKET.md`](../go-to-market/BUYER_SECURITY_PROCUREMENT_PACKET.md#post-strangler-residual-coupling-m-206) (**M-205** / **M-206**).  
 > **Next delete slice:** [`STRANGLER_NEXT_SLICE_AUTHORITY_FREEZE_AND_RESULT_SUNSET_CONTRACT.md`](./STRANGLER_NEXT_SLICE_AUTHORITY_FREEZE_AND_RESULT_SUNSET_CONTRACT.md) (**TB-1034**).  
-> **Honesty CI:** **TB-1205** (open).
+> **Honesty CI:** **TB-1205** Done.
 
 ---
 
@@ -74,3 +74,17 @@
 - Does not unify dual hashers (**TB-1156**).
 
 **Related:** **TB-1007** · **TB-1034** · **TB-1156** · Done **TB-919** · GTM **M-205** / **M-206** · **TB-1205**.
+
+---
+
+## CI anchors for **TB-1205**
+
+| Anchor | Role |
+| --- | --- |
+| `scripts/ci/check_post_strangler_residual_coupling_honesty.py` | Fail delete-pins-as-complete / soft-bridge-as-dual-storage overclaims |
+| `POST_STRANGLER_RESIDUAL_COUPLING_AND_DISCIPLINE_TEST_RETIREMENT_CONTRACT.md` | Drift guard (this file) |
+| `DualPipelineRegistrationDisciplineTests` | Anti-resurrection pin inventory |
+| `CoordinatorStranglerCompletionArchitectureTests` | Strangler completion pin inventory |
+| `COORDINATOR_STRANGLER_INVENTORY.md` | Storage-complete vs residual hunt |
+
+Honesty CI shipped: **TB-1205**.

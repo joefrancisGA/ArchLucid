@@ -327,6 +327,26 @@ GUARDS: tuple[GuardCommand, ...] = (
         None,
     ),
     GuardCommand(
+        "post-strangler residual coupling honesty",
+        ("python", "scripts/ci/check_post_strangler_residual_coupling_honesty.py"),
+        None,
+    ),
+    GuardCommand(
+        "decision-grade finding provenance honesty",
+        ("python", "scripts/ci/check_decision_grade_finding_provenance_honesty.py"),
+        None,
+    ),
+    GuardCommand(
+        "project soft-delete sealed evidence honesty",
+        ("python", "scripts/ci/check_project_soft_delete_sealed_evidence_honesty.py"),
+        None,
+    ),
+    GuardCommand(
+        "zero-downtime sql migration honesty",
+        ("python", "scripts/ci/check_zero_downtime_sql_migration_honesty.py"),
+        None,
+    ),
+    GuardCommand(
         "isolation claims too-strong honesty",
         ("python", "scripts/ci/check_isolation_claims_too_strong_honesty.py"),
         None,

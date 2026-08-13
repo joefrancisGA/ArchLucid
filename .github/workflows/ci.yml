@@ -1165,6 +1165,22 @@ jobs:
         continue-on-error: true
         run: python scripts/ci/check_tb881_ship_blocker_classification_honesty.py
 
+      - name: Post-strangler residual coupling honesty guard (TB-1205 / M-205)
+        continue-on-error: true
+        run: python scripts/ci/check_post_strangler_residual_coupling_honesty.py
+
+      - name: Decision-grade finding provenance honesty guard (TB-1222 / M-207)
+        continue-on-error: true
+        run: python scripts/ci/check_decision_grade_finding_provenance_honesty.py
+
+      - name: Project soft-delete sealed evidence honesty guard (TB-1498 / M-271)
+        continue-on-error: true
+        run: python scripts/ci/check_project_soft_delete_sealed_evidence_honesty.py
+
+      - name: Zero-downtime SQL migration honesty guard (TB-1558 / M-286)
+        continue-on-error: true
+        run: python scripts/ci/check_zero_downtime_sql_migration_honesty.py
+
       - name: Honesty cluster 1264-1312 guard unit tests
         continue-on-error: true
         run: python -m unittest discover -s scripts/ci/tests -p "test_check_honesty_cluster_1264_1312.py"
@@ -1184,6 +1200,10 @@ jobs:
       - name: Honesty cluster 1252-1372 guard unit tests
         continue-on-error: true
         run: python -m unittest discover -s scripts/ci/tests -p "test_check_honesty_cluster_1252_1372.py"
+
+      - name: Honesty cluster 1205-1558 guard unit tests
+        continue-on-error: true
+        run: python -m unittest discover -s scripts/ci/tests -p "test_check_honesty_cluster_1205_1558.py"
 
       - name: Buyer-surface strict claim guards (blocking when buyer paths changed)
         if: steps.buyer-surface-detect.outputs.changed == 'true'

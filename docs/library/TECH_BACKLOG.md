@@ -1363,8 +1363,8 @@ All **P0** **V1**: visible-boundary button contract + design-system rule (**TB-2
 | TB-1145 | **Done** (2026-08-12) ? Anti-SOC2-certified / pen-test-in-flight / almost-attested honesty CI; see `## TB-1145` below | Testability P1 ? **V1**; after **TB-1144**; pairs **M-196** | S |
 | TB-1173 | Anti-rubber-stamp cohort re-lock / unexplained mass SHA rewrite honesty CI; see `## TB-1173` below | Testability P1 ? **V1**; after **TB-1172**; pairs **M-201** | S |
 | TB-1197 | Anti-unvalidated-proposal-overlay / prose-into-governance honesty CI; see `## TB-1197` below | Testability P1 ? **V1**; after **TB-1196**; pairs **M-203** | S |
-| TB-1205 | Anti-delete-pins-as-complete / soft-bridge-as-dual-storage honesty CI; see `## TB-1205` below | Testability P1 ? **V1**; after **TB-1204**; pairs **M-205** | S |
-| TB-1222 | Anti-all-findings-evidence-grounded / empty-EvidenceRefs-as-proof honesty CI; see `## TB-1222` below | Testability P1 ? **V1**; after **TB-1221**; pairs **M-207** | S |
+| TB-1205 | ~~Anti-delete-pins-as-complete / soft-bridge-as-dual-storage honesty CI~~ — **Done** (2026-08-12); see `## TB-1205` below | Testability P1 ? **V1**; after **TB-1204**; pairs **M-205** | S |
+| TB-1222 | ~~Anti-all-findings-evidence-grounded / empty-EvidenceRefs-as-proof honesty CI~~ — **Done** (2026-08-12); see `## TB-1222` below | Testability P1 ? **V1**; after **TB-1221**; pairs **M-207** | S |
 | TB-1229 | **Done** (2026-08-12) ? Anti-faithfulness-as-commit-gate / support-ratio-as-legal-truth honesty CI; see `## TB-1229` below | Testability P1 ? **V1**; after **TB-1228**; pairs **M-209** | S |
 | TB-1231 | **Done** (2026-08-12) ? Anti-Simulator-safe-equals-Real / forked-defense-stack honesty CI; see `## TB-1231` below | Testability P1 ? **V1**; after **TB-1230**; pairs **M-211** | S |
 | TB-1233 | **Done** (2026-08-12) ? Anti-WHERE-TenantId-equals-isolation / ARCH-alone-proves / RLS-as-beyond-predicate honesty CI; see `## TB-1233` below | Testability P1 ? **V1**; after **TB-1232**; pairs **M-213** | S |
@@ -1390,14 +1390,14 @@ All **P0** **V1**: visible-boundary button contract + design-system rule (**TB-2
 | TB-1471 | **Done** (2026-08-12) ? Anti-append-only-forever / complete-erasure-including-Search honesty CI; see `## TB-1471` below | Testability P1 ? **V1**; after **TB-1470**; pairs **M-265** | S |
 | TB-1489 | **Done** (2026-08-12) ? Anti-fully-offline-ManifestHash / post-purge-verify honesty CI; see `## TB-1489` below | Testability P1 ? **V1**; after **TB-1488**; pairs **M-267** | S |
 | TB-1491 | **Done** (2026-08-12) ? Anti-append-only-survives-PITR / restored-equals-untampered honesty CI; see `## TB-1491` below | Testability P1 ? **V1**; after **TB-1490**; pairs **M-269** | S |
-| TB-1498 | Anti-project-purge-erases-evidence / no-trace-after-bin honesty CI; see `## TB-1498` below | Testability P1 ? **V1**; after **TB-1497**; pairs **M-271** | S |
+| TB-1498 | ~~Anti-project-purge-erases-evidence / no-trace-after-bin honesty CI~~ — **Done** (2026-08-12); see `## TB-1498` below | Testability P1 ? **V1**; after **TB-1497**; pairs **M-271** | S |
 | TB-1500 | **Done** (2026-08-10) ? Anti-bit-identical-Real-reexecute / auto-upgrade-as-continuity honesty CI; see `## TB-1500` below | Testability P1 ? **V1**; after **TB-1499**; pairs **M-273** | S |
 | TB-1507 | **Done** (2026-08-10) ? Anti-TB-683-as-live-model-tripwire / nightly-catches-Azure-rev honesty CI; see `## TB-1507` below | Testability P1 ? **V1**; after **TB-1506**; pairs **M-275** | S |
 | TB-1524 | ~~Anti-Worker-resumes-agent-execute / auto-orphan-fail / exactly-once-LLM honesty CI~~ ? **Done** (2026-08-12); see `## TB-1524` below | Testability P1 ? **V1**; after **TB-1523**; pairs **M-277** | S |
 | TB-1531 | ~~Anti-exactly-once-ITSM / outbox-equals-native-create / recipe-idempotent honesty CI~~ ? **Done** (2026-08-12); see `## TB-1531` below | Testability P1 ? **V1**; after **TB-1530**; pairs **M-280** | S |
 | TB-1538 | ~~Anti-instant-global-revoke / webhook-rechecks-principal / Entra-AuthVersion honesty CI~~ ? **Done** (2026-08-12); see `## TB-1538` below | Testability P1 ? **V1**; after **TB-1537**; pairs **M-282** | S |
 | TB-1551 | ~~Anti-DB-sequence / anti-Lamport / anti-UI-as-forensic honesty CI~~ ? **Done** (2026-08-12); see `## TB-1551` below | Testability P1 ? **V1**; after **TB-1550**; pairs **M-284** | S |
-| TB-1558 | Anti-separate-migrator-job / anti-always-ZDT / anti-least-privilege-while-bootstrap honesty CI; see `## TB-1558` below | Testability P1 ? **V1**; after **TB-1557**; pairs **M-286**; coordinate **TB-1245** | S |
+| TB-1558 | ~~Anti-separate-migrator-job / anti-always-ZDT / anti-least-privilege-while-bootstrap honesty CI~~ — **Done** (2026-08-12); see `## TB-1558` below | Testability P1 ? **V1**; after **TB-1557**; pairs **M-286**; coordinate **TB-1245** | S |
 | TB-1562 | Anti-appsettings-SoT / anti-TF-state-config-SoT / anti-TB-881-open-pilot-gate honesty CI; see `## TB-1562` below | Testability P1 ? **V1**; after **TB-1561**; pairs **M-290**; coordinate **TB-1372**/**TB-1318** | S |
 | TB-1564 | Anti-ZDT-drain-to-completion / anti-live-handoff / anti-Worker-resumes-LLM honesty CI; see `## TB-1564` below | Testability P1 ? **V1**; after **TB-1563**; pairs **M-292** | S |
 | TB-1571 | **Done** (2026-08-11) ? `check_paying_tenant_spend_storm_honesty.py` forbids unbounded-key-spend / meter-equals-invoice / Quick-Scan-plane overclaims; wired in `run_buyer_surface_strict_guards.py`; pairs **M-294**; see `## TB-1571` below | Testability P1 ? **V1**; after **TB-1570**; pairs **M-294** | S |
@@ -30576,7 +30576,7 @@ Plus visual regression: overview, technical index, one expanded object, one fiel
 
 **Window:** V1 ? Architectural integrity.
 
-**Status:** **Done** (2026-08-12) ? [`POST_STRANGLER_RESIDUAL_COUPLING_AND_DISCIPLINE_TEST_RETIREMENT_CONTRACT.md`](POST_STRANGLER_RESIDUAL_COUPLING_AND_DISCIPLINE_TEST_RETIREMENT_CONTRACT.md); **TB-1205** honesty CI remains open.
+**Status:** **Done** (2026-08-12) ? [`POST_STRANGLER_RESIDUAL_COUPLING_AND_DISCIPLINE_TEST_RETIREMENT_CONTRACT.md`](POST_STRANGLER_RESIDUAL_COUPLING_AND_DISCIPLINE_TEST_RETIREMENT_CONTRACT.md); **TB-1205** honesty CI **Done** (2026-08-12).
 
 **Priority:** P1.
 
@@ -30608,7 +30608,7 @@ Plus visual regression: overview, technical index, one expanded object, one fiel
 
 **Window:** V1 ? Testability.
 
-**Status:** Not started.
+**Status:** **Done** (2026-08-12). Guard: `scripts/ci/check_post_strangler_residual_coupling_honesty.py` + unit tests; wired in `run_buyer_surface_strict_guards.py` and CI. Pairs **M-205**; contract **TB-1204**.
 
 **Priority:** P1.
 
@@ -30952,7 +30952,7 @@ Operators must read three intros before reaching the Trust Center link list.
 
 **Window:** V1 ? Testability.
 
-**Status:** Not started.
+**Status:** **Done** (2026-08-12). Guard: `scripts/ci/check_decision_grade_finding_provenance_honesty.py` + unit tests; wired in `run_buyer_surface_strict_guards.py` and CI. Pairs **M-207**; contract **TB-1221**.
 
 **Priority:** P1.
 
@@ -38238,7 +38238,7 @@ Operators must read three intros before reaching the Trust Center link list.
 
 **Window:** V1 ? Testability.
 
-**Status:** Not started.
+**Status:** **Done** (2026-08-12). Guard: `scripts/ci/check_project_soft_delete_sealed_evidence_honesty.py` + unit tests; wired in `run_buyer_surface_strict_guards.py` and CI. Pairs **M-271**; contract **TB-1497**.
 
 **Priority:** P1.
 
@@ -39268,7 +39268,7 @@ Operators must read three intros before reaching the Trust Center link list.
 
 **Window:** V1 ? Testability.
 
-**Status:** Not started.
+**Status:** **Done** (2026-08-12). Guard: `scripts/ci/check_zero_downtime_sql_migration_honesty.py` + unit tests; wired in `run_buyer_surface_strict_guards.py` and CI. Pairs **M-286**; contract **TB-1557**.
 
 **Priority:** P1.
 
