@@ -10,7 +10,7 @@ Regenerate after opening or closing summary-table rows:
 | Architectural quality | Open |
 | --- | ---: |
 | Correctness | 1 |
-| Testability | 55 |
+| Testability | 52 |
 | Reliability | 6 |
 | Deployability | 3 |
 | AI/Agent readiness | 7 |
@@ -30,9 +30,9 @@ Regenerate after opening or closing summary-table rows:
 | Accessibility | 1 |
 | Differentiability | 3 |
 | Other / uncategorized | 7 |
-| **Total (unique open)** | **253** |
+| **Total (unique open)** | **250** |
 
-**By priority band:** P0 **2** | P1 **143** | P2 **92** | P3 **9** | unlabeled **7**.
+**By priority band:** P0 **2** | P1 **140** | P2 **92** | P3 **9** | unlabeled **7**.
 
 <!-- tech-backlog-open-by-category:end -->
 
