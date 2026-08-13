@@ -190,19 +190,6 @@ export const ADMINISTRATION_CONTEXTUAL_HELP_ROWS: readonly PageContextualHelpRow
     },
   },
   {
-    prefix: "/administration/api-keys",
-    entry: {
-      whatIsThisPage:
-        "API keys — workspace automation credential controls when in-product management is enabled for your workspace.",
-      whatToDoNext:
-        "Use Users and roles for people access. Host automation credentials are documented in CLI usage help.",
-      whyEmpty:
-        "In-product API key management is not available in this workspace UI.",
-      whereToConfigurePrerequisite:
-        "Workspace Admin authority is required when the surface is enabled; some tenants use SSO-only sign-in without API keys.",
-    },
-  },
-  {
     prefix: "/administration/preferences",
     entry: {
       whatIsThisPage:
@@ -317,19 +304,6 @@ export const ADMINISTRATION_CONTEXTUAL_HELP_ROWS: readonly PageContextualHelpRow
         "Spend cards appear after cost-reporting data loads; quiet empty periods hide zeroed cockpit noise until activity resumes.",
       whereToConfigurePrerequisite:
         "Budget edits need a role that can manage workspace billing; estimated spend is not invoice-accurate.",
-    },
-  },
-  {
-    prefix: "/administration/baseline",
-    entry: {
-      whatIsThisPage:
-        "Baseline settings - capture ROI measurement anchors (review cycle hours, prep time, people per review) for this workspace.",
-      whatToDoNext:
-        "Save or clear baseline anchors, then open Pilot ROI model help or Architecture scorecard when numbers need methodology.",
-      whyEmpty:
-        "Fields load after tenant baseline API responds; empty values mean conservative defaults until you save anchors.",
-      whereToConfigurePrerequisite:
-        "Saving baseline anchors needs Execute authority in this workspace.",
     },
   },
 ];

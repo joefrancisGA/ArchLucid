@@ -101,30 +101,6 @@ export const INTEGRATIONS_CONTEXTUAL_HELP_ROWS: readonly PageContextualHelpRow[]
     },
   },
   {
-    prefix: "/integrations/slack",
-    entry: {
-      whatIsThisPage:
-        "Slack integration — configure incoming webhook destinations that receive governance alerts for this workspace.",
-      whatToDoNext:
-        "Add or test a Slack destination, then open Alert rules when you need to change which events fire notifications.",
-      whyEmpty: "Destinations appear after you save an incoming webhook URL for this workspace.",
-      whereToConfigurePrerequisite:
-        "Creating or changing destinations requires a role that can manage alert routing.",
-    },
-  },
-  {
-    prefix: "/integrations/webhooks",
-    entry: {
-      whatIsThisPage:
-        "Webhooks — configure HTTPS webhook subscriptions that receive governance alerts for this workspace.",
-      whatToDoNext:
-        "Add or test a subscription, then open Alert rules when you need to change which events fire notifications.",
-      whyEmpty: "Subscriptions appear after you save a webhook URL for this workspace.",
-      whereToConfigurePrerequisite:
-        "Creating or changing subscriptions requires a role that can manage alert routing.",
-    },
-  },
-  {
     prefix: "/operate/integration-events/dlq",
     entry: {
       whatIsThisPage:
@@ -134,18 +110,6 @@ export const INTEGRATIONS_CONTEXTUAL_HELP_ROWS: readonly PageContextualHelpRow[]
       whyEmpty: "An empty list means no dead-lettered outbox rows are waiting across tenants.",
       whereToConfigurePrerequisite:
         "Admin authority is required to retry or suppress; the queue spans all tenants, not only the header workspace.",
-    },
-  },
-  {
-    prefix: "/integrations/teams",
-    entry: {
-      whatIsThisPage:
-        "Microsoft Teams integration — configure a Teams channel destination that receives governance alerts for this workspace.",
-      whatToDoNext:
-        "Save or test the Teams connector, then open Alert rules when you need to change which events fire notifications.",
-      whyEmpty: "Connection status appears after this workspace can load Teams notification settings.",
-      whereToConfigurePrerequisite:
-        "Creating or changing the Teams destination requires a role that can manage alert routing.",
     },
   },
 ];

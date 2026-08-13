@@ -7,8 +7,8 @@ import {
   ALERTS_CONFIGURATION_PAGE_TITLE,
   ALERTS_HOW_ALERTS_WORK_LABEL,
 } from "@/lib/alerts-page-copy";
-import { API_KEYS_PAGE_TITLE } from "@/lib/api-keys-settings-copy";
-import { BASELINE_SETTINGS_PAGE_TITLE } from "@/lib/baseline-settings-present";
+import { API_KEYS_HELP_TOPIC_LABEL } from "@/lib/api-keys-settings-evidence-copy";
+import { BASELINE_SETTINGS_HELP_TOPIC_LABEL } from "@/lib/baseline-settings-evidence-copy";
 import { ARCHITECTURES_LIST_PATH } from "@/lib/architecture/architecture-routes";
 import { ARCHITECTURE_DRAFTS_LIST_LABEL, START_REVIEW_LABEL } from "@/lib/architecture/architecture-workflow-labels";
 import { BUYER_ONBOARDING_PAGE_TITLE, BUYER_VALUE_REPORT_HOW_IT_WORKS_TITLE } from "@/lib/buyer/buyer-polish-copy";
@@ -24,11 +24,15 @@ import { EXECUTIVE_DASHBOARD_HREF } from "@/lib/executive/executive-dashboard-ro
 import { ARCHITECTURE_SCORECARD_HELP_TOPIC_LABEL } from "@/lib/architecture/architecture-scorecard-page-copy";
 import { CONNECTION_STATUS_HELP_TOPIC_LABEL } from "@/lib/connection-status-evidence-copy";
 import { PILOT_OUTCOMES_HELP_TOPIC_LABEL } from "@/lib/pilot-outcomes-evidence-copy";
+import { ROI_SUMMARY_HELP_TOPIC_LABEL } from "@/lib/roi-summary-help-evidence-copy";
+import { SLACK_INTEGRATION_HELP_TOPIC_LABEL } from "@/lib/slack-integration-evidence-copy";
 import { RECURRENCE_SCHEDULES_HOW_IT_WORKS_TITLE } from "@/lib/recurrence-schedules-copy";
 import { REPEAT_REVIEW_LOOP_HELP_INBOUND_LABEL } from "@/lib/repeat-review-loop-help-title-honesty-surfaces";
 import { REVIEW_PACKAGES_HELP_INBOUND_LABEL } from "@/lib/review-packages-help-title-honesty-surfaces";
 import { STANDARDS_RULES_HELP_TOPIC_LABEL } from "@/lib/standards-rules-page";
 import { SIGNED_RECORDS_LIST_PATH } from "@/lib/signed-records-paths";
+import { TEAMS_INTEGRATION_HELP_TOPIC_LABEL } from "@/lib/teams-integration-evidence-copy";
+import { WEBHOOKS_INTEGRATION_HELP_TOPIC_LABEL } from "@/lib/webhooks-integration-evidence-copy";
 
 export type PageHelpTopic = {
   /**
@@ -224,11 +228,7 @@ const PAGE_HELP_TOPICS: readonly { prefix: string; topic: PageHelpTopic }[] = [
   { prefix: "/governance/policy-packs", topic: { slug: "policy-packs", label: "Policy packs" } },
   {
     prefix: "/insights/roi-summary",
-    topic: { slug: "roi-summary", label: OPERATOR_NAV_LINK_LABELS.roiReport },
-  },
-  {
-    prefix: "/insights/pilot-outcomes",
-    topic: { slug: "pilot-outcomes", label: PILOT_OUTCOMES_HELP_TOPIC_LABEL },
+    topic: { slug: "roi-summary", label: ROI_SUMMARY_HELP_TOPIC_LABEL },
   },
   {
     prefix: "/insights/architecture-scorecard",
@@ -238,17 +238,21 @@ const PAGE_HELP_TOPICS: readonly { prefix: string; topic: PageHelpTopic }[] = [
     },
   },
   {
+    prefix: "/insights/pilot-outcomes",
+    topic: { slug: "pilot-outcomes", label: PILOT_OUTCOMES_HELP_TOPIC_LABEL },
+  },
+  {
     prefix: "/insights/executive-summary",
     topic: { slug: "executive-summary", label: BUYER_VALUE_REPORT_HOW_IT_WORKS_TITLE },
   },
   // Legacy sponsor-report bookmarks canonicalize to /insights/* above; keep prefixes for direct lookups.
   {
-    prefix: "/sponsor-report/roi-summary",
-    topic: { slug: "roi-summary", label: OPERATOR_NAV_LINK_LABELS.roiReport },
-  },
-  {
     prefix: "/sponsor-report/pilot-outcomes",
     topic: { slug: "pilot-outcomes", label: PILOT_OUTCOMES_HELP_TOPIC_LABEL },
+  },
+  {
+    prefix: "/sponsor-report/roi-summary",
+    topic: { slug: "roi-summary", label: ROI_SUMMARY_HELP_TOPIC_LABEL },
   },
   { prefix: "/sponsor-report", topic: { slug: "executive-summary", label: BUYER_VALUE_REPORT_HOW_IT_WORKS_TITLE } },
   { prefix: "/architecture/digests", topic: { slug: "digests", label: "Architecture digests" } },
@@ -261,7 +265,7 @@ const PAGE_HELP_TOPICS: readonly { prefix: string; topic: PageHelpTopic }[] = [
   },
   {
     prefix: "/help/roi-summary",
-    topic: { slug: "roi-summary", label: OPERATOR_NAV_LINK_LABELS.roiReport },
+    topic: { slug: "roi-summary", label: ROI_SUMMARY_HELP_TOPIC_LABEL },
   },
   {
     prefix: "/help/pilot-outcomes",
@@ -278,6 +282,26 @@ const PAGE_HELP_TOPICS: readonly { prefix: string; topic: PageHelpTopic }[] = [
   {
     prefix: "/help/standards-and-rules",
     topic: { slug: "standards-and-rules", label: STANDARDS_RULES_HELP_TOPIC_LABEL },
+  },
+  {
+    prefix: "/help/baseline-settings",
+    topic: { slug: "baseline-settings", label: BASELINE_SETTINGS_HELP_TOPIC_LABEL },
+  },
+  {
+    prefix: "/help/slack-integration",
+    topic: { slug: "slack-integration", label: SLACK_INTEGRATION_HELP_TOPIC_LABEL },
+  },
+  {
+    prefix: "/help/teams-integration",
+    topic: { slug: "teams-integration", label: TEAMS_INTEGRATION_HELP_TOPIC_LABEL },
+  },
+  {
+    prefix: "/help/webhooks-integration",
+    topic: { slug: "webhooks-integration", label: WEBHOOKS_INTEGRATION_HELP_TOPIC_LABEL },
+  },
+  {
+    prefix: "/help/api-keys",
+    topic: { slug: "api-keys", label: API_KEYS_HELP_TOPIC_LABEL },
   },
   {
     // Secondary hub — no planning specialty; omit Learn more (TB-2050).
@@ -429,18 +453,15 @@ const PAGE_HELP_TOPICS: readonly { prefix: string; topic: PageHelpTopic }[] = [
   },
   {
     prefix: "/integrations/slack",
-    // TB-1187 — caption for PageHeading help control; long-form guide shares troubleshooting.
-    topic: { slug: "troubleshooting", label: "Slack notifications help" },
+    topic: { slug: "slack-integration", label: SLACK_INTEGRATION_HELP_TOPIC_LABEL },
   },
   {
     prefix: "/integrations/webhooks",
-    // TB-1193 — caption for PageHeading help control; long-form guide shares alerts help.
-    topic: { slug: "alerts", label: "Webhooks help" },
+    topic: { slug: "webhooks-integration", label: WEBHOOKS_INTEGRATION_HELP_TOPIC_LABEL },
   },
   {
     prefix: "/integrations/teams",
-    // TB-1184 — caption matches prior plain-text help; long-form guide is troubleshooting.
-    topic: { slug: "troubleshooting", label: "Microsoft Teams notification help" },
+    topic: { slug: "teams-integration", label: TEAMS_INTEGRATION_HELP_TOPIC_LABEL },
   },
   { prefix: "/administration/connection-status", topic: { slug: "connection-status", label: CONNECTION_STATUS_HELP_TOPIC_LABEL } },
   { prefix: "/administration/developer", topic: { slug: "cli-usage", label: "Internal developer tools" } },
@@ -500,7 +521,7 @@ const PAGE_HELP_TOPICS: readonly { prefix: string; topic: PageHelpTopic }[] = [
   },
   {
     prefix: "/administration/api-keys",
-    topic: { slug: "cli-usage", label: API_KEYS_PAGE_TITLE },
+    topic: { slug: "api-keys", label: API_KEYS_HELP_TOPIC_LABEL },
   },
   {
     prefix: "/administration/preferences",
@@ -555,7 +576,10 @@ const PAGE_HELP_TOPICS: readonly { prefix: string; topic: PageHelpTopic }[] = [
     prefix: "/administration/workspace-settings",
     topic: { slug: "scope", label: OPERATOR_NAV_LINK_LABELS.workspaceSettings },
   },
-  { prefix: "/administration/baseline", topic: { slug: "executive-summary", hashFragment: "pilot-roi-measurement", label: BASELINE_SETTINGS_PAGE_TITLE } },
+  {
+    prefix: "/administration/baseline",
+    topic: { slug: "baseline-settings", label: BASELINE_SETTINGS_HELP_TOPIC_LABEL },
+  },
   { prefix: "/help", topic: { slug: "getting-started", label: "Help" } },
 ];
 

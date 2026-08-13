@@ -75,6 +75,21 @@ const HelpConnectionStatusGuideView = dynamic(() =>
 const HelpStandardsRulesGuideView = dynamic(() =>
   import("../_sections/HelpStandardsRulesGuideView").then((module) => module.HelpStandardsRulesGuideView),
 );
+const HelpBaselineSettingsGuideView = dynamic(() =>
+  import("../_sections/HelpBaselineSettingsGuideView").then((module) => module.HelpBaselineSettingsGuideView),
+);
+const HelpSlackIntegrationGuideView = dynamic(() =>
+  import("../_sections/HelpSlackIntegrationGuideView").then((module) => module.HelpSlackIntegrationGuideView),
+);
+const HelpTeamsIntegrationGuideView = dynamic(() =>
+  import("../_sections/HelpTeamsIntegrationGuideView").then((module) => module.HelpTeamsIntegrationGuideView),
+);
+const HelpWebhooksIntegrationGuideView = dynamic(() =>
+  import("../_sections/HelpWebhooksIntegrationGuideView").then((module) => module.HelpWebhooksIntegrationGuideView),
+);
+const HelpApiKeysGuideView = dynamic(() =>
+  import("../_sections/HelpApiKeysGuideView").then((module) => module.HelpApiKeysGuideView),
+);
 const HelpAdminDiagnosticsGuideView = dynamic(() =>
   import("../_sections/HelpAdminDiagnosticsGuideView").then((module) => module.HelpAdminDiagnosticsGuideView),
 );
@@ -311,6 +326,26 @@ function renderHelpTopicView(
 
   if (loaded.entry.slug === "standards-and-rules") {
     return <HelpStandardsRulesGuideView entry={loaded.entry} />;
+  }
+
+  if (loaded.entry.slug === "baseline-settings") {
+    return <HelpBaselineSettingsGuideView entry={loaded.entry} />;
+  }
+
+  if (loaded.entry.slug === "slack-integration") {
+    return <HelpSlackIntegrationGuideView entry={loaded.entry} />;
+  }
+
+  if (loaded.entry.slug === "teams-integration") {
+    return <HelpTeamsIntegrationGuideView entry={loaded.entry} />;
+  }
+
+  if (loaded.entry.slug === "webhooks-integration") {
+    return <HelpWebhooksIntegrationGuideView entry={loaded.entry} />;
+  }
+
+  if (loaded.entry.slug === "api-keys") {
+    return <HelpApiKeysGuideView entry={loaded.entry} />;
   }
 
   if (loaded.entry.slug === "billing-and-plans") {

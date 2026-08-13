@@ -5,6 +5,8 @@ import { GOVERNANCE_ALERT_RULES_PATH, GOVERNANCE_AUDIT_PATH } from "@/lib/govern
 
 export const SLACK_INTEGRATION_CANONICAL_PATH = "/integrations/slack" as const;
 
+export const SLACK_INTEGRATION_HELP_TOPIC_LABEL = "How Slack notifications work";
+
 export const SLACK_INTEGRATION_CLAIM_DISCIPLINE =
   "Slack destinations route governance alerts to incoming webhooks — they are not a signed-review diligence Sources package. Open Alert rules, Integration readiness, or Audit when you need operational or governed trails.";
 

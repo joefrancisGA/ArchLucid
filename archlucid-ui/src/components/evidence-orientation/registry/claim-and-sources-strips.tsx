@@ -53,6 +53,18 @@ import {
   PILOT_OUTCOMES_HELP_SOURCES_INTRO,
 } from "@/lib/pilot-outcomes-evidence-copy";
 import {
+  BASELINE_SETTINGS_HELP_CLAIM_DISCIPLINE,
+  BASELINE_SETTINGS_HELP_FOLLOW_UPS_TITLE,
+  BASELINE_SETTINGS_HELP_SOURCES,
+  BASELINE_SETTINGS_HELP_SOURCES_INTRO,
+} from "@/lib/baseline-settings-help-evidence-copy";
+import {
+  API_KEYS_HELP_CLAIM_DISCIPLINE,
+  API_KEYS_HELP_FOLLOW_UPS_TITLE,
+  API_KEYS_HELP_SOURCES,
+  API_KEYS_HELP_SOURCES_INTRO,
+} from "@/lib/api-keys-help-evidence-copy";
+import {
   ARCHITECTURE_SCORECARD_HELP_CLAIM_DISCIPLINE,
   ARCHITECTURE_SCORECARD_HELP_FOLLOW_UPS_TITLE,
   ARCHITECTURE_SCORECARD_HELP_SOURCES,
@@ -64,6 +76,12 @@ import {
   CONNECTION_STATUS_HELP_SOURCES,
   CONNECTION_STATUS_HELP_SOURCES_INTRO,
 } from "@/lib/connection-status-help-evidence-copy";
+import {
+  SLACK_INTEGRATION_HELP_CLAIM_DISCIPLINE,
+  SLACK_INTEGRATION_HELP_FOLLOW_UPS_TITLE,
+  SLACK_INTEGRATION_HELP_SOURCES,
+  SLACK_INTEGRATION_HELP_SOURCES_INTRO,
+} from "@/lib/slack-integration-help-evidence-copy";
 import {
   STANDARDS_RULES_HELP_CLAIM_DISCIPLINE,
   STANDARDS_RULES_HELP_FOLLOW_UPS_TITLE,
@@ -117,10 +135,22 @@ import {
   SUBPROCESSORS_HELP_SOURCES_INTRO,
 } from "@/lib/subprocessors-help-evidence-copy";
 import {
+  TEAMS_INTEGRATION_HELP_CLAIM_DISCIPLINE,
+  TEAMS_INTEGRATION_HELP_FOLLOW_UPS_TITLE,
+  TEAMS_INTEGRATION_HELP_SOURCES,
+  TEAMS_INTEGRATION_HELP_SOURCES_INTRO,
+} from "@/lib/teams-integration-help-evidence-copy";
+import {
   TEAMS_INTEGRATION_CLAIM_DISCIPLINE,
   TEAMS_INTEGRATION_SOURCES,
   TEAMS_INTEGRATION_SOURCES_INTRO,
 } from "@/lib/teams-integration-evidence-copy";
+import {
+  WEBHOOKS_INTEGRATION_HELP_CLAIM_DISCIPLINE,
+  WEBHOOKS_INTEGRATION_HELP_FOLLOW_UPS_TITLE,
+  WEBHOOKS_INTEGRATION_HELP_SOURCES,
+  WEBHOOKS_INTEGRATION_HELP_SOURCES_INTRO,
+} from "@/lib/webhooks-integration-help-evidence-copy";
 import {
   ITSM_OAUTH_CALLBACK_CLAIM_DISCIPLINE,
   ITSM_OAUTH_CALLBACK_SOURCES,
@@ -289,6 +319,86 @@ export function StandardsRulesHelpEvidenceOrientationStrip(): React.JSX.Element 
       sourcesTitle={STANDARDS_RULES_HELP_FOLLOW_UPS_TITLE}
       sourcesIntro={STANDARDS_RULES_HELP_SOURCES_INTRO}
       sources={STANDARDS_RULES_HELP_SOURCES}
+      sourcesStyle={EVIDENCE_SOURCES_STYLE.operatorRaised}
+      sourcesHeadingId="where-to-go-next"
+    />
+  );
+}
+
+export function BaselineSettingsHelpEvidenceOrientationStrip(): React.JSX.Element {
+  return (
+    <EvidenceOrientationClaimAndSourcesStrip
+      slug="help-baseline-settings"
+      claim={BASELINE_SETTINGS_HELP_CLAIM_DISCIPLINE}
+      claimStyle={EVIDENCE_CLAIM_STYLE.operatorNeutral}
+      claimElement="div"
+      sourcesTitle={BASELINE_SETTINGS_HELP_FOLLOW_UPS_TITLE}
+      sourcesIntro={BASELINE_SETTINGS_HELP_SOURCES_INTRO}
+      sources={BASELINE_SETTINGS_HELP_SOURCES}
+      sourcesStyle={EVIDENCE_SOURCES_STYLE.operatorRaised}
+      sourcesHeadingId="where-to-go-next"
+    />
+  );
+}
+
+export function ApiKeysHelpEvidenceOrientationStrip(): React.JSX.Element {
+  return (
+    <EvidenceOrientationClaimAndSourcesStrip
+      slug="help-api-keys"
+      claim={API_KEYS_HELP_CLAIM_DISCIPLINE}
+      claimStyle={EVIDENCE_CLAIM_STYLE.operatorNeutral}
+      claimElement="div"
+      sourcesTitle={API_KEYS_HELP_FOLLOW_UPS_TITLE}
+      sourcesIntro={API_KEYS_HELP_SOURCES_INTRO}
+      sources={API_KEYS_HELP_SOURCES}
+      sourcesStyle={EVIDENCE_SOURCES_STYLE.operatorRaised}
+      sourcesHeadingId="where-to-go-next"
+    />
+  );
+}
+
+export function SlackIntegrationHelpEvidenceOrientationStrip(): React.JSX.Element {
+  return (
+    <EvidenceOrientationClaimAndSourcesStrip
+      slug="help-slack-integration"
+      claim={SLACK_INTEGRATION_HELP_CLAIM_DISCIPLINE}
+      claimStyle={EVIDENCE_CLAIM_STYLE.operatorNeutral}
+      claimElement="div"
+      sourcesTitle={SLACK_INTEGRATION_HELP_FOLLOW_UPS_TITLE}
+      sourcesIntro={SLACK_INTEGRATION_HELP_SOURCES_INTRO}
+      sources={SLACK_INTEGRATION_HELP_SOURCES}
+      sourcesStyle={EVIDENCE_SOURCES_STYLE.operatorRaised}
+      sourcesHeadingId="where-to-go-next"
+    />
+  );
+}
+
+export function TeamsIntegrationHelpEvidenceOrientationStrip(): React.JSX.Element {
+  return (
+    <EvidenceOrientationClaimAndSourcesStrip
+      slug="help-teams-integration"
+      claim={TEAMS_INTEGRATION_HELP_CLAIM_DISCIPLINE}
+      claimStyle={EVIDENCE_CLAIM_STYLE.operatorNeutral}
+      claimElement="div"
+      sourcesTitle={TEAMS_INTEGRATION_HELP_FOLLOW_UPS_TITLE}
+      sourcesIntro={TEAMS_INTEGRATION_HELP_SOURCES_INTRO}
+      sources={TEAMS_INTEGRATION_HELP_SOURCES}
+      sourcesStyle={EVIDENCE_SOURCES_STYLE.operatorRaised}
+      sourcesHeadingId="where-to-go-next"
+    />
+  );
+}
+
+export function WebhooksIntegrationHelpEvidenceOrientationStrip(): React.JSX.Element {
+  return (
+    <EvidenceOrientationClaimAndSourcesStrip
+      slug="help-webhooks-integration"
+      claim={WEBHOOKS_INTEGRATION_HELP_CLAIM_DISCIPLINE}
+      claimStyle={EVIDENCE_CLAIM_STYLE.operatorNeutral}
+      claimElement="div"
+      sourcesTitle={WEBHOOKS_INTEGRATION_HELP_FOLLOW_UPS_TITLE}
+      sourcesIntro={WEBHOOKS_INTEGRATION_HELP_SOURCES_INTRO}
+      sources={WEBHOOKS_INTEGRATION_HELP_SOURCES}
       sourcesStyle={EVIDENCE_SOURCES_STYLE.operatorRaised}
       sourcesHeadingId="where-to-go-next"
     />

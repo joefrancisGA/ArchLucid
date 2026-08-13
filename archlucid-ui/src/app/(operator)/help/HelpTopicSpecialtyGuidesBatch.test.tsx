@@ -5,18 +5,28 @@ vi.mock("@/app/(operator)/help/HelpTopicHashScroll", () => ({
   HelpTopicHashScroll: () => null,
 }));
 
+import { HelpApiKeysGuideView } from "@/app/(operator)/help/_sections/HelpApiKeysGuideView";
 import { HelpArchitectureScorecardGuideView } from "@/app/(operator)/help/_sections/HelpArchitectureScorecardGuideView";
+import { HelpBaselineSettingsGuideView } from "@/app/(operator)/help/_sections/HelpBaselineSettingsGuideView";
 import { HelpConnectionStatusGuideView } from "@/app/(operator)/help/_sections/HelpConnectionStatusGuideView";
 import { HelpPilotOutcomesGuideView } from "@/app/(operator)/help/_sections/HelpPilotOutcomesGuideView";
+import { HelpSlackIntegrationGuideView } from "@/app/(operator)/help/_sections/HelpSlackIntegrationGuideView";
 import { HelpStandardsRulesGuideView } from "@/app/(operator)/help/_sections/HelpStandardsRulesGuideView";
+import { HelpTeamsIntegrationGuideView } from "@/app/(operator)/help/_sections/HelpTeamsIntegrationGuideView";
+import { HelpWebhooksIntegrationGuideView } from "@/app/(operator)/help/_sections/HelpWebhooksIntegrationGuideView";
 import { getProductDocumentationEntry } from "@/lib/product-documentation-registry";
 
-describe("specialty help guides — pilot outcomes, scorecard, connection status, standards & rules", () => {
+describe("specialty help guides — operator surfaces batch", () => {
   it.each([
     ["pilot-outcomes", HelpPilotOutcomesGuideView, "help-pilot-outcomes-guide"],
     ["architecture-scorecard", HelpArchitectureScorecardGuideView, "help-architecture-scorecard-guide"],
     ["connection-status", HelpConnectionStatusGuideView, "help-connection-status-guide"],
     ["standards-and-rules", HelpStandardsRulesGuideView, "help-standards-rules-guide"],
+    ["baseline-settings", HelpBaselineSettingsGuideView, "help-baseline-settings-guide"],
+    ["slack-integration", HelpSlackIntegrationGuideView, "help-slack-integration-guide"],
+    ["teams-integration", HelpTeamsIntegrationGuideView, "help-teams-integration-guide"],
+    ["webhooks-integration", HelpWebhooksIntegrationGuideView, "help-webhooks-integration-guide"],
+    ["api-keys", HelpApiKeysGuideView, "help-api-keys-guide"],
   ] as const)("registers and renders %s specialty guide", (slug, View, testId) => {
     const entry = getProductDocumentationEntry(slug);
 

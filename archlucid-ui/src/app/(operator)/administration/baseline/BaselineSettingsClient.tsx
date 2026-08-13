@@ -15,10 +15,7 @@ import { Button } from "@/components/ui/button";
 import { Input } from "@/components/ui/input";
 import { Label } from "@/components/ui/label";
 import { StatusTag } from "@/components/ui/status-tag";
-import {
-  PageContextualHelpButton,
-  PAGE_HELP_SHORT_TRIGGER_TEXT,
-} from "@/components/usability/PageContextualHelpButton";
+import { PageContextualHelpButton } from "@/components/usability/PageContextualHelpButton";
 import type { ApiLoadFailureState } from "@/lib/api-load-failure";
 import { toApiLoadFailure } from "@/lib/api-load-failure";
 import {
@@ -399,7 +396,7 @@ export function BaselineSettingsClient() {
             ]}
           />
         }
-        actions={<PageContextualHelpButton triggerText={PAGE_HELP_SHORT_TRIGGER_TEXT} />}
+        actions={<PageContextualHelpButton />}
       />
       <BaselineRoiVocabularyRail currentSurfaceId="baseline" />
 {demoMode ? (

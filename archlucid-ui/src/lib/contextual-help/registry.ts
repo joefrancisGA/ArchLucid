@@ -11,6 +11,8 @@ import {
 } from "@/lib/architectures-draft-evidence-copy";
 import { canonicalizeLegacyOperatorRoutePath } from "@/lib/canonicalize-legacy-operator-route-path";
 import { ADMINISTRATION_CONTEXTUAL_HELP_ROWS, SETTINGS_HUB_CONTEXTUAL_HELP } from "@/lib/contextual-help/administration-rows";
+import { API_KEYS_CONTEXTUAL_HELP_ROWS } from "@/lib/contextual-help/api-keys-rows";
+import { BASELINE_SETTINGS_CONTEXTUAL_HELP_ROWS } from "@/lib/contextual-help/baseline-settings-rows";
 import { ARCHITECTURE_CONTEXTUAL_HELP_ROWS } from "@/lib/contextual-help/architecture-rows";
 import { DIGESTS_CONTEXTUAL_HELP_ROWS } from "@/lib/contextual-help/digests-rows";
 import { GOVERNANCE_CONTEXTUAL_HELP_ROWS } from "@/lib/contextual-help/governance-rows";
@@ -19,6 +21,9 @@ import { CONNECTION_STATUS_CONTEXTUAL_HELP_ROWS } from "@/lib/contextual-help/co
 import { PILOT_OUTCOMES_CONTEXTUAL_HELP_ROWS } from "@/lib/contextual-help/pilot-outcomes-rows";
 import { RECURRENCE_SCHEDULES_CONTEXTUAL_HELP_ROWS } from "@/lib/contextual-help/recurrence-schedules-rows";
 import { ROI_SUMMARY_CONTEXTUAL_HELP_ROWS } from "@/lib/contextual-help/roi-summary-rows";
+import { SLACK_INTEGRATION_CONTEXTUAL_HELP_ROWS } from "@/lib/contextual-help/slack-integration-rows";
+import { TEAMS_INTEGRATION_CONTEXTUAL_HELP_ROWS } from "@/lib/contextual-help/teams-integration-rows";
+import { WEBHOOKS_INTEGRATION_CONTEXTUAL_HELP_ROWS } from "@/lib/contextual-help/webhooks-integration-rows";
 import { STANDARDS_RULES_CONTEXTUAL_HELP_ROWS } from "@/lib/contextual-help/standards-rules-rows";
 import { HELP_TOPIC_CONTEXTUAL_HELP_ROWS } from "@/lib/contextual-help/help-topic-rows";
 import { INSIGHTS_CONTEXTUAL_HELP_ROWS } from "@/lib/contextual-help/insights-rows";
@@ -38,7 +43,9 @@ import { pathIsSettingsHubRoot } from "@/lib/settings-admin-route-paths";
 
 const PAGE_CONTEXTUAL_HELP: readonly PageContextualHelpRow[] = [
   ...ADMINISTRATION_CONTEXTUAL_HELP_ROWS,
+  ...API_KEYS_CONTEXTUAL_HELP_ROWS,
   ...ARCHITECTURE_CONTEXTUAL_HELP_ROWS,
+  ...BASELINE_SETTINGS_CONTEXTUAL_HELP_ROWS,
   ...DIGESTS_CONTEXTUAL_HELP_ROWS,
   ...GOVERNANCE_CONTEXTUAL_HELP_ROWS,
   ...ARCHITECTURE_SCORECARD_CONTEXTUAL_HELP_ROWS,
@@ -46,7 +53,10 @@ const PAGE_CONTEXTUAL_HELP: readonly PageContextualHelpRow[] = [
   ...PILOT_OUTCOMES_CONTEXTUAL_HELP_ROWS,
   ...RECURRENCE_SCHEDULES_CONTEXTUAL_HELP_ROWS,
   ...ROI_SUMMARY_CONTEXTUAL_HELP_ROWS,
+  ...SLACK_INTEGRATION_CONTEXTUAL_HELP_ROWS,
   ...STANDARDS_RULES_CONTEXTUAL_HELP_ROWS,
+  ...TEAMS_INTEGRATION_CONTEXTUAL_HELP_ROWS,
+  ...WEBHOOKS_INTEGRATION_CONTEXTUAL_HELP_ROWS,
   ...HELP_TOPIC_CONTEXTUAL_HELP_ROWS,
   ...INSIGHTS_CONTEXTUAL_HELP_ROWS,
   ...INTEGRATIONS_CONTEXTUAL_HELP_ROWS,

@@ -5,17 +5,18 @@ import Link from "next/link";
 
 import { DemoWorkspaceCapabilityUnavailablePanel } from "@/components/DemoWorkspaceCapabilityUnavailablePanel";
 import { OperatorPageContainer } from "@/components/operator/OperatorPageContainer";
-import { SPONSOR_REPORT_ROI_SUMMARY_PATH } from "@/lib/sponsor-report-navigation";
+import {
+  SPONSOR_REPORT_EXECUTIVE_SUMMARY_PATH,
+  SPONSOR_REPORT_PAGE_TITLE,
+  SPONSOR_REPORT_ROI_SUMMARY_PATH,
+} from "@/lib/sponsor-report-navigation";
 import { OperatorPageHeader } from "@/components/operator/OperatorPageHeader";
 import { DocumentLayout } from "@/components/DocumentLayout";
 import { LayerHeader } from "@/components/LayerHeader";
 import { BaselineRoiVocabularyRail } from "@/components/BaselineRoiVocabularyRail";
 import { RoiSponsorExportVocabularyRail } from "@/components/RoiSponsorExportVocabularyRail";
 import { ScorecardRoiVocabularyRail } from "@/components/ScorecardRoiVocabularyRail";
-import {
-  PageContextualHelpButton,
-  PAGE_HELP_SHORT_TRIGGER_TEXT,
-} from "@/components/usability/PageContextualHelpButton";
+import { PageContextualHelpButton } from "@/components/usability/PageContextualHelpButton";
 import { ValueReportOutcomesNav } from "@/components/usability/ValueReportOutcomesNav";
 import { OperatorApiProblem } from "@/components/operator/OperatorApiProblem";
 import { RoiTelemetryCard } from "@/components/RoiTelemetryCard";
@@ -121,13 +122,13 @@ export function RoiSummaryPageView(props: Props) {
           subtitle={buyerPolishedShell ? ROI_SUMMARY_PAGE_SUBTITLE : null}
           actions={
             <div className="flex flex-wrap items-center gap-2">
-              <PageContextualHelpButton triggerText={PAGE_HELP_SHORT_TRIGGER_TEXT} />
+              <PageContextualHelpButton />
               <nav
                 aria-label="Related value reports"
                 className={cn("flex flex-wrap items-center gap-x-3 gap-y-1 text-al-text-secondary", OPERATOR_TYPOGRAPHY.helper)}
               >
-                <Link href="/insights/pilot-outcomes" className={OPERATOR_LINK.inline}>
-                  Pilot value report
+                <Link href={SPONSOR_REPORT_EXECUTIVE_SUMMARY_PATH} className={OPERATOR_LINK.inline}>
+                  {SPONSOR_REPORT_PAGE_TITLE}
                 </Link>
                 <Link href="/administration/baseline" className={OPERATOR_LINK.inline}>
                   Baseline settings
@@ -159,7 +160,7 @@ export function RoiSummaryPageView(props: Props) {
                 <Link href="/architecture/reviews/new">{BUYER_START_ARCHITECTURE_REVIEW_CTA}</Link>
               </Button>
               <Button asChild variant="secondary">
-                <Link href="/insights/pilot-outcomes">Open sample pilot outcomes</Link>
+                <Link href={SPONSOR_REPORT_EXECUTIVE_SUMMARY_PATH}>Open sample sponsor report</Link>
               </Button>
               <Button asChild variant="outline">
                 <Link href={EXECUTIVE_SUMMARY_PILOT_ROI_MEASUREMENT_HELP_HREF}>Review methodology</Link>

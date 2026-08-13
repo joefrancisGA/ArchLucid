@@ -95,7 +95,7 @@ describe("WebhooksIntegrationPage", () => {
   it("shows PageHeading contextual help with the Webhooks caption", async () => {
     render(<WebhooksIntegrationPage />);
 
-    expect(await screen.findByTestId("page-contextual-help-button")).toHaveTextContent("Webhooks help");
+    expect(await screen.findByTestId("page-contextual-help-button")).toHaveTextContent("How webhooks work");
   });
 
   it("uses operator spacing density on the page shell", async () => {

@@ -6,6 +6,10 @@ import { GOVERNANCE_AUDIT_PATH } from "@/lib/governance/governance-route-paths";
 /** Retired in-product route — redirects to Users when the surface flag is off. */
 export const API_KEYS_SETTINGS_RETIRED_ROUTE_PATH = "/administration/api-keys" as const;
 
+export const API_KEYS_OPERATOR_CANONICAL_PATH = "/administration/api-keys" as const;
+
+export const API_KEYS_HELP_TOPIC_LABEL = "How API keys work";
+
 /** Host automation credential guidance (CLI usage help — not the retired settings page). */
 export const API_KEYS_SETTINGS_CANONICAL_PATH = CLI_USAGE_HELP_PATH;
 

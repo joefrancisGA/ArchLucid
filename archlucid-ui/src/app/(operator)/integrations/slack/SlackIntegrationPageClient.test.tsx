@@ -66,7 +66,7 @@ describe("SlackIntegrationPageClient", () => {
       expect(screen.getByTestId("slack-header-status-badge")).toHaveTextContent("Not configured");
     });
     expect(screen.getByTestId("slack-refresh-button")).toHaveTextContent(SLACK_ACTION_REFRESH);
-    expect(screen.getByTestId("page-contextual-help-button")).toHaveTextContent("Slack notifications help");
+    expect(screen.getByTestId("page-contextual-help-button")).toHaveTextContent("How Slack notifications work");
 
     await waitFor(() => {
       expect(screen.getByTestId("slack-last-checked")).toBeInTheDocument();

@@ -110,12 +110,14 @@ describe("contextual-help-registry (TB-733)", () => {
       "/help/admin-diagnostics",
       "/help/authentication-sign-in",
       "/help/azure-boards",
+      "/help/baseline-settings",
       "/help/integration-readiness",
       "/help/caiq-sig-response",
       "/help/comparison-replay",
       "/help/getting-started",
       "/help/troubleshooting",
       "/help/alerts",
+      "/help/api-keys",
       "/help/billing-and-plans",
       "/help/security-trust",
       "/help/procurement",
@@ -125,6 +127,9 @@ describe("contextual-help-registry (TB-733)", () => {
       "/help/architecture-scorecard",
       "/help/connection-status",
       "/help/standards-and-rules",
+      "/help/slack-integration",
+      "/help/teams-integration",
+      "/help/webhooks-integration",
       "/help/scope",
       "/help/audit-trail",
       "/help/evidence-trail",
@@ -643,7 +648,7 @@ describe("contextual-help-registry (TB-733)", () => {
       "Baseline settings",
     );
     expect(contextualHelpForPathname("/administration/baseline")?.whatToDoNext).toContain(
-      "Pilot ROI model",
+      "baseline anchors",
     );
   });
 
