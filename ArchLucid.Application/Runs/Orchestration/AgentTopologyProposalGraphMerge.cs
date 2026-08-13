@@ -35,6 +35,11 @@ public static class AgentTopologyProposalGraphMerge
         if (results.Count == 0)
             return graph;
 
+        IReadOnlyList<AgentResult> validatedResults = AgentTopologyProposalMergeGate.FilterValidatedProposals(graph, results);
+
+        if (validatedResults.Count == 0)
+            return graph;
+
         HashSet<string> seenLabels = new(StringComparer.OrdinalIgnoreCase);
 
         foreach (GraphNode n in graph.Nodes.Where(n => !string.IsNullOrWhiteSpace(n.Label)))
@@ -45,7 +50,7 @@ public static class AgentTopologyProposalGraphMerge
         List<GraphNode> added = [];
         List<GraphEdge> addedEdges = [];
 
-        foreach (AgentResult result in results)
+        foreach (AgentResult result in validatedResults)
         {
             if (result.AgentType != AgentType.Topology)
                 continue;

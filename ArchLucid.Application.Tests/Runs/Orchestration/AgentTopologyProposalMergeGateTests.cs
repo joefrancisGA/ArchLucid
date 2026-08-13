@@ -1,0 +1,106 @@
+using ArchLucid.Application.Runs.Orchestration;
+using ArchLucid.Contracts.Agents;
+using ArchLucid.Contracts.Common;
+using ArchLucid.Contracts.Manifest;
+using ArchLucid.KnowledgeGraph;
+using ArchLucid.KnowledgeGraph.Models;
+
+using FluentAssertions;
+
+namespace ArchLucid.Application.Tests.Runs.Orchestration;
+
+[Trait("Category", "Unit")]
+public sealed class AgentTopologyProposalMergeGateTests
+{
+    [Fact]
+    public void FilterValidatedProposals_WhenInventoryExists_RejectsUninventoriedProposalLabels()
+    {
+        GraphSnapshot graph = new()
+        {
+            Nodes =
+            [
+                new GraphNode
+                {
+                    NodeId = "inv-1",
+                    NodeType = GraphNodeTypes.TopologyResource,
+                    Label = "existing-api",
+                    Category = GraphTopologyCategories.Compute,
+                    SourceType = "Terraform",
+                    SourceId = "azurerm_app_service.main"
+                }
+            ]
+        };
+
+        AgentResult topology = new()
+        {
+            AgentType = AgentType.Topology,
+            ProposedChanges = new AgentTopologyProposal
+            {
+                SourceAgent = AgentType.Topology,
+                AddedServices =
+                [
+                    new ManifestService
+                    {
+                        ServiceName = "invented-api",
+                        ServiceType = ServiceType.Api,
+                        RuntimePlatform = RuntimePlatform.AppService
+                    }
+                ]
+            }
+        };
+
+        IReadOnlyList<AgentResult> filtered =
+            AgentTopologyProposalMergeGate.FilterValidatedProposals(graph, [topology]);
+
+        filtered.Should().BeEmpty();
+    }
+
+    [Fact]
+    public void WithMergedTopologyProposals_WhenInventoryExists_AllowsMatchingInventoriedLabelsOnly()
+    {
+        GraphSnapshot graph = new()
+        {
+            Nodes =
+            [
+                new GraphNode
+                {
+                    NodeId = "inv-1",
+                    NodeType = GraphNodeTypes.TopologyResource,
+                    Label = "existing-api",
+                    Category = GraphTopologyCategories.Compute,
+                    SourceType = "Terraform",
+                    SourceId = "azurerm_app_service.main"
+                }
+            ]
+        };
+
+        AgentResult topology = new()
+        {
+            AgentType = AgentType.Topology,
+            ProposedChanges = new AgentTopologyProposal
+            {
+                SourceAgent = AgentType.Topology,
+                AddedServices =
+                [
+                    new ManifestService
+                    {
+                        ServiceName = "existing-api",
+                        ServiceType = ServiceType.Api,
+                        RuntimePlatform = RuntimePlatform.AppService
+                    },
+                    new ManifestService
+                    {
+                        ServiceName = "invented-api",
+                        ServiceType = ServiceType.Api,
+                        RuntimePlatform = RuntimePlatform.AppService
+                    }
+                ]
+            }
+        };
+
+        GraphSnapshot merged = AgentTopologyProposalGraphMerge.WithMergedTopologyProposals(graph, [topology]);
+
+        merged.Nodes.Should().HaveCount(1);
+        merged.Nodes[0].Label.Should().Be("existing-api");
+    }
+}
