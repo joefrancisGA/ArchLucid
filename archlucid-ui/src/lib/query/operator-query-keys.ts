@@ -26,6 +26,7 @@ export const operatorQueryKeys = {
   // Prefix-matches executiveRoiSummary so refreshDashboard invalidation also refreshes these.
   executiveRoiSummaryHistory: ["operator", "roi", "executive-summary", "history"] as const,
   executiveRoiSummaryExport: ["operator", "roi", "executive-summary", "export"] as const,
+  sqlBackupRegionVerification: ["operator", "executive", "sql-backup-region-verification"] as const,
   executiveNextActionInputs: (range: ExecutiveTimeRange) =>
     ["operator", "roi", "next-action-inputs", range] as const,
   complianceDriftTrend30d: ["operator", "governance", "compliance-drift-trend", "30d"] as const,

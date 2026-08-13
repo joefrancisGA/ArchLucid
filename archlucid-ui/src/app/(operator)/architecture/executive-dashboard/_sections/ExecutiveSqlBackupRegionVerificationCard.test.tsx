@@ -1,6 +1,9 @@
 import { render, screen, waitFor } from "@testing-library/react";
 import { beforeEach, describe, expect, it, vi } from "vitest";
 
+import { renderWithOperatorQuery } from "@/testing/render-with-operator-query";
+import { useOperatorQueryTestLifecycle } from "@/testing/operator-query-test-helpers";
+
 const loadGate = vi.hoisted(() => ({
   verification: {
     schemaVersion: "1.0",
@@ -29,10 +32,16 @@ vi.mock("@/lib/sql-backup-region-verification", async (importOriginal) => {
   };
 });
 
+vi.mock("@/lib/query/operator-query-persist-client", () => ({
+  setupOperatorQueryClientPersistence: () => {},
+}));
+
 import { ExecutiveSqlBackupRegionVerificationCard } from "./ExecutiveSqlBackupRegionVerificationCard";
 import { fetchSqlBackupRegionVerification } from "@/lib/sql-backup-region-verification";
 
 describe("ExecutiveSqlBackupRegionVerificationCard", () => {
+  useOperatorQueryTestLifecycle();
+
   beforeEach(() => {
     vi.mocked(fetchSqlBackupRegionVerification).mockImplementation(async () => loadGate.verification);
   });
@@ -40,7 +49,7 @@ describe("ExecutiveSqlBackupRegionVerificationCard", () => {
   it("shows buyer-safe loading copy aligned with the card title (TB-515)", () => {
     vi.mocked(fetchSqlBackupRegionVerification).mockReturnValue(new Promise(() => {}));
 
-    render(<ExecutiveSqlBackupRegionVerificationCard />);
+    renderWithOperatorQuery(<ExecutiveSqlBackupRegionVerificationCard />);
 
     expect(screen.getByTestId("sql-backup-verification-loading")).toHaveTextContent("Checking backup status…");
     expect(screen.getByTestId("sql-backup-verification-loading")).not.toHaveTextContent(/backup region verification/i);
@@ -53,7 +62,7 @@ describe("ExecutiveSqlBackupRegionVerificationCard", () => {
       primaryDataRegion: "eastus",
     };
 
-    render(<ExecutiveSqlBackupRegionVerificationCard />);
+    renderWithOperatorQuery(<ExecutiveSqlBackupRegionVerificationCard />);
 
     expect(await screen.findByTestId("sql-backup-verification-status-verified")).toBeInTheDocument();
     expect(screen.getByTestId("sql-backup-verification-region-name")).toHaveTextContent("eastus");
@@ -71,7 +80,7 @@ describe("ExecutiveSqlBackupRegionVerificationCard", () => {
       violations: [{ address: "azurerm_mssql_database.app", detail: "not in allowed" }],
     };
 
-    render(<ExecutiveSqlBackupRegionVerificationCard />);
+    renderWithOperatorQuery(<ExecutiveSqlBackupRegionVerificationCard />);
 
     await waitFor(() => {
       expect(screen.getByTestId("sql-backup-verification-status-unverified")).toBeInTheDocument();

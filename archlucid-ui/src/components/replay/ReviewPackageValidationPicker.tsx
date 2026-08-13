@@ -1,12 +1,12 @@
 "use client";
 
 import { cn } from "@/lib/utils";
-import { useCallback, useEffect, useId, useMemo, useRef, useState } from "react";
+import { useEffect, useId, useMemo, useRef, useState } from "react";
 
 import { Input } from "@/components/ui/input";
 import { Label } from "@/components/ui/label";
+import { useAskProjectRunsQuery } from "@/hooks/use-ask-project-runs-query";
 import { OPERATOR_LINK, OPERATOR_TYPOGRAPHY } from "@/lib/design-tokens";
-import { loadProjectRunsMergedWithDemoFallback } from "@/lib/operator/operator-run-picker-client";
 import {
   REPLAY_PACKAGE_SELECTOR_HELPER,
   REPLAY_PACKAGE_SELECTOR_INLINE_HINT,
@@ -36,11 +36,18 @@ export function ReviewPackageValidationPicker(props: ReviewPackageValidationPick
   const hintId = `${controlId}-hint`;
   const inlineHintId = `${controlId}-inline-hint`;
   const [query, setQuery] = useState("");
-  const [runs, setRuns] = useState<RunSummary[]>([]);
   const [open, setOpen] = useState(false);
-  const [loading, setLoading] = useState(false);
-  const [loadError, setLoadError] = useState<string | null>(null);
   const prefillAppliedRef = useRef(false);
+
+  const runsQuery = useAskProjectRunsQuery("default", { committedOnly: true });
+  const runs = runsQuery.data?.items ?? [];
+  const loading = runsQuery.isPending || runsQuery.isFetching;
+  const loadError =
+    runsQuery.isError
+      ? "Could not load finalized reviews."
+      : runsQuery.data?.loadError
+        ? "Could not load finalized reviews."
+        : null;
 
   const rows = useMemo(
     () =>
@@ -71,26 +78,6 @@ export function ReviewPackageValidationPicker(props: ReviewPackageValidationPick
 
     setQuery(value);
   }, [selectedRow, value]);
-
-  const loadRuns = useCallback(async (): Promise<void> => {
-    setLoading(true);
-    setLoadError(null);
-
-    try {
-      const merged = await loadProjectRunsMergedWithDemoFallback("default", { committedOnly: true });
-      setRuns(merged.items ?? []);
-      setLoadError(merged.loadError ? "Could not load finalized reviews." : null);
-    } catch {
-      setRuns([]);
-      setLoadError("Could not load finalized reviews.");
-    } finally {
-      setLoading(false);
-    }
-  }, []);
-
-  useEffect(() => {
-    void loadRuns();
-  }, [loadRuns]);
 
   useEffect(() => {
     if (prefillAppliedRef.current) {
@@ -139,11 +126,11 @@ export function ReviewPackageValidationPicker(props: ReviewPackageValidationPick
           aria-describedby={showInlineHint ? `${hintId} ${inlineHintId}` : hintId}
           onFocus={() => {
             setOpen(true);
-            void loadRuns();
+            void runsQuery.refetch();
           }}
           onClick={() => {
             setOpen(true);
-            void loadRuns();
+            void runsQuery.refetch();
           }}
           onBlur={() => {
             window.setTimeout(() => {
