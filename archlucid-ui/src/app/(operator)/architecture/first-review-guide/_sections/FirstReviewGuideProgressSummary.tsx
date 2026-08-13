@@ -1,13 +1,37 @@
 import { cn } from "@/lib/utils";
 
+import { Skeleton } from "@/components/ui/skeleton";
 import { OPERATOR_TYPOGRAPHY } from "@/lib/design-tokens";
 import type { FirstReviewGuideProgress } from "@/lib/first-review-guide-state";
 
 type FirstReviewGuideProgressSummaryProps = {
   readonly progress: FirstReviewGuideProgress;
+  readonly isPending: boolean;
+  readonly isError: boolean;
 };
 
-export function FirstReviewGuideProgressSummary({ progress }: FirstReviewGuideProgressSummaryProps) {
+export function FirstReviewGuideProgressSummary({
+  progress,
+  isPending,
+  isError,
+}: FirstReviewGuideProgressSummaryProps) {
+  if (isPending) {
+    return (
+      <div className="space-y-2" data-testid="first-review-guide-progress-loading" aria-busy="true">
+        <Skeleton className="h-4 w-48" aria-hidden />
+        <Skeleton className="h-1.5 w-full" aria-hidden />
+      </div>
+    );
+  }
+
+  if (isError) {
+    return (
+      <p className={cn("m-0", OPERATOR_TYPOGRAPHY.helper)} data-testid="first-review-guide-progress-unavailable">
+        Progress unavailable until review status loads.
+      </p>
+    );
+  }
+
   const progressPercent = Math.round(progress.progressFraction * 100);
 
   return (
@@ -23,7 +47,7 @@ export function FirstReviewGuideProgressSummary({ progress }: FirstReviewGuidePr
         aria-valuemin={0}
         aria-valuemax={100}
         aria-valuenow={progressPercent}
-        aria-label={`First review progress — ${progress.summaryLabel}`}
+        aria-label={`First review progress — ${progress.completedStepCount} of ${progress.totalStepCount} steps complete`}
         className="h-1.5 w-full overflow-hidden rounded-full bg-neutral-200 dark:bg-neutral-800"
       >
         <div

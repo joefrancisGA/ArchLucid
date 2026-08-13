@@ -3,6 +3,7 @@
 import { cn } from "@/lib/utils";
 import Link from "next/link";
 
+import { FirstReviewGuideFirstArchitectureReviewVocabularyRail } from "@/components/FirstReviewGuideFirstArchitectureReviewVocabularyRail";
 import { InAppHelpLink } from "@/components/InAppHelpLink";
 import { Button } from "@/components/ui/button";
 import {
@@ -104,6 +105,11 @@ export function FirstReviewGuideSupportPanel() {
           </li>
         </ul>
       </section>
+
+      <FirstReviewGuideFirstArchitectureReviewVocabularyRail
+        currentSurfaceId="first-review-guide"
+        variant="compact"
+      />
     </aside>
   );
 }

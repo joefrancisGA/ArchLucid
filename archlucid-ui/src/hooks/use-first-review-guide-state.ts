@@ -1,11 +1,11 @@
 "use client";
 
-import { useMemo } from "react";
+import { useCallback, useMemo } from "react";
 
 import { useCorePilotCommitContextQuery } from "@/hooks/use-core-pilot-commit-context-query";
 import { useFinishSetupReadinessContext } from "@/hooks/use-finish-setup-readiness-context";
 import { useOperateCapability } from "@/hooks/use-operate-capability";
-import type { CorePilotCommitContext } from "@/lib/core-pilot-commit-context";
+import { SHOWCASE_STATIC_DEMO_RUN_ID } from "@/lib/showcase-static-demo";
 import {
   resolveFirstReviewGuideHeaderActions,
   resolveFirstReviewGuideProgress,
@@ -20,7 +20,11 @@ import {
 } from "@/lib/first-review-guide-state";
 
 export type FirstReviewGuideViewState = {
+  readonly hasLoadedContext: boolean;
   readonly isPending: boolean;
+  readonly isError: boolean;
+  readonly errorMessage: string | null;
+  readonly retry: () => void;
   readonly readiness: FirstReviewGuideReadiness;
   readonly progress: FirstReviewGuideProgress;
   readonly steps: readonly FirstReviewGuideStepPresentation[];
@@ -31,13 +35,28 @@ export type FirstReviewGuideViewState = {
   readonly latestRunHref: string | null;
 };
 
-const emptyCommitContext: CorePilotCommitContext = {
-  hasCommittedManifest: false,
-  committedReviewCount: 0,
-  latestRunId: null,
-  firstCommittedRunId: null,
-  secondCommittedRunId: null,
-  latestRunReadyToFinalize: false,
+const loadingReadiness: FirstReviewGuideReadiness = {
+  kind: "ready-to-start",
+  headline: "Loading review progress",
+  detail: null,
+};
+
+const loadingProgress: FirstReviewGuideProgress = {
+  phase: "not-started",
+  progressFraction: 0,
+  summaryLabel: "Loading",
+  detailLabel: null,
+  completedStepCount: 0,
+  totalStepCount: 7,
+};
+
+const loadingHeaderActions: FirstReviewGuideHeaderActions = {
+  primaryLabel: "Start first review",
+  primaryHref: "/architecture/reviews/new",
+  primaryDisabled: true,
+  primaryDisabledReason: null,
+  secondaryLabel: "Explore sample review",
+  secondaryHref: `/architecture/reviews/${SHOWCASE_STATIC_DEMO_RUN_ID}`,
 };
 
 export function useFirstReviewGuideState(): FirstReviewGuideViewState {
@@ -45,11 +64,33 @@ export function useFirstReviewGuideState(): FirstReviewGuideViewState {
   const commitQuery = useCorePilotCommitContextQuery();
   const finishSetup = useFinishSetupReadinessContext();
 
+  const retry = useCallback(() => {
+    void commitQuery.refetch();
+  }, [commitQuery]);
+
   return useMemo((): FirstReviewGuideViewState => {
-    const commitContext =
-      commitQuery.isPending || commitQuery.isError || commitQuery.data === undefined
-        ? emptyCommitContext
-        : commitQuery.data;
+    const isPending = commitQuery.isPending || finishSetup.phase === "loading";
+    const isError = commitQuery.isError;
+    const commitContext = commitQuery.data;
+    const hasLoadedContext = !isPending && !isError && commitContext !== undefined;
+
+    if (!hasLoadedContext) {
+      return {
+        hasLoadedContext: false,
+        isPending,
+        isError,
+        errorMessage: isError ? "Could not load review progress from your workspace." : null,
+        retry,
+        readiness: loadingReadiness,
+        progress: loadingProgress,
+        steps: [],
+        headerActions: loadingHeaderActions,
+        requiredBlockers: [],
+        canExecute,
+        readyToFinalize: false,
+        latestRunHref: null,
+      };
+    }
 
     const stateInput = {
       commitContext,
@@ -59,7 +100,11 @@ export function useFirstReviewGuideState(): FirstReviewGuideViewState {
     };
 
     return {
-      isPending: commitQuery.isPending || finishSetup.phase === "loading",
+      hasLoadedContext: true,
+      isPending: false,
+      isError: false,
+      errorMessage: null,
+      retry,
       readiness: resolveFirstReviewGuideReadiness(stateInput),
       progress: resolveFirstReviewGuideProgress(commitContext),
       steps: resolveFirstReviewGuideSteps(stateInput),
@@ -72,5 +117,13 @@ export function useFirstReviewGuideState(): FirstReviewGuideViewState {
           ? `/architecture/reviews/${encodeURIComponent(commitContext.latestRunId)}`
           : null,
     };
-  }, [canExecute, commitQuery.data, commitQuery.isError, commitQuery.isPending, finishSetup.context, finishSetup.phase]);
+  }, [
+    canExecute,
+    commitQuery.data,
+    commitQuery.isError,
+    commitQuery.isPending,
+    finishSetup.context,
+    finishSetup.phase,
+    retry,
+  ]);
 }

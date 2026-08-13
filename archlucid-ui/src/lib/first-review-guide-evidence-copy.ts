@@ -11,6 +11,10 @@ export const FIRST_REVIEW_GUIDE_CLAIM_DISCIPLINE =
 export const FIRST_REVIEW_GUIDE_SOURCES_INTRO =
   "Use these follow-ups when the checklist leads to create-bootstrap, review intake, or first-architecture-review help.";
 
+/** Compact evaluation scope + duration expectation on `/architecture/first-review-guide` (ARF P0-6). */
+export const FIRST_REVIEW_GUIDE_EVALUATION_SCOPE_HELPER =
+  "Evaluation applies your workspace policy pack and standards. Most first reviews with a brief and documents finish in 45–90 minutes; optional cloud inventory uploads often add 15–30 minutes.";
+
 
 /** Operator Sources - no self-href to `/architecture/first-review-guide`. */
 export const FIRST_REVIEW_GUIDE_SOURCES: readonly EvidenceSourceLink[] = [

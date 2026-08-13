@@ -1,11 +1,17 @@
 import type { CorePilotCommitContext } from "@/lib/core-pilot-commit-context";
-import { FIRST_REVIEW_GUIDE_STEPS } from "@/lib/first-review-guide-steps";
+import {
+  REVIEWS_NEW_GUIDED_INTAKE_HREF,
+  REVIEWS_NEW_PATH,
+  reviewDetailPath,
+} from "@/lib/architecture/architecture-routes";
+import { FIRST_REVIEW_GUIDE_STEPS, FIRST_REVIEW_GUIDE_STEP_COUNT } from "@/lib/first-review-guide-steps";
 import type { FinishSetupWizardContext } from "@/lib/finish-setup-wizard-steps";
 import {
   areFinishSetupRequiredStepsComplete,
   resolveFinishSetupWizardDeploymentOptions,
   resolveFinishSetupWizardSteps,
 } from "@/lib/finish-setup-wizard-steps";
+import { BUYER_REVIEW_DETAIL_IN_PROGRESS_FINALIZE_ANCHOR } from "@/lib/first-week-route-guidance";
 import { SHOWCASE_STATIC_DEMO_RUN_ID } from "@/lib/showcase-static-demo";
 
 export type FirstReviewGuideStepUiStatus = "not-started" | "current" | "complete" | "blocked";
@@ -48,6 +54,8 @@ export type FirstReviewGuideProgress = {
   readonly progressFraction: number;
   readonly summaryLabel: string;
   readonly detailLabel: string | null;
+  readonly completedStepCount: number;
+  readonly totalStepCount: number;
 };
 
 export type FirstReviewGuideHeaderActions = {
@@ -67,7 +75,23 @@ export type FirstReviewGuideStateInput = {
 };
 
 function reviewDetailHref(runId: string): string {
-  return `/architecture/reviews/${encodeURIComponent(runId)}`;
+  return reviewDetailPath(runId);
+}
+
+function reviewFindingsHref(runId: string): string {
+  return `${reviewDetailPath(runId)}?reviewTab=findings`;
+}
+
+function reviewDecisionsHref(runId: string): string {
+  return `${reviewDetailPath(runId)}?reviewTab=decisions-remediation`;
+}
+
+function reviewFinalizeHref(runId: string): string {
+  return `${reviewDetailPath(runId)}${BUYER_REVIEW_DETAIL_IN_PROGRESS_FINALIZE_ANCHOR}`;
+}
+
+function reviewShareHref(runId: string): string {
+  return `${reviewDetailPath(runId)}?reviewTab=review-package`;
 }
 
 function resolveShareHref(commitContext: CorePilotCommitContext): string {
@@ -197,34 +221,39 @@ function resolveStepAction(
 
   switch (stepIndex) {
     case 0:
-      return canExecute
-        ? { label: "Start review", href: "/architecture/reviews/new" }
+      return canExecute && latestRunId === null
+        ? { label: "Start review", href: REVIEWS_NEW_PATH }
         : { label: null, href: null };
     case 1:
-      return canExecute && latestRunHref !== null
-        ? { label: "Add evidence", href: latestRunHref }
-        : canExecute
-          ? { label: "Start review", href: "/architecture/reviews/new" }
-          : { label: null, href: null };
+      if (!canExecute) {
+        return { label: null, href: null };
+      }
+
+      if (latestRunHref !== null) {
+        return { label: "Add evidence", href: `${latestRunHref}?reviewTab=evidence` };
+      }
+
+      return { label: "Open evidence intake", href: REVIEWS_NEW_GUIDED_INTAKE_HREF };
     case 2:
       return latestRunHref !== null
         ? { label: "Open review", href: latestRunHref }
-        : canExecute
-          ? { label: "Start review", href: "/architecture/reviews/new" }
-          : { label: null, href: null };
+        : { label: null, href: null };
     case 3:
+      return latestRunHref !== null
+        ? { label: "Review findings", href: reviewFindingsHref(latestRunId!) }
+        : { label: null, href: null };
     case 4:
       return latestRunHref !== null
-        ? { label: stepIndex === 3 ? "Review findings" : "Record decisions", href: latestRunHref }
+        ? { label: "Record decisions", href: reviewDecisionsHref(latestRunId!) }
         : { label: null, href: null };
     case 5:
       return latestRunHref !== null
-        ? { label: "Finalize review", href: latestRunHref }
+        ? { label: "Finalize review", href: reviewFinalizeHref(latestRunId!) }
         : { label: null, href: null };
     case 6:
       return commitContext.hasCommittedManifest
         ? { label: "Open completed package", href: resolveShareHref(commitContext) }
-        : { label: "Explore sample review", href: reviewDetailHref(SHOWCASE_STATIC_DEMO_RUN_ID) };
+        : { label: "Explore sample review", href: reviewShareHref(SHOWCASE_STATIC_DEMO_RUN_ID) };
     default:
       return { label: null, href: null };
   }
@@ -242,32 +271,47 @@ function resolveCurrentStepIndex(statuses: readonly FirstReviewGuideStepUiStatus
   return firstIncomplete >= 0 ? firstIncomplete : null;
 }
 
+function countCompletedSteps(commitContext: CorePilotCommitContext): number {
+  return baseStepStatuses(commitContext).filter((status) => status === "complete").length;
+}
+
 export function resolveFirstReviewGuideProgress(
   commitContext: CorePilotCommitContext,
 ): FirstReviewGuideProgress {
+  const completedStepCount = countCompletedSteps(commitContext);
+  const totalStepCount = FIRST_REVIEW_GUIDE_STEP_COUNT;
+  const progressFraction = completedStepCount / totalStepCount;
+  const stepProgressLabel = `${completedStepCount} of ${totalStepCount} steps complete`;
+
   if (commitContext.hasCommittedManifest) {
     return {
       phase: "complete",
       progressFraction: 1,
       summaryLabel: "Complete",
       detailLabel: "Your first architecture review is finalized.",
+      completedStepCount: totalStepCount,
+      totalStepCount,
     };
   }
 
-  if (commitContext.latestRunId !== null) {
+  if (completedStepCount === 0) {
     return {
-      phase: "in-progress",
-      progressFraction: 0.5,
-      summaryLabel: "In progress",
-      detailLabel: "Continue from the walkthrough below.",
+      phase: "not-started",
+      progressFraction: 0,
+      summaryLabel: "Not started",
+      detailLabel: "Begin with step 1 when you are ready.",
+      completedStepCount: 0,
+      totalStepCount,
     };
   }
 
   return {
-    phase: "not-started",
-    progressFraction: 0,
-    summaryLabel: "Not started",
-    detailLabel: "Begin with step 1 when you are ready.",
+    phase: "in-progress",
+    progressFraction,
+    summaryLabel: "In progress",
+    detailLabel: stepProgressLabel,
+    completedStepCount,
+    totalStepCount,
   };
 }
 
@@ -334,7 +378,7 @@ export function resolveFirstReviewGuideHeaderActions(
 
   return {
     primaryLabel: "Start first review",
-    primaryHref: "/architecture/reviews/new",
+    primaryHref: REVIEWS_NEW_PATH,
     primaryDisabled: !canExecute,
     primaryDisabledReason: canExecute
       ? null
