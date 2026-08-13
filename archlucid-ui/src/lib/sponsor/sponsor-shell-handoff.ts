@@ -8,7 +8,7 @@ export function isOperatorShellHandoffHref(href: string): boolean {
     return false;
   }
 
-  if (path.startsWith("/sponsor")) {
+  if (path === "/sponsor" || path.startsWith("/sponsor/")) {
     return false;
   }
 
