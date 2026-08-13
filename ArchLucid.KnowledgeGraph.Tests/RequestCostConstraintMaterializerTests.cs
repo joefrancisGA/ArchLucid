@@ -30,6 +30,7 @@ public sealed class RequestCostConstraintMaterializerTests
     [InlineData("Monthly budget cap $5000", "5000")]
     [InlineData("Keep spend under 12k USD per month", "12000")]
     [InlineData("FinOps: max $2,500/month", "2500")]
+    [InlineData("2 regions, budget $12000 per month", "12000")]
     public void MaterializeFromConstraintsMetadata_parses_budget_amounts(string constraint, string expectedAmount)
     {
         IReadOnlyList<GraphNode> nodes = RequestCostConstraintMaterializer.MaterializeFromConstraintsMetadata(
@@ -38,6 +39,17 @@ public sealed class RequestCostConstraintMaterializerTests
 
         nodes.Should().ContainSingle();
         nodes[0].Properties["maxMonthlyCost"].Should().Be(expectedAmount);
+    }
+
+    [Fact]
+    public void MaterializeFromConstraintsMetadata_ignores_bare_numbers_without_currency_marker()
+    {
+        IReadOnlyList<GraphNode> nodes = RequestCostConstraintMaterializer.MaterializeFromConstraintsMetadata(
+            "2 regions with 3 availability zones and budget discipline",
+            Guid.NewGuid());
+
+        nodes.Should().ContainSingle();
+        nodes[0].Properties.Should().NotContainKey("maxMonthlyCost");
     }
 
     [Fact]

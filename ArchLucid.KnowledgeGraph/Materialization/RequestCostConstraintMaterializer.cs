@@ -110,7 +110,7 @@ public static partial class RequestCostConstraintMaterializer
     }
 
     [GeneratedRegex(
-        @"(?:\$|usd\s*)?(?<amount>\d{1,3}(?:,\d{3})+(?:\.\d+)?|\d+(?:\.\d+)?)\s*(?<suffix>k)?",
+        @"(?:\$\s*|usd\s*)(?<amount>\d{1,3}(?:,\d{3})+(?:\.\d+)?|\d+(?:\.\d+)?)\s*(?<suffix>k)?|(?<amount>\d{1,3}(?:,\d{3})+(?:\.\d+)?|\d+(?:\.\d+)?)\s*(?<suffix>k)?\s*usd",
         RegexOptions.IgnoreCase | RegexOptions.CultureInvariant)]
     private static partial Regex BudgetAmountRegex();
 }
