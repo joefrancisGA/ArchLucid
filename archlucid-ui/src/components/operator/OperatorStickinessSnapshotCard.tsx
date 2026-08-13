@@ -78,13 +78,13 @@ export function OperatorStickinessSnapshotCard(): ReactElement | null {
                 </Link>
               </p>
             ) : (
-              <p className="m-0 text-neutral-500 dark:text-neutral-400">No latest run in scope.</p>
+              <p className="m-0 text-neutral-500 dark:text-neutral-400">No recent review in scope.</p>
             )}
           </CardContent>
         </Card>
         <Card>
           <CardHeader className="pb-2">
-            <h3 className={cn("m-0 font-semibold text-neutral-900 dark:text-neutral-100", OPERATOR_TYPOGRAPHY.cardTitle)}>First-value milestones</h3>
+            <h3 className={cn("m-0 font-semibold text-neutral-900 dark:text-neutral-100", OPERATOR_TYPOGRAPHY.cardTitle)}>Adoption milestones</h3>
           </CardHeader>
           <CardContent className={cn("space-y-1 text-neutral-600 dark:text-neutral-400", OPERATOR_TYPOGRAPHY.helper)}>
             <p className="m-0">

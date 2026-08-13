@@ -19,6 +19,7 @@ import {
   OperatorHomeBelowFoldPanelsDeferred,
   OperatorHomeExecutiveRoiStripDeferred,
   OperatorHomeGateDeferred,
+  OperatorHomeStickinessCockpitDeferred,
   PilotCommandCenterCardDeferred,
 } from "./operator-home-page-view-deferred-chunks";
 import { OperatorHomePageHeader } from "./OperatorHomePageHeader";
@@ -68,6 +69,8 @@ function BuyerPolishedHomePageBody(props: { readonly model: OperatorHomePageView
 
       <BuyerPolishedHomeHeroSectionDeferred runsDashboard={props.model.runsDashboard} />
 
+      <OperatorHomeStickinessCockpitDeferred />
+
       <HomeRecentReviewsSection model={props.model} />
 
       <OperatorHomeBelowFoldPanelsDeferred buyerPolishedShell model={props.model} />
@@ -106,6 +109,8 @@ function OperatorHomePageBody(props: { readonly model: OperatorHomePageViewModel
         />
 
       </section>
+
+      <OperatorHomeStickinessCockpitDeferred />
 
       <HomeRecentReviewsSection model={props.model} />
 

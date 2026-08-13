@@ -71,8 +71,48 @@ vi.mock("@/components/operator-home/OperatorHomeGate", () => ({
   OperatorHomeGate: ({ children }: { children: ReactNode }) => <>{children}</>,
 }));
 
+// TB-2191: the stickiness cockpit renders for real below, so its copy is covered by this guard.
+// Populated fixtures keep the cards past their own self-suppression checks.
+vi.mock("@/hooks/use-operator-next-best-actions-query", () => ({
+  useOperatorNextBestActionsQuery: () => ({
+    data: [
+      {
+        actionId: "commit-latest",
+        title: "Commit the latest architecture package",
+        reason: "One review is finished but not committed.",
+        href: "/architecture/reviews/run-1",
+      },
+    ],
+    isPending: false,
+    isError: false,
+  }),
+}));
+
+vi.mock("@/hooks/use-operator-stickiness-snapshot-query", () => ({
+  useOperatorStickinessSnapshotQuery: () => ({
+    data: {
+      pilotFunnel: {
+        totalRunsInScope: 4,
+        committedRunsInScope: 2,
+        productLearningSignalsLast90Days: 7,
+        firstGoldenManifestUtc: null,
+        firstComparisonUtc: null,
+      },
+      latestRunId: "run-1",
+      comparisonEventsLast30Days: 3,
+      pendingGovernanceApprovals: 1,
+    },
+    isPending: false,
+    isError: false,
+    error: null,
+  }),
+}));
+
 vi.mock("@/app/(operator)/_sections/operator-home-page-view-deferred-chunks", async () => {
   const { OperatorHomeGate } = await import("@/components/operator-home/OperatorHomeGate");
+  const { OperatorHomeStickinessCockpit } = await import(
+    "@/components/operator-home/OperatorHomeStickinessCockpit"
+  );
   const { PilotCommandCenterCard } = await import("@/components/usability/PilotCommandCenterCard");
   const { OperatorHomeBelowFoldPanels } = await import(
     "@/app/(operator)/_sections/OperatorHomeBelowFoldPanels"
@@ -111,6 +151,7 @@ vi.mock("@/app/(operator)/_sections/operator-home-page-view-deferred-chunks", as
     PilotCommandCenterCardDeferred: PilotCommandCenterCard,
     OperatorHomeBelowFoldPanelsDeferred: OperatorHomeBelowFoldPanels,
     OperatorHomeExecutiveRoiStripDeferred: OperatorHomeExecutiveRoiStrip,
+    OperatorHomeStickinessCockpitDeferred: OperatorHomeStickinessCockpit,
     CtoDemoExecutiveLandingRedirectDeferred: () => null,
   };
 });

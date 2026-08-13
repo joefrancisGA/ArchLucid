@@ -32,6 +32,7 @@ vi.mock("./operator-home-page-view-deferred-chunks", () => ({
     </section>
   ),
   OperatorHomeGateDeferred: ({ children }: { children: React.ReactNode }) => <>{children}</>,
+  OperatorHomeStickinessCockpitDeferred: () => <div data-testid="operator-home-stickiness-cockpit" />,
   CtoDemoExecutiveLandingRedirectDeferred: () => null,
 }));
 
@@ -70,6 +71,7 @@ vi.mock("@/components/operator-home/OperatorHomeDeferredOnboarding", () => ({
 
 vi.mock("@/components/usability/PageContextualHelpButton", () => ({
   PageContextualHelpButton: () => <div data-testid="page-contextual-help-button">Help</div>,
+  PAGE_HELP_SHORT_TRIGGER_TEXT: "Help",
 }));
 
 import { OperatorHomePageView } from "./OperatorHomePageView";
@@ -169,4 +171,16 @@ describe("OperatorHomePageView", () => {
     expect(exploreSample.compareDocumentPosition(workspaceContext) & Node.DOCUMENT_POSITION_FOLLOWING).toBeTruthy();
     expect(workspaceContext.compareDocumentPosition(advancedGuidance) & Node.DOCUMENT_POSITION_FOLLOWING).toBeTruthy();
   });
+
+  it.each([false, true])(
+    "mounts the stickiness cockpit above recent reviews (buyerPolishedShell=%s) (TB-2191)",
+    (buyerPolishedShell) => {
+      render(<OperatorHomePageView model={mockHomeModel(buyerPolishedShell)} />);
+
+      const cockpit = screen.getByTestId("operator-home-stickiness-cockpit");
+      const runsDashboard = screen.getByTestId("home-block-runs-dashboard");
+
+      expect(cockpit.compareDocumentPosition(runsDashboard) & Node.DOCUMENT_POSITION_FOLLOWING).toBeTruthy();
+    },
+  );
 });
