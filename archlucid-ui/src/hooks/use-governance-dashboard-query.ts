@@ -15,6 +15,7 @@ type UseGovernanceDashboardQueryOptions = {
   readonly maxDecisions?: number;
   readonly maxChanges?: number;
   readonly enabled?: boolean;
+  readonly refetchIntervalMs?: number;
 };
 
 export function useGovernanceDashboardQuery(options?: UseGovernanceDashboardQueryOptions) {
@@ -26,6 +27,8 @@ export function useGovernanceDashboardQuery(options?: UseGovernanceDashboardQuer
     queryKey: operatorQueryKeys.governanceDashboard(maxPending, maxDecisions, maxChanges),
     queryFn: () => getGovernanceDashboard(maxPending, maxDecisions, maxChanges),
     enabled: options?.enabled ?? true,
+    refetchInterval: options?.refetchIntervalMs ?? false,
+    refetchIntervalInBackground: false,
     staleTime: OPERATOR_QUERY_STALE_MS,
     gcTime: OPERATOR_QUERY_GC_MS,
     retry: false,

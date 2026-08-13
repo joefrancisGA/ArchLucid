@@ -1,4 +1,4 @@
-import { render, screen, waitFor } from "@testing-library/react";
+import { screen, waitFor } from "@testing-library/react";
 import { afterEach, beforeEach, describe, expect, it, vi } from "vitest";
 
 import {
@@ -6,6 +6,14 @@ import {
   extendBuyerPolishedShellVitestMock,
 } from "@/testing/buyer-polished-shell-vitest-override";
 import { EXECUTIVE_DASHBOARD_HREF } from "@/lib/executive-dashboard-route";
+import { renderWithOperatorQuery } from "@/testing/render-with-operator-query";
+import { useOperatorQueryTestLifecycle } from "@/testing/operator-query-test-helpers";
+
+const apiHoisted = vi.hoisted(() => ({
+  getGovernanceDashboard: vi.fn(),
+  getComplianceDriftTrend: vi.fn(),
+  getGovernanceDecisionsNeededSummary: vi.fn(),
+}));
 
 vi.mock("@/lib/demo-ui-env", async (importOriginal) =>
   extendBuyerPolishedShellVitestMock(importOriginal),
@@ -66,12 +74,25 @@ vi.mock("@/components/ComplianceDriftChartPdfExport", () => ({
 }));
 
 vi.mock("@/lib/api", () => ({
-  getGovernanceDashboard: vi.fn(),
-  getComplianceDriftTrend: vi.fn(),
+  getGovernanceDashboard: apiHoisted.getGovernanceDashboard,
+  getComplianceDriftTrend: apiHoisted.getComplianceDriftTrend,
 }));
 
-vi.mock("@/lib/api/governance-stickiness-api", () => ({
-  getGovernanceDecisionsNeededSummary: vi.fn(),
+vi.mock("@/lib/api/policy-governance-api", () => ({
+  getGovernanceDashboard: apiHoisted.getGovernanceDashboard,
+}));
+
+vi.mock("@/lib/api/governance-stickiness-api", async (importOriginal) => {
+  const mod = await importOriginal<typeof import("@/lib/api/governance-stickiness-api")>();
+
+  return {
+    ...mod,
+    getGovernanceDecisionsNeededSummary: apiHoisted.getGovernanceDecisionsNeededSummary,
+  };
+});
+
+vi.mock("@/lib/query/operator-query-persist-client", () => ({
+  setupOperatorQueryClientPersistence: () => {},
 }));
 
 vi.mock("@/lib/workspace-health-audit-count", () => ({
@@ -91,8 +112,6 @@ vi.mock("@/lib/operator/operator-scope-storage", () => ({
   readOperatorScopeFromStorage: () => null,
 }));
 
-import { getGovernanceDashboard, getComplianceDriftTrend } from "@/lib/api";
-import { getGovernanceDecisionsNeededSummary } from "@/lib/api/governance-stickiness-api";
 import { countAuditEventsInWindow } from "@/lib/workspace-health-audit-count";
 import { fetchPilotValueReportJson } from "@/lib/pilot-value-report-fetch";
 import { executiveWorkspaceHealthKpiTitle } from "@/lib/executive-workspace-health-page-copy";
@@ -120,16 +139,18 @@ const stubPilotReport = {
 };
 
 describe("ExecutiveWorkspaceHealthDashboard", () => {
+  useOperatorQueryTestLifecycle();
+
   beforeEach(() => {
     buyerPolishedShellVitestOverride.value = true;
-    vi.mocked(getGovernanceDashboard).mockResolvedValue({
+    apiHoisted.getGovernanceDashboard.mockResolvedValue({
       pendingApprovals: [],
       recentDecisions: [],
       recentChanges: [],
       pendingCount: 0,
     });
-    vi.mocked(getComplianceDriftTrend).mockResolvedValue([]);
-    vi.mocked(getGovernanceDecisionsNeededSummary).mockResolvedValue({
+    apiHoisted.getComplianceDriftTrend.mockResolvedValue([]);
+    apiHoisted.getGovernanceDecisionsNeededSummary.mockResolvedValue({
       pendingApprovals: 0,
       staleRisks: 0,
       unownedHighSeverityRisks: 0,
@@ -148,7 +169,7 @@ describe("ExecutiveWorkspaceHealthDashboard", () => {
   });
 
   it("shows h1 on loading before data resolves", () => {
-    render(<ExecutiveWorkspaceHealthDashboard />);
+    renderWithOperatorQuery(<ExecutiveWorkspaceHealthDashboard />);
 
     expect(screen.getByRole("heading", { level: 1, name: "Workspace overview" })).toBeInTheDocument();
     expect(screen.getByTestId("page-contextual-help-button")).toBeInTheDocument();
@@ -156,7 +177,7 @@ describe("ExecutiveWorkspaceHealthDashboard", () => {
   });
 
   it("renders buyer KPI titles without numbered prefixes when ready", async () => {
-    render(<ExecutiveWorkspaceHealthDashboard />);
+    renderWithOperatorQuery(<ExecutiveWorkspaceHealthDashboard />);
 
     await waitFor(() => {
       expect(screen.getByTestId("compliance-drift-chart-stub")).toBeInTheDocument();

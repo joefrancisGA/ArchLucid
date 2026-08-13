@@ -15,6 +15,7 @@ import {
 type UseGovernanceDecisionsNeededSummaryQueryOptions = {
   readonly projectId?: string;
   readonly enabled?: boolean;
+  readonly refetchIntervalMs?: number;
 };
 
 export function useGovernanceDecisionsNeededSummaryQuery(
@@ -26,6 +27,8 @@ export function useGovernanceDecisionsNeededSummaryQuery(
     queryKey: operatorQueryKeys.governanceDecisionsNeededSummary(projectId),
     queryFn: () => getGovernanceDecisionsNeededSummary(projectId),
     enabled: options?.enabled ?? true,
+    refetchInterval: options?.refetchIntervalMs ?? false,
+    refetchIntervalInBackground: false,
     staleTime: OPERATOR_QUERY_STALE_MS,
     gcTime: OPERATOR_QUERY_GC_MS,
     retry: false,

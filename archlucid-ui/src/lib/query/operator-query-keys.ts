@@ -29,6 +29,10 @@ export const operatorQueryKeys = {
   executiveNextActionInputs: (range: ExecutiveTimeRange) =>
     ["operator", "roi", "next-action-inputs", range] as const,
   complianceDriftTrend30d: ["operator", "governance", "compliance-drift-trend", "30d"] as const,
+  workspaceHealthPrecommitAuditCounts30d:
+    ["operator", "workspace-health", "precommit-audit-counts", "30d"] as const,
+  pilotValueReport: (fromUtc: string, toUtc: string) =>
+    ["operator", "pilots", "value-report", { fromUtc, toUtc }] as const,
   operatorNextBestActions: ["operator", "tenant", "next-best-actions"] as const,
   governanceDecisionsNeededSummary: (projectId?: string) =>
     ["operator", "governance", "decisions-needed-summary", projectId ?? "workspace"] as const,
