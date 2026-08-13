@@ -16,6 +16,7 @@ import { Card, CardContent } from "@/components/ui/card";
 import { StatusTag } from "@/components/ui/status-tag";
 import { CLOUD_CONNECTIONS_HELP_PAGE_TITLE, CLOUD_CONNECTIONS_HELP_PATH } from "@/lib/cloud-connections-help-guide-content";
 import {
+  CONNECT_GCP_SECURELY_BACK_TO_CONNECTIONS,
   CONNECT_GCP_SECURELY_CONFIGURE_ACTION,
   CONNECT_GCP_SECURELY_CONFIGURE_HREF,
   CONNECT_GCP_SECURELY_CONNECTION_STATUS_HREF,
@@ -44,6 +45,7 @@ import {
   CONNECT_GCP_SECURELY_WIF_IDENTITY_INTRO,
 } from "@/lib/connect-gcp-securely-help-content";
 import {
+  GCP_CLOUD_CONNECTION_API_PREREQUISITES,
   GCP_CLOUD_CONNECTION_PERMISSION_ROWS,
   GCP_CLOUD_CONNECTION_TROUBLESHOOTING_ITEMS,
   formatGcpPermissionRequirementLabel,
@@ -74,6 +76,7 @@ const CONNECT_GCP_SECURELY_TOC_HEADINGS: readonly HelpMarkdownHeading[] = [
 
 type HelpConnectGcpSecurelyGuideViewProps = {
   readonly entry: ProductDocumentationEntry;
+  readonly returnHref?: string;
 };
 
 function HelpSectionHeading(props: { readonly id: string; readonly children: string }): React.ReactElement {
@@ -147,6 +150,7 @@ function GcpRolesTable(): React.ReactElement {
 /** Buyer-safe GCP connector setup for `/help/cloud-connections/gcp` (HGC). */
 export function HelpConnectGcpSecurelyGuideView(props: HelpConnectGcpSecurelyGuideViewProps): React.ReactElement {
   const { entry } = props;
+  const returnHref = props.returnHref ?? CONNECT_GCP_SECURELY_CONFIGURE_HREF;
 
   return (
     <article
@@ -174,6 +178,10 @@ export function HelpConnectGcpSecurelyGuideView(props: HelpConnectGcpSecurelyGui
         metadata={
           <div className="space-y-2">
             <p className={cn("m-0 max-w-3xl text-al-text-secondary", OPERATOR_TYPOGRAPHY.helper)}>
+              <Link href={returnHref} className={OPERATOR_LINK.nav} data-testid="connect-gcp-back-to-connections">
+                ← {CONNECT_GCP_SECURELY_BACK_TO_CONNECTIONS}
+              </Link>
+              <span aria-hidden="true"> · </span>
               <a href="#troubleshoot" className={OPERATOR_LINK.nav}>
                 Fix a failed permission check
               </a>
@@ -277,6 +285,14 @@ export function HelpConnectGcpSecurelyGuideView(props: HelpConnectGcpSecurelyGui
             <p className={cn("m-0 max-w-3xl text-al-text-secondary", OPERATOR_TYPOGRAPHY.body)}>
               {CONNECT_GCP_SECURELY_ROLES_NOTE}
             </p>
+            <ul
+              className={cn("m-0 list-disc space-y-1.5 pl-5 text-al-text-secondary", OPERATOR_TYPOGRAPHY.body)}
+              data-testid="connect-gcp-securely-prerequisites"
+            >
+              {GCP_CLOUD_CONNECTION_API_PREREQUISITES.map((item) => (
+                <li key={item}>{item}</li>
+              ))}
+            </ul>
             <GcpRolesTable />
             <aside
               className={cn(DESIGN_TOKENS.callout.warn, "flex gap-3")}

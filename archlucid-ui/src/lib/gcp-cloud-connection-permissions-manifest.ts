@@ -37,6 +37,11 @@ export const GCP_CLOUD_CONNECTION_FORBIDDEN_ROLES: readonly string[] = [
   "roles/iam.serviceAccountKeyAdmin",
 ];
 
+export const GCP_CLOUD_CONNECTION_API_PREREQUISITES: readonly string[] = [
+  "Enable cloudasset.googleapis.com (Cloud Asset Inventory API) on the GCP project before assigning roles.",
+  "Create a Workload Identity Pool provider that trusts ArchLucid's federated identity (see setup steps above).",
+];
+
 export const GCP_CLOUD_CONNECTION_PERMISSION_ROWS: readonly GcpCloudConnectionPermissionRow[] = [
   {
     gcpRole: "roles/cloudasset.viewer",
@@ -44,6 +49,16 @@ export const GCP_CLOUD_CONNECTION_PERMISSION_ROWS: readonly GcpCloudConnectionPe
     requirement: "required",
     purpose: "Reads project and folder asset inventory for architecture evidence.",
     recommendedScope: "GCP project used for the connection",
+    writeAccess: false,
+  },
+  {
+    gcpRole: "roles/iam.workloadIdentityUser",
+    displayName: "Workload Identity User",
+    requirement: "required",
+    purpose:
+      "Allows ArchLucid's federated principal to impersonate the read-only service account at runtime through Workload Identity Federation.",
+    recommendedScope:
+      "Service account used for Cloud Asset reads (principal is the Workload Identity Pool subject)",
     writeAccess: false,
   },
 ];

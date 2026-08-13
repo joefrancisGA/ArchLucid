@@ -90,7 +90,7 @@ export {
 export const CONNECT_GCP_SECURELY_ROLES_HEADING = "GCP roles";
 
 export const CONNECT_GCP_SECURELY_ROLES_NOTE =
-  "Grant Cloud Asset Viewer to the service account ArchLucid impersonates. ArchLucid does not require project Owner or Editor.";
+  "Enable the Cloud Asset Inventory API, then grant Cloud Asset Viewer and Workload Identity User on the service account ArchLucid impersonates. ArchLucid does not require project Owner or Editor.";
 
 export const CONNECT_GCP_SECURELY_FORBIDDEN_ROLES_HEADING = "Do not assign broad write-enabled roles";
 

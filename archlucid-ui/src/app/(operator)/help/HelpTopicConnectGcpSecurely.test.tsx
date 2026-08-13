@@ -125,6 +125,10 @@ describe("HelpConnectGcpSecurelyGuideView", () => {
       "href",
       "/integrations/cloud-connections/gcp",
     );
+    expect(screen.getByTestId("connect-gcp-back-to-connections")).toHaveAttribute(
+      "href",
+      "/integrations/cloud-connections/gcp",
+    );
     expect(screen.getByTestId("connect-gcp-configure-action-footer")).toBeInTheDocument();
     expect(screen.queryByTestId("help-topic-pdf-download-button")).toBeNull();
     expect(screen.getByTestId("help-topic-print-button")).toBeInTheDocument();
@@ -141,8 +145,13 @@ describe("HelpConnectGcpSecurelyGuideView", () => {
     const rolesTable = screen.getByTestId("connect-gcp-securely-roles-table");
     expect(within(rolesTable).getByText(/Cloud Asset Viewer/i)).toBeInTheDocument();
     expect(within(rolesTable).getByText(/roles\/cloudasset\.viewer/)).toBeInTheDocument();
-    expect(within(rolesTable).getByText(formatGcpPermissionRequirementLabel("required"))).toBeInTheDocument();
-    expect(within(rolesTable).getAllByText("No")).toHaveLength(1);
+    expect(within(rolesTable).getByText(/Workload Identity User/i)).toBeInTheDocument();
+    expect(within(rolesTable).getByText(/roles\/iam\.workloadIdentityUser/)).toBeInTheDocument();
+    expect(within(rolesTable).getAllByText(formatGcpPermissionRequirementLabel("required"))).toHaveLength(2);
+    expect(within(rolesTable).getAllByText("No")).toHaveLength(2);
+
+    expect(screen.getByTestId("connect-gcp-securely-prerequisites")).toBeInTheDocument();
+    expect(within(screen.getByTestId("connect-gcp-securely-prerequisites")).getByText(/cloudasset\.googleapis\.com/i)).toBeInTheDocument();
 
     expect(screen.getByTestId("connect-gcp-securely-forbidden-roles-callout")).toBeInTheDocument();
     expect(screen.getByText(CONNECT_GCP_SECURELY_FORBIDDEN_ROLES_BODY)).toBeInTheDocument();
@@ -150,6 +159,9 @@ describe("HelpConnectGcpSecurelyGuideView", () => {
     expect(screen.getByTestId("gcp-wif-starter-panel")).toBeInTheDocument();
     expect(screen.getByTestId("gcp-wif-starter-script-copy")).toBeInTheDocument();
     expect(screen.getByText("api://AzureADTokenExchange")).toBeInTheDocument();
+    expect(screen.getByTestId("gcp-wif-starter-identifier-attribute-mapping")).toHaveTextContent(
+      /google\.subject=assertion\.sub/i,
+    );
 
     expect(screen.getByTestId("connect-gcp-securely-verification-callout")).toBeInTheDocument();
 
@@ -162,6 +174,24 @@ describe("HelpConnectGcpSecurelyGuideView", () => {
     for (const item of CONNECT_GCP_SECURELY_VERIFICATION_DOES_NOT_VERIFY) {
       expect(within(doesNotVerify).getByText(item)).toBeInTheDocument();
     }
+  });
+
+  it("preserves returnTo on back and configure links (TB-1243)", () => {
+    if (entry === undefined) {
+      throw new Error("Expected cloud-connections-gcp documentation entry.");
+    }
+
+    render(
+      <HelpConnectGcpSecurelyGuideView
+        entry={entry}
+        returnHref="/integrations/cloud-connections/gcp?step=identity"
+      />,
+    );
+
+    expect(screen.getByTestId("connect-gcp-back-to-connections")).toHaveAttribute(
+      "href",
+      "/integrations/cloud-connections/gcp?step=identity",
+    );
   });
 
   it("exposes troubleshooting from the header and lists troubleshooting guidance", () => {

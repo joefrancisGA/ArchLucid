@@ -47,6 +47,7 @@ describe("gcp-cloud-connection-wif-starter", () => {
 
     expect(issuer?.value).toContain("login.microsoftonline.com/11111111-2222-3333-4444-555555555555");
     expect(audience?.value).toBe("api://AzureADTokenExchange");
+    expect(identifiers.find((row) => row.id === "attribute-mapping")?.value).toContain("google.subject=assertion.sub");
   });
 
   it("aligns wizard placeholder, federation table example, and script pool/provider IDs (P0-5)", () => {

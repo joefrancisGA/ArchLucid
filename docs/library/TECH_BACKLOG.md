@@ -34870,7 +34870,7 @@ Operators must read three intros before reaching the Trust Center link list.
 
 **Window:** V1 ? Adoption friction.
 
-**Status:** Not started.
+**Status:** **Done** 2026-08-12 ? `first-hour-operator-path` permanent redirect ? `/help/first-architecture-review` (`HelpCorePilotGuideView` specialty chrome); Vitest (`HelpTopicCorePilot.test.tsx` TB-1374, `retired-help-topic-alias-honesty.test.ts`).
 
 **Priority:** P0.
 

@@ -233,6 +233,16 @@ function resolveAzurePermissionsReturnHref(returnTo: string | undefined): string
   return "/integrations/cloud-connections";
 }
 
+function resolveGcpConnectionHelpReturnHref(returnTo: string | undefined): string {
+  const trimmed = returnTo?.trim() ?? "";
+
+  if (trimmed.startsWith("/integrations/cloud-connections")) {
+    return trimmed;
+  }
+
+  return "/integrations/cloud-connections/gcp";
+}
+
 function helpSlugFromTopicSegments(topic: string[]): string {
   return topic.map((segment) => segment.trim()).filter((segment) => segment.length > 0).join("/");
 }
@@ -350,7 +360,12 @@ function renderHelpTopicView(
   }
 
   if (loaded.entry.slug === "cloud-connections-gcp") {
-    return <HelpConnectGcpSecurelyGuideView entry={loaded.entry} />;
+    return (
+      <HelpConnectGcpSecurelyGuideView
+        entry={loaded.entry}
+        returnHref={resolveGcpConnectionHelpReturnHref(readSearchParam(searchParams, "returnTo"))}
+      />
+    );
   }
 
   if (loaded.entry.slug === "azure-permissions") {
