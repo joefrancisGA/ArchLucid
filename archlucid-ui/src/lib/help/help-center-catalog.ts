@@ -1,5 +1,6 @@
 import { ENTERPRISE_ONBOARDING_HELP_PAGE_TITLE } from "@/lib/enterprise-onboarding-help-copy";
 import { FIRST_ARCHITECTURE_REVIEW_PAGE_TITLE } from "@/lib/first-architecture-review-help-copy";
+import { ACCELERATOR_CHOOSER_HELP_PAGE_TITLE } from "@/lib/accelerator-chooser-help-page-copy";
 import { REPEAT_REVIEW_LOOP_HELP_PAGE_TITLE } from "@/lib/repeat-review-loop-help-guide-content";
 import { isInternalRunbookSlug } from "@/lib/product-documentation-content-kinds";
 import {
@@ -99,6 +100,11 @@ const HELP_CENTER_DISPLAY_OVERRIDES: Readonly<Partial<Record<string, HelpCenterD
     title: REPEAT_REVIEW_LOOP_HELP_PAGE_TITLE,
     summary:
       "After your first finalized review: compare packages, replay authority, and collect second-review proof.",
+  },
+  "accelerator-chooser": {
+    title: ACCELERATOR_CHOOSER_HELP_PAGE_TITLE,
+    summary:
+      "Map buyer jobs to starter proof packs after your first finalized architecture review — inputs, outputs, and when not to use each pack.",
   },
   "dpa-template": {
     title: "Data Processing Agreement (template)",

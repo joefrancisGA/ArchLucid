@@ -6,14 +6,19 @@ vi.mock("@/app/(operator)/help/HelpTopicHashScroll", () => ({
 }));
 
 import { HelpApiKeysGuideView } from "@/app/(operator)/help/_sections/HelpApiKeysGuideView";
+import { HelpAiUsageGuideView } from "@/app/(operator)/help/_sections/HelpAiUsageGuideView";
 import { HelpArchitectureScorecardGuideView } from "@/app/(operator)/help/_sections/HelpArchitectureScorecardGuideView";
 import { HelpBaselineSettingsGuideView } from "@/app/(operator)/help/_sections/HelpBaselineSettingsGuideView";
 import { HelpConnectionStatusGuideView } from "@/app/(operator)/help/_sections/HelpConnectionStatusGuideView";
+import { HelpNotificationsGuideView } from "@/app/(operator)/help/_sections/HelpNotificationsGuideView";
 import { HelpPilotOutcomesGuideView } from "@/app/(operator)/help/_sections/HelpPilotOutcomesGuideView";
+import { HelpPreferencesGuideView } from "@/app/(operator)/help/_sections/HelpPreferencesGuideView";
 import { HelpSlackIntegrationGuideView } from "@/app/(operator)/help/_sections/HelpSlackIntegrationGuideView";
 import { HelpStandardsRulesGuideView } from "@/app/(operator)/help/_sections/HelpStandardsRulesGuideView";
+import { HelpSystemHealthGuideView } from "@/app/(operator)/help/_sections/HelpSystemHealthGuideView";
 import { HelpTeamsIntegrationGuideView } from "@/app/(operator)/help/_sections/HelpTeamsIntegrationGuideView";
 import { HelpWebhooksIntegrationGuideView } from "@/app/(operator)/help/_sections/HelpWebhooksIntegrationGuideView";
+import { HelpWorkspaceSettingsGuideView } from "@/app/(operator)/help/_sections/HelpWorkspaceSettingsGuideView";
 import { getProductDocumentationEntry } from "@/lib/product-documentation-registry";
 
 describe("specialty help guides — operator surfaces batch", () => {
@@ -27,6 +32,11 @@ describe("specialty help guides — operator surfaces batch", () => {
     ["teams-integration", HelpTeamsIntegrationGuideView, "help-teams-integration-guide"],
     ["webhooks-integration", HelpWebhooksIntegrationGuideView, "help-webhooks-integration-guide"],
     ["api-keys", HelpApiKeysGuideView, "help-api-keys-guide"],
+    ["system-health", HelpSystemHealthGuideView, "help-system-health-guide"],
+    ["ai-usage", HelpAiUsageGuideView, "help-ai-usage-guide"],
+    ["preferences", HelpPreferencesGuideView, "help-preferences-guide"],
+    ["notifications", HelpNotificationsGuideView, "help-notifications-guide"],
+    ["workspace-settings", HelpWorkspaceSettingsGuideView, "help-workspace-settings-guide"],
   ] as const)("registers and renders %s specialty guide", (slug, View, testId) => {
     const entry = getProductDocumentationEntry(slug);
 

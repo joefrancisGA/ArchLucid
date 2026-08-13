@@ -16,26 +16,6 @@ export const SETTINGS_HUB_CONTEXTUAL_HELP: PageContextualHelpEntry = {
 
 export const ADMINISTRATION_CONTEXTUAL_HELP_ROWS: readonly PageContextualHelpRow[] = [
   {
-    prefix: "/administration/system-health",
-    entry: {
-      whatIsThisPage:
-        "Confirm workspace service health, required dependencies, and deployment identity for this tenant.",
-      whatToDoNext:
-        "Refresh readiness, then open Connection status when a dependency needs follow-up.",
-      whyEmpty: "Health rows appear after the readiness probe returns for this workspace.",
-      whereToConfigurePrerequisite:
-        "Dependency connectivity is configured under Administration → Connection status.",
-      whatToDoNextAction: {
-        label: "Open Connection status",
-        href: "/administration/connection-status",
-      },
-      whereToConfigureAction: {
-        label: "Open Connection status",
-        href: "/administration/connection-status",
-      },
-    },
-  },
-  {
     prefix: "/administration/developer",
     entry: {
       whatIsThisPage:
@@ -138,32 +118,6 @@ export const ADMINISTRATION_CONTEXTUAL_HELP_ROWS: readonly PageContextualHelpRow
     },
   },
   {
-    prefix: "/administration/workspace-settings",
-    entry: {
-      whatIsThisPage:
-        "Tenant settings - configure workspace defaults, quality gates, cost settings, and tenant-wide options for this organization.",
-      whatToDoNext:
-        "Review workspace scope, adjust quality gates or cost settings when needed, then open Projects recycle bin to restore deleted architecture projects.",
-      whyEmpty:
-        "Cards always render for authorized Admins; empty technical scope values mean the workspace switcher has not selected a tenant, workspace, or project yet.",
-      whereToConfigurePrerequisite:
-        "Changing tenant defaults needs Admin authority; active workspace and project selection lives in the header workspace switcher.",
-    },
-  },
-  {
-    prefix: "/administration/workspace-settings/recycle-bin",
-    entry: {
-      whatIsThisPage:
-        "Projects recycle bin - browse soft-deleted architecture projects for this tenant and restore them when names are free.",
-      whatToDoNext:
-        "Refresh the list, restore a deleted project when you have Execute authority, then open Architectures or Tenant settings to continue work.",
-      whyEmpty:
-        "Empty means no soft-deleted projects remain in the retention window, or the recycle-bin API has not returned rows yet.",
-      whereToConfigurePrerequisite:
-        "Browsing needs Admin access; restore requires Execute authority. Retention and workspace scope live under Tenant settings.",
-    },
-  },
-  {
     prefix: "/administration/identity-providers/role-mapping",
     entry: {
       whatIsThisPage:
@@ -187,32 +141,6 @@ export const ADMINISTRATION_CONTEXTUAL_HELP_ROWS: readonly PageContextualHelpRow
         "Health and checklist panels appear after diagnostics APIs respond; empty strips mean probes have not loaded yet or the provider is not configured.",
       whereToConfigurePrerequisite:
         "Running diagnostics needs Admin authority and configured identity-provider endpoints; technical detail panels may require the internal admin workspace.",
-    },
-  },
-  {
-    prefix: "/administration/preferences",
-    entry: {
-      whatIsThisPage:
-        "Preferences - personal appearance settings saved to your ArchLucid account for this device and signed-in profile.",
-      whatToDoNext:
-        "Choose a theme, then open Sign-in methods when sign-in controls need attention or Getting started for onboarding.",
-      whyEmpty:
-        "Theme controls are ready whenever you are signed in; saved preferences sync after the preferences API responds.",
-      whereToConfigurePrerequisite:
-        "No Admin role is required - preferences write only your own account record.",
-    },
-  },
-  {
-    prefix: "/administration/notifications",
-    entry: {
-      whatIsThisPage:
-        "Notifications - channel launcher that shows delivery status for digests, in-product alerts, alert rules, Teams, and Slack.",
-      whatToDoNext:
-        "Review each channel card, then open the destination page to change subscriptions, rules, or webhook connections.",
-      whyEmpty:
-        "Status tags load from each channel's API; when a destination cannot be read here, configure it on that page.",
-      whereToConfigurePrerequisite:
-        "Digests, alert rules, Teams, and Slack each save settings on their own pages — this hub does not store a unified preference profile.",
     },
   },
   {
@@ -291,19 +219,6 @@ export const ADMINISTRATION_CONTEXTUAL_HELP_ROWS: readonly PageContextualHelpRow
         "Plan and usage cards appear after billing data loads for this tenant; wallet controls need Admin authority to mutate.",
       whereToConfigurePrerequisite:
         "Changing plans or payment methods needs a role that can manage workspace billing.",
-    },
-  },
-  {
-    prefix: "/administration/ai-usage",
-    entry: {
-      whatIsThisPage:
-        "AI usage and cost - monitor estimated AI spend, remaining budget, and the workflows driving cost for this workspace.",
-      whatToDoNext:
-        "Review KPIs and daily usage, then open Billing & plans when budget caps or plan changes are needed.",
-      whyEmpty:
-        "Spend cards appear after cost-reporting data loads; quiet empty periods hide zeroed cockpit noise until activity resumes.",
-      whereToConfigurePrerequisite:
-        "Budget edits need a role that can manage workspace billing; estimated spend is not invoice-accurate.",
     },
   },
 ];

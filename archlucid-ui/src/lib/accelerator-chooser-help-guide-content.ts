@@ -2,9 +2,10 @@ import {
   ACCELERATOR_CHOOSER_HELP_CLAIM_DISCIPLINE,
   ACCELERATOR_CHOOSER_HELP_CANONICAL_PATH,
 } from "@/lib/accelerator-chooser-help-evidence-copy";
+import { ACCELERATOR_CHOOSER_HELP_PAGE_TITLE } from "@/lib/accelerator-chooser-help-page-copy";
 import { inAppHelpHref } from "@/lib/product-documentation-registry";
 
-export const ACCELERATOR_CHOOSER_HELP_PAGE_TITLE = "Pick an accelerator pack";
+export { ACCELERATOR_CHOOSER_HELP_PAGE_TITLE };
 
 export const ACCELERATOR_CHOOSER_HELP_PAGE_SUBTITLE =
   "Map stakeholder scenarios to existing accelerator packs after your first finalized architecture review — inputs, outputs, and when not to use each pack.";

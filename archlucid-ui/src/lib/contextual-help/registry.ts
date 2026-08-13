@@ -18,14 +18,19 @@ import { DIGESTS_CONTEXTUAL_HELP_ROWS } from "@/lib/contextual-help/digests-rows
 import { GOVERNANCE_CONTEXTUAL_HELP_ROWS } from "@/lib/contextual-help/governance-rows";
 import { ARCHITECTURE_SCORECARD_CONTEXTUAL_HELP_ROWS } from "@/lib/contextual-help/architecture-scorecard-rows";
 import { CONNECTION_STATUS_CONTEXTUAL_HELP_ROWS } from "@/lib/contextual-help/connection-status-rows";
+import { NOTIFICATIONS_CONTEXTUAL_HELP_ROWS } from "@/lib/contextual-help/notifications-rows";
 import { PILOT_OUTCOMES_CONTEXTUAL_HELP_ROWS } from "@/lib/contextual-help/pilot-outcomes-rows";
+import { PREFERENCES_CONTEXTUAL_HELP_ROWS } from "@/lib/contextual-help/preferences-rows";
 import { RECURRENCE_SCHEDULES_CONTEXTUAL_HELP_ROWS } from "@/lib/contextual-help/recurrence-schedules-rows";
 import { ROI_SUMMARY_CONTEXTUAL_HELP_ROWS } from "@/lib/contextual-help/roi-summary-rows";
 import { SLACK_INTEGRATION_CONTEXTUAL_HELP_ROWS } from "@/lib/contextual-help/slack-integration-rows";
+import { STANDARDS_RULES_CONTEXTUAL_HELP_ROWS } from "@/lib/contextual-help/standards-rules-rows";
 import { TEAMS_INTEGRATION_CONTEXTUAL_HELP_ROWS } from "@/lib/contextual-help/teams-integration-rows";
 import { WEBHOOKS_INTEGRATION_CONTEXTUAL_HELP_ROWS } from "@/lib/contextual-help/webhooks-integration-rows";
-import { STANDARDS_RULES_CONTEXTUAL_HELP_ROWS } from "@/lib/contextual-help/standards-rules-rows";
+import { SYSTEM_HEALTH_CONTEXTUAL_HELP_ROWS } from "@/lib/contextual-help/system-health-rows";
+import { WORKSPACE_SETTINGS_CONTEXTUAL_HELP_ROWS } from "@/lib/contextual-help/workspace-settings-rows";
 import { HELP_TOPIC_CONTEXTUAL_HELP_ROWS } from "@/lib/contextual-help/help-topic-rows";
+import { AI_USAGE_CONTEXTUAL_HELP_ROWS } from "@/lib/contextual-help/ai-usage-rows";
 import { INSIGHTS_CONTEXTUAL_HELP_ROWS } from "@/lib/contextual-help/insights-rows";
 import { INTEGRATIONS_CONTEXTUAL_HELP_ROWS } from "@/lib/contextual-help/integrations-rows";
 import { INTERNAL_OPS_CONTEXTUAL_HELP_ROWS } from "@/lib/contextual-help/internal-ops-rows";
@@ -43,6 +48,7 @@ import { pathIsSettingsHubRoot } from "@/lib/settings-admin-route-paths";
 
 const PAGE_CONTEXTUAL_HELP: readonly PageContextualHelpRow[] = [
   ...ADMINISTRATION_CONTEXTUAL_HELP_ROWS,
+  ...AI_USAGE_CONTEXTUAL_HELP_ROWS,
   ...API_KEYS_CONTEXTUAL_HELP_ROWS,
   ...ARCHITECTURE_CONTEXTUAL_HELP_ROWS,
   ...BASELINE_SETTINGS_CONTEXTUAL_HELP_ROWS,
@@ -50,13 +56,17 @@ const PAGE_CONTEXTUAL_HELP: readonly PageContextualHelpRow[] = [
   ...GOVERNANCE_CONTEXTUAL_HELP_ROWS,
   ...ARCHITECTURE_SCORECARD_CONTEXTUAL_HELP_ROWS,
   ...CONNECTION_STATUS_CONTEXTUAL_HELP_ROWS,
+  ...NOTIFICATIONS_CONTEXTUAL_HELP_ROWS,
+  ...PREFERENCES_CONTEXTUAL_HELP_ROWS,
   ...PILOT_OUTCOMES_CONTEXTUAL_HELP_ROWS,
   ...RECURRENCE_SCHEDULES_CONTEXTUAL_HELP_ROWS,
   ...ROI_SUMMARY_CONTEXTUAL_HELP_ROWS,
   ...SLACK_INTEGRATION_CONTEXTUAL_HELP_ROWS,
+  ...SYSTEM_HEALTH_CONTEXTUAL_HELP_ROWS,
   ...STANDARDS_RULES_CONTEXTUAL_HELP_ROWS,
   ...TEAMS_INTEGRATION_CONTEXTUAL_HELP_ROWS,
   ...WEBHOOKS_INTEGRATION_CONTEXTUAL_HELP_ROWS,
+  ...WORKSPACE_SETTINGS_CONTEXTUAL_HELP_ROWS,
   ...HELP_TOPIC_CONTEXTUAL_HELP_ROWS,
   ...INSIGHTS_CONTEXTUAL_HELP_ROWS,
   ...INTEGRATIONS_CONTEXTUAL_HELP_ROWS,

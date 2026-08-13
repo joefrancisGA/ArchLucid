@@ -2,6 +2,7 @@
  * Customer-visible in-app documentation registry.
  * Source of truth: `docs/library/PRODUCT_DOCUMENTATION_PRESENTATION.md`.
  */
+import { ACCELERATOR_CHOOSER_HELP_PAGE_TITLE } from "@/lib/accelerator-chooser-help-page-copy";
 import { CUSTOMER_GLOSSARY_CONTRACT_VERSION } from "@/lib/customer-glossary-manifest";
 import { ENTERPRISE_ONBOARDING_HELP_PAGE_TITLE } from "@/lib/enterprise-onboarding-help-copy";
 import { FIRST_ARCHITECTURE_REVIEW_PAGE_TITLE } from "@/lib/first-architecture-review-help-copy";
@@ -443,7 +444,7 @@ const PRODUCT_DOCUMENTATION_REGISTRY_INPUT: readonly ProductDocumentationRegistr
   },
   {
     slug: "accelerator-chooser",
-    title: "Starter proof packs",
+    title: ACCELERATOR_CHOOSER_HELP_PAGE_TITLE,
     summary:
       "Map buyer jobs to existing accelerator packs after your first finalized architecture review — inputs, outputs, and when not to use each pack.",
     audience: "operator",
