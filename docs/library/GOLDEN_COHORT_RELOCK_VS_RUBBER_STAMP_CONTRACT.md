@@ -8,7 +8,7 @@
 **Buyer / PA one-pager:** [`BUYER_SECURITY_PROCUREMENT_PACKET.md`](../go-to-market/BUYER_SECURITY_PROCUREMENT_PACKET.md#golden-cohort-relock-vs-rubber-stamp-m-202) (GTM **M-201** / **M-202**).  
 **Path-stable alias:** [`GOLDEN_COHORT_RELOCK_VS_RUBBER_STAMP_PA_ONE_PAGER.md`](../go-to-market/GOLDEN_COHORT_RELOCK_VS_RUBBER_STAMP_PA_ONE_PAGER.md).  
 **Dual hasher surfaces:** [`MANIFEST_DUAL_HASHER_PROJECTION_EVOLUTION_CONTRACT.md`](MANIFEST_DUAL_HASHER_PROJECTION_EVOLUTION_CONTRACT.md) (**TB-1156** **Done**).  
-**Anti-rubber-stamp CI:** **TB-1173** (open). **Operator runbook:** [`tests/golden-cohort/README.md`](../../tests/golden-cohort/README.md).
+**Anti-rubber-stamp CI:** **TB-1173** (shipped — `scripts/ci/check_golden_cohort_relock_rubber_stamp_honesty.py`; Vitest `archlucid-ui/src/lib/golden-cohort-relock-honesty.test.ts`). **Operator runbook:** [`tests/golden-cohort/README.md`](../../tests/golden-cohort/README.md).
 
 ---
 
@@ -80,11 +80,12 @@ Intentional Simulator content re-lock with recorded rationale is **allowed** (ex
 
 ---
 
-## TB-1173 CI anchors (named, not implemented here)
+## TB-1173 CI anchors (shipped)
 
 | Anchor | Purpose |
 |--------|---------|
-| `tests/golden-cohort/cohort.json` mass SHA diff detector | Fail PRs changing ≥50% of expected SHAs without rationale file/section |
+| `scripts/ci/check_golden_cohort_relock_rubber_stamp_honesty.py` | Buyer-doc guard for rubber-stamp / cohort-heals-ManifestHash claims |
+| `tests/golden-cohort/cohort.json` mass SHA diff detector | Fail PRs changing ≥50% of expected SHAs without rationale file/section (future tighten) |
 | `scripts/ci/assert_golden_cohort_baseline_locked.py` | Merge-blocking when `BASELINE_LOCKED=true`; optional remove `continue-on-error` |
 | `GOLDEN_COHORT_RELOCK_VS_RUBBER_STAMP_CONTRACT.md` or README lock table | Required citation for mass re-lock PRs |
 | Buyer/proof stub guards | Fail “cohort re-lock healed ManifestHash” / unexplained mass rewrite as proof |

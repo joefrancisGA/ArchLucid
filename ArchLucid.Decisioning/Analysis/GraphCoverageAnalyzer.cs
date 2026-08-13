@@ -14,6 +14,8 @@ public class GraphCoverageAnalyzer : IGraphCoverageAnalyzer
             .Distinct(StringComparer.OrdinalIgnoreCase)
             .ToList();
 
+        IReadOnlyList<string> expectedCategories = TopologyExpectedCategoryResolver.ResolveExpectedCategories(graphSnapshot);
+
         TopologyCoverageResult result = new()
         {
             HasNetwork =
@@ -28,21 +30,18 @@ public class GraphCoverageAnalyzer : IGraphCoverageAnalyzer
             HasData =
                 categories.Exists(x => x.Equals(GraphTopologyCategories.Data, StringComparison.OrdinalIgnoreCase)),
             PresentCategories = categories,
+            ExpectedCategories = [.. expectedCategories],
             TopologyNodeCount = topologyNodes.Count,
             TopologyNodeIds = topologyNodes.Select(n => n.NodeId).ToList()
         };
 
-        if (!result.HasNetwork)
-            result.MissingCategories.Add(GraphTopologyCategories.Network);
+        foreach (string expected in expectedCategories)
+        {
+            if (categories.Exists(c => c.Equals(expected, StringComparison.OrdinalIgnoreCase)))
+                continue;
 
-        if (!result.HasCompute)
-            result.MissingCategories.Add(GraphTopologyCategories.Compute);
-
-        if (!result.HasStorage)
-            result.MissingCategories.Add(GraphTopologyCategories.Storage);
-
-        if (!result.HasData)
-            result.MissingCategories.Add(GraphTopologyCategories.Data);
+            result.MissingCategories.Add(expected);
+        }
 
         return result;
     }

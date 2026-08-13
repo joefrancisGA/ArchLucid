@@ -3,6 +3,7 @@
 import { cn } from "@/lib/utils";
 import { useState } from "react";
 import { GettingStartedSteps } from "@/components/GettingStartedSteps";
+import { FieldHelpTooltip } from "@/components/FieldHelpTooltip";
 import { OperatorSegmentedModeToolbar } from "@/components/advisory/OperatorSegmentedModeToolbar";
 import { OperatorToolingWorkbenchPanels } from "@/components/advisory/OperatorToolingWorkbenchPanels";
 import { OperatorApiProblem } from "@/components/operator/OperatorApiProblem";
@@ -117,6 +118,32 @@ function resolveSimpleSimulationReadiness(
       ? null
       : whyDisabledIncompleteInput(ALERT_SIMULATION_READINESS_RECENT_COUNT),
   ]);
+}
+
+function AlertSimulationRunButton(props: {
+  readonly testId: string;
+  readonly onClick: () => void;
+  readonly disabled: boolean;
+  readonly busy: boolean;
+  readonly label: string;
+  readonly readinessHintId?: string;
+}): React.JSX.Element {
+  return (
+    <div className="inline-flex items-center gap-1 justify-self-start">
+      <Button
+        type="button"
+        variant="primary"
+        size="sm"
+        data-testid={props.testId}
+        onClick={props.onClick}
+        disabled={props.disabled}
+        aria-describedby={props.readinessHintId}
+      >
+        {props.busy ? "Running…" : props.label}
+      </Button>
+      <FieldHelpTooltip label={props.label} hint={alertSimulationRunControlTitle} />
+    </div>
+  );
 }
 
 function OutcomeTable({ outcomes }: { outcomes: SimulatedAlertOutcome[] }) {
@@ -593,21 +620,14 @@ export function AlertSimulationContent() {
               testId="alert-simulation-simple-readiness"
               reason={simpleFormValid ? null : simpleSimulationReadiness}
             />
-            <Button
-              type="button"
-              variant="primary"
-              size="sm"
-              data-testid="alert-simulation-simple-submit"
+            <AlertSimulationRunButton
+              testId="alert-simulation-simple-submit"
               onClick={() => void runSimple()}
               disabled={loading || !simpleFormValid}
-              title={alertSimulationRunControlTitle}
-              aria-describedby={
-                simpleFormValid ? undefined : "alert-simulation-simple-readiness"
-              }
-              className="justify-self-start"
-            >
-              {loading ? "Running…" : "Simulate"}
-            </Button>
+              busy={loading}
+              label="Simulate"
+              readinessHintId={simpleFormValid ? undefined : "alert-simulation-simple-readiness"}
+            />
             </>
           }
           behavior={
@@ -816,18 +836,13 @@ export function AlertSimulationContent() {
                 {ALERT_SIMULATION_PROJECT_SLUG_HELPER}
               </span>
             </div>
-            <Button
-              type="button"
-              variant="primary"
-              size="sm"
-              data-testid="alert-simulation-composite-submit"
+            <AlertSimulationRunButton
+              testId="alert-simulation-composite-submit"
               onClick={() => void runComposite()}
               disabled={loading}
-              title={alertSimulationRunControlTitle}
-              className="justify-self-start"
-            >
-              {loading ? "Running…" : "Simulate"}
-            </Button>
+              busy={loading}
+              label="Simulate"
+            />
             </>
           }
           behavior={
@@ -941,18 +956,13 @@ export function AlertSimulationContent() {
                 {ALERT_SIMULATION_PROJECT_SLUG_HELPER}
               </span>
             </div>
-            <Button
-              type="button"
-              variant="primary"
-              size="sm"
-              data-testid="alert-simulation-compare-submit"
+            <AlertSimulationRunButton
+              testId="alert-simulation-compare-submit"
               onClick={() => void runCompare()}
               disabled={loading}
-              title={alertSimulationRunControlTitle}
-              className="justify-self-start"
-            >
-              {loading ? "Running…" : "Compare candidates"}
-            </Button>
+              busy={loading}
+              label="Compare candidates"
+            />
             </>
           }
           behavior={

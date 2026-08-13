@@ -9,10 +9,10 @@ import { OPERATOR_TYPOGRAPHY } from "@/lib/design-tokens";
 import Link from "next/link";
 
 import { Button } from "@/components/ui/button";
-import {
-  GOVERNANCE_OVERVIEW_QUICKSTART_CHECKLIST_HEADING,
-  GOVERNANCE_OVERVIEW_QUICKSTART_CHECKLIST_LEAD,
-} from "@/lib/governance/governance-overview-copy";
+
+const GOVERNANCE_QUICKSTART_CHECKLIST_HEADING = "First-time approval checklist";
+const GOVERNANCE_QUICKSTART_CHECKLIST_LEAD =
+  "Use this sequence the first time you move a finalized review record through approval. Skipping steps is fine once your team knows the rhythm.";
 
 type GovernanceInteractiveQuickstartContentProps = {
   /** Hide the First 30 days onboarding link (buyer-polished workflow surface). */
@@ -29,10 +29,10 @@ export function GovernanceInteractiveQuickstartContent({
     <div className={cn("space-y-3", className)} data-testid="governance-interactive-quickstart">
       <div>
         <p className={cn("m-0 font-medium text-neutral-900 dark:text-neutral-100", OPERATOR_TYPOGRAPHY.body)}>
-          {GOVERNANCE_OVERVIEW_QUICKSTART_CHECKLIST_HEADING}
+          {GOVERNANCE_QUICKSTART_CHECKLIST_HEADING}
         </p>
         <p className={cn("m-0 mt-1 text-neutral-600 dark:text-neutral-400", OPERATOR_TYPOGRAPHY.helper)}>
-          {GOVERNANCE_OVERVIEW_QUICKSTART_CHECKLIST_LEAD}
+          {GOVERNANCE_QUICKSTART_CHECKLIST_LEAD}
         </p>
       </div>
       <ol className={cn("m-0 list-decimal space-y-2 pl-5 text-neutral-800 dark:text-neutral-200", OPERATOR_TYPOGRAPHY.body)}>

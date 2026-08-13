@@ -4,14 +4,29 @@ import { cn } from "@/lib/utils";
 
 export type RecurrenceLocalTimeDisplayProps = {
   readonly summary: RecurrenceLocalTimeSummary;
+  /** When set, overrides derived UTC cadence (preset authored copy). */
+  readonly authoredUtcCadence?: string;
   readonly primaryTestId?: string;
   readonly secondaryTestId?: string;
+  readonly offsetBasisTestId?: string;
   readonly className?: string;
 };
 
 /** Local-first cadence/instant lines with UTC as secondary technical detail (TB-2210). */
 export function RecurrenceLocalTimeDisplay(props: RecurrenceLocalTimeDisplayProps) {
-  const { summary, primaryTestId, secondaryTestId, className } = props;
+  const {
+    summary,
+    authoredUtcCadence,
+    primaryTestId,
+    secondaryTestId,
+    offsetBasisTestId,
+    className,
+  } = props;
+  // A UTC display zone leaves `utcSecondary` empty on purpose, because `localPrimary` already states
+  // the cadence in UTC. The authored override must not resurrect the line there, or the same cadence
+  // prints twice — once as the primary and again under the "Server schedule (UTC)" helper.
+  const utcLine = summary.utcSecondary.trim().length > 0 ? (authoredUtcCadence ?? summary.utcSecondary) : "";
+  const offsetBasis = summary.localOffsetBasis?.trim() ?? "";
 
   return (
     <div className={cn("space-y-0.5", className)}>
@@ -21,12 +36,20 @@ export function RecurrenceLocalTimeDisplay(props: RecurrenceLocalTimeDisplayProp
       >
         {summary.localPrimary}
       </p>
-      {summary.utcSecondary.trim().length > 0 ? (
+      {offsetBasis.length > 0 ? (
+        <p
+          className={cn("m-0 text-neutral-600 dark:text-neutral-400", OPERATOR_TYPOGRAPHY.helper)}
+          data-testid={offsetBasisTestId}
+        >
+          {offsetBasis}
+        </p>
+      ) : null}
+      {utcLine.trim().length > 0 ? (
         <p
           className={cn("m-0 text-neutral-600 dark:text-neutral-400", OPERATOR_TYPOGRAPHY.helper)}
           data-testid={secondaryTestId}
         >
-          Server schedule (UTC): {summary.utcSecondary}
+          Server schedule (UTC): {utcLine}
         </p>
       ) : null}
     </div>

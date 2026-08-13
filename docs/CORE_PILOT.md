@@ -1,4 +1,4 @@
-> **Scope:** First architecture review — shortest path from starting a new review to a finalized architecture package with findings, evidence, and sponsor exports. Absorbs the former first-hour / first-review guide body (`FIRST_HOUR_OPERATOR_PATH.md`) and the former complete review workflow body (`COMPLETE_REVIEW_WORKFLOW.md`).
+> **Scope:** First architecture review — shortest path from starting a new review to a finalized architecture package with findings, evidence, and sponsor exports. Consolidates the first-review guide and complete review workflow bodies (`FIRST_HOUR_OPERATOR_PATH.md` and `COMPLETE_REVIEW_WORKFLOW.md` remain path-stable contributor aliases).
 
 # Your first architecture review
 
@@ -26,7 +26,7 @@ Start with evidence, run the review, finalize the architecture package, then sha
 
 ## Complete review lifecycle {#complete-review-workflow}
 
-Former complete review workflow depth for teams that need the full create → evidence → findings → decisions → finalize → export path (filename `COMPLETE_REVIEW_WORKFLOW.md` remains a path-stable alias).
+Former complete review workflow depth for teams that need the full create → evidence → findings → decisions → finalize → export path (`COMPLETE_REVIEW_WORKFLOW.md` remains a path-stable contributor alias).
 
 ArchLucid turns architecture evidence into a review with findings, decisions, evidence traceability, and export-ready artifacts.
 
@@ -109,7 +109,7 @@ Recommended when connector access has not yet been approved, or when your first 
 
 ## What good looks like {#what-good-looks-like}
 
-Former first-hour guide success signals for a first session:
+Success signals for a first session:
 
 - The architecture review has clear findings.
 - Important findings trace to evidence.

@@ -1,6 +1,10 @@
 /**
  * Operator-facing copy for synthesized artifact types (ArchLucid.ArtifactSynthesis.Models.ArtifactType).
  */
+import {
+  EXECUTIVE_BRIEFING_LABEL,
+} from "@/lib/usability/canonical-product-terms";
+
 const ARTIFACT_TYPE_COPY: Record<string, { label: string; description: string }> = {
   ReferenceArchitectureMarkdown: {
     label: "Reference architecture (Markdown)",
@@ -132,7 +136,7 @@ export function getArtifactTypeLabel(artifactType: string): string {
  * Maps technical artifact types to sponsor-readable names.
  */
 const ARTIFACT_BUSINESS_LABELS: Record<string, string> = {
-  MarkdownReport: "Sponsor briefing",
+  MarkdownReport: EXECUTIVE_BRIEFING_LABEL,
   JsonBundle: "Architecture decision record",
   Diagram: "Intake context diagram",
   MermaidDiagram: "Intake context diagram",
@@ -196,8 +200,8 @@ export function sponsorArtifactAudienceLine(artifactType: string): string | null
   const normalizedType = artifactType.trim();
 
   const lineByType: Record<string, string> = {
-    MarkdownReport: "Used by sponsor — executive readout and sign-off context.",
-    ArchitectureNarrative: "Used by sponsor — plain-language summary for stakeholders.",
+    MarkdownReport: "Used by executives — readout and sign-off context.",
+    ArchitectureNarrative: "Used by executives — plain-language summary for stakeholders.",
     JsonBundle: "Used by architects — decision record, traceability, and handoffs.",
     DiagramAst: "Used by architects — machine-readable structure for diagrams and tooling.",
     MermaidDiagram:
@@ -208,7 +212,7 @@ export function sponsorArtifactAudienceLine(artifactType: string): string | null
     ComplianceMatrix: "Used for audit — control coverage versus the review posture.",
     CoverageSummary: "Used for audit — coverage signals tied to requirements or controls.",
     EvidenceBundle: "Used for audit — traceability and evidence exports.",
-    UnresolvedIssuesReport: "Used by sponsor — open checklist items before finalize.",
+    UnresolvedIssuesReport: "Used by executives — open checklist items before finalize.",
     ReferenceArchitectureMarkdown: "Used by architects — narrative reference for build-out and review.",
   };
 
@@ -262,7 +266,7 @@ export function sponsorArtifactOpenActionLabel(artifactType: string): string {
   const normalizedType = artifactType.trim();
 
   const map: Record<string, string> = {
-    MarkdownReport: "Open sponsor brief",
+    MarkdownReport: "Open executive briefing",
     ArchitectureNarrative: "Open architecture narrative",
     JsonBundle: "Open decision record",
     EvidenceBundle: "Open audit evidence",
@@ -285,7 +289,7 @@ export function sponsorArtifactDownloadActionLabel(artifactType: string): string
   const normalizedType = artifactType.trim();
 
   const map: Record<string, string> = {
-    MarkdownReport: "Download sponsor brief",
+    MarkdownReport: "Download executive briefing",
     ArchitectureNarrative: "Download narrative",
     JsonBundle: "Download decision record",
     EvidenceBundle: "Download audit evidence",
@@ -316,12 +320,12 @@ const AUDIENCE_SECTION_COPY: Record<
   { readonly title: string; readonly lead: string }
 > = {
   sponsor: {
-    title: "Executive & sponsor",
-    lead: "Outputs sponsors use for sign-off, briefing leadership, and readiness checkpoints.",
+    title: "Executive briefing",
+    lead: "Outputs executives use for sign-off, briefing leadership, and readiness checkpoints.",
   },
   shared: {
-    title: "Sponsor & architecture",
-    lead: "Deliverables shared across sponsor and architecture reviewers.",
+    title: "Executive & architecture",
+    lead: "Deliverables shared across executive and architecture reviewers.",
   },
   architects: {
     title: "Architecture review board",
@@ -346,11 +350,11 @@ export function sponsorArtifactAudienceBucket(artifactType: string): SponsorArti
   }
 
   const line = raw.toLowerCase();
-  const mentionsSponsor = line.includes("sponsor");
+  const mentionsExecutiveAudience = line.includes("sponsor") || line.includes("executive");
   const mentionsArchitect = line.includes("architect");
   const mentionsAudit = line.includes("audit") || line.includes("compliance");
 
-  const topicHits = [mentionsSponsor, mentionsArchitect, mentionsAudit].filter(Boolean).length;
+  const topicHits = [mentionsExecutiveAudience, mentionsArchitect, mentionsAudit].filter(Boolean).length;
 
   if (topicHits >= 2) {
     return "shared";
@@ -364,7 +368,7 @@ export function sponsorArtifactAudienceBucket(artifactType: string): SponsorArti
     return "architects";
   }
 
-  if (mentionsSponsor) {
+  if (mentionsExecutiveAudience) {
     return "sponsor";
   }
 

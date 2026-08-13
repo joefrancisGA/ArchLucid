@@ -10,7 +10,7 @@ describe("executive-workspace-health-page-copy", () => {
   it("uses buyer-facing titles without numbered KPI prefixes", () => {
     expect(executiveWorkspaceHealthPageTitle(true)).toBe("Workspace overview");
     expect(executiveWorkspaceHealthPageLead(true)).toContain("Governance posture at a glance");
-    expect(executiveWorkspaceHealthKpiTitle("preCommitOutcomes", true)).toBe("Pre-commit outcomes (30 days)");
+    expect(executiveWorkspaceHealthKpiTitle("preCommitOutcomes", true)).toBe("Approval gate outcomes (30 days)");
     expect(executiveWorkspaceHealthKpiTitle("highCriticalExposure", true)).toBe("High / Critical exposure (90 days)");
     expect(executiveWorkspaceHealthKpiTitle("complianceDrift", true)).not.toMatch(/^\d+\./);
   });

@@ -2,6 +2,7 @@
 import { cn } from "@/lib/utils";
 import { OPERATOR_TYPOGRAPHY } from "@/lib/design-tokens";
 
+import { FieldHelpTooltip } from "@/components/FieldHelpTooltip";
 import { useIsLiveApiActive } from "@/hooks/useIsLiveApiActive";
 import {
   BUYER_CTO_DEMO_DATA_SOURCE_LIVE_LABEL,
@@ -40,29 +41,41 @@ export function CtoDemoSimulatorTrustBadge(props: CtoDemoSimulatorTrustBadgeProp
   if (isLiveApi) {
     return (
       <span
-        className={cn("inline-flex items-center gap-1 rounded-full border border-teal-200 bg-teal-50 px-2 py-0.5 font-medium text-teal-900 dark:border-teal-900/50 dark:bg-teal-950/40 dark:text-teal-100", OPERATOR_TYPOGRAPHY.helper,
-          OPERATOR_TYPOGRAPHY.badge,
-          className,
-        )}
+        className={cn("inline-flex items-center gap-1", className)}
         data-testid="cto-demo-simulator-trust-badge-live"
-        title="Live API — findings were produced against the connected backend."
       >
-        <span aria-hidden className="inline-block h-1.5 w-1.5 rounded-full bg-teal-600 dark:bg-teal-400" />
-        {BUYER_CTO_DEMO_DATA_SOURCE_LIVE_LABEL}
+        <span
+          className={cn("inline-flex items-center gap-1 rounded-full border border-teal-200 bg-teal-50 px-2 py-0.5 font-medium text-teal-900 dark:border-teal-900/50 dark:bg-teal-950/40 dark:text-teal-100", OPERATOR_TYPOGRAPHY.helper,
+            OPERATOR_TYPOGRAPHY.badge,
+          )}
+        >
+          <span aria-hidden className="inline-block h-1.5 w-1.5 rounded-full bg-teal-600 dark:bg-teal-400" />
+          {BUYER_CTO_DEMO_DATA_SOURCE_LIVE_LABEL}
+        </span>
+        <FieldHelpTooltip
+          label="Live data source"
+          hint="Live API — findings were produced against the connected backend."
+        />
       </span>
     );
   }
 
   return (
     <span
-      className={cn("inline-flex items-center gap-1 rounded-full border border-neutral-200 bg-neutral-50 px-2 py-0.5 font-medium text-neutral-700 dark:border-neutral-700 dark:bg-neutral-900 dark:text-neutral-300", OPERATOR_TYPOGRAPHY.helper,
-        OPERATOR_TYPOGRAPHY.badge,
-        className,
-      )}
+      className={cn("inline-flex items-center gap-1", className)}
       data-testid="cto-demo-simulator-trust-badge"
-      title={BUYER_SIMULATOR_TRUST_BADGE_TOOLTIP}
     >
-      {BUYER_SIMULATOR_TRUST_BADGE_LABEL}
+      <span
+        className={cn("inline-flex items-center gap-1 rounded-full border border-neutral-200 bg-neutral-50 px-2 py-0.5 font-medium text-neutral-700 dark:border-neutral-700 dark:bg-neutral-900 dark:text-neutral-300", OPERATOR_TYPOGRAPHY.helper,
+          OPERATOR_TYPOGRAPHY.badge,
+        )}
+      >
+        {BUYER_SIMULATOR_TRUST_BADGE_LABEL}
+      </span>
+      <FieldHelpTooltip
+        label="Rule-based analysis"
+        hint={BUYER_SIMULATOR_TRUST_BADGE_TOOLTIP}
+      />
     </span>
   );
 }

@@ -39,7 +39,7 @@ export type OperatorPrimaryCtaInventoryEntry = {
 export const OPERATOR_PRIMARY_CTA_INVENTORY: readonly OperatorPrimaryCtaInventoryEntry[] = [
   {
     id: "digests-browse",
-    pathOrSurface: "/architecture/digests?tab=browse",
+    pathOrSurface: "/architecture/digests?tab=get-started",
     pattern: "header-create-always",
     primaryTestId: "digests-primary-action",
     componentOrModule: "components/digests/DigestsHubClient.tsx",
@@ -106,8 +106,9 @@ export const OPERATOR_PRIMARY_CTA_INVENTORY: readonly OperatorPrimaryCtaInventor
     pattern: "header-create-always",
     primaryTestId: "architectures-page-create",
     componentOrModule: "app/(operator)/architecture/architectures/_sections/ArchitecturesHubHeaderActions.tsx",
-    status: "coordinate",
-    notes: "Coordinate **TB-1446** — confirm sole header Create; do not duplicate migration work.",
+    status: "verified",
+    notes:
+      "Sole header Create confirmed (**TB-1446**). ADR 0067 keeps this row verified in lockstep with `reviews-hub` so neither co-equal path is audited while the other is not.",
   },
 ] as const;
 

@@ -1,6 +1,7 @@
 import { fireEvent, render, screen } from "@testing-library/react";
 import { describe, expect, it, vi } from "vitest";
 
+import { OPERATOR_HOME_ARCHITECTURE_LIFECYCLE_INTRO_LABEL } from "@/lib/buyer/buyer-polish-copy";
 import { operatorHomePageSubtitle } from "@/lib/operator/operator-home-page-copy";
 
 vi.mock("next/navigation", () => ({
@@ -9,6 +10,7 @@ vi.mock("next/navigation", () => ({
 
 vi.mock("@/components/usability/PageContextualHelpButton", () => ({
   PageContextualHelpButton: () => <div data-testid="page-contextual-help-button" />,
+  PAGE_HELP_SHORT_TRIGGER_TEXT: "Help",
 }));
 
 const requestRefresh = vi.fn();
@@ -47,10 +49,11 @@ describe("OperatorHomePageHeader", () => {
     expect(requestRefresh).toHaveBeenCalledTimes(1);
   });
 
-  it("bolds One lifecycle: on the buyer-polished Home lead", () => {
+  // ADR 0067 — the lead names two co-equal ways in; it must not number or rank the paths.
+  it("bolds the co-equal lead label on the buyer-polished Home lead", () => {
     render(<OperatorHomePageHeader subtitle={operatorHomePageSubtitle(true)} />);
 
-    const label = screen.getByText("One lifecycle:");
+    const label = screen.getByText(OPERATOR_HOME_ARCHITECTURE_LIFECYCLE_INTRO_LABEL);
     expect(label.tagName).toBe("STRONG");
     expect(label.className).toContain("font-bold");
     expect(screen.getByTestId("operator-home-page-subtitle")).toHaveTextContent(

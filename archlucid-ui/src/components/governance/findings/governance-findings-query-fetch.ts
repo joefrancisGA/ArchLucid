@@ -66,6 +66,20 @@ export async function fetchGovernanceFindingQueueRows(
   }
 }
 
+export async function fetchAssignedToMeFindingQueueRows(): Promise<GovernanceFindingsFetchResult> {
+  try {
+    const riskRegister = await getArchitectureRiskRegister({ assignedToMe: true });
+    const registerRows = dedupeGovernanceFindingRows(riskRegisterRows(riskRegister.entries ?? []));
+
+    return { rows: registerRows, loadFailed: false };
+  } catch {
+    return {
+      rows: [],
+      loadFailed: true,
+    };
+  }
+}
+
 export async function collectTraceRowsWithConcurrencyCap(
   runs: readonly RunSummary[],
   maxConcurrent: number = GOVERNANCE_FINDINGS_FALLBACK_MAX_CONCURRENT,

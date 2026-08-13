@@ -20,6 +20,9 @@ import {
   CORE_PILOT_HELP_SUMMARY_TITLE,
 } from "@/lib/core-pilot-help-guide-content";
 import { CORE_PILOT_HELP_CLAIM_DISCIPLINE } from "@/lib/core-pilot-help-evidence-copy";
+import { FIRST_ARCHITECTURE_REVIEW_HELP_PATH } from "@/lib/first-architecture-review-help-route";
+import { firstArchitectureReviewHelpCopyContainsBannedPattern } from "@/lib/first-architecture-review-help-banned-copy";
+import { resolveHelpTopicPermanentRedirect } from "@/lib/help/help-topic-permanent-redirects";
 import { getProductDocumentationEntry } from "@/lib/product-documentation-registry";
 
 const BANNED_INTERNAL_COPY = [
@@ -81,6 +84,17 @@ describe("HelpCorePilotGuideView", () => {
     expect(screen.queryByText(/core[- ]?pilot/i)).toBeNull();
     expect(screen.queryByTestId("help-topic-registry-provenance")).toBeNull();
     expect(screen.queryByTestId("help-topic-registry-provenance")).toBeNull();
+  });
+
+  it("renders TB-1379 specialty companion root with primary Start CTA in first viewport", () => {
+    if (entry === undefined) {
+      throw new Error("Expected first-architecture-review documentation entry.");
+    }
+
+    render(<HelpCorePilotGuideView entry={entry} />);
+
+    expect(screen.getByTestId("help-core-pilot-guide")).toBeInTheDocument();
+    expect(screen.getByTestId("core-pilot-primary-start-cta")).toHaveAttribute("href", "/architecture/reviews/new");
   });
 
   it("renders the guided first-review path near the top", () => {
@@ -432,5 +446,33 @@ describe("HelpCorePilotGuideView", () => {
       "href",
       "#run-the-first-review",
     );
+  });
+
+  it("TB-1375: purges Pilot-first and operator-path jargon from rendered customer chrome", () => {
+    if (entry === undefined) {
+      throw new Error("Expected first-architecture-review documentation entry.");
+    }
+
+    const { container } = render(<HelpCorePilotGuideView entry={entry} />);
+    const visible = container.textContent ?? "";
+
+    expect(firstArchitectureReviewHelpCopyContainsBannedPattern(visible)).toEqual([]);
+    expect(visible.toLowerCase()).not.toContain("operator orientation");
+    expect(screen.getByRole("heading", { level: 2, name: "Before you share externally" })).toBeInTheDocument();
+  });
+
+  it("canonicalizes first-hour-operator-path into specialty first-review chrome (TB-1374)", () => {
+    expect(resolveHelpTopicPermanentRedirect("first-hour-operator-path")).toBe(FIRST_ARCHITECTURE_REVIEW_HELP_PATH);
+    expect(getProductDocumentationEntry("first-hour-operator-path")).toBeNull();
+
+    if (entry === undefined) {
+      throw new Error("Expected first-architecture-review documentation entry.");
+    }
+
+    render(<HelpCorePilotGuideView entry={entry} />);
+
+    expect(screen.getByTestId("core-pilot-first-viewport")).toBeInTheDocument();
+    expect(screen.getByTestId("core-pilot-primary-start-cta")).toHaveTextContent(BUYER_START_ARCHITECTURE_REVIEW_CTA);
+    expect(screen.queryByTestId("help-topic-print-button")).toBeNull();
   });
 });

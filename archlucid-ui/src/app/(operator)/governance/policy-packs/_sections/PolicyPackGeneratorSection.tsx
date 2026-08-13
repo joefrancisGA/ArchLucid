@@ -5,7 +5,6 @@ import { useState } from "react";
 
 import { Button } from "@/components/ui/button";
 import { Input } from "@/components/ui/input";
-import { enterpriseMutationControlDisabledTitle } from "@/lib/enterprise-controls-context-copy";
 import type { CuratedRulesDocument } from "@/lib/policy/policy-pack-curated-rules-v1";
 import { DESIGN_TOKENS, OPERATOR_TYPOGRAPHY } from "@/lib/design-tokens";
 
@@ -107,7 +106,7 @@ export function PolicyPackGeneratorSection(props: PolicyPackGeneratorSectionProp
                 value={name}
                 onChange={(event) => onNameChange(event.target.value)}
                 readOnly={!canMutatePacks}
-                title={canMutatePacks ? undefined : enterpriseMutationControlDisabledTitle}
+                aria-describedby={!canMutatePacks ? "policy-pack-generator-mutate-disabled-hint" : undefined}
                 data-testid="policy-pack-generator-name"
               />
             </label>
@@ -117,7 +116,7 @@ export function PolicyPackGeneratorSection(props: PolicyPackGeneratorSectionProp
                 value={packType}
                 onChange={(event) => onPackTypeChange(event.target.value)}
                 disabled={!canMutatePacks}
-                title={canMutatePacks ? undefined : enterpriseMutationControlDisabledTitle}
+                aria-describedby={!canMutatePacks ? "policy-pack-generator-mutate-disabled-hint" : undefined}
                 className={cn(
                   "block w-full rounded-md border border-neutral-300 bg-white p-2 dark:border-neutral-700 dark:bg-neutral-950",
                   OPERATOR_TYPOGRAPHY.body,
@@ -139,7 +138,7 @@ export function PolicyPackGeneratorSection(props: PolicyPackGeneratorSectionProp
               value={description}
               onChange={(event) => onDescriptionChange(event.target.value)}
               readOnly={!canMutatePacks}
-              title={canMutatePacks ? undefined : enterpriseMutationControlDisabledTitle}
+              aria-describedby={!canMutatePacks ? "policy-pack-generator-mutate-disabled-hint" : undefined}
               data-testid="policy-pack-generator-description"
             />
           </label>

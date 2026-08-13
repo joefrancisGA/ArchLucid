@@ -41,7 +41,31 @@ export function operatorFreshnessMetadataLabel(args: OperatorFreshnessMetadataAr
   return `${args.prefix}: ${operatorLastRefreshedLabel(args.lastRefreshedAt)}`;
 }
 
-/** Exact timestamp for a `title` tooltip; `undefined` keeps the attribute off the DOM. */
+/**
+ * Freshness metadata with a visible clock parenthetical so operators do not rely on a
+ * mouse-only `title` tooltip for the absolute timestamp (TB-2147).
+ */
+export function operatorFreshnessMetadataWithClockLabel(
+  args: OperatorFreshnessMetadataArgs,
+): string {
+  if (args.refreshingLabel !== null) {
+    return args.refreshingLabel;
+  }
+
+  if (args.lastRefreshedAt === null || args.lastRefreshedAt === undefined) {
+    return OPERATOR_NOT_REFRESHED_LABEL;
+  }
+
+  const clockLabel = operatorLastRefreshedClockLabel(args.lastRefreshedAt);
+
+  if (clockLabel === null) {
+    return `${args.prefix}: ${operatorLastRefreshedLabel(args.lastRefreshedAt)}`;
+  }
+
+  return `${args.prefix}: ${operatorLastRefreshedLabel(args.lastRefreshedAt)} (${clockLabel})`;
+}
+
+/** Exact locale timestamp string for visible clock parentheticals and `<time>` labels. */
 export function operatorLastRefreshedExactLabel(
   lastRefreshedAt: Date | null | undefined,
 ): string | undefined {

@@ -4,6 +4,7 @@ import { cn } from "@/lib/utils";
 import { OPERATOR_TYPOGRAPHY } from "@/lib/design-tokens";
 import { AgentEvidenceFaithfulnessBadge } from "@/components/AgentEvidenceFaithfulnessBadge";
 import { CollapsibleSection } from "@/components/CollapsibleSection";
+import { FieldHelpTooltip } from "@/components/FieldHelpTooltip";
 import { OperatorApiProblem } from "@/components/operator/OperatorApiProblem";
 import {
   EnterpriseTable,
@@ -80,7 +81,16 @@ const llmRubricColumnTooltip =
 
 const notesPreviewMax = 72;
 
-function notesPreview(full: string | null | undefined): { text: string; title?: string } {
+function ForensicsTableHeaderLabel(props: { readonly label: string; readonly hint: string }): React.JSX.Element {
+  return (
+    <span className="inline-flex items-center gap-1">
+      <span>{props.label}</span>
+      <FieldHelpTooltip label={props.label} hint={props.hint} />
+    </span>
+  );
+}
+
+function notesPreview(full: string | null | undefined): { text: string } {
   const s = full?.trim() ?? "";
 
   if (s.length === 0)
@@ -89,7 +99,7 @@ function notesPreview(full: string | null | undefined): { text: string; title?: 
   if (s.length <= notesPreviewMax)
     return { text: s };
 
-  return { text: `${s.slice(0, notesPreviewMax)}…`, title: s };
+  return { text: `${s.slice(0, notesPreviewMax)}…` };
 }
 
 function averageEvidenceGroundingRatio(scores: AgentOutputEvaluationScoreRow[] | undefined): number | null {
@@ -137,25 +147,18 @@ function EvaluationSummaryFooter(props: {
       perspective.averageSemanticScore !== undefined ? (
         <>
           {" "}
-          ·{" "}
-          <span
-            className="cursor-help underline decoration-dotted decoration-neutral-400"
-            title={semanticOverallTooltip}
-          >
-            avg semantic: {perspective.averageSemanticScore.toFixed(2)}
-          </span>
+          · avg semantic: {perspective.averageSemanticScore.toFixed(2)}
+          <FieldHelpTooltip label="Average semantic score" hint={semanticOverallTooltip} />
         </>
       ) : null}
       {avgGrounding !== null ? (
         <>
           {" "}
-          ·{" "}
-          <span
-            className="cursor-help underline decoration-dotted decoration-neutral-400"
-            title={EVIDENCE_FAITHFULNESS_HEURISTIC_DISCLAIMER}
-          >
-            avg evidence grounding: {avgGrounding.toFixed(2)}
-          </span>
+          · avg evidence grounding: {avgGrounding.toFixed(2)}
+          <FieldHelpTooltip
+            label="Average evidence grounding"
+            hint={EVIDENCE_FAITHFULNESS_HEURISTIC_DISCLAIMER}
+          />
         </>
       ) : null}
     </p>
@@ -276,11 +279,20 @@ export async function RunAgentForensicsSection(props: { runId: string }) {
               <EnterpriseTableHeaderCell>Parse OK</EnterpriseTableHeaderCell>
               <EnterpriseTableHeaderCell>Blob upload</EnterpriseTableHeaderCell>
               <EnterpriseTableHeaderCell>Structural</EnterpriseTableHeaderCell>
-              <EnterpriseTableHeaderCell title={semanticOverallTooltip}>Semantic overall</EnterpriseTableHeaderCell>
-              <EnterpriseTableHeaderCell title={heuristicColumnTooltip}>Heuristic</EnterpriseTableHeaderCell>
-              <EnterpriseTableHeaderCell title={llmRubricColumnTooltip}>LLM rubric</EnterpriseTableHeaderCell>
-              <EnterpriseTableHeaderCell className="min-w-[8.5rem]" title={EVIDENCE_FAITHFULNESS_HEURISTIC_DISCLAIMER}>
-                Evidence grounding
+              <EnterpriseTableHeaderCell>
+                <ForensicsTableHeaderLabel label="Semantic overall" hint={semanticOverallTooltip} />
+              </EnterpriseTableHeaderCell>
+              <EnterpriseTableHeaderCell>
+                <ForensicsTableHeaderLabel label="Heuristic" hint={heuristicColumnTooltip} />
+              </EnterpriseTableHeaderCell>
+              <EnterpriseTableHeaderCell>
+                <ForensicsTableHeaderLabel label="LLM rubric" hint={llmRubricColumnTooltip} />
+              </EnterpriseTableHeaderCell>
+              <EnterpriseTableHeaderCell className="min-w-[8.5rem]">
+                <ForensicsTableHeaderLabel
+                  label="Evidence grounding"
+                  hint={EVIDENCE_FAITHFULNESS_HEURISTIC_DISCLAIMER}
+                />
               </EnterpriseTableHeaderCell>
               <EnterpriseTableHeaderCell className="min-w-[11rem]">Judge notes</EnterpriseTableHeaderCell>
             </EnterpriseTableHeadRow>
@@ -348,8 +360,7 @@ export async function RunAgentForensicsSection(props: { runId: string }) {
                     )}
                   </EnterpriseTableCell>
                   <EnterpriseTableCell
-                    className={cn("max-w-[14rem] truncate text-neutral-600 dark:text-neutral-400", OPERATOR_TYPOGRAPHY.helper)}
-                    title={rawNotes.title ?? (rawNotes.text === "—" ? undefined : rawNotes.text)}
+                    className={cn("max-w-[14rem] break-words text-neutral-600 dark:text-neutral-400", OPERATOR_TYPOGRAPHY.helper)}
                   >
                     {!sc || evaluationFailure || sc.isJsonParseFailure || !sem ? "—" : rawNotes.text}
                   </EnterpriseTableCell>

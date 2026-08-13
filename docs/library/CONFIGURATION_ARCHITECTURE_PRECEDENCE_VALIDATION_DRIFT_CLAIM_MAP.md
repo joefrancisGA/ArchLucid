@@ -102,7 +102,21 @@ Documented per-key sources (`CONFIGURATION_REFERENCE.md`) do **not** replace thi
 | Done **TB-734**; open **TB-1326**–**TB-1330** | Config reference help UX |
 | ADR **0017** | App Config deferred |
 | Done **TB-1561** / **M-290** / **M-291** | This configuration-architecture claim map |
-| Open **TB-1562** | Honesty CI for overclaim classes in §6 |
+| Done **TB-1562** / **M-290** | Honesty CI for overclaim classes in §6 |
+
+---
+
+## CI anchors for **TB-1562**
+
+| Anchor | Role |
+| --- | --- |
+| `scripts/ci/check_configuration_architecture_precedence_honesty.py` | Fail appsettings/TF-state SoT, drift-preflight parity, universal startup validation, IOptionsMonitor hot-reload, and TB-881 pilot-gate overclaims |
+| `CONFIGURATION_ARCHITECTURE_PRECEDENCE_VALIDATION_DRIFT_CLAIM_MAP.md` | Drift guard (this file) |
+| `ArchLucidConfigurationRules` | Selective fail-fast validation |
+| `Assert-TerraformDeploymentDriftPreflight.ps1` | Static TF wiring preflight only |
+| Coordinate **TB-1372** / **TB-1318** | TB-881 pilot-gate and CA TF-state honesty |
+
+Honesty CI shipped: **TB-1562**.
 
 ---
 

@@ -17,6 +17,7 @@ public class TopologyCoverageFindingEngine(IGraphCoverageAnalyzer analyzer) : IF
     {
         TopologyCoverageResult result = analyzer.AnalyzeTopology(graphSnapshot);
         List<Finding> findings = [];
+        IReadOnlyList<string> expectedCategories = result.ExpectedCategories;
 
         if (result.TopologyNodeCount == 0)
         {
@@ -34,13 +35,8 @@ public class TopologyCoverageFindingEngine(IGraphCoverageAnalyzer analyzer) : IF
                 {
                     TopologyNodeCount = 0,
                     PresentCategories = result.PresentCategories,
-                    MissingCategories =
-                    [
-                        "network",
-                        "compute",
-                        "storage",
-                        "data"
-                    ]
+                    ExpectedCategories = [.. expectedCategories],
+                    MissingCategories = [.. expectedCategories]
                 },
                 Trace = new ExplainabilityTrace
                 {
@@ -55,7 +51,7 @@ public class TopologyCoverageFindingEngine(IGraphCoverageAnalyzer analyzer) : IF
                         "Verify the graph projection maps infrastructure types into TopologyResource (not only generic service/datastore nodes).",
                         "Treat empty topology as intentional and record scope or policy rationale instead of expanding coverage."
                     ],
-                    Notes = ["Expected categories: network, compute, storage, data"]
+                    Notes = [$"Expected categories: {string.Join(", ", expectedCategories)}"]
                 }
             });
 
@@ -71,11 +67,14 @@ public class TopologyCoverageFindingEngine(IGraphCoverageAnalyzer analyzer) : IF
                 EngineType = EngineType,
                 Severity = FindingSeverity.Warning,
                 Title = "Topology coverage is incomplete",
-                Rationale = "The graph contains topology resources but is missing one or more expected categories.",
+                Rationale = "The graph contains topology resources but is missing one or more workload-expected categories.",
                 PayloadType = nameof(TopologyCoverageFindingPayload),
                 Payload = new TopologyCoverageFindingPayload
                 {
-                    TopologyNodeCount = result.TopologyNodeCount, PresentCategories = result.PresentCategories, MissingCategories = result.MissingCategories
+                    TopologyNodeCount = result.TopologyNodeCount,
+                    PresentCategories = result.PresentCategories,
+                    ExpectedCategories = [.. expectedCategories],
+                    MissingCategories = result.MissingCategories
                 },
                 RecommendedActions =
                 [
@@ -97,6 +96,7 @@ public class TopologyCoverageFindingEngine(IGraphCoverageAnalyzer analyzer) : IF
                     ],
                     Notes =
                     [
+                        $"Expected: {string.Join(", ", expectedCategories)}",
                         $"Present: {string.Join(", ", result.PresentCategories)}",
                         $"Missing: {string.Join(", ", result.MissingCategories)}"
                     ]

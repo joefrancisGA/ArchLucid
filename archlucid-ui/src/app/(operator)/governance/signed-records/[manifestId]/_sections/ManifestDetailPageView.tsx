@@ -1,3 +1,4 @@
+import { DELIVERABLES_BUNDLE_LABEL } from "@/lib/usability/canonical-product-terms";
 import { cn } from "@/lib/utils";
 import Link from "next/link";
 
@@ -264,7 +265,7 @@ export function ManifestDetailPageView(props: ManifestDetailPageViewProps) {
           ) : (
             <>
               A signed review record is the immutable authority for this review. It captures decisions, findings, and
-              the downloadable artifact bundle linked from review detail.
+              the downloadable {DELIVERABLES_BUNDLE_LABEL.toLowerCase()} linked from review detail.
             </>
           )
         }

@@ -85,6 +85,7 @@ export const GOVERNANCE_API_CONTRACTS_OMITTED_SECTION_PREFIXES = [
 
 /** H2 sections omitted from in-app repeat-review help (founder validation / proof theater). */
 export const REPEAT_REVIEW_LOOP_OMITTED_SECTION_PREFIXES = [
+  "recommended loop",
   "second-review habit loop validation",
   "related help",
 ] as const;

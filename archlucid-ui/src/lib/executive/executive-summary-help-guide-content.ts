@@ -31,7 +31,7 @@ export const EXECUTIVE_SUMMARY_HELP_PRIMARY_ACTIONS = {
     href: EXECUTIVE_DASHBOARD_HREF,
   },
   pilotRoiModel: {
-    label: "Pilot ROI measurement",
+    label: "Sponsor ROI methodology",
     href: inAppHelpHref("executive-summary", "pilot-roi-measurement"),
   },
 } as const;

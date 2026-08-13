@@ -1,3 +1,5 @@
+import { RULE_BASED_ANALYSIS_BUYER_LABEL } from "@/lib/usability/canonical-product-terms";
+
 /** OpenAPI `StructuralExecutionMode` enum wire values (INV-002). */
 export const StructuralExecutionModeWire = {
   Simulator: "Simulator",
@@ -41,6 +43,7 @@ function normalizeStructuralExecutionMode(
   return null;
 }
 
+/** Operator / diagnostics label — wire enum name preserved for support and API parity. */
 export function formatStructuralExecutionModeLabel(
   mode: StructuralExecutionModeInput,
 ): string {
@@ -53,6 +56,24 @@ export function formatStructuralExecutionModeLabel(
       return "Mixed";
     case StructuralExecutionModeWire.Simulator:
       return "Simulator";
+    default:
+      return "Unknown";
+  }
+}
+
+/** Buyer-facing execution mode label — Simulator reads as rule-based analysis, not a demo mode. */
+export function formatStructuralExecutionModeBuyerLabel(
+  mode: StructuralExecutionModeInput,
+): string {
+  switch (normalizeStructuralExecutionMode(mode)) {
+    case StructuralExecutionModeWire.Real:
+      return "Live analysis";
+    case StructuralExecutionModeWire.Fallback:
+      return "Fallback";
+    case StructuralExecutionModeWire.Mixed:
+      return "Mixed";
+    case StructuralExecutionModeWire.Simulator:
+      return RULE_BASED_ANALYSIS_BUYER_LABEL;
     default:
       return "Unknown";
   }

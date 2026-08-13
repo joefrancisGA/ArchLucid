@@ -21,8 +21,6 @@ public sealed class GovernanceDigestDecisionNeededComposer(
     IArchitectureDigestRepository digestRepository,
     IExecutiveRoiSummaryService executiveRoiSummaryService) : IGovernanceDigestDecisionNeededComposer
 {
-    private static readonly int[] WaiverExpiryAlertDays = [30, 14, 7, 0];
-
     private readonly IGovernanceApprovalRequestRepository _approvalRepository =
         approvalRepository ?? throw new ArgumentNullException(nameof(approvalRepository));
 
@@ -59,7 +57,7 @@ public sealed class GovernanceDigestDecisionNeededComposer(
         Task<IReadOnlyList<GovernanceApprovalRequest>> pendingTask =
             _approvalRepository.GetPendingAsync(50, cancellationToken);
         Task<ArchitectureRiskRegisterResponse> registerTask =
-            _riskRegisterService.GetRegisterAsync(tenantId, projectId, 100, cancellationToken);
+            _riskRegisterService.GetRegisterAsync(tenantId, projectId, 100, options: null, cancellationToken);
         Task<IReadOnlyList<FindingReviewEventRecord>> recentTask =
             _findingReviewTrailRepository.ListSinceUtcAsync(tenantId, since, cancellationToken);
         Task<IReadOnlyList<RiskExceptionRecord>> activeWaiversTask =
@@ -222,7 +220,7 @@ public sealed class GovernanceDigestDecisionNeededComposer(
         Task<IReadOnlyList<GovernanceApprovalRequest>> pendingTask =
             _approvalRepository.GetPendingAsync(50, cancellationToken);
         Task<ArchitectureRiskRegisterResponse> registerTask =
-            _riskRegisterService.GetRegisterAsync(tenantId, projectId, 100, cancellationToken);
+            _riskRegisterService.GetRegisterAsync(tenantId, projectId, 100, options: null, cancellationToken);
         Task<IReadOnlyList<FindingReviewEventRecord>> recentTask =
             _findingReviewTrailRepository.ListSinceUtcAsync(tenantId, since, cancellationToken);
         Task<IReadOnlyList<RiskExceptionRecord>> activeWaiversTask =
@@ -337,7 +335,7 @@ public sealed class GovernanceDigestDecisionNeededComposer(
         DateTimeOffset now,
         ref bool hasDecisionContent)
     {
-        foreach (int daysBefore in WaiverExpiryAlertDays)
+        foreach (int daysBefore in GovernanceWaiverExpiryWindow.AlertDayBoundaries)
         {
             DateTimeOffset windowStart = now.Date.AddDays(daysBefore);
             DateTimeOffset windowEnd = windowStart.AddDays(1);

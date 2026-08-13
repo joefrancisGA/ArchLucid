@@ -22,7 +22,7 @@ public sealed class GovernanceDigestDecisionNeededComposerTests
 
         Mock<IArchitectureRiskRegisterService> riskRegister = new();
         riskRegister
-            .Setup(service => service.GetRegisterAsync(tenantId, It.IsAny<Guid?>(), It.IsAny<int>(), It.IsAny<CancellationToken>()))
+            .Setup(service => service.GetRegisterAsync(tenantId, It.IsAny<Guid?>(), It.IsAny<int>(), It.IsAny<ArchitectureRiskRegisterListOptions?>(), It.IsAny<CancellationToken>()))
             .ReturnsAsync(
                 new ArchitectureRiskRegisterResponse
                 {

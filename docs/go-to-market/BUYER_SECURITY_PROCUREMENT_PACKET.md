@@ -2056,7 +2056,7 @@ Do not say reviews that took two weeks now take two hours, that every finding al
 
 ### Residuals (honest)
 
-- **TB-1367** / **TB-1368** own the cut/hedge/prove contract and language guards.
+- **TB-1367** **Done** / **TB-1368** own the cut/hedge/prove contract and language guards.
 - Complements Done **M-02** / **M-138** / **M-154** / **M-174** / **M-243** / **M-239**.
 - This handout does not claim CPA SOC 2 or a published third-party penetration test.
 
@@ -2157,7 +2157,7 @@ Do not sell agent free text / unvalidated `ProposedChanges` as the signed archit
 
 ### Residuals (honest)
 
-- **TB-1196** **Done** — [`AGENT_OUTPUT_DECISIONING_REAL_VARIANCE_ISOLATION_CONTRACT.md`](../library/AGENT_OUTPUT_DECISIONING_REAL_VARIANCE_ISOLATION_CONTRACT.md); **TB-1197** honesty CI (open).
+- **TB-1196** **Done** — [`AGENT_OUTPUT_DECISIONING_REAL_VARIANCE_ISOLATION_CONTRACT.md`](../library/AGENT_OUTPUT_DECISIONING_REAL_VARIANCE_ISOLATION_CONTRACT.md); **TB-1197** **Done** — `scripts/ci/check_unvalidated_proposal_overlay_honesty.py` (wired in `run_buyer_surface_strict_guards.py`).
 - Cite `AgentTopologyProposalGraphMerge`, `RuleBasedDecisionEngine`, `DecisionMergeInputGate`, quality Enforce/Block.
 - Complements **M-154**, **M-158**/**M-159**, **M-166**/**M-167**, **M-247**/**M-248**; pairs claim-honesty **M-203**.
 - This handout does not claim CPA SOC 2 or a published third-party penetration test.
@@ -2219,7 +2219,7 @@ Do not treat unexplained mass SHA rewrites as regression proof; do not sell coho
 
 ### Residuals (honest)
 
-- **TB-1172** **Done** — [`GOLDEN_COHORT_RELOCK_VS_RUBBER_STAMP_CONTRACT.md`](../library/GOLDEN_COHORT_RELOCK_VS_RUBBER_STAMP_CONTRACT.md); **TB-1173** owns anti-rubber-stamp CI.
+- **TB-1172** **Done** — [`GOLDEN_COHORT_RELOCK_VS_RUBBER_STAMP_CONTRACT.md`](../library/GOLDEN_COHORT_RELOCK_VS_RUBBER_STAMP_CONTRACT.md); **TB-1173** **Done** — `scripts/ci/check_golden_cohort_relock_rubber_stamp_honesty.py` (wired in `run_buyer_surface_strict_guards.py`).
 - Cite `tests/golden-cohort/README.md` lock ritual + **TB-1156** **Done** dual-hasher contract.
 - Complements **M-154**, **M-198**/**M-199**, **M-274**; pairs claim-honesty **M-201**.
 - This handout does not claim CPA SOC 2 or a published third-party penetration test.

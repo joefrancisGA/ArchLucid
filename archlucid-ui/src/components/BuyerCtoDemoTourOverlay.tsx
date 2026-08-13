@@ -1071,7 +1071,7 @@ export function BuyerCtoDemoTourOverlay(): React.JSX.Element | null {
 
                       aria-current="step"
 
-                      title={def.chipTooltip}
+                      aria-label={`Step ${def.step}: ${def.label}. ${def.chipTooltip}`}
 
                       className={cn("inline-flex min-h-7 items-center gap-1 rounded-full border px-2 py-0.5 font-medium", OPERATOR_TYPOGRAPHY.helper,
 
@@ -1095,7 +1095,7 @@ export function BuyerCtoDemoTourOverlay(): React.JSX.Element | null {
 
                       prefetch
 
-                      title={def.chipTooltip}
+                      aria-label={`Step ${def.step}: ${def.label}. ${def.chipTooltip}`}
 
                       className={cn("inline-flex min-h-7 items-center gap-1 rounded-full border px-2 py-0.5 font-medium no-underline transition hover:opacity-95", OPERATOR_TYPOGRAPHY.helper,
 

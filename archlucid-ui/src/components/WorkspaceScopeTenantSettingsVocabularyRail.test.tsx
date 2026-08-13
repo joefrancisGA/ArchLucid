@@ -35,6 +35,21 @@ describe("WorkspaceScopeTenantSettingsVocabularyRail (TB-2317)", () => {
     expect(peer).toHaveAttribute("href", WORKSPACE_SCOPE_TENANT_SETTINGS_SCOPE_LINK.href);
   });
 
+  it("accepts a currentLabel override on the tenant-settings surface", () => {
+    render(
+      <WorkspaceScopeTenantSettingsVocabularyRail
+        currentSurfaceId="tenant-settings"
+        currentLabel="Workspace settings"
+        variant="full"
+      />,
+    );
+
+    expect(screen.getByTestId("workspace-scope-tenant-settings-vocabulary-current")).toHaveTextContent(
+      "Workspace settings",
+    );
+    expect(screen.queryByText(WORKSPACE_SCOPE_TENANT_SETTINGS_TENANT_LINK.label)).not.toBeInTheDocument();
+  });
+
   it("renders full variant with why-two explanation", () => {
     render(
       <WorkspaceScopeTenantSettingsVocabularyRail

@@ -5,6 +5,7 @@ import Link from "next/link";
 import { useEffect, useMemo, useState } from "react";
 
 import { GlossaryTooltip } from "@/components/GlossaryTooltip";
+import { ReviewPipelineStopAnalysisButton } from "@/components/runs/ReviewPipelineStopAnalysisButton";
 import { Button } from "@/components/ui/button";
 import { StatusTag } from "@/components/ui/status-tag";
 import { Progress } from "@/components/ui/progress";
@@ -189,6 +190,9 @@ export function WizardStepTrack({ runId, pollSummary, onRetryPolling }: WizardSt
           >
             {waitingMessage}
           </p>
+          {pollEnabled && clientPhase === "polling" ? (
+            <ReviewPipelineStopAnalysisButton runId={runId} />
+          ) : null}
           {pollEnabled && clientPhase === "timeout" ? (
             <Button
               type="button"

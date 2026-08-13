@@ -29,9 +29,9 @@ import {
 } from "@/lib/identity-providers-settings-copy";
 import type { IdentityProviderCustomerStatus } from "@/lib/identity-providers-settings-types";
 import {
-  operatorFreshnessMetadataLabel,
-  operatorLastRefreshedExactLabel,
+  operatorFreshnessMetadataWithClockLabel,
 } from "@/lib/operator/operator-last-refreshed-label";
+import { OperatorPageFreshnessMetadata } from "@/components/operator/OperatorPageFreshnessMetadata";
 import { readOperatorScopeFromStorage } from "@/lib/operator/operator-scope-storage";
 import { SETTINGS_ROOT_PATH } from "@/lib/settings-admin-route-paths";
 
@@ -65,11 +65,13 @@ export function IdentityProvidersSettingsPageHeader(
       : null;
   const freshnessLabel = props.diagnosticsDataUnavailable === true
     ? "Data unavailable"
-    : operatorFreshnessMetadataLabel({
-        prefix: IDENTITY_PROVIDERS_LAST_REFRESHED_PREFIX,
-        lastRefreshedAt: props.lastRefreshedAt,
-        refreshingLabel: props.refreshing ? IDENTITY_PROVIDERS_ACTION_REFRESHING : null,
-      });
+    : props.refreshing
+      ? IDENTITY_PROVIDERS_ACTION_REFRESHING
+      : operatorFreshnessMetadataWithClockLabel({
+          prefix: IDENTITY_PROVIDERS_LAST_REFRESHED_PREFIX,
+          lastRefreshedAt: props.lastRefreshedAt,
+          refreshingLabel: null,
+        });
 
   useEffect(() => {
     setCurrentWorkspaceLabel(resolveAuthDomainsCurrentWorkspaceLabel(readOperatorScopeFromStorage()));
@@ -145,13 +147,16 @@ export function IdentityProvidersSettingsPageHeader(
               {tenantScopeLine}
             </span>
           ) : null}
-          <span
-            className={cn("text-al-text-secondary", OPERATOR_TYPOGRAPHY.helper)}
-            data-testid="identity-providers-last-refreshed"
-            title={operatorLastRefreshedExactLabel(props.lastRefreshedAt)}
+          <OperatorPageFreshnessMetadata
+            testId="identity-providers-last-refreshed"
+            lastRefreshedAt={
+              props.diagnosticsDataUnavailable === true || props.refreshing
+                ? null
+                : props.lastRefreshedAt
+            }
           >
             {freshnessLabel}
-          </span>
+          </OperatorPageFreshnessMetadata>
         </>
       }
     />

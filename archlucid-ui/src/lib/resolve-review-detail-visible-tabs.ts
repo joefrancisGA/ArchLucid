@@ -54,22 +54,16 @@ export function resolveReviewDetailTabLifecycleStage(
   return "draft";
 }
 
-function primaryTabsForStage(stage: ReviewDetailTabLifecycleStage): readonly ReviewDetailTabId[] {
-  switch (stage) {
-    case "draft":
-      return ["overview", "evidence", "architecture", "activity"];
-    case "analysis-in-progress":
-      return ["overview", "evidence", "architecture", "activity"];
-    case "pre-commit-complete":
-      return ["overview", "findings", "evidence", "architecture", "activity"];
-    case "committed":
-      return ["overview", "findings", "review-package", "decisions-remediation", "evidence"];
-    default: {
-      const _exhaustive: never = stage;
+/** High-frequency tabs — architecture, policies, signed record, and decisions stay under More. */
+const PRIMARY_REVIEW_DETAIL_TAB_IDS: readonly ReviewDetailTabId[] = [
+  "overview",
+  "findings",
+  "evidence",
+  "activity",
+];
 
-      return _exhaustive;
-    }
-  }
+function primaryTabsForStage(_stage: ReviewDetailTabLifecycleStage): readonly ReviewDetailTabId[] {
+  return PRIMARY_REVIEW_DETAIL_TAB_IDS;
 }
 
 function defaultTabForStage(stage: ReviewDetailTabLifecycleStage): ReviewDetailTabId {

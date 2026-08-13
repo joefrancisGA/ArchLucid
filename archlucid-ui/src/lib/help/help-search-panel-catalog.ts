@@ -87,10 +87,10 @@ const START_HERE_TOPICS: readonly HelpSearchPanelTopic[] = [
   },
   {
     id: "first-review-guide",
-    // TB-1047 / TB-1374: disambiguate from "Review wizard reference" (review-guide); canon is Core Pilot.
+    // TB-1047 / TB-1374 / TB-1377: one canonical first-review guide; wizard reference stays on review-guide.
     title: "Your first architecture review",
     description: "Step-by-step: start a review, add evidence, complete the architecture review, finalize outputs, and share results.",
-    keywords: ["first review", "review guide", "first-hour", "core pilot", "new review", "architecture context", "getting started"],
+    keywords: ["first review", "review guide", "new review", "architecture context", "getting started"],
     action: {
       kind: "route",
       href: "/help/first-architecture-review",

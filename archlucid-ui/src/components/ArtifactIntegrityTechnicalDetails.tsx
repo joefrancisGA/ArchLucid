@@ -15,7 +15,6 @@ import {
   EnterpriseTableRow,
 } from "@/components/ui/enterprise-table";
 import { getArtifactBusinessLabel } from "@/lib/artifact-review-helpers";
-import { truncateMiddle } from "@/lib/truncate-middle";
 import type { ArtifactDescriptor } from "@/types/authority";
 
 const CONTENT_FINGERPRINT_ALGORITHM = "SHA-256";
@@ -89,11 +88,8 @@ export function ArtifactIntegrityTechnicalDetails(props: ArtifactIntegrityTechni
                 </EnterpriseTableCell>
                 <EnterpriseTableCell className="text-al-text-secondary">{CONTENT_FINGERPRINT_ALGORITHM}</EnterpriseTableCell>
                 <EnterpriseTableCell>
-                  <code
-                    className={cn("break-all font-mono text-neutral-700 dark:text-neutral-300", OPERATOR_TYPOGRAPHY.micro)}
-                    title={artifact.contentHash}
-                  >
-                    {truncateMiddle(artifact.contentHash, 28)}
+                  <code className={cn("break-all font-mono text-neutral-700 dark:text-neutral-300", OPERATOR_TYPOGRAPHY.micro)}>
+                    {artifact.contentHash}
                   </code>
                 </EnterpriseTableCell>
                 <EnterpriseTableCell>

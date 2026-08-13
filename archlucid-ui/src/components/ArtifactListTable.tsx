@@ -159,7 +159,7 @@ export function ArtifactListTable(props: {
           </EnterpriseTableCell>
           {sponsorMode ? null : (
             <EnterpriseTableCell className="px-3 py-2.5 text-neutral-600 dark:text-neutral-400">
-              <span title={getArtifactFormatLabel(artifact.format)} className={OPERATOR_TYPOGRAPHY.helper}>
+              <span className={OPERATOR_TYPOGRAPHY.helper}>
                 {getArtifactFormatLabel(artifact.format)}
               </span>
             </EnterpriseTableCell>

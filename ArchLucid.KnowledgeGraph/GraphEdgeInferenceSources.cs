@@ -14,4 +14,8 @@ public static class GraphEdgeInferenceSources
     public const string RequirementTextHeuristic = "requirement-text-heuristic";
     public const string SecurityTargeted = "security-targeted-topology";
     public const string SecuritySingleTopologyFallback = "security-single-topology-fallback";
+    public const string TopologyDependsOn = "topology-depends-on";
+    public const string TopologyConnectsTo = "topology-connects-to";
+    public const string TopologyExposes = "topology-exposes";
+    public const string AgentProposalRelationship = "agent-proposal-relationship";
 }

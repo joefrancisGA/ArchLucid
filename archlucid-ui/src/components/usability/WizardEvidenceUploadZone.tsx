@@ -136,7 +136,7 @@ export function WizardEvidenceUploadZone(props: WizardEvidenceUploadZoneProps) {
                     OPERATOR_TYPOGRAPHY.helper,
                   )}
                 >
-                  <span className="truncate" title={file.name}>
+                  <span className="break-all">
                     {file.name}
                   </span>
                   <button

@@ -16,7 +16,6 @@ export type CtaButtonProps = {
   readonly onPressAnalytics?: () => void;
   /** When true, never opens {@code target="_blank"} (used for same-tab product deep links). */
   readonly sameTab?: boolean;
-  readonly title?: string;
   readonly ariaDescribedby?: string;
   readonly "data-testid"?: string;
 };
@@ -33,7 +32,6 @@ export function CtaButton(props: CtaButtonProps) {
     className,
     onPressAnalytics,
     sameTab = false,
-    title,
     ariaDescribedby,
     "data-testid": dataTestId,
   } = props;
@@ -45,7 +43,6 @@ export function CtaButton(props: CtaButtonProps) {
       <a
         href={href}
         data-testid={dataTestId}
-        title={title}
         aria-describedby={ariaDescribedby}
         rel={opensNewTab ? "noopener noreferrer" : undefined}
         target={opensNewTab ? "_blank" : undefined}

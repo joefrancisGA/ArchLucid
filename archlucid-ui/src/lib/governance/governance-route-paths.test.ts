@@ -4,6 +4,7 @@ import {
   GOVERNANCE_ALERT_RULES_PATH,
   GOVERNANCE_ALERTS_PATH,
   GOVERNANCE_DECISION_REGISTER_PATH,
+  GOVERNANCE_ASSIGNED_TO_ME_FINDINGS_PATH,
   GOVERNANCE_FINDINGS_PATH,
   GOVERNANCE_WORKSPACE_HEALTH_HREF,
   buildCanonicalGovernanceAlertsInboxHref,
@@ -17,6 +18,7 @@ describe("governance-route-paths", () => {
     expect(GOVERNANCE_ALERT_RULES_PATH).toBe("/governance/alert-rules");
     expect(GOVERNANCE_DECISION_REGISTER_PATH).toBe("/governance/decision-register");
     expect(GOVERNANCE_FINDINGS_PATH).toBe("/governance/findings");
+    expect(GOVERNANCE_ASSIGNED_TO_ME_FINDINGS_PATH).toBe("/governance/findings/assigned-to-me");
     expect(GOVERNANCE_WORKSPACE_HEALTH_HREF).toBe("/architecture/executive-dashboard#workspace-health");
   });
 

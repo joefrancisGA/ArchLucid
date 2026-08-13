@@ -38,6 +38,15 @@ export const OperatorHomeBelowFoldPanelsDeferred = dynamic(
   { ssr: false, loading: () => null },
 );
 
+/** TB-2191 — stickiness cockpit off home First Load JS (both cards hydrate after first paint). */
+export const OperatorHomeStickinessCockpitDeferred = dynamic(
+  () =>
+    import("@/components/operator-home/OperatorHomeStickinessCockpit").then(
+      (module) => module.OperatorHomeStickinessCockpit,
+    ),
+  { ssr: false, loading: () => null },
+);
+
 export const CtoDemoExecutiveLandingRedirectDeferred = dynamic(
   () =>
     import("@/components/cto-demo/CtoDemoExecutiveLandingRedirect").then(

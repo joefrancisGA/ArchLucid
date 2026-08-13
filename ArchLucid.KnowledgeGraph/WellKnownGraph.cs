@@ -23,6 +23,12 @@ public static class GraphEdgeTypes
     public const string Protects = "PROTECTS";
     public const string AppliesTo = "APPLIES_TO";
     public const string RelatesTo = "RELATES_TO";
+
+    public const string ConnectsTo = "CONNECTS_TO";
+
+    public const string DependsOn = "DEPENDS_ON";
+
+    public const string Exposes = "EXPOSES";
 }
 
 /// <summary>
@@ -34,4 +40,6 @@ public static class GraphTopologyCategories
     public const string Storage = "storage";
     public const string Compute = "compute";
     public const string Data = "data";
+
+    public const string Identity = "identity";
 }

@@ -1,19 +1,12 @@
 import Link from "next/link";
 
 import { CopyIdButton } from "@/components/CopyIdButton";
+import { FieldHelpTooltip } from "@/components/FieldHelpTooltip";
 import { cn } from "@/lib/utils";
 import { OPERATOR_LINK, OPERATOR_TYPOGRAPHY } from "@/lib/design-tokens";
 import { provenanceNodeDisplayName } from "@/lib/provenance-node-presentation";
 import { provenanceReferenceHref } from "@/lib/provenance-reference-href";
 import type { ArchitectureLinkageNode } from "@/types/architecture-provenance";
-
-function truncateReferenceId(referenceId: string): string {
-  if (referenceId.length <= 12) {
-    return referenceId;
-  }
-
-  return `${referenceId.slice(0, 8)}…`;
-}
 
 function resolveReferenceLabel(
   referenceId: string,
@@ -44,14 +37,13 @@ export function ProvenanceReferenceLink(props: {
 
   const href = provenanceReferenceHref(runId, raw, nodes);
   const label = resolveReferenceLabel(raw, nodes);
-  const idSuffix = truncateReferenceId(raw);
 
   if (href === null) {
     return (
       <span className="inline-flex flex-wrap items-center gap-1">
         <span>{label}</span>
-        <code className={cn("text-neutral-500 dark:text-neutral-400", OPERATOR_TYPOGRAPHY.micro)} title={raw}>
-          {idSuffix}
+        <code className={cn("break-all text-neutral-500 dark:text-neutral-400", OPERATOR_TYPOGRAPHY.micro)}>
+          {raw}
         </code>
         <CopyIdButton value={raw} aria-label={`Copy reference for ${label}`} />
       </span>
@@ -60,11 +52,11 @@ export function ProvenanceReferenceLink(props: {
 
   return (
     <span className="inline-flex flex-wrap items-center gap-1">
-      <Link className={OPERATOR_LINK.inline} href={href} title={raw}>
+      <Link className={OPERATOR_LINK.inline} href={href} aria-label={`${label}, reference ${raw}`}>
         {label}
       </Link>
-      <code className={cn("text-neutral-500 dark:text-neutral-400", OPERATOR_TYPOGRAPHY.micro)} title={raw}>
-        {idSuffix}
+      <code className={cn("break-all text-neutral-500 dark:text-neutral-400", OPERATOR_TYPOGRAPHY.micro)}>
+        {raw}
       </code>
       <CopyIdButton value={raw} aria-label={`Copy reference for ${label}`} />
     </span>

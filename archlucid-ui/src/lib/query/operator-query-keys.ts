@@ -56,6 +56,10 @@ export const operatorQueryKeys = {
     useCuratedDemoSpine: boolean,
   ) =>
     ["operator", "governance", "findings-queue", scope, { useCuratedDemoSpine }] as const,
+  governanceAssignedToMeFindingsQueue: (scope: OperatorScopeQueryKey) =>
+    ["operator", "governance", "findings-queue", "assigned-to-me", scope] as const,
+  governanceAssignedToMeFindingsCount: (scope: OperatorScopeQueryKey) =>
+    ["operator", "governance", "findings-queue", "assigned-to-me-count", scope] as const,
   corePilotCommitContext: ["operator", "core-pilot", "commit-context"] as const,
   corePilotTeamChecklist: ["operator", "tenant", "core-pilot-team-checklist"] as const,
   pilotRecentDeltas: (scope: OperatorScopeQueryKey, count: number) =>

@@ -17,6 +17,7 @@ export function useTenantSettingsPage(): TenantSettingsPageContentModel {
   return {
     currentPrincipalName: currentPrincipal.name ?? null,
     tenantDisplayName: readActiveTenantContext().displayName,
+    callerAuthorityRank,
     isTenantAdmin,
     trial: trialQuery.data ?? null,
   };

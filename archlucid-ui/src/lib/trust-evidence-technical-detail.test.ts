@@ -83,7 +83,7 @@ describe("splitTrustEvidenceDetail", () => {
 
 describe("trustEvidenceFieldTitleForDisplay", () => {
   it("replaces the persisted bundle id label with a buyer-safe title", () => {
-    expect(trustEvidenceFieldTitleForDisplay("Persisted artifact bundle id")).toBe("Artifact bundle");
+    expect(trustEvidenceFieldTitleForDisplay("Persisted artifact bundle id")).toBe("Deliverables bundle");
   });
 
   it("returns other titles trimmed but unchanged", () => {

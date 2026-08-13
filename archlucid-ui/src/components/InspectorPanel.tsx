@@ -60,7 +60,6 @@ export function InspectorPanel({
         <div className="flex items-start justify-between gap-2">
         <h2
           className="m-0 min-w-0 flex-1 line-clamp-3 break-words text-lg font-semibold leading-snug tracking-tight text-neutral-900 dark:text-neutral-50"
-          title={title}
         >
           {title}
         </h2>

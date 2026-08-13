@@ -1,6 +1,7 @@
 import { describe, expect, it } from "vitest";
 
 import { ENTERPRISE_ONBOARDING_HELP_PAGE_TITLE } from "@/lib/enterprise-onboarding-help-copy";
+import { REPEAT_REVIEW_LOOP_HELP_PAGE_TITLE } from "@/lib/repeat-review-loop-help-guide-content";
 import {
   getHelpCenterDisplay,
   getHelpCenterTier,
@@ -20,12 +21,13 @@ describe("help-center-catalog", () => {
     expect(HELP_CENTER_FEATURED_SLUGS).toHaveLength(14);
   });
 
-  it("features review-guide on the help landing grid for browse discovery", () => {
+  it("features first-architecture-review on the help landing grid for browse discovery", () => {
     const defaultTopics = listHelpCenterTopics({ showAdvanced: false, isAdmin: false });
     const slugs = defaultTopics.map((entry) => entry.slug);
 
-    expect(slugs).toContain("review-guide");
-    expect(HELP_CENTER_FEATURED_SLUGS.indexOf("review-guide")).toBeGreaterThan(
+    expect(slugs).toContain("first-architecture-review");
+    expect(slugs).not.toContain("review-guide");
+    expect(HELP_CENTER_FEATURED_SLUGS.indexOf("first-architecture-review")).toBeGreaterThan(
       HELP_CENTER_FEATURED_SLUGS.indexOf("getting-started"),
     );
   });
@@ -203,5 +205,13 @@ describe("help center tiers", () => {
     const advanced = listHelpCenterTopics({ showAdvanced: true, isAdmin: false }).map((topic) => topic.slug);
 
     expect(advanced).toContain("comparison-replay");
+  });
+
+  it("classifies repeat-review-loop as product tier with canonical buyer title (TB-1395)", () => {
+    const entry = getProductDocumentationEntry("repeat-review-loop");
+
+    expect(entry).not.toBeNull();
+    expect(getHelpCenterTier(entry!)).toBe("product");
+    expect(getHelpCenterDisplay(entry!).title).toBe(REPEAT_REVIEW_LOOP_HELP_PAGE_TITLE);
   });
 });

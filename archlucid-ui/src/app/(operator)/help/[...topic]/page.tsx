@@ -55,6 +55,26 @@ const HelpAlertsGuideView = dynamic(() =>
 const HelpDigestsGuideView = dynamic(() =>
   import("../_sections/HelpDigestsGuideView").then((module) => module.HelpDigestsGuideView),
 );
+const HelpRecurrenceSchedulesGuideView = dynamic(() =>
+  import("../_sections/HelpRecurrenceSchedulesGuideView").then(
+    (module) => module.HelpRecurrenceSchedulesGuideView,
+  ),
+);
+const HelpRoiSummaryGuideView = dynamic(() =>
+  import("../_sections/HelpRoiSummaryGuideView").then((module) => module.HelpRoiSummaryGuideView),
+);
+const HelpPilotOutcomesGuideView = dynamic(() =>
+  import("../_sections/HelpPilotOutcomesGuideView").then((module) => module.HelpPilotOutcomesGuideView),
+);
+const HelpArchitectureScorecardGuideView = dynamic(() =>
+  import("../_sections/HelpArchitectureScorecardGuideView").then((module) => module.HelpArchitectureScorecardGuideView),
+);
+const HelpConnectionStatusGuideView = dynamic(() =>
+  import("../_sections/HelpConnectionStatusGuideView").then((module) => module.HelpConnectionStatusGuideView),
+);
+const HelpStandardsRulesGuideView = dynamic(() =>
+  import("../_sections/HelpStandardsRulesGuideView").then((module) => module.HelpStandardsRulesGuideView),
+);
 const HelpAdminDiagnosticsGuideView = dynamic(() =>
   import("../_sections/HelpAdminDiagnosticsGuideView").then((module) => module.HelpAdminDiagnosticsGuideView),
 );
@@ -213,6 +233,16 @@ function resolveAzurePermissionsReturnHref(returnTo: string | undefined): string
   return "/integrations/cloud-connections";
 }
 
+function resolveGcpConnectionHelpReturnHref(returnTo: string | undefined): string {
+  const trimmed = returnTo?.trim() ?? "";
+
+  if (trimmed.startsWith("/integrations/cloud-connections")) {
+    return trimmed;
+  }
+
+  return "/integrations/cloud-connections/gcp";
+}
+
 function helpSlugFromTopicSegments(topic: string[]): string {
   return topic.map((segment) => segment.trim()).filter((segment) => segment.length > 0).join("/");
 }
@@ -257,6 +287,30 @@ function renderHelpTopicView(
 
   if (loaded.entry.slug === "digests") {
     return <HelpDigestsGuideView entry={loaded.entry} />;
+  }
+
+  if (loaded.entry.slug === "recurrence-schedules") {
+    return <HelpRecurrenceSchedulesGuideView entry={loaded.entry} />;
+  }
+
+  if (loaded.entry.slug === "roi-summary") {
+    return <HelpRoiSummaryGuideView entry={loaded.entry} />;
+  }
+
+  if (loaded.entry.slug === "pilot-outcomes") {
+    return <HelpPilotOutcomesGuideView entry={loaded.entry} />;
+  }
+
+  if (loaded.entry.slug === "architecture-scorecard") {
+    return <HelpArchitectureScorecardGuideView entry={loaded.entry} />;
+  }
+
+  if (loaded.entry.slug === "connection-status") {
+    return <HelpConnectionStatusGuideView entry={loaded.entry} />;
+  }
+
+  if (loaded.entry.slug === "standards-and-rules") {
+    return <HelpStandardsRulesGuideView entry={loaded.entry} />;
   }
 
   if (loaded.entry.slug === "billing-and-plans") {
@@ -306,7 +360,12 @@ function renderHelpTopicView(
   }
 
   if (loaded.entry.slug === "cloud-connections-gcp") {
-    return <HelpConnectGcpSecurelyGuideView entry={loaded.entry} />;
+    return (
+      <HelpConnectGcpSecurelyGuideView
+        entry={loaded.entry}
+        returnHref={resolveGcpConnectionHelpReturnHref(readSearchParam(searchParams, "returnTo"))}
+      />
+    );
   }
 
   if (loaded.entry.slug === "azure-permissions") {

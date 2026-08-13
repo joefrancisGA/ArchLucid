@@ -1,6 +1,7 @@
 import { cn } from "@/lib/utils";
 import type { ReactElement, ReactNode } from "react";
 
+import { CompareFindingLifecycleBlock } from "@/app/(operator)/insights/compare-two-reviews/_sections/CompareFindingLifecycleBlock";
 import { EnterpriseCompactEmptyState } from "@/components/EnterpriseCompactEmptyState";
 import { FindingCorrelationVocabularyDisambiguation } from "@/components/findings/FindingCorrelationVocabularyDisambiguation";
 import {
@@ -10,12 +11,17 @@ import {
   compareFindingCorrelationMethodLabel,
   type CompareFindingCorrelationMetadata,
 } from "@/lib/compare-finding-correlation";
+import type { CompareFindingLifecycleRecord, CompareFindingLifecycleSummary } from "@/lib/compare-finding-lifecycle";
 import { CROSS_REVIEW_FINDING_CORRELATION_PANEL_TITLE } from "@/lib/vocabulary/finding-correlation-vocabulary";
 import { COMPARE_FINDING_CORRELATION_EMPTY_COMPACT } from "@/lib/enterprise-compact-empty-state-presets";
 import { DESIGN_TOKENS, OPERATOR_TYPOGRAPHY } from "@/lib/design-tokens";
 
 export type CompareFindingCorrelationPanelProps = {
   readonly metadata: CompareFindingCorrelationMetadata | null;
+  readonly lifecycle: CompareFindingLifecycleSummary | null;
+  readonly lifecycleRecords?: readonly CompareFindingLifecycleRecord[];
+  readonly priorRunId?: string | null;
+  readonly laterRunId?: string | null;
   readonly loading: boolean;
   readonly softFailureMessage: string | null;
 };
@@ -39,7 +45,15 @@ function CompareFindingCorrelationSectionShell(props: {
 }
 
 export function CompareFindingCorrelationPanel(props: CompareFindingCorrelationPanelProps): ReactElement {
-  const { metadata, loading, softFailureMessage } = props;
+  const {
+    metadata,
+    lifecycle,
+    lifecycleRecords = [],
+    priorRunId = null,
+    laterRunId = null,
+    loading,
+    softFailureMessage,
+  } = props;
 
   if (loading) {
     return (
@@ -133,6 +147,13 @@ export function CompareFindingCorrelationPanel(props: CompareFindingCorrelationP
           <strong className="text-al-text-primary">Correlation honesty:</strong> {metadata.honestyNote}
         </p>
       ) : null}
+
+      <CompareFindingLifecycleBlock
+        summary={lifecycle}
+        records={lifecycleRecords}
+        priorRunId={priorRunId}
+        laterRunId={laterRunId}
+      />
     </CompareFindingCorrelationSectionShell>
   );
 }

@@ -1,5 +1,8 @@
-import { render, screen } from "@testing-library/react";
+import { render, screen, waitFor } from "@testing-library/react";
 import { describe, expect, it, vi } from "vitest";
+
+import { AUTHORITY_RANK } from "@/lib/nav-authority";
+import { TENANT_SETTINGS_PAGE_SUBTITLE } from "@/lib/tenant-settings-page-copy";
 
 vi.mock("@/lib/demo-ui-env", () => ({
   isNextPublicDemoMode: () => false,
@@ -26,7 +29,11 @@ vi.mock("./TenantWorkspaceProjectsCard", () => ({
 }));
 
 vi.mock("@/components/WorkspaceScopeTenantSettingsVocabularyRail", () => ({
-  WorkspaceScopeTenantSettingsVocabularyRail: () => <div data-testid="workspace-scope-vocabulary-rail-stub" />,
+  WorkspaceScopeTenantSettingsVocabularyRail: ({
+    currentLabel,
+  }: {
+    currentLabel?: string;
+  }) => <div data-testid="workspace-scope-vocabulary-rail-stub" data-current-label={currentLabel} />,
 }));
 
 vi.mock("@/components/TenantLlmJudgeGuideCard", () => ({
@@ -37,6 +44,15 @@ vi.mock("@/components/SupportBundleDownloadButton", () => ({
   SupportBundleDownloadButton: () => <button type="button">Download support bundle</button>,
 }));
 
+vi.mock("@/lib/active-tenant-context-display", () => ({
+  readActiveTenantContext: () => ({
+    displayName: "Acme Architecture",
+    tenantId: "tenant-1",
+    workspaceId: "workspace-1",
+    workspaceLabel: "Pilot",
+  }),
+}));
+
 import { TenantSettingsPageView } from "./TenantSettingsPageView";
 import type { TenantSettingsPageContentModel } from "./tenant-settings-page-view-model";
 
@@ -44,6 +60,7 @@ function buildModel(overrides: Partial<TenantSettingsPageContentModel> = {}): Te
   return {
     currentPrincipalName: "Test User",
     tenantDisplayName: "Acme Architecture",
+    callerAuthorityRank: AUTHORITY_RANK.AdminAuthority,
     isTenantAdmin: true,
     trial: null,
     ...overrides,
@@ -51,7 +68,7 @@ function buildModel(overrides: Partial<TenantSettingsPageContentModel> = {}): Te
 }
 
 describe("TenantSettingsPageView", () => {
-  it("renders tenant display name, active scope summary, and short Help trigger (P0-1, P0-2, P0-6)", () => {
+  it("renders tenant display name, effective scope summary, and caller authority metadata", async () => {
     vi.stubGlobal("localStorage", {
       getItem: (key: string) =>
         key === "archlucid_operator_scope_v1"
@@ -73,10 +90,24 @@ describe("TenantSettingsPageView", () => {
     render(<TenantSettingsPageView model={buildModel()} />);
 
     expect(screen.getByTestId("tenant-settings-tenant-display-name")).toHaveTextContent("Acme Architecture");
-    expect(screen.getByTestId("tenant-settings-active-scope-summary")).toHaveTextContent(
-      "Active scope: Workspace: Pilot — Northwind",
+    expect(screen.getByText(TENANT_SETTINGS_PAGE_SUBTITLE)).toBeInTheDocument();
+
+    await waitFor(() => {
+      expect(screen.getByTestId("tenant-settings-active-scope-summary")).toHaveTextContent(
+        "Active scope: Workspace: Pilot — Northwind",
+      );
+    });
+
+    await waitFor(() => {
+      expect(screen.getByTestId("tenant-settings-caller-authority")).toHaveTextContent(
+        "Admin authority in Pilot",
+      );
+    });
+
+    expect(screen.getByTestId("workspace-scope-vocabulary-rail-stub")).toHaveAttribute(
+      "data-current-label",
+      "Workspace settings",
     );
-    expect(screen.getByTestId("tenant-settings-signed-in-as")).toHaveTextContent("Signed in as Test User");
     expect(screen.getByRole("button", { name: "Help" })).toBeInTheDocument();
   });
 

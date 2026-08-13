@@ -64,6 +64,12 @@ export function buildGcpWifStarterFederationIdentifiers(
       isPlaceholder: !subjectResolved,
     },
     {
+      id: "attribute-mapping",
+      label: "Attribute mapping",
+      value: "google.subject=assertion.sub,attribute.tenant=assertion.tid",
+      isPlaceholder: false,
+    },
+    {
       id: "provider-resource",
       label: "Provider resource name (example)",
       value: formatGcpWorkloadIdentityPoolProviderResourceName(

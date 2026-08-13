@@ -4,6 +4,7 @@ import type { PageContextualHelpRow } from "@/lib/contextual-help/types";
 import { INTERNAL_REPLAY_PATH } from "@/lib/internal-ops-route-paths";
 import { PLANNING_PATH } from "@/lib/planning-route";
 import { PRODUCT_LEARNING_PATH } from "@/lib/product-learning-route";
+import { REPEAT_REVIEW_LOOP_HELP_INBOUND_LABEL } from "@/lib/repeat-review-loop-help-title-honesty-surfaces";
 
 export const HELP_TOPIC_CONTEXTUAL_HELP_ROWS: readonly PageContextualHelpRow[] = [
   {
@@ -457,12 +458,12 @@ export const HELP_TOPIC_CONTEXTUAL_HELP_ROWS: readonly PageContextualHelpRow[] =
     prefix: "/help/repeat-review-loop",
     entry: {
       whatIsThisPage:
-        "Repeat-review loop - compare packages, replay authority, and collect second-review proof after the first finalized review.",
+        `${REPEAT_REVIEW_LOOP_HELP_INBOUND_LABEL} — compare packages, replay authority, and collect second-review proof after the first finalized review.`,
       whatToDoNext:
         "Open Compare two reviews, start the next review, or Validate review when you need live package trails.",
       whyEmpty: "This guide is always available; compare and replay surfaces populate after finalized reviews exist.",
       whereToConfigurePrerequisite:
-        "Stickiness workflows need at least one finalized architecture review in this workspace.",
+        "Follow-up review workflows need at least one finalized architecture review in this workspace.",
     },
   },
   {

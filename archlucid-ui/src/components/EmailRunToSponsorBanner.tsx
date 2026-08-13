@@ -328,7 +328,6 @@ export function EmailRunToSponsorBanner({
         {badgeDayN !== null ? (
           <span
             data-testid="email-run-to-sponsor-first-commit-badge"
-            title="UTC days since your tenant's first finalized review record"
             aria-label={`Day ${badgeDayN} since your tenant's first finalized review record`}
             className={cn("ml-2 inline-flex items-center rounded-full bg-teal-100 px-2 py-0.5 font-medium text-teal-900 dark:bg-teal-900 dark:text-teal-100", OPERATOR_TYPOGRAPHY.helper)}
           >
@@ -575,17 +574,7 @@ export function EmailRunToSponsorBanner({
           disabled={busy || blockSponsorPdf}
           onClick={() => void onDownloadPdf()}
           data-testid="email-run-to-sponsor-primary-action"
-          title={
-            blockSponsorPdfForExecutionMode
-              ? "Resolve execution mode (Real required) before generating the sponsor PDF."
-              : blockSponsorPdfForAiGate
-              ? "Resolve strict AI quality readiness signals before generating the sponsor PDF."
-              : blockSponsorPdfForProjectedDollar
-                ? "Capture buyer-provided ROI baselines before dollar-led sponsor PDF export."
-                : blockSponsorPdfForRoi
-                  ? "Capture tenant ROI baselines before generating the sponsor PDF."
-                  : undefined
-          }
+          aria-describedby={blockSponsorPdf ? "email-run-to-sponsor-pdf-block-hint" : undefined}
         >
           {busy
             ? "Preparing PDF…"
@@ -629,12 +618,19 @@ export function EmailRunToSponsorBanner({
           </div>
         ) : null}
         {sentToSponsorUtc !== null ? (
-          <StatusTag
-            kind="ready"
-            label="Sent to sponsor"
-            title={`Recorded at ${sentToSponsorUtc}`}
-            data-testid="email-run-to-sponsor-sent-badge"
-          />
+          <span className="inline-flex flex-col gap-0.5 sm:flex-row sm:items-center sm:gap-2">
+            <StatusTag
+              kind="ready"
+              label="Sent to sponsor"
+              data-testid="email-run-to-sponsor-sent-badge"
+            />
+            <time
+              dateTime={sentToSponsorUtc}
+              className={cn("text-neutral-600 dark:text-neutral-400", OPERATOR_TYPOGRAPHY.helper)}
+            >
+              Recorded at {sentToSponsorUtc}
+            </time>
+          </span>
         ) : (
           <Button
             type="button"
@@ -647,7 +643,10 @@ export function EmailRunToSponsorBanner({
             {markSentBusy ? "Recording…" : "Mark as sent to sponsor"}
           </Button>
         )}
-        <span className={cn("text-neutral-600 dark:text-neutral-400", OPERATOR_TYPOGRAPHY.helper)}>
+        <span
+          id="email-run-to-sponsor-pdf-block-hint"
+          className={cn("text-neutral-600 dark:text-neutral-400", OPERATOR_TYPOGRAPHY.helper)}
+        >
           {blockSponsorPdfForExecutionMode
             ? "PDF export stays disabled until execution mode is Real (or this is a labeled curated sample review)."
             : blockSponsorPdfForAiGate

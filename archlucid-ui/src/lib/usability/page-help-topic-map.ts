@@ -11,16 +11,22 @@ import { API_KEYS_PAGE_TITLE } from "@/lib/api-keys-settings-copy";
 import { BASELINE_SETTINGS_PAGE_TITLE } from "@/lib/baseline-settings-present";
 import { ARCHITECTURES_LIST_PATH } from "@/lib/architecture/architecture-routes";
 import { ARCHITECTURE_DRAFTS_LIST_LABEL, START_REVIEW_LABEL } from "@/lib/architecture/architecture-workflow-labels";
-import { BUYER_ONBOARDING_PAGE_TITLE } from "@/lib/buyer/buyer-polish-copy";
-import { GOVERNANCE_EXCEPTIONS_PATH } from "@/lib/governance/governance-route-paths";
+import { BUYER_ONBOARDING_PAGE_TITLE, BUYER_VALUE_REPORT_HOW_IT_WORKS_TITLE } from "@/lib/buyer/buyer-polish-copy";
 import { GOVERNANCE_SETUP_HREF } from "@/lib/governance/governance-setup-route";
-import { EXECUTIVE_DASHBOARD_HREF } from "@/lib/executive/executive-dashboard-route";
+import { GOVERNANCE_EXCEPTIONS_PATH } from "@/lib/governance/governance-route-paths";
 import { OPERATOR_NAV_LINK_LABELS } from "@/lib/i18n";
 import { PROVENANCE_HELP_TOPIC, pathIsRunProvenance } from "@/lib/provenance-evidence-copy";
 import { pathIsFindingEvidenceTrace } from "@/lib/evidence-trace-contextual-help";
 import {
   pathIsSettingsHubRoot,
 } from "@/lib/settings-admin-route-paths";
+import { EXECUTIVE_DASHBOARD_HREF } from "@/lib/executive/executive-dashboard-route";
+import { ARCHITECTURE_SCORECARD_HELP_TOPIC_LABEL } from "@/lib/architecture/architecture-scorecard-page-copy";
+import { CONNECTION_STATUS_HELP_TOPIC_LABEL } from "@/lib/connection-status-evidence-copy";
+import { PILOT_OUTCOMES_HELP_TOPIC_LABEL } from "@/lib/pilot-outcomes-evidence-copy";
+import { RECURRENCE_SCHEDULES_HOW_IT_WORKS_TITLE } from "@/lib/recurrence-schedules-copy";
+import { REPEAT_REVIEW_LOOP_HELP_INBOUND_LABEL } from "@/lib/repeat-review-loop-help-title-honesty-surfaces";
+import { STANDARDS_RULES_HELP_TOPIC_LABEL } from "@/lib/standards-rules-page";
 import { SIGNED_RECORDS_LIST_PATH } from "@/lib/signed-records-paths";
 
 export type PageHelpTopic = {
@@ -174,7 +180,7 @@ const PAGE_HELP_TOPICS: readonly { prefix: string; topic: PageHelpTopic }[] = [
   },
   {
     prefix: "/governance/recurrence-schedules",
-    topic: { slug: "digests", label: OPERATOR_NAV_LINK_LABELS.recurrenceSchedules },
+    topic: { slug: "recurrence-schedules", label: RECURRENCE_SCHEDULES_HOW_IT_WORKS_TITLE },
   },
   {
     prefix: GOVERNANCE_EXCEPTIONS_PATH,
@@ -208,7 +214,7 @@ const PAGE_HELP_TOPICS: readonly { prefix: string; topic: PageHelpTopic }[] = [
   },
   {
     prefix: "/governance/standards-and-rules",
-    topic: { slug: "policy-packs", label: OPERATOR_NAV_LINK_LABELS.governanceResolution },
+    topic: { slug: "standards-and-rules", label: STANDARDS_RULES_HELP_TOPIC_LABEL },
   },
   { prefix: "/governance", topic: { slug: "governance-approval", label: "Governance approval" } },
   { prefix: "/governance/audit", topic: { slug: "audit-trail", label: "Audit trail" } },
@@ -217,68 +223,61 @@ const PAGE_HELP_TOPICS: readonly { prefix: string; topic: PageHelpTopic }[] = [
   { prefix: "/governance/policy-packs", topic: { slug: "policy-packs", label: "Policy packs" } },
   {
     prefix: "/insights/roi-summary",
-    topic: {
-      slug: "executive-summary",
-      hashFragment: "pilot-roi-measurement",
-      label: OPERATOR_NAV_LINK_LABELS.roiReport,
-    },
+    topic: { slug: "roi-summary", label: OPERATOR_NAV_LINK_LABELS.roiReport },
   },
   {
     prefix: "/insights/pilot-outcomes",
-    topic: { slug: "executive-summary", label: "Pilot outcomes" },
+    topic: { slug: "pilot-outcomes", label: PILOT_OUTCOMES_HELP_TOPIC_LABEL },
   },
   {
-    // Trigger names the page; Learn more still opens ROI methodology for assumption drill-down.
     prefix: "/insights/architecture-scorecard",
     topic: {
-      slug: "executive-summary",
-      hashFragment: "pilot-roi-measurement",
-      label: OPERATOR_NAV_LINK_LABELS.scorecard,
+      slug: "architecture-scorecard",
+      label: ARCHITECTURE_SCORECARD_HELP_TOPIC_LABEL,
     },
   },
   {
     prefix: "/insights/executive-summary",
-    topic: { slug: "executive-summary", label: "Executive summary" },
+    topic: { slug: "executive-summary", label: BUYER_VALUE_REPORT_HOW_IT_WORKS_TITLE },
   },
   // Legacy sponsor-report bookmarks canonicalize to /insights/* above; keep prefixes for direct lookups.
   {
     prefix: "/sponsor-report/roi-summary",
-    topic: {
-      slug: "executive-summary",
-      hashFragment: "pilot-roi-measurement",
-      label: OPERATOR_NAV_LINK_LABELS.roiReport,
-    },
+    topic: { slug: "roi-summary", label: OPERATOR_NAV_LINK_LABELS.roiReport },
   },
   {
     prefix: "/sponsor-report/pilot-outcomes",
-    topic: { slug: "executive-summary", label: "Pilot outcomes" },
+    topic: { slug: "pilot-outcomes", label: PILOT_OUTCOMES_HELP_TOPIC_LABEL },
   },
-  {
-    prefix: "/insights/roi-summary",
-    topic: {
-      slug: "executive-summary",
-      hashFragment: "pilot-roi-measurement",
-      label: OPERATOR_NAV_LINK_LABELS.roiReport,
-    },
-  },
-  {
-    prefix: "/insights/pilot-outcomes",
-    topic: { slug: "executive-summary", label: "Pilot outcomes" },
-  },
-  {
-    prefix: "/insights/executive-summary",
-    topic: { slug: "executive-summary", label: "Executive summary" },
-  },
-  {
-    prefix: "/insights/architecture-scorecard",
-    topic: { slug: "executive-summary", hashFragment: "pilot-roi-measurement", label: "View ROI methodology" },
-  },
-  { prefix: "/sponsor-report", topic: { slug: "executive-summary", label: "Executive summary" } },
-  { prefix: "/sponsor-report", topic: { slug: "executive-summary", label: "Executive summary" } },
+  { prefix: "/sponsor-report", topic: { slug: "executive-summary", label: BUYER_VALUE_REPORT_HOW_IT_WORKS_TITLE } },
   { prefix: "/architecture/digests", topic: { slug: "digests", label: "Architecture digests" } },
   { prefix: "/digests", topic: { slug: "digests", label: "Architecture digests" } },
   { prefix: "/digest-subscriptions", topic: { slug: "digests", label: "Architecture digests" } },
   { prefix: "/help/digests", topic: { slug: "digests", label: "Architecture digests" } },
+  {
+    prefix: "/help/recurrence-schedules",
+    topic: { slug: "recurrence-schedules", label: OPERATOR_NAV_LINK_LABELS.recurrenceSchedules },
+  },
+  {
+    prefix: "/help/roi-summary",
+    topic: { slug: "roi-summary", label: OPERATOR_NAV_LINK_LABELS.roiReport },
+  },
+  {
+    prefix: "/help/pilot-outcomes",
+    topic: { slug: "pilot-outcomes", label: PILOT_OUTCOMES_HELP_TOPIC_LABEL },
+  },
+  {
+    prefix: "/help/architecture-scorecard",
+    topic: { slug: "architecture-scorecard", label: ARCHITECTURE_SCORECARD_HELP_TOPIC_LABEL },
+  },
+  {
+    prefix: "/help/connection-status",
+    topic: { slug: "connection-status", label: CONNECTION_STATUS_HELP_TOPIC_LABEL },
+  },
+  {
+    prefix: "/help/standards-and-rules",
+    topic: { slug: "standards-and-rules", label: STANDARDS_RULES_HELP_TOPIC_LABEL },
+  },
   {
     // Secondary hub — no planning specialty; omit Learn more (TB-2050).
     prefix: "/insights/improvement-planning",
@@ -329,7 +328,7 @@ const PAGE_HELP_TOPICS: readonly { prefix: string; topic: PageHelpTopic }[] = [
   },
   {
     prefix: "/help/repeat-review-loop",
-    topic: { slug: "repeat-review-loop", label: "Repeat-review loop" },
+    topic: { slug: "repeat-review-loop", label: REPEAT_REVIEW_LOOP_HELP_INBOUND_LABEL },
   },
   { prefix: "/help/audit-trail", topic: { slug: "audit-trail", label: "Audit trail" } },
   {
@@ -366,7 +365,7 @@ const PAGE_HELP_TOPICS: readonly { prefix: string; topic: PageHelpTopic }[] = [
   },
   {
     prefix: "/help/executive-summary",
-    topic: { slug: "executive-summary", label: "Executive summary" },
+    topic: { slug: "executive-summary", label: BUYER_VALUE_REPORT_HOW_IT_WORKS_TITLE },
   },
   {
     prefix: "/help/policy-packs",
@@ -442,7 +441,7 @@ const PAGE_HELP_TOPICS: readonly { prefix: string; topic: PageHelpTopic }[] = [
     // TB-1184 — caption matches prior plain-text help; long-form guide is troubleshooting.
     topic: { slug: "troubleshooting", label: "Microsoft Teams notification help" },
   },
-  { prefix: "/administration/connection-status", topic: { slug: "integration-readiness", label: "How integration readiness works" } },
+  { prefix: "/administration/connection-status", topic: { slug: "connection-status", label: CONNECTION_STATUS_HELP_TOPIC_LABEL } },
   { prefix: "/administration/developer", topic: { slug: "cli-usage", label: "Internal developer tools" } },
   {
     prefix: "/operate/integration-events/dlq",

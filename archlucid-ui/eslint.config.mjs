@@ -3,7 +3,6 @@ import nextVitals from "eslint-config-next/core-web-vitals";
 import nextTs from "eslint-config-next/typescript";
 
 import buyerReviewTerminology from "./eslint-rules/buyer-review-terminology.mjs";
-import { TITLE_ATTRIBUTE_LEGACY_SURFACES } from "./eslint-rules/title-attribute-legacy-surfaces.mjs";
 
 export default defineConfig([
   ...nextVitals,
@@ -57,16 +56,6 @@ export default defineConfig([
             "Do not put help text in a `title` attribute — it is hover-only and unreachable by keyboard and touch. Use FieldHelpTooltip, HelpPopover, or visible helper copy instead.",
         },
       ],
-    },
-  },
-  {
-    /**
-     * Pre-existing `title` attributes, baselined so the ban could land without a 135-site refactor.
-     * Shrink this list (TB-2147) — never extend it.
-     */
-    files: TITLE_ATTRIBUTE_LEGACY_SURFACES,
-    rules: {
-      "no-restricted-syntax": "off",
     },
   },
   globalIgnores([

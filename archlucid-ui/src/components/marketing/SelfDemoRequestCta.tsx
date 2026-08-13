@@ -44,7 +44,6 @@ export function SelfDemoRequestCta(props: { readonly className?: string }) {
         size="lg"
         sameTab
         className={cn("min-h-11 px-8 font-semibold shadow-sm", CTA_WIDTH.content, "sm:min-w-[12rem]")}
-        title={SELF_DEMO_HERO_DISCLOSURE_COPY}
         ariaDescribedby={SELF_DEMO_DISCLOSURE_ID}
         data-testid="welcome-self-demo-cta"
         onPressAnalytics={onPressAnalytics}

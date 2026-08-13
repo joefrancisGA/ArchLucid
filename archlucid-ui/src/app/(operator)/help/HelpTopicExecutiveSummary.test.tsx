@@ -84,7 +84,7 @@ describe("HelpTopicExecutiveSummary", () => {
       .filter((heading) => /^\d+\./.test(heading.textContent ?? ""));
     expect(numberedHeadings).toHaveLength(0);
 
-    const pilotRoiLinks = screen.getAllByRole("link", { name: /Pilot ROI measurement/i });
+    const pilotRoiLinks = screen.getAllByRole("link", { name: /Sponsor ROI methodology/i });
     expect(pilotRoiLinks.length).toBeGreaterThan(0);
     for (const link of pilotRoiLinks) {
       expect(link.getAttribute("href")).toMatch(

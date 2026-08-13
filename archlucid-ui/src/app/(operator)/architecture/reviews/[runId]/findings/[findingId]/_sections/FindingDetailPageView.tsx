@@ -1,6 +1,7 @@
 import { cn } from "@/lib/utils";
 import Link from "next/link";
 
+import { FindingCrossReviewLifecycleHint } from "@/components/findings/FindingCrossReviewLifecycleHint";
 import { FindingInspectContextDebugPanel } from "@/components/findings/FindingInspectContextDebugPanel";
 import { FindingOptionalArtifactUnavailable } from "@/components/findings/FindingOptionalArtifactUnavailable";
 import { FindingProvenancePanel } from "@/components/findings/FindingProvenancePanel";
@@ -67,11 +68,15 @@ import type { FindingDetailPageModel } from "./finding-detail-page-model";
 
 type Props = {
   readonly model: FindingDetailPageModel;
+  readonly crossReviewPriorRunId?: string | null;
+  readonly crossReviewLaterRunId?: string | null;
 };
 
 /** Finding detail layout: buyer-polished hero vs operator header, body, export, footer. */
 export function FindingDetailPageView(props: Props) {
   const model = props.model;
+  const crossReviewPriorRunId = props.crossReviewPriorRunId ?? null;
+  const crossReviewLaterRunId = props.crossReviewLaterRunId ?? null;
   const {
     runId,
     findingIdRouteParam,
@@ -157,6 +162,12 @@ export function FindingDetailPageView(props: Props) {
         reviewPackageHref={reviewPackageHref}
         reviewFindingsHref={reviewFindingsHref}
         currentPageLabel={pageTitle}
+      />
+      <FindingCrossReviewLifecycleHint
+        runId={runId}
+        findingId={decodedFindingId}
+        priorRunId={crossReviewPriorRunId}
+        laterRunId={crossReviewLaterRunId}
       />
       {inspectPayload !== null ? (
         <div className="space-y-2" data-testid="finding-detail-derivation-causal">

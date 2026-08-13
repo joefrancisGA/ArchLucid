@@ -1,5 +1,6 @@
 import type { FirstPilotOperatingRailSignals } from "@/lib/first-pilot-operating-rail-status";
 import { comparePageHrefAdaptive } from "@/lib/compare-url-query-params";
+import { REPEAT_REVIEW_LOOP_HELP_INBOUND_LABEL } from "@/lib/repeat-review-loop-help-title-honesty-surfaces";
 
 export type RepeatReviewActivationAction = {
   label: string;
@@ -46,7 +47,7 @@ export function resolveRepeatReviewActivation(input: {
     return {
       headline: "Plan your second committed review",
       summary:
-        "The first proof export is the baseline. A follow-up review shows stickiness when you compare against the prior manifest, replay authority for regressions, or tighten governance dry-runs before enforce.",
+        "The first proof export is the baseline. A follow-up review shows progress when you compare against the prior manifest, replay authority for regressions, or tighten governance dry-runs before enforce.",
       primaryHref: "/architecture/reviews/new",
       primaryCta: "Start next review",
       actions: [
@@ -56,7 +57,7 @@ export function resolveRepeatReviewActivation(input: {
           reason: "Reuse prior manifest context and unresolved findings from the first commit.",
         },
         {
-          label: "Repeat-review loop guide",
+          label: REPEAT_REVIEW_LOOP_HELP_INBOUND_LABEL,
           href: "/help/repeat-review-loop",
           reason: "Checklist for compare, replay, governance, and sponsor-safe ROI labels.",
         },
@@ -92,9 +93,9 @@ export function resolveRepeatReviewActivation(input: {
         reason: "Sponsor-safe ROI rollup with source labels and freshness disposition.",
       },
       {
-        label: "Repeat-review loop guide",
+        label: REPEAT_REVIEW_LOOP_HELP_INBOUND_LABEL,
         href: "/help/repeat-review-loop",
-        reason: "Second-review proof checklist and stickiness signals.",
+        reason: "Second-review proof checklist and follow-up review signals.",
       },
     ],
   };

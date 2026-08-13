@@ -2,6 +2,7 @@
 
 import Link from "next/link";
 import { HelpExecutiveSummaryPageHeader } from "@/app/(operator)/help/_sections/HelpExecutiveSummaryPageHeader";
+import { HelpPilotRoiMeasurementSection } from "@/app/(operator)/help/_sections/HelpPilotRoiMeasurementSection";
 import { HelpTopicHashScroll } from "@/app/(operator)/help/HelpTopicHashScroll";
 import { ExecutiveSummaryHelpEvidenceOrientationStrip } from "@/components/help/ExecutiveSummaryHelpEvidenceOrientationStrip";
 import { HelpTopicTableOfContents } from "@/components/help/HelpTopicTableOfContents";
@@ -18,6 +19,7 @@ import {
   EXECUTIVE_SUMMARY_HELP_PRIMARY_ACTIONS,
   executiveSummaryHelpPageSubtitle,
 } from "@/lib/executive-summary-help-guide-content";
+import { PILOT_ROI_MEASUREMENT_HELP_SECTION_TITLE } from "@/lib/executive/pilot-roi-measurement-help-guide-content";
 import { isBuyerPolishedOperatorShellEnv } from "@/lib/demo-ui-env";
 import {
   DESIGN_TOKENS,
@@ -26,6 +28,10 @@ import {
   OPERATOR_TYPOGRAPHY,
 } from "@/lib/design-tokens";
 import { extractHelpMarkdownHeadings } from "@/lib/help/help-markdown-headings";
+import {
+  extractMarkdownSectionsByAnchor,
+  omitMarkdownSectionsByAnchor,
+} from "@/lib/help/help-markdown-sections";
 import { prepareHelpMarkdownForPresentation } from "@/lib/help/help-markdown-presentation";
 import { HELP_PAGE_LAYOUT } from "@/lib/help/help-page-layout";
 import type { ProductDocumentationEntry } from "@/lib/product-documentation-registry";
@@ -43,11 +49,21 @@ export function HelpExecutiveSummaryGuideView(
   const { entry, markdown } = props;
   const buyerPolishedShell = isBuyerPolishedOperatorShellEnv();
   const sourceDocPath = entry.sourcePaths[0] ?? "";
+  const presentationOptions = { helpTopicSlug: entry.slug };
 
-  const preparedMarkdown = prepareHelpMarkdownForPresentation(markdown, sourceDocPath, {
-    helpTopicSlug: entry.slug,
-  });
-  const headings = extractHelpMarkdownHeadings(preparedMarkdown);
+  const sponsorBriefRaw = omitMarkdownSectionsByAnchor(markdown, ["pilot-roi-measurement"]);
+  const pilotRoiRaw = extractMarkdownSectionsByAnchor(markdown, ["pilot-roi-measurement"], false);
+
+  const preparedSponsorBrief = prepareHelpMarkdownForPresentation(sponsorBriefRaw, sourceDocPath, presentationOptions);
+  const preparedPilotRoi = prepareHelpMarkdownForPresentation(pilotRoiRaw, sourceDocPath, presentationOptions);
+
+  const headings = extractHelpMarkdownHeadings(
+    [preparedSponsorBrief, preparedPilotRoi].filter((chunk) => chunk.trim().length > 0).join("\n\n"),
+  ).map((heading) =>
+    heading.id === "pilot-roi-measurement"
+      ? { ...heading, title: PILOT_ROI_MEASUREMENT_HELP_SECTION_TITLE }
+      : heading,
+  );
 
   return (
     <article
@@ -101,18 +117,26 @@ export function HelpExecutiveSummaryGuideView(
             {EXECUTIVE_SUMMARY_HELP_OVERVIEW}
           </p>
 
-          <div
-            className={HELP_PAGE_LAYOUT.contentColumn}
-            data-testid="help-executive-summary-content"
-          >
-            <MarketingAccessibilityMarkdownFragment
-              markdownBody={markdown}
-              tableCaption={`${entry.title} reference table`}
-              presentation="help"
-              sourceDocPath={sourceDocPath}
-              helpTopicSlug={entry.slug}
-            />
-          </div>
+          {preparedSponsorBrief.trim().length > 0 ? (
+            <div
+              className={HELP_PAGE_LAYOUT.contentColumn}
+              data-testid="help-executive-summary-content"
+            >
+              <MarketingAccessibilityMarkdownFragment
+                markdownBody={sponsorBriefRaw}
+                tableCaption={`${entry.title} reference table`}
+                presentation="help"
+                sourceDocPath={sourceDocPath}
+                helpTopicSlug={entry.slug}
+              />
+            </div>
+          ) : null}
+
+          <HelpPilotRoiMeasurementSection
+            markdown={pilotRoiRaw}
+            sourceDocPath={sourceDocPath}
+            helpTopicSlug={entry.slug}
+          />
         </div>
 
         <HelpTopicTableOfContents headings={headings} />

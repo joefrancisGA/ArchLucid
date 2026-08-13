@@ -1,7 +1,7 @@
 using ArchLucid.Contracts.Agents;
-using ArchLucid.Core.AgentEvaluation;
 using ArchLucid.Contracts.Common;
 using ArchLucid.Contracts.Manifest;
+using ArchLucid.Core.AgentEvaluation;
 using ArchLucid.KnowledgeGraph;
 using ArchLucid.KnowledgeGraph.Models;
 
@@ -35,6 +35,11 @@ public static class AgentTopologyProposalGraphMerge
         if (results.Count == 0)
             return graph;
 
+        IReadOnlyList<AgentResult> validatedResults = AgentTopologyProposalMergeGate.FilterValidatedProposals(graph, results);
+
+        if (validatedResults.Count == 0)
+            return graph;
+
         HashSet<string> seenLabels = new(StringComparer.OrdinalIgnoreCase);
 
         foreach (GraphNode n in graph.Nodes.Where(n => !string.IsNullOrWhiteSpace(n.Label)))
@@ -43,8 +48,9 @@ public static class AgentTopologyProposalGraphMerge
         }
 
         List<GraphNode> added = [];
+        List<GraphEdge> addedEdges = [];
 
-        foreach (AgentResult result in results)
+        foreach (AgentResult result in validatedResults)
         {
             if (result.AgentType != AgentType.Topology)
                 continue;
@@ -71,7 +77,16 @@ public static class AgentTopologyProposalGraphMerge
             }
 
             if (proposal.AddedDatastores is not { Count: > 0 })
+            {
+                if (proposal.AddedRelationships is { Count: > 0 })
+                {
+                    addedEdges.AddRange(TopologyProposalRelationshipEdgeMapper.MapRelationships(
+                        [.. graph.Nodes, .. added],
+                        proposal.AddedRelationships));
+                }
+
                 continue;
+            }
 
             foreach (ManifestDatastore ds in proposal.AddedDatastores)
             {
@@ -83,9 +98,16 @@ public static class AgentTopologyProposalGraphMerge
 
                 added.Add(TopologyDatastoreNode(ds, reasoning));
             }
+
+            if (proposal.AddedRelationships is { Count: > 0 })
+            {
+                addedEdges.AddRange(TopologyProposalRelationshipEdgeMapper.MapRelationships(
+                    [.. graph.Nodes, .. added],
+                    proposal.AddedRelationships));
+            }
         }
 
-        if (added.Count == 0)
+        if (added.Count == 0 && addedEdges.Count == 0)
             return graph;
 
         return new GraphSnapshot
@@ -94,8 +116,8 @@ public static class AgentTopologyProposalGraphMerge
             ContextSnapshotId = graph.ContextSnapshotId,
             RunId = graph.RunId,
             CreatedUtc = graph.CreatedUtc,
-            Nodes = [.. graph.Nodes, .. added],
-            Edges = [.. graph.Edges],
+            Nodes = added.Count == 0 ? [.. graph.Nodes] : [.. graph.Nodes, .. added],
+            Edges = addedEdges.Count == 0 ? [.. graph.Edges] : [.. graph.Edges, .. addedEdges],
             Warnings = [.. graph.Warnings]
         };
     }

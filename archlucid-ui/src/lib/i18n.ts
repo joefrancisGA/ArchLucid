@@ -27,8 +27,8 @@ export const DOMAIN_TERMS = {
   policyPack: "Policy Pack",
   policyPackContentDocument: "Policy Pack Content Document",
   findingsSnapshot: "Findings Snapshot",
-  artifactBundle: "Artifact Bundle",
-  preCommitGate: "Pre-commit gate",
+  artifactBundle: "Deliverables bundle",
+  preCommitGate: "Approval gate",
   governanceApproval: "Governance approval",
 } as const;
 
@@ -127,6 +127,7 @@ export const OPERATOR_NAV_LINK_LABELS = {
   /** First review guide (`/architecture/first-review-guide`). */
   onboarding: BUYER_ONBOARDING_PAGE_TITLE,
   findings: "Findings",
+  assignedToMeFindings: "Assigned to me",
   riskExceptions: "Exceptions",
   decisionRegister: "Decision register",
   signedReviewRecords: "Signed review records",

@@ -1181,6 +1181,14 @@ jobs:
         continue-on-error: true
         run: python scripts/ci/check_zero_downtime_sql_migration_honesty.py
 
+      - name: Configuration architecture precedence honesty guard (TB-1562 / M-290)
+        continue-on-error: true
+        run: python scripts/ci/check_configuration_architecture_precedence_honesty.py
+
+      - name: Worker rolling deploy drain/handoff honesty guard (TB-1564 / M-292)
+        continue-on-error: true
+        run: python scripts/ci/check_worker_rolling_deploy_drain_handoff_honesty.py
+
       - name: Honesty cluster 1264-1312 guard unit tests
         continue-on-error: true
         run: python -m unittest discover -s scripts/ci/tests -p "test_check_honesty_cluster_1264_1312.py"
@@ -1204,6 +1212,10 @@ jobs:
       - name: Honesty cluster 1205-1558 guard unit tests
         continue-on-error: true
         run: python -m unittest discover -s scripts/ci/tests -p "test_check_honesty_cluster_1205_1558.py"
+
+      - name: Honesty cluster 1562-1564 guard unit tests
+        continue-on-error: true
+        run: python -m unittest discover -s scripts/ci/tests -p "test_check_honesty_cluster_1562_1564.py"
 
       - name: Buyer-surface strict claim guards (blocking when buyer paths changed)
         if: steps.buyer-surface-detect.outputs.changed == 'true'

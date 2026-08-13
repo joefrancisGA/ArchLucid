@@ -10,9 +10,9 @@ import { RefreshButton } from "@/components/ui/refresh-button";
 import { PageContextualHelpButton } from "@/components/usability/PageContextualHelpButton";
 import { OPERATOR_LINK, OPERATOR_TYPOGRAPHY } from "@/lib/design-tokens";
 import {
-  operatorLastRefreshedExactLabel,
-  operatorLastRefreshedLabel,
+  operatorFreshnessMetadataWithClockLabel,
 } from "@/lib/operator/operator-last-refreshed-label";
+import { OperatorPageFreshnessMetadata } from "@/components/operator/OperatorPageFreshnessMetadata";
 import {
   POLICY_PACKS_ACTION_REFRESHING,
   POLICY_PACKS_LAST_REFRESHED_PREFIX,
@@ -30,7 +30,13 @@ export type PolicyPacksPageHeaderProps = {
 
 /** Shared `/governance/policy-packs` hero — title, lead, contextual help, refresh, and resolution shortcut. */
 export function PolicyPacksPageHeader(props: PolicyPacksPageHeaderProps): React.JSX.Element {
-  const lastRefreshedLabel = operatorLastRefreshedLabel(props.lastRefreshedAt);
+  const freshnessLabel = props.refreshing
+    ? POLICY_PACKS_ACTION_REFRESHING
+    : operatorFreshnessMetadataWithClockLabel({
+        prefix: POLICY_PACKS_LAST_REFRESHED_PREFIX,
+        lastRefreshedAt: props.lastRefreshedAt,
+        refreshingLabel: null,
+      });
 
   return (
     <OperatorPageHeader
@@ -56,14 +62,12 @@ export function PolicyPacksPageHeader(props: PolicyPacksPageHeaderProps): React.
         </div>
       }
       metadata={
-        <span
-          className={cn("text-al-text-secondary", OPERATOR_TYPOGRAPHY.helper)}
-          data-testid="policy-packs-last-refreshed"
-          title={operatorLastRefreshedExactLabel(props.lastRefreshedAt)}
+        <OperatorPageFreshnessMetadata
+          testId="policy-packs-last-refreshed"
+          lastRefreshedAt={props.refreshing ? null : props.lastRefreshedAt}
         >
-          {POLICY_PACKS_LAST_REFRESHED_PREFIX}:{" "}
-          {props.refreshing ? POLICY_PACKS_ACTION_REFRESHING : lastRefreshedLabel}
-        </span>
+          {freshnessLabel}
+        </OperatorPageFreshnessMetadata>
       }
     />
   );

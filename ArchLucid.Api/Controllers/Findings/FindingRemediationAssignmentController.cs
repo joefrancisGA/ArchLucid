@@ -2,6 +2,7 @@ using System.Text.Json;
 
 using ArchLucid.Api.Attributes;
 using ArchLucid.Api.ProblemDetails;
+using ArchLucid.Application.Notifications.Email;
 using ArchLucid.Contracts.Findings;
 using ArchLucid.Core.Audit;
 using ArchLucid.Core.Authorization;
@@ -29,7 +30,8 @@ namespace ArchLucid.Api.Controllers.Findings;
 public sealed class FindingRemediationAssignmentController(
     IFindingRecordRemediationAssignmentRepository remediationAssignmentRepository,
     IScopeContextProvider scopeContextProvider,
-    IAuditService auditService) : ControllerBase
+    IAuditService auditService,
+    IFindingRemediationAssignmentEmailDispatcher assignmentEmailDispatcher) : ControllerBase
 {
     private readonly IFindingRecordRemediationAssignmentRepository _remediationAssignmentRepository =
         remediationAssignmentRepository ?? throw new ArgumentNullException(nameof(remediationAssignmentRepository));
@@ -38,6 +40,9 @@ public sealed class FindingRemediationAssignmentController(
         scopeContextProvider ?? throw new ArgumentNullException(nameof(scopeContextProvider));
 
     private readonly IAuditService _auditService = auditService ?? throw new ArgumentNullException(nameof(auditService));
+
+    private readonly IFindingRemediationAssignmentEmailDispatcher _assignmentEmailDispatcher =
+        assignmentEmailDispatcher ?? throw new ArgumentNullException(nameof(assignmentEmailDispatcher));
 
     /// <summary>Sets or clears remediation assignee and due date for a finding on a run.</summary>
     // idempotency-posture: operator-documented-safe-retry
@@ -103,6 +108,18 @@ public sealed class FindingRemediationAssignmentController(
                     })
             },
             ct);
+
+        if (assignee is not null)
+        {
+            await _assignmentEmailDispatcher.TryDispatchAsync(
+                scope.TenantId,
+                request.RunId,
+                trimmedId,
+                trimmedId,
+                assignee,
+                request.RemediationDueUtc,
+                ct);
+        }
 
         return NoContent();
     }

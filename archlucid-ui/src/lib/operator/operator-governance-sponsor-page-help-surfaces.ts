@@ -42,7 +42,7 @@ export const OPERATOR_GOVERNANCE_SPONSOR_PAGE_HELP_TB1668_SURFACES: readonly Ope
       id: "governance-standards-rules",
       pathname: "/governance/standards-and-rules",
       modulePath: "app/(operator)/governance/standards-and-rules/_sections/GovernanceResolutionPageView.tsx",
-      notes: "Standards and rules — policy-packs help topic.",
+      notes: "Standards and rules — standards-and-rules specialty help topic.",
     },
     {
       id: "governance-decision-register",
@@ -60,7 +60,7 @@ export const OPERATOR_GOVERNANCE_SPONSOR_PAGE_HELP_TB1668_SURFACES: readonly Ope
       id: "governance-recurrence-schedules",
       pathname: "/governance/recurrence-schedules",
       modulePath: "components/governance/RecurrenceSchedulesClient.tsx",
-      notes: "Recurrence schedules — digests help topic.",
+      notes: "Recurrence schedules — recurrence-schedules help topic.",
     },
     {
       id: "governance-findings",
@@ -89,19 +89,19 @@ export const OPERATOR_GOVERNANCE_SPONSOR_PAGE_HELP_TB1668_SURFACES: readonly Ope
     {
       id: "sponsor-executive-summary",
       pathname: "/insights/executive-summary",
-      modulePath: "app/(operator)/insights/executive-summary/_sections/ValueReportPageView.tsx",
-      notes: "Executive summary sponsor report — executive-summary help topic.",
+      modulePath: "app/(operator)/insights/executive-summary/_sections/PilotValueReportPageView.tsx",
+      notes: "Executive value report — executive-summary help topic with How the sponsor report works trigger.",
     },
     {
       id: "sponsor-pilot-outcomes",
       pathname: "/insights/pilot-outcomes",
       modulePath: "app/(operator)/insights/pilot-outcomes/_sections/PilotValueReportPageView.tsx",
-      notes: "Pilot outcomes — executive-summary help topic.",
+      notes: "Pilot outcomes — pilot-outcomes specialty help topic.",
     },
     {
       id: "sponsor-roi-summary",
       pathname: "/insights/roi-summary",
       modulePath: "app/(operator)/insights/roi-summary/_sections/RoiSummaryPageView.tsx",
-      notes: "ROI summary — executive-summary + pilot-roi-measurement hash.",
+      notes: "ROI summary — roi-summary help topic.",
     },
   ];

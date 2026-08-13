@@ -3,6 +3,8 @@ export const STANDARDS_RULES_PAGE_TITLE = "Standards & rules";
 export const STANDARDS_RULES_PAGE_SUBTITLE =
   "Review the standards, policy rules, and checks applied to this review, including enforcement mode, source policy pack, and linked evidence.";
 
+export const STANDARDS_RULES_HELP_TOPIC_LABEL = "How standards & rules work";
+
 export const STANDARDS_RULES_BANNER_TITLE = "Governance approval record";
 
 export const STANDARDS_RULES_BANNER_BODY =

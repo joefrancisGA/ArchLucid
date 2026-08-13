@@ -307,31 +307,37 @@ export function GraphPageControls(props: GraphPageControlsProps) {
 
           >
 
-            <option value="provenance-full" title={GRAPH_MODE_NATIVE_TITLES["provenance-full"]}>
+            <option value="provenance-full">
 
               {BUYER_SURFACE_VOCABULARY.evidenceGraph} (provenance)
 
             </option>
 
-            <option value="decision-subgraph" title={GRAPH_MODE_NATIVE_TITLES["decision-subgraph"]}>
+            <option value="decision-subgraph">
 
               Decision focus
 
             </option>
 
-            <option value="node-neighborhood" title={GRAPH_MODE_NATIVE_TITLES["node-neighborhood"]}>
+            <option value="node-neighborhood">
 
               Node connections
 
             </option>
 
-            <option value="architecture" title={GRAPH_MODE_NATIVE_TITLES.architecture}>
+            <option value="architecture">
 
               Architecture graph
 
             </option>
 
           </select>
+
+          <p className={cn("mt-1.5 max-w-md text-al-text-secondary", OPERATOR_TYPOGRAPHY.helper)}>
+
+            {GRAPH_MODE_NATIVE_TITLES[mode]}
+
+          </p>
 
         </div>
 

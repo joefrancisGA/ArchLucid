@@ -28,6 +28,8 @@ public static class ContextIngestionRequestMapper
             PolicyReferences = request.PolicyReferences.ToList(),
             TopologyHints = request.TopologyHints.ToList(),
             SecurityBaselineHints = request.SecurityBaselineHints.ToList(),
+            RequiredCapabilities = request.RequiredCapabilities.ToList(),
+            Constraints = request.Constraints.ToList(),
             InfrastructureDeclarations = request.InfrastructureDeclarations
                 .Select(x => new InfrastructureDeclarationReference
                 {

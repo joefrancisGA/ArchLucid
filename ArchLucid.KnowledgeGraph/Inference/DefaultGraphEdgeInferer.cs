@@ -14,6 +14,7 @@ public class DefaultGraphEdgeInferer : IGraphEdgeInferer
     private const double WeightRequirementTargeted = 1d;
     private const double WeightSecurityTargeted = 1d;
     private const double WeightSecuritySingleTopology = 0.55d;
+    private const double WeightTopologyRelationship = 1d;
 
     public IReadOnlyList<GraphEdge> InferEdges(
         ContextSnapshot contextSnapshot,
@@ -43,6 +44,7 @@ public class DefaultGraphEdgeInferer : IGraphEdgeInferer
 
         InferExplicitParentChildContainment(edges, nodes, nodeById);
         InferTopologyContainment(edges, topologyNodes);
+        InferTopologyRelationships(edges, topologyNodes);
         InferSecurityProtection(edges, securityNodes, topologyNodes);
         InferPolicyApplicability(edges, policyNodes, topologyNodes);
         InferRequirementRelevance(edges, requirementNodes, topologyNodes);
@@ -125,6 +127,81 @@ public class DefaultGraphEdgeInferer : IGraphEdgeInferer
             return false;
 
         return subnet.Label.Contains(netLabel, StringComparison.OrdinalIgnoreCase);
+    }
+
+    private static void InferTopologyRelationships(
+        List<GraphEdge> edges,
+        List<GraphNode> topologyNodes)
+    {
+        Dictionary<string, GraphNode> topologyById = topologyNodes.ToDictionary(n => n.NodeId, StringComparer.OrdinalIgnoreCase);
+
+        foreach (GraphNode node in topologyNodes)
+        {
+            AddTargetedEdges(
+                edges,
+                node,
+                CanonicalGraphPropertyKeys.DependsOnNodeIds,
+                GraphEdgeTypes.DependsOn,
+                "depends on",
+                GraphEdgeInferenceSources.TopologyDependsOn,
+                topologyById);
+
+            AddTargetedEdges(
+                edges,
+                node,
+                CanonicalGraphPropertyKeys.ExposesToNodeIds,
+                GraphEdgeTypes.Exposes,
+                "exposes",
+                GraphEdgeInferenceSources.TopologyExposes,
+                topologyById);
+
+            if (node.Properties.TryGetValue("connectedToNodeIds", out string? connectedRaw)
+                && !string.IsNullOrWhiteSpace(connectedRaw))
+            {
+                foreach (string targetId in connectedRaw.Split(',', StringSplitOptions.RemoveEmptyEntries | StringSplitOptions.TrimEntries))
+                {
+                    if (!topologyById.ContainsKey(targetId))
+                        continue;
+
+                    edges.Add(CreateEdge(
+                        node.NodeId,
+                        targetId,
+                        GraphEdgeTypes.ConnectsTo,
+                        "connects to",
+                        WeightTopologyRelationship,
+                        GraphEdgeInferenceSources.TopologyConnectsTo));
+                }
+            }
+        }
+    }
+
+    private static void AddTargetedEdges(
+        List<GraphEdge> edges,
+        GraphNode fromNode,
+        string propertyKey,
+        string edgeType,
+        string label,
+        string inferenceSource,
+        Dictionary<string, GraphNode> topologyById)
+    {
+        HashSet<string>? targeted = ParseTargetNodeIds(fromNode.Properties, propertyKey);
+
+        if (targeted is null || targeted.Count == 0)
+            return;
+
+        foreach (string targetId in targeted)
+        {
+            if (!topologyById.ContainsKey(targetId))
+                continue;
+
+            edges.Add(CreateEdge(
+                fromNode.NodeId,
+                targetId,
+                edgeType,
+                label,
+                WeightTopologyRelationship,
+                inferenceSource));
+        }
     }
 
     private static void InferSecurityProtection(

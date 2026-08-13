@@ -7,7 +7,7 @@
 > **Evaluation spine:** [`AGENT_OUTPUT_EVALUATION.md`](AGENT_OUTPUT_EVALUATION.md) · ADR [0030](../architecture/adrs/0030-coordinator-authority-pipeline-unification.md) · ADR [0042](../architecture/adrs/0042-canonical-run-write-surface.md).  
 > **Authority vs AgentTask:** **TB-1007** / **M-159**.  
 > **PilotStrict vs Real:** **M-166** / **M-167**.  
-> **GTM:** **M-203** / **M-204** · **Honesty CI:** **TB-1197**.
+> **GTM:** **M-203** / **M-204** · **Honesty CI:** **TB-1197** (shipped — `scripts/ci/check_unvalidated_proposal_overlay_honesty.py`; Vitest `archlucid-ui/src/lib/unvalidated-proposal-overlay-honesty.test.ts`).
 
 ---
 
@@ -87,10 +87,18 @@
 | ID | Role |
 | --- | --- |
 | **TB-1196** | This contract |
-| **TB-1197** | Honesty CI |
+| **TB-1197** | Honesty CI (shipped — `check_unvalidated_proposal_overlay_honesty.py`) |
 | **TB-1221** | Structural provenance fail-closed |
 | **TB-1230** | Shared hallucination defense plane (no mode fork) |
 | **TB-1007** | Authority vs AgentTask loop |
 | Done **TB-684** | PilotStrict floors (not reopened) |
+
+## TB-1197 CI anchors (shipped)
+
+| Anchor | Purpose |
+| --- | --- |
+| `scripts/ci/check_unvalidated_proposal_overlay_honesty.py` | Buyer-doc guard for prose-as-package / PilotStrict overlay overclaims |
+| `archlucid-ui/src/lib/unvalidated-proposal-overlay-honesty.test.ts` | Vitest contract drift guard |
+| `AGENT_OUTPUT_DECISIONING_REAL_VARIANCE_ISOLATION_CONTRACT.md` | Required citation for agent-merge / Real-variance claims |
 
 **Implementation note:** This row is **docs-only**; validate-before-overlay code may ship as a separate TB after contract publication.

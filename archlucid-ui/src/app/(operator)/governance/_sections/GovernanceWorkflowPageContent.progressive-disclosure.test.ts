@@ -10,11 +10,12 @@ const source = readFileSync(
 );
 
 describe("GovernanceWorkflowPageContent progressive disclosure", () => {
-  it("merges first-time quickstart into the layer header accordion on overview", () => {
-    expect(source).toContain("collapsibleChildren={");
-    expect(source).toContain("GovernanceInteractiveQuickstartContent");
-    expect(source).not.toContain("AdvancedOptionsAccordion triggerLabel={GOVERNANCE_OVERVIEW_HOW_IT_WORKS_TRIGGER}");
-    expect(source).not.toMatch(/\)\s*:\s*\(\s*\n\s*<GovernanceInteractiveQuickstartCard \/>/);
+  it("keeps OperatorPageHeader first and layer guidance collapsed after the title", () => {
+    expect(source.indexOf("<OperatorPageHeader")).toBeLessThan(source.indexOf("<LayerHeader"));
+    expect(source).not.toContain("collapsibleChildren={");
+    expect(source).not.toContain("GovernanceInteractiveQuickstartContent");
+    expect(source).not.toContain("ApprovalLineageQueueVocabularyRail");
+    expect(source).not.toContain("PackageGovernanceApprovalQueueVocabularyRail");
   });
 
   it("labels environment releases accordion and adds stable test id", () => {
@@ -26,7 +27,6 @@ describe("GovernanceWorkflowPageContent progressive disclosure", () => {
     expect(source).toContain('data-testid="governance-static-demo-fallback-status"');
     expect(source).toContain('role="status"');
     expect(source).toContain("STATIC_DEMO_GOVERNANCE_FALLBACK_STATUS");
-    expect(source).toContain("shouldSeedStaticDemoGovernanceRecordsForRun");
     expect(source).toContain("warnStaticDemoPayloadFallbackOutsidePackagedDeployOnce");
   });
 });

@@ -8,8 +8,14 @@ export function projectDeleteConfirmDescription(
   const trimmedProject = projectName.trim();
   const trimmedWorkspace = workspaceName.trim();
 
-  return `Move "${trimmedProject}" from workspace "${trimmedWorkspace}" to the recycle bin. It stays recoverable for ${retentionDays} days. Restore from Projects recycle bin if you need it back — the name must not collide with another active project.`;
+  return `Move "${trimmedProject}" from workspace "${trimmedWorkspace}" to the recycle bin. It stays recoverable for ${retentionDays} days. Restore from Projects recycle bin if you need it back — the name must not collide with another active project. Committed architecture packages and audit history are not erased.`;
 }
+
+// Deleting a project does not re-point the session: the success path only refreshes the workspaces
+// list, so scope storage still names the deleted project until the operator switches it by hand.
+// This copy therefore states the action the operator has to take rather than promising a redirect.
+export const PROJECT_DELETE_ACTIVE_SCOPE_WARNING =
+  "This is the project your session is currently scoped to. After deleting it, pick another project in the workspace switcher." as const;
 
 export const PROJECT_DELETE_CONFIRM_ACTION_LABEL = "Delete project";
 

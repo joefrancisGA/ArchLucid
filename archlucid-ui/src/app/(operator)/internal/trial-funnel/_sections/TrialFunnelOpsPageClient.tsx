@@ -20,6 +20,7 @@ import {
 } from "@/components/ui/enterprise-table";
 import { useOperatorNavAuthority } from "@/components/operator/OperatorNavAuthorityProvider";
 import { PageContextualHelpButton } from "@/components/usability/PageContextualHelpButton";
+import { FieldHelpTooltip } from "@/components/FieldHelpTooltip";
 import { DESIGN_TOKENS, OPERATOR_LAYOUT, OPERATOR_NAV_GROUP_LABEL, OPERATOR_TYPOGRAPHY } from "@/lib/design-tokens";
 import { FORBIDDEN_WORKSPACE_ADMIN_ACCESS_MESSAGE_SHORT } from "@/lib/buyer/buyer-polish-copy";
 import { AUTHORITY_RANK } from "@/lib/nav-authority";
@@ -406,9 +407,14 @@ export function TrialFunnelOpsPageClient(): ReactElement {
 
                 return (
                   <div key={stage.stageId}>
-                    <p className={cn("m-0 font-medium text-al-text-primary", OPERATOR_TYPOGRAPHY.body)} title={definition?.definition}>
-                      {stage.label}
-                    </p>
+                    <div className="inline-flex items-center gap-1">
+                      <p className={cn("m-0 font-medium text-al-text-primary", OPERATOR_TYPOGRAPHY.body)}>
+                        {stage.label}
+                      </p>
+                      {definition?.definition ? (
+                        <FieldHelpTooltip label={stage.label} hint={definition.definition} />
+                      ) : null}
+                    </div>
                     <FunnelStageBar stage={stage} maxCount={maxStageCount} />
                   </div>
                 );

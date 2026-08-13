@@ -8,8 +8,10 @@ import type { ReactElement } from "react";
 import { OperatorApiProblem } from "@/components/operator/OperatorApiProblem";
 import { OperatorLoadingNotice } from "@/components/operator/OperatorShellMessage";
 import { Card, CardContent, CardHeader } from "@/components/ui/card";
+import { useAssignedToMeFindingsCountQuery } from "@/hooks/use-assigned-to-me-findings-count-query";
 import { useOperatorStickinessSnapshotQuery } from "@/hooks/use-operator-stickiness-snapshot-query";
 import { isBuyerPolishedOperatorShellEnv } from "@/lib/demo-ui-env";
+import { GOVERNANCE_ASSIGNED_TO_ME_FINDINGS_PATH } from "@/lib/governance/governance-route-paths";
 import { formatInstantForLocale } from "@/lib/locale-datetime";
 
 /**
@@ -18,6 +20,10 @@ import { formatInstantForLocale } from "@/lib/locale-datetime";
 export function OperatorStickinessSnapshotCard(): ReactElement | null {
   const buyerPolishedShell = isBuyerPolishedOperatorShellEnv();
   const { data, isPending, isError, error } = useOperatorStickinessSnapshotQuery();
+  const assignedToMeCountQuery = useAssignedToMeFindingsCountQuery({
+    enabled: !isPending && !isError,
+  });
+  const assignedToMeCount = assignedToMeCountQuery.data ?? 0;
 
   if (isPending && !data) {
     return (
@@ -78,13 +84,13 @@ export function OperatorStickinessSnapshotCard(): ReactElement | null {
                 </Link>
               </p>
             ) : (
-              <p className="m-0 text-neutral-500 dark:text-neutral-400">No latest run in scope.</p>
+              <p className="m-0 text-neutral-500 dark:text-neutral-400">No recent review in scope.</p>
             )}
           </CardContent>
         </Card>
         <Card>
           <CardHeader className="pb-2">
-            <h3 className={cn("m-0 font-semibold text-neutral-900 dark:text-neutral-100", OPERATOR_TYPOGRAPHY.cardTitle)}>First-value milestones</h3>
+            <h3 className={cn("m-0 font-semibold text-neutral-900 dark:text-neutral-100", OPERATOR_TYPOGRAPHY.cardTitle)}>Adoption milestones</h3>
           </CardHeader>
           <CardContent className={cn("space-y-1 text-neutral-600 dark:text-neutral-400", OPERATOR_TYPOGRAPHY.helper)}>
             <p className="m-0">
@@ -111,9 +117,20 @@ export function OperatorStickinessSnapshotCard(): ReactElement | null {
             <p className="m-0 tabular-nums">
               Pending approvals: <span className="font-medium">{data.pendingGovernanceApprovals}</span>
             </p>
+            <p className="m-0 tabular-nums">
+              Assigned to you: <span className="font-medium">{assignedToMeCount}</span>
+            </p>
             <Link className={cn("font-medium text-teal-800 underline dark:text-teal-300", OPERATOR_TYPOGRAPHY.helper)} href="/governance/approval-queue">
               {buyerPolishedShell ? "View governance approval" : "Open governance workflow"}
             </Link>
+            {assignedToMeCount > 0 ? (
+              <Link
+                className={cn("font-medium text-teal-800 underline dark:text-teal-300", OPERATOR_TYPOGRAPHY.helper)}
+                href={GOVERNANCE_ASSIGNED_TO_ME_FINDINGS_PATH}
+              >
+                Open assigned findings
+              </Link>
+            ) : null}
           </CardContent>
         </Card>
       </div>

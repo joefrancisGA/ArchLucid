@@ -127,6 +127,11 @@ GUARDS: tuple[GuardCommand, ...] = (
         None,
     ),
     GuardCommand(
+        "unvalidated-proposal-overlay honesty",
+        ("python", "scripts/ci/check_unvalidated_proposal_overlay_honesty.py"),
+        None,
+    ),
+    GuardCommand(
         "polly run-completeness honesty",
         ("python", "scripts/ci/check_polly_run_completeness_honesty.py"),
         None,
@@ -344,6 +349,16 @@ GUARDS: tuple[GuardCommand, ...] = (
     GuardCommand(
         "zero-downtime sql migration honesty",
         ("python", "scripts/ci/check_zero_downtime_sql_migration_honesty.py"),
+        None,
+    ),
+    GuardCommand(
+        "configuration architecture precedence honesty",
+        ("python", "scripts/ci/check_configuration_architecture_precedence_honesty.py"),
+        None,
+    ),
+    GuardCommand(
+        "worker rolling deploy drain handoff honesty",
+        ("python", "scripts/ci/check_worker_rolling_deploy_drain_handoff_honesty.py"),
         None,
     ),
     GuardCommand(

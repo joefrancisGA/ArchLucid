@@ -10,6 +10,12 @@ public static class GovernanceWaiverExpiryWindow
 {
     public const int DefaultExpiringWithinDays = 14;
 
+    /// <summary>
+    ///     Escalating reminder boundaries in days before expiry. Shared by the in-app / digest composer (TB-061) and
+    ///     the TB-2193 expiry scanner so the two reminder paths cannot drift to different cadences.
+    /// </summary>
+    public static readonly IReadOnlyList<int> AlertDayBoundaries = [30, 14, 7, 0];
+
     public static int CountExpiringWithinDays(
         IReadOnlyList<RiskExceptionRecord> activeWaivers,
         DateTimeOffset nowUtc,

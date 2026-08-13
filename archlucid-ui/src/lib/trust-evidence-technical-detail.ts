@@ -7,7 +7,7 @@
  * in the component.
  */
 
-const UUID_PATTERN = /\b[0-9a-f]{8}-[0-9a-f]{4}-[0-9a-f]{4}-[0-9a-f]{4}-[0-9a-f]{12}\b/i;
+import { DELIVERABLES_BUNDLE_LABEL } from "@/lib/usability/canonical-product-terms";
 
 /**
  * Matches ISO-8601 instants, including .NET's 7-digit fractional seconds.
@@ -17,6 +17,9 @@ const ISO_TIMESTAMP_PATTERN = /\b(\d{4})-(\d{2})-(\d{2})T(\d{2}):(\d{2}):(\d{2})
 const ISO_TIMESTAMP_GLOBAL_PATTERN = new RegExp(ISO_TIMESTAMP_PATTERN.source, "g");
 
 const SEMVER_PATTERN = /\bv\d+\.\d+(?:\.\d+)?\b/i;
+
+const UUID_PATTERN =
+  /\b[0-9a-f]{8}-[0-9a-f]{4}-[1-5][0-9a-f]{3}-[89ab][0-9a-f]{3}-[0-9a-f]{12}\b/i;
 
 /** Clause keywords that only make sense to an engineer reading diagnostics. */
 const TECHNICAL_CLAUSE_PATTERN =
@@ -123,7 +126,7 @@ export function trustEvidenceFieldTitleForDisplay(title: string): string {
   const trimmed = title.trim();
 
   if (/bundle id/i.test(trimmed)) {
-    return "Artifact bundle";
+    return DELIVERABLES_BUNDLE_LABEL;
   }
 
   return trimmed;

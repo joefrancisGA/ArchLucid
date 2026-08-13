@@ -2,17 +2,14 @@
 
 import type { ReactNode } from "react";
 
-import { cn } from "@/lib/utils";
-
 import { GOVERNANCE_AUDIT_PATH } from "@/lib/governance/governance-route-paths";
 import { OperatorPageHeader } from "@/components/operator/OperatorPageHeader";
 import { RefreshButton } from "@/components/ui/refresh-button";
 import { PageContextualHelpButton } from "@/components/usability/PageContextualHelpButton";
-import { OPERATOR_TYPOGRAPHY } from "@/lib/design-tokens";
 import {
-  operatorLastRefreshedExactLabel,
-  operatorLastRefreshedLabel,
+  operatorFreshnessMetadataWithClockLabel,
 } from "@/lib/operator/operator-last-refreshed-label";
+import { OperatorPageFreshnessMetadata } from "@/components/operator/OperatorPageFreshnessMetadata";
 import {
   AUDIT_TRAIL_LAST_UPDATED_PREFIX,
   AUDIT_TRAIL_REFRESHING_ACTION,
@@ -30,7 +27,13 @@ export type AuditPageHeaderProps = {
 
 /** Shared `/governance/audit` hero — title, lead, contextual help, refresh, and last-refreshed metadata. */
 export function AuditPageHeader(props: AuditPageHeaderProps): React.JSX.Element {
-  const lastRefreshedLabel = operatorLastRefreshedLabel(props.lastRefreshedAt);
+  const freshnessLabel = props.searching
+    ? AUDIT_TRAIL_REFRESHING_ACTION
+    : operatorFreshnessMetadataWithClockLabel({
+        prefix: AUDIT_TRAIL_LAST_UPDATED_PREFIX,
+        lastRefreshedAt: props.lastRefreshedAt,
+        refreshingLabel: null,
+      });
 
   return (
     <OperatorPageHeader
@@ -41,13 +44,12 @@ export function AuditPageHeader(props: AuditPageHeaderProps): React.JSX.Element 
       metadata={
         <>
           {props.metadata}
-          <span
-            className={cn("text-al-text-secondary", OPERATOR_TYPOGRAPHY.helper)}
-            data-testid="audit-last-refreshed"
-            title={operatorLastRefreshedExactLabel(props.lastRefreshedAt)}
+          <OperatorPageFreshnessMetadata
+            testId="audit-last-refreshed"
+            lastRefreshedAt={props.searching ? null : props.lastRefreshedAt}
           >
-            {AUDIT_TRAIL_LAST_UPDATED_PREFIX}: {props.searching ? AUDIT_TRAIL_REFRESHING_ACTION : lastRefreshedLabel}
-          </span>
+            {freshnessLabel}
+          </OperatorPageFreshnessMetadata>
         </>
       }
       actions={

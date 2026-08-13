@@ -1,5 +1,6 @@
 import { cn } from "@/lib/utils";
 
+import { FieldHelpTooltip } from "@/components/FieldHelpTooltip";
 import {
   ALERTS_SUMMARY_ACKNOWLEDGED_LABEL,
   ALERTS_SUMMARY_COUNT_NOT_EVALUATED,
@@ -31,21 +32,23 @@ export type AlertsInboxSummaryRowProps = {
 type SummaryCountDisplay = {
   readonly value: string;
   readonly valueAriaLabel?: string;
-  readonly tileTitle?: string;
+  readonly labelHint?: string;
 };
 
 function SummaryMetric(props: {
   readonly label: string;
   readonly value: string;
   readonly valueAriaLabel?: string;
-  readonly tileTitle?: string;
+  readonly labelHint?: string;
 }): React.JSX.Element {
   return (
-    <div
-      className="rounded-md border border-neutral-200 bg-al-surface-raised px-3 py-2 dark:border-neutral-800"
-      title={props.tileTitle}
-    >
-      <p className={cn("m-0 text-al-text-secondary", OPERATOR_TYPOGRAPHY.helper)}>{props.label}</p>
+    <div className="rounded-md border border-neutral-200 bg-al-surface-raised px-3 py-2 dark:border-neutral-800">
+      <p className={cn("m-0 text-al-text-secondary", OPERATOR_TYPOGRAPHY.helper)}>
+        <span className="inline-flex items-center gap-1">
+          {props.label}
+          {props.labelHint ? <FieldHelpTooltip label={props.label} hint={props.labelHint} /> : null}
+        </span>
+      </p>
       <p
         className={cn("m-0 mt-1 font-semibold tabular-nums text-al-text-primary", OPERATOR_TYPOGRAPHY.cardTitle)}
         aria-label={props.valueAriaLabel}
@@ -134,7 +137,7 @@ export function resolveOpenAlertsSummaryDisplay(args: {
   return {
     value: formatAlertsOpenSummaryValue(args.open, args.blocking),
     valueAriaLabel: formatAlertsOpenSummaryAriaLabel(args.open, args.blocking),
-    tileTitle: ALERTS_SUMMARY_OPEN_BLOCKING_RELATIONSHIP_TITLE,
+    labelHint: ALERTS_SUMMARY_OPEN_BLOCKING_RELATIONSHIP_TITLE,
   };
 }
 
@@ -206,7 +209,7 @@ export function AlertsInboxSummaryRow(props: AlertsInboxSummaryRowProps): React.
         label={ALERTS_SUMMARY_OPEN_LABEL}
         value={openDisplay.value}
         valueAriaLabel={openDisplay.valueAriaLabel}
-        tileTitle={openDisplay.tileTitle}
+        labelHint={openDisplay.labelHint}
       />
       <SummaryMetric
         label={ALERTS_SUMMARY_ACKNOWLEDGED_LABEL}

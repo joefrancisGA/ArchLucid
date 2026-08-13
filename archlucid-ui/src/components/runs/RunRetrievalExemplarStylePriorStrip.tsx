@@ -4,16 +4,6 @@ import type { ReactElement } from "react";
 import { OPERATOR_TYPOGRAPHY } from "@/lib/design-tokens";
 import type { RunRetrievalGroundingSummary } from "@/types/authority";
 
-function shortList(items: readonly string[], limit: number): string {
-  if (items.length === 0)
-    return "-";
-
-  const visible = items.slice(0, limit);
-  const suffix = items.length > limit ? ` +${items.length - limit}` : "";
-
-  return `${visible.join(", ")}${suffix}`;
-}
-
 type RunRetrievalExemplarStylePriorStripProps = {
   readonly summary: RunRetrievalGroundingSummary;
 };
@@ -49,11 +39,8 @@ export function RunRetrievalExemplarStylePriorStrip(
             <dt>Exemplar chunks</dt>
             <dd className="m-0 tabular-nums sm:justify-self-end">{exemplarCount}</dd>
             <dt>Exemplar documents</dt>
-            <dd
-              className={cn("m-0 font-mono sm:justify-self-end", OPERATOR_TYPOGRAPHY.micro)}
-              title={documentIds.join(", ")}
-            >
-              {shortList(documentIds, 2)}
+            <dd className={cn("m-0 break-all font-mono sm:justify-self-end", OPERATOR_TYPOGRAPHY.micro)}>
+              {documentIds.length > 0 ? documentIds.join(", ") : "-"}
             </dd>
           </dl>
           <p className="m-0 mt-2 text-neutral-600 dark:text-neutral-300">

@@ -41,8 +41,28 @@ type SidebarNavLinkProps = {
   readonly onNavigate?: () => void;
 };
 
+function sidebarNavLinkHintId(href: string): string {
+  return `sidebar-nav-link-hint-${href.replace(/[^a-zA-Z0-9]+/g, "-")}`;
+}
+
+function sidebarNavLinkSupplementalHint(presented: NavLinkItem, advancedDemo: boolean): string | null {
+  if (presented.navLinkDisabled === true) {
+    return presented.navLinkDisabledTitle ?? presented.title;
+  }
+
+  const hint = advancedDemo ? `${presented.title} (Advanced — optional)` : presented.title;
+
+  if (hint.trim() === presented.label.trim()) {
+    return null;
+  }
+
+  return hint;
+}
+
 export function SidebarNavLink(props: SidebarNavLinkProps): ReactElement {
   const { presented } = props;
+  const supplementalHint = sidebarNavLinkSupplementalHint(presented, props.advancedDemo);
+  const hintId = supplementalHint === null ? undefined : sidebarNavLinkHintId(presented.href);
   const Icon = presented.icon;
   const onboardingAnchor = onboardingTourAnchorForHref(presented.href);
   const pilotNavTestId = pilotNavLinkTestId(presented.href);
@@ -68,30 +88,34 @@ export function SidebarNavLink(props: SidebarNavLinkProps): ReactElement {
 
   if (presented.navLinkDisabled === true) {
     return (
-      <span
-        {...(pilotNavTestId !== undefined ? { "data-testid": pilotNavTestId } : {})}
-        className={cn(sharedClassName, "cursor-not-allowed text-neutral-500 dark:text-neutral-400")}
-        title={presented.navLinkDisabledTitle ?? presented.title}
-        aria-disabled="true"
-      >
-        {labelContent}
-      </span>
+      <>
+        <span
+          {...(pilotNavTestId !== undefined ? { "data-testid": pilotNavTestId } : {})}
+          className={cn(sharedClassName, "cursor-not-allowed text-neutral-500 dark:text-neutral-400")}
+          aria-disabled="true"
+          aria-describedby={hintId}
+        >
+          {labelContent}
+        </span>
+        {supplementalHint ? (
+          <span id={hintId} className="sr-only">
+            {supplementalHint}
+          </span>
+        ) : null}
+      </>
     );
   }
 
   return (
-    <Link
-      href={presented.href}
-      prefetch={HIGH_TRAFFIC_HUB_HREFS.has(presented.href) ? true : undefined}
-      {...(onboardingAnchor !== undefined ? { "data-onboarding": onboardingAnchor } : {})}
-      {...(pilotNavTestId !== undefined ? { "data-testid": pilotNavTestId } : {})}
-      className={cn(sharedClassName, "hover:bg-neutral-100 dark:hover:bg-neutral-800")}
-      title={
-        props.advancedDemo
-          ? `${presented.title} (Advanced — optional)`
-          : presented.title
-      }
-      aria-current={props.active ? "page" : undefined}
+    <>
+      <Link
+        href={presented.href}
+        prefetch={HIGH_TRAFFIC_HUB_HREFS.has(presented.href) ? true : undefined}
+        {...(onboardingAnchor !== undefined ? { "data-onboarding": onboardingAnchor } : {})}
+        {...(pilotNavTestId !== undefined ? { "data-testid": pilotNavTestId } : {})}
+        className={cn(sharedClassName, "hover:bg-neutral-100 dark:hover:bg-neutral-800")}
+        aria-describedby={hintId}
+        aria-current={props.active ? "page" : undefined}
       aria-keyshortcuts={
         presented.keyShortcut ? registryKeyToAriaKeyShortcuts(presented.keyShortcut) : undefined
       }
@@ -108,9 +132,15 @@ export function SidebarNavLink(props: SidebarNavLinkProps): ReactElement {
 
         props.onNavigate?.();
       }}
-    >
-      {labelContent}
-    </Link>
+      >
+        {labelContent}
+      </Link>
+      {supplementalHint ? (
+        <span id={hintId} className="sr-only">
+          {supplementalHint}
+        </span>
+      ) : null}
+    </>
   );
 }
 

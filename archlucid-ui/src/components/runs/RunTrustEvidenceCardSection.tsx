@@ -12,6 +12,7 @@ import { isBuyerPolishedOperatorShellEnv } from "@/lib/demo-ui-env";
 import { evidenceAbsenceFindingLabel, isEvidenceAbsenceFindingTitle } from "@/lib/evidence-absence-finding-copy";
 import { buildReviewDetailTabHref } from "@/lib/review-detail-workspace-tabs";
 import {
+  formatProofConfidenceBuyerLabelFromTrustStatus,
   formatProofConfidenceLabelFromTrustStatus,
   PROOF_CONFIDENCE_FIELD_LABEL,
 } from "@/lib/proof-confidence-taxonomy";
@@ -244,7 +245,9 @@ function evidenceBasisField(
 }
 
 function buildEvidenceBasisFields(card: RunTrustEvidenceCard, buyerPolishedShell: boolean): EvidenceBasisField[] {
-  const proofConfidenceLabel = formatProofConfidenceLabelFromTrustStatus(card.executionMode.status);
+  const proofConfidenceLabel = buyerPolishedShell
+    ? formatProofConfidenceBuyerLabelFromTrustStatus(card.executionMode.status)
+    : formatProofConfidenceLabelFromTrustStatus(card.executionMode.status);
 
   return [
     {

@@ -8,6 +8,7 @@ import { useMemo, useRef, useState } from "react";
 
 import { CopyTraceRowWorkItemButton } from "@/components/CopyFindingAsWorkItemButton";
 import { AiOutputGovernanceLabel } from "@/components/AiOutputGovernanceLabel";
+import { FieldHelpTooltip } from "@/components/FieldHelpTooltip";
 import { FindingPolicyRuleBadge } from "@/components/findings/FindingPolicyRuleBadge";
 import { ItsmOutboundQuickActions } from "@/components/itsm/ItsmOutboundQuickActions";
 import { FindingAiReasoningDialog } from "@/components/findings/FindingAiReasoningDialog";
@@ -27,7 +28,6 @@ import { isBuyerPolishedOperatorShellEnv } from "@/lib/demo-ui-env";
 import { OPERATOR_TYPOGRAPHY } from "@/lib/design-tokens";
 import { usePrefetchItsmFindingCorrelations } from "@/lib/use-itsm-finding-correlations";
 import type { FindingWireSnapshot } from "@/lib/quick-decision-summary-derive";
-import { truncateForList } from "@/lib/truncate-for-list";
 import type { FindingTraceConfidenceDto } from "@/types/explanation";
 import { normalizeFindingConfidenceLevel, traceCompletenessPercent } from "@/types/explanation";
 
@@ -218,6 +218,10 @@ export function RunFindingExplainabilityTable({
                     : [],
               ) ?? graphHref;
 
+            const missingTraceFields =
+              row.missingTraceFields?.filter((field) => field.trim().length > 0) ?? [];
+            const traceGapsSummary = gapsSummary(row);
+
             return (
               <div
                 key={row.findingId}
@@ -232,10 +236,9 @@ export function RunFindingExplainabilityTable({
                     {row.findingId}
                   </div>
                   <div
-                    className={cn("mt-0.5 leading-snug text-neutral-800 dark:text-neutral-200", OPERATOR_TYPOGRAPHY.helper)}
-                    title={titleFull}
+                    className={cn("mt-0.5 break-words leading-snug text-neutral-800 dark:text-neutral-200", OPERATOR_TYPOGRAPHY.helper)}
                   >
-                    {truncateForList(titleFull, 120)}
+                    {titleFull}
                   </div>
                   <AiOutputGovernanceLabel findingId={row.findingId} className="mt-1" />
                 </div>
@@ -259,15 +262,15 @@ export function RunFindingExplainabilityTable({
                 <div className={cn("min-w-0 text-neutral-700 dark:text-neutral-300", OPERATOR_TYPOGRAPHY.helper)}>{row.traceConfidenceLabel}</div>
                 <div className={cn("tabular-nums text-neutral-700 dark:text-neutral-300", OPERATOR_TYPOGRAPHY.helper)}>{pct}</div>
                 <div className={cn("min-w-0 text-neutral-700 dark:text-neutral-300", OPERATOR_TYPOGRAPHY.helper)}>{confidenceSlot}</div>
-                <div
-                  className={cn("min-w-0 text-neutral-600 dark:text-neutral-400", OPERATOR_TYPOGRAPHY.helper)}
-                  title={
-                    row.missingTraceFields && row.missingTraceFields.length > 0
-                      ? row.missingTraceFields.join(", ")
-                      : undefined
-                  }
-                >
-                  {gapsSummary(row)}
+                <div className={cn("min-w-0 text-neutral-600 dark:text-neutral-400", OPERATOR_TYPOGRAPHY.helper)}>
+                  {missingTraceFields.length > 2 ? (
+                    <span className="inline-flex items-center gap-1">
+                      {traceGapsSummary}
+                      <FieldHelpTooltip label="Trace gaps" hint={missingTraceFields.join(", ")} />
+                    </span>
+                  ) : (
+                    traceGapsSummary
+                  )}
                 </div>
                 <div className="flex min-w-0 flex-col gap-1.5">
                   <div className="flex min-w-0 flex-wrap gap-1">

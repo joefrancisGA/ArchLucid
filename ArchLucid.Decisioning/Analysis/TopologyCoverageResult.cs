@@ -50,4 +50,11 @@ public class TopologyCoverageResult
         get;
         set;
     } = [];
+
+    /// <summary>Workload-conditioned categories compared during this analysis.</summary>
+    public List<string> ExpectedCategories
+    {
+        get;
+        set;
+    } = [];
 }

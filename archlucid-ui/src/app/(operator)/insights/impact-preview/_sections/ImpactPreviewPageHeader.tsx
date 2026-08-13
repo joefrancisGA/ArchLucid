@@ -1,16 +1,13 @@
 "use client";
 
-import { cn } from "@/lib/utils";
-
 import { IMPACT_PREVIEW_PATH } from "@/lib/impact-preview-route";
 import { OperatorPageHeader } from "@/components/operator/OperatorPageHeader";
 import { RefreshButton } from "@/components/ui/refresh-button";
 import { PageContextualHelpButton } from "@/components/usability/PageContextualHelpButton";
-import { OPERATOR_TYPOGRAPHY } from "@/lib/design-tokens";
 import {
-  operatorLastRefreshedExactLabel,
-  operatorLastRefreshedLabel,
+  operatorFreshnessMetadataWithClockLabel,
 } from "@/lib/operator/operator-last-refreshed-label";
+import { OperatorPageFreshnessMetadata } from "@/components/operator/OperatorPageFreshnessMetadata";
 import {
   IMPACT_PREVIEW_ACTION_REFRESHING,
   IMPACT_PREVIEW_LAST_REFRESHED_PREFIX,
@@ -26,7 +23,13 @@ export type ImpactPreviewPageHeaderProps = {
 
 /** Shared `/insights/impact-preview` hero — title, lead, contextual help, refresh, and last-refreshed metadata. */
 export function ImpactPreviewPageHeader(props: ImpactPreviewPageHeaderProps): React.JSX.Element {
-  const lastRefreshedLabel = operatorLastRefreshedLabel(props.lastRefreshedAt);
+  const freshnessLabel = props.listLoading
+    ? IMPACT_PREVIEW_ACTION_REFRESHING
+    : operatorFreshnessMetadataWithClockLabel({
+        prefix: IMPACT_PREVIEW_LAST_REFRESHED_PREFIX,
+        lastRefreshedAt: props.lastRefreshedAt,
+        refreshingLabel: null,
+      });
 
   return (
     <OperatorPageHeader
@@ -45,13 +48,12 @@ export function ImpactPreviewPageHeader(props: ImpactPreviewPageHeaderProps): Re
         </div>
       }
       metadata={
-        <span
-          className={cn("text-al-text-secondary", OPERATOR_TYPOGRAPHY.helper)}
-          data-testid="impact-preview-last-refreshed"
-          title={operatorLastRefreshedExactLabel(props.lastRefreshedAt)}
+        <OperatorPageFreshnessMetadata
+          testId="impact-preview-last-refreshed"
+          lastRefreshedAt={props.listLoading ? null : props.lastRefreshedAt}
         >
-          {IMPACT_PREVIEW_LAST_REFRESHED_PREFIX}: {props.listLoading ? IMPACT_PREVIEW_ACTION_REFRESHING : lastRefreshedLabel}
-        </span>
+          {freshnessLabel}
+        </OperatorPageFreshnessMetadata>
       }
     />
   );

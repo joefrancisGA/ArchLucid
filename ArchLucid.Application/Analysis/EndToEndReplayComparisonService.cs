@@ -4,6 +4,7 @@ using ArchLucid.Contracts.Agents;
 using ArchLucid.Contracts.Common;
 using ArchLucid.Contracts.Findings;
 using ArchLucid.Core.AgentEvaluation;
+using ArchLucid.Core.Scoping;
 using ArchLucid.Contracts.Architecture;
 using ArchLucid.Contracts.Metadata;
 using ArchLucid.Persistence.Data.Repositories;
@@ -26,7 +27,9 @@ public sealed class EndToEndReplayComparisonService(
     IAgentResultDiffService agentResultDiffService,
     IManifestDiffService manifestDiffService,
     IExportRecordDiffService exportRecordDiffService,
-    ICrossReviewFindingCorrelationService crossReviewFindingCorrelationService) : IEndToEndReplayComparisonService
+    ICrossReviewFindingCorrelationService crossReviewFindingCorrelationService,
+    ICrossReviewFindingLifecycleService crossReviewFindingLifecycleService,
+    IScopeContextProvider scopeContextProvider) : IEndToEndReplayComparisonService
 {
     private readonly IRunDetailQueryService _runDetailQueryService = runDetailQueryService ?? throw new ArgumentNullException(nameof(runDetailQueryService));
 
@@ -43,6 +46,12 @@ public sealed class EndToEndReplayComparisonService(
 
     private readonly ICrossReviewFindingCorrelationService _crossReviewFindingCorrelationService =
         crossReviewFindingCorrelationService ?? throw new ArgumentNullException(nameof(crossReviewFindingCorrelationService));
+
+    private readonly ICrossReviewFindingLifecycleService _crossReviewFindingLifecycleService =
+        crossReviewFindingLifecycleService ?? throw new ArgumentNullException(nameof(crossReviewFindingLifecycleService));
+
+    private readonly IScopeContextProvider _scopeContextProvider =
+        scopeContextProvider ?? throw new ArgumentNullException(nameof(scopeContextProvider));
 
     public async Task<EndToEndReplayComparisonReport> BuildAsync(string leftRunId, string rightRunId, CancellationToken cancellationToken = default)
     {
@@ -95,12 +104,46 @@ public sealed class EndToEndReplayComparisonService(
         }
 
         AddInterpretationNotes(report);
+        List<ArchitectureFinding> leftFindings = CollectFindings(leftDetail);
+        List<ArchitectureFinding> rightFindings = CollectFindings(rightDetail);
         CrossReviewFindingCorrelationResult correlation = _crossReviewFindingCorrelationService.Correlate(
-            CollectFindings(leftDetail),
-            CollectFindings(rightDetail));
+            leftFindings,
+            rightFindings);
         report.FindingCorrelation = ComparisonFindingCorrelationMetadataBuilder.Build(correlation);
+        await AddFindingLifecycleAsync(report, leftRun, leftFindings, rightFindings, leftResults, rightResults, correlation, cancellationToken);
 
         return report;
+    }
+
+    /// <summary>
+    ///     TB-2194: places each correlated finding on the lifecycle spine so the comparison can say which prior findings
+    ///     were actually confirmed remediated rather than merely absent from the newer review.
+    /// </summary>
+    private async Task AddFindingLifecycleAsync(
+        EndToEndReplayComparisonReport report,
+        ArchitectureRun leftRun,
+        IReadOnlyList<ArchitectureFinding> leftFindings,
+        IReadOnlyList<ArchitectureFinding> rightFindings,
+        IReadOnlyCollection<AgentResult> leftResults,
+        IReadOnlyCollection<AgentResult> rightResults,
+        CrossReviewFindingCorrelationResult correlation,
+        CancellationToken cancellationToken)
+    {
+        CrossReviewFindingLifecycleResult lifecycle = await _crossReviewFindingLifecycleService.BuildAsync(
+            new CrossReviewFindingLifecycleRequest
+            {
+                TenantId = _scopeContextProvider.GetCurrentScope().TenantId,
+                PriorFindings = leftFindings,
+                CurrentFindings = rightFindings,
+                Correlation = correlation,
+                SourceCoverage = CrossReviewFindingSourceCoverageBuilder.FromAgentResults(leftResults, rightResults),
+                DispositionsSinceUtc =
+                    new DateTimeOffset(DateTime.SpecifyKind(leftRun.CreatedUtc, DateTimeKind.Utc)),
+            },
+            cancellationToken);
+
+        report.FindingLifecycle = lifecycle.Summary;
+        report.FindingLifecycleRecords = [.. lifecycle.Records];
     }
 
     private static List<ArchitectureFinding> CollectFindings(ArchitectureRunDetail detail)

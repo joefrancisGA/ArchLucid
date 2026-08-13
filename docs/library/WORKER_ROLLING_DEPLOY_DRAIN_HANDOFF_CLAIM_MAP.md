@@ -4,7 +4,7 @@
 
 **Audience:** Engineering, security reviewers, principal-architect diligence. Not a buyer brochure.
 
-**Status:** **Done** (2026-08-10) — **TB-1563** / GTM **M-292**/**M-293**. Pair honesty CI **TB-1564** (open).
+**Status:** **Done** (2026-08-10) — **TB-1563** / GTM **M-292**/**M-293**. Pair honesty CI **TB-1564** **Done** (2026-08-12).
 
 **Verdict (one line):** A Worker revision roll is **soft drain (~45s) then kill**, not a live handoff of in-flight work. Durable Worker work (**authority outbox**, durable jobs, other leased loops) **reclaims after lease/stuck expiry** on a peer. Long-running **agent LLM execute is API-sync today** — Worker ZDT does **not** protect it. No product max-run-duration is sized to survive a deploy; the baked-in stop budget is **`HostOptions.ShutdownTimeout = 45s`** (ACA `terminationGracePeriodSeconds` unset in Terraform).
 
@@ -75,6 +75,19 @@ Until **TB-1311** ships async agent execute to Worker, “runs executing on the 
 | Open **TB-943** / Done **TB-1523** / **M-277** | Execute stuck / crash-recovery map |
 | Open **TB-1311** / **M-231** | Async agent execute → Worker |
 | Done **TB-1563** / **M-292** | This Worker rolling-deploy claim map |
+
+---
+
+## CI anchors for **TB-1564**
+
+| Anchor | Role |
+| --- | --- |
+| `scripts/ci/check_worker_rolling_deploy_drain_handoff_honesty.py` | Fail drain-to-completion, live handoff, Worker-resumes-execute, auto-orphan-fail-on-deploy, and TF-pins-grace overclaims |
+| `WORKER_ROLLING_DEPLOY_DRAIN_HANDOFF_CLAIM_MAP.md` | Drift guard (this file) |
+| `AddArchLucidGracefulShutdown` / `ShutdownTimeout` | ~45s cooperative stop budget |
+| `CRASH_RECOVERY_LONG_RUNNING_REVIEW_CLAIM_MAP.md` | Execute vs authority outbox boundary (**TB-1523**) |
+
+Honesty CI shipped: **TB-1564**.
 
 ---
 

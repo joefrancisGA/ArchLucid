@@ -153,6 +153,16 @@ public static partial class ServiceCollectionExtensions
         services.AddHostedService<DraftIntakeReaperHostedService>();
     }
 
+    private static void RegisterWaiverExpiryNotificationHostedService(
+        IServiceCollection services,
+        ArchLucidHostingRole hostingRole)
+    {
+        if (hostingRole is not ArchLucidHostingRole.Combined and not ArchLucidHostingRole.Worker)
+            return;
+
+        services.AddHostedService<WaiverExpiryNotificationHostedService>();
+    }
+
     private static void RegisterTenantErasureEligiblePurgeHostedService(
         IServiceCollection services,
         ArchLucidHostingRole hostingRole)

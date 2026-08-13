@@ -15,7 +15,6 @@ import {
   SelectValue,
 } from "@/components/ui/select";
 import { WhyDisabledCtaHint } from "@/components/usability/WhyDisabledCtaHint";
-import { enterpriseMutationControlDisabledTitle } from "@/lib/enterprise-controls-context-copy";
 import { OPERATOR_TYPOGRAPHY } from "@/lib/design-tokens";
 import { resolveSlackAddDestinationCtaPresentation } from "@/lib/slack-integration-add-destination-cta";
 import {
@@ -50,6 +49,7 @@ type SlackDestinationFormProps = {
 
 const FOCUS_RING_CLASS =
   "focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-[var(--al-accent-border-focus)] focus-visible:ring-offset-2";
+const SLACK_MUTATE_DISABLED_HINT_ID = "slack-mutate-disabled-hint";
 
 function FieldHelper(props: { readonly id: string; readonly children: string }): React.ReactElement {
   return (
@@ -147,6 +147,7 @@ export function SlackDestinationForm(props: SlackDestinationFormProps): React.Re
     !canMutate ? whyDisabledEnterpriseMutationControl() : null,
     saveDisabledReason,
   ]);
+  const fieldDescribedBySuffix = !canMutate ? ` ${SLACK_MUTATE_DISABLED_HINT_ID}` : "";
 
   useEffect(() => {
     if (previousWebhookUrlRef.current === webhookUrl) {
@@ -171,6 +172,15 @@ export function SlackDestinationForm(props: SlackDestinationFormProps): React.Re
         </p>
       </div>
 
+      {!canMutate ? (
+        <WhyDisabledCtaHint
+          id={SLACK_MUTATE_DISABLED_HINT_ID}
+          reason={whyDisabledEnterpriseMutationControl()}
+          testId={SLACK_MUTATE_DISABLED_HINT_ID}
+          className="max-w-3xl"
+        />
+      ) : null}
+
       <div className="grid max-w-xl gap-5">
         <div>
           <RequiredFieldLabel htmlFor="slack-destination-name">{SLACK_FIELD_DESTINATION_NAME_LABEL}</RequiredFieldLabel>
@@ -179,8 +189,7 @@ export function SlackDestinationForm(props: SlackDestinationFormProps): React.Re
             className="mt-1"
             placeholder="Governance alerts"
             disabled={disabled}
-            title={canMutate ? undefined : enterpriseMutationControlDisabledTitle}
-            aria-describedby="slack-destination-name-helper slack-destination-name-error"
+            aria-describedby={`slack-destination-name-helper slack-destination-name-error${fieldDescribedBySuffix}`}
             aria-required="true"
             {...register("name")}
           />
@@ -206,8 +215,7 @@ export function SlackDestinationForm(props: SlackDestinationFormProps): React.Re
                 <SelectTrigger
                   id="slack-minimum-severity"
                   className={cn("mt-1", FOCUS_RING_CLASS)}
-                  title={canMutate ? undefined : enterpriseMutationControlDisabledTitle}
-                  aria-describedby="slack-minimum-severity-helper"
+                  aria-describedby={`slack-minimum-severity-helper${fieldDescribedBySuffix}`}
                 >
                   <SelectValue placeholder="Select severity" />
                 </SelectTrigger>
@@ -233,8 +241,7 @@ export function SlackDestinationForm(props: SlackDestinationFormProps): React.Re
             placeholder="https://hooks.slack.com/services/..."
             disabled={disabled}
             autoComplete="off"
-            title={canMutate ? undefined : enterpriseMutationControlDisabledTitle}
-            aria-describedby="slack-webhook-url-helper slack-webhook-url-error"
+            aria-describedby={`slack-webhook-url-helper slack-webhook-url-error${fieldDescribedBySuffix}`}
             aria-required="true"
             {...register("webhookUrl")}
           />

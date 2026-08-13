@@ -14,6 +14,7 @@ import {
   resolveRepeatReviewActivation,
   type RepeatReviewActivationPrompt,
 } from "@/lib/repeat-review-activation";
+import { REPEAT_REVIEW_LOOP_HELP_INBOUND_LABEL } from "@/lib/repeat-review-loop-help-title-honesty-surfaces";
 
 /**
  * Non-blocking repeat-review activation rail (assessment improvement #24).
@@ -53,7 +54,7 @@ export function RepeatReviewActivationPrompt(): ReactElement | null {
           </div>
         </CardHeader>
         <CardContent className={cn("space-y-3 text-neutral-700 dark:text-neutral-300", OPERATOR_TYPOGRAPHY.body)}>
-          <OperatorHomeGuidanceLink helpSlug="repeat-review-loop" label="Repeat-review loop" />
+          <OperatorHomeGuidanceLink helpSlug="repeat-review-loop" label={REPEAT_REVIEW_LOOP_HELP_INBOUND_LABEL} />
           <p className="m-0">{prompt.summary}</p>
           <div>
             <Button asChild size="sm" variant="default">

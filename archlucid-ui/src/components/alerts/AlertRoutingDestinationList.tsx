@@ -118,7 +118,7 @@ export function AlertRoutingDestinationList({
                       variant="outline"
                       size="sm"
                       onClick={() => onLoadAttempts(item.routingSubscriptionId)}
-                      title={
+                      aria-label={
                         canMutateRouting
                           ? alertRoutingDeliveryAttemptsButtonTitleOperator
                           : alertRoutingDeliveryAttemptsButtonTitleReader

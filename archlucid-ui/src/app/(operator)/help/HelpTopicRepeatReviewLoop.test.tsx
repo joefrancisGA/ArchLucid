@@ -10,7 +10,10 @@ vi.mock("@/components/help/MermaidDiagram", () => ({
 import { HelpRepeatReviewLoopGuideView } from "@/app/(operator)/help/_sections/HelpRepeatReviewLoopGuideView";
 import { prepareHelpMarkdownForPresentation } from "@/lib/help/help-markdown-presentation";
 import { tryLoadProductDocumentation } from "@/lib/load-product-documentation";
-import { REPEAT_REVIEW_LOOP_HELP_DIAGRAM_SOURCE } from "@/lib/repeat-review-loop-help-guide-content";
+import {
+  REPEAT_REVIEW_LOOP_HELP_DIAGRAM_SOURCE,
+  REPEAT_REVIEW_LOOP_HELP_PAGE_TITLE,
+} from "@/lib/repeat-review-loop-help-guide-content";
 
 vi.mock("@/app/(operator)/help/HelpTopicHashScroll", () => ({
   HelpTopicHashScroll: () => null,
@@ -92,7 +95,7 @@ describe("HelpTopicRepeatReviewLoop (TB-1396)", () => {
     expect(screen.queryByText(/collect-first-pilot-proof/i)).toBeNull();
   });
 
-  it("hoists eligibility and start-loop CTA above claim discipline", () => {
+  it("hoists eligibility and start-loop CTA above claim discipline (TB-1394)", () => {
     if (loaded === null) {
       throw new Error("Expected repeat-review-loop documentation to load.");
     }
@@ -103,6 +106,10 @@ describe("HelpTopicRepeatReviewLoop (TB-1396)", () => {
     const actionPanel = screen.getByTestId("help-repeat-review-loop-action-panel");
     const claimDiscipline = screen.getByTestId("repeat-review-loop-help-claim-discipline");
 
+    expect(within(actionPanel).getByRole("link", { name: /Compare two reviews/i })).toHaveAttribute(
+      "href",
+      "/insights/compare-two-reviews",
+    );
     expect(eligibility.compareDocumentPosition(actionPanel) & Node.DOCUMENT_POSITION_FOLLOWING).toBeTruthy();
     expect(actionPanel.compareDocumentPosition(claimDiscipline) & Node.DOCUMENT_POSITION_FOLLOWING).toBeTruthy();
     expect(screen.getByTestId("repeat-review-loop-help-sources")).toBeInTheDocument();
@@ -110,7 +117,62 @@ describe("HelpTopicRepeatReviewLoop (TB-1396)", () => {
     expect(screen.queryByTestId("help-topic-registry-provenance")).toBeNull();
     expect(screen.queryByTestId("help-repeat-review-loop-refresh-button")).toBeNull();
     expect(screen.getAllByText(/Prerequisite:/i)).toHaveLength(1);
-    expect(screen.queryByRole("link", { name: /Validate review/i })).toBeNull();
+    expect(screen.getByTestId("repeat-review-loop-step-2-cta")).toHaveAttribute("href", "/internal/replay");
+  });
+
+  it("renders loop-step deep-link CTAs for compare and governance actions (TB-1398)", () => {
+    if (loaded === null) {
+      throw new Error("Expected repeat-review-loop documentation to load.");
+    }
+
+    render(<HelpRepeatReviewLoopGuideView entry={loaded.entry} markdown={loaded.markdown} />);
+
+    expect(screen.getByTestId("repeat-review-loop-workflow-stepper")).toBeInTheDocument();
+    expect(screen.getByTestId("repeat-review-loop-step-1-cta")).toHaveAttribute(
+      "href",
+      "/insights/compare-two-reviews",
+    );
+    expect(screen.getByTestId("repeat-review-loop-step-4-cta")).toHaveAttribute("href", "/governance/policy-packs");
+    expect(screen.getByTestId("repeat-review-loop-step-2-secondary-link")).toHaveAttribute(
+      "href",
+      "/help/comparison-replay",
+    );
+  });
+
+  it("limits Related help to three buyer-safe guides without accelerator chooser (TB-1397)", () => {
+    if (loaded === null) {
+      throw new Error("Expected repeat-review-loop documentation to load.");
+    }
+
+    render(<HelpRepeatReviewLoopGuideView entry={loaded.entry} markdown={loaded.markdown} />);
+
+    const relatedLinks = within(screen.getByTestId("help-repeat-review-loop-related-help")).getAllByRole("link");
+
+    expect(relatedLinks).toHaveLength(3);
+    expect(relatedLinks.map((link) => link.getAttribute("href"))).toEqual(
+      expect.arrayContaining([
+        "/help/comparison-replay",
+        "/help/review-packages",
+        "/help/first-architecture-review",
+      ]),
+    );
+    expect(relatedLinks.some((link) => (link.getAttribute("href") ?? "").includes("accelerator-chooser"))).toBe(
+      false,
+    );
+  });
+
+  it("uses buyer title honesty without stickiness jargon in the hero (TB-1395)", () => {
+    if (loaded === null) {
+      throw new Error("Expected repeat-review-loop documentation to load.");
+    }
+
+    render(<HelpRepeatReviewLoopGuideView entry={loaded.entry} markdown={loaded.markdown} />);
+
+    expect(screen.getByTestId("help-repeat-review-loop-page-title")).toHaveTextContent(
+      REPEAT_REVIEW_LOOP_HELP_PAGE_TITLE,
+    );
+    expect(screen.getByRole("heading", { level: 1, name: REPEAT_REVIEW_LOOP_HELP_PAGE_TITLE })).toBeInTheDocument();
+    expect((document.body.textContent ?? "").toLowerCase()).not.toContain("stickiness");
   });
 
   it("shows repeat-review cycle diagram in the default viewport without expanding disclosures", () => {
@@ -120,7 +182,7 @@ describe("HelpTopicRepeatReviewLoop (TB-1396)", () => {
 
     render(<HelpRepeatReviewLoopGuideView entry={loaded.entry} markdown={loaded.markdown} />);
 
-    const diagramHost = screen.getByTestId("help-repeat-review-loop-stickiness-diagram");
+    const diagramHost = screen.getByTestId("help-repeat-review-loop-cycle-diagram");
     const mermaid = within(diagramHost).getByTestId("mermaid-diagram");
 
     expect(mermaid).toHaveTextContent("First finalize");

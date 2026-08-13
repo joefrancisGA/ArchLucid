@@ -17,7 +17,7 @@ export function CorePilotHelpOrientationFooter(): React.JSX.Element {
         id="core-pilot-help-orientation-heading"
         className={cn("m-0 text-al-text-secondary", OPERATOR_TYPOGRAPHY.helper)}
       >
-        Operator orientation only
+        Before you share externally
       </h2>
       <p
         className={cn("m-0 mt-1 max-w-3xl text-al-text-secondary", OPERATOR_TYPOGRAPHY.helper)}

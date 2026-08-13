@@ -46,6 +46,9 @@ public static partial class ServiceCollectionExtensions
 
         services.AddScoped<Di.IFindingEngine, Ds.RequirementFindingEngine>();
         services.AddScoped<Di.IFindingEngine, Ds.TopologyCoverageFindingEngine>();
+        services.AddScoped<Di.IFindingEngine, Ds.TopologyStructureFindingEngine>();
+        services.AddScoped<Di.IFindingEngine, Ds.TopologyCrossRunDiffFindingEngine>();
+        services.AddScoped<Di.IFindingEngine, Ds.TopologyAntiPatternFindingEngine>();
         services.AddScoped<Di.IFindingEngine, Ds.SecurityBaselineFindingEngine>();
         services.AddScoped<Di.IFindingEngine, Ds.SecurityCoverageFindingEngine>();
         services.AddScoped<Di.IFindingEngine, Ds.PolicyApplicabilityFindingEngine>();

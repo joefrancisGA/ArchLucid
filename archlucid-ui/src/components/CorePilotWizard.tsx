@@ -9,6 +9,7 @@ import { useCallback, useEffect, useReducer, useState } from "react";
 import { GlossaryTooltip } from "@/components/GlossaryTooltip";
 import { InAppHelpLink } from "@/components/InAppHelpLink";
 import { BUYER_ONBOARDING_PAGE_TITLE } from "@/lib/buyer/buyer-polish-copy";
+import { FIRST_ARCHITECTURE_REVIEW_PAGE_TITLE } from "@/lib/first-architecture-review-help-copy";
 import { Button } from "@/components/ui/button";
 import {
   Dialog,
@@ -139,7 +140,7 @@ const BLUEPRINT_STEPS: WizardBlueprintStep[] = [
     body: (
       <div className="space-y-2 leading-relaxed text-neutral-700 dark:text-neutral-200">
         <p className="m-0">
-          After finalize, review the package summary and artifact previews, then export the sponsor packet from review detail when you need a portable handoff for stakeholders.
+          After finalize, review the package summary and artifact previews, then export the executive briefing from review detail when you need a portable handoff for stakeholders.
         </p>
       </div>
     ),
@@ -270,7 +271,7 @@ export function CorePilotWizardLauncher() {
             <div className="flex flex-wrap items-center gap-3">
               <DialogTitle>{step.title}</DialogTitle>
 
-              <InAppHelpLink helpSlug="core-pilot" label="Open the Core Pilot guide" />
+              <InAppHelpLink helpSlug="first-architecture-review" label={FIRST_ARCHITECTURE_REVIEW_PAGE_TITLE} />
             </div>
 
             <div className="space-y-3">

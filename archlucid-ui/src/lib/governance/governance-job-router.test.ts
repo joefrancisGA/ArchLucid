@@ -62,7 +62,7 @@ describe("governance-job-router (TB-2199 / TB-2230)", () => {
     expect(corpus).toContain("finding");
     expect(corpus).toContain("decision");
     expect(corpus).toContain("governance");
-    expect(corpus).toMatch(/submit|package/);
+    expect(corpus).toMatch(/submit|review/);
   });
 
   it("exposes a closed GovernanceJobId union via option ids", () => {

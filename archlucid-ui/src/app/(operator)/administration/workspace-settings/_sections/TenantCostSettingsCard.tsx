@@ -6,6 +6,7 @@ import Link from "next/link";
 import { useCallback, useEffect, useMemo, useState, type FormEvent, type ReactNode } from "react";
 
 import { BaselineFieldMessage } from "@/components/forms/BaselineFieldMessage";
+import { MutatingInTenantChip } from "@/components/MutatingInTenantChip";
 import { Button } from "@/components/ui/button";
 import { OperatorSectionLoadFailure } from "@/components/operator/OperatorSectionLoadFailure";
 import { OperatorSuccessCallout } from "@/components/operator/OperatorSuccessCallout";
@@ -28,7 +29,9 @@ import {
   TENANT_COST_SETTINGS_AUDIT_HREF,
   TENANT_COST_SETTINGS_AUDIT_TRAIL_LINK_LABEL,
   TENANT_COST_SETTINGS_DEFAULTS_STATUS_LABEL,
+  TENANT_COST_SETTINGS_EA_DISCOUNT_HELPER,
   TENANT_COST_SETTINGS_LAST_CHANGED_PREFIX,
+  TENANT_COST_SETTINGS_SAVE_READINESS_MESSAGE,
 } from "@/lib/tenant-settings-page-copy";
 import { validateTenantCostSettingsFields } from "@/lib/tenant-cost-settings-validation";
 import type { TenantCostSettingsPutRequest, TenantCostSettingsResponse } from "@/types/tenant-cost-settings";
@@ -45,9 +48,19 @@ type CurrencyUsdFieldProps = {
   readonly readOnly: boolean;
   readonly testId: string;
   readonly error: string | null;
+  readonly helperText?: string;
 };
 
 function CurrencyUsdField(props: CurrencyUsdFieldProps) {
+  const errorId = `${props.id}-error`;
+  const helperId = `${props.id}-helper`;
+  const describedBy =
+    props.error !== null
+      ? errorId
+      : props.helperText !== undefined
+        ? helperId
+        : undefined;
+
   return (
     <div>
       <Label htmlFor={props.id}>{props.label}</Label>
@@ -69,10 +82,19 @@ function CurrencyUsdField(props: CurrencyUsdFieldProps) {
           readOnly={props.readOnly}
           data-testid={props.testId}
           aria-invalid={props.error !== null}
+          aria-describedby={describedBy}
           className={cn("pl-7 font-mono", OPERATOR_TYPOGRAPHY.body)}
         />
       </div>
-      <BaselineFieldMessage error={props.error} />
+      <BaselineFieldMessage error={props.error} id={errorId} />
+      {props.helperText !== undefined ? (
+        <p
+          id={helperId}
+          className={cn("m-0 mt-1 text-al-text-secondary", OPERATOR_TYPOGRAPHY.helper)}
+        >
+          {props.helperText}
+        </p>
+      ) : null}
     </div>
   );
 }
@@ -118,6 +140,7 @@ function CostSettingsCardHeader(props: CostSettingsCardHeaderProps) {
         <CardTitle as="h3" className={OPERATOR_TYPOGRAPHY.cardTitle}>
           Cost settings
         </CardTitle>
+        <MutatingInTenantChip />
         {!props.isTenantConfigured ? (
           <StatusTag
             kind="neutral"
@@ -310,19 +333,40 @@ export function TenantCostSettingsCard({ canEdit }: TenantCostSettingsCardProps)
 
             <div>
               <Label htmlFor="ea-discount-percentage">Enterprise Agreement discount (% off Azure Retail)</Label>
-              <Input
-                id="ea-discount-percentage"
-                inputMode="decimal"
-                value={eaDiscountPercentage}
-                onChange={(ev) => setEaDiscountPercentage(ev.target.value)}
-                readOnly={!canEdit}
-                data-testid="tenant-cost-ea-percentage"
-                aria-invalid={fieldValidation.eaError !== null}
-                className={cn("max-w-[12rem] font-mono", OPERATOR_TYPOGRAPHY.body)}
-              />
-              <BaselineFieldMessage error={fieldValidation.eaError} />
-              <p className={cn("m-0 mt-1 text-al-text-secondary", OPERATOR_TYPOGRAPHY.helper)}>
-                0 = list pricing. 15 applies EffectivePrice = RetailPrice × 0.85 to Cost-category ROI savings.
+              <div className="relative mt-1 max-w-[12rem]">
+                <Input
+                  id="ea-discount-percentage"
+                  type="number"
+                  min={0}
+                  max={100}
+                  step="0.1"
+                  inputMode="decimal"
+                  value={eaDiscountPercentage}
+                  onChange={(ev) => setEaDiscountPercentage(ev.target.value)}
+                  readOnly={!canEdit}
+                  data-testid="tenant-cost-ea-percentage"
+                  aria-invalid={fieldValidation.eaError !== null}
+                  aria-describedby={
+                    fieldValidation.eaError !== null ? "ea-discount-percentage-error" : "ea-discount-percentage-helper"
+                  }
+                  className={cn("pr-7 font-mono", OPERATOR_TYPOGRAPHY.body)}
+                />
+                <span
+                  className={cn(
+                    "pointer-events-none absolute right-3 top-1/2 -translate-y-1/2 text-al-text-secondary",
+                    OPERATOR_TYPOGRAPHY.body,
+                  )}
+                  aria-hidden="true"
+                >
+                  %
+                </span>
+              </div>
+              <BaselineFieldMessage error={fieldValidation.eaError} id="ea-discount-percentage-error" />
+              <p
+                id="ea-discount-percentage-helper"
+                className={cn("m-0 mt-1 text-al-text-secondary", OPERATOR_TYPOGRAPHY.helper)}
+              >
+                {TENANT_COST_SETTINGS_EA_DISCOUNT_HELPER}
               </p>
             </div>
 
@@ -332,7 +376,7 @@ export function TenantCostSettingsCard({ canEdit }: TenantCostSettingsCardProps)
               </p>
             ) : null}
 
-            <div>
+            <div className="flex flex-wrap items-center gap-3">
               <Button
                 type="submit"
                 variant="primary"
@@ -341,6 +385,14 @@ export function TenantCostSettingsCard({ canEdit }: TenantCostSettingsCardProps)
               >
                 {saving ? "Saving…" : "Save cost settings"}
               </Button>
+              {!fieldValidation.valid && canEdit ? (
+                <p
+                  className={cn("m-0 text-al-text-secondary", OPERATOR_TYPOGRAPHY.helper)}
+                  data-testid="tenant-cost-settings-save-readiness"
+                >
+                  {TENANT_COST_SETTINGS_SAVE_READINESS_MESSAGE}
+                </p>
+              ) : null}
             </div>
           </form>
         )}

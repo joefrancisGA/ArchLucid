@@ -543,6 +543,8 @@ export async function fetchArtifactContentUtf8(
 type EndToEndReplayComparisonWireResponse = {
   readonly report?: {
     readonly findingCorrelation?: unknown;
+    readonly findingLifecycle?: unknown;
+    readonly findingLifecycleRecords?: unknown;
   } | null;
 };
 

@@ -9,6 +9,7 @@ import {
   formatPerRunFindingsLine,
   safeCommittedRunWindowCount,
 } from "./formatDelta";
+import { FieldHelpTooltip } from "@/components/FieldHelpTooltip";
 import { useDeltaQuery } from "./useDeltaQuery";
 
 /**
@@ -79,13 +80,16 @@ export function BeforeAfterDeltaTopPanel({ count = 5 }: BeforeAfterDeltaTopPanel
           </dd>
         </div>
         <div className="rounded border border-neutral-200 p-3 dark:border-neutral-700">
-          <dt className={cn("font-medium uppercase text-neutral-500 dark:text-neutral-400", OPERATOR_TYPOGRAPHY.helper)}>
+          <dt className={cn("inline-flex items-center gap-1 font-medium uppercase text-neutral-500 dark:text-neutral-400", OPERATOR_TYPOGRAPHY.helper)}>
             Median LLM calls (attested rows)
+            <FieldHelpTooltip
+              label="Median LLM calls"
+              hint="Median count of persisted agent execution traces per run when all window rows have attested counts."
+            />
           </dt>
           <dd
             data-testid="delta-top-median-llm"
             className={cn("mt-1 font-semibold tracking-tight text-al-text-primary", OPERATOR_TYPOGRAPHY.pageTitle)}
-            title="Median count of persisted agent execution traces per run when all window rows have attested counts."
           >
             {formatMedianLlmCalls(data.medianLlmCallCount)}
           </dd>

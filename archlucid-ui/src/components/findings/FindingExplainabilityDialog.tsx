@@ -143,8 +143,8 @@ export function FindingExplainabilityDialog({
 
         {!loading && failure === null && data !== null ? (
           <div className={cn("space-y-4 text-neutral-800 dark:text-neutral-200", OPERATOR_TYPOGRAPHY.body)}>
-            <p className={cn("m-0 font-semibold text-al-text-primary", OPERATOR_TYPOGRAPHY.cardTitle)} title={data.title}>
-              {truncateForList(data.title, 280)}
+            <p className={cn("m-0 break-words font-semibold text-al-text-primary", OPERATOR_TYPOGRAPHY.cardTitle)}>
+              {data.title}
             </p>
             <div className="flex flex-wrap items-center gap-2">
               <SeverityTag severity={data.severity} />

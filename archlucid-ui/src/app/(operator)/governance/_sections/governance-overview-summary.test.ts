@@ -43,12 +43,17 @@ const dashboard: GovernanceDashboardSummary = {
 };
 
 describe("buildGovernanceOverviewSummaryMetrics", () => {
-  it("aggregates dashboard and decisions-needed counts", () => {
+  it("aggregates dashboard and decisions-needed counts with decomposable blocking findings", () => {
     const metrics = buildGovernanceOverviewSummaryMetrics(dashboard, decisionsNeeded);
 
     expect(metrics.pendingApprovalRequests).toBe(2);
     expect(metrics.approvedReviewPackages).toBe(1);
-    expect(metrics.blockingGovernanceAlerts).toBe(5);
+    expect(metrics.blockingFindingsTotal).toBe(5);
+    expect(metrics.blockingFindings).toEqual({
+      unownedHighSeverityFindings: 3,
+      staleFindings: 1,
+      findingsAwaitingEvidence: 1,
+    });
     expect(metrics.recentDecisions).toBe(2);
     expect(metrics.policyActivations).toBe(1);
   });

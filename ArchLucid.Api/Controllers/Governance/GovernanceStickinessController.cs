@@ -53,13 +53,33 @@ public sealed class GovernanceStickinessController(
     public async Task<IActionResult> GetRiskRegister(
         [FromQuery] Guid? projectId,
         [FromQuery] int maxRows = 200,
+        [FromQuery] bool assignedToMe = false,
         CancellationToken cancellationToken = default)
     {
         ScopeContext scope = _scopeContextProvider.GetCurrentScope();
+        ArchitectureRiskRegisterListOptions? options = null;
+
+        if (assignedToMe)
+        {
+            IReadOnlyList<string> identities = ArchitectureRiskRegisterAssignedToMeIdentityResolver.Resolve(actorContext);
+
+            if (identities.Count == 0)
+            {
+                return Ok(new ArchitectureRiskRegisterResponse { Entries = [] });
+            }
+
+            options = new ArchitectureRiskRegisterListOptions
+            {
+                AssignedToUserIds = identities,
+                OpenFindingsOnly = true,
+            };
+        }
+
         ArchitectureRiskRegisterResponse response = await riskRegisterService.GetRegisterAsync(
             scope.TenantId,
             projectId ?? scope.ProjectId,
             Math.Clamp(maxRows, 1, 500),
+            options,
             cancellationToken);
 
         return Ok(response);

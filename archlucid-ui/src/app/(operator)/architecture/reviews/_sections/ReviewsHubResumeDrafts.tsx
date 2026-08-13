@@ -87,18 +87,18 @@ export function ReviewsHubResumeDrafts(): React.JSX.Element | null {
                   kind={architectureDraftCustomerStatusTagKind(entry.customerStatus)}
                   label={ARCHITECTURE_DRAFT_STATUS_LABELS[entry.customerStatus]}
                 />
-                <span
+                <time
+                  dateTime={entry.lastUpdatedUtc}
                   className={cn(OPERATOR_TYPOGRAPHY.helper, "text-al-text-secondary")}
-                  title={absoluteUpdated}
                 >
-                  Updated {formatRelativeTime(entry.lastUpdatedUtc)}
-                </span>
+                  Updated {formatRelativeTime(entry.lastUpdatedUtc)} ({absoluteUpdated})
+                </time>
               </div>
               <div className="mt-2 flex flex-wrap gap-2">
                 <Button variant="outline" size="sm" asChild>
                   <Link
                     href={architectureDraftPath(entry.architectureId)}
-                    title={entry.displayName}
+                    aria-label={`${REVIEWS_HUB_RESUME_DRAFTS_CONTINUE_LABEL}: ${entry.displayName}`}
                     data-testid={`reviews-hub-resume-draft-continue-${entry.architectureId}`}
                     onClick={() => {
                       trackArchitectureDraftResumeClick("reviews-hub", entry.architectureId);

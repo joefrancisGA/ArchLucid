@@ -21,9 +21,26 @@ const DAY_NAMES = [
   "Saturday",
 ] as const;
 
+const MONTH_NAMES = [
+  "January",
+  "February",
+  "March",
+  "April",
+  "May",
+  "June",
+  "July",
+  "August",
+  "September",
+  "October",
+  "November",
+  "December",
+] as const;
+
 export type RecurrenceLocalTimeSummary = {
   readonly timeZoneId: string;
   readonly localPrimary: string;
+  /** DST / multi-occurrence qualifier — rendered as helper text, not in the accessible name. */
+  readonly localOffsetBasis?: string;
   readonly utcSecondary: string;
   readonly isUtcZone: boolean;
 };
@@ -45,7 +62,7 @@ type FiveFieldUtcCron = {
   readonly dayOfWeek: string;
 };
 
-type CadenceKind = "daily" | "weekly" | "monthly" | "quarterly" | "custom";
+type CadenceKind = "daily" | "weekly" | "monthly" | "quarterly" | "annual" | "custom";
 
 /** Resolves display zone: explicit IANA, else browser, else UTC. */
 export function resolveRecurrenceDisplayTimeZoneId(ianaTimeZoneId?: string | null): string {
@@ -139,6 +156,13 @@ function classifyCadence(parsed: FiveFieldUtcCron): CadenceKind {
     return "quarterly";
   }
 
+  const monthNum = parseSingleCronField(parsed.month);
+  const domNum = parseSingleCronField(parsed.dayOfMonth);
+
+  if (monthNum !== null && domNum !== null && parsed.dayOfWeek === "*") {
+    return "annual";
+  }
+
   if (parsed.dayOfMonth !== "*" && parsed.dayOfWeek === "*") {
     return "monthly";
   }
@@ -189,6 +213,14 @@ function describeUtcCadence(cronExpression: string, parsed: FiveFieldUtcCron | n
     const dom = parseSingleCronField(parsed.dayOfMonth) ?? 1;
 
     return `Quarterly on the ${ordinalDay(dom)} at ${clock}`;
+  }
+
+  if (kind === "annual") {
+    const dom = parseSingleCronField(parsed.dayOfMonth) ?? 1;
+    const month = parseSingleCronField(parsed.month) ?? 1;
+    const monthName = MONTH_NAMES[month - 1] ?? "month";
+
+    return `Annually on ${monthName} ${dom} at ${clock}`;
   }
 
   if (kind === "monthly") {
@@ -274,29 +306,159 @@ export function findRepresentativeUtcInstantForCron(
   return null;
 }
 
-function describeLocalCadence(kind: CadenceKind, instant: Date, timeZoneId: string): string {
+function getShortTimeZoneOffsetName(instant: Date, timeZoneId: string): string {
+  try {
+    const formatter = new Intl.DateTimeFormat("en-US", {
+      timeZone: timeZoneId,
+      timeZoneName: "short",
+    });
+    const parts = formatter.formatToParts(instant);
+
+    return parts.find((part) => part.type === "timeZoneName")?.value ?? "";
+  } catch {
+    return "";
+  }
+}
+
+function getLongTimeZoneName(instant: Date, timeZoneId: string): string {
+  try {
+    const formatter = new Intl.DateTimeFormat("en-US", {
+      timeZone: timeZoneId,
+      timeZoneName: "long",
+    });
+    const parts = formatter.formatToParts(instant);
+
+    return parts.find((part) => part.type === "timeZoneName")?.value ?? "";
+  } catch {
+    return "";
+  }
+}
+
+/** Friendly zone label for cadence paraphrase; notes browser-sniffed zones for auditor honesty. */
+function formatRecurrenceTimeZoneLabel(
+  timeZoneId: string,
+  instant: Date,
+  isBrowserSniffed: boolean,
+): string {
+  const ianaLabel = formatIanaTimeZoneOptionLabel(timeZoneId);
+  const longName = getLongTimeZoneName(instant, timeZoneId);
+  const friendly = longName.length > 0 ? longName : ianaLabel;
+
+  if (isBrowserSniffed) {
+    return `${friendly} (from your browser)`;
+  }
+
+  if (longName.length > 0 && longName !== ianaLabel && ianaLabel !== "UTC") {
+    return `${friendly} (${ianaLabel})`;
+  }
+
+  return friendly;
+}
+
+function buildLocalOffsetBasis(
+  cronExpression: string,
+  representative: Date,
+  timeZoneId: string,
+): string | undefined {
+  const repParts = getZonedDateParts(representative, timeZoneId);
+  const repClock = formatLocalClockLabel(repParts.hour, repParts.minute);
+  const repOffset = getShortTimeZoneOffsetName(representative, timeZoneId);
+  const variants = new Map<string, string>();
+
+  if (repOffset.length > 0) {
+    variants.set(repOffset, repClock);
+  }
+
+  for (const monthOffset of [3, 6, 9, 12]) {
+    const reference = new Date(representative.getTime());
+
+    reference.setUTCMonth(reference.getUTCMonth() + monthOffset);
+
+    const alternate = findRepresentativeUtcInstantForCron(cronExpression, reference);
+
+    if (alternate === null) {
+      continue;
+    }
+
+    const offset = getShortTimeZoneOffsetName(alternate, timeZoneId);
+
+    if (offset.length === 0 || variants.has(offset)) {
+      continue;
+    }
+
+    const parts = getZonedDateParts(alternate, timeZoneId);
+
+    variants.set(offset, formatLocalClockLabel(parts.hour, parts.minute));
+  }
+
+  if (variants.size <= 1) {
+    return undefined;
+  }
+
+  const alternates = [...variants.entries()].filter(([offset]) => offset !== repOffset);
+
+  if (alternates.length === 1) {
+    const [alternateOffset, alternateClock] = alternates[0]!;
+
+    return `Shifts to ${alternateClock} during ${alternateOffset}.`;
+  }
+
+  const descriptions = [...variants.entries()].map(([offset, clock]) => `${clock} ${offset}`);
+
+  return `Varies across occurrences (${descriptions.join("; ")}).`;
+}
+
+function describeLocalCadence(
+  kind: CadenceKind,
+  parsed: FiveFieldUtcCron,
+  instant: Date,
+  timeZoneId: string,
+  isBrowserSniffed: boolean,
+): { readonly primary: string; readonly offsetBasis?: string } {
   const parts = getZonedDateParts(instant, timeZoneId);
   const clock = formatLocalClockLabel(parts.hour, parts.minute);
-  const zone = formatIanaTimeZoneOptionLabel(timeZoneId);
+  const offset = getShortTimeZoneOffsetName(instant, timeZoneId);
+  const clockWithOffset = offset.length > 0 ? `${clock} ${offset}` : clock;
+  const zoneLabel = formatRecurrenceTimeZoneLabel(timeZoneId, instant, isBrowserSniffed);
+  const utcDom = parseSingleCronField(parsed.dayOfMonth) ?? parts.day;
+  const utcMonth = parseSingleCronField(parsed.month);
   const dayName = DAY_NAMES[parts.weekday] ?? "day";
 
   if (kind === "weekly") {
-    return `Weekly on ${dayName} at ${clock} (${zone})`;
+    return {
+      primary: `Weekly on ${dayName} at ${clockWithOffset} (${zoneLabel})`,
+    };
   }
 
   if (kind === "daily") {
-    return `Daily at ${clock} (${zone})`;
+    return {
+      primary: `Daily at ${clockWithOffset} (${zoneLabel})`,
+    };
   }
 
   if (kind === "quarterly") {
-    return `Quarterly on the ${ordinalDay(parts.day)} at ${clock} (${zone})`;
+    return {
+      primary: `Quarterly on the ${ordinalDay(utcDom)} at ${clockWithOffset} (${zoneLabel})`,
+    };
   }
 
   if (kind === "monthly") {
-    return `Monthly on the ${ordinalDay(parts.day)} at ${clock} (${zone})`;
+    return {
+      primary: `Monthly on the ${ordinalDay(utcDom)} at ${clockWithOffset} (${zoneLabel})`,
+    };
   }
 
-  return formatAdvisoryScheduleInstant(instant, timeZoneId).primary;
+  if (kind === "annual" && utcMonth !== null) {
+    const monthName = MONTH_NAMES[utcMonth - 1] ?? "month";
+
+    return {
+      primary: `Annually on ${monthName} ${utcDom} at ${clockWithOffset} (${zoneLabel})`,
+    };
+  }
+
+  return {
+    primary: formatAdvisoryScheduleInstant(instant, timeZoneId).primary,
+  };
 }
 
 function describeAliasCronLocal(cronExpression: string, timeZoneId: string): RecurrenceLocalTimeSummary {
@@ -353,6 +515,8 @@ function describeAliasCronLocal(cronExpression: string, timeZoneId: string): Rec
 export function buildRecurrenceLocalTimeSummary(
   input: BuildRecurrenceLocalTimeSummaryInput,
 ): RecurrenceLocalTimeSummary {
+  const trimmedZone = input.ianaTimeZoneId?.trim() ?? "";
+  const isBrowserSniffed = trimmedZone.length === 0;
   const timeZoneId = resolveRecurrenceDisplayTimeZoneId(input.ianaTimeZoneId);
   const isUtcZone = isUtcIanaTimeZoneId(timeZoneId);
   const cronExpression = input.cronExpression?.trim() ?? "";
@@ -417,9 +581,13 @@ export function buildRecurrenceLocalTimeSummary(
     };
   }
 
+  const localCadence = describeLocalCadence(kind, parsed, representative, timeZoneId, isBrowserSniffed);
+  const offsetBasis = buildLocalOffsetBasis(cronExpression, representative, timeZoneId);
+
   return {
     timeZoneId,
-    localPrimary: describeLocalCadence(kind, representative, timeZoneId),
+    localPrimary: localCadence.primary,
+    localOffsetBasis: offsetBasis,
     utcSecondary,
     isUtcZone,
   };

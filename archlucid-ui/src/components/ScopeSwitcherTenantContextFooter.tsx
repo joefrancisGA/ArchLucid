@@ -4,6 +4,7 @@ import { OPERATOR_TYPOGRAPHY } from "@/lib/design-tokens";
 
 import { useCallback, useEffect, useState } from "react";
 
+import { FieldHelpTooltip } from "@/components/FieldHelpTooltip";
 import {
   formatActiveTenantContextTooltip,
   readActiveTenantContext,
@@ -40,11 +41,11 @@ export function ScopeSwitcherTenantContextFooter(): React.JSX.Element {
       className="border-t border-neutral-200 pt-2 dark:border-neutral-700"
       data-testid="operator-scope-switcher-tenant-context"
     >
-      <p
-        className={cn("m-0 text-neutral-500 dark:text-neutral-400", OPERATOR_TYPOGRAPHY.helper)}
-        title={tooltip}
-      >
-        Tenant: <span className="text-neutral-600 dark:text-neutral-300">{context.displayName}</span>
+      <p className={cn("m-0 inline-flex items-center gap-1 text-neutral-500 dark:text-neutral-400", OPERATOR_TYPOGRAPHY.helper)}>
+        <span>
+          Tenant: <span className="text-neutral-600 dark:text-neutral-300">{context.displayName}</span>
+        </span>
+        <FieldHelpTooltip label="Tenant context" hint={tooltip} />
       </p>
     </div>
   );

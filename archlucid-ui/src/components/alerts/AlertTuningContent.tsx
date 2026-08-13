@@ -3,6 +3,7 @@
 import { cn } from "@/lib/utils";
 import { useState } from "react";
 import { OperatorApiProblem } from "@/components/operator/OperatorApiProblem";
+import { FieldHelpTooltip } from "@/components/FieldHelpTooltip";
 import { Button } from "@/components/ui/button";
 import { Input } from "@/components/ui/input";
 import { Label } from "@/components/ui/label";
@@ -557,18 +558,20 @@ export function AlertTuningContent() {
           </div>
         </div>
 
-        <Button
-          type="button"
-          variant="primary"
-          size="sm"
-          data-testid="alert-tuning-recommend-submit"
-          onClick={() => void recommend()}
-          disabled={loading}
-          title={alertTuningRecommendButtonTitle}
-          className="max-w-[240px]"
-        >
-          {loading ? "Running…" : "Recommend threshold"}
-        </Button>
+        <div className="inline-flex items-center gap-1">
+          <Button
+            type="button"
+            variant="primary"
+            size="sm"
+            data-testid="alert-tuning-recommend-submit"
+            onClick={() => void recommend()}
+            disabled={loading}
+            className="max-w-[240px]"
+          >
+            {loading ? "Running…" : "Recommend threshold"}
+          </Button>
+          <FieldHelpTooltip label="Recommend threshold" hint={alertTuningRecommendButtonTitle} />
+        </div>
       </div>
         </section>
       </div>

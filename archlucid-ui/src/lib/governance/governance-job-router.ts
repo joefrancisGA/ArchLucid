@@ -28,7 +28,7 @@ export const GOVERNANCE_JOB_APPROVE_GOVERNANCE: GovernanceJobRouterOption = {
   id: "approve-governance",
   label: "Approve governance",
   whenToUse:
-    "Use the Approval queue to submit and approve governance packages for promotion.",
+    "Use the Approval queue to submit reviews for governance approval and record authorized decisions.",
   href: GOVERNANCE_APPROVAL_QUEUE_PATH,
 };
 

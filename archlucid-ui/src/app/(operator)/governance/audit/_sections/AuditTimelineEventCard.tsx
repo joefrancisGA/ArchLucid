@@ -109,7 +109,6 @@ export function AuditTimelineEventCard(props: AuditTimelineEventCardProps) {
           {ev.runId ? (
             <Link
               href={`/architecture/reviews/${ev.runId}`}
-              title="Open review"
               className={OPERATOR_LINK.nav}
             >
               {buyerFacingReviewLinkLabelFromRunId(ev.runId)}
@@ -125,8 +124,8 @@ export function AuditTimelineEventCard(props: AuditTimelineEventCardProps) {
           {ev.otelTraceId ? (
             <div className={OPERATOR_TYPOGRAPHY.body}>
               Trace:{" "}
-              <code title={ev.otelTraceId} className={OPERATOR_TYPOGRAPHY.micro}>
-                {ev.otelTraceId.slice(0, 16)}…
+              <code className={cn("break-all font-mono", OPERATOR_TYPOGRAPHY.micro)}>
+                {ev.otelTraceId}
               </code>
             </div>
           ) : null}
@@ -135,7 +134,6 @@ export function AuditTimelineEventCard(props: AuditTimelineEventCardProps) {
             {ev.runId ? (
               <Link
                 href={`/architecture/reviews/${ev.runId}`}
-                title="Open review"
                 className={OPERATOR_LINK.nav}
               >
                 {buyerFacingReviewLinkLabelFromRunId(ev.runId)}

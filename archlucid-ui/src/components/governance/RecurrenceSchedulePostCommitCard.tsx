@@ -21,6 +21,15 @@ import {
   resolveRecurrenceDisplayTimeZoneId,
 } from "@/lib/recurrence-local-time";
 import { RECURRENCE_SCHEDULES_MANAGE_PATH } from "@/lib/recurrence-schedules-copy";
+import {
+  clearRecurrenceProposalDecline,
+  hasDeclinedRecurrenceProposal,
+  recordRecurrenceProposalDecline,
+} from "@/lib/governance/recurrence-proposal-decline";
+import {
+  RECURRENCE_DECLINED_STATUS,
+  RECURRENCE_PROPOSAL_LEAD,
+} from "@/lib/recurrence-schedule-activation-copy";
 
 const DEFAULT_CRON = "0 8 * * 1";
 const DEFAULT_NAME = "Weekly architecture review";
@@ -42,9 +51,19 @@ export function RecurrenceSchedulePostCommitCard({
   const [statusMessage, setStatusMessage] = useState<string | null>(null);
   const [errorMessage, setErrorMessage] = useState<string | null>(null);
   const [busy, setBusy] = useState(false);
+  const [declined, setDeclined] = useState(false);
 
   const normalizedRunId = normalizeRunIdForRecurrenceApi(runId);
   const displayTimeZoneId = useMemo(() => resolveRecurrenceDisplayTimeZoneId(), []);
+
+  // Read after mount, not during state init: both mount sites allow SSR, and localStorage is
+  // client-only, so an initializer read would desync the hydrated markup.
+  useEffect(() => {
+    if (hasDeclinedRecurrenceProposal(runId)) {
+      setDeclined(true);
+      setOpen(false);
+    }
+  }, [runId]);
 
   const reload = useCallback(async (): Promise<void> => {
     const rows = await listArchitectureReviewRecurrenceSchedules();
@@ -101,6 +120,20 @@ export function RecurrenceSchedulePostCommitCard({
     }
   }
 
+  /** Declining creates nothing: it records the choice locally and stops re-proposing. */
+  function declineProposal(): void {
+    recordRecurrenceProposalDecline(runId);
+    setErrorMessage(null);
+    setStatusMessage(null);
+    setDeclined(true);
+  }
+
+  /** Never trap the operator in a declined state; clearing the record restores the proposal. */
+  function reconsiderProposal(): void {
+    clearRecurrenceProposalDecline(runId);
+    setDeclined(false);
+  }
+
   const existing = schedules[0] ?? null;
 
   return (
@@ -116,8 +149,10 @@ export function RecurrenceSchedulePostCommitCard({
         <span className={cn("text-neutral-600 dark:text-neutral-400", OPERATOR_TYPOGRAPHY.helper)}>{open ? "Hide" : "Show"}</span>
       </CollapsibleTrigger>
       <CollapsibleContent className="border-t border-neutral-200 px-4 pb-4 pt-3 dark:border-neutral-700">
-        <p className={cn("m-0 mb-3", OPERATOR_TYPOGRAPHY.body)}>
-          Clone this committed review on a schedule so governance does not depend on manual scheduling.
+        <p className={cn("m-0 mb-3", OPERATOR_TYPOGRAPHY.body)} data-testid="recurrence-proposal-lead">
+          {existing === null && !declined
+            ? RECURRENCE_PROPOSAL_LEAD
+            : "Clone this committed review on a schedule so governance does not depend on manual scheduling."}
         </p>
         {existing ? (
           <div className="space-y-2">
@@ -141,6 +176,22 @@ export function RecurrenceSchedulePostCommitCard({
             >
               Manage all recurrence schedules
             </Link>
+          </div>
+        ) : declined ? (
+          <div className="space-y-2" data-testid="recurrence-proposal-declined">
+            <StatusTag kind="neutral" label="Not scheduled" />
+            <p className={cn("m-0", OPERATOR_TYPOGRAPHY.body)}>{RECURRENCE_DECLINED_STATUS}</p>
+            <button
+              type="button"
+              className={cn(
+                "font-medium text-teal-800 underline underline-offset-2 dark:text-teal-300",
+                OPERATOR_TYPOGRAPHY.body,
+              )}
+              onClick={reconsiderProposal}
+              data-testid="recurrence-reconsider-proposal"
+            >
+              Set up a schedule anyway
+            </button>
           </div>
         ) : (
           <div className="space-y-3">
@@ -176,6 +227,7 @@ export function RecurrenceSchedulePostCommitCard({
               busy={busy}
               onSavePaused={() => void submitSchedule(false)}
               onEnableRecurring={() => void submitSchedule(true)}
+              onDecline={declineProposal}
             />
             {statusMessage ? (
               <p className={cn("m-0 text-teal-800 dark:text-teal-300", OPERATOR_TYPOGRAPHY.body)}>{statusMessage}</p>

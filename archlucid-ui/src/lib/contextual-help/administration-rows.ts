@@ -36,23 +36,6 @@ export const ADMINISTRATION_CONTEXTUAL_HELP_ROWS: readonly PageContextualHelpRow
     },
   },
   {
-    prefix: "/administration/connection-status",
-    entry: {
-      whatIsThisPage:
-        "Connection status - see which notification, ticketing, publishing, and delivery integrations are ready, recommended, or optional for this workspace.",
-      whatToDoNext:
-        "Open a connector that needs configuration, or System health when dependency checks need follow-up.",
-      whyEmpty:
-        "Readiness tiles appear after connector probes load; optional connectors stay listed until configured.",
-      whereToConfigurePrerequisite:
-        "Configuring connectors needs a role that can manage workspace integrations.",
-      whatToDoNextAction: {
-        label: "Open System health",
-        href: "/administration/system-health",
-      },
-    },
-  },
-  {
     prefix: "/administration/developer",
     entry: {
       whatIsThisPage:

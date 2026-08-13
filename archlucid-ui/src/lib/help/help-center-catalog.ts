@@ -1,5 +1,6 @@
 import { ENTERPRISE_ONBOARDING_HELP_PAGE_TITLE } from "@/lib/enterprise-onboarding-help-copy";
 import { FIRST_ARCHITECTURE_REVIEW_PAGE_TITLE } from "@/lib/first-architecture-review-help-copy";
+import { REPEAT_REVIEW_LOOP_HELP_PAGE_TITLE } from "@/lib/repeat-review-loop-help-guide-content";
 import { isInternalRunbookSlug } from "@/lib/product-documentation-content-kinds";
 import {
   listProductDocumentationEntries,
@@ -17,9 +18,9 @@ export type HelpCenterDisplay = {
 /** Default landing grid — 8–12 intent-based topics (not the full registry). */
 export const HELP_CENTER_FEATURED_SLUGS: readonly string[] = [
   "getting-started",
+  "first-architecture-review",
   "evidence-intake",
   "review-packages",
-  "review-guide",
   "findings",
   "evidence-trail",
   "governance-approval",
@@ -76,7 +77,7 @@ const HELP_CENTER_TIER_BY_SLUG: Readonly<Record<string, HelpCenterTier>> = {
   "admin-diagnostics": "internal",
   "pilot-feedback": "internal",
   "comparison-replay": "product",
-  "repeat-review-loop": "internal",
+  "repeat-review-loop": "product",
 };
 
 const HELP_CENTER_DISPLAY_OVERRIDES: Readonly<Partial<Record<string, HelpCenterDisplay>>> = {
@@ -93,6 +94,11 @@ const HELP_CENTER_DISPLAY_OVERRIDES: Readonly<Partial<Record<string, HelpCenterD
     title: FIRST_ARCHITECTURE_REVIEW_PAGE_TITLE,
     summary:
       "Your guided path from evidence intake to a finalized architecture review and sponsor-ready exports.",
+  },
+  "repeat-review-loop": {
+    title: REPEAT_REVIEW_LOOP_HELP_PAGE_TITLE,
+    summary:
+      "After your first finalized review: compare packages, replay authority, and collect second-review proof.",
   },
   "dpa-template": {
     title: "Data Processing Agreement (template)",

@@ -36,6 +36,9 @@ public static partial class AuditEventTypes
     /// <summary>System expired a TB-059 risk exception when listing active waivers past <c>ExpiresAtUtc</c>.</summary>
     public const string RiskExceptionExpired = "RiskExceptionExpired";
 
+    /// <summary>TB-2193 scanner sent an escalating expiry reminder for a risk exception at a cadence boundary.</summary>
+    public const string RiskExceptionExpiryReminderSent = "RiskExceptionExpiryReminderSent";
+
     /// <summary>Operator created a TB-062 architecture review recurrence schedule.</summary>
     public const string ArchitectureReviewRecurrenceScheduleCreated = "ArchitectureReviewRecurrenceScheduleCreated";
 

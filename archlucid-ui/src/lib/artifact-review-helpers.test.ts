@@ -15,8 +15,8 @@ import {
 } from "./artifact-review-helpers";
 
 describe("sponsorArtifactOpenActionLabel", () => {
-  it("uses sponsor verbs for MarkdownReport", () => {
-    expect(sponsorArtifactOpenActionLabel("MarkdownReport")).toBe("Open sponsor brief");
+  it("uses executive briefing verbs for MarkdownReport", () => {
+    expect(sponsorArtifactOpenActionLabel("MarkdownReport")).toBe("Open executive briefing");
   });
 
   it("falls back for unknown types", () => {
@@ -60,8 +60,8 @@ describe("sponsorArtifactAudienceBucket", () => {
 });
 
 describe("sponsorArtifactAudienceLine", () => {
-  it("returns sponsor-oriented line for MarkdownReport", () => {
-    expect(sponsorArtifactAudienceLine("MarkdownReport")).toContain("sponsor");
+  it("returns executive-oriented line for MarkdownReport", () => {
+    expect(sponsorArtifactAudienceLine("MarkdownReport")).toContain("executives");
   });
 
   it("returns audit-oriented line for EvidenceBundle", () => {

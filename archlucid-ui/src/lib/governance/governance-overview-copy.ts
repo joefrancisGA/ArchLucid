@@ -27,11 +27,18 @@ export const GOVERNANCE_OVERVIEW_SAMPLE_CONTEXT_LABEL = "Sample review context";
 export const GOVERNANCE_OVERVIEW_SAMPLE_CONTEXT_LINE =
   "Showing governance workflow for the Claims Intake sample review — illustrative demo data.";
 
+export const GOVERNANCE_OVERVIEW_SAMPLE_OVERVIEW_LINE =
+  "Sample workspace — counts and lists may use illustrative demo data until you load a live review.";
+
 export const GOVERNANCE_OVERVIEW_SUBMIT_ACTION = "Submit review for approval";
+
+export const GOVERNANCE_OVERVIEW_SUBMIT_DISABLED_HINT =
+  "Select a review before submitting for governance approval.";
 
 export const GOVERNANCE_OVERVIEW_PENDING_ACTION = "View pending approvals";
 
-export const GOVERNANCE_OVERVIEW_RISK_REGISTER_ACTION = "Open risk register";
+/** Canonical CTA label for `/governance/findings` from the approval-queue overview. */
+export const GOVERNANCE_OVERVIEW_FINDINGS_ACTION = "Open findings queue";
 
 export const GOVERNANCE_OVERVIEW_LOAD_REVIEW_ACTION = "Load selected review";
 
@@ -39,15 +46,48 @@ export const GOVERNANCE_OVERVIEW_BACK_ACTION = "Back to governance overview";
 
 export const GOVERNANCE_OVERVIEW_SUMMARY_HEADING = "Governance summary";
 
+export const GOVERNANCE_OVERVIEW_SUMMARY_SCOPE_LINE =
+  "Workspace-scoped counts from governance dashboard and decisions-needed APIs.";
+
+export const GOVERNANCE_OVERVIEW_SUMMARY_AUTHORITY_LINE =
+  "Requesters cannot approve their own reviews (segregation of duties).";
+
+export const GOVERNANCE_OVERVIEW_LAST_REFRESHED_PREFIX = "Last refreshed";
+
+export const GOVERNANCE_OVERVIEW_METRIC_WINDOW_LABEL = "Current workspace";
+
 export const GOVERNANCE_OVERVIEW_PENDING_APPROVALS_LABEL = "Pending approval requests";
+
+export const GOVERNANCE_OVERVIEW_PENDING_APPROVALS_DEFINITION =
+  "Approval requests awaiting an authorized decision";
 
 export const GOVERNANCE_OVERVIEW_APPROVED_PACKAGES_LABEL = "Approved reviews";
 
-export const GOVERNANCE_OVERVIEW_BLOCKING_ALERTS_LABEL = "Blocking governance alerts";
+export const GOVERNANCE_OVERVIEW_APPROVED_PACKAGES_DEFINITION =
+  "Reviews with an approved decision in the recent-decisions list";
+
+export const GOVERNANCE_OVERVIEW_BLOCKING_FINDINGS_LABEL = "Blocking findings";
+
+export const GOVERNANCE_OVERVIEW_BLOCKING_FINDINGS_DEFINITION =
+  "Open findings that block governance progress (unowned high-severity, stale, or awaiting evidence)";
+
+export const GOVERNANCE_OVERVIEW_BLOCKING_FINDINGS_BREAKDOWN_HEADING = "Blocking findings breakdown";
+
+export const GOVERNANCE_OVERVIEW_BLOCKING_UNOWNED_LABEL = "Unowned high-severity findings";
+
+export const GOVERNANCE_OVERVIEW_BLOCKING_STALE_LABEL = "Stale findings";
+
+export const GOVERNANCE_OVERVIEW_BLOCKING_AWAITING_EVIDENCE_LABEL = "Findings awaiting evidence";
 
 export const GOVERNANCE_OVERVIEW_RECENT_DECISIONS_LABEL = "Recent decisions";
 
+export const GOVERNANCE_OVERVIEW_RECENT_DECISIONS_DEFINITION =
+  "Approval decisions recorded in the workspace decision history";
+
 export const GOVERNANCE_OVERVIEW_POLICY_ACTIVATIONS_LABEL = "Policy activations";
+
+export const GOVERNANCE_OVERVIEW_POLICY_ACTIVATIONS_DEFINITION =
+  "Recent policy pack changes and activations in this workspace";
 
 export const GOVERNANCE_OVERVIEW_PENDING_SECTION_TITLE = "Pending approvals";
 
@@ -58,7 +98,7 @@ export const GOVERNANCE_OVERVIEW_NO_PENDING = "No approval requests are waiting 
 export const GOVERNANCE_OVERVIEW_NO_PENDING_TITLE = "No reviews are awaiting approval";
 
 export const GOVERNANCE_OVERVIEW_NO_PENDING_DESCRIPTION =
-  "Start by selecting a completed review below and submitting it into the governance workflow.";
+  "Start by selecting a completed review above and submitting it into the governance workflow.";
 
 export const GOVERNANCE_OVERVIEW_IDLE_WORKSPACE_HINT =
   "Your workspace has no active governance items yet — load a completed review to begin the approval lifecycle.";
@@ -69,11 +109,6 @@ export const GOVERNANCE_OVERVIEW_LOAD_REVIEW_SECTION_LEAD =
   "Select a completed review to inspect approval requests, releases, and activation history.";
 
 export const GOVERNANCE_OVERVIEW_LOAD_REVIEW_DISABLED_HINT = "Select a review to enable this action.";
-
-export const GOVERNANCE_OVERVIEW_QUICKSTART_CHECKLIST_HEADING = "First-time approval checklist";
-
-export const GOVERNANCE_OVERVIEW_QUICKSTART_CHECKLIST_LEAD =
-  "Use this sequence the first time you move a finalized review record through approval. Skipping steps is fine once your team knows the rhythm.";
 
 export const GOVERNANCE_OVERVIEW_APPROVAL_LIFECYCLE_STEPS = [
   "Review",
@@ -86,4 +121,4 @@ export const GOVERNANCE_OVERVIEW_APPROVAL_LIFECYCLE_STEPS = [
 export const GOVERNANCE_OVERVIEW_HOW_IT_WORKS_TRIGGER = "How governance approvals work";
 
 export const GOVERNANCE_OVERVIEW_HEADER_NEXT_ACTION =
-  "Start from pending approvals or open the risk register to clear blocking items.";
+  "Start from pending approvals or open the findings queue to clear blocking items.";

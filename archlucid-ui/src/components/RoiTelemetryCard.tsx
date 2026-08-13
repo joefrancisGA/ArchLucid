@@ -2,6 +2,7 @@
 import { cn } from "@/lib/utils";
 import { OPERATOR_TYPOGRAPHY } from "@/lib/design-tokens";
 
+import { FieldHelpTooltip } from "@/components/FieldHelpTooltip";
 import {
   computeRoiSummaryPeriodMetrics,
   formatRoiSummaryHoursDisplay,
@@ -65,12 +66,10 @@ export function RoiTelemetryCard(props: RoiTelemetryCardProps) {
           <p className={cn("m-0 uppercase tracking-wide text-al-text-secondary", OPERATOR_TYPOGRAPHY.tab)}>
             Estimated value
           </p>
-          <p className={cn("m-0 mt-1", OPERATOR_TYPOGRAPHY.kpiValue)} title={usd.rateBasisLabel}>
+          <p className={cn("m-0 mt-1", OPERATOR_TYPOGRAPHY.kpiValue)}>
             {usd.display}
           </p>
-          {metrics.showUsdEstimate ? (
-            <p className={cn("m-0 mt-1 text-al-text-secondary", OPERATOR_TYPOGRAPHY.helper)}>{usd.rateBasisLabel}</p>
-          ) : null}
+          <p className={cn("m-0 mt-1 text-al-text-secondary", OPERATOR_TYPOGRAPHY.helper)}>{usd.rateBasisLabel}</p>
         </div>
         <div>
           <p className={cn("m-0 uppercase tracking-wide text-al-text-secondary", OPERATOR_TYPOGRAPHY.tab)}>
@@ -81,13 +80,16 @@ export function RoiTelemetryCard(props: RoiTelemetryCardProps) {
           </p>
         </div>
         <div>
-          <p className={cn("m-0 uppercase tracking-wide text-al-text-secondary", OPERATOR_TYPOGRAPHY.tab)}>
+          <p className={cn("m-0 inline-flex items-center gap-1 uppercase tracking-wide text-al-text-secondary", OPERATOR_TYPOGRAPHY.tab)}>
             Governance blocks
+            {!props.period.blocks.exact ? (
+              <FieldHelpTooltip
+                label="Governance blocks"
+                hint="Audit search may be capped; count is a lower bound."
+              />
+            ) : null}
           </p>
-          <p
-            className={cn("m-0 mt-1 font-medium tabular-nums text-al-text-primary", OPERATOR_TYPOGRAPHY.dataValue)}
-            title={props.period.blocks.exact ? undefined : "Audit search may be capped; count is a lower bound."}
-          >
+          <p className={cn("m-0 mt-1 font-medium tabular-nums text-al-text-primary", OPERATOR_TYPOGRAPHY.dataValue)}>
             {blockLabel}
           </p>
         </div>

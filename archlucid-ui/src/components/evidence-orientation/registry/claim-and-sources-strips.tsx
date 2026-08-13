@@ -35,6 +35,42 @@ import {
   DIGESTS_HELP_SOURCES_INTRO,
 } from "@/lib/digests-help-evidence-copy";
 import {
+  RECURRENCE_SCHEDULES_HELP_CLAIM_DISCIPLINE,
+  RECURRENCE_SCHEDULES_HELP_FOLLOW_UPS_TITLE,
+  RECURRENCE_SCHEDULES_HELP_SOURCES,
+  RECURRENCE_SCHEDULES_HELP_SOURCES_INTRO,
+} from "@/lib/recurrence-schedules-help-evidence-copy";
+import {
+  ROI_SUMMARY_HELP_CLAIM_DISCIPLINE,
+  ROI_SUMMARY_HELP_FOLLOW_UPS_TITLE,
+  ROI_SUMMARY_HELP_SOURCES,
+  ROI_SUMMARY_HELP_SOURCES_INTRO,
+} from "@/lib/roi-summary-help-evidence-copy";
+import {
+  PILOT_OUTCOMES_HELP_CLAIM_DISCIPLINE,
+  PILOT_OUTCOMES_HELP_FOLLOW_UPS_TITLE,
+  PILOT_OUTCOMES_HELP_SOURCES,
+  PILOT_OUTCOMES_HELP_SOURCES_INTRO,
+} from "@/lib/pilot-outcomes-evidence-copy";
+import {
+  ARCHITECTURE_SCORECARD_HELP_CLAIM_DISCIPLINE,
+  ARCHITECTURE_SCORECARD_HELP_FOLLOW_UPS_TITLE,
+  ARCHITECTURE_SCORECARD_HELP_SOURCES,
+  ARCHITECTURE_SCORECARD_HELP_SOURCES_INTRO,
+} from "@/lib/architecture-scorecard-help-evidence-copy";
+import {
+  CONNECTION_STATUS_HELP_CLAIM_DISCIPLINE,
+  CONNECTION_STATUS_HELP_FOLLOW_UPS_TITLE,
+  CONNECTION_STATUS_HELP_SOURCES,
+  CONNECTION_STATUS_HELP_SOURCES_INTRO,
+} from "@/lib/connection-status-help-evidence-copy";
+import {
+  STANDARDS_RULES_HELP_CLAIM_DISCIPLINE,
+  STANDARDS_RULES_HELP_FOLLOW_UPS_TITLE,
+  STANDARDS_RULES_HELP_SOURCES,
+  STANDARDS_RULES_HELP_SOURCES_INTRO,
+} from "@/lib/standards-rules-help-evidence-copy";
+import {
   ENTERPRISE_ONBOARDING_HELP_CLAIM_DISCIPLINE,
   ENTERPRISE_ONBOARDING_HELP_RELATED_PAGES_TITLE,
   ENTERPRISE_ONBOARDING_HELP_SOURCES,
@@ -157,6 +193,102 @@ export function DigestsHelpEvidenceOrientationStrip(): React.JSX.Element {
       sourcesTitle={DIGESTS_HELP_FOLLOW_UPS_TITLE}
       sourcesIntro={DIGESTS_HELP_SOURCES_INTRO}
       sources={DIGESTS_HELP_SOURCES}
+      sourcesStyle={EVIDENCE_SOURCES_STYLE.operatorRaised}
+      sourcesHeadingId="where-to-go-next"
+    />
+  );
+}
+
+export function RecurrenceSchedulesHelpEvidenceOrientationStrip(): React.JSX.Element {
+  return (
+    <EvidenceOrientationClaimAndSourcesStrip
+      slug="help-recurrence-schedules"
+      claim={RECURRENCE_SCHEDULES_HELP_CLAIM_DISCIPLINE}
+      claimStyle={EVIDENCE_CLAIM_STYLE.operatorNeutral}
+      claimElement="div"
+      sourcesTitle={RECURRENCE_SCHEDULES_HELP_FOLLOW_UPS_TITLE}
+      sourcesIntro={RECURRENCE_SCHEDULES_HELP_SOURCES_INTRO}
+      sources={RECURRENCE_SCHEDULES_HELP_SOURCES}
+      sourcesStyle={EVIDENCE_SOURCES_STYLE.operatorRaised}
+      sourcesHeadingId="where-to-go-next"
+    />
+  );
+}
+
+export function RoiSummaryHelpEvidenceOrientationStrip(): React.JSX.Element {
+  return (
+    <EvidenceOrientationClaimAndSourcesStrip
+      slug="help-roi-summary"
+      claim={ROI_SUMMARY_HELP_CLAIM_DISCIPLINE}
+      claimStyle={EVIDENCE_CLAIM_STYLE.operatorNeutral}
+      claimElement="div"
+      sourcesTitle={ROI_SUMMARY_HELP_FOLLOW_UPS_TITLE}
+      sourcesIntro={ROI_SUMMARY_HELP_SOURCES_INTRO}
+      sources={ROI_SUMMARY_HELP_SOURCES}
+      sourcesStyle={EVIDENCE_SOURCES_STYLE.operatorRaised}
+      sourcesHeadingId="where-to-go-next"
+    />
+  );
+}
+
+export function PilotOutcomesHelpEvidenceOrientationStrip(): React.JSX.Element {
+  return (
+    <EvidenceOrientationClaimAndSourcesStrip
+      slug="help-pilot-outcomes"
+      claim={PILOT_OUTCOMES_HELP_CLAIM_DISCIPLINE}
+      claimStyle={EVIDENCE_CLAIM_STYLE.operatorNeutral}
+      claimElement="div"
+      sourcesTitle={PILOT_OUTCOMES_HELP_FOLLOW_UPS_TITLE}
+      sourcesIntro={PILOT_OUTCOMES_HELP_SOURCES_INTRO}
+      sources={PILOT_OUTCOMES_HELP_SOURCES}
+      sourcesStyle={EVIDENCE_SOURCES_STYLE.operatorRaised}
+      sourcesHeadingId="where-to-go-next"
+    />
+  );
+}
+
+export function ArchitectureScorecardHelpEvidenceOrientationStrip(): React.JSX.Element {
+  return (
+    <EvidenceOrientationClaimAndSourcesStrip
+      slug="help-architecture-scorecard"
+      claim={ARCHITECTURE_SCORECARD_HELP_CLAIM_DISCIPLINE}
+      claimStyle={EVIDENCE_CLAIM_STYLE.operatorNeutral}
+      claimElement="div"
+      sourcesTitle={ARCHITECTURE_SCORECARD_HELP_FOLLOW_UPS_TITLE}
+      sourcesIntro={ARCHITECTURE_SCORECARD_HELP_SOURCES_INTRO}
+      sources={ARCHITECTURE_SCORECARD_HELP_SOURCES}
+      sourcesStyle={EVIDENCE_SOURCES_STYLE.operatorRaised}
+      sourcesHeadingId="where-to-go-next"
+    />
+  );
+}
+
+export function ConnectionStatusHelpEvidenceOrientationStrip(): React.JSX.Element {
+  return (
+    <EvidenceOrientationClaimAndSourcesStrip
+      slug="help-connection-status"
+      claim={CONNECTION_STATUS_HELP_CLAIM_DISCIPLINE}
+      claimStyle={EVIDENCE_CLAIM_STYLE.operatorNeutral}
+      claimElement="div"
+      sourcesTitle={CONNECTION_STATUS_HELP_FOLLOW_UPS_TITLE}
+      sourcesIntro={CONNECTION_STATUS_HELP_SOURCES_INTRO}
+      sources={CONNECTION_STATUS_HELP_SOURCES}
+      sourcesStyle={EVIDENCE_SOURCES_STYLE.operatorRaised}
+      sourcesHeadingId="where-to-go-next"
+    />
+  );
+}
+
+export function StandardsRulesHelpEvidenceOrientationStrip(): React.JSX.Element {
+  return (
+    <EvidenceOrientationClaimAndSourcesStrip
+      slug="help-standards-rules"
+      claim={STANDARDS_RULES_HELP_CLAIM_DISCIPLINE}
+      claimStyle={EVIDENCE_CLAIM_STYLE.operatorNeutral}
+      claimElement="div"
+      sourcesTitle={STANDARDS_RULES_HELP_FOLLOW_UPS_TITLE}
+      sourcesIntro={STANDARDS_RULES_HELP_SOURCES_INTRO}
+      sources={STANDARDS_RULES_HELP_SOURCES}
       sourcesStyle={EVIDENCE_SOURCES_STYLE.operatorRaised}
       sourcesHeadingId="where-to-go-next"
     />

@@ -3,7 +3,7 @@
  * Makes static-demo and simulator surfaces unmistakably non-live — never soft “sample” wording alone.
  */
 
-export type DemoVsLiveChromeMode = "live" | "static-demo" | "simulator";
+import { RULE_BASED_ANALYSIS_BUYER_LABEL } from "@/lib/usability/canonical-product-terms";
 
 export type DemoVsLiveChromeCopy = {
   readonly mode: Exclude<DemoVsLiveChromeMode, "live">;
@@ -31,10 +31,10 @@ const STATIC_DEMO_COPY: DemoVsLiveChromeCopy = {
 
 const SIMULATOR_COPY: DemoVsLiveChromeCopy = {
   mode: "simulator",
-  bannerTitle: "SIMULATOR — NOT LIVE",
+  bannerTitle: "RULE-BASED — NOT LIVE",
   bannerBody:
-    "Simulator execution — results are illustrative and must not be treated as a live tenant review.",
-  watermark: "SIMULATOR — NOT LIVE",
+    `${RULE_BASED_ANALYSIS_BUYER_LABEL} — results are illustrative and must not be treated as a live tenant review.`,
+  watermark: "RULE-BASED — NOT LIVE",
   testId: "demo-vs-live-chrome-simulator",
 };
 

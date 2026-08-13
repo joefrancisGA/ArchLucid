@@ -186,7 +186,7 @@ public sealed class ExecutiveRoiSummaryService(
             ExecutiveBusinessImpactCategoryClassifier.Build(dedupedFindings);
 
         ArchitectureRiskRegisterResponse riskRegister = await _architectureRiskRegisterService
-            .GetRegisterAsync(tenantId, projectId, maxRows: 100, cancellationToken)
+            .GetRegisterAsync(tenantId, projectId, maxRows: 100, options: null, cancellationToken)
             .ConfigureAwait(false);
 
         int staleArchitectureRiskCount = StaleArchitectureRiskCountCalculator.CountStale(riskRegister);

@@ -101,7 +101,7 @@ export function stripExecutiveSummaryPilotRoiMeasurementLeakage(markdown: string
     })
     .join("\n");
 
-  return withoutSensitiveRows
+  const softened = withoutSensitiveRows
     .replace(/\s*\(TB-\d+\)/gi, "")
     .replace(/\bTB-\d+\b/gi, "")
     .replace(/`?START_HERE\.md`?/gi, "product documentation index")
@@ -132,7 +132,35 @@ export function stripExecutiveSummaryPilotRoiMeasurementLeakage(markdown: string
     .replace(/\bPilot Roi Model options\b/gi, "pilot ROI methodology options")
     .replace(/\bPilot Roi Model\b/gi, "pilot ROI methodology")
     .replace(/\bCore Pilot\b/g, "Your first architecture review")
+    .replace(
+      /## Pilot ROI measurement \{#pilot-roi-measurement\}/i,
+      "## Sponsor ROI methodology {#pilot-roi-measurement}",
+    )
+    .replace(
+      /\*\*Create review → Execute → Finalize → Review artifacts\*\*\s*\n?\(API\/CLI may still say \*\*commit\*\*[^)]*\)/gi,
+      "**Request → finalize → review exports** — use product surfaces; engineering status names stay out of sponsor narratives.",
+    )
+    .replace(/`ReadyForCommit`/gi, "ready to finalize")
+    .replace(/\bReadyForCommit\b/g, "ready to finalize")
     .replace(/\n{3,}/g, "\n\n");
+
+  return wrapPilotRoiMeasurementDenseSectionsInDetails(softened);
+}
+
+function wrapPilotRoiMeasurementDenseSectionsInDetails(markdown: string): string {
+  let result = markdown;
+
+  result = result.replace(
+    /(#### Secondary pilot metrics[\s\S]*?)(?=\n### |\n## |$)/i,
+    '<details data-testid="pilot-roi-measurement-secondary-metrics">\n<summary>Secondary pilot metrics</summary>\n\n$1\n</details>\n\n',
+  );
+
+  result = result.replace(
+    /(### Suggested pilot scorecard \(1.5\)[\s\S]*?)(?=\n### |\n## |$)/i,
+    '<details data-testid="pilot-roi-measurement-scorecard">\n<summary>Suggested pilot scorecard (1–5)</summary>\n\n$1\n</details>\n\n',
+  );
+
+  return result;
 }
 export function stripPilotRoiModelContributorLeakage(markdown: string): string {
   return stripExecutiveSummaryPilotRoiMeasurementLeakage(markdown);

@@ -11,10 +11,11 @@ public sealed class ArchitectureRiskRegisterService(IArchitectureRiskRegisterQue
         Guid tenantId,
         Guid? projectId,
         int maxRows,
+        ArchitectureRiskRegisterListOptions? options = null,
         CancellationToken cancellationToken = default)
     {
         IReadOnlyList<ArchitectureRiskRegisterEntry> entries =
-            await _reader.ListAsync(tenantId, projectId, maxRows, cancellationToken);
+            await _reader.ListAsync(tenantId, projectId, maxRows, options, cancellationToken);
 
         return new ArchitectureRiskRegisterResponse { Entries = entries };
     }

@@ -70,7 +70,7 @@ describe("operator-integrations-page-help-surfaces (TB-1669)", () => {
     expect(pageHelpTopicForPathname("/integrations/jira")?.slug).toBe("integration-readiness");
     expect(pageHelpTopicForPathname("/integrations/servicenow")?.slug).toBe("integration-readiness");
     expect(pageHelpTopicForPathname("/integrations/azure-boards")?.slug).toBe("azure-boards");
-    expect(pageHelpTopicForPathname("/administration/connection-status")?.slug).toBe("integration-readiness");
+    expect(pageHelpTopicForPathname("/administration/connection-status")?.slug).toBe("connection-status");
     expect(pageHelpTopicForPathname("/internal/product-learning")?.slug).toBe("pilot-feedback");
     expect(pageHelpTopicForPathname("/internal/health")?.slug).toBe("admin-diagnostics");
   });
