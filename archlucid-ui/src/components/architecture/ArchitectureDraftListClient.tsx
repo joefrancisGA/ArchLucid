@@ -300,7 +300,6 @@ export function ArchitectureDraftListClient(): React.JSX.Element {
           </EnterpriseTableHead>
           <EnterpriseTableBody>
             {filteredEntries.map((entry) => {
-              const absoluteUpdated = formatArchitectureDraftCreatedLabel(entry.lastUpdatedUtc);
               const updatedLabel = formatUpdatedListLabel(entry.lastUpdatedUtc);
 
               return (
@@ -323,7 +322,9 @@ export function ArchitectureDraftListClient(): React.JSX.Element {
                     />
                   </EnterpriseTableCell>
                   <EnterpriseTableCell>{entry.ownerLabel}</EnterpriseTableCell>
-                  <EnterpriseTableCell title={absoluteUpdated ?? undefined}>{updatedLabel}</EnterpriseTableCell>
+                  <EnterpriseTableCell>
+                    <time dateTime={entry.lastUpdatedUtc}>{updatedLabel}</time>
+                  </EnterpriseTableCell>
                   <EnterpriseTableCell>
                     {entry.linkedReviewId !== null ? (
                       <Link
