@@ -2219,7 +2219,7 @@ Do not treat unexplained mass SHA rewrites as regression proof; do not sell coho
 
 ### Residuals (honest)
 
-- **TB-1172** **Done** — [`GOLDEN_COHORT_RELOCK_VS_RUBBER_STAMP_CONTRACT.md`](../library/GOLDEN_COHORT_RELOCK_VS_RUBBER_STAMP_CONTRACT.md); **TB-1173** owns anti-rubber-stamp CI.
+- **TB-1172** **Done** — [`GOLDEN_COHORT_RELOCK_VS_RUBBER_STAMP_CONTRACT.md`](../library/GOLDEN_COHORT_RELOCK_VS_RUBBER_STAMP_CONTRACT.md); **TB-1173** **Done** — `scripts/ci/check_golden_cohort_relock_rubber_stamp_honesty.py` (wired in `run_buyer_surface_strict_guards.py`).
 - Cite `tests/golden-cohort/README.md` lock ritual + **TB-1156** **Done** dual-hasher contract.
 - Complements **M-154**, **M-198**/**M-199**, **M-274**; pairs claim-honesty **M-201**.
 - This handout does not claim CPA SOC 2 or a published third-party penetration test.
