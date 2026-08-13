@@ -3,7 +3,7 @@
 # Specialty help chrome contract
 
 **Status:** Active (V1)  
-**Backlog:** **TB-1414** (this contract) · **TB-1415** (anti-bare-markdown / ungated-technical-doc honesty CI — open)  
+**Backlog:** **TB-1414** (this contract) · **TB-1415** (anti-bare-markdown / ungated-technical-doc honesty CI — Done)  
 **Audience:** Help specialty implementers, UX reviewers, coding agents  
 **GTM:** [M-251](https://github.com/joefrancisGA/ArchLucid/blob/master/docs/go-to-market/GTM_BACKLOG.md) (claim honesty) · [M-252](https://github.com/joefrancisGA/ArchLucid/blob/master/docs/go-to-market/BUYER_SECURITY_PROCUREMENT_PACKET.md#owner-screenshot-below-50-specialty-help-chrome-m-252) (PA scoreboard)  
 **Related:** Done **TB-735** (Admin technical-help gating) · [`PRODUCT_DOCUMENTATION_PRESENTATION.md`](./PRODUCT_DOCUMENTATION_PRESENTATION.md) · [`UI_DESIGN_SYSTEM.md`](./UI_DESIGN_SYSTEM.md) · [`archlucid-ui/src/lib/specialty-help-chrome-below-50-inventory.ts`](../archlucid-ui/src/lib/specialty-help-chrome-below-50-inventory.ts)
@@ -92,7 +92,7 @@ Do **not** claim:
 | Layer | Owner |
 | --- | --- |
 | This contract + inventory table | **TB-1414** (Done) |
-| CI honesty guards for buyer copy | **TB-1415** (open) |
+| CI honesty guards for buyer copy | **TB-1415** (Done — `check_specialty_help_chrome_honesty.py` + Vitest) |
 | Per-slug specialty shipping | Mapped clusters above |
 
 Vitest inventory drift guard: `archlucid-ui/src/lib/specialty-help-chrome-contract.test.ts`.

@@ -252,6 +252,11 @@ GUARDS: tuple[GuardCommand, ...] = (
         None,
     ),
     GuardCommand(
+        "specialty help chrome honesty",
+        ("python", "scripts/ci/check_specialty_help_chrome_honesty.py"),
+        None,
+    ),
+    GuardCommand(
         "first-15 package spine honesty",
         ("python", "scripts/ci/check_first_15_package_spine_honesty.py"),
         None,
