@@ -3,6 +3,8 @@
 import type { PageContextualHelpEntry, PageContextualHelpRow } from "@/lib/contextual-help/types";
 
 /** Exact Settings hub root (`/administration`) — registered via parameterized matcher so children keep their own answers. */
+export const SETTINGS_HUB_HELP_TOPIC_LABEL = "Settings help" as const;
+
 export const SETTINGS_HUB_CONTEXTUAL_HELP: PageContextualHelpEntry = {
   whatIsThisPage:
     "Settings hub — search and open workspace, governance, integration, security, billing, and support configuration pages.",

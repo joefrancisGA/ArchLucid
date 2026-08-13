@@ -3,6 +3,9 @@ import type { EvidenceSourceLink } from "@/lib/evidence-surface-copy";
 
 export const WHY_ARCHLUCID_CANONICAL_PATH = "/why-archlucid" as const;
 
+/** Learning-twin allowlist label — not the operator page title (`WHY_ARCHLUCID_PAGE_TITLE`). */
+export const WHY_ARCHLUCID_HELP_TOPIC_LABEL = "Why ArchLucid" as const;
+
 export const WHY_ARCHLUCID_CLAIM_DISCIPLINE =
   "This Why ArchLucid page is an architect demo/proof surface over seeded telemetry and sample review outputs — it is not a signed-review diligence Sources bundle from your production tenant. Open the public /why comparison, Assurance status, or a finalized signed review record when you need diligence-grade trails.";
 

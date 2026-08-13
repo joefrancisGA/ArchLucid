@@ -5,6 +5,7 @@ import { describe, expect, it } from "vitest";
 
 import { ALERTS_CONFIGURATION_PAGE_TITLE } from "@/lib/alerts-page-copy";
 import { BUYER_ONBOARDING_PAGE_TITLE } from "@/lib/buyer/buyer-polish-copy";
+import { INTERNAL_DEVELOPER_TOOLS_PAGE_TITLE } from "@/lib/developer-settings-evidence-copy";
 import { GOVERNANCE_SETUP_PAGE_TITLE } from "@/lib/governance/governance-setup-route";
 import { OPERATOR_HOME_PAGE_TITLE } from "@/lib/operator/operator-home-page-copy";
 import { pageHelpTopicForPathname } from "@/lib/usability/page-help-topic-map";
@@ -29,7 +30,7 @@ const PAGE_HELP_TITLE_COLLISION_SURFACES: ReadonlyArray<{
   },
   {
     pathname: "/administration/developer",
-    pageTitle: "Internal developer tools",
+    pageTitle: INTERNAL_DEVELOPER_TOOLS_PAGE_TITLE,
     modulePath: "app/(operator)/administration/developer/DeveloperSettingsPageClient.tsx",
   },
   {

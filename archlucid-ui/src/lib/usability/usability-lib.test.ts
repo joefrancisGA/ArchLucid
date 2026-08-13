@@ -8,6 +8,7 @@ import { DECISION_REGISTER_HELP_TOPIC_LABEL } from "@/lib/decision-register-help
 import { DIGESTS_HELP_TOPIC_LABEL } from "@/lib/digests-help-evidence-copy";
 import { IMPACT_PREVIEW_HELP_TOPIC_LABEL } from "@/lib/impact-preview-help-evidence-copy";
 import { IMPROVEMENT_PLANNING_HELP_TOPIC_LABEL } from "@/lib/improvement-planning-help-evidence-copy";
+import { SETTINGS_HUB_HELP_TOPIC_LABEL } from "@/lib/contextual-help/administration-rows";
 import { REPEAT_REVIEW_LOOP_HELP_PAGE_TITLE } from "@/lib/repeat-review-loop-help-guide-content";
 import { pageHelpTopicForPathname } from "@/lib/usability/page-help-topic-map";
 import { searchHelpTopics } from "@/lib/usability/search-help-topics";
@@ -45,9 +46,9 @@ describe("usability lib", () => {
     expect(pageHelpTopicForPathname("/insights/improvement-planning")?.label).toBe(IMPROVEMENT_PLANNING_HELP_TOPIC_LABEL);
     expect(pageHelpTopicForPathname("/administration/billing")?.slug).toBe("billing-and-plans");
     expect(pageHelpTopicForPathname("/administration/billing")?.label).toBe(BILLING_AND_PLANS_HELP_TOPIC_LABEL);
-    expect(pageHelpTopicForPathname("/administration")?.label).toBe("Settings help");
+    expect(pageHelpTopicForPathname("/administration")?.label).toBe(SETTINGS_HUB_HELP_TOPIC_LABEL);
     expect(pageHelpTopicForPathname("/administration")?.slug).toBeUndefined();
-    expect(pageHelpTopicForPathname("/administration/settings")?.label).toBe("Settings help");
+    expect(pageHelpTopicForPathname("/administration/settings")?.label).toBe(SETTINGS_HUB_HELP_TOPIC_LABEL);
     expect(pageHelpTopicForPathname("/administration/notifications")?.slug).toBe("notifications");
     expect(pageHelpTopicForPathname("/administration/notifications")?.label).toBe("How notifications work");
     expect(pageHelpTopicForPathname("/help/billing-and-plans")?.slug).toBe("billing-and-plans");

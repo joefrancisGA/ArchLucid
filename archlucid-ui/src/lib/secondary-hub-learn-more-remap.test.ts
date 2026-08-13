@@ -1,10 +1,17 @@
 import { describe, expect, it } from "vitest";
 
+import { ADVISORY_SCANS_HELP_TOPIC_LABEL } from "@/lib/advisory-scans-help-evidence-copy";
+import { ARCHITECTURE_DRAFTS_HELP_TOPIC_LABEL } from "@/lib/architecture-drafts-evidence-copy";
 import { contextualHelpForPathname } from "@/lib/contextual-help-registry";
+import { DECISION_REGISTER_HELP_TOPIC_LABEL } from "@/lib/decision-register-help-evidence-copy";
+import { IMPACT_PREVIEW_HELP_TOPIC_LABEL } from "@/lib/impact-preview-help-evidence-copy";
+import { IMPROVEMENT_PLANNING_HELP_TOPIC_LABEL } from "@/lib/improvement-planning-help-evidence-copy";
 import {
   isGenericLearnMoreSlug,
   LEARN_MORE_JOB_MATCH_SECONDARY_HUB_PATHS,
 } from "@/lib/learn-more-job-match-inventory";
+import { WORKSPACE_SETTINGS_HELP_TOPIC_LABEL } from "@/lib/tenant-settings-evidence-copy";
+import { WHY_ARCHLUCID_HELP_TOPIC_LABEL } from "@/lib/why-archlucid-evidence-copy";
 import {
   PAGE_HELP_FIRST_RUN_GENERIC_LEARN_MORE_ALLOWLIST_PREFIXES,
   pageHelpTopicForPathname,
@@ -25,32 +32,50 @@ describe("TB-2050 secondary-hub Learn more remap", () => {
     }
   });
 
-  it("keeps Category-1 trigger labels when Learn more is omitted", () => {
-    expect(pageHelpTopicForPathname("/insights/improvement-planning")?.label).toBe("Improvement planning");
-    expect(pageHelpTopicForPathname("/governance/decision-register")?.label).toBe("Decision register");
-    expect(pageHelpTopicForPathname("/governance/advisory-scans")?.label).toBe("Advisory scans");
-    expect(pageHelpTopicForPathname("/insights/impact-preview")?.label).toBe("Impact preview");
+  it("maps secondary hubs to specialty help topics with descriptive labels", () => {
+    expect(pageHelpTopicForPathname("/insights/improvement-planning")).toEqual({
+      slug: "improvement-planning",
+      label: IMPROVEMENT_PLANNING_HELP_TOPIC_LABEL,
+    });
+    expect(pageHelpTopicForPathname("/governance/decision-register")).toEqual({
+      slug: "decision-register",
+      label: DECISION_REGISTER_HELP_TOPIC_LABEL,
+    });
+    expect(pageHelpTopicForPathname("/governance/advisory-scans")).toEqual({
+      slug: "advisory-scans",
+      label: ADVISORY_SCANS_HELP_TOPIC_LABEL,
+    });
+    expect(pageHelpTopicForPathname("/insights/impact-preview")).toEqual({
+      slug: "impact-preview",
+      label: IMPACT_PREVIEW_HELP_TOPIC_LABEL,
+    });
   });
 
   it("documents first-run allowlist prefixes for generic Learn more", () => {
     expect(PAGE_HELP_FIRST_RUN_GENERIC_LEARN_MORE_ALLOWLIST_PREFIXES).toContain("/architectures");
     expect(PAGE_HELP_FIRST_RUN_GENERIC_LEARN_MORE_ALLOWLIST_PREFIXES).toContain("/why-archlucid");
-    expect(pageHelpTopicForPathname("/architectures")?.slug).toBe("getting-started");
+    expect(pageHelpTopicForPathname("/architectures")).toEqual({
+      slug: "architecture-drafts",
+      label: ARCHITECTURE_DRAFTS_HELP_TOPIC_LABEL,
+    });
     expect(pageHelpTopicForPathname("/why-archlucid")).toEqual({
       slug: "getting-started",
       hashFragment: "how-archlucid-works",
-      label: "Why ArchLucid",
+      label: WHY_ARCHLUCID_HELP_TOPIC_LABEL,
     });
   });
 
   it("remaps tenant settings and recommendation-learning off getting-started", () => {
-    expect(pageHelpTopicForPathname("/administration/workspace-settings")?.slug).toBe("scope");
+    expect(pageHelpTopicForPathname("/administration/workspace-settings")).toEqual({
+      slug: "workspace-settings",
+      label: WORKSPACE_SETTINGS_HELP_TOPIC_LABEL,
+    });
     expect(pageHelpTopicForPathname("/internal/recommendation-learning")?.slug).toBe(
       "pilot-feedback",
     );
   });
 
-  it("keeps Category-1 registry coverage for hubs that omit Learn more", () => {
+  it("keeps Category-1 registry coverage for secondary hubs", () => {
     for (const path of SECONDARY_HUB_PATHS) {
       expect(contextualHelpForPathname(path), path).not.toBeNull();
     }

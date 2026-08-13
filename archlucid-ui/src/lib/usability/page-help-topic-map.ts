@@ -32,7 +32,14 @@ import { ARCHITECTURES_NEW_HELP_TOPIC_LABEL } from "@/lib/architectures-new-evid
 import { ARCHITECTURES_LIST_PATH } from "@/lib/architecture/architecture-routes";
 import { DATA_HANDLING_TENANT_ISOLATION_HELP_TOPIC_LABEL } from "@/lib/data-handling-tenant-isolation-help-evidence-copy";
 import { DECISION_REGISTER_HELP_TOPIC_LABEL } from "@/lib/decision-register-help-evidence-copy";
+import { DEMO_EXPLAIN_HELP_TOPIC_LABEL } from "@/lib/demo-explain-evidence-copy";
 import { DEMO_READINESS_HELP_TOPIC_LABEL } from "@/lib/demo-readiness-evidence-copy";
+import { INTERNAL_DEVELOPER_TOOLS_PAGE_TITLE } from "@/lib/developer-settings-evidence-copy";
+import { FINDING_EVIDENCE_TRACE_HELP_TOPIC_LABEL } from "@/lib/evidence-trace-contextual-help";
+import { HELP_HUB_HELP_TOPIC_LABEL } from "@/lib/help/help-hub-evidence-copy";
+import { SETTINGS_HUB_HELP_TOPIC_LABEL } from "@/lib/contextual-help/administration-rows";
+import { REVIEW_ARTIFACTS_HELP_TOPIC_LABEL } from "@/lib/review-artifacts-evidence-copy";
+import { WHY_ARCHLUCID_HELP_TOPIC_LABEL } from "@/lib/why-archlucid-evidence-copy";
 import { DEPLOYMENT_STATUS_HELP_TOPIC_LABEL } from "@/lib/deployment-status-evidence-copy";
 import { DPA_TEMPLATE_HELP_TOPIC_LABEL } from "@/lib/dpa-template-help-guide-content";
 import { EVIDENCE_TRAIL_HELP_TOPIC_LABEL } from "@/lib/evidence-trail-help-evidence-copy";
@@ -190,7 +197,7 @@ const PAGE_HELP_TOPICS: readonly { prefix: string; topic: PageHelpTopic }[] = [
   },
   {
     prefix: "/help/alerts",
-    topic: { slug: "alerts", label: "How alerts work" },
+    topic: { slug: "alerts", label: ALERTS_HOW_ALERTS_WORK_LABEL },
   },
   {
     prefix: "/help/findings",
@@ -458,12 +465,12 @@ const PAGE_HELP_TOPICS: readonly { prefix: string; topic: PageHelpTopic }[] = [
     topic: {
       slug: "getting-started",
       hashFragment: "how-archlucid-works",
-      label: "Why ArchLucid",
+      label: WHY_ARCHLUCID_HELP_TOPIC_LABEL,
     },
   },
   {
     prefix: "/demo/explain",
-    topic: { slug: "evidence-trail", label: "Demo explain" },
+    topic: { slug: "evidence-trail", label: DEMO_EXPLAIN_HELP_TOPIC_LABEL },
   },
   { prefix: "/administration/billing", topic: { slug: "billing-and-plans", label: OPERATOR_BILLING_SETTINGS_HELP_TOPIC_LABEL } },
   {
@@ -597,7 +604,7 @@ const PAGE_HELP_TOPICS: readonly { prefix: string; topic: PageHelpTopic }[] = [
     topic: { slug: "teams-integration", label: TEAMS_INTEGRATION_HELP_TOPIC_LABEL },
   },
   { prefix: "/administration/connection-status", topic: { slug: "connection-status", label: CONNECTION_STATUS_HELP_TOPIC_LABEL } },
-  { prefix: "/administration/developer", topic: { slug: "cli-usage", label: "Internal developer tools" } },
+  { prefix: "/administration/developer", topic: { slug: "cli-usage", label: INTERNAL_DEVELOPER_TOOLS_PAGE_TITLE } },
   {
     prefix: "/operate/integration-events/dlq",
     topic: { slug: "integration-readiness", label: INTEGRATION_EVENTS_DLQ_HELP_TOPIC_LABEL },
@@ -713,12 +720,12 @@ const PAGE_HELP_TOPICS: readonly { prefix: string; topic: PageHelpTopic }[] = [
     prefix: "/administration/baseline",
     topic: { slug: "baseline-settings", label: BASELINE_SETTINGS_HELP_TOPIC_LABEL },
   },
-  { prefix: "/help", topic: { slug: "getting-started", label: "Help" } },
+  { prefix: "/help", topic: { slug: "getting-started", label: HELP_HUB_HELP_TOPIC_LABEL } },
 ];
 
 const ARTIFACT_PREVIEW_HELP_TOPIC: PageHelpTopic = {
   slug: "review-artifacts",
-  label: "Review artifacts",
+  label: REVIEW_ARTIFACTS_HELP_TOPIC_LABEL,
 };
 
 /** True on in-app `/help` topic pages — contextual help chrome would only link back to the same article. */
@@ -742,7 +749,7 @@ export function pageHelpTopicForPathname(pathname: string): PageHelpTopic | null
   }
 
   if (pathIsFindingEvidenceTrace(path)) {
-    return { slug: "findings", label: "Finding evidence trace" };
+    return { slug: "findings", label: FINDING_EVIDENCE_TRACE_HELP_TOPIC_LABEL };
   }
 
   if (path === "/") {
@@ -751,7 +758,7 @@ export function pageHelpTopicForPathname(pathname: string): PageHelpTopic | null
 
   // Exact Settings hub only — must not use prefix startsWith or `/administration/*` children inherit this topic.
   if (pathIsSettingsHubRoot(path)) {
-    return { label: "Settings help" };
+    return { label: SETTINGS_HUB_HELP_TOPIC_LABEL };
   }
 
   const sorted = [...PAGE_HELP_TOPICS].sort((left, right) => right.prefix.length - left.prefix.length);
