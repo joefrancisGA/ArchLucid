@@ -1,13 +1,16 @@
 import { describe, expect, it } from "vitest";
 
 import {
+  CORE_PILOT_HELP_CLOUD_ACTIONS,
   CORE_PILOT_HELP_DEPTH_GUIDES,
   CORE_PILOT_HELP_GUIDE_HEADINGS,
   CORE_PILOT_HELP_IN_PRODUCT_CHECKLIST_LABEL,
   CORE_PILOT_HELP_OPTIONAL_PATHS_TITLE,
   CORE_PILOT_HELP_PRIMARY_ACTIONS,
   CORE_PILOT_HELP_SAMPLE_REVIEW_CTA_LABEL,
+  CORE_PILOT_HELP_START_REVIEW_HREF,
   CORE_PILOT_HELP_WORKFLOW_CHECKING_STATUS,
+  CORE_PILOT_HELP_WORKFLOW_STEPS,
 } from "@/lib/core-pilot-help-guide-content";
 import { SHOWCASE_BUYER_REVIEW_PACKAGE_TITLE, SHOWCASE_STATIC_DEMO_RUN_ID } from "@/lib/showcase-static-demo";
 
@@ -41,5 +44,27 @@ describe("core-pilot-help-guide-content sample CTA (TB-1332)", () => {
 
   it("TB-1333: exposes neutral workflow checking copy", () => {
     expect(CORE_PILOT_HELP_WORKFLOW_CHECKING_STATUS.toLowerCase()).toContain("checking workspace");
+  });
+
+  it("TB-1684: keeps buyer start path on /architecture/reviews/new — extract-upload is not a sole CTA", () => {
+    const step2 = CORE_PILOT_HELP_WORKFLOW_STEPS[1]!;
+
+    expect(step2.href).toBe(CORE_PILOT_HELP_START_REVIEW_HREF);
+    expect(step2.ctaLabel).toBe("Start a review to add evidence");
+
+    const evidenceOnlyCard = CORE_PILOT_HELP_CLOUD_ACTIONS.find((action) => action.title === "Evidence-only review");
+
+    expect(evidenceOnlyCard?.href).toBe(CORE_PILOT_HELP_START_REVIEW_HREF);
+    expect(evidenceOnlyCard?.ctaLabel).toBe("Start evidence-only review");
+
+    for (const step of CORE_PILOT_HELP_WORKFLOW_STEPS) {
+      expect(step.href).toBe(CORE_PILOT_HELP_START_REVIEW_HREF);
+    }
+
+    for (const action of CORE_PILOT_HELP_CLOUD_ACTIONS) {
+      expect(action.href).not.toContain("/administration/extract-upload");
+    }
+
+    expect(CORE_PILOT_HELP_PRIMARY_ACTIONS.startReview.href).toBe(CORE_PILOT_HELP_START_REVIEW_HREF);
   });
 });

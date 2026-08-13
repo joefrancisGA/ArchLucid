@@ -125,7 +125,7 @@ describe("HelpCorePilotGuideView", () => {
     expect(screen.getAllByTestId("core-pilot-primary-start-cta")).toHaveLength(1);
   });
 
-  it("limits /architecture/reviews/new links to the hero and gate note", () => {
+  it("limits /architecture/reviews/new links to buyer start paths (hero, stepper, optional disclosure)", () => {
     if (entry === undefined) {
       throw new Error("Expected first-architecture-review documentation entry.");
     }
@@ -136,14 +136,18 @@ describe("HelpCorePilotGuideView", () => {
       .getAllByRole("link")
       .filter((link) => link.getAttribute("href") === "/architecture/reviews/new");
 
-    expect(newReviewLinks).toHaveLength(4);
+    expect(newReviewLinks).toHaveLength(6);
     expect(newReviewLinks.map((link) => link.textContent)).toEqual(
       expect.arrayContaining([
         BUYER_START_ARCHITECTURE_REVIEW_CTA,
         "Start a review to add evidence",
         "Start a review first",
+        "Start evidence-only review",
       ]),
     );
+    expect(
+      newReviewLinks.filter((link) => link.textContent === "Start evidence-only review"),
+    ).toHaveLength(2);
   });
 
   it("does not link recursively to View pilot guide in the hero path (TB-1040)", () => {
@@ -369,6 +373,33 @@ describe("HelpCorePilotGuideView", () => {
       "id",
       "fast-path-evidence-only-review",
     );
+  });
+
+  it("TB-1684: optional cloud cards do not promote extract-upload as the buyer start path", () => {
+    if (entry === undefined) {
+      throw new Error("Expected first-architecture-review documentation entry.");
+    }
+
+    render(<HelpCorePilotGuideView entry={entry} />);
+
+    const firstViewport = screen.getByTestId("core-pilot-first-viewport");
+    const extractUploadLinks = within(firstViewport)
+      .queryAllByRole("link")
+      .filter((link) => link.getAttribute("href")?.includes("/administration/extract-upload"));
+
+    expect(extractUploadLinks).toHaveLength(0);
+
+    const disclosure = screen.getByTestId("core-pilot-optional-paths-disclosure");
+    const cloudActions = within(disclosure).getByTestId("core-pilot-cloud-actions");
+    const evidenceOnlyCard = within(cloudActions).getByRole("link", { name: "Start evidence-only review" });
+
+    expect(evidenceOnlyCard).toHaveAttribute("href", "/architecture/reviews/new");
+    expect(within(disclosure).queryByRole("link", { name: /upload settings/i })).toBeNull();
+    expect(
+      within(disclosure)
+        .queryAllByRole("link")
+        .filter((link) => link.getAttribute("href")?.includes("/administration/extract-upload")),
+    ).toHaveLength(0);
   });
 
   it("uses customer-facing deferral copy and closing CTAs", () => {

@@ -1300,13 +1300,13 @@ All **P0** **V1**: visible-boundary button contract + design-system rule (**TB-2
 | TB-2208 | Topology sensitivity classification for baseline scoping; see ## TB-2208 below | Trustworthiness P1 — **V1**; non-policy-pack assessment wave 2026-08-13; intake + extractor enrichment | M |
 | TB-2209 | Security baseline completeness matrix per workload; see ## TB-2209 below | Correctness P1 — **V1**; non-policy-pack assessment wave 2026-08-13; control-family expectations | M |
 | TB-2210 | Inventory-backed security baseline validation; see ## TB-2210 below | Trustworthiness P2 — **V1**; non-policy-pack assessment wave 2026-08-13; Azure extractor cross-check | L |
-| TB-2211 | Always-on cost constraint nodes from request `constraints`; see ## TB-2211 below | Cost-effectiveness P0 — **V1**; non-policy-pack assessment wave 2026-08-13; empty graph must not skip cost | S |
-| TB-2212 | Deterministic cost breach finding engine; see ## TB-2212 below | Cost-effectiveness P0 — **V1**; non-policy-pack assessment wave 2026-08-13; typed decisioning vs agent prose | M |
+| TB-2211 | **Done** (2026-08-13) — Always-on cost constraint nodes from request `constraints`; see ## TB-2211 below | Cost-effectiveness P0 — **V1**; non-policy-pack assessment wave 2026-08-13; empty graph must not skip cost | S |
+| TB-2212 | **Done** (2026-08-13) — Deterministic cost breach finding engine; see ## TB-2212 below | Cost-effectiveness P0 — **V1**; non-policy-pack assessment wave 2026-08-13; typed decisioning vs agent prose | M |
 | TB-2213 | Extractor-grounded cost signals (`advisor-cost`, orphans); see ## TB-2213 below | Cost-effectiveness P1 — **V1**; non-policy-pack assessment wave 2026-08-13; evidence already in Azure ZIP | M |
 | TB-2214 | **Done** (2026-08-13) — Validate-before-overlay for cost agent proposals; see ## TB-2214 below | AI/Agent readiness P1 — **V1**; non-policy-pack assessment wave 2026-08-13; extends topology merge gate | M |
 | TB-2215 | Multi-cloud cost constraint parity (AWS/GCP); see ## TB-2215 below | Cost-effectiveness P2 — **V1.1**; non-policy-pack assessment wave 2026-08-13; pairs **TB-874**–**TB-876** | L |
-| TB-2216 | Graph ↔ Azure inventory reconciliation; see ## TB-2216 below | Correctness P0 — **V1**; non-policy-pack assessment wave 2026-08-13; closes topology validation loop | L |
-| TB-2217 | Expand deterministic Azure orphan/drift classifiers; see ## TB-2217 below | Correctness P0 — **V1**; non-policy-pack assessment wave 2026-08-13; extends `OrphanedResourceClassifier` | M |
+| TB-2216 | **Done** (2026-08-13) — Graph ↔ Azure inventory reconciliation; see ## TB-2216 below | Correctness P0 — **V1**; non-policy-pack assessment wave 2026-08-13; closes topology validation loop | L |
+| TB-2217 | **Done** (2026-08-13) — Expand deterministic Azure orphan/drift classifiers; see ## TB-2217 below | Correctness P0 — **V1**; non-policy-pack assessment wave 2026-08-13; extends `OrphanedResourceClassifier` | M |
 | TB-2218 | AWS/GCP inventory reality finding engines; see ## TB-2218 below | Correctness P1 — **V1.1** ? **Done** 2026-08-13; `orphaned-aws-resource` + `orphaned-gcp-resource` engines; pairs **TB-874**–**TB-876** | L |
 | TB-2219 | **Done** (2026-08-13) — Inventory collection freshness gate; see ## TB-2219 below | Reliability P1 — **V1**; non-policy-pack assessment wave 2026-08-13; stale ZIP must not drive findings | S |
 | TB-2220 | Inventory findings linked to topology graph nodes; see ## TB-2220 below | Explainability P2 — **V1**; non-policy-pack assessment wave 2026-08-13; evidence graph visibility | M |

@@ -38,7 +38,8 @@ describe("resolveCorePilotHelpWorkflowStepCta (TB-1042)", () => {
 
     expect(step2Empty.href).toBe("/architecture/reviews/new");
     expect(step2Empty.label).toBe("Start a review to add evidence");
-    expect(step2Empty.label).not.toBe(step2.ctaLabel);
+    expect(step2.ctaLabel).toBe("Start a review to add evidence");
+    expect(step2.href).toBe("/architecture/reviews/new");
     expect(step2Empty.helperText).toContain("review detail");
 
     const step2WithRun = resolveCorePilotHelpWorkflowStepCta(step2, {
