@@ -9,9 +9,11 @@ import { HelpTopicRegistryProvenanceLine } from "@/components/help/HelpTopicRegi
 import { HelpTopicHashScroll } from "@/app/(operator)/help/HelpTopicHashScroll";
 import { HelpAzurePermissionsHeaderActions } from "@/app/(operator)/help/_sections/HelpAzurePermissionsHeaderActions";
 import { HelpAzurePermissionsConnectionContext } from "@/app/(operator)/help/_sections/HelpAzurePermissionsConnectionContext";
+import { HelpAzurePermissionsRequiredRolesSummary } from "@/app/(operator)/help/_sections/HelpAzurePermissionsRequiredRolesSummary";
 import { HelpAzurePermissionsSetupSection } from "@/app/(operator)/help/_sections/HelpAzurePermissionsSetupSection";
 import { HelpAzurePermissionsVerificationPanel } from "@/app/(operator)/help/_sections/HelpAzurePermissionsVerificationPanel";
 import { HelpTopicTableOfContents } from "@/components/help/HelpTopicTableOfContents";
+import { CollapsibleSection } from "@/components/CollapsibleSection";
 import { Button } from "@/components/ui/button";
 import { Card, CardContent, CardHeader, CardTitle } from "@/components/ui/card";
 import {
@@ -35,6 +37,8 @@ import {
   AZURE_PERMISSIONS_COST_OPTIONAL_NOTE,
   AZURE_PERMISSIONS_CUSTOM_ROLE_HEADING,
   AZURE_PERMISSIONS_CUSTOM_ROLE_INTRO,
+  AZURE_PERMISSIONS_CUSTOM_ROLE_DISCLOSURE_SUMMARY,
+  AZURE_PERMISSIONS_MATRIX_DISCLOSURE_SUMMARY,
   AZURE_PERMISSIONS_MATRIX_HEADING,
   AZURE_PERMISSIONS_OTHER_PROVIDERS_HEADING,
   AZURE_PERMISSIONS_PAGE_SUBTITLE,
@@ -52,18 +56,22 @@ import { OPERATOR_CARD, OPERATOR_LAYOUT, OPERATOR_SHELL_SCROLL_OFFSET_CLASS, OPE
 import type { HelpMarkdownHeading } from "@/lib/help/help-markdown-headings";
 import { HELP_PAGE_LAYOUT } from "@/lib/help/help-page-layout";
 import {
+  AZURE_PERMISSIONS_HELP_DEFERRED_CUSTOM_ROLE_DISCLOSURE_TEST_ID,
+  AZURE_PERMISSIONS_HELP_DEFERRED_MATRIX_DISCLOSURE_TEST_ID,
+  AZURE_PERMISSIONS_HELP_FIRST_VIEWPORT_TEST_ID,
   AZURE_PERMISSIONS_HELP_PRIMARY_SETUP_ACTION,
 } from "@/lib/azure-permissions-help-evidence-copy";
 import type { ProductDocumentationEntry } from "@/lib/product-documentation-registry";
 import { cn } from "@/lib/utils";
 
 const AZURE_PERMISSIONS_TOC_HEADINGS: readonly HelpMarkdownHeading[] = [
-  { id: "permissions-matrix", title: "Required and optional permissions", level: 2 },
+  { id: "required-roles-summary", title: "Roles to assign first", level: 2 },
   { id: "read-only-summary", title: "Read-only by design", level: 2 },
-  { id: "recommended-scope", title: "Choose the narrowest practical scope", level: 2 },
-  { id: "connection-context-heading", title: "Connection values", level: 2 },
   { id: "setup", title: "Assign the Azure roles", level: 2 },
   { id: "azure-permissions-verify-heading", title: "Verify the connection", level: 2 },
+  { id: "connection-context-heading", title: "Connection values", level: 2 },
+  { id: "permissions-matrix", title: "Required and optional permissions", level: 2 },
+  { id: "recommended-scope", title: "Choose the narrowest practical scope", level: 2 },
   { id: "collected-data", title: "Information ArchLucid collects", level: 2 },
   { id: "cannot-do", title: "Actions these permissions do not allow", level: 2 },
   { id: "custom-role", title: "Using a custom Azure role", level: 2 },
@@ -175,27 +183,58 @@ export function HelpAzurePermissionsGuideView(props: HelpAzurePermissionsGuideVi
       <AzurePermissionsHelpEvidenceOrientationStrip />
       <div className={HELP_PAGE_LAYOUT.contentGrid}>
         <div className="min-w-0 space-y-8" data-testid="help-azure-permissions-primary">
-          <section aria-labelledby="permissions-matrix" className="space-y-3">
-            <HelpSectionHeading id="permissions-matrix">{AZURE_PERMISSIONS_MATRIX_HEADING}</HelpSectionHeading>
-            <AzureCloudConnectionRolesTable expandedDetails testId="azure-permissions-matrix-table" />
+          <div className="space-y-6" data-testid={AZURE_PERMISSIONS_HELP_FIRST_VIEWPORT_TEST_ID}>
+            <HelpAzurePermissionsRequiredRolesSummary />
+
+            <section aria-labelledby="read-only-summary" className="space-y-3">
+              <HelpSectionHeading id="read-only-summary">{AZURE_PERMISSIONS_READ_ONLY_HEADING}</HelpSectionHeading>
+              <div className={cn(DESIGN_TOKENS.callout.neutral, "space-y-3")} data-testid="azure-permissions-trust-panel">
+                <p className={cn("m-0", OPERATOR_TYPOGRAPHY.body)}>{AZURE_PERMISSIONS_READ_ONLY_INTRO}</p>
+                <p className={cn("m-0 text-al-text-secondary", OPERATOR_TYPOGRAPHY.body)}>
+                  {AZURE_PERMISSIONS_COST_OPTIONAL_NOTE}
+                </p>
+                <ul className={cn("m-0 list-disc space-y-1 pl-5", OPERATOR_TYPOGRAPHY.body)}>
+                  <li>{AZURE_PERMISSIONS_TRUST_NO_MODIFY}</li>
+                  <li>{AZURE_PERMISSIONS_TRUST_NO_ROLE_ASSIGN}</li>
+                  <li>{AZURE_PERMISSIONS_TRUST_NO_DEPLOY}</li>
+                </ul>
+                <p className={cn("m-0 text-al-text-secondary", OPERATOR_TYPOGRAPHY.helper)}>
+                  Do not assign: {AZURE_CLOUD_CONNECTION_FORBIDDEN_ROLES.join(", ")}.
+                </p>
+              </div>
+            </section>
+          </div>
+
+          <section id="setup" className="scroll-mt-24 border-t border-neutral-200 pt-6 dark:border-neutral-800">
+            <HelpAzurePermissionsSetupSection subscriptionId={props.subscriptionId} />
           </section>
 
-          <section aria-labelledby="read-only-summary" className="space-y-3 border-t border-neutral-200 pt-6 dark:border-neutral-800">
-            <HelpSectionHeading id="read-only-summary">{AZURE_PERMISSIONS_READ_ONLY_HEADING}</HelpSectionHeading>
-            <div className={cn(DESIGN_TOKENS.callout.neutral, "space-y-3")} data-testid="azure-permissions-trust-panel">
-              <p className={cn("m-0", OPERATOR_TYPOGRAPHY.body)}>{AZURE_PERMISSIONS_READ_ONLY_INTRO}</p>
-              <p className={cn("m-0 text-al-text-secondary", OPERATOR_TYPOGRAPHY.body)}>
-                {AZURE_PERMISSIONS_COST_OPTIONAL_NOTE}
-              </p>
-              <ul className={cn("m-0 list-disc space-y-1 pl-5", OPERATOR_TYPOGRAPHY.body)}>
-                <li>{AZURE_PERMISSIONS_TRUST_NO_MODIFY}</li>
-                <li>{AZURE_PERMISSIONS_TRUST_NO_ROLE_ASSIGN}</li>
-                <li>{AZURE_PERMISSIONS_TRUST_NO_DEPLOY}</li>
-              </ul>
-              <p className={cn("m-0 text-al-text-secondary", OPERATOR_TYPOGRAPHY.helper)}>
-                Do not assign: {AZURE_CLOUD_CONNECTION_FORBIDDEN_ROLES.join(", ")}.
-              </p>
-            </div>
+          <section id="verify" className="scroll-mt-24 border-t border-neutral-200 pt-6 dark:border-neutral-800">
+            <HelpAzurePermissionsVerificationPanel subscriptionId={props.subscriptionId} returnHref={verifySetupHref} />
+          </section>
+
+          <section
+            id="connection-context"
+            className="scroll-mt-24 space-y-3 border-t border-neutral-200 pt-6 dark:border-neutral-800"
+          >
+            <HelpSectionHeading id="connection-context-heading">{AZURE_PERMISSIONS_CONNECTION_CONTEXT_HEADING}</HelpSectionHeading>
+            <Suspense fallback={<p className={cn("m-0", OPERATOR_TYPOGRAPHY.helper)}>Loading connection context…</p>}>
+              <HelpAzurePermissionsConnectionContext />
+            </Suspense>
+          </section>
+
+          <section aria-labelledby="permissions-matrix" className="border-t border-neutral-200 pt-6 dark:border-neutral-800">
+            <CollapsibleSection
+              title={AZURE_PERMISSIONS_MATRIX_HEADING}
+              headingLevel={2}
+              summaryLine={AZURE_PERMISSIONS_MATRIX_DISCLOSURE_SUMMARY}
+              summaryId="permissions-matrix"
+              sectionTestId={AZURE_PERMISSIONS_HELP_DEFERRED_MATRIX_DISCLOSURE_TEST_ID}
+            >
+              <div className="space-y-3">
+                <AzureCloudConnectionRolesTable expandedDetails={false} testId="azure-permissions-matrix-table" />
+              </div>
+            </CollapsibleSection>
           </section>
 
           <section
@@ -213,24 +252,6 @@ export function HelpAzurePermissionsGuideView(props: HelpAzurePermissionsGuideVi
               <li>{AZURE_CLOUD_CONNECTION_SCOPE_GUIDANCE.managementGroupLimitation}</li>
               <li>{AZURE_CLOUD_CONNECTION_SCOPE_GUIDANCE.billingScope}</li>
             </ul>
-          </section>
-
-          <section
-            id="connection-context"
-            className="scroll-mt-24 space-y-3 border-t border-neutral-200 pt-6 dark:border-neutral-800"
-          >
-            <HelpSectionHeading id="connection-context-heading">{AZURE_PERMISSIONS_CONNECTION_CONTEXT_HEADING}</HelpSectionHeading>
-            <Suspense fallback={<p className={cn("m-0", OPERATOR_TYPOGRAPHY.helper)}>Loading connection context…</p>}>
-              <HelpAzurePermissionsConnectionContext />
-            </Suspense>
-          </section>
-
-          <section id="setup" className="scroll-mt-24 border-t border-neutral-200 pt-6 dark:border-neutral-800">
-            <HelpAzurePermissionsSetupSection subscriptionId={props.subscriptionId} />
-          </section>
-
-          <section id="verify" className="scroll-mt-24 border-t border-neutral-200 pt-6 dark:border-neutral-800">
-            <HelpAzurePermissionsVerificationPanel subscriptionId={props.subscriptionId} returnHref={verifySetupHref} />
           </section>
 
           <section
@@ -276,14 +297,23 @@ export function HelpAzurePermissionsGuideView(props: HelpAzurePermissionsGuideVi
 
           <section
             aria-labelledby="custom-role"
-            className="space-y-3 border-t border-neutral-200 pt-6 dark:border-neutral-800"
+            className="border-t border-neutral-200 pt-6 dark:border-neutral-800"
             data-testid="azure-permissions-custom-role-section"
           >
-            <HelpSectionHeading id="custom-role">{AZURE_PERMISSIONS_CUSTOM_ROLE_HEADING}</HelpSectionHeading>
-            <p className={cn("m-0 max-w-3xl text-al-text-secondary", OPERATOR_TYPOGRAPHY.body)}>
-              {AZURE_PERMISSIONS_CUSTOM_ROLE_INTRO}
-            </p>
-            <CustomRoleActionsTable />
+            <CollapsibleSection
+              title={AZURE_PERMISSIONS_CUSTOM_ROLE_HEADING}
+              headingLevel={2}
+              summaryLine={AZURE_PERMISSIONS_CUSTOM_ROLE_DISCLOSURE_SUMMARY}
+              summaryId="custom-role"
+              sectionTestId={AZURE_PERMISSIONS_HELP_DEFERRED_CUSTOM_ROLE_DISCLOSURE_TEST_ID}
+            >
+              <div className="space-y-3">
+                <p className={cn("m-0 max-w-3xl text-al-text-secondary", OPERATOR_TYPOGRAPHY.body)}>
+                  {AZURE_PERMISSIONS_CUSTOM_ROLE_INTRO}
+                </p>
+                <CustomRoleActionsTable />
+              </div>
+            </CollapsibleSection>
           </section>
 
           <section

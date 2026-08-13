@@ -19,7 +19,18 @@ export const AZURE_PERMISSIONS_TRUST_NO_ROLE_ASSIGN = "No role assignment";
 
 export const AZURE_PERMISSIONS_TRUST_NO_DEPLOY = "No deployment access";
 
+export const AZURE_PERMISSIONS_REQUIRED_ROLES_SUMMARY_HEADING = "Roles to assign first";
+
+export const AZURE_PERMISSIONS_REQUIRED_ROLES_SUMMARY_INTRO =
+  "Assign Reader at subscription scope before opening the full permission matrix. Add Cost Management Reader only when cost analysis is enabled.";
+
 export const AZURE_PERMISSIONS_MATRIX_HEADING = "Required and optional permissions";
+
+export const AZURE_PERMISSIONS_MATRIX_DISCLOSURE_SUMMARY =
+  "Full role matrix, per-role capabilities, and assignment scopes.";
+
+export const AZURE_PERMISSIONS_CUSTOM_ROLE_DISCLOSURE_SUMMARY =
+  "Custom-role read actions when built-in roles are not permitted.";
 
 export const AZURE_PERMISSIONS_SCOPE_HEADING = "Choose the narrowest practical scope";
 

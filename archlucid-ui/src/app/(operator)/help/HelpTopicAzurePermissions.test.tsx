@@ -26,8 +26,10 @@ import {
   AZURE_PERMISSIONS_MATRIX_HEADING,
   AZURE_PERMISSIONS_PAGE_SUBTITLE,
   AZURE_PERMISSIONS_PAGE_TITLE,
+  AZURE_PERMISSIONS_REQUIRED_ROLES_SUMMARY_HEADING,
+  AZURE_PERMISSIONS_SETUP_HEADING,
 } from "@/lib/azure-cloud-connection-permissions-copy";
-import { AZURE_PERMISSIONS_HELP_CLAIM_DISCIPLINE, AZURE_PERMISSIONS_HELP_PRIMARY_SETUP_ACTION } from "@/lib/azure-permissions-help-evidence-copy";
+import { AZURE_PERMISSIONS_HELP_CLAIM_DISCIPLINE, AZURE_PERMISSIONS_HELP_DEFERRED_CUSTOM_ROLE_DISCLOSURE_TEST_ID, AZURE_PERMISSIONS_HELP_DEFERRED_MATRIX_DISCLOSURE_TEST_ID, AZURE_PERMISSIONS_HELP_FIRST_VIEWPORT_TEST_ID, AZURE_PERMISSIONS_HELP_PRIMARY_SETUP_ACTION } from "@/lib/azure-permissions-help-evidence-copy";
 import { getProductDocumentationEntry } from "@/lib/product-documentation-registry";
 
 describe("HelpAzurePermissionsGuideView", () => {
@@ -39,6 +41,49 @@ describe("HelpAzurePermissionsGuideView", () => {
     expect(entry?.summary).toContain("read-only");
     expect(entry?.lastReviewed).toBe("2026-08-09");
     expect(entry?.releaseApplicability).toBeTruthy();
+  });
+
+  it("keeps the first viewport to required-role summary and trust panel before setup (TB-1627)", () => {
+    if (entry === undefined) {
+      throw new Error("Expected azure-permissions documentation entry.");
+    }
+
+    render(<HelpAzurePermissionsGuideView entry={entry} />);
+
+    const firstViewport = screen.getByTestId(AZURE_PERMISSIONS_HELP_FIRST_VIEWPORT_TEST_ID);
+
+    expect(within(firstViewport).getByTestId("azure-permissions-required-roles-summary")).toBeInTheDocument();
+    expect(within(firstViewport).getByTestId("azure-permissions-trust-panel")).toBeInTheDocument();
+    expect(within(firstViewport).queryByTestId("azure-permissions-matrix-table")).toBeNull();
+    expect(within(firstViewport).queryByTestId("azure-permissions-custom-role-table")).toBeNull();
+    expect(within(firstViewport).queryByTestId(AZURE_PERMISSIONS_HELP_DEFERRED_MATRIX_DISCLOSURE_TEST_ID)).toBeNull();
+    expect(within(firstViewport).queryByTestId(AZURE_PERMISSIONS_HELP_DEFERRED_CUSTOM_ROLE_DISCLOSURE_TEST_ID)).toBeNull();
+    expect(within(firstViewport).queryByTestId("azure-permissions-setup-section")).toBeNull();
+    expect(within(firstViewport).queryByTestId("azure-permissions-verify-section")).toBeNull();
+  });
+
+  it("places setup and verify before deferred IAM tables (TB-1627)", () => {
+    if (entry === undefined) {
+      throw new Error("Expected azure-permissions documentation entry.");
+    }
+
+    render(<HelpAzurePermissionsGuideView entry={entry} subscriptionId="00000000-0000-0000-0000-000000000001" />);
+
+    const primary = screen.getByTestId("help-azure-permissions-primary");
+    const sectionNodes = Array.from(
+      primary.querySelectorAll(
+        '[data-testid="azure-permissions-setup-section"], [data-testid="azure-permissions-verify-section"], [data-testid="azure-permissions-matrix-disclosure"], [data-testid="azure-permissions-custom-role-disclosure"]',
+      ),
+    ).map((node) => node.getAttribute("data-testid"));
+
+    expect(sectionNodes).toEqual([
+      "azure-permissions-setup-section",
+      "azure-permissions-verify-section",
+      "azure-permissions-matrix-disclosure",
+      "azure-permissions-custom-role-disclosure",
+    ]);
+    expect(screen.getByTestId(AZURE_PERMISSIONS_HELP_DEFERRED_MATRIX_DISCLOSURE_TEST_ID)).not.toHaveAttribute("open");
+    expect(screen.getByTestId(AZURE_PERMISSIONS_HELP_DEFERRED_CUSTOM_ROLE_DISCLOSURE_TEST_ID)).not.toHaveAttribute("open");
   });
 
   it("exposes a first-viewport primary setup CTA in the header (TB-1626)", () => {
@@ -196,6 +241,8 @@ describe("HelpAzurePermissionsGuideView", () => {
 
     render(<HelpAzurePermissionsGuideView entry={entry} subscriptionId="00000000-0000-0000-0000-000000000001" />);
 
+    expect(screen.getByRole("heading", { level: 2, name: AZURE_PERMISSIONS_REQUIRED_ROLES_SUMMARY_HEADING })).toBeInTheDocument();
+    expect(screen.getByRole("heading", { level: 2, name: AZURE_PERMISSIONS_SETUP_HEADING })).toBeInTheDocument();
     expect(screen.getByTestId("azure-permissions-setup-tabs")).toBeInTheDocument();
     expect(screen.getByTestId("azure-permissions-custom-role-table")).toBeInTheDocument();
     expect(screen.getByTestId("azure-permissions-verify-section")).toBeInTheDocument();
