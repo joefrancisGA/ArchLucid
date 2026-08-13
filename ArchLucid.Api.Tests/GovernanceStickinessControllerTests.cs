@@ -147,7 +147,11 @@ public sealed class GovernanceStickinessControllerTests
 
         GovernanceStickinessController controller = BuildSut(riskRegister: riskRegister);
 
-        IActionResult action = await controller.GetRiskRegister(projectId: null, maxRows: 200, CancellationToken.None);
+        IActionResult action = await controller.GetRiskRegister(
+            projectId: null,
+            maxRows: 200,
+            assignedToMe: false,
+            CancellationToken.None);
 
         OkObjectResult ok = action.Should().BeOfType<OkObjectResult>().Subject;
         ok.Value.Should().BeSameAs(expected);

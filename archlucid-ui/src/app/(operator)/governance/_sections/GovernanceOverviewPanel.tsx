@@ -287,7 +287,7 @@ export function GovernanceOverviewPanel(props: GovernanceOverviewPanelProps): Re
             <span
               className={cn("text-al-text-secondary", OPERATOR_TYPOGRAPHY.helper)}
               data-testid="governance-overview-last-refreshed"
-              title={operatorLastRefreshedExactLabel(lastRefreshedAt)}
+              aria-label={operatorLastRefreshedExactLabel(lastRefreshedAt)}
             >
               {GOVERNANCE_OVERVIEW_LAST_REFRESHED_PREFIX}: {operatorLastRefreshedLabel(lastRefreshedAt)}
             </span>

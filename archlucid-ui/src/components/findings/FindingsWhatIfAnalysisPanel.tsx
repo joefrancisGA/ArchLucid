@@ -76,7 +76,7 @@ export function FindingsWhatIfAnalysisPanel(props: FindingsWhatIfAnalysisPanelPr
             {props.isIllustrativePricing && isOperatorExperienceFullShellEnv() && (
               <span 
                 className={cn("inline-flex items-center rounded-md bg-amber-100 px-2 py-1 font-medium text-amber-800 ring-1 ring-inset ring-amber-600/20 dark:bg-amber-900/30 dark:text-amber-300 dark:ring-amber-500/20", OPERATOR_TYPOGRAPHY.helper)}
-                title="Illustrative Retail Pricing: Actual EA discounts may vary"
+                aria-label="Illustrative Retail Pricing: Actual EA discounts may vary"
                 data-testid="illustrative-pricing-badge"
               >
                 Illustrative Retail Pricing

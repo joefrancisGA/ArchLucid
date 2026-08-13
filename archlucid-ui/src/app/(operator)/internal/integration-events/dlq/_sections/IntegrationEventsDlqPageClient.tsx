@@ -505,7 +505,7 @@ export function IntegrationEventsDlqPageClient() {
                       <EnterpriseTableCell>
                         <span
                           className={cn("font-mono text-al-text-primary", OPERATOR_TYPOGRAPHY.micro)}
-                          title={row.tenantId ?? undefined}
+                          aria-label={row.tenantId ?? undefined}
                         >
                           {tenantLabel}
                         </span>
@@ -522,7 +522,7 @@ export function IntegrationEventsDlqPageClient() {
                           <Link
                             href={reviewHref}
                             className={cn("font-mono underline-offset-2 hover:underline", OPERATOR_TYPOGRAPHY.micro)}
-                            title={row.runId ?? undefined}
+                            aria-label={row.runId ?? undefined}
                           >
                             {truncateMiddle(row.runId ?? "", 18)}
                           </Link>
@@ -538,7 +538,7 @@ export function IntegrationEventsDlqPageClient() {
                         <span className={OPERATOR_TYPOGRAPHY.helper}>{row.retryCount}</span>
                       </EnterpriseTableCell>
                       <EnterpriseTableCell>
-                        <span className={OPERATOR_TYPOGRAPHY.helper} title={lastError === "—" ? undefined : lastError}>
+                        <span className={OPERATOR_TYPOGRAPHY.helper} aria-label={lastError === "—" ? undefined : lastError}>
                           {truncateErrorMessage(row.lastErrorMessage)}
                         </span>
                       </EnterpriseTableCell>

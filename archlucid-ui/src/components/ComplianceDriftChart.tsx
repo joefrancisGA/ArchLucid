@@ -85,7 +85,7 @@ export function ComplianceDriftChart({ points }: ComplianceDriftChartProps) {
             <div
               className="w-full max-w-[2rem] rounded-t bg-violet-600/90 dark:bg-violet-500/90"
               style={{ height: barPx }}
-              title={title}
+              aria-label={title}
             />
             <span className={cn("truncate text-neutral-500 dark:text-neutral-400", OPERATOR_TYPOGRAPHY.badge)}>
               {formatBucketLabel(point.bucketUtc)}

@@ -81,7 +81,7 @@ export function ServiceNowIntegrationPageHeader(
             data-testid="servicenow-last-checked"
           >
             {SERVICENOW_LAST_CHECKED_PREFIX}:{" "}
-            <time dateTime={props.lastCheckedAt.toISOString()} title={operatorLastRefreshedExactLabel(props.lastCheckedAt)}>
+            <time dateTime={props.lastCheckedAt.toISOString()} aria-label={operatorLastRefreshedExactLabel(props.lastCheckedAt)}>
               {props.refreshing ? SERVICENOW_ACTION_REFRESHING : props.lastCheckedAt.toLocaleString()}
             </time>
           </span>

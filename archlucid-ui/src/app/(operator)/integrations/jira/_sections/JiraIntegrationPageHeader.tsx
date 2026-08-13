@@ -104,7 +104,7 @@ export function JiraIntegrationPageHeader(props: JiraIntegrationPageHeaderProps)
             data-testid="jira-last-checked"
           >
             {JIRA_LAST_CHECKED_PREFIX}:{" "}
-            <time dateTime={props.lastCheckedAt.toISOString()} title={operatorLastRefreshedExactLabel(props.lastCheckedAt)}>
+            <time dateTime={props.lastCheckedAt.toISOString()} aria-label={operatorLastRefreshedExactLabel(props.lastCheckedAt)}>
               {props.refreshing ? JIRA_ACTION_REFRESHING : props.lastCheckedAt.toLocaleString()}
             </time>
           </span>
