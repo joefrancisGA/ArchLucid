@@ -8,7 +8,6 @@ import { ScopeHelpCurrentScopePanel } from "@/components/help/ScopeHelpCurrentSc
 import { ScopeHelpEvidenceOrientationStrip } from "@/components/help/ScopeHelpEvidenceOrientationStrip";
 import { SecurityTrustHelpEvidenceOrientationStrip } from "@/components/help/SecurityTrustHelpEvidenceOrientationStrip";
 import { SubprocessorsHelpEvidenceOrientationStrip } from "@/components/help/SubprocessorsHelpEvidenceOrientationStrip";
-import { ReportProblemHelpOrientationStack } from "@/components/help/ReportProblemHelpOrientationStack";
 import { ContactSupportHelpOrientationStack } from "@/components/help/ContactSupportHelpOrientationStack";
 import { HelpSubprocessorsHeaderMetadata } from "@/app/(operator)/help/_sections/HelpSubprocessorsHeaderMetadata";
 import { HelpTopicAuthorityGate } from "../_sections/HelpTopicAuthorityGate";
@@ -86,6 +85,9 @@ const HelpArchitectureScorecardGuideView = dynamic(() =>
 );
 const HelpConnectionStatusGuideView = dynamic(() =>
   import("../_sections/HelpConnectionStatusGuideView").then((module) => module.HelpConnectionStatusGuideView),
+);
+const HelpReportAProblemGuideView = dynamic(() =>
+  import("../_sections/HelpReportAProblemGuideView").then((module) => module.HelpReportAProblemGuideView),
 );
 const HelpPriorManifestRetrievalGuideView = dynamic(() =>
   import("../_sections/HelpPriorManifestRetrievalGuideView").then(
@@ -644,14 +646,7 @@ function renderHelpTopicView(
   }
 
   if (loaded.entry.slug === "report-a-problem") {
-    return (
-      <HelpTopicMarkdownView
-        entry={loaded.entry}
-        markdown={loaded.markdown}
-        showContextualHelp
-        evidenceOrientation={<ReportProblemHelpOrientationStack />}
-      />
-    );
+    return <HelpReportAProblemGuideView entry={loaded.entry} markdown={loaded.markdown} />;
   }
 
   if (loaded.entry.slug === "contact-support") {
