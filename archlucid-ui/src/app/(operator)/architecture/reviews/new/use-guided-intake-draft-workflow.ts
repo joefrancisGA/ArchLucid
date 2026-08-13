@@ -28,6 +28,7 @@ import { runDetailHrefWithParentRun } from "@/lib/draft-branch-compare-navigatio
 import { normalizeActorSetForAdmission } from "@/lib/draft-intake-actor-suggestions";
 import { recordFirstTenantFunnelEvent } from "@/lib/first-tenant-funnel-telemetry";
 import { GUIDED_INTAKE_READINESS_SUCCESS_TOAST } from "@/lib/guided-intake-copy";
+import { trackReviewPipelineInFlight } from "@/lib/operations/review-pipeline-in-flight";
 import { buildReviewGenerationRedirect } from "@/lib/review-generation-handoff";
 import { REVIEWS_NEW_GUIDED_QUESTIONS_LABEL } from "@/lib/reviews-new-path-copy";
 import { showError, showSuccess } from "@/lib/toast";
@@ -407,6 +408,7 @@ export function useGuidedIntakeDraftWorkflow(options: GuidedIntakeDraftWorkflowO
     try {
       const result = await submitDraftRequest(draftId);
       recordFirstTenantFunnelEvent("first_run_started");
+      trackReviewPipelineInFlight(result.runId);
       clearSession();
 
       const compareParentRunId = result.parentSpawnedRunId ?? parentSpawnedRunId;

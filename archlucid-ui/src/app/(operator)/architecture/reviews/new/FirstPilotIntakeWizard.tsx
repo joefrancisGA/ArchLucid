@@ -52,6 +52,7 @@ import { applyFocusedPilotModePolicyReferences } from "@/lib/focused-pilot-mode-
 import { REVIEW_INTAKE_EVIDENCE_FIRST_PROGRESS_LEAD } from "@/lib/create-vs-review-intake-copy";
 import { OPERATOR_TYPOGRAPHY } from "@/lib/design-tokens";
 import { recordFirstTenantFunnelEvent } from "@/lib/first-tenant-funnel-telemetry";
+import { trackReviewPipelineInFlight } from "@/lib/operations/review-pipeline-in-flight";
 import {
   buildEvidenceBackedIntakeBrief,
   describeFirstPilotIntakeGap,
@@ -281,6 +282,10 @@ export function FirstPilotIntakeWizard(props: FirstPilotIntakeWizardProps) {
 
         return;
       }
+
+      // Registered before the upload step: analysis is already running server-side, so an upload
+      // failure that keeps the reader on this page must not hide the work from the shell.
+      trackReviewPipelineInFlight(id);
 
       if (filesToUpload.length > 0) {
         const uploadResult = await uploadWizardPendingDocumentEvidence(id, filesToUpload);

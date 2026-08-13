@@ -4,6 +4,7 @@ import type { ReviewCreationProgressBeginInput } from "@/hooks/use-review-creati
 import { createArchitectureRun } from "@/lib/api";
 import { isApiRequestError } from "@/lib/api-request-error";
 import { recordFirstTenantFunnelEvent } from "@/lib/first-tenant-funnel-telemetry";
+import { trackReviewPipelineInFlight } from "@/lib/operations/review-pipeline-in-flight";
 import {
   REVIEW_START_CREATION_FAILED_MESSAGE,
   REVIEW_START_LLM_BUDGET_EXCEEDED_MESSAGE,
@@ -75,6 +76,7 @@ export async function executeWizardFormCreateRun(
 
     trackWizardCompleted(args.wizardCompletedName);
     recordFirstTenantFunnelEvent("first_run_started");
+    trackReviewPipelineInFlight(runId);
 
     return { ok: true, runId };
   } catch (error: unknown) {
