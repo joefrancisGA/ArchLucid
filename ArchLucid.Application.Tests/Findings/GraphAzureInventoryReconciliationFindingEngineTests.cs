@@ -118,6 +118,39 @@ public sealed class GraphAzureInventoryReconciliationFindingEngineTests
     }
 
     [Fact]
+    public async Task AnalyzeAsync_reports_graph_only_when_download_row_is_missing()
+    {
+        GraphSnapshot graph = new()
+        {
+            Nodes =
+            [
+                new GraphNode
+                {
+                    NodeId = "t1",
+                    NodeType = GraphNodeTypes.TopologyResource,
+                    Label = "vm-graph",
+                    Properties = new Dictionary<string, string>
+                    {
+                        ["resourceId"] =
+                            "/subscriptions/sub/resourceGroups/rg/providers/Microsoft.Compute/virtualMachines/vm-graph"
+                    }
+                }
+            ]
+        };
+
+        GraphAzureInventoryReconciliationFindingEngine sut = CreateSut(null);
+
+        IReadOnlyList<Finding> findings = await sut.AnalyzeAsync(graph, CancellationToken.None);
+
+        Finding finding = findings.Should().ContainSingle().Subject;
+        finding.RelatedNodeIds.Should().ContainSingle().Which.Should().Be("t1");
+        InventoryReconciliationFindingPayload payload =
+            finding.Payload.Should().BeOfType<InventoryReconciliationFindingPayload>().Subject;
+        payload.GraphOnlyResourceIds.Should().ContainSingle();
+        payload.InventoryOnlyResourceIds.Should().BeEmpty();
+    }
+
+    [Fact]
     public async Task AnalyzeAsync_reports_graph_only_when_package_bytes_are_not_a_valid_zip()
     {
         GraphSnapshot graph = new()
@@ -157,7 +190,7 @@ public sealed class GraphAzureInventoryReconciliationFindingEngineTests
         payload.InventoryOnlyResourceIds.Should().BeEmpty();
     }
 
-    private static GraphAzureInventoryReconciliationFindingEngine CreateSut(AzureExtractorPackageDownloadRecord package)
+    private static GraphAzureInventoryReconciliationFindingEngine CreateSut(AzureExtractorPackageDownloadRecord? package)
     {
         Mock<IAzureExtractorPackageRepository> packageRepository = new();
         packageRepository

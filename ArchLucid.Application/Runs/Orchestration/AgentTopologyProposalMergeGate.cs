@@ -74,7 +74,7 @@ public static class AgentTopologyProposalMergeGate
             .ToList() ?? [];
 
         List<ManifestRelationship> relationships = proposal.AddedRelationships?
-            .Where(r => inventoriedLabels.Contains(r.SourceId) || inventoriedLabels.Contains(r.TargetId))
+            .Where(r => inventoriedLabels.Contains(r.SourceId) && inventoriedLabels.Contains(r.TargetId))
             .ToList() ?? [];
 
         return new AgentTopologyProposal
