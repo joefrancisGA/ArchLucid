@@ -163,6 +163,23 @@ public sealed class OrphanedAzureResourceFindingEngineTests
         findings.Should().BeEmpty();
     }
 
+    [Fact]
+    public async Task AnalyzeAsync_returns_empty_when_package_bytes_are_not_a_valid_zip()
+    {
+        AzureExtractorPackageDownloadRecord package = new()
+        {
+            PackageId = Guid.NewGuid(),
+            OriginalFileName = "inventory.zip",
+            PackageBytes = [0x00, 0x01, 0x02, 0x03],
+        };
+
+        OrphanedAzureResourceFindingEngine sut = CreateSut(package);
+
+        IReadOnlyList<Finding> findings = await sut.AnalyzeAsync(new GraphSnapshot(), CancellationToken.None);
+
+        findings.Should().BeEmpty();
+    }
+
     private static OrphanedAzureResourceFindingEngine CreateSut(AzureExtractorPackageDownloadRecord package)
     {
         Mock<IAzureExtractorPackageRepository> packageRepository = new();

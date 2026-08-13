@@ -1,6 +1,3 @@
-using System.IO.Compression;
-using System.Text;
-
 using ArchLucid.ArtifactSynthesis.Classifiers;
 using ArchLucid.Contracts.Findings;
 using ArchLucid.Contracts.Findings.Payloads;
@@ -61,7 +58,7 @@ public sealed class OrphanedAzureResourceFindingEngine(
         if (download is null || download.PackageBytes.Length == 0)
             return [];
 
-        string? resourcesJson = TryReadResourcesJson(download.PackageBytes);
+        string? resourcesJson = AzureInventoryZipResourcesJsonReader.TryReadResourcesJson(download.PackageBytes);
 
         if (string.IsNullOrWhiteSpace(resourcesJson))
             return [];
@@ -101,20 +98,5 @@ public sealed class OrphanedAzureResourceFindingEngine(
                 };
             })
             .ToList();
-    }
-
-    private static string? TryReadResourcesJson(byte[] packageBytes)
-    {
-        using MemoryStream stream = new(packageBytes);
-        using ZipArchive archive = new(stream, ZipArchiveMode.Read, leaveOpen: false);
-        ZipArchiveEntry? entry = archive.GetEntry("resources.json")
-                               ?? archive.Entries.FirstOrDefault(static e =>
-                                   e.Name.Equals("resources.json", StringComparison.OrdinalIgnoreCase));
-
-        if (entry is null)
-            return null;
-
-        using StreamReader reader = new(entry.Open(), Encoding.UTF8);
-        return reader.ReadToEnd();
     }
 }
