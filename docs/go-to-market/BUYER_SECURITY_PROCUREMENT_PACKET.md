@@ -2056,7 +2056,7 @@ Do not say reviews that took two weeks now take two hours, that every finding al
 
 ### Residuals (honest)
 
-- **TB-1367** / **TB-1368** own the cut/hedge/prove contract and language guards.
+- **TB-1367** **Done** / **TB-1368** own the cut/hedge/prove contract and language guards.
 - Complements Done **M-02** / **M-138** / **M-154** / **M-174** / **M-243** / **M-239**.
 - This handout does not claim CPA SOC 2 or a published third-party penetration test.
 

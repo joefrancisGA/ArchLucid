@@ -77,7 +77,7 @@ Separates `(A)` product readiness from `(B)` procurement realism. Use in sales, 
 | WNTP → UI buyer-risk matrix (M-239/M-240) | "Ranked UI review vs WNTP rows; docs scanners ≠ UI coverage" | "Docs scanner green = UI safe" / lead with "SOC 2 certified" |
 | Core Pilot happy-path (M-241/M-242) | "Authority → Finalize → in-app sponsor export" | "create→execute→commit default" / "empty dashboard = sponsor-ready" |
 | Why-not-ChatGPT/Copilot (M-243/M-244) | "Seats draft / ArchLucid proves via package + evidence + audit" | "Always beats frontier AI" / "Cheaper than Copilot seats" |
-| Elevator pitch V1 claim audit (M-245/M-246) | "Cut/hedge/prove with committed run only" | "Two weeks → two hours" / "Gates always on" |
+| Elevator pitch V1 claim audit (M-245/M-246) | "Cut/hedge/prove with committed run only" | "Two weeks → two hours" / "Gates always on" | [`ELEVATOR_PITCH_V1_CLAIM_AUDIT_CONTRACT.md`](ELEVATOR_PITCH_V1_CLAIM_AUDIT_CONTRACT.md) (**TB-1367**) |
 | AgentTask→decisioning leak seams (M-247/M-248) | "Mode-blind residual matrix; schema ≠ provenance" | "Simulator decide fail-closed differently" / "Schema gate = typed gate" |
 | TB-881 ship-blocker class (M-249/M-250) | "CI/test Done; pilots sequential; signup-stress residual" | "TB-881 blocks pilots" / "Reopen TB-881 for V1" |
 | Specialty help chrome ≤~50 (M-251/M-252) | "Shared chrome once; per-slug clusters apply" | "All help is specialty-guided" / "TB-735 gates all technical help" |

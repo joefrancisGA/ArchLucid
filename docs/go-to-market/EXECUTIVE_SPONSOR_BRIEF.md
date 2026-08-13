@@ -101,7 +101,7 @@ Former standalone: `docs/go-to-market/ELEVATOR_PITCH.md` → this section (inclu
 
 **Relationship:** [`POSITIONING.md`](POSITIONING.md) owns the canonical tagline and positioning statement. This brief is the sponsor story **and** the verbal delivery SoT — edit talk-track here when outreach drifts.
 
-**Rule:** Every claim maps to a shipped V1 capability. Do not imply real-time cloud connectivity, self-serve checkout, or third-party connector availability unless those milestones have shipped per [`V1_DEFERRED.md`](../library/V1_DEFERRED.md). Do **not** use absolute calendar claims such as “two weeks → two hours” without a measured pilot baseline (open **M-245**).
+**Rule:** Every claim maps to a shipped V1 capability. Do not imply real-time cloud connectivity or self-serve checkout. Native first-party connectors (Jira, ServiceNow, Teams, Slack, Confluence) are **V1 GA** per [`V1_SCOPE.md`](../library/V1_SCOPE.md) §2.13–§2.15 — cite honest empty-state / credential caveats (**TB-1420**); do not pitch stale “connectors not in V1” deferrals. Do **not** use absolute calendar claims such as “two weeks → two hours” without a measured pilot baseline — see [`ELEVATOR_PITCH_V1_CLAIM_AUDIT_CONTRACT.md`](../library/ELEVATOR_PITCH_V1_CLAIM_AUDIT_CONTRACT.md) (**TB-1367** / **M-245** **Done**).
 
 ### 30-second pitch
 
@@ -115,7 +115,7 @@ Former standalone: `docs/go-to-market/ELEVATOR_PITCH.md` → this section (inclu
 >
 > ArchLucid gives teams a structured way out of that.
 >
-> You bring your architecture materials — topology, requirements, constraints, existing evidence. ArchLucid runs a governed multi-agent analysis: topology, cost, compliance, design quality. It surfaces a prioritized findings board where every risk is severity-ranked, evidence-cited, and paired with a concrete recommended action.
+> You bring your architecture materials — topology, requirements, constraints, existing evidence. ArchLucid runs a governed multi-agent analysis: topology, cost, compliance, design quality. It surfaces a prioritized findings board where risks are severity-ranked and evidence-cited where gates enforce them, each paired with a concrete recommended action.
 >
 > The output is a defensible architecture package: a signed review record anchored to a full audit chain, a findings register, and an exportable report your ARB, your CTO, and your auditors can follow — not a chat transcript.
 >
@@ -187,9 +187,9 @@ Hi <<FIRST_NAME>> — following up in case this got buried. No pressure at all; 
 
 | Persona | Opener swap |
 | --- | --- |
-| Architecture lead | "It replaces ad hoc review documentation with a structured, defensible package built from evidence you already have." |
-| CTO / VP Engineering | "It gets you evidence-backed reviews in a fraction of the time, with an audit trail your board and auditors can actually read." |
-| GRC / Compliance | "It adds a pre-commit governance gate and a structured audit trail aligned to policy packs — built for exactly the gap you flagged." |
+| Architecture lead | "It helps teams move from ad hoc review documentation toward a structured, defensible package built from evidence you already have." |
+| CTO / VP Engineering | "It can shorten calendar delay on evidence-backed reviews, with an audit trail your board and auditors can actually read." |
+| GRC / Compliance | "It can add an optional pre-finalize governance gate where configured, plus a structured audit trail aligned to policy packs — built for exactly the gap you flagged." |
 | Cloud consultant | "I built it as delivery infrastructure — bring your own evidence, produce a whitelabel report — thought it might be relevant to how you deliver review engagements." |
 
 Track 20 sends privately (contact, channel, date, response, outcome). Hand positives to **M-19** via [`BUYER_PERSONAS.md#pilot-recruiting-pipeline`](BUYER_PERSONAS.md#pilot-recruiting-pipeline).
