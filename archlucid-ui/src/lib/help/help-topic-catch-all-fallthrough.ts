@@ -15,6 +15,7 @@ export const HELP_TOPIC_SPECIALTY_GUIDE_DISPATCH_SLUGS = [
   "baseline-settings",
   "billing-and-plans",
   "choose-your-next-step",
+  "caiq-sig-response",
   "cli-usage",
   "cloud-connections",
   "cloud-connections-aws",
@@ -64,7 +65,6 @@ export const HELP_TOPIC_SPECIALTY_GUIDE_DISPATCH_SLUGS = [
 /** Explicit enriched `HelpTopicMarkdownView` branches — not bare Print/PDF fallthrough (TB-1601). */
 export const HELP_TOPIC_ENRICHED_MARKDOWN_DISPATCH_SLUGS = [
   "authentication-sign-in",
-  "caiq-sig-response",
   "integration-readiness",
   "prior-manifest-retrieval",
   "report-a-problem",

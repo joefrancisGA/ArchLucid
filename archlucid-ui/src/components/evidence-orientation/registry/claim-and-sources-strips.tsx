@@ -155,6 +155,30 @@ import {
   CONNECTION_STATUS_HELP_SOURCES_INTRO,
 } from "@/lib/connection-status-help-evidence-copy";
 import {
+  DECISION_REGISTER_HELP_CLAIM_DISCIPLINE,
+  DECISION_REGISTER_HELP_FOLLOW_UPS_TITLE,
+  DECISION_REGISTER_HELP_SOURCES,
+  DECISION_REGISTER_HELP_SOURCES_INTRO,
+} from "@/lib/decision-register-help-evidence-copy";
+import {
+  IMPROVEMENT_PLANNING_HELP_CLAIM_DISCIPLINE,
+  IMPROVEMENT_PLANNING_HELP_FOLLOW_UPS_TITLE,
+  IMPROVEMENT_PLANNING_HELP_SOURCES,
+  IMPROVEMENT_PLANNING_HELP_SOURCES_INTRO,
+} from "@/lib/improvement-planning-help-evidence-copy";
+import {
+  IMPACT_PREVIEW_HELP_CLAIM_DISCIPLINE,
+  IMPACT_PREVIEW_HELP_FOLLOW_UPS_TITLE,
+  IMPACT_PREVIEW_HELP_SOURCES,
+  IMPACT_PREVIEW_HELP_SOURCES_INTRO,
+} from "@/lib/impact-preview-help-evidence-copy";
+import {
+  ADVISORY_SCANS_HELP_CLAIM_DISCIPLINE,
+  ADVISORY_SCANS_HELP_FOLLOW_UPS_TITLE,
+  ADVISORY_SCANS_HELP_SOURCES,
+  ADVISORY_SCANS_HELP_SOURCES_INTRO,
+} from "@/lib/advisory-scans-help-evidence-copy";
+import {
   SLACK_INTEGRATION_HELP_CLAIM_DISCIPLINE,
   SLACK_INTEGRATION_HELP_FOLLOW_UPS_TITLE,
   SLACK_INTEGRATION_HELP_SOURCES,
@@ -815,6 +839,70 @@ export function ItsmOAuthCallbackEvidenceOrientationStrip(): React.JSX.Element {
       claim={ITSM_OAUTH_CALLBACK_CLAIM_DISCIPLINE}
       sourcesIntro={ITSM_OAUTH_CALLBACK_SOURCES_INTRO}
       sources={ITSM_OAUTH_CALLBACK_SOURCES}
+    />
+  );
+}
+
+export function DecisionRegisterHelpEvidenceOrientationStrip(): React.JSX.Element {
+  return (
+    <EvidenceOrientationClaimAndSourcesStrip
+      slug="help-decision-register"
+      claim={DECISION_REGISTER_HELP_CLAIM_DISCIPLINE}
+      claimStyle={EVIDENCE_CLAIM_STYLE.operatorNeutral}
+      claimElement="div"
+      sourcesTitle={DECISION_REGISTER_HELP_FOLLOW_UPS_TITLE}
+      sourcesIntro={DECISION_REGISTER_HELP_SOURCES_INTRO}
+      sources={DECISION_REGISTER_HELP_SOURCES}
+      sourcesStyle={EVIDENCE_SOURCES_STYLE.operatorRaised}
+      sourcesHeadingId="where-to-go-next"
+    />
+  );
+}
+
+export function ImprovementPlanningHelpEvidenceOrientationStrip(): React.JSX.Element {
+  return (
+    <EvidenceOrientationClaimAndSourcesStrip
+      slug="help-improvement-planning"
+      claim={IMPROVEMENT_PLANNING_HELP_CLAIM_DISCIPLINE}
+      claimStyle={EVIDENCE_CLAIM_STYLE.operatorNeutral}
+      claimElement="div"
+      sourcesTitle={IMPROVEMENT_PLANNING_HELP_FOLLOW_UPS_TITLE}
+      sourcesIntro={IMPROVEMENT_PLANNING_HELP_SOURCES_INTRO}
+      sources={IMPROVEMENT_PLANNING_HELP_SOURCES}
+      sourcesStyle={EVIDENCE_SOURCES_STYLE.operatorRaised}
+      sourcesHeadingId="where-to-go-next"
+    />
+  );
+}
+
+export function ImpactPreviewHelpEvidenceOrientationStrip(): React.JSX.Element {
+  return (
+    <EvidenceOrientationClaimAndSourcesStrip
+      slug="help-impact-preview"
+      claim={IMPACT_PREVIEW_HELP_CLAIM_DISCIPLINE}
+      claimStyle={EVIDENCE_CLAIM_STYLE.operatorNeutral}
+      claimElement="div"
+      sourcesTitle={IMPACT_PREVIEW_HELP_FOLLOW_UPS_TITLE}
+      sourcesIntro={IMPACT_PREVIEW_HELP_SOURCES_INTRO}
+      sources={IMPACT_PREVIEW_HELP_SOURCES}
+      sourcesStyle={EVIDENCE_SOURCES_STYLE.operatorRaised}
+      sourcesHeadingId="where-to-go-next"
+    />
+  );
+}
+
+export function AdvisoryScansHelpEvidenceOrientationStrip(): React.JSX.Element {
+  return (
+    <EvidenceOrientationClaimAndSourcesStrip
+      slug="help-advisory-scans"
+      claim={ADVISORY_SCANS_HELP_CLAIM_DISCIPLINE}
+      claimStyle={EVIDENCE_CLAIM_STYLE.operatorNeutral}
+      claimElement="div"
+      sourcesTitle={ADVISORY_SCANS_HELP_FOLLOW_UPS_TITLE}
+      sourcesIntro={ADVISORY_SCANS_HELP_SOURCES_INTRO}
+      sources={ADVISORY_SCANS_HELP_SOURCES}
+      sourcesStyle={EVIDENCE_SOURCES_STYLE.operatorRaised}
+      sourcesHeadingId="where-to-go-next"
     />
   );
 }

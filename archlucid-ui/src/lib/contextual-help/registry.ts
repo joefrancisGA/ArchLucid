@@ -44,6 +44,7 @@ import { RECURRENCE_SCHEDULES_CONTEXTUAL_HELP_ROWS } from "@/lib/contextual-help
 import { RISK_EXCEPTIONS_CONTEXTUAL_HELP_ROWS } from "@/lib/contextual-help/risk-exceptions-rows";
 import { ROI_SUMMARY_CONTEXTUAL_HELP_ROWS } from "@/lib/contextual-help/roi-summary-rows";
 import { SEARCH_REVIEW_EVIDENCE_CONTEXTUAL_HELP_ROWS } from "@/lib/contextual-help/search-review-evidence-rows";
+import { SECONDARY_HUB_CONTEXTUAL_HELP_ROWS } from "@/lib/contextual-help/secondary-hub-help-rows";
 import { SLACK_INTEGRATION_CONTEXTUAL_HELP_ROWS } from "@/lib/contextual-help/slack-integration-rows";
 import { STANDARDS_RULES_CONTEXTUAL_HELP_ROWS } from "@/lib/contextual-help/standards-rules-rows";
 import { TEAMS_INTEGRATION_CONTEXTUAL_HELP_ROWS } from "@/lib/contextual-help/teams-integration-rows";
@@ -109,6 +110,7 @@ const PAGE_CONTEXTUAL_HELP: readonly PageContextualHelpRow[] = [
   ...WEBHOOKS_INTEGRATION_CONTEXTUAL_HELP_ROWS,
   ...WORKSPACE_SETTINGS_CONTEXTUAL_HELP_ROWS,
   ...WORKSPACE_ADMINISTRATION_CONTEXTUAL_HELP_ROWS,
+  ...SECONDARY_HUB_CONTEXTUAL_HELP_ROWS,
   ...HELP_TOPIC_CONTEXTUAL_HELP_ROWS,
   ...IDENTITY_ADMINISTRATION_CONTEXTUAL_HELP_ROWS,
   ...INSIGHTS_CONTEXTUAL_HELP_ROWS,

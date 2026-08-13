@@ -3,6 +3,8 @@ import { START_REVIEW_LABEL } from "@/lib/architecture/architecture-workflow-lab
 
 export const EVIDENCE_INTAKE_HELP_CANONICAL_PATH = "/help/evidence-intake" as const;
 
+export const EVIDENCE_INTAKE_HELP_TOPIC_LABEL = "How to start a review" as const;
+
 export const EVIDENCE_INTAKE_HELP_CLAIM_DISCIPLINE =
   "This Start a review guide is architect orientation for evidence intake — it is not a signed review record. Open New architecture review, Reviews, or Audit trail when you need live packages or assurance claims.";
 

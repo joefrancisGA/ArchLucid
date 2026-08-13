@@ -5,6 +5,8 @@ import type { EvidenceSourceLink } from "@/lib/evidence-surface-copy";
 
 export const ARCHITECTURES_NEW_CANONICAL_PATH = ARCHITECTURES_NEW_PATH;
 
+export const ARCHITECTURES_NEW_HELP_TOPIC_LABEL = "How to create an architecture" as const;
+
 export const ARCHITECTURES_NEW_CLAIM_DISCIPLINE =
   "Creating or saving an architecture draft does not start a review - this page is drafting-first bootstrap, not a signed-review diligence Sources package. Open Start a review or Evidence intake help when you are ready to file evidence.";
 

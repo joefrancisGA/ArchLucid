@@ -11,6 +11,10 @@ import { HelpArchitectureDraftsGuideView } from "@/app/(operator)/help/_sections
 import { HelpArchitectureScorecardGuideView } from "@/app/(operator)/help/_sections/HelpArchitectureScorecardGuideView";
 import { HelpBaselineSettingsGuideView } from "@/app/(operator)/help/_sections/HelpBaselineSettingsGuideView";
 import { HelpConnectionStatusGuideView } from "@/app/(operator)/help/_sections/HelpConnectionStatusGuideView";
+import { HelpDecisionRegisterGuideView } from "@/app/(operator)/help/_sections/HelpDecisionRegisterGuideView";
+import { HelpImprovementPlanningGuideView } from "@/app/(operator)/help/_sections/HelpImprovementPlanningGuideView";
+import { HelpImpactPreviewGuideView } from "@/app/(operator)/help/_sections/HelpImpactPreviewGuideView";
+import { HelpAdvisoryScansGuideView } from "@/app/(operator)/help/_sections/HelpAdvisoryScansGuideView";
 import { HelpEvidenceGraphGuideView } from "@/app/(operator)/help/_sections/HelpEvidenceGraphGuideView";
 import { HelpArchitectureIntelligenceGuideView } from "@/app/(operator)/help/_sections/HelpArchitectureIntelligenceGuideView";
 import { HelpSearchReviewEvidenceGuideView } from "@/app/(operator)/help/_sections/HelpSearchReviewEvidenceGuideView";
@@ -34,6 +38,10 @@ describe("specialty help guides — operator surfaces batch", () => {
     ["pilot-outcomes", HelpPilotOutcomesGuideView, "help-pilot-outcomes-guide"],
     ["architecture-scorecard", HelpArchitectureScorecardGuideView, "help-architecture-scorecard-guide"],
     ["connection-status", HelpConnectionStatusGuideView, "help-connection-status-guide"],
+    ["decision-register", HelpDecisionRegisterGuideView, "help-decision-register-guide"],
+    ["improvement-planning", HelpImprovementPlanningGuideView, "help-improvement-planning-guide"],
+    ["impact-preview", HelpImpactPreviewGuideView, "help-impact-preview-guide"],
+    ["advisory-scans", HelpAdvisoryScansGuideView, "help-advisory-scans-guide"],
     ["standards-and-rules", HelpStandardsRulesGuideView, "help-standards-rules-guide"],
     ["baseline-settings", HelpBaselineSettingsGuideView, "help-baseline-settings-guide"],
     ["slack-integration", HelpSlackIntegrationGuideView, "help-slack-integration-guide"],

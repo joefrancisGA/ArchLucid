@@ -7,6 +7,7 @@ import {
   ALERTS_CONFIGURATION_PAGE_TITLE,
   ALERTS_HOW_ALERTS_WORK_LABEL,
 } from "@/lib/alerts-page-copy";
+import { ADMIN_DIAGNOSTICS_HELP_TOPIC_LABEL } from "@/lib/admin-diagnostics-help-evidence-copy";
 import { ADMIN_HEALTH_HELP_TOPIC_LABEL } from "@/lib/admin-health-evidence-copy";
 import { ACCOUNT_SECURITY_SETTINGS_HELP_TOPIC_LABEL } from "@/lib/account-security-settings-evidence-copy";
 import { AI_USAGE_HELP_TOPIC_LABEL } from "@/lib/ai-usage-settings-evidence-copy";
@@ -21,7 +22,17 @@ import { CONNECT_AZURE_SECURELY_HELP_TOPIC_LABEL } from "@/lib/cloud-provider-co
 import { AZURE_PERMISSIONS_HELP_TOPIC_LABEL } from "@/lib/azure-permissions-help-evidence-copy";
 import { AUDIT_TRAIL_HELP_TOPIC_LABEL } from "@/lib/audit-trail-help-evidence-copy";
 import { DIGESTS_HELP_TOPIC_LABEL } from "@/lib/digests-help-evidence-copy";
+import { ADVISORY_SCANS_HELP_TOPIC_LABEL } from "@/lib/advisory-scans-help-evidence-copy";
+import { ARCHITECTURES_NEW_HELP_TOPIC_LABEL } from "@/lib/architectures-new-evidence-copy";
 import { ARCHITECTURES_LIST_PATH } from "@/lib/architecture/architecture-routes";
+import { DECISION_REGISTER_HELP_TOPIC_LABEL } from "@/lib/decision-register-help-evidence-copy";
+import { EVIDENCE_INTAKE_HELP_TOPIC_LABEL } from "@/lib/evidence-intake-help-evidence-copy";
+import { EVIDENCE_TRAIL_HELP_TOPIC_LABEL } from "@/lib/evidence-trail-help-evidence-copy";
+import { GETTING_STARTED_HELP_TOPIC_LABEL } from "@/lib/getting-started-help-guide-content";
+import { IMPACT_PREVIEW_HELP_TOPIC_LABEL } from "@/lib/impact-preview-help-evidence-copy";
+import { IMPROVEMENT_PLANNING_HELP_TOPIC_LABEL } from "@/lib/improvement-planning-help-evidence-copy";
+import { RECOMMENDATION_LEARNING_HELP_TOPIC_LABEL } from "@/lib/recommendation-learning-evidence-copy";
+import { SIGNED_RECORDS_LIST_HELP_TOPIC_LABEL } from "@/lib/signed-records-list-evidence-copy";
 import { ARCHITECTURE_DRAFTS_HELP_TOPIC_LABEL } from "@/lib/architecture-drafts-evidence-copy";
 import { ARCHITECTURE_INTELLIGENCE_HELP_TOPIC_LABEL } from "@/lib/architecture/architecture-intelligence-evidence-copy";
 import { APPROVAL_LINEAGE_HELP_TOPIC_LABEL } from "@/lib/approval-lineage-evidence-copy";
@@ -127,14 +138,14 @@ const PAGE_HELP_TOPICS: readonly { prefix: string; topic: PageHelpTopic }[] = [
     topic: { slug: "first-architecture-review", label: OPERATOR_NAV_LINK_LABELS.home },
   },
   { prefix: "/architecture/first-review-guide", topic: { slug: "getting-started", label: BUYER_ONBOARDING_PAGE_TITLE } },
-  { prefix: "/help/getting-started", topic: { slug: "getting-started", label: "Getting started" } },
+  { prefix: "/help/getting-started", topic: { slug: "getting-started", label: GETTING_STARTED_HELP_TOPIC_LABEL } },
   {
     prefix: "/help/accelerator-chooser",
     topic: { slug: "accelerator-chooser", label: ACCELERATOR_CHOOSER_HELP_INBOUND_LABEL },
   },
   {
     prefix: "/help/admin-diagnostics",
-    topic: { slug: "admin-diagnostics", label: "Admin diagnostics" },
+    topic: { slug: "admin-diagnostics", label: ADMIN_DIAGNOSTICS_HELP_TOPIC_LABEL },
   },
   {
     prefix: "/help/authentication-sign-in",
@@ -142,7 +153,7 @@ const PAGE_HELP_TOPICS: readonly { prefix: string; topic: PageHelpTopic }[] = [
   },
   {
     prefix: "/help/azure-boards",
-    topic: { slug: "azure-boards", label: "Azure Boards integration" },
+    topic: { slug: "azure-boards", label: AZURE_BOARDS_INTEGRATION_HELP_TOPIC_LABEL },
   },
   {
     prefix: "/help/integration-readiness",
@@ -154,7 +165,7 @@ const PAGE_HELP_TOPICS: readonly { prefix: string; topic: PageHelpTopic }[] = [
   },
   {
     prefix: "/help/comparison-replay",
-    topic: { slug: "comparison-replay", label: "Compare and replay" },
+    topic: { slug: "comparison-replay", label: COMPARISON_REPLAY_HELP_TOPIC_LABEL },
   },
   {
     prefix: "/help/troubleshooting",
@@ -166,11 +177,11 @@ const PAGE_HELP_TOPICS: readonly { prefix: string; topic: PageHelpTopic }[] = [
   },
   {
     prefix: "/help/findings",
-    topic: { slug: "findings", label: "Findings" },
+    topic: { slug: "findings", label: FINDINGS_HELP_TOPIC_LABEL },
   },
   {
     prefix: "/help/governance-approval",
-    topic: { slug: "governance-approval", label: "Governance approval" },
+    topic: { slug: "governance-approval", label: GOVERNANCE_APPROVAL_HELP_TOPIC_LABEL },
   },
   {
     prefix: "/help/review-guide",
@@ -213,7 +224,7 @@ const PAGE_HELP_TOPICS: readonly { prefix: string; topic: PageHelpTopic }[] = [
     topic: { slug: "users-and-roles", label: USERS_AND_ROLES_HELP_TOPIC_LABEL },
   },
   { prefix: ARCHITECTURES_LIST_PATH, topic: { slug: "architecture-drafts", label: ARCHITECTURE_DRAFTS_HELP_TOPIC_LABEL } },
-  { prefix: "/architecture/architectures/new", topic: { slug: "first-architecture-review", label: "Create architecture" } },
+  { prefix: "/architecture/architectures/new", topic: { slug: "first-architecture-review", label: ARCHITECTURES_NEW_HELP_TOPIC_LABEL } },
   {
     prefix: "/architecture/architecture-intelligence",
     topic: { slug: "architecture-intelligence", label: ARCHITECTURE_INTELLIGENCE_HELP_TOPIC_LABEL },
@@ -223,7 +234,7 @@ const PAGE_HELP_TOPICS: readonly { prefix: string; topic: PageHelpTopic }[] = [
   { prefix: "/architecture/reviews", topic: { slug: "review-packages", label: REVIEW_PACKAGES_HELP_INBOUND_LABEL } },
   {
     prefix: SIGNED_RECORDS_LIST_PATH,
-    topic: { slug: "review-packages", label: "Signed review records" },
+    topic: { slug: "review-packages", label: SIGNED_RECORDS_LIST_HELP_TOPIC_LABEL },
   },
   { prefix: SPONSOR_DASHBOARD_HREF, topic: { slug: "sponsor-dashboard", label: SPONSOR_DASHBOARD_HELP_TOPIC_LABEL } },
   {
@@ -271,9 +282,8 @@ const PAGE_HELP_TOPICS: readonly { prefix: string; topic: PageHelpTopic }[] = [
   },
   { prefix: "/governance/audit", topic: { slug: "audit-trail", label: AUDIT_TRAIL_HELP_TOPIC_LABEL } },
   {
-    // Secondary hub — no decision-register specialty; omit Learn more (TB-2050).
     prefix: "/governance/decision-register",
-    topic: { label: "Decision register" },
+    topic: { slug: "decision-register", label: DECISION_REGISTER_HELP_TOPIC_LABEL },
   },
   {
     prefix: "/governance/alerts",
@@ -414,9 +424,8 @@ const PAGE_HELP_TOPICS: readonly { prefix: string; topic: PageHelpTopic }[] = [
     topic: { slug: "servicenow-integration", label: SERVICENOW_INTEGRATION_HELP_TOPIC_LABEL },
   },
   {
-    // Secondary hub — no planning specialty; omit Learn more (TB-2050).
     prefix: "/insights/improvement-planning",
-    topic: { label: "Improvement planning" },
+    topic: { slug: "improvement-planning", label: IMPROVEMENT_PLANNING_HELP_TOPIC_LABEL },
   },
   {
     prefix: "/internal/product-learning",
@@ -468,11 +477,11 @@ const PAGE_HELP_TOPICS: readonly { prefix: string; topic: PageHelpTopic }[] = [
   { prefix: "/help/audit-trail", topic: { slug: "audit-trail", label: AUDIT_TRAIL_HELP_TOPIC_LABEL } },
   {
     prefix: "/help/evidence-trail",
-    topic: { slug: "evidence-trail", label: "Evidence graph" },
+    topic: { slug: "evidence-trail", label: EVIDENCE_TRAIL_HELP_TOPIC_LABEL },
   },
   {
     prefix: "/help/evidence-intake",
-    topic: { slug: "evidence-intake", label: "Start a review" },
+    topic: { slug: "evidence-intake", label: EVIDENCE_INTAKE_HELP_TOPIC_LABEL },
   },
   {
     prefix: "/help/data-handling",
@@ -496,7 +505,7 @@ const PAGE_HELP_TOPICS: readonly { prefix: string; topic: PageHelpTopic }[] = [
   },
   {
     prefix: "/help/pilot-feedback",
-    topic: { slug: "pilot-feedback", label: "Pilot feedback" },
+    topic: { slug: "pilot-feedback", label: PRODUCT_LEARNING_HELP_TOPIC_LABEL },
   },
   {
     prefix: "/help/sponsor-report",
@@ -527,22 +536,20 @@ const PAGE_HELP_TOPICS: readonly { prefix: string; topic: PageHelpTopic }[] = [
     topic: { slug: "api-contracts", label: "API contracts (technical reference)" },
   },
   {
-    // Secondary hub — no impact-preview specialty; omit Learn more (TB-2050).
     prefix: "/insights/impact-preview",
-    topic: { label: "Impact preview" },
+    topic: { slug: "impact-preview", label: IMPACT_PREVIEW_HELP_TOPIC_LABEL },
   },
   {
     prefix: "/internal/recommendation-learning",
-    topic: { slug: "pilot-feedback", label: "How recommendation learning works" },
+    topic: { slug: "pilot-feedback", label: RECOMMENDATION_LEARNING_HELP_TOPIC_LABEL },
   },
   {
     prefix: "/internal/tenants",
     topic: { slug: "enterprise-onboarding", label: ADMIN_TENANTS_HELP_TOPIC_LABEL },
   },
   {
-    // Secondary hub — no advisory-scans specialty; omit Learn more (TB-2050).
     prefix: "/governance/advisory-scans",
-    topic: { label: "Advisory scans" },
+    topic: { slug: "advisory-scans", label: ADVISORY_SCANS_HELP_TOPIC_LABEL },
   },
   {
     prefix: "/integrations/cloud-connections/azure",

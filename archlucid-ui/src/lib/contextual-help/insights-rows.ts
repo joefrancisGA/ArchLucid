@@ -38,7 +38,7 @@ export const INSIGHTS_CONTEXTUAL_HELP_ROWS: readonly PageContextualHelpRow[] = [
     },
   },
   {
-    // TB-2050 — Learn more omitted (no specialty); Category-1 still mounts.
+    // Impact preview — specialty help at `/help/impact-preview`.
     prefix: "/insights/impact-preview",
     entry: {
       whatIsThisPage:

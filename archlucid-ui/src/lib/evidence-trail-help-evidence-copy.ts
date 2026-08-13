@@ -4,6 +4,8 @@ import type { EvidenceSourceLink } from "@/lib/evidence-surface-copy";
 
 export const EVIDENCE_TRAIL_HELP_CANONICAL_PATH = "/help/evidence-trail" as const;
 
+export const EVIDENCE_TRAIL_HELP_TOPIC_LABEL = "How the evidence trail works" as const;
+
 export const EVIDENCE_TRAIL_HELP_PRIMARY_ACTION = {
   label: "Open Evidence graph",
   href: EVIDENCE_GRAPH_PATH,

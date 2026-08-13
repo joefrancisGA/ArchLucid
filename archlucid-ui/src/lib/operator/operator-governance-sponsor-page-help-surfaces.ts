@@ -48,7 +48,7 @@ export const OPERATOR_GOVERNANCE_SPONSOR_PAGE_HELP_TB1668_SURFACES: readonly Ope
       id: "governance-decision-register",
       pathname: "/governance/decision-register",
       modulePath: "app/(operator)/governance/decision-register/DecisionRegisterClient.tsx",
-      notes: "Decision register — label-only secondary hub (no Learn more).",
+      notes: "Decision register — decision-register specialty help topic.",
     },
     {
       id: "governance-audit",
@@ -84,7 +84,7 @@ export const OPERATOR_GOVERNANCE_SPONSOR_PAGE_HELP_TB1668_SURFACES: readonly Ope
       id: "governance-advisory-scans",
       pathname: "/governance/advisory-scans",
       modulePath: "components/advisory/AdvisoryHubClient.tsx",
-      notes: "Advisory scans hub — label-only secondary hub.",
+      notes: "Advisory scans hub — advisory-scans specialty help topic.",
     },
     {
       id: "sponsor-sponsor-report",

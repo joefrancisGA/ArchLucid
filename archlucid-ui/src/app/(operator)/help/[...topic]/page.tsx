@@ -55,6 +55,18 @@ const HelpAlertsGuideView = dynamic(() =>
 const HelpDigestsGuideView = dynamic(() =>
   import("../_sections/HelpDigestsGuideView").then((module) => module.HelpDigestsGuideView),
 );
+const HelpDecisionRegisterGuideView = dynamic(() =>
+  import("../_sections/HelpDecisionRegisterGuideView").then((module) => module.HelpDecisionRegisterGuideView),
+);
+const HelpImprovementPlanningGuideView = dynamic(() =>
+  import("../_sections/HelpImprovementPlanningGuideView").then((module) => module.HelpImprovementPlanningGuideView),
+);
+const HelpImpactPreviewGuideView = dynamic(() =>
+  import("../_sections/HelpImpactPreviewGuideView").then((module) => module.HelpImpactPreviewGuideView),
+);
+const HelpAdvisoryScansGuideView = dynamic(() =>
+  import("../_sections/HelpAdvisoryScansGuideView").then((module) => module.HelpAdvisoryScansGuideView),
+);
 const HelpRecurrenceSchedulesGuideView = dynamic(() =>
   import("../_sections/HelpRecurrenceSchedulesGuideView").then(
     (module) => module.HelpRecurrenceSchedulesGuideView,
@@ -346,6 +358,22 @@ function renderHelpTopicView(
 
   if (loaded.entry.slug === "digests") {
     return <HelpDigestsGuideView entry={loaded.entry} />;
+  }
+
+  if (loaded.entry.slug === "decision-register") {
+    return <HelpDecisionRegisterGuideView entry={loaded.entry} />;
+  }
+
+  if (loaded.entry.slug === "improvement-planning") {
+    return <HelpImprovementPlanningGuideView entry={loaded.entry} />;
+  }
+
+  if (loaded.entry.slug === "impact-preview") {
+    return <HelpImpactPreviewGuideView entry={loaded.entry} />;
+  }
+
+  if (loaded.entry.slug === "advisory-scans") {
+    return <HelpAdvisoryScansGuideView entry={loaded.entry} />;
   }
 
   if (loaded.entry.slug === "recurrence-schedules") {
