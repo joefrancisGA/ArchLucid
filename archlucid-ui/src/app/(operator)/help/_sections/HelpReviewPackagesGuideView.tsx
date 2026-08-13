@@ -25,6 +25,13 @@ import {
   REVIEW_PACKAGES_HELP_PRIMARY_ACTIONS,
   REVIEW_PACKAGES_HELP_RELATED,
 } from "@/lib/review-packages-help-guide-content";
+import {
+  REVIEW_PACKAGES_HELP_EMPTY_WORKSPACE_EXPORT_COPY,
+  REVIEW_PACKAGES_HELP_EXPORT_ACTIONS,
+  REVIEW_PACKAGES_HELP_EXPORT_BUYER_CLAIM,
+  REVIEW_PACKAGES_HELP_EXPORT_NEXT_STEPS_TITLE,
+  REVIEW_PACKAGES_HELP_SAMPLE_HONESTY,
+} from "@/lib/review-packages-help-export-copy";
 import { REVIEW_PACKAGES_HELP_PATH } from "@/lib/review-packages-help-route";
 import { cn } from "@/lib/utils";
 
@@ -143,6 +150,55 @@ export function HelpReviewPackagesGuideView(props: HelpReviewPackagesGuideViewPr
               helpTopicSlug={entry.slug}
             />
           </div>
+
+          <section
+            className="rounded-md border border-neutral-200 bg-neutral-50/80 p-3 dark:border-neutral-700 dark:bg-neutral-900/40"
+            aria-labelledby="help-review-packages-export-next-steps-heading"
+            data-testid="help-review-packages-export-next-steps"
+          >
+            <h2
+              id="help-review-packages-export-next-steps-heading"
+              className={cn("m-0 text-al-text-primary", OPERATOR_TYPOGRAPHY.cardTitle)}
+            >
+              {REVIEW_PACKAGES_HELP_EXPORT_NEXT_STEPS_TITLE}
+            </h2>
+            <p
+              className={cn("m-0 mt-2 text-al-text-secondary", OPERATOR_TYPOGRAPHY.body)}
+              data-testid="help-review-packages-export-buyer-claim"
+            >
+              {REVIEW_PACKAGES_HELP_EXPORT_BUYER_CLAIM}
+            </p>
+            <p
+              className={cn("m-0 mt-2 text-al-text-secondary", OPERATOR_TYPOGRAPHY.body)}
+              data-testid="help-review-packages-export-empty-copy"
+            >
+              {REVIEW_PACKAGES_HELP_EMPTY_WORKSPACE_EXPORT_COPY}
+            </p>
+            <div className="mt-3 flex flex-wrap items-center gap-2">
+              <Button asChild size="sm" variant="outline" className="min-h-6 min-w-6">
+                <Link
+                  href={REVIEW_PACKAGES_HELP_EXPORT_ACTIONS.openSample.href}
+                  data-testid={REVIEW_PACKAGES_HELP_EXPORT_ACTIONS.openSample.testId}
+                >
+                  {REVIEW_PACKAGES_HELP_EXPORT_ACTIONS.openSample.label}
+                </Link>
+              </Button>
+              <Button asChild size="sm" variant="outline" className="min-h-6 min-w-6">
+                <Link
+                  href={REVIEW_PACKAGES_HELP_EXPORT_ACTIONS.startReview.href}
+                  data-testid={REVIEW_PACKAGES_HELP_EXPORT_ACTIONS.startReview.testId}
+                >
+                  {REVIEW_PACKAGES_HELP_EXPORT_ACTIONS.startReview.label}
+                </Link>
+              </Button>
+            </div>
+            <p
+              className={cn("m-0 mt-2 text-al-text-secondary", OPERATOR_TYPOGRAPHY.helper)}
+              data-testid="help-review-packages-sample-honesty"
+            >
+              {REVIEW_PACKAGES_HELP_SAMPLE_HONESTY}
+            </p>
+          </section>
 
           <div
             className="flex flex-wrap items-center gap-2 border-t border-neutral-200 pt-4 dark:border-neutral-800"
