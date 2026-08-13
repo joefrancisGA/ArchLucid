@@ -9,8 +9,8 @@ import {
   buildApprovalLineageQueueVocabulary,
   resolveApprovalLineageQueuePeerLink,
 } from "@/lib/vocabulary/approval-lineage-queue-vocabulary";
-import { APPROVAL_LINEAGE_CANONICAL_PATH_PATTERN } from "@/lib/approval-lineage-evidence-copy";
 import { GOVERNANCE_APPROVAL_QUEUE_PATH } from "@/lib/governance/governance-route-paths";
+import { governanceApprovalRequestParentHref } from "@/lib/governance/governance-lineage-presentation";
 
 describe("approval-lineage-queue-vocabulary (TB-2271)", () => {
   it("explains approval lineage vs approval queue", () => {
@@ -25,8 +25,10 @@ describe("approval-lineage-queue-vocabulary (TB-2271)", () => {
     expect(model.compactLine).toBe(APPROVAL_LINEAGE_QUEUE_COMPACT_LINE);
 
     expect(model.lineageLink).toEqual(APPROVAL_LINEAGE_QUEUE_LINEAGE_LINK);
-    expect(model.lineageLink.href).toBe(APPROVAL_LINEAGE_CANONICAL_PATH_PATTERN);
-    expect(model.lineageLink.href).toBe("/governance/approval-requests/[id]/lineage");
+    expect(model.lineageLink.href).toBe(governanceApprovalRequestParentHref(""));
+    expect(model.lineageLink.href).toBe(
+      `${GOVERNANCE_APPROVAL_QUEUE_PATH}#governance-approval-requests`,
+    );
 
     expect(model.queueLink).toEqual(APPROVAL_LINEAGE_QUEUE_QUEUE_LINK);
     expect(model.queueLink.href).toBe(GOVERNANCE_APPROVAL_QUEUE_PATH);

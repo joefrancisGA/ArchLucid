@@ -12,8 +12,8 @@
  * task as working the approval queue. Distinct from findings triage and audit.
  */
 
-import { APPROVAL_LINEAGE_CANONICAL_PATH_PATTERN } from "@/lib/approval-lineage-evidence-copy";
 import { GOVERNANCE_APPROVAL_QUEUE_PATH } from "@/lib/governance/governance-route-paths";
+import { governanceApprovalRequestParentHref } from "@/lib/governance/governance-lineage-presentation";
 
 export type ApprovalLineageQueueSurfaceId = "approval-lineage" | "approval-queue";
 
@@ -41,10 +41,11 @@ export const APPROVAL_LINEAGE_QUEUE_WHY_TWO =
 export const APPROVAL_LINEAGE_QUEUE_COMPACT_LINE =
   "Lineage links one approval request; the queue is the decision workflow — open the other when you need both." as const;
 
+/** Approval lineage is per-request; href uses the queue requests section as the stable peer home. */
 export const APPROVAL_LINEAGE_QUEUE_LINEAGE_LINK: ApprovalLineageQueueLink = {
   id: "approval-lineage",
   label: "Approval lineage",
-  href: APPROVAL_LINEAGE_CANONICAL_PATH_PATTERN,
+  href: governanceApprovalRequestParentHref(""),
   whenToUse: "Inspect linkage for one approval request to review, findings, and signed review record.",
 };
 
