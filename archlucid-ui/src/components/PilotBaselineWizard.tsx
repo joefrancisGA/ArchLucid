@@ -223,7 +223,7 @@ export function PilotBaselineWizard({ open, onOpenChange, onSaved }: PilotBaseli
       >
         <DialogHeader className="space-y-4 text-left">
           <DialogDescription className="sr-only">
-            Guided wizard capturing tenant ROI baselines described in docs/library/PILOT_ROI_MODEL.md section 3 — persists via PUT /v1/tenant/baseline.
+            Guided wizard for review-cycle and manual preparation baseline hours — saved to your tenant baseline settings.
           </DialogDescription>
 
           <div className="flex flex-wrap items-center gap-3">
@@ -232,7 +232,7 @@ export function PilotBaselineWizard({ open, onOpenChange, onSaved }: PilotBaseli
             <InAppHelpLink
               helpSlug="executive-summary"
               hashFragment="pilot-roi-measurement"
-              label="Open pilot ROI measurement"
+              label="Review ROI methodology"
             />
           </div>
 

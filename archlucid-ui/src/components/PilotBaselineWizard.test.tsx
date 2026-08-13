@@ -38,6 +38,17 @@ describe("PilotBaselineWizard", () => {
     expect(onOpenChange).toHaveBeenCalledWith(false);
   });
 
+  it("does not expose monorepo ROI model paths in visible or screen-reader copy (TB-1393)", () => {
+    render(<PilotBaselineWizard open onOpenChange={vi.fn()} />);
+
+    expect(screen.queryByText(/PILOT_ROI_MODEL\.md/i)).toBeNull();
+    expect(screen.queryByText(/docs\/library/i)).toBeNull();
+    expect(screen.getByRole("link", { name: "Review ROI methodology" })).toHaveAttribute(
+      "href",
+      "/help/executive-summary#pilot-roi-measurement",
+    );
+  });
+
   it("disables Next until review hours are valid and shows inline errors without validation toast (TB-2007)", () => {
     render(<PilotBaselineWizard open onOpenChange={vi.fn()} />);
 

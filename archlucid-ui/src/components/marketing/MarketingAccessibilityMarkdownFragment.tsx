@@ -204,6 +204,12 @@ function parseDetailsSummary(openingLine: string, nextLine: string | undefined):
   return { summary: "Advanced", contentStartOffset: 0 };
 }
 
+function parseDetailsTestId(openingLine: string): string | undefined {
+  const testIdMatch = openingLine.match(/data-testid="([^"]+)"/i);
+
+  return testIdMatch?.[1];
+}
+
 function isMarkdownTaskListItem(line: string): boolean {
   return /^- \[( |x|X)\] /.test(line.trimStart());
 }
@@ -358,6 +364,7 @@ export function MarketingAccessibilityMarkdownFragment(props: MarketingAccessibi
 
     if (line.trim().startsWith("<details")) {
       const { summary, contentStartOffset } = parseDetailsSummary(line, lines[i + 1]);
+      const detailsTestId = parseDetailsTestId(line);
       i++;
 
       if (contentStartOffset > 0) {
@@ -383,6 +390,7 @@ export function MarketingAccessibilityMarkdownFragment(props: MarketingAccessibi
       blocks.push(
         <HelpLazyDetails
           key={`details-${key}`}
+          data-testid={detailsTestId}
           className={isHelp ? HELP_PAGE_LAYOUT.details : "my-4 rounded-md border border-neutral-200 bg-neutral-50/80 px-3 py-2 dark:border-neutral-700 dark:bg-neutral-950/40"}
           summaryClassName={cn("cursor-pointer select-none", OPERATOR_DISCLOSURE_TRIGGER_CLASS)}
           summary={summary}

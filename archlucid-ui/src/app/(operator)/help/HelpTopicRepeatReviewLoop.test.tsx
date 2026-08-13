@@ -92,7 +92,7 @@ describe("HelpTopicRepeatReviewLoop (TB-1396)", () => {
     expect(screen.queryByText(/collect-first-pilot-proof/i)).toBeNull();
   });
 
-  it("hoists eligibility and start-loop CTA above claim discipline", () => {
+  it("hoists eligibility and start-loop CTA above claim discipline (TB-1394)", () => {
     if (loaded === null) {
       throw new Error("Expected repeat-review-loop documentation to load.");
     }
@@ -103,6 +103,10 @@ describe("HelpTopicRepeatReviewLoop (TB-1396)", () => {
     const actionPanel = screen.getByTestId("help-repeat-review-loop-action-panel");
     const claimDiscipline = screen.getByTestId("repeat-review-loop-help-claim-discipline");
 
+    expect(within(actionPanel).getByRole("link", { name: /Compare two reviews/i })).toHaveAttribute(
+      "href",
+      "/insights/compare-two-reviews",
+    );
     expect(eligibility.compareDocumentPosition(actionPanel) & Node.DOCUMENT_POSITION_FOLLOWING).toBeTruthy();
     expect(actionPanel.compareDocumentPosition(claimDiscipline) & Node.DOCUMENT_POSITION_FOLLOWING).toBeTruthy();
     expect(screen.getByTestId("repeat-review-loop-help-sources")).toBeInTheDocument();
