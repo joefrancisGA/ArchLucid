@@ -78,7 +78,7 @@ public sealed class GraphAzureInventoryReconciliationFindingEngineTests
     }
 
     [Fact]
-    public async Task AnalyzeAsync_returns_empty_when_package_bytes_are_not_a_valid_zip()
+    public async Task AnalyzeAsync_reports_graph_only_when_package_bytes_are_not_a_valid_zip()
     {
         GraphSnapshot graph = new()
         {
@@ -109,7 +109,12 @@ public sealed class GraphAzureInventoryReconciliationFindingEngineTests
 
         IReadOnlyList<Finding> findings = await sut.AnalyzeAsync(graph, CancellationToken.None);
 
-        findings.Should().BeEmpty();
+        Finding finding = findings.Should().ContainSingle().Subject;
+        finding.RelatedNodeIds.Should().ContainSingle().Which.Should().Be("t1");
+        InventoryReconciliationFindingPayload payload =
+            finding.Payload.Should().BeOfType<InventoryReconciliationFindingPayload>().Subject;
+        payload.GraphOnlyResourceIds.Should().ContainSingle();
+        payload.InventoryOnlyResourceIds.Should().BeEmpty();
     }
 
     private static GraphAzureInventoryReconciliationFindingEngine CreateSut(AzureExtractorPackageDownloadRecord package)
