@@ -42,6 +42,7 @@ public sealed class DapperAgentModelCatalogRepository(ISqlConnectionFactory conn
                                     ApprovedTaskTypesJson,
                                     StructuredOutputLevel,
                                     DataBoundary,
+                                    ExternalSubprocessorDisclosureComplete,
                                     LifecycleStatus,
                                     StructuredOutputProbeUtc
                                 FROM dbo.AgentModelCatalogEntry WITH (NOLOCK)
@@ -108,6 +109,7 @@ public sealed class DapperAgentModelCatalogRepository(ISqlConnectionFactory conn
                                               ApprovedTaskTypesJson = @ApprovedTaskTypesJson,
                                               StructuredOutputLevel = @StructuredOutputLevel,
                                               DataBoundary = @DataBoundary,
+                                              ExternalSubprocessorDisclosureComplete = @ExternalSubprocessorDisclosureComplete,
                                               LifecycleStatus = @LifecycleStatus,
                                               StructuredOutputProbeUtc = @StructuredOutputProbeUtc,
                                               UpdatedUtc = SYSUTCDATETIME()
@@ -121,6 +123,7 @@ public sealed class DapperAgentModelCatalogRepository(ISqlConnectionFactory conn
                                               ApprovedTaskTypesJson,
                                               StructuredOutputLevel,
                                               DataBoundary,
+                                              ExternalSubprocessorDisclosureComplete,
                                               LifecycleStatus,
                                               StructuredOutputProbeUtc)
                                           VALUES (
@@ -132,6 +135,7 @@ public sealed class DapperAgentModelCatalogRepository(ISqlConnectionFactory conn
                                               @ApprovedTaskTypesJson,
                                               @StructuredOutputLevel,
                                               @DataBoundary,
+                                              @ExternalSubprocessorDisclosureComplete,
                                               @LifecycleStatus,
                                               @StructuredOutputProbeUtc);
                                       """;
@@ -173,6 +177,7 @@ public sealed class DapperAgentModelCatalogRepository(ISqlConnectionFactory conn
                     ApprovedTaskTypesJson = JsonSerializer.Serialize(row.ApprovedTaskTypes, JsonOptions),
                     StructuredOutputLevel = row.StructuredOutputLevel.ToString(),
                     DataBoundary = row.DataBoundary.ToString(),
+                    row.ExternalSubprocessorDisclosureComplete,
                     LifecycleStatus = row.LifecycleStatus.ToString(),
                     row.StructuredOutputProbeUtc
                 },
@@ -215,6 +220,7 @@ public sealed class DapperAgentModelCatalogRepository(ISqlConnectionFactory conn
             DataBoundary = Enum.TryParse(entry.DataBoundary, true, out AgentModelDataBoundaryKind boundary)
                 ? boundary
                 : AgentModelDataBoundaryKind.AzureBoundary,
+            ExternalSubprocessorDisclosureComplete = entry.ExternalSubprocessorDisclosureComplete,
             LifecycleStatus = Enum.TryParse(entry.LifecycleStatus, true, out AgentModelCatalogLifecycleStatus lifecycle)
                 ? lifecycle
                 : AgentModelCatalogLifecycleStatus.Available,
@@ -268,6 +274,8 @@ public sealed class DapperAgentModelCatalogRepository(ISqlConnectionFactory conn
         public string StructuredOutputLevel { get; set; } = nameof(AgentModelStructuredOutputLevel.StrictJsonSchema);
 
         public string DataBoundary { get; set; } = nameof(AgentModelDataBoundaryKind.AzureBoundary);
+
+        public bool ExternalSubprocessorDisclosureComplete { get; set; }
 
         public string LifecycleStatus { get; set; } = nameof(AgentModelCatalogLifecycleStatus.Available);
 

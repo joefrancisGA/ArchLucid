@@ -31,6 +31,16 @@ We will notify customers **at least 30 days** before engaging a **new** subproce
 
 **Non-Microsoft:** Core hosted ArchLucid API functionality runs on Microsoft Azure services listed above. Additional third-party subprocessors (for example observability, CRM, or support tools) are listed here when they process customer content.
 
+### Optional third-party completion engines (not yet offered)
+
+ArchLucid may add **optional third-party completion engines** in a future release (ADR 0065). When offered:
+
+- Only **review completions** may route to a disclosed external engine — **embeddings and retrieval indexes remain ArchLucid-managed Azure OpenAI**.
+- The engine vendor will be added to this register **before** tenant selection is enabled.
+- Workspace administrators must record a **regulated-evidence acknowledgment** in audit before first use.
+
+No external completion engine is tenant-selectable today. This section documents the planned boundary so buyer diligence stays accurate.
+
 ---
 
 ## Data residency

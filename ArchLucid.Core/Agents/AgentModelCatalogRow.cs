@@ -51,6 +51,16 @@ public sealed class AgentModelCatalogRow
         init;
     } = AgentModelDataBoundaryKind.AzureBoundary;
 
+    /// <summary>
+    ///     When <see cref="DataBoundary" /> is <see cref="AgentModelDataBoundaryKind.ExternalSubprocessor" />, must be
+    ///     true before the alias is offered to tenants (TB-2109).
+    /// </summary>
+    public bool ExternalSubprocessorDisclosureComplete
+    {
+        get;
+        init;
+    }
+
     public AgentModelCatalogLifecycleStatus LifecycleStatus
     {
         get;

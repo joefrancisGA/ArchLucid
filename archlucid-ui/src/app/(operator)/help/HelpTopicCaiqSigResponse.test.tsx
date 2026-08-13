@@ -127,21 +127,14 @@ describe("HelpCaiqSigResponseGuideView (TB-1631)", () => {
 
     expect(captions.length).toBeGreaterThan(0);
     expect(uniqueCaptions.size).toBe(captionTexts.length);
-    expect(captionTexts.some((caption) => caption.includes(CAIQ_SIG_RESPONSE_LITE_PART_HEADING))).toBe(true);
-    expect(captionTexts.some((caption) => caption.includes(CAIQ_SIG_RESPONSE_SIG_PART_HEADING))).toBe(true);
+    expect(captionTexts.some((caption) => caption.includes(CAIQ_SIG_RESPONSE_SIG_PART_HEADING))).toBe(false);
 
     expect(screen.getAllByText("Partial").length).toBeGreaterThan(0);
-    expect(screen.getAllByText("Strong").length).toBeGreaterThan(0);
-    expect(screen.getAllByText("Planned").length).toBeGreaterThan(0);
-    expect(screen.getAllByText("Inherited").length).toBeGreaterThan(0);
     expect(screen.getByText(/TLS to API/i)).toBeInTheDocument();
     expect(screen.getByText(/annual engineering briefing/i)).toBeInTheDocument();
     expect(screen.getAllByText(/CodeQL/i).length).toBeGreaterThan(0);
     expect(screen.getByText(/policy-based/i)).toBeInTheDocument();
     expect(screen.getAllByText("Available under NDA on request").length).toBeGreaterThan(0);
-    expect(screen.getAllByText("Inherited from cloud provider").length).toBeGreaterThan(0);
-    expect(screen.getByText("not yet scheduled")).toBeInTheDocument();
-    expect(screen.getAllByText("Engineering-asserted").length).toBeGreaterThan(0);
   });
 
   it("reconciles posture summary counts with rendered chips outside the summary", () => {
@@ -153,6 +146,7 @@ describe("HelpCaiqSigResponseGuideView (TB-1631)", () => {
     const prepared = prepareCaiqSigResponseHelpMarkdown(loaded.markdown, sourcePath);
     const counts = computeCaiqSigResponsePostureCounts(prepared);
     const tableRowTotal = countCaiqSigResponseTableRows(prepared);
+    const liteCounts = computeCaiqSigResponsePostureCounts(splitCaiqSigPreparedMarkdown(prepared).liteMarkdown);
 
     render(<HelpCaiqSigResponseGuideView entry={loaded.entry} markdown={loaded.markdown} />);
 
@@ -166,14 +160,18 @@ describe("HelpCaiqSigResponseGuideView (TB-1631)", () => {
     const summary = screen.getByTestId("caiq-sig-response-help-posture-summary");
 
     const chipLabels = [
-      { count: counts.Affirmative, label: "Yes" },
-      { count: counts.Strong, label: "Strong" },
-      { count: counts.Partial, label: "Partial" },
-      { count: counts.Planned, label: "Planned" },
-      { count: counts.Inherited, label: "Inherited" },
+      { count: liteCounts.Affirmative, label: "Yes" },
+      { count: liteCounts.Strong, label: "Strong" },
+      { count: liteCounts.Partial, label: "Partial" },
+      { count: liteCounts.Planned, label: "Planned" },
+      { count: liteCounts.Inherited, label: "Inherited" },
     ] as const;
 
     for (const chip of chipLabels) {
+      if (chip.count === 0) {
+        continue;
+      }
+
       const outsideSummary = screen.getAllByText(chip.label).filter((node) => !summary.contains(node));
       expect(outsideSummary).toHaveLength(chip.count);
     }

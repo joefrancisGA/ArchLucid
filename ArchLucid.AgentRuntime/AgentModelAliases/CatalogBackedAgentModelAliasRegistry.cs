@@ -89,7 +89,7 @@ public sealed class CatalogBackedAgentModelAliasRegistry(
 
             foreach (AgentModelCatalogRow row in rows)
             {
-                if (row.LifecycleStatus is AgentModelCatalogLifecycleStatus.Retired)
+                if (!AgentModelCatalogOfferability.IsRegistryVisible(row))
                 {
                     continue;
                 }

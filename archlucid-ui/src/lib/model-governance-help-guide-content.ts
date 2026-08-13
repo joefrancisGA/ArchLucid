@@ -24,6 +24,11 @@ export type ModelGovernanceHelpItem = {
 
 export const MODEL_GOVERNANCE_HELP_FEATURE_ITEMS: readonly ModelGovernanceHelpItem[] = [
   {
+    label: "Data boundary",
+    detail:
+      "Governed completion engines stay inside the ArchLucid Azure boundary unless a disclosed external subprocessor is explicitly offered. Embeddings remain ArchLucid-managed Azure OpenAI.",
+  },
+  {
     label: "Execution profile",
     detail: "Set or clear a tenant override for the workspace default model execution profile.",
   },

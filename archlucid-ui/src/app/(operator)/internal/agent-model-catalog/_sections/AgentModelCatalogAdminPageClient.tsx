@@ -22,6 +22,7 @@ import { OperatorSectionLoadFailure } from "@/components/operator/OperatorSectio
 import { OPERATOR_LAYOUT, OPERATOR_TYPOGRAPHY } from "@/lib/design-tokens";
 import {
   fetchAdminAgentModelCatalog,
+  importAdminAgentModelCatalogFaithfulnessHarness,
   recordAdminAgentModelCatalogEvaluation,
   type AgentModelCatalogRow,
 } from "@/lib/agent-model-catalog-ops";
@@ -39,6 +40,7 @@ export function AgentModelCatalogAdminPageClient() {
   const [error, setError] = useState<string | null>(null);
   const [loading, setLoading] = useState(true);
   const [recordingAliasId, setRecordingAliasId] = useState<string | null>(null);
+  const [importingAliasId, setImportingAliasId] = useState<string | null>(null);
 
   const refresh = useCallback(async () => {
     setLoading(true);
@@ -75,6 +77,19 @@ export function AgentModelCatalogAdminPageClient() {
       setError(e instanceof Error ? e.message : "Failed to record evaluation.");
     } finally {
       setRecordingAliasId(null);
+    }
+  }
+
+  async function handleImportHarness(aliasId: string) {
+    setImportingAliasId(aliasId);
+
+    try {
+      await importAdminAgentModelCatalogFaithfulnessHarness(aliasId);
+      await refresh();
+    } catch (e: unknown) {
+      setError(e instanceof Error ? e.message : "Failed to import faithfulness harness.");
+    } finally {
+      setImportingAliasId(null);
     }
   }
 
@@ -146,16 +161,28 @@ export function AgentModelCatalogAdminPageClient() {
                             ))
                           )}
                           {row.approvedTaskTypes.slice(0, 1).map((taskType) => (
-                            <Button
-                              key={`${row.aliasId}-record-${taskType}`}
-                              type="button"
-                              size="sm"
-                              variant="outline"
-                              disabled={recordingAliasId === row.aliasId}
-                              onClick={() => void handleRecordNotEvaluated(row.aliasId, taskType)}
-                            >
-                              Mark {taskType} not evaluated
-                            </Button>
+                            <div key={`${row.aliasId}-actions`} className="flex flex-wrap gap-2">
+                              <Button
+                                key={`${row.aliasId}-import-harness`}
+                                type="button"
+                                size="sm"
+                                variant="primary"
+                                disabled={importingAliasId === row.aliasId}
+                                onClick={() => void handleImportHarness(row.aliasId)}
+                              >
+                                Import faithfulness harness
+                              </Button>
+                              <Button
+                                key={`${row.aliasId}-record-${taskType}`}
+                                type="button"
+                                size="sm"
+                                variant="outline"
+                                disabled={recordingAliasId === row.aliasId}
+                                onClick={() => void handleRecordNotEvaluated(row.aliasId, taskType)}
+                              >
+                                Mark {taskType} not evaluated
+                              </Button>
+                            </div>
                           ))}
                         </div>
                       </EnterpriseTableCell>

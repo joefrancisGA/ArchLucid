@@ -88,6 +88,7 @@ public sealed class AgentModelCatalogEvaluationRecorder(
             ApprovedTaskTypes = existing.ApprovedTaskTypes,
             StructuredOutputLevel = existing.StructuredOutputLevel,
             DataBoundary = existing.DataBoundary,
+            ExternalSubprocessorDisclosureComplete = existing.ExternalSubprocessorDisclosureComplete,
             LifecycleStatus = existing.LifecycleStatus,
             StructuredOutputProbeUtc = existing.StructuredOutputProbeUtc,
             Evaluations = evaluations

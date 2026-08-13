@@ -74,6 +74,7 @@ public sealed class InMemoryAgentModelCatalogRepository : IAgentModelCatalogRepo
             ApprovedTaskTypes = row.ApprovedTaskTypes.ToList(),
             StructuredOutputLevel = row.StructuredOutputLevel,
             DataBoundary = row.DataBoundary,
+            ExternalSubprocessorDisclosureComplete = row.ExternalSubprocessorDisclosureComplete,
             LifecycleStatus = row.LifecycleStatus,
             StructuredOutputProbeUtc = row.StructuredOutputProbeUtc,
             Evaluations = row.Evaluations

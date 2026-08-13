@@ -24,6 +24,7 @@ namespace ArchLucid.Api.Controllers.Admin;
 public sealed class AdminAgentModelCatalogController(
     IAgentModelCatalogRepository catalogRepository,
     IAgentModelCatalogEvaluationRecorder evaluationRecorder,
+    IAgentModelCatalogFaithfulnessHarnessImporter faithfulnessHarnessImporter,
     IAgentModelCatalogCacheInvalidator cacheInvalidator,
     IAuditService auditService,
     IScopeContextProvider scopeContextProvider) : ControllerBase
@@ -33,6 +34,9 @@ public sealed class AdminAgentModelCatalogController(
 
     private readonly IAgentModelCatalogEvaluationRecorder _evaluationRecorder =
         evaluationRecorder ?? throw new ArgumentNullException(nameof(evaluationRecorder));
+
+    private readonly IAgentModelCatalogFaithfulnessHarnessImporter _faithfulnessHarnessImporter =
+        faithfulnessHarnessImporter ?? throw new ArgumentNullException(nameof(faithfulnessHarnessImporter));
 
     private readonly IAgentModelCatalogCacheInvalidator _cacheInvalidator =
         cacheInvalidator ?? throw new ArgumentNullException(nameof(cacheInvalidator));
@@ -68,6 +72,15 @@ public sealed class AdminAgentModelCatalogController(
         if (!string.Equals(row.AliasId, aliasId, StringComparison.OrdinalIgnoreCase))
         {
             return BadRequest("Route alias id must match body alias id.");
+        }
+
+        try
+        {
+            AgentModelCatalogOfferability.EnsureOfferable(row);
+        }
+        catch (InvalidOperationException ex)
+        {
+            return BadRequest(ex.Message);
         }
 
         AgentModelCatalogRow? before = await _catalogRepository.TryGetAsync(aliasId, cancellationToken).ConfigureAwait(false);
@@ -129,6 +142,30 @@ public sealed class AdminAgentModelCatalogController(
             .ConfigureAwait(false);
 
         return Ok(saved);
+    }
+
+    [HttpPost("{aliasId}/evaluations/import-faithfulness-harness")]
+    [ProducesResponseType(typeof(AgentModelCatalogRow), StatusCodes.Status200OK)]
+    public async Task<IActionResult> ImportFaithfulnessHarness(string aliasId, CancellationToken cancellationToken)
+    {
+        string actor = User?.Identity?.Name ?? "admin";
+
+        try
+        {
+            AgentModelCatalogRow saved = await _faithfulnessHarnessImporter
+                .ImportForAliasAsync(aliasId, actor, cancellationToken)
+                .ConfigureAwait(false);
+
+            return Ok(saved);
+        }
+        catch (KeyNotFoundException ex)
+        {
+            return NotFound(ex.Message);
+        }
+        catch (InvalidOperationException ex)
+        {
+            return BadRequest(ex.Message);
+        }
     }
 }
 

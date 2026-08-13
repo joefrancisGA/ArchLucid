@@ -14,6 +14,7 @@ export type AgentModelCatalogRow = {
   readonly approvedTaskTypes: readonly string[];
   readonly structuredOutputLevel: string;
   readonly dataBoundary: string;
+  readonly externalSubprocessorDisclosureComplete?: boolean;
   readonly lifecycleStatus: string;
   readonly structuredOutputProbeUtc?: string | null;
   readonly evaluations: readonly AgentModelCatalogEvaluationRow[];
@@ -68,6 +69,24 @@ export async function recordAdminAgentModelCatalogEvaluation(
 
   if (!res.ok) {
     throw new Error(`agent-model-catalog evaluation ${res.status}`);
+  }
+
+  return (await res.json()) as AgentModelCatalogRow;
+}
+
+export async function importAdminAgentModelCatalogFaithfulnessHarness(
+  aliasId: string,
+): Promise<AgentModelCatalogRow> {
+  const res = await fetch(
+    `/api/proxy/v1/admin/agent-model-catalog/${encodeURIComponent(aliasId)}/evaluations/import-faithfulness-harness`,
+    {
+      method: "POST",
+      credentials: "include",
+    },
+  );
+
+  if (!res.ok) {
+    throw new Error(`agent-model-catalog harness import ${res.status}`);
   }
 
   return (await res.json()) as AgentModelCatalogRow;

@@ -10009,6 +10009,8 @@ BEGIN
             CONSTRAINT DF_AgentModelCatalogEntry_StructuredOutputLevel DEFAULT (N'StrictJsonSchema'),
         DataBoundary             NVARCHAR(32) NOT NULL
             CONSTRAINT DF_AgentModelCatalogEntry_DataBoundary DEFAULT (N'AzureBoundary'),
+        ExternalSubprocessorDisclosureComplete BIT NOT NULL
+            CONSTRAINT DF_AgentModelCatalogEntry_ExternalSubprocessorDisclosureComplete DEFAULT (0),
         LifecycleStatus          NVARCHAR(32) NOT NULL
             CONSTRAINT DF_AgentModelCatalogEntry_LifecycleStatus DEFAULT (N'Available'),
         StructuredOutputProbeUtc DATETIME2(7) NULL,
@@ -10039,5 +10041,14 @@ BEGIN
 
     CREATE NONCLUSTERED INDEX IX_AgentModelCatalogEvaluation_AliasId
         ON dbo.AgentModelCatalogEvaluation (AliasId);
+END;
+GO
+
+IF OBJECT_ID(N'dbo.AgentModelCatalogEntry', N'U') IS NOT NULL
+   AND COL_LENGTH(N'dbo.AgentModelCatalogEntry', N'ExternalSubprocessorDisclosureComplete') IS NULL
+BEGIN
+    ALTER TABLE dbo.AgentModelCatalogEntry
+        ADD ExternalSubprocessorDisclosureComplete BIT NOT NULL
+            CONSTRAINT DF_AgentModelCatalogEntry_ExternalSubprocessorDisclosureComplete DEFAULT (0);
 END;
 GO
