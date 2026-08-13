@@ -51,13 +51,23 @@ import {
   AZURE_PERMISSIONS_TRUST_NO_ROLE_ASSIGN,
   AZURE_PERMISSIONS_TROUBLESHOOT_HEADING,
 } from "@/lib/azure-cloud-connection-permissions-copy";
-import { OPERATOR_CARD, OPERATOR_LAYOUT, OPERATOR_SHELL_SCROLL_OFFSET_CLASS, OPERATOR_TYPOGRAPHY, DESIGN_TOKENS } from "@/lib/design-tokens";
+import {
+  DESIGN_TOKENS,
+  OPERATOR_CARD,
+  OPERATOR_LAYOUT,
+  OPERATOR_LINK,
+  OPERATOR_SHELL_SCROLL_OFFSET_CLASS,
+  OPERATOR_TYPOGRAPHY,
+} from "@/lib/design-tokens";
 import type { HelpMarkdownHeading } from "@/lib/help/help-markdown-headings";
 import { HELP_PAGE_LAYOUT } from "@/lib/help/help-page-layout";
 import {
   AZURE_PERMISSIONS_HELP_DEFERRED_CUSTOM_ROLE_DISCLOSURE_TEST_ID,
   AZURE_PERMISSIONS_HELP_DEFERRED_MATRIX_DISCLOSURE_TEST_ID,
   AZURE_PERMISSIONS_HELP_FIRST_VIEWPORT_TEST_ID,
+  AZURE_PERMISSIONS_HELP_JOB_MATRIX,
+  AZURE_PERMISSIONS_HELP_JOB_MATRIX_HEADING,
+  AZURE_PERMISSIONS_HELP_JOB_MATRIX_TEST_ID,
   AZURE_PERMISSIONS_HELP_HEADER_TEST_ID,
   AZURE_PERMISSIONS_HELP_PRIMARY_SETUP_ACTION,
   AZURE_PERMISSIONS_HELP_REQUIREMENTS_REVIEWED_DISCLOSURE_SUMMARY,
@@ -185,6 +195,37 @@ export function HelpAzurePermissionsGuideView(props: HelpAzurePermissionsGuideVi
       <div className={HELP_PAGE_LAYOUT.contentGrid}>
         <div className="min-w-0 space-y-8" data-testid="help-azure-permissions-primary">
           <div className="space-y-6" data-testid={AZURE_PERMISSIONS_HELP_FIRST_VIEWPORT_TEST_ID}>
+            <section
+              aria-labelledby="help-azure-permissions-job-matrix-heading"
+              data-testid={AZURE_PERMISSIONS_HELP_JOB_MATRIX_TEST_ID}
+            >
+              <h2
+                id="help-azure-permissions-job-matrix-heading"
+                className={cn("m-0 text-al-text-primary", OPERATOR_TYPOGRAPHY.sectionTitle)}
+              >
+                {AZURE_PERMISSIONS_HELP_JOB_MATRIX_HEADING}
+              </h2>
+              <ul className={cn("m-0 mt-2 list-none space-y-2 p-0", OPERATOR_TYPOGRAPHY.body)}>
+                {AZURE_PERMISSIONS_HELP_JOB_MATRIX.map((row) => (
+                  <li key={row.label} className="flex flex-col gap-0.5 sm:flex-row sm:items-baseline sm:gap-2">
+                    {row.isCurrent === true ? (
+                      <span
+                        className="shrink-0 font-medium text-al-text-primary"
+                        data-testid="help-azure-permissions-job-matrix-current"
+                      >
+                        {row.label}
+                      </span>
+                    ) : (
+                      <Link className={cn(OPERATOR_LINK.inline, "shrink-0 font-medium")} href={row.href ?? "#"}>
+                        {row.label}
+                      </Link>
+                    )}
+                    <span className="text-al-text-secondary">{row.when}</span>
+                  </li>
+                ))}
+              </ul>
+            </section>
+
             <HelpAzurePermissionsRequiredRolesSummary />
 
             <section aria-labelledby="read-only-summary" className="space-y-3">

@@ -18,6 +18,8 @@ import { CONNECT_AWS_SECURELY_HELP_TOPIC_LABEL } from "@/lib/connect-aws-securel
 import { CONNECT_GCP_SECURELY_HELP_TOPIC_LABEL } from "@/lib/connect-gcp-securely-help-evidence-copy";
 import { CONNECT_AZURE_SECURELY_HELP_TOPIC_LABEL } from "@/lib/cloud-provider-connection-evidence-copy";
 import { AZURE_PERMISSIONS_HELP_TOPIC_LABEL } from "@/lib/azure-permissions-help-evidence-copy";
+import { AUDIT_TRAIL_HELP_TOPIC_LABEL } from "@/lib/audit-trail-help-evidence-copy";
+import { DIGESTS_HELP_TOPIC_LABEL } from "@/lib/digests-help-evidence-copy";
 import { ARCHITECTURES_LIST_PATH } from "@/lib/architecture/architecture-routes";
 import { ARCHITECTURE_DRAFTS_HELP_TOPIC_LABEL } from "@/lib/architecture-drafts-evidence-copy";
 import { ARCHITECTURE_INTELLIGENCE_HELP_TOPIC_LABEL } from "@/lib/architecture/architecture-intelligence-evidence-copy";
@@ -51,6 +53,8 @@ import { ITSM_OAUTH_CALLBACK_HELP_TOPIC_LABEL } from "@/lib/itsm/itsm-oauth-call
 import { NOTIFICATIONS_HELP_TOPIC_LABEL } from "@/lib/notification-preference-center";
 import { OPERATOR_NAV_LINK_LABELS } from "@/lib/i18n";
 import { PATTERN_LIBRARY_HELP_TOPIC_LABEL } from "@/lib/pattern-library-evidence-copy";
+import { POLICY_PACKS_HELP_TOPIC_LABEL } from "@/lib/policy/policy-packs-help-evidence-copy";
+import { POLICY_PACKS_HUB_HELP_TOPIC_LABEL } from "@/lib/policy/policy-packs-hub-evidence-copy";
 import { PREFERENCES_HELP_TOPIC_LABEL } from "@/lib/preferences-settings-evidence-copy";
 import { PROVENANCE_HELP_TOPIC, pathIsRunProvenance } from "@/lib/provenance-evidence-copy";
 import { pathIsFindingEvidenceTrace } from "@/lib/evidence-trace-contextual-help";
@@ -251,7 +255,7 @@ const PAGE_HELP_TOPICS: readonly { prefix: string; topic: PageHelpTopic }[] = [
     prefix: "/governance/approval-requests",
     topic: { slug: "governance-approval", label: APPROVAL_LINEAGE_HELP_TOPIC_LABEL },
   },
-  { prefix: "/governance/audit", topic: { slug: "audit-trail", label: "Audit trail" } },
+  { prefix: "/governance/audit", topic: { slug: "audit-trail", label: AUDIT_TRAIL_HELP_TOPIC_LABEL } },
   {
     // Secondary hub — no decision-register specialty; omit Learn more (TB-2050).
     prefix: "/governance/decision-register",
@@ -267,17 +271,13 @@ const PAGE_HELP_TOPICS: readonly { prefix: string; topic: PageHelpTopic }[] = [
   },
   {
     prefix: "/governance/policy-packs",
-    topic: { slug: "policy-packs", label: "Policy packs" },
+    topic: { slug: "policy-packs", label: POLICY_PACKS_HUB_HELP_TOPIC_LABEL },
   },
   {
     prefix: "/governance/standards-and-rules",
     topic: { slug: "standards-and-rules", label: STANDARDS_RULES_HELP_TOPIC_LABEL },
   },
   { prefix: "/governance", topic: { slug: "governance-approval", label: GOVERNANCE_APPROVAL_HELP_TOPIC_LABEL } },
-  { prefix: "/governance/audit", topic: { slug: "audit-trail", label: "Audit trail" } },
-  { prefix: "/governance/alerts", topic: { slug: "alerts", label: "Alerts" } },
-  { prefix: "/governance/alert-rules", topic: { slug: "alerts", label: ALERTS_CONFIGURATION_PAGE_TITLE } },
-  { prefix: "/governance/policy-packs", topic: { slug: "policy-packs", label: "Policy packs" } },
   {
     prefix: "/insights/roi-summary",
     topic: { slug: "roi-summary", label: ROI_SUMMARY_HELP_TOPIC_LABEL },
@@ -307,10 +307,10 @@ const PAGE_HELP_TOPICS: readonly { prefix: string; topic: PageHelpTopic }[] = [
     topic: { slug: "roi-summary", label: ROI_SUMMARY_HELP_TOPIC_LABEL },
   },
   { prefix: "/sponsor-report", topic: { slug: "sponsor-report", label: BUYER_VALUE_REPORT_HOW_IT_WORKS_TITLE } },
-  { prefix: "/architecture/digests", topic: { slug: "digests", label: "Architecture digests" } },
-  { prefix: "/digests", topic: { slug: "digests", label: "Architecture digests" } },
-  { prefix: "/digest-subscriptions", topic: { slug: "digests", label: "Architecture digests" } },
-  { prefix: "/help/digests", topic: { slug: "digests", label: "Architecture digests" } },
+  { prefix: "/architecture/digests", topic: { slug: "digests", label: DIGESTS_HELP_TOPIC_LABEL } },
+  { prefix: "/digests", topic: { slug: "digests", label: DIGESTS_HELP_TOPIC_LABEL } },
+  { prefix: "/digest-subscriptions", topic: { slug: "digests", label: DIGESTS_HELP_TOPIC_LABEL } },
+  { prefix: "/help/digests", topic: { slug: "digests", label: DIGESTS_HELP_TOPIC_LABEL } },
   {
     prefix: "/help/recurrence-schedules",
     topic: { slug: "recurrence-schedules", label: OPERATOR_NAV_LINK_LABELS.recurrenceSchedules },
@@ -451,7 +451,7 @@ const PAGE_HELP_TOPICS: readonly { prefix: string; topic: PageHelpTopic }[] = [
     prefix: "/help/repeat-review-loop",
     topic: { slug: "repeat-review-loop", label: REPEAT_REVIEW_LOOP_HELP_INBOUND_LABEL },
   },
-  { prefix: "/help/audit-trail", topic: { slug: "audit-trail", label: "Audit trail" } },
+  { prefix: "/help/audit-trail", topic: { slug: "audit-trail", label: AUDIT_TRAIL_HELP_TOPIC_LABEL } },
   {
     prefix: "/help/evidence-trail",
     topic: { slug: "evidence-trail", label: "Evidence graph" },
@@ -490,7 +490,7 @@ const PAGE_HELP_TOPICS: readonly { prefix: string; topic: PageHelpTopic }[] = [
   },
   {
     prefix: "/help/policy-packs",
-    topic: { slug: "policy-packs", label: "Policy packs" },
+    topic: { slug: "policy-packs", label: POLICY_PACKS_HELP_TOPIC_LABEL },
   },
   {
     prefix: "/help/configuration-reference",
@@ -532,7 +532,7 @@ const PAGE_HELP_TOPICS: readonly { prefix: string; topic: PageHelpTopic }[] = [
   },
   {
     prefix: "/integrations/cloud-connections/azure",
-    topic: { slug: "azure-permissions", label: AZURE_PERMISSIONS_HELP_TOPIC_LABEL },
+    topic: { slug: "cloud-connections-azure", label: CONNECT_AZURE_SECURELY_HELP_TOPIC_LABEL },
   },
   { prefix: "/integrations/cloud-connections/aws", topic: { slug: "cloud-connections-aws", label: CONNECT_AWS_SECURELY_HELP_TOPIC_LABEL } },
   { prefix: "/integrations/cloud-connections/gcp", topic: { slug: "cloud-connections-gcp", label: CONNECT_GCP_SECURELY_HELP_TOPIC_LABEL } },

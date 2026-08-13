@@ -5,7 +5,7 @@ import { describe, expect, it } from "vitest";
 
 import { OPERATOR_INTEGRATIONS_PAGE_HELP_TB1669_SURFACES } from "@/lib/operator/operator-integrations-page-help-surfaces";
 import { isGenericLearnMoreSlug } from "@/lib/learn-more-job-match-inventory";
-import { AZURE_PERMISSIONS_HELP_TOPIC_LABEL } from "@/lib/azure-permissions-help-evidence-copy";
+import { CONNECT_AZURE_SECURELY_HELP_TOPIC_LABEL } from "@/lib/cloud-provider-connection-evidence-copy";
 import { CLOUD_CONNECTIONS_HELP_TOPIC_LABEL } from "@/lib/cloud-connections-evidence-copy";
 import { CONNECT_AWS_SECURELY_HELP_TOPIC_LABEL } from "@/lib/connect-aws-securely-help-evidence-copy";
 import { CONNECT_GCP_SECURELY_HELP_TOPIC_LABEL } from "@/lib/connect-gcp-securely-help-evidence-copy";
@@ -65,8 +65,8 @@ describe("operator-integrations-page-help-surfaces (TB-1669)", () => {
   });
 
   it("cloud provider children map to provider-specific topics (TB-1669)", () => {
-    expect(pageHelpTopicForPathname("/integrations/cloud-connections/azure")?.slug).toBe("azure-permissions");
-    expect(pageHelpTopicForPathname("/integrations/cloud-connections/azure")?.label).toBe(AZURE_PERMISSIONS_HELP_TOPIC_LABEL);
+    expect(pageHelpTopicForPathname("/integrations/cloud-connections/azure")?.slug).toBe("cloud-connections-azure");
+    expect(pageHelpTopicForPathname("/integrations/cloud-connections/azure")?.label).toBe(CONNECT_AZURE_SECURELY_HELP_TOPIC_LABEL);
     expect(pageHelpTopicForPathname("/integrations/cloud-connections/aws")?.slug).toBe("cloud-connections-aws");
     expect(pageHelpTopicForPathname("/integrations/cloud-connections/aws")?.label).toBe(CONNECT_AWS_SECURELY_HELP_TOPIC_LABEL);
     expect(pageHelpTopicForPathname("/integrations/cloud-connections/gcp")?.slug).toBe("cloud-connections-gcp");

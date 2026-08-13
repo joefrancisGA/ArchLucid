@@ -24,7 +24,7 @@ export const OPERATOR_INTEGRATIONS_PAGE_HELP_TB1669_SURFACES: readonly OperatorI
       id: "integrations-cloud-connections-azure",
       pathname: "/integrations/cloud-connections/azure",
       modulePath: "app/(operator)/integrations/cloud-connections/_sections/CloudConnectionsProviderHeader.tsx",
-      notes: "Azure cloud connection detail — azure-permissions help topic.",
+      notes: "Azure cloud connection detail — Connect Azure securely help topic (TB-1629).",
     },
     {
       id: "integrations-cloud-connections-aws",

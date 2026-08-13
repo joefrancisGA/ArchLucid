@@ -29,7 +29,19 @@ import {
   AZURE_PERMISSIONS_REQUIRED_ROLES_SUMMARY_HEADING,
   AZURE_PERMISSIONS_SETUP_HEADING,
 } from "@/lib/azure-cloud-connection-permissions-copy";
-import { AZURE_PERMISSIONS_HELP_CLAIM_DISCIPLINE, AZURE_PERMISSIONS_HELP_BANNED_PRIMARY_CHROME_COPY, AZURE_PERMISSIONS_HELP_DEFERRED_CUSTOM_ROLE_DISCLOSURE_TEST_ID, AZURE_PERMISSIONS_HELP_DEFERRED_MATRIX_DISCLOSURE_TEST_ID, AZURE_PERMISSIONS_HELP_FIRST_VIEWPORT_TEST_ID, AZURE_PERMISSIONS_HELP_HEADER_TEST_ID, AZURE_PERMISSIONS_HELP_PRIMARY_SETUP_ACTION, AZURE_PERMISSIONS_HELP_REQUIREMENTS_REVIEWED_DISCLOSURE_TEST_ID, formatAzurePermissionsHelpRequirementsReviewedLine } from "@/lib/azure-permissions-help-evidence-copy";
+import {
+  AZURE_PERMISSIONS_HELP_BANNED_PRIMARY_CHROME_COPY,
+  AZURE_PERMISSIONS_HELP_CLAIM_DISCIPLINE,
+  AZURE_PERMISSIONS_HELP_DEFERRED_CUSTOM_ROLE_DISCLOSURE_TEST_ID,
+  AZURE_PERMISSIONS_HELP_DEFERRED_MATRIX_DISCLOSURE_TEST_ID,
+  AZURE_PERMISSIONS_HELP_FIRST_VIEWPORT_TEST_ID,
+  AZURE_PERMISSIONS_HELP_HEADER_TEST_ID,
+  AZURE_PERMISSIONS_HELP_JOB_MATRIX_TEST_ID,
+  AZURE_PERMISSIONS_HELP_PRIMARY_SETUP_ACTION,
+  AZURE_PERMISSIONS_HELP_REQUIREMENTS_REVIEWED_DISCLOSURE_TEST_ID,
+  formatAzurePermissionsHelpRequirementsReviewedLine,
+} from "@/lib/azure-permissions-help-evidence-copy";
+import { CONNECT_AZURE_SECURELY_PAGE_TITLE } from "@/lib/connect-azure-securely-help-content";
 import { getProductDocumentationEntry } from "@/lib/product-documentation-registry";
 
 describe("HelpAzurePermissionsGuideView", () => {
@@ -41,6 +53,24 @@ describe("HelpAzurePermissionsGuideView", () => {
     expect(entry?.summary).toContain("read-only");
     expect(entry?.lastReviewed).toBe("2026-08-09");
     expect(entry?.releaseApplicability).toBeTruthy();
+  });
+
+  it("exposes IA dual with Connect Azure securely and mutual help links (TB-1629)", () => {
+    if (entry === undefined) {
+      throw new Error("Expected azure-permissions documentation entry.");
+    }
+
+    render(<HelpAzurePermissionsGuideView entry={entry} />);
+
+    const firstViewport = screen.getByTestId(AZURE_PERMISSIONS_HELP_FIRST_VIEWPORT_TEST_ID);
+
+    expect(within(firstViewport).getByTestId(AZURE_PERMISSIONS_HELP_JOB_MATRIX_TEST_ID)).toBeInTheDocument();
+    expect(
+      within(firstViewport).getByRole("link", { name: CONNECT_AZURE_SECURELY_PAGE_TITLE }),
+    ).toHaveAttribute("href", "/help/cloud-connections/azure");
+    expect(within(firstViewport).getByTestId("help-azure-permissions-job-matrix-current")).toHaveTextContent(
+      "This Azure permissions guide",
+    );
   });
 
   it("keeps the first viewport to required-role summary and trust panel before setup (TB-1627)", () => {
