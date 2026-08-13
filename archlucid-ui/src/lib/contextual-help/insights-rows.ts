@@ -1,62 +1,11 @@
 /** Insights and sponsor reporting routes (`/insights/**`, sponsor dashboard). */
 
 import type { PageContextualHelpRow } from "@/lib/contextual-help/types";
-import { REVIEWS_LIST_PATH, REVIEWS_NEW_PATH } from "@/lib/architecture/architecture-routes";
+import { REVIEWS_LIST_PATH } from "@/lib/architecture/architecture-routes";
 import { PLANNING_PATH } from "@/lib/planning-route";
 import { PRODUCT_LEARNING_PATH } from "@/lib/product-learning-route";
 
 export const INSIGHTS_CONTEXTUAL_HELP_ROWS: readonly PageContextualHelpRow[] = [
-  {
-    prefix: "/insights/ask-review-questions",
-    entry: {
-      whatIsThisPage:
-        "Ask plain-language questions about a finalized review; answers use the signed record and cite findings when available.",
-      whatToDoNext:
-        "Select a review, ask about risk or evidence, then open cited findings or the evidence trail under the answer.",
-      whyEmpty: "Threads appear after you ask a question against a selected review.",
-      whereToConfigurePrerequisite: "Finalize or open a review so Ask can ground answers in its evidence.",
-    },
-  },
-  {
-    prefix: "/insights/compare-two-reviews",
-    entry: {
-      whatIsThisPage:
-        "Compare two finalized reviews to see what changed in scope, findings, decisions, governance, and evidence.",
-      whatToDoNext:
-        "Pick baseline and updated reviews, run Compare, then open Sources for each side before briefing sponsors.",
-      whyEmpty: "Results appear after you compare two finalized reviews.",
-      whereToConfigurePrerequisite: "Finalize at least two reviews in this workspace first.",
-    },
-  },
-  {
-    // TB-1814 — Learn more maps to repeat-review-loop (recurring patterns across reviews).
-    prefix: "/insights/patterns",
-    entry: {
-      whatIsThisPage:
-        "Browse anonymized architecture patterns with adoption, risk, and governance signals from thresholded aggregates.",
-      whatToDoNext:
-        "Filter the catalog, open a pattern detail, or start a review when a pattern fits your next change.",
-      whyEmpty:
-        "Patterns appear when anonymized aggregates meet privacy thresholds, or when sample catalog data is shown.",
-      whereToConfigurePrerequisite:
-        "Live aggregates need enough finalized reviews across anonymized tenants to meet the privacy threshold.",
-      whatToDoNextAction: {
-        label: "Start a review",
-        href: REVIEWS_NEW_PATH,
-      },
-    },
-  },
-  {
-    prefix: "/insights/search-review-evidence",
-    entry: {
-      whatIsThisPage:
-        "Search findings, decisions, and signed review evidence across the workspace index, optionally scoped to one review.",
-      whatToDoNext:
-        "Enter a phrase, optionally limit to a review, then open the hit, Evidence trail, or Sources cites before briefing.",
-      whyEmpty: "Matches appear after committed review evidence is indexed and your query finds relevant chunks.",
-      whereToConfigurePrerequisite: "Finalize reviews so findings and signed records are available to search.",
-    },
-  },
   {
     prefix: "/insights/improvement-planning/plans",
     entry: {

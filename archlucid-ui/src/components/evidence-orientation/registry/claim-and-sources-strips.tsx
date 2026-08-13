@@ -101,6 +101,12 @@ import {
   EVIDENCE_GRAPH_HELP_SOURCES_INTRO,
 } from "@/lib/evidence-graph-help-evidence-copy";
 import {
+  SEARCH_REVIEW_EVIDENCE_HELP_CLAIM_DISCIPLINE,
+  SEARCH_REVIEW_EVIDENCE_HELP_FOLLOW_UPS_TITLE,
+  SEARCH_REVIEW_EVIDENCE_HELP_SOURCES,
+  SEARCH_REVIEW_EVIDENCE_HELP_SOURCES_INTRO,
+} from "@/lib/search-review-evidence-help-evidence-copy";
+import {
   JIRA_INTEGRATION_HELP_CLAIM_DISCIPLINE,
   JIRA_INTEGRATION_HELP_FOLLOW_UPS_TITLE,
   JIRA_INTEGRATION_HELP_SOURCES,
@@ -678,6 +684,22 @@ export function EvidenceGraphHelpEvidenceOrientationStrip(): React.JSX.Element {
       sourcesTitle={EVIDENCE_GRAPH_HELP_FOLLOW_UPS_TITLE}
       sourcesIntro={EVIDENCE_GRAPH_HELP_SOURCES_INTRO}
       sources={EVIDENCE_GRAPH_HELP_SOURCES}
+      sourcesStyle={EVIDENCE_SOURCES_STYLE.operatorRaised}
+      sourcesHeadingId="where-to-go-next"
+    />
+  );
+}
+
+export function SearchReviewEvidenceHelpEvidenceOrientationStrip(): React.JSX.Element {
+  return (
+    <EvidenceOrientationClaimAndSourcesStrip
+      slug="help-search-review-evidence"
+      claim={SEARCH_REVIEW_EVIDENCE_HELP_CLAIM_DISCIPLINE}
+      claimStyle={EVIDENCE_CLAIM_STYLE.operatorNeutral}
+      claimElement="div"
+      sourcesTitle={SEARCH_REVIEW_EVIDENCE_HELP_FOLLOW_UPS_TITLE}
+      sourcesIntro={SEARCH_REVIEW_EVIDENCE_HELP_SOURCES_INTRO}
+      sources={SEARCH_REVIEW_EVIDENCE_HELP_SOURCES}
       sourcesStyle={EVIDENCE_SOURCES_STYLE.operatorRaised}
       sourcesHeadingId="where-to-go-next"
     />

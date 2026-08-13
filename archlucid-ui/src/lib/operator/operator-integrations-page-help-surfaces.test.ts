@@ -5,6 +5,7 @@ import { describe, expect, it } from "vitest";
 
 import { OPERATOR_INTEGRATIONS_PAGE_HELP_TB1669_SURFACES } from "@/lib/operator/operator-integrations-page-help-surfaces";
 import { isGenericLearnMoreSlug } from "@/lib/learn-more-job-match-inventory";
+import { PATTERN_LIBRARY_HELP_TOPIC_LABEL } from "@/lib/pattern-library-evidence-copy";
 import { pageHelpTopicForPathname } from "@/lib/usability/page-help-topic-map";
 
 const SRC_ROOT = join(process.cwd(), "src");
@@ -67,8 +68,8 @@ describe("operator-integrations-page-help-surfaces (TB-1669)", () => {
   });
 
   it("integration product pages map to integration-readiness or product topics (TB-1669)", () => {
-    expect(pageHelpTopicForPathname("/integrations/jira")?.slug).toBe("integration-readiness");
-    expect(pageHelpTopicForPathname("/integrations/servicenow")?.slug).toBe("integration-readiness");
+    expect(pageHelpTopicForPathname("/integrations/jira")?.slug).toBe("jira-integration");
+    expect(pageHelpTopicForPathname("/integrations/servicenow")?.slug).toBe("servicenow-integration");
     expect(pageHelpTopicForPathname("/integrations/azure-boards")?.slug).toBe("azure-boards");
     expect(pageHelpTopicForPathname("/administration/connection-status")?.slug).toBe("connection-status");
     expect(pageHelpTopicForPathname("/internal/product-learning")?.slug).toBe("pilot-feedback");
@@ -79,7 +80,7 @@ describe("operator-integrations-page-help-surfaces (TB-1669)", () => {
     const hubTopic = pageHelpTopicForPathname("/insights/patterns");
     const detailTopic = pageHelpTopicForPathname("/insights/patterns/api-gateway-bff");
 
-    expect(hubTopic?.label).toBe("Pattern library");
+    expect(hubTopic?.label).toBe(PATTERN_LIBRARY_HELP_TOPIC_LABEL);
     expect(hubTopic?.slug).toBe("repeat-review-loop");
     expect(detailTopic?.slug).toBe("repeat-review-loop");
     expect(isGenericLearnMoreSlug(hubTopic?.slug)).toBe(false);

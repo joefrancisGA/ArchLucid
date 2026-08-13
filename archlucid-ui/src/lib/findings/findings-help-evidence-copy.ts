@@ -8,6 +8,8 @@ import type { EvidenceSourceLink } from "@/lib/evidence-surface-copy";
 
 export const FINDINGS_HELP_CANONICAL_PATH = FINDINGS_HELP_PATH;
 
+export const FINDINGS_HELP_TOPIC_LABEL = "How findings work";
+
 export const FINDINGS_HELP_CLAIM_DISCIPLINE =
   "This findings guide explains how architecture concerns are inspected and resolved — it is not a signed-review diligence Sources package. Open Findings, Audit, or a finalized architecture review when you need live or governed trails.";
 

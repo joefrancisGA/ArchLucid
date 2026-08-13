@@ -10,17 +10,6 @@ import {
 
 export const GOVERNANCE_CONTEXTUAL_HELP_ROWS: readonly PageContextualHelpRow[] = [
   {
-    prefix: "/governance/findings",
-    entry: {
-      whatIsThisPage:
-        "Track architecture risks from accepted findings, waivers, exceptions, and governance decisions.",
-      whatToDoNext: "Assign owners, review aging risks, and clear expiring exceptions.",
-      whyEmpty: "Rows appear after findings are accepted or governance decisions are recorded in reviews.",
-      whereToConfigurePrerequisite:
-        "Policy packs and governance workflow settings shape what becomes a tracked risk.",
-    },
-  },
-  {
     prefix: "/governance/policy-packs",
     entry: {
       whatIsThisPage:

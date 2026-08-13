@@ -2,10 +2,8 @@
 
 import type { PageContextualHelpRow } from "@/lib/contextual-help/types";
 import { ACCELERATOR_CHOOSER_HELP_PAGE_TITLE } from "@/lib/accelerator-chooser-help-guide-content";
-import { INTERNAL_REPLAY_PATH } from "@/lib/internal-ops-route-paths";
 import { PLANNING_PATH } from "@/lib/planning-route";
 import { PRODUCT_LEARNING_PATH } from "@/lib/product-learning-route";
-import { REPEAT_REVIEW_LOOP_HELP_INBOUND_LABEL } from "@/lib/repeat-review-loop-help-title-honesty-surfaces";
 
 export const HELP_TOPIC_CONTEXTUAL_HELP_ROWS: readonly PageContextualHelpRow[] = [
   {
@@ -224,26 +222,6 @@ export const HELP_TOPIC_CONTEXTUAL_HELP_ROWS: readonly PageContextualHelpRow[] =
     },
   },
   {
-    prefix: "/help/azure-boards",
-    entry: {
-      whatIsThisPage:
-        "Azure Boards integration — connect Azure DevOps for work item creation from ArchLucid findings.",
-      whatToDoNext:
-        "Open Azure Boards settings to connect or test the destination, then confirm Integration readiness.",
-      whyEmpty: "This guide is always available; live connector status appears after Azure DevOps is configured for the workspace.",
-      whereToConfigurePrerequisite:
-        "Outbound work-item creation needs a role that can manage integrations for this workspace.",
-      whatToDoNextAction: {
-        label: "Open Azure Boards settings",
-        href: "/integrations/azure-boards",
-      },
-      whereToConfigureAction: {
-        label: "Open Integration readiness help",
-        href: "/help/integration-readiness",
-      },
-    },
-  },
-  {
     prefix: "/help/integration-readiness",
     entry: {
       whatIsThisPage:
@@ -276,26 +254,6 @@ export const HELP_TOPIC_CONTEXTUAL_HELP_ROWS: readonly PageContextualHelpRow[] =
       whereToConfigureAction: {
         label: "Open Trust Center",
         href: "/trust",
-      },
-    },
-  },
-  {
-    prefix: "/help/comparison-replay",
-    entry: {
-      whatIsThisPage:
-        "Compare and replay — diff two architecture reviews, replay a saved comparison, and verify drift without re-running a full review.",
-      whatToDoNext:
-        "Open Compare two reviews for a live pair diff, or Validate review when you need to re-check a finalized package.",
-      whyEmpty: "This guide is always available; live compare and validate tools appear after you finalize architecture reviews.",
-      whereToConfigurePrerequisite:
-        "Pairwise compare needs two finalized reviews in this workspace; validate needs one finalized package.",
-      whatToDoNextAction: {
-        label: "Open Compare two reviews",
-        href: "/insights/compare-two-reviews",
-      },
-      whereToConfigureAction: {
-        label: "Open Validate review",
-        href: INTERNAL_REPLAY_PATH,
       },
     },
   },
@@ -420,18 +378,6 @@ export const HELP_TOPIC_CONTEXTUAL_HELP_ROWS: readonly PageContextualHelpRow[] =
     },
   },
   {
-    prefix: "/help/findings",
-    entry: {
-      whatIsThisPage:
-        "Findings — how architecture concerns are inspected, severity-ranked, and moved through governance resolution.",
-      whatToDoNext:
-        "Open the findings queue, search supporting evidence, or check the decision register for related outcomes.",
-      whyEmpty: "This guide is always available; live findings appear after reviews produce architecture concerns.",
-      whereToConfigurePrerequisite:
-        "Findings respect the workspace and project selected in the header switcher.",
-    },
-  },
-  {
     prefix: "/help/governance-approval",
     entry: {
       whatIsThisPage:
@@ -453,18 +399,6 @@ export const HELP_TOPIC_CONTEXTUAL_HELP_ROWS: readonly PageContextualHelpRow[] =
       whyEmpty: "This guide is always available; live architecture reviews appear after you create them in this workspace.",
       whereToConfigurePrerequisite:
         "Creating reviews needs a role that can start architecture reviews in this workspace.",
-    },
-  },
-  {
-    prefix: "/help/repeat-review-loop",
-    entry: {
-      whatIsThisPage:
-        `${REPEAT_REVIEW_LOOP_HELP_INBOUND_LABEL} — compare packages, replay authority, and collect second-review proof after the first finalized review.`,
-      whatToDoNext:
-        "Open Compare two reviews, start the next review, or Validate review when you need live package trails.",
-      whyEmpty: "This guide is always available; compare and replay surfaces populate after finalized reviews exist.",
-      whereToConfigurePrerequisite:
-        "Follow-up review workflows need at least one finalized architecture review in this workspace.",
     },
   },
   {

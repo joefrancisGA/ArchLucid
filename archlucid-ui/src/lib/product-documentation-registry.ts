@@ -704,6 +704,15 @@ const PRODUCT_DOCUMENTATION_REGISTRY_INPUT: readonly ProductDocumentationRegistr
     releaseApplicability: "insights evidence graph orientation",
   },
   {
+    slug: "search-review-evidence",
+    title: "Search review evidence",
+    summary: "How to search findings, decisions, and signed review evidence across the workspace index.",
+    audience: "operator",
+    sourcePaths: [],
+    lastReviewed: "2026-08-13",
+    releaseApplicability: "insights search review evidence orientation",
+  },
+  {
     slug: "sponsor-dashboard",
     title: "Sponsor dashboard",
     summary: "Portfolio ROI trends, workspace-health KPI tiles, and sponsor exports for the selected scope.",

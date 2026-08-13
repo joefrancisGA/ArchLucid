@@ -40,6 +40,7 @@ export const PRODUCT_DOCUMENTATION_CONTENT_KIND_BY_SLUG: Readonly<
   "notifications": "product-help",
   "workspace-settings": "product-help",
   "evidence-graph": "product-help",
+  "search-review-evidence": "product-help",
   "sponsor-dashboard": "product-help",
   "architecture-drafts": "product-help",
   "model-governance": "product-help",

@@ -5,6 +5,8 @@ import { GOVERNANCE_AUDIT_PATH, GOVERNANCE_FINDINGS_PATH } from "@/lib/governanc
 
 export const SEARCH_REVIEW_EVIDENCE_CANONICAL_PATH = SEARCH_REVIEW_EVIDENCE_PATH;
 
+export const SEARCH_REVIEW_EVIDENCE_HELP_TOPIC_LABEL = "How to search review evidence";
+
 export const SEARCH_REVIEW_EVIDENCE_CLAIM_DISCIPLINE =
  "Search review evidence returns retrieval snippets across findings, decisions, and signed records — it is a discovery launcher, not a signed-review diligence Sources package. Open the cited review, evidence trail, or audit trail before treating snippets as authoritative.";
 

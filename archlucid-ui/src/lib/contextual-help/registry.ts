@@ -12,6 +12,7 @@ import {
 import { canonicalizeLegacyOperatorRoutePath } from "@/lib/canonicalize-legacy-operator-route-path";
 import { ADMINISTRATION_CONTEXTUAL_HELP_ROWS, SETTINGS_HUB_CONTEXTUAL_HELP } from "@/lib/contextual-help/administration-rows";
 import { API_KEYS_CONTEXTUAL_HELP_ROWS } from "@/lib/contextual-help/api-keys-rows";
+import { AZURE_BOARDS_INTEGRATION_CONTEXTUAL_HELP_ROWS } from "@/lib/contextual-help/azure-boards-integration-rows";
 import { BASELINE_SETTINGS_CONTEXTUAL_HELP_ROWS } from "@/lib/contextual-help/baseline-settings-rows";
 import { ARCHITECTURE_DRAFTS_CONTEXTUAL_HELP_ROWS } from "@/lib/contextual-help/architecture-drafts-rows";
 import { ARCHITECTURE_CONTEXTUAL_HELP_ROWS } from "@/lib/contextual-help/architecture-rows";
@@ -21,14 +22,19 @@ import { JIRA_INTEGRATION_CONTEXTUAL_HELP_ROWS } from "@/lib/contextual-help/jir
 import { MODEL_GOVERNANCE_CONTEXTUAL_HELP_ROWS } from "@/lib/contextual-help/model-governance-rows";
 import { SERVICENOW_INTEGRATION_CONTEXTUAL_HELP_ROWS } from "@/lib/contextual-help/servicenow-integration-rows";
 import { SPONSOR_DASHBOARD_CONTEXTUAL_HELP_ROWS } from "@/lib/contextual-help/sponsor-dashboard-rows";
+import { FINDINGS_CONTEXTUAL_HELP_ROWS } from "@/lib/contextual-help/findings-rows";
 import { GOVERNANCE_CONTEXTUAL_HELP_ROWS } from "@/lib/contextual-help/governance-rows";
 import { ARCHITECTURE_SCORECARD_CONTEXTUAL_HELP_ROWS } from "@/lib/contextual-help/architecture-scorecard-rows";
+import { COMPARISON_REPLAY_CONTEXTUAL_HELP_ROWS } from "@/lib/contextual-help/comparison-replay-rows";
 import { CONNECTION_STATUS_CONTEXTUAL_HELP_ROWS } from "@/lib/contextual-help/connection-status-rows";
 import { NOTIFICATIONS_CONTEXTUAL_HELP_ROWS } from "@/lib/contextual-help/notifications-rows";
+import { PATTERN_LIBRARY_CONTEXTUAL_HELP_ROWS } from "@/lib/contextual-help/pattern-library-rows";
 import { PILOT_OUTCOMES_CONTEXTUAL_HELP_ROWS } from "@/lib/contextual-help/pilot-outcomes-rows";
+import { PRIOR_MANIFEST_RETRIEVAL_CONTEXTUAL_HELP_ROWS } from "@/lib/contextual-help/prior-manifest-retrieval-rows";
 import { PREFERENCES_CONTEXTUAL_HELP_ROWS } from "@/lib/contextual-help/preferences-rows";
 import { RECURRENCE_SCHEDULES_CONTEXTUAL_HELP_ROWS } from "@/lib/contextual-help/recurrence-schedules-rows";
 import { ROI_SUMMARY_CONTEXTUAL_HELP_ROWS } from "@/lib/contextual-help/roi-summary-rows";
+import { SEARCH_REVIEW_EVIDENCE_CONTEXTUAL_HELP_ROWS } from "@/lib/contextual-help/search-review-evidence-rows";
 import { SLACK_INTEGRATION_CONTEXTUAL_HELP_ROWS } from "@/lib/contextual-help/slack-integration-rows";
 import { STANDARDS_RULES_CONTEXTUAL_HELP_ROWS } from "@/lib/contextual-help/standards-rules-rows";
 import { TEAMS_INTEGRATION_CONTEXTUAL_HELP_ROWS } from "@/lib/contextual-help/teams-integration-rows";
@@ -58,17 +64,23 @@ const PAGE_CONTEXTUAL_HELP: readonly PageContextualHelpRow[] = [
   ...API_KEYS_CONTEXTUAL_HELP_ROWS,
   ...ARCHITECTURE_CONTEXTUAL_HELP_ROWS,
   ...ARCHITECTURE_DRAFTS_CONTEXTUAL_HELP_ROWS,
+  ...AZURE_BOARDS_INTEGRATION_CONTEXTUAL_HELP_ROWS,
   ...BASELINE_SETTINGS_CONTEXTUAL_HELP_ROWS,
+  ...COMPARISON_REPLAY_CONTEXTUAL_HELP_ROWS,
   ...DIGESTS_CONTEXTUAL_HELP_ROWS,
   ...EVIDENCE_GRAPH_CONTEXTUAL_HELP_ROWS,
+  ...FINDINGS_CONTEXTUAL_HELP_ROWS,
   ...GOVERNANCE_CONTEXTUAL_HELP_ROWS,
   ...ARCHITECTURE_SCORECARD_CONTEXTUAL_HELP_ROWS,
   ...CONNECTION_STATUS_CONTEXTUAL_HELP_ROWS,
   ...NOTIFICATIONS_CONTEXTUAL_HELP_ROWS,
+  ...PATTERN_LIBRARY_CONTEXTUAL_HELP_ROWS,
   ...PREFERENCES_CONTEXTUAL_HELP_ROWS,
   ...PILOT_OUTCOMES_CONTEXTUAL_HELP_ROWS,
+  ...PRIOR_MANIFEST_RETRIEVAL_CONTEXTUAL_HELP_ROWS,
   ...RECURRENCE_SCHEDULES_CONTEXTUAL_HELP_ROWS,
   ...ROI_SUMMARY_CONTEXTUAL_HELP_ROWS,
+  ...SEARCH_REVIEW_EVIDENCE_CONTEXTUAL_HELP_ROWS,
   ...SLACK_INTEGRATION_CONTEXTUAL_HELP_ROWS,
   ...SYSTEM_HEALTH_CONTEXTUAL_HELP_ROWS,
   ...STANDARDS_RULES_CONTEXTUAL_HELP_ROWS,

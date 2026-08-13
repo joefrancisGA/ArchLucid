@@ -53,18 +53,6 @@ export const INTEGRATIONS_CONTEXTUAL_HELP_ROWS: readonly PageContextualHelpRow[]
     },
   },
   {
-    prefix: "/integrations/azure-boards",
-    entry: {
-      whatIsThisPage:
-        "Azure Boards integration — outbound work-item settings, connection health, and default behavior for creating Azure Boards work items from ArchLucid.",
-      whatToDoNext:
-        "Test the connector, set organization project and work-item defaults, then open Integration readiness when the path is not ready.",
-      whyEmpty: "Health and settings load after this workspace can reach the Azure Boards connector configuration.",
-      whereToConfigurePrerequisite:
-        "Organization URL and credential references are often configured by an administrator; saving settings needs Operate authority.",
-    },
-  },
-  {
     prefix: "/integrations/itsm/oauth/callback",
     entry: {
       whatIsThisPage:

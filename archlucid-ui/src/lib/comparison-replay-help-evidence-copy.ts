@@ -4,6 +4,10 @@ import { REPEAT_REVIEW_LOOP_HELP_INBOUND_LABEL } from "@/lib/repeat-review-loop-
 
 export const COMPARISON_REPLAY_HELP_CANONICAL_PATH = "/help/comparison-replay" as const;
 
+export const COMPARISON_REPLAY_HELP_TOPIC_LABEL = "How to compare and replay reviews";
+
+export const COMPARISON_REPLAY_VALIDATE_HELP_TOPIC_LABEL = "How to validate a review";
+
 export const COMPARISON_REPLAY_HELP_CLAIM_DISCIPLINE =
   "This Compare and replay guide orients architects on diffing two architecture reviews and validating a finalized package — it is help orientation, not a signed-review diligence Sources package. Open Compare two reviews or Validate review when you need live workspace tools.";
 
