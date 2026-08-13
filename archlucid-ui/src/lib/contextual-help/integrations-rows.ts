@@ -53,18 +53,6 @@ export const INTEGRATIONS_CONTEXTUAL_HELP_ROWS: readonly PageContextualHelpRow[]
     },
   },
   {
-    prefix: "/integrations/jira",
-    entry: {
-      whatIsThisPage:
-        "Jira integration — outbound work-item settings, connection health, and tenant overrides for creating Jira issues from ArchLucid.",
-      whatToDoNext:
-        "Test the connector, set project and severity mappings, then open Integration readiness when the path is not ready.",
-      whyEmpty: "Health and settings load after this workspace can reach the ITSM connector configuration.",
-      whereToConfigurePrerequisite:
-        "Platform credentials are often configured by an administrator; tenant overrides on this page need Operate authority.",
-    },
-  },
-  {
     prefix: "/integrations/azure-boards",
     entry: {
       whatIsThisPage:
@@ -86,18 +74,6 @@ export const INTEGRATIONS_CONTEXTUAL_HELP_ROWS: readonly PageContextualHelpRow[]
       whyEmpty: "This page only appears after an OAuth redirect; status text replaces empty layouts.",
       whereToConfigurePrerequisite:
         "Starting OAuth requires Operate authority and a configured Atlassian app registration.",
-    },
-  },
-  {
-    prefix: "/integrations/servicenow",
-    entry: {
-      whatIsThisPage:
-        "ServiceNow integration — outbound incident settings, connection health, and CMDB overrides for creating ServiceNow records from ArchLucid.",
-      whatToDoNext:
-        "Test the connector, adjust CMDB auto-create if needed, then open Integration readiness when the path is not ready.",
-      whyEmpty: "Health and settings load after this workspace can reach the ITSM connector configuration.",
-      whereToConfigurePrerequisite:
-        "Platform credentials are often configured by an administrator; tenant overrides on this page need Operate authority.",
     },
   },
   {

@@ -5,6 +5,8 @@ import { GOVERNANCE_AUDIT_PATH } from "@/lib/governance/governance-route-paths";
 
 export const JIRA_INTEGRATION_CANONICAL_PATH = "/integrations/jira" as const;
 
+export const JIRA_INTEGRATION_HELP_TOPIC_LABEL = "How Jira integration works";
+
 export const JIRA_INTEGRATION_CLAIM_DISCIPLINE =
   "Jira outbound settings configure how findings and reviews create work items — they are not a signed-review diligence Sources package. Open Integration readiness or Audit when you need operational or governed trails.";
 

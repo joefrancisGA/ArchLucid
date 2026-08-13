@@ -183,19 +183,6 @@ export const ADMINISTRATION_CONTEXTUAL_HELP_ROWS: readonly PageContextualHelpRow
     },
   },
   {
-    prefix: "/administration/model-governance",
-    entry: {
-      whatIsThisPage:
-        "AI and model governance - manage the workspace default execution profile and governed model aliases used on reviews.",
-      whatToDoNext:
-        "Review the effective profile, set or clear a tenant override, then open AI usage when spend signals need attention.",
-      whyEmpty:
-        "Catalog rows load after the model-governance API responds; empty registries mean aliases are not published yet.",
-      whereToConfigurePrerequisite:
-        "Changing execution profiles needs Admin authority in this workspace.",
-    },
-  },
-  {
     prefix: "/administration/security-trust",
     entry: {
       whatIsThisPage:

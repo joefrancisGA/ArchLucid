@@ -7,13 +7,19 @@ vi.mock("@/app/(operator)/help/HelpTopicHashScroll", () => ({
 
 import { HelpApiKeysGuideView } from "@/app/(operator)/help/_sections/HelpApiKeysGuideView";
 import { HelpAiUsageGuideView } from "@/app/(operator)/help/_sections/HelpAiUsageGuideView";
+import { HelpArchitectureDraftsGuideView } from "@/app/(operator)/help/_sections/HelpArchitectureDraftsGuideView";
 import { HelpArchitectureScorecardGuideView } from "@/app/(operator)/help/_sections/HelpArchitectureScorecardGuideView";
 import { HelpBaselineSettingsGuideView } from "@/app/(operator)/help/_sections/HelpBaselineSettingsGuideView";
 import { HelpConnectionStatusGuideView } from "@/app/(operator)/help/_sections/HelpConnectionStatusGuideView";
+import { HelpEvidenceGraphGuideView } from "@/app/(operator)/help/_sections/HelpEvidenceGraphGuideView";
+import { HelpJiraIntegrationGuideView } from "@/app/(operator)/help/_sections/HelpJiraIntegrationGuideView";
+import { HelpModelGovernanceGuideView } from "@/app/(operator)/help/_sections/HelpModelGovernanceGuideView";
 import { HelpNotificationsGuideView } from "@/app/(operator)/help/_sections/HelpNotificationsGuideView";
 import { HelpPilotOutcomesGuideView } from "@/app/(operator)/help/_sections/HelpPilotOutcomesGuideView";
 import { HelpPreferencesGuideView } from "@/app/(operator)/help/_sections/HelpPreferencesGuideView";
+import { HelpServiceNowIntegrationGuideView } from "@/app/(operator)/help/_sections/HelpServiceNowIntegrationGuideView";
 import { HelpSlackIntegrationGuideView } from "@/app/(operator)/help/_sections/HelpSlackIntegrationGuideView";
+import { HelpSponsorDashboardGuideView } from "@/app/(operator)/help/_sections/HelpSponsorDashboardGuideView";
 import { HelpStandardsRulesGuideView } from "@/app/(operator)/help/_sections/HelpStandardsRulesGuideView";
 import { HelpSystemHealthGuideView } from "@/app/(operator)/help/_sections/HelpSystemHealthGuideView";
 import { HelpTeamsIntegrationGuideView } from "@/app/(operator)/help/_sections/HelpTeamsIntegrationGuideView";
@@ -37,6 +43,12 @@ describe("specialty help guides — operator surfaces batch", () => {
     ["preferences", HelpPreferencesGuideView, "help-preferences-guide"],
     ["notifications", HelpNotificationsGuideView, "help-notifications-guide"],
     ["workspace-settings", HelpWorkspaceSettingsGuideView, "help-workspace-settings-guide"],
+    ["evidence-graph", HelpEvidenceGraphGuideView, "help-evidence-graph-guide"],
+    ["sponsor-dashboard", HelpSponsorDashboardGuideView, "help-sponsor-dashboard-guide"],
+    ["architecture-drafts", HelpArchitectureDraftsGuideView, "help-architecture-drafts-guide"],
+    ["model-governance", HelpModelGovernanceGuideView, "help-model-governance-guide"],
+    ["jira-integration", HelpJiraIntegrationGuideView, "help-jira-integration-guide"],
+    ["servicenow-integration", HelpServiceNowIntegrationGuideView, "help-servicenow-integration-guide"],
   ] as const)("registers and renders %s specialty guide", (slug, View, testId) => {
     const entry = getProductDocumentationEntry(slug);
 

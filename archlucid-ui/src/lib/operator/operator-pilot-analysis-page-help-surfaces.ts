@@ -21,10 +21,10 @@ export const OPERATOR_PILOT_ANALYSIS_PAGE_HELP_TB1667_SURFACES: readonly Operato
       notes: "Overview hero — Category-1 registry + first-architecture-review Learn more.",
     },
     {
-      id: "executive-dashboard",
-      pathname: "/architecture/executive-dashboard",
-      modulePath: "components/executive/ExecutiveDashboardPageHero.tsx",
-      notes: "Legacy `/dashboard` canonicalizes here; executive-summary help topic.",
+      id: "sponsor-dashboard",
+      pathname: "/architecture/sponsor-dashboard",
+      modulePath: "components/sponsor/SponsorDashboardPageHero.tsx",
+      notes: "Legacy `/dashboard` canonicalizes here; sponsor-dashboard help topic.",
     },
     {
       id: "first-review-guide",
@@ -36,7 +36,7 @@ export const OPERATOR_PILOT_ANALYSIS_PAGE_HELP_TB1667_SURFACES: readonly Operato
       id: "evidence-graph",
       pathname: "/insights/evidence-graph",
       modulePath: "app/(operator)/insights/evidence-graph/_sections/GraphPageContent.tsx",
-      notes: "Evidence graph — evidence-trail help topic.",
+      notes: "Evidence graph — evidence-graph help topic.",
     },
     {
       id: "compare-two-reviews",

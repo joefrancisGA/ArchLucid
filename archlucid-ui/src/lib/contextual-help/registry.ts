@@ -13,8 +13,14 @@ import { canonicalizeLegacyOperatorRoutePath } from "@/lib/canonicalize-legacy-o
 import { ADMINISTRATION_CONTEXTUAL_HELP_ROWS, SETTINGS_HUB_CONTEXTUAL_HELP } from "@/lib/contextual-help/administration-rows";
 import { API_KEYS_CONTEXTUAL_HELP_ROWS } from "@/lib/contextual-help/api-keys-rows";
 import { BASELINE_SETTINGS_CONTEXTUAL_HELP_ROWS } from "@/lib/contextual-help/baseline-settings-rows";
+import { ARCHITECTURE_DRAFTS_CONTEXTUAL_HELP_ROWS } from "@/lib/contextual-help/architecture-drafts-rows";
 import { ARCHITECTURE_CONTEXTUAL_HELP_ROWS } from "@/lib/contextual-help/architecture-rows";
 import { DIGESTS_CONTEXTUAL_HELP_ROWS } from "@/lib/contextual-help/digests-rows";
+import { EVIDENCE_GRAPH_CONTEXTUAL_HELP_ROWS } from "@/lib/contextual-help/evidence-graph-rows";
+import { JIRA_INTEGRATION_CONTEXTUAL_HELP_ROWS } from "@/lib/contextual-help/jira-integration-rows";
+import { MODEL_GOVERNANCE_CONTEXTUAL_HELP_ROWS } from "@/lib/contextual-help/model-governance-rows";
+import { SERVICENOW_INTEGRATION_CONTEXTUAL_HELP_ROWS } from "@/lib/contextual-help/servicenow-integration-rows";
+import { SPONSOR_DASHBOARD_CONTEXTUAL_HELP_ROWS } from "@/lib/contextual-help/sponsor-dashboard-rows";
 import { GOVERNANCE_CONTEXTUAL_HELP_ROWS } from "@/lib/contextual-help/governance-rows";
 import { ARCHITECTURE_SCORECARD_CONTEXTUAL_HELP_ROWS } from "@/lib/contextual-help/architecture-scorecard-rows";
 import { CONNECTION_STATUS_CONTEXTUAL_HELP_ROWS } from "@/lib/contextual-help/connection-status-rows";
@@ -51,8 +57,10 @@ const PAGE_CONTEXTUAL_HELP: readonly PageContextualHelpRow[] = [
   ...AI_USAGE_CONTEXTUAL_HELP_ROWS,
   ...API_KEYS_CONTEXTUAL_HELP_ROWS,
   ...ARCHITECTURE_CONTEXTUAL_HELP_ROWS,
+  ...ARCHITECTURE_DRAFTS_CONTEXTUAL_HELP_ROWS,
   ...BASELINE_SETTINGS_CONTEXTUAL_HELP_ROWS,
   ...DIGESTS_CONTEXTUAL_HELP_ROWS,
+  ...EVIDENCE_GRAPH_CONTEXTUAL_HELP_ROWS,
   ...GOVERNANCE_CONTEXTUAL_HELP_ROWS,
   ...ARCHITECTURE_SCORECARD_CONTEXTUAL_HELP_ROWS,
   ...CONNECTION_STATUS_CONTEXTUAL_HELP_ROWS,
@@ -71,7 +79,11 @@ const PAGE_CONTEXTUAL_HELP: readonly PageContextualHelpRow[] = [
   ...INSIGHTS_CONTEXTUAL_HELP_ROWS,
   ...INTEGRATIONS_CONTEXTUAL_HELP_ROWS,
   ...INTERNAL_OPS_CONTEXTUAL_HELP_ROWS,
+  ...JIRA_INTEGRATION_CONTEXTUAL_HELP_ROWS,
   ...MARKETING_CONTEXTUAL_HELP_ROWS,
+  ...MODEL_GOVERNANCE_CONTEXTUAL_HELP_ROWS,
+  ...SERVICENOW_INTEGRATION_CONTEXTUAL_HELP_ROWS,
+  ...SPONSOR_DASHBOARD_CONTEXTUAL_HELP_ROWS,
 ];
 
 /**

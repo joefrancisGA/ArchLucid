@@ -1,30 +1,11 @@
-/** Insights and executive reporting routes (`/insights/**`, executive dashboard). */
+/** Insights and sponsor reporting routes (`/insights/**`, sponsor dashboard). */
 
 import type { PageContextualHelpRow } from "@/lib/contextual-help/types";
 import { REVIEWS_LIST_PATH, REVIEWS_NEW_PATH } from "@/lib/architecture/architecture-routes";
-import { EXECUTIVE_DASHBOARD_HREF } from "@/lib/executive/executive-dashboard-route";
-import { GOVERNANCE_APPROVAL_QUEUE_PATH } from "@/lib/governance/governance-route-paths";
 import { PLANNING_PATH } from "@/lib/planning-route";
 import { PRODUCT_LEARNING_PATH } from "@/lib/product-learning-route";
 
 export const INSIGHTS_CONTEXTUAL_HELP_ROWS: readonly PageContextualHelpRow[] = [
-  {
-    prefix: EXECUTIVE_DASHBOARD_HREF,
-    entry: {
-      whatIsThisPage:
-        "Executive dashboard — portfolio ROI trends, sponsor exports, and workspace-health KPI tiles for governance posture in the current scope.",
-      whatToDoNext:
-        "Review KPI tiles and sponsor exports, then open Workspace health or Decisions needed for governance follow-up.",
-      whyEmpty:
-        "Tiles stay at zero until you finalize reviews and governance activity exists in the current workspace scope.",
-      whereToConfigurePrerequisite:
-        "Switch workspace or project scope from the header switcher — figures never roll up across workspaces.",
-      whatToDoNextAction: {
-        label: "Open approval queue",
-        href: GOVERNANCE_APPROVAL_QUEUE_PATH,
-      },
-    },
-  },
   {
     prefix: "/insights/ask-review-questions",
     entry: {
@@ -128,7 +109,7 @@ export const INSIGHTS_CONTEXTUAL_HELP_ROWS: readonly PageContextualHelpRow[] = [
     },
   },
   {
-    prefix: "/insights/executive-summary",
+    prefix: "/insights/sponsor-report",
     entry: {
       whatIsThisPage:
         "Sponsor report — period summary of finalized reviews, material findings, governance decisions, and directional ROI, with sponsor exports. Absorbs the retired standalone pilot outcomes page.",

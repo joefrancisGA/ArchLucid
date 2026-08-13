@@ -89,6 +89,42 @@ import {
   NOTIFICATIONS_HELP_SOURCES_INTRO,
 } from "@/lib/notifications-help-evidence-copy";
 import {
+  ARCHITECTURE_DRAFTS_HELP_CLAIM_DISCIPLINE,
+  ARCHITECTURE_DRAFTS_HELP_FOLLOW_UPS_TITLE,
+  ARCHITECTURE_DRAFTS_HELP_SOURCES,
+  ARCHITECTURE_DRAFTS_HELP_SOURCES_INTRO,
+} from "@/lib/architecture-drafts-help-evidence-copy";
+import {
+  EVIDENCE_GRAPH_HELP_CLAIM_DISCIPLINE,
+  EVIDENCE_GRAPH_HELP_FOLLOW_UPS_TITLE,
+  EVIDENCE_GRAPH_HELP_SOURCES,
+  EVIDENCE_GRAPH_HELP_SOURCES_INTRO,
+} from "@/lib/evidence-graph-help-evidence-copy";
+import {
+  JIRA_INTEGRATION_HELP_CLAIM_DISCIPLINE,
+  JIRA_INTEGRATION_HELP_FOLLOW_UPS_TITLE,
+  JIRA_INTEGRATION_HELP_SOURCES,
+  JIRA_INTEGRATION_HELP_SOURCES_INTRO,
+} from "@/lib/jira-integration-help-evidence-copy";
+import {
+  MODEL_GOVERNANCE_HELP_CLAIM_DISCIPLINE,
+  MODEL_GOVERNANCE_HELP_FOLLOW_UPS_TITLE,
+  MODEL_GOVERNANCE_HELP_SOURCES,
+  MODEL_GOVERNANCE_HELP_SOURCES_INTRO,
+} from "@/lib/model-governance-help-evidence-copy";
+import {
+  SERVICENOW_INTEGRATION_HELP_CLAIM_DISCIPLINE,
+  SERVICENOW_INTEGRATION_HELP_FOLLOW_UPS_TITLE,
+  SERVICENOW_INTEGRATION_HELP_SOURCES,
+  SERVICENOW_INTEGRATION_HELP_SOURCES_INTRO,
+} from "@/lib/servicenow-integration-help-evidence-copy";
+import {
+  SPONSOR_DASHBOARD_HELP_CLAIM_DISCIPLINE,
+  SPONSOR_DASHBOARD_HELP_FOLLOW_UPS_TITLE,
+  SPONSOR_DASHBOARD_HELP_SOURCES,
+  SPONSOR_DASHBOARD_HELP_SOURCES_INTRO,
+} from "@/lib/sponsor-dashboard-help-evidence-copy";
+import {
   WORKSPACE_SETTINGS_HELP_CLAIM_DISCIPLINE,
   WORKSPACE_SETTINGS_HELP_FOLLOW_UPS_TITLE,
   WORKSPACE_SETTINGS_HELP_SOURCES,
@@ -628,6 +664,102 @@ export function TeamsIntegrationEvidenceOrientationStrip(): React.JSX.Element {
       claim={TEAMS_INTEGRATION_CLAIM_DISCIPLINE}
       sourcesIntro={TEAMS_INTEGRATION_SOURCES_INTRO}
       sources={TEAMS_INTEGRATION_SOURCES}
+    />
+  );
+}
+
+export function EvidenceGraphHelpEvidenceOrientationStrip(): React.JSX.Element {
+  return (
+    <EvidenceOrientationClaimAndSourcesStrip
+      slug="help-evidence-graph"
+      claim={EVIDENCE_GRAPH_HELP_CLAIM_DISCIPLINE}
+      claimStyle={EVIDENCE_CLAIM_STYLE.operatorNeutral}
+      claimElement="div"
+      sourcesTitle={EVIDENCE_GRAPH_HELP_FOLLOW_UPS_TITLE}
+      sourcesIntro={EVIDENCE_GRAPH_HELP_SOURCES_INTRO}
+      sources={EVIDENCE_GRAPH_HELP_SOURCES}
+      sourcesStyle={EVIDENCE_SOURCES_STYLE.operatorRaised}
+      sourcesHeadingId="where-to-go-next"
+    />
+  );
+}
+
+export function SponsorDashboardHelpEvidenceOrientationStrip(): React.JSX.Element {
+  return (
+    <EvidenceOrientationClaimAndSourcesStrip
+      slug="help-sponsor-dashboard"
+      claim={SPONSOR_DASHBOARD_HELP_CLAIM_DISCIPLINE}
+      claimStyle={EVIDENCE_CLAIM_STYLE.operatorNeutral}
+      claimElement="div"
+      sourcesTitle={SPONSOR_DASHBOARD_HELP_FOLLOW_UPS_TITLE}
+      sourcesIntro={SPONSOR_DASHBOARD_HELP_SOURCES_INTRO}
+      sources={SPONSOR_DASHBOARD_HELP_SOURCES}
+      sourcesStyle={EVIDENCE_SOURCES_STYLE.operatorRaised}
+      sourcesHeadingId="where-to-go-next"
+    />
+  );
+}
+
+export function ArchitectureDraftsHelpEvidenceOrientationStrip(): React.JSX.Element {
+  return (
+    <EvidenceOrientationClaimAndSourcesStrip
+      slug="help-architecture-drafts"
+      claim={ARCHITECTURE_DRAFTS_HELP_CLAIM_DISCIPLINE}
+      claimStyle={EVIDENCE_CLAIM_STYLE.operatorNeutral}
+      claimElement="div"
+      sourcesTitle={ARCHITECTURE_DRAFTS_HELP_FOLLOW_UPS_TITLE}
+      sourcesIntro={ARCHITECTURE_DRAFTS_HELP_SOURCES_INTRO}
+      sources={ARCHITECTURE_DRAFTS_HELP_SOURCES}
+      sourcesStyle={EVIDENCE_SOURCES_STYLE.operatorRaised}
+      sourcesHeadingId="where-to-go-next"
+    />
+  );
+}
+
+export function ModelGovernanceHelpEvidenceOrientationStrip(): React.JSX.Element {
+  return (
+    <EvidenceOrientationClaimAndSourcesStrip
+      slug="help-model-governance"
+      claim={MODEL_GOVERNANCE_HELP_CLAIM_DISCIPLINE}
+      claimStyle={EVIDENCE_CLAIM_STYLE.operatorNeutral}
+      claimElement="div"
+      sourcesTitle={MODEL_GOVERNANCE_HELP_FOLLOW_UPS_TITLE}
+      sourcesIntro={MODEL_GOVERNANCE_HELP_SOURCES_INTRO}
+      sources={MODEL_GOVERNANCE_HELP_SOURCES}
+      sourcesStyle={EVIDENCE_SOURCES_STYLE.operatorRaised}
+      sourcesHeadingId="where-to-go-next"
+    />
+  );
+}
+
+export function JiraIntegrationHelpEvidenceOrientationStrip(): React.JSX.Element {
+  return (
+    <EvidenceOrientationClaimAndSourcesStrip
+      slug="help-jira-integration"
+      claim={JIRA_INTEGRATION_HELP_CLAIM_DISCIPLINE}
+      claimStyle={EVIDENCE_CLAIM_STYLE.operatorNeutral}
+      claimElement="div"
+      sourcesTitle={JIRA_INTEGRATION_HELP_FOLLOW_UPS_TITLE}
+      sourcesIntro={JIRA_INTEGRATION_HELP_SOURCES_INTRO}
+      sources={JIRA_INTEGRATION_HELP_SOURCES}
+      sourcesStyle={EVIDENCE_SOURCES_STYLE.operatorRaised}
+      sourcesHeadingId="where-to-go-next"
+    />
+  );
+}
+
+export function ServiceNowIntegrationHelpEvidenceOrientationStrip(): React.JSX.Element {
+  return (
+    <EvidenceOrientationClaimAndSourcesStrip
+      slug="help-servicenow-integration"
+      claim={SERVICENOW_INTEGRATION_HELP_CLAIM_DISCIPLINE}
+      claimStyle={EVIDENCE_CLAIM_STYLE.operatorNeutral}
+      claimElement="div"
+      sourcesTitle={SERVICENOW_INTEGRATION_HELP_FOLLOW_UPS_TITLE}
+      sourcesIntro={SERVICENOW_INTEGRATION_HELP_SOURCES_INTRO}
+      sources={SERVICENOW_INTEGRATION_HELP_SOURCES}
+      sourcesStyle={EVIDENCE_SOURCES_STYLE.operatorRaised}
+      sourcesHeadingId="where-to-go-next"
     />
   );
 }

@@ -105,6 +105,24 @@ const HelpNotificationsGuideView = dynamic(() =>
 const HelpWorkspaceSettingsGuideView = dynamic(() =>
   import("../_sections/HelpWorkspaceSettingsGuideView").then((module) => module.HelpWorkspaceSettingsGuideView),
 );
+const HelpEvidenceGraphGuideView = dynamic(() =>
+  import("../_sections/HelpEvidenceGraphGuideView").then((module) => module.HelpEvidenceGraphGuideView),
+);
+const HelpSponsorDashboardGuideView = dynamic(() =>
+  import("../_sections/HelpSponsorDashboardGuideView").then((module) => module.HelpSponsorDashboardGuideView),
+);
+const HelpArchitectureDraftsGuideView = dynamic(() =>
+  import("../_sections/HelpArchitectureDraftsGuideView").then((module) => module.HelpArchitectureDraftsGuideView),
+);
+const HelpModelGovernanceGuideView = dynamic(() =>
+  import("../_sections/HelpModelGovernanceGuideView").then((module) => module.HelpModelGovernanceGuideView),
+);
+const HelpJiraIntegrationGuideView = dynamic(() =>
+  import("../_sections/HelpJiraIntegrationGuideView").then((module) => module.HelpJiraIntegrationGuideView),
+);
+const HelpServiceNowIntegrationGuideView = dynamic(() =>
+  import("../_sections/HelpServiceNowIntegrationGuideView").then((module) => module.HelpServiceNowIntegrationGuideView),
+);
 const HelpAdminDiagnosticsGuideView = dynamic(() =>
   import("../_sections/HelpAdminDiagnosticsGuideView").then((module) => module.HelpAdminDiagnosticsGuideView),
 );
@@ -386,6 +404,30 @@ function renderHelpTopicView(
 
   if (loaded.entry.slug === "workspace-settings") {
     return <HelpWorkspaceSettingsGuideView entry={loaded.entry} />;
+  }
+
+  if (loaded.entry.slug === "evidence-graph") {
+    return <HelpEvidenceGraphGuideView entry={loaded.entry} />;
+  }
+
+  if (loaded.entry.slug === "sponsor-dashboard") {
+    return <HelpSponsorDashboardGuideView entry={loaded.entry} />;
+  }
+
+  if (loaded.entry.slug === "architecture-drafts") {
+    return <HelpArchitectureDraftsGuideView entry={loaded.entry} />;
+  }
+
+  if (loaded.entry.slug === "model-governance") {
+    return <HelpModelGovernanceGuideView entry={loaded.entry} />;
+  }
+
+  if (loaded.entry.slug === "jira-integration") {
+    return <HelpJiraIntegrationGuideView entry={loaded.entry} />;
+  }
+
+  if (loaded.entry.slug === "servicenow-integration") {
+    return <HelpServiceNowIntegrationGuideView entry={loaded.entry} />;
   }
 
   if (loaded.entry.slug === "billing-and-plans") {

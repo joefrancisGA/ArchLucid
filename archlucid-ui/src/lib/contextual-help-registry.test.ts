@@ -5,7 +5,7 @@ import {
   contextualHelpForPathname,
   type PageContextualHelpEntry,
 } from "@/lib/contextual-help-registry";
-import { EXECUTIVE_DASHBOARD_HREF } from "@/lib/executive/executive-dashboard-route";
+import { SPONSOR_DASHBOARD_HREF } from "@/lib/sponsor/sponsor-dashboard-route";
 import {
   INTERNAL_DEMO_READINESS_PATH,
   INTERNAL_DEPLOYMENT_STATUS_PATH,
@@ -17,7 +17,7 @@ import {
 } from "@/lib/internal-ops-route-paths";
 
 const INTERNAL_ROUTE_IN_COPY =
-  /\/(admin|api|governance|settings|integrations|reviews|architectures|help|graph|compare|replay|value-report|digests|planning|advisory|executive|manifests|signed-records)(\/|\b)/i;
+  /\/(admin|api|governance|settings|integrations|reviews|architectures|help|graph|compare|replay|value-report|digests|planning|advisory|sponsor|manifests|signed-records)(\/|\b)/i;
 
 const API_PATH_IN_COPY = /\/v\d+\//;
 
@@ -48,10 +48,11 @@ describe("contextual-help-registry (TB-733)", () => {
       "/",
       "/architecture/reviews",
       "/insights/architecture-scorecard",
-      "/architecture/executive-dashboard",
+      "/architecture/sponsor-dashboard",
       "/governance/findings",
       "/insights/ask-review-questions",
       "/insights/compare-two-reviews",
+      "/insights/evidence-graph",
       "/insights/patterns",
       INTERNAL_REPLAY_PATH,
       "/insights/search-review-evidence",
@@ -61,7 +62,7 @@ describe("contextual-help-registry (TB-733)", () => {
       "/help/choose-your-next-step",
       "/help/enterprise-onboarding",
       "/help/pilot-feedback",
-      "/help/executive-summary",
+      "/help/sponsor-report",
       "/help/configuration-reference",
       "/help/cli-usage",
       "/help/engineering-troubleshooting",
@@ -75,6 +76,7 @@ describe("contextual-help-registry (TB-733)", () => {
       "/architecture/architectures/new",
       "/architecture/architecture-intelligence",
       "/architecture/first-review-guide",
+      "/architectures",
       "/governance/audit",
       "/administration/system-health",
       "/administration/connection-status",
@@ -90,7 +92,7 @@ describe("contextual-help-registry (TB-733)", () => {
       "/why-archlucid",
       "/demo/explain",
       "/governance/advisory-scans",
-      "/insights/executive-summary",
+      "/insights/sponsor-report",
       "/insights/pilot-outcomes",
       "/insights/roi-summary",
       "/sponsor-report/pilot-outcomes",
@@ -129,7 +131,13 @@ describe("contextual-help-registry (TB-733)", () => {
       "/help/recurrence-schedules",
       "/help/roi-summary",
       "/help/pilot-outcomes",
+      "/help/architecture-drafts",
       "/help/architecture-scorecard",
+      "/help/evidence-graph",
+      "/help/jira-integration",
+      "/help/model-governance",
+      "/help/servicenow-integration",
+      "/help/sponsor-dashboard",
       "/help/connection-status",
       "/help/standards-and-rules",
       "/help/slack-integration",
@@ -219,7 +227,7 @@ describe("contextual-help-registry (TB-733)", () => {
       "First review guide",
     );
     expect(contextualHelpForPathname("/governance/findings?filter=open")?.whatToDoNext).toContain("Assign owners");
-    expect(contextualHelpForPathname("/insights/executive-summary")?.whatIsThisPage).toContain(
+    expect(contextualHelpForPathname("/insights/sponsor-report")?.whatIsThisPage).toContain(
       "Sponsor report",
     );
     expect(contextualHelpForPathname("/insights/improvement-planning/plans/plan-1")?.whatIsThisPage).toContain("one prioritized improvement plan");
@@ -230,9 +238,9 @@ describe("contextual-help-registry (TB-733)", () => {
     expect(contextualHelpForPathname("/insights/roi-summary")?.whatIsThisPage).toContain("Portfolio KPI");
   });
 
-  it("resolves executive dashboard Category-1 help (ARE / GDX)", () => {
-    expect(contextualHelpForPathname(EXECUTIVE_DASHBOARD_HREF)?.whatIsThisPage).toContain("Executive dashboard");
-    expect(contextualHelpForPathname(EXECUTIVE_DASHBOARD_HREF)?.whyEmpty).toContain("zero");
+  it("resolves sponsor dashboard Category-1 help (ARE / GDX)", () => {
+    expect(contextualHelpForPathname(SPONSOR_DASHBOARD_HREF)?.whatIsThisPage).toContain("Sponsor dashboard");
+    expect(contextualHelpForPathname(SPONSOR_DASHBOARD_HREF)?.whyEmpty).toContain("zero");
   });
 
   it("resolves architecture scorecard Category-1 help (SCX)", () => {
@@ -659,7 +667,7 @@ describe("contextual-help-registry (TB-733)", () => {
   });
 
   it("resolves sponsor report Category-1 help (SPE)", () => {
-    expect(contextualHelpForPathname("/insights/executive-summary")?.whatIsThisPage).toContain(
+    expect(contextualHelpForPathname("/insights/sponsor-report")?.whatIsThisPage).toContain(
       "Sponsor report",
     );
   });
@@ -670,7 +678,7 @@ describe("contextual-help-registry (TB-733)", () => {
     expect(contextualHelpForPathname("/insights/pilot-outcomes")?.whatIsThisPage).toContain("Pilot outcomes");
     expect(contextualHelpForPathname("/insights/pilot-outcomes")?.whatToDoNext).toContain("Sponsor report");
     expect(contextualHelpForPathname("/insights/pilot-outcomes")?.whatToDoNextAction?.href).toBe(
-      "/insights/executive-summary",
+      "/insights/sponsor-report",
     );
     expect(contextualHelpForPathname("/insights/roi-summary")?.whatIsThisPage).toContain("Portfolio KPI");
     expect(contextualHelpForPathname("/insights/roi-summary")?.whatToDoNext).toContain("rolling 30-day");

@@ -11,6 +11,12 @@ import { AI_USAGE_HELP_TOPIC_LABEL } from "@/lib/ai-usage-settings-evidence-copy
 import { API_KEYS_HELP_TOPIC_LABEL } from "@/lib/api-keys-settings-evidence-copy";
 import { BASELINE_SETTINGS_HELP_TOPIC_LABEL } from "@/lib/baseline-settings-evidence-copy";
 import { ARCHITECTURES_LIST_PATH } from "@/lib/architecture/architecture-routes";
+import { ARCHITECTURE_DRAFTS_HELP_TOPIC_LABEL } from "@/lib/architecture-drafts-evidence-copy";
+import { SPONSOR_DASHBOARD_HELP_TOPIC_LABEL } from "@/lib/architecture/architecture-sponsor-dashboard-evidence-copy";
+import { EVIDENCE_GRAPH_HELP_TOPIC_LABEL } from "@/lib/evidence-graph-evidence-copy";
+import { JIRA_INTEGRATION_HELP_TOPIC_LABEL } from "@/lib/jira-integration-evidence-copy";
+import { MODEL_GOVERNANCE_HELP_TOPIC_LABEL } from "@/lib/model-governance-settings-evidence-copy";
+import { SERVICENOW_INTEGRATION_HELP_TOPIC_LABEL } from "@/lib/servicenow-integration-evidence-copy";
 import { ARCHITECTURE_DRAFTS_LIST_LABEL, START_REVIEW_LABEL } from "@/lib/architecture/architecture-workflow-labels";
 import { BUYER_ONBOARDING_PAGE_TITLE, BUYER_VALUE_REPORT_HOW_IT_WORKS_TITLE } from "@/lib/buyer/buyer-polish-copy";
 import { GOVERNANCE_SETUP_HREF } from "@/lib/governance/governance-setup-route";
@@ -23,7 +29,7 @@ import { pathIsFindingEvidenceTrace } from "@/lib/evidence-trace-contextual-help
 import {
   pathIsSettingsHubRoot,
 } from "@/lib/settings-admin-route-paths";
-import { EXECUTIVE_DASHBOARD_HREF } from "@/lib/executive/executive-dashboard-route";
+import { SPONSOR_DASHBOARD_HREF } from "@/lib/sponsor/sponsor-dashboard-route";
 import { ARCHITECTURE_SCORECARD_HELP_TOPIC_LABEL } from "@/lib/architecture/architecture-scorecard-page-copy";
 import { CONNECTION_STATUS_HELP_TOPIC_LABEL } from "@/lib/connection-status-evidence-copy";
 import { PILOT_OUTCOMES_HELP_TOPIC_LABEL } from "@/lib/pilot-outcomes-evidence-copy";
@@ -154,25 +160,25 @@ const PAGE_HELP_TOPICS: readonly { prefix: string; topic: PageHelpTopic }[] = [
     prefix: "/help/users-and-roles",
     topic: { slug: "users-and-roles", label: "Users and roles" },
   },
-  { prefix: ARCHITECTURES_LIST_PATH, topic: { slug: "getting-started", label: ARCHITECTURE_DRAFTS_LIST_LABEL } },
+  { prefix: ARCHITECTURES_LIST_PATH, topic: { slug: "architecture-drafts", label: ARCHITECTURE_DRAFTS_HELP_TOPIC_LABEL } },
   { prefix: "/architecture/architectures/new", topic: { slug: "first-architecture-review", label: "Create architecture" } },
   {
     prefix: "/architecture/architecture-intelligence",
     topic: { slug: "evidence-trail", label: "Architecture intelligence" },
   },
-  { prefix: "/architectures", topic: { slug: "getting-started", label: ARCHITECTURE_DRAFTS_LIST_LABEL } },
+  { prefix: "/architectures", topic: { slug: "architecture-drafts", label: ARCHITECTURE_DRAFTS_HELP_TOPIC_LABEL } },
   { prefix: "/architecture/reviews/new", topic: { slug: "evidence-intake", label: START_REVIEW_LABEL } },
   { prefix: "/architecture/reviews", topic: { slug: "review-packages", label: REVIEW_PACKAGES_HELP_INBOUND_LABEL } },
   {
     prefix: SIGNED_RECORDS_LIST_PATH,
     topic: { slug: "review-packages", label: "Signed review records" },
   },
-  { prefix: EXECUTIVE_DASHBOARD_HREF, topic: { slug: "executive-summary", label: "Executive dashboard" } },
+  { prefix: SPONSOR_DASHBOARD_HREF, topic: { slug: "sponsor-dashboard", label: SPONSOR_DASHBOARD_HELP_TOPIC_LABEL } },
   {
     prefix: "/insights/ask-review-questions",
     topic: { slug: "prior-manifest-retrieval", label: OPERATOR_NAV_LINK_LABELS.askReview },
   },
-  { prefix: "/insights/evidence-graph", topic: { slug: "evidence-trail", label: OPERATOR_NAV_LINK_LABELS.evidenceGraph } },
+  { prefix: "/insights/evidence-graph", topic: { slug: "evidence-graph", label: EVIDENCE_GRAPH_HELP_TOPIC_LABEL } },
   {
     prefix: "/insights/search-review-evidence",
     topic: { slug: "evidence-trail", label: OPERATOR_NAV_LINK_LABELS.searchEvidence },
@@ -248,8 +254,8 @@ const PAGE_HELP_TOPICS: readonly { prefix: string; topic: PageHelpTopic }[] = [
     topic: { slug: "pilot-outcomes", label: PILOT_OUTCOMES_HELP_TOPIC_LABEL },
   },
   {
-    prefix: "/insights/executive-summary",
-    topic: { slug: "executive-summary", label: BUYER_VALUE_REPORT_HOW_IT_WORKS_TITLE },
+    prefix: "/insights/sponsor-report",
+    topic: { slug: "sponsor-report", label: BUYER_VALUE_REPORT_HOW_IT_WORKS_TITLE },
   },
   // Legacy sponsor-report bookmarks canonicalize to /insights/* above; keep prefixes for direct lookups.
   {
@@ -260,7 +266,7 @@ const PAGE_HELP_TOPICS: readonly { prefix: string; topic: PageHelpTopic }[] = [
     prefix: "/sponsor-report/roi-summary",
     topic: { slug: "roi-summary", label: ROI_SUMMARY_HELP_TOPIC_LABEL },
   },
-  { prefix: "/sponsor-report", topic: { slug: "executive-summary", label: BUYER_VALUE_REPORT_HOW_IT_WORKS_TITLE } },
+  { prefix: "/sponsor-report", topic: { slug: "sponsor-report", label: BUYER_VALUE_REPORT_HOW_IT_WORKS_TITLE } },
   { prefix: "/architecture/digests", topic: { slug: "digests", label: "Architecture digests" } },
   { prefix: "/digests", topic: { slug: "digests", label: "Architecture digests" } },
   { prefix: "/digest-subscriptions", topic: { slug: "digests", label: "Architecture digests" } },
@@ -328,6 +334,30 @@ const PAGE_HELP_TOPICS: readonly { prefix: string; topic: PageHelpTopic }[] = [
   {
     prefix: "/help/workspace-settings",
     topic: { slug: "workspace-settings", label: WORKSPACE_SETTINGS_HELP_TOPIC_LABEL },
+  },
+  {
+    prefix: "/help/evidence-graph",
+    topic: { slug: "evidence-graph", label: EVIDENCE_GRAPH_HELP_TOPIC_LABEL },
+  },
+  {
+    prefix: "/help/sponsor-dashboard",
+    topic: { slug: "sponsor-dashboard", label: SPONSOR_DASHBOARD_HELP_TOPIC_LABEL },
+  },
+  {
+    prefix: "/help/architecture-drafts",
+    topic: { slug: "architecture-drafts", label: ARCHITECTURE_DRAFTS_HELP_TOPIC_LABEL },
+  },
+  {
+    prefix: "/help/model-governance",
+    topic: { slug: "model-governance", label: MODEL_GOVERNANCE_HELP_TOPIC_LABEL },
+  },
+  {
+    prefix: "/help/jira-integration",
+    topic: { slug: "jira-integration", label: JIRA_INTEGRATION_HELP_TOPIC_LABEL },
+  },
+  {
+    prefix: "/help/servicenow-integration",
+    topic: { slug: "servicenow-integration", label: SERVICENOW_INTEGRATION_HELP_TOPIC_LABEL },
   },
   {
     // Secondary hub — no planning specialty; omit Learn more (TB-2050).
@@ -415,8 +445,8 @@ const PAGE_HELP_TOPICS: readonly { prefix: string; topic: PageHelpTopic }[] = [
     topic: { slug: "pilot-feedback", label: "Pilot feedback" },
   },
   {
-    prefix: "/help/executive-summary",
-    topic: { slug: "executive-summary", label: BUYER_VALUE_REPORT_HOW_IT_WORKS_TITLE },
+    prefix: "/help/sponsor-report",
+    topic: { slug: "sponsor-report", label: BUYER_VALUE_REPORT_HOW_IT_WORKS_TITLE },
   },
   {
     prefix: "/help/policy-packs",
@@ -467,7 +497,7 @@ const PAGE_HELP_TOPICS: readonly { prefix: string; topic: PageHelpTopic }[] = [
   { prefix: "/integrations/azure-boards", topic: { slug: "azure-boards", label: "Azure Boards integration" } },
   {
     prefix: "/integrations/jira",
-    topic: { slug: "integration-readiness", label: "Jira integration" },
+    topic: { slug: "jira-integration", label: JIRA_INTEGRATION_HELP_TOPIC_LABEL },
   },
   {
     prefix: "/integrations/itsm/oauth/callback",
@@ -475,7 +505,7 @@ const PAGE_HELP_TOPICS: readonly { prefix: string; topic: PageHelpTopic }[] = [
   },
   {
     prefix: "/integrations/servicenow",
-    topic: { slug: "integration-readiness", label: "ServiceNow integration" },
+    topic: { slug: "servicenow-integration", label: SERVICENOW_INTEGRATION_HELP_TOPIC_LABEL },
   },
   {
     prefix: "/integrations/slack",
@@ -571,7 +601,7 @@ const PAGE_HELP_TOPICS: readonly { prefix: string; topic: PageHelpTopic }[] = [
   },
   {
     prefix: "/administration/model-governance",
-    topic: { slug: "security-trust", label: "AI and model governance" },
+    topic: { slug: "model-governance", label: MODEL_GOVERNANCE_HELP_TOPIC_LABEL },
   },
   {
     prefix: "/administration/users/invite-reviewer",
