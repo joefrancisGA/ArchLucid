@@ -37,7 +37,7 @@ export const REPORT_PROBLEM_SURFACE_WIRING_RULES: readonly ReportProblemSurfaceW
   {
     surfaceId: "executive-value-report-load-failure",
     requiredMarkers: ["OperatorApiProblem"],
-    additionalSourceRoots: ["app/(operator)/insights/pilot-outcomes/_sections/PilotValueReportPageView.tsx"],
+    additionalSourceRoots: ["app/(operator)/insights/executive-summary/_sections/PilotValueReportPageView.tsx"],
   },
   {
     surfaceId: "governance-findings-queue-hard-failure",

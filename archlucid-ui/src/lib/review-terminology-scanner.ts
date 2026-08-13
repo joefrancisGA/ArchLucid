@@ -45,6 +45,8 @@ const EXCLUDED_RELATIVE_PATH_FRAGMENTS = [
   "/committed-run-picker.ts",
   "/operator-run-picker-client.ts",
   "/draft-branch-compare-navigation.ts",
+  // Banned-pattern registry for first-review help — literals are search patterns, not shipped copy.
+  "/first-architecture-review-help-banned-copy.ts",
 ] as const;
 
 /** Buyer-facing UI roots scanned by the global terminology guard (TB-355). */

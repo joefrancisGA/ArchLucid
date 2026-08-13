@@ -1,4 +1,4 @@
-> **Scope:** Engineering source of truth for launch-load failure order and graceful degradation (**TB-1032**). Distinct from measured drill evidence (**G-SCALE-01** / **G-SCALE-02**).
+> **Scope:** Contributor reference — engineering source of truth for launch-load failure order and graceful degradation (**TB-1032**). Distinct from measured drill evidence (**G-SCALE-01** / **G-SCALE-02**).
 
 # Launch-load failure order + graceful degradation contract (TB-1032)
 

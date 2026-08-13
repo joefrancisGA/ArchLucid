@@ -1,4 +1,4 @@
-> **Scope:** Engineering source of truth — post-storage strangler residual coupling hunt and discipline-test retirement gates (**TB-1204**). Honesty CI **TB-1205**.
+> **Scope:** Contributor reference — engineering source of truth — post-storage strangler residual coupling hunt and discipline-test retirement gates (**TB-1204**). Honesty CI **TB-1205**.
 
 # Post-strangler residual coupling and discipline-test retirement (TB-1204)
 

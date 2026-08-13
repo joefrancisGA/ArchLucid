@@ -12,7 +12,7 @@ export const PILOT_OUTCOMES_SOURCES_INTRO =
   "Use these follow-ups when pilot outcomes need a fuller evidence trail, ROI methodology, or sponsor packaging.";
 
 export const PILOT_OUTCOMES_HELP_CLAIM_DISCIPLINE =
-  "This guide explains how to read pilot outcomes — it is not a signed review record or procurement diligence package.";
+  "This guide explains how to read pilot outcomes — it is not a signed review record or standalone procurement evidence by itself.";
 
 export const PILOT_OUTCOMES_HELP_FOLLOW_UPS_TITLE = "Where to go next";
 

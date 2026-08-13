@@ -16,7 +16,7 @@ export const PILOT_OUTCOMES_HELP_PAGE_TITLE = PILOT_OUTCOMES_PAGE_TITLE;
 export const PILOT_OUTCOMES_HELP_PAGE_SUBTITLE = PILOT_OUTCOMES_PAGE_SUBTITLE;
 
 export const PILOT_OUTCOMES_HELP_OVERVIEW =
-  "Pilot outcomes summarize finalized review activity, material findings, governance decisions, and measurable results for the selected reporting period. Use it for pilot close-out discussions — not as a signed-review diligence package by itself.";
+  "Pilot outcomes summarize finalized review activity, material findings, governance decisions, and measurable results for the selected reporting period. Use it for pilot close-out discussions — not as a signed-review evidence trail by itself.";
 
 export const PILOT_OUTCOMES_HELP_PRIMARY_ACTION = {
   label: "Open pilot outcomes",

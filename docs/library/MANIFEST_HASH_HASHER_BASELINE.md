@@ -1,4 +1,4 @@
-> **Scope:** Engineering source of truth — production `ManifestHashService` deliberate re-lock ritual and pinned baseline (**TB-1157**). Pairs cohort lock-baseline; does not replace it.
+> **Scope:** Contributor reference — engineering source of truth — production `ManifestHashService` deliberate re-lock ritual and pinned baseline (**TB-1157**). Pairs cohort lock-baseline; does not replace it.
 
 # Manifest hash hasher baseline (TB-1157)
 

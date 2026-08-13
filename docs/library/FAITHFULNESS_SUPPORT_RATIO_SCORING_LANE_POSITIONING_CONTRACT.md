@@ -1,4 +1,4 @@
-> **Scope:** Engineering source of truth — where faithfulness / support-ratio scores sit architecturally (**TB-1228**). Prevents fusing inline commit gates, async eval, and model promotion.
+> **Scope:** Contributor reference — engineering source of truth — where faithfulness / support-ratio scores sit architecturally (**TB-1228**). Prevents fusing inline commit gates, async eval, and model promotion.
 
 # Faithfulness / support-ratio scoring lane positioning contract (TB-1228)
 

@@ -95,7 +95,7 @@ export const OPERATOR_GOVERNANCE_SPONSOR_PAGE_HELP_TB1668_SURFACES: readonly Ope
     {
       id: "sponsor-pilot-outcomes",
       pathname: "/insights/pilot-outcomes",
-      modulePath: "app/(operator)/insights/pilot-outcomes/_sections/PilotValueReportPageView.tsx",
+      modulePath: "app/(operator)/insights/executive-summary/_sections/PilotValueReportPageView.tsx",
       notes: "Pilot outcomes — pilot-outcomes specialty help topic.",
     },
     {

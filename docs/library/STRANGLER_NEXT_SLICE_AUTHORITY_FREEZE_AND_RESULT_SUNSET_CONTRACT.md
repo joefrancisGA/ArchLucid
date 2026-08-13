@@ -1,4 +1,4 @@
-> **Scope:** Engineering source of truth — Authority product-default freeze and `POST …/result` sunset plan (**TB-1034**). Complements forbid matrix **TB-1007**; honesty CI **TB-1035**.
+> **Scope:** Contributor reference — engineering source of truth — Authority product-default freeze and `POST …/result` sunset plan (**TB-1034**). Complements forbid matrix **TB-1007**; honesty CI **TB-1035**.
 
 # Strangler next slice — Authority freeze + `/result` sunset (TB-1034)
 

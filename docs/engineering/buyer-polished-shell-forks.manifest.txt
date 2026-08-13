@@ -50,7 +50,7 @@ archlucid-ui/src/app/(operator)/insights/evidence-graph/_sections/graph-page-hel
 archlucid-ui/src/app/(operator)/insights/executive-summary/_sections/ValueReportPageView.tsx
 archlucid-ui/src/app/(operator)/insights/impact-preview/_sections/EvolutionReviewPageView.tsx
 archlucid-ui/src/app/(operator)/insights/improvement-planning/_sections/PlanningPageView.tsx
-archlucid-ui/src/app/(operator)/insights/pilot-outcomes/_sections/PilotValueReportPageView.tsx
+archlucid-ui/src/app/(operator)/insights/executive-summary/_sections/PilotValueReportPageView.tsx
 archlucid-ui/src/app/(operator)/insights/roi-summary/_sections/RoiSummaryPageView.tsx
 archlucid-ui/src/app/(operator)/insights/search-review-evidence/page.tsx
 archlucid-ui/src/app/(operator)/page.tsx
