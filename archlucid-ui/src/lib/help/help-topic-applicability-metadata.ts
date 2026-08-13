@@ -2,10 +2,35 @@ import type { ProductDocumentationEntry } from "@/lib/product-documentation-regi
 
 const HELP_TOPIC_REGISTRY_PROVENANCE_SLUGS = new Set(["report-a-problem"]);
 
+const HELP_TOPIC_GUIDE_REVIEW_PROVENANCE_SLUGS = new Set(["architecture-scorecard"]);
+
+function formatGuideReviewProvenance(entry: ProductDocumentationEntry): string | null {
+  const lastReviewed = entry.lastReviewed?.trim() ?? "";
+  const applicability = entry.releaseApplicability?.trim() ?? "";
+
+  if (lastReviewed.length === 0 && applicability.length === 0) {
+    return null;
+  }
+
+  if (lastReviewed.length > 0 && applicability.length > 0) {
+    return `Last reviewed ${lastReviewed} · ${applicability}`;
+  }
+
+  if (lastReviewed.length > 0) {
+    return `Last reviewed ${lastReviewed}`;
+  }
+
+  return applicability;
+}
+
 /** Buyer help chrome shows applicability for explicit provenance topics and never registry review dates. */
 export function formatHelpTopicApplicabilityMetadata(
   entry: ProductDocumentationEntry,
 ): string | null {
+  if (HELP_TOPIC_GUIDE_REVIEW_PROVENANCE_SLUGS.has(entry.slug)) {
+    return formatGuideReviewProvenance(entry);
+  }
+
   if (!HELP_TOPIC_REGISTRY_PROVENANCE_SLUGS.has(entry.slug)) {
     return null;
   }

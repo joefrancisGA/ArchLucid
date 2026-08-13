@@ -1,4 +1,6 @@
 import { EvidenceOrientationClaimAndSourcesStrip } from "@/components/evidence-orientation/EvidenceOrientationClaimAndSourcesStrip";
+import { EvidenceOrientationSourcesSection } from "@/components/evidence-orientation/EvidenceOrientationSourcesSection";
+import { EvidenceOrientationStripShell } from "@/components/evidence-orientation/EvidenceOrientationStripShell";
 import {
   AUDIT_TRAIL_HELP_CLAIM_DISCIPLINE,
   AUDIT_TRAIL_HELP_SOURCES,
@@ -143,8 +145,7 @@ import {
   WORKSPACE_SETTINGS_HELP_SOURCES_INTRO,
 } from "@/lib/workspace-settings-help-evidence-copy";
 import {
-  ARCHITECTURE_SCORECARD_HELP_CLAIM_DISCIPLINE,
-  ARCHITECTURE_SCORECARD_HELP_FOLLOW_UPS_TITLE,
+  ARCHITECTURE_SCORECARD_HELP_RELATED_SOURCES_TITLE,
   ARCHITECTURE_SCORECARD_HELP_SOURCES,
   ARCHITECTURE_SCORECARD_HELP_SOURCES_INTRO,
 } from "@/lib/architecture-scorecard-help-evidence-copy";
@@ -211,6 +212,11 @@ import {
   PILOT_FEEDBACK_HELP_SOURCES,
   PILOT_FEEDBACK_HELP_SOURCES_INTRO,
 } from "@/lib/pilot-feedback-help-evidence-copy";
+import {
+  PRIOR_MANIFEST_RETRIEVAL_HELP_CLAIM_DISCIPLINE,
+  PRIOR_MANIFEST_RETRIEVAL_HELP_SOURCES,
+  PRIOR_MANIFEST_RETRIEVAL_HELP_SOURCES_INTRO,
+} from "@/lib/prior-manifest-retrieval-help-evidence-copy";
 import {
   POLICY_PACKS_HELP_CLAIM_DISCIPLINE,
   POLICY_PACKS_HELP_SOURCES,
@@ -381,17 +387,16 @@ export function PilotOutcomesHelpEvidenceOrientationStrip(): React.JSX.Element {
 
 export function ArchitectureScorecardHelpEvidenceOrientationStrip(): React.JSX.Element {
   return (
-    <EvidenceOrientationClaimAndSourcesStrip
-      slug="help-architecture-scorecard"
-      claim={ARCHITECTURE_SCORECARD_HELP_CLAIM_DISCIPLINE}
-      claimStyle={EVIDENCE_CLAIM_STYLE.operatorNeutral}
-      claimElement="div"
-      sourcesTitle={ARCHITECTURE_SCORECARD_HELP_FOLLOW_UPS_TITLE}
-      sourcesIntro={ARCHITECTURE_SCORECARD_HELP_SOURCES_INTRO}
-      sources={ARCHITECTURE_SCORECARD_HELP_SOURCES}
-      sourcesStyle={EVIDENCE_SOURCES_STYLE.operatorRaised}
-      sourcesHeadingId="where-to-go-next"
-    />
+    <EvidenceOrientationStripShell testId="help-architecture-scorecard-orientation">
+      <EvidenceOrientationSourcesSection
+        testId="help-architecture-scorecard-sources"
+        headingId="related-evidence-and-sources"
+        title={ARCHITECTURE_SCORECARD_HELP_RELATED_SOURCES_TITLE}
+        intro={ARCHITECTURE_SCORECARD_HELP_SOURCES_INTRO}
+        links={ARCHITECTURE_SCORECARD_HELP_SOURCES}
+        style={EVIDENCE_SOURCES_STYLE.operatorRaised}
+      />
+    </EvidenceOrientationStripShell>
   );
 }
 

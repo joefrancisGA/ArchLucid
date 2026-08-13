@@ -19,7 +19,7 @@ function sampleEntry(
 }
 
 describe("formatHelpTopicApplicabilityMetadata", () => {
-  it("returns null for topics outside report-a-problem", () => {
+  it("returns null for topics outside report-a-problem and guide review provenance", () => {
     expect(
       formatHelpTopicApplicabilityMetadata(
         sampleEntry({
@@ -28,6 +28,18 @@ describe("formatHelpTopicApplicabilityMetadata", () => {
         }),
       ),
     ).toBeNull();
+  });
+
+  it("formats architecture scorecard help review provenance", () => {
+    expect(
+      formatHelpTopicApplicabilityMetadata(
+        sampleEntry({
+          slug: "architecture-scorecard",
+          lastReviewed: "2026-08-12",
+          releaseApplicability: "sponsor architecture scorecard orientation",
+        }),
+      ),
+    ).toBe("Last reviewed 2026-08-12 · sponsor architecture scorecard orientation");
   });
 
   it("returns null when report-a-problem registry metadata is absent", () => {

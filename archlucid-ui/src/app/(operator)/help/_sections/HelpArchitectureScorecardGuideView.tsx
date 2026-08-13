@@ -5,7 +5,6 @@ import { ArchitectureScorecardHelpEvidenceOrientationStrip } from "@/components/
 import { ScorecardRoiVocabularyRail } from "@/components/ScorecardRoiVocabularyRail";
 import { HelpTopicRegistryProvenanceLine } from "@/components/help/HelpTopicRegistryProvenanceLine";
 import { HelpTopicTableOfContents } from "@/components/help/HelpTopicTableOfContents";
-import { OperatorPageBreadcrumb } from "@/components/operator/OperatorPageBreadcrumb";
 import { OperatorPageHeader } from "@/components/operator/OperatorPageHeader";
 import { Button } from "@/components/ui/button";
 import { Card, CardContent, CardHeader, CardTitle } from "@/components/ui/card";
@@ -77,12 +76,6 @@ export function HelpArchitectureScorecardGuideView(
         subtitle={ARCHITECTURE_SCORECARD_HELP_PAGE_SUBTITLE}
         navHref={ARCHITECTURE_SCORECARD_HELP_CANONICAL_PATH}
         headingLevel="h1"
-        breadcrumb={
-          <OperatorPageBreadcrumb
-            data-testid="help-architecture-scorecard-breadcrumb"
-            items={[{ label: "Help", href: "/help" }, { label: ARCHITECTURE_SCORECARD_HELP_PAGE_TITLE }]}
-          />
-        }
         metadata={<HelpTopicRegistryProvenanceLine entry={entry} />}
         actions={<PageContextualHelpButton />}
       />
