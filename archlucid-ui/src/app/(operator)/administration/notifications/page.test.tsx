@@ -45,7 +45,7 @@ vi.mock("@/hooks/use-notification-channel-delivery-status", () => ({
 }));
 
 vi.mock("@/components/usability/PageContextualHelpButton", () => ({
-  PageContextualHelpButton: () => <button type="button" data-testid="page-contextual-help-button">Notification channels</button>,
+  PageContextualHelpButton: () => <button type="button" data-testid="page-contextual-help-button">How notifications work</button>,
 }));
 
 import NotificationPreferenceCenterPage from "./page";

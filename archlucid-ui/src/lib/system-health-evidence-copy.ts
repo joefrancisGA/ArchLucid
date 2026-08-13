@@ -24,3 +24,5 @@ export const SYSTEM_HEALTH_SOURCES: readonly EvidenceSourceLink[] = [
 ] as const;
 
 export const SYSTEM_HEALTH_CANONICAL_PATH = "/administration/system-health" as const;
+
+export const SYSTEM_HEALTH_HELP_TOPIC_LABEL = "How system health works";

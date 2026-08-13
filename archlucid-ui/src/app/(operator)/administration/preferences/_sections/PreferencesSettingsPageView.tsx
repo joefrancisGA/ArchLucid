@@ -8,6 +8,7 @@ import { ShellThemePreferencesAppearanceVocabularyRail } from "@/components/Shel
 import { ThemePreferenceSelector } from "@/components/ThemePreferenceSelector";
 import { Card, CardContent, CardHeader, CardTitle } from "@/components/ui/card";
 import { PageContextualHelpButton } from "@/components/usability/PageContextualHelpButton";
+import { PREFERENCES_HELP_TOPIC_LABEL } from "@/lib/preferences-settings-evidence-copy";
 import { OPERATOR_LAYOUT, OPERATOR_TYPOGRAPHY } from "@/lib/design-tokens";
 import { cn } from "@/lib/utils";
 
@@ -19,7 +20,7 @@ export function PreferencesSettingsPageView() {
         title="Preferences"
         subtitle="Personal settings saved to your account."
         titleTestId="preferences-settings-page-title"
-        actions={<PageContextualHelpButton />}
+        actions={<PageContextualHelpButton triggerText={PREFERENCES_HELP_TOPIC_LABEL} />}
       />
       <PreferencesNotificationsVocabularyRail currentSurfaceId="preferences" />
       <ShellThemePreferencesAppearanceVocabularyRail currentSurfaceId="preferences-appearance" />

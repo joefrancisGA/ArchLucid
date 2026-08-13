@@ -24,7 +24,7 @@ import {
   NOTIFICATIONS_HELP_PAGE_SUBTITLE,
   NOTIFICATIONS_HELP_PAGE_TITLE,
   NOTIFICATIONS_HELP_PRIMARY_ACTION,
-  NOTIFICATIONS_HELP_SLACK_INTEGRATION_HREF,
+  NOTIFICATIONS_HELP_SLACK_HREF,
   NOTIFICATIONS_HELP_TILE_ITEMS,
 } from "@/lib/notifications-help-guide-content";
 import { NOTIFICATIONS_HELP_CANONICAL_PATH } from "@/lib/notifications-help-evidence-copy";
@@ -130,7 +130,7 @@ export function HelpNotificationsGuideView(props: HelpNotificationsGuideViewProp
               </Link>
             </p>
             <p className={cn("m-0", OPERATOR_TYPOGRAPHY.body)}>
-              <Link className={OPERATOR_LINK.inline} href={NOTIFICATIONS_HELP_SLACK_INTEGRATION_HREF}>
+              <Link className={OPERATOR_LINK.inline} href={NOTIFICATIONS_HELP_SLACK_HREF}>
                 Read Slack integration help →
               </Link>
             </p>

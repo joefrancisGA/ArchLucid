@@ -5,6 +5,8 @@ import { GOVERNANCE_AUDIT_PATH } from "@/lib/governance/governance-route-paths";
 
 export const AI_USAGE_SETTINGS_CANONICAL_PATH = AI_USAGE_SETTINGS_PATH;
 
+export const AI_USAGE_HELP_TOPIC_LABEL = "How AI usage and cost work";
+
 export const AI_USAGE_SETTINGS_CLAIM_DISCIPLINE =
   "This AI usage and cost page shows estimated spend and budget signals for the workspace - it is not invoice-accurate financial reporting, a signed-review diligence Sources package. Open Billing & plans, Pilot ROI model, or Audit when you need plan controls, methodology, or governed trails.";
 

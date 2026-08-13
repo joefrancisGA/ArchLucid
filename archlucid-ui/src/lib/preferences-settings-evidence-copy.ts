@@ -4,6 +4,8 @@ import type { EvidenceSourceLink } from "@/lib/evidence-surface-copy";
 
 export const PREFERENCES_SETTINGS_CANONICAL_PATH = SETTINGS_PREFERENCES_PATH;
 
+export const PREFERENCES_HELP_TOPIC_LABEL = "How preferences work";
+
 export const PREFERENCES_SETTINGS_CLAIM_DISCIPLINE =
   "This Preferences page saves personal appearance choices to your account - it is not a signed-review diligence Sources package. Open Getting started, Sign-in methods, or Assurance status when you need onboarding, sign-in controls, or trust cites.";
 

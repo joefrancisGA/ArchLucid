@@ -118,6 +118,11 @@ describe("contextual-help-registry (TB-733)", () => {
       "/help/troubleshooting",
       "/help/alerts",
       "/help/api-keys",
+      "/help/system-health",
+      "/help/ai-usage",
+      "/help/preferences",
+      "/help/notifications",
+      "/help/workspace-settings",
       "/help/billing-and-plans",
       "/help/security-trust",
       "/help/procurement",
@@ -166,6 +171,7 @@ describe("contextual-help-registry (TB-733)", () => {
       "/administration/extract-upload",
       "/administration/model-governance",
       "/administration/security-trust",
+      "/administration/settings/ai-usage",
       "/administration/billing",
       "/administration/ai-usage",
       "/administration/baseline",
@@ -323,7 +329,7 @@ describe("contextual-help-registry (TB-733)", () => {
   });
 
   it("resolves Tenant settings Category-1 help (ATE)", () => {
-    expect(contextualHelpForPathname("/administration/workspace-settings")?.whatIsThisPage).toContain("Tenant settings");
+    expect(contextualHelpForPathname("/administration/workspace-settings")?.whatIsThisPage).toContain("Workspace settings");
     expect(contextualHelpForPathname("/administration/workspace-settings")?.whatToDoNext).toContain("quality gates");
   });
 

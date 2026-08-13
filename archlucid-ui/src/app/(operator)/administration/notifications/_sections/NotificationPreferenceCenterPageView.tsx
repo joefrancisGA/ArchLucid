@@ -12,6 +12,7 @@ import { PageContextualHelpButton } from "@/components/usability/PageContextualH
 import { useNotificationChannelDeliveryStatus } from "@/hooks/use-notification-channel-delivery-status";
 import { OPERATOR_LAYOUT, OPERATOR_TYPOGRAPHY } from "@/lib/design-tokens";
 import {
+  NOTIFICATIONS_HELP_TOPIC_LABEL,
   NOTIFICATION_PREFERENCE_CHANNELS,
   NOTIFICATION_PREFERENCE_CENTER_ORIENTATION_LINE,
   NOTIFICATION_PREFERENCE_CENTER_PAGE_SUBTITLE,
@@ -31,7 +32,7 @@ export function NotificationPreferenceCenterPageView() {
         title={NOTIFICATION_PREFERENCE_CENTER_PAGE_TITLE}
         subtitle={NOTIFICATION_PREFERENCE_CENTER_PAGE_SUBTITLE}
         titleTestId="notification-preference-center-page-title"
-        actions={<PageContextualHelpButton />}
+        actions={<PageContextualHelpButton triggerText={NOTIFICATIONS_HELP_TOPIC_LABEL} />}
       />
 
       <p

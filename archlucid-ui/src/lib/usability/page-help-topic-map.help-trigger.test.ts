@@ -6,7 +6,6 @@ import { describe, expect, it } from "vitest";
 import { ALERTS_CONFIGURATION_PAGE_TITLE } from "@/lib/alerts-page-copy";
 import { BUYER_ONBOARDING_PAGE_TITLE } from "@/lib/buyer/buyer-polish-copy";
 import { OPERATOR_HOME_PAGE_TITLE } from "@/lib/operator/operator-home-page-copy";
-import { SYSTEM_HEALTH_PAGE_TITLE } from "@/lib/system-health-page-copy";
 import { pageHelpTopicForPathname } from "@/lib/usability/page-help-topic-map";
 
 const SRC_ROOT = join(process.cwd(), "src");
@@ -26,11 +25,6 @@ const PAGE_HELP_TITLE_COLLISION_SURFACES: ReadonlyArray<{
     pathname: "/governance/alert-rules",
     pageTitle: ALERTS_CONFIGURATION_PAGE_TITLE,
     modulePath: "app/(operator)/governance/alert-rules/AlertRulesPageHeader.tsx",
-  },
-  {
-    pathname: "/administration/system-health",
-    pageTitle: SYSTEM_HEALTH_PAGE_TITLE,
-    modulePath: "app/(operator)/administration/system-health/_sections/SystemHealthPageHeader.tsx",
   },
   {
     pathname: "/administration/developer",

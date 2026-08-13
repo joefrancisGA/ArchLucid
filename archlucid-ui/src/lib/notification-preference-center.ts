@@ -116,6 +116,8 @@ export const NOTIFICATION_PREFERENCE_CHANNELS: readonly NotificationPreferenceCh
 
 export const NOTIFICATION_PREFERENCE_CENTER_PAGE_TITLE = "Notifications";
 
+export const NOTIFICATIONS_HELP_TOPIC_LABEL = "How notifications work";
+
 export const NOTIFICATION_PREFERENCE_CENTER_PAGE_SUBTITLE =
   "See which channels can ping you, then configure each one on its own page.";
 

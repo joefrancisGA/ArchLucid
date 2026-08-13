@@ -30,12 +30,9 @@ import { Button } from "@/components/ui/button";
 import { Card, CardContent, CardHeader, CardTitle } from "@/components/ui/card";
 
 import {
-
-  PAGE_HELP_SHORT_TRIGGER_TEXT,
-
   PageContextualHelpButton,
-
 } from "@/components/usability/PageContextualHelpButton";
+import { WORKSPACE_SETTINGS_HELP_TOPIC_LABEL } from "@/lib/tenant-settings-evidence-copy";
 
 import { toDocsBlobUrl } from "@/lib/contextual-help-content";
 
@@ -242,7 +239,7 @@ export function TenantSettingsPageView(props: Props) {
 
         }
 
-        actions={<PageContextualHelpButton triggerText={PAGE_HELP_SHORT_TRIGGER_TEXT} />}
+        actions={<PageContextualHelpButton triggerText={WORKSPACE_SETTINGS_HELP_TOPIC_LABEL} />}
 
       />
 
