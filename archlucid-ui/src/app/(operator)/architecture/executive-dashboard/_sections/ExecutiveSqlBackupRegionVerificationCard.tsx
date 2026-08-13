@@ -3,13 +3,12 @@
 import { cn } from "@/lib/utils";
 import { AlertTriangle, CheckCircle2 } from "lucide-react";
 import Link from "next/link";
-import { useEffect, useState } from "react";
 
 import { Card, CardContent, CardDescription, CardHeader, CardTitle } from "@/components/ui/card";
+import { useSqlBackupRegionVerificationQuery } from "@/hooks/use-sql-backup-region-verification-query";
 import { EXECUTIVE_KPI_DRILL_THROUGH } from "@/lib/executive-kpi-drill-through-hrefs";
-import { BUYER_EXECUTIVE_SUMMARY_VOCABULARY } from "@/lib/buyer-surface-vocabulary";
+import { BUYER_EXECUTIVE_SUMMARY_VOCABULARY } from "@/lib/vocabulary/buyer-surface-vocabulary";
 import {
-  fetchSqlBackupRegionVerification,
   formatSqlBackupPrimaryRegionLabel,
   type SqlBackupRegionVerification,
 } from "@/lib/sql-backup-region-verification";
@@ -48,32 +47,13 @@ function redundancyDetail(verification: SqlBackupRegionVerification): string | n
 /** Executive dashboard tile — reads persisted Terraform CI verification artifact. */
 export function ExecutiveSqlBackupRegionVerificationCard() {
   const v = BUYER_EXECUTIVE_SUMMARY_VOCABULARY.sqlBackupRegionVerificationMetric;
-  const [verification, setVerification] = useState<SqlBackupRegionVerification | null>(null);
-  const [loadFailed, setLoadFailed] = useState(false);
+  const verificationQuery = useSqlBackupRegionVerificationQuery();
+  const verification = verificationQuery.data ?? null;
+  const loadFailed = verificationQuery.isError;
+  const loading =
+    verificationQuery.isPending || (verificationQuery.isFetching && !verificationQuery.isFetched);
 
-  useEffect(() => {
-    let cancelled = false;
-
-    void (async () => {
-      try {
-        const data = await fetchSqlBackupRegionVerification();
-
-        if (!cancelled) {
-          setVerification(data);
-        }
-      } catch {
-        if (!cancelled) {
-          setLoadFailed(true);
-        }
-      }
-    })();
-
-    return () => {
-      cancelled = true;
-    };
-  }, []);
-
-  if (verification === null && !loadFailed) {
+  if (loading) {
     return (
       <Card data-testid="executive-sql-backup-region-verification-card">
         <CardHeader className="pb-2">

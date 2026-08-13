@@ -1,6 +1,6 @@
 import { describe, expect, it } from "vitest";
 
-import type { BuyerCtoDemoReadinessCheck } from "@/lib/buyer-cto-demo-readiness";
+import type { BuyerCtoDemoReadinessCheck } from "@/lib/buyer/buyer-cto-demo-readiness";
 import { groupDemoReadinessChecksBySection } from "@/lib/demo-readiness-check-sections";
 
 const sampleChecks: readonly BuyerCtoDemoReadinessCheck[] = [

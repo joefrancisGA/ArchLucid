@@ -78,7 +78,7 @@ export function MarketingTierPricingSection(props: MarketingTierPricingSectionPr
       return;
     }
 
-    let cancelled = false;
+    let canceled = false;
 
     void (async () => {
       try {
@@ -90,12 +90,12 @@ export function MarketingTierPricingSection(props: MarketingTierPricingSectionPr
 
         const json = (await res.json()) as PricingDoc;
 
-        if (!cancelled) {
+        if (!canceled) {
           setPricing(json);
           setPricingLoading(false);
         }
       } catch {
-        if (!cancelled) {
+        if (!canceled) {
           setPricingError(true);
           setPricingLoading(false);
         }
@@ -103,7 +103,7 @@ export function MarketingTierPricingSection(props: MarketingTierPricingSectionPr
     })();
 
     return () => {
-      cancelled = true;
+      canceled = true;
     };
   }, [initialPricing]);
 

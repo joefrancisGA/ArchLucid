@@ -4,6 +4,7 @@ using System.Globalization;
 using ArchLucid.Api.Services.Admin;
 using ArchLucid.Api.Tests.Support;
 using ArchLucid.Application.Common;
+using ArchLucid.Application.DataConsistency;
 using ArchLucid.Core.Audit;
 using ArchLucid.Core.Diagnostics;
 using ArchLucid.Core.Integration;
@@ -719,6 +720,120 @@ public sealed class AdminDiagnosticsServiceSqlPathTests
             Convert.ToInt32(maxRowsParameter.Value, CultureInfo.InvariantCulture));
     }
 
+    [Fact]
+    public async Task GetDataConsistencyMissingArchitectureRequestSnapshotAsync_sqlPath_maps_count_and_sample_guids()
+    {
+        Guid sampleId = Guid.Parse("dddddddd-dddd-dddd-dddd-dddddddddddd");
+
+        Mock<IDbConnectionFactory> factoryOuter = new();
+        Queue<DbCommand> queue = new();
+
+        queue.Enqueue(new ScriptedDbCommand(CreateParameterTemplate)
+        {
+            ScalarAsync = _ => Task.FromResult<object?>(2L)
+        });
+        queue.Enqueue(BuildReaderCommand(ReadResult.OnlyGuids(sampleId), null));
+
+        SequencedCommandDbConnection connection = new(queue);
+        factoryOuter.Setup(f => f.CreateConnection()).Returns(connection);
+
+        AdminDiagnosticsService sut = CreateDiagnosticsService(factoryOuter.Object);
+
+        DataConsistencyMissingArchitectureRequestSnapshot snapshot =
+            await sut.GetDataConsistencyMissingArchitectureRequestSnapshotAsync(10, CancellationToken.None);
+
+        Assert.Equal(2, snapshot.Count);
+        Assert.Equal([sampleId.ToString("D")], snapshot.SampleRunIds);
+    }
+
+    [Fact]
+    public async Task RemediateMissingArchitectureRequestRunsAsync_dryRun_sql_reads_candidates_without_audit_or_archive()
+    {
+        Guid candidateId = Guid.Parse("eeeeeeee-eeee-eeee-eeee-eeeeeeeeeeee");
+        Mock<IAuditService> audit = new();
+        Mock<IRunRepository> runs = new(MockBehavior.Strict);
+        Mock<IDbConnectionFactory> factoryOuter = new();
+
+        ScriptedSqlSession session = new(factoryOuter);
+        session.EnqueueParameterizedReader(ReadResult.OnlyGuids(candidateId));
+        _ = session.Activate();
+
+        AdminDiagnosticsService sut = CreateDiagnosticsService(session.Factory, audit.Object, runs);
+
+        MissingArchitectureRequestRemediationResult result =
+            await sut.RemediateMissingArchitectureRequestRunsAsync(true, 5, CancellationToken.None);
+
+        Assert.True(result.DryRun);
+        Assert.Equal(1, result.CandidateCount);
+        Assert.Equal([candidateId.ToString("D")], result.CandidateRunIds);
+        Assert.Empty(result.ArchivedRunIds);
+        Assert.Empty(result.Failed);
+
+        audit.Verify(
+            svc => svc.LogAsync(It.IsAny<AuditEvent>(), It.IsAny<CancellationToken>()),
+            Times.Never);
+        runs.Verify(
+            r => r.ArchiveRunsByIdsAsync(It.IsAny<IReadOnlyList<Guid>>(), It.IsAny<CancellationToken>()),
+            Times.Never);
+    }
+
+    [Fact]
+    public async Task RemediateMissingArchitectureRequestRunsAsync_execute_archives_and_audits()
+    {
+        Guid candidateId = Guid.Parse("ffffffff-ffff-ffff-ffff-ffffffffffff");
+        Mock<IAuditService> audit = new();
+        Mock<IRunRepository> runs = new();
+        Mock<IDbConnectionFactory> factoryOuter = new();
+
+        ScriptedSqlSession session = new(factoryOuter);
+        session.EnqueueParameterizedReader(ReadResult.OnlyGuids(candidateId));
+        _ = session.Activate();
+
+        RunArchiveByIdsResult archiveResult = new()
+        {
+            SucceededRunIds = [candidateId],
+            ArchivedRuns =
+            [
+                new ArchivedRunScopeRow
+                {
+                    RunId = candidateId,
+                    TenantId = Guid.Parse("11111111-1111-1111-1111-111111111111"),
+                    WorkspaceId = Guid.Parse("22222222-2222-2222-2222-222222222222"),
+                    ScopeProjectId = Guid.Parse("33333333-3333-3333-3333-333333333333")
+                }
+            ],
+            Failed = [],
+            ChildCascade = new RunArchiveChildCascadeCounts { GoldenManifests = 0 }
+        };
+
+        _ = runs
+            .Setup(r => r.ArchiveRunsByIdsAsync(
+                It.Is<IReadOnlyList<Guid>>(list => list.Count == 1 && list[0] == candidateId),
+                It.IsAny<CancellationToken>()))
+            .ReturnsAsync(archiveResult);
+
+        AdminDiagnosticsService sut = CreateDiagnosticsService(session.Factory, audit.Object, runs);
+
+        MissingArchitectureRequestRemediationResult result =
+            await sut.RemediateMissingArchitectureRequestRunsAsync(false, 25, CancellationToken.None);
+
+        Assert.False(result.DryRun);
+        Assert.Equal(1, result.CandidateCount);
+        Assert.Equal([candidateId.ToString("D")], result.ArchivedRunIds);
+
+        audit.Verify(
+            svc => svc.LogAsync(
+                It.Is<AuditEvent>(auditEvent =>
+                    auditEvent.EventType == AuditEventTypes.ManifestArchived
+                    && DataJsonFragments(
+                        auditEvent.DataJson,
+                        "\"missingArchitectureRequest\"",
+                        "\"updatedRuns\":1",
+                        candidateId.ToString("D"))),
+                It.IsAny<CancellationToken>()),
+            Times.Once);
+    }
+
     private static void ScalarConnection(Mock<IDbConnectionFactory> factoryProxy,
         IReadOnlyList<object?> scalarSequence)
     {
@@ -854,7 +969,17 @@ public sealed class AdminDiagnosticsServiceSqlPathTests
             Options.Create(new IntegrationEventsOptions()),
             CacheTelemetryProvider(),
             actor.Object,
-            auditService);
+            auditService,
+            MissingArchitectureRequestOptionsMonitor());
+    }
+
+    private static IOptionsMonitor<MissingArchitectureRequestAutoRemediationOptions>
+        MissingArchitectureRequestOptionsMonitor()
+    {
+        Mock<IOptionsMonitor<MissingArchitectureRequestAutoRemediationOptions>> monitor = new();
+        monitor.Setup(m => m.CurrentValue).Returns(new MissingArchitectureRequestAutoRemediationOptions());
+
+        return monitor.Object;
     }
 
     private static ICacheTelemetrySnapshotProvider CacheTelemetryProvider()

@@ -12,7 +12,7 @@ import {
   expandAriaLabel,
   readOperatorHomeDisclosureExpanded,
   writeOperatorHomeDisclosureExpanded,
-} from "@/lib/operator-home-disclosure-storage";
+} from "@/lib/operator/operator-home-disclosure-storage";
 import { OPERATOR_CARD, OPERATOR_LINK, OPERATOR_TYPOGRAPHY } from "@/lib/design-tokens";
 
 type OperatorHomeDisclosureSectionProps = {

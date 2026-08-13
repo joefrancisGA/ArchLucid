@@ -88,8 +88,15 @@ export type AiUsageGovernanceControls = {
   readonly warningThresholdPercent: number | null;
   readonly hardStopEnabled: boolean;
   readonly resetPeriod: string | null;
+  readonly billingPeriodResetLabel: string | null;
   readonly workspaceKind: string | null;
   readonly customerAiProviderConfigured: boolean;
+};
+
+export type AiUsageFreshness = {
+  readonly estimatesAsOfUtc: string | null;
+  readonly billingPeriodResetUtc: string | null;
+  readonly billingPeriodResetLabel: string | null;
 };
 
 export type AiUsageDashboardDerived = {
@@ -104,6 +111,7 @@ export type AiUsageDashboardDerived = {
   readonly costReportingState: AiUsageSectionLoadState;
   readonly budgetState: AiUsageSectionLoadState;
   readonly activityState: AiUsageSectionLoadState;
+  readonly freshness: AiUsageFreshness;
 };
 
 export type BuildAiUsageDashboardDerivedInput = {
@@ -122,6 +130,8 @@ export type BuildAiUsageDashboardDerivedInput = {
   readonly filters: AiUsageDashboardFilters;
   readonly canViewBudgetDetails: boolean;
   readonly canManageBudget: boolean;
+  readonly estimatesAsOfUtc?: string | null;
+  readonly billingPeriodUtcMonth?: string | null;
 };
 
 function utcDaysInMonth(reference: Date): number {
@@ -133,6 +143,64 @@ function utcDaysRemainingInMonth(reference: Date): number {
   const dayOfMonth = reference.getUTCDate();
 
   return Math.max(0, daysInMonth - dayOfMonth);
+}
+
+/** First instant of the UTC month after `yyyy-MM` (budget period reset). */
+export function resolveUtcMonthPeriodResetUtc(utcMonth: string): string | null {
+  const match = /^(\d{4})-(\d{2})$/.exec(utcMonth.trim());
+
+  if (match === null) {
+    return null;
+  }
+
+  const year = Number(match[1]);
+  const month = Number(match[2]);
+
+  if (!Number.isFinite(year) || month < 1 || month > 12) {
+    return null;
+  }
+
+  const reset = new Date(Date.UTC(month === 12 ? year + 1 : year, month === 12 ? 0 : month, 1));
+
+  return reset.toISOString();
+}
+
+export function formatAiUsageBillingPeriodResetLabel(resetUtc: string): string {
+  const date = new Date(resetUtc);
+
+  if (!Number.isFinite(date.getTime())) {
+    return "Next UTC month";
+  }
+
+  return date.toLocaleDateString(undefined, { dateStyle: "long", timeZone: "UTC" });
+}
+
+export function formatAiUsageEstimatesAsOfLabel(asOfUtc: string): string {
+  const date = new Date(asOfUtc);
+
+  if (!Number.isFinite(date.getTime())) {
+    return "Estimates as of —";
+  }
+
+  const formatted = date.toLocaleString(undefined, {
+    dateStyle: "medium",
+    timeStyle: "short",
+    timeZone: "UTC",
+  });
+
+  return `Estimates as of ${formatted} UTC`;
+}
+
+export function resolveAiUsageEstimatesAsOfUtc(
+  sources: readonly (string | null | undefined)[],
+): string | null {
+  for (const source of sources) {
+    if (typeof source === "string" && source.trim().length > 0) {
+      return source.trim();
+    }
+  }
+
+  return null;
 }
 
 /** Linear month-end projection from month-to-date spend (labeled approximate in UI). */
@@ -310,12 +378,18 @@ function buildGovernanceControls(
   }
 
   const warnFraction = budgetStatus?.warnFraction ?? null;
+  const billingPeriodResetUtc =
+    budgetStatus?.utcMonth !== undefined && budgetStatus.utcMonth.length > 0
+      ? resolveUtcMonthPeriodResetUtc(budgetStatus.utcMonth)
+      : null;
 
   return {
     monthlyBudgetUsd: adminDashboard?.budgetAmountUsd ?? budgetStatus?.effectiveHardCapUsd ?? null,
     warningThresholdPercent: warnFraction !== null ? Math.round(warnFraction * 100) : null,
     hardStopEnabled: adminDashboard?.hardStopEnabled ?? budgetStatus?.blocksAdditionalLlmExecution ?? false,
     resetPeriod: adminDashboard?.resetPeriod ?? null,
+    billingPeriodResetLabel:
+      billingPeriodResetUtc !== null ? formatAiUsageBillingPeriodResetLabel(billingPeriodResetUtc) : null,
     workspaceKind: adminDashboard?.workspaceKind ?? budgetStatus?.workspaceKind ?? null,
     customerAiProviderConfigured:
       adminDashboard?.customerAiProviderConfigured ?? budgetStatus?.customerAiProviderConfigured ?? false,
@@ -510,6 +584,10 @@ function matchesActivityFilters(row: AiUsageActivityRow, filters: AiUsageDashboa
 }
 
 function resolveCostReportingState(input: BuildAiUsageDashboardDerivedInput): AiUsageSectionLoadState {
+  if (input.costReportingLoading && input.costReportingDelayed) {
+    return "delayed";
+  }
+
   if (input.costReportingLoading) {
     return "loading";
   }
@@ -650,6 +728,11 @@ export function buildAiUsageDashboardDerived(input: BuildAiUsageDashboardDerived
       ? formatAiUsageFeatureLabel(highestCostOperationEntry[0])
       : null;
 
+  const billingPeriodResetUtc =
+    (input.billingPeriodUtcMonth ?? null) !== null
+      ? resolveUtcMonthPeriodResetUtc(input.billingPeriodUtcMonth ?? "")
+      : null;
+
   return {
     kpi: {
       usedThisMonthUsd,
@@ -678,6 +761,12 @@ export function buildAiUsageDashboardDerived(input: BuildAiUsageDashboardDerived
     costReportingState: resolveCostReportingState(input),
     budgetState: resolveBudgetState(input),
     activityState: resolveActivityState(input),
+    freshness: {
+      estimatesAsOfUtc: input.estimatesAsOfUtc ?? null,
+      billingPeriodResetUtc,
+      billingPeriodResetLabel:
+        billingPeriodResetUtc !== null ? formatAiUsageBillingPeriodResetLabel(billingPeriodResetUtc) : null,
+    },
   };
 }
 
@@ -718,10 +807,15 @@ export function dailyMetricAccessibleSummary(
   }
 
   if (metric === "tokens") {
-    return `Daily token usage over ${daily.length} days totals ${total.toLocaleString()} tokens with a peak day of ${peak.toLocaleString()} tokens${peakDay.length > 0 ? ` on ${peakDay.slice(0, 10)}` : ""}.`;
+    return `Daily token usage over ${daily.length} days totals ${formatMetricCount(total)} tokens with a peak day of ${formatMetricCount(peak)} tokens${peakDay.length > 0 ? ` on ${peakDay.slice(0, 10)}` : ""}.`;
   }
 
-  return `Daily ${metric} over ${daily.length} days totals ${total.toLocaleString()} with a peak of ${peak.toLocaleString()}.`;
+  return `Daily ${metric} over ${daily.length} days totals ${formatMetricCount(total)} with a peak of ${formatMetricCount(peak)}.`;
+}
+
+/** Fixed `en-US` grouping so the screen-reader summary matches between server render and hydration. */
+function formatMetricCount(value: number): string {
+  return new Intl.NumberFormat("en-US").format(value);
 }
 
 function formatUsd(value: number, currency: string): string {

@@ -6,7 +6,7 @@ import { useCallback, useEffect, useMemo, useState } from "react";
 import { replayRun } from "@/lib/api";
 import type { ApiLoadFailureState } from "@/lib/api-load-failure";
 import { toApiLoadFailure } from "@/lib/api-load-failure";
-import { coerceReplayResponse } from "@/lib/operator-response-guards";
+import { coerceReplayResponse } from "@/lib/operator/operator-response-guards";
 import {
   latestValidationOutcomeByRunId,
   loadReplayValidationAuditHistory,
@@ -48,29 +48,29 @@ export function useReplayForm(): ReplayFormViewModel {
   const runIdTrimmed = runId.trim();
 
   useEffect(() => {
-    let cancelled = false;
+    let canceled = false;
 
     if (runIdTrimmed.length === 0) {
       setAuditHistory([]);
       return () => {
-        cancelled = true;
+        canceled = true;
       };
     }
 
     void loadReplayValidationAuditHistory(runIdTrimmed)
       .then((entries) => {
-        if (!cancelled) {
+        if (!canceled) {
           setAuditHistory(entries);
         }
       })
       .catch(() => {
-        if (!cancelled) {
+        if (!canceled) {
           setAuditHistory([]);
         }
       });
 
     return () => {
-      cancelled = true;
+      canceled = true;
     };
   }, [runIdTrimmed]);
 

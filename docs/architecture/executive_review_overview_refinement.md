@@ -83,7 +83,7 @@ pnpm exec vitest run \
   src/components/reviews/RunDetailExecutiveSummary.test.tsx \
   src/components/reviews/RunDetailOverviewTab.test.tsx \
   src/components/reviews/RunDetailArchitectureSummaryCard.test.tsx \
-  src/lib/run-detail-workspace-derive.test.ts \
+  src/lib/runs/run-detail-workspace-derive.test.ts \
   src/components/FirstWeekRouteGuidance.test.tsx \
   src/app/(operator)/reviews/[runId]/_sections/RunDetailPageView.progressive-disclosure.test.ts \
   src/app/(operator)/reviews/[runId]/_sections/ReviewPackageSummaryHeader.test.ts \

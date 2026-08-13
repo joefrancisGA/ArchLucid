@@ -2,8 +2,8 @@
  * Action-oriented command palette entries (navigate + pre-filled intent).
  */
 
-import { CREATE_ARCHITECTURE_LABEL } from "@/lib/architecture-workflow-labels";
-import { GOVERNANCE_AUDIT_PATH } from "@/lib/governance-route-paths";
+import { CREATE_ARCHITECTURE_LABEL } from "@/lib/architecture/architecture-workflow-labels";
+import { GOVERNANCE_AUDIT_PATH } from "@/lib/governance/governance-route-paths";
 import { SPONSOR_REPORT_EXECUTIVE_SUMMARY_PATH } from "@/lib/sponsor-report-navigation";
 
 export type CommandPaletteAction = {
@@ -47,7 +47,7 @@ export const COMMAND_PALETTE_ACTIONS: readonly CommandPaletteAction[] = [
   {
     id: "action-quality-settings",
     label: "Configure AI quality gates",
-    href: "/administration/tenant",
+    href: "/administration/workspace-settings",
     searchValue: "action quality gate llm judge settings",
   },
 ];

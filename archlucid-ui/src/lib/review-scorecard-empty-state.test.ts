@@ -1,6 +1,6 @@
 import { describe, expect, it } from "vitest";
 
-import { BUYER_START_ARCHITECTURE_REVIEW_CTA } from "@/lib/buyer-polish-copy";
+import { BUYER_START_ARCHITECTURE_REVIEW_CTA } from "@/lib/buyer/buyer-polish-copy";
 import {
   REVIEW_SCORECARD_EMPTY_PRIMARY_CTA,
   REVIEW_SCORECARD_EMPTY_TERTIARY_CTA,

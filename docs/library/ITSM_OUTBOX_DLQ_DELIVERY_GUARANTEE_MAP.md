@@ -4,7 +4,7 @@
 
 **Audience:** Engineering, integrations, principal-architect diligence. Not a buyer brochure.
 
-**Status:** Working contract for **TB-1530** / GTM **M-280**. Pair honesty CI **TB-1531** / **M-280**.
+**Status:** Working contract for **TB-1530** (Done 2026-08-12) / GTM **M-280**. Pair honesty CI **TB-1531** **Done** (2026-08-12) / **M-280**.
 
 **Verdict (one line):** Do **not** treat “integration events → outbox → DLQ” as the native Jira/ServiceNow create path — native create is **background-job at-least-once** with **soft ArchLucid correlation skip**; customers **can see duplicate tickets**. Integration-event outbox/DLQ is a **separate** bridge path; poison lands in SQL + admin UI + Prometheus **warning** (not founder MVO paging by default).
 
@@ -76,9 +76,22 @@ Job `CorrelationId` includes `Guid.NewGuid()` per enqueue — **not** a stable i
 | ID | Role |
 |----|------|
 | Done **TB-394** | Durable async ITSM create via background jobs |
-| Open **TB-992**–**TB-994** / **M-144**–**M-145** | Integration outbox at-least-once contract (Path B) |
+| Done **TB-992** / **M-144**–**M-145** | Integration outbox at-least-once contract (Path B) — [`TRANSACTIONAL_OUTBOX_REPLAY_VS_IDEMPOTENCY_CONTRACT.md`](./TRANSACTIONAL_OUTBOX_REPLAY_VS_IDEMPOTENCY_CONTRACT.md) |
+| Open **TB-993**–**TB-994** | Stable `MessageId` enforcement + crash regression CI |
 | Open **TB-1011** / **M-162** | Finalize vs outbox; delivery lag disclosed |
 | **TB-1530** / **M-280** | This ITSM Path A vs B + duplicate/DLQ notify map |
+
+---
+
+## CI anchors for **TB-1531**
+
+| Anchor | Role |
+| --- | --- |
+| `scripts/ci/check_itsm_outbox_dlq_delivery_honesty.py` | Fail exactly-once-ITSM / outbox-equals-native-create / recipe-idempotent overclaims |
+| `ArchLucid.Application/Integrations/Itsm/Outbound/ItsmOutboundIssueCreationService.cs` | Native Path A create + soft correlation code anchor |
+| `ArchLucid.Persistence/IntegrationOutbox/DapperIntegrationEventOutboxRepository.cs` | Path B IntegrationEventOutbox code anchor |
+
+Honesty CI shipped: **TB-1531**.
 
 ---
 

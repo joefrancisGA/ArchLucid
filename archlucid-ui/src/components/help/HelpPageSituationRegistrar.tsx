@@ -1,7 +1,7 @@
 "use client";
 
 import { useRegisterHelpPageSituation } from "@/components/help/help-page-situation-store";
-import type { HelpPageSituation } from "@/lib/help-page-situation";
+import type { HelpPageSituation } from "@/lib/help/help-page-situation";
 
 export type HelpPageSituationRegistrarProps = {
   readonly situation: HelpPageSituation | null;

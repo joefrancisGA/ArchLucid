@@ -5,18 +5,19 @@ import Link from "next/link";
 import { Button } from "@/components/ui/button";
 import { StatusTag } from "@/components/ui/status-tag";
 import { useArchitectureDraftRegistryEntries } from "@/hooks/use-architecture-draft-registry-entries";
-import { isArchitectureDraftEligibleToStartReview } from "@/lib/architecture-draft-ready-for-review";
-import { trackArchitectureDraftResumeClick } from "@/lib/architecture-draft-resume-telemetry";
+import { isArchitectureDraftEligibleToStartReview } from "@/lib/architecture/architecture-draft-ready-for-review";
+import { trackArchitectureDraftResumeClick } from "@/lib/architecture/architecture-draft-resume-telemetry";
 import {
   ARCHITECTURE_DRAFT_STATUS_LABELS,
   architectureDraftCustomerStatusTagKind,
-} from "@/lib/architecture-draft-status";
+} from "@/lib/architecture/architecture-draft-status";
 import {
   architectureDraftPath,
   ARCHITECTURES_LIST_PATH,
   startReviewFromArchitectureHref,
-} from "@/lib/architecture-routes";
+} from "@/lib/architecture/architecture-routes";
 import { OPERATOR_NAV_GROUP_LABEL, OPERATOR_TYPOGRAPHY } from "@/lib/design-tokens";
+import { parseIsoUtcMs } from "@/lib/format-iso-utc";
 import { formatRelativeTime } from "@/lib/relative-time";
 import { cn } from "@/lib/utils";
 
@@ -32,7 +33,7 @@ import { shouldShowReviewsHubResumeDrafts } from "./reviews-hub-header-primary";
 const REVIEWS_HUB_RESUME_DRAFTS_PREVIEW_LIMIT = 3;
 
 function formatAbsoluteUpdatedTitle(updatedUtc: string): string {
-  const parsed = Date.parse(updatedUtc);
+  const parsed = parseIsoUtcMs(updatedUtc);
 
   if (Number.isNaN(parsed)) {
     return updatedUtc;
@@ -64,7 +65,7 @@ export function ReviewsHubResumeDrafts(): React.JSX.Element | null {
       aria-label={REVIEWS_HUB_RESUME_DRAFTS_TITLE}
     >
       <h2 className={cn("m-0 text-al-text-secondary", OPERATOR_NAV_GROUP_LABEL)}>{REVIEWS_HUB_RESUME_DRAFTS_TITLE}</h2>
-      <p className={cn("m-0 mt-1 max-w-prose text-al-text-secondary", OPERATOR_TYPOGRAPHY.helper)}>
+      <p className={cn("m-0 mt-1 text-al-text-secondary", OPERATOR_TYPOGRAPHY.helper)}>
         {REVIEWS_HUB_RESUME_DRAFTS_BODY}
       </p>
       <ul className="m-0 mt-3 list-none space-y-3 p-0">

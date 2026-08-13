@@ -4,7 +4,7 @@ import { describe, expect, it, vi } from "vitest";
 import { TrialFunnelOpsPageClient } from "@/app/(operator)/internal/trial-funnel/_sections/TrialFunnelOpsPageClient";
 import { TRIAL_FUNNEL_PAGE_SUBTITLE } from "@/lib/trial-funnel-metric-contract";
 
-vi.mock("@/components/OperatorNavAuthorityProvider", () => ({
+vi.mock("@/components/operator/OperatorNavAuthorityProvider", () => ({
   useOperatorNavAuthority: () => ({
     callerAuthorityRank: 4,
     isAuthorityLoading: false,
@@ -80,6 +80,6 @@ describe("TrialFunnelOpsPageClient", () => {
     expect(await screen.findByText("Funnel overview")).toBeInTheDocument();
     expect(screen.getByText("Activation and review timing")).toBeInTheDocument();
     expect(screen.getAllByText("First-review AI cost").length).toBeGreaterThan(0);
-    expect(screen.getByRole("button", { name: /refresh data/i })).toBeInTheDocument();
+    expect(screen.getByRole("button", { name: "Refresh" })).toBeInTheDocument();
   });
 });

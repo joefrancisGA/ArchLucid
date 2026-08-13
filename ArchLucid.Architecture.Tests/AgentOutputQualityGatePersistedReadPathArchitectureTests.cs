@@ -54,6 +54,7 @@ public sealed class AgentOutputQualityGatePersistedReadPathArchitectureTests
         string text = File.ReadAllText(path, Encoding.UTF8);
 
         text.Should().Contain("PatchQualityGateRecordedSnapshotAsync");
+        text.Should().Contain("QualityGateRecordedEvaluationSnapshot");
         text.Should().Contain("QualityGatePassed = qualityGatePassed");
         text.Should().Contain("_agentOutputEvaluationRepository");
         text.Should().Contain("AppendAsync");

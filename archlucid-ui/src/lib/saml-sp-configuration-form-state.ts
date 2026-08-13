@@ -1,10 +1,12 @@
 import type { TenantIdentityProviderConfigurationRecord } from "@/lib/admin-identity-provider-api";
 import type { IdentityProviderActivateBody } from "@/lib/admin-identity-provider-api";
+import { IDENTITY_PROVIDERS_SAML_ISSUER_VALIDATION_REQUIRED, IDENTITY_PROVIDERS_SAML_MAPPING_VALIDATION_REQUIRED } from "@/lib/identity-providers-settings-copy";
 import { TENANT_IDENTITY_PROTOCOL } from "@/lib/tenant-identity-protocol";
 
 const ARCHLUCID_ROLES = ["Admin", "Operator", "Reader", "Auditor"] as const;
 
 export type SamlSpClaimMappingRow = {
+  readonly rowId: string;
   idpValue: string;
   archLucidRole: string;
 };
@@ -23,14 +25,42 @@ type ClaimMappingJsonDocument = {
   customGroupClaimRegex?: string | null;
 };
 
+let nextSamlMappingRowId = 0;
+
+/** Stable row key for React lists — not persisted to the API. */
+export function createSamlSpMappingRowId(): string {
+  nextSamlMappingRowId += 1;
+
+  return `saml-mapping-row-${nextSamlMappingRowId}`;
+}
+
+export function createDefaultSamlSpClaimMappingRow(archLucidRole: string): SamlSpClaimMappingRow {
+  return {
+    rowId: createSamlSpMappingRowId(),
+    idpValue: "",
+    archLucidRole,
+  };
+}
+
 export function createDefaultSamlSpConfigurationFormValues(): SamlSpConfigurationFormValues {
   return {
     idpMetadataUrl: "",
     issuerUri: "",
     roleClaimName: "groups",
-    mappings: ARCHLUCID_ROLES.map((archLucidRole) => ({ idpValue: "", archLucidRole })),
+    mappings: ARCHLUCID_ROLES.map((archLucidRole) => createDefaultSamlSpClaimMappingRow(archLucidRole)),
     customGroupClaimRegex: "",
   };
+}
+
+export function extractPersistedTenantRoleMappingRows(
+  record: TenantIdentityProviderConfigurationRecord | null,
+): ReadonlyArray<{ readonly idpValue: string; readonly archLucidRole: string }> {
+  return hydrateSamlSpConfigurationFormValues(record)
+    .mappings.filter((row) => row.idpValue.trim().length > 0)
+    .map((row) => ({
+      idpValue: row.idpValue.trim(),
+      archLucidRole: row.archLucidRole.trim(),
+    }));
 }
 
 export function hydrateSamlSpConfigurationFormValues(
@@ -52,26 +82,33 @@ export function hydrateSamlSpConfigurationFormValues(
     }
   }
 
-  const mappingByRole = new Map<string, string>();
+  const savedMappings = (parsedMapping?.mappings ?? [])
+    .map((entry) => {
+      const archLucidRole = entry.archLucidRole?.trim() ?? "";
+      const idpValue = entry.idpValue?.trim() ?? "";
 
-  for (const entry of parsedMapping?.mappings ?? []) {
-    const role = entry.archLucidRole?.trim() ?? "";
-    const idpValue = entry.idpValue?.trim() ?? "";
+      if (archLucidRole.length === 0 || idpValue.length === 0) {
+        return null;
+      }
 
-    if (role.length > 0) {
-      mappingByRole.set(role, idpValue);
-    }
-  }
+      return {
+        ...createDefaultSamlSpClaimMappingRow(archLucidRole),
+        idpValue,
+      };
+    })
+    .filter((row): row is SamlSpClaimMappingRow => row !== null);
+
+  const hydratedMappings =
+    savedMappings.length > 0
+      ? savedMappings
+      : defaults.mappings;
 
   return {
     ...defaults,
     issuerUri: record.issuerUri?.trim() ?? "",
     roleClaimName: parsedMapping?.roleClaimName?.trim() || defaults.roleClaimName,
     customGroupClaimRegex: parsedMapping?.customGroupClaimRegex?.trim() ?? "",
-    mappings: ARCHLUCID_ROLES.map((archLucidRole) => ({
-      archLucidRole,
-      idpValue: mappingByRole.get(archLucidRole) ?? "",
-    })),
+    mappings: hydratedMappings,
   };
 }
 
@@ -82,7 +119,12 @@ export function buildSamlSpActivateRequest(values: SamlSpConfigurationFormValues
     metadataXml: null,
     claimMapping: {
       roleClaimName: values.roleClaimName.trim(),
-      mappings: values.mappings.filter((row) => row.idpValue.trim().length > 0),
+      mappings: values.mappings
+        .filter((row) => row.idpValue.trim().length > 0)
+        .map((row) => ({
+          idpValue: row.idpValue.trim(),
+          archLucidRole: row.archLucidRole.trim(),
+        })),
       customGroupClaimRegex: values.customGroupClaimRegex.trim() || null,
     },
     keyVaultSecretName: null,
@@ -95,25 +137,31 @@ export function isSamlSpConfigurationFormValid(values: SamlSpConfigurationFormVa
   return resolveSamlSpConfigurationValidationError(values) === null;
 }
 
-/** Returns the first validation error for SAML SP configuration, if any. */
-export function resolveSamlSpConfigurationValidationError(values: SamlSpConfigurationFormValues): string | null {
+const SAML_SP_ROLE_CLAIM_VALIDATION_REQUIRED = "Attribute used for roles/groups is required.";
+const SAML_SP_INCOMPLETE_MAPPING_ROW_VALIDATION =
+  "Complete every role mapping row or clear unused values.";
+
+function collectSamlSpConfigurationValidationErrors(values: SamlSpConfigurationFormValues): string[] {
+  const errors: string[] = [];
+
   if (values.issuerUri.trim().length === 0) {
-    return "Issuer / entity ID is required.";
+    errors.push(IDENTITY_PROVIDERS_SAML_ISSUER_VALIDATION_REQUIRED);
   }
 
   if (values.roleClaimName.trim().length === 0) {
-    return "Attribute used for roles/groups is required.";
+    errors.push(SAML_SP_ROLE_CLAIM_VALIDATION_REQUIRED);
   }
 
   const populatedMappings = values.mappings.filter((row) => row.idpValue.trim().length > 0);
 
   if (!populatedMappings.some((row) => row.archLucidRole.trim().length > 0)) {
-    return "Add at least one IdP group or role mapping.";
+    errors.push(IDENTITY_PROVIDERS_SAML_MAPPING_VALIDATION_REQUIRED);
   }
 
   for (const row of populatedMappings) {
     if (row.archLucidRole.trim().length === 0) {
-      return "Complete every role mapping row or clear unused values.";
+      errors.push(SAML_SP_INCOMPLETE_MAPPING_ROW_VALIDATION);
+      break;
     }
   }
 
@@ -121,8 +169,70 @@ export function resolveSamlSpConfigurationValidationError(values: SamlSpConfigur
   const duplicate = idpValues.find((value, index) => idpValues.indexOf(value) !== index);
 
   if (duplicate !== undefined) {
-    return `Duplicate IdP group or role value: ${duplicate}`;
+    errors.push(`Duplicate IdP group or role value: ${duplicate}`);
   }
 
-  return null;
+  return errors;
+}
+
+/** Returns every validation error for SAML SP configuration, in display order. */
+export function resolveSamlSpConfigurationValidationErrors(values: SamlSpConfigurationFormValues): string[] {
+  return collectSamlSpConfigurationValidationErrors(values);
+}
+
+/** Returns the first validation error for SAML SP configuration, if any. */
+export function resolveSamlSpConfigurationValidationError(values: SamlSpConfigurationFormValues): string | null {
+  const errors = collectSamlSpConfigurationValidationErrors(values);
+
+  return errors.length > 0 ? errors[0] : null;
+}
+
+export type SamlSpConfigurationFieldErrors = {
+  readonly issuerUri: string | null;
+  readonly roleClaimName: string | null;
+  readonly mappings: string | null;
+};
+
+/** Field-scoped validation messages for inline form affordances. */
+export function resolveSamlSpConfigurationFieldErrors(
+  values: SamlSpConfigurationFormValues,
+): SamlSpConfigurationFieldErrors {
+  const errors = collectSamlSpConfigurationValidationErrors(values);
+
+  return {
+    issuerUri: errors.includes(IDENTITY_PROVIDERS_SAML_ISSUER_VALIDATION_REQUIRED)
+      ? IDENTITY_PROVIDERS_SAML_ISSUER_VALIDATION_REQUIRED
+      : null,
+    roleClaimName: errors.includes(SAML_SP_ROLE_CLAIM_VALIDATION_REQUIRED)
+      ? SAML_SP_ROLE_CLAIM_VALIDATION_REQUIRED
+      : null,
+    mappings:
+      errors.find(
+        (message) =>
+          message === IDENTITY_PROVIDERS_SAML_MAPPING_VALIDATION_REQUIRED
+          || message === SAML_SP_INCOMPLETE_MAPPING_ROW_VALIDATION
+          || message.startsWith("Duplicate IdP group or role value:"),
+      ) ?? null,
+  };
+}
+
+export function addSamlSpClaimMappingRow(values: SamlSpConfigurationFormValues): SamlSpConfigurationFormValues {
+  return {
+    ...values,
+    mappings: [...values.mappings, createDefaultSamlSpClaimMappingRow("Reader")],
+  };
+}
+
+export function removeSamlSpClaimMappingRow(
+  values: SamlSpConfigurationFormValues,
+  rowId: string,
+): SamlSpConfigurationFormValues {
+  if (values.mappings.length <= 1) {
+    return values;
+  }
+
+  return {
+    ...values,
+    mappings: values.mappings.filter((row) => row.rowId !== rowId),
+  };
 }

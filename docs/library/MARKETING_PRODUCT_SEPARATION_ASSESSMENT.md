@@ -1,7 +1,7 @@
 > **Scope:** Contributor-reference — owner-directed assessment of marketing vs product app separation; not a buyer or operator document.
 > **Decision date:** 2026-07-10 (initial). **Owner override:** 2026-07-31 — dual Container App hostname split, same image, **no Front Door**.
 > **Audience:** engineers and AI coding agents evaluating hosting/deployment changes to `archlucid-ui`.
-> **Depends on:** [`PUBLIC_MARKETING_SITE_TOPOLOGY.md`](PUBLIC_MARKETING_SITE_TOPOLOGY.md), `archlucid-ui/src/components/OperatorRoleGate.tsx` / `OperatorHomeGate.tsx`, `infra/terraform-container-apps` (operator + marketing UI apps).
+> **Depends on:** [`PUBLIC_MARKETING_SITE_TOPOLOGY.md`](PUBLIC_MARKETING_SITE_TOPOLOGY.md), `archlucid-ui/src/components/operator/OperatorRoleGate.tsx` / `OperatorHomeGate.tsx`, `infra/terraform-container-apps` (operator + marketing UI apps).
 > **Still out of scope:** new Azure Front Door investment (owner cost constraint unchanged).
 > **Backlog:** interim autoscaling/gates/metrics **TB-729 – TB-731** (Done). Dual-CA split **TB-2016 – TB-2020**.
 
@@ -50,7 +50,7 @@ This is not a green-field decision — evaluate against the current state, not a
 
 ## 3. The real gap: soft, client-side auth boundary
 
-There is no server-side auth wall for most operator routes. `OperatorRoleGate` (`archlucid-ui/src/components/OperatorRoleGate.tsx`) and `OperatorHomeGate` redirect **client-side, after hydration** — an anonymous or unauthorized visitor deep-linking to an operator route can see shell chrome (`AppShellClient`, `SidebarNav`) render briefly before the redirect fires. This is independent of the marketing/product coupling question: splitting marketing into its own site would not fix it, because the boundary that leaks is inside the operator app itself. This is addressed directly in the backlog (TB-730), and is a higher-leverage fix for "buyers don't see admin UI" than any domain split would be.
+There is no server-side auth wall for most operator routes. `OperatorRoleGate` (`archlucid-ui/src/components/operator/OperatorRoleGate.tsx`) and `OperatorHomeGate` redirect **client-side, after hydration** — an anonymous or unauthorized visitor deep-linking to an operator route can see shell chrome (`AppShellClient`, `SidebarNav`) render briefly before the redirect fires. This is independent of the marketing/product coupling question: splitting marketing into its own site would not fix it, because the boundary that leaks is inside the operator app itself. This is addressed directly in the backlog (TB-730), and is a higher-leverage fix for "buyers don't see admin UI" than any domain split would be.
 
 ## 4. Traffic isolation without Front Door
 

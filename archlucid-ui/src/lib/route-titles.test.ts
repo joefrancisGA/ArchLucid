@@ -1,11 +1,11 @@
-import { CREATE_ARCHITECTURE_LABEL, START_REVIEW_LABEL } from "@/lib/architecture-workflow-labels";
+import { CREATE_ARCHITECTURE_LABEL, START_REVIEW_LABEL } from "@/lib/architecture/architecture-workflow-labels";
 import {
   EXECUTIVE_DASHBOARD_HREF,
   EXECUTIVE_DASHBOARD_WORKSPACE_HEALTH_HREF,
-} from "@/lib/executive-dashboard-route";
-import { BUYER_EXECUTIVE_SUMMARY_VOCABULARY } from "@/lib/buyer-surface-vocabulary";
-import { GOVERNANCE_AUDIT_PATH } from "@/lib/governance-route-paths";
-import { GOVERNANCE_OVERVIEW_PAGE_TITLE } from "@/lib/governance-overview-copy";
+} from "@/lib/executive/executive-dashboard-route";
+import { BUYER_EXECUTIVE_SUMMARY_VOCABULARY } from "@/lib/vocabulary/buyer-surface-vocabulary";
+import { GOVERNANCE_AUDIT_PATH } from "@/lib/governance/governance-route-paths";
+import { GOVERNANCE_OVERVIEW_PAGE_TITLE } from "@/lib/governance/governance-overview-copy";
 import { OPERATOR_NAV_LINK_LABELS } from "@/lib/i18n";
 import { SIGNED_RECORDS_LIST_PATH } from "@/lib/signed-records-paths";
 import { describe, expect, it } from "vitest";
@@ -14,7 +14,7 @@ import { getRouteTitle } from "./route-titles";
 
 describe("getRouteTitle — static routes", () => {
   it("returns known titles", () => {
-    expect(getRouteTitle("/")).toBe("Overview");
+    expect(getRouteTitle("/")).toBe("Home");
     expect(getRouteTitle(GOVERNANCE_AUDIT_PATH)).toBe(OPERATOR_NAV_LINK_LABELS.auditTrail);
     expect(getRouteTitle("/architecture/reviews/new")).toBe(START_REVIEW_LABEL);
     expect(getRouteTitle("/architectures/draft-1")).toBe(CREATE_ARCHITECTURE_LABEL);

@@ -77,6 +77,7 @@ using ArchLucid.Persistence.Archival;
 using ArchLucid.Persistence.Support;
 using ArchLucid.Persistence.Audit;
 using ArchLucid.Persistence.BlobStore;
+using ArchLucid.Persistence.Caching;
 using ArchLucid.Persistence.Billing;
 using ArchLucid.Persistence.Conversation;
 using ArchLucid.Persistence.Coordination.Compare;
@@ -210,7 +211,11 @@ internal sealed class InMemoryStorageProviderRegistrar : IStorageProviderRegistr
         services.AddSingleton<IManifestFinalizationSqlRepository, InMemoryManifestFinalizationSqlRepository>();
         services.AddSingleton<IRunRepository>(sp =>
             new InMemoryRunRepository(sp.GetRequiredService<ITenantRepository>()));
-        services.AddSingleton<ICommittedArchitectureReviewFlagReader, RunRepositoryCommittedArchitectureReviewFlagReader>();
+        services.AddSingleton<RunRepositoryCommittedArchitectureReviewFlagReader>();
+        services.AddSingleton<ICommittedArchitectureReviewFlagReader>(sp =>
+            new CachingCommittedArchitectureReviewFlagReader(
+                sp.GetRequiredService<RunRepositoryCommittedArchitectureReviewFlagReader>(),
+                sp.GetRequiredService<IHotPathReadCache>()));
         services.AddSingleton<IAuthorityQueryService, InMemoryAuthorityQueryService>();
         services.AddSingleton<IArtifactQueryService, InMemoryArtifactQueryService>();
         services.AddScoped<IAuthorityCompareService, AuthorityCompareService>();
@@ -341,6 +346,8 @@ internal sealed class InMemoryStorageProviderRegistrar : IStorageProviderRegistr
         services.AddHostedService<OutboxOperationalMetricsHostedService>();
         services.AddHostedService<StaleInFlightRunMetricsHostedService>();
         services.AddHostedService<LlmTenantBudgetUtilizationMetricsHostedService>();
+        services.AddHostedService<QuickScanBudgetReconciliationHostedService>();
+        services.AddHostedService<LlmMonthlyTenantBudgetReservationReclaimHostedService>();
         services.AddHostedService<MarketingPricingQuoteAgingMetricsHostedService>();
 
         // Parity with Sql path: orphan probe resolves but no-ops when storage is InMemory (see DataConsistencyOrphanProbeExecutor).

@@ -4,7 +4,7 @@ import { useEffect, useState, type JSX } from "react";
 
 import { PackageChangesSinceFinalizePanel } from "@/components/PackageChangesSinceFinalizePanel";
 import { getRunPipelineTimeline } from "@/lib/api";
-import { tryStaticDemoPipelineTimeline } from "@/lib/operator-static-demo";
+import { tryStaticDemoPipelineTimeline } from "@/lib/operator/operator-static-demo";
 import type { PackageChangeSourceEvent } from "@/lib/package-changes-since-finalize";
 
 export type RunDetailPackageChangesSinceFinalizeSectionProps = {
@@ -22,31 +22,31 @@ export function RunDetailPackageChangesSinceFinalizeSection(
   const [events, setEvents] = useState<readonly PackageChangeSourceEvent[] | null>(null);
 
   useEffect(() => {
-    let cancelled = false;
+    let canceled = false;
 
     const staticTimeline = tryStaticDemoPipelineTimeline(props.runId);
 
     if (staticTimeline !== null) {
       setEvents(staticTimeline);
       return () => {
-        cancelled = true;
+        canceled = true;
       };
     }
 
     void getRunPipelineTimeline(props.runId)
       .then((rows) => {
-        if (!cancelled) {
+        if (!canceled) {
           setEvents(Array.isArray(rows) ? rows : []);
         }
       })
       .catch(() => {
-        if (!cancelled) {
+        if (!canceled) {
           setEvents([]);
         }
       });
 
     return () => {
-      cancelled = true;
+      canceled = true;
     };
   }, [props.runId]);
 

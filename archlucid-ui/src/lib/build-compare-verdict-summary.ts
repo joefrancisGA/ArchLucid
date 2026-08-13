@@ -1,4 +1,4 @@
-import { applyBuyerPolishedGoldenManifestSummaryHighlights } from "@/lib/buyer-golden-manifest-summary-highlights";
+import { applyBuyerPolishedGoldenManifestSummaryHighlights } from "@/lib/buyer/buyer-golden-manifest-summary-highlights";
 import { sortGoldenManifestComparison } from "@/lib/compare-display-sort";
 import { ARCHITECTURE_STRUCTURE_BUYER_LABEL } from "@/lib/usability/canonical-product-terms";
 import type { GoldenManifestComparison } from "@/types/comparison";

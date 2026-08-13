@@ -1,7 +1,7 @@
-import type { OperatorEvidenceLimitsExecutionProps } from "@/components/OperatorEvidenceLimitsFooter";
+import type { OperatorEvidenceLimitsExecutionProps } from "@/components/operator/OperatorEvidenceLimitsFooter";
 
 import { getRunDetail } from "@/lib/api";
-import { coerceRunDetail } from "@/lib/operator-response-guards";
+import { coerceRunDetail } from "@/lib/operator/operator-response-guards";
 
 /** Loads persisted run execution flags for evidence footers (best-effort; no throw). */
 export async function tryLoadRunExecutionFootnote(

@@ -5,6 +5,8 @@
 
 import {
   BILLING_CHECKOUT_COMPLETED_SUCCESS_MESSAGE,
+  BILLING_CHECKOUT_NOT_CONFIGURED_MESSAGE,
+  BILLING_CHECKOUT_REQUEST_ACCEPTED_MESSAGE,
   CLOUD_CONNECTION_SAVE_SUCCESS_MESSAGE,
   SAML_CONFIGURATION_SAVED_SUCCESS_MESSAGE,
   SCIM_TOKEN_CREATED_SUCCESS_MESSAGE,
@@ -13,6 +15,8 @@ import {
   SLACK_INTEGRATION_ENABLE_SUCCESS_MESSAGE,
   SLACK_INTEGRATION_SAVE_SUCCESS_MESSAGE,
   SSO_WIZARD_ACTIVATE_SUCCESS_MESSAGE,
+  SSO_WIZARD_METADATA_RETRIEVED_SUCCESS_MESSAGE,
+  SSO_WIZARD_TEST_LOGIN_SUCCESS_MESSAGE,
   TEAMS_INTEGRATION_REMOVE_SUCCESS_MESSAGE,
   TEAMS_INTEGRATION_SAVE_SUCCESS_MESSAGE,
   WEBHOOK_SUBSCRIPTION_SAVE_SUCCESS_MESSAGE,
@@ -22,12 +26,12 @@ import {
   GOVERNANCE_WORKFLOW_APPROVAL_SUBMITTED_SUCCESS,
   GOVERNANCE_WORKFLOW_REQUEST_APPROVED_SUCCESS,
   GOVERNANCE_WORKFLOW_REQUEST_REJECTED_SUCCESS,
-} from "@/lib/governance-mutation-outcome-copy";
+} from "@/lib/governance/governance-mutation-outcome-copy";
 import {
   REVIEW_CREATED_ANALYSIS_IN_PROGRESS_MESSAGE,
   REVIEW_CREATED_SUCCESS_MESSAGE,
 } from "@/components/review-intake/ReviewGenerationCreatedNotice";
-import { REVIEW_START_STEP_VALIDATION_MESSAGE } from "@/lib/review-start-progress-copy";
+import { REVIEW_START_CREATED_CONFIRMATION, REVIEW_START_STEP_VALIDATION_MESSAGE } from "@/lib/review-start-progress-copy";
 
 export type DurableActionOutcomeGuardedSurface = {
   readonly id: string;
@@ -40,8 +44,8 @@ export type DurableActionOutcomeGuardedSurface = {
   readonly allowedToastLinePatterns?: readonly RegExp[];
 };
 
-/** High-stakes acceptance copy that must never be toast-only on the golden path. */
-export const DURABLE_ACTION_OUTCOME_HIGH_STAKES_MESSAGES: readonly string[] = [
+/** Full-message and template phrases for repo-wide `showSuccess` scans (TB-2116). */
+export const DURABLE_ACTION_OUTCOME_FORBIDDEN_TOAST_PHRASES: readonly string[] = [
   CLOUD_CONNECTION_SAVE_SUCCESS_MESSAGE,
   WEBHOOK_SUBSCRIPTION_SAVE_SUCCESS_MESSAGE,
   SLACK_INTEGRATION_SAVE_SUCCESS_MESSAGE,
@@ -50,20 +54,31 @@ export const DURABLE_ACTION_OUTCOME_HIGH_STAKES_MESSAGES: readonly string[] = [
   TEAMS_INTEGRATION_SAVE_SUCCESS_MESSAGE,
   TEAMS_INTEGRATION_REMOVE_SUCCESS_MESSAGE,
   SSO_WIZARD_ACTIVATE_SUCCESS_MESSAGE,
+  SSO_WIZARD_METADATA_RETRIEVED_SUCCESS_MESSAGE,
+  SSO_WIZARD_TEST_LOGIN_SUCCESS_MESSAGE,
   SAML_CONFIGURATION_SAVED_SUCCESS_MESSAGE,
   SCIM_TOKEN_CREATED_SUCCESS_MESSAGE,
   SCIM_TOKEN_REVOKED_SUCCESS_MESSAGE,
   BILLING_CHECKOUT_COMPLETED_SUCCESS_MESSAGE,
+  BILLING_CHECKOUT_NOT_CONFIGURED_MESSAGE,
+  BILLING_CHECKOUT_REQUEST_ACCEPTED_MESSAGE,
   GOVERNANCE_QUICK_APPROVE_SUCCESS_MESSAGE,
   GOVERNANCE_WORKFLOW_APPROVAL_SUBMITTED_SUCCESS,
   GOVERNANCE_WORKFLOW_REQUEST_APPROVED_SUCCESS,
   GOVERNANCE_WORKFLOW_REQUEST_REJECTED_SUCCESS,
   REVIEW_CREATED_SUCCESS_MESSAGE,
   REVIEW_CREATED_ANALYSIS_IN_PROGRESS_MESSAGE,
-  REVIEW_START_STEP_VALIDATION_MESSAGE,
-  "Policy pack version",
+  REVIEW_START_CREATED_CONFIRMATION,
   "Marked ",
   "finding(s) as ",
+  "Policy pack version ",
+  "Policy pack version published.",
+];
+
+/** High-stakes acceptance copy that must never be toast-only on the golden path. */
+export const DURABLE_ACTION_OUTCOME_HIGH_STAKES_MESSAGES: readonly string[] = [
+  ...DURABLE_ACTION_OUTCOME_FORBIDDEN_TOAST_PHRASES,
+  REVIEW_START_STEP_VALIDATION_MESSAGE,
   "Activated ",
   "for ",
 ];
@@ -126,18 +141,19 @@ export const DURABLE_ACTION_OUTCOME_GUARDED_SURFACES: readonly DurableActionOutc
     requiredDurableMarkers: ["ReviewStartInlineError"],
   },
   {
-    id: "review-start-quick-review",
-    sourceRoots: ["app/(operator)/architecture/reviews/new/QuickReviewWizard.tsx"],
-    requiredDurableMarkers: ["ReviewStartInlineError"],
-  },
-  {
     id: "review-start-quick-start",
-    sourceRoots: ["app/(operator)/architecture/reviews/new/QuickStartWizard.tsx"],
+    sourceRoots: [
+      "app/(operator)/architecture/reviews/new/QuickStartWizard.tsx",
+      "components/wizard/WizardStickyFooter.tsx",
+    ],
     requiredDurableMarkers: ["ReviewStartInlineError"],
   },
   {
     id: "review-start-simplified-pilot",
-    sourceRoots: ["app/(operator)/architecture/reviews/new/SimplifiedPilotWizard.tsx"],
+    sourceRoots: [
+      "app/(operator)/architecture/reviews/new/SimplifiedPilotWizard.tsx",
+      "components/wizard/WizardStickyFooter.tsx",
+    ],
     requiredDurableMarkers: ["ReviewStartInlineError"],
   },
   {
@@ -148,8 +164,8 @@ export const DURABLE_ACTION_OUTCOME_GUARDED_SURFACES: readonly DurableActionOutc
   {
     id: "governance-quick-approve",
     sourceRoots: [
-      "components/GovernanceQuickApproveButton.tsx",
-      "components/GovernanceQuickApproveDialog.tsx",
+      "components/governance/GovernanceQuickApproveButton.tsx",
+      "components/governance/GovernanceQuickApproveDialog.tsx",
     ],
     requiredDurableMarkers: ["OperatorSuccessCallout", "OperatorMutationInlineError"],
   },
@@ -182,7 +198,11 @@ export const DURABLE_ACTION_OUTCOME_GUARDED_SURFACES: readonly DurableActionOutc
     id: "admin-cloud-connection-save",
     sourceRoots: ["app/(operator)/integrations/cloud-connections/_sections/Tier2ConnectionWizard.tsx"],
     requiredDurableMarkers: ["OperatorSuccessCallout", "OperatorMutationInlineError"],
-    allowedToastLinePatterns: [/Setup script copied/i, /Could not write to clipboard/i],
+    allowedToastLinePatterns: [
+      /Setup script copied/i,
+      /Could not write to clipboard/i,
+      /Could not copy /i,
+    ],
   },
   {
     id: "admin-sso-wizard",
@@ -231,12 +251,11 @@ export const DURABLE_ACTION_OUTCOME_DUAL_TOAST_TEST_PATHS: readonly string[] = [
   "app/(operator)/integrations/slack/SlackIntegrationPageClient.test.tsx",
   "app/(operator)/integrations/teams/TeamsNotificationsIntegrationPageClient.test.tsx",
   "app/(operator)/administration/billing/page.test.tsx",
-  "components/GovernanceQuickApproveButton.test.tsx",
+  "components/governance/GovernanceQuickApproveButton.test.tsx",
   "components/usability/GovernanceFindingsBulkActions.test.tsx",
   "components/governance/findings/GovernanceFindingsList.bulk-disposition.test.tsx",
   "app/(operator)/governance/policy-packs/_sections/PolicyPacksPageView.tabs.test.tsx",
   "app/(operator)/architecture/reviews/new/FirstPilotIntakeWizard.test.tsx",
-  "app/(operator)/architecture/reviews/new/QuickReviewWizard.test.tsx",
   "app/(operator)/architecture/reviews/new/QuickStartWizard.test.tsx",
   "app/(operator)/architecture/reviews/new/SimplifiedPilotWizard.test.tsx",
   "components/operator/OperatorSuccessCallout.test.tsx",

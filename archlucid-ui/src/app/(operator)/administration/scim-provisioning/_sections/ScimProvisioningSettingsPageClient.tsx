@@ -4,23 +4,19 @@ import { cn } from "@/lib/utils";
 import Link from "next/link";
 import { useCallback, useEffect, useMemo, useState } from "react";
 
-import { OperatorApiProblem } from "@/components/OperatorApiProblem";
+import { OperatorApiProblem } from "@/components/operator/OperatorApiProblem";
 import { OperatorMutationInlineError } from "@/components/operator/OperatorMutationInlineError";
 import { OperatorSuccessCallout } from "@/components/operator/OperatorSuccessCallout";
-import { OperatorPageHeader } from "@/components/OperatorPageHeader";
+import { OperatorPageContainer } from "@/components/operator/OperatorPageContainer";
+import { OperatorPageHeader } from "@/components/operator/OperatorPageHeader";
 import { CollapsibleSection } from "@/components/CollapsibleSection";
+import { ScimIdentityProvidersVocabularyRail } from "@/components/ScimIdentityProvidersVocabularyRail";
+import { StatusTag } from "@/components/StatusTag";
+import { WhyDisabledCtaHint } from "@/components/usability/WhyDisabledCtaHint";
+
 import { PageContextualHelpButton } from "@/components/usability/PageContextualHelpButton";
-import {
-  AlertDialog,
-  AlertDialogAction,
-  AlertDialogCancel,
-  AlertDialogContent,
-  AlertDialogDescription,
-  AlertDialogFooter,
-  AlertDialogHeader,
-  AlertDialogTitle,
-} from "@/components/ui/alert-dialog";
-import { Badge } from "@/components/ui/badge";
+import { ScimProvisioningCreateConfirmDialog } from "@/app/(operator)/administration/scim-provisioning/_sections/ScimProvisioningCreateConfirmDialog";
+import { ScimProvisioningRevokeConfirmDialog } from "@/app/(operator)/administration/scim-provisioning/_sections/ScimProvisioningRevokeConfirmDialog";
 import { Button } from "@/components/ui/button";
 import { Card, CardContent, CardDescription, CardHeader, CardTitle } from "@/components/ui/card";
 import { Input } from "@/components/ui/input";
@@ -34,15 +30,20 @@ import {
   EnterpriseTableHeaderCell,
   EnterpriseTableRow,
 } from "@/components/ui/enterprise-table";
-import { OPERATOR_LINK, OPERATOR_TYPOGRAPHY } from "@/lib/design-tokens";
+import { OPERATOR_LAYOUT, OPERATOR_LINK, OPERATOR_TYPOGRAPHY, type EnterpriseStatusKind } from "@/lib/design-tokens";
 import { mergeRegistrationScopeForProxy } from "@/lib/proxy-fetch-registration-scope";
 import { formatRelativeTime } from "@/lib/relative-time";
-import { resolveScimBaseUrl, SCIM_SERVICE_PROVIDER_CONFIG_PATH } from "@/lib/scim-provisioning-base-url";
+import {
+  classifyScimBaseUrl,
+  SCIM_SERVICE_PROVIDER_CONFIG_PATH,
+  type ScimBaseUrlClassification,
+} from "@/lib/scim-provisioning-base-url";
 import {
   SCIM_ACTIVE_TOKENS_EMPTY_DESCRIPTION,
   SCIM_ACTIVE_TOKENS_EMPTY_TITLE,
   SCIM_ACTIVE_TOKENS_SECTION_DESCRIPTION,
   SCIM_ACTIVE_TOKENS_SECTION_TITLE,
+  SCIM_BASE_URL_EXTERNAL_REACHABILITY_WARNING,
   SCIM_BASE_URL_COPIED_ACTION,
   SCIM_BASE_URL_COPY_ACTION,
   SCIM_BASE_URL_LABEL,
@@ -57,10 +58,6 @@ import {
   SCIM_PROVISIONING_PAGE_SUBTITLE,
   SCIM_PROVISIONING_PAGE_TITLE,
   SCIM_REVOKE_ACTION,
-  SCIM_REVOKE_DIALOG_CANCEL,
-  SCIM_REVOKE_DIALOG_CONFIRM,
-  SCIM_REVOKE_DIALOG_DESCRIPTION,
-  SCIM_REVOKE_DIALOG_TITLE,
   SCIM_REVOKING_ACTION,
   SCIM_SSO_CONTEXT_NOTE_LINK,
   SCIM_SSO_CONTEXT_NOTE_PREFIX,
@@ -79,19 +76,24 @@ import {
   SCIM_TOKEN_TABLE_COLUMN_STATUS,
   SCIM_TOKENS_LOAD_BLOCKED,
   SCIM_TOKENS_LOAD_FAILED,
-  SCIM_VERIFY_ACTION,
-  SCIM_VERIFY_MANUAL_TOKEN_HELPER,
+  SCIM_VERIFY_CREATE_TOKEN_LINK,
+  SCIM_VERIFY_DISABLED_MISSING_TOKEN,
+  SCIM_VERIFY_MANUAL_TOKEN_HELPER_PREFIX,
+  SCIM_VERIFY_MANUAL_TOKEN_HELPER_SUFFIX,
   SCIM_VERIFY_MANUAL_TOKEN_LABEL,
   SCIM_VERIFY_MISSING_TOKEN,
   SCIM_VERIFY_SECTION_DESCRIPTION,
   SCIM_VERIFY_SECTION_TITLE,
+  SCIM_VERIFY_ACTION,
+  SCIM_VERIFY_STATUS_FAILED,
   SCIM_VERIFY_STATUS_NOT_VERIFIED,
   SCIM_VERIFY_STATUS_VERIFIED,
-  SCIM_VERIFY_SUCCESS_DETAIL,
   SCIM_VERIFY_TECHNICAL_DETAILS_TITLE,
   SCIM_VERIFY_USING_SESSION_TOKEN,
   SCIM_VERIFYING_ACTION,
+  SCIM_VERIFY_SUCCESS_DETAIL,
 } from "@/lib/scim-provisioning-page-copy";
+import { whyDisabledBusy, whyDisabledIncompleteInput } from "@/lib/why-disabled-cta";
 import {
   SCIM_TOKEN_CREATE_FAILED_MESSAGE,
   SCIM_TOKEN_CREATED_SUCCESS_MESSAGE,
@@ -150,10 +152,48 @@ function isTokenActive(token: ScimTokenSummary): boolean {
   return resolveTokenStatusLabel(token) === SCIM_TOKEN_STATUS_ACTIVE;
 }
 
+function resolveTokenStatusTagKind(token: ScimTokenSummary): EnterpriseStatusKind {
+  if (isTokenActive(token)) {
+    return "ready";
+  }
+
+  return "neutral";
+}
+
+function resolveVerifyStatusTag(verifyState: VerifyState): { kind: EnterpriseStatusKind; label: string } {
+  switch (verifyState.status) {
+    case "verified":
+      return { kind: "ready", label: SCIM_VERIFY_STATUS_VERIFIED };
+    case "failed":
+      return { kind: "blocked", label: SCIM_VERIFY_STATUS_FAILED };
+    case "checking":
+      return { kind: "in-progress", label: SCIM_VERIFYING_ACTION };
+    case "idle":
+      return { kind: "neutral", label: SCIM_VERIFY_STATUS_NOT_VERIFIED };
+    default: {
+      const _exhaustive: never = verifyState;
+      return _exhaustive;
+    }
+  }
+}
+
+function focusCreateTokenControl(): void {
+  const element = document.querySelector<HTMLElement>('[data-testid="scim-create-token"]');
+
+  if (element === null) {
+    return;
+  }
+
+  element.scrollIntoView({ behavior: "smooth", block: "center" });
+  element.focus();
+}
+
 /** SCIM inbound provisioning administration — token lifecycle and connectivity verification. */
 export function ScimProvisioningSettingsPageClient() {
   const [state, setState] = useState<LoadState>({ status: "idle" });
-  const [scimBaseUrl, setScimBaseUrl] = useState("");
+  const [scimBaseUrlClassification, setScimBaseUrlClassification] = useState<ScimBaseUrlClassification | null>(
+    null,
+  );
   const [issuedToken, setIssuedToken] = useState<ScimTokenIssueResponse | null>(null);
   const [setupSessionToken, setSetupSessionToken] = useState<string | null>(null);
   const [manualVerifyToken, setManualVerifyToken] = useState("");
@@ -161,6 +201,7 @@ export function ScimProvisioningSettingsPageClient() {
   const [issuing, setIssuing] = useState(false);
   const [revokingId, setRevokingId] = useState<string | null>(null);
   const [pendingRevoke, setPendingRevoke] = useState<ScimTokenSummary | null>(null);
+  const [pendingCreate, setPendingCreate] = useState(false);
   const [copiedBaseUrl, setCopiedBaseUrl] = useState(false);
   const [copiedToken, setCopiedToken] = useState(false);
   const [statusAnnouncement, setStatusAnnouncement] = useState("");
@@ -169,9 +210,11 @@ export function ScimProvisioningSettingsPageClient() {
 
   useEffect(() => {
     if (typeof window !== "undefined") {
-      setScimBaseUrl(resolveScimBaseUrl(window.location.origin));
+      setScimBaseUrlClassification(classifyScimBaseUrl(window.location.origin));
     }
   }, []);
+
+  const scimBaseUrl = scimBaseUrlClassification?.url ?? "";
 
   const load = useCallback(async () => {
     setState({ status: "loading" });
@@ -244,6 +287,7 @@ export function ScimProvisioningSettingsPageClient() {
       await load();
     } finally {
       setIssuing(false);
+      setPendingCreate(false);
     }
   }, [issuedToken, issuing, load]);
 
@@ -344,21 +388,37 @@ export function ScimProvisioningSettingsPageClient() {
     window.setTimeout(() => setCopiedToken(false), 2000);
   }, [issuedToken]);
 
+  const verifyStatusTag = resolveVerifyStatusTag(verifyState);
+  const verifyDisabled =
+    verifyState.status === "checking" || verifyTokenValue.length === 0;
+  const verifyDisabledReason =
+    verifyState.status === "checking"
+      ? whyDisabledBusy(SCIM_VERIFYING_ACTION)
+      : verifyTokenValue.length === 0
+        ? whyDisabledIncompleteInput(SCIM_VERIFY_DISABLED_MISSING_TOKEN)
+        : null;
+  const scimBaseUrlCopyDisabled =
+    scimBaseUrl.length === 0 ||
+    (scimBaseUrlClassification?.requiresExternalReachabilityWarning ?? false);
   const showManualVerifyField = setupSessionToken === null && issuedToken === null;
   const createDisabled = issuing || issuedToken !== null;
 
   return (
-    <div
-      className="mx-auto w-full max-w-[62rem] space-y-6"
+    <OperatorPageContainer
+      variant="settings"
+      className={OPERATOR_LAYOUT.sectionStack}
       data-testid="scim-provisioning-settings-page"
     >
       <OperatorPageHeader
+        navHref="/administration/scim-provisioning"
         title={SCIM_PROVISIONING_PAGE_TITLE}
         subtitle={SCIM_PROVISIONING_PAGE_SUBTITLE}
         titleTestId="scim-provisioning-page-title"
         actions={<PageContextualHelpButton />}
       />
-<p
+      <ScimIdentityProvidersVocabularyRail currentSurfaceId="scim-provisioning" />
+
+      <p
         className={cn(
           "m-0 rounded-lg border border-neutral-200 bg-neutral-50/70 px-4 py-3 text-al-text-primary dark:border-neutral-800 dark:bg-neutral-900/40",
           OPERATOR_TYPOGRAPHY.body,
@@ -386,6 +446,16 @@ export function ScimProvisioningSettingsPageClient() {
           <CardDescription>{SCIM_CONFIGURE_SECTION_DESCRIPTION}</CardDescription>
         </CardHeader>
         <CardContent className="space-y-4">
+          {scimBaseUrlClassification?.requiresExternalReachabilityWarning === true ? (
+            <div data-testid="scim-base-url-reachability-warning">
+              <OperatorApiProblem
+                fallbackMessage={SCIM_BASE_URL_EXTERNAL_REACHABILITY_WARNING}
+                problem={null}
+                variant="warning"
+              />
+            </div>
+          ) : null}
+
           <div className="space-y-1.5">
             <Label htmlFor="scim-base-url">{SCIM_BASE_URL_LABEL}</Label>
             <div className="flex flex-col gap-2 sm:flex-row sm:items-start">
@@ -401,7 +471,7 @@ export function ScimProvisioningSettingsPageClient() {
                 variant="outline"
                 className="shrink-0"
                 onClick={() => void copyScimBaseUrl()}
-                disabled={scimBaseUrl.length === 0}
+                disabled={scimBaseUrlCopyDisabled}
                 data-testid="scim-base-url-copy"
               >
                 {copiedBaseUrl ? SCIM_BASE_URL_COPIED_ACTION : SCIM_BASE_URL_COPY_ACTION}
@@ -413,7 +483,7 @@ export function ScimProvisioningSettingsPageClient() {
             <Button
               type="button"
               variant="primary"
-              onClick={() => void createToken()}
+              onClick={() => setPendingCreate(true)}
               disabled={createDisabled}
               data-testid="scim-create-token"
             >
@@ -458,7 +528,14 @@ export function ScimProvisioningSettingsPageClient() {
 
       <Card data-testid="scim-verify-section">
         <CardHeader>
-          <CardTitle className={OPERATOR_TYPOGRAPHY.cardTitle}>{SCIM_VERIFY_SECTION_TITLE}</CardTitle>
+          <div className="flex flex-wrap items-center gap-2">
+            <CardTitle className={OPERATOR_TYPOGRAPHY.cardTitle}>{SCIM_VERIFY_SECTION_TITLE}</CardTitle>
+            <StatusTag
+              kind={verifyStatusTag.kind}
+              label={verifyStatusTag.label}
+              data-testid="scim-verify-status-tag"
+            />
+          </div>
           <CardDescription>{SCIM_VERIFY_SECTION_DESCRIPTION}</CardDescription>
         </CardHeader>
         <CardContent className="space-y-4">
@@ -483,39 +560,48 @@ export function ScimProvisioningSettingsPageClient() {
                 data-testid="scim-verify-token-input"
               />
               <p className={cn("m-0 text-al-text-secondary", OPERATOR_TYPOGRAPHY.helper)}>
-                {SCIM_VERIFY_MANUAL_TOKEN_HELPER}
+                {SCIM_VERIFY_MANUAL_TOKEN_HELPER_PREFIX}{" "}
+                <button
+                  type="button"
+                  className={OPERATOR_LINK.nav}
+                  onClick={focusCreateTokenControl}
+                  data-testid="scim-verify-create-token-link"
+                >
+                  {SCIM_VERIFY_CREATE_TOKEN_LINK}
+                </button>{" "}
+                {SCIM_VERIFY_MANUAL_TOKEN_HELPER_SUFFIX}
               </p>
             </div>
-          ) : null}
-
-          {verifyState.status === "idle" ? (
-            <p className={cn("m-0 text-al-text-secondary", OPERATOR_TYPOGRAPHY.helper)} data-testid="scim-verify-status-idle">
-              {SCIM_VERIFY_STATUS_NOT_VERIFIED}
-            </p>
           ) : null}
 
           <Button
             type="button"
             variant="outline"
             onClick={() => void verifyConnection()}
-            disabled={verifyState.status === "checking"}
+            disabled={verifyDisabled}
             data-testid="scim-verify-connection"
           >
             {verifyState.status === "checking" ? SCIM_VERIFYING_ACTION : SCIM_VERIFY_ACTION}
           </Button>
 
+          <WhyDisabledCtaHint
+            id="scim-verify-connection-disabled-hint"
+            reason={verifyDisabled ? verifyDisabledReason : null}
+            testId="scim-verify-connection-disabled-hint"
+          />
+
           {verifyState.status === "verified" ? (
             <p
-              className={cn("m-0 font-medium text-emerald-800 dark:text-emerald-300", OPERATOR_TYPOGRAPHY.body)}
+              className={cn("m-0 text-al-text-secondary", OPERATOR_TYPOGRAPHY.body)}
               data-testid="scim-verify-success"
             >
-              {SCIM_VERIFY_STATUS_VERIFIED} — {SCIM_VERIFY_SUCCESS_DETAIL}
+              {SCIM_VERIFY_SUCCESS_DETAIL}
             </p>
           ) : null}
 
           {verifyState.status === "failed" ? (
             <div className="space-y-2" data-testid="scim-verify-failure">
-              <OperatorApiProblem fallbackMessage={verifyState.message} problem={null} variant="warning" />
+              <OperatorApiProblem fallbackMessage={verifyState.message} problem={null} variant="error" />
               {verifyState.httpStatus !== undefined ? (
                 <CollapsibleSection title={SCIM_VERIFY_TECHNICAL_DETAILS_TITLE} defaultOpen={false}>
                   <p className={cn("m-0 text-al-text-secondary", OPERATOR_TYPOGRAPHY.micro)}>
@@ -569,9 +655,11 @@ export function ScimProvisioningSettingsPageClient() {
                     </EnterpriseTableCell>
                     <EnterpriseTableCell>{formatRelativeTime(token.createdUtc)}</EnterpriseTableCell>
                     <EnterpriseTableCell>
-                      <Badge variant={isTokenActive(token) ? "default" : "secondary"}>
-                        {resolveTokenStatusLabel(token)}
-                      </Badge>
+                      <StatusTag
+                        kind={resolveTokenStatusTagKind(token)}
+                        label={resolveTokenStatusLabel(token)}
+                        data-testid={`scim-token-status-${token.id}`}
+                      />
                     </EnterpriseTableCell>
                     <EnterpriseTableCell>
                       {isTokenActive(token) ? (
@@ -605,37 +693,29 @@ export function ScimProvisioningSettingsPageClient() {
         {SCIM_SSO_CONTEXT_NOTE_SUFFIX}
       </p>
 
-      <AlertDialog
+      <ScimProvisioningCreateConfirmDialog
+        open={pendingCreate}
+        busy={issuing}
+        onCancel={() => {
+          setPendingCreate(false);
+        }}
+        onConfirm={() => {
+          void createToken();
+        }}
+      />
+
+      <ScimProvisioningRevokeConfirmDialog
         open={pendingRevoke !== null}
-        onOpenChange={(open) => {
-          if (!open) {
-            setPendingRevoke(null);
+        busy={revokingId !== null}
+        onCancel={() => {
+          setPendingRevoke(null);
+        }}
+        onConfirm={() => {
+          if (pendingRevoke !== null) {
+            void revokeToken(pendingRevoke.id);
           }
         }}
-      >
-        <AlertDialogContent>
-          <AlertDialogHeader>
-            <AlertDialogTitle>{SCIM_REVOKE_DIALOG_TITLE}</AlertDialogTitle>
-            <AlertDialogDescription>{SCIM_REVOKE_DIALOG_DESCRIPTION}</AlertDialogDescription>
-          </AlertDialogHeader>
-          <AlertDialogFooter>
-            <AlertDialogCancel>{SCIM_REVOKE_DIALOG_CANCEL}</AlertDialogCancel>
-            <AlertDialogAction
-              className="bg-red-600 text-white hover:bg-red-700"
-              disabled={pendingRevoke === null || revokingId !== null}
-              onClick={(event) => {
-                event.preventDefault();
-
-                if (pendingRevoke !== null) {
-                  void revokeToken(pendingRevoke.id);
-                }
-              }}
-            >
-              {SCIM_REVOKE_DIALOG_CONFIRM}
-            </AlertDialogAction>
-          </AlertDialogFooter>
-        </AlertDialogContent>
-      </AlertDialog>
-    </div>
+      />
+    </OperatorPageContainer>
   );
 }

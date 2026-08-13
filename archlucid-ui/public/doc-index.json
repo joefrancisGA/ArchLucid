@@ -195,7 +195,7 @@
     "title": "Choose your next step",
     "summary": "Map your current goal \u2014 evaluate, pilot, procurement, sponsor output, or engineering support \u2014 to one primary next action.",
     "category": "Go-to-Market",
-    "url": "/help/path-chooser"
+    "url": "/help/choose-your-next-step"
   },
   {
     "title": "Data Processing Agreement (template)",
@@ -238,12 +238,6 @@
     "summary": "Measurement framework for pilot value: cycle time, artifacts, and governance evidence.",
     "category": "Go-to-Market",
     "url": "/help"
-  },
-  {
-    "title": "Pilot ROI model",
-    "summary": "How sponsor ROI figures are labeled, sourced, and kept buyer-safe in proof packets.",
-    "category": "Go-to-Market",
-    "url": "/help/pilot-roi-model"
   },
   {
     "title": "Pilot guide",
@@ -474,7 +468,7 @@
     "url": "/help"
   },
   {
-    "title": "Repeat-review stickiness loop",
+    "title": "Your repeat architecture review",
     "summary": "After the first finalized architecture review: compare, replay, governance dry-runs, and second-review proof checklist.",
     "category": "Operations",
     "url": "/help/repeat-review-loop"

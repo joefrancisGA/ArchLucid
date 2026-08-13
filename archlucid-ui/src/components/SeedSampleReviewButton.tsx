@@ -8,12 +8,12 @@ import type { ButtonProps } from "@/components/ui/button";
 import {
   BUYER_SEED_SAMPLE_WORKSPACE_CTA,
   BUYER_SEED_SAMPLE_WORKSPACE_SUCCESS,
-} from "@/lib/buyer-polish-copy";
+} from "@/lib/buyer/buyer-polish-copy";
 import { EXECUTIVE_DASHBOARD_HREF } from "@/lib/executive-dashboard-route";
 import {
   invalidateOperatorExecutiveRoiCaches,
   invalidateOperatorHomeRunsCaches,
-} from "@/lib/operator-query-invalidation";
+} from "@/lib/operator/operator-query-invalidation";
 import { showError, showSuccess } from "@/lib/toast";
 
 /**

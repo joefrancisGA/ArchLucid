@@ -1,43 +1,54 @@
-import { cn } from "@/lib/utils";
 import Link from "next/link";
 
+import { OperatorWarningCallout } from "@/components/operator/OperatorShellMessage";
 import { OPERATOR_TYPOGRAPHY } from "@/lib/design-tokens";
-import { OperatorWarningCallout } from "@/components/OperatorShellMessage";
+import { buildReviewDetailTabHref } from "@/lib/review-detail-workspace-tabs";
+import { cn } from "@/lib/utils";
 
-export type CommitBlockingFindingLink = {
-  readonly findingId: string;
-  readonly title: string;
-};
+/** Used when the server-derived blocked sentence is missing so the callout never renders bare. */
+const COMMIT_BLOCKING_FALLBACK_REASON =
+  "One or more required finding checks did not complete for this review.";
 
 type CommitBlockingFindingsBannerProps = {
   readonly runId: string;
-  readonly blockingFindings: readonly CommitBlockingFindingLink[];
+  /** Server-derived sentence explaining why finalize is blocked (run detail presentation). */
+  readonly reason: string | null;
 };
 
-/** Prominent banner listing findings that block finalization, with jump links. */
+function resolveBlockedSentence(reason: string | null): string {
+  const trimmed = reason?.trim() ?? "";
+
+  return trimmed.length > 0 ? trimmed : COMMIT_BLOCKING_FALLBACK_REASON;
+}
+
+/**
+ * Above-fold callout naming the real finalize blocker (failed finding coverage) and
+ * linking to the review Findings tab. Finding coverage blocks at engine level, so there
+ * are no per-finding ids to deep-link to.
+ */
 export function CommitBlockingFindingsBanner(props: CommitBlockingFindingsBannerProps) {
-  if (props.blockingFindings.length === 0) {
+  const runId = props.runId?.trim() ?? "";
+
+  if (runId.length === 0) {
     return null;
   }
 
   return (
     <OperatorWarningCallout>
-      <strong>
-        {props.blockingFindings.length} blocking finding{props.blockingFindings.length === 1 ? "" : "s"} — finalize when resolved
-      </strong>
-      <ul className={cn("m-0 mt-2 list-disc space-y-1 pl-5", OPERATOR_TYPOGRAPHY.body)}>
-        {props.blockingFindings.map((finding) => (
-          <li key={finding.findingId}>
-            <Link
-              href={`/architecture/reviews/${encodeURIComponent(props.runId)}/findings/${encodeURIComponent(finding.findingId)}`}
-              prefetch={false}
-              className="font-medium text-teal-900 underline dark:text-teal-200"
-            >
-              {finding.title}
-            </Link>
-          </li>
-        ))}
-      </ul>
+      <strong>Finalize is blocked by finding coverage</strong>
+      <p className={cn("m-0 mt-2 leading-relaxed", OPERATOR_TYPOGRAPHY.body)}>
+        {resolveBlockedSentence(props.reason)}
+      </p>
+      <p className={cn("m-0 mt-2", OPERATOR_TYPOGRAPHY.body)}>
+        <Link
+          href={buildReviewDetailTabHref(runId, "findings")}
+          prefetch={false}
+          className="font-medium text-teal-900 underline dark:text-teal-200"
+          data-testid="commit-blocking-findings-open-findings"
+        >
+          Open the Findings tab
+        </Link>
+      </p>
     </OperatorWarningCallout>
   );
 }

@@ -5,7 +5,7 @@ import {
   contextualHelpForPathname,
   type PageContextualHelpEntry,
 } from "@/lib/contextual-help-registry";
-import { EXECUTIVE_DASHBOARD_HREF } from "@/lib/executive-dashboard-route";
+import { EXECUTIVE_DASHBOARD_HREF } from "@/lib/executive/executive-dashboard-route";
 import {
   INTERNAL_DEMO_READINESS_PATH,
   INTERNAL_DEPLOYMENT_STATUS_PATH,
@@ -42,7 +42,9 @@ describe("contextual-help-registry (TB-733)", () => {
   it("covers the starting operator pages", () => {
     const prefixes = allPageContextualHelpRows().map((row) => row.prefix);
 
-    expect(prefixes).toEqual([
+    // Compared as a set: rows are declared in per-domain modules and resolution picks the longest
+    // matching prefix, so declaration order carries no meaning.
+    expect([...prefixes].sort()).toEqual([
       "/",
       "/architecture/reviews",
       "/insights/architecture-scorecard",
@@ -56,17 +58,13 @@ describe("contextual-help-registry (TB-733)", () => {
       "/help/data-handling",
       "/help/dpa-template",
       "/help/soc2-self-assessment",
-      "/help/path-chooser",
+      "/help/choose-your-next-step",
       "/help/enterprise-onboarding",
-      "/help/pilot-roi-model",
       "/help/pilot-feedback",
       "/help/executive-summary",
-      "/help/policy-pack-delta-demo",
       "/help/configuration-reference",
       "/help/cli-usage",
-      "/help/first-review",
-      "/help/first-value-20-minutes",
-      "/help/developer-troubleshooting",
+      "/help/engineering-troubleshooting",
       "/help/api-contracts",
       "/governance/standards-and-rules",
       "/governance/policy-packs",
@@ -141,12 +139,13 @@ describe("contextual-help-registry (TB-733)", () => {
       "/administration/identity-providers/saml",
       "/administration/identity/sso-wizard",
       "/administration/scim-provisioning",
-      "/administration/tenant",
-      "/administration/tenant/recycle-bin",
+      "/administration/workspace-settings",
+      "/administration/workspace-settings/recycle-bin",
       "/administration/identity-providers/role-mapping",
       "/administration/identity-providers/diagnostics",
       "/administration/api-keys",
       "/administration/preferences",
+      "/administration/notifications",
       "/administration/account-security",
       "/administration/auth-domains",
       "/administration/extract-upload",
@@ -167,7 +166,14 @@ describe("contextual-help-registry (TB-733)", () => {
       "/integrations/webhooks",
       "/operate/integration-events/dlq",
       "/integrations/teams",
-    ]);
+    ].sort());
+  });
+
+  it("declares each route in exactly one domain module", () => {
+    const prefixes = allPageContextualHelpRows().map((row) => row.prefix);
+    const duplicates = prefixes.filter((prefix, index) => prefixes.indexOf(prefix) !== index);
+
+    expect(duplicates).toEqual([]);
   });
 
   it("resolves nested paths from the longest matching prefix", () => {
@@ -198,8 +204,8 @@ describe("contextual-help-registry (TB-733)", () => {
     expect(contextualHelpForPathname("/insights/improvement-planning/plans/plan-1")?.whatIsThisPage).toContain("one prioritized improvement plan");
   });
 
-  it("resolves Overview home without stealing other routes (HOM / TB-1667)", () => {
-    expect(contextualHelpForPathname("/")?.whatIsThisPage).toContain("Overview");
+  it("resolves Home without stealing other routes (HOM / TB-1667)", () => {
+    expect(contextualHelpForPathname("/")?.whatIsThisPage).toContain("Home");
     expect(contextualHelpForPathname("/insights/roi-summary")).toBeNull();
   });
 
@@ -279,7 +285,7 @@ describe("contextual-help-registry (TB-733)", () => {
       "SSO wizard",
     );
     expect(contextualHelpForPathname("/administration/identity/sso-wizard")?.whatToDoNext).toContain(
-      "Choose a protocol",
+      "Choose your identity provider",
     );
   });
 
@@ -293,17 +299,17 @@ describe("contextual-help-registry (TB-733)", () => {
   });
 
   it("resolves Projects recycle bin Category-1 help (STR)", () => {
-    expect(contextualHelpForPathname("/administration/tenant/recycle-bin")?.whatIsThisPage).toContain(
+    expect(contextualHelpForPathname("/administration/workspace-settings/recycle-bin")?.whatIsThisPage).toContain(
       "Projects recycle bin",
     );
-    expect(contextualHelpForPathname("/administration/tenant/recycle-bin")?.whatToDoNext).toContain(
+    expect(contextualHelpForPathname("/administration/workspace-settings/recycle-bin")?.whatToDoNext).toContain(
       "Refresh the list",
     );
   });
 
   it("resolves Tenant settings Category-1 help (ATE)", () => {
-    expect(contextualHelpForPathname("/administration/tenant")?.whatIsThisPage).toContain("Tenant settings");
-    expect(contextualHelpForPathname("/administration/tenant")?.whatToDoNext).toContain("quality gates");
+    expect(contextualHelpForPathname("/administration/workspace-settings")?.whatIsThisPage).toContain("Tenant settings");
+    expect(contextualHelpForPathname("/administration/workspace-settings")?.whatToDoNext).toContain("quality gates");
   });
 
   it("resolves Identity diagnostics Category-1 help (SEI)", () => {
@@ -316,10 +322,12 @@ describe("contextual-help-registry (TB-733)", () => {
   });
 
   it("resolves API keys settings Category-1 help (ADP)", () => {
-    expect(contextualHelpForPathname("/administration/api-keys")?.whatIsThisPage).toContain("API keys");
-    expect(contextualHelpForPathname("/administration/api-keys")?.whatToDoNext).toContain(
-      "Users and roles",
-    );
+    const entry = contextualHelpForPathname("/administration/api-keys");
+    expect(entry?.whatIsThisPage).toContain("API keys");
+    expect(entry?.whatToDoNext).toContain("Users and roles");
+    expect(entry?.whyEmpty).toContain("not available");
+    expect(entry?.whereToConfigurePrerequisite).not.toContain("isApiKeysSettingsSurfaceEnabled");
+    expect(entry?.whatIsThisPage).not.toContain("Internal Operations");
   });
 
   it("resolves Preferences settings Category-1 help (ADR)", () => {
@@ -545,12 +553,12 @@ describe("contextual-help-registry (TB-733)", () => {
     );
   });
 
-  it("resolves pilot ROI model help Category-1 help (PI)", () => {
+  it("falls back to generic help guidance for retired pilot-roi-model path", () => {
     expect(contextualHelpForPathname("/help/pilot-roi-model")?.whatIsThisPage).toContain(
-      "Pilot ROI model",
+      "In-app help topic",
     );
-    expect(contextualHelpForPathname("/help/pilot-roi-model")?.whatToDoNext).toContain(
-      "Architecture scorecard",
+    expect(contextualHelpForPathname("/help/pilot-roi-model")?.whatIsThisPage).not.toContain(
+      "Pilot ROI model -",
     );
   });
 

@@ -1,7 +1,7 @@
 import {
   getCanonicalReviewWorkspaceHref,
   getShowcaseExecutiveHref,
-} from "@/lib/buyer-safe-review-navigation";
+} from "@/lib/buyer/buyer-safe-review-navigation";
 import { isShowcaseStaticDemoRunId } from "@/lib/demo-run-canonical";
 
 /**

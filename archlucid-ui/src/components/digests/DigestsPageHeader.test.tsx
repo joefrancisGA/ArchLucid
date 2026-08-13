@@ -24,7 +24,6 @@ describe("DigestsPageHeader", () => {
         refreshing={false}
         lastUpdatedUtc="2026-07-09T12:00:00.000Z"
         onRefresh={onRefresh}
-        refreshButtonTitle="Refresh digest list"
       />,
     );
 
@@ -32,7 +31,7 @@ describe("DigestsPageHeader", () => {
     expect(screen.getByText(DIGESTS_BROWSE_PAGE_SUBTITLE)).toBeInTheDocument();
     expect(screen.getByTestId("page-contextual-help-button")).toBeInTheDocument();
     expect(screen.getByTestId("digests-header-actions")).toBeInTheDocument();
-    expect(screen.getByTestId("digests-refresh-button")).toHaveAttribute("title", "Refresh digest list");
+    expect(screen.getByRole("button", { name: "Refresh" })).toBeInTheDocument();
     expect(screen.getByTestId("digests-last-updated")).toHaveTextContent(/Last updated:/i);
 
     fireEvent.click(screen.getByTestId("digests-refresh-button"));

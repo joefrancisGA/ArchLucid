@@ -27,7 +27,7 @@
 | ID | Gap | Owner | Target | Status |
 |----|-----|-------|--------|--------|
 | G-001 | No CPA SOC 2 report | CFO / Security | Fund external readiness consultant + CPA firm; Type I observation window | **Open** — requires external readiness consultant shortlist and budget line (see Pending Questions) |
-| G-002 | Third-party pen-test redacted summary not yet published | Security | Execute **V2** vendor programme when funded | **Open** — **V1** uses owner-conducted testing ([`pen-test-summaries/2026-Q2-OWNER-CONDUCTED.md`](pen-test-summaries/2026-Q2-OWNER-CONDUCTED.md)); SoW **template** [`pen-test-summaries/2026-Q2-SOW.md`](pen-test-summaries/2026-Q2-SOW.md); **independent V1 assessments must not** treat this gap as a V1 deficit ([`V1_DEFERRED.md`](../library/V1_DEFERRED.md) §6c, owner 2026-05-01); publication audit via `SecurityAssessmentPublished` when executed |
+| G-002 | Third-party pen-test redacted summary not yet published | Security | Execute **V2** vendor program when funded | **Open** — **V1** uses owner-conducted testing ([`pen-test-summaries/2026-Q2-OWNER-CONDUCTED.md`](pen-test-summaries/2026-Q2-OWNER-CONDUCTED.md)); SoW **template** [`pen-test-summaries/2026-Q2-SOW.md`](pen-test-summaries/2026-Q2-SOW.md); **independent V1 assessments must not** treat this gap as a V1 deficit ([`V1_DEFERRED.md`](../library/V1_DEFERRED.md) §6c, owner 2026-05-01); publication audit via `SecurityAssessmentPublished` when executed |
 | G-003 | CAIQ / SIG not pre-filled | Security | Publish alongside trust center | **Closed (artifacts)** — [`CAIQ_LITE_2026.md`](CAIQ_LITE_2026.md), [`SIG_CORE_2026.md`](SIG_CORE_2026.md) |
 
 ## SOC 2 Type I — readiness planning (Q2–Q3 2026)

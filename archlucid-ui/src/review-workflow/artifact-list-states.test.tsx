@@ -1,7 +1,7 @@
 import { render, screen } from "@testing-library/react";
 import { describe, expect, it } from "vitest";
 
-import { OperatorEmptyState, OperatorWarningCallout } from "@/components/OperatorShellMessage";
+import { OperatorEmptyState, OperatorWarningCallout } from "@/components/operator/OperatorShellMessage";
 
 /**
  * Mirrors run/manifest pages: artifact list failure vs valid empty list (no table).

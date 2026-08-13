@@ -3,7 +3,7 @@
 import { useEffect, useState } from "react";
 
 import { fetchTenantCatalogMigrationStatus } from "@/lib/fetch-tenant-catalog-migration-status";
-import { OPERATOR_TYPOGRAPHY } from "@/lib/design-tokens";
+import { DESIGN_TOKENS, OPERATOR_TYPOGRAPHY } from "@/lib/design-tokens";
 import {
   buildTenantMigrationOperatorDetailLines,
   formatTenantMigrationStageLabel,
@@ -25,12 +25,12 @@ export function TenantCatalogMigrationDiagnosticsSection() {
   );
 
   useEffect(() => {
-    let cancelled = false;
+    let canceled = false;
 
     async function load() {
       const status = await fetchTenantCatalogMigrationStatus();
 
-      if (cancelled) {
+      if (canceled) {
         return;
       }
 
@@ -61,7 +61,7 @@ export function TenantCatalogMigrationDiagnosticsSection() {
     }, TENANT_MIGRATION_STATUS_POLL_MS);
 
     return () => {
-      cancelled = true;
+      canceled = true;
       window.clearInterval(timer);
     };
   }, []);
@@ -72,10 +72,7 @@ export function TenantCatalogMigrationDiagnosticsSection() {
 
   return (
     <section
-      className={cn(
-        "rounded-md border border-amber-700/40 bg-amber-50 px-4 py-3 text-amber-950 shadow-sm dark:border-amber-500/30 dark:bg-amber-950/30 dark:text-amber-50",
-        OPERATOR_TYPOGRAPHY.body,
-      )}
+      className={cn(DESIGN_TOKENS.callout.warn, "px-4 py-3 shadow-sm", OPERATOR_TYPOGRAPHY.body)}
       aria-label="Catalog migration status"
       data-testid="admin-catalog-migration-diagnostics"
     >

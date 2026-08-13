@@ -343,4 +343,18 @@ public static partial class SanitizedLoggerWarningExtensions
 
         EmitIntegrationEventBestEffortPublishFailed(logger, ex, safeEventType);
     }
+
+    /// <summary>
+    ///     Outbox enqueue refused because <paramref name="messageId" /> was empty while the transactional outbox is enabled (**TB-993**).
+    /// </summary>
+    public static void LogWarningIntegrationEventOutboxMissingMessageId(
+        this ILogger logger,
+        string? eventType)
+    {
+        ArgumentNullException.ThrowIfNull(logger);
+
+        string safeEventType = LogSanitizer.Sanitize(eventType);
+
+        EmitIntegrationEventOutboxMissingMessageId(logger, safeEventType);
+    }
 }

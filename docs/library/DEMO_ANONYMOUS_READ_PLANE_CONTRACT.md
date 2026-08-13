@@ -9,7 +9,7 @@
 **Path-stable alias:** [`DEMO_ANONYMOUS_READ_PLANE_PA_ONE_PAGER.md`](../go-to-market/DEMO_ANONYMOUS_READ_PLANE_PA_ONE_PAGER.md).  
 **Empty-scope routing:** [M-169 empty-scope catalog routing](../go-to-market/BUYER_SECURITY_PROCUREMENT_PACKET.md#empty-scope-catalog-routing-m-169).  
 **DiD erosion (product):** [`TENANT_DID_EROSION_AND_ENFORCEMENT_BEYOND_PREDICATES_CONTRACT.md`](TENANT_DID_EROSION_AND_ENFORCEMENT_BEYOND_PREDICATES_CONTRACT.md) (**TB-1232**).  
-**Contoso vs Claims content:** **TB-1028** (open). **Honesty CI:** **TB-1252** (open).
+**Contoso vs Claims content:** **TB-1028** (open). **Honesty CI:** **TB-1252** (**Done**).
 
 ---
 
@@ -105,16 +105,18 @@ This contract **names** structural targets; wiring dedicated demo factory/catalo
 
 ---
 
-## TB-1252 CI anchors (named, not implemented here)
+## CI anchors for **TB-1252**
 
-| Anchor | Purpose |
-|--------|---------|
-| Buyer/proof stub guards | Fail AllowAnonymous=safe / pin=catalog / empty=no-data without this contract |
+| Anchor | Role |
+| --- | --- |
+| `scripts/ci/check_demo_anonymous_read_plane_honesty.py` | Fail AllowAnonymous=safe / pin=catalog / empty=no-data overclaims |
 | `DEMO_ANONYMOUS_READ_PLANE_CONTRACT.md` | Drift guard (this file) |
 | `DemoScopes`, `DemoExplainController`, `DemoReadModelClient` | Verification cite list |
 | `ScopedRoutingSqlConnectionFactory`, `ProductionSafetyRules` | Catalog routing + prod demo off |
 | `showcase-static-demo.ts` | Static-only showcase anchor |
 | Integration test (future) | Demo path vs customer-B catalog → zero paying-tenant rows |
+
+Honesty CI shipped: **TB-1252**.
 
 ---
 

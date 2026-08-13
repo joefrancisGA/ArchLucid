@@ -44,7 +44,7 @@ exports[`WhyArchlucidMarketingView > matches snapshot (marketing /why layout + p
           See a finalized sample review
         </a>
         <a
-          class="inline-flex items-center justify-center gap-2 whitespace-nowrap transition-colors focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-neutral-400 focus-visible:ring-offset-2 disabled:pointer-events-none disabled:opacity-50 font-semibold border border-neutral-300 bg-white text-neutral-900 hover:bg-neutral-100 dark:border-neutral-600 dark:bg-neutral-900 dark:text-neutral-100 dark:hover:bg-neutral-800 h-10 rounded-md px-6 text-[15px]"
+          class="inline-flex items-center justify-center gap-2 whitespace-nowrap transition-colors focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-[var(--al-accent-border-focus)] focus-visible:ring-offset-2 disabled:pointer-events-none disabled:opacity-50 font-semibold border border-neutral-300 bg-white text-neutral-900 hover:bg-neutral-100 dark:border-neutral-600 dark:bg-neutral-900 dark:text-neutral-100 dark:hover:bg-neutral-800 h-10 rounded-md px-6 text-[15px]"
           data-testid="why-hero-secondary-cta"
           href="/signup"
         >
@@ -804,7 +804,7 @@ exports[`WhyArchlucidMarketingView > matches snapshot (marketing /why layout + p
                 <td
                   class="px-3 py-3 align-top text-neutral-800 dark:text-neutral-200"
                 >
-                  Typical fit: developer workflow tooling — not an architecture-evidence catalogue product.
+                  Typical fit: developer workflow tooling — not an architecture-evidence catalog product.
                 </td>
                 <td
                   class="px-3 py-3 align-top text-neutral-800 dark:text-neutral-200"
@@ -883,7 +883,7 @@ exports[`WhyArchlucidMarketingView > matches snapshot (marketing /why layout + p
         See a finalized sample review
       </a>
       <a
-        class="inline-flex items-center justify-center gap-2 whitespace-nowrap transition-colors focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-neutral-400 focus-visible:ring-offset-2 disabled:pointer-events-none disabled:opacity-50 font-semibold border border-neutral-300 bg-white text-neutral-900 hover:bg-neutral-100 dark:border-neutral-600 dark:bg-neutral-900 dark:text-neutral-100 dark:hover:bg-neutral-800 h-10 rounded-md px-6 text-[15px]"
+        class="inline-flex items-center justify-center gap-2 whitespace-nowrap transition-colors focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-[var(--al-accent-border-focus)] focus-visible:ring-offset-2 disabled:pointer-events-none disabled:opacity-50 font-semibold border border-neutral-300 bg-white text-neutral-900 hover:bg-neutral-100 dark:border-neutral-600 dark:bg-neutral-900 dark:text-neutral-100 dark:hover:bg-neutral-800 h-10 rounded-md px-6 text-[15px]"
         data-testid="why-proof-ladder-sample-cta"
         href="/showcase/claims-intake-modernization"
       >
@@ -1337,7 +1337,7 @@ exports[`WhyArchlucidMarketingView > matches snapshot (marketing /why layout + p
         See a finalized sample review
       </a>
       <a
-        class="inline-flex items-center justify-center gap-2 whitespace-nowrap transition-colors focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-neutral-400 focus-visible:ring-offset-2 disabled:pointer-events-none disabled:opacity-50 font-semibold border border-neutral-300 bg-white text-neutral-900 hover:bg-neutral-100 dark:border-neutral-600 dark:bg-neutral-900 dark:text-neutral-100 dark:hover:bg-neutral-800 h-10 rounded-md px-6 text-[15px]"
+        class="inline-flex items-center justify-center gap-2 whitespace-nowrap transition-colors focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-[var(--al-accent-border-focus)] focus-visible:ring-offset-2 disabled:pointer-events-none disabled:opacity-50 font-semibold border border-neutral-300 bg-white text-neutral-900 hover:bg-neutral-100 dark:border-neutral-600 dark:bg-neutral-900 dark:text-neutral-100 dark:hover:bg-neutral-800 h-10 rounded-md px-6 text-[15px]"
         data-testid="why-closing-secondary-cta"
         href="/signup"
       >

@@ -14,11 +14,15 @@ const apiMocks = vi.hoisted(() => ({
 
 const useOperateCapabilityMock = vi.hoisted(() => vi.fn(() => true));
 
+vi.mock("next/navigation", () => ({
+  usePathname: () => "/integrations/webhooks",
+}));
+
 vi.mock("@/hooks/use-operate-capability", () => ({
   useOperateCapability: () => useOperateCapabilityMock(),
 }));
 
-vi.mock("@/components/OperatorNavAuthorityProvider", () => ({
+vi.mock("@/components/operator/OperatorNavAuthorityProvider", () => ({
   useNavCallerAuthorityRank: () => 2,
   useNavCommittedArchitectureReview: () => true,
   useOperatorNavAuthority: () => ({
@@ -45,12 +49,20 @@ vi.mock("@/lib/api", () => ({
 
 import { OperateIntegrationsNavGroupBuilder } from "@/lib/operate-integrations-nav-group-builder";
 import { resolveNavIconForHref } from "@/lib/resolve-nav-link-for-pathname";
-import { WEBHOOKS_BANNED_UI_PATTERNS, WEBHOOKS_PAGE_TITLE } from "@/lib/webhooks-page-copy";
+import { WEBHOOKS_BANNED_UI_PATTERNS, WEBHOOKS_EMPTY_TITLE, WEBHOOKS_PAGE_TITLE } from "@/lib/webhooks-page-copy";
 import { WEBHOOKS_SURFACE_ICON } from "@/lib/webhooks-surface-icon";
 import { WEBHOOK_SUBSCRIPTION_SAVE_SUCCESS_MESSAGE } from "@/lib/admin-integration-mutation-outcome-copy";
 import { showError, showSuccess } from "@/lib/toast";
 
 import WebhooksIntegrationPage from "./page";
+
+function fillValidWebhookForm(): void {
+  fireEvent.change(screen.getByLabelText(/^Subscription name$/i), { target: { value: "Signal hook" } });
+  fireEvent.change(screen.getByLabelText(/^Destination URL$/i), {
+    target: { value: "https://listener.example/webhook" },
+  });
+  fireEvent.change(screen.getByLabelText(/^Signing secret$/i), { target: { value: `${"z".repeat(16)}` } });
+}
 
 describe("WebhooksIntegrationPage", () => {
   beforeEach(() => {
@@ -80,29 +92,45 @@ describe("WebhooksIntegrationPage", () => {
     expect(resolveNavIconForHref("/integrations/webhooks")).toBe(WEBHOOKS_SURFACE_ICON);
   });
 
-  it("shows dedicated integration cross-references without implying they consume generic webhooks", async () => {
+  it("shows PageHeading contextual help with the Webhooks caption", async () => {
+    render(<WebhooksIntegrationPage />);
+
+    expect(await screen.findByTestId("page-contextual-help-button")).toHaveTextContent("Webhooks help");
+  });
+
+  it("uses operator spacing density on the page shell", async () => {
+    render(<WebhooksIntegrationPage />);
+
+    const pageRoot = await screen.findByTestId("webhooks-page");
+    expect(pageRoot.className).not.toMatch(/\bspace-y-8\b/);
+    expect(pageRoot.className).not.toMatch(/\bpy-8\b/);
+    expect(pageRoot.className).toMatch(/\bpy-4\b/);
+  });
+
+  it("does not cross-link sibling Integrations products from page chrome", async () => {
     render(<WebhooksIntegrationPage />);
 
     await waitFor(() => {
-      expect(screen.getByTestId("webhooks-dedicated-links")).toBeInTheDocument();
+      expect(apiMocks.list).toHaveBeenCalled();
     });
 
-    const dedicatedLinks = screen.getByTestId("webhooks-dedicated-links");
+    expect(screen.queryByTestId("webhooks-dedicated-links")).not.toBeInTheDocument();
+    expect(screen.queryByRole("link", { name: "Jira" })).not.toBeInTheDocument();
+    expect(screen.queryByRole("link", { name: "ServiceNow" })).not.toBeInTheDocument();
+    expect(screen.queryByRole("link", { name: "Microsoft Teams" })).not.toBeInTheDocument();
+    expect(screen.queryByRole("link", { name: "Slack" })).not.toBeInTheDocument();
+    expect(screen.queryByText(/For dedicated workflows, use Jira/i)).not.toBeInTheDocument();
+  });
 
-    expect(within(dedicatedLinks).getByRole("link", { name: "Jira" })).toHaveAttribute("href", "/integrations/jira");
-    expect(within(dedicatedLinks).getByRole("link", { name: "ServiceNow" })).toHaveAttribute(
-      "href",
-      "/integrations/servicenow",
-    );
-    expect(within(dedicatedLinks).getByRole("link", { name: "Microsoft Teams" })).toHaveAttribute(
-      "href",
-      "/integrations/teams",
-    );
-    expect(within(dedicatedLinks).getByRole("link", { name: "Slack" })).toHaveAttribute("href", "/integrations/slack");
+  it("shows StatusTag and guided next step when no subscriptions exist", async () => {
+    render(<WebhooksIntegrationPage />);
 
-    const pageText = screen.getByTestId("webhooks-page").textContent ?? "";
-    expect(pageText).toMatch(/another HTTPS endpoint/i);
-    expect(pageText).not.toMatch(/generic webhooks for custom HTTP endpoints/i);
+    expect(await screen.findByTestId("webhooks-configuration-status")).toContainElement(
+      screen.getByLabelText("Status: Not configured"),
+    );
+    expect(screen.getByTestId("webhooks-not-configured-next-step")).toHaveTextContent(
+      /Name the subscription, enter an HTTPS URL and signing secret/i,
+    );
   });
 
   it("does not expose internal implementation language in the rendered page", async () => {
@@ -110,7 +138,7 @@ describe("WebhooksIntegrationPage", () => {
 
     await waitFor(() => {
       expect(apiMocks.list).toHaveBeenCalled();
-      expect(screen.getByTestId("webhook-save-button")).not.toBeDisabled();
+      expect(screen.getByTestId("webhook-save-button")).toBeDisabled();
     });
 
     const pageText = screen.getByTestId("webhooks-page").textContent ?? "";
@@ -120,31 +148,43 @@ describe("WebhooksIntegrationPage", () => {
     }
   });
 
-  it("validates required fields, HTTPS URL, secret length, and event selection", async () => {
+  it("disables save until hard validation passes and shows readiness copy", async () => {
     render(<WebhooksIntegrationPage />);
 
     await waitFor(() => {
       expect(apiMocks.list).toHaveBeenCalled();
-      expect(screen.getByTestId("webhook-save-button")).not.toBeDisabled();
     });
 
-    fireEvent.click(screen.getByTestId("webhook-save-button"));
+    expect(screen.getByTestId("webhook-save-button")).toBeDisabled();
+    expect(screen.getByTestId("webhook-save-readiness")).toHaveTextContent(/subscription name/i);
 
-    expect(await screen.findByText(/Subscription name is required/i)).toBeInTheDocument();
-    expect(screen.getByText(/Destination URL is required/i)).toBeInTheDocument();
-    expect(screen.getByText(/Signing secret must be at least 16 characters/i)).toBeInTheDocument();
+    fillValidWebhookForm();
 
-    fireEvent.click(screen.getByLabelText(/Alert recorded/i));
-    fireEvent.click(screen.getByTestId("webhook-save-button"));
-    expect(await screen.findByText(/Select at least one event/i)).toBeInTheDocument();
+    await waitFor(() => {
+      expect(screen.getByTestId("webhook-save-button")).not.toBeDisabled();
+    });
+    expect(screen.queryByTestId("webhook-save-readiness")).toBeNull();
+  });
 
-    fireEvent.change(screen.getByLabelText(/destination url/i), { target: { value: "http://insecure.example/hook" } });
-    fireEvent.blur(screen.getByLabelText(/destination url/i));
+  it("validates HTTPS URL and event selection on blur", async () => {
+    render(<WebhooksIntegrationPage />);
+
+    await waitFor(() => {
+      expect(apiMocks.list).toHaveBeenCalled();
+    });
+
+    fireEvent.change(screen.getByLabelText(/^Subscription name$/i), { target: { value: "Signal hook" } });
+    fireEvent.change(screen.getByLabelText(/^Signing secret$/i), { target: { value: `${"z".repeat(16)}` } });
+    fireEvent.change(screen.getByLabelText(/^Destination URL$/i), { target: { value: "http://insecure.example/hook" } });
+    fireEvent.blur(screen.getByLabelText(/^Destination URL$/i));
     expect(await screen.findByText(/must use HTTPS/i)).toBeInTheDocument();
 
-    fireEvent.change(screen.getByLabelText(/destination url/i), { target: { value: "not-a-url" } });
-    fireEvent.blur(screen.getByLabelText(/destination url/i));
+    fireEvent.change(screen.getByLabelText(/^Destination URL$/i), { target: { value: "not-a-url" } });
+    fireEvent.blur(screen.getByLabelText(/^Destination URL$/i));
     expect(await screen.findByText(/Enter a valid HTTPS URL/i)).toBeInTheDocument();
+
+    fireEvent.click(screen.getByLabelText(/Alert recorded/i));
+    expect(await screen.findByTestId("webhook-save-readiness")).toHaveTextContent(/at least one event/i);
   });
 
   it("shows minimum severity only when alert events are selected", async () => {
@@ -152,7 +192,6 @@ describe("WebhooksIntegrationPage", () => {
 
     await waitFor(() => {
       expect(apiMocks.list).toHaveBeenCalled();
-      expect(screen.getByTestId("webhook-save-button")).not.toBeDisabled();
     });
 
     expect(screen.getByLabelText(/Send alerts at or above/i)).toBeInTheDocument();
@@ -169,14 +208,13 @@ describe("WebhooksIntegrationPage", () => {
 
     await waitFor(() => {
       expect(apiMocks.list).toHaveBeenCalled();
-      expect(screen.getByTestId("webhook-save-button")).not.toBeDisabled();
     });
 
-    fireEvent.change(screen.getByLabelText(/subscription name/i), { target: { value: "Signal hook" } });
-    fireEvent.change(screen.getByLabelText(/destination url/i), {
+    fireEvent.change(screen.getByLabelText(/^Subscription name$/i), { target: { value: "Signal hook" } });
+    fireEvent.change(screen.getByLabelText(/^Destination URL$/i), {
       target: { value: "https://listener.example/webhook" },
     });
-    fireEvent.change(screen.getByLabelText(/signing secret/i), { target: { value: `${"z".repeat(16)}x` } });
+    fireEvent.change(screen.getByLabelText(/^Signing secret$/i), { target: { value: `${"z".repeat(16)}x` } });
     fireEvent.click(screen.getByLabelText(/Alert acknowledged/i));
 
     fireEvent.click(screen.getByTestId("webhook-save-button"));
@@ -187,7 +225,7 @@ describe("WebhooksIntegrationPage", () => {
 
     expect(await screen.findByTestId("webhook-save-success-callout")).toHaveTextContent("Subscription saved.");
     expect(showSuccess).not.toHaveBeenCalled();
-    expect((screen.getByLabelText(/signing secret/i) as HTMLInputElement).value).toBe("");
+    expect((screen.getByLabelText(/^Signing secret$/i) as HTMLInputElement).value).toBe("");
 
     const callBody = apiMocks.create.mock.calls[0][0];
     expect(callBody.destination).toBe("https://listener.example/webhook");
@@ -210,14 +248,9 @@ describe("WebhooksIntegrationPage", () => {
 
     await waitFor(() => {
       expect(apiMocks.list).toHaveBeenCalled();
-      expect(screen.getByTestId("webhook-save-button")).not.toBeDisabled();
     });
 
-    fireEvent.change(screen.getByLabelText(/subscription name/i), { target: { value: "Signal hook" } });
-    fireEvent.change(screen.getByLabelText(/destination url/i), {
-      target: { value: "https://listener.example/webhook" },
-    });
-    fireEvent.change(screen.getByLabelText(/signing secret/i), { target: { value: `${"z".repeat(16)}` } });
+    fillValidWebhookForm();
 
     fireEvent.click(screen.getByTestId("webhook-save-button"));
 
@@ -258,21 +291,103 @@ describe("WebhooksIntegrationPage", () => {
       expect(screen.getByTestId("webhook-subscription-11111111-1111-1111-1111-111111111111")).toBeInTheDocument();
     });
 
-    fireEvent.change(screen.getByLabelText(/subscription name/i), { target: { value: "existing hook" } });
-    fireEvent.change(screen.getByLabelText(/destination url/i), {
+    expect(screen.getByRole("table", { name: "Webhook subscriptions" })).toBeInTheDocument();
+
+    fireEvent.change(screen.getByLabelText(/^Subscription name$/i), { target: { value: "existing hook" } });
+    fireEvent.change(screen.getByLabelText(/^Destination URL$/i), {
       target: { value: "https://listener.example/new" },
     });
-    fireEvent.change(screen.getByLabelText(/signing secret/i), { target: { value: `${"z".repeat(16)}` } });
+    fireEvent.change(screen.getByLabelText(/^Signing secret$/i), { target: { value: `${"z".repeat(16)}` } });
+
+    await waitFor(() => {
+      expect(screen.getByTestId("webhook-save-button")).not.toBeDisabled();
+    });
+
     fireEvent.click(screen.getByTestId("webhook-save-button"));
 
     expect(await screen.findByText(/subscription with this name already exists/i)).toBeInTheDocument();
     expect(apiMocks.create).not.toHaveBeenCalled();
   });
 
-  it("renders empty state guidance", async () => {
+  it("uses EnterpriseTable inventory for populated webhook subscriptions (TB-1648)", async () => {
+    apiMocks.list.mockResolvedValue([
+      {
+        routingSubscriptionId: "11111111-1111-1111-1111-111111111111",
+        tenantId: "t",
+        workspaceId: "w",
+        projectId: "p",
+        name: "Existing hook",
+        channelType: "OnCallWebhook",
+        destination: "https://listener.example/hook",
+        minimumSeverity: "High",
+        isEnabled: true,
+        createdUtc: "2026-01-01T00:00:00Z",
+        metadataJson: JSON.stringify({ webhookSharedSecret: "z".repeat(16) }),
+      },
+    ]);
+
     render(<WebhooksIntegrationPage />);
 
-    expect(await screen.findByTestId("webhooks-empty-state")).toHaveTextContent("No webhook subscriptions yet");
+    await waitFor(() => {
+      expect(screen.getByRole("table", { name: "Webhook subscriptions" })).toBeInTheDocument();
+    });
+
+    expect(screen.getByRole("columnheader", { name: "Destination" })).toBeInTheDocument();
+    expect(screen.getByRole("columnheader", { name: "Signing secret" })).toBeInTheDocument();
+  });
+
+  it("renders subscriptions empty state before the create form when none exist", async () => {
+    render(<WebhooksIntegrationPage />);
+
+    expect(await screen.findByTestId("webhooks-subscriptions-section")).toBeInTheDocument();
+    expect(screen.getByRole("heading", { level: 2, name: "Subscriptions" })).toBeInTheDocument();
+    expect(screen.getByTestId("webhooks-empty-state")).toHaveTextContent(WEBHOOKS_EMPTY_TITLE);
+    expect(screen.getByRole("heading", { name: /New subscription/i })).toBeInTheDocument();
+    expect(screen.queryByText(/0 subscriptions in this workspace/i)).not.toBeInTheDocument();
+  });
+
+  it("does not claim zero subscriptions while the list is still loading", async () => {
+    let resolveList: (rows: unknown[]) => void = () => {};
+
+    apiMocks.list.mockImplementation(
+      () =>
+        new Promise((resolve) => {
+          resolveList = resolve as (rows: unknown[]) => void;
+        }),
+    );
+
+    render(<WebhooksIntegrationPage />);
+
+    expect(await screen.findByTestId("webhooks-subscriptions-loading")).toBeInTheDocument();
+    expect(screen.queryByTestId("webhooks-empty-state")).toBeNull();
+
+    resolveList([]);
+
+    expect(await screen.findByTestId("webhooks-empty-state")).toHaveTextContent(WEBHOOKS_EMPTY_TITLE);
+  });
+
+  it("reports disabled subscriptions without claiming the workspace is not configured", async () => {
+    apiMocks.list.mockResolvedValue([
+      {
+        routingSubscriptionId: "11111111-1111-1111-1111-111111111111",
+        tenantId: "t",
+        workspaceId: "w",
+        projectId: "p",
+        name: "Existing hook",
+        channelType: "OnCallWebhook",
+        destination: "https://listener.example/hook",
+        minimumSeverity: "High",
+        isEnabled: false,
+        createdUtc: "2026-01-01T00:00:00Z",
+        metadataJson: JSON.stringify({ webhookSharedSecret: "z".repeat(16) }),
+      },
+    ]);
+
+    render(<WebhooksIntegrationPage />);
+
+    expect(await screen.findByLabelText("Status: 1 subscription, none enabled")).toBeInTheDocument();
+    expect(screen.queryByLabelText("Status: Not configured")).toBeNull();
+    expect(screen.queryByTestId("webhooks-not-configured-next-step")).toBeNull();
   });
 
   it("renders existing subscriptions with masked destination hostname and secret status", async () => {
@@ -358,14 +473,10 @@ describe("WebhooksIntegrationPage", () => {
     render(<WebhooksIntegrationPage />);
 
     await waitFor(() => {
-      expect(screen.getByTestId("webhook-save-button")).not.toBeDisabled();
+      expect(apiMocks.list).toHaveBeenCalled();
     });
 
-    fireEvent.change(screen.getByLabelText(/subscription name/i), { target: { value: "Signal hook" } });
-    fireEvent.change(screen.getByLabelText(/destination url/i), {
-      target: { value: "https://listener.example/webhook" },
-    });
-    fireEvent.change(screen.getByLabelText(/signing secret/i), { target: { value: `${"z".repeat(16)}` } });
+    fillValidWebhookForm();
     fireEvent.click(screen.getByTestId("webhook-save-button"));
 
     expect(await screen.findByText(/Could not save the subscription/i)).toBeInTheDocument();
@@ -382,7 +493,9 @@ describe("WebhooksIntegrationPage", () => {
     });
 
     expect(screen.getByTestId("webhook-save-button")).toBeDisabled();
-    expect(screen.getByLabelText(/subscription name/i)).toBeDisabled();
+    expect(screen.getByLabelText(/^Subscription name$/i)).toBeDisabled();
+    expect(screen.getByTestId("webhooks-mutation-prerequisite-notice")).toHaveTextContent(/manage alert routing/i);
+    expect(screen.getByTestId("webhooks-page").querySelector("[title]")).toBeNull();
     expect(apiMocks.create).not.toHaveBeenCalled();
   });
 
@@ -434,13 +547,46 @@ describe("WebhooksIntegrationPage", () => {
     render(<WebhooksIntegrationPage />);
 
     await waitFor(() => {
-      expect(screen.getByTestId("webhook-save-button")).not.toBeDisabled();
+      expect(apiMocks.list).toHaveBeenCalled();
     });
 
-    expect(screen.getByLabelText(/Subscription name/i)).toHaveAttribute("id", "webhook-subscription-name");
-    expect(screen.getByLabelText(/Destination URL/i)).toHaveAttribute("id", "webhook-url");
-    expect(screen.getByLabelText(/Signing secret/i)).toHaveAttribute("id", "webhook-secret");
+    expect(screen.getByLabelText(/^Subscription name$/i)).toHaveAttribute("id", "webhook-subscription-name");
+    expect(screen.getByLabelText(/^Destination URL$/i)).toHaveAttribute("id", "webhook-url");
+    expect(screen.getByLabelText(/^Signing secret$/i)).toHaveAttribute("id", "webhook-secret");
     expect(screen.getByRole("group", { name: /Webhook events/i })).toBeInTheDocument();
+  });
+
+  it("requires confirmation before disabling an enabled webhook subscription", async () => {
+    const subscriptionId = "sub-disable-1";
+    apiMocks.list.mockResolvedValue([
+      {
+        routingSubscriptionId: subscriptionId,
+        tenantId: "t",
+        workspaceId: "w",
+        projectId: "p",
+        name: "PagerDuty alerts",
+        channelType: "OnCallWebhook",
+        destination: "https://example.com/webhooks/archlucid",
+        minimumSeverity: "High",
+        isEnabled: true,
+        createdUtc: "2026-01-01T00:00:00Z",
+        metadataJson: JSON.stringify({ eventTypes: ["archlucid.alert.recorded"] }),
+      },
+    ]);
+
+    render(<WebhooksIntegrationPage />);
+
+    fireEvent.click(await screen.findByTestId(`webhook-toggle-${subscriptionId}`));
+
+    expect(screen.getByText(/Disable webhook subscription PagerDuty alerts/i)).toBeInTheDocument();
+    expect(screen.getByText(/Outbound HTTPS deliveries/i)).toBeInTheDocument();
+    expect(apiMocks.toggle).not.toHaveBeenCalled();
+
+    fireEvent.click(screen.getByRole("button", { name: "Disable" }));
+
+    await waitFor(() => {
+      expect(apiMocks.toggle).toHaveBeenCalledWith(subscriptionId);
+    });
   });
 
   it("does not render mid-page About webhooks panel (TB-2093)", async () => {
@@ -449,5 +595,29 @@ describe("WebhooksIntegrationPage", () => {
     expect(await screen.findByTestId("webhooks-page")).toBeInTheDocument();
     expect(screen.queryByTestId("webhooks-about-panel")).toBeNull();
     expect(screen.queryByRole("heading", { name: /About webhooks/i })).toBeNull();
+  });
+
+  it("exposes delivery contract disclosure with the backend signature header", async () => {
+    render(<WebhooksIntegrationPage />);
+
+    fireEvent.click(await screen.findByText(/Delivery and signature verification/i));
+
+    expect(screen.getByTestId("webhooks-delivery-contract-disclosure")).toHaveTextContent(
+      "X-ArchLucid-Webhook-Signature",
+    );
+    expect(screen.getByTestId("webhooks-delivery-contract-disclosure")).toHaveTextContent("sha256=");
+    expect(screen.getByTestId("webhooks-delivery-contract-disclosure")).toHaveTextContent("alertId");
+  });
+
+  it("does not claim the subscription secret signs live alert deliveries", async () => {
+    render(<WebhooksIntegrationPage />);
+
+    fireEvent.click(await screen.findByText(/Delivery and signature verification/i));
+
+    const disclosure = screen.getByTestId("webhooks-delivery-contract-disclosure");
+
+    expect(disclosure).toHaveTextContent(/Test events .* are signed with the signing secret you enter here/i);
+    expect(disclosure).toHaveTextContent(/Live alert deliveries are signed with the platform shared secret/i);
+    expect(disclosure.textContent ?? "").not.toMatch(/keyed with your subscription signing secret/i);
   });
 });

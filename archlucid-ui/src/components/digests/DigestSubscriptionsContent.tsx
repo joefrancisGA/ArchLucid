@@ -8,7 +8,8 @@ import { useEffect, useRef, useState, type ReactElement } from "react";
 
 import { useDigestSubscriptionsQuery } from "@/hooks/use-digest-subscriptions-query";
 
-import { OperatorApiProblem } from "@/components/OperatorApiProblem";
+import { OperatorApiProblem } from "@/components/operator/OperatorApiProblem";
+import { ConfirmationDialog } from "@/components/ConfirmationDialog";
 import { DigestSubscriptionCreateForm } from "@/components/digests/DigestSubscriptionCreateForm";
 import { DigestSubscriptionList } from "@/components/digests/DigestSubscriptionList";
 import { DigestSubscriptionsReadinessPanel } from "@/components/digests/DigestSubscriptionsReadinessPanel";
@@ -21,6 +22,10 @@ import {
   toggleDigestSubscription,
 } from "@/lib/api";
 import { DIGESTS_BROWSE_RECIPIENTS_HELPER } from "@/lib/digests-browse-copy";
+import {
+  DIGEST_SUBSCRIPTION_PAUSE_DIALOG_DESCRIPTION,
+  resolveDigestSubscriptionPauseDialogTitle,
+} from "@/lib/digest-subscription-pause-copy";
 import {
   DIGEST_SUBSCRIPTIONS_PAGE_SUBTITLE,
   DIGEST_SUBSCRIPTIONS_PAGE_TITLE,
@@ -53,6 +58,11 @@ export function DigestSubscriptionsContent(props: DigestSubscriptionsContentProp
   const [mutationFailure, setMutationFailure] = useState<ApiLoadFailureState | null>(null);
   const [prefillFrom, setPrefillFrom] = useState<DigestSubscription | null>(null);
   const [formResetKey, setFormResetKey] = useState<number>(0);
+  const [focusCreateToken, setFocusCreateToken] = useState<number>(0);
+  const [pendingPause, setPendingPause] = useState<{
+    subscriptionId: string;
+    subscriptionName: string;
+  } | null>(null);
   const loading = subscriptionsQuery.isLoading || mutating;
   const failure =
     mutationFailure ??
@@ -76,7 +86,7 @@ export function DigestSubscriptionsContent(props: DigestSubscriptionsContentProp
       return;
     }
 
-    let cancelled = false;
+    let canceled = false;
 
     void (async () => {
       const attemptEntries = await Promise.all(
@@ -94,7 +104,7 @@ export function DigestSubscriptionsContent(props: DigestSubscriptionsContentProp
       );
       const nextAttempts: Record<string, DigestDeliveryAttempt[]> = {};
 
-      if (cancelled) {
+      if (canceled) {
         return;
       }
 
@@ -106,7 +116,7 @@ export function DigestSubscriptionsContent(props: DigestSubscriptionsContentProp
     })();
 
     return () => {
-      cancelled = true;
+      canceled = true;
     };
   }, [items, refreshToken]);
 
@@ -162,11 +172,25 @@ export function DigestSubscriptionsContent(props: DigestSubscriptionsContentProp
     }
   }
 
-  async function onToggle(subscriptionId: string): Promise<void> {
+  async function onToggle(
+    subscriptionId: string,
+    isEnabled: boolean,
+    subscriptionName: string,
+  ): Promise<void> {
     if (!canMutateSubscriptions) {
       return;
     }
 
+    if (isEnabled) {
+      setPendingPause({ subscriptionId, subscriptionName });
+
+      return;
+    }
+
+    await executeToggle(subscriptionId);
+  }
+
+  async function executeToggle(subscriptionId: string): Promise<void> {
     setMutationFailure(null);
     setMutating(true);
 
@@ -176,8 +200,22 @@ export function DigestSubscriptionsContent(props: DigestSubscriptionsContentProp
       setMutationFailure(null);
     } catch (error) {
       setMutationFailure(toApiLoadFailure(error));
+      throw error;
     } finally {
       setMutating(false);
+    }
+  }
+
+  async function confirmPause(): Promise<void> {
+    if (pendingPause === null || mutating) {
+      return;
+    }
+
+    try {
+      await executeToggle(pendingPause.subscriptionId);
+      setPendingPause(null);
+    } catch {
+      // Failure is already on mutationFailure for the page alert.
     }
   }
 
@@ -191,6 +229,12 @@ export function DigestSubscriptionsContent(props: DigestSubscriptionsContentProp
     } catch (error) {
       setMutationFailure(toApiLoadFailure(error));
     }
+  }
+
+  function focusCreateForm(): void {
+    setPrefillFrom(null);
+    setFocusCreateToken((value) => value + 1);
+    formCardRef.current?.scrollIntoView({ behavior: "smooth", block: "start" });
   }
 
   function onPrefillCreate(subscription: DigestSubscription): void {
@@ -240,7 +284,11 @@ export function DigestSubscriptionsContent(props: DigestSubscriptionsContentProp
         </div>
       ) : null}
 
-      <DigestSubscriptionsReadinessPanel healthSnap={props.healthSnap} subscriptions={items} />
+      <DigestSubscriptionsReadinessPanel
+        healthSnap={props.healthSnap}
+        subscriptions={items}
+        onAddDeliveryDestination={focusCreateForm}
+      />
 
       <div ref={formCardRef} className="grid gap-4">
         <DigestSubscriptionCreateForm
@@ -251,6 +299,7 @@ export function DigestSubscriptionsContent(props: DigestSubscriptionsContentProp
           collapsedByDefault={items.length > 0}
           creating={creating}
           createSuccess={createSuccess}
+          focusRequestToken={focusCreateToken}
           onCreate={onCreate}
         />
 
@@ -262,11 +311,31 @@ export function DigestSubscriptionsContent(props: DigestSubscriptionsContentProp
           canMutate={canMutateSubscriptions}
           canRevealDestinations={canMutateSubscriptions}
           onRefresh={() => void subscriptionsQuery.refetch()}
-          onToggle={(subscriptionId) => void onToggle(subscriptionId)}
+          onToggle={(subscriptionId, isEnabled, subscriptionName) =>
+            void onToggle(subscriptionId, isEnabled, subscriptionName)
+          }
           onViewHistory={(subscriptionId) => void onViewHistory(subscriptionId)}
           onPrefillCreate={onPrefillCreate}
+          onFocusCreateForm={focusCreateForm}
         />
       </div>
+
+      <ConfirmationDialog
+        open={pendingPause !== null}
+        onOpenChange={(open) => {
+          if (!open && !mutating) {
+            setPendingPause(null);
+          }
+        }}
+        title={resolveDigestSubscriptionPauseDialogTitle(pendingPause?.subscriptionName ?? "")}
+        description={DIGEST_SUBSCRIPTION_PAUSE_DIALOG_DESCRIPTION}
+        confirmLabel="Pause delivery"
+        variant="destructive"
+        busy={mutating}
+        onConfirm={() => {
+          void confirmPause();
+        }}
+      />
     </div>
   );
 }

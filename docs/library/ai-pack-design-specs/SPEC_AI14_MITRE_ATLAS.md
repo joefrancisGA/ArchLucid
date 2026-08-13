@@ -21,7 +21,7 @@ Ship a pack covering **MITRE ATLAS** (Adversarial Threat Landscape for Artificia
 | A2 | ATLAS tactics include: Reconnaissance, Resource Development, Initial Access, Execution, Persistence, Privilege Escalation, Defense Evasion, Credential Access, Discovery, Collection, ML Attack Staging, Exfiltration, Impact. | ATLAS v4 tactic list. |
 | A3 | Architecture evidence covers **defensive architecture** for ATLAS attack categories — not simulation of the attacks themselves. | Scope boundary. |
 | A4 | OWASP LLM Top 10 (AI-01) covers GenAI app-layer attack surfaces. ATLAS covers ML system attacks (model evasion, inversion, extraction, poisoning) — distinct surface. | Non-overlapping scope. |
-| A5 | AI-18 (Red Team & Safety) covers the red-team *programme* architecture; ATLAS pack covers *defensive posture* against specific ML attack techniques. | Adjacent pack boundary. |
+| A5 | AI-18 (Red Team & Safety) covers the red-team *program* architecture; ATLAS pack covers *defensive posture* against specific ML attack techniques. | Adjacent pack boundary. |
 | A6 | Not all ATLAS techniques have architecture-level defensive evidence; rules are limited to techniques where manifest-level posture is meaningful (e.g. data access controls for poisoning, model isolation for extraction, monitoring for evasion). | Evidence-mappability constraint. |
 
 ---
@@ -72,13 +72,13 @@ mitre-atlas-rules-v1.json → manifest → Seeder
 
 | Prefix | Defensive theme (ATLAS tactic area) | Target rules | Priority skew |
 |--------|-------------------------------------|-------------|---------------|
-| `atlas-poison-` | Data poisoning defences (training data access control, integrity verification, provenance) | 5 | P0-heavy |
-| `atlas-evade-` | Evasion defences (input validation, adversarial input detection design, model ensemble documentation) | 5 | P1 |
-| `atlas-extract-` | Model extraction defences (API rate limiting, output restriction policy, model access audit) | 5 | P0/P1 |
-| `atlas-invert-` | Model inversion defences (output truncation, differential privacy documentation, output confidence policy) | 4 | P1 |
-| `atlas-backdoor-` | Backdoor/trojan defences (training pipeline integrity, supply-chain model provenance) | 4 | P0/P1 |
-| `atlas-supply-` | Supply-chain compromise defences (third-party model provenance, model integrity verification) | 4 | P0/P1 |
-| `atlas-persist-` | Persistence defences (model monitoring for behavioral drift from baseline, anomaly detection design) | 3 | P1/P2 |
+| `atlas-poison-` | Data poisoning defenses (training data access control, integrity verification, provenance) | 5 | P0-heavy |
+| `atlas-evade-` | Evasion defenses (input validation, adversarial input detection design, model ensemble documentation) | 5 | P1 |
+| `atlas-extract-` | Model extraction defenses (API rate limiting, output restriction policy, model access audit) | 5 | P0/P1 |
+| `atlas-invert-` | Model inversion defenses (output truncation, differential privacy documentation, output confidence policy) | 4 | P1 |
+| `atlas-backdoor-` | Backdoor/trojan defenses (training pipeline integrity, supply-chain model provenance) | 4 | P0/P1 |
+| `atlas-supply-` | Supply-chain compromise defenses (third-party model provenance, model integrity verification) | 4 | P0/P1 |
+| `atlas-persist-` | Persistence defenses (model monitoring for behavioral drift from baseline, anomaly detection design) | 3 | P1/P2 |
 | **Total** | | **~30 rules** | |
 
 ### 5.3 Key evidence fields
@@ -89,7 +89,7 @@ mitre-atlas-rules-v1.json → manifest → Seeder
 
 ## 6. Data Flow
 
-Standard pipeline. `priorityFloor: P0` surfaces data poisoning defences and model extraction defences. Evasion, inversion, and persistence rules surface at P1/P2.
+Standard pipeline. `priorityFloor: P0` surfaces data poisoning defenses and model extraction defenses. Evasion, inversion, and persistence rules surface at P1/P2.
 
 ---
 
@@ -127,7 +127,7 @@ Standard pipeline. `priorityFloor: P0` surfaces data poisoning defences and mode
 ## 10. Required FAQ wording
 
 **Q: Does this pack perform adversarial ML attacks against our model?**
-A: No. ArchLucid evaluates architecture-level defensive posture against MITRE ATLAS threat categories — whether training data provenance controls exist, whether model extraction defences are designed, and whether supply-chain model integrity is documented. Actual adversarial ML testing requires specialised red-team tooling and expertise — see the AI Red-Team & Safety pack.
+A: No. ArchLucid evaluates architecture-level defensive posture against MITRE ATLAS threat categories — whether training data provenance controls exist, whether model extraction defenses are designed, and whether supply-chain model integrity is documented. Actual adversarial ML testing requires specialized red-team tooling and expertise — see the AI Red-Team & Safety pack.
 
 ---
 
@@ -136,4 +136,4 @@ A: No. ArchLucid evaluates architecture-level defensive posture against MITRE AT
 | Doc | Purpose |
 |-----|---------|
 | [`SPEC_AI01_OWASP_LLM_TOP10.md`](SPEC_AI01_OWASP_LLM_TOP10.md) | OWASP GenAI app-layer attacks |
-| [`SPEC_AI18_AI_RED_TEAM.md`](SPEC_AI18_AI_RED_TEAM.md) | Red-team programme architecture |
+| [`SPEC_AI18_AI_RED_TEAM.md`](SPEC_AI18_AI_RED_TEAM.md) | Red-team program architecture |

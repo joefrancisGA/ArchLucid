@@ -8,7 +8,7 @@ import { useCallback, useState } from "react";
 import {
   findingInspectNarrativeFields,
   findingInspectPrimaryLabels,
-} from "@/lib/finding-display-from-inspect";
+} from "@/lib/findings/finding-display-from-inspect";
 import { Button } from "@/components/ui/button";
 import {
   Select,

@@ -96,8 +96,24 @@ describe("Tabs primitive (TB-665)", () => {
     expect(String(lastCall?.[2])).toContain("tab=b");
   });
 
-  it("renders pill variant triggers with rounded-full chip styling by default", () => {
+  it("renders line variant triggers with underline styling by default (TB-1665)", () => {
     renderThreeTabFixture();
+
+    const tabA = screen.getByRole("tab", { name: "Tab A" });
+
+    expect(tabA.className).toMatch(/border-b-2/);
+    expect(tabA.className).not.toMatch(/rounded-full/);
+  });
+
+  it("still renders pill chrome when a call site explicitly opts in", () => {
+    render(
+      <Tabs defaultValue="a" variant="pill">
+        <TabsList aria-label="Example sections">
+          <TabsTrigger value="a">Tab A</TabsTrigger>
+        </TabsList>
+        <TabsContent value="a">Panel A</TabsContent>
+      </Tabs>,
+    );
 
     const tabA = screen.getByRole("tab", { name: "Tab A" });
 

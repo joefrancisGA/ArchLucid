@@ -30,7 +30,7 @@ test host until the blame timer fired.
 
 1. **Pull the blame hang dump** uploaded by the failing job (artifact named like
    `dotnet_<pid>_<timestamp>_hangdump.dmp`). The managed stacks in the dump name the exact test and
-   the blocking call (SQL command, lock wait, or an un-cancelled await).
+   the blocking call (SQL command, lock wait, or an un-canceled await).
 2. **Check the SQL test fixtures** for transactions opened at `Serializable` isolation without a
    command/connection timeout — these can deadlock under shared CI catalogs:
    - `ArchLucid.Persistence.Tests/SqlServerPersistenceFixture.cs` (line ~286 opens a

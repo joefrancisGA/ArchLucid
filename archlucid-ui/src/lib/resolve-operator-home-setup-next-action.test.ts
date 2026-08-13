@@ -5,7 +5,7 @@ import {
   OPERATOR_HOME_SETUP_NEXT_CONNECT_CLOUD,
   OPERATOR_HOME_SETUP_NEXT_INVITE_REVIEWER,
   OPERATOR_HOME_SETUP_NEXT_OPEN_GUIDE,
-} from "@/lib/buyer-polish-copy";
+} from "@/lib/buyer/buyer-polish-copy";
 import {
   resolveOperatorHomeSetupNextAction,
   resolveOperatorHomeSetupNextActionId,

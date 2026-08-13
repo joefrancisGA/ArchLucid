@@ -11,10 +11,16 @@ import { GovernanceResolutionRankCue } from "@/components/EnterpriseControlsCont
 import { StandardsRulesGovernanceStatusBanner } from "@/components/governance/StandardsRulesGovernanceStatusBanner";
 import { GlossaryTooltip } from "@/components/GlossaryTooltip";
 import { LayerHeader } from "@/components/LayerHeader";
-import { OperatorApiProblem } from "@/components/OperatorApiProblem";
-import { OperatorPageHeader } from "@/components/OperatorPageHeader";
-import { PageContextualHelpButton } from "@/components/usability/PageContextualHelpButton";
+import { OperatorApiProblem } from "@/components/operator/OperatorApiProblem";
+import { OperatorPageHeader } from "@/components/operator/OperatorPageHeader";
+import { GovernanceSetupConfigHubsVocabularyRail } from "@/components/governance/GovernanceSetupConfigHubsVocabularyRail";
+import { PolicyPacksStandardsVocabularyRail } from "@/components/policy/PolicyPacksStandardsVocabularyRail";
+import {
+  PageContextualHelpButton,
+  PAGE_HELP_SHORT_TRIGGER_TEXT,
+} from "@/components/usability/PageContextualHelpButton";
 import { Button } from "@/components/ui/button";
+import { RefreshButton } from "@/components/ui/refresh-button";
 import {
   governanceResolutionChangeRelatedControlsLead,
   governanceResolutionChangeRelatedControlsReaderSupplement,
@@ -23,16 +29,16 @@ import {
   governanceResolutionPageLeadOperator,
   governanceResolutionPageLeadReader,
   governanceResolutionRawOutputAccordionLabel,
-  governanceResolutionRefreshButtonTitle,
   governanceResolutionRefreshPolicySectionHeading,
   governanceResolutionResolutionDetailsHeadingOperator,
   governanceResolutionResolutionDetailsHeadingReader,
 } from "@/lib/enterprise-controls-context-copy";
-import { triggerGovernanceResolutionMarkdownDownload } from "@/lib/governance-resolution-markdown";
+import { triggerGovernanceResolutionMarkdownDownload } from "@/lib/governance/governance-resolution-markdown";
 import {
   OPERATOR_DISCLOSURE_TRIGGER_CLASS,
   OPERATOR_TYPOGRAPHY,
 } from "@/lib/design-tokens";
+import { GOVERNANCE_STANDARDS_AND_RULES_PATH } from "@/lib/governance/governance-route-paths";
 import { OPERATOR_NAV_LINK_LABELS } from "@/lib/i18n";
 import {
   buildStandardsRuleRows,
@@ -165,28 +171,20 @@ function GovernanceResolutionOperatorDiagnostics(props: { readonly model: Govern
           {governanceResolutionChangeRelatedControlsLead}
         </p>
         {!canMutateEnterprisePolicySurfaces ? (
-          <p className={cn("mb-2 max-w-prose text-al-text-secondary", OPERATOR_TYPOGRAPHY.helper)} role="note">
+          <p className={cn("mb-2 max-w-3xl text-al-text-secondary", OPERATOR_TYPOGRAPHY.helper)} role="note">
             {governanceResolutionChangeRelatedControlsReaderSupplement}
           </p>
         ) : null}
         <div className="mb-0 flex flex-wrap gap-2">
-          <Button
-            type="button"
-            variant="secondary"
-            size="sm"
-            title={governanceResolutionRefreshButtonTitle}
-            onClick={() => void m.load()}
-            disabled={m.loading}
-          >
-            {m.loading ? "Loading…" : "Refresh"}
-          </Button>
+          <RefreshButton busy={m.loading} onClick={() => void m.load()} />
           <Button
             type="button"
             variant="outline"
             size="sm"
             data-testid="governance-resolution-export-markdown"
-            title="Download a point-in-time diagnostic report with notes, conflicts, decisions, and effective content"
+            aria-label="Download a point-in-time diagnostic report with notes, conflicts, decisions, and effective content"
             disabled={m.loading || m.data === null}
+            aria-describedby={m.data === null && !m.loading ? "governance-resolution-export-disabled-hint" : undefined}
             onClick={() => {
               if (m.data === null) {
                 return;
@@ -198,6 +196,14 @@ function GovernanceResolutionOperatorDiagnostics(props: { readonly model: Govern
             Export diagnostic report
           </Button>
         </div>
+        {m.data === null && !m.loading ? (
+          <p
+            id="governance-resolution-export-disabled-hint"
+            className={cn("m-0 max-w-3xl text-al-text-secondary", OPERATOR_TYPOGRAPHY.helper)}
+          >
+            Refresh governance resolution data before exporting a diagnostic report.
+          </p>
+        ) : null}
       </section>
     </>
   );
@@ -219,11 +225,14 @@ export function GovernanceResolutionPageView(props: Props) {
       <div className="w-full max-w-[1440px]">
         <StandardsRulesGovernanceStatusBanner className="mb-3" />
         <OperatorPageHeader
+          navHref={GOVERNANCE_STANDARDS_AND_RULES_PATH}
           title={STANDARDS_RULES_PAGE_TITLE}
           subtitle={STANDARDS_RULES_PAGE_SUBTITLE}
-          actions={<PageContextualHelpButton />}
+          actions={<PageContextualHelpButton triggerText={PAGE_HELP_SHORT_TRIGGER_TEXT} />}
         />
-{m.failure !== null ? (
+        <PolicyPacksStandardsVocabularyRail currentSurfaceId="standards-and-rules" />
+        <GovernanceSetupConfigHubsVocabularyRail currentSurfaceId="standards" />
+        {m.failure !== null ? (
           <div role="alert">
             <OperatorApiProblem
               problem={m.failure.problem}
@@ -261,11 +270,14 @@ export function GovernanceResolutionPageView(props: Props) {
       <LayerHeader pageKey="governance-resolution" density="compact"
 />
       <OperatorPageHeader
+        navHref={GOVERNANCE_STANDARDS_AND_RULES_PATH}
         title={OPERATOR_NAV_LINK_LABELS.governanceResolution}
         subtitle={m.canMutateEnterprisePolicySurfaces ? governanceResolutionPageLeadOperator : governanceResolutionPageLeadReader}
-        actions={<PageContextualHelpButton />}
+        actions={<PageContextualHelpButton triggerText={PAGE_HELP_SHORT_TRIGGER_TEXT} />}
       />
-<GovernanceResolutionRankCue className="mb-3" />
+      <PolicyPacksStandardsVocabularyRail currentSurfaceId="standards-and-rules" />
+      <GovernanceSetupConfigHubsVocabularyRail currentSurfaceId="standards" />
+      <GovernanceResolutionRankCue className="mb-3" />
       {m.failure !== null ? (
         <div role="alert">
           <OperatorApiProblem

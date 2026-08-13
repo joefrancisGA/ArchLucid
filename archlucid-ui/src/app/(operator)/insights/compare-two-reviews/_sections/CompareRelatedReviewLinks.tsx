@@ -4,14 +4,14 @@ import { Button } from "@/components/ui/button";
 import {
   BUYER_COMPARE_OPEN_EVIDENCE_TRAIL_CTA,
   BUYER_COMPARE_OPEN_SIGNED_REVIEW_RECORD_CTA,
-} from "@/lib/buyer-polish-copy";
+} from "@/lib/buyer/buyer-polish-copy";
 import { canonicalizeDemoRunId } from "@/lib/demo-run-canonical";
 import { evidenceGraphHref } from "@/lib/evidence-graph-route";
 import {
   getShowcaseEvidenceTrailHref,
   getShowcaseManifestHref,
-} from "@/lib/buyer-safe-review-navigation";
-import { isStaticDemoPayloadFallbackEnabled } from "@/lib/operator-static-demo";
+} from "@/lib/buyer/buyer-safe-review-navigation";
+import { isStaticDemoPayloadFallbackEnabled } from "@/lib/operator/operator-static-demo";
 import { reviewSignedRecordPath } from "@/lib/signed-records-paths";
 import {
   SHOWCASE_STATIC_DEMO_LATER_COMPARE_RUN_ID,

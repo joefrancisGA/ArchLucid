@@ -245,8 +245,9 @@ resource "azurerm_container_app" "worker_secondary" {
   }
 
   template {
-    min_replicas = var.secondary_worker_min_replicas
-    max_replicas = var.secondary_worker_max_replicas
+    min_replicas                     = var.secondary_worker_min_replicas
+    max_replicas                     = var.secondary_worker_max_replicas
+    termination_grace_period_seconds = var.worker_termination_grace_period_seconds
 
     container {
       name    = "archlucid-worker-secondary"

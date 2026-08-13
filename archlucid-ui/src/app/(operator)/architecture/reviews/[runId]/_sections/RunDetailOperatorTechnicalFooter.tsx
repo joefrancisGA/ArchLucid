@@ -1,6 +1,6 @@
 import type { ReactElement } from "react";
 
-import { RunDetailTechnicalIdentifiersSection } from "@/components/RunDetailTechnicalIdentifiersSection";
+import { RunDetailTechnicalIdentifiersSection } from "@/components/runs/RunDetailTechnicalIdentifiersSection";
 import { OPERATOR_NAV_GROUP_LABEL } from "@/lib/design-tokens";
 
 type RunDetailOperatorTechnicalFooterProps = {

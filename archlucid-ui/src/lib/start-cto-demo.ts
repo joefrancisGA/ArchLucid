@@ -1,4 +1,4 @@
-import { BUYER_GOLDEN_JOURNEY_STEP_DEFINITIONS } from "@/lib/buyer-golden-journey-nav";
+import { BUYER_GOLDEN_JOURNEY_STEP_DEFINITIONS } from "@/lib/buyer/buyer-golden-journey-nav";
 
 /** Step 1 of the buyer golden journey — executive summary for the static showcase. */
 export function getStartCtoDemoHref(): string {

@@ -4,8 +4,8 @@ import {
   enableCtoDemoOfflineAutoFallback,
   shouldListenForCtoDemoOfflineAutoFallback,
 } from "@/lib/cto-demo-offline-auto-fallback";
-import { BUYER_CTO_DEMO_TOUR_ACTIVE_STORAGE_KEY } from "@/lib/buyer-cto-demo-tour";
-import { OPERATOR_DEMO_STATIC_PANIC_STORAGE_KEY } from "@/lib/operator-static-demo";
+import { BUYER_CTO_DEMO_TOUR_ACTIVE_STORAGE_KEY } from "@/lib/buyer/buyer-cto-demo-tour";
+import { OPERATOR_DEMO_STATIC_PANIC_STORAGE_KEY } from "@/lib/operator/operator-static-demo";
 
 vi.mock("@/lib/demo-ui-env", async (importOriginal) => {
   const actual = await importOriginal<typeof import("@/lib/demo-ui-env")>();

@@ -10,7 +10,7 @@ import {
   dispositionLabel,
   type OperatorAiQualitySnapshot,
   type OperatorAiQualitySnapshotDisposition,
-} from "@/lib/operator-ai-quality-snapshot";
+} from "@/lib/operator/operator-ai-quality-snapshot";
 
 function formatMetric(value: number | null | undefined, digits: number): string {
   if (value === null || value === undefined || !Number.isFinite(value)) {
@@ -45,7 +45,7 @@ export function QualityGateMetricsTile({ surface = "operator" }: QualityGateMetr
   const [snapshot, setSnapshot] = useState<OperatorAiQualitySnapshot | null>(null);
 
   useEffect(() => {
-    let cancelled = false;
+    let canceled = false;
 
     void (async () => {
       try {
@@ -57,7 +57,7 @@ export function QualityGateMetricsTile({ surface = "operator" }: QualityGateMetr
 
         const json = (await response.json()) as OperatorAiQualitySnapshot;
 
-        if (!cancelled) {
+        if (!canceled) {
           setSnapshot(json);
         }
       }
@@ -67,7 +67,7 @@ export function QualityGateMetricsTile({ surface = "operator" }: QualityGateMetr
     })();
 
     return () => {
-      cancelled = true;
+      canceled = true;
     };
   }, []);
 

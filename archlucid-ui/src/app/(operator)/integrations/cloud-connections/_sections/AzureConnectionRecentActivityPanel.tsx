@@ -3,8 +3,21 @@
 import { cn } from "@/lib/utils";
 
 import { CloudFirstInventoryCoach } from "@/components/integrations/CloudFirstInventoryCoach";
-import { OPERATOR_TYPOGRAPHY } from "@/lib/design-tokens";
+import { EnterpriseCompactEmptyState } from "@/components/EnterpriseCompactEmptyState";
+import { Skeleton } from "@/components/ui/skeleton";
+import { StatusTag } from "@/components/ui/status-tag";
 import {
+  EnterpriseTable,
+  EnterpriseTableBody,
+  EnterpriseTableCell,
+  EnterpriseTableHead,
+  EnterpriseTableHeaderCell,
+  EnterpriseTableRow,
+} from "@/components/ui/enterprise-table";
+import { OPERATOR_TYPOGRAPHY } from "@/lib/design-tokens";
+import { AZURE_CONNECTION_RECENT_ACTIVITY_EMPTY_STATE } from "@/lib/azure-cloud-connection-copy";
+import {
+  azureConnectionStatusTagKind,
   formatAzureConnectionTimestamp,
   formatAzureSubscriptionSummary,
 } from "@/lib/azure-connection-present";
@@ -16,9 +29,15 @@ export function AzureConnectionRecentActivityPanel(): React.ReactElement {
 
   if (isLoading) {
     return (
-      <p className={OPERATOR_TYPOGRAPHY.helper} data-testid="azure-connection-recent-activity-panel">
-        Loading collection activity...
-      </p>
+      <div
+        className="space-y-2"
+        data-testid="azure-connection-recent-activity-panel"
+        aria-busy="true"
+        aria-live="polite"
+      >
+        <Skeleton className="h-4 w-56" />
+        <Skeleton className="h-24 w-full" />
+      </div>
     );
   }
 
@@ -42,7 +61,17 @@ export function AzureConnectionRecentActivityPanel(): React.ReactElement {
   if (!hasConnection) {
     return (
       <div className="space-y-3" data-testid="azure-connection-recent-activity-panel">
-        <CloudFirstInventoryCoach hasConnection={false} hasSuccessfulPull={false} />
+        <CloudFirstInventoryCoach
+          hasConnection={false}
+          hasSuccessfulPull={false}
+          recommendedProviderId="azure"
+          emptyPhasePrimaryCtaHref="#connection-details"
+        />
+        <EnterpriseCompactEmptyState
+          title="No collection activity yet"
+          description={AZURE_CONNECTION_RECENT_ACTIVITY_EMPTY_STATE}
+          testId="azure-connection-recent-activity-empty"
+        />
       </div>
     );
   }
@@ -50,30 +79,28 @@ export function AzureConnectionRecentActivityPanel(): React.ReactElement {
   return (
     <div className="space-y-3" data-testid="azure-connection-recent-activity-panel">
       <CloudFirstInventoryCoach hasConnection={hasConnection} hasSuccessfulPull={hasSuccessfulPull} />
-      <div className="overflow-x-auto">
-        <table className="w-full min-w-[28rem] border-collapse text-left">
-          <thead>
-            <tr className={cn(OPERATOR_TYPOGRAPHY.helper, "border-b")}>
-              <th className="py-2 pr-4 font-medium">Tenant</th>
-              <th className="py-2 pr-4 font-medium">Subscription</th>
-              <th className="py-2 font-medium">Last updated</th>
-            </tr>
-          </thead>
-          <tbody>
-            {connections.map((connection) => (
-              <tr key={connection.connectionId} className="border-b last:border-b-0">
-                <td className={cn("py-2 pr-4", OPERATOR_TYPOGRAPHY.body)}>{connection.tenantId}</td>
-                <td className={cn("py-2 pr-4", OPERATOR_TYPOGRAPHY.body)}>
-                  {formatAzureSubscriptionSummary(connection.subscriptionIds)}
-                </td>
-                <td className={cn("py-2", OPERATOR_TYPOGRAPHY.body)}>
-                  {formatAzureConnectionTimestamp(connection.updatedUtc)}
-                </td>
-              </tr>
-            ))}
-          </tbody>
-        </table>
-      </div>
+      <EnterpriseTable ariaLabel="Azure connection collection activity">
+        <EnterpriseTableHead>
+          <EnterpriseTableRow>
+            <EnterpriseTableHeaderCell>Tenant</EnterpriseTableHeaderCell>
+            <EnterpriseTableHeaderCell>Subscription</EnterpriseTableHeaderCell>
+            <EnterpriseTableHeaderCell>Status</EnterpriseTableHeaderCell>
+            <EnterpriseTableHeaderCell>Last updated</EnterpriseTableHeaderCell>
+          </EnterpriseTableRow>
+        </EnterpriseTableHead>
+        <EnterpriseTableBody>
+          {connections.map((connection) => (
+            <EnterpriseTableRow key={connection.connectionId}>
+              <EnterpriseTableCell>{connection.tenantId}</EnterpriseTableCell>
+              <EnterpriseTableCell>{formatAzureSubscriptionSummary(connection.subscriptionIds)}</EnterpriseTableCell>
+              <EnterpriseTableCell>
+                <StatusTag kind={azureConnectionStatusTagKind()} label="Connected" />
+              </EnterpriseTableCell>
+              <EnterpriseTableCell>{formatAzureConnectionTimestamp(connection.updatedUtc)}</EnterpriseTableCell>
+            </EnterpriseTableRow>
+          ))}
+        </EnterpriseTableBody>
+      </EnterpriseTable>
     </div>
   );
 }

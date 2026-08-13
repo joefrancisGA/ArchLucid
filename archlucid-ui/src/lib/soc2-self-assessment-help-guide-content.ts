@@ -1,6 +1,10 @@
 import { SOC2_SELF_ASSESSMENT_HELP_PATH } from "@/lib/soc2-self-assessment-help-route";
 import { inAppHelpHref } from "@/lib/product-documentation-registry";
 
+export function formatSoc2SelfAssessmentHelpReviewedCopy(lastReviewed: string): string {
+  return `Last reviewed ${lastReviewed} against docs/security/SOC2_SELF_ASSESSMENT_2026.md — self-assessment mapping only, not CPA attestation.`;
+}
+
 export const SOC2_SELF_ASSESSMENT_HELP_PAGE_TITLE = "SOC 2 self-assessment";
 
 export const SOC2_SELF_ASSESSMENT_HELP_PAGE_SUBTITLE =
@@ -18,11 +22,16 @@ export const SOC2_SELF_ASSESSMENT_HELP_ORIENTATION = [
   "Read the control summary below as readiness mapping, not an audit opinion.",
 ] as const;
 
+export type Soc2SelfAssessmentHelpJobMatrixRow = {
+  readonly label: string;
+  readonly when: string;
+  readonly href?: string;
+};
+
 /** Explicit job split vs CAIQ, Trust Center, and procurement (TB-1749). */
-export const SOC2_SELF_ASSESSMENT_HELP_JOB_MATRIX = [
+export const SOC2_SELF_ASSESSMENT_HELP_JOB_MATRIX: readonly Soc2SelfAssessmentHelpJobMatrixRow[] = [
   {
     label: "This SOC 2 self-assessment",
-    href: SOC2_SELF_ASSESSMENT_HELP_PATH,
     when: "TSC control readiness mapping and gap register",
   },
   {
@@ -61,6 +70,9 @@ export type Soc2SelfAssessmentHelpSourceLink = {
   readonly label: string;
   readonly href: string;
 };
+
+export const SOC2_SELF_ASSESSMENT_HELP_SOURCES_INTRO =
+  "Use these follow-ups when the self-assessment turns into live assurance hubs, questionnaire responses, or contract diligence.";
 
 /** Sponsor-safe diligence Sources — no self-href to this topic. */
 export const SOC2_SELF_ASSESSMENT_HELP_SOURCES: readonly Soc2SelfAssessmentHelpSourceLink[] = [

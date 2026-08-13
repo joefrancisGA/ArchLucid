@@ -2,9 +2,9 @@ import { cn } from "@/lib/utils";
 import Link from "next/link";
 
 import { StatusTag } from "@/components/ui/status-tag";
-import { ARCHITECTURE_CREATED_CONFIRMATION, ARCHITECTURE_CREATED_OVERFLOW_LABEL } from "@/lib/architecture-created-home-copy";
-import type { ArchitectureCreatedHomeModel } from "@/lib/architecture-created-home-model";
-import { readArchitectureWorkspaceTabFromHref, type ArchitectureWorkspaceTabId } from "@/lib/architecture-workspace-tabs";
+import { ARCHITECTURE_CREATED_CONFIRMATION, ARCHITECTURE_CREATED_OVERFLOW_LABEL } from "@/lib/architecture/architecture-created-home-copy";
+import type { ArchitectureCreatedHomeModel } from "@/lib/architecture/architecture-created-home-model";
+import { readArchitectureWorkspaceTabFromHref, type ArchitectureWorkspaceTabId } from "@/lib/architecture/architecture-workspace-tabs";
 import { OPERATOR_TYPOGRAPHY } from "@/lib/design-tokens";
 
 export type ArchitectureCreatedWorkspaceHeaderProps = {

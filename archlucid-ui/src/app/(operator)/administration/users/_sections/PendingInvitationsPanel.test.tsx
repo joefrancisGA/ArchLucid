@@ -26,6 +26,8 @@ describe("PendingInvitationsPanel (SSU P0)", () => {
     expect(await screen.findByTestId("settings-roles-pending-invitations-unavailable")).toBeInTheDocument();
     expect(onCountChange).toHaveBeenCalledWith(null);
     expect(screen.queryByText(/Pending invitations \(/)).not.toBeInTheDocument();
+    expect(screen.getByTestId("settings-roles-pending-invitations-audit-footnote")).toBeInTheDocument();
+    expect(screen.getByRole("link", { name: "audit trail" })).toHaveAttribute("href", "/governance/audit");
   });
 
   it("shows only pending rows by default and exposes accept-link copy", async () => {
@@ -145,5 +147,15 @@ describe("PendingInvitationsPanel (SSU P0)", () => {
     fireEvent.click(screen.getByTestId("settings-roles-toggle-resolved-invitations"));
 
     expect(await screen.findByText("done@example.com")).toBeInTheDocument();
+  });
+
+  it("renders audit trail footnote when empty presentation is suppressed", async () => {
+    vi.mocked(fetchAdminUserInvitations).mockResolvedValue([]);
+
+    render(<PendingInvitationsPanel refreshKey={0} suppressEmptyPresentation />);
+
+    expect(await screen.findByTestId("settings-roles-pending-invitations-audit-footnote")).toBeInTheDocument();
+    expect(screen.getByRole("link", { name: "audit trail" })).toHaveAttribute("href", "/governance/audit");
+    expect(screen.queryByTestId("settings-roles-pending-invitations-empty")).not.toBeInTheDocument();
   });
 });

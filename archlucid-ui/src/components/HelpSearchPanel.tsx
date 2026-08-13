@@ -6,7 +6,7 @@ import Link from "next/link";
 import { usePathname, useRouter } from "next/navigation";
 import { useCallback, useEffect, useMemo, useRef, useState } from "react";
 
-import { useOperatorNavAuthority } from "@/components/OperatorNavAuthorityProvider";
+import { useOperatorNavAuthority } from "@/components/operator/OperatorNavAuthorityProvider";
 import { HelpDrawerContent } from "@/components/help/HelpDrawerContent";
 import { focusHelpDrawerRow } from "@/components/help/help-drawer-list-keyboard";
 import { useHelpPageSituation } from "@/components/help/help-page-situation-store";
@@ -48,8 +48,8 @@ import {
   splitHelpSearchPanelDoThisNow,
   type HelpSearchPanelAction,
   type HelpSearchPanelTopic,
-} from "@/lib/help-search-panel-catalog";
-import { type HelpDocSearchRecord, searchHelpDocumentation } from "@/lib/help-index";
+} from "@/lib/help/help-search-panel-catalog";
+import { type HelpDocSearchRecord, searchHelpDocumentation } from "@/lib/help/help-index";
 import {
   HELP_ON_HELP_ON_THIS_PAGE_HEADING,
   HELP_ON_HELP_SEARCH_PLACEHOLDER,
@@ -58,7 +58,7 @@ import {
   isHelpOnHelpPath,
   listHelpOnHelpSectionAnchors,
   prioritizeHelpSearchHitsForCurrentPage,
-} from "@/lib/help-on-help";
+} from "@/lib/help/help-on-help";
 import { resolveInAppDocHref } from "@/lib/in-app-doc-href";
 import { AUTHORITY_RANK } from "@/lib/nav-authority";
 import { getProductDocumentationEntry, inAppHelpHref } from "@/lib/product-documentation-registry";

@@ -9,7 +9,7 @@ import { ArchLucidWordmarkLink } from "@/components/ArchLucidWordmarkLink";
 import { AuthPanel } from "@/components/AuthPanel";
 import { AuthorityThemeToggle } from "@/components/AuthorityThemeToggle";
 import { ExecutiveShellDeferredChrome } from "@/components/executive/ExecutiveShellDeferredChrome";
-import { OperatorQueryProvider } from "@/components/OperatorQueryProvider";
+import { OperatorQueryProvider } from "@/components/operator/OperatorQueryProvider";
 import { ScopeSwitcher } from "@/components/ScopeSwitcher";
 import { ShellReadySurface } from "@/components/ShellReadySurface";
 import { Button } from "@/components/ui/button";
@@ -17,13 +17,13 @@ import { TooltipProvider } from "@/components/ui/tooltip";
 import {
   EXECUTIVE_DASHBOARD_HREF,
   isExecutiveDashboardPath,
-} from "@/lib/executive-dashboard-route";
+} from "@/lib/executive/executive-dashboard-route";
 import {
   OPERATOR_SHELL_CONTENT_PADDING_X_CLASS,
   OPERATOR_SHELL_MAIN_PADDING_CLASS,
   OPERATOR_SHELL_MAX_WIDTH_CLASS,
 } from "@/lib/design-tokens";
-import { PERSONA_SHELL_WORKSPACE_LABEL } from "@/lib/persona-shell-vocabulary";
+import { PERSONA_SHELL_WORKSPACE_LABEL } from "@/lib/vocabulary/persona-shell-vocabulary";
 import { isUiAuthorityThemeEvalEnabledEnv } from "@/lib/ui-authority-theme";
 
 export type ExecutiveShellFrameProps = {
@@ -63,13 +63,11 @@ export function ExecutiveShellFrame({ children }: ExecutiveShellFrameProps) {
         >
           <div className={cn(OPERATOR_SHELL_MAX_WIDTH_CLASS, OPERATOR_SHELL_CONTENT_PADDING_X_CLASS, "flex flex-wrap items-center justify-between gap-3 py-2.5")}>
             <div className="flex min-w-0 flex-wrap items-center gap-2">
-              <Button variant="outline" className="h-auto shrink-0 p-0" asChild>
-                <ArchLucidWordmarkLink
-                  href={EXECUTIVE_DASHBOARD_HREF}
-                  aria-label="ArchLucid — executive dashboard"
-                  variant="operator"
-                />
-              </Button>
+              <ArchLucidWordmarkLink
+                href={EXECUTIVE_DASHBOARD_HREF}
+                aria-label="ArchLucid — executive dashboard"
+                variant="operator"
+              />
               <Button
                 asChild
                 variant="outline"

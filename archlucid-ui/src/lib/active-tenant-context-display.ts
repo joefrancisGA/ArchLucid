@@ -3,7 +3,7 @@ import {
   getEffectiveBrowserProxyScopeHeaders,
   readOperatorScopeFromStorage,
   type OperatorScopeRecord,
-} from "@/lib/operator-scope-storage";
+} from "@/lib/operator/operator-scope-storage";
 import {
   SHOWCASE_DEMO_TENANT_CATALOG_ID,
   SHOWCASE_DEMO_TENANT_NAME,

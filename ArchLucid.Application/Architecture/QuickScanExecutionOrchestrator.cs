@@ -26,11 +26,15 @@ public sealed class QuickScanExecutionOrchestrator(
     IQuickScanDistributedConcurrencyService quickScanDistributedConcurrencyService,
     IQuickScanIdentityAbuseService quickScanIdentityAbuseService,
     IQuickScanSafetyOperationalStateProvider quickScanSafetyOperationalStateProvider,
+    IQuickScanUsageRecorder quickScanUsageRecorder,
     IAuditService auditService,
     ILlmCostEstimator costEstimator,
     ILogger<QuickScanExecutionOrchestrator> logger,
     TimeProvider timeProvider) : IQuickScanExecutionOrchestrator
 {
+    private readonly IQuickScanUsageRecorder _quickScanUsageRecorder =
+        quickScanUsageRecorder ?? throw new ArgumentNullException(nameof(quickScanUsageRecorder));
+
     /// <inheritdoc />
     public async Task<QuickScanExecutionResult> ExecuteAsync(
         ArchitectureQuickScanRequest? request,
@@ -106,6 +110,19 @@ public sealed class QuickScanExecutionOrchestrator(
                 quickScanTelemetry.RecordAttempt(rejectedContext);
                 quickScanTelemetry.RecordRejection(rejectedContext, abuseDecision.RejectionReason!.Value);
                 quickScanGuard.RecordRejection(rejectedContext, abuseDecision.RejectionReason.Value);
+                await RecordUsageAsync(
+                    rejectedContext,
+                    context,
+                    status: "rejected",
+                    reservationId: null,
+                    reservedUsd: null,
+                    actualCostUsd: null,
+                    inputTokens: null,
+                    outputTokens: null,
+                    modelLabel: null,
+                    rejectionReason: abuseDecision.RejectionReason.Value.ToString(),
+                    duration: TimeSpan.Zero,
+                    cancellationToken).ConfigureAwait(false);
 
                 return QuickScanExecutionResult.GuardRejected(abuseDecision.RejectionReason.Value);
             }
@@ -125,6 +142,19 @@ public sealed class QuickScanExecutionOrchestrator(
         {
             quickScanTelemetry.RecordRejection(guardContext, decision.RejectionReason!.Value);
             quickScanGuard.RecordRejection(guardContext, decision.RejectionReason.Value);
+            await RecordUsageAsync(
+                guardContext,
+                context,
+                status: "rejected",
+                reservationId: null,
+                reservedUsd: null,
+                actualCostUsd: null,
+                inputTokens: null,
+                outputTokens: null,
+                modelLabel: null,
+                rejectionReason: decision.RejectionReason.Value.ToString(),
+                duration: TimeSpan.Zero,
+                cancellationToken).ConfigureAwait(false);
 
             return QuickScanExecutionResult.GuardRejected(decision.RejectionReason.Value);
         }
@@ -279,6 +309,20 @@ public sealed class QuickScanExecutionOrchestrator(
                 modelLabel: "quick-scan",
                 duration);
 
+            await RecordUsageAsync(
+                guardContext,
+                context,
+                status: "success",
+                reservationId: globalBudgetReservationId,
+                reservedUsd: reservedCostUsd > 0m ? reservedCostUsd : null,
+                actualCostUsd: estimatedCost,
+                inputTokens: inputTokens,
+                outputTokens: outputTokens,
+                modelLabel: "quick-scan",
+                rejectionReason: null,
+                duration: duration,
+                cancellationToken).ConfigureAwait(false);
+
             await DurableAuditLogRetry.TryLogAsync(
                 ct => auditService.LogAsync(
                     new AuditEvent
@@ -323,8 +367,59 @@ public sealed class QuickScanExecutionOrchestrator(
 
             quickScanTelemetry.RecordFailure(guardContext, "execution_failed", duration);
             quickScanGuard.RecordScanCompleted(guardContext, succeeded: false, 0m, 0, 0, duration);
+            await RecordUsageAsync(
+                guardContext,
+                context,
+                status: "failure",
+                reservationId: globalBudgetReservationId,
+                reservedUsd: reservedCostUsd > 0m ? reservedCostUsd : null,
+                actualCostUsd: null,
+                inputTokens: null,
+                outputTokens: null,
+                modelLabel: null,
+                rejectionReason: "execution_failed",
+                duration: duration,
+                cancellationToken).ConfigureAwait(false);
 
             return QuickScanExecutionResult.ExecutionFailed();
+        }
+    }
+
+    private async Task RecordUsageAsync(
+        QuickScanGuardContext guardContext,
+        QuickScanExecutionRequestContext requestContext,
+        string status,
+        Guid? reservationId,
+        decimal? reservedUsd,
+        decimal? actualCostUsd,
+        int? inputTokens,
+        int? outputTokens,
+        string? modelLabel,
+        string? rejectionReason,
+        TimeSpan duration,
+        CancellationToken cancellationToken)
+    {
+        try
+        {
+            QuickScanUsageRecord record = QuickScanUsageRecordFactory.Create(
+                guardContext,
+                requestContext,
+                status,
+                reservationId,
+                reservedUsd,
+                actualCostUsd,
+                inputTokens,
+                outputTokens,
+                modelLabel,
+                rejectionReason,
+                duration,
+                timeProvider.GetUtcNow());
+
+            await _quickScanUsageRecorder.RecordAsync(record, cancellationToken).ConfigureAwait(false);
+        }
+        catch (Exception ex)
+        {
+            logger.LogWarning(ex, "Quick Scan usage record persistence failed for status {Status}.", status);
         }
     }
 }

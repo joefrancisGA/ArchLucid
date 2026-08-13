@@ -8,6 +8,7 @@ import { useEffect, useMemo, useState, type FormEvent, type ReactElement } from 
 
 import { CronExpressionBuilder } from "@/components/advisory/CronExpressionBuilder";
 import { Button } from "@/components/ui/button";
+import { WhyDisabledCtaHint } from "@/components/usability/WhyDisabledCtaHint";
 import { Input } from "@/components/ui/input";
 import { Label } from "@/components/ui/label";
 import {
@@ -36,8 +37,12 @@ import {
   ADVISORY_SCANS_SCHEDULES_ADVANCED_SUMMARY,
   ADVISORY_SCANS_SCHEDULES_CREATE_WORKING,
   ADVISORY_SCANS_SCHEDULES_SAMPLE_BLOCKED,
+  ADVISORY_SCANS_SCHEDULES_SCOPE_CURRENT,
+  ADVISORY_SCANS_SCHEDULES_SCOPE_HELPER,
+  ADVISORY_SCANS_SCHEDULES_SCOPE_SWITCHER_NOTE,
+  ADVISORY_SCANS_SCHEDULES_TIMING_NOTE,
 } from "@/lib/advisory-copy";
-import { enterpriseMutationControlDisabledTitle } from "@/lib/enterprise-controls-context-copy";
+import { whyDisabledEnterpriseMutationControl } from "@/lib/why-disabled-cta";
 import {
   formatIanaTimeZoneOptionLabel,
   getIanaTimeZoneSelectOptions,
@@ -69,7 +74,10 @@ export function AdvisoryScheduleCreateForm(props: AdvisoryScheduleCreateFormProp
   const [form, setForm] = useState<AdvisoryScheduleFormState>(() => createDefaultAdvisoryScheduleFormState());
   const [advancedOpen, setAdvancedOpen] = useState(false);
   const [preview, setPreview] = useState<AdvisorySchedulePreviewState>(EMPTY_ADVISORY_SCHEDULE_PREVIEW);
+  const [customCronValid, setCustomCronValid] = useState(false);
   const ianaOptions = useMemo(() => getIanaTimeZoneSelectOptions(), []);
+  const mutationDisabledHintId = "advisory-schedule-create-mutate-disabled-hint";
+  const mutationDisabledReason = props.canEdit ? null : whyDisabledEnterpriseMutationControl();
 
   useEffect(() => {
     setForm(createDefaultAdvisoryScheduleFormState());
@@ -82,29 +90,39 @@ export function AdvisoryScheduleCreateForm(props: AdvisoryScheduleCreateFormProp
     [form, props.projectLabel],
   );
   const frequencySummary = useMemo(() => describeAdvisoryScheduleFrequency(form), [form]);
-  const formReady = isAdvisoryScheduleFormReadyToCreate(form) && preview.isValid;
+  const cronPreviewValid = form.frequency === "custom" ? customCronValid : preview.isValid;
+  const formReady = isAdvisoryScheduleFormReadyToCreate(form) && cronPreviewValid;
 
   useEffect(() => {
-    if (form.frequency === "custom" && advancedOpen) {
+    if (form.frequency === "custom") {
+      setPreview(EMPTY_ADVISORY_SCHEDULE_PREVIEW);
+      setCustomCronValid(false);
+    }
+  }, [form.frequency]);
+
+  useEffect(() => {
+    if (form.frequency === "custom") {
       return;
     }
 
-    let cancelled = false;
+    let canceled = false;
     setPreview((current) => ({ ...current, loading: true }));
 
     const timer = window.setTimeout(() => {
       void loadAdvisoryScheduleUpcomingPreview(cronExpression, form.timeZoneId).then((next) => {
-        if (!cancelled) {
+        if (!canceled) {
           setPreview(next);
         }
       });
     }, ADVISORY_SCHEDULE_PREVIEW_DEBOUNCE_MS);
 
     return () => {
-      cancelled = true;
+      canceled = true;
       window.clearTimeout(timer);
     };
-  }, [advancedOpen, cronExpression, form.frequency, form.timeZoneId]);
+  }, [cronExpression, form.frequency, form.timeZoneId]);
+
+  const showFormUpcomingPreview = form.frequency !== "custom";
 
   function updateForm(patch: Partial<AdvisoryScheduleFormState>): void {
     setForm((current) => {
@@ -142,6 +160,25 @@ export function AdvisoryScheduleCreateForm(props: AdvisoryScheduleCreateFormProp
     >
       <h3 className={cn("m-0 font-semibold text-al-text-primary", OPERATOR_TYPOGRAPHY.cardTitle)}>New schedule</h3>
 
+      {/* TB-1573: scope is inline near the form — not a persistent Schedule scope rail. */}
+      <div className="mt-2 space-y-1" data-testid="advisory-schedule-inline-scope">
+        <p className={cn("m-0 text-al-text-primary", OPERATOR_TYPOGRAPHY.body)}>
+          <span className={cn("font-medium text-al-text-secondary", OPERATOR_TYPOGRAPHY.helper)}>
+            {ADVISORY_SCANS_SCHEDULES_SCOPE_CURRENT}.{" "}
+          </span>
+          <span data-testid="advisory-schedule-project-scope-label">{props.projectLabel}</span>
+        </p>
+        <p className={cn("m-0 text-neutral-600 dark:text-neutral-400", OPERATOR_TYPOGRAPHY.helper)}>
+          {ADVISORY_SCANS_SCHEDULES_SCOPE_HELPER}
+        </p>
+        <p className={cn("m-0 text-neutral-600 dark:text-neutral-400", OPERATOR_TYPOGRAPHY.helper)}>
+          {ADVISORY_SCANS_SCHEDULES_SCOPE_SWITCHER_NOTE}
+        </p>
+        <p className={cn("m-0 text-neutral-600 dark:text-neutral-400", OPERATOR_TYPOGRAPHY.helper)}>
+          {ADVISORY_SCANS_SCHEDULES_TIMING_NOTE}
+        </p>
+      </div>
+
       {props.sampleModeBlocked ? (
         <p
           className={cn("m-0 mt-2 text-neutral-600 dark:text-neutral-400", OPERATOR_TYPOGRAPHY.helper)}
@@ -166,7 +203,6 @@ export function AdvisoryScheduleCreateForm(props: AdvisoryScheduleCreateFormProp
             placeholder={suggestedName}
             onChange={(event) => updateForm({ name: event.target.value, nameTouched: true })}
             readOnly={!props.canEdit}
-            title={props.canEdit ? undefined : enterpriseMutationControlDisabledTitle}
           />
         </div>
 
@@ -300,7 +336,7 @@ export function AdvisoryScheduleCreateForm(props: AdvisoryScheduleCreateFormProp
           ) : null}
         </fieldset>
 
-        {form.frequency !== "custom" ? (
+        {showFormUpcomingPreview ? (
           <div
             className="rounded-md border border-neutral-200 bg-neutral-50 p-3 dark:border-neutral-700 dark:bg-neutral-900/50"
             data-testid="advisory-schedule-upcoming-preview"
@@ -345,9 +381,11 @@ export function AdvisoryScheduleCreateForm(props: AdvisoryScheduleCreateFormProp
                 ))}
               </ol>
             ) : null}
-            <p className={cn("m-0 mt-2 text-neutral-500 dark:text-neutral-400", OPERATOR_TYPOGRAPHY.helper)}>
-              Generated expression (UTC): <code className="font-mono">{cronExpression}</code>
-            </p>
+            {!advancedOpen ? (
+              <p className={cn("m-0 mt-2 text-neutral-500 dark:text-neutral-400", OPERATOR_TYPOGRAPHY.helper)}>
+                Generated expression (UTC): <code className="font-mono">{cronExpression}</code>
+              </p>
+            ) : null}
           </div>
         ) : null}
 
@@ -376,7 +414,9 @@ export function AdvisoryScheduleCreateForm(props: AdvisoryScheduleCreateFormProp
                   }}
                   disabled={!props.canEdit}
                   advancedOnly
+                  hidePreview={form.frequency !== "custom"}
                   previewTimeZoneId={form.timeZoneId}
+                  onPreviewValidityChange={setCustomCronValid}
                   inputClassName={SELECT_CLASS}
                 />
               </div>
@@ -387,12 +427,18 @@ export function AdvisoryScheduleCreateForm(props: AdvisoryScheduleCreateFormProp
         <div className="flex flex-wrap items-center gap-3">
           <Button
             type="submit"
+            variant="primary"
             disabled={!props.canEdit || props.creating || !formReady}
-            title={props.canEdit ? undefined : enterpriseMutationControlDisabledTitle}
+            aria-describedby={mutationDisabledReason === null ? undefined : mutationDisabledHintId}
             data-testid="advisory-schedule-create-submit"
           >
             {props.creating ? ADVISORY_SCANS_SCHEDULES_CREATE_WORKING : "Create schedule"}
           </Button>
+          <WhyDisabledCtaHint
+            id={mutationDisabledHintId}
+            reason={mutationDisabledReason}
+            testId={mutationDisabledHintId}
+          />
           {props.createSuccess ? (
             <p className={cn("m-0 text-teal-800 dark:text-teal-300", OPERATOR_TYPOGRAPHY.body)} role="status">
               Schedule created.

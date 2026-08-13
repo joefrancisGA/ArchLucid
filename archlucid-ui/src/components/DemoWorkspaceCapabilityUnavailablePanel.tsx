@@ -7,7 +7,7 @@ import {
   BUYER_DEMO_CAPABILITY_TROUBLESHOOTING_CTA,
   BUYER_DEMO_CAPABILITY_UNAVAILABLE_BODY,
   BUYER_DEMO_CAPABILITY_UNAVAILABLE_TITLE,
-} from "@/lib/buyer-polish-copy";
+} from "@/lib/buyer/buyer-polish-copy";
 
 type DemoWorkspaceCapabilityUnavailablePanelProps = {
   readonly capability: string;

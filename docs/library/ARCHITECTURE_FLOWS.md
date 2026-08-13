@@ -15,7 +15,7 @@ This doc describes the main runtime flows in “sequence narrative” form. It�
 
 **Goal:** Turn an `ArchitectureRequest` into a finalized, versioned architecture package (API: golden manifest).
 
-**Important:** There are **two ways** the product reaches that outcome. **`POST /v1/architecture/request`** always persists the run and, on **SQL storage**, enters **`IAuthorityRunOrchestrator`** (context ingestion → knowledge graph → findings → decisioning → artifact synthesis) via **`AuthorityPipelineStagesExecutor`**. Separately, a **legacy coordinator** path still supports **in-host agent execution** (`POST …/execute`), **external** per-task submission (`POST …/result`), and a **merge commit** (`POST …/commit`) when the run is driven by **AgentTask** / **AgentResult** rows. **Choose one mental model per run** after inspecting **`GET /v1/architecture/review/{runId}`** (see decision tree below). PA/integrator matrix: [`AUTHORITY_VS_AGENTTASK_LOOP_CANONICAL_PATH_CONTRACT.md`](AUTHORITY_VS_AGENTTASK_LOOP_CANONICAL_PATH_CONTRACT.md) (**TB-1007**).
+**Important:** There are **two ways** the product reaches that outcome. **`POST /v1/architecture/request`** always persists the run and, on **SQL storage**, enters **`IAuthorityRunOrchestrator`** (context ingestion → knowledge graph → findings → decisioning → artifact synthesis) via **`AuthorityPipelineStagesExecutor`**. Separately, the **AgentTask / AgentResult extension loop** (historically labeled “legacy coordinator”) still supports **in-host agent execution** (`POST …/execute`), **external** per-task submission (`POST …/result`, sunset per [ADR 0066](../architecture/adrs/0066-agent-result-append-sunset.md)), and a **merge commit** (`POST …/commit`) when the run is driven by **AgentTask** / **AgentResult** rows. **Choose one mental model per run** after inspecting **`GET /v1/architecture/review/{runId}`** (see decision tree below). PA/integrator matrix: [`AUTHORITY_VS_AGENTTASK_LOOP_CANONICAL_PATH_CONTRACT.md`](AUTHORITY_VS_AGENTTASK_LOOP_CANONICAL_PATH_CONTRACT.md) (**TB-1007**). Product-default freeze: [`STRANGLER_NEXT_SLICE_AUTHORITY_FREEZE_AND_RESULT_SUNSET_CONTRACT.md`](STRANGLER_NEXT_SLICE_AUTHORITY_FREEZE_AND_RESULT_SUNSET_CONTRACT.md) (**TB-1034**).
 
 #### A0 — Authority pipeline (ingestion → graph → findings → artifacts)
 
@@ -25,7 +25,7 @@ This doc describes the main runtime flows in “sequence narrative” form. It�
 4. **Async / queued variant** — On **SQL** storage, when **`FeatureManagement:FeatureFlags:AsyncAuthorityPipeline`** is **unset or enabled** (default **on** per [ADR 0038](../architecture/adrs/0038-run-durability-multi-store-outbox-production-secrets.md)) and an evidence-bundle id is present, the host **enqueues** pipeline work in the **same transaction** as run create/header persist; the run can temporarily lack **`ContextSnapshotId`** until **`CompleteQueuedAuthorityPipelineAsync`** finishes. Set the flag **`false`** in **`appsettings.Advanced.json`** for local inline runs. **InMemory** storage never queues.
 5. **Fetch artifacts** — Run detail, manifests, exports, explain, bundles.
 
-#### A0b — Legacy coordinator path (`execute` / `result` / `commit`)
+#### A0b — AgentTask / AgentResult extension loop (`execute` / `result` / `commit`)
 
 Use when the run is intentionally driven by **coordinator agent tasks** and **`AgentResult`** persistence (simulator/real agent executor, trial preseed, QuickStart, custom integrations), **not** when authority has already finalized the run.
 
@@ -44,7 +44,7 @@ flowchart TD
   B -->|No| D{ContextSnapshotId null and async pipeline enabled?}
   D -->|Yes| E[Defer to queued authority worker; avoid execute until contract matches.]
   D -->|No| F{Tasks exist and status TasksGenerated or WaitingForResults?}
-  F -->|Yes| G[Legacy coordinator: execute and/or result then commit when ReadyForCommit.]
+  F -->|Yes| G[AgentTask extension loop: execute and/or result then commit when ReadyForCommit.]
   F -->|No| H[Re-check run detail and diagnostics; may be transitional or failed.]
 ```
 

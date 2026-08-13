@@ -2,23 +2,25 @@
 
 import { useState } from "react";
 
-import { useNavCallerAuthorityRank } from "@/components/OperatorNavAuthorityProvider";
+import { useNavCallerAuthorityRank } from "@/components/operator/OperatorNavAuthorityProvider";
 import { OperatorHomeCompletedSampleAction } from "@/components/operator-home/OperatorHomeCompletedSampleAction";
 import { SpecimenDeliverablePreviewCallout } from "@/components/usability/SpecimenDeliverablePreviewCallout";
 import { OperatorHomeNavigateLoadingButton } from "@/components/operator-home/OperatorHomeNavigateLoadingButton";
 import { OperatorHomeReadinessStrip } from "@/components/operator-home/OperatorHomeReadinessStrip";
 import { ReviewStartInlineError } from "@/components/review-intake/ReviewStartInlineError";
 import { ReviewStartLoadingButton } from "@/components/review-intake/ReviewStartLoadingButton";
+import { ReviewStartNavigationStallNotice } from "@/components/review-intake/ReviewStartNavigationStallNotice";
 import { ReviewStartStagedProgress } from "@/components/review-intake/ReviewStartStagedProgress";
 import { StatusTag } from "@/components/ui/status-tag";
 import { useCreateArchitectureNavigation } from "@/hooks/use-create-architecture-navigation";
 import { useFinishSetupReadinessContext } from "@/hooks/use-finish-setup-readiness-context";
 import { useOperateCapability } from "@/hooks/use-operate-capability";
 import { useReviewIntakeNavigation } from "@/hooks/use-review-intake-navigation";
-import { CREATE_ARCHITECTURE_LABEL } from "@/lib/architecture-workflow-labels";
+import { CREATE_ARCHITECTURE_LABEL } from "@/lib/architecture/architecture-workflow-labels";
 import {
   OPERATOR_HOME_BEST_FOR_EVALUATING_BADGE,
-  OPERATOR_HOME_CLOUD_EVIDENCE_LINK,
+  OPERATOR_HOME_CLOUD_CONNECT_ADMIN_HINT,
+  OPERATOR_HOME_CONNECT_CLOUD_CTA,
   OPERATOR_HOME_CREATE_ARCHITECTURE_CARD_BODY,
   OPERATOR_HOME_CREATE_ARCHITECTURE_CARD_TITLE,
   OPERATOR_HOME_EXPLORE_COMPLETED_REVIEW_BODY,
@@ -28,13 +30,13 @@ import {
   OPERATOR_HOME_REVIEW_ARCHITECTURE_CARD_BODY,
   OPERATOR_HOME_REVIEW_ARCHITECTURE_CARD_TITLE,
   OPERATOR_HOME_REVIEW_ARCHITECTURE_CTA,
-} from "@/lib/buyer-polish-copy";
-import { OPERATOR_CARD, OPERATOR_LAYOUT, OPERATOR_LINK, OPERATOR_SURFACE_CARD_CLASS, OPERATOR_TYPE_SCALE } from "@/lib/design-tokens";
+} from "@/lib/buyer/buyer-polish-copy";
+import { OPERATOR_CARD, OPERATOR_LAYOUT, OPERATOR_SURFACE_CARD_CLASS, OPERATOR_TYPE_SCALE } from "@/lib/design-tokens";
 import type { OperatorHomeLifecyclePath } from "@/lib/resolve-operator-home-workspace-phase";
-import { trackOperatorHomeLifecyclePathClick } from "@/lib/operator-home-lifecycle-path-telemetry";
+import { trackOperatorHomeLifecyclePathClick } from "@/lib/operator/operator-home-lifecycle-path-telemetry";
 import { CLOUD_CONNECTIONS_PATH } from "@/lib/integrations-nav-paths";
 import { AUTHORITY_RANK } from "@/lib/nav-authority";
-import { resolveOperatorHomeWorkspaceReadiness } from "@/lib/operator-home-workspace-readiness";
+import { resolveOperatorHomeWorkspaceReadiness } from "@/lib/operator/operator-home-workspace-readiness";
 import {
   OPERATOR_HOME_OPENING_CLOUD_CONNECTIONS_LABEL,
   REVIEW_START_LOADING_LABEL,
@@ -158,16 +160,37 @@ export function OperatorHomeDualPathCards(props: OperatorHomeDualPathCardsProps)
             ) : null}
           </div>
           {canExecute ? (
-            <ReviewStartLoadingButton
-              variant="primary"
-              size="sm"
-              className="h-8 w-fit"
-              idleLabel={CREATE_ARCHITECTURE_LABEL}
-              loadingLabel={createArchitectureNavigation.loadingLabel}
-              isLoading={createArchitectureNavigation.isNavigating && selectedPath === "create-architecture"}
-              onClick={startCreateArchitecture}
-              data-testid="operator-home-create-architecture-cta"
-            />
+            <div className="flex flex-col gap-2" data-testid="operator-home-create-architecture-actions">
+              <ReviewStartLoadingButton
+                variant="primary"
+                size="sm"
+                className="h-8 w-fit"
+                idleLabel={CREATE_ARCHITECTURE_LABEL}
+                loadingLabel={createArchitectureNavigation.loadingLabel}
+                isLoading={createArchitectureNavigation.isNavigating && selectedPath === "create-architecture"}
+                onClick={startCreateArchitecture}
+                data-testid="operator-home-create-architecture-cta"
+              />
+              <div data-testid="operator-home-connect-cloud-path">
+                <OperatorHomeNavigateLoadingButton
+                  variant="outline"
+                  size="sm"
+                  className="h-8 w-fit"
+                  href={CLOUD_CONNECTIONS_PATH}
+                  idleLabel={OPERATOR_HOME_CONNECT_CLOUD_CTA}
+                  loadingLabel={OPERATOR_HOME_OPENING_CLOUD_CONNECTIONS_LABEL}
+                  onNavigate={() => {
+                    setSelectedPath("create-architecture");
+                  }}
+                  data-testid="operator-home-connect-cloud"
+                />
+                {!canManageCloudConnections ? (
+                  <p className={cn("m-0 pt-1", OPERATOR_TYPE_SCALE.micro, "text-al-text-secondary")}>
+                    {OPERATOR_HOME_CLOUD_CONNECT_ADMIN_HINT}
+                  </p>
+                ) : null}
+              </div>
+            </div>
           ) : (
             <p className={cn("m-0", OPERATOR_TYPE_SCALE.micro, "text-al-text-secondary")}>
               {OPERATOR_HOME_READ_ONLY_INTENT_HINT}
@@ -215,19 +238,6 @@ export function OperatorHomeDualPathCards(props: OperatorHomeDualPathCardsProps)
             variant="compact"
             sectionTestId="operator-home-review-architecture-specimen-preview"
           />
-          {canManageCloudConnections ? (
-            <div className="pt-1" data-testid="operator-home-optional-cloud-shortcut">
-              <OperatorHomeNavigateLoadingButton
-                variant="outline"
-                size="sm"
-                className={cn("h-8 w-fit border-0 px-0 font-medium shadow-none", OPERATOR_LINK.nav)}
-                href={CLOUD_CONNECTIONS_PATH}
-                idleLabel={OPERATOR_HOME_CLOUD_EVIDENCE_LINK}
-                loadingLabel={OPERATOR_HOME_OPENING_CLOUD_CONNECTIONS_LABEL}
-                data-testid="operator-home-connect-cloud"
-              />
-            </div>
-          ) : null}
         </article>
 
         <article
@@ -264,12 +274,12 @@ export function OperatorHomeDualPathCards(props: OperatorHomeDualPathCardsProps)
         </article>
       </div>
 
-      {!isCompact ? (
-        <OperatorHomeReadinessStrip
-          canBegin={workspaceReadiness.canBegin}
-          blockerMessage={workspaceReadiness.blockerMessage}
-        />
-      ) : null}
+      {/* Renders only when a prerequisite blocks starting — compact layouts must not hide that. */}
+      <OperatorHomeReadinessStrip
+        canBegin={workspaceReadiness.canBegin}
+        blockerMessage={workspaceReadiness.blockerMessage}
+      />
+
 
       {reviewNavigation.showStagedPanel && reviewNavigation.activeStageId !== null ? (
         <ReviewStartStagedProgress
@@ -277,6 +287,13 @@ export function OperatorHomeDualPathCards(props: OperatorHomeDualPathCardsProps)
           activeStageId={reviewNavigation.activeStageId}
           headline={REVIEW_START_PREPARING_LABEL}
           testId="operator-home-review-start-progress"
+        />
+      ) : null}
+
+      {reviewNavigation.stalled && reviewNavigation.stalledHref !== null ? (
+        <ReviewStartNavigationStallNotice
+          href={reviewNavigation.stalledHref}
+          testId="operator-home-review-start-stall"
         />
       ) : null}
 

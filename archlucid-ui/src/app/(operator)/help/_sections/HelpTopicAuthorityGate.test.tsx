@@ -2,7 +2,7 @@ import { render, screen } from "@testing-library/react";
 import { describe, expect, it, vi } from "vitest";
 
 import { AUTHORITY_RANK } from "@/lib/nav-authority";
-import { getProductDocumentationEntry } from "@/lib/product-documentation-registry";
+import { getFoldedInternalRunbookEntry } from "@/lib/folded-internal-runbook-help";
 import { HelpTopicAuthorityGate } from "./HelpTopicAuthorityGate";
 
 const navAuthMock = vi.hoisted(() => ({
@@ -10,7 +10,7 @@ const navAuthMock = vi.hoisted(() => ({
   isAuthorityLoading: false,
 }));
 
-vi.mock("@/components/OperatorNavAuthorityProvider", () => ({
+vi.mock("@/components/operator/OperatorNavAuthorityProvider", () => ({
   useOperatorNavAuthority: () => ({
     callerAuthorityRank: navAuthMock.callerAuthorityRank,
     isAuthorityLoading: navAuthMock.isAuthorityLoading,
@@ -21,7 +21,7 @@ vi.mock("@/components/OperatorNavAuthorityProvider", () => ({
 }));
 
 describe("HelpTopicAuthorityGate", () => {
-  const entry = getProductDocumentationEntry("first-value-20-minutes");
+  const entry = getFoldedInternalRunbookEntry("first-value-20-minutes");
 
   it("blocks non-admin callers from internal-runbook topics", () => {
     expect(entry).not.toBeNull();

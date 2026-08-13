@@ -1,12 +1,12 @@
 import { cn } from "@/lib/utils";
 import { OPERATOR_TYPOGRAPHY } from "@/lib/design-tokens";
 import { FindingPolicyCitationProminentStrip } from "@/components/findings/FindingPolicyCitationProminentStrip";
-import { OperatorWarningCallout } from "@/components/OperatorShellMessage";
+import { OperatorWarningCallout } from "@/components/operator/OperatorShellMessage";
 import type { PreparedArtifactBody } from "@/lib/artifact-review-helpers";
 import type {
   FindingPolicyCitationLink,
   FindingPolicyPackCitationLink,
-} from "@/lib/finding-policy-evidence-citations";
+} from "@/lib/findings/finding-policy-evidence-citations";
 
 const preBoxCls = (cn("m-0 overflow-auto whitespace-pre-wrap break-words rounded-lg border border-neutral-200 bg-white p-4 font-mono leading-relaxed dark:border-neutral-700 dark:bg-neutral-950 max-h-[min(70vh,720px)]", OPERATOR_TYPOGRAPHY.body));
 

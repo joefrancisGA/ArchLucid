@@ -8,7 +8,7 @@ const here = dirname(fileURLToPath(import.meta.url));
 describe("finding inspect request consolidation", () => {
   it("shares one cached slim inspect between metadata and finding detail page loader", () => {
     const cached = readFileSync(join(here, "load-finding-inspect-for-route-cached.ts"), "utf8");
-    const metadata = readFileSync(join(here, "finding-route-metadata.ts"), "utf8");
+    const metadata = readFileSync(join(here, "findings/finding-route-metadata.ts"), "utf8");
     const pageLoader = readFileSync(
       join(
         here,

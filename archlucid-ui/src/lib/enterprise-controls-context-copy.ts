@@ -168,38 +168,38 @@ export const governanceWorkflowRefreshRunDataButtonLabel = "Refresh data";
 /** Alerts triage dialog — primary control when **Confirm** is disabled at read rank (preview-only path). */
 export const alertsTriageDialogConfirmButtonLabelReaderRank = "Apply triage (architect permission)";
 
-/** Audit log — search section heading (`audit/page.tsx`); branch with **`callerAuthorityRank`**. */
+/** Audit trail — search section heading (`audit/page.tsx`); branch with **`callerAuthorityRank`**. */
 export const auditSearchEventsSectionHeadingOperator = "Search audit events";
 
 export const auditSearchEventsSectionHeadingReader = "Search audit events (inspect)";
 
-/** Audit log — buyer demo shell: section title without internal “inspect” cue. */
+/** Audit trail — buyer demo shell: section title without internal “inspect” cue. */
 export const auditSearchEventsSectionHeadingBuyerPolished = "Filters";
 
-/** Audit log — search is always **GET**; label nudges read-tier callers away from export expectations. */
-export const auditSearchEventsButtonLabelReaderRank = "Search audit log";
+/** Audit trail — search is always **GET**; label nudges read-tier callers away from export expectations. */
+export const auditSearchEventsButtonLabelReaderRank = "Search audit trail";
 
-/** Audit log — primary **Search** control `title` (`audit/page.tsx`). */
+/** Audit trail — primary **Search** control `title` (`audit/page.tsx`). */
 export const auditSearchEventsButtonTitleOperator = "Run search with the current filter fields (GET).";
 
 export const auditSearchEventsButtonTitleReader =
   "Run search (GET). CSV export remains Auditor/Admin-gated on the API.";
 
-/** Audit log — **Audit results** section heading; branch with **`callerAuthorityRank`**. */
+/** Audit trail — **Audit results** section heading; branch with **`callerAuthorityRank`**. */
 export const auditResultsSectionHeadingOperator = "Audit results";
 
 export const auditResultsSectionHeadingReader = "Audit results (inspect)";
 
-/** Audit log — buyer demo shell: results block title without “inspect”. */
+/** Audit trail — buyer demo shell: results block title without “inspect”. */
 export const auditResultsSectionHeadingBuyerPolished = "Audit results";
 
-/** Audit log — **Load more** pagination (`GET`). */
+/** Audit trail — **Load more** pagination (`GET`). */
 export const auditLoadMoreButtonTitleOperator = "Load the next page of audit events for the current filters (GET).";
 
 export const auditLoadMoreButtonTitleReader =
   "Load older rows (GET). Export rules unchanged on the API.";
 
-/** Audit log — **Clear filters** when rank cannot mutate in the shell (still GET-only; clarifies re-run vs export). */
+/** Audit trail — **Clear filters** when rank cannot mutate in the shell (still GET-only; clarifies re-run vs export). */
 export const auditClearFiltersButtonLabelReaderRank = "Clear filters & search";
 
 /** Alert routing — delivery history fetch is **GET**; reader label clarifies inspect vs toggle writes. */
@@ -259,10 +259,10 @@ export const alertSimulationPageLead =
 
 /**
  * Alert rules Test alerts tab — shared lead for merged simulation + tuning (`AlertSimulationTuningSection`).
- * Child sections keep their own `h2` titles; rank cue mounts once at tab level (TB-1593).
+ * Simulate is the primary section title; tuning is secondary disclosure (TB-1589); rank cue mounts once (TB-1593).
  */
 export const alertTestAlertsTabLead =
-  "Simulation and threshold tuning use read-only APIs on this tab. Enabling subscriptions, editing live rules, or applying a winning threshold stays on Alert rules or routing (Execute+).";
+  "Nothing on this tab changes live alert rules, subscriptions, or thresholds — simulations are recorded in the audit trail.";
 
 /** Alert tuning — primary **Recommend threshold** control (`alert-tuning/page.tsx`). */
 export const alertTuningRecommendButtonTitle =
@@ -278,9 +278,13 @@ export const alertSimulationRunControlTitle =
   "Run what-if (Read access on the API; no live rule or subscription changes from this page).";
 
 /** Alert simulation — outcome column **`h3`** (`alert-simulation/page.tsx`); inputs stay neutral (read access POSTs). */
-export const alertSimulationCurrentBehaviorHeadingOperator = "Current behavior";
+export const alertSimulationCurrentBehaviorHeadingOperator = "Simulated outcome";
 
-export const alertSimulationCurrentBehaviorHeadingReader = "Current behavior (inspect)";
+export const alertSimulationCurrentBehaviorHeadingReader = "Simulated outcome (inspect)";
+
+/** Alert simulation — empty simulated-outcome column before any simulation (P0-3). */
+export const alertSimulationBehaviorEmptyLead =
+  "No simulation yet. Results show per-review matches, suppression, and dedupe for the reviews you select — nothing is applied to live alert rules.";
 
 /** Alerts inbox — lead under title (Execute+); rank cue hidden — see `LayerHeader`. */
 export const alertsPageLeadOperator = "Filter, page, then triage per card.";
@@ -325,7 +329,7 @@ export const alertsTriageResolveButtonLabelReaderInbox = "Resolve (preview)";
 
 export const alertsTriageSuppressButtonLabelReaderInbox = "Suppress (preview)";
 
-/** Audit log — readers vs operators (see `AuditLogRankCue`). */
+/** Audit trail — readers vs operators (see `AuditLogRankCue`). */
 export const auditLogRankReaderLine =
   "Audit exports are available only to authorized audit or workspace administrators when your time window is set.";
 
@@ -457,9 +461,17 @@ export const compositeRulesDefinedListEmptyReaderLine =
 
 export const compositeRulesDefinedListEmptyOperatorLine = "None yet.";
 
+/** Composite alert rules — compact empty body (TB-1555 hub-zone preset; title from `operatorHubZoneEmptyTitle`). */
+export const COMPOSITE_RULES_LIST_EMPTY_BODY =
+  "Composite rules combine multiple metrics before firing — create one when a single threshold is too noisy.";
+
 /** Composite alert rules — lead under page title (`composite-alert-rules/page.tsx`). */
 export const compositeRulesPageLeadOperator =
   "Review compound conditions in the list, then author a new composite rule below.";
+
+/** Composite alert rules — lead when the list is empty and the create form is collapsed (TB-1582). */
+export const compositeRulesPageLeadOperatorEmpty =
+  "Create a composite rule when multiple signals must align before an alert fires.";
 
 export const compositeRulesPageLeadReader =
   "Inspect definitions above; new composite rules need Execute+ on the API at this rank.";
@@ -472,6 +484,9 @@ export const compositeRulesCurrentRulesHeadingReader = "Current composite rules 
 /** Composite — reader assist next to **Refresh** (GET list only). */
 export const compositeRulesRefreshAssistReaderLine =
   "Refresh reloads the rule list (GET only; does not create or change rules).";
+
+/** Composite — primary create button when mutation capability is true. */
+export const compositeRulesCreateButtonLabelOperator = "Create composite rule";
 
 /** Composite — primary create button when mutation capability is false. */
 export const compositeRulesCreateButtonLabelReaderRank = "Create composite rule (Execute+)";
@@ -539,39 +554,39 @@ export const alertsFilteredEmptyDescriptionOperator =
 
 export const auditSearchNoResultsReaderLine = "No audit events match your search.";
 
-/** Audit log — zero rows after search in buyer-polished shell (no “broken product” tone). */
+/** Audit trail — zero rows after search in buyer-polished shell (no “broken product” tone). */
 export const auditSearchNoResultsBuyerPolishedLine =
   "No events match the current review and filter settings.";
 
 export const auditSearchNoResultsOperatorLine = "No audit events match your filters.";
 
-/** Audit log — under “Search audit events” for read tier (LayerHeader already frames export roles). */
+/** Audit trail — under “Search audit events” for read tier (LayerHeader already frames export roles). */
 export const auditSearchSectionLeadReaderLine =
   "Bulk CSV downloads need Auditor or Admin (search above stays available).";
 
-/** Audit log — short line above the CSV button (LayerHeader + search strip carry the rest). */
+/** Audit trail — short line above the CSV button (LayerHeader + search strip carry the rest). */
 export const auditExportSectionSupportingLine =
-  "Bulk downloads need Auditor or Admin; pick From/To, then Export audit trail.";
+  "Bulk downloads need Auditor or Admin; pick Start date and End date, then Export audit trail.";
 
-/** Audit log — polished shell: no bulk-export mechanics in primary copy. */
+/** Audit trail — polished shell: no bulk-export mechanics in primary copy. */
 export const auditExportSectionSupportingLineBuyerPolished =
   "Authorized users can export this audit trail as CSV for the selected date range.";
 
-/** Audit CSV — button label when From/To are incomplete (export disabled before role checks). */
-export const auditExportCsvButtonLabelWindowIncomplete = "Export audit trail (set From/To)";
+/** Audit CSV — button label when Start/End are incomplete (export disabled before role checks). */
+export const auditExportCsvButtonLabelWindowIncomplete = "Export audit trail (set Start date/End date)";
 
 /** Audit CSV — button label when window is valid but principal lacks Auditor/Admin for bulk export (API). */
 export const auditExportCsvButtonLabelRoleRestricted = "Download audit trail";
 
-/** Audit log — buyer-polished: intro under results heading (single summary lives in the ribbon above). */
+/** Audit trail — buyer-polished: intro under results heading (single summary lives in the ribbon above). */
 export const auditResultsSectionIntroBuyerPolished =
   "Events are grouped by lifecycle stage. Expand a row for structured details.";
 
-/** Audit log — buyer-polished public sample: short note when bulk CSV is not enabled (date window and/or role). */
+/** Audit trail — buyer-polished public sample: short note when bulk CSV is not enabled (date window and/or role). */
 export const auditExportSampleWorkspaceCsvHintBuyerPolished =
   "In this demonstration workspace, bulk CSV export follows the same role and date-window rules as production.";
 
-/** Audit log — buyer-polished: collapsible region for export and related operator actions (after the timeline). */
+/** Audit trail — buyer-polished: collapsible region for export and related operator actions (after the timeline). */
 export const auditBuyerUtilitiesDetailsSummary = "Audit utilities";
 
 /** Policy packs — intro under “Compare versions” when caller can mutate (Execute+ in shell). */
@@ -610,9 +625,9 @@ export const digestsListRefreshButtonTitleReader =
  * list previously said "Your subscriptions" above a "No delivery destinations yet"
  * empty state, which read as two different features.
  */
-export const digestSubscriptionsYourSubscriptionsHeadingOperator = "Current destinations";
+export const digestSubscriptionsYourSubscriptionsHeadingOperator = "Saved delivery destinations";
 
-export const digestSubscriptionsYourSubscriptionsHeadingReader = "Current destinations (inspect)";
+export const digestSubscriptionsYourSubscriptionsHeadingReader = "Saved delivery destinations (inspect)";
 
 /**
  * Digest subscriptions — primary create when rank cannot mutate in the shell.
@@ -639,10 +654,10 @@ export const digestSubscriptionsDeliveryAttemptsButtonTitleReader =
 
 /** Digest subscriptions — empty list. */
 export const digestSubscriptionsEmptyListOperatorLine =
-  "Create a subscription to deliver scheduled architecture digests to an email address, group mailbox, or webhook.";
+  "Add a delivery destination to send scheduled architecture digests to email or a Teams/Slack webhook.";
 
 export const digestSubscriptionsEmptyListReaderLine =
-  "No digest subscriptions yet. Inspect when rows exist; create and toggle need architect access.";
+  "No delivery destinations yet. Inspect when rows exist; create and toggle need architect access.";
 
 /**
  * Advisory schedules — schedules list **`h3`** (`components/advisory/AdvisorySchedulesContent.tsx`).

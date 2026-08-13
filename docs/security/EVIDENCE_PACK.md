@@ -65,9 +65,9 @@ The pack embeds the last 30 of those rows in `audit-merkle.json`. An auditor can
 
 **Three independent stores** must agree (SQL row, immutable blob, the value embedded in a previously-shipped pack) for the chain to be considered intact.
 
-## Failure modes and behaviour
+## Failure modes and behavior
 
-| Failure | Behaviour |
+| Failure | Behavior |
 |---|---|
 | Prometheus unreachable | `slo-30day.json` written with `{ "status": "unavailable", "reason": "prometheus query failed", "queriedAtUtc": "..." }`. Pack still produced (do not fail closed for one optional source). |
 | Immutable blob upload fails on the daily job | Job retries with exponential backoff up to 6 hours; alert fires (`ArchLucidAuditMerkleUploadFailed`); next pack still embeds the SQL-side root with `"immutableBlobMissing": true`. |

@@ -72,7 +72,7 @@ curl -sS -X POST "$ARCHLUCID_API_URL/v1/pilots/board-pack.pdf" \
 | `completions bash` \| `zsh` \| `powershell` | — | Print a shell completion script to stdout (source from your profile). |
 | `new <projectName>` | — | Create a new project: `archlucid.json`, `inputs/brief.md`, `outputs/`, `plugins/plugin-lock.json`, optional Terraform stubs, `docs/README.md`. Set `apiUrl` or `ARCHLUCID_API_URL` before API commands. |
 | `second-run <SECOND_RUN.toml\|json> [--api-base-url <url>] [--ui-base-url <url>] [--no-open] [--commit-deadline <secs>]` | ExecuteAuthority | Adoption path from demo to a real committed run using a one-page TOML/JSON file. See **`second-run`** workflow in product onboarding docs. |
-| `trial smoke --org <name> --email <email> [--display-name <name>] [--baseline-hours <n>] [--baseline-source <text>] [--api-base-url <url>] [--skip-pilot-run-deltas]` | — | Pure-HTTP smoke loop for the **public trial signup funnel** against any hosted API. Calls **`POST /v1/register`** → **`GET /v1/tenant/trial-status`** → optional pilot-run deltas. **No Docker on your laptop.** Honours global **`--json`**. See **[archlucid trial smoke](#archlucid-trial-smoke)**. |
+| `trial smoke --org <name> --email <email> [--display-name <name>] [--baseline-hours <n>] [--baseline-source <text>] [--api-base-url <url>] [--skip-pilot-run-deltas]` | — | Pure-HTTP smoke loop for the **public trial signup funnel** against any hosted API. Calls **`POST /v1/register`** → **`GET /v1/tenant/trial-status`** → optional pilot-run deltas. **No Docker on your laptop.** Honors global **`--json`**. See **[archlucid trial smoke](#archlucid-trial-smoke)**. |
 
 ### Run a review
 
@@ -117,7 +117,7 @@ curl -sS -X POST "$ARCHLUCID_API_URL/v1/pilots/board-pack.pdf" \
 
 | Command | Scope | Description |
 |--------|-------|-------------|
-| `roi-bulletin --quarter <Q-YYYY> [--min-tenants <n>] [--out <file.md>] [--synthetic] [--explain]` | AdminAuthority | Draft of the **quarterly aggregate ROI bulletin** via **`GET /v1/admin/roi-bulletin-preview`**, **or** **`--synthetic`** local sample (no API). See **[archlucid roi-bulletin](#archlucid-roi-bulletin)** and [Pilot ROI model](/help/pilot-roi-model). |
+| `roi-bulletin --quarter <Q-YYYY> [--min-tenants <n>] [--out <file.md>] [--synthetic] [--explain]` | AdminAuthority | Draft of the **quarterly aggregate ROI bulletin** via **`GET /v1/admin/roi-bulletin-preview`**, **or** **`--synthetic`** local sample (no API). See **[archlucid roi-bulletin](#archlucid-roi-bulletin)** and [Pilot ROI measurement](/help/executive-summary#pilot-roi-measurement). |
 
 **Before sending a support bundle:** open every generated file once; confirm **`redaction-manifest.json`** shows **`status=PASS`**; put **correlation** (**`X-Correlation-ID`** / **`correlationId`**) and **run id** in the ticket text; never attach raw **`.env`** or Key Vault dumps; expect **LLM prompt bodies to be truncated** in **`logs.json`** by design; if you used **`--zip`**, unzip and re-scan for literals your policy forbids. See [Developer troubleshooting](/help/developer-troubleshooting).
 
@@ -203,7 +203,7 @@ The companion **end-to-end runbook** for the funnel lives in [Developer troubles
 
 ## archlucid roi-bulletin
 
-`archlucid roi-bulletin` downloads an **internal Markdown draft** of the quarterly **aggregate** bulletin described in [Pilot ROI model](/help/pilot-roi-model). It never emits per-tenant rows — only **N**, **mean**, **median (p50)**, and **p90** for tenants that supplied `BaselineReviewCycleHours` during the calendar quarter window.
+`archlucid roi-bulletin` downloads an **internal Markdown draft** of the quarterly **aggregate** bulletin described in [Pilot ROI measurement](/help/executive-summary#pilot-roi-measurement). It never emits per-tenant rows — only **N**, **mean**, **median (p50)**, and **p90** for tenants that supplied `BaselineReviewCycleHours` during the calendar quarter window.
 
 ### Synthetic sample (`--synthetic`)
 

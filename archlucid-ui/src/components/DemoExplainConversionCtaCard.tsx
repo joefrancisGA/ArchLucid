@@ -74,7 +74,7 @@ export function DemoExplainConversionCtaCard() {
           </div>
           <div className="flex flex-wrap items-center gap-3">
             <InAppHelpLink
-              helpSlug="path-chooser"
+              helpSlug="choose-your-next-step"
               label="See what you need first"
               variant="text"
             />

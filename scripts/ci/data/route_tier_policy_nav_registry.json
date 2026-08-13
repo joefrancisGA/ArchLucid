@@ -19,7 +19,7 @@
       "commercial_tier": "none",
       "class_policy": "AdminAuthority",
       "exemption": null,
-      "nav_operator_href": "/administration/api-keys"
+      "nav_operator_href": null
     },
     {
       "controller_file": "Admin/AdminAuthDiagnosticsController.cs",
@@ -126,6 +126,16 @@
       "class_name": "AdminQualityGateDiagnosticsController",
       "route_template": "v{version:apiVersion}/admin/diagnostics",
       "normalized_prefix": "/v1/admin/diagnostics",
+      "commercial_tier": "none",
+      "class_policy": "AdminAuthority",
+      "exemption": null,
+      "nav_operator_href": null
+    },
+    {
+      "controller_file": "Admin/AdminQuickScanBudgetController.cs",
+      "class_name": "AdminQuickScanBudgetController",
+      "route_template": "v{version:apiVersion}/admin/quick-scan/budget",
+      "normalized_prefix": "/v1/admin/quick-scan/budget",
       "commercial_tier": "none",
       "class_policy": "AdminAuthority",
       "exemption": null,
@@ -449,7 +459,7 @@
       "commercial_tier": "none",
       "class_policy": "AdminAuthority",
       "exemption": null,
-      "nav_operator_href": "/administration/tenant"
+      "nav_operator_href": "/administration/workspace-settings"
     },
     {
       "controller_file": "Admin/SupportBundleController.cs",
@@ -1039,7 +1049,7 @@
       "commercial_tier": "none",
       "class_policy": "AdminAuthority",
       "exemption": null,
-      "nav_operator_href": "/administration/tenant"
+      "nav_operator_href": "/administration/workspace-settings"
     },
     {
       "controller_file": "Billing/BillingMarketplaceWebhookController.cs",
@@ -1849,7 +1859,7 @@
       "commercial_tier": "none",
       "class_policy": "Authorize",
       "exemption": null,
-      "nav_operator_href": "/administration/tenant"
+      "nav_operator_href": "/administration/workspace-settings"
     },
     {
       "controller_file": "Tenancy/TenantUsageStatusController.cs",

@@ -1,5 +1,5 @@
 import { cn } from "@/lib/utils";
-import { Button } from "@/components/ui/button";
+import { RefreshButton } from "@/components/ui/refresh-button";
 import {
   policyPacksRefreshAssistReaderLine,
   policyPacksRefreshAssistReaderLineBuyerPolished,
@@ -18,9 +18,7 @@ export function PolicyPacksRefreshToolbar(props: PolicyPacksRefreshToolbarProps)
 
   return (
     <div className="mb-3 flex flex-col gap-1 sm:flex-row sm:flex-wrap sm:items-center sm:gap-3">
-      <Button type="button" variant={buyerPolishedShell ? "outline" : "secondary"} size="sm" onClick={() => void onRefresh()} disabled={loading}>
-        {loading ? "Loading…" : "Refresh"}
-      </Button>
+      <RefreshButton busy={loading} onClick={() => void onRefresh()} />
       {!canMutatePacks ? (
         <span className={cn("max-w-prose text-al-text-secondary", OPERATOR_TYPOGRAPHY.helper)}>
           {buyerPolishedShell ? policyPacksRefreshAssistReaderLineBuyerPolished : policyPacksRefreshAssistReaderLine}

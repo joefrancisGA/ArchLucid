@@ -2,6 +2,7 @@
 
 import type { CostReportingSettingsPageServerLoad } from "./load-cost-reporting-settings-page-data";
 import { CostReportingSettingsPageView } from "./CostReportingSettingsPageView";
+import { AiUsageRouteShellProvider } from "./ai-usage-route-shell-context";
 import { useCostReportingSettingsPage } from "./use-cost-reporting-settings-page";
 
 type Props = {
@@ -11,5 +12,9 @@ type Props = {
 export function CostReportingSettingsPageClient(props: Props) {
   const model = useCostReportingSettingsPage(props.loaded);
 
-  return <CostReportingSettingsPageView model={model} />;
+  return (
+    <AiUsageRouteShellProvider>
+      <CostReportingSettingsPageView model={model} />
+    </AiUsageRouteShellProvider>
+  );
 }

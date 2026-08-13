@@ -32,7 +32,7 @@ describe("OperatorHomeReviewSummaryCard", () => {
     );
   });
 
-  it("renders featured showcase proof metadata", () => {
+  it("renders featured showcase proof metadata with medium metadata labels (TB-1997)", () => {
     const run: RunSummary = {
       runId: "claims-intake-modernization",
       projectId: "default",

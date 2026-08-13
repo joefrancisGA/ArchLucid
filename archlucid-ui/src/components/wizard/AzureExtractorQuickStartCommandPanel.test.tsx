@@ -8,6 +8,12 @@ vi.mock("@/lib/toast", () => ({
   showError: vi.fn(),
 }));
 
+vi.mock("@/lib/operator/operator-scope-storage", () => ({
+  getEffectiveBrowserProxyScopeHeaders: () => ({
+    "x-tenant-id": "aaaaaaaa-bbbb-cccc-dddd-eeeeeeeeeeee",
+  }),
+}));
+
 describe("AzureExtractorQuickStartCommandPanel", () => {
   beforeEach(() => {
     Object.assign(navigator, {
@@ -28,5 +34,14 @@ describe("AzureExtractorQuickStartCommandPanel", () => {
     await waitFor(() => {
       expect(navigator.clipboard.writeText).toHaveBeenCalled();
     });
+  });
+
+  it("does not inject tenant id or subscription id into the quick-start command", () => {
+    render(<AzureExtractorQuickStartCommandPanel testIdPrefix="quick-start-test" />);
+
+    const commandText = screen.getByTestId("quick-start-test-command").textContent ?? "";
+
+    expect(commandText).not.toContain("aaaaaaaa-bbbb-cccc-dddd-eeeeeeeeeeee");
+    expect(commandText).not.toMatch(/-SubscriptionId/i);
   });
 });

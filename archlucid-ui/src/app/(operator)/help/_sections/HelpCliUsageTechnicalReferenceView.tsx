@@ -2,17 +2,16 @@ import Link from "next/link";
 
 import { HelpTopicTitleRow } from "@/components/help/HelpTopicPageHeader";
 import { HelpTopicHashScroll } from "@/app/(operator)/help/HelpTopicHashScroll";
-import { HelpTopicPdfDownloadButton } from "@/components/help/HelpTopicPdfDownloadButton";
 import { HelpTopicPrintButton } from "@/components/help/HelpTopicPrintButton";
 import { HelpTechnicalReferenceNavigation } from "@/components/help/HelpTechnicalReferenceNavigation";
 import { MarketingAccessibilityMarkdownFragment } from "@/components/marketing/MarketingAccessibilityMarkdownFragment";
 import { PageContextualHelpButton } from "@/components/usability/PageContextualHelpButton";
 import { DESIGN_TOKENS, OPERATOR_LAYOUT, OPERATOR_TYPOGRAPHY } from "@/lib/design-tokens";
-import { CLI_USAGE_HELP_REFERENCE_LANDING } from "@/lib/help-cli-usage-reference-content";
-import { extractHelpMarkdownHeadings } from "@/lib/help-markdown-headings";
-import { groupHelpMarkdownHeadings } from "@/lib/help-markdown-heading-groups";
-import { prepareHelpMarkdownForPresentation } from "@/lib/help-markdown-presentation";
-import { HELP_PAGE_LAYOUT } from "@/lib/help-page-layout";
+import { CLI_USAGE_HELP_REFERENCE_LANDING } from "@/lib/help/help-cli-usage-reference-content";
+import { extractHelpMarkdownHeadings } from "@/lib/help/help-markdown-headings";
+import { groupHelpMarkdownHeadings } from "@/lib/help/help-markdown-heading-groups";
+import { prepareHelpMarkdownForPresentation } from "@/lib/help/help-markdown-presentation";
+import { HELP_PAGE_LAYOUT } from "@/lib/help/help-page-layout";
 import type { ProductDocumentationEntry } from "@/lib/product-documentation-registry";
 import { inAppHelpHref } from "@/lib/product-documentation-registry";
 import { cn } from "@/lib/utils";
@@ -51,7 +50,6 @@ export function HelpCliUsageTechnicalReferenceView(
           </div>
           <div className="flex flex-wrap items-center gap-2" data-testid="help-topic-export-actions">
             <PageContextualHelpButton />
-            <HelpTopicPdfDownloadButton entry={entry} />
             <HelpTopicPrintButton entry={entry} />
           </div>
         </div>

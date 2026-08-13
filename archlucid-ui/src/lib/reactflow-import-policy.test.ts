@@ -11,10 +11,12 @@ const REACTFLOW_RUNTIME_IMPORTERS = [
 ] as const;
 
 const REACTFLOW_TYPE_ONLY_IMPORTERS = [
-  join(SRC_ROOT, "lib", "finding-evidence-graph-highlight.ts"),
+  join(SRC_ROOT, "lib", "findings", "finding-evidence-graph-highlight.ts"),
   join(SRC_ROOT, "lib", "graph-mapper.ts"),
   join(SRC_ROOT, "lib", "graph-selection-highlight.ts"),
   join(SRC_ROOT, "lib", "graph-selection-highlight.test.ts"),
+  join(SRC_ROOT, "lib", "workers", "inp-offload-contract.ts"),
+  join(SRC_ROOT, "lib", "workers", "inp-offload-tasks.ts"),
 ] as const;
 
 const REACTFLOW_IMPORTERS = [...REACTFLOW_RUNTIME_IMPORTERS, ...REACTFLOW_TYPE_ONLY_IMPORTERS] as const;
@@ -76,14 +78,15 @@ describe("reactflow import policy (TB-862)", () => {
       "utf8",
     );
     const explainabilityDialogSource = readFileSync(
-      join(SRC_ROOT, "components", "FindingExplainabilityDialog.tsx"),
+      join(SRC_ROOT, "components", "findings", "FindingExplainabilityDialog.tsx"),
       "utf8",
     );
 
     expect(lazyWrapperSource).toContain("dynamic(");
     expect(lazyWrapperSource).toContain('import("./FindingEvidenceGraph")');
     expect(explainabilityDialogSource).toContain("FindingEvidenceGraphLazy");
-    expect(explainabilityDialogSource).not.toContain('from "./findings/FindingEvidenceGraph"');
+    expect(explainabilityDialogSource).not.toContain('from "./FindingEvidenceGraph"');
+    expect(explainabilityDialogSource).not.toContain('from "@/components/findings/FindingEvidenceGraph"');
   });
 
   it("does not statically import reactflow on operator home or reviews entry routes", () => {

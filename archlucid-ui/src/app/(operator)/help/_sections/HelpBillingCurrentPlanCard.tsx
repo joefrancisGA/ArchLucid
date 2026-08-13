@@ -3,7 +3,7 @@
 import Link from "next/link";
 import { useEffect, useMemo, useState } from "react";
 
-import { useNavCallerAuthorityRank } from "@/components/OperatorNavAuthorityProvider";
+import { useNavCallerAuthorityRank } from "@/components/operator/OperatorNavAuthorityProvider";
 import { Button } from "@/components/ui/button";
 import { Card, CardContent, CardHeader, CardTitle } from "@/components/ui/card";
 import { StatusTag } from "@/components/ui/status-tag";
@@ -23,11 +23,11 @@ import {
   resolveOperatorBillingCurrentPlan,
   type OperatorBillingPlanKind,
   type OperatorBillingSubscriptionLoadState,
-} from "@/lib/operator-billing-current-plan";
+} from "@/lib/operator/operator-billing-current-plan";
 import {
   ARCHLUCID_OPERATOR_SCOPE_CHANGED_EVENT,
   readOperatorScopeFromStorage,
-} from "@/lib/operator-scope-storage";
+} from "@/lib/operator/operator-scope-storage";
 import type { TeamExpansionNudgeStatusPayload } from "@/lib/team-expansion-nudge-trigger";
 import { fetchTenantUsageStatusCached } from "@/lib/tenant-usage-status-client";
 import { cn } from "@/lib/utils";
@@ -217,7 +217,7 @@ export function HelpBillingCurrentPlanCard(props: HelpBillingCurrentPlanCardProp
   }, []);
 
   useEffect(() => {
-    let cancelled = false;
+    let canceled = false;
 
     setUsageLoaded(false);
     setUsageError(false);
@@ -228,7 +228,7 @@ export function HelpBillingCurrentPlanCard(props: HelpBillingCurrentPlanCardProp
           force: (props.refreshToken ?? 0) > 0,
         });
 
-        if (cancelled) {
+        if (canceled) {
           return;
         }
 
@@ -245,7 +245,7 @@ export function HelpBillingCurrentPlanCard(props: HelpBillingCurrentPlanCardProp
         setUsageError(false);
         setUsageLoaded(true);
       } catch {
-        if (!cancelled) {
+        if (!canceled) {
           setUsageError(true);
           setUsageLoaded(true);
         }
@@ -253,7 +253,7 @@ export function HelpBillingCurrentPlanCard(props: HelpBillingCurrentPlanCardProp
     })();
 
     return () => {
-      cancelled = true;
+      canceled = true;
     };
   }, [props.refreshToken]);
 

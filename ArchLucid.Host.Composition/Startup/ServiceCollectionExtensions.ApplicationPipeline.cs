@@ -75,6 +75,7 @@ using ArchLucid.Contracts.Architecture;
 using ArchLucid.Contracts.Governance;
 using ArchLucid.Core.Configuration;
 using ArchLucid.Core.Diagnostics;
+using ArchLucid.Core.Hosting;
 using ArchLucid.Core.Diagrams;
 using ArchLucid.Core.Http;
 using ArchLucid.Host.Composition.ValueReports;
@@ -237,12 +238,15 @@ public static partial class ServiceCollectionExtensions
         services.AddScoped<ICoverageQueryService, CoverageQueryService>();
         services.AddSingleton<CoverageAssignmentValidator>();
         services.AddScoped<IArchitectureRunCreateOrchestrator, ArchitectureRunCreateOrchestrator>();
+        services.AddScoped<IArchitectureRunBatchCreateOrchestrator, ArchitectureRunBatchCreateOrchestrator>();
         services.AddScoped<IArchitectureRunExecuteOrchestrator, ArchitectureRunExecuteOrchestrator>();
         services.Configure<RunExecuteOwnershipLeaseOptions>(
             configuration.GetSection(RunExecuteOwnershipLeaseOptions.SectionName));
+        services.TryAddSingleton<IWorkerHostDrainGate, WorkerHostDrainGate>();
         services.AddScoped<IRunExecuteOwnershipLeaseService, RunExecuteOwnershipLeaseService>();
         services.AddScoped<IRunExecuteOwnershipReconciliationService, RunExecuteOwnershipReconciliationService>();
         services.AddScoped<IStaleInFlightRunRemediator, StaleInFlightRunRemediator>();
+        services.AddScoped<IMissingArchitectureRequestRunRemediator, MissingArchitectureRequestRunRemediator>();
         services.AddScoped<IRunEngineProvenanceCaptureService, RunEngineProvenanceCaptureService>();
         // ADR 0030 PR A3 (2026-04-24): the legacy ArchitectureRunCommitOrchestrator + RunCommitPathSelector
         // + LegacyRunCommitPathOptions were deleted. The authority-driven orchestrator is the single commit implementation.

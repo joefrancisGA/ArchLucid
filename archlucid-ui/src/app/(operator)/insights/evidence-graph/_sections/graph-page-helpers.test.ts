@@ -1,4 +1,4 @@
-import { CREATE_ARCHITECTURE_LABEL } from "@/lib/architecture-workflow-labels";
+import { CREATE_ARCHITECTURE_LABEL } from "@/lib/architecture/architecture-workflow-labels";
 import { describe, expect, it } from "vitest";
 
 import {

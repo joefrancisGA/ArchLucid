@@ -1,6 +1,6 @@
 import { describe, expect, it } from "vitest";
 
-import { EXECUTIVE_DASHBOARD_HREF } from "@/lib/executive-dashboard-route";
+import { EXECUTIVE_DASHBOARD_HREF } from "@/lib/executive/executive-dashboard-route";
 import { getLayerForRoute } from "./getLayerForRoute";
 
 describe("getLayerForRoute", () => {
@@ -23,8 +23,8 @@ describe("getLayerForRoute", () => {
     expect(getLayerForRoute("/administration/baseline")).toBe("operator-admin");
     expect(getLayerForRoute("/integrations/cloud-connections")).toBe("operate-analysis");
     expect(getLayerForRoute("/settings/cloud-connections")).toBe("operate-analysis");
-    expect(getLayerForRoute("/administration/tenant")).toBe("operator-admin");
-    expect(getLayerForRoute("/administration/tenant/recycle-bin")).toBe("operator-admin");
+    expect(getLayerForRoute("/administration/workspace-settings")).toBe("operator-admin");
+    expect(getLayerForRoute("/administration/workspace-settings/recycle-bin")).toBe("operator-admin");
     expect(getLayerForRoute("/administration/support")).toBe("operator-admin");
     expect(getLayerForRoute("/administration/users")).toBe("operator-admin");
     expect(getLayerForRoute("/settings/roles")).toBe("operator-admin");

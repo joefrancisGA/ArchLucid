@@ -8,9 +8,14 @@ const mockUpsertSettings = vi.fn();
 
 let canMutate = true;
 let showOperatorNav = false;
+let callerAuthorityRank = 2;
 
 vi.mock("@/hooks/use-operate-capability", () => ({
   useOperateCapability: () => canMutate,
+}));
+
+vi.mock("@/components/operator/OperatorNavAuthorityProvider", () => ({
+  useNavCallerAuthorityRank: () => callerAuthorityRank,
 }));
 
 vi.mock("@/lib/features", () => ({
@@ -25,12 +30,19 @@ vi.mock("@/lib/api/itsm-outbound-api", () => ({
 }));
 
 import { ServiceNowIntegrationPageClient } from "./ServiceNowIntegrationPageClient";
+import { INTEGRATIONS_READINESS_PATH, INTEGRATIONS_SERVICENOW_PATH } from "@/lib/integrations-nav-paths";
+import { ITSM_CONNECTORS_ADMIN_PATH } from "@/lib/itsm/itsm-connectors-admin-scope";
+import { itsmConnectionStatusTagKind } from "@/lib/itsm/itsm-connection-status-tag-kind";
+import { AUTHORITY_RANK } from "@/lib/nav-authority";
 import {
   SERVICENOW_CONNECTION_TEST_BUTTON,
   SERVICENOW_CREDENTIALS_ADMIN_REQUIRED,
   SERVICENOW_INCIDENT_SETTINGS_TITLE,
-  SERVICENOW_INTEGRATION_PAGE_DESCRIPTION,
+  SERVICENOW_INCIDENT_SETTINGS_UNAVAILABLE_LEAD,
   SERVICENOW_INTEGRATION_PAGE_TITLE,
+  SERVICENOW_NEXT_ACTION_SETUP_INCOMPLETE_ADMIN,
+  SERVICENOW_NEXT_ACTION_SETUP_INCOMPLETE_OPERATOR,
+  SERVICENOW_PAGE_SUBTITLE,
   SERVICENOW_SAVE_SETTINGS_BUTTON,
 } from "@/lib/servicenow-integration-page-copy";
 
@@ -42,7 +54,6 @@ const BANNED_PATTERNS = [
   /vendor probes?/i,
   /smoke checklist/i,
   /single-tenant pilot fallback/i,
-  /\bAzure\b/,
 ];
 
 function baseHealth(overrides: Record<string, unknown> = {}) {
@@ -78,42 +89,148 @@ function baseConnection(overrides: Record<string, unknown> = {}) {
   };
 }
 
+function credentialsReadyMocks(): void {
+  mockFetchHealth.mockResolvedValue(
+    baseHealth({
+      serviceNow: { locallyConfigured: true, reachable: null, summary: "pending" },
+    }),
+  );
+  mockFetchSettings.mockResolvedValue(
+    baseSettings({
+      deploymentCredentials: { serviceNowConfigured: true },
+    }),
+  );
+  mockFetchConnection.mockResolvedValue(
+    baseConnection({
+      isConfigured: true,
+      instanceBaseUrl: "https://example.service-now.com",
+      authMode: "BasicApiToken",
+    }),
+  );
+}
+
 describe("ServiceNowIntegrationPageClient", () => {
   beforeEach(() => {
     vi.clearAllMocks();
     canMutate = true;
     showOperatorNav = false;
+    callerAuthorityRank = AUTHORITY_RANK.ExecuteAuthority;
     mockFetchHealth.mockResolvedValue(baseHealth());
     mockFetchSettings.mockResolvedValue(baseSettings());
     mockFetchConnection.mockResolvedValue(baseConnection());
     mockUpsertSettings.mockResolvedValue(baseSettings({ serviceNowAutoCreateCmdbCi: true }));
   });
 
-  it("renders customer-facing header without internal language", async () => {
+  it("renders OperatorPageHeader with breadcrumb, status badge, and last-checked metadata", async () => {
     render(<ServiceNowIntegrationPageClient />);
 
-    expect(await screen.findByRole("heading", { name: SERVICENOW_INTEGRATION_PAGE_TITLE })).toBeInTheDocument();
-    expect(screen.getByText(SERVICENOW_INTEGRATION_PAGE_DESCRIPTION)).toBeInTheDocument();
-    expect(screen.getByText(/cloud connections/i)).toBeInTheDocument();
+    expect(await screen.findByTestId("servicenow-page-title")).toHaveTextContent(SERVICENOW_INTEGRATION_PAGE_TITLE);
+    expect(screen.getByText(SERVICENOW_PAGE_SUBTITLE)).toBeInTheDocument();
+    expect(screen.getByTestId("servicenow-page-breadcrumb")).toBeInTheDocument();
+    expect(screen.getByTestId("servicenow-header-status-badge")).toBeInTheDocument();
+    expect(screen.getByTestId("servicenow-last-checked")).toBeInTheDocument();
+    expect(screen.getByTestId("integrations-servicenow-page").querySelector("[data-nav-href]")).toHaveAttribute(
+      "data-nav-href",
+      INTEGRATIONS_SERVICENOW_PATH,
+    );
+  });
 
-    const page = screen.getByTestId("integrations-servicenow-page");
-    const text = page.textContent ?? "";
+  it("renders buyer-safe copy without internal language", async () => {
+    render(<ServiceNowIntegrationPageClient />);
+
+    await screen.findByTestId("integrations-servicenow-page");
+    const text = screen.getByTestId("integrations-servicenow-page").textContent ?? "";
 
     for (const pattern of BANNED_PATTERNS) {
       expect(text).not.toMatch(pattern);
     }
   });
 
-  it("shows setup incomplete state and disables connection test", async () => {
+  it("uses a single orientation rail without vocabulary rail above status", async () => {
+    render(<ServiceNowIntegrationPageClient />);
+
+    await screen.findByTestId("servicenow-connection-status");
+    expect(screen.getByTestId("itsm-connector-provider-chooser")).toBeInTheDocument();
+    expect(screen.queryByTestId("itsm-connectors-buyer-jira-servicenow-vocabulary")).not.toBeInTheDocument();
+
+    const chooser = screen.getByTestId("itsm-connector-provider-chooser");
+    const status = screen.getByTestId("servicenow-connection-status");
+    expect(chooser.compareDocumentPosition(status) & Node.DOCUMENT_POSITION_FOLLOWING).toBeTruthy();
+  });
+
+  it("maps setup incomplete to needs-attention in header and section status tags", async () => {
+    render(<ServiceNowIntegrationPageClient />);
+
+    await screen.findByTestId("servicenow-connection-status");
+    expect(itsmConnectionStatusTagKind("setup-incomplete")).toBe("needs-attention");
+    expect(screen.getByTestId("servicenow-header-status-badge")).toHaveTextContent("Setup incomplete");
+  });
+
+  it("exposes enabled refresh and last checked when setup is incomplete", async () => {
+    render(<ServiceNowIntegrationPageClient />);
+
+    await screen.findByTestId("servicenow-connection-status");
+    const refreshButton = screen.getByTestId("servicenow-refresh-button");
+    expect(refreshButton).toBeEnabled();
+    expect(screen.getByTestId("servicenow-last-checked")).toBeInTheDocument();
+  });
+
+  it("exposes refresh and integration readiness actions in the header", async () => {
+    render(<ServiceNowIntegrationPageClient />);
+
+    expect(await screen.findByTestId("servicenow-refresh-button")).toBeInTheDocument();
+    expect(screen.getByTestId("servicenow-readiness-link")).toHaveAttribute("href", INTEGRATIONS_READINESS_PATH);
+  });
+
+  it("shows setup incomplete state without connection test section", async () => {
     render(<ServiceNowIntegrationPageClient />);
 
     const status = await screen.findByTestId("servicenow-connection-status");
     expect(within(status).getByText("Setup incomplete")).toBeInTheDocument();
     expect(screen.getByText(SERVICENOW_CREDENTIALS_ADMIN_REQUIRED)).toBeInTheDocument();
+    expect(screen.queryByRole("button", { name: SERVICENOW_CONNECTION_TEST_BUTTON })).not.toBeInTheDocument();
+    expect(screen.getByTestId("servicenow-incident-settings-collapsed")).toBeInTheDocument();
+  });
 
-    const testButton = screen.getByRole("button", { name: SERVICENOW_CONNECTION_TEST_BUTTON });
-    expect(testButton).toBeDisabled();
-    expect(screen.getByText(/Complete credential setup before testing/i)).toBeInTheDocument();
+  it("TB-1161: offers admin ITSM configure CTA when not configured", async () => {
+    callerAuthorityRank = AUTHORITY_RANK.AdminAuthority;
+
+    render(<ServiceNowIntegrationPageClient />);
+
+    expect(await screen.findByTestId("integrations-servicenow-not-configured-next-step")).toBeInTheDocument();
+    const configureLink = screen.getByTestId("integrations-servicenow-configure-admin-cta");
+    expect(configureLink).toHaveAttribute("href", ITSM_CONNECTORS_ADMIN_PATH);
+    expect(screen.getByText(SERVICENOW_NEXT_ACTION_SETUP_INCOMPLETE_ADMIN)).toBeInTheDocument();
+  });
+
+  it("TB-1161: offers Integration readiness CTA when not configured for non-admin", async () => {
+    render(<ServiceNowIntegrationPageClient />);
+
+    expect(await screen.findByTestId("integrations-servicenow-not-configured-next-step")).toBeInTheDocument();
+    const readinessLink = screen.getByTestId("integrations-servicenow-readiness-cta");
+    expect(readinessLink).toHaveAttribute("href", INTEGRATIONS_READINESS_PATH);
+    expect(screen.queryByTestId("integrations-servicenow-configure-admin-cta")).not.toBeInTheDocument();
+    expect(screen.getByText(SERVICENOW_NEXT_ACTION_SETUP_INCOMPLETE_OPERATOR)).toBeInTheDocument();
+  });
+
+  it("TB-1164: demotes incident settings when credentials are missing", async () => {
+    render(<ServiceNowIntegrationPageClient />);
+
+    expect(await screen.findByTestId("servicenow-incident-settings-collapsed")).toBeInTheDocument();
+    expect(screen.getByText(SERVICENOW_INCIDENT_SETTINGS_UNAVAILABLE_LEAD)).toBeInTheDocument();
+    expect(screen.queryByRole("button", { name: SERVICENOW_SAVE_SETTINGS_BUTTON })).not.toBeInTheDocument();
+  });
+
+  it("TB-1165: not-configured viewport has one primary control", async () => {
+    render(<ServiceNowIntegrationPageClient />);
+
+    await screen.findByTestId("integrations-servicenow-not-configured-next-step");
+    const mainColumn = screen.getByTestId("servicenow-page-main");
+    const primaryCta = within(mainColumn).getByTestId("integrations-servicenow-readiness-cta");
+
+    expect(primaryCta).toBeInTheDocument();
+    expect(within(mainColumn).queryAllByRole("button", { name: /save settings|test connection/i })).toHaveLength(0);
+    expect(screen.getByTestId("servicenow-setup-step-credentials")).toHaveAttribute("data-emphasized", "true");
   });
 
   it("shows connected state when probe is reachable", async () => {
@@ -164,6 +281,7 @@ describe("ServiceNowIntegrationPageClient", () => {
 
   it("blocks save when user lacks mutation capability", async () => {
     canMutate = false;
+    credentialsReadyMocks();
     render(<ServiceNowIntegrationPageClient />);
 
     const saveButton = await screen.findByRole("button", { name: SERVICENOW_SAVE_SETTINGS_BUTTON });
@@ -172,6 +290,7 @@ describe("ServiceNowIntegrationPageClient", () => {
   });
 
   it("saves incident creation settings with pending and success feedback", async () => {
+    credentialsReadyMocks();
     render(<ServiceNowIntegrationPageClient />);
 
     await screen.findByRole("heading", { name: SERVICENOW_INCIDENT_SETTINGS_TITLE });
@@ -189,6 +308,7 @@ describe("ServiceNowIntegrationPageClient", () => {
 
   it("surfaces save failure without clearing unsaved checkbox state", async () => {
     mockUpsertSettings.mockRejectedValue(new Error("Save rejected"));
+    credentialsReadyMocks();
 
     render(<ServiceNowIntegrationPageClient />);
     await screen.findByRole("heading", { name: SERVICENOW_INCIDENT_SETTINGS_TITLE });
@@ -263,13 +383,14 @@ describe("ServiceNowIntegrationPageClient", () => {
     expect(within(screen.getByTestId("servicenow-latest-test")).getByText(/403 forbidden/i)).toBeInTheDocument();
   });
 
-  it("uses responsive two-column layout classes", async () => {
+  it("stacks setup guidance below the connect form (TB-1575 / TB-1576 demoted single-column)", async () => {
     render(<ServiceNowIntegrationPageClient />);
     await screen.findByTestId("integrations-servicenow-page");
 
-    const grid = document.querySelector(".lg\\:grid-cols-\\[minmax\\(0\\,1fr\\)_17\\.5rem\\]");
-    expect(grid).not.toBeNull();
-    expect(screen.getByTestId("servicenow-integration-aside")).toBeInTheDocument();
+    const layout = screen.getByTestId("servicenow-page-layout");
+    expect(layout.className).not.toContain("lg:grid-cols-[minmax(0,1fr)_17.5rem]");
+    expect(screen.getByTestId("servicenow-integration-aside").className).not.toContain("lg:sticky");
+    expect(screen.getByTestId("servicenow-setup-progress")).toBeInTheDocument();
   });
 
   it("exposes meaningful status region for accessibility", async () => {

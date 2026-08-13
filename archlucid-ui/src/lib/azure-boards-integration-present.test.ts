@@ -3,8 +3,11 @@ import { describe, expect, it } from "vitest";
 import {
   AZURE_BOARDS_LOAD_FAILURE_STATUS_EXPLANATION,
   isAzureBoardsCredentialsReady,
+  resolveAzureBoardsConnectionSaveGate,
   resolveAzureBoardsConnectionStatus,
   resolveAzureBoardsConnectionTestGate,
+  resolveAzureBoardsPageComposition,
+  resolveAzureBoardsSetupStepTagLabel,
   sanitizeAzureBoardsLoadErrorForConnectionStatus,
   sanitizeCustomerFacingProbeSummary,
 } from "./azure-boards-integration-present";
@@ -91,5 +94,61 @@ describe("azure-boards-integration-present", () => {
         null,
       ),
     ).toBe(true);
+  });
+
+  it("blocks configuration forms when native integration is disabled (TB-1154)", () => {
+    const composition = resolveAzureBoardsPageComposition({
+      nativeEnabled: false,
+      itsmHealthLoadFailed: false,
+      credentialsReady: false,
+      settingsReady: false,
+      testGateAllowed: false,
+      connectionSliceFailed: false,
+      hasConnectionPayload: true,
+    });
+
+    expect(composition.blocked).toBe(true);
+    expect(composition.showConnectionSettings).toBe(false);
+  });
+
+  it("collapses default behavior until credentials are ready (TB-1155)", () => {
+    const composition = resolveAzureBoardsPageComposition({
+      nativeEnabled: true,
+      itsmHealthLoadFailed: false,
+      credentialsReady: false,
+      settingsReady: false,
+      testGateAllowed: false,
+      connectionSliceFailed: false,
+      hasConnectionPayload: false,
+    });
+
+    expect(composition.blocked).toBe(false);
+    expect(composition.showConnectionSettings).toBe(true);
+    expect(composition.defaultBehaviorCollapsed).toBe(true);
+    expect(composition.showConnectionTest).toBe(false);
+    expect(composition.connectionTestCollapsed).toBe(true);
+    expect(composition.emphasizedSetupStepId).toBe("credentials");
+  });
+
+  it("blocks save connection until token reference is provided", () => {
+    const gate = resolveAzureBoardsConnectionSaveGate({
+      canMutate: true,
+      organizationUrl: "https://dev.azure.com/example",
+      tokenReference: "",
+      connection: { isConfigured: false, credentialKeyVaultSecretName: null },
+      isSaving: false,
+    });
+
+    expect(gate.allowed).toBe(false);
+    expect(gate.reason?.message).toMatch(/token secure reference/i);
+  });
+
+  it("labels emphasized setup step as in progress", () => {
+    const label = resolveAzureBoardsSetupStepTagLabel(
+      { id: "credentials", label: "Organization URL and secure token reference", complete: false },
+      "credentials",
+    );
+
+    expect(label).toBe("In progress");
   });
 });

@@ -1,6 +1,6 @@
 "use client";
 import { cn } from "@/lib/utils";
-import { OPERATOR_TYPOGRAPHY } from "@/lib/design-tokens";
+import { DESIGN_TOKENS, OPERATOR_TYPOGRAPHY } from "@/lib/design-tokens";
 
 import Link from "next/link";
 import { useSearchParams } from "next/navigation";
@@ -55,7 +55,7 @@ export function WhatIfBranchCompareBanner(props: WhatIfBranchCompareBannerProps)
 
   return (
     <div
-      className={cn("flex flex-wrap items-center gap-2 rounded-md border border-sky-300 bg-sky-50 px-3 py-2 dark:border-sky-800 dark:bg-sky-950/40", OPERATOR_TYPOGRAPHY.body)}
+      className={cn("flex flex-wrap items-center gap-2", DESIGN_TOKENS.callout.info, OPERATOR_TYPOGRAPHY.body)}
       data-testid="what-if-branch-compare-banner"
     >
       <span className="text-neutral-800 dark:text-neutral-100">{statusMessage}</span>

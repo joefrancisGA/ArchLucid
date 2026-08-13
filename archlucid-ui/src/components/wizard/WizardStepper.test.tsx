@@ -22,9 +22,9 @@ describe("WizardStepper", () => {
 
     expect(screen.getByRole("navigation", { name: "Wizard progress" })).toBeInTheDocument();
     expect(screen.getAllByRole("listitem")).toHaveLength(3);
-    expect(screen.getByText("Scope")).toBeInTheDocument();
-    expect(screen.getByText("Context")).toBeInTheDocument();
-    expect(screen.getByText("Review")).toBeInTheDocument();
+    expect(screen.getAllByText("Scope").length).toBeGreaterThanOrEqual(1);
+    expect(screen.getAllByText("Context").length).toBeGreaterThanOrEqual(1);
+    expect(screen.getAllByText("Review").length).toBeGreaterThanOrEqual(1);
   });
 
   it("sets aria-current=step only on the active step", () => {
@@ -69,5 +69,14 @@ describe("WizardStepper", () => {
     expect(screen.queryByTestId(WIZARD_STICKY_PROGRESS_TEST_ID)).not.toBeInTheDocument();
     const nav = screen.getByRole("navigation", { name: "Wizard progress" });
     expect(nav.className.split(/\s+/)).not.toContain("sticky");
+  });
+
+  it("exposes step position as visible and screen-reader text (P0-6)", () => {
+    render(
+      <WizardStepper steps={sampleSteps} currentStep={1} completedSteps={[0]} />,
+    );
+
+    expect(screen.getAllByText("Step 2 of 3")).toHaveLength(2);
+    expect(screen.getByRole("navigation", { name: "Wizard progress" })).toHaveTextContent("Step 2 of 3");
   });
 });

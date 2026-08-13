@@ -87,10 +87,52 @@ export const AZURE_BOARDS_SETUP_PROGRESS_TITLE = "Setup progress";
 
 export const AZURE_BOARDS_LATEST_TEST_TITLE = "Latest connection test";
 
-export const AZURE_BOARDS_CONNECTION_VERIFICATION_HELP_LABEL = "Azure Boards connection verification checklist";
+export const AZURE_BOARDS_LATEST_TEST_PASSED_LABEL = "Connection check passed";
+
+export const AZURE_BOARDS_LATEST_TEST_FAILED_LABEL = "Connection check failed";
+
+export const AZURE_BOARDS_TROUBLESHOOTING_HELP_LABEL = "Troubleshooting";
+
+export const AZURE_BOARDS_CONNECTION_SAVE_DISABLED_TOKEN_HELPER =
+  "Enter a token secure reference before saving the connection.";
+
+export const AZURE_BOARDS_CONNECTION_SAVE_SUCCESS = "Connection saved.";
+
+export const AZURE_BOARDS_CONNECTION_PROVENANCE_NONE = "No change history available yet.";
+
+export const AZURE_BOARDS_CONNECTION_PROVENANCE_UNSAVED =
+  "Connection settings have not been saved yet.";
+
+export const AZURE_BOARDS_CONNECTION_AUDIT_TRAIL_LINK_LABEL = "View audit trail";
+
+export const AZURE_BOARDS_SETUP_STEP_DONE_LABEL = "Done";
+
+export const AZURE_BOARDS_SETUP_STEP_CURRENT_LABEL = "In progress";
+
+export const AZURE_BOARDS_SETUP_STEP_PENDING_LABEL = "Pending";
 
 export const AZURE_BOARDS_MUTATION_DISABLED_HELPER =
   "You need workspace administrator permissions to change Azure Boards settings.";
+
+/** Shown when native integration is disabled for the tenant (TB-1154). */
+export const AZURE_BOARDS_FEATURE_OFF_LEAD =
+  "Azure Boards integration is not enabled for this tenant. Contact your workspace administrator to enable it before configuring connection settings.";
+
+/** Collapsed default-behavior summary until credentials are saved (TB-1155). */
+export const AZURE_BOARDS_DEFAULT_BEHAVIOR_COLLAPSED_SUMMARY =
+  "Default work item behavior (available after connection)";
+
+/** Helper inside collapsed default behavior when credentials are missing (TB-1155). */
+export const AZURE_BOARDS_DEFAULT_BEHAVIOR_UNAVAILABLE_LEAD =
+  "Save connection settings before choosing default work item type and area path.";
+
+/** Collapsed connection-test summary when the gate is closed (TB-1155). */
+export const AZURE_BOARDS_CONNECTION_TEST_COLLAPSED_SUMMARY =
+  "Test connection (available after defaults are saved)";
+
+/** Collapsed connection-test summary when credentials are not saved yet. */
+export const AZURE_BOARDS_CONNECTION_TEST_COLLAPSED_CREDENTIALS_SUMMARY =
+  "Test connection (available after connection is saved)";
 
 export const AZURE_BOARDS_BANNED_UI_PATTERNS = [
   /_apis\/wit/i,

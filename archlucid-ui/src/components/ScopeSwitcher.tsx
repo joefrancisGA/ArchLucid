@@ -15,9 +15,11 @@ import {
 } from "react";
 import { createPortal } from "react-dom";
 
-import { useOperatorNavAuthority } from "@/components/OperatorNavAuthorityProvider";
+import { useOperatorNavAuthority } from "@/components/operator/OperatorNavAuthorityProvider";
 import { ScopeSwitcherProjectOptionButton } from "@/components/ScopeSwitcherProjectOptionButton";
 import { ScopeSwitcherTenantContextFooter } from "@/components/ScopeSwitcherTenantContextFooter";
+import { WorkspaceScopeTenantSettingsVocabularyRail } from "@/components/WorkspaceScopeTenantSettingsVocabularyRail";
+import { WorkspaceSwitcherFirstOpenCoach } from "@/components/WorkspaceSwitcherFirstOpenCoach";
 import { Button } from "@/components/ui/button";
 import { Card } from "@/components/ui/card";
 import { Label } from "@/components/ui/label";
@@ -33,7 +35,7 @@ import {
   BUYER_SCOPE_SWITCHER_LEARN_ABOUT_WORKSPACES,
   BUYER_SCOPE_SWITCHER_LOAD_ERROR,
   BUYER_WORKSPACE_DISPLAY_NAME,
-} from "@/lib/buyer-polish-copy";
+} from "@/lib/buyer/buyer-polish-copy";
 import { isBuyerPolishedOperatorShellEnv } from "@/lib/demo-ui-env";
 import { AUTHORITY_RANK } from "@/lib/nav-authority";
 import {
@@ -44,12 +46,13 @@ import {
   readOperatorScopeFromStorage,
   type OperatorScopeRecord,
   writeOperatorScopeToStorage,
-} from "@/lib/operator-scope-storage";
+} from "@/lib/operator/operator-scope-storage";
 import { mergeRegistrationScopeForProxy } from "@/lib/proxy-fetch-registration-scope";
 import {
   formatScopeSwitcherSampleFullTitle,
   formatScopeSwitcherTriggerAccessibleLabel,
   formatScopeSwitcherTriggerLabel,
+  isEffectiveDevDefaultScope,
   isScopeSwitcherOptionSelected,
   isScopeSwitchingAvailable,
   resolveScopeSwitcherOptionPrimaryLabel,
@@ -151,16 +154,6 @@ function demoClaimsIntakeWorkspaceOption(): ScopeSwitcherWorkspaceOption {
     name: BUYER_WORKSPACE_DISPLAY_NAME,
     projects: [{ projectId: DEV_SCOPE_PROJECT_ID, name: "Primary project" }],
   };
-}
-
-function isEffectiveDevDefaultScope(
-  workspaceId: string,
-  projectId: string,
-): boolean {
-  return (
-    workspaceId.trim() === DEV_SCOPE_WORKSPACE_ID &&
-    projectId.trim() === DEV_SCOPE_PROJECT_ID
-  );
 }
 
 function shouldUseSampleWorkspaceFallback(
@@ -424,6 +417,8 @@ export function ScopeSwitcher(props: ScopeSwitcherProps) {
                 : "Workspace scope"
         }
       >
+        <WorkspaceSwitcherFirstOpenCoach open={open} />
+        <WorkspaceScopeTenantSettingsVocabularyRail currentSurfaceId="workspace-scope" />
         {panelMode === "loading" ? (
           <p className={cn("m-0 text-neutral-500", OPERATOR_TYPOGRAPHY.body)}>Loading workspaces…</p>
         ) : null}
@@ -599,6 +594,7 @@ export function ScopeSwitcher(props: ScopeSwitcherProps) {
             )}
             aria-expanded={open}
             aria-haspopup="dialog"
+            id="operator-scope-switcher"
             data-testid="operator-scope-switcher-trigger"
             aria-label={triggerAccessibleLabel}
             title={triggerAccessibleLabel}
@@ -634,6 +630,7 @@ export function ScopeSwitcher(props: ScopeSwitcherProps) {
           className={cn("min-w-0 max-w-full shrink gap-1 overflow-hidden", scopeTriggerMaxWidthClass)}
           aria-expanded={open}
           aria-haspopup="dialog"
+          id="operator-scope-switcher"
           data-testid="operator-scope-switcher-trigger"
           aria-label={triggerAccessibleLabel}
           title={triggerAccessibleLabel}

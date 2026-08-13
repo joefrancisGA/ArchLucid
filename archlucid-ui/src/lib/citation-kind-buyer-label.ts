@@ -1,6 +1,6 @@
 import type { CitationReference } from "@/types/explanation";
 
-import { BUYER_SURFACE_VOCABULARY } from "@/lib/buyer-surface-vocabulary";
+import { BUYER_SURFACE_VOCABULARY } from "@/lib/vocabulary/buyer-surface-vocabulary";
 import { provenanceNodeTypeBuyerLabel } from "@/lib/provenance-node-type-labels";
 import { SIGNED_MANIFEST_LABEL } from "@/lib/usability/canonical-product-terms";
 

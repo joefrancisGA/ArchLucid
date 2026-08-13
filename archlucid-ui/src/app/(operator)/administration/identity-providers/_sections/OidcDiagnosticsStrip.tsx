@@ -9,6 +9,7 @@ import {
 } from "@/lib/identity-provider-probe-status-presentation";
 import { Card, CardContent, CardHeader, CardTitle } from "@/components/ui/card";
 import { OPERATOR_NAV_GROUP_LABEL, OPERATOR_TYPOGRAPHY } from "@/lib/design-tokens";
+import { IDENTITY_PROVIDERS_DIAGNOSTICS_OIDC_SECTION_ID } from "@/lib/identity-providers-settings-copy";
 import type { components } from "@/lib/openapi-schemas";
 
 type AdminOidcDiagnosticsResponse = components["schemas"]["AdminOidcDiagnosticsResponse"];
@@ -38,7 +39,7 @@ export function OidcDiagnosticsStrip(props: OidcDiagnosticsStripProps) {
 
   if (!payload) {
     return (
-      <Card data-testid="oidc-diagnostics-card">
+      <Card data-testid="oidc-diagnostics-card" id={IDENTITY_PROVIDERS_DIAGNOSTICS_OIDC_SECTION_ID}>
         <CardHeader>
           <CardTitle className={OPERATOR_TYPOGRAPHY.cardTitle}>OIDC discovery diagnostics</CardTitle>
         </CardHeader>
@@ -55,7 +56,7 @@ export function OidcDiagnosticsStrip(props: OidcDiagnosticsStripProps) {
   const discoveryPresentation = oidcDiscoveryStatusPresentation(discoveryStatus);
 
   return (
-    <Card data-testid="oidc-diagnostics-card">
+    <Card data-testid="oidc-diagnostics-card" id={IDENTITY_PROVIDERS_DIAGNOSTICS_OIDC_SECTION_ID}>
       <CardHeader>
         <CardTitle className={OPERATOR_TYPOGRAPHY.cardTitle}>OIDC discovery diagnostics</CardTitle>
         {props.showTechnicalDetails === true ? (

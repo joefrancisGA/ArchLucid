@@ -2,9 +2,9 @@
  * Central dictionary for operator-facing domain terms and reusable UI labels.
  * @see docs/assessments/LATEST.md — simplify abstract nomenclature without hunting literals in components.
  */
-import { ARCHITECTURE_DRAFTS_LIST_LABEL, CREATE_ARCHITECTURE_LABEL } from "@/lib/architecture-workflow-labels";
-import { BUYER_EXECUTIVE_SUMMARY_VOCABULARY, BUYER_SURFACE_VOCABULARY, BUYER_TERMINOLOGY } from "@/lib/buyer-surface-vocabulary";
-import { BUYER_ONBOARDING_PAGE_TITLE } from "@/lib/buyer-polish-copy";
+import { ARCHITECTURE_DRAFTS_LIST_LABEL, CREATE_ARCHITECTURE_LABEL } from "@/lib/architecture/architecture-workflow-labels";
+import { BUYER_EXECUTIVE_SUMMARY_VOCABULARY, BUYER_SURFACE_VOCABULARY, BUYER_TERMINOLOGY } from "@/lib/vocabulary/buyer-surface-vocabulary";
+import { BUYER_ONBOARDING_PAGE_TITLE } from "@/lib/buyer/buyer-polish-copy";
 import { EVIDENCE_TRAIL_SEARCH } from "@/lib/search-surface-disambiguation";
 
 // Canonical definitions live in the dependency-free leaf module `pipeline-status-labels.ts`
@@ -19,7 +19,7 @@ export {
   POST_COMMIT_INTEGRATION_LINK_TITLES,
   SERVICE_BUS_HEALTH_LABELS,
   WORKSPACE_SETUP_HEALTH_LABELS,
-} from "@/lib/operator-health-labels";
+} from "@/lib/operator/operator-health-labels";
 
 export const DOMAIN_TERMS = {
   goldenManifest: "Signed review record",
@@ -113,7 +113,7 @@ export const OPERATOR_NAV_GROUP_LABELS = {
 /** Primary sidebar link labels — adapt terminology here without editing each nav builder. */
 export const OPERATOR_NAV_LINK_LABELS = {
   /** Operator workspace landing (`/`) — left nav label; logo also routes here. */
-  home: "Overview",
+  home: "Home",
   /** Operator-shell ROI dashboard (`/architecture/executive-dashboard`); the standalone executive-chrome duplicate was retired (TB-608). */
   portfolioOverview: "Executive dashboard",
   executiveSummary: BUYER_EXECUTIVE_SUMMARY_VOCABULARY.reviewExecutiveSummaryLabel,
@@ -144,7 +144,7 @@ export const OPERATOR_NAV_LINK_LABELS = {
   auditTrail: BUYER_SURFACE_VOCABULARY.auditTrail,
   governanceSetupGuide: "Governance setup",
   workspaceHealth: "Workspace health",
-  securityTrust: "Security & trust",
+  securityTrust: "Security & Trust",
   aiUsage: "AI usage",
   /** Internal Operations — buyer-facing nav label (TB-648). */
   knowledgeIndexHealth: "Knowledge index health",
@@ -183,9 +183,11 @@ export const OPERATOR_NAV_LINK_LABELS = {
   /** Notification preference hub (`/administration/notifications`) TB-2203. */
   notifications: "Notifications",
   digests: "Digests",
-  /** Settings hub (`/administration`); workspace entry often `/administration/tenant`. */
+  /** Settings hub (`/administration`); workspace entry often `/administration/workspace-settings`. */
   settings: "Settings",
   workspaceSettings: "Workspace settings",
+  /** Users & roles hub (`/administration/users`) — ampersand matches Security & Trust nav spelling. */
+  usersAndRoles: "Users & roles",
 } as const;
 
 /** Customer-facing copy for `/integrations/cloud-connections`. */

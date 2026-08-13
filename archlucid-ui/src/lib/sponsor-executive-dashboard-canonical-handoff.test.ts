@@ -3,7 +3,7 @@ import { join } from "node:path";
 
 import { describe, expect, it } from "vitest";
 
-import { EXECUTIVE_DASHBOARD_HREF } from "@/lib/executive-dashboard-route";
+import { EXECUTIVE_DASHBOARD_HREF } from "@/lib/executive/executive-dashboard-route";
 import {
   LEGACY_EXECUTIVE_SHELL_DASHBOARD_PATH,
   LEGACY_OPERATOR_EXECUTIVE_DASHBOARD_PATH,

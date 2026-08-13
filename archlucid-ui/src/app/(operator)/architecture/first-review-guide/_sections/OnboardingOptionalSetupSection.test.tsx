@@ -6,7 +6,7 @@ import {
   FIRST_REVIEW_GUIDE_OPTIONAL_SETUP_TITLE,
   ONBOARDING_OPTIONAL_SETUP_COLLAPSED_SUMMARY,
   ONBOARDING_WORKSPACE_SETUP_ADMIN_DELEGATION,
-} from "@/lib/buyer-polish-copy";
+} from "@/lib/buyer/buyer-polish-copy";
 
 import { OnboardingOptionalSetupSection } from "./OnboardingOptionalSetupSection";
 

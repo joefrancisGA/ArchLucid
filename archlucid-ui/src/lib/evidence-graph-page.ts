@@ -1,4 +1,4 @@
-import { CREATE_ARCHITECTURE_LABEL } from "@/lib/architecture-workflow-labels";
+import { CREATE_ARCHITECTURE_LABEL } from "@/lib/architecture/architecture-workflow-labels";
 import { AZURE_REFERENCE_SAMPLE_GRAPH_CTA_LABEL } from "@/lib/empty-state-presets";
 
 export const EVIDENCE_GRAPH_PAGE_TITLE = "Evidence graph";

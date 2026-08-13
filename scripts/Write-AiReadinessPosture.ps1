@@ -138,7 +138,7 @@ function Get-VectorIndexTypeFromAppSettings {
         return $null
     }
 
-    # Normalise to schema values
+    # Normalize to schema values
     switch ($vectorIndex.Trim()) {
         'AzureSearch' { return 'azure-ai-search' }
         'InMemory'    { return 'in-memory' }

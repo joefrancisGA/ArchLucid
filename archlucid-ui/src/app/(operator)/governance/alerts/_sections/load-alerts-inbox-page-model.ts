@@ -2,7 +2,7 @@ import { listAlertsCursor } from "@/lib/api";
 import type { ApiLoadFailureState } from "@/lib/api-load-failure";
 import { toApiLoadFailure } from "@/lib/api-load-failure";
 import { isBuyerPolishedOperatorShellEnv } from "@/lib/demo-ui-env";
-import { shouldMergeOperatorDemoAlertSample, tryStaticDemoAlertInboxRow } from "@/lib/operator-static-demo";
+import { shouldMergeOperatorDemoAlertSample, tryStaticDemoAlertInboxRow } from "@/lib/operator/operator-static-demo";
 import type { AlertRecord } from "@/types/alerts";
 
 import type { AlertsInboxPageModel, AlertsInboxSearchParams } from "./alerts-inbox-page-model";

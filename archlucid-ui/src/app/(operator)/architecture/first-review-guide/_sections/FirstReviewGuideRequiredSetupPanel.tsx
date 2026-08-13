@@ -5,7 +5,7 @@ import Link from "next/link";
 
 import { StatusTag } from "@/components/ui/status-tag";
 import { OPERATOR_LINK, OPERATOR_SURFACE_CARD_CLASS, OPERATOR_TYPOGRAPHY } from "@/lib/design-tokens";
-import { FIRST_REVIEW_GUIDE_REQUIRED_SETUP_TITLE } from "@/lib/buyer-polish-copy";
+import { FIRST_REVIEW_GUIDE_REQUIRED_SETUP_TITLE } from "@/lib/buyer/buyer-polish-copy";
 import type { FirstReviewGuideRequiredBlocker } from "@/lib/first-review-guide-state";
 
 type FirstReviewGuideRequiredSetupPanelProps = {

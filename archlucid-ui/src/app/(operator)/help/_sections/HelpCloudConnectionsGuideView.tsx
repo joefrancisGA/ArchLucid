@@ -8,8 +8,8 @@ import { HelpTopicHashScroll } from "@/app/(operator)/help/HelpTopicHashScroll";
 import { HelpTopicRegistryProvenanceLine } from "@/components/help/HelpTopicRegistryProvenanceLine";
 import { HelpTopicTableOfContents } from "@/components/help/HelpTopicTableOfContents";
 import { MarketingAccessibilityMarkdownFragment } from "@/components/marketing/MarketingAccessibilityMarkdownFragment";
-import { OperatorPageBreadcrumb } from "@/components/OperatorPageBreadcrumb";
-import { OperatorPageHeader } from "@/components/OperatorPageHeader";
+import { OperatorPageBreadcrumb } from "@/components/operator/OperatorPageBreadcrumb";
+import { OperatorPageHeader } from "@/components/operator/OperatorPageHeader";
 import { Card, CardContent, CardHeader } from "@/components/ui/card";
 import {
   CLOUD_CONNECTIONS_HELP_ACTION_PANEL_ID,
@@ -31,9 +31,9 @@ import {
   OPERATOR_SHELL_SCROLL_OFFSET_CLASS,
   OPERATOR_TYPOGRAPHY,
 } from "@/lib/design-tokens";
-import type { HelpMarkdownHeading } from "@/lib/help-markdown-headings";
-import { extractMarkdownSectionsByAnchor } from "@/lib/help-markdown-sections";
-import { HELP_PAGE_LAYOUT, resolveHelpPageContentGridClass } from "@/lib/help-page-layout";
+import type { HelpMarkdownHeading } from "@/lib/help/help-markdown-headings";
+import { extractMarkdownSectionsByAnchor } from "@/lib/help/help-markdown-sections";
+import { HELP_PAGE_LAYOUT, resolveHelpPageContentGridClass } from "@/lib/help/help-page-layout";
 import type { ProductDocumentationEntry } from "@/lib/product-documentation-registry";
 import { cn } from "@/lib/utils";
 

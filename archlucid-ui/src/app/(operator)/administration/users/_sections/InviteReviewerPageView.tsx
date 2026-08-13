@@ -3,6 +3,7 @@
 import Link from "next/link";
 
 import { DemoWorkspaceCapabilityUnavailablePanel } from "@/components/DemoWorkspaceCapabilityUnavailablePanel";
+import { OperatorPageHeader } from "@/components/operator/OperatorPageHeader";
 import { Button } from "@/components/ui/button";
 import { Card, CardContent, CardHeader, CardTitle } from "@/components/ui/card";
 import { PageContextualHelpButton } from "@/components/usability/PageContextualHelpButton";
@@ -15,7 +16,7 @@ import {
   INVITE_REVIEWER_PAGE_TITLE,
   SETTINGS_ROLES_USERS_TAB_PATH,
 } from "@/lib/invite-reviewer-flow";
-import { OPERATOR_LINK, OPERATOR_TYPOGRAPHY } from "@/lib/design-tokens";
+import { OPERATOR_LAYOUT, OPERATOR_LINK, OPERATOR_TYPOGRAPHY } from "@/lib/design-tokens";
 import { cn } from "@/lib/utils";
 
 import { SettingsRolesInvitePanel } from "./SettingsRolesInvitePanel";
@@ -40,7 +41,7 @@ export function InviteReviewerPageView(props: Props) {
 
   if (m.surface === "authority_loading") {
     return (
-      <div className="w-full max-w-[720px] space-y-6" data-testid="invite-reviewer-page">
+      <div className={cn("w-full max-w-[720px]", OPERATOR_LAYOUT.sectionStack)} data-testid="invite-reviewer-page">
         <p className={cn("m-0 text-al-text-secondary", OPERATOR_TYPOGRAPHY.body)}>Loading…</p>
       </div>
     );
@@ -48,7 +49,7 @@ export function InviteReviewerPageView(props: Props) {
 
   if (m.surface === "forbidden") {
     return (
-      <div className="w-full max-w-[720px] space-y-6" data-testid="invite-reviewer-page">
+      <div className={cn("w-full max-w-[720px]", OPERATOR_LAYOUT.sectionStack)} data-testid="invite-reviewer-page">
         <InviteReviewerPageHeader />
         <Card>
           <CardContent className="pt-6">
@@ -70,7 +71,7 @@ export function InviteReviewerPageView(props: Props) {
   }
 
   return (
-    <div className="w-full max-w-[720px] space-y-6" data-testid="invite-reviewer-page">
+    <div className={cn("w-full max-w-[720px]", OPERATOR_LAYOUT.sectionStack)} data-testid="invite-reviewer-page">
       <InviteReviewerPageHeader />
       <Card>
         <CardHeader>
@@ -94,18 +95,20 @@ export function InviteReviewerPageView(props: Props) {
 
 function InviteReviewerPageHeader(): React.JSX.Element {
   return (
-    <header className="space-y-2">
-      <div className="flex flex-wrap items-start justify-between gap-2">
-        <Button type="button" variant="outline" size="sm" className="-ml-2 h-8 px-2" asChild>
-          <Link href={INVITE_REVIEWER_BACK_TO_REVIEW_HREF}>{INVITE_REVIEWER_BACK_LABEL}</Link>
-        </Button>
-        <PageContextualHelpButton />
-      </div>
-      <div>
-        <h1 className={OPERATOR_TYPOGRAPHY.pageTitle}>{INVITE_REVIEWER_PAGE_TITLE}</h1>
-        <p className={cn("mt-1 text-al-text-secondary", OPERATOR_TYPOGRAPHY.body)}>{INVITE_REVIEWER_PAGE_LEAD}</p>
-        <InviteReviewerReaderCapabilitiesSummary />
-      </div>
-    </header>
+    <OperatorPageHeader
+      title={INVITE_REVIEWER_PAGE_TITLE}
+      headingLevel="h1"
+      subtitle={INVITE_REVIEWER_PAGE_LEAD}
+      actions={
+        <div className="flex flex-wrap items-center gap-2">
+          <Button type="button" variant="outline" size="sm" className="h-8 px-2" asChild>
+            <Link href={INVITE_REVIEWER_BACK_TO_REVIEW_HREF}>{INVITE_REVIEWER_BACK_LABEL}</Link>
+          </Button>
+          <PageContextualHelpButton />
+        </div>
+      }
+    >
+      <InviteReviewerReaderCapabilitiesSummary />
+    </OperatorPageHeader>
   );
 }

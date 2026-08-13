@@ -14,9 +14,9 @@ Document the personal-data processing activities that ArchLucid carries out as a
 
 ## 2. Assumptions
 
-- ArchLucid's primary commercial relationship is **B2B SaaS**: the data subject is the operator employee at a tenant organisation, not a consumer.
+- ArchLucid's primary commercial relationship is **B2B SaaS**: the data subject is the operator employee at a tenant organization, not a consumer.
 - Tenant-supplied **architecture artefacts** (manifests, findings, run narratives) are **customer workload content** and are governed by the master subscription agreement, not this notice.
-- Tenant **identity contact data** (operator email, display name, organisation) is governed by [`docs/security/PII_EMAIL.md`](PII_EMAIL.md) for the transactional-email flow and by the relevant subprocessor agreements (Entra ID, Azure SQL).
+- Tenant **identity contact data** (operator email, display name, organization) is governed by [`docs/security/PII_EMAIL.md`](PII_EMAIL.md) for the transactional-email flow and by the relevant subprocessor agreements (Entra ID, Azure SQL).
 - This notice covers **operational telemetry** that ArchLucid collects to operate, secure, and improve the SaaS product. It does not cover marketing tracking, advertising, or sales-CRM enrichment (none of which exist in V1).
 
 ## 3. Named processing activities
@@ -29,21 +29,21 @@ Each subsection follows the GDPR Art. 30 record shape: purpose, legal basis, cat
 
 **Legal basis.** **Article 6(1)(f)** — legitimate interest of the controller (ArchLucid) in measuring product onboarding success without distorting the result by asking each tenant for opt-in consent at the moment of signup (which would itself depress the funnel and bias the measurement).
 
-**Balancing test.** ArchLucid has concluded that its legitimate interest in measuring onboarding success is not overridden by the interests or fundamental rights of the data subjects, given that aggregated mode collects no personal data and per-tenant mode is scoped to organisation-level identifiers only, with no ability to single out an individual operator.
+**Balancing test.** ArchLucid has concluded that its legitimate interest in measuring onboarding success is not overridden by the interests or fundamental rights of the data subjects, given that aggregated mode collects no personal data and per-tenant mode is scoped to organization-level identifiers only, with no ability to single out an individual operator.
 
-The activity is **default aggregated-only** (no per-tenant correlation in the funnel store). When the optional **per-tenant** flag (`Telemetry:FirstTenantFunnel:PerTenantEmission`) is **off** (the V1 default), the funnel cannot identify any individual operator or tenant — the rows are counts, nothing more. When the flag is **on** (owner-only decision; see [`docs/PENDING_QUESTIONS.md`](../PENDING_QUESTIONS.md) item 40), the funnel store records `tenantId` only — never `userId`, never IP address, never user-agent. The per-tenant mode is therefore a **tenant-organisation-level** record, not a personal-data record on any specific operator employee.
+The activity is **default aggregated-only** (no per-tenant correlation in the funnel store). When the optional **per-tenant** flag (`Telemetry:FirstTenantFunnel:PerTenantEmission`) is **off** (the V1 default), the funnel cannot identify any individual operator or tenant — the rows are counts, nothing more. When the flag is **on** (owner-only decision; see [`docs/PENDING_QUESTIONS.md`](../PENDING_QUESTIONS.md) item 40), the funnel store records `tenantId` only — never `userId`, never IP address, never user-agent. The per-tenant mode is therefore a **tenant-organization-level** record, not a personal-data record on any specific operator employee.
 
 **Categories of data subjects.**
 - **Aggregated mode (default):** none (counters only).
-- **Per-tenant mode (flag-gated):** operator employees at tenant organisations, identified only by the **tenant they belong to** (not individually).
+- **Per-tenant mode (flag-gated):** operator employees at tenant organizations, identified only by the **tenant they belong to** (not individually).
 
 **Categories of personal data.**
 - **Aggregated mode (default):** none.
-- **Per-tenant mode (flag-gated):** `tenantId` (UUID), event name (one of six low-cardinality enum values), event timestamp (UTC, second-precision). **Explicitly excluded:** `userId`, IP address, user-agent, browser fingerprint, geo-location, organisation name, operator email.
+- **Per-tenant mode (flag-gated):** `tenantId` (UUID), event name (one of six low-cardinality enum values), event timestamp (UTC, second-precision). **Explicitly excluded:** `userId`, IP address, user-agent, browser fingerprint, geo-location, organization name, operator email.
 
 **Recipients.**
 - **Aggregated mode (default):** Application Insights (the same Azure Monitor workspace that already hosts ArchLucid operational telemetry — see [`docs/library/OBSERVABILITY.md`](../library/OBSERVABILITY.md)).
-- **Per-tenant mode (flag-gated):** Application Insights (same as aggregated) **plus** the new SQL table `dbo.FirstTenantFunnelEvents` in the ArchLucid production database (RLS-scoped per tenant on read; see [`docs/security/MULTI_TENANT_RLS.md`](MULTI_TENANT_RLS.md)).
+- **Per-tenant mode (flag-gated):** Application Insights (same as aggregated) **plus** the new SQL table `dbo.FirstTenantFunnelEvents` in the ArchLucid production database (tenant-scoped SQL reads via catalog routing + application predicates; see [`TENANT_ISOLATION_DEFENSE_IN_DEPTH.md`](TENANT_ISOLATION_DEFENSE_IN_DEPTH.md)).
 
 **Retention.**
 - **Aggregated mode (default):** governed by the Application Insights workspace retention (currently the platform default; the audit-retention policy at [`docs/library/AUDIT_RETENTION_POLICY.md`](../library/AUDIT_RETENTION_POLICY.md) does not apply because no audit-event row is written).
@@ -66,7 +66,7 @@ The activity is **default aggregated-only** (no per-tenant correlation in the fu
 
 **Legal basis.** **Article 6(1)(b)** — processing necessary for the performance of a contract to which the data subject's employer (the tenant) is party. The trial agreement requires ArchLucid to notify the operator contact of material trial events.
 
-**Categories of data subjects.** Operator employees designated as the trial contact for their tenant organisation.
+**Categories of data subjects.** Operator employees designated as the trial contact for their tenant organization.
 
 **Categories of personal data.**
 - **Email address** (To field, resolved from the `TrialProvisioned` / `TenantSelfRegistered` audit event actor).
@@ -129,7 +129,7 @@ The activity is **default aggregated-only** (no per-tenant correlation in the fu
 
 Operators (or their data-controller employer) may request:
 
-- **Access** — for per-tenant funnel mode rows (§3.A), the tenant administrator may export the relevant `dbo.FirstTenantFunnelEvents` rows via the same RLS-scoped read path used by the architect workspace (forthcoming admin endpoint; not in V1). For transactional email (§3.B), the audit store holds the email address; access requests are fulfilled via the standard audit-data export path. For client-error telemetry (§3.C), Application Insights workspace access is restricted to ArchLucid operations staff; data subjects may request confirmation of what was logged about a specific session.
+- **Access** — for per-tenant funnel mode rows (§3.A), the tenant administrator may export the relevant `dbo.FirstTenantFunnelEvents` rows via the same tenant-scoped SQL read path used by the architect workspace (forthcoming admin endpoint; not in V1). For transactional email (§3.B), the audit store holds the email address; access requests are fulfilled via the standard audit-data export path. For client-error telemetry (§3.C), Application Insights workspace access is restricted to ArchLucid operations staff; data subjects may request confirmation of what was logged about a specific session.
 - **Erasure** — the per-tenant funnel 90-day retention satisfies erasure on automatic schedule; out-of-cycle erasure for a single tenant is supported via the existing tenant-deletion path. For transactional email, tenant deletion cascades to `dbo.SentEmails`. For client-error telemetry, Application Insights data is purged on workspace retention schedule; individual-record purge is available via the Azure Monitor purge API.
 - **Objection** — for §3.A per-tenant mode, the tenant administrator may object by leaving the feature flag at `FALSE` (the V1 default). For §3.B and §3.C, the processing is necessary for contract performance and legitimate service operation respectively; objection would require ceasing use of the service.
 
@@ -138,7 +138,7 @@ Operators (or their data-controller employer) may request:
 | Subprocessor | Purpose | Data flowing |
 |---|---|---|
 | **Microsoft Azure** (Application Insights) | Aggregated funnel counters; client-error telemetry | §3.A counter increments (no `tenantId` in aggregated mode); §3.C error messages, pathnames, user-agent strings (sanitized, truncated). |
-| **Microsoft Azure** (SQL Database) | Per-tenant funnel rows (flag-gated); email idempotency keys | §3.A: `tenantId`, event name, timestamp (RLS-scoped). §3.B: idempotency keys only, no email bodies. |
+| **Microsoft Azure** (SQL Database) | Per-tenant funnel rows (flag-gated); email idempotency keys | §3.A: `tenantId`, event name, timestamp (tenant-scoped). §3.B: idempotency keys only, no email bodies. |
 | **Microsoft Azure** (Azure Communication Services) | Trial lifecycle transactional email delivery | §3.B: email address (To), email body (metadata-only; not persisted by ACS after delivery). |
 
 The full ArchLucid subprocessor list lives in the Trust Center (`docs/go-to-market/trust-center.md`) and is not duplicated here.

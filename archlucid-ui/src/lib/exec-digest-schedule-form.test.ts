@@ -86,14 +86,30 @@ describe("exec-digest-schedule-form", () => {
 
   it("formats next send preview and paused cadence language", () => {
     expect(
-      formatExecDigestNextSendPreview({
-        emailEnabled: false,
-        recipients: "",
-        ianaTimeZoneId: "UTC",
-        dayOfWeek: 1,
-        hourOfDay: 8,
-      }),
+      formatExecDigestNextSendPreview(
+        {
+          emailEnabled: false,
+          recipients: "",
+          ianaTimeZoneId: "UTC",
+          dayOfWeek: 1,
+          hourOfDay: 8,
+        },
+        true,
+      ),
     ).toBe("Not scheduled while delivery is paused");
+
+    expect(
+      formatExecDigestNextSendPreview(
+        {
+          emailEnabled: false,
+          recipients: "",
+          ianaTimeZoneId: "UTC",
+          dayOfWeek: 1,
+          hourOfDay: 8,
+        },
+        false,
+      ),
+    ).toBe("Not scheduled until delivery is enabled");
 
     expect(
       formatExecDigestConfiguredCadenceSentence({
@@ -106,22 +122,41 @@ describe("exec-digest-schedule-form", () => {
     ).toMatch(/Every Monday at 8:00 AM UTC/i);
 
     expect(
-      formatExecDigestLiveScheduleSummary({
-        emailEnabled: false,
+      formatExecDigestLiveScheduleSummary(
+        {
+          emailEnabled: false,
+          recipients: "ops@example.com",
+          ianaTimeZoneId: "UTC",
+          dayOfWeek: 1,
+          hourOfDay: 8,
+        },
+        true,
+      ),
+    ).toMatch(/Delivery is currently paused/i);
+
+    expect(
+      formatExecDigestLiveScheduleSummary(
+        {
+          emailEnabled: false,
+          recipients: "",
+          ianaTimeZoneId: "UTC",
+          dayOfWeek: 1,
+          hourOfDay: 8,
+        },
+        false,
+      ),
+    ).not.toMatch(/paused/i);
+
+    const activePreview = formatExecDigestNextSendPreview(
+      {
+        emailEnabled: true,
         recipients: "ops@example.com",
         ianaTimeZoneId: "UTC",
         dayOfWeek: 1,
         hourOfDay: 8,
-      }),
-    ).toMatch(/Delivery is currently paused/i);
-
-    const activePreview = formatExecDigestNextSendPreview({
-      emailEnabled: true,
-      recipients: "ops@example.com",
-      ianaTimeZoneId: "UTC",
-      dayOfWeek: 1,
-      hourOfDay: 8,
-    });
+      },
+      true,
+    );
     expect(activePreview).toMatch(/Monday/i);
     expect(activePreview).toMatch(/8:00/);
   });

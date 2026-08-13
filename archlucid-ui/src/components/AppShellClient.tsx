@@ -5,11 +5,11 @@ import Link from "next/link";
 import { CircleHelp } from "lucide-react";
 import { Suspense, useEffect, useLayoutEffect, useRef, useState, useCallback, type ReactNode, type RefObject } from "react";
 
-import { usePathname } from "next/navigation";
+import { usePathname, useRouter } from "next/navigation";
 
 import { ArchLucidWordmarkLink } from "@/components/ArchLucidWordmarkLink";
 import { AppToaster } from "@/components/AppToaster";
-import { OperatorQueryProvider } from "@/components/OperatorQueryProvider";
+import { OperatorQueryProvider } from "@/components/operator/OperatorQueryProvider";
 import {
   AppShellIdleOverlaysDeferred,
   AppShellMainContentGateDeferred,
@@ -24,13 +24,14 @@ import {
 import { AppShellKeyboardShortcutBoundary } from "@/components/shell/AppShellKeyboardShortcutBoundary";
 import { OperatorShellAccessRedirectsHost } from "@/components/shell/OperatorShellAccessRedirectsHost";
 import { ColorModeToggle } from "@/components/ColorModeToggle";
+import { ShellThemePreferencesAppearanceVocabularyRail } from "@/components/ShellThemePreferencesAppearanceVocabularyRail";
 import { AuthorityThemeToggle } from "@/components/AuthorityThemeToggle";
 import {
   OperatorChromeModeProvider,
   useOperatorChromeMode,
-} from "@/components/OperatorChromeModeContext";
-import { OperatorShellProviders } from "@/components/OperatorShellProviders";
-import { OperatorShellDeferredChrome } from "@/components/OperatorShellDeferredChrome";
+} from "@/components/operator/OperatorChromeModeContext";
+import { OperatorShellProviders } from "@/components/operator/OperatorShellProviders";
+import { OperatorShellDeferredChrome } from "@/components/operator/OperatorShellDeferredChrome";
 import { RouteAnnouncer } from "@/components/RouteAnnouncer";
 import { isUiAuthorityThemeEvalEnabledEnv } from "@/lib/ui-authority-theme";
 import { Button } from "@/components/ui/button";
@@ -41,7 +42,7 @@ import {
   pathMatchesGovernanceAlerts,
   pathMatchesGovernanceAudit,
   pathMatchesGovernancePolicyPacks,
-} from "@/lib/governance-route-paths";
+} from "@/lib/governance/governance-route-paths";
 import {
   OPERATOR_SHELL_BODY_ROW_CLASS,
   OPERATOR_SHELL_CONTENT_PADDING_X_CLASS,
@@ -56,6 +57,7 @@ import { useAppShellStickyOffsetSync } from "@/hooks/useAppShellStickyOffsetSync
 import { useOperatorShellChromeDeferred } from "@/hooks/useOperatorShellChromeDeferred";
 import { useRouteChangeFocus } from "@/hooks/useRouteChangeFocus";
 import type { HelpTabId } from "@/components/HelpPanel";
+import { resolveOperatorHelpRequestForPathname } from "@/lib/usability/resolve-operator-help-request";
 
 const FrictionlessTrialBanner = dynamic(
   () =>
@@ -115,7 +117,7 @@ const AppShellStatusBanners = dynamic(
 );
 
 const TrialLimitModalHost = dynamic(
-  () => import("@/components/TrialLimitModal").then((module) => module.TrialLimitModalHost),
+  () => import("@/components/trial/TrialLimitModal").then((module) => module.TrialLimitModalHost),
   { ssr: false },
 );
 
@@ -224,14 +226,22 @@ export function AppShellClient({ children }: AppShellClientProps) {
 
 function AppShellInner({ children }: AppShellClientProps) {
   const pathname = usePathname();
+  const router = useRouter();
   const chromeMode = useOperatorChromeMode();
   const deferChrome = useOperatorShellChromeDeferred();
   const [helpGuidesOpen, setHelpGuidesOpen] = useState(false);
   const [helpGuidesInitialTab, setHelpGuidesInitialTab] = useState<HelpTabId>("guides");
   const [helpDocSearchOpen, setHelpDocSearchOpen] = useState(false);
   const openHelpSearch = useCallback(() => {
+    const request = resolveOperatorHelpRequestForPathname(pathname ?? "/");
+
+    if (request.kind === "navigate") {
+      router.push(request.href);
+      return;
+    }
+
     setHelpDocSearchOpen(true);
-  }, []);
+  }, [pathname, router]);
   const openHelpGuidesPanel = useCallback((initialTab: HelpTabId = "guides") => {
     setHelpGuidesInitialTab(initialTab);
     setHelpGuidesOpen(true);
@@ -320,9 +330,7 @@ function AppShellInner({ children }: AppShellClientProps) {
                   <div className={cn(OPERATOR_SHELL_MAX_WIDTH_CLASS, OPERATOR_SHELL_CONTENT_PADDING_X_CLASS, "flex flex-wrap items-center justify-between gap-3 py-2.5")}>
                     <div className="flex min-w-0 flex-wrap items-center gap-x-4 gap-y-2">
                       <h1 className="m-0">
-                        <Button variant="outline" className="h-auto p-0" asChild>
-                          <ArchLucidWordmarkLink href="/" aria-label="ArchLucid — go to workspace overview" variant="operator" />
-                        </Button>
+                        <ArchLucidWordmarkLink href="/" aria-label="ArchLucid — go to workspace overview" variant="operator" />
                       </h1>
                       <Link
                         href="/architecture/reviews"
@@ -355,7 +363,14 @@ function AppShellInner({ children }: AppShellClientProps) {
                         </Button>
                       </ToolbarHelpTooltip>
                       {isUiAuthorityThemeEvalEnabledEnv() ? <AuthorityThemeToggle /> : null}
-                      <ColorModeToggle />
+                      <div className="relative flex items-center" data-testid="shell-theme-toggle-cluster">
+                        <ColorModeToggle />
+                        {/* Sticky chrome stays one-row; teaching stays available to AT and tests. */}
+                        <ShellThemePreferencesAppearanceVocabularyRail
+                          currentSurfaceId="shell-theme-toggle"
+                          className="sr-only"
+                        />
+                      </div>
                     </div>
                   </div>
                 </header>

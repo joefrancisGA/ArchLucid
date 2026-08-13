@@ -1,4 +1,4 @@
-import { CREATE_ARCHITECTURE_LABEL } from "@/lib/architecture-workflow-labels";
+import { CREATE_ARCHITECTURE_LABEL } from "@/lib/architecture/architecture-workflow-labels";
 import { canonicalizeLegacyOperatorRoutePath } from "@/lib/canonicalize-legacy-operator-route-path";
 import { isInvalidDynamicRouteToken } from "@/lib/route-dynamic-param";
 import { ROUTE_TITLES } from "@/lib/route-static-titles";

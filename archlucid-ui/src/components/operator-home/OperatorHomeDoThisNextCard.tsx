@@ -13,12 +13,12 @@ import {
 } from "@/lib/demo-seeded-overview";
 import { OPERATOR_LAYOUT, OPERATOR_TYPE_SCALE } from "@/lib/design-tokens";
 import { featuredCompletedSampleReviewHref } from "@/lib/fetch-tenant-homepage-settings-client";
-import { isStaticDemoPayloadFallbackEnabled } from "@/lib/operator-static-demo";
+import { isStaticDemoPayloadFallbackEnabled } from "@/lib/operator/operator-static-demo";
 import {
   ARCHLUCID_OPERATOR_SCOPE_CHANGED_EVENT,
   getEffectiveBrowserProxyScopeHeaders,
   readOperatorScopeFromStorage,
-} from "@/lib/operator-scope-storage";
+} from "@/lib/operator/operator-scope-storage";
 import { resolveEmptyHomeDoThisNext } from "@/lib/resolve-empty-home-do-this-next";
 import { cn } from "@/lib/utils";
 

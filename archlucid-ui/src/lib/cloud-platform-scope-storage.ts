@@ -1,7 +1,7 @@
 import {
   ARCHLUCID_OPERATOR_SCOPE_CHANGED_EVENT,
-  readOperatorScopeFromStorage,
-} from "@/lib/operator-scope-storage";
+  getEffectiveBrowserProxyScopeHeaders,
+} from "@/lib/operator/operator-scope-storage";
 
 export type CloudPlatformId = "evidence-only" | "azure" | "aws" | "gcp";
 
@@ -31,13 +31,11 @@ function scopeStorageKey(workspaceId: string): string {
 }
 
 function readWorkspaceIdForScope(): string | null {
-  const scope = readOperatorScopeFromStorage();
-
-  if (scope === null) {
+  if (typeof window === "undefined") {
     return null;
   }
 
-  const workspaceId = scope.workspaceId.trim();
+  const workspaceId = getEffectiveBrowserProxyScopeHeaders()["x-workspace-id"]?.trim() ?? "";
 
   return workspaceId.length > 0 ? workspaceId : null;
 }
@@ -48,7 +46,12 @@ export function hasCloudPlatformScopeWorkspace(): boolean {
     return false;
   }
 
-  return readWorkspaceIdForScope() !== null;
+  const headers = getEffectiveBrowserProxyScopeHeaders();
+  const tenantId = headers["x-tenant-id"]?.trim() ?? "";
+  const workspaceId = headers["x-workspace-id"]?.trim() ?? "";
+  const projectId = headers["x-project-id"]?.trim() ?? "";
+
+  return tenantId.length > 0 && workspaceId.length > 0 && projectId.length > 0;
 }
 
 /**

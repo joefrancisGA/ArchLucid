@@ -1,9 +1,7 @@
 "use client";
 
-import { useEffect, useState } from "react";
-
-import { loadCurrentPrincipal } from "@/lib/current-principal";
-import { fetchHealthReadySummary } from "@/lib/fetch-health-ready";
+import { useOperatorNavAuthority } from "@/components/operator/OperatorNavAuthorityProvider";
+import { useHealthReadySummaryQuery } from "@/hooks/use-health-ready-summary-query";
 import {
   countFinishSetupReadySteps,
   type FinishSetupWizardContext,
@@ -25,46 +23,25 @@ const INITIAL_CONTEXT: FinishSetupWizardContext = {
 
 /** Loads health + principal signals used by finish-setup readiness and operator-home metrics. */
 export function useFinishSetupReadinessContext(): FinishSetupReadinessSummary {
-  const [phase, setPhase] = useState<"loading" | "ready">("loading");
-  const [context, setContext] = useState<FinishSetupWizardContext | null>(null);
+  const { currentPrincipal, isAuthorityLoading } = useOperatorNavAuthority();
+  const { data: health, isPending: healthPending } = useHealthReadySummaryQuery();
 
-  useEffect(() => {
-    let cancelled = false;
-
-    void (async () => {
-      const principal = await loadCurrentPrincipal();
-      let healthReady = false;
-      let healthLoadFailed = true;
-
-      try {
-        const health = await fetchHealthReadySummary();
-        healthReady = health !== null && health.status.toLowerCase().includes("healthy");
-        healthLoadFailed = health === null;
-      } catch {
-        healthLoadFailed = true;
-      }
-
-      if (!cancelled) {
-        setContext({
+  const healthReady = health !== null && health !== undefined && health.status.toLowerCase().includes("healthy");
+  const healthLoadFailed = !healthPending && health === null;
+  const phase = isAuthorityLoading || healthPending ? "loading" : "ready";
+  const context: FinishSetupWizardContext =
+    phase === "ready"
+      ? {
           healthReady,
           healthLoadFailed,
-          principalAdmin: (principal?.authorityRank ?? 0) >= AUTHORITY_RANK.AdminAuthority,
-        });
-        setPhase("ready");
-      }
-    })();
-
-    return () => {
-      cancelled = true;
-    };
-  }, []);
-
-  const resolvedContext = context ?? INITIAL_CONTEXT;
-  const counts = countFinishSetupReadySteps(resolvedContext);
+          principalAdmin: currentPrincipal.authorityRank >= AUTHORITY_RANK.AdminAuthority,
+        }
+      : INITIAL_CONTEXT;
+  const counts = countFinishSetupReadySteps(context);
 
   return {
     phase,
-    context: phase === "ready" ? resolvedContext : null,
+    context: phase === "ready" ? context : null,
     readyCount: counts.ready,
     totalCount: counts.total,
   };

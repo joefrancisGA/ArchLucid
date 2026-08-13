@@ -49,8 +49,8 @@ import {
   AZURE_PERMISSIONS_TROUBLESHOOT_HEADING,
 } from "@/lib/azure-cloud-connection-permissions-copy";
 import { OPERATOR_CARD, OPERATOR_LAYOUT, OPERATOR_SHELL_SCROLL_OFFSET_CLASS, OPERATOR_TYPOGRAPHY, DESIGN_TOKENS } from "@/lib/design-tokens";
-import type { HelpMarkdownHeading } from "@/lib/help-markdown-headings";
-import { HELP_PAGE_LAYOUT } from "@/lib/help-page-layout";
+import type { HelpMarkdownHeading } from "@/lib/help/help-markdown-headings";
+import { HELP_PAGE_LAYOUT } from "@/lib/help/help-page-layout";
 import type { ProductDocumentationEntry } from "@/lib/product-documentation-registry";
 import { cn } from "@/lib/utils";
 
@@ -137,7 +137,7 @@ export function HelpAzurePermissionsGuideView(props: HelpAzurePermissionsGuideVi
 
   return (
     <article
-      className={cn(OPERATOR_LAYOUT.majorSectionGap, "mx-auto w-full max-w-[68rem]")}
+      className={cn(OPERATOR_LAYOUT.majorSectionGap, "w-full max-w-[68rem]")}
       data-testid="help-azure-permissions-guide"
     >
       <HelpTopicHashScroll />
@@ -154,7 +154,7 @@ export function HelpAzurePermissionsGuideView(props: HelpAzurePermissionsGuideVi
               </a>
             </p>
             <HelpTopicTitleRow title={AZURE_PERMISSIONS_PAGE_TITLE} />
-            <p className={cn("m-0 max-w-prose", OPERATOR_TYPOGRAPHY.helper)}>{AZURE_PERMISSIONS_PAGE_SUBTITLE}</p>
+            <p className={cn("m-0 max-w-3xl", OPERATOR_TYPOGRAPHY.helper)}>{AZURE_PERMISSIONS_PAGE_SUBTITLE}</p>
             <HelpTopicRegistryProvenanceLine entry={entry} />
             <p className={cn("m-0 text-al-text-secondary", OPERATOR_TYPOGRAPHY.micro)}>
               {AZURE_PERMISSIONS_REVISION_NOTE(AZURE_CLOUD_CONNECTION_PERMISSIONS_CONTRACT_VERSION)}
@@ -201,7 +201,7 @@ export function HelpAzurePermissionsGuideView(props: HelpAzurePermissionsGuideVi
             data-testid="azure-permissions-scope-section"
           >
             <HelpSectionHeading id="recommended-scope">{AZURE_PERMISSIONS_SCOPE_HEADING}</HelpSectionHeading>
-            <p className={cn("m-0 max-w-prose text-al-text-secondary", OPERATOR_TYPOGRAPHY.body)}>
+            <p className={cn("m-0 max-w-3xl text-al-text-secondary", OPERATOR_TYPOGRAPHY.body)}>
               {AZURE_CLOUD_CONNECTION_SCOPE_GUIDANCE.recommendedTier2}
             </p>
             <ul className={HELP_PAGE_LAYOUT.bulletList}>
@@ -261,7 +261,7 @@ export function HelpAzurePermissionsGuideView(props: HelpAzurePermissionsGuideVi
             data-testid="azure-permissions-cannot-do-section"
           >
             <HelpSectionHeading id="cannot-do">{AZURE_PERMISSIONS_CANNOT_DO_HEADING}</HelpSectionHeading>
-            <p className={cn("m-0 max-w-prose text-al-text-secondary", OPERATOR_TYPOGRAPHY.body)}>
+            <p className={cn("m-0 max-w-3xl text-al-text-secondary", OPERATOR_TYPOGRAPHY.body)}>
               {AZURE_PERMISSIONS_CANNOT_DO_INTRO}
             </p>
             <ul className={HELP_PAGE_LAYOUT.bulletList}>
@@ -277,7 +277,7 @@ export function HelpAzurePermissionsGuideView(props: HelpAzurePermissionsGuideVi
             data-testid="azure-permissions-custom-role-section"
           >
             <HelpSectionHeading id="custom-role">{AZURE_PERMISSIONS_CUSTOM_ROLE_HEADING}</HelpSectionHeading>
-            <p className={cn("m-0 max-w-prose text-al-text-secondary", OPERATOR_TYPOGRAPHY.body)}>
+            <p className={cn("m-0 max-w-3xl text-al-text-secondary", OPERATOR_TYPOGRAPHY.body)}>
               {AZURE_PERMISSIONS_CUSTOM_ROLE_INTRO}
             </p>
             <CustomRoleActionsTable />

@@ -6,8 +6,8 @@ import { useState } from "react";
 import { Button } from "@/components/ui/button";
 import { Input } from "@/components/ui/input";
 import { enterpriseMutationControlDisabledTitle } from "@/lib/enterprise-controls-context-copy";
-import type { CuratedRulesDocument } from "@/lib/policy-pack-curated-rules-v1";
-import { OPERATOR_TYPOGRAPHY } from "@/lib/design-tokens";
+import type { CuratedRulesDocument } from "@/lib/policy/policy-pack-curated-rules-v1";
+import { DESIGN_TOKENS, OPERATOR_TYPOGRAPHY } from "@/lib/design-tokens";
 
 import { PACK_TYPES } from "./policy-packs-page-constants";
 import { PolicyPackNaturalLanguageBuilderDeferred } from "./policy-packs-authoring-deferred-chunks";
@@ -72,7 +72,8 @@ export function PolicyPackGeneratorSection(props: PolicyPackGeneratorSectionProp
       {validationErrors.length > 0 ? (
         <div
           className={cn(
-            "rounded-md border border-amber-600/40 bg-amber-50/70 p-3 text-amber-950 dark:border-amber-700/50 dark:bg-amber-950/30 dark:text-amber-100",
+            DESIGN_TOKENS.callout.warn,
+            "p-3",
             OPERATOR_TYPOGRAPHY.body,
           )}
           role="alert"
@@ -147,7 +148,7 @@ export function PolicyPackGeneratorSection(props: PolicyPackGeneratorSectionProp
             <Button
               type="button"
               disabled={!canMutatePacks || loading || name.trim().length === 0}
-              title={canMutatePacks ? undefined : enterpriseMutationControlDisabledTitle}
+              aria-describedby={!canMutatePacks ? "policy-pack-generator-mutate-disabled-hint" : undefined}
               data-testid="policy-pack-generator-create"
               onClick={() => {
                 setCreateAttempted(true);
@@ -160,7 +161,7 @@ export function PolicyPackGeneratorSection(props: PolicyPackGeneratorSectionProp
               type="button"
               variant="outline"
               disabled={!canMutatePacks}
-              title={canMutatePacks ? undefined : enterpriseMutationControlDisabledTitle}
+              aria-describedby={!canMutatePacks ? "policy-pack-generator-mutate-disabled-hint" : undefined}
               data-testid="policy-pack-generator-open-wizard"
               onClick={onOpenAuthoringWizard}
             >
@@ -177,7 +178,10 @@ export function PolicyPackGeneratorSection(props: PolicyPackGeneratorSectionProp
       ) : null}
 
       {!canMutatePacks ? (
-        <p className={cn("text-al-text-secondary", OPERATOR_TYPOGRAPHY.body)}>
+        <p
+          id="policy-pack-generator-mutate-disabled-hint"
+          className={cn("text-al-text-secondary", OPERATOR_TYPOGRAPHY.body)}
+        >
           Pack generation is read-only in this workspace context. Switch to an execute-capable operator scope to create
           tenant-owned packs.
         </p>

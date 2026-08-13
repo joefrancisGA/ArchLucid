@@ -1,24 +1,41 @@
 "use client";
 
-import { useState } from "react";
-import { Controller, useFormContext } from "react-hook-form";
+import { useEffect, useRef, useState } from "react";
+import { Controller, useFormContext, useWatch } from "react-hook-form";
 
 import { Button } from "@/components/ui/button";
+import { Checkbox } from "@/components/ui/checkbox";
 import { Input } from "@/components/ui/input";
 import { Label } from "@/components/ui/label";
+import {
+  Select,
+  SelectContent,
+  SelectItem,
+  SelectTrigger,
+  SelectValue,
+} from "@/components/ui/select";
+import { WhyDisabledCtaHint } from "@/components/usability/WhyDisabledCtaHint";
 import { enterpriseMutationControlDisabledTitle } from "@/lib/enterprise-controls-context-copy";
 import { OPERATOR_TYPOGRAPHY } from "@/lib/design-tokens";
+import { resolveSlackAddDestinationCtaPresentation } from "@/lib/slack-integration-add-destination-cta";
 import {
   slackIntegrationEventCatalog,
   type SlackIntegrationFormValues,
 } from "@/lib/slack-integration-form-schema";
 import {
+  SLACK_FIELD_DESTINATION_NAME_LABEL,
+  SLACK_FIELD_WEBHOOK_URL_LABEL,
   SLACK_INTEGRATION_ADD_SECTION_LEAD,
   SLACK_INTEGRATION_ADD_SECTION_TITLE,
+  SLACK_INTEGRATION_SAVE_DISABLED_HELPER,
   SLACK_INTEGRATION_SECRET_HELPER,
-  SLACK_INTEGRATION_SECRET_STORED_WARNING,
 } from "@/lib/slack-integration-page-copy";
 import type { SlackIntegrationTestFeedback } from "@/lib/slack-integration-test-feedback";
+import {
+  firstWhyDisabledCtaReason,
+  whyDisabledEnterpriseMutationControl,
+  type WhyDisabledCtaReason,
+} from "@/lib/why-disabled-cta";
 import { cn } from "@/lib/utils";
 
 type SlackDestinationFormProps = {
@@ -26,9 +43,13 @@ type SlackDestinationFormProps = {
   readonly loading: boolean;
   readonly testingForm: boolean;
   readonly formTestFeedback: SlackIntegrationTestFeedback | null;
+  readonly onClearFormTestFeedback: () => void;
   readonly onSave: () => void;
   readonly onSendTest: () => void;
 };
+
+const FOCUS_RING_CLASS =
+  "focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-[var(--al-accent-border-focus)] focus-visible:ring-offset-2";
 
 function FieldHelper(props: { readonly id: string; readonly children: string }): React.ReactElement {
   return (
@@ -43,6 +64,14 @@ function FieldError(props: { readonly id: string; readonly message: string }): R
     <p id={props.id} role="alert" className={cn("m-0 mt-1 text-red-600 dark:text-red-400", OPERATOR_TYPOGRAPHY.body)}>
       {props.message}
     </p>
+  );
+}
+
+function RequiredFieldLabel(props: { readonly htmlFor: string; readonly children: string }): React.ReactElement {
+  return (
+    <Label htmlFor={props.htmlFor}>
+      {props.children} <span className="text-al-text-secondary">(required)</span>
+    </Label>
   );
 }
 
@@ -61,7 +90,7 @@ function SigningSecretField(props: { readonly disabled: boolean }): React.ReactE
           autoComplete="new-password"
           disabled={props.disabled}
           className={cn("font-mono", OPERATOR_TYPOGRAPHY.body)}
-          aria-describedby="slack-signing-secret-helper slack-signing-secret-warning slack-signing-secret-error"
+          aria-describedby="slack-signing-secret-helper slack-signing-secret-error"
           {...register("secret")}
         />
         <Button
@@ -77,7 +106,6 @@ function SigningSecretField(props: { readonly disabled: boolean }): React.ReactE
         </Button>
       </div>
       <FieldHelper id="slack-signing-secret-helper">{SLACK_INTEGRATION_SECRET_HELPER}</FieldHelper>
-      <FieldHelper id="slack-signing-secret-warning">{SLACK_INTEGRATION_SECRET_STORED_WARNING}</FieldHelper>
       {errorMessage !== undefined ? (
         <FieldError id="slack-signing-secret-error" message={errorMessage} />
       ) : null}
@@ -87,13 +115,50 @@ function SigningSecretField(props: { readonly disabled: boolean }): React.ReactE
 
 /** Create form for a new Slack webhook destination. */
 export function SlackDestinationForm(props: SlackDestinationFormProps): React.ReactElement {
-  const { canMutate, loading, testingForm, formTestFeedback, onSave, onSendTest } = props;
+  const {
+    canMutate,
+    loading,
+    testingForm,
+    formTestFeedback,
+    onClearFormTestFeedback,
+    onSave,
+    onSendTest,
+  } = props;
   const {
     register,
     control,
     formState: { errors },
   } = useFormContext<SlackIntegrationFormValues>();
   const disabled = !canMutate || loading;
+  const webhookUrl = useWatch({ control, name: "webhookUrl" });
+  const previousWebhookUrlRef = useRef(webhookUrl);
+  const formTestSucceeded = formTestFeedback?.kind === "success";
+  const cta = resolveSlackAddDestinationCtaPresentation({
+    formTestSucceeded,
+    canMutate,
+    loading,
+    testingForm,
+  });
+  const saveDisabledReason: WhyDisabledCtaReason | null = cta.showSaveDisabledHelper
+    ? { kind: "prerequisite", message: SLACK_INTEGRATION_SAVE_DISABLED_HELPER }
+    : null;
+  const saveHintId = "slack-save-disabled-helper";
+  const saveHintReason = firstWhyDisabledCtaReason([
+    !canMutate ? whyDisabledEnterpriseMutationControl() : null,
+    saveDisabledReason,
+  ]);
+
+  useEffect(() => {
+    if (previousWebhookUrlRef.current === webhookUrl) {
+      return;
+    }
+
+    previousWebhookUrlRef.current = webhookUrl;
+
+    if (formTestFeedback !== null) {
+      onClearFormTestFeedback();
+    }
+  }, [webhookUrl, formTestFeedback, onClearFormTestFeedback]);
 
   return (
     <section aria-labelledby="slack-add-destination-heading" className="space-y-5">
@@ -101,14 +166,14 @@ export function SlackDestinationForm(props: SlackDestinationFormProps): React.Re
         <h2 id="slack-add-destination-heading" className={OPERATOR_TYPOGRAPHY.sectionTitle}>
           {SLACK_INTEGRATION_ADD_SECTION_TITLE}
         </h2>
-        <p className={cn("m-0 mt-1 max-w-prose text-al-text-secondary", OPERATOR_TYPOGRAPHY.helper)}>
+        <p className={cn("m-0 mt-1 max-w-3xl text-al-text-secondary", OPERATOR_TYPOGRAPHY.helper)}>
           {SLACK_INTEGRATION_ADD_SECTION_LEAD}
         </p>
       </div>
 
       <div className="grid max-w-xl gap-5">
         <div>
-          <Label htmlFor="slack-destination-name">Destination name</Label>
+          <RequiredFieldLabel htmlFor="slack-destination-name">{SLACK_FIELD_DESTINATION_NAME_LABEL}</RequiredFieldLabel>
           <Input
             id="slack-destination-name"
             className="mt-1"
@@ -116,6 +181,7 @@ export function SlackDestinationForm(props: SlackDestinationFormProps): React.Re
             disabled={disabled}
             title={canMutate ? undefined : enterpriseMutationControlDisabledTitle}
             aria-describedby="slack-destination-name-helper slack-destination-name-error"
+            aria-required="true"
             {...register("name")}
           />
           <FieldHelper id="slack-destination-name-helper">
@@ -128,29 +194,39 @@ export function SlackDestinationForm(props: SlackDestinationFormProps): React.Re
 
         <div>
           <Label htmlFor="slack-minimum-severity">Minimum alert severity</Label>
-          <select
-            id="slack-minimum-severity"
-            className={cn(
-              "mt-1 block w-full rounded-md border border-neutral-300 bg-white p-2 shadow-sm outline-none ring-offset-background focus-visible:ring-2 focus-visible:ring-ring dark:border-neutral-700 dark:bg-neutral-950",
-              OPERATOR_TYPOGRAPHY.body,
+          <Controller
+            name="minimumSeverity"
+            control={control}
+            render={({ field }) => (
+              <Select
+                value={field.value}
+                onValueChange={field.onChange}
+                disabled={disabled}
+              >
+                <SelectTrigger
+                  id="slack-minimum-severity"
+                  className={cn("mt-1", FOCUS_RING_CLASS)}
+                  title={canMutate ? undefined : enterpriseMutationControlDisabledTitle}
+                  aria-describedby="slack-minimum-severity-helper"
+                >
+                  <SelectValue placeholder="Select severity" />
+                </SelectTrigger>
+                <SelectContent>
+                  <SelectItem value="Info">Info</SelectItem>
+                  <SelectItem value="Warning">Warning</SelectItem>
+                  <SelectItem value="High">High</SelectItem>
+                  <SelectItem value="Critical">Critical</SelectItem>
+                </SelectContent>
+              </Select>
             )}
-            disabled={disabled}
-            title={canMutate ? undefined : enterpriseMutationControlDisabledTitle}
-            aria-describedby="slack-minimum-severity-helper"
-            {...register("minimumSeverity")}
-          >
-            <option value="Info">Info</option>
-            <option value="Warning">Warning</option>
-            <option value="High">High</option>
-            <option value="Critical">Critical</option>
-          </select>
+          />
           <FieldHelper id="slack-minimum-severity-helper">
             Only alerts at this severity or higher will be sent.
           </FieldHelper>
         </div>
 
         <div>
-          <Label htmlFor="slack-webhook-url">Slack incoming webhook URL</Label>
+          <RequiredFieldLabel htmlFor="slack-webhook-url">{SLACK_FIELD_WEBHOOK_URL_LABEL}</RequiredFieldLabel>
           <Input
             id="slack-webhook-url"
             className={cn("mt-1 font-mono", OPERATOR_TYPOGRAPHY.body)}
@@ -159,6 +235,7 @@ export function SlackDestinationForm(props: SlackDestinationFormProps): React.Re
             autoComplete="off"
             title={canMutate ? undefined : enterpriseMutationControlDisabledTitle}
             aria-describedby="slack-webhook-url-helper slack-webhook-url-error"
+            aria-required="true"
             {...register("webhookUrl")}
           />
           <FieldHelper id="slack-webhook-url-helper">
@@ -183,29 +260,27 @@ export function SlackDestinationForm(props: SlackDestinationFormProps): React.Re
               >
                 {slackIntegrationEventCatalog.map((opt) => {
                   const checked = field.value.includes(opt.id);
+                  const checkboxId = `slack-event-${opt.id}`;
 
                   return (
-                    <label
-                      key={opt.id}
-                      className={cn("flex min-h-11 cursor-pointer items-start gap-3 leading-snug", OPERATOR_TYPOGRAPHY.body)}
-                    >
-                      <input
-                        type="checkbox"
+                    <div key={opt.id} className="flex min-h-11 items-start gap-3">
+                      <Checkbox
+                        id={checkboxId}
                         checked={checked}
                         disabled={disabled}
-                        onChange={() => {
+                        className={cn("mt-1", FOCUS_RING_CLASS)}
+                        onCheckedChange={() => {
                           const next = checked
                             ? field.value.filter((value) => value !== opt.id)
                             : [...field.value, opt.id];
                           field.onChange(next);
                         }}
-                        className="mt-1 h-4 w-4 shrink-0"
                       />
-                      <span>
+                      <label htmlFor={checkboxId} className={cn("cursor-pointer leading-snug", OPERATOR_TYPOGRAPHY.body)}>
                         <span className="block font-medium text-al-text-primary">{opt.label}</span>
                         <span className="block text-al-text-secondary">{opt.description}</span>
-                      </span>
-                    </label>
+                      </label>
+                    </div>
                   );
                 })}
               </div>
@@ -217,25 +292,34 @@ export function SlackDestinationForm(props: SlackDestinationFormProps): React.Re
         </fieldset>
       </div>
 
-      <div className="flex flex-wrap items-center gap-2">
-        <Button
-          type="button"
-          variant="primary"
-          disabled={disabled}
-          data-testid="slack-save-button"
-          onClick={onSave}
-        >
-          Save destination
-        </Button>
-        <Button
-          type="button"
-          variant="outline"
-          disabled={disabled || testingForm}
-          data-testid="slack-test-button"
-          onClick={onSendTest}
-        >
-          {testingForm ? "Sending test…" : "Send test notification"}
-        </Button>
+      <div className="flex flex-col gap-2">
+        <div className="flex flex-wrap items-center gap-2">
+          <Button
+            type="button"
+            variant={cta.testVariant}
+            disabled={disabled || testingForm}
+            data-testid="slack-test-button"
+            onClick={onSendTest}
+          >
+            {testingForm ? "Sending test…" : "Send test notification"}
+          </Button>
+          <Button
+            type="button"
+            variant={cta.saveVariant}
+            disabled={cta.saveDisabled}
+            aria-describedby={saveHintReason !== null ? saveHintId : undefined}
+            data-testid="slack-save-button"
+            onClick={onSave}
+          >
+            Save destination
+          </Button>
+        </div>
+        <WhyDisabledCtaHint
+          id={saveHintId}
+          reason={saveHintReason}
+          testId={saveHintId}
+          className="max-w-3xl"
+        />
       </div>
 
       {formTestFeedback !== null ? (

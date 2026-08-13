@@ -13,7 +13,7 @@ disable-model-invocation: true
 
 Drive **full CI** (`ci.yml` via `workflow_dispatch`) on a branch until the latest run is **green**. Poll every **10 minutes**. On **any unsuccessful completed run** (not only `failure`): diagnose, fix, push, re-dispatch, and **keep looping** — do not stop after a single failed cycle.
 
-**Unsuccessful** means `status == completed` and `conclusion != success`. That includes `failure`, `timed_out`, `cancelled`, `action_required`, `startup_failure`, and any other non-success conclusion. Do **not** treat only `failure` as actionable.
+**Unsuccessful** means `status == completed` and `conclusion != success`. That includes `failure`, `timed_out`, `canceled`, `action_required`, `startup_failure`, and any other non-success conclusion. Do **not** treat only `failure` as actionable.
 
 ## Invoke
 
@@ -85,12 +85,12 @@ Tell the user: branch, dispatched run URL, poll interval (10m), and that fix-and
 |----------|--------------|--------|
 | `queued` / `in_progress` | — | Brief progress note; re-arm 10m sleeper |
 | `completed` | `success` | Log green, summarize, **stop loop** |
-| `completed` | **anything other than `success`** (including `failure`, `timed_out`, `cancelled`, …) | → Phase 3 |
+| `completed` | **anything other than `success`** (including `failure`, `timed_out`, `canceled`, …) | → Phase 3 |
 | `completed` | empty / null | Treat as unsuccessful → Phase 3 |
 
 Always track `databaseId`, `headSha`, `url`, and `needsTriage` from the script output. If `needsTriage` is true, enter Phase 3 even when you are unsure of the conclusion string.
 
-**Cancelled supersede:** If `conclusion == cancelled` **and** a newer `ci.yml` run on the same branch tip is already `queued` / `in_progress` / `success`, skip Phase 3 fixes, note the cancel, and re-arm (or stop if the newer run is green). Otherwise treat cancel like any other unsuccessful outcome → Phase 3.
+**Cancelled supersede:** If `conclusion == canceled` **and** a newer `ci.yml` run on the same branch tip is already `queued` / `in_progress` / `success`, skip Phase 3 fixes, note the cancel, and re-arm (or stop if the newer run is green). Otherwise treat cancel like any other unsuccessful outcome → Phase 3.
 
 ## Phase 3 — Unsuccessful-run triage
 

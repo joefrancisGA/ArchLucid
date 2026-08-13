@@ -1,13 +1,13 @@
-import { BUYER_EXECUTIVE_SUMMARY_VOCABULARY, BUYER_SURFACE_VOCABULARY } from "@/lib/buyer-surface-vocabulary";
+import { BUYER_EXECUTIVE_SUMMARY_VOCABULARY, BUYER_SURFACE_VOCABULARY } from "@/lib/vocabulary/buyer-surface-vocabulary";
 import { evidenceGraphHref } from "@/lib/evidence-graph-route";
 import {
   getShowcaseCompareHref,
   getShowcaseExecutiveHref,
   getShowcaseManifestHref,
-} from "@/lib/buyer-safe-review-navigation";
-import { BUYER_COMPARE_OPEN_FULL_LINK_LABEL } from "@/lib/buyer-polish-copy";
+} from "@/lib/buyer/buyer-safe-review-navigation";
+import { BUYER_COMPARE_OPEN_FULL_LINK_LABEL } from "@/lib/buyer/buyer-polish-copy";
 import { canonicalizeDemoRunId } from "@/lib/demo-run-canonical";
-import { GOVERNANCE_AUDIT_PATH } from "@/lib/governance-route-paths";
+import { GOVERNANCE_AUDIT_PATH } from "@/lib/governance/governance-route-paths";
 import {
   SHOWCASE_STATIC_DEMO_POLICY_PACK_DETAIL_HREF,
   SHOWCASE_STATIC_DEMO_PRIMARY_FINDING_ID,

@@ -5,7 +5,7 @@ namespace ArchLucid.Cli.Commands;
 
 /// <summary>Entry point for <c>archlucid marketplace preflight</c> — repo-local checks only (no live keys).</summary>
 [ExcludeFromCodeCoverage(Justification =
-    "Console I/O entry; behaviour covered by MarketplacePreflightRunnerTests + command tests.")]
+    "Console I/O entry; behavior covered by MarketplacePreflightRunnerTests + command tests.")]
 internal static class MarketplacePreflightCommand
 {
     private static readonly JsonSerializerOptions JsonCamel =

@@ -6,7 +6,8 @@
  * internal operator UI. See also `useKeyboardShortcuts.ts`.
  */
 import { COMPARE_TWO_REVIEWS_PATH } from "@/lib/compare-two-reviews-route";
-import { BUYER_NEW_REVIEW_NAV_LABEL, OPERATOR_START_REVIEW_QUICK_ACTION_LABEL } from "@/lib/operator-nav-labels";
+import { OPERATOR_NAV_LINK_LABELS } from "@/lib/i18n";
+import { BUYER_NEW_REVIEW_NAV_LABEL, OPERATOR_START_REVIEW_QUICK_ACTION_LABEL } from "@/lib/operator/operator-nav-labels";
 
 export type ShortcutEntry = {
   key: string;
@@ -66,9 +67,9 @@ export const SHORTCUTS: ShortcutEntry[] = [
   },
   {
     key: "alt+h",
-    label: "Overview",
+    label: OPERATOR_NAV_LINK_LABELS.home,
     route: "/",
-    description: "Open workspace overview",
+    description: "Open workspace home",
   },
   {
     key: "shift+?",
@@ -128,6 +129,23 @@ export type PageShortcutEntry = {
   label: string;
   description: string;
 };
+
+/**
+ * Shell chrome shortcuts that open a surface instead of navigating to a route.
+ *
+ * Deliberately **not** in {@link SHORTCUTS}: `useShortcutNavigation` binds that list, and
+ * {@link CommandPalette} already owns its own Ctrl/Cmd+K listener — a second binding would toggle
+ * the dialog twice per keypress. This list exists so the Help → Shortcuts tab can document the
+ * palette, which was previously discoverable only by hovering the header search input.
+ */
+export const SHELL_COMMAND_SHORTCUTS: PageShortcutEntry[] = [
+  {
+    key: "ctrl+k",
+    label: "Command palette",
+    description:
+      "Open the command palette to jump to any page, review, or task (Cmd+K on Mac; works while the header search box has focus)",
+  },
+];
 
 export const ALERTS_PAGE_SHORTCUTS: PageShortcutEntry[] = [
   {

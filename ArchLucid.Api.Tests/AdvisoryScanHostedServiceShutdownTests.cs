@@ -131,7 +131,7 @@ public sealed class AdvisoryScanHostedServiceShutdownTests
             NullLogger<AdvisoryScanHostedService>.Instance);
 
         await sut.StartAsync(cts.Token);
-        // cts is cancelled inside ListDueAsync; do not pass cts.Token here or Delay throws TaskCanceledException.
+        // cts is canceled inside ListDueAsync; do not pass cts.Token here or Delay throws TaskCanceledException.
         await Task.Delay(300, CancellationToken.None);
 
         Func<Task> act = () => sut.StopAsync(CancellationToken.None);

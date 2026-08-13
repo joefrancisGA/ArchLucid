@@ -2,7 +2,7 @@ import { render, screen, within } from "@testing-library/react";
 import { describe, expect, it, vi } from "vitest";
 
 import { HelpExecutiveSummaryGuideView } from "@/app/(operator)/help/_sections/HelpExecutiveSummaryGuideView";
-import { prepareHelpMarkdownForPresentation } from "@/lib/help-markdown-presentation";
+import { prepareHelpMarkdownForPresentation } from "@/lib/help/help-markdown-presentation";
 import { tryLoadProductDocumentation } from "@/lib/load-product-documentation";
 import { SPONSOR_REPORT_EXECUTIVE_SUMMARY_PATH } from "@/lib/sponsor-report-navigation";
 
@@ -39,6 +39,12 @@ describe("HelpTopicExecutiveSummary", () => {
     expect(loaded?.entry.sourcePaths[0]?.toLowerCase()).toContain("executive_sponsor_brief.md");
   });
 
+  it("loads executive-summary with pilot ROI measurement section from scorecard", () => {
+    expect(loaded).not.toBeNull();
+    expect(loaded?.markdown.toLowerCase()).toContain("pilot roi measurement");
+    expect(loaded?.markdown.toLowerCase()).toContain("baseline questions");
+  });
+
   it("purges FAQ dump leakage and renders sponsor framing with primary CTA (TB-1687, TB-1690)", () => {
     if (loaded === null) {
       throw new Error("Expected executive-summary documentation to load.");
@@ -66,10 +72,7 @@ describe("HelpTopicExecutiveSummary", () => {
     expect(screen.queryByTestId("help-executive-summary-refresh-button")).toBeNull();
     expect(screen.queryByTestId("help-executive-summary-last-refreshed")).toBeNull();
     expect(screen.getByTestId("help-executive-summary-claim-discipline")).toBeInTheDocument();
-    expect(screen.getByTestId("help-executive-summary-document-status")).toHaveTextContent("Current");
-    expect(screen.getByTestId("help-executive-summary-source-of-record")).toHaveTextContent(
-      "Source of record: docs/go-to-market/EXECUTIVE_SPONSOR_BRIEF.md",
-    );
+    expect(screen.queryByTestId("help-executive-summary-source-of-record")).toBeNull();
     expect(screen.getByRole("link", { name: /open executive value report/i })).toHaveAttribute(
       "href",
       SPONSOR_REPORT_EXECUTIVE_SUMMARY_PATH,
@@ -81,10 +84,12 @@ describe("HelpTopicExecutiveSummary", () => {
       .filter((heading) => /^\d+\./.test(heading.textContent ?? ""));
     expect(numberedHeadings).toHaveLength(0);
 
-    const pilotRoiLinks = screen.getAllByRole("link", { name: "Pilot ROI model" });
+    const pilotRoiLinks = screen.getAllByRole("link", { name: /Pilot ROI measurement/i });
     expect(pilotRoiLinks.length).toBeGreaterThan(0);
     for (const link of pilotRoiLinks) {
-      expect(link).toHaveAttribute("href", "/help/pilot-roi-model");
+      expect(link.getAttribute("href")).toMatch(
+        /^(\/help\/executive-summary#pilot-roi-measurement|#pilot-roi-measurement)$/,
+      );
     }
 
     expect(screen.queryByText(/\bRoi\b/)).toBeNull();

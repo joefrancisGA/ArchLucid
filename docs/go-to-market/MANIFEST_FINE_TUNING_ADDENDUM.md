@@ -42,7 +42,7 @@ The feature is **optional**, **OFF by default**, and **separate** from core tena
 - **Default:** OFF for all tenants (`FineTuning.ManifestConsent` = Disabled).
 - **Enablement:** Explicit tenant administrator action in product controls plus contractual acknowledgment of this addendum where required.
 - **Withdrawal:** Tenant administrator can disable at any time; new export and job submission fail closed immediately.
-- **Propagation:** Withdrawal stops new training-data export within the same API request; in-flight Azure fine-tuning jobs are cancelled when the platform receives a successful cancel call (best effort).
+- **Propagation:** Withdrawal stops new training-data export within the same API request; in-flight Azure fine-tuning jobs are canceled when the platform receives a successful cancel call (best effort).
 
 ---
 

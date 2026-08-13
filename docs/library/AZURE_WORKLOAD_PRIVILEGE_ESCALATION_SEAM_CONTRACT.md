@@ -9,7 +9,7 @@
 **Path-stable alias:** [`AZURE_WORKLOAD_PRIVILEGE_ESCALATION_SEAM_PA_ONE_PAGER.md`](../go-to-market/AZURE_WORKLOAD_PRIVILEGE_ESCALATION_SEAM_PA_ONE_PAGER.md).  
 **MI / SQL / Blob pattern:** [`MANAGED_IDENTITY_SQL_BLOB.md`](../security/MANAGED_IDENTITY_SQL_BLOB.md).  
 **Tenant product PE (separate):** [`TENANT_DID_EROSION_AND_ENFORCEMENT_BEYOND_PREDICATES_CONTRACT.md`](TENANT_DID_EROSION_AND_ENFORCEMENT_BEYOND_PREDICATES_CONTRACT.md) (**TB-1232**).  
-**Honesty CI:** **TB-1245** (open). **Private posture:** **TB-903**. **ApiKey residuals:** **TB-906**.
+**Honesty CI:** **TB-1245** Done (`scripts/ci/check_azure_workload_privilege_escalation_seam_honesty.py`). **Private posture:** **TB-903**. **ApiKey residuals:** **TB-906**.
 
 ---
 
@@ -106,11 +106,11 @@ The **headline Azure privilege-escalation seam** in the Container Apps + SQL + A
 
 ---
 
-## TB-1245 CI anchors (named, not implemented here)
+## CI anchors for **TB-1245**
 
 | Anchor | Purpose |
 |--------|---------|
-| Buyer/proof stub guards | Fail least-privilege SQL / PE-equals-private / AOAI-Contributor overclaims |
+| `scripts/ci/check_azure_workload_privilege_escalation_seam_honesty.py` | Fail least-privilege SQL / PE-equals-private / AOAI-Contributor overclaims |
 | `AZURE_WORKLOAD_PRIVILEGE_ESCALATION_SEAM_CONTRACT.md` | Drift guard (this file) |
 | Terraform presence | `enable_api_sql_runtime_identity` default + bootstrap comments still documented |
 | `MANAGED_IDENTITY_SQL_BLOB.md` cross-link | MI pattern honesty |

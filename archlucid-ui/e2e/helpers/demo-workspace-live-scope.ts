@@ -7,7 +7,7 @@ import type { Page } from "@playwright/test";
 import {
   OPERATOR_SCOPE_COOKIE_NAME,
   serializeOperatorScopeCookiePayload,
-} from "@/lib/operator-scope-cookie";
+} from "@/lib/operator/operator-scope-cookie";
 
 import { demoWorkspacesFixtureManifest } from "./demo-workspaces-fixture-manifest";
 import {

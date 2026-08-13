@@ -1,8 +1,4 @@
-import {
-  SHOWCASE_STATIC_DEMO_LATER_COMPARE_RUN_ID,
-  SHOWCASE_STATIC_DEMO_PRIOR_COMPARE_RUN_ID,
-  SHOWCASE_STATIC_DEMO_RUN_ID,
-} from "@/lib/showcase-static-demo";
+import { activeSampleRunIdSet, getActiveSampleScenario, isActiveSampleHeroFindingId } from "@/lib/samples/registry";
 
 /**
  * Demo sample universes shared by marketing `/see-it` and operator `/why-archlucid`.
@@ -18,18 +14,16 @@ export const CONTOSO_RETAIL_DEMO_RUN_IDS = new Set<string>([
   "6e8c4a10-2b1f-4c9a-9d3e-10b2a4f0c502",
 ]);
 
-export const CLAIMS_SHOWCASE_RUN_IDS = new Set<string>([
-  SHOWCASE_STATIC_DEMO_RUN_ID,
-  SHOWCASE_STATIC_DEMO_PRIOR_COMPARE_RUN_ID,
-  SHOWCASE_STATIC_DEMO_LATER_COMPARE_RUN_ID,
-]);
+export const CLAIMS_SHOWCASE_RUN_IDS = activeSampleRunIdSet();
 
 export function normalizeDemoSampleToken(value: string | undefined | null): string {
   return (value ?? "").trim().toLowerCase();
 }
 
 export function hasClaimsDemoTextSignals(haystack: string): boolean {
-  return /claims\s*intake|healthcare\s*claims/.test(haystack);
+  const normalized = haystack.toLowerCase();
+
+  return getActiveSampleScenario().universeTextSignals.some((signal) => normalized.includes(signal));
 }
 
 export function hasContosoDemoTextSignals(haystack: string): boolean {

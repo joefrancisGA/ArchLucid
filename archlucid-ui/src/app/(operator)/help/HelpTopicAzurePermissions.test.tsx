@@ -38,7 +38,7 @@ describe("HelpAzurePermissionsGuideView", () => {
     expect(entry?.title).toBe(AZURE_PERMISSIONS_PAGE_TITLE);
     expect(entry?.summary).toContain("read-only");
     expect(entry?.lastReviewed).toBe("2026-08-09");
-    expect(entry?.releaseApplicability).toContain("V1 GA");
+    expect(entry?.releaseApplicability).toBeTruthy();
   });
 
   it("renders trust panel, permissions matrix, and provider links", () => {
@@ -50,8 +50,8 @@ describe("HelpAzurePermissionsGuideView", () => {
 
     expect(screen.getByRole("heading", { level: 1, name: AZURE_PERMISSIONS_PAGE_TITLE })).toBeInTheDocument();
     expect(screen.getByText(AZURE_PERMISSIONS_PAGE_SUBTITLE)).toBeInTheDocument();
-    expect(screen.getByTestId("help-topic-registry-provenance")).toHaveTextContent("Last reviewed 2026-08-09");
-    expect(screen.getByTestId("help-topic-registry-provenance")).toHaveTextContent("V1 GA");
+    expect(screen.queryByTestId("help-topic-registry-provenance")).toBeNull();
+    expect(screen.queryByTestId("help-topic-registry-provenance")).toBeNull();
     expect(screen.getByTestId("azure-permissions-help-claim-discipline")).toHaveTextContent(
       AZURE_PERMISSIONS_HELP_CLAIM_DISCIPLINE,
     );

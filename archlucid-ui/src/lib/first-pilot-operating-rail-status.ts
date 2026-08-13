@@ -1,4 +1,4 @@
-import { deriveRunListPipelineLabel } from "@/components/RunStatusBadge";
+import { deriveRunListPipelineLabel } from "@/components/runs/RunStatusBadge";
 import type { RunSummary } from "@/types/authority";
 
 import { FIRST_PILOT_OPERATING_RAIL_STEP_COUNT } from "./first-pilot-operating-rail-steps";

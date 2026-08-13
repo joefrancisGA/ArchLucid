@@ -2,7 +2,8 @@
 
 import type { OperatorHomeRunsDashboardModel } from "@/app/(operator)/_sections/operator-home-runs-dashboard-model";
 import { PilotCommandCenterCardDeferred } from "@/app/(operator)/_sections/operator-home-page-view-deferred-chunks";
-import { deriveOperatorHomeWorkspaceMetrics } from "@/lib/operator-home-workspace-metrics";
+import { useLiveOperatorHomeRunsDashboard } from "@/hooks/use-live-operator-home-runs-dashboard";
+import { deriveOperatorHomeWorkspaceMetrics } from "@/lib/operator/operator-home-workspace-metrics";
 
 type BuyerPolishedHomeHeroSectionProps = {
   readonly runsDashboard: OperatorHomeRunsDashboardModel;
@@ -10,9 +11,10 @@ type BuyerPolishedHomeHeroSectionProps = {
 
 /** Buyer-polished home hero — single compact launchpad card above the fold. */
 export function BuyerPolishedHomeHeroSection(props: BuyerPolishedHomeHeroSectionProps): React.JSX.Element {
+  const runsDashboard = useLiveOperatorHomeRunsDashboard(props.runsDashboard);
   const workspaceMetrics = deriveOperatorHomeWorkspaceMetrics(
-    props.runsDashboard.items,
-    props.runsDashboard.totalCount,
+    runsDashboard.items,
+    runsDashboard.totalCount,
   );
 
   return (
@@ -23,7 +25,7 @@ export function BuyerPolishedHomeHeroSection(props: BuyerPolishedHomeHeroSection
       <PilotCommandCenterCardDeferred
         suppressLeadCopy
         showContextualHelp={false}
-        runsDashboard={props.runsDashboard}
+        runsDashboard={runsDashboard}
         hasWorkspaceReviews={workspaceMetrics.hasReviews}
         openFindingsCount={workspaceMetrics.openFindings}
         governanceWarningsCount={workspaceMetrics.governanceWarnings}

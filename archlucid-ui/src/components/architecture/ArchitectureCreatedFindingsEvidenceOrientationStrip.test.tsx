@@ -2,7 +2,7 @@ import { render, screen } from "@testing-library/react";
 import { describe, expect, it } from "vitest";
 
 import { ArchitectureCreatedFindingsEvidenceOrientationStrip } from "@/components/architecture/ArchitectureCreatedFindingsEvidenceOrientationStrip";
-import { ARCHITECTURE_CREATED_FINDINGS_SOURCES } from "@/lib/architecture-created-findings-sources";
+import { ARCHITECTURE_CREATED_FINDINGS_SOURCES } from "@/lib/architecture/architecture-created-findings-sources";
 
 describe("ArchitectureCreatedFindingsEvidenceOrientationStrip", () => {
   it("lists follow-up Sources and claim discipline copy", () => {

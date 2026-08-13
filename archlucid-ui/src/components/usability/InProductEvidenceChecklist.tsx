@@ -3,13 +3,13 @@ import { cn } from "@/lib/utils";
 import { OPERATOR_TYPOGRAPHY } from "@/lib/design-tokens";
 
 import Link from "next/link";
-import { useEffect, useState } from "react";
+import { useMemo } from "react";
 
 import { Button } from "@/components/ui/button";
 import { StatusTag } from "@/components/ui/status-tag";
-import { fetchCorePilotTeamChecklist } from "@/lib/api/tenant-customer-success";
-import { fetchHealthReadySummary } from "@/lib/fetch-health-ready";
-import { fetchAdminConfigLintSummary } from "@/lib/fetch-admin-config-lint";
+import { useAdminConfigLintSummaryQuery } from "@/hooks/use-admin-config-lint-summary-query";
+import { useCorePilotTeamChecklistQuery } from "@/hooks/use-core-pilot-team-checklist-query";
+import { useHealthReadySummaryQuery } from "@/hooks/use-health-ready-summary-query";
 import { resolveInAppDocHref } from "@/lib/in-app-doc-href";
 
 type EvidenceChecklistRow = {
@@ -22,75 +22,73 @@ type EvidenceChecklistRow = {
 
 /** Live first-run evidence checklist with config/API health signals (assessment improvement #9). */
 export function InProductEvidenceChecklist() {
-  const [rows, setRows] = useState<EvidenceChecklistRow[]>([]);
-  const [phase, setPhase] = useState<"loading" | "ready">("loading");
+  const healthQuery = useHealthReadySummaryQuery();
+  const configLintQuery = useAdminConfigLintSummaryQuery();
+  const checklistQuery = useCorePilotTeamChecklistQuery();
 
-  useEffect(() => {
-    let cancelled = false;
+  const phase =
+    healthQuery.isPending || configLintQuery.isPending || checklistQuery.isPending ? "loading" : "ready";
 
-    async function load(): Promise<void> {
-      setPhase("loading");
-
-      const [health, configLint, teamChecklist] = await Promise.all([
-        fetchHealthReadySummary().catch(() => null),
-        fetchAdminConfigLintSummary().catch(() => null),
-        fetchCorePilotTeamChecklist().catch(() => []),
-      ]);
-
-      if (cancelled) {
-        return;
-      }
-
-      // Harden against a malformed (non-array) checklist body from the API/mock: `.some` would throw.
-      const checklistSteps = Array.isArray(teamChecklist) ? teamChecklist : [];
-
-      const apiReady =
-        health !== null
-        && (health.status?.toLowerCase().includes("healthy") || health.status?.toLowerCase().includes("ok"));
-      const configReady = configLint !== null && !configLint.loadFailed && configLint.blockingCount === 0;
-      const evidenceAck = checklistSteps.some((step) => step.stepIndex === 1 && step.isCompleted);
-
-      const nextRows: EvidenceChecklistRow[] = [
-        {
-          id: "api-health",
-          label: "Service connectivity",
-          status: apiReady ? "ready" : health === null ? "pending" : "attention",
-          actionHref: "/help/troubleshooting",
-          actionLabel: "Troubleshoot",
-        },
-        {
-          id: "config-lint",
-          label: "Workspace configuration validated",
-          status: configReady ? "ready" : configLint === null ? "pending" : "attention",
-          actionHref: "/administration/tenant",
-          actionLabel: "Open settings",
-        },
-        {
-          id: "evidence-intake",
-          label: "Evidence attached or sample review opened",
-          status: evidenceAck ? "ready" : "attention",
-          actionHref: "/architecture/reviews/new",
-          actionLabel: "Add evidence",
-        },
-        {
-          id: "first-commit",
-          label: "First review committed",
-          status: checklistSteps.some((step) => step.stepIndex === 4 && step.isCompleted) ? "ready" : "pending",
-          actionHref: "/architecture/reviews",
-          actionLabel: "Open reviews",
-        },
-      ];
-
-      setRows(nextRows);
-      setPhase("ready");
+  const rows = useMemo((): EvidenceChecklistRow[] => {
+    if (phase === "loading") {
+      return [];
     }
 
-    void load();
+    const health = healthQuery.data;
+    const configLint = configLintQuery.data;
+    const teamChecklist = checklistQuery.isError ? [] : (checklistQuery.data ?? []);
 
-    return () => {
-      cancelled = true;
-    };
-  }, []);
+    // Harden against a malformed (non-array) checklist body from the API/mock: `.some` would throw.
+    const checklistSteps = Array.isArray(teamChecklist) ? teamChecklist : [];
+
+    const apiReady =
+      health !== null
+      && health !== undefined
+      && (health.status?.toLowerCase().includes("healthy") || health.status?.toLowerCase().includes("ok"));
+    const configReady =
+      configLint !== null
+      && configLint !== undefined
+      && !configLint.loadFailed
+      && configLint.blockingCount === 0;
+    const evidenceAck = checklistSteps.some((step) => step.stepIndex === 1 && step.isCompleted);
+
+    return [
+      {
+        id: "api-health",
+        label: "Service connectivity",
+        status: apiReady ? "ready" : health === null ? "pending" : "attention",
+        actionHref: "/help/troubleshooting",
+        actionLabel: "Troubleshoot",
+      },
+      {
+        id: "config-lint",
+        label: "Workspace configuration validated",
+        status: configReady ? "ready" : configLint === null || configLint === undefined ? "pending" : "attention",
+        actionHref: "/administration/workspace-settings",
+        actionLabel: "Open settings",
+      },
+      {
+        id: "evidence-intake",
+        label: "Evidence attached or sample review opened",
+        status: evidenceAck ? "ready" : "attention",
+        actionHref: "/architecture/reviews/new",
+        actionLabel: "Add evidence",
+      },
+      {
+        id: "first-commit",
+        label: "First review committed",
+        status: checklistSteps.some((step) => step.stepIndex === 4 && step.isCompleted) ? "ready" : "pending",
+        actionHref: "/architecture/reviews",
+        actionLabel: "Open reviews",
+      },
+    ];
+  }, [
+    checklistQuery.data,
+    checklistQuery.isError,
+    configLintQuery.data,
+    healthQuery.data,
+    phase,
+  ]);
 
   return (
     <section

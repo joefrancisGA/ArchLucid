@@ -1,6 +1,6 @@
 import type { Metadata } from "next";
 
-import { OperatorAccessDeniedPageClient } from "@/components/OperatorAccessDeniedPageClient";
+import { OperatorAccessDeniedPageClient } from "@/components/operator/OperatorAccessDeniedPageClient";
 
 export const metadata: Metadata = {
   title: "Access denied",

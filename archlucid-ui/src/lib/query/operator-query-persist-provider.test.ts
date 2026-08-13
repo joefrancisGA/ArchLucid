@@ -8,7 +8,7 @@ const repoRoot = join(dirname(fileURLToPath(import.meta.url)), "..", "..", "..")
 
 describe("OperatorQueryProvider persistence wiring (TB-2165)", () => {
   it("starts sessionStorage persistence for the browser query client", () => {
-    const source = readFileSync(join(repoRoot, "src/components/OperatorQueryProvider.tsx"), "utf8");
+    const source = readFileSync(join(repoRoot, "src/components/operator/OperatorQueryProvider.tsx"), "utf8");
 
     expect(source).toContain("setupOperatorQueryClientPersistence");
     expect(source).toContain("useEffect");

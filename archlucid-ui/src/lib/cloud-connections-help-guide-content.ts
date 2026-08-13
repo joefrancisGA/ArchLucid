@@ -1,4 +1,4 @@
-import { HELP_DILIGENCE_ARTIFACT_INDEX_TITLE } from "@/lib/help-diligence-artifact-index";
+import { HELP_DILIGENCE_ARTIFACT_INDEX_TITLE } from "@/lib/help/help-diligence-artifact-index";
 import { inAppHelpHref } from "@/lib/product-documentation-registry";
 
 export const CLOUD_CONNECTIONS_HELP_PATH = "/help/cloud-connections" as const;

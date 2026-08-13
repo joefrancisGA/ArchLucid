@@ -1,19 +1,23 @@
 "use client";
 
-import { useCallback, useMemo } from "react";
-import { useRouter, useSearchParams } from "next/navigation";
+import { useCallback, useEffect, useState } from "react";
+import { useSearchParams } from "next/navigation";
 
+import { AlertRulesAlertsInboxVocabularyRail } from "@/components/AlertRulesAlertsInboxVocabularyRail";
 import { Tabs, TabsContent, TabsList, TabsTrigger } from "@/components/ui/tabs";
-import { cn } from "@/lib/utils";
+import { WhyDisabledCtaHint } from "@/components/usability/WhyDisabledCtaHint";
 import { isBuyerPolishedOperatorShellEnv } from "@/lib/demo-ui-env";
 import {
   ALERT_RULES_HUB_TAB_IDS,
+  ALERT_RULES_HUB_TAB_PARAM,
   alertRulesHubTabFromSearchParam,
+  readAlertRulesHubTabFromWindowLocation,
+  writeAlertRulesHubTabToUrl,
   type AlertRulesHubTabId,
 } from "@/lib/alerts-hub-tab";
+import { ALERT_RULES_TAB_LABEL, ALERT_RULES_TEST_ALERTS_TAB_DISABLED_REASON } from "@/lib/alert-rule-conditions-copy";
 import { alertsConfigurationPageSubtitle } from "@/lib/alerts-page-copy";
-import { OPERATOR_TYPOGRAPHY } from "@/lib/design-tokens";
-import { governanceAlertRulesTabHref } from "@/lib/governance-route-paths";
+import { whyDisabledNeedsPrerequisite } from "@/lib/why-disabled-cta";
 
 import { AlertRulesHubRefreshProvider, useAlertRulesHubRefresh } from "@/lib/alerts-hub-refresh-context";
 import {
@@ -23,63 +27,67 @@ import {
   CompositeAlertRulesContentDeferred,
 } from "./_sections/alert-rules-hub-deferred-chunks";
 import { AlertRulesPageHeader } from "./AlertRulesPageHeader";
-
-const TAB_PARAM = "tab";
+import { AlertRulesHubTabCountsBootstrap } from "./AlertRulesHubTabCountsBootstrap";
 
 type AlertRulesHubTabConfig = {
   label: string;
-  subtitle: string;
 };
 
 const TAB_CONFIG: Record<AlertRulesHubTabId, AlertRulesHubTabConfig> = {
   rules: {
-    label: "Conditions",
-    subtitle: "When completed reviews should raise an alert",
+    label: ALERT_RULES_TAB_LABEL,
   },
   notifications: {
     label: "Notifications",
-    subtitle: "Where qualifying alerts are delivered",
   },
   "advanced-rules": {
     label: "Advanced rules",
-    subtitle: "Combine multiple signals before alerting",
   },
   "test-alerts": {
     label: "Test alerts",
-    subtitle: "Simulate and tune alert behavior",
   },
 };
+
+function alertRulesHubTabLabel(tabId: AlertRulesHubTabId, count: number | undefined): string {
+  const baseLabel = TAB_CONFIG[tabId].label;
+
+  if (count === undefined) {
+    return baseLabel;
+  }
+
+  return `${baseLabel} (${count})`;
+}
 
 /**
  * Page identity first (TB-2093): the hub leads with title, lead, and actions.
  * The former "About alert rules" / "About alert configuration" disclosures are gone —
  * orientation copy now lives behind the single contextual help entry point in the header.
  */
-function AlertRulesHubChrome(): React.JSX.Element {
-  const { refreshing, lastRefreshedAt, requestRefresh } = useAlertRulesHubRefresh();
+function AlertRulesHubChrome(props: { readonly activeTab: AlertRulesHubTabId }): React.JSX.Element {
+  const { refreshing, lastRefreshedAt, requestRefresh, tabCounts, rulesConfigChange } =
+    useAlertRulesHubRefresh();
 
   return (
-    <AlertRulesPageHeader
-      subtitle={alertsConfigurationPageSubtitle(isBuyerPolishedOperatorShellEnv())}
-      refreshing={refreshing}
-      lastRefreshedAt={lastRefreshedAt}
-      onRefresh={requestRefresh}
-    />
+    <>
+      <AlertRulesPageHeader
+        subtitle={alertsConfigurationPageSubtitle(isBuyerPolishedOperatorShellEnv())}
+        activeTab={props.activeTab}
+        rulesTabCount={tabCounts.rules}
+        rulesConfigChange={rulesConfigChange}
+        refreshing={refreshing}
+        lastRefreshedAt={lastRefreshedAt}
+        onRefresh={requestRefresh}
+      />
+      <AlertRulesAlertsInboxVocabularyRail currentSurfaceId="alert-rules" />
+    </>
   );
 }
 
 function AlertRulesHubTabPanel(props: {
   readonly tabId: AlertRulesHubTabId;
-  readonly subtitle: string;
 }): React.JSX.Element {
   return (
     <>
-      <p
-        className={cn("m-0 mb-6 max-w-prose text-al-text-secondary", OPERATOR_TYPOGRAPHY.body)}
-        data-testid={`alert-rules-hub-tab-lead-${props.tabId}`}
-      >
-        {props.subtitle}
-      </p>
       {props.tabId === "rules" ? <AlertRulesContentDeferred /> : null}
       {props.tabId === "notifications" ? <AlertRoutingContentDeferred /> : null}
       {props.tabId === "advanced-rules" ? <CompositeAlertRulesContentDeferred /> : null}
@@ -88,43 +96,113 @@ function AlertRulesHubTabPanel(props: {
   );
 }
 
+function AlertRulesHubTabsList(): React.JSX.Element {
+  const { tabCounts } = useAlertRulesHubRefresh();
+  const rulesCount = tabCounts.rules ?? 0;
+  const testAlertsDisabled = rulesCount === 0;
+  const testAlertsDisabledReason = whyDisabledNeedsPrerequisite("at least one alert rule");
+
+  return (
+    <div className="space-y-1">
+      <TabsList aria-label="Alerts configuration sections" className="mb-0">
+        {ALERT_RULES_HUB_TAB_IDS.map((id) => {
+          const disabled = id === "test-alerts" && testAlertsDisabled;
+
+          return (
+            <TabsTrigger
+              key={id}
+              value={id}
+              disabled={disabled}
+              title={disabled ? ALERT_RULES_TEST_ALERTS_TAB_DISABLED_REASON : undefined}
+              aria-describedby={disabled ? "alert-rules-test-alerts-disabled-hint" : undefined}
+              data-testid={`alert-rules-hub-tab-${id}`}
+            >
+              {alertRulesHubTabLabel(id, tabCounts[id])}
+            </TabsTrigger>
+          );
+        })}
+      </TabsList>
+      {testAlertsDisabled ? (
+        <WhyDisabledCtaHint
+          id="alert-rules-test-alerts-disabled-hint"
+          testId="alert-rules-test-alerts-disabled-hint"
+          reason={testAlertsDisabledReason}
+        />
+      ) : null}
+    </div>
+  );
+}
+
 /**
  * Alert configuration hub — separate from the Alert inbox triage surface.
  */
 export function AlertRulesHubClient() {
-  const router = useRouter();
   const searchParams = useSearchParams();
-  const rawTab = searchParams.get(TAB_PARAM);
-
-  const activeTab: AlertRulesHubTabId = useMemo(
-    () => alertRulesHubTabFromSearchParam(rawTab),
-    [rawTab],
+  const tabParam = searchParams.get(ALERT_RULES_HUB_TAB_PARAM);
+  const [activeTab, setActiveTab] = useState<AlertRulesHubTabId>(() =>
+    alertRulesHubTabFromSearchParam(tabParam),
   );
 
-  const onSelectTab = useCallback(
-    (id: string) => {
-      router.push(governanceAlertRulesTabHref(id));
-    },
-    [router],
-  );
+  useEffect(() => {
+    const fromSearchParams = alertRulesHubTabFromSearchParam(tabParam);
+
+    setActiveTab((current) => (current === fromSearchParams ? current : fromSearchParams));
+  }, [tabParam]);
+
+  useEffect(() => {
+    const onPopState = (): void => {
+      setActiveTab(readAlertRulesHubTabFromWindowLocation());
+    };
+
+    window.addEventListener("popstate", onPopState);
+
+    return () => {
+      window.removeEventListener("popstate", onPopState);
+    };
+  }, []);
 
   return (
     <AlertRulesHubRefreshProvider activeTab={activeTab}>
-      <div className="px-0">
-        <AlertRulesHubChrome />
+      <AlertRulesHubTabCountsBootstrap />
+      <AlertRulesHubTabShell activeTab={activeTab} onActiveTabChange={setActiveTab} />
+    </AlertRulesHubRefreshProvider>
+  );
+}
 
-        <Tabs value={activeTab} onValueChange={onSelectTab} variant="line">
-          <TabsList aria-label="Alerts configuration sections" className="mb-0">
-            {ALERT_RULES_HUB_TAB_IDS.map((id) => (
-              <TabsTrigger
-                key={id}
-                value={id}
-                data-testid={`alert-rules-hub-tab-${id}`}
-              >
-                {TAB_CONFIG[id].label}
-              </TabsTrigger>
-            ))}
-          </TabsList>
+function AlertRulesHubTabShell(props: {
+  readonly activeTab: AlertRulesHubTabId;
+  readonly onActiveTabChange: (tab: AlertRulesHubTabId) => void;
+}): React.JSX.Element {
+  const { tabCounts } = useAlertRulesHubRefresh();
+  const rulesCount = tabCounts.rules ?? 0;
+
+  useEffect(() => {
+    if (props.activeTab === "test-alerts" && rulesCount === 0) {
+      props.onActiveTabChange("rules");
+      writeAlertRulesHubTabToUrl("rules");
+    }
+  }, [props.activeTab, props.onActiveTabChange, rulesCount]);
+
+  const onSelectTab = useCallback(
+    (id: string) => {
+      const nextTab = alertRulesHubTabFromSearchParam(id);
+
+      if (nextTab === "test-alerts" && rulesCount === 0) {
+        return;
+      }
+
+      props.onActiveTabChange(nextTab);
+      writeAlertRulesHubTabToUrl(nextTab);
+    },
+    [props.onActiveTabChange, rulesCount],
+  );
+
+  return (
+    <div className="px-0">
+      <AlertRulesHubChrome activeTab={props.activeTab} />
+
+      <Tabs value={props.activeTab} onValueChange={onSelectTab} variant="line">
+          <AlertRulesHubTabsList />
 
           {ALERT_RULES_HUB_TAB_IDS.map((id) => (
             <TabsContent
@@ -133,11 +211,10 @@ export function AlertRulesHubClient() {
               className="min-w-0 pt-0"
               data-testid="alert-rules-hub-panel"
             >
-              <AlertRulesHubTabPanel tabId={id} subtitle={TAB_CONFIG[id].subtitle} />
+              <AlertRulesHubTabPanel tabId={id} />
             </TabsContent>
           ))}
         </Tabs>
-      </div>
-    </AlertRulesHubRefreshProvider>
+    </div>
   );
 }

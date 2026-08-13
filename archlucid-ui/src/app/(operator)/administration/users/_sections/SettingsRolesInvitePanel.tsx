@@ -4,6 +4,7 @@ import { cn } from "@/lib/utils";
 import { useState, type RefObject } from "react";
 
 import { MutatingInWorkspaceChip } from "@/components/MutatingInWorkspaceChip";
+import { ColdInviteUsersInviteVocabularyRail } from "@/components/ColdInviteUsersInviteVocabularyRail";
 import { Button } from "@/components/ui/button";
 import { Input } from "@/components/ui/input";
 import { Label } from "@/components/ui/label";
@@ -88,6 +89,7 @@ export function SettingsRolesInvitePanel({ emailInputRef, onInviteSent }: Props)
       className="max-w-xl space-y-4"
       onSubmit={(event) => void handleSubmit(event)}
     >
+      <ColdInviteUsersInviteVocabularyRail currentSurfaceId="users-invite" />
       <div className="space-y-1">
         <Label htmlFor="invite-email">Email address</Label>
         <Input
@@ -135,7 +137,7 @@ export function SettingsRolesInvitePanel({ emailInputRef, onInviteSent }: Props)
         </Label>
         <Textarea
           id="invite-message"
-          placeholder="Add a note to include in the invitation emailâ€¦"
+          placeholder="Add a note to include in the invitation email…"
           value={form.message}
           onChange={(e) => setForm((f) => ({ ...f, message: e.target.value }))}
           rows={3}
@@ -152,7 +154,7 @@ export function SettingsRolesInvitePanel({ emailInputRef, onInviteSent }: Props)
             disabled={sending || !canSubmit}
             data-testid="settings-roles-invite-submit"
           >
-            {sending ? "Sendingâ€¦" : "Send invite"}
+            {sending ? "Sending…" : "Send invite"}
           </Button>
           <Button
             type="button"

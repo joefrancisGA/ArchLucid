@@ -1,6 +1,6 @@
 import { describe, expect, it } from "vitest";
 
-import { EXECUTIVE_DASHBOARD_HREF } from "@/lib/executive-dashboard-route";
+import { EXECUTIVE_DASHBOARD_HREF } from "@/lib/executive/executive-dashboard-route";
 import { NAV_GROUPS } from "@/lib/nav-config";
 import { AUTHORITY_RANK } from "@/lib/nav-authority";
 import {
@@ -23,7 +23,7 @@ describe("pathnameEligibleBeforeFirstCommittedArchitectureReview", () => {
     expect(pathnameEligibleBeforeFirstCommittedArchitectureReview("/help")).toBe(true);
     expect(pathnameEligibleBeforeFirstCommittedArchitectureReview("/architecture/first-review-guide")).toBe(true);
     expect(pathnameEligibleBeforeFirstCommittedArchitectureReview("/administration/baseline")).toBe(true);
-    expect(pathnameEligibleBeforeFirstCommittedArchitectureReview("/administration/tenant")).toBe(true);
+    expect(pathnameEligibleBeforeFirstCommittedArchitectureReview("/administration/workspace-settings")).toBe(true);
     expect(pathnameEligibleBeforeFirstCommittedArchitectureReview("/administration")).toBe(false);
     expect(pathnameEligibleBeforeFirstCommittedArchitectureReview("/administration/users")).toBe(false);
     expect(pathnameEligibleBeforeFirstCommittedArchitectureReview("/governance/findings")).toBe(false);

@@ -6,7 +6,7 @@ import { MUTATING_IN_WORKSPACE_CHIP_PREFIX } from "@/lib/mutating-in-workspace-c
 import {
   clearOperatorScopeStorage,
   writeOperatorScopeToStorage,
-} from "@/lib/operator-scope-storage";
+} from "@/lib/operator/operator-scope-storage";
 
 describe("MutatingInWorkspaceChip (TB-2220)", () => {
   beforeEach(() => {

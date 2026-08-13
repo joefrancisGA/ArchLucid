@@ -13,9 +13,23 @@ export const CLOUD_CONNECTIONS_PLATFORM_SCOPE_HEADING = "Cloud platforms shown";
 export const CLOUD_CONNECTIONS_PLATFORM_SCOPE_LEAD =
   "Only show the platforms used by this workspace.";
 
-/** Shown when operator scope has no workspace — panel is disabled (TB-1142). */
+/** Shown when effective scope has no workspace — panel is disabled (TB-1142). */
 export const CLOUD_CONNECTIONS_PLATFORM_SCOPE_WORKSPACE_REQUIRED =
-  "Choose a workspace in the header scope switcher before changing which platforms appear here. Platform filters are saved per workspace.";
+  "Choose a workspace and project before saving which platforms appear here. Platform filters are saved per workspace.";
+
+export const CLOUD_CONNECTIONS_PLATFORM_SCOPE_WORKSPACE_ACTION_LABEL = "How to choose workspace";
+
+export const CLOUD_CONNECTIONS_HUB_VOCABULARY_DISCLOSURE_TITLE =
+  "How this differs from Connection status and Extract & Upload";
+
+export const CLOUD_CONNECTIONS_SECURITY_ASSURANCE_TITLE = "Security assurance";
+
+export const CLOUD_CONNECTIONS_SECURITY_ASSURANCE_BODY =
+  "Cloud connections use read-only federated access. Review procurement materials and tenant isolation notes before enabling collection in production.";
+
+export const CLOUD_CONNECTIONS_SECURITY_ASSURANCE_LINK_LABEL = "Security & Trust";
+
+export const CLOUD_CONNECTIONS_PROVIDER_EVIDENCE_NONE = "None collected yet";
 
 /** Compact empty-state line for unconfigured provider landing cards (TB-1143). */
 export const CLOUD_CONNECTIONS_PROVIDER_NOT_CONNECTED = "Not connected";
@@ -32,10 +46,7 @@ export const CLOUD_CONNECTIONS_PROVIDER_AUTH_MODEL: Readonly<Record<"azure" | "a
 };
 
 export const CLOUD_CONNECTIONS_SECURITY_PREFLIGHT_INTRO =
-  "Confirm these items with your cloud or security team before enabling collection.";
-
-export const CLOUD_CONNECTIONS_SECURITY_PREFLIGHT_SKIP_WARNING =
-  "Connection validation can proceed, but security review is recommended before production use.";
+  "Review these items with your cloud or security team before enabling collection. This checklist is guidance only — ArchLucid does not record it as an attestation or add it to the audit trail.";
 
 export const CLOUD_CONNECTIONS_DETAIL_SECTIONS = [
   "Overview",

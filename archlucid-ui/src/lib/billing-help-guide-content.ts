@@ -1,4 +1,4 @@
-import type { HelpMarkdownHeading } from "@/lib/help-markdown-headings";
+import type { HelpMarkdownHeading } from "@/lib/help/help-markdown-headings";
 import {
   BILLING_AND_PLANS_HELP_PATH,
   SETTINGS_BILLING_PATH,

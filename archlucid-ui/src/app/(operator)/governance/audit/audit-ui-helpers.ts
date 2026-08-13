@@ -5,7 +5,7 @@ import {
   ReviewAuditLifecycleStage,
   type ReviewAuditLifecycleStageValue,
 } from "@/lib/audit-event-presentation";
-import { buyerFacingReviewLinkLabelFromRunId } from "@/lib/buyer-facing-review-title";
+import { buyerFacingReviewLinkLabelFromRunId } from "@/lib/buyer/buyer-facing-review-title";
 import { SHOWCASE_STATIC_DEMO_RUN_ID } from "@/lib/showcase-static-demo";
 
 /**

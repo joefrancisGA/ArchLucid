@@ -13,6 +13,7 @@ from archlucid_ui_route_catalog import (
     DEFAULT_NEW_HIT_PCT,
     PREFERRED_NEW_ROW_IDS,
     TRAFFIC_TRACKED_REDIRECT_BOOKMARKS,
+    WORKBOOK_COLLISION_PREFERRED_ROW_IDS,
     app_router_page_count,
     build_catalog,
     discover_tab_paths,
@@ -99,7 +100,11 @@ def _apply_migrations(rows: list[dict[str, str]], report: SyncReport) -> list[di
         candidate = row.copy()
         candidate["path"] = migrated_path
         if migrated_path in by_path:
-            by_path[migrated_path] = _merge_rows(by_path[migrated_path], candidate)
+            merged = _merge_rows(by_path[migrated_path], candidate)
+            preferred_id = WORKBOOK_COLLISION_PREFERRED_ROW_IDS.get(migrated_path)
+            if preferred_id is not None:
+                merged["id"] = preferred_id
+            by_path[migrated_path] = merged
         else:
             by_path[migrated_path] = candidate
     return list(by_path.values())

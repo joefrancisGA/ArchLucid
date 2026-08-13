@@ -1,3 +1,4 @@
+import type { EnterpriseStatusKind } from "@/lib/design-tokens";
 import type { AlertRule } from "@/types/alerts";
 import type { AlertRoutingSubscription } from "@/types/alert-routing";
 
@@ -21,6 +22,24 @@ export type AlertRuleFormInput = {
   readonly alertPriority: string;
   readonly thresholdValue: number;
 };
+
+/** Empty Rules-tab create draft — TB-1574 treats this as sparse (do not pin live rail). */
+export const ALERT_RULE_FORM_DEFAULT_DRAFT: AlertRuleFormInput = {
+  name: "Architecture alert rule",
+  ruleType: "CriticalRecommendationCount",
+  alertPriority: "Warning",
+  thresholdValue: 3,
+};
+
+/** True when the create form left the empty default draft (pin-worthy for live preview). */
+export function alertRuleFormDiffersFromDefaultDraft(input: AlertRuleFormInput): boolean {
+  return (
+    input.name !== ALERT_RULE_FORM_DEFAULT_DRAFT.name ||
+    input.ruleType !== ALERT_RULE_FORM_DEFAULT_DRAFT.ruleType ||
+    input.alertPriority !== ALERT_RULE_FORM_DEFAULT_DRAFT.alertPriority ||
+    input.thresholdValue !== ALERT_RULE_FORM_DEFAULT_DRAFT.thresholdValue
+  );
+}
 
 /** Mutable field-error bag — built incrementally in validateAlertRuleForm. */
 export type AlertRuleFormFieldErrors = {
@@ -205,4 +224,22 @@ export function alertRuleActiveStatusLabel(isEnabled: boolean): string {
   }
 
   return "Paused";
+}
+
+export function alertRuleActiveStatusKind(isEnabled: boolean): EnterpriseStatusKind {
+  if (isEnabled) {
+    return "ready";
+  }
+
+  return "draft";
+}
+
+export function alertRuleNotificationReadinessPresentation(
+  readiness: AlertRuleNotificationReadiness,
+): { readonly kind: EnterpriseStatusKind; readonly label: string } {
+  if (readiness.externalNotificationsConfigured) {
+    return { kind: "ready", label: "Destinations configured" };
+  }
+
+  return { kind: "needs-attention", label: "Configure destinations" };
 }

@@ -3,7 +3,7 @@ import { afterEach, describe, expect, it, vi } from "vitest";
 
 import { CorePilotChecklist } from "@/components/CorePilotChecklist";
 import { CORE_PILOT_STEPS } from "@/lib/core-pilot-steps";
-import { OPERATOR_HOME_DISCLOSURE_STORAGE_KEYS } from "@/lib/operator-home-disclosure-storage";
+import { OPERATOR_HOME_DISCLOSURE_STORAGE_KEYS } from "@/lib/operator/operator-home-disclosure-storage";
 import type { CorePilotStepDerivedStatus } from "@/lib/core-pilot-step-status";
 
 const emptyStatuses: readonly CorePilotStepDerivedStatus[] = [

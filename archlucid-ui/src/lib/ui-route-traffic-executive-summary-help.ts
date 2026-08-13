@@ -1,4 +1,4 @@
-﻿import { EXECUTIVE_SUMMARY_HELP_PATH } from "@/lib/executive-summary-help-route";
+﻿import { EXECUTIVE_SUMMARY_HELP_PATH } from "@/lib/executive/executive-summary-help-route";
 import { SPONSOR_REPORT_EXECUTIVE_SUMMARY_PATH } from "@/lib/sponsor-report-navigation";
 
 /**

@@ -75,14 +75,14 @@ describe("deriveReplayValidationOutcome", () => {
     ).toBe("incomplete");
   });
 
-  it("returns failed and cancelled states", () => {
+  it("returns failed and canceled states", () => {
     expect(
       deriveReplayValidationOutcome({
         response: null,
         failure: { title: "Failed", message: "x", status: 500, correlationId: null },
       }),
     ).toBe("failed");
-    expect(deriveReplayValidationOutcome({ response: null, failure: null, cancelled: true })).toBe("cancelled");
+    expect(deriveReplayValidationOutcome({ response: null, failure: null, canceled: true })).toBe("canceled");
   });
 });
 
@@ -93,7 +93,7 @@ describe("replayValidationOutcomeLabel", () => {
     expect(replayValidationOutcomeLabel("invalid")).toBe("Invalid");
     expect(replayValidationOutcomeLabel("incomplete")).toBe("Incomplete");
     expect(replayValidationOutcomeLabel("failed")).toBe("Failed");
-    expect(replayValidationOutcomeLabel("cancelled")).toBe("Cancelled");
+    expect(replayValidationOutcomeLabel("canceled")).toBe("Cancelled");
   });
 });
 

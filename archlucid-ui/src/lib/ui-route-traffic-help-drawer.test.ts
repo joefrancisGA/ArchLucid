@@ -1,24 +1,35 @@
 import { describe, expect, it } from "vitest";
 
-import { extractMasterTableRows, readUiRouteTrafficEstimatesTemplateMarkdown } from "@/lib/testing/ui-route-traffic-workbook-test-utils";
+import {
+  findUiRouteTrafficTemplateRow,
+  loadUiRouteTrafficMasterTableRows,
+} from "@/lib/testing/ui-route-traffic-workbook-test-utils";
 
 import {
-  DEMO_ENTRY_TRAFFIC_NOTE,
-  DEMO_ENTRY_TRAFFIC_PATH,
-  DEMO_ENTRY_TRAFFIC_ROW_ID,
-  DEMO_ENTRY_TRAFFIC_SECTION,
-} from "@/lib/ui-route-traffic-demo-entry";
+  HELP_DRAWER_TRAFFIC_NOTE,
+  HELP_DRAWER_TRAFFIC_PATH,
+  HELP_DRAWER_TRAFFIC_ROW_ID,
+  HELP_DRAWER_TRAFFIC_SECTION,
+} from "@/lib/ui-route-traffic-help-drawer";
 
-describe("ui-route-traffic-demo-entry (DXX)", () => {
-  it("documents retired /demo entry shim when master table row is absent", () => {
-    const rows = extractMasterTableRows(readUiRouteTrafficEstimatesTemplateMarkdown());
-    const row = rows.find((candidate) => candidate.id === DEMO_ENTRY_TRAFFIC_ROW_ID);
+describe("ui-route-traffic-help-drawer (HCD)", () => {
+  const row = findUiRouteTrafficTemplateRow(
+    loadUiRouteTrafficMasterTableRows(),
+    HELP_DRAWER_TRAFFIC_ROW_ID,
+  );
 
-    expect(row).toBeUndefined();
-    expect(DEMO_ENTRY_TRAFFIC_PATH).toBe("/demo");
-    expect(DEMO_ENTRY_TRAFFIC_SECTION).toBe("Marketing");
-    expect(DEMO_ENTRY_TRAFFIC_NOTE).toContain("DemoEntryRedirect");
-    expect(DEMO_ENTRY_TRAFFIC_NOTE).toContain("Sources");
-    expect(DEMO_ENTRY_TRAFFIC_NOTE).toContain("cannot improve further toward 80");
+  it("tracks the contextual help drawer shell overlay", () => {
+    expect(row).toBeDefined();
+    expect(row?.path).toBe(HELP_DRAWER_TRAFFIC_PATH);
+    expect(row?.section).toBe(HELP_DRAWER_TRAFFIC_SECTION);
+  });
+
+  it("keeps the module notes verbatim with the owner workbook", () => {
+    expect(row?.notes).toBe(HELP_DRAWER_TRAFFIC_NOTE);
+  });
+
+  it("carries every master-table column, so the row is not silently short one cell", () => {
+    expect(row?.hitPct).not.toBe("");
+    expect(row?.done).not.toBe("");
   });
 });

@@ -37,7 +37,8 @@ public sealed class RoiControllerTests
 
         RoiController controller = CreateController(roi.Object, Mock.Of<IExecutiveRoiBoardPackExporter>());
 
-        IActionResult action = await controller.GetExecutiveSummaryAsync(CancellationToken.None);
+        IActionResult action =
+            await controller.GetExecutiveSummaryAsync(CancellationToken.None);
 
         OkObjectResult ok = action.Should().BeOfType<OkObjectResult>().Subject;
         ok.Value.Should().BeSameAs(summary);

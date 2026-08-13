@@ -22,7 +22,7 @@ vi.mock("@/components/ShareReviewPackageButton", () => ({
   ShareReviewPackageButton: () => null,
 }));
 
-vi.mock("@/components/RunDetailRunGovernanceDispositionActions", () => ({
+vi.mock("@/components/runs/RunDetailRunGovernanceDispositionActions", () => ({
   RunDetailRunGovernanceDispositionActions: () => null,
 }));
 

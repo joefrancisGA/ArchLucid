@@ -1,8 +1,11 @@
 import { fireEvent, render, screen, waitFor } from "@testing-library/react";
 import { beforeEach, describe, expect, it, vi } from "vitest";
 
+import { renderWithOperatorQuery } from "@/testing/render-with-operator-query";
+import { useOperatorQueryTestLifecycle } from "@/testing/operator-query-test-helpers";
+
 import type { GovernanceApprovalRequest } from "@/types/governance-workflow";
-import { GOVERNANCE_WORKFLOW_OUTCOME_NO_REQUESTS } from "@/lib/governance-workflow-section-copy";
+import { GOVERNANCE_WORKFLOW_OUTCOME_NO_REQUESTS } from "@/lib/governance/governance-workflow-section-copy";
 import { SHOWCASE_STATIC_DEMO_RUN_ID } from "@/lib/showcase-static-demo";
 
 const apiHoisted = vi.hoisted(() => ({
@@ -29,8 +32,8 @@ vi.mock("@/lib/demo-ui-env", async (importOriginal) => {
   };
 });
 
-vi.mock("@/lib/operator-static-demo", async (importOriginal) => {
-  const mod = await importOriginal<typeof import("@/lib/operator-static-demo")>();
+vi.mock("@/lib/operator/operator-static-demo", async (importOriginal) => {
+  const mod = await importOriginal<typeof import("@/lib/operator/operator-static-demo")>();
 
   return {
     ...mod,
@@ -61,8 +64,40 @@ vi.mock("@/lib/api", async (importOriginal) => {
   };
 });
 
+vi.mock("@/lib/api/policy-governance-api", () => ({
+  listApprovalRequests: apiHoisted.listApprovalRequests,
+  listPromotions: apiHoisted.listPromotions,
+  listActivations: apiHoisted.listActivations,
+  getGovernanceDashboard: apiHoisted.getGovernanceDashboard,
+}));
+
+vi.mock("@/lib/api/governance-stickiness-api", async (importOriginal) => {
+  const mod = await importOriginal<typeof import("@/lib/api/governance-stickiness-api")>();
+
+  return {
+    ...mod,
+    getGovernanceDecisionsNeededSummary: apiHoisted.getGovernanceDecisionsNeededSummary,
+  };
+});
+
+vi.mock("@/lib/query/operator-query-persist-client", () => ({
+  setupOperatorQueryClientPersistence: () => {},
+}));
+
 vi.mock("next/link", () => ({
-  default: ({ href, children }: { href: string; children: React.ReactNode }) => <a href={href}>{children}</a>,
+  default: ({
+    href,
+    children,
+    ...rest
+  }: {
+    href: string;
+    children: React.ReactNode;
+    [key: string]: unknown;
+  }) => (
+    <a href={typeof href === "string" ? href : "#"} {...rest}>
+      {children}
+    </a>
+  ),
 }));
 
 vi.mock("./governance-workflow-deferred-chunks", async () => {
@@ -75,8 +110,8 @@ vi.mock("./governance-workflow-deferred-chunks", async () => {
   const buyerStrip = await import("@/components/cto-demo/CtoDemoBuyerValueStrip");
   const segregation = await import("@/components/cto-demo/CtoDemoSegregationCallout");
   const previewHint = await import("@/components/OperateCapabilityHints");
-  const quickstart = await import("@/components/GovernanceInteractiveQuickstartContent");
-  const storyCard = await import("@/components/GovernanceApprovalStoryCard");
+  const quickstart = await import("@/components/governance/GovernanceInteractiveQuickstartContent");
+  const storyCard = await import("@/components/governance/GovernanceApprovalStoryCard");
   const advancedOptions = await import("@/components/AdvancedOptionsAccordion");
 
   return {
@@ -114,6 +149,8 @@ const approvedRequest: GovernanceApprovalRequest = {
 };
 
 describe("GovernanceWorkflowPageContent approval state", () => {
+  useOperatorQueryTestLifecycle();
+
   beforeEach(() => {
     apiHoisted.listApprovalRequests.mockResolvedValue([]);
     apiHoisted.listPromotions.mockResolvedValue([]);
@@ -150,8 +187,27 @@ describe("GovernanceWorkflowPageContent approval state", () => {
     apiHoisted.getRunDetail.mockResolvedValue({ data: { run: { currentManifestVersion: "" } } });
   });
 
+  it("renders the governance job router triad with Approval queue current (TB-2230)", async () => {
+    renderWithOperatorQuery(<GovernanceWorkflowPageContent />);
+
+    const strip = await screen.findByTestId("governance-job-router");
+    expect(strip).toHaveAttribute("data-current-job", "approve-governance");
+    expect(screen.getByTestId("governance-job-router-option-approve-governance")).toHaveAttribute(
+      "data-current",
+      "true",
+    );
+    expect(screen.getByTestId("governance-job-router-option-triage-findings")).toHaveAttribute(
+      "href",
+      "/governance/findings",
+    );
+    expect(screen.getByTestId("governance-job-router-option-record-decisions")).toHaveAttribute(
+      "href",
+      "/governance/decision-register",
+    );
+  });
+
   it("shows no-request guidance without completion messaging when a review has no approval history", async () => {
-    render(<GovernanceWorkflowPageContent />);
+    renderWithOperatorQuery(<GovernanceWorkflowPageContent />);
 
     fireEvent.change(screen.getByLabelText("Review"), { target: { value: "gov-ui-shape-run" } });
     fireEvent.click(screen.getByTestId("governance-overview-load-review"));
@@ -170,7 +226,7 @@ describe("GovernanceWorkflowPageContent approval state", () => {
 
   it("shows supporting approval request history when an approved request exists", async () => {
     apiHoisted.listApprovalRequests.mockResolvedValue([approvedRequest]);
-    render(<GovernanceWorkflowPageContent />);
+    renderWithOperatorQuery(<GovernanceWorkflowPageContent />);
 
     fireEvent.change(screen.getByLabelText("Review"), { target: { value: SHOWCASE_STATIC_DEMO_RUN_ID } });
     fireEvent.click(screen.getByTestId("governance-overview-load-review"));

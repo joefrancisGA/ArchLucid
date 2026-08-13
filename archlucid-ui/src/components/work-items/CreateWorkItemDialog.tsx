@@ -4,7 +4,7 @@ import { cn } from "@/lib/utils";
 import Link from "next/link";
 import { useCallback, useEffect, useMemo, useState } from "react";
 
-import { useNavCallerAuthorityRank } from "@/components/OperatorNavAuthorityProvider";
+import { useNavCallerAuthorityRank } from "@/components/operator/OperatorNavAuthorityProvider";
 import { Button } from "@/components/ui/button";
 import {
   Dialog,
@@ -31,7 +31,7 @@ import {
   buildArchitectureWorkItemClipboardBody,
   clipboardFormatForItsmProvider,
   type ArchitectureWorkItemPreview,
-} from "@/lib/architecture-work-item-model";
+} from "@/lib/architecture/architecture-work-item-model";
 import { writeWorkItemBodyToClipboard } from "@/lib/copy-finding-as-work-item";
 import {
   CREATE_WORK_ITEM_API_FAILURE,
@@ -55,7 +55,7 @@ import {
   CREATE_WORK_ITEM_PROVIDER_LABEL,
 } from "@/lib/create-work-item-copy";
 import { OPERATOR_TYPOGRAPHY } from "@/lib/design-tokens";
-import { ITSM_CONNECTORS_ADMIN_PATH } from "@/lib/itsm-connectors-admin-scope";
+import { ITSM_CONNECTORS_ADMIN_PATH } from "@/lib/itsm/itsm-connectors-admin-scope";
 import {
   canNativeCreateWithItsmProvider,
   configuredItsmWorkItemProviders,
@@ -66,7 +66,7 @@ import {
   resolveItsmWorkItemProviderSnapshots,
   selectSingleConfiguredItsmWorkItemProvider,
   type ItsmWorkItemProvider,
-} from "@/lib/itsm-work-item-provider-state";
+} from "@/lib/itsm/itsm-work-item-provider-state";
 import { useItsmNativeCreateReadiness } from "@/lib/use-itsm-native-create-enabled";
 import { AUTHORITY_RANK } from "@/lib/nav-authority";
 import { showError, showSuccess } from "@/lib/toast";
@@ -204,20 +204,20 @@ export function CreateWorkItemDialog(props: CreateWorkItemDialogProps): React.JS
       setProvider(singleConfigured);
     }
 
-    let cancelled = false;
+    let canceled = false;
 
     void (async () => {
       try {
         await reloadCorrelations();
       } catch {
-        if (!cancelled) {
+        if (!canceled) {
           setCorrelationsLoaded(true);
         }
       }
     })();
 
     return () => {
-      cancelled = true;
+      canceled = true;
     };
   }, [props.open, providerSnapshots, reloadCorrelations]);
 
@@ -366,7 +366,7 @@ export function CreateWorkItemDialog(props: CreateWorkItemDialogProps): React.JS
           </div>
         )}
 
-        <DialogFooter className="gap-2 sm:gap-0">
+        <DialogFooter>
           <Button
             type="button"
             variant="outline"

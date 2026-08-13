@@ -1,6 +1,6 @@
 import type { EnterpriseStatusKind } from "@/lib/design-tokens";
-import type { HelpMarkdownHeading } from "@/lib/help-markdown-headings";
-import { prepareHelpMarkdownForPresentation } from "@/lib/help-markdown-presentation";
+import type { HelpMarkdownHeading } from "@/lib/help/help-markdown-headings";
+import { prepareHelpMarkdownForPresentation } from "@/lib/help/help-markdown-presentation";
 
 export const CAIQ_SIG_RESPONSE_LITE_PART_HEADING = "CAIQ Lite (subset)" as const;
 

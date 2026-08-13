@@ -1,8 +1,10 @@
-import { render, screen, waitFor } from "@testing-library/react";
+import { screen, waitFor } from "@testing-library/react";
 import { beforeEach, describe, expect, it, vi } from "vitest";
 
-import { GOVERNANCE_OVERVIEW_PAGE_LEAD, BUYER_GOVERNANCE_OVERVIEW_PAGE_LEAD } from "@/lib/governance-overview-copy";
-import { GOVERNANCE_WORKSPACE_HEALTH_HREF } from "@/lib/governance-route-paths";
+import { GOVERNANCE_OVERVIEW_PAGE_LEAD, BUYER_GOVERNANCE_OVERVIEW_PAGE_LEAD } from "@/lib/governance/governance-overview-copy";
+import { GOVERNANCE_WORKSPACE_HEALTH_HREF } from "@/lib/governance/governance-route-paths";
+import { renderWithOperatorQuery } from "@/testing/render-with-operator-query";
+import { useOperatorQueryTestLifecycle } from "@/testing/operator-query-test-helpers";
 
 const apiHoisted = vi.hoisted(() => ({
   listApprovalRequests: vi.fn(),
@@ -26,8 +28,8 @@ vi.mock("@/lib/demo-ui-env", async (importOriginal) => {
   };
 });
 
-vi.mock("@/lib/operator-static-demo", async (importOriginal) => {
-  const mod = await importOriginal<typeof import("@/lib/operator-static-demo")>();
+vi.mock("@/lib/operator/operator-static-demo", async (importOriginal) => {
+  const mod = await importOriginal<typeof import("@/lib/operator/operator-static-demo")>();
 
   return {
     ...mod,
@@ -56,6 +58,26 @@ vi.mock("@/lib/api", async (importOriginal) => {
   };
 });
 
+vi.mock("@/lib/api/policy-governance-api", () => ({
+  listApprovalRequests: apiHoisted.listApprovalRequests,
+  listPromotions: apiHoisted.listPromotions,
+  listActivations: apiHoisted.listActivations,
+  getGovernanceDashboard: apiHoisted.getGovernanceDashboard,
+}));
+
+vi.mock("@/lib/api/governance-stickiness-api", async (importOriginal) => {
+  const mod = await importOriginal<typeof import("@/lib/api/governance-stickiness-api")>();
+
+  return {
+    ...mod,
+    getGovernanceDecisionsNeededSummary: apiHoisted.getGovernanceDecisionsNeededSummary,
+  };
+});
+
+vi.mock("@/lib/query/operator-query-persist-client", () => ({
+  setupOperatorQueryClientPersistence: () => {},
+}));
+
 vi.mock("next/link", () => ({
   default: ({ href, children }: { href: string; children: React.ReactNode }) => <a href={href}>{children}</a>,
 }));
@@ -74,8 +96,8 @@ vi.mock("./governance-workflow-deferred-chunks", async () => {
   const buyerStrip = await import("@/components/cto-demo/CtoDemoBuyerValueStrip");
   const segregation = await import("@/components/cto-demo/CtoDemoSegregationCallout");
   const previewHint = await import("@/components/OperateCapabilityHints");
-  const quickstart = await import("@/components/GovernanceInteractiveQuickstartContent");
-  const storyCard = await import("@/components/GovernanceApprovalStoryCard");
+  const quickstart = await import("@/components/governance/GovernanceInteractiveQuickstartContent");
+  const storyCard = await import("@/components/governance/GovernanceApprovalStoryCard");
   const advancedOptions = await import("@/components/AdvancedOptionsAccordion");
 
   return {
@@ -123,11 +145,13 @@ vi.mock("@/lib/use-nav-surface", () => ({
   }),
 }));
 
-import { buyerPolishedRouteOrientation } from "@/lib/buyer-polished-route-orientation";
+import { buyerPolishedRouteOrientation } from "@/lib/buyer/buyer-polished-route-orientation";
 
 import { GovernanceWorkflowPageContent } from "./GovernanceWorkflowPageContent";
 
 describe("GovernanceWorkflowPageContent buyer-polished chrome (TB-1434)", () => {
+  useOperatorQueryTestLifecycle();
+
   beforeEach(() => {
     apiHoisted.listApprovalRequests.mockResolvedValue([]);
     apiHoisted.listPromotions.mockResolvedValue([]);
@@ -170,10 +194,14 @@ describe("GovernanceWorkflowPageContent buyer-polished chrome (TB-1434)", () => 
   it("keeps one overview lead on OperatorPageHeader — strip orientation is null (TB-1434)", async () => {
     expect(buyerPolishedRouteOrientation("/governance/approval-queue")).toBeNull();
 
-    render(<GovernanceWorkflowPageContent />);
+    renderWithOperatorQuery(<GovernanceWorkflowPageContent />);
 
     await waitFor(() => {
       expect(screen.getByRole("heading", { level: 2, name: "Approval queue" })).toBeInTheDocument();
+    });
+
+    await waitFor(() => {
+      expect(screen.getByTestId("governance-overview-pending-action")).toBeInTheDocument();
     });
 
     expect(screen.getAllByText(BUYER_GOVERNANCE_OVERVIEW_PAGE_LEAD)).toHaveLength(1);
@@ -189,6 +217,5 @@ describe("GovernanceWorkflowPageContent buyer-polished chrome (TB-1434)", () => 
     expect(screen.queryAllByText("How governance approvals work")).toHaveLength(1);
     expect(screen.queryByTestId("inline-guidance-governance-overview-next")).not.toBeInTheDocument();
     expect(screen.queryByTestId("governance-overview-submit-action")).not.toBeInTheDocument();
-    expect(screen.getByTestId("governance-overview-pending-action")).toBeInTheDocument();
   });
 });

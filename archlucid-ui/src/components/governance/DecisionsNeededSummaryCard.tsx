@@ -3,7 +3,7 @@
 import { cn } from "@/lib/utils";
 import Link from "next/link";
 
-import { OperatorEmptyState } from "@/components/OperatorShellMessage";
+import { OperatorEmptyState } from "@/components/operator/OperatorShellMessage";
 import { Card, CardContent } from "@/components/ui/card";
 import type { GovernanceDecisionsNeededSummary } from "@/lib/api/governance-stickiness-api";
 import { OPERATOR_TYPOGRAPHY } from "@/lib/design-tokens";

@@ -5,10 +5,12 @@ import Link from "next/link";
 import { Workflow } from "lucide-react";
 import { useCallback, useEffect, useState } from "react";
 
+import { FindingCorrelationVocabularyDisambiguation } from "@/components/findings/FindingCorrelationVocabularyDisambiguation";
+import { ItsmConnectorsBuyerJiraServicenowVocabularyRail } from "@/components/itsm/ItsmConnectorsBuyerJiraServicenowVocabularyRail";
+import { ItsmConnectorsFindingTicketVocabularyRail } from "@/components/itsm/ItsmConnectorsFindingTicketVocabularyRail";
 import { PageHeading } from "@/components/PageHeading";
-import { FindingCorrelationVocabularyDisambiguation } from "@/components/FindingCorrelationVocabularyDisambiguation";
 import { PageContextualHelpButton } from "@/components/usability/PageContextualHelpButton";
-import { Button } from "@/components/ui/button";
+import { RefreshButton } from "@/components/ui/refresh-button";
 import { Card, CardContent, CardDescription, CardHeader, CardTitle } from "@/components/ui/card";
 import {
   fetchItsmIntegrationHealth,
@@ -23,8 +25,8 @@ import {
   ITSM_CONNECTORS_NATIVE_DISABLED_MESSAGE,
   ITSM_CONNECTORS_NATIVE_ENABLED_MESSAGE,
   ITSM_CONNECTORS_PAGE_CONFIG_CARD_TITLE,
-} from "@/lib/itsm-connectors-admin-scope";
-import { DESIGN_TOKENS, OPERATOR_TYPOGRAPHY } from "@/lib/design-tokens";
+} from "@/lib/itsm/itsm-connectors-admin-scope";
+import { DESIGN_TOKENS, OPERATOR_LAYOUT, OPERATOR_TYPOGRAPHY } from "@/lib/design-tokens";
 
 import { AdminItsmConnectorOnboardingWizard } from "./AdminItsmConnectorOnboardingWizard";
 import { AdminItsmConnectorsPageLoadingSkeleton } from "./AdminItsmConnectorsPageLoadingSkeleton";
@@ -37,7 +39,7 @@ import {
 import {
   buildItsmConnectorsAdminPageLoadResult,
   sanitizeItsmConnectorsAdminLoadError,
-} from "@/lib/itsm-connectors-admin-page-load";
+} from "@/lib/itsm/itsm-connectors-admin-page-load";
 
 export function AdminItsmConnectorsPageClient(): React.ReactElement {
   const [health, setHealth] = useState<ItsmIntegrationHealthResponse | null>(null);
@@ -90,7 +92,7 @@ export function AdminItsmConnectorsPageClient(): React.ReactElement {
   }, [refresh]);
 
   return (
-    <div className="w-full max-w-3xl space-y-6" data-testid="admin-itsm-connectors-page">
+    <div className={cn("w-full max-w-3xl", OPERATOR_LAYOUT.sectionStack)} data-testid="admin-itsm-connectors-page">
       <PageHeading
         navHref={ITSM_CONNECTORS_ADMIN_PATH}
         title={ITSM_CONNECTORS_ADMIN_LABEL}
@@ -100,21 +102,22 @@ export function AdminItsmConnectorsPageClient(): React.ReactElement {
         bordered
         actions={
           <>
-            <Button
-              type="button"
+            <RefreshButton
+              busy={isLoading}
               variant={hasLoadErrors ? "default" : "outline"}
-              size="sm"
-              disabled={isLoading}
+              label={hasLoadErrors ? "Retry" : undefined}
               onClick={() => void refresh()}
               data-testid="admin-itsm-connectors-refresh"
-            >
-              {isLoading ? "Refreshing…" : hasLoadErrors ? "Retry" : "Refresh"}
-            </Button>
+            />
             <PageContextualHelpButton />
           </>
         }
         data-testid="admin-itsm-connectors-page-heading"
       />
+
+      <ItsmConnectorsBuyerJiraServicenowVocabularyRail currentSurfaceId="itsm-connectors" />
+
+      <ItsmConnectorsFindingTicketVocabularyRail currentSurfaceId="itsm-connectors" />
 
       {showLoadingSkeleton ? (
         <AdminItsmConnectorsPageLoadingSkeleton />

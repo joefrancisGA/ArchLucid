@@ -8,8 +8,19 @@ export const AWS_TRUST_STARTER_IDENTITY_INTRO =
 
 export const AWS_TRUST_STARTER_FEDERATION_HEADING = "Federation identifiers";
 
-export const AWS_TRUST_STARTER_FEDERATION_INTRO =
-  "Bind your IAM OIDC identity provider and role trust policy to ArchLucid's hosted Azure user-assigned managed identity. Obtain the current tenant ID and managed identity object ID from Assurance status or the in-product AWS connection security review when values are environment-specific.";
+/** Lead-in before inline federation-intro links in {@link AwsTrustPolicyStarterPanel}. */
+export const AWS_TRUST_STARTER_FEDERATION_INTRO_LEAD =
+  "Bind your IAM OIDC identity provider and role trust policy to ArchLucid's hosted Azure user-assigned managed identity. Obtain the current tenant ID and managed identity object ID from";
+
+/** Trailing clause after the Connection status link in the federation intro. */
+export const AWS_TRUST_STARTER_FEDERATION_INTRO_MID = "or the";
+
+/** Closing clause after the AWS help link in the federation intro. */
+export const AWS_TRUST_STARTER_FEDERATION_INTRO_TAIL =
+  "when values are environment-specific.";
+
+/** @deprecated Render {@link AWS_TRUST_STARTER_FEDERATION_INTRO_LEAD} with links in AwsTrustPolicyStarterPanel instead. */
+export const AWS_TRUST_STARTER_FEDERATION_INTRO = `${AWS_TRUST_STARTER_FEDERATION_INTRO_LEAD} Assurance status or the in-product AWS connection security review ${AWS_TRUST_STARTER_FEDERATION_INTRO_TAIL}`;
 
 export type AwsTrustStarterFederationIdentifier = {
   readonly id: string;

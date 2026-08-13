@@ -14,7 +14,7 @@ public static class SupportProblemReportCopy
     public const string WhatToExpectMessage =
         "ArchLucid support will follow up by email. Keep your report reference handy if you contact us again.";
 
-    public const string SettingsSupportPath = "/settings/support";
+    public const string SettingsSupportPath = "/administration/support";
 
     public static string FormatAcknowledgement(string referenceId)
     {

@@ -8,7 +8,7 @@ import {
   fetchGovernanceFindingQueueRows,
 } from "@/components/governance/findings/governance-findings-query-fetch";
 import { useOperatorScopeQueryKey } from "@/hooks/use-operator-scope-query-key";
-import { shouldUseGovernanceCuratedDemoSpine } from "@/lib/buyer-demo-content-gating";
+import { shouldUseGovernanceCuratedDemoSpine } from "@/lib/buyer/buyer-demo-content-gating";
 import { operatorQueryKeys } from "@/lib/query/operator-query-keys";
 import {
   OPERATOR_QUERY_GC_MS,

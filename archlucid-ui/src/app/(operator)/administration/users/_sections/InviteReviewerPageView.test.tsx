@@ -22,8 +22,9 @@ function buildModel(overrides: Partial<SettingsRolesPageViewModel> = {}): Settin
     sortedRows: [],
     usersNote: null,
     keysNote: null,
+    usersDirectorySource: "manual",
     load: async () => {},
-    onRoleChange: async () => {},
+    onRoleChange: async () => "saved",
     ...overrides,
   };
 }

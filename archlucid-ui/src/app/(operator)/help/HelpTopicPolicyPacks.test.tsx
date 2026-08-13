@@ -1,4 +1,4 @@
-import { render, screen } from "@testing-library/react";
+import { render, screen, within } from "@testing-library/react";
 import { describe, expect, it, vi } from "vitest";
 
 vi.mock("@/components/help/MermaidDiagram", () => ({
@@ -11,7 +11,22 @@ vi.mock("@/app/(operator)/help/HelpTopicHashScroll", () => ({
   HelpTopicHashScroll: () => null,
 }));
 
-import { HelpTopicMarkdownView } from "@/app/(operator)/help/HelpTopicMarkdownView";
+vi.mock("@/components/usability/PageContextualHelpButton", () => ({
+  PageContextualHelpButton: () => <div data-testid="page-contextual-help-button" />,
+}));
+
+vi.mock("@/components/help/HelpTopicPrintButton", () => ({
+  HelpTopicPrintButton: () => null,
+}));
+
+import { HelpPolicyPacksGuideView } from "@/app/(operator)/help/_sections/HelpPolicyPacksGuideView";
+import { HELP_DILIGENCE_ARTIFACT_INDEX_TITLE } from "@/lib/help/help-diligence-artifact-index";
+import {
+  POLICY_PACKS_HELP_CLAIM_DISCIPLINE,
+  POLICY_PACKS_HELP_PRIMARY_ACTION,
+  POLICY_PACKS_HELP_SOURCES,
+} from "@/lib/policy/policy-packs-help-evidence-copy";
+import { getProductDocumentationEntry } from "@/lib/product-documentation-registry";
 import { tryLoadProductDocumentation } from "@/lib/load-product-documentation";
 
 const BANNED_DIAGRAM_COPY = [
@@ -22,8 +37,17 @@ const BANNED_DIAGRAM_COPY = [
   "Critic review",
 ] as const;
 
-describe("HelpTopicMarkdownView policy-packs", () => {
+const BANNED_DELTA_DEMO_COPY = [
+  "run-sheet",
+  "founder",
+  "acceptance checklist",
+  "docs/go-to-market",
+  "docs/runbooks",
+] as const;
+
+describe("HelpPolicyPacksGuideView (HEO)", () => {
   const loaded = tryLoadProductDocumentation("policy-packs");
+  const entry = getProductDocumentationEntry("policy-packs");
 
   it("loads policy-packs help from customer guide source", () => {
     expect(loaded).not.toBeNull();
@@ -31,12 +55,65 @@ describe("HelpTopicMarkdownView policy-packs", () => {
     expect(loaded?.entry.sourcePaths).toContain("docs/library/customer-facing/POLICY_PACKS_OPERATOR_GUIDE.md");
   });
 
+  it("declares registry provenance metadata for governance orientation", () => {
+    expect(entry?.lastReviewed).toBe("2026-08-09");
+    expect(entry?.releaseApplicability).toContain("policy pack assignment and conflict resolution");
+  });
+
+  it("renders customer help without folded delta-demo runbook", () => {
+    if (loaded === null) {
+      throw new Error("Expected policy-packs documentation to load.");
+    }
+
+    render(<HelpPolicyPacksGuideView entry={loaded.entry} markdown={loaded.markdown} />);
+
+    const visible = (document.body.textContent ?? "").toLowerCase();
+
+    expect(screen.queryByTestId("help-policy-packs-folded-delta-demo")).toBeNull();
+    expect(screen.queryByTestId("help-policy-pack-delta-demo-guide")).toBeNull();
+
+    for (const phrase of BANNED_DELTA_DEMO_COPY) {
+      expect(visible, `policy-packs help should not contain "${phrase}"`).not.toContain(phrase.toLowerCase());
+    }
+  });
+
+  it("renders Evidence orientation, primary action, and single header chrome", () => {
+    if (loaded === null) {
+      throw new Error("Expected policy-packs documentation to load.");
+    }
+
+    render(<HelpPolicyPacksGuideView entry={loaded.entry} markdown={loaded.markdown} />);
+
+    expect(screen.getAllByRole("heading", { level: 1, name: "Policy packs" })).toHaveLength(1);
+    expect(screen.getAllByTestId("help-topic-toc")).toHaveLength(1);
+    expect(screen.getByTestId("help-topic-toc")).toHaveAttribute("aria-label", "On this page");
+
+    expect(screen.queryByTestId("help-topic-registry-provenance")).toBeNull();
+
+    const exportActions = screen.getByTestId("help-topic-export-actions");
+    const policyPacksLink = within(exportActions).getByRole("link", {
+      name: POLICY_PACKS_HELP_PRIMARY_ACTION.label,
+    });
+
+    expect(policyPacksLink).toHaveAttribute("href", POLICY_PACKS_HELP_PRIMARY_ACTION.href);
+    expect(screen.getByTestId("policy-packs-help-claim-discipline")).toHaveTextContent(
+      POLICY_PACKS_HELP_CLAIM_DISCIPLINE,
+    );
+
+    const sources = screen.getByTestId("policy-packs-help-sources");
+    expect(within(sources).getByRole("heading", { name: HELP_DILIGENCE_ARTIFACT_INDEX_TITLE })).toBeInTheDocument();
+
+    for (const source of POLICY_PACKS_HELP_SOURCES) {
+      expect(within(sources).getByRole("link", { name: source.label })).toHaveAttribute("href", source.href);
+    }
+  });
+
   it("shows hierarchical merge diagram in the default viewport without disclosures", () => {
     if (loaded === null) {
       throw new Error("Expected policy-packs documentation to load.");
     }
 
-    render(<HelpTopicMarkdownView entry={loaded.entry} markdown={loaded.markdown} showContextualHelp />);
+    render(<HelpPolicyPacksGuideView entry={loaded.entry} markdown={loaded.markdown} />);
 
     expect(screen.getByRole("heading", { name: "How conflicts are resolved" })).toBeInTheDocument();
 
@@ -53,5 +130,26 @@ describe("HelpTopicMarkdownView policy-packs", () => {
     for (const phrase of BANNED_DIAGRAM_COPY) {
       expect(diagramText, `diagram should not contain "${phrase}"`).not.toContain(phrase);
     }
+  });
+
+  it("does not leak bare governance route strings in customer body copy", () => {
+    if (loaded === null) {
+      throw new Error("Expected policy-packs documentation to load.");
+    }
+
+    render(<HelpPolicyPacksGuideView entry={loaded.entry} markdown={loaded.markdown} />);
+
+    const content = screen.getByTestId("help-topic-content");
+
+    expect(content.textContent ?? "").not.toContain("/governance/policy-packs");
+    expect(content.textContent ?? "").not.toContain("/governance/standards-and-rules");
+    expect(within(content).getByRole("link", { name: "Policy packs" })).toHaveAttribute(
+      "href",
+      "/governance/policy-packs",
+    );
+    expect(within(content).getByRole("link", { name: "Standards & rules" })).toHaveAttribute(
+      "href",
+      "/governance/standards-and-rules",
+    );
   });
 });

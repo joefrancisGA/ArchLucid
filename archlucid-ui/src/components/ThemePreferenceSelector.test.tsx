@@ -86,4 +86,18 @@ describe("ThemePreferenceSelector", () => {
       expect(setUserAppearancePreferenceMock).toHaveBeenCalledWith("dark");
     });
   });
+
+  it("surfaces local-only status when account sync fails", async () => {
+    setUserAppearancePreferenceMock.mockRejectedValueOnce(new Error("offline"));
+
+    renderThemeSelector();
+
+    const darkOption = await waitFor(() => document.getElementById("theme-preference-dark") as HTMLInputElement);
+    fireEvent.click(darkOption);
+
+    await waitFor(() => {
+      expect(screen.getByTestId("theme-preference-sync-status")).toHaveAttribute("role", "alert");
+    });
+    expect(screen.getByText(/Saved on this device only/i)).toBeInTheDocument();
+  });
 });

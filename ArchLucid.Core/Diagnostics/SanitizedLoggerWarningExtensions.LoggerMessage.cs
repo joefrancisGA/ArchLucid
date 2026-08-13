@@ -47,4 +47,12 @@ public static partial class SanitizedLoggerWarningExtensions
         ILogger logger,
         Exception exception,
         string eventType);
+
+    [LoggerMessage(
+        EventId = 3205,
+        Level = LogLevel.Warning,
+        Message = "Integration event outbox enqueue skipped for {EventType}: MessageId is required when TransactionalOutboxEnabled is true.")]
+    private static partial void EmitIntegrationEventOutboxMissingMessageId(
+        ILogger logger,
+        string eventType);
 }

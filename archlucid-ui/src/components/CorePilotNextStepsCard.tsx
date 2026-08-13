@@ -3,9 +3,9 @@ import { cn } from "@/lib/utils";
 import { OPERATOR_LINK, OPERATOR_TYPOGRAPHY, type EnterpriseStatusKind } from "@/lib/design-tokens";
 
 import Link from "next/link";
-import { useEffect, useState } from "react";
 
 import { InlineGuidance } from "@/components/InlineGuidance";
+import { useCorePilotCommitContextQuery } from "@/hooks/use-core-pilot-commit-context-query";
 import { InlineGuidanceText } from "@/components/InlineGuidanceText";
 import { InAppHelpLink } from "@/components/InAppHelpLink";
 import { OperatorHomeDisclosureSection } from "@/components/operator-home/OperatorHomeDisclosureSection";
@@ -15,16 +15,14 @@ import {
   deriveCorePilotCommitProgressState,
   type CorePilotCommitProgressState,
 } from "@/lib/core-pilot-commit-progress";
-import { fetchCorePilotCommitContextCached } from "@/lib/core-pilot-commit-context";
 import { EXECUTIVE_DASHBOARD_HREF } from "@/lib/executive-dashboard-route";
-import { GOVERNANCE_WORKSPACE_HEALTH_HREF } from "@/lib/governance-route-paths";
-import { OPERATOR_HOME_DISCLOSURE_STORAGE_KEYS } from "@/lib/operator-home-disclosure-storage";
-import { OPERATOR_START_REVIEW_QUICK_ACTION_LABEL } from "@/lib/operator-nav-labels";
+import { GOVERNANCE_WORKSPACE_HEALTH_HREF } from "@/lib/governance/governance-route-paths";
+import { OPERATOR_HOME_DISCLOSURE_STORAGE_KEYS } from "@/lib/operator/operator-home-disclosure-storage";
+import { OPERATOR_START_REVIEW_QUICK_ACTION_LABEL } from "@/lib/operator/operator-nav-labels";
 import { StatusTag } from "@/components/ui/status-tag";
 
 const NEXT_STEPS_LEGACY_MINIMIZED_STORAGE_KEY = "archlucid_core_pilot_next_steps_minimized_v1";
 
-type Phase = "loading" | "ready";
 type FirstReviewCheckpointStatus = "complete" | "active" | "pending";
 type FirstReviewCheckpointId = "intake" | "execute" | "commit" | "export" | "sponsor-ready";
 
@@ -233,7 +231,7 @@ function RescueLink() {
   return (
     <p className={cn("m-0 mt-2 text-neutral-500 dark:text-neutral-400", OPERATOR_TYPOGRAPHY.helper)} data-testid="pilot-rescue-link">
       Blocked?{" "}
-      <Link href="/help" className="font-medium text-blue-700 underline underline-offset-2 dark:text-blue-400">
+      <Link href="/help" className={OPERATOR_LINK.nav}>
         Help
       </Link>
       {" "}or use the{" "}
@@ -255,53 +253,16 @@ function RescueLink() {
  * Operate links remain secondary: only offered after a manifest is committed.
  */
 export function CorePilotNextStepsCard() {
-  const [phase, setPhase] = useState<Phase>("loading");
-  const [hasCommit, setHasCommit] = useState(false);
-  const [latestRunId, setLatestRunId] = useState<string | null>(null);
-  const [firstCommittedRunId, setFirstCommittedRunId] = useState<string | null>(null);
-  const [latestRunReadyToFinalize, setLatestRunReadyToFinalize] = useState(false);
+  const { data, isPending, isError } = useCorePilotCommitContextQuery();
 
-  useEffect(() => {
-    let cancelled = false;
-
-    async function load() {
-      setPhase("loading");
-
-      try {
-        const ctx = await fetchCorePilotCommitContextCached();
-
-        if (cancelled) {
-          return;
-        }
-
-        setHasCommit(ctx.hasCommittedManifest);
-        setLatestRunId(ctx.latestRunId);
-        setFirstCommittedRunId(ctx.firstCommittedRunId);
-        setLatestRunReadyToFinalize(ctx.latestRunReadyToFinalize);
-        setPhase("ready");
-      } catch {
-        if (cancelled) {
-          return;
-        }
-
-        setHasCommit(false);
-        setLatestRunId(null);
-        setFirstCommittedRunId(null);
-        setLatestRunReadyToFinalize(false);
-        setPhase("ready");
-      }
-    }
-
-    void load();
-
-    return () => {
-      cancelled = true;
-    };
-  }, []);
-
-  if (phase === "loading") {
+  if (isPending) {
     return null;
   }
+
+  const hasCommit = !isError && data.hasCommittedManifest;
+  const latestRunId = isError ? null : data.latestRunId;
+  const firstCommittedRunId = isError ? null : data.firstCommittedRunId;
+  const latestRunReadyToFinalize = !isError && data.latestRunReadyToFinalize;
 
   const pilotState: CorePilotCommitProgressState = deriveCorePilotCommitProgressState(hasCommit, latestRunId);
 
@@ -334,7 +295,7 @@ export function CorePilotNextStepsCard() {
         <div className="mb-3">
           <Link
             href={reviewHref}
-            className="font-medium text-blue-700 underline underline-offset-2 dark:text-blue-400"
+            className={OPERATOR_LINK.nav}
           >
             Open architecture review detail
           </Link>
@@ -366,7 +327,7 @@ export function CorePilotNextStepsCard() {
           >
             Workspace health (sponsor view)
           </Link>
-          <Link href="/insights/ask-review-questions" className="font-medium text-blue-700 underline dark:text-blue-400">
+          <Link href="/insights/ask-review-questions" className={OPERATOR_LINK.nav}>
             Open Ask (Operate)
           </Link>
         </div>
@@ -405,7 +366,7 @@ export function CorePilotNextStepsCard() {
             <span aria-hidden className={cn("mt-0.5 shrink-0 font-bold text-teal-700 dark:text-teal-300", OPERATOR_TYPOGRAPHY.helper)}>▶</span>
             <Link
               href={latestRunId !== null ? `/insights/evidence-graph?runId=${encodeURIComponent(latestRunId)}` : "/insights/evidence-graph"}
-              className="font-medium text-blue-700 underline dark:text-blue-400"
+              className={OPERATOR_LINK.nav}
               data-testid="pilot-active-evidence-link"
             >
               Evidence — open evidence trail
@@ -415,7 +376,7 @@ export function CorePilotNextStepsCard() {
             <span aria-hidden className={cn("mt-0.5 shrink-0 font-bold text-teal-700 dark:text-teal-300", OPERATOR_TYPOGRAPHY.helper)}>▶</span>
             <Link
               href={latestRunId !== null ? `/architecture/reviews/${latestRunId}` : "/architecture/reviews"}
-              className="font-medium text-blue-700 underline dark:text-blue-400"
+              className={OPERATOR_LINK.nav}
               data-testid="pilot-active-step-link"
             >
               Review — complete the assessment and finalize the review
@@ -425,7 +386,7 @@ export function CorePilotNextStepsCard() {
             <span aria-hidden className={cn("mt-0.5 shrink-0 text-neutral-400", OPERATOR_TYPOGRAPHY.helper)}>4.</span>
             <span>
               Report — sponsor-facing summary on{" "}
-              <Link href={EXECUTIVE_DASHBOARD_HREF} className="font-medium text-blue-700 underline dark:text-blue-400">
+              <Link href={EXECUTIVE_DASHBOARD_HREF} className={OPERATOR_LINK.nav}>
                 Report
               </Link>{" "}
               after outputs land.
@@ -463,7 +424,7 @@ export function CorePilotNextStepsCard() {
           <span aria-hidden className={cn("mt-0.5 shrink-0 font-bold text-teal-700 dark:text-teal-300", OPERATOR_TYPOGRAPHY.helper)}>▶</span>
           <Link
             href="/architecture/reviews/new"
-            className="font-medium text-blue-700 underline dark:text-blue-400"
+            className={OPERATOR_LINK.nav}
             data-testid="pilot-active-step-link"
           >
             {OPERATOR_START_REVIEW_QUICK_ACTION_LABEL}

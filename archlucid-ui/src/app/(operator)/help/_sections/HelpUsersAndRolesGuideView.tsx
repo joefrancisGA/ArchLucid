@@ -1,12 +1,14 @@
 import Link from "next/link";
 
-import { HelpTopicTitleRow } from "@/components/help/HelpTopicPageHeader";
 import { HelpTopicHashScroll } from "@/app/(operator)/help/HelpTopicHashScroll";
 import { HelpUsersAndRolesManageAction } from "@/app/(operator)/help/_sections/HelpUsersAndRolesManageAction";
-import { PageContextualHelpButton } from "@/components/usability/PageContextualHelpButton";
+import { HelpTopicTableOfContents } from "@/components/help/HelpTopicTableOfContents";
+import { UsersAndRolesHelpEvidenceOrientationStrip } from "@/components/help/UsersAndRolesHelpEvidenceOrientationStrip";
+import { OperatorPageBreadcrumb } from "@/components/operator/OperatorPageBreadcrumb";
+import { OperatorPageHeader } from "@/components/operator/OperatorPageHeader";
 import { OPERATOR_LAYOUT, OPERATOR_SHELL_SCROLL_OFFSET_CLASS, OPERATOR_TYPOGRAPHY } from "@/lib/design-tokens";
-import { HELP_PAGE_LAYOUT } from "@/lib/help-page-layout";
-import type { ProductDocumentationEntry } from "@/lib/product-documentation-registry";
+import { HELP_PAGE_LAYOUT } from "@/lib/help/help-page-layout";
+import { inAppHelpHref, type ProductDocumentationEntry } from "@/lib/product-documentation-registry";
 import {
   USERS_AND_ROLES_CAPABILITY_MATRIX_CAPTION,
   USERS_AND_ROLES_CAPABILITY_MATRIX_HEADING,
@@ -29,6 +31,7 @@ import {
 import {
   USERS_AND_ROLES_CAPABILITY_ROWS,
   USERS_AND_ROLES_FAQ,
+  USERS_AND_ROLES_GUIDE_HEADINGS,
   USERS_AND_ROLES_MANAGING_ACCESS_STEPS,
   USERS_AND_ROLES_ROLE_OVERVIEW,
   USERS_AND_ROLES_SCOPE_GUIDE_HREF,
@@ -44,7 +47,7 @@ function HelpSectionHeading(props: { readonly id: string; readonly children: str
   return (
     <h2
       id={props.id}
-      className={cn(OPERATOR_SHELL_SCROLL_OFFSET_CLASS, OPERATOR_TYPOGRAPHY.sectionTitle, "m-0 scroll-mt-24")}
+      className={cn(OPERATOR_SHELL_SCROLL_OFFSET_CLASS, OPERATOR_TYPOGRAPHY.sectionTitle, "m-0 mt-10 first:mt-0 scroll-mt-24")}
     >
       {props.children}
     </h2>
@@ -133,98 +136,123 @@ function CapabilityMatrixTable(): React.ReactElement {
 
 /** Customer-facing users and roles guide for `/help/users-and-roles`. */
 export function HelpUsersAndRolesGuideView(props: HelpUsersAndRolesGuideViewProps): React.ReactElement {
-  void props.entry;
+  const { entry } = props;
 
   return (
-    <article
-      className={cn(OPERATOR_LAYOUT.majorSectionGap, "mx-auto w-full max-w-[68rem]")}
-      data-testid="help-users-and-roles-page"
-    >
+    <article className={OPERATOR_LAYOUT.majorSectionGap} data-testid="help-users-and-roles-page">
       <HelpTopicHashScroll />
-      <header className={cn(HELP_PAGE_LAYOUT.articleHeader, "space-y-4 pb-4")}>
-        <div className="flex flex-wrap items-start justify-between gap-3">
-          <div className="min-w-0 space-y-4">
-            <HelpTopicTitleRow title={USERS_AND_ROLES_PAGE_TITLE} />
-            <p className={cn("m-0 max-w-prose text-al-text-secondary", OPERATOR_TYPOGRAPHY.body)}>
-              {USERS_AND_ROLES_PAGE_INTRO}
+      <OperatorPageHeader
+        title={USERS_AND_ROLES_PAGE_TITLE}
+        titleTestId="help-users-and-roles-page-title"
+        subtitle={USERS_AND_ROLES_PAGE_INTRO}
+        navHref={inAppHelpHref(entry.slug)}
+        headingLevel="h1"
+        breadcrumb={
+          <OperatorPageBreadcrumb
+            data-testid="help-users-and-roles-breadcrumb"
+            items={[{ label: "Help", href: "/help" }, { label: USERS_AND_ROLES_PAGE_TITLE }]}
+          />
+        }
+        actions={<HelpUsersAndRolesManageAction />}
+      />
+
+      <div className={HELP_PAGE_LAYOUT.contentGrid}>
+        <div className={cn(HELP_PAGE_LAYOUT.contentColumn, "space-y-6")}>
+          <section className="space-y-3" aria-labelledby="users-and-roles-how-access-works-heading">
+            <HelpSectionHeading id="how-access-works">{USERS_AND_ROLES_HOW_ACCESS_WORKS_HEADING}</HelpSectionHeading>
+            <p
+              id="users-and-roles-how-access-works-heading"
+              className={cn("m-0 max-w-prose text-al-text-secondary", OPERATOR_TYPOGRAPHY.body)}
+            >
+              {USERS_AND_ROLES_HOW_ACCESS_WORKS_BODY}
             </p>
-            <HelpUsersAndRolesManageAction />
-          </div>
-          <PageContextualHelpButton />
-        </div>
-      </header>
-<section className="space-y-3" aria-labelledby="users-and-roles-how-access-works-heading">
-        <HelpSectionHeading id="how-access-works">{USERS_AND_ROLES_HOW_ACCESS_WORKS_HEADING}</HelpSectionHeading>
-        <p id="users-and-roles-how-access-works-heading" className={cn("m-0 max-w-prose text-al-text-secondary", OPERATOR_TYPOGRAPHY.body)}>
-          {USERS_AND_ROLES_HOW_ACCESS_WORKS_BODY}
-        </p>
-      </section>
+          </section>
 
-      <section className="space-y-3" aria-labelledby="users-and-roles-role-overview-heading">
-        <HelpSectionHeading id="role-overview">{USERS_AND_ROLES_ROLE_OVERVIEW_HEADING}</HelpSectionHeading>
-        <RoleOverviewTable />
-      </section>
+          <section className="space-y-3" aria-labelledby="users-and-roles-role-overview-heading">
+            <HelpSectionHeading id="role-overview">{USERS_AND_ROLES_ROLE_OVERVIEW_HEADING}</HelpSectionHeading>
+            <RoleOverviewTable />
+          </section>
 
-      <section className="space-y-3" aria-labelledby="users-and-roles-capability-matrix-heading">
-        <HelpSectionHeading id="capability-matrix">{USERS_AND_ROLES_CAPABILITY_MATRIX_HEADING}</HelpSectionHeading>
-        <p id="users-and-roles-capability-matrix-heading" className={cn("m-0 text-al-text-secondary", OPERATOR_TYPOGRAPHY.helper)}>
-          {USERS_AND_ROLES_CAPABILITY_MATRIX_CAPTION}
-        </p>
-        <CapabilityMatrixTable />
-      </section>
+          <section className="space-y-3" aria-labelledby="users-and-roles-capability-matrix-heading">
+            <HelpSectionHeading id="capability-matrix">{USERS_AND_ROLES_CAPABILITY_MATRIX_HEADING}</HelpSectionHeading>
+            <UsersAndRolesHelpEvidenceOrientationStrip />
+            <p
+              id="users-and-roles-capability-matrix-heading"
+              className={cn("m-0 text-al-text-secondary", OPERATOR_TYPOGRAPHY.helper)}
+            >
+              {USERS_AND_ROLES_CAPABILITY_MATRIX_CAPTION}
+            </p>
+            <CapabilityMatrixTable />
+          </section>
 
-      <section className="space-y-3" aria-labelledby="users-and-roles-workspace-access-heading">
-        <HelpSectionHeading id="workspace-access">{USERS_AND_ROLES_WORKSPACE_ACCESS_HEADING}</HelpSectionHeading>
-        <p id="users-and-roles-workspace-access-heading" className={cn("m-0 max-w-prose text-al-text-secondary", OPERATOR_TYPOGRAPHY.body)}>
-          {USERS_AND_ROLES_WORKSPACE_ACCESS_BODY}{" "}
-          <Link href={USERS_AND_ROLES_SCOPE_GUIDE_HREF} className="text-teal-700 underline dark:text-teal-400">
-            {USERS_AND_ROLES_SCOPE_GUIDE_LINK_LABEL}
-          </Link>
-          .
-        </p>
-      </section>
+          <section className="space-y-3" aria-labelledby="users-and-roles-workspace-access-heading">
+            <HelpSectionHeading id="workspace-access">{USERS_AND_ROLES_WORKSPACE_ACCESS_HEADING}</HelpSectionHeading>
+            <p
+              id="users-and-roles-workspace-access-heading"
+              className={cn("m-0 max-w-prose text-al-text-secondary", OPERATOR_TYPOGRAPHY.body)}
+            >
+              {USERS_AND_ROLES_WORKSPACE_ACCESS_BODY}{" "}
+              <Link href={USERS_AND_ROLES_SCOPE_GUIDE_HREF} className="text-teal-700 underline dark:text-teal-400">
+                {USERS_AND_ROLES_SCOPE_GUIDE_LINK_LABEL}
+              </Link>
+              .
+            </p>
+          </section>
 
-      <section className="space-y-3" aria-labelledby="users-and-roles-review-participation-heading">
-        <HelpSectionHeading id="review-participation">{USERS_AND_ROLES_REVIEW_PARTICIPATION_HEADING}</HelpSectionHeading>
-        <p id="users-and-roles-review-participation-heading" className={cn("m-0 max-w-prose text-al-text-secondary", OPERATOR_TYPOGRAPHY.body)}>
-          {USERS_AND_ROLES_REVIEW_PARTICIPATION_BODY}
-        </p>
-      </section>
+          <section className="space-y-3" aria-labelledby="users-and-roles-review-participation-heading">
+            <HelpSectionHeading id="review-participation">{USERS_AND_ROLES_REVIEW_PARTICIPATION_HEADING}</HelpSectionHeading>
+            <p
+              id="users-and-roles-review-participation-heading"
+              className={cn("m-0 max-w-prose text-al-text-secondary", OPERATOR_TYPOGRAPHY.body)}
+            >
+              {USERS_AND_ROLES_REVIEW_PARTICIPATION_BODY}
+            </p>
+          </section>
 
-      <section className="space-y-3" aria-labelledby="users-and-roles-managing-access-heading">
-        <HelpSectionHeading id="managing-access">{USERS_AND_ROLES_MANAGING_ACCESS_HEADING}</HelpSectionHeading>
-        <ol id="users-and-roles-managing-access-heading" className={cn("m-0 max-w-prose list-decimal space-y-2 pl-5 text-al-text-secondary", OPERATOR_TYPOGRAPHY.body)}>
-          {USERS_AND_ROLES_MANAGING_ACCESS_STEPS.map((step) => (
-            <li key={step}>{step}</li>
-          ))}
-        </ol>
-      </section>
+          <section className="space-y-3" aria-labelledby="users-and-roles-managing-access-heading">
+            <HelpSectionHeading id="managing-access">{USERS_AND_ROLES_MANAGING_ACCESS_HEADING}</HelpSectionHeading>
+            <ol
+              id="users-and-roles-managing-access-heading"
+              className={cn("m-0 max-w-prose list-decimal space-y-2 pl-5 text-al-text-secondary", OPERATOR_TYPOGRAPHY.body)}
+            >
+              {USERS_AND_ROLES_MANAGING_ACCESS_STEPS.map((step) => (
+                <li key={step}>{step}</li>
+              ))}
+            </ol>
+          </section>
 
-      <section className="space-y-3" aria-labelledby="users-and-roles-security-guidance-heading">
-        <HelpSectionHeading id="security-guidance">{USERS_AND_ROLES_SECURITY_GUIDANCE_HEADING}</HelpSectionHeading>
-        <ul id="users-and-roles-security-guidance-heading" className={cn("m-0 max-w-prose list-disc space-y-2 pl-5 text-al-text-secondary", OPERATOR_TYPOGRAPHY.body)}>
-          {USERS_AND_ROLES_SECURITY_GUIDANCE_ITEMS.map((item) => (
-            <li key={item}>{item}</li>
-          ))}
-        </ul>
-        <p className={cn("m-0", OPERATOR_TYPOGRAPHY.body)}>
-          <Link href={USERS_AND_ROLES_SECURITY_TRUST_HREF} className="text-teal-700 underline dark:text-teal-400">
-            {USERS_AND_ROLES_SECURITY_TRUST_LINK_LABEL}
-          </Link>
-        </p>
-      </section>
+          <section className="space-y-3" aria-labelledby="users-and-roles-security-guidance-heading">
+            <HelpSectionHeading id="security-guidance">{USERS_AND_ROLES_SECURITY_GUIDANCE_HEADING}</HelpSectionHeading>
+            <ul
+              id="users-and-roles-security-guidance-heading"
+              className={cn("m-0 max-w-prose list-disc space-y-2 pl-5 text-al-text-secondary", OPERATOR_TYPOGRAPHY.body)}
+            >
+              {USERS_AND_ROLES_SECURITY_GUIDANCE_ITEMS.map((item) => (
+                <li key={item}>{item}</li>
+              ))}
+            </ul>
+            <p className={cn("m-0", OPERATOR_TYPOGRAPHY.body)}>
+              <Link href={USERS_AND_ROLES_SECURITY_TRUST_HREF} className="text-teal-700 underline dark:text-teal-400">
+                {USERS_AND_ROLES_SECURITY_TRUST_LINK_LABEL}
+              </Link>
+            </p>
+          </section>
 
-      <section className="space-y-4" aria-labelledby="users-and-roles-faq-heading">
-        <HelpSectionHeading id="common-questions">{USERS_AND_ROLES_FAQ_HEADING}</HelpSectionHeading>
-        <div className="space-y-4">
-          {USERS_AND_ROLES_FAQ.map((item) => (
-            <div key={item.id} data-testid={`users-and-roles-faq-${item.id}`}>
-              <h3 className={cn("m-0", OPERATOR_TYPOGRAPHY.cardTitle)}>{item.question}</h3>
-              <p className={cn("m-0 mt-2 max-w-prose text-al-text-secondary", OPERATOR_TYPOGRAPHY.body)}>{item.answer}</p>
+          <section className="space-y-4" aria-labelledby="users-and-roles-faq-heading">
+            <HelpSectionHeading id="common-questions">{USERS_AND_ROLES_FAQ_HEADING}</HelpSectionHeading>
+            <div className="space-y-4">
+              {USERS_AND_ROLES_FAQ.map((item) => (
+                <div key={item.id} data-testid={`users-and-roles-faq-${item.id}`}>
+                  <h3 className={cn("m-0", OPERATOR_TYPOGRAPHY.cardTitle)}>{item.question}</h3>
+                  <p className={cn("m-0 mt-2 max-w-prose text-al-text-secondary", OPERATOR_TYPOGRAPHY.body)}>{item.answer}</p>
+                </div>
+              ))}
             </div>
-          ))}
+          </section>
         </div>
-      </section>
+
+        <HelpTopicTableOfContents headings={USERS_AND_ROLES_GUIDE_HEADINGS} enableScrollSpy />
+      </div>
     </article>
   );
 }

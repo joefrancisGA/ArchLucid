@@ -13,7 +13,7 @@ import {
   CLOUD_CONNECTIONS_HELP_TIER_1,
   CLOUD_CONNECTIONS_HELP_TIER_2,
 } from "@/lib/cloud-connections-help-guide-content";
-import { HELP_DILIGENCE_ARTIFACT_INDEX_TITLE } from "@/lib/help-diligence-artifact-index";
+import { HELP_DILIGENCE_ARTIFACT_INDEX_TITLE } from "@/lib/help/help-diligence-artifact-index";
 import { getProductDocumentationEntry } from "@/lib/product-documentation-registry";
 
 function renderCloudConnectionsGuide(markdown = "# Cloud connections\n\nOptional connectors for read-only evidence.\n"): void {
@@ -48,9 +48,9 @@ describe("HelpCloudConnectionsGuideView (HCE)", () => {
     expect(screen.getByTestId("help-cloud-connections-breadcrumb")).toHaveTextContent("Help");
     expect(screen.getByTestId("help-cloud-connections-breadcrumb")).toHaveTextContent("Cloud connections");
     expect(screen.getByRole("link", { name: "Help" })).toHaveAttribute("href", "/help");
-    expect(screen.getByTestId("help-topic-registry-provenance")).toHaveTextContent("Last reviewed 2026-08-09");
-    expect(screen.getByTestId("help-topic-download-pdf")).toBeInTheDocument();
+    expect(screen.queryByTestId("help-topic-registry-provenance")).toBeNull();
     expect(screen.getByTestId("help-topic-print-pdf")).toBeInTheDocument();
+    expect(screen.queryByTestId("help-topic-download-pdf")).toBeNull();
     expect(screen.queryByTestId("help-cloud-connections-sources")).toBeNull();
     expect(screen.getByTestId("help-cloud-connections-orientation")).toHaveAttribute(
       "aria-labelledby",

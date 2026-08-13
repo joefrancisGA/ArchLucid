@@ -8,7 +8,7 @@
 
 `.NET: full regression — Api.Tests integration shard 2/6 (SQL)` (matrix `shard=1`) ran for exactly
 **4 hours 01 minute** and was killed by GitHub's `timeout-minutes: 240` job ceiling — **not** the
-75-minute `--blame-hang-timeout`. No blame dump was produced. The job was `cancelled`, not `failure`.
+75-minute `--blame-hang-timeout`. No blame dump was produced. The job was `canceled`, not `failure`.
 
 ## Evidence — vstest-diag shows the exact culprit
 
@@ -102,7 +102,7 @@ builder.ConfigureAppConfiguration((_, config) =>
    diag run.
 3. Api.Tests integration shard 2/6 completes within the 75-minute blame-hang window (likely well
    under 30 minutes once the service is disabled).
-4. No production behaviour changes — the service is only suppressed in test fixtures.
+4. No production behavior changes — the service is only suppressed in test fixtures.
 5. `ArchLucid.Backend.slnf` compile check passes.
 
 ## Verification (read-only — no full shard needed)

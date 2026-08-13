@@ -1,5 +1,5 @@
 import { getRunDetail, getRunSummary } from "@/lib/api";
-import { buyerFacingReviewTitleFromSummary } from "@/lib/buyer-facing-review-title";
+import { buyerFacingReviewTitleFromSummary } from "@/lib/buyer/buyer-facing-review-title";
 
 export type GovernanceReviewContextLoad = {
   readonly displayTitle: string | null;

@@ -1,6 +1,17 @@
 import { fireEvent, render, screen, waitFor, within } from "@testing-library/react";
 import { afterEach, describe, expect, it, vi } from "vitest";
 
+const usePathnameMock = vi.hoisted(() => vi.fn(() => "/"));
+
+vi.mock("next/navigation", async (importOriginal) => {
+  const actual = await importOriginal<typeof import("next/navigation")>();
+
+  return {
+    ...actual,
+    usePathname: () => usePathnameMock(),
+  };
+});
+
 import { ApiKeysSettingsPageClient } from "./ApiKeysSettingsPageClient";
 import { ApiKeysSettingsRestrictedState } from "./ApiKeysSettingsRestrictedState";
 
@@ -15,6 +26,7 @@ vi.mock("@/lib/internal-operator-env", () => ({
 describe("ApiKeysSettingsPageClient", () => {
   afterEach(() => {
     vi.unstubAllGlobals();
+    usePathnameMock.mockReturnValue("/");
   });
 
   it("loads masked fingerprints without internal config names and requires admin rotate confirmation", async () => {
@@ -81,13 +93,19 @@ describe("ApiKeysSettingsPageClient", () => {
   });
 
   it("shows restricted state when surface is disabled", () => {
+    usePathnameMock.mockReturnValue("/administration/api-keys");
+
     render(<ApiKeysSettingsRestrictedState reason="surface_disabled" />);
 
     expect(screen.getByTestId("api-keys-settings-restricted")).toBeInTheDocument();
-    expect(
-      screen.getByText(
-        "API key management is not offered in the product UI yet. Interactive access uses Users and roles. Host automation credentials stay in deployment configuration when needed.",
-      ),
-    ).toBeInTheDocument();
+    expect(screen.getByTestId("api-keys-settings-restricted-title")).toHaveTextContent(
+      "API keys are not managed in this release.",
+    );
+    expect(screen.getByTestId("api-keys-settings-page-breadcrumb")).toHaveTextContent("Administration");
+    expect(screen.getByRole("link", { name: "Users and roles" })).toHaveAttribute(
+      "href",
+      "/administration/users",
+    );
+    expect(screen.getByTestId("page-contextual-help-button")).toBeInTheDocument();
   });
 });

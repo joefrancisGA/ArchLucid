@@ -54,6 +54,7 @@ vi.mock("@/lib/use-nav-surface", () => ({
 }));
 
 vi.mock("@/components/usability/PageContextualHelpButton", () => ({
+  PAGE_HELP_SHORT_TRIGGER_TEXT: "Help",
   PageContextualHelpButton: () => <div data-testid="page-contextual-help-button" />,
 }));
 
@@ -71,7 +72,7 @@ import {
   ALERTS_CONFIGURATION_PAGE_SUBTITLE,
   BUYER_ALERTS_CONFIGURATION_PAGE_SUBTITLE,
 } from "@/lib/alerts-page-copy";
-import { GOVERNANCE_OVERVIEW_PAGE_LEAD } from "@/lib/governance-overview-copy";
+import { GOVERNANCE_OVERVIEW_PAGE_LEAD } from "@/lib/governance/governance-overview-copy";
 
 import { AlertRulesHubClient } from "./AlertRulesHubClient";
 

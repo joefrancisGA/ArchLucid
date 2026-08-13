@@ -3,7 +3,7 @@ import { afterEach, beforeEach, describe, expect, it, vi } from "vitest";
 
 import { AppShellClient } from "@/components/AppShellClient";
 import { OPERATOR_SHELL_BODY_ROW_CLASS, OPERATOR_SHELL_SIDEBAR_WIDTH_CLASS } from "@/lib/design-tokens";
-import { PERSONA_SHELL_WORDMARK_ARIA_LABEL } from "@/lib/persona-shell-vocabulary";
+import { PERSONA_SHELL_WORDMARK_ARIA_LABEL } from "@/lib/vocabulary/persona-shell-vocabulary";
 import { operatorNavOutsideProviderPrincipal } from "@/lib/current-principal";
 import { AUTHORITY_RANK } from "@/lib/nav-authority";
 import { useOperatorQueryTestLifecycle } from "@/testing/operator-query-test-helpers";
@@ -38,8 +38,8 @@ vi.mock("@/lib/llm-monthly-budget-status", async (importOriginal) => {
   };
 });
 
-vi.mock("@/lib/operator-static-demo", async (importOriginal) => {
-  const actual = await importOriginal<typeof import("@/lib/operator-static-demo")>();
+vi.mock("@/lib/operator/operator-static-demo", async (importOriginal) => {
+  const actual = await importOriginal<typeof import("@/lib/operator/operator-static-demo")>();
 
   return {
     ...actual,
@@ -47,8 +47,8 @@ vi.mock("@/lib/operator-static-demo", async (importOriginal) => {
   };
 });
 
-vi.mock("@/components/OperatorNavAuthorityProvider", async (importOriginal) => {
-  const actual = await importOriginal<typeof import("@/components/OperatorNavAuthorityProvider")>();
+vi.mock("@/components/operator/OperatorNavAuthorityProvider", async (importOriginal) => {
+  const actual = await importOriginal<typeof import("@/components/operator/OperatorNavAuthorityProvider")>();
 
   return {
     ...actual,
@@ -154,10 +154,14 @@ describe("AppShellClient — LLM budget chrome", () => {
       </AppShellClient>,
     );
 
-    await waitFor(() => {
-      expect(screen.getByTestId("operator-shell-help-trigger")).toBeInTheDocument();
-      expect(screen.getByTestId("llm-budget-status-pill")).toBeInTheDocument();
-    });
+    // Both come from deferred chunks behind a budget query; the 1s default flakes under full-suite load.
+    await waitFor(
+      () => {
+        expect(screen.getByTestId("operator-shell-help-trigger")).toBeInTheDocument();
+        expect(screen.getByTestId("llm-budget-status-pill")).toBeInTheDocument();
+      },
+      { timeout: 5000 },
+    );
 
     expect(screen.queryByTestId("operator-shell-topbar-more-trigger")).not.toBeInTheDocument();
 

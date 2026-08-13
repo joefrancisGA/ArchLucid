@@ -96,7 +96,7 @@ Findings of substance:
 | `class-variance-authority` | `^0.7.1` | `badge.tsx`, `label.tsx`, `button.tsx` variant definitions | **Keep** |
 | `clsx` | `^2.1.1` | `src/lib/utils.ts` (`cn()` helper, paired with `tailwind-merge`) | **Keep** |
 | `cmdk` | `^1.1.1` | `CommandPalette.tsx`, `src/components/ui/command.tsx` | **Keep** |
-| `diff` | `^8.0.3` | `src/lib/architecture-manifest-line-diff.ts` | **Keep** |
+| `diff` | `^8.0.3` | `src/lib/architecture/architecture-manifest-line-diff.ts` | **Keep** |
 | `fflate` | `^0.8.3` | Zip read/write for Azure extractor + Tier-1 inventory package uploads (16+ files) | **Keep** |
 | `html2canvas` | `^1.4.1` | Dynamically imported in 3 export features (graph PNG export, drift-chart PDF export, CTO demo leave-behind) | **Keep (correctly code-split)** |
 | `jspdf` | `^4.2.1` | Dynamically imported alongside `html2canvas` for PDF export | **Keep (correctly code-split)** |

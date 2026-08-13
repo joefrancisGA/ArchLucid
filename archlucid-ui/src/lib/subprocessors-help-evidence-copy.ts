@@ -18,3 +18,15 @@ export const SUBPROCESSORS_HELP_SOURCES: readonly EvidenceSourceLink[] = [
   { label: "Tenant isolation", href: inAppHelpHref("data-handling-tenant-isolation") },
   { label: "Procurement", href: inAppHelpHref("procurement") },
 ] as const;
+
+export const SUBPROCESSORS_HELP_REGISTER_STATUS_LABEL = "Current register" as const;
+
+export function formatSubprocessorsHelpReviewedCopy(lastReviewed: string): string {
+  return `Register reviewed ${lastReviewed} — current subprocessor list for hosted ArchLucid SaaS.`;
+}
+
+export const SUBPROCESSORS_HELP_PRIMARY_ACTION = {
+  label: "Open DPA template",
+  href: inAppHelpHref("dpa-template"),
+  testId: "help-subprocessors-primary-action",
+} as const;

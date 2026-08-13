@@ -1,6 +1,6 @@
 import { describe, expect, it } from "vitest";
 
-import { EXECUTIVE_DASHBOARD_WORKSPACE_HEALTH_HREF } from "@/lib/executive-dashboard-route";
+import { EXECUTIVE_DASHBOARD_WORKSPACE_HEALTH_HREF } from "@/lib/executive/executive-dashboard-route";
 import { OperateGovernanceNavGroupBuilder } from "@/lib/operate-governance-nav-group-builder";
 
 describe("OperateGovernanceNavGroupBuilder", () => {

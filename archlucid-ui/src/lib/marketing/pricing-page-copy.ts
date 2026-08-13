@@ -1,4 +1,4 @@
-import { BUYER_MARKETING_PRICING_PAGE_INTRO } from "@/lib/buyer-polish-copy";
+import { BUYER_MARKETING_PRICING_PAGE_INTRO } from "@/lib/buyer/buyer-polish-copy";
 
 export const PRICING_PAGE_TITLE = "Pricing" as const;
 

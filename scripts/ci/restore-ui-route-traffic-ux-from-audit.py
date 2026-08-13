@@ -63,7 +63,6 @@ _AUDIT_UX_SCORES: dict[str, int] = {
     "SIG": 77,
     "FI": 75,
     "AUX": 74,
-    "ADV": 74,
     "SAX": 74,
     "GAI": 73,
     "MMX": 76,
@@ -193,7 +192,6 @@ _AUDIT_UX_SCORES: dict[str, int] = {
     "GOP": 74,
     "SI": 74,
     "GAR": 74,
-    "HE.": 73,
     "HAX": 73,
     "HAE": 73,
     "HEP": 73,
@@ -238,9 +236,6 @@ _AUDIT_UX_SCORES: dict[str, int] = {
 
 # Retired workbook IDs folded into a live row — apply the audit score to the survivor.
 _ID_REMAP: dict[str, str] = {
-    "ALE": "GON",
-    "GOC": "GOA",
-    "GOS": "GOT",
     "HEP": "HG",
     "HER": "HR",
     "HFE": "COR",

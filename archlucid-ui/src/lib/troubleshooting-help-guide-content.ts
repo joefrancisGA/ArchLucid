@@ -1,9 +1,14 @@
 import { ADMINISTRATION_SYSTEM_HEALTH_PATH } from "@/lib/administration-route-paths";
-import type { HelpMarkdownHeading } from "@/lib/help-markdown-headings";
+import type { HelpMarkdownHeading } from "@/lib/help/help-markdown-headings";
 import { SPONSOR_REPORT_EXECUTIVE_SUMMARY_PATH } from "@/lib/sponsor-report-navigation";
 import { ARCHLUCID_SUPPORT_EMAIL } from "@/lib/support-workspace-present";
-import { GOVERNANCE_POLICY_PACKS_PATH } from "@/lib/governance-route-paths";
+import { GOVERNANCE_POLICY_PACKS_PATH } from "@/lib/governance/governance-route-paths";
 import { inAppHelpHref } from "@/lib/product-documentation-registry";
+import {
+  ADMIN_DIAGNOSTICS_INBOUND_GUIDANCE_HREF,
+  ADMIN_DIAGNOSTICS_INBOUND_GUIDANCE_LINK_LABEL,
+  ADMIN_DIAGNOSTICS_INBOUND_SECTION_TITLE,
+} from "@/lib/admin-diagnostics-inbound-copy";
 
 export const TROUBLESHOOTING_REPORT_PROBLEM_LINK = {
   label: "Report a problem",
@@ -67,7 +72,51 @@ export const TROUBLESHOOTING_PRIMARY_ACTIONS = {
   contactSupport: TROUBLESHOOTING_EMAIL_SUPPORT_LINK,
 } as const;
 
+/** Access / sign-in blockers lead so time-pressured triage finds them first. */
 export const TROUBLESHOOTING_COMMON_ISSUES: readonly TroubleshootingIssue[] = [
+  {
+    id: "organization-sso-required",
+    title: "Organization sign-in required",
+    kind: "user-fixable",
+    whatYouSee: "ArchLucid asks you to continue through your organization's identity provider instead of email code.",
+    likelyCause: "Your email domain has tenant-enforced SSO for ArchLucid access.",
+    tryFirst: "Select Continue to organization sign-in and authenticate with your company identity provider.",
+    ifStillBlocked: "Contact your workspace administrator or IT team if you cannot reach your organization's sign-in page.",
+    nextSteps: [
+      { label: "Authentication and sign-in", href: inAppHelpHref("authentication-sign-in") },
+      { label: "Enterprise onboarding checklist", href: inAppHelpHref("enterprise-onboarding") },
+      ...supportEscalationLinks(),
+    ],
+  },
+  {
+    id: "email-code-sign-in-failed",
+    title: "Email one-time code did not work",
+    kind: "user-fixable",
+    whatYouSee: "The sign-in code is rejected, expired, or never arrives.",
+    likelyCause: "Typo, expired code, rate limiting, or mail delivery delay.",
+    tryFirst: "Request a new code, check spam or junk folders, and confirm the email address is correct.",
+    ifStillBlocked: "Wait a few minutes if you see too many attempts, then try again or use a work or school account.",
+    nextSteps: [
+      { label: "Authentication and sign-in", href: inAppHelpHref("authentication-sign-in") },
+      { label: "Sign in", href: "/auth/signin" },
+      ...supportEscalationLinks(),
+    ],
+  },
+  {
+    id: "permissions-or-sign-in-issue",
+    title: "Permissions or sign-in issue",
+    kind: "workspace-admin",
+    whatYouSee: "Actions are missing, or you see access denied style errors.",
+    likelyCause: "Role, sign-in session, or workspace scope does not match the action.",
+    tryFirst: "Sign out and back in. Confirm your role in workspace settings.",
+    ifStillBlocked: "Ask your workspace admin or IT team to verify identity and role assignment.",
+    nextSteps: [
+      { label: "Authentication and sign-in", href: inAppHelpHref("authentication-sign-in") },
+      { label: "Open users and roles", href: inAppHelpHref("users-and-roles") },
+      { label: "Open workspace settings", href: "/administration/workspace-settings" },
+      ...supportEscalationLinks(),
+    ],
+  },
   {
     id: "overview-workspace-empty",
     title: "Overview or workspace readiness looks empty",
@@ -159,7 +208,7 @@ export const TROUBLESHOOTING_COMMON_ISSUES: readonly TroubleshootingIssue[] = [
     whatYouSee: "Ask, compare, or related analysis surfaces are greyed out.",
     likelyCause: "Feature gated until the first review is finalized or trial limits apply.",
     tryFirst: "Finalize your first review, then refresh the page.",
-    ifStillBlocked: "Check trial banners on Overview for budget or entitlement limits.",
+    ifStillBlocked: "Check trial banners on Home for budget or entitlement limits.",
     nextSteps: [
       { label: "View first review guide", href: inAppHelpHref("first-architecture-review") },
       { label: "Open reviews", href: "/architecture/reviews" },
@@ -177,49 +226,6 @@ export const TROUBLESHOOTING_COMMON_ISSUES: readonly TroubleshootingIssue[] = [
     nextSteps: [
       { label: "Open evidence upload guide", href: inAppHelpHref("evidence-intake") },
       { label: "Start architecture review", href: "/architecture/reviews/new" },
-      ...supportEscalationLinks(),
-    ],
-  },
-  {
-    id: "organization-sso-required",
-    title: "Organization sign-in required",
-    kind: "user-fixable",
-    whatYouSee: "ArchLucid asks you to continue through your organization's identity provider instead of email code.",
-    likelyCause: "Your email domain has tenant-enforced SSO for ArchLucid access.",
-    tryFirst: "Select Continue to organization sign-in and authenticate with your company identity provider.",
-    ifStillBlocked: "Contact your workspace administrator or IT team if you cannot reach your organization's sign-in page.",
-    nextSteps: [
-      { label: "Authentication and sign-in", href: inAppHelpHref("authentication-sign-in") },
-      { label: "Enterprise onboarding checklist", href: inAppHelpHref("enterprise-onboarding") },
-      ...supportEscalationLinks(),
-    ],
-  },
-  {
-    id: "email-code-sign-in-failed",
-    title: "Email one-time code did not work",
-    kind: "user-fixable",
-    whatYouSee: "The sign-in code is rejected, expired, or never arrives.",
-    likelyCause: "Typo, expired code, rate limiting, or mail delivery delay.",
-    tryFirst: "Request a new code, check spam or junk folders, and confirm the email address is correct.",
-    ifStillBlocked: "Wait a few minutes if you see too many attempts, then try again or use a work or school account.",
-    nextSteps: [
-      { label: "Authentication and sign-in", href: inAppHelpHref("authentication-sign-in") },
-      { label: "Sign in", href: "/auth/signin" },
-      ...supportEscalationLinks(),
-    ],
-  },
-  {
-    id: "permissions-or-sign-in-issue",
-    title: "Permissions or sign-in issue",
-    kind: "workspace-admin",
-    whatYouSee: "Actions are missing, or you see access denied style errors.",
-    likelyCause: "Role, sign-in session, or workspace scope does not match the action.",
-    tryFirst: "Sign out and back in. Confirm your role in workspace settings.",
-    ifStillBlocked: "Ask your workspace admin or IT team to verify identity and role assignment.",
-    nextSteps: [
-      { label: "Authentication and sign-in", href: inAppHelpHref("authentication-sign-in") },
-      { label: "Open users and roles", href: inAppHelpHref("users-and-roles") },
-      { label: "Open workspace settings", href: "/administration/tenant" },
       ...supportEscalationLinks(),
     ],
   },
@@ -336,10 +342,10 @@ export const TROUBLESHOOTING_ADVANCED_DIAGNOSTICS_ITEMS: readonly Troubleshootin
     linkLabel: "Open System health",
   },
   {
-    title: "Admin diagnostics",
+    title: ADMIN_DIAGNOSTICS_INBOUND_SECTION_TITLE,
     body: "Workspace admins can review readiness signals, assistant diagnostics, and platform health references in Help.",
-    href: inAppHelpHref("admin-diagnostics"),
-    linkLabel: "Open admin diagnostics",
+    href: ADMIN_DIAGNOSTICS_INBOUND_GUIDANCE_HREF,
+    linkLabel: ADMIN_DIAGNOSTICS_INBOUND_GUIDANCE_LINK_LABEL,
   },
   {
     title: "Support reference for tickets",

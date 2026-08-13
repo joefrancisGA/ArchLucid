@@ -9,6 +9,8 @@ import {
   SERVICENOW_AUTH_METHOD_UNKNOWN,
   SERVICENOW_AUTH_OAUTH_CLIENT,
   SERVICENOW_AUTH_OAUTH_REFRESH,
+  SERVICENOW_NEXT_ACTION_SETUP_INCOMPLETE_ADMIN,
+  SERVICENOW_NEXT_ACTION_SETUP_INCOMPLETE_OPERATOR,
 } from "./servicenow-integration-page-copy";
 
 export type ServiceNowConnectionStatus =
@@ -34,6 +36,14 @@ export type ServiceNowSetupStep = {
   readonly id: string;
   readonly label: string;
   readonly complete: boolean;
+};
+
+export type ServiceNowPageComposition = {
+  readonly showNotConfiguredNextStep: boolean;
+  readonly incidentSettingsCollapsed: boolean;
+  readonly showConnectionTest: boolean;
+  readonly connectionTestCollapsed: boolean;
+  readonly emphasizedSetupStepId: string;
 };
 
 const STATUS_LABELS: Record<ServiceNowConnectionStatus, string> = {
@@ -78,6 +88,7 @@ export function resolveServiceNowConnectionStatus(input: {
   readonly isTesting: boolean;
   readonly nativeEnabled: boolean;
   readonly credentialsReady: boolean;
+  readonly canConfigureAdmin: boolean;
   readonly probe: ItsmIntegrationHealthResponse["serviceNow"] | null | undefined;
 }): ServiceNowConnectionStatusPresentation {
   if (input.isTesting) {
@@ -121,7 +132,9 @@ export function resolveServiceNowConnectionStatus(input: {
       status: "setup-incomplete",
       label: STATUS_LABELS["setup-incomplete"],
       explanation: "ServiceNow credentials and instance details are not configured yet.",
-      nextAction: "Ask an ArchLucid administrator to complete secure credential setup.",
+      nextAction: input.canConfigureAdmin
+        ? SERVICENOW_NEXT_ACTION_SETUP_INCOMPLETE_ADMIN
+        : SERVICENOW_NEXT_ACTION_SETUP_INCOMPLETE_OPERATOR,
     };
   }
 
@@ -225,6 +238,51 @@ export function resolveServiceNowCredentialStatusLabel(
   }
 
   return "Configured";
+}
+
+/** Progressive disclosure for ServiceNow integration page (TB-1164 / TB-1165). */
+export function resolveServiceNowPageComposition(input: {
+  readonly nativeEnabled: boolean;
+  readonly credentialsReady: boolean;
+  readonly testGateAllowed: boolean;
+}): ServiceNowPageComposition {
+  if (!input.nativeEnabled) {
+    return {
+      showNotConfiguredNextStep: !input.credentialsReady,
+      incidentSettingsCollapsed: true,
+      showConnectionTest: false,
+      connectionTestCollapsed: false,
+      emphasizedSetupStepId: "native",
+    };
+  }
+
+  if (!input.credentialsReady) {
+    return {
+      showNotConfiguredNextStep: true,
+      incidentSettingsCollapsed: true,
+      showConnectionTest: false,
+      connectionTestCollapsed: false,
+      emphasizedSetupStepId: "credentials",
+    };
+  }
+
+  if (!input.testGateAllowed) {
+    return {
+      showNotConfiguredNextStep: false,
+      incidentSettingsCollapsed: false,
+      showConnectionTest: false,
+      connectionTestCollapsed: true,
+      emphasizedSetupStepId: "verified",
+    };
+  }
+
+  return {
+    showNotConfiguredNextStep: false,
+    incidentSettingsCollapsed: false,
+    showConnectionTest: true,
+    connectionTestCollapsed: false,
+    emphasizedSetupStepId: "verified",
+  };
 }
 
 export function resolveServiceNowSetupSteps(input: {

@@ -14,7 +14,7 @@ import { mergeRegistrationScopeForProxy } from "@/lib/proxy-fetch-registration-s
  * Render variant for the BeforeAfterDeltaPanel:
  * - `cycle` (default): the original trial-onboarding "review-cycle delta" card —
  *   baseline (from `/v1/tenant/trial-status`) vs measured (from per-run pilot-run-deltas).
- *   This is the legacy callsite-compatible behaviour; existing callers that omit
+ *   This is the legacy callsite-compatible behavior; existing callers that omit
  *   `variant` keep working unchanged.
  * - `top`: aggregated median across the most recent N committed runs, rendered
  *   above the runs index list. Calls the new `/v1/pilots/runs/recent-deltas`
@@ -35,9 +35,9 @@ export type BeforeAfterDeltaPanelProps = {
   runId?: string;
 
   /**
-   * Render variant. Defaults to `cycle` (the original trial-onboarding behaviour) so that
+   * Render variant. Defaults to `cycle` (the original trial-onboarding behavior) so that
    * pre-existing callsites — `<BeforeAfterDeltaPanel />` and `<BeforeAfterDeltaPanel runId="..." />`
-   * — keep their pixel-stable behaviour without code changes.
+   * — keep their pixel-stable behavior without code changes.
    */
   variant?: BeforeAfterDeltaPanelVariant;
 
@@ -108,7 +108,7 @@ function BeforeAfterDeltaCyclePanel({ runId }: { runId?: string }) {
   });
 
   useEffect(() => {
-    let cancelled = false;
+    let canceled = false;
 
     async function load(): Promise<void> {
       try {
@@ -118,14 +118,14 @@ function BeforeAfterDeltaCyclePanel({ runId }: { runId?: string }) {
         );
 
         if (!trialRes.ok) {
-          if (!cancelled) setState({ status: "skipped", data: null });
+          if (!canceled) setState({ status: "skipped", data: null });
 
           return;
         }
 
         const trial = (await trialRes.json()) as TrialStatusPayload;
 
-        if (cancelled) return;
+        if (canceled) return;
 
         const baselineHours =
           typeof trial.baselineReviewCycleHours === "number" && Number.isFinite(trial.baselineReviewCycleHours)
@@ -138,7 +138,7 @@ function BeforeAfterDeltaCyclePanel({ runId }: { runId?: string }) {
         const effectiveRunId = (runId ?? trial.trialWelcomeRunId) || null;
 
         if (effectiveRunId === null) {
-          if (!cancelled) {
+          if (!canceled) {
             setState({
               status: "ready",
               data: {
@@ -179,7 +179,7 @@ function BeforeAfterDeltaCyclePanel({ runId }: { runId?: string }) {
           }
         }
 
-        if (cancelled) return;
+        if (canceled) return;
 
         setState({
           status: "ready",
@@ -194,14 +194,14 @@ function BeforeAfterDeltaCyclePanel({ runId }: { runId?: string }) {
           },
         });
       } catch {
-        if (!cancelled) setState({ status: "error", data: null });
+        if (!canceled) setState({ status: "error", data: null });
       }
     }
 
     void load();
 
     return () => {
-      cancelled = true;
+      canceled = true;
     };
   }, [runId]);
 

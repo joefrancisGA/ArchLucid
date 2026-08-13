@@ -11,7 +11,7 @@ import {
   BUYER_DEMO_EVALUATION_WORKSPACE_BADGE,
   BUYER_DEMO_EVALUATION_WORKSPACE_STATUS,
   BUYER_TRY_SAMPLE_REVIEW_CTA,
-} from "@/lib/buyer-polish-copy";
+} from "@/lib/buyer/buyer-polish-copy";
 import { isBuyerPolishedOperatorShellEnv } from "@/lib/demo-ui-env";
 import { OPERATOR_NAV_GROUP_LABEL, OPERATOR_TYPOGRAPHY } from "@/lib/design-tokens";
 

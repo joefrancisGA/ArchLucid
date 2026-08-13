@@ -50,9 +50,9 @@ describe("dpa-template-help-guide-content", () => {
 
     expect(DPA_TEMPLATE_HELP_PROVENANCE.templateReviewDate).toBe("2026-07-25");
     expect(DPA_TEMPLATE_HELP_PROVENANCE.sourceOfRecordPath).toBe("docs/go-to-market/DPA_TEMPLATE.md");
-    expect(provenanceLine).toContain("2026-07-25");
     expect(provenanceLine).toContain("docs/go-to-market/DPA_TEMPLATE.md");
     expect(provenanceLine.toLowerCase()).toContain("no executed agreement");
+    expect(provenanceLine.toLowerCase()).not.toContain("last reviewed");
     expect(provenanceLine).not.toContain(DPA_TEMPLATE_HELP_CANONICAL_PATH);
   });
 

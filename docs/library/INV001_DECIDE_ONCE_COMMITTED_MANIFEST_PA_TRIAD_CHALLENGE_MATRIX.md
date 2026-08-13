@@ -83,11 +83,11 @@ Do **not** re-author the slice contracts below — cite them and the listed back
 | **TB-1000** | Anti-header / deep-layer re-derive honesty CI | **Open** | After **TB-999** |
 | **TB-1004** | Anti-substitute-for-committed-manifest honesty CI | **Open** | After **TB-1003** |
 | **TB-1018** | Empty-scope / system-catalog honesty | **Open** | Pairs **TB-1232** / **M-168** |
-| **TB-1122** | Isolation claims too strong + RLS purge | **Open** | GTM **M-194** |
+| **TB-1122** | Isolation claims too strong + RLS purge | **Done** | GTM **M-194**; contract `ISOLATION_CLAIMS_TOO_STRONG_VS_INV001_ADR0037_CONTRACT.md` |
 | **TB-1196** | Agent→decisioning Real-variance isolation | **Open** | GTM **M-203** |
-| **TB-1277** | GoldenManifest schema evolution | **Open** | GTM **M-223** |
+| **TB-1277** | GoldenManifest schema evolution | **Done** (2026-08-11) | GTM **M-223** — [`MANIFEST_CONTENT_SCHEMA_EVOLUTION_CONTRACT.md`](./MANIFEST_CONTENT_SCHEMA_EVOLUTION_CONTRACT.md) |
 | **TB-1369** | AgentTask→decisioning ungated leak seams | **Open** | GTM **M-247** |
-| **TB-1417** | Anti triad-conflation / triad-closed honesty CI | **Open** | After **TB-1416**; GTM **M-253** |
+| **TB-1417** | Anti triad-conflation / triad-closed honesty CI | **Done** (2026-08-12) | After **TB-1416**; GTM **M-253** |
 
 **Recommended next engineering honesty passes among open rows:** **TB-1000** + **TB-1004** (tenant + manifest CI), then **TB-1417** (fused language guard).
 
@@ -102,8 +102,18 @@ Do **not** re-author the slice contracts below — cite them and the listed back
 
 ---
 
+## CI anchors for **TB-1417**
+
+| Anchor | Role |
+| --- | --- |
+| `scripts/ci/check_decide_once_triad_honesty.py` | Fail triad-conflation / triad-closed / committed-equals-purity overclaims |
+| `ArchLucid.Core/Scoping/ScopeContext.cs` | INV-001 tenant scope decide-once code anchor |
+| `ArchLucid.Decisioning/Services/ManifestHashService.cs` | Committed manifest hash lineage code anchor |
+
+Honesty CI shipped: **TB-1417**.
+
 ## Related
 
 - GTM **M-253** / **M-254** · [`PUBLIC_CLAIM_BOUNDARY_GUIDE.md`](PUBLIC_CLAIM_BOUNDARY_GUIDE.md)
-- Open honesty CI follow-on: **TB-1417**
+- Honesty CI: **TB-1417** Done
 - Does **not** implement middleware, commit seals, overlay gates, or hasher re-lock — those remain in their owner IDs

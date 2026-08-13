@@ -15,7 +15,7 @@ import {
   resolveFindingDiagramSelectionSync,
   type ArchitectureFindingsDualPaneDiagramNode,
   type ArchitectureFindingsDualPaneFindingRef,
-} from "@/lib/architecture-findings-dual-pane";
+} from "@/lib/architecture/architecture-findings-dual-pane";
 import {
   severityBadgeLabel,
   severityKindFromNumericValue,
@@ -104,7 +104,7 @@ export function ArchitectureFindingsDualPane(props: ArchitectureFindingsDualPane
         >
           {ARCHITECTURE_FINDINGS_DUAL_PANE_LINKED_VIEW_TITLE}
         </h3>
-        <p className={cn("m-0 max-w-prose text-al-text-secondary", OPERATOR_TYPOGRAPHY.helper)}>
+        <p className={cn("m-0 max-w-3xl text-al-text-secondary", OPERATOR_TYPOGRAPHY.helper)}>
           {ARCHITECTURE_FINDINGS_DUAL_PANE_INTRO}
         </p>
       </div>

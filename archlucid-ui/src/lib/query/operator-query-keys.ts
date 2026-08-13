@@ -1,27 +1,63 @@
-import type { ExecutiveTimeRange } from "@/lib/executive-time-range";
+import type { ExecutiveTimeRange } from "@/lib/executive/executive-time-range";
 import type { RunsByProjectPagedParams } from "@/lib/query/runs-by-project-paged-params";
-import type { OperatorScopeQueryKey } from "@/lib/operator-scope-query-key";
+import type { OperatorScopeQueryKey } from "@/lib/operator/operator-scope-query-key";
 
 export const operatorQueryKeys = {
   tenantTrialStatus: ["operator", "tenant", "trial-status"] as const,
+  tenantWorkspacesList: (scope: OperatorScopeQueryKey) =>
+    ["operator", "tenant", "workspaces", scope] as const,
+  tenantCostSettings: ["operator", "tenant", "cost-settings"] as const,
+  agentOutputQualityGateMode: ["operator", "admin", "agent-output-quality-gate-mode"] as const,
   tenantUsageStatus: ["operator", "tenant", "usage-status"] as const,
   billingSubscriptionStatus: ["operator", "tenant", "billing-subscription-status"] as const,
+  operatorStickinessSnapshot: ["operator", "tenant", "stickiness-snapshot"] as const,
+  adminConfigLintSummary: ["operator", "admin", "config-lint-summary"] as const,
+  adminOutboxDiagnostics: ["operator", "admin", "outbox-diagnostics"] as const,
+  pilotScorecard: ["operator", "pilots", "scorecard"] as const,
+  operatorAiQualitySnapshot: ["operator", "assistant", "ai-quality-snapshot"] as const,
+  operatorTaskSuccessRates: ["operator", "diagnostics", "task-success-rates"] as const,
   healthReadySummary: ["operator", "health", "ready-summary"] as const,
+  /** Throws when readiness cannot be loaded — preserves last payload on refetch errors. */
+  healthReadySummaryStrict: ["operator", "health", "ready-summary", "strict"] as const,
+  tenantCatalogMigrationStatus: ["operator", "tenant", "catalog-migration-status"] as const,
   llmMonthlyBudgetStatus: ["operator", "llm", "monthly-budget-status"] as const,
   adminAiUsageDashboard: ["operator", "admin", "ai-usage-dashboard"] as const,
   executiveRoiSummary: ["operator", "roi", "executive-summary"] as const,
   // Prefix-matches executiveRoiSummary so refreshDashboard invalidation also refreshes these.
   executiveRoiSummaryHistory: ["operator", "roi", "executive-summary", "history"] as const,
   executiveRoiSummaryExport: ["operator", "roi", "executive-summary", "export"] as const,
+  sqlBackupRegionVerification: ["operator", "executive", "sql-backup-region-verification"] as const,
   executiveNextActionInputs: (range: ExecutiveTimeRange) =>
     ["operator", "roi", "next-action-inputs", range] as const,
   complianceDriftTrend30d: ["operator", "governance", "compliance-drift-trend", "30d"] as const,
+  complianceDriftTrendRange: (fromUtc: string, toUtc: string) =>
+    ["operator", "governance", "compliance-drift-trend", { fromUtc, toUtc }] as const,
+  governancePrecommitBlockedCount: (fromUtcIso: string, toUtcIso: string) =>
+    ["operator", "governance", "precommit-blocked-count", { fromUtcIso, toUtcIso }] as const,
+  workspaceHealthPrecommitAuditCounts30d:
+    ["operator", "workspace-health", "precommit-audit-counts", "30d"] as const,
+  pilotValueReport: (fromUtc: string, toUtc: string) =>
+    ["operator", "pilots", "value-report", { fromUtc, toUtc }] as const,
+  operatorNextBestActions: ["operator", "tenant", "next-best-actions"] as const,
+  governanceDecisionsNeededSummary: (projectId?: string) =>
+    ["operator", "governance", "decisions-needed-summary", projectId ?? "workspace"] as const,
+  governanceDashboard: (maxPending: number, maxDecisions: number, maxChanges: number) =>
+    ["operator", "governance", "dashboard", { maxPending, maxDecisions, maxChanges }] as const,
+  governanceApprovalRequests: (runId: string) =>
+    ["operator", "governance", "approval-requests", runId] as const,
+  governancePromotions: (runId: string) => ["operator", "governance", "promotions", runId] as const,
+  governanceActivations: (runId: string) => ["operator", "governance", "activations", runId] as const,
+  governanceReviewContext: (runId: string) =>
+    ["operator", "governance", "review-context", runId] as const,
+  governanceReviewsAwaitingAction: (scope: OperatorScopeQueryKey) =>
+    ["operator", "governance", "reviews-awaiting-action", scope] as const,
   governanceFindingsQueue: (
     scope: OperatorScopeQueryKey,
     useCuratedDemoSpine: boolean,
   ) =>
     ["operator", "governance", "findings-queue", scope, { useCuratedDemoSpine }] as const,
   corePilotCommitContext: ["operator", "core-pilot", "commit-context"] as const,
+  corePilotTeamChecklist: ["operator", "tenant", "core-pilot-team-checklist"] as const,
   pilotRecentDeltas: (scope: OperatorScopeQueryKey, count: number) =>
     ["operator", "pilots", "recent-deltas", scope, { count }] as const,
   runsByProjectPaged: (params: RunsByProjectPagedParams) => ["operator", "runs", "paged", params] as const,
@@ -42,8 +78,17 @@ export const operatorQueryKeys = {
   ) => ["operator", "alerts", "inbox-page", scope, params] as const,
   alertsInboxSummary: (scope: OperatorScopeQueryKey) =>
     ["operator", "alerts", "inbox-summary", scope] as const,
+  /** Hub aggregates for /administration/notifications — must not share alertsInboxSummary cache shape. */
+  notificationChannelDeliverySnapshot: (scope: OperatorScopeQueryKey) =>
+    ["operator", "administration", "notifications", "channel-delivery-snapshot", scope] as const,
   alertsInboxWorkspaceContext: (scope: OperatorScopeQueryKey) =>
     ["operator", "alerts", "workspace-context", scope] as const,
+  alertRulesList: (scope: OperatorScopeQueryKey) =>
+    ["operator", "alerts", "rules-list", scope] as const,
+  alertRoutingSubscriptions: (scope: OperatorScopeQueryKey) =>
+    ["operator", "alerts", "routing-subscriptions", scope] as const,
+  compositeAlertRulesList: (scope: OperatorScopeQueryKey) =>
+    ["operator", "alerts", "composite-rules-list", scope] as const,
   auditEventsSearch: (
     scope: OperatorScopeQueryKey,
     filters: Record<string, string>,

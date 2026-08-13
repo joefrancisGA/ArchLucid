@@ -9,7 +9,7 @@ vi.mock("@/lib/demo-ui-env", () => ({
   isNextPublicDemoMode: () => false,
 }));
 
-vi.mock("@/lib/operator-static-demo", () => ({
+vi.mock("@/lib/operator/operator-static-demo", () => ({
   isStaticDemoPayloadFallbackEnabled: () => false,
 }));
 

@@ -2,8 +2,26 @@
 
 export const SERVICENOW_INTEGRATION_PAGE_TITLE = "ServiceNow";
 
-export const SERVICENOW_INTEGRATION_PAGE_DESCRIPTION =
+export const SERVICENOW_PAGE_SUBTITLE =
   "Send selected ArchLucid findings to ServiceNow as incidents and keep governance work connected to your operational workflow.";
+
+export const SERVICENOW_INTEGRATION_PAGE_DESCRIPTION = SERVICENOW_PAGE_SUBTITLE;
+
+export const SERVICENOW_BREADCRUMB_INTEGRATIONS_LABEL = "Integrations";
+
+export const SERVICENOW_ACTION_REFRESH = "Refresh";
+
+export const SERVICENOW_ACTION_REFRESHING = "Refreshing…";
+
+export const SERVICENOW_LAST_CHECKED_PREFIX = "Last checked";
+
+export const SERVICENOW_READINESS_LINK_LABEL = "Integration readiness";
+
+export const SERVICENOW_NEXT_ACTION_SETUP_INCOMPLETE_ADMIN =
+  "Open ITSM connector administration to complete secure credential setup.";
+
+export const SERVICENOW_NEXT_ACTION_SETUP_INCOMPLETE_OPERATOR =
+  "Review Integration readiness or ask an ArchLucid administrator to complete secure credential setup.";
 
 export const SERVICENOW_INTEGRATION_READINESS_HELPER =
   "See Integration readiness for status across ServiceNow, Jira, Teams, Slack, cloud connections, and webhooks.";
@@ -19,6 +37,13 @@ export const SERVICENOW_INCIDENT_SETTINGS_TITLE = "Incident creation settings";
 
 export const SERVICENOW_INCIDENT_SETTINGS_LEAD =
   "Control how ArchLucid links findings to ServiceNow incidents for this workspace.";
+
+export const SERVICENOW_INCIDENT_SETTINGS_COLLAPSED_SUMMARY = "Incident creation settings";
+
+export const SERVICENOW_INCIDENT_SETTINGS_UNAVAILABLE_LEAD =
+  "Available after connection is configured.";
+
+export const SERVICENOW_CONNECTION_TEST_COLLAPSED_SUMMARY = "Test connection";
 
 export const SERVICENOW_CMDB_AUTO_CREATE_LABEL =
   "Create a Configuration Item when no match is found";

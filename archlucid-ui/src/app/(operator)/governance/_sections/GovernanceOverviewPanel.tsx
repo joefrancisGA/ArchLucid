@@ -2,18 +2,18 @@
 
 import { cn } from "@/lib/utils";
 import Link from "next/link";
-import { useCallback, useEffect, useRef, useState } from "react";
-import { ClipboardCheck } from "lucide-react";
+import { useMemo, useRef } from "react";
 
-import { OperatorApiProblem } from "@/components/OperatorApiProblem";
-import { OperatorLoadingNotice } from "@/components/OperatorShellMessage";
-import { RunIdPicker } from "@/components/RunIdPicker";
-import { EmptyState } from "@/components/EmptyState";
+import { OperatorApiProblem } from "@/components/operator/OperatorApiProblem";
+import { EnterpriseCompactEmptyState } from "@/components/EnterpriseCompactEmptyState";
+import { OperatorLoadingNotice } from "@/components/operator/OperatorShellMessage";
+import { RunIdPicker } from "@/components/runs/RunIdPicker";
 import { Button } from "@/components/ui/button";
-import { getGovernanceDashboard, getGovernanceDecisionsNeededSummary } from "@/lib/api";
+import { useGovernanceDashboardQuery } from "@/hooks/use-governance-dashboard-query";
+import { useGovernanceDecisionsNeededSummaryQuery } from "@/hooks/use-governance-decisions-needed-summary-query";
 import type { ApiLoadFailureState } from "@/lib/api-load-failure";
 import { toApiLoadFailure } from "@/lib/api-load-failure";
-import { GOVERNANCE_POLICY_PACKS_PATH } from "@/lib/governance-route-paths";
+import { GOVERNANCE_POLICY_PACKS_PATH } from "@/lib/governance/governance-route-paths";
 import {
   GOVERNANCE_OVERVIEW_APPROVED_PACKAGES_LABEL,
   GOVERNANCE_OVERVIEW_BLOCKING_ALERTS_LABEL,
@@ -33,9 +33,9 @@ import {
   GOVERNANCE_OVERVIEW_RISK_REGISTER_ACTION,
   GOVERNANCE_OVERVIEW_SUBMIT_ACTION,
   GOVERNANCE_OVERVIEW_SUMMARY_HEADING,
-} from "@/lib/governance-overview-copy";
+} from "@/lib/governance/governance-overview-copy";
 import { finiteIntegerCountDisplay } from "@/lib/finite-count-display";
-import { OPERATOR_LINK, OPERATOR_TYPOGRAPHY } from "@/lib/design-tokens";
+import { OPERATOR_LAYOUT, OPERATOR_LINK, OPERATOR_TYPOGRAPHY } from "@/lib/design-tokens";
 import type { GovernanceDashboardSummary } from "@/types/governance-dashboard";
 import {
   buildGovernanceOverviewSummaryMetrics,
@@ -116,49 +116,46 @@ export function GovernanceOverviewPanel(props: GovernanceOverviewPanelProps): Re
   } = props;
 
   const pendingSectionRef = useRef<HTMLElement | null>(null);
-  const [loadState, setLoadState] = useState<OverviewLoadState>({ status: "loading" });
+  const dashboardQuery = useGovernanceDashboardQuery();
+  const decisionsQuery = useGovernanceDecisionsNeededSummaryQuery();
 
-  const loadOverview = useCallback(async (options?: { readonly isCancelled?: () => boolean }): Promise<void> => {
-    const isCancelled = options?.isCancelled ?? (() => false);
-
-    if (!isCancelled()) {
-      setLoadState({ status: "loading" });
+  const loadState = useMemo((): OverviewLoadState => {
+    if (dashboardQuery.isPending || decisionsQuery.isPending) {
+      return { status: "loading" };
     }
 
-    try {
-      const [dashboard, decisionsNeeded] = await Promise.all([
-        getGovernanceDashboard(),
-        getGovernanceDecisionsNeededSummary(),
-      ]);
-      const metrics = buildGovernanceOverviewSummaryMetrics(dashboard, decisionsNeeded);
-
-      if (isCancelled()) {
-        return;
-      }
-
-      setLoadState({
-        status: "ready",
-        dashboard,
-        metrics,
-      });
-    } catch (error) {
-      if (isCancelled()) {
-        return;
-      }
-
-      setLoadState({ status: "error", failure: toApiLoadFailure(error) });
+    if (dashboardQuery.isError) {
+      return { status: "error", failure: toApiLoadFailure(dashboardQuery.error) };
     }
-  }, []);
 
-  useEffect(() => {
-    let cancelled = false;
+    if (decisionsQuery.isError) {
+      return { status: "error", failure: toApiLoadFailure(decisionsQuery.error) };
+    }
 
-    void loadOverview({ isCancelled: () => cancelled });
+    if (dashboardQuery.data === undefined || decisionsQuery.data === undefined) {
+      return { status: "loading" };
+    }
 
-    return () => {
-      cancelled = true;
+    return {
+      status: "ready",
+      dashboard: dashboardQuery.data,
+      metrics: buildGovernanceOverviewSummaryMetrics(dashboardQuery.data, decisionsQuery.data),
     };
-  }, [loadOverview]);
+  }, [
+    dashboardQuery.data,
+    dashboardQuery.error,
+    dashboardQuery.isError,
+    dashboardQuery.isPending,
+    decisionsQuery.data,
+    decisionsQuery.error,
+    decisionsQuery.isError,
+    decisionsQuery.isPending,
+  ]);
+
+  const retryOverview = (): void => {
+    void dashboardQuery.refetch();
+    void decisionsQuery.refetch();
+  };
 
   const scrollToPending = (): void => {
     onFocusPending();
@@ -175,7 +172,7 @@ export function GovernanceOverviewPanel(props: GovernanceOverviewPanelProps): Re
     loadState.metrics.policyActivations === 0;
 
   return (
-    <div className="mb-8 space-y-6" data-testid="governance-overview-panel">
+    <div className={cn("mb-8", OPERATOR_LAYOUT.sectionStack)} data-testid="governance-overview-panel">
       <section aria-labelledby="governance-overview-summary-heading">
         <h2 id="governance-overview-summary-heading" className={cn("m-0", OPERATOR_TYPOGRAPHY.cardTitle)}>
           {GOVERNANCE_OVERVIEW_SUMMARY_HEADING}
@@ -194,7 +191,7 @@ export function GovernanceOverviewPanel(props: GovernanceOverviewPanelProps): Re
               fallbackMessage={loadState.failure.message}
               correlationId={loadState.failure.correlationId}
             />
-            <Button type="button" variant="outline" size="sm" className="mt-3" onClick={() => void loadOverview()}>
+            <Button type="button" variant="outline" size="sm" className="mt-3" onClick={retryOverview}>
               Retry summary
             </Button>
           </div>
@@ -265,7 +262,7 @@ export function GovernanceOverviewPanel(props: GovernanceOverviewPanelProps): Re
 
             {workspaceIsIdle ? (
               <p
-                className={cn("m-0 mt-4 max-w-prose text-al-text-secondary", OPERATOR_TYPOGRAPHY.helper)}
+                className={cn("m-0 mt-4 text-al-text-secondary", OPERATOR_TYPOGRAPHY.helper)}
                 data-testid="governance-overview-idle-hint"
               >
                 {GOVERNANCE_OVERVIEW_IDLE_WORKSPACE_HINT}
@@ -285,7 +282,7 @@ export function GovernanceOverviewPanel(props: GovernanceOverviewPanelProps): Re
         <h2 id="governance-overview-load-review-heading" className={cn("m-0", OPERATOR_TYPOGRAPHY.cardTitle)}>
           {GOVERNANCE_OVERVIEW_LOAD_REVIEW_SECTION_TITLE}
         </h2>
-        <p className={cn("m-0 mt-1 max-w-prose text-al-text-secondary", OPERATOR_TYPOGRAPHY.helper)}>
+        <p className={cn("m-0 mt-1 text-al-text-secondary", OPERATOR_TYPOGRAPHY.helper)}>
           {GOVERNANCE_OVERVIEW_LOAD_REVIEW_SECTION_LEAD}
         </p>
         <div className="mt-3 grid gap-3 sm:grid-cols-[minmax(0,1fr)_auto] sm:items-end">
@@ -328,10 +325,10 @@ export function GovernanceOverviewPanel(props: GovernanceOverviewPanelProps): Re
           </h2>
           {loadState.dashboard.pendingApprovals.length === 0 ? (
             <div className="mt-3" data-testid="governance-overview-no-pending">
-              <EmptyState
-                icon={ClipboardCheck}
+              <EnterpriseCompactEmptyState
                 title={GOVERNANCE_OVERVIEW_NO_PENDING_TITLE}
                 description={GOVERNANCE_OVERVIEW_NO_PENDING_DESCRIPTION}
+                testId="governance-overview-no-pending-compact"
               />
             </div>
           ) : (

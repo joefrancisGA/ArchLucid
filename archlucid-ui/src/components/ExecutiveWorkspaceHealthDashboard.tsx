@@ -5,6 +5,7 @@ import Link from "next/link";
 import {
   useCallback,
   useEffect,
+  useMemo,
   useState,
 } from "react";
 import { ComplianceDriftChartPdfExport } from "@/components/ComplianceDriftChartPdfExport";
@@ -14,48 +15,50 @@ import { DataArchivalDegradedBanner } from "@/components/governance/DataArchival
 import { ExecutiveWorkspaceHealthPageHero } from "@/components/governance/ExecutiveWorkspaceHealthPageHero";
 import { FieldHelpTooltip } from "@/components/FieldHelpTooltip";
 import { LayerHeader } from "@/components/LayerHeader";
-import { useNavCallerAuthorityRank } from "@/components/OperatorNavAuthorityProvider";
-import { OperatorApiProblem } from "@/components/OperatorApiProblem";
+import { TenantSystemWorkspaceHealthVocabularyRail } from "@/components/TenantSystemWorkspaceHealthVocabularyRail";
+import { useNavCallerAuthorityRank } from "@/components/operator/OperatorNavAuthorityProvider";
+import { OperatorApiProblem } from "@/components/operator/OperatorApiProblem";
 import { Button } from "@/components/ui/button";
 import {
   Card,
   CardContent,
 } from "@/components/ui/card";
-import {
-  getComplianceDriftTrend,
-  getGovernanceDashboard,
-} from "@/lib/api";
-import { getGovernanceDecisionsNeededSummary } from "@/lib/api/governance-stickiness-api";
-import type { GovernanceDecisionsNeededSummary } from "@/lib/api/governance-stickiness-api";
+import { useComplianceDriftTrendQuery } from "@/hooks/use-compliance-drift-trend-query";
+import { useGovernanceDashboardQuery } from "@/hooks/use-governance-dashboard-query";
+import { useGovernanceDecisionsNeededSummaryQuery } from "@/hooks/use-governance-decisions-needed-summary-query";
+import { usePilotValueReportQuery } from "@/hooks/use-pilot-value-report-query";
+import { useWorkspaceHealthPrecommitAuditCountsQuery } from "@/hooks/use-workspace-health-precommit-audit-counts-query";
 import type { ApiProblemDetails } from "@/lib/api-problem";
 import { isApiRequestError } from "@/lib/api-request-error";
-import { fetchPilotValueReportJson } from "@/lib/pilot-value-report-fetch";
 import { AUTHORITY_RANK } from "@/lib/nav-authority";
 import {
   getEffectiveBrowserProxyScopeHeaders,
   readOperatorScopeFromStorage,
-} from "@/lib/operator-scope-storage";
+} from "@/lib/operator/operator-scope-storage";
 import {
   hoursSurfaced,
   formatHours,
   HOURS_PER_PRECOMMIT_BLOCK,
 } from "@/lib/roi-assumptions";
 import { formatExecutiveWorkspaceScopeDescription } from "@/lib/workspace-health-scope-banner";
-import { countAuditEventsInWindow } from "@/lib/workspace-health-audit-count";
-import { computeWorkspaceHealthSlaStats } from "@/lib/workspace-health-sla";
 import { isBuyerPolishedOperatorShellEnv } from "@/lib/demo-ui-env";
 import {
   executiveWorkspaceHealthKpiTitle,
   EXECUTIVE_WORKSPACE_HEALTH_SESSION_SCOPE_SUMMARY,
 } from "@/lib/executive-workspace-health-page-copy";
-import { GOVERNANCE_AUDIT_PATH } from "@/lib/governance-route-paths";
+import { GOVERNANCE_AUDIT_PATH } from "@/lib/governance/governance-route-paths";
+import { AUDIT_TRAIL_LABEL } from "@/lib/usability/canonical-product-terms";
 import { finiteIntegerCountDisplay } from "@/lib/finite-count-display";
 import {
   OPERATOR_LINK,
   OPERATOR_TYPOGRAPHY,
 } from "@/lib/design-tokens";
-import type { ComplianceDriftTrendPoint, GovernanceDashboardSummary } from "@/types/governance-dashboard";
-import type { PilotValueReportJson } from "@/types/pilot-value-report";
+import { computeWorkspaceHealthSlaStats } from "@/lib/workspace-health-sla";
+
+const WORKSPACE_HEALTH_POLL_MS = 30_000;
+
+const DEFAULT_SCOPE_FALLBACK =
+  "Figures use the authenticated tenant / workspace / project sent with each request — the same boundaries as governance and audit. Not a cross-workspace rollup.";
 
 function rollingBounds(days: number): { fromUtc: string; toUtc: string } {
   const to = new Date();
@@ -66,22 +69,27 @@ function rollingBounds(days: number): { fromUtc: string; toUtc: string } {
   return { fromUtc: from.toISOString(), toUtc: to.toISOString() };
 }
 
-type LoadState =
-  | { status: "idle" | "loading" }
-  | {
-      status: "ready";
-      dashboard: GovernanceDashboardSummary;
-      driftPoints: ComplianceDriftTrendPoint[];
-      blocked30d: { count: number; exact: boolean };
-      warned30d: { count: number; exact: boolean };
-      report30d: PilotValueReportJson;
-      report90d: PilotValueReportJson;
-      decisionsNeeded: GovernanceDecisionsNeededSummary;
-    }
-  | { status: "error"; message: string; problem: ApiProblemDetails | null; correlationId: string | null };
+type WorkspaceHealthLoadError = {
+  readonly message: string;
+  readonly problem: ApiProblemDetails | null;
+  readonly correlationId: string | null;
+};
 
-const DEFAULT_SCOPE_FALLBACK =
-  "Figures use the authenticated tenant / workspace / project sent with each request — the same boundaries as governance and audit. Not a cross-workspace rollup.";
+function resolveWorkspaceHealthLoadError(error: unknown): WorkspaceHealthLoadError {
+  if (isApiRequestError(error)) {
+    return {
+      message: error.message,
+      problem: error.problem,
+      correlationId: error.correlationId,
+    };
+  }
+
+  return {
+    message: error instanceof Error ? error.message : "Could not load workspace health.",
+    problem: null,
+    correlationId: null,
+  };
+}
 
 /**
  * Sponsor-oriented **Executive Workspace Health**: five KPI blocks composed from existing governance, audit, compliance-drift, and pilot-value APIs (current scope only).
@@ -89,8 +97,34 @@ const DEFAULT_SCOPE_FALLBACK =
 export function ExecutiveWorkspaceHealthDashboard() {
   const buyerPolishedShell = isBuyerPolishedOperatorShellEnv();
   const callerRank = useNavCallerAuthorityRank();
-  const [state, setState] = useState<LoadState>({ status: "loading" });
   const [scopeBanner, setScopeBanner] = useState<string>(DEFAULT_SCOPE_FALLBACK);
+
+  const bounds30d = useMemo(() => rollingBounds(30), []);
+  const bounds90d = useMemo(() => rollingBounds(90), []);
+
+  const scopeHeaders = getEffectiveBrowserProxyScopeHeaders();
+  const projectId = scopeHeaders["x-project-id"]?.trim() ?? "";
+
+  const dashboardQuery = useGovernanceDashboardQuery({
+    maxPending: 50,
+    maxDecisions: 50,
+    maxChanges: 50,
+    refetchIntervalMs: WORKSPACE_HEALTH_POLL_MS,
+  });
+  const decisionsQuery = useGovernanceDecisionsNeededSummaryQuery({
+    projectId: projectId.length > 0 ? projectId : undefined,
+    refetchIntervalMs: WORKSPACE_HEALTH_POLL_MS,
+  });
+  const driftQuery = useComplianceDriftTrendQuery({ refetchIntervalMs: WORKSPACE_HEALTH_POLL_MS });
+  const auditCountsQuery = useWorkspaceHealthPrecommitAuditCountsQuery({
+    refetchIntervalMs: WORKSPACE_HEALTH_POLL_MS,
+  });
+  const report30dQuery = usePilotValueReportQuery(bounds30d.fromUtc, bounds30d.toUtc, {
+    refetchIntervalMs: WORKSPACE_HEALTH_POLL_MS,
+  });
+  const report90dQuery = usePilotValueReportQuery(bounds90d.fromUtc, bounds90d.toUtc, {
+    refetchIntervalMs: WORKSPACE_HEALTH_POLL_MS,
+  });
 
   const refreshScopeBanner = useCallback(() => {
     const record = readOperatorScopeFromStorage();
@@ -123,75 +157,54 @@ export function ExecutiveWorkspaceHealthDashboard() {
     };
   }, [refreshScopeBanner]);
 
-  const load = useCallback(async () => {
-    setState({ status: "loading" });
+  const loadError = useMemo((): WorkspaceHealthLoadError | null => {
+    const queries = [
+      dashboardQuery,
+      decisionsQuery,
+      driftQuery,
+      auditCountsQuery,
+      report30dQuery,
+      report90dQuery,
+    ];
 
-    const b30 = rollingBounds(30);
-    const b90 = rollingBounds(90);
-
-    try {
-      const scopeHeaders = getEffectiveBrowserProxyScopeHeaders();
-      const projectId = scopeHeaders["x-project-id"]?.trim() ?? "";
-
-      const [dashboard, driftPoints, blocked30d, warned30d, report30d, report90d, decisionsNeeded] =
-        await Promise.all([
-        getGovernanceDashboard(50, 50, 50),
-        getComplianceDriftTrend(b30.fromUtc, b30.toUtc, 1440),
-        countAuditEventsInWindow({
-          eventType: "GovernancePreCommitBlocked",
-          fromUtcIso: b30.fromUtc,
-          toUtcIso: b30.toUtc,
-        }),
-        countAuditEventsInWindow({
-          eventType: "GovernancePreCommitWarned",
-          fromUtcIso: b30.fromUtc,
-          toUtcIso: b30.toUtc,
-        }),
-        fetchPilotValueReportJson(b30.fromUtc, b30.toUtc),
-        fetchPilotValueReportJson(b90.fromUtc, b90.toUtc),
-        getGovernanceDecisionsNeededSummary(projectId.length > 0 ? projectId : undefined),
-      ]);
-
-      setState({
-        status: "ready",
-        dashboard,
-        driftPoints,
-        blocked30d,
-        warned30d,
-        report30d,
-        report90d,
-        decisionsNeeded,
-      });
-    } catch (e: unknown) {
-      if (isApiRequestError(e)) {
-        setState({
-          status: "error",
-          message: e.message,
-          problem: e.problem,
-          correlationId: e.correlationId,
-        });
-      } else {
-        setState({
-          status: "error",
-          message: e instanceof Error ? e.message : "Could not load workspace health.",
-          problem: null,
-          correlationId: null,
-        });
+    for (const query of queries) {
+      if (query.isError) {
+        return resolveWorkspaceHealthLoadError(query.error);
       }
     }
-  }, []);
 
-  useEffect(() => {
-    void load();
+    return null;
+  }, [
+    auditCountsQuery.error,
+    auditCountsQuery.isError,
+    dashboardQuery.error,
+    dashboardQuery.isError,
+    decisionsQuery.error,
+    decisionsQuery.isError,
+    driftQuery.error,
+    driftQuery.isError,
+    report30dQuery.error,
+    report30dQuery.isError,
+    report90dQuery.error,
+    report90dQuery.isError,
+  ]);
 
-    const intervalId = window.setInterval(() => {
-      void load();
-    }, 30_000);
+  const isLoading =
+    dashboardQuery.isPending
+    || decisionsQuery.isPending
+    || driftQuery.isPending
+    || auditCountsQuery.isPending
+    || report30dQuery.isPending
+    || report90dQuery.isPending;
 
-    return () => {
-      window.clearInterval(intervalId);
-    };
-  }, [load]);
+  const retryAll = (): void => {
+    void dashboardQuery.refetch();
+    void decisionsQuery.refetch();
+    void driftQuery.refetch();
+    void auditCountsQuery.refetch();
+    void report30dQuery.refetch();
+    void report90dQuery.refetch();
+  };
 
   const layerHeader = (
     <LayerHeader
@@ -200,11 +213,12 @@ export function ExecutiveWorkspaceHealthDashboard() {
     />
   );
 
-  if (state.status === "loading" || state.status === "idle") {
+  if (isLoading) {
     return (
       <div className="w-full max-w-[1440px] space-y-4">
         {layerHeader}
         <ExecutiveWorkspaceHealthPageHero buyerPolishedShell={buyerPolishedShell} />
+        <TenantSystemWorkspaceHealthVocabularyRail currentSurfaceId="workspace-health" />
 <p className={cn("text-neutral-600 dark:text-neutral-400", OPERATOR_TYPOGRAPHY.body)}>
           {buyerPolishedShell ? "Loading workspace overview…" : "Loading executive workspace health…"}
         </p>
@@ -212,15 +226,16 @@ export function ExecutiveWorkspaceHealthDashboard() {
     );
   }
 
-  if (state.status === "error") {
+  if (loadError !== null) {
     return (
       <div className="w-full max-w-[1440px] space-y-4">
         {layerHeader}
         <ExecutiveWorkspaceHealthPageHero buyerPolishedShell={buyerPolishedShell} />
+        <TenantSystemWorkspaceHealthVocabularyRail currentSurfaceId="workspace-health" />
 <OperatorApiProblem
-          fallbackMessage={state.message}
-          problem={state.problem}
-          correlationId={state.correlationId}
+          fallbackMessage={loadError.message}
+          problem={loadError.problem}
+          correlationId={loadError.correlationId}
         />
         {buyerPolishedShell ? (
           <p className={cn("m-0 max-w-prose text-neutral-600 dark:text-neutral-400", OPERATOR_TYPOGRAPHY.body)}>
@@ -231,18 +246,31 @@ export function ExecutiveWorkspaceHealthDashboard() {
             for approvals and promotions.
           </p>
         ) : null}
-        <Button type="button" variant="secondary" onClick={() => void load()}>
+        <Button type="button" variant="secondary" onClick={retryAll}>
           Retry
         </Button>
       </div>
     );
   }
 
-  if (state.status !== "ready") {
+  const dashboard = dashboardQuery.data;
+  const decisionsNeeded = decisionsQuery.data;
+  const driftPoints = driftQuery.data ?? [];
+  const blocked30d = auditCountsQuery.data?.blocked30d;
+  const warned30d = auditCountsQuery.data?.warned30d;
+  const report30d = report30dQuery.data;
+  const report90d = report90dQuery.data;
+
+  if (
+    dashboard === undefined
+    || decisionsNeeded === undefined
+    || blocked30d === undefined
+    || warned30d === undefined
+    || report30d === undefined
+    || report90d === undefined
+  ) {
     return null;
   }
-
-  const { dashboard, driftPoints, blocked30d, warned30d, report30d, report90d, decisionsNeeded } = state;
 
   const sla = computeWorkspaceHealthSlaStats(dashboard.pendingApprovals, dashboard.recentDecisions);
 
@@ -310,6 +338,7 @@ export function ExecutiveWorkspaceHealthDashboard() {
       {layerHeader}
 
       <ExecutiveWorkspaceHealthPageHero buyerPolishedShell={buyerPolishedShell} />
+      <TenantSystemWorkspaceHealthVocabularyRail currentSurfaceId="workspace-health" />
 {scopeBannerBlock}
 
       <DataArchivalDegradedBanner />
@@ -341,7 +370,7 @@ export function ExecutiveWorkspaceHealthDashboard() {
               <li>
                 Blocked: <span className="font-mono font-medium text-neutral-900 dark:text-neutral-100">{blockCountLabel}</span>{" "}
                 <Link className={OPERATOR_LINK.nav} href={GOVERNANCE_AUDIT_PATH}>
-                  Audit log
+                  {AUDIT_TRAIL_LABEL}
                 </Link>
               </li>
               <li>

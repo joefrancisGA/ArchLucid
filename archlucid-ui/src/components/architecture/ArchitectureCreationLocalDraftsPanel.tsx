@@ -9,10 +9,10 @@ import { useArchitectureDraftRegistryEntries } from "@/hooks/use-architecture-dr
 import {
   ARCHITECTURE_DRAFT_STATUS_LABELS,
   architectureDraftCustomerStatusTagKind,
-} from "@/lib/architecture-draft-status";
-import { trackArchitectureDraftResumeClick } from "@/lib/architecture-draft-resume-telemetry";
-import { architectureDraftPath, ARCHITECTURES_LIST_PATH } from "@/lib/architecture-routes";
-import { CONTINUE_DRAFT_LABEL } from "@/lib/architecture-workflow-labels";
+} from "@/lib/architecture/architecture-draft-status";
+import { trackArchitectureDraftResumeClick } from "@/lib/architecture/architecture-draft-resume-telemetry";
+import { architectureDraftPath, ARCHITECTURES_LIST_PATH } from "@/lib/architecture/architecture-routes";
+import { CONTINUE_DRAFT_LABEL } from "@/lib/architecture/architecture-workflow-labels";
 import {
   ARCHITECTURE_CREATION_CONTINUE_SECTION_TITLE,
   ARCHITECTURE_CREATION_NO_DRAFTS_GUIDANCE,
@@ -21,13 +21,14 @@ import {
   ARCHITECTURE_CREATION_VIEW_ALL_DRAFTS_LABEL,
 } from "@/lib/create-vs-review-intake-copy";
 import { OPERATOR_NAV_GROUP_LABEL, OPERATOR_TYPOGRAPHY } from "@/lib/design-tokens";
+import { parseIsoUtcMs } from "@/lib/format-iso-utc";
 import { formatRelativeTime } from "@/lib/relative-time";
 import { cn } from "@/lib/utils";
 
 const ARCHITECTURE_CREATION_RESUME_PREVIEW_LIMIT = 3;
 
 function formatAbsoluteUpdatedTitle(updatedUtc: string): string {
-  const parsed = Date.parse(updatedUtc);
+  const parsed = parseIsoUtcMs(updatedUtc);
 
   if (Number.isNaN(parsed)) {
     return updatedUtc;
@@ -63,7 +64,7 @@ export function ArchitectureCreationLocalDraftsPanel(): React.JSX.Element | null
   if (entries.length === 0) {
     return (
       <p
-        className={cn("m-0 max-w-prose text-al-text-secondary", OPERATOR_TYPOGRAPHY.helper)}
+        className={cn("m-0 max-w-3xl text-al-text-secondary", OPERATOR_TYPOGRAPHY.helper)}
         data-testid="architecture-creation-no-drafts-guidance"
       >
         {ARCHITECTURE_CREATION_NO_DRAFTS_GUIDANCE}
@@ -81,7 +82,7 @@ export function ArchitectureCreationLocalDraftsPanel(): React.JSX.Element | null
       aria-label={sectionTitle}
     >
       <h2 className={cn("m-0 text-al-text-secondary", OPERATOR_NAV_GROUP_LABEL)}>{sectionTitle}</h2>
-      <p className={cn("m-0 mt-1 max-w-prose text-al-text-secondary", OPERATOR_TYPOGRAPHY.helper)}>
+      <p className={cn("m-0 mt-1 max-w-3xl text-al-text-secondary", OPERATOR_TYPOGRAPHY.helper)}>
         {ARCHITECTURE_CREATION_RECENT_DRAFTS_BODY}
       </p>
       <ul className="m-0 mt-3 list-none space-y-3 p-0">

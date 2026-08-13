@@ -36,5 +36,8 @@ export type TeamsNotificationsIntegrationPageViewModel = {
   readonly onValidateSecret: () => Promise<void>;
   readonly onSendTest: () => Promise<void>;
   readonly onSave: () => Promise<void>;
-  readonly onRemove: () => Promise<void>;
+  readonly pendingRemoveConfirm: boolean;
+  readonly requestRemove: () => void;
+  readonly cancelRemove: () => void;
+  readonly confirmRemove: () => Promise<void>;
 };

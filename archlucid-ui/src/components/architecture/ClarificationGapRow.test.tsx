@@ -2,7 +2,7 @@ import { fireEvent, render, screen } from "@testing-library/react";
 import { describe, expect, it, vi } from "vitest";
 
 import { ClarificationGapRow } from "@/components/architecture/ClarificationGapRow";
-import type { ArchitectureMissingItem } from "@/lib/architecture-created-home-model";
+import type { ArchitectureMissingItem } from "@/lib/architecture/architecture-created-home-model";
 
 const clarificationItem: ArchitectureMissingItem = {
   id: "business-outcome",

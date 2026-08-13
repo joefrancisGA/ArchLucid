@@ -1,10 +1,23 @@
 import { fireEvent, render, screen } from "@testing-library/react";
-import { describe, expect, it, vi } from "vitest";
+import { beforeEach, describe, expect, it, vi } from "vitest";
 import { operatorNavOutsideProviderPrincipal } from "@/lib/current-principal";
 
 const push = vi.fn();
 const prefetch = vi.fn();
 const createNavigate = vi.fn();
+
+const UNBLOCKED_SETUP_CONTEXT = {
+  healthReady: true,
+  healthLoadFailed: false,
+  principalAdmin: true,
+} as const;
+
+// Hoisted so the vi.mock factory below (which vitest lifts above imports) can read the current value.
+const setupReadiness = vi.hoisted(() => ({
+  context: { healthReady: true, healthLoadFailed: false, principalAdmin: true },
+}));
+
+const callerAuthorityRank = vi.hoisted(() => ({ value: 100 }));
 
 vi.mock("next/navigation", () => ({
   useRouter: () => ({
@@ -21,25 +34,21 @@ vi.mock("@/hooks/use-operate-capability", () => ({
 vi.mock("@/hooks/use-finish-setup-readiness-context", () => ({
   useFinishSetupReadinessContext: () => ({
     phase: "ready",
-    context: {
-      healthReady: true,
-      healthLoadFailed: false,
-      principalAdmin: true,
-    },
+    context: setupReadiness.context,
     readyCount: 4,
     totalCount: 4,
   }),
 }));
 
-vi.mock("@/components/OperatorNavAuthorityProvider", () => ({
-  useNavCallerAuthorityRank: () => 100,
+vi.mock("@/components/operator/OperatorNavAuthorityProvider", () => ({
+  useNavCallerAuthorityRank: () => callerAuthorityRank.value,
   useOperatorNavAuthority: () => ({
     currentPrincipal: {
       ...operatorNavOutsideProviderPrincipal,
-      authorityRank: 100,
+      authorityRank: callerAuthorityRank.value,
       hasCommittedArchitectureReview: false,
     },
-    callerAuthorityRank: 100,
+    callerAuthorityRank: callerAuthorityRank.value,
     isAuthorityLoading: false,
   }),}));
 
@@ -99,8 +108,10 @@ vi.mock("@/hooks/use-featured-completed-sample-query", () => ({
 import { OperatorHomeDualPathCards } from "@/components/operator-home/OperatorHomeDualPathCards";
 import {
   OPERATOR_HOME_ARCHITECTURE_LIFECYCLE_INTRO,
+  OPERATOR_HOME_ASSIGN_ADMIN_BLOCKER,
   OPERATOR_HOME_BEST_FOR_EVALUATING_BADGE,
-  OPERATOR_HOME_CLOUD_EVIDENCE_LINK,
+  OPERATOR_HOME_CLOUD_CONNECT_ADMIN_HINT,
+  OPERATOR_HOME_CONNECT_CLOUD_CTA,
   OPERATOR_HOME_CREATE_ARCHITECTURE_CARD_TITLE,
   OPERATOR_HOME_EXPLORE_COMPLETED_REVIEW_TITLE,
   OPERATOR_HOME_OPEN_COMPLETED_REVIEW_CTA,
@@ -108,15 +119,20 @@ import {
   OPERATOR_HOME_REVIEW_ARCHITECTURE_CARD_TITLE,
   OPERATOR_HOME_REVIEW_ARCHITECTURE_CTA,
   OPERATOR_HOME_READY_TO_BEGIN_TITLE,
-} from "@/lib/buyer-polish-copy";
+} from "@/lib/buyer/buyer-polish-copy";
 import { CLOUD_CONNECTIONS_PATH } from "@/lib/integrations-nav-paths";
-import { CREATE_ARCHITECTURE_LABEL } from "@/lib/architecture-workflow-labels";
+import { CREATE_ARCHITECTURE_LABEL } from "@/lib/architecture/architecture-workflow-labels";
 import { REVIEW_START_LOADING_LABEL } from "@/lib/review-start-progress-copy";
 import { featuredCompletedSampleReviewHref } from "@/lib/fetch-tenant-homepage-settings-client";
 
 const featuredSampleRunId = "dddddddd-dddd-dddd-dddd-dddddddddddd";
 
 describe("OperatorHomeDualPathCards", () => {
+  beforeEach(() => {
+    setupReadiness.context = { ...UNBLOCKED_SETUP_CONTEXT };
+    callerAuthorityRank.value = 100;
+  });
+
   it("shows lifecycle steps plus an evaluation explore card", () => {
     render(<OperatorHomeDualPathCards emphasizedPath="explore-completed-review" />);
 
@@ -129,16 +145,18 @@ describe("OperatorHomeDualPathCards", () => {
     expect(screen.getByRole("heading", { name: OPERATOR_HOME_CREATE_ARCHITECTURE_CARD_TITLE })).toBeInTheDocument();
     expect(screen.getByRole("heading", { name: OPERATOR_HOME_REVIEW_ARCHITECTURE_CARD_TITLE })).toBeInTheDocument();
     expect(screen.getByText(OPERATOR_HOME_REVIEW_ARCHITECTURE_CARD_BODY)).toBeInTheDocument();
-    expect(screen.getByTestId("operator-home-optional-cloud-shortcut")).toBeInTheDocument();
-    expect(screen.getByRole("link", { name: OPERATOR_HOME_CLOUD_EVIDENCE_LINK })).toHaveAttribute(
+    expect(screen.getByTestId("operator-home-connect-cloud-path")).toBeInTheDocument();
+    expect(screen.getByRole("link", { name: OPERATOR_HOME_CONNECT_CLOUD_CTA })).toHaveAttribute(
       "href",
       CLOUD_CONNECTIONS_PATH,
     );
     expect(screen.getByRole("button", { name: CREATE_ARCHITECTURE_LABEL })).toBeInTheDocument();
     expect(screen.getByRole("button", { name: OPERATOR_HOME_REVIEW_ARCHITECTURE_CTA })).toBeInTheDocument();
     expect(screen.getByRole("link", { name: OPERATOR_HOME_OPEN_COMPLETED_REVIEW_CTA })).toBeInTheDocument();
-    expect(screen.getByTestId("operator-home-readiness-strip")).toHaveTextContent(OPERATOR_HOME_READY_TO_BEGIN_TITLE);
-    expect(screen.getByTestId("operator-home-readiness-strip")).not.toHaveTextContent("Workspace configured");
+    // Unblocked workspaces show no readiness affordance — only blockers are worth a line.
+    expect(screen.queryByTestId("operator-home-readiness-strip")).toBeNull();
+    expect(screen.queryByTestId("operator-home-readiness-blocker")).toBeNull();
+    expect(screen.queryByText(OPERATOR_HOME_READY_TO_BEGIN_TITLE)).toBeNull();
     expect(screen.queryByText(/Recommended first/i)).not.toBeInTheDocument();
     expect(screen.queryByText(/Recommended next/i)).not.toBeInTheDocument();
   });
@@ -173,12 +191,23 @@ describe("OperatorHomeDualPathCards", () => {
     expect(push).toHaveBeenCalledWith(featuredCompletedSampleReviewHref(featuredSampleRunId));
   });
 
-  it("uses compact variant without the readiness strip", () => {
+  it("uses compact variant without readiness clutter", () => {
     render(<OperatorHomeDualPathCards variant="compact" />);
 
     expect(screen.getByTestId("operator-home-dual-path-cards")).toHaveAttribute("data-variant", "compact");
     expect(screen.queryByTestId("operator-home-readiness-strip")).toBeNull();
+    expect(screen.queryByTestId("operator-home-readiness-blocker")).toBeNull();
     expect(screen.queryByTestId("operator-home-explore-recommended-badge")).toBeNull();
+  });
+
+  it("still names a blocking prerequisite in the compact variant", () => {
+    setupReadiness.context = { ...UNBLOCKED_SETUP_CONTEXT, principalAdmin: false };
+
+    render(<OperatorHomeDualPathCards variant="compact" />);
+
+    expect(screen.getByTestId("operator-home-readiness-blocker")).toHaveTextContent(
+      OPERATOR_HOME_ASSIGN_ADMIN_BLOCKER,
+    );
   });
 
   it("delegates create architecture to the dedicated navigation hook", () => {
@@ -188,5 +217,18 @@ describe("OperatorHomeDualPathCards", () => {
 
     expect(createNavigate).toHaveBeenCalledTimes(1);
     expect(screen.queryByTestId("operator-home-review-start-progress")).toBeNull();
+  });
+
+  it("shows connect cloud on Step 1 for non-admin operators with an admin hint", () => {
+    callerAuthorityRank.value = 2;
+
+    render(<OperatorHomeDualPathCards />);
+
+    expect(screen.getByTestId("operator-home-connect-cloud-path")).toBeInTheDocument();
+    expect(screen.getByRole("link", { name: OPERATOR_HOME_CONNECT_CLOUD_CTA })).toHaveAttribute(
+      "href",
+      CLOUD_CONNECTIONS_PATH,
+    );
+    expect(screen.getByText(OPERATOR_HOME_CLOUD_CONNECT_ADMIN_HINT)).toBeInTheDocument();
   });
 });

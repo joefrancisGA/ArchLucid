@@ -3,7 +3,7 @@ import type { ReactElement } from "react";
 
 import { Button } from "@/components/ui/button";
 import { OPERATOR_TYPOGRAPHY } from "@/lib/design-tokens";
-import { buildArchitectureIntelligenceProductLinks } from "@/lib/architecture-intelligence-product-links";
+import { buildArchitectureIntelligenceProductLinks } from "@/lib/architecture/architecture-intelligence-product-links";
 import { cn } from "@/lib/utils";
 
 export type ArchitectureIntelligenceProductRoundTripProps = {

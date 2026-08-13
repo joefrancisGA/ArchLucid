@@ -1,7 +1,7 @@
 import Link from "next/link";
 
 import { cn } from "@/lib/utils";
-import { OperatorApiProblem } from "@/components/OperatorApiProblem";
+import { OperatorApiProblem } from "@/components/operator/OperatorApiProblem";
 import { Button } from "@/components/ui/button";
 import { AuditLogRankCue } from "@/components/EnterpriseControlsContextHints";
 import { LayerHeader } from "@/components/LayerHeader";
@@ -10,7 +10,7 @@ import { OPERATOR_DISCLOSURE_TRIGGER_CLASS, OPERATOR_LAYOUT, OPERATOR_TYPOGRAPHY
 import {
   BUYER_CTO_DEMO_AUDIT_DEMO_FILTER_BANNER,
   BUYER_CTO_DEMO_AUDIT_SHOW_ALL_EVENTS_CTA,
-} from "@/lib/buyer-polish-copy";
+} from "@/lib/buyer/buyer-polish-copy";
 import { SHOWCASE_STATIC_DEMO_RUN_ID } from "@/lib/showcase-static-demo";
 import { AUTHORITY_RANK } from "@/lib/nav-authority";
 import {
@@ -28,6 +28,9 @@ import {
 } from "@/lib/audit-trail-page-helpers";
 
 import { AuditActiveFilterChips } from "@/components/AuditActiveFilterChips";
+import { AuditEvidenceTrailVocabularyRail } from "@/components/AuditEvidenceTrailVocabularyRail";
+import { PackageActivityAuditTrailVocabularyRail } from "@/components/PackageActivityAuditTrailVocabularyRail";
+import { ReportProblemAuditVocabularyRail } from "@/components/ReportProblemAuditVocabularyRail";
 import { buildAuditActiveFilterChips } from "@/lib/audit-active-filter-chips";
 import { CtoDemoAuditIntegrityExportButton } from "@/components/cto-demo/CtoDemoAuditIntegrityExportButton";
 import { CtoDemoAuditIntegrityVerifyButton } from "@/components/cto-demo/CtoDemoAuditIntegrityVerifyButton";
@@ -109,7 +112,10 @@ export function AuditPageView(props: AuditPageViewProps) {
           )
         }
       />
-{buyerPolishedShell && props.buyerAuditTrailMetrics !== null ? (
+      <AuditEvidenceTrailVocabularyRail currentSurfaceId="audit" />
+      <PackageActivityAuditTrailVocabularyRail currentSurfaceId="audit-trail" />
+      <ReportProblemAuditVocabularyRail currentSurfaceId="audit" />
+      {buyerPolishedShell && props.buyerAuditTrailMetrics !== null ? (
         <AuditBuyerHeaderMetrics buyerAuditTrailMetrics={props.buyerAuditTrailMetrics} />
       ) : null}
 
@@ -134,7 +140,7 @@ export function AuditPageView(props: AuditPageViewProps) {
       <AuditLogRankCue className="mb-2" />
 
       {props.callerAuthorityRank >= AUTHORITY_RANK.ExecuteAuthority && !props.exportRoleOk && !buyerPolishedShell ? (
-        <p className={cn("mb-2 max-w-prose text-al-text-secondary", OPERATOR_TYPOGRAPHY.helper)} role="note">
+        <p className={cn("mb-2 text-al-text-secondary", OPERATOR_TYPOGRAPHY.helper)} role="note">
           {auditExportExecuteRankAuditorRoleNote}
         </p>
       ) : null}
@@ -213,6 +219,8 @@ export function AuditPageView(props: AuditPageViewProps) {
         <div className={cn(buyerPolishedShell && "order-1")}>
           <AuditResultsSection
             buyerPolishedShell={buyerPolishedShell}
+            viewMode={props.viewMode}
+            onViewModeChange={props.onViewModeChange}
             callerAuthorityRank={props.callerAuthorityRank}
             events={props.events}
             displayEvents={props.displayEvents}

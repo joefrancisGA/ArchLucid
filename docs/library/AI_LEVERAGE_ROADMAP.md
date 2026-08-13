@@ -1,10 +1,10 @@
-﻿> **Scope:** Contributor-reference — Canonical AI leverage catalogue for product and engineering leads; prioritised opportunities to exploit AI across the platform—not the reliability/usability backlog in `LATEST.md` or a procurement deliverable.
+﻿> **Scope:** Contributor-reference — Canonical AI leverage catalog for product and engineering leads; prioritized opportunities to exploit AI across the platform—not the reliability/usability backlog in `LATEST.md` or a procurement deliverable.
 
 # ArchLucid AI Leverage Roadmap
 
 **Authored:** 2026-05-20  
 **Audience:** product, engineering leads, and the assessment owner  
-**Purpose:** Canonical 25-item prioritised catalogue of opportunities to exploit AI more aggressively across the ArchLucid platform. Complements the existing improvement backlog in `docs/assessments/LATEST_GPT55.md` which focuses on reliability, usability, and commercial packaging. This file focuses exclusively on AI depth.
+**Purpose:** Canonical 25-item prioritized catalog of opportunities to exploit AI more aggressively across the ArchLucid platform. Complements the existing improvement backlog in `docs/assessments/LATEST_GPT55.md` which focuses on reliability, usability, and commercial packaging. This file focuses exclusively on AI depth.
 
 **Scope boundaries:**
 - V1 items reuse existing agent runtime, LLM client, and transport — no new infra contracts, feature-flaggable.
@@ -135,7 +135,7 @@ In EffectiveGovernanceResolver.cs (or its caller in the commit path), when a gov
 
 **Cursor prompt:**
 ```text
-Create IFindingPriorityReranker in ArchLucid.Application/Findings/. After an architecture run commits, collect all ArchitectureFindings for the run. Group them by severity. For each severity tier, call IAgentCompletionClient with: "You are an enterprise risk advisor. Rank these {n} architecture findings from most to least urgent business impact for a {industryVertical} organisation. Return ONLY a JSON array of findingId strings in priority order." Persist the rank as a new int column PriorityRank on dbo.Findings via a DbUp migration. Add an ?orderBy=priority query param to GET /v1/architecture/review/{runId} findings response. Guard with config key AgentRuntime:RerankFindings (default false).
+Create IFindingPriorityReranker in ArchLucid.Application/Findings/. After an architecture run commits, collect all ArchitectureFindings for the run. Group them by severity. For each severity tier, call IAgentCompletionClient with: "You are an enterprise risk advisor. Rank these {n} architecture findings from most to least urgent business impact for a {industryVertical} organization. Return ONLY a JSON array of findingId strings in priority order." Persist the rank as a new int column PriorityRank on dbo.Findings via a DbUp migration. Add an ?orderBy=priority query param to GET /v1/architecture/review/{runId} findings response. Guard with config key AgentRuntime:RerankFindings (default false).
 ```
 
 ---
@@ -348,7 +348,7 @@ The 25 items in this roadmap are additive to the 25 items in `docs/assessments/L
 | #5 Multi-model tiered orchestration | #3 Implement Multi-Model Orchestration |
 | #11 Compare-runs explainer | Partially covered by LATEST.md #5 (cross-run executive ROI — V1 Â§2.8) |
 
-LATEST.md items #2 and #3 carry the Cursor prompts needed for V1 delivery; this document provides the deeper rationale and sequencing context for all 25. For V1 items not yet in LATEST.md (#1, #3, #6–#15), Cursor prompts are included here and summarised in LATEST.md.
+LATEST.md items #2 and #3 carry the Cursor prompts needed for V1 delivery; this document provides the deeper rationale and sequencing context for all 25. For V1 items not yet in LATEST.md (#1, #3, #6–#15), Cursor prompts are included here and summarized in LATEST.md.
 
 ---
 

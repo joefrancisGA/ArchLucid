@@ -1,11 +1,15 @@
 "use client";
 
 import { cn } from "@/lib/utils";
+import { AskSearchEvidenceVocabularyRail } from "@/components/AskSearchEvidenceVocabularyRail";
+import { AuditEvidenceTrailVocabularyRail } from "@/components/AuditEvidenceTrailVocabularyRail";
 import { DemoWorkspaceCapabilityUnavailablePanel } from "@/components/DemoWorkspaceCapabilityUnavailablePanel";
 import { EnterpriseCompactEmptyState } from "@/components/EnterpriseCompactEmptyState";
-import { OperatorApiProblem } from "@/components/OperatorApiProblem";
-import { OperatorPageHeader } from "@/components/OperatorPageHeader";
-import { RunIdPicker } from "@/components/RunIdPicker";
+import { FindingsQueueSearchEvidenceVocabularyRail } from "@/components/findings/FindingsQueueSearchEvidenceVocabularyRail";
+import { OperatorApiProblem } from "@/components/operator/OperatorApiProblem";
+import { OperatorPageHeader } from "@/components/operator/OperatorPageHeader";
+import { PageCapabilityBoundaryStrip } from "@/components/PageCapabilityBoundaryStrip";
+import { RunIdPicker } from "@/components/runs/RunIdPicker";
 import { PageContextualHelpButton } from "@/components/usability/PageContextualHelpButton";
 import { Button } from "@/components/ui/button";
 import { Card, CardContent } from "@/components/ui/card";
@@ -75,7 +79,11 @@ export function SearchPageView({ model }: SearchPageViewProps) {
           navHref={SEARCH_REVIEW_EVIDENCE_PATH}
           actions={<PageContextualHelpButton />}
         />
-<DemoWorkspaceCapabilityUnavailablePanel
+        <AskSearchEvidenceVocabularyRail currentSurfaceId="search" />
+        <AuditEvidenceTrailVocabularyRail currentSurfaceId="search-evidence" />
+        <FindingsQueueSearchEvidenceVocabularyRail currentSurfaceId="search-evidence" />
+        <PageCapabilityBoundaryStrip surfaceId="searchReviewEvidence" />
+        <DemoWorkspaceCapabilityUnavailablePanel
           layout="embedded"
           capability={SEARCH_PAGE_TITLE}
           description="In a connected tenant, architects search findings, decisions, and signed review records across the workspace evidence index."
@@ -93,7 +101,11 @@ export function SearchPageView({ model }: SearchPageViewProps) {
         navHref={SEARCH_REVIEW_EVIDENCE_PATH}
         actions={<PageContextualHelpButton />}
       />
-{scopedRunId.length > 0 ? <SearchReviewEvidenceCiteStrip runId={scopedRunId} /> : null}
+      <AskSearchEvidenceVocabularyRail currentSurfaceId="search" />
+      <AuditEvidenceTrailVocabularyRail currentSurfaceId="search-evidence" />
+      <FindingsQueueSearchEvidenceVocabularyRail currentSurfaceId="search-evidence" />
+      <PageCapabilityBoundaryStrip surfaceId="searchReviewEvidence" />
+      {scopedRunId.length > 0 ? <SearchReviewEvidenceCiteStrip runId={scopedRunId} /> : null}
 
       <Card className="mb-6 max-w-xl border-neutral-200 dark:border-neutral-700">
         <CardContent className="grid gap-4 p-4">

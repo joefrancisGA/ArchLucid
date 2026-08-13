@@ -6,7 +6,7 @@ import { useCallback, useState, type ChangeEvent, type ReactElement } from "reac
 
 import { Loader2 } from "lucide-react";
 
-import { useOperatorNavAuthority } from "@/components/OperatorNavAuthorityProvider";
+import { useOperatorNavAuthority } from "@/components/operator/OperatorNavAuthorityProvider";
 import { Button } from "@/components/ui/button";
 import {
   Dialog,
@@ -195,7 +195,7 @@ export function ReviewBoardWhitelabelConsultingExportButton(
               />
             </div>
           </div>
-          <DialogFooter className="gap-2 sm:gap-0">
+          <DialogFooter>
             <Button type="button" variant="outline" disabled={busy} onClick={() => onOpenChange(false)}>
               Cancel
             </Button>

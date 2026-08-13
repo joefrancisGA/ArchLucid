@@ -5,6 +5,7 @@ using ArchLucid.Core.Agents;
 using ArchLucid.Core.Audit;
 using ArchLucid.Core.Configuration.Summary;
 using ArchLucid.Core.Scoping;
+using ArchLucid.Persistence.Audit;
 
 using FluentAssertions;
 
@@ -61,7 +62,8 @@ public sealed class SettingsControllerModelGovernanceCatalogTests
             profileService.Object,
             aliasRegistry.Object,
             Mock.Of<IScopeContextProvider>(),
-            Mock.Of<IAuditService>());
+            Mock.Of<IAuditService>(),
+            Mock.Of<IAuditRepository>());
 
         ActionResult<ModelGovernanceCatalogResponse> result =
             await controller.GetModelGovernanceCatalog(CancellationToken.None);

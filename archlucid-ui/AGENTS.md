@@ -61,7 +61,7 @@ Implementation detail for this app (architect workspace, nav contract, testing).
 
 | Topic | Doc |
 |------|-----|
-| Architect workspace behaviour | [OPERATOR_SHELL_TUTORIAL.md](./docs/OPERATOR_SHELL_TUTORIAL.md) |
+| Architect workspace behavior | [OPERATOR_SHELL_TUTORIAL.md](./docs/OPERATOR_SHELL_TUTORIAL.md) |
 | Nav metadata + drift guard | [NAV_CONFIG_CONTRACT.md](./docs/NAV_CONFIG_CONTRACT.md) |
 | App architecture | [ARCHITECTURE.md](./docs/ARCHITECTURE.md) |
 | Data flow / client state | [DATA_FLOW_AND_STATE.md](./docs/DATA_FLOW_AND_STATE.md) |

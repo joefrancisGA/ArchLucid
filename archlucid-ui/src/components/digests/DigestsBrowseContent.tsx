@@ -9,7 +9,7 @@ import { useArchitectureDigestsBrowseQuery } from "@/hooks/use-architecture-dige
 
 import { CollapsibleSection } from "@/components/CollapsibleSection";
 import { EnterpriseCompactEmptyState } from "@/components/EnterpriseCompactEmptyState";
-import { OperatorApiProblem } from "@/components/OperatorApiProblem";
+import { OperatorApiProblem } from "@/components/operator/OperatorApiProblem";
 import { Button } from "@/components/ui/button";
 import { DigestsBrowseHistorySkeleton } from "@/components/digests/DigestsBrowseHistorySkeleton";
 import { DigestsBrowseIncludesPreview } from "@/components/digests/DigestsBrowseIncludesPreview";
@@ -177,7 +177,7 @@ export function DigestsBrowseContent(props: DigestsBrowseContentProps = {}): Rea
       return;
     }
 
-    let cancelled = false;
+    let canceled = false;
 
     void (async () => {
       const nextAttempts: Record<string, DigestDeliveryAttempt[]> = {};
@@ -196,7 +196,7 @@ export function DigestsBrowseContent(props: DigestsBrowseContentProps = {}): Rea
         }
       }
 
-      if (cancelled) {
+      if (canceled) {
         return;
       }
 
@@ -204,12 +204,12 @@ export function DigestsBrowseContent(props: DigestsBrowseContentProps = {}): Rea
     })();
 
     return () => {
-      cancelled = true;
+      canceled = true;
     };
   }, [digests, refreshToken]);
 
   /**
-   * Honors `/digests?tab=browse#digest-{id}` from the hub Preview action and
+   * Honors `/digests?tab=get-started#digest-{id}` from the hub Preview action and
    * schedule links (TB-1501). Re-runs on hashchange so repeat clicks re-select.
    */
   useEffect(() => {
@@ -292,7 +292,7 @@ export function DigestsBrowseContent(props: DigestsBrowseContentProps = {}): Rea
           )}
           <CollapsibleSection
             title={DIGESTS_BROWSE_INCLUDES_SECTION_TITLE}
-            defaultOpen={true}
+            defaultOpen={false}
             sectionTestId="digests-browse-includes-disclosure"
           >
             <DigestsBrowseIncludesPreview />
@@ -307,7 +307,11 @@ export function DigestsBrowseContent(props: DigestsBrowseContentProps = {}): Rea
       ) : null}
 
       {digests.length > 0 ? (
-        <div className="mt-4 grid grid-cols-1 gap-4 xl:grid-cols-[minmax(0,1.2fr)_minmax(20rem,0.8fr)]">
+        <div
+          className="mt-4 grid grid-cols-1 gap-4 xl:grid-cols-[minmax(0,1.2fr)_minmax(20rem,0.8fr)]"
+          data-testid="digests-browse-master-detail"
+          data-operator-side-rail-kind="master-detail"
+        >
           <section className="min-w-0 rounded-lg border border-neutral-200 bg-white p-3 dark:border-neutral-700 dark:bg-neutral-950">
             <h3 className={cn("m-0 mb-3 font-semibold text-al-text-primary", OPERATOR_TYPOGRAPHY.cardTitle)}>
               Digest history

@@ -58,4 +58,30 @@ describe("review-execution-background-safety-copy", () => {
 
     expect(message).toMatch(/often take longer than a few minutes/i);
   });
+
+  it("frames the elapsed watchdog as unresolved rather than failed", () => {
+    for (const buyerPolished of [true, false]) {
+      for (const p90Seconds of [null, 120, 420]) {
+        const message = resolveReviewPipelineTimeoutMessage({
+          buyerPolished,
+          runId: "run-1",
+          p90Seconds,
+        });
+
+        expect(message).toMatch(/nothing was canceled and analysis is still running/i);
+        // "Retry" reads as re-running the analysis, which is what drove duplicate work.
+        expect(message).not.toMatch(/\bretry\b/i);
+        expect(message).not.toMatch(/\bfail(ed|ure)?\b/i);
+      }
+    }
+  });
+
+  it("keeps the review id in operator copy and out of buyer-polished copy", () => {
+    expect(
+      resolveReviewPipelineTimeoutMessage({ buyerPolished: false, runId: "run-42", p90Seconds: null }),
+    ).toContain("run-42");
+    expect(
+      resolveReviewPipelineTimeoutMessage({ buyerPolished: true, runId: "run-42", p90Seconds: null }),
+    ).not.toContain("run-42");
+  });
 });

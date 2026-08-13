@@ -1,6 +1,6 @@
 /*
   R303: Rollback 303_RunExecuteOwnershipLeases.sql —
-  drop dbo.RunExecuteOwnershipLeases (index + table).
+  drop execute ownership lease table (TB-943 / TB-961).
 */
 
 IF OBJECT_ID(N'dbo.RunExecuteOwnershipLeases', N'U') IS NOT NULL

@@ -1,5 +1,5 @@
 import { cn } from "@/lib/utils";
-import { OPERATOR_TYPOGRAPHY } from "@/lib/design-tokens";
+import { OPERATOR_DANGER, OPERATOR_TYPOGRAPHY } from "@/lib/design-tokens";
 import { Slot } from "@radix-ui/react-slot";
 import { cva, type VariantProps } from "class-variance-authority";
 import * as React from "react";
@@ -10,10 +10,10 @@ import * as React from "react";
  * neutral fill rather than a near-black one.
  */
 const SECONDARY_BUTTON_CLASS =
-  "bg-neutral-200 text-neutral-900 hover:bg-neutral-300 dark:bg-neutral-700 dark:text-neutral-50 dark:hover:bg-neutral-600";
+  "border border-neutral-400 bg-neutral-200 text-neutral-900 hover:bg-neutral-300 dark:border-neutral-500 dark:bg-neutral-700 dark:text-neutral-50 dark:hover:bg-neutral-600";
 
 const buttonVariants = cva(
-  (cn("inline-flex items-center justify-center gap-2 whitespace-nowrap rounded-md transition-colors focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-neutral-400 focus-visible:ring-offset-2 disabled:pointer-events-none disabled:opacity-50", OPERATOR_TYPOGRAPHY.button)),
+  (cn("inline-flex items-center justify-center gap-2 whitespace-nowrap rounded-md transition-colors focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-[var(--al-accent-border-focus)] focus-visible:ring-offset-2 disabled:pointer-events-none disabled:opacity-50", OPERATOR_TYPOGRAPHY.button)),
   {
     variants: {
       variant: {
@@ -21,7 +21,7 @@ const buttonVariants = cva(
         primary:
           "bg-[var(--al-primary-action-bg)] text-[var(--al-primary-action-fg)] hover:bg-[var(--al-primary-action-bg-hover)] focus-visible:ring-[var(--al-primary-action-ring)]",
         secondary: SECONDARY_BUTTON_CLASS,
-        destructive: "bg-red-600 text-white hover:bg-red-700 focus-visible:ring-red-500 dark:bg-red-600 dark:hover:bg-red-700",
+        destructive: OPERATOR_DANGER.action,
         outline:
           "border border-neutral-300 bg-white text-neutral-900 hover:bg-neutral-100 dark:border-neutral-600 dark:bg-neutral-900 dark:text-neutral-100 dark:hover:bg-neutral-800",
       },

@@ -8,38 +8,38 @@ vi.mock("next/link", () => ({
 import { OPERATOR_HOME_CARD_SECTION_HEADING } from "@/lib/design-tokens";
 import {
   OPERATOR_HOME_ASSIGN_ADMIN_BLOCKER,
-  OPERATOR_HOME_CONTINUE_SETUP_BODY,
   OPERATOR_HOME_ONE_REQUIRED_ITEM_TITLE,
-  OPERATOR_HOME_READY_TO_BEGIN_TITLE,
-} from "@/lib/buyer-polish-copy";
+} from "@/lib/buyer/buyer-polish-copy";
 
 import { OperatorHomeContinueSetupCard } from "./OperatorHomeContinueSetupCard";
 
 describe("OperatorHomeContinueSetupCard", () => {
-  it("renders compact ready-to-begin reassurance without optional setup clutter", () => {
-    render(<OperatorHomeContinueSetupCard canBegin blockerMessage={null} />);
+  it("renders nothing when the workspace can begin", () => {
+    const { container } = render(<OperatorHomeContinueSetupCard canBegin blockerMessage={null} />);
 
-    expect(screen.getByTestId("home-block-continue-setup")).toBeInTheDocument();
+    expect(container).toBeEmptyDOMElement();
+  });
 
-    const heading = screen.getByRole("heading", { level: 2, name: OPERATOR_HOME_READY_TO_BEGIN_TITLE });
+  it("renders nothing by default so unverified readiness is never announced as ready", () => {
+    const { container } = render(<OperatorHomeContinueSetupCard />);
 
-    expect(heading).toBeInTheDocument();
-    expect(heading.className).toContain("tracking-tight");
-    expect(OPERATOR_HOME_CARD_SECTION_HEADING).toContain("tracking-tight");
-    expect(screen.getByText(OPERATOR_HOME_CONTINUE_SETUP_BODY)).toBeInTheDocument();
-    expect(screen.queryByTestId("operator-home-setup-checklist")).toBeNull();
-    expect(screen.queryByTestId("continue-setup-connect-cloud")).toBeNull();
-    expect(screen.queryByTestId("continue-setup-invite-reviewer")).toBeNull();
-    expect(screen.queryByText(/of \d+ complete/i)).not.toBeInTheDocument();
+    expect(container).toBeEmptyDOMElement();
   });
 
   it("shows an explicit blocker instead of fractional readiness counts", () => {
     render(<OperatorHomeContinueSetupCard canBegin={false} blockerMessage={OPERATOR_HOME_ASSIGN_ADMIN_BLOCKER} />);
 
-    expect(screen.getByRole("heading", { level: 2, name: OPERATOR_HOME_ONE_REQUIRED_ITEM_TITLE })).toBeInTheDocument();
+    const heading = screen.getByRole("heading", { level: 2, name: OPERATOR_HOME_ONE_REQUIRED_ITEM_TITLE });
+
+    expect(heading).toBeInTheDocument();
+    expect(heading.className).toContain("tracking-tight");
+    expect(OPERATOR_HOME_CARD_SECTION_HEADING).toContain("tracking-tight");
     expect(screen.getByTestId("operator-home-readiness-blocker")).toHaveTextContent(
       OPERATOR_HOME_ASSIGN_ADMIN_BLOCKER,
     );
+    expect(screen.queryByTestId("operator-home-setup-checklist")).toBeNull();
+    expect(screen.queryByTestId("continue-setup-connect-cloud")).toBeNull();
+    expect(screen.queryByTestId("continue-setup-invite-reviewer")).toBeNull();
     expect(screen.queryByText(/of \d+ complete/i)).not.toBeInTheDocument();
   });
 });

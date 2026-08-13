@@ -1,15 +1,14 @@
-import { cn } from "@/lib/utils";
 import { notFound } from "next/navigation";
 
-import { OperatorBrandedNotFound } from "@/components/OperatorBrandedNotFound";
+import { OperatorBrandedNotFound } from "@/components/operator/OperatorBrandedNotFound";
+import { OperatorPageHeader } from "@/components/operator/OperatorPageHeader";
 import { ReviewPackageLoadFailureView } from "@/components/ReviewPackageLoadFailureView";
 import { isInvalidGuidOrSlugRouteToken } from "@/lib/route-dynamic-param";
-import { CREATE_ARCHITECTURE_INTENT } from "@/lib/architecture-workflow-intent";
+import { CREATE_ARCHITECTURE_INTENT } from "@/lib/architecture/architecture-workflow-intent";
 import {
   isFromGenerationSearchParam,
   REVIEW_PACKAGE_OPEN_FAILURE_HEADING,
 } from "@/lib/review-generation-handoff";
-import { OPERATOR_TYPOGRAPHY } from "@/lib/design-tokens";
 
 import { loadRunDetailPageModel } from "./_sections/load-run-detail-page-model";
 import { RunDetailPageFetchErrorView } from "./_sections/RunDetailPageFetchErrorView";
@@ -44,9 +43,7 @@ export default async function RunDetailPage({
     if (fromGeneration || result.reason === "workspace-mismatch") {
       return (
         <div className="w-full max-w-[1200px] px-1 py-2 sm:px-0" data-testid="run-detail-load-failure">
-          <h1 className={cn("mb-4", OPERATOR_TYPOGRAPHY.pageTitle)}>
-            {REVIEW_PACKAGE_OPEN_FAILURE_HEADING}
-          </h1>
+          <OperatorPageHeader title={REVIEW_PACKAGE_OPEN_FAILURE_HEADING} headingLevel="h1" />
           <ReviewPackageLoadFailureView
             runId={runId}
             fromGeneration={fromGeneration}

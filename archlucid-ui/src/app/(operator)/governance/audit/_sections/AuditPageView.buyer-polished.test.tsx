@@ -37,6 +37,8 @@ vi.mock("./AuditResultsSection", () => ({
 function buildProps(overrides: Partial<AuditPageViewProps> = {}): AuditPageViewProps {
   return {
     buyerPolishedShell: true,
+    viewMode: "story",
+    onViewModeChange: vi.fn(),
     runId: "sample-review",
     buyerAuditTrailSummaryLine: null,
     buyerAuditTrailMetrics: null,

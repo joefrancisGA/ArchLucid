@@ -124,3 +124,18 @@ export function authDomainEnforcementModeKind(mode: string): EnterpriseStatusKin
       return "needs-attention";
   }
 }
+
+export function successMessageForAuthDomainEnforcementModeChange(
+  displayDomain: string,
+  enforcementMode: string,
+): string {
+  return `Enforcement mode for ${displayDomain} set to ${labelForAuthDomainEnforcementMode(enforcementMode)}.`;
+}
+
+export function isRestrictiveAuthDomainEnforcementMode(enforcementMode: string): boolean {
+  const normalized = normalizeEnumToken(enforcementMode);
+
+  return (
+    normalized === "SsoRequiredForVerifiedDomain" || normalized === "SsoRequiredWithRecoveryException"
+  );
+}

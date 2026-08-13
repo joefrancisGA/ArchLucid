@@ -3,9 +3,9 @@
 import Link from "next/link";
 
 import { Button } from "@/components/ui/button";
-import { BUYER_COMPARE_OPEN_SAMPLE_COMPARISON_CTA } from "@/lib/buyer-polish-copy";
-import { getShowcaseCompareHref } from "@/lib/buyer-safe-review-navigation";
-import { isStaticDemoPayloadFallbackEnabled } from "@/lib/operator-static-demo";
+import { BUYER_COMPARE_OPEN_SAMPLE_COMPARISON_CTA } from "@/lib/buyer/buyer-polish-copy";
+import { getShowcaseCompareHref } from "@/lib/buyer/buyer-safe-review-navigation";
+import { isStaticDemoPayloadFallbackEnabled } from "@/lib/operator/operator-static-demo";
 
 export type CompareSampleComparisonActionProps = {
   readonly onLoadSampleComparison?: () => void;

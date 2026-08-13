@@ -3,9 +3,18 @@ import { OPERATOR_TYPOGRAPHY } from "@/lib/design-tokens";
 import type { ReactNode } from "react";
 
 import {
+  EnterpriseTable,
+  EnterpriseTableBody,
+  EnterpriseTableCell,
+  EnterpriseTableHead,
+  EnterpriseTableHeadRow,
+  EnterpriseTableHeaderCell,
+  EnterpriseTableRow,
+} from "@/components/ui/enterprise-table";
+import {
   BUYER_COMPARE_STRUCTURED_HEADING,
   BUYER_COMPARE_STRUCTURED_LEAD,
-} from "@/lib/buyer-polish-copy";
+} from "@/lib/buyer/buyer-polish-copy";
 import { decisionKeyDisplay } from "@/lib/compare-decision-key-display";
 import { partitionDecisionDeltas } from "@/lib/compare-decision-delta-material";
 import { formatCompareCostEstimateCell } from "@/lib/compare-cost-estimate-format";
@@ -22,19 +31,19 @@ function DecisionDeltasTable(props: { rows: DecisionDelta[] }) {
   }
 
   return (
-    <table className={cn("mt-2 w-full border-collapse", OPERATOR_TYPOGRAPHY.body)}>
-      <thead>
-        <tr className="bg-neutral-50/90 dark:bg-neutral-900/50">
-          <th className={cellCls}>Decision</th>
-          <th className={cellCls}>Baseline</th>
-          <th className={cellCls}>Updated</th>
-          <th className={cellCls}>Change</th>
-        </tr>
-      </thead>
-      <tbody>
+    <EnterpriseTable ariaLabel="Decision comparison deltas" className={cn("mt-2", OPERATOR_TYPOGRAPHY.body)}>
+      <EnterpriseTableHead>
+        <EnterpriseTableHeadRow className="bg-neutral-50/90 dark:bg-neutral-900/50">
+          <EnterpriseTableHeaderCell className={cellCls}>Decision</EnterpriseTableHeaderCell>
+          <EnterpriseTableHeaderCell className={cellCls}>Baseline</EnterpriseTableHeaderCell>
+          <EnterpriseTableHeaderCell className={cellCls}>Updated</EnterpriseTableHeaderCell>
+          <EnterpriseTableHeaderCell className={cellCls}>Change</EnterpriseTableHeaderCell>
+        </EnterpriseTableHeadRow>
+      </EnterpriseTableHead>
+      <EnterpriseTableBody>
         {props.rows.map((d, i) => (
-          <tr key={`${d.decisionKey}-${i}`}>
-            <td className={cellCls}>
+          <EnterpriseTableRow key={`${d.decisionKey}-${i}`}>
+            <EnterpriseTableCell className={cellCls}>
               <div className="font-medium text-neutral-900 dark:text-neutral-100">
                 {d.displayLabel?.trim() ? d.displayLabel.trim() : decisionKeyDisplay(d.decisionKey)}
               </div>
@@ -48,14 +57,14 @@ function DecisionDeltasTable(props: { rows: DecisionDelta[] }) {
                   {d.decisionKey}
                 </div>
               )}
-            </td>
-            <td className={cellCls}>{d.baseValue ?? "—"}</td>
-            <td className={cellCls}>{d.targetValue ?? "—"}</td>
-            <td className={cellCls}>{d.changeType}</td>
-          </tr>
+            </EnterpriseTableCell>
+            <EnterpriseTableCell className={cellCls}>{d.baseValue ?? "—"}</EnterpriseTableCell>
+            <EnterpriseTableCell className={cellCls}>{d.targetValue ?? "—"}</EnterpriseTableCell>
+            <EnterpriseTableCell className={cellCls}>{d.changeType}</EnterpriseTableCell>
+          </EnterpriseTableRow>
         ))}
-      </tbody>
-    </table>
+      </EnterpriseTableBody>
+    </EnterpriseTable>
   );
 }
 
@@ -179,22 +188,22 @@ export function StructuredComparisonView(props: {
               countBadge={golden.requirementChanges.length}
               defaultOpen={foldDefaultOpen}
             >
-              <table className={cn("mt-2 w-full border-collapse", OPERATOR_TYPOGRAPHY.body)}>
-                <thead>
-                  <tr className="bg-neutral-50/90 dark:bg-neutral-900/50">
-                    <th className={cellCls}>Requirement</th>
-                    <th className={cellCls}>Change</th>
-                  </tr>
-                </thead>
-                <tbody>
+              <EnterpriseTable ariaLabel="Requirement changes" className={cn("mt-2", OPERATOR_TYPOGRAPHY.body)}>
+                <EnterpriseTableHead>
+                  <EnterpriseTableHeadRow className="bg-neutral-50/90 dark:bg-neutral-900/50">
+                    <EnterpriseTableHeaderCell className={cellCls}>Requirement</EnterpriseTableHeaderCell>
+                    <EnterpriseTableHeaderCell className={cellCls}>Change</EnterpriseTableHeaderCell>
+                  </EnterpriseTableHeadRow>
+                </EnterpriseTableHead>
+                <EnterpriseTableBody>
                   {golden.requirementChanges.map((r) => (
-                    <tr key={`${r.requirementName}:${r.changeType}`}>
-                      <td className={cellCls}>{r.requirementName}</td>
-                      <td className={cellCls}>{r.changeType}</td>
-                    </tr>
+                    <EnterpriseTableRow key={`${r.requirementName}:${r.changeType}`}>
+                      <EnterpriseTableCell className={cellCls}>{r.requirementName}</EnterpriseTableCell>
+                      <EnterpriseTableCell className={cellCls}>{r.changeType}</EnterpriseTableCell>
+                    </EnterpriseTableRow>
                   ))}
-                </tbody>
-              </table>
+                </EnterpriseTableBody>
+              </EnterpriseTable>
             </ComparisonFoldSection>
           ) : null}
 
@@ -204,24 +213,24 @@ export function StructuredComparisonView(props: {
               countBadge={golden.securityChanges.length}
               defaultOpen={foldDefaultOpen}
             >
-              <table className={cn("mt-2 w-full border-collapse", OPERATOR_TYPOGRAPHY.body)}>
-                <thead>
-                  <tr className="bg-neutral-50/90 dark:bg-neutral-900/50">
-                    <th className={cellCls}>Control</th>
-                    <th className={cellCls}>Baseline</th>
-                    <th className={cellCls}>Updated</th>
-                  </tr>
-                </thead>
-                <tbody>
+              <EnterpriseTable ariaLabel="Finding and posture deltas" className={cn("mt-2", OPERATOR_TYPOGRAPHY.body)}>
+                <EnterpriseTableHead>
+                  <EnterpriseTableHeadRow className="bg-neutral-50/90 dark:bg-neutral-900/50">
+                    <EnterpriseTableHeaderCell className={cellCls}>Control</EnterpriseTableHeaderCell>
+                    <EnterpriseTableHeaderCell className={cellCls}>Baseline</EnterpriseTableHeaderCell>
+                    <EnterpriseTableHeaderCell className={cellCls}>Updated</EnterpriseTableHeaderCell>
+                  </EnterpriseTableHeadRow>
+                </EnterpriseTableHead>
+                <EnterpriseTableBody>
                   {golden.securityChanges.map((s, i) => (
-                    <tr key={i}>
-                      <td className={cellCls}>{s.controlName}</td>
-                      <td className={cellCls}>{s.baseStatus ?? "—"}</td>
-                      <td className={cellCls}>{s.targetStatus ?? "—"}</td>
-                    </tr>
+                    <EnterpriseTableRow key={i}>
+                      <EnterpriseTableCell className={cellCls}>{s.controlName}</EnterpriseTableCell>
+                      <EnterpriseTableCell className={cellCls}>{s.baseStatus ?? "—"}</EnterpriseTableCell>
+                      <EnterpriseTableCell className={cellCls}>{s.targetStatus ?? "—"}</EnterpriseTableCell>
+                    </EnterpriseTableRow>
                   ))}
-                </tbody>
-              </table>
+                </EnterpriseTableBody>
+              </EnterpriseTable>
             </ComparisonFoldSection>
           ) : null}
 
@@ -231,22 +240,22 @@ export function StructuredComparisonView(props: {
               countBadge={golden.topologyChanges.length}
               defaultOpen={foldDefaultOpen}
             >
-              <table className={cn("mt-2 w-full border-collapse", OPERATOR_TYPOGRAPHY.body)}>
-                <thead>
-                  <tr className="bg-neutral-50/90 dark:bg-neutral-900/50">
-                    <th className={cellCls}>Resource</th>
-                    <th className={cellCls}>Change</th>
-                  </tr>
-                </thead>
-                <tbody>
+              <EnterpriseTable ariaLabel="Architecture structure changes" className={cn("mt-2", OPERATOR_TYPOGRAPHY.body)}>
+                <EnterpriseTableHead>
+                  <EnterpriseTableHeadRow className="bg-neutral-50/90 dark:bg-neutral-900/50">
+                    <EnterpriseTableHeaderCell className={cellCls}>Resource</EnterpriseTableHeaderCell>
+                    <EnterpriseTableHeaderCell className={cellCls}>Change</EnterpriseTableHeaderCell>
+                  </EnterpriseTableHeadRow>
+                </EnterpriseTableHead>
+                <EnterpriseTableBody>
                   {golden.topologyChanges.map((t) => (
-                    <tr key={`${t.resource}:${t.changeType}`}>
-                      <td className={cellCls}>{t.resource}</td>
-                      <td className={cellCls}>{t.changeType}</td>
-                    </tr>
+                    <EnterpriseTableRow key={`${t.resource}:${t.changeType}`}>
+                      <EnterpriseTableCell className={cellCls}>{t.resource}</EnterpriseTableCell>
+                      <EnterpriseTableCell className={cellCls}>{t.changeType}</EnterpriseTableCell>
+                    </EnterpriseTableRow>
                   ))}
-                </tbody>
-              </table>
+                </EnterpriseTableBody>
+              </EnterpriseTable>
             </ComparisonFoldSection>
           ) : null}
 
@@ -256,22 +265,22 @@ export function StructuredComparisonView(props: {
               countBadge={golden.costChanges.length}
               defaultOpen={foldDefaultOpen}
             >
-              <table className={cn("mt-2 w-full border-collapse", OPERATOR_TYPOGRAPHY.body)}>
-                <thead>
-                  <tr className="bg-neutral-50/90 dark:bg-neutral-900/50">
-                    <th className={cellCls}>Baseline cost estimate</th>
-                    <th className={cellCls}>Updated cost estimate</th>
-                  </tr>
-                </thead>
-                <tbody>
+              <EnterpriseTable ariaLabel="Projected cost impact" className={cn("mt-2", OPERATOR_TYPOGRAPHY.body)}>
+                <EnterpriseTableHead>
+                  <EnterpriseTableHeadRow className="bg-neutral-50/90 dark:bg-neutral-900/50">
+                    <EnterpriseTableHeaderCell className={cellCls}>Baseline cost estimate</EnterpriseTableHeaderCell>
+                    <EnterpriseTableHeaderCell className={cellCls}>Updated cost estimate</EnterpriseTableHeaderCell>
+                  </EnterpriseTableHeadRow>
+                </EnterpriseTableHead>
+                <EnterpriseTableBody>
                   {golden.costChanges.map((c, i) => (
-                    <tr key={`${String(c.baseCost ?? "n")}-${String(c.targetCost ?? "n")}-${i}`}>
-                      <td className={cellCls}>{costFormattedRows[i]?.base.display ?? "—"}</td>
-                      <td className={cellCls}>{costFormattedRows[i]?.target.display ?? "—"}</td>
-                    </tr>
+                    <EnterpriseTableRow key={`${String(c.baseCost ?? "n")}-${String(c.targetCost ?? "n")}-${i}`}>
+                      <EnterpriseTableCell className={cellCls}>{costFormattedRows[i]?.base.display ?? "—"}</EnterpriseTableCell>
+                      <EnterpriseTableCell className={cellCls}>{costFormattedRows[i]?.target.display ?? "—"}</EnterpriseTableCell>
+                    </EnterpriseTableRow>
                   ))}
-                </tbody>
-              </table>
+                </EnterpriseTableBody>
+              </EnterpriseTable>
               {costHasUnitUnknown ? (
                 <p className={cn("mt-2 max-w-prose text-neutral-600 dark:text-neutral-400", OPERATOR_TYPOGRAPHY.helper)}>
                   Numeric values are shown as returned by the comparison payload — currency and billing period were not

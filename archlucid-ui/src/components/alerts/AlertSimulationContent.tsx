@@ -3,27 +3,63 @@
 import { cn } from "@/lib/utils";
 import { useState } from "react";
 import { GettingStartedSteps } from "@/components/GettingStartedSteps";
-import { OperatorApiProblem } from "@/components/OperatorApiProblem";
+import { OperatorSegmentedModeToolbar } from "@/components/advisory/OperatorSegmentedModeToolbar";
+import { OperatorToolingWorkbenchPanels } from "@/components/advisory/OperatorToolingWorkbenchPanels";
+import { OperatorApiProblem } from "@/components/operator/OperatorApiProblem";
+import { WhyDisabledCtaHint } from "@/components/usability/WhyDisabledCtaHint";
+import { Button } from "@/components/ui/button";
+import { Checkbox } from "@/components/ui/checkbox";
+import {
+  EnterpriseTable,
+  EnterpriseTableBody,
+  EnterpriseTableCell,
+  EnterpriseTableHead,
+  EnterpriseTableHeadRow,
+  EnterpriseTableHeaderCell,
+  EnterpriseTableRow,
+} from "@/components/ui/enterprise-table";
+import { Input } from "@/components/ui/input";
+import { Label } from "@/components/ui/label";
 import { useOperateCapability } from "@/hooks/use-operate-capability";
 import { compareAlertRuleCandidates, simulateAlertRule } from "@/lib/api";
 import {
+  ALERT_SIMULATION_BEHAVIOR_EMPTY_GETTING_STARTED,
+  ALERT_SIMULATION_COMPARED_REVIEW_DISABLED_HELPER,
   ALERT_SIMULATION_COMPARED_REVIEW_ID_HELPER,
+  ALERT_SIMULATION_MODE_TABS,
+  ALERT_SIMULATION_OUTCOMES_TABLE_EMPTY,
   ALERT_SIMULATION_PROJECT_SLUG_HELPER,
   ALERT_SIMULATION_PROJECT_SLUG_PLACEHOLDER,
+  ALERT_SIMULATION_READINESS_RECENT_COUNT,
+  ALERT_SIMULATION_READINESS_REVIEW_SCOPE,
+  ALERT_SIMULATION_READINESS_THRESHOLD,
+  ALERT_SIMULATION_RECENT_COUNT_HELPER,
+  ALERT_SIMULATION_RECENT_COUNT_LABEL,
   ALERT_SIMULATION_REVIEW_ID_HELPER,
   ALERT_SIMULATION_REVIEW_ID_PLACEHOLDER,
+  ALERT_SIMULATION_REVIEW_ID_PRECEDENCE,
+  ALERT_SIMULATION_SPECIFIC_REVIEW_REPLACES_WINDOW_NOTE,
+  ALERT_TOOLING_FORM_SELECT_CLASS,
+  isAlertSimulationRecentCountValid,
+  isAlertSimulationThresholdValid,
   resolveAlertSimulationRunProjectSlug,
+  type AlertSimulationModeTabId,
 } from "@/lib/alert-simulation-form";
 import {
+  alertSimulationBehaviorEmptyLead,
   alertSimulationCurrentBehaviorHeadingOperator,
   alertSimulationCurrentBehaviorHeadingReader,
   alertSimulationRunControlTitle,
 } from "@/lib/enterprise-controls-context-copy";
-import { alertSimulationOutcomesEmptyGettingStarted } from "@/lib/alerts-hub-empty-guidance";
-import { DESIGN_TOKENS, OPERATOR_TYPOGRAPHY } from "@/lib/design-tokens";
+import { OPERATOR_TYPOGRAPHY } from "@/lib/design-tokens";
 import type { ApiLoadFailureState } from "@/lib/api-load-failure";
 import { toApiLoadFailure } from "@/lib/api-load-failure";
-import { readOperatorScopeFromStorage } from "@/lib/operator-scope-storage";
+import { readOperatorScopeFromStorage } from "@/lib/operator/operator-scope-storage";
+import {
+  firstWhyDisabledCtaReason,
+  whyDisabledIncompleteInput,
+  type WhyDisabledCtaReason,
+} from "@/lib/why-disabled-cta";
 import type {
   RuleCandidateComparisonResult,
   RuleSimulationResult,
@@ -56,66 +92,88 @@ const COND_OPS = [
 ];
 
 const SEVERITIES = ["Info", "Warning", "High", "Critical"];
-const TABS = ["simple", "composite", "compare"] as const;
-type Tab = (typeof TABS)[number];
+
+function SimulationBehaviorEmpty() {
+  return (
+    <div className="mt-2 grid max-w-xl gap-3">
+      <p className={cn("m-0 text-neutral-500 dark:text-neutral-400", OPERATOR_TYPOGRAPHY.body)}>
+        {alertSimulationBehaviorEmptyLead}
+      </p>
+      <GettingStartedSteps {...ALERT_SIMULATION_BEHAVIOR_EMPTY_GETTING_STARTED} />
+    </div>
+  );
+}
+
+function resolveSimpleSimulationReadiness(
+  hasSpecificReviewId: boolean,
+  recentCountValid: boolean,
+  thresholdValid: boolean,
+  reviewScopeValid: boolean,
+): WhyDisabledCtaReason | null {
+  return firstWhyDisabledCtaReason([
+    !thresholdValid ? whyDisabledIncompleteInput(ALERT_SIMULATION_READINESS_THRESHOLD) : null,
+    !reviewScopeValid ? whyDisabledIncompleteInput(ALERT_SIMULATION_READINESS_REVIEW_SCOPE) : null,
+    hasSpecificReviewId || recentCountValid
+      ? null
+      : whyDisabledIncompleteInput(ALERT_SIMULATION_READINESS_RECENT_COUNT),
+  ]);
+}
 
 function OutcomeTable({ outcomes }: { outcomes: SimulatedAlertOutcome[] }) {
   if (outcomes.length === 0) {
     return (
       <div className="grid max-w-xl gap-3">
         <p className={cn("text-neutral-600 dark:text-neutral-400", OPERATOR_TYPOGRAPHY.body)}>
-          Run a simulation above — per-review outcomes explain matches, suppression, and dedupe.
+          {ALERT_SIMULATION_OUTCOMES_TABLE_EMPTY}
         </p>
-        <GettingStartedSteps {...alertSimulationOutcomesEmptyGettingStarted} />
+        <GettingStartedSteps {...ALERT_SIMULATION_BEHAVIOR_EMPTY_GETTING_STARTED} />
       </div>
     );
   }
   return (
-    <div className="overflow-x-auto">
-      <table className={cn("mt-2 w-full border-collapse", DESIGN_TOKENS.table.table)}>
-        <thead>
-          <tr className="border-b border-neutral-300 text-left dark:border-neutral-600">
-            <th className="p-1.5">Review ID</th>
-            <th className="p-1.5">Match</th>
-            <th className="p-1.5">Would create</th>
-            <th className="p-1.5">Suppressed</th>
-            <th className="p-1.5">Severity</th>
-            <th className="p-1.5">Title / description</th>
-            <th className="p-1.5">Suppression / dedupe</th>
-          </tr>
-        </thead>
-        <tbody>
-          {outcomes.map((o, i) => (
-            <tr key={`${o.runId ?? "x"}-${i}`} className="border-b border-neutral-100 align-top dark:border-neutral-800">
-              <td className="whitespace-nowrap p-1.5">{o.runId ?? "—"}</td>
-              <td className="p-1.5">{o.ruleMatched ? "yes" : "no"}</td>
-              <td className="p-1.5">{o.wouldCreateAlert ? "yes" : "no"}</td>
-              <td className="p-1.5">{o.wouldBeSuppressed ? "yes" : "no"}</td>
-              <td className="p-1.5">{o.severity}</td>
-              <td className="p-1.5">
-                <strong>{o.title}</strong>
-                <div className="mt-1 text-neutral-600 dark:text-neutral-400">{o.description}</div>
-                {o.notes?.length ? (
-                  <ul className="mt-1.5 pl-[18px] text-neutral-600 dark:text-neutral-400">
-                    {o.notes.map((n, j) => (
-                      <li key={j}>{n}</li>
-                    ))}
-                  </ul>
-                ) : null}
-              </td>
-              <td className={cn("p-1.5", OPERATOR_TYPOGRAPHY.helper)}>
-                <div>
-                  <strong>Reason:</strong> {o.suppressionReason || "—"}
-                </div>
-                <div className="mt-1">
-                  <strong>Dedupe:</strong> {o.deduplicationKey || "—"}
-                </div>
-              </td>
-            </tr>
-          ))}
-        </tbody>
-      </table>
-    </div>
+    <EnterpriseTable ariaLabel="Alert simulation outcomes" className={cn("mt-2", OPERATOR_TYPOGRAPHY.body)}>
+      <EnterpriseTableHead>
+        <EnterpriseTableHeadRow>
+          <EnterpriseTableHeaderCell>Review ID</EnterpriseTableHeaderCell>
+          <EnterpriseTableHeaderCell>Match</EnterpriseTableHeaderCell>
+          <EnterpriseTableHeaderCell>Would create</EnterpriseTableHeaderCell>
+          <EnterpriseTableHeaderCell>Suppressed</EnterpriseTableHeaderCell>
+          <EnterpriseTableHeaderCell>Severity</EnterpriseTableHeaderCell>
+          <EnterpriseTableHeaderCell>Title / description</EnterpriseTableHeaderCell>
+          <EnterpriseTableHeaderCell>Suppression / dedupe</EnterpriseTableHeaderCell>
+        </EnterpriseTableHeadRow>
+      </EnterpriseTableHead>
+      <EnterpriseTableBody>
+        {outcomes.map((o, i) => (
+          <EnterpriseTableRow key={`${o.runId ?? "x"}-${i}`}>
+            <EnterpriseTableCell className="whitespace-nowrap">{o.runId ?? "—"}</EnterpriseTableCell>
+            <EnterpriseTableCell>{o.ruleMatched ? "yes" : "no"}</EnterpriseTableCell>
+            <EnterpriseTableCell>{o.wouldCreateAlert ? "yes" : "no"}</EnterpriseTableCell>
+            <EnterpriseTableCell>{o.wouldBeSuppressed ? "yes" : "no"}</EnterpriseTableCell>
+            <EnterpriseTableCell>{o.severity}</EnterpriseTableCell>
+            <EnterpriseTableCell className="align-top">
+              <strong>{o.title}</strong>
+              <div className="mt-1 text-neutral-600 dark:text-neutral-400">{o.description}</div>
+              {o.notes?.length ? (
+                <ul className="mt-1.5 pl-[18px] text-neutral-600 dark:text-neutral-400">
+                  {o.notes.map((n, j) => (
+                    <li key={j}>{n}</li>
+                  ))}
+                </ul>
+              ) : null}
+            </EnterpriseTableCell>
+            <EnterpriseTableCell className={cn("align-top", OPERATOR_TYPOGRAPHY.helper)}>
+              <div>
+                <strong>Reason:</strong> {o.suppressionReason || "—"}
+              </div>
+              <div className="mt-1">
+                <strong>Dedupe:</strong> {o.deduplicationKey || "—"}
+              </div>
+            </EnterpriseTableCell>
+          </EnterpriseTableRow>
+        ))}
+      </EnterpriseTableBody>
+    </EnterpriseTable>
   );
 }
 
@@ -145,7 +203,7 @@ function SummaryBlock({ result }: { result: RuleSimulationResult | null }) {
 
 export function AlertSimulationContent() {
   const canMutateEnterpriseShell = useOperateCapability();
-  const [tab, setTab] = useState<Tab>("simple");
+  const [tab, setTab] = useState<AlertSimulationModeTabId>("simple");
   const [loading, setLoading] = useState(false);
   const [failure, setFailure] = useState<ApiLoadFailureState | null>(null);
   const [simpleResult, setSimpleResult] = useState<RuleSimulationResult | null>(null);
@@ -162,6 +220,22 @@ export function AlertSimulationContent() {
   const [sRunId, setSRunId] = useState("");
   const [sCompareRun, setSCompareRun] = useState("");
   const [sUseHistory, setSUseHistory] = useState(true);
+  const [sRecentTouched, setSRecentTouched] = useState(false);
+  const [sThresholdTouched, setSThresholdTouched] = useState(false);
+  const [sScopeTouched, setSScopeTouched] = useState(false);
+
+  const hasSpecificReviewId = sRunId.trim().length > 0;
+  const recentCountValid =
+    hasSpecificReviewId || isAlertSimulationRecentCountValid(sRecent);
+  const thresholdValid = isAlertSimulationThresholdValid(sThreshold);
+  const reviewScopeValid = hasSpecificReviewId || sUseHistory;
+  const simpleFormValid = recentCountValid && thresholdValid && reviewScopeValid;
+  const simpleSimulationReadiness = resolveSimpleSimulationReadiness(
+    hasSpecificReviewId,
+    recentCountValid,
+    thresholdValid,
+    reviewScopeValid,
+  );
 
   // Composite
   const [cName, setCName] = useState("Composite dry-run");
@@ -202,12 +276,16 @@ export function AlertSimulationContent() {
   }
 
   async function runSimple() {
+    if (!simpleFormValid) {
+      return;
+    }
+
     setLoading(true);
     setFailure(null);
     setSimpleResult(null);
     try {
       const runId = parseOptionalGuid(sRunId);
-      const comparedToRunId = parseOptionalGuid(sCompareRun);
+      const comparedToRunId = runId ? parseOptionalGuid(sCompareRun) : undefined;
       const res = await simulateAlertRule({
         ruleKind: "Simple",
         simpleRule: {
@@ -312,20 +390,20 @@ export function AlertSimulationContent() {
 
   return (
     <div className="max-w-[1100px]">
-      <h2 className="mt-0">Simulate alerts</h2>
+      <h3 id="alert-simulation-section-heading" className={cn("m-0", OPERATOR_TYPOGRAPHY.sectionTitle)}>
+        Simulate alerts
+      </h3>
 
-      <div className="mb-5 flex flex-wrap gap-2">
-        {TABS.map((t) => (
-          <button
-            key={t}
-            type="button"
-            onClick={() => setTab(t)}
-            className={`cursor-pointer capitalize rounded-md px-3.5 py-2 ${tab === t ? "border-2 border-neutral-700 bg-neutral-100 dark:border-neutral-300 dark:bg-neutral-800" : "border border-neutral-300 bg-white dark:border-neutral-600 dark:bg-neutral-950"}`}
-          >
-            {t}
-          </button>
-        ))}
-      </div>
+      <OperatorSegmentedModeToolbar
+        tabs={ALERT_SIMULATION_MODE_TABS.map((mode) => ({
+          id: mode.id,
+          label: mode.label,
+          testId: `alert-simulation-mode-${mode.id}`,
+        }))}
+        activeTabId={tab}
+        onTabChange={(nextTabId) => setTab(nextTabId as AlertSimulationModeTabId)}
+        ariaLabel="Simulation mode"
+      />
 
       {failure !== null ? (
         <div role="alert">
@@ -338,26 +416,34 @@ export function AlertSimulationContent() {
       ) : null}
 
       {tab === "simple" ? (
-        <>
-          <section aria-labelledby="sim-simple-inputs-heading">
-            <h3 id="sim-simple-inputs-heading" className="mt-0">
-              Simulation inputs
-            </h3>
-            <div className="grid max-w-[640px] gap-3">
-            <label>
-              Name
-              <input
+        <OperatorToolingWorkbenchPanels
+          inputsHeadingId="sim-simple-inputs-heading"
+          inputsHeading="Simulation inputs"
+          behaviorHeadingId="sim-simple-behavior-heading"
+          behaviorHeading={
+            canMutateEnterpriseShell
+              ? alertSimulationCurrentBehaviorHeadingOperator
+              : alertSimulationCurrentBehaviorHeadingReader
+          }
+          inputsGridClassName="grid max-w-[640px] gap-3"
+          inputs={
+            <>
+            <div>
+              <Label htmlFor="alert-simulation-simple-name">Name</Label>
+              <Input
+                id="alert-simulation-simple-name"
                 value={sName}
                 onChange={(e) => setSName(e.target.value)}
-                className="mt-1 block w-full p-2"
+                className="mt-1"
               />
-            </label>
-            <label>
-              Rule type
+            </div>
+            <div>
+              <Label htmlFor="alert-simulation-simple-rule-type">Rule type</Label>
               <select
+                id="alert-simulation-simple-rule-type"
                 value={sRuleType}
                 onChange={(e) => setSRuleType(e.target.value)}
-                className="mt-1 block w-full p-2"
+                className={ALERT_TOOLING_FORM_SELECT_CLASS}
               >
                 {SIMPLE_RULE_TYPES.map((r) => (
                   <option key={r.value} value={r.value}>
@@ -365,13 +451,14 @@ export function AlertSimulationContent() {
                   </option>
                 ))}
               </select>
-            </label>
-            <label>
-              Severity
+            </div>
+            <div>
+              <Label htmlFor="alert-simulation-simple-severity">Severity</Label>
               <select
+                id="alert-simulation-simple-severity"
                 value={sSeverity}
                 onChange={(e) => setSSeverity(e.target.value)}
-                className="mt-1 block w-full p-2"
+                className={ALERT_TOOLING_FORM_SELECT_CLASS}
               >
                 {SEVERITIES.map((s) => (
                   <option key={s} value={s}>
@@ -379,119 +466,189 @@ export function AlertSimulationContent() {
                   </option>
                 ))}
               </select>
-            </label>
-            <label>
-              Threshold
-              <input
+            </div>
+            <div>
+              <Label htmlFor="alert-simulation-simple-threshold">Threshold</Label>
+              <Input
+                id="alert-simulation-simple-threshold"
                 type="number"
-                value={sThreshold}
-                onChange={(e) => setSThreshold(Number(e.target.value))}
-                className="mt-1 block w-full p-2"
+                value={Number.isNaN(sThreshold) ? "" : sThreshold}
+                onChange={(e) => {
+                  setSThresholdTouched(true);
+                  const raw = e.target.value;
+
+                  if (raw === "") {
+                    setSThreshold(NaN);
+                    return;
+                  }
+
+                  setSThreshold(Number(raw));
+                }}
+                aria-invalid={sThresholdTouched && !thresholdValid}
+                className="mt-1"
               />
-            </label>
-            <label>
-              Recent review count (1–50)
-              <input
-                type="number"
-                min={1}
-                max={50}
-                value={sRecent}
-                onChange={(e) => setSRecent(Number(e.target.value))}
-                className="mt-1 block w-full p-2"
-              />
-            </label>
-            <label>
-              Workspace project slug
-              <input
+            </div>
+            <div>
+              <Label htmlFor="alert-simulation-simple-project-slug">Workspace project slug</Label>
+              <Input
+                id="alert-simulation-simple-project-slug"
                 value={sSlug}
                 onChange={(e) => setSSlug(e.target.value)}
                 placeholder={ALERT_SIMULATION_PROJECT_SLUG_PLACEHOLDER}
-                className="mt-1 block w-full p-2"
+                className="mt-1"
                 data-testid="alert-simulation-simple-project-slug"
               />
               <span className={cn("mt-1 block text-neutral-600 dark:text-neutral-400", OPERATOR_TYPOGRAPHY.helper)}>
                 {ALERT_SIMULATION_PROJECT_SLUG_HELPER}
               </span>
-            </label>
-            <label>
-              Specific review ID (optional; overrides recent list)
-              <input
-                value={sRunId}
-                onChange={(e) => setSRunId(e.target.value)}
-                placeholder={ALERT_SIMULATION_REVIEW_ID_PLACEHOLDER}
-                className="mt-1 block w-full p-2"
-                data-testid="alert-simulation-simple-review-id"
-              />
-              <span className={cn("mt-1 block text-neutral-600 dark:text-neutral-400", OPERATOR_TYPOGRAPHY.helper)}>
-                {ALERT_SIMULATION_REVIEW_ID_HELPER}
-              </span>
-            </label>
-            <label>
-              Compared-to review ID (optional)
-              <input
-                value={sCompareRun}
-                onChange={(e) => setSCompareRun(e.target.value)}
-                className="mt-1 block w-full p-2"
-              />
-              <span className={cn("mt-1 block text-neutral-600 dark:text-neutral-400", OPERATOR_TYPOGRAPHY.helper)}>
-                {ALERT_SIMULATION_COMPARED_REVIEW_ID_HELPER}
-              </span>
-            </label>
-            <label className="flex items-center gap-2">
-              <input
-                type="checkbox"
-                checked={sUseHistory}
-                onChange={(e) => setSUseHistory(e.target.checked)}
-              />
-              Use historical window (recent reviews)
-            </label>
-            <button
+            </div>
+            <fieldset className="m-0 grid gap-3 rounded-md border border-neutral-200 p-3 dark:border-neutral-700">
+              <legend className={cn("px-1", OPERATOR_TYPOGRAPHY.cardTitle)}>Review scope</legend>
+              <p className={cn("m-0 text-neutral-600 dark:text-neutral-400", OPERATOR_TYPOGRAPHY.helper)}>
+                {ALERT_SIMULATION_REVIEW_ID_PRECEDENCE}
+              </p>
+              <div>
+                <Label htmlFor="alert-simulation-simple-review-id">Specific review ID (optional)</Label>
+                <Input
+                  id="alert-simulation-simple-review-id"
+                  value={sRunId}
+                  onChange={(e) => {
+                    setSScopeTouched(true);
+                    setSRunId(e.target.value);
+                  }}
+                  placeholder={ALERT_SIMULATION_REVIEW_ID_PLACEHOLDER}
+                  className="mt-1"
+                  data-testid="alert-simulation-simple-review-id"
+                />
+                <span className={cn("mt-1 block text-neutral-600 dark:text-neutral-400", OPERATOR_TYPOGRAPHY.helper)}>
+                  {ALERT_SIMULATION_REVIEW_ID_HELPER}
+                </span>
+              </div>
+              <div>
+                <Label htmlFor="alert-simulation-simple-compared-review-id">Compared-to review ID (optional)</Label>
+                <Input
+                  id="alert-simulation-simple-compared-review-id"
+                  value={sCompareRun}
+                  onChange={(e) => setSCompareRun(e.target.value)}
+                  disabled={!hasSpecificReviewId}
+                  className="mt-1"
+                  data-testid="alert-simulation-simple-compared-review-id"
+                />
+                <span className={cn("mt-1 block text-neutral-600 dark:text-neutral-400", OPERATOR_TYPOGRAPHY.helper)}>
+                  {hasSpecificReviewId
+                    ? ALERT_SIMULATION_COMPARED_REVIEW_ID_HELPER
+                    : ALERT_SIMULATION_COMPARED_REVIEW_DISABLED_HELPER}
+                </span>
+              </div>
+              <div>
+                <Label htmlFor="alert-simulation-simple-recent-count">{ALERT_SIMULATION_RECENT_COUNT_LABEL}</Label>
+                <Input
+                  id="alert-simulation-simple-recent-count"
+                  type="number"
+                  min={1}
+                  max={50}
+                  value={Number.isNaN(sRecent) ? "" : sRecent}
+                  onChange={(e) => {
+                    setSRecentTouched(true);
+                    const raw = e.target.value;
+
+                    if (raw === "") {
+                      setSRecent(NaN);
+                      return;
+                    }
+
+                    setSRecent(Number(raw));
+                  }}
+                  disabled={hasSpecificReviewId}
+                  aria-invalid={sRecentTouched && !hasSpecificReviewId && !recentCountValid}
+                  className="mt-1"
+                />
+                <span className={cn("mt-1 block text-neutral-600 dark:text-neutral-400", OPERATOR_TYPOGRAPHY.helper)}>
+                  {ALERT_SIMULATION_RECENT_COUNT_HELPER}
+                </span>
+              </div>
+              <div className="flex items-center gap-2">
+                <Checkbox
+                  id="alert-simulation-simple-use-historical-window"
+                  checked={sUseHistory}
+                  disabled={hasSpecificReviewId}
+                  onCheckedChange={(checked) => {
+                    setSScopeTouched(true);
+                    setSUseHistory(checked === true);
+                  }}
+                  aria-invalid={sScopeTouched && !hasSpecificReviewId && !reviewScopeValid}
+                />
+                <Label htmlFor="alert-simulation-simple-use-historical-window">
+                  Use historical window (recent reviews)
+                </Label>
+              </div>
+              {hasSpecificReviewId ? (
+                <p className={cn("m-0 text-neutral-600 dark:text-neutral-400", OPERATOR_TYPOGRAPHY.helper)}>
+                  {ALERT_SIMULATION_SPECIFIC_REVIEW_REPLACES_WINDOW_NOTE}
+                </p>
+              ) : null}
+            </fieldset>
+            <WhyDisabledCtaHint
+              id="alert-simulation-simple-readiness"
+              testId="alert-simulation-simple-readiness"
+              reason={simpleFormValid ? null : simpleSimulationReadiness}
+            />
+            <Button
               type="button"
+              variant="primary"
+              size="sm"
+              data-testid="alert-simulation-simple-submit"
               onClick={() => void runSimple()}
-              disabled={loading}
+              disabled={loading || !simpleFormValid}
               title={alertSimulationRunControlTitle}
-              className={`px-4 py-2.5 ${loading ? "cursor-wait" : "cursor-pointer"}`}
+              aria-describedby={
+                simpleFormValid ? undefined : "alert-simulation-simple-readiness"
+              }
+              className="justify-self-start"
             >
               {loading ? "Running…" : "Simulate"}
-            </button>
-          </div>
-          </section>
-          <section aria-labelledby="sim-simple-behavior-heading" className="mt-6">
-            <h3 id="sim-simple-behavior-heading" className="mt-0">
-              {canMutateEnterpriseShell
-                ? alertSimulationCurrentBehaviorHeadingOperator
-                : alertSimulationCurrentBehaviorHeadingReader}
-            </h3>
-            {simpleResult ? (
+            </Button>
+            </>
+          }
+          behavior={
+            simpleResult ? (
               <SummaryBlock result={simpleResult} />
             ) : (
-              <p className={cn("mt-2 text-neutral-500 dark:text-neutral-400", OPERATOR_TYPOGRAPHY.body)}>Run a simulation to see outcomes here.</p>
-            )}
-          </section>
-        </>
+              <SimulationBehaviorEmpty />
+            )
+          }
+        />
       ) : null}
 
       {tab === "composite" ? (
-        <>
-          <section aria-labelledby="sim-composite-inputs-heading">
-            <h3 id="sim-composite-inputs-heading" className="mt-0">
-              Simulation inputs
-            </h3>
-            <div className="grid max-w-3xl gap-3">
-            <label>
-              Name
-              <input
+        <OperatorToolingWorkbenchPanels
+          inputsHeadingId="sim-composite-inputs-heading"
+          inputsHeading="Simulation inputs"
+          behaviorHeadingId="sim-composite-behavior-heading"
+          behaviorHeading={
+            canMutateEnterpriseShell
+              ? alertSimulationCurrentBehaviorHeadingOperator
+              : alertSimulationCurrentBehaviorHeadingReader
+          }
+          inputsGridClassName="grid max-w-3xl gap-3"
+          inputs={
+            <>
+            <div>
+              <Label htmlFor="alert-simulation-composite-name">Name</Label>
+              <Input
+                id="alert-simulation-composite-name"
                 value={cName}
                 onChange={(e) => setCName(e.target.value)}
-                className="mt-1 block w-full p-2"
+                className="mt-1"
               />
-            </label>
-            <label>
-              Severity
+            </div>
+            <div>
+              <Label htmlFor="alert-simulation-composite-severity">Severity</Label>
               <select
+                id="alert-simulation-composite-severity"
                 value={cSeverity}
                 onChange={(e) => setCSeverity(e.target.value)}
-                className="mt-1 block w-full p-2"
+                className={ALERT_TOOLING_FORM_SELECT_CLASS}
               >
                 {SEVERITIES.map((s) => (
                   <option key={s} value={s}>
@@ -499,160 +656,222 @@ export function AlertSimulationContent() {
                   </option>
                 ))}
               </select>
-            </label>
-            <label>
-              Join
+            </div>
+            <div>
+              <Label htmlFor="alert-simulation-composite-join">Join</Label>
               <select
+                id="alert-simulation-composite-join"
                 value={cJoin}
                 onChange={(e) => setCJoin(e.target.value)}
-                className="mt-1 block w-full p-2"
+                className={ALERT_TOOLING_FORM_SELECT_CLASS}
               >
                 <option value="And">All (AND)</option>
                 <option value="Or">Any (OR)</option>
               </select>
-            </label>
+            </div>
             <div className="grid grid-cols-2 gap-3">
-              <label>
-                Suppression window (min)
-                <input
+              <div>
+                <Label htmlFor="alert-simulation-composite-suppression-window">Suppression window (min)</Label>
+                <Input
+                  id="alert-simulation-composite-suppression-window"
                   type="number"
                   value={cSuppression}
                   onChange={(e) => setCSuppression(Number(e.target.value))}
-                  className="mt-1 block w-full p-2"
+                  className="mt-1"
                 />
-              </label>
-              <label>
-                Cooldown (min)
-                <input
+              </div>
+              <div>
+                <Label htmlFor="alert-simulation-composite-cooldown">Cooldown (min)</Label>
+                <Input
+                  id="alert-simulation-composite-cooldown"
                   type="number"
                   value={cCooldown}
                   onChange={(e) => setCCooldown(Number(e.target.value))}
-                  className="mt-1 block w-full p-2"
+                  className="mt-1"
                 />
-              </label>
+              </div>
             </div>
-            <label>
-              Dedupe scope
+            <div>
+              <Label htmlFor="alert-simulation-composite-dedupe-scope">Dedupe scope</Label>
               <select
+                id="alert-simulation-composite-dedupe-scope"
                 value={cDedupe}
                 onChange={(e) => setCDedupe(e.target.value)}
-                className="mt-1 block w-full p-2"
+                className={ALERT_TOOLING_FORM_SELECT_CLASS}
               >
                 <option value="RuleOnly">Rule only</option>
                 <option value="RuleAndRun">Rule + review</option>
                 <option value="RuleAndComparison">Rule + review + comparison</option>
               </select>
-            </label>
+            </div>
             <p className="m-0 font-semibold">Condition 1</p>
             <div className="grid grid-cols-3 gap-2">
-              <select value={cM1} onChange={(e) => setCM1(e.target.value)}>
-                {METRICS.map((m) => (
-                  <option key={m.value} value={m.value}>
-                    {m.label}
-                  </option>
-                ))}
-              </select>
-              <select value={cO1} onChange={(e) => setCO1(e.target.value)}>
-                {COND_OPS.map((o) => (
-                  <option key={o.value} value={o.value}>
-                    {o.label}
-                  </option>
-                ))}
-              </select>
-              <input type="number" value={cV1} onChange={(e) => setCV1(Number(e.target.value))} />
+              <div>
+                <Label htmlFor="alert-simulation-composite-c1-metric">Metric</Label>
+                <select
+                  id="alert-simulation-composite-c1-metric"
+                  value={cM1}
+                  onChange={(e) => setCM1(e.target.value)}
+                  className={ALERT_TOOLING_FORM_SELECT_CLASS}
+                >
+                  {METRICS.map((m) => (
+                    <option key={m.value} value={m.value}>
+                      {m.label}
+                    </option>
+                  ))}
+                </select>
+              </div>
+              <div>
+                <Label htmlFor="alert-simulation-composite-c1-operator">Operator</Label>
+                <select
+                  id="alert-simulation-composite-c1-operator"
+                  value={cO1}
+                  onChange={(e) => setCO1(e.target.value)}
+                  className={ALERT_TOOLING_FORM_SELECT_CLASS}
+                >
+                  {COND_OPS.map((o) => (
+                    <option key={o.value} value={o.value}>
+                      {o.label}
+                    </option>
+                  ))}
+                </select>
+              </div>
+              <div>
+                <Label htmlFor="alert-simulation-composite-c1-threshold">Threshold</Label>
+                <Input
+                  id="alert-simulation-composite-c1-threshold"
+                  type="number"
+                  value={cV1}
+                  onChange={(e) => setCV1(Number(e.target.value))}
+                  className="mt-1"
+                />
+              </div>
             </div>
             <p className="m-0 font-semibold">Condition 2</p>
             <div className="grid grid-cols-3 gap-2">
-              <select value={cM2} onChange={(e) => setCM2(e.target.value)}>
-                {METRICS.map((m) => (
-                  <option key={m.value} value={m.value}>
-                    {m.label}
-                  </option>
-                ))}
-              </select>
-              <select value={cO2} onChange={(e) => setCO2(e.target.value)}>
-                {COND_OPS.map((o) => (
-                  <option key={o.value} value={o.value}>
-                    {o.label}
-                  </option>
-                ))}
-              </select>
-              <input type="number" value={cV2} onChange={(e) => setCV2(Number(e.target.value))} />
+              <div>
+                <Label htmlFor="alert-simulation-composite-c2-metric">Metric</Label>
+                <select
+                  id="alert-simulation-composite-c2-metric"
+                  value={cM2}
+                  onChange={(e) => setCM2(e.target.value)}
+                  className={ALERT_TOOLING_FORM_SELECT_CLASS}
+                >
+                  {METRICS.map((m) => (
+                    <option key={m.value} value={m.value}>
+                      {m.label}
+                    </option>
+                  ))}
+                </select>
+              </div>
+              <div>
+                <Label htmlFor="alert-simulation-composite-c2-operator">Operator</Label>
+                <select
+                  id="alert-simulation-composite-c2-operator"
+                  value={cO2}
+                  onChange={(e) => setCO2(e.target.value)}
+                  className={ALERT_TOOLING_FORM_SELECT_CLASS}
+                >
+                  {COND_OPS.map((o) => (
+                    <option key={o.value} value={o.value}>
+                      {o.label}
+                    </option>
+                  ))}
+                </select>
+              </div>
+              <div>
+                <Label htmlFor="alert-simulation-composite-c2-threshold">Threshold</Label>
+                <Input
+                  id="alert-simulation-composite-c2-threshold"
+                  type="number"
+                  value={cV2}
+                  onChange={(e) => setCV2(Number(e.target.value))}
+                  className="mt-1"
+                />
+              </div>
             </div>
-            <label>
-              Recent review count
-              <input
+            <div>
+              <Label htmlFor="alert-simulation-composite-recent-count">Recent review count</Label>
+              <Input
+                id="alert-simulation-composite-recent-count"
                 type="number"
                 min={1}
                 max={50}
                 value={cRecent}
                 onChange={(e) => setCRecent(Number(e.target.value))}
-                className="mt-1 block w-full p-2"
+                className="mt-1"
               />
-            </label>
-            <label>
-              Workspace project slug
-              <input
+            </div>
+            <div>
+              <Label htmlFor="alert-simulation-composite-project-slug">Workspace project slug</Label>
+              <Input
+                id="alert-simulation-composite-project-slug"
                 value={cSlug}
                 onChange={(e) => setCSlug(e.target.value)}
                 placeholder={ALERT_SIMULATION_PROJECT_SLUG_PLACEHOLDER}
-                className="mt-1 block w-full p-2"
+                className="mt-1"
                 data-testid="alert-simulation-composite-project-slug"
               />
               <span className={cn("mt-1 block text-neutral-600 dark:text-neutral-400", OPERATOR_TYPOGRAPHY.helper)}>
                 {ALERT_SIMULATION_PROJECT_SLUG_HELPER}
               </span>
-            </label>
-            <button
+            </div>
+            <Button
               type="button"
+              variant="primary"
+              size="sm"
+              data-testid="alert-simulation-composite-submit"
               onClick={() => void runComposite()}
               disabled={loading}
               title={alertSimulationRunControlTitle}
-              className={`px-4 py-2.5 ${loading ? "cursor-wait" : "cursor-pointer"}`}
+              className="justify-self-start"
             >
               {loading ? "Running…" : "Simulate"}
-            </button>
-          </div>
-          </section>
-          <section aria-labelledby="sim-composite-behavior-heading" className="mt-6">
-            <h3 id="sim-composite-behavior-heading" className="mt-0">
-              {canMutateEnterpriseShell
-                ? alertSimulationCurrentBehaviorHeadingOperator
-                : alertSimulationCurrentBehaviorHeadingReader}
-            </h3>
-            {compositeResult ? (
+            </Button>
+            </>
+          }
+          behavior={
+            compositeResult ? (
               <SummaryBlock result={compositeResult} />
             ) : (
-              <p className={cn("mt-2 text-neutral-500 dark:text-neutral-400", OPERATOR_TYPOGRAPHY.body)}>Run a simulation to see outcomes here.</p>
-            )}
-          </section>
-        </>
+              <SimulationBehaviorEmpty />
+            )
+          }
+        />
       ) : null}
 
       {tab === "compare" ? (
-        <>
-          <section aria-labelledby="sim-compare-inputs-heading">
-            <h3 id="sim-compare-inputs-heading" className="mt-0">
-              Simulation inputs
-            </h3>
+        <OperatorToolingWorkbenchPanels
+          inputsHeadingId="sim-compare-inputs-heading"
+          inputsHeading="Simulation inputs"
+          behaviorHeadingId="sim-compare-behavior-heading"
+          behaviorHeading={
+            canMutateEnterpriseShell
+              ? alertSimulationCurrentBehaviorHeadingOperator
+              : alertSimulationCurrentBehaviorHeadingReader
+          }
+          inputsGridClassName="grid max-w-[640px] gap-3"
+          inputs={
+            <>
             <p className={cn("text-neutral-600 dark:text-neutral-400", OPERATOR_TYPOGRAPHY.body)}>
               Same rule type and severity; only thresholds differ. Useful for tuning (e.g. 10 vs 20).
             </p>
-            <div className="grid max-w-[640px] gap-3">
-            <label>
-              Name
-              <input
+            <div>
+              <Label htmlFor="alert-simulation-compare-name">Name</Label>
+              <Input
+                id="alert-simulation-compare-name"
                 value={cmpName}
                 onChange={(e) => setCmpName(e.target.value)}
-                className="mt-1 block w-full p-2"
+                className="mt-1"
               />
-            </label>
-            <label>
-              Rule type
+            </div>
+            <div>
+              <Label htmlFor="alert-simulation-compare-rule-type">Rule type</Label>
               <select
+                id="alert-simulation-compare-rule-type"
                 value={cmpRuleType}
                 onChange={(e) => setCmpRuleType(e.target.value)}
-                className="mt-1 block w-full p-2"
+                className={ALERT_TOOLING_FORM_SELECT_CLASS}
               >
                 {SIMPLE_RULE_TYPES.map((r) => (
                   <option key={r.value} value={r.value}>
@@ -660,13 +879,14 @@ export function AlertSimulationContent() {
                   </option>
                 ))}
               </select>
-            </label>
-            <label>
-              Severity
+            </div>
+            <div>
+              <Label htmlFor="alert-simulation-compare-severity">Severity</Label>
               <select
+                id="alert-simulation-compare-severity"
                 value={cmpSeverity}
                 onChange={(e) => setCmpSeverity(e.target.value)}
-                className="mt-1 block w-full p-2"
+                className={ALERT_TOOLING_FORM_SELECT_CLASS}
               >
                 {SEVERITIES.map((s) => (
                   <option key={s} value={s}>
@@ -674,67 +894,69 @@ export function AlertSimulationContent() {
                   </option>
                 ))}
               </select>
-            </label>
-            <label>
-              Candidate A threshold
-              <input
+            </div>
+            <div>
+              <Label htmlFor="alert-simulation-compare-threshold-a">Candidate A threshold</Label>
+              <Input
+                id="alert-simulation-compare-threshold-a"
                 type="number"
                 value={cmpA}
                 onChange={(e) => setCmpA(Number(e.target.value))}
-                className="mt-1 block w-full p-2"
+                className="mt-1"
               />
-            </label>
-            <label>
-              Candidate B threshold
-              <input
+            </div>
+            <div>
+              <Label htmlFor="alert-simulation-compare-threshold-b">Candidate B threshold</Label>
+              <Input
+                id="alert-simulation-compare-threshold-b"
                 type="number"
                 value={cmpB}
                 onChange={(e) => setCmpB(Number(e.target.value))}
-                className="mt-1 block w-full p-2"
+                className="mt-1"
               />
-            </label>
-            <label>
-              Recent review count
-              <input
+            </div>
+            <div>
+              <Label htmlFor="alert-simulation-compare-recent-count">Recent review count</Label>
+              <Input
+                id="alert-simulation-compare-recent-count"
                 type="number"
                 min={1}
                 max={50}
                 value={cmpRecent}
                 onChange={(e) => setCmpRecent(Number(e.target.value))}
-                className="mt-1 block w-full p-2"
+                className="mt-1"
               />
-            </label>
-            <label>
-              Workspace project slug
-              <input
+            </div>
+            <div>
+              <Label htmlFor="alert-simulation-compare-project-slug">Workspace project slug</Label>
+              <Input
+                id="alert-simulation-compare-project-slug"
                 value={cmpSlug}
                 onChange={(e) => setCmpSlug(e.target.value)}
                 placeholder={ALERT_SIMULATION_PROJECT_SLUG_PLACEHOLDER}
-                className="mt-1 block w-full p-2"
+                className="mt-1"
                 data-testid="alert-simulation-compare-project-slug"
               />
               <span className={cn("mt-1 block text-neutral-600 dark:text-neutral-400", OPERATOR_TYPOGRAPHY.helper)}>
                 {ALERT_SIMULATION_PROJECT_SLUG_HELPER}
               </span>
-            </label>
-            <button
+            </div>
+            <Button
               type="button"
+              variant="primary"
+              size="sm"
+              data-testid="alert-simulation-compare-submit"
               onClick={() => void runCompare()}
               disabled={loading}
               title={alertSimulationRunControlTitle}
-              className={`px-4 py-2.5 ${loading ? "cursor-wait" : "cursor-pointer"}`}
+              className="justify-self-start"
             >
               {loading ? "Running…" : "Compare candidates"}
-            </button>
-          </div>
-          </section>
-          <section aria-labelledby="sim-compare-behavior-heading" className="mt-6">
-            <h3 id="sim-compare-behavior-heading" className="mt-0">
-              {canMutateEnterpriseShell
-                ? alertSimulationCurrentBehaviorHeadingOperator
-                : alertSimulationCurrentBehaviorHeadingReader}
-            </h3>
-            {compareResult ? (
+            </Button>
+            </>
+          }
+          behavior={
+            compareResult ? (
               <div className="mt-2">
                 <h4 className="mb-2">Comparison notes</h4>
                 <ul>
@@ -748,10 +970,10 @@ export function AlertSimulationContent() {
                 <SummaryBlock result={compareResult.candidateB} />
               </div>
             ) : (
-              <p className={cn("mt-2 text-neutral-500 dark:text-neutral-400", OPERATOR_TYPOGRAPHY.body)}>Run a comparison to see outcomes here.</p>
-            )}
-          </section>
-        </>
+              <SimulationBehaviorEmpty />
+            )
+          }
+        />
       ) : null}
     </div>
   );

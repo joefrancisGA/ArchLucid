@@ -1,12 +1,11 @@
 import Link from "next/link";
 
 import { HelpTopicHashScroll } from "@/app/(operator)/help/HelpTopicHashScroll";
-import { HelpTopicPdfDownloadButton } from "@/components/help/HelpTopicPdfDownloadButton";
 import { HelpTopicPrintButton } from "@/components/help/HelpTopicPrintButton";
 import { HelpTopicRegistryProvenanceLine } from "@/components/help/HelpTopicRegistryProvenanceLine";
 import { MarketingAccessibilityMarkdownFragment } from "@/components/marketing/MarketingAccessibilityMarkdownFragment";
-import { OperatorPageBreadcrumb } from "@/components/OperatorPageBreadcrumb";
-import { OperatorPageHeader } from "@/components/OperatorPageHeader";
+import { OperatorPageBreadcrumb } from "@/components/operator/OperatorPageBreadcrumb";
+import { OperatorPageHeader } from "@/components/operator/OperatorPageHeader";
 import { Button } from "@/components/ui/button";
 import { StatusTag } from "@/components/ui/status-tag";
 import { PageContextualHelpButton } from "@/components/usability/PageContextualHelpButton";
@@ -29,9 +28,8 @@ import {
   OPERATOR_LAYOUT,
   OPERATOR_TYPOGRAPHY,
 } from "@/lib/design-tokens";
-import { HELP_TOPIC_DOCUMENT_STATUS_LABEL } from "@/lib/help-topic-markdown-header-content";
-import { prepareHelpMarkdownForPresentation } from "@/lib/help-markdown-presentation";
-import { HELP_PAGE_LAYOUT } from "@/lib/help-page-layout";
+import { prepareHelpMarkdownForPresentation } from "@/lib/help/help-markdown-presentation";
+import { HELP_PAGE_LAYOUT } from "@/lib/help/help-page-layout";
 import type { ProductDocumentationEntry } from "@/lib/product-documentation-registry";
 import { cn } from "@/lib/utils";
 
@@ -72,18 +70,12 @@ export function HelpFirstValue20GuideView(props: HelpFirstValue20GuideViewProps)
         }
         metadata={
           <div className="flex flex-wrap items-center gap-x-3 gap-y-1" data-testid="help-first-value-20-header-metadata">
-            <StatusTag
-              kind="ready"
-              label={HELP_TOPIC_DOCUMENT_STATUS_LABEL}
-              data-testid="help-first-value-20-document-status"
-            />
             <HelpTopicRegistryProvenanceLine entry={entry} />
           </div>
         }
         actions={
           <div className="flex flex-wrap items-center gap-2" data-testid="help-first-value-20-header-actions">
             <PageContextualHelpButton />
-            <HelpTopicPdfDownloadButton entry={entry} />
             <HelpTopicPrintButton entry={entry} />
           </div>
         }

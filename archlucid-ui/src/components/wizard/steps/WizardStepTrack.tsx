@@ -2,38 +2,109 @@
 
 import { cn } from "@/lib/utils";
 import Link from "next/link";
+import { useEffect, useMemo, useState } from "react";
 
 import { GlossaryTooltip } from "@/components/GlossaryTooltip";
+import { Button } from "@/components/ui/button";
 import { StatusTag } from "@/components/ui/status-tag";
 import { Progress } from "@/components/ui/progress";
 import { Separator } from "@/components/ui/separator";
 import { WizardStepPanel } from "@/components/wizard/WizardStepPanel";
+import { useWorkspaceReviewDurationEstimate } from "@/hooks/use-workspace-review-duration-estimate";
 import { comparePageHrefAdaptive } from "@/lib/compare-url-query-params";
 import { OPERATOR_LINK, OPERATOR_TYPOGRAPHY } from "@/lib/design-tokens";
+import { isBuyerPolishedOperatorShellEnv } from "@/lib/demo-ui-env";
 import { recordReviewGenerationHandoff, reviewDetailHrefAfterGeneration } from "@/lib/review-generation-handoff";
+import {
+  REVIEW_PIPELINE_KEEP_WATCHING_CTA,
+  resolveReviewPipelinePollMaxMs,
+  resolveReviewPipelineTimeoutMessage,
+} from "@/lib/review-execution-background-safety-copy";
 import { SIGNED_MANIFEST_LABEL } from "@/lib/usability/canonical-product-terms";
 import type { RunSummary } from "@/types/authority";
 
 export type WizardStepTrackProps = {
   runId: string;
   pollSummary: RunSummary | null;
+  /** Bumps the parent run-summary stream retry token when the operator retries after a stall. */
+  onRetryPolling?: () => void;
 };
 
 function stageDone(flag: boolean | undefined): boolean {
   return flag === true;
 }
 
+function allStagesReady(summary: RunSummary | null | undefined): boolean {
+  if (summary === null || summary === undefined) {
+    return false;
+  }
+
+  return (
+    stageDone(summary.hasContextSnapshot) &&
+    stageDone(summary.hasGraphSnapshot) &&
+    stageDone(summary.hasFindingsSnapshot) &&
+    stageDone(summary.hasGoldenManifest)
+  );
+}
+
 /**
  * Step 7: poll review summary and visualize review-package stages.
  */
-export function WizardStepTrack({ runId, pollSummary }: WizardStepTrackProps) {
+export function WizardStepTrack({ runId, pollSummary, onRetryPolling }: WizardStepTrackProps) {
+  const buyerPolished = isBuyerPolishedOperatorShellEnv();
   const ctx = stageDone(pollSummary?.hasContextSnapshot);
   const graph = stageDone(pollSummary?.hasGraphSnapshot);
   const findings = stageDone(pollSummary?.hasFindingsSnapshot);
   const manifest = stageDone(pollSummary?.hasGoldenManifest);
+  const pollEnabled = !manifest;
+
+  const [clientPhase, setClientPhase] = useState<"polling" | "complete" | "timeout">(() =>
+    manifest ? "complete" : "polling",
+  );
+  const [pollSession, setPollSession] = useState(0);
+
+  const { estimate: durationEstimate, loading: durationLoading } = useWorkspaceReviewDurationEstimate(
+    pollEnabled && clientPhase === "polling",
+  );
+  const pollMaxMs = useMemo(
+    () => resolveReviewPipelinePollMaxMs(durationEstimate?.p90Seconds),
+    [durationEstimate?.p90Seconds],
+  );
+
+  useEffect(() => {
+    if (manifest || allStagesReady(pollSummary)) {
+      setClientPhase("complete");
+    }
+  }, [manifest, pollSummary]);
+
+  useEffect(() => {
+    if (!pollEnabled || clientPhase !== "polling" || durationLoading) {
+      return;
+    }
+
+    const timeoutId = window.setTimeout(() => {
+      setClientPhase("timeout");
+    }, pollMaxMs);
+
+    return () => {
+      window.clearTimeout(timeoutId);
+    };
+  }, [clientPhase, durationLoading, pollEnabled, pollMaxMs, pollSession]);
 
   const completedStages = [ctx, graph, findings, manifest].filter(Boolean).length;
   const progressValue = (completedStages / 4) * 100;
+
+  const waitingMessage = useMemo(() => {
+    if (clientPhase === "timeout") {
+      return resolveReviewPipelineTimeoutMessage({
+        buyerPolished,
+        runId,
+        p90Seconds: durationEstimate?.p90Seconds,
+      });
+    }
+
+    return `Waiting for ${SIGNED_MANIFEST_LABEL.toLowerCase()}… (updates stream for up to several minutes; you can open review detail anytime.)`;
+  }, [buyerPolished, clientPhase, durationEstimate?.p90Seconds, runId]);
 
   return (
     <WizardStepPanel
@@ -111,9 +182,28 @@ export function WizardStepTrack({ runId, pollSummary }: WizardStepTrackProps) {
           </nav>
         </div>
       ) : (
-        <p className={cn("mt-4 text-neutral-500", OPERATOR_TYPOGRAPHY.helper)}>
-          Waiting for {SIGNED_MANIFEST_LABEL.toLowerCase()}… (updates stream for up to several minutes; you can open review detail anytime.)
-        </p>
+        <div className="mt-4 space-y-3" data-testid="wizard-step-track-waiting">
+          <p
+            aria-live="polite"
+            className={cn("m-0 text-neutral-500", OPERATOR_TYPOGRAPHY.helper)}
+          >
+            {waitingMessage}
+          </p>
+          {pollEnabled && clientPhase === "timeout" ? (
+            <Button
+              type="button"
+              variant="outline"
+              size="sm"
+              onClick={() => {
+                setClientPhase("polling");
+                setPollSession((session) => session + 1);
+                onRetryPolling?.();
+              }}
+            >
+              {REVIEW_PIPELINE_KEEP_WATCHING_CTA}
+            </Button>
+          ) : null}
+        </div>
       )}
     </WizardStepPanel>
   );

@@ -5,7 +5,7 @@ import { operatorNavOutsideProviderPrincipal } from "@/lib/current-principal";
 const useNavCallerAuthorityRank = vi.fn(() => 3);
 const useFeaturedCompletedSampleQuery = vi.fn();
 
-vi.mock("@/components/OperatorNavAuthorityProvider", () => ({
+vi.mock("@/components/operator/OperatorNavAuthorityProvider", () => ({
   useNavCallerAuthorityRank: () => useNavCallerAuthorityRank(),
   useOperatorNavAuthority: () => ({
     currentPrincipal: {
@@ -28,7 +28,7 @@ import {
   OPERATOR_HOME_CONTACT_WORKSPACE_OWNER_HINT,
   OPERATOR_HOME_MISSING_COMPLETED_SAMPLE_MESSAGE,
   OPERATOR_HOME_OPEN_COMPLETED_REVIEW_CTA,
-} from "@/lib/buyer-polish-copy";
+} from "@/lib/buyer/buyer-polish-copy";
 
 describe("OperatorHomeCompletedSampleAction", () => {
   beforeEach(() => {

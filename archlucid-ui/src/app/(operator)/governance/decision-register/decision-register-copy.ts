@@ -1,4 +1,4 @@
-import { BUYER_START_ARCHITECTURE_REVIEW_CTA } from "@/lib/buyer-polish-copy";
+import { BUYER_START_ARCHITECTURE_REVIEW_CTA } from "@/lib/buyer/buyer-polish-copy";
 
 export const DECISION_REGISTER_PAGE_SUBTITLE =
   "Browse architecture decisions locked with each signed review record — category, supporting findings, confidence, and lineage.";
@@ -25,9 +25,8 @@ export const DECISION_REGISTER_FILTERS_TITLE = "Filters";
 
 export const DECISION_REGISTER_CATEGORY_LABEL = "Category";
 
-export const DECISION_REGISTER_RECORDED_AFTER_LABEL = "Recorded after";
-
-export const DECISION_REGISTER_RECORDED_BEFORE_LABEL = "Recorded before";
+export const DECISION_REGISTER_DATE_RANGE_RECORDED_HELPER =
+  "Filters by when the decision was recorded in this register.";
 
 export const DECISION_REGISTER_MIN_CONFIDENCE_LABEL = "Minimum confidence";
 

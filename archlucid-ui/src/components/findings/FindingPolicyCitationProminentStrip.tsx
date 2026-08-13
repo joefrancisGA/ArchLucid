@@ -4,12 +4,12 @@ import { OPERATOR_TYPOGRAPHY } from "@/lib/design-tokens";
 
 import type { ReactElement } from "react";
 
-import { FindingPolicyTraceabilityBadges } from "@/components/FindingPolicyTraceabilityBadges";
+import { FindingPolicyTraceabilityBadges } from "@/components/findings/FindingPolicyTraceabilityBadges";
 import { StatusTag } from "@/components/ui/status-tag";
 import type {
   FindingPolicyCitationLink,
   FindingPolicyPackCitationLink,
-} from "@/lib/finding-policy-evidence-citations";
+} from "@/lib/findings/finding-policy-evidence-citations";
 
 export type FindingPolicyCitationProminentStripProps = {
   readonly pack?: FindingPolicyPackCitationLink | null;

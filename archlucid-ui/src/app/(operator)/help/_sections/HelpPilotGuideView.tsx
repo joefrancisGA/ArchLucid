@@ -1,23 +1,23 @@
 import Link from "next/link";
 
 import { HelpTopicHashScroll } from "@/app/(operator)/help/HelpTopicHashScroll";
-import { HelpTopicPdfDownloadButton } from "@/components/help/HelpTopicPdfDownloadButton";
 import { HelpTopicPrintButton } from "@/components/help/HelpTopicPrintButton";
 import { HelpTopicRegistryProvenanceLine } from "@/components/help/HelpTopicRegistryProvenanceLine";
 import { HelpTopicTableOfContents } from "@/components/help/HelpTopicTableOfContents";
 import { PilotGuideHelpEvidenceOrientationStrip } from "@/components/help/PilotGuideHelpEvidenceOrientationStrip";
+import { PilotGuideGettingStartedFirstReviewVocabularyRail } from "@/components/PilotGuideGettingStartedFirstReviewVocabularyRail";
 import { MarketingAccessibilityMarkdownFragment } from "@/components/marketing/MarketingAccessibilityMarkdownFragment";
 import { Button } from "@/components/ui/button";
-import { OperatorPageHeader } from "@/components/OperatorPageHeader";
+import { OperatorPageHeader } from "@/components/operator/OperatorPageHeader";
 import { PageContextualHelpButton } from "@/components/usability/PageContextualHelpButton";
 import {
   DESIGN_TOKENS,
   OPERATOR_LAYOUT,
   OPERATOR_TYPOGRAPHY,
 } from "@/lib/design-tokens";
-import { extractHelpMarkdownHeadings } from "@/lib/help-markdown-headings";
-import { prepareHelpMarkdownForPresentation } from "@/lib/help-markdown-presentation";
-import { HELP_PAGE_LAYOUT } from "@/lib/help-page-layout";
+import { extractHelpMarkdownHeadings } from "@/lib/help/help-markdown-headings";
+import { prepareHelpMarkdownForPresentation } from "@/lib/help/help-markdown-presentation";
+import { HELP_PAGE_LAYOUT } from "@/lib/help/help-page-layout";
 import type { ProductDocumentationEntry } from "@/lib/product-documentation-registry";
 import {
   PILOT_GUIDE_HELP_OVERVIEW,
@@ -55,7 +55,36 @@ export function HelpPilotGuideView(props: HelpPilotGuideViewProps): React.ReactE
         subtitle={PILOT_GUIDE_HELP_PAGE_SUBTITLE}
         navHref={PILOT_GUIDE_HELP_PATH}
         headingLevel="h1"
-        metadata={<HelpTopicRegistryProvenanceLine entry={entry} />}
+        metadata={
+          <div className="space-y-2">
+            <HelpTopicRegistryProvenanceLine entry={entry} />
+            <div
+              className="flex flex-wrap items-center gap-x-4 gap-y-1"
+              data-testid="help-pilot-guide-related-links"
+            >
+              <Link
+                href={PILOT_GUIDE_HELP_PRIMARY_ACTIONS.firstReviewGuide.href}
+                className={cn(
+                  "text-sm underline-offset-2 hover:underline",
+                  DESIGN_TOKENS.accent.link,
+                  OPERATOR_TYPOGRAPHY.body,
+                )}
+              >
+                {PILOT_GUIDE_HELP_PRIMARY_ACTIONS.firstReviewGuide.label}
+              </Link>
+              <Link
+                href={PILOT_GUIDE_HELP_PRIMARY_ACTIONS.gettingStarted.href}
+                className={cn(
+                  "text-sm underline-offset-2 hover:underline",
+                  DESIGN_TOKENS.accent.link,
+                  OPERATOR_TYPOGRAPHY.body,
+                )}
+              >
+                {PILOT_GUIDE_HELP_PRIMARY_ACTIONS.gettingStarted.label}
+              </Link>
+            </div>
+          </div>
+        }
         actions={
           <div className="flex flex-wrap items-center gap-2" data-testid="help-pilot-guide-header-actions">
             <Button asChild size="sm" variant="primary" data-testid="help-pilot-guide-start-review">
@@ -68,33 +97,13 @@ export function HelpPilotGuideView(props: HelpPilotGuideViewProps): React.ReactE
                 {PILOT_GUIDE_HELP_PRIMARY_ACTIONS.firstArchitectureReview.label}
               </Link>
             </Button>
-            <Link
-              href={PILOT_GUIDE_HELP_PRIMARY_ACTIONS.firstReviewGuide.href}
-              className={cn(
-                "text-sm underline-offset-2 hover:underline",
-                DESIGN_TOKENS.accent.link,
-                OPERATOR_TYPOGRAPHY.body,
-              )}
-            >
-              {PILOT_GUIDE_HELP_PRIMARY_ACTIONS.firstReviewGuide.label}
-            </Link>
-            <Link
-              href={PILOT_GUIDE_HELP_PRIMARY_ACTIONS.gettingStarted.href}
-              className={cn(
-                "text-sm underline-offset-2 hover:underline",
-                DESIGN_TOKENS.accent.link,
-                OPERATOR_TYPOGRAPHY.body,
-              )}
-            >
-              {PILOT_GUIDE_HELP_PRIMARY_ACTIONS.gettingStarted.label}
-            </Link>
             <PageContextualHelpButton />
-            <HelpTopicPdfDownloadButton entry={entry} />
             <HelpTopicPrintButton entry={entry} />
           </div>
         }
       />
 
+      <PilotGuideGettingStartedFirstReviewVocabularyRail currentSurfaceId="pilot-guide" />
       <PilotGuideHelpEvidenceOrientationStrip />
 
       <div className={HELP_PAGE_LAYOUT.contentGrid}>

@@ -15,7 +15,7 @@ vi.mock("@/lib/demo-ui-env", async (importOriginal) => {
 };
 });
 
-vi.mock("@/lib/buyer-cto-demo-tour", () => ({
+vi.mock("@/lib/buyer/buyer-cto-demo-tour", () => ({
   readBuyerCtoDemoTourActive: () => true,
 }));
 

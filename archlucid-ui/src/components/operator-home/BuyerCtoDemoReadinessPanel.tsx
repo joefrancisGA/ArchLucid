@@ -15,14 +15,14 @@ import {
   BUYER_CTO_DEMO_READINESS_REFRESH_CTA,
   BUYER_CTO_DEMO_READINESS_STATIC_LABEL,
   BUYER_CTO_DEMO_RUN_OF_SHOW_DOWNLOAD_CTA,
-} from "@/lib/buyer-polish-copy";
+} from "@/lib/buyer/buyer-polish-copy";
 import {
   buyerCtoDemoReadinessStatusKind,
   evaluateBuyerCtoDemoReadiness,
   type BuyerCtoDemoReadinessCheck,
   type BuyerCtoDemoReadinessResult,
-} from "@/lib/buyer-cto-demo-readiness";
-import { buildCtoDemoRunOfShowMarkdown } from "@/lib/buyer-cto-demo-tour";
+} from "@/lib/buyer/buyer-cto-demo-readiness";
+import { buildCtoDemoRunOfShowMarkdown } from "@/lib/buyer/buyer-cto-demo-tour";
 import { DEMO_READINESS_RUN_OF_SHOW_DOWNLOAD_FILENAME } from "@/lib/demo-readiness-evidence-copy";
 import {
   demoReadinessCheckStatusKind,

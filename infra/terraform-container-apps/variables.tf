@@ -120,6 +120,17 @@ variable "worker_memory" {
   default     = "0.5Gi"
 }
 
+variable "worker_termination_grace_period_seconds" {
+  type        = number
+  description = "ACA termination grace for Worker replicas. Must exceed HostOptions.ShutdownTimeout (45s) plus SQL lease release headroom (TB-961)."
+  default     = 60
+
+  validation {
+    condition     = var.worker_termination_grace_period_seconds >= 45
+    error_message = "worker_termination_grace_period_seconds must be at least 45 to cover the .NET host shutdown timeout."
+  }
+}
+
 variable "api_container_image" {
   type        = string
   description = "Full image reference for the API container (default entrypoint ArchLucid.Api.dll), e.g. myregistry.azurecr.io/archlucid-api:2026.04.1. Required when enable_container_apps = true."

@@ -13,8 +13,8 @@ import {
   coerceArtifactDescriptor,
   coerceArtifactDescriptorList,
   coerceManifestSummary,
-} from "@/lib/operator-response-guards";
-import { tryStaticDemoArtifacts, tryStaticDemoManifestSummary } from "@/lib/operator-static-demo";
+} from "@/lib/operator/operator-response-guards";
+import { tryStaticDemoArtifacts, tryStaticDemoManifestSummary } from "@/lib/operator/operator-static-demo";
 import { isInvalidDynamicRouteToken, isInvalidManifestRouteId } from "@/lib/route-dynamic-param";
 import {
   resolveServerScopeHeadersForManifest,

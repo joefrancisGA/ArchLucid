@@ -1,4 +1,4 @@
-import { OperatorBrandedNotFound } from "@/components/OperatorBrandedNotFound";
+import { OperatorBrandedNotFound } from "@/components/operator/OperatorBrandedNotFound";
 
 /**
  * Global 404 when no route matches (outside a segment-specific `not-found`). Minimal chrome — no operator shell.

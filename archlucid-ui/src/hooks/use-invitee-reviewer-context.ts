@@ -1,6 +1,6 @@
 "use client";
 
-import { useOperatorNavAuthority } from "@/components/OperatorNavAuthorityProvider";
+import { useOperatorNavAuthority } from "@/components/operator/OperatorNavAuthorityProvider";
 import { resolveInviteeOrientationContext } from "@/lib/invitee-first-orientation";
 
 export function useInviteeReviewerContext() {

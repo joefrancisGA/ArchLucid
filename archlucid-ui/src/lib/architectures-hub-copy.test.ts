@@ -1,6 +1,6 @@
 import { describe, expect, it } from "vitest";
 
-import { ARCHITECTURE_DRAFTS_LIST_LABEL } from "@/lib/architecture-workflow-labels";
+import { ARCHITECTURE_DRAFTS_LIST_LABEL } from "@/lib/architecture/architecture-workflow-labels";
 import {
   ARCHITECTURES_HUB_EMPTY_BODY,
   ARCHITECTURES_HUB_EMPTY_FILTER_BODY,
@@ -15,8 +15,9 @@ describe("architectures-hub-copy", () => {
     expect(ARCHITECTURES_HUB_PAGE_TITLE).toBe(ARCHITECTURE_DRAFTS_LIST_LABEL);
     expect(ARCHITECTURES_HUB_PAGE_TITLE.toLowerCase()).toContain("draft");
     expect(ARCHITECTURES_HUB_PAGE_SUBTITLE.toLowerCase()).toContain("draft");
-    expect(ARCHITECTURES_HUB_PAGE_SUBTITLE.toLowerCase()).toContain("this browser");
-    expect(ARCHITECTURES_HUB_PAGE_SUBTITLE.toLowerCase()).toContain("not a tenant-wide");
+    expect(ARCHITECTURES_HUB_PAGE_SUBTITLE.toLowerCase()).toContain("this device");
+    expect(ARCHITECTURES_HUB_PAGE_SUBTITLE.toLowerCase()).toContain("close the browser");
+    expect(ARCHITECTURES_HUB_PAGE_SUBTITLE.toLowerCase()).toContain("not a shared tenant-wide");
   });
 
   it("keeps empty-state copy action-oriented without repeating scope prose", () => {

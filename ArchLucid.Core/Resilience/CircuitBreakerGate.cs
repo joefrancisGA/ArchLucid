@@ -328,7 +328,7 @@ public sealed class CircuitBreakerGate
     }
 
     /// <summary>
-    ///     Call when the caller cancelled the operation so the probe slot is released without a failure tick.
+    ///     Call when the caller canceled the operation so the probe slot is released without a failure tick.
     /// </summary>
     public void RecordCallCancelled()
     {
@@ -337,7 +337,7 @@ public sealed class CircuitBreakerGate
             if (_state != State.HalfOpen || !_probeInFlight)
                 return;
 
-            EmitProbeOutcome("cancelled");
+            EmitProbeOutcome("canceled");
             EmitStateTransition("HalfOpen", "Open");
             _probeInFlight = false;
             _state = State.Open;

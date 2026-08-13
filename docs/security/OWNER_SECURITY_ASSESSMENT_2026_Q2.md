@@ -49,7 +49,7 @@
 
 When this document is ready for external readers, move a **sanitized** copy (or this file, fully de-scrubbed) to a buyer-visible path linked from the Trust Center and archive the working notes separately if they contain internal-only detail.
 
-A **future** third-party penetration test ( **`V2`** vendor programme, [`V1_DEFERRED.md`](../library/V1_DEFERRED.md) §6c — owner 2026-05-01) will provide independent validation alongside this owner-conducted work. Until then, this document represents the product team's internal security review based on automated CI gates and manual ASVS-oriented checklist review.
+A **future** third-party penetration test ( **`V2`** vendor program, [`V1_DEFERRED.md`](../library/V1_DEFERRED.md) §6c — owner 2026-05-01) will provide independent validation alongside this owner-conducted work. Until then, this document represents the product team's internal security review based on automated CI gates and manual ASVS-oriented checklist review.
 
 ---
 

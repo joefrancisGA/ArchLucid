@@ -1,18 +1,20 @@
 import { cn } from "@/lib/utils";
 
-import { OperatorApiProblem } from "@/components/OperatorApiProblem";
-import { OperatorDemoStaticBanner } from "@/components/OperatorDemoStaticBanner";
-import { OperatorMalformedCallout, OperatorTryNext } from "@/components/OperatorShellMessage";
+import { OperatorApiProblem } from "@/components/operator/OperatorApiProblem";
+import { OperatorDemoStaticBanner } from "@/components/operator/OperatorDemoStaticBanner";
+import { OperatorMalformedCallout, OperatorTryNext } from "@/components/operator/OperatorShellMessage";
 import { FatalPageReportProblemSupportRow } from "@/components/support/FatalPageReportProblemAction";
-import { OperatorPageContainer } from "@/components/OperatorPageContainer";
-import { OperatorPageHeader } from "@/components/OperatorPageHeader";
-import { RunsListProofHeadline } from "@/components/RunsListProofHeadline";
+import { OperatorPageContainer } from "@/components/operator/OperatorPageContainer";
+import { OperatorPageHeader } from "@/components/operator/OperatorPageHeader";
+import { PlanningReviewsVocabularyRail } from "@/components/PlanningReviewsVocabularyRail";
+import { RunsListProofHeadline } from "@/components/runs/RunsListProofHeadline";
 import { isOperatorExperienceFullShellEnv } from "@/lib/demo-ui-env";
 import {
   BUYER_RUNS_LIST_MALFORMED_BODY,
   BUYER_RUNS_LIST_MALFORMED_HEADING,
-} from "@/lib/buyer-polish-copy";
+} from "@/lib/buyer/buyer-polish-copy";
 import { isApiNotFoundFailure } from "@/lib/api-load-failure";
+import { REVIEWS_LIST_PATH } from "@/lib/architecture/architecture-routes";
 import { OPERATOR_TYPOGRAPHY, OPERATOR_TYPE_SCALE } from "@/lib/design-tokens";
 
 import {
@@ -63,6 +65,7 @@ export function RunsPageView(props: Props) {
     <OperatorPageContainer variant="dashboard">
       <OperatorWelcomeOnboardingDeferred serverEligible={m.welcomeOnboardingEligible} />
       <OperatorPageHeader
+        navHref={REVIEWS_LIST_PATH}
         title={REVIEWS_HUB_PAGE_TITLE}
         subtitle={REVIEWS_HUB_PAGE_SUBTITLE}
         metadata={
@@ -80,6 +83,7 @@ export function RunsPageView(props: Props) {
         }
         actions={<ReviewsHubHeaderActions />}
       />
+      <PlanningReviewsVocabularyRail currentSurfaceId="architecture-reviews" />
 {hubLoadOk ? (
         <>
           <ReviewsHubSummaryRow summary={workspaceSummary} />

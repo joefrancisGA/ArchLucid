@@ -10,13 +10,15 @@ export type ErrorRecoveryContractGuardViolation = {
 };
 
 export function findErrorRecoveryContractSurfaceViolations(uiRoot: string): ErrorRecoveryContractGuardViolation[] {
-  const violations: ErrorRecoveryContractGuardViolation[] = [];
+  return findSurfaceMarkerViolations(uiRoot, ERROR_RECOVERY_CONTRACT_GUARDED_SURFACES);
+}
 
-  for (const surface of ERROR_RECOVERY_CONTRACT_GUARDED_SURFACES) {
-    violations.push(...findViolationsForSurface(uiRoot, surface));
-  }
-
-  return violations;
+/** Same marker check against any inventory using the guarded-surface shape (e.g. section load failures). */
+export function findSurfaceMarkerViolations(
+  uiRoot: string,
+  surfaces: readonly ErrorRecoveryContractGuardedSurface[],
+): ErrorRecoveryContractGuardViolation[] {
+  return surfaces.flatMap((surface) => findViolationsForSurface(uiRoot, surface));
 }
 
 function findViolationsForSurface(

@@ -18,6 +18,7 @@ import {
   BULK_EVIDENCE_UPLOAD_FAILURE_RECOVERY,
   BULK_EVIDENCE_UPLOAD_FILE_NOT_STORED_REASON,
   BULK_EVIDENCE_UPLOAD_MAX_FILES,
+  RUN_DETAIL_EVIDENCE_CAPTURE_SECTION_TITLE,
 } from "@/lib/bulk-evidence-upload-copy";
 import {
   buildBulkEvidenceUploadSummary,
@@ -35,10 +36,11 @@ export interface BulkEvidenceUploadProps {
   runId: string;
   /** When true, renders body only — parent owns card chrome and heading. */
   embedded?: boolean;
+  readonly onUploadSummary?: (summary: BulkEvidenceUploadSummary) => void;
 }
 
 type BulkEvidenceUploadError = {
-  readonly kind: "max-files" | "upload-failed" | "cancelled" | "unexpected";
+  readonly kind: "max-files" | "upload-failed" | "canceled" | "unexpected";
   readonly userMessage: string;
   readonly rawDetail?: string | null;
 };
@@ -58,7 +60,7 @@ function countNonEmptyFiles(files: File[]): number {
 }
 
 function recoveryPresentationForError(error: BulkEvidenceUploadError) {
-  if (error.kind === "cancelled") {
+  if (error.kind === "canceled") {
     return BULK_EVIDENCE_UPLOAD_CANCEL_RECOVERY;
   }
 
@@ -69,7 +71,7 @@ function recoveryPresentationForError(error: BulkEvidenceUploadError) {
  * Bulk evidence upload for a review run (`POST /v1/architecture/review/{runId}/evidence/bulk`).
  * @see `BulkEvidenceUpload.test.tsx`
  */
-export function BulkEvidenceUpload({ runId, embedded = false }: BulkEvidenceUploadProps) {
+export function BulkEvidenceUpload({ runId, embedded = false, onUploadSummary }: BulkEvidenceUploadProps) {
   const [files, setFiles] = useState<File[]>([]);
   const [error, setError] = useState<BulkEvidenceUploadError | null>(null);
   const [uploading, setUploading] = useState(false);
@@ -177,6 +179,7 @@ export function BulkEvidenceUpload({ runId, embedded = false }: BulkEvidenceUplo
         );
 
         setUploadSummary(summary);
+        onUploadSummary?.(summary);
 
         if (!summary.isPartial) {
           setFiles([]);
@@ -197,6 +200,7 @@ export function BulkEvidenceUpload({ runId, embedded = false }: BulkEvidenceUplo
         );
 
         setUploadSummary(summary);
+        onUploadSummary?.(summary);
 
         return;
       }
@@ -209,8 +213,8 @@ export function BulkEvidenceUpload({ runId, embedded = false }: BulkEvidenceUplo
     } catch (uploadError) {
       if (uploadError instanceof DOMException && uploadError.name === "AbortError") {
         setError({
-          kind: "cancelled",
-          userMessage: "Upload cancelled.",
+          kind: "canceled",
+          userMessage: "Upload canceled.",
         });
       } else {
         setError({
@@ -237,7 +241,7 @@ export function BulkEvidenceUpload({ runId, embedded = false }: BulkEvidenceUplo
       {!embedded ? (
         <>
           <h3 className={cn("m-0 text-lg font-medium text-al-text-primary", OPERATOR_TYPOGRAPHY.cardTitle)}>
-            Add evidence
+            {RUN_DETAIL_EVIDENCE_CAPTURE_SECTION_TITLE}
           </h3>
           <p className={cn("m-0 text-al-text-secondary", OPERATOR_TYPOGRAPHY.body)}>
             Upload up to {BULK_EVIDENCE_UPLOAD_MAX_FILES} files per action. ZIP archives are expanded automatically (up

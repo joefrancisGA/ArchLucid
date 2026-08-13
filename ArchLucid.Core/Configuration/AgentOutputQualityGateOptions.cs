@@ -148,7 +148,7 @@ public sealed class AgentOutputQualityGateOptions
     ///     When <c>true</c>, a <c>Rejected</c> outcome causes
     ///     <c>AgentOutputEvaluationRecorder.EvaluateAndRecordMetricsAsync</c> to throw
     ///     <see cref="AgentOutputQualityGateRejectedException" /> after emitting metrics and logs.
-    ///     Defaults to <c>false</c> so existing behaviour (metrics-only) is preserved until a product
+    ///     Defaults to <c>false</c> so existing behavior (metrics-only) is preserved until a product
     ///     decision explicitly enables enforcement.
     /// </summary>
     public bool EnforceOnReject

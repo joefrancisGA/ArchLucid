@@ -2,6 +2,7 @@ import { describe, expect, it } from "vitest";
 
 import {
   resolveShellBannerPollIntervalMs,
+  shouldPollCatalogMigrationBanner,
   shouldPollLlmBudgetApproachingBanner,
   shouldPollTrialAiBudgetBanner,
 } from "@/lib/shell-banner-poll-policy";
@@ -53,5 +54,11 @@ describe("shell banner poll policy (TB-2029)", () => {
         shouldPoll: true,
       }),
     ).toBe(false);
+  });
+
+  it("polls catalog migration only while migration is active", () => {
+    expect(shouldPollCatalogMigrationBanner({ inMigration: true })).toBe(true);
+    expect(shouldPollCatalogMigrationBanner({ inMigration: false })).toBe(false);
+    expect(shouldPollCatalogMigrationBanner(undefined)).toBe(false);
   });
 });

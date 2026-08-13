@@ -1,6 +1,6 @@
 import { describe, expect, it } from "vitest";
 
-import { BUYER_START_ARCHITECTURE_REVIEW_CTA } from "@/lib/buyer-polish-copy";
+import { BUYER_START_ARCHITECTURE_REVIEW_CTA } from "@/lib/buyer/buyer-polish-copy";
 import { ARCHITECTURE_SCORECARD_TRAFFIC_PATH } from "@/lib/ui-route-traffic-architecture-scorecard";
 import {
   REVIEW_SCORECARD_EMPTY_PRIMARY_CTA,
@@ -26,7 +26,8 @@ describe("architecture-scorecard Insights regressions (TB-1960)", () => {
   it("contextual help maps architecture scorecard label to the page (TB-1959)", () => {
     const topic = pageHelpTopicForPathname(SPONSOR_REPORT_ARCHITECTURE_SCORECARD_PATH);
 
-    expect(topic?.slug).toBe("pilot-roi-model");
+    expect(topic?.slug).toBe("executive-summary");
+    expect(topic?.hashFragment).toBe("pilot-roi-measurement");
     expect(topic?.label).toBe("Architecture scorecard");
   });
 

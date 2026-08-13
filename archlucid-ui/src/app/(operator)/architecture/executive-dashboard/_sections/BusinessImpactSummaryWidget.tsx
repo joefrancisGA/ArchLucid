@@ -5,7 +5,7 @@ import React, { useMemo } from "react";
 
 import { useExecutiveRoiSummaryQuery } from "@/hooks/use-executive-roi-summary-query";
 
-import { OperatorApiProblem } from "@/components/OperatorApiProblem";
+import { OperatorApiProblem } from "@/components/operator/OperatorApiProblem";
 import { Card, CardContent, CardDescription, CardHeader, CardTitle } from "@/components/ui/card";
 import { toApiLoadFailure } from "@/lib/api-load-failure";
 import type { ExecutiveRoiSummary } from "@/lib/executive-summary-markdown";

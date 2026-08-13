@@ -2,7 +2,7 @@ import { ADVISORY_SCANS_SCHEDULES_HREF } from "@/lib/advisory-scans-route";
 import { DIGESTS_HUB_PATH } from "@/lib/digests-route-paths";
 import { inAppHelpHref } from "@/lib/product-documentation-registry";
 import type { EvidenceSourceLink } from "@/lib/evidence-surface-copy";
-import { GOVERNANCE_FINDINGS_PATH } from "@/lib/governance-route-paths";
+import { GOVERNANCE_FINDINGS_PATH } from "@/lib/governance/governance-route-paths";
 
 export const DIGESTS_SOURCES_INTRO =
   "Configure subscriptions and schedule before treating digests as an operating rhythm; open reviews or findings when a summary needs follow-up.";

@@ -47,12 +47,21 @@ class TestInvariantWaveBBatch(unittest.TestCase):
         )
         self.assertTrue(concurrency.is_file(), f"Missing {concurrency}")
 
-    def test_tb_030_dependency_constraint_tier_exists(self) -> None:
-        path = REPO_ROOT / "ArchLucid.Architecture.Tests" / "DependencyConstraintTests.cs"
+    def test_tb_030_dependency_constraint_rules_exist(self) -> None:
+        path = (
+            REPO_ROOT
+            / "ArchLucid.Architecture.Tests"
+            / "ArchitectureNamespaceConstraintManifest.cs"
+        )
         text = path.read_text(encoding="utf-8")
-        self.assertIn("TB-030 gap closure", text)
-        self.assertIn("Jobs_Cli_must_not_depend_on_Application_directly", text)
-        self.assertIn("Mcp_must_not_depend_on_Application_layer_namespaces", text)
+        for rule in (
+            "Jobs.Cli must not depend on Application",
+            "Mcp must not depend on Application",
+            "Mcp must not depend on Persistence",
+            "Integrations.AzureExtractor must not depend on Application",
+            "Notifications.Email.RazorLight must not depend on Application",
+        ):
+            self.assertIn(rule, text, rule)
 
     def test_architecture_tests_reference_jobs_cli_and_mcp(self) -> None:
         path = REPO_ROOT / "ArchLucid.Architecture.Tests" / "ArchLucid.Architecture.Tests.csproj"

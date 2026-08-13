@@ -12,7 +12,7 @@ export const BASELINE_SETTINGS_SOURCES_INTRO =
 
 /** Operator Sources - no self-href to `/administration/baseline`. */
 export const BASELINE_SETTINGS_SOURCES: readonly EvidenceSourceLink[] = [
-  { label: "Pilot ROI model", href: inAppHelpHref("pilot-roi-model") },
+  { label: "Pilot ROI measurement", href: inAppHelpHref("executive-summary", "pilot-roi-measurement") },
   { label: "Architecture scorecard", href: "/insights/architecture-scorecard" },
   { label: "ROI summary", href: "/insights/roi-summary" },
   { label: "Pilot outcomes", href: "/insights/pilot-outcomes" },

@@ -1,11 +1,16 @@
 import { cn } from "@/lib/utils";
-import { OPERATOR_DISCLOSURE_TRIGGER_CLASS, OPERATOR_LINK, OPERATOR_SHELL_SCROLL_OFFSET_CLASS, OPERATOR_TYPOGRAPHY } from "@/lib/design-tokens";
+import { MARKETING_SURFACES, OPERATOR_DISCLOSURE_TRIGGER_CLASS, OPERATOR_LINK, OPERATOR_SHELL_SCROLL_OFFSET_CLASS, OPERATOR_TYPOGRAPHY } from "@/lib/design-tokens";
 import Link from "next/link";
 import type { ReactNode } from "react";
 
+import { HelpLazyDetails } from "@/components/help/HelpLazyDetails";
 import { HelpMarkdownCodeBlock } from "@/components/help/HelpMarkdownCodeBlock";
+import { HelpMarkdownInlineCode } from "@/components/help/HelpMarkdownInlineCode";
 import { CaiqSigResponseHelpEvidenceCell } from "@/components/help/CaiqSigResponseHelpEvidenceCell";
 import { CaiqSigResponseHelpStatusCell } from "@/components/help/CaiqSigResponseHelpStatusCell";
+import { SecurityTrustHelpStatusCell } from "@/components/help/SecurityTrustHelpStatusCell";
+import { ProcurementHelpAnswerPosture } from "@/components/help/ProcurementHelpAnswerPosture";
+import { ReviewGuideRequiredStatusCell } from "@/components/help/ReviewGuideRequiredStatusCell";
 import { MermaidDiagram } from "@/components/help/MermaidDiagram";
 import {
   CAIQ_SIG_RESPONSE_LITE_PART_HEADING,
@@ -13,15 +18,22 @@ import {
   isCaiqSigResponseHelpTopic,
   resolveCaiqSigHelpTableCaption,
 } from "@/lib/caiq-sig-response-help-presentation";
-import { createHelpHeadingSlugAllocator, resolveHelpHeadingId } from "@/lib/help-heading-slug";
-import { isMermaidDiagramSource } from "@/lib/help-mermaid";
-import { HELP_PAGE_LAYOUT } from "@/lib/help-page-layout";
+import {
+  isProcurementHelpTopic,
+  parseProcurementFaqQuestionNumber,
+  resolveProcurementFaqPostureForQuestion,
+} from "@/lib/procurement-help-presentation";
+import { createHelpHeadingSlugAllocator, resolveHelpHeadingId } from "@/lib/help/help-heading-slug";
+import { isMermaidDiagramSource } from "@/lib/help/help-mermaid";
+import { HELP_PAGE_LAYOUT } from "@/lib/help/help-page-layout";
 import { PRIVACY_POLICY_PROSE } from "@/lib/privacy-policy-layout";
-import { prepareHelpMarkdownForPresentation, sanitizeBareMarkdownFileReferences } from "@/lib/help-markdown-presentation";
+import { prepareHelpMarkdownForPresentation, sanitizeBareMarkdownFileReferences } from "@/lib/help/help-markdown-presentation";
+import { isSecurityTrustHelpTopic } from "@/lib/security-trust-help-presentation";
 
 type RenderInlineOptions = {
   readonly linkMode: "external-only" | "help";
   readonly nowrapInlineCode?: boolean;
+  readonly copyableInlineCode?: boolean;
 };
 
 /** Landmark names must be unique when multiple scrollable table regions appear on one page (axe landmark-unique). */
@@ -80,16 +92,20 @@ function renderInline(text: string, keyPrefix: string, options: RenderInlineOpti
 
       const inner = remaining.slice(next.at + 1, close);
       nodes.push(
-        <code
-          key={`${keyPrefix}-ic-${i}`}
-          className={cn(
-            "rounded bg-neutral-100 px-1 py-0.5 font-mono text-[0.9em] text-neutral-900 dark:bg-neutral-800 dark:text-neutral-100",
-            options.nowrapInlineCode &&
-              "inline-block max-w-full overflow-x-auto whitespace-nowrap align-bottom",
-          )}
-        >
-          {inner}
-        </code>,
+        options.copyableInlineCode ? (
+          <HelpMarkdownInlineCode key={`${keyPrefix}-ic-${i}`} code={inner} />
+        ) : (
+          <code
+            key={`${keyPrefix}-ic-${i}`}
+            className={cn(
+              "rounded bg-neutral-100 px-1 py-0.5 font-mono text-[0.9em] text-neutral-900 dark:bg-neutral-800 dark:text-neutral-100",
+              options.nowrapInlineCode &&
+                "inline-block max-w-full overflow-x-auto whitespace-nowrap align-bottom",
+            )}
+          >
+            {inner}
+          </code>
+        ),
       );
       remaining = remaining.slice(close + 1);
       i++;
@@ -156,7 +172,7 @@ function renderInline(text: string, keyPrefix: string, options: RenderInlineOpti
           className={
             isInAppHelp || isInternalOperatorRoute
               ? inAppLinkClassName
-              : "text-blue-700 underline underline-offset-2 hover:text-blue-900 dark:text-blue-300 dark:hover:text-blue-200"
+              : MARKETING_SURFACES.inlineLink
           }
           {...(isExternal ? { rel: "noopener noreferrer", target: "_blank" } : {})}
         >
@@ -188,6 +204,23 @@ function parseDetailsSummary(openingLine: string, nextLine: string | undefined):
   return { summary: "Advanced", contentStartOffset: 0 };
 }
 
+function isMarkdownTaskListItem(line: string): boolean {
+  return /^- \[( |x|X)\] /.test(line.trimStart());
+}
+
+function parseMarkdownTaskListItem(line: string): { readonly checked: boolean; readonly text: string } | null {
+  const match = line.trim().match(/^- \[( |x|X)\] (.+)$/);
+
+  if (match === null) {
+    return null;
+  }
+
+  return {
+    checked: match[1] !== " ",
+    text: match[2] ?? "",
+  };
+}
+
 function isMarkdownBlockStart(line: string): boolean {
   const trimmed = line.trim();
 
@@ -199,7 +232,7 @@ function isMarkdownBlockStart(line: string): boolean {
     return true;
   }
 
-  if (line.startsWith("### ") || trimmed.startsWith(">") || isTableRow(line) || trimmed.startsWith("- ")) {
+  if (line.startsWith("### ") || trimmed.startsWith(">") || isTableRow(line) || isMarkdownTaskListItem(line) || trimmed.startsWith("- ")) {
     return true;
   }
 
@@ -250,7 +283,11 @@ export function MarketingAccessibilityMarkdownFragment(props: MarketingAccessibi
 
   const isHelp = props.presentation === "help";
   const isPrivacy = props.presentation === "privacy";
+  const isEngineeringTroubleshooting = props.helpTopicSlug === "engineering-troubleshooting";
   const isCaiqSigResponse = isHelp && isCaiqSigResponseHelpTopic(props.helpTopicSlug);
+  const isSecurityTrustHelp = isHelp && isSecurityTrustHelpTopic(props.helpTopicSlug);
+  const isProcurementHelp = isHelp && isProcurementHelpTopic(props.helpTopicSlug);
+  const isReviewGuideHelp = isHelp && props.helpTopicSlug === "review-guide";
   const bodyTextClass = isPrivacy
     ? PRIVACY_POLICY_PROSE.paragraph
     : isHelp
@@ -277,6 +314,7 @@ export function MarketingAccessibilityMarkdownFragment(props: MarketingAccessibi
   const renderOptions: RenderInlineOptions = {
     linkMode: isHelp || isPrivacy ? "help" : "external-only",
     nowrapInlineCode: isHelp,
+    copyableInlineCode: isEngineeringTroubleshooting,
   };
   const markdownBody =
     props.preparedMarkdownOverride !== undefined && props.preparedMarkdownOverride.trim().length > 0
@@ -300,6 +338,7 @@ export function MarketingAccessibilityMarkdownFragment(props: MarketingAccessibi
   let currentPartLabel = "";
   let currentSectionTitle = "";
   let currentSubsectionTitle = "";
+  let currentProcurementQuestionNumber: number | null = null;
   const allocateSectionSlug = createHelpHeadingSlugAllocator();
   let skippedDuplicateHelpTitle = !isHelp;
 
@@ -342,24 +381,22 @@ export function MarketingAccessibilityMarkdownFragment(props: MarketingAccessibi
       const innerMarkdown = innerLines.join("\n").trim();
 
       blocks.push(
-        <details
+        <HelpLazyDetails
           key={`details-${key}`}
           className={isHelp ? HELP_PAGE_LAYOUT.details : "my-4 rounded-md border border-neutral-200 bg-neutral-50/80 px-3 py-2 dark:border-neutral-700 dark:bg-neutral-950/40"}
+          summaryClassName={cn("cursor-pointer select-none", OPERATOR_DISCLOSURE_TRIGGER_CLASS)}
+          summary={summary}
+          bodyClassName={isHelp ? HELP_PAGE_LAYOUT.detailsBody : "mt-3 border-t border-neutral-200 pt-3 dark:border-neutral-700"}
         >
-          <summary className={cn("cursor-pointer select-none", OPERATOR_DISCLOSURE_TRIGGER_CLASS)}>
-            {summary}
-          </summary>
-          <div className={isHelp ? HELP_PAGE_LAYOUT.detailsBody : "mt-3 border-t border-neutral-200 pt-3 dark:border-neutral-700"}>
-            {innerMarkdown.length > 0 ? (
-              <MarketingAccessibilityMarkdownFragment
-                markdownBody={innerMarkdown}
-                tableCaption={props.tableCaption}
-                presentation={props.presentation}
-                sourceDocPath={props.sourceDocPath}
-              />
-            ) : null}
-          </div>
-        </details>,
+          {innerMarkdown.length > 0 ? (
+            <MarketingAccessibilityMarkdownFragment
+              markdownBody={innerMarkdown}
+              tableCaption={props.tableCaption}
+              presentation={props.presentation}
+              sourceDocPath={props.sourceDocPath}
+            />
+          ) : null}
+        </HelpLazyDetails>,
       );
       key++;
       continue;
@@ -454,6 +491,7 @@ export function MarketingAccessibilityMarkdownFragment(props: MarketingAccessibi
         currentSectionTitle = title;
       } else if (isHelp) {
         currentSubsectionTitle = title;
+        currentProcurementQuestionNumber = isProcurementHelp ? parseProcurementFaqQuestionNumber(title) : null;
       }
 
       blocks.push(
@@ -551,6 +589,8 @@ export function MarketingAccessibilityMarkdownFragment(props: MarketingAccessibi
       const statusColumnIndex = headerCells.findIndex((cell) => /^status$/i.test(cell));
       const responseColumnIndex = headerCells.findIndex((cell) => /^response$/i.test(cell));
       const evidenceColumnIndex = headerCells.findIndex((cell) => /^evidence$/i.test(cell));
+      const requiredColumnIndex = headerCells.findIndex((cell) => /^required$/i.test(cell));
+      const isReviewGuideFieldTable = isReviewGuideHelp && requiredColumnIndex >= 0;
 
       blocks.push(
         <div
@@ -583,7 +623,7 @@ export function MarketingAccessibilityMarkdownFragment(props: MarketingAccessibi
               isPrivacy
                 ? PRIVACY_POLICY_PROSE.table
                 : isHelp
-                  ? HELP_PAGE_LAYOUT.table
+                  ? cn(HELP_PAGE_LAYOUT.table, isReviewGuideFieldTable && "min-w-[48rem]")
                   : cn("w-full border-collapse border border-neutral-200 dark:border-neutral-800", tableTextClass)
             }
           >
@@ -598,7 +638,13 @@ export function MarketingAccessibilityMarkdownFragment(props: MarketingAccessibi
                       isPrivacy
                         ? PRIVACY_POLICY_PROSE.tableHeadCell
                         : isHelp
-                          ? HELP_PAGE_LAYOUT.tableHeadCell
+                          ? cn(
+                              HELP_PAGE_LAYOUT.tableHeadCell,
+                              isReviewGuideFieldTable && idx === 0 && "w-[11rem] whitespace-nowrap",
+                              isReviewGuideFieldTable &&
+                                idx === requiredColumnIndex &&
+                                "w-[9rem] whitespace-nowrap",
+                            )
                           : "border border-neutral-200 px-3 py-2 text-left font-semibold dark:border-neutral-800"
                     }
                   >
@@ -636,12 +682,23 @@ export function MarketingAccessibilityMarkdownFragment(props: MarketingAccessibi
                           isPrivacy
                             ? PRIVACY_POLICY_PROSE.tableBodyCell
                             : isHelp
-                              ? HELP_PAGE_LAYOUT.tableBodyCell
+                              ? cn(
+                                  HELP_PAGE_LAYOUT.tableBodyCell,
+                                  isReviewGuideFieldTable && cIdx === 0 && "w-[11rem] whitespace-nowrap",
+                                  isReviewGuideFieldTable &&
+                                    cIdx === requiredColumnIndex &&
+                                    "w-[9rem] whitespace-nowrap",
+                                )
                               : "border border-neutral-200 px-3 py-2 dark:border-neutral-800"
                         }
                       >
                         {isCaiqSigResponse && cIdx === statusColumnIndex && statusColumnIndex >= 0 ? (
                           <CaiqSigResponseHelpStatusCell
+                            statusLabel={c}
+                            renderInline={(text, keyPrefix) => renderInline(text, keyPrefix, renderOptions)}
+                          />
+                        ) : isSecurityTrustHelp && cIdx === statusColumnIndex && statusColumnIndex >= 0 ? (
+                          <SecurityTrustHelpStatusCell
                             statusLabel={c}
                             renderInline={(text, keyPrefix) => renderInline(text, keyPrefix, renderOptions)}
                           />
@@ -658,6 +715,10 @@ export function MarketingAccessibilityMarkdownFragment(props: MarketingAccessibi
                             statusLabel={statusColumnIndex >= 0 ? (cells[statusColumnIndex] ?? "") : undefined}
                             renderInline={(text, keyPrefix) => renderInline(text, keyPrefix, renderOptions)}
                           />
+                        ) : isReviewGuideHelp &&
+                          cIdx === requiredColumnIndex &&
+                          requiredColumnIndex >= 0 ? (
+                          <ReviewGuideRequiredStatusCell statusLabel={c} />
                         ) : (
                           renderInline(c, `td-${key}-${rIdx}-${cIdx}`, renderOptions)
                         )}
@@ -669,6 +730,52 @@ export function MarketingAccessibilityMarkdownFragment(props: MarketingAccessibi
             </tbody>
           </table>
         </div>,
+      );
+      key++;
+      continue;
+    }
+
+    if (isMarkdownTaskListItem(line)) {
+      const items: Array<{ readonly checked: boolean; readonly text: string }> = [];
+      while (i < lines.length) {
+        const l = lines[i] ?? "";
+
+        if (l.trim().length === 0) {
+          break;
+        }
+
+        const parsed = parseMarkdownTaskListItem(l);
+
+        if (parsed === null) {
+          break;
+        }
+
+        items.push(parsed);
+        i++;
+      }
+
+      blocks.push(
+        <ul
+          key={`task-ul-${key}`}
+          className={
+            isHelp
+              ? cn(HELP_PAGE_LAYOUT.bulletList, "list-none space-y-2 pl-0")
+              : cn("my-3 list-none space-y-2 pl-0", bodyTextClass)
+          }
+        >
+          {items.map((item, idx) => (
+            <li key={`task-li-${key}-${idx}`} className="flex items-start gap-2">
+              <span
+                aria-hidden="true"
+                className={cn(
+                  "mt-0.5 inline-flex h-4 w-4 shrink-0 rounded border border-neutral-400 dark:border-neutral-500",
+                  item.checked && "bg-neutral-700 dark:bg-neutral-300",
+                )}
+              />
+              <span>{renderInline(item.text, `task-li-${key}-${idx}`, renderOptions)}</span>
+            </li>
+          ))}
+        </ul>,
       );
       key++;
       continue;
@@ -766,6 +873,25 @@ export function MarketingAccessibilityMarkdownFragment(props: MarketingAccessibi
 
     const paragraph = paraLines.join(" ").trim();
     if (paragraph.length > 0) {
+      const procurementPosture =
+        isProcurementHelp && paragraph.startsWith("**Answer:**")
+          ? resolveProcurementFaqPostureForQuestion(currentProcurementQuestionNumber ?? -1)
+          : null;
+
+      if (procurementPosture !== null) {
+        blocks.push(
+          <div key={`procurement-answer-${key}`} className={isHelp ? HELP_PAGE_LAYOUT.paragraph : undefined}>
+            <ProcurementHelpAnswerPosture
+              posture={procurementPosture}
+              answerMarkdown={paragraph}
+              renderInline={(text, keyPrefix) => renderInline(text, keyPrefix, renderOptions)}
+            />
+          </div>,
+        );
+        key++;
+        continue;
+      }
+
       blocks.push(
         <p
           key={`p-${key}`}

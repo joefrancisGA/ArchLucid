@@ -2,7 +2,7 @@
 
 import { useMemo } from "react";
 
-import { useNavCallerAuthorityRank, useNavCommittedArchitectureReview } from "@/components/OperatorNavAuthorityProvider";
+import { useNavCallerAuthorityRank, useNavCommittedArchitectureReview } from "@/components/operator/OperatorNavAuthorityProvider";
 import { useNavProgressiveDisclosure } from "@/hooks/useNavProgressiveDisclosure";
 import { usePatternLibraryNavVisible } from "@/hooks/use-pattern-library-nav-visible";
 import { visibleOperatorShellHrefSet } from "@/lib/nav-shell-visibility";

@@ -3,13 +3,13 @@ import Link from "next/link";
 import { HelpApiContractsHeaderMetadata } from "@/app/(operator)/help/_sections/HelpApiContractsHeaderMetadata";
 import { HelpApiContractsSourceLinks } from "@/app/(operator)/help/_sections/HelpApiContractsSourceLinks";
 import { HelpTopicHashScroll } from "@/app/(operator)/help/HelpTopicHashScroll";
-import { HelpTopicPdfDownloadButton } from "@/components/help/HelpTopicPdfDownloadButton";
+import { DeveloperApiContractsApiKeysVocabularyRail } from "@/components/DeveloperApiContractsApiKeysVocabularyRail";
 import { HelpTopicPrintButton } from "@/components/help/HelpTopicPrintButton";
 import { HelpTechnicalReferenceNavigation } from "@/components/help/HelpTechnicalReferenceNavigation";
 import { MarketingAccessibilityMarkdownFragment } from "@/components/marketing/MarketingAccessibilityMarkdownFragment";
 import { Button } from "@/components/ui/button";
 import { StatusTag } from "@/components/ui/status-tag";
-import { OperatorPageHeader } from "@/components/OperatorPageHeader";
+import { OperatorPageHeader } from "@/components/operator/OperatorPageHeader";
 import { PageContextualHelpButton } from "@/components/usability/PageContextualHelpButton";
 import {
   API_CONTRACTS_HELP_ACTION_PANEL_TITLE,
@@ -24,10 +24,10 @@ import {
   OPERATOR_LAYOUT,
   OPERATOR_TYPOGRAPHY,
 } from "@/lib/design-tokens";
-import { extractHelpMarkdownHeadings } from "@/lib/help-markdown-headings";
-import { groupHelpMarkdownHeadings } from "@/lib/help-markdown-heading-groups";
-import { prepareHelpMarkdownForPresentation } from "@/lib/help-markdown-presentation";
-import { HELP_PAGE_LAYOUT } from "@/lib/help-page-layout";
+import { extractHelpMarkdownHeadings } from "@/lib/help/help-markdown-headings";
+import { groupHelpMarkdownHeadings } from "@/lib/help/help-markdown-heading-groups";
+import { prepareHelpMarkdownForPresentation } from "@/lib/help/help-markdown-presentation";
+import { HELP_PAGE_LAYOUT } from "@/lib/help/help-page-layout";
 import type { ProductDocumentationEntry } from "@/lib/product-documentation-registry";
 import { inAppHelpHref } from "@/lib/product-documentation-registry";
 import { cn } from "@/lib/utils";
@@ -80,12 +80,13 @@ export function HelpApiContractsGuideView(props: HelpApiContractsGuideViewProps)
           actions={
             <div className="flex flex-wrap items-center gap-2" data-testid="help-api-contracts-header-actions">
               <PageContextualHelpButton />
-              <HelpTopicPdfDownloadButton entry={entry} />
               <HelpTopicPrintButton entry={entry} />
             </div>
           }
         />
       </header>
+
+      <DeveloperApiContractsApiKeysVocabularyRail currentSurfaceId="api-contracts" />
 
       <section
         aria-labelledby="help-api-contracts-action-panel-heading"

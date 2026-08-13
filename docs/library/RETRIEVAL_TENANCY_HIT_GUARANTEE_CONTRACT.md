@@ -90,12 +90,12 @@ Done **TB-604**.
 
 ---
 
-## Follow-on / CI anchors (**TB-1002**)
+## CI anchors for **TB-1002**
 
 | Anchor | Purpose |
 |--------|---------|
 | This contract + Ask threat model + **TB-071**/**TB-604** | Required cite near G3 retrieval / Ask isolation language |
-| Fail buyer stubs | Per-tenant Search index / crypto-proof hit / optional `$filter` overclaims |
+| `scripts/ci/check_retrieval_tenancy_hit_guarantee_honesty.py` | Fail buyer stubs: per-tenant Search index / crypto-proof hit / optional `$filter` overclaims |
 | Optional smoke | `AzureSearchSdkClient` still calls `BuildRequiredScopeFilter` (presence guard) |
 | Verification | `AzureSearchTenantScopeFilterBuilderTests`; indexing scope validator tests |
 
@@ -104,5 +104,5 @@ Done **TB-604**.
 ## Related
 
 - GTM **M-114** / **M-152** / **M-153** / **M-194** / **M-213**/**M-214**
-- Done **TB-048** / **TB-071** / **TB-604** / **TB-999**
-- Open **TB-1002** (honesty CI) · **TB-1232** (erosion)
+- Done **TB-048** / **TB-071** / **TB-604** / **TB-999** / **TB-1001** / **TB-1002**
+- Open **TB-1232** (erosion)

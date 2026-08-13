@@ -62,6 +62,7 @@ describe("color-mode-preference", () => {
   let resolveColorModeAppearance: typeof import("@/lib/color-mode-preference").resolveColorModeAppearance;
   let resolveDarkAppearance: typeof import("@/lib/color-mode-preference").resolveDarkAppearance;
   let syncColorModePreferenceFromServer: typeof import("@/lib/color-mode-preference").syncColorModePreferenceFromServer;
+  let persistColorModePreferenceToServer: typeof import("@/lib/color-mode-preference").persistColorModePreferenceToServer;
 
   beforeEach(async () => {
     vi.resetModules();
@@ -77,6 +78,7 @@ describe("color-mode-preference", () => {
     resolveColorModeAppearance = mod.resolveColorModeAppearance;
     resolveDarkAppearance = mod.resolveDarkAppearance;
     syncColorModePreferenceFromServer = mod.syncColorModePreferenceFromServer;
+    persistColorModePreferenceToServer = mod.persistColorModePreferenceToServer;
 
     try {
       window.localStorage.removeItem(COLOR_MODE_STORAGE_KEY);
@@ -182,5 +184,17 @@ describe("color-mode-preference", () => {
     matchMediaController.setMatches(false);
     applyColorModePreference("system", false);
     expect(document.documentElement.classList.contains("dark")).toBe(false);
+  });
+
+  it("persistColorModePreferenceToServer returns false when the API write fails", async () => {
+    setUserAppearancePreferenceMock.mockRejectedValueOnce(new Error("offline"));
+
+    await expect(persistColorModePreferenceToServer("dark")).resolves.toBe(false);
+  });
+
+  it("persistColorModePreferenceToServer returns true when the API write succeeds", async () => {
+    setUserAppearancePreferenceMock.mockResolvedValueOnce(undefined);
+
+    await expect(persistColorModePreferenceToServer("light")).resolves.toBe(true);
   });
 });

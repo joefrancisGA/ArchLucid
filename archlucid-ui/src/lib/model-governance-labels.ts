@@ -25,3 +25,22 @@ export function modelGovernanceAgentTypeLabel(agentType: string): string {
     }
   }
 }
+
+/** Buyer-visible labels for governed alias capability tags. */
+export function modelGovernanceCapabilityTagLabel(tag: string): string {
+  const trimmed = tag.trim();
+
+  if (trimmed.length === 0) {
+    return "Unknown capability";
+  }
+
+  switch (trimmed) {
+    case "structured-output":
+      return "Structured output";
+    default: {
+      const spaced = trimmed.replace(/-/g, " ");
+
+      return spaced.charAt(0).toUpperCase() + spaced.slice(1);
+    }
+  }
+}

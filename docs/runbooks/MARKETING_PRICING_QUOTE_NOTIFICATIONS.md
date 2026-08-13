@@ -2,7 +2,7 @@
 
 # Marketing pricing quote → sales notification
 
-## Behaviour
+## Behavior
 
 - After a **successful persist** (SQL path), the API sends a **transactional email** to the configured inbox with request id, timestamp (UTC), and **non-secret** fields from the submission. Message body HTML-encodes free text. **Secrets must not** appear in email.
 - **Provider `Noop`:** no SMTP or ACS send; the notifier logs at **Information** that it **would** notify sales (same pattern as other outbound mail when mail is not wired).

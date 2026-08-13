@@ -10,71 +10,74 @@ import { ArchitectureDraftFormFields } from "@/components/architecture/Architect
 import { ArchitectureDraftGuidanceDisclosure } from "@/components/architecture/ArchitectureDraftGuidanceDisclosure";
 import { ArchitectureDraftHandoffBanner } from "@/components/architecture/ArchitectureDraftHandoffBanner";
 import { ArchitectureScopeUnderstandingCheckPanel } from "@/components/architecture/ArchitectureScopeUnderstandingCheckPanel";
-import { ArchitectureDraftWorkspaceListWayfinding } from "@/components/architecture/ArchitectureDraftWorkspaceListWayfinding";
 import { ArchitectureDraftWorkspaceLoadingSkeleton } from "@/components/architecture/ArchitectureDraftWorkspaceLoadingSkeleton";
 import { ArchitectureDraftSaveStatus } from "@/components/architecture/ArchitectureDraftSaveStatus";
 import { AiBudgetSpendNotice } from "@/components/ai-budget/AiBudgetSpendNotice";
 import { DraftIntakeAdvancedSection } from "@/components/draft-intake/DraftIntakeAdvancedSection";
 import { DraftIntakeReasoningPanel } from "@/components/draft-intake/DraftIntakeReasoningPanel";
+import { OperatorMutationInlineError } from "@/components/operator/OperatorMutationInlineError";
 import { PageContextualHelpButton } from "@/components/usability/PageContextualHelpButton";
+import { PreExecuteCostEstimateNotice } from "@/components/usability/PreExecuteCostEstimateNotice";
 import { Button } from "@/components/ui/button";
 import { ReviewStartLoadingButton } from "@/components/review-intake/ReviewStartLoadingButton";
+import { ReviewStartNavigationStallNotice } from "@/components/review-intake/ReviewStartNavigationStallNotice";
+import { ReviewStartStagedProgress } from "@/components/review-intake/ReviewStartStagedProgress";
 import { Card, CardContent } from "@/components/ui/card";
 import { StatusTag } from "@/components/ui/status-tag";
 import { useArchitectureDraftRegistryEntries } from "@/hooks/use-architecture-draft-registry-entries";
 import { useArchitectureDraftAutosave, type ArchitectureDraftSaveState } from "@/hooks/use-architecture-draft-autosave";
 import { useLlmMonthlyBudgetExecutionGate } from "@/hooks/use-llm-monthly-budget-execution-gate";
+import { useReviewStartNavigationProgress } from "@/hooks/use-review-start-navigation-progress";
 import { SOFT_NAVIGATION_TIMEOUT_MS } from "@/hooks/use-soft-navigation-loading";
 import { useUnsavedChangesGuard } from "@/hooks/use-unsaved-changes-guard";
 import {
   applyArchitectureCreationDraftToFormState,
   architectureCreationDefaultActorSet,
-} from "@/lib/architecture-creation-init";
-import { writeArchitectureCreationDraftId } from "@/lib/architecture-creation-session";
+} from "@/lib/architecture/architecture-creation-init";
+import { writeArchitectureCreationDraftId } from "@/lib/architecture/architecture-creation-session";
 import {
   acknowledgeArchitectureDraftHandoff,
   architectureDraftSpawnedRunId,
   isArchitectureDraftHandoffAcknowledged,
   trackArchitectureDraftPostSpawnEdit,
-} from "@/lib/architecture-draft-handoff-gate";
+} from "@/lib/architecture/architecture-draft-handoff-gate";
 import {
   ARCHITECTURE_DRAFT_STATUS_LABELS,
   architectureDraftCustomerStatusTagKind,
   architectureDraftDisplayName,
   resolveArchitectureDraftCustomerStatus,
-} from "@/lib/architecture-draft-status";
+} from "@/lib/architecture/architecture-draft-status";
 import {
   buildArchitectureDraftRegistryEntry,
   upsertArchitectureDraftRegistryEntry,
-} from "@/lib/architecture-draft-registry";
+} from "@/lib/architecture/architecture-draft-registry";
 import {
   hasArchitectureDraftSaveableContent,
   validateArchitectureReviewReadiness,
-} from "@/lib/architecture-draft-readiness";
+} from "@/lib/architecture/architecture-draft-readiness";
 import {
   ARCHITECTURES_LIST_PATH,
   architectureDraftPath,
   isArchitectureNewDraftSegment,
   reviewDetailPath,
   startReviewFromArchitectureHref,
-} from "@/lib/architecture-routes";
+} from "@/lib/architecture/architecture-routes";
 import { getRunSummary } from "@/lib/api/architecture-runs";
 import { getDraftRequest, patchDraftRequest } from "@/lib/api/draft-intake-api";
 import {
   mergeScopeBulletsIntoBrief,
   type ScopeUnderstandingBullet,
-} from "@/lib/architecture-scope-understanding-check";
-import { buyerFacingReviewTitleFromSummary } from "@/lib/buyer-facing-review-title";
-import { CREATE_ARCHITECTURE_INTENT } from "@/lib/architecture-workflow-intent";
-import { BUYER_START_ARCHITECTURE_REVIEW_CTA } from "@/lib/buyer-polish-copy";
-import { REVIEW_START_PREPARING_LABEL } from "@/lib/review-start-progress-copy";
+} from "@/lib/architecture/architecture-scope-understanding-check";
+import { buyerFacingReviewTitleFromSummary } from "@/lib/buyer/buyer-facing-review-title";
+import { CREATE_ARCHITECTURE_INTENT } from "@/lib/architecture/architecture-workflow-intent";
+import { BUYER_START_ARCHITECTURE_REVIEW_CTA } from "@/lib/buyer/buyer-polish-copy";
 import {
   ARCHITECTURE_CREATION_NEW_DRAFT_SECTION_TITLE,
   ARCHITECTURE_CREATION_RESUME_FIRST_WORKSPACE_LEAD,
   ARCHITECTURE_DRAFT_WORKSPACE_LEAD,
 } from "@/lib/create-vs-review-intake-copy";
-import { OPERATOR_TYPOGRAPHY } from "@/lib/design-tokens";
-import { showError, showSuccess } from "@/lib/toast";
+import { OPERATOR_PAGE_LEAD_MEASURE, OPERATOR_TYPOGRAPHY } from "@/lib/design-tokens";
+import { showSuccess } from "@/lib/toast";
 import { cn } from "@/lib/utils";
 import type { ActorSet, DraftRequestResponse } from "@/types/draft-intake";
 
@@ -97,15 +100,16 @@ export function ArchitectureDraftWorkspace(props: ArchitectureDraftWorkspaceProp
   });
   const [actorSet, setActorSet] = useState<ActorSet>(() => architectureCreationDefaultActorSet());
   const [exitPending, setExitPending] = useState(false);
-  const [startReviewPending, setStartReviewPending] = useState(false);
   const [scopeGateOpen, setScopeGateOpen] = useState(false);
   const [scopeBullets, setScopeBullets] = useState<ScopeUnderstandingBullet[]>([]);
+  const [startReviewError, setStartReviewError] = useState<string | null>(null);
+  const [saveActionError, setSaveActionError] = useState<string | null>(null);
   const [handoffAcknowledged, setHandoffAcknowledged] = useState(false);
   const [linkedReviewTitle, setLinkedReviewTitle] = useState("Untitled review");
   const [registryHydrated, setRegistryHydrated] = useState(false);
   const previousSaveStateRef = useRef<ArchitectureDraftSaveState>("saved");
   const exitTimeoutIdRef = useRef<number | null>(null);
-  const startReviewTimeoutIdRef = useRef<number | null>(null);
+  const reviewStartProgress = useReviewStartNavigationProgress();
 
   const linkedReviewId = architectureDraftSpawnedRunId(draft);
   const handoffEditorLocked = linkedReviewId !== null && !handoffAcknowledged;
@@ -128,7 +132,32 @@ export function ArchitectureDraftWorkspace(props: ArchitectureDraftWorkspaceProp
     [router],
   );
 
-  const { saveState, lastSavedUtc, conflictMessage, saveDraft, reloadDraft, hasPersistedDraft } =
+  const applyLoadedDraftToForm = useCallback((loaded: DraftRequestResponse) => {
+    const formState = applyArchitectureCreationDraftToFormState(loaded);
+    setDraft(loaded);
+    setFields(formState);
+    setActorSet(
+      loaded.document.actorSet.actors.length > 0
+        ? loaded.document.actorSet
+        : architectureCreationDefaultActorSet(),
+    );
+
+    return formState;
+  }, []);
+
+  const acceptServerBaselineRef = useRef<
+    (fields: { freeTextIntent: string; businessOutcome: string; systemName: string }, serverUpdatedUtc: string) => void
+  >(() => undefined);
+
+  const handleDraftLoaded = useCallback(
+    (loaded: DraftRequestResponse) => {
+      const formState = applyLoadedDraftToForm(loaded);
+      acceptServerBaselineRef.current(formState, loaded.updatedUtc);
+    },
+    [applyLoadedDraftToForm],
+  );
+
+  const { saveState, lastSavedUtc, conflictMessage, saveDraft, reloadDraft, acceptServerBaseline, hasPersistedDraft } =
     useArchitectureDraftAutosave({
       architectureId: props.architectureId,
       fields,
@@ -136,8 +165,10 @@ export function ArchitectureDraftWorkspace(props: ArchitectureDraftWorkspaceProp
       enabled: !handoffEditorLocked,
       deferCreateUntilFirstSave: isNewDraft,
       onDraftCreated: isNewDraft ? handleDraftCreated : undefined,
-      onDraftLoaded: setDraft,
+      onDraftLoaded: handleDraftLoaded,
     });
+
+  acceptServerBaselineRef.current = acceptServerBaseline;
 
   const hasUnsavedChanges = saveState === "unsaved" || saveState === "saving" || saveState === "error";
   useUnsavedChangesGuard({ when: hasUnsavedChanges && !handoffEditorLocked });
@@ -155,6 +186,9 @@ export function ArchitectureDraftWorkspace(props: ArchitectureDraftWorkspaceProp
     : ARCHITECTURE_DRAFT_WORKSPACE_LEAD;
 
   const reviewReadiness = useMemo(() => validateArchitectureReviewReadiness(fields), [fields]);
+  const needsPersistedDraftBeforeStart = isNewDraft && !hasPersistedDraft;
+  const canStartReview =
+    reviewReadiness.isValid && scopeGateOpen && !needsPersistedDraftBeforeStart && saveState !== "saving";
   const scopeUnderstandingInput = useMemo(
     () => ({
       architectureName: fields.systemName,
@@ -178,6 +212,10 @@ export function ArchitectureDraftWorkspace(props: ArchitectureDraftWorkspaceProp
     [linkedReviewId, reviewReadiness.isValid],
   );
 
+  useEffect(() => {
+    setStartReviewError(null);
+  }, [fields, scopeGateOpen]);
+
   const loadDraft = useCallback(async () => {
     if (isNewDraft) {
       return;
@@ -193,12 +231,10 @@ export function ArchitectureDraftWorkspace(props: ArchitectureDraftWorkspaceProp
         // Draft exists but is not a create-architecture draft — still allow editing with create intent on save.
       }
 
-      const formState = applyArchitectureCreationDraftToFormState(loaded);
-      setDraft(loaded);
-      setFields(formState);
-      setActorSet(
-        loaded.document.actorSet.actors.length > 0 ? loaded.document.actorSet : architectureCreationDefaultActorSet(),
-      );
+      const formState = applyLoadedDraftToForm(loaded);
+      // Match autosave baseline to the hydrated form so reload does not look "unsaved"
+      // and accidentally PATCH empty system name / business outcome over the server copy.
+      acceptServerBaseline(formState, loaded.updatedUtc);
       setHandoffAcknowledged(isArchitectureDraftHandoffAcknowledged(props.architectureId));
       upsertArchitectureDraftRegistryEntry(
         buildArchitectureDraftRegistryEntry(loaded, {
@@ -210,7 +246,7 @@ export function ArchitectureDraftWorkspace(props: ArchitectureDraftWorkspaceProp
     } finally {
       setLoading(false);
     }
-  }, [isNewDraft, props.architectureId]);
+  }, [acceptServerBaseline, applyLoadedDraftToForm, isNewDraft, props.architectureId]);
 
   useEffect(() => {
     if (isNewDraft) {
@@ -225,22 +261,22 @@ export function ArchitectureDraftWorkspace(props: ArchitectureDraftWorkspaceProp
       return;
     }
 
-    let cancelled = false;
+    let canceled = false;
 
     void getRunSummary(linkedReviewId)
       .then((summary) => {
-        if (!cancelled) {
+        if (!canceled) {
           setLinkedReviewTitle(buyerFacingReviewTitleFromSummary(summary));
         }
       })
       .catch(() => {
-        if (!cancelled) {
+        if (!canceled) {
           setLinkedReviewTitle(linkedReviewId);
         }
       });
 
     return () => {
-      cancelled = true;
+      canceled = true;
     };
   }, [linkedReviewId]);
 
@@ -258,16 +294,18 @@ export function ArchitectureDraftWorkspace(props: ArchitectureDraftWorkspaceProp
   }, [handoffAcknowledged, linkedReviewId, props.architectureId, saveState]);
 
   const handleSaveDraft = useCallback(async () => {
+    setSaveActionError(null);
     const saved = await saveDraft();
 
     if (saved) {
       showSuccess("Architecture draft saved.");
-    } else if (conflictMessage !== null) {
-      showError("Architecture draft", conflictMessage);
-    } else {
-      showError("Architecture draft", "Could not save your architecture draft. Try again.");
+
+      return;
     }
-  }, [conflictMessage, saveDraft]);
+
+    // Conflict banner is driven by autosave hook state on the next render — keep failures on-page.
+    setSaveActionError("Could not save your architecture draft. Try again.");
+  }, [saveDraft]);
 
   useEffect(() => {
     return () => {
@@ -278,6 +316,12 @@ export function ArchitectureDraftWorkspace(props: ArchitectureDraftWorkspaceProp
     };
   }, []);
 
+  useEffect(() => {
+    if (conflictMessage !== null) {
+      setSaveActionError(null);
+    }
+  }, [conflictMessage]);
+
   const handleSaveAndExit = useCallback(async () => {
     if (isNewDraft && !hasPersistedDraft && !hasArchitectureDraftSaveableContent(fields)) {
       router.push(ARCHITECTURES_LIST_PATH);
@@ -286,12 +330,13 @@ export function ArchitectureDraftWorkspace(props: ArchitectureDraftWorkspaceProp
     }
 
     setExitPending(true);
+    setSaveActionError(null);
 
     const saved = await saveDraft();
 
     if (!saved) {
       setExitPending(false);
-      showError("Architecture draft", "Exit paused — save your changes before leaving this page.");
+      setSaveActionError("Exit paused — save your changes before leaving this page.");
 
       return;
     }
@@ -310,62 +355,38 @@ export function ArchitectureDraftWorkspace(props: ArchitectureDraftWorkspaceProp
   }, [fields, hasPersistedDraft, isNewDraft, router, saveDraft]);
 
   const handleStartReview = useCallback(async () => {
-    if (startReviewPending) {
+    if (reviewStartProgress.isPending) {
       return;
     }
 
-    if (isNewDraft && !hasPersistedDraft) {
-      showError("Start architecture review", "Save the architecture draft before starting a review.");
-
+    // Client-known blockers stay on the form; CTA is disabled until canStartReview.
+    if (!canStartReview) {
       return;
     }
 
-    if (!reviewReadiness.isValid) {
-      showError(
-        "Start architecture review",
-        `Add ${reviewReadiness.blockers.join(" and ")} before starting a review.`,
-      );
-
-      return;
-    }
-
-    if (!scopeGateOpen) {
-      showError("Start architecture review", "Confirm or accept the inferred scope before starting a review.");
-
-      return;
-    }
-
-    if (startReviewTimeoutIdRef.current !== null) {
-      window.clearTimeout(startReviewTimeoutIdRef.current);
-    }
-
-    setStartReviewPending(true);
-
-    // Soft-nav stall must not leave Start review depressed forever.
-    startReviewTimeoutIdRef.current = window.setTimeout(() => {
-      setStartReviewPending(false);
-      startReviewTimeoutIdRef.current = null;
-    }, SOFT_NAVIGATION_TIMEOUT_MS);
+    setStartReviewError(null);
+    // Staged progress starts before the save round-trip — the whole wait is server-bound, so the
+    // operator must see named stages instead of an unchanged page.
+    reviewStartProgress.begin();
 
     try {
-      if (!isNewDraft) {
-        const briefWithScope = mergeScopeBulletsIntoBrief(scopeBullets, fields.businessOutcome);
-        await patchDraftRequest(props.architectureId, { businessOutcome: briefWithScope });
-        setFields((current) => ({ ...current, businessOutcome: briefWithScope }));
-      }
-
       const saved = await saveDraft();
 
       if (!saved) {
-        if (startReviewTimeoutIdRef.current !== null) {
-          window.clearTimeout(startReviewTimeoutIdRef.current);
-          startReviewTimeoutIdRef.current = null;
-        }
-
-        setStartReviewPending(false);
-        showError("Start architecture review", "Save the architecture draft before starting a review.");
+        reviewStartProgress.reset();
+        setStartReviewError("Save the architecture draft before starting a review.");
 
         return;
+      }
+
+      reviewStartProgress.markPreparingQuestions();
+
+      // Confirmed scope belongs on the server copy of the brief only. Mirroring it into local
+      // fields would put the block in the operator's own text and feed it back to the panel.
+      if (!isNewDraft) {
+        await patchDraftRequest(props.architectureId, {
+          freeTextIntent: mergeScopeBulletsIntoBrief(scopeBullets, fields.freeTextIntent),
+        });
       }
 
       upsertArchitectureDraftRegistryEntry(
@@ -375,30 +396,21 @@ export function ArchitectureDraftWorkspace(props: ArchitectureDraftWorkspaceProp
         }),
       );
 
-      router.push(startReviewFromArchitectureHref(props.architectureId));
+      reviewStartProgress.openReview(startReviewFromArchitectureHref(props.architectureId));
     } catch {
-      if (startReviewTimeoutIdRef.current !== null) {
-        window.clearTimeout(startReviewTimeoutIdRef.current);
-        startReviewTimeoutIdRef.current = null;
-      }
-
-      setStartReviewPending(false);
-      showError("Start architecture review", "Could not start the architecture review. Try again.");
+      reviewStartProgress.reset();
+      setStartReviewError("Could not start the architecture review. Try again.");
     }
   }, [
+    canStartReview,
     draft,
-    hasPersistedDraft,
+    fields.freeTextIntent,
     isNewDraft,
     linkedReviewId,
     props.architectureId,
-    reviewReadiness,
-    router,
+    reviewStartProgress,
     saveDraft,
     scopeBullets,
-    scopeGateOpen,
-    fields.businessOutcome,
-    isNewDraft,
-    startReviewPending,
   ]);
 
   const handleAcknowledgeHandoff = useCallback(() => {
@@ -413,7 +425,6 @@ export function ArchitectureDraftWorkspace(props: ArchitectureDraftWorkspaceProp
   if (loading) {
     return (
       <div className="space-y-3" data-testid="architecture-draft-workspace-loading">
-        {isNewDraft ? null : <ArchitectureDraftWorkspaceListWayfinding />}
         <ArchitectureDraftWorkspaceLoadingSkeleton />
       </div>
     );
@@ -422,7 +433,6 @@ export function ArchitectureDraftWorkspace(props: ArchitectureDraftWorkspaceProp
   if (loadError !== null) {
     return (
       <div className="space-y-3" data-testid="architecture-draft-workspace-error">
-        {isNewDraft ? null : <ArchitectureDraftWorkspaceListWayfinding />}
         <p className={cn("m-0", OPERATOR_TYPOGRAPHY.helper)} role="alert">
           {loadError}
         </p>
@@ -435,7 +445,6 @@ export function ArchitectureDraftWorkspace(props: ArchitectureDraftWorkspaceProp
 
   return (
     <div className="space-y-4" data-testid="architecture-draft-workspace">
-      {isNewDraft ? null : <ArchitectureDraftWorkspaceListWayfinding />}
       {isNewDraft ? <ArchitectureCreationLocalDraftsPanel /> : null}
 
       <div className="flex flex-col gap-3 sm:flex-row sm:items-start sm:justify-between">
@@ -448,7 +457,7 @@ export function ArchitectureDraftWorkspace(props: ArchitectureDraftWorkspaceProp
           >
             {workspaceHeading}
           </WorkspaceHeadingTag>
-          <p className={cn("m-0 max-w-prose", OPERATOR_TYPOGRAPHY.helper)} data-testid="architecture-draft-workspace-lead">
+          <p className={cn("m-0", OPERATOR_PAGE_LEAD_MEASURE, OPERATOR_TYPOGRAPHY.helper)} data-testid="architecture-draft-workspace-lead">
             {workspaceLead}
           </p>
           <div className="flex flex-wrap items-center gap-2">
@@ -490,18 +499,29 @@ export function ArchitectureDraftWorkspace(props: ArchitectureDraftWorkspaceProp
       </div>
 
       {conflictMessage !== null ? (
-        <p className={cn("m-0", OPERATOR_TYPOGRAPHY.helper)} role="alert" data-testid="architecture-draft-conflict">
-          {conflictMessage}{" "}
-          <button
+        <div className="space-y-2" data-testid="architecture-draft-conflict">
+          <OperatorMutationInlineError
+            message={conflictMessage}
+            testId="architecture-draft-conflict-message"
+            recoveryScenario="api-problem"
+            recoveryPresentation={{
+              whatFailed: "This architecture draft changed in another browser session.",
+              whatIsIntact: "Your unsaved edits in this tab are still on screen and were not overwritten.",
+              nextStep: "Refresh the draft to load the latest version, then re-apply any edits you still need.",
+            }}
+          />
+          <Button
             type="button"
-            className="font-medium text-teal-800 underline dark:text-teal-300"
+            variant="outline"
+            size="sm"
             onClick={() => {
               void reloadDraft();
             }}
+            data-testid="architecture-draft-conflict-refresh"
           >
             Refresh draft
-          </button>
-        </p>
+          </Button>
+        </div>
       ) : null}
 
       <Card>
@@ -510,6 +530,7 @@ export function ArchitectureDraftWorkspace(props: ArchitectureDraftWorkspaceProp
             fields={fields}
             actorSet={actorSet}
             disabled={handoffEditorLocked || exitPending}
+            markReviewReadinessInvalid={linkedReviewId === null && !reviewReadiness.isValid}
             onFieldsChange={setFields}
             onActorSetChange={setActorSet}
           />
@@ -538,65 +559,121 @@ export function ArchitectureDraftWorkspace(props: ArchitectureDraftWorkspaceProp
       {linkedReviewId === null ? (
         <ArchitectureScopeUnderstandingCheckPanel
           input={scopeUnderstandingInput}
-          disabled={handoffEditorLocked || exitPending || startReviewPending}
+          disabled={handoffEditorLocked || exitPending || reviewStartProgress.isPending}
           onBulletsChange={setScopeBullets}
           onGateChange={setScopeGateOpen}
         />
       ) : null}
 
-      <div className="flex flex-wrap gap-2">
-        {linkedReviewId !== null ? (
-          <Button type="button" variant="primary" size="sm" asChild data-testid="architecture-continue-review">
-            <Link href={reviewDetailPath(linkedReviewId)}>Continue in review</Link>
-          </Button>
-        ) : (
-          <ReviewStartLoadingButton
-            type="button"
-            variant="primary"
-            size="sm"
-            disabled={saveState === "saving" || (isNewDraft && !hasPersistedDraft) || !scopeGateOpen}
-            isLoading={startReviewPending}
-            idleLabel={BUYER_START_ARCHITECTURE_REVIEW_CTA}
-            loadingLabel={REVIEW_START_PREPARING_LABEL}
-            onClick={() => {
-              void handleStartReview();
-            }}
-            data-testid="architecture-start-review"
+      {linkedReviewId === null ? (
+        <PreExecuteCostEstimateNotice testId="architecture-draft-pre-execute-cost" />
+      ) : null}
+
+      <div className="space-y-2">
+        {linkedReviewId === null && !reviewReadiness.isValid ? (
+          <p
+            className={cn("m-0", OPERATOR_TYPOGRAPHY.helper, "text-red-800 dark:text-red-300")}
+            role="alert"
+            data-testid="architecture-draft-review-readiness"
+          >
+            Add {reviewReadiness.blockers.join(" and ")} before starting a review.
+          </p>
+        ) : null}
+        {linkedReviewId === null && reviewReadiness.isValid && needsPersistedDraftBeforeStart ? (
+          <p
+            className={cn("m-0", OPERATOR_TYPOGRAPHY.helper, "text-al-text-secondary")}
+            role="status"
+            data-testid="architecture-draft-persist-readiness"
+          >
+            Save the architecture draft before starting a review.
+          </p>
+        ) : null}
+        {linkedReviewId === null && reviewReadiness.isValid && !needsPersistedDraftBeforeStart && !scopeGateOpen ? (
+          <p
+            className={cn("m-0", OPERATOR_TYPOGRAPHY.helper, "text-al-text-secondary")}
+            role="status"
+            data-testid="architecture-draft-scope-readiness"
+          >
+            Confirm the in-scope understanding before starting a review.
+          </p>
+        ) : null}
+        {reviewStartProgress.stageId !== null ? (
+          <ReviewStartStagedProgress
+            stages={reviewStartProgress.stages}
+            activeStageId={reviewStartProgress.stageId}
+            headline={reviewStartProgress.loadingLabel}
+            detail={reviewStartProgress.waitCopy.detail}
+            testId="architecture-start-review-progress"
           />
-        )}
-        {saveState === "error" || saveState === "offline" ? (
+        ) : null}
+        {reviewStartProgress.stalled ? (
+          <ReviewStartNavigationStallNotice
+            href={startReviewFromArchitectureHref(props.architectureId)}
+            testId="architecture-start-review-stall"
+          />
+        ) : null}
+        {startReviewError !== null ? (
+          <OperatorMutationInlineError
+            message={startReviewError}
+            testId="architecture-start-review-error"
+            recoveryScenario="api-problem"
+          />
+        ) : null}
+        {saveActionError !== null && conflictMessage === null ? (
+          <OperatorMutationInlineError
+            message={saveActionError}
+            testId="architecture-draft-save-action-error"
+            recoveryScenario="api-problem"
+          />
+        ) : null}
+        <div className="flex flex-wrap gap-2">
+          {linkedReviewId !== null ? (
+            <Button type="button" variant="primary" size="sm" asChild data-testid="architecture-continue-review">
+              <Link href={reviewDetailPath(linkedReviewId)}>Continue in review</Link>
+            </Button>
+          ) : (
+            <ReviewStartLoadingButton
+              type="button"
+              variant="primary"
+              size="sm"
+              disabled={!canStartReview}
+              isLoading={reviewStartProgress.isPending}
+              idleLabel={BUYER_START_ARCHITECTURE_REVIEW_CTA}
+              loadingLabel={reviewStartProgress.loadingLabel}
+              onClick={() => {
+                void handleStartReview();
+              }}
+              data-testid="architecture-start-review"
+            />
+          )}
+          {saveState === "error" || saveState === "offline" ? (
+            <Button
+              type="button"
+              variant="outline"
+              size="sm"
+              disabled={handoffEditorLocked}
+              onClick={() => {
+                void handleSaveDraft();
+              }}
+              data-testid="architecture-save-draft-retry"
+            >
+              Save now
+            </Button>
+          ) : null}
           <Button
             type="button"
             variant="outline"
             size="sm"
-            disabled={handoffEditorLocked}
+            disabled={handoffEditorLocked || saveState === "saving" || exitPending}
             onClick={() => {
-              void handleSaveDraft();
+              void handleSaveAndExit();
             }}
-            data-testid="architecture-save-draft-retry"
+            data-testid="architecture-save-and-exit"
           >
-            Save now
+            Save and exit
           </Button>
-        ) : null}
-        <Button
-          type="button"
-          variant="outline"
-          size="sm"
-          disabled={handoffEditorLocked || saveState === "saving" || exitPending}
-          onClick={() => {
-            void handleSaveAndExit();
-          }}
-          data-testid="architecture-save-and-exit"
-        >
-          Save and exit
-        </Button>
+        </div>
       </div>
-
-      {!reviewReadiness.isValid && linkedReviewId === null ? (
-        <p className={cn("m-0", OPERATOR_TYPOGRAPHY.helper, "text-al-text-secondary")}>
-          Review readiness: add {reviewReadiness.blockers.join(" and ")} before starting a review.
-        </p>
-      ) : null}
     </div>
   );
 }

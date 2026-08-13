@@ -12,12 +12,12 @@ import { DispositionExportImpactNotice } from "@/components/operator/Disposition
 import { Input } from "@/components/ui/input";
 import { Label } from "@/components/ui/label";
 import { OperatorMutationInlineError } from "@/components/operator/OperatorMutationInlineError";
-import { createGovernanceMutationIdempotencyKey } from "@/lib/governance-mutation-idempotency-key";
+import { createGovernanceMutationIdempotencyKey } from "@/lib/governance/governance-mutation-idempotency-key";
 import {
   GOVERNANCE_BULK_DISPOSITION_FAILURE_MESSAGE,
   GOVERNANCE_BULK_DISPOSITION_REASON_REQUIRED,
   governanceBulkDispositionSuccessMessage,
-} from "@/lib/governance-mutation-outcome-copy";
+} from "@/lib/governance/governance-mutation-outcome-copy";
 import { recordBulkFindingDisposition, type FindingDispositionKind } from "@/lib/api/governance-stickiness-api";
 
 type GovernanceFindingsBulkActionsProps = {
@@ -41,6 +41,7 @@ export function GovernanceFindingsBulkActions(props: GovernanceFindingsBulkActio
   const [inlineErrorMessage, setInlineErrorMessage] = useState<string | null>(null);
   const [pendingDisposition, setPendingDisposition] = useState<BulkDisposition | null>(null);
   const router = useRouter();
+  const reasonReady = reason.trim().length > 0;
 
   if (props.selectedFindingIds.length === 0) {
     return null;
@@ -50,8 +51,6 @@ export function GovernanceFindingsBulkActions(props: GovernanceFindingsBulkActio
     const trimmedReason = reason.trim();
 
     if (trimmedReason.length === 0) {
-      setInlineErrorMessage(GOVERNANCE_BULK_DISPOSITION_REASON_REQUIRED);
-
       return;
     }
 
@@ -63,8 +62,6 @@ export function GovernanceFindingsBulkActions(props: GovernanceFindingsBulkActio
     const trimmedReason = reason.trim();
 
     if (trimmedReason.length === 0) {
-      setInlineErrorMessage(GOVERNANCE_BULK_DISPOSITION_REASON_REQUIRED);
-
       return;
     }
 
@@ -144,15 +141,30 @@ export function GovernanceFindingsBulkActions(props: GovernanceFindingsBulkActio
           <Input
             id="bulk-disposition-reason"
             value={reason}
-            onChange={(event) => setReason(event.target.value)}
+            onChange={(event) => {
+              setReason(event.target.value);
+
+              if (inlineErrorMessage !== null) {
+                setInlineErrorMessage(null);
+              }
+            }}
             placeholder="Applies to all selected findings"
             disabled={busy}
+            aria-describedby={reasonReady ? undefined : "bulk-disposition-reason-helper"}
           />
+          {!reasonReady ? (
+            <p
+              id="bulk-disposition-reason-helper"
+              className={cn("m-0 mt-1 text-al-text-secondary", OPERATOR_TYPOGRAPHY.helper)}
+            >
+              {GOVERNANCE_BULK_DISPOSITION_REASON_REQUIRED}
+            </p>
+          ) : null}
         </div>
         <Button
           type="button"
           size="sm"
-          disabled={busy}
+          disabled={busy || !reasonReady}
           onClick={() => requestDisposition("Accepted")}
         >
           Accept all
@@ -161,7 +173,7 @@ export function GovernanceFindingsBulkActions(props: GovernanceFindingsBulkActio
           type="button"
           size="sm"
           variant="outline"
-          disabled={busy}
+          disabled={busy || !reasonReady}
           onClick={() => requestDisposition("RejectedAsNotApplicable")}
         >
           Waive all
@@ -170,7 +182,7 @@ export function GovernanceFindingsBulkActions(props: GovernanceFindingsBulkActio
           type="button"
           size="sm"
           variant="outline"
-          disabled={busy}
+          disabled={busy || !reasonReady}
           onClick={() => requestDisposition("Deferred")}
         >
           Defer all

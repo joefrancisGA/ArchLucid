@@ -2,10 +2,10 @@
 
 import { useMemo } from "react";
 
-import { useOperatorNavAuthority } from "@/components/OperatorNavAuthorityProvider";
+import { useOperatorNavAuthority } from "@/components/operator/OperatorNavAuthorityProvider";
 import { isShowSystemAdministrationNavEnabled } from "@/lib/features";
 import { AUTHORITY_RANK } from "@/lib/nav-authority";
-import { readOperatorScopeFromStorage } from "@/lib/operator-scope-storage";
+import { readOperatorScopeFromStorage } from "@/lib/operator/operator-scope-storage";
 import { useSupportBundleDownload } from "@/lib/use-support-bundle-download";
 
 import type { AdminSupportPageServerLoad } from "./load-admin-support-page-data";

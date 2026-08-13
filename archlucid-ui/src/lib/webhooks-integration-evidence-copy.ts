@@ -1,7 +1,7 @@
 import { INTEGRATIONS_READINESS_PATH } from "@/lib/integrations-nav-paths";
 import { inAppHelpHref } from "@/lib/product-documentation-registry";
 import type { EvidenceSourceLink } from "@/lib/evidence-surface-copy";
-import { GOVERNANCE_ALERT_RULES_PATH } from "@/lib/governance-route-paths";
+import { GOVERNANCE_ALERT_RULES_PATH } from "@/lib/governance/governance-route-paths";
 
 export const WEBHOOKS_INTEGRATION_CANONICAL_PATH = "/integrations/webhooks" as const;
 

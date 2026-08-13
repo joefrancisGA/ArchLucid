@@ -34,7 +34,6 @@ function FindingTypeCheckbox({
   description,
   selected,
   disabled,
-  disabledTitle,
   onToggle,
 }: {
   value: string;
@@ -42,7 +41,6 @@ function FindingTypeCheckbox({
   description?: string;
   selected: boolean;
   disabled: boolean;
-  disabledTitle?: string;
   onToggle: () => void;
 }) {
   const descriptionId = description ? `${value}-description` : undefined;
@@ -56,7 +54,6 @@ function FindingTypeCheckbox({
           ? "border-neutral-400 bg-[var(--al-layer-hover)] text-al-text-primary dark:border-neutral-500 dark:bg-neutral-800/80"
           : "border-neutral-300 dark:border-neutral-600",
       )}
-      title={disabled ? disabledTitle : description}
     >
       <input
         type="checkbox"
@@ -94,6 +91,12 @@ export function AlertRoutingCriteriaFields({
 
   return (
     <div className="space-y-5">
+      {disabled && disabledTitle ? (
+        <p className={cn("m-0 text-neutral-600 dark:text-neutral-400", OPERATOR_TYPOGRAPHY.helper)} role="status">
+          {disabledTitle}
+        </p>
+      ) : null}
+
       {showExactSeverities ? (
         <fieldset className="space-y-2 rounded-md border border-neutral-200 p-3 dark:border-neutral-700" disabled={disabled}>
           <legend className={cn("px-1 font-medium text-neutral-900 dark:text-neutral-100", OPERATOR_TYPOGRAPHY.body)}>
@@ -116,7 +119,6 @@ export function AlertRoutingCriteriaFields({
                       ? "border-neutral-400 bg-[var(--al-layer-hover)] text-al-text-primary dark:border-neutral-500 dark:bg-neutral-800/80"
                       : "border-neutral-300 dark:border-neutral-600",
                   )}
-                  title={disabled ? disabledTitle : undefined}
                 >
                   <input
                     type="checkbox"
@@ -145,7 +147,6 @@ export function AlertRoutingCriteriaFields({
             OPERATOR_TYPOGRAPHY.body,
           )}
           disabled={disabled}
-          title={disabled ? disabledTitle : undefined}
           onClick={() => setShowExactSeverities(true)}
         >
           Customize exact severities
@@ -175,7 +176,6 @@ export function AlertRoutingCriteriaFields({
                   (findingType) => findingType.toLowerCase() === entry.value.toLowerCase(),
                 )}
                 disabled={disabled}
-                disabledTitle={disabledTitle}
                 onToggle={() =>
                   onChange({
                     ...criteria,
@@ -197,7 +197,6 @@ export function AlertRoutingCriteriaFields({
                     (findingType) => findingType.toLowerCase() === entry.value.toLowerCase(),
                   )}
                   disabled={disabled}
-                  disabledTitle={disabledTitle}
                   onToggle={() =>
                     onChange({
                       ...criteria,
@@ -216,7 +215,6 @@ export function AlertRoutingCriteriaFields({
                 OPERATOR_TYPOGRAPHY.body,
               )}
               disabled={disabled}
-              title={disabled ? disabledTitle : undefined}
               onClick={() => setShowAdvancedCategories(true)}
             >
               Show advanced categories

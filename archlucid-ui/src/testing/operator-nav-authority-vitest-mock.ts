@@ -1,6 +1,6 @@
 import type { ReactNode } from "react";
 
-import type { OperatorNavAuthorityContextValue } from "@/components/OperatorNavAuthorityProvider";
+import type { OperatorNavAuthorityContextValue } from "@/components/operator/OperatorNavAuthorityProvider";
 import {
   operatorNavOutsideProviderPrincipal,
   type CurrentPrincipal,
@@ -31,7 +31,7 @@ function buildPrincipal(
   };
 }
 
-/** Complete Vitest mock for `@/components/OperatorNavAuthorityProvider` (all hook exports). */
+/** Complete Vitest mock for `@/components/operator/OperatorNavAuthorityProvider` (all hook exports). */
 export function createOperatorNavAuthorityVitestMock(
   options: OperatorNavAuthorityVitestMockOptions = {},
 ): Record<string, unknown> {

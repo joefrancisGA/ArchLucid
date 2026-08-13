@@ -1,16 +1,27 @@
 "use client";
 
 import Link from "next/link";
-import { RefreshCw } from "lucide-react";
 import { cn } from "@/lib/utils";
 import { OPERATOR_TYPOGRAPHY } from "@/lib/design-tokens";
 
 import { useCallback, useEffect, useMemo, useRef, useState, type ReactElement } from "react";
 
+import {
+  OperatorFormSummaryRow,
+} from "@/components/advisory/OperatorFormSummaryRow";
+import {
+  OperatorLivePreviewPinLayout,
+} from "@/components/advisory/OperatorLivePreviewPinLayout";
+import {
+  OperatorRecipientChipField,
+  OperatorRecipientSubscriptionsHelperLink,
+} from "@/components/advisory/OperatorRecipientChipField";
+import { useOperatorRecipientDraft } from "@/components/advisory/useOperatorRecipientDraft";
 import { DigestPreviewBeforeSubscribePanel } from "@/components/digests/DigestPreviewBeforeSubscribePanel";
-import { OperatorApiProblem } from "@/components/OperatorApiProblem";
+import { OperatorApiProblem } from "@/components/operator/OperatorApiProblem";
+import { WhyDisabledCtaHint } from "@/components/usability/WhyDisabledCtaHint";
 import { Button } from "@/components/ui/button";
-import { Input } from "@/components/ui/input";
+import { RefreshButton } from "@/components/ui/refresh-button";
 import { Label } from "@/components/ui/label";
 import { StatusTag } from "@/components/ui/status-tag";
 import { useOperateCapability } from "@/hooks/use-operate-capability";
@@ -64,6 +75,11 @@ import {
   normalizeIanaTimeZoneForSelect,
   toStoredIanaTimeZoneId,
 } from "@/lib/iana-time-zone-select";
+import { whyDisabledIncompleteInput } from "@/lib/why-disabled-cta";
+import {
+  hasExecDigestScheduleLivePreviewPinContent,
+  shouldPinLivePreviewReadinessRail,
+} from "@/lib/operator/operator-live-preview-readiness-rail";
 import type { ExecDigestPreferencesResponse } from "@/types/exec-digest-preferences";
 import type { WeeklyDigestHealthDto } from "@/types/operate-rhythm";
 
@@ -78,15 +94,6 @@ export type ExecDigestScheduleContentProps = {
   readonly onRefresh?: () => void;
   readonly refreshing?: boolean;
 };
-
-function ScheduleSummaryRow(props: { readonly label: string; readonly value: string }): ReactElement {
-  return (
-    <div>
-      <dt className={cn("font-medium text-al-text-secondary", OPERATOR_TYPOGRAPHY.helper)}>{props.label}</dt>
-      <dd className={cn("m-0 mt-0.5 text-al-text-primary", OPERATOR_TYPOGRAPHY.body)}>{props.value}</dd>
-    </div>
-  );
-}
 
 /** Schedule tab: executive digest delivery settings (direct recipients + weekly cadence). */
 export function ExecDigestScheduleContent(props: ExecDigestScheduleContentProps = {}): ReactElement {
@@ -105,12 +112,34 @@ export function ExecDigestScheduleContent(props: ExecDigestScheduleContentProps 
   const [failure, setFailure] = useState<ApiLoadFailureState | null>(null);
   const [prefs, setPrefs] = useState<ExecDigestPreferencesResponse | null>(null);
   const [form, setForm] = useState<ExecDigestScheduleFormState | null>(null);
-  const [recipientsTouched, setRecipientsTouched] = useState(false);
-  const [recipientDraft, setRecipientDraft] = useState("");
-  const [recipientDraftError, setRecipientDraftError] = useState<string | null>(null);
   const successTimerRef = useRef<ReturnType<typeof setTimeout> | null>(null);
 
   const ianaTimeZoneOptions = useMemo(() => getIanaTimeZoneSelectOptions(), []);
+
+  const onRecipientsChange = useCallback((recipients: string) => {
+    setForm((current) => (current === null ? current : { ...current, recipients }));
+    setSaveSuccess(null);
+  }, []);
+
+  const {
+    recipientDraft,
+    recipientDraftError,
+    recipientsTouched,
+    recipientEmails,
+    recipientValidation,
+    setRecipientsTouched,
+    onRecipientDraftChange,
+    onRecipientDraftBlur,
+    addRecipientFromDraft,
+    removeRecipient,
+    resetRecipientDraftState,
+  } = useOperatorRecipientDraft({
+    recipients: form?.recipients ?? "",
+    canMutate,
+    parseEmails: parseExecDigestRecipientEmails,
+    validateEmails: validateExecDigestRecipientEmails,
+    onRecipientsChange,
+  });
 
   const load = useCallback(async () => {
     setLoading(true);
@@ -120,16 +149,14 @@ export function ExecDigestScheduleContent(props: ExecDigestScheduleContentProps 
       const data = await getExecDigestPreferences();
       setPrefs(data);
       setForm(execDigestFormFromPreferencesWithBrowserDefault(data));
-      setRecipientsTouched(false);
-      setRecipientDraft("");
-      setRecipientDraftError(null);
+      resetRecipientDraftState();
       setSaveSuccess(null);
     } catch (e) {
       setFailure(toApiLoadFailure(e));
     } finally {
       setLoading(false);
     }
-  }, []);
+  }, [resetRecipientDraftState]);
 
   useEffect(() => {
     void load();
@@ -140,11 +167,6 @@ export function ExecDigestScheduleContent(props: ExecDigestScheduleContentProps 
       }
     };
   }, [load, refreshToken]);
-
-  const recipientValidation = useMemo(
-    () => validateExecDigestRecipientEmails(form?.recipients ?? ""),
-    [form?.recipients],
-  );
 
   const unsavedChanges: boolean =
     prefs !== null && form !== null && hasUnsavedExecDigestChanges(prefs, form);
@@ -159,9 +181,12 @@ export function ExecDigestScheduleContent(props: ExecDigestScheduleContentProps 
     prefs !== null && form !== null
       ? buildExecDigestDeliveryReadiness(prefs, form, healthSnap, unsavedChanges)
       : null;
-  const recipientEmails: string[] =
-    form !== null ? parseExecDigestRecipientEmails(form.recipients) : [];
   const recipientCount: number = recipientEmails.length;
+  const enableDeliveryRecipientRequiredHintId = "exec-digest-enable-delivery-recipient-required-hint";
+  const enableDeliveryRecipientRequiredReason =
+    recipientCount === 0 && canMutate
+      ? whyDisabledIncompleteInput("Add at least one recipient before enabling scheduled delivery.")
+      : null;
   const subscriptionDestinationCount: number = healthSnap?.enabledDigestSubscriptionCount ?? 0;
   const latestDigestId: string = healthSnap?.latestArchitectureDigestId?.trim() ?? "";
   const hasPreviewDigest: boolean = latestDigestId.length > 0;
@@ -170,7 +195,21 @@ export function ExecDigestScheduleContent(props: ExecDigestScheduleContentProps 
     : DIGESTS_HUB_PATH;
   const busy: boolean = saving || enabling || pausing;
   const liveScheduleSummary: string | null =
-    form !== null ? formatExecDigestLiveScheduleSummary(form) : null;
+    form !== null && prefs !== null
+      ? formatExecDigestLiveScheduleSummary(form, prefs.isConfigured)
+      : null;
+
+  // TB-1574: pin delivery readiness rail only when schedule/recipients/preview give it a job.
+  const pinLivePreviewRail =
+    prefs !== null
+      ? shouldPinLivePreviewReadinessRail(
+          hasExecDigestScheduleLivePreviewPinContent({
+            isConfigured: prefs.isConfigured,
+            recipientCount,
+            hasPreviewDigest,
+          }),
+        )
+      : false;
 
   function announceSuccess(message: string): void {
     setSaveSuccess(message);
@@ -188,74 +227,6 @@ export function ExecDigestScheduleContent(props: ExecDigestScheduleContentProps 
     setSaveSuccess(null);
   }
 
-  function removeRecipient(email: string): void {
-    if (!canMutate || form === null) {
-      return;
-    }
-
-    const next = parseExecDigestRecipientEmails(form.recipients).filter(
-      (entry) => entry.toLowerCase() !== email.toLowerCase(),
-    );
-    updateForm({ recipients: next.join("; ") });
-    setRecipientsTouched(true);
-  }
-
-  function addRecipientFromDraft(): void {
-    if (!canMutate || form === null) {
-      return;
-    }
-
-    const draft = recipientDraft.trim();
-
-    if (draft.length === 0) {
-      return;
-    }
-
-    const additions = parseExecDigestRecipientEmails(draft);
-    const draftValidation = validateExecDigestRecipientEmails(draft);
-
-    if (draftValidation.invalidAddresses.length > 0) {
-      setRecipientDraftError(
-        `Invalid email address${draftValidation.invalidAddresses.length === 1 ? "" : "es"}: ${draftValidation.invalidAddresses.join(", ")}`,
-      );
-      setRecipientsTouched(true);
-
-      return;
-    }
-
-    if (draftValidation.duplicateAddresses.length > 0) {
-      setRecipientDraftError(`Duplicate recipient: ${draftValidation.duplicateAddresses.join(", ")}`);
-      setRecipientsTouched(true);
-
-      return;
-    }
-
-    if (draftValidation.unsupportedGroupMailboxes.length > 0) {
-      setRecipientDraftError(
-        `Unsupported group mailbox: ${draftValidation.unsupportedGroupMailboxes.join(", ")}`,
-      );
-      setRecipientsTouched(true);
-
-      return;
-    }
-
-    const existing = parseExecDigestRecipientEmails(form.recipients);
-    const existingKeys = new Set(existing.map((entry) => entry.toLowerCase()));
-    const colliding = additions.filter((entry) => existingKeys.has(entry.toLowerCase()));
-
-    if (colliding.length > 0) {
-      setRecipientDraftError(`Duplicate recipient: ${colliding.join(", ")}`);
-      setRecipientsTouched(true);
-
-      return;
-    }
-
-    updateForm({ recipients: [...existing, ...additions].join("; ") });
-    setRecipientDraft("");
-    setRecipientDraftError(null);
-    setRecipientsTouched(true);
-  }
-
   async function persistForm(
     nextForm: ExecDigestScheduleFormState,
     successMessage: string,
@@ -270,7 +241,7 @@ export function ExecDigestScheduleContent(props: ExecDigestScheduleContentProps 
       const saved = await saveExecDigestPreferences(execDigestUpsertFromForm(nextForm));
       setPrefs(saved);
       setForm(execDigestFormFromPreferencesWithBrowserDefault(saved));
-      setRecipientsTouched(false);
+      resetRecipientDraftState();
       announceSuccess(successMessage);
       onRefresh?.();
     } catch (e) {
@@ -342,9 +313,6 @@ export function ExecDigestScheduleContent(props: ExecDigestScheduleContentProps 
   return (
     <div className="w-full space-y-4" data-testid="exec-digest-schedule-content">
       <div>
-        <p className={cn("m-0 text-neutral-600 dark:text-neutral-400", OPERATOR_TYPOGRAPHY.helper)}>
-          Architecture digests
-        </p>
         <h2
           className={cn("m-0 font-bold text-neutral-900 dark:text-neutral-50", OPERATOR_TYPOGRAPHY.pageTitle)}
           data-testid="exec-digest-schedule-heading"
@@ -400,48 +368,49 @@ export function ExecDigestScheduleContent(props: ExecDigestScheduleContentProps 
           Loading schedule…
         </p>
       ) : (
-        <div
-          className="grid gap-6 xl:grid-cols-[minmax(0,1.4fr)_minmax(18rem,1fr)]"
-          data-testid="exec-digest-schedule-layout"
-        >
-          <div className="space-y-4">
+        (() => {
+          const deliveryReadinessSection = (
             <section
-              className="rounded-lg border border-neutral-200 bg-white p-4 dark:border-neutral-700 dark:bg-neutral-950"
-              data-testid="exec-digest-status-block"
-              aria-labelledby="exec-digest-status-heading"
+              className={cn(
+                "rounded-lg border border-neutral-200 bg-white dark:border-neutral-700 dark:bg-neutral-950",
+                pinLivePreviewRail ? "p-4" : "p-3",
+              )}
+              data-testid="exec-digest-delivery-readiness"
+              aria-labelledby="exec-digest-delivery-readiness-heading"
             >
-              <div className="flex flex-wrap items-start justify-between gap-3">
-                <div>
-                  <h3
-                    id="exec-digest-status-heading"
-                    className={cn(
-                      "m-0 font-semibold text-neutral-900 dark:text-neutral-100",
-                      OPERATOR_TYPOGRAPHY.cardTitle,
-                    )}
-                  >
-                    Delivery status
-                  </h3>
-                </div>
-                {status !== null ? (
-                  <StatusTag kind={status.statusTagKind} label={status.label} data-testid="exec-digest-status-tag" />
+              <div className="flex flex-wrap items-start justify-between gap-2">
+                <h3
+                  id="exec-digest-delivery-readiness-heading"
+                  className={cn(
+                    "m-0 font-semibold text-neutral-900 dark:text-neutral-100",
+                    OPERATOR_TYPOGRAPHY.cardTitle,
+                  )}
+                >
+                  Delivery readiness
+                </h3>
+                {readiness !== null ? (
+                  <StatusTag
+                    kind={readiness.overallStatusTagKind}
+                    label={readiness.overallLabel}
+                    data-testid="exec-digest-status-tag"
+                  />
                 ) : null}
               </div>
-
-              <p
-                className={cn("m-0 mt-3 text-neutral-700 dark:text-neutral-300", OPERATOR_TYPOGRAPHY.body)}
-                role="status"
-              >
-                {status?.summary}
-              </p>
-
-              <dl className="m-0 mt-4 grid gap-3 sm:grid-cols-2" data-testid="exec-digest-status-summary">
-                <ScheduleSummaryRow
-                  label="Configured schedule"
-                  value={liveScheduleSummary ?? "—"}
+              {status !== null ? (
+                <p
+                  className={cn("m-0 mt-2 text-neutral-700 dark:text-neutral-300", OPERATOR_TYPOGRAPHY.body)}
+                  role="status"
+                >
+                  {status.summary}
+                </p>
+              ) : null}
+              <dl className="m-0 mt-3 grid gap-3 sm:grid-cols-2" data-testid="exec-digest-status-summary">
+                <OperatorFormSummaryRow label="Configured schedule" value={liveScheduleSummary ?? "—"} />
+                <OperatorFormSummaryRow
+                  label="Next send"
+                  value={formatExecDigestNextSendLabel(form, prefs.isConfigured)}
                 />
-                <ScheduleSummaryRow label="Delivery status" value={status?.label ?? "—"} />
-                <ScheduleSummaryRow label="Next send" value={formatExecDigestNextSendLabel(form)} />
-                <ScheduleSummaryRow
+                <OperatorFormSummaryRow
                   label="Recipients"
                   value={
                     sampleModeBlocked
@@ -450,8 +419,122 @@ export function ExecDigestScheduleContent(props: ExecDigestScheduleContentProps 
                   }
                 />
               </dl>
+              {readiness?.nextAction !== null && readiness !== null ? (
+                <p
+                  className={cn("m-0 mt-3 text-neutral-700 dark:text-neutral-300", OPERATOR_TYPOGRAPHY.body)}
+                  data-testid="exec-digest-readiness-next-action"
+                >
+                  {readiness.nextAction}
+                </p>
+              ) : null}
+              <ul className="m-0 mt-3 list-none space-y-3 p-0">
+                {readiness?.items.map((item) => (
+                  <li key={item.id} className="flex flex-wrap items-start justify-between gap-2">
+                    <div>
+                      <p className={cn("m-0 font-medium text-al-text-primary", OPERATOR_TYPOGRAPHY.body)}>
+                        {item.label}
+                      </p>
+                      <p className={cn("m-0 mt-0.5 text-al-text-secondary", OPERATOR_TYPOGRAPHY.helper)}>
+                        {item.value}
+                      </p>
+                    </div>
+                    {item.actionHref !== undefined && item.actionLabel !== undefined ? (
+                      <Button asChild size="sm" variant="outline">
+                        <Link href={item.actionHref}>{item.actionLabel}</Link>
+                      </Button>
+                    ) : null}
+                  </li>
+                ))}
+              </ul>
+              {onRefresh !== undefined ? (
+                <RefreshButton
+                  busy={refreshing}
+                  label="Refresh status"
+                  className="mt-4"
+                  data-testid="exec-digest-refresh-status"
+                  onClick={onRefresh}
+                />
+              ) : null}
             </section>
+          );
 
+          const latestGeneratedSection = (
+            <section
+              className="rounded-lg border border-neutral-200 bg-white p-4 dark:border-neutral-700 dark:bg-neutral-950"
+              data-testid="exec-digest-latest-generated"
+            >
+              <h3
+                className={cn(
+                  "m-0 font-semibold text-neutral-900 dark:text-neutral-100",
+                  OPERATOR_TYPOGRAPHY.cardTitle,
+                )}
+              >
+                Latest architecture digest
+              </h3>
+              {hasPreviewDigest ? (
+                <>
+                  <p className={cn("m-0 mt-2 text-al-text-secondary", OPERATOR_TYPOGRAPHY.body)}>
+                    Generated {formatDigestInstant(healthSnap?.latestArchitectureDigestGeneratedUtc)}
+                  </p>
+                  <Button asChild size="sm" variant="outline" className="mt-3" data-testid="exec-digest-preview-action">
+                    <Link href={previewHref}>{DIGESTS_SCHEDULE_PREVIEW_LABEL}</Link>
+                  </Button>
+                  <p className={cn("m-0 mt-2 text-al-text-secondary", OPERATOR_TYPOGRAPHY.helper)}>
+                    {EXEC_DIGEST_PREVIEW_HELPER}
+                  </p>
+                </>
+              ) : (
+                <>
+                  <p className={cn("m-0 mt-2 text-al-text-primary", OPERATOR_TYPOGRAPHY.body)}>
+                    No digest has been generated yet.
+                  </p>
+                  <p
+                    id="exec-digest-preview-unavailable-hint"
+                    className={cn("m-0 mt-1 text-al-text-secondary", OPERATOR_TYPOGRAPHY.helper)}
+                  >
+                    {EXEC_DIGEST_PREVIEW_UNAVAILABLE}
+                  </p>
+                  <Button
+                    size="sm"
+                    variant="outline"
+                    className="mt-3"
+                    disabled
+                    data-testid="exec-digest-preview-action"
+                    aria-describedby="exec-digest-preview-unavailable-hint"
+                  >
+                    {DIGESTS_SCHEDULE_PREVIEW_LABEL}
+                  </Button>
+                </>
+              )}
+
+              {!sampleModeBlocked ? (
+                <div className="mt-4 border-t border-neutral-200 pt-3 dark:border-neutral-800">
+                  <Button asChild size="sm" variant="outline" data-testid="exec-digest-test-action">
+                    <Link href={ADVISORY_SCANS_SCHEDULES_HREF} title={EXEC_DIGEST_TEST_GENERATION_HELPER}>
+                      {DIGESTS_SCHEDULE_GENERATE_TEST_LABEL}
+                    </Link>
+                  </Button>
+                  <p className={cn("m-0 mt-2 text-al-text-secondary", OPERATOR_TYPOGRAPHY.helper)}>
+                    {EXEC_DIGEST_TEST_GENERATION_HELPER}
+                  </p>
+                </div>
+              ) : (
+                <p
+                  className={cn("m-0 mt-4 text-al-text-secondary", OPERATOR_TYPOGRAPHY.helper)}
+                  data-testid="exec-digest-test-sample-blocked"
+                >
+                  Test generation and email delivery are unavailable in the sample workspace.
+                </p>
+              )}
+            </section>
+          );
+
+          return (
+        <OperatorLivePreviewPinLayout
+          pinRail={pinLivePreviewRail}
+          testId="exec-digest-schedule-layout"
+          primary={
+            <>
             <section
               className="space-y-4 rounded-lg border border-neutral-200 bg-white p-4 dark:border-neutral-700 dark:bg-neutral-950"
               aria-labelledby="exec-digest-delivery-settings-heading"
@@ -471,116 +554,34 @@ export function ExecDigestScheduleContent(props: ExecDigestScheduleContentProps 
                 </p>
               </div>
 
-              <div className="space-y-1.5">
-                <Label htmlFor="exec-digest-recipient-draft" className="font-semibold">
-                  Direct recipients
-                </Label>
-                <div className="flex flex-wrap gap-2">
-                  <Input
-                    id="exec-digest-recipient-draft"
-                    value={recipientDraft}
-                    onChange={(e) => {
-                      setRecipientDraft(e.target.value);
-                      setRecipientDraftError(null);
-                    }}
-                    onBlur={() => setRecipientsTouched(true)}
-                    onKeyDown={(event) => {
-                      if (event.key === "Enter") {
-                        event.preventDefault();
-                        addRecipientFromDraft();
-                      }
-                    }}
-                    placeholder="name@company.com"
-                    disabled={!canMutate}
-                    aria-invalid={
-                      Boolean(recipientDraftError) || (recipientsTouched && !recipientValidation.valid)
-                    }
-                    aria-describedby="exec-digest-recipients-help exec-digest-recipients-errors"
-                  />
-                  <Button
-                    type="button"
-                    size="sm"
-                    variant="outline"
-                    disabled={!canMutate || recipientDraft.trim().length === 0}
-                    onClick={addRecipientFromDraft}
-                    data-testid="exec-digest-add-recipient"
-                  >
-                    Add
-                  </Button>
-                </div>
-                {recipientEmails.length > 0 ? (
-                  <ul
-                    className="m-0 flex list-none flex-wrap gap-2 p-0"
-                    data-testid="exec-digest-recipient-chips"
-                    aria-label="Configured direct recipients"
-                  >
-                    {recipientEmails.map((email) => (
-                      <li
-                        key={email}
-                        className="inline-flex items-center gap-1 rounded-md border border-neutral-200 bg-neutral-50 px-2 py-1 dark:border-neutral-700 dark:bg-neutral-900"
-                      >
-                        <span className={OPERATOR_TYPOGRAPHY.helper}>
-                          {sampleModeBlocked ? maskExecDigestRecipientForDisplay(email) : email}
-                        </span>
-                        {canMutate ? (
-                          <button
-                            type="button"
-                            className="text-neutral-600 underline-offset-2 hover:underline dark:text-neutral-300"
-                            onClick={() => removeRecipient(email)}
-                            aria-label={`Remove ${email}`}
-                          >
-                            Remove
-                          </button>
-                        ) : null}
-                      </li>
-                    ))}
-                  </ul>
-                ) : null}
-                <p
-                  id="exec-digest-recipients-help"
-                  className={cn("m-0 text-neutral-500 dark:text-neutral-400", OPERATOR_TYPOGRAPHY.helper)}
-                >
-                  {EXEC_DIGEST_DIRECT_RECIPIENTS_HELPER}
-                </p>
-                <p className={cn("m-0 text-neutral-500 dark:text-neutral-400", OPERATOR_TYPOGRAPHY.helper)}>
-                  {EXEC_DIGEST_SUBSCRIPTIONS_HELPER}{" "}
-                  <Link
+              <OperatorRecipientChipField
+                idPrefix="exec-digest"
+                label="Direct recipients"
+                canMutate={canMutate}
+                recipientDraft={recipientDraft}
+                recipientDraftError={recipientDraftError}
+                recipientsTouched={recipientsTouched}
+                recipientEmails={recipientEmails}
+                recipientValidation={recipientValidation}
+                maskEmailForDisplay={
+                  sampleModeBlocked ? maskExecDigestRecipientForDisplay : undefined
+                }
+                directRecipientsHelper={EXEC_DIGEST_DIRECT_RECIPIENTS_HELPER}
+                subscriptionsHelper={
+                  <OperatorRecipientSubscriptionsHelperLink
+                    helperPrefix={EXEC_DIGEST_SUBSCRIPTIONS_HELPER}
                     href={DIGESTS_SUBSCRIPTIONS_TAB_PATH}
-                    className="text-al-link underline-offset-2 hover:underline"
-                  >
-                    Manage delivery destinations
-                  </Link>
-                  .
-                </p>
-                <div id="exec-digest-recipients-errors">
-                  {recipientDraftError !== null ? (
-                    <p
-                      className={cn("m-0 text-rose-700 dark:text-rose-300", OPERATOR_TYPOGRAPHY.helper)}
-                      role="alert"
-                      data-testid="exec-digest-recipient-draft-error"
-                    >
-                      {recipientDraftError}
-                    </p>
-                  ) : null}
-                  {recipientsTouched && recipientValidation.invalidAddresses.length > 0 ? (
-                    <p className={cn("m-0 text-rose-700 dark:text-rose-300", OPERATOR_TYPOGRAPHY.helper)} role="alert">
-                      Invalid email address
-                      {recipientValidation.invalidAddresses.length === 1 ? "" : "es"}:{" "}
-                      {recipientValidation.invalidAddresses.join(", ")}
-                    </p>
-                  ) : null}
-                  {recipientsTouched && recipientValidation.duplicateAddresses.length > 0 ? (
-                    <p className={cn("m-0 text-rose-700 dark:text-rose-300", OPERATOR_TYPOGRAPHY.helper)} role="alert">
-                      Duplicate recipient: {recipientValidation.duplicateAddresses.join(", ")}
-                    </p>
-                  ) : null}
-                  {recipientsTouched && recipientValidation.unsupportedGroupMailboxes.length > 0 ? (
-                    <p className={cn("m-0 text-rose-700 dark:text-rose-300", OPERATOR_TYPOGRAPHY.helper)} role="alert">
-                      Unsupported group mailbox: {recipientValidation.unsupportedGroupMailboxes.join(", ")}
-                    </p>
-                  ) : null}
-                </div>
-              </div>
+                    linkLabel="Manage delivery destinations"
+                  />
+                }
+                addRecipientTestId="exec-digest-add-recipient"
+                recipientChipsTestId="exec-digest-recipient-chips"
+                recipientDraftErrorTestId="exec-digest-recipient-draft-error"
+                onRecipientDraftChange={onRecipientDraftChange}
+                onRecipientDraftBlur={onRecipientDraftBlur}
+                onAddRecipient={addRecipientFromDraft}
+                onRemoveRecipient={removeRecipient}
+              />
 
               <fieldset className="m-0 grid gap-4 border-0 p-0 sm:grid-cols-2" disabled={!canMutate}>
                 <legend className={cn("mb-1 font-semibold text-al-text-primary", OPERATOR_TYPOGRAPHY.body)}>
@@ -649,6 +650,8 @@ export function ExecDigestScheduleContent(props: ExecDigestScheduleContentProps 
                 cadenceSummary={liveScheduleSummary ?? undefined}
               />
 
+              {!pinLivePreviewRail ? deliveryReadinessSection : null}
+
               <div className="flex flex-wrap items-center gap-2 border-t border-neutral-200 pt-4 dark:border-neutral-800">
                 <Button
                   type="button"
@@ -677,18 +680,24 @@ export function ExecDigestScheduleContent(props: ExecDigestScheduleContentProps 
                     size="sm"
                     variant="outline"
                     disabled={!canMutate || busy || recipientCount === 0 || !recipientValidation.valid}
+                    aria-describedby={
+                      enableDeliveryRecipientRequiredReason === null
+                        ? undefined
+                        : enableDeliveryRecipientRequiredHintId
+                    }
                     onClick={() => void onEnableDelivery()}
                     data-testid="exec-digest-enable-delivery"
-                    title={
-                      recipientCount === 0
-                        ? "Add at least one recipient before enabling scheduled delivery."
-                        : undefined
-                    }
                   >
                     {enabling ? "Enabling delivery…" : "Enable scheduled delivery"}
                   </Button>
                 )}
               </div>
+
+              <WhyDisabledCtaHint
+                id={enableDeliveryRecipientRequiredHintId}
+                reason={enableDeliveryRecipientRequiredReason}
+                testId={enableDeliveryRecipientRequiredHintId}
+              />
 
               <div className="flex flex-wrap items-center gap-2">
                 {unsavedChanges ? (
@@ -705,75 +714,13 @@ export function ExecDigestScheduleContent(props: ExecDigestScheduleContentProps 
                 ) : null}
               </div>
             </section>
-          </div>
+            </>
+          }
+          aside={
+            <>
+            {pinLivePreviewRail ? deliveryReadinessSection : null}
 
-          <aside className="space-y-4">
-            <section
-              className="rounded-lg border border-neutral-200 bg-white p-4 dark:border-neutral-700 dark:bg-neutral-950"
-              data-testid="exec-digest-delivery-readiness"
-            >
-              <div className="flex flex-wrap items-start justify-between gap-2">
-                <h3
-                  className={cn(
-                    "m-0 font-semibold text-neutral-900 dark:text-neutral-100",
-                    OPERATOR_TYPOGRAPHY.cardTitle,
-                  )}
-                >
-                  Delivery readiness
-                </h3>
-                {readiness !== null ? (
-                  <StatusTag
-                    kind={readiness.overallStatusTagKind}
-                    label={readiness.overallLabel}
-                    data-testid="exec-digest-readiness-overall"
-                  />
-                ) : null}
-              </div>
-              {readiness?.nextAction !== null && readiness !== null ? (
-                <p
-                  className={cn("m-0 mt-2 text-neutral-700 dark:text-neutral-300", OPERATOR_TYPOGRAPHY.body)}
-                  data-testid="exec-digest-readiness-next-action"
-                >
-                  {readiness.nextAction}
-                </p>
-              ) : null}
-              <ul className="m-0 mt-3 list-none space-y-3 p-0">
-                {readiness?.items.map((item) => (
-                  <li key={item.id} className="flex flex-wrap items-start justify-between gap-2">
-                    <div>
-                      <p className={cn("m-0 font-medium text-al-text-primary", OPERATOR_TYPOGRAPHY.body)}>
-                        {item.label}
-                      </p>
-                      <p className={cn("m-0 mt-0.5 text-al-text-secondary", OPERATOR_TYPOGRAPHY.helper)}>
-                        {item.value}
-                      </p>
-                    </div>
-                    {item.actionHref !== undefined && item.actionLabel !== undefined ? (
-                      <Button asChild size="sm" variant="outline">
-                        <Link href={item.actionHref}>{item.actionLabel}</Link>
-                      </Button>
-                    ) : null}
-                  </li>
-                ))}
-              </ul>
-              {onRefresh !== undefined ? (
-                <Button
-                  type="button"
-                  size="sm"
-                  variant="outline"
-                  className="mt-4"
-                  onClick={onRefresh}
-                  disabled={refreshing}
-                  data-testid="exec-digest-refresh-status"
-                  aria-label={refreshing ? "Refreshing status" : "Refresh status"}
-                >
-                  <RefreshCw className={cn("mr-1.5 size-3.5", refreshing && "animate-spin")} aria-hidden />
-                  {refreshing ? "Refreshing…" : "Refresh status"}
-                </Button>
-              ) : null}
-            </section>
-
-            {savedSummary !== null && prefs.isConfigured ? (
+            {pinLivePreviewRail && savedSummary !== null && prefs.isConfigured ? (
               <section
                 className="rounded-lg border border-neutral-200 bg-white p-4 dark:border-neutral-700 dark:bg-neutral-950"
                 data-testid="exec-digest-saved-summary"
@@ -787,87 +734,26 @@ export function ExecDigestScheduleContent(props: ExecDigestScheduleContentProps 
                   Saved schedule
                 </h3>
                 <dl className="m-0 mt-3 grid gap-3">
-                  <ScheduleSummaryRow label="Delivery status" value={savedSummary.deliveryStatus} />
-                  <ScheduleSummaryRow label="Configured schedule" value={savedSummary.configuredCadence} />
-                  <ScheduleSummaryRow label="Time zone" value={savedSummary.timeZone} />
-                  <ScheduleSummaryRow label="Next send" value={savedSummary.nextScheduledSend} />
-                  <ScheduleSummaryRow label="Direct recipients" value={String(savedSummary.directRecipientCount)} />
-                  <ScheduleSummaryRow
+                  <OperatorFormSummaryRow label="Delivery status" value={savedSummary.deliveryStatus} />
+                  <OperatorFormSummaryRow label="Configured schedule" value={savedSummary.configuredCadence} />
+                  <OperatorFormSummaryRow label="Time zone" value={savedSummary.timeZone} />
+                  <OperatorFormSummaryRow label="Next send" value={savedSummary.nextScheduledSend} />
+                  <OperatorFormSummaryRow label="Direct recipients" value={String(savedSummary.directRecipientCount)} />
+                  <OperatorFormSummaryRow
                     label="Subscription destinations"
                     value={String(savedSummary.subscriptionDestinationCount)}
                   />
-                  <ScheduleSummaryRow label="Last schedule update" value={savedSummary.lastScheduleUpdate} />
+                  <OperatorFormSummaryRow label="Last schedule update" value={savedSummary.lastScheduleUpdate} />
                 </dl>
               </section>
             ) : null}
 
-            <section
-              className="rounded-lg border border-neutral-200 bg-white p-4 dark:border-neutral-700 dark:bg-neutral-950"
-              data-testid="exec-digest-latest-generated"
-            >
-              <h3
-                className={cn(
-                  "m-0 font-semibold text-neutral-900 dark:text-neutral-100",
-                  OPERATOR_TYPOGRAPHY.cardTitle,
-                )}
-              >
-                Latest architecture digest
-              </h3>
-              {hasPreviewDigest ? (
-                <>
-                  <p className={cn("m-0 mt-2 text-al-text-secondary", OPERATOR_TYPOGRAPHY.body)}>
-                    Generated {formatDigestInstant(healthSnap?.latestArchitectureDigestGeneratedUtc)}
-                  </p>
-                  <Button asChild size="sm" variant="outline" className="mt-3" data-testid="exec-digest-preview-action">
-                    <Link href={previewHref}>{DIGESTS_SCHEDULE_PREVIEW_LABEL}</Link>
-                  </Button>
-                  <p className={cn("m-0 mt-2 text-al-text-secondary", OPERATOR_TYPOGRAPHY.helper)}>
-                    {EXEC_DIGEST_PREVIEW_HELPER}
-                  </p>
-                </>
-              ) : (
-                <>
-                  <p className={cn("m-0 mt-2 text-al-text-primary", OPERATOR_TYPOGRAPHY.body)}>
-                    No digest has been generated yet.
-                  </p>
-                  <p className={cn("m-0 mt-1 text-al-text-secondary", OPERATOR_TYPOGRAPHY.helper)}>
-                    {EXEC_DIGEST_PREVIEW_UNAVAILABLE}
-                  </p>
-                  <Button
-                    size="sm"
-                    variant="outline"
-                    className="mt-3"
-                    disabled
-                    data-testid="exec-digest-preview-action"
-                    title={EXEC_DIGEST_PREVIEW_UNAVAILABLE}
-                  >
-                    {DIGESTS_SCHEDULE_PREVIEW_LABEL}
-                  </Button>
-                </>
-              )}
-
-              {!sampleModeBlocked ? (
-                <div className="mt-4 border-t border-neutral-200 pt-3 dark:border-neutral-800">
-                  <Button asChild size="sm" variant="outline" data-testid="exec-digest-test-action">
-                    <Link href={ADVISORY_SCANS_SCHEDULES_HREF} title={EXEC_DIGEST_TEST_GENERATION_HELPER}>
-                      {DIGESTS_SCHEDULE_GENERATE_TEST_LABEL}
-                    </Link>
-                  </Button>
-                  <p className={cn("m-0 mt-2 text-al-text-secondary", OPERATOR_TYPOGRAPHY.helper)}>
-                    {EXEC_DIGEST_TEST_GENERATION_HELPER}
-                  </p>
-                </div>
-              ) : (
-                <p
-                  className={cn("m-0 mt-4 text-al-text-secondary", OPERATOR_TYPOGRAPHY.helper)}
-                  data-testid="exec-digest-test-sample-blocked"
-                >
-                  Test generation and email delivery are unavailable in the sample workspace.
-                </p>
-              )}
-            </section>
-          </aside>
-        </div>
+            {latestGeneratedSection}
+            </>
+          }
+        />
+          );
+        })()
       )}
     </div>
   );

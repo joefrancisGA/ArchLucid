@@ -1,7 +1,7 @@
 import { inAppHelpHref } from "@/lib/product-documentation-registry";
 import { SETTINGS_SECURITY_TRUST_PATH } from "@/lib/settings-admin-route-paths";
 import type { EvidenceSourceLink } from "@/lib/evidence-surface-copy";
-import { GOVERNANCE_AUDIT_PATH } from "@/lib/governance-route-paths";
+import { GOVERNANCE_AUDIT_PATH } from "@/lib/governance/governance-route-paths";
 
 export const SETTINGS_SECURITY_TRUST_CANONICAL_PATH = SETTINGS_SECURITY_TRUST_PATH;
 

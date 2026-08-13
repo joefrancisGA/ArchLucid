@@ -22,7 +22,7 @@ export function digestsSchedulePageSubtitle(buyerPolishedShell: boolean): string
 
 export const DIGESTS_LAST_UPDATED_PREFIX = "Last updated" as const;
 
-export const DIGESTS_HEALTH_CHECK_PREFIX = "Health check" as const;
+export const DIGESTS_HEALTH_CHECK_PREFIX = "Setup status checked" as const;
 
 export const DIGESTS_BROWSE_TAB_BROWSE_LABEL = "Browse" as const;
 
@@ -73,7 +73,7 @@ export const DIGESTS_BROWSE_SETUP_UNKNOWN_DESCRIPTION =
 export const DIGESTS_BROWSE_GENERATE_FIRST_LABEL = "Generate the first digest" as const;
 
 export const DIGESTS_BROWSE_GENERATE_FIRST_DETAIL =
-  "Run an advisory scan to produce the first digest. Open Advisory schedules to manage cadence or trigger a run." as const;
+  "Run an advisory scan to produce the first digest. Open Advisory schedules to manage cadence or start a scan." as const;
 
 export const DIGESTS_BROWSE_GENERATE_FIRST_DETAIL_PREREQ =
   "Complete advisory scan schedule and subscriptions first, then run a scan to produce the first digest." as const;
@@ -82,7 +82,7 @@ export const DIGESTS_BROWSE_GENERATE_FIRST_DONE_DETAIL =
   "At least one digest has been generated." as const;
 
 export const DIGESTS_BROWSE_HISTORY_PENDING_DETAIL =
-  "Generated digests appear in this list." as const;
+  "No digests generated yet — generated digests appear in this list." as const;
 
 export const DIGESTS_BROWSE_HISTORY_READY_DETAIL = "Digest history is available below." as const;
 
@@ -118,10 +118,10 @@ export const DIGESTS_BROWSE_RELATED_INTEGRATIONS_LABEL = "Check integration read
 
 export const DIGESTS_CHECKLIST_SCHEDULE_LABEL = "Enable advisory scan schedule" as const;
 
-export const DIGESTS_CHECKLIST_SCHEDULE_DETAIL_ENABLED = "Advisory scan schedule enabled." as const;
-
 export const DIGESTS_CHECKLIST_SCHEDULE_DETAIL_PENDING =
-  "Set generation cadence in Advisory schedules — not on the Executive schedule tab on this page." as const;
+  "No enabled advisory scan schedules. Set generation cadence in Advisory schedules; the executive schedule controls only when the sponsor rollup email is sent." as const;
+
+export const DIGESTS_CHECKLIST_RECIPIENTS_DETAIL_SUFFIX = "Add outbound recipients for delivery." as const;
 
 export const DIGESTS_CHECKLIST_ACTION_OPEN_ADVISORY = DIGESTS_BROWSE_RELATED_ADVISORY_LABEL;
 

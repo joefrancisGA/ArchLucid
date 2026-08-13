@@ -272,6 +272,74 @@ public sealed class IntegrationEventOutboxProcessorTests
     }
 
     [SkippableFact]
+    public async Task ProcessPendingBatchAsync_redrain_after_publish_without_mark_republishes_identical_MessageId()
+    {
+        const string messageId = "a1b2c3d4-e5f6-7890-abcd-ef1234567890:com.archlucid.test.event";
+        Guid outboxId = Guid.NewGuid();
+        IntegrationEventOutboxEntry entry = new()
+        {
+            OutboxId = outboxId,
+            RunId = Guid.NewGuid(),
+            EventType = "com.archlucid.test.event",
+            MessageId = messageId,
+            PayloadUtf8 = [1],
+            TenantId = Guid.NewGuid(),
+            WorkspaceId = Guid.NewGuid(),
+            ProjectId = Guid.NewGuid(),
+            CreatedUtc = TimeProvider.System.UtcNowDateTime(),
+            RetryCount = 0
+        };
+
+        int dequeueCalls = 0;
+        Mock<IIntegrationEventOutboxRepository> outbox = new();
+        outbox
+            .Setup(o => o.DequeuePendingAsync(25, It.IsAny<CancellationToken>()))
+            .ReturnsAsync(() =>
+            {
+                dequeueCalls++;
+
+                if (dequeueCalls <= 2)
+                    return new[] { entry };
+
+                return Array.Empty<IntegrationEventOutboxEntry>();
+            });
+
+        outbox
+            .Setup(o => o.MarkProcessedAsync(outboxId, It.IsAny<CancellationToken>()))
+            .Returns(Task.CompletedTask);
+
+        List<string?> publishedMessageIds = [];
+        Mock<IIntegrationEventPublisher> publisher = new();
+        publisher
+            .Setup(p => p.PublishAsync(
+                It.IsAny<string>(),
+                It.IsAny<ReadOnlyMemory<byte>>(),
+                It.IsAny<string?>(),
+                It.IsAny<IReadOnlyDictionary<string, object>?>(),
+                It.IsAny<CancellationToken>()))
+            .Callback<string, ReadOnlyMemory<byte>, string?, IReadOnlyDictionary<string, object>?, CancellationToken>(
+                (_, _, mid, _, _) => publishedMessageIds.Add(mid))
+            .Returns(Task.CompletedTask);
+
+        IntegrationEventOutboxProcessor sut = CreateProcessor(outbox.Object, publisher.Object);
+
+        await sut.ProcessPendingBatchAsync(CancellationToken.None);
+        await sut.ProcessPendingBatchAsync(CancellationToken.None);
+
+        publishedMessageIds.Should().HaveCount(2);
+        publishedMessageIds.Should().AllBeEquivalentTo(messageId);
+        outbox.Verify(o => o.MarkProcessedAsync(outboxId, It.IsAny<CancellationToken>()), Times.Exactly(2));
+        publisher.Verify(
+            p => p.PublishAsync(
+                entry.EventType,
+                entry.PayloadUtf8,
+                messageId,
+                It.IsAny<IReadOnlyDictionary<string, object>?>(),
+                It.IsAny<CancellationToken>()),
+            Times.Exactly(2));
+    }
+
+    [SkippableFact]
     public async Task ProcessPendingBatchAsync_respects_outbox_max_concurrent_batch_entries()
     {
         int inFlight = 0;

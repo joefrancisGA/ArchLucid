@@ -23,13 +23,13 @@ import {
   runsDashboardTabLabel,
 } from "@/components/operator-home/runs-dashboard-helpers";
 import type { RunsDashboardLoadPhase, RunsDashboardTabId } from "@/components/operator-home/runs-dashboard-load-phase";
-import { useOptionalOperatorHomeRefresh } from "@/lib/operator-home-refresh-context";
+import { useOptionalOperatorHomeRefresh } from "@/lib/operator/operator-home-refresh-context";
 import {
   resolveRunsDashboardClientLoadMode,
   shouldShowRunsDashboardInitialSkeleton,
   shouldSkipRunsDashboardClientFetchOnMount,
   type RunsDashboardClientLoadMode,
-} from "@/lib/operator-home-runs-dashboard-client-fetch";
+} from "@/lib/operator/operator-home-runs-dashboard-client-fetch";
 import { Card, CardContent, CardHeader, CardTitle } from "@/components/ui/card";
 import { FilterChip } from "@/components/ui/filter-chip";
 import { Tabs, TabsContent, TabsList, TabsTrigger } from "@/components/ui/tabs";
@@ -40,14 +40,14 @@ import { dedupeRunSummariesByRunId, normalizeRunSummaryForDemoPicker } from "@/l
 import {
   getBuyerSafeReviewsTableLink,
   isBuyerSafePrimaryReviewNavigationPreferred,
-} from "@/lib/buyer-safe-review-navigation";
+} from "@/lib/buyer/buyer-safe-review-navigation";
 import {
   BUYER_RUNS_DASHBOARD_NO_APPROVED_PACKAGES,
   BUYER_RUNS_DASHBOARD_RECENT_LABEL_EMPTY,
   BUYER_RUNS_DASHBOARD_RECENT_SUMMARY,
   BUYER_RUNS_DASHBOARD_SECTION_HEADING,
-} from "@/lib/buyer-polish-copy";
-import { buyerFilterChipClass } from "@/lib/buyer-shell-home-present";
+} from "@/lib/buyer/buyer-polish-copy";
+import { buyerFilterChipClass } from "@/lib/buyer/buyer-shell-home-present";
 import {
   OPERATOR_CARD,
   OPERATOR_HOME_SECTION_HEADING,
@@ -56,14 +56,14 @@ import {
   OPERATOR_TYPE_SCALE,
 } from "@/lib/design-tokens";
 import { RUNS_DASHBOARD_LABELS } from "@/lib/i18n";
-import { OPERATOR_HOME_GOVERNANCE_WARNINGS_PARAM } from "@/lib/operator-home-metric-hrefs";
+import { OPERATOR_HOME_GOVERNANCE_WARNINGS_PARAM } from "@/lib/operator/operator-home-metric-hrefs";
 import {
   filterTenantOverviewRuns,
   formatOperatorHomeRecentReviewsOutcome,
   isExampleOnlyOverviewRunList,
-} from "@/lib/operator-home-recent-reviews-outcome";
-import { deriveOperatorHomeWorkspaceMetrics } from "@/lib/operator-home-workspace-metrics";
-import { coerceRunSummaryPaged } from "@/lib/operator-response-guards";
+} from "@/lib/operator/operator-home-recent-reviews-outcome";
+import { deriveOperatorHomeWorkspaceMetrics } from "@/lib/operator/operator-home-workspace-metrics";
+import { coerceRunSummaryPaged } from "@/lib/operator/operator-response-guards";
 import {
   buildDemoSeededOverviewRunSummary,
   resolveOverviewListProjectId,
@@ -73,8 +73,8 @@ import { isBuyerPolishedOperatorShellEnv } from "@/lib/demo-ui-env";
 import {
   getEffectiveBrowserProxyScopeHeaders,
   readOperatorScopeFromStorage,
-} from "@/lib/operator-scope-storage";
-import { isStaticDemoPayloadFallbackEnabled, tryStaticDemoRunSummariesPaged } from "@/lib/operator-static-demo";
+} from "@/lib/operator/operator-scope-storage";
+import { isStaticDemoPayloadFallbackEnabled, tryStaticDemoRunSummariesPaged } from "@/lib/operator/operator-static-demo";
 import type { RunSummary } from "@/types/authority";
 
 const DEFAULT_PROJECT_ID = "default";
@@ -108,6 +108,7 @@ export function RunsDashboardPanelClient({
   const [showArchived, setShowArchived] = useState(false);
   const [restoreBusyRequestId, setRestoreBusyRequestId] = useState<string | null>(null);
   const [items, setItems] = useState<RunSummary[]>(initialModel?.items ?? []);
+  const [loadedTotalCount, setLoadedTotalCount] = useState<number>(initialModel?.totalCount ?? 0);
   const [phase, setPhase] = useState<RunsDashboardLoadPhase>(
     initialModel !== null ? (initialModel.loadFailure !== null ? "error" : "ready") : "loading",
   );
@@ -146,6 +147,7 @@ export function RunsDashboardPanelClient({
     }
 
     let nextItems: RunSummary[] = [];
+    let nextTotalCount = 0;
     let nextFailure: ApiLoadFailureState | null = null;
     let authorityUnusable = false;
     let malformedMessage: string | null = null;
@@ -163,6 +165,7 @@ export function RunsDashboardPanelClient({
         authorityUnusable = true;
       } else {
         nextItems = coerced.value.items;
+        nextTotalCount = coerced.value.totalCount;
       }
     } catch (error: unknown) {
       nextFailure = toApiLoadFailure(error);
@@ -176,6 +179,7 @@ export function RunsDashboardPanelClient({
 
     if (demoPaged !== null) {
       nextItems = demoPaged.items;
+      nextTotalCount = demoPaged.totalCount;
       nextFailure = null;
       malformedMessage = null;
       authorityUnusable = false;
@@ -191,6 +195,7 @@ export function RunsDashboardPanelClient({
 
       if (emptyWorkspaceDemo !== null && emptyWorkspaceDemo.items.length > 0) {
         nextItems = emptyWorkspaceDemo.items;
+        nextTotalCount = emptyWorkspaceDemo.totalCount;
       }
     }
 
@@ -204,6 +209,7 @@ export function RunsDashboardPanelClient({
       })
     ) {
       nextItems = [buildDemoSeededOverviewRunSummary(projectId, getEffectiveBrowserProxyScopeHeaders())];
+      nextTotalCount = nextItems.length;
       nextFailure = null;
       malformedMessage = null;
       authorityUnusable = false;
@@ -217,6 +223,7 @@ export function RunsDashboardPanelClient({
     }
 
     setItems(nextItems);
+    setLoadedTotalCount(nextTotalCount);
     setFailure(nextFailure);
     setRunsListAuthorityUnusable(authorityUnusable);
     setPhase(nextFailure !== null && nextItems.length === 0 ? "error" : "ready");
@@ -365,9 +372,11 @@ export function RunsDashboardPanelClient({
 
   useEffect(() => {
     if (phase === "ready" || phase === "error") {
-      reportWorkspaceReviews(effectiveItems);
+      // effectiveItems can carry client-only fallback rows the server total never counted, and a
+      // keyset total is only a lower bound — publish whichever count is larger.
+      reportWorkspaceReviews(effectiveItems, Math.max(loadedTotalCount, effectiveItems.length));
     }
-  }, [effectiveItems, phase, reportWorkspaceReviews]);
+  }, [effectiveItems, loadedTotalCount, phase, reportWorkspaceReviews]);
 
   async function restoreArchivedRequest(requestId: string): Promise<void> {
     setRestoreBusyRequestId(requestId);
@@ -434,6 +443,7 @@ export function RunsDashboardPanelClient({
         onValueChange={(next) => {
           selectDashboardTab(next as RunsDashboardTabId);
         }}
+        variant="line"
       >
         <Card
           className={cn(

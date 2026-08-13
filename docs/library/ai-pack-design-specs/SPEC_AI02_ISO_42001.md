@@ -36,7 +36,7 @@ Ship a pack covering the **ISO/IEC 42001:2023 AI Management System (AIMS)** — 
 | C2 | "ISO 42001 certified" is a formal accreditation body process. Pack must never imply ArchLucid is a certification path. | Mandatory disclaimer on every rule and in pack metadata. |
 | C3 | Rule prefix `iso-42001-` must not conflict with existing `iso27001-` prefix. | Verified distinct. |
 | C4 | Annex A lists 38 controls; target ≥ 20 rules covering Annex A themes (others via narrative sections). | Coverage depth. |
-| C5 | ISO 42001 applies to the *organisation's* AI system lifecycle, not just cloud architecture. Rules must be scoped to what an architecture manifest can evidence. | Avoid out-of-scope process claims. |
+| C5 | ISO 42001 applies to the *organization's* AI system lifecycle, not just cloud architecture. Rules must be scoped to what an architecture manifest can evidence. | Avoid out-of-scope process claims. |
 
 ---
 
@@ -75,7 +75,7 @@ iso-42001-aims-rules-v1.json → manifest → DefaultPolicyPackSeeder
 
 | Prefix | Clause / Annex | Target rules | Priority skew |
 |--------|---------------|-------------|---------------|
-| `iso-42001-ctx-` | Clause 4 — Context of the organisation (AI system scope, stakeholders, risk context) | 4 | All P0 |
+| `iso-42001-ctx-` | Clause 4 — Context of the organization (AI system scope, stakeholders, risk context) | 4 | All P0 |
 | `iso-42001-lead-` | Clause 5 — Leadership (AI policy, roles, responsibilities) | 4 | All P0 |
 | `iso-42001-plan-` | Clause 6 — Planning (risk/opportunity assessment, AI system impact assessment) | 5 | P0/P1 |
 | `iso-42001-ops-` | Clause 8 — Operation (AI system lifecycle: design, data, testing, deployment, decommission) | 8 | P0/P1 |
@@ -135,7 +135,7 @@ Standard curated-rules pipeline. `priorityFloor: P0` surfaces must-have clauses 
 
 ## 10. Required FAQ wording
 
-**Q: Does this pack make my organisation ISO 42001 certified?**
+**Q: Does this pack make my organization ISO 42001 certified?**
 A: No. ISO/IEC 42001 certification is granted by an accredited certification body following a formal audit. ArchLucid maps architecture evidence against the standard's clauses and Annex A controls to support pre-certification gap analysis — it does not replace the audit.
 
 **Q: How does this relate to ISO 27001?**

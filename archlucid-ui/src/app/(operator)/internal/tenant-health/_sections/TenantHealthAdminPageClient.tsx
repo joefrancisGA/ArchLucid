@@ -3,7 +3,7 @@
 import { cn } from "@/lib/utils";
 import { useCallback, useEffect, useMemo, useState } from "react";
 
-import { Button } from "@/components/ui/button";
+import { RefreshButton } from "@/components/ui/refresh-button";
 import {
   EnterpriseTable,
   EnterpriseTableBody,
@@ -13,10 +13,15 @@ import {
   EnterpriseTableHeadRow,
   EnterpriseTableRow,
 } from "@/components/ui/enterprise-table";
+import { EnterpriseTableSkeletonRows } from "@/components/ui/enterprise-table-skeleton-rows";
 import { SeverityTag } from "@/components/ui/severity-tag";
-import { useOperatorNavAuthority } from "@/components/OperatorNavAuthorityProvider";
+import { useOperatorNavAuthority } from "@/components/operator/OperatorNavAuthorityProvider";
+import { OperatorPageHeader } from "@/components/operator/OperatorPageHeader";
+import { OperatorSectionLoadFailure } from "@/components/operator/OperatorSectionLoadFailure";
 import { PageContextualHelpButton } from "@/components/usability/PageContextualHelpButton";
-import { OPERATOR_TYPOGRAPHY } from "@/lib/design-tokens";
+import { TenantSystemWorkspaceHealthVocabularyRail } from "@/components/TenantSystemWorkspaceHealthVocabularyRail";
+import { INTERNAL_TENANT_HEALTH_PATH } from "@/lib/internal-ops-route-paths";
+import { OPERATOR_LAYOUT, OPERATOR_TYPOGRAPHY } from "@/lib/design-tokens";
 import { AUTHORITY_RANK } from "@/lib/nav-authority";
 import {
   fetchAdminTenantHealthList,
@@ -85,25 +90,28 @@ export function TenantHealthAdminPageClient() {
   }
 
   return (
-    <div className="w-full max-w-[1440px] space-y-6" data-testid="tenant-health-admin-page">
-      <div>
-        <div className="flex flex-wrap items-start justify-between gap-3">
-          <div>
-            <h1 className={OPERATOR_TYPOGRAPHY.pageTitle}>Tenant health</h1>
-            <p className={cn("mt-1 text-al-text-secondary", OPERATOR_TYPOGRAPHY.body)}>
-              Internal customer-success view of engagement, governance, and pilot funnel stage per tenant scope.
-            </p>
-          </div>
-          <PageContextualHelpButton />
-        </div>
-        <Button type="button" variant="outline" size="sm" className="mt-3" disabled={loading} onClick={() => void refresh()}>
-          {loading ? "Refreshing…" : "Refresh"}
-        </Button>
-      </div>
-{error ? (
-        <p className={cn("text-rose-700 dark:text-rose-300", OPERATOR_TYPOGRAPHY.body)} role="alert">
-          {error}
-        </p>
+    <div className={cn("w-full max-w-[1440px]", OPERATOR_LAYOUT.sectionStack)} data-testid="tenant-health-admin-page">
+      <OperatorPageHeader
+        navHref={INTERNAL_TENANT_HEALTH_PATH}
+        headingLevel="h1"
+        title="Tenant health"
+        subtitle="Internal customer-success view of engagement, governance, and pilot funnel stage per tenant scope."
+        actions={
+          <>
+            <RefreshButton busy={loading} onClick={() => void refresh()} />
+            <PageContextualHelpButton />
+          </>
+        }
+      />
+      <TenantSystemWorkspaceHealthVocabularyRail currentSurfaceId="tenant-health" />
+      {error ? (
+        <OperatorSectionLoadFailure
+          message={error}
+          retryLabel="Reload tenant health"
+          retrying={loading}
+          testId="tenant-health-load-failure"
+          onRetry={() => void refresh()}
+        />
       ) : null}
 
       <EnterpriseTable ariaLabel="Tenant health scores">
@@ -118,6 +126,13 @@ export function TenantHealthAdminPageClient() {
           </EnterpriseTableHeadRow>
         </EnterpriseTableHead>
         <EnterpriseTableBody>
+          {loading && sortedItems.length === 0 ? (
+            <EnterpriseTableSkeletonRows
+              columns={6}
+              label="Loading tenant health…"
+              testId="tenant-health-skeleton"
+            />
+          ) : null}
           {sortedItems.map((row) => (
             <EnterpriseTableRow key={`${row.tenantId}-${row.workspaceId}-${row.projectId}`}>
               <EnterpriseTableCell className={cn("font-mono text-al-text-primary", OPERATOR_TYPOGRAPHY.micro)}>

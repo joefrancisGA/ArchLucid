@@ -1,6 +1,6 @@
 "use client";
 import { cn } from "@/lib/utils";
-import { OPERATOR_TYPOGRAPHY } from "@/lib/design-tokens";
+import { OPERATOR_LINK, OPERATOR_TYPOGRAPHY } from "@/lib/design-tokens";
 
 import { useState } from "react";
 
@@ -41,7 +41,7 @@ export function ProvenanceNodeExplainCell({ runId, nodeId }: Props) {
       {aggregateProxyHref ? (
         <p className={cn("m-0 max-w-[280px]", OPERATOR_TYPOGRAPHY.helper)}>
           <a
-            className="text-blue-600 underline hover:text-blue-800 dark:text-blue-400 dark:hover:text-blue-300"
+            className={OPERATOR_LINK.nav}
             href={aggregateProxyHref}
             target="_blank"
             rel="noreferrer"

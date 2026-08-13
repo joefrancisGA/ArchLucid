@@ -18,6 +18,8 @@ import {
   DEMO_PREVIEW_SUGGESTED_PATH,
 } from "@/lib/demo-preview-page-copy";
 import { MARKETING_TYPOGRAPHY } from "@/lib/design-tokens";
+import { recordShowcaseFunnelEvent } from "@/lib/marketing/showcase-telemetry";
+import type { ShowcaseDemoPreviewTelemetry } from "@/lib/marketing/showcase-telemetry";
 import { cn } from "@/lib/utils";
 
 const ARTIFACT_ITEMS = [
@@ -58,7 +60,7 @@ const ARTIFACT_ITEMS = [
   },
 ] as const;
 
-export function DemoPreviewArtifactNav() {
+export function DemoPreviewArtifactNav(props: { readonly showcaseTelemetry?: ShowcaseDemoPreviewTelemetry }) {
   const [activeId, setActiveId] = useState<string>(ARTIFACT_ITEMS[0].id);
 
   useEffect(() => {
@@ -101,9 +103,13 @@ export function DemoPreviewArtifactNav() {
       return;
     }
 
+    if (props.showcaseTelemetry && sectionId === "artifact-evidence-graph") {
+      recordShowcaseFunnelEvent("evidence_trace_open", props.showcaseTelemetry);
+    }
+
     target.scrollIntoView({ behavior: "smooth", block: "start" });
     setActiveId(sectionId);
-  }, []);
+  }, [props.showcaseTelemetry]);
 
   return (
     <section className="space-y-3" data-testid="demo-preview-artifact-nav" aria-label="Guided artifact navigation">

@@ -31,7 +31,7 @@ function mockInsightCardsFetch(cards: unknown[]): void {
   );
 }
 
-describe("PatternLibraryDetailClient (TB-1811 / TB-1813)", () => {
+describe("PatternLibraryDetailClient (TB-1811 / TB-1812 / TB-1813)", () => {
   it("shows sample provenance notice on detail when live aggregate threshold is not met", async () => {
     mockInsightCardsFetch([]);
 
@@ -60,5 +60,20 @@ describe("PatternLibraryDetailClient (TB-1811 / TB-1813)", () => {
     });
 
     expect(screen.getByText(PATTERN_LIBRARY_AGGREGATE_PRIVACY_COPY)).toBeInTheDocument();
+  });
+
+  it("links contextual peer compare instead of hard-coded api-gateway-bff (TB-1812)", async () => {
+    mockInsightCardsFetch([]);
+
+    renderWithQueryClient(<PatternLibraryDetailClient patternKey="api-gateway-bff" />);
+
+    await waitFor(() => {
+      expect(screen.getByTestId("pattern-library-detail-title")).toHaveTextContent("API gateway with backend-for-frontend");
+    });
+
+    const peerLink = screen.getByRole("link", { name: /Compare with Three-tier app modernization/i });
+
+    expect(peerLink).toHaveAttribute("href", "/insights/patterns/three-tier-app-modernization");
+    expect(screen.queryByRole("link", { name: /^Compare peer pattern$/i })).not.toBeInTheDocument();
   });
 });

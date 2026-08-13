@@ -1,6 +1,6 @@
 import { cn } from "@/lib/utils";
 import { CollapsibleJsonTree } from "@/components/CollapsibleJsonTree";
-import { PolicyPackDiffView } from "@/components/PolicyPackDiffView";
+import { PolicyPackDiffView } from "@/components/policy/PolicyPackDiffView";
 import {
   policyPacksCompareVersionsIntroOperator,
   policyPacksCompareVersionsIntroReader,
@@ -13,7 +13,7 @@ import {
   policyPacksShowDiffButtonLabelReaderRank,
   policyPacksShowDiffButtonReaderTitle,
 } from "@/lib/enterprise-controls-context-copy";
-import { isStaticDemoPayloadFallbackEnabled } from "@/lib/operator-static-demo";
+import { isStaticDemoPayloadFallbackEnabled } from "@/lib/operator/operator-static-demo";
 import { OPERATOR_DISCLOSURE_TRIGGER_CLASS, OPERATOR_TYPOGRAPHY } from "@/lib/design-tokens";
 import type {
   EffectivePolicyPackSet,
@@ -150,7 +150,7 @@ export function PolicyPacksInspectSection(props: PolicyPacksInspectSectionProps)
 
       <h4 className={cn("mb-2 mt-5 text-al-text-primary", OPERATOR_TYPOGRAPHY.cardTitle)}>Compare versions</h4>
       {!canMutatePacks ? (
-        <p className={cn("mb-1 max-w-prose text-al-text-secondary", OPERATOR_TYPOGRAPHY.helper)} role="note">
+        <p className={cn("mb-1 max-w-3xl text-al-text-secondary", OPERATOR_TYPOGRAPHY.helper)} role="note">
           {policyPacksCompareVersionsReaderSubline}
         </p>
       ) : null}

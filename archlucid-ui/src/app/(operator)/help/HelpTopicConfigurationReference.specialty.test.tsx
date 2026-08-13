@@ -18,7 +18,7 @@ import {
   CONFIGURATION_REFERENCE_HELP_PRIMARY_ACTIONS,
   CONFIGURATION_REFERENCE_HELP_SOURCES,
 } from "@/lib/configuration-reference-help-guide-content";
-import { prepareHelpMarkdownForPresentation } from "@/lib/help-markdown-presentation";
+import { prepareHelpMarkdownForPresentation } from "@/lib/help/help-markdown-presentation";
 import { tryLoadProductDocumentation } from "@/lib/load-product-documentation";
 
 /** TB-1330 — product presentation must not keep eng-library hrefs. */

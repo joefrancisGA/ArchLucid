@@ -1,40 +1,68 @@
-import { cn } from "@/lib/utils";
+"use client";
 
+import { EnterpriseCompactEmptyState } from "@/components/EnterpriseCompactEmptyState";
+import { OperatorPageContainer } from "@/components/operator/OperatorPageContainer";
+import { OperatorPageBreadcrumb } from "@/components/operator/OperatorPageBreadcrumb";
+import { OperatorPageHeader } from "@/components/operator/OperatorPageHeader";
+import { PageContextualHelpButton } from "@/components/usability/PageContextualHelpButton";
 import {
-  API_KEYS_RESTRICTED_DESCRIPTION,
+  API_KEYS_PAGE_TITLE,
   API_KEYS_RESTRICTED_TITLE,
-  API_KEYS_SURFACE_DISABLED_DESCRIPTION,
+  API_KEYS_SURFACE_DISABLED_TITLE,
 } from "@/lib/api-keys-settings-copy";
-import { Card, CardContent } from "@/components/ui/card";
-import { OPERATOR_TYPOGRAPHY } from "@/lib/design-tokens";
+import {
+  API_KEYS_FORBIDDEN_EMPTY_COMPACT,
+  API_KEYS_SURFACE_DISABLED_EMPTY_COMPACT,
+} from "@/lib/enterprise-compact-empty-state-presets";
+import { OPERATOR_LAYOUT } from "@/lib/design-tokens";
+import { SETTINGS_ROOT_PATH } from "@/lib/settings-admin-route-paths";
 
 export type ApiKeysSettingsRestrictedStateProps = {
   readonly reason: "forbidden" | "surface_disabled";
 };
 
+function resolveRestrictedTitle(reason: ApiKeysSettingsRestrictedStateProps["reason"]): string {
+  if (reason === "surface_disabled") {
+    return API_KEYS_SURFACE_DISABLED_TITLE;
+  }
+
+  return API_KEYS_RESTRICTED_TITLE;
+}
+
+function resolveRestrictedEmptyCompact(reason: ApiKeysSettingsRestrictedStateProps["reason"]) {
+  if (reason === "surface_disabled") {
+    return API_KEYS_SURFACE_DISABLED_EMPTY_COMPACT;
+  }
+
+  return API_KEYS_FORBIDDEN_EMPTY_COMPACT;
+}
+
 export function ApiKeysSettingsRestrictedState(props: ApiKeysSettingsRestrictedStateProps): React.JSX.Element {
-  const description =
-    props.reason === "surface_disabled"
-      ? API_KEYS_SURFACE_DISABLED_DESCRIPTION
-      : API_KEYS_RESTRICTED_DESCRIPTION;
+  const emptyCompact = resolveRestrictedEmptyCompact(props.reason);
 
   return (
-    <div className="w-full max-w-3xl space-y-6" data-testid="api-keys-settings-restricted">
-      <div>
-        <h1 className={OPERATOR_TYPOGRAPHY.pageTitle}>{API_KEYS_RESTRICTED_TITLE}</h1>
-        <p className={cn("mt-1 max-w-prose text-al-text-secondary", OPERATOR_TYPOGRAPHY.body)} role="alert">
-          {description}
-        </p>
-      </div>
-      <Card>
-        <CardContent className={cn("py-6 text-al-text-secondary", OPERATOR_TYPOGRAPHY.body)}>
-          <p className="m-0">
-            {props.reason === "surface_disabled"
-              ? "Invite people under Users and roles. Machine credentials, when required later, will live under Internal Operations rather than day-to-day Administration."
-              : "If you need API key access for an approved integration, ask a workspace administrator or your ArchLucid contact to enable enterprise configuration."}
-          </p>
-        </CardContent>
-      </Card>
-    </div>
+    <OperatorPageContainer variant="settings" className={OPERATOR_LAYOUT.sectionStack} data-testid="api-keys-settings-restricted">
+      <OperatorPageHeader
+        title={resolveRestrictedTitle(props.reason)}
+        headingLevel="h1"
+        titleTestId="api-keys-settings-restricted-title"
+        breadcrumb={
+          <OperatorPageBreadcrumb
+            data-testid="api-keys-settings-page-breadcrumb"
+            items={[
+              { label: "Administration", href: SETTINGS_ROOT_PATH },
+              { label: API_KEYS_PAGE_TITLE },
+            ]}
+          />
+        }
+        actions={<PageContextualHelpButton />}
+      />
+      <EnterpriseCompactEmptyState
+        title={emptyCompact.title}
+        description={emptyCompact.description}
+        actions={emptyCompact.actions}
+        testId={emptyCompact.testId}
+      />
+    </OperatorPageContainer>
   );
 }

@@ -9,9 +9,9 @@ import { proofScopeToRequiredCapabilities } from "./QuickReviewProofScopeField";
 import {
   OPERATOR_HOME_OPEN_SAMPLE_PACKAGE_CTA,
   PILOT_COMMAND_CENTER_OPTIONAL_SETUP_LABEL,
-} from "@/lib/buyer-polish-copy";
+} from "@/lib/buyer/buyer-polish-copy";
 
-vi.mock("@/components/OperatorNavAuthorityProvider", () => ({
+vi.mock("@/components/operator/OperatorNavAuthorityProvider", () => ({
   useNavCommittedArchitectureReview: vi.fn(() => false),
   useNavCallerAuthorityRank: () => 100,
   useOperatorNavAuthority: () => ({
@@ -106,7 +106,7 @@ describe("PilotCommandCenterCard", () => {
     expect(screen.queryByTestId("pilot-command-center-optional-setup")).toBeNull();
     expect(screen.queryByTestId("pilot-command-center-connect-azure")).toBeNull();
     expect(screen.queryByTestId("pilot-command-center-invite-reviewer")).toBeNull();
-    expect(screen.queryByTestId("operator-home-optional-cloud-shortcut")).toBeNull();
+    expect(screen.queryByTestId("operator-home-connect-cloud-path")).toBeNull();
 
     render(<OperatorHomeContinueSetupCard canBegin blockerMessage={null} />);
 

@@ -3,7 +3,7 @@
 import { cn } from "@/lib/utils";
 import { useEffect, useMemo, useState } from "react";
 
-import type { HelpMarkdownHeading } from "@/lib/help-markdown-headings";
+import type { HelpMarkdownHeading } from "@/lib/help/help-markdown-headings";
 import { PRIVACY_POLICY_TOC } from "@/lib/privacy-policy-layout";
 
 export type PrivacyPolicyTableOfContentsProps = {

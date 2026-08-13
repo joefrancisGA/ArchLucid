@@ -7,7 +7,7 @@ import {
   useNavCallerAuthorityRank,
   useNavCommittedArchitectureReview,
   useOperatorNavAuthority,
-} from "@/components/OperatorNavAuthorityProvider";
+} from "@/components/operator/OperatorNavAuthorityProvider";
 import { useOperatorShellAuditRunId } from "@/hooks/useOperatorShellAuditRunId";
 import { usePatternLibraryNavVisible } from "@/hooks/use-pattern-library-nav-visible";
 import { useRoleNavDensityExpanded } from "@/hooks/use-role-nav-density-expanded";
@@ -24,7 +24,7 @@ import {
   filterNavGroupsByRoleDensity,
   resolveRoleNavDensityPersona,
 } from "@/lib/role-shaped-nav-density";
-import { isStaticDemoPayloadFallbackEnabled } from "@/lib/operator-static-demo";
+import { isStaticDemoPayloadFallbackEnabled } from "@/lib/operator/operator-static-demo";
 import { resolveSidebarNavExpansionState } from "@/lib/sidebar-nav-disclosure-state";
 import type { OperateNavUnlockPhase } from "@/lib/usability/operate-nav-progressive-unlock";
 

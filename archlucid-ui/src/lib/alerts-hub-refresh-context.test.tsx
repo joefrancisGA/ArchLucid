@@ -5,18 +5,23 @@ import {
   AlertRulesHubRefreshProvider,
   useAlertRulesHubRefresh,
 } from "./alerts-hub-refresh-context";
-import { OPERATOR_NOT_REFRESHED_LABEL } from "./operator-last-refreshed-label";
+import { OPERATOR_NOT_REFRESHED_LABEL } from "@/lib/operator/operator-last-refreshed-label";
 
 function Probe(): React.JSX.Element {
-  const { lastRefreshedAt, reportTabLoaded, registerTabLoader } = useAlertRulesHubRefresh();
+  const { lastRefreshedAt, reportTabLoaded, registerTabLoader, tabCounts } = useAlertRulesHubRefresh();
 
   return (
     <div>
       <span data-testid="freshness">
         {lastRefreshedAt === null ? OPERATOR_NOT_REFRESHED_LABEL : "refreshed"}
       </span>
-      <button type="button" onClick={() => reportTabLoaded("notifications")}>
-        report
+      <span data-testid="tab-count">{tabCounts.notifications ?? "unset"}</span>
+      <span data-testid="test-alerts-count">{tabCounts["test-alerts"] ?? "unset"}</span>
+      <button type="button" onClick={() => reportTabLoaded("notifications", 3)}>
+        report-notifications
+      </button>
+      <button type="button" onClick={() => reportTabLoaded("rules", 2, null)}>
+        report-rules
       </button>
       <button
         type="button"
@@ -33,7 +38,18 @@ function Probe(): React.JSX.Element {
 }
 
 describe("alerts-hub-refresh-context", () => {
-  it("stamps freshness when the active tab reports a successful load", () => {
+  it("initializes all hub tab counts to zero", () => {
+    render(
+      <AlertRulesHubRefreshProvider activeTab="rules">
+        <Probe />
+      </AlertRulesHubRefreshProvider>,
+    );
+
+    expect(screen.getByTestId("tab-count")).toHaveTextContent("0");
+    expect(screen.getByTestId("test-alerts-count")).toHaveTextContent("0");
+  });
+
+  it("stamps freshness and tab counts when the active tab reports a successful load", () => {
     render(
       <AlertRulesHubRefreshProvider activeTab="notifications">
         <Probe />
@@ -43,13 +59,14 @@ describe("alerts-hub-refresh-context", () => {
     expect(screen.getByTestId("freshness")).toHaveTextContent(OPERATOR_NOT_REFRESHED_LABEL);
 
     act(() => {
-      screen.getByRole("button", { name: "report" }).click();
+      screen.getByRole("button", { name: "report-notifications" }).click();
     });
 
     expect(screen.getByTestId("freshness")).toHaveTextContent("refreshed");
+    expect(screen.getByTestId("tab-count")).toHaveTextContent("3");
   });
 
-  it("ignores freshness reports from inactive tabs", () => {
+  it("stores tab counts from inactive tabs without stamping freshness", () => {
     render(
       <AlertRulesHubRefreshProvider activeTab="rules">
         <Probe />
@@ -57,10 +74,25 @@ describe("alerts-hub-refresh-context", () => {
     );
 
     act(() => {
-      screen.getByRole("button", { name: "report" }).click();
+      screen.getByRole("button", { name: "report-notifications" }).click();
     });
 
     expect(screen.getByTestId("freshness")).toHaveTextContent(OPERATOR_NOT_REFRESHED_LABEL);
+    expect(screen.getByTestId("tab-count")).toHaveTextContent("3");
+  });
+
+  it("mirrors rules count onto the test-alerts tab", () => {
+    render(
+      <AlertRulesHubRefreshProvider activeTab="rules">
+        <Probe />
+      </AlertRulesHubRefreshProvider>,
+    );
+
+    act(() => {
+      screen.getByRole("button", { name: "report-rules" }).click();
+    });
+
+    expect(screen.getByTestId("test-alerts-count")).toHaveTextContent("2");
   });
 
   it("clears freshness when the active hub tab changes", () => {
@@ -71,7 +103,7 @@ describe("alerts-hub-refresh-context", () => {
     );
 
     act(() => {
-      screen.getByRole("button", { name: "report" }).click();
+      screen.getByRole("button", { name: "report-notifications" }).click();
     });
 
     expect(screen.getByTestId("freshness")).toHaveTextContent("refreshed");

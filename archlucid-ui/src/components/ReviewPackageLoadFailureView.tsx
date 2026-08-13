@@ -9,16 +9,16 @@ import { useCallback, useEffect, useMemo, useState, useTransition } from "react"
 import {
   OperatorRouteDiagnosticsPanel,
   type OperatorRouteDiagnosticsPayload,
-} from "@/components/OperatorRouteDiagnosticsPanel";
+} from "@/components/operator/OperatorRouteDiagnosticsPanel";
 import { FatalPageReportProblemSupportRow } from "@/components/support/FatalPageReportProblemAction";
 import { OperatorErrorRecoveryContract } from "@/components/usability/OperatorErrorRecoveryContract";
-import { OperatorEmptyState, OperatorLoadingNotice } from "@/components/OperatorShellMessage";
+import { OperatorEmptyState, OperatorLoadingNotice } from "@/components/operator/OperatorShellMessage";
 import { Button } from "@/components/ui/button";
 import { getRunDetail } from "@/lib/api";
 import type { ApiLoadFailureState } from "@/lib/api-load-failure";
 import { OPERATOR_NAV_LINK_LABELS } from "@/lib/i18n";
 import { errorRecoveryContractForScenario } from "@/lib/error-recovery-contract-copy";
-import { readOperatorScopeFromStorage } from "@/lib/operator-scope-storage";
+import { readOperatorScopeFromStorage } from "@/lib/operator/operator-scope-storage";
 import {
   clearReviewGenerationHandoff,
   readReviewGenerationHandoff,
@@ -113,10 +113,10 @@ export function ReviewPackageLoadFailureView(props: ReviewPackageLoadFailureView
       return;
     }
 
-    let cancelled = false;
+    let canceled = false;
 
     const tick = async () => {
-      if (cancelled) {
+      if (canceled) {
         return;
       }
 
@@ -129,7 +129,7 @@ export function ReviewPackageLoadFailureView(props: ReviewPackageLoadFailureView
 
       const loaded = await tryLoadRun();
 
-      if (cancelled) {
+      if (canceled) {
         return;
       }
 
@@ -144,7 +144,7 @@ export function ReviewPackageLoadFailureView(props: ReviewPackageLoadFailureView
     const intervalId = window.setInterval(() => void tick(), PENDING_POLL_MS);
 
     return () => {
-      cancelled = true;
+      canceled = true;
       window.clearInterval(intervalId);
     };
   }, [phase, pendingStartedAt, router, tryLoadRun]);

@@ -1,7 +1,7 @@
 import { inAppHelpHref } from "@/lib/product-documentation-registry";
 import { PLANNING_PATH, PLANNING_PLAN_DETAIL_PATH_PREFIX } from "@/lib/planning-route";
 import type { EvidenceSourceLink } from "@/lib/evidence-surface-copy";
-import { GOVERNANCE_FINDINGS_PATH } from "@/lib/governance-route-paths";
+import { GOVERNANCE_FINDINGS_PATH } from "@/lib/governance/governance-route-paths";
 
 export const PLANNING_PLAN_DETAIL_PAGE_TITLE = "Improvement plan" as const;
 

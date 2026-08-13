@@ -1,13 +1,13 @@
 import type { PilotScorecardJson } from "@/types/pilot-scorecard";
 
-import { REVIEWS_LIST_PATH, REVIEWS_NEW_PATH } from "@/lib/architecture-routes";
-import { BUYER_TERMINOLOGY } from "@/lib/buyer-surface-vocabulary";
+import { REVIEWS_LIST_PATH, REVIEWS_NEW_PATH } from "@/lib/architecture/architecture-routes";
+import { BUYER_TERMINOLOGY } from "@/lib/vocabulary/buyer-surface-vocabulary";
 import { formatIsoUtcForDisplay } from "@/lib/format-iso-utc";
 import {
   GOVERNANCE_APPROVAL_QUEUE_PATH,
   GOVERNANCE_AUDIT_PATH,
   GOVERNANCE_FINDINGS_PATH,
-} from "@/lib/governance-route-paths";
+} from "@/lib/governance/governance-route-paths";
 
 export const REVIEW_SCORECARD_PAGE_TITLE = BUYER_TERMINOLOGY.reviewScorecard;
 

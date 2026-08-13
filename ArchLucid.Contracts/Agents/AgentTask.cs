@@ -45,7 +45,7 @@ public sealed class AgentTask
         set;
     }
 
-    /// <summary>Human-readable description of what the agent must analyse or propose.</summary>
+    /// <summary>Human-readable description of what the agent must analyze or propose.</summary>
     [Required]
     public string Objective
     {

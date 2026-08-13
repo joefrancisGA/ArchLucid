@@ -1,4 +1,4 @@
-import { REVIEWS_NEW_PATH } from "@/lib/architecture-routes";
+import { REVIEWS_NEW_PATH } from "@/lib/architecture/architecture-routes";
 import { FIRST_REVIEW_GUIDE_PATH } from "@/lib/first-review-guide-route";
 import { inAppHelpHref } from "@/lib/product-documentation-registry";
 import type { EvidenceSourceLink } from "@/lib/evidence-surface-copy";

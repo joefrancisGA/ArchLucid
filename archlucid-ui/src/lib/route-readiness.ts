@@ -2,14 +2,14 @@
  * Product-facing readiness tiers for operator routes (nav gating, demo shell copy).
  * API policy and `[Authorize]` remain authoritative; this is UX-only.
  */
-import { ARCHITECTURE_SCORECARD_PATH } from "@/lib/architecture-scorecard-route";
+import { ARCHITECTURE_SCORECARD_PATH } from "@/lib/architecture/architecture-scorecard-route";
 import { COMPARE_TWO_REVIEWS_PATH } from "@/lib/compare-two-reviews-route";
 import { EVIDENCE_GRAPH_PATH } from "@/lib/evidence-graph-route";
-import { EXECUTIVE_DASHBOARD_HREF } from "@/lib/executive-dashboard-route";
+import { EXECUTIVE_DASHBOARD_HREF } from "@/lib/executive/executive-dashboard-route";
 import {
   GOVERNANCE_APPROVAL_QUEUE_PATH,
   GOVERNANCE_STANDARDS_AND_RULES_PATH,
-} from "@/lib/governance-route-paths";
+} from "@/lib/governance/governance-route-paths";
 import { IMPACT_PREVIEW_PATH } from "@/lib/impact-preview-route";
 import { PLANNING_PATH } from "@/lib/planning-route";
 import { DIGESTS_HUB_PATH, LEGACY_DIGESTS_HUB_PATH } from "@/lib/digests-route-paths";
@@ -75,14 +75,14 @@ const READINESS_BY_PATH: Record<string, RouteReadinessTier> = {
   "/admin/users": "admin-only",
   "/administration/support": "admin-only",
   "/administration/users": "admin-only",
-  "/administration/tenant": "admin-only",
-  "/administration/tenant/recycle-bin": "admin-only",
+  "/administration/workspace-settings": "admin-only",
+  "/administration/workspace-settings/recycle-bin": "admin-only",
   "/administration/baseline": "advanced-only",
   "/administration/developer": "advanced-only",
   "/administration/billing": "advanced-only",
   "/settings/webhooks": "advanced-only",
   "/settings/roles": "admin-only",
-  "/administration/api-keys": "admin-only",
+  "/administration/api-keys": "hidden",
 };
 
 /**
@@ -140,7 +140,7 @@ import { isCtoDemoPresenterSafeModeEnv } from "@/lib/cto-demo-presenter-pack";
 const PRESENTER_SAFE_MODE_NAV_HIDE = new Set<string>([
   "/administration",
   "/administration/billing",
-  "/administration/tenant",
+  "/administration/workspace-settings",
   "/administration/api-keys",
   "/settings/roles",
   "/administration/baseline",
@@ -164,7 +164,7 @@ const PRESENTER_SAFE_MODE_NAV_HIDE = new Set<string>([
 const DEMO_MODE_EXPLICIT_NAV_HIDE = new Set<string>([
   ARCHITECTURE_SCORECARD_PATH,
   "/insights/search-review-evidence",
-  "/administration/tenant/recycle-bin",
+  "/administration/workspace-settings/recycle-bin",
 ]);
 
 function normalizeOperatorNavHrefForDemo(href: string): string {

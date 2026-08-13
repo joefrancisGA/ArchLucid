@@ -1,4 +1,4 @@
-import { CREATE_ARCHITECTURE_LABEL } from "@/lib/architecture-workflow-labels";
+import { CREATE_ARCHITECTURE_LABEL } from "@/lib/architecture/architecture-workflow-labels";
 import type { FirstPilotReadinessRow } from "@/lib/first-pilot-readiness-cockpit";
 import {
   READINESS_AZURE_EXTRACTOR_CTA,
@@ -7,7 +7,7 @@ import {
 import {
   FIRST_PILOT_READINESS_SYSTEM_STATUS_CTA,
 } from "@/lib/first-pilot-diagnostics-copy";
-import { isBuyerShellHomePresentation } from "@/lib/buyer-shell-home-present";
+import { isBuyerShellHomePresentation } from "@/lib/buyer/buyer-shell-home-present";
 
 type ReadinessRowPresentation = Pick<FirstPilotReadinessRow, "label" | "cta">;
 

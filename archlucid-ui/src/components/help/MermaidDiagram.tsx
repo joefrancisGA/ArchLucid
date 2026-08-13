@@ -9,12 +9,13 @@ import {
   fitMermaidSvgElementToHost,
   prepareMermaidSvgForResponsiveLayout,
   sanitizeMermaidRenderId,
-} from "@/lib/help-mermaid";
+} from "@/lib/help/help-mermaid";
 
 export type MermaidDiagramProps = {
   readonly source: string;
   readonly accessibleName: string;
   readonly description?: string;
+  readonly themeVariables?: Readonly<Record<string, string>>;
 };
 
 function useDocumentDarkMode(): boolean {
@@ -83,7 +84,7 @@ function useHasBeenVisible(targetRef: RefObject<HTMLElement | null>): boolean {
 
 /** Client-rendered Mermaid diagram for trusted in-app help markdown. */
 export function MermaidDiagram(props: MermaidDiagramProps): React.JSX.Element {
-  const { source, accessibleName, description } = props;
+  const { source, accessibleName, description, themeVariables } = props;
   const reactId = useId();
   const renderId = useMemo(() => sanitizeMermaidRenderId(`help-mermaid-${reactId}`), [reactId]);
   const frameRef = useRef<HTMLDivElement>(null);
@@ -98,7 +99,7 @@ export function MermaidDiagram(props: MermaidDiagramProps): React.JSX.Element {
       return;
     }
 
-    let cancelled = false;
+    let canceled = false;
 
     async function renderDiagram(): Promise<void> {
       setRenderError(null);
@@ -113,16 +114,17 @@ export function MermaidDiagram(props: MermaidDiagramProps): React.JSX.Element {
           theme: dark ? "dark" : "neutral",
           securityLevel: "strict",
           fontFamily: "ui-sans-serif, system-ui, sans-serif",
+          ...(themeVariables !== undefined ? { themeVariables: { ...themeVariables } } : {}),
         });
 
         const result = await mermaid.render(renderId, source.trim());
 
-        if (!cancelled) {
+        if (!canceled) {
           setSvgMarkup(prepareMermaidSvgForResponsiveLayout(result.svg));
         }
       }
       catch (error) {
-        if (!cancelled) {
+        if (!canceled) {
           const message = error instanceof Error ? error.message : "Diagram could not be rendered.";
           setRenderError(message);
         }
@@ -132,9 +134,9 @@ export function MermaidDiagram(props: MermaidDiagramProps): React.JSX.Element {
     void renderDiagram();
 
     return (): void => {
-      cancelled = true;
+      canceled = true;
     };
-  }, [source, dark, renderId, hasBeenVisible]);
+  }, [source, dark, renderId, hasBeenVisible, themeVariables]);
 
   useLayoutEffect(() => {
     if (svgMarkup === null) {

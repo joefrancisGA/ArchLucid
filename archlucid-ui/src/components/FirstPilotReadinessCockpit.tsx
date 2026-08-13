@@ -1,20 +1,24 @@
-import { CREATE_ARCHITECTURE_LABEL } from "@/lib/architecture-workflow-labels";
+import { CREATE_ARCHITECTURE_LABEL } from "@/lib/architecture/architecture-workflow-labels";
 
 import { cn } from "@/lib/utils";
 import Link from "next/link";
-import { useCallback, useEffect, useMemo, useState } from "react";
+import { useEffect, useMemo, useState } from "react";
 
 import { FirstPilotProofStatusStrip } from "@/components/FirstPilotProofStatusStrip";
 import { FirstPilotReadinessCockpitLoadingBody } from "@/components/FirstPilotReadinessCockpitLoadingBody";
 import { FirstPilotReadinessGroupTable } from "@/components/FirstPilotReadinessGroupTable";
 import { FirstPilotTechnicalCommandDisclosure } from "@/components/FirstPilotTechnicalCommandDisclosure";
-import { OperatorAiQualityProofCard } from "@/components/OperatorAiQualityProofCard";
+import { useOperatorNavAuthority } from "@/components/operator/OperatorNavAuthorityProvider";
+import { useAdminConfigLintSummaryQuery } from "@/hooks/use-admin-config-lint-summary-query";
+import { useAskProjectRunsQuery } from "@/hooks/use-ask-project-runs-query";
+import { useHealthReadySummaryQuery } from "@/hooks/use-health-ready-summary-query";
+import { usePilotScorecardQuery } from "@/hooks/use-pilot-scorecard-query";
+import { OperatorAiQualityProofCard } from "@/components/operator/OperatorAiQualityProofCard";
 import { buildTier1InventoryExtractorCommandLines } from "@/lib/get-archlucid-cloud-package-command";
 import { OperatorHomeDisclosureSection } from "@/components/operator-home/OperatorHomeDisclosureSection";
 import { Button } from "@/components/ui/button";
 import { StatusTag } from "@/components/ui/status-tag";
-import { getPilotScorecard } from "@/lib/api";
-import { loadCurrentPrincipal, shellBootstrapReadPrincipal, type CurrentPrincipal } from "@/lib/current-principal";
+import type { CurrentPrincipal } from "@/lib/current-principal";
 import { resolveFirstPilotCommandCenterPhase } from "@/lib/first-pilot-command-center-phase";
 import {
   FIRST_PILOT_SPONSOR_PROOF_CLI_COMMAND,
@@ -34,18 +38,15 @@ import {
 import {
   BUYER_COMMAND_CENTER_OPEN_REVIEW_LINK,
   BUYER_COMMAND_CENTER_RECOMMENDED_HEADING,
-} from "@/lib/buyer-home-status-copy";
+} from "@/lib/buyer/buyer-home-status-copy";
 import {
   applyBuyerPolishedCommandCenterPhase,
   isBuyerShellHomePresentation,
   shellReadinessCountPhrase,
   shellReadinessStatusTagLabel,
-} from "@/lib/buyer-shell-home-present";
-import { mapReadinessStatusToEnterpriseKind } from "@/lib/first-pilot-operator-status-vocabulary";
-import { fetchAdminConfigLintSummary } from "@/lib/fetch-admin-config-lint";
-import { fetchHealthReadySummary } from "@/lib/fetch-health-ready";
-import { OPERATOR_HOME_DISCLOSURE_STORAGE_KEYS } from "@/lib/operator-home-disclosure-storage";
-import { loadProjectRunsMergedWithDemoFallback } from "@/lib/operator-run-picker-client";
+} from "@/lib/buyer/buyer-shell-home-present";
+import { mapReadinessStatusToEnterpriseKind } from "@/lib/vocabulary/first-pilot-operator-status-vocabulary";
+import { OPERATOR_HOME_DISCLOSURE_STORAGE_KEYS } from "@/lib/operator/operator-home-disclosure-storage";
 import {
   buildCorePilotCommitContextFromRunItems,
   fetchTrialAnchoredCommit,
@@ -55,7 +56,6 @@ import {
 import { isPublicDemoModeEnv } from "@/lib/public-demo-mode";
 import { AUTHORITY_RANK } from "@/lib/nav-authority";
 import { DESIGN_TOKENS, OPERATOR_TYPOGRAPHY } from "@/lib/design-tokens";
-import type { PilotScorecardJson } from "@/types/pilot-scorecard";
 import type { RunSummary } from "@/types/authority";
 
 const EMPTY_COMMIT_CONTEXT: CorePilotCommitContext = {
@@ -167,24 +167,92 @@ function ReadinessStatusCountsBar({ rows }: { readonly rows: readonly FirstPilot
 
 /** Single first-pilot command center: phase, readiness rows, sponsor disposition, and next action in one place. */
 export function FirstPilotReadinessCockpit() {
-  const bootstrapPrincipal = shellBootstrapReadPrincipal;
-  const adminConfigProbeEnabled = bootstrapPrincipal.authorityRank >= AUTHORITY_RANK.AdminAuthority;
-  const initialPendingProbes = adminConfigProbeEnabled ? 5 : 4;
+  const { currentPrincipal, isAuthorityLoading } = useOperatorNavAuthority();
+  const principal: CurrentPrincipal = currentPrincipal;
+  const adminConfigProbeEnabled = principal.authorityRank >= AUTHORITY_RANK.AdminAuthority;
+  const healthQueryEnabled = !isAuthorityLoading;
+  const configLintQueryEnabled = adminConfigProbeEnabled && !isAuthorityLoading;
+  const { data: healthData, isPending: healthPending } = useHealthReadySummaryQuery({ enabled: healthQueryEnabled });
+  const { data: configLintData, isPending: configLintPending } = useAdminConfigLintSummaryQuery({
+    enabled: configLintQueryEnabled,
+  });
+  const scorecardQueryEnabled = !isAuthorityLoading;
+  const runsQueryEnabled = scorecardQueryEnabled && !isPublicDemoModeEnv();
+  const { data: scorecardData, isPending: scorecardPending } = usePilotScorecardQuery({
+    enabled: scorecardQueryEnabled,
+  });
+  const { data: runsData, isPending: runsPending, isError: runsError } = useAskProjectRunsQuery("default", {
+    enabled: runsQueryEnabled,
+  });
 
-  const [pendingProbes, setPendingProbes] = useState(initialPendingProbes);
-  const [principal, setPrincipal] = useState<CurrentPrincipal>(bootstrapPrincipal);
+  const [trialAnchoredCommit, setTrialAnchoredCommit] = useState(false);
+  const [trialAnchoredResolved, setTrialAnchoredResolved] = useState(!runsQueryEnabled);
+
+  const [pendingProbes, setPendingProbes] = useState(0);
   const [runs, setRuns] = useState<readonly RunSummary[]>([]);
   const [commitCtx, setCommitCtx] = useState<CorePilotCommitContext>(EMPTY_COMMIT_CONTEXT);
-  const [scorecard, setScorecard] = useState<PilotScorecardJson | null>(null);
-  const [healthStatus, setHealthStatus] = useState<string | null>(null);
-  const [healthLoadFailed, setHealthLoadFailed] = useState(false);
-  const [runsLoadFailed, setRunsLoadFailed] = useState(false);
-  const [scorecardLoadFailed, setScorecardLoadFailed] = useState(false);
-  const [configLint, setConfigLint] = useState<Awaited<ReturnType<typeof fetchAdminConfigLintSummary>> | null>(null);
 
-  const finishProbe = useCallback(() => {
-    setPendingProbes((count) => Math.max(0, count - 1));
-  }, []);
+  const scorecard = scorecardData ?? null;
+  const scorecardLoadFailed = scorecardQueryEnabled && !scorecardPending && scorecard === null;
+  const runsLoadFailed = runsQueryEnabled && (runsError || runsData?.loadError === true);
+
+  const healthStatus = healthData?.status ?? null;
+  const healthLoadFailed = healthQueryEnabled && !healthPending && healthData === null;
+  const configLint = adminConfigProbeEnabled ? (configLintData ?? null) : null;
+
+  useEffect(() => {
+    if (!runsQueryEnabled || runsPending) {
+      setTrialAnchoredResolved(false);
+
+      return;
+    }
+
+    let canceled = false;
+    setTrialAnchoredResolved(false);
+
+    void fetchTrialAnchoredCommit()
+      .catch(() => false)
+      .then((anchored) => {
+        if (!canceled) {
+          setTrialAnchoredCommit(anchored);
+          setTrialAnchoredResolved(true);
+        }
+      });
+
+    return () => {
+      canceled = true;
+    };
+  }, [runsPending, runsQueryEnabled, runsData]);
+
+  useEffect(() => {
+    if (isPublicDemoModeEnv()) {
+      setRuns([]);
+      setCommitCtx(PUBLIC_DEMO_CORE_PILOT_COMMIT_CONTEXT);
+
+      return;
+    }
+
+    if (!runsQueryEnabled || runsPending || !trialAnchoredResolved) {
+      return;
+    }
+
+    const mergedItems = runsData?.items ?? [];
+    setRuns(mergedItems);
+    setCommitCtx(buildCorePilotCommitContextFromRunItems(mergedItems, trialAnchoredCommit));
+  }, [
+    runsData,
+    runsPending,
+    runsQueryEnabled,
+    trialAnchoredCommit,
+    trialAnchoredResolved,
+  ]);
+
+  useEffect(() => {
+    const nextPendingProbes =
+      (scorecardPending ? 1 : 0) + (runsQueryEnabled && (runsPending || !trialAnchoredResolved) ? 1 : 0);
+
+    setPendingProbes(nextPendingProbes);
+  }, [runsPending, runsQueryEnabled, scorecardPending, trialAnchoredResolved]);
 
   const signals = useMemo(
     () =>
@@ -198,110 +266,6 @@ export function FirstPilotReadinessCockpit() {
       }),
     [commitCtx, healthStatus, runs],
   );
-
-  useEffect(() => {
-    let cancelled = false;
-
-    void fetchHealthReadySummary()
-      .then((readyBody) => {
-        if (cancelled) {
-          return;
-        }
-
-        setHealthStatus(readyBody?.status ?? null);
-        setHealthLoadFailed(readyBody === null);
-      })
-      .finally(() => {
-        if (!cancelled) {
-          finishProbe();
-        }
-      });
-
-    void loadCurrentPrincipal()
-      .then((loadedPrincipal) => {
-        if (cancelled) {
-          return;
-        }
-
-        setPrincipal(loadedPrincipal);
-      })
-      .finally(() => {
-        if (!cancelled) {
-          finishProbe();
-        }
-      });
-
-    void getPilotScorecard()
-      .then((loadedScorecard) => {
-        if (cancelled) {
-          return;
-        }
-
-        setScorecard(loadedScorecard);
-        setScorecardLoadFailed(loadedScorecard === null);
-      })
-      .finally(() => {
-        if (!cancelled) {
-          finishProbe();
-        }
-      });
-
-    void (async () => {
-      try {
-        if (isPublicDemoModeEnv()) {
-          if (!cancelled) {
-            setCommitCtx(PUBLIC_DEMO_CORE_PILOT_COMMIT_CONTEXT);
-            setRunsLoadFailed(false);
-          }
-
-          return;
-        }
-
-        const [trialAnchoredCommit, merged] = await Promise.all([
-          fetchTrialAnchoredCommit().catch(() => false),
-          loadProjectRunsMergedWithDemoFallback("default").catch(() => ({ items: [], loadError: true })),
-        ]);
-
-        if (cancelled) {
-          return;
-        }
-
-        setRuns(merged.items);
-        setRunsLoadFailed(merged.loadError === true);
-        setCommitCtx(buildCorePilotCommitContextFromRunItems(merged.items, trialAnchoredCommit));
-      } catch {
-        if (!cancelled) {
-          setRuns([]);
-          setRunsLoadFailed(true);
-          setCommitCtx(EMPTY_COMMIT_CONTEXT);
-        }
-      } finally {
-        if (!cancelled) {
-          finishProbe();
-        }
-      }
-    })();
-
-    if (adminConfigProbeEnabled) {
-      void fetchAdminConfigLintSummary()
-        .then((loadedConfigLint) => {
-          if (cancelled) {
-            return;
-          }
-
-          setConfigLint(loadedConfigLint);
-        })
-        .finally(() => {
-          if (!cancelled) {
-            finishProbe();
-          }
-        });
-    }
-
-    return () => {
-      cancelled = true;
-    };
-  }, [adminConfigProbeEnabled, finishProbe]);
 
   const rows = useMemo(
     () =>
@@ -341,7 +305,13 @@ export function FirstPilotReadinessCockpit() {
     [signals, baselinesEntered, canExecute, blocker],
   );
 
-  const probesLoading = pendingProbes > 0;
+  const probesLoading =
+    isAuthorityLoading
+    || healthPending
+    || (configLintQueryEnabled && configLintPending)
+    || scorecardPending
+    || (runsQueryEnabled && (runsPending || !trialAnchoredResolved))
+    || pendingProbes > 0;
   const curatedHome = isBuyerShellHomePresentation();
   const reviewPackageHref =
     commitCtx.firstCommittedRunId !== null

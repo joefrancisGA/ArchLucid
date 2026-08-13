@@ -11,7 +11,7 @@ const demoUiEnvMock = vi.hoisted(() => ({
   demoMode: false,
 }));
 
-vi.mock("@/components/OperatorNavAuthorityProvider", () => ({
+vi.mock("@/components/operator/OperatorNavAuthorityProvider", () => ({
   useOperatorNavAuthority: () => ({
     callerAuthorityRank: 2,
     isAuthorityLoading: false,
@@ -28,8 +28,8 @@ vi.mock("@/lib/demo-ui-env", async (importOriginal) => {
   };
 });
 
-vi.mock("@/lib/operator-scope-storage", async (importOriginal) => {
-  const mod = await importOriginal<typeof import("@/lib/operator-scope-storage")>();
+vi.mock("@/lib/operator/operator-scope-storage", async (importOriginal) => {
+  const mod = await importOriginal<typeof import("@/lib/operator/operator-scope-storage")>();
 
   return {
     ...mod,
@@ -42,7 +42,7 @@ vi.mock("@/lib/operator-scope-storage", async (importOriginal) => {
   };
 });
 
-import * as operatorScopeStorage from "@/lib/operator-scope-storage";
+import * as operatorScopeStorage from "@/lib/operator/operator-scope-storage";
 
 import {
   BUYER_SCOPE_SAMPLE_WORKSPACE_BODY,
@@ -51,7 +51,7 @@ import {
   BUYER_SCOPE_SWITCHER_CLOSE,
   BUYER_SCOPE_SWITCHER_CONNECTED_INTRO,
   BUYER_SCOPE_SWITCHER_LEARN_ABOUT_WORKSPACES,
-} from "@/lib/buyer-polish-copy";
+} from "@/lib/buyer/buyer-polish-copy";
 import { formatScopeSwitcherSampleFullTitle, formatScopeSwitcherTriggerAccessibleLabel } from "@/lib/scope-switcher-display";
 
 import { ScopeSwitcher } from "@/components/ScopeSwitcher";

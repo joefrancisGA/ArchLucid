@@ -2,15 +2,11 @@
 
 import { cn } from "@/lib/utils";
 import Link from "next/link";
-import { useEffect, useState } from "react";
 
-import { OperatorEmptyState } from "@/components/OperatorShellMessage";
+import { useGovernanceReviewsAwaitingActionQuery } from "@/hooks/use-governance-reviews-awaiting-action-query";
+import { OperatorEmptyState } from "@/components/operator/OperatorShellMessage";
 import { Button } from "@/components/ui/button";
 import { Card, CardContent } from "@/components/ui/card";
-import {
-  getGovernanceReviewsAwaitingAction,
-  type GovernanceReviewAwaitingActionItem,
-} from "@/lib/api/governance-stickiness-api";
 import { OPERATOR_TYPOGRAPHY } from "@/lib/design-tokens";
 
 function formatRunId(runId: string): string {
@@ -25,29 +21,7 @@ function formatRunId(runId: string): string {
 
 /** TB-263 — executed-but-uncommitted recurrence runs awaiting operator commit. */
 export function ReviewsAwaitingActionCard() {
-  const [items, setItems] = useState<GovernanceReviewAwaitingActionItem[]>([]);
-  const [loadError, setLoadError] = useState<string | null>(null);
-
-  useEffect(() => {
-    let cancelled = false;
-
-    void (async () => {
-      try {
-        const response = await getGovernanceReviewsAwaitingAction();
-        if (!cancelled) {
-          setItems(response.items ?? []);
-        }
-      } catch (error: unknown) {
-        if (!cancelled) {
-          setLoadError(error instanceof Error ? error.message : "Failed to load reviews awaiting action.");
-        }
-      }
-    })();
-
-    return () => {
-      cancelled = true;
-    };
-  }, []);
+  const { items, loadError } = useGovernanceReviewsAwaitingActionQuery();
 
   if (loadError) {
     return <p className={cn("m-0 text-red-700 dark:text-red-400", OPERATOR_TYPOGRAPHY.body)}>{loadError}</p>;
@@ -76,7 +50,9 @@ export function ReviewsAwaitingActionCard() {
                 data-testid={`reviews-awaiting-row-${runHex}`}
               >
                 <div className="min-w-0">
-                  <p className={cn("m-0 font-medium text-neutral-900 dark:text-neutral-100", OPERATOR_TYPOGRAPHY.body)}>{item.name}</p>
+                  <p className={cn("m-0 font-medium text-neutral-900 dark:text-neutral-100", OPERATOR_TYPOGRAPHY.body)}>
+                    {item.name}
+                  </p>
                   <p className={cn("m-0 text-neutral-600 dark:text-neutral-400", OPERATOR_TYPOGRAPHY.helper)}>
                     Run {formatRunId(item.runId)}
                     {item.newFindingCount > 0 ? ` · ${item.newFindingCount} new finding(s)` : null}

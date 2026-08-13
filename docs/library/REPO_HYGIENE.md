@@ -15,7 +15,7 @@
 |------|--------|
 | **Source** | `.cs`, `.ts`, `.tsx`, Terraform, SQL **migrations** (`ArchLucid.Persistence/Migrations/`), docs under `docs/`. |
 | **OpenAPI / contract snapshots** | Checked-in snapshots used by CI and client generation (see [../engineering/../engineering/BUILD.md](../engineering/BUILD.md)). |
-| **`ArchLucid.Api.Client/Generated/`** | **`ArchLucidApiClient.g.cs`** is **committed** on purpose. Regenerate with NSwag when the API contract changes; review the diff like any other source file. |
+| **`ArchLucid.Api.Client/Generated/*.g.cs`** | **Not committed.** NSwag regenerates `ArchLucidApiClient.g.cs` on every build of `ArchLucid.Api.Client` from the OpenAPI snapshot. See [`ArchLucid.Api.Client/README.md`](../../ArchLucid.Api.Client/README.md). |
 | **Historical design logs** | `docs/archive/` is intentional history — not “noise” to delete for V1 polish. |
 
 ---

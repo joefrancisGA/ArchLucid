@@ -11,7 +11,7 @@ Each prompt is independent and can be run individually. Run them in order if doi
 
 ## Prompt 1 — Standardize primary CTA to "Start architecture review"
 
-> **Scope:** `archlucid-ui/src/lib/buyer-polish-copy.ts` and
+> **Scope:** `archlucid-ui/src/lib/buyer/buyer-polish-copy.ts` and
 > `archlucid-ui/src/components/operator-home/OperatorHomeFirstReviewEmptyState.tsx`
 >
 > **What and why:** Three different strings are used for the same action (navigate to `/reviews/new`):
@@ -72,7 +72,7 @@ No other changes.
 
 ## Prompt 3 — Simplify the three-step hero labels
 
-> **Scope:** `archlucid-ui/src/lib/buyer-polish-copy.ts`
+> **Scope:** `archlucid-ui/src/lib/buyer/buyer-polish-copy.ts`
 >
 > **What and why:** The `PILOT_PATH_PREVIEW_STEPS` array drives the step stepper rendered inside
 > `PilotCommandCenterCard` (via `PilotPathPreviewStepper`). The current labels are verbose

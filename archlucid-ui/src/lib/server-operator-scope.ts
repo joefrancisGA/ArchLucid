@@ -7,7 +7,7 @@ import {
   OPERATOR_SCOPE_COOKIE_NAME,
   operatorScopeHeadersFromCookiePayload,
   parseOperatorScopeCookieValue,
-} from "@/lib/operator-scope-cookie";
+} from "@/lib/operator/operator-scope-cookie";
 import { readServerSideApiKey } from "@/lib/legacy-arch-env";
 import { getScopeHeaders } from "@/lib/scope";
 

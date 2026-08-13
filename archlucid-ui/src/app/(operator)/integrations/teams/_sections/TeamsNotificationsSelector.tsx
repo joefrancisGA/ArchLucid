@@ -3,8 +3,9 @@
 import { useState } from "react";
 
 import { Button } from "@/components/ui/button";
-import { enterpriseMutationControlDisabledTitle } from "@/lib/enterprise-controls-context-copy";
+import { WhyDisabledCtaHint } from "@/components/usability/WhyDisabledCtaHint";
 import { OPERATOR_TYPOGRAPHY } from "@/lib/design-tokens";
+import { whyDisabledEnterpriseMutationControl } from "@/lib/why-disabled-cta";
 import {
   TEAMS_NOTIFICATION_CATEGORIES,
   TEAMS_RECOMMENDED_EVENT_TYPES,
@@ -34,6 +35,9 @@ export function TeamsNotificationsSelector(props: TeamsNotificationsSelectorProp
       ),
   );
 
+  const mutationDisabledHintId = "teams-notifications-selector-mutate-disabled-hint";
+  const mutationDisabledReason = props.canMutate ? null : whyDisabledEnterpriseMutationControl();
+
   return (
     <fieldset className="space-y-4">
       <legend className={cn("text-al-text-primary", OPERATOR_TYPOGRAPHY.cardTitle)}>Notifications to send</legend>
@@ -44,7 +48,7 @@ export function TeamsNotificationsSelector(props: TeamsNotificationsSelectorProp
           size="sm"
           variant="outline"
           disabled={!props.canMutate || props.saving}
-          title={props.canMutate ? undefined : enterpriseMutationControlDisabledTitle}
+          aria-describedby={!props.canMutate ? mutationDisabledHintId : undefined}
           onClick={props.onSelectRecommended}
         >
           Select recommended
@@ -54,6 +58,7 @@ export function TeamsNotificationsSelector(props: TeamsNotificationsSelectorProp
           size="sm"
           variant="outline"
           disabled={!props.canMutate || props.saving}
+          aria-describedby={!props.canMutate ? mutationDisabledHintId : undefined}
           onClick={props.onSelectAll}
         >
           Select all
@@ -63,11 +68,18 @@ export function TeamsNotificationsSelector(props: TeamsNotificationsSelectorProp
           size="sm"
           variant="outline"
           disabled={!props.canMutate || props.saving}
+          aria-describedby={!props.canMutate ? mutationDisabledHintId : undefined}
           onClick={props.onClearAll}
         >
           Clear all
         </Button>
       </div>
+
+      <WhyDisabledCtaHint
+        id={mutationDisabledHintId}
+        reason={mutationDisabledReason}
+        testId={mutationDisabledHintId}
+      />
 
       <div className="space-y-4">
         {TEAMS_NOTIFICATION_CATEGORIES.map((category) => {

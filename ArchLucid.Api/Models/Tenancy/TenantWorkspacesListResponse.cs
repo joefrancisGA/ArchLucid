@@ -5,6 +5,16 @@ namespace ArchLucid.Api.Models.Tenancy;
 /// <summary>JSON for <c>GET /v1/tenant/workspaces</c> (nested projects per workspace).</summary>
 public sealed class TenantWorkspacesListResponse
 {
+    /// <summary>
+    /// Soft-delete retention window (days) before permanent purge — shared with recycle-bin UI copy.
+    /// </summary>
+    [JsonPropertyName("retentionDays")]
+    public int RetentionDays
+    {
+        get;
+        init;
+    }
+
     [JsonPropertyName("workspaces")]
     public IReadOnlyList<TenantWorkspaceApiDto> Workspaces
     {
@@ -34,6 +44,13 @@ public sealed class TenantWorkspaceApiDto
     /// <summary>Optional UI display name (falls back to <see cref="Name" /> when unset).</summary>
     [JsonPropertyName("displayName")]
     public string? DisplayName
+    {
+        get;
+        init;
+    }
+
+    [JsonPropertyName("defaultProjectId")]
+    public Guid DefaultProjectId
     {
         get;
         init;

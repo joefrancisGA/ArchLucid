@@ -1,6 +1,6 @@
-import { BUYER_START_ARCHITECTURE_REVIEW_CTA } from "@/lib/buyer-polish-copy";
+import { BUYER_START_ARCHITECTURE_REVIEW_CTA } from "@/lib/buyer/buyer-polish-copy";
 import { buildGoldenSponsorPackageWalkthroughHref, GOLDEN_SPONSOR_PACKAGE_WALKTHROUGH_PRIMARY_CTA, GOLDEN_SPONSOR_PACKAGE_WALKTHROUGH_TITLE } from "@/lib/golden-sponsor-package-walkthrough";
-import type { HelpMarkdownHeading } from "@/lib/help-markdown-headings";
+import type { HelpMarkdownHeading } from "@/lib/help/help-markdown-headings";
 import { inAppHelpHref } from "@/lib/product-documentation-registry";
 
 export const GETTING_STARTED_HELP_SUBTITLE =
@@ -10,7 +10,7 @@ export const GETTING_STARTED_HELP_AUDIENCE_LINE =
   "For architects, pilot teams, and sponsors who want to understand the review flow before starting.";
 
 export const GETTING_STARTED_HELP_CLAIM_DISCIPLINE =
-  "This guide orients you through the review flow — it is not a signed-review diligence Sources package. Open Security & trust or a finalized review before treating onboarding copy as procurement evidence.";
+  "This guide orients you through the review flow — it is not a signed-review diligence Sources package. Open Security & Trust or a finalized review before treating onboarding copy as procurement evidence.";
 
 export const GETTING_STARTED_HELP_SOURCES_INTRO =
   "Use these follow-ups when getting-started orientation turns into a first review, path choice, or assurance questions.";
@@ -21,14 +21,14 @@ export type GettingStartedHelpSourceLink = {
 };
 
 /**
- * Diligence Sources — no self-href to /help/getting-started. Retired /help/how-it-works bookmarks
+ * Diligence Sources — no self-href to /help/getting-started. Retired how-it-works topic bookmarks
  * permanently redirect to #how-archlucid-works below, so it is intentionally omitted here to avoid a self-link.
  */
 export const GETTING_STARTED_HELP_SOURCES: readonly GettingStartedHelpSourceLink[] = [
   { label: "Start a review", href: "/architecture/reviews/new" },
-  { label: "Choose your next step", href: inAppHelpHref("path-chooser") },
+  { label: "Choose your next step", href: inAppHelpHref("choose-your-next-step") },
   { label: "Your first architecture review", href: inAppHelpHref("first-architecture-review") },
-  { label: "Security & trust", href: "/security-trust" },
+  { label: "Security & Trust", href: "/security-trust" },
 ] as const;
 
 export const GETTING_STARTED_HELP_PATH = "/help/getting-started" as const;

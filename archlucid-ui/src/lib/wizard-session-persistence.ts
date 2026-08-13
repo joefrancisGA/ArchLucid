@@ -1,4 +1,4 @@
-import { readOperatorScopeFromStorage } from "@/lib/operator-scope-storage";
+import { readOperatorScopeFromStorage } from "@/lib/operator/operator-scope-storage";
 
 export const WIZARD_SESSION_PERSISTENCE_VERSION = 1 as const;
 

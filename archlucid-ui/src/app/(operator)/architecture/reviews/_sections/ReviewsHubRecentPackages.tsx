@@ -6,7 +6,7 @@ import type { CSSProperties } from "react";
 import { useRef } from "react";
 import { cn } from "@/lib/utils";
 
-import { RunStatusBadge } from "@/components/RunStatusBadge";
+import { RunStatusBadge } from "@/components/runs/RunStatusBadge";
 import { Button } from "@/components/ui/button";
 import {
   EnterpriseTable,
@@ -122,7 +122,7 @@ export function ReviewsHubRecentPackages(props: ReviewsHubRecentPackagesProps): 
           role="status"
         >
           <p className={cn("m-0 font-medium text-al-text-primary", OPERATOR_TYPOGRAPHY.body)}>{REVIEWS_HUB_RECENT_EMPTY_TITLE}</p>
-          <p className={cn("m-0 mt-2 max-w-prose text-al-text-secondary", OPERATOR_TYPOGRAPHY.helper)}>
+          <p className={cn("m-0 mt-2 text-al-text-secondary", OPERATOR_TYPOGRAPHY.helper)}>
             {REVIEWS_HUB_RECENT_EMPTY_BODY}
           </p>
           <div className="mt-4">

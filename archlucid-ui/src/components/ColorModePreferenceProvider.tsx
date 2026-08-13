@@ -23,11 +23,14 @@ import {
   type ResolvedColorModeAppearance,
 } from "@/lib/color-mode-preference";
 
+export type ColorModeAccountSyncState = "idle" | "synced" | "local-only";
+
 type ColorModePreferenceContextValue = {
   readonly preference: ColorModePreference;
   readonly resolvedAppearance: ResolvedColorModeAppearance;
   readonly systemPrefersDark: boolean;
   readonly mounted: boolean;
+  readonly accountSyncState: ColorModeAccountSyncState;
   readonly setAndPersist: (next: ColorModePreference) => void;
 };
 
@@ -53,6 +56,7 @@ export function ColorModePreferenceProvider(props: { readonly children: ReactNod
   const [preference, setPreference] = useState<ColorModePreference>("system");
   const [systemPrefersDark, setSystemPrefersDark] = useState(false);
   const [mounted, setMounted] = useState(false);
+  const [accountSyncState, setAccountSyncState] = useState<ColorModeAccountSyncState>("idle");
   const preferenceRef = useRef<ColorModePreference>("system");
 
   useEffect(() => {
@@ -74,6 +78,7 @@ export function ColorModePreferenceProvider(props: { readonly children: ReactNod
       setPreference(syncedPreference);
       setSystemPrefersDark(prefersDark);
       applyColorModePreference(syncedPreference, prefersDark);
+      setAccountSyncState("synced");
     });
   }, []);
 
@@ -108,7 +113,9 @@ export function ColorModePreferenceProvider(props: { readonly children: ReactNod
     setPreference(next);
     setSystemPrefersDark(prefersDark);
     persistColorModePreference(next, prefersDark);
-    void persistColorModePreferenceToServer(next);
+    void persistColorModePreferenceToServer(next).then((synced) => {
+      setAccountSyncState(synced ? "synced" : "local-only");
+    });
   }, []);
 
   const resolvedAppearance = resolveColorModeAppearance(preference, systemPrefersDark);
@@ -119,9 +126,10 @@ export function ColorModePreferenceProvider(props: { readonly children: ReactNod
       resolvedAppearance,
       systemPrefersDark,
       mounted,
+      accountSyncState,
       setAndPersist,
     }),
-    [mounted, preference, resolvedAppearance, setAndPersist, systemPrefersDark],
+    [accountSyncState, mounted, preference, resolvedAppearance, setAndPersist, systemPrefersDark],
   );
 
   return (

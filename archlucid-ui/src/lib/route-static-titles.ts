@@ -1,4 +1,4 @@
-import { ARCHITECTURE_SCORECARD_PATH } from "@/lib/architecture-scorecard-route";
+import { ARCHITECTURE_SCORECARD_PATH } from "@/lib/architecture/architecture-scorecard-route";
 import { COMPARE_TWO_REVIEWS_PATH } from "@/lib/compare-two-reviews-route";
 import {
   EXECUTIVE_SUMMARY_PAGE_TITLE,
@@ -10,24 +10,24 @@ import {
   GOVERNANCE_APPROVAL_QUEUE_PATH,
   GOVERNANCE_EXCEPTIONS_PATH,
   GOVERNANCE_STANDARDS_AND_RULES_PATH,
-} from "@/lib/governance-route-paths";
-import { CREATE_ARCHITECTURE_LABEL, START_REVIEW_LABEL } from "@/lib/architecture-workflow-labels";
-import { ARCHITECTURES_LIST_PATH, ARCHITECTURES_NEW_PATH } from "@/lib/architecture-routes";
-import { EXECUTIVE_DASHBOARD_HREF, EXECUTIVE_DASHBOARD_WORKSPACE_HEALTH_HREF } from "@/lib/executive-dashboard-route";
+} from "@/lib/governance/governance-route-paths";
+import { CREATE_ARCHITECTURE_LABEL, START_REVIEW_LABEL } from "@/lib/architecture/architecture-workflow-labels";
+import { ARCHITECTURES_LIST_PATH, ARCHITECTURES_NEW_PATH } from "@/lib/architecture/architecture-routes";
+import { EXECUTIVE_DASHBOARD_HREF, EXECUTIVE_DASHBOARD_WORKSPACE_HEALTH_HREF } from "@/lib/executive/executive-dashboard-route";
 import {
   INTERNAL_DEMO_READINESS_PAGE_TITLE,
 } from "@/lib/demo-readiness-evidence-copy";
-import { BUYER_EXECUTIVE_SUMMARY_VOCABULARY } from "@/lib/buyer-surface-vocabulary";
+import { BUYER_EXECUTIVE_SUMMARY_VOCABULARY } from "@/lib/vocabulary/buyer-surface-vocabulary";
 import { IMPACT_PREVIEW_PATH } from "@/lib/impact-preview-route";
 import { PLANNING_PATH } from "@/lib/planning-route";
 import { AUDIT_TRAIL_PAGE_TITLE } from "@/lib/audit-trail-page-copy";
-import { GOVERNANCE_OVERVIEW_PAGE_TITLE } from "@/lib/governance-overview-copy";
+import { GOVERNANCE_OVERVIEW_PAGE_TITLE } from "@/lib/governance/governance-overview-copy";
 import { AI_USAGE_SETTINGS_PATH } from "@/lib/ai-usage-nav-paths";
 import { OPERATOR_NAV_LINK_LABELS, RUNS_LIST_PAGE_TITLES } from "@/lib/i18n";
 import { ASK_REVIEW_QUESTIONS_PATH } from "@/lib/ask-review-questions-route";
 import { SEARCH_REVIEW_EVIDENCE_PATH } from "@/lib/search-review-evidence-route";
 import { CLOUD_CONNECTIONS_PATH, INTEGRATIONS_READINESS_PATH } from "@/lib/integrations-nav-paths";
-import { ITSM_CONNECTORS_ADMIN_LABEL, ITSM_CONNECTORS_ADMIN_PATH } from "@/lib/itsm-connectors-admin-scope";
+import { ITSM_CONNECTORS_ADMIN_LABEL, ITSM_CONNECTORS_ADMIN_PATH } from "@/lib/itsm/itsm-connectors-admin-scope";
 import { PATTERN_LIBRARY_PAGE_TITLE } from "@/lib/pattern-library-copy";
 import { DIGESTS_HUB_PATH } from "@/lib/digests-route-paths";
 import { SIGNED_RECORDS_LIST_PATH } from "@/lib/signed-records-paths";
@@ -70,8 +70,8 @@ export const ROUTE_TITLES: Record<string, string> = {
   [PLANNING_PATH]: OPERATOR_NAV_LINK_LABELS.planning,
   "/architecture/first-review-guide": OPERATOR_NAV_LINK_LABELS.onboarding,
   "/administration/billing": "Billing & plans",
-  "/administration/tenant": OPERATOR_NAV_LINK_LABELS.workspaceSettings,
-  "/administration/tenant/recycle-bin": "Projects recycle bin",
+  "/administration/workspace-settings": OPERATOR_NAV_LINK_LABELS.workspaceSettings,
+  "/administration/workspace-settings/recycle-bin": "Projects recycle bin",
   [CLOUD_CONNECTIONS_PATH]: OPERATOR_NAV_LINK_LABELS.cloudConnections,
   [AI_USAGE_SETTINGS_PATH]: OPERATOR_NAV_LINK_LABELS.aiUsage,
   "/administration/api-keys": API_KEYS_PAGE_TITLE,
@@ -89,7 +89,7 @@ export const ROUTE_TITLES: Record<string, string> = {
   "/internal/demo-readiness": INTERNAL_DEMO_READINESS_PAGE_TITLE,
   [ITSM_CONNECTORS_ADMIN_PATH]: ITSM_CONNECTORS_ADMIN_LABEL,
   "/administration": OPERATOR_NAV_LINK_LABELS.settings,
-  "/administration/users": "Users & roles",
+  "/administration/users": OPERATOR_NAV_LINK_LABELS.usersAndRoles,
   "/administration/identity-providers": "Identity providers",
   "/administration/identity/sso-wizard": "SSO wizard",
   "/administration/scim-provisioning": "SCIM provisioning",

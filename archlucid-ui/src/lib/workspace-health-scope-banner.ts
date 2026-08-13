@@ -1,5 +1,5 @@
-import type { OperatorScopeRecord } from "@/lib/operator-scope-storage";
-import { defaultLabelsForScopeIds } from "@/lib/operator-scope-storage";
+import type { OperatorScopeRecord } from "@/lib/operator/operator-scope-storage";
+import { defaultLabelsForScopeIds } from "@/lib/operator/operator-scope-storage";
 
 export type SessionScopeHeaderTriplet = {
   tenantId: string;

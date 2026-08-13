@@ -81,12 +81,15 @@ export function useAlertsInboxPageQuery(args: {
 
 export function useAlertsInboxSummaryQuery(args: {
   readonly initialModel: AlertsInboxPageModel | null;
+  readonly enabled?: boolean;
 }) {
   const scope = useOperatorScopeQueryKey();
+  const queryEnabled = args.enabled ?? true;
 
   const query = useQuery({
     queryKey: operatorQueryKeys.alertsInboxSummary(scope),
     queryFn: fetchAlertsInboxSummary,
+    enabled: queryEnabled,
     placeholderData:
       args.initialModel !== null
         ? {

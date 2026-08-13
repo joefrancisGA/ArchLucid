@@ -1,18 +1,35 @@
 /** Buyer-facing copy for `/governance/alert-rules` Conditions tab (TB-936). */
 
+/** Hub tab lead (`AlertRulesHubClient` rules subtitle) owns first-viewport orientation — do not restack PAGE_LEAD here (TB-1585). */
 export const ALERT_RULES_CONDITIONS_PAGE_LEAD =
   "Define when completed architecture reviews should raise an alert in your workspace.";
 
-export const ALERT_RULES_CONDITIONS_FINDINGS_HELPER =
-  "Conditions evaluate findings from completed reviews. Configuring a condition does not set up external notification delivery.";
+/** Field help under Condition type — carries findings + notification-delivery honesty formerly in a stacked tab lead (TB-1585). */
+export const ALERT_RULES_RULE_TYPE_HELP =
+  "Evaluates findings from completed reviews. Saving a condition does not configure external notification delivery.";
 
-/** Distinct from the page title so the list is not a second "Alert rules" heading under it. */
-export const ALERT_RULES_LIST_HEADING = "Configured rules";
+/** Canonical rules-tab label — keep aligned with {@link ALERT_RULES_SECTION_HEADING} and empty titles. */
+export const ALERT_RULES_TAB_LABEL = "Alert rules";
+
+/** Section heading when persisted alert rules exist (distinct from the hub page title row). */
+export const ALERT_RULES_SECTION_HEADING = ALERT_RULES_TAB_LABEL;
+
+export const ALERT_RULES_LIST_HEADING = "Configured alert rules";
 
 export const ALERT_RULES_LIST_EMPTY_TITLE = "No alert rules yet";
 
 export const ALERT_RULES_LIST_EMPTY_BODY =
-  "Create a rule below to raise alerts when review findings cross your thresholds.";
+  "Create an alert rule to raise notifications when review findings cross your thresholds.";
+
+/** Header posture on the rules tab before any alert rules exist in the workspace. */
+export const ALERT_RULES_POSTURE_NOT_CONFIGURED_LABEL = "No conditions configured";
+
+/** Header metadata when the workspace has never persisted an alert rule. */
+export const ALERT_RULES_CONFIG_NEVER_CONFIGURED_LABEL = "Alert rules never configured in this workspace";
+
+/** Visible reason when the Test alerts hub tab is disabled with zero rules. */
+export const ALERT_RULES_TEST_ALERTS_TAB_DISABLED_REASON =
+  "Create at least one alert rule before testing alerts.";
 
 export const ALERT_RULES_CREATE_HEADING = "Create alert rule";
 

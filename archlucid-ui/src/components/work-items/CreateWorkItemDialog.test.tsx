@@ -3,7 +3,7 @@ import { beforeEach, describe, expect, it, vi } from "vitest";
 import { operatorNavOutsideProviderPrincipal } from "@/lib/current-principal";
 
 import { CreateWorkItemDialog } from "./CreateWorkItemDialog";
-import type { ArchitectureWorkItemPreview } from "@/lib/architecture-work-item-model";
+import type { ArchitectureWorkItemPreview } from "@/lib/architecture/architecture-work-item-model";
 import type { ItsmIntegrationHealthResponse } from "@/lib/api/itsm-outbound-api";
 import {
   CREATE_WORK_ITEM_API_FAILURE,
@@ -32,7 +32,7 @@ vi.mock("@/lib/copy-finding-as-work-item", () => ({
   writeWorkItemBodyToClipboard: (...args: unknown[]) => writeWorkItemBodyToClipboard(...args),
 }));
 
-vi.mock("@/components/OperatorNavAuthorityProvider", () => ({
+vi.mock("@/components/operator/OperatorNavAuthorityProvider", () => ({
   useNavCallerAuthorityRank: () => useNavCallerAuthorityRank(),
   useOperatorNavAuthority: () => ({
     currentPrincipal: {

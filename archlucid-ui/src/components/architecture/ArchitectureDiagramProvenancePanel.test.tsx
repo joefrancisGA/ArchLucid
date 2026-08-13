@@ -3,8 +3,8 @@ import { useState } from "react";
 import { describe, expect, it } from "vitest";
 
 import { ArchitectureDiagramProvenancePanel } from "@/components/architecture/ArchitectureDiagramProvenancePanel";
-import type { ArchitectureDiagramElementKind } from "@/lib/architecture-diagram-provenance";
-import type { ArchitectureDiagramModel } from "@/lib/architecture-diagram-types";
+import type { ArchitectureDiagramElementKind } from "@/lib/architecture/architecture-diagram-provenance";
+import type { ArchitectureDiagramModel } from "@/lib/architecture/architecture-diagram-types";
 
 const model: ArchitectureDiagramModel = {
   nodes: [

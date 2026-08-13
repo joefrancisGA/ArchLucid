@@ -29,7 +29,7 @@ import {
   SIGN_IN_PAGE_COPY,
 } from "@/lib/auth/sign-in-page-copy";
 import { AuthFlowShell } from "@/components/auth/AuthFlowShell";
-import { BUYER_SAFE_AUTH_NOT_CONFIGURED_MESSAGE } from "@/lib/buyer-safe-auth-messages";
+import { BUYER_SAFE_AUTH_NOT_CONFIGURED_MESSAGE } from "@/lib/buyer/buyer-safe-auth-messages";
 import { resolveSafeReturnPath } from "@/lib/navigation/safe-return-path";
 import { signInHasReturnDestination } from "@/lib/auth/sign-in-return-destination";
 import { assertOidcSignInConfig } from "@/lib/oidc/config";

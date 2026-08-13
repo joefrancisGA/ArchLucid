@@ -1,22 +1,26 @@
 import { OperatorHomeCardSectionTitle } from "@/components/operator-home/OperatorHomeCardSectionTitle";
-import {
-  OPERATOR_HOME_CONTINUE_SETUP_BODY,
-  OPERATOR_HOME_ONE_REQUIRED_ITEM_TITLE,
-  OPERATOR_HOME_READY_TO_BEGIN_TITLE,
-} from "@/lib/buyer-polish-copy";
+import { OPERATOR_HOME_ONE_REQUIRED_ITEM_TITLE } from "@/lib/buyer/buyer-polish-copy";
 import { OPERATOR_LAYOUT, OPERATOR_SURFACE_CARD_CLASS, OPERATOR_CARD, OPERATOR_TYPE_SCALE } from "@/lib/design-tokens";
 import { cn } from "@/lib/utils";
 
 export type OperatorHomeContinueSetupCardProps = {
-  readonly loading?: boolean;
   readonly canBegin?: boolean;
   readonly blockerMessage?: string | null;
 };
 
-/** Home readiness panel — compact reassurance that no setup is required before starting. */
-export function OperatorHomeContinueSetupCard(props: OperatorHomeContinueSetupCardProps = {}) {
+/**
+ * Home readiness panel — renders only when a prerequisite blocks the first review.
+ * There is no "ready" state: an unblocked workspace already shows enabled lifecycle CTAs,
+ * and rendering reassurance while readiness is still loading would assert an unverified state.
+ */
+export function OperatorHomeContinueSetupCard(
+  props: OperatorHomeContinueSetupCardProps = {},
+): React.JSX.Element | null {
   const canBegin = props.canBegin !== false && props.blockerMessage == null;
-  const heading = canBegin ? OPERATOR_HOME_READY_TO_BEGIN_TITLE : OPERATOR_HOME_ONE_REQUIRED_ITEM_TITLE;
+
+  if (canBegin) {
+    return null;
+  }
 
   return (
     <section
@@ -25,21 +29,15 @@ export function OperatorHomeContinueSetupCard(props: OperatorHomeContinueSetupCa
       data-testid="home-block-continue-setup"
     >
       <OperatorHomeCardSectionTitle id="continue-setup-heading">
-        {heading}
+        {OPERATOR_HOME_ONE_REQUIRED_ITEM_TITLE}
       </OperatorHomeCardSectionTitle>
 
-      {canBegin ? (
-        <p className={cn("m-0", OPERATOR_TYPE_SCALE.helper, "text-al-text-secondary")}>
-          {OPERATOR_HOME_CONTINUE_SETUP_BODY}
-        </p>
-      ) : (
-        <p
-          className={cn("m-0", OPERATOR_TYPE_SCALE.helper, "text-al-text-secondary")}
-          data-testid="operator-home-readiness-blocker"
-        >
-          {props.blockerMessage}
-        </p>
-      )}
+      <p
+        className={cn("m-0", OPERATOR_TYPE_SCALE.helper, "text-al-text-secondary")}
+        data-testid="operator-home-readiness-blocker"
+      >
+        {props.blockerMessage}
+      </p>
     </section>
   );
 }

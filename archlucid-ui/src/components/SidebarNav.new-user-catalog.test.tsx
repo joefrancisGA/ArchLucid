@@ -1,7 +1,7 @@
 import { fireEvent, render, screen, waitFor } from "@testing-library/react";
 import { beforeEach, describe, expect, it, vi } from "vitest";
 
-import { ARCHITECTURES_LIST_PATH } from "@/lib/architecture-routes";
+import { ARCHITECTURES_LIST_PATH } from "@/lib/architecture/architecture-routes";
 import { EXECUTIVE_DASHBOARD_HREF } from "@/lib/executive-dashboard-route";
 
 import { SidebarNav } from "./SidebarNav";
@@ -11,7 +11,7 @@ const { mockPathname } = vi.hoisted(() => ({
 }));
 
 vi.mock("@/hooks/use-governance-mode", async () => {
-  const { governanceModeVocabulary } = await import("@/lib/governance-mode-vocabulary");
+  const { governanceModeVocabulary } = await import("@/lib/vocabulary/governance-mode-vocabulary");
 
   return {
     useGovernanceMode: () => ({
@@ -38,7 +38,7 @@ vi.mock("@/lib/demo-ui-env", async (importOriginal) => {
   };
 });
 
-vi.mock("@/components/OperatorNavAuthorityProvider", async () => {
+vi.mock("@/components/operator/OperatorNavAuthorityProvider", async () => {
   const { createOperatorNavAuthorityVitestMock } = await import(
     "@/testing/operator-nav-authority-vitest-mock"
   );
@@ -112,7 +112,7 @@ const COLLAPSED_GROUPS: ReadonlyArray<RequestedGroup> = [
   },
   {
     toggleTestId: "sidebar-group-toggle-operator-admin",
-    hrefs: ["/administration/tenant", "/administration/billing", "/administration/support"],
+    hrefs: ["/administration/workspace-settings", "/administration/billing", "/administration/support"],
   },
 ];
 

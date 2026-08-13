@@ -17,7 +17,7 @@ public interface IAuditRetryQueue
     /// </summary>
     bool TryEnqueue(AuditEvent auditEvent);
 
-    /// <summary>Blocks until an event is available or the token is cancelled.</summary>
+    /// <summary>Blocks until an event is available or the token is canceled.</summary>
     ValueTask<AuditEvent> DequeueAsync(CancellationToken cancellationToken);
 
     /// <summary>Call after <see cref="IAuditService.LogAsync" /> succeeds for a dequeued event.</summary>

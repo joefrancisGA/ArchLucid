@@ -15,18 +15,23 @@ vi.mock("@/components/usability/PageContextualHelpButton", () => ({
 }));
 
 describe("AdministrationConnectionStatusPage (ADC)", () => {
-  it("renders operational intro and contextual help without inline layer guidance", () => {
+  it("renders operational intro and contextual help without duplicate orientation rails", () => {
     render(<AdministrationConnectionStatusPage />);
 
     expect(
       screen.getByRole("heading", { name: OPERATOR_NAV_LINK_LABELS.integrationReadiness }),
     ).toBeInTheDocument();
     expect(
-      screen.getByText(/which notification, ticketing, publishing, and delivery integrations are configured/i),
+      screen.getByText(/See which integrations are ready, recommended, or optional for this workspace/i),
     ).toBeInTheDocument();
+    expect(screen.getByTestId("connection-status-related-surfaces")).toHaveTextContent("Related:");
+    expect(screen.getByRole("link", { name: "Cloud connections" })).toBeInTheDocument();
+    expect(screen.getByRole("link", { name: "Webhooks" })).toBeInTheDocument();
+    expect(screen.queryByTestId("connection-status-cloud-connections-vocabulary")).toBeNull();
+    expect(screen.queryByTestId("connection-status-webhooks-vocabulary")).toBeNull();
     expect(screen.queryByRole("link", { name: "How integration readiness works" })).not.toBeInTheDocument();
     expect(screen.getByTestId("page-contextual-help-button")).toBeInTheDocument();
-    expect(screen.queryByTestId("connection-status-sources")).toBeNull(); // TB-2092
+    expect(screen.queryByTestId("connection-status-sources")).toBeNull();
     expect(screen.queryByTestId("connection-status-claim-discipline")).toBeNull();
     expect(screen.queryByText("About integration readiness")).not.toBeInTheDocument();
     expect(screen.getByTestId("connector-operations-dashboard")).toBeInTheDocument();

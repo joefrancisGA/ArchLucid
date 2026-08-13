@@ -6,9 +6,9 @@ import { useMemo } from "react";
 
 import { useHealthReadySummaryQuery } from "@/hooks/use-health-ready-summary-query";
 import { findHealthReadyEntryByName } from "@/lib/health-dashboard-types";
-import { DATA_ARCHIVAL_HEALTH_LABELS } from "@/lib/operator-health-labels";
+import { DATA_ARCHIVAL_HEALTH_LABELS } from "@/lib/operator/operator-health-labels";
 import { isNextPublicDemoMode, isOperatorExperienceFullShellEnv } from "@/lib/demo-ui-env";
-import { isStaticDemoPayloadFallbackEnabled } from "@/lib/operator-static-demo";
+import { isStaticDemoPayloadFallbackEnabled } from "@/lib/operator/operator-static-demo";
 import { OPERATOR_LINK, OPERATOR_TYPOGRAPHY } from "@/lib/design-tokens";
 
 function healthReadinessDotClass(status: string): string {

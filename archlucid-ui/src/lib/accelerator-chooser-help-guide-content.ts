@@ -31,7 +31,7 @@ export const ACCELERATOR_CHOOSER_HELP_PRIMARY_ACTIONS = {
   },
   pathChooser: {
     label: "Path chooser",
-    href: inAppHelpHref("path-chooser"),
+    href: inAppHelpHref("choose-your-next-step"),
   },
   baselineReview: {
     label: "New review with baseline intake",

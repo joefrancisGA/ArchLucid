@@ -1,11 +1,11 @@
-import { buildArchitectureManifestUnifiedLines } from "@/lib/architecture-manifest-line-diff";
+import { buildArchitectureManifestUnifiedLines } from "@/lib/architecture/architecture-manifest-line-diff";
 import {
   buildCompareGovernanceDiffView,
 } from "@/lib/compare-effective-governance-diff";
 import {
   applyFindingEvidenceGraphHighlight,
   resolveFindingEvidenceGraphViewModel,
-} from "@/lib/finding-evidence-graph-highlight";
+} from "@/lib/findings/finding-evidence-graph-highlight";
 import { mapGraphToReactFlow } from "@/lib/graph-mapper";
 import { computeProvenanceGraphLayout } from "@/lib/provenance-graph-layout";
 import type { Edge, Node } from "reactflow";

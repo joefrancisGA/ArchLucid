@@ -10,7 +10,7 @@
 **DiD spine:** [`TENANT_ISOLATION_DEFENSE_IN_DEPTH.md`](../security/TENANT_ISOLATION_DEFENSE_IN_DEPTH.md) (ADR 0037).  
 **Scope decide-once:** [`TENANT_IDENTITY_SINGLE_DERIVATION_CONTRACT.md`](TENANT_IDENTITY_SINGLE_DERIVATION_CONTRACT.md) (**TB-999**).  
 **Retrieval filter:** [`RETRIEVAL_TENANCY_HIT_GUARANTEE_CONTRACT.md`](RETRIEVAL_TENANCY_HIT_GUARANTEE_CONTRACT.md) (**TB-1001**).  
-**Honesty CI:** **TB-1233** (open). **RLS purge / overclaim:** **TB-1122** / GTM **M-194**.
+**Honesty CI:** **TB-1233** Done (`scripts/ci/check_tenant_did_erosion_beyond_predicates_honesty.py`). **RLS purge / overclaim:** **TB-1122** (Done) / GTM **M-194**.
 
 ---
 
@@ -62,7 +62,7 @@ Production paying-client isolation is **database-per-tenant catalog routing (Lay
 | **`BuildRequiredScopeFilter` mandatory** | Product Search paths cannot omit OData scope filter | Shipped (**TB-071**) | Upstream wrong `RetrievalQuery` |
 | **Ban `EmptyPersistenceScopeContextProvider` in product DI** | Api/Worker graphs fail closed on empty scope provider | **Follow-on** | Production topology |
 | **IDOR integration smoke** | Wrong-tenant GUID → 404/empty on hot routes | Partly shipped | Full route coverage |
-| **Honesty CI** | Fail "WHERE TenantId = isolation" / "RLS fixes tenancy" stubs | **TB-1233** (open) | Runtime seal |
+| **Honesty CI** | Fail "WHERE TenantId = isolation" / "RLS fixes tenancy" stubs | **TB-1233** Done | Runtime seal |
 | **NetArch isolation proof** | Layer-boundary tests vs convention | **TB-1005** / **TB-1122** | Catalog routing |
 
 This contract **names** follow-on enforcement; implementing exemption budget / ambient discipline / DI bans is separate engineering.
@@ -96,11 +96,11 @@ This contract **names** follow-on enforcement; implementing exemption budget / a
 
 ---
 
-## TB-1233 CI anchors (named, not implemented here)
+## CI anchors for **TB-1233**
 
 | Anchor | Purpose |
 |--------|---------|
-| Buyer/proof stub guards | Fail "WHERE TenantId proves isolation" / "RLS is the missing control" without this contract |
+| `scripts/ci/check_tenant_did_erosion_beyond_predicates_honesty.py` | Fail "WHERE TenantId proves isolation" / "RLS is the missing control" without this contract |
 | `TENANT_DID_EROSION_AND_ENFORCEMENT_BEYOND_PREDICATES_CONTRACT.md` | Drift guard (this file) |
 | `TENANT_ISOLATION_DEFENSE_IN_DEPTH.md` cross-link | Spine doc stays aligned with ADR 0037 |
 | Optional presence guards | `BuildRequiredScopeFilter` still called from product Search client paths |

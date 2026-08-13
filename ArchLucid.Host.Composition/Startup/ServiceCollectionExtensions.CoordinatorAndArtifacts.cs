@@ -10,6 +10,7 @@ using ArchLucid.Application.Evidence;
 using ArchLucid.Application.Explanation;
 using ArchLucid.Core.Explanation;
 using ArchLucid.Application.Governance;
+using ArchLucid.Application.Runs;
 using ArchLucid.Application.Runs.Coordination;
 using ArchLucid.ArtifactSynthesis.Docx;
 using ArchLucid.ArtifactSynthesis.Generators;
@@ -111,6 +112,7 @@ public static partial class ServiceCollectionExtensions
         services.AddScoped<IAgentEvaluationService, FindingsBackedAgentEvaluationService>();
         services.AddScoped<IEvidenceBuilder, DefaultEvidenceBuilder>();
         services.AddScoped<IAgentExecutionTraceRecorder, AgentExecutionTraceRecorder>();
+        services.AddScoped<ICommitRunIdempotencyCoordinator, CommitRunIdempotencyCoordinator>();
 
         // ADR 0030 PR A3 (2026-04-24): ICoordinatorGoldenManifestRepository and ICoordinatorDecisionTraceRepository
         // were deleted along with their concretes (InMemoryCoordinator*, GoldenManifestRepository, DecisionTraceRepository).
@@ -145,6 +147,9 @@ public static partial class ServiceCollectionExtensions
             services.AddSingleton<InMemoryRunScopedLlmBudgetReservationStore>();
             services.AddSingleton<IRunScopedLlmBudgetReservationStore>(sp =>
                 sp.GetRequiredService<InMemoryRunScopedLlmBudgetReservationStore>());
+            services.AddSingleton<InMemoryLlmMonthlyTenantBudgetReservationStore>();
+            services.AddSingleton<ILlmMonthlyTenantBudgetReservationStore>(sp =>
+                sp.GetRequiredService<InMemoryLlmMonthlyTenantBudgetReservationStore>());
             services.AddSingleton<InMemoryQuickScanDistributedConcurrencyStore>();
             services.AddSingleton<IQuickScanDistributedConcurrencyStore>(sp =>
                 sp.GetRequiredService<InMemoryQuickScanDistributedConcurrencyStore>());
@@ -154,6 +159,9 @@ public static partial class ServiceCollectionExtensions
             services.AddSingleton<InMemoryQuickScanSafetyOperationalStateStore>();
             services.AddSingleton<IQuickScanSafetyOperationalStateStore>(sp =>
                 sp.GetRequiredService<InMemoryQuickScanSafetyOperationalStateStore>());
+            services.AddSingleton<InMemoryQuickScanUsageRecordStore>();
+            services.AddSingleton<IQuickScanUsageRecordStore>(sp =>
+                sp.GetRequiredService<InMemoryQuickScanUsageRecordStore>());
             return;
         }
 
@@ -167,7 +175,9 @@ public static partial class ServiceCollectionExtensions
         services.AddSingleton<IQuickScanDistributedConcurrencyStore, DapperQuickScanDistributedConcurrencyStore>();
         services.AddSingleton<IQuickScanIdentityAbuseStore, DapperQuickScanIdentityAbuseStore>();
         services.AddSingleton<IQuickScanSafetyOperationalStateStore, DapperQuickScanSafetyOperationalStateStore>();
+        services.AddSingleton<IQuickScanUsageRecordStore, DapperQuickScanUsageRecordStore>();
         services.AddSingleton<IRunScopedLlmBudgetReservationStore, DapperRunScopedLlmBudgetReservationStore>();
+        services.AddSingleton<ILlmMonthlyTenantBudgetReservationStore, DapperLlmMonthlyTenantBudgetReservationStore>();
         services.AddScoped<IProjectRoleAssignmentRepository, ProjectRoleAssignmentRepository>();
         services.AddScoped<IAgentTaskRepository, AgentTaskRepository>();
         services.AddScoped<IAgentResultEnrichmentRepository, AgentResultEnrichmentRepository>();

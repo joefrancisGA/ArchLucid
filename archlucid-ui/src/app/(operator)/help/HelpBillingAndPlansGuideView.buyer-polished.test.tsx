@@ -31,7 +31,7 @@ vi.mock("@/components/usability/PageContextualHelpButton", () => ({
   PageContextualHelpButton: () => <div data-testid="page-contextual-help-button" />,
 }));
 
-vi.mock("@/components/OperatorNavAuthorityProvider", () => ({
+vi.mock("@/components/operator/OperatorNavAuthorityProvider", () => ({
   useNavCallerAuthorityRank: () => useNavCallerAuthorityRank(),
 }));
 
@@ -55,7 +55,7 @@ vi.mock("@/lib/frictionless-trial-session", () => ({
   readFrictionlessTrialSessionEnabled: () => false,
 }));
 
-vi.mock("@/lib/operator-scope-storage", () => ({
+vi.mock("@/lib/operator/operator-scope-storage", () => ({
   ARCHLUCID_OPERATOR_SCOPE_CHANGED_EVENT: "archlucid:operator-scope-changed",
   readOperatorScopeFromStorage: () => ({
     tenantId: "tenant-1",

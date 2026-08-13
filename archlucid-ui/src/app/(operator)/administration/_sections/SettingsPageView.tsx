@@ -1,26 +1,23 @@
 "use client";
 
-import Link from "next/link";
 import { useMemo, useState } from "react";
 
 import { AdminPrerequisitesReadinessBoard } from "@/components/administration/AdminPrerequisitesReadinessBoard";
-import { useOperatorNavAuthority } from "@/components/OperatorNavAuthorityProvider";
+import { useOperatorNavAuthority } from "@/components/operator/OperatorNavAuthorityProvider";
 import { SupportBundleDownloadButton } from "@/components/SupportBundleDownloadButton";
 import { Button } from "@/components/ui/button";
 import { Card, CardContent, CardHeader, CardTitle } from "@/components/ui/card";
-import { OPERATOR_TYPOGRAPHY } from "@/lib/design-tokens";
-import { OPERATOR_NAV_LINK_LABELS } from "@/lib/i18n";
+import { OPERATOR_LAYOUT, OPERATOR_TYPOGRAPHY } from "@/lib/design-tokens";
 import { isSelfHostedDeploymentEnv } from "@/lib/finish-setup-deployment";
 import { isArchLucidInternalOperatorShellEnv } from "@/lib/internal-operator-env";
 import { AUTHORITY_RANK } from "@/lib/nav-authority";
-import { readOperatorScopeFromStorage } from "@/lib/operator-scope-storage";
+import { readOperatorScopeFromStorage } from "@/lib/operator/operator-scope-storage";
 import { cn } from "@/lib/utils";
 
 import { SETTINGS_MASTER_SECTIONS, settingsMasterSectionDomId } from "./settings-master-catalog";
 import { buildSettingsMasterVisibleSections } from "./settings-master-page-model";
 import { SettingsMasterDestinationCard } from "./SettingsMasterDestinationCard";
 import { SettingsMasterOverviewHeader } from "./SettingsMasterOverviewHeader";
-import { SettingsMasterRecentChangesCard } from "./SettingsMasterRecentChangesCard";
 import { SettingsMasterSearchField } from "./SettingsMasterSearchField";
 import { SettingsMasterSectionNav } from "./SettingsMasterSectionNav";
 
@@ -48,7 +45,7 @@ export function SettingsPageView() {
   const canViewPrerequisitesBoard = callerAuthorityRank >= AUTHORITY_RANK.AdminAuthority;
 
   return (
-    <div className="w-full max-w-6xl space-y-6" data-testid="settings-page">
+    <div className={cn("w-full max-w-6xl", OPERATOR_LAYOUT.sectionStack)} data-testid="settings-page">
       <SettingsMasterOverviewHeader scope={scope} environmentLabel={environmentLabel} />
       <AdminPrerequisitesReadinessBoard enabled={canViewPrerequisitesBoard && !isAuthorityLoading} />
       <SettingsMasterSearchField
@@ -87,7 +84,7 @@ export function SettingsPageView() {
         <div className="grid gap-8 lg:grid-cols-[220px_minmax(0,1fr)]">
           <SettingsMasterSectionNav sections={visibleSections} />
 
-          <div className="space-y-8">
+          <div className={OPERATOR_LAYOUT.sectionStack}>
             {visibleSections.map((section) => (
               <section
                 key={section.id}
@@ -100,26 +97,12 @@ export function SettingsPageView() {
                   <h2 id={`${settingsMasterSectionDomId(section.id)}-title`} className={OPERATOR_TYPOGRAPHY.sectionTitle}>
                     {section.title}
                   </h2>
-                  <p className={cn("m-0 mt-1 max-w-3xl text-al-text-secondary", OPERATOR_TYPOGRAPHY.body)}>
+                  <p className={cn("m-0 mt-1 text-al-text-secondary", OPERATOR_TYPOGRAPHY.body)}>
                     {section.description}
                   </p>
                 </div>
 
                 <div className="grid gap-4">
-                  {section.showHelp ? (
-                    <Card data-testid="settings-help-card">
-                      <CardHeader>
-                        <CardTitle className={OPERATOR_TYPOGRAPHY.cardTitle}>Help</CardTitle>
-                      </CardHeader>
-                      <CardContent className={cn("space-y-3 text-al-text-secondary", OPERATOR_TYPOGRAPHY.body)}>
-                        <p className="m-0">Browse product guides, troubleshooting steps, and common workflows.</p>
-                        <Button asChild variant="outline" size="sm">
-                          <Link href="/help">{OPERATOR_NAV_LINK_LABELS.help}</Link>
-                        </Button>
-                      </CardContent>
-                    </Card>
-                  ) : null}
-
                   {section.showSupportBundle ? (
                     <Card data-testid="settings-support-bundle-card">
                       <CardHeader>
@@ -129,12 +112,10 @@ export function SettingsPageView() {
                         <p className="m-0">
                           Download a redacted diagnostics bundle to include with a support ticket.
                         </p>
-                        <p className={cn("m-0 italic", OPERATOR_TYPOGRAPHY.helper)}>
-                          No support bundle generated yet in this session.
-                        </p>
                         <SupportBundleDownloadButton showDiagnosticsLink />
                         <p className={cn("m-0", OPERATOR_TYPOGRAPHY.helper)}>
-                          The bundle is redacted before download. Review it before sending if your organization requires approval.
+                          The bundle is redacted before download. Review it before sending if your organization requires
+                          approval.
                         </p>
                       </CardContent>
                     </Card>
@@ -146,10 +127,6 @@ export function SettingsPageView() {
                 </div>
               </section>
             ))}
-
-            <SettingsMasterRecentChangesCard
-              showAuditLink={callerAuthorityRank >= AUTHORITY_RANK.ReadAuthority}
-            />
           </div>
         </div>
       )}

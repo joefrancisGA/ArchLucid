@@ -6,7 +6,7 @@ import type { ReactNode } from "react";
 
 import { InlineGuidanceLabel } from "@/components/InlineGuidanceLabel";
 import { InlineGuidanceText } from "@/components/InlineGuidanceText";
-import { ARCHITECTURE_REVIEW_VOCABULARY } from "@/lib/architecture-review-vocabulary";
+import { ARCHITECTURE_REVIEW_VOCABULARY } from "@/lib/vocabulary/architecture-review-vocabulary";
 import {
   mergeLayerGuidanceForBuyerDemoShell,
   type LayerGuidancePageKey,

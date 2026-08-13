@@ -1,4 +1,4 @@
-import { resolveLatestActivityAtUtc, resolveFindingActivityAtUtc } from "@/lib/finding-activity-at-utc";
+import { resolveLatestActivityAtUtc, resolveFindingActivityAtUtc } from "@/lib/findings/finding-activity-at-utc";
 import { deriveLastEvaluatedLabel } from "@/lib/run-detail-workspace-derive";
 import type { ReviewDetailTabId } from "@/lib/review-detail-workspace-tabs";
 import type { QuickDecisionFinding } from "@/lib/quick-decision-summary-derive";

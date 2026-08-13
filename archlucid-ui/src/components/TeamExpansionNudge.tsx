@@ -6,6 +6,7 @@ import { useEffect, useRef, useState } from "react";
 
 import { Button } from "@/components/ui/button";
 import { DismissControl } from "@/components/usability/DismissControl";
+import { useTenantTrialStatusQuery } from "@/hooks/use-tenant-trial-status-query";
 import { useTenantUsageStatusQuery } from "@/hooks/use-tenant-usage-status-query";
 import { isBuyerPolishedOperatorShellEnv } from "@/lib/demo-ui-env";
 import { OPERATOR_TYPOGRAPHY } from "@/lib/design-tokens";
@@ -22,6 +23,7 @@ import {
   type TeamExpansionNudgeStatusPayload,
   type TeamExpansionNudgeTrigger,
 } from "@/lib/team-expansion-nudge-trigger";
+import { shouldFetchTenantUsageStatusForTeamExpansionNudge } from "@/lib/team-expansion-nudge-usage-fetch";
 
 function nudgeCopy(
   trigger: TeamExpansionNudgeTrigger,
@@ -59,7 +61,9 @@ function nudgeCopy(
  * documented thresholds; trials remain owned by {@link TrialUsageUpgradeNudge}.
  */
 export function TeamExpansionNudge() {
-  const { data: payload, isFetched } = useTenantUsageStatusQuery();
+  const { data: trialPayload, isFetched: trialFetched } = useTenantTrialStatusQuery();
+  const usageQueryEnabled = shouldFetchTenantUsageStatusForTeamExpansionNudge(trialPayload, trialFetched);
+  const { data: payload, isFetched } = useTenantUsageStatusQuery({ enabled: usageQueryEnabled });
   const [activeTrigger, setActiveTrigger] = useState<TeamExpansionNudgeTrigger | null>(null);
   const [visible, setVisible] = useState(false);
   const [dismissedLocally, setDismissedLocally] = useState(false);
@@ -136,7 +140,6 @@ export function TeamExpansionNudge() {
       <DismissControl
         iconOnly
         ariaLabel="Dismiss Team expansion nudge for 24 hours"
-        className="text-sky-900 hover:bg-sky-100 dark:text-sky-100 dark:hover:bg-sky-900/60"
         onDismiss={() => {
           dismissTeamExpansionNudge24h(activeTrigger);
           setDismissedLocally(true);

@@ -1,4 +1,4 @@
-import { RUN_DETAIL_SECTION_TAB } from "@/lib/run-detail-section-tab-map";
+import { RUN_DETAIL_SECTION_TAB } from "@/lib/runs/run-detail-section-tab-map";
 
 export const REVIEW_DETAIL_TAB_PARAM = "reviewTab" as const;
 

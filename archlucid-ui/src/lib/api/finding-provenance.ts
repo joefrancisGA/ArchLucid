@@ -1,5 +1,5 @@
 ﻿import { apiGet } from "@/lib/api/http";
-import { isStaticDemoPayloadFallbackEnabled } from "@/lib/operator-static-demo";
+import { isStaticDemoPayloadFallbackEnabled } from "@/lib/operator/operator-static-demo";
 import { SHOWCASE_FINDING_PROVENANCE } from "@/lib/showcase-static-demo";
 
 export type FindingProvenanceStepKind = "input" | "evidence" | "policy-check" | "conclusion";

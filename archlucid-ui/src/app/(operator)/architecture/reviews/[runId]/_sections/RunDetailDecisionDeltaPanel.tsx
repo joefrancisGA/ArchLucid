@@ -2,15 +2,15 @@ import { cn } from "@/lib/utils";
 import Link from "next/link";
 import type { ReactElement } from "react";
 
-import { FindingPolicyRuleBadge } from "@/components/FindingPolicyRuleBadge";
-import { FindingTrustChipFromSet } from "@/components/FindingTrustChip";
+import { FindingPolicyRuleBadge } from "@/components/findings/FindingPolicyRuleBadge";
+import { FindingTrustChipFromSet } from "@/components/findings/FindingTrustChip";
 import { SeverityTag } from "@/components/ui/severity-tag";
 import { OPERATOR_LINK, OPERATOR_TYPOGRAPHY } from "@/lib/design-tokens";
 import {
   RUN_DETAIL_DECISION_DELTA_PANEL_TEST_ID,
   RUN_DETAIL_DECISION_DELTA_ROW_TEST_ID,
-} from "@/lib/run-detail-decision-delta-alignment";
-import type { RunDetailDecisionDeltaView } from "@/lib/run-detail-decision-delta";
+} from "@/lib/runs/run-detail-decision-delta-alignment";
+import type { RunDetailDecisionDeltaView } from "@/lib/runs/run-detail-decision-delta";
 
 export type RunDetailDecisionDeltaPanelProps = {
   readonly runId: string;

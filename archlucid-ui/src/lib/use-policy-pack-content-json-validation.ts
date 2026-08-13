@@ -7,7 +7,7 @@ import {
   partitionPolicyPackContentJsonIssues,
   type PolicyPackContentJsonValidationIssue,
   validatePolicyPackContentJson,
-} from "@/lib/policy-pack-content-json-validation";
+} from "@/lib/policy/policy-pack-content-json-validation";
 
 /** Debounce window before calling POST /v1/policy-packs/validate while typing. */
 export const POLICY_PACK_CONTENT_JSON_VALIDATION_DEBOUNCE_MS = 450;
@@ -87,7 +87,7 @@ export function usePolicyPackContentJsonValidation(jsonText: string): PolicyPack
   const [state, setState] = useState<PolicyPackContentJsonValidationState>(idleValidState);
 
   useEffect(() => {
-    let cancelled = false;
+    let canceled = false;
     const trimmed = jsonText.trim();
 
     if (trimmed.length === 0) {
@@ -126,7 +126,7 @@ export function usePolicyPackContentJsonValidation(jsonText: string): PolicyPack
         try {
           const result = await validatePolicyPackContentJson(jsonText);
 
-          if (cancelled) {
+          if (canceled) {
             return;
           }
 
@@ -140,7 +140,7 @@ export function usePolicyPackContentJsonValidation(jsonText: string): PolicyPack
             }),
           );
         } catch {
-          if (cancelled) {
+          if (canceled) {
             return;
           }
 
@@ -157,7 +157,7 @@ export function usePolicyPackContentJsonValidation(jsonText: string): PolicyPack
     }, POLICY_PACK_CONTENT_JSON_VALIDATION_DEBOUNCE_MS);
 
     return () => {
-      cancelled = true;
+      canceled = true;
       window.clearTimeout(timer);
     };
   }, [jsonText]);

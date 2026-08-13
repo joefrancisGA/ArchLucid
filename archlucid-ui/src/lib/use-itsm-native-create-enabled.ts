@@ -1,8 +1,8 @@
-import { useItsmNativeCreateReadinessContext } from "@/components/ItsmNativeCreateReadinessProvider";
+import { useItsmNativeCreateReadinessContext } from "@/components/itsm/ItsmNativeCreateReadinessProvider";
 import {
   INITIAL_ITSM_NATIVE_CREATE_READINESS,
   type ItsmNativeCreateReadiness,
-} from "@/lib/itsm-native-integration";
+} from "@/lib/itsm/itsm-native-integration";
 
 /** Client hook for TB-387 native ITSM create gate + Tier 2 #6 default-path readiness. */
 export function useItsmNativeCreateReadiness(): ItsmNativeCreateReadiness {

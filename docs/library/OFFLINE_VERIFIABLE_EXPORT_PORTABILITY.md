@@ -74,6 +74,17 @@ Canonical hasher: `ManifestHashService` — SHA-256 over a **sorted canonical JS
 2. Optional **offline ManifestHash recompute** CLI that embeds/documents the canonical projection (version-pinned) — only if owner wants full offline lineage; until then disclose live verify.
 3. Offboard checklist: “export ZIPs + save verify JSON before purge.”
 
+## CI anchors for **TB-1489**
+
+| Anchor | Role |
+| --- | --- |
+| `scripts/ci/check_offline_export_portability_honesty.py` | Fail fully-offline-ManifestHash / PKI-signed / post-purge-verify overclaims |
+| `ArchLucid.ArtifactSynthesis/Packaging/ExportManifestBuilder.cs` | `export-manifest.json` file SHA-256 anchor |
+| `ArchLucid.Application/Analysis/RunExportLineageVerifier.cs` | Live lineage verify code anchor |
+| `ArchLucid.Decisioning/Services/ManifestHashService.cs` | Canonical ManifestHash projection anchor |
+
+Honesty CI shipped: **TB-1489**.
+
 ---
 
 ## 7. Code entry points (verification)

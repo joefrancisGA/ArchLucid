@@ -5,12 +5,11 @@ import { AlertTriangle } from "lucide-react";
 import { GcpWifStarterPanel } from "@/app/(operator)/integrations/cloud-connections/_sections/GcpWifStarterPanel";
 import { HelpTopicHashScroll } from "@/app/(operator)/help/HelpTopicHashScroll";
 import { ConnectGcpSecurelyHelpEvidenceOrientationStrip } from "@/components/help/ConnectGcpSecurelyHelpEvidenceOrientationStrip";
-import { HelpTopicPdfDownloadButton } from "@/components/help/HelpTopicPdfDownloadButton";
 import { HelpTopicPrintButton } from "@/components/help/HelpTopicPrintButton";
 import { HelpTopicRegistryProvenanceLine } from "@/components/help/HelpTopicRegistryProvenanceLine";
 import { HelpTopicTableOfContents } from "@/components/help/HelpTopicTableOfContents";
-import { OperatorPageBreadcrumb } from "@/components/OperatorPageBreadcrumb";
-import { OperatorPageHeader } from "@/components/OperatorPageHeader";
+import { OperatorPageBreadcrumb } from "@/components/operator/OperatorPageBreadcrumb";
+import { OperatorPageHeader } from "@/components/operator/OperatorPageHeader";
 import { PageContextualHelpButton } from "@/components/usability/PageContextualHelpButton";
 import { Button } from "@/components/ui/button";
 import { Card, CardContent } from "@/components/ui/card";
@@ -57,8 +56,8 @@ import {
   OPERATOR_SHELL_SCROLL_OFFSET_CLASS,
   OPERATOR_TYPOGRAPHY,
 } from "@/lib/design-tokens";
-import type { HelpMarkdownHeading } from "@/lib/help-markdown-headings";
-import { HELP_PAGE_LAYOUT } from "@/lib/help-page-layout";
+import type { HelpMarkdownHeading } from "@/lib/help/help-markdown-headings";
+import { HELP_PAGE_LAYOUT } from "@/lib/help/help-page-layout";
 import type { ProductDocumentationEntry } from "@/lib/product-documentation-registry";
 import { cn } from "@/lib/utils";
 
@@ -151,7 +150,7 @@ export function HelpConnectGcpSecurelyGuideView(props: HelpConnectGcpSecurelyGui
 
   return (
     <article
-      className={cn(OPERATOR_LAYOUT.majorSectionGap, "mx-auto w-full max-w-[68rem]")}
+      className={cn(OPERATOR_LAYOUT.majorSectionGap, "w-full max-w-[68rem]")}
       data-testid="help-connect-gcp-securely-guide"
     >
       <HelpTopicHashScroll />
@@ -174,7 +173,7 @@ export function HelpConnectGcpSecurelyGuideView(props: HelpConnectGcpSecurelyGui
         }
         metadata={
           <div className="space-y-2">
-            <p className={cn("m-0 max-w-prose text-al-text-secondary", OPERATOR_TYPOGRAPHY.helper)}>
+            <p className={cn("m-0 max-w-3xl text-al-text-secondary", OPERATOR_TYPOGRAPHY.helper)}>
               <a href="#troubleshoot" className={OPERATOR_LINK.nav}>
                 Fix a failed permission check
               </a>
@@ -188,21 +187,20 @@ export function HelpConnectGcpSecurelyGuideView(props: HelpConnectGcpSecurelyGui
             <Button asChild size="sm" variant="primary" data-testid="connect-gcp-configure-action">
               <Link href={CONNECT_GCP_SECURELY_CONFIGURE_HREF}>{CONNECT_GCP_SECURELY_CONFIGURE_ACTION}</Link>
             </Button>
-            <HelpTopicPdfDownloadButton entry={entry} />
             <HelpTopicPrintButton entry={entry} />
           </div>
         }
       />
 
       <div className="space-y-3">
-        <p className={cn("m-0 max-w-prose text-al-text-secondary", OPERATOR_TYPOGRAPHY.body)}>{CONNECT_GCP_SECURELY_PAGE_LEAD}</p>
-        <p className={cn("m-0 max-w-prose text-al-text-secondary", OPERATOR_TYPOGRAPHY.body)}>
+        <p className={cn("m-0 max-w-3xl text-al-text-secondary", OPERATOR_TYPOGRAPHY.body)}>{CONNECT_GCP_SECURELY_PAGE_LEAD}</p>
+        <p className={cn("m-0 max-w-3xl text-al-text-secondary", OPERATOR_TYPOGRAPHY.body)}>
           {CONNECT_GCP_SECURELY_CONNECTION_VALUE}
         </p>
-        <p className={cn("m-0 max-w-prose text-al-text-secondary", OPERATOR_TYPOGRAPHY.body)}>
+        <p className={cn("m-0 max-w-3xl text-al-text-secondary", OPERATOR_TYPOGRAPHY.body)}>
           {CONNECT_GCP_SECURELY_UPLOAD_INVENTORY_NOTE}
         </p>
-        <p className={cn("m-0 max-w-prose text-al-text-secondary", OPERATOR_TYPOGRAPHY.body)}>
+        <p className={cn("m-0 max-w-3xl text-al-text-secondary", OPERATOR_TYPOGRAPHY.body)}>
           {CONNECT_GCP_SECURELY_SCHEDULED_COLLECTION_NOTE}
         </p>
       </div>
@@ -264,7 +262,7 @@ export function HelpConnectGcpSecurelyGuideView(props: HelpConnectGcpSecurelyGui
                 </li>
               ))}
             </ol>
-            <p className={cn("m-0 max-w-prose text-al-text-secondary", OPERATOR_TYPOGRAPHY.body)}>
+            <p className={cn("m-0 max-w-3xl text-al-text-secondary", OPERATOR_TYPOGRAPHY.body)}>
               {CONNECT_GCP_SECURELY_WIF_IDENTITY_INTRO}
             </p>
             <GcpWifStarterPanel />
@@ -276,7 +274,7 @@ export function HelpConnectGcpSecurelyGuideView(props: HelpConnectGcpSecurelyGui
             data-testid="connect-gcp-securely-roles-section"
           >
             <HelpSectionHeading id="gcp-roles">{CONNECT_GCP_SECURELY_ROLES_HEADING}</HelpSectionHeading>
-            <p className={cn("m-0 max-w-prose text-al-text-secondary", OPERATOR_TYPOGRAPHY.body)}>
+            <p className={cn("m-0 max-w-3xl text-al-text-secondary", OPERATOR_TYPOGRAPHY.body)}>
               {CONNECT_GCP_SECURELY_ROLES_NOTE}
             </p>
             <GcpRolesTable />

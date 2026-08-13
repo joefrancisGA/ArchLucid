@@ -75,18 +75,39 @@ internal static class AgentOutputEvaluationRecordedPerspectiveBuilder
         AgentOutputEvaluationScore advisoryScore,
         AgentExecutionTrace trace)
     {
+        double structuralRatio = trace.RecordedStructuralCompletenessRatio
+            ?? advisoryScore.StructuralCompletenessRatio;
+
+        AgentOutputSemanticScore? semantic = advisoryScore.Semantic;
+
+        if (trace.RecordedSemanticScore is { } recordedSemantic && semantic is not null)
+        {
+            semantic = new AgentOutputSemanticScore
+            {
+                OverallSemanticScore = recordedSemantic,
+                EmptyClaimCount = semantic.EmptyClaimCount,
+                IncompleteFindingCount = semantic.IncompleteFindingCount,
+                FindingCitationCoverageRatio = semantic.FindingCitationCoverageRatio,
+                LlmJudgeHeuristicDisagreement = semantic.LlmJudgeHeuristicDisagreement,
+                AgentResultEmbeddingFaithfulnessMeanCosine = semantic.AgentResultEmbeddingFaithfulnessMeanCosine,
+                LlmFaithfulnessScore = semantic.LlmFaithfulnessScore,
+            };
+        }
+
         return new AgentOutputEvaluationScore
         {
             TraceId = advisoryScore.TraceId,
             AgentType = advisoryScore.AgentType,
-            StructuralCompletenessRatio = advisoryScore.StructuralCompletenessRatio,
+            StructuralCompletenessRatio = structuralRatio,
             IsJsonParseFailure = advisoryScore.IsJsonParseFailure,
             MissingKeys = advisoryScore.MissingKeys,
-            Semantic = advisoryScore.Semantic,
+            Semantic = semantic,
             BlobUploadFailed = advisoryScore.BlobUploadFailed,
             QualityWarning = trace.QualityWarning,
             QualityGateOutcome = trace.RecordedQualityGateOutcome,
             QualityGateDefinitionContentHashSha256 = trace.QualityGateDefinitionContentHashSha256,
+            RecordedRejectReasonCategory = trace.RecordedRejectReasonCategory,
+            RecordedTriageScenarioId = trace.RecordedTriageScenarioId,
         };
     }
 

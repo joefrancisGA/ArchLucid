@@ -5,7 +5,7 @@ import { OPERATOR_TYPOGRAPHY } from "@/lib/design-tokens";
 import {
   HELP_TOPIC_PAGE_ICON,
   HELP_TOPIC_PAGE_ICON_CLASS,
-} from "@/lib/help-topic-page-icon";
+} from "@/lib/help/help-topic-page-icon";
 
 export type HelpTopicTitleRowProps = {
   title: string;

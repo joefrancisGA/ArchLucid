@@ -21,21 +21,21 @@ import {
   type MapGraphPresentation,
 } from "@/lib/graph-mapper";
 import { graphViewModelFilteredByNodeType } from "@/lib/graph-view-model-type-filter";
-import { OperatorEmptyState } from "@/components/OperatorShellMessage";
+import { OperatorEmptyState } from "@/components/operator/OperatorShellMessage";
 import { useBasicAdvancedToggle } from "@/hooks/useBasicAdvancedToggle";
 import { GraphBuyerCanvasToolbar } from "@/components/GraphBuyerCanvasToolbar";
 import { Button } from "@/components/ui/button";
 import { Input } from "@/components/ui/input";
 import { Label } from "@/components/ui/label";
 import { canonicalizeDemoRunId } from "@/lib/demo-run-canonical";
-import { BUYER_VIEW_SIGNED_RECORD_CTA } from "@/lib/buyer-polish-copy";
+import { BUYER_VIEW_SIGNED_RECORD_CTA } from "@/lib/buyer/buyer-polish-copy";
 import { isBuyerPolishedOperatorShellEnv } from "@/lib/demo-ui-env";
 import { fetchProvenanceNodeExplanationViaProxy } from "@/lib/fetch-provenance-node-explanation";
 import {
   findingIdForGraphDeepLink,
   graphFindingDetailHref,
 } from "@/lib/graph-finding-deep-links";
-import { getShowcaseManifestHref } from "@/lib/buyer-safe-review-navigation";
+import { getShowcaseManifestHref } from "@/lib/buyer/buyer-safe-review-navigation";
 import { signedRecordDetailPath } from "@/lib/signed-records-paths";
 import {
   graphBuyerTrailDispositionLine,
@@ -53,7 +53,7 @@ import { useInpOffloadTask } from "@/lib/workers/inp-offload-client";
 import {
   BUYER_EVIDENCE_GRAPH_OPEN_DECISION_RECORD_CTA,
   BUYER_EVIDENCE_GRAPH_OPEN_FINDING_DETAIL_CTA,
-} from "@/lib/buyer-polish-copy";
+} from "@/lib/buyer/buyer-polish-copy";
 import {
   OPERATOR_CALLOUT_WARN_CLASS,
   OPERATOR_DISCLOSURE_TRIGGER_CLASS,
@@ -163,17 +163,17 @@ function GraphFitViewSync({
       return;
     }
 
-    let cancelled = false;
+    let canceled = false;
     const outer = window.requestAnimationFrame(() => {
       window.requestAnimationFrame(() => {
-        if (!cancelled) {
+        if (!canceled) {
           void fitView({ padding, maxZoom, duration: 260 });
         }
       });
     });
 
     return () => {
-      cancelled = true;
+      canceled = true;
       window.cancelAnimationFrame(outer);
     };
   }, [nodeCount, edgeCount, presentationKey, padding, maxZoom, fitView]);
@@ -318,11 +318,11 @@ export function GraphViewer({
       return;
     }
 
-    let cancelled = false;
+    let canceled = false;
 
     const outer = window.requestAnimationFrame(() => {
       window.requestAnimationFrame(() => {
-        if (!cancelled) {
+        if (!canceled) {
           setInteractiveSurfaceReady(true);
           onInteractiveSurfaceReady?.();
         }
@@ -330,7 +330,7 @@ export function GraphViewer({
     });
 
     return () => {
-      cancelled = true;
+      canceled = true;
       window.cancelAnimationFrame(outer);
     };
   }, [filtered.nodes.length, filtered.edges.length, flowPresentation, onInteractiveSurfaceReady]);

@@ -48,7 +48,7 @@ internal static class PilotInitCommand
                     + "Checks: API health/ready · config lint (production-like-hosted-pilot) · token roles · optional Azure OpenAI smoke.")
                 .Border(BoxBorder.Rounded));
 
-        AnsiConsole.MarkupLine($"Target API: [grey]{Markup.Escape(options.BaseUrl)}[/]");
+        AnsiConsole.MarkupLine($"Target API: [gray]{Markup.Escape(options.BaseUrl)}[/]");
 
         PilotInitOptions resolved = await ResolveInteractiveOptionsAsync(options, cancellationToken).ConfigureAwait(false);
 
@@ -108,7 +108,7 @@ internal static class PilotInitCommand
             {
                 bearerToken = AnsiConsole.Prompt(
                     new TextPrompt<string>("Paste bearer JWT [dim](hidden; leave blank to skip)[/]")
-                        .PromptStyle("grey")
+                        .PromptStyle("gray")
                         .Secret());
             }
             else

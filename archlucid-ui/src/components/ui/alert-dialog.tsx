@@ -4,7 +4,7 @@ import { cn } from "@/lib/utils";
 import * as React from "react";
 import * as AlertDialogPrimitive from "@radix-ui/react-alert-dialog";
 
-import { OPERATOR_TYPOGRAPHY } from "@/lib/design-tokens";
+import { OPERATOR_DANGER, OPERATOR_TYPOGRAPHY } from "@/lib/design-tokens";
 
 const AlertDialog = AlertDialogPrimitive.Root
 
@@ -19,7 +19,7 @@ const AlertDialogOverlay = React.forwardRef<
   <AlertDialogPrimitive.Overlay
     ref={ref}
     className={cn(
-      "fixed inset-0 z-50 bg-black/80 data-[state=open]:animate-in data-[state=closed]:animate-out data-[state=closed]:fade-out-0 data-[state=open]:fade-in-0",
+      "fixed inset-0 z-50 bg-neutral-900/50 data-[state=open]:animate-in data-[state=closed]:animate-out data-[state=closed]:fade-out-0 data-[state=open]:fade-in-0",
       className
     )}
     {...props}
@@ -51,7 +51,7 @@ const AlertDialogHeader = ({
 }: React.HTMLAttributes<HTMLDivElement>) => (
   <div
     className={cn(
-      "flex flex-col space-y-1.5 text-center sm:text-left",
+      "flex flex-col space-y-1.5 text-left",
       className
     )}
     {...props}
@@ -65,7 +65,7 @@ const AlertDialogFooter = ({
 }: React.HTMLAttributes<HTMLDivElement>) => (
   <div
     className={cn(
-      "flex flex-col-reverse sm:flex-row sm:justify-end sm:space-x-2",
+      "flex flex-col-reverse gap-2 sm:flex-row sm:justify-end",
       className
     )}
     {...props}
@@ -109,8 +109,8 @@ const AlertDialogAction = React.forwardRef<
 >(({ className, ...props }, ref) => (
   <AlertDialogPrimitive.Action
     ref={ref}
-    className={cn("inline-flex h-9 items-center justify-center whitespace-nowrap rounded-md border border-transparent px-4 py-2 text-white shadow transition-colors focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-red-500 focus-visible:ring-offset-2 disabled:pointer-events-none disabled:opacity-50 dark:focus-visible:ring-red-500 dark:ring-offset-neutral-950", OPERATOR_TYPOGRAPHY.button,
-      "bg-red-600 hover:bg-red-600/80 dark:bg-red-900 dark:hover:bg-red-900/80",
+    className={cn("inline-flex h-9 items-center justify-center whitespace-nowrap rounded-md border border-transparent px-4 py-2 shadow transition-colors focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-offset-2 disabled:pointer-events-none disabled:opacity-50 dark:ring-offset-neutral-950", OPERATOR_TYPOGRAPHY.button,
+      OPERATOR_DANGER.action,
       className
     )}
     {...props}
@@ -124,8 +124,7 @@ const AlertDialogCancel = React.forwardRef<
 >(({ className, ...props }, ref) => (
   <AlertDialogPrimitive.Cancel
     ref={ref}
-    className={cn("mt-2 inline-flex h-9 items-center justify-center whitespace-nowrap rounded-md border border-neutral-200 bg-transparent px-4 py-2 transition-colors hover:bg-neutral-100 focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-neutral-400 focus-visible:ring-offset-2 disabled:pointer-events-none disabled:opacity-50 dark:border-neutral-800 dark:hover:bg-neutral-800 dark:focus-visible:ring-neutral-600 dark:ring-offset-neutral-950", OPERATOR_TYPOGRAPHY.button,
-      "sm:mt-0",
+    className={cn("inline-flex h-9 items-center justify-center whitespace-nowrap rounded-md border border-neutral-200 bg-transparent px-4 py-2 transition-colors hover:bg-neutral-100 focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-neutral-400 focus-visible:ring-offset-2 disabled:pointer-events-none disabled:opacity-50 dark:border-neutral-800 dark:hover:bg-neutral-800 dark:focus-visible:ring-neutral-600 dark:ring-offset-neutral-950", OPERATOR_TYPOGRAPHY.button,
       className
     )}
     {...props}

@@ -1,17 +1,17 @@
 import type { ApiLoadFailureState } from "@/lib/api-load-failure";
 import { deriveRunDetailBaselineAnnualCostUsd } from "@/lib/derive-run-detail-baseline-cost";
-import { resolveFindingsSnapshotInsightDensityView } from "@/lib/findings-snapshot-insight-density";
+import { resolveFindingsSnapshotInsightDensityView } from "@/lib/findings/findings-snapshot-insight-density";
 import {
   buildFindingWireSnapshotsForRunDetail,
   isQuickDecisionDerivedFromExplanationTraces,
   resolveQuickDecisionFindingsForRunDetail,
 } from "@/lib/quick-decision-summary-derive";
-import { resolveRunDecisionExplainabilityFromDetail } from "@/lib/run-decision-explainability-from-detail";
+import { resolveRunDecisionExplainabilityFromDetail } from "@/lib/runs/run-decision-explainability-from-detail";
 import type { RunDetail } from "@/types/authority";
 import type { RunExplanationSummary } from "@/types/explanation";
 
 import { loadRunDetailExplanationSummary } from "./load-run-detail-explanation-summary";
-import { tryStaticDemoExplanationSummary } from "@/lib/operator-static-demo";
+import { tryStaticDemoExplanationSummary } from "@/lib/operator/operator-static-demo";
 import { RunDetailRunExplanationCollapsibleDeferred } from "./run-detail-page-view-deferred-chunks";
 
 type RunDetailExplanationDeferredProps = {

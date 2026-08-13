@@ -24,7 +24,7 @@ export const API_CONTRACTS_HELP_SOURCES_STRIP_INTRO =
 
 export const API_CONTRACTS_HELP_PRIMARY_ACTIONS = {
   openOpenApi: {
-    label: "OpenAPI contract (v1)",
+    label: "OpenAPI contract",
     href: API_CONTRACTS_OPENAPI_PATH,
   },
 } as const;
@@ -37,8 +37,7 @@ export type ApiContractsHelpSourceLink = {
 /** Admin Sources — no self-href to this eng runbook. */
 export const API_CONTRACTS_HELP_SOURCES: readonly ApiContractsHelpSourceLink[] = [
   { label: "CLI usage", href: inAppHelpHref("cli-usage") },
-  { label: "Configuration reference", href: inAppHelpHref("configuration-reference") },
-  { label: "Engineering troubleshooting", href: inAppHelpHref("developer-troubleshooting") },
+  { label: "Engineering troubleshooting", href: inAppHelpHref("engineering-troubleshooting") },
   { label: "Audit trail help", href: inAppHelpHref("audit-trail") },
   { label: "Admin diagnostics", href: inAppHelpHref("admin-diagnostics") },
 ] as const;

@@ -48,7 +48,7 @@ Full operation-level rows: **Operations → durable audit** and **Baseline mutat
 
 <!-- audit-core-const-count:371 -->
 
-The HTML comment above is a **CI anchor**: `.github/workflows/ci.yml` runs `scripts/ci/assert_audit_const_count.py`, which parses every `public const string` in `ArchLucid.Core/Audit/AuditEventTypes.cs` (top-level, `Run`, and `Baseline.*`), cross-checks names against the three appendix tables in this file, and compares the count to this comment. Update the comment whenever constants change, and extend the appendix rows below.
+The HTML comment above is a **CI anchor**: `.github/workflows/ci.yml` runs `scripts/ci/assert_audit_const_count.py`, which parses every `public const string` across the `ArchLucid.Core/Audit/AuditEventTypes*.cs` family partials (top-level, `Run`, `Operation`, and `Baseline.*`), cross-checks names against the three appendix tables in this file, and compares the count to this comment. Update the comment whenever constants change, and extend the appendix rows below.
 
 The same workflow runs `scripts/ci/assert_openapi_mutations_in_audit_matrix.py` against `ArchLucid.Api.Tests/Contracts/openapi-v1.contract.snapshot.json`: every **POST** / **PUT** / **DELETE** path must appear here as an explicit route (`POST /v1/…`, `PUT …/suffix`, etc.) or be listed only in `scripts/ci/openapi_audit_matrix_allowlist.txt` when grandfathered — **new** routes should update this matrix, not the allowlist.
 
@@ -351,7 +351,7 @@ Neither weakens **DENY UPDATE/DELETE** on `dbo.AuditEvents` ([`051_AuditEvents_D
 | Surface previously flagged | Resolution | Verification |
 |---------------------------|-----------|--------------|
 | `FindingReviewApproved` / `FindingReviewRejected` / `FindingReviewOverridden` | `FindingReviewTrailAppendService` delegates `IFindingReviewTrailRepository.AppendAsync` and emits durable audits | Pairing passes for orchestrators touching `FindingReview`/trail only via façade when API lands |
-| `ManifestArchived` cascades (`dbo.GoldenManifests.ArchivedUtc` via bulk run archival) | `AdminDiagnosticsService` logs `AuditEventTypes.ManifestArchived` after successful `ArchiveRuns*` calls (`kind`: `createdBefore:…`, `byIds`, or `staleInFlight` for `POST …/diagnostics/data-consistency/stale-in-flight-runs`) | Wiring echo CI + orchestration review |
+| `ManifestArchived` cascades (`dbo.GoldenManifests.ArchivedUtc` via bulk run archival) | `AdminDiagnosticsService` logs `AuditEventTypes.ManifestArchived` after successful `ArchiveRuns*` calls (`kind`: `createdBefore:…`, `byIds`, `staleInFlight` for `POST …/diagnostics/data-consistency/stale-in-flight-runs`, or `missingArchitectureRequest` for `POST …/diagnostics/data-consistency/missing-architecture-request-runs`; TB-2190 — dry-run calls emit no audit row) | Wiring echo CI + orchestration review |
 | `RequestCreated` / `RequestLocked` / `RequestReleased` | `ArchitectureRunCreateOrchestrator`, `AuthorityDrivenArchitectureRunCommitOrchestrator` + `IRunRepository.CountActiveRunsForArchitectureRequestAsync` | Wiring echo CI |
 | Pipeline synthesis / findings sealing | `AuthorityPipelineStagesExecutor` | Wiring echo CI |
 | Run retry durability | `ArchitectureRunExecuteOrchestrator` emits `AuditEventTypes.Run.RetryRequested` | Wiring echo CI + unit `ArchitectureRunExecuteOrchestratorRetryRequestedAuditTests` (`ArchLucid.Application.Tests`) |
@@ -758,7 +758,7 @@ When adding a Core constant, add a row here and bump `audit-core-const-count`.
 | `Run.QualityGateRejected` | `Run.QualityGateRejected` | `BaselineMutationAuditService` / `BaselineMutationAuditArchitectureDurableWriter` (baseline `Architecture.RunQualityGateRejected`) |
 | `Run.RetryRequested` | `Run.RetryRequested` | `ArchitectureRunExecuteOrchestrator` (`ExecuteRunAsync` when load maps to `ArchitectureRunStatus.Failed`; scoped tenant/workspace/project + `RunId`) |
 | `Run.SelectiveExecuteRequested` | `Run.SelectiveExecuteRequested` | `RunsController` (`POST /v1/architecture/run/{runId}/execute/selective`) → `ArchitectureRunExecuteOrchestrator` (`ExecuteSelectiveRunAsync`; scoped tenant/workspace/project + `RunId`; payload `includeDependents`, `taskIds`, `agentTypes`) |
-| `Run.CancelRequested` | `Operation.CancelRequested` | `OperationsController` (`POST /v1/operations/{operationId}/cancel`; TB-2076 cooperative cancel) |
+| `Operation.CancelRequested` | `Operation.CancelRequested` | `OperationsController` (`POST /v1/operations/{operationId}/cancel`; TB-2076 cooperative cancel) |
 
 When adding a `Run` constant, add a row here and bump `audit-core-const-count`.
 

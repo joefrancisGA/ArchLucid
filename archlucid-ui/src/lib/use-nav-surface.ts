@@ -1,6 +1,6 @@
 "use client";
 
-import { useNavCallerAuthorityRank, useNavCommittedArchitectureReview } from "@/components/OperatorNavAuthorityProvider";
+import { useNavCallerAuthorityRank, useNavCommittedArchitectureReview } from "@/components/operator/OperatorNavAuthorityProvider";
 import { useNavProgressiveDisclosure } from "@/hooks/useNavProgressiveDisclosure";
 import {
   alertOperatorToolingOperatorRankLine,

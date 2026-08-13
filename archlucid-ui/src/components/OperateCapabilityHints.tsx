@@ -3,7 +3,7 @@
 import { cn } from "@/lib/utils";
 import type { ReactNode } from "react";
 
-import { useNavCallerAuthorityRank } from "@/components/OperatorNavAuthorityProvider";
+import { useNavCallerAuthorityRank } from "@/components/operator/OperatorNavAuthorityProvider";
 import { StatusTag } from "@/components/ui/status-tag";
 import {
   alertOperatorToolingOperatorRankLine,
@@ -22,7 +22,7 @@ import {
 import {
   BUYER_CTO_DEMO_GOVERNANCE_PREVIEW_BADGE,
   BUYER_CTO_DEMO_GOVERNANCE_PREVIEW_NOTE,
-} from "@/lib/buyer-polish-copy";
+} from "@/lib/buyer/buyer-polish-copy";
 import { isBuyerPolishedOperatorShellEnv } from "@/lib/demo-ui-env";
 import { isCtoDemoPresenterSafeModeEnv } from "@/lib/cto-demo-presenter-pack";
 import { AUTHORITY_RANK } from "@/lib/nav-authority";

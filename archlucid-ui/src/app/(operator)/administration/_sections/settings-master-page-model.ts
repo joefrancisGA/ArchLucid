@@ -14,7 +14,6 @@ export type SettingsMasterPageModelInput = {
 
 export type SettingsMasterVisibleSection = SettingsMasterSection & {
   readonly destinations: readonly SettingsMasterDestination[];
-  readonly showHelp: boolean;
   readonly showSupportBundle: boolean;
 };
 
@@ -126,9 +125,6 @@ export function buildSettingsMasterVisibleSections(
         return true;
       });
 
-      const showHelp =
-        section.id === "help"
-        && inlineCardMatchesQuery(normalizedQuery, ["help", "guide", "docs", "troubleshooting"]);
       const showSupportBundle =
         section.id === "support"
         && executePlus
@@ -137,7 +133,6 @@ export function buildSettingsMasterVisibleSections(
       return {
         ...section,
         destinations,
-        showHelp,
         showSupportBundle,
       };
     })
@@ -146,7 +141,7 @@ export function buildSettingsMasterVisibleSections(
         return true;
       }
 
-      return section.showHelp || section.showSupportBundle;
+      return section.showSupportBundle;
     });
 }
 

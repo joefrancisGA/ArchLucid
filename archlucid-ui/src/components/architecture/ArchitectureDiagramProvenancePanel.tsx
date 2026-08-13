@@ -11,11 +11,11 @@ import {
   listSelectableArchitectureDiagramElements,
   type ArchitectureDiagramElementKind,
   type ArchitectureDiagramProvenanceClass,
-} from "@/lib/architecture-diagram-provenance";
+} from "@/lib/architecture/architecture-diagram-provenance";
 import type {
   ArchitectureDiagramModel,
   ArchitectureDiagramVersionSource,
-} from "@/lib/architecture-diagram-types";
+} from "@/lib/architecture/architecture-diagram-types";
 import { OPERATOR_LINK, OPERATOR_TYPOGRAPHY } from "@/lib/design-tokens";
 
 export type ArchitectureDiagramProvenancePanelProps = {

@@ -32,7 +32,7 @@ What the assessment does **not** recommend: wholesale restructuring. The nav gro
 |---|---|---|---|
 | 1 | Navigation clarity | **72** | Primary "Architecture" group reads as a task sequence with an explicit caption (`pilot-nav-group-builder.ts:29-30`) `[PI]`. Deductions: two verb items ("Create architecture", "Start review") sit beside noun items; group label "Architecture" vs. its contents (reviews) is a mild mismatch; "Programs" group name is opaque `[PUI]`. |
 | 2 | Conceptual grouping | **68** | Governance, Insights, Reports, Integrations, Administration groups are internally coherent `[PI]`. Deductions: "Advisory scans" and "Recurrence schedules" live under Governance but are operational, not approval concepts; `/governance/first-30-days` is onboarding content inside Governance; `/insights/architecture-scorecard` (Insights) vs. `/executive/scorecard` (executive shell) split one concept across two groups `[PI]`. |
-| 3 | Route necessity | **55** | 134 pages for a pre-beta product. 18 page-level redirect routes and 40+ config redirect rules `[PI]`. Superseded page files still exist behind permanent redirects (`/integrations/itsm`, `/executive/dashboard`, `/admin/ai-usage-cost`) `[PI]`. Six overlapping executive/reporting routes (§6). Marketing surface (~20 routes) is large but separately grouped. |
+| 3 | Route necessity | **55** | 134 pages for a pre-beta product. 18 page-level redirect routes and 40+ config redirect rules `[PI]`. Superseded page files historically persisted behind permanent redirects (`/integrations/itsm` **removed**, `/executive/dashboard`, `/admin/ai-usage-cost`) `[PI]`. Six overlapping executive/reporting routes (§6). Marketing surface (~20 routes) is large but separately grouped. |
 | 4 | Workflow continuity | **74** | Golden path (create → intake → run detail → finalize → governance → dashboard) is fully linked, with post-commit next-best-action CTAs (`resolve-pilot-next-best-action.ts`) `[PI]`. Deductions: draft→review hand-off leaves the draft editable in parallel with the review that consumed it `[PI]`; approval requests have a lineage subpage but no detail page `[PI]`; `/ask` requires a finalized record but is nav-visible before one exists `[SMI]`. |
 | 5 | Terminology consistency | **70** | The uncommitted consolidation fixed the list noun: nav, H1, browser tab, and breadcrumb for `/reviews` all now say "Reviews" (`i18n.ts:44-45,119`, `reviews-hub-copy.ts:4`, `breadcrumb-map.ts:49`) `[PUI]`. Residuals: "Review record" vs. "Signed review record" in the same includes list (`reviews-hub-copy.ts:54-61`); "Evidence graph" (nav) vs. "Evidence trail" (help/hub copy) vs. "Graph" (default breadcrumb) vs. "Provenance graph" (command palette); "Executive dashboard" (nav) vs. "Executive summary" (page vocabulary); "Risk register" (nav) vs. "Findings" (breadcrumb) `[PUI]`. |
 | 6 | Page-boundary quality | **62** | Review detail is one route with 8 tabs mixing object views (Architecture, Evidence, Findings), lifecycle actions (Review/finalize), and meta (Activity) — workable but the "Review" tab (id `review-package`) is a label that does not describe its finalize/export content (`review-detail-workspace-tabs.ts:24`) `[PI]`. Executive reporting is split across six routes where tabs or one hub would serve (§6). Alerts vs. Alert rules as two nav items is correct (inbox vs. config). |
@@ -56,7 +56,7 @@ What the assessment does **not** recommend: wholesale restructuring. The nav gro
 7. **Evidence has no landing, and its tools carry four names.** Evidence enters review-scoped (upload tabs, wizards, cloud connectors, extract-upload) and is consumed via `/graph`, `/ask`, `/search` — three sibling nav items whose shared corpus is invisible. The same surface is "Evidence graph" (nav), "Evidence trail" (hub includes, help topic), "Graph" (default breadcrumb segment), and "Provenance graph" (command palette). `[PUI]`
 8. **Governance view is half-wired.** Vocabulary switching and detail-section behavior exist and are tested; the sidebar toggle component is not mounted, and `filterNavGroupsForGovernanceMode` is used only by tests. A mode that can only be enabled by editing `localStorage` is dead weight in the IA and a drift risk. `[PI]`
 9. **Internal rank names and dev-state labels leak into customer surfaces.** "AdminAuthority"/"ExecuteAuthority" in forbidden-state messages; "V1 is sold through guided evaluation…" on public `/pricing`; help slug `creating-runs` in a customer URL; breadcrumb segment "pilot" for `/value-report/pilot` labeled "Review value report" in nav. `[PUI]`
-10. **Superseded page files persist behind permanent redirects.** `/integrations/itsm`, `/executive/dashboard`, `/admin/ai-usage-cost`, `/operate/architecture-graph` all have page files that config-level redirects make unreachable (or nearly so). They cost build size, test surface, and future-engineer confusion, and `/why-archlucid` plus `/demo/explain` sit in customer route space as internal/demo tooling. `[PI]`
+10. **Superseded page files historically persisted behind permanent redirects.** `/integrations/itsm` is **removed** (OAuth callback retained); `/executive/dashboard`, `/admin/ai-usage-cost`, `/operate/architecture-graph` were unreachable behind config redirects or later retired. They cost build size, test surface, and future-engineer confusion, and `/why-archlucid` plus `/demo/explain` sit in customer route space as internal/demo tooling. `[PI]`
 
 ---
 
@@ -78,7 +78,7 @@ Notation — **Nav:** P = primary sidebar (when gates pass), S = secondary/in-pa
 | `/reviews/[runId]/findings/[findingId]` | Finding detail | D | Findings tab | Retain as-is |
 | `/reviews/[runId]/findings/[findingId]/inspect` | Technical finding inspection + citations | D | Finding detail | Retain as-is |
 | `/reviews/[runId]/provenance` | Review-scoped provenance graph + timeline | D | Run detail | Retain as-is |
-| `/reviews/[runId]/artifacts/[artifactId]` | Artifact preview | D | Exports section | Retain as-is |
+| `/reviews/[runId]/artifacts/[artifactId]` | Artifact preview (**RER** retired — 404; Preview SoT is **GAR**) | D | Exports section | Remove / do not reintroduce |
 | `/manifests/[manifestId]` (alias `/signed-records/[id]`) | Signed review record detail | D | Run detail, governance, golden journey | Retain as-is |
 | `/signed-records` (list) | **404 — rewrite target has no index page** | **X** | Breadcrumb parent, palette concept | **Add index page in Governance group** (IA-001; D1 resolved 2026-07-14) |
 | `/snapshot/[runId]` | Legacy bookmark alias → review workspace `readOnly=1` (redirect only) | R | Generated links, CTO recap | Retain redirect shim (not a standalone page) |
@@ -143,7 +143,7 @@ Notation — **Nav:** P = primary sidebar (when gates pass), S = secondary/in-pa
 | `/integrations/readiness` | Connector health hub (canonical) | P (Administration: "Connection status") | Retain as-is |
 | `/integrations/cloud-connections` (+ `/azure`, `/aws`, `/gcp`) | Cloud evidence connections | P | Retain as-is |
 | `/integrations/{jira,azure-boards,servicenow,slack,teams,webhooks}` | Per-connector config | P | Retain as-is |
-| `/integrations/itsm` | Legacy combined ITSM page | R (config redirect) | **Remove** page file (IA-014) |
+| `/integrations/itsm` | Legacy combined ITSM page | R (**removed** — no redirect; OAuth carve-out retained) | **Remove** page file (IA-014) — **Done** |
 | `/integrations/itsm/oauth/callback` | OAuth callback | flow-only | Retain as-is |
 | `/admin/integrations/itsm` | Internal connector probes/onboarding | Internal Ops | Retain as-is |
 
@@ -258,7 +258,7 @@ No merge is recommended purely on component similarity; each recommendation abov
 | `/architectures` (list) | **Near-orphan** | Not in any nav builder; only "Save and exit" reaches it `[PI]` | IA-002 (P0) |
 | `/demo/explain` | Orphan (internal) | No inbound nav links; only registry entries `[PI]` | IA-014 |
 | `/why-archlucid` | Orphan (internal) | Only `public-marketing-seo-paths.ts`; buyer shell redirects away `[PI]` | IA-014 |
-| `/integrations/itsm`, `/executive/dashboard`, `/admin/ai-usage-cost`, `/operate/architecture-graph` | Unreachable page files behind permanent redirects | Config redirects verified `[PI]` | IA-014 |
+| `/integrations/itsm` (**removed**), `/executive/dashboard`, `/admin/ai-usage-cost`, `/operate/architecture-graph` | Unreachable or retired page files behind permanent redirects / removals | Config redirects verified or hub removed `[PI]` | IA-014 |
 | `/governance/dashboard`, `/digests`, `/value-report/pilot`, `/value-report/roi` | Deliberately nav-omitted ("consolidated omissions") but palette lists some | `nav-config` omission set vs. `command-palette-curated-tasks.ts` `[PI]` | IA-011 |
 | `/administration/settings/baseline`, `/administration/settings/extract-upload` | Intentional deep links | Linked from ROI surfaces / pilot checklist `[PI]` | Retain; document in help |
 | `/governance/approval-requests/[id]/lineage` | Deep-only child without a parent detail route | No `[id]/page.tsx` `[PI]` | IA-015 |
@@ -355,7 +355,7 @@ ArchLucid (workspace scope: tenant → workspace → project)
 
 ### 9.4 Current-route → proposed-route mapping
 
-All routes map 1:1 except: `/signed-records` (new index page or removed references); page-file deletions behind existing redirects (`/integrations/itsm`, `/executive/dashboard`, `/admin/ai-usage-cost`, `/operate/architecture-graph`, `/why-archlucid`, `/demo/explain` — files removed, config redirects preserved); future `/value-report/pilot|roi` → `/value-report?tab=` (deferred, redirects required at cut-over).
+All routes map 1:1 except: `/signed-records` (new index page or removed references); page-file deletions behind existing redirects or removals (`/integrations/itsm` **removed**, `/executive/dashboard`, `/admin/ai-usage-cost`, `/operate/architecture-graph`, `/why-archlucid`, `/demo/explain` — files removed; legacy config redirects largely emptied in IA batch 4); future `/value-report/pilot|roi` → `/value-report?tab=` (deferred, redirects required at cut-over).
 
 **Breadcrumb strategy:** breadcrumb labels must be sourced from the same constants as nav labels (extend the drift-guard pattern already used by `review-terminology-guard.test.ts` to `breadcrumb-map.ts` segment labels). Help breadcrumbs standardize on "Help".
 
@@ -491,7 +491,7 @@ Complexity: XS/S/M/L/XL per the brief. All items are UI-only unless noted. Share
 - **Shipped:** `FORBIDDEN_WORKSPACE_ADMIN_ACCESS_MESSAGE*` on settings/trial-funnel gates; `BUYER_SALES_LED_PRICING_NOTE` without version label; `starting-reviews` help slug + `creating-runs` alias; `internal-concept-leakage-guard.test.ts`.
 
 **IA-014 · Dead page-file and internal-route cleanup** — **P2 · S**
-- **Problem:** Page files persist for `/integrations/itsm`, `/executive/dashboard`, `/admin/ai-usage-cost`, `/operate/architecture-graph` (all unreachable behind permanent redirects); `/why-archlucid` and `/demo/explain` are internal tooling in customer route space. `[PI]`
+- **Problem:** Page files historically persisted for `/integrations/itsm` (**now removed**; OAuth callback retained), `/executive/dashboard`, `/admin/ai-usage-cost`, `/operate/architecture-graph` (unreachable behind permanent redirects or later retired); `/why-archlucid` and `/demo/explain` are internal tooling in customer route space. `[PI]`
 - **Change:** Delete the four unreachable page files (config redirects remain authoritative); fold `/why-archlucid` content into `/why` or delete with redirect; gate `/demo/explain` behind the demo-tooling env (404 otherwise).
 - **Migration:** verify each config redirect covers all former sub-paths before deletion; keep `public-marketing-seo-paths.ts` in sync.
 - **Tests:** redirect e2e for each removed path; build passes; First Load JS budget unchanged or improved.
@@ -508,7 +508,7 @@ Complexity: XS/S/M/L/XL per the brief. All items are UI-only unless noted. Share
 - **Problem:** Nav "Settings" targets `/administration/settings/tenant` while a searchable `/administration/settings` hub index exists, reachable only by URL. `[PI]`
 - **Change (per D5 — hub-first):** Point the sidebar "Settings" item at `/administration/settings` (the searchable index); `/administration/settings/tenant` remains a first-class hub destination. Update the breadcrumb parent chain accordingly.
 - **Acceptance:** exactly one settings landing pattern (hub-first); breadcrumbs consistent.
-- **Shipped:** sidebar "Settings" → `/administration/settings` at `ReadAuthority`; `/administration/settings/tenant` is a separate "Workspace settings" entry at `AdminAuthority` (label, breadcrumbs, and static title all say "Workspace settings", closing the IA-006-family mismatch in §8). Implementation also split the hub by **audience**: `settings-master-audience.ts` derives audience from each destination's data scope, the hub publishes only `workspace-admin` rows, and personal settings (`preferences`, `account-security`) moved to a new ungated top-bar account menu — they were previously unreachable from any nav builder. The duplicated executive digest editor was removed from the tenant page in favour of the Digests hub.
+- **Shipped:** sidebar "Settings" → `/administration/settings` at `ReadAuthority`; `/administration/settings/tenant` is a separate "Workspace settings" entry at `AdminAuthority` (label, breadcrumbs, and static title all say "Workspace settings", closing the IA-006-family mismatch in §8). Implementation also split the hub by **audience**: `settings-master-audience.ts` derives audience from each destination's data scope, the hub publishes only `workspace-admin` rows, and personal settings (`preferences`, `account-security`) moved to a new ungated top-bar account menu — they were previously unreachable from any nav builder. The duplicated executive digest editor was removed from the tenant page in favor of the Digests hub.
 
 **IA-017 · Health-surface audience naming** — **P2 · XS**
 - **Problem:** `/health` ("System health", customer Administration) vs. `/admin/health` ("Diagnostics dashboard", Internal Operations) — same concept name, different audiences. `[PI]`
@@ -625,5 +625,5 @@ All seven decisions were put to the owner one at a time on 2026-07-14 and resolv
 | Convert from tab to route | none |
 | Redirect | keep all 40+ existing rules |
 | Hide from private beta | `/patterns` nav item, `/demo/explain`, `/example-roi-bulletin` (decision) |
-| Remove (page files) | `/integrations/itsm`, `/executive/dashboard`, `/admin/ai-usage-cost` (retired redirect-only), `/operate/architecture-graph`, `/why-archlucid` (fold into `/why`) |
+| Remove (page files) | `/integrations/itsm` (**removed**), `/executive/dashboard`, `/admin/ai-usage-cost` (retired redirect-only), `/operate/architecture-graph`, `/why-archlucid` (fold into `/why`) |
 | Requires product decision | `/example-roi-bulletin` beta visibility; `/governance/first-30-days` placement (IA-022, P3). D1–D7 were resolved by the owner on 2026-07-14 (§14) |

@@ -1,4 +1,4 @@
-import { buyerFacingReviewTitleFromSummary } from "@/lib/buyer-facing-review-title";
+import { buyerFacingReviewTitleFromSummary } from "@/lib/buyer/buyer-facing-review-title";
 import { signedRecordDetailPath } from "@/lib/signed-records-paths";
 import type { RunSummary } from "@/types/authority";
 

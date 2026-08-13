@@ -36,12 +36,12 @@ internal static class ConfigBootstrapCommand
 
         AnsiConsole.Write(
             new Panel(
-                    "[bold]ArchLucid development bootstrap[/] — merges SQL + [grey]AzureOpenAI[/] into [grey]appsettings.Development.json[/].")
+                    "[bold]ArchLucid development bootstrap[/] — merges SQL + [gray]AzureOpenAI[/] into [gray]appsettings.Development.json[/].")
                 .Border(BoxBorder.Rounded));
 
         string connectionString = AnsiConsole.Prompt(
-            new TextPrompt<string>("SQL [grey]ConnectionStrings:ArchLucid[/]")
-                .PromptStyle("grey")
+            new TextPrompt<string>("SQL [gray]ConnectionStrings:ArchLucid[/]")
+                .PromptStyle("gray")
                 .Secret()
                 .Validate(raw =>
                 {
@@ -58,8 +58,8 @@ internal static class ConfigBootstrapCommand
                 }));
 
         string endpoint = AnsiConsole.Prompt(
-            new TextPrompt<string>("Azure OpenAI [grey]Endpoint[/] [dim](https://{resource}.openai.azure.com/)[/]")
-                .PromptStyle("grey")
+            new TextPrompt<string>("Azure OpenAI [gray]Endpoint[/] [dim](https://{resource}.openai.azure.com/)[/]")
+                .PromptStyle("gray")
                 .Validate(raw =>
                 {
                     try
@@ -75,8 +75,8 @@ internal static class ConfigBootstrapCommand
                 }));
 
         string apiKey = AnsiConsole.Prompt(
-            new TextPrompt<string>("Azure OpenAI [grey]ApiKey[/] [dim](hidden; not echoed)[/]")
-                .PromptStyle("grey")
+            new TextPrompt<string>("Azure OpenAI [gray]ApiKey[/] [dim](hidden; not echoed)[/]")
+                .PromptStyle("gray")
                 .Secret()
                 .Validate(raw =>
                     string.IsNullOrWhiteSpace(raw)
@@ -84,8 +84,8 @@ internal static class ConfigBootstrapCommand
                         : ValidationResult.Success()));
 
         string deploymentName = AnsiConsole.Prompt(
-            new TextPrompt<string>("Azure OpenAI [grey]DeploymentName[/] (chat completion deployment)")
-                .PromptStyle("grey")
+            new TextPrompt<string>("Azure OpenAI [gray]DeploymentName[/] (chat completion deployment)")
+                .PromptStyle("gray")
                 .Validate(raw =>
                     string.IsNullOrWhiteSpace(raw)
                         ? ValidationResult.Error("Deployment name is required.")
@@ -106,7 +106,7 @@ internal static class ConfigBootstrapCommand
         preview.AddRow("SQL target", Markup.Escape(InitAppsettingsDocumentBuilder.DescribeSqlConnection(connectionString)));
         preview.AddRow("Azure OpenAI endpoint", Markup.Escape(endpoint.Trim()));
         preview.AddRow("Deployment", Markup.Escape(deploymentName.Trim()));
-        preview.AddRow("API key", "[grey](stored in JSON; not shown here)[/]");
+        preview.AddRow("API key", "[gray](stored in JSON; not shown here)[/]");
 
         AnsiConsole.Write(preview);
 

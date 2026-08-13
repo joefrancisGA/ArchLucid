@@ -5,6 +5,7 @@ import {
 } from "@/lib/standards-rules-page";
 import { standardsRulesFiltersAreActive } from "@/lib/standards-rules-table-presentation";
 import { Button } from "@/components/ui/button";
+import { RefreshButton } from "@/components/ui/refresh-button";
 import { OPERATOR_TYPOGRAPHY } from "@/lib/design-tokens";
 import { cn } from "@/lib/utils";
 
@@ -79,16 +80,12 @@ export function StandardsRulesFilters(props: StandardsRulesFiltersProps) {
           >
             {STANDARDS_RULES_RESET_FILTERS}
           </Button>
-          <Button
-            type="button"
-            variant="secondary"
-            size="sm"
+          <RefreshButton
+            busy={refreshing}
+            label={STANDARDS_RULES_REFRESH}
             data-testid="standards-rules-refresh"
-            disabled={refreshing}
             onClick={onRefresh}
-          >
-            {refreshing ? "Refreshing…" : STANDARDS_RULES_REFRESH}
-          </Button>
+          />
         </div>
       </div>
       <div className="flex flex-wrap gap-3">

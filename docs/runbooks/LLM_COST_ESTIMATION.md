@@ -45,7 +45,7 @@ See [`CONFIGURATION_REFERENCE.md`](../library/CONFIGURATION_REFERENCE.md) and [`
 
 Operators see LLM spend posture without opening raw logs:
 
-| Surface | Location | Behaviour |
+| Surface | Location | Behavior |
 | --- | --- | --- |
 | **Budget status pill** | Operator shell header (`LlmBudgetStatusPill`) | Shows monthly utilization band; links to cost reporting |
 | **Approaching-limit banner** | `LlmBudgetApproachingLimitBanner` in `AppShellClient` | Surfaces when tenant is near hard cap — includes link to **`/settings/cost-reporting`** |

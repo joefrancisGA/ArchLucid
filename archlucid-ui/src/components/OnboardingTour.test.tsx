@@ -7,7 +7,7 @@ import {
   ONBOARDING_TOUR_DONE_LINK_HREF,
   ONBOARDING_TOUR_DONE_LINK_LABEL,
   ONBOARDING_TOUR_WELCOME_BODY,
-} from "@/lib/operator-onboarding-tour-steps";
+} from "@/lib/operator/operator-onboarding-tour-steps";
 
 vi.mock("next/navigation", async (importOriginal) => {
   const actual = await importOriginal<typeof import("next/navigation")>();

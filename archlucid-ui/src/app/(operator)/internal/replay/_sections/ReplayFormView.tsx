@@ -1,11 +1,11 @@
 "use client";
 
-import Link from "next/link";
 import { cn } from "@/lib/utils";
 
 import { ClientErrorBoundary } from "@/components/ClientErrorBoundary";
-import { OperatorApiProblem } from "@/components/OperatorApiProblem";
-import { OperatorPageHeader } from "@/components/OperatorPageHeader";
+import { OperatorApiProblem } from "@/components/operator/OperatorApiProblem";
+import { INTERNAL_REPLAY_PATH } from "@/lib/internal-ops-route-paths";
+import { OperatorPageHeader } from "@/components/operator/OperatorPageHeader";
 import { PageContextualHelpButton } from "@/components/usability/PageContextualHelpButton";
 import { ReplaySelectedPackageSummary } from "@/components/replay/ReplaySelectedPackageSummary";
 import { ReplayValidationHistorySection } from "@/components/replay/ReplayValidationHistorySection";
@@ -13,17 +13,17 @@ import { ReplayValidationImpactSummary } from "@/components/replay/ReplayValidat
 import { ReplayValidationModeSelector } from "@/components/replay/ReplayValidationModeSelector";
 import { ReplayValidationResultPanel } from "@/components/replay/ReplayValidationResultPanel";
 import { ReviewPackageValidationPicker } from "@/components/replay/ReviewPackageValidationPicker";
-import { OperatorLoadingNotice, OperatorMalformedCallout, OperatorTryNext } from "@/components/OperatorShellMessage";
+import { OperatorLoadingNotice, OperatorMalformedCallout, OperatorTryNext } from "@/components/operator/OperatorShellMessage";
 import { Button } from "@/components/ui/button";
+import { ValidateCompareVocabularyRail } from "@/components/ValidateCompareVocabularyRail";
 import { WhyDisabledCtaHint } from "@/components/usability/WhyDisabledCtaHint";
 import {
   firstWhyDisabledCtaReason,
   whyDisabledBusy,
   type WhyDisabledCtaReason,
 } from "@/lib/why-disabled-cta";
-import { OPERATOR_LINK, OPERATOR_TYPOGRAPHY } from "@/lib/design-tokens";
+import { OPERATOR_LAYOUT, OPERATOR_TYPOGRAPHY } from "@/lib/design-tokens";
 import {
-  REPLAY_COMPARE_LINK_LABEL,
   REPLAY_MODIFY_CONFIRMATION_LABEL,
   REPLAY_PAGE_INTRO,
 } from "@/lib/replay-validation-copy";
@@ -53,14 +53,10 @@ export function ReplayFormView(props: Props) {
   ]);
 
   return (
-    <div className="mx-auto w-full max-w-6xl space-y-6" data-testid="replay-validation-workspace">
-      <OperatorPageHeader title="Validate review" helpKey="replay-run" actions={<PageContextualHelpButton />} />
+    <div className={cn("mx-auto w-full max-w-6xl", OPERATOR_LAYOUT.sectionStack)} data-testid="replay-validation-workspace">
+      <OperatorPageHeader navHref={INTERNAL_REPLAY_PATH} title="Validate review" helpKey="replay-run" actions={<PageContextualHelpButton />} />
+      <ValidateCompareVocabularyRail currentSurfaceId="validate-replay" />
       <p className={cn("m-0 max-w-4xl leading-relaxed text-al-text-primary", OPERATOR_TYPOGRAPHY.body)}>{REPLAY_PAGE_INTRO}</p>
-      <p className={cn("m-0", OPERATOR_TYPOGRAPHY.body)}>
-        <Link href="/insights/compare-two-reviews" className={OPERATOR_LINK.nav}>
-          {REPLAY_COMPARE_LINK_LABEL}
-        </Link>
-      </p>
 <div className="grid gap-6 lg:grid-cols-[minmax(0,1.2fr)_minmax(280px,0.8fr)]">
         <div className="space-y-5">
           <ReviewPackageValidationPicker

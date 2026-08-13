@@ -11,15 +11,15 @@ import { Button } from "@/components/ui/button";
 import {
   buildStaticCtoDemoRecapPayload,
   formatCtoDemoRecapMarkdown,
-} from "@/lib/buyer-cto-demo-recap";
-import { readBuyerCtoDemoTourActive } from "@/lib/buyer-cto-demo-tour";
+} from "@/lib/buyer/buyer-cto-demo-recap";
+import { readBuyerCtoDemoTourActive } from "@/lib/buyer/buyer-cto-demo-tour";
 import {
   BUYER_CTO_DEMO_AUDIT_CLOSING_HEADING,
   BUYER_CTO_DEMO_AUDIT_CLOSING_SUBTEXT,
   BUYER_CTO_DEMO_RECAP_BOARD_PACKET_BUSY_CTA,
   BUYER_CTO_DEMO_RECAP_BOARD_PACKET_CTA,
   BUYER_CTO_DEMO_RECAP_COPY_CTA,
-} from "@/lib/buyer-polish-copy";
+} from "@/lib/buyer/buyer-polish-copy";
 import { downloadFirstValueReportPdf } from "@/lib/api";
 import { isCtoDemoPackEnv } from "@/lib/cto-demo-presenter-pack";
 import { isBuyerPolishedOperatorShellEnv } from "@/lib/demo-ui-env";

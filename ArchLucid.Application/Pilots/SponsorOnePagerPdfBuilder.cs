@@ -1,4 +1,4 @@
-﻿using System.Globalization;
+using System.Globalization;
 
 using ArchLucid.Application.Rendering;
 using ArchLucid.Contracts.Architecture;

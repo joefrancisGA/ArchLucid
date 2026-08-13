@@ -1,6 +1,6 @@
 "use client";
 import { cn } from "@/lib/utils";
-import { OPERATOR_TYPOGRAPHY } from "@/lib/design-tokens";
+import { OPERATOR_FORM_FIELD_STACK_CLASS, OPERATOR_TYPOGRAPHY } from "@/lib/design-tokens";
 
 import { Controller, useFormContext } from "react-hook-form";
 
@@ -49,7 +49,7 @@ export function WizardStepIdentity() {
   return (
     <WizardStepPanel title="System identity" description="Names and deployment targets for this architecture request.">
       <div className="space-y-6">
-        <div>
+        <div className={OPERATOR_FORM_FIELD_STACK_CLASS}>
           <WizardFieldHint
             htmlFor="wizard-systemName"
             label="System name"
@@ -72,7 +72,7 @@ export function WizardStepIdentity() {
           </p>
         </div>
 
-        <div>
+        <div className={OPERATOR_FORM_FIELD_STACK_CLASS}>
           <WizardFieldHint
             htmlFor="wizard-environment"
             label="Environment"
@@ -108,7 +108,7 @@ export function WizardStepIdentity() {
           />
         </div>
 
-        <div>
+        <div className={OPERATOR_FORM_FIELD_STACK_CLASS}>
           <WizardFieldHint
             htmlFor="wizard-cloud-provider"
             label="Cloud target"

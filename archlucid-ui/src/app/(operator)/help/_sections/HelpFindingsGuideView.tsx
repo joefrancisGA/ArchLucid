@@ -35,7 +35,7 @@ import {
   FINDINGS_HELP_SEVERITY_INTRO,
   FINDINGS_HELP_SEVERITY_ROWS,
   FINDINGS_HELP_WHAT_IS_BODY,
-} from "@/lib/findings-help-guide-content";
+} from "@/lib/findings/findings-help-guide-content";
 import { cn } from "@/lib/utils";
 import {
   DESIGN_TOKENS,
@@ -45,7 +45,7 @@ import {
   OPERATOR_SHELL_SCROLL_OFFSET_CLASS,
   OPERATOR_TYPOGRAPHY,
 } from "@/lib/design-tokens";
-import { HELP_PAGE_LAYOUT } from "@/lib/help-page-layout";
+import { HELP_PAGE_LAYOUT } from "@/lib/help/help-page-layout";
 import type { ProductDocumentationEntry } from "@/lib/product-documentation-registry";
 
 type HelpFindingsGuideViewProps = {

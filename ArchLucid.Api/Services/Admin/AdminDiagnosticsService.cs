@@ -19,6 +19,9 @@ using ArchLucid.Core.Integration;
 using ArchLucid.Core.Diagnostics;
 using Microsoft.Extensions.Options;
 
+using MissingArchitectureRequestAutoRemediationOptions =
+    ArchLucid.Application.DataConsistency.MissingArchitectureRequestAutoRemediationOptions;
+
 namespace ArchLucid.Api.Services.Admin;
 
 /// <inheritdoc cref="IAdminDiagnosticsService" />
@@ -32,12 +35,18 @@ public sealed class AdminDiagnosticsService(
     IOptions<IntegrationEventsOptions> integrationEventsOptions,
     ICacheTelemetrySnapshotProvider cacheTelemetrySnapshotProvider,
     IActorContext actorContext,
-    IAuditService auditService) : IAdminDiagnosticsService
+    IAuditService auditService,
+    IOptionsMonitor<MissingArchitectureRequestAutoRemediationOptions> missingArchitectureRequestAutoRemediationOptions)
+    : IAdminDiagnosticsService
 {
     private readonly IAdminOutboxSnapshotReader _adminOutboxSnapshotReader =
         adminOutboxSnapshotReader ?? throw new ArgumentNullException(nameof(adminOutboxSnapshotReader));
     private readonly IActorContext _actorContext =
         actorContext ?? throw new ArgumentNullException(nameof(actorContext));
+    private readonly IOptionsMonitor<MissingArchitectureRequestAutoRemediationOptions>
+        _missingArchitectureRequestAutoRemediationOptions =
+            missingArchitectureRequestAutoRemediationOptions
+            ?? throw new ArgumentNullException(nameof(missingArchitectureRequestAutoRemediationOptions));
 
     private readonly IOptions<ArchLucidOptions> _archLucidOptions =
         archLucidOptions ?? throw new ArgumentNullException(nameof(archLucidOptions));
@@ -693,6 +702,142 @@ public sealed class AdminDiagnosticsService(
             candidateIdStrings,
             archiveResult.SucceededRunIds.Select(static r => r.ToString("D")).ToList(),
             archiveResult.Failed);
+    }
+
+    /// <inheritdoc />
+    public async Task<DataConsistencyMissingArchitectureRequestSnapshot>
+        GetDataConsistencyMissingArchitectureRequestSnapshotAsync(
+            int maxSampleRows = 50,
+            CancellationToken cancellationToken = default)
+    {
+        if (ArchLucidOptions.EffectiveIsInMemory(_archLucidOptions.Value.StorageProvider))
+            return new DataConsistencyMissingArchitectureRequestSnapshot(0, []);
+
+        int capped = Math.Clamp(maxSampleRows, 1, PaginationDefaults.MaxListingTake);
+        int minAgeMinutes = ResolveMissingArchitectureRequestMinAgeMinutes();
+        DbConnection connection = (DbConnection)_connectionFactory.CreateConnection();
+        await using DbConnection _ = connection;
+        await connection.OpenAsync(cancellationToken);
+
+        long count = await ExecuteCountWithMinAgeAsync(
+            connection,
+            DataConsistencyMissingArchitectureRequestRemediationSql.CountMissingArchitectureRequestRuns,
+            minAgeMinutes,
+            cancellationToken);
+
+        List<string> sampleIds = [];
+
+        await using (DbCommand selectCommand = connection.CreateCommand())
+        {
+            selectCommand.CommandText =
+                DataConsistencyMissingArchitectureRequestRemediationSql.SelectMissingArchitectureRequestRunIds;
+            AddMaxRowsParameter(selectCommand, capped);
+            AddMinAgeParameter(selectCommand, minAgeMinutes);
+
+            await using DbDataReader reader = await selectCommand.ExecuteReaderAsync(cancellationToken);
+
+            while (await reader.ReadAsync(cancellationToken))
+                sampleIds.Add(reader.GetGuid(0).ToString("D"));
+        }
+
+        return new DataConsistencyMissingArchitectureRequestSnapshot(count, sampleIds);
+    }
+
+    /// <inheritdoc />
+    public async Task<MissingArchitectureRequestRemediationResult> RemediateMissingArchitectureRequestRunsAsync(
+        bool dryRun,
+        int maxRows,
+        CancellationToken cancellationToken = default)
+    {
+        if (ArchLucidOptions.EffectiveIsInMemory(_archLucidOptions.Value.StorageProvider))
+            return new MissingArchitectureRequestRemediationResult(dryRun, 0, [], [], []);
+
+        int capped = Math.Clamp(maxRows, 1, PaginationDefaults.MaxListingTake);
+        int minAgeMinutes = ResolveMissingArchitectureRequestMinAgeMinutes();
+        DbConnection connection = (DbConnection)_connectionFactory.CreateConnection();
+        await using DbConnection _ = connection;
+        await connection.OpenAsync(cancellationToken);
+
+        List<Guid> candidateIds = [];
+
+        await using (DbCommand selectCommand = connection.CreateCommand())
+        {
+            selectCommand.CommandText =
+                DataConsistencyMissingArchitectureRequestRemediationSql.SelectMissingArchitectureRequestRunIds;
+            AddMaxRowsParameter(selectCommand, capped);
+            AddMinAgeParameter(selectCommand, minAgeMinutes);
+
+            await using DbDataReader reader = await selectCommand.ExecuteReaderAsync(cancellationToken);
+
+            while (await reader.ReadAsync(cancellationToken))
+                candidateIds.Add(reader.GetGuid(0));
+        }
+
+        IReadOnlyList<string> candidateIdStrings =
+            candidateIds.Select(static id => id.ToString("D")).ToList();
+
+        if (dryRun)
+            return new MissingArchitectureRequestRemediationResult(true, candidateIds.Count, candidateIdStrings, [], []);
+
+        if (candidateIds.Count == 0)
+            return new MissingArchitectureRequestRemediationResult(false, 0, [], [], []);
+
+        RunArchiveByIdsResult archiveResult =
+            await _runRepository.ArchiveRunsByIdsAsync(candidateIds, cancellationToken);
+
+        if (archiveResult.SucceededRunIds.Count > 0)
+        {
+            await LogManifestArchivedBatchAsync(
+                "missingArchitectureRequest",
+                archiveResult.SucceededRunIds.Count,
+                archiveResult.SucceededRunIds.Select(static r => r.ToString("D")).ToList(),
+                archiveResult.ChildCascade,
+                cancellationToken);
+        }
+
+        return new MissingArchitectureRequestRemediationResult(
+            false,
+            candidateIds.Count,
+            candidateIdStrings,
+            archiveResult.SucceededRunIds.Select(static r => r.ToString("D")).ToList(),
+            archiveResult.Failed);
+    }
+
+    private int ResolveMissingArchitectureRequestMinAgeMinutes()
+    {
+        return Math.Clamp(_missingArchitectureRequestAutoRemediationOptions.CurrentValue.MinAgeMinutes, 1, 24 * 60);
+    }
+
+    private static void AddMaxRowsParameter(DbCommand command, int maxRows)
+    {
+        DbParameter maxRowsParameter = command.CreateParameter();
+        maxRowsParameter.ParameterName = "@MaxRows";
+        maxRowsParameter.Value = maxRows;
+        command.Parameters.Add(maxRowsParameter);
+    }
+
+    private static void AddMinAgeParameter(DbCommand command, int minAgeMinutes)
+    {
+        DbParameter minAgeParameter = command.CreateParameter();
+        minAgeParameter.ParameterName = "@MinAgeMinutes";
+        minAgeParameter.Value = minAgeMinutes;
+        command.Parameters.Add(minAgeParameter);
+    }
+
+    private static async Task<long> ExecuteCountWithMinAgeAsync(
+        DbConnection connection,
+        string sql,
+        int minAgeMinutes,
+        CancellationToken cancellationToken)
+    {
+        await using DbCommand command = connection.CreateCommand();
+        command.CommandText = sql;
+        AddMinAgeParameter(command, minAgeMinutes);
+        object? scalar = await command.ExecuteScalarAsync(cancellationToken);
+
+        return scalar is long value
+            ? value
+            : Convert.ToInt64(scalar ?? 0L, CultureInfo.InvariantCulture);
     }
 
     /// <inheritdoc />

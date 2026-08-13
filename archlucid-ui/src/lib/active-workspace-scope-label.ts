@@ -1,10 +1,14 @@
+import { BUYER_SCOPE_SAMPLE_WORKSPACE_COMPACT_LABEL } from "@/lib/buyer/buyer-polish-copy";
 import {
   defaultLabelsForScopeIds,
   readOperatorScopeFromStorage,
   type OperatorScopeRecord,
-} from "@/lib/operator-scope-storage";
+} from "@/lib/operator/operator-scope-storage";
 import { DEV_SCOPE_PROJECT_ID, DEV_SCOPE_WORKSPACE_ID } from "@/lib/scope";
-import { workspaceShortNameFromLabel } from "@/lib/scope-switcher-display";
+import {
+  isEffectiveDevDefaultScope,
+  workspaceShortNameFromLabel,
+} from "@/lib/scope-switcher-display";
 
 /**
  * Short workspace name for in-page scope statements — the same precedence the top-bar
@@ -15,6 +19,11 @@ import { workspaceShortNameFromLabel } from "@/lib/scope-switcher-display";
 export function resolveWorkspaceScopeLabelFromRecord(record: OperatorScopeRecord | null): string {
   const workspaceId: string = record?.workspaceId ?? DEV_SCOPE_WORKSPACE_ID;
   const projectId: string = record?.projectId ?? DEV_SCOPE_PROJECT_ID;
+
+  if (isEffectiveDevDefaultScope(workspaceId, projectId)) {
+    return BUYER_SCOPE_SAMPLE_WORKSPACE_COMPACT_LABEL;
+  }
+
   const fallback: string = defaultLabelsForScopeIds(workspaceId, projectId).workspace;
 
   if (record !== null && record.workspaceLabel.trim().length > 0) {

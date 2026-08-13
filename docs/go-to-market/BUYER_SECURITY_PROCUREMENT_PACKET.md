@@ -146,17 +146,19 @@ Former standalone body: `docs/go-to-market/ISOLATION_CLAIMS_VS_INV001_ADR0037_PA
 
 **Audience:** Security reviewers and principal architects challenging tenancy language.
 
-**Claim:** Safe pin = **database-per-tenant** + **INV-001 decide-once** + **M-114** identity-wins. Do **not** cite SQL RLS as a deployed production control. Do not treat workspace/project as the paying-client security boundary. Do not claim G3 fully proven without **TB-948**/**TB-949**. Do not promise per-tenant Search index / crypto-proof retrieval / NetArchTest-alone isolation.
+**Claim:** Safe pin = **database-per-tenant** + **INV-001 decide-once** + **M-114** identity-wins. Do **not** cite SQL RLS as a deployed production control. Do not treat workspace/project as the paying-client security boundary. Do not claim G3 as cryptographically proven isolation — G3 means catalog + decide-once + Search filter DiD are reviewable (see **TB-1122**). Do not promise per-tenant Search index / crypto-proof retrieval / NetArchTest-alone isolation.
+
+**Engineering SoT:** [`../library/ISOLATION_CLAIMS_TOO_STRONG_VS_INV001_ADR0037_CONTRACT.md`](../library/ISOLATION_CLAIMS_TOO_STRONG_VS_INV001_ADR0037_CONTRACT.md) (**TB-1122**). Honesty CI: **TB-1123** (**Done** — `check_isolation_claims_too_strong_honesty.py`).
 
 ### Too strong vs safe
 
 | Too strong | Safe |
 | --- | --- |
 | “SQL RLS isolates tenants” | ADR 0037 — RLS is non-control |
-| “NetArchTest proves isolation” | Compile-time DAG â‰  runtime tenancy (**M-156**) |
+| “NetArchTest proves isolation” | Compile-time DAG ≠ runtime tenancy (**M-156**) |
 | “Per-tenant Search index / crypto-proof retrieval” | Mandatory OData `$filter` (**M-152**/**M-153**) |
 | “Empty TenantId returns no data” | Empty-scope routing risks — [M-169](#empty-scope-catalog-routing-m-169) |
-| “G3 PASS without isolation evidence” | Soften until **TB-948**/**TB-949** artifacts |
+| “G3 PASS = fully proven isolation” | Soften: catalog + decide-once shipped; residual DiD erosion **TB-1233** (**TB-1123** honesty CI Done) |
 
 ### Stale language purge
 
@@ -675,6 +677,8 @@ Engineering SoT: [`TRANSACTIONAL_FINALIZE_VS_OUTBOX_CONTRACT.md`](../library/TRA
 
 Former standalone body: `docs/go-to-market/TRANSACTIONAL_OUTBOX_REPLAY_IDEMPOTENCY_PA_ONE_PAGER.md` → this section (filename kept as a path-stable alias for GTM **M-145** / **TB-992**). Complements [Transactional finalize vs outbox (M-163)](#transactional-finalize-vs-outbox-m-163). Does not claim exactly-once delivery. Not an assurance attestation.
 
+**Engineering SoT:** [`../library/TRANSACTIONAL_OUTBOX_REPLAY_VS_IDEMPOTENCY_CONTRACT.md`](../library/TRANSACTIONAL_OUTBOX_REPLAY_VS_IDEMPOTENCY_CONTRACT.md) (**TB-992** Done).
+
 **Path-stable alias:** [`TRANSACTIONAL_OUTBOX_REPLAY_IDEMPOTENCY_PA_ONE_PAGER.md`](TRANSACTIONAL_OUTBOX_REPLAY_IDEMPOTENCY_PA_ONE_PAGER.md).
 
 **Audience:** Principal architects and integration reviewers.
@@ -789,7 +793,7 @@ Former standalone body: `docs/go-to-market/SECURITY_REVIEWER_INBOUND_WEBHOOK_ONE
 
 ## Minimum pilot trust packet without CPA / 3P pen test (M-191) {#minimum-pilot-trust-packet-m-191}
 
-Former standalone body: `docs/go-to-market/MINIMUM_PILOT_TRUST_PACKET_WITHOUT_CPA_PA_ONE_PAGER.md` → this section (filename kept as a path-stable alias for GTM **M-191** / **TB-1112**). Does **not** reopen Done **TB-135**/**TB-136**. Complements [Â§4 Assurance status](#4-assurance-status--explicit). Not an assurance attestation.
+Former standalone body: `docs/go-to-market/MINIMUM_PILOT_TRUST_PACKET_WITHOUT_CPA_PA_ONE_PAGER.md` → this section (filename kept as a path-stable alias for GTM **M-191** / **TB-1112**). Engineering SoT: [`../library/MINIMUM_PILOT_TRUST_PACKET_WITHOUT_CPA_CONTRACT.md`](../library/MINIMUM_PILOT_TRUST_PACKET_WITHOUT_CPA_CONTRACT.md). Does **not** reopen Done **TB-135**/**TB-136**. Complements [Â§4 Assurance status](#4-assurance-status--explicit). Not an assurance attestation.
 
 **Path-stable alias:** [`MINIMUM_PILOT_TRUST_PACKET_WITHOUT_CPA_PA_ONE_PAGER.md`](MINIMUM_PILOT_TRUST_PACKET_WITHOUT_CPA_PA_ONE_PAGER.md).
 
@@ -827,7 +831,7 @@ Former standalone body: `docs/go-to-market/MINIMUM_PILOT_TRUST_PACKET_WITHOUT_CP
 
 **Talk-track ladder:** [SOC 2 / pen-test honest procurement talk-track (M-197)](#soc2-pentest-honest-talk-track-m-197) Â· [Stage 0 claim allowlist (M-189)](#stage-0-claim-allowlist-vs-oversell-m-189).
 
-**Related:** [`QUOTE_TO_PROOF_PACKET.md`](QUOTE_TO_PROOF_PACKET.md) Â· [`ASSURANCE_STATUS_CANONICAL.md`](ASSURANCE_STATUS_CANONICAL.md) Â· [Â§4 Assurance status](#4-assurance-status--explicit) Â· [Committed golden manifest (M-155)](#committed-golden-manifest-unit-of-truth-m-155) Â· [Stage 0 claim allowlist (M-189)](#stage-0-claim-allowlist-vs-oversell-m-189) Â· [`PA_CLAIM_HONESTY_INDEX.md`](PA_CLAIM_HONESTY_INDEX.md).
+**Related:** [`../library/MINIMUM_PILOT_TRUST_PACKET_WITHOUT_CPA_CONTRACT.md`](../library/MINIMUM_PILOT_TRUST_PACKET_WITHOUT_CPA_CONTRACT.md) Â· [`QUOTE_TO_PROOF_PACKET.md`](QUOTE_TO_PROOF_PACKET.md) Â· [`ASSURANCE_STATUS_CANONICAL.md`](ASSURANCE_STATUS_CANONICAL.md) Â· [Â§4 Assurance status](#4-assurance-status--explicit) Â· [Committed golden manifest (M-155)](#committed-golden-manifest-unit-of-truth-m-155) Â· [Stage 0 claim allowlist (M-189)](#stage-0-claim-allowlist-vs-oversell-m-189) Â· [`PA_CLAIM_HONESTY_INDEX.md`](PA_CLAIM_HONESTY_INDEX.md).
 
 ## Committed golden manifest — unit of truth (M-155) {#committed-golden-manifest-unit-of-truth-m-155}
 
@@ -918,7 +922,7 @@ Canonical operator spine: `/reviews` and `/reviews/{runId}` package context. `/g
 
 ### Residuals (honest)
 
-Engineering SoT: [`OPERATOR_PRIMARY_OBJECT_NAV_COLLAPSE_CONTRACT.md`](../library/OPERATOR_PRIMARY_OBJECT_NAV_COLLAPSE_CONTRACT.md) (**TB-1026** Done). Primary-object hierarchy, canonical `/reviews` spine, and collapse surfaces are published. Follow-on claim CI: **TB-1027**. Full vocab rewrite is out of scope.
+Engineering SoT: [`OPERATOR_PRIMARY_OBJECT_NAV_COLLAPSE_CONTRACT.md`](../library/OPERATOR_PRIMARY_OBJECT_NAV_COLLAPSE_CONTRACT.md) (**TB-1026** Done). Primary-object hierarchy, canonical `/reviews` spine, and collapse surfaces are published. Claim CI: **TB-1027** (`check_operator_primary_object_honesty.py`). Full vocab rewrite is out of scope.
 
 | Open work | Purpose |
 | --- | --- |
@@ -931,6 +935,8 @@ Engineering SoT: [`OPERATOR_PRIMARY_OBJECT_NAV_COLLAPSE_CONTRACT.md`](../library
 Former standalone body: `docs/go-to-market/SOC2_PENTEST_HONEST_PROCUREMENT_TALK_TRACK_PA_ONE_PAGER.md` → this section (filename kept as a path-stable alias for GTM **M-197** / **TB-1144**). Complements [Minimum pilot trust packet (M-191)](#minimum-pilot-trust-packet-m-191). Does **not** reopen Done **TB-135**/**TB-136**.
 
 **Path-stable alias:** [`SOC2_PENTEST_HONEST_PROCUREMENT_TALK_TRACK_PA_ONE_PAGER.md`](SOC2_PENTEST_HONEST_PROCUREMENT_TALK_TRACK_PA_ONE_PAGER.md).
+
+**Contributor contract:** [`SOC2_PENTEST_HONEST_PROCUREMENT_TALK_TRACK_CONTRACT.md`](../library/SOC2_PENTEST_HONEST_PROCUREMENT_TALK_TRACK_CONTRACT.md). Honesty CI: **TB-1145** **Done** — `scripts/ci/check_soc2_pentest_honest_procurement_talk_track_honesty.py` (wired in `run_buyer_surface_strict_guards.py`).
 
 **Audience:** Founder and SE in live procurement dialogue.
 
@@ -1083,7 +1089,7 @@ Former standalone body: `docs/go-to-market/QUALITY_GATE_VERSIONING_PA_ONE_PAGER.
 
 ## LLM budget — reserve / settle (M-132) {#llm-budget-reserve-settle-m-132}
 
-Former standalone body: `docs/go-to-market/LLM_BUDGET_RESERVE_SETTLE_PA_ONE_PAGER.md` → this section (filename kept as a path-stable alias for GTM **M-132** / **TB-975**). Complements [Interrupted review (M-122)](#interrupted-review-m-122). Not an assurance attestation.
+Former standalone body: `docs/go-to-market/LLM_BUDGET_RESERVE_SETTLE_PA_ONE_PAGER.md` → this section (filename kept as a path-stable alias for GTM **M-132** / **TB-975**). Engineering SoT: [`../library/INV004_RESERVE_SETTLE_LIFECYCLE_CONTRACT.md`](../library/INV004_RESERVE_SETTLE_LIFECYCLE_CONTRACT.md). Complements [Interrupted review (M-122)](#interrupted-review-m-122). Not an assurance attestation.
 
 **Path-stable alias:** [`LLM_BUDGET_RESERVE_SETTLE_PA_ONE_PAGER.md`](LLM_BUDGET_RESERVE_SETTLE_PA_ONE_PAGER.md).
 
@@ -1105,8 +1111,8 @@ Former standalone body: `docs/go-to-market/LLM_BUDGET_RESERVE_SETTLE_PA_ONE_PAGE
 | Guaranteed (intent) | Residual (open eng) |
 | --- | --- |
 | Cap-correct admission under concurrency | Orphan reserved USD after crash — **TB-976** |
-| Optimistic concurrency on settle path | Assumed-max race soft-DoS — **TB-977** |
-| Quick Scan pattern exists (**TB-894** Done) | Mature cost plane beyond gates — [M-226](#llm-cost-control-plane-m-226) / **TB-1287** |
+| In-flight admission fairness before monthly reserve (**TB-977** Done) | Daily period keys still app `TimeProvider` — daily follow-on |
+| Quick Scan pattern exists (**TB-894** Done) | Mature cost plane beyond gates — [M-226](#llm-cost-control-plane-m-226) (**TB-1287** Done) |
 
 ### Too strong vs safe
 
@@ -1136,7 +1142,9 @@ Former standalone body: `docs/go-to-market/LLM_BUDGET_RESERVE_SETTLE_PA_ONE_PAGE
 
 - **INV-004** and **TB-011** are Done for durable optimistic-concurrency cap enforcement.
 - **TB-894** is Done for Quick Scan reservation-id reserve/commit/release patterns.
-- **TB-975**–**TB-977** remain open for lifecycle, crash reconciliation, and race/clock hardening.
+- **TB-975** is Done — lifecycle guarantees vs residuals are in [`INV004_RESERVE_SETTLE_LIFECYCLE_CONTRACT.md`](../library/INV004_RESERVE_SETTLE_LIFECYCLE_CONTRACT.md).
+- **TB-976** remains open for orphan reclaim and per-reservation leases.
+- **TB-977** is **Done** (2026-08-11) — SQL-owned UTC month period + in-flight admission fairness.
 
 **Related:** [Interrupted review (M-122)](#interrupted-review-m-122) Â· [LLM cost-control plane (M-226)](#llm-cost-control-plane-m-226) Â· [Polly vs run completeness (M-147)](#polly-vs-run-completeness-m-147) Â· [`../library/LLM_RETRY_AND_CIRCUIT_BREAKER.md`](../library/LLM_RETRY_AND_CIRCUIT_BREAKER.md) Â· [`CLAIM_READINESS_STATUS.md`](CLAIM_READINESS_STATUS.md) Â· [`PUBLIC_CLAIM_BOUNDARY_GUIDE.md#gtm-do-not-promise`](../library/PUBLIC_CLAIM_BOUNDARY_GUIDE.md#gtm-do-not-promise) Â· [`PA_CLAIM_HONESTY_INDEX.md`](PA_CLAIM_HONESTY_INDEX.md).
 
@@ -1188,7 +1196,7 @@ Do not say warn/kill + monthly cap alone are mature FinOps, that call-site reser
 
 ### Residuals (honest)
 
-- **TB-1287** / **TB-1288** own the mature plane contract and language guards.
+- **TB-1287** **Done** (2026-08-11) — engineering SoT [`../library/LLM_COST_CONTROL_PLANE_BEYOND_BUDGET_GATES_CONTRACT.md`](../library/LLM_COST_CONTROL_PLANE_BEYOND_BUDGET_GATES_CONTRACT.md). **TB-1288** owns honesty CI guards.
 - Complements **M-131** / **M-170** / **M-121** without replacing those contracts.
 - Does not reopen Done **TB-011** / **TB-039** / **TB-894**.
 - This handout does not claim CPA SOC 2 or a published third-party penetration test.
@@ -1248,7 +1256,7 @@ Do not say timestamps + one ratio equal rollback-grade governance, or that cache
 - Does not reopen Done **TB-594**.
 - This handout does not claim CPA SOC 2 or a published third-party penetration test.
 
-**Related:** [LLM cost-control plane (M-226)](#llm-cost-control-plane-m-226) Â· [Faithfulness / support-ratio lanes (M-210)](#faithfulness-support-ratio-scoring-lanes-m-210) Â· [`MANIFEST_FINE_TUNING_ADDENDUM.md`](MANIFEST_FINE_TUNING_ADDENDUM.md) Â· [ADR 0056](../architecture/adrs/0056-manifest-online-fine-tuning-governance.md) Â· [`PUBLIC_CLAIM_BOUNDARY_GUIDE.md#gtm-do-not-promise`](../library/PUBLIC_CLAIM_BOUNDARY_GUIDE.md#gtm-do-not-promise) Â· [`PA_CLAIM_HONESTY_INDEX.md`](PA_CLAIM_HONESTY_INDEX.md).
+**Related:** [LLM cost-control plane (M-226)](#llm-cost-control-plane-m-226) · [Faithfulness / support-ratio lanes (M-210)](#faithfulness-support-ratio-scoring-lanes-m-210) · [`FINE_TUNING_PROMOTION_DECISION_RECORD_CONTRACT.md`](../library/FINE_TUNING_PROMOTION_DECISION_RECORD_CONTRACT.md) (**TB-1292**) · [`MANIFEST_FINE_TUNING_ADDENDUM.md`](MANIFEST_FINE_TUNING_ADDENDUM.md) · [ADR 0056](../architecture/adrs/0056-manifest-online-fine-tuning-governance.md) · [`PUBLIC_CLAIM_BOUNDARY_GUIDE.md#gtm-do-not-promise`](../library/PUBLIC_CLAIM_BOUNDARY_GUIDE.md#gtm-do-not-promise) · [`PA_CLAIM_HONESTY_INDEX.md`](PA_CLAIM_HONESTY_INDEX.md).
 
 ## Execution-mode honesty (M-128) {#execution-mode-honesty-m-128}
 
@@ -2149,12 +2157,12 @@ Do not sell agent free text / unvalidated `ProposedChanges` as the signed archit
 
 ### Residuals (honest)
 
-- **TB-1196** / **TB-1197** own the Real-variance isolation contract and honesty CI.
+- **TB-1196** **Done** — [`AGENT_OUTPUT_DECISIONING_REAL_VARIANCE_ISOLATION_CONTRACT.md`](../library/AGENT_OUTPUT_DECISIONING_REAL_VARIANCE_ISOLATION_CONTRACT.md); **TB-1197** honesty CI (open).
 - Cite `AgentTopologyProposalGraphMerge`, `RuleBasedDecisionEngine`, `DecisionMergeInputGate`, quality Enforce/Block.
 - Complements **M-154**, **M-158**/**M-159**, **M-166**/**M-167**, **M-247**/**M-248**; pairs claim-honesty **M-203**.
 - This handout does not claim CPA SOC 2 or a published third-party penetration test.
 
-**Related:** [AgentTask→decisioning leak seams (M-248)](#agenttask-decisioning-ungated-leak-seams-m-248) Â· [Authority vs AgentTask (M-159)](#authority-vs-agenttask-loop-m-159) Â· [PilotStrict vs execution mode (M-167)](#pilotstrict-vs-execution-mode-m-167) Â· [Committed golden manifest (M-155)](#committed-golden-manifest-unit-of-truth-m-155) Â· [Decision-grade finding provenance (M-208)](#decision-grade-finding-provenance-m-208) Â· [Golden-cohort re-lock (M-202)](#golden-cohort-relock-vs-rubber-stamp-m-202) Â· [`PUBLIC_CLAIM_BOUNDARY_GUIDE.md#gtm-do-not-promise`](../library/PUBLIC_CLAIM_BOUNDARY_GUIDE.md#gtm-do-not-promise) Â· [`PA_CLAIM_HONESTY_INDEX.md`](PA_CLAIM_HONESTY_INDEX.md).
+**Related:** [AgentTask→decisioning leak seams (M-248)](#agenttask-decisioning-ungated-leak-seams-m-248) Â· [Authority vs AgentTask (M-159)](#authority-vs-agenttask-loop-m-159) Â· [PilotStrict vs execution mode (M-167)](#pilotstrict-vs-execution-mode-m-167) Â· [Committed golden manifest (M-155)](#committed-golden-manifest-unit-of-truth-m-155) Â· [Decision-grade finding provenance (M-208)](#decision-grade-finding-provenance-m-208) Â· [Golden-cohort re-lock (M-202)](#golden-cohort-relock-vs-rubber-stamp-m-202) Â· [`AGENT_OUTPUT_DECISIONING_REAL_VARIANCE_ISOLATION_CONTRACT.md`](../library/AGENT_OUTPUT_DECISIONING_REAL_VARIANCE_ISOLATION_CONTRACT.md) (**TB-1196**) Â· [`PUBLIC_CLAIM_BOUNDARY_GUIDE.md#gtm-do-not-promise`](../library/PUBLIC_CLAIM_BOUNDARY_GUIDE.md#gtm-do-not-promise) Â· [`PA_CLAIM_HONESTY_INDEX.md`](PA_CLAIM_HONESTY_INDEX.md).
 
 ## Golden-cohort re-lock vs rubber-stamp (M-202) {#golden-cohort-relock-vs-rubber-stamp-m-202}
 
@@ -2399,13 +2407,13 @@ Do not claim RAG support-ratio, LLM faithfulness, nightly eval, or embedding cos
 
 ### Residuals (honest)
 
-- **TB-1228** / **TB-1229** own the lane-split contract and honesty CI.
+- **TB-1228** **Done** — [`FAITHFULNESS_SUPPORT_RATIO_SCORING_LANE_POSITIONING_CONTRACT.md`](../library/FAITHFULNESS_SUPPORT_RATIO_SCORING_LANE_POSITIONING_CONTRACT.md); **TB-1229** honesty CI (open).
 - Shared defense-plane ownership is **M-212** / **TB-1230**; structural provenance is **M-207**/**M-208**; FT decision-record fields are **M-227**/**M-228** (do not fork).
 - Cite `AgentOutputQualityGate`, `AgentResultEvidenceFaithfulnessChecker`, `RetrievalFaithfulnessEvaluator`, `GoldenCohortFineTuningPromotionGate`.
 - Complements **M-166**/**M-167**; pairs claim-honesty **M-209**.
 - This handout does not claim CPA SOC 2, a published third-party penetration test, or hallucination-proof output.
 
-**Related:** [Decision-grade finding provenance (M-208)](#decision-grade-finding-provenance-m-208) Â· [Shared hallucination defense plane (M-212)](#shared-hallucination-defense-plane-m-212) Â· [PilotStrict vs execution mode (M-167)](#pilotstrict-vs-execution-mode-m-167) Â· [FT promotion decision record (M-228)](#ft-promotion-decision-record-m-228) Â· [Model-failed vs quality-rejected (M-124)](#model-failed-vs-quality-rejected-m-124) Â· [`PUBLIC_CLAIM_BOUNDARY_GUIDE.md#gtm-do-not-promise`](../library/PUBLIC_CLAIM_BOUNDARY_GUIDE.md#gtm-do-not-promise) Â· [`PA_CLAIM_HONESTY_INDEX.md`](PA_CLAIM_HONESTY_INDEX.md).
+**Related:** [Decision-grade finding provenance (M-208)](#decision-grade-finding-provenance-m-208) Â· [Shared hallucination defense plane (M-212)](#shared-hallucination-defense-plane-m-212) Â· [PilotStrict vs execution mode (M-167)](#pilotstrict-vs-execution-mode-m-167) Â· [FT promotion decision record (M-228)](#ft-promotion-decision-record-m-228) Â· [Model-failed vs quality-rejected (M-124)](#model-failed-vs-quality-rejected-m-124) Â· [`FAITHFULNESS_SUPPORT_RATIO_SCORING_LANE_POSITIONING_CONTRACT.md`](../library/FAITHFULNESS_SUPPORT_RATIO_SCORING_LANE_POSITIONING_CONTRACT.md) (**TB-1228**) Â· [`PUBLIC_CLAIM_BOUNDARY_GUIDE.md#gtm-do-not-promise`](../library/PUBLIC_CLAIM_BOUNDARY_GUIDE.md#gtm-do-not-promise) Â· [`PA_CLAIM_HONESTY_INDEX.md`](PA_CLAIM_HONESTY_INDEX.md).
 
 ## TB-881 org-registration race — ship-blocker classification (M-250) {#tb881-org-registration-race-ship-blocker-m-250}
 
@@ -2473,7 +2481,7 @@ Former standalone body: `docs/go-to-market/OWNER_SCREENSHOT_BELOW_50_SPECIALTY_H
 | ~39 | `/help/configuration-reference` | **TB-1326**–**TB-1330** |
 | ~40 | `/help/repeat-review-loop` | **TB-1394**–**TB-1398** |
 | ~42 | `/help/evaluator-workbook` | **TB-1345**–**TB-1349** |
-| ~42 | `/help/pilot-roi-model` | **TB-1389**–**TB-1393** |
+| ~42 | `/help/executive-summary#pilot-roi-measurement` (folded from pilot-roi-model) | **TB-1389**–**TB-1393** **Done** |
 | ~46 | `/help/first-hour-operator-path` | **TB-1374**–**TB-1378** |
 | ~49 | `/help/procurement` | **TB-1253**–**TB-1257** |
 
@@ -3358,7 +3366,7 @@ Do not sell per-tenant fair share of shared TPM, claim token budgets isolate ten
 
 ### Residuals (honest)
 
-- **TB-1577** / **TB-1578** own the claim map and language guards.
+- **TB-1577** **Done** (claim map); **TB-1578** **Done** (`check_shared_aoai_tpm_noisy_neighbor_honesty.py` language guards).
 - TPM-aware admission remains open (**TB-1336** / **M-237**/**M-238**).
 - Complements **M-229**/**M-230**, **M-182**/**M-183**, **G-SCALE-01**/**G-SCALE-02**.
 - Distinct from spend-storm **M-294**/**M-295**.
@@ -3425,7 +3433,7 @@ Do not sell WASM/script sandbox, unconstrained programmable policy language, “
 
 ### Residuals (honest)
 
-- **TB-1624** / **TB-1625** own the claim map and language guards.
+- **TB-1624** **Done** (claim map); **TB-1625** **Done** (`check_policy_pack_customer_rule_sandbox_honesty.py` language guards).
 - Complements **M-235**/**M-236** (eval hybrid) and **M-172**/**M-173** (gate vs advisory).
 - Shared-process CPU residual under pathological packs remains.
 - This handout does not claim CPA SOC 2 or a published third-party penetration test.
@@ -3468,12 +3476,12 @@ Do not sell API scale-out as removing AOAI 429/TPM limits, claim launch load is 
 
 ### Residuals (honest)
 
-- **TB-1032** / **TB-1033** own the design contract and language guards.
+- **TB-1032** **Done** — [`LAUNCH_LOAD_FAILURE_ORDER_DEGRADATION_CONTRACT.md`](../library/LAUNCH_LOAD_FAILURE_ORDER_DEGRADATION_CONTRACT.md); claim CI: **TB-1033** (`check_launch_load_failure_order_honesty.py`).
 - Measured evidence: owner **G-SCALE-01** / **G-SCALE-02**; cite [`../architecture/LAUNCH_LOAD_DRILL.md`](../architecture/LAUNCH_LOAD_DRILL.md) + [`../library/DEGRADED_MODE.md`](../library/DEGRADED_MODE.md).
 - Complements **M-229**/**M-230** (execute throttle) and **M-237**/**M-238** (100Ã— — do not fold into launch-burst talk-track).
 - This handout does not claim CPA SOC 2 or a published third-party penetration test.
 
-**Related:** [Customer policy-pack sandbox (M-299)](#policy-pack-customer-rule-sandbox-m-299) Â· [Marketing static vs live boundary (M-179)](#marketing-static-vs-live-demo-boundary-m-179) Â· [100Ã— review-volume capacity (M-238)](#review-volume-100x-capacity-m-238) Â· [Shared TPM fairness (M-297)](#shared-aoai-tpm-noisy-neighbor-m-297) Â· [Real-execute AOAI throttle (M-230)](#real-execute-aoai-throttle-m-230) Â· [`../architecture/LAUNCH_LOAD_DRILL.md`](../architecture/LAUNCH_LOAD_DRILL.md) Â· [`../library/DEGRADED_MODE.md`](../library/DEGRADED_MODE.md) Â· [`PUBLIC_CLAIM_BOUNDARY_GUIDE.md#gtm-do-not-promise`](../library/PUBLIC_CLAIM_BOUNDARY_GUIDE.md#gtm-do-not-promise) Â· [`PA_CLAIM_HONESTY_INDEX.md`](PA_CLAIM_HONESTY_INDEX.md).
+**Related:** [Customer policy-pack sandbox (M-299)](#policy-pack-customer-rule-sandbox-m-299) Â· [Marketing static vs live boundary (M-179)](#marketing-static-vs-live-demo-boundary-m-179) Â· [100Ã— review-volume capacity (M-238)](#review-volume-100x-capacity-m-238) Â· [Shared TPM fairness (M-297)](#shared-aoai-tpm-noisy-neighbor-m-297) Â· [Real-execute AOAI throttle (M-230)](#real-execute-aoai-throttle-m-230) Â· [`LAUNCH_LOAD_FAILURE_ORDER_DEGRADATION_CONTRACT.md`](../library/LAUNCH_LOAD_FAILURE_ORDER_DEGRADATION_CONTRACT.md) (**TB-1032**) Â· [`../architecture/LAUNCH_LOAD_DRILL.md`](../architecture/LAUNCH_LOAD_DRILL.md) Â· [`../library/DEGRADED_MODE.md`](../library/DEGRADED_MODE.md) Â· [`PUBLIC_CLAIM_BOUNDARY_GUIDE.md#gtm-do-not-promise`](../library/PUBLIC_CLAIM_BOUNDARY_GUIDE.md#gtm-do-not-promise) Â· [`PA_CLAIM_HONESTY_INDEX.md`](PA_CLAIM_HONESTY_INDEX.md).
 
 ## Marketing static vs anonymous-live vs tenant boundary (M-179) {#marketing-static-vs-live-demo-boundary-m-179}
 
@@ -3565,7 +3573,8 @@ Do not teach create→execute→commit as the default peer lifecycle to Authorit
 
 ### Residuals (honest)
 
-- **TB-1034** / **TB-1035** own strangler next-slice language guards.
+- **TB-1035** **Done** — strangler next-slice language guards: `scripts/ci/check_strangler_next_slice_honesty.py` (wired in `run_buyer_surface_strict_guards.py`).
+- Engineering SoT: [`../library/STRANGLER_NEXT_SLICE_AUTHORITY_FREEZE_AND_RESULT_SUNSET_CONTRACT.md`](../library/STRANGLER_NEXT_SLICE_AUTHORITY_FREEZE_AND_RESULT_SUNSET_CONTRACT.md) (**TB-1034** Done); sunset ADR [0066](../architecture/adrs/0066-agent-result-append-sunset.md).
 - Complements **M-158**/**M-159** forbid matrix; does not reopen Done **TB-919**.
 - Cite [`../architecture/COORDINATOR_STRANGLER_INVENTORY.md`](../architecture/COORDINATOR_STRANGLER_INVENTORY.md), ADR 0030, ADR 0042.
 - This handout does not claim CPA SOC 2 or a published third-party penetration test.
@@ -3628,7 +3637,8 @@ Do not claim dual coordinator storage still ships; do not equate AgentTask verbs
 
 ### Residuals (honest)
 
-- **TB-1204** / **TB-1205** own residual-coupling / discipline-test retirement contract and honesty CI.
+- **TB-1205** owns residual-coupling honesty CI.
+- Engineering SoT: [`../library/POST_STRANGLER_RESIDUAL_COUPLING_AND_DISCIPLINE_TEST_RETIREMENT_CONTRACT.md`](../library/POST_STRANGLER_RESIDUAL_COUPLING_AND_DISCIPLINE_TEST_RETIREMENT_CONTRACT.md) (**TB-1204** Done).
 - Cite ADR 0030/0042, `DualPipelineRegistrationDisciplineTests`, `CoordinatorStranglerCompletionArchitectureTests`, ceiling script.
 - Complements **M-158**/**M-159**, **M-184**/**M-185**; pairs claim-honesty **M-205**.
 - This handout does not claim CPA SOC 2 or a published third-party penetration test.
@@ -3749,7 +3759,7 @@ Former standalone body: `docs/go-to-market/STAGE_0_CLAIM_ALLOWLIST_VS_OVERSELL_P
 | --- | --- |
 | **G1** | Execution-mode honesty **PASS** |
 | **G2** | ROI source integrity **PASS** |
-| **G3** | Tenant isolation provable **PASS** |
+| **G3** | Tenant isolation (catalog + decide-once) **PASS** (with residuals — **TB-1122** / **M-195**) |
 | **G4** | â‰¥3 distinct Real clean proof-packet rows (**G-REAL-06** / **G-REAL-07**) |
 | Founder signoff | Dated approval even when G1–G4 are green; else **HOLD_FOR_OWNER_SIGNOFF** |
 
@@ -3769,6 +3779,7 @@ Until that exit: stay on the allowlist. Pair packet composition with [M-191](#mi
 ### Residuals (honest)
 
 - **TB-1072** / **TB-1073** own Stage 0 allowlist language guards.
+- G3 residual: DiD erosion **TB-1233** (honesty CI **TB-1123** Done) — not “fully proven isolation.”
 - G4 evidence remains **G-REAL-06** / **G-REAL-07**; does not substitute those runs.
 - Pilot-packet composition without CPA/3P is [M-191](#minimum-pilot-trust-packet-m-191).
 - This handout does not claim CPA SOC 2 or a published third-party penetration test.
@@ -3878,7 +3889,7 @@ Former standalone body: `docs/go-to-market/COMPARISON_REPLAY_IMMUTABLE_SNAPSHOT_
 
 ### Claim boundary
 
-Do not promise that artifact-mode replay proves architecture is unchanged, or that a live mutable UI side-by-side equals verify. Say: persisted `ComparisonRecord` + committed manifests on both sides; use **verify** for buyer drift/stable claims; label artifact-only as stored-delta replay.
+Do not promise that artifact-mode replay proves architecture is unchanged, or that a live mutable UI side-by-side equals verify. Say: persisted `ComparisonRecord` + committed manifests on both sides; use **verify mode (422)** for buyer drift/stable claims; label artifact-only as stored-delta replay.
 
 ### Safe pin
 
@@ -3893,7 +3904,7 @@ Do not promise that artifact-mode replay proves architecture is unchanged, or th
 
 ### Residuals (honest)
 
-Engineering SoT: [`COMPARISON_REPLAY_IMMUTABLE_SNAPSHOT_CONTRACT.md`](../library/COMPARISON_REPLAY_IMMUTABLE_SNAPSHOT_CONTRACT.md) (**TB-1024** Done). Minimal immutable snapshot set, replay modes, and illusion surfaces are published. Follow-on claim CI: **TB-1025**. Does not claim platform WORM on comparison rows (ADR 0040). Cite Flow C + [`../library/API_CONTRACTS.md`](../library/API_CONTRACTS.md) comparison-replay verify Â§. This handout does not claim CPA SOC 2 or a published third-party penetration test.
+Engineering SoT: [`COMPARISON_REPLAY_IMMUTABLE_SNAPSHOT_CONTRACT.md`](../library/COMPARISON_REPLAY_IMMUTABLE_SNAPSHOT_CONTRACT.md) (**TB-1024** Done). Minimal immutable snapshot set, replay modes, and illusion surfaces are published. Claim CI: **TB-1025** (`check_comparison_replay_drift_honesty.py`). Does not claim platform WORM on comparison rows (ADR 0040). Cite Flow C + [`../library/API_CONTRACTS.md`](../library/API_CONTRACTS.md) comparison-replay verify §. This handout does not claim CPA SOC 2 or a published third-party penetration test.
 
 | Open work | Purpose |
 | --- | --- |
@@ -3970,7 +3981,7 @@ Do not promise “15 minutes without founder narration,” “product-led first 
 
 ### Residuals (honest)
 
-Engineering SoT: [`../library/PA_FIRST_15_PACKAGE_SPINE_IA_CONTRACT.md`](../library/PA_FIRST_15_PACKAGE_SPINE_IA_CONTRACT.md) (**TB-1030** Done). Must-complete set, package-spine IA unlock, minute-12 checkpoint, and narration-forcing residuals are published. Follow-on claim CI: **TB-1031**. Live validation remains **M-44** / **M-48**; does not reopen those V1.1 rows. Expert-lane ceremony: [`../library/CANONICAL_FIRST_RUN_PATH.md#expert-principal-architect-15-minute-lane`](../library/CANONICAL_FIRST_RUN_PATH.md#expert-principal-architect-15-minute-lane) + [`FIRST_SESSION_COGNITIVE_LOAD_OBSERVATION.md`](FIRST_SESSION_COGNITIVE_LOAD_OBSERVATION.md). This handout does not claim CPA SOC 2 or a published third-party penetration test.
+Engineering SoT: [`../library/PA_FIRST_15_PACKAGE_SPINE_IA_CONTRACT.md`](../library/PA_FIRST_15_PACKAGE_SPINE_IA_CONTRACT.md) (**TB-1030** Done). Must-complete set, package-spine IA unlock, minute-12 checkpoint, and narration-forcing residuals are published. Claim CI: **TB-1031** (`check_first_15_package_spine_honesty.py`). Live validation remains **M-44** / **M-48**; does not reopen those V1.1 rows. Expert-lane ceremony: [`../library/CANONICAL_FIRST_RUN_PATH.md#expert-principal-architect-15-minute-lane`](../library/CANONICAL_FIRST_RUN_PATH.md#expert-principal-architect-15-minute-lane) + [`FIRST_SESSION_COGNITIVE_LOAD_OBSERVATION.md`](FIRST_SESSION_COGNITIVE_LOAD_OBSERVATION.md). This handout does not claim CPA SOC 2 or a published third-party penetration test.
 
 **Related:** [Operator primary object (M-177)](#operator-primary-object-nav-collapse-m-177) Â· [Core Pilot happy-path (M-242)](#core-pilot-happy-path-m-242) Â· [Shared hallucination defense plane (M-212)](#shared-hallucination-defense-plane-m-212) Â· [Comparison/replay snapshot (M-175)](#comparison-replay-immutable-snapshot-m-175) Â· [Committed golden manifest (M-155)](#committed-golden-manifest-unit-of-truth-m-155) Â· [`../library/CANONICAL_FIRST_RUN_PATH.md#expert-principal-architect-15-minute-lane`](../library/CANONICAL_FIRST_RUN_PATH.md#expert-principal-architect-15-minute-lane) Â· [`FIRST_SESSION_COGNITIVE_LOAD_OBSERVATION.md`](FIRST_SESSION_COGNITIVE_LOAD_OBSERVATION.md) Â· [`PUBLIC_CLAIM_BOUNDARY_GUIDE.md#gtm-do-not-promise`](../library/PUBLIC_CLAIM_BOUNDARY_GUIDE.md#gtm-do-not-promise) Â· [`PA_CLAIM_HONESTY_INDEX.md`](PA_CLAIM_HONESTY_INDEX.md).
 
@@ -4272,6 +4283,8 @@ Do not say “exactly-once LLM,” “zero duplicate spend on retry,” or “pr
 
 Former standalone body: `docs/go-to-market/CONCURRENT_EXECUTE_AND_COMMIT_RACE_PA_ONE_PAGER.md` → this section (filename kept as a path-stable alias for GTM **M-221** / **M-222** / **TB-1270**). Complements [Process vs provider idempotency (M-171)](#process-vs-provider-idempotency-m-171), [Finalize vs outbox (M-163)](#transactional-finalize-vs-outbox-m-163), and [Authority vs AgentTask (M-159)](#authority-vs-agenttask-loop-m-159). Not an assurance attestation.
 
+**Engineering SoT:** [`../library/CONCURRENT_EXECUTE_AND_COMMIT_RACE_CONTRACT.md`](../library/CONCURRENT_EXECUTE_AND_COMMIT_RACE_CONTRACT.md) (**TB-1270** Done).
+
 **Path-stable alias:** [`CONCURRENT_EXECUTE_AND_COMMIT_RACE_PA_ONE_PAGER.md`](CONCURRENT_EXECUTE_AND_COMMIT_RACE_PA_ONE_PAGER.md).
 
 **Audience:** Principal architects, platform reviewers, and integration developers.
@@ -4309,7 +4322,8 @@ Do not say “exactly-once commit,” “retries never spend LLM,” “two raci
 
 ### Residuals (honest)
 
-- **TB-1270** / **TB-1271** own the engineering race matrix and language guards.
+- **TB-1270** **Done** — engineering race matrix: [`CONCURRENT_EXECUTE_AND_COMMIT_RACE_CONTRACT.md`](../library/CONCURRENT_EXECUTE_AND_COMMIT_RACE_CONTRACT.md).
+- Open **TB-1271** — language guards / honesty CI.
 - Does not reopen Done **TB-039** / **TB-201** / **TB-303** / **TB-310**.
 - Complements **M-160** / **M-162** / **M-170** without replacing those contracts.
 - This handout does not claim CPA SOC 2 or a published third-party penetration test.
@@ -4318,7 +4332,7 @@ Do not say “exactly-once commit,” “retries never spend LLM,” “two raci
 
 ## GoldenManifest content-schema evolution (M-224) {#manifest-content-schema-evolution-m-224}
 
-Former standalone body: `docs/go-to-market/MANIFEST_CONTENT_SCHEMA_EVOLUTION_PA_ONE_PAGER.md` → this section (filename kept as a path-stable alias for GTM **M-223** / **M-224** / **TB-1277**). Complements [Committed golden manifest (M-155)](#committed-golden-manifest-unit-of-truth-m-155) and [Append-only / sealed evidence (M-161)](#append-only-sealed-evidence-m-161). Not an assurance attestation.
+Former standalone body: `docs/go-to-market/MANIFEST_CONTENT_SCHEMA_EVOLUTION_PA_ONE_PAGER.md` → this section (filename kept as a path-stable alias for GTM **M-223** / **M-224** / **TB-1277**). Engineering SoT: [`../library/MANIFEST_CONTENT_SCHEMA_EVOLUTION_CONTRACT.md`](../library/MANIFEST_CONTENT_SCHEMA_EVOLUTION_CONTRACT.md). Complements [Committed golden manifest (M-155)](#committed-golden-manifest-unit-of-truth-m-155) and [Append-only / sealed evidence (M-161)](#append-only-sealed-evidence-m-161). Not an assurance attestation.
 
 **Path-stable alias:** [`MANIFEST_CONTENT_SCHEMA_EVOLUTION_PA_ONE_PAGER.md`](MANIFEST_CONTENT_SCHEMA_EVOLUTION_PA_ONE_PAGER.md).
 
@@ -4355,7 +4369,8 @@ Do not say a schema-version column (or dual-write window) alone keeps old commit
 
 ### Residuals (honest)
 
-- **TB-1277** / **TB-1278** own the evolution contract and language guards.
+- **TB-1277** **Done** — [`MANIFEST_CONTENT_SCHEMA_EVOLUTION_CONTRACT.md`](../library/MANIFEST_CONTENT_SCHEMA_EVOLUTION_CONTRACT.md).
+- **TB-1278** (open) — language guards for schema-column / dual-write / rewrite-sealed overclaims.
 - Complements **M-198** / **M-154** / **M-219** / **M-220** without replacing those contracts.
 - Does not reopen Done **TB-307** / **TB-575** / **TB-303**.
 - This handout does not claim CPA SOC 2 or a published third-party penetration test.
@@ -4420,7 +4435,8 @@ Do not claim EF/ORM would fix tenant isolation, sealed DENYs, or hot-path `*Json
 
 ### Residuals (honest)
 
-- **TB-1263** / **TB-1264** own the breakdown-signal contract and honesty CI.
+- **TB-1264** owns breakdown-signal honesty CI.
+- Engineering SoT: [`../library/DAPPER_DDL_SATELLITE_BREAKDOWN_SIGNALS_CONTRACT.md`](../library/DAPPER_DDL_SATELLITE_BREAKDOWN_SIGNALS_CONTRACT.md) (**TB-1263** Done).
 - Cite [`../library/SQL_SCRIPTS.md`](../library/SQL_SCRIPTS.md), [`../library/JSON_FALLBACK_AUDIT.md`](../library/JSON_FALLBACK_AUDIT.md), `HotPathRelationalQueryShapes`, ADR 0011 / 0037 / 0039.
 - Complements **M-154** / **M-160** / **M-198** / **TB-931**; pairs claim-honesty **M-219**; align **M-69**.
 - This handout does not claim CPA SOC 2 or a published third-party penetration test.
@@ -4484,7 +4500,7 @@ Former standalone body: `docs/go-to-market/SOLO_OPERATOR_PAGES_VS_SUPPORT_EMAIL_
 | Critical fleet MVO P0 | Operator page | Fleet-critical action group visibility |
 | Warn, SLO, agent-output signals | Operations email | Notification, not guaranteed page |
 | Report Problem | Support inbox | Customer-initiated intake |
-| Stuck tenant run / lifecycle canary | Open gap | Not yet a completed paging claim |
+| Stuck tenant run / lifecycle canary | **TB-958** / **TB-959** Done — owner enablement gates paging claim | Engineering shipped; **M-120** + env flags required |
 
 Done **TB-957** documents six fleet MVO P0s. It does not prove that an individual tenant’s stuck run or a create→execute→finalize failure pages the operator.
 
@@ -4505,11 +4521,11 @@ Do not say “we page on every customer-impacting failure” or “support email
 
 | Needed outcome | Tracking |
 | --- | --- |
-| Pages-versus-email decision matrix | **TB-989** |
+| Pages-versus-email decision matrix | Done **TB-989** — [`SOLO_OPERATOR_PAGES_VS_SUPPORT_EMAIL_CONTRACT.md`](../operations/SOLO_OPERATOR_PAGES_VS_SUPPORT_EMAIL_CONTRACT.md) |
 | Support Problem to MVO triage routine | **TB-990** |
-| Claim regression guard | **TB-991** |
-| Per-tenant stuck-run coverage | **TB-958** |
-| Create/execute/finalize canary | **TB-959** |
+| Claim regression guard | Done **TB-991** |
+| Per-tenant stuck-run coverage | Done **TB-958** — owner enablement checklist |
+| Create/execute/finalize canary | Done **TB-959** — opt-in + paging secret |
 
 This work does not reopen the shipped fleet alerting baseline in **TB-957**.
 
@@ -4521,9 +4537,13 @@ Former standalone body: `docs/go-to-market/FIRST_SECURITY_REVIEW_PA_ONE_PAGER_SH
 
 **Path-stable alias:** [`FIRST_SECURITY_REVIEW_PA_ONE_PAGER_SHIP_ORDER_PA_ONE_PAGER.md`](FIRST_SECURITY_REVIEW_PA_ONE_PAGER_SHIP_ORDER_PA_ONE_PAGER.md).
 
+**Contributor contract:** [`FIRST_SECURITY_REVIEW_PA_ONE_PAGER_SHIP_ORDER_CONTRACT.md`](../library/FIRST_SECURITY_REVIEW_PA_ONE_PAGER_SHIP_ORDER_CONTRACT.md). Honesty CI: **TB-1121** (`check_security_review_ready_without_musts_honesty.py`).
+
 **Audience:** Founder preparing a controlled-pilot security conversation; PA diligence.
 
 **Claim:** “Ready for first buyer security review” means the **must** handouts below exist and talk-tracks match shipped controls — not that CPA SOC 2 or a published third-party pen test exists (**G-REAL-05** / **G-ASSURANCE-02** remain owner programs; tech **TB-135**/**TB-136** Done tracking only).
+
+**Engineering SoT:** [`../library/FIRST_SECURITY_REVIEW_PA_ONE_PAGER_SHIP_ORDER_CONTRACT.md`](../library/FIRST_SECURITY_REVIEW_PA_ONE_PAGER_SHIP_ORDER_CONTRACT.md) (**TB-1120**). Honesty CI: **TB-1121** (**Done** — `check_security_review_ready_without_musts_honesty.py`).
 
 ### Ship order
 
@@ -4545,9 +4565,15 @@ Use [principal architect falsification script](#principal-architect-falsificatio
 | Too strong | Safe |
 | --- | --- |
 | “Security review ready = SOC 2 / 3P pen tested” | Self-attested pack + these handouts; CPA/3P are separate owner rows |
+| “Ready for first security review” with only **M-114** | Must **M-151** + **M-118** (+ **M-114**); cite **TB-1120** / this ship-order section |
+| “First security review requires **M-171** / FinOps idempotency” | Defer **M-171** — FinOps / second pass |
 | “All PA one-pagers must ship before first conversation” | Must = **M-151** + **M-118** (+ **M-114**); others agenda-driven |
 
-**Related:** [Minimum pilot trust packet (M-191)](#minimum-pilot-trust-packet-m-191) Â· [`PA_CLAIM_HONESTY_INDEX.md`](PA_CLAIM_HONESTY_INDEX.md).
+### CI anchors for **TB-1121**
+
+Honesty CI **TB-1121** Done — `scripts/ci/check_security_review_ready_without_musts_honesty.py` wired in `run_buyer_surface_strict_guards.py`. Fails stubs that claim first-review readiness with only **M-114**, require **M-171** as a first-review must, equate readiness with CPA SOC 2 / published third-party pen test, or omit **TB-1120** / ship-order citation near “security review ready” language.
+
+**Related:** [Minimum pilot trust packet (M-191)](#minimum-pilot-trust-packet-m-191) Â· [`FIRST_SECURITY_REVIEW_PA_ONE_PAGER_SHIP_ORDER_CONTRACT.md`](../library/FIRST_SECURITY_REVIEW_PA_ONE_PAGER_SHIP_ORDER_CONTRACT.md) (**TB-1120**) Â· [`PA_CLAIM_HONESTY_INDEX.md`](PA_CLAIM_HONESTY_INDEX.md).
 
 ## PA claim-honesty short rows (M-115+) {#pa-claim-honesty-short-rows}
 
@@ -4674,7 +4700,7 @@ flowchart TB
 ```
 
 - **Layer 1 — Identity:** Prefer **Entra-issued JWTs** with **app roles**; API keys are server-side secrets mapped to **limited** roles ([SECURITY.md](../library/contributor-reference/SECURITY.md)).
-- **Layer 2 — Application:** Controllers enforce **policies**; orchestration sets **tenant / workspace / project** scope before data access ([../security/MULTI_TENANT_RLS.md](../security/MULTI_TENANT_RLS.md) Â§5).
+- **Layer 2 — Application:** Controllers enforce **policies**; orchestration sets **tenant / workspace / project** scope before data access ([`TENANT_ISOLATION_DEFENSE_IN_DEPTH.md`](../security/TENANT_ISOLATION_DEFENSE_IN_DEPTH.md)).
 - **Layer 3 — Database:** In `SystemWithPerTenantCatalogs` (production) mode each tenant organization receives a **dedicated product SQL catalog** resolved via `TenantDatabaseBindings`. **SQL RLS is not used** ([ADR 0037](../architecture/adrs/0037-tenant-isolation-without-rls-defense-in-depth.md)). Application repositories still apply scope predicates within the catalog. Deep reference: [`TENANT_ISOLATION_DEFENSE_IN_DEPTH.md`](../security/TENANT_ISOLATION_DEFENSE_IN_DEPTH.md).
 
 ### Encryption {#tenant-isolation-encryption}
@@ -5088,7 +5114,7 @@ A: Current sub-processors are listed in [`SUBPROCESSORS.md`](SUBPROCESSORS.md). 
 
 | Window | Checkpoint |
 |--------|-----------|
-| V2 (when funded) | **Third-party pen-test programme** — templates: **[Trust Center posture](trust-center.md)**, **[V1_DEFERRED.md Â§6c](../library/V1_DEFERRED.md)** |
+| V2 (when funded) | **Third-party pen-test program** — templates: **[Trust Center posture](trust-center.md)**, **[V1_DEFERRED.md Â§6c](../library/V1_DEFERRED.md)** |
 | Rolling | **Owner-conducted** pen testing + **self-assessment** updates (**[SOC2_SELF_ASSESSMENT_2026.md](../security/SOC2_SELF_ASSESSMENT_2026.md)**), **[2026-Q2-OWNER-CONDUCTED.md](../security/pen-test-summaries/2026-Q2-OWNER-CONDUCTED.md)** |
 | Deferred (funding-gated) | **SOC 2 Type I readiness** milestone |
 | Subsequent | **SOC 2 Type II** (~6–12 months operating effectiveness evidence) |
@@ -5124,13 +5150,13 @@ Former standalone body: `docs/go-to-market/PROCUREMENT_RESPONSE_ACCELERATOR.md` 
 
 **Canonical assurance wording:** [ASSURANCE_STATUS_CANONICAL.md](ASSURANCE_STATUS_CANONICAL.md)
 
-**Rules:** Never represent **`Self-asserted`** or **`Implemented`** docs as SOC 2 **Type II** **audit opinions**. For SOC 2 programme status see **[SOC2_STATUS_PROCUREMENT.md](SOC2_STATUS_PROCUREMENT.md)** and **[SOC2_SELF_ASSESSMENT_2026.md](../security/SOC2_SELF_ASSESSMENT_2026.md)**.
+**Rules:** Never represent **`Self-asserted`** or **`Implemented`** docs as SOC 2 **Type II** **audit opinions**. For SOC 2 program status see **[SOC2_STATUS_PROCUREMENT.md](SOC2_STATUS_PROCUREMENT.md)** and **[SOC2_SELF_ASSESSMENT_2026.md](../security/SOC2_SELF_ASSESSMENT_2026.md)**.
 
 ### Status legend
 
 | Label | Meaning in this accelerator |
 |------|-------------------------------|
-| **Implemented** | Shipped behaviour or CI automation described in linked engineering / security artefacts. |
+| **Implemented** | Shipped behavior or CI automation described in linked engineering / security artefacts. |
 | **Self-asserted** | Owner-maintained narratives, inventories, matrices, or templates—not CPA / pen-test attestations. |
 | **Deferred V2** | Explicitly out of V1 and planned for V2 release window. |
 | **Deferred V1.1** | Deferred publication, engagement class, or follow-on milestone per **`V1_DEFERRED`** or linked procurement notes. |
@@ -5139,7 +5165,7 @@ Former standalone body: `docs/go-to-market/PROCUREMENT_RESPONSE_ACCELERATOR.md` 
 
 Answers are pointers only; pull quotations from targets during diligence.
 
-#### A — Governance & programme
+#### A — Governance & program
 
 | # | Prompt | Status | Evidence |
 |---|--------|--------|----------|
@@ -5174,7 +5200,7 @@ Answers are pointers only; pull quotations from targets during diligence.
 | # | Prompt | Status | Evidence |
 |---|--------|--------|----------|
 |16 | What is the high-level API / platform security stance? | Self-asserted | [SECURITY.md](../library/contributor-reference/SECURITY.md) |
-|17 | Trial / identity edge auth behaviour? | Self-asserted | [TRIAL_AUTH.md](../security/TRIAL_AUTH.md) |
+|17 | Trial / identity edge auth behavior? | Self-asserted | [TRIAL_AUTH.md](../security/TRIAL_AUTH.md) |
 |18 | Tenant isolation narrative for buyers (logical)? | Self-asserted | [#tenant-isolation-buyer-overview](#tenant-isolation-buyer-overview) Â· pack alias [TENANT_ISOLATION.md](TENANT_ISOLATION.md) |
 |19 | Detailed customer trust / connectivity discussion? | Self-asserted | [CUSTOMER_TRUST_AND_ACCESS.md](../library/CUSTOMER_TRUST_AND_ACCESS.md) |
 | 20 | Database-per-tenant SQL isolation? | Implemented | [ADR 0037](../architecture/adrs/0037-tenant-isolation-without-rls-defense-in-depth.md) |
@@ -5190,7 +5216,7 @@ Answers are pointers only; pull quotations from targets during diligence.
 |---|--------|--------|----------|
 |26 | Where does documentation point for infrastructure-as-code posture? | Self-asserted | [SIG_CORE_2026.md](../security/SIG_CORE_2026.md) Â· [`infra/README.md`](../../infra/README.md) |
 |27 | Procurement evidence-pack overview (controlled artefact index)? | Self-asserted | [EVIDENCE_PACK.md](../security/EVIDENCE_PACK.md) |
-|28 | Evidence-pack download / HTTP behaviours (trust surface)? | Self-asserted | [trust-center.md](trust-center.md) |
+|28 | Evidence-pack download / HTTP behaviors (trust surface)? | Self-asserted | [trust-center.md](trust-center.md) |
 
 #### F — Physical / data-center inheritance
 

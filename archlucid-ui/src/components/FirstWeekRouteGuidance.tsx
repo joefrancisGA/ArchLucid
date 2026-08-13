@@ -8,7 +8,7 @@ import { InlineGuidance } from "@/components/InlineGuidance";
 import { Button } from "@/components/ui/button";
 import { OperatorHomeDisclosureSection } from "@/components/operator-home/OperatorHomeDisclosureSection";
 import { isBuyerPolishedOperatorShellEnv } from "@/lib/demo-ui-env";
-import { OPERATOR_HOME_DISCLOSURE_STORAGE_KEYS } from "@/lib/operator-home-disclosure-storage";
+import { OPERATOR_HOME_DISCLOSURE_STORAGE_KEYS } from "@/lib/operator/operator-home-disclosure-storage";
 import {
   resolveFirstWeekRouteGuidanceForShell,
   FIRST_WEEK_ROUTE_GUIDANCE_HOME_COLLAPSED_SUMMARY,

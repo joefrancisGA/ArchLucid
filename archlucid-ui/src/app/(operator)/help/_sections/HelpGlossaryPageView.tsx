@@ -3,6 +3,7 @@ import Link from "next/link";
 import { HelpGlossaryPageClient } from "@/app/(operator)/help/_sections/HelpGlossaryPageClient";
 import { HelpTopicMarkdownPageHeader } from "@/app/(operator)/help/_sections/HelpTopicMarkdownPageHeader";
 import { GlossaryHelpEvidenceOrientationStrip } from "@/components/help/GlossaryHelpEvidenceOrientationStrip";
+import { GlossaryProceduralHelpVocabularyRail } from "@/components/GlossaryProceduralHelpVocabularyRail";
 import { HelpTopicHashScroll } from "@/app/(operator)/help/HelpTopicHashScroll";
 import { Button } from "@/components/ui/button";
 import { Card, CardContent, CardHeader, CardTitle } from "@/components/ui/card";
@@ -12,7 +13,7 @@ import {
   GLOSSARY_HELP_PRIMARY_ACTIONS,
 } from "@/lib/glossary-help-guide-content";
 import { OPERATOR_CARD, OPERATOR_LAYOUT, OPERATOR_TYPOGRAPHY } from "@/lib/design-tokens";
-import { HELP_PAGE_LAYOUT } from "@/lib/help-page-layout";
+import { HELP_PAGE_LAYOUT } from "@/lib/help/help-page-layout";
 import type { ProductDocumentationEntry } from "@/lib/product-documentation-registry";
 import { cn } from "@/lib/utils";
 
@@ -24,7 +25,7 @@ type HelpGlossaryPageViewProps = {
 export function HelpGlossaryPageView(props: HelpGlossaryPageViewProps): React.ReactElement {
   return (
     <article
-      className={cn(OPERATOR_LAYOUT.majorSectionGap, "mx-auto w-full max-w-[68rem]")}
+      className={cn(OPERATOR_LAYOUT.majorSectionGap, "w-full max-w-[68rem]")}
       data-testid="help-glossary-page"
     >
       <HelpTopicHashScroll />
@@ -64,6 +65,7 @@ export function HelpGlossaryPageView(props: HelpGlossaryPageViewProps): React.Re
           </CardContent>
         </Card>
         <GlossaryHelpEvidenceOrientationStrip />
+        <GlossaryProceduralHelpVocabularyRail currentSurfaceId="glossary" />
       </header>
       <HelpGlossaryPageClient />
     </article>

@@ -12,7 +12,7 @@ export const MARKETING_PRICING_OG_DESCRIPTION =
   "Transparent packaging for evidence-backed architecture review — request a demo or quote when you are ready to evaluate.";
 
 export const MARKETING_WHY_OG_DESCRIPTION =
-  "See how ArchLucid compares on AI orchestration, governance, and audit-ready evidence — grounded in shipped V1 capabilities.";
+  "See how ArchLucid compares on AI orchestration, governance, and audit-ready evidence — grounded in shipped product capabilities.";
 
 export const MARKETING_SEE_IT_OG_DESCRIPTION =
   "No-install sample architecture review: executive summary, signed review record, evidence trail, and governance-ready outputs.";

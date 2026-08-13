@@ -35,7 +35,7 @@
       "Advisory findings on aillm-ctrl-* compliance rules",
       "Grounding and human-oversight gaps in committed review"
     ],
-    "scopeLabel": "V1-ready",
+    "scopeLabel": "Product-ready",
     "doNotUseWhen": [
       "Buyer expects model safety certification or production legal clearance",
       "No generative AI or LLM components in architecture scope"

@@ -1,10 +1,10 @@
-import type { HelpMarkdownHeading } from "@/lib/help-markdown-headings";
+import type { HelpMarkdownHeading } from "@/lib/help/help-markdown-headings";
 import {
   AUDIT_TRAIL_OPERATOR_TABLE_COLUMN_LABELS,
   AUDIT_TRAIL_PAGE_SUBTITLE_BUYER,
   AUDIT_TRAIL_PAGE_SUBTITLE_OPERATOR,
 } from "@/lib/audit-trail-page-copy";
-import { GOVERNANCE_AUDIT_PATH } from "@/lib/governance-route-paths";
+import { GOVERNANCE_AUDIT_PATH } from "@/lib/governance/governance-route-paths";
 import { inAppHelpHref } from "@/lib/product-documentation-registry";
 
 export const AUDIT_TRAIL_HELP_CANONICAL_PATH = "/help/audit-trail" as const;

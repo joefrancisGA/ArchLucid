@@ -4,10 +4,11 @@ import { cn } from "@/lib/utils";
 import Link from "next/link";
 import { useEffect, useMemo, useState } from "react";
 
-import { Button } from "@/components/ui/button";
 import { Card, CardContent, CardDescription, CardHeader, CardTitle } from "@/components/ui/card";
-import { useNavCallerAuthorityRank } from "@/components/OperatorNavAuthorityProvider";
+import { StatusTag } from "@/components/ui/status-tag";
+import { useNavCallerAuthorityRank } from "@/components/operator/OperatorNavAuthorityProvider";
 import { useTenantTrialStatusQuery } from "@/hooks/use-tenant-trial-status-query";
+import { useTenantUsageStatusQuery } from "@/hooks/use-tenant-usage-status-query";
 import { isNextPublicDemoMode } from "@/lib/demo-ui-env";
 import { readFrictionlessTrialSessionEnabled } from "@/lib/frictionless-trial-session";
 import {
@@ -15,15 +16,28 @@ import {
   llmBudgetRemainingPercent,
   llmBudgetUtilizationPercent,
 } from "@/lib/llm-monthly-budget-status";
-import { BILLING_MONTHLY_AI_BUDGET_ALLOWANCE_LABEL } from "@/lib/billing-meter-vocabulary";
+import {
+  BILLING_MONTHLY_AI_BUDGET_ALLOWANCE_LABEL,
+  BILLING_WORKSPACE_AI_SPEND_CAP_LABEL,
+  BILLING_WORKSPACE_AI_SPEND_CAP_PROVENANCE,
+} from "@/lib/vocabulary/billing-meter-vocabulary";
 import { OPERATOR_BILLING_TIER_CTAS } from "@/lib/marketing/marketing-public-pricing";
 import {
   ARCHLUCID_OPERATOR_SCOPE_CHANGED_EVENT,
   readOperatorScopeFromStorage,
-} from "@/lib/operator-scope-storage";
-import { resolveOperatorBillingCurrentPlan } from "@/lib/operator-billing-current-plan";
+} from "@/lib/operator/operator-scope-storage";
+import { resolveOperatorBillingCurrentPlan } from "@/lib/operator/operator-billing-current-plan";
+import {
+  resolveOperatorBillingCommercialTier,
+  resolveOperatorBillingHasSubscriptionForInvoice,
+  resolveOperatorBillingIsTrialUsage,
+  resolveOperatorBillingSeatRow,
+  resolveOperatorBillingSubscriptionLoadState,
+  resolveOperatorBillingSubscriptionStatusDisplay,
+} from "@/lib/operator/operator-billing-subscription-resolution";
 import { AUTHORITY_RANK } from "@/lib/nav-authority";
 import { OPERATOR_LINK, OPERATOR_TYPOGRAPHY } from "@/lib/design-tokens";
+import { BILLING_STRIPE_PORTAL_SYSTEM_OF_RECORD_NOTE } from "@/lib/billing-next-invoice-plain-english";
 
 import { BillingNextInvoicePlainEnglishNotice } from "@/components/billing/BillingNextInvoicePlainEnglishNotice";
 import { useBillingSubscriptionStatusQuery } from "@/hooks/use-billing-subscription-status-query";
@@ -41,10 +55,27 @@ function readWorkspaceLabelFromStorage(): string | null {
   return label.length > 0 ? label : null;
 }
 
+function resolveAiBudgetRemainingLabel(hasPaidPlan: boolean): string {
+  if (hasPaidPlan) {
+    return "of included allowance";
+  }
+
+  return "of workspace cap";
+}
+
 export function OperatorBillingCurrentPlanSummary() {
   const canMutate = useNavCallerAuthorityRank() >= AUTHORITY_RANK.AdminAuthority;
   const { data: trialPayload } = useTenantTrialStatusQuery();
-  const { data: subscriptionStatus } = useBillingSubscriptionStatusQuery();
+  const {
+    data: subscriptionStatus,
+    isPending: subscriptionPending,
+    isFetched: subscriptionFetched,
+  } = useBillingSubscriptionStatusQuery();
+  const {
+    data: usagePayload,
+    isPending: usagePending,
+    isFetched: usageFetched,
+  } = useTenantUsageStatusQuery();
   const [workspaceLabel, setWorkspaceLabel] = useState<string | null>(null);
   const [aiBudgetRemainingPercent, setAiBudgetRemainingPercent] = useState<number | null>(null);
   const [includedAiBudgetUsd, setIncludedAiBudgetUsd] = useState<number | null>(null);
@@ -64,19 +95,19 @@ export function OperatorBillingCurrentPlanSummary() {
   }, []);
 
   useEffect(() => {
-    let cancelled = false;
+    let canceled = false;
 
     void (async () => {
       try {
         const status = await fetchLlmMonthlyDollarBudgetStatusCached();
 
-        if (!cancelled) {
+        if (!canceled) {
           setAiBudgetRemainingPercent(llmBudgetRemainingPercent(status));
           setIncludedAiBudgetUsd(status.effectiveHardCapUsd);
           setAiUsedPercent(llmBudgetUtilizationPercent(status));
         }
       } catch {
-        if (!cancelled) {
+        if (!canceled) {
           setAiBudgetRemainingPercent(null);
           setIncludedAiBudgetUsd(null);
           setAiUsedPercent(null);
@@ -85,9 +116,20 @@ export function OperatorBillingCurrentPlanSummary() {
     })();
 
     return () => {
-      cancelled = true;
+      canceled = true;
     };
   }, []);
+
+  const subscriptionLoadState = resolveOperatorBillingSubscriptionLoadState(
+    subscriptionPending,
+    usagePending,
+    subscriptionFetched,
+    usageFetched,
+    subscriptionStatus,
+    usagePayload,
+  );
+  const commercialTier = resolveOperatorBillingCommercialTier(usagePayload, subscriptionStatus);
+  const isTrialUsage = resolveOperatorBillingIsTrialUsage(usagePayload, subscriptionStatus);
 
   const view = useMemo(
     () =>
@@ -99,9 +141,38 @@ export function OperatorBillingCurrentPlanSummary() {
         trialDaysRemaining: trialPayload?.daysRemaining,
         workspaceLabel,
         aiBudgetRemainingPercent,
+        isTrialUsage,
+        commercialTier,
+        subscriptionLoadState,
       }),
-    [aiBudgetRemainingPercent, trialPayload?.daysRemaining, trialPayload?.status, workspaceLabel],
+    [
+      aiBudgetRemainingPercent,
+      commercialTier,
+      isTrialUsage,
+      subscriptionLoadState,
+      trialPayload?.daysRemaining,
+      trialPayload?.status,
+      workspaceLabel,
+    ],
   );
+
+  const statusDisplay = resolveOperatorBillingSubscriptionStatusDisplay(
+    subscriptionLoadState,
+    view.hasPaidPlan,
+  );
+  const seatRow = resolveOperatorBillingSeatRow(
+    view.hasPaidPlan,
+    view.planKind === "tenant-trial",
+    subscriptionLoadState,
+    usagePayload?.seatsUsed,
+    usagePayload?.seatsLimit,
+  );
+  const hasSubscriptionForInvoice = resolveOperatorBillingHasSubscriptionForInvoice(
+    subscriptionStatus,
+    view.hasPaidPlan,
+  );
+  const showPlanAllowanceMetrics = view.hasPaidPlan && includedAiBudgetUsd !== null;
+  const showWorkspaceCapMetrics = !view.hasPaidPlan && includedAiBudgetUsd !== null;
 
   return (
     <Card data-testid="operator-billing-current-plan">
@@ -117,17 +188,43 @@ export function OperatorBillingCurrentPlanSummary() {
           </div>
           <div>
             <dt className="text-neutral-500 dark:text-neutral-400">Status</dt>
-            <dd className="font-medium text-al-text-primary">
-              {view.hasPaidPlan ? "Active paid plan" : "No active subscription"}
+            <dd className="m-0">
+              <StatusTag
+                kind={statusDisplay.kind}
+                label={statusDisplay.label}
+                data-testid="operator-billing-subscription-status"
+              />
             </dd>
           </div>
-          {includedAiBudgetUsd !== null ? (
+          {seatRow !== null ? (
             <div>
-              <dt className="text-neutral-500 dark:text-neutral-400">{BILLING_MONTHLY_AI_BUDGET_ALLOWANCE_LABEL}</dt>
-              <dd className="font-medium tabular-nums text-al-text-primary">${includedAiBudgetUsd.toFixed(0)} / month</dd>
+              <dt className="text-neutral-500 dark:text-neutral-400">{seatRow.label}</dt>
+              <dd className="font-medium text-al-text-primary">{seatRow.value}</dd>
             </div>
           ) : null}
-          {aiUsedPercent !== null ? (
+          {showPlanAllowanceMetrics ? (
+            <div>
+              <dt className="text-neutral-500 dark:text-neutral-400">{BILLING_MONTHLY_AI_BUDGET_ALLOWANCE_LABEL}</dt>
+              <dd className="font-medium tabular-nums text-al-text-primary">
+                ${includedAiBudgetUsd?.toFixed(0)} / month
+                <span className={cn("block text-al-text-secondary", OPERATOR_TYPOGRAPHY.helper)}>
+                  From your active plan tier
+                </span>
+              </dd>
+            </div>
+          ) : null}
+          {showWorkspaceCapMetrics ? (
+            <div>
+              <dt className="text-neutral-500 dark:text-neutral-400">{BILLING_WORKSPACE_AI_SPEND_CAP_LABEL}</dt>
+              <dd className="font-medium tabular-nums text-al-text-primary">
+                ${includedAiBudgetUsd?.toFixed(0)} / month
+                <span className={cn("block text-al-text-secondary", OPERATOR_TYPOGRAPHY.helper)}>
+                  {BILLING_WORKSPACE_AI_SPEND_CAP_PROVENANCE}
+                </span>
+              </dd>
+            </div>
+          ) : null}
+          {aiUsedPercent !== null && (showPlanAllowanceMetrics || showWorkspaceCapMetrics) ? (
             <div>
               <dt className="text-neutral-500 dark:text-neutral-400">Used this month</dt>
               <dd className="font-medium tabular-nums text-al-text-primary">
@@ -138,10 +235,12 @@ export function OperatorBillingCurrentPlanSummary() {
               </dd>
             </div>
           ) : null}
-          {view.aiBudgetRemainingPercent !== null ? (
+          {view.aiBudgetRemainingPercent !== null && (showPlanAllowanceMetrics || showWorkspaceCapMetrics) ? (
             <div>
               <dt className="text-neutral-500 dark:text-neutral-400">Remaining</dt>
-              <dd className="font-medium tabular-nums text-al-text-primary">{view.aiBudgetRemainingPercent}% of plan allowance</dd>
+              <dd className="font-medium tabular-nums text-al-text-primary">
+                {view.aiBudgetRemainingPercent}% {resolveAiBudgetRemainingLabel(view.hasPaidPlan)}
+              </dd>
             </div>
           ) : null}
           <div>
@@ -151,23 +250,37 @@ export function OperatorBillingCurrentPlanSummary() {
         </dl>
 
         {!view.hasPaidPlan ? (
-          <div className="flex flex-wrap gap-2">
-            <Button type="button" variant="primary" size="sm" asChild>
-              <Link href="#billing-plans">{OPERATOR_BILLING_TIER_CTAS.architect.primaryLabel}</Link>
-            </Button>
-            <Button type="button" variant="outline" size="sm" asChild>
-              <Link href="#billing-plans">Compare available plans</Link>
-            </Button>
+          <div className="flex flex-wrap gap-3">
+            <Link href="#billing-plans" className={cn(OPERATOR_LINK.nav, OPERATOR_TYPOGRAPHY.body)}>
+              {OPERATOR_BILLING_TIER_CTAS.architect.primaryLabel}
+            </Link>
+            <Link href="#billing-plans" className={cn(OPERATOR_LINK.nav, OPERATOR_TYPOGRAPHY.body)}>
+              Compare available plans
+            </Link>
           </div>
         ) : (
           <OperatorBillingManageBillingAction canMutate={canMutate} variant="outline" size="sm" />
         )}
 
+        <div className="space-y-2" data-testid="operator-billing-invoices-and-receipts">
+          <OperatorBillingManageBillingAction
+            canMutate={canMutate}
+            idleLabel="Invoices and receipts"
+            loadingLabel="Opening portal…"
+            variant="outline"
+            size="sm"
+            testId="operator-billing-invoices-and-receipts-action"
+          />
+          <p className={cn("m-0 text-al-text-primary", OPERATOR_TYPOGRAPHY.body)}>
+            {BILLING_STRIPE_PORTAL_SYSTEM_OF_RECORD_NOTE}
+          </p>
+        </div>
+
         <BillingNextInvoicePlainEnglishNotice
           canMutate={canMutate}
           planLabel={view.headline}
           status={subscriptionStatus?.status}
-          hasSubscription={subscriptionStatus?.hasSubscription ?? view.hasPaidPlan}
+          hasSubscription={hasSubscriptionForInvoice}
           provider={subscriptionStatus?.provider}
         />
       </CardContent>

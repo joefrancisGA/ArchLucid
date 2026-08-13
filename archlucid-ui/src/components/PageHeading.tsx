@@ -3,7 +3,7 @@ import type { LucideIcon } from "lucide-react";
 import type { ReactNode } from "react";
 
 import { OPERATOR_TYPOGRAPHY } from "@/lib/design-tokens";
-import { HELP_TOPIC_PAGE_ICON, isHelpTopicHref } from "@/lib/help-topic-page-icon";
+import { HELP_TOPIC_PAGE_ICON, isHelpTopicHref } from "@/lib/help/help-topic-page-icon";
 import { resolveNavIconForHref } from "@/lib/resolve-nav-link-for-pathname";
 
 const PAGE_HEADING_ICON_CLASS =
@@ -49,6 +49,8 @@ export type PageHeadingProps = {
   bordered?: boolean;
   className?: string;
   titleTestId?: string;
+  /** Stable Playwright anchor for the page lead / description block. */
+  descriptionTestId?: string;
   "data-testid"?: string;
   children?: ReactNode;
 };
@@ -70,6 +72,7 @@ export function PageHeading({
   bordered = false,
   className,
   titleTestId,
+  descriptionTestId,
   "data-testid": dataTestId,
   children,
 }: PageHeadingProps): React.JSX.Element {
@@ -114,7 +117,12 @@ export function PageHeading({
           </div>
 
           {description !== undefined && description !== null ? (
-            <div className={cn("m-0 max-w-3xl text-al-text-secondary", OPERATOR_TYPOGRAPHY.body)}>{description}</div>
+            <div
+              className={cn("m-0 text-al-text-secondary", OPERATOR_TYPOGRAPHY.body)}
+              {...(descriptionTestId !== undefined ? { "data-testid": descriptionTestId } : {})}
+            >
+              {description}
+            </div>
           ) : null}
 
           {metadata !== undefined && metadata !== null ? (

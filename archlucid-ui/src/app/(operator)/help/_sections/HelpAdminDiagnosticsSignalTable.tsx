@@ -4,7 +4,7 @@ import {
   ADMIN_DIAGNOSTICS_HELP_SIGNAL_SECTION_TITLE,
 } from "@/lib/admin-diagnostics-help-evidence-copy";
 import { OPERATOR_SHELL_SCROLL_OFFSET_CLASS, OPERATOR_TYPOGRAPHY } from "@/lib/design-tokens";
-import { HELP_PAGE_LAYOUT } from "@/lib/help-page-layout";
+import { HELP_PAGE_LAYOUT } from "@/lib/help/help-page-layout";
 import { cn } from "@/lib/utils";
 
 /** Structured signal reference for admin diagnostics help (HAE). */

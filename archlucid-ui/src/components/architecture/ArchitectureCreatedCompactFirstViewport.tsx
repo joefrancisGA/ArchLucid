@@ -7,10 +7,10 @@ import {
   ARCHITECTURE_CREATED_DEFINITION_STATUS_HEADING,
   ARCHITECTURE_CREATED_NEXT_STEP_HEADING,
   ARCHITECTURE_CREATED_SUMMARY_HEADING,
-} from "@/lib/architecture-created-home-copy";
-import type { ArchitectureCreatedHomeModel } from "@/lib/architecture-created-home-model";
-import type { ArchitectureCreationUserAssertions } from "@/lib/architecture-structured-content-types";
-import { readArchitectureWorkspaceTabFromHref, type ArchitectureWorkspaceTabId } from "@/lib/architecture-workspace-tabs";
+} from "@/lib/architecture/architecture-created-home-copy";
+import type { ArchitectureCreatedHomeModel } from "@/lib/architecture/architecture-created-home-model";
+import type { ArchitectureCreationUserAssertions } from "@/lib/architecture/architecture-structured-content-types";
+import { readArchitectureWorkspaceTabFromHref, type ArchitectureWorkspaceTabId } from "@/lib/architecture/architecture-workspace-tabs";
 import { OPERATOR_TYPOGRAPHY } from "@/lib/design-tokens";
 
 export type ArchitectureCreatedCompactFirstViewportProps = {
@@ -21,8 +21,7 @@ export type ArchitectureCreatedCompactFirstViewportProps = {
   readonly canEditDiagram: boolean;
   readonly onNavigateTab: (tab: ArchitectureWorkspaceTabId) => void;
   readonly mode?: "full" | "context-bar";
-  readonly clarificationsTabHref?: string;
-  readonly onClarificationsNavigate?: () => void;
+  readonly diagramClarifyHref?: string;
   readonly onUnconfirmedInferredCountChange?: (count: number) => void;
 };
 
@@ -129,8 +128,7 @@ export function ArchitectureCreatedCompactFirstViewport(
             sourceText={props.architectureSourceText}
             userAssertions={props.userAssertions}
             canEdit={props.canEditDiagram}
-            clarifyHref={props.clarificationsTabHref}
-            onClarificationsNavigate={props.onClarificationsNavigate}
+            clarifyHref={props.diagramClarifyHref}
             variant="preview"
             onOpenFull={() => {
               props.onNavigateTab("diagram");

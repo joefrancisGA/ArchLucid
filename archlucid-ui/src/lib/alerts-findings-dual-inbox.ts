@@ -1,30 +1,26 @@
 /**
- * TB-2221 — Alerts ↔ findings dual-inbox reconciler.
+ * TB-2221 / TB-2319 — Alerts ↔ findings dual-inbox reconciler.
  *
- * Why two inboxes exist:
- * - Alerts inbox (`/governance/alerts`) is the operational triage launcher for
- *   *raised notifications* (rule hits that need acknowledge / resolve).
- * - Findings queue (`/governance/findings`) is the cross-review *risk register*
- *   for disposition, ownership, and exception work on the underlying findings.
- *
- * They stay separate because acknowledging an alert does not dispose the finding,
- * and closing a finding does not auto-clear every related alert row. Operators need
- * both surfaces with deep links so they do not treat one list as the other.
+ * Canonical vocabulary SoT lives in `@/lib/vocabulary/alerts-findings-vocabulary`
+ * (TB-2319 VocabularyRail). This module keeps the TB-2221 import surface.
  */
 
 import {
-  GOVERNANCE_ALERTS_PATH,
-  GOVERNANCE_FINDINGS_PATH,
-} from "@/lib/governance-route-paths";
+  ALERTS_FINDINGS_ALERTS_LINK,
+  ALERTS_FINDINGS_COMPACT_LINE,
+  ALERTS_FINDINGS_FINDINGS_LINK,
+  ALERTS_FINDINGS_HEADING,
+  ALERTS_FINDINGS_WHY_TWO,
+  buildAlertsFindingsVocabulary,
+  resolveAlertsFindingsPeerLink,
+  type AlertsFindingsLink,
+  type AlertsFindingsSurfaceId,
+  type AlertsFindingsVocabularyModel,
+} from "@/lib/vocabulary/alerts-findings-vocabulary";
 
-export type AlertsFindingsDualInboxSurfaceId = "alerts-inbox" | "findings-queue";
+export type AlertsFindingsDualInboxSurfaceId = AlertsFindingsSurfaceId;
 
-export type AlertsFindingsDualInboxLink = {
-  readonly id: AlertsFindingsDualInboxSurfaceId;
-  readonly label: string;
-  readonly href: string;
-  readonly whenToUse: string;
-};
+export type AlertsFindingsDualInboxLink = AlertsFindingsLink;
 
 export type AlertsFindingsDualInboxReconcilerModel = {
   readonly heading: string;
@@ -34,36 +30,26 @@ export type AlertsFindingsDualInboxReconcilerModel = {
   readonly findingsLink: AlertsFindingsDualInboxLink;
 };
 
-export const ALERTS_FINDINGS_DUAL_INBOX_HEADING = "Alerts and findings stay separate" as const;
+export const ALERTS_FINDINGS_DUAL_INBOX_HEADING = ALERTS_FINDINGS_HEADING;
 
-export const ALERTS_FINDINGS_DUAL_INBOX_WHY_TWO =
-  "Alerts are raised notifications from rules; the findings queue is the risk-register for disposition. Acknowledge an alert without disposing the finding — or dispose a finding without clearing every related alert. Use both inboxes when triage and disposition both apply." as const;
+export const ALERTS_FINDINGS_DUAL_INBOX_WHY_TWO = ALERTS_FINDINGS_WHY_TWO;
 
-export const ALERTS_FINDINGS_DUAL_INBOX_COMPACT_LINE =
-  "Alerts triage notifications; findings dispose risks — open the other inbox when you need both." as const;
+export const ALERTS_FINDINGS_DUAL_INBOX_COMPACT_LINE = ALERTS_FINDINGS_COMPACT_LINE;
 
-export const ALERTS_FINDINGS_DUAL_INBOX_ALERTS_LINK: AlertsFindingsDualInboxLink = {
-  id: "alerts-inbox",
-  label: "Alerts inbox",
-  href: GOVERNANCE_ALERTS_PATH,
-  whenToUse: "Acknowledge or resolve raised governance notifications.",
-};
+export const ALERTS_FINDINGS_DUAL_INBOX_ALERTS_LINK = ALERTS_FINDINGS_ALERTS_LINK;
 
-export const ALERTS_FINDINGS_DUAL_INBOX_FINDINGS_LINK: AlertsFindingsDualInboxLink = {
-  id: "findings-queue",
-  label: "Findings queue",
-  href: GOVERNANCE_FINDINGS_PATH,
-  whenToUse: "Disposition risks, assign owners, and clear open governance items.",
-};
+export const ALERTS_FINDINGS_DUAL_INBOX_FINDINGS_LINK = ALERTS_FINDINGS_FINDINGS_LINK;
 
 /** Full reconciler model (heading, why-two copy, and deep links). */
 export function buildAlertsFindingsDualInboxReconciler(): AlertsFindingsDualInboxReconcilerModel {
+  const model: AlertsFindingsVocabularyModel = buildAlertsFindingsVocabulary();
+
   return {
-    heading: ALERTS_FINDINGS_DUAL_INBOX_HEADING,
-    whyTwoInboxes: ALERTS_FINDINGS_DUAL_INBOX_WHY_TWO,
-    compactLine: ALERTS_FINDINGS_DUAL_INBOX_COMPACT_LINE,
-    alertsLink: ALERTS_FINDINGS_DUAL_INBOX_ALERTS_LINK,
-    findingsLink: ALERTS_FINDINGS_DUAL_INBOX_FINDINGS_LINK,
+    heading: model.heading,
+    whyTwoInboxes: model.whyTwo,
+    compactLine: model.compactLine,
+    alertsLink: model.alertsLink,
+    findingsLink: model.findingsLink,
   };
 }
 
@@ -71,9 +57,5 @@ export function buildAlertsFindingsDualInboxReconciler(): AlertsFindingsDualInbo
 export function resolveAlertsFindingsDualInboxPeerLink(
   currentSurfaceId: AlertsFindingsDualInboxSurfaceId,
 ): AlertsFindingsDualInboxLink {
-  if (currentSurfaceId === "alerts-inbox") {
-    return ALERTS_FINDINGS_DUAL_INBOX_FINDINGS_LINK;
-  }
-
-  return ALERTS_FINDINGS_DUAL_INBOX_ALERTS_LINK;
+  return resolveAlertsFindingsPeerLink(currentSurfaceId);
 }

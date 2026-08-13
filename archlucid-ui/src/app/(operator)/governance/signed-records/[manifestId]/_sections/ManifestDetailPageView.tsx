@@ -1,24 +1,26 @@
 import { cn } from "@/lib/utils";
 import Link from "next/link";
 
-import { OperatorDemoStaticBanner } from "@/components/OperatorDemoStaticBanner";
+import { OperatorDemoStaticBanner } from "@/components/operator/OperatorDemoStaticBanner";
+import { OperatorPageHeader } from "@/components/operator/OperatorPageHeader";
+import { SIGNED_RECORDS_LIST_PATH } from "@/lib/signed-records-paths";
 import { CtoDemoBuyerValueStrip } from "@/components/cto-demo/CtoDemoBuyerValueStrip";
 import {
   OperatorEvidenceLimitsFooter,
-} from "@/components/OperatorEvidenceLimitsFooter";
+} from "@/components/operator/OperatorEvidenceLimitsFooter";
 import { ArtifactListTable } from "@/components/ArtifactListTable";
 import { ManifestBuyerBundleDownloadSection } from "@/components/ManifestBuyerBundleDownloadSection";
 import { ManifestDeliverableGrid } from "@/components/ManifestDeliverableGrid";
 import { ManifestDetailSummaryPanel } from "@/components/ManifestDetailSummaryPanel";
 import { ManifestTopDecisionsCard } from "@/components/ManifestTopDecisionsCard";
-import { OperatorApiProblem } from "@/components/OperatorApiProblem";
+import { EnterpriseCompactEmptyState } from "@/components/EnterpriseCompactEmptyState";
+import { OperatorApiProblem } from "@/components/operator/OperatorApiProblem";
 import {
-  OperatorEmptyState,
   OperatorMalformedCallout,
-} from "@/components/OperatorShellMessage";
+} from "@/components/operator/OperatorShellMessage";
 import { Button } from "@/components/ui/button";
 import { Card, CardContent, CardDescription, CardHeader, CardTitle } from "@/components/ui/card";
-import { shouldShowOperatorDemoMarketingChrome } from "@/lib/buyer-demo-content-gating";
+import { shouldShowOperatorDemoMarketingChrome } from "@/lib/buyer/buyer-demo-content-gating";
 import { canonicalizeDemoRunId } from "@/lib/demo-run-canonical";
 import { getBundleDownloadUrl } from "@/lib/api";
 import {
@@ -32,7 +34,7 @@ import {
   BUYER_MANIFEST_SECTION_EVIDENCE,
   BUYER_MANIFEST_TOP_RISK_CTA,
   BUYER_SIGNED_DECISION_RECORD_LABEL,
-} from "@/lib/buyer-polish-copy";
+} from "@/lib/buyer/buyer-polish-copy";
 import {
   SHOWCASE_BUYER_REVIEW_TITLE,
   SHOWCASE_STATIC_DEMO_MANIFEST_ID,
@@ -41,10 +43,12 @@ import {
 } from "@/lib/showcase-static-demo";
 import {
   OPERATOR_DISCLOSURE_TRIGGER_CLASS,
+  OPERATOR_LAYOUT,
   OPERATOR_LINK,
   OPERATOR_NAV_GROUP_LABEL,
   OPERATOR_TYPOGRAPHY,
 } from "@/lib/design-tokens";
+import { MANIFEST_ARTIFACTS_LIST_EMPTY_COMPACT } from "@/lib/enterprise-compact-empty-state-presets";
 
 import type { ManifestDetailPageSuccessModel } from "./manifest-detail-page-model";
 type ManifestDetailPageViewProps = {
@@ -206,7 +210,7 @@ export function ManifestDetailPageView(props: ManifestDetailPageViewProps) {
   ) : null;
 
   return (
-    <div className="w-full max-w-[1200px] space-y-6 px-1 py-2 sm:px-0">
+    <div className={cn("w-full max-w-[1200px] px-1 py-2 sm:px-0", OPERATOR_LAYOUT.sectionStack)}>
       <CtoDemoBuyerValueStrip stepIndex={1} />
       <p className={cn("m-0 text-al-text-secondary", OPERATOR_TYPOGRAPHY.body)}>
         <Link
@@ -235,45 +239,46 @@ export function ManifestDetailPageView(props: ManifestDetailPageViewProps) {
         <OperatorDemoStaticBanner />
       ) : null}
 
-      <div className="flex flex-col gap-3 sm:flex-row sm:flex-wrap sm:items-start sm:justify-between">
-        <div>
-          <h1 className={cn("m-0", OPERATOR_TYPOGRAPHY.pageTitle)}>
-            {showcaseBuyerManifestHeadline === true
-              ? `${BUYER_SIGNED_DECISION_RECORD_LABEL} — ${BUYER_MANIFEST_HEADLINE_SUFFIX}`
-              : buyerPolishedLayout
-                ? BUYER_SIGNED_DECISION_RECORD_LABEL
-                : "Finalized architecture review"}
-          </h1>
-        </div>
-        {buyerPolishedLayout !== true ? (
-          <div className="flex flex-wrap gap-2">
+      <OperatorPageHeader
+        navHref={SIGNED_RECORDS_LIST_PATH}
+        title={
+          showcaseBuyerManifestHeadline === true
+            ? `${BUYER_SIGNED_DECISION_RECORD_LABEL} — ${BUYER_MANIFEST_HEADLINE_SUFFIX}`
+            : buyerPolishedLayout
+              ? BUYER_SIGNED_DECISION_RECORD_LABEL
+              : "Finalized architecture review"
+        }
+        headingLevel="h1"
+        subtitle={
+          buyerPolishedLayout ? (
+            <>
+              {showcasePackage === true ? (
+                BUYER_MANIFEST_AUTHORITY_SUMMARY
+              ) : (
+                <>
+                  This is the signed review record for the architecture review — decisions, findings, and the files you
+                  can open or download.
+                </>
+              )}
+            </>
+          ) : (
+            <>
+              A signed review record is the immutable authority for this review. It captures decisions, findings, and
+              the downloadable artifact bundle linked from review detail.
+            </>
+          )
+        }
+        subtitleClassName="max-w-prose"
+        actions={
+          buyerPolishedLayout !== true ? (
             <Button variant="primary" size="sm" asChild>
               <a href={getBundleDownloadUrl(manifestId)}>Export review bundle</a>
             </Button>
-          </div>
-        ) : null}
-      </div>
+          ) : undefined
+        }
+      />
 
-      <p className={cn("m-0 max-w-prose text-al-text-secondary", OPERATOR_TYPOGRAPHY.body)}>
-        {buyerPolishedLayout ? (
-          <>
-            {showcasePackage === true ? (
-              BUYER_MANIFEST_AUTHORITY_SUMMARY
-            ) : (
-              <>
-                This is the signed review record for the architecture review — decisions, findings, and the files you can
-                open or download.
-              </>
-            )}
-          </>
-        ) : (
-          <>
-            A signed review record is the immutable authority for this review. It captures decisions, findings, and the
-            downloadable artifact bundle linked from review detail.
-          </>
-        )}
-      </p>
-{showcaseBuyerManifestHeadline === true ? (
+      {showcaseBuyerManifestHeadline === true ? (
         <section
           aria-labelledby="manifest-authority-summary-heading"
           className="rounded-md border border-neutral-200 bg-al-surface-raised dark:border-neutral-800 p-4 shadow-sm"
@@ -312,10 +317,10 @@ export function ManifestDetailPageView(props: ManifestDetailPageViewProps) {
       ) : null}
 
       {buyerPolishedLayout ? (
-        <div id="manifest-decision-group" className="scroll-mt-24 space-y-6">
+        <div id="manifest-decision-group" className={cn("scroll-mt-24", OPERATOR_LAYOUT.sectionStack)}>
           {summary.warningCount > 0 || summary.unresolvedIssueCount > 0 ? monitoredRiskCard : null}
           {overviewSummaryCard}
-          <div id="manifest-decisions" className="scroll-mt-24 space-y-6">
+          <div id="manifest-decisions" className={cn("scroll-mt-24", OPERATOR_LAYOUT.sectionStack)}>
             {decisionsLeadCard}
           </div>
         </div>
@@ -407,22 +412,23 @@ export function ManifestDetailPageView(props: ManifestDetailPageViewProps) {
           )}
 
           {!model.artifactsFailure && !model.artifactsMalformed && artifacts.length === 0 && (
-            <OperatorEmptyState title={buyerPolishedLayout ? BUYER_MANIFEST_NO_DELIVERABLES_YET : "No artifacts listed for this review"}>
-              {buyerPolishedLayout ? (
-                <p className="m-0">{BUYER_MANIFEST_DOWNLOAD_PREPARING}</p>
-              ) : (
-                <>
-                  <p className="m-0">
-                    The summary loaded, but the artifact descriptor list is empty. Bundle download may be available when
-                    there is a bundle.
-                  </p>
-                  <p className={cn("m-0 mt-2 text-al-text-secondary", OPERATOR_TYPOGRAPHY.body)}>
-                    This is a <strong>valid empty result</strong> (HTTP 200 with an empty list), not a failed artifact-list
-                    request. <strong>Bundle ZIP may return 404</strong> when no packaged bundle exists yet.
-                  </p>
-                </>
-              )}
-            </OperatorEmptyState>
+            <EnterpriseCompactEmptyState
+              {...MANIFEST_ARTIFACTS_LIST_EMPTY_COMPACT}
+              title={buyerPolishedLayout ? BUYER_MANIFEST_NO_DELIVERABLES_YET : MANIFEST_ARTIFACTS_LIST_EMPTY_COMPACT.title}
+              description={
+                buyerPolishedLayout ? (
+                  <p className="m-0">{BUYER_MANIFEST_DOWNLOAD_PREPARING}</p>
+                ) : (
+                  <>
+                    <p className="m-0">{MANIFEST_ARTIFACTS_LIST_EMPTY_COMPACT.description}</p>
+                    <p className={cn("m-0 mt-2 text-al-text-secondary", OPERATOR_TYPOGRAPHY.body)}>
+                      This is a <strong>valid empty result</strong> (HTTP 200 with an empty list), not a failed artifact-list
+                      request. <strong>Bundle ZIP may return 404</strong> when no packaged bundle exists yet.
+                    </p>
+                  </>
+                )
+              }
+            />
           )}
 
           {!model.artifactsFailure && !model.artifactsMalformed && artifacts.length > 0 && buyerPolishedLayout ? (

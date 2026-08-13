@@ -43,7 +43,7 @@ flowchart LR
 
 ## Reliability
 
-- Test fail-open behaviour in a non-production subscription before enforcing CMK in production.
+- Test fail-open behavior in a non-production subscription before enforcing CMK in production.
 
 ## Cost
 

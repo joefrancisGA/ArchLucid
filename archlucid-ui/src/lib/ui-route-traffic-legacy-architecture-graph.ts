@@ -14,4 +14,4 @@ export const LEGACY_ARCHITECTURE_GRAPH_TRAFFIC_PATH = LEGACY_OPERATE_ARCHITECTUR
  * Owner workbook Notes for OAX — documents that the shim redirects to {@link EVIDENCE_GRAPH_PATH} with query preserved.
  */
 export const LEGACY_ARCHITECTURE_GRAPH_TRAFFIC_NOTE =
- `Legacy Operate architecture-graph bookmark — App Router shim redirects to ${EVIDENCE_GRAPH_PATH} (query preserved, TB-1808). Canonical UX on INE.`;
+ `Legacy Operate architecture-graph bookmark — App Router shim redirects to ${EVIDENCE_GRAPH_PATH} (query preserved, TB-1808). Canonical UX on GRA.`;

@@ -1,8 +1,6 @@
 "use client";
 
-import { useEffect, useState } from "react";
-
-import { loadProjectRunsMergedWithDemoFallback } from "@/lib/operator-run-picker-client";
+import { useAskProjectRunsQuery } from "@/hooks/use-ask-project-runs-query";
 
 export type CompareFinalizedRunAvailability = {
   readonly loading: boolean;
@@ -17,38 +15,16 @@ export type CompareFinalizedRunAvailability = {
  * showcase rows when the live list is empty.
  */
 export function useCompareFinalizedRunAvailability(): CompareFinalizedRunAvailability {
-  const [loading, setLoading] = useState(true);
-  const [finalizedCount, setFinalizedCount] = useState(0);
+  const { data, isPending } = useAskProjectRunsQuery("default", {
+    forCompare: true,
+    committedOnly: true,
+  });
 
-  useEffect(() => {
-    let cancelled = false;
-
-    void loadProjectRunsMergedWithDemoFallback("default", { forCompare: true, committedOnly: true })
-      .then((merged) => {
-        if (cancelled) {
-          return;
-        }
-
-        setFinalizedCount(merged.items.length);
-        setLoading(false);
-      })
-      .catch(() => {
-        if (cancelled) {
-          return;
-        }
-
-        setFinalizedCount(0);
-        setLoading(false);
-      });
-
-    return () => {
-      cancelled = true;
-    };
-  }, []);
+  const finalizedCount = data?.items.length ?? 0;
 
   return {
-    loading,
+    loading: isPending,
     finalizedCount,
-    insufficientForCompare: !loading && finalizedCount < 2,
+    insufficientForCompare: !isPending && finalizedCount < 2,
   };
 }

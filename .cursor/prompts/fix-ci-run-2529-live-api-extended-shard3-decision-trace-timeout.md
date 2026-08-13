@@ -3,9 +3,9 @@
 > Workflow run: `28871046590` (run_number **2529**), workflow **CI**, branch `RC7`, commit
 > `bc04b30d01f46e92d4cbfafd1c9d45fd5e62f015`, `workflow_dispatch`-triggered.
 > Job: `Operator UI: e2e live API + SQL (extended matrix; warn-only) [shard 3/4]`
-> (job id `85651988168`, started `2026-07-07T15:00:19Z`, cancelled `2026-07-07T16:30:35Z` — **90m16s**,
+> (job id `85651988168`, started `2026-07-07T15:00:19Z`, canceled `2026-07-07T16:30:35Z` — **90m16s**,
 > `https://github.com/joefrancisGA/ArchLucid/actions/runs/28871046590/job/85651988168`).
-> Job **conclusion: cancelled** (GitHub Actions `timeout-minutes: 90` at
+> Job **conclusion: canceled** (GitHub Actions `timeout-minutes: 90` at
 > `.github/workflows/ci.yml:3645` fired mid-test; Playwright never printed a final summary).
 > This job is `warn-only` (does not block CI). Root cause is the **same production bug** as shard 2/4
 > in this run — **do not implement the old tenant-purge E2E isolation fix**; implement the production
@@ -26,13 +26,13 @@ artifact show a **different, better-evidenced root cause** — identical to shar
 | `DecisionTraceId` at request time vs commit retry | Not checked | **Same GUID repeats verbatim** across every commit retry per run |
 | Fix target | E2E `tenantScope` isolation (never implemented) | **`ManifestFinalizationService` reuse path** (production) |
 
-Shard 2/4 in run 2529 **failed** (11 tests, 77m) with the decision-trace bug; shard 3/4 **cancelled**
+Shard 2/4 in run 2529 **failed** (11 tests, 77m) with the decision-trace bug; shard 3/4 **canceled**
 (90m) with the same bug on a different spec subset. One production fix covers both shards.
 
 ## Symptom
 
 `npx playwright test --shard=3/4` scheduled **30 tests**, ran with **1 worker** (serial). The job
-never finished: GitHub Actions cancelled the Playwright step at `16:30:31Z` with
+never finished: GitHub Actions canceled the Playwright step at `16:30:31Z` with
 `##[error]The operation was canceled.` while test #33 (`live-api-negative-paths.spec.ts:159`, second
 commit → 409 conflict) was still in its **first** attempt's commit-retry loop.
 
@@ -47,7 +47,7 @@ shows **10** `Authority pipeline completed` lines and **10** distinct `RunId`s s
 | 2 | `live-api-governance-rejection.spec.ts:46` | submit → reject → audit → UI | `E2E-LIVE-REJECT-*` | stuck on commit (×2) |
 | 3 | `live-api-journey.spec.ts:56` | operator happy path | `E2E-LIVE-*` | stuck on commit (×2) |
 | 4 | `live-api-negative-paths.spec.ts:49` | governance self-approval blocked | `E2E-LIVE-SELF-APPR-*` | stuck on commit (×2) |
-| 5 | `live-api-negative-paths.spec.ts:159` | second commit → 409 conflict | `E2E-LIVE-DBL-COMMIT-*` | **cancelled mid-first-attempt** |
+| 5 | `live-api-negative-paths.spec.ts:159` | second commit → 409 conflict | `E2E-LIVE-DBL-COMMIT-*` | **canceled mid-first-attempt** |
 
 Tests that **do not** call `createRun()`/`commitRun()` on a real run (e.g. `live-api-error-states`,
 `live-api-demo-screenshots`, `live-api-digest-webhook`, marketing specs, fake-run-id negative-path
@@ -90,7 +90,7 @@ Forensic counts from the full log:
 
 `.github/workflows/ci.yml:3645` sets `timeout-minutes: 90`. With 1 worker and ~8.2m × 2 per stuck
 real-run test, **5 specs × 16.4m ≈ 82m** of commit-retry wall time plus setup (~15m) exceeds the
-90m ceiling before the remaining ~25 shard-3 tests can run — hence `conclusion: cancelled`, not
+90m ceiling before the remaining ~25 shard-3 tests can run — hence `conclusion: canceled`, not
 `failure`, and no Playwright pass/fail summary.
 
 ### Secondary, non-blocking finding
@@ -121,7 +121,7 @@ There is **one bug, one fix** — shard 3 does not need a separate code change b
    second `/commit`, new automated test, no E2E/CI workflow changes in this diff).
 2. After merge, re-run extended-matrix **shard 3/4** (and shard 2/4) and confirm:
    - No `unique-key violation without reconcilable manifest` in `ui-e2e-live-extended-api-log-3`
-   - Job completes within 90m with a Playwright summary (not cancelled mid-shard)
+   - Job completes within 90m with a Playwright summary (not canceled mid-shard)
    - The five specs listed above pass (or fail for unrelated, newly evidenced reasons — report those explicitly)
 
 ## Verification

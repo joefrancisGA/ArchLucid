@@ -33,7 +33,7 @@ test.describe("marketing-demo-preview", () => {
     await expect(page.getByRole("heading", { name: "Review summary" })).toHaveCount(0);
   });
 
-  test("/see-it Option A CTAs stay on Claims showcase (no Contoso /demo/preview)", async ({ page }) => {
+  test("/see-it Option A CTAs stay on primary customer intake showcase (no Contoso /demo/preview)", async ({ page }) => {
     await page.goto("/see-it", { waitUntil: "load" });
     await page.locator("main").waitFor({ state: "visible", timeout: 60_000 });
 
@@ -41,9 +41,7 @@ test.describe("marketing-demo-preview", () => {
     await expect(page.locator('a[href="/demo/preview"]')).toHaveCount(0);
 
     const showcaseCta = page.locator('[data-testid="see-it-cta-showcase"]');
-    const secondaryShowcase = page.locator('[data-testid="see-it-full-preview-link"]');
 
-    await expect(showcaseCta).toHaveAttribute("href", "/showcase/claims-intake-modernization");
-    await expect(secondaryShowcase).toHaveAttribute("href", "/showcase/claims-intake-modernization");
+    await expect(showcaseCta).toHaveAttribute("href", "/showcase/customer-intake-modernization");
   });
 });

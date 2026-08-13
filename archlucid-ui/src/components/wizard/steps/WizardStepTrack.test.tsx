@@ -1,6 +1,6 @@
-import { act, render, screen, waitFor } from "@testing-library/react";
+import { act, fireEvent, render, screen, waitFor } from "@testing-library/react";
 import { useEffect, useState, type ReactElement } from "react";
-import { beforeEach, describe, expect, it, vi } from "vitest";
+import { afterEach, beforeEach, describe, expect, it, vi } from "vitest";
 
 import { WizardStepTrack } from "@/components/wizard/steps/WizardStepTrack";
 import { TooltipProvider } from "@/components/ui/tooltip";
@@ -26,9 +26,15 @@ vi.mock("@/lib/api", () => ({
   getRunSummary: vi.fn(),
 }));
 
+vi.mock("@/hooks/use-workspace-review-duration-estimate", () => ({
+  useWorkspaceReviewDurationEstimate: vi.fn(() => ({ estimate: null, loading: false })),
+}));
+
 import { getRunSummary } from "@/lib/api";
+import { useWorkspaceReviewDurationEstimate } from "@/hooks/use-workspace-review-duration-estimate";
 
 const mockGetRunSummary = vi.mocked(getRunSummary);
+const mockUseWorkspaceReviewDurationEstimate = vi.mocked(useWorkspaceReviewDurationEstimate);
 
 function renderWithTooltips(node: ReactElement) {
   return render(<TooltipProvider delayDuration={0}>{node}</TooltipProvider>);
@@ -65,6 +71,11 @@ function TrackPollingHarness({ runId }: { runId: string }) {
 describe("WizardStepTrack", () => {
   beforeEach(() => {
     vi.clearAllMocks();
+    mockUseWorkspaceReviewDurationEstimate.mockReturnValue({ estimate: null, loading: false });
+  });
+
+  afterEach(() => {
+    vi.useRealTimers();
   });
 
   it("shows Pending badges when pipeline flags are false or summary is null", () => {
@@ -192,6 +203,53 @@ describe("WizardStepTrack", () => {
     } finally {
       vi.useRealTimers();
     }
+  });
+
+  it("frames the elapsed poll watchdog as still running, not failed", async () => {
+    vi.useFakeTimers({ shouldAdvanceTime: true });
+
+    renderWithTooltips(
+      <WizardStepTrack
+        runId="slow-1"
+        pollSummary={{
+          ...baseSummary,
+          runId: "slow-1",
+          hasContextSnapshot: true,
+        }}
+      />,
+    );
+
+    await act(async () => {
+      await vi.advanceTimersByTimeAsync(180_000);
+    });
+
+    expect(screen.getByText(/nothing was canceled and analysis is still running/i)).toBeInTheDocument();
+    expect(screen.queryByRole("button", { name: /retry/i })).toBeNull();
+    expect(screen.getByRole("button", { name: /keep watching/i })).toBeInTheDocument();
+  });
+
+  it("calls onRetryPolling when the operator retries after a stall", async () => {
+    vi.useFakeTimers({ shouldAdvanceTime: true });
+    const onRetryPolling = vi.fn();
+
+    renderWithTooltips(
+      <WizardStepTrack
+        runId="slow-2"
+        pollSummary={{
+          ...baseSummary,
+          runId: "slow-2",
+          hasContextSnapshot: true,
+        }}
+        onRetryPolling={onRetryPolling}
+      />,
+    );
+
+    await act(async () => {
+      await vi.advanceTimersByTimeAsync(180_000);
+    });
+
+    fireEvent.click(screen.getByRole("button", { name: /keep watching/i }));
+    expect(onRetryPolling).toHaveBeenCalledTimes(1);
   });
 
   it("encodes run id on Compare two reviews when the golden manifest is ready", () => {

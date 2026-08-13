@@ -2,7 +2,7 @@ import { cn } from "@/lib/utils";
 import type { ReactElement } from "react";
 
 import { GlossaryTooltip } from "@/components/GlossaryTooltip";
-import { RunTraceViewerLink } from "@/components/RunTraceViewerLink";
+import { RunTraceViewerLink } from "@/components/runs/RunTraceViewerLink";
 import { Card, CardContent, CardDescription, CardHeader } from "@/components/ui/card";
 import type { RunSummary } from "@/types/authority";
 import { OPERATOR_TYPOGRAPHY } from "@/lib/design-tokens";

@@ -11,7 +11,7 @@ export function pathnameTouchesPlatformAdminSurface(pathname: string): boolean {
     return true;
   }
 
-  if (pathname === "/administration/tenant" || pathname.startsWith("/administration/tenant/")) {
+  if (pathname === "/administration/workspace-settings" || pathname.startsWith("/administration/workspace-settings/")) {
     return true;
   }
 

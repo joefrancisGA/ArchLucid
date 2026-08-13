@@ -7,7 +7,7 @@ import {
   ARCHITECTURE_SPONSOR_READINESS_INCOMPLETE_WARNING,
   ARCHITECTURE_SPONSOR_RESOLVE_READINESS_ACTION,
   ARCHITECTURE_SPONSOR_SHARING_PERMISSION_DENIED,
-} from "@/lib/architecture-sponsor-readiness-copy";
+} from "@/lib/architecture/architecture-sponsor-readiness-copy";
 
 const useOperateCapability = vi.fn(() => true);
 const recordSponsorPreliminaryArchitectureShare = vi.fn();

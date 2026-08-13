@@ -1,4 +1,5 @@
 import type { EvidenceAdminSourceLink } from "@/lib/evidence-surface-copy";
+import { OPERATOR_NAV_LINK_LABELS } from "@/lib/i18n";
 import { inAppHelpHref } from "@/lib/product-documentation-registry";
 
 export const ADMIN_DIAGNOSTICS_HELP_CANONICAL_PATH = "/help/admin-diagnostics" as const;
@@ -36,7 +37,7 @@ export type AdminDiagnosticsHelpSourceLink = EvidenceAdminSourceLink;
 
 /** Non-`/help/*` workspace routes — System health is promoted to the header primary CTA. */
 export const ADMIN_DIAGNOSTICS_HELP_LIVE_SURFACES: readonly EvidenceAdminSourceLink[] = [
-  { label: "Workspace overview", href: "/" },
+  { label: OPERATOR_NAV_LINK_LABELS.home, href: "/" },
 ] as const;
 
 /** In-app help topics — rendered once in the related-topics block (not duplicated in markdown). */
@@ -45,10 +46,9 @@ export const ADMIN_DIAGNOSTICS_HELP_RELATED_TOPICS: readonly EvidenceAdminSource
   { label: "Report a problem", href: inAppHelpHref("report-a-problem") },
   {
     label: "Engineering troubleshooting runbook",
-    href: inAppHelpHref("developer-troubleshooting"),
+    href: inAppHelpHref("engineering-troubleshooting"),
     adminOnly: true,
   },
-  { label: "Configuration reference", href: inAppHelpHref("configuration-reference"), adminOnly: true },
   { label: "CLI usage", href: inAppHelpHref("cli-usage"), adminOnly: true },
 ] as const;
 
@@ -81,7 +81,7 @@ export const ADMIN_DIAGNOSTICS_HELP_SIGNAL_ROWS: readonly AdminDiagnosticsHelpSi
   {
     signal: "Assistant / LLM",
     healthyDescription: "Within budget",
-    nextStep: "Trial or budget banners on Overview explain limits",
+    nextStep: `Trial or budget banners on ${OPERATOR_NAV_LINK_LABELS.home} explain limits`,
   },
 ] as const;
 

@@ -7,7 +7,7 @@ import Link from "next/link";
 import { pickPriorForSameRequest } from "@/components/BeforeAfterDelta/pick-prior-for-same-request";
 import { useDeltaQuery } from "@/components/BeforeAfterDelta/useDeltaQuery";
 import { Button } from "@/components/ui/button";
-import { getShowcaseCompareHref } from "@/lib/buyer-safe-review-navigation";
+import { getShowcaseCompareHref } from "@/lib/buyer/buyer-safe-review-navigation";
 import { canonicalizeDemoRunId } from "@/lib/demo-run-canonical";
 import { comparePageHrefAdaptive } from "@/lib/compare-url-query-params";
 import { isBuyerPolishedOperatorShellEnv } from "@/lib/demo-ui-env";

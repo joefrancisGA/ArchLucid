@@ -5,25 +5,26 @@ import { useCallback, useState } from "react";
 
 import { DemoReadinessAdminPageLoadingSkeleton } from "@/app/(operator)/internal/demo-readiness/_sections/DemoReadinessAdminPageLoadingSkeleton";
 import { DemoReadinessToolingDisabledEmptyState } from "@/app/(operator)/internal/demo-readiness/_sections/DemoReadinessToolingDisabledEmptyState";
-import { useOperatorNavAuthority } from "@/components/OperatorNavAuthorityProvider";
+import { useOperatorNavAuthority } from "@/components/operator/OperatorNavAuthorityProvider";
 import {
   BuyerCtoDemoReadinessPanel,
   type DemoReadinessRecheckControls,
 } from "@/components/operator-home/BuyerCtoDemoReadinessPanel";
-import { OperatorPageContainer } from "@/components/OperatorPageContainer";
+import { OperatorPageContainer } from "@/components/operator/OperatorPageContainer";
 import { PageHeading } from "@/components/PageHeading";
+import { TrialFunnelDemoReadinessVocabularyRail } from "@/components/trial/TrialFunnelDemoReadinessVocabularyRail";
 import { Button } from "@/components/ui/button";
 import { PageContextualHelpButton } from "@/components/usability/PageContextualHelpButton";
 import {
   BUYER_CTO_DEMO_READINESS_REFRESH_CTA,
   INTERNAL_DEMO_READINESS_DIAGNOSTICS_LINK,
   INTERNAL_DEMO_READINESS_PAGE_LEAD,
-} from "@/lib/buyer-polish-copy";
+} from "@/lib/buyer/buyer-polish-copy";
 import {
   INTERNAL_DEMO_READINESS_PAGE_TITLE,
   INTERNAL_OPERATIONS_NAV_EYEBROW,
 } from "@/lib/demo-readiness-evidence-copy";
-import { OPERATOR_NAV_GROUP_LABEL, OPERATOR_TYPE_SCALE } from "@/lib/design-tokens";
+import { OPERATOR_LAYOUT, OPERATOR_NAV_GROUP_LABEL, OPERATOR_TYPE_SCALE } from "@/lib/design-tokens";
 import { INTERNAL_DEMO_READINESS_PATH, INTERNAL_HEALTH_PATH } from "@/lib/internal-ops-route-paths";
 import { AUTHORITY_RANK } from "@/lib/nav-authority";
 import { isCtoDemoOperatorToolingEnv } from "@/lib/cto-demo-presenter-pack";
@@ -59,7 +60,7 @@ export function DemoReadinessAdminPageClient(): React.JSX.Element {
   }
 
   return (
-    <OperatorPageContainer variant="dashboard" className="space-y-6" data-testid="demo-readiness-admin-page">
+    <OperatorPageContainer variant="dashboard" className={OPERATOR_LAYOUT.sectionStack} data-testid="demo-readiness-admin-page">
       <PageHeading
         navHref={INTERNAL_DEMO_READINESS_PATH}
         title={INTERNAL_DEMO_READINESS_PAGE_TITLE}
@@ -107,6 +108,7 @@ export function DemoReadinessAdminPageClient(): React.JSX.Element {
           </Link>
         ) : null}
       </PageHeading>
+      <TrialFunnelDemoReadinessVocabularyRail currentSurfaceId="demo-readiness" />
       {demoOperatorToolingEnabled ? (
         <BuyerCtoDemoReadinessPanel
           layout="internal-page"

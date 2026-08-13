@@ -6,12 +6,12 @@ vi.mock("@/app/(operator)/help/HelpTopicHashScroll", () => ({
 }));
 
 import { HelpPilotGuideView } from "@/app/(operator)/help/_sections/HelpPilotGuideView";
-import { REVIEWS_NEW_PATH } from "@/lib/architecture-routes";
-import { BUYER_START_ARCHITECTURE_REVIEW_CTA } from "@/lib/buyer-polish-copy";
+import { REVIEWS_NEW_PATH } from "@/lib/architecture/architecture-routes";
+import { BUYER_START_ARCHITECTURE_REVIEW_CTA } from "@/lib/buyer/buyer-polish-copy";
 import { FIRST_ARCHITECTURE_REVIEW_HELP_PATH } from "@/lib/first-architecture-review-help-route";
 import { FIRST_REVIEW_GUIDE_PATH } from "@/lib/first-review-guide-route";
-import { extractHelpMarkdownHeadings } from "@/lib/help-markdown-headings";
-import { prepareHelpMarkdownForPresentation } from "@/lib/help-markdown-presentation";
+import { extractHelpMarkdownHeadings } from "@/lib/help/help-markdown-headings";
+import { prepareHelpMarkdownForPresentation } from "@/lib/help/help-markdown-presentation";
 import { getProductDocumentationEntry, inAppHelpHref } from "@/lib/product-documentation-registry";
 import { PILOT_GUIDE_HELP_CLAIM_DISCIPLINE } from "@/lib/pilot-guide-help-evidence-copy";
 import { PILOT_GUIDE_HELP_PRIMARY_ACTIONS } from "@/lib/pilot-guide-help-guide-content";
@@ -56,7 +56,7 @@ describe("Pilot guide (HP)", () => {
 
     expect(screen.getByTestId("help-pilot-guide-page-title")).toHaveTextContent("Pilot guide");
     expect(screen.getByRole("heading", { level: 1, name: "Pilot guide" })).toBeInTheDocument();
-    expect(screen.getByTestId("help-topic-registry-provenance")).toHaveTextContent("Last reviewed 2026-08-09");
+    expect(screen.queryByTestId("help-topic-registry-provenance")).toBeNull();
     expect(screen.getByTestId("pilot-guide-help-claim-discipline")).toHaveTextContent(
       PILOT_GUIDE_HELP_CLAIM_DISCIPLINE,
     );
@@ -75,12 +75,14 @@ describe("Pilot guide (HP)", () => {
       }),
     ).toHaveAttribute("href", FIRST_ARCHITECTURE_REVIEW_HELP_PATH);
 
+    const relatedLinks = screen.getByTestId("help-pilot-guide-related-links");
+
     expect(
-      within(headerActions).getByRole("link", { name: PILOT_GUIDE_HELP_PRIMARY_ACTIONS.firstReviewGuide.label }),
+      within(relatedLinks).getByRole("link", { name: PILOT_GUIDE_HELP_PRIMARY_ACTIONS.firstReviewGuide.label }),
     ).toHaveAttribute("href", FIRST_REVIEW_GUIDE_PATH);
 
-    expect(screen.getByTestId("help-topic-download-pdf")).toBeInTheDocument();
     expect(screen.getByTestId("help-topic-print-pdf")).toBeInTheDocument();
+    expect(screen.queryByTestId("help-topic-download-pdf")).toBeNull();
 
     expect(screen.queryByTestId("help-pilot-guide-action-panel")).toBeNull();
     expect(container.innerHTML).not.toMatch(/bg-teal-50|border-teal-200/);
@@ -93,8 +95,8 @@ describe("Pilot guide (HP)", () => {
 
     render(<HelpPilotGuideView entry={entry} markdown={loaded.markdown} />);
 
-    expect(screen.getByRole("heading", { level: 2, name: "Prepare for a pilot" })).toBeInTheDocument();
-    expect(screen.getByRole("heading", { level: 2, name: "Run the first review" })).toBeInTheDocument();
+    expect(screen.getByRole("heading", { level: 2, name: "What you will see" })).toBeInTheDocument();
+    expect(screen.getByRole("heading", { level: 2, name: "Main workflow" })).toBeInTheDocument();
 
     const visibleText = document.body.textContent?.toLowerCase() ?? "";
 
@@ -115,8 +117,8 @@ describe("Pilot guide (HP)", () => {
 
     const toc = screen.getByTestId("help-topic-toc");
 
-    expect(within(toc).getByRole("link", { name: "Prepare for a pilot" })).toBeInTheDocument();
-    expect(within(toc).getByRole("link", { name: "Run the first review" })).toBeInTheDocument();
+    expect(within(toc).getByRole("link", { name: "What you will see" })).toBeInTheDocument();
+    expect(within(toc).getByRole("link", { name: "Main workflow" })).toBeInTheDocument();
     expect(headings.length).toBeGreaterThan(2);
   });
 });

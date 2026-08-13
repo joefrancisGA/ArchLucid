@@ -13,12 +13,12 @@ import {
 } from "lucide-react";
 
 import type { NavGroupConfig } from "@/lib/nav-config.types";
-import { BUYER_TERMINOLOGY } from "@/lib/buyer-surface-vocabulary";
+import { BUYER_TERMINOLOGY } from "@/lib/vocabulary/buyer-surface-vocabulary";
 import { PATTERN_LIBRARY_NAV_LINK_LABEL } from "@/lib/pattern-library-copy";
 import { PATTERN_LIBRARY_PATH } from "@/lib/pattern-library-route";
 import { OPERATOR_NAV_GROUP_LABELS, OPERATOR_NAV_LINK_LABELS } from "@/lib/i18n";
 
-import { ARCHITECTURE_SCORECARD_PATH } from "@/lib/architecture-scorecard-route";
+import { ARCHITECTURE_SCORECARD_PATH } from "@/lib/architecture/architecture-scorecard-route";
 import { ASK_REVIEW_QUESTIONS_PATH } from "@/lib/ask-review-questions-route";
 import { COMPARE_TWO_REVIEWS_PATH } from "@/lib/compare-two-reviews-route";
 import { EVIDENCE_GRAPH_PATH } from "@/lib/evidence-graph-route";

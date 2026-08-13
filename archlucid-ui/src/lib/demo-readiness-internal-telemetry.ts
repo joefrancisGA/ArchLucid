@@ -1,5 +1,5 @@
 import { isCtoDemoPackEnv } from "@/lib/cto-demo-presenter-pack";
-import type { BuyerCtoDemoReadinessVerdict } from "@/lib/buyer-cto-demo-readiness";
+import type { BuyerCtoDemoReadinessVerdict } from "@/lib/buyer/buyer-cto-demo-readiness";
 
 type ClarityWindow = Window & {
   clarity?: (command: string, eventName: string) => void;

@@ -21,7 +21,7 @@ function buildDestination(overrides: Partial<SettingsMasterDestination> = {}): S
   };
 }
 
-describe("SettingsMasterDestinationCard (TB-1198)", () => {
+describe("SettingsMasterDestinationCard (TB-1198 / TB-1203)", () => {
   it("does not show empty-state copy when the destination has no verified hint", () => {
     render(<SettingsMasterDestinationCard destination={buildDestination()} />);
 
@@ -40,5 +40,14 @@ describe("SettingsMasterDestinationCard (TB-1198)", () => {
 
     expect(screen.getByText("Verified empty: no connections in this workspace.")).toBeInTheDocument();
   });
-});
 
+  it("keeps Scope/Source/Status meta behind disclosure by default (TB-1203)", () => {
+    render(<SettingsMasterDestinationCard destination={buildDestination()} />);
+
+    const disclosure = screen.getByTestId("settings-destination-meta-disclosure");
+
+    expect(disclosure).not.toHaveAttribute("open");
+    expect(screen.getByText("Scope and editability details")).toBeInTheDocument();
+    expect(screen.getByTestId("settings-scope-meta")).toBeInTheDocument();
+  });
+});

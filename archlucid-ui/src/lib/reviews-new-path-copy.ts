@@ -46,7 +46,7 @@ export const REVIEWS_NEW_PATH_HINTS: Record<ReviewsNewPathMode, string> = {
   "quick-review":
     "Quick start: review title, attach evidence, and start a review in one screen.",
   detailed:
-    "Use templates, imports, and evidence upload when you need an export-ready review with full configuration.",
+    "Start from a template or import, then attach evidence and complete configuration before you start the review.",
 };
 
 /** First-run progressive disclosure — secondary creation paths (TB-2130). */

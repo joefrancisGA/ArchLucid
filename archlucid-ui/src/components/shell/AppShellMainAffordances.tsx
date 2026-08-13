@@ -1,13 +1,14 @@
 "use client";
 
 import { ContextualPageHintStrip } from "@/components/ContextualPageHintStrip";
-import { OperatorRecentViewsTracker } from "@/components/OperatorRecentViewsTracker";
+import { KeyboardShortcutsDiscoverabilityCoach } from "@/components/KeyboardShortcutsDiscoverabilityCoach";
+import { OperatorRecentViewsTracker } from "@/components/operator/OperatorRecentViewsTracker";
 import { BuyerGoldenJourneyLayerContextStrip } from "@/components/shell/BuyerGoldenJourneyLayerContextStrip";
 import { DemoVsLiveChromeBanner } from "@/components/usability/DemoVsLiveChromeBanner";
 import { ExplainThisViewBanner } from "@/components/usability/ExplainThisViewBanner";
 import { FirstVisitHelpAutoOpen } from "@/components/usability/FirstVisitHelpAutoOpen";
 import { ReviewsListReturnStateTracker } from "@/components/usability/ReviewsListReturnStateTracker";
-import { isExplicitStaticDemoMarketingBuild } from "@/lib/buyer-demo-content-gating";
+import { isExplicitStaticDemoMarketingBuild } from "@/lib/buyer/buyer-demo-content-gating";
 
 /** Non-critical main-column affordances loaded after the shell paints. */
 export function AppShellMainAffordances() {
@@ -19,6 +20,7 @@ export function AppShellMainAffordances() {
       <OperatorRecentViewsTracker />
       <ReviewsListReturnStateTracker />
       <FirstVisitHelpAutoOpen />
+      <KeyboardShortcutsDiscoverabilityCoach />
       {staticDemoEnv ? (
         <DemoVsLiveChromeBanner isStaticDemoEnv showWatermark className="mb-3" />
       ) : null}

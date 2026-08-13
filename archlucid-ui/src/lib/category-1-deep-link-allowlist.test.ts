@@ -1,14 +1,14 @@
 import { describe, expect, it } from "vitest";
 
 import { ADVISORY_SCANS_SCHEDULES_HREF } from "@/lib/advisory-scans-route";
-import { REVIEWS_LIST_PATH } from "@/lib/architecture-routes";
+import { REVIEWS_LIST_PATH, REVIEWS_NEW_PATH } from "@/lib/architecture/architecture-routes";
 import { contextualHelpForPathname } from "@/lib/contextual-help-registry";
 import {
   DIGESTS_SCHEDULE_TAB_PATH,
   DIGESTS_SUBSCRIPTIONS_TAB_PATH,
 } from "@/lib/digests-route-paths";
-import { EXECUTIVE_DASHBOARD_HREF } from "@/lib/executive-dashboard-route";
-import { GOVERNANCE_APPROVAL_QUEUE_PATH, GOVERNANCE_WORKSPACE_HEALTH_HREF } from "@/lib/governance-route-paths";
+import { EXECUTIVE_DASHBOARD_HREF } from "@/lib/executive/executive-dashboard-route";
+import { GOVERNANCE_APPROVAL_QUEUE_PATH, GOVERNANCE_WORKSPACE_HEALTH_HREF } from "@/lib/governance/governance-route-paths";
 import { PLANNING_PATH } from "@/lib/planning-route";
 import { PRODUCT_LEARNING_PATH } from "@/lib/product-learning-route";
 
@@ -53,13 +53,13 @@ const ALLOWLIST: readonly {
   },
   {
     pathname: "/help/accelerator-chooser",
-    nextHref: "/help/path-chooser",
+    nextHref: "/help/choose-your-next-step",
     configureHref: "/architecture/reviews/new",
   },
   {
     pathname: "/help/admin-diagnostics",
     nextHref: "/administration/system-health",
-    configureHref: "/help/developer-troubleshooting",
+    configureHref: "/help/engineering-troubleshooting",
   },
   {
     pathname: "/help/authentication-sign-in",
@@ -116,6 +116,10 @@ const ALLOWLIST: readonly {
     pathname: "/insights/impact-preview",
     nextHref: REVIEWS_LIST_PATH,
     configureHref: REVIEWS_LIST_PATH,
+  },
+  {
+    pathname: "/insights/patterns",
+    nextHref: REVIEWS_NEW_PATH,
   },
   {
     pathname: "/internal/product-learning",

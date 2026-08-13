@@ -2,13 +2,13 @@
 import { cn } from "@/lib/utils";
 import { OPERATOR_TYPOGRAPHY } from "@/lib/design-tokens";
 
-import { FindingConfidenceBadge } from "@/components/FindingConfidenceBadge";
+import { FindingConfidenceBadge } from "@/components/findings/FindingConfidenceBadge";
 import { Collapsible, CollapsibleContent, CollapsibleTrigger } from "@/components/ui/collapsible";
 import { ChevronDown } from "lucide-react";
 import {
   findingConfidenceExplanation,
   findingEvidenceCountPlainLine,
-} from "@/lib/finding-explainability-summary";
+} from "@/lib/findings/finding-explainability-summary";
 import type { FindingExplainability } from "@/types/explanation";
 import { normalizeFindingConfidenceLevel } from "@/types/explanation";
 

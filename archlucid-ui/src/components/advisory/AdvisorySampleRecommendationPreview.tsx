@@ -36,6 +36,7 @@ export function AdvisorySampleRecommendationPreview(): React.JSX.Element {
       data-testid="advisory-sample-recommendation"
       className={cn(OPERATOR_SURFACE_CARD_CLASS, "border-teal-200/80 bg-teal-50/30 dark:border-teal-900/60 dark:bg-teal-950/20")}
       aria-label={ADVISORY_SCANS_SAMPLE_SECTION_TITLE}
+      tabIndex={-1}
     >
       <div className="mb-3 flex flex-wrap items-center gap-2">
         <h3 className={cn("m-0 font-semibold text-al-text-primary", OPERATOR_TYPOGRAPHY.cardTitle)}>

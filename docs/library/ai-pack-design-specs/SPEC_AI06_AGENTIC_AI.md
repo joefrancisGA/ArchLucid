@@ -1,5 +1,5 @@
 > **Scope:** Design spec for AI policy pack **AI-06 — Agentic AI & Tool-Use Governance (incl. MCP)**. Rule JSON authoring is out of scope.
-> **Buyer-safe invariant:** Architecture-review mapping for agentic AI posture — not safety certification of autonomous AI agents or guarantee of bounded agent behaviour.
+> **Buyer-safe invariant:** Architecture-review mapping for agentic AI posture — not safety certification of autonomous AI agents or guarantee of bounded agent behavior.
 
 # AI-06 — Agentic AI & Tool-Use Governance — design spec
 
@@ -118,7 +118,7 @@ Standard pipeline. `priorityFloor: P0` surfaces tool registry and authority-boun
 
 1. ~33 rules; every sub-corpus represented.
 2. All `agent-registry-*` rules require tool inventory in `services[]` or `metadata.ChangeDescription`.
-3. No rule claims to evaluate runtime agent behaviour.
+3. No rule claims to evaluate runtime agent behavior.
 4. `metadata.frameworkMappingDisclaimer` contains "not safety certification of autonomous AI agents".
 5. No `Critical` severity.
 
@@ -127,7 +127,7 @@ Standard pipeline. `priorityFloor: P0` surfaces tool registry and authority-boun
 ## 10. Required FAQ wording
 
 **Q: Does this pack prevent my AI agent from taking harmful actions?**
-A: No. ArchLucid evaluates architecture-level design decisions: whether tool authority bounds are documented, whether human-in-loop gates are designed into the architecture, and whether action audit trails are planned. Runtime agent behaviour is governed by your operational controls, not ArchLucid findings.
+A: No. ArchLucid evaluates architecture-level design decisions: whether tool authority bounds are documented, whether human-in-loop gates are designed into the architecture, and whether action audit trails are planned. Runtime agent behavior is governed by your operational controls, not ArchLucid findings.
 
 ---
 

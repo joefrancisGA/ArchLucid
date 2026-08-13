@@ -7,9 +7,9 @@ import { ArchitectureNarrativeMarkdownView } from "@/components/architecture/Arc
 import { ArchitectureStructuredContentPanel } from "@/components/architecture/ArchitectureStructuredContentPanel";
 import { Button } from "@/components/ui/button";
 import { CollapsibleSection } from "@/components/CollapsibleSection";
-import { readArchitectureCreationHandoff } from "@/lib/architecture-creation-handoff";
-import type { ArchitectureCreationUserAssertions } from "@/lib/architecture-structured-content-types";
-import { prepareArchitectureNarrativeForPresentation } from "@/lib/architecture-narrative-presentation";
+import { readArchitectureCreationHandoff } from "@/lib/architecture/architecture-creation-handoff";
+import type { ArchitectureCreationUserAssertions } from "@/lib/architecture/architecture-structured-content-types";
+import { prepareArchitectureNarrativeForPresentation } from "@/lib/architecture/architecture-narrative-presentation";
 import { OPERATOR_TYPOGRAPHY } from "@/lib/design-tokens";
 
 const PREVIEW_LINE_COUNT = 4;

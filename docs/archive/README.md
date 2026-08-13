@@ -20,4 +20,4 @@ Do **not** edit archived change-set bodies. If a decision changes, write a new A
 
 **Live assessments** (not under this folder): [`../assessments/LATEST_GPT55.md`](../assessments/LATEST_GPT55.md) · [`../assessments/LATEST_EXPOSURE.md`](../assessments/LATEST_EXPOSURE.md). Historical weighted passes live in the consolidated series rows above (former `archive/assessments/` tree removed).
 
-For a summarised, navigable view of all releases use **[docs/CHANGELOG.md](../CHANGELOG.md)**.
+For a summarized, navigable view of all releases use **[docs/CHANGELOG.md](../CHANGELOG.md)**.

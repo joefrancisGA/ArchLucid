@@ -49,9 +49,22 @@ Execute audits `ManifestArchived` with `kind=staleInFlight` and runs `Archival_C
 
 Do **not** use `POST /v1/operations/run:{runId}/cancel` for these CHECK-blocked headers — cancel sets `Failed` and will fail the database UPDATE.
 
-## 5. Related
+## 5. Related: missing ArchitectureRequest orphans (TB-2190)
+
+Separate from stale in-flight: non-archived `dbo.Runs` whose `ArchitectureRequestId` is missing from `dbo.ArchitectureRequests` degrade `/health/ready` via reconciliation finding `runs_missing_architecture_request`.
+
+| Step | Call |
+|------|------|
+| Detect | `GET /v1/admin/diagnostics/data-consistency/missing-architecture-request-runs` |
+| Preview | `POST /v1/admin/diagnostics/data-consistency/missing-architecture-request-runs?dryRun=true&maxRows=50` |
+| Execute | `POST /v1/admin/diagnostics/data-consistency/missing-architecture-request-runs?dryRun=false&maxRows=50` |
+
+Grace default is **15 minutes** (`DataConsistency:AutoRemediateMissingArchitectureRequestRuns:MinAgeMinutes`). Development enables auto soft-archive on the same cadence as stale in-flight. Sync CreateRun persists the ArchitectureRequest **before** the run header to prevent new orphans.
+
+## 6. Related
 
 - MVO catalog: [`SOLO_OPERATOR_MVO_OBSERVABILITY.md`](../operations/SOLO_OPERATOR_MVO_OBSERVABILITY.md)
 - Metrics catalog: [`OBSERVABILITY.md`](../library/OBSERVABILITY.md)
 - Terraform: `infra/terraform-monitoring/prometheus_p0_rules.tf`
 - Collector: `StaleInFlightRunMetricsHostedService`
+- Matrix: [`DATA_CONSISTENCY_MATRIX.md`](../library/DATA_CONSISTENCY_MATRIX.md)

@@ -9,15 +9,15 @@ import {
 } from "lucide-react";
 
 import type { NavGroupConfig } from "@/lib/nav-config.types";
-import { ARCHITECTURE_INTELLIGENCE_PATH } from "@/lib/architecture-intelligence-route";
-import { BUYER_ONBOARDING_NAV_TOOLTIP } from "@/lib/buyer-polish-copy";
-import { ARCHITECTURES_LIST_PATH, REVIEWS_LIST_NAV_HREF } from "@/lib/architecture-routes";
+import { ARCHITECTURE_INTELLIGENCE_PATH } from "@/lib/architecture/architecture-intelligence-route";
+import { BUYER_ONBOARDING_NAV_TOOLTIP } from "@/lib/buyer/buyer-polish-copy";
+import { ARCHITECTURES_LIST_PATH, REVIEWS_LIST_NAV_HREF } from "@/lib/architecture/architecture-routes";
 import { DIGESTS_HUB_PATH } from "@/lib/digests-route-paths";
-import { EXECUTIVE_DASHBOARD_HREF } from "@/lib/executive-dashboard-route";
+import { EXECUTIVE_DASHBOARD_HREF } from "@/lib/executive/executive-dashboard-route";
 import { FIRST_REVIEW_GUIDE_PATH } from "@/lib/first-review-guide-route";
 import { OPERATOR_NAV_GROUP_LABELS, OPERATOR_NAV_LINK_LABELS } from "@/lib/i18n";
 import { NavGroupBuilderBase } from "@/lib/nav-group-builder-base";
-import { resolveArchitecturesListNavTitle } from "@/lib/operator-nav-labels";
+import { resolveArchitecturesListNavTitle } from "@/lib/operator/operator-nav-labels";
 
 const PORTFOLIO_OVERVIEW_NAV_TITLE = "Track ROI, risks, and governance posture";
 
@@ -29,12 +29,13 @@ export class PilotNavGroupBuilder extends NavGroupBuilderBase {
       label: OPERATOR_NAV_GROUP_LABELS.reviewWork,
       surface: "review-workflow",
       caption:
-        "Buyer-first path: Overview → Architectures → Reviews → Executive dashboard; then First review guide and governance follow-up.",
+        "Buyer-first path: Home → Architectures → Reviews → Executive dashboard; then First review guide and governance follow-up.",
       links: [
         {
           href: "/",
           label: OPERATOR_NAV_LINK_LABELS.home,
-          title: "Workspace overview",
+          // "Workspace overview" is the buyer title of `/governance/dashboard` — keep this tooltip distinct.
+          title: "Workspace home",
           icon: Home,
           tier: "essential",
         },

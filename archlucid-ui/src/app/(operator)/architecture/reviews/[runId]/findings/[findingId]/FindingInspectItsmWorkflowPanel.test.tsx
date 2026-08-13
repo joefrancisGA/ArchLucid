@@ -1,18 +1,18 @@
 import { render, screen } from "@testing-library/react";
 import { describe, expect, it, vi } from "vitest";
 
-import { FINDING_ITSM_HUMAN_REVIEW_STATUS_CAPTION } from "@/lib/finding-human-review-display";
+import { FINDING_ITSM_HUMAN_REVIEW_STATUS_CAPTION } from "@/lib/findings/finding-human-review-display";
 import { FindingInspectItsmWorkflowPanel } from "./FindingInspectItsmWorkflowPanel";
 
 vi.mock("@/lib/use-itsm-native-create-enabled", () => ({
   useItsmNativeCreateEnabled: () => true,
 }));
 
-vi.mock("@/components/ItsmOutboundQuickActions", () => ({
+vi.mock("@/components/itsm/ItsmOutboundQuickActions", () => ({
   ItsmOutboundQuickActions: () => <div data-testid="itsm-quick-actions" />,
 }));
 
-vi.mock("@/components/FindingCorrelationVocabularyDisambiguation", () => ({
+vi.mock("@/components/findings/FindingCorrelationVocabularyDisambiguation", () => ({
   FindingCorrelationVocabularyDisambiguation: () => <div data-testid="correlation-vocabulary" />,
 }));
 

@@ -1,8 +1,8 @@
 "use client";
 
-import { cn } from "@/lib/utils";
 import Link from "next/link";
 
+import { cn } from "@/lib/utils";
 import { Button } from "@/components/ui/button";
 import { Card, CardContent, CardHeader, CardTitle } from "@/components/ui/card";
 import { OPERATOR_CARD, OPERATOR_LINK, OPERATOR_TYPOGRAPHY } from "@/lib/design-tokens";
@@ -25,16 +25,13 @@ export function AiUsageBudgetControlsPanel(props: Props) {
         </p>
       </CardHeader>
       <CardContent className={cn(OPERATOR_CARD.content, "flex flex-wrap gap-2")}>
-        <Button asChild variant="outline" size="sm">
+        <Button asChild variant="default" size="sm" data-testid="ai-usage-edit-monthly-budget">
           <Link href="/administration/billing#billing-ai-credits">Edit monthly budget</Link>
         </Button>
-        <Button asChild variant="outline" size="sm">
-          <Link href="/administration/billing#billing-usage">Set warning threshold</Link>
+        <Button asChild variant="outline" size="sm" data-testid="ai-usage-budget-limits-enforcement">
+          <Link href="/administration/billing#billing-usage">Budget limits &amp; enforcement</Link>
         </Button>
-        <Button asChild variant="outline" size="sm">
-          <Link href="/administration/billing#billing-usage">Configure hard-stop behavior</Link>
-        </Button>
-        <Button asChild variant="outline" size="sm">
+        <Button asChild variant="outline" size="sm" data-testid="ai-usage-pause-scheduled">
           <Link href="/administration/recurrence">Pause scheduled AI operations</Link>
         </Button>
         <p className={cn("m-0 w-full text-al-text-secondary", OPERATOR_TYPOGRAPHY.helper)}>

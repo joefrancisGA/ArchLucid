@@ -7,7 +7,7 @@ import { resolveInternalRunbookHelpRouteMetadata } from "@/lib/resolve-internal-
 import { getInboundAuthenticatedServerPrincipal } from "@/lib/server-current-principal";
 
 const developerEntry: ProductDocumentationEntry = {
-  slug: "developer-troubleshooting",
+  slug: "engineering-troubleshooting",
   title: "Engineering troubleshooting runbook",
   summary: "Admin-only engineering triage.",
   audience: "developer",

@@ -7,8 +7,8 @@ import {
 import Link from "next/link";
 import type { ReactNode } from "react";
 
-import type { ResolvedBuyerGoldenJourneyNav } from "@/lib/buyer-golden-journey-nav";
-import { BUYER_GOLDEN_JOURNEY_STEP_DEFINITIONS } from "@/lib/buyer-golden-journey-nav";
+import type { ResolvedBuyerGoldenJourneyNav } from "@/lib/buyer/buyer-golden-journey-nav";
+import { BUYER_GOLDEN_JOURNEY_STEP_DEFINITIONS } from "@/lib/buyer/buyer-golden-journey-nav";
 import { type LayerId } from "@/lib/getLayerForRoute";
 
 const layerStripBase =

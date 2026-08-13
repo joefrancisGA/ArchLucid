@@ -5,11 +5,19 @@ import {
   GET_STARTED_VERTICAL_PRESENTATIONS,
   buildGuidedTrialHref,
 } from "./get-started-content";
+import {
+  PRIMARY_SHOWCASE_PROOF_HREF,
+  SECONDARY_CLAIMS_PROOF_HREF,
+} from "@/lib/samples/sample-scenario-surface-alignment";
 
 describe("get-started-content", () => {
-  it("maps all vertical public samples to Claims showcase (M-107 Option A)", () => {
+  it("maps healthcare to Claims and other verticals to customer intake (TB-981)", () => {
     for (const entry of GET_STARTED_VERTICAL_PRESENTATIONS) {
-      expect(entry.publicSampleHref).toBe("/showcase/claims-intake-modernization");
+      if (entry.slug === "healthcare") {
+        expect(entry.publicSampleHref).toBe(SECONDARY_CLAIMS_PROOF_HREF);
+      } else {
+        expect(entry.publicSampleHref).toBe(PRIMARY_SHOWCASE_PROOF_HREF);
+      }
     }
   });
 

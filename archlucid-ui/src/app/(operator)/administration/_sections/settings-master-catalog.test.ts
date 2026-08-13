@@ -2,6 +2,7 @@ import { describe, expect, it } from "vitest";
 
 import {
   INTERNAL_DEVELOPER_TOOLS_CATALOG_DESCRIPTION,
+  INTERNAL_DEVELOPER_TOOLS_CATALOG_GATE_NOTE,
   INTERNAL_DEVELOPER_TOOLS_SHIPPED_INVENTORY,
 } from "../developer/developer-settings-copy";
 import { SETTINGS_MASTER_SECTIONS } from "./settings-master-catalog";
@@ -43,7 +44,8 @@ describe("settings-master-catalog (TB-1198)", () => {
     );
 
     expect(destination).toBeDefined();
-    expect(destination?.description).toBe(INTERNAL_DEVELOPER_TOOLS_CATALOG_DESCRIPTION);
+    expect(destination?.description).toContain(INTERNAL_DEVELOPER_TOOLS_CATALOG_DESCRIPTION);
+    expect(destination?.description).toContain(INTERNAL_DEVELOPER_TOOLS_CATALOG_GATE_NOTE);
     expect(destination?.description?.toLowerCase()).not.toContain("diagnostics");
     expect(destination?.description?.toLowerCase()).toContain("theme");
     expect(destination?.description?.toLowerCase()).toContain("cli");

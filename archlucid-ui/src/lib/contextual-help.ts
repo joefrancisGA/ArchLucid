@@ -1,6 +1,6 @@
-import { getDocHref } from "@/lib/help-topics";
-import { REVIEWS_LIST_PATH } from "@/lib/architecture-routes";
-import { GOVERNANCE_ALERTS_PATH, GOVERNANCE_AUDIT_PATH } from "@/lib/governance-route-paths";
+import { getDocHref } from "@/lib/help/help-topics";
+import { REVIEWS_LIST_PATH } from "@/lib/architecture/architecture-routes";
+import { GOVERNANCE_ALERTS_PATH, GOVERNANCE_AUDIT_PATH } from "@/lib/governance/governance-route-paths";
 
 /**
  * Operator pages → repo-root-relative doc path (optional #fragment for GitHub heading navigation).

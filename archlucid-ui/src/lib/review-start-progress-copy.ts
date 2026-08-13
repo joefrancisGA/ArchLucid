@@ -18,9 +18,6 @@ export const OPERATOR_HOME_OPENING_CREATION_EXAMPLE_LABEL = "Opening creation ex
 
 export const OPERATOR_HOME_RUNNING_GUIDED_REVIEW_LABEL = "Running guided review…";
 
-export const REVIEW_START_NAVIGATION_FAILED_MESSAGE =
-  "We could not start the architecture review. Your selections have been preserved. Try again.";
-
 export const CREATE_ARCHITECTURE_NAVIGATION_FAILED_MESSAGE =
   "We could not start the architecture draft. Please try again.";
 
@@ -44,7 +41,7 @@ export const REVIEW_START_WAIT_OPERATION_LABEL = "Starting your architecture rev
 export const REVIEW_START_UNRESOLVED_HEADLINE = "Still working on it";
 
 export const REVIEW_START_UNRESOLVED_MESSAGE =
-  "We stopped waiting for a response, but your review may still be starting on the server. Nothing was cancelled. Check for it below rather than submitting again — submitting again is what creates duplicates.";
+  "We stopped waiting for a response, but your review may still be starting on the server. Nothing was canceled. Check for it below rather than submitting again — submitting again is what creates duplicates.";
 
 /** Recovery CTA — replays the same idempotency key, so it resolves to one review either way. */
 export const REVIEW_START_UNRESOLVED_RECHECK_CTA = "Check for my review";
@@ -71,3 +68,19 @@ export const REVIEW_START_DEMO_MODE_SUBMIT_MESSAGE =
 
 /** Delay before showing staged progress during navigation or creation. */
 export const REVIEW_START_STAGED_PANEL_DELAY_MS = 2000;
+
+/**
+ * Ceiling for a soft navigation to the review start page before we offer a direct open.
+ * Deliberately longer than the generic soft-nav budget: clearing the progress chrome while the App
+ * Router is still fetching the route reads to the operator as "nothing happened".
+ */
+export const REVIEW_START_NAVIGATION_STALL_TIMEOUT_MS = 60_000;
+
+/**
+ * Shown when the soft navigation is still outstanding at the ceiling. Framed as slow, not failed —
+ * the draft is already saved and the pending navigation is not canceled by this notice.
+ */
+export const REVIEW_START_NAVIGATION_STALL_MESSAGE =
+  "The review start page is taking longer than usual to open. Your architecture draft is saved — nothing was lost. Keep waiting, or open the page directly.";
+
+export const REVIEW_START_OPEN_DIRECTLY_CTA = "Open the review start page";

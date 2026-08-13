@@ -2,7 +2,7 @@ import { fireEvent, render, screen } from "@testing-library/react";
 import { describe, expect, it, vi } from "vitest";
 
 import { ArchitectureDiagramInferredPanel } from "@/components/architecture/ArchitectureDiagramInferredPanel";
-import type { ArchitectureDiagramModel } from "@/lib/architecture-diagram-types";
+import type { ArchitectureDiagramModel } from "@/lib/architecture/architecture-diagram-types";
 
 const model: ArchitectureDiagramModel = {
   nodes: [

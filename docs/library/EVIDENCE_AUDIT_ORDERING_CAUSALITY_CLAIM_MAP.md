@@ -4,7 +4,7 @@
 
 **Audience:** Engineering, security reviewers, principal-architect diligence. Not a buyer brochure.
 
-**Status:** **Done** (**TB-1550**, 2026-08-10). GTM **M-284** / **M-285**. Pair honesty CI **TB-1551** / **M-284**.
+**Status:** **Done** (**TB-1550**, 2026-08-10). GTM **M-284** / **M-285**. Pair honesty CI **TB-1551** **Done** (2026-08-12) / **M-284**.
 
 **Buyer / PA one-pager:** [`BUYER_SECURITY_PROCUREMENT_PACKET.md#evidence-audit-ordering-causality-m-285`](../go-to-market/BUYER_SECURITY_PROCUREMENT_PACKET.md#evidence-audit-ordering-causality-m-285) (GTM **M-285**).  
 **Claim honesty:** [`PUBLIC_CLAIM_BOUNDARY_GUIDE.md#gtm-do-not-promise`](PUBLIC_CLAIM_BOUNDARY_GUIDE.md#gtm-do-not-promise) (GTM **M-284**).
@@ -83,7 +83,19 @@
 | Done **TB-1490** / **M-269** | Backup/restore vs append-only — [`EVIDENCE_BACKUP_RESTORE_INVARIANT_MAP.md`](EVIDENCE_BACKUP_RESTORE_INVARIANT_MAP.md) |
 | ADR 0039 / 0040 | Seal + export ManifestHash — not per-row audit Merkle |
 | Done **TB-1550** / **M-284** | This ordering / causality claim map |
-| Open **TB-1551** / **M-284** | Honesty CI follow-on |
+| Done **TB-1551** / **M-284** | Honesty CI follow-on |
+
+---
+
+## CI anchors for **TB-1551**
+
+| Anchor | Role |
+| --- | --- |
+| `scripts/ci/check_evidence_audit_ordering_causality_honesty.py` | Fail DB-sequence/Lamport/UI-as-forensic overclaims |
+| `ArchLucid.Persistence/Sql/HotPathRelationalQueryShapes.cs` | `OccurredUtc` + `EventId` ordering code anchor |
+| `archlucid-ui/src/app/(operator)/governance/audit/audit-ui-helpers.ts` | Buyer lifecycle re-sort code anchor |
+
+Honesty CI shipped: **TB-1551**.
 
 ---
 

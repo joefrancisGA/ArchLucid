@@ -921,6 +921,112 @@
         },
         "type": "object"
       },
+      "AdminQuickScanBudgetSnapshotResponse": {
+        "properties": {
+          "dailyCeilingUsd": {
+            "format": "double",
+            "pattern": "^-?(?:0|[1-9]\\d*)(?:\\.\\d\u002B)?$",
+            "type": [
+              "number",
+              "string"
+            ]
+          },
+          "dayBucketKey": {
+            "type": "string"
+          },
+          "dayCommittedUsd": {
+            "format": "double",
+            "pattern": "^-?(?:0|[1-9]\\d*)(?:\\.\\d\u002B)?$",
+            "type": [
+              "number",
+              "string"
+            ]
+          },
+          "dayReservedUsd": {
+            "format": "double",
+            "pattern": "^-?(?:0|[1-9]\\d*)(?:\\.\\d\u002B)?$",
+            "type": [
+              "number",
+              "string"
+            ]
+          },
+          "expiredPendingReservationCount": {
+            "format": "int32",
+            "type": "integer"
+          },
+          "hourBucketKey": {
+            "type": "string"
+          },
+          "hourCommittedUsd": {
+            "format": "double",
+            "pattern": "^-?(?:0|[1-9]\\d*)(?:\\.\\d\u002B)?$",
+            "type": [
+              "number",
+              "string"
+            ]
+          },
+          "hourReservedUsd": {
+            "format": "double",
+            "pattern": "^-?(?:0|[1-9]\\d*)(?:\\.\\d\u002B)?$",
+            "type": [
+              "number",
+              "string"
+            ]
+          },
+          "hourlyCeilingUsd": {
+            "format": "double",
+            "pattern": "^-?(?:0|[1-9]\\d*)(?:\\.\\d\u002B)?$",
+            "type": [
+              "number",
+              "string"
+            ]
+          },
+          "lastReconciliationExpiredCount": {
+            "format": "int32",
+            "type": "integer"
+          },
+          "lastReconciliationUtc": {
+            "format": "date-time",
+            "type": [
+              "null",
+              "string"
+            ]
+          },
+          "operationalMode": {
+            "type": "string"
+          },
+          "pendingReservationCount": {
+            "format": "int32",
+            "type": "integer"
+          },
+          "recentUsage": {
+            "items": {
+              "$ref": "#/components/schemas/AdminQuickScanUsageRecordRow"
+            },
+            "type": "array"
+          },
+          "safetyEnabled": {
+            "type": "boolean"
+          }
+        },
+        "required": [
+          "dailyCeilingUsd",
+          "dayBucketKey",
+          "dayCommittedUsd",
+          "dayReservedUsd",
+          "expiredPendingReservationCount",
+          "hourBucketKey",
+          "hourCommittedUsd",
+          "hourReservedUsd",
+          "hourlyCeilingUsd",
+          "lastReconciliationExpiredCount",
+          "operationalMode",
+          "pendingReservationCount",
+          "recentUsage",
+          "safetyEnabled"
+        ],
+        "type": "object"
+      },
       "AdminQuickScanSafetySnapshotResponse": {
         "properties": {
           "actorUserId": {
@@ -982,6 +1088,82 @@
         "required": [
           "operationalMode",
           "reason"
+        ],
+        "type": "object"
+      },
+      "AdminQuickScanUsageRecordRow": {
+        "properties": {
+          "actualCostUsd": {
+            "format": "double",
+            "pattern": "^-?(?:0|[1-9]\\d*)(?:\\.\\d\u002B)?$",
+            "type": [
+              "null",
+              "number",
+              "string"
+            ]
+          },
+          "durationMs": {
+            "format": "int32",
+            "type": "integer"
+          },
+          "inputTokens": {
+            "format": "int32",
+            "type": [
+              "null",
+              "integer"
+            ]
+          },
+          "modelLabel": {
+            "type": [
+              "null",
+              "string"
+            ]
+          },
+          "occurredUtc": {
+            "format": "date-time",
+            "type": "string"
+          },
+          "outputTokens": {
+            "format": "int32",
+            "type": [
+              "null",
+              "integer"
+            ]
+          },
+          "rejectionReason": {
+            "type": [
+              "null",
+              "string"
+            ]
+          },
+          "reservationId": {
+            "format": "uuid",
+            "type": [
+              "null",
+              "string"
+            ]
+          },
+          "reservedUsd": {
+            "format": "double",
+            "pattern": "^-?(?:0|[1-9]\\d*)(?:\\.\\d\u002B)?$",
+            "type": [
+              "null",
+              "number",
+              "string"
+            ]
+          },
+          "routeKind": {
+            "type": "string"
+          },
+          "status": {
+            "type": "string"
+          }
+        },
+        "required": [
+          "durationMs",
+          "occurredUtc",
+          "routeKind",
+          "status"
         ],
         "type": "object"
       },
@@ -8645,6 +8827,25 @@
           "findingsSnapshotIdRepoints",
           "goldenManifestIdRepoints",
           "graphSnapshotIdRepoints"
+        ],
+        "type": "object"
+      },
+      "DataConsistencyMissingArchitectureRequestSnapshot": {
+        "properties": {
+          "count": {
+            "format": "int64",
+            "type": "integer"
+          },
+          "sampleRunIds": {
+            "items": {
+              "type": "string"
+            },
+            "type": "array"
+          }
+        },
+        "required": [
+          "count",
+          "sampleRunIds"
         ],
         "type": "object"
       },
@@ -17215,6 +17416,43 @@
         },
         "required": [
           "queryText"
+        ],
+        "type": "object"
+      },
+      "MissingArchitectureRequestRemediationResult": {
+        "properties": {
+          "archivedRunIds": {
+            "items": {
+              "type": "string"
+            },
+            "type": "array"
+          },
+          "candidateCount": {
+            "format": "int32",
+            "type": "integer"
+          },
+          "candidateRunIds": {
+            "items": {
+              "type": "string"
+            },
+            "type": "array"
+          },
+          "dryRun": {
+            "type": "boolean"
+          },
+          "failed": {
+            "items": {
+              "$ref": "#/components/schemas/RunArchiveByIdFailure"
+            },
+            "type": "array"
+          }
+        },
+        "required": [
+          "archivedRunIds",
+          "candidateCount",
+          "candidateRunIds",
+          "dryRun",
+          "failed"
         ],
         "type": "object"
       },
@@ -28186,6 +28424,10 @@
       },
       "TenantWorkspaceApiDto": {
         "properties": {
+          "defaultProjectId": {
+            "format": "uuid",
+            "type": "string"
+          },
           "displayName": {
             "type": [
               "null",
@@ -35454,6 +35696,9 @@
     },
     {
       "name": "AdminQualityGateDiagnostics"
+    },
+    {
+      "name": "AdminQuickScanBudget"
     },
     {
       "name": "AdminQuickScanSafety"

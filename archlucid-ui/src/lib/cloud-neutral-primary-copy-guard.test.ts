@@ -6,7 +6,7 @@ import {
   listCloudNeutralPrimaryCopyViolations,
   WIZARD_CLOUD_PROVIDER_OPTIONS,
 } from "@/lib/cloud-neutral-primary-copy";
-import { REVIEWS_NEW_PAGE_LEAD } from "@/lib/buyer-polish-copy";
+import { REVIEWS_NEW_PAGE_LEAD } from "@/lib/buyer/buyer-polish-copy";
 import { CORE_PILOT_FIRST_SESSION_GUIDANCE_BULLETS } from "@/lib/core-pilot-first-review-copy";
 import { CORE_PILOT_STEPS } from "@/lib/core-pilot-steps";
 import { FIRST_WEEK_ROUTE_GUIDANCE } from "@/lib/first-week-route-guidance";

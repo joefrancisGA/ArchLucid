@@ -14,7 +14,7 @@ import {
   ITSM_PLATFORM_OPERATOR_NOTES_BODY,
   ITSM_PLATFORM_OPERATOR_NOTES_SUMMARY,
   ITSM_PRODUCT_PAGE_COPY,
-} from "@/lib/itsm-product-integration-page-copy";
+} from "@/lib/itsm/itsm-product-integration-page-copy";
 import {
   TEAMS_INTEGRATION_CONNECT_SECTION_LEAD,
   TEAMS_INTEGRATION_CONNECT_SECTION_TITLE,

@@ -6,7 +6,7 @@ import {
   BUYER_HOME_SAMPLE_PACKAGE_HEADLINE,
   BUYER_HOME_SAMPLE_PACKAGE_LEAD,
   BUYER_HOME_SECONDARY_CTA,
-} from "@/lib/buyer-polish-copy";
+} from "@/lib/buyer/buyer-polish-copy";
 
 import { SampleFirstReviewPackageCard } from "./SampleFirstReviewPackageCard";
 

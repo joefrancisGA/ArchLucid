@@ -42,8 +42,15 @@ describe("alert-rules hub deferred imports (TB-2024)", () => {
     expect(deferredSource).toContain("next/dynamic");
   });
 
-  it("loads conditions rules and routing subscriptions in parallel", () => {
-    expect(conditionsSource).toContain("Promise.allSettled");
-    expect(conditionsSource).toMatch(/listAlertRules\(\)[\s\S]*listAlertRoutingSubscriptions\(\)/);
+  it("loads conditions rules and routing subscriptions via shared hub queries", () => {
+    const queriesSource = readFileSync(
+      join(hubDir, "..", "..", "..", "..", "components", "alerts", "use-alert-rules-hub-queries.ts"),
+      "utf8",
+    );
+
+    expect(conditionsSource).toContain("useAlertRulesListQuery");
+    expect(conditionsSource).toContain("useAlertRoutingSubscriptionsQuery");
+    expect(queriesSource).toContain("listAlertRules");
+    expect(queriesSource).toContain("listAlertRoutingSubscriptions");
   });
 });

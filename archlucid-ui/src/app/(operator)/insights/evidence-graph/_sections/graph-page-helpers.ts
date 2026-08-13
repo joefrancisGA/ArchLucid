@@ -3,7 +3,7 @@ import {
   BUYER_EVIDENCE_TRAIL_GRAPH_MODE_ARCHITECTURE,
   BUYER_EVIDENCE_TRAIL_GRAPH_MODE_DECISION,
   BUYER_EVIDENCE_TRAIL_GRAPH_MODE_FINDING,
-} from "@/lib/buyer-polish-copy";
+} from "@/lib/buyer/buyer-polish-copy";
 import {
   EVIDENCE_GRAPH_AWAITING_SELECTION_BODY,
   EVIDENCE_GRAPH_AWAITING_SELECTION_TITLE,
@@ -17,7 +17,7 @@ import { EXTRACT_UPLOAD_SETTINGS_PATH } from "@/lib/core-pilot-steps";
 import { GRAPH_IDLE, GRAPH_IDLE_BUYER } from "@/lib/empty-state-presets";
 import { isBuyerPolishedOperatorShellEnv, isNextPublicDemoMode } from "@/lib/demo-ui-env";
 import { graphLooksLikeCoordinatorProvenanceTrail } from "@/lib/graph-mapper";
-import { isStaticDemoPayloadFallbackActiveForRun, isStaticDemoPayloadFallbackEnabled } from "@/lib/operator-static-demo";
+import { isStaticDemoPayloadFallbackActiveForRun, isStaticDemoPayloadFallbackEnabled } from "@/lib/operator/operator-static-demo";
 import { applyBuyerLabelsToProvenanceGraphViewModel } from "@/lib/provenance-graph-presentation";
 import { SHOWCASE_STATIC_DEMO_RUN_ID } from "@/lib/showcase-static-demo";
 import type { GraphViewModel } from "@/types/graph";

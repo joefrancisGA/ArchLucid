@@ -57,7 +57,7 @@
 
 | Event | Engineering expectation | Implementation follow-on |
 | --- | --- | --- |
-| Replica SIGTERM / scale-in | Stop admitting new work; finish or abandon in-flight call; release lease before kill | **TB-961** (graceful drain) |
+| Replica SIGTERM / scale-in | Stop admitting new work; finish or abandon in-flight call; release lease before kill | **TB-961** **Done** — `WorkerHostDrainHostedService` + execute lease release on `ApplicationStopping`; ACA `termination_grace_period_seconds` default **60** |
 | Unexpected process crash | Lease TTL → reclaim; reconcile stuck execute | **TB-943** (zombie reconciliation) |
 | Rolling deploy | Same as scale-in — no silent Ready | Done **TB-1563** claim map |
 
@@ -78,7 +78,7 @@
 ## Explicit non-claims
 
 - Polly / circuit breaker recovery ≠ run-level resume or zombie cleanup.
-- Graceful ACA drain ≠ shipped until **TB-961** closes.
+- Graceful ACA drain is shipped (**TB-961** Done): drain gate blocks new execute leases; leases release on `ApplicationStopping`; Terraform pins Worker termination grace **≥ 60s**.
 - Staging replica-kill proof ≠ V1 buyer attestation (**G-REAL-06** / **G-REAL-07**).
 - DTF saga semantics (**TB-924**) — out of scope.
 
@@ -101,6 +101,6 @@
 | **TB-039** / **TB-201** | Done — idempotent skip / unique `(RunId, TaskId)` |
 | **TB-937** / **TB-938** | Done — partial contract + selective re-execute |
 | **TB-943** | Open — zombie / interrupted execute reconciliation |
-| **TB-961** / **TB-962** | Open — graceful drain + staging kill drill |
+| **TB-961** / **TB-962** | **TB-961 Done** — graceful drain; **TB-962** open — staging kill drill |
 | **TB-960** | This contract |
 | **M-121** / **M-122** | GTM interrupted-review handout |

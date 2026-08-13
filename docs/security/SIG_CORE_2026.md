@@ -33,7 +33,7 @@
 | Control intent | Status | Evidence |
 |----------------|--------|----------|
 | Access control | Strong (engineering) | [`SECURITY.md`](../library/contributor-reference/SECURITY.md), [`../CUSTOMER_TRUST_AND_ACCESS.md`](../library/CUSTOMER_TRUST_AND_ACCESS.md) |
-| Data protection | Strong (engineering) | [`MULTI_TENANT_RLS.md`](MULTI_TENANT_RLS.md) |
+| Data protection | Strong (engineering) | [`TENANT_ISOLATION_DEFENSE_IN_DEPTH.md`](TENANT_ISOLATION_DEFENSE_IN_DEPTH.md), [ADR 0037](../architecture/adrs/0037-tenant-isolation-without-rls-defense-in-depth.md) (SQL RLS is historical only — [`MULTI_TENANT_RLS.md`](MULTI_TENANT_RLS.md)) |
 
 ## Control family E — Asset management
 

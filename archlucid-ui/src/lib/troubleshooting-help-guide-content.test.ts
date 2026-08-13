@@ -7,6 +7,11 @@ import {
   TROUBLESHOOTING_PRIMARY_ACTIONS,
   TROUBLESHOOTING_REPORT_PROBLEM_LINK,
 } from "@/lib/troubleshooting-help-guide-content";
+import {
+  ADMIN_DIAGNOSTICS_INBOUND_GUIDANCE_HREF,
+  ADMIN_DIAGNOSTICS_INBOUND_GUIDANCE_LINK_LABEL,
+  ADMIN_DIAGNOSTICS_INBOUND_SECTION_TITLE,
+} from "@/lib/admin-diagnostics-inbound-copy";
 import { SPONSOR_REPORT_EXECUTIVE_SUMMARY_PATH } from "@/lib/sponsor-report-navigation";
 
 const ENG_RUNBOOK_HREF_MARKERS = [
@@ -48,6 +53,17 @@ describe("troubleshooting-help-guide-content", () => {
     expect(supportReference!.href).toBe("/help/report-a-problem");
     expect(supportReference!.linkLabel).toBe("Report a problem");
     expect(supportReference!.adminOnly).toBeUndefined();
+  });
+
+  it("aligns Admin diagnostics inbound label and href with specialty help chrome (TB-1613)", () => {
+    const adminDiagnostics = TROUBLESHOOTING_ADVANCED_DIAGNOSTICS_ITEMS.find(
+      (item) => item.title === ADMIN_DIAGNOSTICS_INBOUND_SECTION_TITLE,
+    );
+
+    expect(adminDiagnostics).toBeDefined();
+    expect(adminDiagnostics!.href).toBe(ADMIN_DIAGNOSTICS_INBOUND_GUIDANCE_HREF);
+    expect(adminDiagnostics!.linkLabel).toBe(ADMIN_DIAGNOSTICS_INBOUND_GUIDANCE_LINK_LABEL);
+    expect(adminDiagnostics!.linkLabel.toLowerCase()).not.toBe("open admin diagnostics");
   });
 
   it("never deep-links the engineering runbook from customer troubleshooting content (TB-1249)", () => {

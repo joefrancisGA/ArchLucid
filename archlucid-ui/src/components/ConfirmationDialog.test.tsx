@@ -87,4 +87,21 @@ describe("ConfirmationDialog", () => {
     expect(screen.getByRole("button", { name: "Cancel" })).toBeDisabled();
     expect(screen.getByRole("button", { name: /Processing/u })).toBeDisabled();
   });
+
+  it("disables confirm when confirmDisabled=true", () => {
+    render(
+      <ConfirmationDialog
+        open
+        onOpenChange={vi.fn()}
+        title="Rotate admin key?"
+        description="This invalidates the current key."
+        confirmLabel="Rotate admin key"
+        onConfirm={vi.fn()}
+        confirmDisabled
+      />,
+    );
+
+    expect(screen.getByRole("button", { name: "Rotate admin key" })).toBeDisabled();
+    expect(screen.getByRole("button", { name: "Cancel" })).not.toBeDisabled();
+  });
 });

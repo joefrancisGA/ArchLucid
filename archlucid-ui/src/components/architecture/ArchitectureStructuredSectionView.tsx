@@ -10,8 +10,8 @@ import {
   ARCHITECTURE_STRUCTURED_CORRECT_LABEL,
   ARCHITECTURE_STRUCTURED_INFERRED_LABEL,
   ARCHITECTURE_STRUCTURED_SECTION_EMPTY_LABEL,
-} from "@/lib/architecture-structured-content-copy";
-import type { ArchitectureStructuredSection } from "@/lib/architecture-structured-content-types";
+} from "@/lib/architecture/architecture-structured-content-copy";
+import type { ArchitectureStructuredSection } from "@/lib/architecture/architecture-structured-content-types";
 import { FINDINGS_ROW_METADATA_TAG_SIZE, OPERATOR_TYPOGRAPHY } from "@/lib/design-tokens";
 
 export type ArchitectureStructuredSectionViewProps = {

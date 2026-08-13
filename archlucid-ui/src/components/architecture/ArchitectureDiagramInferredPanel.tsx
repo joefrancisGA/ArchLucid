@@ -9,8 +9,8 @@ import {
   ARCHITECTURE_DIAGRAM_REMOVE_INFERRED_ACTION,
   ARCHITECTURE_DIAGRAM_RESTORE_INFERRED_ACTION,
   ARCHITECTURE_DIAGRAM_REMOVED_INFERRED_HEADING,
-} from "@/lib/architecture-diagram-copy";
-import type { ArchitectureDiagramModel, ArchitectureDiagramNode } from "@/lib/architecture-diagram-types";
+} from "@/lib/architecture/architecture-diagram-copy";
+import type { ArchitectureDiagramModel, ArchitectureDiagramNode } from "@/lib/architecture/architecture-diagram-types";
 import { OPERATOR_TYPOGRAPHY } from "@/lib/design-tokens";
 
 export type ArchitectureDiagramInferredPanelProps = {

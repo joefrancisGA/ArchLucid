@@ -20,16 +20,20 @@ export type LlmMonthlyDollarBudgetStatus = {
   remainingBudgetUsd?: number | null;
   workspaceKind?: string | null;
   customerAiProviderConfigured?: boolean;
+  /** Server-provided freshness when present; otherwise set client-side after fetch. */
+  asOfUtc?: string | null;
 };
 
 /** Raw fetch for TanStack Query `queryFn` and imperative callers. */
-export async function fetchLlmMonthlyDollarBudgetStatus(): Promise<LlmMonthlyDollarBudgetStatus> {
-  return apiGet<LlmMonthlyDollarBudgetStatus>(LLM_MONTHLY_DOLLAR_BUDGET_STATUS_PATH);
+export async function fetchLlmMonthlyDollarBudgetStatus(
+  options?: { readonly signal?: AbortSignal },
+): Promise<LlmMonthlyDollarBudgetStatus> {
+  return apiGet<LlmMonthlyDollarBudgetStatus>(LLM_MONTHLY_DOLLAR_BUDGET_STATUS_PATH, options);
 }
 
 /** Imperative read through the shared TanStack Query cache. */
 export async function fetchLlmMonthlyDollarBudgetStatusCached(
-  options?: { force?: boolean },
+  options?: { readonly force?: boolean; readonly signal?: AbortSignal },
 ): Promise<LlmMonthlyDollarBudgetStatus> {
   const queryClient = getOperatorQueryClient();
 
@@ -39,7 +43,8 @@ export async function fetchLlmMonthlyDollarBudgetStatusCached(
 
   return queryClient.fetchQuery({
     queryKey: operatorQueryKeys.llmMonthlyBudgetStatus,
-    queryFn: fetchLlmMonthlyDollarBudgetStatus,
+    queryFn: ({ signal }) =>
+      fetchLlmMonthlyDollarBudgetStatus({ signal: options?.signal ?? signal }),
     staleTime: OPERATOR_QUERY_STALE_MS,
   });
 }

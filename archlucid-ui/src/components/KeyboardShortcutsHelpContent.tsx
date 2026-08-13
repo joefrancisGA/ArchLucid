@@ -6,7 +6,13 @@ import { Fragment, useMemo, useState } from "react";
 import type React from "react";
 
 import { Collapsible, CollapsibleContent, CollapsibleTrigger } from "@/components/ui/collapsible";
-import { ALERTS_PAGE_SHORTCUTS, FINDINGS_PAGE_SHORTCUTS, SHORTCUTS, type ShortcutEntry } from "@/lib/shortcut-registry";
+import {
+  ALERTS_PAGE_SHORTCUTS,
+  FINDINGS_PAGE_SHORTCUTS,
+  SHELL_COMMAND_SHORTCUTS,
+  SHORTCUTS,
+  type ShortcutEntry,
+} from "@/lib/shortcut-registry";
 
 const COMMON_NAV_KEYS = new Set(["alt+n", "alt+r", "alt+a", "alt+h"]);
 
@@ -111,6 +117,8 @@ export function KeyboardShortcutsTabContent(): React.ReactElement {
 
   return (
     <div className="space-y-4">
+      {/* Uncollapsed and first: the palette reaches every page, so it is the shortcut worth learning. */}
+      <ShortcutTable entries={SHELL_COMMAND_SHORTCUTS} caption="Command palette" />
       <ShortcutTable entries={common} caption="Common" />
       {rest.length > 0 ? (
         <Collapsible open={moreOpen} onOpenChange={setMoreOpen}>

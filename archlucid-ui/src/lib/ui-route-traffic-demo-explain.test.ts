@@ -1,8 +1,14 @@
 import { describe, expect, it } from "vitest";
 
-import { extractMasterTableRows, readUiRouteTrafficEstimatesTemplateMarkdown } from "@/lib/testing/ui-route-traffic-workbook-test-utils";
+import {
+  extractMasterTableRows,
+  findTrafficRowById,
+  readUiRouteTrafficEstimatesTemplateMarkdown,
+} from "@/lib/testing/ui-route-traffic-workbook-test-utils";
 
 import {
+  DEMO_EXPLAIN_TRAFFIC_BUYER_SHELL_REDIRECT_PATH,
+  DEMO_EXPLAIN_TRAFFIC_MONTHLY_SHARE,
   DEMO_EXPLAIN_TRAFFIC_NOTE,
   DEMO_EXPLAIN_TRAFFIC_PATH,
   DEMO_EXPLAIN_TRAFFIC_ROW_ID,
@@ -10,16 +16,18 @@ import {
 } from "@/lib/ui-route-traffic-demo-explain";
 
 describe("ui-route-traffic-demo-explain (DEX)", () => {
-  it("tracks demo explain with Learning Evidence workbook notes", () => {
+  it("tracks demo explain as internal-only with zero buyer traffic weight", () => {
     const rows = extractMasterTableRows(readUiRouteTrafficEstimatesTemplateMarkdown());
-    const row = rows.find((candidate) => candidate.id === DEMO_EXPLAIN_TRAFFIC_ROW_ID);
+    const row = findTrafficRowById(rows, DEMO_EXPLAIN_TRAFFIC_ROW_ID);
 
     expect(row).toBeDefined();
     expect(row?.path).toBe(DEMO_EXPLAIN_TRAFFIC_PATH);
+    expect(row?.hitPct).toBe(DEMO_EXPLAIN_TRAFFIC_MONTHLY_SHARE);
     expect(row?.section).toBe(DEMO_EXPLAIN_TRAFFIC_SECTION);
     expect(row?.notes).toBe(DEMO_EXPLAIN_TRAFFIC_NOTE);
+    expect(row?.notes).toContain("TB-1322 IA-014");
+    expect(row?.notes).toContain("never scored as buyer Learning traffic");
+    expect(row?.notes).toContain(DEMO_EXPLAIN_TRAFFIC_BUYER_SHELL_REDIRECT_PATH);
     expect(row?.notes).toContain("DemoExplainPageView");
-    expect(row?.notes).toContain("TB-1322");
-    expect(row?.notes).toContain("/see-it");
   });
 });

@@ -8,9 +8,9 @@ import {
   BUYER_CTO_DEMO_RESET_BUSY_CTA,
   BUYER_CTO_DEMO_RESET_CTA,
   BUYER_CTO_DEMO_RESET_SUCCESS,
-} from "@/lib/buyer-polish-copy";
-import { resetBuyerCtoDemoSession } from "@/lib/buyer-cto-demo-orchestration";
-import { ARCHLUCID_BUYER_CTO_DEMO_TOUR_START_EVENT } from "@/lib/buyer-cto-demo-tour";
+} from "@/lib/buyer/buyer-polish-copy";
+import { resetBuyerCtoDemoSession } from "@/lib/buyer/buyer-cto-demo-orchestration";
+import { ARCHLUCID_BUYER_CTO_DEMO_TOUR_START_EVENT } from "@/lib/buyer/buyer-cto-demo-tour";
 import { showError, showSuccess } from "@/lib/toast";
 
 /** Returns the showcase to a pristine tour landing between sessions (#11). */

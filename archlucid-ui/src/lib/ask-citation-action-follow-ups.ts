@@ -1,10 +1,14 @@
-﻿import type { CitationReference } from "@/types/explanation";
+import type { CitationReference } from "@/types/explanation";
 
-import { getFindingDetailHref, getFindingEvidenceTraceHref } from "@/lib/finding-evidence-navigation";
+import {
+  getFindingDetailHref,
+  getFindingEvidenceTraceHref,
+  getFindingGovernanceDispositionHref,
+} from "@/lib/findings/finding-evidence-navigation";
 import { evidenceGraphHref } from "@/lib/evidence-graph-route";
-import { GOVERNANCE_DECISION_REGISTER_PATH } from "@/lib/governance-route-paths";
+import { GOVERNANCE_DECISION_REGISTER_PATH } from "@/lib/governance/governance-route-paths";
 import { ARCHITECTURE_DECISION_LABEL } from "@/lib/usability/canonical-product-terms";
-import { BUYER_SURFACE_VOCABULARY } from "@/lib/buyer-surface-vocabulary";
+import { BUYER_SURFACE_VOCABULARY } from "@/lib/vocabulary/buyer-surface-vocabulary";
 
 /** Chip kinds for post-answer Ask citation follow-ups (TB-2219). */
 export type AskCitationActionKind = "finding" | "evidence" | "disposition";
@@ -172,8 +176,8 @@ export function buildAskCitationActionFollowUps(
     });
     pushChip(chips, {
       kind: "disposition",
-      label: `Open ${ARCHITECTURE_DECISION_LABEL.toLowerCase()} register`,
-      href: GOVERNANCE_DECISION_REGISTER_PATH,
+      label: "Record disposition",
+      href: getFindingGovernanceDispositionHref(runId, findingId),
       citationId: findingId,
     });
   }

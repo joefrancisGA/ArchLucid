@@ -7,11 +7,10 @@ import { HelpTopicMarkdownView } from "@/app/(operator)/help/HelpTopicMarkdownVi
 import { HelpApiContractsGuideView } from "@/app/(operator)/help/_sections/HelpApiContractsGuideView";
 import { HelpConfigurationReferenceGuideView } from "@/app/(operator)/help/_sections/HelpConfigurationReferenceGuideView";
 import { HelpEngineeringTroubleshootingGuideView } from "@/app/(operator)/help/_sections/HelpEngineeringTroubleshootingGuideView";
-import { HelpFirstValue20GuideView } from "@/app/(operator)/help/_sections/HelpFirstValue20GuideView";
 import { HelpTopicNotFoundView } from "@/app/(operator)/help/_sections/HelpTopicNotFoundView";
 import { ensureAccessTokenFresh, getAccessTokenForApi } from "@/lib/oidc/session";
 import type { ProductDocumentationEntry } from "@/lib/product-documentation-registry";
-import { OperatorShellAccessGateLoading } from "@/components/OperatorShellAccessGateLoading";
+import { OperatorShellAccessGateLoading } from "@/components/operator/OperatorShellAccessGateLoading";
 
 export type HelpTopicMarkdownClientProps = {
   readonly entry: ProductDocumentationEntry;
@@ -26,7 +25,7 @@ export function HelpTopicMarkdownClient(props: HelpTopicMarkdownClientProps): Re
   const [state, setState] = useState<LoadState>({ status: "loading" });
 
   useEffect(() => {
-    let cancelled = false;
+    let canceled = false;
 
     async function loadMarkdown(): Promise<void> {
       try {
@@ -45,7 +44,7 @@ export function HelpTopicMarkdownClient(props: HelpTopicMarkdownClientProps): Re
         });
 
         if (!response.ok) {
-          if (!cancelled) {
+          if (!canceled) {
             setState({ status: "error" });
           }
 
@@ -54,11 +53,11 @@ export function HelpTopicMarkdownClient(props: HelpTopicMarkdownClientProps): Re
 
         const article = (await response.json()) as HelpArticleResponse;
 
-        if (!cancelled) {
+        if (!canceled) {
           setState({ status: "loaded", markdown: article.markdown });
         }
       } catch {
-        if (!cancelled) {
+        if (!canceled) {
           setState({ status: "error" });
         }
       }
@@ -67,7 +66,7 @@ export function HelpTopicMarkdownClient(props: HelpTopicMarkdownClientProps): Re
     void loadMarkdown();
 
     return () => {
-      cancelled = true;
+      canceled = true;
     };
   }, [props.entry.slug]);
 
@@ -79,7 +78,7 @@ export function HelpTopicMarkdownClient(props: HelpTopicMarkdownClientProps): Re
     return <HelpTopicNotFoundView />;
   }
 
-  if (props.entry.slug === "developer-troubleshooting") {
+  if (props.entry.slug === "engineering-troubleshooting") {
     return <HelpEngineeringTroubleshootingGuideView entry={props.entry} markdown={state.markdown} />;
   }
 
@@ -89,10 +88,6 @@ export function HelpTopicMarkdownClient(props: HelpTopicMarkdownClientProps): Re
 
   if (props.entry.slug === "api-contracts") {
     return <HelpApiContractsGuideView entry={props.entry} markdown={state.markdown} />;
-  }
-
-  if (props.entry.slug === "first-value-20-minutes") {
-    return <HelpFirstValue20GuideView entry={props.entry} markdown={state.markdown} />;
   }
 
   return (

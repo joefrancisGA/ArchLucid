@@ -15,7 +15,7 @@ import {
   BUYER_MANIFEST_DELIVERABLE_MARKDOWN_TITLE,
   BUYER_MANIFEST_DELIVERABLE_ZIP_DESC,
   BUYER_MANIFEST_DELIVERABLE_ZIP_TITLE,
-} from "@/lib/buyer-polish-copy";
+} from "@/lib/buyer/buyer-polish-copy";
 import { downloadFirstValueReportPdf, getArchitecturePackageDocxUrl, getBundleDownloadUrl } from "@/lib/api";
 import { isCtoDemoPackEnv } from "@/lib/cto-demo-presenter-pack";
 import { triggerGoldenManifestMarkdownDownload } from "@/lib/export-markdown";

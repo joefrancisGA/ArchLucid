@@ -1,8 +1,11 @@
 import { cn } from "@/lib/utils";
 
-import { OperatorPageHeader } from "@/components/OperatorPageHeader";
+import { GOVERNANCE_SETUP_HREF } from "@/lib/governance/governance-setup-route";
+import { OperatorPageHeader } from "@/components/operator/OperatorPageHeader";
+import { PageContextualHelpButton } from "@/components/usability/PageContextualHelpButton";
+import { GovernanceSetupConfigHubsVocabularyRail } from "@/components/governance/GovernanceSetupConfigHubsVocabularyRail";
 import { OPERATOR_TYPOGRAPHY } from "@/lib/design-tokens";
-import { GOVERNANCE_SETUP_PAGE_SUBTITLE } from "@/lib/governance-setup-route";
+import { GOVERNANCE_SETUP_PAGE_SUBTITLE } from "@/lib/governance/governance-setup-route";
 
 import { GovernanceSetupFoundationPanel } from "./GovernanceSetupFoundationPanel";
 import { GovernanceSetupGuideProgressSummary } from "./GovernanceSetupGuideProgressSummary";
@@ -24,12 +27,16 @@ export function GovernanceSetupGuidePageView({ model }: GovernanceSetupGuidePage
       data-testid="governance-setup-guide-page"
     >
       <OperatorPageHeader
+        navHref={GOVERNANCE_SETUP_HREF}
         title="Governance setup"
         titleTestId="governance-setup-page-title"
         subtitle={GOVERNANCE_SETUP_PAGE_SUBTITLE}
+        actions={<PageContextualHelpButton />}
       >
         <GovernanceSetupGuideProgressSummary summary={progress} />
       </OperatorPageHeader>
+
+      <GovernanceSetupConfigHubsVocabularyRail currentSurfaceId="setup" />
 
       <p
         className={cn(

@@ -248,7 +248,7 @@
       "description": "Architecture should document which roles may invoke which HTTP methods on sensitive routes \u2014 not assume uniform bearer-token access.",
       "severity": "High",
       "priority": "P1",
-      "remediationGuidance": "Summarise route/method RBAC in metadata.ChangeDescription; align with API gateway policy exports when available.",
+      "remediationGuidance": "Summarize route/method RBAC in metadata.ChangeDescription; align with API gateway policy exports when available.",
       "evidenceHints": [
         "metadata.ChangeDescription",
         "governance.RequiredControls",

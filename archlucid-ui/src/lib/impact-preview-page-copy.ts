@@ -1,4 +1,4 @@
-import { GOVERNANCE_APPROVAL_QUEUE_PATH } from "@/lib/governance-route-paths";
+import { GOVERNANCE_APPROVAL_QUEUE_PATH } from "@/lib/governance/governance-route-paths";
 
 export const IMPACT_PREVIEW_PAGE_TITLE = "Impact preview" as const;
 
@@ -106,6 +106,8 @@ export const IMPACT_PREVIEW_EVIDENCE_POLICY_RULES = "Related policy rules" as co
 export const IMPACT_PREVIEW_EVIDENCE_REVIEW_BASELINE = "Review baseline" as const;
 
 export const IMPACT_PREVIEW_RESULT_ACTION_SAVE = "Save impact preview" as const;
+export const IMPACT_PREVIEW_SAVE_UNAVAILABLE_HINT =
+  "Saving impact previews is not available in this release." as const;
 export const IMPACT_PREVIEW_RESULT_ACTION_ADVISORY = "Create advisory recommendation" as const;
 export const IMPACT_PREVIEW_RESULT_ACTION_GOVERNANCE = "Send to governance workflow" as const;
 export const IMPACT_PREVIEW_RESULT_ACTION_EXPORT = "Export summary" as const;

@@ -69,7 +69,7 @@ export function resolveExplanationEvidenceBasisBadges(
       badge(
         "deferred-scope",
         "Deferred scope",
-        "Some buyer asks are tracked outside the V1 readiness contract.",
+        "Some buyer asks are tracked outside the current product readiness contract.",
         true,
       ),
     );

@@ -1,13 +1,13 @@
-import type { ArchitectureDraftRegistryEntry } from "@/lib/architecture-draft-registry";
+import type { ArchitectureDraftRegistryEntry } from "@/lib/architecture/architecture-draft-registry";
 import {
   OPERATOR_HOME_ACTIVE_REVIEWS_HEADING,
   OPERATOR_HOME_ACTIVE_REVIEWS_LEAD,
   OPERATOR_HOME_COMMAND_CENTER_TAGLINE,
-  OPERATOR_HOME_CONTINUE_ARCHITECTURE_HEADING,
   formatOperatorHomeContinueArchitectureLead,
+  formatOperatorHomeContinueDraftHeading,
   OPERATOR_HOME_INTENT_CHOOSER_HEADING,
   OPERATOR_HOME_WORKSPACE_OVERVIEW_HEADING,
-} from "@/lib/buyer-polish-copy";
+} from "@/lib/buyer/buyer-polish-copy";
 
 export type OperatorHomeLifecyclePath =
   | "explore-completed-review"
@@ -74,8 +74,12 @@ export function resolveOperatorHomeLifecycleEmphasizedPath(
     return "explore-completed-review";
   }
 
-  if (phase === "eval-with-drafts" || phase === "active-reviews") {
+  if (phase === "active-reviews") {
     return "review-architecture";
+  }
+
+  if (phase === "eval-with-drafts") {
+    return null;
   }
 
   return null;
@@ -84,13 +88,14 @@ export function resolveOperatorHomeLifecycleEmphasizedPath(
 export function resolveOperatorHomePhaseHeroCopy(
   phase: OperatorHomeWorkspacePhase,
   signals: OperatorHomeWorkspacePhaseSignals,
+  latestDraftDisplayName?: string | null,
 ): OperatorHomePhaseHeroCopy {
   const requiresAttention = resolveOperatorHomeRequiresAttention(signals);
 
   if (phase === "eval-with-drafts") {
     return {
       phase,
-      heading: OPERATOR_HOME_CONTINUE_ARCHITECTURE_HEADING,
+      heading: formatOperatorHomeContinueDraftHeading(latestDraftDisplayName ?? ""),
       lead: formatOperatorHomeContinueArchitectureLead(signals.draftCount),
       requiresAttention,
     };

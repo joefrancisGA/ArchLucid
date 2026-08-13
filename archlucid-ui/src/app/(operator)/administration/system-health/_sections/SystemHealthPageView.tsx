@@ -2,8 +2,13 @@
 
 import { cn } from "@/lib/utils";
 
+import { ConfigurationSystemHealthVocabularyRail } from "@/components/ConfigurationSystemHealthVocabularyRail";
 import { DeploymentBuildFingerprintStrip } from "@/components/shell/DeploymentBuildFingerprintStrip";
+import { DeploymentStatusSystemHealthVocabularyRail } from "@/components/DeploymentStatusSystemHealthVocabularyRail";
+import { RagHealthSystemHealthVocabularyRail } from "@/components/RagHealthSystemHealthVocabularyRail";
+import { TenantSystemWorkspaceHealthVocabularyRail } from "@/components/TenantSystemWorkspaceHealthVocabularyRail";
 import { OPERATOR_TYPOGRAPHY } from "@/lib/design-tokens";
+import { isArchLucidInternalOperatorShellEnv } from "@/lib/internal-operator-env";
 import { SYSTEM_HEALTH_CLAIM_DISCIPLINE, SYSTEM_HEALTH_SOURCES, SYSTEM_HEALTH_SOURCES_INTRO } from "@/lib/system-health-evidence-copy";
 import {
   SYSTEM_HEALTH_CLAIM_SCOPE_SUMMARY,
@@ -96,6 +101,13 @@ export function SystemHealthPageView(props: Props) {
           void m.refresh();
         }}
       />
+
+      <TenantSystemWorkspaceHealthVocabularyRail currentSurfaceId="system-health" />
+      {isArchLucidInternalOperatorShellEnv() ? (
+        <ConfigurationSystemHealthVocabularyRail currentSurfaceId="system-health" />
+      ) : null}
+      <RagHealthSystemHealthVocabularyRail currentSurfaceId="system-health" />
+      <DeploymentStatusSystemHealthVocabularyRail currentSurfaceId="system-health" />
 
       <HealthOverallStatusHeader
         overallStatus={overall}

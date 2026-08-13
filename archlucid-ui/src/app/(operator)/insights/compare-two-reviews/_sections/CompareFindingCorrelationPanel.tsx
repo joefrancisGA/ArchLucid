@@ -1,8 +1,8 @@
 import { cn } from "@/lib/utils";
 import type { ReactElement, ReactNode } from "react";
 
-import { OperatorEmptyState } from "@/components/OperatorShellMessage";
-import { FindingCorrelationVocabularyDisambiguation } from "@/components/FindingCorrelationVocabularyDisambiguation";
+import { EnterpriseCompactEmptyState } from "@/components/EnterpriseCompactEmptyState";
+import { FindingCorrelationVocabularyDisambiguation } from "@/components/findings/FindingCorrelationVocabularyDisambiguation";
 import {
   buildCompareFindingCorrelationCountRows,
   COMPARE_FINDING_CORRELATION_DEDUPE_KEY_FORMAT,
@@ -10,8 +10,9 @@ import {
   compareFindingCorrelationMethodLabel,
   type CompareFindingCorrelationMetadata,
 } from "@/lib/compare-finding-correlation";
-import { CROSS_REVIEW_FINDING_CORRELATION_PANEL_TITLE } from "@/lib/finding-correlation-vocabulary";
-import { OPERATOR_TYPOGRAPHY } from "@/lib/design-tokens";
+import { CROSS_REVIEW_FINDING_CORRELATION_PANEL_TITLE } from "@/lib/vocabulary/finding-correlation-vocabulary";
+import { COMPARE_FINDING_CORRELATION_EMPTY_COMPACT } from "@/lib/enterprise-compact-empty-state-presets";
+import { DESIGN_TOKENS, OPERATOR_TYPOGRAPHY } from "@/lib/design-tokens";
 
 export type CompareFindingCorrelationPanelProps = {
   readonly metadata: CompareFindingCorrelationMetadata | null;
@@ -58,7 +59,9 @@ export function CompareFindingCorrelationPanel(props: CompareFindingCorrelationP
 
   if (softFailureMessage !== null) {
     return (
-      <CompareFindingCorrelationSectionShell className="mt-6 rounded-lg border border-dashed border-amber-300 bg-amber-50/60 p-4 dark:border-amber-700 dark:bg-amber-950/20">
+      <CompareFindingCorrelationSectionShell
+        className={cn("mt-6", DESIGN_TOKENS.callout.warn, "rounded-lg border-dashed p-4")}
+      >
         <h2 className={cn("m-0 text-al-text-primary", OPERATOR_TYPOGRAPHY.sectionTitle)}>
           {CROSS_REVIEW_FINDING_CORRELATION_PANEL_TITLE}
         </h2>
@@ -76,9 +79,7 @@ export function CompareFindingCorrelationPanel(props: CompareFindingCorrelationP
         <h2 className={cn("m-0 text-al-text-primary", OPERATOR_TYPOGRAPHY.sectionTitle)}>
           {CROSS_REVIEW_FINDING_CORRELATION_PANEL_TITLE}
         </h2>
-        <OperatorEmptyState title="No correlation metadata">
-          No finding correlation metadata on this comparison (API may predate correlation export metadata).
-        </OperatorEmptyState>
+        <EnterpriseCompactEmptyState {...COMPARE_FINDING_CORRELATION_EMPTY_COMPACT} />
       </CompareFindingCorrelationSectionShell>
     );
   }

@@ -130,16 +130,19 @@ vi.mock("./SocraticIntakeWizardDeferredPanels", async () => {
   };
 });
 
+import { ApiRequestError } from "@/lib/api-request-error";
+import { SCOPE_UNDERSTANDING_SECTION_HEADER } from "@/lib/architecture/architecture-scope-understanding-check";
 import {
   GUIDED_INTAKE_ARCHITECTURE_INTENT_MIN_HELPER,
   GUIDED_INTAKE_ARCHITECTURE_INTENT_PLACEHOLDER,
   GUIDED_INTAKE_BUSINESS_OUTCOME_PLACEHOLDER,
   GUIDED_INTAKE_CONTINUE_TO_CLARIFICATIONS,
 } from "@/lib/guided-intake-copy";
+import { showError } from "@/lib/toast";
 import {
   OPERATOR_HOME_EXAMPLE_DESCRIPTION,
   OPERATOR_HOME_EXAMPLE_SYSTEM_NAME,
-} from "@/lib/operator-home-example-request";
+} from "@/lib/operator/operator-home-example-request";
 
 import { SocraticIntakeWizard } from "./SocraticIntakeWizard";
 
@@ -164,6 +167,7 @@ const secondQuestion = {
 const VALID_GUIDED_INTENT =
   "Modernize the claims intake workflow for analysts with governed REST APIs, FHIR validation, and HIPAA-aligned audit trails across enterprise tenants.";
 
+// Scope is confirmed last: editing an intake field above re-derives the rows and reopens the gate.
 function fillStep0ForAdmission(): void {
   fireEvent.change(screen.getByTestId("socratic-intent"), {
     target: { value: VALID_GUIDED_INTENT },
@@ -172,6 +176,24 @@ function fillStep0ForAdmission(): void {
     target: { value: "Reduce manual triage time by thirty percent." },
   });
   fireEvent.click(screen.getByTestId("draft-intake-actor-stub-add"));
+  fireEvent.click(screen.getByTestId("architecture-scope-understanding-confirm"));
+}
+
+function mockAdmittedDraftWithoutClarifications(): void {
+  createDraftRequest.mockResolvedValue({ draftId: "draft-1" });
+  patchDraftRequest.mockResolvedValue({ draftId: "draft-1", status: "Drafting" });
+  admitDraftRequest.mockResolvedValue({
+    admitted: true,
+    pendingMustQuestions: [],
+    requiredMustQuestionKeys: [],
+    draft: { draftId: "draft-1" },
+    verdict: { kind: "Feasible", summary: "ok" },
+  });
+  getDraftQuestions.mockResolvedValue({
+    draftId: "draft-1",
+    status: "Admitted",
+    selection: { allQuestions: [], requiredMustQuestionKeys: [], pendingMustQuestions: [] },
+  });
 }
 
 describe("SocraticIntakeWizard", () => {
@@ -650,20 +672,7 @@ describe("SocraticIntakeWizard", () => {
   });
 
   it("routes branch submit to run detail with parentRunId when parent already spawned", async () => {
-    createDraftRequest.mockResolvedValue({ draftId: "draft-1" });
-    patchDraftRequest.mockResolvedValue({ draftId: "draft-1", status: "Drafting" });
-    admitDraftRequest.mockResolvedValue({
-      admitted: true,
-      pendingMustQuestions: [],
-      requiredMustQuestionKeys: [],
-      draft: { draftId: "draft-1" },
-      verdict: { kind: "Feasible", summary: "ok" },
-    });
-    getDraftQuestions.mockResolvedValue({
-      draftId: "draft-1",
-      status: "Admitted",
-      selection: { allQuestions: [], requiredMustQuestionKeys: [], pendingMustQuestions: [] },
-    });
+    mockAdmittedDraftWithoutClarifications();
     submitDraftRequest.mockResolvedValue({
       draftId: "draft-1",
       status: "RunSpawned",
@@ -689,5 +698,98 @@ describe("SocraticIntakeWizard", () => {
         "/architecture/reviews/branch-run?parentRunId=parent-run&autoCompare=1",
       );
     });
+  });
+
+  it("gates continue on scope confirmation so the brief carries scope before admission", async () => {
+    mockAdmittedDraftWithoutClarifications();
+
+    render(<SocraticIntakeWizard />);
+
+    fireEvent.change(screen.getByTestId("socratic-intent"), { target: { value: VALID_GUIDED_INTENT } });
+    fireEvent.change(screen.getByTestId("socratic-outcome"), {
+      target: { value: "Reduce manual triage time by thirty percent." },
+    });
+    fireEvent.click(screen.getByTestId("draft-intake-actor-stub-add"));
+
+    expect(screen.getByTestId("socratic-admit")).toBeDisabled();
+    expect(screen.getByTestId("socratic-advance-hint")).toHaveTextContent(/in-scope confirmation/i);
+
+    fireEvent.click(screen.getByTestId("architecture-scope-understanding-confirm"));
+
+    expect(screen.getByTestId("socratic-admit")).toBeEnabled();
+
+    fireEvent.click(screen.getByTestId("socratic-admit"));
+
+    await waitFor(() => {
+      expect(admitDraftRequest).toHaveBeenCalledWith("draft-1");
+    });
+
+    expect(patchDraftRequest).toHaveBeenCalledWith(
+      "draft-1",
+      expect.objectContaining({
+        freeTextIntent: expect.stringContaining(SCOPE_UNDERSTANDING_SECTION_HEADER),
+      }),
+    );
+  });
+
+  it("submits an admitted draft without patching it again", async () => {
+    mockAdmittedDraftWithoutClarifications();
+    submitDraftRequest.mockResolvedValue({
+      draftId: "draft-1",
+      status: "RunSpawned",
+      runId: "run-1",
+      requestId: "req-1",
+    });
+
+    render(<SocraticIntakeWizard />);
+
+    fillStep0ForAdmission();
+    fireEvent.click(screen.getByTestId("socratic-admit"));
+
+    await waitFor(() => {
+      expect(screen.getByTestId("socratic-questions-done")).toBeInTheDocument();
+    });
+
+    fireEvent.click(screen.getByTestId("socratic-questions-done"));
+    fireEvent.click(screen.getByTestId("socratic-submit"));
+
+    await waitFor(() => {
+      expect(submitDraftRequest).toHaveBeenCalledWith("draft-1");
+    });
+
+    // A patch here would be rejected: the draft is immutable in status Admitted.
+    expect(patchDraftRequest).toHaveBeenCalledTimes(1);
+  });
+
+  it("shows a failed submit inline above the CTA instead of a toast", async () => {
+    mockAdmittedDraftWithoutClarifications();
+    submitDraftRequest.mockRejectedValue(
+      new ApiRequestError("MUST question 'l0.pillar.security' must be answered before submit.", {
+        problem: null,
+        correlationId: "corr-1",
+        httpStatus: 400,
+      }),
+    );
+
+    render(<SocraticIntakeWizard />);
+
+    fillStep0ForAdmission();
+    fireEvent.click(screen.getByTestId("socratic-admit"));
+
+    await waitFor(() => {
+      expect(screen.getByTestId("socratic-questions-done")).toBeInTheDocument();
+    });
+
+    fireEvent.click(screen.getByTestId("socratic-questions-done"));
+    fireEvent.click(screen.getByTestId("socratic-submit"));
+
+    const inlineError = await screen.findByTestId("guided-intake-request-error");
+
+    expect(inlineError).toHaveTextContent(/must be answered before submit/i);
+    expect(showError).not.toHaveBeenCalled();
+    expect(
+      inlineError.compareDocumentPosition(screen.getByTestId("socratic-submit"))
+        & Node.DOCUMENT_POSITION_FOLLOWING,
+    ).toBeTruthy();
   });
 });

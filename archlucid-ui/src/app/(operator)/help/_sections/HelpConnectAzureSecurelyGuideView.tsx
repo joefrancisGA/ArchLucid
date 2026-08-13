@@ -54,8 +54,8 @@ import {
   OPERATOR_SHELL_SCROLL_OFFSET_CLASS,
   OPERATOR_TYPOGRAPHY,
 } from "@/lib/design-tokens";
-import type { HelpMarkdownHeading } from "@/lib/help-markdown-headings";
-import { HELP_PAGE_LAYOUT } from "@/lib/help-page-layout";
+import type { HelpMarkdownHeading } from "@/lib/help/help-markdown-headings";
+import { HELP_PAGE_LAYOUT } from "@/lib/help/help-page-layout";
 import type { ProductDocumentationEntry } from "@/lib/product-documentation-registry";
 import { cn } from "@/lib/utils";
 
@@ -103,7 +103,7 @@ export function HelpConnectAzureSecurelyGuideView(props: HelpConnectAzureSecurel
 
   return (
     <article
-      className={cn(OPERATOR_LAYOUT.majorSectionGap, "mx-auto w-full max-w-[68rem]")}
+      className={cn(OPERATOR_LAYOUT.majorSectionGap, "w-full max-w-[68rem]")}
       data-testid="help-connect-azure-securely-guide"
     >
       <HelpTopicHashScroll />

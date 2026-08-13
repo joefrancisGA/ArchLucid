@@ -19,8 +19,8 @@ import {
   ARCHITECTURE_DIAGRAM_RETRY_ACTION,
   ARCHITECTURE_DIAGRAM_ZOOM_IN_LABEL,
   ARCHITECTURE_DIAGRAM_ZOOM_OUT_LABEL,
-} from "@/lib/architecture-diagram-copy";
-import { sanitizeMermaidRenderId } from "@/lib/help-mermaid";
+} from "@/lib/architecture/architecture-diagram-copy";
+import { sanitizeMermaidRenderId } from "@/lib/help/help-mermaid";
 import { useDocumentDarkMode } from "@/lib/use-document-dark-mode";
 import { OPERATOR_TYPOGRAPHY } from "@/lib/design-tokens";
 
@@ -48,7 +48,7 @@ export function ArchitectureDiagramViewer(props: ArchitectureDiagramViewerProps)
   const viewportRef = useRef<HTMLDivElement | null>(null);
 
   useEffect(() => {
-    let cancelled = false;
+    let canceled = false;
 
     async function renderDiagram(): Promise<void> {
       setRenderError(null);
@@ -67,11 +67,11 @@ export function ArchitectureDiagramViewer(props: ArchitectureDiagramViewerProps)
 
         const result = await mermaid.render(renderId, mermaidSource.trim());
 
-        if (!cancelled) {
+        if (!canceled) {
           setSvgMarkup(result.svg);
         }
       } catch (error) {
-        if (!cancelled) {
+        if (!canceled) {
           const message = error instanceof Error ? error.message : ARCHITECTURE_DIAGRAM_RENDER_FAILURE;
           setRenderError(message);
           onRenderFailure?.();
@@ -82,7 +82,7 @@ export function ArchitectureDiagramViewer(props: ArchitectureDiagramViewerProps)
     void renderDiagram();
 
     return (): void => {
-      cancelled = true;
+      canceled = true;
     };
   }, [mermaidSource, dark, renderId, onRenderFailure]);
 

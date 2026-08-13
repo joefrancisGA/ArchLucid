@@ -8,9 +8,9 @@ import {
   ARCHITECTURE_DIAGRAM_LEGEND_INFERRED,
   ARCHITECTURE_DIAGRAM_PROVENANCE_SUMMARY_ASSERTED,
   ARCHITECTURE_DIAGRAM_PROVENANCE_SUMMARY_INFERRED,
-} from "@/lib/architecture-diagram-copy";
-import { summarizeArchitectureDiagramProvenance } from "@/lib/architecture-diagram-provenance";
-import type { ArchitectureDiagramModel } from "@/lib/architecture-diagram-types";
+} from "@/lib/architecture/architecture-diagram-copy";
+import { summarizeArchitectureDiagramProvenance } from "@/lib/architecture/architecture-diagram-provenance";
+import type { ArchitectureDiagramModel } from "@/lib/architecture/architecture-diagram-types";
 import { OPERATOR_TYPOGRAPHY } from "@/lib/design-tokens";
 
 export type ArchitectureDiagramLegendProps = {

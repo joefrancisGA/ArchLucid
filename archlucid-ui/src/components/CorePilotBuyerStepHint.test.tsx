@@ -1,6 +1,12 @@
-import { START_REVIEW_LABEL } from "@/lib/architecture-workflow-labels";
+import { START_REVIEW_LABEL } from "@/lib/architecture/architecture-workflow-labels";
 import { render, screen, waitFor } from "@testing-library/react";
 import { afterEach, beforeEach, describe, expect, it, vi } from "vitest";
+
+vi.unmock("@/hooks/use-core-pilot-commit-context-query");
+
+vi.mock("@/lib/query/operator-query-persist-client", () => ({
+  setupOperatorQueryClientPersistence: () => {},
+}));
 
 vi.mock("@/lib/core-pilot-commit-context", async (importOriginal) => {
   const { createCorePilotCommitContextModuleMock } = await import("@/testing/core-pilot-commit-context.mock");
@@ -18,12 +24,19 @@ vi.mock("@/lib/demo-ui-env", async (importOriginal) => {
 
 import { CorePilotBuyerStepHint } from "@/components/CorePilotBuyerStepHint";
 import { fetchCorePilotCommitContext } from "@/lib/core-pilot-commit-context";
+import { resetOperatorQueryClientForTests } from "@/lib/query/operator-query-client";
 import { isBuyerPolishedOperatorShellEnv } from "@/lib/demo-ui-env";
+import { renderWithOperatorQuery } from "@/testing/render-with-operator-query";
 
 const mockedFetch = vi.mocked(fetchCorePilotCommitContext);
 const mockedBuyerShell = vi.mocked(isBuyerPolishedOperatorShellEnv);
 
 describe("CorePilotBuyerStepHint", () => {
+  beforeEach(() => {
+    sessionStorage.clear();
+    resetOperatorQueryClientForTests();
+  });
+
   afterEach(() => {
     vi.clearAllMocks();
     mockedBuyerShell.mockReturnValue(true);
@@ -39,7 +52,7 @@ describe("CorePilotBuyerStepHint", () => {
 
   it("renders nothing when buyer shell is off", async () => {
     mockedBuyerShell.mockReturnValue(false);
-    const { container } = render(<CorePilotBuyerStepHint />);
+    const { container } = renderWithOperatorQuery(<CorePilotBuyerStepHint />);
 
     await waitFor(() => {
       expect(mockedFetch).not.toHaveBeenCalled();
@@ -49,7 +62,7 @@ describe("CorePilotBuyerStepHint", () => {
   });
 
   it("shows Step 1 of 4 and Start review when no runs", async () => {
-    render(<CorePilotBuyerStepHint />);
+    renderWithOperatorQuery(<CorePilotBuyerStepHint />);
 
     await waitFor(() => {
       expect(screen.getByTestId("core-pilot-buyer-step-hint")).toBeInTheDocument();
@@ -66,7 +79,7 @@ describe("CorePilotBuyerStepHint", () => {
       firstCommittedRunId: null,
     });
 
-    render(<CorePilotBuyerStepHint />);
+    renderWithOperatorQuery(<CorePilotBuyerStepHint />);
 
     await waitFor(() => {
       expect(screen.getByTestId("core-pilot-buyer-step-badge")).toHaveTextContent("Step 2–3 of 4");
@@ -85,7 +98,7 @@ describe("CorePilotBuyerStepHint", () => {
       firstCommittedRunId: "run-gold",
     });
 
-    render(<CorePilotBuyerStepHint />);
+    renderWithOperatorQuery(<CorePilotBuyerStepHint />);
 
     await waitFor(() => {
       expect(screen.getByTestId("core-pilot-buyer-step-badge")).toHaveTextContent("Step 4 of 4");

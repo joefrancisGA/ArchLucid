@@ -18,7 +18,7 @@ describe("nav-authority", () => {
   });
 
   it("treats missing requiredAuthority as visible for any caller rank", () => {
-    const corePilotLink = { href: "/", label: "Overview", title: "", tier: "essential" as const };
+    const corePilotLink = { href: "/", label: "Home", title: "", tier: "essential" as const };
 
     expect(navLinkVisibleForCallerRank(corePilotLink, 0)).toBe(true);
     expect(navLinkVisibleForCallerRank(corePilotLink, 1)).toBe(true);

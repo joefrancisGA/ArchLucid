@@ -12,7 +12,7 @@ Document the **`ConsultingDocxTemplate`** and **`ConsultingDocxTemplateProfiles`
 ## Assumptions
 
 - Operators edit JSON or App Service / Key Vault–backed settings; no hot reload is assumed for template changes.
-- Hex colour strings are **without** a leading `#` (see existing samples in `appsettings.json`).
+- Hex color strings are **without** a leading `#` (see existing samples in `appsettings.json`).
 
 ## Configuration sections
 
@@ -21,7 +21,7 @@ Document the **`ConsultingDocxTemplate`** and **`ConsultingDocxTemplateProfiles`
 | Key | Role |
 |-----|------|
 | **`OrganizationName`**, **`DocumentTitle`**, **`SubtitleFormat`**, **`GeneratedByLine`** | Cover and header copy. **`SubtitleFormat`** may include `{SystemName}` placeholders consumed by the export pipeline. |
-| **`PrimaryColorHex`**, **`SecondaryColorHex`**, **`AccentFillHex`**, **`BodyColorHex`**, **`SubtleColorHex`** | Theme colours for headings, tables, and body text in the generated document. |
+| **`PrimaryColorHex`**, **`SecondaryColorHex`**, **`AccentFillHex`**, **`BodyColorHex`**, **`SubtleColorHex`** | Theme colors for headings, tables, and body text in the generated document. |
 | **`IncludeDocumentControl`**, **`IncludeTableOfContents`**, section `Include*` flags | Boolean gates for major document sections (executive summary, evidence, governance, appendices, etc.). |
 | **`IncludeLogo`**, **`LogoPath`** | Optional logo embedding; when **`IncludeLogo`** is false, **`LogoPath`** is ignored. |
 | **`ExecutiveSummaryTextTemplate`**, **`ArchitectureOverviewIntro`**, **`ConclusionsText`** | Narrative templates; placeholders such as `{SystemName}`, `{OrganizationName}`, and aggregate counts (`{ServiceCount}`, etc.) are substituted at export time. |
@@ -32,14 +32,14 @@ Binding type: **`ConsultingDocxTemplateOptions`** (`ArchLucid.Api.Configuration`
 
 | Key | Role |
 |-----|------|
-| **`Profiles`** | Map of profile id → **`ConsultingDocxTemplateProfileOptions`** (e.g. `internal`, `executive`). Each profile can override colours, titles, which sections to include, and audience-facing metadata (`ProfileDisplayName`, `IntendedAudience`, **`DisplayOrder`**). |
+| **`Profiles`** | Map of profile id → **`ConsultingDocxTemplateProfileOptions`** (e.g. `internal`, `executive`). Each profile can override colors, titles, which sections to include, and audience-facing metadata (`ProfileDisplayName`, `IntendedAudience`, **`DisplayOrder`**). |
 
 Resolution is handled by **`IConsultingDocxTemplateProfileResolver`** / **`DefaultConsultingDocxTemplateProfileResolver`**: API and export flows pick a profile (often from request or consulting export selector) and merge with the base template.
 
 ## Operational notes
 
 - **Security:** Do not put secrets in template JSON; paths like **`LogoPath`** should point to files readable by the API process only.
-- **Reliability:** Invalid or missing profile ids should surface as validation or 4xx responses at the consulting export endpoints—see API tests and `IConsultingDocxExportProfileSelector` behaviour.
+- **Reliability:** Invalid or missing profile ids should surface as validation or 4xx responses at the consulting export endpoints—see API tests and `IConsultingDocxExportProfileSelector` behavior.
 - **Cost:** Template changes do not affect inference or SQL cost; they only change document generation CPU time marginally.
 
 ## Related code

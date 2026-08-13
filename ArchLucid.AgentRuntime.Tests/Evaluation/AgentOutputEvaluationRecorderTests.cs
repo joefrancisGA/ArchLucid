@@ -222,6 +222,14 @@ public sealed class AgentOutputEvaluationRecorderTests
 
         await act.Should().ThrowAsync<AgentOutputQualityGateRejectedException>()
             .WithMessage("*run-enforce*");
+
+        AgentExecutionTrace? updated = await repo.GetByTraceIdAsync("t-hollow", CancellationToken.None);
+
+        updated.Should().NotBeNull();
+        updated!.RecordedStructuralCompletenessRatio.Should().NotBeNull();
+        updated.RecordedSemanticScore.Should().NotBeNull();
+        updated.RecordedRejectReasonCategory.Should().NotBeNullOrWhiteSpace();
+        updated.RecordedTriageScenarioId.Should().NotBeNullOrWhiteSpace();
     }
 
     [SkippableFact]
@@ -262,7 +270,7 @@ public sealed class AgentOutputEvaluationRecorderTests
         Func<Task> act = async () =>
             await sut.EvaluateAndRecordMetricsAsync("run-no-enforce", CancellationToken.None);
 
-        await act.Should().NotThrowAsync("EnforceOnReject=false must preserve existing metrics-only behaviour");
+        await act.Should().NotThrowAsync("EnforceOnReject=false must preserve existing metrics-only behavior");
     }
 
     [SkippableFact]
@@ -386,6 +394,9 @@ public sealed class AgentOutputEvaluationRecorderTests
 
         updated.Should().NotBeNull();
         updated.QualityWarning.Should().BeTrue("warn-only gate persists UI/summary signal on the trace row");
+        updated!.RecordedStructuralCompletenessRatio.Should().NotBeNull();
+        updated.RecordedSemanticScore.Should().NotBeNull();
+        updated.RecordedRejectReasonCategory.Should().NotBeNullOrWhiteSpace();
     }
 
     [SkippableFact]

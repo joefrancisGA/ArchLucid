@@ -14,15 +14,20 @@ class TestAdoptionBatch5CH(unittest.TestCase):
             REPO_ROOT / "ArchLucid.Persistence" / "Migrations" / "242_TrialArchitecturePreseedAttemptTracking.sql"
         )
         executor = REPO_ROOT / "ArchLucid.Application" / "TrialArchitecturePreseedExecutor.cs"
-        repo = REPO_ROOT / "ArchLucid.Persistence" / "Tenancy" / "DapperTenantRepository.cs"
-        audit = REPO_ROOT / "ArchLucid.Core" / "Audit" / "AuditEventTypes.cs"
+        repo_dir = REPO_ROOT / "ArchLucid.Persistence" / "Tenancy"
+        audit_dir = REPO_ROOT / "ArchLucid.Core" / "Audit"
 
         self.assertIn("TrialArchitecturePreseedAttemptCount", migration.read_text(encoding="utf-8"))
         executor_text = executor.read_text(encoding="utf-8")
         self.assertIn("IncrementTrialArchitecturePreseedAttemptAsync", executor_text)
-        self.assertIn("TrialArchitecturePreseedFailed", audit.read_text(encoding="utf-8"))
+        audit_text = "\n".join(
+            path.read_text(encoding="utf-8") for path in sorted(audit_dir.glob("AuditEventTypes*.cs"))
+        )
+        self.assertIn("TrialArchitecturePreseedFailed", audit_text)
 
-        repo_text = repo.read_text(encoding="utf-8")
+        repo_text = "\n".join(
+            path.read_text(encoding="utf-8") for path in sorted(repo_dir.glob("DapperTenantRepository*.cs"))
+        )
         self.assertIn("TrialArchitecturePreseedAttemptCount < 5", repo_text)
 
     def test_tb_259_preseed_tests(self) -> None:

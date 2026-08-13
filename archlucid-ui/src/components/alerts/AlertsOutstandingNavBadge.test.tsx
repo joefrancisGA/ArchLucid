@@ -1,4 +1,4 @@
-import { render, screen, waitFor } from "@testing-library/react";
+import { screen, waitFor } from "@testing-library/react";
 import { beforeEach, describe, expect, it, vi } from "vitest";
 
 import { AlertsOutstandingNavBadge } from "@/components/alerts/AlertsOutstandingNavBadge";
@@ -6,11 +6,19 @@ import { fetchAlertsInboxSummary } from "@/components/alerts/alerts-inbox-query-
 import { resetOperatorQueryClientForTests } from "@/lib/query/operator-query-client";
 import { renderWithOperatorQuery } from "@/testing/render-with-operator-query";
 
+import { useDeferredOperatorShellNavBadgeQueryEnabled } from "@/hooks/use-deferred-operator-shell-nav-badge-query-enabled";
+
+vi.mock("@/hooks/use-deferred-operator-shell-nav-badge-query-enabled", () => ({
+  useDeferredOperatorShellNavBadgeQueryEnabled: vi.fn(() => true),
+}));
+
+const deferredNavBadgeQueryEnabledMock = vi.mocked(useDeferredOperatorShellNavBadgeQueryEnabled);
+
 vi.mock("@/components/alerts/alerts-inbox-query-fetch", () => ({
   fetchAlertsInboxSummary: vi.fn(),
 }));
 
-vi.mock("@/lib/operator-scope-storage", () => ({
+vi.mock("@/lib/operator/operator-scope-storage", () => ({
   ARCHLUCID_OPERATOR_SCOPE_CHANGED_EVENT: "archlucid:operator-scope-changed",
   getEffectiveBrowserProxyScopeHeaders: () => ({
     "x-tenant-id": "tenant-1",
@@ -24,6 +32,7 @@ const fetchAlertsInboxSummaryMock = vi.mocked(fetchAlertsInboxSummary);
 describe("AlertsOutstandingNavBadge (TB-2144)", () => {
   beforeEach(() => {
     resetOperatorQueryClientForTests();
+    deferredNavBadgeQueryEnabledMock.mockReturnValue(true);
     fetchAlertsInboxSummaryMock.mockReset();
     fetchAlertsInboxSummaryMock.mockResolvedValue({
       open: 0,
@@ -97,5 +106,17 @@ describe("AlertsOutstandingNavBadge (TB-2144)", () => {
 
     await screen.findByTestId("alerts-outstanding-nav-badge");
     expect(fetchAlertsInboxSummaryMock).toHaveBeenCalledTimes(1);
+  });
+
+  it("does not fetch inbox summary until deferred shell nav badge queries are enabled", async () => {
+    deferredNavBadgeQueryEnabledMock.mockReturnValue(false);
+
+    renderWithOperatorQuery(<AlertsOutstandingNavBadge />);
+
+    await waitFor(() => {
+      expect(deferredNavBadgeQueryEnabledMock).toHaveBeenCalled();
+    });
+
+    expect(fetchAlertsInboxSummaryMock).not.toHaveBeenCalled();
   });
 });

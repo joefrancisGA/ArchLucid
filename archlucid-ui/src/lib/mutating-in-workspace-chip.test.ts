@@ -10,7 +10,7 @@ import {
 import {
   clearOperatorScopeStorage,
   writeOperatorScopeToStorage,
-} from "@/lib/operator-scope-storage";
+} from "@/lib/operator/operator-scope-storage";
 
 describe("mutating-in-workspace-chip (TB-2220)", () => {
   beforeEach(() => {

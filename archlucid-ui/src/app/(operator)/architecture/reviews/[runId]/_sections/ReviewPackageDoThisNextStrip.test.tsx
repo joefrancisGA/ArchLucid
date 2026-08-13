@@ -30,4 +30,29 @@ describe("ReviewPackageDoThisNextStrip", () => {
       "/architecture/reviews/run-1?reviewTab=evidence",
     );
   });
+
+  it("renders outline evidence CTA and secondary sponsor link when demoted", () => {
+    render(
+      <ReviewPackageDoThisNextStrip
+        runId="run-1"
+        hasGoldenManifest
+        commitBlockedReason={null}
+        next={{
+          kind: "send-to-sponsor",
+          sentence:
+            "This package is finalized, but none of its 4 open findings have linked evidence — review evidence coverage before sharing with a sponsor.",
+          actionLabel: "Review evidence coverage",
+          href: "/architecture/reviews/run-1?reviewTab=evidence",
+          buttonVariant: "outline",
+          secondaryAction: {
+            label: "Send to sponsor",
+            href: "/architecture/reviews/run-1?reviewTab=review-package#sponsor-handoff",
+          },
+        }}
+      />,
+    );
+
+    expect(screen.getByRole("link", { name: "Review evidence coverage" })).toBeInTheDocument();
+    expect(screen.getByTestId("review-package-do-this-next-secondary-action")).toHaveTextContent("Send to sponsor");
+  });
 });

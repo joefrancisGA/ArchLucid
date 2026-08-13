@@ -1,6 +1,6 @@
 import type { EnterpriseCompactEmptyStateProps } from "@/components/EnterpriseCompactEmptyState";
-import { CREATE_ARCHITECTURE_LABEL } from "@/lib/architecture-workflow-labels";
-import { ARCHITECTURES_NEW_PATH } from "@/lib/architecture-routes";
+import { CREATE_ARCHITECTURE_LABEL } from "@/lib/architecture/architecture-workflow-labels";
+import { ARCHITECTURES_NEW_PATH } from "@/lib/architecture/architecture-routes";
 import { SHOWCASE_STATIC_DEMO_RUN_ID } from "@/lib/showcase-static-demo";
 
 /** Shown in Ask ArchLucid when a thread has no messages yet. */

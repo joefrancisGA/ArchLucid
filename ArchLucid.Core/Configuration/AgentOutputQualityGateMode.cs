@@ -2,7 +2,7 @@ namespace ArchLucid.Core.Configuration;
 
 /// <summary>
 ///     Controls how strict structural/citation/evidence checks are before sponsor-facing proof classification.
-///     Default <see cref="WarnOnly"/> preserves legacy behaviour unless <see cref="AgentOutputQualityGateOptions.Mode"/> is changed.
+///     Default <see cref="WarnOnly"/> preserves legacy behavior unless <see cref="AgentOutputQualityGateOptions.Mode"/> is changed.
 /// </summary>
 public enum AgentOutputQualityGateMode
 {

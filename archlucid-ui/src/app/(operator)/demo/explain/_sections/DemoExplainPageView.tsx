@@ -4,10 +4,11 @@ import { useRouter } from "next/navigation";
 
 import { cn } from "@/lib/utils";
 import { DemoExplainConversionCtaCard } from "@/components/DemoExplainConversionCtaCard";
-import { OperatorApiProblem } from "@/components/OperatorApiProblem";
-import { OperatorLoadingNotice } from "@/components/OperatorShellMessage";
+import { OperatorApiProblem } from "@/components/operator/OperatorApiProblem";
+import { OperatorLoadingNotice } from "@/components/operator/OperatorShellMessage";
 import { PageContextualHelpButton } from "@/components/usability/PageContextualHelpButton";
-import { OPERATOR_TYPOGRAPHY } from "@/lib/design-tokens";
+import { OperatorPageHeader } from "@/components/operator/OperatorPageHeader";
+import { OPERATOR_LAYOUT, OPERATOR_TYPOGRAPHY } from "@/lib/design-tokens";
 import {
   DEMO_EXPLAIN_PAGE_LEAD,
   DEMO_EXPLAIN_PAGE_TITLE,
@@ -34,25 +35,24 @@ export function DemoExplainPageView(props: Props) {
   return (
     <>
       <div
-        className="w-full max-w-[1440px] space-y-6 p-4 pb-28 md:pb-24"
+        className={cn("w-full max-w-[1440px] p-4 pb-28 md:pb-24", OPERATOR_LAYOUT.sectionStack)}
         data-testid="demo-explain-page"
         aria-busy={state.loading}
       >
       {showInternalOrientation ? <DemoExplainInternalOrientationStrip /> : null}
-      <header className="space-y-2">
-        <div className="flex flex-wrap items-start justify-between gap-2">
-          <div className="min-w-0 space-y-2">
-            <h1 className={OPERATOR_TYPOGRAPHY.pageTitle} data-testid="demo-explain-page-title">
-              {DEMO_EXPLAIN_PAGE_TITLE}
-            </h1>
-            <p className={cn("text-al-text-secondary", OPERATOR_TYPOGRAPHY.body)} data-testid="demo-explain-page-lead">
-              {DEMO_EXPLAIN_PAGE_LEAD}
-            </p>
-          </div>
-          <PageContextualHelpButton />
-        </div>
+      <OperatorPageHeader
+        title={DEMO_EXPLAIN_PAGE_TITLE}
+        titleTestId="demo-explain-page-title"
+        headingLevel="h1"
+        subtitle={
+          <p className="m-0" data-testid="demo-explain-page-lead">
+            {DEMO_EXPLAIN_PAGE_LEAD}
+          </p>
+        }
+        actions={<PageContextualHelpButton />}
+      >
         {state.payload ? <DemoExplainStatusBanner payload={state.payload} /> : null}
-      </header>
+      </OperatorPageHeader>
 {state.error ? (
         <OperatorApiProblem
           problem={state.error.problem}

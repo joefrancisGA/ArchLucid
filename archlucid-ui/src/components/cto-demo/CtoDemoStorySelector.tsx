@@ -6,14 +6,14 @@ import {
   ARCHLUCID_CTO_DEMO_STORY_CHANGED_EVENT,
   readBuyerCtoDemoStoryId,
   writeBuyerCtoDemoStoryId,
-} from "@/lib/buyer-cto-demo-tour";
-import { BUYER_CTO_DEMO_STORY_GATED_NOTE } from "@/lib/buyer-polish-copy";
+} from "@/lib/buyer/buyer-cto-demo-tour";
+import { BUYER_CTO_DEMO_STORY_GATED_NOTE } from "@/lib/buyer/buyer-polish-copy";
 import {
   CTO_DEMO_DEFAULT_STORY_ID,
   CTO_DEMO_STORIES,
   isCtoDemoStoryFullyBacked,
   type CtoDemoStory,
-} from "@/lib/buyer-cto-demo-story-registry";
+} from "@/lib/buyer/buyer-cto-demo-story-registry";
 
 export type CtoDemoStorySelectorProps = {
   readonly selectedStoryId?: string;

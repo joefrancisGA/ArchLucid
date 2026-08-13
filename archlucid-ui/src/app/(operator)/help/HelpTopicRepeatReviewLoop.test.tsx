@@ -8,7 +8,7 @@ vi.mock("@/components/help/MermaidDiagram", () => ({
 }));
 
 import { HelpRepeatReviewLoopGuideView } from "@/app/(operator)/help/_sections/HelpRepeatReviewLoopGuideView";
-import { prepareHelpMarkdownForPresentation } from "@/lib/help-markdown-presentation";
+import { prepareHelpMarkdownForPresentation } from "@/lib/help/help-markdown-presentation";
 import { tryLoadProductDocumentation } from "@/lib/load-product-documentation";
 import { REPEAT_REVIEW_LOOP_HELP_DIAGRAM_SOURCE } from "@/lib/repeat-review-loop-help-guide-content";
 
@@ -31,6 +31,10 @@ const REPEAT_REVIEW_LOOP_HELP_BANNED_SUBSTRINGS = [
   "GENERIC_AI_BAKEOFF_PROTOCOL",
   "Last reviewed",
   "TB-227",
+  "stickiness",
+  "V1 surface",
+  "demo-derived",
+  "manifest retrieval",
 ] as const;
 
 describe("HelpTopicRepeatReviewLoop (TB-1396)", () => {
@@ -64,6 +68,8 @@ describe("HelpTopicRepeatReviewLoop (TB-1396)", () => {
       expect(visible, `rendered copy contains "${banned}"`).not.toContain(banned.toLowerCase());
     }
 
+    expect(visible).not.toContain("[ ]");
+
     expect(visible).not.toMatch(/\bTB-\d+\b/i);
   });
 
@@ -86,7 +92,28 @@ describe("HelpTopicRepeatReviewLoop (TB-1396)", () => {
     expect(screen.queryByText(/collect-first-pilot-proof/i)).toBeNull();
   });
 
-  it("shows stickiness-cycle diagram in the default viewport without expanding disclosures", () => {
+  it("hoists eligibility and start-loop CTA above claim discipline", () => {
+    if (loaded === null) {
+      throw new Error("Expected repeat-review-loop documentation to load.");
+    }
+
+    render(<HelpRepeatReviewLoopGuideView entry={loaded.entry} markdown={loaded.markdown} />);
+
+    const eligibility = screen.getByTestId("help-repeat-review-loop-eligibility");
+    const actionPanel = screen.getByTestId("help-repeat-review-loop-action-panel");
+    const claimDiscipline = screen.getByTestId("repeat-review-loop-help-claim-discipline");
+
+    expect(eligibility.compareDocumentPosition(actionPanel) & Node.DOCUMENT_POSITION_FOLLOWING).toBeTruthy();
+    expect(actionPanel.compareDocumentPosition(claimDiscipline) & Node.DOCUMENT_POSITION_FOLLOWING).toBeTruthy();
+    expect(screen.getByTestId("repeat-review-loop-help-sources")).toBeInTheDocument();
+    expect(screen.getByTestId("help-repeat-review-loop-breadcrumb")).toHaveTextContent("Help");
+    expect(screen.queryByTestId("help-topic-registry-provenance")).toBeNull();
+    expect(screen.queryByTestId("help-repeat-review-loop-refresh-button")).toBeNull();
+    expect(screen.getAllByText(/Prerequisite:/i)).toHaveLength(1);
+    expect(screen.queryByRole("link", { name: /Validate review/i })).toBeNull();
+  });
+
+  it("shows repeat-review cycle diagram in the default viewport without expanding disclosures", () => {
     if (loaded === null) {
       throw new Error("Expected repeat-review-loop documentation to load.");
     }
@@ -103,14 +130,6 @@ describe("HelpTopicRepeatReviewLoop (TB-1396)", () => {
     expect(mermaid).toHaveTextContent("Second finalize");
     expect(mermaid).toHaveTextContent("Collect sponsor-safe proof");
     expect(mermaid).toHaveTextContent("Next cycle");
-
-    expect(within(diagramHost).getByRole("link", { name: /Compare and replay/i })).toHaveAttribute(
-      "href",
-      "/help/comparison-replay",
-    );
-    expect(
-      within(diagramHost).getByRole("link", { name: /Your first architecture review/i }),
-    ).toHaveAttribute("href", "/help/first-architecture-review");
 
     const diagramText = mermaid.textContent ?? "";
 

@@ -3,19 +3,34 @@
 import { cn } from "@/lib/utils";
 import Link from "next/link";
 import { useRouter } from "next/navigation";
-import { useCallback, useMemo, useState } from "react";
+import { ConfirmationDialog } from "@/components/ConfirmationDialog";
+import { useCallback, useEffect, useMemo, useState } from "react";
 
 import { OperatorMutationInlineError } from "@/components/operator/OperatorMutationInlineError";
 import { WizardSessionResumePrompt } from "@/components/wizard/WizardSessionResumePrompt";
 import { WizardSessionSaveStatus } from "@/components/wizard/WizardSessionSaveStatus";
 import { useWizardSessionPersistence } from "@/hooks/use-wizard-session-persistence";
 import { OperatorSuccessCallout } from "@/components/operator/OperatorSuccessCallout";
-import { OperatorPageHeader } from "@/components/OperatorPageHeader";
+import { OperatorPageContainer } from "@/components/operator/OperatorPageContainer";
+import { OperatorPageHeader } from "@/components/operator/OperatorPageHeader";
+import { IdentityProvidersSsoWizardVocabularyRail } from "@/components/IdentityProvidersSsoWizardVocabularyRail";
+import { SsoWizardScimVocabularyRail } from "@/components/SsoWizardScimVocabularyRail";
+
 import { Button } from "@/components/ui/button";
 import { Card, CardContent, CardHeader, CardTitle } from "@/components/ui/card";
+import {
+  EnterpriseTable,
+  EnterpriseTableBody,
+  EnterpriseTableCell,
+  EnterpriseTableHead,
+  EnterpriseTableHeadRow,
+  EnterpriseTableHeaderCell,
+  EnterpriseTableRow,
+} from "@/components/ui/enterprise-table";
 import { Input } from "@/components/ui/input";
 import { Label } from "@/components/ui/label";
 import { PageContextualHelpButton } from "@/components/usability/PageContextualHelpButton";
+import { SsoActivateConsequencePreview } from "@/components/SsoActivateConsequencePreview";
 import { mergeRegistrationScopeForProxy } from "@/lib/proxy-fetch-registration-scope";
 import {
   formatSsoWizardActivateError,
@@ -27,37 +42,65 @@ import {
 import {
   SSO_WIZARD_ACTIVATE_INTRO,
   SSO_WIZARD_BACK_LINK_LABEL,
+  SSO_WIZARD_BEFORE_YOU_BEGIN_HEADING,
+  SSO_WIZARD_BEFORE_YOU_BEGIN_INTRO,
+  SSO_WIZARD_BEFORE_YOU_BEGIN_PROTOCOL_HINT,
   SSO_WIZARD_CANCEL_UNSAVED_CONFIRM,
+  SSO_WIZARD_CONFIGURATION_EFFECT_LINE_PREFIX,
+  SSO_WIZARD_CONFIGURATION_EFFECT_LINE_SUFFIX,
   SSO_WIZARD_CREDENTIALS_REFERENCE_LABEL,
   SSO_WIZARD_CREDENTIALS_REFERENCE_PLACEHOLDER,
+  SSO_WIZARD_EXISTING_CONFIG_LOAD_ERROR,
+  SSO_WIZARD_EXISTING_CONFIG_LOADING,
   SSO_WIZARD_IDENTITY_PROVIDERS_HREF,
+  SSO_WIZARD_IDP_STEP_HEADING,
+  SSO_WIZARD_IDP_STEP_INSTRUCTION,
   SSO_WIZARD_PAGE_INTRO,
   SSO_WIZARD_PAGE_TITLE,
+  SSO_WIZARD_PLATFORM_CONFIGURATION_CHANGE_LINK_HREF,
+  SSO_WIZARD_PLATFORM_CONFIGURATION_CHANGE_LINK_LABEL,
+  SSO_WIZARD_POST_SAVE_HELP_LINK_HREF,
+  SSO_WIZARD_POST_SAVE_HELP_LINK_LABEL,
+  SSO_WIZARD_POST_SAVE_NEXT_ACTION_LINK_HREF,
+  SSO_WIZARD_POST_SAVE_NEXT_ACTION_LINK_LABEL,
+  SSO_WIZARD_POST_SAVE_NEXT_ACTION_PREFIX,
   SSO_WIZARD_PROTOCOL_STEP_HEADING,
   SSO_WIZARD_PROTOCOL_STEP_INSTRUCTION,
-  SSO_WIZARD_STATUS_NOT_ACTIVE,
-  SSO_WIZARD_TRUST_REASSURANCE,
+  SSO_WIZARD_RELATED_SURFACES_DISCLOSURE_TITLE,
+  SSO_WIZARD_VERIFY_CLAIM_MAPPING_BUTTON,
+  SSO_WIZARD_VERIFY_CLAIM_MAPPING_INTRO,
 } from "@/lib/sso-wizard-copy";
 import {
   SSO_WIZARD_ACTIVATE_SUCCESS_MESSAGE,
   SSO_WIZARD_METADATA_RETRIEVED_SUCCESS_MESSAGE,
   SSO_WIZARD_TEST_LOGIN_SUCCESS_MESSAGE,
 } from "@/lib/admin-integration-mutation-outcome-copy";
-import { OPERATOR_LINK, OPERATOR_NAV_GROUP_LABEL, OPERATOR_TYPOGRAPHY } from "@/lib/design-tokens";
+import { fetchTenantIdentityProviderConfiguration } from "@/lib/admin-identity-provider-api";
+import { OPERATOR_LAYOUT, OPERATOR_LINK, OPERATOR_NAV_GROUP_LABEL, OPERATOR_TYPOGRAPHY } from "@/lib/design-tokens";
 import { SSO_WIZARD_CANONICAL_PATH } from "@/lib/sso-wizard-evidence-copy";
+import { resolveSsoWizardPrimaryDisabledReason } from "@/lib/sso-wizard-disabled-cta";
 import { WIZARD_SESSION_IDS } from "@/lib/wizard-session-persistence";
 
 import { SsoWizardFooter } from "./SsoWizardFooter";
+import { SsoWizardArchLucidSpValuesSection } from "./SsoWizardArchLucidSpValuesSection";
+import { SsoWizardExistingConfigSummary } from "./SsoWizardExistingConfigSummary";
+import { SsoWizardIdpSelector } from "./SsoWizardIdpSelector";
 import { SsoWizardProtocolHelpDisclosure } from "./SsoWizardProtocolHelpDisclosure";
 import { SsoWizardProtocolSelector } from "./SsoWizardProtocolSelector";
 import { SsoWizardStepper } from "./SsoWizardStepper";
 import {
+  applySsoWizardIdpPreset,
   ARCHLUCID_ROLES,
   createDefaultSsoWizardState,
   SSO_WIZARD_STEPS,
   ssoWizardHasUnsavedChanges,
   type SsoWizardState,
 } from "./sso-wizard-state";
+import {
+  buildSsoWizardExistingConfigSummary,
+  hydrateSsoWizardStateFromTenantRecord,
+  type SsoWizardExistingConfigSummary as SsoWizardExistingConfigSummaryModel,
+} from "./sso-wizard-tenant-config";
 
 type DiscoverResponse = {
   protocol: string;
@@ -108,6 +151,13 @@ export function SsoWizardPageClient() {
   const [busy, setBusy] = useState(false);
   const [error, setError] = useState<string | null>(null);
   const [successMessage, setSuccessMessage] = useState<string | null>(null);
+  const [pendingCancelConfirm, setPendingCancelConfirm] = useState(false);
+  const [existingConfigSummary, setExistingConfigSummary] = useState<SsoWizardExistingConfigSummaryModel | null>(
+    null,
+  );
+  const [existingConfigLoading, setExistingConfigLoading] = useState(true);
+  const [existingConfigLoadError, setExistingConfigLoadError] = useState<string | null>(null);
+  const [configurationSaved, setConfigurationSaved] = useState(false);
   const handleSessionRestore = useCallback((snapshot: { stepIndex: number; state: SsoWizardState }) => {
     setStep(snapshot.stepIndex);
     setState(snapshot.state);
@@ -120,42 +170,107 @@ export function SsoWizardPageClient() {
     onRestore: handleSessionRestore,
   });
 
+  useEffect(() => {
+    let cancelled = false;
+
+    async function loadExistingConfiguration(): Promise<void> {
+      setExistingConfigLoading(true);
+      setExistingConfigLoadError(null);
+
+      try {
+        const record = await fetchTenantIdentityProviderConfiguration();
+
+        if (cancelled) {
+          return;
+        }
+
+        if (record === null) {
+          setExistingConfigSummary(null);
+
+          return;
+        }
+
+        setExistingConfigSummary(buildSsoWizardExistingConfigSummary(record));
+        setState((current) => (ssoWizardHasUnsavedChanges(current, 0) ? current : hydrateSsoWizardStateFromTenantRecord(record)));
+      } catch (loadError: unknown) {
+        if (!cancelled) {
+          setExistingConfigLoadError(
+            loadError instanceof Error ? loadError.message : SSO_WIZARD_EXISTING_CONFIG_LOAD_ERROR,
+          );
+        }
+      } finally {
+        if (!cancelled) {
+          setExistingConfigLoading(false);
+        }
+      }
+    }
+
+    void loadExistingConfiguration();
+
+    return () => {
+      cancelled = true;
+    };
+  }, []);
+
+  useEffect(() => {
+    document.getElementById("sso-wizard-step-heading")?.focus();
+  }, [step]);
+
   const completedSteps = useMemo(() => {
     const done: number[] = [];
 
-    if (state.protocol !== null) {
+    if (state.idpPresetId !== null) {
       done.push(0);
     }
 
-    if (state.issuerUri.trim().length > 0) {
+    if (state.protocol !== null) {
       done.push(1);
     }
 
-    if (state.claimMapping.mappings.some((m) => m.idpValue.trim().length > 0)) {
+    if (state.issuerUri.trim().length > 0) {
       done.push(2);
     }
 
-    if (state.testLoginSuccess) {
+    if (state.claimMapping.mappings.some((m) => m.idpValue.trim().length > 0)) {
       done.push(3);
+    }
+
+    if (state.testLoginSuccess) {
+      done.push(4);
     }
 
     return done;
   }, [state]);
 
-  const canProceedStep0 = state.protocol !== null;
-  const canProceedStep1 = state.issuerUri.trim().length > 0;
-  const canProceedStep2 =
+  const canProceedStep0 = state.idpPresetId !== null;
+  const canProceedStep1 = state.protocol !== null;
+  const canProceedStep2 = state.issuerUri.trim().length > 0;
+  const canProceedStep3 =
     state.claimMapping.roleClaimName.trim().length > 0 &&
     state.claimMapping.mappings.some((m) => m.idpValue.trim().length > 0 && m.archLucidRole.trim().length > 0);
-  const canProceedStep3 = state.testLoginSuccess;
-  const canActivate = canProceedStep3 && state.protocol !== null;
+  const canProceedStep4 = state.testLoginSuccess;
+  const canActivate = canProceedStep4 && state.protocol !== null;
 
   const canProceed =
     (step === 0 && canProceedStep0) ||
     (step === 1 && canProceedStep1) ||
     (step === 2 && canProceedStep2) ||
     (step === 3 && canProceedStep3) ||
-    step === 4;
+    (step === 4 && canProceedStep4) ||
+    step === 5;
+
+  const isLastStep = step === SSO_WIZARD_STEPS.length - 1;
+  const primaryDisabledReason = useMemo(
+    () =>
+      resolveSsoWizardPrimaryDisabledReason({
+        step,
+        isLastStep,
+        busy,
+        canContinue: canProceed,
+        canActivate,
+      }),
+    [busy, canActivate, canProceed, isLastStep, step],
+  );
 
   const runDiscover = useCallback(async () => {
     if (state.protocol === null) {
@@ -290,8 +405,9 @@ export function SsoWizardPageClient() {
       }
 
       setSuccessMessage(SSO_WIZARD_ACTIVATE_SUCCESS_MESSAGE);
+      setConfigurationSaved(true);
       wizardSession.clearSession();
-      setStep(4);
+      setStep(5);
     } catch (error: unknown) {
       setError(formatSsoWizardUnexpectedError(error));
     } finally {
@@ -299,17 +415,19 @@ export function SsoWizardPageClient() {
     }
   }, [state, wizardSession]);
 
+  const leaveWizard = useCallback(() => {
+    router.push(SSO_WIZARD_IDENTITY_PROVIDERS_HREF);
+  }, [router]);
+
   const handleCancel = useCallback(() => {
     if (ssoWizardHasUnsavedChanges(state, step)) {
-      const confirmed = window.confirm(SSO_WIZARD_CANCEL_UNSAVED_CONFIRM);
+      setPendingCancelConfirm(true);
 
-      if (!confirmed) {
-        return;
-      }
+      return;
     }
 
-    router.push(SSO_WIZARD_IDENTITY_PROVIDERS_HREF);
-  }, [router, state, step]);
+    leaveWizard();
+  }, [leaveWizard, state, step]);
 
   const handleContinue = useCallback(() => {
     if (!canProceed || busy) {
@@ -327,10 +445,26 @@ export function SsoWizardPageClient() {
     setStep((current) => Math.max(0, current - 1));
   }, []);
 
+  const handleStepSelect = useCallback((targetStep: number) => {
+    if (targetStep > step) {
+      return;
+    }
+
+    setError(null);
+    setSuccessMessage(null);
+    setStep(targetStep);
+  }, [step]);
+
   const currentStepMeta = SSO_WIZARD_STEPS[step];
+  const stepHeading =
+    step === 0
+      ? SSO_WIZARD_IDP_STEP_HEADING
+      : step === 1
+        ? SSO_WIZARD_PROTOCOL_STEP_HEADING
+        : currentStepMeta?.label;
 
   return (
-    <div className="mx-auto w-full max-w-[62rem] space-y-6 px-1 sm:px-0" data-testid="sso-wizard-page">
+    <OperatorPageContainer variant="settings" className={cn(OPERATOR_LAYOUT.sectionStack, "px-1 sm:px-0")} data-testid="sso-wizard-page">
       <header className="space-y-3">
         <p className={cn("m-0", OPERATOR_TYPOGRAPHY.helper)}>
           <Link href={SSO_WIZARD_IDENTITY_PROVIDERS_HREF} className={OPERATOR_LINK.nav} data-testid="sso-wizard-back-link">
@@ -346,9 +480,33 @@ export function SsoWizardPageClient() {
           actions={<PageContextualHelpButton />}
         />
         <p className={cn("m-0 max-w-3xl text-al-text-secondary", OPERATOR_TYPOGRAPHY.helper)} role="status">
-          {SSO_WIZARD_STATUS_NOT_ACTIVE}
+          {SSO_WIZARD_CONFIGURATION_EFFECT_LINE_PREFIX}{" "}
+          <Link
+            href={SSO_WIZARD_PLATFORM_CONFIGURATION_CHANGE_LINK_HREF}
+            className={OPERATOR_LINK.inline}
+            data-testid="sso-wizard-platform-change-link"
+          >
+            {SSO_WIZARD_PLATFORM_CONFIGURATION_CHANGE_LINK_LABEL}
+          </Link>
+          {SSO_WIZARD_CONFIGURATION_EFFECT_LINE_SUFFIX}
         </p>
       </header>
+
+      {existingConfigLoading ? (
+        <p className={cn("m-0 text-al-text-secondary", OPERATOR_TYPOGRAPHY.helper)} role="status">
+          {SSO_WIZARD_EXISTING_CONFIG_LOADING}
+        </p>
+      ) : null}
+
+      {existingConfigLoadError !== null ? (
+        <p className={cn("m-0 text-al-text-secondary", OPERATOR_TYPOGRAPHY.helper)} role="status">
+          {existingConfigLoadError}
+        </p>
+      ) : null}
+
+      {existingConfigSummary !== null ? (
+        <SsoWizardExistingConfigSummary summary={existingConfigSummary} />
+      ) : null}
 
       {wizardSession.pendingRestore !== null ? (
         <WizardSessionResumePrompt
@@ -357,14 +515,20 @@ export function SsoWizardPageClient() {
         />
       ) : null}
 
-      <div className="flex justify-end">
-        <WizardSessionSaveStatus
-          saveState={wizardSession.saveState}
-          lastSavedUtc={wizardSession.lastSavedUtc}
-        />
-      </div>
+      {wizardSession.saveState !== "idle" ? (
+        <div className="flex justify-end">
+          <WizardSessionSaveStatus
+            saveState={wizardSession.saveState}
+            lastSavedUtc={wizardSession.lastSavedUtc}
+          />
+        </div>
+      ) : null}
 
-      <SsoWizardStepper currentStep={step} completedSteps={completedSteps} />
+      <SsoWizardStepper
+        currentStep={step}
+        completedSteps={completedSteps}
+        onStepSelect={handleStepSelect}
+      />
 
       {error !== null ? (
         <OperatorMutationInlineError message={error} testId="sso-wizard-mutation-inline-error" />
@@ -374,28 +538,85 @@ export function SsoWizardPageClient() {
         <OperatorSuccessCallout message={successMessage} testId="sso-wizard-success-callout" />
       ) : null}
 
+      {configurationSaved ? (
+        <div
+          className={cn(
+            "rounded-md border border-neutral-200 px-3 py-3 dark:border-neutral-800",
+            OPERATOR_TYPOGRAPHY.body,
+          )}
+          data-testid="sso-wizard-post-save-next-action"
+        >
+          <p className="m-0 text-al-text-primary">
+            {SSO_WIZARD_POST_SAVE_NEXT_ACTION_PREFIX}{" "}
+            <Link href={SSO_WIZARD_POST_SAVE_NEXT_ACTION_LINK_HREF} className={OPERATOR_LINK.inline}>
+              {SSO_WIZARD_POST_SAVE_NEXT_ACTION_LINK_LABEL}
+            </Link>
+            .{" "}
+            <Link href={SSO_WIZARD_POST_SAVE_HELP_LINK_HREF} className={OPERATOR_LINK.inline}>
+              {SSO_WIZARD_POST_SAVE_HELP_LINK_LABEL}
+            </Link>
+            .
+          </p>
+        </div>
+      ) : null}
+
       <Card>
         <CardHeader>
-          <CardTitle className={OPERATOR_TYPOGRAPHY.cardTitle}>
-            {step === 0 ? SSO_WIZARD_PROTOCOL_STEP_HEADING : currentStepMeta?.label}
+          <CardTitle
+            as="h2"
+            id="sso-wizard-step-heading"
+            tabIndex={-1}
+            className={OPERATOR_TYPOGRAPHY.cardTitle}
+          >
+            {stepHeading}
           </CardTitle>
           {step === 0 ? (
+            <p className={cn("m-0 text-al-text-secondary", OPERATOR_TYPOGRAPHY.body)}>{SSO_WIZARD_IDP_STEP_INSTRUCTION}</p>
+          ) : null}
+          {step === 1 ? (
             <p className={cn("m-0 text-al-text-secondary", OPERATOR_TYPOGRAPHY.body)}>{SSO_WIZARD_PROTOCOL_STEP_INSTRUCTION}</p>
           ) : null}
         </CardHeader>
         <CardContent className="space-y-5">
           {step === 0 ? (
             <>
+              <div className="space-y-3" data-testid="sso-wizard-before-you-begin">
+                <p className={cn("m-0 font-medium text-al-text-primary", OPERATOR_TYPOGRAPHY.body)}>
+                  {SSO_WIZARD_BEFORE_YOU_BEGIN_HEADING}
+                </p>
+                <p className={cn("m-0 text-al-text-secondary", OPERATOR_TYPOGRAPHY.body)}>
+                  {SSO_WIZARD_BEFORE_YOU_BEGIN_INTRO}
+                </p>
+                {state.protocol === null ? (
+                  <p className={cn("m-0 text-al-text-secondary", OPERATOR_TYPOGRAPHY.helper)}>
+                    {SSO_WIZARD_BEFORE_YOU_BEGIN_PROTOCOL_HINT}
+                  </p>
+                ) : null}
+              </div>
+              <SsoWizardIdpSelector
+                value={state.idpPresetId}
+                disabled={busy}
+                onChange={(idpPresetId) => setState((prev) => applySsoWizardIdpPreset(prev, idpPresetId))}
+              />
+              {state.protocol !== null ? (
+                <SsoWizardArchLucidSpValuesSection protocol={state.protocol} />
+              ) : null}
+            </>
+          ) : null}
+
+          {step === 1 ? (
+            <>
               <SsoWizardProtocolSelector
                 value={state.protocol}
                 disabled={busy}
                 onChange={(protocol) => setState((prev) => ({ ...prev, protocol }))}
               />
+              <SsoWizardArchLucidSpValuesSection protocol={state.protocol} />
               <SsoWizardProtocolHelpDisclosure />
             </>
           ) : null}
 
-          {step === 1 ? (
+          {step === 2 ? (
             <div className="space-y-3">
               <p className={cn("m-0 text-al-text-secondary", OPERATOR_TYPOGRAPHY.body)}>
                 Enter the metadata or discovery URL from your identity provider.
@@ -442,7 +663,7 @@ export function SsoWizardPageClient() {
             </div>
           ) : null}
 
-          {step === 2 ? (
+          {step === 3 ? (
             <div className="space-y-3">
               <div>
                 <Label htmlFor="role-claim">Identity provider group or role claim</Label>
@@ -464,17 +685,17 @@ export function SsoWizardPageClient() {
                   ))}
                 </datalist>
               </div>
-              <table className={cn("w-full text-left", OPERATOR_TYPOGRAPHY.body)} data-testid="sso-role-mapping-table">
-                <thead>
-                  <tr className={cn("border-b border-neutral-200 dark:border-neutral-700", OPERATOR_NAV_GROUP_LABEL)}>
-                    <th className="py-2 pr-2">Identity provider value</th>
-                    <th className="py-2">ArchLucid role</th>
-                  </tr>
-                </thead>
-                <tbody>
+              <EnterpriseTable ariaLabel="SSO role claim mappings" className={OPERATOR_TYPOGRAPHY.body} data-testid="sso-role-mapping-table">
+                <EnterpriseTableHead>
+                  <EnterpriseTableHeadRow className={cn("border-b border-neutral-200 dark:border-neutral-700", OPERATOR_NAV_GROUP_LABEL)}>
+                    <EnterpriseTableHeaderCell className="py-2 pr-2">Identity provider value</EnterpriseTableHeaderCell>
+                    <EnterpriseTableHeaderCell className="py-2">ArchLucid role</EnterpriseTableHeaderCell>
+                  </EnterpriseTableHeadRow>
+                </EnterpriseTableHead>
+                <EnterpriseTableBody>
                   {state.claimMapping.mappings.map((row, index) => (
-                    <tr key={`${row.archLucidRole}-${index}`} className="border-b border-neutral-100 dark:border-neutral-800">
-                      <td className="py-2 pr-2">
+                    <EnterpriseTableRow key={`${row.archLucidRole}-${index}`}>
+                      <EnterpriseTableCell className="py-2 pr-2">
                         <Input
                           value={row.idpValue}
                           onChange={(e) => {
@@ -489,8 +710,8 @@ export function SsoWizardPageClient() {
                           }}
                           placeholder="e.g. al-admin-group"
                         />
-                      </td>
-                      <td className="py-2">
+                      </EnterpriseTableCell>
+                      <EnterpriseTableCell className="py-2">
                         <select
                           className={cn(
                             "w-full rounded-md border border-neutral-300 bg-white px-2 py-2 dark:border-neutral-600 dark:bg-neutral-900",
@@ -514,11 +735,11 @@ export function SsoWizardPageClient() {
                             </option>
                           ))}
                         </select>
-                      </td>
-                    </tr>
+                      </EnterpriseTableCell>
+                    </EnterpriseTableRow>
                   ))}
-                </tbody>
-              </table>
+                </EnterpriseTableBody>
+              </EnterpriseTable>
               <div>
                 <Label htmlFor="group-regex">Optional group claim pattern</Label>
                 <Input
@@ -536,10 +757,10 @@ export function SsoWizardPageClient() {
             </div>
           ) : null}
 
-          {step === 3 ? (
+          {step === 4 ? (
             <div className="space-y-3">
               <p className={cn("m-0 text-al-text-secondary", OPERATOR_TYPOGRAPHY.body)}>
-                Run a test sign-in with sample claim values before activating SSO for users.
+                {SSO_WIZARD_VERIFY_CLAIM_MAPPING_INTRO}
               </p>
               <div>
                 <Label htmlFor="sample-claims">Sample identity provider claim values (comma or newline separated)</Label>
@@ -555,7 +776,7 @@ export function SsoWizardPageClient() {
                 />
               </div>
               <Button type="button" variant="outline" disabled={busy} onClick={() => void runTestLogin()}>
-                Test connection
+                {SSO_WIZARD_VERIFY_CLAIM_MAPPING_BUTTON}
               </Button>
               {state.testLoginSummary ? (
                 <p
@@ -569,9 +790,12 @@ export function SsoWizardPageClient() {
             </div>
           ) : null}
 
-          {step === 4 ? (
+          {step === 5 ? (
             <div className="space-y-3">
               <p className={cn("m-0 text-al-text-primary", OPERATOR_TYPOGRAPHY.body)}>{SSO_WIZARD_ACTIVATE_INTRO}</p>
+              {existingConfigSummary !== null ? (
+                <SsoWizardExistingConfigSummary summary={existingConfigSummary} />
+              ) : null}
               <div>
                 <Label htmlFor="kv-secret">{SSO_WIZARD_CREDENTIALS_REFERENCE_LABEL}</Label>
                 <Input
@@ -586,17 +810,17 @@ export function SsoWizardPageClient() {
                 <li>Issuer: {state.issuerUri}</li>
                 <li>Mapped roles (test): {state.mappedRoles.join(", ") || "—"}</li>
               </ul>
+              <SsoActivateConsequencePreview />
             </div>
           ) : null}
 
-          <p className={cn("m-0 text-al-text-secondary", OPERATOR_TYPOGRAPHY.helper)}>{SSO_WIZARD_TRUST_REASSURANCE}</p>
-
           <SsoWizardFooter
             isFirstStep={step === 0}
-            isLastStep={step === SSO_WIZARD_STEPS.length - 1}
+            isLastStep={isLastStep}
             canContinue={canProceed}
             canActivate={canActivate}
             busy={busy}
+            primaryDisabledReason={primaryDisabledReason}
             onCancel={handleCancel}
             onBack={handleBack}
             onContinue={handleContinue}
@@ -608,6 +832,36 @@ export function SsoWizardPageClient() {
           />
         </CardContent>
       </Card>
-    </div>
+
+      <details
+        className="rounded-lg border border-neutral-200 dark:border-neutral-800"
+        data-testid="sso-wizard-related-surfaces-disclosure"
+      >
+        <summary className={cn("cursor-pointer px-4 py-2", OPERATOR_TYPOGRAPHY.cardTitle)}>
+          {SSO_WIZARD_RELATED_SURFACES_DISCLOSURE_TITLE}
+        </summary>
+        <div className="space-y-3 border-t border-neutral-200 px-4 py-3 dark:border-neutral-800">
+          <IdentityProvidersSsoWizardVocabularyRail currentSurfaceId="sso-wizard" />
+          <SsoWizardScimVocabularyRail currentSurfaceId="sso-wizard" />
+        </div>
+      </details>
+
+      <ConfirmationDialog
+        open={pendingCancelConfirm}
+        onOpenChange={(open) => {
+          if (!open) {
+            setPendingCancelConfirm(false);
+          }
+        }}
+        title="Leave SSO setup?"
+        description={SSO_WIZARD_CANCEL_UNSAVED_CONFIRM}
+        confirmLabel="Leave without saving"
+        variant="destructive"
+        onConfirm={() => {
+          setPendingCancelConfirm(false);
+          leaveWizard();
+        }}
+      />
+    </OperatorPageContainer>
   );
 }

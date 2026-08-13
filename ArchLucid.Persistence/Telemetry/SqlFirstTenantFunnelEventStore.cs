@@ -12,7 +12,7 @@ namespace ArchLucid.Persistence.Telemetry;
 /// <summary>
 ///     SQL-backed <see cref="IFirstTenantFunnelEventStore" />. Writes one row to
 ///     <c>dbo.FirstTenantFunnelEvents</c> per call. Validates the event name in code (the SQL CHECK
-///     constraint is the second line of defence). Inserts only the three minimum columns —
+///     constraint is the second line of defense). Inserts only the three minimum columns —
 ///     <c>TenantId</c>, <c>EventName</c>, <c>OccurredUtc</c> — never <c>UserId</c>, IP, or
 ///     user-agent.
 /// </summary>

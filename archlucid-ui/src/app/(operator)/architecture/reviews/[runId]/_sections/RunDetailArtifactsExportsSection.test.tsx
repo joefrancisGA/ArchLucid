@@ -9,7 +9,7 @@ vi.mock("next/navigation", () => ({
 import type { ManifestSummary } from "@/types/authority";
 import type { ManifestFeasibilityVerdict } from "@/types/feasibility-verdict";
 
-import { BUYER_MANIFEST_DELIVERABLES_HEADING } from "@/lib/buyer-polish-copy";
+import { BUYER_MANIFEST_DELIVERABLES_HEADING } from "@/lib/buyer/buyer-polish-copy";
 
 import { RunDetailArtifactsExportsSection } from "./RunDetailArtifactsExportsSection";
 
@@ -33,7 +33,7 @@ vi.mock("@/components/GoldenManifestExportMenu", () => ({
   GoldenManifestExportMenu: () => <div data-testid="golden-manifest-export-menu" />,
 }));
 
-vi.mock("@/components/RunScopedAuditExportButton", () => ({
+vi.mock("@/components/runs/RunScopedAuditExportButton", () => ({
   RunScopedAuditExportButton: ({ runId }: { runId: string }) => (
     <div data-testid="run-scoped-audit-export" data-run-id={runId} />
   ),

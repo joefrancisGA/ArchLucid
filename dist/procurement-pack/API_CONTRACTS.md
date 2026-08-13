@@ -73,7 +73,7 @@ UI alignment: **`docs/operator-shell.md`**.
 When you add or change **`v1`** controllers, route templates, or JSON DTOs that surface on **`GET /openapi/v1.json`**:
 
 1. Regenerate and commit **`ArchLucid.Api.Tests/Contracts/openapi-v1.contract.snapshot.json`** (`ARCHLUCID_UPDATE_OPENAPI_SNAPSHOT=1` — see **`OPENAPI_CONTRACT_DRIFT.md`**).
-2. Rebuild **`ArchLucid.Api.Client`** so **`Generated/ArchLucidApiClient.g.cs`** tracks the snapshot.
+2. Rebuild **`ArchLucid.Api.Client`** so NSwag regenerates **`Generated/ArchLucidApiClient.g.cs`** from the snapshot (gitignored — do not commit it).
 3. Run **`npm run generate:api-types`** under **`archlucid-ui/`** so **`api-types.generated.ts`** stays aligned (CI may run **`scripts/ci/assert_api_types_in_sync.sh`**).
 4. Update human-readable docs touched by the behavior change (`docs/library/*`, runbooks, **`CONFIGURATION_REFERENCE.md`** when **`ConfigurationKeyCatalog`** rows change).
 
@@ -323,11 +323,11 @@ Full pipeline behavior: **`docs/CONTEXT_INGESTION.md`**.
 | Retry with same key and **same** request body fingerprint | **200 OK** | Same JSON as create; response includes **`Idempotency-Replayed: true`**. |
 | Same key, **different** body | **409 Conflict** | Problem type **`#conflict`**; message explains key reuse with different payload. |
 
-Fingerprint is **SHA-256** of the canonical **`ArchitectureRequest`** JSON using the same **`ContractJson.Default`** options as **`ArchitectureRequests.RequestJson`** persistence. Clients must send byte-identical JSON (modulo insignificant whitespace is **not** normalised—use a stable serializer).
+Fingerprint is **SHA-256** of the canonical **`ArchitectureRequest`** JSON using the same **`ContractJson.Default`** options as **`ArchitectureRequests.RequestJson`** persistence. Clients must send byte-identical JSON (modulo insignificant whitespace is **not** normalized—use a stable serializer).
 
 **Scope:** Keys are isolated per **`x-tenant-id` / `x-workspace-id` / `x-project-id`** (or JWT claims) via **`IScopeContextProvider`**.
 
-**Concurrency:** Under extreme parallel duplicate-key pressure, idempotency is **retry-safe** for typical client behaviour but not a serializable global guarantee; authority state is **`dbo.Runs`** and related coordinator rows. See **`docs/SQL_DDL_DISCIPLINE.md`**.
+**Concurrency:** Under extreme parallel duplicate-key pressure, idempotency is **retry-safe** for typical client behavior but not a serializable global guarantee; authority state is **`dbo.Runs`** and related coordinator rows. See **`docs/SQL_DDL_DISCIPLINE.md`**.
 
 ## Policy packs (`/v1/policy-packs`)
 

@@ -25,7 +25,7 @@ public interface IRunRepository
     ///     in a multi-statement transaction.
     /// </summary>
     /// <param name="run">The run to persist.</param>
-    /// <param name="ct">Propagates notification that the operation should be cancelled.</param>
+    /// <param name="ct">Propagates notification that the operation should be canceled.</param>
     /// <param name="connection">Optional open connection to reuse.</param>
     /// <param name="transaction">Optional transaction to enlist in.</param>
     Task SaveAsync(
@@ -40,7 +40,7 @@ public interface IRunRepository
     /// </summary>
     /// <param name="scope">Tenant/workspace/project boundary for the lookup.</param>
     /// <param name="runId">Primary key of the run.</param>
-    /// <param name="ct">Propagates notification that the operation should be cancelled.</param>
+    /// <param name="ct">Propagates notification that the operation should be canceled.</param>
     Task<RunRecord?> GetByIdAsync(ScopeContext scope, Guid runId, CancellationToken ct);
 
     /// <summary>
@@ -77,7 +77,7 @@ public interface IRunRepository
     /// <param name="scope">Tenant/workspace/project boundary for the query.</param>
     /// <param name="projectId">Project slug or identifier to filter by.</param>
     /// <param name="take">Maximum number of rows to return.</param>
-    /// <param name="ct">Propagates notification that the operation should be cancelled.</param>
+    /// <param name="ct">Propagates notification that the operation should be canceled.</param>
     Task<IReadOnlyList<RunRecord>> ListByProjectAsync(ScopeContext scope, string projectId, int take,
         CancellationToken ct);
 
@@ -127,7 +127,7 @@ public interface IRunRepository
     ///     in a multi-statement transaction.
     /// </summary>
     /// <param name="run">The run with updated field values.</param>
-    /// <param name="ct">Propagates notification that the operation should be cancelled.</param>
+    /// <param name="ct">Propagates notification that the operation should be canceled.</param>
     /// <param name="connection">Optional open connection to reuse.</param>
     /// <param name="transaction">Optional transaction to enlist in.</param>
     Task UpdateAsync(

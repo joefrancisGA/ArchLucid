@@ -8,20 +8,20 @@ import { ArchitectureCreatedOverviewEvidenceOrientationStrip } from "@/component
 import { ArchitectureStructuredSectionView } from "@/components/architecture/ArchitectureStructuredSectionView";
 import { ArchitectureStructuringFailureNotice } from "@/components/architecture/ArchitectureStructuringFailureNotice";
 import { Button } from "@/components/ui/button";
-import { parseArchitectureGeneratedContent } from "@/lib/architecture-generated-content-parser";
-import type { ArchitectureCreatedHomeModel } from "@/lib/architecture-created-home-model";
+import { parseArchitectureGeneratedContent } from "@/lib/architecture/architecture-generated-content-parser";
+import type { ArchitectureCreatedHomeModel } from "@/lib/architecture/architecture-created-home-model";
 import {
   ARCHITECTURE_CREATED_OVERVIEW_EMPTY_CAUSE,
   ARCHITECTURE_CREATED_OVERVIEW_EMPTY_HEADING,
   ARCHITECTURE_CREATED_OVERVIEW_PROVENANCE_LEGEND,
-} from "@/lib/architecture-created-overview-sources";
+} from "@/lib/architecture/architecture-created-overview-sources";
 import type {
   ArchitectureCreationUserAssertions,
   ArchitectureStructuredSectionKey,
-} from "@/lib/architecture-structured-content-types";
+} from "@/lib/architecture/architecture-structured-content-types";
 import { REVIEWS_NEW_CREATE_ARCHITECTURE_HREF } from "@/lib/reviews-new-path-copy";
 import { OPERATOR_TYPOGRAPHY } from "@/lib/design-tokens";
-import type { ArchitectureWorkspaceTabId } from "@/lib/architecture-workspace-tabs";
+import type { ArchitectureWorkspaceTabId } from "@/lib/architecture/architecture-workspace-tabs";
 
 const OVERVIEW_SECTION_KEYS: readonly ArchitectureStructuredSectionKey[] = [
   "executive-summary",

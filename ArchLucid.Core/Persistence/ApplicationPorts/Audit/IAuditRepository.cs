@@ -15,7 +15,7 @@ public interface IAuditRepository
     ///     this method is insert-only.
     /// </summary>
     /// <param name="auditEvent">The event to append.</param>
-    /// <param name="ct">Propagates notification that the operation should be cancelled.</param>
+    /// <param name="ct">Propagates notification that the operation should be canceled.</param>
     /// <param name="connection">
     ///     When set with <paramref name="transaction" />, appends on the caller's unit-of-work connection so
     ///     <c>FK_AuditEvents_Runs_RunId</c> sees uncommitted <c>dbo.Runs</c> rows inside the same SQL transaction.
@@ -35,7 +35,7 @@ public interface IAuditRepository
     /// <param name="workspaceId">Workspace boundary for the query.</param>
     /// <param name="projectId">Project boundary for the query.</param>
     /// <param name="take">Maximum number of rows to return (caller should clamp to a safe maximum).</param>
-    /// <param name="ct">Propagates notification that the operation should be cancelled.</param>
+    /// <param name="ct">Propagates notification that the operation should be canceled.</param>
     Task<IReadOnlyList<AuditEvent>> GetByScopeAsync(
         Guid tenantId,
         Guid workspaceId,

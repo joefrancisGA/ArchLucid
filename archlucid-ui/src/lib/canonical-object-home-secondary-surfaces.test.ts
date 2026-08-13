@@ -16,7 +16,7 @@ const GOLDEN_PATH_HOST_FILES: Record<string, string> = {
   "review-package-authority-chain":
     "src/app/(operator)/architecture/reviews/[runId]/_sections/RunDetailAuthorityChainSection.tsx",
   "finding-evidence-trace": "src/app/(operator)/architecture/reviews/[runId]/findings/[findingId]/FindingInspectView.tsx",
-  "governance-approval-inspector": "src/components/GovernanceApprovalInspectorPreview.tsx",
+  "governance-approval-inspector": "src/components/governance/GovernanceApprovalInspectorPreview.tsx",
 };
 
 describe("canonical-object-home golden-path secondary surfaces (TB-2153)", () => {

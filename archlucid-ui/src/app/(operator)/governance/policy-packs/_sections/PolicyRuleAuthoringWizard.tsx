@@ -6,9 +6,9 @@ import { useCallback, useEffect, useMemo, useRef, useState } from "react";
 import { AdvancedOptionsAccordion } from "@/components/AdvancedOptionsAccordion";
 import { Button } from "@/components/ui/button";
 import { Input } from "@/components/ui/input";
-import { PolicyPackContentJsonEditor } from "@/components/PolicyPackContentJsonEditor";
+import { PolicyPackContentJsonEditor } from "@/components/policy/PolicyPackContentJsonEditor";
 import { Textarea } from "@/components/ui/textarea";
-import { OperatorApiProblem } from "@/components/OperatorApiProblem";
+import { OperatorApiProblem } from "@/components/operator/OperatorApiProblem";
 import { PolicySimulator } from "@/components/governance/PolicySimulator";
 import { listRunsByProjectPaged, simulatePolicyPackAgainstRun } from "@/lib/api";
 import { toApiLoadFailure, uiFailureFromMessage } from "@/lib/api-load-failure";
@@ -18,17 +18,18 @@ import { enterpriseMutationControlDisabledTitle } from "@/lib/enterprise-control
 import {
   guidedFieldsFromContentDocument,
   type GuidedPolicyFields,
-} from "@/lib/policy-pack-guided-content";
+} from "@/lib/policy/policy-pack-guided-content";
 import {
   composePolicyPackContentForPublish,
   createEmptyCuratedRulesDocument,
   hydrateCuratedFromContentDocument,
   type CuratedRulesDocument,
   validateCuratedRulesDocument,
-} from "@/lib/policy-pack-curated-rules-v1";
-import { coerceRunSummaryPaged } from "@/lib/operator-response-guards";
+} from "@/lib/policy/policy-pack-curated-rules-v1";
+import { coerceRunSummaryPaged } from "@/lib/operator/operator-response-guards";
 import type { components } from "@/lib/openapi-schemas";
 import type { PolicyPackContentDocument } from "@/types/policy-packs";
+import { presentPolicyPackSimulateToast } from "@/lib/policy/policy-pack-simulate-toast";
 import { showSuccess } from "@/lib/toast";
 import { OPERATOR_TYPOGRAPHY } from "@/lib/design-tokens";
 import type { RunSummary } from "@/types/authority";
@@ -344,7 +345,9 @@ export function PolicyRuleAuthoringWizard(props: PolicyRuleAuthoringWizardProps)
       const result: components["schemas"]["PolicyPackGovernanceDryRunResult"] =
         await simulatePolicyPackAgainstRun(body);
       setSimulateResult(result);
-      showSuccess("Policy test completed for the selected review.");
+      presentPolicyPackSimulateToast(result, {
+        successMessage: "Policy test completed for the selected review.",
+      });
     } catch (e: unknown) {
       setSimulateFailure(toApiLoadFailure(e));
     } finally {

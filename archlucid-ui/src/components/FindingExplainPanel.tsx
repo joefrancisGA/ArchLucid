@@ -3,22 +3,22 @@
 import { cn } from "@/lib/utils";
 import { useCallback, useEffect, useState } from "react";
 
-import { FindingConfidenceBadge } from "@/components/FindingConfidenceBadge";
+import { FindingConfidenceBadge } from "@/components/findings/FindingConfidenceBadge";
 import { FindingOptionalArtifactUnavailable } from "@/components/findings/FindingOptionalArtifactUnavailable";
 import { MutationErrorBoundary } from "@/components/MutationErrorBoundary";
 import { DocumentLayout } from "@/components/DocumentLayout";
-import { OperatorLoadingNotice } from "@/components/OperatorShellMessage";
-import { useNavCallerAuthorityRank } from "@/components/OperatorNavAuthorityProvider";
+import { OperatorLoadingNotice } from "@/components/operator/OperatorShellMessage";
+import { useNavCallerAuthorityRank } from "@/components/operator/OperatorNavAuthorityProvider";
 import { Button } from "@/components/ui/button";
 import { Collapsible, CollapsibleContent, CollapsibleTrigger } from "@/components/ui/collapsible";
 import { getFindingEvidenceChain, getFindingLlmAudit, postFindingFeedback } from "@/lib/api";
 import { buyerLabelForAgentType } from "@/lib/agent-type-buyer-label";
-import { BUYER_EVIDENCE_CHAIN_SOURCE_LINE } from "@/lib/buyer-polish-copy";
+import { BUYER_EVIDENCE_CHAIN_SOURCE_LINE } from "@/lib/buyer/buyer-polish-copy";
 import { isBuyerPolishedOperatorShellEnv } from "@/lib/demo-ui-env";
 import { recordFirstTenantFunnelEvent } from "@/lib/first-tenant-funnel-telemetry";
 import type { ApiLoadFailureState } from "@/lib/api-load-failure";
 import { toApiLoadFailure } from "@/lib/api-load-failure";
-import { resolveFindingOptionalArtifactUnavailableCopy } from "@/lib/finding-optional-artifact-copy";
+import { resolveFindingOptionalArtifactUnavailableCopy } from "@/lib/findings/finding-optional-artifact-copy";
 import { isShowcaseStaticDemoRunId } from "@/lib/demo-run-canonical";
 import { AUTHORITY_RANK } from "@/lib/nav-authority";
 import { OPERATOR_NAV_GROUP_LABEL, OPERATOR_TYPOGRAPHY } from "@/lib/design-tokens";

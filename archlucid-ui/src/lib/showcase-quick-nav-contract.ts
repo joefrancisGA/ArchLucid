@@ -1,7 +1,7 @@
 import {
   isDemoRunIdEligibleForStaticFallback,
   isOperatorDemoStaticMode,
-} from "@/lib/operator-static-demo";
+} from "@/lib/operator/operator-static-demo";
 import { isShowcaseStaticFirstRunId } from "@/lib/showcase-page-resolution";
 import { isPublicDemoModeEnv } from "@/lib/public-demo-mode";
 

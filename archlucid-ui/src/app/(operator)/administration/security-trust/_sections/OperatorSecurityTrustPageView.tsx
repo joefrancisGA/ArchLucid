@@ -1,14 +1,26 @@
 import { cn } from "@/lib/utils";
+
 import Link from "next/link";
 
-import { LayerHeader } from "@/components/LayerHeader";
-import { OperatorPageHeader } from "@/components/OperatorPageHeader";
+import { OperatorPageHeader } from "@/components/operator/OperatorPageHeader";
+import { OperatorPageBreadcrumb } from "@/components/operator/OperatorPageBreadcrumb";
 import { StatusTag } from "@/components/StatusTag";
-import { PageContextualHelpButton } from "@/components/usability/PageContextualHelpButton";
-import { OPERATOR_LAYOUT, OPERATOR_TYPOGRAPHY } from "@/lib/design-tokens";
-import { OPERATOR_NAV_LINK_LABELS } from "@/lib/i18n";
+import { HelpTopicPdfDownloadButton } from "@/components/help/HelpTopicPdfDownloadButton";
+import { Button } from "@/components/ui/button";
 import {
-  OPERATOR_SECURITY_TRUST_AVAILABLE_NOW_ITEMS,
+  EnterpriseTable,
+  EnterpriseTableBody,
+  EnterpriseTableCell,
+  EnterpriseTableHead,
+  EnterpriseTableHeadRow,
+  EnterpriseTableHeaderCell,
+  EnterpriseTableRow,
+} from "@/components/ui/enterprise-table";
+import { PageContextualHelpButton } from "@/components/usability/PageContextualHelpButton";
+import { OPERATOR_LAYOUT, OPERATOR_LINK, OPERATOR_TYPOGRAPHY } from "@/lib/design-tokens";
+import { OPERATOR_NAV_LINK_LABELS } from "@/lib/i18n";
+import { getProductDocumentationEntry } from "@/lib/product-documentation-registry";
+import {
   OPERATOR_SECURITY_TRUST_DATA_RETENTION_DELETION_INSTRUCTION,
   OPERATOR_SECURITY_TRUST_DATA_RETENTION_DPA_HREF,
   OPERATOR_SECURITY_TRUST_DATA_RETENTION_DPA_LABEL,
@@ -16,67 +28,195 @@ import {
   OPERATOR_SECURITY_TRUST_DATA_RETENTION_PRIVACY_HREF,
   OPERATOR_SECURITY_TRUST_DATA_RETENTION_PRIVACY_LABEL,
   OPERATOR_SECURITY_TRUST_DATA_RETENTION_TITLE,
+  OPERATOR_SECURITY_TRUST_MATERIAL_ITEMS,
   OPERATOR_SECURITY_TRUST_MATURITY_TAG_AVAILABLE_NOW,
   OPERATOR_SECURITY_TRUST_MATURITY_TAG_ROADMAP,
   OPERATOR_SECURITY_TRUST_MATURITY_TAG_UNDER_NDA,
   OPERATOR_SECURITY_TRUST_MATURITY_TAGS,
-  OPERATOR_SECURITY_TRUST_NDA_EMAIL,
-  OPERATOR_SECURITY_TRUST_NDA_INTRO,
+  OPERATOR_SECURITY_TRUST_NDA_APPROVAL_ONLY,
+  OPERATOR_SECURITY_TRUST_NDA_REQUEST_HREF,
+  OPERATOR_SECURITY_TRUST_NDA_REQUEST_LABEL,
+  OPERATOR_SECURITY_TRUST_NDA_SHARED_TODAY,
+  OPERATOR_SECURITY_TRUST_PRIMARY_TRUST_CENTER_ITEM,
   OPERATOR_SECURITY_TRUST_ROADMAP_ITEMS,
-  OPERATOR_SECURITY_TRUST_TENANT_ISOLATION_BODY,
+  OPERATOR_SECURITY_TRUST_TENANT_ISOLATION_AUDIT_TRAIL_HREF,
+  OPERATOR_SECURITY_TRUST_TENANT_ISOLATION_AUDIT_TRAIL_LABEL,
   OPERATOR_SECURITY_TRUST_TENANT_ISOLATION_DETAIL_HREF,
   OPERATOR_SECURITY_TRUST_TENANT_ISOLATION_DETAIL_LABEL,
+  OPERATOR_SECURITY_TRUST_TENANT_ISOLATION_ENFORCED_BODY,
+  OPERATOR_SECURITY_TRUST_TENANT_ISOLATION_ENFORCED_LABEL,
+  OPERATOR_SECURITY_TRUST_TENANT_ISOLATION_EVIDENCE_LABEL,
+  OPERATOR_SECURITY_TRUST_TENANT_ISOLATION_SCOPE_BODY,
+  OPERATOR_SECURITY_TRUST_TENANT_ISOLATION_SCOPE_LABEL,
   OPERATOR_SECURITY_TRUST_TENANT_ISOLATION_TITLE,
+  resolveOperatorSecurityTrustMaterialAvailability,
+  resolveOperatorSecurityTrustMaterialReviewedLabel,
+  type OperatorSecurityTrustMaterialItem,
   type OperatorSecurityTrustMaturityTag,
-} from "@/lib/operator-security-trust-content";
+} from "@/lib/operator/operator-security-trust-content";
+import {
+  OPERATOR_SECURITY_TRUST_BREADCRUMB_ADMINISTRATION_HREF,
+  OPERATOR_SECURITY_TRUST_BREADCRUMB_ADMINISTRATION_LABEL,
+  OPERATOR_SECURITY_TRUST_PAGE_HERO_DESCRIPTION,
+  OPERATOR_SECURITY_TRUST_PAGE_NAV_HREF,
+  OPERATOR_SECURITY_TRUST_PRIMARY_TRUST_CENTER_LABEL,
+  OPERATOR_SECURITY_TRUST_SECONDARY_MATERIALS_HEADING,
+} from "@/lib/operator/operator-security-trust-page-copy";
+import { resolveTrustAssuranceSecurityTrustPeerLinks } from "@/lib/vocabulary/trust-assurance-security-trust-vocabulary";
+import { SECURITY_TRUST_HELP_HUB_HELP_LINK } from "@/lib/vocabulary/security-trust-help-hub-vocabulary";
 
-const securityTrustLinkClassName = cn(
-  OPERATOR_TYPOGRAPHY.body,
-  "text-sky-700 underline underline-offset-2 hover:text-sky-900 dark:text-sky-400 dark:hover:text-sky-200",
-);
-
-function SecurityTrustLinkItem({
-  label,
-  href,
+function SecurityTrustMaterialLink({
+  item,
 }: {
-  readonly label: string;
-  readonly href: string;
+  readonly item: OperatorSecurityTrustMaterialItem;
 }) {
-  if (href.startsWith("mailto:")) {
-    return (
-      <li>
-        <a className={securityTrustLinkClassName} href={href}>
-          {label}
-        </a>
-      </li>
-    );
-  }
-
   return (
-    <li>
-      <Link className={securityTrustLinkClassName} href={href}>
-        {label}
-      </Link>
-    </li>
+    <Link className={OPERATOR_LINK.inline} href={item.href}>
+      {item.label}
+    </Link>
   );
 }
 
 function SecurityTrustMaturitySectionHeader({
   maturityTag,
   title,
+  headingId,
 }: {
   readonly maturityTag: OperatorSecurityTrustMaturityTag;
   readonly title: string;
+  readonly headingId: string;
 }) {
   return (
-    <div className={cn("flex flex-wrap items-center", OPERATOR_LAYOUT.inlineGap)}>
-      <StatusTag
-        data-testid={`security-trust-maturity-${maturityTag.label}`}
-        kind={maturityTag.kind}
-        label={maturityTag.label}
-      />
-      <h2 className={cn("m-0", OPERATOR_TYPOGRAPHY.cardTitle)}>{title}</h2>
+    <div className={OPERATOR_LAYOUT.sectionHeadingStack}>
+      <div className={cn("flex flex-wrap items-center", OPERATOR_LAYOUT.inlineGap)}>
+        <StatusTag
+          data-testid={`security-trust-maturity-${maturityTag.label}`}
+          kind={maturityTag.kind}
+          label={maturityTag.label}
+        />
+        <h2 className={cn("m-0", OPERATOR_TYPOGRAPHY.cardTitle)} id={headingId}>
+          {title}
+        </h2>
+      </div>
+      <p className={cn("m-0", OPERATOR_TYPOGRAPHY.helper)}>{maturityTag.legendMeaning}</p>
     </div>
+  );
+}
+
+function SecurityTrustMaterialsTable() {
+  return (
+    <EnterpriseTable
+      ariaLabel="Procurement materials inventory"
+      className={OPERATOR_TYPOGRAPHY.body}
+      data-testid="security-trust-materials-table"
+    >
+      <EnterpriseTableHead>
+        <EnterpriseTableHeadRow>
+          <EnterpriseTableHeaderCell>Material</EnterpriseTableHeaderCell>
+          <EnterpriseTableHeaderCell>What it is</EnterpriseTableHeaderCell>
+          <EnterpriseTableHeaderCell>Availability</EnterpriseTableHeaderCell>
+          <EnterpriseTableHeaderCell>Reviewed</EnterpriseTableHeaderCell>
+        </EnterpriseTableHeadRow>
+      </EnterpriseTableHead>
+      <EnterpriseTableBody>
+        {OPERATOR_SECURITY_TRUST_MATERIAL_ITEMS.map((item) => {
+          const registryEntry =
+            item.docSlug !== undefined ? getProductDocumentationEntry(item.docSlug) : null;
+
+          return (
+            <EnterpriseTableRow key={item.label} data-testid={`security-trust-material-row-${item.docSlug ?? item.label}`}>
+              <EnterpriseTableCell>
+                <SecurityTrustMaterialLink item={item} />
+                {registryEntry !== null && registryEntry.pdfStatus === "public" ? (
+                  <div className="mt-2">
+                    <HelpTopicPdfDownloadButton entry={registryEntry} />
+                  </div>
+                ) : null}
+              </EnterpriseTableCell>
+              <EnterpriseTableCell className="text-neutral-700 dark:text-neutral-300">{item.whatItIs}</EnterpriseTableCell>
+              <EnterpriseTableCell
+                className="text-neutral-700 dark:text-neutral-300"
+                data-testid={`security-trust-material-availability-${item.docSlug ?? "unknown"}`}
+              >
+                {resolveOperatorSecurityTrustMaterialAvailability(item.docSlug)}
+              </EnterpriseTableCell>
+              <EnterpriseTableCell
+                className="text-neutral-700 dark:text-neutral-300"
+                data-testid={`security-trust-material-reviewed-${item.docSlug ?? "unknown"}`}
+              >
+                {resolveOperatorSecurityTrustMaterialReviewedLabel(item.docSlug)}
+              </EnterpriseTableCell>
+            </EnterpriseTableRow>
+          );
+        })}
+      </EnterpriseTableBody>
+    </EnterpriseTable>
+  );
+}
+
+function SecurityTrustRelatedSurfacesDisclosure() {
+  const trustAssurancePeers = resolveTrustAssuranceSecurityTrustPeerLinks("security-trust-hub");
+
+  return (
+    <details
+      className="rounded-lg border border-neutral-200 dark:border-neutral-800"
+      data-testid="security-trust-related-surfaces-disclosure"
+    >
+      <summary className={cn("cursor-pointer px-4 py-2", OPERATOR_TYPOGRAPHY.cardTitle)}>
+        Related trust surfaces
+      </summary>
+      <div className="space-y-4 border-t border-neutral-200 px-4 py-3 dark:border-neutral-800">
+        <ul className={cn("m-0 list-none space-y-3 p-0", OPERATOR_TYPOGRAPHY.body)}>
+          {trustAssurancePeers.map((peer) => (
+            <li key={peer.id} data-testid={`security-trust-related-surface-${peer.id}`}>
+              <Link className={OPERATOR_LINK.inline} href={peer.href}>
+                {peer.label}
+              </Link>
+              <p className={cn("m-0 mt-1 text-neutral-700 dark:text-neutral-300", OPERATOR_TYPOGRAPHY.helper)}>
+                {peer.whenToUse}
+              </p>
+            </li>
+          ))}
+          <li data-testid="security-trust-related-surface-security-trust-help">
+            <Link className={OPERATOR_LINK.inline} href={SECURITY_TRUST_HELP_HUB_HELP_LINK.href}>
+              {SECURITY_TRUST_HELP_HUB_HELP_LINK.label}
+            </Link>
+            <p className={cn("m-0 mt-1 text-neutral-700 dark:text-neutral-300", OPERATOR_TYPOGRAPHY.helper)}>
+              {SECURITY_TRUST_HELP_HUB_HELP_LINK.whenToUse}
+            </p>
+          </li>
+        </ul>
+        <div>
+          <p className={cn("m-0 mb-2 font-medium text-neutral-800 dark:text-neutral-200", OPERATOR_TYPOGRAPHY.body)}>
+            Badge legend
+          </p>
+          <EnterpriseTable ariaLabel="Security trust maturity badge legend" className={OPERATOR_TYPOGRAPHY.body}>
+            <EnterpriseTableHead>
+              <EnterpriseTableHeadRow>
+                <EnterpriseTableHeaderCell>Label</EnterpriseTableHeaderCell>
+                <EnterpriseTableHeaderCell>Meaning</EnterpriseTableHeaderCell>
+              </EnterpriseTableHeadRow>
+            </EnterpriseTableHead>
+            <EnterpriseTableBody>
+              {OPERATOR_SECURITY_TRUST_MATURITY_TAGS.map((maturityTag) => (
+                <EnterpriseTableRow key={maturityTag.label}>
+                  <EnterpriseTableCell>
+                    <StatusTag
+                      data-testid={`security-trust-legend-${maturityTag.label}`}
+                      kind={maturityTag.kind}
+                      label={maturityTag.label}
+                    />
+                  </EnterpriseTableCell>
+                  <EnterpriseTableCell className="text-neutral-700 dark:text-neutral-300">
+                    {maturityTag.legendMeaning}
+                  </EnterpriseTableCell>
+                </EnterpriseTableRow>
+              ))}
+            </EnterpriseTableBody>
+          </EnterpriseTable>
+        </div>
+      </div>
+    </details>
   );
 }
 
@@ -85,47 +225,103 @@ export function OperatorSecurityTrustPageView() {
   return (
     <div className={OPERATOR_LAYOUT.sectionStack} data-testid="operator-security-trust-page">
       <OperatorPageHeader
+        navHref={OPERATOR_SECURITY_TRUST_PAGE_NAV_HREF}
         title={OPERATOR_NAV_LINK_LABELS.securityTrust}
-        subtitle="Procurement-ready security and trust materials for this workspace."
+        subtitle={OPERATOR_SECURITY_TRUST_PAGE_HERO_DESCRIPTION}
+        headingLevel="h1"
+        titleTestId="operator-security-trust-page-title"
+        breadcrumb={
+          <OperatorPageBreadcrumb
+            data-testid="operator-security-trust-page-breadcrumb"
+            items={[
+              {
+                label: OPERATOR_SECURITY_TRUST_BREADCRUMB_ADMINISTRATION_LABEL,
+                href: OPERATOR_SECURITY_TRUST_BREADCRUMB_ADMINISTRATION_HREF,
+              },
+              { label: OPERATOR_NAV_LINK_LABELS.securityTrust },
+            ]}
+          />
+        }
         actions={<PageContextualHelpButton />}
       />
-      <LayerHeader density="compact" pageKey="security-trust" />
 
-      <section aria-label="Available now" className={OPERATOR_LAYOUT.sectionHeadingStack}>
+      <section
+        aria-labelledby="security-trust-section-available-now-heading"
+        className={OPERATOR_LAYOUT.sectionHeadingStack}
+      >
         <SecurityTrustMaturitySectionHeader
           maturityTag={OPERATOR_SECURITY_TRUST_MATURITY_TAG_AVAILABLE_NOW}
           title="Public and procurement-ready materials"
+          headingId="security-trust-section-available-now-heading"
         />
-        <p className={cn("m-0", OPERATOR_TYPOGRAPHY.helper)}>
-          Security posture is documented through policies, self-assessments, and procurement materials.
-        </p>
         <div className="rounded-lg border border-neutral-200 bg-neutral-50/90 px-4 py-3 dark:border-neutral-700 dark:bg-neutral-900/40">
-          <ul className={cn("m-0 list-disc space-y-1.5 pl-5 text-neutral-700 dark:text-neutral-300", OPERATOR_TYPOGRAPHY.body)}>
-            {OPERATOR_SECURITY_TRUST_AVAILABLE_NOW_ITEMS.map((item) => (
-              <SecurityTrustLinkItem href={item.href} key={item.label} label={item.label} />
-            ))}
-          </ul>
+          <div className="space-y-4">
+            <Button asChild size="sm" variant="primary" data-testid="security-trust-primary-trust-center">
+              <Link href={OPERATOR_SECURITY_TRUST_PRIMARY_TRUST_CENTER_ITEM.href}>
+                {OPERATOR_SECURITY_TRUST_PRIMARY_TRUST_CENTER_LABEL}
+              </Link>
+            </Button>
+            <div className="space-y-2">
+              <p className={cn("m-0 font-medium text-neutral-800 dark:text-neutral-200", OPERATOR_TYPOGRAPHY.body)}>
+                {OPERATOR_SECURITY_TRUST_SECONDARY_MATERIALS_HEADING}
+              </p>
+              <SecurityTrustMaterialsTable />
+            </div>
+          </div>
         </div>
       </section>
 
-      <section aria-label={OPERATOR_SECURITY_TRUST_TENANT_ISOLATION_TITLE} className={OPERATOR_LAYOUT.sectionHeadingStack}>
-        <h2 className={cn("m-0", OPERATOR_TYPOGRAPHY.cardTitle)}>{OPERATOR_SECURITY_TRUST_TENANT_ISOLATION_TITLE}</h2>
+      <section
+        aria-labelledby="security-trust-section-tenant-isolation-heading"
+        className={OPERATOR_LAYOUT.sectionHeadingStack}
+      >
+        <h2 className={cn("m-0", OPERATOR_TYPOGRAPHY.cardTitle)} id="security-trust-section-tenant-isolation-heading">
+          {OPERATOR_SECURITY_TRUST_TENANT_ISOLATION_TITLE}
+        </h2>
         <div className="rounded-lg border border-neutral-200 bg-neutral-50/90 px-4 py-3 dark:border-neutral-700 dark:bg-neutral-900/40">
-          <p className={cn("m-0 text-neutral-700 dark:text-neutral-300", OPERATOR_TYPOGRAPHY.body)}>
-            {OPERATOR_SECURITY_TRUST_TENANT_ISOLATION_BODY}
-          </p>
-          <p className={cn("m-0 mt-3 text-neutral-700 dark:text-neutral-300", OPERATOR_TYPOGRAPHY.body)}>
-            Technical detail:{" "}
-            <Link className={securityTrustLinkClassName} href={OPERATOR_SECURITY_TRUST_TENANT_ISOLATION_DETAIL_HREF}>
-              {OPERATOR_SECURITY_TRUST_TENANT_ISOLATION_DETAIL_LABEL}
-            </Link>
-            .
-          </p>
+          <dl className={cn("m-0 space-y-3", OPERATOR_TYPOGRAPHY.body)}>
+            <div>
+              <dt className="font-medium text-neutral-800 dark:text-neutral-200">
+                {OPERATOR_SECURITY_TRUST_TENANT_ISOLATION_ENFORCED_LABEL}
+              </dt>
+              <dd className="m-0 mt-1 text-neutral-700 dark:text-neutral-300">
+                {OPERATOR_SECURITY_TRUST_TENANT_ISOLATION_ENFORCED_BODY}
+              </dd>
+            </div>
+            <div data-testid="security-trust-tenant-isolation-scope">
+              <dt className="font-medium text-neutral-800 dark:text-neutral-200">
+                {OPERATOR_SECURITY_TRUST_TENANT_ISOLATION_SCOPE_LABEL}
+              </dt>
+              <dd className="m-0 mt-1 text-neutral-700 dark:text-neutral-300">
+                {OPERATOR_SECURITY_TRUST_TENANT_ISOLATION_SCOPE_BODY}
+              </dd>
+            </div>
+            <div>
+              <dt className="font-medium text-neutral-800 dark:text-neutral-200">
+                {OPERATOR_SECURITY_TRUST_TENANT_ISOLATION_EVIDENCE_LABEL}
+              </dt>
+              <dd className="m-0 mt-1 text-neutral-700 dark:text-neutral-300">
+                <Link className={OPERATOR_LINK.inline} href={OPERATOR_SECURITY_TRUST_TENANT_ISOLATION_DETAIL_HREF}>
+                  {OPERATOR_SECURITY_TRUST_TENANT_ISOLATION_DETAIL_LABEL}
+                </Link>
+                {" · "}
+                <Link className={OPERATOR_LINK.inline} href={OPERATOR_SECURITY_TRUST_TENANT_ISOLATION_AUDIT_TRAIL_HREF}>
+                  {OPERATOR_SECURITY_TRUST_TENANT_ISOLATION_AUDIT_TRAIL_LABEL}
+                </Link>
+                .
+              </dd>
+            </div>
+          </dl>
         </div>
       </section>
 
-      <section aria-label={OPERATOR_SECURITY_TRUST_DATA_RETENTION_TITLE} className={OPERATOR_LAYOUT.sectionHeadingStack}>
-        <h2 className={cn("m-0", OPERATOR_TYPOGRAPHY.cardTitle)}>{OPERATOR_SECURITY_TRUST_DATA_RETENTION_TITLE}</h2>
+      <section
+        aria-labelledby="security-trust-section-data-retention-heading"
+        className={OPERATOR_LAYOUT.sectionHeadingStack}
+      >
+        <h2 className={cn("m-0", OPERATOR_TYPOGRAPHY.cardTitle)} id="security-trust-section-data-retention-heading">
+          {OPERATOR_SECURITY_TRUST_DATA_RETENTION_TITLE}
+        </h2>
         <div className="rounded-lg border border-neutral-200 bg-neutral-50/90 px-4 py-3 dark:border-neutral-700 dark:bg-neutral-900/40">
           <p className={cn("m-0 text-neutral-700 dark:text-neutral-300", OPERATOR_TYPOGRAPHY.body)}>
             {OPERATOR_SECURITY_TRUST_DATA_RETENTION_NOTE}
@@ -135,11 +331,11 @@ export function OperatorSecurityTrustPageView() {
           </p>
           <p className={cn("m-0 mt-3 text-neutral-700 dark:text-neutral-300", OPERATOR_TYPOGRAPHY.body)}>
             Contractual terms:{" "}
-            <Link className={securityTrustLinkClassName} href={OPERATOR_SECURITY_TRUST_DATA_RETENTION_DPA_HREF}>
+            <Link className={OPERATOR_LINK.inline} href={OPERATOR_SECURITY_TRUST_DATA_RETENTION_DPA_HREF}>
               {OPERATOR_SECURITY_TRUST_DATA_RETENTION_DPA_LABEL}
             </Link>
             {" · "}
-            <Link className={securityTrustLinkClassName} href={OPERATOR_SECURITY_TRUST_DATA_RETENTION_PRIVACY_HREF}>
+            <Link className={OPERATOR_LINK.inline} href={OPERATOR_SECURITY_TRUST_DATA_RETENTION_PRIVACY_HREF}>
               {OPERATOR_SECURITY_TRUST_DATA_RETENTION_PRIVACY_LABEL}
             </Link>
             .
@@ -147,37 +343,37 @@ export function OperatorSecurityTrustPageView() {
         </div>
       </section>
 
-      <section aria-label="Under NDA" className={OPERATOR_LAYOUT.sectionHeadingStack}>
+      <section aria-labelledby="security-trust-section-nda-heading" className={OPERATOR_LAYOUT.sectionHeadingStack}>
         <SecurityTrustMaturitySectionHeader
           maturityTag={OPERATOR_SECURITY_TRUST_MATURITY_TAG_UNDER_NDA}
           title="Diligence-only materials"
+          headingId="security-trust-section-nda-heading"
         />
-        <p className={cn("m-0", OPERATOR_TYPOGRAPHY.helper)}>
-          Shared under NDA; report bodies are not published on this page.
-        </p>
         <div className="rounded-md border border-neutral-200 bg-al-surface-raised px-4 py-3 dark:border-neutral-800">
-          <ul className={cn("m-0 list-disc space-y-1.5 pl-5 text-sky-950/90 dark:text-sky-100/90", OPERATOR_TYPOGRAPHY.body)}>
-            <li>Redacted penetration-test summaries (when available)</li>
-            <li>Internal security assessment summaries for diligence review</li>
-          </ul>
-          <p className={cn("m-0 mt-3 text-sky-950/90 dark:text-sky-100/90", OPERATOR_TYPOGRAPHY.body)}>
-            {OPERATOR_SECURITY_TRUST_NDA_INTRO} Contact{" "}
-            <a className={cn("font-medium", securityTrustLinkClassName)} href={`mailto:${OPERATOR_SECURITY_TRUST_NDA_EMAIL}`}>
-              {OPERATOR_SECURITY_TRUST_NDA_EMAIL}
-            </a>{" "}
-            to request access.
+          <p className={cn("m-0 text-neutral-700 dark:text-neutral-300", OPERATOR_TYPOGRAPHY.body)}>
+            {OPERATOR_SECURITY_TRUST_NDA_SHARED_TODAY}
+          </p>
+          <p className={cn("m-0 mt-3 text-neutral-700 dark:text-neutral-300", OPERATOR_TYPOGRAPHY.body)}>
+            {OPERATOR_SECURITY_TRUST_NDA_APPROVAL_ONLY}{" "}
+            <a className={OPERATOR_LINK.inline} href={OPERATOR_SECURITY_TRUST_NDA_REQUEST_HREF}>
+              {OPERATOR_SECURITY_TRUST_NDA_REQUEST_LABEL}
+            </a>
+            .
           </p>
         </div>
       </section>
 
-      <section aria-label="Roadmap" className={OPERATOR_LAYOUT.sectionHeadingStack}>
+      <section
+        aria-labelledby="security-trust-section-roadmap-heading"
+        className={OPERATOR_LAYOUT.sectionHeadingStack}
+      >
         <SecurityTrustMaturitySectionHeader
           maturityTag={OPERATOR_SECURITY_TRUST_MATURITY_TAG_ROADMAP}
           title="Planned security maturity"
+          headingId="security-trust-section-roadmap-heading"
         />
-        <p className={cn("m-0", OPERATOR_TYPOGRAPHY.helper)}>Planned work — not yet available.</p>
         <div className="rounded-md border border-neutral-200 bg-al-surface-raised px-4 py-3 dark:border-neutral-800">
-          <ul className={cn("m-0 list-disc space-y-1.5 pl-5 text-violet-950/90 dark:text-violet-100/90", OPERATOR_TYPOGRAPHY.body)}>
+          <ul className={cn("m-0 list-disc space-y-1.5 pl-5 text-neutral-700 dark:text-neutral-300", OPERATOR_TYPOGRAPHY.body)}>
             {OPERATOR_SECURITY_TRUST_ROADMAP_ITEMS.map((item) => (
               <li key={item}>{item}</li>
             ))}
@@ -185,49 +381,7 @@ export function OperatorSecurityTrustPageView() {
         </div>
       </section>
 
-      <section
-        aria-label="Need security review support?"
-        className="rounded-lg border border-neutral-200 bg-neutral-50/90 px-4 py-3 dark:border-neutral-700 dark:bg-neutral-900/40"
-      >
-        <h2 className={cn("m-0", OPERATOR_TYPOGRAPHY.cardTitle)}>Need security review support?</h2>
-        <p className={cn("m-0 mt-1.5 text-neutral-700 dark:text-neutral-300", OPERATOR_TYPOGRAPHY.body)}>
-          Contact{" "}
-          <a className={cn("font-medium", securityTrustLinkClassName)} href={`mailto:${OPERATOR_SECURITY_TRUST_NDA_EMAIL}`}>
-            {OPERATOR_SECURITY_TRUST_NDA_EMAIL}
-          </a>{" "}
-          for procurement packs, questionnaire alignment, or NDA-gated materials.
-        </p>
-      </section>
-
-      <details className="rounded-lg border border-neutral-200 dark:border-neutral-800">
-        <summary className={cn("cursor-pointer px-4 py-2", OPERATOR_TYPOGRAPHY.cardTitle)}>Badge legend</summary>
-        <div className="overflow-x-auto border-t border-neutral-200 dark:border-neutral-800">
-          <table className={cn("w-full min-w-[28rem] border-collapse text-left", OPERATOR_TYPOGRAPHY.body)}>
-            <thead className="bg-neutral-100 dark:bg-neutral-900/60">
-              <tr>
-                <th className="border-b border-neutral-200 px-3 py-2 font-semibold dark:border-neutral-800">Label</th>
-                <th className="border-b border-neutral-200 px-3 py-2 font-semibold dark:border-neutral-800">Meaning</th>
-              </tr>
-            </thead>
-            <tbody>
-              {OPERATOR_SECURITY_TRUST_MATURITY_TAGS.map((maturityTag) => (
-                <tr key={maturityTag.label}>
-                  <td className="border-b border-neutral-100 px-3 py-2 dark:border-neutral-800/80">
-                    <StatusTag
-                      data-testid={`security-trust-legend-${maturityTag.label}`}
-                      kind={maturityTag.kind}
-                      label={maturityTag.label}
-                    />
-                  </td>
-                  <td className="border-b border-neutral-100 px-3 py-2 text-neutral-700 dark:border-neutral-800/80 dark:text-neutral-300">
-                    {maturityTag.legendMeaning}
-                  </td>
-                </tr>
-              ))}
-            </tbody>
-          </table>
-        </div>
-      </details>
+      <SecurityTrustRelatedSurfacesDisclosure />
     </div>
   );
 }

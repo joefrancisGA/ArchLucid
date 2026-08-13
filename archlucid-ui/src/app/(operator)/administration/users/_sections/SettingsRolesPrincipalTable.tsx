@@ -4,7 +4,7 @@ import { cn } from "@/lib/utils";
 import { useCallback, useState } from "react";
 
 import { ConfirmationDialog } from "@/components/ConfirmationDialog";
-import { useOperatorNavAuthority } from "@/components/OperatorNavAuthorityProvider";
+import { useOperatorNavAuthority } from "@/components/operator/OperatorNavAuthorityProvider";
 import {
   Select,
   SelectContent,
@@ -27,6 +27,7 @@ import { roleDisplayLabel } from "@/lib/role-display-labels";
 
 import { isSettingsRolesPrincipalSelfRow } from "./settings-roles-principal-self-match";
 import { settingsRolesRoleChangeRequiresConfirmation } from "./settings-roles-privileged-role-change";
+import { SETTINGS_ROLES_KEYS_TABLE_KEY_HINT_HEADER } from "./settings-roles-page-keys-tab-copy";
 import { SETTINGS_ROLES_ASSIGNABLE } from "./settings-roles-page-constants";
 import type { SettingsRolesAssignablePrincipalRow } from "./settings-roles-page-types";
 
@@ -40,13 +41,15 @@ type PendingRoleChange = {
 
 type Props = {
   readonly rows: readonly SettingsRolesAssignablePrincipalRow[];
+  /** Keys tab uses automation-key column labels (TB-1934). */
+  readonly tableContext?: "users" | "api_keys";
   readonly onRoleChange: (
     row: SettingsRolesAssignablePrincipalRow,
     nextRole: ArchLucidAppRole,
   ) => Promise<"saved" | "rejected">;
 };
 
-export function SettingsRolesPrincipalTable({ rows, onRoleChange }: Props) {
+export function SettingsRolesPrincipalTable({ rows, tableContext = "users", onRoleChange }: Props) {
   const { currentPrincipal } = useOperatorNavAuthority();
   const [pendingChange, setPendingChange] = useState<PendingRoleChange | null>(null);
   const [confirmBusy, setConfirmBusy] = useState(false);
@@ -106,13 +109,19 @@ export function SettingsRolesPrincipalTable({ rows, onRoleChange }: Props) {
       ? ""
       : `Assign the ${roleDisplayLabel(pendingChange.nextRole)} role to ${pendingChange.row.name}? Privileged roles can change workspace access and governance settings.`;
 
+  const identityColumnLabel =
+    tableContext === "api_keys" ? SETTINGS_ROLES_KEYS_TABLE_KEY_HINT_HEADER : "Email / hint";
+  const tableAriaLabel = tableContext === "api_keys" ? "API key role assignments" : "Workspace members";
+
   return (
     <>
-      <EnterpriseTable ariaLabel="Workspace members">
+      <EnterpriseTable ariaLabel={tableAriaLabel}>
         <EnterpriseTableHead>
           <EnterpriseTableHeadRow>
             <EnterpriseTableHeaderCell>Name</EnterpriseTableHeaderCell>
-            <EnterpriseTableHeaderCell>Email / hint</EnterpriseTableHeaderCell>
+            <EnterpriseTableHeaderCell data-testid="settings-roles-principal-identity-column-header">
+              {identityColumnLabel}
+            </EnterpriseTableHeaderCell>
             <EnterpriseTableHeaderCell>Role</EnterpriseTableHeaderCell>
             <EnterpriseTableHeaderCell>Save status</EnterpriseTableHeaderCell>
           </EnterpriseTableHeadRow>

@@ -65,12 +65,12 @@ public sealed class HostCorePackageCoverageBatch7Tests
         using CancellationTokenSource cts = new();
         await cts.CancelAsync();
 
-        Func<Task> cancelled = () => sut.RunWithTelemetryAsync(
+        Func<Task> canceled = () => sut.RunWithTelemetryAsync(
             "coverage-cancel",
             ct => Task.FromCanceled<int>(ct),
             cts.Token);
 
-        await cancelled.Should().ThrowAsync<OperationCanceledException>();
+        await canceled.Should().ThrowAsync<OperationCanceledException>();
 
         Action nullLogger = () => _ = new JobRunTelemetry(null!);
         Func<Task> blankName = () =>

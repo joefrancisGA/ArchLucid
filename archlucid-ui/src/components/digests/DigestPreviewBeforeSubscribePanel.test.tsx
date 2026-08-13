@@ -2,11 +2,7 @@ import { render, screen } from "@testing-library/react";
 import { describe, expect, it } from "vitest";
 
 import { DigestPreviewBeforeSubscribePanel } from "@/components/digests/DigestPreviewBeforeSubscribePanel";
-import {
-  DIGEST_PREVIEW_BEFORE_SUBSCRIBE_TITLE,
-  DIGEST_PREVIEW_SEND_TO_ME_LABEL,
-  DIGEST_PREVIEW_SEND_TO_ME_UNAVAILABLE_REASON,
-} from "@/lib/digest-preview-before-subscribe";
+import { DIGEST_PREVIEW_BEFORE_SUBSCRIBE_TITLE } from "@/lib/digest-preview-before-subscribe";
 
 describe("DigestPreviewBeforeSubscribePanel (TB-2211)", () => {
   it("renders architecture subscription specimen from form values", () => {
@@ -22,13 +18,13 @@ describe("DigestPreviewBeforeSubscribePanel (TB-2211)", () => {
 
     expect(screen.getByTestId("digest-preview-before-subscribe")).toBeInTheDocument();
     expect(screen.getByText(DIGEST_PREVIEW_BEFORE_SUBSCRIBE_TITLE)).toBeInTheDocument();
-    expect(screen.getByTestId("digest-preview-before-subscribe-subject")).toHaveTextContent("Ops mailbox");
+    expect(screen.getByTestId("digest-preview-before-subscribe-subject")).toHaveTextContent("Architecture digest");
     expect(screen.getByTestId("digest-preview-before-subscribe-to")).toHaveTextContent("ops@example.com");
     expect(screen.getByTestId("digest-preview-before-subscribe-sections")).toBeInTheDocument();
     expect(screen.getByText("Review activity")).toBeInTheDocument();
   });
 
-  it("disables send-to-me with an honest unavailable reason", () => {
+  it("does not render send-to-me controls", () => {
     render(
       <DigestPreviewBeforeSubscribePanel
         variant="architecture-subscription"
@@ -37,14 +33,8 @@ describe("DigestPreviewBeforeSubscribePanel (TB-2211)", () => {
       />,
     );
 
-    const sendButton = screen.getByTestId("digest-preview-before-subscribe-send-to-me");
-
-    expect(sendButton).toBeDisabled();
-    expect(sendButton).toHaveAttribute("title", DIGEST_PREVIEW_SEND_TO_ME_UNAVAILABLE_REASON);
-    expect(sendButton).toHaveTextContent(DIGEST_PREVIEW_SEND_TO_ME_LABEL);
-    expect(screen.getByTestId("digest-preview-before-subscribe-send-to-me-reason")).toHaveTextContent(
-      DIGEST_PREVIEW_SEND_TO_ME_UNAVAILABLE_REASON,
-    );
+    expect(screen.queryByTestId("digest-preview-before-subscribe-send-to-me")).not.toBeInTheDocument();
+    expect(screen.queryByTestId("digest-preview-before-subscribe-send-to-me-reason")).not.toBeInTheDocument();
   });
 
   it("renders executive schedule specimen with cadence and recipients", () => {

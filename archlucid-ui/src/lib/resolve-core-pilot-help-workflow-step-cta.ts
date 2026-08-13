@@ -185,8 +185,8 @@ export function resolveCorePilotHelpWorkflowStepCta(
 ): CorePilotHelpWorkflowStepCta {
   if (step.stepNumber === 1) {
     return {
-      enabled: false,
-      href: null,
+      enabled: true,
+      href: step.href,
       label: step.ctaLabel,
       helperText: null,
     };

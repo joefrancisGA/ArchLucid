@@ -21,7 +21,7 @@ public sealed class AgentResult
         set;
     } = Guid.NewGuid().ToString("N");
 
-    /// <summary>Identifier of the <see cref="AgentTask" /> this result fulfils.</summary>
+    /// <summary>Identifier of the <see cref="AgentTask" /> this result fulfills.</summary>
     [Required]
     public string TaskId
     {

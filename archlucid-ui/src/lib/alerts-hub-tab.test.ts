@@ -1,9 +1,11 @@
-import { describe, expect, it } from "vitest";
+import { describe, expect, it, vi } from "vitest";
 
 import {
   alertHubTabFromSearchParam,
   alertRulesHubTabFromSearchParam,
   isAlertConfigurationTabParam,
+  readAlertRulesHubTabFromWindowLocation,
+  writeAlertRulesHubTabToUrl,
 } from "@/lib/alerts-hub-tab";
 
 describe("alerts-hub-tab", () => {
@@ -27,5 +29,19 @@ describe("alerts-hub-tab", () => {
     expect(isAlertConfigurationTabParam("routing")).toBe(false);
     expect(isAlertConfigurationTabParam("composite")).toBe(false);
     expect(isAlertConfigurationTabParam("simulation")).toBe(false);
+  });
+
+  it("writes alert-rules hub tabs to the URL without query params for the default rules tab", () => {
+    window.history.replaceState({}, "", "/governance/alert-rules?tab=notifications");
+    const replaceState = vi.spyOn(window.history, "replaceState");
+
+    writeAlertRulesHubTabToUrl("rules");
+
+    expect(replaceState).toHaveBeenCalledWith(null, "", "/governance/alert-rules");
+
+    writeAlertRulesHubTabToUrl("advanced-rules");
+
+    expect(replaceState).toHaveBeenLastCalledWith(null, "", "/governance/alert-rules?tab=advanced-rules");
+    expect(readAlertRulesHubTabFromWindowLocation()).toBe("advanced-rules");
   });
 });

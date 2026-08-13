@@ -152,6 +152,11 @@ describe("DigestsHubClient", () => {
 
     expect(screen.queryByTestId("digests-primary-action")).not.toBeInTheDocument();
     expect(await screen.findByTestId("digest-subscriptions-readiness-panel")).toBeInTheDocument();
+    expect(screen.getByTestId("digests-browse-schedule-subscriptions-vocabulary")).toBeInTheDocument();
+    expect(screen.queryByTestId("digests-notifications-vocabulary")).not.toBeInTheDocument();
+    expect(screen.queryByTestId("digests-teams-slack-vocabulary")).not.toBeInTheDocument();
+    expect(screen.queryByTestId("digests-advisory-scans-vocabulary")).not.toBeInTheDocument();
+    expect(screen.queryByTestId("explain-this-view-banner")).not.toBeInTheDocument();
   });
 
   it("lets the Browse checklist own setup guidance so the banner does not repeat it", async () => {
@@ -164,7 +169,8 @@ describe("DigestsHubClient", () => {
     expect(screen.queryByTestId("digest-setup-gaps")).not.toBeInTheDocument();
     expect(screen.queryByTestId("digests-browse-next-best-action")).not.toBeInTheDocument();
     expect(screen.queryByTestId("digests-browse-setup-message")).not.toBeInTheDocument();
-    expect(screen.queryByTestId("digest-status-compact-facts")).not.toBeInTheDocument();
+    expect(screen.getByTestId("digest-status-compact-facts")).toBeInTheDocument();
+    expect(screen.queryByTestId("explain-this-view-banner")).not.toBeInTheDocument();
     expect(await screen.findByTestId("digests-browse-setup-checklist")).toBeInTheDocument();
   });
 
@@ -179,18 +185,18 @@ describe("DigestsHubClient", () => {
 
     const preview = await screen.findByTestId("digests-preview-action");
 
-    expect(preview).toHaveAttribute("href", "/architecture/digests?tab=browse#digest-d1");
+    expect(preview).toHaveAttribute("href", "/architecture/digests?tab=get-started#digest-d1");
     expect(screen.queryByTestId("digests-primary-action")).not.toBeInTheDocument();
   });
 
-  it("keeps ?tab=browse in the URL when Browse is selected (TB-1505)", async () => {
+  it("keeps ?tab=get-started in the URL when Get started is selected (TB-1505)", async () => {
     searchParams = new URLSearchParams("tab=subscriptions");
 
     render(<DigestsHubClient />);
 
-    fireEvent.click(await screen.findByTestId("digests-hub-tab-browse"));
+    fireEvent.click(await screen.findByTestId("digests-hub-tab-get-started"));
 
-    expect(push).toHaveBeenCalledWith("/architecture/digests?tab=browse");
+    expect(push).toHaveBeenCalledWith("/architecture/digests?tab=get-started");
   });
 
   it("selects the schedule tab from the query parameter and simplifies the header", async () => {
@@ -219,5 +225,10 @@ describe("DigestsHubClient", () => {
     expect(screen.queryByTestId("digests-schedule-orientation")).toBeNull(); // TB-2092
     expect(screen.queryByTestId("digests-orientation")).not.toBeInTheDocument();
     expect(await screen.findByTestId("exec-digest-schedule-content")).toBeInTheDocument();
+    expect(screen.getByTestId("digests-advisory-scans-vocabulary")).toBeInTheDocument();
+    expect(screen.queryByTestId("digests-notifications-vocabulary")).not.toBeInTheDocument();
+    expect(screen.queryByTestId("digests-teams-slack-vocabulary")).not.toBeInTheDocument();
+    expect(screen.queryByTestId("digests-browse-schedule-subscriptions-vocabulary")).not.toBeInTheDocument();
+    expect(screen.queryByTestId("digest-recurrence-schedule-vocabulary")).not.toBeInTheDocument();
   });
 });

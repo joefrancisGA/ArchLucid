@@ -7,10 +7,10 @@ vi.mock("@/components/usability/PageContextualHelpButton", () => ({
 
 import { PolicyPacksPageView } from "./PolicyPacksPageView";
 import type { PolicyPacksPageViewModel } from "./policy-packs-page-view-model";
-import { policyPackBuyerLabel } from "@/lib/policy-pack-buyer-label";
+import { policyPackBuyerLabel } from "@/lib/policy/policy-pack-buyer-label";
 import {
   BUYER_POLICY_PACKS_PAGE_SUBTITLE,
-} from "@/lib/policy-packs-page";
+} from "@/lib/policy/policy-packs-page";
 import type { EffectivePolicyPackSet, PolicyPack, PolicyPackContentDocument } from "@/types/policy-packs";
 
 const selectedPack: PolicyPack = {
@@ -137,7 +137,7 @@ vi.mock("./PolicyPacksAdvancedAuthoringPanel", () => ({
   PolicyPacksAdvancedAuthoringPanel: () => null,
 }));
 
-vi.mock("@/components/PolicyPackImpactPreviewPanel", () => ({
+vi.mock("@/components/policy/PolicyPackImpactPreviewPanel", () => ({
   PolicyPackImpactPreviewPanel: () => null,
 }));
 

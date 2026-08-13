@@ -10,11 +10,18 @@
 /** Longest title rendered before an ellipsis; keeps the operator `h1` to one line at common widths. */
 const MAX_REVIEW_TITLE_CHARS = 80;
 
+/** Defensive workspace header clamp — no data path should exceed this on the review `h1`. */
+export const MAX_REVIEW_WORKSPACE_H1_CHARS = 120;
+
 /**
  * Opening sentence of `buildEvidenceBackedIntakeBrief`, which quotes the operator-entered title.
  * `\s*` before the period tolerates briefs written before the sentence separator was fixed.
  */
 const GENERATED_INTAKE_BRIEF_PATTERN = /^Architecture review intake for\s+"(.+?)"\s*\./;
+
+const ISO_DATE_PATTERN = /^\d{4}-\d{2}-\d{2}(?:[tT\s].*)?$/;
+
+const METADATA_DATE_FRAGMENT_PATTERN = /^(?:reviewed|updated|created|modified|date|status)\s*:\s*.+$/i;
 
 /** True when the text is the auto-generated intake brief rather than operator-authored content. */
 export function isGeneratedIntakeBrief(text: string | null | undefined): boolean {
@@ -39,12 +46,104 @@ function firstSentence(text: string): string {
   return match === null ? text : match[1];
 }
 
-function clampTitle(text: string): string {
-  if (text.length <= MAX_REVIEW_TITLE_CHARS) {
-    return text;
+function stripLinePrefixMarkdown(line: string): string {
+  let result = line.trim();
+
+  // Blockquote carets must be removed per line before whitespace collapse.
+  while (/^>\s?/.test(result)) {
+    result = result.replace(/^>\s?/, "").trim();
   }
 
-  return `${text.slice(0, MAX_REVIEW_TITLE_CHARS - 1).trimEnd()}…`;
+  result = result.replace(/^[-*+]\s+/, "");
+  result = result.replace(/^\d+\.\s+/, "");
+
+  return result;
+}
+
+/** Strips inline markdown so package blobs never render literal `**` or `#` in titles. */
+export function stripInlineMarkdownFromReviewText(text: string): string {
+  const lines = text.split(/\r?\n/);
+  const normalizedLines: string[] = [];
+
+  for (const rawLine of lines) {
+    const trimmedLine = rawLine.trim();
+
+    if (trimmedLine.length === 0) {
+      continue;
+    }
+
+    if (/^\s*\|.*\|\s*$/.test(trimmedLine)) {
+      continue;
+    }
+
+    const strippedLine = stripLinePrefixMarkdown(trimmedLine);
+
+    if (strippedLine.length > 0) {
+      normalizedLines.push(strippedLine);
+    }
+  }
+
+  let result = normalizedLines.join(" ");
+
+  result = result.replace(/\*\*(.+?)\*\*/g, "$1");
+  result = result.replace(/\*(.+?)\*/g, "$1");
+  // Underscore emphasis only counts at word boundaries so identifiers such as `my_api_gateway` survive intact.
+  result = result.replace(/(^|[\s(])__(\S(?:[\s\S]*?\S)?)__(?=[\s).,;:!?]|$)/g, "$1$2");
+  result = result.replace(/(^|[\s(])_(\S(?:[\s\S]*?\S)?)_(?=[\s).,;:!?]|$)/g, "$1$2");
+  result = result.replace(/`([^`]+)`/g, "$1");
+  result = result.replace(/^#+\s*/gm, "");
+
+  return result.replace(/\s+/g, " ").trim();
+}
+
+/** Rejects uploaded-document fragments that must not become review identity in operator chrome. */
+export function isUnusableReviewTitleCandidate(text: string | null | undefined): boolean {
+  const stripped = stripInlineMarkdownFromReviewText((text ?? "").trim());
+
+  if (stripped.length === 0) {
+    return true;
+  }
+
+  // A candidate with no letters is a date, a numbering artifact, or table residue — never a name.
+  // Length alone is not a signal: "API" and "IAM" are legitimate short system names.
+  if (!/[A-Za-z]/.test(stripped)) {
+    return true;
+  }
+
+  if (ISO_DATE_PATTERN.test(stripped)) {
+    return true;
+  }
+
+  if (METADATA_DATE_FRAGMENT_PATTERN.test(stripped)) {
+    const valuePart = stripped.replace(/^[^:]+:\s*/, "").trim();
+
+    if (valuePart.length === 0 || ISO_DATE_PATTERN.test(valuePart) || /^\d{4}-\d{2}-\d{2}$/.test(valuePart)) {
+      return true;
+    }
+  }
+
+  return false;
+}
+
+function clampTitle(text: string): string {
+  const stripped = stripInlineMarkdownFromReviewText(text);
+
+  if (stripped.length <= MAX_REVIEW_TITLE_CHARS) {
+    return stripped;
+  }
+
+  return `${stripped.slice(0, MAX_REVIEW_TITLE_CHARS - 1).trimEnd()}…`;
+}
+
+/** Single-line workspace header clamp applied at render time. */
+export function clampReviewWorkspaceH1Title(title: string): string {
+  const stripped = stripInlineMarkdownFromReviewText(title.trim());
+
+  if (stripped.length <= MAX_REVIEW_WORKSPACE_H1_CHARS) {
+    return stripped;
+  }
+
+  return `${stripped.slice(0, MAX_REVIEW_WORKSPACE_H1_CHARS - 3).trimEnd()}…`;
 }
 
 /** Turns any run label candidate (display name or description) into a single-line review title. */
@@ -56,10 +155,12 @@ export function toReviewDisplayTitle(candidate: string | null | undefined): stri
   }
 
   const generatedTitle: string | null = extractGeneratedIntakeBriefTitle(trimmed);
+  const titleCandidate: string =
+    generatedTitle !== null && generatedTitle.length > 0
+      ? generatedTitle
+      : firstSentence(firstNonEmptyLine(trimmed));
+  const normalized: string = clampTitle(titleCandidate);
 
-  if (generatedTitle !== null && generatedTitle.length > 0) {
-    return clampTitle(generatedTitle);
-  }
-
-  return clampTitle(firstSentence(firstNonEmptyLine(trimmed)));
+  // The quoted title inside a generated brief is screened too — a brief can quote a bare date.
+  return isUnusableReviewTitleCandidate(normalized) ? "" : normalized;
 }

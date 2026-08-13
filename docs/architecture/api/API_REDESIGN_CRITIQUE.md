@@ -1,6 +1,6 @@
 > **Scope:** Engineering critique of the public REST surface for API and SDK owners; not the canonical route catalog or a compliance attestation.
 
-# ArchLucid API Surface — Defect Catalogue
+# ArchLucid API Surface — Defect Catalog
 
 This document captures the nine defect dimensions identified during the REST API review (see implementation workstream `docs/architecture/api/API_V2_ROUTES.md` for the target surface).
 
@@ -23,9 +23,9 @@ Pipeline-internal verbs and constructs exposed on public routes dilute the produ
 
 ## 3. Missing Authorization Checks
 
-- Governance list-by-run endpoints relied on implicit DB scoping; explicit ownership verification improves defence-in-depth.
+- Governance list-by-run endpoints relied on implicit DB scoping; explicit ownership verification improves defense-in-depth.
 - Approve/reject routes lacked commercial-tier parity with other governance writes.
-- Pilot-only audit behaviour on execute vs. canonical actor resolution elsewhere.
+- Pilot-only audit behavior on execute vs. canonical actor resolution elsewhere.
 
 ## 4. Missing Idempotency
 

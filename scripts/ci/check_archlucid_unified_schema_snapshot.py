@@ -3,69 +3,57 @@
 
 from __future__ import annotations
 
-import subprocess
+import difflib
 import sys
-import tempfile
 from pathlib import Path
 
+sys.path.insert(0, str(Path(__file__).resolve().parent))
 
-ROOT = Path(__file__).resolve().parents[2]
-GENERATOR = ROOT / "scripts" / "ci" / "build_archlucid_unified_schema_sql.py"
-SNAPSHOT = ROOT / "ArchLucid.Persistence" / "Scripts" / "ArchLucid_Unified_Schema.sql"
+import build_archlucid_unified_schema_sql as generator
+
+MAX_DIFF_LINES = 60
 
 
 def main() -> int:
-    if not GENERATOR.is_file():
-        print(f"Missing generator: {GENERATOR}", file=sys.stderr)
+    if not generator.MASTER.is_file():
+        print(f"Missing master DDL: {generator.MASTER}", file=sys.stderr)
         return 2
 
-    if not SNAPSHOT.is_file():
-        print(f"Missing snapshot: {SNAPSHOT}", file=sys.stderr)
+    if not generator.OUT.is_file():
+        print(f"Missing snapshot: {generator.OUT}", file=sys.stderr)
         return 2
 
-    with tempfile.TemporaryDirectory() as tmp:
-        generated = Path(tmp) / "ArchLucid_Unified_Schema.sql"
-        env = dict(**{k: v for k, v in __import__("os").environ.items()})
-        # Generator writes to repo path; copy master output by running generator then diffing in-memory alternative:
-        # Run generator (updates SNAPSHOT in repo) is wrong — patch generator to accept OUT or diff via subprocess + import.
+    expected = generator.render_unified_schema()
+    actual = generator.OUT.read_text(encoding="utf-8")
 
-        spec_mod = __import__("importlib.util").util.spec_from_file_location("build_unified", GENERATOR)
-        if spec_mod is None or spec_mod.loader is None:
-            print("Cannot load generator module.", file=sys.stderr)
-            return 2
+    if actual == expected:
+        print("ArchLucid_Unified_Schema.sql matches generator output.")
+        return 0
 
-        mod = __import__("importlib.util").util.module_from_spec(spec_mod)
-        spec_mod.loader.exec_module(mod)
+    print(
+        "ArchLucid_Unified_Schema.sql is stale. Regenerate with:\n"
+        "  python scripts/ci/build_archlucid_unified_schema_sql.py",
+        file=sys.stderr,
+    )
 
-        master_text = (ROOT / "ArchLucid.Persistence" / "Scripts" / "ArchLucid.sql").read_text(encoding="utf-8")
-        batches = mod.split_go_batches(master_text)
-        kept = [b for b in batches if mod.batch_has_declarative_ddl(b)]
-        generated.write_text(mod.HEADER + "\n\nGO\n\n".join(kept) + "\n", encoding="utf-8")
+    diff = difflib.unified_diff(
+        actual.splitlines(),
+        expected.splitlines(),
+        fromfile="checked-in snapshot",
+        tofile="generator output",
+        lineterm="",
+    )
 
-        expected = SNAPSHOT.read_text(encoding="utf-8")
+    # The schema is ~8k lines, so a full diff would bury the failure in CI logs.
+    for index, line in enumerate(diff):
 
-        if expected == generated.read_text(encoding="utf-8"):
-            print("ArchLucid_Unified_Schema.sql matches generator output.")
-            return 0
+        if index >= MAX_DIFF_LINES:
+            print("  … diff truncated", file=sys.stderr)
+            break
 
-        diff = subprocess.run(
-            ["git", "diff", "--no-index", "--", str(SNAPSHOT), str(generated)],
-            cwd=ROOT,
-            check=False,
-            capture_output=True,
-            text=True,
-        )
+        print(line, file=sys.stderr)
 
-        print(
-            "ArchLucid_Unified_Schema.sql is stale. Regenerate with:\n"
-            "  python scripts/ci/build_archlucid_unified_schema_sql.py",
-            file=sys.stderr,
-        )
-
-        if diff.stdout:
-            print(diff.stdout, file=sys.stderr)
-
-        return 1
+    return 1
 
 
 if __name__ == "__main__":

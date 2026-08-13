@@ -1,4 +1,4 @@
-import { ARCHITECTURE_REVIEW_VOCABULARY } from "@/lib/architecture-review-vocabulary";
+import { ARCHITECTURE_REVIEW_VOCABULARY } from "@/lib/vocabulary/architecture-review-vocabulary";
 import { FIRST_PILOT_BUYER_COPY } from "@/lib/first-pilot-buyer-copy";
 import {
   ONBOARDING_TOUR_DONE_LINK_HREF,
@@ -11,7 +11,7 @@ import {
   ONBOARDING_TOUR_WELCOME_BODY,
   OPERATOR_ONBOARDING_TOUR_STEPS,
   type OperatorOnboardingTourStepCopy,
-} from "@/lib/operator-onboarding-tour-steps";
+} from "@/lib/operator/operator-onboarding-tour-steps";
 
 export {
   ONBOARDING_TOUR_DONE_LINK_HREF,

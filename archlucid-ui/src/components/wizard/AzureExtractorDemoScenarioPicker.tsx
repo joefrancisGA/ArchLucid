@@ -34,7 +34,7 @@ export function AzureExtractorDemoScenarioPicker(props: AzureExtractorDemoScenar
             className={cn(
               "rounded-md border p-3 text-left transition-colors",
               selected
-                ? "border-teal-600 bg-teal-50/80 ring-1 ring-teal-600 dark:border-teal-500 dark:bg-teal-950/30 dark:ring-teal-500"
+                ? "border-teal-700 bg-neutral-50 ring-1 ring-teal-700 dark:border-teal-500 dark:bg-neutral-900/60 dark:ring-teal-500"
                 : "border-neutral-200 bg-white hover:border-neutral-300 dark:border-neutral-800 dark:bg-neutral-950 dark:hover:border-neutral-700",
             )}
             data-testid={`${testIdPrefix}-scenario-${scenario.id}`}

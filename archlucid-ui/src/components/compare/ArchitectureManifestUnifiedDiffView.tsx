@@ -4,9 +4,15 @@ import { cn } from "@/lib/utils";
 import { OPERATOR_TYPOGRAPHY } from "@/lib/design-tokens";
 import { useMemo } from "react";
 
+import {
+  EnterpriseTable,
+  EnterpriseTableBody,
+  EnterpriseTableCell,
+  EnterpriseTableRow,
+} from "@/components/ui/enterprise-table";
 import { useInpOffloadTask } from "@/lib/workers/inp-offload-client";
-import { buildArchitectureManifestUnifiedLines } from "@/lib/architecture-manifest-line-diff";
-import type { ArchitectureManifestUnifiedLine } from "@/lib/architecture-manifest-line-diff";
+import { buildArchitectureManifestUnifiedLines } from "@/lib/architecture/architecture-manifest-line-diff";
+import type { ArchitectureManifestUnifiedLine } from "@/lib/architecture/architecture-manifest-line-diff";
 
 function rowClass(line: ArchitectureManifestUnifiedLine): string {
   if (line.kind === "add") {
@@ -69,25 +75,28 @@ export function ArchitectureManifestUnifiedDiffView(props: ArchitectureManifestU
         role="region"
         aria-label="Unified line diff of baseline and updated review record JSON"
       >
-        <table className={cn("w-full border-collapse text-left font-mono leading-snug", OPERATOR_TYPOGRAPHY.helper)}>
+        <EnterpriseTable
+          ariaLabel="Unified line diff of baseline and updated review record JSON"
+          className={cn("w-full text-left font-mono leading-snug", OPERATOR_TYPOGRAPHY.helper)}
+        >
           <caption className="sr-only">
             Lines prefixed with minus were removed from the baseline review record; lines prefixed with plus were added in
             the updated review record; blank prefix lines are unchanged context.
           </caption>
-          <tbody>
+          <EnterpriseTableBody>
             {rows.map((line, index) => (
-              <tr key={index} className={cn("align-top", rowClass(line))}>
-                <td className={cn("w-8 shrink-0 select-none whitespace-nowrap py-px pr-1 pl-2 text-right text-neutral-500 dark:text-neutral-500", OPERATOR_TYPOGRAPHY.badge)}>
+              <EnterpriseTableRow key={index} className={cn("align-top", rowClass(line))}>
+                <EnterpriseTableCell className={cn("w-8 shrink-0 select-none whitespace-nowrap py-px pr-1 pl-2 text-right text-neutral-500 dark:text-neutral-500", OPERATOR_TYPOGRAPHY.badge)}>
                   {index + 1}
-                </td>
-                <td className="w-5 shrink-0 select-none whitespace-nowrap py-px text-center font-semibold text-neutral-600 dark:text-neutral-400">
+                </EnterpriseTableCell>
+                <EnterpriseTableCell className="w-5 shrink-0 select-none whitespace-nowrap py-px text-center font-semibold text-neutral-600 dark:text-neutral-400">
                   {line.prefix}
-                </td>
-                <td className="min-w-[12rem] whitespace-pre-wrap break-all py-px pr-3">{line.text}</td>
-              </tr>
+                </EnterpriseTableCell>
+                <EnterpriseTableCell className="min-w-[12rem] whitespace-pre-wrap break-all py-px pr-3">{line.text}</EnterpriseTableCell>
+              </EnterpriseTableRow>
             ))}
-          </tbody>
-        </table>
+          </EnterpriseTableBody>
+        </EnterpriseTable>
       </div>
     </div>
   );

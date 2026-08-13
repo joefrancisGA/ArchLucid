@@ -70,4 +70,17 @@ Done **TB-881** is a **CI/test isolation** defect (parallel xUnit + process-wide
 | **TB-881** | Closed CI/test isolation fix |
 | **TB-1371** | This classification contract |
 | **TB-1372** | Anti–“TB-881 blocks pilots” honesty CI + OPEN hygiene |
+
+---
+
+## CI anchors for **TB-1372**
+
+| Anchor | Role |
+| --- | --- |
+| `scripts/ci/check_tb881_ship_blocker_classification_honesty.py` | Fail TB-881-as-pilot-blocker / reopen-Done claims + OPEN inventory hygiene |
+| `TB881_ORG_REGISTRATION_RACE_SHIP_BLOCKER_CLASSIFICATION_CONTRACT.md` | Drift guard (this file) |
+| `ArchLucid.Api.Tests/AssemblyAttributes.cs`, `xunit.runner.json` | TB-881 regression serialization anchors |
+| `docs/library/TECH_BACKLOG_OPEN.md` | Must not list TB-881 as open RC12 pilot blocker |
+
+Honesty CI shipped: **TB-1372**.
 | **M-249** / **M-250** | GTM classification / procurement handout |

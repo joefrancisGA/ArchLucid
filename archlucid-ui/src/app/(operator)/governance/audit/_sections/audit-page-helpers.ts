@@ -1,8 +1,8 @@
 import {
   auditBuyerEventIsSystemRecordedActor,
 } from "@/app/(operator)/governance/audit/audit-ui-helpers";
-import { buyerSafeActorDisplayName } from "@/lib/buyer-demo-persona-labels";
-import { buyerFacingReviewLinkLabelFromRunId } from "@/lib/buyer-facing-review-title";
+import { buyerSafeActorDisplayName } from "@/lib/buyer/buyer-demo-persona-labels";
+import { buyerFacingReviewLinkLabelFromRunId } from "@/lib/buyer/buyer-facing-review-title";
 import { canonicalizeDemoRunId } from "@/lib/demo-run-canonical";
 import { SHOWCASE_STATIC_DEMO_RUN_ID } from "@/lib/showcase-static-demo";
 
@@ -94,7 +94,7 @@ export function auditBuyerActorRoleLine(actorName: string, eventType: string): s
   return "Participant";
 }
 
-import type { OperatorSavedViewPayload } from "@/lib/operator-saved-view-types";
+import type { OperatorSavedViewPayload } from "@/lib/operator/operator-saved-view-types";
 
 export interface AuditFilterFields {
   eventType: string;

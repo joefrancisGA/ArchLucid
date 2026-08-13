@@ -2,8 +2,8 @@ import { fireEvent, render, screen, within } from "@testing-library/react";
 import { describe, expect, it } from "vitest";
 
 import { HelpTopicTableOfContents } from "@/components/help/HelpTopicTableOfContents";
-import { HELP_PAGE_TOC } from "@/lib/help-page-layout";
-import type { HelpMarkdownHeading } from "@/lib/help-markdown-headings";
+import { HELP_PAGE_TOC } from "@/lib/help/help-page-layout";
+import type { HelpMarkdownHeading } from "@/lib/help/help-markdown-headings";
 
 const SAMPLE_HEADINGS: readonly HelpMarkdownHeading[] = [
   { id: "pilot-first", title: "Pilot first. Operate later.", level: 2 },

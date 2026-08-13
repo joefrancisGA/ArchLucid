@@ -1,5 +1,5 @@
-import { getShowcaseExecutiveHref } from "@/lib/buyer-safe-review-navigation";
-import { appendBuyerCtoDemoTourStartQuery } from "@/lib/buyer-cto-demo-tour";
+import { getShowcaseExecutiveHref } from "@/lib/buyer/buyer-safe-review-navigation";
+import { appendBuyerCtoDemoTourStartQuery } from "@/lib/buyer/buyer-cto-demo-tour";
 
 export const CTO_DEMO_FAST_CREATE_TOTAL_MS = 15_000;
 

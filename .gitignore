@@ -410,7 +410,8 @@ MigrationBackup/
 # Local tool experiments (e.g. NSwag.ConsoleCore scratch installs)
 .tools/
 
-# NSwag: generated HTTP client is committed at ArchLucid.Api.Client/Generated/ (regenerate when OpenAPI changes; do not gitignore).
+# NSwag: HTTP client is generated on build from the OpenAPI snapshot (see ArchLucid.Api.Client/README.md).
+ArchLucid.Api.Client/Generated/*.g.cs
 
 # Legacy ArchiForge.* directories deleted 2026-04 (workspace-root cleanup, see docs/CHANGELOG.md and docs/library/V1_DEFERRED.md §3).
 # Do not recreate. Rename/token drift is still guarded in .github/workflows/ci.yml (archiforge string scans + Terraform).

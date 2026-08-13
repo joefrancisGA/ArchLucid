@@ -133,7 +133,7 @@ Authoritative sources: Microsoft Defender for Cloud documentation, Microsoft Clo
 
 Key themes for rule authoring:
 - PLAN COVERAGE: each Defender plan (Servers P1/P2, Storage, SQL servers on machines, SQL PaaS, Containers, Key Vault, DNS, Resource Manager, APIs) must be explicitly enabled; plans have per-resource billing implications.
-- SECURE SCORE: organisations should maintain a documented baseline secure score target; recommendations should be reviewed on a defined cadence; critical recommendations should block or delay deployments.
+- SECURE SCORE: organizations should maintain a documented baseline secure score target; recommendations should be reviewed on a defined cadence; critical recommendations should block or delay deployments.
 - AGENT POSTURE: Defender for Servers P2 requires MMA/AMA agent (or agentless scanning); agentless scanning covers VMs without requiring agent deployment; manifest should document agent strategy.
 - CONTAINERS: Defender for Containers covers AKS, ACR image scanning, Kubernetes data plane; runtime threat protection separate from image scanning.
 - ATTACK PATH: attack path analysis surfaces paths from internet exposure to sensitive assets; manifest should document exposure points and compensating controls.
@@ -223,7 +223,7 @@ SOURCE FRAMEWORK SUMMARY:
 Authoritative sources: Microsoft Azure Policy documentation, Microsoft Cloud Adoption Framework (Govern discipline), Azure Well-Architected Framework (Operational Excellence pillar), CIS Azure Foundations Benchmark v2.0.
 
 Key themes for rule authoring:
-- SCOPE STRATEGY: policies at management group root for organisation-wide controls; exceptions pushed down to subscription/RG scope; inheritance hierarchy should be documented in the architecture manifest.
+- SCOPE STRATEGY: policies at management group root for organization-wide controls; exceptions pushed down to subscription/RG scope; inheritance hierarchy should be documented in the architecture manifest.
 - INITIATIVE GROUPING: policies grouped into initiatives by domain (security, networking, tagging, cost); regulatory compliance initiatives (NIST 800-53, ISO 27001, CIS, PCI-DSS) assigned at the appropriate scope.
 - EFFECT HIERARCHY: Audit effects for visibility without disruption; Deny effects for hard security gates; DeployIfNotExists (DINE) for automatic remediation; effect choice must be documented with justification.
 - EXEMPTIONS: all policy exemptions must be documented with business justification, approval evidence, and expiry date; indefinite exemptions are a governance gap.
@@ -305,10 +305,10 @@ SUB-CORPORA AND RULE DISTRIBUTION:
 | avd-fslogix-    | FSLogix profile design (profile container, cloud cache, storage backend, antivirus exclusions) | 5 | P0/P1 |
 | avd-image-      | Image management (custom images, Azure Compute Gallery, update cadence, endpoint protection) | 5 | P1 |
 | avd-network-    | Network segmentation (AVD subnet isolation, private link for AVD management, NSG design, RDP shortpath) | 5 | P0/P1 |
-| avd-cost-       | Cost optimisation (start/stop automation, scaling plans, spot instances for dev/test pools) | 4 | P1/P2 |
+| avd-cost-       | Cost optimization (start/stop automation, scaling plans, spot instances for dev/test pools) | 4 | P1/P2 |
 
 SOURCE FRAMEWORK SUMMARY:
-Authoritative sources: Microsoft Azure Virtual Desktop documentation, Microsoft AVD security baseline, Azure Well-Architected Framework (Security and Cost Optimisation pillars as applied to VDI), CIS Microsoft AVD benchmark themes.
+Authoritative sources: Microsoft Azure Virtual Desktop documentation, Microsoft AVD security baseline, Azure Well-Architected Framework (Security and Cost Optimization pillars as applied to VDI), CIS Microsoft AVD benchmark themes.
 
 Key themes for rule authoring:
 - HOST POOLS: pooled host pools for task workers; personal pools for power users requiring persistent desktop; load balancing algorithm should match workload type; max-session limit must be sized to VM SKU.
@@ -468,7 +468,7 @@ ADJACENT PACKS (do not duplicate — cross-link via frameworkMappings instead):
 
 ```
 PACK_DISPLAY_NAME:   OWASP Application Security Verification Standard (ASVS)
-PACK_DESCRIPTION:    Architecture-review baseline aligned to OWASP ASVS v4.0.3 — the verification-level counterpart to OWASP API Security Top 10. Covers all 14 chapters (V1–V14) at architecture-level evidence: authentication, session, access control, input validation, cryptography, error handling, data protection, communications, malicious code, business logic, files, API, and configuration. Organised by ASVS Level 1/2/3 mapped to P0/P1/P2. Not OWASP certification.
+PACK_DESCRIPTION:    Architecture-review baseline aligned to OWASP ASVS v4.0.3 — the verification-level counterpart to OWASP API Security Top 10. Covers all 14 chapters (V1–V14) at architecture-level evidence: authentication, session, access control, input validation, cryptography, error handling, data protection, communications, malicious code, business logic, files, API, and configuration. Organized by ASVS Level 1/2/3 mapped to P0/P1/P2. Not OWASP certification.
 PACK_CATEGORY:       Application Security
 SLUG:                owasp-asvs
 RULE_PREFIX:         asvs-
@@ -506,7 +506,7 @@ Key themes for rule authoring:
 - V5 INPUT VALIDATION: input validation for all untrusted data; output encoding; parameterised queries / ORMs.
 - V6 CRYPTOGRAPHY: FIPS-approved or NIST-recommended algorithms; key management documented; no weak algorithms (MD5, SHA-1, DES, RC4).
 - V7 LOGGING: security-relevant events logged; logs protected from tampering; no sensitive data in logs.
-- V8 DATA PROTECTION: sensitive data classified; data at rest and in transit encrypted; PII minimised.
+- V8 DATA PROTECTION: sensitive data classified; data at rest and in transit encrypted; PII minimized.
 - V9 COMMUNICATIONS: TLS 1.2+ enforced; certificate pinning for mobile; HSTS headers.
 - V13 API: REST/SOAP security headers; GraphQL depth limiting; API authentication (OAuth 2.0 / API keys with expiry).
 - V14 CONFIGURATION: security headers (CSP, X-Frame-Options, HSTS); dependency scanning; secrets management; no debug features in production.
@@ -527,7 +527,7 @@ ADJACENT PACKS (do not duplicate — cross-link via frameworkMappings instead):
 
 ```
 PACK_DISPLAY_NAME:   GitHub Engineering Posture
-PACK_DESCRIPTION:    Architecture-review baseline for GitHub organisation and repository security posture — branch protection, required reviews, CODEOWNERS, GitHub Advanced Security (GHAS: code scanning / secret scanning / Dependabot), OIDC for deployments, reusable workflows, and organisation-level controls. Distinct from supply-chain SBOM focus; covers the GitHub platform as the development and deployment control surface. Not a GitHub certification.
+PACK_DESCRIPTION:    Architecture-review baseline for GitHub organization and repository security posture — branch protection, required reviews, CODEOWNERS, GitHub Advanced Security (GHAS: code scanning / secret scanning / Dependabot), OIDC for deployments, reusable workflows, and organization-level controls. Distinct from supply-chain SBOM focus; covers the GitHub platform as the development and deployment control surface. Not a GitHub certification.
 PACK_CATEGORY:       DevSecOps
 SLUG:                github-engineering-posture
 RULE_PREFIX:         gh-
@@ -537,23 +537,23 @@ FRAMEWORK_SHORT_NAME: GitHub
 SUB-CORPORA AND RULE DISTRIBUTION:
 | Prefix         | Theme                                                         | Target rules | Priority skew |
 |----------------|---------------------------------------------------------------|-------------|---------------|
-| gh-org-        | Organisation controls (SSO enforcement, 2FA requirement, IP allowlist, audit log streaming) | 5 | P0-heavy |
+| gh-org-        | Organization controls (SSO enforcement, 2FA requirement, IP allowlist, audit log streaming) | 5 | P0-heavy |
 | gh-branch-     | Branch protection (required reviews, status checks, signed commits, linear history, force-push prohibition) | 6 | P0-heavy |
 | gh-ghas-       | GitHub Advanced Security (code scanning, secret scanning with push protection, Dependabot alerts + PRs) | 7 | P0/P1 |
 | gh-deploy-     | Deployment security (OIDC for cloud deployments, environment protection rules, required reviewers, deployment logs) | 6 | P0/P1 |
 | gh-workflow-   | Workflow security (reusable workflows, pinned actions to SHA, GITHUB_TOKEN least privilege, pull_request_target risks) | 6 | P1/P2 |
 
 SOURCE FRAMEWORK SUMMARY:
-Authoritative sources: GitHub documentation (organisation security, branch protection, GHAS, OIDC), CISA and NSA "Defending Continuous Integration/Continuous Delivery (CI/CD) Environments" (2023), SLSA supply chain framework (informative reference).
+Authoritative sources: GitHub documentation (organization security, branch protection, GHAS, OIDC), CISA and NSA "Defending Continuous Integration/Continuous Delivery (CI/CD) Environments" (2023), SLSA supply chain framework (informative reference).
 
 Key themes for rule authoring:
-- ORGANISATION CONTROLS: Entra ID / SAML SSO enforced for all members; 2FA required at org level; IP allowlist for self-hosted runners or sensitive repos; audit log streaming to SIEM (Sentinel) for security events.
+- ORGANIZATION CONTROLS: Entra ID / SAML SSO enforced for all members; 2FA required at org level; IP allowlist for self-hosted runners or sensitive repos; audit log streaming to SIEM (Sentinel) for security events.
 - BRANCH PROTECTION: default branch and release branches protected; required review count ≥ 1 (≥ 2 for regulated repos); status checks (CI) must pass; dismiss stale reviews when new commits pushed; force-push and deletion prohibited.
 - CODEOWNERS: CODEOWNERS file in repo root defining owners for sensitive paths; combined with required review count means owners must approve changes to owned paths.
 - GHAS: code scanning (CodeQL or 3rd party) enabled; secret scanning with push protection enabled (blocks commits containing secrets); Dependabot alerts for known CVEs; Dependabot auto-PRs for patch updates.
 - OIDC DEPLOYMENTS: deployments to cloud environments (Azure, AWS, GCP) should use GitHub Actions OIDC rather than long-lived secrets; OIDC subject claims scoped to specific repo + environment + ref to prevent privilege escalation.
 - WORKFLOW SECURITY: 3rd-party actions pinned to full commit SHA (not floating tag); GITHUB_TOKEN permissions set to minimum required; pull_request_target with checkout from PR head is a well-known injection risk — document if used and why.
-- REUSABLE WORKFLOWS: organisation-level reusable workflows for common security controls (SAST, DAST, dependency scan, sign) reduce duplication and enforce consistency.
+- REUSABLE WORKFLOWS: organization-level reusable workflows for common security controls (SAST, DAST, dependency scan, sign) reduce duplication and enforce consistency.
 
 DISCLAIMER TEXT:
 "Thematic architecture-review mapping; not GitHub certification or DevSecOps maturity attestation."
@@ -571,7 +571,7 @@ ADJACENT PACKS (do not duplicate — cross-link via frameworkMappings instead):
 
 ```
 PACK_DISPLAY_NAME:   MITA — Medicare Information Technology Architecture
-PACK_DESCRIPTION:    Architecture-review baseline aligned to CMS MITA 3.0 — the Medicare / Medicaid IT architecture framework for state Medicaid Management Information Systems (MMIS). Covers business architecture (BA), information architecture (IA), and technical architecture (TA) across the seven Medicaid business areas, and maps to MITA maturity levels 1–5. Pairs with ARC-AMPE for comprehensive CMS-programme governance. Not CMS MITA-MECT certification or MMIS certification.
+PACK_DESCRIPTION:    Architecture-review baseline aligned to CMS MITA 3.0 — the Medicare / Medicaid IT architecture framework for state Medicaid Management Information Systems (MMIS). Covers business architecture (BA), information architecture (IA), and technical architecture (TA) across the seven Medicaid business areas, and maps to MITA maturity levels 1–5. Pairs with ARC-AMPE for comprehensive CMS-program governance. Not CMS MITA-MECT certification or MMIS certification.
 PACK_CATEGORY:       Public Sector / Healthcare
 SLUG:                mita-architecture
 RULE_PREFIX:         mita-
@@ -581,7 +581,7 @@ FRAMEWORK_SHORT_NAME: MITA (CMS)
 SUB-CORPORA AND RULE DISTRIBUTION:
 | Prefix          | Theme                                                           | Target rules | Priority skew |
 |-----------------|-----------------------------------------------------------------|-------------|---------------|
-| mita-ba-        | Business Architecture (seven Medicaid business areas: Member, Provider, Operations, Plan Management, Claims, Care Management, Programme) | 7 | All P0 |
+| mita-ba-        | Business Architecture (seven Medicaid business areas: Member, Provider, Operations, Plan Management, Claims, Care Management, Program) | 7 | All P0 |
 | mita-ia-        | Information Architecture (data entities, interoperability, HL7 FHIR, information exchange standards) | 8 | P0/P1 |
 | mita-ta-        | Technical Architecture (service orientation, cloud adoption, API-first, standards compliance) | 8 | P0/P1 |
 | mita-maturity-  | Maturity levels 1–5 (architecture evidence for maturity self-assessment) | 7 | P1/P2 |
@@ -592,15 +592,15 @@ SOURCE FRAMEWORK SUMMARY:
 Authoritative sources: CMS MITA 3.0 Framework (https://www.medicaid.gov/medicaid/data-and-systems/mita/index.html), CMS Interoperability and Patient Access Final Rule (CMS-9115-F), HL7 FHIR R4.
 
 Key themes for rule authoring:
-- SEVEN BUSINESS AREAS: Member management, Provider management, Managed care operations / plan management, Claims processing, Care management, Programme integrity, Programme operations. Each has defined MITA business processes.
+- SEVEN BUSINESS AREAS: Member management, Provider management, Managed care operations / plan management, Claims processing, Care management, Program integrity, Program operations. Each has defined MITA business processes.
 - INFORMATION ARCHITECTURE: data entities aligned to MITA IE (Information Exchange) standards; HL7 FHIR R4 APIs for patient access and payer-to-payer exchange; NDC / ICD-10 / CPT code systems documented.
-- TECHNICAL ARCHITECTURE: SOA/microservices-oriented; APIs exposing MITA services documented; cloud-native deployment on FedRAMP-authorised platforms; API gateway for Medicaid services.
-- MITA MATURITY: maturity levels 1–5 (1 = ad-hoc, 5 = optimised); evidence for maturity claims must be in the architecture manifest; self-assessment must map specific manifest artefacts to maturity dimensions.
+- TECHNICAL ARCHITECTURE: SOA/microservices-oriented; APIs exposing MITA services documented; cloud-native deployment on FedRAMP-authorized platforms; API gateway for Medicaid services.
+- MITA MATURITY: maturity levels 1–5 (1 = ad-hoc, 5 = optimized); evidence for maturity claims must be in the architecture manifest; self-assessment must map specific manifest artefacts to maturity dimensions.
 - INTEROPERABILITY: CMS interoperability rule requires FHIR-based Patient Access API and Provider Directory API; payer-to-payer data exchange via FHIR; manifest must document API endpoints, authentication (SMART on FHIR), and data retention.
 - SECURITY ALIGNMENT: ARC-AMPE (#24) covers the security control surface; MITA pack covers the architecture alignment — cross-reference rather than duplicate security rules.
 
 DISCLAIMER TEXT:
-"Thematic architecture-review mapping; not CMS MITA-MECT certification, MMIS certification, or Medicaid programme compliance attestation."
+"Thematic architecture-review mapping; not CMS MITA-MECT certification, MMIS certification, or Medicaid program compliance attestation."
 
 ADJACENT PACKS (do not duplicate — cross-link via frameworkMappings instead):
 - arc-ampe-architecture-themes (#24): ARC-AMPE covers security controls; MITA covers business/info/technical architecture — complementary
@@ -633,7 +633,7 @@ SUB-CORPORA AND RULE DISTRIBUTION:
 | snow-observe-   | Observability (Query History, ACCESS_HISTORY, DATA_TRANSFER_HISTORY, audit logging via Snowflake-provided event tables) | 3 | P1 |
 
 SOURCE FRAMEWORK SUMMARY:
-Authoritative sources: Snowflake documentation (security guide, governance guide, cost optimisation guide), Snowflake CIS Benchmark (if available), NIST SP 800-53 R5 (for control mapping where applicable).
+Authoritative sources: Snowflake documentation (security guide, governance guide, cost optimization guide), Snowflake CIS Benchmark (if available), NIST SP 800-53 R5 (for control mapping where applicable).
 
 Key themes for rule authoring:
 - ROLE HIERARCHY: ACCOUNTADMIN should have ≤ 2 members and MFA required; SYSADMIN for object creation; SECURITYADMIN for users/roles; custom roles follow principle of least privilege; service accounts use dedicated roles, not ACCOUNTADMIN.
@@ -977,7 +977,7 @@ Key themes for rule authoring:
 - BLAST-RADIUS: Agent failure must not cascade to unrelated systems; isolation boundary documented.
 
 DISCLAIMER TEXT:
-"Architecture-review mapping for agentic AI posture; not safety certification of autonomous AI agents or guarantee of bounded agent behaviour."
+"Architecture-review mapping for agentic AI posture; not safety certification of autonomous AI agents or guarantee of bounded agent behavior."
 
 ADJACENT PACKS (do not duplicate):
 - owasp-llm-top10 (AI-01): LLM07 (plugin) and LLM08 (excessive agency) cross-reference
@@ -1303,22 +1303,22 @@ FRAMEWORK_SHORT_NAME: MITRE ATLAS v4+
 SUB-CORPORA AND RULE DISTRIBUTION:
 | Prefix           | Defensive theme (ATLAS tactic area)                                 | Target rules | Priority skew |
 |------------------|---------------------------------------------------------------------|-------------|---------------|
-| atlas-poison-    | Data poisoning defences (training data access control, integrity)   | 5           | P0-heavy      |
-| atlas-evade-     | Evasion defences (input validation, adversarial input detection design) | 5        | P1            |
-| atlas-extract-   | Model extraction defences (API rate limiting, output restriction)   | 5           | P0/P1         |
-| atlas-invert-    | Model inversion defences (output truncation, differential privacy)  | 4           | P1            |
-| atlas-backdoor-  | Backdoor/trojan defences (training pipeline integrity, provenance)  | 4           | P0/P1         |
-| atlas-supply-    | Supply-chain compromise defences (third-party model provenance)     | 4           | P0/P1         |
-| atlas-persist-   | Persistence defences (behavioral drift monitoring from baseline)    | 3           | P1/P2         |
+| atlas-poison-    | Data poisoning defenses (training data access control, integrity)   | 5           | P0-heavy      |
+| atlas-evade-     | Evasion defenses (input validation, adversarial input detection design) | 5        | P1            |
+| atlas-extract-   | Model extraction defenses (API rate limiting, output restriction)   | 5           | P0/P1         |
+| atlas-invert-    | Model inversion defenses (output truncation, differential privacy)  | 4           | P1            |
+| atlas-backdoor-  | Backdoor/trojan defenses (training pipeline integrity, provenance)  | 4           | P0/P1         |
+| atlas-supply-    | Supply-chain compromise defenses (third-party model provenance)     | 4           | P0/P1         |
+| atlas-persist-   | Persistence defenses (behavioral drift monitoring from baseline)    | 3           | P1/P2         |
 
 SOURCE FRAMEWORK SUMMARY:
 Source: MITRE ATLAS matrix v4+ (atlasai.mitre.org). Cite ATLAS tactic and technique IDs (AML.T*, AML.TA*).
 
 Key themes for rule authoring:
-- DATA POISONING DEFENCE: Training data access restricted to authorised pipeline only; data integrity verification (checksums / provenance) before training; data change detection logging.
-- MODEL EXTRACTION DEFENCE: API access rate-limited per consumer; output confidence scores suppressed or binned (not raw probabilities); API access logged and anomalous extraction patterns alerted.
-- BACKDOOR DEFENCE: Training pipeline changes require approval and audit; model weights verified against known-good digest before deployment; third-party model supply chain documented.
-- SUPPLY CHAIN DEFENCE: All third-party models documented with version, source, and provenance; model integrity verified (digest pinning) before serving.
+- DATA POISONING DEFENSE: Training data access restricted to authorized pipeline only; data integrity verification (checksums / provenance) before training; data change detection logging.
+- MODEL EXTRACTION DEFENSE: API access rate-limited per consumer; output confidence scores suppressed or binned (not raw probabilities); API access logged and anomalous extraction patterns alerted.
+- BACKDOOR DEFENSE: Training pipeline changes require approval and audit; model weights verified against known-good digest before deployment; third-party model supply chain documented.
+- SUPPLY CHAIN DEFENSE: All third-party models documented with version, source, and provenance; model integrity verified (digest pinning) before serving.
 - ALL RULES: Framed as defensive posture questions — "does the architecture document a control for…?"; no attack execution instructions.
 - HUMAN SME REVIEW: All rules involving model inversion and model extraction must be reviewed by human SME for attack-instruction specificity before publishing.
 
@@ -1327,7 +1327,7 @@ DISCLAIMER TEXT:
 
 ADJACENT PACKS (do not duplicate):
 - owasp-llm-top10 (AI-01): GenAI app-layer attacks (distinct from ML-model-level attacks)
-- ai-red-team-safety (AI-18): red-team programme that executes ATLAS-inspired testing
+- ai-red-team-safety (AI-18): red-team program that executes ATLAS-inspired testing
 - ai-training-data-provenance (AI-15): training data supply chain complement
 ```
 
@@ -1369,7 +1369,7 @@ DISCLAIMER TEXT:
 
 ADJACENT PACKS (do not duplicate):
 - eu-ai-act-high-risk (AI-04): Art. 10 data governance cross-reference
-- mitre-atlas (AI-14): data poisoning defence complement
+- mitre-atlas (AI-14): data poisoning defense complement
 - azure-openai-foundry (AI-03): fine-tune storage isolation (do not duplicate)
 ```
 
@@ -1421,7 +1421,7 @@ ADJACENT PACKS (do not duplicate):
 
 ```
 PACK_DISPLAY_NAME:   LLM Cost & Token Governance (FinOps for AI)
-PACK_DESCRIPTION:    Architecture-review posture for LLM cost governance. Covers per-consumer/per-tenant token budget design (budget definition, monitoring, alert thresholds), model-tier routing (primary/fallback documented, tier selection criteria), semantic caching design (strategy, TTL, bypass rules), kill-switch and circuit-breaker (hard spend limit, automatic suspension, executive alert), cost allocation and tagging (per-workload tags, showback/chargeback, FOCUS-aligned), and batch vs realtime optimisation (async request design). Not cost guarantee or billing commitment.
+PACK_DESCRIPTION:    Architecture-review posture for LLM cost governance. Covers per-consumer/per-tenant token budget design (budget definition, monitoring, alert thresholds), model-tier routing (primary/fallback documented, tier selection criteria), semantic caching design (strategy, TTL, bypass rules), kill-switch and circuit-breaker (hard spend limit, automatic suspension, executive alert), cost allocation and tagging (per-workload tags, showback/chargeback, FOCUS-aligned), and batch vs realtime optimization (async request design). Not cost guarantee or billing commitment.
 PACK_CATEGORY:       Cost
 SLUG:                llm-finops
 RULE_PREFIX:         llm-cost-
@@ -1436,7 +1436,7 @@ SUB-CORPORA AND RULE DISTRIBUTION:
 | llm-cost-cache-  | Semantic caching design (strategy, TTL, bypass rules)              | 4           | P1            |
 | llm-cost-kill-   | Kill-switch and circuit-breaker (hard limit, auto suspension, alert) | 4          | P0-heavy      |
 | llm-cost-alloc-  | Cost allocation and tagging (per-workload tags, showback, FOCUS)   | 4           | P1            |
-| llm-cost-batch-  | Batch vs realtime optimisation (async request design)              | 3           | P1/P2         |
+| llm-cost-batch-  | Batch vs realtime optimization (async request design)              | 3           | P1/P2         |
 
 SOURCE FRAMEWORK SUMMARY:
 Sources: FinOps Foundation FOCUS specification; Microsoft Azure OpenAI cost documentation; APIM AI token-limit policy documentation.
@@ -1462,7 +1462,7 @@ ADJACENT PACKS (do not duplicate):
 
 ```
 PACK_DISPLAY_NAME:   AI Red-Team & Safety Assurance Architecture
-PACK_DESCRIPTION:    Architecture-review posture for AI red-team and safety assurance programmes. Covers red-team programme design (scope, charter, independence), attack library governance (versioned, coverage mapped), safety eval pipeline integration (jailbreak resistance testing in CI, harmful-output eval gating), dual-use review architecture (board existence, review trigger, escalation), red-team cadence and findings remediation (pre/post-deployment cadence, remediation SLA, tracking), and AI safety incident response (classification, playbook, disclosure policy). Not safety certification or red-team results attestation.
+PACK_DESCRIPTION:    Architecture-review posture for AI red-team and safety assurance programs. Covers red-team program design (scope, charter, independence), attack library governance (versioned, coverage mapped), safety eval pipeline integration (jailbreak resistance testing in CI, harmful-output eval gating), dual-use review architecture (board existence, review trigger, escalation), red-team cadence and findings remediation (pre/post-deployment cadence, remediation SLA, tracking), and AI safety incident response (classification, playbook, disclosure policy). Not safety certification or red-team results attestation.
 PACK_CATEGORY:       Security
 SLUG:                ai-red-team-safety
 RULE_PREFIX:         ai-rt-
@@ -1472,7 +1472,7 @@ FRAMEWORK_SHORT_NAME: AI Red Team / Safety
 SUB-CORPORA AND RULE DISTRIBUTION:
 | Prefix             | Theme                                                                | Target rules | Priority skew |
 |--------------------|----------------------------------------------------------------------|-------------|---------------|
-| ai-rt-prog-        | Programme design (scope, charter, independence, resourcing)          | 5           | P0-heavy      |
+| ai-rt-prog-        | Program design (scope, charter, independence, resourcing)          | 5           | P0-heavy      |
 | ai-rt-atk-lib-     | Attack library governance (versioned, coverage, update cadence)      | 4           | P0/P1         |
 | ai-rt-safety-eval- | Safety eval pipeline integration (CI jailbreak, harmful-output gate) | 5           | P0-heavy      |
 | ai-rt-dual-use-    | Dual-use review architecture (board, trigger, escalation)            | 4           | P0/P1         |
@@ -1483,7 +1483,7 @@ SOURCE FRAMEWORK SUMMARY:
 Sources: Microsoft AI Red Team practices and published reports; NIST AI 600-1 §Govern 4.3 (2024); HELM-Safety (Stanford, 2024).
 
 Key themes for rule authoring:
-- PROGRAMME DESIGN: Red-team programme has a documented charter with: scope (which AI systems), objectives, independence requirement (separate from AI development team), minimum cadence.
+- PROGRAM DESIGN: Red-team program has a documented charter with: scope (which AI systems), objectives, independence requirement (separate from AI development team), minimum cadence.
 - ATTACK LIBRARY: Library of AI attack scenarios (jailbreak prompts, adversarial inputs, social engineering scenarios) versioned in a repository; coverage mapped to OWASP LLM Top 10 and MITRE ATLAS categories.
 - SAFETY EVAL PIPELINE: Jailbreak resistance test suite integrated into CI/CD pipeline; pre-production deployment blocked if failure rate exceeds threshold; harmful-output evaluation cadence documented.
 - DUAL-USE REVIEW: Review board (or equivalent process) evaluates AI capabilities for dual-use potential (CBRN information, deepfake generation, autonomous attack tooling); trigger criteria documented.
@@ -1491,7 +1491,7 @@ Key themes for rule authoring:
 - HUMAN SME REVIEW: All rules in ai-rt-atk-lib-* and ai-rt-safety-eval-* must be reviewed by human SME for attack-instruction specificity before publishing.
 
 DISCLAIMER TEXT:
-"Architecture-review mapping for AI red-team programme posture; not safety certification, red-team results attestation, or guarantee of safe AI behaviour."
+"Architecture-review mapping for AI red-team program posture; not safety certification, red-team results attestation, or guarantee of safe AI behavior."
 
 ADJACENT PACKS (do not duplicate):
 - mitre-atlas (AI-14): adversarial ML defensive architecture
@@ -1505,7 +1505,7 @@ ADJACENT PACKS (do not duplicate):
 
 ```
 PACK_DISPLAY_NAME:   Multi-Agent System Orchestration
-PACK_DESCRIPTION:    Architecture-review posture for multi-agent AI systems where multiple AI agents collaborate via supervisor/orchestrator, critic, and worker topologies. Covers topology documentation (supervisor/worker/critic roles), supervisor authority bounds (scope limit, escalation, delegation design), inter-agent trust (message authentication, session binding, impersonation prevention), shared state security (access control, schema validation, rollback), loop termination and circuit-breaker (max iteration bound, timeout, forced human escalation), and attribution tracing (per-agent action attribution, multi-agent audit trail). Not safety certification of autonomous multi-agent behaviour.
+PACK_DESCRIPTION:    Architecture-review posture for multi-agent AI systems where multiple AI agents collaborate via supervisor/orchestrator, critic, and worker topologies. Covers topology documentation (supervisor/worker/critic roles), supervisor authority bounds (scope limit, escalation, delegation design), inter-agent trust (message authentication, session binding, impersonation prevention), shared state security (access control, schema validation, rollback), loop termination and circuit-breaker (max iteration bound, timeout, forced human escalation), and attribution tracing (per-agent action attribution, multi-agent audit trail). Not safety certification of autonomous multi-agent behavior.
 PACK_CATEGORY:       AI Governance
 SLUG:                multi-agent-orchestration
 RULE_PREFIX:         mas-
@@ -1534,7 +1534,7 @@ Key themes for rule authoring:
 - ATTRIBUTION: Every agent action tagged with originating agent ID, session ID, and instruction source; multi-agent audit trail reconstructable from correlation IDs.
 
 DISCLAIMER TEXT:
-"Architecture-review mapping for multi-agent system orchestration posture; not safety certification of autonomous multi-agent behaviour."
+"Architecture-review mapping for multi-agent system orchestration posture; not safety certification of autonomous multi-agent behavior."
 
 ADJACENT PACKS (do not duplicate):
 - agentic-ai-mcp (AI-06): single-agent tool-use posture (this pack is multi-agent topology)
@@ -1548,7 +1548,7 @@ ADJACENT PACKS (do not duplicate):
 
 ```
 PACK_DISPLAY_NAME:   US State AI Laws — Architecture Themes (Colorado, NYC, California, Texas)
-PACK_DESCRIPTION:    Architecture-review themes emerging from US state AI laws. Covers: consequential-decision scope identification (employment, credit, housing, healthcare), bias audit architecture (audit service design, annual cadence, third-party audit documentation), transparency and notice mechanism design (AI disclosure, purpose notice), opt-out and appeal mechanism design (opt-out pipeline, human review appeal path, explanation), and impact assessment documentation (bias impact assessment, disparate impact analysis). Thematically organised for durability across rapidly evolving state legislation. Not legal compliance determination, legal advice, or equivalence to qualified legal opinion on state law applicability.
+PACK_DESCRIPTION:    Architecture-review themes emerging from US state AI laws. Covers: consequential-decision scope identification (employment, credit, housing, healthcare), bias audit architecture (audit service design, annual cadence, third-party audit documentation), transparency and notice mechanism design (AI disclosure, purpose notice), opt-out and appeal mechanism design (opt-out pipeline, human review appeal path, explanation), and impact assessment documentation (bias impact assessment, disparate impact analysis). Thematically organized for durability across rapidly evolving state legislation. Not legal compliance determination, legal advice, or equivalence to qualified legal opinion on state law applicability.
 PACK_CATEGORY:       Compliance
 SLUG:                us-state-ai-laws
 RULE_PREFIX:         us-state-ai-

@@ -3,10 +3,23 @@
 import { cn } from "@/lib/utils";
 import { useCallback, useEffect, useState } from "react";
 
-import { Button } from "@/components/ui/button";
+import { RefreshButton } from "@/components/ui/refresh-button";
 import { Card, CardContent, CardHeader, CardTitle } from "@/components/ui/card";
-import { useOperatorNavAuthority } from "@/components/OperatorNavAuthorityProvider";
-import { OPERATOR_NAV_GROUP_LABEL, OPERATOR_TYPOGRAPHY } from "@/lib/design-tokens";
+import {
+  EnterpriseTable,
+  EnterpriseTableBody,
+  EnterpriseTableCell,
+  EnterpriseTableHead,
+  EnterpriseTableHeaderCell,
+  EnterpriseTableHeadRow,
+  EnterpriseTableRow,
+} from "@/components/ui/enterprise-table";
+import { EnterpriseTableSkeletonRows } from "@/components/ui/enterprise-table-skeleton-rows";
+import { useOperatorNavAuthority } from "@/components/operator/OperatorNavAuthorityProvider";
+import { OperatorPageHeader } from "@/components/operator/OperatorPageHeader";
+import { OperatorSectionLoadFailure } from "@/components/operator/OperatorSectionLoadFailure";
+import { OPERATOR_LAYOUT, OPERATOR_NAV_GROUP_LABEL, OPERATOR_TYPOGRAPHY } from "@/lib/design-tokens";
+import { INTERNAL_FLEET_LLM_COGS_PATH } from "@/lib/internal-ops-route-paths";
 import { FLEET_LLM_COGS_PAGE_LEAD, FLEET_LLM_COGS_PAGE_TITLE } from "@/lib/fleet-llm-cogs-page-copy";
 import { AUTHORITY_RANK } from "@/lib/nav-authority";
 import { fetchAdminFleetLlmCogsDashboard, type AdminFleetLlmCogsDashboard } from "@/lib/trial-funnel-ops";
@@ -53,21 +66,25 @@ export function FleetLlmCogsAdminPageClient() {
   }
 
   return (
-    <div className="w-full max-w-[1440px] space-y-6" data-testid="fleet-llm-cogs-page">
-      <div>
-        <h1 className={OPERATOR_TYPOGRAPHY.pageTitle}>{FLEET_LLM_COGS_PAGE_TITLE}</h1>
-        <p className={cn("mt-1 text-al-text-secondary", OPERATOR_TYPOGRAPHY.body)}>
-          {FLEET_LLM_COGS_PAGE_LEAD}
-        </p>
-        <Button type="button" variant="outline" size="sm" className="mt-3" disabled={loading} onClick={() => void refresh()}>
-          {loading ? "Refreshing…" : "Refresh"}
-        </Button>
-      </div>
+    <div className={cn("w-full max-w-[1440px]", OPERATOR_LAYOUT.sectionStack)} data-testid="fleet-llm-cogs-page">
+      <OperatorPageHeader
+        navHref={INTERNAL_FLEET_LLM_COGS_PATH}
+        headingLevel="h1"
+        title={FLEET_LLM_COGS_PAGE_TITLE}
+        subtitle={FLEET_LLM_COGS_PAGE_LEAD}
+        actions={
+          <RefreshButton busy={loading} onClick={() => void refresh()} />
+        }
+      />
 
       {error ? (
-        <p className={cn("text-rose-700 dark:text-rose-300", OPERATOR_TYPOGRAPHY.body)} role="alert">
-          {error}
-        </p>
+        <OperatorSectionLoadFailure
+          message={error}
+          retryLabel="Reload fleet COGS"
+          retrying={loading}
+          testId="fleet-llm-cogs-load-failure"
+          onRetry={() => void refresh()}
+        />
       ) : null}
 
       <Card>
@@ -97,40 +114,49 @@ export function FleetLlmCogsAdminPageClient() {
               <p className={cn("m-0 mt-1 tabular-nums", OPERATOR_TYPOGRAPHY.cardTitle)}>{data?.hardStopTenantCount ?? 0}</p>
             </div>
           </div>
-          <table className={cn("min-w-full text-left", OPERATOR_TYPOGRAPHY.body)}>
-            <thead>
-              <tr className={cn("border-b border-neutral-200 dark:border-neutral-800", OPERATOR_NAV_GROUP_LABEL)}>
-                <th className="py-2 pr-4">Tenant</th>
-                <th className="py-2 pr-4">Est. pressure</th>
-                <th className="py-2 pr-4">Hard cap</th>
-                <th className="py-2 pr-4">Utilization</th>
-                <th className="py-2 pr-4">Risk</th>
-                <th className="py-2 pr-4">Budget completeness</th>
-              </tr>
-            </thead>
-            <tbody>
+          <EnterpriseTable ariaLabel="Fleet LLM cost of goods sold by tenant">
+            <EnterpriseTableHead>
+              <EnterpriseTableHeadRow>
+                <EnterpriseTableHeaderCell>Tenant</EnterpriseTableHeaderCell>
+                <EnterpriseTableHeaderCell>Est. pressure</EnterpriseTableHeaderCell>
+                <EnterpriseTableHeaderCell>Hard cap</EnterpriseTableHeaderCell>
+                <EnterpriseTableHeaderCell>Utilization</EnterpriseTableHeaderCell>
+                <EnterpriseTableHeaderCell>Risk</EnterpriseTableHeaderCell>
+                <EnterpriseTableHeaderCell>Budget completeness</EnterpriseTableHeaderCell>
+              </EnterpriseTableHeadRow>
+            </EnterpriseTableHead>
+            <EnterpriseTableBody>
+              {loading && (data?.rows ?? []).length === 0 ? (
+                <EnterpriseTableSkeletonRows
+                  columns={6}
+                  label="Loading fleet COGS…"
+                  testId="fleet-llm-cogs-skeleton"
+                />
+              ) : null}
               {(data?.rows ?? []).map((row) => (
-                <tr key={row.tenantId} className="border-b border-neutral-100 dark:border-neutral-900">
-                  <td className="py-2 pr-4">{row.tenantName}</td>
-                  <td className="py-2 pr-4 tabular-nums">${row.estimatedUsdPressureUtcMonth.toFixed(2)}</td>
-                  <td className="py-2 pr-4 tabular-nums">
+                <EnterpriseTableRow key={row.tenantId}>
+                  <EnterpriseTableCell>{row.tenantName}</EnterpriseTableCell>
+                  <EnterpriseTableCell className="tabular-nums">
+                    ${row.estimatedUsdPressureUtcMonth.toFixed(2)}
+                  </EnterpriseTableCell>
+                  <EnterpriseTableCell className="tabular-nums">
                     {row.hardCapUsdUtcMonth != null ? `$${row.hardCapUsdUtcMonth.toFixed(2)}` : "—"}
-                  </td>
-                  <td className="py-2 pr-4 tabular-nums">
+                  </EnterpriseTableCell>
+                  <EnterpriseTableCell className="tabular-nums">
                     {row.hardCapUtilizationFraction != null
                       ? `${Math.round(row.hardCapUtilizationFraction * 100)}%`
                       : "—"}
-                  </td>
-                  <td className="py-2 pr-4">{row.grossMarginRiskLabel}</td>
-                  <td className="py-2 pr-4">
+                  </EnterpriseTableCell>
+                  <EnterpriseTableCell>{row.grossMarginRiskLabel}</EnterpriseTableCell>
+                  <EnterpriseTableCell>
                     <span className={row.costRatesConfigured ? "" : "font-medium text-amber-800 dark:text-amber-200"}>
                       {row.budgetCompletionLabel}
                     </span>
-                  </td>
-                </tr>
+                  </EnterpriseTableCell>
+                </EnterpriseTableRow>
               ))}
-            </tbody>
-          </table>
+            </EnterpriseTableBody>
+          </EnterpriseTable>
         </CardContent>
       </Card>
     </div>

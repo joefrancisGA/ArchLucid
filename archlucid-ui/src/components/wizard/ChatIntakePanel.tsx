@@ -5,7 +5,7 @@ import { OPERATOR_TYPOGRAPHY } from "@/lib/design-tokens";
 import { useState } from "react";
 import { useFormContext } from "react-hook-form";
 
-import { OperatorApiProblem } from "@/components/OperatorApiProblem";
+import { OperatorApiProblem } from "@/components/operator/OperatorApiProblem";
 import { Button } from "@/components/ui/button";
 import { Textarea } from "@/components/ui/textarea";
 import { parseChatIntake } from "@/lib/api/architecture-chat-intake-api";

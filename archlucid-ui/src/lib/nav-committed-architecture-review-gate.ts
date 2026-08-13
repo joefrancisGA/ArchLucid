@@ -1,6 +1,6 @@
 import type { NavLinkItem } from "@/lib/nav-config";
-import { ARCHITECTURES_LIST_PATH } from "@/lib/architecture-routes";
-import { EXECUTIVE_DASHBOARD_HREF } from "@/lib/executive-dashboard-route";
+import { ARCHITECTURES_LIST_PATH } from "@/lib/architecture/architecture-routes";
+import { EXECUTIVE_DASHBOARD_HREF } from "@/lib/executive/executive-dashboard-route";
 import { isEvidenceGraphPath } from "@/lib/evidence-graph-route";
 import { isFirstReviewGuidePath } from "@/lib/first-review-guide-route";
 
@@ -48,7 +48,7 @@ export function pathnameEligibleBeforeFirstCommittedArchitectureReview(pathWitho
     return true;
   }
 
-  if (pathWithoutQuery === "/administration/tenant" || pathWithoutQuery.startsWith("/administration/tenant/")) {
+  if (pathWithoutQuery === "/administration/workspace-settings" || pathWithoutQuery.startsWith("/administration/workspace-settings/")) {
     return true;
   }
 
@@ -96,7 +96,7 @@ function preCommitNavLinkSortRank(pathWithoutQuery: string): number {
     return 7;
   }
 
-  if (pathWithoutQuery === "/administration/tenant" || pathWithoutQuery.startsWith("/administration/tenant/")) {
+  if (pathWithoutQuery === "/administration/workspace-settings" || pathWithoutQuery.startsWith("/administration/workspace-settings/")) {
     return 8;
   }
 

@@ -5,6 +5,7 @@ vi.mock("next/navigation", () => ({
   usePathname: () => "/",
 }));
 
+// Product imports next/dynamic wrappers from deferred-chunks (TB-2145); leaf mocks alone never render.
 vi.mock("./operator-home-page-view-deferred-chunks", () => ({
   PilotCommandCenterCardDeferred: () => <div data-testid="home-block-pilot-command-center" />,
   OperatorHomeExecutiveRoiStripDeferred: () => <div data-testid="home-block-executive-roi" />,
@@ -44,7 +45,7 @@ vi.mock("@/lib/demo-ui-env", async (importOriginal) => {
 });
 
 // Keep the real view under test, but stub shell chrome that pulls large client graphs (CI heap OOM on app-operator-e).
-vi.mock("@/components/OperatorPageContainer", () => ({
+vi.mock("@/components/operator/OperatorPageContainer", () => ({
   OperatorPageContainer: ({ children }: { children: React.ReactNode }) => <div data-testid="operator-page-container">{children}</div>,
 }));
 
@@ -73,7 +74,7 @@ vi.mock("@/components/usability/PageContextualHelpButton", () => ({
 
 import { OperatorHomePageView } from "./OperatorHomePageView";
 import { OPERATOR_HOME_PRIMARY_SECTION_HEADING } from "@/lib/design-tokens";
-import { OPERATOR_HOME_RECENT_REVIEWS_HEADING } from "@/lib/operator-home-recent-reviews-heading";
+import { OPERATOR_HOME_RECENT_REVIEWS_HEADING } from "@/lib/operator/operator-home-recent-reviews-heading";
 import type { OperatorHomePageViewModel } from "./operator-home-page-view-model";
 
 const mockRunsDashboard: OperatorHomePageViewModel["runsDashboard"] = {
@@ -96,7 +97,7 @@ function mockHomeModel(buyerPolishedShell: boolean): OperatorHomePageViewModel {
 }
 
 describe("OperatorHomePageView", () => {
-  it("mounts Overview header chrome with PageContextualHelp (HOM / TB-1667)", () => {
+  it("mounts Home header chrome with PageContextualHelp (HOM / TB-1667)", () => {
     render(<OperatorHomePageView model={mockHomeModel(false)} />);
 
     expect(screen.getByTestId("operator-home-page-title")).toBeInTheDocument();
@@ -104,7 +105,7 @@ describe("OperatorHomePageView", () => {
     expect(screen.getByTestId("operator-home-refresh-button")).toBeInTheDocument();
   });
 
-  it("mounts Overview header chrome on buyer-polished home (HOM / TB-1667)", () => {
+  it("mounts Home header chrome on buyer-polished home (HOM / TB-1667)", () => {
     render(<OperatorHomePageView model={mockHomeModel(true)} />);
 
     expect(screen.getByTestId("operator-home-page-title")).toBeInTheDocument();

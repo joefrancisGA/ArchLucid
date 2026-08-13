@@ -1,6 +1,6 @@
 import { cn } from "@/lib/utils";
 import { OPERATOR_TYPOGRAPHY } from "@/lib/design-tokens";
-import { OperatorEmptyState } from "@/components/OperatorShellMessage";
+import { OperatorEmptyState } from "@/components/operator/OperatorShellMessage";
 import type { ComparisonExplanation } from "@/types/explanation";
 
 const sectionBoxCls = "mt-5 rounded-lg border border-neutral-200 bg-white p-4 dark:border-neutral-700 dark:bg-neutral-950";

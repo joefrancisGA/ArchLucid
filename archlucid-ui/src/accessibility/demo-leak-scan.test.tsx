@@ -9,7 +9,7 @@ import { render } from "@testing-library/react";
 import { describe, expect, it } from "vitest";
 
 import { LegacyRunComparisonView } from "@/components/compare/LegacyRunComparisonView";
-import { RunProvenanceInline } from "@/components/RunProvenanceInline";
+import { RunProvenanceInline } from "@/components/runs/RunProvenanceInline";
 import type { RunComparison } from "@/types/authority";
 import type { RunSummary } from "@/types/authority";
 

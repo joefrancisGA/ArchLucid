@@ -22,7 +22,7 @@ vi.mock("next/navigation", async (importOriginal) => {
   });
 });
 
-vi.mock("@/components/OperatorApiProblem", () => ({
+vi.mock("@/components/operator/OperatorApiProblem", () => ({
   OperatorApiProblem: ({ fallbackMessage }: { fallbackMessage: string }) => (
     <div data-testid="api-problem-mock">{fallbackMessage}</div>
   ),

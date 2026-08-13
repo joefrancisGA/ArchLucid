@@ -1,16 +1,17 @@
 "use client";
 
-import { memo, type ReactElement } from "react";
+import { memo, useState, type ReactElement } from "react";
 
+import { ConfirmationDialog } from "@/components/ConfirmationDialog";
 import { Button } from "@/components/ui/button";
-import { downloadArchitectureRiskRegisterCsv } from "@/lib/architecture-risk-register-csv";
+import { downloadArchitectureRiskRegisterCsv } from "@/lib/architecture/architecture-risk-register-csv";
 import {
   matchesRiskRegisterFilter,
   RISK_REGISTER_FILTER_LABELS,
   RISK_REGISTER_QUICK_FILTERS,
   type RiskRegisterFilter,
-} from "@/lib/architecture-risk-register-page";
-import { downloadGovernanceFindingsItsmJsonExport } from "@/lib/run-findings-itsm-export";
+} from "@/lib/architecture/architecture-risk-register-page";
+import { downloadGovernanceFindingsItsmJsonExport } from "@/lib/runs/run-findings-itsm-export";
 import { OPERATOR_NAV_GROUP_LABEL, OPERATOR_TYPOGRAPHY } from "@/lib/design-tokens";
 import { cn } from "@/lib/utils";
 
@@ -19,9 +20,9 @@ import type { GovernanceFindingsFilterPreset } from "@/components/governance/fin
 import { FindingJobViewToggleBar } from "@/components/findings/FindingJobViewToggleBar";
 import {
   type FindingJobView,
-} from "@/lib/finding-job-view";
+} from "@/lib/findings/finding-job-view";
 import { FindingsNaturalLanguageFilter } from "@/components/findings/FindingsNaturalLanguageFilter";
-import type { FindingsNaturalLanguageFacets } from "@/lib/findings-natural-language-filter";
+import type { FindingsNaturalLanguageFacets } from "@/lib/findings/findings-natural-language-filter";
 import { BulkTriageRemainingProgress } from "@/components/usability/BulkTriageRemainingProgress";
 
 export type GovernanceFindingsFilterBarProps = {
@@ -50,6 +51,7 @@ function GovernanceFindingsFilterBarComponent(props: GovernanceFindingsFilterBar
     onToggleGroupByResource,
     displayedRows,
   } = props;
+  const [pendingRemovePreset, setPendingRemovePreset] = useState<GovernanceFindingsFilterPreset | null>(null);
 
   const findingRows = displayedRows.filter((row) => row.recordKind === "finding");
   const totalInView = findingRows.length;
@@ -164,7 +166,10 @@ function GovernanceFindingsFilterBarComponent(props: GovernanceFindingsFilterBar
                 type="button"
                 className="ml-0.5 text-neutral-400 hover:text-red-500 dark:hover:text-red-400"
                 aria-label={`Remove preset "${preset.label}"`}
-                onClick={() => onRemovePreset(preset.id)}
+                data-testid={`governance-findings-remove-preset-${preset.id}`}
+                onClick={() => {
+                  setPendingRemovePreset(preset);
+                }}
               >
                 ×
               </button>
@@ -172,6 +177,31 @@ function GovernanceFindingsFilterBarComponent(props: GovernanceFindingsFilterBar
           ))}
         </div>
       ) : null}
+
+      <ConfirmationDialog
+        open={pendingRemovePreset !== null}
+        onOpenChange={(open) => {
+          if (!open) {
+            setPendingRemovePreset(null);
+          }
+        }}
+        title="Remove saved filter?"
+        description={
+          pendingRemovePreset !== null
+            ? `Remove “${pendingRemovePreset.label}” from your saved filters? This cannot be undone.`
+            : "Remove this saved filter? This cannot be undone."
+        }
+        confirmLabel="Remove filter"
+        variant="destructive"
+        onConfirm={() => {
+          if (pendingRemovePreset === null) {
+            return;
+          }
+
+          onRemovePreset(pendingRemovePreset.id);
+          setPendingRemovePreset(null);
+        }}
+      />
     </div>
   );
 }

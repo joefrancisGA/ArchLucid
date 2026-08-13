@@ -7,9 +7,9 @@ import { CopyIdButton } from "@/components/CopyIdButton";
 import {
   BUYER_SHOWCASE_RESIDUAL_RISK_MONITORING_CADENCE,
   BUYER_SHOWCASE_RESIDUAL_RISK_OWNER,
-} from "@/lib/buyer-polish-copy";
+} from "@/lib/buyer/buyer-polish-copy";
 import { isBuyerPolishedOperatorShellEnv } from "@/lib/demo-ui-env";
-import { GOVERNANCE_AUDIT_PATH } from "@/lib/governance-route-paths";
+import { GOVERNANCE_AUDIT_PATH } from "@/lib/governance/governance-route-paths";
 import { OPERATOR_LINK, OPERATOR_TYPOGRAPHY } from "@/lib/design-tokens";
 
 export type FindingInspectAuditSectionProps = {

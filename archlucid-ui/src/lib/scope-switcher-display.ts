@@ -3,13 +3,21 @@ import {
   BUYER_SCOPE_SAMPLE_WORKSPACE_DEMO_HINT,
   BUYER_SCOPE_SAMPLE_WORKSPACE_FULL_NAME,
   BUYER_WORKSPACE_SHORT_NAME,
-} from "@/lib/buyer-polish-copy";
+} from "@/lib/buyer/buyer-polish-copy";
+import { DEV_SCOPE_PROJECT_ID, DEV_SCOPE_WORKSPACE_ID } from "@/lib/scope";
 
 export type ScopeSwitcherWorkspaceOption = {
   readonly workspaceId: string;
   readonly name: string;
   readonly projects: ReadonlyArray<{ readonly projectId: string; readonly name: string }>;
 };
+
+export function isEffectiveDevDefaultScope(workspaceId: string, projectId: string): boolean {
+  return (
+    workspaceId.trim() === DEV_SCOPE_WORKSPACE_ID &&
+    projectId.trim() === DEV_SCOPE_PROJECT_ID
+  );
+}
 
 export function workspaceShortNameFromLabel(workspaceLabel: string): string {
   const trimmed = workspaceLabel.trim();

@@ -10,7 +10,7 @@ describe("resolveFirstPilotOperatingRailShellCopy", () => {
     const copy = resolveFirstPilotOperatingRailShellCopy(false);
 
     expect(copy.heading).toBe("Full operating path");
-    expect(copy.intro).toContain("V1.1 connectors");
+    expect(copy.intro).toContain("future connectors");
     expect(copy.showHeaderHelpLink).toBe(true);
     expect(copy.showStepTroubleshootLinks).toBe(true);
   });

@@ -14,7 +14,7 @@ import {
   globalSearchInputTitle,
 } from "@/lib/keyboard-shortcut-display";
 import { GLOBAL_FIND_PAGE_SEARCH } from "@/lib/search-surface-disambiguation";
-import { GOVERNANCE_POLICY_PACKS_PATH } from "@/lib/governance-route-paths";
+import { GOVERNANCE_POLICY_PACKS_PATH } from "@/lib/governance/governance-route-paths";
 import { mergeRegistrationScopeForProxy } from "@/lib/proxy-fetch-registration-scope";
 import { searchHelpTopics } from "@/lib/usability/search-help-topics";
 
@@ -76,22 +76,38 @@ export function GlobalSearchBar(props: GlobalSearchBarProps) {
   }, [fetchResults, query]);
 
   useEffect(() => {
+    function focusInput(): void {
+      setOpen(true);
+      inputRef.current?.focus();
+    }
+
     function onOpen() {
       setOpen(true);
       window.requestAnimationFrame(() => inputRef.current?.focus());
     }
 
     function onFocus() {
-      setOpen(true);
-      inputRef.current?.focus();
+      focusInput();
     }
 
+    // `#find-a-page` is the documented deep-link target for the header control.
+    function focusFromFindAPageHash(): void {
+      if (window.location.hash !== "#find-a-page") {
+        return;
+      }
+
+      window.requestAnimationFrame(() => focusInput());
+    }
+
+    focusFromFindAPageHash();
     window.addEventListener(OPEN_GLOBAL_SEARCH_EVENT, onOpen);
     window.addEventListener(FOCUS_GLOBAL_SEARCH_EVENT, onFocus);
+    window.addEventListener("hashchange", focusFromFindAPageHash);
 
     return () => {
       window.removeEventListener(OPEN_GLOBAL_SEARCH_EVENT, onOpen);
       window.removeEventListener(FOCUS_GLOBAL_SEARCH_EVENT, onFocus);
+      window.removeEventListener("hashchange", focusFromFindAPageHash);
     };
   }, []);
 
@@ -116,7 +132,12 @@ export function GlobalSearchBar(props: GlobalSearchBarProps) {
   const resultsPanelOpen = open && query.trim().length >= 2;
 
   return (
-    <div ref={rootRef} className={props.className ?? "relative w-full"} data-testid="global-search">
+    <div
+      ref={rootRef}
+      id="find-a-page"
+      className={props.className ?? "relative w-full"}
+      data-testid="global-search"
+    >
       <label htmlFor={inputId} className="sr-only">
         {GLOBAL_SEARCH_ARIA_LABEL}
       </label>

@@ -44,4 +44,4 @@ export type SettingsMasterSection = {
   readonly destinations: readonly SettingsMasterDestination[];
 };
 
-export type SettingsMasterInlineSectionId = "general-appearance" | "general-help" | "support-bundle";
+export type SettingsMasterInlineSectionId = "general-appearance" | "support-bundle";

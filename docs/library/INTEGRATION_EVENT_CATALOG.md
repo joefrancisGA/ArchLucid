@@ -38,7 +38,7 @@
 
 1. **Subscribe** to the integration topic configured in Terraform (`infra/terraform-servicebus/`) and filter by event type.
 2. **Parse** the body as JSON per the matching file under `schemas/integration-events/` (see `catalog.json` → `schemaFile`).
-3. **Handle duplicates** — at-least-once delivery; use idempotent handlers.
+3. **Handle duplicates** — at-least-once delivery; use idempotent handlers. Decision matrix: [`TRANSACTIONAL_OUTBOX_REPLAY_VS_IDEMPOTENCY_CONTRACT.md`](./TRANSACTIONAL_OUTBOX_REPLAY_VS_IDEMPOTENCY_CONTRACT.md) (**TB-992**). Producer `MessageId` + handler inventory: [`INTEGRATION_EVENT_HANDLER_IDEMPOTENCY_INVENTORY.md`](./INTEGRATION_EVENT_HANDLER_IDEMPOTENCY_INVENTORY.md) (**TB-993**). Regression CI: **TB-994** (**Done** — `check_outbox_exactly_once_honesty.py` + `IntegrationEventOutboxProcessorTests` replay test).
 4. **Dead-letter** — follow `docs/INTEGRATION_EVENTS_AND_WEBHOOKS.md` and worker DLQ tooling for poison messages.
 
 ## Related

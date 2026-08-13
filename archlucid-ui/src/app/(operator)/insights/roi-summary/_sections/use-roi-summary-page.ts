@@ -2,7 +2,7 @@
 
 import { useCallback, useEffect, useRef, useState } from "react";
 
-import { useNavCallerAuthorityRank } from "@/components/OperatorNavAuthorityProvider";
+import { useNavCallerAuthorityRank } from "@/components/operator/OperatorNavAuthorityProvider";
 import { AUTHORITY_RANK } from "@/lib/nav-authority";
 
 import { fetchRoiSummaryPageState } from "./fetch-roi-summary-page-state";

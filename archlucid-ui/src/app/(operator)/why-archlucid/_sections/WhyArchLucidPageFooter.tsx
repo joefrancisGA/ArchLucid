@@ -1,7 +1,7 @@
 import Link from "next/link";
 
 import { cn } from "@/lib/utils";
-import { BUYER_WHY_ARCHLUCID_SOURCES_LINE } from "@/lib/buyer-polish-copy";
+import { BUYER_WHY_ARCHLUCID_SOURCES_LINE } from "@/lib/buyer/buyer-polish-copy";
 import { OPERATOR_TYPOGRAPHY } from "@/lib/design-tokens";
 import {
   WHY_ARCHLUCID_FOOTER_EXECUTIVE_BRIEF_HREF,

@@ -1,10 +1,7 @@
 "use client";
 
-import { useEffect, useState, type ReactNode } from "react";
-
-import { fetchCorePilotCommitContextCached } from "@/lib/core-pilot-commit-context";
-
-type Phase = "loading" | "ready";
+import { useCorePilotCommitContextQuery } from "@/hooks/use-core-pilot-commit-context-query";
+import type { ReactNode } from "react";
 
 /**
  * Hides tertiary operator-home surfaces until at least one committed manifest exists for the tenant (trial-status
@@ -14,46 +11,15 @@ type Phase = "loading" | "ready";
  * transient API issues do not strip the dashboard for returning operators.
  */
 export function OperationalMetricsGate({ children }: { children: ReactNode }) {
-  const [phase, setPhase] = useState<Phase>("loading");
-  const [showOperateDiscovery, setShowOperateDiscovery] = useState(false);
+  const { data, isPending, isError } = useCorePilotCommitContextQuery();
 
-  useEffect(() => {
-    let cancelled = false;
-
-    async function load() {
-      setPhase("loading");
-
-      try {
-        const ctx = await fetchCorePilotCommitContextCached();
-
-        if (cancelled) {
-          return;
-        }
-
-        setShowOperateDiscovery(ctx.hasCommittedManifest);
-        setPhase("ready");
-      } catch {
-        if (cancelled) {
-          return;
-        }
-
-        setShowOperateDiscovery(true);
-        setPhase("ready");
-      }
-    }
-
-    void load();
-
-    return () => {
-      cancelled = true;
-    };
-  }, []);
-
-  if (phase === "loading") {
+  if (isPending) {
     return null;
   }
 
-  if (phase === "ready" && !showOperateDiscovery) {
+  const showOperateDiscovery = isError || data?.hasCommittedManifest === true;
+
+  if (!showOperateDiscovery) {
     return null;
   }
 

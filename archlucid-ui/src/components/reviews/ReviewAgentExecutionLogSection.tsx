@@ -4,6 +4,15 @@ import type { ReactElement } from "react";
 
 import { CollapsibleSection } from "@/components/CollapsibleSection";
 import { Card, CardContent, CardHeader } from "@/components/ui/card";
+import {
+  EnterpriseTable,
+  EnterpriseTableBody,
+  EnterpriseTableCell,
+  EnterpriseTableHead,
+  EnterpriseTableHeadRow,
+  EnterpriseTableHeaderCell,
+  EnterpriseTableRow,
+} from "@/components/ui/enterprise-table";
 import { buyerLabelForAgentType } from "@/lib/agent-type-buyer-label";
 import type { RunDetailAgentResult } from "@/types/authority";
 
@@ -51,34 +60,31 @@ export function ReviewAgentExecutionLogSection({
         </CardHeader>
         <CardContent>
           <CollapsibleSection title={`${sorted.length} agent${sorted.length === 1 ? "" : "s"} ran`} defaultOpen={false}>
-            <table className={cn("w-full", OPERATOR_TYPOGRAPHY.helper)}>
-              <thead>
-                <tr className={cn("border-b border-neutral-200 text-left font-medium text-neutral-500 dark:border-neutral-700 dark:text-neutral-400", OPERATOR_TYPOGRAPHY.helper)}>
-                  <th className="pb-1.5 pr-3 font-medium">Agent</th>
-                  <th className="pb-1.5 pr-3 font-medium">Confidence</th>
-                  <th className="pb-1.5 pr-3 font-medium">Findings</th>
-                  <th className="pb-1.5 pr-3 font-medium">Evidence refs</th>
-                  <th className="pb-1.5 font-medium">Status</th>
-                </tr>
-              </thead>
-              <tbody>
+            <EnterpriseTable ariaLabel="Agent execution log" className={OPERATOR_TYPOGRAPHY.helper}>
+              <EnterpriseTableHead>
+                <EnterpriseTableHeadRow>
+                  <EnterpriseTableHeaderCell>Agent</EnterpriseTableHeaderCell>
+                  <EnterpriseTableHeaderCell>Confidence</EnterpriseTableHeaderCell>
+                  <EnterpriseTableHeaderCell>Findings</EnterpriseTableHeaderCell>
+                  <EnterpriseTableHeaderCell>Evidence refs</EnterpriseTableHeaderCell>
+                  <EnterpriseTableHeaderCell>Status</EnterpriseTableHeaderCell>
+                </EnterpriseTableHeadRow>
+              </EnterpriseTableHead>
+              <EnterpriseTableBody>
                 {sorted.map((result) => {
                   const hasDegradation =
                     typeof result.degradationReasonCode === "string" &&
                     result.degradationReasonCode.trim().length > 0;
 
                   return (
-                    <tr
-                      key={result.resultId}
-                      className="border-b border-neutral-100 last:border-0 dark:border-neutral-800"
-                    >
-                      <td className="py-1.5 pr-3 font-mono">{buyerLabelForAgentType(result.agentType)}</td>
-                      <td className="py-1.5 pr-3 tabular-nums">
+                    <EnterpriseTableRow key={result.resultId}>
+                      <EnterpriseTableCell className="font-mono">{buyerLabelForAgentType(result.agentType)}</EnterpriseTableCell>
+                      <EnterpriseTableCell className="tabular-nums">
                         {confidenceLabel(result.calibratedConfidence ?? result.confidence)}
-                      </td>
-                      <td className="py-1.5 pr-3 tabular-nums">{result.findings?.length ?? 0}</td>
-                      <td className="py-1.5 pr-3 tabular-nums">{result.evidenceRefs?.length ?? 0}</td>
-                      <td className="py-1.5">
+                      </EnterpriseTableCell>
+                      <EnterpriseTableCell className="tabular-nums">{result.findings?.length ?? 0}</EnterpriseTableCell>
+                      <EnterpriseTableCell className="tabular-nums">{result.evidenceRefs?.length ?? 0}</EnterpriseTableCell>
+                      <EnterpriseTableCell>
                         {hasDegradation ? (
                           <span
                             className={cn("inline-flex rounded border border-amber-300 bg-amber-50 px-1.5 py-0.5 font-medium text-amber-800 dark:border-amber-700 dark:bg-amber-950 dark:text-amber-300", OPERATOR_TYPOGRAPHY.badge)}
@@ -91,12 +97,12 @@ export function ReviewAgentExecutionLogSection({
                             OK
                           </span>
                         )}
-                      </td>
-                    </tr>
+                      </EnterpriseTableCell>
+                    </EnterpriseTableRow>
                   );
                 })}
-              </tbody>
-            </table>
+              </EnterpriseTableBody>
+            </EnterpriseTable>
           </CollapsibleSection>
         </CardContent>
       </Card>

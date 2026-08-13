@@ -13,6 +13,7 @@ import {
 } from "@/components/ui/dialog";
 import { Label } from "@/components/ui/label";
 import { Textarea } from "@/components/ui/textarea";
+import { WhyDisabledCtaHint } from "@/components/usability/WhyDisabledCtaHint";
 import {
   alertsTriageDialogConfirmButtonLabelReaderRank,
   alertsTriageDialogReaderNote,
@@ -20,6 +21,7 @@ import {
   enterpriseMutationControlDisabledTitle,
 } from "@/lib/enterprise-controls-context-copy";
 import { OPERATOR_LINK, OPERATOR_TYPOGRAPHY } from "@/lib/design-tokens";
+import { whyDisabledEnterpriseMutationControl } from "@/lib/why-disabled-cta";
 import type { AlertActionLoopDto } from "@/types/operate-rhythm";
 
 type PendingActionState = {
@@ -38,6 +40,9 @@ export type AlertsInboxTriageActionDialogProps = {
 };
 
 export function AlertsInboxTriageActionDialog(props: AlertsInboxTriageActionDialogProps) {
+  const mutationDisabledHintId = "alerts-inbox-triage-mutate-disabled-hint";
+  const mutationDisabledReason = props.canMutateAlertInbox ? null : whyDisabledEnterpriseMutationControl();
+
   return (
     <Dialog
       open={props.pendingAction !== null}
@@ -79,7 +84,13 @@ export function AlertsInboxTriageActionDialog(props: AlertsInboxTriageActionDial
             title={props.canMutateAlertInbox ? undefined : enterpriseMutationControlDisabledTitle}
           />
         </div>
-        <DialogFooter className="gap-2 sm:gap-0">
+        <DialogFooter>
+          <WhyDisabledCtaHint
+            id={mutationDisabledHintId}
+            reason={mutationDisabledReason}
+            testId={mutationDisabledHintId}
+            className="w-full sm:mr-auto"
+          />
           <Button type="button" variant="outline" onClick={props.onClose} disabled={props.actionBusy}>
             Cancel
           </Button>
@@ -87,7 +98,9 @@ export function AlertsInboxTriageActionDialog(props: AlertsInboxTriageActionDial
             type="button"
             onClick={props.onConfirm}
             disabled={props.actionBusy || props.pendingAction === null || !props.canMutateAlertInbox}
-            title={props.canMutateAlertInbox ? undefined : enterpriseMutationControlDisabledTitle}
+            aria-describedby={
+              mutationDisabledReason === null ? undefined : mutationDisabledHintId
+            }
           >
             {props.actionBusy
               ? "Saving…"

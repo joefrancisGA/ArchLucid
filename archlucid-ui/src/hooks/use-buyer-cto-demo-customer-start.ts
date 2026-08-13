@@ -6,8 +6,8 @@ import {
   acknowledgeBuyerCtoDemoCustomerStart,
   evaluateBuyerCtoDemoCustomerStart,
   type BuyerCtoDemoCustomerStartOutcome,
-} from "@/lib/buyer-cto-demo-customer-start";
-import { BUYER_CTO_DEMO_PREPARING_LABEL } from "@/lib/buyer-polish-copy";
+} from "@/lib/buyer/buyer-cto-demo-customer-start";
+import { BUYER_CTO_DEMO_PREPARING_LABEL } from "@/lib/buyer/buyer-polish-copy";
 
 export type UseBuyerCtoDemoCustomerStartResult = {
   readonly isStarting: boolean;

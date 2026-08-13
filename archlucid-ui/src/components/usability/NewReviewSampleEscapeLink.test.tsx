@@ -5,7 +5,7 @@ import { NewReviewSampleEscapeLink } from "@/components/usability/NewReviewSampl
 import {
   NEW_REVIEW_SAMPLE_ESCAPE_CTA,
   NEW_REVIEW_SAMPLE_ESCAPE_HINT,
-} from "@/lib/buyer-polish-copy";
+} from "@/lib/buyer/buyer-polish-copy";
 import { showcaseSpecimenSignedReviewRecordHref } from "@/lib/showcase-sample-review-registry";
 
 describe("NewReviewSampleEscapeLink", () => {

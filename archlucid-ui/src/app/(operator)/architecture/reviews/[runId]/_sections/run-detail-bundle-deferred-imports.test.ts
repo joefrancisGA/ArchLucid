@@ -33,29 +33,29 @@ const explanationDeferredSource = readFileSync(
 );
 
 const bannedStaticImports = [
-  '@/components/RunEstimatedLlmCostCard"',
-  '@/components/RunAgentResultsSummaryCard"',
+  '@/components/runs/RunEstimatedLlmCostCard"',
+  '@/components/runs/RunAgentResultsSummaryCard"',
   '@/components/reviews/ReviewAgentExecutionLogSection"',
-  '@/components/RunRetrievalGroundingSummaryCard"',
-  '@/components/RunProgressTracker"',
-  '@/components/RunTrustEvidenceCardSection"',
+  '@/components/runs/RunRetrievalGroundingSummaryCard"',
+  '@/components/runs/RunProgressTracker"',
+  '@/components/runs/RunTrustEvidenceCardSection"',
   '@/components/SampleReviewPackageSummary"',
   '@/components/architecture/ArchitectureCreatedWorkspace"',
   '@/components/architecture/ArchitectureCreateWorkItemSection"',
   '@/components/architecture/ArchitectureSponsorSharingPanel"',
   '@/components/FirstWeekRouteGuidance"',
-  '@/components/RunExplanationConfidenceBanner"',
+  '@/components/runs/RunExplanationConfidenceBanner"',
   '@/components/reviews/RunDetailGovernanceAlerts"',
-  '@/components/RunDetailOutcomeCards"',
+  '@/components/runs/RunDetailOutcomeCards"',
   '@/components/draft-intake/WhatIfBranchCompareBanner"',
   '@/components/usability/CommitBlockingFindingsBanner"',
   '@/components/usability/StalledReviewGuidanceCallout"',
   '@/components/cto-demo/CtoDemoReviewRouteGuard"',
   '@/components/findings/ReviewDetailPolicyPackImpactCallout"',
-  '@/components/RunDetailLastFailureCard"',
+  '@/components/runs/RunDetailLastFailureCard"',
   '@/components/reviews/ReviewDetailWorkspace"',
   '@/components/reviews/RunDetailOverviewPanelClient"',
-  '@/components/RunDetailSectionNav"',
+  '@/components/runs/RunDetailSectionNav"',
   './RunDetailOperatorTechnicalForensicsPanel"',
   './RunDetailArtifactsExportsSection"',
   './RunDetailWorkspaceChrome"',
@@ -72,12 +72,12 @@ const bannedStaticImports = [
   './RunDetailGovernanceDecisionSection"',
   './RunDetailReviewPackageSection"',
   './RunDetailGovernanceCta"',
-  '@/components/OperatorDemoStaticBanner"',
+  '@/components/operator/OperatorDemoStaticBanner"',
   '@/components/usability/DemoDataBadge"',
   '@/components/usability/PersistentSponsorEmailStrip"',
   '@/components/usability/ShareableReviewLinkButton"',
-  '@/components/RunDetailEvidenceInventorySection"',
-  '@/components/RunDetailEvidenceScopeHeader"',
+  '@/components/runs/RunDetailEvidenceInventorySection"',
+  '@/components/runs/RunDetailEvidenceScopeHeader"',
   '@/components/help/HelpPageSituationRegistrar"',
   '@/components/review-intake/ReviewGenerationCreatedNotice"',
   '@/components/reviews/ReviewSealedIndicatorChip"',
@@ -110,6 +110,7 @@ describe("run detail bundle deferred imports (TB-697 / TB-933 / TB-2021 / TB-211
     expect(pageViewSource).toContain("RunDetailReviewPackageDoThisNextResolvedDeferred");
     expect(pageViewSource).toContain("RunDetailReviewPackageSponsorHandoffGateDeferred");
     expect(pageViewSource).toContain("RunDetailCreateHomeEvidencePanelDeferred");
+    expect(pageViewSource).toContain("RunDetailCreateHomeActivityPanelDeferred");
     expect(pageViewSource).toContain("RunDetailActivitySourcesPanelDeferred");
     expect(pageViewSource).not.toContain("ReviewPackageDoThisNextStripDeferred");
     expect(pageViewSource).not.toContain("RunDetailWorkspaceStickyActionsDeferred");
@@ -180,7 +181,7 @@ describe("run detail bundle deferred imports (TB-697 / TB-933 / TB-2021 / TB-211
     expect(deferredChunksSource).toContain('import("./RunDetailWorkspaceStickyActions")');
     expect(deferredChunksSource).toContain('import("./ReviewPackagePrimaryActionTabAware")');
     expect(deferredChunksSource).toContain('import("./RunDetailExecutiveBottomLine")');
-    expect(deferredChunksSource).toContain('import("@/components/RunDetailSectionNav")');
+    expect(deferredChunksSource).toContain('import("@/components/runs/RunDetailSectionNav")');
     expect(deferredChunksSource).toContain('import("./RunDetailManifestSummarySection")');
     expect(deferredChunksSource).toContain('import("./RunDetailSubmittedArchitectureSection")');
     expect(deferredChunksSource).toContain('import("./RunDetailCaptureEvidenceSection")');
@@ -199,8 +200,8 @@ describe("run detail bundle deferred imports (TB-697 / TB-933 / TB-2021 / TB-211
     expect(deferredChunksSource).toContain(
       'import("@/components/review-intake/ReviewGenerationCreatedNotice")',
     );
-    expect(deferredChunksSource).toContain('import("@/components/RunEstimatedLlmCostCard")');
-    expect(deferredChunksSource).toContain('import("@/components/RunDetailOutcomeCards")');
+    expect(deferredChunksSource).toContain('import("@/components/runs/RunEstimatedLlmCostCard")');
+    expect(deferredChunksSource).toContain('import("@/components/runs/RunDetailOutcomeCards")');
     expect(deferredChunksSource).toContain(
       'import("@/components/architecture/ArchitectureCreateWorkItemSection")',
     );
@@ -216,6 +217,7 @@ describe("run detail bundle deferred imports (TB-697 / TB-933 / TB-2021 / TB-211
     expect(deferredChunksSource).toContain("RunDetailReviewPackageSponsorHandoffGateDeferred");
     expect(deferredChunksSource).toContain('import("./RunDetailReviewPackageSponsorHandoffGate")');
     expect(deferredChunksSource).toContain("RunDetailCreateHomeEvidencePanelDeferred");
+    expect(deferredChunksSource).toContain("RunDetailCreateHomeActivityPanelDeferred");
     expect(deferredChunksSource).toContain('import("./RunDetailCreateHomeEvidencePanel")');
     expect(deferredChunksSource).toContain("RunDetailActivitySourcesPanelDeferred");
     expect(deferredChunksSource).toContain('import("./RunDetailActivitySourcesPanel")');
@@ -240,11 +242,11 @@ describe("run detail bundle deferred imports (TB-697 / TB-933 / TB-2021 / TB-211
     );
     expect(explanationCollapsibleSource).toContain('import("./RunDetailFindingsWorkspace")');
     expect(explanationCollapsibleSource).toContain(
-      'import("@/components/FindingsWhatIfAnalysisPanel")',
+      'import("@/components/findings/FindingsWhatIfAnalysisPanel")',
     );
-    expect(explanationCollapsibleSource).toContain('import("@/components/RunExplanationSection")');
+    expect(explanationCollapsibleSource).toContain('import("@/components/runs/RunExplanationSection")');
     expect(explanationCollapsibleSource).toContain(
-      'import("@/components/RunFindingExplainabilityTable")',
+      'import("@/components/runs/RunFindingExplainabilityTable")',
     );
   });
 

@@ -21,6 +21,11 @@ export const AZURE_CONNECTION_LOAD_FAILED_ERROR =
 export const AZURE_CONNECTION_VALIDATE_EMPTY_STATE =
   "Save an Azure connection in Connection details before validating access.";
 
+export const AZURE_CONNECTION_CONNECTED_SUMMARY_LEAD =
+  "Your saved Azure connection is listed below. Validate to confirm federation access, or update identifiers when your tenant changes.";
+
+export const AZURE_CONNECTION_UPDATE_BUTTON_LABEL = "Update connection";
+
 export const AZURE_CONNECTION_RECENT_ACTIVITY_EMPTY_STATE =
   "No collection activity yet. Save a connection and run Validate connection to import inventory.";
 

@@ -1,11 +1,11 @@
 import { cn } from "@/lib/utils";
 import Link from "next/link";
 import type { AuditEvent } from "@/lib/api";
-import { buyerFacingReviewLinkLabelFromRunId } from "@/lib/buyer-facing-review-title";
+import { buyerFacingReviewLinkLabelFromRunId } from "@/lib/buyer/buyer-facing-review-title";
 import { pipelineEventTypeBuyerMilestoneSubtitle, pipelineEventTypeFriendlyLabel } from "@/lib/pipeline-event-type-labels";
 import { auditBuyerEventIsSystemRecordedActor } from "@/app/(operator)/governance/audit/audit-ui-helpers";
 import { auditTrailGovernanceEventLabel } from "@/lib/audit-trail-page-helpers";
-import { buyerSafeActorDisplayName } from "@/lib/buyer-demo-persona-labels";
+import { buyerSafeActorDisplayName } from "@/lib/buyer/buyer-demo-persona-labels";
 import { OPERATOR_DISCLOSURE_TRIGGER_CLASS, OPERATOR_LINK, OPERATOR_TYPOGRAPHY } from "@/lib/design-tokens";
 import { auditBuyerActorRoleLine, formatUtc, tryFormatDataJson } from "./audit-page-helpers";
 

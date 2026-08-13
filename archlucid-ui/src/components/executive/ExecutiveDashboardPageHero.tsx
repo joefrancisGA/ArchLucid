@@ -4,17 +4,18 @@ import { cn } from "@/lib/utils";
 import Link from "next/link";
 
 import { useExecutiveDashboardData } from "@/components/executive/ExecutiveDashboardDataContext";
-import { OperatorPageHeader } from "@/components/OperatorPageHeader";
+import { OperatorPageHeader } from "@/components/operator/OperatorPageHeader";
 import { PageContextualHelpButton } from "@/components/usability/PageContextualHelpButton";
 import { Button } from "@/components/ui/button";
-import { BUYER_EXECUTIVE_SUMMARY_VOCABULARY } from "@/lib/buyer-surface-vocabulary";
+import { RefreshButton } from "@/components/ui/refresh-button";
+import { BUYER_EXECUTIVE_SUMMARY_VOCABULARY } from "@/lib/vocabulary/buyer-surface-vocabulary";
 import { OPERATOR_LINK, OPERATOR_TYPOGRAPHY } from "@/lib/design-tokens";
 import {
   operatorLastRefreshedExactLabel,
   operatorLastRefreshedLabel,
-} from "@/lib/operator-last-refreshed-label";
+} from "@/lib/operator/operator-last-refreshed-label";
+import { EXECUTIVE_DASHBOARD_HREF } from "@/lib/executive/executive-dashboard-route";
 import {
-  EXECUTIVE_DASHBOARD_ACTION_REFRESH,
   EXECUTIVE_DASHBOARD_ACTION_REFRESHING,
   EXECUTIVE_DASHBOARD_LAST_REFRESHED_PREFIX,
   EXECUTIVE_DASHBOARD_PAGE_TITLE,
@@ -40,24 +41,20 @@ export function ExecutiveDashboardPageHero({
       data-dashboard-empty={dashboardEmpty ? "true" : "false"}
     >
       <OperatorPageHeader
+        navHref={EXECUTIVE_DASHBOARD_HREF}
         title={EXECUTIVE_DASHBOARD_PAGE_TITLE}
         titleTestId="executive-summary-heading"
         subtitle={executiveDashboardPageSubtitle()}
         actions={
           <div className="flex flex-wrap items-center gap-2" data-testid="executive-dashboard-hero-actions">
             <PageContextualHelpButton />
-            <Button
-              type="button"
-              variant="outline"
-              size="sm"
+            <RefreshButton
               data-testid="executive-dashboard-refresh-button"
-              disabled={refreshing}
+              busy={refreshing}
               onClick={() => {
                 void refreshDashboard();
               }}
-            >
-              {refreshing ? EXECUTIVE_DASHBOARD_ACTION_REFRESHING : EXECUTIVE_DASHBOARD_ACTION_REFRESH}
-            </Button>
+            />
             {dashboardEmpty ? (
               <Button variant="primary" size="sm" asChild>
                 <Link href="/architecture/reviews/new" className="no-underline" data-testid="executive-dashboard-hero-start-review">

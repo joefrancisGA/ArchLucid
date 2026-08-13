@@ -5,6 +5,8 @@ import { useMemo, useState } from "react";
 
 import { EnterpriseCompactEmptyState } from "@/components/EnterpriseCompactEmptyState";
 import { ArchitectureDraftGuidanceDisclosure } from "@/components/architecture/ArchitectureDraftGuidanceDisclosure";
+import { PathChooserCreateObjectVocabularyRail } from "@/components/PathChooserCreateObjectVocabularyRail";
+import { ProjectsRecycleDraftsPackageVocabularyRail } from "@/components/ProjectsRecycleDraftsPackageVocabularyRail";
 import { Button } from "@/components/ui/button";
 import {
   EnterpriseTable,
@@ -27,14 +29,14 @@ import {
   architectureDraftCustomerStatusTagKind,
   formatArchitectureDraftCreatedLabel,
   type ArchitectureDraftCustomerStatus,
-} from "@/lib/architecture-draft-status";
-import type { ArchitectureDraftRegistryEntry } from "@/lib/architecture-draft-registry";
+} from "@/lib/architecture/architecture-draft-status";
+import type { ArchitectureDraftRegistryEntry } from "@/lib/architecture/architecture-draft-registry";
 import {
   architectureDraftPath,
   ARCHITECTURES_NEW_PATH,
   reviewDetailPath,
   startReviewFromArchitectureHref,
-} from "@/lib/architecture-routes";
+} from "@/lib/architecture/architecture-routes";
 import {
   ARCHITECTURES_HUB_EMPTY_BODY,
   ARCHITECTURES_HUB_EMPTY_FILTER_BODY,
@@ -59,9 +61,9 @@ import {
   ARCHITECTURES_HUB_TABLE_STATUS_COLUMN,
   ARCHITECTURES_HUB_TABLE_UPDATED_COLUMN,
 } from "@/lib/architectures-hub-copy";
-import { CREATE_ARCHITECTURE_LABEL } from "@/lib/architecture-workflow-labels";
-import { buyerFilterChipClass } from "@/lib/buyer-shell-home-present";
-import { OPERATOR_TYPOGRAPHY } from "@/lib/design-tokens";
+import { CREATE_ARCHITECTURE_LABEL } from "@/lib/architecture/architecture-workflow-labels";
+import { buyerFilterChipClass } from "@/lib/buyer/buyer-shell-home-present";
+import { OPERATOR_LINK, OPERATOR_TYPOGRAPHY } from "@/lib/design-tokens";
 import { formatRelativeTime } from "@/lib/relative-time";
 import { cn } from "@/lib/utils";
 
@@ -206,7 +208,9 @@ export function ArchitectureDraftListClient(): React.JSX.Element {
 
   if (entries.length === 0) {
     return (
-      <div className="mt-4" data-testid="architecture-draft-list-empty">
+      <div className="mt-4 space-y-4" data-testid="architecture-draft-list-empty">
+        <ProjectsRecycleDraftsPackageVocabularyRail currentSurfaceId="architecture-drafts" />
+        <PathChooserCreateObjectVocabularyRail currentSurfaceId="architecture-drafts" />
         <EnterpriseCompactEmptyState
           title={ARCHITECTURES_HUB_EMPTY_TITLE}
           description={ARCHITECTURES_HUB_EMPTY_BODY}
@@ -224,6 +228,8 @@ export function ArchitectureDraftListClient(): React.JSX.Element {
 
   return (
     <div className="mt-4 space-y-4" data-testid="architecture-draft-list">
+      <ProjectsRecycleDraftsPackageVocabularyRail currentSurfaceId="architecture-drafts" />
+      <PathChooserCreateObjectVocabularyRail currentSurfaceId="architecture-drafts" />
       <ArchitectureDraftGuidanceDisclosure />
       <div
         className="flex flex-col gap-2 lg:flex-row lg:flex-wrap lg:items-center"
@@ -305,7 +311,7 @@ export function ArchitectureDraftListClient(): React.JSX.Element {
                   <EnterpriseTableCell>
                     <Link
                       href={architectureDraftPath(entry.architectureId)}
-                      className={cn("font-medium text-al-text-primary hover:underline")}
+                      className={OPERATOR_LINK.nav}
                     >
                       {entry.displayName}
                     </Link>

@@ -1,7 +1,7 @@
 ﻿import type { DemoCommitPagePreviewResponse } from "@/types/demo-preview";
 import type { PipelineTimelineItem } from "@/types/authority";
 import { isBuyerSafeDemoMarketingChromeEnv } from "@/lib/demo-ui-env";
-import { isStaticDemoPayloadFallbackActiveForRun } from "@/lib/operator-static-demo";
+import { isStaticDemoPayloadFallbackActiveForRun } from "@/lib/operator/operator-static-demo";
 import {
   SHOWCASE_STATIC_DEMO_PRIMARY_FINDING_ID,
   SHOWCASE_STATIC_DEMO_RUN_ID,
@@ -17,6 +17,7 @@ import {
 import { DemoPreviewEvaluationCta, DemoPreviewSignInCallout } from "./_sections/DemoPreviewCallouts";
 import { DemoPreviewCompactTimeline } from "./_sections/DemoPreviewCompactTimeline";
 import { DemoPreviewDeliverablesSection } from "./_sections/DemoPreviewDeliverablesSection";
+import type { ShowcaseDemoPreviewTelemetry } from "@/lib/marketing/showcase-telemetry";
 
 /** Maps marketing preview timeline rows to operator pipeline timeline shape for shared timeline UI. */
 function toAuthorityPipelineItems(
@@ -45,12 +46,15 @@ export type DemoPreviewMarketingBodyProps = {
    * Pass false only in tests or tooling that assert fixture metadata.
    */
   readonly buyerAudienceChrome?: boolean;
+  /** When set on `/showcase`, enables scenario-tagged funnel telemetry (TB-978). */
+  readonly showcaseTelemetry?: ShowcaseDemoPreviewTelemetry;
 };
 
 /** Marketing-only commit page projection (no operator CTAs). */
 export function DemoPreviewMarketingBody({
   payload,
   buyerAudienceChrome = true,
+  showcaseTelemetry,
 }: DemoPreviewMarketingBodyProps) {
   const demoMode = buyerAudienceChrome || isBuyerSafeDemoMarketingChromeEnv();
   const payloadRunId = typeof payload.run?.runId === "string" ? payload.run.runId.trim() : "";
@@ -76,16 +80,17 @@ export function DemoPreviewMarketingBody({
 
   return (
     <div className="space-y-10" data-testid="demo-preview-marketing-body">
-      <DemoPreviewArtifactNav />
+      <DemoPreviewArtifactNav showcaseTelemetry={showcaseTelemetry} />
       <DemoPreviewExecutiveConclusion payload={payload} />
       <DemoPreviewSignedReviewSection payload={payload} />
-      <DemoPreviewEvidenceGraphSection payload={payload} />
+      <DemoPreviewEvidenceGraphSection payload={payload} showcaseTelemetry={showcaseTelemetry} />
       <DemoPreviewGovernanceSection payload={payload} />
       <DemoPreviewCompactTimeline
         payload={payload}
         pipelineItems={pipelineItems}
         primaryFindingId={primaryFindingId}
         isRunDetailAvailable={isRunDetailAvailable}
+        showcaseTelemetry={showcaseTelemetry}
       />
       <DemoPreviewDeliverablesSection payload={payload} />
       <DemoPreviewSignInCallout />

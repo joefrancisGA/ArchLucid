@@ -135,7 +135,7 @@ export const TRUST_CONTENT_CARDS: readonly TrustContentCard[] = [
     id: "procurement-package",
     title: "Procurement questionnaire response package",
     description:
-      "Structured answers mapped to ArchLucid’s procurement evidence catalogue for security and vendor-risk questionnaires.",
+      "Structured answers mapped to ArchLucid’s procurement evidence catalog for security and vendor-risk questionnaires.",
     classification: "on-request",
     actionLabel: "Request diligence materials",
     actionHref: `mailto:${TRUST_CENTER_SECURITY_EMAIL}`,

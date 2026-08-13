@@ -2,7 +2,11 @@ import { ensureAppInsights } from "@/lib/telemetry";
 
 import type { LiveDemoWalkthroughStepId } from "./live-demo-walkthrough-steps";
 
-export type LiveDemoConversionAction = "evaluation" | "enterprise-demo" | "full-review";
+export type LiveDemoConversionAction =
+  | "evaluation"
+  | "evaluation-early"
+  | "enterprise-demo"
+  | "full-review";
 
 export function trackLiveDemoWalkthroughStarted(): void {
   void ensureAppInsights().then((ai) => {

@@ -5,8 +5,8 @@ import { FIRST_ARCHITECTURE_REVIEW_PAGE_TITLE } from "@/lib/first-architecture-r
 import {
   isDocumentationMaintenanceMetadataLine,
   prepareHelpMarkdownForPresentation,
-} from "@/lib/help-markdown-presentation";
-import { resolveHelpTopicPermanentRedirect } from "@/lib/help-topic-permanent-redirects";
+} from "@/lib/help/help-markdown-presentation";
+import { resolveHelpTopicPermanentRedirect } from "@/lib/help/help-topic-permanent-redirects";
 import { tryLoadProductDocumentation } from "@/lib/load-product-documentation";
 import {
   getProductDocumentationEntry,

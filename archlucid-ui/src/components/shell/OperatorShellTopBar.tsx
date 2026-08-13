@@ -15,7 +15,7 @@ import { ArchLucidWordmarkLink } from "@/components/ArchLucidWordmarkLink";
 import { AuthPanel } from "@/components/AuthPanel";
 import { AuthorityThemeToggle } from "@/components/AuthorityThemeToggle";
 import { CommandPalette } from "@/components/CommandPaletteLazy";
-import { useNavCallerAuthorityRank } from "@/components/OperatorNavAuthorityProvider";
+import { useNavCallerAuthorityRank } from "@/components/operator/OperatorNavAuthorityProvider";
 import { useCommandPaletteChunkPreload } from "@/hooks/use-command-palette-chunk-preload";
 import { useSearchShortcut } from "@/hooks/useSearchShortcut";
 import { Button } from "@/components/ui/button";
@@ -29,7 +29,7 @@ import {
 } from "@/lib/design-tokens";
 import { isUiAuthorityThemeEvalEnabledEnv } from "@/lib/ui-authority-theme";
 import { AUTHORITY_RANK } from "@/lib/nav-authority";
-import { PERSONA_SHELL_WORDMARK_ARIA_LABEL } from "@/lib/persona-shell-vocabulary";
+import { PERSONA_SHELL_WORDMARK_ARIA_LABEL } from "@/lib/vocabulary/persona-shell-vocabulary";
 import { cn } from "@/lib/utils";
 
 type OperatorShellTopBarProps = {
@@ -71,9 +71,7 @@ export function OperatorShellTopBar(props: OperatorShellTopBarProps): React.JSX.
         >
           <MobileNavDrawerDeferred />
           <h1 className="m-0">
-            <Button variant="outline" className="h-auto p-0" asChild>
-              <ArchLucidWordmarkLink href="/" aria-label={PERSONA_SHELL_WORDMARK_ARIA_LABEL} variant="operator" />
-            </Button>
+            <ArchLucidWordmarkLink href="/" aria-label={PERSONA_SHELL_WORDMARK_ARIA_LABEL} variant="operator" />
           </h1>
         </div>
 

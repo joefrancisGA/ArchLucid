@@ -9,7 +9,7 @@ import { isBuyerPolishedOperatorShellEnv } from "@/lib/demo-ui-env";
 import {
   mergePolicyPacksStateWithStaticDemo,
   staticDemoPolicyPacksFallbackBundle,
-} from "@/lib/operator-static-demo";
+} from "@/lib/operator/operator-static-demo";
 import type {
   EffectivePolicyPackSet,
   PolicyPack,

@@ -26,9 +26,9 @@ import {
   BUYER_EVIDENCE_TRAIL_VIEW_GRAPH,
   BUYER_EVIDENCE_TRAIL_VIEW_TRACE,
   OPERATOR_GRAPH_SCOPE_LABEL,
-} from "@/lib/buyer-polish-copy";
+} from "@/lib/buyer/buyer-polish-copy";
 
-import { BUYER_SURFACE_VOCABULARY } from "@/lib/buyer-surface-vocabulary";
+import { BUYER_SURFACE_VOCABULARY } from "@/lib/vocabulary/buyer-surface-vocabulary";
 
 import { OPERATOR_TYPOGRAPHY } from "@/lib/design-tokens";
 

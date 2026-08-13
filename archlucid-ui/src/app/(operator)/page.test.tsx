@@ -36,25 +36,25 @@ vi.mock("next/link", () => ({
   ),
 }));
 
-vi.mock("@/components/TrialWelcomeRunDeepLink", () => ({
+vi.mock("@/components/trial/TrialWelcomeRunDeepLink", () => ({
   TrialWelcomeRunDeepLink: () => null,
 }));
 
-vi.mock("@/components/OperatorWelcomeOnboarding", () => ({
+vi.mock("@/components/operator/OperatorWelcomeOnboarding", () => ({
   OperatorWelcomeOnboarding: () => null,
 }));
 
-vi.mock("@/components/OperatorHomeGate", () => ({
+vi.mock("@/components/operator-home/OperatorHomeGate", () => ({
   OperatorHomeGate: ({ children }: { children: import("react").ReactNode }) => <>{children}</>,
 }));
 
 vi.mock("./_sections/operator-home-page-view-deferred-chunks", async () => {
   const Link = (await import("next/link")).default;
-  const { CREATE_ARCHITECTURE_LABEL, START_REVIEW_LABEL } = await import("@/lib/architecture-workflow-labels");
+  const { CREATE_ARCHITECTURE_LABEL, START_REVIEW_LABEL } = await import("@/lib/architecture/architecture-workflow-labels");
   const {
     OPERATOR_HOME_OPEN_COMPLETED_REVIEW_CTA,
     OPERATOR_HOME_REVIEW_SAMPLE_FINDINGS_CTA,
-  } = await import("@/lib/buyer-polish-copy");
+  } = await import("@/lib/buyer/buyer-polish-copy");
 
   function DualPathHeroMock() {
     return (
@@ -136,7 +136,7 @@ vi.mock("@/app/(operator)/_sections/operator-home-page-view-deferred-chunks", as
   };
 });
 
-vi.mock("@/components/OperatorNavAuthorityProvider", () => ({
+vi.mock("@/components/operator/OperatorNavAuthorityProvider", () => ({
   useNavCommittedArchitectureReview: () => false,
   useNavCallerAuthorityRank: () => 3,
   useOperatorNavAuthority: () => ({
@@ -148,7 +148,7 @@ vi.mock("@/components/OperatorNavAuthorityProvider", () => ({
   }),
 }));
 
-vi.mock("@/lib/operator-static-demo", () => ({
+vi.mock("@/lib/operator/operator-static-demo", () => ({
   tryStaticDemoRunSummariesPaged: vi.fn(() => null),
   isStaticDemoPayloadFallbackEnabled: vi.fn(() => false),
 }));
@@ -275,11 +275,11 @@ import { isBuyerPolishedOperatorShellEnv } from "@/lib/demo-ui-env";
 import { loadOperatorHomeRunsDashboardModel } from "./_sections/load-operator-home-runs-dashboard-model";
 import { OperatorHomeRunsDashboardAsync } from "./_sections/OperatorHomeRunsDashboardAsync";
 import type { OperatorHomeRunsDashboardModel } from "./_sections/operator-home-runs-dashboard-model";
-import { CREATE_ARCHITECTURE_LABEL, START_REVIEW_LABEL } from "@/lib/architecture-workflow-labels";
+import { CREATE_ARCHITECTURE_LABEL, START_REVIEW_LABEL } from "@/lib/architecture/architecture-workflow-labels";
 import {
   OPERATOR_HOME_OPEN_COMPLETED_REVIEW_CTA,
   OPERATOR_HOME_REVIEW_SAMPLE_FINDINGS_CTA,
-} from "@/lib/buyer-polish-copy";
+} from "@/lib/buyer/buyer-polish-copy";
 import type { RunSummary } from "@/types/authority";
 
 const mockLoadOperatorHomeRunsDashboardModel = vi.mocked(loadOperatorHomeRunsDashboardModel);

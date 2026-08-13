@@ -11,7 +11,7 @@ import {
   ALERTS_INBOX_DEFAULT_PROJECT_ID,
   type AlertsInboxWorkspaceContext,
 } from "@/lib/alerts-inbox-workspace-context";
-import { shouldMergeOperatorDemoAlertSample, tryStaticDemoAlertInboxRow } from "@/lib/operator-static-demo";
+import { shouldMergeOperatorDemoAlertSample, tryStaticDemoAlertInboxRow } from "@/lib/operator/operator-static-demo";
 import {
   ALERTS_INBOX_PAGE_SIZE,
 } from "@/app/(operator)/governance/alerts/_sections/load-alerts-inbox-page-model";

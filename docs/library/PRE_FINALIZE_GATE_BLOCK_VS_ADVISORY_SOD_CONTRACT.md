@@ -3,7 +3,7 @@
 # Pre-finalize gate — block vs advisory + SoD ownership contract
 
 **Status:** Active (V1)  
-**Backlog:** **TB-1022** (this contract) · **TB-1023** (honesty CI anchors — open until shipped)  
+**Backlog:** **TB-1022** (this contract) · **TB-1023** (honesty CI — Done 2026-08-12)  
 **Audience:** Principal architects, governance reviewers, coding agents  
 **Related:** [PRE_COMMIT_GOVERNANCE_GATE.md](./PRE_COMMIT_GOVERNANCE_GATE.md) (deep dive) · ADR [0034](../architecture/adrs/0034-segregation-of-duties-entra-oid-actor-keys.md) · [PUBLIC_CLAIM_BOUNDARY_GUIDE.md](./PUBLIC_CLAIM_BOUNDARY_GUIDE.md) (**M-172**) · [BUYER_SECURITY_PROCUREMENT_PACKET.md § M-173](../go-to-market/BUYER_SECURITY_PROCUREMENT_PACKET.md#pre-finalize-gate-sod-m-173) · PA alias [PRE_FINALIZE_GATE_BLOCK_VS_ADVISORY_SOD_PA_ONE_PAGER.md](../go-to-market/PRE_FINALIZE_GATE_BLOCK_VS_ADVISORY_SOD_PA_ONE_PAGER.md) · Done **TB-184** · pack evaluation hybrid **TB-1324** / **M-236** (architecture split — not this matrix)
 
@@ -83,7 +83,7 @@ Do not collapse “gate blocked” with “approval rejected,” or “commit su
 
 ---
 
-## 7. CI anchors for **TB-1023** (contract published; CI open)
+## 7. CI anchors for **TB-1023**
 
 | Forbidden implication | Anchor direction |
 |-----------------------|------------------|
@@ -93,7 +93,7 @@ Do not collapse “gate blocked” with “approval rejected,” or “commit su
 | SoD = different committer | ADR 0034 approval actor keys only |
 | Advisory findings block commit | `EnforcementTier.Advisory` exclusion / `WarnOnlySeverities` |
 
-Until **TB-1023** ships, treat this document as the **human** gate; CI is the **mechanical** gate.
+Mechanical gate: `scripts/ci/check_pre_finalize_gate_sod_honesty.py`.
 
 ---
 

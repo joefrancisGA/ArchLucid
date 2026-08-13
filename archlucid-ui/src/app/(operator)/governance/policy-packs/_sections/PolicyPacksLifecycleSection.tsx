@@ -3,16 +3,15 @@
 import { cn } from "@/lib/utils";
 import { useState } from "react";
 
-import { PolicyPackChangeImpactNotice } from "@/components/PolicyPackChangeImpactNotice";
-import { PolicyPackContentJsonEditor } from "@/components/PolicyPackContentJsonEditor";
+import { PolicyPackChangeImpactNotice } from "@/components/policy/PolicyPackChangeImpactNotice";
+import { PolicyPackContentJsonEditor } from "@/components/policy/PolicyPackContentJsonEditor";
 import { ConfirmationDialog } from "@/components/ConfirmationDialog";
 import { InlineHelp } from "@/components/InlineHelp";
-import { GovernanceDryRunModal } from "@/components/GovernanceDryRunModal";
+import { GovernanceDryRunModal } from "@/components/governance/GovernanceDryRunModal";
 import { MutatingInWorkspaceChip } from "@/components/MutatingInWorkspaceChip";
 import { Button } from "@/components/ui/button";
 import { Input } from "@/components/ui/input";
 import {
-  enterpriseMutationControlDisabledTitle,
   policyPacksAssignButtonLabelReaderRank,
   policyPacksCreatePackButtonLabelReaderRank,
   policyPacksLifecycleLeadReaderLine,
@@ -117,7 +116,6 @@ export function PolicyPacksLifecycleSection(props: PolicyPacksLifecycleSectionPr
                 size="sm"
                 variant="secondary"
                 disabled={verticalImportSlug !== null || !canMutatePacks}
-                title={canMutatePacks ? undefined : enterpriseMutationControlDisabledTitle}
                 onClick={() => void onImportVertical(row.slug, row.label)}
               >
                 {verticalImportSlug === row.slug ? "Loadingâ€¦" : row.label}
@@ -143,7 +141,6 @@ export function PolicyPacksLifecycleSection(props: PolicyPacksLifecycleSectionPr
                   onNameChange(e.target.value);
                 }}
                 readOnly={!canMutatePacks}
-                title={canMutatePacks ? undefined : enterpriseMutationControlDisabledTitle}
                 className="mt-1"
               />
             </div>
@@ -161,7 +158,6 @@ export function PolicyPacksLifecycleSection(props: PolicyPacksLifecycleSectionPr
                   onDescriptionChange(e.target.value);
                 }}
                 readOnly={!canMutatePacks}
-                title={canMutatePacks ? undefined : enterpriseMutationControlDisabledTitle}
                 className="mt-1"
               />
             </div>
@@ -177,7 +173,6 @@ export function PolicyPacksLifecycleSection(props: PolicyPacksLifecycleSectionPr
                   onPackTypeChange(e.target.value);
                 }}
                 disabled={!canMutatePacks}
-                title={canMutatePacks ? undefined : enterpriseMutationControlDisabledTitle}
                 className="block w-full p-2 mt-1"
               >
                 {PACK_TYPES.map((t) => (
@@ -193,13 +188,11 @@ export function PolicyPacksLifecycleSection(props: PolicyPacksLifecycleSectionPr
               value={createJson}
               onChange={onCreateJsonChange}
               readOnly={!canMutatePacks}
-              title={canMutatePacks ? undefined : enterpriseMutationControlDisabledTitle}
             />
             <button
               type="button"
               onClick={() => void onCreate()}
               disabled={loading || !canMutatePacks}
-              title={canMutatePacks ? undefined : enterpriseMutationControlDisabledTitle}
               className={cn(
                 !canMutatePacks &&
                   "rounded border border-neutral-300 bg-neutral-50 text-neutral-600 dark:border-neutral-600 dark:bg-neutral-900/50 dark:text-neutral-400",
@@ -242,7 +235,6 @@ export function PolicyPacksLifecycleSection(props: PolicyPacksLifecycleSectionPr
                   onPublishVersionChange(e.target.value);
                 }}
                 readOnly={!canMutatePacks}
-                title={canMutatePacks ? undefined : enterpriseMutationControlDisabledTitle}
                 className="mt-1"
               />
             </div>
@@ -252,19 +244,11 @@ export function PolicyPacksLifecycleSection(props: PolicyPacksLifecycleSectionPr
               value={publishJson}
               onChange={onPublishJsonChange}
               readOnly={!canMutatePacks}
-              title={canMutatePacks ? undefined : enterpriseMutationControlDisabledTitle}
             />
             <button
               type="button"
               onClick={() => setPublishConfirmOpen(true)}
               disabled={loading || !selectedPackId || !canMutatePacks || bundledPublishBlocked}
-              title={
-                bundledPublishBlocked
-                  ? "Bundled default packs cannot be republished from Policy packs."
-                  : canMutatePacks
-                    ? undefined
-                    : enterpriseMutationControlDisabledTitle
-              }
               className={cn(
                 !canMutatePacks &&
                   "rounded border border-neutral-300 bg-neutral-50 text-neutral-600 dark:border-neutral-600 dark:bg-neutral-900/50 dark:text-neutral-400",
@@ -297,7 +281,6 @@ export function PolicyPacksLifecycleSection(props: PolicyPacksLifecycleSectionPr
                   onAssignVersionChange(e.target.value);
                 }}
                 readOnly={!canMutatePacks}
-                title={canMutatePacks ? undefined : enterpriseMutationControlDisabledTitle}
                 className="mt-1 w-40"
               />
             </div>
@@ -311,7 +294,6 @@ export function PolicyPacksLifecycleSection(props: PolicyPacksLifecycleSectionPr
                 value={assignScopeLevel}
                 onChange={(e) => onAssignScopeLevelChange(e.target.value)}
                 disabled={!canMutatePacks}
-                title={canMutatePacks ? undefined : enterpriseMutationControlDisabledTitle}
                 className="block p-2 mt-1 min-w-[140px]"
               >
                 <option value="Tenant">Tenant</option>
@@ -324,7 +306,6 @@ export function PolicyPacksLifecycleSection(props: PolicyPacksLifecycleSectionPr
                 type="checkbox"
                 checked={assignPinned}
                 disabled={!canMutatePacks}
-                title={canMutatePacks ? undefined : enterpriseMutationControlDisabledTitle}
                 onChange={(e) => onAssignPinnedChange(e.target.checked)}
               />
               Pinned
@@ -337,7 +318,6 @@ export function PolicyPacksLifecycleSection(props: PolicyPacksLifecycleSectionPr
               type="button"
               onClick={() => void onAssign()}
               disabled={loading || !selectedPackId || !canMutatePacks}
-              title={canMutatePacks ? undefined : enterpriseMutationControlDisabledTitle}
               className={cn(
                 !canMutatePacks &&
                   "rounded border border-neutral-300 bg-neutral-50 text-neutral-600 dark:border-neutral-600 dark:bg-neutral-900/50 dark:text-neutral-400",

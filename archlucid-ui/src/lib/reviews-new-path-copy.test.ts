@@ -21,8 +21,8 @@ describe("reviews-new-path-copy buyer-facing copy", () => {
     expect(REVIEWS_NEW_PATH_HINTS["quick-review"].toLowerCase()).not.toMatch(/first-pilot|first pilot/);
   });
 
-  it("detailed hint is for export-ready reviews", () => {
-    expect(REVIEWS_NEW_PATH_HINTS.detailed).toMatch(/templates|imports|export/i);
+  it("detailed hint leads with templates and imports before configuration (TB-1868)", () => {
+    expect(REVIEWS_NEW_PATH_HINTS.detailed).toMatch(/template|import|configuration/i);
   });
 
   it("proof collection hint references the collect script and review-id", () => {

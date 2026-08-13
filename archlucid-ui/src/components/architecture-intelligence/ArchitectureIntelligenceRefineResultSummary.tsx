@@ -4,7 +4,7 @@ import { ArchitectureIntelligenceProductRoundTrip } from "@/app/(operator)/archi
 import {
   formatArchitectureIntelligenceSpendSummary,
   type ClosedLoopReasoningResult,
-} from "@/lib/architecture-intelligence-api";
+} from "@/lib/architecture/architecture-intelligence-api";
 import { OPERATOR_TYPOGRAPHY } from "@/lib/design-tokens";
 import { cn } from "@/lib/utils";
 

@@ -3,6 +3,7 @@
 import { cn } from "@/lib/utils";
 
 import { Button } from "@/components/ui/button";
+import { RefreshButton } from "@/components/ui/refresh-button";
 import { Label } from "@/components/ui/label";
 import {
   Select,
@@ -14,13 +15,9 @@ import {
 import {
   ALERTS_INBOX_ALL_STATUSES_VALUE,
 } from "@/app/(operator)/governance/alerts/_sections/load-alerts-inbox-page-model";
-import {
-  alertsInboxRefreshButtonTitleOperator,
-  alertsInboxRefreshButtonTitleReader,
-} from "@/lib/enterprise-controls-context-copy";
 import { ALERTS_INBOX_LABELS } from "@/lib/i18n";
 import { OPERATOR_TYPOGRAPHY } from "@/lib/design-tokens";
-import { OPERATOR_NOT_REFRESHED_LABEL } from "@/lib/operator-last-refreshed-label";
+import { OPERATOR_NOT_REFRESHED_LABEL } from "@/lib/operator/operator-last-refreshed-label";
 import { formatRelativeTime } from "@/lib/relative-time";
 
 export type AlertsInboxControlsProps = {
@@ -96,17 +93,7 @@ export function AlertsInboxControls(props: AlertsInboxControlsProps) {
               </SelectContent>
             </Select>
           </div>
-          <Button
-            type="button"
-            variant="secondary"
-            onClick={props.onRefresh}
-            disabled={props.loading}
-            title={
-              props.canMutateAlertInbox ? alertsInboxRefreshButtonTitleOperator : alertsInboxRefreshButtonTitleReader
-            }
-          >
-            {props.loading ? "Loading…" : "Refresh"}
-          </Button>
+          <RefreshButton busy={props.loading} size="default" onClick={props.onRefresh} />
           {props.canMutateAlertInbox && props.visibleAlertCount > 0 ? (
             <Button
               type="button"

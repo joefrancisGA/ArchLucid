@@ -111,7 +111,9 @@ At **minute 12**, both must be true:
 
 ---
 
-## 9. CI anchors for **TB-1031** (contract published; CI open)
+## 9. CI anchors for **TB-1031** (shipped)
+
+Mechanical gate: `scripts/ci/check_first_15_package_spine_honesty.py` (wired in `scripts/ci/run_buyer_surface_strict_guards.py`).
 
 | Forbidden implication | Anchor direction |
 |-----------------------|------------------|
@@ -125,7 +127,7 @@ At **minute 12**, both must be true:
 1. Committed or ReadyForCommit run-detail exposes Finalize + sponsor-export (or equivalent buyer “evidence package”) **without** navigating Operate.
 2. FIRST_15 skip routes (Graph, Compare, Replay, governance config) are **not** required primary CTAs on the package spine for that session.
 
-Until **TB-1031** ships, treat this document as the **human** gate; CI is the **mechanical** gate.
+Vitest: `archlucid-ui/src/lib/first-15-package-spine-honesty.test.ts`.
 
 ---
 

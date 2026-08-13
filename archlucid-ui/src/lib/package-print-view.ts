@@ -3,7 +3,7 @@
  * Dedicated print route keeps shell chrome out of the PDF without export-format roulette.
  */
 
-import { buyerFacingReviewTitleFromSummary } from "@/lib/buyer-facing-review-title";
+import { buyerFacingReviewTitleFromSummary } from "@/lib/buyer/buyer-facing-review-title";
 import type { EnterpriseStatusKind } from "@/lib/design-tokens";
 import type { RunSummary } from "@/types/authority";
 

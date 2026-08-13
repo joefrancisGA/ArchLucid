@@ -5,10 +5,12 @@ import Link from "next/link";
 import { useCallback, useState } from "react";
 
 import { DemoWorkspaceCapabilityUnavailablePanel } from "@/components/DemoWorkspaceCapabilityUnavailablePanel";
-import { OperatorPageHeader } from "@/components/OperatorPageHeader";
+import { SETTINGS_SUPPORT_PATH } from "@/lib/settings-admin-route-paths";
+import { OperatorPageHeader } from "@/components/operator/OperatorPageHeader";
+import { ReportProblemSupportWorkspaceVocabularyRail } from "@/components/ReportProblemSupportWorkspaceVocabularyRail";
 import { Badge } from "@/components/ui/badge";
 import { Button } from "@/components/ui/button";
-import { OPERATOR_LINK, OPERATOR_TYPOGRAPHY } from "@/lib/design-tokens";
+import { DESIGN_TOKENS, OPERATOR_LAYOUT, OPERATOR_LINK, OPERATOR_TYPOGRAPHY } from "@/lib/design-tokens";
 import { formatRelativeTime } from "@/lib/relative-time";
 import {
   ARCHLUCID_SUPPORT_EMAIL,
@@ -79,12 +81,15 @@ export function AdminSupportPageView({ model }: AdminSupportPageViewProps) {
   const downloadDisabled = model.downloading || !model.canGenerateBundle;
 
   return (
-    <div className="w-full max-w-[1280px] space-y-6" data-testid="admin-support-page">
+    <div className={cn("w-full max-w-[1280px]", OPERATOR_LAYOUT.sectionStack)} data-testid="admin-support-page">
       <OperatorPageHeader
+        navHref={SETTINGS_SUPPORT_PATH}
         title="Support"
         titleTestId="admin-support-title"
         subtitle="Contact ArchLucid support, gather redacted diagnostics, and follow guided troubleshooting paths."
       />
+
+      <ReportProblemSupportWorkspaceVocabularyRail currentSurfaceId="support-workspace" />
 
       <p
         className={cn(
@@ -97,7 +102,7 @@ export function AdminSupportPageView({ model }: AdminSupportPageViewProps) {
       </p>
 
       <div className="grid gap-6 lg:grid-cols-2">
-        <div className="space-y-6">
+        <div className={OPERATOR_LAYOUT.sectionStack}>
           <SupportSection title="Report a problem" testId="admin-support-report-problem">
             <p className={cn("m-0 text-al-text-primary", OPERATOR_TYPOGRAPHY.body)}>{SUPPORT_REPORT_PROBLEM_SUMMARY}</p>
             <p className={cn("m-0 mt-3 text-al-text-secondary", OPERATOR_TYPOGRAPHY.helper)}>
@@ -180,7 +185,8 @@ export function AdminSupportPageView({ model }: AdminSupportPageViewProps) {
 
           <p
             className={cn(
-              "m-0 mt-3 rounded-md border border-emerald-200 bg-emerald-50/70 px-3 py-2 text-emerald-950 dark:border-emerald-900 dark:bg-emerald-950/30 dark:text-emerald-100",
+              "m-0 mt-3",
+              DESIGN_TOKENS.callout.success,
               OPERATOR_TYPOGRAPHY.body,
             )}
             data-testid="admin-support-bundle-safety"

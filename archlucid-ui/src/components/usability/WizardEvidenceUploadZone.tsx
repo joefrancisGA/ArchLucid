@@ -1,4 +1,5 @@
 "use client";
+import { EVIDENCE_UPLOAD_ACCEPT_EXTENSIONS_ATTR } from "@/lib/evidence-upload-accepted-formats";
 import { cn } from "@/lib/utils";
 import { OPERATOR_TYPOGRAPHY } from "@/lib/design-tokens";
 
@@ -35,14 +36,13 @@ export function formatWizardEvidenceAttachmentSummary(
   return `${countLabel} — ${trimmedSuffix}`;
 }
 
-const DEFAULT_ACCEPTED_EXTENSIONS = ".pdf,.docx,.md,.txt,.json,.yaml,.yml,.png,.jpg,.jpeg";
 const DEFAULT_LABEL = "Attach evidence (optional)";
 const DEFAULT_DESCRIPTION =
   "Accepted: PDF, DOCX, Markdown, text, JSON, YAML, images. Drag files here or browse.";
 
 /** Drag-drop evidence upload with the same label + helper + control layout as other intake fields. */
 export function WizardEvidenceUploadZone(props: WizardEvidenceUploadZoneProps) {
-  const acceptedExtensions = props.accept ?? DEFAULT_ACCEPTED_EXTENSIONS;
+  const acceptedExtensions = props.accept ?? EVIDENCE_UPLOAD_ACCEPT_EXTENSIONS_ATTR;
   const labelId = props.labelId ?? "wizard-evidence-upload";
   const label = props.title ?? DEFAULT_LABEL;
   const description = props.description ?? DEFAULT_DESCRIPTION;

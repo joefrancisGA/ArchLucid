@@ -3,7 +3,7 @@
 import { cn } from "@/lib/utils";
 
 import { useArchitectureDraftRegistryEntries } from "@/hooks/use-architecture-draft-registry-entries";
-import { countArchitectureDraftsReadyForReview } from "@/lib/architecture-draft-ready-for-review";
+import { countArchitectureDraftsReadyForReview } from "@/lib/architecture/architecture-draft-ready-for-review";
 import { OPERATOR_TYPOGRAPHY } from "@/lib/design-tokens";
 import { finiteIntegerCountDisplay } from "@/lib/finite-count-display";
 

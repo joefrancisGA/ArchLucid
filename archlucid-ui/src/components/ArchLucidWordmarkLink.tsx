@@ -77,8 +77,10 @@ function resolveExplicitLogoLayout(
 }
 
 /**
- * Header wordmark link wrapping {@link ArchLucidLogo}. Use inside `<Button asChild>`
- * so Radix merges focus styles onto the anchor.
+ * Header wordmark link wrapping {@link ArchLucidLogo}. Render it directly — never inside
+ * `<Button asChild>`, which frames the brand mark in button chrome (`UI_DESIGN_SYSTEM.md`
+ * § Visible-boundary `Button` contract; TB-1671). The focus-visible ring lives here so the
+ * link keeps a keyboard indicator without a wrapper.
  */
 export const ArchLucidWordmarkLink = forwardRef<HTMLAnchorElement, ArchLucidWordmarkLinkProps>(
   function ArchLucidWordmarkLink(
@@ -94,7 +96,7 @@ export const ArchLucidWordmarkLink = forwardRef<HTMLAnchorElement, ArchLucidWord
         data-testid="archlucid-wordmark-link"
         {...linkProps}
         className={cn(
-          "inline-flex shrink-0 items-center focus:outline-none",
+          "inline-flex shrink-0 items-center rounded-sm focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-[var(--al-accent-border-focus)] focus-visible:ring-offset-2",
           layout.heightClass,
           className,
         )}

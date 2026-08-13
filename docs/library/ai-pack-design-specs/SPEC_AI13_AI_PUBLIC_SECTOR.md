@@ -108,7 +108,7 @@ Standard pipeline. `priorityFloor: P0` surfaces inventory, rights-impacting cont
 |------|--------|
 | Adjacent packs | `nist-ai-600-1-genai` (AI-07), `nist-csf-2-architecture` (#19), `security-architecture-baseline` (#2). |
 | Regulatory evolution | OMB memoranda are updated; major new memoranda trigger a pack minor-version bump. |
-| Vertical positioning | Primary buyers: federal agencies, defence contractors (CMMC-adjacent), government system integrators. |
+| Vertical positioning | Primary buyers: federal agencies, defense contractors (CMMC-adjacent), government system integrators. |
 
 ---
 

@@ -17,7 +17,7 @@ const { mockPathname, buyerPolishedShellMock, fullOperatorShellMock } = vi.hoist
 }));
 
 vi.mock("@/hooks/use-governance-mode", async () => {
-  const { governanceModeVocabulary } = await import("@/lib/governance-mode-vocabulary");
+  const { governanceModeVocabulary } = await import("@/lib/vocabulary/governance-mode-vocabulary");
 
   return {
     useGovernanceMode: () => ({
@@ -69,7 +69,7 @@ vi.mock("@/lib/demo-ui-env", async (importOriginal) => {
   };
 });
 
-vi.mock("@/components/OperatorNavAuthorityProvider", async () => {
+vi.mock("@/components/operator/OperatorNavAuthorityProvider", async () => {
   const { createOperatorNavAuthorityVitestMock } = await import(
     "@/testing/operator-nav-authority-vitest-mock"
   );

@@ -6,7 +6,7 @@ import { join } from "node:path";
 
 import { describe, expect, it } from "vitest";
 
-const SRC = join(process.cwd(), "src");
+import { BUYER_COPY_MODULE_PATHS } from "@/lib/buyer-copy/module-paths";
 
 const FORBIDDEN_STRINGS = [
   "Policy pack used for this review.",
@@ -16,10 +16,10 @@ const FORBIDDEN_STRINGS = [
 ] as const;
 
 const SCOPED_FILES = [
-  "lib/buyer-polish-copy.ts",
-  "app/(operator)/architecture/reviews/[runId]/_sections/RunDetailArtifactsExportsSection.tsx",
-  "app/(operator)/architecture/reviews/[runId]/_sections/RunDetailBelowFoldSections.tsx",
-  "app/(operator)/architecture/reviews/[runId]/_sections/RunDetailPageView.tsx",
+  ...BUYER_COPY_MODULE_PATHS,
+  "src/app/(operator)/architecture/reviews/[runId]/_sections/RunDetailArtifactsExportsSection.tsx",
+  "src/app/(operator)/architecture/reviews/[runId]/_sections/RunDetailBelowFoldSections.tsx",
+  "src/app/(operator)/architecture/reviews/[runId]/_sections/RunDetailPageView.tsx",
 ] as const;
 
 describe("TB-2095 vague Deliverables policy-pack callout guard", () => {
@@ -27,7 +27,7 @@ describe("TB-2095 vague Deliverables policy-pack callout guard", () => {
     const violations: string[] = [];
 
     for (const relative of SCOPED_FILES) {
-      const source = readFileSync(join(SRC, relative), "utf8");
+      const source = readFileSync(join(process.cwd(), relative), "utf8");
 
       for (const needle of FORBIDDEN_STRINGS) {
         if (source.includes(needle)) {

@@ -19,7 +19,9 @@ import { HealthBuildDetailsDisclosure } from "@/components/health-dashboard/Heal
 import { TenantCatalogMigrationDiagnosticsSection } from "@/components/tenancy/TenantCatalogMigrationDiagnosticsSection";
 import { CollapsibleSection } from "@/components/CollapsibleSection";
 import { PageContextualHelpButton } from "@/components/usability/PageContextualHelpButton";
-import { OPERATOR_TYPOGRAPHY } from "@/lib/design-tokens";
+import { OperatorPageHeader } from "@/components/operator/OperatorPageHeader";
+import { INTERNAL_HEALTH_PATH } from "@/lib/internal-ops-route-paths";
+import { OPERATOR_LAYOUT, OPERATOR_TYPOGRAPHY } from "@/lib/design-tokens";
 import { isDataArchivalHealthDegraded } from "@/lib/health-dashboard-types";
 import { presentConfigLintFindings } from "@/lib/health-config-lint-presentation";
 import { buildHealthSummaryTiles, humanizeCircuitGateName } from "@/lib/health-dashboard-summary";
@@ -70,18 +72,15 @@ export function AdminHealthPageView(props: Props) {
     m.ready !== null && isDataArchivalHealthDegraded(m.ready.entries);
 
   return (
-    <div className={cn(HEALTH_DASHBOARD_PAGE_CLASS, "space-y-6")} data-testid="admin-health-page">
+    <div className={cn(HEALTH_DASHBOARD_PAGE_CLASS, OPERATOR_LAYOUT.sectionStack)} data-testid="admin-health-page">
       <header className="space-y-4">
-        <div className="flex flex-wrap items-start justify-between gap-3">
-          <div className="space-y-1">
-            <h1 className={OPERATOR_TYPOGRAPHY.pageTitle}>Diagnostics dashboard</h1>
-            <p className={cn("m-0 text-al-text-secondary", OPERATOR_TYPOGRAPHY.body)}>
-              Workspace health, required services, and configuration advisories for this deployment.
-            </p>
-          </div>
-          <PageContextualHelpButton />
-        </div>
-<HealthOverallStatusHeader
+        <OperatorPageHeader
+          navHref={INTERNAL_HEALTH_PATH}
+          title="Diagnostics dashboard"
+          subtitle="Workspace health, required services, and configuration advisories for this deployment."
+          actions={<PageContextualHelpButton />}
+        />
+        <HealthOverallStatusHeader
           overallStatus={overall}
           title={headline.title}
           subtitle={headline.subtitle}
@@ -132,7 +131,7 @@ export function AdminHealthPageView(props: Props) {
           </CardContent>
         </Card>
 
-        <div className="space-y-6">
+        <div className={OPERATOR_LAYOUT.sectionStack}>
           <Card>
             <CardContent className="space-y-4 pt-6">
               <HealthDashboardSection

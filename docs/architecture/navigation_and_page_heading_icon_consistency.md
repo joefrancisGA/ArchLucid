@@ -87,7 +87,7 @@
 | `archlucid-ui/src/lib/resolve-nav-link-for-pathname.test.ts` | **New** |
 | `archlucid-ui/src/components/PageHeading.tsx` | **New** — shared heading chrome |
 | `archlucid-ui/src/components/PageHeading.nav-identity.test.tsx` | **New** |
-| `archlucid-ui/src/components/OperatorPageHeader.tsx` | Optional `navHref` → `PageHeading` |
+| `archlucid-ui/src/components/operator/OperatorPageHeader.tsx` | Optional `navHref` → `PageHeading` |
 | Integration page clients (6) | `PageHeading` with `variant="integration"` |
 | `GraphPageContent.tsx` | `navHref="/graph"` |
 | `GovernanceWorkflowPageContent.tsx` | `navHref="/governance"` |

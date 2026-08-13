@@ -61,4 +61,14 @@ describe("CronExpressionBuilder", () => {
 
     expect(onChange).toHaveBeenCalledWith("@hourly");
   });
+
+  it("skips preview fetch and panel when hidePreview is true (AD-P0-3)", async () => {
+    render(<CronExpressionBuilder value="0 7 * * *" onChange={vi.fn()} hidePreview />);
+
+    expect(screen.queryByTestId("cron-next-runs-preview")).toBeNull();
+
+    await waitFor(() => {
+      expect(governanceApi.previewRecurrenceScheduleRuns).not.toHaveBeenCalled();
+    });
+  });
 });

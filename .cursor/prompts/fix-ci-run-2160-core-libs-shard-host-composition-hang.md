@@ -34,7 +34,7 @@ blame killed it at the inactivity ceiling. This is a **process-exit / shutdown l
 1. **All 137 tests PASSED.** Not a hung assertion and not a test that never returned — every test was
    recorded `Passed` before the host was killed. The hang is **after** the last test, at testhost
    process exit / data-collector finalization. A leaked process-lifetime resource (a non-background
-   thread, an un-cancelled timer/loop, or a coverlet flush) is keeping the process alive.
+   thread, an un-canceled timer/loop, or a coverlet flush) is keeping the process alive.
 2. The named "test running when the crash occurred" is just the **last-started** test recorded by blame,
    not a hung test.
 3. The named test resolves via the **API-key** path (`AzureOpenAI:ApiKey="primary-test-key"`,
@@ -120,7 +120,7 @@ Content Safety client. Candidate process-lifetime owners:
 
 Pick the remedy matching the thread the dump names:
 
-- **(A) Foreground thread / un-cancelled timer / undisposed resource in a completion-pipeline type.**
+- **(A) Foreground thread / un-canceled timer / undisposed resource in a completion-pipeline type.**
   Make the owning type `IDisposable`/`IAsyncDisposable`, dispose the inner Azure SDK client, cancel and
   join the thread / dispose the timer in `Dispose`, and register it so the DI container disposes it.
   Prefer `IsBackground=true` for any worker thread that must not block process exit. Follow the

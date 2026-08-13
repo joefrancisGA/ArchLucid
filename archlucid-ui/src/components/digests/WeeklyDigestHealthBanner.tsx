@@ -6,7 +6,7 @@ import { OPERATOR_TYPOGRAPHY } from "@/lib/design-tokens";
 import Link from "next/link";
 import { useCallback, useEffect, useState, type ReactElement } from "react";
 
-import { OperatorLoadingNotice } from "@/components/OperatorShellMessage";
+import { OperatorLoadingNotice } from "@/components/operator/OperatorShellMessage";
 import { Button } from "@/components/ui/button";
 import { StatusTag } from "@/components/ui/status-tag";
 import { ADVISORY_SCANS_SCHEDULES_HREF } from "@/lib/advisory-scans-route";
@@ -114,6 +114,20 @@ export function WeeklyDigestHealthBanner(props: WeeklyDigestHealthBannerProps): 
   }, [load, refreshToken]);
 
   if (loadOnly) {
+    if (!loading && snap === null) {
+      return (
+        <div
+          className={cn(
+            "mb-4 rounded-lg border border-neutral-200 bg-white p-4 dark:border-neutral-700 dark:bg-neutral-950",
+            OPERATOR_TYPOGRAPHY.body,
+          )}
+          data-testid="weekly-digest-health-load-failed"
+        >
+          <p className="m-0 text-neutral-600 dark:text-neutral-400">Digest health is temporarily unavailable.</p>
+        </div>
+      );
+    }
+
     return null;
   }
 
@@ -153,12 +167,51 @@ export function WeeklyDigestHealthBanner(props: WeeklyDigestHealthBannerProps): 
   const showMetricGrid: boolean = variant === "full" && !setupNeeded;
   const showCompactFacts: boolean =
     variant === "full" && setupNeeded && !suppressCompactFacts;
+  // Checklist owns related links on Get started — show facts without card chrome.
+  const showBorderlessCompactFacts: boolean =
+    variant === "full" && setupNeeded && suppressCompactFacts;
   const compactTitle: string =
     variant === "subscriptions"
       ? "Subscription delivery"
       : variant === "schedule"
         ? "Executive schedule"
         : "Digest status";
+
+  const compactFactsLine: ReactElement = (
+    <span
+      className={cn("text-neutral-500 dark:text-neutral-400", OPERATOR_TYPOGRAPHY.helper)}
+      data-testid="digest-status-compact-facts"
+    >
+      Enabled schedules: {snap.enabledAdvisoryScheduleCount}
+      {" · "}
+      Active subscriptions: {snap.enabledDigestSubscriptionCount}
+      {" · "}
+      Last sent:{" "}
+      {formatDigestInstant(
+        snap.latestDigestSubscriptionDeliveryUtc ?? snap.latestArchitectureDigestGeneratedUtc,
+      )}
+    </span>
+  );
+
+  if (showBorderlessCompactFacts) {
+    return (
+      <div
+        className={cn("mb-4", OPERATOR_TYPOGRAPHY.body)}
+        data-testid="weekly-digest-health-banner"
+        data-variant={variant}
+      >
+        <div className="flex flex-wrap items-center gap-2">
+          <h3
+            className={cn("m-0 font-semibold text-neutral-900 dark:text-neutral-100", OPERATOR_TYPOGRAPHY.cardTitle)}
+          >
+            {compactTitle}
+          </h3>
+          <StatusTag kind={overall.kind} label={overall.label} data-testid="digest-overall-status" />
+          {compactFactsLine}
+        </div>
+      </div>
+    );
+  }
 
   return (
     <div
@@ -176,7 +229,7 @@ export function WeeklyDigestHealthBanner(props: WeeklyDigestHealthBannerProps): 
             {compactTitle}
           </h3>
           <StatusTag kind={overall.kind} label={overall.label} data-testid="digest-overall-status" />
-          {variant === "subscriptions" ? (
+          {variant === "subscriptions" && !suppressCompactFacts ? (
             <span className={cn("text-neutral-500 dark:text-neutral-400", OPERATOR_TYPOGRAPHY.helper)}>
               Active: {snap.enabledDigestSubscriptionCount}
               {" · "}
@@ -193,21 +246,7 @@ export function WeeklyDigestHealthBanner(props: WeeklyDigestHealthBannerProps): 
               Cadence: {formatExecutiveScheduleSummary(snap)}
             </span>
           ) : null}
-          {variant === "full" && showCompactFacts ? (
-            <span
-              className={cn("text-neutral-500 dark:text-neutral-400", OPERATOR_TYPOGRAPHY.helper)}
-              data-testid="digest-status-compact-facts"
-            >
-              Enabled schedules: {snap.enabledAdvisoryScheduleCount}
-              {" · "}
-              Active subscriptions: {snap.enabledDigestSubscriptionCount}
-              {" · "}
-              Last sent:{" "}
-              {formatDigestInstant(
-                snap.latestDigestSubscriptionDeliveryUtc ?? snap.latestArchitectureDigestGeneratedUtc,
-              )}
-            </span>
-          ) : null}
+          {variant === "full" && showCompactFacts ? compactFactsLine : null}
         </div>
         {showMetricGrid ? (
           <div className="flex flex-wrap gap-2" data-testid="digests-browse-related-actions">

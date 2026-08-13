@@ -137,7 +137,7 @@ An admin trying to invite a reviewer or change permissions sees two links with s
 Consolidate to one nav item "Users & roles" pointing to a tabbed page (Users tab and Roles tab). Remove the duplicate nav entry.
 
 **Fix type:** IA  
-**Files:** `archlucid-ui/src/lib/operator-admin-nav-group-builder.ts`
+**Files:** `archlucid-ui/src/lib/operator/operator-admin-nav-group-builder.ts`
 
 ---
 
@@ -323,7 +323,7 @@ One group per conceptual domain. Progressive disclosure preserved — advanced t
 | **Governance** | Unlocked at phase 1 (first commit) | Approval queue · Risk register · Decision register · Audit trail · [extended] Risk exceptions · [extended] Standards · [extended] Standards & rules · [extended] Governance setup guide · [extended] Alerts |
 | **Reports** | After first finalized architecture package | Scorecard · Value report |
 | **Integrations** | When configured | Connection status · Cloud connections · Jira · ServiceNow · Microsoft Teams · Slack · Webhooks |
-| **Administration** | Admin rank | Workspace settings · Users & roles (consolidated) · Billing & plans · [extended] AI usage · [extended] Security & trust · [extended] Support |
+| **Administration** | Admin rank | Workspace settings · Users & roles (consolidated) · Billing & plans · [extended] AI usage · [extended] Security & Trust · [extended] Support |
 
 ---
 
@@ -469,7 +469,7 @@ The CTA should link to `/governance?runId={runId}` with label "Submit for govern
 
 ### N07/TB-522 — Consolidate Users & roles and Role management
 
-**File:** `archlucid-ui/src/lib/operator-admin-nav-group-builder.ts`
+**File:** `archlucid-ui/src/lib/operator/operator-admin-nav-group-builder.ts`
 
 Remove the `href: "/settings/roles"` link from the `build()` links array. Keep `href: "/settings/users"` with label `"Users & roles"`.
 

@@ -1,4 +1,4 @@
-import { render, screen, within } from "@testing-library/react";
+import { fireEvent, render, screen, waitFor, within } from "@testing-library/react";
 import { describe, expect, it, vi } from "vitest";
 
 vi.mock("@/app/(operator)/help/HelpTopicHashScroll", () => ({
@@ -25,8 +25,8 @@ import {
   DPA_TEMPLATE_HELP_PROVENANCE,
   formatDpaTemplateHelpProvenanceLine,
 } from "@/lib/dpa-template-help-guide-content";
-import { HELP_PAGE_LAYOUT } from "@/lib/help-page-layout";
-import { prepareHelpMarkdownForPresentation } from "@/lib/help-markdown-presentation";
+import { HELP_PAGE_LAYOUT } from "@/lib/help/help-page-layout";
+import { prepareHelpMarkdownForPresentation } from "@/lib/help/help-markdown-presentation";
 import { resolvePublicHelpTopicPdfHref } from "@/lib/product-documentation-pdf-href";
 import { tryLoadProductDocumentation } from "@/lib/load-product-documentation";
 
@@ -79,9 +79,9 @@ describe("HelpDpaTemplateGuideView", () => {
     }
 
     const provenance = screen.getByTestId("help-dpa-template-provenance");
-    expect(provenance.textContent).toContain(DPA_TEMPLATE_HELP_PROVENANCE.templateReviewDate);
     expect(provenance.textContent).toContain(DPA_TEMPLATE_HELP_PROVENANCE.sourceOfRecordPath);
     expect(provenance.textContent).toContain(formatDpaTemplateHelpProvenanceLine());
+    expect(provenance.textContent?.toLowerCase()).not.toContain("last reviewed");
 
     expect(screen.getAllByRole("heading", { level: 1 })).toHaveLength(1);
     expect(screen.getByTestId("help-dpa-template-status-tag")).toHaveTextContent("Template — not executed");
@@ -135,5 +135,24 @@ describe("HelpDpaTemplateGuideView", () => {
 
     const allPrimaryStyled = container.querySelectorAll('[class*="--al-primary-action-bg"]');
     expect(allPrimaryStyled).toHaveLength(1);
+
+    expect(screen.queryByTestId("help-dpa-template-content")).toBeNull();
+  });
+
+  it("mounts the full DPA markdown body only after the disclosure opens", async () => {
+    if (loaded === null) {
+      throw new Error("Expected dpa-template documentation to load.");
+    }
+
+    render(<HelpDpaTemplateGuideView entry={loaded.entry} markdown={loaded.markdown} />);
+
+    expect(screen.queryByTestId("help-dpa-template-content")).toBeNull();
+
+    const disclosure = screen.getByTestId("help-dpa-template-full-disclosure");
+    expect(disclosure).toBeInstanceOf(HTMLDetailsElement);
+    fireEvent.click(screen.getByText("Show full DPA template (clauses and placeholders)"));
+    await waitFor(() => {
+      expect(screen.getByTestId("help-dpa-template-content")).toBeInTheDocument();
+    });
   });
 });

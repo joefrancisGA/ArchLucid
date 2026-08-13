@@ -5,14 +5,29 @@ import { useRouter } from "next/navigation";
 import { useCallback, useEffect, useMemo, useState, useTransition } from "react";
 
 import { DemoWorkspaceCapabilityUnavailablePanel } from "@/components/DemoWorkspaceCapabilityUnavailablePanel";
-import { StatusPill } from "@/components/StatusPill";
+import { OperatorPageContainer } from "@/components/operator/OperatorPageContainer";
+import { OperatorPageHeader } from "@/components/operator/OperatorPageHeader";
+import { OperatorSectionLoadFailure } from "@/components/operator/OperatorSectionLoadFailure";
+import { PilotFeedbackRecommendationLearningVocabularyRail } from "@/components/PilotFeedbackRecommendationLearningVocabularyRail";
 import { Button } from "@/components/ui/button";
+import { RefreshButton } from "@/components/ui/refresh-button";
+import {
+  EnterpriseTable,
+  EnterpriseTableBody,
+  EnterpriseTableCell,
+  EnterpriseTableHead,
+  EnterpriseTableHeaderCell,
+  EnterpriseTableHeadRow,
+  EnterpriseTableRow,
+} from "@/components/ui/enterprise-table";
+import { StatusTag } from "@/components/ui/status-tag";
 import { Textarea } from "@/components/ui/textarea";
 import { PageContextualHelpButton } from "@/components/usability/PageContextualHelpButton";
 import { useOperateCapability } from "@/hooks/use-operate-capability";
 import type { ApiLoadFailureState } from "@/lib/api-load-failure";
 import { toApiLoadFailure } from "@/lib/api-load-failure";
-import { OPERATOR_TYPOGRAPHY } from "@/lib/design-tokens";
+import { INTERNAL_OPERATIONS_NAV_EYEBROW } from "@/lib/demo-readiness-evidence-copy";
+import { OPERATOR_LAYOUT, OPERATOR_NAV_GROUP_LABEL, OPERATOR_TYPOGRAPHY } from "@/lib/design-tokens";
 import { cn } from "@/lib/utils";
 import type { LearningProfile } from "@/types/recommendation-learning";
 import type {
@@ -21,19 +36,25 @@ import type {
   RecommendationLearningProfileHistoryItem,
   RecommendationLearningWeightDelta,
 } from "@/types/recommendation-learning-operational";
+import { RECOMMENDATION_LEARNING_CANONICAL_PATH } from "@/types/recommendation-learning-operational";
 
 import {
   executeRecommendationLearningPreview,
   executeRecommendationLearningRebuild,
   executeRecommendationLearningRollback,
+  reloadPersistedRecommendationLearningProfileOnly,
   reloadRecommendationLearningOpsBundle,
 } from "./load-recommendation-learning-ops-page-data";
 import {
   copyOperationalIdentifier,
+  deployEnvironmentStatusTagKind,
   formatOperationalTimestamp,
   isProductionDeployEnvironment,
   profileStateLabel,
+  profileStateStatusTagKind,
+  profileVersionStatusTagKind,
   resolveDeployEnvironmentLabel,
+  validationCheckStatusTagKind,
 } from "./recommendation-learning-ops-display";
 
 type Props = {
@@ -104,40 +125,38 @@ function WeightTable(props: { readonly deltas: RecommendationLearningWeightDelta
   }
 
   return (
-    <div className="overflow-x-auto rounded-md border border-al-border/70">
-      <table className="min-w-full text-left text-sm">
-        <thead className="bg-al-surface-muted/60">
-          <tr>
-            {[
-              ["featureGroup", "Group"],
-              ["feature", "Feature"],
-              ["currentWeight", "Current"],
-              ["proposedWeight", "Proposed"],
-              ["absoluteDelta", "Δ"],
-              ["observationCount", "Obs."],
-            ].map(([key, label]) => (
-              <th key={key} className="px-3 py-2 font-medium">
-                <button type="button" className="hover:underline" onClick={() => onSort(key as SortKey)}>
-                  {label}
-                </button>
-              </th>
-            ))}
-          </tr>
-        </thead>
-        <tbody>
-          {sorted.map((row) => (
-            <tr key={`${row.featureGroup}:${row.feature}`} className="border-t border-al-border/50">
-              <td className="px-3 py-2">{row.featureGroup}</td>
-              <td className="px-3 py-2 font-mono">{row.feature}</td>
-              <td className="px-3 py-2 font-mono">{row.currentWeight.toFixed(3)}</td>
-              <td className="px-3 py-2 font-mono">{row.proposedWeight.toFixed(3)}</td>
-              <td className="px-3 py-2 font-mono">{row.absoluteDelta.toFixed(3)}</td>
-              <td className="px-3 py-2">{row.observationCount}</td>
-            </tr>
+    <EnterpriseTable ariaLabel="Recommendation learning weight deltas">
+      <EnterpriseTableHead>
+        <EnterpriseTableHeadRow>
+          {[
+            ["featureGroup", "Group"],
+            ["feature", "Feature"],
+            ["currentWeight", "Current"],
+            ["proposedWeight", "Proposed"],
+            ["absoluteDelta", "Delta"],
+            ["observationCount", "Obs."],
+          ].map(([key, label]) => (
+            <EnterpriseTableHeaderCell key={key}>
+              <button type="button" className="hover:underline" onClick={() => onSort(key as SortKey)}>
+                {label}
+              </button>
+            </EnterpriseTableHeaderCell>
           ))}
-        </tbody>
-      </table>
-    </div>
+        </EnterpriseTableHeadRow>
+      </EnterpriseTableHead>
+      <EnterpriseTableBody>
+        {sorted.map((row) => (
+          <EnterpriseTableRow key={`${row.featureGroup}:${row.feature}`}>
+            <EnterpriseTableCell>{row.featureGroup}</EnterpriseTableCell>
+            <EnterpriseTableCell className="font-mono">{row.feature}</EnterpriseTableCell>
+            <EnterpriseTableCell className="font-mono">{row.currentWeight.toFixed(3)}</EnterpriseTableCell>
+            <EnterpriseTableCell className="font-mono">{row.proposedWeight.toFixed(3)}</EnterpriseTableCell>
+            <EnterpriseTableCell className="font-mono">{row.absoluteDelta.toFixed(3)}</EnterpriseTableCell>
+            <EnterpriseTableCell>{row.observationCount}</EnterpriseTableCell>
+          </EnterpriseTableRow>
+        ))}
+      </EnterpriseTableBody>
+    </EnterpriseTable>
   );
 }
 
@@ -151,6 +170,7 @@ export function RecommendationLearningOpsPageClient(props: Props) {
   const [failure, setFailure] = useState<ApiLoadFailureState | null>(props.initialFailure);
   const [preview, setPreview] = useState<RecommendationLearningPreview | null>(null);
   const [busyAction, setBusyAction] = useState<string | null>(null);
+  const [isLoadingPersisted, setIsLoadingPersisted] = useState(false);
   const [rollbackReason, setRollbackReason] = useState("");
   const [rollbackProfileId, setRollbackProfileId] = useState<string | null>(null);
   const [activateReason, setActivateReason] = useState("");
@@ -180,6 +200,20 @@ export function RecommendationLearningOpsPageClient(props: Props) {
       setFailure(toApiLoadFailure(e));
     }
   }, [router]);
+
+  const loadPersistedProfile = useCallback(async () => {
+    setIsLoadingPersisted(true);
+    setFailure(null);
+
+    try {
+      const persistedProfile = await reloadPersistedRecommendationLearningProfileOnly();
+      setProfile(persistedProfile);
+    } catch (e: unknown) {
+      setFailure(toApiLoadFailure(e));
+    } finally {
+      setIsLoadingPersisted(false);
+    }
+  }, []);
 
   const runPreview = useCallback(async () => {
     if (!canMutate) {
@@ -267,14 +301,28 @@ export function RecommendationLearningOpsPageClient(props: Props) {
 
   if (status === null && failure !== null) {
     return (
-      <div className="px-4 py-6">
-        <p className="text-rose-800 dark:text-rose-200" role="alert">
-          {failure.message}
-        </p>
-        <Button type="button" className="mt-4" onClick={() => void refresh()}>
-          Refresh
-        </Button>
-      </div>
+      <OperatorPageContainer variant="dashboard" className={OPERATOR_LAYOUT.sectionStack} data-testid="recommendation-learning-ops-page">
+        <OperatorPageHeader
+          navHref={RECOMMENDATION_LEARNING_CANONICAL_PATH}
+          headingLevel="h1"
+          title="Recommendation learning"
+          titleTestId="recommendation-learning-page-title"
+          metadata={
+            <p className={cn("m-0", OPERATOR_NAV_GROUP_LABEL)} data-testid="recommendation-learning-ops-eyebrow">
+              {INTERNAL_OPERATIONS_NAV_EYEBROW}
+            </p>
+          }
+          subtitle="Inspect and rebuild the recommendation-ranking profile derived from historical accepted, deferred, rejected, and implemented outcomes."
+          actions={<PageContextualHelpButton />}
+        />
+        <OperatorSectionLoadFailure
+          message={failure.message}
+          retryLabel="Refresh operational data"
+          retrying={isRefreshing}
+          testId="recommendation-learning-ops-load-failure"
+          onRetry={() => void refresh()}
+        />
+      </OperatorPageContainer>
     );
   }
 
@@ -291,85 +339,111 @@ export function RecommendationLearningOpsPageClient(props: Props) {
   const weightDeltas = preview?.weightDeltas ?? [];
 
   return (
-    <div className="mx-auto w-full max-w-[90rem] space-y-6 px-4 py-6" data-testid="recommendation-learning-ops-page">
-      <header className="space-y-3 border-b border-al-border/70 pb-4">
-        <p className={cn("m-0 text-al-text-secondary", OPERATOR_TYPOGRAPHY.helper)}>Internal Operations / Recommendation Learning</p>
-        <div className="flex flex-wrap items-start justify-between gap-4">
-          <div className="space-y-2">
-            <h1 className={OPERATOR_TYPOGRAPHY.pageTitle}>Recommendation learning</h1>
-            <p className={cn("m-0 max-w-4xl text-al-text-secondary", OPERATOR_TYPOGRAPHY.body)}>
-              Inspect and rebuild the recommendation-ranking profile derived from historical accepted, deferred,
-              rejected, and implemented outcomes.
-            </p>
-            <p className={cn("m-0 font-mono text-al-text-secondary", OPERATOR_TYPOGRAPHY.helper)}>
-              Scope: Tenant / Workspace / Project · Model: {status.activeProfile?.algorithmVersion ?? "recommendation-ranking-v1"} ·
-              Feature schema: {status.activeProfile?.featureSchemaVersion ?? "outcome-stats-v1"}
-            </p>
-          </div>
-          <div className="space-y-2 text-right">
-            <PageContextualHelpButton />
-            <StatusPill
-              status={production ? "critical" : "neutral"}
-              domain="health"
-              ariaLabel={`Environment ${environmentLabel}`}
+    <OperatorPageContainer variant="dashboard" className={OPERATOR_LAYOUT.sectionStack} data-testid="recommendation-learning-ops-page">
+      <OperatorPageHeader
+        navHref={RECOMMENDATION_LEARNING_CANONICAL_PATH}
+        headingLevel="h1"
+        title="Recommendation learning"
+        titleTestId="recommendation-learning-page-title"
+        metadata={
+          <p className={cn("m-0", OPERATOR_NAV_GROUP_LABEL)} data-testid="recommendation-learning-ops-eyebrow">
+            {INTERNAL_OPERATIONS_NAV_EYEBROW}
+          </p>
+        }
+        subtitle="Inspect and rebuild the recommendation-ranking profile derived from historical accepted, deferred, rejected, and implemented outcomes."
+        statusBadge={
+          <StatusTag
+            kind={deployEnvironmentStatusTagKind()}
+            label={environmentLabel}
+            data-testid="recommendation-learning-environment-tag"
+          />
+        }
+        actions={
+          <div className="flex flex-wrap items-center justify-end gap-2">
+            <RefreshButton
+              busy={isRefreshing}
+              disabled={isLoadingPersisted}
+              onClick={() => void refresh()}
             />
-            <p className={cn("m-0 font-mono", OPERATOR_TYPOGRAPHY.body)}>{environmentLabel}</p>
-            <p className={cn("m-0 font-mono text-al-text-secondary", OPERATOR_TYPOGRAPHY.helper)}>{status.scopeLabel}</p>
+            <Button
+              type="button"
+              variant="outline"
+              size="sm"
+              disabled={busyAction !== null || isRefreshing || isLoadingPersisted}
+              onClick={() => void loadPersistedProfile()}
+            >
+              {isLoadingPersisted ? "Loading profile…" : "Load persisted profile"}
+            </Button>
+            <Button
+              type="button"
+              variant="outline"
+              size="sm"
+              disabled={!canMutate || !canBuild || busyAction !== null}
+              onClick={() => void runPreview()}
+            >
+              {busyAction === "preview" ? "Previewing…" : "Preview rebuild"}
+            </Button>
+            <Button
+              type="button"
+              variant="primary"
+              size="sm"
+              disabled={!canMutate || !canBuild || busyAction !== null}
+              onClick={() => void runRebuild()}
+            >
+              {busyAction === "rebuild" ? "Rebuilding…" : "Rebuild from historical outcomes"}
+            </Button>
+            <PageContextualHelpButton />
           </div>
-        </div>
-<div className="flex flex-wrap gap-3">
-          <Button type="button" variant="outline" disabled={isRefreshing} onClick={() => void refresh()}>
-            {isRefreshing ? "Refreshing…" : "Refresh counts"}
-          </Button>
-          <Button type="button" variant="outline" disabled={busyAction !== null} onClick={() => void refresh()}>
-            Load persisted profile
-          </Button>
-          <Button
-            type="button"
-            variant="outline"
-            disabled={!canMutate || !canBuild || busyAction !== null}
-            onClick={() => void runPreview()}
-          >
-            {busyAction === "preview" ? "Previewing…" : "Preview rebuild"}
-          </Button>
-          <Button
-            type="button"
-            disabled={!canMutate || !canBuild || busyAction !== null}
-            onClick={() => void runRebuild()}
-          >
-            {busyAction === "rebuild" ? "Rebuilding…" : "Rebuild from historical outcomes"}
-          </Button>
-        </div>
-        <div className="grid gap-2 sm:grid-cols-2">
-          <p className={cn("m-0 text-al-text-secondary", OPERATOR_TYPOGRAPHY.helper)}>
-            Load persisted profile — load the latest successfully persisted profile without recomputing weights.
-          </p>
-          <p className={cn("m-0 text-al-text-secondary", OPERATOR_TYPOGRAPHY.helper)}>
-            Rebuild from historical outcomes — recompute all recommendation-ranking weights from the eligible historical
-            outcome set and persist a new profile version (immediately active).
-          </p>
-        </div>
-        {!canMutate ? (
-          <p className={cn("m-0 text-amber-800 dark:text-amber-200", OPERATOR_TYPOGRAPHY.helper)}>
-            Preview and rebuild require ExecuteAuthority. You can still inspect status and eligibility.
-          </p>
-        ) : null}
-      </header>
+        }
+      >
+        <p className={cn("m-0 font-mono text-al-text-secondary", OPERATOR_TYPOGRAPHY.helper)}>
+          Scope: {status.scopeLabel} · Model: {status.activeProfile?.algorithmVersion ?? "recommendation-ranking-v1"} ·
+          Feature schema: {status.activeProfile?.featureSchemaVersion ?? "outcome-stats-v1"}
+        </p>
+      </OperatorPageHeader>
+
+      <PilotFeedbackRecommendationLearningVocabularyRail currentSurfaceId="recommendation-learning" />
+
+      <div className="grid gap-2 sm:grid-cols-2">
+        <p className={cn("m-0 text-al-text-secondary", OPERATOR_TYPOGRAPHY.helper)}>
+          Refresh operational data — reload eligibility counts, profile metadata, and version history from the API.
+        </p>
+        <p className={cn("m-0 text-al-text-secondary", OPERATOR_TYPOGRAPHY.helper)}>
+          Load persisted profile — fetch the latest stored weighting profile only, without recomputing weights or
+          refreshing eligibility counts.
+        </p>
+      </div>
+      {!canMutate ? (
+        <p className={cn("m-0 text-al-text-secondary", OPERATOR_TYPOGRAPHY.helper)} data-testid="recommendation-learning-read-only-hint">
+          Preview and rebuild require ExecuteAuthority. You can still inspect status and eligibility.
+        </p>
+      ) : null}
 
       {failure ? (
-        <div className="rounded-md border border-rose-300 bg-rose-50 p-4 dark:border-rose-900 dark:bg-rose-950/40" role="alert">
-          <p className={cn("m-0 font-medium", OPERATOR_TYPOGRAPHY.body)}>Operation failed</p>
-          <p className={cn("m-0", OPERATOR_TYPOGRAPHY.body)}>{failure.message}</p>
-          {failure.correlationId ? <p className="m-0 font-mono text-sm">Correlation ID: {failure.correlationId}</p> : null}
-        </div>
+        <OperatorSectionLoadFailure
+          message={
+            failure.correlationId
+              ? `${failure.message} (Correlation ID: ${failure.correlationId})`
+              : failure.message
+          }
+          testId="recommendation-learning-ops-operation-failure"
+        />
       ) : null}
 
       <section className="grid gap-6 lg:grid-cols-[minmax(0,2fr)_minmax(0,1fr)]">
-        <div className="space-y-6">
+        <div className={OPERATOR_LAYOUT.sectionStack}>
           <article className="rounded-lg border border-al-border/70 p-4">
             <h2 className={OPERATOR_TYPOGRAPHY.sectionTitle}>Profile state</h2>
             <dl className="m-0">
-              <FieldRow label="Profile state" value={profileStateLabel(status.profileState)} testId="rl-profile-state" />
+              <div className="grid grid-cols-1 gap-1 border-b border-al-border/60 py-2 sm:grid-cols-[12rem_1fr] sm:gap-4">
+                <dt className={cn("m-0 text-al-text-secondary", OPERATOR_TYPOGRAPHY.body)}>Profile state</dt>
+                <dd className="m-0" data-testid="rl-profile-state">
+                  <StatusTag
+                    kind={profileStateStatusTagKind(status.profileState)}
+                    label={profileStateLabel(status.profileState)}
+                  />
+                </dd>
+              </div>
               <FieldRow label="Scope" value={status.scopeLabel} />
               <FieldRow label="Eligible outcomes" value={String(status.eligibleOutcomeCount)} />
               <FieldRow label="Minimum required outcomes" value={String(status.minimumRequiredOutcomes)} />
@@ -385,7 +459,7 @@ export function RecommendationLearningOpsPageClient(props: Props) {
                   Open completed reviews
                 </Link>
                 <Button type="button" variant="outline" size="sm" onClick={() => void refresh()}>
-                  Refresh counts
+                  Refresh operational data
                 </Button>
               </div>
             ) : null}
@@ -449,7 +523,7 @@ export function RecommendationLearningOpsPageClient(props: Props) {
           ) : null}
         </div>
 
-        <div className="space-y-6">
+        <div className={OPERATOR_LAYOUT.sectionStack}>
           <article className="rounded-lg border border-al-border/70 p-4">
             <h2 className={OPERATOR_TYPOGRAPHY.sectionTitle}>Outcome eligibility</h2>
             <dl className="m-0">
@@ -474,7 +548,7 @@ export function RecommendationLearningOpsPageClient(props: Props) {
                   <li key={check.name} className="list-none rounded border border-al-border/50 px-3 py-2">
                     <div className="flex items-center justify-between gap-2">
                       <span className="font-medium">{check.name}</span>
-                      <span>{check.result}</span>
+                      <StatusTag kind={validationCheckStatusTagKind(check.result)} label={check.result} />
                     </div>
                     <p className={cn("m-0 text-al-text-secondary", OPERATOR_TYPOGRAPHY.helper)}>{check.detail}</p>
                   </li>
@@ -500,9 +574,12 @@ export function RecommendationLearningOpsPageClient(props: Props) {
       ) : null}
 
       {production ? (
-        <section className="rounded-lg border border-amber-400 bg-amber-50 p-4 dark:border-amber-700 dark:bg-amber-950/30">
+        <section className="rounded-lg border border-al-border/70 p-4" data-testid="recommendation-learning-production-activation">
           <h2 className={OPERATOR_TYPOGRAPHY.sectionTitle}>Production activation</h2>
-          <label className="block space-y-1">
+          <p className={cn("m-0 text-al-text-secondary", OPERATOR_TYPOGRAPHY.helper)}>
+            Rebuild in production requires an operational reason recorded with the activation.
+          </p>
+          <label className="mt-3 block space-y-1">
             <span className={OPERATOR_TYPOGRAPHY.body}>Operational reason (required for rebuild in production)</span>
             <Textarea
               className="min-h-20 bg-al-surface-raised font-mono text-al-text-primary placeholder:text-al-text-placeholder"
@@ -515,44 +592,47 @@ export function RecommendationLearningOpsPageClient(props: Props) {
 
       <section className="rounded-lg border border-al-border/70 p-4">
         <h2 className={OPERATOR_TYPOGRAPHY.sectionTitle}>Version history</h2>
-        <div className="overflow-x-auto">
-          <table className="min-w-full text-left text-sm">
-            <thead>
-              <tr className="border-b border-al-border/60">
-                <th className="px-2 py-2">Version</th>
-                <th className="px-2 py-2">Built</th>
-                <th className="px-2 py-2">Outcomes</th>
-                <th className="px-2 py-2">Status</th>
-                <th className="px-2 py-2">Action</th>
-              </tr>
-            </thead>
-            <tbody>
-              {history.map((item) => (
-                <tr key={item.profileId} className="border-b border-al-border/40">
-                  <td className="px-2 py-2 font-mono text-xs">{item.profileId}</td>
-                  <td className="px-2 py-2">{formatOperationalTimestamp(item.generatedUtc)}</td>
-                  <td className="px-2 py-2">{item.outcomeCount}</td>
-                  <td className="px-2 py-2">{item.isActive ? "Active" : "Historical"}</td>
-                  <td className="px-2 py-2">
-                    {!item.isActive ? (
-                      <Button
-                        type="button"
-                        size="sm"
-                        variant="outline"
-                        disabled={!canMutate || busyAction !== null}
-                        onClick={() => setRollbackProfileId(item.profileId)}
-                      >
-                        Roll back to this version
-                      </Button>
-                    ) : (
-                      "—"
-                    )}
-                  </td>
-                </tr>
-              ))}
-            </tbody>
-          </table>
-        </div>
+        <EnterpriseTable ariaLabel="Recommendation learning profile version history">
+          <EnterpriseTableHead>
+            <EnterpriseTableHeadRow>
+              <EnterpriseTableHeaderCell>Version</EnterpriseTableHeaderCell>
+              <EnterpriseTableHeaderCell>Built</EnterpriseTableHeaderCell>
+              <EnterpriseTableHeaderCell>Outcomes</EnterpriseTableHeaderCell>
+              <EnterpriseTableHeaderCell>Status</EnterpriseTableHeaderCell>
+              <EnterpriseTableHeaderCell>Action</EnterpriseTableHeaderCell>
+            </EnterpriseTableHeadRow>
+          </EnterpriseTableHead>
+          <EnterpriseTableBody>
+            {history.map((item) => (
+              <EnterpriseTableRow key={item.profileId}>
+                <EnterpriseTableCell className="font-mono text-xs">{item.profileId}</EnterpriseTableCell>
+                <EnterpriseTableCell>{formatOperationalTimestamp(item.generatedUtc)}</EnterpriseTableCell>
+                <EnterpriseTableCell>{item.outcomeCount}</EnterpriseTableCell>
+                <EnterpriseTableCell>
+                  <StatusTag
+                    kind={profileVersionStatusTagKind(item.isActive)}
+                    label={item.isActive ? "Active" : "Historical"}
+                  />
+                </EnterpriseTableCell>
+                <EnterpriseTableCell>
+                  {!item.isActive ? (
+                    <Button
+                      type="button"
+                      size="sm"
+                      variant="outline"
+                      disabled={!canMutate || busyAction !== null}
+                      onClick={() => setRollbackProfileId(item.profileId)}
+                    >
+                      Roll back to this version
+                    </Button>
+                  ) : (
+                    "—"
+                  )}
+                </EnterpriseTableCell>
+              </EnterpriseTableRow>
+            ))}
+          </EnterpriseTableBody>
+        </EnterpriseTable>
         {rollbackProfileId ? (
           <div className="mt-4 space-y-2 rounded border border-al-border/60 p-3">
             <p className="m-0 font-mono text-sm">Rollback target: {rollbackProfileId}</p>
@@ -573,6 +653,6 @@ export function RecommendationLearningOpsPageClient(props: Props) {
           </div>
         ) : null}
       </section>
-    </div>
+    </OperatorPageContainer>
   );
 }

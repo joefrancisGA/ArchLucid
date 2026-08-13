@@ -14,7 +14,7 @@ import {
   GOVERNANCE_APPROVAL_QUEUE_PATH,
   GOVERNANCE_AUDIT_PATH,
   GOVERNANCE_STANDARDS_AND_RULES_PATH,
-} from "@/lib/governance-route-paths";
+} from "@/lib/governance/governance-route-paths";
 import { DIGESTS_HUB_PATH } from "@/lib/digests-route-paths";
 
 /**
@@ -51,10 +51,10 @@ const DEMO_MODE_OMIT_OPERATOR_HREFS = new Set<string>([
   "/integrations/webhooks",
   DIGESTS_HUB_PATH,
   // The Settings hub is the nav target for Administration (IA-016). Omitted here so buyer-polished shells keep
-  // the pre-hub-first behaviour of showing no Settings entry, rather than surfacing an index of omitted routes.
+  // the pre-hub-first behavior of showing no Settings entry, rather than surfacing an index of omitted routes.
   "/administration",
-  "/administration/tenant",
-  "/administration/tenant/recycle-bin",
+  "/administration/workspace-settings",
+  "/administration/workspace-settings/recycle-bin",
   "/administration/baseline",
   "/administration/api-keys",
   "/administration/ai-usage",

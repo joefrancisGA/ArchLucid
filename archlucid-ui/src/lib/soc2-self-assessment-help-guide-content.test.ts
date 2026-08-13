@@ -7,6 +7,7 @@ import {
   SOC2_SELF_ASSESSMENT_HELP_ORIENTATION,
   SOC2_SELF_ASSESSMENT_HELP_PRIMARY_ACTIONS,
   SOC2_SELF_ASSESSMENT_HELP_SOURCES,
+  formatSoc2SelfAssessmentHelpReviewedCopy,
 } from "@/lib/soc2-self-assessment-help-guide-content";
 
 describe("soc2-self-assessment-help-guide-content", () => {
@@ -23,10 +24,22 @@ describe("soc2-self-assessment-help-guide-content", () => {
 
   it("splits diligence jobs across self-assessment, CAIQ, Trust, and procurement", () => {
     expect(SOC2_SELF_ASSESSMENT_HELP_JOB_MATRIX).toHaveLength(4);
+    expect(
+      SOC2_SELF_ASSESSMENT_HELP_JOB_MATRIX.some((row) => row.href === SOC2_SELF_ASSESSMENT_HELP_CANONICAL_PATH),
+    ).toBe(false);
+    expect(
+      SOC2_SELF_ASSESSMENT_HELP_JOB_MATRIX.some((row) => row.label === "This SOC 2 self-assessment"),
+    ).toBe(true);
     expect(SOC2_SELF_ASSESSMENT_HELP_JOB_MATRIX.some((row) => row.href === "/trust")).toBe(true);
     expect(SOC2_SELF_ASSESSMENT_HELP_JOB_MATRIX.some((row) => row.href === "/help/caiq-sig-response")).toBe(
       true,
     );
+  });
+
+  it("formats last-reviewed provenance copy with source doc reference", () => {
+    expect(formatSoc2SelfAssessmentHelpReviewedCopy("2026-05-26")).toContain("2026-05-26");
+    expect(formatSoc2SelfAssessmentHelpReviewedCopy("2026-05-26")).toContain("SOC2_SELF_ASSESSMENT_2026.md");
+    expect(formatSoc2SelfAssessmentHelpReviewedCopy("2026-05-26").toLowerCase()).toContain("last reviewed");
   });
 
   it("lists Sources without a self-link to this topic", () => {

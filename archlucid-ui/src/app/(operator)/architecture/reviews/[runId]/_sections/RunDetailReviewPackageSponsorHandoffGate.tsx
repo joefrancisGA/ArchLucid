@@ -25,10 +25,10 @@ export function RunDetailReviewPackageSponsorHandoffGate(
   const [showSponsorHandoff, setShowSponsorHandoff] = useState<boolean | null>(null);
 
   useEffect(() => {
-    let cancelled = false;
+    let canceled = false;
 
     void import("./resolve-review-package-primary-action").then(({ resolveReviewPackagePrimaryAction }) => {
-      if (cancelled) {
+      if (canceled) {
         return;
       }
 
@@ -48,7 +48,7 @@ export function RunDetailReviewPackageSponsorHandoffGate(
     });
 
     return () => {
-      cancelled = true;
+      canceled = true;
     };
   }, [
     props.runId,

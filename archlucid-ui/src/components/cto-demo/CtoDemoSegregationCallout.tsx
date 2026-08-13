@@ -6,8 +6,8 @@ import { useEffect, useState } from "react";
 import {
   BUYER_CTO_DEMO_SEGREGATION_CALLOUT_BODY,
   BUYER_CTO_DEMO_SEGREGATION_CALLOUT_HEADING,
-} from "@/lib/buyer-polish-copy";
-import { readBuyerCtoDemoTourActive } from "@/lib/buyer-cto-demo-tour";
+} from "@/lib/buyer/buyer-polish-copy";
+import { readBuyerCtoDemoTourActive } from "@/lib/buyer/buyer-cto-demo-tour";
 import { isBuyerPolishedOperatorShellEnv } from "@/lib/demo-ui-env";
 import { OPERATOR_TYPE_SCALE, OPERATOR_TYPOGRAPHY } from "@/lib/design-tokens";
 

@@ -15,7 +15,7 @@ const RETIRED_HELP_TOPIC_CANONICAL_PATHS = {
   executiveSummary: inAppHelpHref("executive-summary"),
   firstArchitectureReview: inAppHelpHref("first-architecture-review"),
   gettingStarted: inAppHelpHref("getting-started"),
-  pathChooser: inAppHelpHref("path-chooser"),
+  pathChooser: inAppHelpHref("choose-your-next-step"),
   pilotGuide: inAppHelpHref("pilot-guide"),
   reviewGuide: inAppHelpHref("review-guide"),
 } as const;
@@ -43,26 +43,56 @@ export const RETIRED_HELP_TOPIC_ALIAS_TRAFFIC_ENTRIES: readonly RetiredHelpTopic
     canonicalPath: RETIRED_HELP_TOPIC_CANONICAL_PATHS.firstArchitectureReview,
     historicalNote:
       "Deprecated core-pilot help alias (Help alias) - slug alias core-pilot -> first-architecture-review; canon COR = /help/first-architecture-review.",
+    bannedBuyerCopy: ["/help/core-pilot"],
+    buyerSurfaceGuards: [
+      "src/lib/help/help-search-panel-catalog.ts",
+      "src/lib/usability/page-help-topic-map.ts",
+      "src/app/(operator)/help/_sections/HelpCorePilotGuideView.tsx",
+    ],
   },
   {
     removedRowId: "HEV",
     retiredPath: "/help/evidence-only-review",
     canonicalPath: RETIRED_HELP_TOPIC_CANONICAL_PATHS.firstArchitectureReview,
+    bannedBuyerCopy: ["/help/evidence-only-review"],
+    buyerSurfaceGuards: [
+      "src/lib/help/help-search-panel-catalog.ts",
+      "src/lib/usability/page-help-topic-map.ts",
+      "src/app/(operator)/help/_sections/HelpCorePilotGuideView.tsx",
+    ],
   },
   {
     removedRowId: "FIR",
     retiredPath: "/help/first-pilot-path",
     canonicalPath: RETIRED_HELP_TOPIC_CANONICAL_PATHS.firstArchitectureReview,
+    bannedBuyerCopy: ["/help/first-pilot-path"],
+    buyerSurfaceGuards: [
+      "src/lib/help/help-search-panel-catalog.ts",
+      "src/lib/usability/page-help-topic-map.ts",
+      "src/app/(operator)/help/_sections/HelpCorePilotGuideView.tsx",
+    ],
   },
   {
     removedRowId: "HFE",
     retiredPath: "/help/first-hour-operator-path",
     canonicalPath: RETIRED_HELP_TOPIC_CANONICAL_PATHS.firstArchitectureReview,
+    bannedBuyerCopy: ["/help/first-hour-operator-path"],
+    buyerSurfaceGuards: [
+      "src/lib/help/help-search-panel-catalog.ts",
+      "src/lib/usability/page-help-topic-map.ts",
+      "src/lib/evidence-intake-help-guide-content.ts",
+    ],
   },
   {
     removedRowId: "HET",
     retiredPath: "/help/starting-reviews",
     canonicalPath: RETIRED_HELP_TOPIC_CANONICAL_PATHS.reviewGuide,
+    bannedBuyerCopy: ["/help/starting-reviews"],
+    buyerSurfaceGuards: [
+      "src/lib/help/help-search-panel-catalog.ts",
+      "src/lib/usability/page-help-topic-map.ts",
+      "src/app/(operator)/help/_sections/HelpReviewGuideView.tsx",
+    ],
   },
   {
     removedRowId: "HER",
@@ -74,23 +104,42 @@ export const RETIRED_HELP_TOPIC_ALIAS_TRAFFIC_ENTRIES: readonly RetiredHelpTopic
       "src/lib/empty-state-presets.ts",
       "src/lib/usability/page-help-topic-map.ts",
       "src/lib/bulk-evidence-upload-copy.ts",
-      "src/lib/architecture-created-clarifications-sources.ts",
+      "src/lib/architecture/architecture-created-clarifications-sources.ts",
     ],
   },
   {
     removedRowId: "HEE",
     retiredPath: "/help/evaluator-workbook",
     canonicalPath: RETIRED_HELP_TOPIC_CANONICAL_PATHS.pathChooser,
+    bannedBuyerCopy: ["/help/evaluator-workbook"],
+    buyerSurfaceGuards: [
+      "src/lib/help/help-search-panel-catalog.ts",
+      "src/lib/usability/page-help-topic-map.ts",
+      "src/lib/path-chooser-help-guide-content.ts",
+      "src/app/(operator)/help/_sections/HelpPathChooserGuideView.tsx",
+    ],
   },
   {
     removedRowId: "HEP",
     retiredPath: "/help/governance-api-contracts",
     canonicalPath: RETIRED_HELP_TOPIC_CANONICAL_PATHS.apiContracts,
+    bannedBuyerCopy: ["/help/governance-api-contracts"],
+    buyerSurfaceGuards: [
+      "src/lib/help/help-search-panel-catalog.ts",
+      "src/lib/usability/page-help-topic-map.ts",
+      "src/app/(operator)/help/_sections/HelpApiContractsGuideView.tsx",
+    ],
   },
   {
     removedRowId: "HDA",
     retiredPath: "/help/data-handling-tenant-isolation",
     canonicalPath: RETIRED_HELP_TOPIC_CANONICAL_PATHS.dataHandling,
+    bannedBuyerCopy: ["/help/data-handling-tenant-isolation"],
+    buyerSurfaceGuards: [
+      "src/lib/help/help-search-panel-catalog.ts",
+      "src/lib/usability/page-help-topic-map.ts",
+      "src/app/(operator)/help/_sections/HelpDataHandlingTenantIsolationGuideView.tsx",
+    ],
   },
   {
     removedRowId: "HAZ",
@@ -98,19 +147,60 @@ export const RETIRED_HELP_TOPIC_ALIAS_TRAFFIC_ENTRIES: readonly RetiredHelpTopic
     canonicalPath: RETIRED_HELP_TOPIC_CANONICAL_PATHS.azureBoards,
     buyerSurfaceGuards: [
       "src/lib/azure-boards-help-evidence-copy.ts",
-      "src/lib/help-search-panel-catalog.ts",
+      "src/lib/help/help-search-panel-catalog.ts",
       "src/lib/configuration-reference-help-guide-content.ts",
     ],
   },
   {
     removedRowId: "HHX",
     retiredPath: "/help/how-it-works",
-    canonicalPath: RETIRED_HELP_TOPIC_CANONICAL_PATHS.gettingStarted,
+    canonicalPath: `${RETIRED_HELP_TOPIC_CANONICAL_PATHS.gettingStarted}#how-archlucid-works`,
+    bannedBuyerCopy: ["/help/how-it-works"],
+    buyerSurfaceGuards: [
+      "src/lib/help/help-search-panel-catalog.ts",
+      "src/lib/usability/page-help-topic-map.ts",
+      "src/lib/getting-started-help-guide-content.ts",
+      "src/app/(operator)/help/_sections/HelpGettingStartedGuideView.tsx",
+    ],
   },
   {
     removedRowId: "EPR",
     retiredPath: "/help/product-overview",
-    canonicalPath: RETIRED_HELP_TOPIC_CANONICAL_PATHS.executiveSummary,
+    canonicalPath: `${RETIRED_HELP_TOPIC_CANONICAL_PATHS.executiveSummary}#what-archlucid-is`,
+    bannedBuyerCopy: ["/help/product-overview"],
+    buyerSurfaceGuards: [
+      "src/lib/help/help-search-panel-catalog.ts",
+      "src/lib/usability/page-help-topic-map.ts",
+      "src/app/(operator)/help/_sections/HelpExecutiveSummaryGuideView.tsx",
+    ],
+  },
+  {
+    removedRowId: "FI",
+    retiredPath: "/help/first-review",
+    canonicalPath: `${RETIRED_HELP_TOPIC_CANONICAL_PATHS.firstArchitectureReview}#printable-first-run-evidence-checklist`,
+    historicalNote:
+      "Deprecated first-review help twin (Help topic) - Admin printable checklist folded into first-architecture-review specialty (COR); canon COR = /help/first-architecture-review.",
+    bannedBuyerCopy: ["/help/first-review", "first-review help", "First review help"],
+    buyerSurfaceGuards: [
+      "src/lib/help/help-search-panel-catalog.ts",
+      "src/lib/first-review-help-guide-content.ts",
+      "src/lib/usability/page-help-topic-map.ts",
+    ],
+  },
+  {
+    removedRowId: "HEF",
+    retiredPath: "/help/first-value-20-minutes",
+    canonicalPath: `${RETIRED_HELP_TOPIC_CANONICAL_PATHS.firstArchitectureReview}#first-value-in-20-minutes`,
+    historicalNote:
+      "Deprecated first-value-20-minutes help twin (Help topic) - Admin 20-minute runbook folded into first-architecture-review specialty (COR).",
+    bannedBuyerCopy: ["/help/first-value-20-minutes", "first-value-20-minutes", "First value 20 minutes help"],
+    buyerSurfaceGuards: [
+      "src/lib/help/help-search-panel-catalog.ts",
+      "src/lib/first-value-20-help-guide-content.ts",
+      "src/lib/usability/page-help-topic-map.ts",
+      "src/components/usability/CorePilotProgressTrackerSummary.tsx",
+      "src/components/usability/CorePilotProgressTrackerBanner.tsx",
+    ],
   },
   {
     removedRowId: "PIL",
@@ -118,6 +208,28 @@ export const RETIRED_HELP_TOPIC_ALIAS_TRAFFIC_ENTRIES: readonly RetiredHelpTopic
     canonicalPath: RETIRED_HELP_TOPIC_CANONICAL_PATHS.pilotGuide,
     historicalNote:
       "Deprecated pilot-nav-profile help twin (Help topic) - workspace navigation guide folded into pilot-guide specialty (HP); canon HP = /help/pilot-guide.",
+    bannedBuyerCopy: ["/help/pilot-nav-profile"],
+    buyerSurfaceGuards: [
+      "src/lib/help/help-search-panel-catalog.ts",
+      "src/lib/usability/page-help-topic-map.ts",
+      "src/lib/pilot-guide-help-evidence-copy.ts",
+      "src/app/(operator)/help/_sections/HelpPilotGuideView.tsx",
+    ],
+  },
+  {
+    removedRowId: "PI",
+    retiredPath: "/help/pilot-roi-model",
+    canonicalPath: `${RETIRED_HELP_TOPIC_CANONICAL_PATHS.executiveSummary}#pilot-roi-measurement`,
+    historicalNote:
+      "Deprecated pilot-roi-model help twin (Help topic) - PILOT_ROI_MODEL alias stub folded into executive-summary#pilot-roi-measurement (SPE); measurement body from PILOT_SUCCESS_SCORECARD.",
+    bannedBuyerCopy: ["/help/pilot-roi-model", "pilot-roi-model", "Pilot ROI model help"],
+    buyerSurfaceGuards: [
+      "src/lib/help/help-center-catalog.ts",
+      "src/lib/help/help-search-panel-catalog.ts",
+      "src/lib/executive/executive-summary-help-guide-content.ts",
+      "src/lib/usability/page-help-topic-map.ts",
+      "src/lib/roi-summary-sponsor-presentation.ts",
+    ],
   },
   {
     retiredPath: "/help/operator-auth-roles",
@@ -126,7 +238,7 @@ export const RETIRED_HELP_TOPIC_ALIAS_TRAFFIC_ENTRIES: readonly RetiredHelpTopic
     buyerSurfaceGuards: [
       "src/lib/users-and-roles-help-evidence-copy.ts",
       "src/lib/configuration-reference-help-guide-content.ts",
-      "src/lib/help-search-panel-catalog.ts",
+      "src/lib/help/help-search-panel-catalog.ts",
     ],
   },
   {

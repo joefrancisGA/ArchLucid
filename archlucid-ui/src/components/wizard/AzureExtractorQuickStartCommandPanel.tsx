@@ -2,11 +2,8 @@
 import { cn } from "@/lib/utils";
 import { OPERATOR_TYPOGRAPHY } from "@/lib/design-tokens";
 
-import { useEffect, useState } from "react";
-
 import { Button } from "@/components/ui/button";
 import { buildGetArchLucidAzurePackageCommandLine } from "@/lib/get-archlucid-azure-package-command";
-import { getEffectiveBrowserProxyScopeHeaders } from "@/lib/operator-scope-storage";
 import { showError, showSuccess } from "@/lib/toast";
 
 export type AzureExtractorQuickStartCommandPanelProps = {
@@ -28,13 +25,7 @@ export function AzureExtractorQuickStartCommandPanel(props: AzureExtractorQuickS
     description = "From your ArchLucid checkout: sign in to Azure when prompted, then upload ./archlucid-azure-package.zip here.",
     className,
   } = props;
-  const [commandLine, setCommandLine] = useState("");
-
-  useEffect(() => {
-    const tenantId = getEffectiveBrowserProxyScopeHeaders()["x-tenant-id"]?.trim() ?? "";
-
-    setCommandLine(buildGetArchLucidAzurePackageCommandLine({ subscriptionId: tenantId }));
-  }, []);
+  const commandLine = buildGetArchLucidAzurePackageCommandLine();
 
   return (
     <div
@@ -70,10 +61,13 @@ export function AzureExtractorQuickStartCommandPanel(props: AzureExtractorQuickS
         </Button>
       </div>
       <pre
-        className={cn("mt-3 max-h-[min(40vh,320px)] overflow-auto rounded-md border border-neutral-200 bg-white p-3 leading-relaxed dark:border-neutral-700 dark:bg-neutral-900", OPERATOR_TYPOGRAPHY.helper)}
+        className={cn(
+          "mt-3 max-h-[min(40vh,320px)] overflow-auto whitespace-pre-wrap break-words rounded-md border border-neutral-200 bg-white p-3 leading-relaxed dark:border-neutral-700 dark:bg-neutral-900",
+          OPERATOR_TYPOGRAPHY.helper,
+        )}
         data-testid={`${testIdPrefix}-command`}
       >
-        <code>{commandLine}</code>
+        <code className="whitespace-pre-wrap break-words">{commandLine}</code>
       </pre>
     </div>
   );

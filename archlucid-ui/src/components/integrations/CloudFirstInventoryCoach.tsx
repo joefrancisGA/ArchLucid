@@ -23,6 +23,10 @@ export function CloudFirstInventoryCoach(props: CloudFirstInventoryCoachProps): 
   const view = buildCloudFirstInventoryCoach({
     hasConnection: props.hasConnection,
     hasSuccessfulPull: props.hasSuccessfulPull,
+    connectedProviderCount: props.connectedProviderCount,
+    totalProviderCount: props.totalProviderCount,
+    recommendedProviderId: props.recommendedProviderId,
+    emptyPhasePrimaryCtaHref: props.emptyPhasePrimaryCtaHref,
   });
 
   return (
@@ -45,13 +49,15 @@ export function CloudFirstInventoryCoach(props: CloudFirstInventoryCoachProps): 
         {view.title}
       </h3>
       <p className={cn("m-0 mt-1 text-al-text-secondary", OPERATOR_TYPOGRAPHY.helper)}>{view.body}</p>
-      <ol className={cn("m-0 mt-2 list-decimal space-y-1 pl-5 text-al-text-primary", OPERATOR_TYPOGRAPHY.body)}>
-        {view.steps.map((step) => (
-          <li key={step.id} data-testid={`cloud-first-inventory-coach-step-${step.id}`}>
-            {step.label}
-          </li>
-        ))}
-      </ol>
+      {view.steps.length > 0 ? (
+        <ol className={cn("m-0 mt-2 list-decimal space-y-1 pl-5 text-al-text-primary", OPERATOR_TYPOGRAPHY.body)}>
+          {view.steps.map((step) => (
+            <li key={step.id} data-testid={`cloud-first-inventory-coach-step-${step.id}`}>
+              {step.label}
+            </li>
+          ))}
+        </ol>
+      ) : null}
       <div className="mt-3">
         <Button type="button" variant="primary" size="sm" asChild>
           <Link href={view.primaryCtaHref} data-testid="cloud-first-inventory-coach-cta">

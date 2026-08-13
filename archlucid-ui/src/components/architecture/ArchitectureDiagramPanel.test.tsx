@@ -9,15 +9,18 @@ vi.mock("@/components/architecture/ArchitectureDiagramViewer", () => ({
 
 import { ArchitectureDiagramPanel } from "@/components/architecture/ArchitectureDiagramPanel";
 import {
-  ARCHITECTURE_DIAGRAM_ADD_DETAILS_ACTION,
+  ARCHITECTURE_DIAGRAM_CLARIFY_ARCHITECTURE_ACTION,
+  ARCHITECTURE_DIAGRAM_INSUFFICIENT_ORIENTATION,
+  ARCHITECTURE_DIAGRAM_REGENERATE_ACTION,
   ARCHITECTURE_DIAGRAM_COPY_MERMAID_ACTION,
   ARCHITECTURE_DIAGRAM_DOWNLOAD_ACTION,
   ARCHITECTURE_DIAGRAM_DRAFT_STATUS_LABEL,
   ARCHITECTURE_DIAGRAM_RENDER_FAILURE,
   ARCHITECTURE_DIAGRAM_RETRY_ACTION,
   ARCHITECTURE_DIAGRAM_VIEW_MERMAID_ACTION,
-} from "@/lib/architecture-diagram-copy";
-import * as generateModule from "@/lib/architecture-diagram-generate";
+} from "@/lib/architecture/architecture-diagram-copy";
+import * as generateModule from "@/lib/architecture/architecture-diagram-generate";
+import { appendArchitectureDiagramVersion } from "@/lib/architecture/architecture-diagram-storage";
 
 const sufficientSource = `## Systems and services
 - Claims API
@@ -57,6 +60,29 @@ describe("ArchitectureDiagramPanel", () => {
     expect(screen.getByText(ARCHITECTURE_DIAGRAM_DRAFT_STATUS_LABEL)).toBeInTheDocument();
   });
 
+  it("links Add details to run-scoped guided intake when clarifyHref is provided (TB-1842)", async () => {
+    const clarifyHref = "/architecture/reviews/new?path=guided-intake&rerun=run-empty";
+
+    render(
+      <ArchitectureDiagramPanel
+        runId="run-empty"
+        architectureName="Untitled architecture"
+        sourceText="Too little detail."
+        userAssertions={{ ...assertions, peopleAndSystems: [], architectureName: "" }}
+        canEdit
+        clarifyHref={clarifyHref}
+      />,
+    );
+
+    await waitFor(() => {
+      expect(screen.getByTestId("architecture-diagram-insufficient")).toBeInTheDocument();
+    });
+
+    const addDetailsLink = screen.getByRole("link", { name: ARCHITECTURE_DIAGRAM_CLARIFY_ARCHITECTURE_ACTION });
+    expect(addDetailsLink).toHaveAttribute("href", clarifyHref);
+    expect(addDetailsLink.getAttribute("href")).toContain("rerun=run-empty");
+  });
+
   it("shows insufficient diagnostic state and clarifications action without regenerate", async () => {
     const onClarificationsNavigate = vi.fn();
 
@@ -75,9 +101,59 @@ describe("ArchitectureDiagramPanel", () => {
       expect(screen.getByTestId("architecture-diagram-insufficient")).toBeInTheDocument();
     });
     expect(screen.getByText("A diagram could not be generated yet.")).toBeInTheDocument();
-    fireEvent.click(screen.getByRole("button", { name: ARCHITECTURE_DIAGRAM_ADD_DETAILS_ACTION }));
+    fireEvent.click(screen.getByRole("button", { name: ARCHITECTURE_DIAGRAM_CLARIFY_ARCHITECTURE_ACTION }));
     expect(onClarificationsNavigate).toHaveBeenCalled();
     expect(screen.queryByRole("button", { name: "Generate architecture diagram" })).not.toBeInTheDocument();
+    expect(screen.queryByTestId("architecture-diagram-insufficient-regenerate")).not.toBeInTheDocument();
+  });
+
+  it("shows primary Clarify architecture CTA with orientation on insufficient phase (TB-1843)", async () => {
+    render(
+      <ArchitectureDiagramPanel
+        runId="run-insufficient-orientation"
+        architectureName="Untitled architecture"
+        sourceText="Too little detail."
+        userAssertions={{ ...assertions, peopleAndSystems: [], architectureName: "" }}
+        canEdit
+        clarifyHref="/architecture/reviews/new?path=guided-intake&rerun=run-insufficient-orientation"
+      />,
+    );
+
+    await waitFor(() => {
+      expect(screen.getByTestId("architecture-diagram-insufficient")).toBeInTheDocument();
+    });
+
+    expect(screen.getByText(ARCHITECTURE_DIAGRAM_INSUFFICIENT_ORIENTATION)).toBeInTheDocument();
+    expect(screen.getByTestId("architecture-diagram-clarify-architecture")).toBeInTheDocument();
+    expect(screen.getByRole("link", { name: ARCHITECTURE_DIAGRAM_CLARIFY_ARCHITECTURE_ACTION })).toBeInTheDocument();
+  });
+
+  it("shows secondary regenerate on insufficient when a prior diagram version exists (TB-1843)", async () => {
+    appendArchitectureDiagramVersion({
+      runId: "run-stale",
+      contentFingerprint: "fp-stale",
+      mermaidSource: "flowchart TB\n  a[\"A\"]",
+      source: "generated",
+      label: "Generated diagram",
+    });
+
+    render(
+      <ArchitectureDiagramPanel
+        runId="run-stale"
+        architectureName="Untitled architecture"
+        sourceText="Too little detail."
+        userAssertions={{ ...assertions, peopleAndSystems: [], architectureName: "" }}
+        canEdit
+        clarifyHref="/architecture/reviews/new?path=guided-intake&rerun=run-stale"
+      />,
+    );
+
+    await waitFor(() => {
+      expect(screen.getByTestId("architecture-diagram-insufficient")).toBeInTheDocument();
+    });
+
+    expect(screen.getByTestId("architecture-diagram-clarify-architecture")).toBeInTheDocument();
+    expect(screen.getByRole("button", { name: ARCHITECTURE_DIAGRAM_REGENERATE_ACTION })).toBeInTheDocument();
   });
 
   it("shows generation failure with retry", async () => {

@@ -6,7 +6,7 @@ import { useCallback, useMemo, useState } from "react";
 import { HelpTopicTableOfContents } from "@/components/help/HelpTopicTableOfContents";
 import { FilterChip } from "@/components/ui/filter-chip";
 import { Input } from "@/components/ui/input";
-import { buyerFilterChipClass } from "@/lib/buyer-shell-home-present";
+import { buyerFilterChipClass } from "@/lib/buyer/buyer-shell-home-present";
 import {
   CUSTOMER_GLOSSARY_ALL_TERMS_FILTER,
   CUSTOMER_GLOSSARY_DEPRECATED_LABEL,
@@ -30,8 +30,8 @@ import {
 } from "@/lib/customer-glossary-manifest";
 import { GOLDEN_PATH_GLOSSARY_NOUN_IDS } from "@/lib/golden-path-glossary-nouns";
 import { OPERATOR_SHELL_SCROLL_OFFSET_CLASS, OPERATOR_TYPOGRAPHY } from "@/lib/design-tokens";
-import type { HelpMarkdownHeading } from "@/lib/help-markdown-headings";
-import { HELP_PAGE_LAYOUT } from "@/lib/help-page-layout";
+import type { HelpMarkdownHeading } from "@/lib/help/help-markdown-headings";
+import { HELP_PAGE_LAYOUT } from "@/lib/help/help-page-layout";
 import { cn } from "@/lib/utils";
 
 const CUSTOMER_TERMS = listCustomerFacingGlossaryTerms();

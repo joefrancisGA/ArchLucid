@@ -18,7 +18,7 @@ Ship a pack covering the **architecture-review posture themes emerging from US s
 | # | Assumption | Rationale |
 |---|------------|-----------|
 | A1 | Primary sources: Colorado SB 24-205 (effective 2026-02-01), NYC Local Law 144 (effective 2023, bias audit requirement), California AB 302 (AI in state services, 2023), Texas SB 2037 (Texas RAGA, 2025 — if enacted). | State legislative sources. |
-| A2 | These laws share common themes: **high-risk AI** (consequential decisions), **bias audit**, **transparency notice**, **opt-out or appeal mechanism**, **impact assessment**. Rules are organised by these themes rather than law-by-law to avoid rapid obsolescence. | Thematic stability. |
+| A2 | These laws share common themes: **high-risk AI** (consequential decisions), **bias audit**, **transparency notice**, **opt-out or appeal mechanism**, **impact assessment**. Rules are organized by these themes rather than law-by-law to avoid rapid obsolescence. | Thematic stability. |
 | A3 | Architecture evidence: bias audit service documented in `services[]`; impact assessment referenced in `governance.PolicyConstraints`; transparency notice mechanism in `governance.RequiredControls`; opt-out mechanism in `services[]` or `relationships[]`. | Manifest schema. |
 | A4 | Pack does **not** determine whether the customer's jurisdiction is covered by these laws — that is a legal determination. Rules use conditional framing. | Auto-classification prohibition. |
 | A5 | OMB M-24-10 (AI-13) covers federal rights-impacting AI requirements. This pack covers state-specific laws with different scope thresholds and mechanisms. | Adjacent pack boundary. |
@@ -130,7 +130,7 @@ Standard pipeline. `priorityFloor: P0` surfaces consequential decision scope ide
 A: No. Whether your AI system falls within the scope of these laws is a legal determination based on your deployment context, the decisions your system makes, and the jurisdictions of your users. ArchLucid maps architecture evidence against the common requirements these laws impose — bias audits, transparency notices, opt-out mechanisms — to help your team prepare if your legal counsel determines coverage applies.
 
 **Q: The state AI law landscape changes frequently. How is this pack kept current?**
-A: The pack is organised thematically (bias audit, transparency, opt-out) rather than law-by-law, to maximise durability. When significant new state laws are enacted or major laws are amended, a minor version bump adds coverage. The `sourceCitation` field is updated and the changelog documents new laws covered.
+A: The pack is organized thematically (bias audit, transparency, opt-out) rather than law-by-law, to maximize durability. When significant new state laws are enacted or major laws are amended, a minor version bump adds coverage. The `sourceCitation` field is updated and the changelog documents new laws covered.
 
 ---
 

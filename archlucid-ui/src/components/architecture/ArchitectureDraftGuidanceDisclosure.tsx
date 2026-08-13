@@ -13,11 +13,11 @@ import {
   ARCHITECTURE_DRAFT_GUIDANCE_DISCLOSURE_DETAIL,
   ARCHITECTURE_DRAFT_GUIDANCE_DISCLOSURE_LEAD,
   ARCHITECTURE_DRAFT_GUIDANCE_DISCLOSURE_SUMMARY,
-} from "@/lib/architecture-draft-guidance-copy";
+} from "@/lib/architecture/architecture-draft-guidance-copy";
 import {
   isArchitectureDraftGuidanceDismissed,
   persistArchitectureDraftGuidanceDismissed,
-} from "@/lib/architecture-draft-guidance-dismiss";
+} from "@/lib/architecture/architecture-draft-guidance-dismiss";
 import { OPERATOR_DISCLOSURE_TRIGGER_CLASS, OPERATOR_TYPOGRAPHY } from "@/lib/design-tokens";
 import { pageHelpTopicForPathname } from "@/lib/usability/page-help-topic-map";
 import { cn } from "@/lib/utils";

@@ -1,6 +1,6 @@
 "use client";
 
-import { isStaticDemoPayloadFallbackActiveForRun } from "@/lib/operator-static-demo";
+import { isStaticDemoPayloadFallbackActiveForRun } from "@/lib/operator/operator-static-demo";
 import { canShowcaseAnonymousVisitorOpenOperatorDeepLinks } from "@/lib/showcase-quick-nav-contract";
 import {
   LIVE_DEMO_WALKTHROUGH_STEPS,
@@ -14,6 +14,7 @@ import type { DemoCommitPagePreviewResponse } from "@/types/demo-preview";
 import type { PipelineTimelineItem } from "@/types/authority";
 
 import { LiveDemoAuditTrailStepContent } from "./LiveDemoAuditTrailStepContent";
+import { LiveDemoContinuousWalkthrough } from "./LiveDemoContinuousWalkthrough";
 import { LiveDemoConversionCta } from "./LiveDemoConversionCta";
 import { LiveDemoEvidenceStepContent } from "./LiveDemoEvidenceStepContent";
 import { LiveDemoExecutiveStepContent } from "./LiveDemoExecutiveStepContent";
@@ -106,13 +107,18 @@ export function LiveDemoMarketingBody(props: LiveDemoMarketingBodyProps) {
       activeStepId={activeStep.id}
       guidedPanel={renderLiveDemoStepPanel(activeStep.id, shared, activeStep.keyTakeaway)}
       continuousPanels={
-        <div className="space-y-10">
-          {LIVE_DEMO_WALKTHROUGH_STEPS.map((step) => (
-            <div key={step.id} id={`live-demo-step-${step.id}`}>
-              {renderLiveDemoStepPanel(step.id, shared, step.keyTakeaway)}
-            </div>
-          ))}
-        </div>
+        <LiveDemoContinuousWalkthrough
+          initialStepId={activeStep.id}
+          renderStepPanel={(stepId) => {
+            const step = LIVE_DEMO_WALKTHROUGH_STEPS.find((candidate) => candidate.id === stepId);
+
+            if (step === undefined) {
+              return null;
+            }
+
+            return renderLiveDemoStepPanel(step.id, shared, step.keyTakeaway);
+          }}
+        />
       }
       conversionCta={
         <LiveDemoConversionCta

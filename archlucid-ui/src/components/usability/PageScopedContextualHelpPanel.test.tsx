@@ -27,6 +27,8 @@ const MINIMAL_ENTRY: PageContextualHelpEntry = {
 function pressTrigger(): HTMLElement {
   const trigger = screen.getByTestId("page-contextual-help-button");
 
+  expect(trigger.className).not.toMatch(/\bborder(?:\s|-neutral|-transparent)/);
+
   act(() => {
     fireEvent.click(trigger);
   });

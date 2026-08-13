@@ -4,7 +4,7 @@ import { OPERATOR_TYPOGRAPHY } from "@/lib/design-tokens";
 
 import { useCallback, useEffect, useState } from "react";
 
-import { CREATE_ARCHITECTURE_LABEL } from "@/lib/architecture-workflow-labels";
+import { CREATE_ARCHITECTURE_LABEL } from "@/lib/architecture/architecture-workflow-labels";
 import { Button } from "@/components/ui/button";
 import { OPT_IN_TOUR_EVIDENCE_STEP } from "@/lib/onboarding-secondary-surfaces";
 
@@ -29,7 +29,7 @@ export interface OptInTourStep {
 /** Six-step opt-in tour script. */
 export const DRAFT_TOUR_STEPS: readonly OptInTourStep[] = [
   {
-    title: "1. Workspace overview",
+    title: "1. Workspace home",
     body:
       "Your starting point. The first-review checklist at the top walks you through your first architecture review — follow it in order. " +
       "The analysis and governance sections below are optional until your first review is finalized.",
@@ -60,7 +60,7 @@ export const DRAFT_TOUR_STEPS: readonly OptInTourStep[] = [
     title: "6. Get help",
     body:
       "If something is not working, go to Admin → Support to download a redacted diagnostics bundle for support " +
-      "tickets. Most pages also include a link to the relevant documentation. The How it works button on Overview re-opens this tour anytime.",
+      "tickets. Most pages also include a link to the relevant documentation. The How it works button on Home re-opens this tour anytime.",
   },
 ];
 export interface OptInTourProps {

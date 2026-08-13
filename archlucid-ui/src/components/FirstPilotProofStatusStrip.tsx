@@ -33,14 +33,14 @@ export function FirstPilotProofStatusStrip() {
   const [loadFailed, setLoadFailed] = useState(false);
 
   useEffect(() => {
-    let cancelled = false;
+    let canceled = false;
 
     async function load(): Promise<void> {
       try {
         const response = await fetch("/first-pilot-proof-status-snapshot.json", { cache: "no-store" });
 
         if (!response.ok) {
-          if (!cancelled) {
+          if (!canceled) {
             setLoadFailed(true);
           }
 
@@ -49,13 +49,13 @@ export function FirstPilotProofStatusStrip() {
 
         const json = (await response.json()) as FirstPilotProofStatusSnapshot;
 
-        if (!cancelled) {
+        if (!canceled) {
           setSnapshot(json);
           setLoadFailed(false);
         }
       }
       catch {
-        if (!cancelled) {
+        if (!canceled) {
           setLoadFailed(true);
         }
       }
@@ -64,7 +64,7 @@ export function FirstPilotProofStatusStrip() {
     void load();
 
     return () => {
-      cancelled = true;
+      canceled = true;
     };
   }, []);
 

@@ -1,8 +1,32 @@
-import { describe, expect, it } from "vitest";
+import { describe, expect, it, vi, beforeEach, afterEach } from "vitest";
 
-import { normalizeAuthMeResponse } from "@/lib/current-principal";
+import {
+  invalidateCurrentPrincipalCache,
+  loadCurrentPrincipal,
+  normalizeAuthMeResponse,
+} from "@/lib/current-principal";
 import { operateCapabilityFromRank } from "@/lib/operate-capability";
 import { AUTHORITY_RANK, requiredAuthorityFromRank } from "@/lib/nav-authority";
+
+vi.mock("@/lib/oidc/config", () => ({
+  isJwtAuthMode: () => false,
+}));
+
+vi.mock("@/lib/oidc/session", () => ({
+  ensureAccessTokenFresh: vi.fn(async () => undefined),
+  getAccessTokenForApi: () => "test-token",
+  isLikelySignedIn: () => true,
+}));
+
+vi.mock("@/lib/proxy-fetch-registration-scope", () => ({
+  mergeRegistrationScopeForProxy: (init: RequestInit) => init,
+}));
+
+vi.mock("@/lib/dev-testing-overrides", () => ({
+  applyDevRoleOverrideToPrincipal: <T,>(principal: T) => principal,
+  readDevRoleOverrideFromDocument: () => null,
+  DEV_TEST_ACTOR_ROLE_HEADER: "x-dev-test-actor-role",
+}));
 
 /** Guards the `/me` → `CurrentPrincipal` seam used by `OperatorNavAuthorityProvider` (rank + enterprise surfacing flag). */
 describe("normalizeAuthMeResponse", () => {
@@ -139,5 +163,70 @@ describe("normalizeAuthMeResponse", () => {
         operateCapabilityFromRank(principal.authorityRank),
       );
     }
+  });
+});
+
+describe("loadCurrentPrincipal", () => {
+  const authMeBody = {
+    name: "ops",
+    claims: [{ type: "roles", value: "Operator" }],
+  };
+
+  beforeEach(() => {
+    invalidateCurrentPrincipalCache();
+    vi.restoreAllMocks();
+  });
+
+  afterEach(() => {
+    invalidateCurrentPrincipalCache();
+  });
+
+  it("coalesces parallel callers into one network fetch", async () => {
+    const fetchMock = vi.fn(async () =>
+      new Response(JSON.stringify(authMeBody), {
+        status: 200,
+        headers: { "Content-Type": "application/json" },
+      }),
+    );
+
+    vi.stubGlobal("fetch", fetchMock);
+
+    const [first, second] = await Promise.all([loadCurrentPrincipal(), loadCurrentPrincipal()]);
+
+    expect(fetchMock).toHaveBeenCalledTimes(1);
+    expect(first.provenance).toBe("auth-me");
+    expect(second.authorityRank).toBe(first.authorityRank);
+  });
+
+  it("returns cached auth-me principal without a second fetch within TTL", async () => {
+    const fetchMock = vi.fn(async () =>
+      new Response(JSON.stringify(authMeBody), {
+        status: 200,
+        headers: { "Content-Type": "application/json" },
+      }),
+    );
+
+    vi.stubGlobal("fetch", fetchMock);
+
+    await loadCurrentPrincipal();
+    await loadCurrentPrincipal();
+
+    expect(fetchMock).toHaveBeenCalledTimes(1);
+  });
+
+  it("bypasses cache when bypassCache is true", async () => {
+    const fetchMock = vi.fn(async () =>
+      new Response(JSON.stringify(authMeBody), {
+        status: 200,
+        headers: { "Content-Type": "application/json" },
+      }),
+    );
+
+    vi.stubGlobal("fetch", fetchMock);
+
+    await loadCurrentPrincipal();
+    await loadCurrentPrincipal({ bypassCache: true });
+
+    expect(fetchMock).toHaveBeenCalledTimes(2);
   });
 });

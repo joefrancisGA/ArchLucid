@@ -86,7 +86,7 @@
     "POST /v1/architecture/review/{runId}/finalize": "explicit-idempotency-key",
     "POST /v1/architecture/review/{runId}/evidence/bulk": "operator-documented-safe-retry",
     "POST /v1/architecture/review/{runId}/execute": "explicit-idempotency-key",
-    "POST /v1/architecture/review/{runId}/replay": "explicit-idempotency-key",
+    "POST /v1/architecture/review/{runId}/replay": "operator-documented-safe-retry",
     "POST /v1/architecture/review/{runId}/result": "explicit-idempotency-key",
     "POST /v1/artifacts/runs/{runId}/export/push": "operator-documented-safe-retry",
     "POST /v1/artifacts/runs/{runId}/terraform-pr": "operator-documented-safe-retry",

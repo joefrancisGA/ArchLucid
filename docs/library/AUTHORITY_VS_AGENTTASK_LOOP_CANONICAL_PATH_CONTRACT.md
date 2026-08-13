@@ -1,6 +1,6 @@
 > **Scope:** Contributor-reference — Authority pipeline vs AgentTask-loop canonical path (TB-1007); not a buyer-facing trust claim.
 
-# Authority vs AgentTask-loop canonical path (TB-1007)
+# Authority vs AgentTask-loop canonical path (**TB-1007**)
 
 > **Audience:** Contributors, principal architects, and integrators.  
 > **Not** a buyer assurance claim — Authority-as-product-default ≠ “`/result` is retired” and ≠ dual storage pipelines still shipping.
@@ -60,7 +60,7 @@ Dual coordinator **storage** and dual orchestrators were retired (ADR 0030 / **T
 
 - Do **not** say every create requires `execute` before value.
 - Do **not** say dual coordinator/authority **storage** pipelines still ship as defaults.
-- Do **not** say `/result` is fully retired (sunset is **TB-1034** / GTM **M-185**).
+- Do **not** say `/result` is fully retired (sunset phases in [ADR 0066](../architecture/adrs/0066-agent-result-append-sunset.md); route delete is a follow-on TB).
 - Do **not** reopen Done ADR 0030 / ADR 0042 / **TB-305** / **TB-919**.
 - Do **not** close honesty CI (**TB-1008**), `/result` sunset (**TB-1034**), or soft-bridge retirement (**TB-1204**) by publishing this matrix.
 
@@ -70,8 +70,8 @@ Dual coordinator **storage** and dual orchestrators were retired (ADR 0030 / **T
 
 | Work | Owner |
 |------|-------|
-| Product-default freeze on Authority A0; rename “legacy coordinator” → AgentTask extension loop | **TB-1034** / **M-185** |
-| Owner ADR to sunset `POST …/result` | Deferred under **TB-1034** — not this contract |
+| Product-default freeze on Authority A0; rename “legacy coordinator” → AgentTask extension loop | **TB-1034** Done — [`STRANGLER_NEXT_SLICE_AUTHORITY_FREEZE_AND_RESULT_SUNSET_CONTRACT.md`](./STRANGLER_NEXT_SLICE_AUTHORITY_FREEZE_AND_RESULT_SUNSET_CONTRACT.md) / **M-185** |
+| Owner ADR to sunset `POST …/result` | [ADR 0066](../architecture/adrs/0066-agent-result-append-sunset.md) (**TB-1034** Done); implementation TB for deprecation headers |
 | Soft-bridge / discipline-test retirement | **TB-1204** / **TB-1205** |
 
 ---

@@ -4,7 +4,7 @@ Merge-blocking guard: BillingProductionSafetyRules must keep its three productio
 
 ArchLucid is on the path to V1 with a sales-led commercial motion (live keys
 deferred to V1.1 per owner Q17, 2026-04-23). The
-``BillingProductionSafetyRules`` class is the last line of defence that
+``BillingProductionSafetyRules`` class is the last line of defense that
 prevents the API from booting in Production with an unsafe billing
 configuration — most importantly, it refuses to start when:
 

@@ -4,7 +4,7 @@
 
 **Audience:** Engineering, security reviewers, principal-architect diligence. Not a buyer brochure.
 
-**Status:** Working contract for **TB-1570** / GTM **M-294**. Pair honesty CI **TB-1571** / **M-294**.
+**Status:** **Done** (2026-08-11) for **TB-1570** / GTM **M-294**. Honesty CI **TB-1571** / **M-294** **Done** (2026-08-11) — `check_paying_tenant_spend_storm_honesty.py`.
 
 **Verdict (one line):** Paying tenants are **not** unbounded like anonymous Quick Scan — layered **HTTP / token / (optional) monthly estimated-USD / run-admit** gates fail-closed on further Real completions — but a **compromised API key can burn the tenant’s remaining headroom until revoke**, and product **AI metering is estimated tokens/USD, not dispute-grade reconciliation to Azure OpenAI invoices**.
 
@@ -63,7 +63,7 @@
 | ID | Role |
 |----|------|
 | Open **TB-1287** / **TB-1288**, **M-225** / **M-226** | Mature cost-control plane + chokepoint honesty |
-| Open **TB-975**–**TB-977**, **M-131** / **M-132** | INV-004 reserve/settle crash/skew honesty |
+| Done **TB-975**/**TB-976**/**TB-977**; **M-131** / **M-132** | INV-004 reserve/settle lifecycle contract |
 | Done **TB-011** / **INV-004**, Done **TB-939** | Multi-replica budget + run-scoped admit |
 | Open **TB-1020**–**TB-1021**, **M-170** / **M-171** | Process vs provider billing / rebill |
 | Open **TB-1299**–**TB-1300**, **M-229** / **M-230** | AOAI 429 execute policy (adjacent) |

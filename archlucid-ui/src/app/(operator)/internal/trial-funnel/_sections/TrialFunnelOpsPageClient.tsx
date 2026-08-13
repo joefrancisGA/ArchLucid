@@ -4,8 +4,10 @@ import { cn } from "@/lib/utils";
 import Link from "next/link";
 import { useCallback, useEffect, useMemo, useState, type ReactElement } from "react";
 
-import { OperatorPageHeader } from "@/components/OperatorPageHeader";
+import { OperatorPageHeader } from "@/components/operator/OperatorPageHeader";
+import { TrialFunnelDemoReadinessVocabularyRail } from "@/components/trial/TrialFunnelDemoReadinessVocabularyRail";
 import { Button } from "@/components/ui/button";
+import { RefreshButton } from "@/components/ui/refresh-button";
 import { Card, CardContent, CardHeader, CardTitle } from "@/components/ui/card";
 import {
   EnterpriseTable,
@@ -16,11 +18,12 @@ import {
   EnterpriseTableHeadRow,
   EnterpriseTableRow,
 } from "@/components/ui/enterprise-table";
-import { useOperatorNavAuthority } from "@/components/OperatorNavAuthorityProvider";
+import { useOperatorNavAuthority } from "@/components/operator/OperatorNavAuthorityProvider";
 import { PageContextualHelpButton } from "@/components/usability/PageContextualHelpButton";
-import { OPERATOR_NAV_GROUP_LABEL, OPERATOR_TYPOGRAPHY } from "@/lib/design-tokens";
-import { FORBIDDEN_WORKSPACE_ADMIN_ACCESS_MESSAGE_SHORT } from "@/lib/buyer-polish-copy";
+import { DESIGN_TOKENS, OPERATOR_LAYOUT, OPERATOR_NAV_GROUP_LABEL, OPERATOR_TYPOGRAPHY } from "@/lib/design-tokens";
+import { FORBIDDEN_WORKSPACE_ADMIN_ACCESS_MESSAGE_SHORT } from "@/lib/buyer/buyer-polish-copy";
 import { AUTHORITY_RANK } from "@/lib/nav-authority";
+import { INTERNAL_TRIAL_FUNNEL_PATH } from "@/lib/internal-ops-route-paths";
 import {
   TRIAL_FUNNEL_CONVERSION_NOTE,
   TRIAL_FUNNEL_PAGE_SUBTITLE,
@@ -280,8 +283,9 @@ export function TrialFunnelOpsPageClient(): ReactElement {
   const timing = data?.timing;
 
   return (
-    <div className="w-full max-w-[1440px] space-y-6" data-testid="trial-funnel-ops-page">
+    <div className={cn("w-full max-w-[1440px]", OPERATOR_LAYOUT.sectionStack)} data-testid="trial-funnel-ops-page">
       <OperatorPageHeader
+        navHref={INTERNAL_TRIAL_FUNNEL_PATH}
         title="Trial funnel"
         subtitle={TRIAL_FUNNEL_PAGE_SUBTITLE}
         titleTestId="trial-funnel-page-title"
@@ -315,15 +319,7 @@ export function TrialFunnelOpsPageClient(): ReactElement {
               />
               Compare with previous period
             </label>
-            <Button
-              type="button"
-              variant="outline"
-              size="sm"
-              disabled={loadState === "loading"}
-              onClick={() => void refresh()}
-            >
-              {loadState === "loading" ? "Refreshing data…" : "Refresh data"}
-            </Button>
+            <RefreshButton busy={loadState === "loading"} onClick={() => void refresh()} />
             <Button
               type="button"
               variant="outline"
@@ -337,13 +333,14 @@ export function TrialFunnelOpsPageClient(): ReactElement {
           </div>
         }
       />
-<div className="sr-only" role="status" aria-live="polite">
+      <TrialFunnelDemoReadinessVocabularyRail currentSurfaceId="trial-funnel" />
+      <div className="sr-only" role="status" aria-live="polite">
         {refreshAnnouncement}
       </div>
 
       {error ? (
-        <div className="rounded-md border border-rose-300 bg-rose-50 p-4 dark:border-rose-800 dark:bg-rose-950/40" role="alert">
-          <p className={cn("m-0 text-rose-800 dark:text-rose-200", OPERATOR_TYPOGRAPHY.body)}>{error}</p>
+        <div className={cn(DESIGN_TOKENS.callout.blocked, "p-4")} role="alert">
+          <p className={cn("m-0", OPERATOR_TYPOGRAPHY.body)}>{error}</p>
           <Button type="button" variant="outline" size="sm" className="mt-3" onClick={() => void refresh()}>
             Retry
           </Button>
@@ -352,10 +349,10 @@ export function TrialFunnelOpsPageClient(): ReactElement {
 
       {data?.dataQuality?.instrumentationWarning ? (
         <div
-          className="rounded-md border border-amber-300 bg-amber-50 p-4 dark:border-amber-800 dark:bg-amber-950/30"
+          className={cn(DESIGN_TOKENS.callout.warn, "p-4")}
           role="status"
         >
-          <p className={cn("m-0 text-amber-900 dark:text-amber-100", OPERATOR_TYPOGRAPHY.body)}>
+          <p className={cn("m-0", OPERATOR_TYPOGRAPHY.body)}>
             {data.dataQuality.instrumentationWarning}
           </p>
         </div>
@@ -375,7 +372,7 @@ export function TrialFunnelOpsPageClient(): ReactElement {
         <CardHeader className="pb-2">
           <CardTitle className={OPERATOR_TYPOGRAPHY.cardTitle}>Funnel overview</CardTitle>
         </CardHeader>
-        <CardContent className="space-y-6">
+        <CardContent className={OPERATOR_LAYOUT.sectionStack}>
           <div className="grid gap-4 sm:grid-cols-2 lg:grid-cols-4">
             <div className="rounded-md border border-neutral-200 p-3 dark:border-neutral-800">
               <p className={cn("m-0", OPERATOR_NAV_GROUP_LABEL)}>Active trials</p>

@@ -7,7 +7,7 @@ import { WhyEvidenceOrientationStrip } from "@/components/marketing/WhyEvidenceO
 import { WhyMarketingHeroSection } from "@/app/(marketing)/why/WhyMarketingHeroSection";
 import { WhyMarketingProofLadderSection } from "@/app/(marketing)/why/WhyMarketingProofLadderSection";
 import { Button } from "@/components/ui/button";
-import { BUYER_OUTCOME_LED_VALUE_PROPOSITION } from "@/lib/buyer-polish-copy";
+import { BUYER_OUTCOME_LED_VALUE_PROPOSITION } from "@/lib/buyer/buyer-polish-copy";
 import { BRAND_CATEGORY, BRAND_PROOF_SCOPE_STATEMENT } from "@/lib/brand-category";
 import { MARKETING_LAYOUT, MARKETING_MOTION, MARKETING_SURFACES, MARKETING_TYPOGRAPHY } from "@/lib/design-tokens";
 import {

@@ -4,10 +4,13 @@ import { useCallback, useEffect, useRef, useState } from "react";
 import { useSearchParams } from "next/navigation";
 
 import { LayerHeader } from "@/components/LayerHeader";
-import { OperatorPageHeader } from "@/components/OperatorPageHeader";
+import { COMPARE_TWO_REVIEWS_PATH } from "@/lib/compare-two-reviews-route";
+import { OperatorPageHeader } from "@/components/operator/OperatorPageHeader";
 import { PageCapabilityBoundaryStrip } from "@/components/PageCapabilityBoundaryStrip";
 import { PageContextualHelpButton } from "@/components/usability/PageContextualHelpButton";
-import { coerceComparisonExplanation, coerceGoldenManifestComparison, coerceRunComparison } from "@/lib/operator-response-guards";
+import { ValidateCompareVocabularyRail } from "@/components/ValidateCompareVocabularyRail";
+import { ImpactPreviewCompareVocabularyRail } from "@/components/ImpactPreviewCompareVocabularyRail";
+import { coerceComparisonExplanation, coerceGoldenManifestComparison, coerceRunComparison } from "@/lib/operator/operator-response-guards";
 import type { ApiLoadFailureState } from "@/lib/api-load-failure";
 import { toApiLoadFailure } from "@/lib/api-load-failure";
 import { compareGoldenManifestRuns, compareRuns, explainComparisonRuns, getRunSummary } from "@/lib/api";
@@ -16,14 +19,14 @@ import {
   compareRunIdsAreSameAfterDemoCanonicalization,
   readCompareRunIdsFromSearchParams,
 } from "@/lib/compare-url-query-params";
-import { BUYER_COMPARE_PAGE_TITLE, BUYER_COMPARE_PRIMARY_ACTION_LABEL } from "@/lib/buyer-polish-copy";
+import { BUYER_COMPARE_PAGE_TITLE, BUYER_COMPARE_PRIMARY_ACTION_LABEL } from "@/lib/buyer/buyer-polish-copy";
 import { isBuyerPolishedOperatorShellEnv, isOperatorExperienceFullShellEnv } from "@/lib/demo-ui-env";
 import { isCtoDemoPackEnv } from "@/lib/cto-demo-presenter-pack";
 import {
   isStaticDemoPayloadFallbackEnabled,
   tryStaticDemoGoldenManifestComparison,
   tryStaticDemoRunComparison,
-} from "@/lib/operator-static-demo";
+} from "@/lib/operator/operator-static-demo";
 import { CompareComparisonDimensionsPreview } from "@/app/(operator)/insights/compare-two-reviews/_sections/CompareComparisonDimensionsPreview";
 import { CompareEmptyResultsPlaceholder } from "@/app/(operator)/insights/compare-two-reviews/_sections/CompareEmptyResultsPlaceholder";
 import { CompareHowComparisonWorksSection } from "@/app/(operator)/insights/compare-two-reviews/_sections/CompareHowComparisonWorksSection";
@@ -436,11 +439,14 @@ export function CompareForm() {
   return (
     <div data-testid="compare-page-ready">
       <OperatorPageHeader
+        navHref={COMPARE_TWO_REVIEWS_PATH}
         title={buyerPolished ? BUYER_COMPARE_PAGE_TITLE : "Compare two reviews"}
         titleTestId="compare-page-heading"
         subtitle={COMPARE_PAGE_SUBTITLE}
         actions={<PageContextualHelpButton />}
       />
+      <ValidateCompareVocabularyRail currentSurfaceId="compare" />
+      <ImpactPreviewCompareVocabularyRail currentSurfaceId="compare" />
       <PageCapabilityBoundaryStrip surfaceId="compare" />
 {showInsufficientFinalized ? (
         <CompareInsufficientFinalizedEmptyState

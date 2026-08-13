@@ -18,7 +18,7 @@
 | **Distributed traces + metrics** | Latency, dependency failure, AI cost, pipeline stage timing | OpenTelemetry → Azure Monitor / OTLP / Prometheus |
 | **Structured logs** | Human-readable triage, request logging, failure detail | Serilog console + App Insights log ingestion when configured |
 
-These layers are complementary, not redundant: audit answers "what was recorded for compliance," traces answer "what was slow or failed," logs answer "what did the process say at the moment of failure." See [`TRACE_A_RUN.md`](../runbooks/TRACE_A_RUN.md) for a worked example that uses all three.
+These layers are complementary, not redundant: audit answers "what was recorded for compliance," traces answer "what was slow or failed," logs answer "what did the process say at the moment of failure." Owner analysis loop: [`TELEMETRY_ANALYSIS_AND_IMPROVEMENT.md`](../runbooks/TELEMETRY_ANALYSIS_AND_IMPROVEMENT.md). Worked one-run example: [`TRACE_A_RUN.md`](../runbooks/TRACE_A_RUN.md).
 
 ---
 
@@ -116,6 +116,8 @@ All custom metrics live on one meter, `ArchLucidInstrumentation.MeterName` (`"Ar
 
 **TB-958 cardinality budget (stuck runs):** `archlucid_runs_stale_in_flight_*` are **single fleet series** only. Never add unbounded `tenant_id` labels to those gauges. When count &gt; 0, `StaleInFlightRunMetricsHostedService` logs up to five oldest samples with `TenantId` / `RunId` for triage. P0 alert: `ArchLucidStaleInFlightRunsTf` → critical action group. Runbook: [`STALE_IN_FLIGHT_RUNS.md`](../runbooks/STALE_IN_FLIGHT_RUNS.md).
 
+**TB-961 worker drain (SIGTERM / scale-in):** `archlucid_worker_drain_started_total`, `archlucid_worker_drain_forced_kill_total`, histogram `archlucid_worker_drain_lease_release_duration_ms`. Drain gate blocks new execute ownership leases on `ApplicationStopping`; `RunExecuteOwnershipShutdownReleaseHostedService` releases held leases. Contract: [`ACA_WORKER_LLM_FAILURE_SEMANTICS.md`](../operations/ACA_WORKER_LLM_FAILURE_SEMANTICS.md), claim map [`WORKER_ROLLING_DEPLOY_DRAIN_HANDOFF_CLAIM_MAP.md`](WORKER_ROLLING_DEPLOY_DRAIN_HANDOFF_CLAIM_MAP.md).
+
 ---
 
 ## Named-query SQL latency gate (TB-003)
@@ -193,6 +195,7 @@ Operator triage for authority pipeline backlog, stale outbox rows, and data-cons
 | Doc | Use |
 | --- | --- |
 | [ADR 0053](../architecture/adrs/0053-enterprise-diagnostic-logging-observability-posture.md) | Normative decision record for this doc |
+| [`TELEMETRY_ANALYSIS_AND_IMPROVEMENT.md`](../runbooks/TELEMETRY_ANALYSIS_AND_IMPROVEMENT.md) | Owner loop: catch → correlate → fix → verify from telemetry |
 | [`TRACE_A_RUN.md`](../runbooks/TRACE_A_RUN.md) | Worked example correlating audit, traces, and logs for one run |
 | [`STALE_IN_FLIGHT_RUNS.md`](../runbooks/STALE_IN_FLIGHT_RUNS.md) | TB-958 P0 triage (fleet gauges + log samples) |
 | [`REVIEW_PATH_CANARY.md`](../runbooks/REVIEW_PATH_CANARY.md) | TB-959 create→execute→commit canary |

@@ -1,17 +1,13 @@
 "use client";
 
-import Link from "next/link";
 import type { ReactNode } from "react";
 
-import { OperatorPageBreadcrumb } from "@/components/OperatorPageBreadcrumb";
-import { OperatorPageHeader } from "@/components/OperatorPageHeader";
-import { HelpTopicPdfDownloadButton } from "@/components/help/HelpTopicPdfDownloadButton";
+import Link from "next/link";
+import { OperatorPageHeader } from "@/components/operator/OperatorPageHeader";
+import { OperatorPageBreadcrumb } from "@/components/operator/OperatorPageBreadcrumb";
 import { HelpTopicPrintButton } from "@/components/help/HelpTopicPrintButton";
-import { HelpTopicRegistryProvenanceLine } from "@/components/help/HelpTopicRegistryProvenanceLine";
 import { Button } from "@/components/ui/button";
-import { StatusTag } from "@/components/ui/status-tag";
 import { PageContextualHelpButton } from "@/components/usability/PageContextualHelpButton";
-import { HELP_TOPIC_DOCUMENT_STATUS_LABEL } from "@/lib/help-topic-markdown-header-content";
 import { inAppHelpHref } from "@/lib/product-documentation-registry";
 import type { ProductDocumentationEntry } from "@/lib/product-documentation-registry";
 
@@ -25,8 +21,10 @@ export type HelpTopicMarkdownPageHeaderProps = {
   readonly entry: ProductDocumentationEntry;
   readonly showContextualHelp?: boolean;
   readonly showExportClaimDiscipline?: boolean;
+  readonly allowWithoutServerPdf?: boolean;
   readonly primaryAction?: HelpTopicMarkdownPrimaryAction;
   readonly exportClaimDiscipline?: ReactNode;
+  readonly titleBlockOrientation?: ReactNode;
   readonly signInFailureTriageLine?: ReactNode;
 };
 
@@ -35,21 +33,20 @@ function hasExportActions(props: HelpTopicMarkdownPageHeaderProps): boolean {
     return true;
   }
 
-  if (props.showContextualHelp === true) {
+  if (props.entry.pdfStatus !== null) {
     return true;
   }
 
-  if (props.entry.pdfStatus !== null) {
+  if (props.allowWithoutServerPdf === true) {
     return true;
   }
 
   return false;
 }
 
-/** Shared hero for residual `HelpTopicMarkdownView` topics — breadcrumb, provenance, and export actions. */
+/** Shared hero for residual `HelpTopicMarkdownView` topics — provenance, orientation, and export actions. */
 export function HelpTopicMarkdownPageHeader(props: HelpTopicMarkdownPageHeaderProps): React.JSX.Element {
   const showActions = hasExportActions(props);
-  const isAuthenticationSignInHelp = props.entry.slug === "authentication-sign-in";
 
   return (
     <OperatorPageHeader
@@ -59,18 +56,18 @@ export function HelpTopicMarkdownPageHeader(props: HelpTopicMarkdownPageHeaderPr
       breadcrumb={
         <OperatorPageBreadcrumb
           data-testid="help-topic-breadcrumb"
-          items={[{ label: "Help", href: "/help" }, { label: props.entry.title }]}
+          items={[
+            { label: "Help", href: "/help" },
+            { label: props.entry.title },
+          ]}
         />
       }
       metadata={
-        <div className="flex flex-wrap items-center gap-x-3 gap-y-1" data-testid="help-topic-header-metadata">
-          <StatusTag
-            kind="ready"
-            label={HELP_TOPIC_DOCUMENT_STATUS_LABEL}
-            data-testid="help-topic-document-status"
-          />
-          <HelpTopicRegistryProvenanceLine entry={props.entry} />
-        </div>
+        props.titleBlockOrientation !== undefined && props.titleBlockOrientation !== null ? (
+          <div className="flex flex-wrap items-center gap-x-3 gap-y-1" data-testid="help-topic-header-metadata">
+            {props.titleBlockOrientation}
+          </div>
+        ) : undefined
       }
       actions={
         showActions ? (
@@ -81,8 +78,7 @@ export function HelpTopicMarkdownPageHeader(props: HelpTopicMarkdownPageHeaderPr
               </Button>
             ) : null}
             {props.showContextualHelp === true ? <PageContextualHelpButton /> : null}
-            <HelpTopicPdfDownloadButton entry={props.entry} />
-            {isAuthenticationSignInHelp ? null : <HelpTopicPrintButton entry={props.entry} />}
+            <HelpTopicPrintButton entry={props.entry} allowWithoutServerPdf={props.allowWithoutServerPdf} />
           </div>
         ) : undefined
       }

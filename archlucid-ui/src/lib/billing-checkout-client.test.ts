@@ -31,7 +31,7 @@ describe("startBillingCheckout", () => {
     const result = await startBillingCheckout({
       targetTier: "Team",
       returnUrl: "https://app.example.com/settings/billing?checkout=success",
-      cancelUrl: "https://app.example.com/settings/billing?checkout=cancelled",
+      cancelUrl: "https://app.example.com/settings/billing?checkout=canceled",
     });
 
     expect(result).toEqual({ outcome: "redirected" });

@@ -1,7 +1,7 @@
-import { GOVERNANCE_AUDIT_PATH } from "@/lib/governance-route-paths";
+import { GOVERNANCE_AUDIT_PATH } from "@/lib/governance/governance-route-paths";
 import type { EvidenceDiligenceSourceLink } from "@/lib/evidence-surface-copy";
 import { inAppHelpHref } from "@/lib/product-documentation-registry";
-import { HELP_DILIGENCE_ARTIFACT_INDEX_TITLE } from "@/lib/help-diligence-artifact-index";
+import { HELP_DILIGENCE_ARTIFACT_INDEX_TITLE } from "@/lib/help/help-diligence-artifact-index";
 
 export const DATA_HANDLING_TENANT_ISOLATION_HELP_CLAIM_DISCIPLINE =
   "This page explains how ArchLucid handles review evidence and enforces tenant scope. It is architect orientation, and it is not a countersigned DPA.";

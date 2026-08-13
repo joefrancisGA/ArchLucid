@@ -15,14 +15,13 @@ import { ExportFormatWhenToUseHint } from "@/components/ExportFormatWhenToUseHin
 import { ExportTrackedAnchor } from "@/components/ExportTrackedAnchor";
 import { GoldenManifestExportMenu } from "@/components/GoldenManifestExportMenu";
 import { ReviewBoardWhitelabelConsultingExportButton } from "@/components/ReviewBoardWhitelabelConsultingExportButton";
-import { RunScopedAuditExportButton } from "@/components/RunScopedAuditExportButton";
-import { OperatorApiProblem } from "@/components/OperatorApiProblem";
+import { RunScopedAuditExportButton } from "@/components/runs/RunScopedAuditExportButton";
+import { OperatorApiProblem } from "@/components/operator/OperatorApiProblem";
 import { FatalPageReportProblemSupportRow } from "@/components/support/FatalPageReportProblemAction";
 import {
-  OperatorEmptyState,
   OperatorMalformedCallout,
-} from "@/components/OperatorShellMessage";
-import { OperatorSectionRetryButton } from "@/components/OperatorSectionRetryButton";
+} from "@/components/operator/OperatorShellMessage";
+import { OperatorSectionRetryButton } from "@/components/operator/OperatorSectionRetryButton";
 import { Button, buttonVariants } from "@/components/ui/button";
 import {
   getArchitectureRequestDownloadUrl,
@@ -32,18 +31,18 @@ import {
   SAMPLE_REVIEW_EXPORT_UNAVAILABLE_HINT,
 } from "@/lib/api";
 import type { ApiLoadFailureState } from "@/lib/api-load-failure";
-import { BUYER_MANIFEST_DELIVERABLES_HEADING } from "@/lib/buyer-polish-copy";
+import { BUYER_MANIFEST_DELIVERABLES_HEADING } from "@/lib/buyer/buyer-polish-copy";
 import { comparePageHrefAdaptive } from "@/lib/compare-url-query-params";
 import { isExportableDecisionVerdict } from "@/lib/decision-receipt-export";
 import type { ArtifactDescriptor, ManifestSummary, RunTrustEvidenceCard } from "@/types/authority";
 import type { ManifestFeasibilityVerdict } from "@/types/feasibility-verdict";
 import { OPERATOR_LINK, OPERATOR_TYPOGRAPHY } from "@/lib/design-tokens";
 import { BUYER_REVIEW_DETAIL_IN_PROGRESS_FINALIZE_ANCHOR } from "@/lib/first-week-route-guidance";
-import { RUN_DELIVERABLES_PENDING_FINALIZE_COMPACT } from "@/lib/enterprise-compact-empty-state-presets";
+import { RUN_DELIVERABLES_PENDING_FINALIZE_COMPACT, RUN_DETAIL_DECISION_RECEIPT_EMPTY_COMPACT } from "@/lib/enterprise-compact-empty-state-presets";
 import {
   RUN_DETAIL_DELIVERABLES_BUYER_TABLE_LEAD,
   RUN_DETAIL_DELIVERABLES_INTRO,
-} from "@/lib/run-detail-deliverables-copy";
+} from "@/lib/runs/run-detail-deliverables-copy";
 
 export type RunDetailArtifactsExportsSectionProps = {
   readonly manifestId: string;
@@ -124,11 +123,14 @@ export function RunDetailArtifactsExportsSection(
             {/* Exports stay secondary — the review's recommended next step owns the only primary affordance. */}
             {usedStaticDemoRun ? (
               <div className="flex max-w-prose flex-col gap-1.5">
-                <Button variant="outline" disabled title={SAMPLE_REVIEW_EXPORT_UNAVAILABLE_HINT}>
+                <Button variant="outline" disabled aria-describedby="run-detail-docx-export-disabled-hint">
                   Download architecture review report (DOCX)
                 </Button>
                 <ExportFormatWhenToUseHint format="docx" />
-                <p className={cn("m-0 text-al-text-secondary", OPERATOR_TYPOGRAPHY.helper)}>
+                <p
+                  id="run-detail-docx-export-disabled-hint"
+                  className={cn("m-0 text-al-text-secondary", OPERATOR_TYPOGRAPHY.helper)}
+                >
                   {SAMPLE_REVIEW_EXPORT_UNAVAILABLE_HINT}
                 </p>
               </div>
@@ -220,12 +222,9 @@ export function RunDetailArtifactsExportsSection(
 
           {!artifactsFailure && !artifactsMalformed && artifacts.length === 0 ? (
             showDecisionReceipt ? (
-              <OperatorEmptyState title="Decision delivered — design not feasible">
-                <div className="flex flex-col items-center justify-center space-y-3 py-4 text-center">
-                  <p className={cn("m-0 max-w-prose text-al-text-secondary", OPERATOR_TYPOGRAPHY.body)}>
-                    A defensible &ldquo;no&rdquo; is a complete deliverable. Export the decision receipt for audit,
-                    sponsor handoff, or portfolio records.
-                  </p>
+              <EnterpriseCompactEmptyState
+                {...RUN_DETAIL_DECISION_RECEIPT_EMPTY_COMPACT}
+                footer={
                   <DecisionReceiptExportButton
                     context={{
                       source: "committed-run",
@@ -233,8 +232,8 @@ export function RunDetailArtifactsExportsSection(
                       verdict: feasibilityVerdict,
                     }}
                   />
-                </div>
-              </OperatorEmptyState>
+                }
+              />
             ) : (
               <EnterpriseCompactEmptyState
                 {...RUN_DELIVERABLES_PENDING_FINALIZE_COMPACT}

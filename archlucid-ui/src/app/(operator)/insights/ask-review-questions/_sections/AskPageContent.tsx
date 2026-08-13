@@ -4,10 +4,11 @@ import { cn } from "@/lib/utils";
 import { useCallback, useEffect, useMemo, useRef, useState } from "react";
 import { useSearchParams } from "next/navigation";
 
-import { OperatorPageHeader } from "@/components/OperatorPageHeader";
+import { ASK_REVIEW_QUESTIONS_PATH } from "@/lib/ask-review-questions-route";
+import { OperatorPageHeader } from "@/components/operator/OperatorPageHeader";
 import { PageContextualHelpButton } from "@/components/usability/PageContextualHelpButton";
 import { useWorkspaceActiveRun } from "@/components/WorkspaceActiveRunContext";
-import { OperatorApiProblem } from "@/components/OperatorApiProblem";
+import { OperatorApiProblem } from "@/components/operator/OperatorApiProblem";
 import type { ApiLoadFailureState } from "@/lib/api-load-failure";
 import { toApiLoadFailure, uiFailureFromMessage } from "@/lib/api-load-failure";
 import { getConversationMessages } from "@/lib/conversation-api";
@@ -21,14 +22,16 @@ import {
 } from "@/lib/ask-citation-action-follow-ups";
 import { canonicalizeDemoRunId } from "@/lib/demo-run-canonical";
 import { isBuyerPolishedOperatorShellEnv, isNextPublicDemoMode } from "@/lib/demo-ui-env";
-import { isStaticDemoPayloadFallbackEnabled } from "@/lib/operator-static-demo";
+import { isStaticDemoPayloadFallbackEnabled } from "@/lib/operator/operator-static-demo";
 import { tryStaticDemoConversationMessages } from "@/lib/ask-static-demo-messages";
 import { formatConversationListDate, formatConversationListDatePolished } from "@/lib/locale-datetime";
-import { BUYER_ASK_PAGE_HERO, BUYER_ASK_PAGE_TITLE } from "@/lib/buyer-polish-copy";
+import { BUYER_ASK_PAGE_HERO, BUYER_ASK_PAGE_TITLE } from "@/lib/buyer/buyer-polish-copy";
 import { SHOWCASE_STATIC_DEMO_RUN_ID } from "@/lib/showcase-static-demo";
 import type { ConversationMessage, ConversationThread } from "@/types/conversation";
 import { AskMainPanel } from "@/app/(operator)/insights/ask-review-questions/_sections/AskMainPanel";
 import { AskNoReviewEmptyState } from "@/app/(operator)/insights/ask-review-questions/_sections/AskNoReviewEmptyState";
+import { AskArchitectureIntelligenceVocabularyRail } from "@/components/AskArchitectureIntelligenceVocabularyRail";
+import { AskSearchEvidenceVocabularyRail } from "@/components/AskSearchEvidenceVocabularyRail";
 import { AskVsFrontierAiDifferentiationStrip } from "@/components/ask/AskVsFrontierAiDifferentiationStrip";
 import { PageCapabilityBoundaryStrip } from "@/components/PageCapabilityBoundaryStrip";
 import { AskThreadHistoryPanel } from "@/app/(operator)/insights/ask-review-questions/_sections/AskThreadHistoryPanel";
@@ -472,11 +475,14 @@ export function AskPageContent() {
   return (
     <div className="max-w-5xl">
       <OperatorPageHeader
+        navHref={ASK_REVIEW_QUESTIONS_PATH}
         title={buyerPolishedShell ? BUYER_ASK_PAGE_TITLE : "Ask review questions"}
         helpKey="ask-archlucid"
         subtitle={buyerPolishedShell ? BUYER_ASK_PAGE_HERO : ASK_PAGE_SUBTITLE}
         actions={<PageContextualHelpButton />}
       />
+      <AskSearchEvidenceVocabularyRail currentSurfaceId="ask" />
+      <AskArchitectureIntelligenceVocabularyRail currentSurfaceId="ask-review-questions" />
       <AskVsFrontierAiDifferentiationStrip />
       <PageCapabilityBoundaryStrip surfaceId="ask" />
 {listFailure !== null ? (

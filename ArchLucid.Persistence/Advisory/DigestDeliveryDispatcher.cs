@@ -42,7 +42,7 @@ public sealed class DigestDeliveryDispatcher(
     /// Creates an attempt row, resolves the channel, sends the digest, then updates the attempt status and audits the result.
     /// </summary>
     /// <remarks>
-    /// <see cref="OperationCanceledException"/> is re-thrown to allow callers to honour cancellation.
+    /// <see cref="OperationCanceledException"/> is re-thrown to allow callers to honor cancellation.
     /// All other exceptions are caught, recorded on the attempt row, and audited as failures without propagating.
     /// </remarks>
     private async Task DeliverToSubscriptionAsync(

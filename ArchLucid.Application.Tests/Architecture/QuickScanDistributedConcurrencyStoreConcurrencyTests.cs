@@ -97,7 +97,7 @@ public sealed class QuickScanDistributedConcurrencyStoreConcurrencyTests
         direct.Outcome.Should().Be(QuickScanConcurrencyAdmitOutcome.DirectLease);
 
         QuickScanConcurrencyAdmitResult queued = await store.TryAdmitAsync(
-            BuildAdmitRequest(Guid.NewGuid(), queueEntryId, "cancelled", maxConcurrent: 1, maxQueued: 4));
+            BuildAdmitRequest(Guid.NewGuid(), queueEntryId, "canceled", maxConcurrent: 1, maxQueued: 4));
 
         queued.Outcome.Should().Be(QuickScanConcurrencyAdmitOutcome.Queued);
 

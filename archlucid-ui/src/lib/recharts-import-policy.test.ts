@@ -3,6 +3,13 @@ import { join } from "node:path";
 
 import { describe, expect, it } from "vitest";
 
+import {
+  expectSourceContains,
+  expectSourceNotMatches,
+  readRegisteredSource,
+} from "@/testing/source-scan-harness";
+import { resolveSourceScanTargetPath } from "@/testing/source-scan-targets";
+
 const SRC_ROOT = join(process.cwd(), "src");
 
 function collectSourceFiles(dir: string): string[] {
@@ -27,39 +34,39 @@ function collectSourceFiles(dir: string): string[] {
 
 describe("recharts import policy (TB-570)", () => {
   it("imports recharts only from the executive trend chart module", () => {
+    const allowed = resolveSourceScanTargetPath("executive-roi-systemic-issue-trend-chart");
     const rechartsImporters = collectSourceFiles(SRC_ROOT).filter((filePath) => {
       const source = readFileSync(filePath, "utf8");
 
       return /from\s+["']recharts["']/.test(source);
     });
 
-    expect(rechartsImporters).toEqual([
-      join(SRC_ROOT, "components", "ExecutiveRoiSystemicIssueTrendChart.tsx"),
-    ]);
+    expect(rechartsImporters).toEqual([allowed]);
   });
 
   it("loads the trend chart through a dynamic import in the executive ROI section", () => {
-    const roiSectionSource = readFileSync(
-      join(SRC_ROOT, "app", "(operator)", "architecture", "executive-dashboard", "_sections", "ExecutiveRoiSummarySection.tsx"),
-      "utf8",
-    );
+    const roiSectionSource = readRegisteredSource("executive-roi-summary-section");
 
-    expect(roiSectionSource).toContain("dynamic(");
-    expect(roiSectionSource).toContain("ExecutiveRoiSystemicIssueTrendChart");
+    expectSourceContains(roiSectionSource, "dynamic(", "executive-roi-summary-section");
+    expectSourceContains(
+      roiSectionSource,
+      "ExecutiveRoiSystemicIssueTrendChart",
+      "executive-roi-summary-section",
+    );
   });
 
   it("does not statically import recharts on operator home or reviews entry routes", () => {
-    const hotPathModules = [
-      join(SRC_ROOT, "app", "(operator)", "_sections", "OperatorHomePageView.tsx"),
-      join(SRC_ROOT, "app", "(operator)", "page.tsx"),
-      join(SRC_ROOT, "app", "(operator)", "architecture", "reviews", "page.tsx"),
-      join(SRC_ROOT, "app", "(operator)", "architecture", "reviews", "[runId]", "page.tsx"),
-    ];
+    const hotPathTargetIds = [
+      "operator-home-page-view",
+      "operator-home-page",
+      "reviews-hub-page",
+      "run-detail-page",
+    ] as const;
 
-    for (const modulePath of hotPathModules) {
-      const source = readFileSync(modulePath, "utf8");
+    for (const targetId of hotPathTargetIds) {
+      const source = readRegisteredSource(targetId);
 
-      expect(source).not.toMatch(/from\s+["']recharts["']/);
+      expectSourceNotMatches(source, /from\s+["']recharts["']/, targetId);
     }
   });
 });

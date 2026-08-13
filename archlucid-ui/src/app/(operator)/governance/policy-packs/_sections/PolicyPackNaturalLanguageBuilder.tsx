@@ -6,16 +6,16 @@ import { useState } from "react";
 
 import { Button } from "@/components/ui/button";
 import { Textarea } from "@/components/ui/textarea";
-import { OperatorApiProblem } from "@/components/OperatorApiProblem";
+import { OperatorApiProblem } from "@/components/operator/OperatorApiProblem";
 import { generatePolicyPackFromPrompt } from "@/lib/api/policy-pack-generate-api";
 import { toApiLoadFailure, uiFailureFromMessage } from "@/lib/api-load-failure";
 import type { ApiLoadFailureState } from "@/lib/api-load-failure";
 import {
   tryParseCuratedRulesDocumentJson,
   type CuratedRulesDocument,
-} from "@/lib/policy-pack-curated-rules-v1";
-import { GOVERNANCE_POLICY_PACKS_PATH } from "@/lib/governance-route-paths";
-import { OPERATOR_LINK, OPERATOR_NAV_GROUP_LABEL, OPERATOR_TYPOGRAPHY } from "@/lib/design-tokens";
+} from "@/lib/policy/policy-pack-curated-rules-v1";
+import { GOVERNANCE_POLICY_PACKS_PATH } from "@/lib/governance/governance-route-paths";
+import { DESIGN_TOKENS, OPERATOR_LINK, OPERATOR_NAV_GROUP_LABEL, OPERATOR_TYPOGRAPHY } from "@/lib/design-tokens";
 
 export type PolicyPackNaturalLanguageBuilderProps = {
   readonly canMutatePacks: boolean;
@@ -45,7 +45,7 @@ export function PolicyPackNaturalLanguageBuilder(props: PolicyPackNaturalLanguag
         required before activation.
       </p>
       <div
-        className={cn("mt-3 rounded-md border border-amber-600/40 bg-amber-50/80 px-3 py-2 text-amber-950 dark:border-amber-700/50 dark:bg-amber-950/30 dark:text-amber-100", OPERATOR_TYPOGRAPHY.body)}
+        className={cn("mt-3", DESIGN_TOKENS.callout.warn, OPERATOR_TYPOGRAPHY.body)}
         data-testid="policy-pack-nl-human-review-callout"
       >
         <strong>Generated packs require human review before publish.</strong>{" "}
@@ -108,7 +108,7 @@ export function PolicyPackNaturalLanguageBuilder(props: PolicyPackNaturalLanguag
       </div>
       {validationWarnings.length > 0 ? (
         <div
-          className={cn("mt-3 rounded-md border border-amber-600/40 bg-amber-50/80 px-3 py-2 text-amber-950 dark:border-amber-700/50 dark:bg-amber-950/30 dark:text-amber-100", OPERATOR_TYPOGRAPHY.body)}
+          className={cn("mt-3", DESIGN_TOKENS.callout.warn, OPERATOR_TYPOGRAPHY.body)}
           data-testid="policy-pack-nl-validation-warnings"
           role="status"
         >

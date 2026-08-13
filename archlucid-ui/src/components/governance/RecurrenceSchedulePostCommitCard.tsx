@@ -5,7 +5,7 @@ import Link from "next/link";
 import { useCallback, useEffect, useMemo, useState } from "react";
 
 import { CronExpressionBuilder } from "@/components/advisory/CronExpressionBuilder";
-import { normalizeRunIdForRecurrenceApi } from "@/components/RunDetailRecurrenceScheduleCard";
+import { normalizeRunIdForRecurrenceApi } from "@/components/runs/RunDetailRecurrenceScheduleCard";
 import { RecurrenceScheduleActivationActions } from "@/components/governance/RecurrenceScheduleActivationActions";
 import { Collapsible, CollapsibleContent, CollapsibleTrigger } from "@/components/ui/collapsible";
 import { StatusTag } from "@/components/ui/status-tag";
@@ -56,20 +56,20 @@ export function RecurrenceSchedulePostCommitCard({
   }, [normalizedRunId]);
 
   useEffect(() => {
-    let cancelled = false;
+    let canceled = false;
 
     void (async () => {
       try {
         await reload();
       } catch {
-        if (!cancelled) {
+        if (!canceled) {
           setErrorMessage("Recurrence schedules could not be loaded.");
         }
       }
     })();
 
     return () => {
-      cancelled = true;
+      canceled = true;
     };
   }, [reload]);
 

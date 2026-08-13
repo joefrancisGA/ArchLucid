@@ -1,11 +1,11 @@
-import { readBuyerCtoDemoTourActive } from "@/lib/buyer-cto-demo-tour";
+import { readBuyerCtoDemoTourActive } from "@/lib/buyer/buyer-cto-demo-tour";
 import {
   isBuyerPolishedOperatorShellEnv,
   isBuyerVocabularyPassActive,
   isNextPublicDemoMode,
   isOperatorExperienceFullShellEnv,
 } from "@/lib/demo-ui-env";
-import { isStaticDemoPayloadFallbackEnabled } from "@/lib/operator-static-demo";
+import { isStaticDemoPayloadFallbackEnabled } from "@/lib/operator/operator-static-demo";
 
 function isCtoDemoNavExpandedEnvFlag(): boolean {
   return (

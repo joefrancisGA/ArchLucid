@@ -1,26 +1,24 @@
 import Link from "next/link";
 
 import { HelpTopicHashScroll } from "@/app/(operator)/help/HelpTopicHashScroll";
-import { HelpTopicPdfDownloadButton } from "@/components/help/HelpTopicPdfDownloadButton";
 import { HelpTopicPrintButton } from "@/components/help/HelpTopicPrintButton";
 import { HelpTopicTableOfContents } from "@/components/help/HelpTopicTableOfContents";
+import { ReviewGuideHelpHeaderAsOfLine } from "@/components/help/ReviewGuideHelpHeaderAsOfLine";
 import { MarketingAccessibilityMarkdownFragment } from "@/components/marketing/MarketingAccessibilityMarkdownFragment";
+import { OperatorPageBreadcrumb } from "@/components/operator/OperatorPageBreadcrumb";
+import { OperatorPageHeader } from "@/components/operator/OperatorPageHeader";
 import { Button } from "@/components/ui/button";
-import { Card, CardContent, CardHeader, CardTitle } from "@/components/ui/card";
-import { OperatorPageHeader } from "@/components/OperatorPageHeader";
-import { PageContextualHelpButton } from "@/components/usability/PageContextualHelpButton";
 import {
-  DESIGN_TOKENS,
-  OPERATOR_CARD,
   OPERATOR_LAYOUT,
   OPERATOR_LINK,
   OPERATOR_TYPOGRAPHY,
 } from "@/lib/design-tokens";
-import { extractHelpMarkdownHeadings } from "@/lib/help-markdown-headings";
-import { prepareHelpMarkdownForPresentation } from "@/lib/help-markdown-presentation";
-import { HELP_PAGE_LAYOUT } from "@/lib/help-page-layout";
+import { extractHelpMarkdownHeadings } from "@/lib/help/help-markdown-headings";
+import { prepareHelpMarkdownForPresentation } from "@/lib/help/help-markdown-presentation";
+import { HELP_PAGE_LAYOUT } from "@/lib/help/help-page-layout";
 import type { ProductDocumentationEntry } from "@/lib/product-documentation-registry";
 import {
+  prepareReviewPackagesHelpBodyMarkdown,
   REVIEW_PACKAGES_HELP_OVERVIEW,
   REVIEW_PACKAGES_HELP_PAGE_SUBTITLE,
   REVIEW_PACKAGES_HELP_PAGE_TITLE,
@@ -39,7 +37,8 @@ type HelpReviewPackagesGuideViewProps = {
 export function HelpReviewPackagesGuideView(props: HelpReviewPackagesGuideViewProps): React.ReactElement {
   const { entry, markdown } = props;
   const sourceDocPath = entry.sourcePaths[0] ?? "";
-  const preparedMarkdown = prepareHelpMarkdownForPresentation(markdown, sourceDocPath, {
+  const bodyMarkdown = prepareReviewPackagesHelpBodyMarkdown(markdown);
+  const preparedMarkdown = prepareHelpMarkdownForPresentation(bodyMarkdown, sourceDocPath, {
     helpTopicSlug: entry.slug,
   });
   const headings = extractHelpMarkdownHeadings(preparedMarkdown);
@@ -56,30 +55,32 @@ export function HelpReviewPackagesGuideView(props: HelpReviewPackagesGuideViewPr
         titleTestId="help-review-packages-page-title"
         subtitle={REVIEW_PACKAGES_HELP_PAGE_SUBTITLE}
         navHref={REVIEW_PACKAGES_HELP_PATH}
+        headingLevel="h1"
+        breadcrumb={
+          <OperatorPageBreadcrumb
+            data-testid="help-review-packages-breadcrumb"
+            items={[{ label: "Help", href: "/help" }, { label: REVIEW_PACKAGES_HELP_PAGE_TITLE }]}
+          />
+        }
+        metadata={
+          <div
+            className="flex flex-wrap items-center gap-x-3 gap-y-1"
+            data-testid="help-review-packages-header-metadata"
+          >
+            <ReviewGuideHelpHeaderAsOfLine entry={entry} />
+          </div>
+        }
         actions={
           <div
             className="flex flex-wrap items-center gap-2"
             data-testid="help-review-packages-header-actions"
           >
-            <PageContextualHelpButton />
-            <HelpTopicPdfDownloadButton entry={entry} />
-            <HelpTopicPrintButton entry={entry} />
-          </div>
-        }
-      />
-
-      <div className="space-y-4 border-b border-neutral-200 pb-6 dark:border-neutral-800">
-        <Card
-          className="border-teal-200/80 bg-teal-50/40 dark:border-teal-900/50 dark:bg-teal-950/20"
-          data-testid="help-review-packages-action-panel"
-        >
-          <CardHeader className={OPERATOR_CARD.header}>
-            <CardTitle className={cn("text-lg", OPERATOR_TYPOGRAPHY.sectionTitle)}>
-              Browse architecture reviews
-            </CardTitle>
-          </CardHeader>
-          <CardContent className={cn(OPERATOR_CARD.content, "flex flex-wrap items-center gap-2")}>
-            <Button asChild size="sm" variant="primary">
+            <Button
+              asChild
+              size="sm"
+              variant="primary"
+              className="min-h-6 min-w-6"
+            >
               <Link
                 href={REVIEW_PACKAGES_HELP_PRIMARY_ACTIONS.openReviews.href}
                 data-testid="help-review-packages-open-reviews"
@@ -87,46 +88,42 @@ export function HelpReviewPackagesGuideView(props: HelpReviewPackagesGuideViewPr
                 {REVIEW_PACKAGES_HELP_PRIMARY_ACTIONS.openReviews.label}
               </Link>
             </Button>
-            <Button asChild size="sm" variant="outline">
-              <Link href={REVIEW_PACKAGES_HELP_PRIMARY_ACTIONS.startAReview.href}>
-                {REVIEW_PACKAGES_HELP_PRIMARY_ACTIONS.startAReview.label}
-              </Link>
-            </Button>
-            <Link
-              href={REVIEW_PACKAGES_HELP_PRIMARY_ACTIONS.findingsGuide.href}
-              className={cn(
-                "text-sm underline-offset-2 hover:underline",
-                DESIGN_TOKENS.accent.link,
-                OPERATOR_TYPOGRAPHY.body,
-              )}
-            >
-              {REVIEW_PACKAGES_HELP_PRIMARY_ACTIONS.findingsGuide.label}
-            </Link>
-          </CardContent>
-        </Card>
+            <span
+              className="mx-1 hidden h-5 w-px bg-neutral-300 sm:inline-block dark:bg-neutral-700"
+              aria-hidden="true"
+            />
+            <HelpTopicPrintButton entry={entry} />
+          </div>
+        }
+      />
 
-        <section
-          className="rounded-md border border-neutral-200 bg-neutral-50/80 p-3 dark:border-neutral-700 dark:bg-neutral-900/40"
-          aria-labelledby="help-review-packages-related-heading"
-          data-testid="help-review-packages-related"
+      <section
+        className="rounded-md border border-neutral-200 bg-neutral-50/80 p-3 dark:border-neutral-700 dark:bg-neutral-900/40"
+        aria-labelledby="help-review-packages-related-heading"
+        data-testid="help-review-packages-related"
+      >
+        <h2
+          id="help-review-packages-related-heading"
+          className={cn("m-0 text-al-text-primary", OPERATOR_TYPOGRAPHY.cardTitle)}
         >
-          <h2
-            id="help-review-packages-related-heading"
-            className={cn("m-0 text-al-text-primary", OPERATOR_TYPOGRAPHY.cardTitle)}
-          >
-            Related guides
-          </h2>
-          <ul className={cn("m-0 mt-2 flex list-none flex-wrap gap-x-3 gap-y-1 p-0", OPERATOR_TYPOGRAPHY.helper)}>
-            {REVIEW_PACKAGES_HELP_RELATED.map((link) => (
-              <li key={link.href}>
-                <Link className={cn(OPERATOR_LINK.inline, "font-medium")} href={link.href}>
-                  {link.label}
-                </Link>
-              </li>
-            ))}
-          </ul>
-        </section>
-      </div>
+          Related guides
+        </h2>
+        <ul className={cn("m-0 mt-2 flex list-none flex-wrap gap-x-3 gap-y-1 p-0", OPERATOR_TYPOGRAPHY.helper)}>
+          {REVIEW_PACKAGES_HELP_RELATED.map((link) => (
+            <li key={link.href}>
+              <Link
+                className={cn(
+                  OPERATOR_LINK.inline,
+                  "inline-flex min-h-6 min-w-6 items-center font-medium underline underline-offset-2",
+                )}
+                href={link.href}
+              >
+                {link.label}
+              </Link>
+            </li>
+          ))}
+        </ul>
+      </section>
 
       <div className={HELP_PAGE_LAYOUT.contentGrid}>
         <div className={cn("min-w-0 space-y-6", "max-w-[42rem] lg:max-w-none")}>
@@ -139,12 +136,26 @@ export function HelpReviewPackagesGuideView(props: HelpReviewPackagesGuideViewPr
             data-testid="help-review-packages-content"
           >
             <MarketingAccessibilityMarkdownFragment
-              markdownBody={markdown}
+              markdownBody={bodyMarkdown}
               tableCaption={`${entry.title} reference table`}
               presentation="help"
               sourceDocPath={sourceDocPath}
               helpTopicSlug={entry.slug}
             />
+          </div>
+
+          <div
+            className="flex flex-wrap items-center gap-2 border-t border-neutral-200 pt-4 dark:border-neutral-800"
+            data-testid="help-review-packages-footer-actions"
+          >
+            <Button asChild size="sm" variant="primary" className="min-h-6 min-w-6">
+              <Link
+                href={REVIEW_PACKAGES_HELP_PRIMARY_ACTIONS.openReviews.href}
+                data-testid="help-review-packages-open-reviews-footer"
+              >
+                {REVIEW_PACKAGES_HELP_PRIMARY_ACTIONS.openReviews.label}
+              </Link>
+            </Button>
           </div>
         </div>
 

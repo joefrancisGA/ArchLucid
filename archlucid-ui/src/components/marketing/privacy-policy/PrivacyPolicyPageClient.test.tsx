@@ -9,7 +9,7 @@ import {
   resolvePrivacyPolicyQuickNavLinks,
   resolvePrivacyPolicyRelatedDocuments,
 } from "@/lib/privacy-policy-content";
-import { extractHelpMarkdownHeadings } from "@/lib/help-markdown-headings";
+import { extractHelpMarkdownHeadings } from "@/lib/help/help-markdown-headings";
 
 vi.mock("@/components/marketing/MarketingAccessibilityMarkdownFragment", () => ({
   MarketingAccessibilityMarkdownFragment: () => <div data-testid="privacy-policy-markdown-mock" />,

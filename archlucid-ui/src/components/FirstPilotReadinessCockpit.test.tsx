@@ -1,13 +1,15 @@
-import { fireEvent, render, screen, waitFor } from "@testing-library/react";
+import { fireEvent, screen, waitFor } from "@testing-library/react";
 import { afterEach, beforeEach, describe, expect, it, vi } from "vitest";
 
 import { FirstPilotReadinessCockpit } from "@/components/FirstPilotReadinessCockpit";
+import { resetOperatorQueryClientForTests } from "@/lib/query/operator-query-client";
+import { renderWithOperatorQuery } from "@/testing/render-with-operator-query";
 
 vi.mock("@/components/FirstPilotProofStatusStrip", () => ({
   FirstPilotProofStatusStrip: () => <div data-testid="proof-status-strip-mock" />,
 }));
 
-vi.mock("@/components/OperatorAiQualityProofCard", () => ({
+vi.mock("@/components/operator/OperatorAiQualityProofCard", () => ({
   OperatorAiQualityProofCard: () => <div data-testid="ai-quality-proof-mock" />,
 }));
 
@@ -15,7 +17,11 @@ vi.mock("@/lib/fetch-health-ready", () => ({
   fetchHealthReadySummary: vi.fn(async () => ({ status: "Healthy" })),
 }));
 
-vi.mock("@/lib/operator-run-picker-client", () => ({
+vi.mock("@/lib/query/operator-query-persist-client", () => ({
+  setupOperatorQueryClientPersistence: () => {},
+}));
+
+vi.mock("@/lib/operator/operator-run-picker-client", () => ({
   loadProjectRunsMergedWithDemoFallback: vi.fn(async () => ({ items: [], loadError: false })),
 }));
 
@@ -29,16 +35,27 @@ vi.mock("@/lib/core-pilot-commit-context", async (importOriginal) => {
   };
 });
 
-vi.mock("@/lib/current-principal", async (importOriginal) => {
-  const actual = await importOriginal<typeof import("@/lib/current-principal")>();
+vi.mock("@/components/operator/OperatorNavAuthorityProvider", () => ({
+  useOperatorNavAuthority: () => ({
+    currentPrincipal: {
+      provenance: "synthetic",
+      syntheticReason: undefined,
+      name: null,
+      roleClaimValues: [],
+      primaryAppRole: null,
+      maxAuthority: "ReadAuthority",
+      authorityRank: 1,
+      hasEnterpriseOperatorSurfaces: false,
+      hasCommittedArchitectureReview: false,
+      hasRecognizedArchLucidRole: false,
+      permissionClaimValues: [],
+    },
+    callerAuthorityRank: 1,
+    isAuthorityLoading: false,
+  }),
+}));
 
-  return {
-    ...actual,
-    loadCurrentPrincipal: vi.fn(async () => actual.shellBootstrapReadPrincipal),
-  };
-});
-
-vi.mock("@/lib/api", () => ({
+vi.mock("@/lib/api/pilots-marketing", () => ({
   getPilotScorecard: vi.fn(async () => null),
 }));
 
@@ -52,11 +69,13 @@ vi.mock("@/lib/fetch-admin-config-lint", () => ({
 
 describe("FirstPilotReadinessCockpit", () => {
   beforeEach(() => {
+    sessionStorage.clear();
     localStorage.clear();
-    vi.clearAllMocks();
+    resetOperatorQueryClientForTests();
   });
 
   afterEach(() => {
+    sessionStorage.clear();
     localStorage.clear();
     vi.useRealTimers();
   });
@@ -66,7 +85,7 @@ describe("FirstPilotReadinessCockpit", () => {
   }
 
   it("renders the workspace shell immediately and hydrates after probes finish", async () => {
-    render(<FirstPilotReadinessCockpit />);
+    renderWithOperatorQuery(<FirstPilotReadinessCockpit />);
 
     expect(screen.getByTestId("first-pilot-readiness-cockpit")).toBeInTheDocument();
     expect(screen.getByRole("heading", { name: "Workspace readiness" })).toBeInTheDocument();
@@ -81,10 +100,11 @@ describe("FirstPilotReadinessCockpit", () => {
   });
 
   it("collapses and expands from the header chevron", async () => {
-    render(<FirstPilotReadinessCockpit />);
+    renderWithOperatorQuery(<FirstPilotReadinessCockpit />);
 
     await waitFor(() => {
       expect(screen.getByTestId("first-pilot-readiness-cockpit")).toBeInTheDocument();
+      expect(screen.queryByText(/still checking/i)).not.toBeInTheDocument();
     });
 
     await expandWorkspaceReadiness();

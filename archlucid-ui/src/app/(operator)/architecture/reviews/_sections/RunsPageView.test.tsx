@@ -14,7 +14,7 @@ vi.mock("next/navigation", async (importOriginal) => {
 import {
   BUYER_RUNS_LIST_MALFORMED_BODY,
   BUYER_RUNS_LIST_MALFORMED_HEADING,
-} from "@/lib/buyer-polish-copy";
+} from "@/lib/buyer/buyer-polish-copy";
 import {
   REVIEWS_HUB_LIST_LOAD_FAILURE_TRY_NEXT,
   REVIEWS_HUB_LIST_NOT_FOUND_TRY_NEXT,
@@ -52,23 +52,26 @@ vi.mock("next/link", () => ({
   ),
 }));
 
-vi.mock("@/components/OperatorPageContainer", () => ({
+vi.mock("@/components/operator/OperatorPageContainer", () => ({
   OperatorPageContainer: ({ children }: { children: ReactNode }) => <div>{children}</div>,
 }));
 
-vi.mock("@/components/OperatorPageHeader", () => ({
+vi.mock("@/components/operator/OperatorPageHeader", () => ({
   OperatorPageHeader: ({
     title,
     subtitle,
     metadata,
     actions,
+    navHref,
   }: {
     title: string;
     subtitle?: string;
     metadata?: ReactNode;
     actions?: ReactNode;
+    navHref?: string;
   }) => (
     <div>
+      {navHref !== undefined ? <span data-testid="page-heading-icon" aria-hidden /> : null}
       <h2>{title}</h2>
       {subtitle ? <p data-testid="runs-page-subtitle">{subtitle}</p> : null}
       {metadata ? <div data-testid="runs-page-metadata">{metadata}</div> : null}
@@ -82,11 +85,11 @@ vi.mock("@/hooks/use-architecture-draft-registry-entries", () => ({
   useArchitectureDraftRegistryHydrated: () => true,
 }));
 
-vi.mock("@/components/OperatorWelcomeOnboarding", () => ({
+vi.mock("@/components/operator/OperatorWelcomeOnboarding", () => ({
   OperatorWelcomeOnboarding: () => null,
 }));
 
-vi.mock("@/components/RunsListProofHeadline", () => ({
+vi.mock("@/components/runs/RunsListProofHeadline", () => ({
   RunsListProofHeadline: () => null,
 }));
 
@@ -94,15 +97,15 @@ vi.mock("./ReviewsHubBeforeAfterDeltaPanel", () => ({
   ReviewsHubBeforeAfterDeltaPanel: () => null,
 }));
 
-vi.mock("@/components/RunsIndexBeforeAfterPanel", () => ({
+vi.mock("@/components/runs/RunsIndexBeforeAfterPanel", () => ({
   RunsIndexBeforeAfterPanel: () => null,
 }));
 
-vi.mock("@/components/RunsListAggregateErrorBoundary", () => ({
+vi.mock("@/components/runs/RunsListAggregateErrorBoundary", () => ({
   RunsListAggregateErrorBoundary: () => <div data-testid="runs-list-advanced" />,
 }));
 
-vi.mock("@/components/OperatorDemoStaticBanner", () => ({
+vi.mock("@/components/operator/OperatorDemoStaticBanner", () => ({
   OperatorDemoStaticBanner: () => null,
 }));
 
@@ -140,6 +143,7 @@ describe("RunsPageView page chrome", () => {
     render(<RunsPageView model={baseModel()} />);
 
     expect(screen.getByRole("heading", { level: 2, name: REVIEWS_HUB_PAGE_TITLE })).toBeInTheDocument();
+    expect(screen.getByTestId("page-heading-icon")).toBeInTheDocument();
     expect(screen.getByTestId("runs-page-subtitle")).toHaveTextContent(REVIEWS_HUB_PAGE_SUBTITLE);
     expect(screen.queryByTestId("runs-page-project-label")).toBeNull();
   });

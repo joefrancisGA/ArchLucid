@@ -4,7 +4,7 @@
 
 **Audience:** Engineering, security reviewers, principal-architect diligence. Not a buyer brochure.
 
-**Status:** **Done** (**TB-1537**, 2026-08-10). GTM **M-282** / **M-283**. Pair honesty CI **TB-1538** / **M-282**.
+**Status:** **Done** (**TB-1537**, 2026-08-10). GTM **M-282** / **M-283**. Pair honesty CI **TB-1538** **Done** (2026-08-12) / **M-282**.
 
 **Buyer / PA one-pager:** [`BUYER_SECURITY_PROCUREMENT_PACKET.md#mid-run-authority-revocation-m-283`](../go-to-market/BUYER_SECURITY_PROCUREMENT_PACKET.md#mid-run-authority-revocation-m-283) (GTM **M-283**).  
 **Claim honesty:** [`PUBLIC_CLAIM_BOUNDARY_GUIDE.md#gtm-do-not-promise`](PUBLIC_CLAIM_BOUNDARY_GUIDE.md#gtm-do-not-promise) (GTM **M-282**).
@@ -66,8 +66,20 @@
 | Open **TB-1530** / **M-280** | ITSM/outbox delivery is tenant-scoped at-least-once — **no** principal re-check at worker; see [`ITSM_OUTBOX_DLQ_DELIVERY_GUARANTEE_MAP.md`](ITSM_OUTBOX_DLQ_DELIVERY_GUARANTEE_MAP.md) |
 | ADR 0059 | SPA Bearer / AuthVersion residual |
 | Done **TB-1537** / **M-282** | This revocation claim map |
-| Open **TB-1538** / **M-282** | Honesty CI follow-on |
+| Done **TB-1538** / **M-282** | Honesty CI follow-on |
 | Done **TB-1570** / **M-294** | Compromised API key spend until revoke — [`PAYING_TENANT_LLM_SPEND_STORM_AND_BILLING_DISPUTE_CLAIM_MAP.md`](PAYING_TENANT_LLM_SPEND_STORM_AND_BILLING_DISPUTE_CLAIM_MAP.md) |
+
+---
+
+## CI anchors for **TB-1538**
+
+| Anchor | Role |
+| --- | --- |
+| `scripts/ci/check_mid_run_authority_revocation_honesty.py` | Fail instant-global-revoke / webhook-rechecks-principal / Entra-AuthVersion overclaims |
+| `ArchLucid.Host.Core/Authorization/TenantOrProjectCapabilityAuthorizationHandler.cs` | Per-request authz boundary code anchor |
+| `ArchLucid.Api/Authentication/ApiKeyAuthenticationHandler.cs` | API key fail-closed on config reload code anchor |
+
+Honesty CI shipped: **TB-1538**.
 
 ---
 

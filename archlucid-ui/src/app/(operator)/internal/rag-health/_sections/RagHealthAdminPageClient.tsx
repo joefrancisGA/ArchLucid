@@ -3,7 +3,7 @@
 import { cn } from "@/lib/utils";
 import { useCallback, useEffect, useState } from "react";
 
-import { Button } from "@/components/ui/button";
+import { RefreshButton } from "@/components/ui/refresh-button";
 import {
   EnterpriseTable,
   EnterpriseTableBody,
@@ -13,10 +13,15 @@ import {
   EnterpriseTableHeadRow,
   EnterpriseTableRow,
 } from "@/components/ui/enterprise-table";
+import { EnterpriseTableSkeletonRows } from "@/components/ui/enterprise-table-skeleton-rows";
 import { SeverityTag } from "@/components/ui/severity-tag";
-import { useOperatorNavAuthority } from "@/components/OperatorNavAuthorityProvider";
+import { useOperatorNavAuthority } from "@/components/operator/OperatorNavAuthorityProvider";
+import { OperatorPageHeader } from "@/components/operator/OperatorPageHeader";
+import { OperatorSectionLoadFailure } from "@/components/operator/OperatorSectionLoadFailure";
+import { RagHealthSystemHealthVocabularyRail } from "@/components/RagHealthSystemHealthVocabularyRail";
 import { PageContextualHelpButton } from "@/components/usability/PageContextualHelpButton";
-import { OPERATOR_TYPOGRAPHY } from "@/lib/design-tokens";
+import { INTERNAL_RAG_HEALTH_PATH } from "@/lib/internal-ops-route-paths";
+import { OPERATOR_LAYOUT, OPERATOR_TYPOGRAPHY } from "@/lib/design-tokens";
 import { AUTHORITY_RANK } from "@/lib/nav-authority";
 import { fetchAdminRagHealth, type AdminRagCorpusHealthItem } from "@/lib/rag-health-admin";
 
@@ -78,26 +83,33 @@ export function RagHealthAdminPageClient() {
   }
 
   return (
-    <div className="w-full max-w-[1440px] space-y-6" data-testid="rag-health-admin-page">
-      <div>
-        <div className="flex flex-wrap items-start justify-between gap-3">
-          <div>
-            <h1 className={OPERATOR_TYPOGRAPHY.pageTitle}>RAG corpus health</h1>
-            <p className={cn("mt-1 text-al-text-secondary", OPERATOR_TYPOGRAPHY.body)}>
-              Per-corpus chunk counts and last-indexed timestamps for this API host process. Embedding model:{" "}
-              <span className={cn("font-mono", OPERATOR_TYPOGRAPHY.micro)}>{embeddingModelId || "—"}</span>.
-            </p>
-          </div>
-          <PageContextualHelpButton />
-        </div>
-        <Button type="button" variant="outline" size="sm" className="mt-3" disabled={loading} onClick={() => void refresh()}>
-          {loading ? "Refreshing…" : "Refresh"}
-        </Button>
-      </div>
-{error ? (
-        <p className={cn("text-rose-700 dark:text-rose-300", OPERATOR_TYPOGRAPHY.body)} role="alert">
-          {error}
-        </p>
+    <div className={cn("w-full max-w-[1440px]", OPERATOR_LAYOUT.sectionStack)} data-testid="rag-health-admin-page">
+      <OperatorPageHeader
+        navHref={INTERNAL_RAG_HEALTH_PATH}
+        headingLevel="h1"
+        title="RAG corpus health"
+        subtitle={
+          <>
+            Per-corpus chunk counts and last-indexed timestamps for this API host process. Embedding model:{" "}
+            <span className={cn("font-mono", OPERATOR_TYPOGRAPHY.micro)}>{embeddingModelId || "—"}</span>.
+          </>
+        }
+        actions={
+          <>
+            <RefreshButton busy={loading} onClick={() => void refresh()} />
+            <PageContextualHelpButton />
+          </>
+        }
+      />
+      <RagHealthSystemHealthVocabularyRail currentSurfaceId="rag-health" />
+      {error ? (
+        <OperatorSectionLoadFailure
+          message={error}
+          retryLabel="Reload corpus health"
+          retrying={loading}
+          testId="rag-health-load-failure"
+          onRetry={() => void refresh()}
+        />
       ) : null}
 
       <EnterpriseTable ariaLabel="RAG corpus health">
@@ -111,6 +123,13 @@ export function RagHealthAdminPageClient() {
           </EnterpriseTableHeadRow>
         </EnterpriseTableHead>
         <EnterpriseTableBody>
+          {loading && corpora.length === 0 ? (
+            <EnterpriseTableSkeletonRows
+              columns={5}
+              label="Loading corpus health…"
+              testId="rag-health-skeleton"
+            />
+          ) : null}
           {corpora.map((row) => (
             <EnterpriseTableRow key={row.corpusKind}>
               <EnterpriseTableCell>{row.corpusKind}</EnterpriseTableCell>

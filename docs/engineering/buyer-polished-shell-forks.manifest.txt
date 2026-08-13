@@ -23,7 +23,6 @@ archlucid-ui/src/app/(operator)/architecture/reviews/[runId]/findings/[findingId
 archlucid-ui/src/app/(operator)/architecture/reviews/[runId]/findings/[findingId]/_sections/finding-detail-route-display.ts
 archlucid-ui/src/app/(operator)/architecture/reviews/[runId]/findings/[findingId]/_sections/load-finding-detail-page-model.ts
 archlucid-ui/src/app/(operator)/architecture/reviews/new/NewRunWizardClient.tsx
-archlucid-ui/src/app/(operator)/architecture/reviews/new/QuickReviewWizard.tsx
 archlucid-ui/src/app/(operator)/governance/_sections/GovernanceWorkflowPageContent.tsx
 archlucid-ui/src/app/(operator)/governance/alert-rules/AlertRulesHubClient.tsx
 archlucid-ui/src/app/(operator)/governance/alerts/AlertsHubChrome.tsx

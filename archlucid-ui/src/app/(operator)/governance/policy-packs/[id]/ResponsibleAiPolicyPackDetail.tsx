@@ -2,7 +2,7 @@ import Link from "next/link";
 import { cn } from "@/lib/utils";
 
 import { CopyIdButton } from "@/components/CopyIdButton";
-import { OperatorPageHeader } from "@/components/OperatorPageHeader";
+import { OperatorPageHeader } from "@/components/operator/OperatorPageHeader";
 import { Badge } from "@/components/ui/badge";
 import { Button } from "@/components/ui/button";
 import { Card, CardContent, CardHeader, CardTitle } from "@/components/ui/card";
@@ -16,10 +16,10 @@ import {
   EnterpriseTableHeaderCell,
   EnterpriseTableRow,
 } from "@/components/ui/enterprise-table";
-import { GOVERNANCE_POLICY_PACKS_PATH } from "@/lib/governance-route-paths";
-import { OPERATOR_DISCLOSURE_TRIGGER_CLASS, OPERATOR_LINK, OPERATOR_TYPOGRAPHY } from "@/lib/design-tokens";
+import { GOVERNANCE_POLICY_PACKS_PATH } from "@/lib/governance/governance-route-paths";
+import { OPERATOR_DISCLOSURE_TRIGGER_CLASS, OPERATOR_LAYOUT, OPERATOR_LINK, OPERATOR_TYPOGRAPHY } from "@/lib/design-tokens";
 import { finiteIntegerCountDisplay } from "@/lib/finite-count-display";
-import { policyPacksEditHref } from "@/lib/policy-packs-deep-link";
+import { policyPacksEditHref } from "@/lib/policy/policy-packs-deep-link";
 import type { PolicyPack } from "@/types/policy-packs";
 
 import {
@@ -110,7 +110,7 @@ export function ResponsibleAiPolicyPackDetail(props: ResponsibleAiPolicyPackDeta
   const ruleCount = RESPONSIBLE_AI_POLICY_RULE_ROWS.length;
 
   return (
-    <div className="w-full max-w-[1200px] space-y-6 p-4" data-testid="responsible-ai-policy-pack-detail">
+    <div className={cn("w-full max-w-[1200px] p-4", OPERATOR_LAYOUT.sectionStack)} data-testid="responsible-ai-policy-pack-detail">
       <OperatorPageHeader
         navHref={GOVERNANCE_POLICY_PACKS_PATH}
         title={RESPONSIBLE_AI_POLICY_PACK_PAGE_TITLE}

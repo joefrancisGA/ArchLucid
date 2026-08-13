@@ -132,7 +132,7 @@ import { AlertRoutingContent } from "@/components/alerts/AlertRoutingContent";
 import { AlertsInboxContent } from "@/components/alerts/AlertsInboxContent";
 import GovernanceWorkflowPage from "./governance/approval-queue/page";
 import PolicyPacksPage from "./governance/policy-packs/page";
-import { GOVERNANCE_OVERVIEW_PAGE_TITLE } from "@/lib/governance-overview-copy";
+import { GOVERNANCE_OVERVIEW_PAGE_TITLE } from "@/lib/governance/governance-overview-copy";
 
 const sampleAlert = {
   alertId: "alert-layout-1",
@@ -227,6 +227,14 @@ describe("authority-shaped layout regression", () => {
     await waitFor(
       () => {
         expect(screen.getByRole("heading", { name: GOVERNANCE_OVERVIEW_PAGE_TITLE })).toBeInTheDocument();
+      },
+      { timeout: 8000 },
+    );
+
+    // The overview panel (review picker) is its own dynamic chunk, so wait for the control itself.
+    await waitFor(
+      () => {
+        expect(screen.getByLabelText("Review")).toBeInTheDocument();
       },
       { timeout: 8000 },
     );

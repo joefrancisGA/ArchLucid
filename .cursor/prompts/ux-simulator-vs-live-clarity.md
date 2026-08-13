@@ -46,7 +46,7 @@ In the manifest detail page (`archlucid-ui/src/app/(operator)/manifests/[manifes
 Add a one-line callout adjacent to the hash:
 > "Deterministic: the same architecture brief and policy pack version will always produce the same signed manifest hash."
 
-Use `OPERATOR_TYPOGRAPHY.badge` sizing, neutral text colour (not amber/teal). Add `data-testid="manifest-determinism-statement"`.
+Use `OPERATOR_TYPOGRAPHY.badge` sizing, neutral text color (not amber/teal). Add `data-testid="manifest-determinism-statement"`.
 
 This callout must render in both demo and non-demo contexts (it is always true and improves trust generally).
 

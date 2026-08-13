@@ -7,16 +7,17 @@ import type { OperatorHomeRunsDashboardModel } from "@/app/(operator)/_sections/
 import { OperatorHomeExploreSampleSection } from "@/components/operator-home/OperatorHomeExploreSampleSection";
 import { OperatorHomeWorkspaceContextDisclosure } from "@/components/operator-home/OperatorHomeWorkspaceContextDisclosure";
 import { PilotCommandCenterCard } from "@/components/usability/PilotCommandCenterCard";
-import { useNavCommittedArchitectureReview } from "@/components/OperatorNavAuthorityProvider";
+import { useNavCommittedArchitectureReview } from "@/components/operator/OperatorNavAuthorityProvider";
 import { renderWithOperatorQuery } from "@/testing/render-with-operator-query";
 import {
   OPERATOR_HOME_ADVANCED_GUIDANCE_TITLE,
+  OPERATOR_HOME_ASSIGN_ADMIN_BLOCKER,
   OPERATOR_HOME_EXPLORE_SAMPLE_HEADING,
   OPERATOR_HOME_INTENT_CHOOSER_HEADING,
-  OPERATOR_HOME_READY_TO_BEGIN_TITLE,
-} from "@/lib/buyer-polish-copy";
+  OPERATOR_HOME_ONE_REQUIRED_ITEM_TITLE,
+} from "@/lib/buyer/buyer-polish-copy";
 import { OPERATOR_HOME_CARD_SECTION_HEADING } from "@/lib/design-tokens";
-import { OPERATOR_HOME_DISCLOSURE_STORAGE_KEYS } from "@/lib/operator-home-disclosure-storage";
+import { OPERATOR_HOME_DISCLOSURE_STORAGE_KEYS } from "@/lib/operator/operator-home-disclosure-storage";
 
 vi.mock("@/hooks/use-operate-capability", () => ({
   useOperateCapability: () => true,
@@ -30,9 +31,25 @@ vi.mock("next/navigation", () => ({
   usePathname: () => "/",
 }));
 
-vi.mock("@/components/OperatorNavAuthorityProvider", () => ({
+vi.mock("@/components/operator/OperatorNavAuthorityProvider", () => ({
   useNavCommittedArchitectureReview: vi.fn(() => false),
   useNavCallerAuthorityRank: () => 100,
+  // PilotCommandCenterCard resolves invitee-reviewer orientation from the nav principal.
+  useOperatorNavAuthority: () => ({
+    currentPrincipal: {
+      provenance: "auth-me" as const,
+      name: "Test Architect",
+      roleClaimValues: ["Admin"],
+      primaryAppRole: "Admin" as const,
+      maxAuthority: "AdminAuthority" as const,
+      authorityRank: 100,
+      hasEnterpriseOperatorSurfaces: true,
+      hasCommittedArchitectureReview: false,
+      permissionClaimValues: [],
+    },
+    callerAuthorityRank: 100,
+    isAuthorityLoading: false,
+  }),
 }));
 
 vi.mock("@/components/operator-home/operator-home-workspace-activity-context", () => ({
@@ -148,7 +165,8 @@ describe("operator home peer card titles", () => {
   });
 
   it("uses the same peer-card title scale for readiness, Workspace metrics, and Explore ArchLucid", () => {
-    render(<OperatorHomeContinueSetupCard canBegin blockerMessage={null} />);
+    // Readiness only renders a titled card in its blocker state.
+    render(<OperatorHomeContinueSetupCard canBegin={false} blockerMessage={OPERATOR_HOME_ASSIGN_ADMIN_BLOCKER} />);
     vi.mocked(useNavCommittedArchitectureReview).mockReturnValue(true);
     render(<OperatorHomeWorkspaceContextDisclosure showWorkspaceStatus={false} runsDashboard={emptyRunsDashboard} />);
     render(
@@ -165,7 +183,7 @@ describe("operator home peer card titles", () => {
       </OperatorHomeDisclosureSection>,
     );
 
-    for (const name of [OPERATOR_HOME_READY_TO_BEGIN_TITLE, "Workspace metrics and status", OPERATOR_HOME_ADVANCED_GUIDANCE_TITLE]) {
+    for (const name of [OPERATOR_HOME_ONE_REQUIRED_ITEM_TITLE, "Workspace metrics and status", OPERATOR_HOME_ADVANCED_GUIDANCE_TITLE]) {
       expectPeerCardTitleClasses(screen.getByRole("heading", { level: 2, name }).className);
     }
   });

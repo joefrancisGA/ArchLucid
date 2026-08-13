@@ -1,7 +1,9 @@
+import { formatInstantForLocale } from "@/lib/locale-datetime";
+
 export const ARCHLUCID_SUPPORT_EMAIL = "support@archlucid.net";
 
 export const SUPPORT_PAGE_GUIDANCE =
-  "When a page shows Report problem, use it first — it sends structured diagnostics and a report reference. For general questions or when you are not on an error surface, use Settings → Support or email below.";
+  "When a page shows Report problem, use it first — it sends structured diagnostics and a report reference. For general questions or when you are not on an error surface, use Administration → Support (administrators only) or email below.";
 
 export const SUPPORT_BUNDLE_SAFETY_SUMMARY =
   "The bundle is redacted before download. Review it before sharing outside your organization.";
@@ -103,7 +105,7 @@ export function resolveSupportBundleStatusLabel(
     case "ready":
       return lastGeneratedAt === null
         ? "Download ready."
-        : `Download ready — last generated ${lastGeneratedAt.toLocaleString()}.`;
+        : `Download ready — last generated ${formatInstantForLocale(lastGeneratedAt.toISOString())}.`;
     case "failed":
       return "Download failed. Try again or contact support with the error below.";
     case "permission_required":

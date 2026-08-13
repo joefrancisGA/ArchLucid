@@ -8,6 +8,15 @@ from pathlib import Path
 
 REPO_ROOT = Path(__file__).resolve().parents[3]
 
+
+def _instrumentation_sources() -> str:
+    diagnostics = REPO_ROOT / "ArchLucid.Core" / "Diagnostics"
+    return "".join(
+        path.read_text(encoding="utf-8")
+        for path in sorted(diagnostics.glob("ArchLucidInstrumentation*.cs"))
+    )
+
+
 INSTRUMENTATION = REPO_ROOT / "ArchLucid.Core" / "Diagnostics" / "ArchLucidInstrumentation.cs"
 OPTIONS = REPO_ROOT / "ArchLucid.Core" / "Configuration" / "LlmCostEstimationOptions.cs"
 
@@ -28,7 +37,7 @@ class TestLlmCostEstimatorTb025(unittest.TestCase):
                 self.assertIn(snippet, text)
 
     def test_tb_025_record_llm_cost_usd_comment_documents_monitoring_grade_cast(self) -> None:
-        text = INSTRUMENTATION.read_text(encoding="utf-8")
+        text = _instrumentation_sources()
         self.assertIn("Counter<double> requires double", text)
         self.assertIn("Acceptable for dashboards/alerts", text)
 

@@ -78,7 +78,7 @@ export function ExecutiveDashboardDataProvider({ children }: { children: ReactNo
   const [driftError, setDriftError] = useState(false);
 
   useEffect(() => {
-    let cancelled = false;
+    let canceled = false;
 
     void (async () => {
       try {
@@ -93,49 +93,49 @@ export function ExecutiveDashboardDataProvider({ children }: { children: ReactNo
 
         const json = (await res.json()) as ExecutiveRoiSummary;
 
-        if (!cancelled) {
+        if (!canceled) {
           setSummary(json);
         }
       } catch (e: unknown) {
-        if (!cancelled) {
+        if (!canceled) {
           setSummaryError(e instanceof Error ? e.message : "Failed to load executive KPIs.");
         }
       } finally {
-        if (!cancelled) {
+        if (!canceled) {
           setSummaryLoading(false);
         }
       }
     })();
 
     return () => {
-      cancelled = true;
+      canceled = true;
     };
   }, []);
 
   useEffect(() => {
-    let cancelled = false;
+    let canceled = false;
     const bounds = rollingBounds30Days();
 
     void (async () => {
       try {
         const data = await getComplianceDriftTrend(bounds.fromUtc, bounds.toUtc, 1440);
 
-        if (!cancelled) {
+        if (!canceled) {
           setDriftPoints(data);
         }
       } catch {
-        if (!cancelled) {
+        if (!canceled) {
           setDriftError(true);
         }
       } finally {
-        if (!cancelled) {
+        if (!canceled) {
           setDriftLoading(false);
         }
       }
     })();
 
     return () => {
-      cancelled = true;
+      canceled = true;
     };
   }, []);
 

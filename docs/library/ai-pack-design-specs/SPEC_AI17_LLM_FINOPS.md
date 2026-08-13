@@ -7,7 +7,7 @@
 
 ## 1. Objective
 
-Ship a pack covering **FinOps principles applied to LLM and AI workloads** — token budget governance, model-tier routing, semantic caching, kill-switch design, batch vs realtime split optimisation, and per-tenant / per-workload cost allocation. ArchLucid's own platform implements several of these patterns (per-tenant daily budget tracker, kill-switch, golden-cohort budget probe); this pack externalises the architectural posture as customer-facing governance rules. This complements the existing `cost-optimization` pack (#7), which covers general Azure FinOps; AI-17 is AI/LLM-specific and significantly more granular.
+Ship a pack covering **FinOps principles applied to LLM and AI workloads** — token budget governance, model-tier routing, semantic caching, kill-switch design, batch vs realtime split optimization, and per-tenant / per-workload cost allocation. ArchLucid's own platform implements several of these patterns (per-tenant daily budget tracker, kill-switch, golden-cohort budget probe); this pack externalises the architectural posture as customer-facing governance rules. This complements the existing `cost-optimization` pack (#7), which covers general Azure FinOps; AI-17 is AI/LLM-specific and significantly more granular.
 
 **Buyer outcome:** An enterprise deploying LLM workloads at scale can assign this pack and see which LLM cost governance architecture gaps exist — particularly around per-consumer token budgets, model-tier routing strategy, semantic caching design, and cost-kill-switch safety mechanisms.
 
@@ -21,7 +21,7 @@ Ship a pack covering **FinOps principles applied to LLM and AI workloads** — t
 | A2 | LLM cost drivers: (1) Input/output token count per request; (2) Model tier (GPT-4o vs GPT-4o-mini, GPT-4.1 vs o1, etc.); (3) Provisioned Throughput Unit (PTU) vs consumption; (4) Embedding calls; (5) Fine-tuning jobs. | Azure OpenAI pricing model. |
 | A3 | Architecture evidence: per-consumer token limits documented in `governance.PolicyConstraints` or services tags; model routing strategy in `services[]` relationships; semantic cache in `services[]` (separate caching service entry). | Manifest schema. |
 | A4 | **Kill-switch** = a mechanism to automatically halt LLM spending when a cost threshold is exceeded. ArchLucid has its own (`killSwitchThresholdPercent` in `budget.config.json`). Rules require a kill-switch or budget-alert mechanism to be architecturally documented. | Internal precedent. |
-| A5 | Pack #7 (`cost-optimization`) covers general Azure resource cost optimisation. This pack is AI/LLM-specific — token-level economics that pack #7 has no rules for. | Non-duplication. |
+| A5 | Pack #7 (`cost-optimization`) covers general Azure resource cost optimization. This pack is AI/LLM-specific — token-level economics that pack #7 has no rules for. | Non-duplication. |
 | A6 | `ai-gateway` (AI-08) covers gateway-level token-limit policy enforcement. This pack covers the architectural **design** of token budgets and cost governance — tenant-level, workload-level, and executive visibility. | Adjacent pack boundary. |
 
 ---
@@ -32,7 +32,7 @@ Ship a pack covering **FinOps principles applied to LLM and AI workloads** — t
 |---|------------|-------------|
 | C1 | Rule prefix `llm-cost-` is distinct. | Verified. |
 | C2 | Rules must not imply specific cost savings figures. | Scope boundary. |
-| C3 | PTU sizing and capacity planning rules must not claim to optimise PTU allocation — that is an operational forecasting task. | Scope boundary. |
+| C3 | PTU sizing and capacity planning rules must not claim to optimize PTU allocation — that is an operational forecasting task. | Scope boundary. |
 
 ---
 
@@ -76,7 +76,7 @@ llm-finops-rules-v1.json → manifest → Seeder
 | `llm-cost-cache-` | Semantic caching design (cache strategy documented, TTL policy, cache bypass rules) | 4 | P1 |
 | `llm-cost-kill-` | Kill-switch and circuit-breaker (hard spend limit, automatic suspension, executive alert) | 4 | P0-heavy |
 | `llm-cost-alloc-` | Cost allocation and tagging (per-workload cost tags, showback / chargeback design, FOCUS-aligned tagging) | 4 | P1 |
-| `llm-cost-batch-` | Batch vs realtime optimisation (batch endpoint vs realtime, async request design for cost reduction) | 3 | P1/P2 |
+| `llm-cost-batch-` | Batch vs realtime optimization (batch endpoint vs realtime, async request design for cost reduction) | 3 | P1/P2 |
 | **Total** | | **~24 rules** | |
 
 ### 5.3 Key evidence fields
@@ -87,7 +87,7 @@ llm-finops-rules-v1.json → manifest → Seeder
 
 ## 6. Data Flow
 
-Standard pipeline. `priorityFloor: P0` surfaces per-consumer token budgets and kill-switch design. Semantic caching and batch optimisation (P1/P2) surface as cost maturity grows.
+Standard pipeline. `priorityFloor: P0` surfaces per-consumer token budgets and kill-switch design. Semantic caching and batch optimization (P1/P2) surface as cost maturity grows.
 
 ---
 

@@ -20,9 +20,11 @@ export const TEAMS_INTEGRATION_REMOVE_SUCCESS_MESSAGE = "Teams connection remove
 export const SSO_WIZARD_METADATA_RETRIEVED_SUCCESS_MESSAGE =
   "Provider metadata retrieved. Confirm issuer and signing details.";
 
-export const SSO_WIZARD_TEST_LOGIN_SUCCESS_MESSAGE = "Connection test succeeded.";
+export const SSO_WIZARD_TEST_LOGIN_SUCCESS_MESSAGE =
+  "Claim-to-role mapping resolved for the sample values you entered.";
 
-export const SSO_WIZARD_ACTIVATE_SUCCESS_MESSAGE = "Single sign-on activated for this workspace.";
+export const SSO_WIZARD_ACTIVATE_SUCCESS_MESSAGE =
+  "Identity provider configuration saved for this organization. Turning on SSO sign-in is a separate platform configuration change your platform administrator makes outside this wizard.";
 
 export const SAML_METADATA_FETCHED_SUCCESS_MESSAGE =
   "IdP metadata fetched — confirm issuer and claim mappings.";

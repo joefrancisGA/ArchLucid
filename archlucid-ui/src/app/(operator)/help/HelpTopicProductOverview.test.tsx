@@ -6,7 +6,7 @@ vi.mock("@/app/(operator)/help/HelpTopicHashScroll", () => ({
 }));
 
 import { HelpTopicMarkdownView } from "@/app/(operator)/help/HelpTopicMarkdownView";
-import { prepareHelpMarkdownForPresentation } from "@/lib/help-markdown-presentation";
+import { prepareHelpMarkdownForPresentation } from "@/lib/help/help-markdown-presentation";
 import { tryLoadProductDocumentation } from "@/lib/load-product-documentation";
 
 describe("HelpTopicMarkdownView executive-summary", () => {
@@ -34,6 +34,6 @@ describe("HelpTopicMarkdownView executive-summary", () => {
     expect(preparedMarkdown.toLowerCase()).not.toContain("explainabilitytrace");
     expect(preparedMarkdown.toLowerCase()).not.toContain("m-245");
     expect(visible).toContain("what pilot proves");
-    expect(screen.getAllByRole("link", { name: /pilot roi model/i }).length).toBeGreaterThan(0);
+    expect(screen.getAllByRole("link", { name: /pilot roi measurement/i }).length).toBeGreaterThan(0);
   });
 });

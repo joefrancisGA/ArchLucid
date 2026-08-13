@@ -77,3 +77,8 @@ export async function reloadRecommendationLearningOpsBundle(): Promise<{
 
   return { status, profile, history };
 }
+
+/** Reloads only the persisted profile weights — does not recompute or refresh eligibility counts. */
+export async function reloadPersistedRecommendationLearningProfileOnly(): Promise<LearningProfile | null> {
+  return loadPersistedRecommendationLearningProfile();
+}

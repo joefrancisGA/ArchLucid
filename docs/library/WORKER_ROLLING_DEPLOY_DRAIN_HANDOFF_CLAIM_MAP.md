@@ -43,7 +43,7 @@ Until **TB-1311** ships async agent execute to Worker, “runs executing on the 
 | Knob | Value | Meaning |
 |------|-------|---------|
 | `HostOptions.ShutdownTimeout` | **45s** | Max cooperative drain |
-| ACA `terminationGracePeriodSeconds` | **Unset** | Platform may kill around/before app timeout (**TB-961** gap) |
+| ACA `terminationGracePeriodSeconds` | **`worker_termination_grace_period_seconds` default 60** (TB-961) | Sized above `HostOptions.ShutdownTimeout` **45s** |
 | Authority outbox lease | Default **900s** | Peer reclaim delay after hard kill |
 | Background job stuck Running | **~10 min** | Reclaim crashed workers |
 | `stale_in_flight_runs` | **> 1 hour** | **Warning only** — does not auto-fail |
@@ -70,7 +70,7 @@ Until **TB-1311** ships async agent execute to Worker, “runs executing on the 
 
 | ID | Role |
 |----|------|
-| Open **TB-961** | SIGTERM drain + TF grace (implementation) |
+| **TB-961** | **Done** — SIGTERM drain gate + lease release + TF grace |
 | Open **TB-960** / **TB-962** | Failure-semantics contract / staging kill drill |
 | Open **TB-943** / Done **TB-1523** / **M-277** | Execute stuck / crash-recovery map |
 | Open **TB-1311** / **M-231** | Async agent execute → Worker |
@@ -80,7 +80,7 @@ Until **TB-1311** ships async agent execute to Worker, “runs executing on the 
 
 ## 6. Optional follow-ons (not required to close honesty pin)
 
-1. Ship **TB-961** drain protocol + pin ACA termination grace.  
+1. ~~Ship **TB-961** drain protocol + pin ACA termination grace.~~ **Done** 2026-08-11.  
 2. Eagerly clear/shorten authority lease on cooperative cancel.  
 3. Align **TB-960** wording with API-sync execute until **TB-1311**.  
 4. Staging replica-kill drill (**TB-962**).

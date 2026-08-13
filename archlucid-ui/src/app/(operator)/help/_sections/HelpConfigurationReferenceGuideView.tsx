@@ -1,12 +1,12 @@
 import Link from "next/link";
 
 import { HelpTopicHashScroll } from "@/app/(operator)/help/HelpTopicHashScroll";
-import { HelpTopicPdfDownloadButton } from "@/components/help/HelpTopicPdfDownloadButton";
+import { HelpLazyDetails } from "@/components/help/HelpLazyDetails";
 import { HelpTopicPrintButton } from "@/components/help/HelpTopicPrintButton";
 import { MarketingAccessibilityMarkdownFragment } from "@/components/marketing/MarketingAccessibilityMarkdownFragment";
 import { Button } from "@/components/ui/button";
 import { Card, CardContent, CardHeader, CardTitle } from "@/components/ui/card";
-import { OperatorPageHeader } from "@/components/OperatorPageHeader";
+import { OperatorPageHeader } from "@/components/operator/OperatorPageHeader";
 import { PageContextualHelpButton } from "@/components/usability/PageContextualHelpButton";
 import {
   CONFIGURATION_REFERENCE_HELP_CLAIM_DISCIPLINE,
@@ -23,7 +23,7 @@ import {
   OPERATOR_LAYOUT,
   OPERATOR_TYPOGRAPHY,
 } from "@/lib/design-tokens";
-import { HELP_PAGE_LAYOUT } from "@/lib/help-page-layout";
+import { HELP_PAGE_LAYOUT } from "@/lib/help/help-page-layout";
 import type { ProductDocumentationEntry } from "@/lib/product-documentation-registry";
 import { cn } from "@/lib/utils";
 
@@ -57,7 +57,6 @@ export function HelpConfigurationReferenceGuideView(
             data-testid="help-configuration-reference-header-actions"
           >
             <PageContextualHelpButton />
-            <HelpTopicPdfDownloadButton entry={entry} />
             <HelpTopicPrintButton entry={entry} />
           </div>
         }
@@ -133,32 +132,28 @@ export function HelpConfigurationReferenceGuideView(
           </p>
         </aside>
 
-        <details
+        <HelpLazyDetails
           className="rounded-md border border-neutral-200 bg-neutral-50/60 p-3 dark:border-neutral-800 dark:bg-neutral-900/30"
           data-testid="help-configuration-reference-catalog-appendix"
+          summaryClassName={cn("cursor-pointer font-medium text-al-text-primary", OPERATOR_TYPOGRAPHY.cardTitle)}
+          summary="Full key catalog (Admin technical appendix)"
+          preface={
+            <p className={cn("m-0 mt-2 text-al-text-secondary", OPERATOR_TYPOGRAPHY.helper)}>
+              Collapsed by default so the first viewport stays a task guide. Expand only when you need a specific key
+              name after using the settings CTAs above.
+            </p>
+          }
+          bodyClassName={cn(HELP_PAGE_LAYOUT.contentColumn, "mt-4")}
+          bodyTestId="help-configuration-reference-content"
         >
-          <summary
-            className={cn("cursor-pointer font-medium text-al-text-primary", OPERATOR_TYPOGRAPHY.cardTitle)}
-          >
-            Full key catalog (Admin technical appendix)
-          </summary>
-          <p className={cn("m-0 mt-2 text-al-text-secondary", OPERATOR_TYPOGRAPHY.helper)}>
-            Collapsed by default so the first viewport stays a task guide. Expand only when you need a specific key
-            name after using the settings CTAs above.
-          </p>
-          <div
-            className={cn(HELP_PAGE_LAYOUT.contentColumn, "mt-4")}
-            data-testid="help-configuration-reference-content"
-          >
-            <MarketingAccessibilityMarkdownFragment
-              markdownBody={markdown}
-              tableCaption={`${entry.title} reference table`}
-              presentation="help"
-              sourceDocPath={sourceDocPath}
-              helpTopicSlug={entry.slug}
-            />
-          </div>
-        </details>
+          <MarketingAccessibilityMarkdownFragment
+            markdownBody={markdown}
+            tableCaption={`${entry.title} reference table`}
+            presentation="help"
+            sourceDocPath={sourceDocPath}
+            helpTopicSlug={entry.slug}
+          />
+        </HelpLazyDetails>
       </div>
     </article>
   );

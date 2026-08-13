@@ -1,7 +1,7 @@
 import { getRunDetail, listArtifacts } from "@/lib/api/architecture-runs";
 import { fetchLearningPlans } from "@/lib/api/learning-evolution-api";
 import { listApprovalRequests } from "@/lib/api/policy-governance-api";
-import { coerceRunDetail } from "@/lib/operator-response-guards";
+import { coerceRunDetail } from "@/lib/operator/operator-response-guards";
 import type { GovernanceApprovalRequest } from "@/types/governance-workflow";
 
 export const DEV_TESTING_QUICK_JUMP_MAX_ITEMS = 8;

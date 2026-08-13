@@ -6,7 +6,7 @@ import { OperatorHomeExecutiveRoiStrip } from "@/components/operator-home/Operat
 import { TooltipProvider } from "@/components/ui/tooltip";
 import { renderWithOperatorQuery } from "@/testing/render-with-operator-query";
 
-vi.mock("@/components/OperatorNavAuthorityProvider", () => ({
+vi.mock("@/components/operator/OperatorNavAuthorityProvider", () => ({
   useNavCommittedArchitectureReview: vi.fn(() => false),
   useOperatorNavAuthority: () => ({
     currentPrincipal: {
@@ -23,7 +23,7 @@ vi.mock("@/lib/fetch-executive-roi-summary-client", () => ({
   fetchExecutiveRoiSummaryClient: vi.fn(),
 }));
 
-import { useNavCommittedArchitectureReview } from "@/components/OperatorNavAuthorityProvider";
+import { useNavCommittedArchitectureReview } from "@/components/operator/OperatorNavAuthorityProvider";
 import { fetchExecutiveRoiSummaryClient } from "@/lib/fetch-executive-roi-summary-client";
 
 describe("OperatorHomeExecutiveRoiStrip", () => {

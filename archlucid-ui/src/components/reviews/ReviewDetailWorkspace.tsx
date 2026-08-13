@@ -13,6 +13,9 @@ import { useSearchParams } from "next/navigation";
 
 import { Button } from "@/components/ui/button";
 import { Tabs, TabsContent, TabsList, TabsTrigger } from "@/components/ui/tabs";
+import { PackageActivityAuditTrailVocabularyRail } from "@/components/PackageActivityAuditTrailVocabularyRail";
+import { PackageEvidenceEvidenceGraphVocabularyRail } from "@/components/PackageEvidenceEvidenceGraphVocabularyRail";
+import { PackageGovernanceApprovalQueueVocabularyRail } from "@/components/PackageGovernanceApprovalQueueVocabularyRail";
 import { NewSinceLastVisitMarker } from "@/components/usability/NewSinceLastVisitMarker";
 import { useReviewDetailLastVisited } from "@/hooks/use-review-detail-last-visited";
 import { OPERATOR_TYPOGRAPHY } from "@/lib/design-tokens";
@@ -28,8 +31,8 @@ import {
   writeReviewDetailTabToUrl,
 } from "@/lib/review-detail-workspace-tabs";
 import {
-  coerceReviewDetailTabToVisible,
   isReviewDetailTabAdvanced,
+  resolveReviewDetailTabForVisit,
   resolveReviewDetailVisibleTabs,
   type ResolveReviewDetailVisibleTabsInput,
 } from "@/lib/resolve-review-detail-visible-tabs";
@@ -96,11 +99,11 @@ export function ReviewDetailWorkspace(props: ReviewDetailWorkspaceProps): React.
       defaultTabId: REVIEW_DETAIL_DEFAULT_TAB,
     };
   }, [props.tabLifecycle]);
-  const searchParamTabRaw = resolveReviewDetailTab(searchParams.get(REVIEW_DETAIL_TAB_PARAM));
+  const rawTabParam = searchParams.get(REVIEW_DETAIL_TAB_PARAM);
   const searchParamTab =
     props.tabLifecycle !== undefined
-      ? coerceReviewDetailTabToVisible(searchParamTabRaw, resolved)
-      : searchParamTabRaw;
+      ? resolveReviewDetailTabForVisit(rawTabParam, resolved)
+      : resolveReviewDetailTab(rawTabParam);
   const [activeTab, setActiveTab] = useState<ReviewDetailTabId>(searchParamTab);
   const tabActivityAt = props.tabActivityAt ?? {};
   const {
@@ -327,6 +330,11 @@ export function ReviewDetailWorkspace(props: ReviewDetailWorkspaceProps): React.
             className="min-w-0 overflow-visible"
             data-testid="review-detail-workspace-panel-evidence"
           >
+            <PackageEvidenceEvidenceGraphVocabularyRail
+              runId={props.runId}
+              currentSurfaceId="package-evidence"
+              hrefKind="reviewTab"
+            />
             {props.panels.evidence}
           </TabsContent>
           <TabsContent
@@ -334,6 +342,11 @@ export function ReviewDetailWorkspace(props: ReviewDetailWorkspaceProps): React.
             className="min-w-0 overflow-visible"
             data-testid="review-detail-workspace-panel-policies"
           >
+            <PackageGovernanceApprovalQueueVocabularyRail
+              runId={props.runId}
+              currentSurfaceId="package-governance"
+              hrefKind="reviewTab"
+            />
             {props.panels.policies}
           </TabsContent>
           <TabsContent
@@ -362,6 +375,11 @@ export function ReviewDetailWorkspace(props: ReviewDetailWorkspaceProps): React.
             className="min-w-0 overflow-visible"
             data-testid="review-detail-workspace-panel-activity"
           >
+            <PackageActivityAuditTrailVocabularyRail
+              runId={props.runId}
+              currentSurfaceId="package-activity"
+              hrefKind="reviewTab"
+            />
             {props.panels.activity}
           </TabsContent>
         </Tabs>

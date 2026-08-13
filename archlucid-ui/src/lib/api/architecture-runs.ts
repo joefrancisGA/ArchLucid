@@ -38,6 +38,11 @@ import { ApiRequestError, isApiRequestError } from "@/lib/api-request-error";
 import { trackInFlightOperation } from "@/lib/operations/in-flight-operations-store";
 import { parseOperationIdFromLocation } from "@/lib/operations/operation-location";
 import {
+  REVIEW_PIPELINE_IN_FLIGHT_TITLE,
+  reviewPipelineDetailHref,
+  reviewPipelineOperationId,
+} from "@/lib/operations/review-pipeline-in-flight";
+import {
   type ApiResponseWithTrace,
   apiGet,
   apiGetJsonWithTrace,
@@ -227,13 +232,12 @@ export async function executeArchitectureRunAsync(
     {},
   );
   const operationId =
-    parseOperationIdFromLocation(accepted.location) ?? `run:${runId}`;
-  const href = `/architecture/reviews/${encodeURIComponent(runId)}`;
+    parseOperationIdFromLocation(accepted.location) ?? reviewPipelineOperationId(runId);
 
   trackInFlightOperation({
     operationId,
-    title: "Architecture review analysis",
-    href,
+    title: REVIEW_PIPELINE_IN_FLIGHT_TITLE,
+    href: reviewPipelineDetailHref(runId),
     runId,
     stepLabel: "Queued",
     state: "Pending",

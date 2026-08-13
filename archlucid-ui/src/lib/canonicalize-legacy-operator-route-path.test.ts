@@ -49,8 +49,33 @@ describe("canonicalizeLegacyOperatorRoutePath", () => {
     expect(canonicalizeLegacyOperatorRoutePath("/settings/identity-providers")).toBe(
       "/administration/identity-providers",
     );
+    expect(canonicalizeLegacyOperatorRoutePath("/administration/tenant")).toBe(
+      "/administration/workspace-settings",
+    );
+    expect(canonicalizeLegacyOperatorRoutePath("/administration/tenant/recycle-bin")).toBe(
+      "/administration/workspace-settings/recycle-bin",
+    );
     expect(canonicalizeLegacyOperatorRoutePath("/settings/identity/sso-wizard")).toBe(
       "/administration/identity/sso-wizard",
+    );
+  });
+
+  it("maps legacy AI usage admin bookmark to canonical administration path (TB-1404)", () => {
+    expect(canonicalizeLegacyOperatorRoutePath("/admin/ai-usage-cost")).toBe("/administration/ai-usage");
+    expect(canonicalizeLegacyOperatorRoutePath("/settings/cost-reporting")).toBe("/administration/ai-usage");
+    expect(canonicalizeLegacyOperatorRoutePath("/settings/ai-usage")).toBe("/administration/ai-usage");
+  });
+
+  it("maps legacy onboarding and marketing bookmarks to canonical paths (TB-1801 / TB-1816)", () => {
+    expect(canonicalizeLegacyOperatorRoutePath("/onboarding/start")).toBe("/architecture/first-review-guide");
+    expect(canonicalizeLegacyOperatorRoutePath("/quick-start")).toBe("/get-started");
+  });
+
+  it("maps legacy login, onboard, and architecture-graph bookmarks (TB-1794 / TB-1798 / TB-1806)", () => {
+    expect(canonicalizeLegacyOperatorRoutePath("/login")).toBe("/auth/signin");
+    expect(canonicalizeLegacyOperatorRoutePath("/onboard")).toBe("/architecture/first-review-guide");
+    expect(canonicalizeLegacyOperatorRoutePath("/operate/architecture-graph")).toBe(
+      "/insights/evidence-graph",
     );
   });
 });

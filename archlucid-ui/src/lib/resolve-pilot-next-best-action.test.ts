@@ -1,8 +1,8 @@
 import { describe, expect, it } from "vitest";
 
 import type { CorePilotCommitContext } from "@/lib/core-pilot-commit-context";
-import { OPERATOR_HOME_OPEN_FULL_EXAMPLE_REVIEW_CTA, PILOT_FIRST_HOUR_NO_RUN_BRIDGE_COPY } from "@/lib/buyer-polish-copy";
-import { OPERATOR_START_REVIEW_QUICK_ACTION_LABEL } from "@/lib/operator-nav-labels";
+import { OPERATOR_HOME_OPEN_FULL_EXAMPLE_REVIEW_CTA, PILOT_FIRST_HOUR_NO_RUN_BRIDGE_COPY } from "@/lib/buyer/buyer-polish-copy";
+import { OPERATOR_START_REVIEW_QUICK_ACTION_LABEL } from "@/lib/operator/operator-nav-labels";
 import { resolvePilotNextBestAction } from "@/lib/resolve-pilot-next-best-action";
 import {
   SHOWCASE_SAMPLE_REVIEW_REGISTRY,

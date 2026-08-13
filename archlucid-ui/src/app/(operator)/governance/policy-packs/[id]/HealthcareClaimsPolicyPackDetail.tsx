@@ -2,17 +2,19 @@ import { cn } from "@/lib/utils";
 import Link from "next/link";
 
 import { CopyIdButton } from "@/components/CopyIdButton";
+import { OperatorPageHeader } from "@/components/operator/OperatorPageHeader";
 import { Badge } from "@/components/ui/badge";
 import { Button } from "@/components/ui/button";
 import { Collapsible, CollapsibleContent, CollapsibleTrigger } from "@/components/ui/collapsible";
-import { BUYER_GOVERNANCE_PAGE_TITLE, BUYER_OPEN_SIGNED_RECORD_CTA, BUYER_POLICY_PACK_LEAD } from "@/lib/buyer-polish-copy";
+import { BUYER_GOVERNANCE_PAGE_TITLE, BUYER_OPEN_SIGNED_RECORD_CTA, BUYER_POLICY_PACK_LEAD } from "@/lib/buyer/buyer-polish-copy";
 import {
+  OPERATOR_LAYOUT,
   OPERATOR_DISCLOSURE_TRIGGER_CLASS,
   OPERATOR_NAV_GROUP_LABEL,
   OPERATOR_TYPOGRAPHY,
 } from "@/lib/design-tokens";
 import { isBuyerPolishedOperatorShellEnv } from "@/lib/demo-ui-env";
-import { policyPackBuyerLabel } from "@/lib/policy-pack-buyer-label";
+import { policyPackBuyerLabel } from "@/lib/policy/policy-pack-buyer-label";
 import { SHOWCASE_STATIC_DEMO_MANIFEST_ID } from "@/lib/showcase-static-demo";
 import { signedRecordDetailPath } from "@/lib/signed-records-paths";
 
@@ -33,27 +35,32 @@ export function HealthcareClaimsPolicyPackDetail(props: HealthcareClaimsPolicyPa
     : "Demonstration rule-set v3.4.1";
 
   return (
-    <div className="w-full max-w-[1200px] space-y-8 p-6">
-      <header className="space-y-3 border-b border-neutral-200 pb-6 dark:border-neutral-800">
-        <p className={cn("m-0 text-[var(--al-accent-link)]", OPERATOR_NAV_GROUP_LABEL)}>
-          Active policy pack
-        </p>
-        <h1 className={cn("m-0", OPERATOR_TYPOGRAPHY.pageTitle)}>{canonicalPackLabel}</h1>
-        <p className={cn("m-0 max-w-prose leading-relaxed text-al-text-secondary", OPERATOR_TYPOGRAPHY.body)}>
-          {buyerPolishedShell ? BUYER_POLICY_PACK_LEAD : `${BUYER_POLICY_PACK_LEAD} — matching the Claims Intake showcase review referenced from Governance and signed review record surfaces.`}
-        </p>
+    <div className={cn("w-full max-w-[1200px] p-6", OPERATOR_LAYOUT.sectionStack)}>
+      <OperatorPageHeader
+        title={canonicalPackLabel}
+        headingLevel="h1"
+        breadcrumb={
+          <p className={cn("m-0 text-[var(--al-accent-link)]", OPERATOR_NAV_GROUP_LABEL)}>Active policy pack</p>
+        }
+        subtitle={
+          buyerPolishedShell
+            ? BUYER_POLICY_PACK_LEAD
+            : `${BUYER_POLICY_PACK_LEAD} — matching the Claims Intake showcase review referenced from Governance and signed review record surfaces.`
+        }
+        subtitleClassName="max-w-prose leading-relaxed"
+      >
         <div className="flex flex-wrap gap-2">
           <Badge variant="secondary">Healthcare vertical</Badge>
           <Badge variant="outline">HIPAA-aligned intake posture</Badge>
           <Badge variant="outline">{versionBadgeLabel}</Badge>
         </div>
-        <div className="flex flex-wrap items-center gap-2">
+        <div className="mt-3 flex flex-wrap items-center gap-2">
           <p className={cn("m-0 font-mono text-al-text-secondary", OPERATOR_TYPOGRAPHY.micro)}>
             {buyerPolishedShell ? "Pack reference" : "Pack reference id"}: {policyPackId}
           </p>
           <CopyIdButton value={policyPackId} aria-label="Copy policy pack ID" />
         </div>
-      </header>
+      </OperatorPageHeader>
 
       <section className="rounded-xl border border-neutral-200 bg-white p-5 shadow-sm dark:border-neutral-800 dark:bg-neutral-950">
         <h2 className={cn("m-0", OPERATOR_NAV_GROUP_LABEL)}>What sponsors see first</h2>

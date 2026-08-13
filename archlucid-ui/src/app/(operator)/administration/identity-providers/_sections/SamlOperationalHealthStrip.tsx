@@ -6,8 +6,16 @@ import { useEffect, useState } from "react";
 
 import { DismissControl } from "@/components/usability/DismissControl";
 import { Card, CardContent, CardHeader, CardTitle } from "@/components/ui/card";
+import { StatusTag } from "@/components/ui/status-tag";
 import { resolveInAppDocHref } from "@/lib/in-app-doc-href";
 import { OPERATOR_LINK, OPERATOR_NAV_GROUP_LABEL, OPERATOR_TYPOGRAPHY } from "@/lib/design-tokens";
+import {
+  IDENTITY_PROVIDERS_SAML_STATUS_DISABLED_EXPLANATION,
+  IDENTITY_PROVIDERS_SAML_STATUS_DISABLED_NEXT_STEP_HREF,
+  IDENTITY_PROVIDERS_SAML_STATUS_DISABLED_NEXT_STEP_LABEL,
+  IDENTITY_PROVIDERS_STATUS_DISABLED,
+  IDENTITY_PROVIDERS_STATUS_NEEDS_REVIEW,
+} from "@/lib/identity-providers-settings-copy";
 import type { components } from "@/lib/openapi-schemas";
 import {
   evaluateSamlSigningCertExpiryBanner,
@@ -62,10 +70,18 @@ export function SamlOperationalHealthStrip(props: SamlOperationalHealthStripProp
     return (
       <Card data-testid="saml-operational-health-card">
         <CardHeader>
-          <CardTitle className={OPERATOR_TYPOGRAPHY.cardTitle}>SAML 2.0 SP operational signals</CardTitle>
+          <CardTitle className={OPERATOR_TYPOGRAPHY.cardTitle}>SAML status</CardTitle>
         </CardHeader>
-        <CardContent>
-          <p className={cn("m-0 text-amber-900 dark:text-amber-100", OPERATOR_TYPOGRAPHY.body)} data-testid="saml-operational-health-fetch-note">
+        <CardContent className="space-y-2">
+          <StatusTag
+            kind="needs-attention"
+            label={IDENTITY_PROVIDERS_STATUS_NEEDS_REVIEW}
+            data-testid="saml-operational-health-fetch-status"
+          />
+          <p
+            className={cn("m-0 text-al-text-secondary", OPERATOR_TYPOGRAPHY.body)}
+            data-testid="saml-operational-health-fetch-note"
+          >
             {fetchNote}
           </p>
         </CardContent>
@@ -101,6 +117,26 @@ export function SamlOperationalHealthStrip(props: SamlOperationalHealthStripProp
   const metadataIso =
     typeof payload.idpMetadataValidUntilUtc === "string" ? payload.idpMetadataValidUntilUtc.trim() : "";
 
+  if (!payload.saml2Enabled) {
+    return (
+      <Card data-testid="saml-operational-health-card">
+        <CardHeader>
+          <CardTitle className={OPERATOR_TYPOGRAPHY.cardTitle}>SAML status</CardTitle>
+        </CardHeader>
+        <CardContent className="space-y-2">
+          <StatusTag kind="neutral" label={IDENTITY_PROVIDERS_STATUS_DISABLED} data-testid="saml-operational-health-status" />
+          <p className={cn("m-0 text-al-text-secondary", OPERATOR_TYPOGRAPHY.body)} data-testid="saml-operational-health-disabled-copy">
+            {IDENTITY_PROVIDERS_SAML_STATUS_DISABLED_EXPLANATION}{" "}
+            <Link href={IDENTITY_PROVIDERS_SAML_STATUS_DISABLED_NEXT_STEP_HREF} className={OPERATOR_LINK.inline}>
+              {IDENTITY_PROVIDERS_SAML_STATUS_DISABLED_NEXT_STEP_LABEL}
+            </Link>
+            .
+          </p>
+        </CardContent>
+      </Card>
+    );
+  }
+
   return (
     <Card data-testid="saml-operational-health-card">
       <CardHeader>
@@ -123,17 +159,22 @@ export function SamlOperationalHealthStrip(props: SamlOperationalHealthStripProp
             aria-label="SAML signing certificate expiry reminder"
           >
             <div className="min-w-[240px] flex-1 space-y-2">
+              <StatusTag
+                kind={bannerDecision.variant === "expired" ? "blocked" : "needs-attention"}
+                label={bannerDecision.variant === "expired" ? "Expired" : IDENTITY_PROVIDERS_STATUS_NEEDS_REVIEW}
+                data-testid="saml-signing-cert-expiry-status"
+              />
               <p className={cn("m-0 font-medium", OPERATOR_TYPOGRAPHY.cardTitle)}>
                 {bannerDecision.variant === "expired"
                   ? "SAML SP signing certificate has expired."
                   : `SAML SP signing certificate expires within ${String(SAML_SP_SIGNING_CERT_WARNING_DAYS)} days.`}
               </p>
-              <p className={cn("m-0 text-amber-900/90 dark:text-amber-200/90", OPERATOR_TYPOGRAPHY.helper)}>
+              <p className={cn("m-0 text-al-text-secondary", OPERATOR_TYPOGRAPHY.helper)}>
                 UTC expiry:{" "}
                 <span className="font-mono">{signingIso.length > 0 ? formatUtcDiagnostic(signingIso) : "unknown"}</span>
               </p>
               <Link
-                className={cn("inline-flex", OPERATOR_TYPOGRAPHY.badge, OPERATOR_LINK.nav, "text-amber-950 dark:text-amber-50")}
+                className={cn("inline-flex", OPERATOR_TYPOGRAPHY.badge, OPERATOR_LINK.nav)}
                 href={SAML_ROTATION_RUNBOOK_URL}
                 aria-label="SAML SP certificate rotation runbook in Help"
               >
@@ -149,40 +190,34 @@ export function SamlOperationalHealthStrip(props: SamlOperationalHealthStripProp
           </div>
         ) : null}
 
-        {payload.saml2Enabled ? (
-          <div className={cn("grid gap-3 text-neutral-800 dark:text-neutral-100", OPERATOR_TYPOGRAPHY.body)}>
-            <dl className="m-0 space-y-1">
-              <dt className={OPERATOR_NAV_GROUP_LABEL}>
-                SP signing certificate NotAfter (UTC)
-              </dt>
-              <dd className={cn("m-0 mt-1 font-mono", OPERATOR_TYPOGRAPHY.micro)}>
-                {signingIso.length > 0 ? formatUtcDiagnostic(signingIso) : "Unavailable"}
+        <div className={cn("grid gap-3 text-neutral-800 dark:text-neutral-100", OPERATOR_TYPOGRAPHY.body)}>
+          <dl className="m-0 space-y-1">
+            <dt className={OPERATOR_NAV_GROUP_LABEL}>
+              SP signing certificate NotAfter (UTC)
+            </dt>
+            <dd className={cn("m-0 mt-1 font-mono", OPERATOR_TYPOGRAPHY.micro)}>
+              {signingIso.length > 0 ? formatUtcDiagnostic(signingIso) : "Unavailable"}
+            </dd>
+            {payload.spSigningCertificateDiagnosticSummary ? (
+              <dd className={cn("m-0 mt-1 text-al-text-secondary", OPERATOR_TYPOGRAPHY.helper)}>
+                {payload.spSigningCertificateDiagnosticSummary}
               </dd>
-              {payload.spSigningCertificateDiagnosticSummary ? (
-                <dd className={cn("m-0 mt-1 text-amber-900 dark:text-amber-100", OPERATOR_TYPOGRAPHY.helper)}>
-                  {payload.spSigningCertificateDiagnosticSummary}
-                </dd>
-              ) : null}
-            </dl>
-            <dl className="m-0 space-y-1">
-              <dt className={OPERATOR_NAV_GROUP_LABEL}>
-                IdP metadata validUntil (UTC)
-              </dt>
-              <dd className={cn("m-0 mt-1 font-mono", OPERATOR_TYPOGRAPHY.micro)}>
-                {metadataIso.length > 0 ? formatUtcDiagnostic(metadataIso) : "Not provided on metadata"}
+            ) : null}
+          </dl>
+          <dl className="m-0 space-y-1">
+            <dt className={OPERATOR_NAV_GROUP_LABEL}>
+              IdP metadata validUntil (UTC)
+            </dt>
+            <dd className={cn("m-0 mt-1 font-mono", OPERATOR_TYPOGRAPHY.micro)}>
+              {metadataIso.length > 0 ? formatUtcDiagnostic(metadataIso) : "Not provided on metadata"}
+            </dd>
+            {payload.idpMetadataDiagnosticSummary ? (
+              <dd className={cn("m-0 mt-1 text-neutral-600 dark:text-neutral-300", OPERATOR_TYPOGRAPHY.helper)}>
+                {payload.idpMetadataDiagnosticSummary}
               </dd>
-              {payload.idpMetadataDiagnosticSummary ? (
-                <dd className={cn("m-0 mt-1 text-neutral-600 dark:text-neutral-300", OPERATOR_TYPOGRAPHY.helper)}>
-                  {payload.idpMetadataDiagnosticSummary}
-                </dd>
-              ) : null}
-            </dl>
-          </div>
-        ) : (
-          <p className={cn("m-0 text-neutral-700 dark:text-neutral-200", OPERATOR_TYPOGRAPHY.body)}>
-            SAML single sign-on is disabled for this workspace.
-          </p>
-        )}
+            ) : null}
+          </dl>
+        </div>
       </CardContent>
     </Card>
   );

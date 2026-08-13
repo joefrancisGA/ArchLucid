@@ -156,7 +156,7 @@ foreach ($filter in $filterChunks) {
             Write-CiSqlServerHangDiagnostics
         }
 
-        Write-Host ("[{0}] Chunk {1}/{2} finalised at {3} (failed: {4})" -f
+        Write-Host ("[{0}] Chunk {1}/{2} finalized at {3} (failed: {4})" -f
             $chunkLabel,
             $chunkNumber,
             $filterChunks.Count,

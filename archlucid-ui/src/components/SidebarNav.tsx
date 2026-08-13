@@ -3,6 +3,7 @@
 import { usePathname } from "next/navigation";
 import { Fragment, useEffect, useLayoutEffect, useState } from "react";
 
+import { CommandPaletteSidebarVocabularyRail } from "@/components/CommandPaletteSidebarVocabularyRail";
 import { SidebarRecentActivityCard } from "@/components/SidebarRecentActivityCard";
 import { SidebarNavCluster } from "@/components/sidebar-nav/SidebarNavCluster";
 import { RoleNavDensityExpandControl } from "@/components/sidebar-nav/RoleNavDensityExpandControl";
@@ -13,7 +14,7 @@ import {
   ARCHLUCID_CTO_DEMO_PANIC_CHANGED_EVENT,
   isOperatorDemoStaticMode,
   readOperatorDemoPanicOffline,
-} from "@/lib/operator-static-demo";
+} from "@/lib/operator/operator-static-demo";
 import { isPublicDemoModeEnv } from "@/lib/public-demo-mode";
 import { findSidebarNavGroupIdsForActivePath } from "@/lib/sidebar-nav-active-group-expansion";
 import { applyBuyerDemoSecondaryNavCollapse } from "@/lib/sidebar-nav-buyer-demo-collapse";
@@ -103,6 +104,9 @@ export function SidebarNav() {
 
   return (
     <div className="flex min-h-0 flex-col gap-0 pb-2">
+      <div className="px-3 pt-2">
+        <CommandPaletteSidebarVocabularyRail currentSurfaceId="sidebar" />
+      </div>
       <SidebarRecentActivityCard />
 
       {allRows.map((row) => {

@@ -30,12 +30,19 @@ def test_discover_app_router_paths_includes_architectures_hub() -> None:
 def test_discover_tab_paths_includes_architecture_workspace_tabs() -> None:
     tab_paths = discover_tab_paths()
     assert "/architecture/reviews/[runId]?archTab=evidence" in tab_paths
+    assert "/architecture/digests?tab=get-started" in tab_paths
+    assert "/architecture/digests?tab=browse" not in tab_paths
     assert "/administration/users?tab=roles" in tab_paths
     assert "/administration/users?tab=keys" not in tab_paths
     assert "/architecture/reviews/new?path=guided-intake" in tab_paths
     assert "/governance/advisory-scans?tab=scans" in tab_paths
     assert "/governance/advisory-scans?tab=schedules" in tab_paths
     assert "/advisory?tab=scans" not in tab_paths
+
+
+def test_build_catalog_classifies_demo_explain_as_internal() -> None:
+    catalog = build_catalog()
+    assert catalog["/demo/explain"].section == "Internal"
 
 
 def test_build_catalog_classifies_architecture_intelligence_as_core_review() -> None:
@@ -59,9 +66,16 @@ def test_migrate_workbook_path_maps_legacy_core_pilot_help_slug() -> None:
 
 def test_migrate_workbook_path_maps_tb2050_retired_help_aliases() -> None:
     assert migrate_workbook_path("/help/governance-api-contracts") == "/help/api-contracts"
-    assert migrate_workbook_path("/help/evaluator-workbook") == "/help/path-chooser"
+    assert migrate_workbook_path("/help/evaluator-workbook") == "/help/choose-your-next-step"
+    assert migrate_workbook_path("/help/path-chooser") == "/help/choose-your-next-step"
     assert migrate_workbook_path("/help/first-hour-operator-path") == "/help/first-architecture-review"
     assert migrate_workbook_path("/help/operator-auth-roles") == "/help/users-and-roles"
+    # Section anchors stay out of workbook targets: rows must be catalog routes.
+    assert migrate_workbook_path("/help/first-review") == "/help/first-architecture-review"
+    assert migrate_workbook_path("/help/first-value-20-minutes") == "/help/first-architecture-review"
+    assert migrate_workbook_path("/help/pilot-roi-model") == "/help/executive-summary"
+    assert migrate_workbook_path("/help/developer-troubleshooting") == "/help/engineering-troubleshooting"
+    assert migrate_workbook_path("/help/policy-pack-delta-demo") == "/help/policy-packs#policy-pack-delta-demo"
 
 
 def test_build_catalog_keeps_tb2050_retired_aliases_out() -> None:
@@ -75,7 +89,7 @@ def test_build_catalog_keeps_tb2050_retired_aliases_out() -> None:
     assert "/help/core-pilot" not in catalog
     assert "/help/first-architecture-review" in catalog
     assert "/help/api-contracts" in catalog
-    assert "/help/path-chooser" in catalog
+    assert "/help/choose-your-next-step" in catalog
     assert "/help/users-and-roles" in catalog
 
 
@@ -89,10 +103,39 @@ def test_build_catalog_excludes_redirect_only_legacy_paths() -> None:
     assert "/help/cloud-connections-aws" not in catalog
     assert "/advisory" not in catalog
     assert "/advisory-scheduling" not in catalog
-    assert "/governance/advisory-scans" in catalog
+    assert "/governance/advisory-scans" not in catalog
+    assert "/governance/advisory-scans?tab=scans" in catalog
     assert "/alert-routing" not in catalog
     assert "/governance/alert-rules?tab=notifications" in catalog
     assert "/governance/alert-rules?tab=routing" not in catalog
+
+
+def test_migrate_workbook_path_maps_legacy_advisory_bookmarks() -> None:
+    assert migrate_workbook_path("/advisory") == "/governance/advisory-scans?tab=scans"
+    assert migrate_workbook_path("/governance/advisory-scans") == "/governance/advisory-scans?tab=scans"
+    assert migrate_workbook_path("/advisory?tab=scans") == "/governance/advisory-scans?tab=scans"
+    assert migrate_workbook_path("/advisory?tab=schedules") == "/governance/advisory-scans?tab=schedules"
+    assert migrate_workbook_path("/advisory-scheduling") == "/governance/advisory-scans?tab=schedules"
+
+
+def test_build_catalog_does_not_track_retired_advisory_scans_hub() -> None:
+    catalog = build_catalog()
+    assert "/governance/advisory-scans" not in catalog
+
+
+def test_migrate_workbook_path_maps_legacy_tenant_settings_bookmarks() -> None:
+    assert migrate_workbook_path("/administration/tenant") == "/administration/workspace-settings"
+    assert (
+        migrate_workbook_path("/administration/tenant/recycle-bin")
+        == "/administration/workspace-settings/recycle-bin"
+    )
+
+
+def test_build_catalog_does_not_track_legacy_tenant_settings_redirects() -> None:
+    catalog = build_catalog()
+    assert "/administration/tenant" not in catalog
+    assert "/administration/tenant/recycle-bin" not in catalog
+    assert "/administration/workspace-settings" in catalog
 
 
 def test_migrate_workbook_path_maps_retired_cloud_connection_help_slugs() -> None:
@@ -175,19 +218,24 @@ def test_migrate_workbook_path_maps_legacy_governance_resolution() -> None:
     assert migrate_workbook_path("/governance/resolution") == "/governance/standards-and-rules"
 
 
-def test_migrate_workbook_path_maps_legacy_advisory_routes() -> None:
-    assert migrate_workbook_path("/advisory") == "/governance/advisory-scans"
-    assert migrate_workbook_path("/advisory?tab=scans") == "/governance/advisory-scans?tab=scans"
-    assert migrate_workbook_path("/advisory?tab=schedules") == "/governance/advisory-scans?tab=schedules"
-    assert migrate_workbook_path("/advisory-scheduling") == "/governance/advisory-scans?tab=schedules"
-
-
 def test_migrate_workbook_path_maps_legacy_alert_routing() -> None:
     assert migrate_workbook_path("/alert-routing") == "/governance/alert-rules?tab=notifications"
     assert (
         migrate_workbook_path("/governance/alert-rules?tab=routing")
         == "/governance/alert-rules?tab=notifications"
     )
+    assert migrate_workbook_path("/governance/alerts?tab=inbox") == "/governance/alerts"
+
+
+def test_migrate_workbook_path_maps_legacy_onboarding_and_quick_start() -> None:
+    assert migrate_workbook_path("/onboarding/start") == "/architecture/first-review-guide"
+    assert migrate_workbook_path("/onboard") == "/architecture/first-review-guide"
+    assert migrate_workbook_path("/quick-start") == "/get-started"
+
+
+def test_migrate_workbook_path_maps_legacy_login_and_architecture_graph() -> None:
+    assert migrate_workbook_path("/login") == "/auth/signin"
+    assert migrate_workbook_path("/operate/architecture-graph") == "/insights/evidence-graph"
 
 
 def test_migrate_workbook_path_maps_legacy_settings_alerts() -> None:
@@ -223,6 +271,11 @@ def test_build_catalog_does_not_track_retired_settings_exec_digest_bookmark() ->
 
 def test_migrate_workbook_path_maps_legacy_settings_exec_digest() -> None:
     assert migrate_workbook_path("/settings/exec-digest") == "/architecture/digests?tab=schedule"
+
+
+def test_migrate_workbook_path_maps_legacy_digests_browse_tab() -> None:
+    assert migrate_workbook_path("/architecture/digests?tab=browse") == "/architecture/digests?tab=get-started"
+    assert migrate_workbook_path("/digests?tab=browse") == "/architecture/digests?tab=get-started"
 
 
 def test_migrate_workbook_path_maps_legacy_operator_system_health() -> None:

@@ -57,7 +57,7 @@ export function PolicySimulator({ result, className }: PolicySimulatorProps) {
         {result.gateResult !== undefined ? (
           <p className="m-0 mt-1">
             {DOMAIN_TERMS.preCommitGate}:{" "}
-            <strong>{gateBlocked ? "would block commit" : "would allow commit"}</strong>
+            <strong>{gateBlocked ? "would block finalizing" : "would allow finalizing"}</strong>
             {gateWarnOnly ? " (warn-only)" : ""}
           </p>
         ) : null}

@@ -5,13 +5,17 @@ import Link from "next/link";
 
 import { StatusTag } from "@/components/ui/status-tag";
 import { Button } from "@/components/ui/button";
-import { FIRST_REVIEW_GUIDE_NEXT_STEP_LABEL } from "@/lib/buyer-polish-copy";
+import { Skeleton } from "@/components/ui/skeleton";
+import { FIRST_REVIEW_GUIDE_NEXT_STEP_LABEL } from "@/lib/buyer/buyer-polish-copy";
+import { FIRST_REVIEW_GUIDE_STEP_COUNT } from "@/lib/first-review-guide-steps";
 import { OPERATOR_LINK, OPERATOR_SURFACE_CARD_CLASS, OPERATOR_TYPOGRAPHY } from "@/lib/design-tokens";
 import type { FirstReviewGuideStepPresentation } from "@/lib/first-review-guide-state";
 
 type FirstReviewGuideWalkthroughProps = {
   readonly steps: readonly FirstReviewGuideStepPresentation[];
   readonly isPending: boolean;
+  readonly isError: boolean;
+  readonly announceProgress: boolean;
 };
 
 function stepStatusTagKind(
@@ -34,14 +38,40 @@ function stepStatusTagKind(
   }
 }
 
-export function FirstReviewGuideWalkthrough({ steps, isPending }: FirstReviewGuideWalkthroughProps) {
+function FirstReviewGuideWalkthroughLoadingSkeleton() {
+  return (
+    <div
+      className="space-y-3"
+      data-testid="first-review-guide-walkthrough-loading"
+      aria-busy="true"
+      aria-label="Loading first review walkthrough"
+    >
+      <Skeleton className="h-24 w-full" aria-hidden />
+      <Skeleton className="h-24 w-full" aria-hidden />
+      <Skeleton className="h-24 w-full" aria-hidden />
+    </div>
+  );
+}
+
+export function FirstReviewGuideWalkthrough({
+  steps,
+  isPending,
+  isError,
+  announceProgress,
+}: FirstReviewGuideWalkthroughProps) {
   if (isPending) {
+    return <FirstReviewGuideWalkthroughLoadingSkeleton />;
+  }
+
+  if (isError) {
     return (
-      <p className={cn("m-0", OPERATOR_TYPOGRAPHY.helper)} data-testid="first-review-guide-walkthrough-loading">
-        Loading review progress…
+      <p className={cn("m-0", OPERATOR_TYPOGRAPHY.helper)} data-testid="first-review-guide-walkthrough-unavailable">
+        Walkthrough steps appear after review progress loads.
       </p>
     );
   }
+
+  const totalSteps = steps.length > 0 ? steps.length : FIRST_REVIEW_GUIDE_STEP_COUNT;
 
   return (
     <ol
@@ -61,10 +91,13 @@ export function FirstReviewGuideWalkthrough({ steps, isPending }: FirstReviewGui
           aria-current={step.isNextStep ? "step" : undefined}
         >
           <div className="flex flex-wrap items-start gap-2">
-            <span className={cn("font-medium text-neutral-500", OPERATOR_TYPOGRAPHY.helper)}>
+            <span className={cn("font-medium text-neutral-500", OPERATOR_TYPOGRAPHY.helper)} aria-hidden="true">
               {step.index + 1}.
             </span>
             <div className="min-w-0 flex-1 space-y-1">
+              <span className="sr-only">
+                Step {step.index + 1} of {totalSteps}
+              </span>
               <div className="flex flex-wrap items-center gap-2">
                 <h3 className={cn("m-0", OPERATOR_TYPOGRAPHY.sectionTitle)}>{step.title}</h3>
                 <StatusTag kind={stepStatusTagKind(step.status)} label={step.statusLabel} />
@@ -86,6 +119,11 @@ export function FirstReviewGuideWalkthrough({ steps, isPending }: FirstReviewGui
           </div>
         </li>
       ))}
+      {announceProgress ? (
+        <span className="sr-only" aria-live="polite" data-testid="first-review-guide-walkthrough-live">
+          {steps.filter((step) => step.status === "complete").length} of {totalSteps} steps complete
+        </span>
+      ) : null}
     </ol>
   );
 }

@@ -13,6 +13,7 @@ import {
   EnterpriseTableRow,
 } from "@/components/ui/enterprise-table";
 import { StatusTag } from "@/components/ui/status-tag";
+import { WhyDisabledCtaHint } from "@/components/usability/WhyDisabledCtaHint";
 import {
   alertRoutingDeliveryAttemptsButtonLabelReaderRank,
   alertRoutingDeliveryAttemptsButtonTitleOperator,
@@ -20,6 +21,7 @@ import {
   alertRoutingToggleToDisabledReaderRank,
   alertRoutingToggleToEnabledReaderRank,
 } from "@/lib/enterprise-controls-context-copy";
+import { whyDisabledEnterpriseMutationControl } from "@/lib/why-disabled-cta";
 import {
   channelDisplayLabel,
   formatAlertRoutingFiltersSummary,
@@ -37,7 +39,7 @@ export type AlertRoutingDestinationListProps = {
   canMutateRouting: boolean;
   testingId: string | null;
   onAddDestination: () => void;
-  onToggle: (id: string) => void;
+  onToggle: (id: string, isEnabled: boolean, subscriptionName: string, channelType: string) => void;
   onLoadAttempts: (id: string) => void;
   onTest: (id: string) => void;
 };
@@ -53,28 +55,19 @@ export function AlertRoutingDestinationList({
   onTest,
 }: AlertRoutingDestinationListProps) {
   if (items.length === 0) {
-    return (
-      <div
-        className="rounded-lg border border-dashed border-neutral-300 bg-neutral-50 p-6 dark:border-neutral-700 dark:bg-neutral-900/40"
-        data-testid="alert-routing-empty-state"
-      >
-        <h4 className={cn("m-0 text-al-text-primary", OPERATOR_TYPOGRAPHY.cardTitle)}>
-          No notification destinations configured
-        </h4>
-        <p className={cn("mt-2 max-w-prose text-neutral-600 dark:text-neutral-400", OPERATOR_TYPOGRAPHY.body)}>
-          Create a destination to receive email, webhook, Teams, or Slack notifications when qualifying findings meet your severity threshold.
-        </p>
-        {canMutateRouting ? (
-          <Button type="button" variant="outline" className="mt-4" onClick={onAddDestination}>
-            Go to destination form
-          </Button>
-        ) : null}
-      </div>
-    );
+    return null;
   }
+
+  const mutationDisabledReason = canMutateRouting ? null : whyDisabledEnterpriseMutationControl();
+  const mutationDisabledHintId = "alert-routing-list-mutate-disabled-hint";
 
   return (
     <div className="space-y-3" data-testid="alert-routing-destination-list">
+      <WhyDisabledCtaHint
+        id={mutationDisabledHintId}
+        reason={mutationDisabledReason}
+        testId="alert-routing-list-mutate-disabled-hint"
+      />
       <EnterpriseTable ariaLabel="Notification destinations">
         <EnterpriseTableHead>
           <EnterpriseTableHeadRow>
@@ -137,8 +130,17 @@ export function AlertRoutingDestinationList({
                       type="button"
                       variant="outline"
                       size="sm"
-                      onClick={() => onToggle(item.routingSubscriptionId)}
+                      onClick={() =>
+                        onToggle(
+                          item.routingSubscriptionId,
+                          item.isEnabled === true,
+                          item.name,
+                          item.channelType,
+                        )
+                      }
                       disabled={!canMutateRouting}
+                      aria-describedby={mutationDisabledReason === null ? undefined : mutationDisabledHintId}
+                      data-testid={`alert-routing-toggle-${item.routingSubscriptionId}`}
                     >
                       {canMutateRouting
                         ? item.isEnabled

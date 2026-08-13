@@ -6,7 +6,7 @@ Keep `docs/go-to-market/trust-center.md` honest: links resolve and posture times
 
 ## Checks (CI)
 
-| Script | Behaviour |
+| Script | Behavior |
 |---|---|
 | [`scripts/ci/check_trust_center_links.py`](../../scripts/ci/check_trust_center_links.py) | **Fail-fast** broken relative / `blob/main/` links referenced from the trust-center page |
 | [`scripts/ci/check_trust_center_posture_freshness.py`](../../scripts/ci/check_trust_center_posture_freshness.py) | **Fail-fast** on malformed posture dates · **warnings** (`STALE_ROW`) when “Last reviewed” exceeds status-class budget (unless `--fail-on-stale`) |

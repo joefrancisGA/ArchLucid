@@ -78,7 +78,7 @@ function HubStepTitle(props: {
   if (isEnterpriseOnboardingInPageAnchorHref(props.primaryLink.href)) {
     return (
       <Link
-        className={cn("font-semibold text-al-text-primary no-underline hover:underline", OPERATOR_TYPOGRAPHY.body)}
+        className={cn(OPERATOR_LINK.step, "font-semibold", OPERATOR_TYPOGRAPHY.body)}
         href={props.primaryLink.href}
       >
         {titleText}

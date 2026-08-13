@@ -1,6 +1,10 @@
 import { describe, expect, it } from "vitest";
 
-import { extractMasterTableRows, findTrafficRowById, readUiRouteTrafficEstimatesTemplateMarkdown } from "@/lib/testing/ui-route-traffic-workbook-test-utils";
+import {
+  extractMasterTableRows,
+  findTrafficRowById,
+  readUiRouteTrafficEstimatesTemplateMarkdown,
+} from "@/lib/testing/ui-route-traffic-workbook-test-utils";
 
 import {
   AI_USAGE_SETTINGS_TRAFFIC_NOTE,

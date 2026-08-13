@@ -16,7 +16,7 @@ public interface IProvenanceSnapshotRepository
     ///     and <paramref name="transaction" /> to participate in a multi-statement transaction.
     /// </summary>
     /// <param name="snapshot">The snapshot to persist.</param>
-    /// <param name="ct">Propagates notification that the operation should be cancelled.</param>
+    /// <param name="ct">Propagates notification that the operation should be canceled.</param>
     /// <param name="connection">Optional open connection to reuse.</param>
     /// <param name="transaction">Optional transaction to enlist in.</param>
     Task SaveAsync(

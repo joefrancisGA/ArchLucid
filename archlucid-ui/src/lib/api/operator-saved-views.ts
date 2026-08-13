@@ -4,7 +4,7 @@ import type {
   OperatorSavedViewListResponse,
   OperatorSavedViewPayload,
   OperatorSavedViewSurface,
-} from "@/lib/operator-saved-view-types";
+} from "@/lib/operator/operator-saved-view-types";
 
 export type { OperatorSavedView, OperatorSavedViewPayload, OperatorSavedViewSurface };
 

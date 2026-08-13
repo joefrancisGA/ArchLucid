@@ -3,7 +3,7 @@
 import type { ReactElement } from "react";
 
 import { cn } from "@/lib/utils";
-import { OPERATOR_TYPOGRAPHY } from "@/lib/design-tokens";
+import { DESIGN_TOKENS, OPERATOR_TYPOGRAPHY } from "@/lib/design-tokens";
 import {
   demoVsLiveChromeForFlags,
   type DemoVsLiveChromeFlags,
@@ -30,7 +30,9 @@ export function DemoVsLiveChromeBanner(props: DemoVsLiveChromeBannerProps): Reac
     <div className={cn("space-y-1", props.className)} data-testid={copy.testId}>
       <div
         className={cn(
-          "rounded-md border-2 border-amber-600 bg-amber-100 px-3 py-2 text-amber-950 dark:border-amber-500 dark:bg-amber-950/50 dark:text-amber-50",
+          DESIGN_TOKENS.callout.warn,
+          // 2px amber border keeps presenter-safety emphasis without a pastel fill (TB-2218).
+          "border-2 border-amber-600 dark:border-amber-500",
           OPERATOR_TYPOGRAPHY.body,
         )}
         role="status"

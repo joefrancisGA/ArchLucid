@@ -2,6 +2,8 @@ import Link from "next/link";
 
 import { HelpTopicHashScroll } from "@/app/(operator)/help/HelpTopicHashScroll";
 import { HelpTopicMarkdownPageHeader } from "@/app/(operator)/help/_sections/HelpTopicMarkdownPageHeader";
+import { PilotGuideGettingStartedFirstReviewVocabularyRail } from "@/components/PilotGuideGettingStartedFirstReviewVocabularyRail";
+import { HelpLazyDetails } from "@/components/help/HelpLazyDetails";
 import { HelpTopicTableOfContents } from "@/components/help/HelpTopicTableOfContents";
 import { MermaidDiagram } from "@/components/help/MermaidDiagram";
 import { Button } from "@/components/ui/button";
@@ -36,7 +38,7 @@ import {
   OPERATOR_SHELL_SCROLL_OFFSET_CLASS,
   OPERATOR_TYPOGRAPHY,
 } from "@/lib/design-tokens";
-import { HELP_PAGE_LAYOUT } from "@/lib/help-page-layout";
+import { HELP_PAGE_LAYOUT } from "@/lib/help/help-page-layout";
 import type { ProductDocumentationEntry } from "@/lib/product-documentation-registry";
 
 type HelpGettingStartedGuideViewProps = {
@@ -133,6 +135,7 @@ export function HelpGettingStartedGuideView(props: HelpGettingStartedGuideViewPr
     <article className={OPERATOR_LAYOUT.majorSectionGap} data-testid="help-getting-started-guide">
       <HelpTopicHashScroll />
       <HelpTopicMarkdownPageHeader entry={entry} showContextualHelp />
+      <PilotGuideGettingStartedFirstReviewVocabularyRail currentSurfaceId="getting-started" />
       <p className={cn("m-0 max-w-3xl", OPERATOR_TYPOGRAPHY.helper)}>{GETTING_STARTED_HELP_AUDIENCE_LINE}</p>
       <aside
         className={cn(DESIGN_TOKENS.callout.neutral, "p-3")}
@@ -277,32 +280,30 @@ export function HelpGettingStartedGuideView(props: HelpGettingStartedGuideViewPr
             </div>
           </section>
 
-          <details
+          <HelpLazyDetails
             id="technical-details"
             className={cn(HELP_PAGE_LAYOUT.details, OPERATOR_SHELL_SCROLL_OFFSET_CLASS)}
             data-testid="getting-started-technical-details"
+            summaryClassName={cn("cursor-pointer font-medium", OPERATOR_TYPOGRAPHY.cardTitle)}
+            summary={GETTING_STARTED_HELP_TECHNICAL_DETAILS_TITLE}
+            bodyClassName={cn(HELP_PAGE_LAYOUT.detailsBody, "space-y-4")}
           >
-            <summary className={cn("cursor-pointer font-medium", OPERATOR_TYPOGRAPHY.cardTitle)}>
-              {GETTING_STARTED_HELP_TECHNICAL_DETAILS_TITLE}
-            </summary>
-            <div className={cn(HELP_PAGE_LAYOUT.detailsBody, "space-y-4")}>
-              <p className={cn("m-0", OPERATOR_TYPOGRAPHY.body)}>{GETTING_STARTED_HELP_TECHNICAL_DETAILS_BODY}</p>
-              <PlainLanguageTable terms={GETTING_STARTED_HELP_TECHNICAL_TERMS} testId="getting-started-technical-terms-table" />
-              <p className={cn("m-0", OPERATOR_TYPOGRAPHY.helper)}>
-                Deeper engineering references:{" "}
-                <Link href="/help/scope" className={cn("underline-offset-2 hover:underline", DESIGN_TOKENS.accent.link)}>
-                  Workspace and scope guide
-                </Link>
-                {" · "}
-                <Link
-                  href="/help/troubleshooting"
-                  className={cn("underline-offset-2 hover:underline", DESIGN_TOKENS.accent.link)}
-                >
-                  Troubleshooting
-                </Link>
-              </p>
-            </div>
-          </details>
+            <p className={cn("m-0", OPERATOR_TYPOGRAPHY.body)}>{GETTING_STARTED_HELP_TECHNICAL_DETAILS_BODY}</p>
+            <PlainLanguageTable terms={GETTING_STARTED_HELP_TECHNICAL_TERMS} testId="getting-started-technical-terms-table" />
+            <p className={cn("m-0", OPERATOR_TYPOGRAPHY.helper)}>
+              Deeper engineering references:{" "}
+              <Link href="/help/scope" className={cn("underline-offset-2 hover:underline", DESIGN_TOKENS.accent.link)}>
+                Workspace and scope guide
+              </Link>
+              {" · "}
+              <Link
+                href="/help/troubleshooting"
+                className={cn("underline-offset-2 hover:underline", DESIGN_TOKENS.accent.link)}
+              >
+                Troubleshooting
+              </Link>
+            </p>
+          </HelpLazyDetails>
         </div>
 
         <HelpTopicTableOfContents headings={GETTING_STARTED_HELP_GUIDE_HEADINGS} />

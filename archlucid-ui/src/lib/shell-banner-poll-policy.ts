@@ -1,5 +1,10 @@
-import type { LlmMonthlyDollarBudgetStatus } from "@/lib/llm-monthly-budget-status";
-
+import type { TenantCatalogMigrationStatus } from "@/lib/fetch-tenant-catalog-migration-status";
+import type { HealthReadyResponse } from "@/lib/health-dashboard-types";
+import { isAzureServiceBusHealthUnhealthy } from "@/lib/health-dashboard-types";
+import {
+  shouldShowBuyerLlmUsageBandHint,
+  type LlmMonthlyDollarBudgetStatus,
+} from "@/lib/llm-monthly-budget-status";
 export const SHELL_BANNER_POLL_MS = 60_000;
 
 /**
@@ -25,6 +30,26 @@ export function shouldPollLlmBudgetApproachingBanner(
   return status?.monthlyBudgetMonitoringActive === true;
 }
 
+/** Buyer-polished shell band hint — poll only while approaching/exhausted copy is visible. */
+export function shouldPollBuyerLlmUsageBandHint(
+  status: LlmMonthlyDollarBudgetStatus | undefined,
+): boolean {
+  return status !== undefined && shouldShowBuyerLlmUsageBandHint(status);
+}
+
+/** Service Bus health banner — poll only while the degraded warning is visible. */
+export function shouldPollServiceBusHealthDegradedBanner(
+  ready: HealthReadyResponse | null | undefined,
+): boolean {
+  return ready !== null && ready !== undefined && isAzureServiceBusHealthUnhealthy(ready.entries);
+}
+
+/** Catalog migration banner — poll only while a migration is actively in progress. */
+export function shouldPollCatalogMigrationBanner(
+  status: TenantCatalogMigrationStatus | undefined,
+): boolean {
+  return status?.inMigration === true;
+}
 export function resolveShellBannerPollIntervalMs(args: {
   readonly enabled: boolean;
   readonly documentHidden: boolean;

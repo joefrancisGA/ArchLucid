@@ -19,7 +19,7 @@ public sealed class SupportProblemReportIntakeService(
     public const string SlaMessage = SupportProblemReportCopy.SlaMessage;
 
     public const string SupportBundleAttachFailedWarning =
-        "Your report was submitted, but the redacted support bundle could not be attached. You can download one from Settings → Support if needed.";
+        "Your report was submitted, but the redacted support bundle could not be attached. You can download one from Administration → Support if needed.";
 
     private const int MaxOperatorNoteLength = 2000;
 

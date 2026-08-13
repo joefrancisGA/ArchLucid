@@ -29,6 +29,8 @@ export type ExecDigestDeliveryReadinessOverall =
   | "paused"
   | "delivery-issue";
 
+export type ExecDigestOutboundEmailStatus = "available" | "unavailable" | "not-verified";
+
 export type ExecDigestDeliveryReadinessItem = {
   readonly id: string;
   readonly label: string;
@@ -60,8 +62,48 @@ export type ExecDigestSavedScheduleSummary = {
 
 const GROUP_MAILBOX_PATTERN = /@.*\.(onmicrosoft|google|groups)\./i;
 
-export function formatExecDigestNextSendLabel(form: ExecDigestScheduleFormState): string {
+export function resolveExecDigestOutboundEmailStatus(
+  health: WeeklyDigestHealthDto | null,
+): ExecDigestOutboundEmailStatus {
+  if (health === null) {
+    return "not-verified";
+  }
+
+  const hasOutboundIssue = health.setupGaps.some((gap) =>
+    /outbound email|email channel|integration/i.test(gap),
+  );
+
+  if (hasOutboundIssue) {
+    return "unavailable";
+  }
+
+  return "available";
+}
+
+export function formatExecDigestOutboundEmailStatusLabel(status: ExecDigestOutboundEmailStatus): string {
+  switch (status) {
+    case "available":
+      return "Available";
+    case "unavailable":
+      return "Unavailable";
+    case "not-verified":
+      return "Not verified";
+    default: {
+      const exhaustive: never = status;
+      return exhaustive;
+    }
+  }
+}
+
+export function formatExecDigestNextSendLabel(
+  form: ExecDigestScheduleFormState,
+  isConfigured: boolean,
+): string {
   if (!form.emailEnabled) {
+    if (!isConfigured) {
+      return "Not scheduled until delivery is enabled";
+    }
+
     return "Not scheduled while delivery is paused";
   }
 
@@ -145,12 +187,7 @@ export function buildExecDigestRecipientSummary(
   directCount: number,
   subscriptionDestinationCount: number,
 ): string {
-  const directPart = `${directCount} direct recipient${directCount === 1 ? "" : "s"}`;
-  const subscriptionPart = `${subscriptionDestinationCount} subscription destination${
-    subscriptionDestinationCount === 1 ? "" : "s"
-  }`;
-
-  return `${directCount + subscriptionDestinationCount} delivery targets: ${directPart} and ${subscriptionPart}. Direct recipients receive the executive digest; subscription destinations receive architecture digests from advisory scans.`;
+  return `${directCount} direct, ${subscriptionDestinationCount} subscription`;
 }
 
 export function buildExecDigestSavedScheduleSummary(
@@ -166,7 +203,7 @@ export function buildExecDigestSavedScheduleSummary(
   };
   const subscriptionDestinationCount = health?.enabledDigestSubscriptionCount ?? 0;
   const deliveryStatus = saved.emailEnabled
-    ? "Active"
+    ? "Ready"
     : saved.isConfigured
       ? "Paused"
       : "Setup incomplete";
@@ -176,7 +213,7 @@ export function buildExecDigestSavedScheduleSummary(
     configuredCadence: formatExecDigestConfiguredCadenceSentence(form),
     deliveryStatus,
     timeZone: formatIanaTimeZoneOptionLabel(saved.ianaTimeZoneId),
-    nextScheduledSend: formatExecDigestNextSendLabel(form),
+    nextScheduledSend: formatExecDigestNextSendLabel(form, saved.isConfigured),
     directRecipientCount: saved.recipientEmails.length,
     subscriptionDestinationCount,
     lastScheduleUpdate: formatDigestInstant(saved.updatedUtc),
@@ -196,10 +233,9 @@ export function buildExecDigestDeliveryReadiness(
   const status = resolveExecDigestStatus(saved, form, unsavedChanges);
   const recipientInput: string = unsavedChanges ? form.recipients : saved.recipientEmails.join("; ");
   const recipientCount: number = parseExecDigestRecipientEmails(recipientInput).length;
-  const outboundReady: boolean =
-    health === null
-      ? true
-      : !health.setupGaps.some((gap) => /outbound email|email channel|integration/i.test(gap));
+  const outboundStatus = resolveExecDigestOutboundEmailStatus(health);
+  const outboundLabel = formatExecDigestOutboundEmailStatusLabel(outboundStatus);
+  const outboundReady = outboundStatus === "available";
   const scheduleValid =
     form.dayOfWeek >= 0 &&
     form.dayOfWeek <= 6 &&
@@ -240,15 +276,15 @@ export function buildExecDigestDeliveryReadiness(
     {
       id: "outbound-email",
       label: "Email delivery",
-      value: outboundReady ? "Available" : "Unavailable",
-      blocking: !outboundReady,
+      value: outboundLabel,
+      blocking: outboundStatus === "unavailable",
       actionLabel: outboundReady ? undefined : "Check delivery setup",
       actionHref: outboundReady ? undefined : INTEGRATIONS_READINESS_PATH,
     },
     {
       id: "next-send",
       label: "Next send",
-      value: formatExecDigestNextSendLabel(form),
+      value: formatExecDigestNextSendLabel(form, saved.isConfigured),
       blocking: false,
     },
   ];
@@ -287,6 +323,12 @@ export function buildExecDigestDeliveryReadiness(
       recipientCount === 0
         ? "Add at least one recipient before enabling scheduled delivery."
         : "Enable scheduled delivery after reviewing the cadence and recipients.";
+  }
+  else if (health === null) {
+    overall = "setup-incomplete";
+    overallLabel = "Verifying delivery";
+    overallStatusTagKind = "draft";
+    nextAction = "Checking email delivery readiness before confirming scheduled delivery.";
   }
   else {
     overall = "ready";

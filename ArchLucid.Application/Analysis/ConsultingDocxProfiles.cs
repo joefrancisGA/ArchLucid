@@ -7,7 +7,7 @@ namespace ArchLucid.Application.Analysis;
 /// <remarks>
 ///     These constants match the <see cref="ConsultingDocxTemplateProfileInfo.ProfileName" /> values
 ///     registered in <see cref="DefaultConsultingDocxTemplateProfileResolver" />. Any resolver that
-///     adds custom profiles should still honour these names when present.
+///     adds custom profiles should still honor these names when present.
 /// </remarks>
 public static class ConsultingDocxProfiles
 {

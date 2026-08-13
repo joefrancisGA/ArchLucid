@@ -5,7 +5,7 @@ import { GraphSampleModeBanner } from "@/app/(operator)/insights/evidence-graph/
 import {
   BUYER_EVIDENCE_GRAPH_SAMPLE_BANNER_BODY,
   BUYER_EVIDENCE_GRAPH_SAMPLE_BANNER_TITLE,
-} from "@/lib/buyer-polish-copy";
+} from "@/lib/buyer/buyer-polish-copy";
 
 describe("GraphSampleModeBanner (TB-1363)", () => {
   it("discloses Claims Intake sample is not the operator workspace", () => {

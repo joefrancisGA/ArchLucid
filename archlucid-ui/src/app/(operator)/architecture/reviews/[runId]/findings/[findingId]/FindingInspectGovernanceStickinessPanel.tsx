@@ -5,6 +5,8 @@ import { useCallback, useEffect, useMemo, useState } from "react";
 
 import { Button } from "@/components/ui/button";
 import { ConfirmationDialog } from "@/components/ConfirmationDialog";
+import { WhyDisabledCtaHint } from "@/components/usability/WhyDisabledCtaHint";
+import { CollabRecentActorPresenceStrip } from "@/components/CollabRecentActorPresenceStrip";
 import { DispositionExportBeforeAfterPreview } from "@/components/operator/DispositionExportBeforeAfterPreview";
 import { DispositionExportImpactNotice } from "@/components/operator/DispositionExportImpactNotice";
 import { SponsorStorySynopsisFromCounts } from "@/components/operator/SponsorStorySynopsisPanel";
@@ -22,10 +24,10 @@ import {
 import { useOperateCapability } from "@/hooks/use-operate-capability";
 import { upsertFindingRemediationAssignment } from "@/lib/api/finding-remediation-assignment-api";
 import { toApiLoadFailure } from "@/lib/api-load-failure";
-import { BUYER_DEMO_GOVERNANCE_WORKFLOW_UNAVAILABLE } from "@/lib/buyer-polish-copy";
+import { BUYER_DEMO_GOVERNANCE_WORKFLOW_UNAVAILABLE } from "@/lib/buyer/buyer-polish-copy";
 import { isBuyerPolishedOperatorShellEnv } from "@/lib/demo-ui-env";
-import { OPERATOR_TYPOGRAPHY } from "@/lib/design-tokens";
-import { enterpriseMutationControlDisabledTitle } from "@/lib/enterprise-controls-context-copy";
+import { OPERATOR_LAYOUT, OPERATOR_TYPOGRAPHY } from "@/lib/design-tokens";
+import { whyDisabledEnterpriseMutationControl } from "@/lib/why-disabled-cta";
 import {
   createWaiverTransitionCopy,
   dispositionTransitionCopy,
@@ -40,9 +42,10 @@ import {
   REMEDIATION_OWNER_HELP,
   REMEDIATION_OWNER_LABEL,
   validateRemediationOwnerInput,
-} from "@/lib/finding-governance-action-copy";
+} from "@/lib/findings/finding-governance-action-copy";
 import { buildSponsorStoryDispositionCountsFromRows } from "@/lib/sponsor-story-synopsis";
-import { resolveDispositionConcurrentUpdateNotice } from "@/lib/finding-disposition-concurrent-update";
+import { resolveDispositionConcurrentUpdateNotice } from "@/lib/findings/finding-disposition-concurrent-update";
+import { collabRecentActorsFromDispositionHistory } from "@/lib/collab-recent-actor-presence";
 
 const DISPOSITION_OPTIONS: FindingDispositionKind[] = [
   "Accepted",
@@ -110,6 +113,7 @@ export function FindingInspectGovernanceStickinessPanel({
   const [pendingDispositionConfirm, setPendingDispositionConfirm] = useState<PendingDispositionConfirm | null>(
     null,
   );
+  const [pendingRevokeWaiverConfirm, setPendingRevokeWaiverConfirm] = useState(false);
 
   const reload = useCallback(async (): Promise<FindingDispositionEvent[]> => {
     const [dispositions, waivers] = await Promise.all([
@@ -126,13 +130,13 @@ export function FindingInspectGovernanceStickinessPanel({
   }, [findingId]);
 
   useEffect(() => {
-    let cancelled = false;
+    let canceled = false;
 
     void (async () => {
       try {
         await reload();
       } catch {
-        if (!cancelled) {
+        if (!canceled) {
           setErrorMessage(
             buyerPolishedShell
               ? BUYER_DEMO_GOVERNANCE_WORKFLOW_UNAVAILABLE
@@ -143,7 +147,7 @@ export function FindingInspectGovernanceStickinessPanel({
     })();
 
     return () => {
-      cancelled = true;
+      canceled = true;
     };
   }, [buyerPolishedShell, reload]);
 
@@ -312,7 +316,8 @@ export function FindingInspectGovernanceStickinessPanel({
   }
 
   const currentDisposition = latestDispositionLabel(history);
-  const mutateDisabledTitle = canMutate ? undefined : enterpriseMutationControlDisabledTitle;
+  const mutationDisabledHintId = "finding-governance-stickiness-mutate-disabled-hint";
+  const mutationDisabledReason = canMutate ? null : whyDisabledEnterpriseMutationControl();
   const pendingDispositionKind: FindingDispositionKind =
     pendingDispositionConfirm === "mark-remediated" ? "Remediated" : disposition;
   const sponsorSynopsisCounts = useMemo(
@@ -324,9 +329,19 @@ export function FindingInspectGovernanceStickinessPanel({
   );
   const sponsorSynopsisPackageTitle =
     packageTitle !== null && packageTitle.trim().length > 0 ? packageTitle.trim() : runId;
+  const recentDispositionActors = useMemo(
+    () => collabRecentActorsFromDispositionHistory(history, { take: 3 }),
+    [history],
+  );
 
   return (
-    <div className={cn("space-y-6 rounded-lg border border-neutral-200 bg-white p-4 dark:border-neutral-800 dark:bg-neutral-950/40", OPERATOR_TYPOGRAPHY.body)}>
+    <div className={cn(OPERATOR_LAYOUT.sectionStack, "rounded-lg border border-neutral-200 bg-white p-4 dark:border-neutral-800 dark:bg-neutral-950/40", OPERATOR_TYPOGRAPHY.body)}>
+      <CollabRecentActorPresenceStrip recentActors={recentDispositionActors} />
+      <WhyDisabledCtaHint
+        id={mutationDisabledHintId}
+        reason={mutationDisabledReason}
+        testId={mutationDisabledHintId}
+      />
       <SponsorStorySynopsisFromCounts
         packageTitle={sponsorSynopsisPackageTitle}
         counts={sponsorSynopsisCounts}
@@ -386,7 +401,7 @@ export function FindingInspectGovernanceStickinessPanel({
             size="sm"
             variant="default"
             disabled={busyAction !== null || !canMutate}
-            title={mutateDisabledTitle}
+            aria-describedby={mutationDisabledReason === null ? undefined : mutationDisabledHintId}
             onClick={() => void submitRemediationAssignment()}
             data-testid="finding-remediation-save"
             aria-busy={busyAction === "remediation"}
@@ -455,7 +470,7 @@ export function FindingInspectGovernanceStickinessPanel({
             size="sm"
             variant="default"
             disabled={busyAction !== null || !canMutate}
-            title={mutateDisabledTitle}
+            aria-describedby={mutationDisabledReason === null ? undefined : mutationDisabledHintId}
             onClick={() => {
               setPendingDispositionConfirm("disposition");
             }}
@@ -469,7 +484,7 @@ export function FindingInspectGovernanceStickinessPanel({
             size="sm"
             variant="outline"
             disabled={busyAction !== null || !canMutate}
-            title={mutateDisabledTitle}
+            aria-describedby={mutationDisabledReason === null ? undefined : mutationDisabledHintId}
             onClick={() => {
               setPendingDispositionConfirm("mark-remediated");
             }}
@@ -549,7 +564,7 @@ export function FindingInspectGovernanceStickinessPanel({
                 size="sm"
                 variant="outline"
                 disabled={busyAction !== null || !canMutate}
-                title={mutateDisabledTitle}
+                aria-describedby={mutationDisabledReason === null ? undefined : mutationDisabledHintId}
                 onClick={() => void submitWaiver()}
                 data-testid="finding-waiver-create"
                 aria-busy={busyAction === "waiver"}
@@ -566,8 +581,10 @@ export function FindingInspectGovernanceStickinessPanel({
               size="sm"
               variant="destructive"
               disabled={busyAction !== null || !canMutate}
-              title={mutateDisabledTitle}
-              onClick={() => void revokeWaiver()}
+              aria-describedby={mutationDisabledReason === null ? undefined : mutationDisabledHintId}
+              onClick={() => {
+                setPendingRevokeWaiverConfirm(true);
+              }}
               data-testid="finding-waiver-revoke"
               aria-busy={busyAction === "revoke-waiver"}
             >
@@ -625,6 +642,25 @@ export function FindingInspectGovernanceStickinessPanel({
               setPendingDispositionConfirm(null);
             });
           }
+        }}
+      />
+
+      <ConfirmationDialog
+        open={pendingRevokeWaiverConfirm}
+        onOpenChange={(open) => {
+          if (!open) {
+            setPendingRevokeWaiverConfirm(false);
+          }
+        }}
+        title="Revoke risk exception?"
+        description="Revoking ends the active waiver for this finding. The revocation is recorded on the audit trail; the signed review record is not automatically changed."
+        confirmLabel="Revoke waiver"
+        variant="destructive"
+        busy={busyAction === "revoke-waiver"}
+        onConfirm={() => {
+          void revokeWaiver().finally(() => {
+            setPendingRevokeWaiverConfirm(false);
+          });
         }}
       />
     </div>

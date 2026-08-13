@@ -23,7 +23,7 @@ Ship a credible, independently recognisable pack that maps **OWASP Top 10 for LL
 | A2 | The 10 risks are: LLM01 Prompt Injection, LLM02 Insecure Output Handling, LLM03 Training Data Poisoning, LLM04 Model Denial of Service, LLM05 Supply-Chain Vulnerabilities, LLM06 Sensitive Information Disclosure, LLM07 Insecure Plugin Design, LLM08 Excessive Agency, LLM09 Overreliance, LLM10 Model Theft. | OWASP LLM Top 10 v1.1. |
 | A3 | Architecture evidence covers **design** and **posture** (e.g. "does the manifest document input validation boundaries?") — not runtime attack detection, which belongs in Sentinel / Defender. | ArchLucid scope. |
 | A4 | LLM07 (Insecure Plugin Design) is the primary bridge to `agentic-ai-mcp` (AI-06); cross-reference in `frameworkMappings`, do not duplicate. | Adjacent pack boundary. |
-| A5 | Pack has **3 rules per risk category** at minimum (P0: must-have architecture control, P1: defence-in-depth, P2: mature posture) → target ~30 rules. | Rule sizing principle. |
+| A5 | Pack has **3 rules per risk category** at minimum (P0: must-have architecture control, P1: defense-in-depth, P2: mature posture) → target ~30 rules. | Rule sizing principle. |
 | A6 | `priorityFloor: P0` default; P0 maps to OWASP-designated **Critical / High** risk classification. | Priority model. |
 
 ---

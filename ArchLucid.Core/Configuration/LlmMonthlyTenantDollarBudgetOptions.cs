@@ -56,4 +56,27 @@ public sealed class LlmMonthlyTenantDollarBudgetOptions
         get;
         set;
     } = 8_192;
+
+    /// <summary>
+    ///     Maximum concurrent in-flight monthly USD reservations per tenant before new reserves are rejected (TB-977).
+    /// </summary>
+    public int MaxConcurrentInFlightMonthlyReservations
+    {
+        get;
+        set;
+    } = 64;
+
+    /// <summary>Pending per-call reservation TTL before orphan reclaim releases monthly pressure (TB-976).</summary>
+    public int ReservationTtlMinutes
+    {
+        get;
+        set;
+    } = 15;
+
+    /// <summary>Background orphan reclaim interval for expired monthly per-call reservations (TB-976).</summary>
+    public int ReservationReclaimIntervalSeconds
+    {
+        get;
+        set;
+    } = 60;
 }

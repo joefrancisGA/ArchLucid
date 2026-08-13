@@ -16,7 +16,7 @@ import { OperatorHomeWorkspaceStatusSection } from "@/components/operator-home/O
 
 const committedReviewMock = vi.hoisted(() => ({ value: true }));
 
-vi.mock("@/components/OperatorNavAuthorityProvider", () => ({
+vi.mock("@/components/operator/OperatorNavAuthorityProvider", () => ({
   useNavCommittedArchitectureReview: () => committedReviewMock.value,
 }));
 

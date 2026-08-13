@@ -10,7 +10,9 @@ import {
 } from "@/lib/demo-preview-page-copy";
 import { buildDemoPreviewTimelineRows } from "@/lib/demo-preview-timeline-present";
 import { MARKETING_TYPOGRAPHY } from "@/lib/design-tokens";
-import { policyPackBuyerLabel } from "@/lib/policy-pack-buyer-label";
+import { ShowcaseFunnelTelemetryAnchor } from "@/lib/marketing/showcase-funnel-telemetry-anchor";
+import { policyPackBuyerLabel } from "@/lib/policy/policy-pack-buyer-label";
+import type { ShowcaseDemoPreviewTelemetry } from "@/lib/marketing/showcase-telemetry";
 import type { DemoCommitPagePreviewResponse } from "@/types/demo-preview";
 import type { PipelineTimelineItem } from "@/types/authority";
 import { cn } from "@/lib/utils";
@@ -20,6 +22,7 @@ type DemoPreviewCompactTimelineProps = {
   readonly pipelineItems: PipelineTimelineItem[];
   readonly primaryFindingId?: string;
   readonly isRunDetailAvailable: boolean;
+  readonly showcaseTelemetry?: ShowcaseDemoPreviewTelemetry;
 };
 
 function safeLocaleTime(iso: string): string {
@@ -93,13 +96,26 @@ export function DemoPreviewCompactTimeline(props: DemoPreviewCompactTimelineProp
               ) : null}
               {row.action !== null ? (
                 <p className="m-0 mt-2">
-                  <Link
-                    href={row.action.href}
-                    className="font-medium text-teal-800 underline underline-offset-2 dark:text-teal-300"
-                    data-testid={`demo-preview-timeline-action-${row.eventId}`}
-                  >
-                    {row.action.label}
-                  </Link>
+                  {props.showcaseTelemetry && row.action.href.includes("/findings/") ? (
+                    <ShowcaseFunnelTelemetryAnchor
+                      href={row.action.href}
+                      className="font-medium text-teal-800 underline underline-offset-2 dark:text-teal-300"
+                      data-testid={`demo-preview-timeline-action-${row.eventId}`}
+                      scenario={props.showcaseTelemetry.scenario}
+                      renderMode={props.showcaseTelemetry.renderMode}
+                      funnelAction="finding_open"
+                    >
+                      {row.action.label}
+                    </ShowcaseFunnelTelemetryAnchor>
+                  ) : (
+                    <Link
+                      href={row.action.href}
+                      className="font-medium text-teal-800 underline underline-offset-2 dark:text-teal-300"
+                      data-testid={`demo-preview-timeline-action-${row.eventId}`}
+                    >
+                      {row.action.label}
+                    </Link>
+                  )}
                 </p>
               ) : null}
             </div>

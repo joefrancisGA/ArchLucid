@@ -3,6 +3,7 @@
 import Link from "next/link";
 import { useMemo, useSyncExternalStore } from "react";
 
+import { useOperatorHomeWorkspaceActivity } from "@/components/operator-home/operator-home-workspace-activity-context";
 import { StatusTag } from "@/components/ui/status-tag";
 import { useArchitectureDraftRegistryEntries } from "@/hooks/use-architecture-draft-registry-entries";
 import {
@@ -17,10 +18,12 @@ import {
   type UnfinishedWorkRailItem,
   type UnfinishedWorkRailItemKind,
 } from "@/lib/unfinished-work-rail";
+import { resolveOperatorHomeWorkspacePhase } from "@/lib/resolve-operator-home-workspace-phase";
 import { cn } from "@/lib/utils";
 import type { RunSummary } from "@/types/authority";
 
 export type UnfinishedWorkRailProps = {
+  /** Server-rendered reviews for first paint; a refreshed client snapshot supersedes it when present. */
   readonly runs: readonly RunSummary[];
 };
 
@@ -95,20 +98,32 @@ function UnfinishedWorkRailList(props: { readonly items: readonly UnfinishedWork
  */
 export function UnfinishedWorkRail(props: UnfinishedWorkRailProps): React.JSX.Element | null {
   const drafts = useArchitectureDraftRegistryEntries();
+  const { hasWorkspaceReviews, liveRunsSnapshot } = useOperatorHomeWorkspaceActivity();
   const incompleteWizards = useSyncExternalStore(
     subscribeWizardSessions,
     getIncompleteWizardSnapshot,
     getIncompleteWizardServerSnapshot,
   );
+  const runs = liveRunsSnapshot?.items ?? props.runs;
+  const activeDraftCount = drafts.filter((entry) => entry.customerStatus !== "archived").length;
+  const workspacePhase = resolveOperatorHomeWorkspacePhase({
+    hasWorkspaceReviews,
+    draftCount: activeDraftCount,
+    hasCommittedManifest: false,
+    openFindingsCount: 0,
+    governanceWarningsCount: 0,
+  });
+  const excludeKinds: readonly UnfinishedWorkRailItemKind[] =
+    workspacePhase === "eval-with-drafts" ? ["architecture-draft"] : [];
 
   const items = useMemo(
     () =>
       buildUnfinishedWorkRailItems({
         drafts,
-        runs: props.runs,
+        runs,
         incompleteWizards,
-      }),
-    [drafts, incompleteWizards, props.runs],
+      }).filter((item) => !excludeKinds.includes(item.kind)),
+    [drafts, excludeKinds, incompleteWizards, runs],
   );
 
   if (items.length === 0) {

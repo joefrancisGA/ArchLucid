@@ -24,3 +24,41 @@ export function modelExecutionProfileLabel(profile: ModelExecutionProfileSelecti
     }
   }
 }
+
+export type ModelExecutionProfileDescriptor = {
+  readonly summary: string;
+  readonly tradeoffs: readonly string[];
+};
+
+export function modelExecutionProfileDescriptor(profile: ModelExecutionProfile): ModelExecutionProfileDescriptor {
+  switch (profile) {
+    case "Economy":
+      return {
+        summary: "Lower token spend for routine architecture reviews.",
+        tradeoffs: [
+          "Uses economy model tiers across agent roles",
+          "May reduce depth on complex governance decisions",
+        ],
+      };
+    case "Balanced":
+      return {
+        summary: "Recommended default balance of cost and assurance.",
+        tradeoffs: [
+          "Standard model tiers for most review workloads",
+          "Suitable starting point for new workspaces",
+        ],
+      };
+    case "HighAssurance":
+      return {
+        summary: "Strongest model tiers for high-stakes governance reviews.",
+        tradeoffs: [
+          "Higher token spend per review",
+          "May increase agent run latency on some tasks",
+        ],
+      };
+    default: {
+      const exhaustive: never = profile;
+      return exhaustive;
+    }
+  }
+}

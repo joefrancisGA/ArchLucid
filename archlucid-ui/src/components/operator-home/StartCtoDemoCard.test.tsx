@@ -12,7 +12,7 @@ vi.mock("next/navigation", async (importOriginal) => {
   };
 });
 
-vi.mock("@/lib/buyer-cto-demo-readiness", () => ({
+vi.mock("@/lib/buyer/buyer-cto-demo-readiness", () => ({
   evaluateBuyerCtoDemoReadiness: vi.fn(async () => ({
     verdict: "ready",
     checks: [],
@@ -25,8 +25,8 @@ import {
   BUYER_HOME_START_CTO_DEMO_CTA,
   BUYER_HOME_START_CTO_DEMO_HEADING,
   BUYER_HOME_START_CTO_DEMO_LEAD,
-} from "@/lib/buyer-polish-copy";
-import { getStartCtoDemoTourHref } from "@/lib/buyer-cto-demo-tour";
+} from "@/lib/buyer/buyer-polish-copy";
+import { getStartCtoDemoTourHref } from "@/lib/buyer/buyer-cto-demo-tour";
 
 describe("StartCtoDemoCard", () => {
   beforeEach(() => {

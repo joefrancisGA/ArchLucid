@@ -47,6 +47,8 @@ export type ResolveAdminPrerequisitesReadinessInput = {
   readonly cloud: AdminPrerequisitesCloudSummary;
   readonly billing: AdminPrerequisitesBillingSummary;
   readonly deployment?: FinishSetupWizardDeploymentOptions;
+  /** Host config-lint row — internal operator shell only. */
+  readonly includeHostConfigurationLint?: boolean;
 };
 
 export const ADMIN_PREREQUISITE_SORT_ORDER = {
@@ -141,15 +143,17 @@ function buildAllAdminPrerequisiteRows(input: ResolveAdminPrerequisitesReadiness
 
   const configLintCopy = mapConfigLintReadiness({ canAdmin: true, lint: input.configLint });
 
-  rows.push({
-    id: "production-config",
-    label: "Production-like configuration",
-    status: configLintCopy.status,
-    summary: configLintCopy.summary,
-    href: "/internal/health",
-    cta: "Open config lint",
-    sortOrder: ADMIN_PREREQUISITE_SORT_ORDER.productionConfig,
-  });
+  if (input.includeHostConfigurationLint === true) {
+    rows.push({
+      id: "production-config",
+      label: "Production-like configuration",
+      status: configLintCopy.status,
+      summary: configLintCopy.summary,
+      href: "/internal/health",
+      cta: "Open config lint",
+      sortOrder: ADMIN_PREREQUISITE_SORT_ORDER.productionConfig,
+    });
+  }
 
   if (!input.cloud.loadFailed) {
     const cloudReady = input.cloud.anyConfigured;

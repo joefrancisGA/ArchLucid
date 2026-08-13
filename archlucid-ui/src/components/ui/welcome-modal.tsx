@@ -195,7 +195,7 @@ export function WelcomeModal(props: WelcomeModalProps) {
           </DialogDescription>
         </div>
 
-        <DialogFooter className="flex-col gap-2 border-t border-neutral-200 bg-neutral-50/80 p-3 dark:border-neutral-800 dark:bg-neutral-900/40 sm:flex-col sm:space-x-0">
+        <DialogFooter className="flex-col gap-2 border-t border-neutral-200 bg-neutral-50/80 p-3 dark:border-neutral-800 dark:bg-neutral-900/40 sm:flex-col">
           {operatorFirstRun ? (
             <div className="flex w-full flex-wrap justify-center gap-2 sm:justify-end">
               <Button type="button" variant="outline" onClick={onDismiss}>

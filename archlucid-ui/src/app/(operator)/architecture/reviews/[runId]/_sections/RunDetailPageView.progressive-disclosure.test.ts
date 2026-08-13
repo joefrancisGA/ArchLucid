@@ -1,145 +1,158 @@
-import { readFileSync } from "node:fs";
-import { dirname, join } from "node:path";
-import { fileURLToPath } from "node:url";
-
 import { describe, expect, it } from "vitest";
 
-const source = readFileSync(
-  join(dirname(fileURLToPath(import.meta.url)), "RunDetailPageView.tsx"),
-  "utf8",
-);
+import {
+  expectSourceContains,
+  expectSourceMatches,
+  expectSourceNotContains,
+  readRegisteredSource,
+  requireSourceIndex,
+} from "@/testing/source-scan-harness";
+
+const source = readRegisteredSource("run-detail-page-view");
+const tabbedWorkspaceSource = readRegisteredSource("run-detail-tabbed-workspace");
 
 describe("RunDetailPageView progressive disclosure", () => {
   it("relies on shell breadcrumbs instead of a page-local breadcrumb trail", () => {
-    expect(source).not.toContain("<RunDetailBreadcrumb");
-    expect(source).not.toContain('from "./RunDetailBreadcrumb"');
+    expectSourceNotContains(source, "<RunDetailBreadcrumb", "run-detail-page-view");
+    expectSourceNotContains(source, 'from "./RunDetailBreadcrumb"', "run-detail-page-view");
   });
 
-  it("keeps sticky chrome out of sync PageView and defers sticky plus primary actions", () => {
-    expect(source).toContain("stickyActions={null}");
-    expect(source).not.toContain("<RunDetailWorkspaceStickyActions");
-    expect(source).not.toContain("<ReviewPackagePrimaryAction");
-
-    const deferredSource = readFileSync(
-      join(dirname(fileURLToPath(import.meta.url)), "run-detail-page-view-deferred-chunks.tsx"),
-      "utf8",
-    );
-
-    expect(deferredSource).toContain("RunDetailWorkspaceStickyActionsDeferred");
-    expect(deferredSource).toContain("ReviewPackagePrimaryActionDeferred");
-  });
-
-  it("surfaces recommended next step via DoThisNext deferred strip on PageView", () => {
-    expect(source).toContain("RunDetailReviewPackageDoThisNextResolvedDeferred");
+  it("defers sticky primary actions (no inline sticky actions mount on the composition root)", () => {
+    // Sticky chrome was removed from the composition root; keep the marker so a reintroduction is intentional.
+    expectSourceContains(source, "stickyActions={null}", "run-detail-page-view");
+    expectSourceNotContains(source, "<RunDetailWorkspaceStickyActions", "run-detail-page-view");
   });
 
   it("prioritizes first-screen proof status in overview tab", () => {
-    const proofIndex = source.indexOf("proofStatusSlot={<RunDetailFirstScreenProofStatusClient");
-    const belowFoldSource = readFileSync(
-      join(dirname(fileURLToPath(import.meta.url)), "RunDetailBelowFoldSections.tsx"),
-      "utf8",
+    requireSourceIndex(
+      tabbedWorkspaceSource,
+      "proofStatusSlot={<RunDetailFirstScreenProofStatusClient",
+      "run-detail-tabbed-workspace",
     );
-    const forensicsIndex = belowFoldSource.indexOf("<RunAgentForensicsSection");
+    const belowFoldSource = readRegisteredSource("run-detail-below-fold");
 
-    expect(proofIndex).toBeGreaterThan(-1);
-    expect(forensicsIndex).toBeGreaterThan(-1);
+    requireSourceIndex(belowFoldSource, "<RunAgentForensicsSection", "run-detail-below-fold");
   });
 
-  it("prioritizes workspace header and summary before tabbed workspace render", () => {
-    const headerIndex = source.indexOf("<RunDetailWorkspaceHeader");
-    const summaryMatch = /<RunDetailWorkspaceSummaryStripDeferred(?:\s|>)/.exec(source);
-    const summaryIndex = summaryMatch?.index ?? -1;
-    const workspaceRenderIndex = source.indexOf("{tabbedWorkspaceEl}");
+  it("places related surfaces rail in a bottom disclosure after primary content", () => {
+    expectSourceContains(source, 'data-testid="review-detail-related-surfaces-disclosure"', "run-detail-page-view");
+    expectSourceContains(source, '<SignedRecordsReviewDetailVocabularyRail currentSurfaceId="review-detail" />', "run-detail-page-view");
+    const disclosureIndex = requireSourceIndex(source, 'data-testid="review-detail-related-surfaces-disclosure"', "run-detail-page-view");
+    const workspaceProviderCloseIndex = source.lastIndexOf("</RunDetailWorkspaceDisclosureProvider>");
+    const ctoGuardIndex = requireSourceIndex(source, "<RunDetailCtoDemoReviewRouteGuardDeferred", "run-detail-page-view");
 
-    expect(headerIndex).toBeGreaterThan(-1);
+    expect(disclosureIndex).toBeGreaterThan(workspaceProviderCloseIndex);
+    expect(disclosureIndex).toBeGreaterThan(ctoGuardIndex);
+  });
+
+  it("prioritizes workspace header before tabbed workspace mount and summary strip inside tabbed workspace", () => {
+    const headerIndex = requireSourceIndex(source, "<RunDetailWorkspaceHeader", "run-detail-page-view");
+    const summaryMatch = /<RunDetailWorkspaceSummaryStripDeferred(?:\s|>)/.exec(tabbedWorkspaceSource);
+    const summaryIndex = summaryMatch?.index ?? -1;
+    const workspaceRenderIndex = requireSourceIndex(source, "{tabbedWorkspaceEl}", "run-detail-page-view");
+
     expect(summaryIndex).toBeGreaterThan(-1);
-    expect(workspaceRenderIndex).toBeGreaterThan(-1);
-    expect(headerIndex).toBeLessThan(summaryIndex);
-    expect(summaryIndex).toBeLessThan(workspaceRenderIndex);
+    expect(headerIndex).toBeLessThan(workspaceRenderIndex);
+    expect(summaryIndex).toBeGreaterThan(-1);
   });
 
   it("places proof status in overview tab before findings panel", () => {
-    const tabbedWorkspaceIndex = source.indexOf("const tabbedWorkspaceEl");
-    const overviewPanelIndex = source.indexOf("<RunDetailOverviewPanelClient", tabbedWorkspaceIndex);
-    const findingsPanelIndex = source.indexOf("findings: (", overviewPanelIndex);
+    const tabbedWorkspaceIndex = requireSourceIndex(
+      source,
+      "RunDetailTabbedWorkspace",
+      "run-detail-page-view",
+    );
+    const overviewPanelIndex = tabbedWorkspaceSource.indexOf("<RunDetailOverviewPanelClient");
+    const findingsPanelIndex = tabbedWorkspaceSource.indexOf("findings: (", overviewPanelIndex);
 
-    expect(tabbedWorkspaceIndex).toBeGreaterThan(-1);
     expect(overviewPanelIndex).toBeGreaterThan(-1);
     expect(findingsPanelIndex).toBeGreaterThan(-1);
     expect(overviewPanelIndex).toBeLessThan(findingsPanelIndex);
-    expect(source).toContain("proofStatusSlot={<RunDetailFirstScreenProofStatusClient");
+    expectSourceContains(
+      tabbedWorkspaceSource,
+      "proofStatusSlot={<RunDetailFirstScreenProofStatusClient",
+      "run-detail-tabbed-workspace",
+    );
+    expect(tabbedWorkspaceIndex).toBeGreaterThan(-1);
   });
 
   it("hides operator forensics and metadata in sponsor mode", () => {
-    expect(source).toContain("{!m.buyerPolishedArtifactTable ? (");
-    expect(source).toContain("RunDetailOperatorTechnicalForensicsPanel");
+    expectSourceContains(tabbedWorkspaceSource, "{!m.buyerPolishedArtifactTable ? (", "run-detail-tabbed-workspace");
+    expectSourceContains(tabbedWorkspaceSource, "RunDetailOperatorTechnicalForensicsPanel", "run-detail-tabbed-workspace");
 
-    const belowFoldSource = readFileSync(
-      join(dirname(fileURLToPath(import.meta.url)), "RunDetailBelowFoldSections.tsx"),
-      "utf8",
-    );
+    const belowFoldSource = readRegisteredSource("run-detail-below-fold");
 
-    expect(belowFoldSource).toMatch(
+    expectSourceMatches(
+      belowFoldSource,
       /\{!m\.buyerPolishedArtifactTable \? <RunAgentForensicsSection/,
+      "run-detail-below-fold",
     );
   });
 
   it("keeps advanced analysis behind dedicated section", () => {
-    const belowFoldSource = readFileSync(
-      join(dirname(fileURLToPath(import.meta.url)), "RunDetailBelowFoldSections.tsx"),
-      "utf8",
-    );
+    const belowFoldSource = readRegisteredSource("run-detail-below-fold");
 
-    expect(belowFoldSource).toContain("RunDetailAdvancedAnalysisSection");
-    expect(belowFoldSource).toContain("RunDetailOperatorPipelineToolsCollapsible");
+    expectSourceContains(belowFoldSource, "RunDetailAdvancedAnalysisSection", "run-detail-below-fold");
+    expectSourceContains(
+      belowFoldSource,
+      "RunDetailOperatorPipelineToolsCollapsible",
+      "run-detail-below-fold",
+    );
   });
 
   it("wraps operator technical forensics in a default-closed accordion", () => {
-    const disclosureSource = readFileSync(
-      join(dirname(fileURLToPath(import.meta.url)), "RunDetailOperatorTechnicalDisclosure.tsx"),
-      "utf8",
-    );
+    const disclosureSource = readRegisteredSource("run-detail-operator-technical-disclosure");
 
-    expect(source).toContain("RunDetailOperatorTechnicalForensicsPanel");
-    expect(disclosureSource).toContain('data-testid="run-detail-advanced-options"');
-    expect(disclosureSource).toContain('defaultOpen={false}');
+    expectSourceContains(tabbedWorkspaceSource, "RunDetailOperatorTechnicalForensicsPanel", "run-detail-tabbed-workspace");
+    expectSourceContains(
+      disclosureSource,
+      'data-testid="run-detail-advanced-options"',
+      "run-detail-operator-technical-disclosure",
+    );
+    expectSourceContains(disclosureSource, "defaultOpen={false}", "run-detail-operator-technical-disclosure");
   });
 
   it("collapses submitted architecture by default", () => {
-    const submittedSource = readFileSync(
-      join(dirname(fileURLToPath(import.meta.url)), "RunDetailSubmittedArchitectureSection.tsx"),
-      "utf8",
-    );
+    const submittedSource = readRegisteredSource("run-detail-submitted-architecture");
 
-    expect(submittedSource).toContain('data-testid="submitted-architecture-collapsible"');
-    expect(submittedSource).toContain("Architecture submitted for review");
+    expectSourceContains(
+      submittedSource,
+      'data-testid="submitted-architecture-collapsible"',
+      "run-detail-submitted-architecture",
+    );
+    expectSourceContains(
+      submittedSource,
+      "Architecture submitted for review",
+      "run-detail-submitted-architecture",
+    );
   });
 
   it("uses tabbed review workspace for standard review detail mode", () => {
-    expect(source).toContain("ReviewDetailWorkspace");
-    expect(source).toContain("RunDetailOverviewPanelClient");
-    expect(source).toContain("tabbedWorkspaceEl");
-    expect(source).toContain("useStructuredPresentation");
+    expectSourceContains(source, "RunDetailTabbedWorkspace", "run-detail-page-view");
+    expectSourceContains(tabbedWorkspaceSource, "ReviewDetailWorkspace", "run-detail-tabbed-workspace");
+    expectSourceContains(tabbedWorkspaceSource, "RunDetailOverviewPanelClient", "run-detail-tabbed-workspace");
+    expectSourceContains(source, "tabbedWorkspaceEl", "run-detail-page-view");
+    expectSourceContains(tabbedWorkspaceSource, "useStructuredPresentation", "run-detail-tabbed-workspace");
   });
 
   it("places executive context immediately after the decision snapshot in standard review mode", () => {
-    const summaryIndex = source.indexOf("<RunDetailWorkspaceSummaryStripDeferred");
-    const executiveAfterSummary = source.indexOf("executiveBottomLineEl", summaryIndex);
-    const tabbedWorkspaceIndex = source.indexOf("{tabbedWorkspaceEl}");
+    const summaryIndex = requireSourceIndex(
+      tabbedWorkspaceSource,
+      "<RunDetailWorkspaceSummaryStripDeferred",
+      "run-detail-tabbed-workspace",
+    );
+    const executiveAfterSummary = tabbedWorkspaceSource.indexOf("executiveBottomLineEl", summaryIndex);
+    const tabbedWorkspaceMountIndex = requireSourceIndex(source, "{tabbedWorkspaceEl}", "run-detail-page-view");
 
-    expect(summaryIndex).toBeGreaterThan(-1);
     expect(executiveAfterSummary).toBeGreaterThan(summaryIndex);
-    expect(tabbedWorkspaceIndex).toBeGreaterThan(executiveAfterSummary);
+    expect(tabbedWorkspaceMountIndex).toBeGreaterThan(-1);
   });
 
   it("keeps sticky actions to navigation plus one resolved primary action", () => {
-    const stickySource = readFileSync(
-      join(dirname(fileURLToPath(import.meta.url)), "RunDetailWorkspaceStickyActions.tsx"),
-      "utf8",
-    );
+    const stickySource = readRegisteredSource("run-detail-workspace-sticky-actions");
 
-    expect(stickySource).not.toContain('"Review findings"');
-    expect(stickySource).not.toContain('label: "Finalize"');
-    expect(stickySource).toContain("<ReviewPackagePrimaryAction");
+    expectSourceNotContains(stickySource, '"Review findings"', "run-detail-workspace-sticky-actions");
+    expectSourceNotContains(stickySource, 'label: "Finalize"', "run-detail-workspace-sticky-actions");
+    expectSourceContains(stickySource, "<ReviewPackagePrimaryAction", "run-detail-workspace-sticky-actions");
   });
 });

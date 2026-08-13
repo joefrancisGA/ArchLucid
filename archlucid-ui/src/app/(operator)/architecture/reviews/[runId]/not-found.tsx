@@ -1,4 +1,4 @@
-import { OperatorBrandedNotFound } from "@/components/OperatorBrandedNotFound";
+import { OperatorBrandedNotFound } from "@/components/operator/OperatorBrandedNotFound";
 
 /** Review detail not-found — stale or unknown review id. */
 export default function ReviewDetailNotFound() {

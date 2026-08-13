@@ -1,7 +1,7 @@
 import { fireEvent, render, screen } from "@testing-library/react";
 import { describe, expect, it, vi } from "vitest";
 
-import { policyPacksPageSubtitle } from "@/lib/policy-packs-page";
+import { policyPacksPageSubtitle } from "@/lib/policy/policy-packs-page";
 
 vi.mock("next/navigation", () => ({
   usePathname: () => "/governance/policy-packs",

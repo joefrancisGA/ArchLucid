@@ -15,7 +15,7 @@ import {
   CORE_PILOT_CHECKLIST_CHANGED_EVENT,
   readAfterCorePilotWhatsNextDismissed,
 } from "@/lib/core-pilot-checklist-storage";
-import { GOVERNANCE_POLICY_PACKS_PATH } from "@/lib/governance-route-paths";
+import { GOVERNANCE_POLICY_PACKS_PATH } from "@/lib/governance/governance-route-paths";
 import { useCorePilotDerivedStepStatus } from "@/lib/use-core-pilot-derived-step-status";
 import { NAV_DISCLOSURE } from "@/lib/nav-disclosure-copy";
 

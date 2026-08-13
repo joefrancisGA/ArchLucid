@@ -13,7 +13,7 @@ vi.mock("next/navigation", () => ({
   usePathname: () => "/help/accelerator-chooser",
 }));
 
-vi.mock("@/lib/help-topic-pdf-download", () => ({
+vi.mock("@/lib/help/help-topic-pdf-download", () => ({
   downloadHelpTopicPdf: vi.fn(),
 }));
 
@@ -47,7 +47,7 @@ import {
   ACCELERATOR_PACK_CTA_PENDING_UNKNOWN_MESSAGE,
   ACCELERATOR_PACK_PREREQUISITE_BLOCKED_MESSAGE,
 } from "@/lib/accelerator-chooser-pack-prerequisite";
-import { getHelpCenterTier } from "@/lib/help-center-catalog";
+import { getHelpCenterTier } from "@/lib/help/help-center-catalog";
 import { tryLoadProductDocumentation } from "@/lib/load-product-documentation";
 
 function renderGuideWithPrerequisiteStatus(

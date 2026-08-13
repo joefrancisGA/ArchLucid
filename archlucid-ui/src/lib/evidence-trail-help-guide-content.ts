@@ -1,7 +1,7 @@
 import {
   BUYER_EVIDENCE_TRAIL_GRAPH_MODE_FINDING,
   BUYER_EVIDENCE_TRAIL_LOAD_BUTTON,
-} from "@/lib/buyer-polish-copy";
+} from "@/lib/buyer/buyer-polish-copy";
 import { AZURE_REFERENCE_SAMPLE_GRAPH_CTA_LABEL } from "@/lib/empty-state-presets";
 import { EVIDENCE_GRAPH_PATH } from "@/lib/evidence-graph-route";
 import {
@@ -12,8 +12,8 @@ import {
   FINDING_EVIDENCE_GRAPH_DEFAULT_MODE,
   getFindingEvidenceGraphHref,
 } from "@/lib/graph-finding-deep-links";
-import { getFindingEvidenceTraceHref } from "@/lib/finding-evidence-navigation";
-import { SHOWCASE_PHI_FINDING_GRAPH_NODE_ID } from "@/lib/finding-inspect-graph-evidence";
+import { getFindingEvidenceTraceHref } from "@/lib/findings/finding-evidence-navigation";
+import { SHOWCASE_PHI_FINDING_GRAPH_NODE_ID } from "@/lib/findings/finding-inspect-graph-evidence";
 import { inAppHelpHref } from "@/lib/product-documentation-registry";
 import {
   SHOWCASE_STATIC_DEMO_PRIMARY_FINDING_ID,

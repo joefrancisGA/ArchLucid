@@ -5,7 +5,7 @@ import { describe, expect, it } from "vitest";
 import { WizardStepDescription } from "@/components/wizard/steps/WizardStepDescription";
 import { WizardFormTestHarness } from "@/components/wizard/wizard-form-test-utils";
 import { TooltipProvider } from "@/components/ui/tooltip";
-import { ARCHITECTURE_REQUEST_DESCRIPTION_MAX_LENGTH } from "@/lib/architecture-request-limits";
+import { ARCHITECTURE_REQUEST_DESCRIPTION_MAX_LENGTH } from "@/lib/architecture/architecture-request-limits";
 
 function ValidateDescriptionButton() {
   const { trigger } = useFormContext();

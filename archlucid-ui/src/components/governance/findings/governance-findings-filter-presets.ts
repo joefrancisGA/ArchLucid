@@ -1,7 +1,7 @@
 import {
   RISK_REGISTER_FILTER_LABELS,
   type RiskRegisterFilter,
-} from "@/lib/architecture-risk-register-page";
+} from "@/lib/architecture/architecture-risk-register-page";
 
 const FILTER_PRESET_STORAGE_KEY = "archlucid.governance.filterPresets.v1";
 

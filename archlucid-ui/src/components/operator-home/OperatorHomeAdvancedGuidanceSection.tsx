@@ -1,13 +1,13 @@
 "use client";
 
 import { CorePilotChecklist } from "@/components/CorePilotChecklist";
-import { OperatorCorePilotDiagnosticsChecklist } from "@/components/OperatorCorePilotDiagnosticsChecklist";
+import { OperatorCorePilotDiagnosticsChecklist } from "@/components/operator/OperatorCorePilotDiagnosticsChecklist";
 import { OperatorHomeDisclosureSection } from "@/components/operator-home/OperatorHomeDisclosureSection";
 import {
   OPERATOR_HOME_ADVANCED_GUIDANCE_COLLAPSED_SUMMARY,
   OPERATOR_HOME_ADVANCED_GUIDANCE_TITLE,
-} from "@/lib/buyer-polish-copy";
-import { OPERATOR_HOME_DISCLOSURE_STORAGE_KEYS } from "@/lib/operator-home-disclosure-storage";
+} from "@/lib/buyer/buyer-polish-copy";
+import { OPERATOR_HOME_DISCLOSURE_STORAGE_KEYS } from "@/lib/operator/operator-home-disclosure-storage";
 
 type OperatorHomeAdvancedGuidanceSectionProps = {
   readonly buyerPolishedShell: boolean;

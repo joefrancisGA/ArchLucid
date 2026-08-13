@@ -1,5 +1,5 @@
-import { CREATE_ARCHITECTURE_LABEL } from "@/lib/architecture-workflow-labels";
-import { ARCHITECTURES_NEW_PATH } from "@/lib/architecture-routes";
+import { CREATE_ARCHITECTURE_LABEL } from "@/lib/architecture/architecture-workflow-labels";
+import { ARCHITECTURES_NEW_PATH } from "@/lib/architecture/architecture-routes";
 import { fireEvent, render, screen } from "@testing-library/react";
 import { afterEach, describe, expect, it, vi } from "vitest";
 

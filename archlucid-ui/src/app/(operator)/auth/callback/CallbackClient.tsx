@@ -21,7 +21,7 @@ import { AUTH_CALLBACK_LOADING_DETAIL } from "@/lib/auth/auth-callback-page-copy
 import {
   BUYER_SAFE_AUTH_NOT_CONFIGURED_MESSAGE,
   toBuyerSafeAuthFailureMessage,
-} from "@/lib/buyer-safe-auth-messages";
+} from "@/lib/buyer/buyer-safe-auth-messages";
 import {
   decodeOAuthErrorDescription,
   humanizeAuthorizeCallbackError,
@@ -48,7 +48,7 @@ export function CallbackClient() {
   const state = searchParams.get("state");
 
   useEffect(() => {
-    let cancelled = false;
+    let canceled = false;
 
     /** Browser timer id — use `number` so Node’s `Timeout` typing does not clash with `window.setTimeout`. */
     let slowHintTimer: number | undefined;
@@ -61,7 +61,7 @@ export function CallbackClient() {
     };
 
     const fail = (msg: string) => {
-      if (cancelled) {
+      if (canceled) {
         return;
       }
 
@@ -75,7 +75,7 @@ export function CallbackClient() {
       fail(BUYER_SAFE_AUTH_NOT_CONFIGURED_MESSAGE);
 
       return () => {
-        cancelled = true;
+        canceled = true;
         clearSlowHintTimer();
       };
     }
@@ -86,7 +86,7 @@ export function CallbackClient() {
       fail(cfg.message);
 
       return () => {
-        cancelled = true;
+        canceled = true;
         clearSlowHintTimer();
       };
     }
@@ -96,7 +96,7 @@ export function CallbackClient() {
       fail(humanizeAuthorizeCallbackError(oauthError, decoded));
 
       return () => {
-        cancelled = true;
+        canceled = true;
         clearSlowHintTimer();
       };
     }
@@ -105,7 +105,7 @@ export function CallbackClient() {
       fail("We did not receive a complete response from your identity provider. Start sign-in again.");
 
       return () => {
-        cancelled = true;
+        canceled = true;
         clearSlowHintTimer();
       };
     }
@@ -116,14 +116,14 @@ export function CallbackClient() {
       fail("This sign-in attempt expired or was started in another window. Try signing in again.");
 
       return () => {
-        cancelled = true;
+        canceled = true;
         clearSlowHintTimer();
       };
     }
 
     void (async () => {
       slowHintTimer = window.setTimeout(() => {
-        if (!cancelled) {
+        if (!canceled) {
           setShowSlowHint(true);
         }
       }, TOKEN_EXCHANGE_SLOW_HINT_MS);
@@ -143,7 +143,7 @@ export function CallbackClient() {
 
         clearSlowHintTimer();
 
-        if (cancelled) {
+        if (canceled) {
           return;
         }
 
@@ -181,14 +181,14 @@ export function CallbackClient() {
       } catch (e) {
         clearSlowHintTimer();
 
-        if (!cancelled) {
+        if (!canceled) {
           fail(e instanceof Error ? e.message : String(e));
         }
       }
     })();
 
     return () => {
-      cancelled = true;
+      canceled = true;
       clearSlowHintTimer();
     };
   }, [code, oauthError, oauthErrorDescription, state]);

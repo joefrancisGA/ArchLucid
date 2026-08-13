@@ -12,7 +12,7 @@ public interface ITechnologyLedgerRepository
 {
     /// <summary>Persists a single ledger entry.</summary>
     /// <param name="entry">The entry to add.</param>
-    /// <param name="cancellationToken">Propagates notification that the operation should be cancelled.</param>
+    /// <param name="cancellationToken">Propagates notification that the operation should be canceled.</param>
     Task AddAsync(
         TechnologyLedgerEntry entry,
         CancellationToken cancellationToken = default);
@@ -22,7 +22,7 @@ public interface ITechnologyLedgerRepository
     /// </summary>
     /// <param name="scope">Tenant/workspace/project scope for the run-child read.</param>
     /// <param name="runId">The run whose ledger entries are requested.</param>
-    /// <param name="cancellationToken">Propagates notification that the operation should be cancelled.</param>
+    /// <param name="cancellationToken">Propagates notification that the operation should be canceled.</param>
     Task<IReadOnlyList<TechnologyLedgerEntry>> GetByRunIdAsync(
         ScopeContext scope,
         string runId,

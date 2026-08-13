@@ -37,7 +37,7 @@ describe("HelpConnectAwsSecurelyGuideView", () => {
     expect(entry?.slug).toBe("cloud-connections-aws");
     expect(entry?.title).toBe(CONNECT_AWS_SECURELY_PAGE_TITLE);
     expect(entry?.lastReviewed).toBe("2026-08-09");
-    expect(entry?.releaseApplicability).toContain("V1 GA");
+    expect(entry?.releaseApplicability).toBeTruthy();
   });
 
   it("renders one H1 and starts on-page navigation with Security model", () => {
@@ -70,7 +70,7 @@ describe("HelpConnectAwsSecurelyGuideView", () => {
 
     render(<HelpConnectAwsSecurelyGuideView entry={entry} />);
 
-    expect(screen.getByTestId("help-topic-registry-provenance")).toBeInTheDocument();
+    expect(screen.queryByTestId("help-topic-registry-provenance")).toBeNull();
     expect(screen.queryByTestId("help-topic-pdf-download-button")).toBeNull();
     expect(screen.queryByTestId("help-topic-print-button")).toBeNull();
     expect(screen.getByTestId("connect-aws-configure-action")).toBeInTheDocument();

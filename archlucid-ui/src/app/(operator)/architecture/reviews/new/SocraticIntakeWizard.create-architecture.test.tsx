@@ -26,7 +26,7 @@ vi.mock("@/hooks/use-llm-monthly-budget-execution-gate", () => ({
   }),
 }));
 
-vi.mock("@/lib/architecture-creation-init", () => ({
+vi.mock("@/lib/architecture/architecture-creation-init", () => ({
   initializeArchitectureCreation: (...args: unknown[]) => initializeArchitectureCreation(...args),
   applyArchitectureCreationDraftToFormState: () => ({
     freeTextIntent: "",
@@ -97,7 +97,7 @@ vi.mock("@/lib/toast", () => ({
 }));
 
 import { SocraticIntakeWizard } from "@/app/(operator)/architecture/reviews/new/SocraticIntakeWizard";
-import { CREATE_ARCHITECTURE_INTENT } from "@/lib/architecture-workflow-intent";
+import { CREATE_ARCHITECTURE_INTENT } from "@/lib/architecture/architecture-workflow-intent";
 import {
   GUIDED_INTAKE_CONTINUE_TO_DISCOVERY,
   GUIDED_INTAKE_CREATION_ARCHITECTURE_OVERVIEW_LABEL,
@@ -114,6 +114,11 @@ function fillCreateArchitectureMinimumFields(): void {
   fireEvent.change(screen.getByTestId("socratic-system-name"), { target: { value: validSystemName } });
   fireEvent.change(screen.getByTestId("socratic-intent"), { target: { value: validIntent } });
   fireEvent.change(screen.getByTestId("socratic-outcome"), { target: { value: validOutcome } });
+}
+
+/** Editing any intake field re-derives the scope rows and reopens the gate, so confirm last. */
+function confirmStep0Scope(): void {
+  fireEvent.click(screen.getByTestId("architecture-scope-understanding-confirm"));
 }
 
 describe("SocraticIntakeWizard create-architecture intent", () => {
@@ -180,6 +185,7 @@ describe("SocraticIntakeWizard create-architecture intent", () => {
     render(<SocraticIntakeWizard />);
 
     fillCreateArchitectureMinimumFields();
+    confirmStep0Scope();
 
     const continueButton = screen.getByRole("button", { name: GUIDED_INTAKE_CONTINUE_TO_DISCOVERY });
     expect(continueButton).toBeEnabled();
@@ -225,6 +231,7 @@ describe("SocraticIntakeWizard create-architecture intent", () => {
 
     fillCreateArchitectureMinimumFields();
     fireEvent.click(screen.getByTestId("draft-intake-actor-stub-add"));
+    confirmStep0Scope();
 
     fireEvent.click(screen.getByRole("button", { name: GUIDED_INTAKE_CONTINUE_TO_DISCOVERY }));
 

@@ -49,10 +49,8 @@ describe("HelpTopicMarkdownView authentication and sign-in", () => {
 
     render(<HelpTopicMarkdownView entry={loaded.entry} markdown={loaded.markdown} />);
 
-    expect(screen.getByTestId("help-topic-registry-provenance")).toHaveTextContent("Last reviewed 2026-08-04");
-    expect(screen.getByTestId("help-topic-registry-provenance")).toHaveTextContent(
-      "Applies to hosted SaaS sign-in, invitations, and SSO-enforced tenants",
-    );
+    expect(screen.queryByTestId("help-topic-registry-provenance")).toBeNull();
+    expect(screen.queryByTestId("help-topic-registry-provenance")).toBeNull();
     expect(screen.getByTestId("help-topic-sign-in-failure-triage")).toBeInTheDocument();
     const triage = screen.getByTestId("help-topic-sign-in-failure-triage");
 
@@ -71,8 +69,8 @@ describe("HelpTopicMarkdownView authentication and sign-in", () => {
     expect(screen.getByRole("link", { name: "Start your evaluation" })).toHaveAttribute("href", "/signup");
     expect(screen.getByRole("link", { name: "audit trail" })).toHaveAttribute("href", "/help/audit-trail");
     expect(screen.getAllByTestId("help-topic-export-actions")[0]?.querySelectorAll("button, a")).toHaveLength(2);
-    expect(screen.getByTestId("help-topic-download-pdf")).toHaveTextContent("Download PDF");
-    expect(screen.queryByTestId("help-topic-print-pdf")).not.toBeInTheDocument();
+    expect(screen.getByTestId("help-topic-print-pdf")).toHaveTextContent("Print / Save as PDF");
+    expect(screen.queryByTestId("help-topic-download-pdf")).toBeNull();
   });
 
 });

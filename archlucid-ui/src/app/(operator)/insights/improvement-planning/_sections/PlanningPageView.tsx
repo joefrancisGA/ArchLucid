@@ -3,16 +3,18 @@
 import { cn } from "@/lib/utils";
 import { DemoWorkspaceCapabilityUnavailablePanel } from "@/components/DemoWorkspaceCapabilityUnavailablePanel";
 import { CollapsibleSection } from "@/components/CollapsibleSection";
-import { OperatorApiProblem } from "@/components/OperatorApiProblem";
-import { OperatorDemoStaticBanner } from "@/components/OperatorDemoStaticBanner";
+import { OperatorApiProblem } from "@/components/operator/OperatorApiProblem";
+import { OperatorDemoStaticBanner } from "@/components/operator/OperatorDemoStaticBanner";
 import {
   OperatorLoadingNotice,
   OperatorTryNext,
-} from "@/components/OperatorShellMessage";
+} from "@/components/operator/OperatorShellMessage";
 import { PlanningExportReadinessNote } from "@/components/planning/PlanningExportReadinessNote";
 import { PlanningPlansTable } from "@/components/planning/PlanningPlansTable";
 import { PlanningSummarySection } from "@/components/planning/PlanningSummarySection";
 import { PlanningThemesTable } from "@/components/planning/PlanningThemesTable";
+import { PlanningPlanDetailHubVocabularyRail } from "@/components/PlanningPlanDetailHubVocabularyRail";
+import { PlanningReviewsVocabularyRail } from "@/components/PlanningReviewsVocabularyRail";
 import { Button } from "@/components/ui/button";
 import { isBuyerPolishedOperatorShellEnv } from "@/lib/demo-ui-env";
 import { OPERATOR_TYPOGRAPHY } from "@/lib/design-tokens";
@@ -58,6 +60,9 @@ export function PlanningPageView(props: Props) {
           void m.load();
         }}
       />
+
+      <PlanningReviewsVocabularyRail currentSurfaceId="improvement-planning" />
+      <PlanningPlanDetailHubVocabularyRail currentSurfaceId="improvement-planning" />
 
       {!buyerPolishedShell ? (
         <>

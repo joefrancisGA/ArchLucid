@@ -4,6 +4,7 @@ import { ACCOUNT_SECURITY_AUTH_GATE_MESSAGE } from "@/lib/account-security-page-
 /** Discriminated failure from sign-in-methods API calls — never carries raw JSON for UI. */
 export type SignInMethodsProblemKind =
   | "unauthorized-platform-user"
+  | "demo-session-blocked"
   | "recent-auth-required"
   | "validation"
   | "not-found"

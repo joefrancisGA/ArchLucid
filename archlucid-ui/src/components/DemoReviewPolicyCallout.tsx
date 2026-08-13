@@ -3,8 +3,8 @@ import { OPERATOR_TYPOGRAPHY } from "@/lib/design-tokens";
 import Link from "next/link";
 
 import { StatusTag } from "@/components/ui/status-tag";
-import { GOVERNANCE_POLICY_PACKS_PATH } from "@/lib/governance-route-paths";
-import { OPERATOR_DEMO_REVIEW_POLICY_PACK_DISPLAY_NAME } from "@/lib/operator-demo-review";
+import { GOVERNANCE_POLICY_PACKS_PATH } from "@/lib/governance/governance-route-paths";
+import { OPERATOR_DEMO_REVIEW_POLICY_PACK_DISPLAY_NAME } from "@/lib/operator/operator-demo-review";
 
 export type DemoReviewPolicyCalloutProps = {
   readonly policyPackName?: string | null;

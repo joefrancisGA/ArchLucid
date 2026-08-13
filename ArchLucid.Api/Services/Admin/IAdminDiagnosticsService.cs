@@ -102,6 +102,24 @@ public interface IAdminDiagnosticsService
         CancellationToken cancellationToken = default);
 
     /// <summary>
+    ///     Detection-only count and sample of non-archived runs whose ArchitectureRequestId is missing from
+    ///     dbo.ArchitectureRequests and older than the configured grace window (default 15 minutes).
+    /// </summary>
+    Task<DataConsistencyMissingArchitectureRequestSnapshot> GetDataConsistencyMissingArchitectureRequestSnapshotAsync(
+        int maxSampleRows = 50,
+        CancellationToken cancellationToken = default);
+
+    /// <summary>
+    ///     Lists or soft-archives up to <paramref name="maxRows" /> missing-ArchitectureRequest orphan runs. When
+    ///     <paramref name="dryRun" /> is true, no rows are modified. Execute path sets <c>ArchivedUtc</c> and emits
+    ///     <c>ManifestArchived</c> with kind <c>missingArchitectureRequest</c>.
+    /// </summary>
+    Task<MissingArchitectureRequestRemediationResult> RemediateMissingArchitectureRequestRunsAsync(
+        bool dryRun,
+        int maxRows,
+        CancellationToken cancellationToken = default);
+
+    /// <summary>
     ///     Soft-archives runs with <c>CreatedUtc</c> strictly before the cutoff (see
     ///     <see cref="IRunRepository.ArchiveRunsCreatedBeforeAsync" />).
     /// </summary>

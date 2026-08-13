@@ -3,19 +3,14 @@
 import dynamic from "next/dynamic";
 import type { ComponentType } from "react";
 
-import { cn } from "@/lib/utils";
-import { OPERATOR_TYPOGRAPHY } from "@/lib/design-tokens";
+import { DeferredChunkLoading } from "@/components/ui/deferred-chunk-loading";
 
-function AlertRulesHubTabChunkLoading(props: { readonly label: string }): React.JSX.Element {
+function alertRulesHubTabChunkLoading(label: string): React.JSX.Element {
   return (
-    <div
-      className={cn(
-        "h-32 animate-pulse rounded-md border border-neutral-200 bg-neutral-100 dark:border-neutral-700 dark:bg-neutral-800",
-        OPERATOR_TYPOGRAPHY.body,
-      )}
-      role="status"
-      aria-label={props.label}
-      data-testid="alert-rules-hub-tab-chunk-loading"
+    <DeferredChunkLoading
+      label={label}
+      variant="panel"
+      testId="alert-rules-hub-tab-chunk-loading"
     />
   );
 }
@@ -25,7 +20,7 @@ export const AlertRulesContentDeferred: ComponentType = dynamic(
   () => import("@/components/alerts/AlertRulesContent").then((module) => module.AlertRulesContent),
   {
     ssr: false,
-    loading: () => <AlertRulesHubTabChunkLoading label="Loading alert conditions" />,
+    loading: () => alertRulesHubTabChunkLoading("Loading alert conditions"),
   },
 );
 
@@ -33,7 +28,7 @@ export const AlertRoutingContentDeferred: ComponentType = dynamic(
   () => import("@/components/alerts/AlertRoutingContent").then((module) => module.AlertRoutingContent),
   {
     ssr: false,
-    loading: () => <AlertRulesHubTabChunkLoading label="Loading alert notifications" />,
+    loading: () => alertRulesHubTabChunkLoading("Loading alert notifications"),
   },
 );
 
@@ -44,7 +39,7 @@ export const CompositeAlertRulesContentDeferred: ComponentType = dynamic(
     ),
   {
     ssr: false,
-    loading: () => <AlertRulesHubTabChunkLoading label="Loading advanced alert rules" />,
+    loading: () => alertRulesHubTabChunkLoading("Loading advanced alert rules"),
   },
 );
 
@@ -55,6 +50,6 @@ export const AlertSimulationTuningSectionDeferred: ComponentType = dynamic(
     ),
   {
     ssr: false,
-    loading: () => <AlertRulesHubTabChunkLoading label="Loading alert simulation" />,
+    loading: () => alertRulesHubTabChunkLoading("Loading alert simulation"),
   },
 );

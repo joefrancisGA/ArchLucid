@@ -13,7 +13,7 @@ import { Button } from "@/components/ui/button";
 import { SeverityTag } from "@/components/ui/severity-tag";
 import { StatusTag } from "@/components/ui/status-tag";
 import {
-  ARCHITECTURE_DIAGRAM_ADD_DETAILS_ACTION,
+  ARCHITECTURE_DIAGRAM_CLARIFY_ARCHITECTURE_ACTION,
   ARCHITECTURE_DIAGRAM_COPY_MERMAID_ACTION,
   ARCHITECTURE_DIAGRAM_DOWNLOAD_ACTION,
   ARCHITECTURE_DIAGRAM_DRAFT_LABEL,
@@ -22,6 +22,7 @@ import {
   ARCHITECTURE_DIAGRAM_GENERATE_ACTION,
   ARCHITECTURE_DIAGRAM_INFERRED_LOCKED_FOR_HAND_EDIT,
   ARCHITECTURE_DIAGRAM_INSUFFICIENT_HEADING,
+  ARCHITECTURE_DIAGRAM_INSUFFICIENT_ORIENTATION,
   ARCHITECTURE_DIAGRAM_LOADING_LABEL,
   ARCHITECTURE_DIAGRAM_NOT_AUTHORITATIVE,
   ARCHITECTURE_DIAGRAM_PREVIEW_CLIPPED_LABEL,
@@ -32,11 +33,11 @@ import {
   ARCHITECTURE_DIAGRAM_STORAGE_WRITE_FAILURE,
   ARCHITECTURE_DIAGRAM_MERMAID_SOURCE_DISCLOSURE,
   ARCHITECTURE_DIAGRAM_VIEW_MERMAID_ACTION,
-} from "@/lib/architecture-diagram-copy";
-import { generateArchitectureDiagramAsync } from "@/lib/architecture-diagram-generate";
-import { architectureDiagramModelToMermaid, isValidMermaidArchitectureDiagram } from "@/lib/architecture-diagram-mermaid";
-import { summarizeArchitectureDiagramProvenance } from "@/lib/architecture-diagram-provenance";
-import { formatArchitectureDiagramMissingExplanation } from "@/lib/architecture-diagram-readiness";
+} from "@/lib/architecture/architecture-diagram-copy";
+import { generateArchitectureDiagramAsync } from "@/lib/architecture/architecture-diagram-generate";
+import { architectureDiagramModelToMermaid, isValidMermaidArchitectureDiagram } from "@/lib/architecture/architecture-diagram-mermaid";
+import { summarizeArchitectureDiagramProvenance } from "@/lib/architecture/architecture-diagram-provenance";
+import { formatArchitectureDiagramMissingExplanation } from "@/lib/architecture/architecture-diagram-readiness";
 import {
   activateArchitectureDiagramVersion,
   appendArchitectureDiagramVersion,
@@ -44,10 +45,10 @@ import {
   readArchitectureDiagramCache,
   setArchitectureDiagramNodeOverrides,
   shouldRegenerateArchitectureDiagram,
-} from "@/lib/architecture-diagram-storage";
-import type { ArchitectureDiagramModel, ArchitectureDiagramNode, ArchitectureDiagramVersionSource } from "@/lib/architecture-diagram-types";
-import type { ArchitectureDiagramElementKind } from "@/lib/architecture-diagram-provenance";
-import type { ArchitectureCreationUserAssertions } from "@/lib/architecture-structured-content-types";
+} from "@/lib/architecture/architecture-diagram-storage";
+import type { ArchitectureDiagramModel, ArchitectureDiagramNode, ArchitectureDiagramVersionSource } from "@/lib/architecture/architecture-diagram-types";
+import type { ArchitectureDiagramElementKind } from "@/lib/architecture/architecture-diagram-provenance";
+import type { ArchitectureCreationUserAssertions } from "@/lib/architecture/architecture-structured-content-types";
 import { downloadBrowserTextFile, safeGraphExportFilenameSegment } from "@/lib/graph-view-model-export";
 import { useDocumentDarkMode } from "@/lib/use-document-dark-mode";
 import { OPERATOR_TYPOGRAPHY } from "@/lib/design-tokens";
@@ -270,21 +271,53 @@ export function ArchitectureDiagramPanel(props: ArchitectureDiagramPanelProps): 
     [cache?.edgeOverrides, inferredReviewLocked, props.runId, runGeneration],
   );
 
-  const clarificationsAction =
+  const diagramClarifyAction =
     props.onClarificationsNavigate !== undefined ? (
       <Button
         type="button"
         variant="primary"
-        data-testid="architecture-diagram-add-details"
+        data-testid="architecture-diagram-clarify-architecture"
         onClick={props.onClarificationsNavigate}
       >
-        {ARCHITECTURE_DIAGRAM_ADD_DETAILS_ACTION}
+        {ARCHITECTURE_DIAGRAM_CLARIFY_ARCHITECTURE_ACTION}
       </Button>
     ) : props.clarifyHref !== undefined ? (
-      <Button type="button" variant="primary" asChild data-testid="architecture-diagram-add-details">
-        <Link href={props.clarifyHref}>{ARCHITECTURE_DIAGRAM_ADD_DETAILS_ACTION}</Link>
+      <Button type="button" variant="primary" asChild data-testid="architecture-diagram-clarify-architecture">
+        <Link href={props.clarifyHref}>{ARCHITECTURE_DIAGRAM_CLARIFY_ARCHITECTURE_ACTION}</Link>
       </Button>
     ) : null;
+
+  const insufficientRegenerateApplicable = versions.length > 0 && props.canEdit;
+
+  const insufficientState = (
+    <div className="space-y-3 rounded-md border border-dashed border-neutral-300 p-4 dark:border-neutral-700" data-testid="architecture-diagram-insufficient" role="status">
+      <p className={cn("m-0 font-medium text-neutral-900 dark:text-neutral-100", OPERATOR_TYPOGRAPHY.body)}>
+        {ARCHITECTURE_DIAGRAM_INSUFFICIENT_HEADING}
+      </p>
+      <p className={cn("m-0 text-neutral-600 dark:text-neutral-400", OPERATOR_TYPOGRAPHY.helper)}>
+        {ARCHITECTURE_DIAGRAM_INSUFFICIENT_ORIENTATION}
+      </p>
+      {missingExplanation.length > 0 ? (
+        <p className={cn("m-0 text-neutral-600 dark:text-neutral-400", OPERATOR_TYPOGRAPHY.body)}>{missingExplanation}</p>
+      ) : null}
+      {diagramClarifyAction !== null || insufficientRegenerateApplicable ? (
+        <div className="flex flex-wrap gap-2">
+          {diagramClarifyAction}
+          {insufficientRegenerateApplicable ? (
+            <Button
+              type="button"
+              variant="outline"
+              size="sm"
+              data-testid="architecture-diagram-insufficient-regenerate"
+              onClick={() => void runGeneration(true)}
+            >
+              {ARCHITECTURE_DIAGRAM_REGENERATE_ACTION}
+            </Button>
+          ) : null}
+        </div>
+      ) : null}
+    </div>
+  );
 
   if (variant === "preview") {
     return (
@@ -322,11 +355,7 @@ export function ArchitectureDiagramPanel(props: ArchitectureDiagramPanelProps): 
           </p>
         ) : null}
 
-        {phase === "insufficient" ? (
-          <p className={cn("m-0 text-neutral-600 dark:text-neutral-400", OPERATOR_TYPOGRAPHY.body)} role="status">
-            {missingExplanation || ARCHITECTURE_DIAGRAM_INSUFFICIENT_HEADING}
-          </p>
-        ) : null}
+        {phase === "insufficient" ? insufficientState : null}
 
         {phase === "error" || phase === "invalid" ? (
           <div className="space-y-2" role="alert" data-testid="architecture-diagram-preview-failure">
@@ -410,15 +439,7 @@ export function ArchitectureDiagramPanel(props: ArchitectureDiagramPanelProps): 
         </p>
       ) : null}
 
-      {phase === "insufficient" ? (
-        <div className="space-y-3 rounded-md border border-dashed border-neutral-300 p-4 dark:border-neutral-700" data-testid="architecture-diagram-insufficient" role="status">
-          <p className={cn("m-0 font-medium text-neutral-900 dark:text-neutral-100", OPERATOR_TYPOGRAPHY.body)}>
-            {ARCHITECTURE_DIAGRAM_INSUFFICIENT_HEADING}
-          </p>
-          <p className={cn("m-0 text-neutral-600 dark:text-neutral-400", OPERATOR_TYPOGRAPHY.body)}>{missingExplanation}</p>
-          {clarificationsAction}
-        </div>
-      ) : null}
+      {phase === "insufficient" ? insufficientState : null}
 
       {phase === "error" ? (
         <div className="space-y-3" data-testid="architecture-diagram-generation-failure" role="alert">

@@ -1,4 +1,4 @@
-import { getEffectiveBrowserProxyScopeHeaders } from "@/lib/operator-scope-storage";
+import { getEffectiveBrowserProxyScopeHeaders } from "@/lib/operator/operator-scope-storage";
 
 /**
  * Merges effective tenant/workspace/project scope headers for same-origin `/api/proxy/*` fetches: operator choice

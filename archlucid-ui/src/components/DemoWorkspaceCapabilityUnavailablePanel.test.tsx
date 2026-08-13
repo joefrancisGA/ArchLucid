@@ -5,7 +5,7 @@ import { DemoWorkspaceCapabilityUnavailablePanel } from "@/components/DemoWorksp
 import {
   BUYER_DEMO_CAPABILITY_TROUBLESHOOTING_CTA,
   BUYER_DEMO_CAPABILITY_UNAVAILABLE_TITLE,
-} from "@/lib/buyer-polish-copy";
+} from "@/lib/buyer/buyer-polish-copy";
 
 describe("DemoWorkspaceCapabilityUnavailablePanel", () => {
   it("renders buyer-safe title, recovery actions, and capability metadata", () => {

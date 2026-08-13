@@ -1,6 +1,6 @@
 import { describe, expect, it } from "vitest";
 
-import { extractHelpMarkdownHeadings } from "@/lib/help-markdown-headings";
+import { extractHelpMarkdownHeadings } from "@/lib/help/help-markdown-headings";
 import {
   parsePrivacyPolicyEffectiveDate,
   parsePrivacyPolicyMetadata,
@@ -77,7 +77,8 @@ describe("privacy-policy-content", () => {
     expect(body).not.toContain("PRIVACY_NOTE");
     expect(body).not.toContain("SYSTEM_THREAT_MODEL");
     expect(body).not.toContain("git history");
-    expect(body).toContain("[Data Processing Agreement](/help/dpa-template)");
+    // Filename-shaped labels resolve to the registry title, so the DPA link renders "(template)".
+    expect(body).toContain("[Data Processing Agreement (template)](/help/dpa-template)");
     expect(body).toContain("[subprocessors list](/help/subprocessors)");
     expect(body).toContain("[Trust Center](/trust)");
     expect(body).toContain("[Assurance status](/security-trust)");

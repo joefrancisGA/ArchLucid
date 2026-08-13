@@ -3,8 +3,8 @@ import { cleanup, fireEvent, render, screen, waitFor, within } from "@testing-li
 import { afterEach, beforeEach, describe, expect, it, vi } from "vitest";
 
 import { SidebarNav } from "@/components/SidebarNav";
-import { ARCHITECTURE_DRAFTS_LIST_LABEL } from "@/lib/architecture-workflow-labels";
-import { ARCHITECTURES_LIST_PATH } from "@/lib/architecture-routes";
+import { ARCHITECTURE_DRAFTS_LIST_LABEL } from "@/lib/architecture/architecture-workflow-labels";
+import { ARCHITECTURES_LIST_PATH } from "@/lib/architecture/architecture-routes";
 import {
   SIDEBAR_NAV_GROUP_DEFAULT_EXPANSION,
   SIDEBAR_NAV_GROUP_EXPANSION_STORAGE_KEY,
@@ -31,7 +31,7 @@ vi.mock("@/lib/demo-ui-env", async (importOriginal) => {
   };
 });
 
-vi.mock("@/components/OperatorNavAuthorityProvider", async () => {
+vi.mock("@/components/operator/OperatorNavAuthorityProvider", async () => {
   const { createOperatorNavAuthorityVitestMock } = await import(
     "@/testing/operator-nav-authority-vitest-mock"
   );
@@ -104,7 +104,7 @@ describe("SidebarNav (primary navigation)", () => {
 
     const reviewNav = screen.getByRole("group", { name: "Architecture" });
     expect(reviewNav).toBeInTheDocument();
-    expect(within(reviewNav).getByRole("link", { name: "Overview" })).toHaveAttribute("href", "/");
+    expect(within(reviewNav).getByRole("link", { name: "Home" })).toHaveAttribute("href", "/");
     expect(within(reviewNav).getByRole("link", { name: ARCHITECTURE_DRAFTS_LIST_LABEL })).toHaveAttribute(
       "href",
       ARCHITECTURES_LIST_PATH,
@@ -227,7 +227,7 @@ describe("SidebarNav buyer-polished desktop shell", () => {
     expect(screen.getByText("Architecture")).toBeInTheDocument();
 
     const nav = screen.getByRole("group", { name: "Architecture" });
-    expect(within(nav).getByRole("link", { name: "Overview" })).toHaveAttribute("href", "/");
+    expect(within(nav).getByRole("link", { name: "Home" })).toHaveAttribute("href", "/");
     expect(within(nav).getByRole("link", { name: ARCHITECTURE_DRAFTS_LIST_LABEL })).toHaveAttribute(
       "href",
       ARCHITECTURES_LIST_PATH,

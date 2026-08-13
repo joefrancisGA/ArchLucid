@@ -5,7 +5,7 @@ import Link from "next/link";
 
 import { CollapsibleSection } from "@/components/CollapsibleSection";
 import { Button } from "@/components/ui/button";
-import { OPERATOR_TYPOGRAPHY } from "@/lib/design-tokens";
+import { OPERATOR_LINK, OPERATOR_TYPOGRAPHY } from "@/lib/design-tokens";
 import { isShowSystemAdministrationNavEnabled } from "@/lib/features";
 import {
   buildLearningPlanningReportFileUrl,
@@ -54,7 +54,7 @@ export function PlanningExportReadinessNote() {
             <p className={cn("mt-2", OPERATOR_TYPOGRAPHY.helper)}>
               <Link
                 href={buildLearningPlanningReportJsonUrl()}
-                className="font-medium text-blue-900 underline dark:text-blue-300"
+                className={OPERATOR_LINK.inline}
                 target="_blank"
                 rel="noreferrer"
               >

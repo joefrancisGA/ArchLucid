@@ -14,7 +14,7 @@
   "findings": [
     {
       "severity": "High",
-      "description": "Azure VM SKU selection is not cost-optimised for the stated workload profile; on-demand pricing is applied to steady-state baseline load that qualifies for reserved-instance pricing.",
+      "description": "Azure VM SKU selection is not cost-optimized for the stated workload profile; on-demand pricing is applied to steady-state baseline load that qualifies for reserved-instance pricing.",
       "recommendation": "Purchase 1-year reserved instances for the baseline compute tier and use spot capacity for burst workloads."
     }
   ],

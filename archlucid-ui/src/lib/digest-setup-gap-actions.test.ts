@@ -3,12 +3,19 @@ import { describe, expect, it } from "vitest";
 import {
   buildDigestSetupChecklistItems,
   digestsHaveExistingConfiguration,
+  formatChecklistRecipientsDetail,
+  formatChecklistScheduleDetail,
   formatDigestInstant,
   mapDigestSetupGap,
   mapDigestSetupGaps,
   resolveDigestNextBestAction,
   resolveDigestOverallStatus,
 } from "@/lib/digest-setup-gap-actions";
+import {
+  DIGESTS_BROWSE_HISTORY_PENDING_DETAIL,
+  DIGESTS_CHECKLIST_RECIPIENTS_DETAIL_SUFFIX,
+  DIGESTS_CHECKLIST_SCHEDULE_DETAIL_PENDING,
+} from "@/lib/digests-browse-copy";
 import type { WeeklyDigestHealthDto } from "@/types/operate-rhythm";
 
 function baseSnap(overrides: Partial<WeeklyDigestHealthDto> = {}): WeeklyDigestHealthDto {
@@ -89,15 +96,64 @@ describe("digest-setup-gap-actions", () => {
       baseSnap({
         enabledAdvisoryScheduleCount: 1,
         enabledDigestSubscriptionCount: 2,
+        digestSubscriptionsByEmailChannel: 1,
+        digestSubscriptionsByTeamsChannel: 1,
+        digestSubscriptionsBySlackChannel: 0,
+        earliestNextAdvisoryRunUtc: "2026-07-09T08:00:00Z",
         latestArchitectureDigestGeneratedUtc: "2026-07-08T12:00:00Z",
       }),
       true,
     );
 
     expect(items.find((item) => item.id === "schedule")?.complete).toBe(true);
+    expect(items.find((item) => item.id === "schedule")?.detail).toContain("1 enabled advisory scan schedule");
+    expect(items.find((item) => item.id === "schedule")?.detail).toContain("next scheduled send");
     expect(items.find((item) => item.id === "recipients")?.complete).toBe(true);
+    expect(items.find((item) => item.id === "recipients")?.detail).toBe(
+      "2 active digest subscriptions (1 email · 1 Teams · 0 Slack).",
+    );
     expect(items.find((item) => item.id === "test")?.complete).toBe(true);
     expect(items.find((item) => item.id === "history")?.complete).toBe(true);
+  });
+
+  it("states measured counts in checklist detail for zero setup", () => {
+    const items = buildDigestSetupChecklistItems(baseSnap(), false);
+
+    expect(items.find((item) => item.id === "schedule")?.detail).toBe(DIGESTS_CHECKLIST_SCHEDULE_DETAIL_PENDING);
+    expect(items.find((item) => item.id === "recipients")?.detail).toBe(
+      `0 active digest subscriptions (0 email · 0 Teams · 0 Slack). ${DIGESTS_CHECKLIST_RECIPIENTS_DETAIL_SUFFIX}`,
+    );
+    expect(items.find((item) => item.id === "history")?.detail).toBe(DIGESTS_BROWSE_HISTORY_PENDING_DETAIL);
+  });
+
+  it("pluralizes schedule and subscription counts in checklist formatters", () => {
+    expect(formatChecklistScheduleDetail(baseSnap({ enabledAdvisoryScheduleCount: 2 }))).toContain(
+      "2 enabled advisory scan schedules",
+    );
+    expect(formatChecklistRecipientsDetail(baseSnap({ enabledDigestSubscriptionCount: 1 }))).toBe(
+      "1 active digest subscription (0 email · 0 Teams · 0 Slack).",
+    );
+  });
+
+  it("keeps generate-first checklist step pending until schedule and subscriptions exist", () => {
+    const zeroSetup = buildDigestSetupChecklistItems(baseSnap(), false);
+    const testPending = zeroSetup.find((item) => item.id === "test");
+
+    expect(testPending?.href).toBeNull();
+    expect(testPending?.complete).toBe(false);
+
+    const prerequisitesMet = buildDigestSetupChecklistItems(
+      baseSnap({
+        enabledAdvisoryScheduleCount: 1,
+        enabledDigestSubscriptionCount: 1,
+      }),
+      false,
+    );
+    const testReady = prerequisitesMet.find((item) => item.id === "test");
+
+    expect(testReady?.href).toBe("/governance/advisory-scans?tab=schedules");
+    expect(testReady?.actionLabel).toBe("Run advisory scan");
+    expect(testReady?.complete).toBe(false);
   });
 
   it("detects existing configuration", () => {

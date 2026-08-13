@@ -1,6 +1,6 @@
 "use client";
 import { cn } from "@/lib/utils";
-import { OPERATOR_TYPOGRAPHY } from "@/lib/design-tokens";
+import { OPERATOR_LINK, OPERATOR_TYPOGRAPHY } from "@/lib/design-tokens";
 
 import { ExternalLink } from "@/components/ui/external-link";
 import { HelpPopover, HelpPopoverContent, HelpPopoverTrigger } from "@/components/ui/help-popover";
@@ -62,10 +62,7 @@ export function ContextualHelp({
           <div className={cn("m-0 text-neutral-700 dark:text-neutral-200", OPERATOR_TYPOGRAPHY.helper)}>{text}</div>
           {moreHref != null && (
             <div className={cn("m-0 mt-2", OPERATOR_TYPOGRAPHY.helper)}>
-              <ExternalLink
-                className="font-medium text-teal-700 underline-offset-2 hover:underline dark:text-teal-300"
-                href={moreHref}
-              >
+              <ExternalLink className={OPERATOR_LINK.optional} href={moreHref}>
                 Learn more →
               </ExternalLink>
             </div>

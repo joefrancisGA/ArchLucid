@@ -26,7 +26,7 @@ Examples already in the system:
 
 ## 2. Assumptions
 
-- You are adding a type, not changing existing comparison behaviour.
+- You are adding a type, not changing existing comparison behavior.
 - The new type is persisted as a row in `ComparisonRecords` (no new table required unless you add type-specific payload columns).
 - Replay will be Markdown only initially (you can add DOCX/HTML/PDF later by following the same pattern).
 

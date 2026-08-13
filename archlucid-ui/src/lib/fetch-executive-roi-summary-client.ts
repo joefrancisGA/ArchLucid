@@ -1,7 +1,7 @@
 import { ApiV1Routes } from "@/lib/api-v1-routes";
 import { buildApiRequestErrorFromParts } from "@/lib/api-error";
 import { applyCorrelationHeaders } from "@/lib/api/http";
-import type { ExecutiveRoiSummary } from "@/lib/executive-summary-markdown";
+import type { ExecutiveRoiSummary } from "@/lib/executive/executive-summary-markdown";
 import { mergeRegistrationScopeForProxy } from "@/lib/proxy-fetch-registration-scope";
 import { operatorQueryKeys } from "@/lib/query/operator-query-keys";
 import { getOperatorQueryClient } from "@/lib/query/operator-query-client";

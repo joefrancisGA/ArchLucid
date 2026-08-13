@@ -34,7 +34,7 @@
       "Advisory findings on ps-ctrl-* compliance rules",
       "Proportionality and logging gaps surfaced in review"
     ],
-    "scopeLabel": "V1-ready",
+    "scopeLabel": "Product-ready",
     "doNotUseWhen": [
       "Buyer requires formal GDPR compliance certification",
       "US FedRAMP-only scope without EU data processing"

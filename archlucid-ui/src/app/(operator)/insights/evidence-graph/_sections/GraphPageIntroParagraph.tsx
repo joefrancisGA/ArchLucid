@@ -11,7 +11,7 @@ export function GraphPageIntroParagraph(props: GraphPageIntroParagraphProps) {
   const { demoUi, buyerPolishedShell, leadIntro } = props;
 
   return (
-    <p className={`m-0 max-w-prose ${OPERATOR_TYPOGRAPHY.helper}`}>
+    <p className={`m-0 max-w-3xl ${OPERATOR_TYPOGRAPHY.helper}`}>
       {leadIntro}{" "}
       {!(demoUi || buyerPolishedShell) ? (
         <span className="text-al-text-secondary">

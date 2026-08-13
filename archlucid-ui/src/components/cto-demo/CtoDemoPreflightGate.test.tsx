@@ -2,9 +2,9 @@ import { fireEvent, render, screen, waitFor } from "@testing-library/react";
 import { beforeEach, describe, expect, it, vi } from "vitest";
 
 import { CtoDemoPreflightGate } from "@/components/cto-demo/CtoDemoPreflightGate";
-import { BUYER_CTO_DEMO_PREFLIGHT_ACKNOWLEDGED_STORAGE_KEY } from "@/lib/buyer-cto-demo-tour";
+import { BUYER_CTO_DEMO_PREFLIGHT_ACKNOWLEDGED_STORAGE_KEY } from "@/lib/buyer/buyer-cto-demo-tour";
 
-vi.mock("@/lib/buyer-cto-demo-readiness", () => ({
+vi.mock("@/lib/buyer/buyer-cto-demo-readiness", () => ({
   buyerCtoDemoReadinessStatusKind: () => "ready",
   evaluateBuyerCtoDemoReadiness: vi.fn(async () => ({
     verdict: "ready",

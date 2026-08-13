@@ -6,10 +6,10 @@ import { useEffect, useState } from "react";
 import Link from "next/link";
 
 import { Card, CardContent, CardHeader, CardTitle } from "@/components/ui/card";
-import { OperatorApiProblem } from "@/components/OperatorApiProblem";
+import { OperatorApiProblem } from "@/components/operator/OperatorApiProblem";
 import { toApiLoadFailure } from "@/lib/api-load-failure";
 import type { ApiLoadFailureState } from "@/lib/api-load-failure";
-import { getEffectiveBrowserProxyScopeHeaders } from "@/lib/operator-scope-storage";
+import { getEffectiveBrowserProxyScopeHeaders } from "@/lib/operator/operator-scope-storage";
 import { DEFAULT_LOADED_HOURLY_USD, formatHours, formatUsd, readStoredHourlyUsd } from "@/lib/roi-assumptions";
 
 interface RoiTelemetry {
@@ -114,7 +114,7 @@ export function ValueRealizationDashboard() {
             <p className="text-2xl font-bold text-teal-600">{formatHours(safeHours)}</p>
           </div>
           <div className="rounded-lg border p-4 text-center">
-            <p className={cn("text-neutral-500", OPERATOR_TYPOGRAPHY.body)}>Avg time to commit</p>
+            <p className={cn("text-neutral-500", OPERATOR_TYPOGRAPHY.body)}>Avg time to finalize</p>
             <p className="text-2xl font-bold">
               {avgCommitMins !== null ? `${avgCommitMins} mins` : "Not enough data yet"}
             </p>

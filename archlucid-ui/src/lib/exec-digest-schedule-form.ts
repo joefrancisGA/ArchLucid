@@ -182,10 +182,17 @@ export function formatExecDigestConfiguredCadenceSentence(form: ExecDigestSchedu
   return `Every ${dayName} at ${timeLabel} ${zoneLabel}`;
 }
 
-export function formatExecDigestLiveScheduleSummary(form: ExecDigestScheduleFormState): string {
+export function formatExecDigestLiveScheduleSummary(
+  form: ExecDigestScheduleFormState,
+  isConfigured: boolean,
+): string {
   const configured = formatExecDigestConfiguredCadenceSentence(form);
 
   if (!form.emailEnabled) {
+    if (!isConfigured) {
+      return configured;
+    }
+
     return `Configured for ${configured.charAt(0).toLowerCase()}${configured.slice(1)}. Delivery is currently paused.`;
   }
 
@@ -332,8 +339,15 @@ export function formatExecDigestNextOccurrenceLabel(instant: Date, timeZoneId: s
 }
 
 /** Human-readable next-send line for saved schedule summaries. */
-export function formatExecDigestNextSendPreview(form: ExecDigestScheduleFormState): string {
+export function formatExecDigestNextSendPreview(
+  form: ExecDigestScheduleFormState,
+  isConfigured: boolean,
+): string {
   if (!form.emailEnabled) {
+    if (!isConfigured) {
+      return "Not scheduled until delivery is enabled";
+    }
+
     return "Not scheduled while delivery is paused";
   }
 

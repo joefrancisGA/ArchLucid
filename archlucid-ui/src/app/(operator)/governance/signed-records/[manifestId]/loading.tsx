@@ -1,8 +1,8 @@
-import { cn } from "@/lib/utils";
 import Link from "next/link";
 
+import { OperatorPageHeader } from "@/components/operator/OperatorPageHeader";
 import { isBuyerPolishedOperatorShellEnv } from "@/lib/demo-ui-env";
-import { OPERATOR_LINK, OPERATOR_TYPOGRAPHY } from "@/lib/design-tokens";
+import { OPERATOR_LINK } from "@/lib/design-tokens";
 
 /**
  * Short-lived navigation state only — structured page chrome (not a generic skeleton) so screenshots and
@@ -22,15 +22,16 @@ export default function ManifestDetailLoading() {
       aria-live="polite"
       aria-busy="true"
     >
-      <p className={cn("m-0 text-al-text-secondary", OPERATOR_TYPOGRAPHY.body)}>
-        <Link className={OPERATOR_LINK.nav} href="/architecture/reviews">
-          Back to reviews
-        </Link>
-      </p>
-      <h1 className={cn("m-0", OPERATOR_TYPOGRAPHY.pageTitle)}>
-        {buyerPolishedLayout ? "Architecture review" : "Finalized architecture review"}
-      </h1>
-      <p className={cn("m-0 text-al-text-secondary", OPERATOR_TYPOGRAPHY.body)}>Loading review record…</p>
+      <OperatorPageHeader
+        title={buyerPolishedLayout ? "Architecture review" : "Finalized architecture review"}
+        headingLevel="h1"
+        subtitle="Loading review record…"
+        breadcrumb={
+          <Link className={OPERATOR_LINK.nav} href="/architecture/reviews">
+            Back to reviews
+          </Link>
+        }
+      />
     </div>
   );
 }

@@ -1,22 +1,29 @@
 "use client";
 
-import { OperatorPageHeader } from "@/components/OperatorPageHeader";
+import { OperatorPageContainer } from "@/components/operator/OperatorPageContainer";
+import { SETTINGS_PREFERENCES_PATH } from "@/lib/settings-admin-route-paths";
+import { OperatorPageHeader } from "@/components/operator/OperatorPageHeader";
+import { PreferencesNotificationsVocabularyRail } from "@/components/PreferencesNotificationsVocabularyRail";
+import { ShellThemePreferencesAppearanceVocabularyRail } from "@/components/ShellThemePreferencesAppearanceVocabularyRail";
 import { ThemePreferenceSelector } from "@/components/ThemePreferenceSelector";
 import { Card, CardContent, CardHeader, CardTitle } from "@/components/ui/card";
 import { PageContextualHelpButton } from "@/components/usability/PageContextualHelpButton";
-import { OPERATOR_TYPOGRAPHY } from "@/lib/design-tokens";
+import { OPERATOR_LAYOUT, OPERATOR_TYPOGRAPHY } from "@/lib/design-tokens";
 import { cn } from "@/lib/utils";
 
 export function PreferencesSettingsPageView() {
   return (
-    <div className="w-full max-w-[62rem] space-y-6" data-testid="preferences-settings-page">
+    <OperatorPageContainer variant="settings" className={OPERATOR_LAYOUT.sectionStack} data-testid="preferences-settings-page">
       <OperatorPageHeader
+        navHref={SETTINGS_PREFERENCES_PATH}
         title="Preferences"
         subtitle="Personal settings saved to your account."
         titleTestId="preferences-settings-page-title"
         actions={<PageContextualHelpButton />}
       />
-<Card data-testid="preferences-appearance-card">
+      <PreferencesNotificationsVocabularyRail currentSurfaceId="preferences" />
+      <ShellThemePreferencesAppearanceVocabularyRail currentSurfaceId="preferences-appearance" />
+      <Card data-testid="preferences-appearance-card">
         <CardHeader>
           <CardTitle className={OPERATOR_TYPOGRAPHY.cardTitle}>Appearance</CardTitle>
         </CardHeader>
@@ -31,6 +38,6 @@ export function PreferencesSettingsPageView() {
           <ThemePreferenceSelector />
         </CardContent>
       </Card>
-    </div>
+    </OperatorPageContainer>
   );
 }

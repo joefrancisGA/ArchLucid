@@ -13,8 +13,14 @@ export const BULK_EVIDENCE_UPLOAD_ZIP_MAX_ENTRIES = 1_000;
 
 const maxMegabytes = Math.round(BULK_EVIDENCE_UPLOAD_MAX_BYTES / (1024 * 1024));
 
+/** Fixed `en-US` grouping so helper copy reads the same on the server and in the browser. */
+const zipMaxEntriesLabel = new Intl.NumberFormat("en-US").format(BULK_EVIDENCE_UPLOAD_ZIP_MAX_ENTRIES);
+
 export const BULK_EVIDENCE_UPLOAD_HANDLING_HELPER =
-  `Files attach to this architecture review in your current workspace. Accepted formats include PDF, DOCX, Markdown, text, JSON, YAML, and common images. Up to ${BULK_EVIDENCE_UPLOAD_MAX_FILES} files per upload (${maxMegabytes} MB total per request); ZIP archives count as one file and expand automatically (up to ${BULK_EVIDENCE_UPLOAD_ZIP_MAX_ENTRIES.toLocaleString()} entries each).`;
+  `Files attach to this architecture package in your current workspace. Accepted formats include PDF, DOCX, Markdown, text, JSON, YAML, and common images. Up to ${BULK_EVIDENCE_UPLOAD_MAX_FILES} files per upload (${maxMegabytes} MB total per request); ZIP archives count as one file and expand automatically (up to ${zipMaxEntriesLabel} entries each).`;
+
+/** Shared Evidence upload section title (create-home + review detail capture surfaces). */
+export const RUN_DETAIL_EVIDENCE_CAPTURE_SECTION_TITLE = "Add evidence" as const;
 
 export const BULK_EVIDENCE_UPLOAD_HELP_LINKS = [
   { label: "Evidence intake help", href: inAppHelpHref("evidence-intake") },
@@ -23,13 +29,13 @@ export const BULK_EVIDENCE_UPLOAD_HELP_LINKS = [
 
 export const BULK_EVIDENCE_UPLOAD_FAILURE_RECOVERY: ErrorRecoveryContractPresentation = {
   whatFailed: "Evidence files could not be uploaded.",
-  whatIsIntact: "Previously captured evidence on this architecture review is unchanged.",
+  whatIsIntact: "Previously captured evidence on this architecture package is unchanged.",
   nextStep: "Retry the upload or adjust the file list, then upload again.",
 };
 
 export const BULK_EVIDENCE_UPLOAD_CANCEL_RECOVERY: ErrorRecoveryContractPresentation = {
-  whatFailed: "The evidence upload was cancelled.",
-  whatIsIntact: "Files uploaded before this attempt remain on the architecture review.",
+  whatFailed: "The evidence upload was canceled.",
+  whatIsIntact: "Files uploaded before this attempt remain on the architecture package.",
   nextStep: "Review the submitted evidence inventory above, then upload again when ready.",
 };
 

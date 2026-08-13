@@ -4,43 +4,46 @@ import { cn } from "@/lib/utils";
 import { useEffect, useMemo, useState } from "react";
 import { useFormContext } from "react-hook-form";
 
-import { LlmMonthlyBudgetExceededBanner } from "@/components/LlmMonthlyBudgetExceededBanner";
-import { OperatorApiProblem } from "@/components/OperatorApiProblem";
-import { ReviewStartInlineError } from "@/components/review-intake/ReviewStartInlineError";
+import { LlmMonthlyBudgetExceededBanner } from "@/components/llm/LlmMonthlyBudgetExceededBanner";
 import { WizardNavButtons } from "@/components/wizard/WizardNavButtons";
 import { PilotModePolicyPackToggle } from "@/components/wizard/PilotModePolicyPackToggle";
+import { WizardStepHeading } from "@/components/wizard/WizardStepHeading";
+import { WizardStickyFooter } from "@/components/wizard/WizardStickyFooter";
 import { WizardStepDescription } from "@/components/wizard/steps/WizardStepDescription";
 import { WizardStepIdentity } from "@/components/wizard/steps/WizardStepIdentity";
 import { WizardStepReview } from "@/components/wizard/steps/WizardStepReview";
 import { Card, CardContent, CardDescription, CardHeader, CardTitle } from "@/components/ui/card";
 import { Select, SelectContent, SelectItem, SelectTrigger, SelectValue } from "@/components/ui/select";
 import type { LlmMonthlyDollarBudgetStatus } from "@/hooks/use-llm-monthly-budget-execution-gate";
+import { useQuickFamilyWizardFlow } from "@/hooks/use-quick-family-wizard-flow";
 import { architectureReviewTemplates, suggestedSystemNameFromTemplateId } from "@/data/review-templates";
-import { createArchitectureRun } from "@/lib/api";
-import { isApiRequestError } from "@/lib/api-request-error";
-import { BUYER_START_ARCHITECTURE_REVIEW_CTA } from "@/lib/buyer-polish-copy";
+import { BUYER_START_ARCHITECTURE_REVIEW_CTA } from "@/lib/buyer/buyer-polish-copy";
 import { isOperatorExperienceFullShellEnv } from "@/lib/demo-ui-env";
-import { OPERATOR_SHELL_CONTENT_BLEED_X_CLASS, OPERATOR_TYPOGRAPHY } from "@/lib/design-tokens";
-import { recordFirstTenantFunnelEvent } from "@/lib/first-tenant-funnel-telemetry";
-import {
-  REVIEW_START_CREATION_FAILED_MESSAGE,
-  REVIEW_START_LLM_BUDGET_EXCEEDED_MESSAGE,
-  REVIEW_START_STEP_VALIDATION_MESSAGE,
-  REVIEW_START_SUBMIT_VALIDATION_MESSAGE,
-} from "@/lib/review-start-progress-copy";
-import { wizardValuesToCreateRunPayload } from "@/lib/wizard-payload";
+import { OPERATOR_TYPOGRAPHY } from "@/lib/design-tokens";
 import { resolveWizardPresetDeeplinkTokenFromPresetId } from "@/lib/wizard-preset-deeplink";
 import { applyWizardPreset, wizardPresets, type WizardPreset } from "@/lib/wizard-presets";
-import type { ReviewIntakeExampleTemplate } from "@/lib/operator-home-example-request";
+import type { ReviewIntakeExampleTemplate } from "@/lib/operator/operator-home-example-request";
+import type { WizardCreateRunPayloadOptions } from "@/lib/wizard-payload";
 import { buildDefaultWizardValues, type WizardFormValues } from "@/lib/wizard-schema";
 import { WIZARD_STEP_FIELD_GROUPS } from "@/lib/wizard-step-fields";
-import { trackWizardStepViewed, trackWizardCompleted, trackWizardValidationFailed } from "@/lib/telemetry";
+import type { WizardStepDefinition, WizardStepFieldGroup } from "@/lib/wizard-step-sequence";
 
-const QUICK_STEPS = [
+const QUICK_STEPS: readonly WizardStepDefinition[] = [
   { label: "System & preset", description: "Name your system and pick a starter profile" },
   { label: "Architecture brief", description: "Goals and scope (min. 10 characters)" },
   { label: "Review & submit", description: "Confirm defaults and create the request" },
-] as const;
+];
+
+const DEFAULT_QUICK_START_PRESET_ID = "greenfield-web-app";
+
+/** Both input steps gate on the identity + description group (full-wizard step 2). */
+function quickStartStepFieldGroup(stepIndex: number): WizardStepFieldGroup | null {
+  if (stepIndex > 1) {
+    return null;
+  }
+
+  return WIZARD_STEP_FIELD_GROUPS[2] ?? null;
+}
 
 export type QuickStartWizardProps = {
   /** Monthly LLM dollar gate from parent (shared fetch with full wizard shell). */
@@ -60,20 +63,34 @@ export type QuickStartWizardProps = {
  */
 export function QuickStartWizard(props: QuickStartWizardProps) {
   const { onRunCreated, llmBudgetStatus, blocksLlmExecution } = props;
-  const [quickStep, setQuickStep] = useState(0);
   const [focusedPilotModeEnabled, setFocusedPilotModeEnabled] = useState(true);
-  const [submitting, setSubmitting] = useState(false);
-  const [submitError, setSubmitError] = useState<unknown | null>(null);
-  const [stepValidationMessage, setStepValidationMessage] = useState<string | null>(null);
   const [presetId, setPresetId] = useState<string>(() => {
     if (props.initialPresetId !== undefined && wizardPresets.some((entry) => entry.id === props.initialPresetId)) {
       return props.initialPresetId;
     }
 
-    return "greenfield-web-app";
+    return DEFAULT_QUICK_START_PRESET_ID;
   });
 
-  const { trigger, getValues, reset, setValue, clearErrors } = useFormContext<WizardFormValues>();
+  const { reset, setValue, clearErrors } = useFormContext<WizardFormValues>();
+
+  const hasExampleTemplate = props.exampleTemplate !== null && props.exampleTemplate !== undefined;
+
+  const buildPayloadOptions = (): WizardCreateRunPayloadOptions => ({
+    requestSource: "wizard",
+    wizardPresetUsed: resolveWizardPresetDeeplinkTokenFromPresetId(presetId) ?? undefined,
+    focusedPilotModeEnabled,
+  });
+
+  const flow = useQuickFamilyWizardFlow({
+    steps: QUICK_STEPS,
+    telemetryWizardName: "QuickStart",
+    blocksLlmExecution,
+    onRunCreated,
+    resolveStepFieldGroup: quickStartStepFieldGroup,
+    buildPayloadOptions,
+    hasTemplate: hasExampleTemplate,
+  });
 
   const selectedPreset: WizardPreset | undefined = useMemo(
     () => wizardPresets.find((p) => p.id === presetId),
@@ -97,18 +114,6 @@ export function QuickStartWizard(props: QuickStartWizardProps) {
     reset(merged);
   }, [presetId, props.exampleTemplate, reset]);
 
-  useEffect(() => {
-    trackWizardStepViewed(quickStep, QUICK_STEPS[quickStep]?.label ?? "Unknown", "QuickStart");
-    if (quickStep !== 2) {
-      setSubmitError(null);
-    }
-
-    setStepValidationMessage(null);
-  }, [quickStep]);
-
-  const canProceed = !submitting;
-  const canSubmit = !submitting && !blocksLlmExecution;
-
   const applyReviewTemplate = (templateId: string) => {
     const template = architectureReviewTemplates.find((t) => t.id === templateId);
 
@@ -124,94 +129,19 @@ export function QuickStartWizard(props: QuickStartWizardProps) {
     });
   };
 
-  const goBack = () => {
-    setQuickStep((s) => Math.max(0, s - 1));
-  };
-
-  const goNext = async () => {
-    const fieldGroup = quickStep <= 1 ? WIZARD_STEP_FIELD_GROUPS[2] : null;
-
-    if (fieldGroup != null) {
-      // Trigger validation for only the fields on this step
-      const ok = await trigger(fieldGroup, { shouldFocus: true });
-      if (!ok) {
-        trackWizardValidationFailed(
-          "QuickStart",
-          quickStep,
-          QUICK_STEPS[quickStep]?.label ?? "Unknown",
-          "field_validation",
-        );
-        setStepValidationMessage(REVIEW_START_STEP_VALIDATION_MESSAGE);
-
-        return;
-      }
-    }
-
-    setStepValidationMessage(null);
-    setQuickStep((s) => Math.min(QUICK_STEPS.length - 1, s + 1));
-  };
-
-  const submitRun = async () => {
-    const ok = await trigger(undefined, { shouldFocus: true });
-
-    if (!ok) {
-      setStepValidationMessage(REVIEW_START_SUBMIT_VALIDATION_MESSAGE);
-
-      return;
-    }
-
-    if (blocksLlmExecution) {
-      setStepValidationMessage(REVIEW_START_LLM_BUDGET_EXCEEDED_MESSAGE);
-
-      return;
-    }
-
-    setSubmitting(true);
-    setSubmitError(null);
-    setStepValidationMessage(null);
-
-    try {
-      const presetToken = resolveWizardPresetDeeplinkTokenFromPresetId(presetId);
-      const body = wizardValuesToCreateRunPayload(getValues(), {
-        requestSource: "wizard",
-        wizardPresetUsed: presetToken ?? undefined,
-        focusedPilotModeEnabled,
-      });
-      const res = await createArchitectureRun(body);
-      const id = res.run?.runId ?? null;
-
-      if (!id) {
-        setSubmitError(new Error(REVIEW_START_CREATION_FAILED_MESSAGE));
-
-        return;
-      }
-
-      trackWizardCompleted("QuickStart");
-      recordFirstTenantFunnelEvent("first_run_started");
-      onRunCreated(id);
-    } catch (error: unknown) {
-      setSubmitError(error);
-    } finally {
-      setSubmitting(false);
-    }
-  };
-
-  const isReviewStep = quickStep === 2;
-  const isFirstStep = quickStep === 0;
-
   return (
     <div className="space-y-4 pb-36">
       {isOperatorExperienceFullShellEnv() && llmBudgetStatus !== null ? (
         <LlmMonthlyBudgetExceededBanner status={llmBudgetStatus} />
       ) : null}
-      <div className="space-y-1" data-testid="quick-start-progress">
-        <p className="m-0 font-medium text-neutral-900 dark:text-neutral-100">
-          Quick start — step {quickStep + 1} of {QUICK_STEPS.length}: {QUICK_STEPS[quickStep].label}
-        </p>
-        <p className={cn("m-0", OPERATOR_TYPOGRAPHY.helper)}>{QUICK_STEPS[quickStep].description}</p>
-      </div>
+      <WizardStepHeading
+        wizardLabel="Quick start"
+        stepIndex={flow.stepIndex}
+        steps={QUICK_STEPS}
+        testId="quick-start-progress"
+      />
 
-      {quickStep === 0 ? (
+      {flow.stepIndex === 0 ? (
         <div className="space-y-4">
           <Card>
             <CardHeader>
@@ -247,7 +177,7 @@ export function QuickStartWizard(props: QuickStartWizardProps) {
           <WizardStepIdentity />
         </div>
       ) : null}
-      {quickStep === 1 ? (
+      {flow.stepIndex === 1 ? (
         <div className="space-y-4">
           <Card>
             <CardHeader>
@@ -283,57 +213,33 @@ export function QuickStartWizard(props: QuickStartWizardProps) {
           <WizardStepDescription />
         </div>
       ) : null}
-      {quickStep === 2 ? <WizardStepReview /> : null}
+      {flow.isReviewStep ? <WizardStepReview /> : null}
 
-      <div
-        className={cn(
-          "sticky bottom-0 z-10 mt-8 border-t border-neutral-200/60 bg-neutral-50/98 py-3 shadow-[0_-2px_8px_-2px_rgba(0,0,0,0.06)] backdrop-blur supports-[backdrop-filter]:bg-neutral-50/85 dark:border-neutral-800/60 dark:bg-neutral-950/98 dark:shadow-[0_-2px_8px_-2px_rgba(0,0,0,0.25)] dark:supports-[backdrop-filter]:bg-neutral-950/85",
-          OPERATOR_SHELL_CONTENT_BLEED_X_CLASS,
-        )}
-        data-testid="quick-start-footer"
+      <WizardStickyFooter
+        testIdPrefix="quick-start"
+        progress={flow.creationProgress}
+        onRecheck={() => {
+          void flow.submitRun();
+        }}
+        stepValidationMessage={flow.stepValidationMessage}
+        submitError={flow.submitError}
+        showSubmitError={flow.isReviewStep}
       >
-        {stepValidationMessage !== null ? (
-          <div className="mb-3" data-testid="quick-start-validation-error">
-            <ReviewStartInlineError message={stepValidationMessage} />
-          </div>
-        ) : null}
-        {isReviewStep && submitError !== null ? (
-          <div className="mb-3" data-testid="quick-start-submit-error">
-            {isApiRequestError(submitError) ? (
-              <OperatorApiProblem
-                problem={submitError.problem}
-                fallbackMessage={submitError.message}
-                correlationId={submitError.correlationId}
-                httpStatus={submitError.httpStatus}
-                retryAfterSeconds={submitError.retryAfterSeconds}
-              />
-            ) : (
-              <OperatorApiProblem
-                problem={null}
-                fallbackMessage={
-                  submitError && typeof submitError === "object" && "message" in submitError
-                    ? String((submitError as { message?: string }).message)
-                    : "Request failed."
-                }
-              />
-            )}
-          </div>
-        ) : null}
         <WizardNavButtons
-          onBack={goBack}
-          onNext={isReviewStep ? undefined : goNext}
-          onSubmit={isReviewStep ? submitRun : undefined}
+          onBack={flow.goBack}
+          onNext={flow.isReviewStep ? undefined : flow.goNext}
+          onSubmit={flow.isReviewStep ? flow.submitRun : undefined}
           onSaveDraft={undefined}
-          submitting={submitting}
-          canProceed={canProceed}
-          canSubmit={canSubmit}
-          isFirstStep={isFirstStep}
-          isLastInputStep={isReviewStep}
+          submitting={flow.isCreating}
+          canProceed={flow.canProceed}
+          canSubmit={flow.canSubmit}
+          isFirstStep={flow.isFirstStep}
+          isLastInputStep={flow.isReviewStep}
           nextLabel="Next"
           submitLabel={BUYER_START_ARCHITECTURE_REVIEW_CTA}
           submittingLabel="Creating…"
         />
-      </div>
+      </WizardStickyFooter>
     </div>
   );
 }

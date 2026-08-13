@@ -1,17 +1,15 @@
 import { canonicalizeDemoRunId } from "@/lib/demo-run-canonical";
 import { REVIEW_DETAIL_TAB_PARAM } from "@/lib/review-detail-workspace-tabs";
-import {
-  SHOWCASE_STATIC_DEMO_PRIMARY_FINDING_ID,
-  SHOWCASE_STATIC_DEMO_PRIMARY_FINDING_TITLE,
-  SHOWCASE_STATIC_DEMO_RUN_ID,
-} from "@/lib/showcase-static-demo";
+import { getActiveSampleScenario } from "@/lib/samples/registry";
+
+const ACTIVE_SAMPLE = getActiveSampleScenario();
 
 /** Canonical Claims Intake Demo workspace spine — shared by home CTAs and finding detail routes. */
 export const SHOWCASE_SAMPLE_REVIEW_REGISTRY = {
-  runId: SHOWCASE_STATIC_DEMO_RUN_ID,
-  primaryFindingId: SHOWCASE_STATIC_DEMO_PRIMARY_FINDING_ID,
-  primaryFindingTitle: SHOWCASE_STATIC_DEMO_PRIMARY_FINDING_TITLE,
-  workspaceLabel: "Claims Intake Demo",
+  runId: ACTIVE_SAMPLE.runId,
+  primaryFindingId: ACTIVE_SAMPLE.primaryFindingId,
+  primaryFindingTitle: ACTIVE_SAMPLE.primaryFindingTitle,
+  workspaceLabel: ACTIVE_SAMPLE.workspaceLabel,
 } as const;
 
 export function isShowcaseCanonicalPrimaryFindingRoute(runId: string, findingId: string): boolean {

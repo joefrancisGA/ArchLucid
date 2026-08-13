@@ -2,7 +2,7 @@
 
 import { useCallback, useEffect, useMemo, useState } from "react";
 
-import { useOperatorNavAuthority } from "@/components/OperatorNavAuthorityProvider";
+import { useOperatorNavAuthority } from "@/components/operator/OperatorNavAuthorityProvider";
 import { requestPrincipalAppRoleAssignment } from "@/lib/admin-role-assignment-request";
 import {
   archLucidAppRoleFromDirectoryFields,
@@ -13,6 +13,11 @@ import { isApiKeysSettingsSurfaceEnabled } from "@/lib/api-keys-settings-access"
 import type { ArchLucidAppRole } from "@/lib/current-principal";
 import { AUTHORITY_RANK } from "@/lib/nav-authority";
 import { mergeRegistrationScopeForProxy } from "@/lib/proxy-fetch-registration-scope";
+import {
+  resolveUsersMembersDirectorySource,
+  scimProvisioningActiveFromTokensPayload,
+  type UsersMembersDirectorySource,
+} from "@/lib/vocabulary/scim-users-vocabulary";
 
 import type { SettingsRolesPageServerLoad } from "./load-settings-roles-page-data";
 import {
@@ -25,6 +30,8 @@ import type {
   SettingsRolesPageSurface,
 } from "./settings-roles-page-types";
 import type { SettingsRolesPageViewModel } from "./settings-roles-page-view-model";
+
+const SETTINGS_ROLES_SCIM_TOKENS_PATH = "/api/proxy/v1/admin/scim/tokens";
 
 function resolveSurface(
   isDemo: boolean,
@@ -56,11 +63,13 @@ export function useSettingsRolesPage(loaded: SettingsRolesPageServerLoad): Setti
   const [rows, setRows] = useState<SettingsRolesAssignablePrincipalRow[]>([]);
   const [usersNote, setUsersNote] = useState<SettingsRolesPageNote | null>(null);
   const [keysNote, setKeysNote] = useState<SettingsRolesPageNote | null>(null);
+  const [usersDirectorySource, setUsersDirectorySource] = useState<UsersMembersDirectorySource | null>(null);
 
   const load = useCallback(async () => {
     setLoading(true);
     setUsersNote(null);
     setKeysNote(null);
+    setUsersDirectorySource(null);
 
     try {
       const proxyInit = mergeRegistrationScopeForProxy({ headers: { Accept: "application/json" } });
@@ -69,6 +78,7 @@ export function useSettingsRolesPage(loaded: SettingsRolesPageServerLoad): Setti
       const keysRes = includeApiKeys
         ? await fetch(SETTINGS_ROLES_API_KEYS_PATH, proxyInit)
         : null;
+      const scimRes = await fetch(SETTINGS_ROLES_SCIM_TOKENS_PATH, proxyInit);
 
       let userRows = parseAdminUsersDirectoryPayload({});
       let keyRows = parseAdminApiKeysDirectoryPayload({});
@@ -125,10 +135,20 @@ export function useSettingsRolesPage(loaded: SettingsRolesPageServerLoad): Setti
       setRows(combined);
       setUsersNote(nextUsersNote);
       setKeysNote(nextKeysNote);
+
+      let scimActive = false;
+
+      if (scimRes.ok) {
+        const scimJson: unknown = await scimRes.json();
+        scimActive = scimProvisioningActiveFromTokensPayload(scimJson);
+      }
+
+      setUsersDirectorySource(resolveUsersMembersDirectorySource(scimActive));
     } catch {
       setRows([]);
       setUsersNote("load_failed");
       setKeysNote("load_failed");
+      setUsersDirectorySource(resolveUsersMembersDirectorySource(false));
     } finally {
       setLoading(false);
     }
@@ -187,6 +207,7 @@ export function useSettingsRolesPage(loaded: SettingsRolesPageServerLoad): Setti
     sortedRows,
     usersNote,
     keysNote,
+    usersDirectorySource,
     load,
     onRoleChange,
   };

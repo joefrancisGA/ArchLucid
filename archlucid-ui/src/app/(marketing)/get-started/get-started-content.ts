@@ -5,7 +5,7 @@ import {
   CUSTOMER_AUTH_GUIDED_WORKSPACE_SIGN_IN,
   CUSTOMER_AUTH_PUBLIC_SAMPLE_NO_SIGN_IN,
 } from "@/lib/auth/customer-auth-messaging";
-import { CANONICAL_ANONYMOUS_PROOF_HREF } from "@/lib/showcase-static-demo";
+import { publicSampleHrefForGetStartedVertical } from "@/lib/samples/sample-scenario-surface-alignment";
 
 import type { BuyerGetStartedVerticalSlug } from "./get-started-verticals";
 
@@ -18,7 +18,7 @@ export const GET_STARTED_OUTCOME_STATEMENT =
   "By the end of the guided experience, you will have explored a review containing findings, supporting evidence, an audit trail, and a sponsor-ready summary.";
 
 export const GET_STARTED_SAMPLE_PATH_NOTE =
-  "The instant sample opens a completed illustrative review. Industry-specific profiles apply when you start the guided trial in your workspace.";
+  "The instant sample opens a completed illustrative review. Industry-specific profiles apply when you start the guided trial in your workspace. Healthcare uses the regulated-depth Claims sample; other verticals use the generic enterprise intake sample.";
 
 export const GET_STARTED_SAMPLE_DISCLOSURE =
   "The guided review uses illustrative architecture inputs and demo-labeled records. It demonstrates the workflow and output but is not an assessment of your organization's architecture.";
@@ -112,9 +112,8 @@ export const GET_STARTED_VERTICAL_PRESENTATIONS: readonly GetStartedVerticalPres
     label: "Financial services",
     scenario: "Digital account-opening modernization",
     icon: Building2,
-    // M-107 Option A: all anonymous get-started samples share the Claims showcase package
-    // (vertical labels are framing; Contoso /demo/preview is secondary Product Tour only).
-    publicSampleHref: CANONICAL_ANONYMOUS_PROOF_HREF,
+    // TB-981: generic enterprise intake is the default anonymous proof; healthcare keeps Claims secondary.
+    publicSampleHref: publicSampleHrefForGetStartedVertical("financial-services"),
     publicSampleAccessibleName: "Open illustrative financial services sample review",
   },
   {
@@ -122,7 +121,7 @@ export const GET_STARTED_VERTICAL_PRESENTATIONS: readonly GetStartedVerticalPres
     label: "Healthcare",
     scenario: "Claims intake modernization",
     icon: HeartPulse,
-    publicSampleHref: CANONICAL_ANONYMOUS_PROOF_HREF,
+    publicSampleHref: publicSampleHrefForGetStartedVertical("healthcare"),
     publicSampleAccessibleName: "Open healthcare claims illustrative sample review",
   },
   {
@@ -130,7 +129,7 @@ export const GET_STARTED_VERTICAL_PRESENTATIONS: readonly GetStartedVerticalPres
     label: "Retail",
     scenario: "Omnichannel order-management modernization",
     icon: ShoppingCart,
-    publicSampleHref: CANONICAL_ANONYMOUS_PROOF_HREF,
+    publicSampleHref: publicSampleHrefForGetStartedVertical("retail"),
     publicSampleAccessibleName: "Open illustrative retail sample review",
   },
   {
@@ -138,7 +137,7 @@ export const GET_STARTED_VERTICAL_PRESENTATIONS: readonly GetStartedVerticalPres
     label: "SaaS",
     scenario: "Enterprise platform scaling review",
     icon: Cloud,
-    publicSampleHref: CANONICAL_ANONYMOUS_PROOF_HREF,
+    publicSampleHref: publicSampleHrefForGetStartedVertical("saas"),
     publicSampleAccessibleName: "Open illustrative SaaS sample review",
   },
   {
@@ -146,7 +145,7 @@ export const GET_STARTED_VERTICAL_PRESENTATIONS: readonly GetStartedVerticalPres
     label: "Public sector",
     scenario: "Digital service modernization",
     icon: Landmark,
-    publicSampleHref: CANONICAL_ANONYMOUS_PROOF_HREF,
+    publicSampleHref: publicSampleHrefForGetStartedVertical("public-sector"),
     publicSampleAccessibleName: "Open illustrative public sector sample review",
   },
   {
@@ -154,7 +153,7 @@ export const GET_STARTED_VERTICAL_PRESENTATIONS: readonly GetStartedVerticalPres
     label: "US government",
     scenario: "Government workload and control review",
     icon: Flag,
-    publicSampleHref: CANONICAL_ANONYMOUS_PROOF_HREF,
+    publicSampleHref: publicSampleHrefForGetStartedVertical("public-sector-us"),
     publicSampleAccessibleName: "Open illustrative US government sample review",
   },
 ] as const;

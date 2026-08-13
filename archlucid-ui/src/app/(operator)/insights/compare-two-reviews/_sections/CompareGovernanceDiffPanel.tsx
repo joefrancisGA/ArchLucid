@@ -3,16 +3,16 @@ import type { ReactElement } from "react";
 import Link from "next/link";
 
 import { StatusTag } from "@/components/ui/status-tag";
-import { OperatorEmptyState } from "@/components/OperatorShellMessage";
+import { DeferredChunkLoading } from "@/components/ui/deferred-chunk-loading";
 import {
   COMPARE_GOVERNANCE_CURRENT_EFFECTIVE_DISCLAIMER,
   type CompareEffectiveGovernanceAtCommitSnapshot,
   type CompareGovernanceDiffView,
   type CompareManifestGovernanceSnapshot,
 } from "@/lib/compare-effective-governance-diff";
-import { OPERATOR_LINK, OPERATOR_TYPOGRAPHY } from "@/lib/design-tokens";
-import { governancePolicyPackDetailPath } from "@/lib/governance-route-paths";
-import { policyPackBuyerGovernanceDetailHref } from "@/lib/policy-pack-buyer-label";
+import { DESIGN_TOKENS, OPERATOR_LINK, OPERATOR_TYPOGRAPHY } from "@/lib/design-tokens";
+import { governancePolicyPackDetailPath } from "@/lib/governance/governance-route-paths";
+import { policyPackBuyerGovernanceDetailHref } from "@/lib/policy/policy-pack-buyer-label";
 
 export type CompareGovernanceDiffPanelProps = {
   readonly view: CompareGovernanceDiffView | null;
@@ -112,11 +112,12 @@ export function CompareGovernanceDiffPanel(props: CompareGovernanceDiffPanelProp
 
   if (loading) {
     return (
-      <OperatorEmptyState title="Effective governance">
-        <p className={cn("m-0 text-neutral-700 dark:text-neutral-300", OPERATOR_TYPOGRAPHY.body)} data-testid="compare-governance-diff-loading">
-          Loading policy pack basis for this comparison…
-        </p>
-      </OperatorEmptyState>
+      <DeferredChunkLoading
+        label="Loading policy pack basis for this comparison…"
+        variant="panel"
+        testId="compare-governance-diff-loading"
+        className="mt-6"
+      />
     );
   }
 
@@ -145,7 +146,7 @@ export function CompareGovernanceDiffPanel(props: CompareGovernanceDiffPanelProp
 
       {view.usesCurrentEffectiveOnly && props.hideCurrentEffectiveDisclaimer !== true ? (
         <p
-          className={cn("m-0 mt-3 rounded-md border border-amber-600/35 bg-amber-50/50 p-3 text-al-text-secondary dark:border-amber-800/45 dark:bg-amber-950/20", OPERATOR_TYPOGRAPHY.helper)}
+          className={cn("m-0 mt-3", DESIGN_TOKENS.callout.warn, "p-3 text-al-text-secondary", OPERATOR_TYPOGRAPHY.helper)}
           data-testid="compare-governance-current-effective-disclaimer"
         >
           {COMPARE_GOVERNANCE_CURRENT_EFFECTIVE_DISCLAIMER}

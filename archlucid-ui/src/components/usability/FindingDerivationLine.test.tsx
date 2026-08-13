@@ -2,7 +2,7 @@ import { render, screen } from "@testing-library/react";
 import { describe, expect, it } from "vitest";
 
 import { FindingDerivationLine } from "@/components/usability/FindingDerivationLine";
-import { buildFindingDerivationSentence } from "@/lib/finding-derivation-sentence";
+import { buildFindingDerivationSentence } from "@/lib/findings/finding-derivation-sentence";
 
 describe("FindingDerivationLine (TB-2154)", () => {
   it("renders derivation sentence and evidence expand link", () => {

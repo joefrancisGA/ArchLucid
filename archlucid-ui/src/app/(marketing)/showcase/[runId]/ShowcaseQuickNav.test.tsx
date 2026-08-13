@@ -26,7 +26,7 @@ function samplePayload(): DemoCommitPagePreviewResponse {
 
 describe("ShowcaseQuickNav", () => {
   it("renders operator deep links when anonymous access is available", () => {
-    render(<ShowcaseQuickNav payload={samplePayload()} operatorDeepLinksAvailable />);
+    render(<ShowcaseQuickNav payload={samplePayload()} operatorDeepLinksAvailable renderMode="static" />);
 
     expect(screen.getByRole("link", { name: "Review" })).toBeInTheDocument();
     expect(screen.getByRole("link", { name: "Open signed record" })).toBeInTheDocument();
@@ -34,7 +34,7 @@ describe("ShowcaseQuickNav", () => {
   });
 
   it("renders sign-in CTA instead of operator deep links when access is gated", () => {
-    render(<ShowcaseQuickNav payload={samplePayload()} operatorDeepLinksAvailable={false} />);
+    render(<ShowcaseQuickNav payload={samplePayload()} operatorDeepLinksAvailable={false} renderMode="static" />);
 
     expect(screen.getByRole("link", { name: SHOWCASE_QUICK_NAV_SIGN_IN_CTA })).toHaveAttribute(
       "href",

@@ -2,11 +2,11 @@ import { cn } from "@/lib/utils";
 import { OPERATOR_TYPOGRAPHY } from "@/lib/design-tokens";
 import type { ReactElement } from "react";
 
-import { OperatorEmptyState } from "@/components/OperatorShellMessage";
+import { OperatorEmptyState } from "@/components/operator/OperatorShellMessage";
 import {
   formatInsightDensityCurationMessage,
   type InsightDensityCurationCounts,
-} from "@/lib/findings-snapshot-insight-density";
+} from "@/lib/findings/findings-snapshot-insight-density";
 
 export type InsightDensityCurationBannerProps = {
   readonly curation: InsightDensityCurationCounts | null;

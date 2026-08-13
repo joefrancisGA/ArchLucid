@@ -2,7 +2,7 @@ import { fetchLearningPlanningListBundle } from "@/lib/api";
 import type { ApiLoadFailureState } from "@/lib/api-load-failure";
 import { toApiLoadFailure } from "@/lib/api-load-failure";
 import { isNextPublicDemoMode } from "@/lib/demo-ui-env";
-import { isStaticDemoPayloadFallbackEnabled } from "@/lib/operator-static-demo";
+import { isStaticDemoPayloadFallbackEnabled } from "@/lib/operator/operator-static-demo";
 import { getPlanningStaticDemoBundle, isPlanningDemoStaticFallbackEnabled } from "@/lib/planning-static-demo";
 import type { LearningPlanListItemResponse, LearningSummaryResponse, LearningThemeResponse } from "@/types/learning";
 

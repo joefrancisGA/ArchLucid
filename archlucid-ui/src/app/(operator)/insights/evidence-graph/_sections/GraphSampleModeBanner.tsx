@@ -6,7 +6,7 @@ import {
   BUYER_EVIDENCE_GRAPH_SAMPLE_BANNER_BODY,
   BUYER_EVIDENCE_GRAPH_SAMPLE_BANNER_TITLE,
   BUYER_EVIDENCE_GRAPH_USE_MY_REVIEW_CTA,
-} from "@/lib/buyer-polish-copy";
+} from "@/lib/buyer/buyer-polish-copy";
 import { OPERATOR_CALLOUT_WARN_CLASS, OPERATOR_TYPOGRAPHY } from "@/lib/design-tokens";
 
 export type GraphSampleModeBannerProps = {
@@ -54,7 +54,7 @@ export function GraphSampleModeBanner(props: GraphSampleModeBannerProps) {
               >
                 Why am I seeing this?
               </summary>
-              <p className={cn("m-0 mt-2 max-w-prose", OPERATOR_TYPOGRAPHY.helper)}>
+              <p className={cn("m-0 mt-2 max-w-3xl", OPERATOR_TYPOGRAPHY.helper)}>
                 {BUYER_EVIDENCE_GRAPH_SAMPLE_BANNER_BODY}
               </p>
             </details>
@@ -65,7 +65,7 @@ export function GraphSampleModeBanner(props: GraphSampleModeBannerProps) {
           <p className={cn("m-0 font-semibold text-al-text-primary", OPERATOR_TYPOGRAPHY.cardTitle)}>
             {BUYER_EVIDENCE_GRAPH_SAMPLE_BANNER_TITLE}
           </p>
-          <p className={cn("m-0 mt-1 max-w-prose", OPERATOR_TYPOGRAPHY.body)}>
+          <p className={cn("m-0 mt-1 max-w-3xl", OPERATOR_TYPOGRAPHY.body)}>
             {BUYER_EVIDENCE_GRAPH_SAMPLE_BANNER_BODY}
           </p>
           {props.showUseMyReviewAction ? (

@@ -6,16 +6,16 @@ import { useCallback, useEffect, useState } from "react";
 import {
   readGroupByResourcePreference,
   writeGroupByResourcePreference,
-} from "@/lib/governance-findings-group-by-resource-storage";
+} from "@/lib/governance/governance-findings-group-by-resource-storage";
 import {
   patchGovernanceFindingsQueueFacets,
   readGovernanceFindingsQueueFacets,
-} from "@/lib/governance-findings-queue-facets-storage";
+} from "@/lib/governance/governance-findings-queue-facets-storage";
 import {
   riskRegisterFilterFromQuery,
   scopedRunIdFromQuery,
   type RiskRegisterFilter,
-} from "@/lib/architecture-risk-register-page";
+} from "@/lib/architecture/architecture-risk-register-page";
 
 import {
   GOVERNANCE_FINDINGS_FILTER_PRESET_LABELS,

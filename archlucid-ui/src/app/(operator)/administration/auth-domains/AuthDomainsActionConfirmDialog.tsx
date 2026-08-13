@@ -1,26 +1,25 @@
 "use client";
 
-import {
-  AlertDialog,
-  AlertDialogAction,
-  AlertDialogCancel,
-  AlertDialogContent,
-  AlertDialogDescription,
-  AlertDialogFooter,
-  AlertDialogHeader,
-  AlertDialogTitle,
-} from "@/components/ui/alert-dialog";
-import { buttonVariants } from "@/components/ui/button";
+import { ConfirmationDialog } from "@/components/ConfirmationDialog";
 import {
   AUTH_DOMAINS_ENABLE_ENFORCEMENT_CONFIRM_TITLE,
-  AUTH_DOMAINS_ENFORCEMENT_WARNING,
   AUTH_DOMAINS_RECOVERY_REMOVE_CONFIRM_TITLE,
+  AUTH_DOMAINS_SET_ENFORCEMENT_CONFIRM_TITLE,
+  AUTH_DOMAINS_SET_ENFORCEMENT_DOWNGRADE_CONFIRM_TITLE,
+  authDomainsEnableEnforcementConfirmDescription,
+  authDomainsSetEnforcementDowngradeDescription,
+  authDomainsSetEnforcementUpgradeDescription,
 } from "@/lib/auth-domains-confirm-copy";
-import { OPERATOR_TYPOGRAPHY } from "@/lib/design-tokens";
-import { cn } from "@/lib/utils";
+import { labelForAuthDomainEnforcementMode } from "@/lib/auth-domains-enum-labels";
 
 export type AuthDomainsPendingConfirm =
   | { readonly kind: "enable-enforcement" }
+  | {
+      readonly kind: "set-enforcement-mode";
+      readonly displayDomain: string;
+      readonly enforcementMode: string;
+      readonly allowEmailOtpRecovery: boolean;
+    }
   | {
       readonly kind: "recovery-remove";
       readonly normalizedRecoveryAdminEmail: string;
@@ -30,20 +29,22 @@ export type AuthDomainsPendingConfirm =
 
 type AuthDomainsActionConfirmDialogProps = {
   readonly pending: AuthDomainsPendingConfirm | null;
+  readonly currentWorkspaceLabel: string | null;
   readonly busy: boolean;
   readonly onCancel: () => void;
   readonly onConfirm: () => void;
 };
 
-function resolveDialogCopy(pending: AuthDomainsPendingConfirm | null): {
-  testId: string;
+function resolveDialogCopy(
+  pending: AuthDomainsPendingConfirm | null,
+  currentWorkspaceLabel: string | null,
+): {
   title: string;
   description: string;
   confirmLabel: string;
 } {
   if (pending === null) {
     return {
-      testId: "auth-domains-confirm-dialog",
       title: "",
       description: "",
       confirmLabel: "Confirm",
@@ -52,59 +53,62 @@ function resolveDialogCopy(pending: AuthDomainsPendingConfirm | null): {
 
   if (pending.kind === "enable-enforcement") {
     return {
-      testId: "auth-domains-enable-confirm-dialog",
       title: AUTH_DOMAINS_ENABLE_ENFORCEMENT_CONFIRM_TITLE,
-      description: AUTH_DOMAINS_ENFORCEMENT_WARNING,
+      description: authDomainsEnableEnforcementConfirmDescription(currentWorkspaceLabel),
       confirmLabel: "Enable enforcement",
     };
   }
 
+  if (pending.kind === "set-enforcement-mode") {
+    const modeLabel = labelForAuthDomainEnforcementMode(pending.enforcementMode);
+    const isDowngrade = pending.enforcementMode === "SsoOptional";
+
+    if (isDowngrade) {
+      return {
+        title: AUTH_DOMAINS_SET_ENFORCEMENT_DOWNGRADE_CONFIRM_TITLE,
+        description: authDomainsSetEnforcementDowngradeDescription(currentWorkspaceLabel, pending.displayDomain),
+        confirmLabel: "Allow SSO optional",
+      };
+    }
+
+    return {
+      title: AUTH_DOMAINS_SET_ENFORCEMENT_CONFIRM_TITLE,
+      description: authDomainsSetEnforcementUpgradeDescription(
+        currentWorkspaceLabel,
+        pending.displayDomain,
+        modeLabel,
+      ),
+      confirmLabel: `Set ${modeLabel}`,
+    };
+  }
+
   return {
-    testId: "auth-domains-recovery-remove-confirm-dialog",
     title: AUTH_DOMAINS_RECOVERY_REMOVE_CONFIRM_TITLE,
     description: pending.warningMessage,
     confirmLabel: `Remove ${pending.displayRecoveryAdminEmail}`,
   };
 }
 
+/** Domain wrapper over {@link ConfirmationDialog} for sign-in domain enforcement confirms (TB-2364). */
 export function AuthDomainsActionConfirmDialog(
   props: AuthDomainsActionConfirmDialogProps,
 ): React.JSX.Element {
-  const copy = resolveDialogCopy(props.pending);
+  const copy = resolveDialogCopy(props.pending, props.currentWorkspaceLabel);
 
   return (
-    <AlertDialog
+    <ConfirmationDialog
       open={props.pending !== null}
       onOpenChange={(open) => {
-        if (!open) {
+        if (!open && !props.busy) {
           props.onCancel();
         }
       }}
-    >
-      <AlertDialogContent data-testid={copy.testId}>
-        <AlertDialogHeader>
-          <AlertDialogTitle className={OPERATOR_TYPOGRAPHY.sectionTitle}>{copy.title}</AlertDialogTitle>
-          <AlertDialogDescription className={cn(OPERATOR_TYPOGRAPHY.body, "text-al-text-secondary")}>
-            {copy.description}
-          </AlertDialogDescription>
-        </AlertDialogHeader>
-        <AlertDialogFooter>
-          <AlertDialogCancel disabled={props.busy} data-testid="auth-domains-confirm-cancel">
-            Cancel
-          </AlertDialogCancel>
-          <AlertDialogAction
-            disabled={props.busy}
-            data-testid="auth-domains-confirm-confirm"
-            className={cn(buttonVariants({ variant: "destructive" }))}
-            onClick={(event) => {
-              event.preventDefault();
-              props.onConfirm();
-            }}
-          >
-            {copy.confirmLabel}
-          </AlertDialogAction>
-        </AlertDialogFooter>
-      </AlertDialogContent>
-    </AlertDialog>
+      title={copy.title}
+      description={copy.description}
+      confirmLabel={copy.confirmLabel}
+      variant="destructive"
+      busy={props.busy}
+      onConfirm={props.onConfirm}
+    />
   );
 }

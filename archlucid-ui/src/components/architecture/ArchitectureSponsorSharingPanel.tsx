@@ -17,7 +17,7 @@ import { Label } from "@/components/ui/label";
 import { StatusTag } from "@/components/ui/status-tag";
 import { useOperateCapability } from "@/hooks/use-operate-capability";
 import { recordSponsorPreliminaryArchitectureShare } from "@/lib/api/architecture-sponsor-sharing-api";
-import type { BuildArchitectureCreatedHomeModelInput } from "@/lib/architecture-created-home-model";
+import type { BuildArchitectureCreatedHomeModelInput } from "@/lib/architecture/architecture-created-home-model";
 import {
   ARCHITECTURE_SPONSOR_AUDIT_RECORDED,
   ARCHITECTURE_SPONSOR_COPY_SUMMARY_ACTION,
@@ -38,14 +38,14 @@ import {
   ARCHITECTURE_SPONSOR_SHARE_PRELIMINARY_ACTION,
   ARCHITECTURE_SPONSOR_SHARING_PERMISSION_DENIED,
   ARCHITECTURE_SPONSOR_UNRESOLVED_HEADING,
-} from "@/lib/architecture-sponsor-readiness-copy";
+} from "@/lib/architecture/architecture-sponsor-readiness-copy";
 import {
   assessArchitectureSponsorReadiness,
   type SponsorReadinessStatus,
-} from "@/lib/architecture-sponsor-readiness";
-import { buildArchitectureSponsorShareMarkdown } from "@/lib/architecture-sponsor-preliminary-draft";
+} from "@/lib/architecture/architecture-sponsor-readiness";
+import { buildArchitectureSponsorShareMarkdown } from "@/lib/architecture/architecture-sponsor-preliminary-draft";
 import { writeWorkItemBodyToClipboard } from "@/lib/copy-finding-as-work-item";
-import { OPERATOR_TYPOGRAPHY, type EnterpriseStatusKind } from "@/lib/design-tokens";
+import { DESIGN_TOKENS, OPERATOR_TYPOGRAPHY, type EnterpriseStatusKind } from "@/lib/design-tokens";
 import type { QuickDecisionFinding } from "@/lib/quick-decision-summary-derive";
 import { REVIEWS_NEW_CREATE_ARCHITECTURE_HREF } from "@/lib/reviews-new-path-copy";
 import { showError, showSuccess } from "@/lib/toast";
@@ -206,7 +206,7 @@ export function ArchitectureSponsorSharingPanel(
 
         {requiresPreliminaryOverride ? (
           <p
-            className={cn("m-0 rounded-md border border-amber-200 bg-amber-50 p-3 text-amber-950 dark:border-amber-900 dark:bg-amber-950/30 dark:text-amber-100", OPERATOR_TYPOGRAPHY.body)}
+            className={cn("m-0", DESIGN_TOKENS.callout.warn, "p-3", OPERATOR_TYPOGRAPHY.body)}
             data-testid="architecture-sponsor-incomplete-warning"
           >
             {ARCHITECTURE_SPONSOR_READINESS_INCOMPLETE_WARNING}

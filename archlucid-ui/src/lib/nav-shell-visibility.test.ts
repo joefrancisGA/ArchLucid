@@ -460,7 +460,7 @@ describe("filterNavLinksForOperatorShell — public demo nav omissions", () => {
     );
 
     expect(visible.some((l) => l.href === "/administration/users")).toBe(true);
-    expect(visible.some((l) => l.href === "/administration/tenant")).toBe(true);
+    expect(visible.some((l) => l.href === "/administration/workspace-settings")).toBe(true);
     expect(visible.some((l) => l.href === "/administration/security-trust")).toBe(true);
   });
 });

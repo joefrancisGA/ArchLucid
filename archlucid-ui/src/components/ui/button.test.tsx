@@ -28,16 +28,22 @@ describe("buttonVariants", () => {
     expect(buttonVariants({ variant: "outline" })).toContain("border");
     expect(buttonVariants({ variant: "primary" })).toContain("bg-");
     expect(buttonVariants({ variant: "default" })).toContain("bg-");
+    expect(buttonVariants({ variant: "default" })).toContain("border");
     expect(buttonVariants({ variant: "secondary" })).toContain("bg-");
+    expect(buttonVariants({ variant: "secondary" })).toContain("border");
     expect(buttonVariants({ variant: "destructive" })).toContain("bg-");
   });
 
-  it("does not require border classes on filled variants (TB-2174)", () => {
-    for (const variant of ["primary", "default", "secondary", "destructive"] as const) {
+  it("uses accent focus ring on shared button chrome", () => {
+    expect(buttonVariants({ variant: "default" })).toContain("focus-visible:ring-[var(--al-accent-border-focus)]");
+  });
+
+  it("does not require visible fill borders on primary or destructive variants (TB-2174)", () => {
+    for (const variant of ["primary", "destructive"] as const) {
       const classes = buttonVariants({ variant });
 
       expect(classes).toMatch(/\bbg-/);
-      expect(classes).not.toMatch(/\bborder\b/);
+      expect(classes).not.toMatch(/\bborder border-/);
     }
   });
 });

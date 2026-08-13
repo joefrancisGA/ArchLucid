@@ -4,7 +4,7 @@ import { useState } from "react";
 import { useSearchParams } from "next/navigation";
 
 import { assertOidcSignInConfig, isJwtAuthMode } from "@/lib/oidc/config";
-import { BUYER_SAFE_AUTH_NOT_CONFIGURED_MESSAGE } from "@/lib/buyer-safe-auth-messages";
+import { BUYER_SAFE_AUTH_NOT_CONFIGURED_MESSAGE } from "@/lib/buyer/buyer-safe-auth-messages";
 import { initiateOidcRedirect } from "@/lib/oidc/initiate-redirect";
 import { isSafeReturnPath } from "@/lib/navigation/safe-return-path";
 import { AuthFlowShell } from "@/components/auth/AuthFlowShell";

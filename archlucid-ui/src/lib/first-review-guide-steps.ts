@@ -16,7 +16,7 @@ export const FIRST_REVIEW_GUIDE_STEPS: readonly FirstReviewGuideStepDefinition[]
     explanation: "Provide the documents, decisions, and context the review should evaluate.",
   },
   {
-    title: "Run the architecture review",
+    title: "Evaluate the architecture review",
     explanation: "Evaluate the architecture against the selected policies and standards.",
   },
   {

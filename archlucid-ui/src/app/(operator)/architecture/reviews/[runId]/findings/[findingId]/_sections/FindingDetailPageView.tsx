@@ -5,18 +5,20 @@ import { FindingInspectContextDebugPanel } from "@/components/findings/FindingIn
 import { FindingOptionalArtifactUnavailable } from "@/components/findings/FindingOptionalArtifactUnavailable";
 import { FindingProvenancePanel } from "@/components/findings/FindingProvenancePanel";
 import { ProductLearningFeedbackControls } from "@/components/ProductLearningFeedbackControls";
-import { FindingAskInlinePanel } from "@/components/FindingAskInlinePanel";
-import { FindingIacStubPanel } from "@/components/FindingIacStubPanel";
+import { FindingAskInlinePanel } from "@/components/findings/FindingAskInlinePanel";
+import { FindingIacStubPanel } from "@/components/findings/FindingIacStubPanel";
 import { FindingPolicyCitationHero } from "@/components/findings/FindingPolicyCitationHero";
-import { FindingItsmExportPanel } from "@/components/FindingItsmExportPanel";
+import { FindingItsmExportPanel } from "@/components/findings/FindingItsmExportPanel";
 import { CollapsibleSection } from "@/components/CollapsibleSection";
 import { CopyIdButton } from "@/components/CopyIdButton";
-import { FindingConfidenceBadge } from "@/components/FindingConfidenceBadge";
+import { FindingConfidenceBadge } from "@/components/findings/FindingConfidenceBadge";
 import { FindingExplainPanel } from "@/components/FindingExplainPanel";
 import { SponsorPlainEnglishFindingPanel } from "@/components/findings/SponsorPlainEnglishFindingPanel";
-import { FindingExplainabilityTracePanel } from "@/components/FindingExplainabilityTracePanel";
-import { OperatorApiProblem } from "@/components/OperatorApiProblem";
-import { OperatorEvidenceLimitsFooter } from "@/components/OperatorEvidenceLimitsFooter";
+import { FindingExplainabilityTracePanel } from "@/components/findings/FindingExplainabilityTracePanel";
+import { OperatorApiProblem } from "@/components/operator/OperatorApiProblem";
+import { OperatorEvidenceLimitsFooter } from "@/components/operator/OperatorEvidenceLimitsFooter";
+import { OperatorPageHeader } from "@/components/operator/OperatorPageHeader";
+import { GOVERNANCE_FINDINGS_PATH } from "@/lib/governance/governance-route-paths";
 import { SeverityTag } from "@/components/ui/severity-tag";
 import { StatusTag } from "@/components/ui/status-tag";
 import {
@@ -26,22 +28,22 @@ import {
   findingInspectPrimaryLabels,
   findingWhyThisMattersText,
   phiMinimizationBuyerConsequenceNarrative,
-} from "@/lib/finding-display-from-inspect";
-import { buildFindingDerivationSentence } from "@/lib/finding-derivation-sentence";
-import { findingCausalMiniChainFromInspectPayload } from "@/lib/finding-causal-mini-chain";
+} from "@/lib/findings/finding-display-from-inspect";
+import { buildFindingDerivationSentence } from "@/lib/findings/finding-derivation-sentence";
+import { findingCausalMiniChainFromInspectPayload } from "@/lib/findings/finding-causal-mini-chain";
 import { FindingDerivationLine } from "@/components/usability/FindingDerivationLine";
 import { FindingCausalMiniChain } from "@/components/usability/FindingCausalMiniChain";
-import { findingSeverityAudienceCopy } from "@/lib/finding-explainability-summary";
-import { getShowcaseManifestHref } from "@/lib/buyer-safe-review-navigation";
+import { findingSeverityAudienceCopy } from "@/lib/findings/finding-explainability-summary";
+import { getShowcaseManifestHref } from "@/lib/buyer/buyer-safe-review-navigation";
 import { isNextPublicDemoMode, isOperatorExperienceFullShellEnv } from "@/lib/demo-ui-env";
-import { isDemoRunIdEligibleForStaticFallback } from "@/lib/operator-static-demo";
+import { isDemoRunIdEligibleForStaticFallback } from "@/lib/operator/operator-static-demo";
 import { DESIGN_TOKENS, OPERATOR_LINK, OPERATOR_NAV_GROUP_LABEL, OPERATOR_TYPOGRAPHY } from "@/lib/design-tokens";
-import { getFindingEvidenceTraceHref } from "@/lib/finding-evidence-navigation";
-import { graphEvidenceHrefFromInspect } from "@/lib/finding-inspect-graph-evidence";
+import { getFindingEvidenceTraceHref } from "@/lib/findings/finding-evidence-navigation";
+import { graphEvidenceHrefFromInspect } from "@/lib/findings/finding-inspect-graph-evidence";
 import {
   buildFindingPolicyEvidenceCitationsFromInspect,
   resolvePolicyTraceExcerptFromInspect,
-} from "@/lib/finding-policy-evidence-citations";
+} from "@/lib/findings/finding-policy-evidence-citations";
 
 import { FindingInspectAuditSection } from "../FindingInspectAuditSection";
 import { FindingInspectEvidenceSection } from "../FindingInspectEvidenceSection";
@@ -175,27 +177,35 @@ export function FindingDetailPageView(props: Props) {
         <div className="space-y-4">
           <section className={cn("overflow-hidden rounded-lg border p-5", DESIGN_TOKENS.surface.card)}>
             <div className="max-w-3xl space-y-3">
-              <p className={cn("m-0 text-al-text-secondary", OPERATOR_NAV_GROUP_LABEL)}>
-                {findingDetailPageEyebrow(inspectPayload, decodedFindingId)}
-              </p>
-              <h1 className={OPERATOR_TYPOGRAPHY.pageTitle}>{pageTitle}</h1>
-              <p className={cn("m-0 max-w-2xl leading-relaxed text-al-text-primary", OPERATOR_TYPOGRAPHY.body)}>
-                {inspectPayload !== null
-                  ? findingDetailLeadSentence(inspectPayload)
-                  : findingDetailLeadFallback(decodedFindingId)}
-              </p>
-              {severityRationale.length > 0 ? (
-                <p className={cn("m-0 max-w-2xl leading-snug text-al-text-secondary", OPERATOR_TYPOGRAPHY.helper)}>
-                  {severityRationale}
-                </p>
-              ) : null}
-              {policyProvenanceModel !== null &&
-              (policyProvenanceModel.pack !== null || policyProvenanceModel.policy !== null) ? (
-                <FindingPolicyCitationHero
-                  model={policyProvenanceModel}
-                  traceExcerpt={policyTraceExcerpt}
-                />
-              ) : null}
+              <OperatorPageHeader
+                navHref={GOVERNANCE_FINDINGS_PATH}
+                title={pageTitle}
+                headingLevel="h1"
+                breadcrumb={
+                  <p className={cn("m-0 text-al-text-secondary", OPERATOR_NAV_GROUP_LABEL)}>
+                    {findingDetailPageEyebrow(inspectPayload, decodedFindingId)}
+                  </p>
+                }
+                subtitle={
+                  inspectPayload !== null
+                    ? findingDetailLeadSentence(inspectPayload)
+                    : findingDetailLeadFallback(decodedFindingId)
+                }
+                subtitleClassName="max-w-2xl leading-relaxed"
+              >
+                {severityRationale.length > 0 ? (
+                  <p className={cn("m-0 max-w-2xl leading-snug text-al-text-secondary", OPERATOR_TYPOGRAPHY.helper)}>
+                    {severityRationale}
+                  </p>
+                ) : null}
+                {policyProvenanceModel !== null &&
+                (policyProvenanceModel.pack !== null || policyProvenanceModel.policy !== null) ? (
+                  <FindingPolicyCitationHero
+                    model={policyProvenanceModel}
+                    traceExcerpt={policyTraceExcerpt}
+                  />
+                ) : null}
+              </OperatorPageHeader>
             </div>
 
             {findingIsPhi ? (
@@ -208,7 +218,13 @@ export function FindingDetailPageView(props: Props) {
             ) : null}
           </section>
 
-          {decisionSummary !== null ? <FindingDetailDecisionSummary summary={decisionSummary} /> : null}
+          {decisionSummary !== null ? (
+            <FindingDetailDecisionSummary
+              summary={decisionSummary}
+              runId={runId}
+              findingId={decodedFindingId}
+            />
+          ) : null}
 
           {inspectPayload !== null ? (
             <FindingDetailOperationalActions
@@ -394,12 +410,14 @@ export function FindingDetailPageView(props: Props) {
           ) : null}
         </div>
       ) : !buyerPolishedShell ? (
-        <header className="space-y-3">
-          <p className={cn("m-0 text-al-text-secondary", OPERATOR_NAV_GROUP_LABEL)}>
-            Finding detail
-          </p>
-          <h1 className={OPERATOR_TYPOGRAPHY.pageTitle}>{pageTitle}</h1>
-
+        <OperatorPageHeader
+          navHref={GOVERNANCE_FINDINGS_PATH}
+          title={pageTitle}
+          headingLevel="h1"
+          breadcrumb={
+            <p className={cn("m-0 text-al-text-secondary", OPERATOR_NAV_GROUP_LABEL)}>Finding detail</p>
+          }
+        >
           {policyProvenanceModel !== null &&
           (policyProvenanceModel.pack !== null || policyProvenanceModel.policy !== null) ? (
             <FindingPolicyCitationHero model={policyProvenanceModel} traceExcerpt={policyTraceExcerpt} />
@@ -449,7 +467,7 @@ export function FindingDetailPageView(props: Props) {
               {findingDetailLeadSentence(inspectPayload)}
             </p>
           ) : null}
-        </header>
+        </OperatorPageHeader>
       ) : null}
 
       {inspectFailure !== null ? (

@@ -1,6 +1,6 @@
 import { describe, expect, it } from "vitest";
 
-import { EXECUTIVE_DASHBOARD_HREF } from "@/lib/executive-dashboard-route";
+import { EXECUTIVE_DASHBOARD_HREF } from "@/lib/executive/executive-dashboard-route";
 import { effectiveNavDisclosureForPathname } from "./nav-disclosure-for-path";
 import {
   NAV_DISCLOSURE,
@@ -65,7 +65,7 @@ describe("effectiveNavDisclosureForPathname", () => {
     "/help/first-architecture-review",
     "/help/troubleshooting",
     "/administration",
-    "/administration/tenant",
+    "/administration/workspace-settings",
     "/administration/extract-upload",
   ])(
     "forces essential tier on Core Pilot path %s without changing stored preference semantics at call site",

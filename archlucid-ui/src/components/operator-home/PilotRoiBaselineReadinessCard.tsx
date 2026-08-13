@@ -3,7 +3,7 @@
 import { cn } from "@/lib/utils";
 import { useCallback, useEffect, useLayoutEffect, useState } from "react";
 
-import { useNavCommittedArchitectureReview } from "@/components/OperatorNavAuthorityProvider";
+import { useNavCommittedArchitectureReview } from "@/components/operator/OperatorNavAuthorityProvider";
 import { Button } from "@/components/ui/button";
 import { DismissControl } from "@/components/usability/DismissControl";
 import { usePilotRoiBaselineCompleteness } from "@/hooks/use-pilot-roi-baseline-completeness";
@@ -12,7 +12,7 @@ import {
   OPERATOR_ROI_ESTIMATE_DISMISS_CTA,
   OPERATOR_ROI_ESTIMATE_PENDING_BODY,
   OPERATOR_ROI_ESTIMATE_PENDING_HEADLINE,
-} from "@/lib/buyer-home-status-copy";
+} from "@/lib/buyer/buyer-home-status-copy";
 import { isNextPublicDemoMode } from "@/lib/demo-ui-env";
 import {
   dismissPilotRoiBaselineReadinessCard,

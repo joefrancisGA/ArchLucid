@@ -87,6 +87,16 @@ ADR 0040 already states: a malicious `dbo` can alter SQL despite app DENY; hash 
 2. Platform audit / runbook step: record restore operator, target time, catalog name (ops attribution).
 3. Do **not** claim in-tenant “RestoreAttested” rows unless productized — honesty CI forbids “restored ≠ tampered by SQL alone.”
 
+## CI anchors for **TB-1491**
+
+| Anchor | Role |
+| --- | --- |
+| `scripts/ci/check_evidence_backup_restore_honesty.py` | Fail PITR-continuous-append / SQL-alone-restore-proof / perfect-fused-PITR overclaims |
+| `ArchLucid.Host.Core/Startup/Validation/Rules/SqlSealedEvidenceImmutabilityRules.cs` | App-principal sealed evidence anchor |
+| `ArchLucid.Application/Analysis/RunExportLineageVerifier.cs` | External export anchor for post-restore comparison |
+
+Honesty CI shipped: **TB-1491**.
+
 ---
 
 ## 7. Code entry points (verification)

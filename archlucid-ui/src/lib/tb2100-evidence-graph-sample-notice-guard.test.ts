@@ -7,7 +7,7 @@ import { join } from "node:path";
 
 import { describe, expect, it } from "vitest";
 
-import { BUYER_EVIDENCE_GRAPH_SAMPLE_BANNER_TITLE } from "@/lib/buyer-polish-copy";
+import { BUYER_EVIDENCE_GRAPH_SAMPLE_BANNER_TITLE } from "@/lib/buyer/buyer-polish-copy";
 
 const SRC = join(process.cwd(), "src");
 const SECTIONS = join(SRC, "app/(operator)/insights/evidence-graph/_sections");

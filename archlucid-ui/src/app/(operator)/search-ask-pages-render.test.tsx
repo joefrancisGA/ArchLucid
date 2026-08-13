@@ -43,6 +43,7 @@ describe("SearchPage (operator shell)", () => {
     render(page);
 
     expect(screen.getByRole("heading", { name: /search review evidence/i })).toBeInTheDocument();
+    // TB-2196 renamed the query field to "Evidence query" so it cannot read like header Find a page.
     expect(screen.getByLabelText(SEARCH_QUERY_FIELD_LABEL)).toBeInTheDocument();
     expect(screen.getByRole("button", { name: /^search$/i })).toBeInTheDocument();
   });

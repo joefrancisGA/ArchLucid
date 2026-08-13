@@ -3,7 +3,7 @@ import {
   type FirstPilotOperatingRailStepDefinition,
   type FirstPilotOperatingRailStepId,
 } from "@/lib/first-pilot-operating-rail-steps";
-import { BUYER_START_ARCHITECTURE_REVIEW_CTA, CREATE_REVIEW_PACKAGE_HEADING } from "@/lib/buyer-polish-copy";
+import { BUYER_START_ARCHITECTURE_REVIEW_CTA, CREATE_REVIEW_PACKAGE_HEADING } from "@/lib/buyer/buyer-polish-copy";
 
 export type FirstPilotOperatingRailShellCopy = {
   readonly heading: string;
@@ -20,7 +20,7 @@ export type FirstPilotOperatingRailShellCopy = {
 const OPERATOR_SHELL_COPY: FirstPilotOperatingRailShellCopy = {
   heading: "Full operating path",
   intro:
-    "Six steps from setup verification to a finalized review. Operate compare, governance dashboards, and V1.1 connectors stay secondary until you have a finalized review.",
+    "Six steps from setup verification to a finalized review. Operate compare, governance dashboards, and future connectors stay secondary until you have a finalized review.",
   showHeaderHelpLink: true,
   headerHelpSlug: "first-architecture-review",
   headerHelpLabel: "Architecture review walkthrough",

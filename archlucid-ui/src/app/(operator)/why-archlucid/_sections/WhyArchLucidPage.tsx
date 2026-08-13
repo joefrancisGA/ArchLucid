@@ -2,6 +2,9 @@
 
 import { useEffect, useMemo, useState } from "react";
 
+import { cn } from "@/lib/utils";
+import { OPERATOR_LAYOUT } from "@/lib/design-tokens";
+
 import {
   getFirstValueReportMarkdown,
   getRunExplanationSummary,
@@ -33,7 +36,7 @@ export function WhyArchLucidPage() {
   const [state, setState] = useState<WhyArchLucidPageState>(initialWhyArchLucidPageState);
 
   useEffect(() => {
-    let cancelled = false;
+    let canceled = false;
 
     async function loadAll(): Promise<void> {
       let snapshot: WhyArchLucidSnapshot | null = null;
@@ -89,7 +92,7 @@ export function WhyArchLucidPage() {
         }
       }
 
-      if (cancelled) return;
+      if (canceled) return;
 
       setState({
         snapshot,
@@ -110,7 +113,7 @@ export function WhyArchLucidPage() {
     void loadAll();
 
     return () => {
-      cancelled = true;
+      canceled = true;
     };
   }, []);
 
@@ -131,7 +134,7 @@ export function WhyArchLucidPage() {
 
   return (
     <div
-      className="w-full max-w-[1200px] space-y-8 p-4"
+      className={cn("w-full max-w-[1200px] p-4", OPERATOR_LAYOUT.sectionStack)}
       data-testid="why-archlucid-page"
       aria-busy={state.loading}
     >

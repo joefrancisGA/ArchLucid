@@ -76,15 +76,8 @@ describe("HelpGlossaryPageView", () => {
 
     render(<HelpGlossaryPageView entry={entry} />);
 
-    expect(screen.getByTestId("help-topic-breadcrumb")).toHaveTextContent("Help");
-    expect(screen.getByTestId("help-topic-breadcrumb")).toHaveTextContent("Glossary");
-    expect(screen.getByRole("link", { name: "Help" })).toHaveAttribute("href", "/help");
-    expect(screen.getByTestId("help-topic-document-status")).toHaveTextContent("Current");
-    expect(screen.getByTestId("help-topic-registry-provenance")).toHaveTextContent(
-      `Last reviewed ${CUSTOMER_GLOSSARY_CONTRACT_VERSION}`,
-    );
-    expect(screen.getByTestId("help-topic-registry-provenance")).toHaveTextContent("V1 GA");
-    expect(screen.getByTestId("page-contextual-help-button")).toBeInTheDocument();
+    expect(screen.getByTestId("help-topic-page-title")).toBeInTheDocument();
+    expect(screen.queryByTestId("help-topic-registry-provenance")).toBeNull();
     expect(screen.getByTestId("glossary-help-claim-discipline")).toHaveTextContent(GLOSSARY_HELP_CLAIM_DISCIPLINE);
     expect(screen.getByTestId("help-glossary-action-panel")).toBeInTheDocument();
     const actionPanel = screen.getByTestId("help-glossary-action-panel");

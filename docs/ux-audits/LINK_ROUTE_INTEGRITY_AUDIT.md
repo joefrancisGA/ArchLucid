@@ -130,7 +130,7 @@ Replace with `/showcase/[SHOWCASE_STATIC_DEMO_RUN_ID]` (the operator-appropriate
 
 ### R05 · `OperatorCorePilotDiagnosticsChecklist` — `#first-run-workflow-panel` anchor may not resolve (P2) · TB-557
 
-**Component:** `archlucid-ui/src/components/OperatorCorePilotDiagnosticsChecklist.tsx`
+**Component:** `archlucid-ui/src/components/operator/OperatorCorePilotDiagnosticsChecklist.tsx`
 
 **Current issue**  
 Line 201:

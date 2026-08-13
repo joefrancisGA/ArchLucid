@@ -1,7 +1,7 @@
 import {
   EXECUTIVE_DASHBOARD_HREF,
   isExecutiveDashboardPath,
-} from "@/lib/executive-dashboard-route";
+} from "@/lib/executive/executive-dashboard-route";
 
 const EXECUTE_LEVEL_ROLE_KEYS = new Set([
   "admin",

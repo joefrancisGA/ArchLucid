@@ -45,7 +45,7 @@ export function buildLongOperationWaitCopy(args: {
       level,
       headline,
       detail:
-        "This is taking longer than usual. You can wait a bit more, retry, or leave this page — work already accepted on the server is not cancelled by navigating away.",
+        "This is taking longer than usual. You can wait a bit more, retry, or leave this page — work already accepted on the server is not canceled by navigating away.",
     };
   }
 

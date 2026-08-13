@@ -2,27 +2,17 @@
 
 import { cn } from "@/lib/utils";
 import Link from "next/link";
-import { useEffect, useState } from "react";
 
 import { ComplianceDriftOpenResolvedChart } from "@/components/ComplianceDriftOpenResolvedChart";
 import { Card, CardContent, CardDescription, CardHeader, CardTitle } from "@/components/ui/card";
-import { getComplianceDriftTrend } from "@/lib/api";
+import { useComplianceDriftTrendQuery } from "@/hooks/use-compliance-drift-trend-query";
 import {
   BUYER_EXECUTIVE_COMPLIANCE_DRIFT_TREND_DESCRIPTION,
   BUYER_EXECUTIVE_DATA_SOURCE_NOTE,
-} from "@/lib/buyer-polish-copy";
+} from "@/lib/buyer/buyer-polish-copy";
 import { OPERATOR_KPI_CARD_DESCRIPTION, OPERATOR_LINK, OPERATOR_TYPOGRAPHY } from "@/lib/design-tokens";
-import { GOVERNANCE_WORKSPACE_HEALTH_HREF } from "@/lib/governance-route-paths";
+import { GOVERNANCE_WORKSPACE_HEALTH_HREF } from "@/lib/governance/governance-route-paths";
 import type { ComplianceDriftTrendPoint } from "@/types/governance-dashboard";
-
-function rollingBounds30Days(): { fromUtc: string; toUtc: string } {
-  const to = new Date();
-  const from = new Date(to);
-
-  from.setUTCDate(from.getUTCDate() - 30);
-
-  return { fromUtc: from.toISOString(), toUtc: to.toISOString() };
-}
 
 /** Live compliance drift panel for the executive summary dashboard (`/dashboard`). */
 export type ExecutiveComplianceDriftTrendSectionProps = {
@@ -38,44 +28,13 @@ export function ExecutiveComplianceDriftTrendSection({
   error: errorProp,
 }: ExecutiveComplianceDriftTrendSectionProps = {}) {
   const usesExternalData = pointsProp !== undefined || loadingProp !== undefined || errorProp !== undefined;
-  const [loading, setLoading] = useState(loadingProp ?? true);
-  const [points, setPoints] = useState<ComplianceDriftTrendPoint[]>(pointsProp ?? []);
-  const [error, setError] = useState(errorProp ?? false);
+  const driftQuery = useComplianceDriftTrendQuery({ enabled: !usesExternalData });
 
-  useEffect(() => {
-    if (usesExternalData) {
-      setPoints(pointsProp ?? []);
-      setLoading(loadingProp ?? false);
-      setError(errorProp ?? false);
-
-      return undefined;
-    }
-
-    let cancelled = false;
-    const window = rollingBounds30Days();
-
-    void (async () => {
-      try {
-        const data = await getComplianceDriftTrend(window.fromUtc, window.toUtc, 1440);
-
-        if (!cancelled) {
-          setPoints(data);
-        }
-      } catch {
-        if (!cancelled) {
-          setError(true);
-        }
-      } finally {
-        if (!cancelled) {
-          setLoading(false);
-        }
-      }
-    })();
-
-    return () => {
-      cancelled = true;
-    };
-  }, [errorProp, loadingProp, pointsProp, usesExternalData]);
+  const loading = usesExternalData
+    ? (loadingProp ?? false)
+    : driftQuery.isPending || (driftQuery.isFetching && !driftQuery.isFetched);
+  const points = usesExternalData ? (pointsProp ?? []) : (driftQuery.data ?? []);
+  const error = usesExternalData ? (errorProp ?? false) : driftQuery.isError;
 
   return (
     <Card>

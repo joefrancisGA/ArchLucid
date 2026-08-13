@@ -2,7 +2,7 @@ import { readFileSync } from "node:fs";
 import { join } from "node:path";
 import { describe, expect, it } from "vitest";
 
-import { BUYER_CTO_DEMO_READINESS_ARIA } from "@/lib/buyer-polish-copy";
+import { BUYER_CTO_DEMO_READINESS_ARIA } from "@/lib/buyer/buyer-polish-copy";
 import { DEMO_READINESS_RUN_OF_SHOW_DOWNLOAD_FILENAME } from "@/lib/demo-readiness-evidence-copy";
 
 const CTO_DEMO_CHROME_PATTERN = /cto\s*demo|cto-demo/i;

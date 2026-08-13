@@ -2,7 +2,7 @@
 
 import { cn } from "@/lib/utils";
 
-import { OPERATOR_TYPOGRAPHY } from "@/lib/design-tokens";
+import { DESIGN_TOKENS, OPERATOR_TYPOGRAPHY } from "@/lib/design-tokens";
 import { REPLAY_AI_BUDGET_VARIANCE_NOTE } from "@/lib/replay-validation-copy";
 import { replayValidationModeDefinition } from "@/lib/replay-validation-workflow";
 
@@ -50,10 +50,7 @@ export function ReplayValidationImpactSummary(props: ReplayValidationImpactSumma
       </dl>
       {definition.aiUsage !== "none" ? (
         <p
-          className={cn(
-            "m-0 rounded border border-amber-200 bg-amber-50 px-3 py-2 text-amber-950 dark:border-amber-900 dark:bg-amber-950/40 dark:text-amber-100",
-            OPERATOR_TYPOGRAPHY.body,
-          )}
+          className={cn("m-0", DESIGN_TOKENS.callout.warn, OPERATOR_TYPOGRAPHY.body)}
           data-testid="replay-validation-ai-budget-disclosure"
         >
           {REPLAY_AI_BUDGET_VARIANCE_NOTE}

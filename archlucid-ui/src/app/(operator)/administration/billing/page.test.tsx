@@ -7,6 +7,9 @@ const showSuccess = vi.fn();
 
 const startMarketingPlanBillingCheckout = vi.hoisted(() => vi.fn().mockResolvedValue({ outcome: "redirected" }));
 
+const useBillingSubscriptionStatusQuery = vi.hoisted(() => vi.fn());
+const useTenantUsageStatusQuery = vi.hoisted(() => vi.fn());
+
 vi.mock("@/lib/toast", () => ({
   showError: (...args: unknown[]) => showError(...args),
   showInfo: (...args: unknown[]) => showInfo(...args),
@@ -26,11 +29,19 @@ vi.mock("@/lib/billing-checkout-client", () => ({
   startMarketingPlanBillingCheckout,
 }));
 
-vi.mock("@/hooks/use-tenant-trial-status-query", () => ({
-  useTenantTrialStatusQuery: () => ({ data: null }),
+vi.mock("@/hooks/use-billing-subscription-status-query", () => ({
+  useBillingSubscriptionStatusQuery,
 }));
 
-vi.mock("@/components/OperatorNavAuthorityProvider", () => ({
+vi.mock("@/hooks/use-tenant-usage-status-query", () => ({
+  useTenantUsageStatusQuery,
+}));
+
+vi.mock("@/hooks/use-tenant-trial-status-query", () => ({
+  useTenantTrialStatusQuery: () => ({ data: null, isLoading: false, isError: false }),
+}));
+
+vi.mock("@/components/operator/OperatorNavAuthorityProvider", () => ({
   useNavCallerAuthorityRank: () => 3,
 }));
 
@@ -50,7 +61,7 @@ vi.mock("@/lib/frictionless-trial-session", () => ({
   readFrictionlessTrialSessionEnabled: () => false,
 }));
 
-vi.mock("@/lib/operator-scope-storage", () => ({
+vi.mock("@/lib/operator/operator-scope-storage", () => ({
   ARCHLUCID_OPERATOR_SCOPE_CHANGED_EVENT: "archlucid:operator-scope-changed",
   readOperatorScopeFromStorage: () => ({
     tenantId: "tenant-1",
@@ -59,6 +70,10 @@ vi.mock("@/lib/operator-scope-storage", () => ({
     workspaceLabel: "Pilot workspace",
     projectLabel: "Default",
   }),
+}));
+
+vi.mock("./OperatorBillingUsageSection", () => ({
+  OperatorBillingUsageSection: () => <div data-testid="operator-billing-usage-section" />,
 }));
 
 vi.mock("@/lib/llm-monthly-budget-status", async (importOriginal) => {
@@ -148,35 +163,76 @@ const walletFixture = {
   rowVersionBase64: "dGVzdA==",
 };
 
+function mockSubscriptionQuery(
+  data: {
+    hasSubscription: boolean;
+    status?: string;
+    provider?: string;
+    tierCode?: string;
+    isPaymentPastDue?: boolean;
+  } | null,
+  options?: { isPending?: boolean; isFetched?: boolean },
+) {
+  useBillingSubscriptionStatusQuery.mockReturnValue({
+    data,
+    isPending: options?.isPending ?? false,
+    isFetched: options?.isFetched ?? true,
+  });
+}
+
+function mockUsageQuery(
+  data: {
+    isTrial?: boolean;
+    commercialTier?: string;
+    seatsUsed?: number;
+    seatsLimit?: number;
+  } | null,
+  options?: { isPending?: boolean; isFetched?: boolean },
+) {
+  useTenantUsageStatusQuery.mockReturnValue({
+    data,
+    isPending: options?.isPending ?? false,
+    isFetched: options?.isFetched ?? true,
+  });
+}
+
+function stubFetch() {
+  const fetchMock = vi.fn(async (input: string | URL) => {
+    const url = String(input);
+
+    if (url.includes("/pricing.json")) {
+      return new Response(JSON.stringify(pricingFixture), {
+        status: 200,
+        headers: { "Content-Type": "application/json" },
+      });
+    }
+
+    if (url.includes("/api/proxy/v1/billing/wallet")) {
+      return new Response(JSON.stringify(walletFixture), {
+        status: 200,
+        headers: { "Content-Type": "application/json" },
+      });
+    }
+
+    return new Response("not found", { status: 404 });
+  });
+  vi.stubGlobal("fetch", fetchMock);
+}
+
 describe("BillingSettingsPage", () => {
   beforeEach(() => {
     showError.mockClear();
     showInfo.mockClear();
     showSuccess.mockClear();
     startMarketingPlanBillingCheckout.mockClear();
+    useBillingSubscriptionStatusQuery.mockReset();
+    useTenantUsageStatusQuery.mockReset();
+    mockSubscriptionQuery({ hasSubscription: false, isPaymentPastDue: false });
+    mockUsageQuery({ isTrial: true });
   });
 
   it("loads canonical tiers, shows subscription management layout, and hides Stripe ids", async () => {
-    const fetchMock = vi.fn(async (input: string | URL) => {
-      const url = String(input);
-
-      if (url.includes("/pricing.json")) {
-        return new Response(JSON.stringify(pricingFixture), {
-          status: 200,
-          headers: { "Content-Type": "application/json" },
-        });
-      }
-
-      if (url.includes("/api/proxy/v1/billing/wallet")) {
-        return new Response(JSON.stringify(walletFixture), {
-          status: 200,
-          headers: { "Content-Type": "application/json" },
-        });
-      }
-
-      return new Response("not found", { status: 404 });
-    });
-    vi.stubGlobal("fetch", fetchMock);
+    stubFetch();
 
     render(<OperatorBillingSettingsClient />);
 
@@ -191,11 +247,25 @@ describe("BillingSettingsPage", () => {
     expect(screen.getByText(/Manage your plan, AI usage credits/i)).toBeInTheDocument();
     expect(screen.getAllByRole("link", { name: /View public pricing/i })[0]).toHaveAttribute("href", "/pricing");
     expect(screen.getByTestId("operator-billing-usage-section")).toBeInTheDocument();
-    expect(screen.getByText("Monthly AI budget allowance")).toBeInTheDocument();
+    expect(screen.getByText("Workspace AI spend cap")).toBeInTheDocument();
     expect(screen.getByText("$100 / month")).toBeInTheDocument();
+    expect(screen.queryByText("Monthly AI budget allowance")).not.toBeInTheDocument();
     const architectCard = screen.getByTestId("billing-tier-architect");
     expect(within(architectCard).getByText("Included AI credits")).toBeInTheDocument();
     expect(within(architectCard).getByText("500 AI credits / month")).toBeInTheDocument();
+    const teamCard = screen.getByTestId("billing-tier-team");
+    expect(within(teamCard).getByText(/Recommended/i)).toBeInTheDocument();
+    const currentPlan = screen.getByTestId("operator-billing-current-plan");
+    expect(within(currentPlan).getByRole("link", { name: /Start Architect plan/i })).toHaveAttribute(
+      "href",
+      "#billing-plans",
+    );
+    expect(within(currentPlan).getByRole("link", { name: /Compare available plans/i })).toHaveAttribute(
+      "href",
+      "#billing-plans",
+    );
+    expect(within(currentPlan).queryByRole("button", { name: /Start Architect plan/i })).not.toBeInTheDocument();
+    expect(screen.getAllByRole("button", { name: /Start Architect plan/i })).toHaveLength(1);
     expect(
       within(screen.getByTestId("operator-billing-current-plan")).queryByText("Included AI credits"),
     ).not.toBeInTheDocument();
@@ -205,8 +275,18 @@ describe("BillingSettingsPage", () => {
     expect(screen.queryByText(/Starting at \$60,000/i)).not.toBeInTheDocument();
     expect(screen.queryByLabelText(/Stripe customer id/i)).not.toBeInTheDocument();
     expect(screen.queryByText(/Advanced billing details/i)).not.toBeInTheDocument();
+    expect(screen.getByTestId("operator-billing-invoices-and-receipts-action")).toBeInTheDocument();
+    expect(screen.getByTestId("operator-billing-subscription-status")).toHaveTextContent("No active subscription");
 
     fireEvent.click(within(architectCard).getByRole("button", { name: /Start Architect plan/i }));
+
+    await waitFor(() => {
+      expect(screen.getByRole("alertdialog")).toBeInTheDocument();
+    });
+
+    expect(startMarketingPlanBillingCheckout).not.toHaveBeenCalled();
+
+    fireEvent.click(screen.getByRole("button", { name: /Confirm and continue to checkout/i }));
 
     await waitFor(() => {
       expect(startMarketingPlanBillingCheckout).toHaveBeenCalledWith(
@@ -217,30 +297,117 @@ describe("BillingSettingsPage", () => {
     vi.unstubAllGlobals();
   });
 
+  it("shows paid plan state with active status and manage billing", async () => {
+    mockSubscriptionQuery({
+      hasSubscription: true,
+      status: "active",
+      provider: "stripe",
+      isPaymentPastDue: false,
+    });
+    mockUsageQuery({
+      isTrial: false,
+      commercialTier: "Team",
+      seatsUsed: 3,
+      seatsLimit: 5,
+    });
+    stubFetch();
+
+    render(<OperatorBillingSettingsClient />);
+
+    await waitFor(() => {
+      expect(screen.getByText("Team")).toBeInTheDocument();
+    });
+
+    const currentPlan = screen.getByTestId("operator-billing-current-plan");
+    expect(within(currentPlan).getByTestId("operator-billing-subscription-status")).toHaveTextContent(
+      "Active subscription",
+    );
+    expect(screen.getByText("Monthly AI budget allowance")).toBeInTheDocument();
+    expect(screen.getByText("3 of 5 in use")).toBeInTheDocument();
+    expect(within(currentPlan).getByTestId("operator-billing-manage-billing")).toBeInTheDocument();
+    expect(screen.getByTestId("billing-plans-collapsible")).not.toHaveAttribute("open");
+
+    vi.unstubAllGlobals();
+  });
+
+  it("shows checking headline while subscription data is pending", async () => {
+    mockSubscriptionQuery(null, { isPending: true, isFetched: false });
+    mockUsageQuery(null, { isPending: true, isFetched: false });
+    stubFetch();
+
+    render(<OperatorBillingSettingsClient />);
+
+    await waitFor(() => {
+      expect(screen.getByText("Checking…")).toBeInTheDocument();
+    });
+
+    expect(screen.getByTestId("operator-billing-subscription-status")).toHaveTextContent("Checking subscription");
+
+    vi.unstubAllGlobals();
+  });
+
+  it("expands available plans after subscription state resolves without a paid plan", async () => {
+    mockSubscriptionQuery(null, { isPending: true, isFetched: false });
+    mockUsageQuery(null, { isPending: true, isFetched: false });
+    stubFetch();
+
+    const { rerender } = render(<OperatorBillingSettingsClient />);
+
+    await waitFor(() => {
+      expect(screen.getByTestId("billing-plans-collapsible")).toBeInTheDocument();
+    });
+    expect(screen.getByTestId("billing-plans-collapsible")).not.toHaveAttribute("open");
+
+    mockSubscriptionQuery({ hasSubscription: false, isPaymentPastDue: false });
+    mockUsageQuery({ isTrial: true });
+    rerender(<OperatorBillingSettingsClient />);
+
+    await waitFor(() => {
+      expect(screen.getByTestId("billing-plans-collapsible")).toHaveAttribute("open");
+    });
+
+    vi.unstubAllGlobals();
+  });
+
+  it("shows unavailable headline when subscription payloads cannot be loaded", async () => {
+    mockSubscriptionQuery(null, { isPending: false, isFetched: true });
+    mockUsageQuery(null, { isPending: false, isFetched: true });
+    stubFetch();
+
+    render(<OperatorBillingSettingsClient />);
+
+    await waitFor(() => {
+      expect(screen.getByText("Unavailable")).toBeInTheDocument();
+    });
+
+    expect(screen.getByTestId("operator-billing-subscription-status")).toHaveTextContent(
+      "Subscription status unavailable",
+    );
+
+    vi.unstubAllGlobals();
+  });
+
+  it("routes sales-led professional CTA to public pricing quote request", async () => {
+    stubFetch();
+
+    render(<OperatorBillingSettingsClient />);
+
+    await waitFor(() => {
+      expect(screen.getByTestId("billing-tier-professional")).toBeInTheDocument();
+    });
+
+    const professionalCard = screen.getByTestId("billing-tier-professional");
+    const quoteLink = within(professionalCard).getByRole("link", { name: /Request guided trial/i });
+    expect(quoteLink).toHaveAttribute("href", expect.stringContaining("/pricing"));
+    expect(quoteLink).toHaveAttribute("href", expect.stringContaining("#pricing-quote-request"));
+
+    vi.unstubAllGlobals();
+  });
+
   it("shows durable checkout success callout when returning from Stripe", async () => {
     const navigation = await import("next/navigation");
     vi.spyOn(navigation, "useSearchParams").mockReturnValue(new URLSearchParams("checkout=success") as never);
-
-    const fetchMock = vi.fn(async (input: string | URL) => {
-      const url = String(input);
-
-      if (url.includes("/pricing.json")) {
-        return new Response(JSON.stringify(pricingFixture), {
-          status: 200,
-          headers: { "Content-Type": "application/json" },
-        });
-      }
-
-      if (url.includes("/api/proxy/v1/billing/wallet")) {
-        return new Response(JSON.stringify(walletFixture), {
-          status: 200,
-          headers: { "Content-Type": "application/json" },
-        });
-      }
-
-      return new Response("not found", { status: 404 });
-    });
-    vi.stubGlobal("fetch", fetchMock);
+    stubFetch();
 
     render(<OperatorBillingSettingsClient />);
 

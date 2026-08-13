@@ -217,7 +217,7 @@ For security inquiries, procurement pack requests, or NDA-gated materials: **`se
 
 Former body of `docs/go-to-market/OWNER_SECURITY_ASSESSMENT_REDACTED_FOR_PACK.md` → this section. The filename [`OWNER_SECURITY_ASSESSMENT_REDACTED_FOR_PACK.md`](OWNER_SECURITY_ASSESSMENT_REDACTED_FOR_PACK.md) remains a **path-stable procurement-pack alias** (pack ZIP name `OWNER_SECURITY_ASSESSMENT_REDACTED.md`).
 
-**Classification:** Buyer-facing (include alias in procurement pack ZIP). Buyer-shareable excerpt for procurement bundles. It summarizes the **same programme** as the in-repo canonical file [`../security/OWNER_SECURITY_ASSESSMENT_2026_Q2.md`](../security/OWNER_SECURITY_ASSESSMENT_2026_Q2.md) but **must not** be edited with customer-specific names in the pack — use `PROCUREMENT_PACK_COVER.md` for deal context only.
+**Classification:** Buyer-facing (include alias in procurement pack ZIP). Buyer-shareable excerpt for procurement bundles. It summarizes the **same program** as the in-repo canonical file [`../security/OWNER_SECURITY_ASSESSMENT_2026_Q2.md`](../security/OWNER_SECURITY_ASSESSMENT_2026_Q2.md) but **must not** be edited with customer-specific names in the pack — use `PROCUREMENT_PACK_COVER.md` for deal context only.
 
 ### What this is (and is not)
 

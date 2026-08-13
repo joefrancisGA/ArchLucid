@@ -1,5 +1,5 @@
 > **Scope:** Design spec for AI policy pack **AI-19 — Multi-Agent System Orchestration**. Rule JSON authoring is out of scope.
-> **Buyer-safe invariant:** Architecture-review mapping for multi-agent system posture — not safety certification of autonomous multi-agent behaviour.
+> **Buyer-safe invariant:** Architecture-review mapping for multi-agent system posture — not safety certification of autonomous multi-agent behavior.
 
 # AI-19 — Multi-Agent System Orchestration — design spec
 
@@ -23,7 +23,7 @@ Ship a pack covering the architecture posture of **multi-agent AI systems** — 
 | A4 | **Inter-agent trust** = the mechanism by which agents authenticate each other's messages (signed messages, shared session token, identity-bound). | Security concern. |
 | A5 | **Agent loop termination** = a mechanism to bound the number of steps/iterations an agent loop can execute before forced termination or human review. | Safety concern. |
 | A6 | AI-06 (`agentic-ai-mcp`) covers single-agent tool-use posture. Multi-agent topology concerns (supervisor authority, inter-agent trust, shared state) are distinct. | Adjacent pack boundary. |
-| A7 | AI-18 (`ai-red-team-safety`) covers red-team testing of agent behaviour. This pack covers **architectural design** of the multi-agent system. | Adjacent pack boundary. |
+| A7 | AI-18 (`ai-red-team-safety`) covers red-team testing of agent behavior. This pack covers **architectural design** of the multi-agent system. | Adjacent pack boundary. |
 
 ---
 
@@ -32,7 +32,7 @@ Ship a pack covering the architecture posture of **multi-agent AI systems** — 
 | # | Constraint | Implication |
 |---|------------|-------------|
 | C1 | Rule prefix `mas-` (multi-agent system) is distinct. | Verified. |
-| C2 | Rules must not imply ArchLucid can evaluate multi-agent behaviour at runtime. | Scope boundary. |
+| C2 | Rules must not imply ArchLucid can evaluate multi-agent behavior at runtime. | Scope boundary. |
 | C3 | Inter-agent trust rules must address both synchronous (direct call) and asynchronous (message bus) communication patterns. | Coverage completeness. |
 | C4 | Agent output attribution rules overlap with `ai-governance-responsible-ai` (#1) at the audit trail level; multi-agent rules add attribution chain complexity. | Adjacent pack boundary. |
 
@@ -119,8 +119,8 @@ Standard pipeline. `priorityFloor: P0` surfaces topology documentation, supervis
 1. ~27 rules; every sub-corpus represented.
 2. `mas-loop-*` includes ≥ 2 P0 rules for loop termination bounds.
 3. `mas-trust-*` includes ≥ 2 P0 rules for inter-agent authentication.
-4. No rule implies ArchLucid evaluates runtime agent behaviour.
-5. `metadata.frameworkMappingDisclaimer` contains "not safety certification of autonomous multi-agent behaviour".
+4. No rule implies ArchLucid evaluates runtime agent behavior.
+5. `metadata.frameworkMappingDisclaimer` contains "not safety certification of autonomous multi-agent behavior".
 6. No `Critical` severity.
 
 ---
@@ -128,7 +128,7 @@ Standard pipeline. `priorityFloor: P0` surfaces topology documentation, supervis
 ## 10. Required FAQ wording
 
 **Q: Does this pack prevent my multi-agent system from running indefinitely or taking harmful actions?**
-A: No. ArchLucid evaluates architecture-level design: whether loop termination bounds, inter-agent trust mechanisms, and supervisor authority limits are documented in your architecture. Preventing runaway behaviour requires implementation and operational controls — architecture documentation is a necessary but not sufficient condition.
+A: No. ArchLucid evaluates architecture-level design: whether loop termination bounds, inter-agent trust mechanisms, and supervisor authority limits are documented in your architecture. Preventing runaway behavior requires implementation and operational controls — architecture documentation is a necessary but not sufficient condition.
 
 ---
 
@@ -137,5 +137,5 @@ A: No. ArchLucid evaluates architecture-level design: whether loop termination b
 | Doc | Purpose |
 |-----|---------|
 | [`SPEC_AI06_AGENTIC_AI.md`](SPEC_AI06_AGENTIC_AI.md) | Single-agent tool-use posture |
-| [`SPEC_AI18_AI_RED_TEAM.md`](SPEC_AI18_AI_RED_TEAM.md) | Red-team programme complement |
+| [`SPEC_AI18_AI_RED_TEAM.md`](SPEC_AI18_AI_RED_TEAM.md) | Red-team program complement |
 | [`SPEC_AI17_LLM_FINOPS.md`](SPEC_AI17_LLM_FINOPS.md) | Loop cost control |

@@ -17,6 +17,6 @@ public interface IFirstTenantFunnelEmitter
     /// </summary>
     /// <param name="eventName">One of <c>FirstTenantFunnelEventNames</c> constants.</param>
     /// <param name="tenantId">Caller-scope tenant id; ignored in aggregated mode.</param>
-    /// <param name="ct">Cancellation token (honoured only by the per-tenant SQL write).</param>
+    /// <param name="ct">Cancellation token (honored only by the per-tenant SQL write).</param>
     Task EmitAsync(string eventName, Guid tenantId, CancellationToken ct = default);
 }

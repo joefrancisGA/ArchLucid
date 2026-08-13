@@ -28,7 +28,7 @@ Catch **accidental coupling** early: foundation assemblies pulling in hosts, dom
 ## 3. Constraints
 
 - Rules are **test-only**: no production project references NetArchTest.
-- **One `[Fact]` per rule** so CI output names the exact violation.
+- **One test case per rule** so CI output names the exact violation: manifest rules run as theory rows keyed by the rule sentence, and rules needing bespoke evidence stay `[Fact]`.
 - Each test is tagged **`[Trait("Suite", "Core")]`** so it runs with the corset / fast-core pipelines (see [TEST_EXECUTION_MODEL.md](TEST_EXECUTION_MODEL.md)).
 - Forbidden namespace lists for Tier 1 live in [`ArchitectureConstraintNamespaces.cs`(../../ArchLucid.Architecture.Tests/ArchitectureConstraintNamespaces.cs); extend those arrays when new first-party `ArchLucid.*` areas appear.
 
@@ -48,11 +48,12 @@ Catch **accidental coupling** early: foundation assemblies pulling in hosts, dom
 
 `ArchLucid.Backfill.Cli` is the **only** CLI that references `ArchLucid.Persistence` directly. It is a one-time JSON → relational migration tool, not an operator HTTP client. It composes `SqlRelationalBackfillService` / `SqlCutoverReadinessService` from `Persistence.Coordination.Backfill` without an Application use-case layer.
 
-| Test | Rule |
+| Test case | Rule |
 |------|------|
-| `BackfillCli_first_party_assembly_references_must_match_allowlist` | May reference only `Core`, `Contracts`, `KnowledgeGraph`, `Persistence` |
-| `BackfillCli_csproj_must_only_declare_allowed_project_references` | Direct `ProjectReference` entries: `KnowledgeGraph`, `Persistence` only |
-| `BackfillCli_must_not_depend_on_Application` | No Application orchestration in the maintenance host |
+| `BackfillCli_first_party_assembly_references_must_match_allowlist` (fact) | May reference only `Core`, `Contracts`, `KnowledgeGraph`, `Persistence` |
+| `BackfillCli_csproj_must_only_declare_allowed_project_references` (fact) | Direct `ProjectReference` entries: `KnowledgeGraph`, `Persistence` only |
+| *Backfill.Cli must not depend on Application* (namespace manifest) | No Application orchestration in the maintenance host |
+| *Backfill.Cli references the Persistence assembly by design* (assembly manifest) | The documented exception is pinned, not merely tolerated |
 
 Allowlists live in [`ArchitectureConstraintMaintenanceHosts.cs`](../../ArchLucid.Architecture.Tests/ArchitectureConstraintMaintenanceHosts.cs). Operator docs: [`SqlRelationalBackfill.md`](SqlRelationalBackfill.md).
 
@@ -60,7 +61,7 @@ Compare with Tier 4 **`ArchLucid.Cli`**: thin HTTP client (`Api.Client` only). *
 
 ### Why Tier 4 uses assembly metadata for `ArchLucid.Api`
 
-`HaveDependencyOn("ArchLucid.Api")` matches any namespace that **starts with** that prefix, including **`ArchLucid.Api.Client`**. The intended rule is: **no project reference to the `ArchLucid.Api` assembly** (the ASP.NET host). The test **`Cli_must_not_reference_Api_assembly`** asserts `GetReferencedAssemblies()` does not contain `ArchLucid.Api`, while still allowing **`ArchLucid.Api.Client`**.
+`HaveDependencyOn("ArchLucid.Api")` matches any namespace that **starts with** that prefix, including **`ArchLucid.Api.Client`**. The intended rule is: **no project reference to the `ArchLucid.Api` assembly** (the ASP.NET host). The assembly-manifest rule ***Cli must not reference the Api host assembly*** asserts `GetReferencedAssemblies()` does not contain `ArchLucid.Api`, while still allowing **`ArchLucid.Api.Client`**.
 
 ---
 
@@ -70,7 +71,9 @@ Compare with Tier 4 **`ArchLucid.Cli`**: thin HTTP client (`Api.Client` only). *
 |--------|------|
 | **`ArchLucid.Architecture.Tests`** | Holds rules; references only the assemblies under test (no product code changes). |
 | **`ArchitectureConstraintNamespaces`** | Single place to maintain Tier 1 forbidden prefix lists. |
-| **`DependencyConstraintTests`** | One fact per tier rule; uses anchor types (`typeof(...).Assembly`) so renaming types inside an assembly does not break resolution unnecessarily. |
+| **Constraint manifests** | The rules themselves, as data keyed by the rule sentence shown in CI: `ArchitectureNamespaceConstraintManifest` (NetArchTest), `ArchitectureAssemblyReferenceConstraintManifest` (compiled metadata), `ArchitectureProjectReferenceConstraintManifest` (`*.csproj` edges), `ArchitectureTypeAbsenceConstraintManifest` (type placement). |
+| **`ArchitectureConstraintAssemblies`** | Maps an assembly name to its anchor type (`typeof(...).Assembly`), so renaming types inside an assembly does not break resolution unnecessarily, and manifest rows stay declarative. |
+| **`DependencyConstraintTests`** | One theory row per manifest rule (plus facts for rules needing bespoke evidence: source scans, reference allowlists, UI OpenAPI trace). |
 | **`TestClassTraitCategorizationArchitectureTests`** | Roslyn source scan: every public `*Tests` class in a `*.Tests` project folder must declare `[Trait("Suite", …)]` and/or `[Trait("Category", …)]` at class scope (see `docs/library/TEST_EXECUTION_MODEL.md`). |
 
 ---
@@ -101,9 +104,9 @@ Fast core (excludes slow/integration-tagged tests elsewhere; architecture tests 
 dotnet test ArchLucid.sln --filter "Suite=Core&Category!=Slow&Category!=Integration"
 ```
 
-**NetArchTest quirk (string field constants):** For `ShouldNot().HaveDependencyOnAny(...)`, the library scans **compile-time string constants on fields** and treats **`:`** like **`.`** as a namespace separator (see `NamespaceTree` in NetArchTest). A `public const string` such as `"ArchLucid:Persistence"` is therefore parsed as **`ArchLucid.Persistence`** and can fail **`Core_must_not_depend_on_any_solution_project`** even though Core has no real reference to the persistence assembly. Prefer a **`static` property** that builds the path with `string.Concat` (or keep the literal only in a host layer), as in **`ArchLucidPersistenceOptions.SectionPath`**.
+**NetArchTest quirk (string field constants):** For `ShouldNot().HaveDependencyOnAny(...)`, the library scans **compile-time string constants on fields** and treats **`:`** like **`.`** as a namespace separator (see `NamespaceTree` in NetArchTest). A `public const string` such as `"ArchLucid:Persistence"` is therefore parsed as **`ArchLucid.Persistence`** and can fail ***Core must not depend on other first-party areas*** even though Core has no real reference to the persistence assembly. Prefer a **`static` property** that builds the path with `string.Concat` (or keep the literal only in a host layer), as in **`ArchLucidPersistenceOptions.SectionPath`**.
 
-**Adding a rule:** Prefer a new **`[Fact]`** with `Suite=Core` (and `Category=Unit` unless you have a reason not to). Reuse `ArchitectureConstraintNamespaces` for Tier 1–style prefix sets. For “must not reference assembly X”, prefer **`GetReferencedAssemblies()`** when namespace-prefix checks would false-positive.
+**Adding a rule:** Add a row to the matching constraint manifest (§5); the class-level `Suite=Core` / `Category=Unit` traits already cover it. Reuse `ArchitectureConstraintNamespaces` for Tier 1–style prefix sets. For “must not reference assembly X”, use the **assembly-reference** manifest (`GetReferencedAssemblies()`) when namespace-prefix checks would false-positive, and the **project-reference** manifest to catch the build-graph edge before any code consumes it.
 
 **CI:** The same `Suite=Core` filter used by the “fast core” job picks up this project once it is in **`ArchLucid.sln`**.
 
@@ -117,11 +120,11 @@ If the solution gains new **leaf** or **foundation** assemblies, update **`Forbi
 
 **Batch 5 boundary guards (2026-05-28):**
 
-| Test | Rule |
+| Test case | Rule |
 |------|------|
-| `Retrieval_must_not_reference_Api_assembly` | Retrieval stays below the HTTP host |
-| `AgentRuntime_must_not_reference_host_or_infrastructure_root_assemblies` | AgentRuntime must not reference `ArchLucid.Api`, `ArchLucid.Host.*`, or `ArchLucid.Worker` |
-| `Ui_openapi_types_must_trace_to_canonical_snapshot` | `archlucid-ui/src/lib/openapi-schemas.ts` re-exports generated types from `api-types.generated.ts`, sourced from `ArchLucid.Api.Tests/Contracts/openapi-v1.contract.snapshot.json` |
+| *Retrieval must not reference the Api assembly* (assembly manifest) | Retrieval stays below the HTTP host |
+| *AgentRuntime must not reference host or infrastructure root assemblies* (assembly manifest) | AgentRuntime must not reference `ArchLucid.Api`, `ArchLucid.Host.*`, or `ArchLucid.Worker` |
+| `Ui_openapi_types_must_trace_to_canonical_snapshot` (fact) | `archlucid-ui/src/lib/openapi-schemas.ts` re-exports generated types from `api-types.generated.ts`, sourced from `ArchLucid.Api.Tests/Contracts/openapi-v1.contract.snapshot.json` |
 
 ---
 
@@ -160,4 +163,4 @@ Use this table when introducing a new seam. **`DependencyConstraintTests`** and 
 | DI wiring and storage provider registration | **`ArchLucid.Host.Composition`** only | `ServiceCollectionExtensions.*`, `SqlStorageProviderRegistrar` |
 | HTTP host pipeline | **`ArchLucid.Api`** | Controllers, middleware — no direct Decisioning/Persistence orchestration |
 
-**Layer ordering (TB-031):** **`ArtifactSynthesis`** may depend on **`Decisioning`**; **`Decisioning`** must **not** depend on **`ArtifactSynthesis`**. Documented in [`SYSTEM_MAP.md`](SYSTEM_MAP.md) and enforced by `Decisioning_must_not_depend_on_ArtifactSynthesis`.
+**Layer ordering (TB-031):** **`ArtifactSynthesis`** may depend on **`Decisioning`**; **`Decisioning`** must **not** depend on **`ArtifactSynthesis`**. Documented in [`SYSTEM_MAP.md`](SYSTEM_MAP.md) and enforced by the namespace-manifest rule *Decisioning must not depend on ArtifactSynthesis*.

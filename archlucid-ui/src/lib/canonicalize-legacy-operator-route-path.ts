@@ -1,3 +1,4 @@
+import { AI_USAGE_COST_REPORTING_PATH, AI_USAGE_LEGACY_ADMIN_PATH, AI_USAGE_SETTINGS_PATH } from "@/lib/ai-usage-nav-paths";
 import {
   ARCHITECTURES_LIST_PATH,
   CTO_DEMO_TOUR_ENTRY_HREF,
@@ -5,7 +6,7 @@ import {
   LEGACY_REVIEWS_LIST_PATH,
   LEGACY_RUNS_LIST_PATH,
   REVIEWS_LIST_PATH,
-} from "@/lib/architecture-routes";
+} from "@/lib/architecture/architecture-routes";
 import { DIGESTS_HUB_PATH, LEGACY_DIGESTS_HUB_PATH } from "@/lib/digests-route-paths";
 import {
   GOVERNANCE_ALERT_RULES_PATH,
@@ -18,8 +19,28 @@ import {
   LEGACY_GOVERNANCE_RISK_EXCEPTIONS_PATH,
   LEGACY_POLICY_PACKS_PATH,
   pathMatchesRoutePrefix,
-} from "@/lib/governance-route-paths";
+} from "@/lib/governance/governance-route-paths";
 import { CLOUD_CONNECTIONS_PATH } from "@/lib/integrations-nav-paths";
+import {
+  CANONICAL_GRAPH_PATH,
+  LEGACY_OPERATE_ARCHITECTURE_GRAPH_PATH,
+} from "@/lib/legacy-architecture-graph-route";
+import {
+  CANONICAL_AUTH_SIGNIN_PATH,
+  LEGACY_LOGIN_PATH,
+} from "@/lib/legacy-login-route";
+import {
+  CANONICAL_ONBOARDING_PATH as CANONICAL_ONBOARD_PATH,
+  LEGACY_ONBOARD_PATH,
+} from "@/lib/legacy-onboard-route";
+import {
+  CANONICAL_ONBOARDING_PATH,
+  LEGACY_ONBOARDING_START_PATH,
+} from "@/lib/legacy-onboarding-start-route";
+import {
+  CANONICAL_GET_STARTED_PATH,
+  LEGACY_QUICK_START_PATH,
+} from "@/lib/legacy-quick-start-route";
 import {
   LEGACY_INSIGHTS_PLANNING_PATH,
   LEGACY_INSIGHTS_PLANNING_PLAN_DETAIL_PATH_PREFIX,
@@ -35,6 +56,10 @@ import {
   SPONSOR_REPORT_PILOT_OUTCOMES_PATH,
   SPONSOR_REPORT_ROI_SUMMARY_PATH,
 } from "@/lib/sponsor-report-navigation";
+import {
+  LEGACY_SETTINGS_TENANT_PATH,
+  SETTINGS_WORKSPACE_SETTINGS_PATH,
+} from "@/lib/settings-admin-route-paths";
 import {
   INTERNAL_CONFIGURATION_PATH,
   INTERNAL_DEMO_READINESS_PATH,
@@ -61,6 +86,7 @@ const ADMINISTRATION_IDENTITY_SSO_WIZARD_PATH = "/administration/identity/sso-wi
 const LEGACY_DIGEST_SUBSCRIPTIONS_PATH = "/digest-subscriptions";
 const LEGACY_MANIFESTS_PATH = "/manifests";
 const LEGACY_SETTINGS_ROLES_PATH = "/settings/roles";
+const LEGACY_SETTINGS_AI_USAGE_PATH = "/settings/ai-usage";
 const LEGACY_ADMIN_ROOT_PATH = "/admin";
 const LEGACY_INTERNAL_OPERATIONS_ROOT_PATH = "/internal-operations";
 const LEGACY_OPERATE_INTEGRATION_EVENTS_DLQ_PATH = "/operate/integration-events/dlq";
@@ -175,6 +201,38 @@ export function canonicalizeLegacyOperatorRoutePath(pathname: string): string {
 
   if (normalized === LEGACY_SETTINGS_ROLES_PATH) {
     return ADMINISTRATION_USERS_PATH;
+  }
+
+  if (pathMatchesRoutePrefix(normalized, LEGACY_SETTINGS_TENANT_PATH)) {
+    return normalized.replace(LEGACY_SETTINGS_TENANT_PATH, SETTINGS_WORKSPACE_SETTINGS_PATH);
+  }
+
+  if (normalized === AI_USAGE_LEGACY_ADMIN_PATH) {
+    return AI_USAGE_SETTINGS_PATH;
+  }
+
+  if (normalized === AI_USAGE_COST_REPORTING_PATH || normalized === LEGACY_SETTINGS_AI_USAGE_PATH) {
+    return AI_USAGE_SETTINGS_PATH;
+  }
+
+  if (normalized === LEGACY_ONBOARDING_START_PATH) {
+    return CANONICAL_ONBOARDING_PATH;
+  }
+
+  if (normalized === LEGACY_ONBOARD_PATH) {
+    return CANONICAL_ONBOARD_PATH;
+  }
+
+  if (normalized === LEGACY_QUICK_START_PATH) {
+    return CANONICAL_GET_STARTED_PATH;
+  }
+
+  if (normalized === LEGACY_LOGIN_PATH) {
+    return CANONICAL_AUTH_SIGNIN_PATH;
+  }
+
+  if (normalized === LEGACY_OPERATE_ARCHITECTURE_GRAPH_PATH) {
+    return CANONICAL_GRAPH_PATH;
   }
 
   if (normalized === LEGACY_SPONSOR_REPORT_EXECUTIVE_SUMMARY_PATH || normalized === LEGACY_SPONSOR_REPORT_ROOT_PATH) {

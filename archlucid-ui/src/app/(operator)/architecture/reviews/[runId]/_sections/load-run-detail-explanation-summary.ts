@@ -1,7 +1,7 @@
 import type { ApiLoadFailureState } from "@/lib/api-load-failure";
 import { toApiLoadFailure } from "@/lib/api-load-failure";
 import { getRunExplanationSummary } from "@/lib/api";
-import { tryStaticDemoExplanationSummary } from "@/lib/operator-static-demo";
+import { tryStaticDemoExplanationSummary } from "@/lib/operator/operator-static-demo";
 import type { RunExplanationSummary } from "@/types/explanation";
 
 export type RunDetailExplanationLoadResult = {

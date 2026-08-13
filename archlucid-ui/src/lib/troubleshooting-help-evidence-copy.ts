@@ -1,17 +1,37 @@
 import { inAppHelpHref } from "@/lib/product-documentation-registry";
 import type { EvidenceSourceLink } from "@/lib/evidence-surface-copy";
-import { GOVERNANCE_AUDIT_PATH } from "@/lib/governance-route-paths";
+import { GOVERNANCE_AUDIT_PATH } from "@/lib/governance/governance-route-paths";
+import {
+  SUPPORT_BUNDLE_EXCLUDED_ITEMS,
+  SUPPORT_BUNDLE_INCLUDED_ITEMS,
+  SUPPORT_BUNDLE_SAFETY_SUMMARY,
+} from "@/lib/support-workspace-present";
 
 export const TROUBLESHOOTING_HELP_CANONICAL_PATH = "/help/troubleshooting" as const;
+
+export const TROUBLESHOOTING_HELP_LAST_REVIEWED = "2026-08-11" as const;
+
+export const TROUBLESHOOTING_HELP_LAST_REVIEWED_LABEL =
+  `Last reviewed ${TROUBLESHOOTING_HELP_LAST_REVIEWED}` as const;
+
+export const TROUBLESHOOTING_HELP_APPLICABILITY =
+  "Applies to the current ArchLucid operator workspace build. Guidance describes buyer-facing review, sign-in, and export symptoms — not engineering runbooks.";
+
+export const TROUBLESHOOTING_HELP_RELATED_TITLE = "Live checks and follow-ups" as const;
 
 export const TROUBLESHOOTING_HELP_CLAIM_DISCIPLINE =
   "This troubleshooting guide helps architects unblock reviews and connections — it is not a signed-review diligence Sources package. Open System health or Audit when you need operational or governed trails.";
 
 export const TROUBLESHOOTING_HELP_SOURCES_INTRO =
-  "Use these follow-ups when a symptom needs live health checks, audit context, engineering runbooks, or product orientation.";
+  "Use these follow-ups when a symptom needs live health checks, audit context, or product orientation.";
 
+export const TROUBLESHOOTING_SUPPORT_EXPECTATIONS =
+  "Email support covers business days (Monday–Friday). Target first response is next business day. Prefer Report a problem on error surfaces for structured intake with the same response commitment.";
 
-/** Operator Sources — no self-href to `/help/troubleshooting`. */
+export const TROUBLESHOOTING_SUPPORT_BUNDLE_DISCLOSURE =
+  `${SUPPORT_BUNDLE_SAFETY_SUMMARY} Includes: ${SUPPORT_BUNDLE_INCLUDED_ITEMS.join(", ")}. Excludes: ${SUPPORT_BUNDLE_EXCLUDED_ITEMS.join(", ")}. The ZIP stays on your device until you attach or email it.`;
+
+/** Operator follow-ups — no self-href to `/help/troubleshooting`. */
 export const TROUBLESHOOTING_HELP_SOURCES: readonly EvidenceSourceLink[] = [
   { label: "System health", href: "/administration/system-health" },
   { label: "Audit", href: GOVERNANCE_AUDIT_PATH },

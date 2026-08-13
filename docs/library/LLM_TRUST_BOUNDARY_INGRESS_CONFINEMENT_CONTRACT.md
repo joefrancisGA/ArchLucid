@@ -1,12 +1,12 @@
 > **Scope:** Contributor-reference — LLM trust-boundary ingress vs confinement (TB-997); host-composed prompts and no unconstrained model tool-loop versus claim honesty.
 
-# LLM trust-boundary — ingress vs confinement (TB-997)
+# LLM trust-boundary — ingress vs confinement (**TB-997**)
 
 > **Audience:** Contributors, principal architects, and GTM claim reviewers.  
 > **Not** a buyer assurance claim — host-composed ingress + no model tool-loop ≠ injection-proof documents or zero influence on finding text.
 
 **Buyer / PA one-pager:** [`BUYER_SECURITY_PROCUREMENT_PACKET.md`](../go-to-market/BUYER_SECURITY_PROCUREMENT_PACKET.md#llm-trust-boundary-ingress-m-149) (GTM **M-149**).  
-**Claim honesty:** [`PUBLIC_CLAIM_BOUNDARY_GUIDE.md`](PUBLIC_CLAIM_BOUNDARY_GUIDE.md) (GTM **M-148**).  
+**Claim honesty:** [`PUBLIC_CLAIM_BOUNDARY_GUIDE.md`](PUBLIC_CLAIM_BOUNDARY_GUIDE.md) (GTM **M-148** / **M-149**).  
 **Delimiter hygiene:** [`CUSTOMER_CONTENT_PROMPT_COMPOSER_CONTRACT.md`](CUSTOMER_CONTENT_PROMPT_COMPOSER_CONTRACT.md) (**TB-949** Done).  
 **Threat model:** [`SYSTEM_THREAT_MODEL.md`](../security/SYSTEM_THREAT_MODEL.md).
 
@@ -80,7 +80,7 @@ The host decides what enters Azure OpenAI prompts. The model has **no** unconstr
 
 | ID | Owns |
 |----|------|
-| **TB-998** | Honesty CI / doc guard against absolute injection-proof / tool-loop overclaims |
+| **TB-998** | Honesty CI / doc guard against absolute injection-proof / tool-loop overclaims (**M-148**) |
 | **TB-952** | Agent side-effect surface inventory + architecture test |
 
 ---

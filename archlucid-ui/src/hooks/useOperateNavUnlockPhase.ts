@@ -2,7 +2,7 @@
 
 import { useCallback, useEffect, useState } from "react";
 
-import { useNavCommittedArchitectureReview } from "@/components/OperatorNavAuthorityProvider";
+import { useNavCommittedArchitectureReview } from "@/components/operator/OperatorNavAuthorityProvider";
 import {
   OPERATE_NAV_UNLOCK_CHANGED_EVENT,
   advanceOperateNavUnlockToAnalysis,

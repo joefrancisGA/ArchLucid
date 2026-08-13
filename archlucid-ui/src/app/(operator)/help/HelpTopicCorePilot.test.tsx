@@ -12,7 +12,7 @@ vi.mock("@/hooks/use-core-pilot-commit-context-query", () => ({
 }));
 
 import { HelpCorePilotGuideView } from "@/app/(operator)/help/_sections/HelpCorePilotGuideView";
-import { BUYER_START_ARCHITECTURE_REVIEW_CTA } from "@/lib/buyer-polish-copy";
+import { BUYER_START_ARCHITECTURE_REVIEW_CTA } from "@/lib/buyer/buyer-polish-copy";
 import {
   CORE_PILOT_HELP_DISCLOSURE,
   CORE_PILOT_HELP_IN_PRODUCT_CHECKLIST_LABEL,
@@ -79,8 +79,8 @@ describe("HelpCorePilotGuideView", () => {
     expect(screen.getByRole("heading", { level: 1, name: "Your first architecture review" })).toBeInTheDocument();
     expect(screen.getByText(entry.summary)).toBeInTheDocument();
     expect(screen.queryByText(/core[- ]?pilot/i)).toBeNull();
-    expect(screen.getByTestId("help-topic-registry-provenance")).toHaveTextContent(/Last reviewed 2026-08-09/i);
-    expect(screen.getByTestId("help-topic-registry-provenance")).toHaveTextContent(/first architecture review workflow/i);
+    expect(screen.queryByTestId("help-topic-registry-provenance")).toBeNull();
+    expect(screen.queryByTestId("help-topic-registry-provenance")).toBeNull();
   });
 
   it("renders the guided first-review path near the top", () => {
@@ -115,7 +115,7 @@ describe("HelpCorePilotGuideView", () => {
       .getAllByRole("link")
       .filter((link) => link.getAttribute("href") === "/architecture/reviews/new");
 
-    expect(newReviewLinks).toHaveLength(3);
+    expect(newReviewLinks).toHaveLength(4);
     expect(newReviewLinks.map((link) => link.textContent)).toEqual(
       expect.arrayContaining([
         BUYER_START_ARCHITECTURE_REVIEW_CTA,
@@ -153,7 +153,63 @@ describe("HelpCorePilotGuideView", () => {
       "href",
       "/architecture/reviews/new",
     );
-    expect(within(stepper).queryByTestId("core-pilot-step-1-cta")).toBeNull();
+    expect(within(stepper).getByTestId("core-pilot-step-1-cta")).toHaveAttribute("href", "/architecture/reviews/new");
+  });
+
+  it("TB-1381: exposes create, findings, finalize, and export actions when a run is ready", () => {
+    if (entry === undefined) {
+      throw new Error("Expected first-architecture-review documentation entry.");
+    }
+
+    mockCommitQuery({
+      data: {
+        ...emptyCommitContext,
+        latestRunId: "run-abc",
+        latestRunReadyToFinalize: true,
+      },
+    });
+
+    render(<HelpCorePilotGuideView entry={entry} />);
+
+    const stepper = screen.getByTestId("core-pilot-workflow-stepper");
+
+    expect(within(stepper).getByTestId("core-pilot-step-1-cta")).toHaveTextContent(BUYER_START_ARCHITECTURE_REVIEW_CTA);
+    expect(within(stepper).getByTestId("core-pilot-step-2-cta")).toHaveTextContent("Add evidence on review detail");
+    expect(within(stepper).getByTestId("core-pilot-step-3-cta")).toHaveTextContent("Open review detail");
+    expect(within(stepper).getByTestId("core-pilot-step-3-findings-link")).toHaveAttribute(
+      "href",
+      "/architecture/reviews/run-abc?reviewTab=findings",
+    );
+    expect(within(stepper).getByTestId("core-pilot-step-3-evidence-trail-link")).toHaveAttribute(
+      "href",
+      "/help/evidence-trail",
+    );
+    expect(within(stepper).getByTestId("core-pilot-step-4-cta")).toHaveTextContent("Finalize on review detail");
+    expect(within(stepper).getByTestId("core-pilot-step-5-cta")).toHaveTextContent("Open review detail");
+  });
+
+  it("TB-1381: opens exports when a finalized review exists", () => {
+    if (entry === undefined) {
+      throw new Error("Expected first-architecture-review documentation entry.");
+    }
+
+    mockCommitQuery({
+      data: {
+        ...emptyCommitContext,
+        hasCommittedManifest: true,
+        committedReviewCount: 1,
+        firstCommittedRunId: "run-done",
+        latestRunId: "run-done",
+      },
+    });
+
+    render(<HelpCorePilotGuideView entry={entry} />);
+
+    expect(screen.getByTestId("core-pilot-step-5-cta")).toHaveAttribute(
+      "href",
+      "/architecture/reviews/run-done#artifacts-exports",
+    );
+    expect(screen.getByTestId("core-pilot-step-5-cta")).toHaveTextContent("Open exports");
   });
 
   it("collapses the steps 3–5 gate into one control when no active run (TB-1042)", () => {
@@ -289,7 +345,7 @@ describe("HelpCorePilotGuideView", () => {
     }
   });
 
-  it("compresses first viewport to hero + stepper and trims related guides (TB-1043)", () => {
+  it("TB-1382: trims related guides to three job-matched topics (TB-1043 follow-on)", () => {
     if (entry === undefined) {
       throw new Error("Expected first-architecture-review documentation entry.");
     }
@@ -305,10 +361,12 @@ describe("HelpCorePilotGuideView", () => {
     expect(within(firstViewport).queryByTestId("help-topic-registry-provenance")).toBeNull();
 
     const related = screen.getByTestId("core-pilot-related-guides");
-    expect(within(related).getAllByRole("link").length).toBeGreaterThanOrEqual(3);
+    expect(within(related).getAllByRole("link")).toHaveLength(3);
+    expect(within(related).getByRole("link", { name: "Evidence intake" })).toBeInTheDocument();
     expect(within(related).getByRole("link", { name: "Pilot guide" })).toBeInTheDocument();
-    expect(within(related).getByRole("link", { name: CORE_PILOT_HELP_IN_PRODUCT_CHECKLIST_LABEL })).toBeInTheDocument();
     expect(within(related).getByRole("link", { name: "Troubleshooting" })).toBeInTheDocument();
+    expect(within(related).queryByRole("link", { name: CORE_PILOT_HELP_IN_PRODUCT_CHECKLIST_LABEL })).toBeNull();
+    expect(within(related).queryByRole("link", { name: "Getting started" })).toBeNull();
     expect(within(related).queryByRole("link", { name: "First review guide in the product" })).toBeNull();
     expect(within(related).queryByRole("link", { name: "Review templates" })).toBeNull();
     expect(within(related).queryByRole("link", { name: "Evaluator workbook" })).toBeNull();
@@ -325,8 +383,9 @@ describe("HelpCorePilotGuideView", () => {
     expect(screen.queryByRole("heading", { name: "Sources for follow-up" })).toBeNull();
 
     const related = screen.getByTestId("core-pilot-related-guides");
+    expect(within(related).getByRole("link", { name: "Evidence intake" })).toBeInTheDocument();
     expect(within(related).getByRole("link", { name: "Pilot guide" })).toBeInTheDocument();
-    expect(within(related).getByRole("link", { name: CORE_PILOT_HELP_IN_PRODUCT_CHECKLIST_LABEL })).toBeInTheDocument();
+    expect(within(related).queryByRole("link", { name: CORE_PILOT_HELP_IN_PRODUCT_CHECKLIST_LABEL })).toBeNull();
     expect(within(related).queryByRole("link", { name: "Start a review" })).toBeNull();
   });
 

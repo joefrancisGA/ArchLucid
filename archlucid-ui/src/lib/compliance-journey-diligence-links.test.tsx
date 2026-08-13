@@ -52,7 +52,7 @@ describe("ComplianceJourneyPage doc-link honesty (TB-1486)", () => {
     render(<ComplianceJourneyPage />);
 
     expect(screen.getByText(/not SOC 2 attested/i)).toBeInTheDocument();
-    expect(screen.queryByText(/SOC 2 attested today/i)).not.toBeInTheDocument();
+    expect(screen.queryByText(/is SOC 2 attested today/i)).not.toBeInTheDocument();
 
     expect(
       screen.getByRole("link", {
@@ -76,7 +76,7 @@ describe("ComplianceJourneyPage doc-link honesty (TB-1486)", () => {
   it("keeps diligence link definitions in the copy module, not inline in the page", () => {
     const source = readFileSync(join(appRoot, "page.tsx"), "utf8");
 
-    expect(source).toContain("ComplianceJourneyDiligenceSections");
+    expect(source).toContain("ComplianceJourneyPageBody");
     expect(source).not.toContain("resolveInAppDocHref");
   });
 });

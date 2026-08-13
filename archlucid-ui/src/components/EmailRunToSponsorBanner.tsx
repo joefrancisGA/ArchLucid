@@ -8,10 +8,11 @@ import { useEffect, useRef, useState } from "react";
 import { SponsorArtifactEvidenceBadge } from "@/components/SponsorArtifactEvidenceBadge";
 import { formatUsd } from "@/components/BeforeAfterDelta/formatDelta";
 import { ExportTrackedAnchor } from "@/components/ExportTrackedAnchor";
-import { OperatorApiProblem } from "@/components/OperatorApiProblem";
+import { OperatorApiProblem } from "@/components/operator/OperatorApiProblem";
 import { ProductLearningFeedbackControls } from "@/components/ProductLearningFeedbackControls";
 import { Button } from "@/components/ui/button";
 import { StatusTag } from "@/components/ui/status-tag";
+import { WhyDisabledCtaHint } from "@/components/usability/WhyDisabledCtaHint";
 import {
   downloadFirstValueReportPdf,
   markSponsorPackSent,
@@ -19,7 +20,6 @@ import {
   getBundleDownloadUrl,
   getRunExportDownloadUrl,
   getRunPackageExportUrl,
-  SAMPLE_REVIEW_EXPORT_UNAVAILABLE_HINT,
 } from "@/lib/api";
 import type { ApiProblemDetails } from "@/lib/api-problem";
 import { isApiRequestError } from "@/lib/api-request-error";
@@ -38,6 +38,7 @@ import {
   type PilotRunDeltasProofSummaryJson,
 } from "@/lib/pilot-proof-readiness";
 import { isPilotRoiBaselineComplete } from "@/lib/pilot-roi-baseline-completeness";
+import { whyDisabledSampleReviewExport } from "@/lib/why-disabled-cta";
 import { PILOT_BASELINE_WIZARD_OPEN_EVENT } from "@/lib/pilot-baseline-wizard-events";
 import { mergeRegistrationScopeForProxy } from "@/lib/proxy-fetch-registration-scope";
 import { recordSponsorBannerFirstCommitBadge } from "@/lib/sponsor-banner-telemetry";
@@ -121,11 +122,11 @@ export function EmailRunToSponsorBanner({
   const pilotRoiModelHref = resolveInAppDocHref("docs/library/PILOT_ROI_MODEL.md");
 
   useEffect(() => {
-    let cancelled = false;
+    let canceled = false;
 
     async function loadSidecars(): Promise<void> {
       if (AUTH_MODE !== "development-bypass" && isJwtAuthMode() && !isLikelySignedIn()) {
-        if (!cancelled) {
+        if (!canceled) {
           setProofGate({ status: "skipped" });
           setRoiBaselineGate(null);
         }
@@ -133,7 +134,7 @@ export function EmailRunToSponsorBanner({
         return;
       }
 
-      if (!cancelled) setProofGate({ status: "loading" });
+      if (!canceled) setProofGate({ status: "loading" });
 
       const headers = mergeRegistrationScopeForProxy({ headers: { Accept: "application/json" } });
       const deltasUrl = `/api/proxy/v1/pilots/runs/${encodeURIComponent(runId)}/pilot-run-deltas`;
@@ -145,13 +146,13 @@ export function EmailRunToSponsorBanner({
           fetch("/api/proxy/v1/tenant/baseline", headers),
         ]);
 
-        if (cancelled) return;
+        if (canceled) return;
 
         if (baselineRes.ok) {
           try {
             const baselinePayload = (await baselineRes.json()) as TenantBaselineRoiGatePayload;
 
-            if (!cancelled) {
+            if (!canceled) {
               setRoiBaselineGate(
                 isPilotRoiBaselineComplete({
                   baselineReviewCycleHours: baselinePayload.baselineReviewCycleHours,
@@ -160,9 +161,9 @@ export function EmailRunToSponsorBanner({
               );
             }
           } catch {
-            if (!cancelled) setRoiBaselineGate(null);
+            if (!canceled) setRoiBaselineGate(null);
           }
-        } else if (!cancelled) {
+        } else if (!canceled) {
           setRoiBaselineGate(null);
         }
 
@@ -214,15 +215,15 @@ export function EmailRunToSponsorBanner({
               setEstimatedUsdSavings(null);
             }
 
-            if (!cancelled) setProofGate({ status: "ok", payload: deltasJson });
+            if (!canceled) setProofGate({ status: "ok", payload: deltasJson });
           } catch {
-            if (!cancelled) setProofGate({ status: "error" });
+            if (!canceled) setProofGate({ status: "error" });
           }
-        } else if (!cancelled) {
+        } else if (!canceled) {
           setProofGate({ status: "error" });
         }
       } catch {
-        if (!cancelled) {
+        if (!canceled) {
           setProofGate({ status: "error" });
           setRoiBaselineGate(null);
         }
@@ -232,7 +233,7 @@ export function EmailRunToSponsorBanner({
     void loadSidecars();
 
     return () => {
-      cancelled = true;
+      canceled = true;
     };
   }, [runId]);
 
@@ -611,14 +612,21 @@ export function EmailRunToSponsorBanner({
           </Button>
         ) : null}
         {sponsorDocxAvailable && curatedSampleRun ? (
-          <Button
-            variant="secondary"
-            disabled
-            title={SAMPLE_REVIEW_EXPORT_UNAVAILABLE_HINT}
-            data-testid="email-run-to-sponsor-sponsor-docx"
-          >
-            Download Sponsor Export (DOCX)
-          </Button>
+          <div className="flex flex-col gap-1.5">
+            <Button
+              variant="secondary"
+              disabled
+              aria-describedby="email-run-to-sponsor-docx-disabled-hint"
+              data-testid="email-run-to-sponsor-sponsor-docx"
+            >
+              Download Sponsor Export (DOCX)
+            </Button>
+            <WhyDisabledCtaHint
+              id="email-run-to-sponsor-docx-disabled-hint"
+              reason={whyDisabledSampleReviewExport()}
+              testId="email-run-to-sponsor-docx-disabled-hint"
+            />
+          </div>
         ) : null}
         {sentToSponsorUtc !== null ? (
           <StatusTag

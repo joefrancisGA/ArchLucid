@@ -253,4 +253,33 @@ public sealed class HotPathRelationalQueryShapeTests
         AgentResultListSql.GetByRunIdSelectRollupProjection.Should().Contain("JSON_QUERY(ar.ResultJson, '$.findings')");
         AgentResultListSql.GetByRunIdSelectRollupProjection.Should().NotContain("SELECT ar.ResultJson");
     }
+
+    [SkippableFact]
+    public void Trace_scoped_read_shapes_join_runs_and_scope_predicate()
+    {
+        AgentExecutionTraceQueryShapes.SelectTraceJsonByRunId.Should().Contain("INNER JOIN dbo.Runs run_scope");
+        AgentExecutionTraceQueryShapes.SelectTraceJsonByRunId.Should().Contain("run_scope.TenantId = @TenantId");
+        AgentExecutionTraceQueryShapes.SelectTraceJsonByRunId.Should().NotContain("t.TraceJson AS TotalCount");
+        AgentExecutionTraceQueryShapes.SelectSummariesPagedByRunId.Should().Contain(AgentExecutionTraceListSql.SelectSummaryColumns.Trim());
+        AgentExecutionTraceQueryShapes.SelectSummariesPagedByRunId.Should().Contain("COUNT(*) OVER () AS TotalCount");
+    }
+
+    [SkippableFact]
+    public void Run_detail_read_shapes_include_warning_flags_and_governance_columns()
+    {
+        RunRepositorySql.SelectByScopedId.Should().Contain(RunDetailReadSql.SelectCoreColumns.Trim());
+        RunRepositorySql.SelectByScopedId.Should().Contain("PackageOrigin");
+        RunRepositorySql.SelectByScopedId.Should().Contain(RunDetailReadSql.SelectGovernanceDispositionColumns.Trim());
+        RunRepositorySql.SelectByScopedId.Should().Contain("HasWarnings");
+        RunRepositorySql.SelectByRunIdAdmin.Should().NotContain("OperatorGovernanceDecision");
+    }
+
+    [SkippableFact]
+    public void Findings_snapshot_write_shapes_cover_header_and_finding_insert()
+    {
+        FindingsSnapshotWriteSql.InsertHeader.Should().Contain("INSERT INTO dbo.FindingsSnapshots");
+        FindingsSnapshotWriteSql.InsertFindingRecord.Should().Contain("INSERT INTO dbo.FindingRecords");
+        FindingsSnapshotWriteSql.InsertFindingRecord.Should().Contain("PayloadJson");
+        FindingsSnapshotWriteSql.PriorityRankUpdateHeader.Should().Contain("INNER JOIN (VALUES");
+    }
 }

@@ -3,7 +3,7 @@ import { describe, expect, it, vi } from "vitest";
 
 import { ArchLucidWordmarkLink } from "@/components/ArchLucidWordmarkLink";
 import { ARCHLUCID_BRAND } from "@/components/brand/brand-colors";
-import { PERSONA_SHELL_WORDMARK_ARIA_LABEL } from "@/lib/persona-shell-vocabulary";
+import { PERSONA_SHELL_WORDMARK_ARIA_LABEL } from "@/lib/vocabulary/persona-shell-vocabulary";
 
 vi.mock("next/link", () => ({
   default: ({
@@ -61,6 +61,16 @@ describe("ArchLucidWordmarkLink", () => {
 
     const lightLogoSvg = container.querySelector(".dark\\:hidden svg");
     expect(lightLogoSvg).toHaveAttribute("width", "32");
+  });
+
+  it("carries its own focus-visible ring so it needs no Button wrapper (TB-1671)", () => {
+    render(<ArchLucidWordmarkLink href="/" aria-label="ArchLucid" variant="operator" />);
+
+    const link = screen.getByTestId("archlucid-wordmark-link");
+
+    // The brand mark renders unframed, so the keyboard indicator must live on the anchor itself.
+    expect(link.className).toContain("focus-visible:ring-2");
+    expect(link.className).not.toMatch(/\bborder(?:\s|-neutral)/);
   });
 
   it("renders a dark-surface logo pair for theme switching", () => {

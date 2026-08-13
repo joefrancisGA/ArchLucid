@@ -44,7 +44,7 @@ export function useCompareFindingCorrelation(
       return;
     }
 
-    let cancelled = false;
+    let canceled = false;
 
     setLoading(true);
     setMetadata(null);
@@ -56,7 +56,7 @@ export function useCompareFindingCorrelation(
         const rawCorrelation = response.report?.findingCorrelation ?? null;
         const nextMetadata = coerceCompareFindingCorrelationMetadata(rawCorrelation);
 
-        if (!cancelled) {
+        if (!canceled) {
           if (rawCorrelation !== null && rawCorrelation !== undefined && nextMetadata === null) {
             setMetadata(null);
             setSoftFailureMessage("finding correlation metadata");
@@ -68,7 +68,7 @@ export function useCompareFindingCorrelation(
           setLoading(false);
         }
       } catch {
-        if (!cancelled) {
+        if (!canceled) {
           setMetadata(null);
           setSoftFailureMessage("finding correlation metadata");
           setLoading(false);
@@ -79,7 +79,7 @@ export function useCompareFindingCorrelation(
     void load();
 
     return () => {
-      cancelled = true;
+      canceled = true;
     };
   }, [baselineRunId, targetRunId]);
 

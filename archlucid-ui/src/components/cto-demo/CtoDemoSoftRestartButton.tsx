@@ -4,8 +4,8 @@ import { useRouter } from "next/navigation";
 import { useCallback, useState } from "react";
 
 import { Button } from "@/components/ui/button";
-import { softRestartBuyerCtoDemoSession } from "@/lib/buyer-cto-demo-orchestration";
-import { BUYER_CTO_DEMO_SOFT_RESTART_CTA } from "@/lib/buyer-polish-copy";
+import { softRestartBuyerCtoDemoSession } from "@/lib/buyer/buyer-cto-demo-orchestration";
+import { BUYER_CTO_DEMO_SOFT_RESTART_CTA } from "@/lib/buyer/buyer-polish-copy";
 
 export function CtoDemoSoftRestartButton(): React.JSX.Element {
   const router = useRouter();

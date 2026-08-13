@@ -5,7 +5,7 @@ import { Card, CardContent, CardDescription, CardHeader, CardTitle } from "@/com
 import {
   RUN_DETAIL_GOVERNANCE_CTA_LABEL,
   runDetailGovernanceWorkflowHref,
-} from "@/lib/run-detail-governance-cta-visibility";
+} from "@/lib/runs/run-detail-governance-cta-visibility";
 import { OPERATOR_CARD, OPERATOR_TYPOGRAPHY } from "@/lib/design-tokens";
 import { cn } from "@/lib/utils";
 

@@ -5,7 +5,7 @@ import {
   getTeamsNotificationTriggerCatalog,
 } from "@/lib/api";
 import { isNextPublicDemoMode } from "@/lib/demo-ui-env";
-import { isStaticDemoPayloadFallbackEnabled } from "@/lib/operator-static-demo";
+import { isStaticDemoPayloadFallbackEnabled } from "@/lib/operator/operator-static-demo";
 import type { TeamsIncomingWebhookConnectionResponse } from "@/types/teams-incoming-webhook-connection";
 
 export type TeamsNotificationsIntegrationDemoLoad = {

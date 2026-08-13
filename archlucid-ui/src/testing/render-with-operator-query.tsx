@@ -1,7 +1,7 @@
 import { render, type RenderOptions } from "@testing-library/react";
 import type { ReactElement, ReactNode } from "react";
 
-import { OperatorQueryProvider } from "@/components/OperatorQueryProvider";
+import { OperatorQueryProvider } from "@/components/operator/OperatorQueryProvider";
 
 function OperatorQueryTestWrapper({ children }: { children: ReactNode }) {
   return <OperatorQueryProvider>{children}</OperatorQueryProvider>;

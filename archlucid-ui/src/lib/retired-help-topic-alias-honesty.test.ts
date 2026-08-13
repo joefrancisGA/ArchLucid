@@ -10,7 +10,7 @@ import {
   HELP_TOPIC_BOOKMARK_ONLY_REDIRECT_SLUGS,
   HELP_TOPIC_PERMANENT_REDIRECTS,
   resolveHelpTopicPermanentRedirect,
-} from "@/lib/help-topic-permanent-redirects";
+} from "@/lib/help/help-topic-permanent-redirects";
 import { getProductDocumentationEntry, inAppHelpHref } from "@/lib/product-documentation-registry";
 import {
   retiredHelpTopicAliasHonestyGuardEntries,
@@ -28,8 +28,8 @@ const REDIRECT_ONLY_HYPHEN_CLOUD_HELP_PATHS = Object.keys(
 ).map((slug) => `/help/${slug}`);
 
 const GLOBAL_BUYER_HELP_DEEP_LINK_SURFACES = [
-  "src/lib/help-search-panel-catalog.ts",
-  "src/lib/help-markdown-presentation.ts",
+  "src/lib/help/help-search-panel-catalog.ts",
+  "src/lib/help/help-markdown-presentation.ts",
   "src/lib/configuration-reference-help-guide-content.ts",
   "src/lib/users-and-roles-help-evidence-copy.ts",
   "src/lib/azure-boards-help-evidence-copy.ts",
@@ -135,6 +135,19 @@ describe("help-topic-permanent-redirects (Batch J merged)", () => {
     expect(resolveHelpTopicPermanentRedirect("review-guide")).toBeNull();
   });
 
+  it("chains creating-runs directly to review-guide without starting-reviews intermediate (TB-1643)", () => {
+    expect(HELP_TOPIC_PERMANENT_REDIRECTS["creating-runs"]).toBe("/help/review-guide");
+    expect(HELP_TOPIC_PERMANENT_REDIRECTS["creating-runs"]).not.toBe("/help/starting-reviews");
+    expect(inAppHelpHref("creating-runs")).toBe("/help/review-guide");
+    expect(getProductDocumentationEntry("creating-runs")).toBeNull();
+  });
+
+  it("redirects retired developer-troubleshooting bookmarks to engineering-troubleshooting (TB-1248)", () => {
+    expect(HELP_TOPIC_PERMANENT_REDIRECTS["developer-troubleshooting"]).toBe("/help/engineering-troubleshooting");
+    expect(resolveHelpTopicPermanentRedirect("developer-troubleshooting")).toBe("/help/engineering-troubleshooting");
+    expect(resolveHelpTopicPermanentRedirect("engineering-troubleshooting")).toBeNull();
+  });
+
   it("redirects data-handling-tenant-isolation alias to canonical data-handling", () => {
     expect(HELP_TOPIC_PERMANENT_REDIRECTS["data-handling-tenant-isolation"]).toBe("/help/data-handling");
     expect(resolveHelpTopicPermanentRedirect("data-handling-tenant-isolation")).toBe("/help/data-handling");
@@ -166,12 +179,12 @@ describe("help-topic-permanent-redirects (Batch J merged)", () => {
 
   it("redirects Batch C retired help aliases to canonical topics", () => {
     expect(HELP_TOPIC_PERMANENT_REDIRECTS["governance-api-contracts"]).toBe("/help/api-contracts");
-    expect(HELP_TOPIC_PERMANENT_REDIRECTS["evaluator-workbook"]).toBe("/help/path-chooser");
+    expect(HELP_TOPIC_PERMANENT_REDIRECTS["evaluator-workbook"]).toBe("/help/choose-your-next-step");
     expect(HELP_TOPIC_PERMANENT_REDIRECTS["first-hour-operator-path"]).toBe("/help/first-architecture-review");
     expect(HELP_TOPIC_PERMANENT_REDIRECTS["first-pilot-path"]).toBe("/help/first-architecture-review");
     expect(resolveHelpTopicPermanentRedirect("governance-api-contracts")).toBe("/help/api-contracts");
     expect(resolveHelpTopicPermanentRedirect("api-contracts")).toBeNull();
-    expect(resolveHelpTopicPermanentRedirect("evaluator-workbook")).toBe("/help/path-chooser");
+    expect(resolveHelpTopicPermanentRedirect("evaluator-workbook")).toBe("/help/choose-your-next-step");
     expect(resolveHelpTopicPermanentRedirect("first-hour-operator-path")).toBe("/help/first-architecture-review");
     expect(resolveHelpTopicPermanentRedirect("first-pilot-path")).toBe("/help/first-architecture-review");
   });

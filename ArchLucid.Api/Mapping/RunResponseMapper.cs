@@ -1,4 +1,6 @@
 using ArchLucid.Api.Models;
+using ArchLucid.Api.ProblemDetails;
+using ArchLucid.Application.Runs.Orchestration;
 using ArchLucid.Contracts.Agents;
 using ArchLucid.Core.AgentEvaluation;
 using ArchLucid.Contracts.Persistence.DecisionTraces;
@@ -15,6 +17,33 @@ internal static class RunResponseMapper
         IEnumerable<AgentTask> tasks)
     {
         return new CreateArchitectureRunResponse { Run = run, EvidenceBundle = evidenceBundle, Tasks = tasks.ToList() };
+    }
+
+    /// <summary>Projects one batch item outcome onto the wire contract, mapping failure kinds to problem type codes.</summary>
+    public static BatchCreateRunItemResult ToBatchCreateRunItemResult(BatchCreateRunItemOutcome outcome)
+    {
+        ArgumentNullException.ThrowIfNull(outcome);
+
+        return new BatchCreateRunItemResult
+        {
+            RequestId = outcome.RequestId,
+            RunId = outcome.RunId,
+            Succeeded = outcome.Succeeded,
+            ErrorCode = ToBatchCreateRunItemErrorCode(outcome.FailureKind),
+            ErrorMessage = outcome.ErrorMessage
+        };
+    }
+
+    private static string? ToBatchCreateRunItemErrorCode(BatchCreateRunItemFailureKind failureKind)
+    {
+        return failureKind switch
+        {
+            BatchCreateRunItemFailureKind.None => null,
+            BatchCreateRunItemFailureKind.NullItem => null,
+            BatchCreateRunItemFailureKind.Conflict => ProblemTypes.Conflict,
+            BatchCreateRunItemFailureKind.InvalidRequest => ProblemTypes.BadRequest,
+            _ => throw new ArgumentOutOfRangeException(nameof(failureKind), failureKind, "Unhandled batch item failure kind.")
+        };
     }
 
     public static ExecuteRunResponse ToExecuteRunResponse(

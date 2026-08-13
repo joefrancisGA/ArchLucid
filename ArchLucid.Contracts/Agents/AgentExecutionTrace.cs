@@ -354,6 +354,34 @@ public sealed class AgentExecutionTrace
         set;
     }
 
+    /// <summary>Structural completeness ratio at evaluate time (TB-964).</summary>
+    public double? RecordedStructuralCompletenessRatio
+    {
+        get;
+        set;
+    }
+
+    /// <summary>Semantic score at evaluate time (TB-964).</summary>
+    public double? RecordedSemanticScore
+    {
+        get;
+        set;
+    }
+
+    /// <summary>Reject reason category at evaluate time (TB-964).</summary>
+    public string? RecordedRejectReasonCategory
+    {
+        get;
+        set;
+    }
+
+    /// <summary>Triage scenario id when quality warn/reject fired (TB-964).</summary>
+    public string? RecordedTriageScenarioId
+    {
+        get;
+        set;
+    }
+
     /// <summary>
     ///     Source citations linking AI-generated findings to specific policies or evidence.
     /// </summary>

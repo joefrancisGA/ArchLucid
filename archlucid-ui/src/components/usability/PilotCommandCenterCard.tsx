@@ -7,21 +7,22 @@ import { useMemo } from "react";
 import { useArchitectureDraftRegistryEntries } from "@/hooks/use-architecture-draft-registry-entries";
 import { useCorePilotCommitContextQuery } from "@/hooks/use-core-pilot-commit-context-query";
 
-import { useNavCommittedArchitectureReview } from "@/components/OperatorNavAuthorityProvider";
+import { useNavCommittedArchitectureReview } from "@/components/operator/OperatorNavAuthorityProvider";
 import { OperatorHomeCardSectionTitle } from "@/components/operator-home/OperatorHomeCardSectionTitle";
 import { OperatorHomeDoThisNextCard } from "@/components/operator-home/OperatorHomeDoThisNextCard";
 import { GoldenSponsorPackageWalkthroughPanel } from "@/components/golden-walkthrough/GoldenSponsorPackageWalkthroughPanel";
 import { InviteeFirstOrientationPanel } from "@/components/operator/InviteeFirstOrientationPanel";
 import { OperatorHomeDualPathCards } from "@/components/operator-home/OperatorHomeDualPathCards";
-import { OperatorHomeResumeDraftCallout } from "@/components/operator-home/OperatorHomeResumeDraftCallout";
 import { OperatorHomeWorkspaceMetricsSummary } from "@/components/operator-home/OperatorHomeWorkspaceMetricsSummary";
 import { useOperatorHomeWorkspaceActivity } from "@/components/operator-home/operator-home-workspace-activity-context";
 import { Button } from "@/components/ui/button";
+import { FirstPilotOperateUnlockVocabularyRail } from "@/components/FirstPilotOperateUnlockVocabularyRail";
 import { PageContextualHelpButton } from "@/components/usability/PageContextualHelpButton";
 import type { OperatorHomeRunsDashboardModel } from "@/app/(operator)/_sections/operator-home-runs-dashboard-model";
 import {
   OPERATOR_HOME_COMMAND_CENTER_TAGLINE,
-} from "@/lib/buyer-polish-copy";
+  OPERATOR_HOME_RESUME_LATEST_DRAFT_CTA,
+} from "@/lib/buyer/buyer-polish-copy";
 import {
   OPERATOR_CARD,
   OPERATOR_LAYOUT,
@@ -29,9 +30,11 @@ import {
   OPERATOR_TYPE_SCALE,
 } from "@/lib/design-tokens";
 import { resolvePilotNextBestAction, type PilotNextBestAction } from "@/lib/resolve-pilot-next-best-action";
-import { deriveOperatorHomeWorkspaceMetrics } from "@/lib/operator-home-workspace-metrics";
+import { resolveLiveRunsDashboardModel } from "@/lib/operator/operator-home-live-runs-dashboard";
+import { deriveOperatorHomeWorkspaceMetrics } from "@/lib/operator/operator-home-workspace-metrics";
 import {
   resolveOperatorHomeLifecycleEmphasizedPath,
+  resolveLatestArchitectureDraftHref,
   resolveOperatorHomePhaseHeroCopy,
   resolveOperatorHomeWorkspacePhase,
 } from "@/lib/resolve-operator-home-workspace-phase";
@@ -76,24 +79,35 @@ export function PilotCommandCenterCard(props: PilotCommandCenterCardProps = {}):
   const hasCommittedArchitectureReview = useNavCommittedArchitectureReview();
   const workspaceActivity = useOperatorHomeWorkspaceActivity();
   const draftEntries = useArchitectureDraftRegistryEntries();
-  const workspaceMetrics = useMemo(() => {
+  const liveRunsSnapshot = workspaceActivity.liveRunsSnapshot ?? null;
+  const runsDashboard = useMemo(() => {
     if (props.runsDashboard === undefined) {
+      return undefined;
+    }
+
+    return resolveLiveRunsDashboardModel(props.runsDashboard, liveRunsSnapshot);
+  }, [liveRunsSnapshot, props.runsDashboard]);
+  const workspaceMetrics = useMemo(() => {
+    if (runsDashboard === undefined) {
       return null;
     }
 
-    return deriveOperatorHomeWorkspaceMetrics(props.runsDashboard.items, props.runsDashboard.totalCount);
-  }, [props.runsDashboard]);
+    return deriveOperatorHomeWorkspaceMetrics(runsDashboard.items, runsDashboard.totalCount);
+  }, [runsDashboard]);
+  // SSR seed props are a stale floor once live rows arrive: keeping them would pin counts that
+  // Refresh just proved lower (a resolved finding, a deleted review).
+  const useSsrSeedCounts = liveRunsSnapshot === null;
   const openFindingsCount = Math.max(
-    props.openFindingsCount ?? 0,
+    useSsrSeedCounts ? props.openFindingsCount ?? 0 : 0,
     workspaceActivity.openFindingsCount,
     workspaceMetrics?.openFindings ?? 0,
   );
   const governanceWarningsCount = Math.max(
-    props.governanceWarningsCount ?? 0,
+    useSsrSeedCounts ? props.governanceWarningsCount ?? 0 : 0,
     workspaceMetrics?.governanceWarnings ?? 0,
   );
   const hasWorkspaceReviews =
-    (props.hasWorkspaceReviews ?? false) || workspaceActivity.hasWorkspaceReviews;
+    (useSsrSeedCounts && props.hasWorkspaceReviews === true) || workspaceActivity.hasWorkspaceReviews;
   const commitQuery = useCorePilotCommitContextQuery();
 
   const phaseSignals = useMemo(
@@ -116,7 +130,13 @@ export function PilotCommandCenterCard(props: PilotCommandCenterCardProps = {}):
   );
 
   const workspacePhase = resolveOperatorHomeWorkspacePhase(phaseSignals);
-  const heroCopy = resolveOperatorHomePhaseHeroCopy(workspacePhase, phaseSignals);
+  const latestDraft = draftEntries[0] ?? null;
+  const resumeHref = resolveLatestArchitectureDraftHref(draftEntries);
+  const heroCopy = resolveOperatorHomePhaseHeroCopy(
+    workspacePhase,
+    phaseSignals,
+    latestDraft?.displayName ?? null,
+  );
   const emphasizedPath = resolveOperatorHomeLifecycleEmphasizedPath(workspacePhase);
   const showLeadCopy = props.suppressLeadCopy !== true;
   const showContextualHelp = props.showContextualHelp !== false;
@@ -145,7 +165,7 @@ export function PilotCommandCenterCard(props: PilotCommandCenterCardProps = {}):
   ]);
 
   const showHeroKpiStrip =
-    props.runsDashboard !== undefined &&
+    runsDashboard !== undefined &&
     (workspacePhase === "active-reviews" || workspacePhase === "operational");
 
   return (
@@ -176,11 +196,14 @@ export function PilotCommandCenterCard(props: PilotCommandCenterCardProps = {}):
             </div>
           ) : null}
         </div>
+        {workspacePhase === "eval-empty" ? (
+          <FirstPilotOperateUnlockVocabularyRail currentSurfaceId="first-pilot" />
+        ) : null}
       </div>
 
-      {showHeroKpiStrip && props.runsDashboard !== undefined ? (
+      {showHeroKpiStrip && runsDashboard !== undefined ? (
         <OperatorHomeWorkspaceMetricsSummary
-          runsDashboard={props.runsDashboard}
+          runsDashboard={runsDashboard}
           setupReadyCount={0}
           setupTotalCount={0}
           setupReadinessLoading={false}
@@ -201,7 +224,26 @@ export function PilotCommandCenterCard(props: PilotCommandCenterCardProps = {}):
 
       {workspacePhase === "eval-with-drafts" ? (
         <div className={cn("space-y-4", OPERATOR_LAYOUT.inlineGap)}>
-          <OperatorHomeResumeDraftCallout draftEntries={draftEntries} />
+          {resumeHref !== null ? (
+            <div
+              className={cn(
+                "flex flex-col gap-3 sm:flex-row sm:items-center sm:justify-between",
+                OPERATOR_LAYOUT.inlineGap,
+              )}
+            >
+              <p
+                className={cn("m-0", OPERATOR_TYPE_SCALE.helper, "text-al-text-secondary")}
+                data-testid="operator-home-resume-draft-bridge"
+              >
+                {heroCopy.lead}
+              </p>
+              <Button asChild variant="primary" size="sm" className={cn(heroCtaButtonClass, "shrink-0")}>
+                <Link href={resumeHref} data-testid="operator-home-resume-draft-primary">
+                  {OPERATOR_HOME_RESUME_LATEST_DRAFT_CTA}
+                </Link>
+              </Button>
+            </div>
+          ) : null}
           <OperatorHomeDualPathCards emphasizedPath={emphasizedPath} />
         </div>
       ) : null}

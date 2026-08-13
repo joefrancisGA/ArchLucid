@@ -1,10 +1,10 @@
 "use client";
 
-import { useNavCommittedArchitectureReview } from "@/components/OperatorNavAuthorityProvider";
+import { useNavCommittedArchitectureReview } from "@/components/operator/OperatorNavAuthorityProvider";
 import {
   PILOT_COMMAND_CENTER_OUTCOMES,
   PILOT_COMMAND_CENTER_OUTCOMES_HEADING,
-} from "@/lib/buyer-polish-copy";
+} from "@/lib/buyer/buyer-polish-copy";
 import { OPERATOR_TYPE_SCALE } from "@/lib/design-tokens";
 import { cn } from "@/lib/utils";
 

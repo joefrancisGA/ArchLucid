@@ -14,7 +14,7 @@ vi.mock("next/navigation", () => ({
 }));
 
 import { HelpConfigurationReferenceGuideView } from "@/app/(operator)/help/_sections/HelpConfigurationReferenceGuideView";
-import { prepareHelpMarkdownForPresentation } from "@/lib/help-markdown-presentation";
+import { prepareHelpMarkdownForPresentation } from "@/lib/help/help-markdown-presentation";
 import { tryLoadProductDocumentation } from "@/lib/load-product-documentation";
 
 const CONFIGURATION_REFERENCE_SOURCE = "docs/library/CONFIGURATION_REFERENCE.md";

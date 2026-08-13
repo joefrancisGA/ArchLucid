@@ -10,7 +10,7 @@ vi.mock("@/components/usability/PageContextualHelpButton", () => ({
 }));
 
 vi.mock("next/navigation", () => ({
-  usePathname: () => "/help/path-chooser",
+  usePathname: () => "/help/choose-your-next-step",
 }));
 
 import { HelpPathChooserGuideView } from "@/app/(operator)/help/_sections/HelpPathChooserGuideView";
@@ -20,12 +20,12 @@ import {
   PATH_CHOOSER_HELP_PRIMARY_ACTIONS,
 } from "@/lib/path-chooser-help-guide-content";
 import { PATH_CHOOSER_HELP_RELATED_NEXT_STEPS } from "@/lib/path-chooser-help-evidence-copy";
-import { prepareHelpMarkdownForPresentation } from "@/lib/help-markdown-presentation";
+import { prepareHelpMarkdownForPresentation } from "@/lib/help/help-markdown-presentation";
 import { tryLoadProductDocumentation } from "@/lib/load-product-documentation";
-import { resolveHelpTopicPermanentRedirect } from "@/lib/help-topic-permanent-redirects";
+import { resolveHelpTopicPermanentRedirect } from "@/lib/help/help-topic-permanent-redirects";
 
 describe("HelpPathChooserGuideView", () => {
-  const loaded = tryLoadProductDocumentation("path-chooser");
+  const loaded = tryLoadProductDocumentation("choose-your-next-step");
 
   it("loads path-chooser help from buyer orientation source", () => {
     expect(loaded).not.toBeNull();
@@ -61,7 +61,7 @@ describe("HelpPathChooserGuideView", () => {
     }
 
     expect(screen.getByTestId("help-path-chooser-reference-appendix")).toBeInTheDocument();
-    expect(resolveHelpTopicPermanentRedirect("evaluator-workbook")).toBe("/help/path-chooser");
+    expect(resolveHelpTopicPermanentRedirect("evaluator-workbook")).toBe("/help/choose-your-next-step");
   });
 
   it("renders specialty chooser chrome without GTM/runbook repo paths (TB-1711 / TB-1712)", () => {
@@ -71,7 +71,7 @@ describe("HelpPathChooserGuideView", () => {
 
     const sourcePath = loaded.entry.sourcePaths[0] ?? "";
     const preparedMarkdown = prepareHelpMarkdownForPresentation(loaded.markdown, sourcePath, {
-      helpTopicSlug: "path-chooser",
+      helpTopicSlug: "choose-your-next-step",
     });
 
     render(<HelpPathChooserGuideView entry={loaded.entry} markdown={loaded.markdown} />);

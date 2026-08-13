@@ -1,7 +1,16 @@
-import { cn } from "@/lib/utils";
 import { Skeleton } from "@/components/ui/skeleton";
+import {
+  EnterpriseTable,
+  EnterpriseTableBody,
+  EnterpriseTableCell,
+  EnterpriseTableHead,
+  EnterpriseTableHeadRow,
+  EnterpriseTableHeaderCell,
+  EnterpriseTableRow,
+} from "@/components/ui/enterprise-table";
 
 import { OPERATOR_TYPOGRAPHY } from "@/lib/design-tokens";
+
 /**
  * Mirrors the reviews list page: heading, controls row, and table-shaped placeholders.
  */
@@ -15,50 +24,48 @@ export function RunsListSkeleton() {
         <Skeleton className="h-10 w-40" />
         <Skeleton className="h-4 w-56" />
       </div>
-      <div className="overflow-x-auto rounded-md border border-neutral-200 dark:border-neutral-700">
-        <table className={cn("w-full border-collapse", OPERATOR_TYPOGRAPHY.body)}>
-          <thead>
-            <tr className="border-b border-neutral-200 dark:border-neutral-700">
-              <th className="p-2 text-left">
+      <EnterpriseTable ariaLabel="Reviews list loading placeholder" className={OPERATOR_TYPOGRAPHY.body}>
+        <EnterpriseTableHead>
+          <EnterpriseTableHeadRow>
+            <EnterpriseTableHeaderCell>
+              <Skeleton className="h-4 w-16" />
+            </EnterpriseTableHeaderCell>
+            <EnterpriseTableHeaderCell>
+              <Skeleton className="h-4 w-14" />
+            </EnterpriseTableHeaderCell>
+            <EnterpriseTableHeaderCell>
+              <Skeleton className="h-4 w-24" />
+            </EnterpriseTableHeaderCell>
+            <EnterpriseTableHeaderCell>
+              <Skeleton className="h-4 w-16" />
+            </EnterpriseTableHeaderCell>
+            <EnterpriseTableHeaderCell>
+              <Skeleton className="h-4 w-20" />
+            </EnterpriseTableHeaderCell>
+          </EnterpriseTableHeadRow>
+        </EnterpriseTableHead>
+        <EnterpriseTableBody>
+          {[1, 2, 3, 4, 5].map((row) => (
+            <EnterpriseTableRow key={row}>
+              <EnterpriseTableCell>
+                <Skeleton className="h-4 w-28" />
+              </EnterpriseTableCell>
+              <EnterpriseTableCell>
                 <Skeleton className="h-4 w-16" />
-              </th>
-              <th className="p-2 text-left">
-                <Skeleton className="h-4 w-14" />
-              </th>
-              <th className="p-2 text-left">
+              </EnterpriseTableCell>
+              <EnterpriseTableCell>
+                <Skeleton className="h-4 w-48" />
+              </EnterpriseTableCell>
+              <EnterpriseTableCell>
                 <Skeleton className="h-4 w-24" />
-              </th>
-              <th className="p-2 text-left">
-                <Skeleton className="h-4 w-16" />
-              </th>
-              <th className="p-2 text-left">
+              </EnterpriseTableCell>
+              <EnterpriseTableCell>
                 <Skeleton className="h-4 w-20" />
-              </th>
-            </tr>
-          </thead>
-          <tbody>
-            {[1, 2, 3, 4, 5].map((row) => (
-              <tr key={row} className="border-b border-neutral-100 dark:border-neutral-800">
-                <td className="p-2">
-                  <Skeleton className="h-4 w-28" />
-                </td>
-                <td className="p-2">
-                  <Skeleton className="h-4 w-16" />
-                </td>
-                <td className="p-2">
-                  <Skeleton className="h-4 w-48" />
-                </td>
-                <td className="p-2">
-                  <Skeleton className="h-4 w-24" />
-                </td>
-                <td className="p-2">
-                  <Skeleton className="h-4 w-20" />
-                </td>
-              </tr>
-            ))}
-          </tbody>
-        </table>
-      </div>
+              </EnterpriseTableCell>
+            </EnterpriseTableRow>
+          ))}
+        </EnterpriseTableBody>
+      </EnterpriseTable>
       <div className="flex flex-wrap gap-4">
         <Skeleton className="h-4 w-40" />
         <Skeleton className="h-4 w-20" />

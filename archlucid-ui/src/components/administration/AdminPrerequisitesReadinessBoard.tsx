@@ -20,7 +20,7 @@ import { DESIGN_TOKENS, OPERATOR_TYPOGRAPHY } from "@/lib/design-tokens";
 import {
   mapReadinessStatusToEnterpriseKind,
   mapReadinessStatusToStatusTagLabel,
-} from "@/lib/first-pilot-operator-status-vocabulary";
+} from "@/lib/vocabulary/first-pilot-operator-status-vocabulary";
 import { cn } from "@/lib/utils";
 
 type AdminPrerequisitesReadinessBoardProps = {

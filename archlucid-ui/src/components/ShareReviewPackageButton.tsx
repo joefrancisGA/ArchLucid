@@ -3,7 +3,9 @@
 import { useCallback, useState } from "react";
 
 import { Button } from "@/components/ui/button";
+import { WhyDisabledCtaHint } from "@/components/usability/WhyDisabledCtaHint";
 import { getFirstValueReportMarkdown } from "@/lib/api";
+import { whyDisabledNeedsPrerequisite } from "@/lib/why-disabled-cta";
 import { showError, showSuccess } from "@/lib/toast";
 
 export type ShareReviewPackageButtonProps = {
@@ -18,6 +20,8 @@ export type ShareReviewPackageButtonProps = {
 export function ShareReviewPackageButton(props: ShareReviewPackageButtonProps): React.JSX.Element {
   const { runId, systemName, committed, variant = "outline", size = "sm" } = props;
   const [busy, setBusy] = useState(false);
+  const shareDisabledReason = committed ? null : whyDisabledNeedsPrerequisite("a finalized review");
+  const shareDisabledHintId = "share-review-package-disabled-hint";
 
   const onShare = useCallback(async () => {
     setBusy(true);
@@ -51,16 +55,23 @@ export function ShareReviewPackageButton(props: ShareReviewPackageButtonProps): 
   }, [runId, systemName]);
 
   return (
-    <Button
-      type="button"
-      variant={variant}
-      size={size}
-      disabled={!committed || busy}
-      title={committed ? undefined : "Finalize review first"}
-      data-testid="share-review-package-button"
-      onClick={() => void onShare()}
-    >
-      {busy ? "Preparing…" : "Share review"}
-    </Button>
+    <div className="inline-flex flex-col items-start gap-1">
+      <Button
+        type="button"
+        variant={variant}
+        size={size}
+        disabled={!committed || busy}
+        aria-describedby={shareDisabledReason === null ? undefined : shareDisabledHintId}
+        data-testid="share-review-package-button"
+        onClick={() => void onShare()}
+      >
+        {busy ? "Preparing…" : "Share review"}
+      </Button>
+      <WhyDisabledCtaHint
+        id={shareDisabledHintId}
+        reason={shareDisabledReason}
+        testId={shareDisabledHintId}
+      />
+    </div>
   );
 }

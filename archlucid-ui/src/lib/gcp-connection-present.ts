@@ -1,4 +1,20 @@
+import type { EnterpriseStatusKind } from "@/lib/design-tokens";
+import { formatInstantForLocale } from "@/lib/locale-datetime";
+
 /** Shared presentation helpers for GCP cloud connection UI (TB-1773). */
+
+export function gcpConnectionStatusTagKind(status: string): EnterpriseStatusKind {
+  switch (status.toLowerCase()) {
+    case "connected":
+      return "ready";
+    case "polling":
+      return "in-progress";
+    case "error":
+      return "blocked";
+    default:
+      return "neutral";
+  }
+}
 
 export function formatGcpConnectionTimestamp(value: string | null): string {
   if (value === null || value.trim().length === 0) {
@@ -11,7 +27,7 @@ export function formatGcpConnectionTimestamp(value: string | null): string {
     return value;
   }
 
-  return new Date(parsed).toLocaleString();
+  return formatInstantForLocale(value);
 }
 
 export function gcpConnectionStatusBadgeClass(status: string): string {

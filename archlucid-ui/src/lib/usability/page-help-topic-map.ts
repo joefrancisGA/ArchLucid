@@ -3,17 +3,24 @@
  */
 
 import { canonicalizeLegacyOperatorRoutePath } from "@/lib/canonicalize-legacy-operator-route-path";
-import { ALERTS_HOW_ALERTS_WORK_LABEL } from "@/lib/alerts-page-copy";
-import { ARCHITECTURES_LIST_PATH } from "@/lib/architecture-routes";
-import { ARCHITECTURE_DRAFTS_LIST_LABEL, START_REVIEW_LABEL } from "@/lib/architecture-workflow-labels";
 import {
-  BUYER_ONBOARDING_PAGE_TITLE,
-  OPERATOR_HOME_EXPLORE_REVIEW_WALKTHROUGH_HEADING,
-} from "@/lib/buyer-polish-copy";
-import { EXECUTIVE_DASHBOARD_HREF } from "@/lib/executive-dashboard-route";
+  ALERTS_CONFIGURATION_PAGE_TITLE,
+  ALERTS_HOW_ALERTS_WORK_LABEL,
+} from "@/lib/alerts-page-copy";
+import { API_KEYS_PAGE_TITLE } from "@/lib/api-keys-settings-copy";
+import { BASELINE_SETTINGS_PAGE_TITLE } from "@/lib/baseline-settings-present";
+import { ARCHITECTURES_LIST_PATH } from "@/lib/architecture/architecture-routes";
+import { ARCHITECTURE_DRAFTS_LIST_LABEL, START_REVIEW_LABEL } from "@/lib/architecture/architecture-workflow-labels";
+import { BUYER_ONBOARDING_PAGE_TITLE } from "@/lib/buyer/buyer-polish-copy";
+import { GOVERNANCE_EXCEPTIONS_PATH } from "@/lib/governance/governance-route-paths";
+import { GOVERNANCE_SETUP_HREF } from "@/lib/governance/governance-setup-route";
+import { EXECUTIVE_DASHBOARD_HREF } from "@/lib/executive/executive-dashboard-route";
 import { OPERATOR_NAV_LINK_LABELS } from "@/lib/i18n";
 import { PROVENANCE_HELP_TOPIC, pathIsRunProvenance } from "@/lib/provenance-evidence-copy";
 import { pathIsFindingEvidenceTrace } from "@/lib/evidence-trace-contextual-help";
+import {
+  pathIsSettingsHubRoot,
+} from "@/lib/settings-admin-route-paths";
 import { SIGNED_RECORDS_LIST_PATH } from "@/lib/signed-records-paths";
 
 export type PageHelpTopic = {
@@ -42,7 +49,7 @@ const PAGE_HELP_TOPICS: readonly { prefix: string; topic: PageHelpTopic }[] = [
   // Overview hero help — same topic the former "Learn / View workflow" links opened.
   {
     prefix: "/",
-    topic: { slug: "first-architecture-review", label: OPERATOR_HOME_EXPLORE_REVIEW_WALKTHROUGH_HEADING },
+    topic: { slug: "first-architecture-review", label: OPERATOR_NAV_LINK_LABELS.home },
   },
   { prefix: "/architecture/first-review-guide", topic: { slug: "getting-started", label: BUYER_ONBOARDING_PAGE_TITLE } },
   { prefix: "/help/getting-started", topic: { slug: "getting-started", label: "Getting started" } },
@@ -144,6 +151,10 @@ const PAGE_HELP_TOPICS: readonly { prefix: string; topic: PageHelpTopic }[] = [
     topic: { slug: "review-packages", label: "Signed review records" },
   },
   { prefix: EXECUTIVE_DASHBOARD_HREF, topic: { slug: "executive-summary", label: "Executive dashboard" } },
+  {
+    prefix: "/insights/ask-review-questions",
+    topic: { slug: "prior-manifest-retrieval", label: OPERATOR_NAV_LINK_LABELS.askReview },
+  },
   { prefix: "/insights/evidence-graph", topic: { slug: "evidence-trail", label: OPERATOR_NAV_LINK_LABELS.evidenceGraph } },
   {
     prefix: "/insights/search-review-evidence",
@@ -151,12 +162,24 @@ const PAGE_HELP_TOPICS: readonly { prefix: string; topic: PageHelpTopic }[] = [
   },
   { prefix: "/insights/compare-two-reviews", topic: { slug: "comparison-replay", label: "Compare and replay" } },
   {
-    // Secondary hub — no pattern-library specialty; omit Learn more (TB-2050).
     prefix: "/insights/patterns",
-    topic: { label: "Pattern library" },
+    topic: { slug: "repeat-review-loop", label: "Pattern library" },
   },
   { prefix: "/replay", topic: { slug: "comparison-replay", label: "Compare and replay" } },
+  { prefix: "/internal/replay", topic: { slug: "comparison-replay", label: "Validate review" } },
   { prefix: "/governance/findings", topic: { slug: "governance-approval", label: OPERATOR_NAV_LINK_LABELS.findings } },
+  {
+    prefix: GOVERNANCE_SETUP_HREF,
+    topic: { slug: "governance-approval", label: OPERATOR_NAV_LINK_LABELS.governanceSetupGuide },
+  },
+  {
+    prefix: "/governance/recurrence-schedules",
+    topic: { slug: "digests", label: OPERATOR_NAV_LINK_LABELS.recurrenceSchedules },
+  },
+  {
+    prefix: GOVERNANCE_EXCEPTIONS_PATH,
+    topic: { slug: "governance-approval", label: OPERATOR_NAV_LINK_LABELS.riskExceptions },
+  },
   {
     prefix: "/governance/approval-queue",
     topic: { slug: "governance-approval", label: "Approval queue" },
@@ -177,7 +200,7 @@ const PAGE_HELP_TOPICS: readonly { prefix: string; topic: PageHelpTopic }[] = [
   },
   {
     prefix: "/governance/alert-rules",
-    topic: { slug: "alerts", label: ALERTS_HOW_ALERTS_WORK_LABEL },
+    topic: { slug: "alerts", label: ALERTS_CONFIGURATION_PAGE_TITLE },
   },
   {
     prefix: "/governance/policy-packs",
@@ -185,16 +208,20 @@ const PAGE_HELP_TOPICS: readonly { prefix: string; topic: PageHelpTopic }[] = [
   },
   {
     prefix: "/governance/standards-and-rules",
-    topic: { slug: "policy-packs", label: "Policy packs" },
+    topic: { slug: "policy-packs", label: OPERATOR_NAV_LINK_LABELS.governanceResolution },
   },
   { prefix: "/governance", topic: { slug: "governance-approval", label: "Governance approval" } },
   { prefix: "/governance/audit", topic: { slug: "audit-trail", label: "Audit trail" } },
   { prefix: "/governance/alerts", topic: { slug: "alerts", label: "Alerts" } },
-  { prefix: "/governance/alert-rules", topic: { slug: "alerts", label: "How alerts work" } },
+  { prefix: "/governance/alert-rules", topic: { slug: "alerts", label: ALERTS_CONFIGURATION_PAGE_TITLE } },
   { prefix: "/governance/policy-packs", topic: { slug: "policy-packs", label: "Policy packs" } },
   {
     prefix: "/insights/roi-summary",
-    topic: { slug: "pilot-roi-model", label: "View ROI methodology" },
+    topic: {
+      slug: "executive-summary",
+      hashFragment: "pilot-roi-measurement",
+      label: OPERATOR_NAV_LINK_LABELS.roiReport,
+    },
   },
   {
     prefix: "/insights/pilot-outcomes",
@@ -203,7 +230,11 @@ const PAGE_HELP_TOPICS: readonly { prefix: string; topic: PageHelpTopic }[] = [
   {
     // Trigger names the page; Learn more still opens ROI methodology for assumption drill-down.
     prefix: "/insights/architecture-scorecard",
-    topic: { slug: "pilot-roi-model", label: OPERATOR_NAV_LINK_LABELS.scorecard },
+    topic: {
+      slug: "executive-summary",
+      hashFragment: "pilot-roi-measurement",
+      label: OPERATOR_NAV_LINK_LABELS.scorecard,
+    },
   },
   {
     prefix: "/insights/executive-summary",
@@ -212,7 +243,11 @@ const PAGE_HELP_TOPICS: readonly { prefix: string; topic: PageHelpTopic }[] = [
   // Legacy sponsor-report bookmarks canonicalize to /insights/* above; keep prefixes for direct lookups.
   {
     prefix: "/sponsor-report/roi-summary",
-    topic: { slug: "pilot-roi-model", label: "View ROI methodology" },
+    topic: {
+      slug: "executive-summary",
+      hashFragment: "pilot-roi-measurement",
+      label: OPERATOR_NAV_LINK_LABELS.roiReport,
+    },
   },
   {
     prefix: "/sponsor-report/pilot-outcomes",
@@ -220,7 +255,11 @@ const PAGE_HELP_TOPICS: readonly { prefix: string; topic: PageHelpTopic }[] = [
   },
   {
     prefix: "/insights/roi-summary",
-    topic: { slug: "pilot-roi-model", label: "View ROI methodology" },
+    topic: {
+      slug: "executive-summary",
+      hashFragment: "pilot-roi-measurement",
+      label: OPERATOR_NAV_LINK_LABELS.roiReport,
+    },
   },
   {
     prefix: "/insights/pilot-outcomes",
@@ -232,7 +271,7 @@ const PAGE_HELP_TOPICS: readonly { prefix: string; topic: PageHelpTopic }[] = [
   },
   {
     prefix: "/insights/architecture-scorecard",
-    topic: { slug: "pilot-roi-model", label: "View ROI methodology" },
+    topic: { slug: "executive-summary", hashFragment: "pilot-roi-measurement", label: "View ROI methodology" },
   },
   { prefix: "/sponsor-report", topic: { slug: "executive-summary", label: "Executive summary" } },
   { prefix: "/sponsor-report", topic: { slug: "executive-summary", label: "Executive summary" } },
@@ -250,6 +289,10 @@ const PAGE_HELP_TOPICS: readonly { prefix: string; topic: PageHelpTopic }[] = [
     topic: { slug: "pilot-feedback", label: "Pilot feedback" },
   },
   {
+    prefix: "/internal/health",
+    topic: { slug: "admin-diagnostics", label: "Diagnostics dashboard" },
+  },
+  {
     // Learning / product-orientation allowlist — retired how-it-works slug redirects to this anchor.
     prefix: "/why-archlucid",
     topic: {
@@ -263,7 +306,14 @@ const PAGE_HELP_TOPICS: readonly { prefix: string; topic: PageHelpTopic }[] = [
     topic: { slug: "evidence-trail", label: "Demo explain" },
   },
   { prefix: "/administration/billing", topic: { slug: "billing-and-plans", label: "Billing and plans" } },
-  { prefix: "/administration/ai-usage", topic: { slug: "billing-and-plans", label: "AI usage and cost" } },
+  {
+    prefix: "/administration/ai-usage",
+    topic: { slug: "billing-and-plans", label: `${OPERATOR_NAV_LINK_LABELS.aiUsage} help` },
+  },
+  {
+    prefix: "/administration/settings/ai-usage",
+    topic: { slug: "billing-and-plans", label: `${OPERATOR_NAV_LINK_LABELS.aiUsage} help` },
+  },
   { prefix: "/help/billing-and-plans", topic: { slug: "billing-and-plans", label: "Billing and plans" } },
   {
     prefix: "/help/security-trust",
@@ -303,16 +353,12 @@ const PAGE_HELP_TOPICS: readonly { prefix: string; topic: PageHelpTopic }[] = [
     topic: { slug: "soc2-self-assessment", label: "SOC 2 self-assessment" },
   },
   {
-    prefix: "/help/path-chooser",
-    topic: { slug: "path-chooser", label: "Choose your next step" },
+    prefix: "/help/choose-your-next-step",
+    topic: { slug: "choose-your-next-step", label: "Choose your next step" },
   },
   {
     prefix: "/help/enterprise-onboarding",
     topic: { slug: "enterprise-onboarding", label: "Enterprise onboarding checklist" },
-  },
-  {
-    prefix: "/help/pilot-roi-model",
-    topic: { slug: "pilot-roi-model", label: "Pilot ROI model" },
   },
   {
     prefix: "/help/pilot-feedback",
@@ -323,8 +369,8 @@ const PAGE_HELP_TOPICS: readonly { prefix: string; topic: PageHelpTopic }[] = [
     topic: { slug: "executive-summary", label: "Executive summary" },
   },
   {
-    prefix: "/help/policy-pack-delta-demo",
-    topic: { slug: "policy-pack-delta-demo", label: "Policy-pack delta demo" },
+    prefix: "/help/policy-packs",
+    topic: { slug: "policy-packs", label: "Policy packs" },
   },
   {
     prefix: "/help/configuration-reference",
@@ -335,16 +381,12 @@ const PAGE_HELP_TOPICS: readonly { prefix: string; topic: PageHelpTopic }[] = [
     topic: { slug: "cli-usage", label: "CLI usage" },
   },
   {
-    prefix: "/help/first-review",
-    topic: { slug: "first-review", label: "First-run evidence checklist" },
+    prefix: "/help/first-architecture-review",
+    topic: { slug: "first-architecture-review", label: "Your first architecture review" },
   },
   {
-    prefix: "/help/first-value-20-minutes",
-    topic: { slug: "first-value-20-minutes", label: "First value in 20 minutes (Admin runbook)" },
-  },
-  {
-    prefix: "/help/developer-troubleshooting",
-    topic: { slug: "developer-troubleshooting", label: "Engineering troubleshooting runbook" },
+    prefix: "/help/engineering-troubleshooting",
+    topic: { slug: "engineering-troubleshooting", label: "Engineering troubleshooting runbook" },
   },
   {
     prefix: "/help/api-contracts",
@@ -387,15 +429,18 @@ const PAGE_HELP_TOPICS: readonly { prefix: string; topic: PageHelpTopic }[] = [
   },
   {
     prefix: "/integrations/slack",
-    topic: { slug: "alerts", label: "Slack integration" },
+    // TB-1187 — caption for PageHeading help control; long-form guide shares troubleshooting.
+    topic: { slug: "troubleshooting", label: "Slack notifications help" },
   },
   {
     prefix: "/integrations/webhooks",
-    topic: { slug: "alerts", label: "Webhooks" },
+    // TB-1193 — caption for PageHeading help control; long-form guide shares alerts help.
+    topic: { slug: "alerts", label: "Webhooks help" },
   },
   {
     prefix: "/integrations/teams",
-    topic: { slug: "alerts", label: "Teams integration" },
+    // TB-1184 — caption matches prior plain-text help; long-form guide is troubleshooting.
+    topic: { slug: "troubleshooting", label: "Microsoft Teams notification help" },
   },
   { prefix: "/administration/connection-status", topic: { slug: "integration-readiness", label: "How integration readiness works" } },
   { prefix: "/administration/developer", topic: { slug: "cli-usage", label: "Internal developer tools" } },
@@ -403,7 +448,7 @@ const PAGE_HELP_TOPICS: readonly { prefix: string; topic: PageHelpTopic }[] = [
     prefix: "/operate/integration-events/dlq",
     topic: { slug: "integration-readiness", label: "Integration event dead letters" },
   },
-  { prefix: "/administration/system-health", topic: { slug: "troubleshooting", label: "Troubleshooting" } },
+  { prefix: "/administration/system-health", topic: { slug: "troubleshooting", label: OPERATOR_NAV_LINK_LABELS.systemHealth } },
   { prefix: "/internal/integrations/itsm", topic: { slug: "integration-readiness", label: "ITSM connectors" } },
   {
     prefix: "/admin/tenant-health",
@@ -415,7 +460,7 @@ const PAGE_HELP_TOPICS: readonly { prefix: string; topic: PageHelpTopic }[] = [
   },
   {
     prefix: "/admin/demo-readiness",
-    topic: { slug: "path-chooser", label: "Demo readiness" },
+    topic: { slug: "choose-your-next-step", label: "Demo readiness" },
   },
   {
     prefix: "/admin/deployment-status",
@@ -442,7 +487,7 @@ const PAGE_HELP_TOPICS: readonly { prefix: string; topic: PageHelpTopic }[] = [
     topic: { slug: "enterprise-onboarding", label: "SCIM provisioning" },
   },
   {
-    prefix: "/administration/tenant/recycle-bin",
+    prefix: "/administration/workspace-settings/recycle-bin",
     topic: { slug: "scope", label: "Projects recycle bin" },
   },
   {
@@ -455,11 +500,15 @@ const PAGE_HELP_TOPICS: readonly { prefix: string; topic: PageHelpTopic }[] = [
   },
   {
     prefix: "/administration/api-keys",
-    topic: { slug: "users-and-roles", label: "API keys" },
+    topic: { slug: "cli-usage", label: API_KEYS_PAGE_TITLE },
   },
   {
     prefix: "/administration/preferences",
     topic: { slug: "getting-started", label: "Preferences" },
+  },
+  {
+    prefix: "/administration/notifications",
+    topic: { slug: "integration-readiness", label: "Notification channels" },
   },
   {
     prefix: "/administration/account-security",
@@ -483,21 +532,30 @@ const PAGE_HELP_TOPICS: readonly { prefix: string; topic: PageHelpTopic }[] = [
   },
   {
     prefix: "/administration/users",
-    topic: { slug: "users-and-roles", label: "Users and roles" },
+    topic: { slug: "users-and-roles", label: `${OPERATOR_NAV_LINK_LABELS.usersAndRoles} help` },
+  },
+  {
+    // Legacy settings segment — permanent redirect destination still resolves help before navigation settles.
+    prefix: "/administration/settings/users",
+    topic: { slug: "users-and-roles", label: `${OPERATOR_NAV_LINK_LABELS.usersAndRoles} help` },
   },
   {
     prefix: "/settings/roles",
-    topic: { slug: "users-and-roles", label: "Users and roles" },
+    topic: { slug: "users-and-roles", label: `${OPERATOR_NAV_LINK_LABELS.usersAndRoles} help` },
   },
   {
     prefix: "/administration/security-trust",
-    topic: { slug: "security-trust", label: "Security and trust" },
+    topic: { slug: "security-trust", label: `${OPERATOR_NAV_LINK_LABELS.securityTrust} help` },
   },
   {
-    prefix: "/administration/tenant",
+    prefix: "/administration/settings/security-trust",
+    topic: { slug: "security-trust", label: `${OPERATOR_NAV_LINK_LABELS.securityTrust} help` },
+  },
+  {
+    prefix: "/administration/workspace-settings",
     topic: { slug: "scope", label: OPERATOR_NAV_LINK_LABELS.workspaceSettings },
   },
-  { prefix: "/administration/baseline", topic: { slug: "pilot-roi-model", label: "View ROI methodology" } },
+  { prefix: "/administration/baseline", topic: { slug: "executive-summary", hashFragment: "pilot-roi-measurement", label: BASELINE_SETTINGS_PAGE_TITLE } },
   { prefix: "/help", topic: { slug: "getting-started", label: "Help" } },
 ];
 
@@ -532,6 +590,11 @@ export function pageHelpTopicForPathname(pathname: string): PageHelpTopic | null
 
   if (path === "/") {
     return PAGE_HELP_TOPICS.find((row) => row.prefix === "/")?.topic ?? null;
+  }
+
+  // Exact Settings hub only — must not use prefix startsWith or `/administration/*` children inherit this topic.
+  if (pathIsSettingsHubRoot(path)) {
+    return { label: "Settings help" };
   }
 
   const sorted = [...PAGE_HELP_TOPICS].sort((left, right) => right.prefix.length - left.prefix.length);

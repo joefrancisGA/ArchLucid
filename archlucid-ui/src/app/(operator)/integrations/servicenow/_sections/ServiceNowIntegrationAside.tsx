@@ -3,9 +3,10 @@
 import Link from "next/link";
 
 import { CollapsibleSection } from "@/components/CollapsibleSection";
+import { StatusTag } from "@/components/ui/status-tag";
 import { OPERATOR_LINK, OPERATOR_TYPOGRAPHY } from "@/lib/design-tokens";
 import { INTEGRATIONS_READINESS_PATH } from "@/lib/integrations-nav-paths";
-import { ITSM_CONNECTORS_ADMIN_PATH, ITSM_PRODUCT_SMOKE_VERIFICATION_HREF } from "@/lib/itsm-connectors-admin-scope";
+import { ITSM_CONNECTORS_ADMIN_PATH, ITSM_PRODUCT_SMOKE_VERIFICATION_HREF } from "@/lib/itsm/itsm-connectors-admin-scope";
 import { inAppHelpHref } from "@/lib/product-documentation-registry";
 import {
   SERVICENOW_CONNECTION_VERIFICATION_HELP_LABEL,
@@ -20,8 +21,10 @@ import type { ServiceNowConnectionStatusPresentation, ServiceNowSetupStep } from
 import { cn } from "@/lib/utils";
 
 type Props = {
+  readonly className?: string;
   readonly status: ServiceNowConnectionStatusPresentation;
   readonly setupSteps: readonly ServiceNowSetupStep[];
+  readonly emphasizedSetupStepId: string;
   readonly lastTestAt: string | null;
   readonly lastTestSummary: string | null;
   readonly lastTestSuccess: boolean | null;
@@ -31,24 +34,38 @@ type Props = {
 
 export function ServiceNowIntegrationAside(props: Props): React.ReactElement {
   return (
-    <aside className="space-y-4" data-testid="servicenow-integration-aside">
+    <aside
+      className={cn("space-y-4", props.className)}
+      data-testid="servicenow-integration-aside"
+      data-operator-side-rail-kind="none"
+    >
       <div className="rounded-md border border-neutral-200 bg-al-surface-raised p-4 dark:border-neutral-800">
         <h2 className={cn("m-0", OPERATOR_TYPOGRAPHY.cardTitle)}>{SERVICENOW_SETUP_PROGRESS_TITLE}</h2>
-        <ol className={cn("m-0 mt-3 list-none space-y-2 p-0", OPERATOR_TYPOGRAPHY.body)} aria-label="ServiceNow setup progress">
+        <ol
+          className={cn("m-0 mt-3 list-none space-y-2 p-0", OPERATOR_TYPOGRAPHY.body)}
+          aria-label="ServiceNow setup progress"
+          data-testid="servicenow-setup-progress"
+        >
           {props.setupSteps.map((step) => (
-            <li key={step.id} className="flex items-start gap-2">
+            <li
+              key={step.id}
+              className="flex items-start justify-between gap-3"
+              aria-current={step.id === props.emphasizedSetupStepId ? "step" : undefined}
+              data-testid={`servicenow-setup-step-${step.id}`}
+              data-emphasized={step.id === props.emphasizedSetupStepId ? "true" : undefined}
+            >
               <span
-                aria-hidden="true"
                 className={cn(
-                  "mt-0.5 inline-flex h-5 w-5 shrink-0 items-center justify-center rounded-full text-xs font-semibold",
-                  step.complete
-                    ? "bg-teal-100 text-teal-900 dark:bg-teal-950 dark:text-teal-100"
-                    : "bg-neutral-100 text-neutral-600 dark:bg-neutral-900 dark:text-neutral-300",
+                  step.complete ? "text-al-text-primary" : "text-al-text-secondary",
+                  step.id === props.emphasizedSetupStepId ? "font-medium text-al-text-primary" : undefined,
                 )}
               >
-                {step.complete ? "✓" : "·"}
+                {step.label}
               </span>
-              <span className={step.complete ? "text-al-text-primary" : "text-al-text-secondary"}>{step.label}</span>
+              <StatusTag
+                kind={step.complete ? "ready" : step.id === props.emphasizedSetupStepId ? "in-progress" : "neutral"}
+                label={step.complete ? "Done" : "Pending"}
+              />
             </li>
           ))}
         </ol>

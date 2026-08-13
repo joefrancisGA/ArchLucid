@@ -1,7 +1,7 @@
 import { Suspense } from "react";
 
 import { isBuyerPolishedOperatorShellEnv, isNextPublicDemoMode } from "@/lib/demo-ui-env";
-import { isStaticDemoPayloadFallbackEnabled } from "@/lib/operator-static-demo";
+import { isStaticDemoPayloadFallbackEnabled } from "@/lib/operator/operator-static-demo";
 
 import { SearchPageClient } from "./_sections/SearchPageClient";
 

@@ -1,8 +1,8 @@
 import { notFound } from "next/navigation";
 
-import { OperatorApiProblem } from "@/components/OperatorApiProblem";
-import { OperatorBrandedNotFound } from "@/components/OperatorBrandedNotFound";
-import { OperatorMalformedCallout } from "@/components/OperatorShellMessage";
+import { OperatorApiProblem } from "@/components/operator/OperatorApiProblem";
+import { OperatorBrandedNotFound } from "@/components/operator/OperatorBrandedNotFound";
+import { OperatorMalformedCallout } from "@/components/operator/OperatorShellMessage";
 import { isInvalidDynamicRouteToken, isInvalidManifestRouteId } from "@/lib/route-dynamic-param";
 
 import { loadSignedRecordArtifactPageModel } from "./_sections/load-signed-record-artifact-page-model";

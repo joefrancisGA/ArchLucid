@@ -1,6 +1,6 @@
 "use client";
 import { cn } from "@/lib/utils";
-import { OPERATOR_TYPOGRAPHY } from "@/lib/design-tokens";
+import { MARKETING_SURFACES, OPERATOR_TYPOGRAPHY } from "@/lib/design-tokens";
 
 import Link from "next/link";
 import { useCallback, useEffect, useState } from "react";
@@ -53,7 +53,7 @@ export function MarketingAnalyticsConsentBanner(props: { clarityProjectId: strin
         <p className={cn("m-0 text-neutral-700 dark:text-neutral-300", OPERATOR_TYPOGRAPHY.body)}>
           We offer optional, privacy-oriented analytics on public pages to improve discoverability. Accepting loads
           Microsoft Clarity on marketing pages only (not the signed-in product). See our{" "}
-          <Link className="text-blue-700 underline underline-offset-2 dark:text-blue-300" href="/privacy">
+          <Link className={MARKETING_SURFACES.inlineLink} href="/privacy">
             Privacy Policy
           </Link>
           .

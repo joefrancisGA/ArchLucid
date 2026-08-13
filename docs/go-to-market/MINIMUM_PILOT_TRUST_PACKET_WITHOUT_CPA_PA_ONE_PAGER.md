@@ -8,4 +8,6 @@
 
 **Canonical handout:** [`BUYER_SECURITY_PROCUREMENT_PACKET.md#minimum-pilot-trust-packet-m-191`](BUYER_SECURITY_PROCUREMENT_PACKET.md#minimum-pilot-trust-packet-m-191).
 
-Include / drop-defer matrices, too-strong vs safe, and talk-track pins live only in the buyer security procurement packet. This file keeps the historical path stable for GTM **M-191** and [`PA_CLAIM_HONESTY_INDEX.md`](PA_CLAIM_HONESTY_INDEX.md).
+**Engineering SoT:** [`../library/MINIMUM_PILOT_TRUST_PACKET_WITHOUT_CPA_CONTRACT.md`](../library/MINIMUM_PILOT_TRUST_PACKET_WITHOUT_CPA_CONTRACT.md) (**TB-1112**).
+
+Include / drop-defer matrices and too-strong vs safe live in the engineering contract; the buyer packet section is the PA handout. This file keeps the historical path stable for GTM **M-191** and [`PA_CLAIM_HONESTY_INDEX.md`](PA_CLAIM_HONESTY_INDEX.md).

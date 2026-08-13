@@ -1,4 +1,4 @@
-import { fireEvent, render, screen, waitFor } from "@testing-library/react";
+import { fireEvent, screen, waitFor } from "@testing-library/react";
 import { beforeEach, describe, expect, it, vi } from "vitest";
 
 import { OperatorShellTopBar } from "@/components/shell/OperatorShellTopBar";
@@ -7,10 +7,12 @@ import { operatorNavOutsideProviderPrincipal } from "@/lib/current-principal";
 import { OPERATOR_SHELL_SIDEBAR_WIDTH_LG_CLASS } from "@/lib/design-tokens";
 import { GLOBAL_SEARCH_ARIA_LABEL } from "@/lib/keyboard-shortcut-display";
 import { AUTHORITY_RANK } from "@/lib/nav-authority";
-import { PERSONA_SHELL_WORDMARK_ARIA_LABEL } from "@/lib/persona-shell-vocabulary";
+import { resetOperatorQueryClientForTests } from "@/lib/query/operator-query-client";
+import { renderWithOperatorQuery } from "@/testing/render-with-operator-query";
+import { PERSONA_SHELL_WORDMARK_ARIA_LABEL } from "@/lib/vocabulary/persona-shell-vocabulary";
 
 const fullShellMock = vi.hoisted(() => ({ value: true }));
-const fetchBudgetCached = vi.hoisted(() => vi.fn());
+const fetchBudgetStatus = vi.hoisted(() => vi.fn());
 const authorityThemeEvalMock = vi.hoisted(() => ({ value: false }));
 
 const navAuthMock = vi.hoisted(() => ({
@@ -42,12 +44,12 @@ vi.mock("@/lib/llm-monthly-budget-status", async (importOriginal) => {
 
   return {
     ...actual,
-    fetchLlmMonthlyDollarBudgetStatusCached: fetchBudgetCached,
+    fetchLlmMonthlyDollarBudgetStatus: fetchBudgetStatus,
   };
 });
 
-vi.mock("@/components/OperatorNavAuthorityProvider", async (importOriginal) => {
-  const actual = await importOriginal<typeof import("@/components/OperatorNavAuthorityProvider")>();
+vi.mock("@/components/operator/OperatorNavAuthorityProvider", async (importOriginal) => {
+  const actual = await importOriginal<typeof import("@/components/operator/OperatorNavAuthorityProvider")>();
 
   return {
     ...actual,
@@ -81,11 +83,13 @@ function openMoreMenu(): void {
 
 describe("OperatorShellTopBar", () => {
   beforeEach(() => {
+    resetOperatorQueryClientForTests();
     fullShellMock.value = true;
     authorityThemeEvalMock.value = false;
     navAuthMock.callerAuthorityRank = AUTHORITY_RANK.AdminAuthority;
     navAuthMock.isAuthorityLoading = false;
-    fetchBudgetCached.mockResolvedValue({
+    fetchBudgetStatus.mockReset();
+    fetchBudgetStatus.mockResolvedValue({
       monthlyBudgetMonitoringActive: true,
       blocksAdditionalLlmExecution: false,
       utcMonth: "2026-05",
@@ -100,7 +104,7 @@ describe("OperatorShellTopBar", () => {
   });
 
   it("reserves a sidebar-width brand rail and left-aligns search in the content column", async () => {
-    render(
+    renderWithOperatorQuery(
       <TooltipProvider>
         <OperatorShellTopBar onOpenHelpSearch={vi.fn()} />
       </TooltipProvider>,
@@ -117,7 +121,7 @@ describe("OperatorShellTopBar", () => {
   it("exposes Help on the top bar without opening the more menu", () => {
     const onOpenHelpSearch = vi.fn();
 
-    render(
+    renderWithOperatorQuery(
       <TooltipProvider>
         <OperatorShellTopBar onOpenHelpSearch={onOpenHelpSearch} />
       </TooltipProvider>,
@@ -134,7 +138,7 @@ describe("OperatorShellTopBar", () => {
   });
 
   it("keeps the top bar on one row and shows AI budget when utilization is warn/critical", async () => {
-    render(
+    renderWithOperatorQuery(
       <TooltipProvider>
         <OperatorShellTopBar onOpenHelpSearch={vi.fn()} />
       </TooltipProvider>,
@@ -148,7 +152,8 @@ describe("OperatorShellTopBar", () => {
     expect(contextRail.className).toMatch(/\bflex-nowrap\b/);
     expect(screen.getByTestId("operator-shell-help-trigger")).toBeInTheDocument();
     expect(screen.queryByTestId("operator-shell-topbar-more-trigger")).not.toBeInTheDocument();
-    expect(await screen.findByTestId("llm-budget-status-pill")).toBeInTheDocument();
+    // The budget pill is a dynamic chunk; a cold import can exceed the default findBy timeout.
+    expect(await screen.findByTestId("llm-budget-status-pill", {}, { timeout: 8000 })).toBeInTheDocument();
     expect(screen.queryByTestId("operator-shell-resources-trigger")).not.toBeInTheDocument();
     expect(screen.getByTestId("archlucid-wordmark-link")).toHaveAttribute(
       "aria-label",
@@ -157,7 +162,7 @@ describe("OperatorShellTopBar", () => {
   });
 
   it("hides the AI budget pill when remaining budget is healthy", async () => {
-    fetchBudgetCached.mockResolvedValue({
+    fetchBudgetStatus.mockResolvedValue({
       monthlyBudgetMonitoringActive: true,
       blocksAdditionalLlmExecution: false,
       utcMonth: "2026-05",
@@ -170,21 +175,21 @@ describe("OperatorShellTopBar", () => {
       warnFraction: 0.75,
     });
 
-    render(
+    renderWithOperatorQuery(
       <TooltipProvider>
         <OperatorShellTopBar onOpenHelpSearch={vi.fn()} />
       </TooltipProvider>,
     );
 
     await waitFor(() => {
-      expect(fetchBudgetCached).toHaveBeenCalled();
+      expect(fetchBudgetStatus).toHaveBeenCalled();
     });
 
     expect(screen.queryByTestId("llm-budget-status-pill")).not.toBeInTheDocument();
   });
 
   it("renders workspace chrome before Help and AI usage on the toolbar", async () => {
-    render(
+    renderWithOperatorQuery(
       <TooltipProvider>
         <OperatorShellTopBar onOpenHelpSearch={vi.fn()} />
       </TooltipProvider>,
@@ -207,7 +212,7 @@ describe("OperatorShellTopBar", () => {
   it("omits AI usage and the more menu in buyer-default shell", () => {
     fullShellMock.value = false;
 
-    render(
+    renderWithOperatorQuery(
       <TooltipProvider>
         <OperatorShellTopBar onOpenHelpSearch={vi.fn()} />
       </TooltipProvider>,
@@ -222,7 +227,7 @@ describe("OperatorShellTopBar", () => {
   it("omits the AI budget pill for callers below AdminAuthority", async () => {
     navAuthMock.callerAuthorityRank = AUTHORITY_RANK.ExecuteAuthority;
 
-    render(
+    renderWithOperatorQuery(
       <TooltipProvider>
         <OperatorShellTopBar onOpenHelpSearch={vi.fn()} />
       </TooltipProvider>,
@@ -235,13 +240,13 @@ describe("OperatorShellTopBar", () => {
       expect(screen.queryByTestId("llm-budget-status-pill")).not.toBeInTheDocument();
     });
 
-    expect(fetchBudgetCached).not.toHaveBeenCalled();
+    expect(fetchBudgetStatus).not.toHaveBeenCalled();
   });
 
   it("keeps the more menu only for the eval authority theme toggle", async () => {
     authorityThemeEvalMock.value = true;
 
-    render(
+    renderWithOperatorQuery(
       <TooltipProvider>
         <OperatorShellTopBar onOpenHelpSearch={vi.fn()} />
       </TooltipProvider>,

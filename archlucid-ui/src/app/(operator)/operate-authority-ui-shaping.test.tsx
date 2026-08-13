@@ -28,8 +28,8 @@ vi.mock("@/hooks/use-operate-capability", () => ({
   useOperateCapability: (): boolean => mutateCapability.current,
 }));
 
-vi.mock("@/components/OperatorNavAuthorityProvider", async (importOriginal) => {
-  const mod = await importOriginal<typeof import("@/components/OperatorNavAuthorityProvider")>();
+vi.mock("@/components/operator/OperatorNavAuthorityProvider", async (importOriginal) => {
+  const mod = await importOriginal<typeof import("@/components/operator/OperatorNavAuthorityProvider")>();
   const { AUTHORITY_RANK } = await import("@/lib/nav-authority");
 
   return {
@@ -97,8 +97,8 @@ const apiHoisted = vi.hoisted(() => ({
  * ({@link isStaticDemoPayloadFallbackEnabled}); CI sometimes sets demo env vars globally.
  * This suite asserts mutation gates on real controls, so keep demo-style suppression off here.
  */
-vi.mock("@/lib/operator-static-demo", async (importOriginal) => {
-  const mod = await importOriginal<typeof import("@/lib/operator-static-demo")>();
+vi.mock("@/lib/operator/operator-static-demo", async (importOriginal) => {
+  const mod = await importOriginal<typeof import("@/lib/operator/operator-static-demo")>();
 
   return {
     ...mod,
@@ -171,7 +171,6 @@ vi.mock("./governance/policy-packs/_sections/load-policy-packs-page-data", () =>
 import {
   alertSimulationCurrentBehaviorHeadingReader,
   alertTuningCurrentTuningHeadingReader,
-  alertsInboxRefreshButtonTitleReader,
   alertsInboxRankReaderLine,
   alertsTriageDialogConfirmButtonLabelReaderRank,
   governanceResolutionChangeRelatedControlsReaderSupplement,
@@ -186,7 +185,7 @@ import {
   policyPacksCurrentPacksHeadingReader,
   policyPacksPackContentHeadingReader,
 } from "@/lib/enterprise-controls-context-copy";
-import { GOVERNANCE_OVERVIEW_PAGE_TITLE } from "@/lib/governance-overview-copy";
+import { GOVERNANCE_OVERVIEW_PAGE_TITLE } from "@/lib/governance/governance-overview-copy";
 
 import { AlertRulesContent } from "@/components/alerts/AlertRulesContent";
 import { AlertSimulationContent } from "@/components/alerts/AlertSimulationContent";
@@ -421,7 +420,7 @@ describe("Enterprise authority UI shaping (mutation hook → controls)", () => {
       expect(screen.getByRole("button", { name: /Acknowledge/ })).not.toBeDisabled();
     });
 
-    expect(screen.getByRole("button", { name: /^Refresh$/ })).toHaveAttribute("title", alertsInboxRefreshButtonTitleReader);
+    expect(screen.getByRole("button", { name: /^Refresh$/ })).toBeInTheDocument();
 
     screen.getByRole("button", { name: /Acknowledge/ }).click();
 
@@ -500,7 +499,7 @@ describe("Enterprise authority UI shaping (mutation hook → controls)", () => {
     expect(screen.getByRole("heading", { name: alertTuningCurrentTuningHeadingReader })).toBeInTheDocument();
   });
 
-  it("Alert simulation: Current behavior heading uses inspect framing when mutation capability is false", () => {
+  it("Alert simulation: Simulated outcome heading uses inspect framing when mutation capability is false", () => {
     mutateCapability.current = false;
     render(<AlertSimulationContent />);
 
@@ -511,7 +510,8 @@ describe("Enterprise authority UI shaping (mutation hook → controls)", () => {
 
   it("Alert rules: Create rule stays disabled when mutation capability is false", async () => {
     mutateCapability.current = false;
-    render(<AlertRulesContent />);
+    apiHoisted.listAlertRules.mockResolvedValue([sampleListedRule]);
+    renderWithOperatorQuery(<AlertRulesContent />);
 
     await waitFor(() => {
       expect(screen.getByRole("button", { name: /Create rule \(Execute\+\)/ })).toBeDisabled();
@@ -520,7 +520,11 @@ describe("Enterprise authority UI shaping (mutation hook → controls)", () => {
 
   it("Alert rules: Create rule enables after load when mutation capability is true", async () => {
     mutateCapability.current = true;
-    render(<AlertRulesContent />);
+    // A non-empty list keeps the empty-state footer unmounted. Without it that footer renders a second
+    // button also named "Create rule", and the enabled form button drops its "(Execute+)" suffix, so the
+    // accessible-name query below matches two elements.
+    apiHoisted.listAlertRules.mockResolvedValue([sampleListedRule]);
+    renderWithOperatorQuery(<AlertRulesContent />);
 
     await waitFor(() => {
       expect(screen.getByRole("button", { name: "Create rule" })).not.toBeDisabled();
@@ -600,6 +604,11 @@ describe("Enterprise authority UI shaping (mutation hook → controls)", () => {
         expect(screen.getByRole("heading", { name: GOVERNANCE_OVERVIEW_PAGE_TITLE })).toBeInTheDocument();
       });
 
+      // The overview panel (review picker) is its own dynamic chunk, so wait for the control itself.
+      await waitFor(() => {
+        expect(screen.getByLabelText("Review")).toBeInTheDocument();
+      });
+
       fireEvent.change(screen.getByLabelText("Review"), { target: { value: "gov-ui-shape-run" } });
       fireEvent.click(screen.getByTestId("governance-overview-load-review"));
 
@@ -607,13 +616,19 @@ describe("Enterprise authority UI shaping (mutation hook → controls)", () => {
         expect(screen.getByTestId("governance-review-context-bar")).toBeInTheDocument();
       });
 
-      expect(screen.getByText("No approval requests for this review")).toBeInTheDocument();
-      expect(screen.getAllByText("Submit for governance approval").length).toBeGreaterThan(0);
+      // Approvals list and submit card are separate dynamic chunks that mount after the context bar.
+      expect(await screen.findByText("No approval requests for this review")).toBeInTheDocument();
+      expect((await screen.findAllByText("Submit for governance approval")).length).toBeGreaterThan(0);
 
-      const submitVersion = document.getElementById("gov-submit-version") as HTMLInputElement | null;
+      const submitVersion = await waitFor(() => {
+        const input = document.getElementById("gov-submit-version") as HTMLInputElement | null;
 
-      expect(submitVersion).not.toBeNull();
-      expect(submitVersion!.readOnly).toBe(true);
+        expect(input).not.toBeNull();
+
+        return input!;
+      });
+
+      expect(submitVersion.readOnly).toBe(true);
     },
     15_000,
   );

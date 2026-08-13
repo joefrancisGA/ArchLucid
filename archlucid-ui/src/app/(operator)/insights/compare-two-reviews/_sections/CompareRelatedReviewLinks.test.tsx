@@ -1,11 +1,11 @@
 import { render, screen } from "@testing-library/react";
 import { describe, expect, it, vi } from "vitest";
 
-import { BUYER_COMPARE_OPEN_EVIDENCE_TRAIL_CTA, BUYER_COMPARE_OPEN_SIGNED_REVIEW_RECORD_CTA } from "@/lib/buyer-polish-copy";
+import { BUYER_COMPARE_OPEN_EVIDENCE_TRAIL_CTA, BUYER_COMPARE_OPEN_SIGNED_REVIEW_RECORD_CTA } from "@/lib/buyer/buyer-polish-copy";
 
 import { CompareRelatedReviewLinks } from "./CompareRelatedReviewLinks";
 
-vi.mock("@/lib/operator-static-demo", () => ({
+vi.mock("@/lib/operator/operator-static-demo", () => ({
   isStaticDemoPayloadFallbackEnabled: () => false,
 }));
 

@@ -1,4 +1,3 @@
-import { REVIEWS_NEW_PATH } from "@/lib/architecture-routes";
 import { CLOUD_CONNECTIONS_HELP_PRIMARY_ACTIONS } from "@/lib/cloud-connections-help-guide-content";
 import {
   EVIDENCE_INTAKE_HELP_CANONICAL_PATH,
@@ -9,7 +8,6 @@ import {
   REVIEWS_NEW_DETAILED_HREF,
   REVIEWS_NEW_GUIDED_INTAKE_HREF,
   REVIEWS_NEW_GUIDED_QUESTIONS_LABEL,
-  REVIEWS_NEW_PATH_HINTS,
   REVIEWS_NEW_QUICK_REVIEW_HREF,
   REVIEWS_NEW_QUICK_START_TAB_LABEL,
   REVIEWS_NEW_TEMPLATES_AND_IMPORTS_TAB_LABEL,
@@ -18,7 +16,7 @@ import {
 export const EVIDENCE_INTAKE_HELP_PAGE_TITLE = "Start a review" as const;
 
 export const EVIDENCE_INTAKE_HELP_HERO_OVERVIEW =
-  "Attach architecture evidence, pick a starting path on New architecture review, then verify uploads before you finalize the architecture review.";
+  "On New architecture review, attach architecture evidence, pick the path that matches how much structure you already have, then verify intake before you finalize the architecture package.";
 
 export const EVIDENCE_INTAKE_HELP_PATH_PANEL_TITLE = "Choose a starting path";
 
@@ -29,29 +27,42 @@ export type EvidenceIntakeHelpPathOption = {
   readonly id: string;
   readonly label: string;
   readonly description: string;
+  readonly actionLabel: string;
   readonly href: string;
+  readonly recommended?: boolean;
+  readonly recommendedReason?: string;
 };
 
 export const EVIDENCE_INTAKE_HELP_PATH_OPTIONS: readonly EvidenceIntakeHelpPathOption[] = [
   {
     id: "quick-review",
     label: REVIEWS_NEW_QUICK_START_TAB_LABEL,
-    description: REVIEWS_NEW_PATH_HINTS["quick-review"],
+    description:
+      "You want the fastest first review: title, optional attachments, and start analysis on one screen.",
+    actionLabel: "Open Quick start",
     href: REVIEWS_NEW_QUICK_REVIEW_HREF,
+    recommended: true,
+    recommendedReason: "Recommended for first review",
   },
   {
     id: "guided-intake",
     label: REVIEWS_NEW_GUIDED_QUESTIONS_LABEL,
-    description: REVIEWS_NEW_PATH_HINTS["guided-intake"],
+    description: "You want clarifying questions and readiness checks before analysis begins.",
+    actionLabel: "Open Guided questions",
     href: REVIEWS_NEW_GUIDED_INTAKE_HREF,
   },
   {
     id: "detailed",
     label: REVIEWS_NEW_TEMPLATES_AND_IMPORTS_TAB_LABEL,
-    description: REVIEWS_NEW_PATH_HINTS.detailed,
+    description:
+      "You need templates, imports, or fuller configuration for an export-ready architecture package.",
+    actionLabel: "Open Templates and imports",
     href: REVIEWS_NEW_DETAILED_HREF,
   },
 ] as const;
+
+export const EVIDENCE_INTAKE_HELP_PATH_PANEL_FOOTNOTE =
+  "For cloud inventory evidence, connect a cloud account first or read the cloud connections guide.";
 
 export const EVIDENCE_INTAKE_HELP_PRIMARY_ACTIONS = {
   startReview: EVIDENCE_INTAKE_HELP_PRIMARY_ACTION,
@@ -68,29 +79,28 @@ export const EVIDENCE_INTAKE_HELP_PRIMARY_ACTIONS = {
 export type EvidenceIntakeHelpVerifyStep = {
   readonly title: string;
   readonly body: string;
-  readonly action: { readonly label: string; readonly href: string };
+  readonly action?: { readonly label: string; readonly href: string };
 };
 
 export const EVIDENCE_INTAKE_HELP_VERIFY_INTAKE_TITLE = "Verify intake before finalize";
 
 export const EVIDENCE_INTAKE_HELP_VERIFY_INTAKE_INTRO =
-  "After you start a review, confirm evidence landed where you expect before you finalize the architecture review.";
+  "Confirming that ArchLucid received the evidence you intended before you finalize the architecture package.";
 
 /** Actionable verify steps — honest pending-state copy when no review id is known (TB-1354). */
 export const EVIDENCE_INTAKE_HELP_VERIFY_STEPS: readonly EvidenceIntakeHelpVerifyStep[] = [
   {
-    title: "Confirm uploads in the wizard",
-    body: "Every selected file should appear in the upload list with the correct names before you start analysis.",
-    action: { label: "New architecture review", href: REVIEWS_NEW_PATH },
+    title: "Attachments listed",
+    body: "Every file you selected appears in the upload list with the correct names.",
   },
   {
-    title: "Open the architecture review Evidence tab",
-    body: "After analysis starts, open your in-progress review and use the Evidence tab to confirm attachments.",
+    title: "Analysis started",
+    body: "After you start the architecture review, open the architecture package and confirm findings reference your uploads.",
     action: { label: "Architecture reviews", href: "/architecture/reviews" },
   },
   {
-    title: "Resolve validation before finalize",
-    body: "Fix upload or inventory ZIP validation messages on the review detail surface before you finalize.",
+    title: "No blocking validation errors",
+    body: "Resolve upload or ZIP validation messages before you commit or finalize.",
     action: { label: "Review guide", href: inAppHelpHref("review-guide") },
   },
 ] as const;
@@ -104,8 +114,62 @@ export type EvidenceIntakeHelpRelatedGuide = {
 export const EVIDENCE_INTAKE_HELP_RELATED_GUIDES: readonly EvidenceIntakeHelpRelatedGuide[] = [
   { label: "Review guide", href: inAppHelpHref("review-guide") },
   { label: "Cloud connections", href: inAppHelpHref("cloud-connections") },
-  { label: "Architecture reviews", href: inAppHelpHref("review-packages") },
+  { label: "Architecture packages", href: inAppHelpHref("review-packages") },
   { label: "Your first architecture review", href: inAppHelpHref("first-architecture-review") },
 ] as const;
 
 export const EVIDENCE_INTAKE_HELP_CANONICAL_ROUTE_PATH = EVIDENCE_INTAKE_HELP_CANONICAL_PATH;
+
+export type EvidenceIntakeHelpSourceDriftAnchor = {
+  readonly id: string;
+  readonly phrases: readonly string[];
+};
+
+/** Phrases that must appear in `docs/library/customer-facing/EVIDENCE_INTAKE_OPERATOR_GUIDE.md`. */
+export const EVIDENCE_INTAKE_HELP_SOURCE_DRIFT_ANCHORS: readonly EvidenceIntakeHelpSourceDriftAnchor[] = [
+  {
+    id: "hero-overview",
+    phrases: [
+      "New architecture review",
+      "architecture evidence",
+      "how much structure you already have",
+      "finalize the architecture package",
+    ],
+  },
+  {
+    id: "path-panel",
+    phrases: ["Choose a starting path", "how much structure you already have"],
+  },
+  {
+    id: "path-quick-start",
+    phrases: [
+      REVIEWS_NEW_QUICK_START_TAB_LABEL,
+      "You want the fastest first review: title, optional attachments, and start analysis on one screen.",
+    ],
+  },
+  {
+    id: "path-guided-questions",
+    phrases: [REVIEWS_NEW_GUIDED_QUESTIONS_LABEL, "You want clarifying questions"],
+  },
+  {
+    id: "path-templates-imports",
+    phrases: [
+      REVIEWS_NEW_TEMPLATES_AND_IMPORTS_TAB_LABEL,
+      "You need templates, imports, or fuller configuration for an export-ready architecture package.",
+    ],
+  },
+  {
+    id: "verify-intake",
+    phrases: [
+      EVIDENCE_INTAKE_HELP_VERIFY_INTAKE_TITLE,
+      "confirming that ArchLucid received the evidence you intended before you finalize the architecture package",
+    ],
+  },
+  {
+    id: "verify-uploads",
+    phrases: [
+      "Attachments listed",
+      "every file you selected appears in the upload list with the correct names",
+    ],
+  },
+] as const;

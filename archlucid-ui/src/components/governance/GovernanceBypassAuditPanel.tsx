@@ -4,7 +4,7 @@ import { cn } from "@/lib/utils";
 import Link from "next/link";
 import { useCallback, useEffect, useState } from "react";
 
-import { OperatorEmptyState } from "@/components/OperatorShellMessage";
+import { OperatorEmptyState } from "@/components/operator/OperatorShellMessage";
 import { useWorkspaceActiveRun } from "@/components/WorkspaceActiveRunContext";
 import { Card, CardContent } from "@/components/ui/card";
 import {
@@ -18,7 +18,7 @@ import {
 } from "@/components/ui/enterprise-table";
 import { formatUtc } from "@/app/(operator)/governance/audit/_sections/audit-page-helpers";
 import type { AuditEvent } from "@/lib/api";
-import { GOVERNANCE_BYPASS_INVOKED_EVENT_TYPE, parseGovernanceBypassAuditPayload } from "@/lib/governance-bypass-audit-payload";
+import { GOVERNANCE_BYPASS_INVOKED_EVENT_TYPE, parseGovernanceBypassAuditPayload } from "@/lib/governance/governance-bypass-audit-payload";
 import { auditTrailNavHref } from "@/lib/audit-nav-paths";
 import { listRecentGovernanceBypassAuditEvents } from "@/lib/list-recent-governance-bypass-audit-events";
 import { isBuyerPolishedOperatorShellEnv } from "@/lib/demo-ui-env";

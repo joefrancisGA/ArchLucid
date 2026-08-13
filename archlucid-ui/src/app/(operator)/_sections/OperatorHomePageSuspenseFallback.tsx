@@ -1,14 +1,13 @@
 import { OperatorHomeRunsDashboardListSkeleton } from "@/components/operator-home/OperatorHomeRunsDashboardListSkeleton";
-import { OperatorPageContainer } from "@/components/OperatorPageContainer";
+import { OperatorPageContainer } from "@/components/operator/OperatorPageContainer";
+import { OperatorPageHeader } from "@/components/operator/OperatorPageHeader";
 import { Skeleton } from "@/components/ui/skeleton";
 import {
   OPERATOR_HOME_PRIMARY_SECTION_HEADING,
   OPERATOR_LAYOUT,
-  OPERATOR_TYPOGRAPHY,
 } from "@/lib/design-tokens";
-import { OPERATOR_HOME_PAGE_TITLE } from "@/lib/operator-home-page-copy";
-import { OPERATOR_HOME_RECENT_REVIEWS_HEADING } from "@/lib/operator-home-recent-reviews-heading";
-import { cn } from "@/lib/utils";
+import { OPERATOR_HOME_PAGE_TITLE } from "@/lib/operator/operator-home-page-copy";
+import { OPERATOR_HOME_RECENT_REVIEWS_HEADING } from "@/lib/operator/operator-home-recent-reviews-heading";
 
 /**
  * Compact enterprise placeholder while the Overview dashboard RSC streams in.
@@ -24,12 +23,9 @@ export function OperatorHomePageSuspenseFallback(): React.JSX.Element {
       aria-label="Loading overview"
       role="status"
     >
-      <header className="space-y-2 border-b border-neutral-200 pb-4 dark:border-neutral-800">
-        <h1 className={cn("m-0 text-al-text-primary", OPERATOR_TYPOGRAPHY.pageTitle)}>
-          {OPERATOR_HOME_PAGE_TITLE}
-        </h1>
+      <OperatorPageHeader navHref="/" title={OPERATOR_HOME_PAGE_TITLE} headingLevel="h1">
         <Skeleton className="h-4 w-full max-w-xl" />
-      </header>
+      </OperatorPageHeader>
 
       <section
         aria-labelledby="operator-home-reviews-heading-skeleton"
@@ -42,8 +38,8 @@ export function OperatorHomePageSuspenseFallback(): React.JSX.Element {
       </section>
 
       <div className="space-y-3" aria-hidden="true">
-        <Skeleton className="h-24 w-full max-w-3xl rounded-md" />
-        <Skeleton className="h-16 w-full max-w-2xl rounded-md" />
+        <Skeleton className="h-24 w-full rounded-md" />
+        <Skeleton className="h-16 w-full rounded-md" />
       </div>
     </OperatorPageContainer>
   );

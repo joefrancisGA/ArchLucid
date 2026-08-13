@@ -8,7 +8,7 @@ namespace ArchLucid.Cli.Commands;
 ///     loop and optional real-mode token verification.
 /// </summary>
 [ExcludeFromCodeCoverage(Justification =
-    "HTTP entry point; behaviour is covered by RealModeSmokeRunnerTests + RealModeSmokeCommandOptionsTests.")]
+    "HTTP entry point; behavior is covered by RealModeSmokeRunnerTests + RealModeSmokeCommandOptionsTests.")]
 internal static class RealModeSmokeCommand
 {
     private static readonly JsonSerializerOptions JsonCamel = new() { PropertyNamingPolicy = JsonNamingPolicy.CamelCase };

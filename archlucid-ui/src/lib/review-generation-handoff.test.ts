@@ -10,8 +10,8 @@ import {
   recordReviewGenerationHandoff,
   reviewDetailHrefAfterGeneration,
 } from "@/lib/review-generation-handoff";
-import { OPERATOR_SCOPE_COOKIE_NAME } from "@/lib/operator-scope-cookie";
-import { writeOperatorScopeToStorage } from "@/lib/operator-scope-storage";
+import { OPERATOR_SCOPE_COOKIE_NAME } from "@/lib/operator/operator-scope-cookie";
+import { writeOperatorScopeToStorage } from "@/lib/operator/operator-scope-storage";
 
 const RUN_ID = "11111111-1111-1111-1111-111111111111";
 

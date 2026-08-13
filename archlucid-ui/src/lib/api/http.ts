@@ -1,13 +1,13 @@
 import { buildApiRequestErrorFromParts } from "@/lib/api-error";
 import { notifyTrialLimitFromApiError } from "@/lib/trial-limit-modal-bridge";
-import { shouldShowJwtBearerMissingRoleBanner } from "@/lib/operator-shell-principal-snapshot";
+import { shouldShowJwtBearerMissingRoleBanner } from "@/lib/operator/operator-shell-principal-snapshot";
 import { parseTrialLimitProblemDetails } from "@/lib/trial-limit-problem";
 import { CORRELATION_ID_HEADER, applyTraceParentHeader, captureTraceContextFromResponse, generateCorrelationId } from "@/lib/correlation";
 import { getServerApiBaseUrl } from "@/lib/config";
 import { getServerUpstreamAuthHeaders } from "@/lib/legacy-arch-env";
 import { isJwtAuthMode } from "@/lib/oidc/config";
 import { ensureAccessTokenFresh, getAccessTokenForApi } from "@/lib/oidc/session";
-import { getEffectiveBrowserProxyScopeHeaders } from "@/lib/operator-scope-storage";
+import { getEffectiveBrowserProxyScopeHeaders } from "@/lib/operator/operator-scope-storage";
 import { getScopeHeaders } from "@/lib/scope";
 import { SERVER_UPSTREAM_FETCH_TIMEOUT_MS } from "@/lib/server-fetch-timeouts";
 import { trySandboxMockJsonForApiGet } from "@/lib/sandbox-api-mocks";
@@ -165,7 +165,7 @@ export function withCorrelationHeaders(headers: HeadersInit): Headers {
 
 function serverFetchInit(
   headers: Headers,
-  init?: { readonly method?: string; readonly body?: string },
+  init?: { readonly method?: string; readonly body?: string; readonly signal?: AbortSignal },
 ): RequestInit {
   const requestInit: RequestInit = {
     cache: "no-store",
@@ -173,7 +173,9 @@ function serverFetchInit(
     ...init,
   };
 
-  if (!isBrowser()) {
+  if (init?.signal !== undefined) {
+    requestInit.signal = init.signal;
+  } else if (!isBrowser()) {
     requestInit.signal = AbortSignal.timeout(SERVER_UPSTREAM_FETCH_TIMEOUT_MS);
   }
 
@@ -200,7 +202,7 @@ export function throwApiRequestError(
       showApiError("Not permitted — missing ArchLucid role", {
         type: "warning",
         detail:
-          "Your token is authenticated but lacks ArchLucidRoles (Admin, Operator, Reader, or Auditor). Map IdP claims via ArchLucidAuth:RoleClaimSources — see CONFIGURATION_REFERENCE.md.",
+          "Your token is authenticated but does not map to an ArchLucid workspace role (Admin, Operator, Reader, or Auditor). Ask a workspace administrator to map your identity-provider groups, then sign in again.",
         correlationId: err.correlationId,
       });
     });
@@ -225,7 +227,7 @@ function notifyIfIdempotencyReplayed(response: Response): void {
 
 export async function apiGetJsonWithTrace<T>(
   path: string,
-  options?: { readonly scopeHeaders?: Record<string, string> },
+  options?: { readonly scopeHeaders?: Record<string, string>; readonly signal?: AbortSignal },
 ): Promise<ApiResponseWithTrace<T>> {
   const sandboxPayload = trySandboxMockJsonForApiGet(path);
 
@@ -236,7 +238,7 @@ export async function apiGetJsonWithTrace<T>(
   await ensureOidcBearerReady();
   const { url, headers } = await resolveRequest(path, options);
   const { headers: h, correlationId } = applyCorrelationHeaders(headers);
-  const fetchOnce = () => fetch(url, serverFetchInit(h));
+  const fetchOnce = () => fetch(url, serverFetchInit(h, { signal: options?.signal }));
   const response = isBrowser()
     ? await fetchOnce()
     : await fetchWithWarmupRetry(fetchOnce);
@@ -254,7 +256,7 @@ export async function apiGetJsonWithTrace<T>(
 /** GETs JSON from the ArchLucid API. Throws {@link ApiRequestError} on HTTP errors. */
 export async function apiGet<T>(
   path: string,
-  options?: { readonly scopeHeaders?: Record<string, string> },
+  options?: { readonly scopeHeaders?: Record<string, string>; readonly signal?: AbortSignal },
 ): Promise<T> {
   const { data } = await apiGetJsonWithTrace<T>(path, options);
 

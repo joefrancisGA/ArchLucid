@@ -1,15 +1,16 @@
 "use client";
 
-import { OperatorOfflineReconnectBanner } from "@/components/OperatorOfflineReconnectBanner";
+import { OperatorOfflineReconnectBanner } from "@/components/operator/OperatorOfflineReconnectBanner";
+import { ScopeChangeConsequenceBanner } from "@/components/ScopeChangeConsequenceBanner";
 import { TenantMigrationMaintenanceBanner } from "@/components/tenancy/TenantMigrationMaintenanceBanner";
 import { CtoDemoStaticFallbackPresenterBanner } from "@/components/cto-demo/CtoDemoStaticFallbackPresenterBanner";
 import { ServiceBusHealthBanner } from "@/components/governance/ServiceBusHealthBanner";
-import { LlmBudgetApproachingLimitBanner } from "@/components/LlmBudgetApproachingLimitBanner";
-import { PublicDemoAiUsageBanner, TrialAiBudgetStatusBanner } from "@/components/TrialAiBudgetStatusBanner";
+import { LlmBudgetApproachingLimitBanner } from "@/components/llm/LlmBudgetApproachingLimitBanner";
+import { PublicDemoAiUsageBanner, TrialAiBudgetStatusBanner } from "@/components/trial/TrialAiBudgetStatusBanner";
 import { TeamExpansionNudge } from "@/components/TeamExpansionNudge";
-import { TrialBanner } from "@/components/TrialBanner";
-import { TrialExpiryBanner } from "@/components/TrialExpiryBanner";
-import { TrialUsageUpgradeNudge } from "@/components/TrialUsageUpgradeNudge";
+import { TrialBanner } from "@/components/trial/TrialBanner";
+import { TrialExpiryBanner } from "@/components/trial/TrialExpiryBanner";
+import { TrialUsageUpgradeNudge } from "@/components/trial/TrialUsageUpgradeNudge";
 import { PersistentTrialStatusStrip } from "@/components/usability/PersistentTrialStatusStrip";
 import { SetupHealthShellBanner } from "@/components/usability/SetupHealthShellBanner";
 
@@ -23,6 +24,7 @@ export function AppShellStatusBanners({ variant }: AppShellStatusBannersProps) {
     <>
       <OperatorOfflineReconnectBanner />
       <TenantMigrationMaintenanceBanner />
+      <ScopeChangeConsequenceBanner />
       {variant === "full" ? <CtoDemoStaticFallbackPresenterBanner /> : null}
       <PublicDemoAiUsageBanner />
       <ServiceBusHealthBanner />

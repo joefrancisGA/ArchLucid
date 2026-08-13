@@ -4,12 +4,17 @@ import Link from "next/link";
 import { cn } from "@/lib/utils";
 import { useCallback, useEffect, useMemo, useState } from "react";
 
+import { ConfirmationDialog } from "@/components/ConfirmationDialog";
 import { GovernanceApprovalStatusBanner } from "@/components/governance/GovernanceApprovalStatusBanner";
 import { CopyIdButton } from "@/components/CopyIdButton";
 import { EnterpriseCompactEmptyState } from "@/components/EnterpriseCompactEmptyState";
+import { OperatorSectionLoadFailure } from "@/components/operator/OperatorSectionLoadFailure";
 import { LayerHeader } from "@/components/LayerHeader";
-import { OperatorPageHeader } from "@/components/OperatorPageHeader";
+import { GOVERNANCE_EXCEPTIONS_PATH } from "@/lib/governance/governance-route-paths";
+import { OperatorPageHeader } from "@/components/operator/OperatorPageHeader";
+import { RiskExceptionsFindingsVocabularyRail } from "@/components/RiskExceptionsFindingsVocabularyRail";
 import { PageContextualHelpButton } from "@/components/usability/PageContextualHelpButton";
+import { WhyDisabledCtaHint } from "@/components/usability/WhyDisabledCtaHint";
 import { Button } from "@/components/ui/button";
 import {
   EnterpriseTable,
@@ -29,7 +34,7 @@ import {
   revokeRiskException,
   type RiskExceptionRecord,
 } from "@/lib/api/governance-stickiness-api";
-import { CREATE_ARCHITECTURE_LABEL } from "@/lib/architecture-workflow-labels";
+import { CREATE_ARCHITECTURE_LABEL } from "@/lib/architecture/architecture-workflow-labels";
 import {
   BUYER_RISK_EXCEPTIONS_EMPTY_BODY,
   BUYER_RISK_EXCEPTIONS_EMPTY_TERTIARY_ACTION,
@@ -37,10 +42,10 @@ import {
   BUYER_RISK_EXCEPTIONS_PAGE_LEAD,
   BUYER_RISK_EXCEPTIONS_PAGE_TITLE,
   BUYER_RISK_REGISTER_EMPTY_SECONDARY_ACTION,
-} from "@/lib/buyer-polish-copy";
+} from "@/lib/buyer/buyer-polish-copy";
 import { isBuyerPolishedOperatorShellEnv } from "@/lib/demo-ui-env";
 import { OPERATOR_LAYOUT, OPERATOR_LINK, OPERATOR_TYPOGRAPHY } from "@/lib/design-tokens";
-import { enterpriseMutationControlDisabledTitle } from "@/lib/enterprise-controls-context-copy";
+import { whyDisabledEnterpriseMutationControl } from "@/lib/why-disabled-cta";
 import {
   RISK_EXCEPTIONS_EMPTY_BODY,
   RISK_EXCEPTIONS_EMPTY_TITLE,
@@ -71,6 +76,10 @@ function statusTagFor(displayStatus: RiskExceptionDisplayStatus): {
   return { kind: "ready", label: "Active" };
 }
 
+function riskExceptionsLoadFailureMessage(error: unknown): string {
+  return error instanceof Error ? error.message : "Failed to load risk exceptions.";
+}
+
 function sortByExpiryAsc(records: RiskExceptionRecord[]): RiskExceptionRecord[] {
   return [...records].sort((left, right) => Date.parse(left.expiresAtUtc) - Date.parse(right.expiresAtUtc));
 }
@@ -90,6 +99,8 @@ function toDatetimeLocalInputValue(isoUtc: string): string {
 /** TB-226 — cross-finding risk exception (waiver) register with renew/revoke. */
 export default function RiskExceptionsClient() {
   const canMutate = useOperateCapability();
+  const mutationDisabledHintId = "risk-exceptions-mutate-disabled-hint";
+  const mutationDisabledReason = canMutate ? null : whyDisabledEnterpriseMutationControl();
   const buyerPolishedShell = isBuyerPolishedOperatorShellEnv();
   const [records, setRecords] = useState<RiskExceptionRecord[]>([]);
   const [loadError, setLoadError] = useState<string | null>(null);
@@ -97,6 +108,9 @@ export default function RiskExceptionsClient() {
   const [renewingId, setRenewingId] = useState<string | null>(null);
   const [renewExpiresAtUtc, setRenewExpiresAtUtc] = useState(defaultRiskExceptionExpiresAtUtc());
   const [renewRationale, setRenewRationale] = useState("");
+  const [pendingRevoke, setPendingRevoke] = useState<RiskExceptionRecord | null>(null);
+
+  const [retryingLoad, setRetryingLoad] = useState(false);
 
   const reload = useCallback(async (): Promise<void> => {
     const rows = await listRiskExceptions();
@@ -104,7 +118,7 @@ export default function RiskExceptionsClient() {
   }, []);
 
   useEffect(() => {
-    let cancelled = false;
+    let canceled = false;
 
     void (async () => {
       setLoadError(null);
@@ -112,15 +126,29 @@ export default function RiskExceptionsClient() {
       try {
         await reload();
       } catch (error: unknown) {
-        if (!cancelled) {
-          setLoadError(error instanceof Error ? error.message : "Failed to load risk exceptions.");
+        if (!canceled) {
+          setLoadError(riskExceptionsLoadFailureMessage(error));
         }
       }
     })();
 
     return () => {
-      cancelled = true;
+      canceled = true;
     };
+  }, [reload]);
+
+  /** `reload` throws rather than reporting, so the retry path owns the message the same way the effect does. */
+  const retryLoad = useCallback(async (): Promise<void> => {
+    setRetryingLoad(true);
+    setLoadError(null);
+
+    try {
+      await reload();
+    } catch (error: unknown) {
+      setLoadError(riskExceptionsLoadFailureMessage(error));
+    } finally {
+      setRetryingLoad(false);
+    }
   }, [reload]);
 
   const expiringSoonCount = useMemo(
@@ -161,10 +189,6 @@ export default function RiskExceptionsClient() {
       return;
     }
 
-    if (!window.confirm(`Revoke risk exception for finding ${record.findingId}?`)) {
-      return;
-    }
-
     setBusyId(record.riskExceptionId);
     setLoadError(null);
 
@@ -186,7 +210,8 @@ export default function RiskExceptionsClient() {
         <LayerHeader pageKey="exceptions" density="compact" className="mb-3" />
       )}
 
-      <OperatorPageHeader title={pageTitle} subtitle={pageSubtitle} actions={<PageContextualHelpButton />} />
+      <OperatorPageHeader navHref={GOVERNANCE_EXCEPTIONS_PATH} title={pageTitle} subtitle={pageSubtitle} actions={<PageContextualHelpButton />} />
+      <RiskExceptionsFindingsVocabularyRail currentSurfaceId="risk-exceptions" />
 <div className={cn("mt-4", OPERATOR_LAYOUT.sectionStack)}>
         {expiringSoonCount > 0 ? (
           <div
@@ -202,7 +227,12 @@ export default function RiskExceptionsClient() {
         ) : null}
 
         {loadError ? (
-          <p className={cn("m-0 text-red-700 dark:text-red-400", OPERATOR_TYPOGRAPHY.body)}>{loadError}</p>
+          <OperatorSectionLoadFailure
+            message={loadError}
+            retrying={retryingLoad}
+            testId="risk-exceptions-load-failure"
+            onRetry={() => void retryLoad()}
+          />
         ) : null}
 
         {records.length === 0 ? (
@@ -225,6 +255,12 @@ export default function RiskExceptionsClient() {
             }
           />
         ) : (
+          <>
+          <WhyDisabledCtaHint
+            id={mutationDisabledHintId}
+            reason={mutationDisabledReason}
+            testId={mutationDisabledHintId}
+          />
           <EnterpriseTable ariaLabel="Risk exceptions">
             <EnterpriseTableHead>
               <EnterpriseTableHeadRow>
@@ -297,7 +333,7 @@ export default function RiskExceptionsClient() {
                               type="submit"
                               size="sm"
                               disabled={busyId === record.riskExceptionId || !canMutate}
-                              title={canMutate ? undefined : enterpriseMutationControlDisabledTitle}
+                              aria-describedby={mutationDisabledReason === null ? undefined : mutationDisabledHintId}
                             >
                               Save renewal
                             </Button>
@@ -313,7 +349,7 @@ export default function RiskExceptionsClient() {
                             size="sm"
                             variant="outline"
                             disabled={busyId === record.riskExceptionId || !canMutate}
-                            title={canMutate ? undefined : enterpriseMutationControlDisabledTitle}
+                            aria-describedby={mutationDisabledReason === null ? undefined : mutationDisabledHintId}
                             onClick={() => {
                               setRenewingId(record.riskExceptionId);
                               setRenewExpiresAtUtc(defaultRiskExceptionExpiresAtUtc());
@@ -327,8 +363,11 @@ export default function RiskExceptionsClient() {
                             size="sm"
                             variant="outline"
                             disabled={busyId === record.riskExceptionId || !canMutate}
-                            title={canMutate ? undefined : enterpriseMutationControlDisabledTitle}
-                            onClick={() => void submitRevoke(record)}
+                            aria-describedby={mutationDisabledReason === null ? undefined : mutationDisabledHintId}
+                            onClick={() => {
+                              setPendingRevoke(record);
+                            }}
+                            data-testid={`risk-exception-revoke-${record.riskExceptionId}`}
                           >
                             Revoke
                           </Button>
@@ -340,8 +379,36 @@ export default function RiskExceptionsClient() {
               })}
             </EnterpriseTableBody>
           </EnterpriseTable>
+          </>
         )}
       </div>
+
+      <ConfirmationDialog
+        open={pendingRevoke !== null}
+        onOpenChange={(open) => {
+          if (!open) {
+            setPendingRevoke(null);
+          }
+        }}
+        title="Revoke risk exception?"
+        description={
+          pendingRevoke !== null
+            ? `Revoking ends the active waiver for finding ${pendingRevoke.findingId}. The revocation is recorded on the audit trail.`
+            : "Revoking ends the active waiver. The revocation is recorded on the audit trail."
+        }
+        confirmLabel="Revoke exception"
+        variant="destructive"
+        busy={pendingRevoke !== null && busyId === pendingRevoke.riskExceptionId}
+        onConfirm={() => {
+          if (pendingRevoke === null) {
+            return;
+          }
+
+          void submitRevoke(pendingRevoke).finally(() => {
+            setPendingRevoke(null);
+          });
+        }}
+      />
     </div>
   );
 }

@@ -5,19 +5,19 @@ import Link from "next/link";
 import { useEffect, useState } from "react";
 import type { ReactElement } from "react";
 
-import { FindingPolicyTraceabilityBadges } from "@/components/FindingPolicyTraceabilityBadges";
+import { FindingPolicyTraceabilityBadges } from "@/components/findings/FindingPolicyTraceabilityBadges";
 import { StatusTag } from "@/components/ui/status-tag";
 import { getEffectivePolicyPacks } from "@/lib/api/policy-governance-api";
 import type {
   FindingPolicyCitationLink,
   FindingPolicyPackCitationLink,
-} from "@/lib/finding-policy-evidence-citations";
+} from "@/lib/findings/finding-policy-evidence-citations";
 import {
   buildPolicyRulePreviewFallback,
   lookupPolicyRulePreviewInEffectivePacks,
   type PolicyRulePreview,
-} from "@/lib/policy-rule-preview-lookup";
-import { policyPacksRuleHref } from "@/lib/policy-packs-deep-link";
+} from "@/lib/policy/policy-rule-preview-lookup";
+import { policyPacksRuleHref } from "@/lib/policy/policy-packs-deep-link";
 import { OPERATOR_LINK, OPERATOR_NAV_GROUP_LABEL, OPERATOR_TYPOGRAPHY } from "@/lib/design-tokens";
 
 export type FindingInspectPolicyRuleCalloutProps = {
@@ -46,7 +46,7 @@ export function FindingInspectPolicyRuleCallout(props: FindingInspectPolicyRuleC
   const [loadError, setLoadError] = useState<string | null>(null);
 
   useEffect(() => {
-    let cancelled = false;
+    let canceled = false;
 
     void (async () => {
       setLoading(true);
@@ -58,23 +58,23 @@ export function FindingInspectPolicyRuleCallout(props: FindingInspectPolicyRuleC
           lookupPolicyRulePreviewInEffectivePacks(policy.ruleId, effective.packs) ??
           initialPreview(pack, policy);
 
-        if (!cancelled) {
+        if (!canceled) {
           setPreview(resolved);
         }
       } catch (error) {
-        if (!cancelled) {
+        if (!canceled) {
           setLoadError(error instanceof Error ? error.message : "Could not load policy rule text.");
           setPreview(initialPreview(pack, policy));
         }
       } finally {
-        if (!cancelled) {
+        if (!canceled) {
           setLoading(false);
         }
       }
     })();
 
     return () => {
-      cancelled = true;
+      canceled = true;
     };
   }, [pack, policy]);
 

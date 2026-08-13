@@ -5,9 +5,8 @@ import dynamic from "next/dynamic";
 import { usePathname, useRouter, useSearchParams } from "next/navigation";
 import { Suspense, useEffect, useMemo, useState } from "react";
 
-import { OperatorPageContainer } from "@/components/OperatorPageContainer";
-import { NewRunWizardSkeleton } from "@/components/skeletons/NewRunWizardSkeleton";
 import { InlineGuidanceText } from "@/components/InlineGuidanceText";
+import { NewRunWizardSkeleton } from "@/components/skeletons/NewRunWizardSkeleton";
 import { Button } from "@/components/ui/button";
 import { isAcceleratorPackId } from "@/lib/accelerator-wizard-presets";
 import {
@@ -17,14 +16,14 @@ import {
   REVIEWS_NEW_QUICK_START_TAB_LABEL,
 } from "@/lib/reviews-new-path-copy";
 import { OPERATOR_TYPOGRAPHY } from "@/lib/design-tokens";
-import { readBuyerCtoDemoTourActive } from "@/lib/buyer-cto-demo-tour";
+import { readBuyerCtoDemoTourActive } from "@/lib/buyer/buyer-cto-demo-tour";
 import { useCorePilotCommitContextQuery } from "@/hooks/use-core-pilot-commit-context-query";
 import { Tabs, TabsContent, TabsList, TabsTrigger } from "@/components/ui/tabs";
 
 import { ReviewsNewDeferredIntentCallout } from "./ReviewsNewDeferredIntentCallout";
 import { SpecimenDeliverablePreviewCallout } from "@/components/usability/SpecimenDeliverablePreviewCallout";
 import { ReviewIntakeInvalidTemplateCallout } from "@/components/review-intake/ReviewIntakeInvalidTemplateCallout";
-import { resolveReviewIntakeExampleTemplateFromSearchParams } from "@/lib/operator-home-example-request";
+import { resolveReviewIntakeExampleTemplateFromSearchParams } from "@/lib/operator/operator-home-example-request";
 import { ReviewsNewMoreWaysToStart } from "./ReviewsNewMoreWaysToStart";
 import { ReviewsNewJobChooserSection } from "./ReviewsNewJobChooserSection";
 import { ReviewsNewOwnEvidenceStart } from "./ReviewsNewOwnEvidenceStart";
@@ -79,7 +78,7 @@ function ReviewsNewActiveWizard(props: { readonly activePath: ReviewsNewActivePa
   }
 
   if (activePath === "detailed") {
-    return <NewRunWizardClient />;
+    return <NewRunWizardClient embeddedInPathSwitcher />;
   }
 
   return <FirstPilotIntakeWizard />;
@@ -159,7 +158,7 @@ export function ReviewsNewPathSwitcher() {
   };
 
   return (
-    <OperatorPageContainer variant="workflow" className="space-y-5">
+    <div className="space-y-5" data-testid="reviews-new-path-switcher">
       <Suspense fallback={null}>
         <ReviewsNewDeferredIntentCallout />
       </Suspense>
@@ -184,7 +183,7 @@ export function ReviewsNewPathSwitcher() {
                 >
                   <InlineGuidanceText text={pathHints[activePath]} />
                 </p>
-                <div className="pt-1" data-testid="reviews-new-path-panel">
+                <div className="pt-2" data-testid="reviews-new-path-panel">
                   <ReviewsNewActiveWizard activePath={activePath} />
                 </div>
                 {activePath === "quick-review" ? (
@@ -211,7 +210,7 @@ export function ReviewsNewPathSwitcher() {
             onValueChange={(next) => {
               selectPath(next as ReviewsNewActivePath);
             }}
-            className="space-y-3"
+            className="space-y-4"
           >
             <SpecimenDeliverablePreviewCallout />
             <TabsList
@@ -236,20 +235,20 @@ export function ReviewsNewPathSwitcher() {
             >
               <InlineGuidanceText text={pathHints[activePath]} />
             </p>
-            <TabsContent value="quick-review" className="mt-0 pt-1" data-testid="reviews-new-path-panel">
+            <TabsContent value="quick-review" className="mt-0 pt-2" data-testid="reviews-new-path-panel">
               <FirstPilotIntakeWizard />
             </TabsContent>
-            <TabsContent value="guided-intake" className="mt-0 pt-1" data-testid="reviews-new-path-panel">
+            <TabsContent value="guided-intake" className="mt-0 pt-2" data-testid="reviews-new-path-panel">
               <SocraticIntakeWizard />
             </TabsContent>
-            <TabsContent value="detailed" className="mt-0 pt-1" data-testid="reviews-new-path-panel">
-              <NewRunWizardClient />
+            <TabsContent value="detailed" className="mt-0 pt-2" data-testid="reviews-new-path-panel">
+              <NewRunWizardClient embeddedInPathSwitcher />
             </TabsContent>
           </Tabs>
         )
       ) : (
         <p className={OPERATOR_TYPOGRAPHY.helper}>Loading…</p>
       )}
-    </OperatorPageContainer>
+    </div>
   );
 }

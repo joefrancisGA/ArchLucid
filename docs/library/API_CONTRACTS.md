@@ -79,7 +79,7 @@ UI alignment: **`docs/operator-shell.md`**.
 When you add or change **`v1`** controllers, route templates, or JSON DTOs that surface on **`GET /openapi/v1.json`**:
 
 1. Regenerate **`GET /openapi/v1.json`** and update the CI snapshot baseline **`ArchLucid.Api.Tests/Contracts/openapi-v1.contract.snapshot.json`** only when the contract change is intentional (`ARCHLUCID_UPDATE_OPENAPI_SNAPSHOT=1` — see **`OPENAPI_CONTRACT_DRIFT.md`**).
-2. Rebuild **`ArchLucid.Api.Client`** so **`Generated/ArchLucidApiClient.g.cs`** tracks the snapshot.
+2. Rebuild **`ArchLucid.Api.Client`** so NSwag regenerates **`Generated/ArchLucidApiClient.g.cs`** from the snapshot (gitignored — do not commit it).
 3. Run **`npm run generate:api-types`** under **`archlucid-ui/`** so **`api-types.generated.ts`** stays aligned (CI may run **`scripts/ci/assert_api_types_in_sync.sh`**).
 4. Update human-readable docs touched by the behavior change (`docs/library/*`, runbooks, **`CONFIGURATION_REFERENCE.md`** when **`ConfigurationKeyCatalog`** rows change).
 
@@ -264,7 +264,7 @@ Clients must not assume verify failure returns 200 with a JSON body flag.
 
 ## Architecture run: Authority pipeline vs coordinator (`execute` / `result` / `commit`)
 
-**Create** always starts with **`POST /v1/architecture/request`**. On **SQL** hosts, **`IAuthorityRunOrchestrator`** then drives **ingestion → graph → findings → decisioning → artifacts** (`AuthorityPipelineStagesExecutor`). **Separately**, **`POST /v1/architecture/review/{runId}/execute`**, **`POST /v1/architecture/review/{runId}/result`**, and **`POST /v1/architecture/review/{runId}/finalize`** implement the **legacy coordinator** loop (agent tasks + **`AgentResult`** rows + merge commit). Integrations must **not** assume every run needs **`execute`** after create.
+**Create** always starts with **`POST /v1/architecture/request`**. On **SQL** hosts, **`IAuthorityRunOrchestrator`** then drives **ingestion → graph → findings → decisioning → artifacts** (`AuthorityPipelineStagesExecutor`). **Separately**, **`POST /v1/architecture/review/{runId}/execute`**, **`POST /v1/architecture/review/{runId}/result`**, and **`POST /v1/architecture/review/{runId}/finalize`** implement the **AgentTask / AgentResult extension loop** (agent tasks + **`AgentResult`** rows + merge commit; `/result` sunset per [ADR 0066](../architecture/adrs/0066-agent-result-append-sunset.md)). Integrations must **not** assume every run needs **`execute`** after create. Product-default freeze: [`STRANGLER_NEXT_SLICE_AUTHORITY_FREEZE_AND_RESULT_SUNSET_CONTRACT.md`](STRANGLER_NEXT_SLICE_AUTHORITY_FREEZE_AND_RESULT_SUNSET_CONTRACT.md) (**TB-1034**).
 
 | Aspect | Authority pipeline | Legacy coordinator |
 |--------|-------------------|-------------------|
@@ -342,11 +342,11 @@ Full pipeline behavior: **`docs/CONTEXT_INGESTION.md`**.
 | Retry with same key and **same** request body fingerprint | **200 OK** | Same JSON as create; response includes **`Idempotency-Replayed: true`**. |
 | Same key, **different** body | **409 Conflict** | Problem type **`#conflict`**; message explains key reuse with different payload. |
 
-Fingerprint is **SHA-256** of the canonical **`ArchitectureRequest`** JSON using the same **`ContractJson.Default`** options as **`ArchitectureRequests.RequestJson`** persistence. Clients must send byte-identical JSON (modulo insignificant whitespace is **not** normalised—use a stable serializer).
+Fingerprint is **SHA-256** of the canonical **`ArchitectureRequest`** JSON using the same **`ContractJson.Default`** options as **`ArchitectureRequests.RequestJson`** persistence. Clients must send byte-identical JSON (modulo insignificant whitespace is **not** normalized—use a stable serializer).
 
 **Scope:** Keys are isolated per **`x-tenant-id` / `x-workspace-id` / `x-project-id`** (or JWT claims) via **`IScopeContextProvider`**.
 
-**Concurrency:** Under extreme parallel duplicate-key pressure, idempotency is **retry-safe** for typical client behaviour but not a serializable global guarantee; authority state is **`dbo.Runs`** and related coordinator rows. See **`docs/SQL_DDL_DISCIPLINE.md`**.
+**Concurrency:** Under extreme parallel duplicate-key pressure, idempotency is **retry-safe** for typical client behavior but not a serializable global guarantee; authority state is **`dbo.Runs`** and related coordinator rows. See **`docs/SQL_DDL_DISCIPLINE.md`**.
 
 ## Policy packs (`/v1/policy-packs`)
 

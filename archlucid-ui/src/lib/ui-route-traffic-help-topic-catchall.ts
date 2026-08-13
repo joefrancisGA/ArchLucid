@@ -1,18 +1,20 @@
-﻿/**
- * Traffic workbook row ID for help topic catch-all dispatcher.
- * Owner backlog shorthand: HE.
- */
+import { HELP_TOPIC_CATCHALL_CANONICAL_PATH } from "@/lib/help/help-topic-catchall-evidence-copy";
+
+/** Traffic workbook row ID for the help topic catch-all App Router dispatcher. Owner backlog shorthand: HE. */
 export const HELP_TOPIC_CATCHALL_TRAFFIC_ROW_ID = "HE.";
 
 /** Canonical path pattern tracked on the HE. workbook row. */
-export const HELP_TOPIC_CATCHALL_TRAFFIC_PATH = "/help/[...topic]";
-
-/** Workbook Section column value - in-app help topic, not marketing. */
-export const HELP_TOPIC_CATCHALL_TRAFFIC_SECTION = "Help topic";
+export const HELP_TOPIC_CATCHALL_TRAFFIC_PATH = HELP_TOPIC_CATCHALL_CANONICAL_PATH;
 
 /**
- * Owner workbook Notes for HE. - documents Evidence chrome on residual markdown topics.
+ * Workbook Section column — App Router dispatch segment, not a buyer product topic.
+ * Per-slug help rows own Evidence/UX scoring (TB-1602).
+ */
+export const HELP_TOPIC_CATCHALL_TRAFFIC_SECTION = "Router meta";
+
+/**
+ * Owner workbook Notes for HE. — documents router/dispatch hygiene only.
  * ASCII-only for Windows console note scripts.
  */
 export const HELP_TOPIC_CATCHALL_TRAFFIC_NOTE =
-  "Help topic catch-all (Help topic) - App Router /help/[...topic] dispatcher mounts specialty guides (HA/GO/HR/HFX/...) or HelpTopicMarkdownView for residual curated markdown. Residual default path ships + PageContextualHelpButton (Category-1 /help fallback; longer specialty prefixes win). Specialty siblings own richer chrome on their rows. Not a signed-record Sources trail. Score 58/100 (2026-08-08) - help catch-all residual hard-caps at specialty orientation band. Owner pass: Evidence chrome shipped; cannot improve further toward 80 without turning this into a signed-record diligence Sources trail.";
+  "Help topic catch-all dispatcher (Router meta; owner HE.) - App Router /help/[...topic] segment dispatches registry slugs to specialty guide views or enriched HelpTopicMarkdownView branches (TB-1601 inventory); not a standalone buyer URL or second product topic. Per-slug help workbook rows (HA, GO, HR, HFX, HAX, HPX, ...) own Evidence and UX scoring — score HE. for router/dispatch hygiene only (loading.tsx, fallthrough guard, specialty ladder). Sibling HEL = help hub; per-slug rows win on longer prefixes. Do not double-count catch-all traffic as product help Evidence (pairs TB-1493/IXX, TB-1443/AL2 redirect-only hygiene).";

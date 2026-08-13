@@ -3,29 +3,107 @@
 import { useMemo } from "react";
 
 import { Button } from "@/components/ui/button";
-import { parseArchitectureGeneratedContent } from "@/lib/architecture-generated-content-parser";
+import { parseArchitectureGeneratedContent } from "@/lib/architecture/architecture-generated-content-parser";
 import type {
   ArchitectureCreationUserAssertions,
   ArchitectureStructuredSection,
-} from "@/lib/architecture-structured-content-types";
+} from "@/lib/architecture/architecture-structured-content-types";
 import { OPERATOR_TYPOGRAPHY } from "@/lib/design-tokens";
 import type { ReviewDetailTabId } from "@/lib/review-detail-workspace-tabs";
+import { stripInlineMarkdownFromReviewText } from "@/lib/review-display-title";
 import { cn } from "@/lib/utils";
 
 const SUMMARY_LINE_LIMIT = 5;
+const PREVIEW_LINE_MAX_CHARS = 240;
+
+function clampPreviewLine(line: string): string {
+  const stripped = stripInlineMarkdownFromReviewText(line);
+
+  if (stripped.length <= PREVIEW_LINE_MAX_CHARS) {
+    return stripped;
+  }
+
+  return `${stripped.slice(0, PREVIEW_LINE_MAX_CHARS - 3)}…`;
+}
+
+function previewLines(text: string): readonly string[] {
+  // Split before stripping: the markdown stripper collapses whitespace, which would erase line breaks.
+  const lines = text.split(/\r?\n/).map((line) => line.trim()).filter((line) => line.length > 0);
+
+  if (lines.length > 1) {
+    return lines.slice(0, SUMMARY_LINE_LIMIT).map(clampPreviewLine).filter((line) => line.length > 0);
+  }
+
+  const stripped = stripInlineMarkdownFromReviewText(lines[0] ?? "");
+
+  if (stripped.length === 0) {
+    return [];
+  }
+
+  const chunks: string[] = [];
+  let remaining = stripped;
+
+  while (remaining.length > 0 && chunks.length < SUMMARY_LINE_LIMIT) {
+    if (remaining.length <= PREVIEW_LINE_MAX_CHARS) {
+      chunks.push(remaining);
+      break;
+    }
+
+    chunks.push(`${remaining.slice(0, PREVIEW_LINE_MAX_CHARS - 3)}…`);
+    remaining = remaining.slice(PREVIEW_LINE_MAX_CHARS - 3);
+  }
+
+  return chunks;
+}
+
+function shouldShowArchitectureTitle(title: string, summaryText: string): boolean {
+  const normalizedTitle = stripInlineMarkdownFromReviewText(title);
+  const normalizedSummary = stripInlineMarkdownFromReviewText(summaryText);
+
+  if (normalizedTitle.length === 0) {
+    return false;
+  }
+
+  if (normalizedSummary.startsWith(normalizedTitle)) {
+    return false;
+  }
+
+  return true;
+}
+
+/** Entity labels are extracted document text too, so they carry the same markdown risk as narrative. */
+function entityLabelList(section: ArchitectureStructuredSection): string {
+  return section.entities.map((entity) => stripInlineMarkdownFromReviewText(entity.label)).join(", ");
+}
 
 function sectionSummary(section: ArchitectureStructuredSection): string {
   const narrative = section.narrativeMarkdown?.trim() ?? "";
 
-  if (narrative.length > 0) {
-    return narrative.length > 240 ? `${narrative.slice(0, 237)}…` : narrative;
+  if (narrative.length === 0) {
+    return entityLabelList(section);
   }
 
-  if (section.entities.length > 0) {
-    return section.entities.map((entity) => entity.label).join(", ");
+  // A markdown table degrades into pipe-delimited noise inside a definition list, so prefer the
+  // parser's structured entities, which hold the same rows as discrete labels.
+  if (/^\s*\|.*\|\s*$/m.test(narrative)) {
+    return entityLabelList(section);
   }
 
-  return "";
+  const normalized = stripInlineMarkdownFromReviewText(narrative);
+
+  if (normalized.length === 0) {
+    return entityLabelList(section);
+  }
+
+  return normalized.length > 240 ? `${normalized.slice(0, 237)}…` : normalized;
+}
+
+function sectionProvenanceLabel(section: ArchitectureStructuredSection): string | null {
+  if (section.provenance === "asserted") {
+    return "Operator-asserted";
+  }
+
+  return null;
 }
 
 function findSection(
@@ -33,22 +111,6 @@ function findSection(
   key: ArchitectureStructuredSection["key"],
 ): ArchitectureStructuredSection | undefined {
   return sections.find((section) => section.key === key);
-}
-
-function previewLines(text: string): readonly string[] {
-  const lines = text.split(/\r?\n/).map((line) => line.trim()).filter((line) => line.length > 0);
-
-  if (lines.length > 0) {
-    return lines.slice(0, SUMMARY_LINE_LIMIT);
-  }
-
-  const paragraphs = text.split(/\n\s*\n/).map((part) => part.trim()).filter((part) => part.length > 0);
-
-  if (paragraphs.length > 0) {
-    return paragraphs.slice(0, SUMMARY_LINE_LIMIT);
-  }
-
-  return [text.slice(0, 320)];
 }
 
 export type RunDetailArchitectureSummaryCardProps = {
@@ -80,6 +142,8 @@ export function RunDetailArchitectureSummaryCard(
     props.hasSubmittedArchitecture && text.length > 0 ? previewLines(text) : [];
 
   const architectureTitle = props.architectureTitle?.trim() ?? "";
+  const showArchitectureTitle =
+    architectureTitle.length > 0 && shouldShowArchitectureTitle(architectureTitle, text);
 
   if (
     !props.hasSubmittedArchitecture &&
@@ -102,8 +166,11 @@ export function RunDetailArchitectureSummaryCard(
       >
         Architecture summary
       </h2>
+      <p className={cn("m-0 mb-3 text-neutral-500 dark:text-neutral-400", OPERATOR_TYPOGRAPHY.helper)}>
+        Extracted from the submitted architecture document — not an ArchLucid assessment
+      </p>
       <dl className={cn("m-0 grid gap-2 sm:grid-cols-2", OPERATOR_TYPOGRAPHY.body)}>
-        {architectureTitle.length > 0 ? (
+        {showArchitectureTitle ? (
           <div>
             <dt className="text-neutral-500 dark:text-neutral-400">Architecture</dt>
             <dd className="m-0 mt-0.5 font-medium text-neutral-900 dark:text-neutral-100">{architectureTitle}</dd>
@@ -120,27 +187,47 @@ export function RunDetailArchitectureSummaryCard(
             </dd>
           ) : null}
         </div>
-        {purposeSection !== undefined ? (
+        {purposeSection !== undefined && sectionSummary(purposeSection).length > 0 ? (
           <div className="sm:col-span-2">
-            <dt className="text-neutral-500 dark:text-neutral-400">Purpose</dt>
+            <dt className="text-neutral-500 dark:text-neutral-400">
+              Purpose
+              {sectionProvenanceLabel(purposeSection) !== null ? (
+                <span className="ml-1 font-normal">({sectionProvenanceLabel(purposeSection)})</span>
+              ) : null}
+            </dt>
             <dd className="m-0 mt-0.5 text-neutral-800 dark:text-neutral-200">{sectionSummary(purposeSection)}</dd>
           </div>
         ) : null}
-        {outcomeSection !== undefined ? (
+        {outcomeSection !== undefined && sectionSummary(outcomeSection).length > 0 ? (
           <div className="sm:col-span-2">
-            <dt className="text-neutral-500 dark:text-neutral-400">Business outcome</dt>
+            <dt className="text-neutral-500 dark:text-neutral-400">
+              Business outcome
+              {sectionProvenanceLabel(outcomeSection) !== null ? (
+                <span className="ml-1 font-normal">({sectionProvenanceLabel(outcomeSection)})</span>
+              ) : null}
+            </dt>
             <dd className="m-0 mt-0.5 text-neutral-800 dark:text-neutral-200">{sectionSummary(outcomeSection)}</dd>
           </div>
         ) : null}
-        {scopeSection !== undefined ? (
+        {scopeSection !== undefined && sectionSummary(scopeSection).length > 0 ? (
           <div>
-            <dt className="text-neutral-500 dark:text-neutral-400">Scope</dt>
+            <dt className="text-neutral-500 dark:text-neutral-400">
+              Scope
+              {sectionProvenanceLabel(scopeSection) !== null ? (
+                <span className="ml-1 font-normal">({sectionProvenanceLabel(scopeSection)})</span>
+              ) : null}
+            </dt>
             <dd className="m-0 mt-0.5 text-neutral-800 dark:text-neutral-200">{sectionSummary(scopeSection)}</dd>
           </div>
         ) : null}
-        {domainsSection !== undefined ? (
+        {domainsSection !== undefined && sectionSummary(domainsSection).length > 0 ? (
           <div>
-            <dt className="text-neutral-500 dark:text-neutral-400">Major systems</dt>
+            <dt className="text-neutral-500 dark:text-neutral-400">
+              Major systems
+              {sectionProvenanceLabel(domainsSection) !== null ? (
+                <span className="ml-1 font-normal">({sectionProvenanceLabel(domainsSection)})</span>
+              ) : null}
+            </dt>
             <dd className="m-0 mt-0.5 text-neutral-800 dark:text-neutral-200">{sectionSummary(domainsSection)}</dd>
           </div>
         ) : null}

@@ -1,3 +1,5 @@
+import { readFileSync } from "node:fs";
+import { join } from "node:path";
 import { fireEvent, render, screen, waitFor } from "@testing-library/react";
 import { beforeEach, describe, expect, it, vi } from "vitest";
 
@@ -85,5 +87,26 @@ describe("AlertTuningContent TB-1593", () => {
     for (const label of Object.values(ALERT_TUNING_SCORE_AXIS_LABELS)) {
       expect(screen.getAllByText(new RegExp(label)).length).toBeGreaterThanOrEqual(1);
     }
+  });
+});
+
+describe("AlertTuningContent TB-1590", () => {
+  it("uses design-system Input fields and a primary recommend Button on the tuning form", () => {
+    render(<AlertTuningContent />);
+
+    expect(screen.getByLabelText("Name")).toBeInTheDocument();
+    expect(screen.getByTestId("alert-tuning-recommend-submit")).toHaveTextContent("Recommend threshold");
+  });
+
+  it("tuning form source avoids raw html input and button elements", () => {
+    const source = readFileSync(
+      join(process.cwd(), "src", "components", "alerts", "AlertTuningContent.tsx"),
+      "utf8",
+    );
+
+    expect(source).not.toMatch(/<input\b/);
+    expect(source).not.toMatch(/<button\b/);
+    expect(source).toContain('data-testid="alert-tuning-recommend-submit"');
+    expect(source).toContain('variant="primary"');
   });
 });

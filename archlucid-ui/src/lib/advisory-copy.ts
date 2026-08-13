@@ -58,11 +58,23 @@ export const ADVISORY_SCANS_REFRESH_SAVED_LABEL = "Refresh saved recommendations
 export const ADVISORY_SCANS_EMPTY_TITLE = "No advisory scan generated yet";
 
 export const ADVISORY_SCANS_EMPTY_BODY =
-  "Select a finalized review to generate recommendations, or view a sample advisory scan.";
+  "Select a finalized review to generate an advisory scan, or view a sample scan output.";
 
-/** Single empty/demo next-story lead when no scan results yet (TB-1126). */
-export const ADVISORY_SCANS_EMPTY_NEXT_STORY_LEAD =
-  "No advisory scan yet. Preview a sample recommendation below, then select a finalized review above to generate your own.";
+/** @deprecated Prefer {@link ADVISORY_SCANS_EMPTY_BODY} — folded into compact empty state. */
+export const ADVISORY_SCANS_EMPTY_NEXT_STORY_LEAD = ADVISORY_SCANS_EMPTY_BODY;
+
+/** @deprecated Choose-review gate removed — form is inline on first load. */
+export const ADVISORY_SCANS_CHOOSE_REVIEW_LABEL = "Choose review";
+
+/** One-line advisory-only boundary near the generate action (no disclosure). */
+export const ADVISORY_SCANS_INLINE_CAPABILITY_BOUNDARY =
+  "An advisory scan produces prioritized recommendations from finalized reviews — not a signed review record, governance approval, or automatic remediation.";
+
+export const ADVISORY_SCANS_LIST_HEADING = "Saved advisory scans";
+
+export const ADVISORY_SCANS_LIST_COUNT_LABEL = "recommendations in scope";
+
+export const ADVISORY_SCANS_LAST_LOADED_PREFIX = "Last loaded";
 
 export const ADVISORY_SCANS_VIEW_SAMPLE_LABEL = "View sample advisory scan";
 
@@ -115,6 +127,17 @@ export const ADVISORY_SCANS_DISPOSITION_REJECT_HINT = "Records why it will not b
 
 export const ADVISORY_SCANS_DISPOSITION_IMPLEMENTED_HINT = "Records completion";
 
+export const ADVISORY_SCANS_DISPOSITION_DIALOG_TITLE = "Record recommendation disposition";
+
+export const ADVISORY_SCANS_DISPOSITION_DIALOG_DESCRIPTION =
+  "Optional comment and rationale are stored with the governance disposition for audit and follow-up.";
+
+export const ADVISORY_SCANS_DISPOSITION_COMMENT_LABEL = "Comment (optional)";
+
+export const ADVISORY_SCANS_DISPOSITION_RATIONALE_LABEL = "Rationale (optional)";
+
+export const ADVISORY_SCANS_DISPOSITION_CONFIRM_LABEL = "Confirm disposition";
+
 export const ADVISORY_SCANS_CARD_IMPACT_LABEL = "Impact level";
 
 export const ADVISORY_SCANS_CARD_RELATED_FINDING_LABEL = "Related finding or risk";
@@ -138,6 +161,26 @@ export const ADVISORY_SCANS_SCHEDULES_ELIGIBILITY =
 export const ADVISORY_SCANS_SCHEDULES_TIMING_NOTE =
   "Scheduled scans may begin a few minutes after the selected time.";
 
+export const ADVISORY_SCANS_SCHEDULES_HOW_IT_WORKS_TITLE = "How scheduled advisory scans work";
+
+/** Schedules-tab orientation — folded into disclosure (not stacked above the form). */
+export const ADVISORY_SCANS_SCHEDULES_HOW_IT_WORKS_BODY = [
+  ADVISORY_SCANS_SCHEDULES_INTRO,
+  ADVISORY_SCANS_SCHEDULES_ELIGIBILITY,
+  ADVISORY_SCANS_SCHEDULES_TIMING_NOTE,
+].join(" ");
+
+export const ADVISORY_SCANS_SCHEDULES_LAST_LOADED_PREFIX = "Last loaded";
+
+export const ADVISORY_SCANS_SCHEDULES_LIST_COUNT_LABEL = "schedules in scope";
+
+export const ADVISORY_SCANS_SCHEDULES_EXAMPLE_PREVIEW_LABEL = "Example schedule (not live data)";
+
+export const ADVISORY_SCANS_SCHEDULES_EXAMPLE_PREVIEW_HELPER =
+  "Illustrates how a saved schedule appears after you create one for the current project scope.";
+
+export const ADVISORY_SCANS_SCHEDULES_EXAMPLE_NAME = "Weekly architecture follow-up scan";
+
 export const ADVISORY_SCANS_SCHEDULES_RECURRENCE_LINK_LABEL = "Manage all recurrence schedules";
 
 export const ADVISORY_SCANS_SCHEDULES_RECURRENCE_LINK_HELPER =
@@ -156,10 +199,13 @@ export const ADVISORY_SCANS_SCHEDULES_SAMPLE_BLOCKED =
 export const ADVISORY_SCANS_SCHEDULES_READ_ONLY =
   "You can review existing schedules. Creating schedules and running them now requires a role that can manage advisory scans.";
 
-export const ADVISORY_SCANS_SCHEDULES_SCOPE_CURRENT = "Current project";
+export const ADVISORY_SCANS_SCHEDULES_SCOPE_CURRENT = "Schedule project scope";
 
 export const ADVISORY_SCANS_SCHEDULES_SCOPE_HELPER =
-  "Scans the latest finalized reviews for the project selected in the workspace switcher.";
+  "Runs against the project currently selected in the workspace switcher (top navigation). Change the switcher before creating a schedule to target a different project.";
+
+export const ADVISORY_SCANS_SCHEDULES_SCOPE_SWITCHER_NOTE =
+  "Scope is not stored silently in this browser — it follows the workspace switcher selection shown above.";
 
 export const ADVISORY_SCANS_SCHEDULES_ADVANCED_SUMMARY = "Advanced scheduling";
 

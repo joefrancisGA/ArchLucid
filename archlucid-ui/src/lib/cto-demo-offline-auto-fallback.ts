@@ -1,10 +1,10 @@
-import { readBuyerCtoDemoTourActive } from "@/lib/buyer-cto-demo-tour";
+import { readBuyerCtoDemoTourActive } from "@/lib/buyer/buyer-cto-demo-tour";
 import { isBuyerPolishedOperatorShellEnv } from "@/lib/demo-ui-env";
 import {
   ARCHLUCID_CTO_DEMO_PANIC_CHANGED_EVENT,
   readOperatorDemoPanicOffline,
   writeOperatorDemoPanicOffline,
-} from "@/lib/operator-static-demo";
+} from "@/lib/operator/operator-static-demo";
 
 export type CtoDemoOfflineAutoFallbackReason = "browser-offline" | "network-error";
 

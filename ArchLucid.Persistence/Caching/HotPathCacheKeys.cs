@@ -47,6 +47,16 @@ public static class HotPathCacheKeys
         return $"{Prefix}runlist:scope:{scope.TenantId:N}:{scope.WorkspaceId:N}:{scope.ProjectId:N}:r{revision}:{take:D}";
     }
 
+    /// <summary>
+    ///     Whether the scoped tenant completed at least one committed golden-manifest review (<c>GET /api/auth/me</c>).
+    /// </summary>
+    public static string CommittedArchitectureReviewFlag(ScopeContext scope, long runListScopeRevision)
+    {
+        ArgumentNullException.ThrowIfNull(scope);
+
+        return $"{Prefix}committed-arch-review:{scope.TenantId:N}:{scope.WorkspaceId:N}:{scope.ProjectId:N}:r{runListScopeRevision}";
+    }
+
     /// <summary>Policy pack metadata by surrogate key.</summary>
     public static string PolicyPack(Guid policyPackId)
     {

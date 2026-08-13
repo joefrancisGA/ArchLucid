@@ -4,8 +4,9 @@ import { fileURLToPath } from "node:url";
 
 import { describe, expect, it } from "vitest";
 
-import { BUYER_START_ARCHITECTURE_REVIEW_CTA, CREATE_REVIEW_PACKAGE_HEADING } from "@/lib/buyer-polish-copy";
+import { BUYER_START_ARCHITECTURE_REVIEW_CTA, CREATE_REVIEW_PACKAGE_HEADING } from "@/lib/buyer/buyer-polish-copy";
 import { resolveFirstPilotOperatingRailStepsForDisplay } from "@/lib/first-pilot-operating-rail-copy";
+import { APP_ROOT } from "@/lib/testing/repo-paths";
 
 describe("review intake terminology", () => {
   it("uses Create review heading with Start architecture review CTA in operating-rail steps", () => {
@@ -20,17 +21,14 @@ describe("review intake terminology", () => {
   });
 
   it("does not pair Create review section titles with Start review CTAs in intake wizards", () => {
-    const reviewsNewDir = join(
-      dirname(fileURLToPath(import.meta.url)),
-      "..",
-      "app",
-      "(operator)",
-      "architecture",
-      "reviews",
-      "new",
-    );
+    const reviewsNewDir = join(APP_ROOT, "(operator)", "architecture", "reviews", "new");
     const firstPilotSource = readFileSync(join(reviewsNewDir, "FirstPilotIntakeWizard.tsx"), "utf8");
-    const socraticSource = readFileSync(join(reviewsNewDir, "SocraticIntakeWizard.tsx"), "utf8");
+    // Guided intake keeps its step titles in the step table beside the wizard, so both files carry
+    // the copy this guard is about.
+    const socraticSource = [
+      readFileSync(join(reviewsNewDir, "SocraticIntakeWizard.tsx"), "utf8"),
+      readFileSync(join(reviewsNewDir, "guided-intake-steps.ts"), "utf8"),
+    ].join("\n");
 
     expect(firstPilotSource).toContain("CREATE_REVIEW_PACKAGE_HEADING");
     expect(firstPilotSource).toContain("BUYER_START_ARCHITECTURE_REVIEW_CTA");

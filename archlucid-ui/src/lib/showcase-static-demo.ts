@@ -1,54 +1,69 @@
 import type { DemoCommitPagePreviewResponse } from "@/types/demo-preview";
 
 import type { FindingProvenance } from "@/lib/api/finding-provenance";
-import { DEV_SCOPE_PROJECT_ID } from "@/lib/scope";
-import { SIGNED_MANIFEST_LABEL } from "@/lib/usability/canonical-product-terms";
+import {
+  buildIntakeShowcaseStaticPayload,
+  type IntakeShowcaseDecisionItem,
+} from "@/lib/samples/build-intake-showcase-static-payload";
+import {
+  CLAIMS_INTAKE_BUYER_REVIEW_PACKAGE_TITLE,
+  CLAIMS_INTAKE_BUYER_REVIEW_TITLE,
+  CLAIMS_INTAKE_CANONICAL_PROOF_HREF,
+  CLAIMS_INTAKE_DEMO_TENANT_CATALOG_ID,
+  CLAIMS_INTAKE_DEMO_TENANT_NAME,
+  CLAIMS_INTAKE_LATER_COMPARE_RUN_ID,
+  CLAIMS_INTAKE_MANIFEST_ID,
+  CLAIMS_INTAKE_POLICY_PACK_DETAIL_HREF,
+  CLAIMS_INTAKE_PRIMARY_FINDING_ID,
+  CLAIMS_INTAKE_PRIMARY_FINDING_TITLE,
+  CLAIMS_INTAKE_PRIOR_COMPARE_RUN_ID,
+  CLAIMS_INTAKE_SAMPLE_DEFINITION,
+  CLAIMS_INTAKE_SAMPLE_RUN_ID,
+} from "@/lib/samples/claims-intake/definition";
+import {
+  CUSTOMER_INTAKE_PRIMARY_FINDING_ID,
+  CUSTOMER_INTAKE_SAMPLE_DEFINITION,
+  CUSTOMER_INTAKE_SAMPLE_RUN_ID,
+} from "@/lib/samples/customer-intake-modernization/definition";
+import {
+  buildCustomerIntakeShowcaseStaticPayload,
+  CUSTOMER_INTAKE_SHOWCASE_DECISION_ITEMS,
+  CUSTOMER_INTAKE_SHOWCASE_DECISION_SYNOPSES,
+  CUSTOMER_INTAKE_SHOWCASE_WARNING_SYNOPSES,
+} from "@/lib/samples/customer-intake-modernization/static-showcase-payload";
+import { resolveSampleScenarioByRunId } from "@/lib/samples/registry";
+import {
+  PRIMARY_SHOWCASE_PROOF_HREF,
+  SECONDARY_CLAIMS_PROOF_HREF,
+} from "@/lib/samples/sample-scenario-surface-alignment";
 
-/** Public-marketing slug for demos and screenshots — no fixture-style token. */
-export const SHOWCASE_STATIC_DEMO_RUN_ID = "claims-intake-modernization";
+export const SHOWCASE_STATIC_DEMO_RUN_ID = CUSTOMER_INTAKE_SAMPLE_RUN_ID;
 
-/**
- * M-107 Option A — canonical anonymous public proof path (Claims-static showcase).
- * Contoso `/demo/preview` stays a secondary, Contoso-labeled sample (self-demo / Product Tour).
- */
-export const CANONICAL_ANONYMOUS_PROOF_HREF = `/showcase/${SHOWCASE_STATIC_DEMO_RUN_ID}` as const;
+export const CANONICAL_ANONYMOUS_PROOF_HREF = PRIMARY_SHOWCASE_PROOF_HREF;
 
-/** Prior vs later finalized reviews for the Claims Intake compare walkthrough. */
-export const SHOWCASE_STATIC_DEMO_PRIOR_COMPARE_RUN_ID = "claims-intake-run-v1";
+export { SECONDARY_CLAIMS_PROOF_HREF };
 
-export const SHOWCASE_STATIC_DEMO_LATER_COMPARE_RUN_ID = "claims-intake-run-v2";
+export const SHOWCASE_STATIC_DEMO_PRIOR_COMPARE_RUN_ID = CUSTOMER_INTAKE_SAMPLE_DEFINITION.priorCompareRunId;
 
-/** Stable buyer-facing name for review detail H1s, pickers, and breadcrumbs (matches marketing short form). */
-export const SHOWCASE_BUYER_REVIEW_TITLE = "Claims Intake Modernization Review";
+export const SHOWCASE_STATIC_DEMO_LATER_COMPARE_RUN_ID = CUSTOMER_INTAKE_SAMPLE_DEFINITION.laterCompareRunId;
 
-/**
- * Short list/link label for the curated sample review (architecture/system name).
- */
-export const SHOWCASE_BUYER_REVIEW_PACKAGE_TITLE = "Claims Intake Modernization";
+export const SHOWCASE_BUYER_REVIEW_TITLE = CUSTOMER_INTAKE_SAMPLE_DEFINITION.buyerReviewTitle;
 
-/** Canonical manifest UUID for the static showcase payload (matches operator mock + marketing body). */
-export const SHOWCASE_STATIC_DEMO_MANIFEST_ID = "a1c2e3f4-a5b6-7890-abcd-ef1234567890";
+export const SHOWCASE_BUYER_REVIEW_PACKAGE_TITLE = CUSTOMER_INTAKE_SAMPLE_DEFINITION.buyerReviewPackageTitle;
 
-/**
- * Governance deep link for the seeded Healthcare Claims demonstration pack (aligned with
- * {@link tryStaticDemoPolicyPacksList} in operator static demo).
- */
-export const SHOWCASE_STATIC_DEMO_POLICY_PACK_DETAIL_HREF = "/governance/policy-packs/demo-healthcare-claims-pack";
+export const SHOWCASE_STATIC_DEMO_MANIFEST_ID = CUSTOMER_INTAKE_SAMPLE_DEFINITION.manifestId;
 
-/**
- * Deterministic finding id for deep links from manifest “Related findings” (aligned with demo narrative;
- * resolves when the API seeds this finding for the showcase run).
- */
-export const SHOWCASE_STATIC_DEMO_PRIMARY_FINDING_ID = "phi-minimization-risk";
+export const SHOWCASE_STATIC_DEMO_POLICY_PACK_DETAIL_HREF = CUSTOMER_INTAKE_SAMPLE_DEFINITION.policyPackDetailHref;
 
-/** Canonical headline for PHI finding deep links (queues, graph, finding detail H1). */
-export const SHOWCASE_STATIC_DEMO_PRIMARY_FINDING_TITLE = "PHI Minimization Risk";
+export const SHOWCASE_STATIC_DEMO_PRIMARY_FINDING_ID = CUSTOMER_INTAKE_SAMPLE_DEFINITION.primaryFindingId;
 
-/** Demo tenant label for isolation cues in buyer-polished shell. */
-export const SHOWCASE_DEMO_TENANT_NAME = "Claims Intake Showcase";
+export const SHOWCASE_STATIC_DEMO_PRIMARY_FINDING_TITLE = CUSTOMER_INTAKE_SAMPLE_DEFINITION.primaryFindingTitle;
 
-/** Isolated SQL catalog for the showcase tenant — shown in tenant-isolation proof UI. */
-export const SHOWCASE_DEMO_TENANT_CATALOG_ID = "al-tenant-claims-intake-showcase";
+export const SHOWCASE_DEMO_TENANT_NAME = CUSTOMER_INTAKE_SAMPLE_DEFINITION.tenantName;
+
+export const SHOWCASE_DEMO_TENANT_CATALOG_ID = CUSTOMER_INTAKE_SAMPLE_DEFINITION.tenantCatalogId;
+
+export { CUSTOMER_INTAKE_SAMPLE_RUN_ID };
 
 /** Static provenance chains for showcase finding deep links when the API is unavailable. */
 export const SHOWCASE_FINDING_PROVENANCE: Readonly<Record<string, FindingProvenance>> = {
@@ -81,29 +96,52 @@ export const SHOWCASE_FINDING_PROVENANCE: Readonly<Record<string, FindingProvena
       },
     ],
   },
+  [CUSTOMER_INTAKE_PRIMARY_FINDING_ID]: {
+    findingId: CUSTOMER_INTAKE_PRIMARY_FINDING_ID,
+    steps: [
+      {
+        kind: "input",
+        label: "Architecture brief",
+        detail:
+          "Enterprise Customer Intake Modernization — brief describing data flow between intake channels and fulfillment services.",
+      },
+      {
+        kind: "evidence",
+        label: "Data flow identified",
+        detail:
+          "Customer profile attributes detected in intake payload transmitted over internal API without field-level encryption.",
+      },
+      {
+        kind: "policy-check",
+        label: "Enterprise privacy minimization evaluated",
+        detail:
+          "Policy pack rule: sensitive customer data must be minimized at the intake boundary. Transmission includes optional profile fields not required by downstream fulfillment.",
+      },
+      {
+        kind: "conclusion",
+        label: "High severity finding raised",
+        detail:
+          "Unnecessary sensitive-data exposure at intake API boundary — recommend field-level stripping before transmission.",
+      },
+    ],
+  },
 };
 
 /**
  * Canonical counts for the static Claims Intake demo spine — Run detail, manifest summary, and showcase should
  * reflect the same numbers when serving this payload (see {@link getShowcaseStaticDemoPayload}).
  */
-export const SHOWCASE_STATIC_DEMO_SPINE_COUNTS = {
-  findingCount: 9,
-  warningCount: 1,
-  decisionCount: 12,
-} as const;
+export const SHOWCASE_STATIC_DEMO_SPINE_COUNTS = CUSTOMER_INTAKE_SAMPLE_DEFINITION.spineCounts;
 
 /**
- * Sponsor-facing headline used only when **`usedStaticDemoRun`** serves the Claims Intake static payload —
+ * Sponsor-facing headline used only when **`usedStaticDemoRun`** serves the primary static payload —
  * illustrative until live `cost-actual.json` + `orphan-candidates.json` artifacts exist on tenants.
  */
-export const SHOWCASE_STATIC_DEMO_ILLUSTRATIVE_ANNUALIZED_EXTRACTION_USD = 94_360;
+export const SHOWCASE_STATIC_DEMO_ILLUSTRATIVE_ANNUALIZED_EXTRACTION_USD =
+  CUSTOMER_INTAKE_SAMPLE_DEFINITION.illustrativeAnnualizedExtractionUsd;
 
 /** Grouped decision bullets for manifest detail (synopses are {@link SHOWCASE_STATIC_DEMO_DECISION_SYNOPSES}). */
-export type ShowcaseStaticDemoDecisionItem = {
-  readonly controlArea: string;
-  readonly text: string;
-};
+export type ShowcaseStaticDemoDecisionItem = IntakeShowcaseDecisionItem;
 
 /**
  * Curated synopses for the static Claims Intake manifest detail page (no list API on summary).
@@ -129,16 +167,85 @@ export const SHOWCASE_STATIC_DEMO_DECISION_SYNOPSES: readonly string[] = SHOWCAS
 );
 
 /** Buyer “at a glance” counts aligned with the demo graph and audit sample. */
-export const SHOWCASE_STATIC_DEMO_GRAPH_LINKED_RECORD_COUNT = 15;
+export const SHOWCASE_STATIC_DEMO_GRAPH_LINKED_RECORD_COUNT =
+  CUSTOMER_INTAKE_SAMPLE_DEFINITION.graphLinkedRecordCount;
 
-export const SHOWCASE_STATIC_DEMO_AUDIT_TRAIL_EVENT_COUNT = 7;
+export const SHOWCASE_STATIC_DEMO_AUDIT_TRAIL_EVENT_COUNT =
+  CUSTOMER_INTAKE_SAMPLE_DEFINITION.auditTrailEventCount;
 
 /** Single curated warning matching `manifest.warningCount` for the static showcase. */
 export const SHOWCASE_STATIC_DEMO_WARNING_SYNOPSES: readonly string[] = [
   "Unstructured intake attachments require weekly exception-volume monitoring to maintain PHI minimization coverage.",
 ];
 
-const GENERATED_UTC = "2026-04-23T09:15:00.000Z";
+function buildClaimsIntakeShowcaseStaticPayload(urlRunId: string): DemoCommitPagePreviewResponse {
+  return buildIntakeShowcaseStaticPayload({
+    scenario: CLAIMS_INTAKE_SAMPLE_DEFINITION,
+    urlRunId,
+    demoStatusMessage: "Demonstration — sample healthcare intake scenario",
+    operatorSummary:
+      "Finalized architecture review for Claims Intake Modernization — integration boundaries, PHI handling posture, " +
+      "and sponsor-facing KPIs consolidated for sign-off.",
+    decisionItems: SHOWCASE_STATIC_DEMO_DECISION_ITEMS,
+    warningSynopses: SHOWCASE_STATIC_DEMO_WARNING_SYNOPSES,
+    runExplanationSummary: "Demonstration narrative for Claims Intake Modernization.",
+    keyDrivers: [
+      "PHI boundary and egress control parity across intake channels",
+      "Auditability of intake-to-adjudication flow",
+      "Latency under peak submission windows",
+    ],
+    riskImplications: [
+      "PHI controls must remain consistent while throughput and channel parity improve.",
+    ],
+    costImplications: ["Ops touch reduction on intake rework."],
+    complianceImplications: ["HIPAA-aligned logging and segregation of duties."],
+    detailedNarrative:
+      "This demonstration summarizes a stable, sponsor-reviewable modernization path for intake with clear " +
+      "decisions, bounded risks, and evidence-backed recommendations.",
+    themeSummaries: ["PHI handling", "Intake continuity", "Auditability", "Peak-load performance"],
+    overallAssessment:
+      "Proceed with claims intake modernization under monitored PHI minimization controls — no blocking findings remain open.",
+    riskPosture: "Approved with monitoring",
+    complianceGapCount: 1,
+    graphSnapshotLabel: "Evidence graph — PHI minimization controls",
+    contextSnapshotLabel: "Claims intake architecture brief — intake boundaries",
+    primaryFindingConfidenceLevel: "High",
+    primaryFindingEvaluationScore: 95,
+    primaryFindingEvidenceRefCount: 3,
+    sponsorBriefingArtifactName: "Sponsor briefing — Claims Intake Modernization.md",
+    contextDiagramArtifactName: "Intake modernization context diagram.mmd",
+  });
+}
+
+export function getShowcaseDecisionSynopsesForRunId(runId: string): readonly string[] {
+  const scenario = resolveSampleScenarioByRunId(runId);
+
+  if (scenario?.slug === CUSTOMER_INTAKE_SAMPLE_DEFINITION.slug) {
+    return CUSTOMER_INTAKE_SHOWCASE_DECISION_SYNOPSES;
+  }
+
+  return SHOWCASE_STATIC_DEMO_DECISION_SYNOPSES;
+}
+
+export function getShowcaseWarningSynopsesForRunId(runId: string): readonly string[] {
+  const scenario = resolveSampleScenarioByRunId(runId);
+
+  if (scenario?.slug === CUSTOMER_INTAKE_SAMPLE_DEFINITION.slug) {
+    return CUSTOMER_INTAKE_SHOWCASE_WARNING_SYNOPSES;
+  }
+
+  return SHOWCASE_STATIC_DEMO_WARNING_SYNOPSES;
+}
+
+export function getShowcaseDecisionItemsForRunId(runId: string): readonly ShowcaseStaticDemoDecisionItem[] {
+  const scenario = resolveSampleScenarioByRunId(runId);
+
+  if (scenario?.slug === CUSTOMER_INTAKE_SAMPLE_DEFINITION.slug) {
+    return CUSTOMER_INTAKE_SHOWCASE_DECISION_ITEMS;
+  }
+
+  return SHOWCASE_STATIC_DEMO_DECISION_ITEMS;
+}
 
 /**
  * Read-only static payload for `/showcase/[runId]` when no preview API is configured,
@@ -146,185 +253,11 @@ const GENERATED_UTC = "2026-04-23T09:15:00.000Z";
  */
 export function getShowcaseStaticDemoPayload(urlRunId: string): DemoCommitPagePreviewResponse {
   const runId = urlRunId.trim().length > 0 ? urlRunId.trim() : SHOWCASE_STATIC_DEMO_RUN_ID;
+  const scenario = resolveSampleScenarioByRunId(runId);
 
-  return {
-    generatedUtc: GENERATED_UTC,
-    isDemoData: true,
-    demoStatusMessage: "Demonstration — sample healthcare intake scenario",
-    run: {
-      runId,
-      projectId: DEV_SCOPE_PROJECT_ID,
-      description: SHOWCASE_BUYER_REVIEW_PACKAGE_TITLE,
-      createdUtc: "2026-01-10T09:15:22.000Z",
-    },
-    manifest: {
-      manifestId: SHOWCASE_STATIC_DEMO_MANIFEST_ID,
-      runId,
-      createdUtc: "2026-01-14T22:08:41.000Z",
-      manifestHash: "sha256-demo-7f91c4aab3…",
-      ruleSetId: "healthcare-claims-v3",
-      ruleSetVersion: "3.4.1",
-      decisionCount: 12,
-      warningCount: 1,
-      unresolvedIssueCount: 0,
-      status: "Committed",
-      operatorSummary:
-        "Finalized architecture review for Claims Intake Modernization — integration boundaries, PHI handling posture, " +
-        "and sponsor-facing KPIs consolidated for sign-off.",
-    },
-    authorityChain: {
-      contextSnapshotId: "ctx-snapshot-01",
-      graphSnapshotId: "graph-snapshot-01",
-      findingsSnapshotId: "find-snapshot-01",
-      goldenManifestId: SHOWCASE_STATIC_DEMO_MANIFEST_ID,
-      decisionTraceId: "trace-claims-01",
-      artifactBundleId: "bundle-intake-demo-01",
-    },
-    artifacts: [
-      {
-        artifactId: "b2d4e6f8-a1c3-5e79-abcd-ef9876543210",
-        artifactType: "MarkdownReport",
-        name: "Sponsor briefing — Claims Intake Modernization.md",
-        format: "text/markdown",
-        createdUtc: "2026-01-14T22:10:05.000Z",
-        contentHash: "sha256-demo-art-md",
-      },
-      // CostSummary → shared bucket: second audience table on the default executive tab in buyer shell.
-      {
-        artifactId: "e6f8394c-d8fa-9255-ef01-c45678901234",
-        artifactType: "CostSummary",
-        name: "Cost posture summary.json",
-        format: "application/json",
-        createdUtc: "2026-01-14T22:10:07.000Z",
-        contentHash: "sha256-demo-art-cost",
-      },
-      {
-        artifactId: "c3e5f709-b2d4-6f81-bcde-f12345678901",
-        artifactType: "JsonBundle",
-        name: "Architecture decision record bundle.json",
-        format: "application/json",
-        createdUtc: "2026-01-14T22:10:12.000Z",
-        contentHash: "sha256-demo-art-json",
-      },
-      {
-        artifactId: "d4f6181b-c5e7-7932-cdef-a23456789012",
-        artifactType: "Diagram",
-        name: "Intake modernization context diagram.mmd",
-        format: "text/plain",
-        createdUtc: "2026-01-14T22:10:20.000Z",
-        contentHash: "sha256-demo-art-diagram",
-      },
-    ],
-    pipelineTimeline: [
-      {
-        eventId: "evt-pipeline-request-created",
-        occurredUtc: "2026-01-10T09:15:22.000Z",
-        eventType: "RunStarted",
-        actorUserName: "Jordan Lee",
-        correlationId: "corr-intake-demo-request",
-      },
-      {
-        eventId: "evt-pipeline-context",
-        occurredUtc: "2026-01-13T16:22:41.000Z",
-        eventType: "context.snapshot.created",
-        actorUserName: "ArchLucid system",
-        correlationId: "corr-intake-demo-ctx",
-      },
-      {
-        eventId: "evt-pipeline-graph",
-        occurredUtc: "2026-01-18T14:09:07.000Z",
-        eventType: "graph.snapshot.created",
-        actorUserName: "ArchLucid system",
-        correlationId: "corr-intake-demo-graph",
-      },
-      {
-        eventId: "evt-pipeline-findings",
-        occurredUtc: "2026-01-24T11:41:53.000Z",
-        eventType: "findings.snapshot.created",
-        actorUserName: "ArchLucid system",
-        correlationId: "corr-intake-demo-findings",
-      },
-      {
-        eventId: "evt-pipeline-manifest-finalized",
-        occurredUtc: "2026-01-31T21:52:06.000Z",
-        eventType: "finalize.run",
-        actorUserName: "Taylor Morgan",
-        correlationId: "corr-intake-demo-manifest",
-      },
-      {
-        eventId: "evt-pipeline-governance-approved",
-        occurredUtc: "2026-02-02T17:30:00.000Z",
-        eventType: "com.archlucid.governance.approval.recorded",
-        actorUserName: "Jordan Lee",
-        correlationId: "corr-intake-demo-governance",
-      },
-      {
-        eventId: "evt-pipeline-bundle",
-        occurredUtc: "2026-02-03T09:07:44.000Z",
-        eventType: "artifact.bundle.created",
-        actorUserName: "ArchLucid system",
-        correlationId: "corr-intake-demo-bundle",
-      },
-    ],
-    runExplanation: {
-      explanation: {
-        rawText: "",
-        structured: null,
-        confidence: null,
-        provenance: null,
-        summary: "Demonstration narrative for Claims Intake Modernization.",
-        keyDrivers: [
-          "PHI boundary and egress control parity across intake channels",
-          "Auditability of intake-to-adjudication flow",
-          "Latency under peak submission windows",
-        ],
-        riskImplications: [
-          "PHI controls must remain consistent while throughput and channel parity improve.",
-        ],
-        costImplications: ["Ops touch reduction on intake rework."],
-        complianceImplications: ["HIPAA-aligned logging and segregation of duties."],
-        detailedNarrative:
-          "This demonstration summarizes a stable, sponsor-reviewable modernization path for intake with clear " +
-          "decisions, bounded risks, and evidence-backed recommendations.",
-      },
-      themeSummaries: ["PHI handling", "Intake continuity", "Auditability", "Peak-load performance"],
-      overallAssessment:
-        "Proceed with claims intake modernization under monitored PHI minimization controls — no blocking findings remain open.",
-      riskPosture: "Approved with monitoring",
-      findingCount: 9,
-      decisionCount: 12,
-      unresolvedIssueCount: 0,
-      complianceGapCount: 1,
-      faithfulnessSupportRatio: null,
-      deterministicFallbackUsed: false,
-      faithfulnessWarning: null,
-      findingTraceConfidences: [
-        {
-          findingId: "phi-minimization-risk",
-          findingTitle: "PHI Minimization Risk",
-          // Wire enum: "High" (legacy numeric 0 still normalized in normalizeFindingConfidenceLevel).
-          confidenceLevel: "High",
-          evaluationConfidenceScore: 95,
-          evidenceRefCount: 3,
-          traceConfidenceLabel: "High",
-          traceCompletenessRatio: 0.95,
-        },
-      ],
-      citations: [
-        { kind: "Manifest", id: SHOWCASE_STATIC_DEMO_MANIFEST_ID, label: SIGNED_MANIFEST_LABEL, runId },
-        {
-          kind: "GraphSnapshot",
-          id: "graph-snapshot-01",
-          label: "Evidence graph — PHI minimization controls",
-          runId,
-        },
-        {
-          kind: "ContextSnapshot",
-          id: "ctx-snapshot-01",
-          label: "Claims intake architecture brief — intake boundaries",
-          runId,
-        },
-      ],
-    },
-  };
+  if (scenario?.slug === CUSTOMER_INTAKE_SAMPLE_DEFINITION.slug) {
+    return buildCustomerIntakeShowcaseStaticPayload(runId);
+  }
+
+  return buildClaimsIntakeShowcaseStaticPayload(runId);
 }

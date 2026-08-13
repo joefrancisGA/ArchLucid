@@ -49,7 +49,7 @@ Either (a) renamed to "Evidence trace detail" and gated to `AdminAuthority` rank
 
 ### L02 · `OperatorCorePilotDiagnosticsChecklist` — internal DevOps telemetry panel (P0) · TB-546
 
-**Component:** `archlucid-ui/src/components/OperatorCorePilotDiagnosticsChecklist.tsx`  
+**Component:** `archlucid-ui/src/components/operator/OperatorCorePilotDiagnosticsChecklist.tsx`  
 **Visible on:** Operator home page, `fullOperatorShell === true`
 
 **Current issue**  
@@ -108,7 +108,7 @@ Change to: `"Approval recorded — architecture package approved for release."` 
 
 ### L05 · `RunTraceViewerLink` — raw trace IDs in architect workspace (P1) · TB-549
 
-**Component:** `archlucid-ui/src/components/RunTraceViewerLink.tsx`  
+**Component:** `archlucid-ui/src/components/runs/RunTraceViewerLink.tsx`  
 **Visible on:** Finding inspect view and error surfaces
 
 **Current issue**  
@@ -224,7 +224,7 @@ Rename to `"How governance approval works"`. Revise the card to describe the gov
 
 Optionally, add authority gate:
 ```tsx
-import { useOperatorNavAuthority } from "@/components/OperatorNavAuthorityProvider";
+import { useOperatorNavAuthority } from "@/components/operator/OperatorNavAuthorityProvider";
 import { AUTHORITY_RANK } from "@/lib/nav-authority";
 
 const { callerAuthorityRank } = useOperatorNavAuthority();
@@ -237,12 +237,12 @@ if (callerAuthorityRank < AUTHORITY_RANK.AdminAuthority) {
 
 ### TB-546 — Gate OperatorCorePilotDiagnosticsChecklist to AdminAuthority
 
-**File:** `archlucid-ui/src/components/OperatorCorePilotDiagnosticsChecklist.tsx`
+**File:** `archlucid-ui/src/components/operator/OperatorCorePilotDiagnosticsChecklist.tsx`
 
 Add at the top of the component function:
 
 ```tsx
-import { useOperatorNavAuthority } from "@/components/OperatorNavAuthorityProvider";
+import { useOperatorNavAuthority } from "@/components/operator/OperatorNavAuthorityProvider";
 import { AUTHORITY_RANK } from "@/lib/nav-authority";
 
 const { callerAuthorityRank } = useOperatorNavAuthority();

@@ -31,8 +31,8 @@ class TestCuttingEdgeBatch5V(unittest.TestCase):
         self.assertIn("= false", text)
 
     def test_tb_192_audit_event_catalog_entry(self) -> None:
-        path = REPO_ROOT / "ArchLucid.Core" / "Audit" / "AuditEventTypes.cs"
-        text = path.read_text(encoding="utf-8")
+        audit_dir = REPO_ROOT / "ArchLucid.Core" / "Audit"
+        text = "\n".join(path.read_text(encoding="utf-8") for path in sorted(audit_dir.glob("AuditEventTypes*.cs")))
         self.assertIn("LlmEvidenceSummarized", text)
 
     def test_tb_192_dependency_tests_guard_circular_llm_access(self) -> None:

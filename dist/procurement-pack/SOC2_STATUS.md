@@ -8,7 +8,7 @@
 
 **Canonical wording source:** [`ASSURANCE_STATUS_CANONICAL.md`](ASSURANCE_STATUS_CANONICAL.md)
 
-**Formal SOC 2 Type II attestation:** **Not yet issued** — programme deferred until funded CPA / assessor engagement (see [`TRUST_CENTER.md`](TRUST_CENTER.md) compliance table and [`../security/SOC2_SELF_ASSESSMENT_2026.md`](../security/SOC2_SELF_ASSESSMENT_2026.md) for interim self-assessment posture under internal ownership).
+**Formal SOC 2 Type II attestation:** **Not yet issued** — program deferred until funded CPA / assessor engagement (see [`TRUST_CENTER.md`](TRUST_CENTER.md) compliance table and [`../security/SOC2_SELF_ASSESSMENT_2026.md`](../security/SOC2_SELF_ASSESSMENT_2026.md) for interim self-assessment posture under internal ownership).
 
 **SOC 2 Type I engagement:** Not started; deferred until funded assessor engagement.
 

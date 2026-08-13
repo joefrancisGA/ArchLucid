@@ -3,28 +3,32 @@ import { describe, expect, it } from "vitest";
 import { readFileSync } from "node:fs";
 import path from "node:path";
 
-import { ARCHITECTURE_REVIEW_VOCABULARY } from "@/lib/architecture-review-vocabulary";
+import { ARCHITECTURE_REVIEW_VOCABULARY } from "@/lib/vocabulary/architecture-review-vocabulary";
 import {
   OPERATOR_HOME_WORKSPACE_EMPTY_BODY,
   OPERATOR_HOME_WORKSPACE_EMPTY_TITLE,
   PILOT_PATH_PREVIEW_STEPS,
-} from "@/lib/buyer-polish-copy";
+} from "@/lib/buyer/buyer-polish-copy";
 import { FIRST_PILOT_BUYER_COPY } from "@/lib/first-pilot-buyer-copy";
 import { RUNS_EMPTY } from "@/lib/empty-state-presets";
 import { RUNS_EMPTY_COMPACT } from "@/lib/enterprise-compact-empty-state-presets";
-import { governanceModeVocabulary } from "@/lib/governance-mode-vocabulary";
+import { governanceModeVocabulary } from "@/lib/vocabulary/governance-mode-vocabulary";
 import { OPERATOR_NAV_LINK_LABELS, RUNS_LIST_PAGE_TITLES } from "@/lib/i18n";
 import { COMMAND_PALETTE_CURATED_TASKS } from "@/lib/command-palette-curated-tasks";
 import { ROUTE_TITLES } from "@/lib/route-static-titles";
 import { pageHelpTopicForPathname } from "@/lib/usability/page-help-topic-map";
+import { SIGNED_RECORDS_LIST_TABLE_FINALIZED_COLUMN } from "@/app/(operator)/governance/signed-records/_sections/signed-records-list-copy";
+import { manifestStatusForDisplay } from "@/lib/manifest-status-display";
 import {
   REVIEW_TERMINOLOGY_ARCHITECTURE_PACKAGE_LIST_NOUN_SURFACE_PATHS,
   REVIEW_TERMINOLOGY_ARCHITECT_WORKSPACE_SURFACE_PATHS,
+  REVIEW_TERMINOLOGY_BANNED_FINALIZE_AUDIT_PATTERNS,
   REVIEW_TERMINOLOGY_BANNED_OPERATOR_PATTERNS,
   REVIEW_TERMINOLOGY_BANNED_OPERATOR_PERSONA_PATTERNS,
   REVIEW_TERMINOLOGY_BANNED_PRIMARY_RUN_PATTERNS,
   REVIEW_TERMINOLOGY_BANNED_REVIEW_ONLY_PACKAGE_LIST_PATTERNS,
   REVIEW_TERMINOLOGY_BUYER_SURFACE_PATHS,
+  REVIEW_TERMINOLOGY_FINALIZE_AUDIT_SURFACE_PATHS,
   REVIEW_TERMINOLOGY_FIRST_HOUR_SURFACE_PATHS,
   REVIEW_TERMINOLOGY_GOLDEN_PATH_SURFACE_PATHS,
   REVIEW_TERMINOLOGY_HIGH_TRAFFIC_SURFACE_PATHS,
@@ -110,6 +114,21 @@ describe("review terminology guard", () => {
     expect(SIGNED_MANIFEST_LABEL).toBe("Signed review record");
   });
 
+  it("finalize/audit surfaces use one verb and one destination name", () => {
+    for (const relativePath of REVIEW_TERMINOLOGY_FINALIZE_AUDIT_SURFACE_PATHS) {
+      const source = readFileSync(path.join(process.cwd(), relativePath), "utf8").toLowerCase();
+
+      for (const pattern of REVIEW_TERMINOLOGY_BANNED_FINALIZE_AUDIT_PATTERNS) {
+        expect(source, `${relativePath} should not contain "${pattern}"`).not.toContain(pattern);
+      }
+    }
+  });
+
+  it("the signed-records date column is named for the finalized state, not the API status", () => {
+    expect(SIGNED_RECORDS_LIST_TABLE_FINALIZED_COLUMN).toBe("Finalized");
+    expect(manifestStatusForDisplay("Committed")).toBe(SIGNED_RECORDS_LIST_TABLE_FINALIZED_COLUMN);
+  });
+
   it("nav, empty-state, and glossary surfaces avoid operator persona copy", () => {
     for (const relativePath of REVIEW_TERMINOLOGY_NAV_EMPTY_GLOSSARY_SURFACE_PATHS) {
       const source = readFileSync(path.join(process.cwd(), relativePath), "utf8").toLowerCase();
@@ -159,7 +178,7 @@ describe("review terminology guard", () => {
     const alignedRoutes = [
       { path: "/insights/evidence-graph", navLabel: OPERATOR_NAV_LINK_LABELS.evidenceGraph, paletteHref: "/insights/evidence-graph" },
       { path: "/governance/findings", navLabel: OPERATOR_NAV_LINK_LABELS.findings, paletteHref: null },
-      { path: "/administration/tenant", navLabel: OPERATOR_NAV_LINK_LABELS.workspaceSettings, paletteHref: null },
+      { path: "/administration/workspace-settings", navLabel: OPERATOR_NAV_LINK_LABELS.workspaceSettings, paletteHref: null },
     ] as const;
 
     for (const route of alignedRoutes) {

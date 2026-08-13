@@ -2,7 +2,7 @@ import { redirect } from "next/navigation";
 import type { Metadata } from "next";
 
 import { isBuyerPolishedOperatorShellEnv, isDemoStrictNavigationRedirectsBypassedForE2E } from "@/lib/demo-ui-env";
-import { getShowcaseExecutiveHref } from "@/lib/buyer-safe-review-navigation";
+import { getShowcaseExecutiveHref } from "@/lib/buyer/buyer-safe-review-navigation";
 import { WHY_ARCHLUCID_DOCUMENT_TITLE } from "@/lib/why-archlucid-page-copy";
 
 import { WhyArchLucidPage } from "./_sections/WhyArchLucidPage";

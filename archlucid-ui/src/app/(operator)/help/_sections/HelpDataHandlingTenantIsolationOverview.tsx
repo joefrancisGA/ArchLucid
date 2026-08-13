@@ -8,7 +8,7 @@ import {
   DATA_HANDLING_TENANT_ISOLATION_HELP_OVERVIEW_LEAD,
 } from "@/lib/data-handling-tenant-isolation-help-guide-content";
 import { DESIGN_TOKENS, OPERATOR_LINK, OPERATOR_TYPOGRAPHY } from "@/lib/design-tokens";
-import { HELP_PAGE_LAYOUT } from "@/lib/help-page-layout";
+import { HELP_PAGE_LAYOUT } from "@/lib/help/help-page-layout";
 import { cn } from "@/lib/utils";
 
 /** Lead + linked cross-check line for `/help/data-handling`. */

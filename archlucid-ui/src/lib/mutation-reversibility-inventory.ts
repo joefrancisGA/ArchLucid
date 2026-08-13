@@ -9,7 +9,7 @@ export type MutationReversibilityGuardedConfirmSurface = {
 export const MUTATION_REVERSIBILITY_GUARDED_CONFIRM_SURFACES: readonly MutationReversibilityGuardedConfirmSurface[] =
   [
     {
-      sourceRoot: "components/GovernanceQuickApproveDialog.tsx",
+      sourceRoot: "components/governance/GovernanceQuickApproveDialog.tsx",
       mutationId: "governance_quick_approve",
     },
     {

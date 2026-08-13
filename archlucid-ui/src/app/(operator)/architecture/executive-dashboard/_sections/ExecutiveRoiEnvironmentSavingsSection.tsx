@@ -3,13 +3,16 @@
 import { cn } from "@/lib/utils";
 import { useMemo } from "react";
 
+import { OperatorApiProblem } from "@/components/operator/OperatorApiProblem";
+import { Button } from "@/components/ui/button";
 import { Card, CardContent, CardDescription, CardHeader, CardTitle } from "@/components/ui/card";
 import { useExecutiveRoiEnvironmentSavingsQuery } from "@/hooks/use-executive-roi-environment-savings-query";
+import { toApiLoadFailure } from "@/lib/api-load-failure";
 import { OPERATOR_KPI_CARD_DESCRIPTION, OPERATOR_TYPOGRAPHY } from "@/lib/design-tokens";
 import {
   BUYER_EXECUTIVE_DATA_SOURCE_NOTE,
   BUYER_EXECUTIVE_ENVIRONMENT_SAVINGS_DESCRIPTION,
-} from "@/lib/buyer-polish-copy";
+} from "@/lib/buyer/buyer-polish-copy";
 
 const SLICE_COLORS = ["#059669", "#2563eb", "#d97706", "#7c3aed", "#dc2626", "#64748b"];
 
@@ -17,8 +20,8 @@ const SLICE_COLORS = ["#059669", "#2563eb", "#d97706", "#7c3aed", "#dc2626", "#6
 export function ExecutiveRoiEnvironmentSavingsSection() {
   const savingsQuery = useExecutiveRoiEnvironmentSavingsQuery();
   const slices = useMemo(() => savingsQuery.data ?? [], [savingsQuery.data]);
-  // Errors fall through to the same empty state the old inline fetch produced.
   const loading = savingsQuery.isPending;
+  const failure = savingsQuery.isError ? toApiLoadFailure(savingsQuery.error) : null;
 
   return (
     <Card>
@@ -29,11 +32,29 @@ export function ExecutiveRoiEnvironmentSavingsSection() {
         </CardDescription>
       </CardHeader>
       <CardContent>
-        {loading ? <p className={cn("m-0 text-al-text-secondary", OPERATOR_TYPOGRAPHY.body)}>Loading environment breakdown…</p> : null}
-        {!loading && slices.length === 0 ? (
+        {loading ? (
+          <p className={cn("m-0 text-al-text-secondary", OPERATOR_TYPOGRAPHY.body)}>Loading environment breakdown…</p>
+        ) : null}
+        {!loading && failure !== null ? (
+          <div className="space-y-3" data-testid="exec-roi-environment-load-failed" role="alert">
+            <OperatorApiProblem failure={failure} />
+            <Button
+              type="button"
+              variant="outline"
+              size="sm"
+              onClick={() => {
+                void savingsQuery.refetch();
+              }}
+              data-testid="exec-roi-environment-retry"
+            >
+              Retry load
+            </Button>
+          </div>
+        ) : null}
+        {!loading && failure === null && slices.length === 0 ? (
           <p className={cn("m-0 text-al-text-secondary", OPERATOR_TYPOGRAPHY.body)}>No tagged environment savings yet.</p>
         ) : null}
-        {!loading && slices.length > 0 ? (
+        {!loading && failure === null && slices.length > 0 ? (
           <div className="space-y-3" data-testid="exec-roi-environment-pie">
             <div className="flex h-4 overflow-hidden rounded-full">
               {slices.map((slice, index) => (

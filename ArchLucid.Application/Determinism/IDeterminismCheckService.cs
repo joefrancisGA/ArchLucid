@@ -8,7 +8,7 @@ public interface IDeterminismCheckService
 {
     /// <summary>
     ///     Executes the determinism check described by <paramref name="request" /> and returns a
-    ///     <see cref="DeterminismCheckResult" /> summarising per-iteration drift.
+    ///     <see cref="DeterminismCheckResult" /> summarizing per-iteration drift.
     /// </summary>
     /// <exception cref="System.ArgumentException">Thrown when <see cref="DeterminismCheckRequest.RunId" /> is blank.</exception>
     /// <exception cref="System.ArgumentOutOfRangeException">

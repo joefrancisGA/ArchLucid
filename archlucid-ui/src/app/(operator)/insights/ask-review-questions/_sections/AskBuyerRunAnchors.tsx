@@ -1,9 +1,9 @@
 import { cn } from "@/lib/utils";
 import Link from "next/link";
 
-import { getShowcaseCompareHref } from "@/lib/buyer-safe-review-navigation";
+import { getShowcaseCompareHref } from "@/lib/buyer/buyer-safe-review-navigation";
 import { signedRecordDetailPath } from "@/lib/signed-records-paths";
-import { BUYER_COMPARE_OPEN_FULL_LINK_LABEL, BUYER_OPEN_SIGNED_RECORD_CTA } from "@/lib/buyer-polish-copy";
+import { BUYER_COMPARE_OPEN_FULL_LINK_LABEL, BUYER_OPEN_SIGNED_RECORD_CTA } from "@/lib/buyer/buyer-polish-copy";
 import { OPERATOR_LINK, OPERATOR_TYPOGRAPHY } from "@/lib/design-tokens";
 import { canonicalizeDemoRunId } from "@/lib/demo-run-canonical";
 import { SHOWCASE_STATIC_DEMO_MANIFEST_ID, SHOWCASE_STATIC_DEMO_RUN_ID } from "@/lib/showcase-static-demo";

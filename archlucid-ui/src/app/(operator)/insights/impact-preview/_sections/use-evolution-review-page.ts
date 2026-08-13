@@ -2,6 +2,7 @@
 
 import { useCallback, useEffect, useMemo, useRef, useState } from "react";
 
+import { useAskProjectRunsQuery } from "@/hooks/use-ask-project-runs-query";
 import {
   fetchEvolutionCandidates,
   fetchEvolutionResults,
@@ -15,8 +16,7 @@ import {
   type ImpactPreviewBaselineOption,
   type ImpactPreviewComparisonScope,
 } from "@/lib/impact-preview-page-types";
-import { loadProjectRunsMergedWithDemoFallback } from "@/lib/operator-run-picker-client";
-import { runSummaryDisplayLabel } from "@/lib/run-summary-display-label";
+import { runSummaryDisplayLabel } from "@/lib/runs/run-summary-display-label";
 import type { EvolutionCandidateChangeSetResponse, EvolutionResultsResponse } from "@/types/evolution";
 
 import type { EvolutionReviewPageViewModel } from "./evolution-review-view-model";
@@ -51,9 +51,6 @@ export function useEvolutionReviewPage(serverLoad: EvolutionReviewPageServerLoad
     serverLoad.mode === "live" ? serverLoad.selectedId : null,
   );
   const [selectedBaselineId, setSelectedBaselineId] = useState<string | null>(null);
-  const [baselineRunOptions, setBaselineRunOptions] = useState<ReadonlyArray<{ readonly runId: string; readonly label: string }>>(
-    [],
-  );
   const [comparisonScope, setComparisonScope] = useState<ImpactPreviewComparisonScope>(
     DEFAULT_IMPACT_PREVIEW_COMPARISON_SCOPE,
   );
@@ -81,6 +78,23 @@ export function useEvolutionReviewPage(serverLoad: EvolutionReviewPageServerLoad
       serverLoad.selectedId !== "" &&
       (serverLoad.detail !== null || serverLoad.detailFailure !== null),
   );
+
+  const runsQuery = useAskProjectRunsQuery("default", {
+    forCompare: true,
+    committedOnly: true,
+    enabled: !isDemo,
+  });
+
+  const baselineRunOptions = useMemo((): ReadonlyArray<{ readonly runId: string; readonly label: string }> => {
+    if (isDemo || runsQuery.data === undefined) {
+      return [];
+    }
+
+    return runsQuery.data.items.map((item) => ({
+      runId: item.runId,
+      label: runSummaryDisplayLabel(item),
+    }));
+  }, [isDemo, runsQuery.data]);
 
   const loadList = useCallback(async () => {
     setListLoading(true);
@@ -123,39 +137,6 @@ export function useEvolutionReviewPage(serverLoad: EvolutionReviewPageServerLoad
       setDetailLoading(false);
     }
   }, []);
-
-  useEffect(() => {
-    if (isDemo) {
-      return;
-    }
-
-    let cancelled = false;
-
-    void loadProjectRunsMergedWithDemoFallback("default", { forCompare: true, committedOnly: true })
-      .then((merged) => {
-        if (cancelled) {
-          return;
-        }
-
-        setBaselineRunOptions(
-          merged.items.map((item) => ({
-            runId: item.runId,
-            label: runSummaryDisplayLabel(item),
-          })),
-        );
-      })
-      .catch(() => {
-        if (cancelled) {
-          return;
-        }
-
-        setBaselineRunOptions([]);
-      });
-
-    return () => {
-      cancelled = true;
-    };
-  }, [isDemo]);
 
   useEffect(() => {
     if (isDemo) {

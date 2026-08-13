@@ -3,7 +3,7 @@ import { z } from "zod";
 import {
   ARCHITECTURE_REQUEST_DESCRIPTION_MAX_LENGTH,
   ARCHITECTURE_REQUEST_INLINE_REQUIREMENT_MAX_LENGTH,
-} from "@/lib/architecture-request-limits";
+} from "@/lib/architecture/architecture-request-limits";
 
 const wizardDocumentSchema = z.object({
   name: z.string(),

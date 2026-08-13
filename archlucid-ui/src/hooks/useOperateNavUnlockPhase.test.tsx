@@ -9,7 +9,7 @@ import {
   readOperateNavUnlockPhase,
 } from "@/lib/usability/operate-nav-progressive-unlock";
 
-vi.mock("@/components/OperatorNavAuthorityProvider", () => ({
+vi.mock("@/components/operator/OperatorNavAuthorityProvider", () => ({
   useNavCommittedArchitectureReview: vi.fn(() => false),
   useOperatorNavAuthority: () => ({
     currentPrincipal: {
@@ -22,7 +22,7 @@ vi.mock("@/components/OperatorNavAuthorityProvider", () => ({
   }),
 }));
 
-import { useNavCommittedArchitectureReview } from "@/components/OperatorNavAuthorityProvider";
+import { useNavCommittedArchitectureReview } from "@/components/operator/OperatorNavAuthorityProvider";
 
 describe("useOperateNavUnlockPhase", () => {
   beforeEach(() => {

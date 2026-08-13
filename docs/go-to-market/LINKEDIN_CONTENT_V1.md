@@ -172,7 +172,7 @@ Long-form founder/builder articles draft in [Builder series (M-77–M-88)](#buil
 >
 > None of those are technically hard. They are architecturally hard — because you have to agree on the format before you can enforce the policy.
 >
-> The teams making progress here are starting with the output format, not the policy catalogue. Define what a defensible architecture package looks like. Then reverse-engineer the process to produce it consistently.
+> The teams making progress here are starting with the output format, not the policy catalog. Define what a defensible architecture package looks like. Then reverse-engineer the process to produce it consistently.
 >
 > Where does your governance break down — at policy, at review, or at the implementation layer?
 

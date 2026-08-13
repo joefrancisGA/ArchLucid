@@ -3,7 +3,7 @@
 import { cn } from "@/lib/utils";
 import { useEffect, useId, useMemo, useState } from "react";
 
-import { OperatorApiProblem } from "@/components/OperatorApiProblem";
+import { OperatorApiProblem } from "@/components/operator/OperatorApiProblem";
 import { buildFindingRawContextBlocks } from "@/lib/build-finding-raw-context-blocks";
 import { getFindingProvenance } from "@/lib/api/finding-provenance";
 import { getFindingLlmAudit } from "@/lib/api";
@@ -56,7 +56,7 @@ export function FindingInspectContextDebugPanel(props: FindingInspectContextDebu
       return;
     }
 
-    let cancelled = false;
+    let canceled = false;
 
     setLoading(true);
     setFailure(null);
@@ -70,7 +70,7 @@ export function FindingInspectContextDebugPanel(props: FindingInspectContextDebu
           getFindingLlmAudit(runId, findingId.trim()).catch(() => null),
         ]);
 
-        if (cancelled) {
+        if (canceled) {
           return;
         }
 
@@ -78,18 +78,18 @@ export function FindingInspectContextDebugPanel(props: FindingInspectContextDebu
         setLlmAudit(auditResult);
         setLoadedForFindingId(findingId.trim());
       } catch (error: unknown) {
-        if (!cancelled) {
+        if (!canceled) {
           setFailure(toApiLoadFailure(error));
         }
       } finally {
-        if (!cancelled) {
+        if (!canceled) {
           setLoading(false);
         }
       }
     })();
 
     return () => {
-      cancelled = true;
+      canceled = true;
     };
   }, [enabled, findingId, loadedForFindingId, runId]);
 

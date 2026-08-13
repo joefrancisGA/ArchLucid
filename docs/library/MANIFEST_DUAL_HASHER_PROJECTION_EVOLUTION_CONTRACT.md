@@ -7,7 +7,7 @@
 
 **Buyer / PA one-pager:** [`BUYER_SECURITY_PROCUREMENT_PACKET.md`](../go-to-market/BUYER_SECURITY_PROCUREMENT_PACKET.md#manifest-dual-hasher-projection-evolution-m-199) (GTM **M-198** / **M-199**).  
 **Path-stable alias:** [`MANIFEST_DUAL_HASHER_PROJECTION_EVOLUTION_PA_ONE_PAGER.md`](../go-to-market/MANIFEST_DUAL_HASHER_PROJECTION_EVOLUTION_PA_ONE_PAGER.md).  
-**Production re-lock CI:** **TB-1157** (open). **Committed unit of truth:** **TB-1003** / GTM **M-155**. **Sealed-row evolution:** **TB-1277** / GTM **M-223**.
+**Production re-lock CI:** **TB-1157** **Done** — [`MANIFEST_HASH_HASHER_BASELINE.md`](./MANIFEST_HASH_HASHER_BASELINE.md). **Committed unit of truth:** **TB-1003** / GTM **M-155**. **Sealed-row evolution:** **TB-1277** **Done** — [`MANIFEST_CONTENT_SCHEMA_EVOLUTION_CONTRACT.md`](./MANIFEST_CONTENT_SCHEMA_EVOLUTION_CONTRACT.md) / GTM **M-223**.
 
 ---
 
@@ -24,7 +24,7 @@ Production **`ManifestHash`** (authority `ManifestDocument` via `ManifestHashSer
 | **Type** | `ArchLucid.Decisioning.Services.ManifestHashService` (`IManifestHashService`) |
 | **Input** | Authority `ManifestDocument` (full structural manifest in decisioning domain) |
 | **Algorithm** | SHA-256 over UTF-8 canonical JSON from anonymous projection; uppercase hex |
-| **Hasher version** | **None today** — subset/serializer changes are silent until **TB-1157** |
+| **Hasher version** | **`v1`** (`ManifestHashService.HasherSchemaVersion`) — re-lock via **TB-1157** / [`MANIFEST_HASH_HASHER_BASELINE.md`](./MANIFEST_HASH_HASHER_BASELINE.md) |
 | **Persisted as** | `ManifestHash` on committed golden manifest / export lineage |
 | **Consumers** | Commit persist, `AuthorityReplayService`, export verify (**Done TB-307**), buyer unit-of-truth (**M-155**) |
 
@@ -88,7 +88,7 @@ Commit builds: `ManifestDocument` → `ManifestHashService.ComputeHash` → **pe
 | # | Failure / smell | Hasher / surface | Required response |
 |---|-----------------|------------------|-------------------|
 | 1 | Projection field add/omit without cohort re-lock | B (content SHA) | `golden-cohort lock-baseline` + `ARCHLUCID_GOLDEN_COHORT_BASELINE_LOCK_APPROVED` + owner variable `ARCHLUCID_GOLDEN_COHORT_BASELINE_LOCKED` |
-| 2 | `ManifestHashService` subset/serializer change without production re-lock | A (`ManifestHash`) | **TB-1157** deliberate baseline/version re-lock — historical export verify / replay mass-fail until addressed |
+| 2 | `ManifestHashService` subset/serializer change without production re-lock | A (`ManifestHash`) | Deliberate baseline re-lock — [`MANIFEST_HASH_HASHER_BASELINE.md`](./MANIFEST_HASH_HASHER_BASELINE.md) + `assert_manifest_hash_hasher_baseline_locked.py` |
 | 3 | `MapGovernance` heuristic drift (risk/cost tier rules) | B (and buyer-facing contract) | Cohort re-lock + disclose mapping change; authority hash may be unchanged |
 | 4 | `JsonSerializer` / property-order / enum formatting churn | A and/or B | Treat as hasher change for the affected surface; never silent merge |
 | 5 | Save remap without `authorityPersistBody` | A (persist path) | Integrity/orchestration bug — not healed by cohort re-lock |
@@ -103,20 +103,21 @@ Commit builds: `ManifestDocument` → `ManifestHashService.ComputeHash` → **pe
 | Ritual | When | Approval / artifacts | Does **not** substitute for |
 |--------|------|----------------------|------------------------------|
 | **Cohort lock-baseline** | Intentional content/projection change in eval fixtures | `ARCHLUCID_GOLDEN_COHORT_BASELINE_LOCK_APPROVED`, `golden-cohort lock-baseline --write`, `tests/golden-cohort/cohort.json`, CI `assert_golden_cohort_baseline_locked.py` | Production `ManifestHash` continuity or export verify |
-| **Production deliberate re-lock** (**TB-1157**) | Any change to `ManifestHashService` canonical projection or hasher version | Planned: `MANIFEST_HASH_HASHER_BASELINE.md` (or committed fixture hashes) + approval marker analogous to cohort lock | Rubber-stamp mass SHA rewrite (**M-202** / **TB-1172**) |
+| **Production deliberate re-lock** (**TB-1157** Done) | Any change to `ManifestHashService` canonical projection or hasher version | [`MANIFEST_HASH_HASHER_BASELINE.md`](./MANIFEST_HASH_HASHER_BASELINE.md), `tests/manifest-hash/hasher-baseline-v1.json`, `ARCHLUCID_MANIFEST_HASH_BASELINE_LOCK_APPROVED`, `assert_manifest_hash_hasher_baseline_locked.py` | Rubber-stamp mass SHA rewrite (**M-202** / **TB-1172**) |
 | **Schema / storage dual-write** | Storage-layout compat only | **TB-1277** — not a content migration of sealed manifests | Rewriting sealed package bytes |
 
 ---
 
-## TB-1157 CI anchors (named, not implemented here)
+## TB-1157 CI anchors (shipped)
 
 | Anchor | Purpose |
 |--------|---------|
 | `ArchLucid.Decisioning/Services/ManifestHashService.cs` | Primary diff trigger for production hasher changes |
-| `docs/library/MANIFEST_HASH_HASHER_BASELINE.md` (or committed golden hashes) | Owner-visible baseline artifact that must move with hasher changes |
-| `ARCHLUCID_MANIFEST_HASH_BASELINE_LOCK_APPROVED` (proposed) | Single-shot operator approval for production re-lock |
-| `ManifestHashServiceTests`, export verify tests, `AuthorityReplayService` tests | Regression proof after deliberate re-lock |
-| Claim-honesty guards | Fail stubs equating cohort content SHA with production `ManifestHash` |
+| [`MANIFEST_HASH_HASHER_BASELINE.md`](./MANIFEST_HASH_HASHER_BASELINE.md) | Owner-visible baseline artifact |
+| `tests/manifest-hash/hasher-baseline-v1.json` | Committed golden hash fixture |
+| `ARCHLUCID_MANIFEST_HASH_BASELINE_LOCK_APPROVED` | Single-shot operator approval for production re-lock |
+| `assert_manifest_hash_hasher_baseline_locked.py` | Pair service diff with baseline update |
+| `ManifestHashServiceTests.ComputeHash_MatchesPinnedBaseline_v1` | Regression proof after deliberate re-lock |
 
 ---
 

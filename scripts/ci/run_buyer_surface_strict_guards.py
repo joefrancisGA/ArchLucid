@@ -74,6 +74,289 @@ GUARDS: tuple[GuardCommand, ...] = (
         None,
     ),
     GuardCommand(
+        "outbox exactly-once honesty",
+        ("python", "scripts/ci/check_outbox_exactly_once_honesty.py"),
+        None,
+    ),
+    GuardCommand(
+        "manifest schema evolution honesty",
+        ("python", "scripts/ci/check_manifest_schema_evolution_honesty.py"),
+        None,
+    ),
+    GuardCommand(
+        "concurrent execute/commit honesty",
+        ("python", "scripts/ci/check_concurrent_execute_commit_honesty.py"),
+        None,
+    ),
+    GuardCommand(
+        "anti-gates-alone FinOps honesty",
+        ("python", "scripts/ci/check_anti_gates_alone_finops_honesty.py"),
+        None,
+    ),
+    GuardCommand(
+        "paying-tenant spend-storm honesty",
+        ("python", "scripts/ci/check_paying_tenant_spend_storm_honesty.py"),
+        None,
+    ),
+    GuardCommand(
+        "shared-AOAI-TPM noisy-neighbor honesty",
+        ("python", "scripts/ci/check_shared_aoai_tpm_noisy_neighbor_honesty.py"),
+        None,
+    ),
+    GuardCommand(
+        "policy-pack customer-rule sandbox honesty",
+        ("python", "scripts/ci/check_policy_pack_customer_rule_sandbox_honesty.py"),
+        None,
+    ),
+    GuardCommand(
+        "minimum pilot trust packet honesty",
+        ("python", "scripts/ci/check_minimum_pilot_trust_packet_honesty.py"),
+        None,
+    ),
+    GuardCommand(
+        "SOC 2 / pen-test talk-track honesty",
+        (
+            "python",
+            "scripts/ci/check_soc2_pentest_honest_procurement_talk_track_honesty.py",
+        ),
+        None,
+    ),
+    GuardCommand(
+        "golden-cohort re-lock honesty",
+        ("python", "scripts/ci/check_golden_cohort_relock_rubber_stamp_honesty.py"),
+        None,
+    ),
+    GuardCommand(
+        "polly run-completeness honesty",
+        ("python", "scripts/ci/check_polly_run_completeness_honesty.py"),
+        None,
+    ),
+    GuardCommand(
+        "llm trust-boundary honesty",
+        ("python", "scripts/ci/check_llm_trust_boundary_honesty.py"),
+        None,
+    ),
+    GuardCommand(
+        "tenant-identity header re-derive honesty",
+        ("python", "scripts/ci/check_tenant_identity_header_rederive_honesty.py"),
+        None,
+    ),
+    GuardCommand(
+        "committed-manifest substitute honesty",
+        ("python", "scripts/ci/check_committed_manifest_substitute_honesty.py"),
+        None,
+    ),
+    GuardCommand(
+        "netarchtest isolation honesty",
+        ("python", "scripts/ci/check_netarchtest_isolation_honesty.py"),
+        None,
+    ),
+    GuardCommand(
+        "authority AgentTask path honesty",
+        ("python", "scripts/ci/check_authority_agenttask_path_honesty.py"),
+        None,
+    ),
+    GuardCommand(
+        "append-only sealed evidence honesty",
+        ("python", "scripts/ci/check_append_only_sealed_evidence_honesty.py"),
+        None,
+    ),
+    GuardCommand(
+        "retrieval tenancy hit guarantee honesty",
+        ("python", "scripts/ci/check_retrieval_tenancy_hit_guarantee_honesty.py"),
+        None,
+    ),
+    GuardCommand(
+        "transactional finalize outbox honesty",
+        ("python", "scripts/ci/check_transactional_finalize_outbox_honesty.py"),
+        None,
+    ),
+    GuardCommand(
+        "pre-finalize gate SoD honesty",
+        ("python", "scripts/ci/check_pre_finalize_gate_sod_honesty.py"),
+        None,
+    ),
+    GuardCommand(
+        "faithfulness scoring lane honesty",
+        ("python", "scripts/ci/check_faithfulness_support_ratio_scoring_lane_honesty.py"),
+        None,
+    ),
+    GuardCommand(
+        "shared hallucination defense plane honesty",
+        ("python", "scripts/ci/check_shared_hallucination_defense_plane_honesty.py"),
+        None,
+    ),
+    GuardCommand(
+        "tenant DiD erosion beyond predicates honesty",
+        ("python", "scripts/ci/check_tenant_did_erosion_beyond_predicates_honesty.py"),
+        None,
+    ),
+    GuardCommand(
+        "azure workload privilege escalation seam honesty",
+        ("python", "scripts/ci/check_azure_workload_privilege_escalation_seam_honesty.py"),
+        None,
+    ),
+    GuardCommand(
+        "dapper DDL satellite breakdown honesty",
+        ("python", "scripts/ci/check_dapper_ddl_satellite_breakdown_signals_honesty.py"),
+        None,
+    ),
+    GuardCommand(
+        "fine-tuning promotion decision record honesty",
+        ("python", "scripts/ci/check_fine_tuning_promotion_decision_record_honesty.py"),
+        None,
+    ),
+    GuardCommand(
+        "real execute AOAI throttle policy honesty",
+        ("python", "scripts/ci/check_real_execute_aoai_throttle_policy_honesty.py"),
+        None,
+    ),
+    GuardCommand(
+        "async orchestration first-force honesty",
+        ("python", "scripts/ci/check_async_orchestration_first_force_honesty.py"),
+        None,
+    ),
+    GuardCommand(
+        "container apps terraform authority honesty",
+        ("python", "scripts/ci/check_container_apps_terraform_authority_honesty.py"),
+        None,
+    ),
+    GuardCommand(
+        "policy pack evaluation hybrid honesty",
+        ("python", "scripts/ci/check_policy_pack_evaluation_hybrid_honesty.py"),
+        None,
+    ),
+    GuardCommand(
+        "review volume 100x capacity honesty",
+        ("python", "scripts/ci/check_review_volume_100x_capacity_honesty.py"),
+        None,
+    ),
+    GuardCommand(
+        "see-it universe honesty",
+        ("python", "scripts/ci/check_see_it_universe_honesty.py"),
+        None,
+    ),
+    GuardCommand(
+        "comparison replay drift honesty",
+        ("python", "scripts/ci/check_comparison_replay_drift_honesty.py"),
+        None,
+    ),
+    GuardCommand(
+        "operator primary object honesty",
+        ("python", "scripts/ci/check_operator_primary_object_honesty.py"),
+        None,
+    ),
+    GuardCommand(
+        "first-15 package spine honesty",
+        ("python", "scripts/ci/check_first_15_package_spine_honesty.py"),
+        None,
+    ),
+    GuardCommand(
+        "launch-load failure-order honesty",
+        ("python", "scripts/ci/check_launch_load_failure_order_honesty.py"),
+        None,
+    ),
+    GuardCommand(
+        "strangler next-slice honesty",
+        ("python", "scripts/ci/check_strangler_next_slice_honesty.py"),
+        None,
+    ),
+    GuardCommand(
+        "wntp buyer ui honesty",
+        ("python", "scripts/ci/check_wntp_buyer_ui_honesty.py"),
+        None,
+    ),
+    GuardCommand(
+        "decide once triad honesty",
+        ("python", "scripts/ci/check_decide_once_triad_honesty.py"),
+        None,
+    ),
+    GuardCommand(
+        "gdpr erasure append-only honesty",
+        ("python", "scripts/ci/check_gdpr_erasure_append_only_honesty.py"),
+        None,
+    ),
+    GuardCommand(
+        "offline export portability honesty",
+        ("python", "scripts/ci/check_offline_export_portability_honesty.py"),
+        None,
+    ),
+    GuardCommand(
+        "evidence backup restore honesty",
+        ("python", "scripts/ci/check_evidence_backup_restore_honesty.py"),
+        None,
+    ),
+    GuardCommand(
+        "crash recovery long-running review honesty",
+        ("python", "scripts/ci/check_crash_recovery_long_running_review_honesty.py"),
+        None,
+    ),
+    GuardCommand(
+        "itsm outbox dlq delivery honesty",
+        ("python", "scripts/ci/check_itsm_outbox_dlq_delivery_honesty.py"),
+        None,
+    ),
+    GuardCommand(
+        "mid-run authority revocation honesty",
+        ("python", "scripts/ci/check_mid_run_authority_revocation_honesty.py"),
+        None,
+    ),
+    GuardCommand(
+        "evidence audit ordering causality honesty",
+        ("python", "scripts/ci/check_evidence_audit_ordering_causality_honesty.py"),
+        None,
+    ),
+    GuardCommand(
+        "demo anonymous read plane honesty",
+        ("python", "scripts/ci/check_demo_anonymous_read_plane_honesty.py"),
+        None,
+    ),
+    GuardCommand(
+        "elevator pitch v1 claim honesty",
+        ("python", "scripts/ci/check_elevator_pitch_v1_claim_honesty.py"),
+        None,
+    ),
+    GuardCommand(
+        "agenttask decisioning ungated leak honesty",
+        ("python", "scripts/ci/check_agenttask_decisioning_ungated_leak_honesty.py"),
+        None,
+    ),
+    GuardCommand(
+        "tb881 ship blocker classification honesty",
+        ("python", "scripts/ci/check_tb881_ship_blocker_classification_honesty.py"),
+        None,
+    ),
+    GuardCommand(
+        "post-strangler residual coupling honesty",
+        ("python", "scripts/ci/check_post_strangler_residual_coupling_honesty.py"),
+        None,
+    ),
+    GuardCommand(
+        "decision-grade finding provenance honesty",
+        ("python", "scripts/ci/check_decision_grade_finding_provenance_honesty.py"),
+        None,
+    ),
+    GuardCommand(
+        "project soft-delete sealed evidence honesty",
+        ("python", "scripts/ci/check_project_soft_delete_sealed_evidence_honesty.py"),
+        None,
+    ),
+    GuardCommand(
+        "zero-downtime sql migration honesty",
+        ("python", "scripts/ci/check_zero_downtime_sql_migration_honesty.py"),
+        None,
+    ),
+    GuardCommand(
+        "isolation claims too-strong honesty",
+        ("python", "scripts/ci/check_isolation_claims_too_strong_honesty.py"),
+        None,
+    ),
+    GuardCommand(
+        "security review readiness honesty",
+        ("python", "scripts/ci/check_security_review_ready_without_musts_honesty.py"),
+        None,
+    ),
+    GuardCommand(
         "buyer first-30-minutes sync",
         ("python", "scripts/ci/assert_buyer_first_30_minutes_in_sync.py"),
         None,

@@ -1,5 +1,17 @@
 import type { AzureBoardsIntegrationHealthResponse } from "@/lib/api/azure-boards-api";
 import type { TenantItsmConnectorConnectionResponse } from "@/lib/api/itsm-outbound-api";
+import {
+  AZURE_BOARDS_CONNECTION_PROVENANCE_NONE,
+  AZURE_BOARDS_CONNECTION_PROVENANCE_UNSAVED,
+  AZURE_BOARDS_CONNECTION_SAVE_DISABLED_TOKEN_HELPER,
+  AZURE_BOARDS_SETUP_STEP_CURRENT_LABEL,
+  AZURE_BOARDS_SETUP_STEP_DONE_LABEL,
+  AZURE_BOARDS_SETUP_STEP_PENDING_LABEL,
+} from "@/lib/azure-boards-page-copy";
+import { parseIsoUtcMs } from "@/lib/format-iso-utc";
+import { GOVERNANCE_FINDINGS_PATH } from "@/lib/governance/governance-route-paths";
+import { formatInstantForLocale } from "@/lib/locale-datetime";
+import type { WhyDisabledCtaReason } from "@/lib/why-disabled-cta";
 
 export type AzureBoardsConnectionStatus =
   | "connected"
@@ -24,6 +36,25 @@ export type AzureBoardsSetupStep = {
   readonly id: string;
   readonly label: string;
   readonly complete: boolean;
+  readonly href?: string;
+};
+
+export type AzureBoardsPageCompositionBlockedReason = "feature-off" | "load-error";
+
+export type AzureBoardsConnectionSaveGate = {
+  readonly allowed: boolean;
+  readonly reason: WhyDisabledCtaReason | null;
+};
+
+export type AzureBoardsPageComposition = {
+  readonly blocked: boolean;
+  readonly blockedReason: AzureBoardsPageCompositionBlockedReason | null;
+  readonly showConnectionSettings: boolean;
+  readonly defaultBehaviorCollapsed: boolean;
+  readonly showConnectionTest: boolean;
+  readonly connectionTestCollapsed: boolean;
+  readonly saveSettingsVariant: "default" | "outline";
+  readonly emphasizedSetupStepId: string;
 };
 
 const STATUS_LABELS: Record<AzureBoardsConnectionStatus, string> = {
@@ -189,23 +220,121 @@ export function resolveAzureBoardsSetupSteps(input: {
       id: "credentials",
       label: "Organization URL and secure token reference",
       complete: input.credentialsReady,
+      href: "#azure-boards-connection-settings",
     },
     {
       id: "defaults",
       label: "Default project and work item type",
       complete: input.settingsReady,
+      href: "#azure-boards-default-behavior-heading",
     },
     {
       id: "verify",
       label: "Successful connection test",
       complete: input.health?.reachable === true,
+      href: "#azure-boards-test-heading",
     },
     {
       id: "create",
       label: "Create work items from findings",
       complete: input.nativeEnabled && input.health?.reachable === true && input.settingsReady,
+      href: GOVERNANCE_FINDINGS_PATH,
     },
   ];
+}
+
+export function resolveAzureBoardsSetupStepTagLabel(
+  step: AzureBoardsSetupStep,
+  emphasizedSetupStepId: string,
+): string {
+  if (step.complete) {
+    return AZURE_BOARDS_SETUP_STEP_DONE_LABEL;
+  }
+
+  if (step.id === emphasizedSetupStepId) {
+    return AZURE_BOARDS_SETUP_STEP_CURRENT_LABEL;
+  }
+
+  return AZURE_BOARDS_SETUP_STEP_PENDING_LABEL;
+}
+
+/** Progressive disclosure for Azure Boards integration page (TB-1154 / TB-1155). */
+export function resolveAzureBoardsPageComposition(input: {
+  readonly nativeEnabled: boolean;
+  readonly itsmHealthLoadFailed: boolean;
+  readonly credentialsReady: boolean;
+  readonly settingsReady: boolean;
+  readonly testGateAllowed: boolean;
+  readonly connectionSliceFailed: boolean;
+  readonly hasConnectionPayload: boolean;
+}): AzureBoardsPageComposition {
+  const featureBlocked = input.itsmHealthLoadFailed || !input.nativeEnabled;
+  const configurationBlocked =
+    featureBlocked ||
+    (input.connectionSliceFailed && !input.hasConnectionPayload && !input.credentialsReady);
+
+  if (configurationBlocked) {
+    return {
+      blocked: true,
+      blockedReason: featureBlocked ? "feature-off" : "load-error",
+      showConnectionSettings: false,
+      defaultBehaviorCollapsed: true,
+      showConnectionTest: false,
+      connectionTestCollapsed: false,
+      saveSettingsVariant: "outline",
+      emphasizedSetupStepId: "credentials",
+    };
+  }
+
+  if (!input.credentialsReady) {
+    return {
+      blocked: false,
+      blockedReason: null,
+      showConnectionSettings: true,
+      defaultBehaviorCollapsed: true,
+      showConnectionTest: false,
+      connectionTestCollapsed: true,
+      saveSettingsVariant: "outline",
+      emphasizedSetupStepId: "credentials",
+    };
+  }
+
+  if (!input.settingsReady) {
+    return {
+      blocked: false,
+      blockedReason: null,
+      showConnectionSettings: true,
+      defaultBehaviorCollapsed: false,
+      showConnectionTest: false,
+      connectionTestCollapsed: true,
+      saveSettingsVariant: "default",
+      emphasizedSetupStepId: "defaults",
+    };
+  }
+
+  if (!input.testGateAllowed) {
+    return {
+      blocked: false,
+      blockedReason: null,
+      showConnectionSettings: true,
+      defaultBehaviorCollapsed: false,
+      showConnectionTest: false,
+      connectionTestCollapsed: true,
+      saveSettingsVariant: "default",
+      emphasizedSetupStepId: "verify",
+    };
+  }
+
+  return {
+    blocked: false,
+    blockedReason: null,
+    showConnectionSettings: true,
+    defaultBehaviorCollapsed: false,
+    showConnectionTest: true,
+    connectionTestCollapsed: false,
+    saveSettingsVariant: "default",
+    emphasizedSetupStepId: input.testGateAllowed ? "verify" : "create",
+  };
 }
 
 export function sanitizeCustomerFacingProbeSummary(summary: string | null | undefined): string {
@@ -273,4 +402,87 @@ export function resolveAzureBoardsCredentialStatusLabel(
   }
 
   return "Configured";
+}
+
+export function resolveAzureBoardsCredentialStatusKind(
+  credentialsReady: boolean,
+): "ready" | "needs-attention" | "neutral" {
+  if (!credentialsReady) {
+    return "needs-attention";
+  }
+
+  return "ready";
+}
+
+export function resolveAzureBoardsConnectionProvenance(
+  connection: TenantItsmConnectorConnectionResponse | null | undefined,
+  hasUnsavedConnectionEdits: boolean,
+): string {
+  if (hasUnsavedConnectionEdits) {
+    return AZURE_BOARDS_CONNECTION_PROVENANCE_UNSAVED;
+  }
+
+  const updatedUtc = connection?.updatedUtc?.trim();
+
+  if (updatedUtc && updatedUtc.length > 0) {
+    // API `*Utc` fields can arrive without a `Z`, so parse as UTC before formatting.
+    const updatedMs = parseIsoUtcMs(updatedUtc);
+
+    if (!Number.isNaN(updatedMs)) {
+      return `Last modified ${formatInstantForLocale(new Date(updatedMs).toISOString())}`;
+    }
+  }
+
+  return AZURE_BOARDS_CONNECTION_PROVENANCE_NONE;
+}
+
+export function hasSavedAzureBoardsCredentialReference(
+  connection: TenantItsmConnectorConnectionResponse | null | undefined,
+): boolean {
+  return (connection?.credentialKeyVaultSecretName?.trim().length ?? 0) > 0;
+}
+
+export function resolveAzureBoardsConnectionSaveGate(input: {
+  readonly canMutate: boolean;
+  readonly organizationUrl: string;
+  readonly tokenReference: string;
+  readonly connection: TenantItsmConnectorConnectionResponse | null | undefined;
+  readonly isSaving: boolean;
+}): AzureBoardsConnectionSaveGate {
+  if (!input.canMutate) {
+    return { allowed: false, reason: null };
+  }
+
+  if (input.isSaving) {
+    return { allowed: false, reason: null };
+  }
+
+  if (input.organizationUrl.trim().length === 0) {
+    return { allowed: false, reason: null };
+  }
+
+  const hasSavedCredential = hasSavedAzureBoardsCredentialReference(input.connection);
+  const tokenReady = hasSavedCredential || input.tokenReference.trim().length > 0;
+
+  if (!tokenReady) {
+    return {
+      allowed: false,
+      reason: {
+        kind: "prerequisite",
+        message: AZURE_BOARDS_CONNECTION_SAVE_DISABLED_TOKEN_HELPER,
+      },
+    };
+  }
+
+  return { allowed: true, reason: null };
+}
+
+export function isAzureBoardsConnectionSaveSuccessful(
+  saved: TenantItsmConnectorConnectionResponse,
+): boolean {
+  return (
+    saved.isConfigured === true &&
+    (saved.instanceBaseUrl?.trim().length ?? 0) > 0 &&
+    hasSavedAzureBoardsCredentialReference(saved)
+  );
 }

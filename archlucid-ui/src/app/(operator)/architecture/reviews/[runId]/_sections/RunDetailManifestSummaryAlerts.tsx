@@ -1,9 +1,9 @@
 import { cn } from "@/lib/utils";
 import type { ReactElement } from "react";
 
-import { OperatorApiProblem } from "@/components/OperatorApiProblem";
-import { OperatorMalformedCallout } from "@/components/OperatorShellMessage";
-import { OperatorSectionRetryButton } from "@/components/OperatorSectionRetryButton";
+import { OperatorApiProblem } from "@/components/operator/OperatorApiProblem";
+import { OperatorMalformedCallout } from "@/components/operator/OperatorShellMessage";
+import { OperatorSectionRetryButton } from "@/components/operator/OperatorSectionRetryButton";
 import type { ApiLoadFailureState } from "@/lib/api-load-failure";
 import { OPERATOR_TYPOGRAPHY } from "@/lib/design-tokens";
 

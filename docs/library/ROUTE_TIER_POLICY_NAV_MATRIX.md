@@ -8,7 +8,7 @@ This matrix complements **[PRODUCT_PACKAGING.md](PRODUCT_PACKAGING.md)** four-bo
 
 | Signal | Current value |
 | --- | --- |
-| Registry rows | **194** controller route families (`route-tier-policy-nav-registry-count`) |
+| Registry rows | **195** controller route families (`route-tier-policy-nav-registry-count`) |
 | Executable registry | `scripts/ci/data/route_tier_policy_nav_registry.json` |
 | CI command | `python scripts/ci/assert_route_tier_policy_nav.py` |
 | Regenerate intentionally | `python scripts/ci/assert_route_tier_policy_nav.py --sync` |
@@ -68,12 +68,12 @@ Merge-blocking check: `python scripts/ci/assert_route_tier_policy_nav.py` after 
 - **Allowlist / exemption reasons:** `scripts/ci/data/route_tier_policy_nav_exemptions.json`.
 - **Nav / exemption overrides:** `scripts/ci/data/route_tier_policy_nav_overrides.json`.
 
-<!-- route-tier-policy-nav-registry-count:194 -->
+<!-- route-tier-policy-nav-registry-count:195 -->
 
 | Controller source | API prefix (normalized) | commercial_tier (class) | class_policy | Operator nav href (parity only) | Exemption code |
 | --- | --- | --- | --- | --- | --- |
 | `Admin/AdminAiUsageDashboardController.cs` | `/v1/admin` | none | ExecuteAuthority |  |  |
-| `Admin/AdminApiKeySettingsController.cs` | `/v1/admin/settings/api-keys` | none | AdminAuthority | /administration/api-keys |  |
+| `Admin/AdminApiKeySettingsController.cs` | `/v1/admin/settings/api-keys` | none | AdminAuthority |  |  |
 | `Admin/AdminAuthDiagnosticsController.cs` | `/v1/admin` | none | AdminAuthority |  | auth_debug_api |
 | `Admin/AdminController.cs` | `/v1/admin` | none | AdminAuthority |  |  |
 | `Admin/AdminCrossTenantUsageRollupController.cs` | `/v1/admin/analytics` | none | PlatformCrossTenantReadAuthority |  |  |
@@ -85,6 +85,7 @@ Merge-blocking check: `python scripts/ci/assert_route_tier_policy_nav.py` after 
 | `Admin/AdminLlmCostTuningController.cs` | `/v1/admin` | none | AdminAuthority | /administration/ai-usage |  |
 | `Admin/AdminLlmMonthlyDollarBudgetStatusController.cs` | `/v1/admin` | none | ExecuteAuthority |  |  |
 | `Admin/AdminQualityGateDiagnosticsController.cs` | `/v1/admin/diagnostics` | none | AdminAuthority |  |  |
+| `Admin/AdminQuickScanBudgetController.cs` | `/v1/admin/quick-scan/budget` | none | AdminAuthority |  |  |
 | `Admin/AdminQuickScanSafetyController.cs` | `/v1/admin/quick-scan/safety` | none | AdminAuthority |  |  |
 | `Admin/AdminRagHealthController.cs` | `/v1/admin` | none | AdminAuthority |  |  |
 | `Admin/AdminTenantCatalogMigrationController.cs` | `/v1/admin/tenants` | none | AdminAuthority |  |  |
@@ -170,7 +171,7 @@ Merge-blocking check: `python scripts/ci/assert_route_tier_policy_nav.py` after 
 | `Authority/RunComparisonController.cs` | `/v1/architecture` | standard | ReadAuthority | /insights/compare-two-reviews |  |
 | `Authority/RunCoverageController.cs` | `/v1/runs` | none | ReadAuthority |  |  |
 | `Authority/RunQueryController.cs` | `/v1/architecture` | none | ReadAuthority |  |  |
-| `Authority/RunsController.cs` | `/v1/architecture` | none | ReadAuthority | /architecture/reviews?projectId=default |  |
+| `Authority/RunsController.cs` | `/v1/architecture` | none | ReadAuthority | /architecture/reviews |  |
 | `Authority/RunsExportController.cs` | `/v1/runs` | standard | ReadAuthority |  |  |
 | `Authority/TechnologyLedgerController.cs` | `/v1/runs` | none | ReadAuthority |  |  |
 | `Authority/TemplatesController.cs` | `/v1/architecture` | none | ReadAuthority |  |  |
@@ -225,7 +226,7 @@ Merge-blocking check: `python scripts/ci/assert_route_tier_policy_nav.py` after 
 | `Notifications/ExecDigestUnsubscribeController.cs` | `/v1/notifications/exec-digest` | none | AllowAnonymous |  | signed_token_unsubscribe |
 | `Operator/OperatorSavedViewsController.cs` | `/v1/operator/saved-views` | standard | AuthenticatedUserOnly |  |  |
 | `Pilots/PilotsBoardPackController.cs` | `/v1/pilots` | standard | ExecuteAuthority | /insights/architecture-scorecard |  |
-| `Pilots/PilotsController.cs` | `/v1/pilots` | none | ReadAuthority | /architecture/reviews?projectId=default |  |
+| `Pilots/PilotsController.cs` | `/v1/pilots` | none | ReadAuthority | /architecture/reviews |  |
 | `Planning/AskController.cs` | `/v1/ask` | standard | ReadAuthority | /insights/ask-review-questions |  |
 | `Planning/ComparisonController.cs` | `/v1/compare` | standard | ReadAuthority | /insights/compare-two-reviews |  |
 | `Planning/ComparisonsController.cs` | `/v1/architecture` | standard | ReadAuthority | /internal/replay |  |

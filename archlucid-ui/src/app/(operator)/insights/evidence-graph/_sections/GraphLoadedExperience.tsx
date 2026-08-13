@@ -11,7 +11,7 @@ import {
   BUYER_GRAPH_GOVERNANCE_NEXT_PENDING,
   BUYER_EVIDENCE_GRAPH_EXPORT_EVIDENCE_TRAIL_CTA,
   BUYER_EVIDENCE_TRAIL_OPEN_PACKAGE,
-} from "@/lib/buyer-polish-copy";
+} from "@/lib/buyer/buyer-polish-copy";
 import { canonicalizeDemoRunId } from "@/lib/demo-run-canonical";
 import { SHOWCASE_STATIC_DEMO_RUN_ID } from "@/lib/showcase-static-demo";
 import {

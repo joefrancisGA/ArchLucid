@@ -6,7 +6,7 @@ import { useState } from "react";
 import { Controller, useFormContext } from "react-hook-form";
 
 import { AdvancedOptionsAccordion } from "@/components/AdvancedOptionsAccordion";
-import { OperatorApiProblem } from "@/components/OperatorApiProblem";
+import { OperatorApiProblem } from "@/components/operator/OperatorApiProblem";
 import { Button } from "@/components/ui/button";
 import { Textarea } from "@/components/ui/textarea";
 import { WizardFieldError } from "@/components/wizard/WizardFieldError";
@@ -15,7 +15,7 @@ import { WizardStepPanel } from "@/components/wizard/WizardStepPanel";
 import { ChatIntakePanel } from "@/components/wizard/ChatIntakePanel";
 import { ConnectorIntakePanel } from "@/components/wizard/ConnectorIntakePanel";
 import { draftArchitectureRequest } from "@/lib/api";
-import { ARCHITECTURE_REQUEST_DESCRIPTION_MAX_LENGTH } from "@/lib/architecture-request-limits";
+import { ARCHITECTURE_REQUEST_DESCRIPTION_MAX_LENGTH } from "@/lib/architecture/architecture-request-limits";
 import { isApiRequestError } from "@/lib/api-request-error";
 import type { ApiProblemDetails } from "@/lib/api-problem";
 import { useWizardAiSuggestedFields } from "@/lib/wizard-ai-suggested-fields";

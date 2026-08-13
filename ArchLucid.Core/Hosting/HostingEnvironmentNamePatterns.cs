@@ -8,7 +8,7 @@ public static class HostingEnvironmentNamePatterns
 {
     /// <summary>
     ///     Treats names containing <c>prod</c> (case-insensitive) as production-like so misnamed hosts
-    ///     (for example <c>PreProduction</c>, <c>staging-prod</c>) cannot rely on Development-only behaviour.
+    ///     (for example <c>PreProduction</c>, <c>staging-prod</c>) cannot rely on Development-only behavior.
     ///     Excludes <c>non-production</c> / <c>nonproduction</c>.
     /// </summary>
     public static bool EnvironmentNameImpliesProductionLike(string? environmentName)

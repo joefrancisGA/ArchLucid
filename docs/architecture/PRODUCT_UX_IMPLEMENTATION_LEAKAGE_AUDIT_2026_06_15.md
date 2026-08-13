@@ -66,7 +66,7 @@ The UI emphasizes **platform mechanics** for the two most senior personas and **
 
 `LlmBudgetStatusPill` renders `AI budget: {n}% left` / `— paused`, shown to all `ExecuteAuthority`+ users, sourced from `/v1/admin/llm-monthly-dollar-budget-status`, with no in-product glossary definition.
 
-**Code anchor:** `archlucid-ui/src/components/LlmBudgetStatusPill.tsx` — `buildPillLabel()`.
+**Code anchor:** `archlucid-ui/src/components/llm/LlmBudgetStatusPill.tsx` — `buildPillLabel()`.
 
 **Why severe:** a first-time architect reads this as "is the product running out of AI / will I be cut off?" It teaches a cost-control concept before any value concept.
 
@@ -261,12 +261,12 @@ This is not primarily a design problem; it is a **defaults and disclosure** prob
 | Surface | Path |
 | --- | --- |
 | Header AI-budget pill (dev chrome gate) | `archlucid-ui/src/components/shell/OperatorShellTopBar.tsx` |
-| AI-budget pill label + authority gate | `archlucid-ui/src/components/LlmBudgetStatusPill.tsx` |
-| Buyer vocabulary pass (demo-gated) | `archlucid-ui/src/lib/buyer-demo-vocabulary.ts` |
+| AI-budget pill label + authority gate | `archlucid-ui/src/components/llm/LlmBudgetStatusPill.tsx` |
+| Buyer vocabulary pass (demo-gated) | `archlucid-ui/src/lib/vocabulary/buyer-demo-vocabulary.ts` |
 | Nav labels / Service Bus banner copy | `archlucid-ui/src/lib/i18n.ts` |
 | Pilot nav — "Evidence intake" | `archlucid-ui/src/lib/pilot-nav-group-builder.ts` |
-| Start-review label overrides | `archlucid-ui/src/lib/operator-nav-labels.ts` |
-| Admin ops nav (COGS, RAG, DLQ) | `archlucid-ui/src/lib/operator-admin-nav-group-builder.ts` |
+| Start-review label overrides | `archlucid-ui/src/lib/operator/operator-nav-labels.ts` |
+| Admin ops nav (COGS, RAG, DLQ) | `archlucid-ui/src/lib/operator/operator-admin-nav-group-builder.ts` |
 | Analysis nav (system health, connectors) | `archlucid-ui/src/lib/operate-analysis-nav-group-builder.ts` |
 | Terminology guard tests | `archlucid-ui/src/lib/review-terminology-guard.test.ts` |
 | Intake wizard Azure steps | `archlucid-ui/src/app/(operator)/reviews/new/NewRunWizardClient.tsx` |

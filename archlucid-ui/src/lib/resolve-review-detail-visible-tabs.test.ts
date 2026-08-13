@@ -3,6 +3,7 @@ import { describe, expect, it } from "vitest";
 import {
   coerceReviewDetailTabToVisible,
   isReviewDetailTabAdvanced,
+  resolveReviewDetailTabForVisit,
   resolveReviewDetailTabLifecycleStage,
   resolveReviewDetailVisibleTabs,
 } from "@/lib/resolve-review-detail-visible-tabs";
@@ -27,6 +28,17 @@ describe("resolveReviewDetailTabLifecycleStage", () => {
         runCompleted: false,
       }),
     ).toBe("analysis-in-progress");
+  });
+
+  it("defaults the in-progress stage to the tab that hosts the progress tracker", () => {
+    const resolved = resolveReviewDetailVisibleTabs({
+      manifestId: null,
+      showProgressTracker: true,
+      runCompleted: false,
+    });
+
+    expect(resolved.visibleTabIds).toContain("activity");
+    expect(resolved.defaultTabId).toBe("activity");
   });
 
   it("returns pre-commit-complete when analysis finished without a record", () => {
@@ -109,6 +121,45 @@ describe("resolveReviewDetailVisibleTabs", () => {
     ]);
     expect(resolved.advancedCollapsedTabIds).toEqual(["policies", "architecture", "activity"]);
     expect(resolved.defaultTabId).toBe("review-package");
+  });
+});
+
+describe("resolveReviewDetailTabForVisit", () => {
+  it("lands on Activity while analysis runs so progress is visible without a tab click", () => {
+    const resolved = resolveReviewDetailVisibleTabs({
+      manifestId: null,
+      showProgressTracker: true,
+      runCompleted: false,
+    });
+
+    expect(resolved.defaultTabId).toBe("activity");
+    expect(resolveReviewDetailTabForVisit(null, resolved)).toBe("activity");
+    expect(resolveReviewDetailTabForVisit(undefined, resolved)).toBe("activity");
+    expect(resolveReviewDetailTabForVisit("not-a-tab", resolved)).toBe("activity");
+  });
+
+  it("honors an explicit tab request over the stage default", () => {
+    const resolved = resolveReviewDetailVisibleTabs({
+      manifestId: null,
+      showProgressTracker: true,
+      runCompleted: false,
+    });
+
+    expect(resolveReviewDetailTabForVisit("overview", resolved)).toBe("overview");
+    expect(resolveReviewDetailTabForVisit("findings", resolved)).toBe("findings");
+  });
+
+  it("applies the stage default at every stage when no tab is named", () => {
+    for (const testCase of [
+      { input: { manifestId: null, showProgressTracker: false, runCompleted: false }, expected: "overview" },
+      { input: { manifestId: null, showProgressTracker: true, runCompleted: false }, expected: "activity" },
+      { input: { manifestId: null, showProgressTracker: false, runCompleted: true }, expected: "findings" },
+      { input: { manifestId: "m-1", showProgressTracker: false, runCompleted: true }, expected: "review-package" },
+    ] as const) {
+      const resolved = resolveReviewDetailVisibleTabs(testCase.input);
+
+      expect(resolveReviewDetailTabForVisit(null, resolved)).toBe(testCase.expected);
+    }
   });
 });
 

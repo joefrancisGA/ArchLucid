@@ -6,7 +6,7 @@ import {
   BUYER_EVIDENCE_TRAIL_LAYER_DISCLOSURE,
   BUYER_EVIDENCE_TRAIL_LAYER_DISCLOSURE_LEAD,
   BUYER_GRAPH_WHAT_THIS_PROVES,
-} from "@/lib/buyer-polish-copy";
+} from "@/lib/buyer/buyer-polish-copy";
 import { mergeLayerGuidanceForGraphDisclosure } from "@/lib/layer-guidance";
 import { OPERATOR_DISCLOSURE_TRIGGER_CLASS, OPERATOR_TYPOGRAPHY } from "@/lib/design-tokens";
 import { pageHelpTopicForPathname } from "@/lib/usability/page-help-topic-map";

@@ -5,7 +5,7 @@ import Link from "next/link";
 
 import { CopyIdButton } from "@/components/CopyIdButton";
 import { Button } from "@/components/ui/button";
-import { OperatorErrorCallout } from "@/components/OperatorShellMessage";
+import { OperatorErrorCallout } from "@/components/operator/OperatorShellMessage";
 import type { ApiLoadFailureState } from "@/lib/api-load-failure";
 import { ensureCorrelationId } from "@/lib/usability/ensure-correlation-id";
 import { OPERATOR_DISCLOSURE_TRIGGER_CLASS, OPERATOR_TYPOGRAPHY } from "@/lib/design-tokens";

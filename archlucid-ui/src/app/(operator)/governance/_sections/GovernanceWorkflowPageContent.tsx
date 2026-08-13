@@ -2,38 +2,33 @@
 
 import { cn } from "@/lib/utils";
 import Link from "next/link";
-import { useCallback, useEffect, useRef, useState } from "react";
-
 import { useRouter, useSearchParams } from "next/navigation";
+import { useCallback, useEffect, useRef, useState } from "react";
 
 import { OperatorSuccessCallout } from "@/components/operator/OperatorSuccessCallout";
 import { OperatorMutationInlineError } from "@/components/operator/OperatorMutationInlineError";
 import { MutationErrorBoundary } from "@/components/MutationErrorBoundary";
-import { OperatorApiProblem } from "@/components/OperatorApiProblem";
+import { OperatorApiProblem } from "@/components/operator/OperatorApiProblem";
 import { Separator } from "@/components/ui/separator";
 import { InlineGuidanceLabel } from "@/components/InlineGuidanceLabel";
-import { OperatorPageHeader } from "@/components/OperatorPageHeader";
+import { ApprovalLineageQueueVocabularyRail } from "@/components/ApprovalLineageQueueVocabularyRail";
+import { PackageGovernanceApprovalQueueVocabularyRail } from "@/components/PackageGovernanceApprovalQueueVocabularyRail";
+import { GovernanceJobRouterStrip } from "@/components/governance/GovernanceJobRouterStrip";
+import { OperatorPageHeader } from "@/components/operator/OperatorPageHeader";
 import { PageContextualHelpButton } from "@/components/usability/PageContextualHelpButton";
 import { TooltipProvider } from "@/components/ui/tooltip";
 import { LayerHeader } from "@/components/LayerHeader";
-import {
-  listActivations,
-  listApprovalRequests,
-  listPromotions,
-} from "@/lib/api";
-import type { ApiLoadFailureState } from "@/lib/api-load-failure";
-import { toApiLoadFailure } from "@/lib/api-load-failure";
+import { useGovernanceReviewContextQuery } from "@/hooks/use-governance-review-context-query";
+import { useGovernanceWorkflowRunListsQuery } from "@/hooks/use-governance-workflow-run-lists-query";
 import { useOperateCapability } from "@/hooks/use-operate-capability";
-import { OPERATOR_LINK, OPERATOR_TYPOGRAPHY } from "@/lib/design-tokens";
+import { toApiLoadFailure } from "@/lib/api-load-failure";
+import { DESIGN_TOKENS, OPERATOR_LINK, OPERATOR_TYPOGRAPHY } from "@/lib/design-tokens";
 import { isBuyerPolishedOperatorShellEnv } from "@/lib/demo-ui-env";
 import { canonicalizeDemoRunId } from "@/lib/demo-run-canonical";
 import {
-  shouldSeedStaticDemoGovernanceRecordsForRun,
   STATIC_DEMO_GOVERNANCE_FALLBACK_STATUS,
-  tryStaticDemoGovernanceApprovalRequests,
-  tryStaticDemoGovernancePromotions,
   warnStaticDemoPayloadFallbackOutsidePackagedDeployOnce,
-} from "@/lib/operator-static-demo";
+} from "@/lib/operator/operator-static-demo";
 import { auditTrailNavHref } from "@/lib/audit-nav-paths";
 import {
   GOVERNANCE_OVERVIEW_HOW_IT_WORKS_TRIGGER,
@@ -44,12 +39,12 @@ import {
   GOVERNANCE_OVERVIEW_WORKSPACE_HEALTH_LINK_LABEL,
   governanceOverviewPageLead,
   GOVERNANCE_REVIEW_CONTEXT_PAGE_LEAD,
-} from "@/lib/governance-overview-copy";
-import { governanceApprovalQueueHref, GOVERNANCE_WORKSPACE_HEALTH_HREF } from "@/lib/governance-route-paths";
+} from "@/lib/governance/governance-overview-copy";
+import { governanceApprovalQueueHref, GOVERNANCE_WORKSPACE_HEALTH_HREF } from "@/lib/governance/governance-route-paths";
 import {
   BUYER_GOVERNANCE_APPROVAL_RECORD_LEAD,
   BUYER_GOVERNANCE_GOVERNED_USE_SCOPE,
-} from "@/lib/buyer-polish-copy";
+} from "@/lib/buyer/buyer-polish-copy";
 import {
   GOVERNANCE_WORKFLOW_ACTIVATE_AUDIT_NAME_REQUIRED,
   GOVERNANCE_WORKFLOW_APPROVAL_SUBMITTED_SUCCESS,
@@ -58,17 +53,13 @@ import {
   GOVERNANCE_WORKFLOW_REQUEST_REJECTED_SUCCESS,
   GOVERNANCE_WORKFLOW_REVIEWED_BY_REQUIRED,
   governanceWorkflowActivateSuccessMessage,
-} from "@/lib/governance-mutation-outcome-copy";
+} from "@/lib/governance/governance-mutation-outcome-copy";
 import {
   GOVERNANCE_WORKFLOW_AUDIT_NAME_REQUIRED_BEFORE_RELEASE,
   GOVERNANCE_WORKFLOW_ENVIRONMENT_RELEASES_ACCORDION_LABEL,
   GOVERNANCE_WORKFLOW_RELEASE_SUCCESS_TOAST,
-} from "@/lib/governance-workflow-release-copy";
-import type {
-  GovernanceApprovalRequest,
-  GovernanceEnvironmentActivation,
-  GovernancePromotionRecord,
-} from "@/types/governance-workflow";
+} from "@/lib/governance/governance-workflow-release-copy";
+import type { GovernanceApprovalRequest, GovernancePromotionRecord } from "@/types/governance-workflow";
 import { SHOWCASE_STATIC_DEMO_RUN_ID } from "@/lib/showcase-static-demo";
 import { deriveGovernanceApprovalWorkflowState } from "./governance-approval-workflow-state";
 import {
@@ -85,19 +76,14 @@ import {
   GovernanceWorkflowPromotionsActivationsSectionDeferred,
   GovernanceWorkflowSubmitSectionDeferred,
 } from "./governance-workflow-deferred-chunks";
-import {
-  sortGovernanceActivations,
-  sortGovernancePromotions,
-  type GovernanceWorkflowPendingReview,
-} from "./governance-workflow-helpers";
-import { loadGovernanceReviewContext } from "./load-governance-review-context";
+import type { GovernanceWorkflowPendingReview } from "./governance-workflow-helpers";
 import {
   GOVERNANCE_APPROVAL_DECISION_RECORD_TITLE,
   GOVERNANCE_APPROVAL_REQUESTS_COMPACT_SECTION_LEAD,
   GOVERNANCE_APPROVAL_REQUESTS_SECTION_LEAD,
   GOVERNANCE_APPROVAL_REQUESTS_SECTION_TITLE,
   governanceWorkflowOutcomeLineForPhase,
-} from "@/lib/governance-workflow-section-copy";
+} from "@/lib/governance/governance-workflow-section-copy";
 
 export function GovernanceWorkflowPageContent() {
   const router = useRouter();
@@ -119,15 +105,25 @@ export function GovernanceWorkflowPageContent() {
 
   const [queryRunId, setQueryRunId] = useState("");
   const [activeRunId, setActiveRunId] = useState<string | null>(null);
-  const [activeReviewDisplayTitle, setActiveReviewDisplayTitle] = useState<string | null>(null);
   const [workflowActor, setWorkflowActor] = useState("");
 
-  const [approvals, setApprovals] = useState<GovernanceApprovalRequest[]>([]);
-  const [promotions, setPromotions] = useState<GovernancePromotionRecord[]>([]);
-  const [activations, setActivations] = useState<GovernanceEnvironmentActivation[]>([]);
-  const [listsLoading, setListsLoading] = useState(false);
-  const [listFailure, setListFailure] = useState<ApiLoadFailureState | null>(null);
-  const [showingStaticDemoGovernanceRecords, setShowingStaticDemoGovernanceRecords] = useState(false);
+  const runListsQuery = useGovernanceWorkflowRunListsQuery(activeRunId);
+  const reviewContextQuery = useGovernanceReviewContextQuery(activeRunId);
+
+  const {
+    approvals,
+    promotions,
+    activations,
+    showingStaticDemoGovernanceRecords,
+    listFailure,
+    isPending: runListsPending,
+    isFetching: runListsFetching,
+    isFetched: runListsFetched,
+    refetch: refetchRunLists,
+  } = runListsQuery;
+
+  const listsLoading = runListsPending || (runListsFetching && !runListsFetched);
+  const activeReviewDisplayTitle = reviewContextQuery.data?.displayTitle ?? null;
 
   const isReviewContext = activeRunId !== null;
   const isShowcaseSampleContext =
@@ -174,12 +170,6 @@ export function GovernanceWorkflowPageContent() {
 
   const clearReviewContext = useCallback((): void => {
     setActiveRunId(null);
-    setActiveReviewDisplayTitle(null);
-    setApprovals([]);
-    setPromotions([]);
-    setActivations([]);
-    setListFailure(null);
-    setShowingStaticDemoGovernanceRecords(false);
     setPendingReview(null);
     replaceApprovalQueueUrl(null);
   }, [replaceApprovalQueueUrl]);
@@ -200,94 +190,11 @@ export function GovernanceWorkflowPageContent() {
     pendingActivatePromotionRef.current = null;
   }, [canMutateWorkflow]);
 
-  const loadLists = useCallback(async (runId: string) => {
-    setListsLoading(true);
-    setListFailure(null);
-
-    const governanceSeedAllowed = shouldSeedStaticDemoGovernanceRecordsForRun(runId);
-    const optimisticApprovals = governanceSeedAllowed ? tryStaticDemoGovernanceApprovalRequests(runId) : null;
-    const optimisticPromotions = governanceSeedAllowed ? tryStaticDemoGovernancePromotions(runId) : null;
-
-    if (optimisticApprovals !== null) {
-      setApprovals(optimisticApprovals);
-      setShowingStaticDemoGovernanceRecords(true);
-    } else {
-      setApprovals([]);
-      setShowingStaticDemoGovernanceRecords(false);
+  const refreshIfActive = useCallback(async () => {
+    if (activeRunId !== null) {
+      await refetchRunLists();
     }
-
-    if (optimisticPromotions !== null) {
-      setPromotions(sortGovernancePromotions(optimisticPromotions));
-    } else {
-      setPromotions([]);
-    }
-
-    setActivations([]);
-
-    try {
-      const [a, p, act] = await Promise.all([
-        listApprovalRequests(runId),
-        listPromotions(runId),
-        listActivations(runId),
-      ]);
-      let nextApprovals = a;
-      let nextPromotions = p;
-
-      if (nextApprovals.length === 0 && governanceSeedAllowed) {
-        const seeded = tryStaticDemoGovernanceApprovalRequests(runId);
-
-        if (seeded !== null) {
-          nextApprovals = seeded;
-        }
-      }
-
-      if (nextPromotions.length === 0 && governanceSeedAllowed) {
-        const seededP = tryStaticDemoGovernancePromotions(runId);
-
-        if (seededP !== null) {
-          nextPromotions = seededP;
-        }
-      }
-
-      setApprovals(nextApprovals);
-      setPromotions(sortGovernancePromotions(nextPromotions));
-      setActivations(sortGovernanceActivations(act));
-      setShowingStaticDemoGovernanceRecords(governanceSeedAllowed && a.length === 0 && nextApprovals.length > 0);
-    } catch (e) {
-      const fail = toApiLoadFailure(e);
-      setApprovals([]);
-      setPromotions([]);
-      setActivations([]);
-      setShowingStaticDemoGovernanceRecords(false);
-
-      const idForDemo = runId.trim();
-
-      if (idForDemo.length > 0 && governanceSeedAllowed) {
-        const seeded = tryStaticDemoGovernanceApprovalRequests(idForDemo);
-        const seededP = tryStaticDemoGovernancePromotions(idForDemo);
-
-        if (seeded !== null) {
-          setApprovals(seeded);
-          setShowingStaticDemoGovernanceRecords(true);
-        }
-
-        if (seededP !== null) {
-          setPromotions(sortGovernancePromotions(seededP));
-        }
-
-        if (seeded !== null || seededP !== null) {
-          setListFailure(null);
-          setListsLoading(false);
-
-          return;
-        }
-      }
-
-      setListFailure(fail);
-    } finally {
-      setListsLoading(false);
-    }
-  }, []);
+  }, [activeRunId, refetchRunLists]);
 
   const onLoadRun = useCallback(() => {
     const id = queryRunId.trim();
@@ -303,14 +210,7 @@ export function GovernanceWorkflowPageContent() {
     setSubmitRunId(id);
     setMutationErrorMessage(null);
     replaceApprovalQueueUrl(id);
-    void loadLists(id);
-  }, [queryRunId, loadLists, replaceApprovalQueueUrl]);
-
-  const refreshIfActive = useCallback(async () => {
-    if (activeRunId !== null) {
-      await loadLists(activeRunId);
-    }
-  }, [activeRunId, loadLists]);
+  }, [queryRunId, replaceApprovalQueueUrl]);
 
   useEffect(() => {
     const fromQuery = searchParams.get("runId")?.trim() ?? "";
@@ -325,31 +225,15 @@ export function GovernanceWorkflowPageContent() {
     // Always adopt the deep-link runId into the submit form — preferAutoPick on the submit
     // section's AskRunIdPicker must not win the race and silently overwrite it afterward.
     setSubmitRunId(fromQuery);
-    void loadLists(fromQuery);
-  }, [searchParams, loadLists]);
+  }, [searchParams]);
 
   useEffect(() => {
-    if (activeRunId === null) {
-      setActiveReviewDisplayTitle(null);
+    const manifestVersion = reviewContextQuery.data?.manifestVersion?.trim() ?? "";
 
-      return;
+    if (manifestVersion.length > 0) {
+      setSubmitManifestVersion(manifestVersion);
     }
-
-    let cancelled = false;
-
-    void loadGovernanceReviewContext(activeRunId).then((context) => {
-      if (cancelled) {
-        return;
-      }
-
-      setActiveReviewDisplayTitle(context.displayTitle);
-      setSubmitManifestVersion(context.manifestVersion ?? "");
-    });
-
-    return () => {
-      cancelled = true;
-    };
-  }, [activeRunId]);
+  }, [reviewContextQuery.data?.manifestVersion]);
 
   useEffect(() => {
     const fromQuery = searchParams.get("runId")?.trim() ?? "";
@@ -401,13 +285,12 @@ export function GovernanceWorkflowPageContent() {
     if (!isReviewContext && selectedRunId.length > 0) {
       setActiveRunId(selectedRunId);
       setSubmitRunId(selectedRunId);
-      void loadLists(selectedRunId);
     }
 
     window.setTimeout(() => {
       submitSectionRef.current?.scrollIntoView({ behavior: "smooth", block: "start" });
     }, 0);
-  }, [isReviewContext, queryRunId, loadLists]);
+  }, [isReviewContext, queryRunId]);
 
   async function onSubmitApproval() {
     if (!canMutateWorkflow) {
@@ -438,7 +321,7 @@ export function GovernanceWorkflowPageContent() {
       setSubmitComment("");
 
       if (activeRunId === runId) {
-        await loadLists(runId);
+        await refetchRunLists();
       }
     } catch (e) {
       const f = toApiLoadFailure(e);
@@ -654,6 +537,9 @@ export function GovernanceWorkflowPageContent() {
         }
         actions={overviewHeaderActions}
       />
+      <GovernanceJobRouterStrip currentJobId="approve-governance" />
+      <ApprovalLineageQueueVocabularyRail currentSurfaceId="approval-queue" />
+      <PackageGovernanceApprovalQueueVocabularyRail currentSurfaceId="approval-queue" />
 
       {mutationSuccessMessage !== null ? (
         <OperatorSuccessCallout
@@ -690,7 +576,8 @@ export function GovernanceWorkflowPageContent() {
           {isShowcaseSampleContext ? (
             <p
               className={cn(
-                "mb-4 rounded-md border border-amber-600/40 bg-amber-50/90 px-3 py-2 text-amber-950 dark:border-amber-700/50 dark:bg-amber-950/30 dark:text-amber-100",
+                "mb-4",
+                DESIGN_TOKENS.callout.warn,
                 OPERATOR_TYPOGRAPHY.body,
               )}
               data-testid="governance-sample-context-banner"
@@ -787,7 +674,8 @@ export function GovernanceWorkflowPageContent() {
                 role="status"
                 data-testid="governance-static-demo-fallback-status"
                 className={cn(
-                  "mb-4 rounded-md border border-amber-600/40 bg-amber-50/90 px-3 py-2 text-amber-950 dark:border-amber-700/50 dark:bg-amber-950/30 dark:text-amber-100",
+                  "mb-4",
+                  DESIGN_TOKENS.callout.warn,
                   OPERATOR_TYPOGRAPHY.body,
                 )}
               >
@@ -797,7 +685,7 @@ export function GovernanceWorkflowPageContent() {
             <h3 className={cn("m-0 text-al-text-primary", OPERATOR_TYPOGRAPHY.cardTitle)}>
               {GOVERNANCE_APPROVAL_REQUESTS_SECTION_TITLE}
             </h3>
-            <p className={cn("m-0 mt-2 mb-4 max-w-prose text-al-text-secondary", OPERATOR_TYPOGRAPHY.helper)}>
+            <p className={cn("m-0 mt-2 mb-4 text-al-text-secondary", OPERATOR_TYPOGRAPHY.helper)}>
               {showBuyerApprovalStory
                 ? GOVERNANCE_APPROVAL_REQUESTS_COMPACT_SECTION_LEAD
                 : GOVERNANCE_APPROVAL_REQUESTS_SECTION_LEAD}

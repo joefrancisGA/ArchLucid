@@ -1,5 +1,5 @@
 import { cn } from "@/lib/utils";
-import { METADATA_STATUS_TAG_SHELL, OPERATOR_TYPOGRAPHY } from "@/lib/design-tokens";
+import { METADATA_STATUS_TAG_SHELL, OPERATOR_DANGER, OPERATOR_TYPOGRAPHY } from "@/lib/design-tokens";
 import * as React from "react"
 import { cva, type VariantProps } from "class-variance-authority"
 
@@ -16,8 +16,7 @@ const badgeVariants = cva(
           "border-transparent bg-neutral-900 text-neutral-50 shadow hover:bg-neutral-900/80 dark:bg-neutral-50 dark:text-neutral-900 dark:hover:bg-neutral-50/80",
         secondary:
           "border-transparent bg-neutral-200 text-neutral-900 hover:bg-neutral-200/80 dark:bg-neutral-800 dark:text-neutral-50 dark:hover:bg-neutral-800/80",
-        destructive:
-          "border-transparent bg-red-600 text-white shadow hover:bg-red-600/80 dark:bg-red-900 dark:text-red-100 dark:hover:bg-red-900/80",
+        destructive: cn("border-transparent shadow", OPERATOR_DANGER.action),
         outline: "text-neutral-950 dark:text-neutral-50",
         metadata: cn(
           METADATA_STATUS_TAG_SHELL,

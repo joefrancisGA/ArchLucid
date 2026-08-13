@@ -4,13 +4,13 @@ import { cn } from "@/lib/utils";
 import Link from "next/link";
 import { useMemo, useState } from "react";
 
-import { useOperatorNavAuthority } from "@/components/OperatorNavAuthorityProvider";
+import { useOperatorNavAuthority } from "@/components/operator/OperatorNavAuthorityProvider";
 import { SupportBundleDownloadButton } from "@/components/SupportBundleDownloadButton";
 import { Button } from "@/components/ui/button";
 import { Card, CardContent, CardHeader, CardTitle } from "@/components/ui/card";
-import { BUYER_HELP_EXECUTIVE_STEP_CTA } from "@/lib/buyer-polish-copy";
+import { BUYER_HELP_EXECUTIVE_STEP_CTA } from "@/lib/buyer/buyer-polish-copy";
 import { OPERATOR_LAYOUT, OPERATOR_LINK, OPERATOR_NAV_GROUP_LABEL, OPERATOR_TYPOGRAPHY } from "@/lib/design-tokens";
-import { getShowcaseExecutiveHref } from "@/lib/buyer-safe-review-navigation";
+import { getShowcaseExecutiveHref } from "@/lib/buyer/buyer-safe-review-navigation";
 import {
   filterHelpCenterTopicsByQuery,
   getHelpCenterDisplay,
@@ -18,7 +18,8 @@ import {
   HELP_CENTER_FEATURED_SLUGS,
   listHelpCenterAdvancedGuideTopics,
   listHelpCenterGuideTopics,
-} from "@/lib/help-center-catalog";
+} from "@/lib/help/help-center-catalog";
+import { isArchLucidInternalOperatorShellEnv } from "@/lib/internal-operator-env";
 import { AUTHORITY_RANK } from "@/lib/nav-authority";
 import { inAppHelpHref, type ProductDocumentationEntry } from "@/lib/product-documentation-registry";
 
@@ -35,6 +36,7 @@ export function HelpProductGuide() {
     () => ({
       showAdvanced,
       isAdmin,
+      isInternalOperator: isArchLucidInternalOperatorShellEnv(),
     }),
     [isAdmin, showAdvanced],
   );

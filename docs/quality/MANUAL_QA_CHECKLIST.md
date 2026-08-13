@@ -109,7 +109,7 @@ Use these stable tokens for a **single** walkthrough session (aligned with `src/
 
 **Justification:** Vitest can assert strings exist; only a human catches awkward synonyms that break trust on a live walkthrough.
 
-**Source of truth:** `archlucid-ui/src/lib/buyer-surface-vocabulary.ts`, `buyer-polish-copy.ts`.
+**Source of truth:** `archlucid-ui/src/lib/vocabulary/buyer-surface-vocabulary.ts`, `buyer-polish-copy.ts`.
 
 ---
 
@@ -499,7 +499,7 @@ Legacy bookmarks **`/runs/*`** permanently redirect to **`/reviews/*`** — clea
 | **Alerts — notifications** | `/governance/alert-rules?tab=notifications` | [ ] |
 | **Alerts — advanced rules** | `/governance/alert-rules?tab=advanced-rules` | [ ] |
 | **Alerts — test alerts** | `/governance/alert-rules?tab=test-alerts` | [ ] |
-| **Alert routing (standalone)** | `/alert-routing` | [ ] |
+| **Alert routing (legacy bookmark)** | `/governance/alert-rules?tab=notifications` (redirect-only; `/alert-routing` retired) | [ ] |
 | **Policy packs hub** | `/policy-packs` | [ ] |
 | **Policy pack detail** | `/governance/policy-packs/{id}` | [ ] |
 | **Governance resolution** | `/governance-resolution` | [ ] |
@@ -509,7 +509,7 @@ Legacy bookmarks **`/runs/*`** permanently redirect to **`/reviews/*`** — clea
 | **Approval lineage** | `/governance/approval-requests/{id}/lineage` | [ ] |
 | **Governance setup guide** | `/governance/first-30-days` | [ ] |
 | **Audit trail** | `/audit` | [ ] |
-| **Security & trust (operator workspace)** | `/workspace/security-trust` | [ ] |
+| **Security & Trust (operator workspace)** | `/workspace/security-trust` | [ ] |
 | **Teams notifications** | `/integrations/teams` | [ ] |
 | **Value report (DOCX)** | `/value-report` | [ ] |
 | **Executive reviews (retired)** | `/executive/reviews` → `/reviews` | [ ] |
@@ -719,7 +719,7 @@ Expand **Analysis** in the sidebar (many links are *extended* or *advanced*).
 | Decision register | `/governance/decision-register` | **Ctrl+K** → “Decision register”, or governance area cross-links. |
 | Governance setup guide | `/governance/first-30-days` | **Governance → Governance setup guide**. |
 | Audit trail | `/audit` | **Governance → Audit trail**, or **Review journey** step **5. Audit trail**. |
-| Security & trust (operator) | `/workspace/security-trust` | **Governance → Security & trust**. |
+| Security & Trust (operator) | `/workspace/security-trust` | **Governance → Security & Trust**. |
 | Teams notifications | `/integrations/teams` | **Governance → Teams notifications**. |
 | Value report (DOCX) | `/value-report` | **Governance → Value report** (Execute authority). |
 
@@ -792,7 +792,7 @@ These pages are **not** linked from operator home `/`. Reach them by signing out
 | Get started | `/get-started` | Marketing CTAs. |
 | Pricing | `/pricing` | Marketing nav / footer. |
 | Trust | `/trust` | Marketing nav. |
-| Security & trust (public) | `/security-trust` | Marketing footer (operator mirror: `/workspace/security-trust`). |
+| Security & Trust (public) | `/security-trust` | Marketing footer (operator mirror: `/workspace/security-trust`). |
 | Why | `/why` | Marketing nav. |
 | FAQ | `/faq` | Marketing footer. |
 | Compliance journey | `/compliance-journey` | Marketing content links. |

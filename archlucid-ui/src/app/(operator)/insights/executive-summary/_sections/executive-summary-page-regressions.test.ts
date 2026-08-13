@@ -1,6 +1,6 @@
 import { describe, expect, it } from "vitest";
 
-import { BUYER_VALUE_REPORT_PAGE_TITLE } from "@/lib/buyer-polish-copy";
+import { BUYER_VALUE_REPORT_PAGE_TITLE } from "@/lib/buyer/buyer-polish-copy";
 import { COMMAND_PALETTE_ACTIONS } from "@/lib/command-palette-actions";
 import {
   EXECUTIVE_SUMMARY_PAGE_TITLE,

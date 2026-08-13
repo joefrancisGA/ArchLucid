@@ -19,9 +19,9 @@ import {
   ARCHITECTURE_DIAGRAM_STORAGE_WRITE_FAILURE,
   ARCHITECTURE_DIAGRAM_VERSION_HISTORY_DISCLAIMER,
   ARCHITECTURE_DIAGRAM_VERSION_HISTORY_LABEL,
-} from "@/lib/architecture-diagram-copy";
-import { isValidMermaidArchitectureDiagram } from "@/lib/architecture-diagram-mermaid";
-import type { ArchitectureDiagramVersion } from "@/lib/architecture-diagram-types";
+} from "@/lib/architecture/architecture-diagram-copy";
+import { isValidMermaidArchitectureDiagram } from "@/lib/architecture/architecture-diagram-mermaid";
+import type { ArchitectureDiagramVersion } from "@/lib/architecture/architecture-diagram-types";
 import { OPERATOR_TYPOGRAPHY } from "@/lib/design-tokens";
 
 export type ArchitectureDiagramEditorProps = {

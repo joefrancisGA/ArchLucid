@@ -3,18 +3,22 @@
 import Link from "next/link";
 import { useCallback, useMemo, useState } from "react";
 
-import { AlertsFindingsDualInboxReconciler } from "@/components/AlertsFindingsDualInboxReconciler";
+import { AlertsFindingsVocabularyRail } from "@/components/AlertsFindingsVocabularyRail";
+import { DecisionRegisterFindingsVocabularyRail } from "@/components/DecisionRegisterFindingsVocabularyRail";
 import { GovernanceApprovalStatusBanner } from "@/components/governance/GovernanceApprovalStatusBanner";
 import { EnterpriseCompactEmptyState } from "@/components/EnterpriseCompactEmptyState";
+import { FindingsQueueSearchEvidenceVocabularyRail } from "@/components/findings/FindingsQueueSearchEvidenceVocabularyRail";
 import { LayerHeader } from "@/components/LayerHeader";
-import { OperatorPageHeader } from "@/components/OperatorPageHeader";
-import { GovernanceJobRouterStrip } from "@/components/GovernanceJobRouterStrip";
+import { OperatorPageHeader } from "@/components/operator/OperatorPageHeader";
+import { GovernanceJobRouterStrip } from "@/components/governance/GovernanceJobRouterStrip";
+import { RiskExceptionsFindingsVocabularyRail } from "@/components/RiskExceptionsFindingsVocabularyRail";
 import { PageCapabilityBoundaryStrip } from "@/components/PageCapabilityBoundaryStrip";
 import { PageContextualHelpButton } from "@/components/usability/PageContextualHelpButton";
 import { GovernanceFindingsFilterBar } from "@/components/governance/findings/GovernanceFindingsFilterBar";
 import { GovernanceFindingsList } from "@/components/governance/findings/GovernanceFindingsList";
 import { SponsorStorySynopsisFromCounts } from "@/components/operator/SponsorStorySynopsisPanel";
 import { FatalPageReportProblemSupportRow } from "@/components/support/FatalPageReportProblemAction";
+import { Button } from "@/components/ui/button";
 import { useGovernanceFindingsFilter } from "@/components/governance/findings/use-governance-findings-filter";
 import { useGovernanceFindingsQuery } from "@/components/governance/findings/use-governance-findings-query";
 import {
@@ -26,36 +30,37 @@ import {
   computeArchitectureRiskRegisterSummary,
   matchesGovernanceFindingsRunScope,
   matchesRiskRegisterFilter,
-} from "@/lib/architecture-risk-register-page";
+} from "@/lib/architecture/architecture-risk-register-page";
 import {
   BUYER_GOVERNANCE_FINDINGS_PAGE_LEAD,
   BUYER_GOVERNANCE_FINDINGS_PAGE_TITLE,
   BUYER_RISK_REGISTER_EMPTY_BODY,
   BUYER_RISK_REGISTER_EMPTY_SECONDARY_ACTION,
   BUYER_RISK_REGISTER_EMPTY_TITLE,
-} from "@/lib/buyer-polish-copy";
+} from "@/lib/buyer/buyer-polish-copy";
 import { isBuyerPolishedOperatorShellEnv } from "@/lib/demo-ui-env";
 import { OPERATOR_LAYOUT, OPERATOR_LINK, OPERATOR_TYPOGRAPHY } from "@/lib/design-tokens";
-import { GOVERNANCE_FINDINGS_FILTER_NO_MATCH_COMPACT } from "@/lib/enterprise-compact-empty-state-presets";
+import { GOVERNANCE_FINDINGS_FILTER_NO_MATCH_COMPACT, GOVERNANCE_FINDINGS_LOAD_FAILED_COMPACT } from "@/lib/enterprise-compact-empty-state-presets";
+import { GOVERNANCE_FINDINGS_PATH } from "@/lib/governance/governance-route-paths";
 import { governanceRegisterMetricPresentation } from "@/lib/metric-count-presentation";
 import { buildSponsorStoryDispositionCountsFromRows } from "@/lib/sponsor-story-synopsis";
 import {
   matchesFindingsNaturalLanguageFacets,
   type FindingsNaturalLanguageFacets,
-} from "@/lib/findings-natural-language-filter";
+} from "@/lib/findings/findings-natural-language-filter";
 import { CanonicalObjectSecondaryViewStrip } from "@/components/usability/CanonicalObjectSecondaryViewStrip";
 import { SelfDescribingMetricCount } from "@/components/usability/SelfDescribingMetricCount";
 import { secondaryViewFromGovernanceQueueRow } from "@/lib/canonical-object-home-registry";
 import {
   patchGovernanceFindingsQueueFacets,
   readGovernanceFindingsQueueFacets,
-} from "@/lib/governance-findings-queue-facets-storage";
+} from "@/lib/governance/governance-findings-queue-facets-storage";
 import { usePrefetchItsmFindingCorrelations } from "@/lib/use-itsm-finding-correlations";
 import { cn } from "@/lib/utils";
 import {
   filterGovernanceRowsForJobView,
   type FindingJobView,
-} from "@/lib/finding-job-view";
+} from "@/lib/findings/finding-job-view";
 
 export type { GovernanceFindingQueueRow } from "./governance-finding-queue-row";
 
@@ -150,6 +155,7 @@ export default function GovernanceFindingsQueueClient() {
       )}
 
       <OperatorPageHeader
+        navHref={GOVERNANCE_FINDINGS_PATH}
         title={pageTitle}
         subtitle={pageSubtitle}
         titleTestId="architecture-risk-register-page-title"
@@ -202,7 +208,10 @@ export default function GovernanceFindingsQueueClient() {
         actions={<PageContextualHelpButton />}
       />
       <GovernanceJobRouterStrip currentJobId="triage-findings" />
-      <AlertsFindingsDualInboxReconciler currentSurfaceId="findings-queue" />
+      <AlertsFindingsVocabularyRail currentSurfaceId="findings-queue" />
+      <DecisionRegisterFindingsVocabularyRail currentSurfaceId="findings-queue" />
+      <RiskExceptionsFindingsVocabularyRail currentSurfaceId="findings-queue" />
+      <FindingsQueueSearchEvidenceVocabularyRail currentSurfaceId="findings-queue" />
       <PageCapabilityBoundaryStrip surfaceId="governanceFindings" />
 <div className={cn("mt-4", OPERATOR_LAYOUT.sectionStack)}>
         {secondaryViewPresentation !== null ? (
@@ -277,19 +286,49 @@ export default function GovernanceFindingsQueueClient() {
           </>
         ) : null}
 
-        {!loading && rows.length === 0 ? (
+        {!loading && rows.length === 0 && loadFailed ? (
+          <>
+            <EnterpriseCompactEmptyState
+              {...GOVERNANCE_FINDINGS_LOAD_FAILED_COMPACT}
+              title={
+                buyerPolishedShell
+                  ? "Could not load risks for this review"
+                  : GOVERNANCE_FINDINGS_LOAD_FAILED_COMPACT.title
+              }
+              description={
+                buyerPolishedShell
+                  ? "The risk register did not load. Your existing findings are unchanged — retry the load or check connectivity before navigating away."
+                  : GOVERNANCE_FINDINGS_LOAD_FAILED_COMPACT.description
+              }
+              footer={
+                <Button
+                  type="button"
+                  variant="primary"
+                  size="sm"
+                  data-testid="governance-findings-retry-load"
+                  onClick={() => {
+                    void refresh();
+                  }}
+                >
+                  Retry load
+                </Button>
+              }
+            />
+            <FatalPageReportProblemSupportRow
+              surfaceId="governance-findings-queue-hard-failure"
+              errorTitle={pageTitle}
+              errorCode="governance-findings-load-failed"
+            />
+          </>
+        ) : null}
+
+        {!loading && rows.length === 0 && !loadFailed ? (
           <>
             <EnterpriseCompactEmptyState
               testId="governance-findings-empty-state"
               title={buyerPolishedShell ? BUYER_RISK_REGISTER_EMPTY_TITLE : ARCHITECTURE_RISK_REGISTER_EMPTY_TITLE}
               description={
-                loadFailed
-                  ? buyerPolishedShell
-                    ? "We could not load risks for this review. Check your connection, or open reviews and try again."
-                    : "We could not load the architecture risk register for this workspace â€” check connectivity, then open the curated Claims Intake example if you are in demo mode."
-                  : buyerPolishedShell
-                    ? BUYER_RISK_REGISTER_EMPTY_BODY
-                    : ARCHITECTURE_RISK_REGISTER_EMPTY_BODY
+                buyerPolishedShell ? BUYER_RISK_REGISTER_EMPTY_BODY : ARCHITECTURE_RISK_REGISTER_EMPTY_BODY
               }
               actions={[
                 { label: "Open reviews", href: "/architecture/reviews", variant: "primary" },
@@ -307,13 +346,6 @@ export default function GovernanceFindingsQueueClient() {
                 ) : undefined
               }
             />
-            {loadFailed ? (
-              <FatalPageReportProblemSupportRow
-                surfaceId="governance-findings-queue-hard-failure"
-                errorTitle={pageTitle}
-                errorCode="governance-findings-load-failed"
-              />
-            ) : null}
           </>
         ) : null}
       </div>

@@ -6,14 +6,14 @@ import {
   OperatorHomeRunsPanel,
 } from "@/components/operator-home/OperatorHomeDeferredPanels";
 import { OperatorHomeWorkspaceActivityProvider } from "@/components/operator-home/operator-home-workspace-activity-context";
-import { OperatorPageContainer } from "@/components/OperatorPageContainer";
+import { OperatorPageContainer } from "@/components/operator/OperatorPageContainer";
 import {
   OPERATOR_HOME_PRIMARY_SECTION_HEADING,
   OPERATOR_LAYOUT,
 } from "@/lib/design-tokens";
-import { deriveOperatorHomeWorkspaceMetrics } from "@/lib/operator-home-workspace-metrics";
-import { OperatorHomeRefreshProvider } from "@/lib/operator-home-refresh-context";
-import { OPERATOR_HOME_RECENT_REVIEWS_HEADING } from "@/lib/operator-home-recent-reviews-heading";
+import { deriveOperatorHomeWorkspaceMetrics } from "@/lib/operator/operator-home-workspace-metrics";
+import { OperatorHomeRefreshProvider } from "@/lib/operator/operator-home-refresh-context";
+import { OPERATOR_HOME_RECENT_REVIEWS_HEADING } from "@/lib/operator/operator-home-recent-reviews-heading";
 import {
   BuyerPolishedHomeHeroSectionDeferred,
   OperatorHomeBelowFoldPanelsDeferred,
@@ -25,7 +25,7 @@ import { OperatorHomePageHeader } from "./OperatorHomePageHeader";
 import type { OperatorHomePageViewModel } from "./operator-home-page-view-model";
 import {
   operatorHomePageSubtitle,
-} from "@/lib/operator-home-page-copy";
+} from "@/lib/operator/operator-home-page-copy";
 
 type OperatorHomePageViewProps = {
   model: OperatorHomePageViewModel;
@@ -64,6 +64,8 @@ function BuyerPolishedHomePageBody(props: { readonly model: OperatorHomePageView
 
     <OperatorHomeWorkspaceActivityProvider initialHasReviews={initialHasReviews}>
 
+      <UnfinishedWorkRail runs={props.model.runsDashboard.items} />
+
       <BuyerPolishedHomeHeroSectionDeferred runsDashboard={props.model.runsDashboard} />
 
       <HomeRecentReviewsSection model={props.model} />
@@ -89,6 +91,8 @@ function OperatorHomePageBody(props: { readonly model: OperatorHomePageViewModel
       initialHasReviews={workspaceMetrics.hasReviews}
       initialOpenFindingsCount={workspaceMetrics.openFindings}
     >
+
+      <UnfinishedWorkRail runs={props.model.runsDashboard.items} />
 
       <section aria-label="Overview command center" data-testid="operator-home-pilot-command-center-host">
 
@@ -128,7 +132,7 @@ export function OperatorHomePageView({ model }: OperatorHomePageViewProps) {
         <OperatorHomeDeferredOnboarding />
         <OperatorPageContainer variant="dashboard" className={OPERATOR_LAYOUT.majorSectionGap}>
           <OperatorHomePageChrome buyerPolishedShell={buyerPolishedShell} />
-          <UnfinishedWorkRail runs={model.runsDashboard.items} />
+          {/* The continue rail renders inside each body so it reads the same live reviews snapshot. */}
           {buyerPolishedShell ? <BuyerPolishedHomePageBody model={model} /> : <OperatorHomePageBody model={model} />}
         </OperatorPageContainer>
       </OperatorHomeRefreshProvider>

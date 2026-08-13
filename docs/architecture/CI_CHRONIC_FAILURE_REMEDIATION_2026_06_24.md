@@ -25,7 +25,7 @@ Structural fixes (bounded factory startup, bootstrap-budget wiring for execute/c
 In `scripts/ci/Invoke-ApiIntegrationTestShard.ps1`, once any chunk fails, **`$shardFailed` stays true** for all subsequent chunks in that shard. Log lines like:
 
 ```text
-[Shard 3/6: chunk 4/4] Chunk 4/4 finalised at … (failed: True)
+[Shard 3/6: chunk 4/4] Chunk 4/4 finalized at … (failed: True)
 ```
 
 do **not** prove chunk 4 failed — only that an **earlier** chunk in the same shard failed. Always inspect the chunk that hit the watchdog or the TRX for the failing test name.
@@ -214,7 +214,7 @@ When a chunk hits the watchdog, download from the failing job:
 ```text
 Chunk watchdog timeout
 Starting chunk
-finalised at
+finalized at
 FullyQualifiedName~
 ```
 

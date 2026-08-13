@@ -4,7 +4,6 @@ import { cn } from "@/lib/utils";
 import Link from "next/link";
 
 import { Progress } from "@/components/ui/progress";
-import { Button } from "@/components/ui/button";
 import { Card, CardContent, CardHeader, CardTitle } from "@/components/ui/card";
 import type { AiUsageBudgetPaceStatus, AiUsageKpiSummary } from "@/lib/ai-usage-dashboard-model";
 import {
@@ -144,14 +143,10 @@ export function AiUsageMonthlyBudgetPanel(props: Props) {
           </dl>
 
           {props.canManageBudget ? (
-            <div className="flex flex-wrap gap-2">
-              <Button asChild variant="outline" size="sm">
-                <Link href="/administration/billing#billing-ai-credits">Edit budget</Link>
-              </Button>
-              <Button asChild variant="outline" size="sm">
-                <Link href="/administration/billing#billing-usage">Review limit behavior</Link>
-              </Button>
-            </div>
+            <p className={cn("m-0 text-al-text-secondary", OPERATOR_TYPOGRAPHY.helper)}>
+              Change monthly limits, warning thresholds, and hard-stop behavior in{" "}
+              <span className="font-medium text-al-text-primary">Budget controls</span> below.
+            </p>
           ) : (
             <p className={cn("m-0 text-al-text-secondary", OPERATOR_TYPOGRAPHY.helper)}>
               Budget changes require Admin authority.{" "}

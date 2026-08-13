@@ -1,9 +1,9 @@
 import dynamic from "next/dynamic";
 import type { ReactElement } from "react";
 
-import { OperatorApiProblem } from "@/components/OperatorApiProblem";
+import { OperatorApiProblem } from "@/components/operator/OperatorApiProblem";
 import { CollapsibleSection } from "@/components/CollapsibleSection";
-import { OperatorSectionRetryButton } from "@/components/OperatorSectionRetryButton";
+import { OperatorSectionRetryButton } from "@/components/operator/OperatorSectionRetryButton";
 import type { ApiLoadFailureState } from "@/lib/api-load-failure";
 import { OPERATOR_TYPOGRAPHY } from "@/lib/design-tokens";
 import { CoverageChecklistPanel } from "@/components/usability/CoverageChecklistPanel";
@@ -11,12 +11,12 @@ import { InsightDensityCurationBanner } from "@/components/usability/InsightDens
 import {
   hasFindingsSnapshotInsightDensityContent,
   type FindingsSnapshotInsightDensityView,
-} from "@/lib/findings-snapshot-insight-density";
-import { hasFindingsWhatIfAnalysisContent } from "@/lib/findings-what-if-analysis";
+} from "@/lib/findings/findings-snapshot-insight-density";
+import { hasFindingsWhatIfAnalysisContent } from "@/lib/findings/findings-what-if-analysis";
 import type { FindingWireSnapshot, QuickDecisionFinding } from "@/lib/quick-decision-summary-derive";
 import type { RunExplanationSummary } from "@/types/explanation";
-import { RunDecisionExplainabilitySection } from "@/components/RunDecisionExplainabilitySection";
-import type { RunDecisionExplainabilityModel } from "@/lib/run-decision-explainability-from-detail";
+import { RunDecisionExplainabilitySection } from "@/components/runs/RunDecisionExplainabilitySection";
+import type { RunDecisionExplainabilityModel } from "@/lib/runs/run-decision-explainability-from-detail";
 import { cn } from "@/lib/utils";
 
 import { RunDetailSponsorModeExplanationCard } from "./RunDetailSponsorModeExplanationCard";
@@ -32,7 +32,7 @@ const findingsWorkspaceLoading = (
 /** TB-2021 — keep QuickDecision / findings client graph out of sync First Load JS. */
 const FindingsWhatIfAnalysisPanel = dynamic(
   () =>
-    import("@/components/FindingsWhatIfAnalysisPanel").then(
+    import("@/components/findings/FindingsWhatIfAnalysisPanel").then(
       (module) => module.FindingsWhatIfAnalysisPanel,
     ),
   { loading: () => null },
@@ -45,13 +45,13 @@ const RunDetailFindingsWorkspace = dynamic(
 );
 
 const RunExplanationSection = dynamic(
-  () => import("@/components/RunExplanationSection").then((module) => module.RunExplanationSection),
+  () => import("@/components/runs/RunExplanationSection").then((module) => module.RunExplanationSection),
   { loading: () => null },
 );
 
 const RunFindingExplainabilityTable = dynamic(
   () =>
-    import("@/components/RunFindingExplainabilityTable").then(
+    import("@/components/runs/RunFindingExplainabilityTable").then(
       (module) => module.RunFindingExplainabilityTable,
     ),
   { loading: () => null },

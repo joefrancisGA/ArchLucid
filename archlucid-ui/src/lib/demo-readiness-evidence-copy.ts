@@ -36,5 +36,5 @@ export const DEMO_READINESS_SOURCES: readonly EvidenceSourceLink[] = [
   { label: "Trial funnel", href: "/internal/trial-funnel" },
   { label: "Tenant health", href: "/internal/tenant-health" },
   { label: LIVE_DEMO_PAGE_TITLE, href: "/live-demo" },
-  { label: "Choose your next step", href: inAppHelpHref("path-chooser") },
+  { label: "Choose your next step", href: inAppHelpHref("choose-your-next-step") },
 ] as const;

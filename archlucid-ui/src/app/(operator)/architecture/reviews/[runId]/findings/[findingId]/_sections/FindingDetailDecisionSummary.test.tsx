@@ -17,6 +17,8 @@ describe("FindingDetailDecisionSummary", () => {
           nextReview: "Q3 2026",
           riskOwner: "Claims architecture lead",
         }}
+        runId="run-1"
+        findingId="finding-9"
       />,
     );
 
@@ -27,5 +29,9 @@ describe("FindingDetailDecisionSummary", () => {
     expect(screen.getByText("Weekly exception monitoring")).toBeTruthy();
     expect(screen.getByText("Q3 2026")).toBeTruthy();
     expect(screen.getByText("Claims architecture lead")).toBeTruthy();
+    expect(screen.getByTestId("finding-detail-record-disposition")).toHaveAttribute(
+      "href",
+      "/architecture/reviews/run-1/findings/finding-9/evidence-trace#governance-disposition-heading",
+    );
   });
 });

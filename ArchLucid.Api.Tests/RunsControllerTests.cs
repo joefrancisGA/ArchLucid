@@ -188,6 +188,7 @@ public sealed class RunsControllerTests
 
         return new RunsController(
             Mock.Of<IArchitectureRunCreateOrchestrator>(),
+            Mock.Of<IArchitectureRunBatchCreateOrchestrator>(),
             Mock.Of<IArchitectureRunExecuteOrchestrator>(),
             Mock.Of<IArchitectureRunCommitOrchestrator>(),
             architectureApplicationService ?? Mock.Of<IArchitectureApplicationService>(),
@@ -200,7 +201,7 @@ public sealed class RunsControllerTests
             actor.Object,
             Mock.Of<IAuditService>(),
             Mock.Of<ICommitSponsorEmailNotifier>(),
-            Mock.Of<ICommitRunIdempotencyRepository>(),
+            Mock.Of<ICommitRunIdempotencyCoordinator>(),
             Mock.Of<IRunRepository>(),
             Mock.Of<IAuthorityQueryService>(),
             Mock.Of<IFindingFeedbackRepository>(),

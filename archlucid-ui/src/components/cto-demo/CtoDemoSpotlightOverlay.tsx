@@ -5,7 +5,7 @@ import { useEffect, useState } from "react";
 import {
   ARCHLUCID_CTO_DEMO_SPOTLIGHT_CHANGED_EVENT,
   readBuyerCtoDemoSpotlight,
-} from "@/lib/buyer-cto-demo-tour";
+} from "@/lib/buyer/buyer-cto-demo-tour";
 import { isBuyerPolishedOperatorShellEnv } from "@/lib/demo-ui-env";
 
 /** Dims the page so the audience follows the presenter on a shared screen. */

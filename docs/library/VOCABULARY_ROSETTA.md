@@ -1,4 +1,4 @@
-﻿> **Scope:** Contributor-reference — the single mapping table between internal/API vocabulary and buyer vocabulary, the end-state rule for where each is legal, and the classified leak inventory for the dual-vocabulary cleanup (2026-08-03). Parents: [`CONCEPT_VOCABULARY.md#ui-glossary-v1`](CONCEPT_VOCABULARY.md#ui-glossary-v1) (canonical buyer ↔ technical noun table) and `.cursor/rules/UI-Enterprise-Design-Standard.mdc` (product-language rules).
+> **Scope:** Contributor-reference — the single mapping table between internal/API vocabulary and buyer vocabulary, the end-state rule for where each is legal, and the classified leak inventory for the dual-vocabulary cleanup (2026-08-03). Parents: [`CONCEPT_VOCABULARY.md#ui-glossary-v1`](CONCEPT_VOCABULARY.md#ui-glossary-v1) (canonical buyer ↔ technical noun table) and `.cursor/rules/UI-Enterprise-Design-Standard.mdc` (product-language rules).
 
 > **Reviewed:** 2026-08-03
 
@@ -43,16 +43,16 @@ Status values: **done** (fixed 2026-08-03) Â· **open** (follow-up) Â· **bloc
 
 | File | Hits | Status |
 |---|---|---|
-| `src/lib/buyer-surface-vocabulary.ts` (executive dashboard copy: "Commit at least one review…", "committed reviews", "No committed reviews yet", …) | ~12 | done |
-| `src/lib/buyer-polish-copy.ts` (`BUYER_EXECUTIVE_DATA_SOURCE_NOTE`, scorecard empty action) | 2 | done |
-| `src/lib/executive-dashboard-page-copy.ts` (page lead) | 1 | done |
+| `src/lib/vocabulary/buyer-surface-vocabulary.ts` (executive dashboard copy: "Commit at least one review…", "committed reviews", "No committed reviews yet", …) | ~12 | done |
+| `src/lib/buyer/buyer-polish-copy.ts` (`BUYER_EXECUTIVE_DATA_SOURCE_NOTE`, scorecard empty action) | 2 | done |
+| `src/lib/executive/executive-dashboard-page-copy.ts` (page lead) | 1 | done |
 | `src/lib/pilot-scorecard-present.ts` ("Committed reviews" KPI + zero-detail copy) | 3 | **open — needs owner decision:** the scorecard deliberately shows "Committed reviews" (`totalRunsCommitted`) *beside* "Finalized packages" (`totalManifestsCreated`); renaming the first to "Finalized reviews" would conflate two distinct metrics. Owner must pick a buyer noun pair (e.g. "Reviews submitted" / "Packages finalized") before this file changes |
 | `src/lib/review-scorecard-empty-state.ts` ("No committed reviews yet" heading — rest of the module already used finalize vocabulary) | 1 | done |
 | `src/lib/search-empty-preset.ts` + `src/lib/enterprise-compact-empty-state-presets.ts` ("committed review evidence indexed") | 2 | done |
 | `src/lib/layer-guidance.ts` ("Select a committed review…", "Schedules clone a committed review…") | 2 | done |
 | `src/components/OperateGatedEmptyState.tsx` ("unlocks after your first committed review") | 1 | done |
 | `src/components/PostCommitRetentionRail.tsx` ("You have a committed review.") | 1 | done |
-| `src/components/PolicyPackImpactPreviewPanel.tsx` ("Committed review ID" label/placeholder/error) | 4 | done |
+| `src/components/policy/PolicyPackImpactPreviewPanel.tsx` ("Committed review ID" label/placeholder/error) | 4 | done |
 | `src/components/governance/RecurrenceScheduleCreatePanel.tsx` ("committed review GUID", "Choose a committed review") | 2 | done |
 | `src/app/(operator)/architecture/executive-dashboard/_sections/BusinessImpactSummaryWidget.tsx` | 3 | done |
 | `src/app/(operator)/architecture/executive-dashboard/_sections/ExecutiveRoiSummarySection.tsx` ("Run or commit a review…", "No committed reviews with findings yet…", "Latest committed review per system") | 3 | done |
@@ -75,7 +75,7 @@ Status values: **done** (fixed 2026-08-03) Â· **open** (follow-up) Â· **bloc
 
 ## Enforcement added 2026-08-03
 
-- `archlucid-ui/src/lib/internal-concept-leakage-vocabulary.test.ts` — bans new "Commit a review"-family literals on listed buyer copy surfaces (sibling of the IA-013 guard; separate file because `internal-concept-leakage-guard.test.ts` was dirty at session start).
+- `archlucid-ui/src/lib/vocabulary/internal-concept-leakage-vocabulary.test.ts` — bans new "Commit a review"-family literals on listed buyer copy surfaces (sibling of the IA-013 guard; separate file because `internal-concept-leakage-guard.test.ts` was dirty at session start).
 
 ## Related
 

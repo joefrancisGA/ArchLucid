@@ -1,5 +1,4 @@
 import type { Metadata } from "next";
-import Link from "next/link";
 import type { ReactElement, ReactNode } from "react";
 
 import {
@@ -27,6 +26,10 @@ import {
   showcaseOutcomeSnapshotFromPayload,
 } from "./ShowcaseWhatThisProves";
 import { ShowcaseQuickNav } from "./ShowcaseQuickNav";
+import { ShowcaseBottomCTA } from "./ShowcaseBottomCTA";
+import { ShowcasePageTelemetry } from "./ShowcasePageTelemetry";
+import { resolveShowcaseScenarioSlug, type ShowcaseRenderMode } from "@/lib/marketing/showcase-telemetry";
+
 export const revalidate = 300;
 
 /** Showcase hero already surfaces demo disclosure — hide duplicate banner inside `DemoPreviewMarketingBody`. */
@@ -77,7 +80,21 @@ function showcaseTitleForRunId(runId: string): string {
     return "Claims Intake Modernization: Completed Architecture Output";
   }
 
+  if (decoded === "customer-intake-modernization") {
+    return "Enterprise Customer Intake Modernization: Completed Architecture Output";
+  }
+
   return `Completed example (${decoded})`;
+}
+
+function showcaseScenarioRibbonLabel(runId: string): string {
+  const decoded = decodeURIComponent(runId);
+
+  if (decoded === "customer-intake-modernization") {
+    return "Enterprise Customer Intake Modernization sample scenario.";
+  }
+
+  return "Claims Intake Modernization sample scenario.";
 }
 
 function ShowcaseLead({ children }: { readonly children: ReactNode }) {
@@ -108,7 +125,7 @@ function ShowcaseHero({ runId }: { readonly runId: string }): ReactElement {
       >
         <strong className="font-semibold">{SHOWCASE_ILLUSTRATIVE_SAMPLE_TITLE}</strong>
         {" — "}
-        Claims Intake Modernization sample scenario.
+        {showcaseScenarioRibbonLabel(runId)}
       </div>
     ) : null;
 
@@ -124,41 +141,14 @@ function ShowcaseHero({ runId }: { readonly runId: string }): ReactElement {
 }
 
 /** Bottom conversion — public marketing surface; deep-links to trial and sign-in. */
-function ShowcaseBottomCTA(): ReactElement {
-  return (
-    <section
-      aria-label="Get started with ArchLucid"
-      className="mt-10 rounded-lg border border-neutral-200 bg-neutral-50/80 p-6 dark:border-neutral-800 dark:bg-neutral-900/40"
-      data-testid="showcase-bottom-cta"
-    >
-      <h2 className="m-0 text-lg font-semibold text-neutral-900 dark:text-neutral-50">
-        Create your own architecture output
-      </h2>
-      <p className="mt-2 text-sm text-neutral-600 dark:text-neutral-400">
-        Start a new request in your workspace to generate reviews, findings, and exports for your systems.
-      </p>
-      <div className="mt-4 flex flex-wrap gap-3">
-        <Link
-          href="/get-started"
-          className="inline-flex rounded-md bg-teal-700 px-4 py-2 text-sm font-medium text-white no-underline hover:bg-teal-800 dark:bg-teal-600 dark:hover:bg-teal-500"
-        >
-          Create your own request
-        </Link>
-        <Link
-          href="/signup"
-          className="inline-flex rounded-md border border-neutral-300 bg-white px-4 py-2 text-sm font-medium text-neutral-900 no-underline hover:bg-neutral-50 dark:border-neutral-600 dark:bg-neutral-900 dark:text-neutral-100 dark:hover:bg-neutral-800"
-        >
-          Start guided evaluation
-        </Link>
-        <Link
-          href="/auth/signin"
-          className="inline-flex rounded-md border border-neutral-300 bg-white px-4 py-2 text-sm font-medium text-neutral-900 no-underline hover:bg-neutral-50 dark:border-neutral-600 dark:bg-neutral-900 dark:text-neutral-100 dark:hover:bg-neutral-800"
-        >
-          Sign in to workspace
-        </Link>
-      </div>
-    </section>
-  );
+function ShowcaseBottomCTASection({
+  runId,
+  renderMode,
+}: {
+  readonly runId: string;
+  readonly renderMode: ShowcaseRenderMode;
+}): ReactElement {
+  return <ShowcaseBottomCTA scenario={resolveShowcaseScenarioSlug(runId)} renderMode={renderMode} />;
 }
 
 function ShowcaseExecutiveSummary({ payload }: { readonly payload: DemoCommitPagePreviewResponse }): ReactElement {
@@ -260,13 +250,18 @@ function ShowcasePayloadView({
   runId,
   payload,
   banner,
+  renderMode,
 }: {
   readonly runId: string;
   readonly payload: DemoCommitPagePreviewResponse;
   readonly banner: "static" | "api-fallback" | null;
+  readonly renderMode: ShowcaseRenderMode;
 }): ReactElement {
+  const scenario = resolveShowcaseScenarioSlug(runId);
+
   return (
-    <main className="mx-auto max-w-5xl px-4 py-10">
+    <ShowcasePageTelemetry runId={runId} renderMode={renderMode}>
+      <main className="mx-auto max-w-5xl px-4 py-10">
       <ShowcaseHero runId={runId} />
 
       <ShowcaseLead>{trimLeadDescription(payload.run.description)}</ShowcaseLead>
@@ -291,14 +286,39 @@ function ShowcasePayloadView({
       <ShowcaseQuickNav
         payload={payload}
         operatorDeepLinksAvailable={canShowcaseAnonymousVisitorOpenOperatorDeepLinks(runId)}
+        renderMode={renderMode}
       />
 
       <div className="mt-6">
-        <DemoPreviewMarketingBody payload={payload} suppressStatusBanner={SHOWCASE_SUPPRESS_EMBEDDED_STATUS_BANNER} />
+        <DemoPreviewMarketingBody
+          payload={payload}
+          suppressStatusBanner={SHOWCASE_SUPPRESS_EMBEDDED_STATUS_BANNER}
+          showcaseTelemetry={{ scenario, renderMode }}
+        />
       </div>
 
-      <ShowcaseBottomCTA />
-    </main>
+      <ShowcaseBottomCTASection runId={runId} renderMode={renderMode} />
+      </main>
+    </ShowcasePageTelemetry>
+  );
+}
+
+function ShowcaseFailedShell({
+  runId,
+  children,
+}: {
+  readonly runId: string;
+  readonly children: ReactNode;
+}): ReactElement {
+  return (
+    <ShowcasePageTelemetry runId={runId} renderMode="failed">
+      <main className="mx-auto max-w-5xl px-4 py-10">
+        <ShowcaseHero runId={runId} />
+        <ShowcaseEvidenceOrientationStrip />
+        {children}
+        <ShowcaseBottomCTASection runId={runId} renderMode="failed" />
+      </main>
+    </ShowcasePageTelemetry>
   );
 }
 
@@ -353,7 +373,14 @@ export default async function MarketingShowcasePage(props: PageProps) {
   if (!base || isShowcaseStaticFirstRunId(decodedRunId)) {
     const payload = getShowcaseStaticDemoPayload(decodedRunId);
 
-    return <ShowcasePayloadView runId={runId} payload={payload} banner={base ? null : "static"} />;
+    return (
+      <ShowcasePayloadView
+        runId={runId}
+        payload={payload}
+        banner={base ? null : "static"}
+        renderMode={base ? "api" : "static"}
+      />
+    );
   }
 
   const encoded = encodeURIComponent(runId);
@@ -366,42 +393,38 @@ export default async function MarketingShowcasePage(props: PageProps) {
       if (hasCuratedShowcaseStaticPayload(decodedRunId)) {
         const fallbackPayload = getShowcaseStaticDemoPayload(decodedRunId);
 
-        return <ShowcasePayloadView runId={runId} payload={fallbackPayload} banner="api-fallback" />;
+        return (
+          <ShowcasePayloadView
+            runId={runId}
+            payload={fallbackPayload}
+            banner="api-fallback"
+            renderMode="api_fallback"
+          />
+        );
       }
 
       return (
-        <main className="mx-auto max-w-5xl px-4 py-10">
-          <ShowcaseHero runId={runId} />
-
-          <ShowcaseEvidenceOrientationStrip />
-
+        <ShowcaseFailedShell runId={runId}>
           <div className="mt-6">
             <DemoPreviewNotAvailable />
           </div>
-
-          <ShowcaseBottomCTA />
-        </main>
+        </ShowcaseFailedShell>
       );
     }
 
     case "ok":
-      return <ShowcasePayloadView runId={runId} payload={bundle.payload} banner={null} />;
+      return (
+        <ShowcasePayloadView runId={runId} payload={bundle.payload} banner={null} renderMode="api" />
+      );
 
     case "bad_json": {
       return (
-        <main className="mx-auto max-w-5xl px-4 py-10">
-          <ShowcaseHero runId={runId} />
-
-          <ShowcaseEvidenceOrientationStrip />
-
+        <ShowcaseFailedShell runId={runId}>
           <ShowcaseLoadFailed />
-
           <p className="mt-2 text-sm text-neutral-600 dark:text-neutral-400">
             The server returned data this page could not read.
           </p>
-
-          <ShowcaseBottomCTA />
-        </main>
+        </ShowcaseFailedShell>
       );
     }
 
@@ -409,7 +432,14 @@ export default async function MarketingShowcasePage(props: PageProps) {
     case "missing": {
       const fallbackPayload = getShowcaseStaticDemoPayload(decodedRunId);
 
-      return <ShowcasePayloadView runId={runId} payload={fallbackPayload} banner="api-fallback" />;
+      return (
+        <ShowcasePayloadView
+          runId={runId}
+          payload={fallbackPayload}
+          banner="api-fallback"
+          renderMode="api_fallback"
+        />
+      );
     }
   }
 }

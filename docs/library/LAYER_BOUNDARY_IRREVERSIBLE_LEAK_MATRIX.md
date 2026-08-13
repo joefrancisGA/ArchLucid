@@ -1,6 +1,6 @@
 > **Scope:** Contributor-reference — layer residual-boundary and irreversible-leak matrix (TB-1005); not a buyer-facing trust claim.
 
-# Layer residual-boundary + irreversible-leak matrix (TB-1005)
+# Layer residual-boundary + irreversible-leak matrix (**TB-1005**)
 
 > **Audience:** Contributors, principal architects, and GTM claim reviewers.  
 > **Not** a buyer assurance claim — NetArchTest / layer DAG guards ≠ multi-tenant isolation and ≠ “cross-tenant leaks are impossible.”

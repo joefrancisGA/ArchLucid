@@ -6,7 +6,7 @@ import {
   BUYER_GOVERNANCE_STATUS_BANNER_VIEW_APPROVAL,
   BUYER_GOVERNANCE_STATUS_BANNER_VIEW_AUDIT,
   BUYER_GOVERNANCE_STATUS_BANNER_VIEW_DISPOSITIONS,
-} from "@/lib/buyer-polish-copy";
+} from "@/lib/buyer/buyer-polish-copy";
 import { DESIGN_TOKENS, OPERATOR_TYPOGRAPHY } from "@/lib/design-tokens";
 import { auditTrailNavHref } from "@/lib/audit-nav-paths";
 import { SHOWCASE_STATIC_DEMO_RUN_ID } from "@/lib/showcase-static-demo";

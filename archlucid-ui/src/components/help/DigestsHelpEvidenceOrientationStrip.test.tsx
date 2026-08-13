@@ -7,15 +7,22 @@ import {
   DIGESTS_HELP_FOLLOW_UPS_TITLE,
   DIGESTS_HELP_SOURCES,
 } from "@/lib/digests-help-evidence-copy";
-import { HELP_DILIGENCE_ARTIFACT_INDEX_TITLE } from "@/lib/help-diligence-artifact-index";
+import { HELP_DILIGENCE_ARTIFACT_INDEX_TITLE } from "@/lib/help/help-diligence-artifact-index";
 
 describe("DigestsHelpEvidenceOrientationStrip", () => {
-  it("renders claim discipline and cross-topic follow-up links", () => {
+  it("renders neutral claim discipline and cross-topic follow-up links", () => {
     render(<DigestsHelpEvidenceOrientationStrip />);
 
     expect(screen.getByTestId("help-digests-orientation")).toBeInTheDocument();
-    expect(screen.getByTestId("help-digests-claim-discipline")).toHaveTextContent(DIGESTS_HELP_CLAIM_DISCIPLINE);
-    expect(screen.getByRole("heading", { name: DIGESTS_HELP_FOLLOW_UPS_TITLE })).toBeInTheDocument();
+
+    const claimDiscipline = screen.getByTestId("help-digests-claim-discipline");
+    expect(claimDiscipline).toHaveTextContent(DIGESTS_HELP_CLAIM_DISCIPLINE);
+    expect(claimDiscipline.className).not.toMatch(/amber/);
+
+    expect(screen.getByRole("heading", { name: DIGESTS_HELP_FOLLOW_UPS_TITLE })).toHaveAttribute(
+      "id",
+      "where-to-go-next",
+    );
     expect(screen.queryByRole("heading", { name: HELP_DILIGENCE_ARTIFACT_INDEX_TITLE })).toBeNull();
     expect(screen.queryByRole("complementary")).toBeNull();
 

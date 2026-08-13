@@ -36,7 +36,7 @@
 | AI-12 | AI in Healthcare — FDA SaMD / GMLP / PCCP | `ai-healthcare-fda` | [SPEC_AI12_AI_HEALTHCARE_FDA.md](SPEC_AI12_AI_HEALTHCARE_FDA.md) | 25–35 | FDA-regulated AI devices; pack #1 is general-purpose |
 | AI-13 | AI in US Public Sector — OMB M-24-10 | `ai-public-sector-us` | [SPEC_AI13_AI_PUBLIC_SECTOR.md](SPEC_AI13_AI_PUBLIC_SECTOR.md) | 25–35 | Federal AI inventory, rights-impacting; pack #1 is general-purpose |
 
-## Priority tier D — Depth, defence, and niche
+## Priority tier D — Depth, defense, and niche
 
 | # | Pack name | Slug | Spec file | Est. rules | Distinct from pack #1 |
 |---|-----------|------|-----------|-----------|----------------------|
@@ -44,7 +44,7 @@
 | AI-15 | AI Training Data Governance & Provenance | `ai-training-data-provenance` | [SPEC_AI15_TRAINING_DATA.md](SPEC_AI15_TRAINING_DATA.md) | 25–30 | Dataset cards, C2PA, opt-out; pack #1 has 1 rule only |
 | AI-16 | AI Privacy & Confidential AI Architecture | `ai-privacy-confidential` | [SPEC_AI16_CONFIDENTIAL_AI.md](SPEC_AI16_CONFIDENTIAL_AI.md) | 25–30 | TEE/confidential compute, PII at prompt; pack #1 has no TEE content |
 | AI-17 | LLM Cost & Token Governance (FinOps for AI) | `llm-finops` | [SPEC_AI17_LLM_FINOPS.md](SPEC_AI17_LLM_FINOPS.md) | 20–25 | Token budgets, kill-switch; pairs with existing FinOps pack #7 |
-| AI-18 | AI Red-Team & Safety Assurance Architecture | `ai-red-team-safety` | [SPEC_AI18_AI_RED_TEAM.md](SPEC_AI18_AI_RED_TEAM.md) | 20–30 | Red-team programme; pairs with ATLAS (#14), evals (#10) |
+| AI-18 | AI Red-Team & Safety Assurance Architecture | `ai-red-team-safety` | [SPEC_AI18_AI_RED_TEAM.md](SPEC_AI18_AI_RED_TEAM.md) | 20–30 | Red-team program; pairs with ATLAS (#14), evals (#10) |
 | AI-19 | Multi-Agent System Orchestration | `multi-agent-orchestration` | [SPEC_AI19_MULTI_AGENT.md](SPEC_AI19_MULTI_AGENT.md) | 20–30 | Supervisor/critic topology; deeper than #6's single-agent scope |
 | AI-20 | US State AI Laws — Colorado AI Act + NYC LL 144 | `us-state-ai-laws` | [SPEC_AI20_US_STATE_AI_LAWS.md](SPEC_AI20_US_STATE_AI_LAWS.md) | 15–20 | State-level consumer-protection; no coverage in pack #1 |
 

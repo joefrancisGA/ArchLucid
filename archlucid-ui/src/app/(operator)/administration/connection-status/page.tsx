@@ -1,22 +1,40 @@
+import Link from "next/link";
+
 import { ConnectorOperationsDashboard } from "@/components/integrations/ConnectorOperationsDashboard";
-import { OperatorPageHeader } from "@/components/OperatorPageHeader";
+import { INTEGRATIONS_READINESS_PATH } from "@/lib/integrations-nav-paths";
+import { OperatorPageHeader } from "@/components/operator/OperatorPageHeader";
 import { PageContextualHelpButton } from "@/components/usability/PageContextualHelpButton";
-import { OPERATOR_TYPOGRAPHY } from "@/lib/design-tokens";
+import { OPERATOR_LINK, OPERATOR_TYPOGRAPHY } from "@/lib/design-tokens";
 import { OPERATOR_NAV_LINK_LABELS } from "@/lib/i18n";
+import { CLOUD_CONNECTIONS_PATH, INTEGRATIONS_WEBHOOKS_PATH } from "@/lib/integrations-nav-paths";
 import { cn } from "@/lib/utils";
 
 export default function AdministrationConnectionStatusPage() {
   return (
-    <div className="w-full max-w-[1120px] space-y-6 px-1 py-4 sm:px-0">
+    <div className="w-full max-w-[1120px] space-y-4 px-1 py-4 sm:px-0">
       <OperatorPageHeader
+        navHref={INTEGRATIONS_READINESS_PATH}
         title={OPERATOR_NAV_LINK_LABELS.integrationReadiness}
         subtitle="See which integrations are ready, recommended, or optional for this workspace — and what to configure first."
-        actions={<PageContextualHelpButton />}
+        actions={
+          <>
+            <p
+              className={cn("m-0 text-neutral-600 dark:text-neutral-400", OPERATOR_TYPOGRAPHY.helper)}
+              data-testid="connection-status-related-surfaces"
+            >
+              Related:{" "}
+              <Link href={CLOUD_CONNECTIONS_PATH} className={cn(OPERATOR_LINK.inline, "font-medium")}>
+                Cloud connections
+              </Link>
+              {" · "}
+              <Link href={INTEGRATIONS_WEBHOOKS_PATH} className={cn(OPERATOR_LINK.inline, "font-medium")}>
+                Webhooks
+              </Link>
+            </p>
+            <PageContextualHelpButton />
+          </>
+        }
       />
-      <p className={cn("m-0 max-w-3xl text-neutral-700 dark:text-neutral-300", OPERATOR_TYPOGRAPHY.body)}>
-        Connection status shows which notification, ticketing, publishing, and delivery integrations are configured
-        for this workspace.
-      </p>
       <ConnectorOperationsDashboard />
     </div>
   );

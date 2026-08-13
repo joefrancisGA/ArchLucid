@@ -30,7 +30,6 @@ import {
   API_KEYS_STATUS_NOT_CONFIGURED,
   API_KEYS_AUDIT_ACTOR_SELF,
 } from "@/lib/api-keys-settings-copy";
-import { isApiKeysSettingsSurfaceEnabled } from "@/lib/api-keys-settings-access";
 import type {
   ApiKeyAuditEvent,
   ApiKeyCredentialSlot,
@@ -40,8 +39,17 @@ import { isArchLucidInternalOperatorShellEnv } from "@/lib/internal-operator-env
 import { mergeRegistrationScopeForProxy } from "@/lib/proxy-fetch-registration-scope";
 import { Button } from "@/components/ui/button";
 import { Card, CardContent, CardHeader, CardTitle } from "@/components/ui/card";
-import { PageContextualHelpButton } from "@/components/usability/PageContextualHelpButton";
-import { OPERATOR_TYPOGRAPHY } from "@/lib/design-tokens";
+import { ApiKeysUsersVocabularyRail } from "@/components/ApiKeysUsersVocabularyRail";
+import { DeveloperApiContractsApiKeysVocabularyRail } from "@/components/DeveloperApiContractsApiKeysVocabularyRail";
+import { WebhooksApiKeysVocabularyRail } from "@/components/WebhooksApiKeysVocabularyRail";
+import { OperatorPageContainer } from "@/components/operator/OperatorPageContainer";
+import { SETTINGS_ROOT_PATH } from "@/lib/settings-admin-route-paths";
+import { OperatorPageHeader } from "@/components/operator/OperatorPageHeader";
+import {
+  PageContextualHelpButton,
+  PAGE_HELP_SHORT_TRIGGER_TEXT,
+} from "@/components/usability/PageContextualHelpButton";
+import { DESIGN_TOKENS, OPERATOR_LAYOUT, OPERATOR_TYPOGRAPHY } from "@/lib/design-tokens";
 
 import { ApiKeyActionConfirmDialog } from "./ApiKeyActionConfirmDialog";
 import { ApiKeyCredentialTable, type ApiKeyCredentialRowModel } from "./ApiKeyCredentialTable";
@@ -129,7 +137,6 @@ function resolveSuccessBanner(
 }
 
 export function ApiKeysSettingsPageClient() {
-  const surfaceEnabled = isApiKeysSettingsSurfaceEnabled();
   const showTechnicalDetails = isArchLucidInternalOperatorShellEnv();
   const [state, setState] = useState<LoadState>({ status: "idle" });
   const [rotateReveal, setRotateReveal] = useState<AdminApiKeyRotateResponse | null>(null);
@@ -168,12 +175,8 @@ export function ApiKeysSettingsPageClient() {
   }, []);
 
   useEffect(() => {
-    if (!surfaceEnabled) {
-      return;
-    }
-
     void load();
-  }, [load, surfaceEnabled]);
+  }, [load]);
 
   const executeRotate = useCallback(
     async (slot: ApiKeyCredentialSlot, invalidatePrevious: boolean) => {
@@ -249,42 +252,41 @@ export function ApiKeysSettingsPageClient() {
     return buildCredentialRows(state.settings);
   }, [state]);
 
-  if (!surfaceEnabled) {
-    return <ApiKeysSettingsRestrictedState reason="surface_disabled" />;
-  }
-
   if (state.status === "blocked") {
     return <ApiKeysSettingsRestrictedState reason="forbidden" />;
   }
 
   return (
-    <div className="w-full max-w-5xl space-y-6" data-testid="api-keys-settings-page">
-      <header className="space-y-3">
-<div className="flex flex-wrap items-start justify-between gap-3">
-          <div>
-            <h1 className={OPERATOR_TYPOGRAPHY.pageTitle}>{API_KEYS_PAGE_TITLE}</h1>
-            <p className={cn("mt-1 max-w-prose text-al-text-secondary", OPERATOR_TYPOGRAPHY.body)}>
-              {API_KEYS_PAGE_SUBTITLE}
-            </p>
-            <p className={cn("mt-2 max-w-prose text-al-text-secondary", OPERATOR_TYPOGRAPHY.helper)}>
-              {API_KEYS_ENTERPRISE_ONLY_NOTICE}
-            </p>
-          </div>
-          <PageContextualHelpButton />
-        </div>
-      </header>
+    <OperatorPageContainer variant="settings" className={OPERATOR_LAYOUT.sectionStack} data-testid="api-keys-settings-page">
+      <OperatorPageHeader
+        navHref={SETTINGS_ROOT_PATH}
+        title={API_KEYS_PAGE_TITLE}
+        headingLevel="h1"
+        subtitle={
+          <>
+            <p className="m-0">{API_KEYS_PAGE_SUBTITLE}</p>
+            <p className={cn("m-0 mt-2 max-w-3xl", OPERATOR_TYPOGRAPHY.helper)}>{API_KEYS_ENTERPRISE_ONLY_NOTICE}</p>
+          </>
+        }
+        subtitleClassName="max-w-prose"
+        actions={<PageContextualHelpButton triggerText={PAGE_HELP_SHORT_TRIGGER_TEXT} />}
+      >
+        <ApiKeysUsersVocabularyRail currentSurfaceId="api-keys" />
+        <WebhooksApiKeysVocabularyRail currentSurfaceId="api-keys" />
+        <DeveloperApiContractsApiKeysVocabularyRail currentSurfaceId="api-keys" />
+      </OperatorPageHeader>
 {state.status === "loading" ? (
         <p className={cn("text-al-text-secondary", OPERATOR_TYPOGRAPHY.body)}>Loading API key status…</p>
       ) : null}
 
       {state.status === "ready" && state.settings.enabled === false ? (
-        <p className={cn("m-0 rounded-md border border-amber-200 bg-amber-50 px-3 py-2 text-amber-950 dark:border-amber-900 dark:bg-amber-950/40 dark:text-amber-100", OPERATOR_TYPOGRAPHY.body)} role="status">
+        <p className={cn("m-0", DESIGN_TOKENS.callout.warn, OPERATOR_TYPOGRAPHY.body)} role="status">
           {API_KEYS_SSO_ONLY_NOTICE}
         </p>
       ) : null}
 
       {statusBanner ? (
-        <p className={cn("m-0 rounded-md border border-emerald-200 bg-emerald-50 px-3 py-2 text-emerald-950 dark:border-emerald-900 dark:bg-emerald-950/40 dark:text-emerald-100", OPERATOR_TYPOGRAPHY.body)} role="status">
+        <p className={cn("m-0", DESIGN_TOKENS.callout.success, OPERATOR_TYPOGRAPHY.body)} role="status">
           {statusBanner}
         </p>
       ) : null}
@@ -377,6 +379,6 @@ export function ApiKeysSettingsPageClient() {
           void executeRotate("Admin", false);
         }}
       />
-    </div>
+    </OperatorPageContainer>
   );
 }

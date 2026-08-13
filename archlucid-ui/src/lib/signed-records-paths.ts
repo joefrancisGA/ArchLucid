@@ -1,4 +1,4 @@
-import { reviewDetailPath } from "@/lib/architecture-routes";
+import { reviewDetailPath } from "@/lib/architecture/architecture-routes";
 
 /** Canonical buyer-facing list path for signed review records (TB-405 / IA-001). */
 export const SIGNED_RECORDS_LIST_PATH = "/governance/signed-records";

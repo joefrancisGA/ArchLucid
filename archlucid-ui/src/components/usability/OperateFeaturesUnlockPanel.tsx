@@ -5,7 +5,8 @@ import Link from "next/link";
 import type { ReactElement } from "react";
 
 import { Button } from "@/components/ui/button";
-import { CORE_PILOT_PATH_STREAMLINED_LABELS } from "@/lib/core-pilot-path-vocabulary";
+import { FirstPilotOperateUnlockVocabularyRail } from "@/components/FirstPilotOperateUnlockVocabularyRail";
+import { CORE_PILOT_PATH_STREAMLINED_LABELS } from "@/lib/vocabulary/core-pilot-path-vocabulary";
 import { OPERATOR_LINK, OPERATOR_TYPOGRAPHY } from "@/lib/design-tokens";
 import { WORKSPACE_NAVIGATION_HELP_HREF } from "@/lib/workspace-navigation-help-alignment";
 import type { OperateNavUnlockPhase } from "@/lib/usability/operate-nav-progressive-unlock";
@@ -23,9 +24,11 @@ export function OperateFeaturesUnlockPanel(props: OperateFeaturesUnlockPanelProp
 
   return (
     <div
+      id="operate-features-unlock-panel"
       className="mt-2 space-y-2 border-t border-neutral-200 px-2 pt-3 dark:border-neutral-700"
       data-testid="operate-features-unlock-panel"
     >
+      <FirstPilotOperateUnlockVocabularyRail currentSurfaceId="operate-unlock" />
       <p className={cn("font-medium text-neutral-800 dark:text-neutral-200", OPERATOR_TYPOGRAPHY.helper)}>Need deeper analysis?</p>
       <p className={cn("leading-relaxed text-neutral-600 dark:text-neutral-400", OPERATOR_TYPOGRAPHY.helper)}>
         {CORE_PILOT_PATH_STREAMLINED_LABELS.operateUnlockLead}

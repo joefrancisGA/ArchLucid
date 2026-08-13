@@ -5,14 +5,14 @@ import { OperatorHomeRecommendedNextAction } from "@/components/operator-home/Op
 import {
   OPERATOR_HOME_RECOMMENDED_NEXT_LABEL,
   OPERATOR_HOME_RECOMMENDED_NEXT_OPEN_SAMPLE,
-} from "@/lib/buyer-polish-copy";
+} from "@/lib/buyer/buyer-polish-copy";
 import { renderWithOperatorQuery } from "@/testing/render-with-operator-query";
 import {
   SHOWCASE_SAMPLE_REVIEW_REGISTRY,
   showcaseSampleReviewPackageHref,
 } from "@/lib/showcase-sample-review-registry";
 
-vi.mock("@/components/OperatorNavAuthorityProvider", () => ({
+vi.mock("@/components/operator/OperatorNavAuthorityProvider", () => ({
   useNavCommittedArchitectureReview: vi.fn(() => false),
 }));
 
@@ -33,7 +33,7 @@ vi.mock("@/lib/core-pilot-commit-context", async (importOriginal) => {
   return mockModule;
 });
 
-import { useNavCommittedArchitectureReview } from "@/components/OperatorNavAuthorityProvider";
+import { useNavCommittedArchitectureReview } from "@/components/operator/OperatorNavAuthorityProvider";
 import { fetchCorePilotCommitContext } from "@/lib/core-pilot-commit-context";
 
 describe("OperatorHomeRecommendedNextAction", () => {

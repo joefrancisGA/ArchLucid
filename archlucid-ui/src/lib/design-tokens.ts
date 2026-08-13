@@ -30,7 +30,31 @@ export const AL_CSS_VAR_NAMES = {
   statusApprovedFg: "--al-status-approved-fg",
   statusApprovedMonitoringBg: "--al-status-approved-monitoring-bg",
   statusApprovedMonitoringFg: "--al-status-approved-monitoring-fg",
+  dangerActionBg: "--al-danger-action-bg",
+  dangerActionBgHover: "--al-danger-action-bg-hover",
+  dangerActionFg: "--al-danger-action-fg",
+  dangerActionRing: "--al-danger-action-ring",
+  dangerText: "--al-danger-text",
+  dangerSurfaceBg: "--al-danger-surface-bg",
+  dangerSurfaceBorder: "--al-danger-surface-border",
+  dangerSurfaceFg: "--al-danger-surface-fg",
   layerHover: "--al-layer-hover",
+} as const;
+
+/**
+ * Destructive affordances (TB-2375). Raw `bg-red-*` / `text-red-*` utilities do not track dark
+ * mode, so destructive controls drifted between primitives — `Button variant="destructive"` used
+ * `dark:bg-red-600` while `AlertDialogAction` used `dark:bg-red-900` for the same confirm.
+ */
+export const OPERATOR_DANGER = {
+  /** Destructive button/action fill. Prefer `Button variant="destructive"` over applying directly. */
+  action:
+    "bg-[var(--al-danger-action-bg)] text-[var(--al-danger-action-fg)] hover:bg-[var(--al-danger-action-bg-hover)] focus-visible:ring-[var(--al-danger-action-ring)]",
+  /** Inline error text beside or beneath a control. */
+  text: "text-[var(--al-danger-text)]",
+  /** Error banner / callout surface. */
+  surface:
+    "border border-[var(--al-danger-surface-border)] bg-[var(--al-danger-surface-bg)] text-[var(--al-danger-surface-fg)]",
 } as const;
 
 /** Shared card chrome for operator surfaces — prefer over per-page `px-2.5` overrides. */
@@ -75,10 +99,14 @@ export const OPERATOR_LAYOUT = {
     bodyOffset: "mt-4",
     bodyOffsetSlim: "mt-3",
   },
+  /** Primary column + sticky setup aside (~17.5rem) at lg+. */
+  mainWithStickyAside: "grid gap-6 lg:grid-cols-[minmax(0,1fr)_17.5rem] lg:items-start",
+  /** Sticky positioning for setup-progress aside columns. */
+  stickyAsideTop: "lg:sticky lg:top-4",
 } as const;
 
 /** Operator workflow page width variants — left-aligned rails (no `mx-auto`). */
-export type OperatorPageContainerVariant = "full" | "workflow" | "dashboard" | "reading";
+export type OperatorPageContainerVariant = "full" | "workflow" | "dashboard" | "reading" | "settings";
 
 export const OPERATOR_PAGE_CONTAINER = {
   /** Shared operator page rail — shell already applies horizontal padding. */
@@ -92,6 +120,8 @@ export const OPERATOR_PAGE_CONTAINER = {
     dashboard: "w-full max-w-[1440px]",
     /** Onboarding, settings forms, help prose (~768px) — still left-aligned to the rail. */
     reading: "w-full max-w-3xl",
+    /** Administration settings and identity surfaces (~992px) — SCIM, SSO, account security rail. */
+    settings: "w-full max-w-[62rem]",
   },
 } as const;
 
@@ -225,6 +255,22 @@ export const OPERATOR_LINK = {
  */
 export const OPERATOR_FORM_FIELD_LABEL_CLASS = "text-[13px] font-semibold leading-5 text-al-text-primary";
 
+/**
+ * Vertical rhythm inside one form field stack (label → control → helper). TB-2000.
+ * Coexists with compact page chrome (Done TB-118) — do not use page-scale `space-y-8` here.
+ */
+export const OPERATOR_FORM_FIELD_STACK_CLASS = "space-y-3";
+
+/**
+ * Multi-line helper copy under a control — relaxed leading vs default helper crush. TB-2000.
+ */
+export const OPERATOR_FORM_FIELD_HELPER_CLASS = `${OPERATOR_TYPE_SCALE.helper} leading-relaxed`;
+
+/**
+ * Checkbox / radio row with a wrapping description — minimum gap before multi-line body copy. TB-2000.
+ */
+export const OPERATOR_FORM_CONTROL_DESCRIPTION_GAP_CLASS = "gap-3";
+
 /** Semibold scan marker on inline guidance lines — pair with normal-weight body copy after the colon. */
 export const INLINE_GUIDANCE_LABEL_CLASS = "font-semibold text-al-text-primary";
 
@@ -236,6 +282,12 @@ export const OPERATOR_GUIDANCE_NEXT_LABEL_CLASS = INLINE_GUIDANCE_LABEL_CLASS;
  * Pair with normal-weight value text; do not use for instructional prefixes (use {@link INLINE_GUIDANCE_LABEL_CLASS}).
  */
 export const INLINE_METADATA_LABEL_CLASS = "font-medium text-al-text-primary";
+
+/** Short operator page leads and dashboard intros — full work-surface width (TB-2038). Do not cap at prose measure. */
+export const OPERATOR_SHORT_HELPER_MEASURE_CLASS = "max-w-none";
+
+/** @deprecated Prefer {@link OPERATOR_SHORT_HELPER_MEASURE_CLASS} on operator dashboards; reserve measure for long reading bodies. */
+export const OPERATOR_PAGE_LEAD_MEASURE = "max-w-3xl";
 
 export const OPERATOR_TYPOGRAPHY = {
   pageTitle: OPERATOR_TYPE_SCALE.pageTitle,
@@ -286,12 +338,28 @@ export const DESIGN_TOKENS = {
   callout: {
     success:
       "rounded-md border border-emerald-700/40 bg-al-surface-raised px-3 py-2 text-sm text-al-text-primary dark:border-emerald-800/50",
-    warn: "rounded-md border border-amber-600/40 bg-al-surface-raised px-3 py-2 text-sm text-al-text-primary dark:border-amber-700/50",
+    warn: "rounded-md border border-amber-600/60 bg-al-surface-raised px-3 py-2 text-sm text-al-text-primary dark:border-amber-700/60",
+    warnShell:
+      "flex gap-3 rounded-md border border-amber-600/60 border-l-4 border-l-amber-600 bg-al-surface-raised px-3 py-2 text-sm text-al-text-primary dark:border-amber-700/60 dark:border-l-amber-500",
     blocked:
-      "rounded-md border border-rose-600/40 bg-al-surface-raised px-3 py-2 text-sm text-al-text-primary dark:border-rose-700/50",
+      "rounded-md border border-rose-600/60 bg-al-surface-raised px-3 py-2 text-sm text-al-text-primary dark:border-rose-700/60",
+    blockedShell:
+      "flex gap-3 rounded-md border border-rose-600/60 border-l-4 border-l-rose-600 bg-al-surface-raised px-3 py-2 text-sm text-al-text-primary dark:border-rose-700/60 dark:border-l-rose-500",
     info: "rounded-md border border-neutral-300 bg-al-surface-raised px-3 py-2 text-sm text-al-text-primary dark:border-neutral-700",
     neutral:
       "rounded-md border border-neutral-200 bg-al-surface-raised px-3 py-2 text-sm text-al-text-secondary dark:border-neutral-800",
+  },
+  calloutSeverity: {
+    warn: {
+      label: "Caution",
+      labelClass: "text-amber-900 dark:text-amber-200",
+      iconClass: "text-amber-800 dark:text-amber-200",
+    },
+    blocked: {
+      label: "Blocked",
+      labelClass: "text-rose-900 dark:text-rose-200",
+      iconClass: "text-rose-800 dark:text-rose-200",
+    },
   },
   banner: {
     page:
@@ -493,7 +561,7 @@ export function enterpriseStatusTagClass(kind: EnterpriseStatusKind): string {
       return `${STATUS_TAG_BASE} ${STATUS_TAG_SHAPE} border-l-rose-600 bg-[var(--al-status-blocked-bg)] text-[var(--al-status-blocked-fg)] dark:border-l-rose-500`;
 
     case "approved":
-      return `${STATUS_TAG_BASE} ${STATUS_TAG_SHAPE} border-l-emerald-700 bg-[var(--al-status-approved-bg)] text-[var(--al-status-approved-fg)] dark:border-l-emerald-500`;
+      return `${STATUS_TAG_BASE} ${STATUS_TAG_SHAPE} border-l-emerald-600 bg-[var(--al-status-approved-bg)] text-[var(--al-status-approved-fg)] dark:border-l-emerald-500`;
 
     case "approved-with-monitoring":
       return `${STATUS_TAG_BASE} ${STATUS_TAG_SHAPE} border-l-teal-700 bg-[var(--al-status-approved-monitoring-bg)] text-[var(--al-status-approved-monitoring-fg)] dark:border-l-teal-500`;
@@ -696,7 +764,7 @@ export function severityTagClass(kind: FindingSeverityKind): string {
       return `${STATUS_TAG_BASE} bg-slate-500/10 text-slate-700 dark:bg-slate-500/15 dark:text-slate-300`;
 
     case "unknown":
-      return `${STATUS_TAG_BASE} bg-neutral-500/8 text-al-text-secondary dark:bg-neutral-500/12`;
+      return `${STATUS_TAG_BASE} border-dashed border-neutral-400/70 bg-al-surface-raised text-al-text-secondary dark:border-neutral-600`;
 
     default: {
       const exhaustive: never = kind;

@@ -7,7 +7,7 @@ import * as api from "@/lib/api";
 import { AUTHORITY_RANK } from "@/lib/nav-authority";
 import type { FindingLlmAudit } from "@/types/explanation";
 
-vi.mock("@/components/OperatorNavAuthorityProvider", () => ({
+vi.mock("@/components/operator/OperatorNavAuthorityProvider", () => ({
   useNavCallerAuthorityRank: (): number => AUTHORITY_RANK.ExecuteAuthority,
   useOperatorNavAuthority: () => ({
     currentPrincipal: {

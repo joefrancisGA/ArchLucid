@@ -5,18 +5,19 @@ import { useCallback, useState } from "react";
 
 import { Button } from "@/components/ui/button";
 import { Card, CardContent, CardHeader, CardTitle } from "@/components/ui/card";
-import { Input } from "@/components/ui/input";
-import { Label } from "@/components/ui/label";
 import { StatusTag } from "@/components/ui/status-tag";
-import { configureAwsTier2Connection, disconnectAwsTier2Connection } from "@/lib/api/aws-cloud-connections-api";
+import { disconnectAwsTier2Connection } from "@/lib/api/aws-cloud-connections-api";
 import { OPERATOR_TYPOGRAPHY } from "@/lib/design-tokens";
-import {
-  AWS_CONNECTION_DISCONNECT_FAILED_ERROR,
-  AWS_CONNECTION_SAVE_FAILED_ERROR,
-} from "@/lib/aws-cloud-connection-copy";
+import { AWS_CONNECTION_DISCONNECT_FAILED_ERROR } from "@/lib/aws-cloud-connection-copy";
+import { WhyDisabledCtaHint } from "@/components/usability/WhyDisabledCtaHint";
 import { awsConnectionStatusTagKind, formatAwsConnectionTimestamp } from "@/lib/aws-connection-present";
-import { enterpriseMutationControlDisabledTitle } from "@/lib/enterprise-controls-context-copy";
+import { whyDisabledEnterpriseMutationControl } from "@/lib/why-disabled-cta";
 
+import {
+  AwsConnectionDisconnectDialog,
+  type AwsConnectionDisconnectTarget,
+} from "./AwsConnectionDisconnectDialog";
+import { AwsConnectionWizard } from "./AwsConnectionWizard";
 import { useAwsConnectionData } from "./AwsConnectionDataContext";
 
 export function AwsConnectionSection(props: { readonly embedded?: boolean }) {
@@ -27,6 +28,7 @@ export function AwsConnectionSection(props: { readonly embedded?: boolean }) {
     loadError,
     formError,
     actionMessage,
+    messageScope,
     pollingConnectionId,
     canMutate,
     refreshConnections,
@@ -34,60 +36,12 @@ export function AwsConnectionSection(props: { readonly embedded?: boolean }) {
     setActionMessage,
     triggerRePoll,
   } = useAwsConnectionData();
-  const [accountId, setAccountId] = useState("");
-  const [region, setRegion] = useState("us-east-1");
-  const [roleArn, setRoleArn] = useState("");
-  const [isSaving, setIsSaving] = useState(false);
+  const [isDisconnecting, setIsDisconnecting] = useState(false);
+  const [disconnectTarget, setDisconnectTarget] = useState<AwsConnectionDisconnectTarget | null>(null);
+  const mutationDisabledHintId = "aws-connection-mutate-disabled-hint";
+  const mutationDisabledReason = canMutate ? null : whyDisabledEnterpriseMutationControl();
 
-  const handleConnect = useCallback(async () => {
-    if (!canMutate) {
-      return;
-    }
-
-    setFormError(null);
-    setActionMessage(null);
-
-    const trimmedAccountId = accountId.trim();
-    const trimmedRegion = region.trim();
-    const trimmedRoleArn = roleArn.trim();
-
-    if (!/^\d{12}$/.test(trimmedAccountId)) {
-      setFormError("AWS account ID must be a 12-digit number.");
-
-      return;
-    }
-
-    if (!trimmedRegion) {
-      setFormError("AWS region is required.");
-
-      return;
-    }
-
-    if (!trimmedRoleArn.startsWith("arn:aws:iam:")) {
-      setFormError("Role ARN must start with arn:aws:iam:.");
-
-      return;
-    }
-
-    setIsSaving(true);
-
-    try {
-      await configureAwsTier2Connection({
-        accountId: trimmedAccountId,
-        region: trimmedRegion,
-        roleArn: trimmedRoleArn,
-      });
-      await refreshConnections();
-      setActionMessage("AWS connection saved.");
-      setAccountId("");
-      setRoleArn("");
-    } catch (err) {
-      console.error(err);
-      setFormError(AWS_CONNECTION_SAVE_FAILED_ERROR);
-    } finally {
-      setIsSaving(false);
-    }
-  }, [accountId, canMutate, region, roleArn, refreshConnections, setActionMessage, setFormError]);
+  const hasConnection = !isLoading && connections.length > 0;
 
   const handleDisconnect = useCallback(
     async (connectionId: string) => {
@@ -95,92 +49,64 @@ export function AwsConnectionSection(props: { readonly embedded?: boolean }) {
         return;
       }
 
-      setActionMessage(null);
-      setFormError(null);
+      setActionMessage(null, "connection");
+      setFormError(null, "connection");
+      setIsDisconnecting(true);
 
       try {
         await disconnectAwsTier2Connection(connectionId);
         await refreshConnections();
-        setActionMessage("AWS connection removed.");
+        setActionMessage("AWS connection removed.", "connection");
+        setDisconnectTarget(null);
       } catch (err) {
         console.error(err);
-        setFormError(AWS_CONNECTION_DISCONNECT_FAILED_ERROR);
+        setFormError(AWS_CONNECTION_DISCONNECT_FAILED_ERROR, "connection");
+      } finally {
+        setIsDisconnecting(false);
       }
     },
     [canMutate, refreshConnections, setActionMessage, setFormError],
   );
 
+  const ownsMessage = messageScope === "connection";
+
+  // A failed disconnect leaves the dialog open over the page, so its error belongs inside the
+  // dialog rather than behind the modal overlay.
+  const disconnectDialogError = disconnectTarget !== null && ownsMessage ? formError : null;
+  const inlineFormError = ownsMessage && disconnectDialogError === null ? formError : null;
+  const inlineActionMessage = ownsMessage ? actionMessage : null;
+
   const body = (
     <>
-      <div className="grid gap-4 sm:grid-cols-2">
-        <div className="space-y-2 sm:col-span-2">
-          <Label htmlFor="awsAccountId">AWS account ID</Label>
-          <Input
-            id="awsAccountId"
-            data-testid="aws-account-id"
-            value={accountId}
-            onChange={(event) => setAccountId(event.target.value)}
-            placeholder="123456789012"
-            autoComplete="off"
-          />
-        </div>
-        <div className="space-y-2">
-          <Label htmlFor="awsRegion">Primary region</Label>
-          <Input
-            id="awsRegion"
-            data-testid="aws-region"
-            value={region}
-            onChange={(event) => setRegion(event.target.value)}
-            placeholder="us-east-1"
-            autoComplete="off"
-          />
-        </div>
-        <div className="space-y-2 sm:col-span-2">
-          <Label htmlFor="awsRoleArn">Read-only IAM role ARN</Label>
-          <Input
-            id="awsRoleArn"
-            data-testid="aws-role-arn"
-            value={roleArn}
-            onChange={(event) => setRoleArn(event.target.value)}
-            placeholder="arn:aws:iam::123456789012:role/ArchLucidReadOnly"
-            autoComplete="off"
-          />
-        </div>
-      </div>
-
-      <Button
-        type="button"
-        data-testid="aws-connect-submit"
-        variant="primary"
-        disabled={isSaving || !canMutate}
-        title={canMutate ? undefined : enterpriseMutationControlDisabledTitle}
-        onClick={() => void handleConnect()}
-      >
-        {isSaving ? "Saving…" : "Save AWS connection"}
-      </Button>
-
       {loadError !== null ? (
         <p className={cn(OPERATOR_TYPOGRAPHY.body, "text-red-600 dark:text-red-400")} role="alert">
           {loadError}
         </p>
       ) : null}
 
-      {formError !== null ? (
+      {inlineFormError !== null ? (
         <p className={cn(OPERATOR_TYPOGRAPHY.body, "text-red-600 dark:text-red-400")} role="alert">
-          {formError}
+          {inlineFormError}
         </p>
       ) : null}
 
-      {actionMessage !== null ? (
+      {inlineActionMessage !== null ? (
         <p className={cn(OPERATOR_TYPOGRAPHY.body, "text-emerald-700 dark:text-emerald-300")} role="status">
-          {actionMessage}
+          {inlineActionMessage}
         </p>
       ) : null}
 
       {isLoading ? <p className={OPERATOR_TYPOGRAPHY.helper}>Loading AWS connections…</p> : null}
 
-      {!isLoading && connections.length > 0 ? (
+      {!isLoading && !hasConnection ? <AwsConnectionWizard /> : null}
+
+      {hasConnection ? (
         <div className="space-y-4" data-testid="aws-connection-list">
+          <WhyDisabledCtaHint
+            id={mutationDisabledHintId}
+            reason={mutationDisabledReason}
+            testId={mutationDisabledHintId}
+          />
           {connections.map((connection) => (
             <div key={connection.connectionId} className="rounded-md border p-4 space-y-3">
               <div className="flex flex-wrap items-center justify-between gap-2">
@@ -197,14 +123,14 @@ export function AwsConnectionSection(props: { readonly embedded?: boolean }) {
                 <dt className="text-muted-foreground">Last collected</dt>
                 <dd>{formatAwsConnectionTimestamp(connection.lastPolledUtc)}</dd>
               </dl>
-              <div className="flex flex-wrap gap-2">
+              <div className="flex flex-wrap gap-2" data-testid="aws-connection-primary-actions">
                 <Button
                   type="button"
-                  variant="secondary"
+                  variant="primary"
                   data-testid={`aws-repoll-${connection.connectionId}`}
                   disabled={pollingConnectionId === connection.connectionId || !canMutate}
-                  title={canMutate ? undefined : enterpriseMutationControlDisabledTitle}
-                  onClick={() => void triggerRePoll(connection)}
+                  aria-describedby={!canMutate ? mutationDisabledHintId : undefined}
+                  onClick={() => void triggerRePoll(connection, "connection")}
                 >
                   {pollingConnectionId === connection.connectionId ? "Polling…" : "Re-poll now"}
                 </Button>
@@ -212,9 +138,14 @@ export function AwsConnectionSection(props: { readonly embedded?: boolean }) {
                   type="button"
                   variant="outline"
                   data-testid={`aws-disconnect-${connection.connectionId}`}
-                  disabled={!canMutate}
-                  title={canMutate ? undefined : enterpriseMutationControlDisabledTitle}
-                  onClick={() => void handleDisconnect(connection.connectionId)}
+                  disabled={!canMutate || isDisconnecting}
+                  aria-describedby={!canMutate ? mutationDisabledHintId : undefined}
+                  onClick={() =>
+                    setDisconnectTarget({
+                      connectionId: connection.connectionId,
+                      accountId: connection.accountId,
+                    })
+                  }
                 >
                   Disconnect
                 </Button>
@@ -223,11 +154,25 @@ export function AwsConnectionSection(props: { readonly embedded?: boolean }) {
           ))}
         </div>
       ) : null}
+
+      <AwsConnectionDisconnectDialog
+        target={disconnectTarget}
+        busy={isDisconnecting}
+        errorMessage={disconnectDialogError}
+        onCancel={() => setDisconnectTarget(null)}
+        onConfirm={() => {
+          if (disconnectTarget === null) {
+            return;
+          }
+
+          void handleDisconnect(disconnectTarget.connectionId);
+        }}
+      />
     </>
   );
 
   if (embedded) {
-    return <div data-testid="cloud-connections-available-aws">{body}</div>;
+    return <div className="space-y-4" data-testid="cloud-connections-available-aws">{body}</div>;
   }
 
   return (
@@ -239,7 +184,7 @@ export function AwsConnectionSection(props: { readonly embedded?: boolean }) {
           only; no long-lived access keys are stored.
         </p>
       </CardHeader>
-      <CardContent className="space-y-6">{body}</CardContent>
+      <CardContent className="space-y-4">{body}</CardContent>
     </Card>
   );
 }

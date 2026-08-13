@@ -68,6 +68,8 @@ When `TransactionalOutboxEnabled` is **false**, the same call sites use **best-e
 
 **Operations:** pending and dead-letter depth surface in metrics; architect workspace at **`/operate/integration-events/dlq`** lists dead letters with tenant, age, single/bulk retry, and suppress; admin APIs: `GET /admin/integration-outbox/dead-letters`, `POST /admin/integration-outbox/dead-letters/{outboxId}/retry`, `POST /admin/integration-outbox/dead-letters/{outboxId}/suppress`, and bulk `POST /admin/integrations/outbox/retry-dead-letter` (see API OpenAPI). Retry cadence, permanent failure, and acknowledgement guidance: [`docs/runbooks/INTEGRATION_EVENT_DLQ_RETRY_POLICY.md`](../runbooks/INTEGRATION_EVENT_DLQ_RETRY_POLICY.md).
 
+**At-least-once honesty (**TB-992**/**TB-993**):** every outbox enqueue must set a stable `MessageId` (`{naturalKey}:{eventType}`). `OutboxAwareIntegrationEventPublishing` refuses enqueue when `TransactionalOutboxEnabled` and `MessageId` is empty. Handler/subscriber dedupe inventory: [`INTEGRATION_EVENT_HANDLER_IDEMPOTENCY_INVENTORY.md`](./INTEGRATION_EVENT_HANDLER_IDEMPOTENCY_INVENTORY.md). Decision matrix: [`TRANSACTIONAL_OUTBOX_REPLAY_VS_IDEMPOTENCY_CONTRACT.md`](./TRANSACTIONAL_OUTBOX_REPLAY_VS_IDEMPOTENCY_CONTRACT.md).
+
 ### Worker subscription consumer
 
 When the host role is **Worker** and `IntegrationEvents:ConsumerEnabled` is **true**, `AzureServiceBusIntegrationEventConsumer` runs a `ServiceBusProcessor` on `QueueOrTopicName` + `SubscriptionName`. Handlers implement `IIntegrationEventHandler`; a default `LoggingIntegrationEventHandler` (`EventType` `*`) logs payload size/preview so subscriptions can be validated before custom logic is added.

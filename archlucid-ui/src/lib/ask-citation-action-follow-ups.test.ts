@@ -7,7 +7,7 @@ import {
   collectAskCitationFindingIds,
   parseAskCitationRefsFromMessageMetadata,
 } from "@/lib/ask-citation-action-follow-ups";
-import { GOVERNANCE_DECISION_REGISTER_PATH } from "@/lib/governance-route-paths";
+import { GOVERNANCE_DECISION_REGISTER_PATH } from "@/lib/governance/governance-route-paths";
 
 describe("buildAskCitationActionFollowUps", () => {
   it("returns honest empty when run id is missing", () => {
@@ -40,10 +40,12 @@ describe("buildAskCitationActionFollowUps", () => {
     expect(chips.map((c) => c.kind)).toEqual(["finding", "evidence", "disposition"]);
     expect(chips[0]?.href).toBe("/architecture/reviews/run-a/findings/finding-123");
     expect(chips[1]?.href).toBe("/architecture/reviews/run-a/findings/finding-123/evidence-trace");
-    expect(chips[2]?.href).toBe(GOVERNANCE_DECISION_REGISTER_PATH);
+    expect(chips[2]?.href).toBe(
+      "/architecture/reviews/run-a/findings/finding-123/evidence-trace#governance-disposition-heading",
+    );
     expect(chips[0]?.label.toLowerCase()).toContain("finding");
     expect(chips[1]?.label.toLowerCase()).toContain("evidence");
-    expect(chips[2]?.label.toLowerCase()).toContain("decision");
+    expect(chips[2]?.label.toLowerCase()).toContain("disposition");
   });
 
   it("builds chips from CitationReference Finding payloads", () => {

@@ -1,6 +1,6 @@
 import { getRunDetail, getRunSummary } from "@/lib/api";
 import { isShowcaseStaticDemoRunId } from "@/lib/demo-run-canonical";
-import { coerceRunDetail } from "@/lib/operator-response-guards";
+import { coerceRunDetail } from "@/lib/operator/operator-response-guards";
 import { SHOWCASE_STATIC_DEMO_MANIFEST_ID } from "@/lib/showcase-static-demo";
 
 function trimManifestId(value: string | null | undefined): string | null {

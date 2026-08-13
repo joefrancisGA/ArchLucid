@@ -1,3 +1,4 @@
+import { resolveRoleMappingConfigurationCustomerStatus } from "@/lib/identity-provider-probe-status-presentation";
 import type { components } from "@/lib/openapi-schemas";
 import {
   IDENTITY_PROVIDERS_AUTH_MODE_API_KEY,
@@ -7,6 +8,8 @@ import {
   IDENTITY_PROVIDERS_RECOMMENDED_CONFIGURE_SAML,
   IDENTITY_PROVIDERS_RECOMMENDED_VALIDATE_OIDC,
   IDENTITY_PROVIDERS_RECOMMENDED_VALIDATE_ROLE_MAPPING,
+  IDENTITY_PROVIDERS_ROLE_MAPPING_LOCAL_DEV_REASON,
+  IDENTITY_PROVIDERS_SAML_SAVE_ENABLEMENT_LINK_HREF,
   IDENTITY_PROVIDERS_STATUS_ACTION_NEEDED,
   IDENTITY_PROVIDERS_STATUS_DISABLED,
   IDENTITY_PROVIDERS_STATUS_ENABLED,
@@ -14,8 +17,16 @@ import {
   IDENTITY_PROVIDERS_STATUS_NEEDS_REVIEW,
   IDENTITY_PROVIDERS_STATUS_NOT_APPLICABLE,
   IDENTITY_PROVIDERS_STATUS_NOT_CONFIGURED,
+  IDENTITY_PROVIDERS_STATUS_NOT_STARTED,
+  IDENTITY_PROVIDERS_STATUS_SOURCE_UNAVAILABLE,
+  IDENTITY_PROVIDERS_STATUS_UNKNOWN,
+  IDENTITY_PROVIDERS_VALIDATION_STATUS_NOT_VALIDATED_YET,
 } from "@/lib/identity-providers-settings-copy";
-import type { IdentityProviderCustomerStatus, IdentityProvidersOverviewModel } from "@/lib/identity-providers-settings-types";
+import type {
+  IdentityProviderCustomerStatus,
+  IdentityProvidersOverviewModel,
+  IdentityProvidersOverviewTileCaptions,
+} from "@/lib/identity-providers-settings-types";
 
 type AdminAuthConfigurationDiagnosticsResponse =
   components["schemas"]["AdminAuthConfigurationDiagnosticsResponse"];
@@ -25,8 +36,11 @@ type AdminOidcDiagnosticsResponse = components["schemas"]["AdminOidcDiagnosticsR
 
 export type ResolveIdentityProvidersOverviewInput = {
   readonly authConfigurationDiagnostics: AdminAuthConfigurationDiagnosticsResponse | null;
+  readonly authConfigurationDiagnosticsAvailable: boolean;
   readonly identityProviderDiagnostics: AdminIdentityProviderDiagnosticsResponse | null;
+  readonly identityProviderDiagnosticsAvailable: boolean;
   readonly oidcDiagnostics: AdminOidcDiagnosticsResponse | null;
+  readonly oidcDiagnosticsAvailable: boolean;
 };
 
 function mapAuthModeLabel(authMode: string | null | undefined): string {
@@ -76,7 +90,13 @@ function resolveOidcStatus(
   config: AdminAuthConfigurationDiagnosticsResponse | null,
   oidcDiagnostics: AdminOidcDiagnosticsResponse | null,
   identityProviderDiagnostics: AdminIdentityProviderDiagnosticsResponse | null,
+  oidcDiagnosticsAvailable: boolean,
+  identityProviderDiagnosticsAvailable: boolean,
 ): IdentityProviderCustomerStatus {
+  if (!oidcDiagnosticsAvailable && !identityProviderDiagnosticsAvailable) {
+    return IDENTITY_PROVIDERS_STATUS_UNKNOWN;
+  }
+
   if (config?.authMode === "ApiKey") {
     return IDENTITY_PROVIDERS_STATUS_NOT_APPLICABLE;
   }
@@ -85,39 +105,35 @@ function resolveOidcStatus(
     return IDENTITY_PROVIDERS_STATUS_NOT_CONFIGURED;
   }
 
-  if (oidcDiagnostics?.discoverySucceeded === true) {
+  if (oidcDiagnosticsAvailable && oidcDiagnostics?.discoverySucceeded === true) {
     return IDENTITY_PROVIDERS_STATUS_HEALTHY;
   }
 
-  if (oidcDiagnostics?.discoverySucceeded === false) {
+  if (oidcDiagnosticsAvailable && oidcDiagnostics?.discoverySucceeded === false) {
     return IDENTITY_PROVIDERS_STATUS_NEEDS_REVIEW;
   }
 
-  const probeStatus = identityProviderDiagnostics?.oidc?.status;
+  if (identityProviderDiagnosticsAvailable) {
+    const probeStatus = identityProviderDiagnostics?.oidc?.status;
 
-  return probeStatusToCustomerStatus(probeStatus);
+    return probeStatusToCustomerStatus(probeStatus);
+  }
+
+  return IDENTITY_PROVIDERS_STATUS_UNKNOWN;
 }
 
 function resolveRoleMappingStatus(config: AdminAuthConfigurationDiagnosticsResponse | null): IdentityProviderCustomerStatus {
-  if (config?.roleClaimNameConfigured === true && config?.tenantClaimMappingConfigured === true) {
-    return IDENTITY_PROVIDERS_STATUS_ENABLED;
-  }
-
-  if (config?.roleClaimNameConfigured === true) {
-    return IDENTITY_PROVIDERS_STATUS_NEEDS_REVIEW;
-  }
-
-  if (config?.authMode === "DevelopmentBypass") {
-    return IDENTITY_PROVIDERS_STATUS_NOT_APPLICABLE;
-  }
-
-  return IDENTITY_PROVIDERS_STATUS_ACTION_NEEDED;
+  return resolveRoleMappingConfigurationCustomerStatus(config);
 }
 
 function resolveSsoStatus(
   samlStatus: IdentityProviderCustomerStatus,
   oidcStatus: IdentityProviderCustomerStatus,
 ): IdentityProviderCustomerStatus {
+  if (samlStatus === IDENTITY_PROVIDERS_STATUS_UNKNOWN || oidcStatus === IDENTITY_PROVIDERS_STATUS_UNKNOWN) {
+    return IDENTITY_PROVIDERS_STATUS_UNKNOWN;
+  }
+
   if (samlStatus === IDENTITY_PROVIDERS_STATUS_ENABLED || oidcStatus === IDENTITY_PROVIDERS_STATUS_HEALTHY) {
     return IDENTITY_PROVIDERS_STATUS_ENABLED;
   }
@@ -147,7 +163,7 @@ function resolveRecommendedNextStep(
   if (config?.authMode === "DevelopmentBypass") {
     return {
       step: IDENTITY_PROVIDERS_RECOMMENDED_CONFIGURE_PRODUCTION_SIGN_IN,
-      href: "/administration/identity-providers/oidc",
+      href: IDENTITY_PROVIDERS_SAML_SAVE_ENABLEMENT_LINK_HREF,
     };
   }
 
@@ -178,37 +194,141 @@ function resolveRecommendedNextStep(
   };
 }
 
+function resolveValidationStatusLabel(
+  input: ResolveIdentityProvidersOverviewInput,
+  samlStatus: IdentityProviderCustomerStatus,
+): string {
+  if (!input.authConfigurationDiagnosticsAvailable) {
+    return IDENTITY_PROVIDERS_STATUS_UNKNOWN;
+  }
+
+  if (!input.oidcDiagnosticsAvailable) {
+    return IDENTITY_PROVIDERS_STATUS_UNKNOWN;
+  }
+
+  if (input.oidcDiagnosticsAvailable && input.oidcDiagnostics?.discoverySucceeded === true) {
+    return IDENTITY_PROVIDERS_STATUS_HEALTHY;
+  }
+
+  if (input.oidcDiagnosticsAvailable && input.oidcDiagnostics?.discoverySucceeded === false) {
+    return IDENTITY_PROVIDERS_STATUS_NEEDS_REVIEW;
+  }
+
+  if (input.authConfigurationDiagnosticsAvailable && samlStatus === IDENTITY_PROVIDERS_STATUS_ENABLED) {
+    return IDENTITY_PROVIDERS_STATUS_ENABLED;
+  }
+
+  return IDENTITY_PROVIDERS_VALIDATION_STATUS_NOT_VALIDATED_YET;
+}
+
+function buildTileCaptions(
+  input: ResolveIdentityProvidersOverviewInput,
+  roleMappingStatus: IdentityProviderCustomerStatus,
+  authModeLabel: string,
+  samlStatus: IdentityProviderCustomerStatus,
+  oidcStatus: IdentityProviderCustomerStatus,
+  ssoStatus: IdentityProviderCustomerStatus,
+  validationStatusLabel: string,
+): IdentityProvidersOverviewTileCaptions {
+  const captions: {
+    authenticationMode?: string;
+    sso?: string;
+    saml?: string;
+    oidc?: string;
+    roleMapping?: string;
+    validation?: string;
+  } = {};
+
+  if (!input.authConfigurationDiagnosticsAvailable) {
+    captions.authenticationMode = IDENTITY_PROVIDERS_STATUS_SOURCE_UNAVAILABLE;
+    captions.saml = IDENTITY_PROVIDERS_STATUS_SOURCE_UNAVAILABLE;
+    captions.roleMapping = IDENTITY_PROVIDERS_STATUS_SOURCE_UNAVAILABLE;
+    captions.sso = IDENTITY_PROVIDERS_STATUS_SOURCE_UNAVAILABLE;
+  }
+
+  if (!input.oidcDiagnosticsAvailable && !input.identityProviderDiagnosticsAvailable) {
+    captions.oidc = IDENTITY_PROVIDERS_STATUS_SOURCE_UNAVAILABLE;
+  }
+
+  if (
+    input.authConfigurationDiagnosticsAvailable
+    && roleMappingStatus === IDENTITY_PROVIDERS_STATUS_NOT_STARTED
+    && input.authConfigurationDiagnostics?.authMode === "DevelopmentBypass"
+  ) {
+    captions.roleMapping = IDENTITY_PROVIDERS_ROLE_MAPPING_LOCAL_DEV_REASON;
+  }
+
+  if (validationStatusLabel === IDENTITY_PROVIDERS_STATUS_UNKNOWN) {
+    captions.validation = IDENTITY_PROVIDERS_STATUS_SOURCE_UNAVAILABLE;
+  }
+
+  if (authModeLabel === IDENTITY_PROVIDERS_STATUS_UNKNOWN) {
+    captions.authenticationMode = IDENTITY_PROVIDERS_STATUS_SOURCE_UNAVAILABLE;
+  }
+
+  if (samlStatus === IDENTITY_PROVIDERS_STATUS_UNKNOWN) {
+    captions.saml = IDENTITY_PROVIDERS_STATUS_SOURCE_UNAVAILABLE;
+  }
+
+  if (oidcStatus === IDENTITY_PROVIDERS_STATUS_UNKNOWN) {
+    captions.oidc = IDENTITY_PROVIDERS_STATUS_SOURCE_UNAVAILABLE;
+  }
+
+  if (ssoStatus === IDENTITY_PROVIDERS_STATUS_UNKNOWN) {
+    captions.sso = IDENTITY_PROVIDERS_STATUS_SOURCE_UNAVAILABLE;
+  }
+
+  return captions;
+}
+
 /** Derives buyer-safe overview status cards from admin diagnostics payloads. */
 export function resolveIdentityProvidersOverview(
   input: ResolveIdentityProvidersOverviewInput,
 ): IdentityProvidersOverviewModel {
-  const config = input.authConfigurationDiagnostics;
-  const samlStatus = resolveSamlStatus(config);
-  const oidcStatus = resolveOidcStatus(config, input.oidcDiagnostics, input.identityProviderDiagnostics);
-  const roleMappingStatus = resolveRoleMappingStatus(config);
+  const config = input.authConfigurationDiagnosticsAvailable ? input.authConfigurationDiagnostics : null;
+  const samlStatus = input.authConfigurationDiagnosticsAvailable
+    ? resolveSamlStatus(config)
+    : IDENTITY_PROVIDERS_STATUS_UNKNOWN;
+  const oidcStatus = input.authConfigurationDiagnosticsAvailable
+    ? resolveOidcStatus(
+        config,
+        input.oidcDiagnostics,
+        input.identityProviderDiagnostics,
+        input.oidcDiagnosticsAvailable,
+        input.identityProviderDiagnosticsAvailable,
+      )
+    : IDENTITY_PROVIDERS_STATUS_UNKNOWN;
+  const roleMappingStatus = input.authConfigurationDiagnosticsAvailable
+    ? resolveRoleMappingStatus(config)
+    : IDENTITY_PROVIDERS_STATUS_UNKNOWN;
   const ssoStatus = resolveSsoStatus(samlStatus, oidcStatus);
   const recommended = resolveRecommendedNextStep(config, samlStatus, oidcStatus, roleMappingStatus);
-
-  let lastValidationLabel = IDENTITY_PROVIDERS_STATUS_NOT_CONFIGURED;
-
-  if (input.oidcDiagnostics?.discoverySucceeded === true) {
-    lastValidationLabel = IDENTITY_PROVIDERS_STATUS_HEALTHY;
-  } else if (input.oidcDiagnostics?.discoverySucceeded === false) {
-    lastValidationLabel = IDENTITY_PROVIDERS_STATUS_NEEDS_REVIEW;
-  } else if (samlStatus === IDENTITY_PROVIDERS_STATUS_ENABLED) {
-    lastValidationLabel = IDENTITY_PROVIDERS_STATUS_ENABLED;
-  }
+  const authenticationModeLabel = input.authConfigurationDiagnosticsAvailable
+    ? mapAuthModeLabel(config?.authMode)
+    : IDENTITY_PROVIDERS_STATUS_UNKNOWN;
+  const validationStatusLabel = resolveValidationStatusLabel(input, samlStatus);
+  const tileCaptions = buildTileCaptions(
+    input,
+    roleMappingStatus,
+    authenticationModeLabel,
+    samlStatus,
+    oidcStatus,
+    ssoStatus,
+    validationStatusLabel,
+  );
 
   return {
-    authenticationModeLabel: mapAuthModeLabel(config?.authMode),
+    authenticationModeLabel,
     ssoStatus,
     samlStatus,
     oidcStatus,
     roleMappingStatus,
-    lastValidationLabel,
+    validationStatusLabel,
+    tileCaptions,
     recommendedNextStep: recommended.step,
-    recommendedNextHref: recommended.href,
+    recommendedNextHref: input.authConfigurationDiagnosticsAvailable ? recommended.href : null,
     usesLocalDevelopmentSignIn: config?.authMode === "DevelopmentBypass",
+    headerStatusAvailable: input.authConfigurationDiagnosticsAvailable,
   };
 }
 

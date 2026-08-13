@@ -18,6 +18,6 @@ describe("PolicySimulator", () => {
 
     expect(screen.getByTestId("policy-simulator-passed-checks")).toHaveTextContent("control.encryption.at-rest");
     expect(screen.getByTestId("policy-simulator-failed-checks")).toHaveTextContent("control.phi.minimization");
-    expect(screen.getByText(/would block commit/i)).toBeInTheDocument();
+    expect(screen.getByText(/would block finalizing/i)).toBeInTheDocument();
   });
 });

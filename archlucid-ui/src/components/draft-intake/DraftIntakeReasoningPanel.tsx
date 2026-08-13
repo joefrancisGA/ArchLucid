@@ -6,7 +6,7 @@ import { useMemo, useState } from "react";
 
 import { AskAssistantMessageBody } from "@/components/AskAssistantMessageBody";
 import { DraftIntakeClaimLabel } from "@/components/draft-intake/DraftIntakeClaimLabel";
-import { OperatorApiProblem } from "@/components/OperatorApiProblem";
+import { OperatorApiProblem } from "@/components/operator/OperatorApiProblem";
 import { Button } from "@/components/ui/button";
 import { Label } from "@/components/ui/label";
 import { Textarea } from "@/components/ui/textarea";

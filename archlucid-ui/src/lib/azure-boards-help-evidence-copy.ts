@@ -1,3 +1,4 @@
+import { EVALUATION_SOURCES_TITLE } from "@/lib/evaluation-sources-title";
 import { inAppHelpHref } from "@/lib/product-documentation-registry";
 import type { EvidenceSourceLink } from "@/lib/evidence-surface-copy";
 
@@ -10,7 +11,7 @@ export const AZURE_BOARDS_HELP_PAGE_SUBTITLE =
 
 export const AZURE_BOARDS_HELP_CONTINUE_HEADING = "Continue in product" as const;
 
-export const AZURE_BOARDS_HELP_SOURCES_HEADING = "Sources for follow-up" as const;
+export const AZURE_BOARDS_HELP_SOURCES_HEADING = EVALUATION_SOURCES_TITLE;
 
 export const AZURE_BOARDS_HELP_PRIMARY_ACTIONS = {
   openSettings: { label: "Open Azure Boards settings", href: "/integrations/azure-boards" },

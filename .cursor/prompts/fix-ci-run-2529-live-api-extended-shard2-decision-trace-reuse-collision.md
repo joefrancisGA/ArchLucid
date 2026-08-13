@@ -2,8 +2,8 @@
 
 > Workflow run: `28871046590` (run_number **2529**), workflow **CI**, branch `RC7`, commit at
 > `2026-07-07T15:00:18Z`, `workflow_dispatch`-triggered. Job **conclusion: failure**; the overall
-> workflow run shows `conclusion: cancelled` (a different, unrelated job caused the whole run to be
-> cancelled after this job had already finished — do not conflate the two).
+> workflow run shows `conclusion: canceled` (a different, unrelated job caused the whole run to be
+> canceled after this job had already finished — do not conflate the two).
 > Job: `Operator UI: e2e live API + SQL (extended matrix; warn-only) [shard 2/4]`
 > (job id `85651988017`, started `15:00:18Z`, ended `16:17:46Z` — **77 minutes**,
 > `https://github.com/joefrancisGA/ArchLucid/actions/runs/28871046590/job/85651988017`).

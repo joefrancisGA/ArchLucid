@@ -1,5 +1,5 @@
-import { REVIEWS_NEW_PATH } from "@/lib/architecture-routes";
-import { BUYER_START_ARCHITECTURE_REVIEW_CTA } from "@/lib/buyer-polish-copy";
+import { REVIEWS_NEW_PATH } from "@/lib/architecture/architecture-routes";
+import { BUYER_START_ARCHITECTURE_REVIEW_CTA } from "@/lib/buyer/buyer-polish-copy";
 import { FIRST_ARCHITECTURE_REVIEW_HELP_PATH } from "@/lib/first-architecture-review-help-route";
 import { FIRST_REVIEW_GUIDE_PATH } from "@/lib/first-review-guide-route";
 import { inAppHelpHref } from "@/lib/product-documentation-registry";

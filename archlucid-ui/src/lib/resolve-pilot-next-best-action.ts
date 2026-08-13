@@ -3,12 +3,12 @@ import { deriveCorePilotCommitProgressState } from "@/lib/core-pilot-commit-prog
 import {
   OPERATOR_HOME_OPEN_FULL_EXAMPLE_REVIEW_CTA,
   PILOT_FIRST_HOUR_NO_RUN_BRIDGE_COPY,
-} from "@/lib/buyer-polish-copy";
+} from "@/lib/buyer/buyer-polish-copy";
 import {
   BUYER_REVIEW_DETAIL_IN_PROGRESS_FINALIZE_ANCHOR,
   FIRST_WEEK_ROUTE_GUIDANCE,
 } from "@/lib/first-week-route-guidance";
-import { OPERATOR_START_REVIEW_QUICK_ACTION_LABEL } from "@/lib/operator-nav-labels";
+import { OPERATOR_START_REVIEW_QUICK_ACTION_LABEL } from "@/lib/operator/operator-nav-labels";
 import {
   SHOWCASE_SAMPLE_REVIEW_REGISTRY,
   showcaseSampleReviewPackageHref,

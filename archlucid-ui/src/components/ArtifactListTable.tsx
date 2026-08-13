@@ -5,6 +5,15 @@ import Link from "next/link";
 import { ExportTrackedAnchor } from "@/components/ExportTrackedAnchor";
 import { ArtifactIntegrityTechnicalDetails } from "@/components/ArtifactIntegrityTechnicalDetails";
 import { ProductLearningFeedbackControls } from "@/components/ProductLearningFeedbackControls";
+import {
+  EnterpriseTable,
+  EnterpriseTableBody,
+  EnterpriseTableCell,
+  EnterpriseTableHead,
+  EnterpriseTableHeadRow,
+  EnterpriseTableHeaderCell,
+  EnterpriseTableRow,
+} from "@/components/ui/enterprise-table";
 import type { ArtifactDescriptor } from "@/types/authority";
 import { getArtifactDownloadUrl } from "@/lib/api";
 import { artifactPreviewHref } from "@/lib/artifact-preview-href";
@@ -104,14 +113,14 @@ export function ArtifactListTable(props: {
   const actionsCellClassName = cn("px-3 py-2.5 align-top", sponsorMode === true ? "min-w-0 w-[40%]" : undefined);
 
   const thead = (
-    <thead>
-      <tr className="border-b border-neutral-300 text-left dark:border-neutral-600">
-        <th scope="col" className={cn("px-3 py-2.5", sponsorMode === true ? "w-[42%]" : undefined)}>{artifactColumnLabel}</th>
-        {sponsorMode ? null : <th scope="col" className="px-3 py-2.5">Format</th>}
-        <th scope="col" className={cn("px-3 py-2.5", sponsorMode === true ? "w-[18%]" : undefined)}>{createdColumnLabel}</th>
-        <th scope="col" className={cn("px-3 py-2.5", sponsorMode === true ? "w-[40%]" : undefined)}>Actions</th>
-      </tr>
-    </thead>
+    <EnterpriseTableHead>
+      <EnterpriseTableHeadRow className="border-b border-neutral-300 text-left dark:border-neutral-600">
+        <EnterpriseTableHeaderCell scope="col" className={cn("px-3 py-2.5", sponsorMode === true ? "w-[42%]" : undefined)}>{artifactColumnLabel}</EnterpriseTableHeaderCell>
+        {sponsorMode ? null : <EnterpriseTableHeaderCell scope="col" className="px-3 py-2.5">Format</EnterpriseTableHeaderCell>}
+        <EnterpriseTableHeaderCell scope="col" className={cn("px-3 py-2.5", sponsorMode === true ? "w-[18%]" : undefined)}>{createdColumnLabel}</EnterpriseTableHeaderCell>
+        <EnterpriseTableHeaderCell scope="col" className={cn("px-3 py-2.5", sponsorMode === true ? "w-[40%]" : undefined)}>Actions</EnterpriseTableHeaderCell>
+      </EnterpriseTableHeadRow>
+    </EnterpriseTableHead>
   );
 
   const renderArtifactRows = (list: ArtifactDescriptor[]) =>
@@ -131,11 +140,11 @@ export function ArtifactListTable(props: {
       const isCurrent = currentArtifactId !== undefined && currentArtifactId === artifact.artifactId;
 
       return (
-        <tr
+        <EnterpriseTableRow
           key={artifact.artifactId}
-          className={`border-b border-neutral-100 dark:border-neutral-800 ${isCurrent ? "bg-[var(--al-layer-hover)] dark:bg-neutral-800/80" : ""}`}
+          className={isCurrent ? "bg-[var(--al-layer-hover)] dark:bg-neutral-800/80" : undefined}
         >
-          <td className={outputCellClassName}>
+          <EnterpriseTableCell className={outputCellClassName}>
             <strong className="font-semibold">{businessLabel}</strong>
             {sponsorMode ? (
               sponsorAudience !== null ? (
@@ -147,18 +156,18 @@ export function ArtifactListTable(props: {
                 <p className={cn("m-0 mt-1 text-neutral-600 dark:text-neutral-400", OPERATOR_TYPOGRAPHY.helper)}>{sponsorCaption}</p>
               ) : null
             ) : null}
-          </td>
+          </EnterpriseTableCell>
           {sponsorMode ? null : (
-            <td className="px-3 py-2.5 text-neutral-600 dark:text-neutral-400">
+            <EnterpriseTableCell className="px-3 py-2.5 text-neutral-600 dark:text-neutral-400">
               <span title={getArtifactFormatLabel(artifact.format)} className={OPERATOR_TYPOGRAPHY.helper}>
                 {getArtifactFormatLabel(artifact.format)}
               </span>
-            </td>
+            </EnterpriseTableCell>
           )}
-          <td className={createdCellClassName}>
+          <EnterpriseTableCell className={createdCellClassName}>
             {formatDate(artifact.createdUtc)}
-          </td>
-          <td className={actionsCellClassName}>
+          </EnterpriseTableCell>
+          <EnterpriseTableCell className={actionsCellClassName}>
             <Link href={reviewHref} className={OPERATOR_LINK.nav}>
               {openActionLabel}
             </Link>
@@ -189,8 +198,8 @@ export function ArtifactListTable(props: {
                 />
               </div>
             ) : null}
-          </td>
-        </tr>
+          </EnterpriseTableCell>
+        </EnterpriseTableRow>
       );
     });
 
@@ -236,10 +245,10 @@ export function ArtifactListTable(props: {
                 <p className={cn("m-0 mt-1 mb-3 max-w-prose text-neutral-600 dark:text-neutral-400", OPERATOR_TYPOGRAPHY.body)}>
                   {sponsorAudienceSectionLead(bucket)}
                 </p>
-                <table className={tableClassName}>
+                <EnterpriseTable ariaLabel={`Deliverables for ${sponsorAudienceSectionHeading(bucket)}`} className={tableClassName}>
                   {thead}
-                  <tbody>{renderArtifactRows(slice)}</tbody>
-                </table>
+                  <EnterpriseTableBody>{renderArtifactRows(slice)}</EnterpriseTableBody>
+                </EnterpriseTable>
               </section>
             );
           })}
@@ -250,11 +259,11 @@ export function ArtifactListTable(props: {
   }
 
   return (
-    <div className="w-full min-w-0 overflow-x-auto">
-      <table className={tableClassName}>
+    <div className="w-full min-w-0">
+      <EnterpriseTable ariaLabel="Architecture package artifacts" className={tableClassName}>
         {thead}
-        <tbody>{renderArtifactRows(sorted)}</tbody>
-      </table>
+        <EnterpriseTableBody>{renderArtifactRows(sorted)}</EnterpriseTableBody>
+      </EnterpriseTable>
       {!omitIntegrityDetails && sponsorMode && sorted.length > 0 ? (
         <ArtifactIntegrityTechnicalDetails artifacts={sorted} />
       ) : null}

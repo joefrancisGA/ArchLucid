@@ -102,7 +102,7 @@ describe("AiBudgetSpendNotice", () => {
     expect(screen.getByRole("link", { name: "Review AI usage" })).toBeInTheDocument();
   });
 
-  it("honours a caller-supplied test id", () => {
+  it("honors a caller-supplied test id", () => {
     useGate.mockReturnValue({
       loading: false,
       status: createStatus(),

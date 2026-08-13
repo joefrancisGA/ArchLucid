@@ -8,7 +8,7 @@ export const SCIM_PROVISIONING_PAGE_SUBTITLE =
 export const SCIM_PROVISIONING_PAGE_REASSURANCE =
   "Create a token, add the ArchLucid SCIM details to your identity provider, and verify the connection before relying on automated provisioning.";
 
-export const SCIM_CONFIGURE_SECTION_TITLE = "1. Configure your identity provider";
+export const SCIM_CONFIGURE_SECTION_TITLE = "1. Create a SCIM token";
 
 export const SCIM_CONFIGURE_SECTION_DESCRIPTION =
   "Create a token and add the ArchLucid SCIM endpoint and token to your identity provider's provisioning configuration.";
@@ -19,7 +19,19 @@ export const SCIM_BASE_URL_COPY_ACTION = "Copy SCIM base URL";
 
 export const SCIM_BASE_URL_COPIED_ACTION = "SCIM base URL copied";
 
+export const SCIM_BASE_URL_EXTERNAL_REACHABILITY_WARNING =
+  "This SCIM endpoint is not reachable by an external identity provider. Use an HTTPS production URL before configuring directory sync in your identity provider.";
+
 export const SCIM_CREATE_TOKEN_ACTION = "Create SCIM token";
+
+export const SCIM_CREATE_DIALOG_TITLE = "Create SCIM token?";
+
+export const SCIM_CREATE_DIALOG_DESCRIPTION =
+  "This creates a live provisioning credential. ArchLucid displays the token once and cannot retrieve it later. Copy it before leaving this page.";
+
+export const SCIM_CREATE_DIALOG_CONFIRM = "Create token";
+
+export const SCIM_CREATE_DIALOG_CANCEL = "Cancel";
 
 export const SCIM_CREATING_TOKEN_ACTION = "Creating SCIM token…";
 
@@ -42,14 +54,23 @@ export const SCIM_VERIFY_USING_SESSION_TOKEN =
 
 export const SCIM_VERIFY_MANUAL_TOKEN_LABEL = "SCIM token";
 
-export const SCIM_VERIFY_MANUAL_TOKEN_HELPER =
-  "Enter a token from your records to verify an existing configuration.";
+export const SCIM_VERIFY_MANUAL_TOKEN_HELPER_PREFIX =
+  "Enter a token from your records to verify an existing configuration, or";
+
+export const SCIM_VERIFY_MANUAL_TOKEN_HELPER_SUFFIX = "in step 1.";
+
+export const SCIM_VERIFY_CREATE_TOKEN_LINK = "create a new token";
+
+export const SCIM_VERIFY_DISABLED_MISSING_TOKEN =
+  "Enter a SCIM token before verifying the connection.";
 
 export const SCIM_VERIFY_ACTION = "Verify provisioning connection";
 
 export const SCIM_VERIFYING_ACTION = "Verifying provisioning connection…";
 
 export const SCIM_VERIFY_STATUS_NOT_VERIFIED = "Not verified";
+
+export const SCIM_VERIFY_STATUS_FAILED = "Verification failed";
 
 export const SCIM_VERIFY_STATUS_VERIFIED = "Connection verified";
 

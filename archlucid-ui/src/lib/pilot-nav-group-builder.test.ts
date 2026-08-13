@@ -1,10 +1,10 @@
-import { ARCHITECTURE_INTELLIGENCE_PATH } from "@/lib/architecture-intelligence-route";
-import { ARCHITECTURES_LIST_PATH } from "@/lib/architecture-routes";
-import { EXECUTIVE_DASHBOARD_HREF } from "@/lib/executive-dashboard-route";
-import { ARCHITECTURE_DRAFTS_LIST_LABEL } from "@/lib/architecture-workflow-labels";
+import { ARCHITECTURE_INTELLIGENCE_PATH } from "@/lib/architecture/architecture-intelligence-route";
+import { ARCHITECTURES_LIST_PATH } from "@/lib/architecture/architecture-routes";
+import { EXECUTIVE_DASHBOARD_HREF } from "@/lib/executive/executive-dashboard-route";
+import { ARCHITECTURE_DRAFTS_LIST_LABEL } from "@/lib/architecture/architecture-workflow-labels";
 import { describe, expect, it, vi, afterEach } from "vitest";
 
-import { OperatorAdminNavGroupBuilder } from "@/lib/operator-admin-nav-group-builder";
+import { OperatorAdminNavGroupBuilder } from "@/lib/operator/operator-admin-nav-group-builder";
 import { OperateGovernanceNavGroupBuilder } from "@/lib/operate-governance-nav-group-builder";
 import { PilotNavGroupBuilder } from "@/lib/pilot-nav-group-builder";
 
@@ -56,7 +56,7 @@ describe("PilotNavGroupBuilder", () => {
     const securityTrustLink = group.links.find((link) => link.href === "/administration/security-trust");
 
     expect(securityTrustLink).toBeDefined();
-    expect(securityTrustLink?.label).toBe("Security & trust");
+    expect(securityTrustLink?.label).toBe("Security & Trust");
     expect(securityTrustLink?.requiredAuthority).toBe("ReadAuthority");
   });
 
@@ -66,20 +66,20 @@ describe("PilotNavGroupBuilder", () => {
     expect(group.label).toBe("Architecture");
   });
 
-  it("lists Overview first in Architecture nav (TB-516)", () => {
+  it("lists Home first in Architecture nav (TB-516)", () => {
     const group = new PilotNavGroupBuilder().build();
-    const overviewLink = group.links[0];
+    const homeLink = group.links[0];
 
-    expect(overviewLink?.href).toBe("/");
-    expect(overviewLink?.label).toBe("Overview");
-    expect(overviewLink?.title).toBe("Workspace overview");
+    expect(homeLink?.href).toBe("/");
+    expect(homeLink?.label).toBe("Home");
+    expect(homeLink?.title).toBe("Workspace home");
   });
 
   it("keeps Architecture nav focused on first-review essentials and architecture intelligence (TB-518)", () => {
     const group = new PilotNavGroupBuilder().build();
 
     expect(group.links.map((link) => link.label)).toEqual([
-      "Overview",
+      "Home",
       ARCHITECTURE_DRAFTS_LIST_LABEL,
       "Reviews",
       "Executive dashboard",

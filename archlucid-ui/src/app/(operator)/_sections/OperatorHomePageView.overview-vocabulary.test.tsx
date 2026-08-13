@@ -8,7 +8,7 @@ import {
   OPERATOR_HOME_ADVANCED_GUIDANCE_TITLE,
   OPERATOR_HOME_INTENT_CHOOSER_HEADING,
   OPERATOR_HOME_RECENT_REVIEWS_HEADING,
-} from "@/lib/buyer-polish-copy";
+} from "@/lib/buyer/buyer-polish-copy";
 import { renderWithOperatorQuery } from "@/testing/render-with-operator-query";
 
 const OVERVIEW_BANNED_PATTERNS = [
@@ -67,12 +67,12 @@ vi.mock("@/components/operator-home/OperatorHomeAdvancedGuidancePanel", async ()
   };
 });
 
-vi.mock("@/components/OperatorHomeGate", () => ({
+vi.mock("@/components/operator-home/OperatorHomeGate", () => ({
   OperatorHomeGate: ({ children }: { children: ReactNode }) => <>{children}</>,
 }));
 
 vi.mock("@/app/(operator)/_sections/operator-home-page-view-deferred-chunks", async () => {
-  const { OperatorHomeGate } = await import("@/components/OperatorHomeGate");
+  const { OperatorHomeGate } = await import("@/components/operator-home/OperatorHomeGate");
   const { PilotCommandCenterCard } = await import("@/components/usability/PilotCommandCenterCard");
   const { OperatorHomeBelowFoldPanels } = await import(
     "@/app/(operator)/_sections/OperatorHomeBelowFoldPanels"
@@ -80,7 +80,7 @@ vi.mock("@/app/(operator)/_sections/operator-home-page-view-deferred-chunks", as
   const { OperatorHomeExecutiveRoiStrip } = await import(
     "@/components/operator-home/OperatorHomeExecutiveRoiStrip"
   );
-  const { deriveOperatorHomeWorkspaceMetrics } = await import("@/lib/operator-home-workspace-metrics");
+  const { deriveOperatorHomeWorkspaceMetrics } = await import("@/lib/operator/operator-home-workspace-metrics");
 
   function BuyerPolishedHomeHeroSectionDeferred(props: {
     readonly runsDashboard: import("@/app/(operator)/_sections/operator-home-runs-dashboard-model").OperatorHomeRunsDashboardModel;
@@ -142,7 +142,7 @@ vi.mock("@/components/dev-testing/DevTestingQuickSwitchPanel", () => ({
   DevTestingQuickSwitchPanel: () => null,
 }));
 
-vi.mock("@/components/OperatorNavAuthorityProvider", () => ({
+vi.mock("@/components/operator/OperatorNavAuthorityProvider", () => ({
   useNavCommittedArchitectureReview: vi.fn(() => false),
   useNavCallerAuthorityRank: () => 3,
   useOperatorNavAuthority: () => ({
@@ -229,8 +229,8 @@ vi.mock("@/lib/api", async (importOriginal) => {
   };
 });
 
-vi.mock("@/lib/operator-static-demo", async (importOriginal) => {
-  const actual = await importOriginal<typeof import("@/lib/operator-static-demo")>();
+vi.mock("@/lib/operator/operator-static-demo", async (importOriginal) => {
+  const actual = await importOriginal<typeof import("@/lib/operator/operator-static-demo")>();
 
   return {
     ...actual,

@@ -22,7 +22,7 @@ ln -sf ../../scripts/git-hooks/pre-receive-gitleaks.sh hooks/pre-receive
 
 Adjust the relative path if your bare repo layout differs.
 
-## Behaviour
+## Behavior
 
 The hook reads `oldrev newrev refname` lines from stdin (standard Git `pre-receive`) and invokes `gitleaks git` with `--log-opts` scoped to commits introduced by each ref update. If gitleaks exits non-zero, the push is rejected.
 

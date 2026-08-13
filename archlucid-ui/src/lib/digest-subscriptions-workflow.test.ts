@@ -79,7 +79,7 @@ describe("digest-subscriptions-workflow", () => {
     expect(summary.blockingIssue).toBeNull();
   });
 
-  it("flags missing schedule as blocking issue", () => {
+  it("flags missing schedule as blocking issue with a single schedule link", () => {
     const summary = buildDigestSubscriptionReadinessSummary(
       sampleHealth({ enabledAdvisoryScheduleCount: 0 }),
       [],
@@ -87,6 +87,9 @@ describe("digest-subscriptions-workflow", () => {
 
     expect(summary.blockingIssue).toMatch(/schedule/i);
     expect(summary.nextActionHref).toBe("/governance/advisory-scans?tab=schedules");
+    const scheduleLinks = summary.rows.filter((row) => row.href === "/governance/advisory-scans?tab=schedules");
+    expect(scheduleLinks).toHaveLength(1);
+    expect(scheduleLinks[0]?.id).toBe("schedule");
   });
 
   it("suggests channel-aware delivery names", () => {

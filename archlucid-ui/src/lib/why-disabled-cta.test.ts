@@ -1,9 +1,12 @@
 import { describe, expect, it } from "vitest";
 
+import { enterpriseMutationControlDisabledTitle } from "@/lib/enterprise-controls-context-copy";
 import {
   firstWhyDisabledCtaReason,
   formatWhyDisabledCtaMessage,
   whyDisabledBusy,
+  whyDisabledEnterpriseMutationControl,
+  whyDisabledIncompleteInput,
   whyDisabledNeedsLifecycle,
   whyDisabledNeedsPrerequisite,
   whyDisabledNeedsRole,
@@ -59,6 +62,16 @@ describe("why-disabled helpers", () => {
     expect(whyDisabledBusy("Export")).toEqual({
       kind: "busy",
       message: "Export is in progress.",
+    });
+    expect(
+      whyDisabledIncompleteInput("Enter work email, full name, and organization to continue."),
+    ).toEqual({
+      kind: "incomplete-input",
+      message: "Enter work email, full name, and organization to continue.",
+    });
+    expect(whyDisabledEnterpriseMutationControl()).toEqual({
+      kind: "role",
+      message: enterpriseMutationControlDisabledTitle,
     });
   });
 });

@@ -14,17 +14,15 @@ vi.mock("next/navigation", () => ({
 }));
 
 import { HelpPolicyPackDeltaDemoGuideView } from "@/app/(operator)/help/_sections/HelpPolicyPackDeltaDemoGuideView";
-import {
-  POLICY_PACK_DELTA_DEMO_HELP_PRIMARY_ACTIONS,
-  POLICY_PACK_DELTA_DEMO_HELP_SOURCES,
-} from "@/lib/policy-pack-delta-demo-help-guide-content";
-import { prepareHelpMarkdownForPresentation } from "@/lib/help-markdown-presentation";
+import { POLICY_PACK_DELTA_DEMO_HELP_PRIMARY_ACTIONS } from "@/lib/policy/policy-pack-delta-demo-help-guide-content";
+import { prepareHelpMarkdownForPresentation } from "@/lib/help/help-markdown-presentation";
 import { tryLoadProductDocumentation } from "@/lib/load-product-documentation";
+import { inAppHelpHref } from "@/lib/product-documentation-registry";
 
-describe("HelpPolicyPackDeltaDemoGuideView", () => {
+describe("HelpPolicyPackDeltaDemoGuideView (standalone internal runbook)", () => {
   const loaded = tryLoadProductDocumentation("policy-pack-delta-demo");
 
-  it("loads policy-pack-delta demo help from GTM demo script source", () => {
+  it("serves policy-pack-delta-demo on its canonical help route", () => {
     expect(loaded).not.toBeNull();
     expect(loaded?.entry.title).toBe("Policy-pack delta demo (internal runbook)");
   });
@@ -61,6 +59,13 @@ describe("HelpPolicyPackDeltaDemoGuideView", () => {
     ).toHaveAttribute("href", POLICY_PACK_DELTA_DEMO_HELP_PRIMARY_ACTIONS.openPolicyPacks.href);
 
     expect(screen.queryByTestId("help-policy-pack-delta-demo-sources")).toBeNull(); // TB-2092
-expect(screen.getAllByRole("link", { name: /pre commit governance gate/i }).length).toBeGreaterThan(0);
+
+    // The runbook's pre-commit gate references resolve to the in-app governance topic, so the gate
+    // stays linked (under the registry title) instead of leaking a repo `.md` path.
+    const governanceGateLinks = screen.getAllByRole("link", { name: "Governance approval" });
+
+    expect(governanceGateLinks.length).toBeGreaterThan(0);
+    expect(governanceGateLinks[0]).toHaveAttribute("href", inAppHelpHref("governance-approval"));
+    expect(document.body.textContent ?? "").not.toContain("PRE_COMMIT_GOVERNANCE_GATE");
   });
 });

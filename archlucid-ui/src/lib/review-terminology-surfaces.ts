@@ -1,9 +1,11 @@
+import { BUYER_COPY_MODULE_PATHS } from "@/lib/buyer-copy/module-paths";
+
 /**
  * High-traffic operator and sponsor-facing modules scanned by {@link ./review-terminology-guard.test.ts}.
  * API/DTO identifiers (`runId`, routes) are intentionally excluded — display copy only.
  */
 export const REVIEW_TERMINOLOGY_HIGH_TRAFFIC_SURFACE_PATHS = [
-  "src/lib/buyer-polish-copy.ts",
+  ...BUYER_COPY_MODULE_PATHS,
   "src/lib/contextual-help-content.ts",
   "src/lib/glossary-definitions.ts",
   "src/lib/repeat-review-activation.ts",
@@ -12,9 +14,9 @@ export const REVIEW_TERMINOLOGY_HIGH_TRAFFIC_SURFACE_PATHS = [
   "src/components/CorePilotNextStepsCard.tsx",
   "src/components/GraphViewer.tsx",
   "src/components/ProvenanceNodeExplainCell.tsx",
-  "src/components/RunTableRowErrorBoundary.tsx",
-  "src/components/RunDetailRunGovernanceDispositionActions.tsx",
-  "src/components/RunDetailPageHeader.tsx",
+  "src/components/runs/RunTableRowErrorBoundary.tsx",
+  "src/components/runs/RunDetailRunGovernanceDispositionActions.tsx",
+  "src/components/runs/RunDetailPageHeader.tsx",
   "src/components/CompareToBaselineCta.tsx",
   "src/components/wizard/ArchitectureRequestWizardHelpDrawer.tsx",
   "src/components/wizard/steps/AzureExtractorPackageZipField.tsx",
@@ -89,6 +91,16 @@ export const REVIEW_TERMINOLOGY_BANNED_OPERATOR_PERSONA_PATTERNS = [
   "operators want",
 ] as const;
 
+/**
+ * Product nouns that `docs/library/UI_DESIGN_SYSTEM.md` still lists as approved language, so they
+ * are only wrong as *list* nouns on the reviews hub and nav (TB-738), where the review — not the
+ * package — is the thing being enumerated.
+ */
+const REVIEW_TERMINOLOGY_CANONICAL_PACKAGE_NOUNS: ReadonlySet<string> = new Set([
+  "architecture package",
+  "architecture packages",
+]);
+
 /** Lowercase phrase fragments banned on reviews hub and nav list surfaces. */
 export const REVIEW_TERMINOLOGY_BANNED_REVIEW_ONLY_PACKAGE_LIST_PATTERNS = [
   "review package",
@@ -106,9 +118,15 @@ export const REVIEW_TERMINOLOGY_BANNED_REVIEW_ONLY_PACKAGE_LIST_PATTERNS = [
   "evidence package",
 ] as const;
 
-/** Lowercase phrase fragments banned on all global buyer-facing surfaces (package terminology sweep). */
-export const REVIEW_TERMINOLOGY_BANNED_PACKAGE_PATTERNS = [
-  ...REVIEW_TERMINOLOGY_BANNED_REVIEW_ONLY_PACKAGE_LIST_PATTERNS,
+/**
+ * Lowercase phrase fragments banned on all global buyer-facing surfaces (package terminology sweep).
+ * {@link REVIEW_TERMINOLOGY_CANONICAL_PACKAGE_NOUNS} is filtered out: banning it everywhere would
+ * flag the noun the design system asks for on ~65 modules, so it stays scoped to TB-738 surfaces.
+ */
+export const REVIEW_TERMINOLOGY_BANNED_PACKAGE_PATTERNS: readonly string[] = [
+  ...REVIEW_TERMINOLOGY_BANNED_REVIEW_ONLY_PACKAGE_LIST_PATTERNS.filter(
+    (pattern) => !REVIEW_TERMINOLOGY_CANONICAL_PACKAGE_NOUNS.has(pattern),
+  ),
   "architecture review package",
   "finalized review package",
   "completed review package",
@@ -126,10 +144,39 @@ export const REVIEW_TERMINOLOGY_BANNED_PACKAGE_PATTERNS = [
   "finalize review package",
 ] as const;
 
+export const REVIEW_TERMINOLOGY_BANNED_PRODUCT_VERSION_PATTERNS = [
+  "v1 ga",
+  "v1-ready",
+  "v1 uses",
+  "v1 includes",
+  "v1 offers",
+  "v1 ships",
+  "v1 scope",
+  "v1 assurance",
+  "v1 control",
+  "v1 contract",
+  "v1 guarantee",
+  "v1 blockers",
+  "v1 evidence",
+  "v1 scalability",
+  "v1 posture",
+  "v1 registry",
+  "v1 surface",
+  "v1 professional",
+  "v1 pilots",
+  "shipped v1",
+  "for v1",
+  "in v1",
+  "not v1",
+  "active v1",
+  "default v1",
+  "openapi contract (v1)",
+] as const;
+
 export const REVIEW_TERMINOLOGY_NAV_EMPTY_GLOSSARY_SURFACE_PATHS = [
   "src/lib/empty-state-presets.ts",
   "src/lib/enterprise-compact-empty-state-presets.ts",
-  "src/lib/governance-workflow-empty-guidance.ts",
+  "src/lib/governance/governance-workflow-empty-guidance.ts",
   "src/lib/glossary-definitions.ts",
   "src/lib/layer-guidance.ts",
   "src/lib/nav-disclosure-copy.ts",
@@ -149,16 +196,16 @@ export const REVIEW_TERMINOLOGY_ARCHITECTURE_PACKAGE_LIST_NOUN_SURFACE_PATHS = [
  */
 export const REVIEW_TERMINOLOGY_ARCHITECT_WORKSPACE_SURFACE_PATHS = [
   "src/lib/contextual-help-content.ts",
-  "src/lib/help-markdown-presentation.ts",
-  "src/lib/help-topics.ts",
+  "src/lib/help/help-markdown-presentation.ts",
+  "src/lib/help/help-topics.ts",
   "src/lib/product-documentation-registry.ts",
-  "src/lib/persona-shell-vocabulary.ts",
+  "src/lib/vocabulary/persona-shell-vocabulary.ts",
   "src/components/shell/OperatorShellTopBar.tsx",
   "src/components/AuthPanel.tsx",
   "src/app/layout.tsx",
   "src/lib/empty-state-presets.ts",
   "src/lib/enterprise-compact-empty-state-presets.ts",
-  "src/lib/governance-workflow-empty-guidance.ts",
+  "src/lib/governance/governance-workflow-empty-guidance.ts",
   "src/lib/glossary-definitions.ts",
   "src/lib/layer-guidance.ts",
   "src/lib/nav-disclosure-copy.ts",
@@ -166,7 +213,7 @@ export const REVIEW_TERMINOLOGY_ARCHITECT_WORKSPACE_SURFACE_PATHS = [
   "src/lib/first-pilot-operating-rail-copy.ts",
   "src/components/advisory/AdvisoryHubClient.tsx",
   "src/lib/core-pilot-first-review-copy.ts",
-  "src/lib/operator-co-architect-copy.ts",
+  "src/lib/operator/operator-co-architect-copy.ts",
 ] as const;
 
 /** Lowercase phrase fragments that must not appear in buyer-facing UI copy (manifest terminology sweep). */
@@ -210,21 +257,20 @@ export const REVIEW_TERMINOLOGY_BUYER_SURFACE_PATHS = [
 /** Core Pilot first-hour surfaces — `/architecture/reviews/new`, review detail handoff, sponsor export, home strip. */
 export const REVIEW_TERMINOLOGY_FIRST_HOUR_SURFACE_PATHS = [
   "src/lib/core-pilot-first-review-copy.ts",
-  "src/lib/operator-co-architect-copy.ts",
+  "src/lib/operator/operator-co-architect-copy.ts",
   "src/lib/contextual-help-content.ts",
   "src/lib/glossary-terms.ts",
-  "src/lib/architecture-review-vocabulary.ts",
-  "src/lib/governance-mode-vocabulary.ts",
-  "src/lib/operator-nav-labels.ts",
-  "src/components/OperatorFirstRunWorkflowPanel.tsx",
+  "src/lib/vocabulary/architecture-review-vocabulary.ts",
+  "src/lib/vocabulary/governance-mode-vocabulary.ts",
+  "src/lib/operator/operator-nav-labels.ts",
+  "src/components/operator/OperatorFirstRunWorkflowPanel.tsx",
   "src/components/WelcomeBanner.tsx",
   "src/components/EmailRunToSponsorBanner.tsx",
   "src/components/CorePilotNextStepsCard.tsx",
   "src/components/CommitRunButton.tsx",
-  "src/components/RunAgentQualityWarningsPanel.tsx",
+  "src/components/runs/RunAgentQualityWarningsPanel.tsx",
   "src/app/(operator)/architecture/reviews/new/SocraticIntakeWizard.tsx",
   "src/app/(operator)/architecture/reviews/new/QuickStartWizard.tsx",
-  "src/app/(operator)/architecture/reviews/new/QuickReviewWizard.tsx",
   "src/app/(operator)/architecture/reviews/RunsListClient.tsx",
 ] as const;
 
@@ -236,12 +282,12 @@ export const REVIEW_TERMINOLOGY_FIRST_HOUR_SURFACE_PATHS = [
 export const REVIEW_TERMINOLOGY_GOLDEN_PATH_SURFACE_PATHS = [
   "src/lib/reviews-new-path-copy.ts",
   "src/lib/reviews-new-evidence-copy.ts",
-  "src/lib/run-detail-deliverables-copy.ts",
+  "src/lib/runs/run-detail-deliverables-copy.ts",
   "src/app/(operator)/architecture/reviews/_sections/reviews-hub-copy.ts",
   "src/lib/core-pilot-first-review-copy.ts",
   "src/lib/first-pilot-operating-rail-copy.ts",
   "src/lib/invite-reviewer-evidence-copy.ts",
-  "src/lib/operator-home-evidence-copy.ts",
+  "src/lib/operator/operator-home-evidence-copy.ts",
   "src/components/operator-home/OperatorHomeGlossarySections.tsx",
   "src/app/(operator)/architecture/reviews/[runId]/_sections/RunDetailPreFinalizedEmptyState.tsx",
   "src/app/(operator)/architecture/reviews/new/ReviewsNewMoreWaysToStart.tsx",
@@ -277,8 +323,49 @@ export const REVIEW_TERMINOLOGY_REVIEW_PACKAGE_DETAIL_SURFACE_PATHS = [
   "src/app/(operator)/architecture/reviews/[runId]/_sections/RunDetailGovernanceCta.tsx",
   "src/app/(operator)/architecture/reviews/[runId]/_sections/RunDetailCaptureEvidenceSection.tsx",
   "src/app/(operator)/architecture/reviews/[runId]/_sections/RunDetailExecutiveBottomLine.tsx",
-  "src/components/RunDetailOutcomeCards.tsx",
+  "src/components/runs/RunDetailOutcomeCards.tsx",
   "src/components/usability/ReviewPackagePlainSummary.tsx",
   "src/components/usability/ReviewPackageEvidenceDensityStrip.tsx",
-  "src/components/QuickDecisionSummary.tsx",
+  "src/components/quick-decision-summary/QuickDecisionSummary.tsx",
+] as const;
+
+/**
+ * Surfaces that name the audit destination or the finalize action.
+ *
+ * The primary action is "Finalize review" and `manifestStatusForDisplay` maps API `Committed` to
+ * display `Finalized`, so "commit" as a user-facing verb is drift. Likewise the destination has one
+ * canonical name (`AUDIT_TRAIL_LABEL`, also `ROUTE_TITLES["/governance/audit"]`), so "audit log"
+ * naming a destination is drift. Both slipped through because these files sit outside the buyer and
+ * golden-path scans above.
+ */
+export const REVIEW_TERMINOLOGY_FINALIZE_AUDIT_SURFACE_PATHS = [
+  "src/app/(operator)/governance/signed-records/_sections/signed-records-list-copy.ts",
+  "src/app/(operator)/governance/signed-records/_sections/SignedRecordsListTable.tsx",
+  "src/app/(operator)/governance/audit/_sections/AuditResultsSection.tsx",
+  "src/app/(operator)/why-archlucid/_sections/WhyArchLucidSponsorPackBody.tsx",
+  "src/components/ExecutiveWorkspaceHealthDashboard.tsx",
+  "src/components/ValueRealizationDashboard.tsx",
+  "src/components/governance/PolicySimulator.tsx",
+  "src/components/operator-home/HomeMaturityLayerCards.tsx",
+  "src/components/cto-demo/CtoDemoLeaveBehindExportButton.tsx",
+  "src/lib/enterprise-controls-context-copy.ts",
+  "src/lib/governance/governance-workflow-empty-guidance.ts",
+  "src/lib/governance/governance-approval-help-guide-content.ts",
+  "src/lib/nav-disclosure-copy.ts",
+  "src/lib/policy/policy-pack-simulate-toast.ts",
+] as const;
+
+/**
+ * Lowercase fragments banned on {@link REVIEW_TERMINOLOGY_FINALIZE_AUDIT_SURFACE_PATHS}.
+ *
+ * Each fragment includes surrounding words so identifiers stay legal: the API-shaped names
+ * `committedUtc`, `timeToCommittedManifestTotalSeconds`, and `pre_commit_severity_gate` have no
+ * spaces and must keep matching the wire contract.
+ */
+export const REVIEW_TERMINOLOGY_BANNED_FINALIZE_AUDIT_PATTERNS = [
+  "audit log",
+  "time to commit",
+  "block commit",
+  "allow commit",
+  "wall to commit",
 ] as const;

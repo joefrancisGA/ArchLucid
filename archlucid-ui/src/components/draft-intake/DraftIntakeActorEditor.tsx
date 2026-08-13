@@ -1,9 +1,16 @@
 "use client";
 import { cn } from "@/lib/utils";
-import { OPERATOR_TYPOGRAPHY } from "@/lib/design-tokens";
+import {
+  INLINE_GUIDANCE_LABEL_CLASS,
+  OPERATOR_FORM_FIELD_HELPER_CLASS,
+  OPERATOR_FORM_FIELD_LABEL_CLASS,
+  OPERATOR_FORM_FIELD_STACK_CLASS,
+  OPERATOR_TYPOGRAPHY,
+} from "@/lib/design-tokens";
 
 import { useMemo, useState } from "react";
 
+import { InlineGuidanceLabel } from "@/components/InlineGuidanceLabel";
 import { Button } from "@/components/ui/button";
 import { DismissControl } from "@/components/usability/DismissControl";
 import { Input } from "@/components/ui/input";
@@ -17,9 +24,9 @@ import {
 } from "@/components/ui/select";
 import {
   ACTOR_KIND_OPTIONS,
-  formatActorCardHeading,
   formatSuggestedActorLabel,
   getInteractionContractOptions,
+  resolveActorCardHeadingParts,
   TRUST_ORIGIN_OPTIONS,
 } from "@/lib/draft-intake-actor-labels";
 import {
@@ -39,6 +46,7 @@ import {
   GUIDED_INTAKE_CREATION_PEOPLE_SYSTEMS_HINT,
   GUIDED_INTAKE_CREATION_SUGGEST_ACTORS_BUTTON,
   GUIDED_INTAKE_CREATION_SUGGEST_ACTORS_DISABLED_HINT,
+  GUIDED_INTAKE_INTERACTION_TIMING_HINT,
   GUIDED_INTAKE_SUGGESTED_ACTORS_HEADING,
   GUIDED_INTAKE_SUGGEST_ACTORS_BUTTON,
   GUIDED_INTAKE_SUGGEST_ACTORS_DISABLED_HINT,
@@ -185,9 +193,9 @@ export function DraftIntakeActorEditor(props: DraftIntakeActorEditorProps) {
 
   return (
     <div className="draft-intake-actor-editor space-y-4" data-testid="draft-intake-actor-editor">
-      <div className="space-y-1">
+      <div className={OPERATOR_FORM_FIELD_STACK_CLASS}>
         <div className="flex flex-wrap items-center justify-between gap-2">
-          <p className={cn("m-0 font-semibold text-neutral-900 dark:text-neutral-100", OPERATOR_TYPOGRAPHY.body)}>
+          <p className={cn("m-0", OPERATOR_FORM_FIELD_LABEL_CLASS)}>
             {GUIDED_INTAKE_ACTORS_SECTION_HEADING}
           </p>
           <Button
@@ -203,11 +211,14 @@ export function DraftIntakeActorEditor(props: DraftIntakeActorEditorProps) {
             {suggestActorsButtonLabel}
           </Button>
         </div>
-        <p className={cn("m-0 text-neutral-600 dark:text-neutral-400", OPERATOR_TYPOGRAPHY.helper)}>
+        <p className={cn("m-0 text-neutral-600 dark:text-neutral-400", OPERATOR_FORM_FIELD_HELPER_CLASS)}>
           {sectionHint}
         </p>
         {!canSuggestFromIntent ? (
-          <p className={cn("m-0 text-neutral-500", OPERATOR_TYPOGRAPHY.helper)} data-testid="draft-intake-actor-suggest-hint">
+          <p
+            className={cn("m-0 text-neutral-500", OPERATOR_FORM_FIELD_HELPER_CLASS)}
+            data-testid="draft-intake-actor-suggest-hint"
+          >
             {suggestActorsDisabledHint}
           </p>
         ) : null}
@@ -284,15 +295,24 @@ export function DraftIntakeActorEditor(props: DraftIntakeActorEditorProps) {
         </div>
       ) : null}
 
-      {props.actorSet.actors.map((actor, index) => (
+      {props.actorSet.actors.map((actor, index) => {
+        const heading = resolveActorCardHeadingParts(actor, index);
+
+        return (
         <div
           key={`actor-${index}-${actor.kind}-${actor.trustOrigin}-${actor.contract}`}
           className="space-y-3 rounded-md border p-3"
           data-testid="draft-intake-actor-row"
         >
           <div className="flex flex-wrap items-center justify-between gap-2">
-            <p className={cn("m-0 font-medium text-neutral-900 dark:text-neutral-100", OPERATOR_TYPOGRAPHY.body)}>
-              {formatActorCardHeading(actor, index)}
+            <p className={cn("m-0", OPERATOR_TYPOGRAPHY.body)}>
+              {heading.keyHasColon ? (
+                <InlineGuidanceLabel label={heading.keyLabel} />
+              ) : (
+                <strong className={INLINE_GUIDANCE_LABEL_CLASS}>{heading.keyLabel}</strong>
+              )}
+              {heading.valueText.length > 0 ? ` ${heading.valueText}` : null}
+              {heading.provenanceSuffix}
             </p>
             <div className="flex flex-wrap gap-2">
               {actor.origin === "Inferred" ? (
@@ -324,7 +344,7 @@ export function DraftIntakeActorEditor(props: DraftIntakeActorEditorProps) {
             </div>
           </div>
 
-          <div className="space-y-2">
+          <div className="space-y-3">
             <Label htmlFor={`draft-intake-actor-label-${index}`}>Label (optional)</Label>
             <Input
               id={`draft-intake-actor-label-${index}`}
@@ -341,7 +361,7 @@ export function DraftIntakeActorEditor(props: DraftIntakeActorEditorProps) {
           </div>
 
           <div className="grid gap-3 sm:grid-cols-3">
-            <div className="space-y-2">
+            <div className={OPERATOR_FORM_FIELD_STACK_CLASS}>
               <Label htmlFor={`draft-intake-actor-kind-${index}`}>Kind</Label>
               <Select
                 value={actor.kind}
@@ -367,7 +387,7 @@ export function DraftIntakeActorEditor(props: DraftIntakeActorEditorProps) {
               </Select>
             </div>
 
-            <div className="space-y-2">
+            <div className={OPERATOR_FORM_FIELD_STACK_CLASS}>
               <Label htmlFor={`draft-intake-actor-trust-${index}`}>Trust origin</Label>
               <Select
                 value={actor.trustOrigin}
@@ -393,7 +413,7 @@ export function DraftIntakeActorEditor(props: DraftIntakeActorEditorProps) {
               </Select>
             </div>
 
-            <div className="space-y-2">
+            <div className={OPERATOR_FORM_FIELD_STACK_CLASS}>
               <Label htmlFor={`draft-intake-actor-contract-${index}`}>Interaction</Label>
               <Select
                 value={actor.contract}
@@ -406,7 +426,10 @@ export function DraftIntakeActorEditor(props: DraftIntakeActorEditorProps) {
                   );
                 }}
               >
-                <SelectTrigger id={`draft-intake-actor-contract-${index}`}>
+                <SelectTrigger
+                  id={`draft-intake-actor-contract-${index}`}
+                  aria-describedby={`draft-intake-actor-contract-hint-${index}`}
+                >
                   <SelectValue />
                 </SelectTrigger>
                 <SelectContent>
@@ -417,10 +440,18 @@ export function DraftIntakeActorEditor(props: DraftIntakeActorEditorProps) {
                   ))}
                 </SelectContent>
               </Select>
+              <p
+                id={`draft-intake-actor-contract-hint-${index}`}
+                className={cn("m-0 text-neutral-600 dark:text-neutral-400", OPERATOR_FORM_FIELD_HELPER_CLASS)}
+                data-testid={`draft-intake-actor-contract-hint-${index}`}
+              >
+                {GUIDED_INTAKE_INTERACTION_TIMING_HINT}
+              </p>
             </div>
           </div>
         </div>
-      ))}
+        );
+      })}
 
       <div className="flex flex-wrap gap-2">
         <Button

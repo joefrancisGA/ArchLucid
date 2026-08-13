@@ -3,13 +3,13 @@
 > **Reviewed:** 2026-07-27
 
 
-# Repeat-review stickiness loop
+# Your repeat architecture review
 
 **Audience:** Architects and architecture leads **after the first finalized architecture package**; pilot operators running habit-loop validation.
 
 **Last reviewed:** 2026-07-27
 
-**Prerequisite:** One successful Core Pilot finalize ([Your first architecture review](/help/first-architecture-review) · [`CORE_PILOT.md`](../CORE_PILOT.md)).
+**Prerequisite:** One successful Core Pilot finalize — see [Your first architecture review](/help/first-architecture-review).
 
 **Habit-loop validation:** [`#second-review-habit-loop-validation`](#second-review-habit-loop-validation) (`SECOND_REVIEW_HABIT_LOOP_VALIDATION.md` alias).
 
@@ -17,13 +17,13 @@
 
 ## Why the second review should show more value
 
-| Stickiness signal | V1 surface | Proof acceptance |
+| Repeat-review signal | Where you see it | Proof acceptance |
 | --- | --- | --- |
-| Reused prior decision | Compare / prior manifest retrieval | Second review references first signed review record in findings or compare output |
-| Repeated finding category trend | Product learning rollups | Category counts shift with real evidence changes |
-| Improved cycle time | Review duration metrics · pilot timing budget | Wall-clock or architect hours decrease vs baseline in [`PILOT_SUCCESS_SCORECARD.md`](../go-to-market/PILOT_SUCCESS_SCORECARD.md) |
-| Governance trend | Policy pack dry-run → enforce | Fewer critical findings on repeat with same pack |
-| Executive ROI rollup | Executive ROI summary export | Sponsor-safe labels; not demo-derived dollars |
+| Reused prior decision | [Compare and prior package context](/insights/compare-two-reviews) | Second review references first signed review record in findings or compare output |
+| Repeated finding category trend | [Product learning rollups](/help/pilot-feedback) | Category counts shift with real evidence changes |
+| Improved cycle time | [Review duration metrics and pilot timing budget](/insights/architecture-scorecard) | Wall-clock or architect hours decrease vs baseline in [`PILOT_SUCCESS_SCORECARD.md`](../go-to-market/PILOT_SUCCESS_SCORECARD.md) |
+| Governance trend | [Policy pack dry-run and enforce](/governance/policy-packs) | Fewer critical findings on repeat with same pack |
+| Executive ROI rollup | [Executive ROI summary export](/insights/executive-summary) | Sponsor-safe ROI basis labels on executive exports |
 
 ---
 
@@ -31,7 +31,7 @@
 
 1. **Compare** two architecture packages — use Compare in the architect workspace.
 2. **Replay** a saved comparison when investigating regressions — see [Compare and replay](/help/comparison-replay).
-3. **Reuse** prior package context in a new review when evidence evolves incrementally — see [Prior manifest retrieval](/help/prior-manifest-retrieval).
+3. **Reuse** prior package context in a new review when evidence evolves incrementally — see [Prior package context](/help/prior-manifest-retrieval).
 4. **Run governance dry-run** before enforcing a blocking finalize gate — [`DEFAULT_POLICY_PACKS_V1.md`](../go-to-market/DEFAULT_POLICY_PACKS_V1.md#6-operator-calibration).
 5. **Collect proof** again for the second finalized package — disposition should improve or caveats should shrink.
 

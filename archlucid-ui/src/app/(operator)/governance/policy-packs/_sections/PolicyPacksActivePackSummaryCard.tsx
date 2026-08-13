@@ -2,10 +2,10 @@ import Link from "next/link";
 
 import { Card, CardContent, CardHeader, CardTitle } from "@/components/ui/card";
 import { StatusTag } from "@/components/ui/status-tag";
-import { formatActivePolicyPackSummaryBody } from "@/lib/policy-pack-enforced-rules";
-import { policyPackBuyerGovernanceDetailHref } from "@/lib/policy-pack-buyer-label";
-import { POLICY_PACKS_ACTIVE_PACK_CARD_TITLE } from "@/lib/policy-packs-page";
-import { policyPackTypeBuyerDisplayLabel } from "@/lib/policy-pack-type-label";
+import { formatActivePolicyPackSummaryBody } from "@/lib/policy/policy-pack-enforced-rules";
+import { policyPackBuyerGovernanceDetailHref } from "@/lib/policy/policy-pack-buyer-label";
+import { POLICY_PACKS_ACTIVE_PACK_CARD_TITLE } from "@/lib/policy/policy-packs-page";
+import { policyPackTypeBuyerDisplayLabel } from "@/lib/policy/policy-pack-type-label";
 import {
   OPERATOR_KPI_CARD_DESCRIPTION,
   OPERATOR_KPI_CARD_TITLE,

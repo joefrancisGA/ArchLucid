@@ -5,11 +5,11 @@ import { useBuyerCtoDemoTourKeyboard } from "@/hooks/useBuyerCtoDemoTourKeyboard
 import {
   ARCHLUCID_CTO_DEMO_SPOTLIGHT_CHANGED_EVENT,
   readBuyerCtoDemoSpotlight,
-} from "@/lib/buyer-cto-demo-tour";
+} from "@/lib/buyer/buyer-cto-demo-tour";
 import {
   ARCHLUCID_CTO_DEMO_PANIC_CHANGED_EVENT,
   readOperatorDemoPanicOffline,
-} from "@/lib/operator-static-demo";
+} from "@/lib/operator/operator-static-demo";
 
 const push = vi.fn();
 

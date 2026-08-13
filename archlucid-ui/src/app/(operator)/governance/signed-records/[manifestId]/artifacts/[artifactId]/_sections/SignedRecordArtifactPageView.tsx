@@ -4,6 +4,7 @@ import Link from "next/link";
 
 import { cn } from "@/lib/utils";
 import { ArtifactListTable } from "@/components/ArtifactListTable";
+import { ArtifactPreviewSponsorExportVocabularyRail } from "@/components/ArtifactPreviewSponsorExportVocabularyRail";
 import { ArtifactReviewContent } from "@/components/ArtifactReviewContent";
 import { ExportTrackedAnchor } from "@/components/ExportTrackedAnchor";
 import {
@@ -14,13 +15,14 @@ import {
   CardTitle,
 } from "@/components/ui/card";
 import { getArtifactDownloadUrl } from "@/lib/api";
-import { reviewDetailPath } from "@/lib/architecture-routes";
+import { reviewDetailPath } from "@/lib/architecture/architecture-routes";
 import {
   getArtifactDisplayLabel,
   getArtifactFormatLabel,
   getArtifactTypeDescription,
 } from "@/lib/artifact-review-helpers";
 import {
+  OPERATOR_LAYOUT,
   OPERATOR_LINK,
   OPERATOR_TYPOGRAPHY,
 } from "@/lib/design-tokens";
@@ -31,6 +33,7 @@ import {
 } from "@/lib/signed-record-artifact-page-copy";
 import {
   SIGNED_RECORDS_LIST_PATH,
+  signedRecordArtifactPath,
   signedRecordDetailPath,
 } from "@/lib/signed-records-paths";
 import { SignedRecordArtifactPageHeader } from "./SignedRecordArtifactPageHeader";
@@ -58,7 +61,7 @@ export function SignedRecordArtifactPageView(props: SignedRecordArtifactPageView
   });
 
   return (
-    <div className="w-full max-w-[1200px] space-y-6 px-1 py-2 sm:px-0" data-testid="signed-record-artifact-page">
+    <div className={cn("w-full max-w-[1200px] px-1 py-2 sm:px-0", OPERATOR_LAYOUT.sectionStack)} data-testid="signed-record-artifact-page">
       <nav aria-label="Breadcrumb" className={cn("text-al-text-secondary", OPERATOR_TYPOGRAPHY.body)}>
         <Link className={OPERATOR_LINK.nav} href={SIGNED_RECORDS_LIST_PATH}>
           Signed review records
@@ -82,6 +85,11 @@ export function SignedRecordArtifactPageView(props: SignedRecordArtifactPageView
       </nav>
 
       <SignedRecordArtifactPageHeader subtitle={signedRecordArtifactPageSubtitle(buyerPolishedLayout)} />
+      <ArtifactPreviewSponsorExportVocabularyRail
+        currentSurfaceId="artifact-preview"
+        artifactHref={signedRecordArtifactPath(model.manifestId, model.descriptor.artifactId)}
+        runId={model.runId}
+      />
 <Card data-testid="signed-record-artifact-metadata-card">
         <CardHeader>
           <CardTitle className={OPERATOR_TYPOGRAPHY.cardTitle}>{SIGNED_RECORD_ARTIFACT_WHAT_IS_THIS_HEADING}</CardTitle>

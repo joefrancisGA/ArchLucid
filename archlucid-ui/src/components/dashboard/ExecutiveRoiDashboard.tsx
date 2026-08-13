@@ -40,7 +40,7 @@ export function ExecutiveRoiDashboard() {
   const [error, setError] = useState<string | null>(null);
 
   useEffect(() => {
-    let cancelled = false;
+    let canceled = false;
 
     void (async () => {
       try {
@@ -55,18 +55,18 @@ export function ExecutiveRoiDashboard() {
 
         const json = (await res.json()) as ExecutiveRoiAggregates;
 
-        if (!cancelled) {
+        if (!canceled) {
           setData(json);
         }
       } catch (e: unknown) {
-        if (!cancelled) {
+        if (!canceled) {
           setError(e instanceof Error ? e.message : "Failed to load ROI metrics.");
         }
       }
     })();
 
     return () => {
-      cancelled = true;
+      canceled = true;
     };
   }, []);
 

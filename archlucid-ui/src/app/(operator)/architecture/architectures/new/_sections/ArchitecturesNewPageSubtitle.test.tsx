@@ -2,7 +2,7 @@ import { render, screen, waitFor } from "@testing-library/react";
 import { beforeEach, describe, expect, it, vi } from "vitest";
 
 import { ArchitecturesNewPageSubtitle } from "@/app/(operator)/architecture/architectures/new/_sections/ArchitecturesNewPageSubtitle";
-import type { ArchitectureDraftRegistryEntry } from "@/lib/architecture-draft-registry";
+import type { ArchitectureDraftRegistryEntry } from "@/lib/architecture/architecture-draft-registry";
 import {
   ARCHITECTURE_CREATION_PAGE_SUBTITLE,
   ARCHITECTURE_CREATION_PAGE_SUBTITLE_WITH_DRAFTS,

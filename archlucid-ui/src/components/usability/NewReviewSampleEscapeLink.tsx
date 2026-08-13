@@ -5,7 +5,7 @@ import { Button } from "@/components/ui/button";
 import {
   NEW_REVIEW_SAMPLE_ESCAPE_CTA,
   NEW_REVIEW_SAMPLE_ESCAPE_HINT,
-} from "@/lib/buyer-polish-copy";
+} from "@/lib/buyer/buyer-polish-copy";
 import { OPERATOR_TYPOGRAPHY } from "@/lib/design-tokens";
 import { showcaseSpecimenSignedReviewRecordHref } from "@/lib/showcase-sample-review-registry";
 

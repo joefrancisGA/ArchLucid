@@ -1,7 +1,7 @@
 import { render, screen } from "@testing-library/react";
 import { describe, expect, it, vi } from "vitest";
 
-vi.mock("@/lib/buyer-cto-demo-tour", () => ({
+vi.mock("@/lib/buyer/buyer-cto-demo-tour", () => ({
   readBuyerCtoDemoTourActive: vi.fn(() => true),
 }));
 
@@ -13,7 +13,7 @@ vi.mock("@/lib/demo-ui-env", async (importOriginal) => {
 };
 });
 
-import { readBuyerCtoDemoTourActive } from "@/lib/buyer-cto-demo-tour";
+import { readBuyerCtoDemoTourActive } from "@/lib/buyer/buyer-cto-demo-tour";
 import { isBuyerPolishedOperatorShellEnv } from "@/lib/demo-ui-env";
 import { CtoDemoSegregationCallout } from "@/components/cto-demo/CtoDemoSegregationCallout";
 

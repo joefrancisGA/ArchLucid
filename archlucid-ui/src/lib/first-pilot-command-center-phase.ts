@@ -1,6 +1,6 @@
 import type { FirstPilotOperatingRailSignals } from "@/lib/first-pilot-operating-rail-status";
 import { ADMINISTRATION_SYSTEM_HEALTH_PATH } from "@/lib/administration-route-paths";
-import { CREATE_ARCHITECTURE_LABEL } from "@/lib/architecture-workflow-labels";
+import { CREATE_ARCHITECTURE_LABEL } from "@/lib/architecture/architecture-workflow-labels";
 
 export type FirstPilotCommandCenterPhase =
 
@@ -232,7 +232,7 @@ export function resolveFirstPilotCommandCenterPhase(input: {
 
       summary:
 
-        "V1 proof looks ready, but recorded buyer requirements (for example SOC 2 CPA or V1.1 connectors) remain explicitly deferred. Use DEFERRED_SCOPE disposition in the proof pipeline — do not present them as first-pilot blockers.",
+        "Product proof looks ready, but recorded buyer requirements (for example SOC 2 CPA or future-release connectors) remain explicitly deferred. Use DEFERRED_SCOPE disposition in the proof pipeline — do not present them as first-pilot blockers.",
 
       href: committedReviewHref(signals),
 

@@ -64,7 +64,7 @@ export function CloudProviderSummaryCard(props: CloudProviderSummaryCardProps) {
           <dl className={cn("space-y-2", OPERATOR_TYPOGRAPHY.body)}>
             <div className="flex justify-between gap-2">
               <dt className="text-al-text-secondary">Status</dt>
-              <dd className="font-medium text-right">{status}</dd>
+              <dd className="text-right font-medium">{status}</dd>
             </div>
             <div className="flex justify-between gap-2">
               <dt className="text-al-text-secondary">Authentication model</dt>
@@ -74,7 +74,7 @@ export function CloudProviderSummaryCard(props: CloudProviderSummaryCardProps) {
             </div>
             <div className="flex justify-between gap-2">
               <dt className="text-al-text-secondary">Last validation</dt>
-              <dd className="font-medium text-right">{lastValidation}</dd>
+              <dd className="text-right font-medium">{lastValidation}</dd>
             </div>
             <div className="flex justify-between gap-2">
               <dt className="text-al-text-secondary">Evidence collected</dt>

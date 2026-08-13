@@ -7,12 +7,12 @@ import { ArchitectureNarrativeMarkdownView } from "@/components/architecture/Arc
 import {
   ARCHITECTURE_STRUCTURED_SHOW_LESS_LABEL,
   ARCHITECTURE_STRUCTURED_SHOW_MORE_LABEL,
-} from "@/lib/architecture-structured-content-copy";
+} from "@/lib/architecture/architecture-structured-content-copy";
 import {
   ARCHITECTURE_NARRATIVE_PREVIEW_WORD_LIMIT,
   shouldUseSectionLevelNarrativeDisclosure,
   truncateMarkdownPreservingStructure,
-} from "@/lib/architecture-structured-narrative";
+} from "@/lib/architecture/architecture-structured-narrative";
 import { OPERATOR_TYPOGRAPHY } from "@/lib/design-tokens";
 
 export type ArchitectureStructuredNarrativeProps = {

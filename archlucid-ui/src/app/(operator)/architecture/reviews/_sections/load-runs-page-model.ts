@@ -8,9 +8,9 @@ import {
 import type { ApiLoadFailureState } from "@/lib/api-load-failure";
 import { isApiNotFoundFailure, toApiLoadFailure } from "@/lib/api-load-failure";
 import { dedupeRunSummariesByRunId, normalizeRunSummaryForDemoPicker } from "@/lib/demo-run-canonical";
-import { coerceRunSummaryPaged } from "@/lib/operator-response-guards";
+import { coerceRunSummaryPaged } from "@/lib/operator/operator-response-guards";
 import { resolveServerScopeHeadersForProject } from "@/lib/server-run-scope";
-import { tryStaticDemoRunSummariesPaged, isStaticDemoPayloadFallbackEnabled } from "@/lib/operator-static-demo";
+import { tryStaticDemoRunSummariesPaged, isStaticDemoPayloadFallbackEnabled } from "@/lib/operator/operator-static-demo";
 import type { RunSummary } from "@/types/authority";
 
 import type { RunsPageModel, RunsPageSearchParams } from "./runs-page-model";

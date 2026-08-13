@@ -1,9 +1,15 @@
-import { cn } from "@/lib/utils";
-import { OPERATOR_TYPOGRAPHY } from "@/lib/design-tokens";
+import { OPERATOR_LINK, OPERATOR_TYPOGRAPHY } from "@/lib/design-tokens";
 import Link from "next/link";
 import type { ReactElement } from "react";
+import {
+  EnterpriseTable,
+  EnterpriseTableBody,
+  EnterpriseTableCell,
+  EnterpriseTableRow,
+} from "@/components/ui/enterprise-table";
 import type { EvolutionSimulationRunWithEvaluationResponse } from "@/types/evolution";
 import { parseEvolutionOutcomeJson } from "@/lib/evolution-outcome";
+import { cn } from "@/lib/utils";
 
 const cardCls = "mb-3.5 overflow-hidden rounded-lg border border-neutral-200 dark:border-neutral-700";
 const headerCls = cn(
@@ -14,7 +20,7 @@ const colCls = (cn("p-3.5 leading-normal align-top", OPERATOR_TYPOGRAPHY.helper)
 const colBeforeCls = `${colCls} border-r-[3px] border-neutral-300 bg-al-surface-raised dark:border-neutral-600`;
 const colAfterCls = `${colCls} bg-al-surface-raised dark:bg-neutral-900/50`;
 const labelCls = (cn("mb-1.5 font-bold uppercase tracking-wide text-neutral-500 dark:text-neutral-400", OPERATOR_TYPOGRAPHY.helper));
-const monoCls = (cn("font-mono break-all", OPERATOR_TYPOGRAPHY.helper));
+const monoCls = cn("font-mono break-all", OPERATOR_TYPOGRAPHY.helper);
 
 function formatScore(n: number | null | undefined): string {
   if (n === null || n === undefined) {
@@ -45,7 +51,7 @@ export function SimulationRunDiffCard(props: SimulationRunDiffCardProps): ReactE
       <div className={headerCls} id={`sim-run-${run.simulationRunId}`}>
         <span>
           <strong>Review baseline</strong>{" "}
-          <Link href={`/architecture/reviews/${encodeURIComponent(baselineId)}`} className={monoCls}>
+          <Link href={`/architecture/reviews/${encodeURIComponent(baselineId)}`} className={cn(OPERATOR_LINK.inline, "font-mono break-all")}>
             {baselineId}
           </Link>
         </span>
@@ -70,7 +76,7 @@ export function SimulationRunDiffCard(props: SimulationRunDiffCardProps): ReactE
                   Linked reviews:{" "}
                   {planLinkedRunIds.map((id, idx) => (
                     <span key={`${id}-${idx}`} className="block">
-                      <Link href={`/architecture/reviews/${encodeURIComponent(id)}`} className={monoCls}>
+                      <Link href={`/architecture/reviews/${encodeURIComponent(id)}`} className={cn(OPERATOR_LINK.inline, "font-mono break-all")}>
                         {id}
                       </Link>
                       {id === baselineId ? " ← this row" : null}
@@ -103,7 +109,7 @@ export function SimulationRunDiffCard(props: SimulationRunDiffCardProps): ReactE
                 <dt className="text-neutral-500 dark:text-neutral-400">Review status</dt>
                 <dd className="m-0">{parsed.shadow.runStatus ?? "—"}</dd>
                 <dt className="text-neutral-500 dark:text-neutral-400">Review record version</dt>
-                <dd className={`m-0 ${monoCls}`}>{parsed.shadow.manifestVersion ?? "—"}</dd>
+                <dd className={cn("m-0 font-mono break-all", OPERATOR_TYPOGRAPHY.helper)}>{parsed.shadow.manifestVersion ?? "—"}</dd>
                 <dt className="text-neutral-500 dark:text-neutral-400">Has manifest</dt>
                 <dd className="m-0">{parsed.shadow.hasManifest ? "yes" : "no"}</dd>
                 <dt className="text-neutral-500 dark:text-neutral-400">Summary length</dt>
@@ -117,30 +123,30 @@ export function SimulationRunDiffCard(props: SimulationRunDiffCardProps): ReactE
           {ev !== null && ev !== undefined ? (
             <>
               <div className={`${labelCls} mt-3.5`}>Evaluation scores</div>
-              <table className={cn("mt-2 w-full border-collapse", OPERATOR_TYPOGRAPHY.helper)}>
-                <tbody>
-                  <tr>
-                    <td className="pr-2 py-0.5 text-neutral-500 dark:text-neutral-400">Simulation</td>
-                    <td className="p-0.5">{formatScore(ev.simulationScore)}</td>
-                  </tr>
-                  <tr>
-                    <td className="pr-2 py-0.5 text-neutral-500 dark:text-neutral-400">Determinism</td>
-                    <td className="p-0.5">{formatScore(ev.determinismScore)}</td>
-                  </tr>
-                  <tr>
-                    <td className="pr-2 py-0.5 text-neutral-500 dark:text-neutral-400">Regression risk</td>
-                    <td className="p-0.5">{formatScore(ev.regressionRiskScore)}</td>
-                  </tr>
-                  <tr>
-                    <td className="pr-2 py-0.5 text-neutral-500 dark:text-neutral-400">Improvement Δ</td>
-                    <td className="p-0.5">{formatScore(ev.improvementDelta)}</td>
-                  </tr>
-                  <tr>
-                    <td className="pr-2 py-0.5 text-neutral-500 dark:text-neutral-400">Confidence</td>
-                    <td className="p-0.5">{formatScore(ev.confidenceScore)}</td>
-                  </tr>
-                </tbody>
-              </table>
+              <EnterpriseTable ariaLabel="Simulation evaluation scores" className={cn("mt-2", OPERATOR_TYPOGRAPHY.helper)}>
+                <EnterpriseTableBody>
+                  <EnterpriseTableRow>
+                    <EnterpriseTableCell className="pr-2 py-0.5 text-neutral-500 dark:text-neutral-400">Simulation</EnterpriseTableCell>
+                    <EnterpriseTableCell className="p-0.5">{formatScore(ev.simulationScore)}</EnterpriseTableCell>
+                  </EnterpriseTableRow>
+                  <EnterpriseTableRow>
+                    <EnterpriseTableCell className="pr-2 py-0.5 text-neutral-500 dark:text-neutral-400">Determinism</EnterpriseTableCell>
+                    <EnterpriseTableCell className="p-0.5">{formatScore(ev.determinismScore)}</EnterpriseTableCell>
+                  </EnterpriseTableRow>
+                  <EnterpriseTableRow>
+                    <EnterpriseTableCell className="pr-2 py-0.5 text-neutral-500 dark:text-neutral-400">Regression risk</EnterpriseTableCell>
+                    <EnterpriseTableCell className="p-0.5">{formatScore(ev.regressionRiskScore)}</EnterpriseTableCell>
+                  </EnterpriseTableRow>
+                  <EnterpriseTableRow>
+                    <EnterpriseTableCell className="pr-2 py-0.5 text-neutral-500 dark:text-neutral-400">Improvement Δ</EnterpriseTableCell>
+                    <EnterpriseTableCell className="p-0.5">{formatScore(ev.improvementDelta)}</EnterpriseTableCell>
+                  </EnterpriseTableRow>
+                  <EnterpriseTableRow>
+                    <EnterpriseTableCell className="pr-2 py-0.5 text-neutral-500 dark:text-neutral-400">Confidence</EnterpriseTableCell>
+                    <EnterpriseTableCell className="p-0.5">{formatScore(ev.confidenceScore)}</EnterpriseTableCell>
+                  </EnterpriseTableRow>
+                </EnterpriseTableBody>
+              </EnterpriseTable>
               {(ev.regressionSignals ?? []).length > 0 ? (
                 <div className="mt-2">
                   <div className={cn("mb-1 font-semibold", OPERATOR_TYPOGRAPHY.helper)}>Regression signals</div>

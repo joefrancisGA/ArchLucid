@@ -28,15 +28,31 @@ describe("HelpTopicPrintButton (TB-721)", () => {
     printMock.mockRestore();
   });
 
-  it("renders nothing for customer-tier docs", () => {
-    const { container } = render(<HelpTopicPrintButton entry={entry("customer")} />);
+  it("calls window.print for customer-tier docs", () => {
+    const printMock = vi.spyOn(window, "print").mockImplementation(() => {});
 
-    expect(container).toBeEmptyDOMElement();
+    render(<HelpTopicPrintButton entry={entry("customer")} />);
+
+    fireEvent.click(screen.getByTestId("help-topic-print-pdf"));
+
+    expect(printMock).toHaveBeenCalledTimes(1);
+    printMock.mockRestore();
   });
 
   it("renders nothing when pdfStatus is null", () => {
     const { container } = render(<HelpTopicPrintButton entry={entry(null)} />);
 
     expect(container).toBeEmptyDOMElement();
+  });
+
+  it("calls window.print when allowWithoutServerPdf is set and pdfStatus is null", () => {
+    const printMock = vi.spyOn(window, "print").mockImplementation(() => {});
+
+    render(<HelpTopicPrintButton entry={entry(null)} allowWithoutServerPdf />);
+
+    fireEvent.click(screen.getByTestId("help-topic-print-pdf"));
+
+    expect(printMock).toHaveBeenCalledTimes(1);
+    printMock.mockRestore();
   });
 });

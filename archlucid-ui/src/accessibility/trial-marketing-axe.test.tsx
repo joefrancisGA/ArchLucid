@@ -4,7 +4,7 @@ import { afterEach, describe, expect, it, vi } from "vitest";
 
 import { SignupForm } from "@/components/marketing/SignupForm";
 import { WelcomeMarketingPage } from "@/components/marketing/WelcomeMarketingPage";
-import { TrialBanner } from "@/components/TrialBanner";
+import { TrialBanner } from "@/components/trial/TrialBanner";
 import { useOperatorQueryTestLifecycle } from "@/testing/operator-query-test-helpers";
 import { renderWithOperatorQuery } from "@/testing/render-with-operator-query";
 

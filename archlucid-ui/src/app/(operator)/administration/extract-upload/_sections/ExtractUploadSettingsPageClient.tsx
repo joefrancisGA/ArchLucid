@@ -6,11 +6,11 @@ import { useEffect, useState } from "react";
 
 import { AzureExtractorUploadFailureCallout } from "@/components/AzureExtractorUploadFailureCallout";
 import { AzureExtractorZipDropZone } from "@/components/AzureExtractorZipDropZone";
+import { ExtractUploadCloudConnectionsVocabularyRail } from "@/components/ExtractUploadCloudConnectionsVocabularyRail";
 import { ExtractUploadConstraintsPanel } from "@/components/usability/ExtractUploadConstraintsPanel";
 import { ExtractUploadFileProgressList } from "@/components/usability/ExtractUploadFileProgressList";
 import { Button } from "@/components/ui/button";
 import { Card, CardContent, CardDescription, CardHeader, CardTitle } from "@/components/ui/card";
-import { PageContextualHelpButton } from "@/components/usability/PageContextualHelpButton";
 import { AzureExtractorDemoScenarioPicker } from "@/components/wizard/AzureExtractorDemoScenarioPicker";
 import { AzureExtractorQuickStartCommandPanel } from "@/components/wizard/AzureExtractorQuickStartCommandPanel";
 import type { ApiProblemDetails } from "@/lib/api-problem";
@@ -29,13 +29,39 @@ import { readArchLucidAzurePackageZipFromBytes, readArchLucidAzurePackageZipFrom
 import { mergeRegistrationScopeForProxy } from "@/lib/proxy-fetch-registration-scope";
 import { showError, showSuccess } from "@/lib/toast";
 import { ApiV1Routes } from "@/lib/api-v1-routes";
-import { OPERATOR_LINK, OPERATOR_TYPOGRAPHY } from "@/lib/design-tokens";
+import {
+  OPERATOR_DISCLOSURE_TRIGGER_CLASS,
+  OPERATOR_LAYOUT,
+  OPERATOR_LINK,
+  OPERATOR_PAGE_CONTAINER,
+  OPERATOR_TYPOGRAPHY,
+} from "@/lib/design-tokens";
+import {
+  EXTRACT_UPLOAD_ADVANCED_COMMAND_DISCLOSURE_SUMMARY,
+  EXTRACT_UPLOAD_DEMO_ASIDE_DESCRIPTION,
+  EXTRACT_UPLOAD_DEMO_ASIDE_TITLE,
+  EXTRACT_UPLOAD_EVIDENCE_TRAIL_HREF,
+  EXTRACT_UPLOAD_EVIDENCE_TRAIL_LINK_LABEL,
+  EXTRACT_UPLOAD_SCRIPT_DOWNLOAD_LABEL,
+  EXTRACT_UPLOAD_STEP_COLLECT_DESCRIPTION,
+  EXTRACT_UPLOAD_STEP_COLLECT_TITLE,
+  EXTRACT_UPLOAD_STEP_UPLOAD_DESCRIPTION,
+  EXTRACT_UPLOAD_STEP_UPLOAD_TITLE,
+  EXTRACT_UPLOAD_VALIDATE_CLI_COMMAND,
+  EXTRACT_UPLOAD_VALIDATE_DISCLOSURE_SUMMARY,
+} from "@/lib/extract-upload-settings-page-copy";
+import { ExtractUploadSettingsPageHeader } from "./ExtractUploadSettingsPageHeader";
 
 const EXTRACTOR_SCRIPT_CDN_URL =
   process.env.NEXT_PUBLIC_EXTRACTOR_SCRIPT_CDN_URL?.trim() ||
   "https://cdn.archlucid.net/scripts/Get-ArchLucidAzurePackage.ps1";
 
 const EXTRACTOR_SCRIPT_VERSION_PATTERN = /\$scriptVersion\s*=\s*"([^"]+)"/;
+
+type WorkspaceBaselineArtifactsPayload = {
+  hasBaselineArtifacts?: unknown;
+  extractorScriptVersion?: string | null;
+};
 
 /**
  * Guided Extract & Upload settings page — PowerShell script, validate hint, and server ZIP upload.
@@ -51,15 +77,20 @@ export function ExtractUploadSettingsPageClient() {
   const [packageId, setPackageId] = useState<string | null>(null);
   const [fileStatuses, setFileStatuses] = useState<FolderPackageFileStatus[]>([]);
   const [extractorUpdateBanner, setExtractorUpdateBanner] = useState<string | null>(null);
+  const [baselineLoading, setBaselineLoading] = useState(true);
+  const [hasBaselineArtifacts, setHasBaselineArtifacts] = useState<boolean | null>(null);
+  const [extractorScriptVersion, setExtractorScriptVersion] = useState<string | null>(null);
   const [selectedDemoScenarioId, setSelectedDemoScenarioId] = useState<AzureExtractorDemoScenarioId>(
     DEFAULT_AZURE_EXTRACTOR_DEMO_SCENARIO_ID,
   );
   const maxMb = Math.floor(ARCH_LUCID_AZURE_EXTRACTOR_MAX_ZIP_BYTES / (1024 * 1024));
 
   useEffect(() => {
-    let cancelled = false;
+    let canceled = false;
 
     void (async () => {
+      setBaselineLoading(true);
+
       try {
         const [baselineResponse, scriptResponse] = await Promise.all([
           fetch(
@@ -69,11 +100,25 @@ export function ExtractUploadSettingsPageClient() {
           fetch(EXTRACTOR_SCRIPT_CDN_URL, { cache: "no-store" }),
         ]);
 
-        if (!baselineResponse.ok || !scriptResponse.ok || cancelled) {
+        if (canceled) {
           return;
         }
 
-        const baseline = (await baselineResponse.json()) as { extractorScriptVersion?: string | null };
+        let baseline: WorkspaceBaselineArtifactsPayload | null = null;
+
+        if (baselineResponse.ok) {
+          baseline = (await baselineResponse.json()) as WorkspaceBaselineArtifactsPayload;
+          setHasBaselineArtifacts(baseline.hasBaselineArtifacts === true);
+          setExtractorScriptVersion(baseline.extractorScriptVersion?.trim() || null);
+        } else {
+          setHasBaselineArtifacts(null);
+          setExtractorScriptVersion(null);
+        }
+
+        if (!scriptResponse.ok || baseline === null) {
+          return;
+        }
+
         const scriptText = await scriptResponse.text();
         const match = EXTRACTOR_SCRIPT_VERSION_PATTERN.exec(scriptText);
         const latestVersion = match?.[1]?.trim();
@@ -88,12 +133,19 @@ export function ExtractUploadSettingsPageClient() {
           );
         }
       } catch {
-        // Banner is optional; ignore fetch failures.
+        if (!canceled) {
+          setHasBaselineArtifacts(null);
+          setExtractorScriptVersion(null);
+        }
+      } finally {
+        if (!canceled) {
+          setBaselineLoading(false);
+        }
       }
     })();
 
     return () => {
-      cancelled = true;
+      canceled = true;
     };
   }, []);
 
@@ -217,17 +269,17 @@ export function ExtractUploadSettingsPageClient() {
   }
 
   return (
-    <div className="w-full max-w-3xl space-y-6">
-      <div className="flex flex-wrap items-start justify-between gap-3">
-        <div>
-          <h1 className={OPERATOR_TYPOGRAPHY.pageTitle}>Extract &amp; Upload</h1>
-          <p className={cn("mt-1 text-al-text-secondary", OPERATOR_TYPOGRAPHY.body)}>
-            Run the read-only Azure extractor locally, validate the ZIP, then upload it for architecture reviews.
-          </p>
-        </div>
-        <PageContextualHelpButton />
-      </div>
-<ExtractUploadConstraintsPanel />
+    <div
+      className={cn(OPERATOR_PAGE_CONTAINER.base, OPERATOR_PAGE_CONTAINER.variant.workflow, OPERATOR_LAYOUT.majorSectionGap)}
+      data-testid="extract-upload-settings-page"
+    >
+      <ExtractUploadSettingsPageHeader
+        baselineLoading={baselineLoading}
+        hasBaselineArtifacts={hasBaselineArtifacts}
+        extractorScriptVersion={extractorScriptVersion}
+      />
+
+      <ExtractUploadCloudConnectionsVocabularyRail currentSurfaceId="extract-upload" />
 
       {extractorUpdateBanner ? (
         <div
@@ -241,130 +293,165 @@ export function ExtractUploadSettingsPageClient() {
         </div>
       ) : null}
 
-      <Card>
-        <CardHeader>
-          <CardTitle className={OPERATOR_TYPOGRAPHY.cardTitle}>Step 1 — Collect inventory locally</CardTitle>
-          <CardDescription>
-            Copy the quick-start command, run it from your ArchLucid checkout, then upload the ZIP below. Use{" "}
-            <code>-DryRun</code> on the advanced script when you need a preview first.
-          </CardDescription>
-        </CardHeader>
-        <CardContent className="space-y-4">
-          <AzureExtractorQuickStartCommandPanel testIdPrefix="extract-upload-quick-start" />
-          <details className={cn("rounded-md border border-neutral-200 p-3 dark:border-neutral-700", OPERATOR_TYPOGRAPHY.body)}>
-            <summary className={cn("cursor-pointer font-medium text-al-text-primary", OPERATOR_TYPOGRAPHY.body)}>
-              Advanced: full Get-ArchLucidAzurePackage.ps1 command
-            </summary>
-            <pre
-              className={cn(
-                "mt-3 overflow-x-auto rounded-md bg-neutral-950 p-3 text-neutral-100",
-                OPERATOR_TYPOGRAPHY.micro,
-              )}
-            >
-              {buildAdvancedGetArchLucidAzurePackageCommandLine()}
-            </pre>
-          </details>
-          <a
-            href={EXTRACTOR_SCRIPT_CDN_URL}
-            className={cn("inline-block", OPERATOR_LINK.nav)}
-            target="_blank"
-            rel="noreferrer"
-          >
-            Download Get-ArchLucidAzurePackage.ps1 (inspect before running)
-          </a>
-        </CardContent>
-      </Card>
-
-      <Card>
-        <CardHeader>
-          <CardTitle className={OPERATOR_TYPOGRAPHY.cardTitle}>Step 2 — Validate (optional)</CardTitle>
-          <CardDescription>CLI validation before upload.</CardDescription>
-        </CardHeader>
-        <CardContent className={cn("text-al-text-primary", OPERATOR_TYPOGRAPHY.body)}>
-          <code className={cn("rounded bg-neutral-100 px-1 py-0.5 dark:bg-neutral-800", OPERATOR_TYPOGRAPHY.micro)}>
-            archlucid azure validate-zip --path &lt;your-package.zip&gt;
-          </code>
-        </CardContent>
-      </Card>
-
-      <Card>
-        <CardHeader>
-          <CardTitle className={OPERATOR_TYPOGRAPHY.cardTitle}>Try it now with demo data</CardTitle>
-          <CardDescription>
-            Upload a bundled synthetic Azure extractor ZIP — same schema as{" "}
-            <code>Get-ArchLucidAzurePackage.ps1</code> output — without running the extractor locally.
-          </CardDescription>
-        </CardHeader>
-        <CardContent className="space-y-3">
-          <AzureExtractorDemoScenarioPicker
-            selectedScenarioId={selectedDemoScenarioId}
-            onSelectScenario={setSelectedDemoScenarioId}
-            testIdPrefix="extract-upload-demo"
-          />
-          <Button
-            type="button"
-            variant="secondary"
-            size="sm"
-            disabled={busy}
-            data-testid="extract-upload-try-demo-data"
-            onClick={() => {
-              void onTryDemoData();
-            }}
-          >
-            Try with Demo Data
-          </Button>
-        </CardContent>
-      </Card>
-
-      <Card>
-        <CardHeader>
-          <CardTitle className={OPERATOR_TYPOGRAPHY.cardTitle}>Step 3 — Upload ZIP</CardTitle>
-          <CardDescription>
-            Drag and drop or browse. Client-side checks validate <code>manifest.json</code> schemaVersion before the API
-            call (max {maxMb} MB).
-          </CardDescription>
-        </CardHeader>
-        <CardContent className="space-y-3">
-          <AzureExtractorZipDropZone
-            ariaLabel="Azure extractor ZIP upload"
-            busy={busy}
-            testId="extract-upload-drop-zone"
-            hint={
-              selectedFileLabel !== null ? (
-                <p
-                  className={cn("m-0 text-al-text-secondary", OPERATOR_TYPOGRAPHY.micro)}
-                  data-testid="extract-upload-file-meta"
+      <div
+        className={cn(OPERATOR_LAYOUT.mainWithStickyAside)}
+        data-testid="extract-upload-page-layout"
+      >
+        <div className={cn("min-w-0", OPERATOR_LAYOUT.sectionStack)} data-testid="extract-upload-page-main">
+          <Card>
+            <CardHeader>
+              <CardTitle className={OPERATOR_TYPOGRAPHY.cardTitle}>{EXTRACT_UPLOAD_STEP_COLLECT_TITLE}</CardTitle>
+              <CardDescription>{EXTRACT_UPLOAD_STEP_COLLECT_DESCRIPTION}</CardDescription>
+            </CardHeader>
+            <CardContent className="space-y-4">
+              <AzureExtractorQuickStartCommandPanel testIdPrefix="extract-upload-quick-start" />
+              <details
+                className={cn("rounded-md border border-neutral-200 p-3 dark:border-neutral-700", OPERATOR_TYPOGRAPHY.body)}
+              >
+                <summary
+                  className={cn("cursor-pointer font-medium text-al-text-primary", OPERATOR_DISCLOSURE_TRIGGER_CLASS)}
                 >
-                  Selected: {selectedFileLabel}
+                  {EXTRACT_UPLOAD_ADVANCED_COMMAND_DISCLOSURE_SUMMARY}
+                </summary>
+                <pre
+                  className={cn(
+                    "mt-3 overflow-auto whitespace-pre-wrap break-words rounded-md bg-neutral-950 p-3 text-neutral-100",
+                    OPERATOR_TYPOGRAPHY.micro,
+                  )}
+                >
+                  <code className="whitespace-pre-wrap break-words">
+                    {buildAdvancedGetArchLucidAzurePackageCommandLine()}
+                  </code>
+                </pre>
+              </details>
+              <a
+                href={EXTRACTOR_SCRIPT_CDN_URL}
+                className={cn("inline-block", OPERATOR_LINK.nav)}
+                target="_blank"
+                rel="noreferrer"
+              >
+                {EXTRACT_UPLOAD_SCRIPT_DOWNLOAD_LABEL}
+              </a>
+            </CardContent>
+          </Card>
+
+          <Card>
+            <CardHeader>
+              <CardTitle className={OPERATOR_TYPOGRAPHY.cardTitle}>{EXTRACT_UPLOAD_STEP_UPLOAD_TITLE}</CardTitle>
+              <CardDescription>
+                {EXTRACT_UPLOAD_STEP_UPLOAD_DESCRIPTION} (max {maxMb} MB).
+              </CardDescription>
+            </CardHeader>
+            <CardContent className="space-y-3">
+              <AzureExtractorZipDropZone
+                ariaLabel="Azure extractor ZIP upload"
+                busy={busy}
+                testId="extract-upload-drop-zone"
+                hint={
+                  selectedFileLabel !== null ? (
+                    <p
+                      className={cn("m-0 text-al-text-secondary", OPERATOR_TYPOGRAPHY.micro)}
+                      data-testid="extract-upload-file-meta"
+                    >
+                      Selected: {selectedFileLabel}
+                    </p>
+                  ) : null
+                }
+                onZipSelected={onZipSelected}
+                onFolderSelected={onFolderSelected}
+              />
+              <ExtractUploadFileProgressList fileStatuses={fileStatuses} />
+              {uploadError !== null ? (
+                <AzureExtractorUploadFailureCallout
+                  fallbackMessage={uploadError.message}
+                  problem={uploadError.problem}
+                  correlationId={uploadError.correlationId}
+                />
+              ) : null}
+              {packageId !== null ? (
+                <p
+                  className={cn("m-0 text-emerald-800 dark:text-emerald-300", OPERATOR_TYPOGRAPHY.body)}
+                  data-testid="extract-upload-success"
+                >
+                  Package accepted (<span className="font-mono">{packageId}</span>).
                 </p>
-              ) : null
-            }
-            onZipSelected={onZipSelected}
-            onFolderSelected={onFolderSelected}
-          />
-          <ExtractUploadFileProgressList fileStatuses={fileStatuses} />
-          {uploadError !== null ? (
-            <AzureExtractorUploadFailureCallout
-              fallbackMessage={uploadError.message}
-              problem={uploadError.problem}
-              correlationId={uploadError.correlationId}
-            />
-          ) : null}
-          {packageId !== null ? (
-            <p
-              className={cn("m-0 text-emerald-800 dark:text-emerald-300", OPERATOR_TYPOGRAPHY.body)}
-              data-testid="extract-upload-success"
-            >
-              Package accepted (<span className="font-mono">{packageId}</span>).
+              ) : null}
+              <Button asChild type="button" variant="outline" size="sm">
+                <Link href="/architecture/reviews" data-testid="extract-upload-go-reviews">
+                  Go to Reviews
+                </Link>
+              </Button>
+            </CardContent>
+          </Card>
+        </div>
+
+        <aside
+          className={cn(OPERATOR_LAYOUT.stickyAsideTop, OPERATOR_LAYOUT.sectionStack)}
+          data-testid="extract-upload-page-aside"
+        >
+          <ExtractUploadConstraintsPanel />
+
+          <details
+            className="rounded-lg border border-neutral-200 bg-neutral-50/80 p-4 dark:border-neutral-700 dark:bg-neutral-900/40"
+            data-testid="extract-upload-validate-disclosure"
+          >
+            <summary className={cn("cursor-pointer text-al-text-primary", OPERATOR_DISCLOSURE_TRIGGER_CLASS)}>
+              {EXTRACT_UPLOAD_VALIDATE_DISCLOSURE_SUMMARY}
+            </summary>
+            <p className={cn("m-0 mt-3 text-al-text-primary", OPERATOR_TYPOGRAPHY.body)}>
+              <code
+                className={cn(
+                  "inline-block whitespace-pre-wrap break-words rounded bg-neutral-100 px-1 py-0.5 dark:bg-neutral-800",
+                  OPERATOR_TYPOGRAPHY.micro,
+                )}
+              >
+                {EXTRACT_UPLOAD_VALIDATE_CLI_COMMAND}
+              </code>
             </p>
-          ) : null}
-          <Button asChild type="button" variant="outline" size="sm">
-            <Link href="/architecture/reviews" data-testid="extract-upload-go-reviews">
-              Go to Reviews
+          </details>
+
+          <section
+            className="rounded-lg border border-neutral-200 bg-neutral-50/80 p-4 dark:border-neutral-700 dark:bg-neutral-900/40"
+            data-testid="extract-upload-demo-aside"
+          >
+            <h3 className={cn("m-0 font-semibold text-neutral-900 dark:text-neutral-50", OPERATOR_TYPOGRAPHY.cardTitle)}>
+              {EXTRACT_UPLOAD_DEMO_ASIDE_TITLE}
+            </h3>
+            <p className={cn("m-0 mt-2 text-neutral-700 dark:text-neutral-300", OPERATOR_TYPOGRAPHY.body)}>
+              {EXTRACT_UPLOAD_DEMO_ASIDE_DESCRIPTION}
+            </p>
+            <div className="mt-3 space-y-3">
+              <AzureExtractorDemoScenarioPicker
+                selectedScenarioId={selectedDemoScenarioId}
+                onSelectScenario={setSelectedDemoScenarioId}
+                testIdPrefix="extract-upload-demo"
+              />
+              <Button
+                type="button"
+                variant="secondary"
+                size="sm"
+                disabled={busy}
+                data-testid="extract-upload-try-demo-data"
+                onClick={() => {
+                  void onTryDemoData();
+                }}
+              >
+                Try with Demo Data
+              </Button>
+            </div>
+          </section>
+
+          <p className={cn("m-0", OPERATOR_TYPOGRAPHY.body)}>
+            <Link
+              href={EXTRACT_UPLOAD_EVIDENCE_TRAIL_HREF}
+              className={OPERATOR_LINK.inline}
+              data-testid="extract-upload-evidence-trail-link"
+            >
+              {EXTRACT_UPLOAD_EVIDENCE_TRAIL_LINK_LABEL}
             </Link>
-          </Button>
-        </CardContent>
-      </Card>
+          </p>
+        </aside>
+      </div>
     </div>
   );
 }

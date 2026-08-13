@@ -150,7 +150,19 @@ internal static class BaselineMutationAuditArchitectureDurableWriter
                         actor,
                         actor,
                         JsonSerializer.Serialize(
-                            new { runId = entityId, traceId = GetDetail(kv, "TraceId"), agentLabel = GetDetail(kv, "AgentLabel"), }));
+                            new
+                            {
+                                runId = entityId,
+                                traceId = GetDetail(kv, "TraceId"),
+                                agentLabel = GetDetail(kv, "AgentLabel"),
+                                structuralCompletenessRatio = TryParseNullableDouble(GetDetailOrNull(kv, "StructuralCompletenessRatio")),
+                                semanticScore = TryParseNullableDouble(GetDetailOrNull(kv, "SemanticScore")),
+                                rejectReasonCategory = GetDetailOrNull(kv, "RejectReasonCategory"),
+                                triageScenarioId = GetDetailOrNull(kv, "TriageScenarioId"),
+                                gateDefinitionVersion = GetDetailOrNull(kv, "GateDefinitionVersion"),
+                                gateDefinitionContentHashSha256 = GetDetailOrNull(kv, "GateDefinitionContentHashSha256"),
+                                gateMode = GetDetailOrNull(kv, "GateMode"),
+                            }));
                     rejected.RunId = runGuid;
 
                     await auditService.LogAsync(rejected, ct);
@@ -246,5 +258,13 @@ internal static class BaselineMutationAuditArchitectureDurableWriter
         Match m = Regex.Match(details, @"ResultCount\s*=\s*(\d+)", RegexOptions.IgnoreCase);
 
         return m.Success && int.TryParse(m.Groups[1].Value, out int n) ? n : 0;
+    }
+
+    private static double? TryParseNullableDouble(string? value)
+    {
+        if (string.IsNullOrWhiteSpace(value))
+            return null;
+
+        return double.TryParse(value, out double parsed) ? parsed : null;
     }
 }

@@ -1,3 +1,6 @@
+import type { SsoWizardIdpPresetId } from "@/lib/sso-wizard-idp-presets";
+import { resolveSuggestedProtocolForIdp } from "@/lib/sso-wizard-idp-presets";
+
 export type SsoWizardProtocol = "oidc" | "saml";
 
 export type SsoWizardClaimMappingEntry = {
@@ -12,6 +15,8 @@ export type SsoWizardClaimMapping = {
 };
 
 export type SsoWizardState = {
+  /** Buyer path chooser (Entra / Okta / Auth0 / Other); drives suggested protocol. */
+  idpPresetId: SsoWizardIdpPresetId | null;
   protocol: SsoWizardProtocol | null;
   metadataUrl: string;
   issuerUri: string;
@@ -28,16 +33,36 @@ export type SsoWizardState = {
 
 export const ARCHLUCID_ROLES = ["Admin", "Operator", "Reader", "Auditor"] as const;
 
+/** Step 0 = identity provider; step 1 = protocol (TB-2232). */
 export const SSO_WIZARD_STEPS = [
+  { label: "Identity provider", description: "Choose Entra, Okta, Auth0, or other" },
   { label: "Protocol", description: "Choose OIDC or SAML" },
   { label: "Provider details", description: "Enter provider metadata" },
   { label: "Role mapping", description: "Map groups and claims" },
-  { label: "Test connection", description: "Verify sign-in" },
-  { label: "Activate", description: "Review and enable" },
+  { label: "Verify claim mapping", description: "Sandbox sign-in test with sample claim values" },
+  { label: "Save configuration", description: "Review and save configuration" },
 ] as const;
+
+export function applySsoWizardIdpPreset(
+  state: SsoWizardState,
+  idpPresetId: SsoWizardIdpPresetId,
+): SsoWizardState {
+  const suggested = resolveSuggestedProtocolForIdp(idpPresetId);
+
+  return {
+    ...state,
+    idpPresetId,
+    // Preserve a hydrated or user-chosen protocol when editing an existing tenant record.
+    protocol: state.protocol ?? suggested,
+  };
+}
 
 export function ssoWizardHasUnsavedChanges(state: SsoWizardState, step: number): boolean {
   if (step > 0) {
+    return true;
+  }
+
+  if (state.idpPresetId !== null) {
     return true;
   }
 
@@ -70,6 +95,7 @@ export function ssoWizardHasUnsavedChanges(state: SsoWizardState, step: number):
 
 export function createDefaultSsoWizardState(): SsoWizardState {
   return {
+    idpPresetId: null,
     protocol: null,
     metadataUrl: "",
     issuerUri: "",

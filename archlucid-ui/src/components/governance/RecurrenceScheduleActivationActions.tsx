@@ -2,7 +2,7 @@
 
 import { RecurrenceScheduleActivationSummary } from "@/components/governance/RecurrenceScheduleActivationSummary";
 import { Button } from "@/components/ui/button";
-import { OPERATOR_TYPOGRAPHY } from "@/lib/design-tokens";
+import { DESIGN_TOKENS, OPERATOR_TYPOGRAPHY } from "@/lib/design-tokens";
 import {
   RECURRENCE_AI_BUDGET_DISCLOSURE,
   RECURRENCE_ENABLE_RECURRING_LABEL,
@@ -71,10 +71,7 @@ export function RecurrenceScheduleActivationActions(props: RecurrenceScheduleAct
 
         <div className="space-y-2">
           <p
-            className={cn(
-              "m-0 rounded border border-amber-200 bg-amber-50 px-3 py-2 text-amber-950 dark:border-amber-900 dark:bg-amber-950/40 dark:text-amber-100",
-              OPERATOR_TYPOGRAPHY.body,
-            )}
+            className={cn("m-0", DESIGN_TOKENS.callout.warn, OPERATOR_TYPOGRAPHY.body)}
             data-testid="recurrence-ai-budget-disclosure"
           >
             {RECURRENCE_AI_BUDGET_DISCLOSURE}

@@ -8,7 +8,7 @@ import { HelpAcceleratorChooserPrerequisitePanel } from "@/app/(operator)/help/_
 import { HelpAcceleratorChooserRelatedNextStepsLinks } from "@/app/(operator)/help/_sections/HelpAcceleratorChooserSourceLinks";
 import { HelpTopicTableOfContents } from "@/components/help/HelpTopicTableOfContents";
 import { CollapsibleSection } from "@/components/CollapsibleSection";
-import { OperatorPageHeader } from "@/components/OperatorPageHeader";
+import { OperatorPageHeader } from "@/components/operator/OperatorPageHeader";
 import { PageContextualHelpButton } from "@/components/usability/PageContextualHelpButton";
 import { HelpAcceleratorCostGovernancePackCard } from "@/components/accelerator/HelpAcceleratorCostGovernancePackCard";
 import { AcceleratorPackStartCta } from "@/components/accelerator/AcceleratorPackStartCta";
@@ -35,8 +35,8 @@ import {
   OPERATOR_LINK,
   OPERATOR_TYPOGRAPHY,
 } from "@/lib/design-tokens";
-import type { HelpMarkdownHeading } from "@/lib/help-markdown-headings";
-import { HELP_PAGE_LAYOUT } from "@/lib/help-page-layout";
+import type { HelpMarkdownHeading } from "@/lib/help/help-markdown-headings";
+import { HELP_PAGE_LAYOUT } from "@/lib/help/help-page-layout";
 import {
   inAppHelpHref,
   type ProductDocumentationEntry,

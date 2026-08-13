@@ -4,7 +4,8 @@ import { createContext, useCallback, useContext, useMemo, useState, type ReactNo
 
 import { isRunNeedingAttention } from "@/components/operator-home/runs-dashboard-helpers";
 import { isDemoSeededOverviewInjectedRun } from "@/lib/demo-seeded-overview";
-import { deriveOperatorHomeWorkspaceMetrics } from "@/lib/operator-home-workspace-metrics";
+import type { OperatorHomeLiveRunsSnapshot } from "@/lib/operator/operator-home-live-runs-dashboard";
+import { deriveOperatorHomeWorkspaceMetrics } from "@/lib/operator/operator-home-workspace-metrics";
 import type { RunSummary } from "@/types/authority";
 
 type OperatorHomeWorkspaceActivityContextValue = {
@@ -12,7 +13,9 @@ type OperatorHomeWorkspaceActivityContextValue = {
   readonly hasActionNeededReviews: boolean;
   readonly openFindingsCount: number;
   readonly recentRunIds: readonly string[];
-  readonly reportWorkspaceReviews: (items: readonly RunSummary[]) => void;
+  /** Null until the runs panel reports — consumers fall back to their server-rendered snapshot. */
+  readonly liveRunsSnapshot: OperatorHomeLiveRunsSnapshot | null;
+  readonly reportWorkspaceReviews: (items: readonly RunSummary[], totalCount?: number) => void;
 };
 
 const defaultValue: OperatorHomeWorkspaceActivityContextValue = {
@@ -20,6 +23,7 @@ const defaultValue: OperatorHomeWorkspaceActivityContextValue = {
   hasActionNeededReviews: false,
   openFindingsCount: 0,
   recentRunIds: [],
+  liveRunsSnapshot: null,
   reportWorkspaceReviews: () => {},
 };
 
@@ -41,8 +45,9 @@ export function OperatorHomeWorkspaceActivityProvider(
   const [hasActionNeededReviews, setHasActionNeededReviews] = useState(false);
   const [openFindingsCount, setOpenFindingsCount] = useState(props.initialOpenFindingsCount ?? 0);
   const [recentRunIds, setRecentRunIds] = useState<readonly string[]>(props.initialRecentRunIds ?? []);
+  const [liveRunsSnapshot, setLiveRunsSnapshot] = useState<OperatorHomeLiveRunsSnapshot | null>(null);
 
-  const reportWorkspaceReviews = useCallback((items: readonly RunSummary[]) => {
+  const reportWorkspaceReviews = useCallback((items: readonly RunSummary[], totalCount?: number) => {
     const activeItems = items.filter((run) => run.isArchived !== true);
     // Synthetic demo/seeded Overview rows stay visible in Recent reviews but must not flip
     // empty-home off — otherwise Do-this-next / Open sample package disappears (TB-1039).
@@ -53,6 +58,16 @@ export function OperatorHomeWorkspaceActivityProvider(
     setHasActionNeededReviews(realItems.some(isRunNeedingAttention));
     setOpenFindingsCount(metrics.openFindings);
     setRecentRunIds(activeItems.map((run) => run.runId));
+
+    const nextTotalCount = typeof totalCount === "number" ? totalCount : items.length;
+
+    // Reuse the previous snapshot object when nothing moved, so a repeated report does not
+    // re-render every runs-derived consumer with an equivalent value.
+    setLiveRunsSnapshot((current) =>
+      current !== null && current.items === items && current.totalCount === nextTotalCount
+        ? current
+        : { items, totalCount: nextTotalCount },
+    );
   }, []);
 
   const value = useMemo(
@@ -61,9 +76,17 @@ export function OperatorHomeWorkspaceActivityProvider(
       hasActionNeededReviews,
       openFindingsCount,
       recentRunIds,
+      liveRunsSnapshot,
       reportWorkspaceReviews,
     }),
-    [hasActionNeededReviews, hasWorkspaceReviews, openFindingsCount, recentRunIds, reportWorkspaceReviews],
+    [
+      hasActionNeededReviews,
+      hasWorkspaceReviews,
+      liveRunsSnapshot,
+      openFindingsCount,
+      recentRunIds,
+      reportWorkspaceReviews,
+    ],
   );
 
   return (

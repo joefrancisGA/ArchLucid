@@ -1,6 +1,6 @@
 import { inAppHelpHref } from "@/lib/product-documentation-registry";
 import type { EvidenceSourceLink } from "@/lib/evidence-surface-copy";
-import { GOVERNANCE_AUDIT_PATH } from "@/lib/governance-route-paths";
+import { GOVERNANCE_AUDIT_PATH } from "@/lib/governance/governance-route-paths";
 
 export const DEVELOPER_SETTINGS_CANONICAL_PATH = "/administration/developer" as const;
 
@@ -15,7 +15,7 @@ export const DEVELOPER_SETTINGS_SOURCES_INTRO =
 export const DEVELOPER_SETTINGS_SOURCES: readonly EvidenceSourceLink[] = [
   { label: "System health", href: "/administration/system-health" },
   { label: "CLI usage help", href: inAppHelpHref("cli-usage") },
-  { label: "Engineering troubleshooting", href: inAppHelpHref("developer-troubleshooting") },
+  { label: "Engineering troubleshooting", href: inAppHelpHref("engineering-troubleshooting") },
   { label: "Admin diagnostics help", href: inAppHelpHref("admin-diagnostics") },
   { label: "Audit", href: GOVERNANCE_AUDIT_PATH },
 ] as const;

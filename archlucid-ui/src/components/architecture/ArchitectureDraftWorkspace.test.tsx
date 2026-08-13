@@ -28,6 +28,7 @@ vi.mock("@/hooks/use-architecture-draft-autosave", () => ({
     conflictMessage: null,
     saveDraft,
     reloadDraft,
+    acceptServerBaseline: vi.fn(),
     hasPersistedDraft: true,
   })),
 }));
@@ -70,9 +71,9 @@ vi.mock("@/components/architecture/ArchitectureDraftAiRefinePanel", () => ({
   ),
 }));
 
-vi.mock("@/lib/architecture-draft-handoff-gate", async () => {
-  const actual = await vi.importActual<typeof import("@/lib/architecture-draft-handoff-gate")>(
-    "@/lib/architecture-draft-handoff-gate",
+vi.mock("@/lib/architecture/architecture-draft-handoff-gate", async () => {
+  const actual = await vi.importActual<typeof import("@/lib/architecture/architecture-draft-handoff-gate")>(
+    "@/lib/architecture/architecture-draft-handoff-gate",
   );
 
   return {
@@ -83,12 +84,19 @@ vi.mock("@/lib/architecture-draft-handoff-gate", async () => {
   };
 });
 
+vi.mock("@/lib/toast", () => ({
+  showError: vi.fn(),
+  showSuccess: vi.fn(),
+}));
+
 import { ArchitectureDraftWorkspace } from "./ArchitectureDraftWorkspace";
-import { ARCHITECTURE_DRAFT_WORKSPACE_BACK_TO_LIST_LABEL, ARCHITECTURE_DRAFT_WORKSPACE_LEAD, ARCHITECTURE_CREATION_AUTOSAVE_REASSURANCE, ARCHITECTURE_CREATION_NEW_DRAFT_SECTION_TITLE, ARCHITECTURE_CREATION_NO_DRAFTS_GUIDANCE, ARCHITECTURE_CREATION_RESUME_FIRST_WORKSPACE_LEAD } from "@/lib/create-vs-review-intake-copy";
-import { ARCHITECTURE_DRAFT_GUIDANCE_DISMISS_STORAGE_KEY } from "@/lib/architecture-draft-guidance-dismiss";
-import { ARCHITECTURES_LIST_PATH, ARCHITECTURE_NEW_DRAFT_SEGMENT } from "@/lib/architecture-routes";
+import { ARCHITECTURE_DRAFT_WORKSPACE_LEAD, ARCHITECTURE_CREATION_AUTOSAVE_REASSURANCE, ARCHITECTURE_CREATION_NEW_DRAFT_SECTION_TITLE, ARCHITECTURE_CREATION_NO_DRAFTS_GUIDANCE, ARCHITECTURE_CREATION_RESUME_FIRST_WORKSPACE_LEAD } from "@/lib/create-vs-review-intake-copy";
+import { ARCHITECTURE_DRAFT_GUIDANCE_DISMISS_STORAGE_KEY } from "@/lib/architecture/architecture-draft-guidance-dismiss";
+import { ARCHITECTURE_NEW_DRAFT_SEGMENT } from "@/lib/architecture/architecture-routes";
+import { BUYER_START_ARCHITECTURE_REVIEW_CTA } from "@/lib/buyer/buyer-polish-copy";
 import { useArchitectureDraftAutosave } from "@/hooks/use-architecture-draft-autosave";
 import { useArchitectureDraftRegistryEntries } from "@/hooks/use-architecture-draft-registry-entries";
+import { showError } from "@/lib/toast";
 
 const spawnedDraft = {
   draftId: "arch-001",
@@ -121,12 +129,14 @@ beforeEach(() => {
     runId: "run-001",
     displayName: "Claims intake modernization",
   });
+  vi.mocked(showError).mockReset();
   vi.mocked(useArchitectureDraftAutosave).mockReturnValue({
     saveState: "idle",
     lastSavedUtc: null,
     conflictMessage: null,
     saveDraft,
     reloadDraft,
+    acceptServerBaseline: vi.fn(),
     hasPersistedDraft: true,
   });
 });
@@ -139,6 +149,7 @@ describe("ArchitectureDraftWorkspace", () => {
       conflictMessage: null,
       saveDraft,
       reloadDraft,
+      acceptServerBaseline: vi.fn(),
       hasPersistedDraft: false,
     });
 
@@ -226,7 +237,7 @@ describe("ArchitectureDraftWorkspace", () => {
     expect(screen.queryByTestId("architecture-creation-new-draft-section-title")).not.toBeInTheDocument();
   });
 
-  it("shows a skeleton and list wayfinding while loading an existing draft (TB-1453)", async () => {
+  it("shows a skeleton without list wayfinding while loading an existing draft (TB-1453)", async () => {
     let resolveDraft: (value: typeof spawnedDraft) => void = () => {};
     getDraftRequest.mockReturnValue(
       new Promise((resolve) => {
@@ -239,10 +250,7 @@ describe("ArchitectureDraftWorkspace", () => {
     expect(screen.getByTestId("architecture-draft-workspace-loading")).toBeInTheDocument();
     expect(screen.getByTestId("architecture-draft-workspace-loading-skeleton")).toBeInTheDocument();
     expect(screen.queryByText(/Loading architecture draft/i)).not.toBeInTheDocument();
-    expect(screen.getByRole("link", { name: ARCHITECTURE_DRAFT_WORKSPACE_BACK_TO_LIST_LABEL })).toHaveAttribute(
-      "href",
-      ARCHITECTURES_LIST_PATH,
-    );
+    expect(screen.queryByTestId("architecture-draft-workspace-back-to-list")).not.toBeInTheDocument();
 
     resolveDraft({
       ...spawnedDraft,
@@ -256,7 +264,7 @@ describe("ArchitectureDraftWorkspace", () => {
     });
   });
 
-  it("keeps back-to-list wayfinding on loaded edit routes (TB-1453)", async () => {
+  it("omits back-to-list wayfinding on loaded edit routes — the sidebar is the return path", async () => {
     getDraftRequest.mockResolvedValue({
       ...spawnedDraft,
       status: "Drafting",
@@ -270,10 +278,8 @@ describe("ArchitectureDraftWorkspace", () => {
       expect(screen.getByTestId("architecture-draft-workspace")).toBeInTheDocument();
     });
 
-    expect(screen.getByRole("link", { name: ARCHITECTURE_DRAFT_WORKSPACE_BACK_TO_LIST_LABEL })).toHaveAttribute(
-      "href",
-      ARCHITECTURES_LIST_PATH,
-    );
+    expect(screen.queryByTestId("architecture-draft-workspace-back-to-list")).not.toBeInTheDocument();
+    expect(screen.queryByRole("link", { name: /Back to Architecture drafts/i })).not.toBeInTheDocument();
   });
 
   it("shows drafting-first workspace lead on load (TB-747)", async () => {
@@ -295,6 +301,10 @@ describe("ArchitectureDraftWorkspace", () => {
     expect(screen.getByTestId("draft-intake-advanced-section")).toBeInTheDocument();
     expect(screen.getByTestId("architecture-draft-ai-budget-notice")).toHaveTextContent(
       "Architecture reasoning uses AI budget.",
+    );
+    expect(screen.getByTestId("architecture-draft-pre-execute-cost")).toBeInTheDocument();
+    expect(screen.getByTestId("architecture-draft-pre-execute-cost-message")).toHaveTextContent(
+      /included in your plan's AI usage|architecture package/i,
     );
     expect(screen.getByTestId("architecture-draft-ai-refine-stub")).toBeInTheDocument();
     expect(screen.getByTestId("draft-intake-reasoning-stub")).toBeInTheDocument();
@@ -369,6 +379,41 @@ describe("ArchitectureDraftWorkspace", () => {
     expect(screen.queryByTestId("architecture-draft-acknowledge-edit")).not.toBeInTheDocument();
   });
 
+  it("hydrates system name and business outcome from the server draft", async () => {
+    const acceptServerBaseline = vi.fn();
+    vi.mocked(useArchitectureDraftAutosave).mockReturnValue({
+      saveState: "idle",
+      lastSavedUtc: null,
+      conflictMessage: null,
+      saveDraft,
+      reloadDraft,
+      acceptServerBaseline,
+      hasPersistedDraft: true,
+    });
+
+    getDraftRequest.mockResolvedValue({
+      ...spawnedDraft,
+      status: "Drafting",
+      spawnedRunId: null,
+    });
+
+    render(<ArchitectureDraftWorkspace architectureId="arch-001" />);
+
+    await waitFor(() => {
+      expect(screen.getByTestId("architecture-draft-system-name")).toHaveValue("Claims intake");
+    });
+
+    expect(screen.getByTestId("architecture-draft-outcome")).toHaveValue("Reduce manual routing");
+    expect(acceptServerBaseline).toHaveBeenCalledWith(
+      {
+        freeTextIntent: "Claims intake modernization",
+        businessOutcome: "Reduce manual routing",
+        systemName: "Claims intake",
+      },
+      spawnedDraft.updatedUtc,
+    );
+  });
+
   it("discloses autosave and omits a disabled Save draft when autosave is authoritative (TB-1455)", async () => {
     vi.mocked(useArchitectureDraftAutosave).mockReturnValue({
       saveState: "saved",
@@ -376,6 +421,7 @@ describe("ArchitectureDraftWorkspace", () => {
       conflictMessage: null,
       saveDraft,
       reloadDraft,
+      acceptServerBaseline: vi.fn(),
       hasPersistedDraft: true,
     });
 
@@ -406,6 +452,7 @@ describe("ArchitectureDraftWorkspace", () => {
       conflictMessage: null,
       saveDraft,
       reloadDraft,
+      acceptServerBaseline: vi.fn(),
       hasPersistedDraft: true,
     });
 
@@ -421,5 +468,154 @@ describe("ArchitectureDraftWorkspace", () => {
     await waitFor(() => {
       expect(screen.getByTestId("architecture-save-draft-retry")).toHaveTextContent("Save now");
     });
+  });
+
+  it("shows a concurrent-edit conflict on the page without toasting when Save now fails (TB-2006)", async () => {
+    const conflictText =
+      "This architecture was updated in another session. Refresh to load the latest version before saving again.";
+    saveDraft.mockResolvedValue(false);
+    vi.mocked(useArchitectureDraftAutosave).mockReturnValue({
+      saveState: "error",
+      lastSavedUtc: null,
+      conflictMessage: conflictText,
+      saveDraft,
+      reloadDraft,
+      acceptServerBaseline: vi.fn(),
+      hasPersistedDraft: true,
+    });
+
+    getDraftRequest.mockResolvedValue({
+      ...spawnedDraft,
+      status: "Drafting",
+      spawnedRunId: null,
+      document: { ...spawnedDraft.document, workflowIntent: "create-architecture" },
+    });
+
+    render(<ArchitectureDraftWorkspace architectureId="arch-001" />);
+
+    await waitFor(() => {
+      expect(screen.getByTestId("architecture-draft-conflict-message")).toHaveTextContent(conflictText);
+    });
+
+    fireEvent.click(screen.getByTestId("architecture-save-draft-retry"));
+
+    await waitFor(() => {
+      expect(saveDraft).toHaveBeenCalled();
+    });
+
+    expect(screen.getByTestId("architecture-draft-conflict-refresh")).toBeInTheDocument();
+    expect(vi.mocked(showError)).not.toHaveBeenCalled();
+  });
+
+  it("disables Start review and shows inline readiness when overview/outcome are below minimum (TB-2006)", async () => {
+    getDraftRequest.mockResolvedValue({
+      ...spawnedDraft,
+      status: "Drafting",
+      spawnedRunId: null,
+      document: {
+        ...spawnedDraft.document,
+        freeTextIntent: "too short",
+        businessOutcome: "brief",
+        workflowIntent: "create-architecture",
+      },
+    });
+
+    render(<ArchitectureDraftWorkspace architectureId="arch-001" />);
+
+    await waitFor(() => {
+      expect(screen.getByTestId("architecture-start-review")).toBeDisabled();
+    });
+
+    expect(screen.getByTestId("architecture-draft-review-readiness")).toHaveTextContent(
+      /Add architecture overview and business outcome before starting a review/i,
+    );
+    expect(screen.getByTestId("architecture-draft-intent")).toHaveAttribute("aria-invalid", "true");
+    expect(screen.getByTestId("architecture-draft-outcome")).toHaveAttribute("aria-invalid", "true");
+
+    fireEvent.click(screen.getByTestId("architecture-start-review"));
+
+    expect(vi.mocked(showError)).not.toHaveBeenCalled();
+  });
+
+  it("shows staged progress while Start review prepares the draft, before any navigation", async () => {
+    const longOverview =
+      "Claims intake modernization covering intake channels, routing rules, exception queues, and operator handoffs across the claims workspace.";
+
+    getDraftRequest.mockResolvedValue({
+      ...spawnedDraft,
+      status: "Drafting",
+      spawnedRunId: null,
+      document: {
+        ...spawnedDraft.document,
+        freeTextIntent: longOverview,
+        businessOutcome: "Reduce manual routing",
+        workflowIntent: "create-architecture",
+      },
+    });
+
+    let resolveSave: (value: boolean) => void = () => {};
+    saveDraft.mockReturnValue(
+      new Promise<boolean>((resolve) => {
+        resolveSave = resolve;
+      }),
+    );
+
+    render(<ArchitectureDraftWorkspace architectureId="arch-001" />);
+
+    await waitFor(() => {
+      expect(screen.getByTestId("architecture-scope-understanding-confirm")).toBeInTheDocument();
+    });
+
+    fireEvent.click(screen.getByTestId("architecture-scope-understanding-confirm"));
+
+    await waitFor(() => {
+      expect(screen.getByTestId("architecture-start-review")).not.toBeDisabled();
+    });
+
+    fireEvent.click(screen.getByTestId("architecture-start-review"));
+
+    await waitFor(() => {
+      expect(screen.getByTestId("architecture-start-review-progress")).toBeInTheDocument();
+    });
+
+    expect(screen.getByTestId("architecture-start-review-progress")).toHaveTextContent(
+      /Creating review workspace/i,
+    );
+    expect(screen.getByTestId("architecture-start-review")).toHaveAttribute("data-loading", "true");
+    expect(screen.queryByTestId("architecture-start-review-stall")).toBeNull();
+
+    resolveSave(true);
+  });
+
+  it("keeps Start review disabled for scope until confirm, with on-form hint and no validation toast (TB-2006)", async () => {
+    const longOverview =
+      "Claims intake modernization covering intake channels, routing rules, exception queues, and operator handoffs across the claims workspace.";
+
+    getDraftRequest.mockResolvedValue({
+      ...spawnedDraft,
+      status: "Drafting",
+      spawnedRunId: null,
+      document: {
+        ...spawnedDraft.document,
+        freeTextIntent: longOverview,
+        businessOutcome: "Reduce manual routing",
+        workflowIntent: "create-architecture",
+      },
+    });
+
+    render(<ArchitectureDraftWorkspace architectureId="arch-001" />);
+
+    await waitFor(() => {
+      expect(screen.getByTestId("architecture-start-review")).toBeDisabled();
+    });
+
+    expect(screen.getByTestId("architecture-draft-scope-readiness")).toHaveTextContent(
+      /Confirm the in-scope understanding before starting a review/i,
+    );
+    expect(screen.getByRole("button", { name: BUYER_START_ARCHITECTURE_REVIEW_CTA })).toBeDisabled();
+
+    fireEvent.click(screen.getByTestId("architecture-start-review"));
+
+    expect(vi.mocked(showError)).not.toHaveBeenCalled();
   });
 });

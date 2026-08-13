@@ -6,8 +6,8 @@ import {
   enableCtoDemoOfflineAutoFallback,
   shouldListenForCtoDemoOfflineAutoFallback,
 } from "@/lib/cto-demo-offline-auto-fallback";
-import { ARCHLUCID_BUYER_CTO_DEMO_TOUR_START_EVENT } from "@/lib/buyer-cto-demo-tour";
-import { ARCHLUCID_CTO_DEMO_PANIC_CHANGED_EVENT } from "@/lib/operator-static-demo";
+import { ARCHLUCID_BUYER_CTO_DEMO_TOUR_START_EVENT } from "@/lib/buyer/buyer-cto-demo-tour";
+import { ARCHLUCID_CTO_DEMO_PANIC_CHANGED_EVENT } from "@/lib/operator/operator-static-demo";
 
 /** Auto-enables offline showcase payloads when the browser goes offline mid-demo. */
 export function CtoDemoOfflineAutoFallbackListener(): null {

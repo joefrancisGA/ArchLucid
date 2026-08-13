@@ -21,8 +21,8 @@ import { isBuyerPolishedOperatorShellEnv } from "@/lib/demo-ui-env";
 import {
   mergePolicyPacksStateWithStaticDemo,
   staticDemoPolicyPacksFallbackBundle,
-} from "@/lib/operator-static-demo";
-import { policyPackPublishSuccessMessage } from "@/lib/governance-mutation-outcome-copy";
+} from "@/lib/operator/operator-static-demo";
+import { policyPackPublishSuccessMessage } from "@/lib/governance/governance-mutation-outcome-copy";
 import { showSuccess } from "@/lib/toast";
 import { useNavSurface } from "@/lib/use-nav-surface";
 import type {
@@ -33,10 +33,10 @@ import type {
   PolicyPackVersion,
 } from "@/types/policy-packs";
 
-import { POLICY_PACK_ID_QUERY_PARAM, POLICY_PACKS_TAB_QUERY_PARAM, POLICY_RULE_ID_QUERY_PARAM } from "@/lib/policy-packs-deep-link";
+import { POLICY_PACK_ID_QUERY_PARAM, POLICY_PACKS_TAB_QUERY_PARAM, POLICY_RULE_ID_QUERY_PARAM } from "@/lib/policy/policy-packs-deep-link";
 import { applyGeneratedCuratedPolicyPack } from "@/lib/apply-generated-curated-policy-pack";
-import type { CuratedRulesDocument } from "@/lib/policy-pack-curated-rules-v1";
-import { isBundledPlatformDefaultPackType } from "@/lib/policy-pack-type-label";
+import type { CuratedRulesDocument } from "@/lib/policy/policy-pack-curated-rules-v1";
+import { isBundledPlatformDefaultPackType } from "@/lib/policy/policy-pack-type-label";
 
 import { DEFAULT_CONTENT } from "./policy-packs-page-constants";
 import { preloadPolicyRuleAuthoringWizardChunk } from "./policy-packs-authoring-deferred-chunks";
@@ -308,7 +308,7 @@ export function usePolicyPacksPage(serverLoad: PolicyPacksPageServerLoad): Polic
       return;
     }
 
-    let cancelled = false;
+    let canceled = false;
 
     void (async () => {
       try {
@@ -317,12 +317,12 @@ export function usePolicyPacksPage(serverLoad: PolicyPacksPageServerLoad): Polic
           getPolicyPackVersion(selectedPackId, rightMeta.version),
         ]);
 
-        if (!cancelled) {
+        if (!canceled) {
           setCompareLeftDetail(left);
           setCompareRightDetail(right);
         }
       } catch {
-        if (!cancelled) {
+        if (!canceled) {
           setCompareLeftDetail(null);
           setCompareRightDetail(null);
         }
@@ -330,7 +330,7 @@ export function usePolicyPacksPage(serverLoad: PolicyPacksPageServerLoad): Polic
     })();
 
     return () => {
-      cancelled = true;
+      canceled = true;
     };
   }, [showVersionDiff, selectedPackId, compareLeftId, compareRightId, packVersions]);
 

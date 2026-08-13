@@ -4,7 +4,7 @@
 
 Browse, inspect, and export governed architecture packages in the architect workspace.
 
-## What an architecture package contains {#what-a-review-package-contains}
+## What an architecture package contains {#what-an-architecture-package-contains}
 
 An **architecture package** is the durable record for one architecture review. It typically includes:
 
@@ -27,7 +27,7 @@ Open **Reviews** from the architect home or navigation to see architecture packa
 
 Select a row to open the architecture package detail view.
 
-## Inspect an architecture package {#inspect-a-review-package}
+## Inspect an architecture package {#inspect-an-architecture-package}
 
 The architecture package detail view is organized into tabs so you can focus on one concern at a time:
 
@@ -41,7 +41,7 @@ The architecture package detail view is organized into tabs so you can focus on 
 
 Use **Review findings** when you need to triage risks. Use **Add evidence** if intake was incomplete before finalize.
 
-## Export an architecture package {#export-a-review-package}
+## Export an architecture package {#export-an-architecture-package}
 
 After analysis completes — and after finalize when your workflow requires it — export artifacts for sponsors, security reviewers, or auditors:
 

@@ -5,7 +5,7 @@ import { InlineGlossaryChip } from "@/components/InlineGlossaryChip";
 import {
   OPERATOR_HOME_WORKSPACE_EMPTY_BODY,
   OPERATOR_HOME_WORKSPACE_EMPTY_TITLE,
-} from "@/lib/buyer-polish-copy";
+} from "@/lib/buyer/buyer-polish-copy";
 
 /** First-run workspace with no reviews — compact empty pattern; primary paths live in the hero. */
 export function OperatorHomeWorkspaceEmptyState() {

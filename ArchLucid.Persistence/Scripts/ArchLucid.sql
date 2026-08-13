@@ -1716,7 +1716,6 @@ BEGIN
         WarningsJson NVARCHAR(MAX) NOT NULL,
         ProvenanceJson NVARCHAR(MAX) NOT NULL,
         ManifestPayloadBlobUri NVARCHAR(2000) NULL,
-        ContractManifestVersion NVARCHAR(128) NULL,
         TenantId UNIQUEIDENTIFIER NOT NULL,
         WorkspaceId UNIQUEIDENTIFIER NOT NULL,
         ProjectId UNIQUEIDENTIFIER NOT NULL,
@@ -1750,16 +1749,23 @@ IF NOT EXISTS (SELECT 1 FROM sys.check_constraints WHERE name = N'CK_GoldenManif
         CHECK (LifecycleStatus IN (N'Active', N'Superseded', N'Archived'));
 GO
 
-/* Brownfield: typed contract manifest version for version lookups (DbUp 302/307 parity).
-   Prefer SignedReviewRecords — after ADR 0064 / 295, GoldenManifests is a synonym (COL_LENGTH unreliable). */
-IF OBJECT_ID(N'dbo.SignedReviewRecords', N'U') IS NOT NULL
-   AND COL_LENGTH(N'dbo.SignedReviewRecords', N'ContractManifestVersion') IS NULL
-    ALTER TABLE dbo.SignedReviewRecords ADD ContractManifestVersion NVARCHAR(128) NULL;
-GO
+/* Brownfield: typed contract manifest version for version lookups (DbUp 302 + 306 parity).
+   Resolves the physical table because migration 295 left dbo.GoldenManifests as a synonym, and both
+   OBJECT_ID(..., N'U') and COL_LENGTH return NULL when handed a synonym name. */
+DECLARE @manifestVersionTable sysname =
+    CASE
+        WHEN OBJECT_ID(N'dbo.SignedReviewRecords', N'U') IS NOT NULL THEN N'dbo.SignedReviewRecords'
+        WHEN OBJECT_ID(N'dbo.GoldenManifests', N'U') IS NOT NULL THEN N'dbo.GoldenManifests'
+    END;
 
-IF OBJECT_ID(N'dbo.GoldenManifests', N'U') IS NOT NULL
-   AND COL_LENGTH(N'dbo.GoldenManifests', N'ContractManifestVersion') IS NULL
-    ALTER TABLE dbo.GoldenManifests ADD ContractManifestVersion NVARCHAR(128) NULL;
+IF @manifestVersionTable IS NOT NULL
+   AND COL_LENGTH(@manifestVersionTable, N'ContractManifestVersion') IS NULL
+BEGIN
+    DECLARE @addManifestVersionSql NVARCHAR(MAX) =
+        N'ALTER TABLE ' + @manifestVersionTable + N' ADD ContractManifestVersion NVARCHAR(128) NULL;';
+
+    EXEC sp_executesql @addManifestVersionSql;
+END
 GO
 
 -- Phase-1 relational slices for GoldenManifest (dual-write; other sections remain JSON on dbo.GoldenManifests).
@@ -2826,10 +2832,6 @@ BEGIN
         CreatedUtc DATETIME2 NOT NULL,
         LastDeliveredUtc DATETIME2 NULL,
         MetadataJson NVARCHAR(MAX) NOT NULL,
-        /* DbUp 306 parity: notification destination provenance */
-        CreatedByActor NVARCHAR(300) NULL,
-        LastModifiedByActor NVARCHAR(300) NULL,
-        LastModifiedUtc DATETIME2(7) NULL,
         INDEX IX_AlertRoutingSubscriptions_Scope_Enabled NONCLUSTERED (TenantId, WorkspaceId, ProjectId, IsEnabled, CreatedUtc DESC)
     );
 END;
@@ -7840,34 +7842,29 @@ BEGIN
 END;
 GO
 
-/* DbUp 302/307 parity: typed ContractManifestVersion lookup (replaces JSON_VALUE MetadataJson $.Version). */
-IF OBJECT_ID(N'dbo.SignedReviewRecords', N'U') IS NOT NULL
-   AND COL_LENGTH(N'dbo.SignedReviewRecords', N'ContractManifestVersion') IS NOT NULL
-   AND NOT EXISTS (
-        SELECT 1
-        FROM sys.indexes
-        WHERE name = N'IX_GoldenManifests_Scope_ContractManifestVersion'
-          AND object_id = OBJECT_ID(N'dbo.SignedReviewRecords'))
-BEGIN
-    CREATE NONCLUSTERED INDEX IX_GoldenManifests_Scope_ContractManifestVersion
-        ON dbo.SignedReviewRecords (TenantId, WorkspaceId, ProjectId, ContractManifestVersion)
-        WHERE ContractManifestVersion IS NOT NULL
-          AND ArchivedUtc IS NULL;
-END;
-GO
+/* DbUp 302 + 306 parity: typed ContractManifestVersion lookup (replaces JSON_VALUE MetadataJson $.Version).
+   Resolves the physical table for the same synonym reason as the column add above. */
+DECLARE @manifestVersionIndexTable sysname =
+    CASE
+        WHEN OBJECT_ID(N'dbo.SignedReviewRecords', N'U') IS NOT NULL THEN N'dbo.SignedReviewRecords'
+        WHEN OBJECT_ID(N'dbo.GoldenManifests', N'U') IS NOT NULL THEN N'dbo.GoldenManifests'
+    END;
 
-IF OBJECT_ID(N'dbo.GoldenManifests', N'U') IS NOT NULL
-   AND COL_LENGTH(N'dbo.GoldenManifests', N'ContractManifestVersion') IS NOT NULL
+IF @manifestVersionIndexTable IS NOT NULL
+   AND COL_LENGTH(@manifestVersionIndexTable, N'ContractManifestVersion') IS NOT NULL
    AND NOT EXISTS (
         SELECT 1
         FROM sys.indexes
         WHERE name = N'IX_GoldenManifests_Scope_ContractManifestVersion'
-          AND object_id = OBJECT_ID(N'dbo.GoldenManifests'))
+          AND object_id = OBJECT_ID(@manifestVersionIndexTable))
 BEGIN
-    CREATE NONCLUSTERED INDEX IX_GoldenManifests_Scope_ContractManifestVersion
-        ON dbo.GoldenManifests (TenantId, WorkspaceId, ProjectId, ContractManifestVersion)
-        WHERE ContractManifestVersion IS NOT NULL
-          AND ArchivedUtc IS NULL;
+    DECLARE @createManifestVersionIndexSql NVARCHAR(MAX) =
+        N'CREATE NONCLUSTERED INDEX IX_GoldenManifests_Scope_ContractManifestVersion
+              ON ' + @manifestVersionIndexTable + N' (TenantId, WorkspaceId, ProjectId, ContractManifestVersion)
+              WHERE ContractManifestVersion IS NOT NULL
+                AND ArchivedUtc IS NULL;';
+
+    EXEC sp_executesql @createManifestVersionIndexSql;
 END;
 GO
 

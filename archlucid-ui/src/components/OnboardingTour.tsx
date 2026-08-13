@@ -11,8 +11,8 @@ import {
   ONBOARDING_TOUR_DONE_LINK_HREF,
   ONBOARDING_TOUR_DONE_LINK_LABEL,
   OPERATOR_ONBOARDING_TOUR_STEPS,
-} from "@/lib/operator-onboarding-tour-steps";
-import { isWelcomeModalVisible } from "@/lib/operator-onboarding-coordination";
+} from "@/lib/operator/operator-onboarding-tour-steps";
+import { isWelcomeModalVisible } from "@/lib/operator/operator-onboarding-coordination";
 import {
   ARCHLUCID_ONBOARDING_TOUR_START_EVENT,
   writeOnboardingTourCompleted,
@@ -237,4 +237,4 @@ export function OnboardingTour() {
     </div>
   );
 }
-
+

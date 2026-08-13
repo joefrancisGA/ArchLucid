@@ -33,7 +33,7 @@ const SYSTEM_HEALTH_APP_LAYOUT = join(
 );
 
 const PRODUCT_SYSTEM_HEALTH_SURFACES = [
-  "archlucid-ui/src/lib/operator-admin-nav-group-builder.ts",
+  "archlucid-ui/src/lib/operator/operator-admin-nav-group-builder.ts",
   "archlucid-ui/src/lib/finish-setup-wizard-steps.ts",
   "archlucid-ui/src/lib/first-pilot-command-center-phase.ts",
   "archlucid-ui/src/lib/troubleshooting-help-guide-content.ts",

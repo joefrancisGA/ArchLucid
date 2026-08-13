@@ -21,8 +21,8 @@ import {
   BUYER_MANIFEST_BUNDLE_DOWNLOAD_DETAILS_SUMMARY,
   BUYER_MANIFEST_BUNDLE_DOWNLOAD_ZIP_NOTE,
   BUYER_MANIFEST_DOWNLOAD_REVIEW_PACKAGE_ZIP,
-} from "@/lib/buyer-polish-copy";
-import { policyPackBuyerGovernanceDetailHref, policyPackBuyerLabel } from "@/lib/policy-pack-buyer-label";
+} from "@/lib/buyer/buyer-polish-copy";
+import { policyPackBuyerGovernanceDetailHref, policyPackBuyerLabel } from "@/lib/policy/policy-pack-buyer-label";
 import {
   SHOWCASE_STATIC_DEMO_AUDIT_TRAIL_EVENT_COUNT,
   SHOWCASE_STATIC_DEMO_DECISION_SYNOPSES,

@@ -1,9 +1,10 @@
 ﻿import { cn } from "@/lib/utils";
-import { MARKETING_TYPOGRAPHY, OPERATOR_TYPOGRAPHY } from "@/lib/design-tokens";
+import { MARKETING_SURFACES, MARKETING_TYPOGRAPHY, OPERATOR_TYPOGRAPHY } from "@/lib/design-tokens";
 import Link from "next/link";
 import type { ReactNode } from "react";
 
 import { TrustCenterEvidenceOrientationStrip } from "@/components/marketing/TrustCenterEvidenceOrientationStrip";
+import { TrustAssuranceSecurityTrustVocabularyRail } from "@/components/TrustAssuranceSecurityTrustVocabularyRail";
 import { Button } from "@/components/ui/button";
 import { StatusTag } from "@/components/ui/status-tag";
 import {
@@ -98,22 +99,23 @@ export function MarketingTrustCenterBuyerBody(props: MarketingTrustCenterBuyerBo
             aria-label="Trust Center secondary actions"
             data-testid="trust-center-secondary-links"
           >
-            <Link href="#trust-public-evidence" className="font-medium text-blue-800 underline underline-offset-2 dark:text-blue-300">
+            <Link href="#trust-public-evidence" className={MARKETING_SURFACES.inlineLink}>
               View public evidence
             </Link>
-            <Link href="#trust-contact-review" className="font-medium text-blue-800 underline underline-offset-2 dark:text-blue-300">
+            <Link href="#trust-contact-review" className={MARKETING_SURFACES.inlineLink}>
               Contact security
             </Link>
-            <Link href="/privacy" className="font-medium text-blue-800 underline underline-offset-2 dark:text-blue-300">
+            <Link href="/privacy" className={MARKETING_SURFACES.inlineLink}>
               Privacy policy
             </Link>
-            <Link href="/security-trust" className="font-medium text-blue-800 underline underline-offset-2 dark:text-blue-300">
+            <Link href="/security-trust" className={MARKETING_SURFACES.inlineLink}>
               Assurance status
             </Link>
           </nav>
         </div>
       </header>
 
+      <TrustAssuranceSecurityTrustVocabularyRail currentSurfaceId="trust-center" />
       <TrustCenterEvidenceOrientationStrip />
 
       <section aria-labelledby="trust-assurance-glance-heading" data-testid="trust-center-assurance-glance">
@@ -146,7 +148,7 @@ export function MarketingTrustCenterBuyerBody(props: MarketingTrustCenterBuyerBo
                 <p className="mt-4">
                   <Link
                     href={panel.actionHref}
-                    className="font-medium text-blue-800 underline underline-offset-2 dark:text-blue-300"
+                    className={MARKETING_SURFACES.inlineLink}
                   >
                     {panel.actionLabel}
                   </Link>
@@ -189,7 +191,7 @@ export function MarketingTrustCenterBuyerBody(props: MarketingTrustCenterBuyerBo
                 <p className="mt-4">
                   <Link
                     href={artifact.href}
-                    className="font-medium text-blue-800 underline underline-offset-2 dark:text-blue-300"
+                    className={MARKETING_SURFACES.inlineLink}
                     data-testid={`trust-public-artifact-link-${artifact.id}`}
                     rel={artifact.href.startsWith("http") ? "noopener noreferrer" : undefined}
                     target={artifact.href.startsWith("http") ? "_blank" : undefined}
@@ -215,7 +217,7 @@ export function MarketingTrustCenterBuyerBody(props: MarketingTrustCenterBuyerBo
             <li key={link.id}>
               <Link
                 href={link.href}
-                className="font-medium text-blue-800 underline underline-offset-2 dark:text-blue-300"
+                className={MARKETING_SURFACES.inlineLink}
                 data-testid={`trust-related-help-${link.id}`}
               >
                 {link.label}
@@ -252,7 +254,7 @@ export function MarketingTrustCenterBuyerBody(props: MarketingTrustCenterBuyerBo
               <p className="mt-4">
                 <Link
                   href={card.actionHref}
-                  className="font-medium text-blue-800 underline underline-offset-2 dark:text-blue-300"
+                  className={MARKETING_SURFACES.inlineLink}
                 >
                   {card.actionLabel}
                 </Link>
@@ -356,7 +358,7 @@ export function MarketingTrustCenterBuyerBody(props: MarketingTrustCenterBuyerBo
         <p className="mt-4">
           <Link
             href={TRUST_CENTER_EVIDENCE_PACK_ZIP_HREF}
-            className="font-medium text-blue-800 underline underline-offset-2 dark:text-blue-300"
+            className={MARKETING_SURFACES.inlineLink}
             data-testid="trust-center-evidence-pack-link"
           >
             Download evidence pack (ZIP)
@@ -365,7 +367,7 @@ export function MarketingTrustCenterBuyerBody(props: MarketingTrustCenterBuyerBo
         <p className="mt-4">
           <Link
             href={`mailto:${TRUST_CENTER_SECURITY_EMAIL}?subject=${encodeURIComponent(TRUST_PUBLIC_EVIDENCE_RELEASE.requestSubject)}`}
-            className="font-medium text-blue-800 underline underline-offset-2 dark:text-blue-300"
+            className={MARKETING_SURFACES.inlineLink}
             data-testid="trust-center-evidence-request-link"
           >
             Request public evidence summary
@@ -390,7 +392,7 @@ export function MarketingTrustCenterBuyerBody(props: MarketingTrustCenterBuyerBo
         </p>
         <p className={cn("m-0 mt-4", OPERATOR_TYPOGRAPHY.body)}>
           <Link
-            className="font-semibold text-blue-800 underline underline-offset-2 hover:text-blue-950 dark:text-blue-300 dark:hover:text-blue-200"
+            className={cn(MARKETING_SURFACES.inlineLink, "font-semibold")}
             href={`mailto:${TRUST_CENTER_SECURITY_EMAIL}`}
           >
             {TRUST_CENTER_SECURITY_EMAIL}

@@ -13,7 +13,7 @@ import {
 import {
   HELP_TOPIC_BOOKMARK_ONLY_REDIRECT_SLUGS,
   HELP_TOPIC_PERMANENT_REDIRECTS,
-} from "@/lib/help-topic-permanent-redirects";
+} from "@/lib/help/help-topic-permanent-redirects";
 import { getProductDocumentationEntry, inAppHelpHref } from "@/lib/product-documentation-registry";
 
 describe("cloud-connections-help-routes (Batch K)", () => {

@@ -3,6 +3,8 @@ import type { ReactNode } from "react";
 
 import { CorePilotHelpOrientationFooter } from "@/app/(operator)/help/_sections/CorePilotHelpOrientationFooter";
 import { CorePilotHelpPostStepperPanel } from "@/app/(operator)/help/_sections/CorePilotHelpPostStepperPanel";
+import { FirstReviewGuideFirstArchitectureReviewVocabularyRail } from "@/components/FirstReviewGuideFirstArchitectureReviewVocabularyRail";
+import { PilotGuideGettingStartedFirstReviewVocabularyRail } from "@/components/PilotGuideGettingStartedFirstReviewVocabularyRail";
 import { HelpTopicTitleRow } from "@/components/help/HelpTopicPageHeader";
 import { HelpTopicRegistryProvenanceLine } from "@/components/help/HelpTopicRegistryProvenanceLine";
 import { HelpTopicHashScroll } from "@/app/(operator)/help/HelpTopicHashScroll";
@@ -26,7 +28,7 @@ import {
   OPERATOR_SHELL_SCROLL_OFFSET_CLASS,
   OPERATOR_TYPOGRAPHY,
 } from "@/lib/design-tokens";
-import { HELP_PAGE_LAYOUT } from "@/lib/help-page-layout";
+import { HELP_PAGE_LAYOUT } from "@/lib/help/help-page-layout";
 import { corePilotHelpRelatedGuides } from "@/lib/core-pilot-help-related-guides";
 import type { ProductDocumentationEntry } from "@/lib/product-documentation-registry";
 
@@ -75,6 +77,9 @@ export function HelpCorePilotGuideView(props: HelpCorePilotGuideViewProps): Reac
           <PageContextualHelpButton />
         </div>
       </header>
+
+      <PilotGuideGettingStartedFirstReviewVocabularyRail currentSurfaceId="first-architecture-review" />
+      <FirstReviewGuideFirstArchitectureReviewVocabularyRail currentSurfaceId="first-architecture-review" />
 
       <div className={HELP_PAGE_LAYOUT.contentGrid}>
         <div className={cn(HELP_PAGE_LAYOUT.contentColumn, "space-y-6")}>
@@ -144,15 +149,6 @@ export function HelpCorePilotGuideView(props: HelpCorePilotGuideViewProps): Reac
                 </li>
               ))}
             </ul>
-            <p className={cn("m-0", OPERATOR_TYPOGRAPHY.helper)}>
-              Stuck?{" "}
-              <Link
-                href={CORE_PILOT_HELP_PRIMARY_ACTIONS.troubleshooting.href}
-                className={cn("underline-offset-2 hover:underline", DESIGN_TOKENS.accent.link)}
-              >
-                {CORE_PILOT_HELP_PRIMARY_ACTIONS.troubleshooting.label}
-              </Link>
-            </p>
           </section>
         </div>
 

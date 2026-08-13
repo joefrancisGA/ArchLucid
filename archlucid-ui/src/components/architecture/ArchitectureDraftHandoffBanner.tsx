@@ -3,13 +3,13 @@
 import Link from "next/link";
 
 import { Button } from "@/components/ui/button";
-import { reviewDetailPath } from "@/lib/architecture-routes";
+import { reviewDetailPath } from "@/lib/architecture/architecture-routes";
 import {
   ARCHITECTURE_DRAFT_HANDOFF_ACKNOWLEDGE_LABEL,
   ARCHITECTURE_DRAFT_HANDOFF_BANNER_LEAD,
   buildArchitectureDraftHandoffBannerTitle,
-} from "@/lib/architecture-draft-handoff-gate";
-import { OPERATOR_TYPOGRAPHY } from "@/lib/design-tokens";
+} from "@/lib/architecture/architecture-draft-handoff-gate";
+import { DESIGN_TOKENS, OPERATOR_TYPOGRAPHY } from "@/lib/design-tokens";
 import { cn } from "@/lib/utils";
 
 type ArchitectureDraftHandoffBannerProps = {
@@ -26,10 +26,7 @@ export function ArchitectureDraftHandoffBanner(
     <div
       role="alert"
       data-testid="architecture-draft-handoff-banner"
-      className={cn(
-        "rounded-md border border-amber-600/35 bg-amber-50 p-4 text-amber-950 shadow-sm dark:border-amber-500/30 dark:bg-amber-950/30 dark:text-amber-50",
-        OPERATOR_TYPOGRAPHY.body,
-      )}
+      className={cn(DESIGN_TOKENS.callout.warn, "p-4 shadow-sm", OPERATOR_TYPOGRAPHY.body)}
     >
       <p className="m-0 font-semibold">{buildArchitectureDraftHandoffBannerTitle(props.linkedReviewTitle)}</p>
       <p className={cn("m-0 mt-1", OPERATOR_TYPOGRAPHY.helper)}>{ARCHITECTURE_DRAFT_HANDOFF_BANNER_LEAD}</p>

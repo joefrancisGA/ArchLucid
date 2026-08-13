@@ -9,12 +9,12 @@ import {
   listArtifacts,
 } from "@/lib/api";
 import { buildAdrGeneratorRunInput } from "@/lib/adr-from-run";
-import { buyerFacingReviewTitleFromSummary } from "@/lib/buyer-facing-review-title";
+import { buyerFacingReviewTitleFromSummary } from "@/lib/buyer/buyer-facing-review-title";
 import { isBuyerPolishedOperatorShellEnv } from "@/lib/demo-ui-env";
 import { isPinnedDemoWorkspaceRunId } from "@/lib/demo-workspace-scope";
 import { isShowcaseStaticDemoRunId } from "@/lib/demo-run-canonical";
 import { isUsableGoldenManifestExportJson } from "@/lib/export-markdown";
-import { buyerGovernanceApprovalDisplayLabel, governanceGateLabelFromManifestStatus } from "@/lib/governance-gate-display";
+import { buyerGovernanceApprovalDisplayLabel, governanceGateLabelFromManifestStatus } from "@/lib/governance/governance-gate-display";
 import { formatInstantForLocale } from "@/lib/locale-datetime";
 import { manifestStatusForDisplay } from "@/lib/manifest-status-display";
 import { isManifestCommittedForPilotScorecardPackage } from "@/lib/pilot-scorecard-package-eligibility";
@@ -23,29 +23,29 @@ import {
   coerceArtifactDescriptorList,
   coerceManifestSummary,
   coerceRunDetail,
-} from "@/lib/operator-response-guards";
+} from "@/lib/operator/operator-response-guards";
 import {
   tryStaticDemoArtifacts,
   tryStaticDemoGoldenManifestJsonForExport,
   tryStaticDemoManifestSummary,
   tryStaticDemoRunDetail,
-} from "@/lib/operator-static-demo";
-import { policyPackBuyerLabel } from "@/lib/policy-pack-buyer-label";
+} from "@/lib/operator/operator-static-demo";
+import { policyPackBuyerLabel } from "@/lib/policy/policy-pack-buyer-label";
 import {
   resolveQuickDecisionFindingsForRunDetail,
   severityBadgeLabel,
 } from "@/lib/quick-decision-summary-derive";
-import { mergeRunDetailAgentResultsWhenBuyerSummaryOmitsFindings } from "@/lib/run-detail-findings-hydration";
+import { mergeRunDetailAgentResultsWhenBuyerSummaryOmitsFindings } from "@/lib/runs/run-detail-findings-hydration";
 // NOTE: quickDecisionFindings is computed only for the ADR generator input; it is not part of the
 // critical-path RunDetailPageModel so the heavy finding scan doesn't block first-screen rendering.
 import { resolveReviewOutcomeCounts } from "@/lib/review-outcome-counts";
-import { getEffectiveBrowserProxyScopeHeaders } from "@/lib/operator-scope-storage";
+import { getEffectiveBrowserProxyScopeHeaders } from "@/lib/operator/operator-scope-storage";
 import { resolveServerScopeHeadersForRun } from "@/lib/server-run-scope";
 import {
   projectIdFromScopeHeaders,
   runProjectMatchesEffectiveScope,
-} from "@/lib/operator-resource-scope";
-import { effectiveRunSummaryForPipeline } from "@/lib/run-summary-from-detail";
+} from "@/lib/operator/operator-resource-scope";
+import { effectiveRunSummaryForPipeline } from "@/lib/runs/run-summary-from-detail";
 import {
   SHOWCASE_BUYER_REVIEW_PACKAGE_TITLE,
 } from "@/lib/showcase-static-demo";

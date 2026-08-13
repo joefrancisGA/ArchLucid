@@ -1,6 +1,6 @@
 import type { RunDetail } from "@/types/authority";
 
-import { buildStaticDemoRunDetailFromShowcase } from "@/lib/operator-static-demo";
+import { buildStaticDemoRunDetailFromShowcase } from "@/lib/operator/operator-static-demo";
 
 import {
   FIXTURE_MANIFEST_ID,

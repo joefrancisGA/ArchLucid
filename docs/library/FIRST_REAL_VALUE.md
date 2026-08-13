@@ -49,7 +49,7 @@ Full operator key list: [`CONFIGURATION_REFERENCE.md`](CONFIGURATION_REFERENCE.m
 
 ## Operator triage
 
-See **[`docs/runbooks/AGENT_EXECUTION_FAILURES.md`](../runbooks/AGENT_EXECUTION_FAILURES.md)** — real-mode and fallback behaviour are documented there.
+See **[`docs/runbooks/AGENT_EXECUTION_FAILURES.md`](../runbooks/AGENT_EXECUTION_FAILURES.md)** — real-mode and fallback behavior are documented there.
 
 ### Host behavior: `AgentExecution:Mode=Real` validation
 

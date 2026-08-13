@@ -5,14 +5,14 @@ import { OPERATOR_TYPOGRAPHY } from "@/lib/design-tokens";
 import { useEffect, useState } from "react";
 
 import { ArchitectureManifestUnifiedDiffView } from "@/components/compare/ArchitectureManifestUnifiedDiffView";
-import { OperatorLoadingNotice } from "@/components/OperatorShellMessage";
+import { OperatorLoadingNotice } from "@/components/operator/OperatorShellMessage";
 import {
   BUYER_COMPARE_MANIFEST_DIFF_APPENDIX_LABEL,
   BUYER_COMPARE_REVIEW_RECORD_DIFF_INTRO,
   BUYER_COMPARE_REVIEW_RECORD_DIFF_LOADING_BODY,
   BUYER_COMPARE_REVIEW_RECORD_DIFF_LOADING_HEADING,
   COMPARE_REVIEW_RECORD_DIFF_OPERATOR_INTRO,
-} from "@/lib/buyer-polish-copy";
+} from "@/lib/buyer/buyer-polish-copy";
 import { isBuyerPolishedOperatorShellEnv } from "@/lib/demo-ui-env";
 import { compareRunHeadingLabel } from "@/lib/compare-run-display";
 import { SIGNED_MANIFEST_LABEL } from "@/lib/usability/canonical-product-terms";
@@ -49,7 +49,7 @@ export function CompareRawManifestDiffSection(props: CompareRawManifestDiffSecti
       return;
     }
 
-    let cancelled = false;
+    let canceled = false;
 
     async function run(): Promise<void> {
       setLoading(true);
@@ -61,14 +61,14 @@ export function CompareRawManifestDiffSection(props: CompareRawManifestDiffSecti
           resolveArchitectureManifestJsonForDiff(props.updatedRunId),
         ]);
 
-        if (cancelled) {
+        if (canceled) {
           return;
         }
 
         setBeforeText(formatArchitectureManifestJsonForDiff(beforeDoc));
         setAfterText(formatArchitectureManifestJsonForDiff(afterDoc));
       } catch (err) {
-        if (cancelled) {
+        if (canceled) {
           return;
         }
 
@@ -77,7 +77,7 @@ export function CompareRawManifestDiffSection(props: CompareRawManifestDiffSecti
         setBeforeText(null);
         setAfterText(null);
       } finally {
-        if (!cancelled) {
+        if (!canceled) {
           setLoading(false);
         }
       }
@@ -86,7 +86,7 @@ export function CompareRawManifestDiffSection(props: CompareRawManifestDiffSecti
     void run();
 
     return () => {
-      cancelled = true;
+      canceled = true;
     };
   }, [open, props.baselineRunId, props.updatedRunId]);
 

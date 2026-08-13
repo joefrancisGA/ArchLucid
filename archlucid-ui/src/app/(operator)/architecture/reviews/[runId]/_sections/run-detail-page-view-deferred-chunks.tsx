@@ -2,17 +2,26 @@
 
 import dynamic from "next/dynamic";
 
+import { DeferredChunkLoading, DEFERRED_CHUNK_LOADING_SURFACE_CLASS } from "@/components/ui/deferred-chunk-loading";
 import { RunDetailExplanationSkeleton } from "./RunDetailDeferredSkeleton";
 import { cn } from "@/lib/utils";
-import { OPERATOR_TYPOGRAPHY } from "@/lib/design-tokens";
+
+function runDetailDeferredLoading(
+  label: string,
+  heightClass: string,
+  extraClassName?: string,
+): React.JSX.Element {
+  return (
+    <DeferredChunkLoading
+      label={label}
+      className={extraClassName ? cn(heightClass, extraClassName) : heightClass}
+    />
+  );
+}
 
 const technologyBaselineLoading = (
   <section id="technology-baseline" className="scroll-mt-24">
-    <div
-      className="h-28 animate-pulse rounded-md border border-neutral-200 bg-neutral-100 dark:border-neutral-700 dark:bg-neutral-800"
-      role="status"
-      aria-label="Loading technology baseline"
-    />
+    {runDetailDeferredLoading("Loading technology baseline", "h-28")}
   </section>
 );
 
@@ -46,23 +55,17 @@ export const RunDetailCompareToBaselineCta = dynamic(
   () => import("@/components/CompareToBaselineCta").then((module) => module.CompareToBaselineCta),
   {
     ssr: false,
-    loading: () => (
-      <div
-        className={cn("h-9 w-44 animate-pulse rounded-md border border-neutral-200 bg-neutral-100 dark:border-neutral-700 dark:bg-neutral-800", OPERATOR_TYPOGRAPHY.body)}
-        role="status"
-        aria-label="Loading compare to baseline"
-      />
-    ),
+    loading: () => runDetailDeferredLoading("Loading compare to baseline", "h-9 w-44"),
   },
 );
 
 export const RunDetailEstimatedLlmCostCardDeferred = dynamic(
-  () => import("@/components/RunEstimatedLlmCostCard").then((module) => module.RunEstimatedLlmCostCard),
+  () => import("@/components/runs/RunEstimatedLlmCostCard").then((module) => module.RunEstimatedLlmCostCard),
   { ssr: false, loading: () => null },
 );
 
 export const RunDetailAgentResultsSummaryCardDeferred = dynamic(
-  () => import("@/components/RunAgentResultsSummaryCard").then((module) => module.RunAgentResultsSummaryCard),
+  () => import("@/components/runs/RunAgentResultsSummaryCard").then((module) => module.RunAgentResultsSummaryCard),
   { ssr: false, loading: () => null },
 );
 
@@ -76,7 +79,7 @@ export const RunDetailReviewAgentExecutionLogSectionDeferred = dynamic(
 
 export const RunDetailRetrievalGroundingSummaryCardDeferred = dynamic(
   () =>
-    import("@/components/RunRetrievalGroundingSummaryCard").then(
+    import("@/components/runs/RunRetrievalGroundingSummaryCard").then(
       (module) => module.RunRetrievalGroundingSummaryCard,
     ),
   { ssr: false, loading: () => null },
@@ -89,18 +92,18 @@ export const RunDetailRunMetadataSectionDeferred = dynamic(
 );
 
 export const RunDetailLastFailureCardDeferred = dynamic(
-  () => import("@/components/RunDetailLastFailureCard").then((module) => module.RunDetailLastFailureCard),
+  () => import("@/components/runs/RunDetailLastFailureCard").then((module) => module.RunDetailLastFailureCard),
   { ssr: false, loading: () => null },
 );
 
 export const RunDetailProgressTrackerDeferred = dynamic(
-  () => import("@/components/RunProgressTracker").then((module) => module.RunProgressTracker),
+  () => import("@/components/runs/RunProgressTracker").then((module) => module.RunProgressTracker),
   { ssr: false, loading: () => null },
 );
 
 export const RunDetailTrustEvidenceCardSectionDeferred = dynamic(
   () =>
-    import("@/components/RunTrustEvidenceCardSection").then((module) => module.RunTrustEvidenceCardSection),
+    import("@/components/runs/RunTrustEvidenceCardSection").then((module) => module.RunTrustEvidenceCardSection),
   { ssr: false, loading: () => null },
 );
 
@@ -148,7 +151,7 @@ export const RunDetailColdOpenOrientationDeferred = dynamic(
 
 export const RunDetailExplanationConfidenceBannerDeferred = dynamic(
   () =>
-    import("@/components/RunExplanationConfidenceBanner").then(
+    import("@/components/runs/RunExplanationConfidenceBanner").then(
       (module) => module.RunExplanationConfidenceBanner,
     ),
   { ssr: false, loading: () => null },
@@ -162,17 +165,11 @@ export const RunDetailGovernanceAlertsDeferred = dynamic(
   { ssr: false, loading: () => null },
 );
 
-const outcomeCardsLoading = (
-  <div
-    className="h-40 animate-pulse rounded-md border border-neutral-200 bg-neutral-100 dark:border-neutral-700 dark:bg-neutral-800"
-    role="status"
-    aria-label="Loading outcome cards"
-  />
-);
+const outcomeCardsLoading = runDetailDeferredLoading("Loading outcome cards", "h-40");
 
 /** Activity-tab / details-gated outcome cards — not needed for first paint (TB-933). */
 export const RunDetailOutcomeCardsDeferred = dynamic(
-  () => import("@/components/RunDetailOutcomeCards").then((module) => module.RunDetailOutcomeCards),
+  () => import("@/components/runs/RunDetailOutcomeCards").then((module) => module.RunDetailOutcomeCards),
   { ssr: false, loading: () => outcomeCardsLoading },
 );
 
@@ -226,11 +223,7 @@ export const RunDetailOperatorTechnicalForensicsPanelDeferred = dynamic(
 
 const artifactsExportsLoading = (
   <section id="artifacts-exports" className="scroll-mt-24">
-    <div
-      className="h-36 animate-pulse rounded-md border border-neutral-200 bg-neutral-100 dark:border-neutral-700 dark:bg-neutral-800"
-      role="status"
-      aria-label="Loading artifacts and exports"
-    />
+    {runDetailDeferredLoading("Loading artifacts and exports", "h-36")}
   </section>
 );
 
@@ -245,8 +238,8 @@ export const RunDetailArtifactsExportsSectionDeferred = dynamic(
 
 const workspaceShellLoading = (
   <div className="space-y-3" role="status" aria-label="Loading review workspace">
-    <div className="h-10 animate-pulse rounded-md border border-neutral-200 bg-neutral-100 dark:border-neutral-700 dark:bg-neutral-800" />
-    <div className="h-48 animate-pulse rounded-md border border-neutral-200 bg-neutral-100 dark:border-neutral-700 dark:bg-neutral-800" />
+    <div className={cn(DEFERRED_CHUNK_LOADING_SURFACE_CLASS, "h-10")} aria-hidden />
+    <div className={cn(DEFERRED_CHUNK_LOADING_SURFACE_CLASS, "h-48")} aria-hidden />
   </div>
 );
 
@@ -256,13 +249,7 @@ export const ReviewDetailWorkspaceDeferred = dynamic(
   { ssr: false, loading: () => workspaceShellLoading },
 );
 
-const overviewPanelLoading = (
-  <div
-    className="h-48 animate-pulse rounded-md border border-neutral-200 bg-neutral-100 dark:border-neutral-700 dark:bg-neutral-800"
-    role="status"
-    aria-label="Loading review overview"
-  />
-);
+const overviewPanelLoading = runDetailDeferredLoading("Loading review overview", "h-48");
 
 export const RunDetailOverviewPanelClientDeferred = dynamic(
   () =>
@@ -274,45 +261,21 @@ export const RunDetailOverviewPanelClientDeferred = dynamic(
 
 const workspaceHeaderLoading = (
   <header className="space-y-3 border-b border-neutral-200 pb-5 dark:border-neutral-800">
-    <div
-      className="h-24 animate-pulse rounded-md border border-neutral-200 bg-neutral-100 dark:border-neutral-700 dark:bg-neutral-800"
-      role="status"
-      aria-label="Loading review header"
-    />
+    {runDetailDeferredLoading("Loading review header", "h-24")}
   </header>
 );
 
-const workspaceSummaryLoading = (
-  <div
-    className="h-48 animate-pulse rounded-md border border-neutral-200 bg-neutral-100 dark:border-neutral-700 dark:bg-neutral-800"
-    role="status"
-    aria-label="Loading decision snapshot"
-  />
+const workspaceSummaryLoading = runDetailDeferredLoading("Loading decision snapshot", "h-48");
+
+const workspaceStickyActionsLoading = runDetailDeferredLoading(
+  "Loading review actions",
+  "h-14",
+  "hidden rounded-lg dark:bg-neutral-900/40 lg:block",
 );
 
-const workspaceStickyActionsLoading = (
-  <div
-    className="hidden h-14 animate-pulse rounded-lg border border-neutral-200 bg-neutral-100 dark:border-neutral-800 dark:bg-neutral-900/40 lg:block"
-    role="status"
-    aria-label="Loading review actions"
-  />
-);
+const sectionNavLoading = runDetailDeferredLoading("Loading section navigation", "h-10");
 
-const sectionNavLoading = (
-  <div
-    className="h-10 animate-pulse rounded-md border border-neutral-200 bg-neutral-100 dark:border-neutral-700 dark:bg-neutral-800"
-    role="status"
-    aria-label="Loading section navigation"
-  />
-);
-
-const executiveBottomLineLoading = (
-  <div
-    className="h-40 animate-pulse rounded-md border border-neutral-200 bg-neutral-100 dark:border-neutral-700 dark:bg-neutral-800"
-    role="status"
-    aria-label="Loading executive summary"
-  />
-);
+const executiveBottomLineLoading = runDetailDeferredLoading("Loading executive summary", "h-40");
 
 /** TB-2117 — workspace identity chrome off sync First Load JS. */
 export const RunDetailWorkspaceHeaderDeferred = dynamic(
@@ -339,12 +302,12 @@ export const RunDetailWorkspaceStickyActionsDeferred = dynamic(
 );
 
 export const RunDetailSectionNavDeferred = dynamic(
-  () => import("@/components/RunDetailSectionNav").then((module) => module.RunDetailSectionNav),
+  () => import("@/components/runs/RunDetailSectionNav").then((module) => module.RunDetailSectionNav),
   { ssr: false, loading: () => sectionNavLoading },
 );
 
 export const RunDetailTabbedSectionNavDeferred = dynamic(
-  () => import("@/components/RunDetailTabbedSectionNav").then((module) => module.RunDetailTabbedSectionNav),
+  () => import("@/components/runs/RunDetailTabbedSectionNav").then((module) => module.RunDetailTabbedSectionNav),
   { ssr: false, loading: () => sectionNavLoading },
 );
 
@@ -449,13 +412,7 @@ export const RunDetailBuyerModeFallbackBannerDeferred = dynamic(
   { ssr: false, loading: () => null },
 );
 
-const evidenceTabLoading = (
-  <div
-    className="h-48 animate-pulse rounded-md border border-neutral-200 bg-neutral-100 dark:border-neutral-700 dark:bg-neutral-800"
-    role="status"
-    aria-label="Loading evidence tab"
-  />
-);
+const evidenceTabLoading = runDetailDeferredLoading("Loading evidence tab", "h-48");
 
 /** TB-2142 — evidence tab scope/inventory cluster off sync First Load JS. */
 export const RunDetailEvidenceTabPanelDeferred = dynamic(
@@ -506,47 +463,17 @@ export const RunDetailBelowFoldSectionsDeferred = dynamic(
   () => import("./RunDetailBelowFoldSections").then((module) => module.RunDetailBelowFoldSections),
   {
     ssr: false,
-    loading: () => (
-      <div
-        className="h-32 animate-pulse rounded-md border border-neutral-200 bg-neutral-100 dark:border-neutral-700 dark:bg-neutral-800"
-        role="status"
-        aria-label="Loading additional review sections"
-      />
-    ),
+    loading: () => runDetailDeferredLoading("Loading additional review sections", "h-32"),
   },
 );
 
-const midBannerLoading = (
-  <div
-    className="h-16 animate-pulse rounded-md border border-neutral-200 bg-neutral-100 dark:border-neutral-700 dark:bg-neutral-800"
-    role="status"
-    aria-label="Loading review changes banner"
-  />
-);
+const midBannerLoading = runDetailDeferredLoading("Loading review changes banner", "h-16");
 
-const savingsSummaryLoading = (
-  <div
-    className="h-24 animate-pulse rounded-md border border-neutral-200 bg-neutral-100 dark:border-neutral-700 dark:bg-neutral-800"
-    role="status"
-    aria-label="Loading savings summary"
-  />
-);
+const savingsSummaryLoading = runDetailDeferredLoading("Loading savings summary", "h-24");
 
-const decisionDeltaLoading = (
-  <div
-    className="h-36 animate-pulse rounded-md border border-neutral-200 bg-neutral-100 dark:border-neutral-700 dark:bg-neutral-800"
-    role="status"
-    aria-label="Loading decision delta"
-  />
-);
+const decisionDeltaLoading = runDetailDeferredLoading("Loading decision delta", "h-36");
 
-const explanationCollapsibleLoading = (
-  <div
-    className="h-48 animate-pulse rounded-md border border-neutral-200 bg-neutral-100 dark:border-neutral-700 dark:bg-neutral-800"
-    role="status"
-    aria-label="Loading review explanation"
-  />
-);
+const explanationCollapsibleLoading = runDetailDeferredLoading("Loading review explanation", "h-48");
 
 /** Perf wave 10 — mid-band compare/savings leaves off sync First Load JS. */
 export const ChangesSinceLastReviewBannerDeferred = dynamic(
@@ -586,13 +513,7 @@ export const GoldenSponsorPackageWalkthroughDestinationDeferred = dynamic(
   { ssr: false, loading: () => null },
 );
 
-const createHomeEvidenceLoading = (
-  <div
-    className="h-48 animate-pulse rounded-md border border-neutral-200 bg-neutral-100 dark:border-neutral-700 dark:bg-neutral-800"
-    role="status"
-    aria-label="Loading evidence panel"
-  />
-);
+const createHomeEvidenceLoading = runDetailDeferredLoading("Loading evidence panel", "h-48");
 
 /** Perf wave 14 — create-home evidence archTab off sync First Load JS. */
 export const RunDetailCreateHomeEvidencePanelDeferred = dynamic(
@@ -601,13 +522,16 @@ export const RunDetailCreateHomeEvidencePanelDeferred = dynamic(
   { ssr: false, loading: () => createHomeEvidenceLoading },
 );
 
-const activitySourcesLoading = (
-  <div
-    className="h-32 animate-pulse rounded-md border border-neutral-200 bg-neutral-100 dark:border-neutral-700 dark:bg-neutral-800"
-    role="status"
-    aria-label="Loading activity sources"
-  />
+const createHomeActivityLoading = runDetailDeferredLoading("Loading activity panel", "h-40");
+
+/** Perf wave 14 — create-home activity archTab off sync First Load JS (TB-1832/TB-1834). */
+export const RunDetailCreateHomeActivityPanelDeferred = dynamic(
+  () =>
+    import("./RunDetailCreateHomeActivityPanel").then((module) => module.RunDetailCreateHomeActivityPanel),
+  { ssr: false, loading: () => createHomeActivityLoading },
 );
+
+const activitySourcesLoading = runDetailDeferredLoading("Loading activity sources", "h-32");
 
 /** Perf wave 14 — activity-tab sources panel off sync First Load JS. */
 export const RunDetailActivitySourcesPanelDeferred = dynamic(
@@ -615,13 +539,7 @@ export const RunDetailActivitySourcesPanelDeferred = dynamic(
   { ssr: false, loading: () => activitySourcesLoading },
 );
 
-const doThisNextResolvedLoading = (
-  <div
-    className="h-20 animate-pulse rounded-md border border-neutral-200 bg-neutral-100 dark:border-neutral-700 dark:bg-neutral-800"
-    role="status"
-    aria-label="Loading next step"
-  />
-);
+const doThisNextResolvedLoading = runDetailDeferredLoading("Loading next step", "h-20");
 
 /** Perf wave 14 — review-package next-step resolver off sync First Load JS. */
 export const RunDetailReviewPackageDoThisNextResolvedDeferred = dynamic(

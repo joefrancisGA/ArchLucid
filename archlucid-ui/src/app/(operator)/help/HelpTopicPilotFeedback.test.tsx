@@ -19,7 +19,7 @@ import {
   PILOT_FEEDBACK_HELP_PRIMARY_ACTION,
   PILOT_FEEDBACK_HELP_WORKFLOW_STEPS,
 } from "@/lib/pilot-feedback-help-guide-content";
-import { prepareHelpMarkdownForPresentation } from "@/lib/help-markdown-presentation";
+import { prepareHelpMarkdownForPresentation } from "@/lib/help/help-markdown-presentation";
 import { tryLoadProductDocumentation } from "@/lib/load-product-documentation";
 
 describe("HelpPilotFeedbackGuideView", () => {

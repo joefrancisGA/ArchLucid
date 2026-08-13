@@ -1,26 +1,20 @@
 import { OPERATOR_NAV_LINK_LABELS } from "@/lib/i18n";
-import { ITSM_ADMIN_TICKET_LINKAGE_DESCRIPTION } from "@/lib/finding-correlation-vocabulary";
+import { ITSM_ADMIN_TICKET_LINKAGE_DESCRIPTION } from "@/lib/vocabulary/finding-correlation-vocabulary";
 import { SETTINGS_NOTIFICATIONS_PATH, SETTINGS_SECURITY_TRUST_PATH } from "@/lib/settings-admin-route-paths";
 
-import { INTERNAL_DEVELOPER_TOOLS_CATALOG_DESCRIPTION } from "../developer/developer-settings-copy";
+import {
+  INTERNAL_DEVELOPER_TOOLS_CATALOG_DESCRIPTION,
+  INTERNAL_DEVELOPER_TOOLS_CATALOG_GATE_NOTE,
+} from "../developer/developer-settings-copy";
 import type { SettingsMasterSection } from "./settings-master-types";
 
 /** Searchable master settings index — hub links; detail pages own editable controls. */
 export const SETTINGS_MASTER_SECTIONS: readonly SettingsMasterSection[] = [
   {
-    id: "help",
-    navLabel: "Help",
-    title: "Help",
-    description: "Product guides and troubleshooting.",
-    keywords: ["help", "guide", "docs", "troubleshooting"],
-    tier: "common",
+    id: "workspace",
     // Personal settings (appearance, sign-in methods) belong to SELF_SETTINGS_DESTINATIONS and are published
     // from the top-bar account menu. Adding a `scope: "user"` destination here would hide it behind this hub's
     // authority filter — `settings-master-audience.ts` drops personal audiences so that mistake cannot ship.
-    destinations: [],
-  },
-  {
-    id: "workspace",
     navLabel: "Workspace",
     title: "Workspace",
     description: "Defaults and operational preferences for this workspace.",
@@ -31,7 +25,7 @@ export const SETTINGS_MASTER_SECTIONS: readonly SettingsMasterSection[] = [
         id: "workspace-settings",
         title: OPERATOR_NAV_LINK_LABELS.workspaceSettings,
         description: "Trial posture, cost settings, request scope, and workspace defaults.",
-        href: "/administration/tenant",
+        href: "/administration/workspace-settings",
         cta: "Open workspace settings",
         keywords: ["workspace", "tenant", "defaults", "cost"],
         requiredAuthority: "AdminAuthority",
@@ -69,15 +63,15 @@ export const SETTINGS_MASTER_SECTIONS: readonly SettingsMasterSection[] = [
   },
   {
     id: "users-roles",
-    navLabel: "Users & roles",
-    title: "Users & roles",
+    navLabel: OPERATOR_NAV_LINK_LABELS.usersAndRoles,
+    title: OPERATOR_NAV_LINK_LABELS.usersAndRoles,
     description: "Directory, role assignments, and access control.",
     keywords: ["users", "roles", "directory", "admin", "access"],
     tier: "common",
     destinations: [
       {
         id: "users-directory",
-        title: "Users & roles",
+        title: OPERATOR_NAV_LINK_LABELS.usersAndRoles,
         description: "Manage workspace members, role assignments, and invitations.",
         href: "/administration/users",
         cta: "Manage users",
@@ -288,8 +282,8 @@ export const SETTINGS_MASTER_SECTIONS: readonly SettingsMasterSection[] = [
   },
   {
     id: "security-trust",
-    navLabel: "Security & trust",
-    title: "Security & trust",
+    navLabel: "Security & Trust",
+    title: "Security & Trust",
     description: "Procurement materials and trust-center links.",
     keywords: ["security", "trust", "procurement", "compliance"],
     tier: "common",
@@ -372,21 +366,6 @@ export const SETTINGS_MASTER_SECTIONS: readonly SettingsMasterSection[] = [
         highImpact: true,
       },
       {
-        id: "api-keys",
-        title: "API keys",
-        description: "Manage approved automation keys for enterprise configurations.",
-        href: "/administration/api-keys",
-        cta: "Manage API keys",
-        keywords: ["api", "key", "rotation"],
-        requiredAuthority: "AdminAuthority",
-        tier: "advanced",
-        scope: "tenant",
-        source: "overridden",
-        editability: "admin-only",
-        saveBehavior: "Save on destination page",
-        highImpact: true,
-      },
-      {
         id: "scim-provisioning",
         title: "SCIM provisioning",
         description: "Inbound bearer tokens and connectivity verification.",
@@ -405,7 +384,7 @@ export const SETTINGS_MASTER_SECTIONS: readonly SettingsMasterSection[] = [
         id: "projects-recycle-bin",
         title: "Projects recycle bin",
         description: "Restore soft-deleted architecture projects.",
-        href: "/administration/tenant/recycle-bin",
+        href: "/administration/workspace-settings/recycle-bin",
         cta: "Open recycle bin",
         keywords: ["recycle", "restore", "project", "delete"],
         requiredAuthority: "ReadAuthority",
@@ -428,7 +407,7 @@ export const SETTINGS_MASTER_SECTIONS: readonly SettingsMasterSection[] = [
       {
         id: "developer-tools",
         title: "Internal developer tools",
-        description: INTERNAL_DEVELOPER_TOOLS_CATALOG_DESCRIPTION,
+        description: `${INTERNAL_DEVELOPER_TOOLS_CATALOG_DESCRIPTION} ${INTERNAL_DEVELOPER_TOOLS_CATALOG_GATE_NOTE}`,
         href: "/administration/developer",
         cta: "Open internal developer tools",
         keywords: ["developer", "cli", "demo"],

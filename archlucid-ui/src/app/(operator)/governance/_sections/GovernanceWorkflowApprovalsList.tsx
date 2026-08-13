@@ -1,7 +1,8 @@
 import { cn } from "@/lib/utils";
 import { GettingStartedSteps } from "@/components/GettingStartedSteps";
-import { GovernanceQuickApproveButton } from "@/components/GovernanceQuickApproveButton";
-import { OperatorEmptyState, OperatorLoadingNotice } from "@/components/OperatorShellMessage";
+import { EnterpriseCompactEmptyState } from "@/components/EnterpriseCompactEmptyState";
+import { GovernanceQuickApproveButton } from "@/components/governance/GovernanceQuickApproveButton";
+import { OperatorLoadingNotice } from "@/components/operator/OperatorShellMessage";
 import { StatusPill } from "@/components/StatusPill";
 import { Button } from "@/components/ui/button";
 import { Card, CardContent, CardDescription, CardFooter, CardHeader, CardTitle } from "@/components/ui/card";
@@ -9,6 +10,7 @@ import { Input } from "@/components/ui/input";
 import { Label } from "@/components/ui/label";
 import { Textarea } from "@/components/ui/textarea";
 import { MutationReversibilityNotice } from "@/components/operator/MutationReversibilityNotice";
+import { WhyDisabledCtaHint } from "@/components/usability/WhyDisabledCtaHint";
 import {
   enterpriseMutationControlDisabledTitle,
   governanceWorkflowApproveButtonLabelReaderRank,
@@ -22,18 +24,20 @@ import {
 import {
   governanceNoApprovalsGettingStartedOperator,
   governanceNoApprovalsGettingStartedReader,
-} from "@/lib/governance-workflow-empty-guidance";
+} from "@/lib/governance/governance-workflow-empty-guidance";
 import type { GovernanceApprovalWorkflowState } from "@/app/(operator)/governance/_sections/governance-approval-workflow-state";
 import {
   GOVERNANCE_WORKFLOW_RELEASE_TO_ENVIRONMENT_BUTTON,
   GOVERNANCE_WORKFLOW_RELEASE_TO_ENVIRONMENT_BUTTON_READER,
-} from "@/lib/governance-workflow-release-copy";
-import { buyerSafeGovernanceActorLabel } from "@/lib/buyer-demo-persona-labels";
-import { buyerGovernanceWorkflowStatusLabel } from "@/lib/buyer-governance-workflow-status-labels";
+} from "@/lib/governance/governance-workflow-release-copy";
+import { buyerSafeGovernanceActorLabel } from "@/lib/buyer/buyer-demo-persona-labels";
+import { buyerGovernanceWorkflowStatusLabel } from "@/lib/buyer/buyer-governance-workflow-status-labels";
 import type { ApiLoadFailureState } from "@/lib/api-load-failure";
 import type { GovernanceApprovalRequest } from "@/types/governance-workflow";
 import type { MutableRefObject } from "react";
 import { OPERATOR_TYPOGRAPHY } from "@/lib/design-tokens";
+import { GOVERNANCE_WORKFLOW_NO_APPROVALS_EMPTY_COMPACT } from "@/lib/enterprise-compact-empty-state-presets";
+import { whyDisabledEnterpriseMutationControl } from "@/lib/why-disabled-cta";
 import {
   formatGovernanceBusinessInstant,
   governanceApprovalCardTitle,
@@ -89,6 +93,8 @@ export function GovernanceWorkflowApprovalsList(props: GovernanceWorkflowApprova
   } = props;
 
   const compactSupportingRows = emphasizeDecisionRecord && workflowState.canShowCompletionMessaging;
+  const mutationDisabledHintId = "governance-workflow-approvals-mutate-disabled-hint";
+  const mutationDisabledReason = canMutateWorkflow ? null : whyDisabledEnterpriseMutationControl();
 
   return (
     <div className="mt-6 grid gap-4">
@@ -102,18 +108,29 @@ export function GovernanceWorkflowApprovalsList(props: GovernanceWorkflowApprova
       ) : null}
 
       {workflowState.phase === "no_requests" && listFailure === null ? (
-        <OperatorEmptyState title="No approval requests for this review">
-          <div className="grid gap-3">
-            <p className={OPERATOR_TYPOGRAPHY.body}>
-              {canMutateWorkflow ? governanceWorkflowNoApprovalsOperatorHint : governanceWorkflowNoApprovalsReaderHint}
-            </p>
-            <GettingStartedSteps
-              {...(canMutateWorkflow
-                ? governanceNoApprovalsGettingStartedOperator
-                : governanceNoApprovalsGettingStartedReader)}
-            />
-          </div>
-        </OperatorEmptyState>
+        <EnterpriseCompactEmptyState
+          {...GOVERNANCE_WORKFLOW_NO_APPROVALS_EMPTY_COMPACT}
+          description={
+            <div className="grid gap-3">
+              <p className={OPERATOR_TYPOGRAPHY.body}>
+                {canMutateWorkflow ? governanceWorkflowNoApprovalsOperatorHint : governanceWorkflowNoApprovalsReaderHint}
+              </p>
+              <GettingStartedSteps
+                {...(canMutateWorkflow
+                  ? governanceNoApprovalsGettingStartedOperator
+                  : governanceNoApprovalsGettingStartedReader)}
+              />
+            </div>
+          }
+        />
+      ) : null}
+
+      {approvals.length > 0 ? (
+        <WhyDisabledCtaHint
+          id={mutationDisabledHintId}
+          reason={mutationDisabledReason}
+          testId={mutationDisabledHintId}
+        />
       ) : null}
 
       {approvals.map((row) => (
@@ -211,7 +228,9 @@ export function GovernanceWorkflowApprovalsList(props: GovernanceWorkflowApprova
                           variant={canMutateWorkflow ? "default" : "outline"}
                           onClick={() => void onConfirmReview()}
                           disabled={reviewBusy || !canMutateWorkflow}
-                          title={canMutateWorkflow ? undefined : enterpriseMutationControlDisabledTitle}
+                          aria-describedby={
+                            mutationDisabledReason === null ? undefined : mutationDisabledHintId
+                          }
                         >
                           {reviewBusy
                             ? "Saving…"
@@ -255,7 +274,9 @@ export function GovernanceWorkflowApprovalsList(props: GovernanceWorkflowApprova
                       size="sm"
                       variant={canMutateWorkflow ? "default" : "outline"}
                       disabled={!canMutateWorkflow}
-                      title={canMutateWorkflow ? undefined : enterpriseMutationControlDisabledTitle}
+                      aria-describedby={
+                        mutationDisabledReason === null ? undefined : mutationDisabledHintId
+                      }
                       onClick={() => {
                         setPendingReview({ approvalRequestId: row.approvalRequestId, mode: "approve" });
                         setPendingPromote(null);
@@ -270,7 +291,9 @@ export function GovernanceWorkflowApprovalsList(props: GovernanceWorkflowApprova
                       variant="outline"
                       className="border-rose-600/40 text-al-text-primary hover:bg-[var(--al-layer-hover)] dark:border-rose-800/50"
                       disabled={!canMutateWorkflow}
-                      title={canMutateWorkflow ? undefined : enterpriseMutationControlDisabledTitle}
+                      aria-describedby={
+                        mutationDisabledReason === null ? undefined : mutationDisabledHintId
+                      }
                       onClick={() => {
                         setPendingReview({ approvalRequestId: row.approvalRequestId, mode: "reject" });
                         setPendingPromote(null);
@@ -293,7 +316,9 @@ export function GovernanceWorkflowApprovalsList(props: GovernanceWorkflowApprova
                           : undefined
                       }
                       disabled={pendingPromote !== null || !canMutateWorkflow}
-                      title={canMutateWorkflow ? undefined : enterpriseMutationControlDisabledTitle}
+                      aria-describedby={
+                        mutationDisabledReason === null ? undefined : mutationDisabledHintId
+                      }
                       onClick={() => {
                         pendingPromoteRequestRef.current = row;
                         setPendingPromote({

@@ -4,10 +4,15 @@ import {
   isServiceNowCredentialsReady,
   resolveServiceNowConnectionStatus,
   resolveServiceNowConnectionTestGate,
+  resolveServiceNowPageComposition,
   sanitizeCustomerFacingProbeSummary,
   sanitizeServiceNowLoadErrorForConnectionStatus,
   SERVICENOW_LOAD_FAILURE_STATUS_EXPLANATION,
 } from "./servicenow-integration-present";
+import {
+  SERVICENOW_NEXT_ACTION_SETUP_INCOMPLETE_ADMIN,
+  SERVICENOW_NEXT_ACTION_SETUP_INCOMPLETE_OPERATOR,
+} from "./servicenow-integration-page-copy";
 
 describe("servicenow-integration-present", () => {
   it("never puts Database Query Failed into connection status explanation (TB-1163)", () => {
@@ -24,6 +29,7 @@ describe("servicenow-integration-present", () => {
       isTesting: false,
       nativeEnabled: true,
       credentialsReady: false,
+      canConfigureAdmin: false,
       probe: null,
     });
 
@@ -45,11 +51,40 @@ describe("servicenow-integration-present", () => {
       isTesting: false,
       nativeEnabled: true,
       credentialsReady: false,
+      canConfigureAdmin: false,
       probe: { locallyConfigured: false, summary: "missing" },
     });
 
     expect(status.status).toBe("setup-incomplete");
     expect(status.label).toBe("Setup incomplete");
+  });
+
+  it("uses admin next action when credentials are missing and caller can configure", () => {
+    const status = resolveServiceNowConnectionStatus({
+      isLoading: false,
+      loadError: null,
+      isTesting: false,
+      nativeEnabled: true,
+      credentialsReady: false,
+      canConfigureAdmin: true,
+      probe: { locallyConfigured: false, summary: "missing" },
+    });
+
+    expect(status.nextAction).toBe(SERVICENOW_NEXT_ACTION_SETUP_INCOMPLETE_ADMIN);
+  });
+
+  it("uses operator next action when credentials are missing and caller cannot configure", () => {
+    const status = resolveServiceNowConnectionStatus({
+      isLoading: false,
+      loadError: null,
+      isTesting: false,
+      nativeEnabled: true,
+      credentialsReady: false,
+      canConfigureAdmin: false,
+      probe: { locallyConfigured: false, summary: "missing" },
+    });
+
+    expect(status.nextAction).toBe(SERVICENOW_NEXT_ACTION_SETUP_INCOMPLETE_OPERATOR);
   });
 
   it("reports connected when probe is reachable", () => {
@@ -59,6 +94,7 @@ describe("servicenow-integration-present", () => {
       isTesting: false,
       nativeEnabled: true,
       credentialsReady: true,
+      canConfigureAdmin: false,
       probe: { locallyConfigured: true, reachable: true, summary: "ok" },
     });
 
@@ -72,6 +108,7 @@ describe("servicenow-integration-present", () => {
       isTesting: false,
       nativeEnabled: true,
       credentialsReady: true,
+      canConfigureAdmin: false,
       probe: { locallyConfigured: true, reachable: false, summary: "401 unauthorized" },
     });
 
@@ -107,5 +144,31 @@ describe("servicenow-integration-present", () => {
         "not configured — add Integrations:ItsmOutbound:ServiceNow credentials in host configuration",
       ),
     ).not.toMatch(/Integrations:ItsmOutbound|host configuration/i);
+  });
+
+  it("collapses incident settings and emphasizes credentials when not configured (TB-1164/TB-1165)", () => {
+    const composition = resolveServiceNowPageComposition({
+      nativeEnabled: true,
+      credentialsReady: false,
+      testGateAllowed: false,
+    });
+
+    expect(composition.showNotConfiguredNextStep).toBe(true);
+    expect(composition.incidentSettingsCollapsed).toBe(true);
+    expect(composition.showConnectionTest).toBe(false);
+    expect(composition.emphasizedSetupStepId).toBe("credentials");
+  });
+
+  it("shows connection test when gate allows", () => {
+    const composition = resolveServiceNowPageComposition({
+      nativeEnabled: true,
+      credentialsReady: true,
+      testGateAllowed: true,
+    });
+
+    expect(composition.showNotConfiguredNextStep).toBe(false);
+    expect(composition.incidentSettingsCollapsed).toBe(false);
+    expect(composition.showConnectionTest).toBe(true);
+    expect(composition.emphasizedSetupStepId).toBe("verified");
   });
 });

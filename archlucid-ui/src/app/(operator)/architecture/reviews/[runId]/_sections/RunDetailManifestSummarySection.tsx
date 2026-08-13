@@ -8,14 +8,14 @@ import { CopyIdButton } from "@/components/CopyIdButton";
 import {
   OperatorEvidenceLimitsFooter,
   type OperatorEvidenceLimitsExecutionProps,
-} from "@/components/OperatorEvidenceLimitsFooter";
+} from "@/components/operator/OperatorEvidenceLimitsFooter";
 import { Card, CardContent, CardHeader } from "@/components/ui/card";
-import { useNavCommittedArchitectureReview } from "@/components/OperatorNavAuthorityProvider";
-import { BUYER_RUN_DETAIL_MANIFEST_DECISIONS_LABEL } from "@/lib/buyer-polish-copy";
-import { CORE_PILOT_PATH_STREAMLINED_LABELS, isStreamlinedCorePilotPath } from "@/lib/core-pilot-path-vocabulary";
+import { useNavCommittedArchitectureReview } from "@/components/operator/OperatorNavAuthorityProvider";
+import { BUYER_RUN_DETAIL_MANIFEST_DECISIONS_LABEL } from "@/lib/buyer/buyer-polish-copy";
+import { CORE_PILOT_PATH_STREAMLINED_LABELS, isStreamlinedCorePilotPath } from "@/lib/vocabulary/core-pilot-path-vocabulary";
 import { finiteIntegerCountDisplay } from "@/lib/finite-count-display";
 import { manifestStatusForDisplay } from "@/lib/manifest-status-display";
-import { policyPackBuyerLabel } from "@/lib/policy-pack-buyer-label";
+import { policyPackBuyerLabel } from "@/lib/policy/policy-pack-buyer-label";
 import { OPERATOR_TYPOGRAPHY } from "@/lib/design-tokens";
 import type { ManifestSummary } from "@/types/authority";
 

@@ -1,4 +1,4 @@
-import Link from "next/link";
+﻿import Link from "next/link";
 
 import type { ReactNode } from "react";
 
@@ -7,6 +7,10 @@ import type { ReactNode } from "react";
 import { HelpTopicMarkdownPageHeader } from "@/app/(operator)/help/_sections/HelpTopicMarkdownPageHeader";
 
 import { CaiqSigResponseHelpPostureSummary } from "@/components/help/CaiqSigResponseHelpPostureSummary";
+
+import { SecurityTrustHelpNextSteps } from "@/components/help/SecurityTrustHelpNextSteps";
+
+import { SecurityTrustHelpPostureSummary } from "@/components/help/SecurityTrustHelpPostureSummary";
 
 import { HelpTopicExportClaimDiscipline } from "@/components/help/HelpTopicExportClaimDiscipline";
 
@@ -39,12 +43,26 @@ import { DESIGN_TOKENS, OPERATOR_LAYOUT, OPERATOR_TYPOGRAPHY } from "@/lib/desig
 import { AUTHENTICATION_SIGN_IN_HELP_PRIMARY_ACTION } from "@/lib/authentication-sign-in-help-copy";
 import { CAIQ_SIG_RESPONSE_HELP_PRIMARY_ACTION } from "@/lib/caiq-sig-response-help-evidence-copy";
 import { INTEGRATION_READINESS_HELP_PRIMARY_ACTION } from "@/lib/integration-readiness-help-evidence-copy";
+import { PROCUREMENT_HELP_CLAIM_DISCIPLINE } from "@/lib/procurement-help-evidence-copy";
+import { isProcurementHelpTopic } from "@/lib/procurement-help-presentation";
+import { POLICY_PACKS_HELP_PRIMARY_ACTION } from "@/lib/policy/policy-packs-help-evidence-copy";
+import { REPORT_A_PROBLEM_HELP_PRIMARY_ACTION } from "@/lib/report-a-problem-help-evidence-copy";
+import { SCOPE_HELP_PRIMARY_ACTION } from "@/lib/scope-help-evidence-copy";
+import { SECURITY_TRUST_HELP_PRIMARY_ACTION } from "@/lib/security-trust-help-evidence-copy";
+import { SUBPROCESSORS_HELP_PRIMARY_ACTION } from "@/lib/subprocessors-help-evidence-copy";
+import { SecurityTrustHelpHubVocabularyRail } from "@/components/SecurityTrustHelpHubVocabularyRail";
 
-import { extractHelpMarkdownHeadings } from "@/lib/help-markdown-headings";
+import {
+  buildSecurityTrustTocGroups,
+  computeSecurityTrustPostureCounts,
+  countSecurityTrustPostureTableRows,
+} from "@/lib/security-trust-help-presentation";
 
-import { prepareHelpMarkdownForPresentation } from "@/lib/help-markdown-presentation";
+import { extractHelpMarkdownHeadings } from "@/lib/help/help-markdown-headings";
 
-import { HELP_PAGE_LAYOUT } from "@/lib/help-page-layout";
+import { prepareHelpMarkdownForPresentation } from "@/lib/help/help-markdown-presentation";
+
+import { HELP_PAGE_LAYOUT, resolveHelpPageContentGridClass } from "@/lib/help/help-page-layout";
 
 import type { ProductDocumentationEntry } from "@/lib/product-documentation-registry";
 
@@ -63,6 +81,10 @@ type HelpTopicMarkdownViewProps = {
   /** Optional Evidence orientation strip (Sources + claim discipline). */
 
   readonly evidenceOrientation?: ReactNode;
+
+  /** Optional header metadata under the title (status tag, reviewed date). */
+
+  readonly titleBlockOrientation?: ReactNode;
 
   /** When true, show Category-1 PageContextualHelpButton in the header actions. */
 
@@ -96,6 +118,8 @@ export function HelpTopicMarkdownView(props: HelpTopicMarkdownViewProps): React.
 
     evidenceOrientation,
 
+    titleBlockOrientation,
+
     showContextualHelp,
 
     tocGroups,
@@ -128,15 +152,35 @@ export function HelpTopicMarkdownView(props: HelpTopicMarkdownViewProps): React.
 
   const headings = extractedHeadings;
 
+  const isSecurityTrustHelp = entry.slug === "security-trust";
+
   const resolvedTocGroups =
 
-    tocGroups ?? (isCaiqSigResponse ? buildCaiqSigResponseTocGroups(headings) : undefined);
+    tocGroups
 
-  const postureCounts = isCaiqSigResponse ? computeCaiqSigResponsePostureCounts(preparedMarkdown) : null;
-  const postureTableRowTotal = isCaiqSigResponse ? countCaiqSigResponseTableRows(preparedMarkdown) : 0;
+    ?? (isCaiqSigResponse ? buildCaiqSigResponseTocGroups(headings) : undefined)
+
+    ?? (isSecurityTrustHelp ? buildSecurityTrustTocGroups(headings) : undefined);
+
+  const securityTrustPostureCounts = isSecurityTrustHelp
+    ? computeSecurityTrustPostureCounts(preparedMarkdown)
+    : null;
+  const caiqSigPostureCounts = isCaiqSigResponse
+    ? computeCaiqSigResponsePostureCounts(preparedMarkdown)
+    : null;
+  const postureTableRowTotal = isCaiqSigResponse
+    ? countCaiqSigResponseTableRows(preparedMarkdown)
+    : isSecurityTrustHelp
+      ? countSecurityTrustPostureTableRows(preparedMarkdown)
+      : 0;
 
   const isIntegrationReadinessHelp = entry.slug === "integration-readiness";
+  const isPolicyPacksHelp = entry.slug === "policy-packs";
+  const isScopeHelp = entry.slug === "scope";
+  const isSubprocessorsHelp = entry.slug === "subprocessors";
+  const isProcurementHelp = isProcurementHelpTopic(entry.slug);
   const isAuthenticationSignInHelp = entry.slug === "authentication-sign-in";
+  const allowWithoutServerPdf = entry.pdfStatus === null && (entry.audience === "buyer" || isProcurementHelp);
 
   const isTechnicalReferenceLayout = layoutVariant === "technicalReference";
 
@@ -144,7 +188,7 @@ export function HelpTopicMarkdownView(props: HelpTopicMarkdownViewProps): React.
 
     ? HELP_PAGE_LAYOUT.technicalReferenceGrid
 
-    : HELP_PAGE_LAYOUT.contentGrid;
+    : resolveHelpPageContentGridClass(headings.length);
 
   const contentColumnClass = isTechnicalReferenceLayout
 
@@ -180,7 +224,17 @@ export function HelpTopicMarkdownView(props: HelpTopicMarkdownViewProps): React.
 
         showExportClaimDiscipline={showExportClaimDiscipline}
 
-        exportClaimDiscipline={showExportClaimDiscipline ? <HelpTopicExportClaimDiscipline /> : undefined}
+        allowWithoutServerPdf={allowWithoutServerPdf}
+
+        exportClaimDiscipline={
+          showExportClaimDiscipline ? (
+            <HelpTopicExportClaimDiscipline
+              claimDiscipline={isProcurementHelp ? PROCUREMENT_HELP_CLAIM_DISCIPLINE : undefined}
+            />
+          ) : undefined
+        }
+
+        titleBlockOrientation={titleBlockOrientation}
 
         signInFailureTriageLine={isAuthenticationSignInHelp ? <HelpTopicSignInFailureTriageLine /> : undefined}
 
@@ -191,18 +245,32 @@ export function HelpTopicMarkdownView(props: HelpTopicMarkdownViewProps): React.
               ? CAIQ_SIG_RESPONSE_HELP_PRIMARY_ACTION
               : isIntegrationReadinessHelp
                 ? INTEGRATION_READINESS_HELP_PRIMARY_ACTION
-                : undefined
+                : isPolicyPacksHelp
+                  ? POLICY_PACKS_HELP_PRIMARY_ACTION
+                  : isScopeHelp
+                    ? SCOPE_HELP_PRIMARY_ACTION
+                    : isSecurityTrustHelp
+                      ? SECURITY_TRUST_HELP_PRIMARY_ACTION
+                      : isSubprocessorsHelp
+                        ? SUBPROCESSORS_HELP_PRIMARY_ACTION
+                        : entry.slug === "report-a-problem"
+                          ? REPORT_A_PROBLEM_HELP_PRIMARY_ACTION
+                          : undefined
         }
 
       />
 
 
 
+      {entry.slug === "security-trust" ? (
+        <SecurityTrustHelpHubVocabularyRail currentSurfaceId="security-trust-help" />
+      ) : null}
+
       {entry.audience === "developer" ? (
 
         <p className={`m-0 max-w-3xl ${OPERATOR_TYPOGRAPHY.label}`}>
 
-          Engineering runbook — CLI commands, environment variables, and log detail. For symptom-first operator help,
+          Engineering runbook â€” CLI commands, environment variables, and log detail. For symptom-first operator help,
 
           open{" "}
 
@@ -224,8 +292,12 @@ export function HelpTopicMarkdownView(props: HelpTopicMarkdownViewProps): React.
 
 
 
-      {postureCounts !== null ? (
-        <CaiqSigResponseHelpPostureSummary counts={postureCounts} tableRowTotal={postureTableRowTotal} />
+      {securityTrustPostureCounts !== null ? (
+        <SecurityTrustHelpPostureSummary counts={securityTrustPostureCounts} tableRowTotal={postureTableRowTotal} />
+      ) : null}
+
+      {caiqSigPostureCounts !== null ? (
+        <CaiqSigResponseHelpPostureSummary counts={caiqSigPostureCounts} tableRowTotal={postureTableRowTotal} />
       ) : null}
 
 
@@ -257,6 +329,8 @@ export function HelpTopicMarkdownView(props: HelpTopicMarkdownViewProps): React.
         <HelpTopicTableOfContents headings={headings} groups={resolvedTocGroups} enableScrollSpy />
 
       </div>
+
+      {isSecurityTrustHelp ? <SecurityTrustHelpNextSteps /> : null}
 
     </article>
 

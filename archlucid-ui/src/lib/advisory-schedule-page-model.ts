@@ -1,4 +1,7 @@
 import {
+  ADVISORY_SCANS_SCHEDULES_EXAMPLE_NAME,
+} from "@/lib/advisory-copy";
+import {
   describeStoredCronExpression,
   formatAdvisoryScheduleInstant,
   resolveBrowserTimeZoneId,
@@ -89,5 +92,32 @@ export function withLatestExecutionOutcome(
   return {
     ...view,
     lastOutcome: summarizeExecutionOutcome(latest),
+  };
+}
+
+/** Static example row for empty schedules tab — not backed by API data. */
+export function buildAdvisoryScheduleExamplePreviewView(
+  projectLabel: string,
+  displayTimeZoneId: string = resolveBrowserTimeZoneId(),
+): AdvisoryScheduleListItemView {
+  const next = formatAdvisoryScheduleInstant("2026-07-27T08:00:00.000Z", displayTimeZoneId);
+  const last = formatAdvisoryScheduleInstant("2026-07-20T08:00:00.000Z", displayTimeZoneId);
+  const cronExpression = "0 8 * * 1";
+  const resolvedProjectLabel = resolveCurrentProjectLabel(projectLabel);
+
+  return {
+    scheduleId: "example-advisory-schedule",
+    name: ADVISORY_SCANS_SCHEDULES_EXAMPLE_NAME,
+    projectLabel: resolvedProjectLabel,
+    frequencyLabel: describeStoredCronExpression(cronExpression),
+    timeZoneLabel: "Stored as UTC schedule",
+    nextRunPrimary: next.primary,
+    nextRunUtcSecondary: next.utcSecondary,
+    lastRunPrimary: last.primary,
+    lastOutcome: "Completed",
+    statusKind: "ready",
+    statusLabel: "Active",
+    isEnabled: true,
+    cronExpression,
   };
 }

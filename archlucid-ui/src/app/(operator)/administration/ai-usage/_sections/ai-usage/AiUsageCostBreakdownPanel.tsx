@@ -4,10 +4,19 @@ import { cn } from "@/lib/utils";
 import Link from "next/link";
 
 import { Card, CardContent, CardHeader, CardTitle } from "@/components/ui/card";
+import {
+  EnterpriseTable,
+  EnterpriseTableBody,
+  EnterpriseTableCell,
+  EnterpriseTableHead,
+  EnterpriseTableHeadRow,
+  EnterpriseTableHeaderCell,
+  EnterpriseTableRow,
+} from "@/components/ui/enterprise-table";
 import type { AiUsageBreakdownRow } from "@/lib/ai-usage-dashboard-model";
 import type { AiUsageBreakdownGroupBy } from "@/lib/ai-usage-dashboard-filters";
 import { formatCostReportingEstimatedUsd } from "@/app/(operator)/administration/ai-usage/_sections/cost-reporting-page-helpers";
-import { OPERATOR_CARD, OPERATOR_LINK, OPERATOR_NAV_GROUP_LABEL, OPERATOR_TYPOGRAPHY } from "@/lib/design-tokens";
+import { OPERATOR_CARD, OPERATOR_LINK, OPERATOR_TYPOGRAPHY } from "@/lib/design-tokens";
 import { AiUsageSectionState } from "./AiUsageSectionState";
 
 type Props = {
@@ -73,44 +82,44 @@ export function AiUsageCostBreakdownPanel(props: Props) {
             </p>
           ) : null}
           {props.rows.length > 0 ? (
-            <div className="overflow-x-auto">
-              <table className={cn("w-full text-left", OPERATOR_TYPOGRAPHY.body)}>
-                <thead>
-                  <tr className={cn("border-b border-neutral-200 uppercase text-neutral-500 dark:border-neutral-700", OPERATOR_NAV_GROUP_LABEL)}>
-                    <th className="py-2 pr-3">Name</th>
-                    <th className="py-2 pr-3">Usage count</th>
-                    <th className="py-2 pr-3">Tokens</th>
-                    <th className="py-2 pr-3">Estimated cost</th>
-                    <th className="py-2 pr-3">% of total</th>
-                    <th className="py-2 pr-3">Details</th>
-                  </tr>
-                </thead>
-                <tbody>
-                  {props.rows.map((row) => (
-                    <tr key={row.key} className="border-b border-neutral-100 dark:border-neutral-800">
-                      <td className="py-2 pr-3 font-medium text-al-text-primary">{row.name}</td>
-                      <td className="py-2 pr-3 tabular-nums text-al-text-secondary">{row.usageCount.toLocaleString()}</td>
-                      <td className={cn("py-2 pr-3 font-mono tabular-nums text-al-text-secondary", OPERATOR_TYPOGRAPHY.micro)}>
-                        {(row.promptTokens + row.completionTokens).toLocaleString()}
-                      </td>
-                      <td className="py-2 pr-3 tabular-nums text-al-text-primary">
-                        {formatCostReportingEstimatedUsd(row.estimatedCostUsd, props.currency)}
-                      </td>
-                      <td className="py-2 pr-3 tabular-nums text-al-text-secondary">{row.percentOfTotal}%</td>
-                      <td className="py-2 pr-3">
-                        {row.detailHref !== null ? (
-                          <Link href={row.detailHref} className={OPERATOR_LINK.nav}>
-                            View
-                          </Link>
-                        ) : (
-                          <span className="text-al-text-secondary">—</span>
-                        )}
-                      </td>
-                    </tr>
-                  ))}
-                </tbody>
-              </table>
-            </div>
+            <EnterpriseTable ariaLabel="AI usage cost breakdown">
+              <EnterpriseTableHead>
+                <EnterpriseTableHeadRow>
+                  <EnterpriseTableHeaderCell>Name</EnterpriseTableHeaderCell>
+                  <EnterpriseTableHeaderCell>Usage count</EnterpriseTableHeaderCell>
+                  <EnterpriseTableHeaderCell>Tokens</EnterpriseTableHeaderCell>
+                  <EnterpriseTableHeaderCell>Estimated cost</EnterpriseTableHeaderCell>
+                  <EnterpriseTableHeaderCell>% of total</EnterpriseTableHeaderCell>
+                  <EnterpriseTableHeaderCell>Details</EnterpriseTableHeaderCell>
+                </EnterpriseTableHeadRow>
+              </EnterpriseTableHead>
+              <EnterpriseTableBody>
+                {props.rows.map((row) => (
+                  <EnterpriseTableRow key={row.key}>
+                    <EnterpriseTableCell className="font-medium text-al-text-primary">{row.name}</EnterpriseTableCell>
+                    <EnterpriseTableCell className="tabular-nums text-al-text-secondary">
+                      {row.usageCount.toLocaleString()}
+                    </EnterpriseTableCell>
+                    <EnterpriseTableCell className={cn("font-mono tabular-nums text-al-text-secondary", OPERATOR_TYPOGRAPHY.micro)}>
+                      {(row.promptTokens + row.completionTokens).toLocaleString()}
+                    </EnterpriseTableCell>
+                    <EnterpriseTableCell className="tabular-nums text-al-text-primary">
+                      {formatCostReportingEstimatedUsd(row.estimatedCostUsd, props.currency)}
+                    </EnterpriseTableCell>
+                    <EnterpriseTableCell className="tabular-nums text-al-text-secondary">{row.percentOfTotal}%</EnterpriseTableCell>
+                    <EnterpriseTableCell>
+                      {row.detailHref !== null ? (
+                        <Link href={row.detailHref} className={OPERATOR_LINK.nav}>
+                          View
+                        </Link>
+                      ) : (
+                        <span className="text-al-text-secondary">—</span>
+                      )}
+                    </EnterpriseTableCell>
+                  </EnterpriseTableRow>
+                ))}
+              </EnterpriseTableBody>
+            </EnterpriseTable>
           ) : null}
         </AiUsageSectionState>
       </CardContent>

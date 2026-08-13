@@ -11,7 +11,7 @@ import { CTA_WIDTH, OPERATOR_TYPOGRAPHY } from "@/lib/design-tokens";
 /** Evidence-only path — valid first option without cloud vendor access. */
 export function EvidenceOnlyConnectionCard() {
   return (
-    <Card data-testid="cloud-connection-card-evidence-only" className="flex flex-col">
+    <Card data-testid="cloud-connection-card-evidence-only" className="flex h-full flex-col">
       <CardHeader className="pb-2">
         <CardTitle className={OPERATOR_TYPOGRAPHY.cardTitle}>{CLOUD_CONNECTIONS_EVIDENCE_ONLY_TITLE}</CardTitle>
         <CardDescription>{CLOUD_CONNECTIONS_EVIDENCE_ONLY_SUMMARY}</CardDescription>
@@ -23,8 +23,12 @@ export function EvidenceOnlyConnectionCard() {
             <dd className="font-medium">Always available</dd>
           </div>
           <div className="flex justify-between gap-2">
-            <dt className="text-al-text-secondary">Authentication</dt>
+            <dt className="text-al-text-secondary">Authentication model</dt>
             <dd className="font-medium">Uploaded evidence</dd>
+          </div>
+          <div className="flex justify-between gap-2">
+            <dt className="text-al-text-secondary">Last validation</dt>
+            <dd className="font-medium">Not applicable</dd>
           </div>
           <div className="flex justify-between gap-2">
             <dt className="text-al-text-secondary">Evidence collected</dt>

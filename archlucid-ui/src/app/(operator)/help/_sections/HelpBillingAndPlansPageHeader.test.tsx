@@ -2,7 +2,6 @@ import { fireEvent, render, screen } from "@testing-library/react";
 import { describe, expect, it, vi } from "vitest";
 
 import { billingHelpPageSubtitle } from "@/lib/billing-help-guide-content";
-import { OPERATOR_NOT_REFRESHED_LABEL } from "@/lib/operator-last-refreshed-label";
 import { getProductDocumentationEntry } from "@/lib/product-documentation-registry";
 
 vi.mock("next/navigation", () => ({
@@ -18,7 +17,7 @@ import { HelpBillingAndPlansPageHeader } from "@/app/(operator)/help/_sections/H
 describe("HelpBillingAndPlansPageHeader", () => {
   const entry = getProductDocumentationEntry("billing-and-plans");
 
-  it("renders help breadcrumb, disambiguated title, provenance, refresh, and plan freshness metadata", () => {
+  it("renders help breadcrumb, disambiguated title, refresh, and no provenance or freshness metadata", () => {
     if (entry === undefined) {
       throw new Error("Expected billing-and-plans documentation entry.");
     }
@@ -45,18 +44,16 @@ describe("HelpBillingAndPlansPageHeader", () => {
     expect(screen.getByTestId("page-contextual-help-button")).toBeInTheDocument();
     expect(screen.getByTestId("help-billing-header-actions")).toBeInTheDocument();
     expect(screen.getByTestId("help-billing-refresh-button")).toBeInTheDocument();
-    expect(screen.getByTestId("help-billing-document-status")).toHaveTextContent("Current");
-    expect(screen.getByTestId("help-topic-registry-provenance")).toHaveTextContent(/Last reviewed/i);
-    expect(screen.getByTestId("help-billing-source-of-record")).toHaveTextContent("BILLING_AND_PLANS.md");
-    expect(screen.getByTestId("help-billing-last-refreshed")).toHaveTextContent(/Plan data:/i);
-    expect(screen.getByTestId("help-billing-last-refreshed")).toHaveTextContent(/Last refreshed:/i);
+    expect(screen.queryByTestId("help-topic-registry-provenance")).toBeNull();
+    expect(screen.queryByTestId("help-billing-source-of-record")).toBeNull();
+    expect(screen.queryByTestId("help-billing-last-refreshed")).toBeNull();
 
     fireEvent.click(screen.getByTestId("help-billing-refresh-button"));
 
     expect(onRefresh).toHaveBeenCalledTimes(1);
   });
 
-  it("shows the honest empty freshness state before the first successful load", () => {
+  it("surfaces refresh errors without plan freshness metadata", () => {
     if (entry === undefined) {
       throw new Error("Expected billing-and-plans documentation entry.");
     }
@@ -67,14 +64,12 @@ describe("HelpBillingAndPlansPageHeader", () => {
         subtitle={billingHelpPageSubtitle(false)}
         refreshing={false}
         lastRefreshedAt={null}
-        refreshError={null}
+        refreshError="Billing snapshot unavailable."
         onRefresh={vi.fn()}
       />,
     );
 
-    expect(screen.getByTestId("help-billing-last-refreshed")).toHaveTextContent(OPERATOR_NOT_REFRESHED_LABEL);
-    expect(screen.getByTestId("help-billing-last-refreshed")).not.toHaveTextContent(
-      "Last refreshed: Not refreshed yet",
-    );
+    expect(screen.getByTestId("help-billing-refresh-error")).toHaveTextContent("Billing snapshot unavailable.");
+    expect(screen.queryByTestId("help-billing-last-refreshed")).toBeNull();
   });
 });

@@ -2,12 +2,12 @@
 import type { RefObject } from "react";
 
 import { AskRunIdPicker } from "@/components/AskRunIdPicker";
-import { OperatorApiProblem } from "@/components/OperatorApiProblem";
+import { OperatorApiProblem } from "@/components/operator/OperatorApiProblem";
 import { Card, CardContent } from "@/components/ui/card";
 import type { ApiLoadFailureState } from "@/lib/api-load-failure";
 import type { BuyerAskGroundingLink } from "@/lib/ask-buyer-grounding-links";
 import type { AskCitationActionFollowUp } from "@/lib/ask-citation-action-follow-ups";
-import { BUYER_ASK_SYNTHETIC_SAMPLE_HINT } from "@/lib/buyer-polish-copy";
+import { BUYER_ASK_SYNTHETIC_SAMPLE_HINT } from "@/lib/buyer/buyer-polish-copy";
 import type { ConversationMessage } from "@/types/conversation";
 import { OPERATOR_NAV_GROUP_LABEL } from "@/lib/design-tokens";
 import { AskCompareReviewsCollapsible } from "@/app/(operator)/insights/ask-review-questions/_sections/AskCompareReviewsCollapsible";

@@ -27,8 +27,8 @@ import {
   GOVERNANCE_APPROVAL_HELP_STATUS_ROWS,
   GOVERNANCE_APPROVAL_HELP_TROUBLESHOOTING,
   GOVERNANCE_APPROVAL_HELP_WORKFLOW_STEPS,
-} from "@/lib/governance-approval-help-guide-content";
-import { GOVERNANCE_APPROVAL_HELP_CLAIM_DISCIPLINE } from "@/lib/governance-approval-help-evidence-copy";
+} from "@/lib/governance/governance-approval-help-guide-content";
+import { GOVERNANCE_APPROVAL_HELP_CLAIM_DISCIPLINE } from "@/lib/governance/governance-approval-help-evidence-copy";
 import { cn } from "@/lib/utils";
 import {
   DESIGN_TOKENS,
@@ -37,7 +37,7 @@ import {
   OPERATOR_SHELL_SCROLL_OFFSET_CLASS,
   OPERATOR_TYPOGRAPHY,
 } from "@/lib/design-tokens";
-import { HELP_PAGE_LAYOUT } from "@/lib/help-page-layout";
+import { HELP_PAGE_LAYOUT } from "@/lib/help/help-page-layout";
 import type { ProductDocumentationEntry } from "@/lib/product-documentation-registry";
 
 type HelpGovernanceApprovalGuideViewProps = {

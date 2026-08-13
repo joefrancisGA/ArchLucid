@@ -4,10 +4,11 @@ import type { ReactNode } from "react";
 
 import { cn } from "@/lib/utils";
 
-import { OperatorPageHeader } from "@/components/OperatorPageHeader";
-import { Button } from "@/components/ui/button";
+import { OperatorPageHeader } from "@/components/operator/OperatorPageHeader";
+import { RefreshButton } from "@/components/ui/refresh-button";
 import { PageContextualHelpButton, PAGE_HELP_SHORT_TRIGGER_TEXT } from "@/components/usability/PageContextualHelpButton";
 import { OPERATOR_TYPOGRAPHY } from "@/lib/design-tokens";
+import { DIGESTS_HUB_PATH } from "@/lib/digests-route-paths";
 import {
   DIGESTS_LAST_UPDATED_PREFIX,
   DIGESTS_PAGE_TITLE,
@@ -18,7 +19,6 @@ export type DigestsPageHeaderProps = {
   readonly refreshing: boolean;
   readonly lastUpdatedUtc: string | null;
   readonly onRefresh: () => void;
-  readonly refreshButtonTitle?: string;
   readonly showRefresh?: boolean;
   readonly actions?: ReactNode;
   /** Defaults to {@link DIGESTS_LAST_UPDATED_PREFIX}; use health-check label during setup. */
@@ -29,6 +29,11 @@ export type DigestsPageHeaderProps = {
  * Date plus minute-precision time. Seconds were dropped deliberately: a
  * second-ticking readout on a governance surface reads as a debug probe, and the
  * underlying data does not change per second.
+ *
+ * The timezone name is omitted for the same reason. This instant is stamped in the
+ * browser when the snapshot loads, not by the server, and it renders in the viewer's
+ * own zone — naming that zone adds no information while making a local clock read
+ * look like a server-recorded instant.
  */
 function formatDigestsLastUpdated(lastUpdatedUtc: string | null): string {
   if (lastUpdatedUtc === null) {
@@ -47,7 +52,6 @@ function formatDigestsLastUpdated(lastUpdatedUtc: string | null): string {
     day: "numeric",
     hour: "numeric",
     minute: "2-digit",
-    timeZoneName: "short",
   });
 }
 
@@ -59,6 +63,7 @@ export function DigestsPageHeader(props: DigestsPageHeaderProps): React.JSX.Elem
 
   return (
     <OperatorPageHeader
+      navHref={DIGESTS_HUB_PATH}
       title={DIGESTS_PAGE_TITLE}
       titleTestId="digests-page-title"
       subtitle={props.subtitle}
@@ -67,17 +72,11 @@ export function DigestsPageHeader(props: DigestsPageHeaderProps): React.JSX.Elem
           <PageContextualHelpButton triggerText={PAGE_HELP_SHORT_TRIGGER_TEXT} />
           {props.actions}
           {showRefresh ? (
-            <Button
-              type="button"
-              size="sm"
-              variant="secondary"
-              onClick={props.onRefresh}
-              disabled={props.refreshing}
+            <RefreshButton
+              busy={props.refreshing}
               data-testid="digests-refresh-button"
-              title={props.refreshButtonTitle}
-            >
-              {props.refreshing ? "Refreshing…" : "Refresh"}
-            </Button>
+              onClick={props.onRefresh}
+            />
           ) : null}
         </div>
       }

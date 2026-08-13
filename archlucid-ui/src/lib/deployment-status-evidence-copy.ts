@@ -4,8 +4,18 @@ import type { EvidenceSourceLink } from "@/lib/evidence-surface-copy";
 export const DEPLOYMENT_STATUS_CANONICAL_PATH = "/internal/deployment-status" as const;
 
 /** Primary page lead — teaches release identity without BUILD_ID jargon in the first viewport (TB-1426). */
+export const ADMIN_DEPLOYMENT_STATUS_PAGE_TITLE = "Deployment status" as const;
+
 export const ADMIN_DEPLOYMENT_STATUS_PAGE_LEAD =
   "Internal view of release identity, health, and whether production components agree on the same build." as const;
+
+/** Empty state when the admin API has not returned payload yet (TB-1424). */
+export const ADMIN_DEPLOYMENT_STATUS_EMPTY_TITLE = "No deployment status data yet" as const;
+
+export const ADMIN_DEPLOYMENT_STATUS_EMPTY_BODY =
+  "Refresh to load release identity, health signals, and component agreement for this deployment." as const;
+
+export const ADMIN_DEPLOYMENT_STATUS_DIAGNOSTICS_LINK = "Open diagnostics dashboard" as const;
 
 /** Demo-unavailable panel — same job framing without BUILD_ID in primary chrome (TB-1426). */
 export const ADMIN_DEPLOYMENT_STATUS_DEMO_UNAVAILABLE_DESCRIPTION =

@@ -6,7 +6,10 @@ import { useSearchParams } from "next/navigation";
 import { useMemo } from "react";
 
 import { CollapsibleSection } from "@/components/CollapsibleSection";
-import { OperatorPageContainer } from "@/components/OperatorPageContainer";
+import { OperatorPageContainer } from "@/components/operator/OperatorPageContainer";
+import { ARCHITECTURE_SCORECARD_PATH } from "@/lib/architecture/architecture-scorecard-route";
+import { OperatorPageHeader } from "@/components/operator/OperatorPageHeader";
+import { ScorecardRoiVocabularyRail } from "@/components/ScorecardRoiVocabularyRail";
 import { PageContextualHelpButton } from "@/components/usability/PageContextualHelpButton";
 import { ValueReportOutcomesNav } from "@/components/usability/ValueReportOutcomesNav";
 import { Button } from "@/components/ui/button";
@@ -15,9 +18,9 @@ import {
   ARCHITECTURE_SCORECARD_DIRECTIONAL_ROI_HELPER,
   ARCHITECTURE_SCORECARD_SOURCES,
   ARCHITECTURE_SCORECARD_SOURCES_INTRO,
-} from "@/lib/architecture-scorecard-page-copy";
+} from "@/lib/architecture/architecture-scorecard-page-copy";
 import { OPERATOR_LINK, OPERATOR_NAV_GROUP_LABEL, OPERATOR_TYPOGRAPHY } from "@/lib/design-tokens";
-import { GOVERNANCE_WORKSPACE_HEALTH_HREF } from "@/lib/governance-route-paths";
+import { GOVERNANCE_WORKSPACE_HEALTH_HREF } from "@/lib/governance/governance-route-paths";
 import {
   REVIEW_SCORECARD_FINALIZED_HREF,
   REVIEW_SCORECARD_GOVERNANCE_HREF,
@@ -155,25 +158,33 @@ export function PilotScorecardPageView({ model }: PilotScorecardPageViewProps) {
   return (
     <OperatorPageContainer variant="dashboard" className="space-y-4" data-testid="review-scorecard-page">
       <ValueReportOutcomesNav />
-      <header className="space-y-2 border-b border-neutral-200 pb-4 dark:border-neutral-800">
-        <div className="flex flex-col gap-3 sm:flex-row sm:items-start sm:justify-between">
-          <div className="space-y-2">
-            <h1 className={OPERATOR_TYPOGRAPHY.pageTitle}>{REVIEW_SCORECARD_PAGE_TITLE}</h1>
-            <p className={cn("m-0 max-w-3xl", OPERATOR_TYPOGRAPHY.helper)}>{REVIEW_SCORECARD_PAGE_SUBTITLE}</p>
+      <ScorecardRoiVocabularyRail currentSurfaceId="scorecard" />
+      <OperatorPageHeader
+        navHref={ARCHITECTURE_SCORECARD_PATH}
+        title={REVIEW_SCORECARD_PAGE_TITLE}
+        headingLevel="h1"
+        subtitle={REVIEW_SCORECARD_PAGE_SUBTITLE}
+        metadata={
+          <>
             {scopeCue !== null ? (
-              <p className={cn("m-0 text-al-text-secondary", OPERATOR_TYPOGRAPHY.helper)} data-testid="review-scorecard-scope-cue">
+              <span
+                className={cn("text-al-text-secondary", OPERATOR_TYPOGRAPHY.helper)}
+                data-testid="review-scorecard-scope-cue"
+              >
                 {scopeCue}
-              </p>
+              </span>
             ) : null}
             {metricsAsOfLabel !== null ? (
-              <p
-                className={cn("m-0 text-al-text-secondary", OPERATOR_TYPOGRAPHY.helper)}
+              <span
+                className={cn("text-al-text-secondary", OPERATOR_TYPOGRAPHY.helper)}
                 data-testid="review-scorecard-metrics-as-of"
               >
                 {metricsAsOfLabel}
-              </p>
+              </span>
             ) : null}
-          </div>
+          </>
+        }
+        actions={
           <div className="flex shrink-0 flex-col items-stretch gap-2 sm:items-end print:hidden">
             <PageContextualHelpButton />
             <nav
@@ -191,8 +202,8 @@ export function PilotScorecardPageView({ model }: PilotScorecardPageViewProps) {
               </Link>
             </nav>
           </div>
-        </div>
-      </header>
+        }
+      />
 
       <section
         className="rounded-md border border-neutral-200 bg-al-surface-raised p-3 dark:border-neutral-800"

@@ -11,11 +11,11 @@ vi.mock("@/lib/api/governance-stickiness-api", () => ({
   getArchitectureDecisionRegister: vi.fn(),
 }));
 
-vi.mock("@/lib/operator-scope-storage", () => ({
+vi.mock("@/lib/operator/operator-scope-storage", () => ({
   getEffectiveBrowserProxyScopeHeaders: () => ({}),
 }));
 
-vi.mock("@/lib/operator-resource-scope", () => ({
+vi.mock("@/lib/operator/operator-resource-scope", () => ({
   projectIdFromScopeHeaders: () => "default",
 }));
 
@@ -30,7 +30,7 @@ describe("DecisionRegisterClient view switcher", () => {
   });
 
 
-  it("renders the governance job router chooser at the top (TB-2199)", async () => {
+  it("renders the governance job router chooser at the top (TB-2199 / TB-2230)", async () => {
     render(<DecisionRegisterClient />);
 
     const strip = await screen.findByTestId("governance-job-router");
@@ -38,6 +38,10 @@ describe("DecisionRegisterClient view switcher", () => {
     expect(screen.getByTestId("governance-job-router-option-record-decisions")).toHaveAttribute(
       "data-current",
       "true",
+    );
+    expect(screen.getByTestId("governance-job-router-option-approve-governance")).toHaveAttribute(
+      "href",
+      "/governance/approval-queue",
     );
     expect(screen.getByTestId("governance-job-router-option-triage-findings")).toHaveAttribute(
       "href",

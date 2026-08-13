@@ -122,7 +122,7 @@ The inline size (`text-lg`) is smaller and uses `font-bold` instead of `font-sem
 **Recommended fix**  
 Use `OPERATOR_TYPOGRAPHY.executiveDashboardMetric` for the metric `<dd>` elements. Adjust tile size to accommodate the larger type if needed.
 
-**Files:** `archlucid-ui/src/components/OperatorCorePilotDiagnosticsChecklist.tsx`
+**Files:** `archlucid-ui/src/components/operator/OperatorCorePilotDiagnosticsChecklist.tsx`
 
 ---
 
@@ -155,7 +155,7 @@ Metric tile `<div>` elements use inline `px-2 py-2` padding. The token system pr
 **Recommended fix**  
 Replace `px-2 py-2` with `OPERATOR_CARD.nested`.
 
-**Files:** `archlucid-ui/src/components/OperatorCorePilotDiagnosticsChecklist.tsx`
+**Files:** `archlucid-ui/src/components/operator/OperatorCorePilotDiagnosticsChecklist.tsx`
 
 ---
 
@@ -279,7 +279,7 @@ Replace the `"home"` variant `<details>`/`<summary>` block with `OperatorHomeDis
 
 ```tsx
 import { OperatorHomeDisclosureSection } from "@/components/operator-home/OperatorHomeDisclosureSection";
-import { OPERATOR_HOME_DISCLOSURE_STORAGE_KEYS } from "@/lib/operator-home-disclosure-storage";
+import { OPERATOR_HOME_DISCLOSURE_STORAGE_KEYS } from "@/lib/operator/operator-home-disclosure-storage";
 
 // In the "home" variant branch:
 return (

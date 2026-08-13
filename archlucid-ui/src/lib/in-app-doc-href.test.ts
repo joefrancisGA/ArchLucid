@@ -20,7 +20,7 @@ describe("resolveInAppDocHref", () => {
   it("falls back to /help for unmapped contributor docs", () => {
     expect(resolveInAppDocHref("docs/BUILD.md")).toBe("/help");
 
-    expect(resolveInAppDocHref("docs/runbooks/TROUBLESHOOTING.md")).toBe("/help/developer-troubleshooting");
+    expect(resolveInAppDocHref("docs/runbooks/TROUBLESHOOTING.md")).toBe("/help/engineering-troubleshooting");
     expect(resolveInAppDocHref("docs/library/customer-facing/OPERATOR_TROUBLESHOOTING.md")).toBe("/help/troubleshooting");
   });
 
@@ -32,11 +32,19 @@ describe("resolveInAppDocHref", () => {
     expect(resolveInAppDocHref("docs/security/pen-test-summaries/2026-Q2-OWNER-CONDUCTED.md")).toBe("/help/procurement");
     expect(resolveInAppDocHref("docs/go-to-market/SECURITY_REVIEWER_ONE_PAGER.md")).toBe("/help/security-policies");
     expect(resolveInAppDocHref("docs/library/SECOND_RUN.md")).toBe("/help/repeat-review-loop");
+    expect(resolveInAppDocHref("docs/go-to-market/ASSURANCE_STATUS_CANONICAL.md")).toBe("/help/soc2-self-assessment");
+    expect(resolveInAppDocHref("docs/go-to-market/PROCUREMENT_PACK_INDEX.md")).toBe("/help/procurement");
+    expect(resolveInAppDocHref("docs/library/BUYER_SCALABILITY_FAQ.md")).toBe(
+      "/help/security-trust#scalability-and-load-evidence",
+    );
+    expect(resolveInAppDocHref("docs/library/BUYER_SCALABILITY_FAQ.md#v1-scalability-and-load-evidence")).toBe(
+      "/help/security-trust#scalability-and-load-evidence",
+    );
   });
 
   it("maps internal runbooks registered in product documentation", () => {
     expect(tryResolveInAppDocHref("docs/runbooks/FIRST_PILOT_OPERATOR_PATH.md")).toBe(
-      "/help/first-value-20-minutes",
+      "/help/first-architecture-review#first-value-in-20-minutes",
     );
   });
 
@@ -58,7 +66,9 @@ describe("resolveInAppDocHref", () => {
     expect(resolveInAppDocHref("docs/go-to-market/EXECUTIVE_SPONSOR_BRIEF.md")).toBe("/help/executive-summary");
     expect(resolveInAppDocHref("docs/go-to-market/HOW_TO_REQUEST_PROCUREMENT_PACK.md")).toBe("/help/procurement");
     expect(resolveInAppDocHref("docs/go-to-market/PRICING_PHILOSOPHY.md")).toBe("/help/procurement");
-    expect(resolveInAppDocHref("docs/go-to-market/ROI_MODEL.md")).toBe("/help/pilot-roi-model");
+    expect(resolveInAppDocHref("docs/go-to-market/ROI_MODEL.md")).toBe(
+      "/help/executive-summary#pilot-roi-measurement",
+    );
     expect(resolveInAppDocHref("docs/library/customer-facing/FAQ.md")).toBe("/faq");
     expect(resolveInAppDocHref("docs/go-to-market/COMPETITIVE_COMPARISON.md")).toBe("/help/executive-summary");
   });
@@ -66,6 +76,24 @@ describe("resolveInAppDocHref", () => {
   it("maps architect/evaluator quickstart to CLI usage (KEEP body; href only)", () => {
     expect(resolveInAppDocHref("docs/library/customer-facing/OPERATOR_QUICKSTART.md")).toBe("/help/cli-usage");
     expect(resolveInAppDocHref("docs/library/OPERATOR_QUICKSTART.md")).toBe("/help/cli-usage");
+  });
+
+  it("maps contributor observability docs to engineering troubleshooting, not admin diagnostics (TB-1613)", () => {
+    expect(resolveInAppDocHref("docs/library/OBSERVABILITY.md")).toBe("/help/engineering-troubleshooting");
+    expect(resolveInAppDocHref("docs/library/AGENT_OUTPUT_EVALUATION.md")).toBe("/help/engineering-troubleshooting");
+    expect(resolveInAppDocHref("docs/library/OBSERVABILITY.md")).not.toBe("/help/admin-diagnostics");
+    expect(resolveInAppDocHref("docs/library/AGENT_OUTPUT_EVALUATION.md")).not.toBe("/help/admin-diagnostics");
+  });
+
+  it("maps identity-provider runbooks to enterprise onboarding help", () => {
+    expect(resolveInAppDocHref("docs/runbooks/GENERIC_OIDC_SETUP.md")).toBe(
+      "/help/enterprise-onboarding#workforce-sso",
+    );
+    expect(resolveInAppDocHref("docs/runbooks/SAML_SP_CERTIFICATE_ROTATION_RUNBOOK.md")).toBe(
+      "/help/enterprise-onboarding",
+    );
+    expect(resolveInAppDocHref("docs/runbooks/GENERIC_OIDC_SETUP.md")).not.toBe("/help");
+    expect(resolveInAppDocHref("docs/runbooks/SAML_SP_CERTIFICATE_ROTATION_RUNBOOK.md")).not.toBe("/help");
   });
 
   it("maps finding provenance stub to Findings help provenance section", () => {

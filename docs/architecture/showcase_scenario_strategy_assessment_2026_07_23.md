@@ -59,7 +59,7 @@ This partially confirms and partially corrects the expected outcome ("generic pr
 | Source | Role |
 |---|---|
 | `archlucid-ui/src/lib/showcase-static-demo.ts` | Canonical marketing payload, IDs, spine counts, decisions, provenance |
-| `archlucid-ui/src/lib/operator-static-demo.ts` | Operator offline spine (runs, compare, audit, approvals, graph) ΓÇö densest healthcare-term file (~100+ hits) |
+| `archlucid-ui/src/lib/operator/operator-static-demo.ts` | Operator offline spine (runs, compare, audit, approvals, graph) ΓÇö densest healthcare-term file (~100+ hits) |
 | `archlucid-ui/src/lib/showcase-created-static-demo.ts` | Northwind Copilot RAG created-package showcase |
 | `archlucid-ui/public/demo-preview-snapshot.json` | Offline `/demo/preview` fallback (mentions "healthcare claims intake modernization"; different UUIDs from the spine) |
 | `ArchLucid.Application/Bootstrap/DemoSeedService.cs` | SQL seed ΓÇö **Contoso Retail + Northwind tour + Alpine/Meridian regulated + Northwind created**; does **not** create the Claims slug |
@@ -198,7 +198,7 @@ Confidence on effort: **Likely** (derived from file counts and coupling inventor
 
 **Weights** (sum 100): immediate comprehensibility 10, cross-industry relevance 10, architectural richness 8, findings 8, evidence 7, governance 7, remediation 4, creation 5, AI governance 5, cloud neutrality 3 (*deliberately low ΓÇö ADR 0020 makes Azure-primary a fixed constraint, not a variable*), regulated credibility 8, differentiation 6, marketing clarity 7, implementation effort 6 (higher = cheaper), maintenance 4 (higher = cheaper), staleness risk 2 (higher = lower risk).
 
-| Criterion (wt) | A Claims | B Ent. Intake | C Onboarding | D AI Assistant | E Order/Fulfil. | F Reg. Case Mgmt | G In-repo AI-gov* |
+| Criterion (wt) | A Claims | B Ent. Intake | C Onboarding | D AI Assistant | E Order/Fulfill. | F Reg. Case Mgmt | G In-repo AI-gov* |
 |---|---|---|---|---|---|---|---|
 | Comprehensibility (10) | 55 | 75 | 80 | 70 | 85 | 60 | 65 |
 | Cross-industry (10) | 40 | 90 | 75 | 85 | 60 | 45 | 80 |
@@ -456,7 +456,7 @@ Sufficient evidence to flip the default: (a) TB-891 scenario-tagged funnel data 
 | Topic | Location |
 |---|---|
 | Static showcase payload + IDs | `archlucid-ui/src/lib/showcase-static-demo.ts` |
-| Operator static spine | `archlucid-ui/src/lib/operator-static-demo.ts` |
+| Operator static spine | `archlucid-ui/src/lib/operator/operator-static-demo.ts` |
 | Static-first gating | `archlucid-ui/src/lib/showcase-page-resolution.ts` |
 | Slug canonicalization + aliases | `archlucid-ui/src/lib/demo-run-canonical.ts`, `archlucid-ui/next.config.ts` |
 | Marketing API slug resolution (Contoso-only) | `ArchLucid.Api/Controllers/Marketing/MarketingShowcaseController.cs` |

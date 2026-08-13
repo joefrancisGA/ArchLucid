@@ -7,7 +7,7 @@ import { usePathname } from "next/navigation";
 import { useCallback, useEffect, useLayoutEffect, useMemo, useState } from "react";
 
 import { InlineGuidanceLabel } from "@/components/InlineGuidanceLabel";
-import { useNavCommittedArchitectureReview } from "@/components/OperatorNavAuthorityProvider";
+import { useNavCommittedArchitectureReview } from "@/components/operator/OperatorNavAuthorityProvider";
 import { HelpDrawerContent } from "@/components/help/HelpDrawerContent";
 import {
   Dialog,
@@ -18,7 +18,12 @@ import {
 import { Input } from "@/components/ui/input";
 import { Tabs, TabsContent, TabsList, TabsTrigger } from "@/components/ui/tabs";
 import { KeyboardShortcutsTabContent, matchesShortcutQuery } from "@/components/KeyboardShortcutsHelpContent";
-import { ALERTS_PAGE_SHORTCUTS, SHORTCUTS } from "@/lib/shortcut-registry";
+import {
+  ALERTS_PAGE_SHORTCUTS,
+  FINDINGS_PAGE_SHORTCUTS,
+  SHELL_COMMAND_SHORTCUTS,
+  SHORTCUTS,
+} from "@/lib/shortcut-registry";
 import { corePilotHelpStepForPath } from "@/lib/core-pilot-help-step-for-path";
 import { CORE_PILOT_STEPS } from "@/lib/core-pilot-steps";
 import {
@@ -27,7 +32,7 @@ import {
   helpTopicsForGuidesTab,
   helpTopicsForTroubleshootingTab,
   type HelpTopic,
-} from "@/lib/help-topics";
+} from "@/lib/help/help-topics";
 import { SIGNED_MANIFEST_LABEL } from "@/lib/usability/canonical-product-terms";
 import { OPERATOR_LINK, OPERATOR_NAV_GROUP_LABEL, OPERATOR_TYPOGRAPHY } from "@/lib/design-tokens";
 import { SupportBundleDownloadButton } from "@/components/SupportBundleDownloadButton";
@@ -52,18 +57,11 @@ const KEY_CONCEPTS: { label: string; text: string }[] = [
   { label: "Artifacts", text: "Supporting files, findings, and review materials." },
 ];
 
+/** Every row the Shortcuts tab can render, so a query never hides a shortcut the tab would show. */
 function allShortcutRowsForSearch(): { key: string; description: string }[] {
-  const rows: { key: string; description: string }[] = [];
-
-  for (const s of SHORTCUTS) {
-    rows.push({ key: s.key, description: s.description });
-  }
-
-  for (const s of ALERTS_PAGE_SHORTCUTS) {
-    rows.push({ key: s.key, description: s.description });
-  }
-
-  return rows;
+  return [...SHELL_COMMAND_SHORTCUTS, ...SHORTCUTS, ...ALERTS_PAGE_SHORTCUTS, ...FINDINGS_PAGE_SHORTCUTS].map(
+    (entry) => ({ key: entry.key, description: entry.description }),
+  );
 }
 
 type HelpGuideTopicLinkRowProps = {
@@ -282,6 +280,7 @@ export function HelpPanel({ open, onOpenChange, initialTab = "guides" }: HelpPan
           onValueChange={(next) => {
             setTab(next as HelpTabId);
           }}
+          variant="line"
           className="flex min-h-0 flex-1 flex-col"
         >
           <div className="shrink-0 space-y-3 border-b border-neutral-100 px-5 py-3 dark:border-neutral-800">

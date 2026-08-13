@@ -64,7 +64,7 @@ const PRODUCT_FIRST_REVIEW_GUIDE_SURFACES = [
 
   "archlucid-ui/src/lib/nav-disclosure-for-path.ts",
 
-  "archlucid-ui/src/lib/help-search-panel-catalog.ts",
+  "archlucid-ui/src/lib/help/help-search-panel-catalog.ts",
 
 ] as const;
 

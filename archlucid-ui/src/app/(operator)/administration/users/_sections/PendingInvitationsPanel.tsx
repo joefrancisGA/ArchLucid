@@ -5,7 +5,7 @@ import Link from "next/link";
 import { useCallback, useEffect, useMemo, useState } from "react";
 
 import { ConfirmationDialog } from "@/components/ConfirmationDialog";
-import { OperatorEmptyState } from "@/components/OperatorShellMessage";
+import { EnterpriseCompactEmptyState } from "@/components/EnterpriseCompactEmptyState";
 import { TechnicalIdDisclosure } from "@/components/usability/TechnicalIdDisclosure";
 import { Button } from "@/components/ui/button";
 import {
@@ -17,6 +17,7 @@ import {
   EnterpriseTableHeaderCell,
   EnterpriseTableRow,
 } from "@/components/ui/enterprise-table";
+import { RefreshButton } from "@/components/ui/refresh-button";
 import { StatusTag } from "@/components/ui/status-tag";
 import {
   fetchAdminUserInvitations,
@@ -24,7 +25,8 @@ import {
   type AdminUserInvitationRow,
 } from "@/lib/admin-user-invitations";
 import { OPERATOR_LINK, OPERATOR_TYPOGRAPHY } from "@/lib/design-tokens";
-import { GOVERNANCE_AUDIT_PATH } from "@/lib/governance-route-paths";
+import { SETTINGS_ROLES_PENDING_INVITATIONS_LOAD_FAILED_COMPACT } from "@/lib/enterprise-compact-empty-state-presets";
+import { GOVERNANCE_AUDIT_PATH } from "@/lib/governance/governance-route-paths";
 import { formatInstantForLocale } from "@/lib/locale-datetime";
 import { formatRelativeTime } from "@/lib/relative-time";
 import { showError, showSuccess } from "@/lib/toast";
@@ -39,18 +41,39 @@ import {
 
 const EMPTY_SEEDED_INVITATIONS: readonly AdminUserInvitationRow[] = [];
 
+function PendingInvitationsAuditTrailFootnote() {
+  return (
+    <p
+      className={cn("m-0 text-al-text-secondary", OPERATOR_TYPOGRAPHY.helper)}
+      data-testid="settings-roles-pending-invitations-audit-footnote"
+    >
+      Workspace membership changes are recorded in the{" "}
+      <Link href={GOVERNANCE_AUDIT_PATH} className={OPERATOR_LINK.nav}>
+        audit trail
+      </Link>
+      . Member role provenance is not shown in the directory until the API exposes grant metadata.
+    </p>
+  );
+}
+
 type Props = {
   /** Increment to reload the pending-invitations list after a new invite is sent. */
   readonly refreshKey: number;
   /** Create-response rows that still carry accept-link secrets the list API omits. */
   readonly seededInvitations?: readonly AdminUserInvitationRow[];
   readonly onCountChange?: (count: number | null) => void;
+  /**
+   * When true, an empty invitation list renders nothing (TB-1214 empty composition).
+   * Count callbacks and load/error paths still run.
+   */
+  readonly suppressEmptyPresentation?: boolean;
 };
 
 export function PendingInvitationsPanel({
   refreshKey,
   seededInvitations = EMPTY_SEEDED_INVITATIONS,
   onCountChange,
+  suppressEmptyPresentation = false,
 }: Props) {
   const [loading, setLoading] = useState(true);
   const [rows, setRows] = useState<AdminUserInvitationRow[]>([]);
@@ -65,7 +88,6 @@ export function PendingInvitationsPanel({
   const load = useCallback(async () => {
     setLoading(true);
     setLoadFailed(false);
-    onCountChange?.(null);
 
     const invitations = await fetchAdminUserInvitations();
 
@@ -149,25 +171,30 @@ export function PendingInvitationsPanel({
 
   if (loadFailed) {
     return (
-      <div data-testid="settings-roles-pending-invitations-unavailable">
-        <OperatorEmptyState
-          title="Pending invitations unavailable"
-          description="ArchLucid could not load pending invitations for this workspace. Try again or check system health."
-        />
-        <div className="mt-4">
-          <Button type="button" variant="secondary" size="sm" onClick={() => void load()}>
-            Retry
-          </Button>
-        </div>
-      </div>
+      <EnterpriseCompactEmptyState
+        {...SETTINGS_ROLES_PENDING_INVITATIONS_LOAD_FAILED_COMPACT}
+        footer={
+          <div className="space-y-4">
+            <RefreshButton variant="secondary" label="Retry" onClick={() => void load()} />
+            <PendingInvitationsAuditTrailFootnote />
+          </div>
+        }
+      />
     );
   }
 
   if (pending.length === 0 && resolved.length === 0) {
+    if (suppressEmptyPresentation) {
+      return <PendingInvitationsAuditTrailFootnote />;
+    }
+
     return (
-      <p className={cn("m-0 text-al-text-secondary", OPERATOR_TYPOGRAPHY.body)} data-testid="settings-roles-pending-invitations-empty">
-        No pending invitations.
-      </p>
+      <div className="space-y-4">
+        <p className={cn("m-0 text-al-text-secondary", OPERATOR_TYPOGRAPHY.body)} data-testid="settings-roles-pending-invitations-empty">
+          No pending invitations.
+        </p>
+        <PendingInvitationsAuditTrailFootnote />
+      </div>
     );
   }
 
@@ -193,9 +220,12 @@ export function PendingInvitationsPanel({
       ) : null}
 
       {visibleRows.length === 0 ? (
-        <p className={cn("m-0 text-al-text-secondary", OPERATOR_TYPOGRAPHY.body)} data-testid="settings-roles-pending-invitations-empty">
-          No pending invitations.
-        </p>
+        <div className="space-y-4">
+          <p className={cn("m-0 text-al-text-secondary", OPERATOR_TYPOGRAPHY.body)} data-testid="settings-roles-pending-invitations-empty">
+            No pending invitations.
+          </p>
+          <PendingInvitationsAuditTrailFootnote />
+        </div>
       ) : (
         <EnterpriseTable ariaLabel="Pending user invitations">
           <EnterpriseTableHead>
@@ -292,13 +322,7 @@ export function PendingInvitationsPanel({
         </EnterpriseTable>
       )}
 
-      <p className={cn("m-0 text-al-text-secondary", OPERATOR_TYPOGRAPHY.helper)}>
-        Workspace membership changes are recorded in the{" "}
-        <Link href={GOVERNANCE_AUDIT_PATH} className={OPERATOR_LINK.nav}>
-          audit trail
-        </Link>
-        . Member role provenance is not shown in the directory until the API exposes grant metadata.
-      </p>
+      {visibleRows.length > 0 ? <PendingInvitationsAuditTrailFootnote /> : null}
 
       <ConfirmationDialog
         open={pendingRevoke !== null}

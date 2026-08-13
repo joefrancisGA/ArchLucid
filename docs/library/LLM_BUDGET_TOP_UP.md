@@ -72,7 +72,7 @@ Use **optimistic concurrency** in production tools if you extend this to an admi
 - **`dbo.LlmTenantWalletLedger`** — append-only **`Refill` | `Consume` | `OperatorAdjustment`** entries with **`BalanceAfterUsd`** and optional **`StripePaymentIntentId`**.
 - **`dbo.StripeWebhookIdempotency`** — replay-safe webhook handling.
 
-**INV-004 note:** The wallet is **not** a second monthly budget ledger. **`dbo.LlmMonthlyTenantBudgetState`** remains the single source of truth for included/warn/hard-cutoff spend within the UTC month. The wallet holds **prepaid overage credit** only.
+**INV-004 note:** The wallet is **not** a second monthly budget ledger. **`dbo.LlmMonthlyTenantBudgetState`** remains the single source of truth for included/warn/hard-cutoff spend within the UTC month. The wallet holds **prepaid overage credit** only. Reserve/settle lifecycle guarantees and residuals: [`INV004_RESERVE_SETTLE_LIFECYCLE_CONTRACT.md`](INV004_RESERVE_SETTLE_LIFECYCLE_CONTRACT.md) (**TB-975**).
 
 ### API / UI (shipped)
 

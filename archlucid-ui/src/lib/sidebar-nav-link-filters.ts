@@ -1,7 +1,7 @@
 import type { NavLinkItem, NavShellSurface } from "@/lib/nav-config.types";
 import { resolveNavLinkTooltipTitle } from "@/lib/nav-link-tooltip";
 import { isOperatorNavLinkAdvancedInDemo, shouldHideOperatorNavLinkInDemo } from "@/lib/route-readiness";
-import { resolveNavLinkPresentation } from "@/lib/operator-nav-labels";
+import { resolveNavLinkPresentation } from "@/lib/operator/operator-nav-labels";
 
 /** Applies buyer-polished and governance-mode label overrides for a single nav link row. */
 export function presentSidebarNavLink(

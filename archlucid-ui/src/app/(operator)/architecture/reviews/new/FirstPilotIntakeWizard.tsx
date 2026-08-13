@@ -5,7 +5,7 @@ import { useRouter, useSearchParams } from "next/navigation";
 import { useCallback, useEffect, useMemo, useRef, useState } from "react";
 
 import { CollapsibleSection } from "@/components/CollapsibleSection";
-import { LlmMonthlyBudgetExceededBanner } from "@/components/LlmMonthlyBudgetExceededBanner";
+import { LlmMonthlyBudgetExceededBanner } from "@/components/llm/LlmMonthlyBudgetExceededBanner";
 import { ReviewStartInlineError } from "@/components/review-intake/ReviewStartInlineError";
 import { ReviewStartLoadingButton } from "@/components/review-intake/ReviewStartLoadingButton";
 import { ReviewStartStagedProgress } from "@/components/review-intake/ReviewStartStagedProgress";
@@ -14,17 +14,17 @@ import { ReviewIntakeExampleTemplateCallout } from "@/components/review-intake/R
 import { ReviewPathTimeEstimateBanner } from "@/components/ReviewPathTimeEstimateBanner";
 import { ArchitectureScopeUnderstandingCheckPanel } from "@/components/architecture/ArchitectureScopeUnderstandingCheckPanel";
 import { EvidenceGapForecastPanel } from "@/components/evidence/EvidenceGapForecastPanel";
-import { Card, CardContent, CardDescription, CardHeader, CardTitle } from "@/components/ui/card";
 import { Input } from "@/components/ui/input";
 import { Label } from "@/components/ui/label";
 import { Textarea } from "@/components/ui/textarea";
 import { NewReviewSampleEscapeLink } from "@/components/usability/NewReviewSampleEscapeLink";
+import { PreExecuteCostEstimateNotice } from "@/components/usability/PreExecuteCostEstimateNotice";
 import {
   proofScopeToRequiredCapabilities,
   type QuickReviewProofScopeId,
 } from "@/components/usability/QuickReviewProofScopeField";
 import { readActiveTenantContext } from "@/lib/active-tenant-context-display";
-import { CORE_PILOT_PATH_STREAMLINED_LABELS } from "@/lib/core-pilot-path-vocabulary";
+import { CORE_PILOT_PATH_STREAMLINED_LABELS } from "@/lib/vocabulary/core-pilot-path-vocabulary";
 import { FocusedPilotPolicyPackAppliedCallout } from "@/components/wizard/FocusedPilotPolicyPackAppliedCallout";
 import { PilotModePolicyPackToggle } from "@/components/wizard/PilotModePolicyPackToggle";
 import { WizardSessionResumePrompt } from "@/components/wizard/WizardSessionResumePrompt";
@@ -37,12 +37,12 @@ import {
 } from "@/hooks/use-review-creation-progress";
 import { createArchitectureRun, type CreateArchitectureRunRequestPayload } from "@/lib/api";
 import { isApiRequestError } from "@/lib/api-request-error";
-import { ARCHITECTURE_REQUEST_DESCRIPTION_MAX_LENGTH } from "@/lib/architecture-request-limits";
+import { ARCHITECTURE_REQUEST_DESCRIPTION_MAX_LENGTH } from "@/lib/architecture/architecture-request-limits";
 import {
   mergeScopeBulletsIntoBrief,
   type ScopeUnderstandingBullet,
-} from "@/lib/architecture-scope-understanding-check";
-import { BUYER_START_ARCHITECTURE_REVIEW_CTA, CREATE_REVIEW_PACKAGE_HEADING } from "@/lib/buyer-polish-copy";
+} from "@/lib/architecture/architecture-scope-understanding-check";
+import { BUYER_START_ARCHITECTURE_REVIEW_CTA, CREATE_REVIEW_PACKAGE_HEADING } from "@/lib/buyer/buyer-polish-copy";
 import { deriveEvidencePresenceFromFileNames } from "@/lib/evidence-gap-forecast";
 import {
   REVIEW_START_CREATION_FAILED_MESSAGE,
@@ -52,6 +52,7 @@ import { applyFocusedPilotModePolicyReferences } from "@/lib/focused-pilot-mode-
 import { REVIEW_INTAKE_EVIDENCE_FIRST_PROGRESS_LEAD } from "@/lib/create-vs-review-intake-copy";
 import { OPERATOR_TYPOGRAPHY } from "@/lib/design-tokens";
 import { recordFirstTenantFunnelEvent } from "@/lib/first-tenant-funnel-telemetry";
+import { trackReviewPipelineInFlight } from "@/lib/operations/review-pipeline-in-flight";
 import {
   buildEvidenceBackedIntakeBrief,
   describeFirstPilotIntakeGap,
@@ -60,9 +61,9 @@ import {
   isFirstPilotIntakeReady,
   normalizeFirstPilotReviewTitle,
 } from "@/lib/first-pilot-intake";
-import { resolveReviewIntakeExampleTemplateFromSearchParams } from "@/lib/operator-home-example-request";
+import { resolveReviewIntakeExampleTemplateFromSearchParams } from "@/lib/operator/operator-home-example-request";
 import { buildReviewGenerationRedirect } from "@/lib/review-generation-handoff";
-import { ARCHLUCID_OPERATOR_SCOPE_CHANGED_EVENT } from "@/lib/operator-scope-storage";
+import { ARCHLUCID_OPERATOR_SCOPE_CHANGED_EVENT } from "@/lib/operator/operator-scope-storage";
 import { PROXY_UPSTREAM_UPLOAD_FETCH_TIMEOUT_MS } from "@/lib/server-fetch-timeouts";
 import { uploadWizardPendingDocumentEvidence } from "@/lib/wizard-pending-evidence-upload";
 import { WIZARD_SESSION_IDS, wizardSessionHasTextContent } from "@/lib/wizard-session-persistence";
@@ -282,6 +283,10 @@ export function FirstPilotIntakeWizard(props: FirstPilotIntakeWizardProps) {
         return;
       }
 
+      // Registered before the upload step: analysis is already running server-side, so an upload
+      // failure that keeps the reader on this page must not hide the work from the shell.
+      trackReviewPipelineInFlight(id);
+
       if (filesToUpload.length > 0) {
         const uploadResult = await uploadWizardPendingDocumentEvidence(id, filesToUpload);
 
@@ -328,12 +333,19 @@ export function FirstPilotIntakeWizard(props: FirstPilotIntakeWizardProps) {
       {llmBudgetStatus !== null ? <LlmMonthlyBudgetExceededBanner status={llmBudgetStatus} /> : null}
       {exampleTemplate !== null ? <ReviewIntakeExampleTemplateCallout template={exampleTemplate} /> : null}
 
-      <Card>
-        <CardHeader>
-          <CardTitle>{CREATE_REVIEW_PACKAGE_HEADING}</CardTitle>
-          <CardDescription>{REVIEW_INTAKE_EVIDENCE_FIRST_PROGRESS_LEAD}</CardDescription>
-        </CardHeader>
-        <CardContent className="space-y-4">
+      <section className="space-y-4" data-testid="first-pilot-intake-panel">
+        <div className="space-y-1">
+          <h2
+            className={cn("font-semibold text-neutral-900 dark:text-neutral-100", OPERATOR_TYPOGRAPHY.cardTitle)}
+          >
+            {CREATE_REVIEW_PACKAGE_HEADING}
+          </h2>
+          <p className={cn("m-0 text-neutral-600 dark:text-neutral-400", OPERATOR_TYPOGRAPHY.helper)}>
+            {REVIEW_INTAKE_EVIDENCE_FIRST_PROGRESS_LEAD}
+          </p>
+        </div>
+
+        <div className="space-y-4">
           <div className="space-y-2">
             <IntakeFieldLabel htmlFor="first-pilot-title" label="Review title" required />
             <Input
@@ -388,9 +400,17 @@ export function FirstPilotIntakeWizard(props: FirstPilotIntakeWizardProps) {
 
           <ArchitectureScopeUnderstandingCheckPanel
             input={scopeUnderstandingInput}
+            contextSourceLabel="Architecture context above"
             disabled={creationProgress.isActive || blocksLlmExecution}
             onBulletsChange={setScopeBullets}
             onGateChange={setScopeGateOpen}
+          />
+
+          <PreExecuteCostEstimateNotice
+            testId="first-pilot-pre-execute-cost"
+            remainingBudgetUsd={llmBudgetStatus?.remainingBudgetUsd ?? null}
+            monthlyBudgetMonitoringActive={llmBudgetStatus?.monthlyBudgetMonitoringActive ?? null}
+            useBudgetGate={false}
           />
 
           <CollapsibleSection
@@ -476,8 +496,8 @@ export function FirstPilotIntakeWizard(props: FirstPilotIntakeWizardProps) {
             />
             <NewReviewSampleEscapeLink presentation="inline" />
           </div>
-        </CardContent>
-      </Card>
+        </div>
+      </section>
 
       <FocusedPilotPolicyPackAppliedCallout />
     </div>

@@ -19,7 +19,7 @@ describe("adminUserInvitationStatusKind", () => {
 describe("settingsRolesEmptyState copy", () => {
   it("uses member-oriented language on the Users tab", () => {
     expect(settingsRolesEmptyStateTitle("empty_response", "users")).toBe("No members yet");
-    expect(settingsRolesEmptyStateDescription("empty_response", "users")).toContain("Pending invitations");
+    expect(settingsRolesEmptyStateDescription("empty_response", "users")).toMatch(/pending invitations/i);
     expect(settingsRolesEmptyStateDescription("empty_response", "users")).not.toMatch(/api keys/i);
     expect(settingsRolesEmptyStateTitle("empty_response", "users")).not.toMatch(/principal/i);
   });
@@ -52,5 +52,12 @@ describe("settingsRolesEmptyState copy", () => {
       expect(settingsRolesEmptyStateTitle(kind, "users")).not.toMatch(/principal/i);
       expect(settingsRolesEmptyStateDescription(kind, "users")).not.toMatch(/principal/i);
     }
+  });
+
+  it("avoids positional language in Users-tab empty copy", () => {
+    const description = settingsRolesEmptyStateDescription("empty_response", "users");
+
+    expect(description).not.toMatch(/\b(above|below)\b/i);
+    expect(description).toMatch(/invite|pending invitations/i);
   });
 });

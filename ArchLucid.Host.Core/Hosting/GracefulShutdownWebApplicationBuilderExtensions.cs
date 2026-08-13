@@ -1,3 +1,8 @@
+using ArchLucid.Core.Hosting;
+using ArchLucid.Host.Core.Hosted;
+
+using Microsoft.Extensions.DependencyInjection.Extensions;
+
 namespace ArchLucid.Host.Core.Hosting;
 
 /// <summary>
@@ -17,6 +22,8 @@ public static class GracefulShutdownWebApplicationBuilderExtensions
             o.ShutdownTimeout = TimeSpan.FromSeconds(45);
         });
 
+        builder.Services.TryAddSingleton<IWorkerHostDrainGate, WorkerHostDrainGate>();
+        builder.Services.AddHostedService<WorkerHostDrainHostedService>();
         builder.Services.AddHostedService<GracefulShutdownNotificationHostedService>();
 
         return builder;

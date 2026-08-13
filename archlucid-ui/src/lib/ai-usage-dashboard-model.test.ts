@@ -2,11 +2,14 @@ import { afterEach, beforeEach, describe, expect, it, vi } from "vitest";
 
 import {
   buildAiUsageDashboardDerived,
+  formatAiUsageBillingPeriodResetLabel,
+  formatAiUsageEstimatesAsOfLabel,
   formatAiUsageRemainingBudgetCopy,
   formatAiUsageUsedBudgetCopy,
   inferAiUsageActivityBadge,
   inferAiUsageActivityStatus,
   projectMonthEndSpendUsd,
+  resolveUtcMonthPeriodResetUtc,
 } from "@/lib/ai-usage-dashboard-model";
 import { DEFAULT_AI_USAGE_DASHBOARD_FILTERS } from "@/lib/ai-usage-dashboard-filters";
 import { buildMockLlmCostReportingDashboard } from "@/lib/llm-cost-reporting";
@@ -77,6 +80,34 @@ describe("ai-usage-dashboard-model", () => {
   it("formats remaining and used budget copy", () => {
     expect(formatAiUsageRemainingBudgetCopy(50, 75)).toBe("$50.00 remaining of $75.00");
     expect(formatAiUsageUsedBudgetCopy(25, 75)).toBe("$25.00 used of $75.00");
+  });
+
+  it("resolves UTC month reset and freshness labels", () => {
+    expect(resolveUtcMonthPeriodResetUtc("2026-07")).toBe("2026-08-01T00:00:00.000Z");
+    expect(formatAiUsageBillingPeriodResetLabel("2026-08-01T00:00:00.000Z")).toContain("2026");
+    expect(formatAiUsageEstimatesAsOfLabel("2026-07-10T12:00:00.000Z")).toContain("Estimates as of");
+  });
+
+  it("surfaces delayed cost reporting while the fetch is still loading", () => {
+    const derived = buildAiUsageDashboardDerived({
+      costReporting: null,
+      costReportingLoading: true,
+      costReportingError: false,
+      costReportingDelayed: true,
+      budgetStatus: null,
+      budgetLoading: false,
+      budgetError: false,
+      budgetForbidden: false,
+      adminDashboard: null,
+      adminLoading: false,
+      adminError: false,
+      adminForbidden: false,
+      filters: DEFAULT_AI_USAGE_DASHBOARD_FILTERS,
+      canViewBudgetDetails: true,
+      canManageBudget: true,
+    });
+
+    expect(derived.costReportingState).toBe("delayed");
   });
 
   it("classifies skipped non-billable activity", () => {

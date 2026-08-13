@@ -34,7 +34,7 @@
       "Advisory findings on fs-ctrl-* compliance rules",
       "Audit-friendly governance dry-run notes when simulated"
     ],
-    "scopeLabel": "V1-ready",
+    "scopeLabel": "Product-ready",
     "doNotUseWhen": [
       "Buyer requires auditor-signed SOX or GLBA attestation from ArchLucid",
       "Non-financial workload with no material-system narrative"

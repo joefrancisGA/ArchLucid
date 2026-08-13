@@ -3,6 +3,7 @@
 import { cn } from "@/lib/utils";
 
 import { OPERATOR_TYPOGRAPHY } from "@/lib/design-tokens";
+import { AI_USAGE_BILLING_ESTIMATES_HONESTY } from "@/lib/vocabulary/ai-usage-billing-vocabulary";
 
 export function AiUsageCostScopeHelp() {
   return (
@@ -28,5 +29,16 @@ export function AiUsageCostScopeHelp() {
         </p>
       </div>
     </details>
+  );
+}
+
+export function AiUsageEstimateHonestyLine() {
+  return (
+    <p
+      className={cn("m-0 text-al-text-secondary", OPERATOR_TYPOGRAPHY.helper)}
+      data-testid="ai-usage-estimate-honesty-line"
+    >
+      {AI_USAGE_BILLING_ESTIMATES_HONESTY}
+    </p>
   );
 }

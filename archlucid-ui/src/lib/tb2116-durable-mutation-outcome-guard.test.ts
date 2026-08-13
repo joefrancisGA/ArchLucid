@@ -143,7 +143,11 @@ describe("TB-2116 durable mutation outcome guard", () => {
         && !content.includes("ReviewGenerationCreatedNotice")
         && !content.includes("ReviewStartInlineError")
         && !content.includes("OperatorMutationInlineError")
+        && !content.includes("setPublishSuccessMessage")
         && !content.includes("StatusTag")
+        // Quick-family wizards delegate their durable submit error to the shared sticky footer,
+        // which is itself a guarded surface below.
+        && !content.includes("WizardStickyFooter")
       );
     });
 

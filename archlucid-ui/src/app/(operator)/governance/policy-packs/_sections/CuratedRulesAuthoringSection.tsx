@@ -5,6 +5,15 @@ import { useMemo, useState } from "react";
 
 import { Button } from "@/components/ui/button";
 import {
+  EnterpriseTable,
+  EnterpriseTableBody,
+  EnterpriseTableCell,
+  EnterpriseTableHead,
+  EnterpriseTableHeadRow,
+  EnterpriseTableHeaderCell,
+  EnterpriseTableRow,
+} from "@/components/ui/enterprise-table";
+import {
   Dialog,
   DialogContent,
   DialogFooter,
@@ -23,7 +32,7 @@ import {
   type CuratedRulesDocument,
   type CuratedRuleSeverity,
   serializeCuratedRulesDocument,
-} from "@/lib/policy-pack-curated-rules-v1";
+} from "@/lib/policy/policy-pack-curated-rules-v1";
 import { OPERATOR_NAV_GROUP_LABEL, OPERATOR_TYPOGRAPHY } from "@/lib/design-tokens";
 
 export type CuratedRulesAuthoringSectionProps = {
@@ -179,61 +188,58 @@ export function CuratedRulesAuthoringSection(props: CuratedRulesAuthoringSection
       {curatedDoc.rules.length === 0 ? (
         <p className={cn("m-0 text-al-text-secondary", OPERATOR_TYPOGRAPHY.body)}>No curated rules yet.</p>
       ) : (
-        <div className="overflow-x-auto">
-          <table className={cn("w-full border-collapse", OPERATOR_TYPOGRAPHY.body)}>
-            <thead>
-              <tr className={cn("border-b border-neutral-200 text-left dark:border-neutral-700", OPERATOR_NAV_GROUP_LABEL)}>
-                <th className="py-2 pr-2 font-medium">Id</th>
-                <th className="py-2 pr-2 font-medium">Title</th>
-                <th className="py-2 pr-2 font-medium">Severity</th>
-                <th className="py-2 pr-2 font-medium" />
-              </tr>
-            </thead>
-            <tbody>
-              {curatedDoc.rules.map((r, index) => (
-                <tr
-                  key={`${r.id}-${index}`}
-                  data-rule-id={r.id}
-                  className={cn(
-                    "border-b border-neutral-100 dark:border-neutral-800",
-                    highlightRuleId !== undefined &&
-                      highlightRuleId.trim().length > 0 &&
-                      r.id.trim().toLowerCase() === highlightRuleId.trim().toLowerCase()
-                      ? "bg-[var(--al-layer-hover)] ring-2 ring-amber-600/50 ring-inset dark:bg-neutral-800/80 dark:ring-amber-700/50"
-                      : undefined,
-                  )}
-                >
-                  <td className={cn("py-1 pr-2 align-top font-mono", OPERATOR_TYPOGRAPHY.micro)}>{r.id}</td>
-                  <td className="py-1 pr-2 align-top">{r.title}</td>
-                  <td className="py-1 pr-2 align-top">{r.severity}</td>
-                  <td className="py-1 pr-2 align-top text-right whitespace-nowrap">
-                    <Button
-                      type="button"
-                      size="sm"
-                      data-testid={`policy-curated-rule-edit-${r.id.replace(/[^a-zA-Z0-9_-]/g, "_")}`}
-                      variant="secondary"
-                      onClick={() => openEdit(index)}
-                      disabled={!canMutatePacks}
-                      title={canMutatePacks ? undefined : enterpriseMutationControlDisabledTitle}
-                    >
-                      Edit
-                    </Button>{" "}
-                    <Button
-                      type="button"
-                      size="sm"
-                      variant="secondary"
-                      onClick={() => removeRule(index)}
-                      disabled={!canMutatePacks}
-                      title={canMutatePacks ? undefined : enterpriseMutationControlDisabledTitle}
-                    >
-                      Remove
-                    </Button>
-                  </td>
-                </tr>
-              ))}
-            </tbody>
-          </table>
-        </div>
+        <EnterpriseTable ariaLabel="Curated policy rules" className={OPERATOR_TYPOGRAPHY.body}>
+          <EnterpriseTableHead>
+            <EnterpriseTableHeadRow className={cn("border-b border-neutral-200 text-left dark:border-neutral-700", OPERATOR_NAV_GROUP_LABEL)}>
+              <EnterpriseTableHeaderCell className="py-2 pr-2 font-medium">Id</EnterpriseTableHeaderCell>
+              <EnterpriseTableHeaderCell className="py-2 pr-2 font-medium">Title</EnterpriseTableHeaderCell>
+              <EnterpriseTableHeaderCell className="py-2 pr-2 font-medium">Severity</EnterpriseTableHeaderCell>
+              <EnterpriseTableHeaderCell className="py-2 pr-2 font-medium" />
+            </EnterpriseTableHeadRow>
+          </EnterpriseTableHead>
+          <EnterpriseTableBody>
+            {curatedDoc.rules.map((r, index) => (
+              <EnterpriseTableRow
+                key={`${r.id}-${index}`}
+                data-rule-id={r.id}
+                className={cn(
+                  highlightRuleId !== undefined &&
+                    highlightRuleId.trim().length > 0 &&
+                    r.id.trim().toLowerCase() === highlightRuleId.trim().toLowerCase()
+                    ? "bg-[var(--al-layer-hover)] ring-2 ring-amber-600/50 ring-inset dark:bg-neutral-800/80 dark:ring-amber-700/50"
+                    : undefined,
+                )}
+              >
+                <EnterpriseTableCell className={cn("py-1 pr-2 align-top font-mono", OPERATOR_TYPOGRAPHY.micro)}>{r.id}</EnterpriseTableCell>
+                <EnterpriseTableCell className="py-1 pr-2 align-top">{r.title}</EnterpriseTableCell>
+                <EnterpriseTableCell className="py-1 pr-2 align-top">{r.severity}</EnterpriseTableCell>
+                <EnterpriseTableCell className="py-1 pr-2 align-top text-right whitespace-nowrap">
+                  <Button
+                    type="button"
+                    size="sm"
+                    data-testid={`policy-curated-rule-edit-${r.id.replace(/[^a-zA-Z0-9_-]/g, "_")}`}
+                    variant="secondary"
+                    onClick={() => openEdit(index)}
+                    disabled={!canMutatePacks}
+                    title={canMutatePacks ? undefined : enterpriseMutationControlDisabledTitle}
+                  >
+                    Edit
+                  </Button>{" "}
+                  <Button
+                    type="button"
+                    size="sm"
+                    variant="secondary"
+                    onClick={() => removeRule(index)}
+                    disabled={!canMutatePacks}
+                    title={canMutatePacks ? undefined : enterpriseMutationControlDisabledTitle}
+                  >
+                    Remove
+                  </Button>
+                </EnterpriseTableCell>
+              </EnterpriseTableRow>
+            ))}
+          </EnterpriseTableBody>
+        </EnterpriseTable>
       )}
 
       <div className="space-y-1">

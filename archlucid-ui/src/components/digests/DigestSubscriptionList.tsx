@@ -7,7 +7,9 @@ import Link from "next/link";
 import type { ReactElement } from "react";
 
 import { EnterpriseCompactEmptyState } from "@/components/EnterpriseCompactEmptyState";
+import { OperatorInventoryRowMoreActions } from "@/components/operator/OperatorInventoryRowMoreActions";
 import { Button } from "@/components/ui/button";
+import { RefreshButton } from "@/components/ui/refresh-button";
 import {
   EnterpriseTable,
   EnterpriseTableBody,
@@ -18,6 +20,7 @@ import {
   EnterpriseTableRow,
 } from "@/components/ui/enterprise-table";
 import { StatusTag } from "@/components/ui/status-tag";
+import { WhyDisabledCtaHint } from "@/components/usability/WhyDisabledCtaHint";
 import { formatDigestInstant } from "@/lib/digest-setup-gap-actions";
 import {
   channelDisplayLabel,
@@ -36,12 +39,15 @@ import {
   digestSubscriptionsDeliveryAttemptsButtonLabelReaderRank,
   digestSubscriptionsDeliveryAttemptsButtonTitleOperator,
   digestSubscriptionsDeliveryAttemptsButtonTitleReader,
+  digestSubscriptionsEmptyListOperatorLine,
+  digestSubscriptionsEmptyListReaderLine,
   digestSubscriptionsToggleToDisabledReaderRank,
   digestSubscriptionsToggleToEnabledReaderRank,
   digestSubscriptionsYourSubscriptionsHeadingOperator,
   digestSubscriptionsYourSubscriptionsHeadingReader,
-  enterpriseMutationControlDisabledTitle,
 } from "@/lib/enterprise-controls-context-copy";
+import { reversibleControlLabel } from "@/lib/reversible-control-verbs";
+import { whyDisabledEnterpriseMutationControl } from "@/lib/why-disabled-cta";
 import type { DigestDeliveryAttempt, DigestSubscription } from "@/types/digest-subscriptions";
 
 export type DigestSubscriptionListProps = {
@@ -52,39 +58,57 @@ export type DigestSubscriptionListProps = {
   readonly canMutate: boolean;
   readonly canRevealDestinations: boolean;
   readonly onRefresh: () => void;
-  readonly onToggle: (subscriptionId: string) => void;
+  readonly onToggle: (subscriptionId: string, isEnabled: boolean, subscriptionName: string) => void;
   readonly onViewHistory: (subscriptionId: string) => void;
   readonly onPrefillCreate: (subscription: DigestSubscription) => void;
+  readonly onFocusCreateForm: () => void;
 };
 
 export function DigestSubscriptionList(props: DigestSubscriptionListProps): ReactElement {
   const heading: string = props.canMutate
     ? digestSubscriptionsYourSubscriptionsHeadingOperator
     : digestSubscriptionsYourSubscriptionsHeadingReader;
+  const emptyDescription: string = props.canMutate
+    ? digestSubscriptionsEmptyListOperatorLine
+    : digestSubscriptionsEmptyListReaderLine;
+  const mutationDisabledReason = props.canMutate ? null : whyDisabledEnterpriseMutationControl();
+  const mutationDisabledHintId = "digest-subscriptions-mutate-disabled-hint";
 
   return (
     <section className="rounded-lg border border-neutral-200 bg-white p-4 dark:border-neutral-700 dark:bg-neutral-950">
       <div className="flex flex-wrap items-center justify-between gap-2">
         <h3 className={cn("m-0 font-semibold text-al-text-primary", OPERATOR_TYPOGRAPHY.cardTitle)}>{heading}</h3>
-        <Button
-          type="button"
-          size="sm"
-          variant="secondary"
-          onClick={props.onRefresh}
-          disabled={props.loading}
+        <RefreshButton
+          busy={props.loading}
           data-testid="digest-subscriptions-refresh"
-        >
-          {props.loading ? "Refreshing…" : "Refresh"}
-        </Button>
+          onClick={props.onRefresh}
+        />
       </div>
+
+      <WhyDisabledCtaHint
+        id={mutationDisabledHintId}
+        reason={mutationDisabledReason}
+        testId="digest-subscriptions-mutate-disabled-hint"
+        className="mt-2"
+      />
 
       {!props.loading && props.items.length === 0 ? (
         <div className="mt-3" data-testid="digest-subscriptions-empty-state">
           <EnterpriseCompactEmptyState
             testId="digest-subscriptions-empty"
             title="No delivery destinations yet"
-            description="Save a subscription below to deliver architecture digests to email or a Teams/Slack webhook."
-            actions={[]}
+            description={emptyDescription}
+            footer={
+              <Button
+                type="button"
+                size="sm"
+                variant="primary"
+                onClick={props.onFocusCreateForm}
+                data-testid="digest-subscriptions-empty-add-destination"
+              >
+                Add delivery destination
+              </Button>
+            }
           />
         </div>
       ) : null}
@@ -133,69 +157,68 @@ export function DigestSubscriptionList(props: DigestSubscriptionListProps): Reac
                       <span className={OPERATOR_TYPOGRAPHY.helper}>{formatDeliveryResult(attempts)}</span>
                     </EnterpriseTableCell>
                     <EnterpriseTableCell>
-                      <div className="flex flex-wrap gap-1.5">
-                        <Button
-                          type="button"
-                          size="sm"
-                          variant="outline"
-                          disabled={!props.canMutate}
-                          title={
-                            props.canMutate
-                              ? "Copy this destination into the add form to create a replacement subscription."
-                              : enterpriseMutationControlDisabledTitle
-                          }
-                          onClick={() => props.onPrefillCreate(item)}
-                        >
-                          Edit
-                        </Button>
-                        <Button asChild size="sm" variant="outline">
-                          <Link href={DIGEST_SUBSCRIPTIONS_SEND_TEST_HREF} title={DIGESTS_BROWSE_SEND_TEST_TITLE}>
-                            {DIGESTS_BROWSE_SEND_TEST_LABEL}
-                          </Link>
-                        </Button>
-                        <Button
-                          type="button"
-                          size="sm"
-                          variant="outline"
-                          onClick={() => props.onToggle(item.subscriptionId)}
-                          disabled={!props.canMutate}
-                          title={props.canMutate ? undefined : enterpriseMutationControlDisabledTitle}
-                        >
-                          {props.canMutate
-                            ? item.isEnabled
-                              ? "Pause"
-                              : "Resume"
-                            : item.isEnabled
-                              ? digestSubscriptionsToggleToDisabledReaderRank
-                              : digestSubscriptionsToggleToEnabledReaderRank}
-                        </Button>
-                        <Button
-                          type="button"
-                          size="sm"
-                          variant="outline"
-                          disabled
-                          title="Deleting subscriptions is not available in this release. Pause the subscription to stop delivery."
-                        >
-                          Delete
-                        </Button>
-                        <Button
-                          type="button"
-                          size="sm"
-                          variant="secondary"
-                          onClick={() => props.onViewHistory(item.subscriptionId)}
-                          title={
-                            props.canMutate
-                              ? digestSubscriptionsDeliveryAttemptsButtonTitleOperator
-                              : digestSubscriptionsDeliveryAttemptsButtonTitleReader
-                          }
-                        >
-                          {props.historyOpenFor === item.subscriptionId
-                            ? "Hide delivery history"
-                            : props.canMutate
-                              ? "View delivery history"
-                              : digestSubscriptionsDeliveryAttemptsButtonLabelReaderRank}
-                        </Button>
-                      </div>
+                      <OperatorInventoryRowMoreActions
+                        testId={`digest-subscription-more-${item.subscriptionId}`}
+                        primaryActions={
+                          <Button
+                            type="button"
+                            size="sm"
+                            variant="outline"
+                            onClick={() =>
+                              props.onToggle(item.subscriptionId, item.isEnabled === true, item.name)
+                            }
+                            disabled={!props.canMutate}
+                            aria-describedby={
+                              mutationDisabledReason === null ? undefined : mutationDisabledHintId
+                            }
+                            data-testid={`digest-subscription-toggle-${item.subscriptionId}`}
+                          >
+                            {props.canMutate
+                              ? reversibleControlLabel("recurring-activity", item.isEnabled === true)
+                              : item.isEnabled
+                                ? digestSubscriptionsToggleToDisabledReaderRank
+                                : digestSubscriptionsToggleToEnabledReaderRank}
+                          </Button>
+                        }
+                        overflowActions={
+                          <>
+                            <Button
+                              type="button"
+                              size="sm"
+                              variant="outline"
+                              disabled={!props.canMutate}
+                              aria-describedby={
+                                mutationDisabledReason === null ? undefined : mutationDisabledHintId
+                              }
+                              onClick={() => props.onPrefillCreate(item)}
+                            >
+                              Edit
+                            </Button>
+                            <Button asChild size="sm" variant="outline">
+                              <Link href={DIGEST_SUBSCRIPTIONS_SEND_TEST_HREF} title={DIGESTS_BROWSE_SEND_TEST_TITLE}>
+                                {DIGESTS_BROWSE_SEND_TEST_LABEL}
+                              </Link>
+                            </Button>
+                            <Button
+                              type="button"
+                              size="sm"
+                              variant="secondary"
+                              onClick={() => props.onViewHistory(item.subscriptionId)}
+                              title={
+                                props.canMutate
+                                  ? digestSubscriptionsDeliveryAttemptsButtonTitleOperator
+                                  : digestSubscriptionsDeliveryAttemptsButtonTitleReader
+                              }
+                            >
+                              {props.historyOpenFor === item.subscriptionId
+                                ? "Hide delivery history"
+                                : props.canMutate
+                                  ? "View delivery history"
+                                  : digestSubscriptionsDeliveryAttemptsButtonLabelReaderRank}
+                            </Button>
+                          </>
+                        }
+                      />
                     </EnterpriseTableCell>
                   </EnterpriseTableRow>
                 );

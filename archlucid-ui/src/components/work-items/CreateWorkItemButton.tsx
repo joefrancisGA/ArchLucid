@@ -9,7 +9,7 @@ import {
   buildArchitectureWorkItemPreview,
   pickNativeCreateFindingId,
   type BuildArchitectureWorkItemPreviewInput,
-} from "@/lib/architecture-work-item-model";
+} from "@/lib/architecture/architecture-work-item-model";
 import { CREATE_WORK_ITEM_LABEL } from "@/lib/create-work-item-copy";
 import { OPERATOR_TYPOGRAPHY } from "@/lib/design-tokens";
 import { cn } from "@/lib/utils";

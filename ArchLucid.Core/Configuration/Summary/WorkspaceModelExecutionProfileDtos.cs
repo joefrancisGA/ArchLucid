@@ -7,6 +7,10 @@ public sealed class WorkspaceModelExecutionProfileResponse
     public string Source { get; set; } = "WorkspaceDefault";
 
     public string WorkspaceDefaultProfile { get; set; } = "Balanced";
+
+    public DateTime? LastChangedAtUtc { get; set; }
+
+    public string? LastChangedBy { get; set; }
 }
 
 public sealed class WorkspaceModelExecutionProfileUpdateRequest

@@ -5,7 +5,7 @@ import Link from "next/link";
 import { cn } from "@/lib/utils";
 
 import { SimulationRunDiffCard } from "@/components/evolution/SimulationRunDiffCard";
-import { OperatorLoadingNotice } from "@/components/OperatorShellMessage";
+import { OperatorLoadingNotice } from "@/components/operator/OperatorShellMessage";
 import {
   IMPACT_PREVIEW_AFTER_LABEL,
   IMPACT_PREVIEW_BEFORE_AFTER_TITLE,

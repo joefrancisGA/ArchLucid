@@ -1,12 +1,12 @@
 > **Scope:** Contributor-reference — tenant identity single derivation (INV-001 / TB-999); decide-once typed ScopeContext versus SQL RLS or NetArchTest isolation claims.
 
-# Tenant identity single derivation (INV-001 / TB-999)
+# Tenant identity single derivation (INV-001 / **TB-999**)
 
 > **Audience:** Contributors, principal architects, and GTM claim reviewers.  
 > **Not** a buyer assurance claim — decide-once typed scope ≠ SQL RLS and ≠ “NetArchTest proves isolation.”
 
 **Buyer / PA one-pager:** [`BUYER_SECURITY_PROCUREMENT_PACKET.md`](../go-to-market/BUYER_SECURITY_PROCUREMENT_PACKET.md#tenant-identity-single-derivation-m-151) (GTM **M-151**).  
-**Claim honesty:** [`PUBLIC_CLAIM_BOUNDARY_GUIDE.md`](PUBLIC_CLAIM_BOUNDARY_GUIDE.md) (GTM **M-150**).  
+**Claim honesty:** [`PUBLIC_CLAIM_BOUNDARY_GUIDE.md`](PUBLIC_CLAIM_BOUNDARY_GUIDE.md) (GTM **M-150** / **M-151**).  
 **Layer B deep dive:** [`TENANT_ISOLATION_DEFENSE_IN_DEPTH.md`](../security/TENANT_ISOLATION_DEFENSE_IN_DEPTH.md).  
 **Invariant:** [`ARCHITECTURE_INVARIANTS.md`](ARCHITECTURE_INVARIANTS.md)#inv-001-tenant-identity-boundary · ADR 0037 / 0041.
 
@@ -85,10 +85,11 @@ Startup guards reject `DevelopmentBypass` / `AllowTestActorHeaders` on productio
 
 ---
 
-## Follow-on / CI anchors (**TB-1000**)
+## Follow-on / CI anchors (**TB-1000** / **M-150**)
 
 | Anchor | Purpose |
 |--------|---------|
+| **TB-1000** | Honesty CI / doc guard against header-as-tenant and deep-layer HttpContext re-derive overclaims (**M-150**) |
 | This contract + INV-001 / Layer B | Required cite near isolation / header language |
 | ARCH001 still enabled | Analyzer on product assemblies |
 | `ScopeIdentityBindingIntegrationTests` / **TB-925** | Forged-header probe evidence |

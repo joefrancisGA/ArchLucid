@@ -4,7 +4,7 @@ import { useEffect, useState } from "react";
 
 import { useAskProjectRunsQuery } from "@/hooks/use-ask-project-runs-query";
 import { isBuyerPolishedOperatorShellEnv } from "@/lib/demo-ui-env";
-import { shouldMergeOperatorDemoAlertSample } from "@/lib/operator-static-demo";
+import { shouldMergeOperatorDemoAlertSample } from "@/lib/operator/operator-static-demo";
 
 function operatorAllowsSyntheticAskRunPick(): boolean {
   return (

@@ -3,8 +3,8 @@ import {
   findingDetailHeadingTitleForRoute,
   isPhiMinimizationFindingId,
   isPhiMinimizationSampleFinding,
-} from "@/lib/finding-display-from-inspect";
-import { findingLinkedManifestDetailHrefForRun } from "@/lib/finding-linked-manifest-href";
+} from "@/lib/findings/finding-display-from-inspect";
+import { findingLinkedManifestDetailHrefForRun } from "@/lib/findings/finding-linked-manifest-href";
 import { shouldTreatFindingInspectFailureAsNotFound } from "@/lib/load-finding-inspect-for-route";
 import { loadFindingInspectForRouteCached } from "@/lib/load-finding-inspect-for-route-cached";
 import { tryLoadRunExecutionFootnote } from "@/lib/try-load-run-execution-footnote";

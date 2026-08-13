@@ -1,10 +1,20 @@
 import { cn } from "@/lib/utils";
-import { OPERATOR_TYPOGRAPHY } from "@/lib/design-tokens";
+import { OPERATOR_LINK, OPERATOR_TYPOGRAPHY } from "@/lib/design-tokens";
 import Link from "next/link";
+
+import {
+  EnterpriseTable,
+  EnterpriseTableBody,
+  EnterpriseTableCell,
+  EnterpriseTableHead,
+  EnterpriseTableHeadRow,
+  EnterpriseTableHeaderCell,
+  EnterpriseTableRow,
+} from "@/components/ui/enterprise-table";
 import { IMPROVEMENT_PLANNING_PLANS_EMPTY_MESSAGE } from "@/lib/planning-page-copy";
 import { planningPlanDetailPath } from "@/lib/planning-route";
 import type { LearningPlanListItemResponse } from "@/types/learning";
-import { planningNumericCellCls, planningTableCls, planningThTdCls } from "./planning-table-styles";
+import { planningNumericCellCls, planningThTdCls } from "./planning-table-styles";
 
 type PlanningPlansTableProps = {
   plans: LearningPlanListItemResponse[];
@@ -36,37 +46,35 @@ export function PlanningPlansTable(props: PlanningPlansTableProps) {
   }
 
   return (
-    <div className="overflow-x-auto">
-      <table className={planningTableCls}>
-        <thead>
-          <tr className="bg-neutral-50/90 dark:bg-neutral-900/50">
-            <th className={planningNumericCellCls}>Priority</th>
-            <th className={planningThTdCls}>Plan</th>
-            <th className={planningThTdCls}>Theme</th>
-            <th className={planningThTdCls}>Status</th>
-            <th className={planningThTdCls}>Recommended next action</th>
-          </tr>
-        </thead>
-        <tbody>
-          {plans.map((p) => (
-            <tr key={p.planId}>
-              <td className={planningNumericCellCls}>{p.priorityScore}</td>
-              <td className={planningThTdCls}>
-                <Link href={planningPlanDetailPath(p.planId)} className="font-medium text-blue-700 dark:text-blue-400">
-                  {p.title}
-                </Link>
-              </td>
-              <td className={planningThTdCls}>
-                <span className={mutedNoteCls}>{themeTitleById.get(p.themeId) ?? p.themeId}</span>
-              </td>
-              <td className={planningThTdCls}>{p.status}</td>
-              <td className={cn(planningThTdCls, "max-w-[320px]", OPERATOR_TYPOGRAPHY.helper)}>
-                {resolveRecommendedNextAction(p)}
-              </td>
-            </tr>
-          ))}
-        </tbody>
-      </table>
-    </div>
+    <EnterpriseTable ariaLabel="Improvement plans" className={OPERATOR_TYPOGRAPHY.body}>
+      <EnterpriseTableHead>
+        <EnterpriseTableHeadRow>
+          <EnterpriseTableHeaderCell className={planningNumericCellCls}>Priority</EnterpriseTableHeaderCell>
+          <EnterpriseTableHeaderCell className={planningThTdCls}>Plan</EnterpriseTableHeaderCell>
+          <EnterpriseTableHeaderCell className={planningThTdCls}>Theme</EnterpriseTableHeaderCell>
+          <EnterpriseTableHeaderCell className={planningThTdCls}>Status</EnterpriseTableHeaderCell>
+          <EnterpriseTableHeaderCell className={planningThTdCls}>Recommended next action</EnterpriseTableHeaderCell>
+        </EnterpriseTableHeadRow>
+      </EnterpriseTableHead>
+      <EnterpriseTableBody>
+        {plans.map((p) => (
+          <EnterpriseTableRow key={p.planId}>
+            <EnterpriseTableCell className={planningNumericCellCls}>{p.priorityScore}</EnterpriseTableCell>
+            <EnterpriseTableCell className={planningThTdCls}>
+              <Link href={planningPlanDetailPath(p.planId)} className={OPERATOR_LINK.nav}>
+                {p.title}
+              </Link>
+            </EnterpriseTableCell>
+            <EnterpriseTableCell className={planningThTdCls}>
+              <span className={mutedNoteCls}>{themeTitleById.get(p.themeId) ?? p.themeId}</span>
+            </EnterpriseTableCell>
+            <EnterpriseTableCell className={planningThTdCls}>{p.status}</EnterpriseTableCell>
+            <EnterpriseTableCell className={cn(planningThTdCls, "max-w-[320px]", OPERATOR_TYPOGRAPHY.helper)}>
+              {resolveRecommendedNextAction(p)}
+            </EnterpriseTableCell>
+          </EnterpriseTableRow>
+        ))}
+      </EnterpriseTableBody>
+    </EnterpriseTable>
   );
 }

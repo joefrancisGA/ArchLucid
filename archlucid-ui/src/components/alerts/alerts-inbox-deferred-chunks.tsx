@@ -3,22 +3,17 @@
 import dynamic from "next/dynamic";
 import type { ComponentType } from "react";
 
-import { cn } from "@/lib/utils";
-import { OPERATOR_TYPOGRAPHY } from "@/lib/design-tokens";
+import { DeferredChunkLoading } from "@/components/ui/deferred-chunk-loading";
 
 import type { AlertsInboxDialogsProps } from "@/components/alerts/AlertsInboxDialogs";
 import type { AlertsGovernanceContextPanelProps } from "@/components/alerts/AlertsGovernanceContextPanel";
 
-function AlertsInboxDeferredLoading(props: { readonly label: string }): React.JSX.Element {
+function alertsInboxDeferredLoading(label: string): React.JSX.Element {
   return (
-    <div
-      className={cn(
-        "min-h-12 animate-pulse rounded-md border border-neutral-200 bg-neutral-100 dark:border-neutral-700 dark:bg-neutral-800",
-        OPERATOR_TYPOGRAPHY.body,
-      )}
-      role="status"
-      aria-label={props.label}
-      data-testid="alerts-inbox-deferred-chunk-loading"
+    <DeferredChunkLoading
+      label={label}
+      variant="context"
+      testId="alerts-inbox-deferred-chunk-loading"
     />
   );
 }
@@ -37,6 +32,6 @@ export const AlertsGovernanceContextPanelDeferred: ComponentType<AlertsGovernanc
       ),
     {
       ssr: false,
-      loading: () => <AlertsInboxDeferredLoading label="Loading alerts context" />,
+      loading: () => alertsInboxDeferredLoading("Loading alerts context"),
     },
   );

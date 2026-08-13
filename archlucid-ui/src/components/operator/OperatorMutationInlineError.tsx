@@ -4,7 +4,7 @@ import { useEffect, useRef } from "react";
 
 import { OperatorErrorRecoveryContract } from "@/components/usability/OperatorErrorRecoveryContract";
 import { cn } from "@/lib/utils";
-import { OPERATOR_TYPOGRAPHY } from "@/lib/design-tokens";
+import { OPERATOR_DANGER, OPERATOR_TYPOGRAPHY } from "@/lib/design-tokens";
 import {
   errorRecoveryContractForScenario,
   type ErrorRecoveryContractPresentation,
@@ -38,7 +38,8 @@ export function OperatorMutationInlineError(props: OperatorMutationInlineErrorPr
         role="alert"
         data-testid={props.testId ?? "operator-mutation-inline-error"}
         className={cn(
-          "m-0 whitespace-pre-wrap rounded-md border border-red-200 bg-red-50 px-3 py-2 text-red-900 dark:border-red-900/50 dark:bg-red-950/30 dark:text-red-100",
+          "m-0 whitespace-pre-wrap rounded-md px-3 py-2",
+          OPERATOR_DANGER.surface,
           OPERATOR_TYPOGRAPHY.body,
         )}
       >

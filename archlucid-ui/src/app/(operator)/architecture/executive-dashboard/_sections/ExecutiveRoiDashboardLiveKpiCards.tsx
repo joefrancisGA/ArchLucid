@@ -2,17 +2,16 @@
 
 import { cn } from "@/lib/utils";
 import Link from "next/link";
-import { useEffect, useState } from "react";
 
 import { useExecutiveRoiSummaryQuery } from "@/hooks/use-executive-roi-summary-query";
+import { useGovernanceDecisionsNeededSummaryQuery } from "@/hooks/use-governance-decisions-needed-summary-query";
 
-import { OperatorApiProblem } from "@/components/OperatorApiProblem";
+import { OperatorApiProblem } from "@/components/operator/OperatorApiProblem";
 import { KpiTileDrillThroughLink } from "@/components/KpiTileDrillThroughLink";
 import { Card, CardContent, CardDescription, CardHeader, CardTitle } from "@/components/ui/card";
 import { EXECUTIVE_KPI_DRILL_THROUGH } from "@/lib/executive-kpi-drill-through-hrefs";
 import { toApiLoadFailure, type ApiLoadFailureState } from "@/lib/api-load-failure";
-import { getGovernanceDecisionsNeededSummary } from "@/lib/api/governance-stickiness-api";
-import { BUYER_EXECUTIVE_SUMMARY_VOCABULARY } from "@/lib/buyer-surface-vocabulary";
+import { BUYER_EXECUTIVE_SUMMARY_VOCABULARY } from "@/lib/vocabulary/buyer-surface-vocabulary";
 import type { ExecutiveRoiSummary } from "@/lib/executive-summary-markdown";
 import {
   presentCostEvidenceFreshness,
@@ -22,13 +21,6 @@ import { toDocsBlobUrl } from "@/lib/contextual-help-content";
 import { computePilotDayNumber } from "@/lib/executive-pilot-day";
 import { isBuyerPolishedOperatorShellEnv } from "@/lib/demo-ui-env";
 import { OPERATOR_KPI_CARD_DESCRIPTION, OPERATOR_KPI_CARD_TITLE, OPERATOR_TYPOGRAPHY } from "@/lib/design-tokens";
-
-type LiveKpiState = {
-  summary: ExecutiveRoiSummary | null;
-  staleRiskCount: number;
-  expiringWaiversCount: number;
-  decisionsNeededCount: number;
-};
 
 function KpiFootnote(props: { readonly text: string | null; readonly runbookHref?: string | null }) {
   if (!props.text) {
@@ -68,64 +60,24 @@ export function ExecutiveRoiDashboardLiveKpiCards({
   const suppressZeroFootnote = executiveDetails;
   const usesExternalSummary = summaryProp !== undefined || loadingProp !== undefined;
   const summaryQuery = useExecutiveRoiSummaryQuery({ enabled: !usesExternalSummary });
+  const decisionsQuery = useGovernanceDecisionsNeededSummaryQuery({
+    enabled: usesExternalSummary ? loadingProp !== true : true,
+  });
+
   const resolvedSummary = usesExternalSummary ? (summaryProp ?? null) : (summaryQuery.data ?? null);
   const summaryFailure =
     !usesExternalSummary && summaryQuery.isError ? toApiLoadFailure(summaryQuery.error) : null;
-  const [state, setState] = useState<LiveKpiState>({
-    summary: summaryProp ?? null,
-    staleRiskCount: 0,
-    expiringWaiversCount: 0,
-    decisionsNeededCount: 0,
-  });
-  const [failure, setFailure] = useState<ApiLoadFailureState | null>(null);
-  const [decisionsLoading, setDecisionsLoading] = useState(!usesExternalSummary);
-  const loading = usesExternalSummary ? (loadingProp ?? false) : (summaryQuery.isPending || decisionsLoading);
+  const failure: ApiLoadFailureState | null =
+    decisionsQuery.isError ? toApiLoadFailure(decisionsQuery.error) : null;
 
-  useEffect(() => {
-    if (usesExternalSummary) {
-      setState((current) => ({
-        ...current,
-        summary: summaryProp ?? null,
-        staleRiskCount: summaryProp?.staleArchitectureRiskCount ?? current.staleRiskCount,
-      }));
-      setFailure(null);
+  const loading = usesExternalSummary
+    ? (loadingProp ?? false) || decisionsQuery.isPending
+    : summaryQuery.isPending || decisionsQuery.isPending;
 
-      if (loadingProp) {
-        return undefined;
-      }
-    }
-
-    let cancelled = false;
-
-    void (async () => {
-      try {
-        const decisionsNeeded = await getGovernanceDecisionsNeededSummary();
-
-        if (!cancelled) {
-          setState({
-            summary: resolvedSummary,
-            staleRiskCount:
-              resolvedSummary?.staleArchitectureRiskCount ?? decisionsNeeded.staleRisks,
-            // TB-155 / EXECUTIVE_KPI_SEMANTIC_CONTRACT: live governance count only (not cached ROI).
-            expiringWaiversCount: decisionsNeeded.waiversExpiringWithin14Days,
-            decisionsNeededCount: decisionsNeeded.totalDecisionItems,
-          });
-        }
-      } catch (e: unknown) {
-        if (!cancelled) {
-          setFailure(toApiLoadFailure(e));
-        }
-      } finally {
-        if (!cancelled) {
-          setDecisionsLoading(false);
-        }
-      }
-    })();
-
-    return () => {
-      cancelled = true;
-    };
-  }, [loadingProp, resolvedSummary, summaryProp, usesExternalSummary]);
+  const staleRiskCount =
+    resolvedSummary?.staleArchitectureRiskCount ?? decisionsQuery.data?.staleRisks ?? 0;
+  const expiringWaiversCount = decisionsQuery.data?.waiversExpiringWithin14Days ?? 0;
+  const decisionsNeededCount = decisionsQuery.data?.totalDecisionItems ?? 0;
 
   const buyerPolished = isBuyerPolishedOperatorShellEnv();
 
@@ -145,38 +97,38 @@ export function ExecutiveRoiDashboardLiveKpiCards({
     );
   }
 
-  const resolved = presentExecutiveKpiCount(state.summary?.resolvedFindingsCount30Days, {
+  const resolved = presentExecutiveKpiCount(resolvedSummary?.resolvedFindingsCount30Days, {
     loading,
     suppressZeroFootnote,
   });
-  const discovered = presentExecutiveKpiCount(state.summary?.newlyDiscoveredFindingsCount30Days, {
+  const discovered = presentExecutiveKpiCount(resolvedSummary?.newlyDiscoveredFindingsCount30Days, {
     loading,
     suppressZeroFootnote,
   });
-  const remediated = presentExecutiveKpiCount(state.summary?.realizedValue?.findingsRemediatedCount30Days, {
+  const remediated = presentExecutiveKpiCount(resolvedSummary?.realizedValue?.findingsRemediatedCount30Days, {
     loading,
     suppressZeroFootnote,
   });
-  const staleRisks = presentExecutiveKpiCount(loading ? undefined : state.staleRiskCount, {
+  const staleRisks = presentExecutiveKpiCount(loading ? undefined : staleRiskCount, {
     loading,
     suppressZeroFootnote,
   });
-  const expiringWaivers = presentExecutiveKpiCount(loading ? undefined : state.expiringWaiversCount, {
+  const expiringWaivers = presentExecutiveKpiCount(loading ? undefined : expiringWaiversCount, {
     loading,
     suppressZeroFootnote,
   });
-  const decisionsNeeded = presentExecutiveKpiCount(loading ? undefined : state.decisionsNeededCount, {
+  const decisionsNeeded = presentExecutiveKpiCount(loading ? undefined : decisionsNeededCount, {
     loading,
     suppressZeroFootnote,
   });
   const costFreshness = presentCostEvidenceFreshness({
     loading,
-    status: state.summary?.costEvidenceFreshnessStatus,
-    savingsPricingBasis: state.summary?.savingsPricingBasis,
-    staleAfterDays: state.summary?.costEvidenceStaleAfterDays,
+    status: resolvedSummary?.costEvidenceFreshnessStatus,
+    savingsPricingBasis: resolvedSummary?.savingsPricingBasis,
+    staleAfterDays: resolvedSummary?.costEvidenceStaleAfterDays,
     executiveSurface: executiveDetails || buyerPolished,
   });
-  const pilotDayNumber = computePilotDayNumber(state.summary?.firstCommitUtc);
+  const pilotDayNumber = computePilotDayNumber(resolvedSummary?.firstCommitUtc);
 
   return (
     <>

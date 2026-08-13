@@ -1,3 +1,5 @@
+using System.Text.Json;
+
 using ArchLucid.Core.Manifest.Sections;
 using ArchLucid.Decisioning.Models;
 using ArchLucid.Decisioning.Services;
@@ -96,5 +98,26 @@ public sealed class ManifestHashServiceTests
         string hash = _sut.ComputeHash(BaseManifest());
 
         hash.Should().MatchRegex("^[0-9A-F]{64}$");
+    }
+
+    [Fact]
+    public void ComputeHash_MatchesPinnedBaseline_v1()
+    {
+        string baselinePath = Path.Combine(
+            AppContext.BaseDirectory,
+            "..",
+            "..",
+            "..",
+            "..",
+            "tests",
+            "manifest-hash",
+            "hasher-baseline-v1.json");
+
+        baselinePath = Path.GetFullPath(baselinePath);
+        using FileStream stream = File.OpenRead(baselinePath);
+        using JsonDocument doc = JsonDocument.Parse(stream);
+        string expected = doc.RootElement.GetProperty("expectedManifestHashSha256").GetString()!;
+
+        _sut.ComputeHash(BaseManifest()).Should().Be(expected);
     }
 }

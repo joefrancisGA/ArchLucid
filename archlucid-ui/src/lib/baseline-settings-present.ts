@@ -1,8 +1,21 @@
+import type { EnterpriseStatusKind } from "@/lib/design-tokens";
+import { EXECUTIVE_SUMMARY_PILOT_ROI_MEASUREMENT_HELP_HREF } from "@/lib/executive-summary-pilot-roi-measurement-help";
+import { formatInstantForLocale } from "@/lib/locale-datetime";
+import { EXECUTIVE_DASHBOARD_HREF } from "@/lib/executive/executive-dashboard-route";
 import { coerceFinitePositiveHours, isPilotRoiBaselineComplete } from "@/lib/pilot-roi-baseline-completeness";
+import {
+  SPONSOR_REPORT_EXECUTIVE_SUMMARY_PATH,
+  SPONSOR_REPORT_ROI_SUMMARY_PATH,
+} from "@/lib/sponsor-report-navigation";
 
 export type BaselineSettingsStatus = "not-set" | "partial" | "complete";
 
-export type BaselineRoiModelLabel = "Conservative defaults" | "Workspace-specific baseline";
+export type BaselineRoiModelLabel = "Conservative defaults" | "Partly modeled" | "Workspace-specific baseline";
+
+export type BaselineUsedInSurface = {
+  readonly label: string;
+  readonly href: string;
+};
 
 export type TenantBaselineSnapshot = {
   readonly manualPrepHoursPerReview: number | null;
@@ -13,11 +26,29 @@ export type TenantBaselineSnapshot = {
   readonly baselineReviewCycleCapturedUtc: string | null;
 };
 
-export const BASELINE_SETTINGS_USED_IN_SURFACES = [
-  "Value report",
-  "Executive dashboard",
-  "ROI summary",
-] as const;
+export const BASELINE_SETTINGS_PAGE_TITLE = "Baseline settings — ROI measurement" as const;
+
+export const BASELINE_SETTINGS_USED_IN_SURFACES: readonly BaselineUsedInSurface[] = [
+  { label: "Value report", href: SPONSOR_REPORT_EXECUTIVE_SUMMARY_PATH },
+  { label: "Executive dashboard", href: EXECUTIVE_DASHBOARD_HREF },
+  { label: "ROI summary", href: SPONSOR_REPORT_ROI_SUMMARY_PATH },
+];
+
+export const BASELINE_MODELED_DEFAULTS_HELPER =
+  "Blanks the fields below so reports use conservative modeled defaults." as const;
+
+/**
+ * Shown once a baseline is saved. PUT /v1/tenant/baseline ignores a body whose values are all null,
+ * so the UI must not offer to remove a stored baseline it cannot actually remove.
+ */
+export const BASELINE_SAVED_CANNOT_BE_REMOVED_HELPER =
+  "Your saved baseline stays in reports. Removing a saved baseline is not available in this release — update the values below instead." as const;
+
+export const BASELINE_REVIEW_NOTE_REQUIRES_HOURS_HELPER =
+  "Enter median review-cycle hours to record how you estimated them." as const;
+
+export const BASELINE_REVIEW_NOTE_SAVE_READINESS =
+  "Enter median review-cycle hours before saving your estimate note." as const;
 
 export const BASELINE_SETTINGS_PAGE_SUBTITLE =
   "Set conservative baseline assumptions used to estimate time saved and sponsor-report value. You can skip this now and update it later." as const;
@@ -25,7 +56,7 @@ export const BASELINE_SETTINGS_PAGE_SUBTITLE =
 export const BASELINE_SETTINGS_CONSERVATIVE_DEFAULTS_NOTE =
   "If you leave these fields blank, ArchLucid uses conservative modeled defaults until measured review-cycle deltas are available." as const;
 
-export const BASELINE_SETTINGS_METHODOLOGY_HELP_HREF = "/help/pilot-roi-model";
+export const BASELINE_SETTINGS_METHODOLOGY_HELP_HREF = EXECUTIVE_SUMMARY_PILOT_ROI_MEASUREMENT_HELP_HREF;
 
 const REVIEW_CYCLE_HOURS_WARN_ABOVE = 200;
 const MANUAL_PREP_HOURS_WARN_ABOVE = 80;
@@ -57,11 +88,103 @@ export function resolveBaselineSettingsStatus(data: TenantBaselineSnapshot): Bas
 }
 
 export function resolveBaselineRoiModelLabel(data: TenantBaselineSnapshot): BaselineRoiModelLabel {
-  if (hasAnyWorkspaceBaselineValue(data)) {
-    return "Workspace-specific baseline";
+  const status = resolveBaselineSettingsStatus(data);
+
+  switch (status) {
+    case "complete":
+      return "Workspace-specific baseline";
+    case "partial":
+      return "Partly modeled";
+    case "not-set":
+      return "Conservative defaults";
+    default: {
+      const exhaustive: never = status;
+
+      return exhaustive;
+    }
+  }
+}
+
+export function resolveBaselineReviewSourceNoteDisplay(source: string | null | undefined): string | null {
+  if (source === null || source === undefined) {
+    return null;
   }
 
-  return "Conservative defaults";
+  const trimmed = source.trim();
+
+  if (trimmed.length === 0) {
+    return null;
+  }
+
+  const marker = "baseline_settings";
+
+  if (trimmed.toLowerCase() === marker) {
+    return null;
+  }
+
+  const prefix = `${marker}:`;
+
+  if (trimmed.toLowerCase().startsWith(prefix)) {
+    const tail = trimmed.slice(prefix.length).trim();
+
+    return tail.length === 0 ? null : tail;
+  }
+
+  return trimmed;
+}
+
+export function hasSavedBaselineReviewSourceNote(data: TenantBaselineSnapshot): boolean {
+  const display = resolveBaselineReviewSourceNoteDisplay(data.baselineReviewCycleSource);
+
+  return display !== null;
+}
+
+export function hasSavedWorkspaceBaseline(data: TenantBaselineSnapshot): boolean {
+  return hasAnyWorkspaceBaselineValue(data) || hasSavedBaselineReviewSourceNote(data);
+}
+
+export function baselineFieldHasOwnerEstimate(raw: string): boolean {
+  return coerceFinitePositiveHours(parseBaselineFieldNumber(raw)) !== null;
+}
+
+function parseBaselineFieldNumber(raw: string): number | null {
+  const trimmed = raw.trim();
+
+  if (trimmed.length === 0) {
+    return null;
+  }
+
+  const value = Number(trimmed);
+
+  if (!Number.isFinite(value)) {
+    return null;
+  }
+
+  return value;
+}
+
+export function baselineFieldProvenanceLabel(hasOwnerEstimate: boolean): string {
+  return hasOwnerEstimate ? "Your estimate" : "Modeled default";
+}
+
+export function baselineFieldProvenanceKind(hasOwnerEstimate: boolean): EnterpriseStatusKind {
+  return hasOwnerEstimate ? "in-progress" : "neutral";
+}
+
+export function baselineSettingsStatusTagKind(status: BaselineSettingsStatus): EnterpriseStatusKind {
+  switch (status) {
+    case "complete":
+      return "ready";
+    case "partial":
+      return "needs-attention";
+    case "not-set":
+      return "neutral";
+    default: {
+      const exhaustive: never = status;
+
+      return exhaustive;
+    }
+  }
 }
 
 export function resolveBaselineLastUpdatedUtc(data: TenantBaselineSnapshot): string | null {

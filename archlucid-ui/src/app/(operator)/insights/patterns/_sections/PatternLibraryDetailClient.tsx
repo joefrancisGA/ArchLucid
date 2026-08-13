@@ -7,14 +7,15 @@ import {
   PatternLibraryRelatedPolicyPacks,
   PatternLibraryRelatedPolicyRules,
 } from "./PatternLibraryPolicyGuidance";
-import { OperatorPageHeader } from "@/components/OperatorPageHeader";
+import { OperatorPageHeader } from "@/components/operator/OperatorPageHeader";
 import { Badge } from "@/components/ui/badge";
 import { Button } from "@/components/ui/button";
 import { Card, CardContent, CardHeader, CardTitle } from "@/components/ui/card";
 import { PageContextualHelpButton } from "@/components/usability/PageContextualHelpButton";
 import { findPatternLibraryRecord } from "@/lib/pattern-library-catalog";
+import { resolvePatternLibraryPeerCompare } from "@/lib/pattern-library-peer-compare";
 import { OPERATOR_CARD, OPERATOR_LAYOUT, OPERATOR_LINK, OPERATOR_SHELL_SCROLL_OFFSET_CLASS, OPERATOR_TYPOGRAPHY } from "@/lib/design-tokens";
-import { PATTERN_LIBRARY_PATH, patternLibraryDetailPath } from "@/lib/pattern-library-route";
+import { PATTERN_LIBRARY_PATH } from "@/lib/pattern-library-route";
 import { PATTERN_LIBRARY_POLICY_RULES_SECTION_TITLE } from "@/lib/pattern-library-policy-guidance-copy";
 import { usePatternLibraryProvenance } from "@/lib/use-pattern-library-provenance";
 import { cn } from "@/lib/utils";
@@ -35,6 +36,7 @@ function DetailSection(props: { readonly id: string; readonly title: string; rea
 export function PatternLibraryDetailClient(props: PatternLibraryDetailClientProps): React.JSX.Element {
   const { provenance } = usePatternLibraryProvenance();
   const record = findPatternLibraryRecord(props.patternKey);
+  const peerCompare = record === null ? null : resolvePatternLibraryPeerCompare(record.patternKey);
 
   if (record === null) {
     return (
@@ -80,7 +82,7 @@ export function PatternLibraryDetailClient(props: PatternLibraryDetailClientProp
         </Button>
       </div>
 
-      <div className="space-y-8">
+      <div className={OPERATOR_LAYOUT.sectionStack}>
         <DetailSection id="overview" title="Overview">
           <p className="m-0">{record.overview}</p>
         </DetailSection>
@@ -164,9 +166,11 @@ export function PatternLibraryDetailClient(props: PatternLibraryDetailClientProp
                 Use this pattern in a new review
               </Link>
             </Button>
-            <Button asChild size="sm" variant="outline">
-              <Link href={patternLibraryDetailPath("api-gateway-bff")}>Compare peer pattern</Link>
-            </Button>
+            {peerCompare !== null ? (
+              <Button asChild size="sm" variant="outline">
+                <Link href={peerCompare.href}>{peerCompare.label}</Link>
+              </Button>
+            ) : null}
           </div>
         </CardContent>
       </Card>

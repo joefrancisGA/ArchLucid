@@ -1,17 +1,26 @@
 import { render, screen, waitFor } from "@testing-library/react";
-import { afterEach, describe, expect, it, vi } from "vitest";
+import { afterEach, beforeEach, describe, expect, it, vi } from "vitest";
 
 import { HomeFirstRunWorkflowGate } from "./HomeFirstRunWorkflowGate";
+import { resetOperatorQueryClientForTests } from "@/lib/query/operator-query-client";
+import { renderWithOperatorQuery } from "@/testing/render-with-operator-query";
+
+vi.unmock("@/hooks/use-core-pilot-commit-context-query");
 
 vi.mock("@/lib/demo-ui-env", async (importOriginal) => {
   const actual = await importOriginal<typeof import("@/lib/demo-ui-env")>();
+
   return {
     ...actual,
-  isBuyerPolishedOperatorShellEnv: vi.fn(() => false),
-  isBuyerSafeDemoMarketingChromeEnv: vi.fn(() => false),
-  isOperatorExperienceFullShellEnv: vi.fn(() => true),
-};
+    isBuyerPolishedOperatorShellEnv: vi.fn(() => false),
+    isBuyerSafeDemoMarketingChromeEnv: vi.fn(() => false),
+    isOperatorExperienceFullShellEnv: vi.fn(() => true),
+  };
 });
+
+vi.mock("@/lib/query/operator-query-persist-client", () => ({
+  setupOperatorQueryClientPersistence: () => {},
+}));
 
 vi.mock("@/lib/core-pilot-commit-context", async (importOriginal) => {
   const { createCorePilotCommitContextModuleMock } = await import("@/testing/core-pilot-commit-context.mock");
@@ -19,7 +28,7 @@ vi.mock("@/lib/core-pilot-commit-context", async (importOriginal) => {
   return createCorePilotCommitContextModuleMock(importOriginal);
 });
 
-vi.mock("@/components/OperatorFirstRunWorkflowPanel", () => ({
+vi.mock("@/components/operator/OperatorFirstRunWorkflowPanel", () => ({
   OperatorFirstRunWorkflowPanel: () => <div data-testid="first-run-panel-mock" />,
 }));
 
@@ -28,7 +37,13 @@ vi.mock("@/components/operator-home/SamplePackageShortcutsCard", () => ({
 }));
 
 describe("HomeFirstRunWorkflowGate", () => {
+  beforeEach(() => {
+    sessionStorage.clear();
+    resetOperatorQueryClientForTests();
+  });
+
   afterEach(() => {
+    sessionStorage.clear();
     vi.clearAllMocks();
   });
 
@@ -44,7 +59,7 @@ describe("HomeFirstRunWorkflowGate", () => {
       latestRunReadyToFinalize: false,
     });
 
-    render(<HomeFirstRunWorkflowGate />);
+    renderWithOperatorQuery(<HomeFirstRunWorkflowGate />);
 
     await waitFor(() => {
       expect(screen.queryByTestId("first-run-panel-mock")).not.toBeInTheDocument();
@@ -63,7 +78,7 @@ describe("HomeFirstRunWorkflowGate", () => {
       latestRunReadyToFinalize: false,
     });
 
-    render(<HomeFirstRunWorkflowGate />);
+    renderWithOperatorQuery(<HomeFirstRunWorkflowGate />);
 
     expect(await screen.findByTestId("first-run-panel-mock")).toBeInTheDocument();
   });
@@ -75,7 +90,7 @@ describe("HomeFirstRunWorkflowGate", () => {
     vi.mocked(isOperatorExperienceFullShellEnv).mockReturnValue(false);
     vi.mocked(fetchCorePilotCommitContext).mockImplementation(() => new Promise(() => {}));
 
-    render(<HomeFirstRunWorkflowGate />);
+    renderWithOperatorQuery(<HomeFirstRunWorkflowGate />);
 
     expect(screen.getByTestId("sample-package-shortcuts-card")).toBeInTheDocument();
     expect(fetchCorePilotCommitContext).not.toHaveBeenCalled();

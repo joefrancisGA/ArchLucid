@@ -14,7 +14,7 @@ vi.mock("@/components/alerts/alerts-inbox-query-fetch", () => ({
   fetchAlertsInboxWorkspaceContext: vi.fn(),
 }));
 
-vi.mock("@/lib/operator-scope-storage", () => ({
+vi.mock("@/lib/operator/operator-scope-storage", () => ({
   ARCHLUCID_OPERATOR_SCOPE_CHANGED_EVENT: "archlucid:operator-scope-changed",
   getEffectiveBrowserProxyScopeHeaders: () => ({
     "x-tenant-id": "tenant-1",

@@ -2,7 +2,7 @@
 
 import { useEffect, useState } from "react";
 
-import { RunRetrievalGroundingPanel } from "@/components/RunRetrievalGroundingPanel";
+import { RunRetrievalGroundingPanel } from "@/components/runs/RunRetrievalGroundingPanel";
 import { getRunRetrievalGrounding } from "@/lib/api";
 import { toApiLoadFailure } from "@/lib/api-load-failure";
 import type { ApiLoadFailureState } from "@/lib/api-load-failure";
@@ -20,30 +20,30 @@ export function RunDetailRetrievalGroundingSection(props: RunDetailRetrievalGrou
   const [loading, setLoading] = useState(true);
 
   useEffect(() => {
-    let cancelled = false;
+    let canceled = false;
 
     void (async () => {
       try {
         const response = await getRunRetrievalGrounding(props.runId);
 
-        if (!cancelled) {
+        if (!canceled) {
           setPayload(response.data);
           setFailure(null);
         }
       } catch (error: unknown) {
-        if (!cancelled) {
+        if (!canceled) {
           setPayload(null);
           setFailure(toApiLoadFailure(error));
         }
       } finally {
-        if (!cancelled) {
+        if (!canceled) {
           setLoading(false);
         }
       }
     })();
 
     return () => {
-      cancelled = true;
+      canceled = true;
     };
   }, [props.runId]);
 

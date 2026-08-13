@@ -10,6 +10,7 @@ import {
   LIVE_DEMO_PREVIOUS_STEP,
   LIVE_DEMO_RETURN_TO_GUIDED,
   LIVE_DEMO_STEPPER_LABEL,
+  LIVE_DEMO_VALUE_PROPOSITION,
   LIVE_DEMO_VIEW_FULL_WALKTHROUGH,
 } from "@/lib/live-demo-page-copy";
 import {
@@ -20,6 +21,8 @@ import {
 import { trackLiveDemoStepViewed, trackLiveDemoWalkthroughStarted } from "@/lib/live-demo-telemetry";
 import { MARKETING_TYPOGRAPHY } from "@/lib/design-tokens";
 import { cn } from "@/lib/utils";
+
+import { LiveDemoSampleStatusLine } from "./LiveDemoPageHeader";
 
 const STEP_ICONS = {
   executive: FileText,
@@ -106,7 +109,13 @@ export function LiveDemoWalkthroughNav(props: LiveDemoWalkthroughNavProps): Reac
   );
 
   return (
-    <div className="space-y-6" data-testid="live-demo-walkthrough-nav">
+    <div className="space-y-4" data-testid="live-demo-walkthrough-nav">
+      <LiveDemoSampleStatusLine />
+
+      <p className={cn("m-0 max-w-3xl text-neutral-700 dark:text-neutral-300", MARKETING_TYPOGRAPHY.body)}>
+        {LIVE_DEMO_VALUE_PROPOSITION}
+      </p>
+
       <nav aria-label={LIVE_DEMO_STEPPER_LABEL} data-testid="live-demo-stepper">
         <ol className="m-0 flex list-none flex-wrap gap-2 p-0">
           {LIVE_DEMO_WALKTHROUGH_STEPS.map((step) => {
@@ -118,19 +127,31 @@ export function LiveDemoWalkthroughNav(props: LiveDemoWalkthroughNavProps): Reac
                 <button
                   type="button"
                   className={cn(
-                    "inline-flex items-center gap-2 rounded-lg border px-3 py-2 text-left transition focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-teal-600 focus-visible:ring-offset-2",
+                    "inline-flex items-center gap-2 rounded-lg border px-2.5 py-2 text-left transition focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-teal-600 focus-visible:ring-offset-2",
                     isActive
                       ? "border-teal-600/50 bg-teal-50/80 ring-1 ring-teal-600/20 dark:border-teal-400/40 dark:bg-teal-950/30"
                       : "border-neutral-200 bg-white hover:border-teal-600/30 dark:border-neutral-800 dark:bg-neutral-950 dark:hover:border-teal-400/30",
                   )}
                   aria-current={isActive ? "step" : undefined}
+                  aria-label={`Step ${step.number}: ${step.title}`}
                   data-testid={`live-demo-stepper-${step.id}`}
                   onClick={() => navigateToStep(step.id)}
                   onKeyDown={(event) => onStepKeyDown(event, step.id)}
                 >
+                  <span
+                    className={cn(
+                      "inline-flex h-6 w-6 shrink-0 items-center justify-center rounded-full text-xs font-semibold",
+                      isActive
+                        ? "bg-teal-700 text-white dark:bg-teal-500"
+                        : "bg-neutral-100 text-neutral-700 dark:bg-neutral-800 dark:text-neutral-200",
+                    )}
+                    aria-hidden
+                  >
+                    {step.number}
+                  </span>
                   <Icon className="h-4 w-4 shrink-0 text-teal-800 dark:text-teal-300" aria-hidden />
                   <span className={cn("font-medium text-neutral-900 dark:text-neutral-50", MARKETING_TYPOGRAPHY.meta)}>
-                    {step.number}. {step.title}
+                    {step.shortLabel}
                   </span>
                 </button>
               </li>

@@ -4,4 +4,4 @@ export const ALERTS_INBOX_CARD_ROW_ESTIMATE_PX = 168;
 export {
   OPERATOR_LIST_VIRTUALIZE_MIN_ROWS as ALERTS_INBOX_VIRTUALIZE_MIN_ROWS,
   shouldVirtualizeOperatorList as shouldVirtualizeAlertsInboxList,
-} from "@/lib/operator-list-virtualization";
+} from "@/lib/operator/operator-list-virtualization";

@@ -4,8 +4,8 @@
  */
 import { expect, test } from "@playwright/test";
 
-import { START_REVIEW_LABEL } from "@/lib/architecture-workflow-labels";
-import { OPERATOR_HOME_RECENT_REVIEWS_HEADING } from "@/lib/operator-home-recent-reviews-heading";
+import { START_REVIEW_LABEL } from "@/lib/architecture/architecture-workflow-labels";
+import { OPERATOR_HOME_RECENT_REVIEWS_HEADING } from "@/lib/operator/operator-home-recent-reviews-heading";
 
 import { RUNS_LIST_PAGE_PRIMARY_HEADING_PATTERN } from "./fixtures";
 import { getAppMain } from "./helpers/app-main";

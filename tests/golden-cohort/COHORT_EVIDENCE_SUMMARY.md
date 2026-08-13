@@ -98,4 +98,4 @@ python scripts/ci/eval_agent_corpus.py `
 - Structural/semantic floors: **met** for committed exemplars under the default gate in `eval_agent_corpus.py`.
 - Summary document: **this file**.
 - Budget config: **no adjustment** required for this expansion.
-- Live AOAI / `dotnet-azure-openai-live-post-regression`: **not executed** in this workspace (credential-dependent); organisation CI remains the corroboration path after secrets are configured.
+- Live AOAI / `dotnet-azure-openai-live-post-regression`: **not executed** in this workspace (credential-dependent); organization CI remains the corroboration path after secrets are configured.

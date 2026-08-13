@@ -28,5 +28,9 @@ describe("review-guide-doc-guard (TB-764)", () => {
     expect(markdown).toContain("[Architecture packages](/help/review-packages)");
     expect(markdown).not.toContain("Plain-language vocabulary");
     expect(markdown).not.toMatch(/six.dimensional|assurance.coverage/i);
+    expect(markdown).not.toContain("Included when focused scope is on");
+    expect(markdown).toMatch(/^\| Standard \| What ArchLucid evaluates \|$/m);
+    expect(markdown).toMatch(/^\| Attach architecture evidence \| Conditional \|/m);
+    expect(markdown).toMatch(/^\| Accepted file types \| Not applicable \|/m);
   });
 });

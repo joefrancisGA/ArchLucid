@@ -5,7 +5,7 @@ import Link from "next/link";
 
 import { CopyIdButton } from "@/components/CopyIdButton";
 import { Button } from "@/components/ui/button";
-import { OperatorErrorCallout } from "@/components/OperatorShellMessage";
+import { OperatorErrorCallout } from "@/components/operator/OperatorShellMessage";
 import type { ApiLoadFailureState } from "@/lib/api-load-failure";
 import {
   BUYER_EVIDENCE_TRAIL_ERROR_BODY,
@@ -15,7 +15,7 @@ import {
   OPERATOR_GRAPH_LOAD_ERROR_BODY,
   OPERATOR_GRAPH_LOAD_ERROR_HEADING,
   OPERATOR_GRAPH_LOAD_ERROR_TRY_NEXT,
-} from "@/lib/buyer-polish-copy";
+} from "@/lib/buyer/buyer-polish-copy";
 import { resolveInAppDocHref } from "@/lib/in-app-doc-href";
 import { ensureCorrelationId } from "@/lib/usability/ensure-correlation-id";
 import { OPERATOR_DISCLOSURE_TRIGGER_CLASS, OPERATOR_TYPOGRAPHY } from "@/lib/design-tokens";

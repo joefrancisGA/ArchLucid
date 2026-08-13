@@ -11,7 +11,7 @@ import { PolicyPackGenericDetail } from "./PolicyPackGenericDetail";
 import {
   isSampleResponsibleAiPolicyPack,
   resolvePolicyPackDetailKind,
-} from "@/lib/policy-pack-detail-resolver";
+} from "@/lib/policy/policy-pack-detail-resolver";
 import { PolicyPackDetailNotFound } from "./PolicyPackDetailNotFound";
 import { ResponsibleAiPolicyPackDetail } from "./ResponsibleAiPolicyPackDetail";
 
@@ -33,7 +33,7 @@ export function PolicyPackDetailClient(props: PolicyPackDetailClientProps): Reac
   const [loading, setLoading] = useState(true);
 
   useEffect(() => {
-    let cancelled = false;
+    let canceled = false;
 
     void (async () => {
       setLoading(true);
@@ -42,22 +42,22 @@ export function PolicyPackDetailClient(props: PolicyPackDetailClientProps): Reac
         const packs = await listPolicyPacks();
         const match = packs.find((pack) => pack.policyPackId.trim() === policyPackId.trim()) ?? null;
 
-        if (!cancelled) {
+        if (!canceled) {
           setPackRecord(match);
         }
       } catch {
-        if (!cancelled) {
+        if (!canceled) {
           setPackRecord(null);
         }
       } finally {
-        if (!cancelled) {
+        if (!canceled) {
           setLoading(false);
         }
       }
     })();
 
     return () => {
-      cancelled = true;
+      canceled = true;
     };
   }, [policyPackId]);
 

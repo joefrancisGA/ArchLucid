@@ -32,14 +32,13 @@ import {
   REPEAT_REVIEW_LOOP_HELP_OVERVIEW,
   REPEAT_REVIEW_LOOP_HELP_PAGE_SUBTITLE,
   REPEAT_REVIEW_LOOP_HELP_PAGE_SUBTITLE_BUYER,
-  REPEAT_REVIEW_LOOP_HELP_SCOPE_DETAILS_TRIGGER,
 } from "@/lib/repeat-review-loop-help-guide-content";
 import { tryLoadProductDocumentation } from "@/lib/load-product-documentation";
 
 describe("HelpRepeatReviewLoopGuideView buyer-polished shell", () => {
   const loaded = tryLoadProductDocumentation("repeat-review-loop");
 
-  it("uses buyer subtitle, refresh, action panel, and collapsed overview copy", () => {
+  it("uses buyer subtitle, action panel, and overview copy without review dates", () => {
     if (loaded === null) {
       throw new Error("Expected repeat-review-loop documentation to load.");
     }
@@ -49,9 +48,8 @@ describe("HelpRepeatReviewLoopGuideView buyer-polished shell", () => {
     expect(screen.getByText(REPEAT_REVIEW_LOOP_HELP_PAGE_SUBTITLE_BUYER)).toBeInTheDocument();
     expect(screen.queryByText(REPEAT_REVIEW_LOOP_HELP_PAGE_SUBTITLE)).not.toBeInTheDocument();
     expect(screen.getByTestId("page-contextual-help-button")).toBeInTheDocument();
-    expect(screen.getByTestId("help-repeat-review-loop-refresh-button")).toBeInTheDocument();
-    expect(screen.queryByTestId("help-repeat-review-loop-scope-details")).toBeNull();
-    expect(screen.queryByText(REPEAT_REVIEW_LOOP_HELP_SCOPE_DETAILS_TRIGGER)).toBeNull(); // TB-2093
+    expect(screen.queryByTestId("help-topic-registry-provenance")).toBeNull();
+    expect(screen.queryByTestId("help-repeat-review-loop-refresh-button")).toBeNull();
     expect(screen.getByTestId("help-repeat-review-loop-overview")).toHaveTextContent(
       REPEAT_REVIEW_LOOP_HELP_OVERVIEW,
     );

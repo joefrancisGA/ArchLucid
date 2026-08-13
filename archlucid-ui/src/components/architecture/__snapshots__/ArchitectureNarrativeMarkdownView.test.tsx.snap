@@ -136,7 +136,7 @@ exports[`ArchitectureNarrativeMarkdownView > renders headings, paragraphs, lists
       >
         <button
           aria-label="Copy code"
-          class="inline-flex items-center justify-center whitespace-nowrap transition-colors focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-neutral-400 focus-visible:ring-offset-2 disabled:pointer-events-none disabled:opacity-50 border border-neutral-300 bg-white hover:bg-neutral-100 dark:border-neutral-600 dark:bg-neutral-900 dark:hover:bg-neutral-800 rounded-md absolute right-2 top-2 h-7 gap-1 px-2 dark:text-neutral-300 text-xs font-normal leading-[18px] text-al-text-secondary"
+          class="inline-flex items-center justify-center whitespace-nowrap transition-colors focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-[var(--al-accent-border-focus)] focus-visible:ring-offset-2 disabled:pointer-events-none disabled:opacity-50 border border-neutral-300 bg-white hover:bg-neutral-100 dark:border-neutral-600 dark:bg-neutral-900 dark:hover:bg-neutral-800 rounded-md absolute right-2 top-2 h-7 gap-1 px-2 dark:text-neutral-300 text-xs font-normal leading-[18px] text-al-text-secondary"
           type="button"
         >
           <svg
@@ -200,7 +200,7 @@ const endpoint = "https://claims.example.internal/v1/intake";
            and reject 
         </span>
         <code
-          class="rounded bg-neutral-100 px-1 py-0.5 font-mono text-[0.9em] text-neutral-900 dark:bg-neutral-800 dark:text-neutral-100"
+          class="rounded bg-neutral-100 px-1 py-0.5 font-mono text-[0.9em] text-neutral-900 dark:bg-neutral-800 dark:text-neutral-100 inline-block max-w-full overflow-x-auto whitespace-nowrap align-bottom"
         >
           javascript:alert(1)
         </code>

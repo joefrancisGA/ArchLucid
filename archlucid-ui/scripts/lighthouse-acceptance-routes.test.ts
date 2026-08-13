@@ -21,6 +21,7 @@ describe("lighthouse-acceptance-routes manifest (GTM M-99)", () => {
 
     expect(manifest.schemaVersion).toBe(1);
     expect(manifest.publicRoutes).toContain("/welcome");
+    expect(manifest.publicRoutes).toContain("/showcase/customer-intake-modernization");
     expect(manifest.publicRoutes).toContain("/showcase/claims-intake-modernization");
     expect(manifest.publicRoutes).toContain("/help");
     expect(manifest.authenticatedRoutes).toContain("/architecture/reviews");

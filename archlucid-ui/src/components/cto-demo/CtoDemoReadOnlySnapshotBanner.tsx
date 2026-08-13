@@ -2,7 +2,7 @@
 
 import { cn } from "@/lib/utils";
 import { OPERATOR_TYPOGRAPHY } from "@/lib/design-tokens";
-import { BUYER_CTO_DEMO_READ_ONLY_SNAPSHOT_BANNER } from "@/lib/buyer-polish-copy";
+import { BUYER_CTO_DEMO_READ_ONLY_SNAPSHOT_BANNER } from "@/lib/buyer/buyer-polish-copy";
 
 export function CtoDemoReadOnlySnapshotBanner(): React.JSX.Element {
   return (

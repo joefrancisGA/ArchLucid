@@ -1,12 +1,13 @@
-import { render, screen } from "@testing-library/react";
+import { fireEvent, render, screen, waitFor } from "@testing-library/react";
 import { describe, expect, it, vi } from "vitest";
 
 import { AlertRulesContent } from "@/components/alerts/AlertRulesContent";
 import { AlertRoutingContent } from "@/components/alerts/AlertRoutingContent";
 import { AlertSimulationContent } from "@/components/alerts/AlertSimulationContent";
-import { AlertTuningContent } from "@/components/alerts/AlertTuningContent";
+import { AlertSimulationTuningSection } from "@/components/alerts/AlertSimulationTuningSection";
 import { AlertsInboxContent } from "@/components/alerts/AlertsInboxContent";
 import { CompositeAlertRulesContent } from "@/components/alerts/CompositeAlertRulesContent";
+import { renderWithOperatorQuery } from "@/testing/operator-query-test-helpers";
 
 vi.mock("@/lib/api/http", async (importOriginal) => {
   const actual = await importOriginal<typeof import("@/lib/api/http")>();
@@ -210,9 +211,13 @@ describe("operator client pages — render gate", () => {
     expect(screen.getByTestId("alerts-inbox-summary-row")).toBeInTheDocument();
   });
 
-  it("Alert rules content renders primary heading", () => {
-    render(<AlertRulesContent />);
-    expect(screen.getByRole("heading", { level: 2, name: "Alert conditions" })).toBeInTheDocument();
+  it("Alert rules content renders without a duplicate hub page-title h2 (TB-1584)", async () => {
+    renderWithOperatorQuery(<AlertRulesContent />);
+    await waitFor(() => {
+      expect(screen.getByTestId("mutating-in-workspace-chip")).toBeInTheDocument();
+    });
+    expect(screen.queryByRole("heading", { level: 2, name: "Alert rules" })).not.toBeInTheDocument();
+    expect(screen.queryByRole("heading", { level: 2, name: "Configured alert rules" })).not.toBeInTheDocument();
   });
 
   it("Alert routing content renders primary heading", () => {
@@ -220,24 +225,33 @@ describe("operator client pages — render gate", () => {
     expect(screen.getByRole("heading", { level: 2, name: "Notification delivery" })).toBeInTheDocument();
   });
 
-  it("Alert simulation content renders primary heading", () => {
+  it("Alert simulation content demotes duplicate hub page title to h3 (TB-1589)", () => {
     render(<AlertSimulationContent />);
-    expect(screen.getByRole("heading", { level: 2, name: "Simulate alerts" })).toBeInTheDocument();
+    expect(screen.queryByRole("heading", { level: 2, name: "Simulate alerts" })).not.toBeInTheDocument();
+    expect(screen.getByRole("heading", { level: 3, name: "Simulate alerts" })).toBeInTheDocument();
   });
 
-  it("Alert tuning content renders primary heading", () => {
-    render(<AlertTuningContent />);
-    expect(screen.getByRole("heading", { level: 2, name: "Tune alert thresholds" })).toBeInTheDocument();
+  it("Alert simulation tuning section demotes dual h2 under hub tab (TB-1589)", () => {
+    render(<AlertSimulationTuningSection />);
+    expect(screen.queryByRole("heading", { level: 2, name: "Simulate alerts" })).not.toBeInTheDocument();
+    expect(screen.queryByRole("heading", { level: 2, name: "Tune alert thresholds" })).not.toBeInTheDocument();
+    expect(screen.getByRole("heading", { level: 3, name: "Simulate alerts" })).toBeInTheDocument();
+    expect(screen.getByTestId("alert-test-tune-disclosure")).toBeInTheDocument();
   });
 
-  it("Composite alert rules content renders primary heading", () => {
+  it("Composite alert rules content does not duplicate hub page title as h2 (TB-1579)", () => {
     render(<CompositeAlertRulesContent />);
-    expect(screen.getByRole("heading", { level: 2, name: "Advanced alert rules" })).toBeInTheDocument();
+    expect(screen.queryByRole("heading", { level: 2, name: "Advanced alert rules" })).not.toBeInTheDocument();
   });
 
+  // Empty-first UX (TB-1567): the Scans tab opens on the next-story CTAs, so the generate form
+  // heading (h3 under the hub page title) only mounts after Choose review.
   it("Advisory hub Scans tab content renders primary heading", () => {
     renderWithOperatorQuery(<AdvisoryScansContent />);
-    expect(screen.getByRole("heading", { level: 2, name: ADVISORY_SCANS_FORM_SECTION_TITLE })).toBeInTheDocument();
+
+    fireEvent.click(screen.getByTestId("advisory-choose-review-cta"));
+
+    expect(screen.getByRole("heading", { level: 3, name: ADVISORY_SCANS_FORM_SECTION_TITLE })).toBeInTheDocument();
   });
 
   it("Advisory hub Schedules tab content renders primary heading", () => {

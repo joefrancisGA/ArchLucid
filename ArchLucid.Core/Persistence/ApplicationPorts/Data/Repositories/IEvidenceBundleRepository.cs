@@ -13,7 +13,7 @@ public interface IEvidenceBundleRepository
 {
     /// <summary>Persists a new evidence bundle.</summary>
     /// <param name="evidenceBundle">The bundle to create.</param>
-    /// <param name="cancellationToken">Propagates notification that the operation should be cancelled.</param>
+    /// <param name="cancellationToken">Propagates notification that the operation should be canceled.</param>
     Task CreateAsync(
         EvidenceBundle evidenceBundle,
         CancellationToken cancellationToken = default,

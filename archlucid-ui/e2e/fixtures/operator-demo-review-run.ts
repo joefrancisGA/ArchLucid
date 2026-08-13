@@ -5,7 +5,7 @@ import {
   OPERATOR_DEMO_REVIEW_ONE_CLICK_CONSTRAINT_MARKER,
   OPERATOR_DEMO_REVIEW_POLICY_PACK_DISPLAY_NAME,
   OPERATOR_DEMO_REVIEW_SYSTEM_DISPLAY_NAME,
-} from "@/lib/operator-demo-review";
+} from "@/lib/operator/operator-demo-review";
 
 import { FIXTURE_MANIFEST_ID, FIXTURE_PROJECT_ID } from "./ids";
 

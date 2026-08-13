@@ -3,17 +3,23 @@
 import { useSearchParams } from "next/navigation";
 import { useCallback, useEffect, useLayoutEffect, useMemo, useRef, useState, startTransition } from "react";
 
-import { OperatorPageContainer } from "@/components/OperatorPageContainer";
+import { OperatorPageContainer } from "@/components/operator/OperatorPageContainer";
+import { ArchitectureIntelligenceEvidenceGraphVocabularyRail } from "@/components/ArchitectureIntelligenceEvidenceGraphVocabularyRail";
+import { AuditEvidenceTrailVocabularyRail } from "@/components/AuditEvidenceTrailVocabularyRail";
+import { PackageEvidenceEvidenceGraphVocabularyRail } from "@/components/PackageEvidenceEvidenceGraphVocabularyRail";
+import { RunProvenanceEvidenceGraphVocabularyRail } from "@/components/runs/RunProvenanceEvidenceGraphVocabularyRail";
 import { Tabs, TabsContent } from "@/components/ui/tabs";
 import type { EmptyStateProps } from "@/components/EmptyState";
-import { OperatorPageHeader } from "@/components/OperatorPageHeader";
+import { EvidenceGraphFirstOpenCoach } from "@/components/EvidenceGraphFirstOpenCoach";
+import { OperatorPageHeader } from "@/components/operator/OperatorPageHeader";
+import { PageContextualHelpButton } from "@/components/usability/PageContextualHelpButton";
 import { CtoDemoBuyerValueStrip } from "@/components/cto-demo/CtoDemoBuyerValueStrip";
 import { useWorkspaceActiveRun } from "@/components/WorkspaceActiveRunContext";
 import { isApiRequestError } from "@/lib/api-request-error";
 import type { ApiLoadFailureState } from "@/lib/api-load-failure";
 import { toApiLoadFailure } from "@/lib/api-load-failure";
-import { OPERATOR_GRAPH_PAGE_SUBTITLE } from "@/lib/buyer-polish-copy";
-import { BUYER_SURFACE_VOCABULARY } from "@/lib/buyer-surface-vocabulary";
+import { OPERATOR_GRAPH_PAGE_SUBTITLE } from "@/lib/buyer/buyer-polish-copy";
+import { BUYER_SURFACE_VOCABULARY } from "@/lib/vocabulary/buyer-surface-vocabulary";
 import { canonicalizeDemoRunId } from "@/lib/demo-run-canonical";
 import { cn } from "@/lib/utils";
 import { OPERATOR_LAYOUT, OPERATOR_PAGE_CONTAINER } from "@/lib/design-tokens";
@@ -22,7 +28,7 @@ import {
   EVIDENCE_GRAPH_PAGE_TITLE,
 } from "@/lib/evidence-graph-page";
 import { isBuyerPolishedOperatorShellEnv, isNextPublicDemoMode } from "@/lib/demo-ui-env";
-import { SHOWCASE_PHI_FINDING_GRAPH_NODE_ID } from "@/lib/finding-inspect-graph-evidence";
+import { SHOWCASE_PHI_FINDING_GRAPH_NODE_ID } from "@/lib/findings/finding-inspect-graph-evidence";
 import {
   getArchitectureGraph,
   getDecisionSubgraph,
@@ -34,7 +40,7 @@ import {
   isStaticDemoPayloadFallbackActiveForRun,
   isStaticDemoPayloadFallbackEnabled,
   tryStaticDemoProvenanceGraph,
-} from "@/lib/operator-static-demo";
+} from "@/lib/operator/operator-static-demo";
 import {
   isSampleGraphActive,
   resolveGraphReviewPickerState,
@@ -43,7 +49,7 @@ import {
   type AskRunListAvailability,
 } from "@/lib/graph-page-state";
 import { GraphSampleModeBanner } from "@/app/(operator)/insights/evidence-graph/_sections/GraphSampleModeBanner";
-import { coerceGraphViewModel } from "@/lib/operator-response-guards";
+import { coerceGraphViewModel } from "@/lib/operator/operator-response-guards";
 import { provenanceLinkageToGraphViewModel } from "@/lib/provenance-linkage-to-graph-vm";
 import {
   SHOWCASE_STATIC_DEMO_RUN_ID,
@@ -66,10 +72,10 @@ import { GraphLoadedExperience } from "@/app/(operator)/insights/evidence-graph/
 import { GraphModeAuxiliaryFields } from "@/app/(operator)/insights/evidence-graph/_sections/GraphModeAuxiliaryFields";
 import { GraphPageControls } from "@/app/(operator)/insights/evidence-graph/_sections/GraphPageControls";
 import { EvidenceTrailTracePanel } from "@/app/(operator)/insights/evidence-graph/_sections/EvidenceTrailTracePanel";
-import { OperatorSavedViewsBar } from "@/components/OperatorSavedViewsBar";
+import { OperatorSavedViewsBar } from "@/components/operator/OperatorSavedViewsBar";
 import { useOperateCapability } from "@/hooks/use-operate-capability";
 import type { OperatorSavedView } from "@/lib/api/operator-saved-views";
-import type { GraphSavedViewFilters } from "@/lib/operator-saved-view-types";
+import type { GraphSavedViewFilters } from "@/lib/operator/operator-saved-view-types";
 
 export function GraphPageContent() {
   const searchParams = useSearchParams();
@@ -702,7 +708,17 @@ export function GraphPageContent() {
       {buyerPolishedShell ? null : (
         <CtoDemoBuyerValueStrip stepIndex={2} />
       )}
-      <OperatorPageHeader title={pageTitle} subtitle={pageSubtitle} navHref="/insights/evidence-graph" />
+      <OperatorPageHeader
+        title={pageTitle}
+        subtitle={pageSubtitle}
+        navHref="/insights/evidence-graph"
+        actions={<PageContextualHelpButton />}
+      />
+      <ArchitectureIntelligenceEvidenceGraphVocabularyRail currentSurfaceId="evidence-graph" />
+      <AuditEvidenceTrailVocabularyRail currentSurfaceId="evidence-graph" />
+      <RunProvenanceEvidenceGraphVocabularyRail currentSurfaceId="evidence-graph" />
+      <PackageEvidenceEvidenceGraphVocabularyRail currentSurfaceId="evidence-graph" />
+      <EvidenceGraphFirstOpenCoach />
       <GraphEvidenceTrailGuidanceDisclosure className={buyerPolishedShell ? "hidden" : undefined} />
       {buyerGraphBody}
       {!buyerPolishedShell && showOperatorControls && effectiveGraph === null ? (

@@ -3,13 +3,13 @@
 import { cn } from "@/lib/utils";
 import { AdvancedOptionsAccordion } from "@/components/AdvancedOptionsAccordion";
 import type { PolicyPacksPageViewModel } from "./policy-packs-page-view-model";
-import { PolicyPackImpactPreviewPanel } from "@/components/PolicyPackImpactPreviewPanel";
-import { PolicyPackImpactSimulationCard } from "@/components/PolicyPackImpactSimulationCard";
+import { PolicyPackImpactPreviewPanel } from "@/components/policy/PolicyPackImpactPreviewPanel";
+import { PolicyPackImpactSimulationCard } from "@/components/policy/PolicyPackImpactSimulationCard";
 import { PolicyPackBasisStatusBanner } from "@/components/governance/PolicyPackBasisStatusBanner";
-import { buildPolicyPackEnforcedRuleRows } from "@/lib/policy-pack-enforced-rules";
+import { buildPolicyPackEnforcedRuleRows } from "@/lib/policy/policy-pack-enforced-rules";
 import {
   policyPacksPageSubtitle,
-} from "@/lib/policy-packs-page";
+} from "@/lib/policy/policy-packs-page";
 import {
   policyPacksRefreshAssistReaderLine,
   policyPacksRefreshAssistReaderLineBuyerPolished,
@@ -25,15 +25,19 @@ import { PolicyPacksPageHeader } from "./PolicyPacksPageHeader";
 import { PolicyPacksRegisteredListSection } from "./PolicyPacksRegisteredListSection";
 import { PolicyPacksAdvancedAuthoringPanel } from "./PolicyPacksAdvancedAuthoringPanel";
 import { LayerHeader } from "@/components/LayerHeader";
-import { OperatorApiProblem } from "@/components/OperatorApiProblem";
+import { OperatorApiProblem } from "@/components/operator/OperatorApiProblem";
 import { OperatorSuccessCallout } from "@/components/operator/OperatorSuccessCallout";
+import { PatternLibraryPolicyPacksVocabularyRail } from "@/components/PatternLibraryPolicyPacksVocabularyRail";
+import { PolicyPackDetailHubVocabularyRail } from "@/components/policy/PolicyPackDetailHubVocabularyRail";
+import { PolicyPacksStandardsVocabularyRail } from "@/components/policy/PolicyPacksStandardsVocabularyRail";
+import { GovernanceSetupConfigHubsVocabularyRail } from "@/components/governance/GovernanceSetupConfigHubsVocabularyRail";
 import {
   Tabs,
   TabsContent,
   TabsList,
   TabsTrigger,
 } from "@/components/ui/tabs";
-import { isStaticDemoPayloadFallbackEnabled } from "@/lib/operator-static-demo";
+import { isStaticDemoPayloadFallbackEnabled } from "@/lib/operator/operator-static-demo";
 import {
   OPERATOR_LAYOUT,
   OPERATOR_TYPOGRAPHY,
@@ -94,6 +98,11 @@ className="mb-3"
         onRefresh={m.load}
       />
 
+      <PolicyPacksStandardsVocabularyRail currentSurfaceId="policy-packs" />
+      <PatternLibraryPolicyPacksVocabularyRail currentSurfaceId="policy-packs" />
+      <PolicyPackDetailHubVocabularyRail currentSurfaceId="policy-packs" />
+      <GovernanceSetupConfigHubsVocabularyRail currentSurfaceId="policy-packs" />
+
       {m.publishSuccessMessage !== null ? (
         <OperatorSuccessCallout
           message={m.publishSuccessMessage}
@@ -109,7 +118,7 @@ className="mb-3"
 
       {!m.canMutatePacks ? (
         <p
-          className={cn("mb-3 max-w-prose text-al-text-secondary", OPERATOR_TYPOGRAPHY.helper)}
+          className={cn("mb-3 text-al-text-secondary", OPERATOR_TYPOGRAPHY.helper)}
           data-testid="policy-packs-reader-assist"
         >
           {m.buyerPolishedShell

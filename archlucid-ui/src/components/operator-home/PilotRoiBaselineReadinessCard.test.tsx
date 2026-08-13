@@ -28,7 +28,7 @@ vi.mock("@/lib/pilot-roi-baseline-chrome", () => ({
   suppressPilotRoiBaselineChrome: () => false,
 }));
 
-vi.mock("@/components/OperatorNavAuthorityProvider", () => ({
+vi.mock("@/components/operator/OperatorNavAuthorityProvider", () => ({
   useNavCommittedArchitectureReview: () => committedReviewMock.value,
 }));
 

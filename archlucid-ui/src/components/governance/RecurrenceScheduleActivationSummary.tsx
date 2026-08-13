@@ -42,19 +42,19 @@ export function RecurrenceScheduleActivationSummary(props: RecurrenceScheduleAct
   );
 
   useEffect(() => {
-    let cancelled = false;
+    let canceled = false;
 
     if (trimmedCron.length === 0) {
       setNextRunUtc(null);
 
       return () => {
-        cancelled = true;
+        canceled = true;
       };
     }
 
     void previewRecurrenceScheduleRuns({ cronExpression: trimmedCron, count: 1 })
       .then((result) => {
-        if (cancelled) {
+        if (canceled) {
           return;
         }
 
@@ -65,13 +65,13 @@ export function RecurrenceScheduleActivationSummary(props: RecurrenceScheduleAct
         }
       })
       .catch(() => {
-        if (!cancelled) {
+        if (!canceled) {
           setNextRunUtc(null);
         }
       });
 
     return () => {
-      cancelled = true;
+      canceled = true;
     };
   }, [trimmedCron]);
 

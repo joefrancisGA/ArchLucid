@@ -2,7 +2,7 @@
 
 import { cn } from "@/lib/utils";
 import Link from "next/link";
-import { useEffect, useRef, useState } from "react";
+import { useCallback, useEffect, useRef, useState } from "react";
 
 import { Button } from "@/components/ui/button";
 import { createArchitectureRun, getRunStageTimeline, getRunSummary } from "@/lib/api";
@@ -16,6 +16,8 @@ import { OPERATOR_TYPOGRAPHY } from "@/lib/design-tokens";
 
 const POLL_INTERVAL_MS = 2000;
 const SLOW_RUN_MESSAGE_SECONDS = 25;
+/** Stop silent polling after this many consecutive poll failures. */
+const MAX_CONSECUTIVE_POLL_FAILURES = 5;
 
 export type CtoDemoLiveRunProgressRailProps = {
   readonly payload: CreateArchitectureRunRequestPayload;
@@ -46,7 +48,10 @@ export function CtoDemoLiveRunProgressRail(props: CtoDemoLiveRunProgressRailProp
   const [elapsedSeconds, setElapsedSeconds] = useState(0);
   const [finalized, setFinalized] = useState(false);
   const [error, setError] = useState<string | null>(null);
+  const [pollStalled, setPollStalled] = useState(false);
+  const [pollSession, setPollSession] = useState(0);
   const startedAtRef = useRef<number | null>(null);
+  const consecutiveFailuresRef = useRef(0);
 
   useEffect(() => {
     startedAtRef.current = performance.now();
@@ -87,11 +92,12 @@ export function CtoDemoLiveRunProgressRail(props: CtoDemoLiveRunProgressRailProp
   }, [runId]);
 
   useEffect(() => {
-    if (runId === null || finalized) {
+    if (runId === null || finalized || pollStalled) {
       return;
     }
 
-    let cancelled = false;
+    let canceled = false;
+    consecutiveFailuresRef.current = 0;
 
     const poll = async (): Promise<void> => {
       try {
@@ -100,9 +106,11 @@ export function CtoDemoLiveRunProgressRail(props: CtoDemoLiveRunProgressRailProp
           getRunSummary(runId),
         ]);
 
-        if (cancelled) {
+        if (canceled) {
           return;
         }
+
+        consecutiveFailuresRef.current = 0;
 
         const completedCount = timeline.filter((row) => (row.completedUtc ?? "").trim().length > 0).length;
         const isFinalized = summary.hasGoldenManifest === true;
@@ -113,7 +121,15 @@ export function CtoDemoLiveRunProgressRail(props: CtoDemoLiveRunProgressRailProp
           setFinalized(true);
         }
       } catch {
-        /* keep polling */
+        if (canceled) {
+          return;
+        }
+
+        consecutiveFailuresRef.current += 1;
+
+        if (consecutiveFailuresRef.current >= MAX_CONSECUTIVE_POLL_FAILURES) {
+          setPollStalled(true);
+        }
       }
     };
 
@@ -123,10 +139,16 @@ export function CtoDemoLiveRunProgressRail(props: CtoDemoLiveRunProgressRailProp
     }, POLL_INTERVAL_MS);
 
     return () => {
-      cancelled = true;
+      canceled = true;
       window.clearInterval(pollId);
     };
-  }, [finalized, runId]);
+  }, [finalized, pollSession, pollStalled, runId]);
+
+  const retryPolling = useCallback(() => {
+    setPollStalled(false);
+    consecutiveFailuresRef.current = 0;
+    setPollSession((session) => session + 1);
+  }, []);
 
   if (error !== null) {
     return <p className={cn("m-0 text-red-700 dark:text-red-300", OPERATOR_TYPOGRAPHY.body)}>{error}</p>;
@@ -149,7 +171,30 @@ export function CtoDemoLiveRunProgressRail(props: CtoDemoLiveRunProgressRailProp
           <StageRow key={stage.id} stage={stage} />
         ))}
       </ol>
-      {elapsedSeconds >= SLOW_RUN_MESSAGE_SECONDS && !finalized ? (
+      {pollStalled ? (
+        <div className="space-y-2" data-testid="cto-demo-live-run-poll-stalled" role="alert">
+          <p className={cn("m-0 text-red-700 dark:text-red-300", OPERATOR_TYPOGRAPHY.body)}>
+            Progress updates stalled. The review may still be running — retry status or open the review when ready.
+          </p>
+          <div className="flex flex-wrap gap-2">
+            <Button
+              type="button"
+              size="sm"
+              variant="outline"
+              onClick={retryPolling}
+              data-testid="cto-demo-live-run-retry-poll"
+            >
+              Retry status
+            </Button>
+            {completeHref !== null ? (
+              <Button type="button" size="sm" variant="outline" asChild>
+                <Link href={completeHref}>Open review</Link>
+              </Button>
+            ) : null}
+          </div>
+        </div>
+      ) : null}
+      {!pollStalled && elapsedSeconds >= SLOW_RUN_MESSAGE_SECONDS && !finalized ? (
         <p className={cn("m-0 text-neutral-600 dark:text-neutral-400", OPERATOR_TYPOGRAPHY.helper)}>
           Still working — complex briefs take a moment longer.
         </p>

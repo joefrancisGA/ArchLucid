@@ -1,5 +1,5 @@
 import { getAuthorityRunManifest } from "@/lib/api";
-import { tryStaticDemoGoldenManifestJsonForExport } from "@/lib/operator-static-demo";
+import { tryStaticDemoGoldenManifestJsonForExport } from "@/lib/operator/operator-static-demo";
 
 export function formatArchitectureManifestJsonForDiff(value: unknown): string {
   return JSON.stringify(value, null, 2);

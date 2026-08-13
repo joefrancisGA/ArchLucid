@@ -5,7 +5,7 @@ import type { ReactElement } from "react";
 
 import { ArchitectureCreatedFindingsEvidenceOrientationStrip } from "@/components/architecture/ArchitectureCreatedFindingsEvidenceOrientationStrip";
 import { ArchitectureCreatedFindingsNextAction } from "@/components/architecture/ArchitectureCreatedFindingsNextAction";
-import { FindingsItsmExportToolbar } from "@/components/FindingsItsmExportToolbar";
+import { FindingsItsmExportToolbar } from "@/components/findings/FindingsItsmExportToolbar";
 import { FindingKeyboardTriageHost } from "@/components/governance/findings/FindingKeyboardTriageHost";
 import { QuickDecisionSummary } from "@/components/QuickDecisionSummary";
 import {
@@ -15,8 +15,8 @@ import {
   useRunDetailFindingsToolbarState,
   type RunDetailFindingsFilterKind,
 } from "@/components/findings/RunDetailFindingsToolbar";
-import type { FindingsNaturalLanguageFacets } from "@/lib/findings-natural-language-filter";
-import { applyFindingsConfidenceVisibility } from "@/lib/finding-confidence-filter";
+import type { FindingsNaturalLanguageFacets } from "@/lib/findings/findings-natural-language-filter";
+import { applyFindingsConfidenceVisibility } from "@/lib/findings/finding-confidence-filter";
 import {
   architectureAssessmentFindingsPresentation,
   reviewFindingsGovernanceQueuePresentation,
@@ -31,7 +31,7 @@ import {
 import {
   deriveRunDetailFindingsTriageCounts,
   formatFindingsExcludedSummaryLine,
-} from "@/lib/run-detail-findings-triage-counts";
+} from "@/lib/runs/run-detail-findings-triage-counts";
 
 export type RunDetailFindingsWorkspaceProps = {
   readonly runId: string;
@@ -52,6 +52,7 @@ export type RunDetailFindingsWorkspaceProps = {
   readonly analysisStagesComplete?: boolean;
   readonly triageVisibleCount?: number;
   readonly onNavigateActivity?: () => void;
+  readonly onNavigateClarifications?: () => void;
 };
 
 /** Findings list with workspace toolbar filters for the review detail page. */
@@ -146,6 +147,7 @@ export function RunDetailFindingsWorkspace(props: RunDetailFindingsWorkspaceProp
       packageCommitted={props.packageCommitted}
       analysisStagesComplete={props.analysisStagesComplete}
       onNavigateActivity={props.onNavigateActivity}
+      onNavigateClarifications={props.onNavigateClarifications}
       confidenceVisibility={{
         showLowConfidence,
         onShowLowConfidenceChange: setShowLowConfidence,

@@ -3,7 +3,7 @@
 import { useMemo, useSyncExternalStore } from "react";
 import { useSearchParams } from "next/navigation";
 
-import { useOperatorNavAuthority } from "@/components/OperatorNavAuthorityProvider";
+import { useOperatorNavAuthority } from "@/components/operator/OperatorNavAuthorityProvider";
 import { ColdSharedLinkUnpackPanel } from "@/components/operator/ColdSharedLinkUnpackPanel";
 import { InviteeFirstOrientationPanel } from "@/components/operator/InviteeFirstOrientationPanel";
 import { readInvitationToken } from "@/lib/auth/email-otp-session";

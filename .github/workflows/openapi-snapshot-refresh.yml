@@ -21,11 +21,6 @@ on:
         required: false
         type: boolean
         default: false
-      regenerate_dotnet_client:
-        description: "Also regenerate ArchLucid.Api.Client NSwag output (slow, large diff)"
-        required: false
-        type: boolean
-        default: false
       commit_and_push:
         description: "Commit and push when generated files differ"
         required: false
@@ -148,7 +143,6 @@ jobs:
             ArchLucid.Api.Tests/Contracts/openapi-v1.contract.snapshot.json
             ArchLucid.Api.Tests/Contracts/buyer-contract.openapi.snapshot.json
             archlucid-ui/src/lib/api-types.generated.ts
-            ArchLucid.Api.Client/Generated/ArchLucidApiClient.g.cs
           )
 
           changed=0

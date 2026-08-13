@@ -42,15 +42,6 @@ public sealed class ContractsFrameworkIsolationTests
 
         result.IsSuccessful.Should().BeTrue(
             because: "ArchLucid.Contracts is a shared DTO and port-definition leaf consumed by every host (API, Worker, CLI, Api.Client). Adding AspNetCore or SqlClient here couples every consumer. Offending types: {0}",
-            FormatFailingTypeNames(result));
-    }
-
-    private static string FormatFailingTypeNames(TestResult result)
-    {
-        IReadOnlyList<string>? names = result.FailingTypeNames;
-
-        if (names is null || names.Count == 0) return "(none reported)";
-
-        return string.Join(", ", names);
+            ArchitectureConstraintFailureReport.FormatFailingTypeNames(result));
     }
 }

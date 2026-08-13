@@ -1,52 +1,21 @@
 "use client";
 
-import { HelpTopicPdfDownloadButton } from "@/components/help/HelpTopicPdfDownloadButton";
-import { Button } from "@/components/ui/button";
-import { printHelpTopicPage } from "@/lib/help-topic-print";
+import { HelpTopicPrintButton } from "@/components/help/HelpTopicPrintButton";
 import type { ProductDocumentationEntry } from "@/lib/product-documentation-registry";
 
 type HelpAcceleratorChooserHeaderActionsProps = {
   readonly entry: ProductDocumentationEntry;
 };
 
-/** PDF / print actions for accelerator chooser help — print remains when pdfStatus is null (HAX). */
+/** Print action for accelerator chooser help — print remains when pdfStatus is null (HAX). */
 export function HelpAcceleratorChooserHeaderActions(
   props: HelpAcceleratorChooserHeaderActionsProps,
-): React.ReactElement | null {
+): React.ReactElement {
   const { entry } = props;
-
-  if (entry.pdfStatus === null) {
-    return (
-      <div className="flex flex-wrap items-center gap-2" data-testid="help-accelerator-chooser-header-actions">
-        <Button
-          type="button"
-          variant="outline"
-          size="sm"
-          data-testid="help-topic-print-pdf"
-          onClick={() => {
-            printHelpTopicPage();
-          }}
-        >
-          Print / Save as PDF
-        </Button>
-      </div>
-    );
-  }
 
   return (
     <div className="flex flex-wrap items-center gap-2" data-testid="help-accelerator-chooser-header-actions">
-      <HelpTopicPdfDownloadButton entry={entry} />
-      <Button
-        type="button"
-        variant="outline"
-        size="sm"
-        data-testid="help-topic-print-pdf"
-        onClick={() => {
-          printHelpTopicPage();
-        }}
-      >
-        Print / Save as PDF
-      </Button>
+      <HelpTopicPrintButton entry={entry} allowWithoutServerPdf />
     </div>
   );
 }

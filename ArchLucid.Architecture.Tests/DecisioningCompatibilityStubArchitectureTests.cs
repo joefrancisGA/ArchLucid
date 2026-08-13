@@ -20,7 +20,7 @@ public sealed class DecisioningCompatibilityStubArchitectureTests
     [Fact]
     public void Decisioning_compatibility_stub_files_must_match_allowlist()
     {
-        string root = FindRepositoryRoot();
+        string root = ArchitectureConstraintRepositoryPaths.RepositoryRoot;
         string decisioningRoot = Path.Combine(root, "ArchLucid.Decisioning");
 
         HashSet<string> discovered = DiscoverCompatibilityStubRelativePaths(decisioningRoot, root);
@@ -38,7 +38,7 @@ public sealed class DecisioningCompatibilityStubArchitectureTests
     [Fact]
     public void Decisioning_compatibility_stub_allowlist_files_must_exist_on_disk()
     {
-        string root = FindRepositoryRoot();
+        string root = ArchitectureConstraintRepositoryPaths.RepositoryRoot;
 
         foreach (ArchitectureConstraintCompatibilityStubEntry entry in ArchitectureConstraintCompatibilityStubCatalog.DecisioningStubs)
         {
@@ -86,7 +86,7 @@ public sealed class DecisioningCompatibilityStubArchitectureTests
     {
         foreach (ArchitectureConstraintCompatibilityStubEntry entry in ArchitectureConstraintCompatibilityStubCatalog.DecisioningStubs)
         {
-            string root = FindRepositoryRoot();
+            string root = ArchitectureConstraintRepositoryPaths.RepositoryRoot;
             string fullPath = Path.Combine(root, entry.RelativeSourcePath.Replace('/', Path.DirectorySeparatorChar));
             string text = File.ReadAllText(fullPath);
 
@@ -183,20 +183,5 @@ public sealed class DecisioningCompatibilityStubArchitectureTests
         string suffix = normalized[(decisioningIndex + "ArchLucid.Decisioning/".Length)..];
         string namespaceSuffix = suffix[..suffix.LastIndexOf('/')].Replace('/', '.');
         return $"ArchLucid.Decisioning.{namespaceSuffix}.{stubInterfaceName}";
-    }
-
-    private static string FindRepositoryRoot()
-    {
-        for (DirectoryInfo? directory = new(AppContext.BaseDirectory); directory != null; directory = directory.Parent)
-        {
-            string solutionPath = Path.Combine(directory.FullName, "ArchLucid.sln");
-
-            if (File.Exists(solutionPath))
-            {
-                return directory.FullName;
-            }
-        }
-
-        throw new InvalidOperationException("ArchLucid.sln not found walking up from AppContext.BaseDirectory.");
     }
 }

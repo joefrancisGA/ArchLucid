@@ -1,6 +1,6 @@
 "use client";
 import { cn } from "@/lib/utils";
-import { OPERATOR_TYPOGRAPHY } from "@/lib/design-tokens";
+import { DESIGN_TOKENS, OPERATOR_TYPOGRAPHY } from "@/lib/design-tokens";
 
 import { DraftIntakeClaimLabel } from "@/components/draft-intake/DraftIntakeClaimLabel";
 import {
@@ -29,10 +29,11 @@ export type DraftIntakeDecisionReceiptCardProps = {
 export function DraftIntakeDecisionReceiptCard(props: DraftIntakeDecisionReceiptCardProps) {
   const tone = feasibilityVerdictTone(props.verdict.kind);
 
-  let toneClass = "border-amber-300 bg-amber-50 dark:border-amber-800 dark:bg-amber-950/40";
+  // `p-0` cancels the callout token's own inset — CardHeader / CardContent already own this card's padding.
+  let toneClass = cn(DESIGN_TOKENS.callout.warn, "p-0");
 
   if (tone === "danger") {
-    toneClass = "border-rose-300 bg-rose-50 dark:border-rose-800 dark:bg-rose-950/40";
+    toneClass = cn(DESIGN_TOKENS.callout.blocked, "p-0");
   }
 
   return (

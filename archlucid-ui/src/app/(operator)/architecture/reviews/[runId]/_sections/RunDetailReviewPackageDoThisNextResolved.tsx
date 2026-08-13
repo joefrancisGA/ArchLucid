@@ -37,10 +37,10 @@ export function RunDetailReviewPackageDoThisNextResolved(
   const [next, setNext] = useState<ReviewPackageDoThisNext | null>(null);
 
   useEffect(() => {
-    let cancelled = false;
+    let canceled = false;
 
     void import("./resolve-review-package-do-this-next").then(({ resolveReviewPackageDoThisNext }) => {
-      if (cancelled) {
+      if (canceled) {
         return;
       }
 
@@ -59,12 +59,15 @@ export function RunDetailReviewPackageDoThisNextResolved(
           openClarificationGapCount: props.openClarificationGapCount,
           correctionHref: props.correctionHref,
           useCreateHomeWorkspaceTabs: props.useCreateHomeWorkspaceTabs,
+          evidenceCoverageLinkedCount: props.evidenceCoverageLinkedCount,
+          evidenceCoverageTotalCount: props.evidenceCoverageTotalCount,
+          governanceDecisionRecorded: props.governanceDecisionRecorded,
         }),
       );
     });
 
     return () => {
-      cancelled = true;
+      canceled = true;
     };
   }, [
     props.runId,
@@ -80,6 +83,9 @@ export function RunDetailReviewPackageDoThisNextResolved(
     props.openClarificationGapCount,
     props.correctionHref,
     props.useCreateHomeWorkspaceTabs,
+    props.evidenceCoverageLinkedCount,
+    props.evidenceCoverageTotalCount,
+    props.governanceDecisionRecorded,
   ]);
 
   if (next === null) {

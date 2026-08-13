@@ -1,10 +1,10 @@
 import type { Metadata } from "next";
 
 import { ArchitectureDraftWorkspace } from "@/components/architecture/ArchitectureDraftWorkspace";
-import { OperatorPageContainer } from "@/components/OperatorPageContainer";
-import { OperatorPageHeader } from "@/components/OperatorPageHeader";
-import { ARCHITECTURE_NEW_DRAFT_SEGMENT, ARCHITECTURES_NEW_PATH } from "@/lib/architecture-routes";
-import { CREATE_ARCHITECTURE_LABEL } from "@/lib/architecture-workflow-labels";
+import { OperatorPageContainer } from "@/components/operator/OperatorPageContainer";
+import { OperatorPageHeader } from "@/components/operator/OperatorPageHeader";
+import { ARCHITECTURE_NEW_DRAFT_SEGMENT, ARCHITECTURES_NEW_PATH } from "@/lib/architecture/architecture-routes";
+import { CREATE_ARCHITECTURE_LABEL } from "@/lib/architecture/architecture-workflow-labels";
 
 import { ArchitecturesNewPageHeaderActions } from "./_sections/ArchitecturesNewPageHeaderActions";
 import { ArchitecturesNewPageSubtitle } from "./_sections/ArchitecturesNewPageSubtitle";

@@ -12,11 +12,11 @@ vi.mock("@/lib/demo-ui-env", async (importOriginal) => {
 };
 });
 
-vi.mock("@/lib/buyer-safe-review-navigation", () => ({
+vi.mock("@/lib/buyer/buyer-safe-review-navigation", () => ({
   getShowcaseManifestHref: () => "/architecture/reviews/demo-manifest",
 }));
 
-vi.mock("@/lib/operator-static-demo", () => ({
+vi.mock("@/lib/operator/operator-static-demo", () => ({
   isDemoRunIdEligibleForStaticFallback: () => false,
 }));
 

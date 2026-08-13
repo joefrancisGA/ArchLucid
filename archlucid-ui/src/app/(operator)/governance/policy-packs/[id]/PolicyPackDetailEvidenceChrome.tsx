@@ -2,6 +2,7 @@
 
 import type { ReactNode } from "react";
 
+import { PolicyPackDetailHubVocabularyRail } from "@/components/policy/PolicyPackDetailHubVocabularyRail";
 import { PageContextualHelpButton } from "@/components/usability/PageContextualHelpButton";
 
 type PolicyPackDetailEvidenceChromeProps = {
@@ -18,7 +19,8 @@ export function PolicyPackDetailEvidenceChrome(
         <div className="flex justify-end">
           <PageContextualHelpButton />
         </div>
-</div>
+        <PolicyPackDetailHubVocabularyRail currentSurfaceId="pack-detail" />
+      </div>
       {props.children}
     </div>
   );

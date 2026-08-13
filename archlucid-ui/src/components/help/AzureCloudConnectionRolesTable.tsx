@@ -3,7 +3,7 @@ import {
   formatAzurePermissionRequirementLabel,
 } from "@/lib/azure-cloud-connection-permissions-manifest";
 import { OPERATOR_TYPOGRAPHY } from "@/lib/design-tokens";
-import { HELP_PAGE_LAYOUT } from "@/lib/help-page-layout";
+import { HELP_PAGE_LAYOUT } from "@/lib/help/help-page-layout";
 import { cn } from "@/lib/utils";
 
 type AzureCloudConnectionRolesTableProps = {

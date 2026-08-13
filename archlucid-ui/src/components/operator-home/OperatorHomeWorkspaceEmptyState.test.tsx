@@ -9,7 +9,7 @@ import { OperatorHomeWorkspaceEmptyState } from "@/components/operator-home/Oper
 import {
   OPERATOR_HOME_LEARN_HOW_REVIEWS_WORK_CTA,
   OPERATOR_HOME_WORKSPACE_EMPTY_TITLE,
-} from "@/lib/buyer-polish-copy";
+} from "@/lib/buyer/buyer-polish-copy";
 
 describe("OperatorHomeWorkspaceEmptyState (TB-352 / TB-1038)", () => {
   it("uses the compact empty pattern without duplicating hero actions", () => {

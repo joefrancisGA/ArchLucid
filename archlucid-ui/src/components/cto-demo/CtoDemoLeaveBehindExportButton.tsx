@@ -4,7 +4,7 @@ import { Download } from "lucide-react";
 import { useCallback, useState } from "react";
 
 import { Button } from "@/components/ui/button";
-import { buildStaticCtoDemoRecapPayload } from "@/lib/buyer-cto-demo-recap";
+import { buildStaticCtoDemoRecapPayload } from "@/lib/buyer/buyer-cto-demo-recap";
 import { SHOWCASE_STATIC_DEMO_RUN_ID } from "@/lib/showcase-static-demo";
 import { showError, showSuccess } from "@/lib/toast";
 
@@ -28,7 +28,7 @@ export function CtoDemoLeaveBehindExportButton(): React.JSX.Element {
         <p style="margin:0 0 8px;font-size:13px;"><strong>Verdict:</strong> ${payload.riskPosture}</p>
         <p style="margin:0 0 8px;font-size:13px;"><strong>Findings:</strong> ${payload.findingsCount}</p>
         <p style="margin:0 0 8px;font-size:13px;"><strong>Time to value:</strong> ~${payload.firstValueMinutes} min</p>
-        <p style="margin:12px 0 0;font-size:12px;color:#444;">All findings are derived from policy packs applied to your architecture brief. Audit log is append-only.</p>
+        <p style="margin:12px 0 0;font-size:12px;color:#444;">All findings are derived from policy packs applied to your architecture brief. Audit trail is append-only.</p>
         <p style="margin:8px 0 0;font-size:11px;color:#666;">Generated from ArchLucid showcase · ${SHOWCASE_STATIC_DEMO_RUN_ID}</p>
       `;
       document.body.appendChild(container);

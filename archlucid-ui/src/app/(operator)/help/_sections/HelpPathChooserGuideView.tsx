@@ -3,13 +3,14 @@ import Link from "next/link";
 import { HelpTopicHashScroll } from "@/app/(operator)/help/HelpTopicHashScroll";
 import { HelpPathChooserEvaluatorSessionStrip } from "@/app/(operator)/help/_sections/HelpPathChooserEvaluatorSessionStrip";
 import { HelpPathChooserRelatedNextStepsLinks } from "@/app/(operator)/help/_sections/HelpPathChooserRelatedNextStepsLinks";
-import { HelpTopicPdfDownloadButton } from "@/components/help/HelpTopicPdfDownloadButton";
+import { HelpLazyDetails } from "@/components/help/HelpLazyDetails";
 import { HelpTopicPrintButton } from "@/components/help/HelpTopicPrintButton";
 import { HelpTopicTableOfContents } from "@/components/help/HelpTopicTableOfContents";
 import { MarketingAccessibilityMarkdownFragment } from "@/components/marketing/MarketingAccessibilityMarkdownFragment";
+import { PathChooserCreateObjectVocabularyRail } from "@/components/PathChooserCreateObjectVocabularyRail";
 import { Button } from "@/components/ui/button";
 import { Card, CardContent, CardHeader, CardTitle } from "@/components/ui/card";
-import { OperatorPageHeader } from "@/components/OperatorPageHeader";
+import { OperatorPageHeader } from "@/components/operator/OperatorPageHeader";
 import { PageContextualHelpButton } from "@/components/usability/PageContextualHelpButton";
 import {
   PATH_CHOOSER_HELP_BRANCHES,
@@ -32,10 +33,10 @@ import {
   OPERATOR_LINK,
   OPERATOR_TYPOGRAPHY,
 } from "@/lib/design-tokens";
-import { extractHelpMarkdownHeadings } from "@/lib/help-markdown-headings";
-import type { HelpMarkdownHeading } from "@/lib/help-markdown-headings";
-import { prepareHelpMarkdownForPresentation } from "@/lib/help-markdown-presentation";
-import { HELP_PAGE_LAYOUT } from "@/lib/help-page-layout";
+import { extractHelpMarkdownHeadings } from "@/lib/help/help-markdown-headings";
+import type { HelpMarkdownHeading } from "@/lib/help/help-markdown-headings";
+import { prepareHelpMarkdownForPresentation } from "@/lib/help/help-markdown-presentation";
+import { HELP_PAGE_LAYOUT } from "@/lib/help/help-page-layout";
 import type { ProductDocumentationEntry } from "@/lib/product-documentation-registry";
 import { cn } from "@/lib/utils";
 
@@ -80,11 +81,12 @@ export function HelpPathChooserGuideView(props: HelpPathChooserGuideViewProps): 
         actions={
           <div className="flex flex-wrap items-center gap-2" data-testid="help-path-chooser-header-actions">
             <PageContextualHelpButton />
-            <HelpTopicPdfDownloadButton entry={entry} />
             <HelpTopicPrintButton entry={entry} />
           </div>
         }
       />
+
+      <PathChooserCreateObjectVocabularyRail currentSurfaceId="path-chooser" />
 
       <div className="space-y-4 border-b border-neutral-200 pb-6 dark:border-neutral-800">
         <p className={cn("m-0 max-w-3xl text-al-text-secondary", OPERATOR_TYPOGRAPHY.body)} data-testid="help-path-chooser-overview">
@@ -175,29 +177,27 @@ export function HelpPathChooserGuideView(props: HelpPathChooserGuideViewProps): 
             data-testid="help-path-chooser-content"
             id="reference-detail"
           >
-            <details
+            <HelpLazyDetails
               className="rounded-md border border-neutral-200 bg-neutral-50/60 p-3 dark:border-neutral-800 dark:bg-neutral-900/30"
               data-testid="help-path-chooser-reference-appendix"
+              summaryClassName={cn("cursor-pointer font-medium text-al-text-primary", OPERATOR_TYPOGRAPHY.cardTitle)}
+              summary="Buyer orientation reference (pass/hold, stop rules, deferred scope)"
+              preface={
+                <p className={cn("m-0 mt-2 text-al-text-secondary", OPERATOR_TYPOGRAPHY.helper)}>
+                  Collapsed by default so the first viewport stays an evaluator guide. Expand when you need pass/hold
+                  tables or stop-rule detail.
+                </p>
+              }
+              bodyClassName={cn("mt-4", HELP_PAGE_LAYOUT.contentColumn)}
             >
-              <summary
-                className={cn("cursor-pointer font-medium text-al-text-primary", OPERATOR_TYPOGRAPHY.cardTitle)}
-              >
-                Buyer orientation reference (pass/hold, stop rules, deferred scope)
-              </summary>
-              <p className={cn("m-0 mt-2 text-al-text-secondary", OPERATOR_TYPOGRAPHY.helper)}>
-                Collapsed by default so the first viewport stays an evaluator guide. Expand when you need pass/hold
-                tables or stop-rule detail.
-              </p>
-              <div className={cn("mt-4", HELP_PAGE_LAYOUT.contentColumn)}>
-                <MarketingAccessibilityMarkdownFragment
-                  markdownBody={markdown}
-                  tableCaption={`${entry.title} reference table`}
-                  presentation="help"
-                  sourceDocPath={sourceDocPath}
-                  helpTopicSlug={entry.slug}
-                />
-              </div>
-            </details>
+              <MarketingAccessibilityMarkdownFragment
+                markdownBody={markdown}
+                tableCaption={`${entry.title} reference table`}
+                presentation="help"
+                sourceDocPath={sourceDocPath}
+                helpTopicSlug={entry.slug}
+              />
+            </HelpLazyDetails>
           </section>
 
           <aside

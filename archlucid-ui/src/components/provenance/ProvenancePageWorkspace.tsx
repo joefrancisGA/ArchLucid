@@ -9,19 +9,29 @@ import { ProvenanceGraphViewport } from "@/components/provenance/ProvenanceGraph
 import { ProvenanceGraphErrorBoundary } from "@/components/provenance/ProvenanceGraphErrorBoundary";
 import { ProvenanceSectionNav, type ProvenanceSection } from "@/components/provenance/ProvenanceSectionNav";
 import { ProvenanceWayfinding } from "@/components/provenance/ProvenanceWayfinding";
+import { RunProvenanceEvidenceGraphVocabularyRail } from "@/components/runs/RunProvenanceEvidenceGraphVocabularyRail";
 import {
-  ProvenanceViewModeTabs,
+  ProvenanceViewModeSwitcher,
   provenanceViewPanelProps,
   type ProvenanceViewMode,
-} from "@/components/provenance/ProvenanceViewModeTabs";
+} from "@/components/provenance/ProvenanceViewModeSwitcher";
 import { ProvenanceNodeExplainCell } from "@/components/ProvenanceNodeExplainCell";
 import { ProvenanceReferenceLink } from "@/components/ProvenanceReferenceLink";
-import { OperatorDemoStaticBanner } from "@/components/OperatorDemoStaticBanner";
-import { RunTraceViewerLink } from "@/components/RunTraceViewerLink";
+import { OperatorDemoStaticBanner } from "@/components/operator/OperatorDemoStaticBanner";
+import { RunTraceViewerLink } from "@/components/runs/RunTraceViewerLink";
 import { Button } from "@/components/ui/button";
+import {
+  EnterpriseTable,
+  EnterpriseTableBody,
+  EnterpriseTableCell,
+  EnterpriseTableHead,
+  EnterpriseTableHeadRow,
+  EnterpriseTableHeaderCell,
+  EnterpriseTableRow,
+} from "@/components/ui/enterprise-table";
 import { Input } from "@/components/ui/input";
 import { StatusTag } from "@/components/ui/status-tag";
-import { reviewDetailPath } from "@/lib/architecture-routes";
+import { reviewDetailPath } from "@/lib/architecture/architecture-routes";
 import { OPERATOR_LINK, OPERATOR_TYPOGRAPHY, type EnterpriseStatusKind } from "@/lib/design-tokens";
 import { buyerTrailEdgeDisplayPhrase } from "@/lib/graph-mapper";
 import {
@@ -315,6 +325,7 @@ export function ProvenancePageWorkspace(props: ProvenancePageWorkspaceProps): Re
 
           <header className="space-y-2">
             <ProvenanceWayfinding reviewPackageHref={reviewHref} />
+            <RunProvenanceEvidenceGraphVocabularyRail currentSurfaceId="run-provenance" />
             <div className="flex flex-wrap items-center gap-2">
               <h2 className={cn("m-0", OPERATOR_TYPOGRAPHY.pageTitle)}>{PROVENANCE_PAGE_TITLE}</h2>
               {reviewContext?.statusLabel !== null &&
@@ -382,7 +393,7 @@ export function ProvenancePageWorkspace(props: ProvenancePageWorkspaceProps): Re
           ) : null}
 
           <div className="flex flex-col gap-3 sm:flex-row sm:flex-wrap sm:items-center sm:justify-between">
-            <ProvenanceViewModeTabs
+            <ProvenanceViewModeSwitcher
               options={VIEW_MODE_OPTIONS}
               viewMode={viewMode}
               onViewModeChange={setViewMode}
@@ -567,58 +578,58 @@ export function ProvenancePageWorkspace(props: ProvenancePageWorkspaceProps): Re
               <p className={cn("mt-1", OPERATOR_TYPOGRAPHY.helper)}>
                 Ordered events from review lifecycle and finalized decisions.
               </p>
-              <div className="overflow-x-auto">
-                <table
-                  className={cn("w-full border-collapse", OPERATOR_TYPOGRAPHY.body)}
-                  data-testid="provenance-timeline-table"
-                >
-                  <caption className="sr-only">{PROVENANCE_SECTION_TRACE_TIMELINE_LABEL}</caption>
-                  <thead>
-                    <tr className="border-b-2 border-neutral-300 dark:border-neutral-600">
-                      <th
-                        scope="col"
-                        className="bg-neutral-50/90 p-3 text-left font-semibold dark:bg-neutral-900/50"
+              <EnterpriseTable
+                ariaLabel={PROVENANCE_SECTION_TRACE_TIMELINE_LABEL}
+                className={OPERATOR_TYPOGRAPHY.body}
+                data-testid="provenance-timeline-table"
+              >
+                <caption className="sr-only">{PROVENANCE_SECTION_TRACE_TIMELINE_LABEL}</caption>
+                <EnterpriseTableHead>
+                  <EnterpriseTableHeadRow className="border-b-2 border-neutral-300 dark:border-neutral-600">
+                    <EnterpriseTableHeaderCell
+                      scope="col"
+                      className="bg-neutral-50/90 p-3 text-left font-semibold dark:bg-neutral-900/50"
+                    >
+                      Time (UTC)
+                    </EnterpriseTableHeaderCell>
+                    <EnterpriseTableHeaderCell
+                      scope="col"
+                      className="bg-neutral-50/90 p-3 text-left font-semibold dark:bg-neutral-900/50"
+                    >
+                      Event
+                    </EnterpriseTableHeaderCell>
+                    <EnterpriseTableHeaderCell
+                      scope="col"
+                      className="bg-neutral-50/90 p-3 text-left font-semibold dark:bg-neutral-900/50"
+                    >
+                      Reference
+                    </EnterpriseTableHeaderCell>
+                  </EnterpriseTableHeadRow>
+                </EnterpriseTableHead>
+                <EnterpriseTableBody>
+                  {graph.timeline.length === 0 ? (
+                    <EnterpriseTableRow>
+                      <EnterpriseTableCell
+                        colSpan={3}
+                        className="border-b border-neutral-100 p-3 text-neutral-500 dark:border-neutral-800 dark:text-neutral-400"
                       >
-                        Time (UTC)
-                      </th>
-                      <th
-                        scope="col"
-                        className="bg-neutral-50/90 p-3 text-left font-semibold dark:bg-neutral-900/50"
-                      >
-                        Event
-                      </th>
-                      <th
-                        scope="col"
-                        className="bg-neutral-50/90 p-3 text-left font-semibold dark:bg-neutral-900/50"
-                      >
-                        Reference
-                      </th>
-                    </tr>
-                  </thead>
-                  <tbody>
-                    {graph.timeline.length === 0 ? (
-                      <tr>
-                        <td
-                          colSpan={3}
-                          className="border-b border-neutral-100 p-3 text-neutral-500 dark:border-neutral-800 dark:text-neutral-400"
-                        >
-                          No recorded events for this review.
-                        </td>
-                      </tr>
-                    ) : (
-                      graph.timeline.map((row) => {
-                        const relatedNode = graph.nodes.find((node) => node.referenceId === row.referenceId);
-                        const primaryLabel = provenanceTimelinePrimaryLabel(row);
+                        No recorded events for this review.
+                      </EnterpriseTableCell>
+                    </EnterpriseTableRow>
+                  ) : (
+                    graph.timeline.map((row) => {
+                      const relatedNode = graph.nodes.find((node) => node.referenceId === row.referenceId);
+                      const primaryLabel = provenanceTimelinePrimaryLabel(row);
 
-                        return (
-                          <tr
-                            key={`${row.timestampUtc}-${row.kind}-${row.referenceId ?? row.label}`}
-                            className="transition-colors hover:bg-neutral-50 dark:hover:bg-neutral-900/40"
-                          >
-                            <td className="border-b border-neutral-100 p-3 align-top whitespace-nowrap dark:border-neutral-800">
-                              <time dateTime={row.timestampUtc}>{formatUtc(row.timestampUtc)}</time>
-                            </td>
-                            <td className="border-b border-neutral-100 p-3 align-top dark:border-neutral-800">
+                      return (
+                        <EnterpriseTableRow
+                          key={`${row.timestampUtc}-${row.kind}-${row.referenceId ?? row.label}`}
+                          className="transition-colors hover:bg-neutral-50 dark:hover:bg-neutral-900/40"
+                        >
+                          <EnterpriseTableCell className="border-b border-neutral-100 p-3 align-top whitespace-nowrap dark:border-neutral-800">
+                            <time dateTime={row.timestampUtc}>{formatUtc(row.timestampUtc)}</time>
+                          </EnterpriseTableCell>
+                          <EnterpriseTableCell className="border-b border-neutral-100 p-3 align-top dark:border-neutral-800">
                               {relatedNode !== undefined ? (
                                 <button
                                   type="button"
@@ -645,17 +656,16 @@ export function ProvenancePageWorkspace(props: ProvenancePageWorkspaceProps): Re
                                   </p>
                                 </details>
                               ) : null}
-                            </td>
-                            <td className="break-all border-b border-neutral-100 p-3 align-top dark:border-neutral-800">
-                              <ProvenanceReferenceLink runId={runId} referenceId={row.referenceId} nodes={graph.nodes} />
-                            </td>
-                          </tr>
-                        );
-                      })
-                    )}
-                  </tbody>
-                </table>
-              </div>
+                          </EnterpriseTableCell>
+                          <EnterpriseTableCell className="break-all border-b border-neutral-100 p-3 align-top dark:border-neutral-800">
+                            <ProvenanceReferenceLink runId={runId} referenceId={row.referenceId} nodes={graph.nodes} />
+                          </EnterpriseTableCell>
+                        </EnterpriseTableRow>
+                      );
+                    })
+                  )}
+                </EnterpriseTableBody>
+              </EnterpriseTable>
             </section>
           ) : null}
 
@@ -697,43 +707,47 @@ export function ProvenancePageWorkspace(props: ProvenancePageWorkspaceProps): Re
                   </label>
                 </div>
               ) : null}
-              <div className="mt-3 overflow-x-auto">
-                <table className={cn("w-full border-collapse", OPERATOR_TYPOGRAPHY.body)} data-testid="provenance-nodes-table">
+              <div className="mt-3">
+                <EnterpriseTable
+                  ariaLabel={PROVENANCE_SECTION_LINKAGE_POINTS_LABEL}
+                  className={OPERATOR_TYPOGRAPHY.body}
+                  data-testid="provenance-nodes-table"
+                >
                   <caption className="sr-only">{PROVENANCE_SECTION_LINKAGE_POINTS_LABEL}</caption>
-                  <thead>
-                    <tr className="border-b-2 border-neutral-300 dark:border-neutral-600">
-                      <th scope="col" className="bg-neutral-50/90 p-3 text-left font-semibold dark:bg-neutral-900/50">
+                  <EnterpriseTableHead>
+                    <EnterpriseTableHeadRow className="border-b-2 border-neutral-300 dark:border-neutral-600">
+                      <EnterpriseTableHeaderCell scope="col" className="bg-neutral-50/90 p-3 text-left font-semibold dark:bg-neutral-900/50">
                         Name
-                      </th>
-                      <th scope="col" className="bg-neutral-50/90 p-3 text-left font-semibold dark:bg-neutral-900/50">
+                      </EnterpriseTableHeaderCell>
+                      <EnterpriseTableHeaderCell scope="col" className="bg-neutral-50/90 p-3 text-left font-semibold dark:bg-neutral-900/50">
                         Type
-                      </th>
-                      <th scope="col" className="bg-neutral-50/90 p-3 text-left font-semibold dark:bg-neutral-900/50">
+                      </EnterpriseTableHeaderCell>
+                      <EnterpriseTableHeaderCell scope="col" className="bg-neutral-50/90 p-3 text-left font-semibold dark:bg-neutral-900/50">
                         Reference
-                      </th>
-                      <th scope="col" className="bg-neutral-50/90 p-3 text-left font-semibold dark:bg-neutral-900/50">
+                      </EnterpriseTableHeaderCell>
+                      <EnterpriseTableHeaderCell scope="col" className="bg-neutral-50/90 p-3 text-left font-semibold dark:bg-neutral-900/50">
                         <span className="sr-only">Explain</span>
-                      </th>
-                    </tr>
-                  </thead>
-                  <tbody>
+                      </EnterpriseTableHeaderCell>
+                    </EnterpriseTableHeadRow>
+                  </EnterpriseTableHead>
+                  <EnterpriseTableBody>
                     {filteredNodesForTable.length === 0 ? (
-                      <tr>
-                        <td
+                      <EnterpriseTableRow>
+                        <EnterpriseTableCell
                           colSpan={4}
                           className="border-b border-neutral-100 p-3 text-neutral-500 dark:border-neutral-800 dark:text-neutral-400"
                         >
                           {graph.nodes.length === 0
                             ? "No linkage points recorded for this review."
                             : "No linkage points match your search or type filter."}
-                        </td>
-                      </tr>
+                        </EnterpriseTableCell>
+                      </EnterpriseTableRow>
                     ) : (
                       filteredNodesForTable.map((node) => {
                         const selected = selectedNodeId === node.id;
 
                         return (
-                          <tr
+                          <EnterpriseTableRow
                             key={node.id}
                             id={`prov-node-row-${node.id}`}
                             className={cn(
@@ -741,7 +755,7 @@ export function ProvenancePageWorkspace(props: ProvenancePageWorkspaceProps): Re
                               selected ? "bg-[color-mix(in_srgb,var(--al-accent-interactive)_12%,transparent)]" : "",
                             )}
                           >
-                          <td className="border-b border-neutral-100 p-3 align-top font-medium dark:border-neutral-800">
+                          <EnterpriseTableCell className="border-b border-neutral-100 p-3 align-top font-medium dark:border-neutral-800">
                             <button
                               type="button"
                               className="text-left font-medium text-neutral-900 underline-offset-2 hover:underline focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-neutral-400 focus-visible:ring-offset-2 dark:text-neutral-100"
@@ -749,14 +763,14 @@ export function ProvenancePageWorkspace(props: ProvenancePageWorkspaceProps): Re
                             >
                               {provenanceNodeDisplayName(node)}
                             </button>
-                          </td>
-                          <td className="border-b border-neutral-100 p-3 align-top dark:border-neutral-800">
+                          </EnterpriseTableCell>
+                          <EnterpriseTableCell className="border-b border-neutral-100 p-3 align-top dark:border-neutral-800">
                             {provenanceNodeTypeLabel(node.type)}
-                          </td>
-                          <td className="break-all border-b border-neutral-100 p-3 align-top dark:border-neutral-800">
+                          </EnterpriseTableCell>
+                          <EnterpriseTableCell className="break-all border-b border-neutral-100 p-3 align-top dark:border-neutral-800">
                             <ProvenanceReferenceLink runId={runId} referenceId={node.referenceId} nodes={graph.nodes} />
-                          </td>
-                          <td className="border-b border-neutral-100 p-3 align-top dark:border-neutral-800">
+                          </EnterpriseTableCell>
+                          <EnterpriseTableCell className="border-b border-neutral-100 p-3 align-top dark:border-neutral-800">
                             <Button
                               type="button"
                               variant="outline"
@@ -770,13 +784,13 @@ export function ProvenancePageWorkspace(props: ProvenancePageWorkspaceProps): Re
                             >
                               <MessageSquareText className="h-4 w-4" aria-hidden="true" />
                             </Button>
-                          </td>
-                        </tr>
+                          </EnterpriseTableCell>
+                        </EnterpriseTableRow>
                       );
                     })
                     )}
-                  </tbody>
-                </table>
+                  </EnterpriseTableBody>
+                </EnterpriseTable>
               </div>
             </section>
           ) : null}
@@ -812,37 +826,41 @@ export function ProvenancePageWorkspace(props: ProvenancePageWorkspaceProps): Re
                       />
                     </div>
                   ) : null}
-                  <div className="mt-3 overflow-x-auto">
-                    <table className={cn("w-full border-collapse", OPERATOR_TYPOGRAPHY.body)} data-testid="provenance-edges-table">
+                  <div className="mt-3">
+                    <EnterpriseTable
+                      ariaLabel={PROVENANCE_SECTION_RELATIONSHIPS_LABEL}
+                      className={OPERATOR_TYPOGRAPHY.body}
+                      data-testid="provenance-edges-table"
+                    >
                       <caption className="sr-only">{PROVENANCE_SECTION_RELATIONSHIPS_LABEL}</caption>
-                      <thead>
-                        <tr className="border-b-2 border-neutral-300 dark:border-neutral-600">
-                          <th scope="col" className="bg-neutral-50/90 p-3 text-left font-semibold dark:bg-neutral-900/50">
+                      <EnterpriseTableHead>
+                        <EnterpriseTableHeadRow className="border-b-2 border-neutral-300 dark:border-neutral-600">
+                          <EnterpriseTableHeaderCell scope="col" className="bg-neutral-50/90 p-3 text-left font-semibold dark:bg-neutral-900/50">
                             Relationship
-                          </th>
-                          <th scope="col" className="bg-neutral-50/90 p-3 text-left font-semibold dark:bg-neutral-900/50">
+                          </EnterpriseTableHeaderCell>
+                          <EnterpriseTableHeaderCell scope="col" className="bg-neutral-50/90 p-3 text-left font-semibold dark:bg-neutral-900/50">
                             Type
-                          </th>
-                        </tr>
-                      </thead>
-                      <tbody>
+                          </EnterpriseTableHeaderCell>
+                        </EnterpriseTableHeadRow>
+                      </EnterpriseTableHead>
+                      <EnterpriseTableBody>
                         {filteredEdgesForTable.length === 0 ? (
-                          <tr>
-                            <td
+                          <EnterpriseTableRow>
+                            <EnterpriseTableCell
                               colSpan={2}
                               className="border-b border-neutral-100 p-3 text-neutral-500 dark:border-neutral-800 dark:text-neutral-400"
                             >
                               {graph.edges.length === 0
                                 ? "No relationships recorded for this review."
                                 : "No relationships match your search."}
-                            </td>
-                          </tr>
+                            </EnterpriseTableCell>
+                          </EnterpriseTableRow>
                         ) : (
                           filteredEdgesForTable.map((edge) => {
                             const highlighted = highlightedEdgeId === edge.id;
 
                             return (
-                              <tr
+                              <EnterpriseTableRow
                                 key={edge.id}
                                 className={cn(
                                   "cursor-pointer transition-colors hover:bg-neutral-50 dark:hover:bg-neutral-900/40",
@@ -852,18 +870,18 @@ export function ProvenancePageWorkspace(props: ProvenancePageWorkspaceProps): Re
                                 )}
                                 onClick={() => onSelectEdge(edge.id)}
                               >
-                                <td className="border-b border-neutral-100 p-3 align-top dark:border-neutral-800">
+                                <EnterpriseTableCell className="border-b border-neutral-100 p-3 align-top dark:border-neutral-800">
                                   {provenanceEdgeDisplayLabel(edge, nodeById)}
-                                </td>
-                                <td className="border-b border-neutral-100 p-3 align-top text-neutral-600 dark:border-neutral-800 dark:text-neutral-400">
+                                </EnterpriseTableCell>
+                                <EnterpriseTableCell className="border-b border-neutral-100 p-3 align-top text-neutral-600 dark:border-neutral-800 dark:text-neutral-400">
                                   {buyerTrailEdgeDisplayPhrase(edge.type)}
-                                </td>
-                              </tr>
+                                </EnterpriseTableCell>
+                              </EnterpriseTableRow>
                             );
                           })
                         )}
-                      </tbody>
-                    </table>
+                      </EnterpriseTableBody>
+                    </EnterpriseTable>
                   </div>
                 </>
               ) : (

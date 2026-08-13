@@ -33,7 +33,6 @@ describe("api-contracts-help-guide-content", () => {
     ).toBe(false);
     expect(API_CONTRACTS_HELP_SOURCES.map((link) => link.label)).toEqual([
       "CLI usage",
-      "Configuration reference",
       "Engineering troubleshooting",
       "Audit trail help",
       "Admin diagnostics",

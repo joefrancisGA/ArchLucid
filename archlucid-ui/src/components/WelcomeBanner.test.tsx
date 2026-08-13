@@ -2,6 +2,8 @@ import { render, screen, waitFor, within } from "@testing-library/react";
 import { afterEach, beforeEach, describe, expect, it, vi } from "vitest";
 
 import type { RunSummary } from "@/types/authority";
+import { resetOperatorQueryClientForTests } from "@/lib/query/operator-query-client";
+import { renderWithOperatorQuery } from "@/testing/render-with-operator-query";
 
 const listRunsByProjectPaged = vi.fn();
 const loadProjectRunsMergedWithDemoFallbackMock = vi.hoisted(() => vi.fn());
@@ -10,7 +12,11 @@ vi.mock("@/lib/api", () => ({
   listRunsByProjectPaged: (...args: unknown[]) => listRunsByProjectPaged(...args),
 }));
 
-vi.mock("@/lib/operator-run-picker-client", () => ({
+vi.mock("@/lib/query/operator-query-persist-client", () => ({
+  setupOperatorQueryClientPersistence: () => {},
+}));
+
+vi.mock("@/lib/operator/operator-run-picker-client", () => ({
   loadProjectRunsMergedWithDemoFallback: (...args: unknown[]) =>
     loadProjectRunsMergedWithDemoFallbackMock(...args),
 }));
@@ -26,13 +32,13 @@ vi.mock("@/lib/demo-ui-env", async (importOriginal) => {
   };
 });
 
-import { OperatorCoArchitectHomeStrip } from "./OperatorCoArchitectHomeStrip";
+import { OperatorCoArchitectHomeStrip } from "@/components/operator/OperatorCoArchitectHomeStrip";
 import { WelcomeBanner } from "./WelcomeBanner";
 
 const SESSION_DISMISS_KEY = "archlucid_welcome_dismissed_session";
 
 function renderHomeWithCoArchitectStrip() {
-  render(
+  renderWithOperatorQuery(
     <>
       <OperatorCoArchitectHomeStrip />
       <WelcomeBanner />
@@ -55,6 +61,8 @@ afterEach(() => {
 });
 
 beforeEach(() => {
+  sessionStorage.clear();
+  resetOperatorQueryClientForTests();
   demoUiEnvMock.buyerPolishedShell = false;
   listRunsByProjectPaged.mockResolvedValue(emptyRunsPage);
   loadProjectRunsMergedWithDemoFallbackMock.mockResolvedValue({ items: [], loadError: false });
@@ -107,7 +115,7 @@ describe("WelcomeBanner — renders heading and CTAs", () => {
     expect(screen.getByLabelText(/What one completed architecture review delivers/i)).toBeInTheDocument();
     const exampleLinks = screen.getAllByRole("link", { name: /see completed example/i });
     expect(exampleLinks.length).toBeGreaterThanOrEqual(1);
-    expect(exampleLinks[0]).toHaveAttribute("href", "/showcase/claims-intake-modernization");
+    expect(exampleLinks[0]).toHaveAttribute("href", "/showcase/customer-intake-modernization");
     expect(screen.getByTestId("opt-in-tour-launcher")).toBeInTheDocument();
   });
 
@@ -139,7 +147,7 @@ describe("WelcomeBanner — renders heading and CTAs", () => {
     expect(screen.getByRole("link", { name: "Create from evidence" })).toHaveAttribute("href", "/architecture/reviews/new");
     expect(screen.getByRole("link", { name: /see completed example/i })).toHaveAttribute(
       "href",
-      "/showcase/claims-intake-modernization",
+      "/showcase/customer-intake-modernization",
     );
   });
 });

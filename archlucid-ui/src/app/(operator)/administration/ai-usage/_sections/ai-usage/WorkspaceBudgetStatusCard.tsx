@@ -1,10 +1,13 @@
 "use client";
 
-import { cn } from "@/lib/utils";
+import Link from "next/link";
 
+import { StatusTag } from "@/components/StatusTag";
+import { cn } from "@/lib/utils";
 import { Card, CardContent, CardHeader, CardTitle } from "@/components/ui/card";
 import type { AiUsageGovernanceControls } from "@/lib/ai-usage-dashboard-model";
-import { OPERATOR_CARD, OPERATOR_TYPOGRAPHY, operatorSemanticSurface } from "@/lib/design-tokens";
+import { MODEL_GOVERNANCE_SETTINGS_CANONICAL_PATH } from "@/lib/model-governance-settings-evidence-copy";
+import { OPERATOR_CARD, OPERATOR_LINK, OPERATOR_TYPOGRAPHY } from "@/lib/design-tokens";
 import { AiUsageSectionState } from "./AiUsageSectionState";
 
 type Props = {
@@ -13,10 +16,15 @@ type Props = {
   readonly remainingBudgetUsd: number | null;
   readonly budgetTotalUsd: number | null;
   readonly usedAmountUsd: number | null;
+  readonly onRetry?: () => void;
 };
 
 export function WorkspaceBudgetStatusCard(props: Props) {
   const { governance } = props;
+  const resetLabel =
+    governance?.billingPeriodResetLabel !== null && governance?.billingPeriodResetLabel !== undefined
+      ? `Resets ${governance.billingPeriodResetLabel}`
+      : governance?.resetPeriod ?? "UTC month";
 
   return (
     <Card data-testid="workspace-budget-status-card">
@@ -33,6 +41,7 @@ export function WorkspaceBudgetStatusCard(props: Props) {
           testId="workspace-budget-status-state"
           permissionMessage="Workspace budget controls require Execute authority."
           inactiveMessage="Budget monitoring is not active for this workspace."
+          onRetry={props.onRetry}
         >
           {props.budgetTotalUsd !== null && props.remainingBudgetUsd !== null ? (
             <p className={cn("m-0 font-medium text-al-text-primary", OPERATOR_TYPOGRAPHY.body)} data-testid="workspace-budget-status-summary">
@@ -57,13 +66,23 @@ export function WorkspaceBudgetStatusCard(props: Props) {
               </div>
               <div>
                 <dt className="text-al-text-secondary">Limit behavior</dt>
-                <dd className="m-0 font-medium">
-                  {governance.hardStopEnabled ? "Hard stop when budget is exhausted" : "Soft limit — workflows may continue with warnings"}
+                <dd className="m-0">
+                  {governance.hardStopEnabled ? (
+                    <StatusTag kind="blocked" label="Hard stop at cap" data-testid="workspace-budget-limit-behavior-tag" />
+                  ) : (
+                    <StatusTag
+                      kind="needs-attention"
+                      label="Soft limit — warnings only"
+                      data-testid="workspace-budget-limit-behavior-tag"
+                    />
+                  )}
                 </dd>
               </div>
               <div>
                 <dt className="text-al-text-secondary">Reset period</dt>
-                <dd className="m-0 font-medium">{governance.resetPeriod ?? "UTC month"}</dd>
+                <dd className="m-0 font-medium" data-testid="workspace-budget-reset-period">
+                  {resetLabel}
+                </dd>
               </div>
               <div>
                 <dt className="text-al-text-secondary">Workspace kind</dt>
@@ -71,17 +90,19 @@ export function WorkspaceBudgetStatusCard(props: Props) {
               </div>
               <div>
                 <dt className="text-al-text-secondary">Customer AI provider</dt>
-                <dd className="m-0 font-medium">
-                  <span
-                    className={cn(
-                      "inline-flex rounded px-2 py-0.5",
-                      governance.customerAiProviderConfigured
-                        ? operatorSemanticSurface("ready")
-                        : operatorSemanticSurface("warn"),
-                    )}
-                  >
-                    {governance.customerAiProviderConfigured ? "Configured" : "Not configured"}
-                  </span>
+                <dd className="m-0 space-y-1">
+                  {governance.customerAiProviderConfigured ? (
+                    <StatusTag kind="ready" label="Configured" data-testid="workspace-budget-provider-tag" />
+                  ) : (
+                    <>
+                      <StatusTag kind="needs-attention" label="Not configured" data-testid="workspace-budget-provider-tag" />
+                      <p className={cn("m-0", OPERATOR_TYPOGRAPHY.helper)}>
+                        <Link href={MODEL_GOVERNANCE_SETTINGS_CANONICAL_PATH} className={OPERATOR_LINK.nav}>
+                          Configure provider in model governance
+                        </Link>
+                      </p>
+                    </>
+                  )}
                 </dd>
               </div>
             </dl>

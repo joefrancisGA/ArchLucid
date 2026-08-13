@@ -13,7 +13,7 @@ This document exists to make the **audit data lifecycle** explicit for three aud
 2. **Operations** — Platform operators need a default tiering model (hot / warm / cold) so capacity planning, backup scope, and export automation are aligned.
 3. **Cost** — `dbo.AuditEvents` is **append-only** (see **Database enforcement**). Without exports and eventual archival, the table grows without bound, increasing storage, backup size, and index maintenance cost.
 
-Related material: durable audit producers are mapped in [`docs/AUDIT_COVERAGE_MATRIX.md`](./AUDIT_COVERAGE_MATRIX.md); HTTP behaviour for list/search/export is summarized in [`docs/API_CONTRACTS.md`](./API_CONTRACTS.md).
+Related material: durable audit producers are mapped in [`docs/AUDIT_COVERAGE_MATRIX.md`](./AUDIT_COVERAGE_MATRIX.md); HTTP behavior for list/search/export is summarized in [`docs/API_CONTRACTS.md`](./API_CONTRACTS.md).
 
 ---
 

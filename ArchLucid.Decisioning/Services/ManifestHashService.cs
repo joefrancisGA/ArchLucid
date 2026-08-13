@@ -15,6 +15,12 @@ namespace ArchLucid.Decisioning.Services;
 /// </remarks>
 public sealed class ManifestHashService : IManifestHashService
 {
+    /// <summary>
+    ///     Canonical projection schema version. Increment only with deliberate baseline re-lock
+    ///     (<c>MANIFEST_HASH_HASHER_BASELINE.md</c>, <c>TB-1157</c>).
+    /// </summary>
+    public const string HasherSchemaVersion = "v1";
+
     /// <inheritdoc />
     public string ComputeHash(ManifestDocument manifest)
     {
@@ -22,6 +28,7 @@ public sealed class ManifestHashService : IManifestHashService
 
         string canonical = JsonSerializer.Serialize(new
         {
+            HasherSchemaVersion,
             manifest.TenantId,
             manifest.WorkspaceId,
             manifest.ProjectId,

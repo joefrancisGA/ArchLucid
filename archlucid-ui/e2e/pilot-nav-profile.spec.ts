@@ -4,7 +4,7 @@ import { OPERATE_NAV_UNLOCK_STORAGE_KEY } from "@/lib/usability/operate-nav-prog
 
 import { MOCK_TRIAL_WELCOME_RUN_ID } from "./fixtures/ids";
 import { ONBOARDING_TOUR_COMPLETED_KEY } from "@/lib/onboarding-tour";
-import { HAS_SEEN_ONBOARDING_STORAGE_KEY } from "@/lib/operator-welcome-onboarding-storage";
+import { HAS_SEEN_ONBOARDING_STORAGE_KEY } from "@/lib/operator/operator-welcome-onboarding-storage";
 import { SIDEBAR_NAV_GROUP_EXPANSION_STORAGE_KEY } from "@/lib/sidebar-nav-group-expansion-storage";
 
 /** Must match `SESSION_KEY` in `TrialWelcomeRunDeepLink.tsx`. */

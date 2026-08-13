@@ -1,7 +1,7 @@
 namespace ArchLucid.Application.Runs.Orchestration;
 
 /// <summary>
-///     Options for <see cref="ArchitectureRunCreateOrchestrator" /> create-run behaviour.
+///     Options for <see cref="ArchitectureRunCreateOrchestrator" /> create-run behavior.
 /// </summary>
 public sealed class ArchitectureRunCreateOptions
 {

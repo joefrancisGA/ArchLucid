@@ -1,5 +1,5 @@
-import { REVIEWS_NEW_PATH } from "@/lib/architecture-routes";
-import { START_REVIEW_LABEL } from "@/lib/architecture-workflow-labels";
+import { REVIEWS_NEW_PATH } from "@/lib/architecture/architecture-routes";
+import { START_REVIEW_LABEL } from "@/lib/architecture/architecture-workflow-labels";
 
 export const EVIDENCE_INTAKE_HELP_CANONICAL_PATH = "/help/evidence-intake" as const;
 

@@ -7,12 +7,18 @@ import { useCallback, useEffect, useId, useMemo, useRef, useState } from "react"
 import { AlertOperatorToolingRankCue } from "@/components/EnterpriseControlsContextHints";
 import { OperateExecutePageHint } from "@/components/OperateCapabilityHints";
 import { GettingStartedSteps } from "@/components/GettingStartedSteps";
-import { OperatorApiProblem } from "@/components/OperatorApiProblem";
+import { OperatorApiProblem } from "@/components/operator/OperatorApiProblem";
 import { AlertRoutingCriteriaFields } from "@/components/alerts/AlertRoutingCriteriaFields";
 import { AlertRoutingDestinationList } from "@/components/alerts/AlertRoutingDestinationList";
+import { WhyDisabledCtaHint } from "@/components/usability/WhyDisabledCtaHint";
+import {
+  AlertRoutingSubscriptionDisableDialog,
+  type AlertRoutingSubscriptionDisableTarget,
+} from "@/app/(operator)/integrations/_sections/AlertRoutingSubscriptionDisableDialog";
 import { Button } from "@/components/ui/button";
 import { StatusTag } from "@/components/ui/status-tag";
 import { useOperateCapability } from "@/hooks/use-operate-capability";
+import { useAlertRoutingSubscriptionsQuery } from "@/components/alerts/use-alert-rules-hub-queries";
 import { useOptionalAlertRulesHubRefresh } from "@/lib/alerts-hub-refresh-context";
 import type { ApiLoadFailureState } from "@/lib/api-load-failure";
 import { toApiLoadFailure } from "@/lib/api-load-failure";
@@ -22,8 +28,8 @@ import {
   alertRoutingPageLeadOperatorEmpty,
   alertRoutingPageLeadReader,
   alertRoutingPageLeadReaderEmpty,
-  enterpriseMutationControlDisabledTitle,
 } from "@/lib/enterprise-controls-context-copy";
+import { whyDisabledEnterpriseMutationControl } from "@/lib/why-disabled-cta";
 import {
   alertRoutingEmptyGettingStartedOperator,
   alertRoutingEmptyGettingStartedReader,
@@ -55,12 +61,11 @@ import {
   ALERT_RULES_SAMPLE_MODE_CTA_LABEL,
 } from "@/lib/alert-rule-conditions-copy";
 import { isBuyerPolishedOperatorShellEnv, isOperatorExperienceFullShellEnv } from "@/lib/demo-ui-env";
-import { OPERATOR_LINK, OPERATOR_TYPOGRAPHY } from "@/lib/design-tokens";
-import { GOVERNANCE_AUDIT_PATH, governanceAlertRulesTabHref } from "@/lib/governance-route-paths";
+import { DESIGN_TOKENS, OPERATOR_LINK, OPERATOR_TYPOGRAPHY } from "@/lib/design-tokens";
+import { GOVERNANCE_AUDIT_PATH, governanceAlertRulesTabHref } from "@/lib/governance/governance-route-paths";
 import {
   createAlertRoutingSubscription,
   listAlertRoutingDeliveryAttempts,
-  listAlertRoutingSubscriptions,
   testWebhookSubscription,
   toggleAlertRoutingSubscription,
 } from "@/lib/api";
@@ -75,22 +80,27 @@ export function AlertRoutingContent() {
   const sampleModeBlocked: boolean =
     isBuyerPolishedOperatorShellEnv() && !isOperatorExperienceFullShellEnv();
   const canEditRouting: boolean = canMutateRouting && !sampleModeBlocked;
+  const routingQuery = useAlertRoutingSubscriptionsQuery();
   const refreshContext = useOptionalAlertRulesHubRefresh();
-  // Keep reportTabLoaded off the load() dependency list — stamping freshness recreates
-  // the context value and would otherwise retrigger the mount load in a loop.
+  // Keep reportTabLoaded off the refresh dependency list — stamping freshness recreates
+  // the context value and would otherwise retrigger effects in a loop.
   const reportTabLoadedRef = useRef(refreshContext?.reportTabLoaded);
   reportTabLoadedRef.current = refreshContext?.reportTabLoaded;
   const registerTabLoader = refreshContext?.registerTabLoader;
   const formSectionRef = useRef<HTMLElement | null>(null);
   const statusRegionId = useId();
-  const [items, setItems] = useState<AlertRoutingSubscription[]>([]);
+  const items = routingQuery.items;
+  const loading = routingQuery.loading;
+  const [mutationFailure, setMutationFailure] = useState<ApiLoadFailureState | null>(null);
+  const failure = routingQuery.failure ?? mutationFailure;
   const [attemptsBySub, setAttemptsBySub] = useState<Record<string, AlertRoutingDeliveryAttempt[]>>({});
-  const [loading, setLoading] = useState(false);
   const [creating, setCreating] = useState(false);
-  const [failure, setFailure] = useState<ApiLoadFailureState | null>(null);
   const [statusMessage, setStatusMessage] = useState<string | null>(null);
   const [fieldErrors, setFieldErrors] = useState<AlertRoutingFieldErrors>({});
   const [testingId, setTestingId] = useState<string | null>(null);
+  const [pendingDisable, setPendingDisable] = useState<AlertRoutingSubscriptionDisableTarget | null>(null);
+  const [disableBusy, setDisableBusy] = useState(false);
+  const [disableErrorMessage, setDisableErrorMessage] = useState<string | null>(null);
 
   const [name, setName] = useState("");
   const [channelType, setChannelType] = useState("Email");
@@ -117,6 +127,9 @@ export function AlertRoutingContent() {
   }, [canMutateRouting, items.length]);
 
   const deliveryHealth = useMemo(() => summarizeAlertRoutingDeliveryHealth(items), [items]);
+  const isEmptyComposition: boolean = !loading && items.length === 0;
+  const mutationDisabledReason = canMutateRouting ? null : whyDisabledEnterpriseMutationControl();
+  const mutationDisabledHintId = "alert-routing-mutate-disabled-hint";
 
   const configProvenanceLabel = useMemo(() => {
     const change = latestAlertRoutingConfigChange(items);
@@ -128,31 +141,25 @@ export function AlertRoutingContent() {
     return formatAlertRoutingConfigProvenanceLine(change.recordedUtc, change.actor);
   }, [items]);
 
-  const load = useCallback(async () => {
-    setLoading(true);
-    setFailure(null);
-    try {
-      const data = await listAlertRoutingSubscriptions();
-      setItems(data);
-      reportTabLoadedRef.current?.("notifications");
-    } catch (e) {
-      setFailure(toApiLoadFailure(e));
-    } finally {
-      setLoading(false);
-    }
-  }, []);
-
-  useEffect(() => {
-    void load();
-  }, [load]);
+  const refreshRoutingTab = useCallback(async () => {
+    await routingQuery.refresh();
+  }, [routingQuery.refresh]);
 
   useEffect(() => {
     if (registerTabLoader === undefined) {
       return;
     }
 
-    return registerTabLoader("notifications", load);
-  }, [load, registerTabLoader]);
+    return registerTabLoader("notifications", refreshRoutingTab);
+  }, [refreshRoutingTab, registerTabLoader]);
+
+  useEffect(() => {
+    if (loading || routingQuery.failure !== null) {
+      return;
+    }
+
+    reportTabLoadedRef.current?.("notifications", items.length);
+  }, [items.length, loading, routingQuery.failure]);
 
   function scrollToForm() {
     formSectionRef.current?.scrollIntoView({ behavior: "smooth", block: "start" });
@@ -189,7 +196,7 @@ export function AlertRoutingContent() {
     }
 
     setCreating(true);
-    setFailure(null);
+    setMutationFailure(null);
     setStatusMessage(sendTestAfterSave ? "Creating destination and sending test notification…" : "Creating destination…");
 
     try {
@@ -217,26 +224,67 @@ export function AlertRoutingContent() {
       setMinimumSeverity("High");
       setFieldErrors({});
       setStatusMessage("Notification destination created.");
-      await load();
+      await routingQuery.refresh();
     } catch (e) {
-      setFailure(toApiLoadFailure(e));
+      setMutationFailure(toApiLoadFailure(e));
       setStatusMessage("Could not create the notification destination.");
     } finally {
       setCreating(false);
     }
   }
 
-  async function onToggle(id: string) {
+  async function onToggle(
+    id: string,
+    isEnabled: boolean,
+    subscriptionName: string,
+    channelTypeValue: string,
+  ) {
     if (!canEditRouting) {
       return;
     }
 
-    setFailure(null);
+    if (isEnabled) {
+      setDisableErrorMessage(null);
+      setPendingDisable({
+        routingSubscriptionId: id,
+        subscriptionName,
+        channel: channelTypeValue === "SlackWebhook" ? "slack" : "webhook",
+      });
+
+      return;
+    }
+
+    await executeToggle(id);
+  }
+
+  async function executeToggle(id: string): Promise<void> {
+    setMutationFailure(null);
+
     try {
       await toggleAlertRoutingSubscription(id);
-      await load();
+      await routingQuery.refresh();
     } catch (e) {
-      setFailure(toApiLoadFailure(e));
+      setMutationFailure(toApiLoadFailure(e));
+      throw e;
+    }
+  }
+
+  async function confirmDisableSubscription(): Promise<void> {
+    if (pendingDisable === null || disableBusy) {
+      return;
+    }
+
+    setDisableBusy(true);
+    setDisableErrorMessage(null);
+
+    try {
+      await executeToggle(pendingDisable.routingSubscriptionId);
+      setPendingDisable(null);
+    } catch (error: unknown) {
+      const apiFailure = toApiLoadFailure(error);
+      setDisableErrorMessage(apiFailure.message);
+    } finally {
+      setDisableBusy(false);
     }
   }
 
@@ -266,7 +314,7 @@ export function AlertRoutingContent() {
   }
 
   return (
-    <div className="space-y-8">
+    <div className={cn(isEmptyComposition ? "max-w-4xl space-y-4" : "space-y-8")}>
       <header className="space-y-2">
         <div className="flex flex-wrap items-start justify-between gap-3">
           <h2 className={cn("m-0", OPERATOR_TYPOGRAPHY.sectionTitle)}>Notification delivery</h2>
@@ -278,13 +326,13 @@ export function AlertRoutingContent() {
             />
           ) : null}
         </div>
-        <p className={cn("m-0 max-w-prose leading-snug text-neutral-600 dark:text-neutral-400", OPERATOR_TYPOGRAPHY.body)}>
+        <p className={cn("m-0 leading-snug text-neutral-600 dark:text-neutral-400", OPERATOR_TYPOGRAPHY.body)}>
           {pageLead}
         </p>
         {sampleModeBlocked ? (
           <div
             role="status"
-            className="rounded-lg border border-amber-200 bg-amber-50 p-4 text-amber-950 dark:border-amber-900 dark:bg-amber-950/30 dark:text-amber-100"
+            className={cn(DESIGN_TOKENS.callout.warn, "p-4")}
             data-testid="alert-routing-sample-mode-banner"
           >
             <p className={cn("mb-2", OPERATOR_TYPOGRAPHY.body)}>{ALERT_RULES_SAMPLE_MODE_BANNER}</p>
@@ -322,31 +370,48 @@ export function AlertRoutingContent() {
         </div>
       ) : null}
 
-      <section aria-labelledby="alert-routing-destinations-heading" className="space-y-4">
-        <h3 id="alert-routing-destinations-heading" className={cn("m-0", OPERATOR_TYPOGRAPHY.cardTitle)}>
-          Notification destinations
-        </h3>
-        <AlertRoutingDestinationList
-          items={items}
-          attemptsBySub={attemptsBySub}
-          canMutateRouting={canEditRouting}
-          testingId={testingId}
-          onAddDestination={scrollToForm}
-          onToggle={(id) => void onToggle(id)}
-          onLoadAttempts={(id) => void loadAttempts(id)}
-          onTest={(id) => void onTest(id)}
-        />
-      </section>
+      {!isEmptyComposition ? (
+        <section aria-labelledby="alert-routing-destinations-heading" className="space-y-4">
+          <h3 id="alert-routing-destinations-heading" className={cn("m-0", OPERATOR_TYPOGRAPHY.cardTitle)}>
+            Notification destinations
+          </h3>
+          <AlertRoutingDestinationList
+            items={items}
+            attemptsBySub={attemptsBySub}
+            canMutateRouting={canEditRouting}
+            testingId={testingId}
+            onAddDestination={scrollToForm}
+            onToggle={(id, isEnabled, subscriptionName, channelTypeValue) =>
+              void onToggle(id, isEnabled, subscriptionName, channelTypeValue)
+            }
+            onLoadAttempts={(id) => void loadAttempts(id)}
+            onTest={(id) => void onTest(id)}
+          />
+        </section>
+      ) : null}
 
-      <section
-        ref={formSectionRef}
-        tabIndex={-1}
-        aria-labelledby="alert-routing-form-heading"
-        className={cn("space-y-6 rounded-lg border border-neutral-200 bg-white p-5 dark:border-neutral-700 dark:bg-neutral-950", !canEditRouting && "opacity-90")}
+      <div
+        className={cn(isEmptyComposition && "space-y-4")}
+        data-testid={isEmptyComposition ? "alert-routing-empty-state" : undefined}
       >
-        <h3 id="alert-routing-form-heading" className={cn("m-0", OPERATOR_TYPOGRAPHY.cardTitle)}>
-          {items.length === 0 ? "Destination details" : "Add another destination"}
-        </h3>
+        <section
+          ref={formSectionRef}
+          tabIndex={-1}
+          aria-labelledby="alert-routing-form-heading"
+          className={cn(
+            "space-y-6 rounded-lg border border-neutral-200 bg-white p-5 dark:border-neutral-700 dark:bg-neutral-950",
+            !canEditRouting && "opacity-90",
+          )}
+        >
+          <h3 id="alert-routing-form-heading" className={cn("m-0", OPERATOR_TYPOGRAPHY.cardTitle)}>
+            {isEmptyComposition ? "Set up alert delivery" : "Add another destination"}
+          </h3>
+          {isEmptyComposition ? (
+            <p className={cn("m-0 text-al-text-secondary", OPERATOR_TYPOGRAPHY.helper)}>
+              Create your first email or webhook destination. Qualifying findings notify your team when severity
+              thresholds are met.
+            </p>
+          ) : null}
 
         <fieldset className="space-y-4 border-0 p-0" disabled={!canEditRouting}>
           <label className={cn("block text-neutral-800 dark:text-neutral-200", OPERATOR_TYPOGRAPHY.body)}>
@@ -437,7 +502,7 @@ export function AlertRoutingContent() {
           </p>
           {thresholdPreview.criticalExcludedWarning !== null ? (
             <p
-              className={cn("rounded-md border border-amber-300 bg-amber-50 px-3 py-2 text-amber-950 dark:border-amber-700 dark:bg-amber-950/40 dark:text-amber-100", OPERATOR_TYPOGRAPHY.helper)}
+              className={cn(DESIGN_TOKENS.callout.warn, OPERATOR_TYPOGRAPHY.helper)}
               data-testid="alert-routing-threshold-critical-warning"
               role="status"
             >
@@ -450,15 +515,16 @@ export function AlertRoutingContent() {
           criteria={routingCriteria}
           onChange={setRoutingCriteria}
           disabled={!canEditRouting || creating}
-          disabledTitle={canEditRouting ? undefined : enterpriseMutationControlDisabledTitle}
         />
 
-        <div className="flex flex-wrap items-center gap-3 border-t border-neutral-200 pt-4 dark:border-neutral-700">
+        <div className="flex flex-col items-start gap-2 border-t border-neutral-200 pt-4 dark:border-neutral-700">
+          <div className="flex flex-wrap items-center gap-3">
           <Button
             type="button"
             variant="primary"
             onClick={() => void onCreate(false)}
             disabled={!canEditRouting || creating || !formValid}
+            aria-describedby={mutationDisabledReason === null ? undefined : mutationDisabledHintId}
             data-testid="alert-routing-create-destination"
           >
             {creating ? "Creating destination…" : canMutateRouting ? "Create notification destination" : alertRoutingCreateSubscriptionButtonLabelReaderRank}
@@ -489,24 +555,47 @@ export function AlertRoutingContent() {
           >
             Reset form
           </Button>
+          </div>
+          <WhyDisabledCtaHint
+            id={mutationDisabledHintId}
+            reason={mutationDisabledReason}
+            testId="alert-routing-mutate-disabled-hint"
+          />
         </div>
       </section>
 
-      {items.length === 0 ? (
-        <GettingStartedSteps
-          {...(canMutateRouting ? alertRoutingEmptyGettingStartedOperator : alertRoutingEmptyGettingStartedReader)}
-          stepLinkByIndex={
-            canMutateRouting
-              ? {
-                  3: {
-                    href: governanceAlertRulesTabHref("test-alerts"),
-                    label: "Test alerts",
-                  },
-                }
-              : undefined
+        {isEmptyComposition ? (
+          <GettingStartedSteps
+            {...(canMutateRouting ? alertRoutingEmptyGettingStartedOperator : alertRoutingEmptyGettingStartedReader)}
+            className="border-0 bg-transparent px-0 py-0"
+            stepLinkByIndex={
+              canMutateRouting
+                ? {
+                    3: {
+                      href: governanceAlertRulesTabHref("test-alerts"),
+                      label: "Test alerts",
+                    },
+                  }
+                : undefined
+            }
+          />
+        ) : null}
+      </div>
+
+      <AlertRoutingSubscriptionDisableDialog
+        target={pendingDisable}
+        busy={disableBusy}
+        errorMessage={disableErrorMessage}
+        onCancel={() => {
+          if (!disableBusy) {
+            setPendingDisable(null);
+            setDisableErrorMessage(null);
           }
-        />
-      ) : null}
+        }}
+        onConfirm={() => {
+          void confirmDisableSubscription();
+        }}
+      />
     </div>
   );
 }

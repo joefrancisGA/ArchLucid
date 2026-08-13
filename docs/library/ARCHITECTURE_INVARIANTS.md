@@ -75,6 +75,8 @@
 
 **Shipped (product):** **`ILlmTenantBudgetRepository`** with daily token + monthly USD reserve/settle (`SqlLlmTenantBudgetRepository` / `InMemoryLlmTenantBudgetRepository`); see **`155_LlmMonthlyTenantBudgetPurchasedCapBump.sql`** for TB-014 additive cap bumps on the monthly row.
 
+**Lifecycle contract (TB-975):** [`INV004_RESERVE_SETTLE_LIFECYCLE_CONTRACT.md`](INV004_RESERVE_SETTLE_LIFECYCLE_CONTRACT.md) — cap-correct concurrency vs crash orphans, app-clock period keys, and assumed-max race residuals (**TB-976** / **TB-977**).
+
 ---
 
 ## INV-005: Production host fail-closed

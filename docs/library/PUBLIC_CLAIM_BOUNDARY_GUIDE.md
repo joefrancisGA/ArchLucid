@@ -149,7 +149,7 @@ Former standalone body: `docs/go-to-market/PA_CLAIM_HONESTY_BULLETS_BATCH_A.md` 
 
 | Do not promise | Do promise |
 | --- | --- |
-| A P0 alert catalog means every tenant or stuck run is automatically paged, or that a second SRE platform is operating. | Fleet P0 monitoring is documented; per-tenant/stuck-run paging and create→execute→finalize canary coverage remain open under **TB-958**–**TB-959**. |
+| A P0 alert catalog means every tenant or stuck run is automatically paged, or that a second SRE platform is operating. | Fleet P0 monitoring is documented; stale-run P0 (**TB-958** **Done**) and review-path canary (**TB-959** **Done**) require owner enablement (AMW scrape, `ARCHLUCID_REVIEW_PATH_CANARY_ENABLED`, paging secrets). |
 
 #### M-121 — Interrupted LLM execution
 
@@ -185,7 +185,7 @@ Former standalone body: `docs/go-to-market/PA_CLAIM_HONESTY_BULLETS_BATCH_A.md` 
 
 | Do not promise | Do promise |
 | --- | --- |
-| Crash-proof settlement, zero orphaned reserved USD, provider exactly-once billing, or immunity from assumed-max reservation races. | Durable SQL state plus optimistic concurrency blocks multi-replica hard-cap bypass; crash, clock-boundary, and soft-denial residuals remain under **TB-975**–**TB-977**. |
+| Crash-proof settlement, zero orphaned reserved USD, provider exactly-once billing, or immunity from assumed-max reservation races. | Durable SQL state plus optimistic concurrency blocks multi-replica hard-cap bypass; lifecycle contract **TB-975** Done — crash/orphan (**TB-976**) and clock/fairness (**TB-977**) residuals remain open. |
 
 #### M-148 — LLM trust boundary
 
@@ -223,7 +223,7 @@ Former standalone body: `docs/go-to-market/PA_CLAIM_HONESTY_BULLETS_BATCH_B.md` 
 
 | Do not promise | Do promise |
 | --- | --- |
-| Every tenant-affecting failure pages the founder before a support ticket; fleet MVO P0s equal per-tenant stuck-run coverage. | Fleet P0 monitoring when enabled; per-tenant stuck-run and review-path canary remain open under **TB-958**/**TB-959**; Report Problem is inbox-by-design. |
+| Every tenant-affecting failure pages the founder before a support ticket; fleet MVO P0s equal per-tenant stuck-run coverage. | Fleet P0 monitoring when enabled; stale-run P0 and review-path canary engineering shipped (**TB-958**/**TB-959** **Done**) but require owner enablement; Report Problem is inbox-by-design. |
 
 #### M-144 — Outbox at-least-once delivery
 
@@ -271,7 +271,7 @@ Former standalone body: `docs/go-to-market/PA_CLAIM_HONESTY_BULLETS_BATCH_B.md` 
 
 | Do not promise | Do promise |
 | --- | --- |
-| Commit success means Search indexed, webhooks delivered, Cosmos projected, or every audit event is transactional. | Sealed package + durable **retrieval** outbox enqueue in finalize (ADR 0004); disclose integration `Try*` enqueue residual, Required vs informational audit, and delivery lag. Engineering matrix: [`TRANSACTIONAL_FINALIZE_VS_OUTBOX_CONTRACT.md`](TRANSACTIONAL_FINALIZE_VS_OUTBOX_CONTRACT.md) (**TB-1011**). Follow-on honesty CI: **TB-1012**. |
+| Commit success means Search indexed, webhooks delivered, Cosmos projected, or every audit event is transactional. | Sealed package + durable **retrieval** outbox enqueue in finalize (ADR 0004); disclose integration `Try*` enqueue residual, Required vs informational audit, and delivery lag. Engineering matrix: [`TRANSACTIONAL_FINALIZE_VS_OUTBOX_CONTRACT.md`](TRANSACTIONAL_FINALIZE_VS_OUTBOX_CONTRACT.md) (**TB-1011**). Honesty CI: **TB-1012** Done. |
 
 #### M-164 — Read-after-write
 
@@ -301,19 +301,19 @@ Former standalone body: `docs/go-to-market/PA_CLAIM_HONESTY_BULLETS_BATCH_B.md` 
 
 | Do not promise | Do promise |
 | --- | --- |
-| Every policy pack blocks finalize; `priorityFloor` is a commit gate; packs are certifications; SoD requires a different committer; gate is always on. | Optional gate + enforcing assignment thresholds; Advisory/warn-only do not block; SoD = approval submitter≠approver (platform + org roles). Engineering matrix: [`PRE_FINALIZE_GATE_BLOCK_VS_ADVISORY_SOD_CONTRACT.md`](PRE_FINALIZE_GATE_BLOCK_VS_ADVISORY_SOD_CONTRACT.md) (**TB-1022**). Follow-on honesty CI: **TB-1023**. |
+| Every policy pack blocks finalize; `priorityFloor` is a commit gate; packs are certifications; SoD requires a different committer; gate is always on. | Optional gate + enforcing assignment thresholds; Advisory/warn-only do not block; SoD = approval submitter≠approver (platform + org roles). Engineering matrix: [`PRE_FINALIZE_GATE_BLOCK_VS_ADVISORY_SOD_CONTRACT.md`](PRE_FINALIZE_GATE_BLOCK_VS_ADVISORY_SOD_CONTRACT.md) (**TB-1022**). Honesty CI: **TB-1023** Done. |
 
 #### M-174 — Comparison/replay drift
 
 | Do not promise | Do promise |
 | --- | --- |
-| Artifact-mode replay proves architecture unchanged; live mutable UI side-by-side equals verify. | Persisted `ComparisonRecord` + committed manifests on both sides; **verify** (422 on mismatch) for buyer drift/stable claims; label artifact-only as stored delta replay. Engineering matrix: [`COMPARISON_REPLAY_IMMUTABLE_SNAPSHOT_CONTRACT.md`](COMPARISON_REPLAY_IMMUTABLE_SNAPSHOT_CONTRACT.md) (**TB-1024**). Follow-on honesty CI: **TB-1025**. |
+| Artifact-mode replay proves architecture unchanged; live mutable UI side-by-side equals verify. | Persisted `ComparisonRecord` + committed manifests on both sides; **verify mode (422 on mismatch)** for buyer drift/stable claims; label artifact-only as stored delta replay. Engineering matrix: [`COMPARISON_REPLAY_IMMUTABLE_SNAPSHOT_CONTRACT.md`](COMPARISON_REPLAY_IMMUTABLE_SNAPSHOT_CONTRACT.md) (**TB-1024**). CI: `check_comparison_replay_drift_honesty.py` (**TB-1025** Done). |
 
 #### M-176 — Operator primary object
 
 | Do not promise | Do promise |
 | --- | --- |
-| Findings or decisions are the hireable unit of truth; create and review are two equal products. | **Architecture package** as primary product noun; review = lifecycle; findings/decisions are children. Engineering matrix: [`OPERATOR_PRIMARY_OBJECT_NAV_COLLAPSE_CONTRACT.md`](OPERATOR_PRIMARY_OBJECT_NAV_COLLAPSE_CONTRACT.md) (**TB-1026**). Follow-on honesty CI: **TB-1027**. |
+| Findings or decisions are the hireable unit of truth; create and review are two equal products. | **Architecture package** as primary product noun; review = lifecycle; findings/decisions are children. Engineering matrix: [`OPERATOR_PRIMARY_OBJECT_NAV_COLLAPSE_CONTRACT.md`](OPERATOR_PRIMARY_OBJECT_NAV_COLLAPSE_CONTRACT.md) (**TB-1026**). CI: `check_operator_primary_object_honesty.py` (**TB-1027** Done). |
 
 #### M-178 — `/see-it` static versus live boundary
 
@@ -325,19 +325,31 @@ Former standalone body: `docs/go-to-market/PA_CLAIM_HONESTY_BULLETS_BATCH_B.md` 
 
 | Do not promise | Do promise |
 | --- | --- |
-| “15 minutes without founder narration,” “product-led first value,” “no SE required,” or “won’t dismiss” without package spine + minute-12 checkpoint; absent **M-44** cohort as proof. | Finalize + sponsor export co-located on `/reviews/{runId}`; non-obvious finding + evidence → commit → unaided export as PA Q10 see list. Engineering matrix: [`PA_FIRST_15_PACKAGE_SPINE_IA_CONTRACT.md`](PA_FIRST_15_PACKAGE_SPINE_IA_CONTRACT.md) (**TB-1030**). |
+| “15 minutes without founder narration,” “product-led first value,” “no SE required,” or “won’t dismiss” without package spine + minute-12 checkpoint; absent **M-44** cohort as proof. | Finalize + sponsor export co-located on `/reviews/{runId}`; non-obvious finding + evidence → commit → unaided export as PA Q10 see list. Engineering matrix: [`PA_FIRST_15_PACKAGE_SPINE_IA_CONTRACT.md`](PA_FIRST_15_PACKAGE_SPINE_IA_CONTRACT.md) (**TB-1030**). CI: `check_first_15_package_spine_honesty.py` (**TB-1031** Done). |
 
 #### M-182 — Launch-load failure order
 
 | Do not promise | Do promise |
 | --- | --- |
-| API scale-out removes AOAI 429/TPM limits; launch load “proven” while drill pending; outbox lag loses committed packages or is first sync admit failure under burst. | HTTP-first launch vs AOAI-ceiling Real execute; committed packages durable; worker lag affects projections, not finalize record. |
+| API scale-out removes AOAI 429/TPM limits; launch load “proven” while drill pending; outbox lag loses committed packages or is first sync admit failure under burst. | HTTP-first launch vs AOAI-ceiling Real execute; committed packages durable; worker lag affects projections, not finalize record. Engineering matrix: [`LAUNCH_LOAD_FAILURE_ORDER_DEGRADATION_CONTRACT.md`](LAUNCH_LOAD_FAILURE_ORDER_DEGRADATION_CONTRACT.md) (**TB-1032**). CI: `check_launch_load_failure_order_honesty.py` (**TB-1033** Done). |
 
 #### M-184 — Strangler next slice
 
 | Do not promise | Do promise |
 | --- | --- |
-| Create→execute→commit as default peer lifecycle to Authority; dual coordinator storage still ships; `POST …/result` finalizes/commits. | Authority product-default freeze + AgentTask extension-loop rename + `/result` sunset per owner ADR. |
+| Create→execute→commit as default peer lifecycle to Authority; dual coordinator storage still ships; `POST …/result` finalizes/commits. | Authority product-default freeze + AgentTask extension-loop rename + `/result` sunset per owner ADR. Engineering matrix: [`STRANGLER_NEXT_SLICE_AUTHORITY_FREEZE_AND_RESULT_SUNSET_CONTRACT.md`](STRANGLER_NEXT_SLICE_AUTHORITY_FREEZE_AND_RESULT_SUNSET_CONTRACT.md) (**TB-1034**). CI: `check_strangler_next_slice_honesty.py` (**TB-1035** Done). |
+
+#### M-196 — SOC 2 / pen-test talk-track
+
+| Do not promise | Do promise |
+| --- | --- |
+| “SOC 2 certified/ready/almost/in process”; “pen tested” / “pen test in flight” when only self-assessment / owner-conducted / SoW template exists. | Intent → evidence-type label → pack → defer with funding trigger per [`SOC2_PENTEST_HONEST_PROCUREMENT_TALK_TRACK_CONTRACT.md`](SOC2_PENTEST_HONEST_PROCUREMENT_TALK_TRACK_CONTRACT.md) (**TB-1144**). CI: `check_soc2_pentest_honest_procurement_talk_track_honesty.py` (**TB-1145** Done). |
+
+#### M-201 — Golden-cohort re-lock vs rubber-stamp
+
+| Do not promise | Do promise |
+| --- | --- |
+| Unexplained mass SHA rewrite = regression proof; cohort re-lock heals production `ManifestHash` / export verify; Real-mode captured as Simulator baseline. | Intentional re-lock with rationale + never-re-lockable invariants per [`GOLDEN_COHORT_RELOCK_VS_RUBBER_STAMP_CONTRACT.md`](GOLDEN_COHORT_RELOCK_VS_RUBBER_STAMP_CONTRACT.md) (**TB-1172**). CI: `check_golden_cohort_relock_rubber_stamp_honesty.py` (**TB-1173** Done). |
 
 #### M-186 — Competitive deal loss
 
@@ -371,45 +383,45 @@ Use as preflight language for PA conversations, demos, procurement answers, and 
 | **M-198** | Dual hashes | Do not equate cohort SHA with production ManifestHash. | Promise named hash surfaces and deliberate re-lock evidence. |
 | **M-201** | Cohort re-lock | Do not call unexplained baseline rewrites proof. | Promise recorded intent, rationale, and never-re-lockable invariants. |
 | **M-203** | Agent variance | Do not present free-text proposals as signed decisions. | Promise typed findings, validation, and sealed-graph inputs. |
-| **M-205** | Post-strangler coupling | Do not infer no residual coupling from storage completion. | Promise explicit residual hunts and anti-resurrection gates. |
-| **M-207** | Finding provenance | Do not call all findings citation-bound without structural provenance. | Promise fail-closed provenance only where emission and commit gates enforce it. |
-| **M-209** | Scoring lanes | Do not call semantic scores a commit gate. | Promise the split between structural, async semantic, and promotion lanes. |
-| **M-211** | Hallucination defense | Do not infer Real safety from Simulator green. | Promise a shared post-agent defense plane with labeled mode variation. |
-| **M-213** | Tenant DiD erosion | Do not equate predicates with the primary boundary. | Promise structural catalogs plus independently described defense layers. |
-| **M-215** | Azure privilege seam | Do not infer least privilege from private endpoints. | Promise explicit bootstrap/runtime identity separation and residuals. |
-| **M-217** | Demo read plane | Do not call anonymous filters structural isolation. | Promise a dedicated demo plane or static-only surface. |
-| **M-219** | Dapper strategy | Do not claim an ORM would solve architecture concerns. | Promise measured signals and an ordered evolution ladder. |
+| **M-205** | Post-strangler coupling | Do not infer no residual coupling from storage completion. | Promise explicit residual hunts and anti-resurrection gates. Engineering matrix: [`POST_STRANGLER_RESIDUAL_COUPLING_AND_DISCIPLINE_TEST_RETIREMENT_CONTRACT.md`](POST_STRANGLER_RESIDUAL_COUPLING_AND_DISCIPLINE_TEST_RETIREMENT_CONTRACT.md) (**TB-1204**). Honesty CI: **TB-1205** Done. |
+| **M-207** | Finding provenance | Do not call all findings citation-bound without structural provenance. | Promise fail-closed provenance only where emission and commit gates enforce it. Engineering matrix: [`DECISION_GRADE_FINDING_PROVENANCE_FAIL_CLOSED_CONTRACT.md`](DECISION_GRADE_FINDING_PROVENANCE_FAIL_CLOSED_CONTRACT.md) (**TB-1221**). Honesty CI: **TB-1222** Done. |
+| **M-209** | Scoring lanes | Do not call semantic scores a commit gate. | Promise the split between structural, async semantic, and promotion lanes. Engineering matrix: [`FAITHFULNESS_SUPPORT_RATIO_SCORING_LANE_POSITIONING_CONTRACT.md`](FAITHFULNESS_SUPPORT_RATIO_SCORING_LANE_POSITIONING_CONTRACT.md) (**TB-1228**). Honesty CI: **TB-1229** Done. |
+| **M-211** | Hallucination defense | Do not infer Real safety from Simulator green. | Promise a shared post-agent defense plane with labeled mode variation. Engineering matrix: [`SHARED_HALLUCINATION_DEFENSE_PLANE_CONTRACT.md`](SHARED_HALLUCINATION_DEFENSE_PLANE_CONTRACT.md) (**TB-1230**). Honesty CI: **TB-1231** Done. |
+| **M-213** | Tenant DiD erosion | Do not equate predicates with the primary boundary. | Promise structural catalogs plus independently described defense layers. Engineering matrix: [`TENANT_DID_EROSION_AND_ENFORCEMENT_BEYOND_PREDICATES_CONTRACT.md`](TENANT_DID_EROSION_AND_ENFORCEMENT_BEYOND_PREDICATES_CONTRACT.md) (**TB-1232**). Honesty CI: **TB-1233** Done. |
+| **M-215** | Azure privilege seam | Do not infer least privilege from private endpoints. | Promise explicit bootstrap/runtime identity separation and residuals. Engineering matrix: [`AZURE_WORKLOAD_PRIVILEGE_ESCALATION_SEAM_CONTRACT.md`](AZURE_WORKLOAD_PRIVILEGE_ESCALATION_SEAM_CONTRACT.md) (**TB-1244**). Honesty CI: **TB-1245** Done. |
+| **M-217** | Demo read plane | Do not call anonymous filters structural isolation. | Promise a dedicated demo plane or static-only surface. Engineering matrix: [`DEMO_ANONYMOUS_READ_PLANE_CONTRACT.md`](DEMO_ANONYMOUS_READ_PLANE_CONTRACT.md) (**TB-1251**). Honesty CI: **TB-1252** Done. |
+| **M-219** | Dapper strategy | Do not claim an ORM would solve architecture concerns. | Promise measured signals and an ordered evolution ladder. Engineering matrix: [`DAPPER_DDL_SATELLITE_BREAKDOWN_SIGNALS_CONTRACT.md`](DAPPER_DDL_SATELLITE_BREAKDOWN_SIGNALS_CONTRACT.md) (**TB-1263**). Honesty CI: **TB-1264** Done. |
 | **M-221** | Commit race | Do not promise exactly-once execution or no LLM rebill. | Promise first-wins commit and the pre-persist execution residual. |
 | **M-223** | Schema evolution | Do not treat SchemaVersion as sealed-content migration. | Promise tolerant readers and no rewrite of sealed manifests. |
 | **M-225** | LLM cost control | Do not call caps alone mature FinOps. | Promise decorator-chokepoint accounting and disclosed maturity gaps. |
-| **M-227** | Fine-tuning promotion | Do not call timestamps rollback-grade governance. | Promise append-only decision records with prior-active and gate data. |
-| **M-229** | AOAI throttle | Do not call a queued or fallback run successful Real execution. | Promise retry, optional secondary deployment, then Partial or Failed. |
-| **M-231** | Async orchestration | Do not collapse authority commit into agent orchestration. | Promise SQL outbox/Worker first force and separate CAS commit. |
-| **M-233** | Terraform drift | Do not claim state alone is authoritative. | Promise per-surface ownership and plan-plus-live proof. |
-| **M-235** | Policy evaluation | Do not call pack JSON a programmable certification engine. | Promise hybrid data-plane content and compiled semantics. |
-| **M-237** | 100x capacity | Do not claim scale-out creates more AOAI TPM. | Promise TPM-aware admission as the hard-first capacity response. |
-| **M-239** | UI over-promise | Do not assume docs scanners cover UI claims. | Promise ranked buyer-facing page review and named owners. |
+| **M-227** | Fine-tuning promotion | Do not call timestamps rollback-grade governance. | Promise append-only decision records with prior-active and gate data. Engineering matrix: [`FINE_TUNING_PROMOTION_DECISION_RECORD_CONTRACT.md`](FINE_TUNING_PROMOTION_DECISION_RECORD_CONTRACT.md) (**TB-1292**). Honesty CI: **TB-1293** Done. |
+| **M-229** | AOAI throttle | Do not call a queued or fallback run successful Real execution. | Promise retry, optional secondary deployment, then Partial or Failed. Engineering matrix: [`REAL_EXECUTE_AOAI_THROTTLE_POLICY_CONTRACT.md`](REAL_EXECUTE_AOAI_THROTTLE_POLICY_CONTRACT.md) (**TB-1299**). Honesty CI: **TB-1300** Done. |
+| **M-231** | Async orchestration | Do not collapse authority commit into agent orchestration. | Promise SQL outbox/Worker first force and separate CAS commit. Engineering matrix: [`ASYNC_ORCHESTRATION_FIRST_FORCE_AND_RUN_STATE_MACHINE_CONTRACT.md`](ASYNC_ORCHESTRATION_FIRST_FORCE_AND_RUN_STATE_MACHINE_CONTRACT.md) (**TB-1311**). Honesty CI: **TB-1312** Done. |
+| **M-233** | Terraform drift | Do not claim state alone is authoritative. | Promise per-surface ownership and plan-plus-live proof. Engineering matrix: [`CONTAINER_APPS_TERRAFORM_AUTHORITY_AND_DRIFT_CONTRACT.md`](CONTAINER_APPS_TERRAFORM_AUTHORITY_AND_DRIFT_CONTRACT.md) (**TB-1317**). Honesty CI: **TB-1318** Done. |
+| **M-235** | Policy evaluation | Do not call pack JSON a programmable certification engine. | Promise hybrid data-plane content and compiled semantics. Engineering matrix: [`POLICY_PACK_EVALUATION_COMPILED_VS_DATA_PLANE_CONTRACT.md`](POLICY_PACK_EVALUATION_COMPILED_VS_DATA_PLANE_CONTRACT.md) (**TB-1324**). Honesty CI: **TB-1325** Done. |
+| **M-237** | 100x capacity | Do not claim scale-out creates more AOAI TPM. | Promise TPM-aware admission as the hard-first capacity response. Engineering matrix: [`REVIEW_VOLUME_100X_FAILURE_ORDER_AND_OPTION_PRESERVING_CAPACITY_CONTRACT.md`](REVIEW_VOLUME_100X_FAILURE_ORDER_AND_OPTION_PRESERVING_CAPACITY_CONTRACT.md) (**TB-1336**). Honesty CI: **TB-1337** Done. |
+| **M-239** | UI over-promise | Do not assume docs scanners cover UI claims. | Promise ranked buyer-facing page review and named owners. Engineering matrix: [`WHAT_NOT_TO_PROMISE_UI_BUYER_RISK_MATRIX_CONTRACT.md`](WHAT_NOT_TO_PROMISE_UI_BUYER_RISK_MATRIX_CONTRACT.md) (**TB-1343**). Honesty CI: **TB-1344** Done. |
 | **M-241** | Core Pilot path | Do not call empty screens sponsor-ready progress. | Promise request-to-finalize-to-sponsor-packet guidance. |
 | **M-243** | Why not ChatGPT/Copilot | Do not claim universal AI superiority or lower TCO. | Promise governed-package and evidence/audit differentiation. |
-| **M-245** | Elevator pitch | Do not claim universal time savings or always-on controls. | Promise only what a committed run can demonstrate. |
-| **M-247** | AgentTask seams | Do not treat schema validation as all leak prevention. | Promise a path-by-mode-by-gate residual matrix. |
-| **M-249** | TB-881 | Do not reopen a completed CI test race as a pilot blocker. | Promise clear CI, pilot, and signup-stress classification. |
+| **M-245** | Elevator pitch | Do not claim universal time savings or always-on controls. | Promise only what a committed run can demonstrate. Honesty CI: **TB-1368** Done. |
+| **M-247** | AgentTask seams | Do not treat schema validation as all leak prevention. | Promise a path-by-mode-by-gate residual matrix. Engineering matrix: [`AGENTTASK_DECISIONING_UNGATED_LEAK_SEAMS_CONTRACT.md`](AGENTTASK_DECISIONING_UNGATED_LEAK_SEAMS_CONTRACT.md) (**TB-1369**). Honesty CI: **TB-1370** Done. |
+| **M-249** | TB-881 | Do not reopen a completed CI test race as a pilot blocker. | Promise clear CI, pilot, and signup-stress classification. Engineering matrix: [`TB881_ORG_REGISTRATION_RACE_SHIP_BLOCKER_CLASSIFICATION_CONTRACT.md`](TB881_ORG_REGISTRATION_RACE_SHIP_BLOCKER_CLASSIFICATION_CONTRACT.md) (**TB-1371**). Honesty CI: **TB-1372** Done. |
 | **M-251** | Specialty help | Do not call bare markdown specialty-guided help. | Promise shared chrome, CTA, tier, and residual visibility. |
-| **M-253** | INV-001 triad | Do not infer semantic truth from tenant identity or hashes. | Promise separately bounded invariants and named owners. |
+| **M-253** | INV-001 triad | Do not infer semantic truth from tenant identity or hashes. | Promise separately bounded invariants and named owners. Engineering matrix: [`INV001_DECIDE_ONCE_COMMITTED_MANIFEST_PA_TRIAD_CHALLENGE_MATRIX.md`](INV001_DECIDE_ONCE_COMMITTED_MANIFEST_PA_TRIAD_CHALLENGE_MATRIX.md) (**TB-1416**). Honesty CI: **TB-1417** Done. |
 | **M-255** | Structural isolation | Do not label conventional controls structural. | Promise a structural, defense-in-depth, and convention classification. |
 | **M-257** | Integration empty state | Do not call divergent empty pages integration readiness. | Promise one guided, configuration-aware empty-state contract. |
 | **M-259** | See-it ladder | Do not call a curated offline sample a live tenant demo. | Promise labeled demo rungs, mode, and universe. |
 | **M-261** | Bake-off | Do not stage EA as a loser or unrun sessions as evidence. | Promise manual-packaging contrast and timed, evidence-led sequence. |
 | **M-263** | Claim drift | Do not send packets with critical unresolved drift. | Promise SEND versus REWRITE discipline and owner routing. |
-| **M-265** | GDPR erasure | Do not claim automated complete erasure or immutable forever evidence. | Promise the hard-purge boundary and disclosed residuals. |
-| **M-267** | Offline export | Do not call file checksums PKI-signed permanent lineage. | Promise offline SHA checks and conditional live verification. |
-| **M-269** | Backup and restore | Do not equate append-only storage with tamper-proof backup history. | Promise controlled restore procedures and external anchors. |
-| **M-271** | Project deletion | Do not call project purge tenant or evidence erasure. | Promise the project lifecycle and sealed-evidence residue. |
+| **M-265** | GDPR erasure | Do not claim automated complete erasure or immutable forever evidence. | Promise the hard-purge boundary and disclosed residuals. Engineering map: [`GDPR_ERASURE_VS_APPEND_ONLY_MAP.md`](GDPR_ERASURE_VS_APPEND_ONLY_MAP.md) (**TB-1470**). Honesty CI: **TB-1471** Done. |
+| **M-267** | Offline export | Do not call file checksums PKI-signed permanent lineage. | Promise offline SHA checks and conditional live verification. Engineering map: [`OFFLINE_VERIFIABLE_EXPORT_PORTABILITY.md`](OFFLINE_VERIFIABLE_EXPORT_PORTABILITY.md) (**TB-1488**). Honesty CI: **TB-1489** Done. |
+| **M-269** | Backup and restore | Do not equate append-only storage with tamper-proof backup history. | Promise controlled restore procedures and external anchors. Engineering map: [`EVIDENCE_BACKUP_RESTORE_INVARIANT_MAP.md`](EVIDENCE_BACKUP_RESTORE_INVARIANT_MAP.md) (**TB-1490**). Honesty CI: **TB-1491** Done. |
+| **M-271** | Project deletion | Do not call project purge tenant or evidence erasure. | Promise the project lifecycle and sealed-evidence residue. Engineering map: [`PROJECT_SOFT_DELETE_SEALED_EVIDENCE_MAP.md`](PROJECT_SOFT_DELETE_SEALED_EVIDENCE_MAP.md) (**TB-1497**). Honesty CI: **TB-1498** Done. |
 | **M-273** | AOAI retirement | Do not promise bit-identical Real re-execution across retirement. | Promise survival of committed packages and stored-source replay. |
 | **M-290** | Configuration architecture | Do not sell appsettings/TF-state as SoT, universal ValidateOnStart, IOptionsMonitor hot-reload, or drift preflight as live parity; do not reopen Done **TB-881** as a pilot gate. | Promise layered precedence (env over overlays), selective fail-fast, drift class honesty, and Done **TB-881** = CI/test isolation. Engineering map: [`CONFIGURATION_ARCHITECTURE_PRECEDENCE_VALIDATION_DRIFT_CLAIM_MAP.md`](CONFIGURATION_ARCHITECTURE_PRECEDENCE_VALIDATION_DRIFT_CLAIM_MAP.md) (**TB-1561**). Follow-on honesty CI: **TB-1562**. |
-| **M-282** | Mid-run authority revocation | Do not sell instant global stop on revoke, SCIM `Active=false` as instant Entra role strip, queued ITSM/webhook principal re-check, AuthVersion on Entra tokens, or long API-key validation cache after revoke. | Promise structural stop on **new HTTP** and next API-key authenticate; eventual in-flight + queued tenant-scoped work; Entra JWT until expiry. Engineering map: [`MID_RUN_AUTHORITY_REVOCATION_CLAIM_MAP.md`](MID_RUN_AUTHORITY_REVOCATION_CLAIM_MAP.md) (**TB-1537**). Follow-on honesty CI: **TB-1538**. |
-| **M-284** | Evidence/audit ordering & causality | Do not sell DB sequence/insert-order/Lamport causality, SQL `SYSUTCDATETIME` for all tenant audit rows, retry-safe perceived order, buyer UI as forensic chronology, or append-only/immutability as causal/hash-chained audit rows. | Promise best-effort wall-clock `OccurredUtc` + `EventId` tie-break, app `TimeProvider` stamps, disclosed lifecycle re-sort, and orthogonal seal/export hash (ADR 0040). Engineering map: [`EVIDENCE_AUDIT_ORDERING_CAUSALITY_CLAIM_MAP.md`](EVIDENCE_AUDIT_ORDERING_CAUSALITY_CLAIM_MAP.md) (**TB-1550**). Follow-on honesty CI: **TB-1551**. |
-| **M-286** | Zero-downtime SQL migration | Do not sell consolidated SQL as the only production apply path, a separate least-privilege CD/SQL migrator job, automatic rolling ZDT for all DDL, production non-`db_owner` API SQL by default, DbUp down migrations, or Terraform schema apply. | Promise in-process DbUp on API/Worker startup, expand/contract discipline + **TB-068** lint, bootstrap MI reality, and forward-only rollback posture. Engineering map: [`ZERO_DOWNTIME_SQL_MIGRATION_CLAIM_MAP.md`](ZERO_DOWNTIME_SQL_MIGRATION_CLAIM_MAP.md) (**TB-1557**). Follow-on honesty CI: **TB-1558**. |
+| **M-282** | Mid-run authority revocation | Do not sell instant global stop on revoke, SCIM `Active=false` as instant Entra role strip, queued ITSM/webhook principal re-check, AuthVersion on Entra tokens, or long API-key validation cache after revoke. | Promise structural stop on **new HTTP** and next API-key authenticate; eventual in-flight + queued tenant-scoped work; Entra JWT until expiry. Engineering map: [`MID_RUN_AUTHORITY_REVOCATION_CLAIM_MAP.md`](MID_RUN_AUTHORITY_REVOCATION_CLAIM_MAP.md) (**TB-1537**). Honesty CI: **TB-1538** Done. |
+| **M-284** | Evidence/audit ordering & causality | Do not sell DB sequence/insert-order/Lamport causality, SQL `SYSUTCDATETIME` for all tenant audit rows, retry-safe perceived order, buyer UI as forensic chronology, or append-only/immutability as causal/hash-chained audit rows. | Promise best-effort wall-clock `OccurredUtc` + `EventId` tie-break, app `TimeProvider` stamps, disclosed lifecycle re-sort, and orthogonal seal/export hash (ADR 0040). Engineering map: [`EVIDENCE_AUDIT_ORDERING_CAUSALITY_CLAIM_MAP.md`](EVIDENCE_AUDIT_ORDERING_CAUSALITY_CLAIM_MAP.md) (**TB-1550**). Honesty CI: **TB-1551** Done. |
+| **M-286** | Zero-downtime SQL migration | Do not sell consolidated SQL as the only production apply path, a separate least-privilege CD/SQL migrator job, automatic rolling ZDT for all DDL, production non-`db_owner` API SQL by default, DbUp down migrations, or Terraform schema apply. | Promise in-process DbUp on API/Worker startup, expand/contract discipline + **TB-068** lint, bootstrap MI reality, and forward-only rollback posture. Engineering map: [`ZERO_DOWNTIME_SQL_MIGRATION_CLAIM_MAP.md`](ZERO_DOWNTIME_SQL_MIGRATION_CLAIM_MAP.md) (**TB-1557**). Honesty CI: **TB-1558** Done. |
 | **M-288** | REST+CLI breaking-change compatibility | Do not sell CI as semantic semver proof, machine-enforced `/v2` for all breaks, always-on Sunset/Deprecation headers, dual REST majors in prod, independent CLI semver freeze, or Swashbuckle as contract of record. | Promise ADR 0006 written policy, `/v1` only, OpenAPI exact-snapshot accidental-drift gate + codegen sync, human review on intentional regen, and pilot-first-class lifecycle routes + `archlucid` CLI. Engineering map: [`REST_CLI_BREAKING_CHANGE_COMPATIBILITY_CLAIM_MAP.md`](REST_CLI_BREAKING_CHANGE_COMPATIBILITY_CLAIM_MAP.md) (**TB-1559**). Follow-on honesty CI: **TB-1560**. |
 | **M-294** | Tenant spend storm | Do not call estimated product metering invoice reconciliation. | Promise tenant gates and the manual Azure-money-truth boundary. |
 | **M-296** | Shared TPM fairness | Do not promise per-tenant fair share of shared TPM. | Promise spend caps and visible Partial/Failed contention behavior. |
@@ -429,7 +441,7 @@ Use as preflight language for PA conversations, demos, procurement answers, and 
 #### Batch C sources
 
 - [`GTM_BACKLOG.md`](../go-to-market/GTM_BACKLOG.md), detailed rows M-192–M-304.
-- Claim maps: [`configuration architecture`](CONFIGURATION_ARCHITECTURE_PRECEDENCE_VALIDATION_DRIFT_CLAIM_MAP.md), [`mid-run authority revocation`](MID_RUN_AUTHORITY_REVOCATION_CLAIM_MAP.md), [`evidence/audit ordering`](EVIDENCE_AUDIT_ORDERING_CAUSALITY_CLAIM_MAP.md), [`zero-downtime SQL migration`](ZERO_DOWNTIME_SQL_MIGRATION_CLAIM_MAP.md), [`REST+CLI breaking-change compatibility`](REST_CLI_BREAKING_CHANGE_COMPATIBILITY_CLAIM_MAP.md), [`AOAI model retirement`](AOAI_MODEL_RETIREMENT_REPRO_CLAIM_MAP.md), [`paying-tenant spend`](PAYING_TENANT_LLM_SPEND_STORM_AND_BILLING_DISPUTE_CLAIM_MAP.md), [`shared AOAI TPM`](SHARED_AOAI_TPM_NOISY_NEIGHBOR_FAIRNESS_CLAIM_MAP.md), and [`policy-pack sandbox`](POLICY_PACK_CUSTOMER_RULE_SANDBOX_PIN_BLAST_RADIUS_CLAIM_MAP.md).
+- Claim maps: [`configuration architecture`](CONFIGURATION_ARCHITECTURE_PRECEDENCE_VALIDATION_DRIFT_CLAIM_MAP.md), [`mid-run authority revocation`](MID_RUN_AUTHORITY_REVOCATION_CLAIM_MAP.md), [`evidence/audit ordering`](EVIDENCE_AUDIT_ORDERING_CAUSALITY_CLAIM_MAP.md), [`zero-downtime SQL migration`](ZERO_DOWNTIME_SQL_MIGRATION_CLAIM_MAP.md), [`REST+CLI breaking-change compatibility`](REST_CLI_BREAKING_CHANGE_COMPATIBILITY_CLAIM_MAP.md), [`AOAI model retirement`](AOAI_MODEL_RETIREMENT_REPRO_CLAIM_MAP.md), [`paying-tenant spend`](PAYING_TENANT_LLM_SPEND_STORM_AND_BILLING_DISPUTE_CLAIM_MAP.md), [`shared AOAI TPM`](SHARED_AOAI_TPM_NOISY_NEIGHBOR_FAIRNESS_CLAIM_MAP.md), [`policy-pack sandbox`](POLICY_PACK_CUSTOMER_RULE_SANDBOX_PIN_BLAST_RADIUS_CLAIM_MAP.md), and [`minimum pilot trust without CPA/3P`](MINIMUM_PILOT_TRUST_PACKET_WITHOUT_CPA_CONTRACT.md).
 - [GTM do-not-promise table](#gtm-do-not-promise) (formerly `WHAT_NOT_TO_PROMISE.md`).
 
 ### Canonical deferral docs

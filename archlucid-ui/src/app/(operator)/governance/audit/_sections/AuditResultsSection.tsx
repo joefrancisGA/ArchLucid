@@ -3,12 +3,17 @@ import Link from "next/link";
 
 import { GlossaryTooltip } from "@/components/GlossaryTooltip";
 import { Button } from "@/components/ui/button";
+import { WhyDisabledCtaHint } from "@/components/usability/WhyDisabledCtaHint";
 import type { AuditEvent } from "@/lib/api";
 import { formatAuditSummaryHeading } from "@/app/(operator)/governance/audit/audit-ui-helpers";
 import { formatBuyerAuditResultsStatusLine } from "@/lib/audit-trail-page-helpers";
 import {
+  AUDIT_TRAIL_VIEW_STORY_INTRO,
+  AUDIT_TRAIL_VIEW_TABLE_INTRO,
+  type AuditTrailViewMode,
+} from "@/lib/audit-trail-view-mode";
+import {
   auditBuyerUtilitiesDetailsSummary,
-  auditExportControlDisabledTitle,
   auditExportExecuteRankAuditorRoleNote,
   auditExportCsvButtonLabelRoleRestricted,
   auditExportCsvButtonLabelWindowIncomplete,
@@ -21,29 +26,37 @@ import {
   auditResultsSectionHeadingReader,
 } from "@/lib/enterprise-controls-context-copy";
 import { AUTHORITY_RANK } from "@/lib/nav-authority";
-import { buyerFacingReviewLinkLabelFromRunId } from "@/lib/buyer-facing-review-title";
+import { buyerFacingReviewLinkLabelFromRunId } from "@/lib/buyer/buyer-facing-review-title";
 import {
   BUYER_AUDIT_DOWNLOAD_CTA,
   BUYER_AUDIT_ENTERPRISE_WORKSPACE_FOLLOWUP,
   BUYER_AUDIT_ENTERPRISE_WORKSPACE_LEAD,
   BUYER_AUDIT_PACKAGE_READY_LEAD,
-  BUYER_AUDIT_TIMELINE_INTRO,
   BUYER_AUDIT_TRAIL_COMPLETE_HEADING,
-} from "@/lib/buyer-polish-copy";
-import { getShowcaseExecutiveHref } from "@/lib/buyer-safe-review-navigation";
+} from "@/lib/buyer/buyer-polish-copy";
+import { getShowcaseExecutiveHref } from "@/lib/buyer/buyer-safe-review-navigation";
 import { isNextPublicDemoMode } from "@/lib/demo-ui-env";
 import { AuditBuyerEmptyState } from "./AuditBuyerEmptyState";
 import { AuditEventsOperatorTable } from "./AuditEventsOperatorTable";
 import { AuditTimelineEventCard } from "./AuditTimelineEventCard";
+import { AuditTrailViewSwitcher } from "./AuditTrailViewSwitcher";
 import { BuyerAuditEventsTechnicalAppendix } from "./BuyerAuditEventsTechnicalAppendix";
 import { CtoDemoAuditClosingBeat } from "@/components/cto-demo/CtoDemoAuditClosingBeat";
 import { CtoDemoBuyerValueStrip } from "@/components/cto-demo/CtoDemoBuyerValueStrip";
 import { DESIGN_TOKENS, OPERATOR_DISCLOSURE_TRIGGER_CLASS, OPERATOR_LINK, OPERATOR_NAV_GROUP_LABEL, OPERATOR_TYPOGRAPHY } from "@/lib/design-tokens";
+import {
+  whyDisabledNeedsLifecycle,
+  whyDisabledNeedsRole,
+  type WhyDisabledCtaReason,
+} from "@/lib/why-disabled-cta";
+import { OPERATOR_DATE_RANGE_END_LABEL, OPERATOR_DATE_RANGE_START_LABEL } from "@/lib/operator-date-range-copy";
 
 type AuditEventGroup = { stage: string; events: AuditEvent[] };
 
 type AuditResultsSectionProps = {
   buyerPolishedShell: boolean;
+  viewMode: AuditTrailViewMode;
+  onViewModeChange: (mode: AuditTrailViewMode) => void;
   callerAuthorityRank: number;
   events: AuditEvent[];
   displayEvents: AuditEvent[];
@@ -67,6 +80,8 @@ type AuditResultsSectionProps = {
 export function AuditResultsSection(props: AuditResultsSectionProps) {
   const {
     buyerPolishedShell,
+    viewMode,
+    onViewModeChange,
     callerAuthorityRank,
     events,
     displayEvents,
@@ -87,24 +102,63 @@ export function AuditResultsSection(props: AuditResultsSectionProps) {
     onExportCsv,
   } = props;
 
+  const storyPresentation = viewMode === "story";
+
+  const auditCsvExportDisabledReason: WhyDisabledCtaReason | null = (() => {
+    if (csvExportUiAllowed || exporting || searching) {
+      return null;
+    }
+
+    if (!exportDateRangeReady) {
+      return whyDisabledNeedsLifecycle(`${OPERATOR_DATE_RANGE_START_LABEL} and ${OPERATOR_DATE_RANGE_END_LABEL}`);
+    }
+
+    if (!exportRoleOk) {
+      return whyDisabledNeedsRole("Execute authority (or auditor export role)");
+    }
+
+    return null;
+  })();
+
+  const completionExportDisabledReason: WhyDisabledCtaReason | null = (() => {
+    if (csvExportUiAllowed || exporting) {
+      return null;
+    }
+
+    if (!exportDateRangeReady) {
+      return whyDisabledNeedsLifecycle(`${OPERATOR_DATE_RANGE_START_LABEL} and ${OPERATOR_DATE_RANGE_END_LABEL}`);
+    }
+
+    if (!exportRoleOk) {
+      return whyDisabledNeedsRole("Execute authority (or auditor export role)");
+    }
+
+    return null;
+  })();
+
   return (
     <section aria-labelledby="audit-results-heading">
       <CtoDemoBuyerValueStrip stepIndex={4} />
-      <h3 id="audit-results-heading" className={cn("mt-0 mb-2", OPERATOR_TYPOGRAPHY.cardTitle)}>
-        {buyerPolishedShell && events.length > 0
-          ? BUYER_AUDIT_TRAIL_COMPLETE_HEADING
-          : buyerPolishedShell
-            ? auditResultsSectionHeadingBuyerPolished
-            : callerAuthorityRank < AUTHORITY_RANK.ExecuteAuthority
-              ? auditResultsSectionHeadingReader
-              : auditResultsSectionHeadingOperator}
-      </h3>
+      <div className="mb-2 flex flex-wrap items-start justify-between gap-3">
+        <h3 id="audit-results-heading" className={cn("mt-0 mb-0", OPERATOR_TYPOGRAPHY.cardTitle)}>
+          {buyerPolishedShell && events.length > 0
+            ? BUYER_AUDIT_TRAIL_COMPLETE_HEADING
+            : buyerPolishedShell
+              ? auditResultsSectionHeadingBuyerPolished
+              : callerAuthorityRank < AUTHORITY_RANK.ExecuteAuthority
+                ? auditResultsSectionHeadingReader
+                : auditResultsSectionHeadingOperator}
+        </h3>
+        <AuditTrailViewSwitcher viewMode={viewMode} onViewModeChange={onViewModeChange} />
+      </div>
       <p className={cn("mb-2 mt-0 max-w-2xl text-al-text-secondary", OPERATOR_TYPOGRAPHY.body)}>
-        {buyerPolishedShell ? (
-          <>{BUYER_AUDIT_TIMELINE_INTRO}</>
+        {storyPresentation ? (
+          <>{AUDIT_TRAIL_VIEW_STORY_INTRO}</>
+        ) : buyerPolishedShell ? (
+          <>{AUDIT_TRAIL_VIEW_TABLE_INTRO}</>
         ) : (
           <>
-            Each card is one <GlossaryTooltip termKey="audit_event">audit event</GlossaryTooltip>
+            Each row is one <GlossaryTooltip termKey="audit_event">audit event</GlossaryTooltip>
             {" — "}
             who acted, what changed, when it happened
             {", and review context when present"}.
@@ -170,7 +224,7 @@ export function AuditResultsSection(props: AuditResultsSectionProps) {
                         {group.events.length} event{group.events.length === 1 ? "" : "s"}
                       </p>
                     </div>
-                    {buyerPolishedShell ? (
+                    {storyPresentation ? (
                       <div className="relative pl-5">
                         <div
                           className="pointer-events-none absolute left-1.5 top-2 bottom-2 w-0.5 rounded-full bg-neutral-300 dark:bg-neutral-700"
@@ -181,7 +235,7 @@ export function AuditResultsSection(props: AuditResultsSectionProps) {
                             <AuditTimelineEventCard
                               key={ev.eventId}
                               ev={ev}
-                              buyerPolishedShell={buyerPolishedShell}
+                              buyerPolishedShell={true}
                               uniformRunId={uniformRunIdForDisplay}
                             />
                           ))}
@@ -196,19 +250,19 @@ export function AuditResultsSection(props: AuditResultsSectionProps) {
                   </div>
                 ))}
               </div>
-            ) : buyerPolishedShell ? (
+            ) : storyPresentation ? (
               <div className="grid gap-3">
                 {displayEvents.map((ev) => (
                   <AuditTimelineEventCard
                     key={ev.eventId}
                     ev={ev}
-                    buyerPolishedShell={buyerPolishedShell}
+                    buyerPolishedShell={true}
                     uniformRunId={uniformRunIdForDisplay}
                   />
                 ))}
               </div>
             ) : (
-              <AuditEventsOperatorTable events={displayEvents} ariaLabel="Audit log search results" />
+              <AuditEventsOperatorTable events={displayEvents} ariaLabel="Audit trail search results" />
             )}
             {events.length > 0 && hasMoreResults ? (
               <div className="mt-4">
@@ -240,13 +294,25 @@ export function AuditResultsSection(props: AuditResultsSectionProps) {
                   export.
                 </p>
                 <div className="mt-3 flex flex-wrap gap-2">
-                  <Button type="button" variant="primary" size="sm" onClick={() => void onExportCsv()} disabled={!csvExportUiAllowed || exporting}>
+                  <Button
+                    type="button"
+                    variant="primary"
+                    size="sm"
+                    onClick={() => void onExportCsv()}
+                    disabled={!csvExportUiAllowed || exporting}
+                    data-testid="audit-buyer-completion-download"
+                  >
                     {BUYER_AUDIT_DOWNLOAD_CTA}
                   </Button>
                   <Button type="button" variant="outline" size="sm" asChild>
                     <Link href={getShowcaseExecutiveHref()}>Return to executive summary</Link>
                   </Button>
                 </div>
+                <WhyDisabledCtaHint
+                  reason={completionExportDisabledReason}
+                  className="mt-2 max-w-prose"
+                  testId="audit-buyer-completion-download-disabled-hint"
+                />
               </section>
             ) : null}
             {buyerPolishedShell && events.length > 0 ? (
@@ -286,13 +352,6 @@ export function AuditResultsSection(props: AuditResultsSectionProps) {
                     )}
                     onClick={() => void onExportCsv()}
                     disabled={!csvExportUiAllowed || exporting || searching}
-                    title={
-                      !exportDateRangeReady
-                        ? "Set From and To to enable export"
-                        : !exportRoleOk
-                          ? auditExportControlDisabledTitle
-                          : "Download audit trail as CSV using the current filters"
-                    }
                   >
                     {exporting
                       ? "Exporting…"
@@ -304,6 +363,11 @@ export function AuditResultsSection(props: AuditResultsSectionProps) {
                             ? auditExportCsvButtonLabelRoleRestricted
                             : "Download audit trail (CSV)"}
                   </Button>
+                  <WhyDisabledCtaHint
+                    reason={auditCsvExportDisabledReason}
+                    className="max-w-prose"
+                    testId="audit-utilities-export-disabled-hint"
+                  />
                   {buyerPolishedShell ? null : (
                     <div className="border-t border-neutral-200 pt-3 dark:border-neutral-700">
                       <p className={cn("m-0 font-semibold text-al-text-primary", OPERATOR_TYPOGRAPHY.cardTitle)}>

@@ -45,7 +45,7 @@ public sealed class ComparisonDriftAnalyzer : IComparisonDriftAnalyzer
         {
             case JsonValueKind.Object:
                 // GroupBy guards against malformed JSON with duplicate property names;
-                // first occurrence wins, matching System.Text.Json's own lenient behaviour.
+                // first occurrence wins, matching System.Text.Json's own lenient behavior.
                 Dictionary<string, JsonProperty> leftProps = left.EnumerateObject().GroupBy(p => p.Name, StringComparer.Ordinal)
                     .ToDictionary(g => g.Key, g => g.First(), StringComparer.Ordinal);
                 Dictionary<string, JsonProperty> rightProps = right.EnumerateObject().GroupBy(p => p.Name, StringComparer.Ordinal)

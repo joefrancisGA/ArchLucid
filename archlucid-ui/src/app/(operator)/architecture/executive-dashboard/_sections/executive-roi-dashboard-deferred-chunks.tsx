@@ -3,8 +3,7 @@
 import dynamic from "next/dynamic";
 import type { ComponentType, JSX } from "react";
 
-import { cn } from "@/lib/utils";
-import { OPERATOR_TYPOGRAPHY } from "@/lib/design-tokens";
+import { DeferredChunkLoading } from "@/components/ui/deferred-chunk-loading";
 
 import type { ExecutiveComplianceDriftTrendSectionProps } from "./ExecutiveComplianceDriftTrendSection";
 import type { ExecutiveDashboardNextActionSectionProps } from "./ExecutiveDashboardNextActionSection";
@@ -15,30 +14,23 @@ import type { ExecutiveRoiSummarySectionProps } from "./ExecutiveRoiSummarySecti
 import type { SponsorExportsSectionProps } from "./SponsorExportsSection";
 import type { BusinessImpactSummaryWidgetProps } from "./BusinessImpactSummaryWidget";
 
-function ExecutiveDashboardDeferredSectionLoading(props: {
-  readonly label: string;
-}): JSX.Element {
+function executiveDashboardDeferredLoading(label: string): JSX.Element {
   return (
-    <div
-      className={cn(
-        "min-h-24 animate-pulse rounded-md border border-neutral-200 bg-neutral-100 dark:border-neutral-700 dark:bg-neutral-800",
-        OPERATOR_TYPOGRAPHY.body,
-      )}
-      role="status"
-      aria-label={props.label}
-      data-testid="executive-dashboard-deferred-chunk-loading"
+    <DeferredChunkLoading
+      label={label}
+      testId="executive-dashboard-deferred-chunk-loading"
     />
   );
 }
 
 export const OperatorWelcomeOnboardingDeferred: ComponentType = dynamic(
   () =>
-    import("@/components/OperatorWelcomeOnboarding").then(
+    import("@/components/operator/OperatorWelcomeOnboarding").then(
       (module) => module.OperatorWelcomeOnboarding,
     ),
   {
     ssr: false,
-    loading: () => <ExecutiveDashboardDeferredSectionLoading label="Loading welcome guidance" />,
+    loading: () => executiveDashboardDeferredLoading("Loading welcome guidance"),
   },
 );
 
@@ -50,7 +42,7 @@ export const ExecutiveDashboardNextActionSectionDeferred: ComponentType<Executiv
       ),
     {
       ssr: false,
-      loading: () => <ExecutiveDashboardDeferredSectionLoading label="Loading next action" />,
+      loading: () => executiveDashboardDeferredLoading("Loading next action"),
     },
   );
 
@@ -62,7 +54,7 @@ export const ExecutiveDashboardPrimaryMetricsSectionDeferred: ComponentType<Exec
       ),
     {
       ssr: false,
-      loading: () => <ExecutiveDashboardDeferredSectionLoading label="Loading primary metrics" />,
+      loading: () => executiveDashboardDeferredLoading("Loading primary metrics"),
     },
   );
 
@@ -73,7 +65,7 @@ export const ExecutiveDashboardHowItWorksDeferred: ComponentType = dynamic(
     ),
   {
     ssr: false,
-    loading: () => <ExecutiveDashboardDeferredSectionLoading label="Loading dashboard guide" />,
+    loading: () => executiveDashboardDeferredLoading("Loading dashboard guide"),
   },
 );
 
@@ -81,7 +73,7 @@ export const SponsorExportsSectionDeferred: ComponentType<SponsorExportsSectionP
   () => import("./SponsorExportsSection").then((module) => module.SponsorExportsSection),
   {
     ssr: false,
-    loading: () => <ExecutiveDashboardDeferredSectionLoading label="Loading sponsor exports" />,
+    loading: () => executiveDashboardDeferredLoading("Loading sponsor exports"),
   },
 );
 
@@ -91,7 +83,7 @@ export const BusinessImpactSummaryWidgetDeferred: ComponentType<BusinessImpactSu
       import("./BusinessImpactSummaryWidget").then((module) => module.BusinessImpactSummaryWidget),
     {
       ssr: false,
-      loading: () => <ExecutiveDashboardDeferredSectionLoading label="Loading business impact" />,
+      loading: () => executiveDashboardDeferredLoading("Loading business impact"),
     },
   );
 
@@ -101,7 +93,7 @@ export const ExecutiveRoiSummarySectionDeferred: ComponentType<ExecutiveRoiSumma
       import("./ExecutiveRoiSummarySection").then((module) => module.ExecutiveRoiSummarySection),
     {
       ssr: false,
-      loading: () => <ExecutiveDashboardDeferredSectionLoading label="Loading ROI summary" />,
+      loading: () => executiveDashboardDeferredLoading("Loading ROI summary"),
     },
   );
 
@@ -113,9 +105,7 @@ export const ExecutiveComplianceDriftTrendSectionDeferred: ComponentType<Executi
       ),
     {
       ssr: false,
-      loading: () => (
-        <ExecutiveDashboardDeferredSectionLoading label="Loading compliance drift trend" />
-      ),
+      loading: () => executiveDashboardDeferredLoading("Loading compliance drift trend"),
     },
   );
 
@@ -124,7 +114,7 @@ export const ExecutiveRoiTrendSectionDeferred: ComponentType<ExecutiveRoiTrendSe
     () => import("./ExecutiveRoiTrendSection").then((module) => module.ExecutiveRoiTrendSection),
     {
       ssr: false,
-      loading: () => <ExecutiveDashboardDeferredSectionLoading label="Loading ROI trend" />,
+      loading: () => executiveDashboardDeferredLoading("Loading ROI trend"),
     },
   );
 
@@ -135,7 +125,7 @@ export const ExecutiveRoiEnvironmentSavingsSectionDeferred: ComponentType = dyna
     ),
   {
     ssr: false,
-    loading: () => <ExecutiveDashboardDeferredSectionLoading label="Loading environment savings" />,
+    loading: () => executiveDashboardDeferredLoading("Loading environment savings"),
   },
 );
 
@@ -147,7 +137,7 @@ export const ExecutiveDashboardSupportingMetricsSectionDeferred: ComponentType<E
       ),
     {
       ssr: false,
-      loading: () => <ExecutiveDashboardDeferredSectionLoading label="Loading supporting metrics" />,
+      loading: () => executiveDashboardDeferredLoading("Loading supporting metrics"),
     },
   );
 
@@ -158,6 +148,6 @@ export const ExecutiveWorkspaceHealthDashboardDeferred: ComponentType = dynamic(
     ),
   {
     ssr: false,
-    loading: () => <ExecutiveDashboardDeferredSectionLoading label="Loading workspace health" />,
+    loading: () => executiveDashboardDeferredLoading("Loading workspace health"),
   },
 );

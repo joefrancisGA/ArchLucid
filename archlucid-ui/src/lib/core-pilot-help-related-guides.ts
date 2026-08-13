@@ -1,38 +1,14 @@
-import {
-  CORE_PILOT_HELP_SOURCES,
-  type CorePilotHelpSourceLink,
-} from "@/lib/core-pilot-help-evidence-copy";
-import {
-  CORE_PILOT_HELP_DEPTH_GUIDES,
-  CORE_PILOT_HELP_PRIMARY_ACTIONS,
-} from "@/lib/core-pilot-help-guide-content";
+import type { EvidenceSourceLink } from "@/lib/evidence-surface-copy";
+import { inAppHelpHref } from "@/lib/product-documentation-registry";
 
-/**
- * Hrefs already reachable from a page CTA or the adjacent troubleshooting line.
- * Repeating them is what made the former top-of-page Sources strip read as a link farm.
- */
-function alreadyLinkedOnPageHrefs(): ReadonlySet<string> {
-  return new Set<string>([
-    CORE_PILOT_HELP_PRIMARY_ACTIONS.startReview.href,
-    CORE_PILOT_HELP_PRIMARY_ACTIONS.troubleshooting.href,
-  ]);
-}
+/** TB-1382: at most three related guides that support the first-review job without dumping the help center. */
+export const CORE_PILOT_HELP_RELATED_GUIDES: readonly EvidenceSourceLink[] = [
+  { label: "Evidence intake", href: inAppHelpHref("evidence-intake") },
+  { label: "Pilot guide", href: inAppHelpHref("pilot-guide") },
+  { label: "Troubleshooting", href: inAppHelpHref("troubleshooting") },
+] as const;
 
-function isNewFollowUp(source: CorePilotHelpSourceLink, linkedHrefs: ReadonlySet<string>): boolean {
-  return !linkedHrefs.has(source.href);
-}
-
-/**
- * Related guides for `/help/first-architecture-review`: curated depth guides first, then any
- * follow-up Source the page does not already link. Deduped by href so the curated label wins.
- */
-export function corePilotHelpRelatedGuides(): readonly CorePilotHelpSourceLink[] {
-  const linkedHrefs = new Set<string>([
-    ...alreadyLinkedOnPageHrefs(),
-    ...CORE_PILOT_HELP_DEPTH_GUIDES.map((guide) => guide.href),
-  ]);
-
-  const followUps = CORE_PILOT_HELP_SOURCES.filter((source) => isNewFollowUp(source, linkedHrefs));
-
-  return [...CORE_PILOT_HELP_DEPTH_GUIDES, ...followUps];
+/** Related guides for `/help/first-architecture-review`. */
+export function corePilotHelpRelatedGuides(): readonly EvidenceSourceLink[] {
+  return CORE_PILOT_HELP_RELATED_GUIDES;
 }

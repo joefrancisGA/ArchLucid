@@ -4,6 +4,8 @@ export type WorkspaceModelExecutionProfileResponse = {
   effectiveProfile: ModelExecutionProfile;
   source: "HostDefault" | "TenantOverride" | "WorkspaceDefault" | string;
   workspaceDefaultProfile: ModelExecutionProfile;
+  lastChangedAtUtc?: string | null;
+  lastChangedBy?: string | null;
 };
 
 export type ModelAliasRegistryEntryResponse = {

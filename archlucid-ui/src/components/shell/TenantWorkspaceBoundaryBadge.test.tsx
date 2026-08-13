@@ -3,7 +3,7 @@ import { afterEach, describe, expect, it, vi } from "vitest";
 
 import { TenantWorkspaceBoundaryBadge } from "@/components/shell/TenantWorkspaceBoundaryBadge";
 import { DEV_SCOPE_TENANT_ID } from "@/lib/scope";
-import { writeOperatorScopeToStorage } from "@/lib/operator-scope-storage";
+import { writeOperatorScopeToStorage } from "@/lib/operator/operator-scope-storage";
 
 const buyerPolishedMock = vi.hoisted(() => ({ value: false }));
 
@@ -40,7 +40,7 @@ describe("TenantWorkspaceBoundaryBadge", () => {
     expect(screen.getByTestId("active-tenant-context-badge")).toHaveTextContent(
       /Active tenant: aaaaaaaa-aaaa-aaaa-aaaa-aaaaaaaaaaaa/i,
     );
-    expect(screen.getByTestId("active-tenant-context-badge")).toHaveAttribute("href", "/administration/tenant");
+    expect(screen.getByTestId("active-tenant-context-badge")).toHaveAttribute("href", "/administration/workspace-settings");
   });
 
   it("shows showcase tenant name in buyer-polished mode", () => {

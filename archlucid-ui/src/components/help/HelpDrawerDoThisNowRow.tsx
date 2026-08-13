@@ -7,7 +7,7 @@ import { helpDrawerRowButtonClass } from "@/components/help/help-drawer-row-clas
 import {
   HELP_SEARCH_PANEL_DO_THIS_NOW_HEADING,
   type HelpSearchPanelTopic,
-} from "@/lib/help-search-panel-catalog";
+} from "@/lib/help/help-search-panel-catalog";
 import { OPERATOR_TYPOGRAPHY } from "@/lib/design-tokens";
 
 export type HelpDrawerDoThisNowRowProps = {

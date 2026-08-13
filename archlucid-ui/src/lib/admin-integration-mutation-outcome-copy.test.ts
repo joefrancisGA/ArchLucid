@@ -12,7 +12,8 @@ import { SCIM_TOKEN_CREATED_SUCCESS, SCIM_TOKEN_REVOKED_SUCCESS } from "./scim-p
 describe("admin-integration-mutation-outcome-copy", () => {
   it("keeps high-stakes admin/integration acceptance strings stable for durable UI guards", () => {
     expect(CLOUD_CONNECTION_SAVE_SUCCESS_MESSAGE).toContain("connection has been saved");
-    expect(SSO_WIZARD_ACTIVATE_SUCCESS_MESSAGE).toContain("Single sign-on activated");
+    expect(SSO_WIZARD_ACTIVATE_SUCCESS_MESSAGE).toContain("configuration saved");
+    expect(SSO_WIZARD_ACTIVATE_SUCCESS_MESSAGE.toLowerCase()).toContain("separate platform configuration change");
     expect(SAML_CONFIGURATION_SAVED_SUCCESS_MESSAGE).toContain("SAML configuration saved");
     expect(SCIM_TOKEN_CREATED_SUCCESS).toContain("SCIM token created");
     expect(SCIM_TOKEN_REVOKED_SUCCESS).toContain("revoked");

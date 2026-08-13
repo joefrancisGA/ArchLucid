@@ -1,4 +1,4 @@
-import type { HelpMarkdownHeading } from "@/lib/help-markdown-headings";
+import type { HelpMarkdownHeading } from "@/lib/help/help-markdown-headings";
 import {
   ALERTS_ACTION_OPEN_GOVERNANCE_SETUP_GUIDE_HREF,
   ALERTS_CONFIGURE_RULES_LINK_LABEL,
@@ -8,7 +8,7 @@ import {
   GOVERNANCE_RESOLUTION_PATH,
   GOVERNANCE_ALERTS_PATH,
   governanceAlertRulesTabHref,
-} from "@/lib/governance-route-paths";
+} from "@/lib/governance/governance-route-paths";
 import { inAppHelpHref } from "@/lib/product-documentation-registry";
 
 export const ALERTS_HELP_PAGE_TITLE = "Understanding governance alerts";

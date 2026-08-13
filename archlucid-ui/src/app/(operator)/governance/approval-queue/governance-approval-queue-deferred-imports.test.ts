@@ -21,8 +21,8 @@ const bannedStaticImports = [
   '@/components/cto-demo/CtoDemoBuyerValueStrip"',
   '@/components/cto-demo/CtoDemoSegregationCallout"',
   '@/components/OperateCapabilityHints"',
-  '@/components/GovernanceInteractiveQuickstartContent"',
-  '@/components/GovernanceApprovalStoryCard"',
+  '@/components/governance/GovernanceInteractiveQuickstartContent"',
+  '@/components/governance/GovernanceApprovalStoryCard"',
   '@/components/AdvancedOptionsAccordion"',
 ] as const;
 
@@ -67,8 +67,8 @@ describe("governance approval-queue deferred imports (TB-934 / wave 10)", () => 
     expect(deferredSource).toContain('import("@/components/cto-demo/CtoDemoBuyerValueStrip")');
     expect(deferredSource).toContain('import("@/components/cto-demo/CtoDemoSegregationCallout")');
     expect(deferredSource).toContain('import("@/components/OperateCapabilityHints")');
-    expect(deferredSource).toContain('import("@/components/GovernanceInteractiveQuickstartContent")');
-    expect(deferredSource).toContain('import("@/components/GovernanceApprovalStoryCard")');
+    expect(deferredSource).toContain('import("@/components/governance/GovernanceInteractiveQuickstartContent")');
+    expect(deferredSource).toContain('import("@/components/governance/GovernanceApprovalStoryCard")');
     expect(deferredSource).toContain('import("@/components/AdvancedOptionsAccordion")');
     expect(deferredSource).toContain("GovernanceApprovalStoryCardDeferred");
     expect(deferredSource).toContain("GovernanceReviewContextBarDeferred");

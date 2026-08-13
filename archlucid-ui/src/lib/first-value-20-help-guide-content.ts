@@ -1,5 +1,6 @@
 import { FIRST_ARCHITECTURE_REVIEW_HELP_PATH } from "@/lib/first-architecture-review-help-route";
 import { FIRST_VALUE_20_HELP_PATH } from "@/lib/first-value-20-help-route";
+import { FIRST_REVIEW_HELP_PATH } from "@/lib/first-review-help-route";
 import { inAppHelpHref } from "@/lib/product-documentation-registry";
 
 export const FIRST_VALUE_20_HELP_PAGE_TITLE = "First value in 20 minutes (Admin runbook)";
@@ -35,7 +36,7 @@ export const FIRST_VALUE_20_HELP_JOB_MATRIX: readonly FirstValue20HelpJobMatrixR
   },
   {
     label: "First-run evidence checklist",
-    href: inAppHelpHref("first-review"),
+    href: FIRST_REVIEW_HELP_PATH,
     when: "Printable SE Tier-1 extractor / finalize checklist",
   },
   {
@@ -74,9 +75,8 @@ export type FirstValue20HelpSourceLink = {
 /** Admin Sources — no self-href to this topic. */
 export const FIRST_VALUE_20_HELP_SOURCES: readonly FirstValue20HelpSourceLink[] = [
   { label: "Your first architecture review", href: FIRST_ARCHITECTURE_REVIEW_HELP_PATH },
-  { label: "First-run evidence checklist", href: inAppHelpHref("first-review") },
+  { label: "First-run evidence checklist", href: FIRST_REVIEW_HELP_PATH },
   { label: "Troubleshooting", href: inAppHelpHref("troubleshooting") },
-  { label: "Configuration reference", href: inAppHelpHref("configuration-reference") },
   { label: "Specialty walkthroughs", href: inAppHelpHref("specialty-walkthroughs") },
 ] as const;
 

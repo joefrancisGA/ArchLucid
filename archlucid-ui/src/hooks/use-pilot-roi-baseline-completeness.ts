@@ -14,14 +14,24 @@ type TenantBaselineRoiGatePayload = {
   manualPrepHoursPerReview?: unknown;
 };
 
-/** Loads `/v1/tenant/baseline` for sponsor ROI readiness gates (review-cycle + manual prep anchors). */
+export type UsePilotRoiBaselineCompletenessOptions = {
+  /**
+   * When false, skip the mount fetch until `reload()` runs (wizard launcher host only needs on-demand refresh).
+   * @default true
+   */
+  readonly enabled?: boolean;
+};
 
-export function usePilotRoiBaselineCompleteness(): {
+/** Loads `/v1/tenant/baseline` for sponsor ROI readiness gates (review-cycle + manual prep anchors). */
+export function usePilotRoiBaselineCompleteness(
+  options: UsePilotRoiBaselineCompletenessOptions = {},
+): {
   loading: boolean;
   complete: boolean | null;
   reload: () => void;
 } {
-  const [loading, setLoading] = useState(true);
+  const enabled = options.enabled !== false;
+  const [loading, setLoading] = useState(enabled);
   const [complete, setComplete] = useState<boolean | null>(null);
 
   const reload = useCallback(async () => {
@@ -67,8 +77,12 @@ export function usePilotRoiBaselineCompleteness(): {
   }, []);
 
   useEffect(() => {
+    if (!enabled) {
+      return;
+    }
+
     void reload();
-  }, [reload]);
+  }, [enabled, reload]);
 
   return { loading, complete, reload };
 }

@@ -1,7 +1,7 @@
 import { fireEvent, render, screen } from "@testing-library/react";
 import { describe, expect, it, vi } from "vitest";
 
-import { operatorHomePageSubtitle } from "@/lib/operator-home-page-copy";
+import { operatorHomePageSubtitle } from "@/lib/operator/operator-home-page-copy";
 
 vi.mock("next/navigation", () => ({
   usePathname: () => "/",
@@ -13,7 +13,7 @@ vi.mock("@/components/usability/PageContextualHelpButton", () => ({
 
 const requestRefresh = vi.fn();
 
-vi.mock("@/lib/operator-home-refresh-context", () => ({
+vi.mock("@/lib/operator/operator-home-refresh-context", () => ({
   useOperatorHomeRefresh: () => ({
     refreshing: false,
     lastRefreshedAt: new Date("2026-07-09T12:00:00.000Z"),
@@ -24,17 +24,17 @@ vi.mock("@/lib/operator-home-refresh-context", () => ({
 import { OperatorHomePageHeader } from "@/app/(operator)/_sections/OperatorHomePageHeader";
 
 describe("OperatorHomePageHeader", () => {
-  it("renders Overview title, help, and refresh without Last refreshed metadata", () => {
+  it("renders Home title, help, and refresh without Last refreshed metadata", () => {
     requestRefresh.mockReset();
 
     render(<OperatorHomePageHeader subtitle={operatorHomePageSubtitle(false)} />);
 
-    expect(screen.getByTestId("operator-home-page-title")).toHaveTextContent("Overview");
-    expect(screen.getByRole("heading", { level: 2, name: "Overview" })).toBeInTheDocument();
+    expect(screen.getByTestId("operator-home-page-title")).toHaveTextContent("Home");
+    expect(screen.getByRole("heading", { level: 2, name: "Home" })).toBeInTheDocument();
     expect(screen.getByTestId("operator-home-page-subtitle")).toHaveTextContent(
       operatorHomePageSubtitle(false),
     );
-    expect(screen.getByTestId("operator-home-page-subtitle").className).toContain("max-w-none");
+    expect(screen.getByTestId("operator-home-page-subtitle").className).not.toContain("max-w-2xl");
     expect(screen.getByTestId("operator-home-page-subtitle").className).toContain("text-[13px]");
     expect(screen.getByTestId("page-contextual-help-button")).toBeInTheDocument();
     expect(screen.getByTestId("operator-home-header-actions")).toBeInTheDocument();
@@ -47,7 +47,7 @@ describe("OperatorHomePageHeader", () => {
     expect(requestRefresh).toHaveBeenCalledTimes(1);
   });
 
-  it("bolds One lifecycle: on the buyer-polished Overview lead", () => {
+  it("bolds One lifecycle: on the buyer-polished Home lead", () => {
     render(<OperatorHomePageHeader subtitle={operatorHomePageSubtitle(true)} />);
 
     const label = screen.getByText("One lifecycle:");

@@ -4,7 +4,7 @@ import { fileURLToPath } from "node:url";
 
 import { describe, expect, it } from "vitest";
 
-import { BUYER_SCOPE_SWITCHER_CLOSE } from "@/lib/buyer-polish-copy";
+import { BUYER_SCOPE_SWITCHER_CLOSE } from "@/lib/buyer/buyer-polish-copy";
 
 const SRC_ROOT = path.join(path.dirname(fileURLToPath(import.meta.url)), "..");
 const CASUAL_GOT_IT_PATTERN = /["'`]Got it["'`]/i;

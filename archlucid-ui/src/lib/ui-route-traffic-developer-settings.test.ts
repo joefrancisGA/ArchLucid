@@ -1,6 +1,10 @@
 import { describe, expect, it } from "vitest";
 
-import { extractMasterTableRows, findTrafficRowById, readUiRouteTrafficEstimatesTemplateMarkdown } from "@/lib/testing/ui-route-traffic-workbook-test-utils";
+import {
+  extractMasterTableRows,
+  findTrafficRowById,
+  readUiRouteTrafficEstimatesTemplateMarkdown,
+} from "@/lib/testing/ui-route-traffic-workbook-test-utils";
 
 import {
   DEVELOPER_SETTINGS_CUSTOMER_SHELL_REDIRECT_PATH,
@@ -19,7 +23,7 @@ describe("ui-route-traffic-developer-settings (SDX / SED)", () => {
 
     expect(row).toBeDefined();
     expect(row?.path).toBe(DEVELOPER_SETTINGS_TRAFFIC_PATH);
-    expect(row?.monthlyShare).toBe(DEVELOPER_SETTINGS_TRAFFIC_MONTHLY_SHARE);
+    expect(row?.hitPct).toBe(DEVELOPER_SETTINGS_TRAFFIC_MONTHLY_SHARE);
     expect(row?.section).toBe(DEVELOPER_SETTINGS_TRAFFIC_SECTION);
     expect(row?.notes).toBe(DEVELOPER_SETTINGS_TRAFFIC_NOTE);
     expect(row?.notes).toContain("legacy owner SED");

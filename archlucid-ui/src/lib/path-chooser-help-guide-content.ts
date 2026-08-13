@@ -1,4 +1,4 @@
-import { BUYER_START_ARCHITECTURE_REVIEW_CTA } from "@/lib/buyer-polish-copy";
+import { BUYER_START_ARCHITECTURE_REVIEW_CTA } from "@/lib/buyer/buyer-polish-copy";
 import { PATH_CHOOSER_HELP_PATH } from "@/lib/path-chooser-help-route";
 import { inAppHelpHref } from "@/lib/product-documentation-registry";
 
@@ -21,7 +21,7 @@ export type PathChooserHelpEvaluatorSessionStep = {
   readonly action: { readonly label: string; readonly href: string };
 };
 
-/** Four-step evaluator session flow — absorbs former `/help/evaluator-workbook` chrome (TB-1345 / TB-1348). */
+/** Four-step evaluator session flow — absorbs former evaluator-workbook topic chrome (TB-1345 / TB-1348). */
 export const PATH_CHOOSER_HELP_EVALUATOR_SESSION_STEPS: readonly PathChooserHelpEvaluatorSessionStep[] = [
   {
     title: "Read executive summary expectations",
@@ -121,10 +121,7 @@ export const PATH_CHOOSER_HELP_BRANCHES: readonly PathChooserHelpBranch[] = [
     id: "engineering",
     goal: "I need engineering or CLI support",
     primary: { label: "CLI usage", href: inAppHelpHref("cli-usage") },
-    fallback: {
-      label: "Configuration reference",
-      href: inAppHelpHref("configuration-reference"),
-    },
+    fallback: { label: "Customer Troubleshooting", href: inAppHelpHref("troubleshooting") },
   },
 ] as const;
 

@@ -9,6 +9,7 @@ type AiUsageQuietEmptyPeriodPanelProps = {
   readonly budgetTotalUsd: number | null;
   readonly currency: string;
   readonly canManageBudget: boolean;
+  readonly billingPeriodResetLabel: string | null;
 };
 
 function formatBudgetCap(budgetTotalUsd: number | null, currency: string): string | null {
@@ -47,6 +48,11 @@ export function AiUsageQuietEmptyPeriodPanel(props: AiUsageQuietEmptyPeriodPanel
       {capLabel !== null ? (
         <p className={cn("m-0 mt-2 text-al-text-secondary", OPERATOR_TYPOGRAPHY.body)} data-testid="ai-usage-quiet-budget-cap">
           Workspace monthly AI budget cap: <span className="font-medium text-al-text-primary">{capLabel}</span>.
+        </p>
+      ) : null}
+      {props.billingPeriodResetLabel !== null ? (
+        <p className={cn("m-0 mt-2 text-al-text-secondary", OPERATOR_TYPOGRAPHY.body)} data-testid="ai-usage-quiet-period-reset">
+          Budget period resets on <span className="font-medium text-al-text-primary">{props.billingPeriodResetLabel}</span>.
         </p>
       ) : null}
       <p className={cn("m-0 mt-3", OPERATOR_TYPOGRAPHY.body)}>

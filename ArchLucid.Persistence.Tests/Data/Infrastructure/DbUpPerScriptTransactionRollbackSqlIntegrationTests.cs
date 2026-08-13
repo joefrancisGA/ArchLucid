@@ -11,7 +11,7 @@ namespace ArchLucid.Persistence.Tests.Data.Infrastructure;
 /// <summary>
 ///     Verifies DbUp <see cref="UpgradeEngine" /> with <see cref="UpgradeEngineBuilder.WithTransactionPerScript" />
 ///     rolls back earlier batches in the same script when a later batch fails â€” matching production
-///     <see cref="DatabaseMigrator" /> behaviour.
+///     <see cref="DatabaseMigrator" /> behavior.
 /// </summary>
 [Collection(nameof(SqlServerPersistenceCollection))]
 [Trait("Category", "SqlServerContainer")]

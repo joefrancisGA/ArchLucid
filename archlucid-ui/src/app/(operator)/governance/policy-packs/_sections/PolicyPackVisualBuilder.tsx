@@ -10,7 +10,7 @@ import { PolicySimulator } from "@/components/governance/PolicySimulator";
 import { listRunsByProjectPaged, simulatePolicyPackAgainstRun } from "@/lib/api";
 import { toApiLoadFailure, uiFailureFromMessage } from "@/lib/api-load-failure";
 import type { ApiLoadFailureState } from "@/lib/api-load-failure";
-import { coerceRunSummaryPaged } from "@/lib/operator-response-guards";
+import { coerceRunSummaryPaged } from "@/lib/operator/operator-response-guards";
 import type { components } from "@/lib/openapi-schemas";
 import {
   canAddNestedGroup,
@@ -24,7 +24,8 @@ import {
   type VisualConditionNode,
   type VisualPredicateOperator,
   visualBuilderStateToContentJson,
-} from "@/lib/policy-pack-visual-builder";
+} from "@/lib/policy/policy-pack-visual-builder";
+import { presentPolicyPackSimulateToast } from "@/lib/policy/policy-pack-simulate-toast";
 import { showSuccess } from "@/lib/toast";
 import { OPERATOR_NAV_GROUP_LABEL, OPERATOR_TYPOGRAPHY } from "@/lib/design-tokens";
 
@@ -212,7 +213,7 @@ export function PolicyPackVisualBuilder(props: PolicyPackVisualBuilderProps) {
       };
       const result = await simulatePolicyPackAgainstRun(body);
       setSimulateResult(result);
-      showSuccess("Policy validation completed.");
+      presentPolicyPackSimulateToast(result);
     } catch (error: unknown) {
       setSimulateFailure(toApiLoadFailure(error));
     } finally {

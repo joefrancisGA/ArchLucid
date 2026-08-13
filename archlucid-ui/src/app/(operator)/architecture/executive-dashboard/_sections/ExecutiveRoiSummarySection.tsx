@@ -8,7 +8,7 @@ import { useExecutiveRoiSummaryQuery } from "@/hooks/use-executive-roi-summary-q
 
 import { downloadExecutiveRoiBoardPack } from "@/lib/api/executive-roi-board-pack-api";
 
-import { OperatorApiProblem } from "@/components/OperatorApiProblem";
+import { OperatorApiProblem } from "@/components/operator/OperatorApiProblem";
 import { DemoTenantSeedCallout } from "@/components/DemoTenantSeedCallout";
 import { Button } from "@/components/ui/button";
 import {
@@ -44,8 +44,8 @@ import { showError } from "@/lib/toast";
 import { Card, CardContent, CardDescription, CardHeader, CardTitle } from "@/components/ui/card";
 import { ApiV1Routes } from "@/lib/api-v1-routes";
 import { toApiLoadFailure } from "@/lib/api-load-failure";
-import { BUYER_EXECUTIVE_DATA_SOURCE_NOTE } from "@/lib/buyer-polish-copy";
-import { BUYER_EXECUTIVE_SUMMARY_VOCABULARY } from "@/lib/buyer-surface-vocabulary";
+import { BUYER_EXECUTIVE_DATA_SOURCE_NOTE } from "@/lib/buyer/buyer-polish-copy";
+import { BUYER_EXECUTIVE_SUMMARY_VOCABULARY } from "@/lib/vocabulary/buyer-surface-vocabulary";
 import { isBuyerPolishedOperatorShellEnv } from "@/lib/demo-ui-env";
 import { OPERATOR_KPI_CARD_DESCRIPTION, OPERATOR_KPI_CARD_TITLE, OPERATOR_TYPOGRAPHY } from "@/lib/design-tokens";
 import { mergeRegistrationScopeForProxy } from "@/lib/proxy-fetch-registration-scope";

@@ -6,7 +6,7 @@ import Link from "next/link";
 
 import { InAppHelpLink } from "@/components/InAppHelpLink";
 import { Button } from "@/components/ui/button";
-import { OperatorWarningCallout } from "@/components/OperatorShellMessage";
+import { OperatorWarningCallout } from "@/components/operator/OperatorShellMessage";
 
 type StalledReviewGuidanceCalloutProps = {
   readonly elapsedMinutes: number;

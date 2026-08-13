@@ -4,7 +4,7 @@ import {
   BILLING_CUSTOM_AI_ALLOWANCE_VALUE,
   BILLING_INCLUDED_AI_CREDITS_LABEL,
   BILLING_INCLUDED_ARCHITECTURE_PACKAGES_LABEL,
-} from "@/lib/billing-meter-vocabulary";
+} from "@/lib/vocabulary/billing-meter-vocabulary";
 import {
   MARKETING_PRICING_TIER_ORDER,
   type MarketingPricingTierId,
@@ -22,6 +22,22 @@ export function formatPricingMoney(amount: number, currency: string): string {
     currency,
     maximumFractionDigits: 0,
   }).format(amount);
+}
+
+/** Human-readable catalog effective date for billing tier footers (TB-1170). */
+export function formatPricingCatalogEffectiveDate(isoDate: string): string {
+  const parsed = new Date(`${isoDate}T00:00:00.000Z`);
+
+  if (Number.isNaN(parsed.getTime())) {
+    return isoDate;
+  }
+
+  return new Intl.DateTimeFormat("en-US", {
+    month: "short",
+    day: "numeric",
+    year: "numeric",
+    timeZone: "UTC",
+  }).format(parsed);
 }
 
 export function pricingTierSortIndex(id: string): number {
@@ -82,7 +98,8 @@ export function formatMonthlyAiCredits(pkg: PricingPackage): string | null {
   }
 
   if (typeof pkg.monthlyAiCredits === "number" && pkg.monthlyAiCredits > 0) {
-    return `${pkg.monthlyAiCredits.toLocaleString()} AI credits / month`;
+    // Fixed `en-US` grouping keeps the credit count identical on the server and in the browser.
+    return `${new Intl.NumberFormat("en-US").format(pkg.monthlyAiCredits)} AI credits / month`;
   }
 
   return null;
@@ -101,12 +118,7 @@ export function buildOperatorBillingPlanSummaryLines(
   pricing: PricingDoc,
   pkg: PricingPackage,
 ): PricingCatalogLine[] {
-  const lines: PricingCatalogLine[] = [
-    {
-      label: "Plan price",
-      value: formatPlanPrice(pkg, pricing.currency),
-    },
-  ];
+  const lines: PricingCatalogLine[] = [];
 
   const includedLine = formatIncludedUsersAndWorkspaces(pkg);
 

@@ -16,7 +16,7 @@ import { applySecondRunPasteToWizard } from "@/lib/second-run-paste";
 import { GlossaryTooltip } from "@/components/GlossaryTooltip";
 import { applyWizardPreset, wizardPresets, type WizardPreset } from "@/lib/wizard-presets";
 import { documentationArchitectureRequestWizardPresets } from "@/lib/docs-architecture-request-presets";
-import { getDocHref } from "@/lib/help-topics";
+import { getDocHref } from "@/lib/help/help-topics";
 import { TRIAL_ONBOARDING_SAMPLE_RUN_ID } from "@/lib/trial-sample-run";
 import { verticalBriefWizardPresets } from "@/lib/vertical-wizard-presets";
 import { starterArchitectureTemplates } from "@/data/starter-templates";

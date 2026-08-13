@@ -8,12 +8,12 @@ import {
   OPERATOR_HOME_EXAMPLE_START_CTA,
   OPERATOR_HOME_EXAMPLE_TEMPLATE_ID,
   reviewIntakeExampleTemplateHref,
-} from "@/lib/operator-home-example-request";
+} from "@/lib/operator/operator-home-example-request";
 import { SHOWCASE_STATIC_DEMO_RUN_ID } from "@/lib/showcase-static-demo";
 
 const committedReviewMock = vi.hoisted(() => ({ value: false }));
 
-vi.mock("@/components/OperatorNavAuthorityProvider", () => ({
+vi.mock("@/components/operator/OperatorNavAuthorityProvider", () => ({
   useNavCommittedArchitectureReview: () => committedReviewMock.value,
   useOperatorNavAuthority: () => ({
     currentPrincipal: {

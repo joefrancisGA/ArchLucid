@@ -109,4 +109,24 @@ describe("MermaidDiagram", () => {
     expect(screen.getByText("Text alternative for the decision diagram.")).toBeInTheDocument();
     expect(screen.getByTestId("mermaid-diagram-svg-host")).toHaveAttribute("aria-hidden", "true");
   });
+
+  it("passes optional theme variables to mermaid initialization", async () => {
+    render(
+      <MermaidDiagram
+        source={"flowchart LR\n  A --> B"}
+        accessibleName="Sample help diagram"
+        themeVariables={{ fontSize: "16px", primaryTextColor: "#171717" }}
+      />,
+    );
+
+    await waitFor(() => {
+      expect(screen.getByTestId("rendered-mermaid")).toBeInTheDocument();
+    });
+
+    expect(initializeMock).toHaveBeenCalledWith(
+      expect.objectContaining({
+        themeVariables: { fontSize: "16px", primaryTextColor: "#171717" },
+      }),
+    );
+  });
 });

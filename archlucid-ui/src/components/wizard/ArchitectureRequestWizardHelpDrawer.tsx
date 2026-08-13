@@ -15,7 +15,7 @@ import {
   DialogTitle,
   DialogTrigger,
 } from "@/components/ui/dialog";
-import { getDocHref } from "@/lib/help-topics";
+import { getDocHref } from "@/lib/help/help-topics";
 
 const WIZARD_DOC_LINKS: { title: string; docPath: string; blurb: string }[] = [
   {

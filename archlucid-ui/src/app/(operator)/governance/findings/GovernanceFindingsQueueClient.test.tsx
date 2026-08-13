@@ -2,7 +2,7 @@ import { fireEvent, render, screen, within } from "@testing-library/react";
 import { beforeEach, beforeAll, describe, expect, it, vi } from "vitest";
 
 import GovernanceFindingsQueueClient from "@/app/(operator)/governance/findings/GovernanceFindingsQueueClient";
-import { OperatorQueryProvider } from "@/components/OperatorQueryProvider";
+import { OperatorQueryProvider } from "@/components/operator/OperatorQueryProvider";
 import * as governanceApi from "@/lib/api/governance-stickiness-api";
 import { OPERATOR_NAV_LINK_LABELS } from "@/lib/i18n";
 import { ROUTE_TITLES } from "@/lib/route-static-titles";
@@ -42,7 +42,7 @@ vi.mock("@/lib/api/governance-stickiness-api", () => ({
   getArchitectureRiskRegister: vi.fn(),
 }));
 
-vi.mock("@/lib/buyer-demo-content-gating", () => ({
+vi.mock("@/lib/buyer/buyer-demo-content-gating", () => ({
   shouldUseGovernanceCuratedDemoSpine: () => false,
 }));
 
@@ -128,7 +128,7 @@ describe("GovernanceFindingsQueueClient", () => {
   });
 
 
-  it("renders the governance job router chooser at the top (TB-2199)", async () => {
+  it("renders the governance job router chooser at the top (TB-2199 / TB-2230)", async () => {
     renderGovernanceFindingsQueue();
 
     const strip = await screen.findByTestId("governance-job-router");
@@ -136,6 +136,10 @@ describe("GovernanceFindingsQueueClient", () => {
     expect(screen.getByTestId("governance-job-router-option-triage-findings")).toHaveAttribute(
       "data-current",
       "true",
+    );
+    expect(screen.getByTestId("governance-job-router-option-approve-governance")).toHaveAttribute(
+      "href",
+      "/governance/approval-queue",
     );
     expect(screen.getByTestId("governance-job-router-option-record-decisions")).toHaveAttribute(
       "href",
@@ -194,9 +198,26 @@ describe("GovernanceFindingsQueueClient", () => {
 
     renderGovernanceFindingsQueue();
 
-    expect(await screen.findByTestId("governance-findings-empty-state")).toBeInTheDocument();
+    expect(await screen.findByTestId("governance-findings-load-failed")).toBeInTheDocument();
+    expect(screen.getByText("Could not load architecture risk register")).toBeInTheDocument();
+    expect(screen.getByTestId("governance-findings-retry-load")).toBeInTheDocument();
+    expect(screen.queryByTestId("governance-findings-empty-state")).not.toBeInTheDocument();
     expect(screen.getByTestId("fatal-page-report-problem-row")).toBeInTheDocument();
     expect(screen.getByTestId("report-problem-trigger")).toBeInTheDocument();
+  });
+
+  it("retries the risk register load from the failure state", async () => {
+    vi.mocked(governanceApi.getArchitectureRiskRegister)
+      .mockRejectedValueOnce(new Error("network"))
+      .mockResolvedValueOnce({ entries: [loadedRiskRow] });
+
+    renderGovernanceFindingsQueue();
+
+    expect(await screen.findByTestId("governance-findings-retry-load")).toBeInTheDocument();
+    fireEvent.click(screen.getByTestId("governance-findings-retry-load"));
+
+    expect(await screen.findByTestId("architecture-risk-register-filters")).toBeInTheDocument();
+    expect(screen.queryByTestId("governance-findings-load-failed")).not.toBeInTheDocument();
   });
 
   it("does not render Report problem on benign empty risk register", async () => {
@@ -204,6 +225,13 @@ describe("GovernanceFindingsQueueClient", () => {
 
     expect(await screen.findByTestId("governance-findings-empty-state")).toBeInTheDocument();
     expect(screen.queryByTestId("report-problem-trigger")).not.toBeInTheDocument();
+  });
+
+  it("renders the Findings nav icon in the page header", async () => {
+    renderGovernanceFindingsQueue();
+
+    expect(await screen.findByTestId("architecture-risk-register-page-title")).toBeInTheDocument();
+    expect(screen.getByTestId("page-heading-icon")).toBeInTheDocument();
   });
 
   it("renders operational table rows and filters when risk data is loaded", async () => {

@@ -1,12 +1,13 @@
 "use client";
 import { cn } from "@/lib/utils";
-import { OPERATOR_TYPOGRAPHY } from "@/lib/design-tokens";
+import { OPERATOR_LINK, OPERATOR_TYPOGRAPHY } from "@/lib/design-tokens";
 
 import Link from "next/link";
 import { Pin, PinOff } from "lucide-react";
 import { useCallback } from "react";
 import { usePathname } from "next/navigation";
 
+import { FavoriteReviewsVsNavPinsVocabularyRail } from "@/components/FavoriteReviewsVsNavPinsVocabularyRail";
 import { Button } from "@/components/ui/button";
 import { useNavPinnedLinks } from "@/hooks/use-nav-pinned-links";
 import { flattenNavLinks } from "@/lib/nav-config";
@@ -41,7 +42,12 @@ export function NavPinnedLinksPanel() {
   const currentPinned = isPinned(pathname);
 
   return (
-    <div className="mb-3 space-y-2" data-testid="nav-pinned-links-panel">
+    <div
+      id="nav-pinned-links-panel"
+      className="mb-3 space-y-2"
+      data-testid="nav-pinned-links-panel"
+    >
+      <FavoriteReviewsVsNavPinsVocabularyRail currentSurfaceId="nav-pins" />
       <div className="flex items-center justify-between gap-2 px-1">
         <span className={cn("font-semibold uppercase tracking-wide text-neutral-500", OPERATOR_TYPOGRAPHY.helper)}>Pinned</span>
         <Button
@@ -65,7 +71,7 @@ export function NavPinnedLinksPanel() {
             <li key={row.href} className="flex items-center gap-1 rounded px-1 hover:bg-neutral-100 dark:hover:bg-neutral-900">
               <Link
                 href={row.href}
-                className={cn("min-w-0 flex-1 truncate rounded px-1 py-1 text-neutral-800 dark:text-neutral-200", OPERATOR_TYPOGRAPHY.body)}
+                className={cn(OPERATOR_LINK.nav, "min-w-0 flex-1 truncate rounded px-1 py-1")}
               >
                 {row.label}
               </Link>

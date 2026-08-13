@@ -33,7 +33,7 @@ vi.mock("@/hooks/use-operate-capability", () => ({
 }));
 
 import { OperatorHomeDualPathCards } from "@/components/operator-home/OperatorHomeDualPathCards";
-import { CREATE_ARCHITECTURE_LABEL } from "@/lib/architecture-workflow-labels";
+import { CREATE_ARCHITECTURE_LABEL } from "@/lib/architecture/architecture-workflow-labels";
 
 describe("OperatorHomeDualPathCards create architecture workflow", () => {
   it("uses the dedicated create-architecture navigation without review staged progress", () => {

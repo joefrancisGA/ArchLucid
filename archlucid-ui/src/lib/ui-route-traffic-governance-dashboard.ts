@@ -1,4 +1,4 @@
-import { EXECUTIVE_DASHBOARD_WORKSPACE_HEALTH_HREF } from "@/lib/executive-dashboard-route";
+import { EXECUTIVE_DASHBOARD_WORKSPACE_HEALTH_HREF } from "@/lib/executive/executive-dashboard-route";
 
 /**
  * Traffic workbook row ID for Executive Workspace Health dashboard.

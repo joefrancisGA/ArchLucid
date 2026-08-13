@@ -110,7 +110,7 @@ ArchLucid can surface review comparison output in GitHub Actions and Azure DevOp
 
 ### Baseline fields at signup
 
-Optional review-cycle baseline fields may be captured during workspace registration for ROI modeling. See [Pilot ROI model](/help/pilot-roi-model).
+Optional review-cycle baseline fields may be captured during workspace registration for ROI modeling. See [Pilot ROI measurement](/help/executive-summary#pilot-roi-measurement).
 
 ### Complete first-session operator path
 

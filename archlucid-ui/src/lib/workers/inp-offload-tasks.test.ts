@@ -1,6 +1,6 @@
 import { describe, expect, it } from "vitest";
 
-import { buildArchitectureManifestUnifiedLines } from "@/lib/architecture-manifest-line-diff";
+import { buildArchitectureManifestUnifiedLines } from "@/lib/architecture/architecture-manifest-line-diff";
 import { buildCompareGovernanceDiffView } from "@/lib/compare-effective-governance-diff";
 import { runInpOffloadTaskSync } from "@/lib/workers/inp-offload-tasks";
 import type { GraphViewModel } from "@/types/graph";

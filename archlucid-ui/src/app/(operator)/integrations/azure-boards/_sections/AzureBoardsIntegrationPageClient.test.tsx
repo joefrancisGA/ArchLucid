@@ -114,6 +114,25 @@ describe("AzureBoardsIntegrationPageClient", () => {
     }
   });
 
+  it("TB-1756: uses operator spacing tokens instead of marketing-scale py-8 / space-y-8", async () => {
+    render(<AzureBoardsIntegrationPageClient />);
+
+    const page = await screen.findByTestId("integrations-azure-boards-page");
+    expect(page.className).toContain("space-y-6");
+    expect(page.className).toContain("py-4");
+    expect(page.className).not.toContain("space-y-8");
+    expect(page.className).not.toContain("py-8");
+    expect(page.className).not.toContain("py-6");
+  });
+
+  it("TB-1757: setup progress uses StatusTag without teal chip classes", async () => {
+    render(<AzureBoardsIntegrationPageClient />);
+
+    const aside = await screen.findByTestId("azure-boards-integration-aside");
+    expect(aside.innerHTML).not.toMatch(/border-teal-/);
+    expect(within(screen.getByTestId("azure-boards-setup-step-credentials")).getByText("In progress")).toBeInTheDocument();
+  });
+
   it("TB-1758: shows loading skeleton on first paint then content", async () => {
     let resolveSettings: (value: unknown) => void = () => undefined;
     const settingsPromise = new Promise((resolve) => {
@@ -145,32 +164,44 @@ describe("AzureBoardsIntegrationPageClient", () => {
       expect(screen.getByTestId("azure-boards-organization-url")).toHaveValue("https://dev.azure.com/example");
     });
 
+    let resolveHealth: (value: unknown) => void = () => undefined;
+    const healthPromise = new Promise((resolve) => {
+      resolveHealth = resolve;
+    });
+    mockFetchAzureHealth.mockReturnValue(healthPromise);
     mockFetchAzureSettings.mockRejectedValueOnce(new Error("temporary failure"));
     fireEvent.click(screen.getByTestId("azure-boards-refresh-button"));
 
     expect(screen.getByTestId("azure-boards-page-content")).toBeInTheDocument();
+    expect(screen.getByTestId("azure-boards-refresh-skeleton")).toBeInTheDocument();
     expect(screen.queryByTestId("azure-boards-loading-skeleton")).not.toBeInTheDocument();
     expect(screen.getByTestId("azure-boards-organization-url")).toHaveValue("https://dev.azure.com/example");
+
+    resolveHealth(baseHealth({ reachable: true }));
+    await waitFor(() => {
+      expect(screen.queryByTestId("azure-boards-refresh-skeleton")).not.toBeInTheDocument();
+    });
   });
 
-  it("TB-1757/1759: setup progress uses StatusTag and omits duplicate azure-boards help guide link", async () => {
+  it("links documentation to Azure Boards help topic and troubleshooting", async () => {
     render(<AzureBoardsIntegrationPageClient />);
 
     await screen.findByTestId("azure-boards-setup-progress");
-    expect(screen.getByTestId("azure-boards-setup-step-credentials")).toBeInTheDocument();
-    expect(screen.queryByTestId("azure-boards-help-guide-link")).not.toBeInTheDocument();
-
-    const aside = screen.getByTestId("azure-boards-integration-aside");
-    expect(aside.textContent ?? "").not.toContain("/help/azure-boards");
-    expect(aside.textContent ?? "").not.toContain("/help/integrations/azure-boards");
+    expect(screen.getByTestId("azure-boards-help-guide-link")).toHaveAttribute("href", "/help/azure-boards");
+    expect(screen.getByRole("link", { name: "Azure Boards integration guide" })).toBeInTheDocument();
+    expect(screen.getByRole("link", { name: "Troubleshooting" })).toHaveAttribute("href", "/help/troubleshooting");
   });
 
-  it("shows setup incomplete and disables connection test without credentials", async () => {
+  it("shows setup incomplete with needs-attention status tag on first load", async () => {
     render(<AzureBoardsIntegrationPageClient />);
 
     const status = await screen.findByTestId("azure-boards-connection-status");
     expect(within(status).getByText("Setup incomplete")).toBeInTheDocument();
-    expect(screen.getByTestId("azure-boards-test-connection-button")).toBeDisabled();
+    expect(screen.queryByTestId("azure-boards-test-connection-button")).not.toBeInTheDocument();
+    expect(screen.getByTestId("azure-boards-default-behavior-collapsed")).toBeInTheDocument();
+    expect(screen.getByTestId("azure-boards-connection-test-collapsed")).toBeInTheDocument();
+    expect(screen.getByTestId("azure-boards-setup-step-credentials")).toHaveAttribute("data-emphasized", "true");
+    expect(within(screen.getByTestId("azure-boards-setup-step-credentials")).getByText("In progress")).toBeInTheDocument();
   });
 
   it("shows connected state when health probe succeeds", async () => {
@@ -199,6 +230,7 @@ describe("AzureBoardsIntegrationPageClient", () => {
         isConfigured: true,
         instanceBaseUrl: "https://dev.azure.com/example",
         credentialKeyVaultSecretName: "kv-pat-secret",
+        updatedUtc: "2026-08-10T12:00:00.000Z",
       }),
     );
 
@@ -208,6 +240,46 @@ describe("AzureBoardsIntegrationPageClient", () => {
     expect(screen.getByTestId("azure-boards-token-reference")).toHaveValue("");
     expect(screen.getByTestId("azure-boards-credential-status")).toHaveTextContent("Secure reference saved");
     expect(screen.queryByText("kv-pat-secret")).not.toBeInTheDocument();
+    expect(screen.getByTestId("azure-boards-connection-provenance")).toHaveTextContent(/Last modified/i);
+    expect(screen.getByTestId("azure-boards-audit-trail-link")).toHaveAttribute("href", "/governance/audit");
+  });
+
+  it("requires token reference before enabling save connection", async () => {
+    render(<AzureBoardsIntegrationPageClient />);
+
+    const orgInput = await screen.findByTestId("azure-boards-organization-url");
+    fireEvent.change(orgInput, { target: { value: "https://dev.azure.com/example" } });
+
+    expect(screen.getByRole("button", { name: /Save connection/i })).toBeDisabled();
+    expect(screen.getByTestId("azure-boards-save-connection-disabled-helper")).toHaveTextContent(
+      /token secure reference/i,
+    );
+  });
+
+  it("preserves typed credentials when refresh is pressed", async () => {
+    render(<AzureBoardsIntegrationPageClient />);
+
+    const orgInput = await screen.findByTestId("azure-boards-organization-url");
+    const tokenInput = screen.getByTestId("azure-boards-token-reference");
+    fireEvent.change(orgInput, { target: { value: "https://dev.azure.com/example" } });
+    fireEvent.change(tokenInput, { target: { value: "kv-new-pat" } });
+
+    fireEvent.click(screen.getByTestId("azure-boards-refresh-button"));
+
+    await waitFor(() => {
+      expect(screen.getByTestId("azure-boards-organization-url")).toHaveValue("https://dev.azure.com/example");
+    });
+    expect(screen.getByTestId("azure-boards-token-reference")).toHaveValue("kv-new-pat");
+  });
+
+  it("links create-work-items setup step to findings", async () => {
+    render(<AzureBoardsIntegrationPageClient />);
+
+    await screen.findByTestId("azure-boards-setup-step-create");
+    expect(screen.getByRole("link", { name: /Create work items from findings/i })).toHaveAttribute(
+      "href",
+      "/governance/findings",
+    );
   });
 
   it("runs connection test with pending and success feedback", async () => {
@@ -233,6 +305,8 @@ describe("AzureBoardsIntegrationPageClient", () => {
     });
 
     expect(await screen.findByTestId("azure-boards-latest-test")).toBeInTheDocument();
+    expect(screen.getByText("Connection check passed")).toBeInTheDocument();
+    expect(screen.getByTestId("azure-boards-integration-aside").innerHTML).not.toMatch(/border-teal-/);
   });
 
   it("loads project and work item type discovery lists", async () => {
@@ -309,5 +383,27 @@ describe("AzureBoardsIntegrationPageClient", () => {
     expect(status).not.toHaveTextContent(/Database Query Failed/i);
     expect(status).not.toHaveTextContent(/programming error/i);
     expect(status).toHaveTextContent(/could not load Azure Boards configuration/i);
+  });
+
+  it("hides configuration forms when work management integrations are disabled (TB-1154)", async () => {
+    mockFetchItsmHealth.mockResolvedValue({ nativeEnabled: false });
+
+    render(<AzureBoardsIntegrationPageClient />);
+
+    await screen.findByTestId("azure-boards-connection-status");
+    expect(screen.queryByTestId("azure-boards-connection-settings")).not.toBeInTheDocument();
+    expect(screen.queryByTestId("azure-boards-default-behavior")).not.toBeInTheDocument();
+    expect(screen.queryByTestId("azure-boards-connection-test")).not.toBeInTheDocument();
+    expect(screen.getByTestId("azure-boards-setup-step-credentials")).toHaveAttribute("data-emphasized", "true");
+  });
+
+  it("demotes default behavior until connection is saved (TB-1155)", async () => {
+    render(<AzureBoardsIntegrationPageClient />);
+
+    await screen.findByTestId("azure-boards-connection-settings");
+    expect(screen.getByTestId("azure-boards-default-behavior-collapsed")).toBeInTheDocument();
+    expect(screen.queryByTestId("azure-boards-default-behavior")).not.toBeInTheDocument();
+    expect(screen.getByRole("button", { name: /Save connection/i })).toBeInTheDocument();
+    expect(screen.queryByTestId("azure-boards-save-settings-button")).not.toBeInTheDocument();
   });
 });

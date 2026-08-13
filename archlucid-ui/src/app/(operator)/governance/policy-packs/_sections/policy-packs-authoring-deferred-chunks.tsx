@@ -3,23 +3,18 @@
 import dynamic from "next/dynamic";
 import type { ComponentType } from "react";
 
-import { cn } from "@/lib/utils";
-import { OPERATOR_TYPOGRAPHY } from "@/lib/design-tokens";
+import { DeferredChunkLoading } from "@/components/ui/deferred-chunk-loading";
 
 import type { PolicyPackNaturalLanguageBuilderProps } from "./PolicyPackNaturalLanguageBuilder";
 import type { PolicyPackVisualBuilderProps } from "./PolicyPackVisualBuilder";
 import type { PolicyRuleAuthoringWizardProps } from "./PolicyRuleAuthoringWizard";
 
-function PolicyPackAuthoringChunkLoading(props: { readonly label: string }) {
+function policyPackAuthoringChunkLoading(label: string): React.JSX.Element {
   return (
-    <div
-      className={cn(
-        "h-32 animate-pulse rounded-md border border-neutral-200 bg-neutral-100 dark:border-neutral-700 dark:bg-neutral-800",
-        OPERATOR_TYPOGRAPHY.body,
-      )}
-      role="status"
-      aria-label={props.label}
-      data-testid="policy-pack-authoring-chunk-loading"
+    <DeferredChunkLoading
+      label={label}
+      variant="panel"
+      testId="policy-pack-authoring-chunk-loading"
     />
   );
 }
@@ -28,7 +23,7 @@ export const PolicyRuleAuthoringWizardDeferred: ComponentType<PolicyRuleAuthorin
   () => import("./PolicyRuleAuthoringWizard").then((module) => module.PolicyRuleAuthoringWizard),
   {
     ssr: false,
-    loading: () => <PolicyPackAuthoringChunkLoading label="Loading policy rule authoring wizard" />,
+    loading: () => policyPackAuthoringChunkLoading("Loading policy rule authoring wizard"),
   },
 );
 
@@ -37,7 +32,7 @@ export const PolicyPackNaturalLanguageBuilderDeferred: ComponentType<PolicyPackN
     import("./PolicyPackNaturalLanguageBuilder").then((module) => module.PolicyPackNaturalLanguageBuilder),
   {
     ssr: false,
-    loading: () => <PolicyPackAuthoringChunkLoading label="Loading natural language policy builder" />,
+    loading: () => policyPackAuthoringChunkLoading("Loading natural language policy builder"),
   },
 );
 
@@ -45,7 +40,7 @@ export const PolicyPackVisualBuilderDeferred: ComponentType<PolicyPackVisualBuil
   () => import("./PolicyPackVisualBuilder").then((module) => module.PolicyPackVisualBuilder),
   {
     ssr: false,
-    loading: () => <PolicyPackAuthoringChunkLoading label="Loading visual policy builder" />,
+    loading: () => policyPackAuthoringChunkLoading("Loading visual policy builder"),
   },
 );
 

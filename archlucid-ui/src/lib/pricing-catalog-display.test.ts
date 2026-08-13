@@ -6,13 +6,14 @@ import {
   formatIncludedArchitecturePackagesPerMonth,
   formatIncludedUsersAndWorkspaces,
   formatPlanPrice,
+  formatPricingCatalogEffectiveDate,
 } from "@/lib/pricing-catalog-display";
 import {
   BILLING_ADDITIONAL_ARCHITECTURE_PACKAGES_LABEL,
   BILLING_CUSTOM_AI_ALLOWANCE_VALUE,
   BILLING_INCLUDED_AI_CREDITS_LABEL,
   BILLING_INCLUDED_ARCHITECTURE_PACKAGES_LABEL,
-} from "@/lib/billing-meter-vocabulary";
+} from "@/lib/vocabulary/billing-meter-vocabulary";
 import type { PricingDoc } from "@/lib/pricing-types";
 import pricingJson from "../../public/pricing.json";
 
@@ -51,7 +52,6 @@ describe("pricing-catalog-display", () => {
     });
 
     expect(lines).toEqual([
-      { label: "Plan price", value: "Custom" },
       { label: BILLING_INCLUDED_AI_CREDITS_LABEL, value: BILLING_CUSTOM_AI_ALLOWANCE_VALUE },
     ]);
     expect(lines.some((line) => line.value.includes("0 users"))).toBe(false);
@@ -100,12 +100,11 @@ describe("pricing-catalog-display", () => {
     });
 
     expect(lines.map((line) => line.label)).toEqual([
-      "Plan price",
       "Included",
       BILLING_INCLUDED_AI_CREDITS_LABEL,
       BILLING_INCLUDED_ARCHITECTURE_PACKAGES_LABEL,
     ]);
-    expect(lines[0]?.value).toBe("$99 / mo");
+    expect(lines.some((line) => line.label === "Plan price")).toBe(false);
     expect(lines.some((line) => line.label === "Workspace platform")).toBe(false);
   });
 
@@ -142,5 +141,9 @@ describe("pricing-catalog-display", () => {
         includedReviewsPerMonth: 20,
       }),
     ).toBe("20 architecture reviews / month");
+  });
+
+  it("formats catalog effective date for billing tier footers (TB-1170)", () => {
+    expect(formatPricingCatalogEffectiveDate("2026-07-09")).toBe("Jul 9, 2026");
   });
 });

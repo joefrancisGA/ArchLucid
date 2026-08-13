@@ -10,7 +10,7 @@ import {
   type ActiveTenantContextView,
 } from "@/lib/active-tenant-context-display";
 import { isBuyerPolishedOperatorShellEnv } from "@/lib/demo-ui-env";
-import { ARCHLUCID_OPERATOR_SCOPE_CHANGED_EVENT } from "@/lib/operator-scope-storage";
+import { ARCHLUCID_OPERATOR_SCOPE_CHANGED_EVENT } from "@/lib/operator/operator-scope-storage";
 
 /** Quiet read-only tenant context under the workspace/project picker. */
 export function ScopeSwitcherTenantContextFooter(): React.JSX.Element {

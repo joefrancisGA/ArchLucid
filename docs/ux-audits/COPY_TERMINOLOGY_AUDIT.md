@@ -32,7 +32,7 @@
 
 4. **Demo language leaks into live surfaces** — "demo integrity tools" appears in the production audit trail note; "seeded Claims Intake review" appears in Why ArchLucid copy; "Demo-derived sample" appears as a badge on the home page; "Simulator mode" appears as a trust badge on actual review records.
 
-5. **"Sponsor" as a noun qualifier** — "Sponsor value report" (page title), various "sponsor-facing" source attribution strings, and "sponsor pack" references use internal sales-framing terminology that enterprise IT governance leads do not recognise as standard product language.
+5. **"Sponsor" as a noun qualifier** — "Sponsor value report" (page title), various "sponsor-facing" source attribution strings, and "sponsor pack" references use internal sales-framing terminology that enterprise IT governance leads do not recognize as standard product language.
 
 ---
 
@@ -163,27 +163,27 @@ These terms must not appear in any customer-visible rendered text (page titles, 
 ### Batch 1: P0 — three files, five string changes
 
 ```
-archlucid-ui/src/lib/buyer-surface-vocabulary.ts
+archlucid-ui/src/lib/vocabulary/buyer-surface-vocabulary.ts
   evaluationFeedback: "Pilot feedback" → "Review feedback"
   evaluationValueReport: "Evaluation value report" → "Review value report"
   costEvidenceNotConfiguredFootnote: "Add Azure cost evidence..." → "Add cost evidence (Azure, AWS, or GCP spend data)..."
 
-archlucid-ui/src/lib/core-pilot-path-vocabulary.ts
+archlucid-ui/src/lib/vocabulary/core-pilot-path-vocabulary.ts
   evaluationStandards: "Evaluation standards" → "Review standards"
 
-archlucid-ui/src/lib/buyer-polish-copy.ts
+archlucid-ui/src/lib/buyer/buyer-polish-copy.ts
   AUDIT_TRAIL_INTEGRITY_NOTE: full replacement (remove "demo integrity tools" clause)
 ```
 
 ### Batch 2: P1 commit→finalize sweep
 
 ```
-archlucid-ui/src/lib/buyer-polish-copy.ts
+archlucid-ui/src/lib/buyer/buyer-polish-copy.ts
   PILOT_PATH_PREVIEW_STEPS[2].label: "Commit review package" → "Finalize architecture package"
   BUYER_EXECUTIVE_SCORECARD_COMMITTED_LABEL: "Committed reviews" → "Finalized reviews"
   OPERATOR_GRAPH_PAGE_SUBTITLE: "committed review package" → "finalized architecture package"
 
-archlucid-ui/src/lib/buyer-surface-vocabulary.ts
+archlucid-ui/src/lib/vocabulary/buyer-surface-vocabulary.ts
   emptyStateDescription: "...after you commit..." → "...after you finalize..."
   portfolioMetricsUnavailableDescription: "Commit a review package..." → "Finalize an architecture package..."
 ```
@@ -191,7 +191,7 @@ archlucid-ui/src/lib/buyer-surface-vocabulary.ts
 ### Batch 3: P1 Azure-first sweep
 
 ```
-archlucid-ui/src/lib/buyer-polish-copy.ts
+archlucid-ui/src/lib/buyer/buyer-polish-copy.ts
   PILOT_COMMAND_CENTER_LEAD: "...or an optional Azure import." → "...or an optional cloud connection."
   PILOT_COMMAND_CENTER_CONNECT_AZURE: "Connect Azure" → "Connect cloud"
 
@@ -203,7 +203,7 @@ archlucid-ui/src/lib/i18n.ts
 ### Batch 4: P1 pilot/demo language sweep
 
 ```
-archlucid-ui/src/lib/buyer-polish-copy.ts
+archlucid-ui/src/lib/buyer/buyer-polish-copy.ts
   BUYER_VALUE_REPORT_PAGE_TITLE: "Sponsor value report" → "Executive value report"
   PRODUCT_CONCEPTS_GLOSSARY_DIALOG_DESCRIPTION: remove "during a pilot"
   BUYER_WHY_ARCHLUCID_SPONSOR_PACK_SOURCE_LINE: remove "seeded"
@@ -214,7 +214,7 @@ archlucid-ui/src/lib/buyer-polish-copy.ts
 ### Batch 5: P2 polish
 
 ```
-archlucid-ui/src/lib/buyer-polish-copy.ts
+archlucid-ui/src/lib/buyer/buyer-polish-copy.ts
   SAMPLE_REVIEW_AHA_DEMO_LABEL: "Demo-derived sample" → "Example review"
   OPERATOR_HOME_SAMPLE_FINDINGS_DEFENSIBLE_LAYER: full replacement
   BUYER_SIMULATOR_TRUST_BADGE_LABEL: "Simulator mode…" → "Rule-based analysis…"
@@ -233,7 +233,7 @@ archlucid-ui/src/app/(operator)/settings/roles/_sections/custom-role-permission-
 ### Batch 6: P3 cleanup
 
 ```
-archlucid-ui/src/lib/buyer-polish-copy.ts
+archlucid-ui/src/lib/buyer/buyer-polish-copy.ts
   BUYER_CTO_DEMO_LATENCY_EXCEEDED: "seeded showcase" → "example review"
 ```
 

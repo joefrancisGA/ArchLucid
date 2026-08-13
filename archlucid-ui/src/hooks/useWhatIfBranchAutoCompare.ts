@@ -44,7 +44,7 @@ export function useWhatIfBranchAutoCompare(
       return;
     }
 
-    let cancelled = false;
+    let canceled = false;
     const startedAt = Date.now();
     setPhase("polling");
 
@@ -61,7 +61,7 @@ export function useWhatIfBranchAutoCompare(
     };
 
     const tick = async (): Promise<void> => {
-      if (cancelled || redirectedRef.current) {
+      if (canceled || redirectedRef.current) {
         return;
       }
 
@@ -92,7 +92,7 @@ export function useWhatIfBranchAutoCompare(
     }, POLL_MS);
 
     return () => {
-      cancelled = true;
+      canceled = true;
       window.clearInterval(intervalId);
     };
   }, [

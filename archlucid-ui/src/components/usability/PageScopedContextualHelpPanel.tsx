@@ -6,9 +6,9 @@ import { OPERATOR_LINK, OPERATOR_TYPOGRAPHY } from "@/lib/design-tokens";
 import Link from "next/link";
 import { CircleHelp } from "lucide-react";
 
-import { Button } from "@/components/ui/button";
 import { HelpPopover, HelpPopoverContent, HelpPopoverTrigger } from "@/components/ui/help-popover";
 import type { PageContextualHelpEntry } from "@/lib/contextual-help-registry";
+import { PAGE_CONTEXTUAL_HELP_TRIGGER_CLASSNAME } from "@/components/usability/page-contextual-help-trigger";
 
 export type PageScopedContextualHelpPanelProps = {
   readonly entry: PageContextualHelpEntry;
@@ -64,17 +64,15 @@ export function PageScopedContextualHelpPanel({
   return (
     <HelpPopover>
       <HelpPopoverTrigger asChild>
-        <Button
+        <button
           type="button"
-          variant="outline"
-          size="sm"
-          className="h-8 gap-1.5 px-2 text-neutral-700 dark:text-neutral-300"
+          className={PAGE_CONTEXTUAL_HELP_TRIGGER_CLASSNAME}
           data-testid="page-contextual-help-button"
           aria-label={`Help: ${triggerLabel}`}
         >
           <CircleHelp className="h-4 w-4" aria-hidden />
           <span className={cn("font-medium", OPERATOR_TYPOGRAPHY.helper)}>{visibleTriggerText}</span>
-        </Button>
+        </button>
       </HelpPopoverTrigger>
 
       <HelpPopoverContent
@@ -106,7 +104,7 @@ export function PageScopedContextualHelpPanel({
           <p className={cn("m-0 pt-1", OPERATOR_TYPOGRAPHY.helper)}>
             <Link
               href={learnMoreHref}
-              className="font-medium text-teal-700 underline-offset-2 hover:underline dark:text-teal-300"
+              className={OPERATOR_LINK.optional}
               data-testid="page-scoped-contextual-help-learn-more"
             >
               Learn more →

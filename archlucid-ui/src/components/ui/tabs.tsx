@@ -69,7 +69,10 @@ export type TabsProps = {
   readonly onValueChange?: (value: string) => void;
   readonly syncUrlParam?: string;
   readonly orientation?: TabsOrientation;
-  /** Default `pill` — silver pills per `/architecture/reviews` hub filters. Use `line` only when legacy underline is required. */
+  /**
+   * Default `line` — Carbon line tabs are the only sanctioned visual per **TB-1661**.
+   * `pill` is legacy and retained only as an explicit opt-out; new call sites must not use it.
+   */
   readonly variant?: TabsVariant;
   readonly className?: string;
   readonly "data-testid"?: string;
@@ -78,7 +81,7 @@ export type TabsProps = {
 export function Tabs(props: TabsProps): ReactElement {
   const baseId = useId().replace(/:/g, "");
   const orientation = props.orientation ?? "horizontal";
-  const variant = props.variant ?? "pill";
+  const variant = props.variant ?? "line";
   const onValueChange = props.onValueChange;
   const syncUrlParam = props.syncUrlParam;
   const isControlled = props.value !== undefined;

@@ -2,7 +2,7 @@ import { cn } from "@/lib/utils";
 import Link from "next/link";
 
 import { OPERATOR_TYPOGRAPHY } from "@/lib/design-tokens";
-import { getFindingEvidenceTraceHref } from "@/lib/finding-evidence-navigation";
+import { getFindingEvidenceTraceHref } from "@/lib/findings/finding-evidence-navigation";
 
 type FindingEvidenceTrailLinkProps = {
   readonly runId: string;

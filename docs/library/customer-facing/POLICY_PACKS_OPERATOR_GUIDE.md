@@ -8,7 +8,7 @@ A **policy pack** is a versioned bundle of compliance checks, advisory defaults,
 
 ## Open Policy packs {#open-policy-packs}
 
-1. In the architect workspace, open **Governance** and choose **Policy packs** (route `/governance/policy-packs`).
+1. In the architect workspace, open **Governance** and choose **[Policy packs](/governance/policy-packs)**.
 2. Confirm the workspace (and project, when used) in the header switcher — packs and rules are scoped to that selection.
 3. Review the **Active policy pack** card and the **Rules applied to this review** table for the review in context.
 
@@ -22,7 +22,7 @@ The Policy packs page shows:
 - **Rules applied to this review** — each enforced rule with category, source pack, and a link to supporting evidence when available.
 - **My packs / Catalog** — packs already available in your tenant versus packs you can compare or adopt from the catalog.
 
-**Standards & rules** (`/governance/standards-and-rules`) lists the same class of checks for the current review with filters for enforcement mode, source pack, and evidence. Use Policy packs when you are managing which pack is assigned; use Standards & rules when you are inspecting the resulting rule list for one review.
+**[Standards & rules](/governance/standards-and-rules)** lists the same class of checks for the current review with filters for enforcement mode, source pack, and evidence. Use Policy packs when you are managing which pack is assigned; use Standards & rules when you are inspecting the resulting rule list for one review.
 
 ## How conflicts are resolved {#how-conflicts-are-resolved}
 

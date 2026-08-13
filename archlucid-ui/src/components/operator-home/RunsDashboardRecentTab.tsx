@@ -2,7 +2,7 @@ import { useMemo } from "react";
 import Link from "next/link";
 import { cn } from "@/lib/utils";
 
-import { OperatorApiProblem } from "@/components/OperatorApiProblem";
+import { OperatorApiProblem } from "@/components/operator/OperatorApiProblem";
 import { OperatorHomeReviewSummaryCard } from "@/components/operator-home/OperatorHomeReviewSummaryCard";
 import { OperatorHomeRunsDashboardListSkeleton } from "@/components/operator-home/OperatorHomeRunsDashboardListSkeleton";
 import { OperatorHomeWorkspaceArchivedEmptyState } from "@/components/operator-home/OperatorHomeWorkspaceArchivedEmptyState";
@@ -17,7 +17,7 @@ import {
   getCanonicalReviewWorkspaceHref,
   getShowcaseManifestHref,
   getShowcaseWalkthroughHref,
-} from "@/lib/buyer-safe-review-navigation";
+} from "@/lib/buyer/buyer-safe-review-navigation";
 import {
   OPERATOR_CARD,
   OPERATOR_LINK,
@@ -26,7 +26,7 @@ import {
   OPERATOR_TYPE_SCALE,
 } from "@/lib/design-tokens";
 import { RUNS_DASHBOARD_LABELS } from "@/lib/i18n";
-import { OPERATOR_HOME_RECENT_FEATURED_LIMIT } from "@/lib/operator-home-recent-reviews-outcome";
+import { OPERATOR_HOME_RECENT_FEATURED_LIMIT } from "@/lib/operator/operator-home-recent-reviews-outcome";
 import {
   SHOWCASE_BUYER_REVIEW_TITLE,
   SHOWCASE_STATIC_DEMO_PRIMARY_FINDING_ID,

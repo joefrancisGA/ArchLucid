@@ -5,7 +5,7 @@ import { cn } from "@/lib/utils";
 import {
   BUYER_VALUE_REPORT_INCLUDES_ITEMS,
   BUYER_VALUE_REPORT_INCLUDES_TITLE,
-} from "@/lib/buyer-polish-copy";
+} from "@/lib/buyer/buyer-polish-copy";
 import { DESIGN_TOKENS, OPERATOR_TYPOGRAPHY } from "@/lib/design-tokens";
 
 /** Lists sponsor-report sections so users know what exports contain before data exists. */

@@ -13,7 +13,7 @@ import {
 } from "@/lib/active-tenant-context-display";
 import { isBuyerPolishedOperatorShellEnv } from "@/lib/demo-ui-env";
 import { OPERATOR_TYPOGRAPHY } from "@/lib/design-tokens";
-import { ARCHLUCID_OPERATOR_SCOPE_CHANGED_EVENT } from "@/lib/operator-scope-storage";
+import { ARCHLUCID_OPERATOR_SCOPE_CHANGED_EVENT } from "@/lib/operator/operator-scope-storage";
 
 export type TenantWorkspaceBoundaryBadgeProps = {
   readonly variant?: "header" | "compact";
@@ -57,7 +57,7 @@ function ActiveTenantBadgeInner(props: ActiveTenantBadgeInnerProps): React.JSX.E
   if (as === "link") {
     return (
       <Link
-        href="/administration/tenant"
+        href="/administration/workspace-settings"
         className={cn(badgeClassName(variant), "no-underline transition hover:bg-neutral-50 dark:hover:bg-neutral-800/80")}
         data-testid={testId}
         title={tooltip}

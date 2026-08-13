@@ -4,15 +4,15 @@ import { cn } from "@/lib/utils";
 import Link from "next/link";
 import { useEffect } from "react";
 
-import { OperatorErrorUiReferenceLine } from "@/components/OperatorErrorUiReferenceLine";
-import { OperatorErrorCallout } from "@/components/OperatorShellMessage";
+import { OperatorErrorUiReferenceLine } from "@/components/operator/OperatorErrorUiReferenceLine";
+import { OperatorErrorCallout } from "@/components/operator/OperatorShellMessage";
 import { FatalPageReportProblemSupportRow } from "@/components/support/FatalPageReportProblemAction";
 import { CopyIdButton } from "@/components/CopyIdButton";
-import { RunDetailMinimalChromeMount } from "@/components/RunDetailMinimalChromeMount";
+import { RunDetailMinimalChromeMount } from "@/components/runs/RunDetailMinimalChromeMount";
 import { Button } from "@/components/ui/button";
 import { OPERATOR_LINK, OPERATOR_TYPOGRAPHY } from "@/lib/design-tokens";
 import { reportClientError } from "@/lib/error-telemetry";
-import { isStaticDemoPayloadFallbackEnabled } from "@/lib/operator-static-demo";
+import { isStaticDemoPayloadFallbackEnabled } from "@/lib/operator/operator-static-demo";
 import { isBuyerPolishedOperatorShellEnv } from "@/lib/demo-ui-env";
 import { SHOWCASE_STATIC_DEMO_MANIFEST_ID, SHOWCASE_STATIC_DEMO_RUN_ID } from "@/lib/showcase-static-demo";
 import { signedRecordDetailPath } from "@/lib/signed-records-paths";
@@ -40,7 +40,7 @@ export default function RunDetailSegmentError({
   if (isStaticFallback || isBuyerPolished) {
     return (
       <RunDetailMinimalChromeMount>
-        <div className="mx-auto max-w-lg space-y-4 px-4 py-8">
+        <div className="mx-auto max-w-lg space-y-4 px-4 py-6">
         <OperatorErrorCallout>
           <strong className={OPERATOR_TYPOGRAPHY.cardTitle}>Sample review unavailable</strong>
           <p className={cn("mt-2 text-al-text-secondary", OPERATOR_TYPOGRAPHY.body)}>
@@ -93,7 +93,7 @@ export default function RunDetailSegmentError({
 
   return (
     <RunDetailMinimalChromeMount>
-      <div className="mx-auto max-w-lg space-y-4 px-4 py-8">
+      <div className="mx-auto max-w-lg space-y-4 px-4 py-6">
       <OperatorErrorCallout>
         <strong className={OPERATOR_TYPOGRAPHY.cardTitle}>Review could not be loaded</strong>
         <p className={cn("mt-2 text-al-text-secondary", OPERATOR_TYPOGRAPHY.body)}>

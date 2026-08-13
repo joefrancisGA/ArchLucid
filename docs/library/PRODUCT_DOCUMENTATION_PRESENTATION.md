@@ -113,7 +113,7 @@ In-app help uses two orthogonal axes:
 | Help-center **tier** | `help-center-catalog.ts` | `product` · `admin` · `internal` |
 | Registry **`contentKind`** | `product-documentation-content-kinds.ts` | `product-help` · `technical-documentation` · `internal-runbook` |
 
-**Normative rule:** Help-center tier `internal` must **not** map to ungated `technical-documentation` unless the slug is on the explicit allowlist in `archlucid-ui/src/lib/help-center-internal-technical-allowlist.ts` with a consumer-safe rationale.
+**Normative rule:** Help-center tier `internal` must **not** map to ungated `technical-documentation` unless the slug is on the explicit allowlist in `archlucid-ui/src/lib/help/help-center-internal-technical-allowlist.ts` with a consumer-safe rationale.
 
 - Eng CLI / contributor API / runbook-class topics → `contentKind: internal-runbook` (TB-735 Admin authority gate; exclude from `generateStaticParams` product static set).
 - Customer-safe Admin ops references (e.g. `admin-diagnostics`) may remain `technical-documentation` + tier `internal` **only** via that allowlist.
@@ -178,5 +178,5 @@ When replacing customer-facing documentation links:
 - UI aesthetic + language: [`UI_DESIGN_SYSTEM.md`](UI_DESIGN_SYSTEM.md)
 - V1 scope: [`V1_SCOPE.md`](V1_SCOPE.md)
 - Operator help shell: `archlucid-ui/src/app/(operator)/help/`
-- Help topic index (today): `archlucid-ui/src/lib/help-topics.ts`
+- Help topic index (today): `archlucid-ui/src/lib/help/help-topics.ts`
 - Canonical vocabulary: [`GLOSSARY.md`](GLOSSARY.md), [`CONCEPT_VOCABULARY.md`](CONCEPT_VOCABULARY.md)

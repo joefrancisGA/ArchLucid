@@ -4,7 +4,7 @@
   FindingLlmAudit,
 } from "@/types/explanation";
 import type { FindingInspectPayload } from "@/types/finding-inspect";
-import { mapFindingInspectApiPayload } from "@/lib/finding-inspect-payload-map";
+import { mapFindingInspectApiPayload } from "@/lib/findings/finding-inspect-payload-map";
 import {
   apiGet,
   apiPostJson,

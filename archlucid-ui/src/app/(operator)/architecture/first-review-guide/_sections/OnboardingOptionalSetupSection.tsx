@@ -11,7 +11,7 @@ import {
   ONBOARDING_WORKSPACE_SETUP_ADMIN_DELEGATION,
   FIRST_REVIEW_GUIDE_OPTIONAL_SETUP_LEAD,
   FIRST_REVIEW_GUIDE_OPTIONAL_SETUP_TITLE,
-} from "@/lib/buyer-polish-copy";
+} from "@/lib/buyer/buyer-polish-copy";
 import { OPERATOR_TYPOGRAPHY } from "@/lib/design-tokens";
 
 import {
@@ -67,7 +67,7 @@ export function OnboardingOptionalSetupSection() {
         <h2 id="onboarding-optional-setup-delegation-heading" className={cn("m-0", OPERATOR_TYPOGRAPHY.cardTitle)}>
           {FIRST_REVIEW_GUIDE_OPTIONAL_SETUP_TITLE}
         </h2>
-        <p className={cn("m-0 mt-2 max-w-prose", OPERATOR_TYPOGRAPHY.helper)}>
+        <p className={cn("m-0 mt-2 max-w-3xl", OPERATOR_TYPOGRAPHY.helper)}>
           {ONBOARDING_WORKSPACE_SETUP_ADMIN_DELEGATION}
         </p>
       </section>
@@ -84,7 +84,7 @@ export function OnboardingOptionalSetupSection() {
       collapsedSummary={ONBOARDING_OPTIONAL_SETUP_COLLAPSED_SUMMARY}
     >
       <div className="space-y-4">
-        <p className={cn("m-0 max-w-prose", OPERATOR_TYPOGRAPHY.helper)}>{FIRST_REVIEW_GUIDE_OPTIONAL_SETUP_LEAD}</p>
+        <p className={cn("m-0 max-w-3xl", OPERATOR_TYPOGRAPHY.helper)}>{FIRST_REVIEW_GUIDE_OPTIONAL_SETUP_LEAD}</p>
         <OptionalWorkspaceSetupList />
         <div className="space-y-1">
           <OptionalWorkspaceSetupDismissButton onDismiss={onDismiss} />

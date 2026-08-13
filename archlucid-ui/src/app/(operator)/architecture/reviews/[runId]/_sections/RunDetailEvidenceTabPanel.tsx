@@ -3,18 +3,18 @@
 import type { ReactElement, ReactNode } from "react";
 import { useMemo } from "react";
 
-import { RunDetailEvidenceInventorySection } from "@/components/RunDetailEvidenceInventorySection";
-import { RunDetailEvidenceScopeHeader } from "@/components/RunDetailEvidenceScopeHeader";
-import { RunDetailSectionNav } from "@/components/RunDetailSectionNav";
-import { deriveRunTrustEvidenceReadinessFromCard } from "@/components/RunTrustEvidenceCardSection";
+import { RunDetailEvidenceInventorySection } from "@/components/runs/RunDetailEvidenceInventorySection";
+import { RunDetailEvidenceScopeHeader } from "@/components/runs/RunDetailEvidenceScopeHeader";
+import { RunDetailSectionNav } from "@/components/runs/RunDetailSectionNav";
+import { deriveRunTrustEvidenceReadinessFromCard } from "@/components/runs/RunTrustEvidenceCardSection";
 import { isBuyerPolishedOperatorShellEnv } from "@/lib/demo-ui-env";
 import { deriveEvidencePresenceFromInventoryKinds } from "@/lib/evidence-gap-forecast";
-import type { RunDetailEvidenceInventoryItem } from "@/lib/run-detail-evidence-inventory";
+import type { RunDetailEvidenceInventoryItem } from "@/lib/runs/run-detail-evidence-inventory";
 import {
   countRunDetailEvidenceInventoryItems,
   deriveEvidenceScopeCoverageLine,
   deriveEvidenceScopeReadiness,
-} from "@/lib/run-detail-evidence-inventory";
+} from "@/lib/runs/run-detail-evidence-inventory";
 
 import {
   RunDetailAdvancedAnalysisSectionDeferred,

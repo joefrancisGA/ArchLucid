@@ -252,10 +252,12 @@ describe("SystemHealthPage", () => {
 
     fireEvent.click(screen.getByRole("button", { name: "Refresh" }));
 
-    expect(screen.getByRole("button", { name: "Refreshing…" })).toBeInTheDocument();
+    // The label stays "Refresh" while in flight so the header does not reflow;
+    // aria-busy carries the state instead.
+    expect(screen.getByRole("button", { name: "Refresh" })).toHaveAttribute("aria-busy", "true");
 
     await waitFor(() => {
-      expect(screen.getByRole("button", { name: "Refresh" })).toBeInTheDocument();
+      expect(screen.getByRole("button", { name: "Refresh" })).toHaveAttribute("aria-busy", "false");
     });
   });
 });

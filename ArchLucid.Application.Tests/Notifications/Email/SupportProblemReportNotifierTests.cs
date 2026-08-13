@@ -53,7 +53,7 @@ public sealed class SupportProblemReportNotifierTests
         captured.Subject.Should().Contain(ReportId.ToString("D"));
         captured.TextBody.Should().Contain(SupportProblemReportCopy.SlaMessage);
         captured.TextBody.Should().Contain(SupportProblemReportCopy.WhatToExpectMessage);
-        captured.TextBody.Should().Contain("https://app.example.com/settings/support");
+        captured.TextBody.Should().Contain("https://app.example.com/administration/support");
         captured.HtmlBody.Should().Contain("next business day");
     }
 

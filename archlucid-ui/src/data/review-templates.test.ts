@@ -1,6 +1,6 @@
 import { describe, expect, it } from "vitest";
 
-import { ARCHITECTURE_REQUEST_DESCRIPTION_MAX_LENGTH } from "@/lib/architecture-request-limits";
+import { ARCHITECTURE_REQUEST_DESCRIPTION_MAX_LENGTH } from "@/lib/architecture/architecture-request-limits";
 import { wizardValuesToCreateRunPayload } from "@/lib/wizard-payload";
 import { buildDefaultWizardValues, wizardFormSchema } from "@/lib/wizard-schema";
 

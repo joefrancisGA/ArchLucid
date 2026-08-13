@@ -15,11 +15,11 @@ import {
 } from "@/hooks/useFindingCardShortcuts";
 import { recordFindingDisposition } from "@/lib/api/governance-stickiness-api";
 import { findingDispositionKindLabel } from "@/lib/disposition-export-before-after";
-import { createGovernanceMutationIdempotencyKey } from "@/lib/governance-mutation-idempotency-key";
+import { createGovernanceMutationIdempotencyKey } from "@/lib/governance/governance-mutation-idempotency-key";
 import {
   GOVERNANCE_BULK_DISPOSITION_FAILURE_MESSAGE,
   GOVERNANCE_BULK_DISPOSITION_REASON_REQUIRED,
-} from "@/lib/governance-mutation-outcome-copy";
+} from "@/lib/governance/governance-mutation-outcome-copy";
 
 export type FindingKeyboardTriageHostProps = {
   /** Resolves runId for the focused finding; return null to ignore the shortcut. */

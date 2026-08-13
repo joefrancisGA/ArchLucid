@@ -7,6 +7,8 @@ ArchLucid.Api.Controllers.Admin.AdminController.RemediateOrphanFindingsSnapshots
 ArchLucid.Api.Controllers.Admin.AdminController.RemediateOrphanGoldenManifests
 # Durable audit: AdminDiagnosticsService.RemediateStaleInFlightRunsAsync logs ManifestArchived (kind=staleInFlight).
 ArchLucid.Api.Controllers.Admin.AdminController.RemediateStaleInFlightRuns
+# Durable audit: AdminDiagnosticsService.RemediateMissingArchitectureRequestRunsAsync logs ManifestArchived (kind=missingArchitectureRequest).
+ArchLucid.Api.Controllers.Admin.AdminController.RemediateMissingArchitectureRequestRuns
 ArchLucid.Api.Controllers.Admin.AdminController.RetryIntegrationOutboxDeadLetter
 ArchLucid.Api.Controllers.Admin.AdminController.SuppressIntegrationOutboxDeadLetter
 ArchLucid.Api.Controllers.Admin.AdminIntegrationsController.RetryIntegrationOutboxDeadLetters
@@ -64,6 +66,8 @@ ArchLucid.Api.Controllers.Authority.CloudInventoryExtractorUploadController.Uplo
 ArchLucid.Api.Controllers.Authority.RunComparisonController.CompareRunsEndToEndSummary
 ArchLucid.Api.Controllers.Authority.RunsController.CommitRun
 ArchLucid.Api.Controllers.Authority.RunsController.CreateRun
+# Durable audit: ArchitectureRunBatchCreateOrchestrator logs ArchitectureRunBatchAccepted; per-item persist emits RequestCreated.
+ArchLucid.Api.Controllers.Authority.RunsController.CreateRunBatch
 ArchLucid.Api.Controllers.Authority.RunsController.ExecuteRun
 ArchLucid.Api.Controllers.Authority.RunsController.ReplayRun
 ArchLucid.Api.Controllers.Authority.RunsController.SubmitAgentResult

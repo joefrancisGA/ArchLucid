@@ -20,8 +20,9 @@ import {
 import {
   COMMAND_PALETTE_ARIA_KEYSHORTCUTS,
   commandPaletteOpenAriaLabel,
+  isApplePlatformShortcutModifier,
 } from "@/lib/keyboard-shortcut-display";
-import { useNavCallerAuthorityRank, useNavCommittedArchitectureReview, useOperatorNavAuthority } from "@/components/OperatorNavAuthorityProvider";
+import { useNavCallerAuthorityRank, useNavCommittedArchitectureReview, useOperatorNavAuthority } from "@/components/operator/OperatorNavAuthorityProvider";
 import { useOperatorShellAuditRunId } from "@/hooks/useOperatorShellAuditRunId";
 import { useRoleNavDensityExpanded } from "@/hooks/use-role-nav-density-expanded";
 import { auditTrailNavHref, isAuditNavPath } from "@/lib/audit-nav-paths";
@@ -32,14 +33,14 @@ import { COMMAND_PALETTE_CURATED_TASKS } from "@/lib/command-palette-curated-tas
 import { DOCUMENTATION_SEARCH_ITEMS, resolveDocumentationHref } from "@/lib/docs-search-index";
 import { NAV_GROUPS } from "@/lib/nav-config";
 import { isExecutiveDashboardPath } from "@/lib/executive-dashboard-route";
-import { resetBuyerCtoDemoSession } from "@/lib/buyer-cto-demo-orchestration";
+import { resetBuyerCtoDemoSession } from "@/lib/buyer/buyer-cto-demo-orchestration";
 import {
   ARCHLUCID_BUYER_CTO_DEMO_TOUR_START_EVENT,
-} from "@/lib/buyer-cto-demo-tour";
+} from "@/lib/buyer/buyer-cto-demo-tour";
 import {
   COMMAND_PALETTE_RESET_DEMO_LABEL,
   COMMAND_PALETTE_START_CTO_DEMO_LABEL,
-} from "@/lib/buyer-polish-copy";
+} from "@/lib/buyer/buyer-polish-copy";
 import { isBuyerPolishedOperatorShellEnv } from "@/lib/demo-ui-env";
 import { isShowSystemAdministrationNavEnabled } from "@/lib/features";
 import { isCtoDemoPackEnv } from "@/lib/cto-demo-presenter-pack";
@@ -52,7 +53,8 @@ import {
 import { applyPatternLibraryHrefSetGate, applyPatternLibraryNavGate } from "@/lib/apply-pattern-library-nav-gate";
 import { usePatternLibraryNavVisible } from "@/hooks/use-pattern-library-nav-visible";
 import { CommandPaletteRecentViewsGroup } from "@/components/usability/CommandPaletteRecentViewsGroup";
-import { stampRouteReferrer } from "@/lib/operator-navigation-referrer";
+import { CommandPaletteSidebarVocabularyRail } from "@/components/CommandPaletteSidebarVocabularyRail";
+import { stampRouteReferrer } from "@/lib/operator/operator-navigation-referrer";
 import { OPEN_COMMAND_PALETTE_EVENT, SHORTCUTS } from "@/lib/shortcut-registry";
 
 const RUN_ID_LIKE = /^[0-9a-f]{8}-[0-9a-f]{4}-[0-9a-f]{4}-[0-9a-f]{4}-[0-9a-f]{12}$/i;
@@ -433,6 +435,37 @@ function RunIdQuickOpen({
   );
 }
 
+function isEditableEventTarget(target: EventTarget | null): boolean {
+  if (target instanceof HTMLInputElement || target instanceof HTMLTextAreaElement) {
+    return true;
+  }
+
+  return target instanceof HTMLElement && target.isContentEditable;
+}
+
+/**
+ * True when this keypress should toggle the palette.
+ *
+ * The shortcut deliberately stays live while a text field has focus: the header search box is the
+ * first place a reader hunting for the palette lands, and suppressing the shortcut there hid the
+ * palette from exactly that person. The one exception is Apple platforms, where Ctrl+K inside a
+ * field is the "kill to end of line" binding — there, only Cmd+K opens the palette.
+ */
+export function palettePressUsesPaletteModifier(
+  event: Pick<KeyboardEvent, "ctrlKey" | "metaKey">,
+  target: EventTarget | null,
+): boolean {
+  if (!event.ctrlKey && !event.metaKey) {
+    return false;
+  }
+
+  if (isEditableEventTarget(target) && isApplePlatformShortcutModifier()) {
+    return event.metaKey;
+  }
+
+  return true;
+}
+
 /**
  * Ctrl+K command palette (metaKey+K on macOS): jump to operator pages surfaced in nav config.
  * Uses **`listNavGroupsVisibleInOperatorShell`** (tier → authority, omit empty groups) — same as sidebar and mobile drawer.
@@ -501,21 +534,16 @@ export function CommandPalette({ showTrigger = false }: CommandPaletteProps) {
 
   useEffect(() => {
     const onKeyDown = (event: KeyboardEvent) => {
-      const target = event.target;
-
-      if (
-        !open &&
-        (target instanceof HTMLInputElement ||
-          target instanceof HTMLTextAreaElement ||
-          (target instanceof HTMLElement && target.isContentEditable))
-      ) {
+      if (event.key.toLowerCase() !== "k") {
         return;
       }
 
-      if ((event.ctrlKey || event.metaKey) && event.key.toLowerCase() === "k") {
-        event.preventDefault();
-        setOpen((previous) => !previous);
+      if (!palettePressUsesPaletteModifier(event, event.target)) {
+        return;
       }
+
+      event.preventDefault();
+      setOpen((previous) => !previous);
     };
 
     window.addEventListener("keydown", onKeyDown);
@@ -622,6 +650,9 @@ export function CommandPalette({ showTrigger = false }: CommandPaletteProps) {
       ) : null}
       <CommandDialog open={open} onOpenChange={setOpen}>
         <CommandInput placeholder={buyerPolishedShell ? polishedPalettePlaceholder : "Search pages or paste a review ID…"} />
+        <div className="px-3 pt-2">
+          <CommandPaletteSidebarVocabularyRail currentSurfaceId="command-palette" />
+        </div>
         <CommandList>
           <RunIdQuickOpen onNavigate={navigate} allowRunIdPaste={!buyerPolishedShell} />
           <CommandPaletteRecentViewsGroup onNavigate={navigate} />

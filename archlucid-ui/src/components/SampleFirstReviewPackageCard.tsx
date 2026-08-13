@@ -6,13 +6,13 @@ import Link from "next/link";
 
 import { Button } from "@/components/ui/button";
 import { recordCorePilotRailChecklistStep } from "@/lib/core-pilot-rail-telemetry";
-import { OPERATOR_CO_ARCHITECT_CTA_REVIEW_PRIMARY } from "@/lib/operator-co-architect-copy";
+import { OPERATOR_CO_ARCHITECT_CTA_REVIEW_PRIMARY } from "@/lib/operator/operator-co-architect-copy";
 import {
   BUYER_HOME_PRIMARY_CTA,
   BUYER_HOME_SAMPLE_PACKAGE_HEADLINE,
   BUYER_HOME_SAMPLE_PACKAGE_LEAD,
   BUYER_HOME_SECONDARY_CTA,
-} from "@/lib/buyer-polish-copy";
+} from "@/lib/buyer/buyer-polish-copy";
 import { SHOWCASE_STATIC_DEMO_RUN_ID, SHOWCASE_STATIC_DEMO_SPINE_COUNTS } from "@/lib/showcase-static-demo";
 import { DemoDataBadge } from "@/components/usability/DemoDataBadge";
 

@@ -6,7 +6,17 @@ import { cn } from "@/lib/utils";
 import { useCallback, useEffect, useMemo, useState } from "react";
 
 import { Button } from "@/components/ui/button";
+import { RefreshButton } from "@/components/ui/refresh-button";
 import { Checkbox } from "@/components/ui/checkbox";
+import {
+  EnterpriseTable,
+  EnterpriseTableBody,
+  EnterpriseTableCell,
+  EnterpriseTableHead,
+  EnterpriseTableHeadRow,
+  EnterpriseTableHeaderCell,
+  EnterpriseTableRow,
+} from "@/components/ui/enterprise-table";
 import { Input } from "@/components/ui/input";
 import {
   Select,
@@ -15,24 +25,16 @@ import {
   SelectTrigger,
   SelectValue,
 } from "@/components/ui/select";
-import {
-  AlertDialog,
-  AlertDialogAction,
-  AlertDialogCancel,
-  AlertDialogContent,
-  AlertDialogDescription,
-  AlertDialogFooter,
-  AlertDialogHeader,
-  AlertDialogTitle,
-} from "@/components/ui/alert-dialog";
+import { SettingsRolesMatrixConfirmDialog } from "./SettingsRolesMatrixConfirmDialog";
 import { SeverityTag } from "@/components/ui/severity-tag";
-import { OperatorEmptyState } from "@/components/OperatorShellMessage";
-import { GOVERNANCE_AUDIT_PATH } from "@/lib/governance-route-paths";
+import { EnterpriseCompactEmptyState } from "@/components/EnterpriseCompactEmptyState";
+import { GOVERNANCE_AUDIT_PATH } from "@/lib/governance/governance-route-paths";
 import { mergeRegistrationScopeForProxy } from "@/lib/proxy-fetch-registration-scope";
 import { roleClaimCaption, roleDisplayLabel } from "@/lib/role-display-labels";
 import { SETTINGS_USERS_USERS_TAB_PATH } from "@/lib/settings-admin-route-paths";
 import { showError, showSuccess } from "@/lib/toast";
-import { OPERATOR_NAV_GROUP_LABEL, OPERATOR_TYPOGRAPHY } from "@/lib/design-tokens";
+import { DESIGN_TOKENS, OPERATOR_LAYOUT, OPERATOR_NAV_GROUP_LABEL, OPERATOR_TYPOGRAPHY } from "@/lib/design-tokens";
+import { SETTINGS_ROLES_MATRIX_LOAD_FAILED_COMPACT } from "@/lib/enterprise-compact-empty-state-presets";
 
 import { CUSTOM_ROLE_PERMISSION_GROUPS, ALL_MATRIX_PERMISSION_IDS } from "./custom-role-permission-groups";
 import {
@@ -207,11 +209,12 @@ function RolesMatrixCommandBar(props: RolesMatrixCommandBarProps) {
     <div
       data-testid="settings-roles-command-bar"
       className={cn(
-        "sticky top-0 z-40 flex flex-wrap items-center justify-between gap-3 rounded-md border border-amber-300 bg-amber-50 px-3 py-2 dark:border-amber-700/60 dark:bg-amber-950/40",
+        "sticky top-0 z-40 flex flex-wrap items-center justify-between gap-3",
+        DESIGN_TOKENS.callout.warn,
       )}
       role="status"
     >
-      <p className={cn("m-0 text-amber-900 dark:text-amber-100", OPERATOR_TYPOGRAPHY.body)}>
+      <p className={cn("m-0", OPERATOR_TYPOGRAPHY.body)}>
         {changeCount === 1
           ? `1 unsaved permission change on ${roleNames}.`
           : `${changeCount} unsaved permission changes on ${roleNames}.`}
@@ -512,28 +515,28 @@ export function SettingsRolesMatrixSection(props: SettingsRolesMatrixSectionProp
   if (loadError) {
     return (
       <section data-testid="settings-roles-matrix" className="space-y-4">
-        <OperatorEmptyState
-          title="Role matrix unavailable"
-          description="Custom roles and permissions could not be loaded. Refresh to try again."
+        <EnterpriseCompactEmptyState
+          {...SETTINGS_ROLES_MATRIX_LOAD_FAILED_COMPACT}
+          footer={
+            <div className="flex flex-wrap gap-2">
+              <RefreshButton onClick={() => void load()} />
+            </div>
+          }
         />
-        <div className="flex flex-wrap gap-2">
-          <Button type="button" variant="secondary" size="sm" onClick={() => void load()}>
-            Refresh
-          </Button>
-        </div>
       </section>
     );
   }
 
   return (
-    <section data-testid="settings-roles-matrix" className="space-y-6">
+    <section data-testid="settings-roles-matrix" className={OPERATOR_LAYOUT.sectionStack}>
         <p className={cn("m-0 text-al-text-secondary", OPERATOR_TYPOGRAPHY.body)}>{ROLES_MATRIX_HELPER_COPY}</p>
 
         {hasUnsavedEdits ? (
           <p
             data-testid="settings-roles-unsaved-notice"
             className={cn(
-              "m-0 rounded-md border border-amber-300 bg-amber-50 px-3 py-2 text-amber-900 dark:border-amber-700/60 dark:bg-amber-950/40 dark:text-amber-100",
+              "m-0",
+              DESIGN_TOKENS.callout.warn,
               OPERATOR_TYPOGRAPHY.body,
             )}
           >
@@ -642,13 +645,13 @@ export function SettingsRolesMatrixSection(props: SettingsRolesMatrixSectionProp
           </div>
 
           <div className="max-h-[70vh] overflow-auto rounded-md border border-neutral-200 dark:border-neutral-800">
-            <table
-              aria-label="Role permissions matrix"
+            <EnterpriseTable
+              ariaLabel="Role permissions matrix"
               className={cn("w-full min-w-[48rem] table-auto border-collapse text-left", OPERATOR_TYPOGRAPHY.body)}
             >
-              <thead className="sticky top-0 z-20 bg-neutral-50 shadow-sm dark:bg-neutral-900/95">
-                <tr>
-                  <th
+              <EnterpriseTableHead className="sticky top-0 z-20 bg-neutral-50 shadow-sm dark:bg-neutral-900/95">
+                <EnterpriseTableHeadRow>
+                  <EnterpriseTableHeaderCell
                     scope="col"
                     className={cn(
                       "sticky left-0 top-0 z-30 min-w-[14rem] border-b border-neutral-200 bg-neutral-50 px-3 py-3 text-left font-semibold text-al-text-primary dark:border-neutral-800 dark:bg-neutral-900/95",
@@ -656,7 +659,7 @@ export function SettingsRolesMatrixSection(props: SettingsRolesMatrixSectionProp
                     )}
                   >
                     Permission
-                  </th>
+                  </EnterpriseTableHeaderCell>
                   {columns.map((role) => {
                     const roleKey = roleMatrixKey(role);
                     const displayName = roleDisplayLabel(role.name);
@@ -667,7 +670,7 @@ export function SettingsRolesMatrixSection(props: SettingsRolesMatrixSectionProp
                     const lastUpdated = formatRoleLastUpdated(role.updatedUtc);
 
                     return (
-                      <th
+                      <EnterpriseTableHeaderCell
                         key={roleKey}
                         scope="col"
                         className={cn(
@@ -731,28 +734,28 @@ export function SettingsRolesMatrixSection(props: SettingsRolesMatrixSectionProp
                             </Button>
                           ) : null}
                         </div>
-                      </th>
+                      </EnterpriseTableHeaderCell>
                     );
                   })}
-                </tr>
-              </thead>
-              <tbody>
+                </EnterpriseTableHeadRow>
+              </EnterpriseTableHead>
+              <EnterpriseTableBody>
                 {visiblePermissionGroups.length === 0 ? (
-                  <tr>
-                    <td
+                  <EnterpriseTableRow>
+                    <EnterpriseTableCell
                       colSpan={columns.length + 1}
                       className="px-3 py-6 text-center text-al-text-secondary"
                     >
                       No permissions match the current filter.
-                    </td>
-                  </tr>
+                    </EnterpriseTableCell>
+                  </EnterpriseTableRow>
                 ) : null}
                 {visiblePermissionGroups.map((group) => {
                   const isCollapsed = collapsedGroups.has(group.area);
 
                   return [
-                    <tr key={`group-${group.area}`} className="bg-neutral-100/90 dark:bg-neutral-900/60">
-                      <td
+                    <EnterpriseTableRow key={`group-${group.area}`} className="bg-neutral-100/90 dark:bg-neutral-900/60">
+                      <EnterpriseTableCell
                         colSpan={columns.length + 1}
                         className="sticky left-0 z-10 border-y border-neutral-200 bg-neutral-100/95 px-3 py-2 dark:border-neutral-800 dark:bg-neutral-900/80"
                       >
@@ -772,15 +775,15 @@ export function SettingsRolesMatrixSection(props: SettingsRolesMatrixSectionProp
                             aria-hidden
                           />
                         </button>
-                      </td>
-                    </tr>,
+                      </EnterpriseTableCell>
+                    </EnterpriseTableRow>,
                     ...(!isCollapsed
                       ? group.permissions.map((permission) => (
-                          <tr
+                          <EnterpriseTableRow
                             key={permission.id}
                             className="border-b border-neutral-200 hover:bg-neutral-50 dark:border-neutral-800 dark:hover:bg-neutral-900/50"
                           >
-                            <th
+                            <EnterpriseTableHeaderCell
                               scope="row"
                               className={cn(
                                 "sticky left-0 z-10 border-r border-neutral-200 bg-white px-3 py-0 text-left font-normal text-al-text-primary dark:border-neutral-800 dark:bg-neutral-950",
@@ -793,9 +796,9 @@ export function SettingsRolesMatrixSection(props: SettingsRolesMatrixSectionProp
                                   <SeverityTag severity="High" kind="high" label="High risk" className="shrink-0" />
                                 ) : null}
                               </div>
-                            </th>
+                            </EnterpriseTableHeaderCell>
                             {columns.map((role) => (
-                              <td key={`${roleMatrixKey(role)}:${permission.id}`} className="p-0 text-center align-middle">
+                              <EnterpriseTableCell key={`${roleMatrixKey(role)}:${permission.id}`} className="p-0 text-center align-middle">
                                 <PermissionValue
                                   allowed={role.permissions.has(permission.id)}
                                   roleName={roleDisplayLabel(role.name)}
@@ -804,67 +807,28 @@ export function SettingsRolesMatrixSection(props: SettingsRolesMatrixSectionProp
                                   checked={role.permissions.has(permission.id)}
                                   onToggle={() => togglePermission(roleMatrixKey(role), permission.id)}
                                 />
-                              </td>
+                              </EnterpriseTableCell>
                             ))}
-                          </tr>
+                          </EnterpriseTableRow>
                         ))
                       : []),
                   ];
                 })}
-              </tbody>
-            </table>
+              </EnterpriseTableBody>
+            </EnterpriseTable>
           </div>
         </div>
 
-        <AlertDialog open={pendingConfirmation !== null} onOpenChange={(open) => !open && setPendingConfirmation(null)}>
-          <AlertDialogContent>
-            <AlertDialogHeader>
-              <AlertDialogTitle>{confirmationCopy?.title ?? "Confirm role change?"}</AlertDialogTitle>
-              <AlertDialogDescription asChild>
-                <div className="space-y-3">
-                  {confirmationCopy !== null && confirmationCopy.addedLabels.length > 0 ? (
-                    <div className="space-y-1">
-                      <p className={cn("m-0 font-medium text-al-text-primary", OPERATOR_TYPOGRAPHY.body)}>Permissions to grant</p>
-                      <ul className={cn("m-0 list-disc space-y-1 pl-5", OPERATOR_TYPOGRAPHY.body)}>
-                        {confirmationCopy.addedLabels.map((label) => (
-                          <li key={`add-${label}`}>{label}</li>
-                        ))}
-                      </ul>
-                    </div>
-                  ) : null}
-                  {confirmationCopy !== null && confirmationCopy.removedLabels.length > 0 ? (
-                    <div className="space-y-1">
-                      <p className={cn("m-0 font-medium text-al-text-primary", OPERATOR_TYPOGRAPHY.body)}>Permissions to remove</p>
-                      <ul className={cn("m-0 list-disc space-y-1 pl-5", OPERATOR_TYPOGRAPHY.body)}>
-                        {confirmationCopy.removedLabels.map((label) => (
-                          <li key={`remove-${label}`}>{label}</li>
-                        ))}
-                      </ul>
-                    </div>
-                  ) : null}
-                  {confirmationCopy !== null && confirmationCopy.highRiskLabels.length > 0 ? (
-                    <div className="space-y-1 rounded-md border border-amber-300 bg-amber-50 px-3 py-2 dark:border-amber-700/60 dark:bg-amber-950/40">
-                      <p className={cn("m-0 text-amber-900 dark:text-amber-100", OPERATOR_TYPOGRAPHY.body)}>
-                        {ROLES_MATRIX_CONFIRMATION_DIALOG.highRiskLead}
-                      </p>
-                      <ul className={cn("m-0 list-disc space-y-1 pl-5 text-amber-900 dark:text-amber-100", OPERATOR_TYPOGRAPHY.body)}>
-                        {confirmationCopy.highRiskLabels.map((label) => (
-                          <li key={`high-risk-${label}`}>{label}</li>
-                        ))}
-                      </ul>
-                    </div>
-                  ) : null}
-                </div>
-              </AlertDialogDescription>
-            </AlertDialogHeader>
-            <AlertDialogFooter>
-              <AlertDialogCancel>Cancel</AlertDialogCancel>
-              <AlertDialogAction onClick={() => void confirmPendingAction()}>
-                {confirmationCopy?.primaryLabel ?? "Confirm"}
-              </AlertDialogAction>
-            </AlertDialogFooter>
-          </AlertDialogContent>
-        </AlertDialog>
+        <SettingsRolesMatrixConfirmDialog
+          open={pendingConfirmation !== null}
+          copy={confirmationCopy}
+          onCancel={() => {
+            setPendingConfirmation(null);
+          }}
+          onConfirm={() => {
+            void confirmPendingAction();
+          }}
+        />
       </section>
   );
 }

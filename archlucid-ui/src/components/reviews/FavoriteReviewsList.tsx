@@ -4,7 +4,7 @@ import Link from "next/link";
 
 import { FavoriteReviewToggle } from "@/components/reviews/FavoriteReviewToggle";
 import { useFavoriteReviews } from "@/hooks/use-favorite-reviews";
-import { reviewDetailPath } from "@/lib/architecture-routes";
+import { reviewDetailPath } from "@/lib/architecture/architecture-routes";
 import { OPERATOR_LINK, OPERATOR_TYPOGRAPHY } from "@/lib/design-tokens";
 import { cn } from "@/lib/utils";
 

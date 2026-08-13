@@ -23,7 +23,7 @@ Commit **`cd73860ba`** (2026-06-09, branch `ci/fix-idempotency-concurrency-hang-
 | Resolution (`ResolveServiceUnavailablePerResponseAsync`) | 20 min (`ParallelCreateRunResolutionGuard`) |
 
 That fixed the earlier failure mode where the burst consumed the entire 100-minute token and
-resolution started already cancelled. **This failure is the next bottleneck.**
+resolution started already canceled. **This failure is the next bottleneck.**
 
 ## Root cause
 

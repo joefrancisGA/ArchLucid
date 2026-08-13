@@ -1,26 +1,20 @@
+import { stripMarkdownSectionsByTitlePrefix } from "@/lib/help-markdown/section-strips";
 import { inAppHelpHref } from "@/lib/product-documentation-registry";
 
-/** Prefer Architecture reviews H1 — list nav may still say Reviews. */
+/** Page title for the Reviews hub companion — artifact noun in body is architecture package. */
 export const REVIEW_PACKAGES_HELP_PAGE_TITLE = "Architecture reviews";
 
 export const REVIEW_PACKAGES_HELP_PAGE_SUBTITLE =
-  "Browse, inspect, and export governed architecture reviews. The Reviews list is where those reviews live.";
+  "Open Reviews to find architecture packages in your workspace, then inspect findings and export sponsor-ready artifacts.";
 
+/** One orientation statement: definition + review↔package relationship (not browse/inspect/export again). */
 export const REVIEW_PACKAGES_HELP_OVERVIEW =
-  "An architecture review is the durable record for one governed assessment — findings, evidence, policy results, decisions, and exports after finalize. Open Reviews to browse reviews in your workspace.";
+  "A review produces one architecture package — the durable record with findings, evidence, policy results, decisions, and exports after finalize.";
 
 export const REVIEW_PACKAGES_HELP_PRIMARY_ACTIONS = {
   openReviews: {
     label: "Open reviews",
     href: "/architecture/reviews",
-  },
-  startAReview: {
-    label: "Start a review",
-    href: inAppHelpHref("evidence-intake"),
-  },
-  findingsGuide: {
-    label: "Findings guide",
-    href: inAppHelpHref("findings"),
   },
 } as const;
 
@@ -29,9 +23,37 @@ export type ReviewPackagesHelpRelatedLink = {
   readonly href: string;
 };
 
-/** Sparse Related links (TB-1402) — no self-href to this topic. */
+/** Authoritative Related guides rail — markdown Related section is stripped for presentation. */
 export const REVIEW_PACKAGES_HELP_RELATED: readonly ReviewPackagesHelpRelatedLink[] = [
+  { label: "Review guide", href: inAppHelpHref("review-guide") },
   { label: "Start a review", href: inAppHelpHref("evidence-intake") },
   { label: "Findings", href: inAppHelpHref("findings") },
-  { label: "Audit trail", href: inAppHelpHref("audit-trail") },
+  { label: "Evidence graph", href: inAppHelpHref("evidence-trail") },
+  { label: "Governance approval", href: inAppHelpHref("governance-approval") },
 ] as const;
+
+const REVIEW_PACKAGES_OPENING_LEDE =
+  "Browse, inspect, and export governed architecture packages in the architect workspace.";
+
+/** Drop the markdown Related guides section so the page rail is the only list. */
+export function stripReviewPackagesRelatedGuidesFromMarkdown(markdown: string): string {
+  return stripMarkdownSectionsByTitlePrefix(markdown, ["related guides"], {
+    collapseBlankLines: true,
+  });
+}
+
+/** Drop the opening browse/inspect/export lede duplicated by the page subtitle. */
+export function stripReviewPackagesOpeningLedeFromMarkdown(markdown: string): string {
+  return markdown
+    .split(REVIEW_PACKAGES_OPENING_LEDE)
+    .join("")
+    .replace(/\n{3,}/g, "\n\n")
+    .trim();
+}
+
+/** Body markdown for in-app presentation (Related + duplicate lede removed). */
+export function prepareReviewPackagesHelpBodyMarkdown(markdown: string): string {
+  return stripReviewPackagesOpeningLedeFromMarkdown(
+    stripReviewPackagesRelatedGuidesFromMarkdown(markdown),
+  );
+}

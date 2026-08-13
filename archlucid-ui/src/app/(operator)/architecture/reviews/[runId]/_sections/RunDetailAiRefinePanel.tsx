@@ -4,8 +4,10 @@ import Link from "next/link";
 import { useCallback, useEffect, useState } from "react";
 
 import { ArchitectureIntelligenceRefineResultSummary } from "@/components/architecture-intelligence/ArchitectureIntelligenceRefineResultSummary";
+import { AiBudgetSpendNotice } from "@/components/ai-budget/AiBudgetSpendNotice";
 import { Button } from "@/components/ui/button";
 import { Label } from "@/components/ui/label";
+import { WhyDisabledCtaHint } from "@/components/usability/WhyDisabledCtaHint";
 import { useLlmMonthlyBudgetExecutionGate } from "@/hooks/use-llm-monthly-budget-execution-gate";
 import {
   buildArchitectureIntelligenceRunRequest,
@@ -14,15 +16,16 @@ import {
   runArchitectureIntelligenceReasoning,
   type ClosedLoopReasoningResult,
   type ClosedLoopReasoningSourceText,
-} from "@/lib/architecture-intelligence-api";
+} from "@/lib/architecture/architecture-intelligence-api";
 import {
   ARCHITECTURE_INTELLIGENCE_REVIEW_TIERS,
   architectureIntelligenceReviewTierLabel,
   isArchitectureIntelligenceReviewTier,
   type ArchitectureIntelligenceReviewTier,
-} from "@/lib/architecture-intelligence-review-tier";
-import { buildArchitectureIntelligenceRunHref } from "@/lib/architecture-intelligence-run-href";
+} from "@/lib/architecture/architecture-intelligence-review-tier";
+import { buildArchitectureIntelligenceRunHref } from "@/lib/architecture/architecture-intelligence-run-href";
 import { OPERATOR_LINK, OPERATOR_TYPOGRAPHY } from "@/lib/design-tokens";
+import { whyDisabledLlmBudgetExhausted } from "@/lib/why-disabled-cta";
 import { cn } from "@/lib/utils";
 
 export type RunDetailAiRefinePanelProps = {
@@ -49,7 +52,7 @@ export function RunDetailAiRefinePanel(props: RunDetailAiRefinePanelProps) {
   const [result, setResult] = useState<ClosedLoopReasoningResult | null>(null);
 
   useEffect(() => {
-    let cancelled = false;
+    let canceled = false;
 
     setContextStatus("loading");
     setError(null);
@@ -59,7 +62,7 @@ export function RunDetailAiRefinePanel(props: RunDetailAiRefinePanelProps) {
       try {
         const context = await fetchArchitectureIntelligenceProductSourceContext(runId);
 
-        if (cancelled) {
+        if (canceled) {
           return;
         }
 
@@ -69,7 +72,7 @@ export function RunDetailAiRefinePanel(props: RunDetailAiRefinePanelProps) {
         setPriorities(context.declaredPriorities ?? []);
         setContextStatus(sources.length > 0 ? "ready" : "empty");
       } catch (cause) {
-        if (cancelled) {
+        if (canceled) {
           return;
         }
 
@@ -83,7 +86,7 @@ export function RunDetailAiRefinePanel(props: RunDetailAiRefinePanelProps) {
     })();
 
     return () => {
-      cancelled = true;
+      canceled = true;
     };
   }, [runId]);
 
@@ -202,6 +205,15 @@ export function RunDetailAiRefinePanel(props: RunDetailAiRefinePanelProps) {
               </Link>
             </Button>
           </div>
+
+          <AiBudgetSpendNotice
+            action="Refine and publish"
+            testId="run-detail-ai-refine-budget"
+          />
+          <WhyDisabledCtaHint
+            reason={blocksLlmExecution ? whyDisabledLlmBudgetExhausted() : null}
+            testId="run-detail-ai-refine-disabled-hint"
+          />
         </>
       ) : null}
 

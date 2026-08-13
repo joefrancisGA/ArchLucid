@@ -1,3 +1,4 @@
+import { isAbortError } from "@/lib/ai-usage-fetch-utils";
 import { mergeRegistrationScopeForProxy } from "@/lib/proxy-fetch-registration-scope";
 
 /** Single calendar day bucket for charting estimated LLM spend (API contract may evolve). */
@@ -35,6 +36,8 @@ export type LlmCostReportingDashboard = {
   currency: string;
   /** True when the dedicated reporting endpoint was missing or returned an unusable payload. */
   isMocked: boolean;
+  /** Server-provided freshness when present; otherwise set client-side after fetch. */
+  asOfUtc?: string | null;
 };
 
 const REPORT_PATH = "/api/proxy/v1/tenant/llm-cost-reporting?days=30";
@@ -43,11 +46,21 @@ const REPORT_PATH = "/api/proxy/v1/tenant/llm-cost-reporting?days=30";
  * GET provisional `v1/tenant/llm-cost-reporting` — when not implemented, returns deterministic mock data for UI/dev.
  * Numbers are **estimates** only; reconciliation belongs in billing / cloud cost tools.
  */
-export async function fetchLlmCostReportingDashboard(): Promise<LlmCostReportingDashboard> {
+export type FetchLlmCostReportingDashboardOptions = {
+  readonly signal?: AbortSignal;
+};
+
+export async function fetchLlmCostReportingDashboard(
+  options?: FetchLlmCostReportingDashboardOptions,
+): Promise<LlmCostReportingDashboard> {
   try {
     const res = await fetch(
       REPORT_PATH,
-      mergeRegistrationScopeForProxy({ headers: { Accept: "application/json" }, cache: "no-store" }),
+      mergeRegistrationScopeForProxy({
+        headers: { Accept: "application/json" },
+        cache: "no-store",
+        signal: options?.signal,
+      }),
     );
 
     if (!res.ok) {
@@ -62,7 +75,11 @@ export async function fetchLlmCostReportingDashboard(): Promise<LlmCostReporting
     }
 
     return { ...parsed, isMocked: false };
-  } catch {
+  } catch (error) {
+    if (isAbortError(error)) {
+      throw error;
+    }
+
     return buildMockLlmCostReportingDashboard();
   }
 }
@@ -116,7 +133,14 @@ export function buildMockLlmCostReportingDashboard(): LlmCostReportingDashboard 
     },
   ];
 
-  return { daily, byWorkspaceProject, topRuns: [], currency: "USD", isMocked: true };
+  return {
+    daily,
+    byWorkspaceProject,
+    topRuns: [],
+    currency: "USD",
+    isMocked: true,
+    asOfUtc: new Date().toISOString(),
+  };
 }
 
 function parseLlmCostReportingDashboardPayload(json: unknown): LlmCostReportingDashboard | null {
@@ -133,6 +157,7 @@ function parseLlmCostReportingDashboardPayload(json: unknown): LlmCostReportingD
   }
 
   const currency = typeof root.currency === "string" && root.currency.length > 0 ? root.currency : "USD";
+  const asOfUtc = pickOptionalAsOfUtcFromPayload(root);
   const daily = rawDaily.map(parseDailyBucket).filter((b): b is LlmCostDailyBucket => b !== null);
 
   if (daily.length === 0) {
@@ -148,7 +173,19 @@ function parseLlmCostReportingDashboardPayload(json: unknown): LlmCostReportingD
     ? rawTopRuns.map(parseTopRunRow).filter((r): r is LlmCostTopRunRow => r !== null)
     : [];
 
-  return { daily, byWorkspaceProject, topRuns, currency, isMocked: false };
+  return { daily, byWorkspaceProject, topRuns, currency, isMocked: false, asOfUtc };
+}
+
+function pickOptionalAsOfUtcFromPayload(root: Record<string, unknown>): string | null {
+  for (const key of ["asOfUtc", "asOf", "generatedAtUtc", "generatedAt"] as const) {
+    const value = root[key];
+
+    if (typeof value === "string" && value.trim().length > 0) {
+      return value.trim();
+    }
+  }
+
+  return null;
 }
 
 function parseDailyBucket(entry: unknown): LlmCostDailyBucket | null {

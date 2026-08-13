@@ -4,7 +4,7 @@ import { useEffect } from "react";
 import { usePathname, useSearchParams } from "next/navigation";
 
 import { dispatchOnboardingTourStart, readOnboardingTourCompleted } from "@/lib/onboarding-tour";
-import { readHasSeenWelcomeOnboarding } from "@/lib/operator-welcome-onboarding-storage";
+import { readHasSeenWelcomeOnboarding } from "@/lib/operator/operator-welcome-onboarding-storage";
 import {
   hasConsumedRegistrationTourAutoStart,
   markRegistrationTourAutoStartConsumed,

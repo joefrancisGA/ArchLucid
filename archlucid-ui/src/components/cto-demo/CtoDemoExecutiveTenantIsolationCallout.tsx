@@ -4,7 +4,7 @@ import { cn } from "@/lib/utils";
 import { useEffect, useState } from "react";
 
 import { CtoDemoHowItWorksTrigger } from "@/components/cto-demo/CtoDemoHowItWorksTrigger";
-import { readBuyerCtoDemoTourActive } from "@/lib/buyer-cto-demo-tour";
+import { readBuyerCtoDemoTourActive } from "@/lib/buyer/buyer-cto-demo-tour";
 import { isBuyerPolishedOperatorShellEnv } from "@/lib/demo-ui-env";
 import { isCtoDemoPackEnv } from "@/lib/cto-demo-presenter-pack";
 import { OPERATOR_TYPOGRAPHY } from "@/lib/design-tokens";

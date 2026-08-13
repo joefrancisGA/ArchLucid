@@ -14,7 +14,7 @@ public interface IAgentTaskRepository
     /// <summary>
     ///     Persists multiple tasks in a single batch operation.
     ///     Each task in <paramref name="tasks" /> must have a unique <c>TaskId</c>.
-    ///     Implementors should treat each write as an insert; duplicate IDs result in implementation-defined behaviour.
+    ///     Implementors should treat each write as an insert; duplicate IDs result in implementation-defined behavior.
     /// </summary>
     Task CreateManyAsync(
         IEnumerable<AgentTask> tasks,

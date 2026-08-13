@@ -87,7 +87,7 @@ Radix does **not** remove the need for correct **application** usage (labels, co
 
 | Artifact | Note |
 | -------- | ---- |
-| [`archlucid-ui/src/components/RunProgressTracker.tsx`](../../archlucid-ui/src/components/RunProgressTracker.tsx) | `aria-live="polite"` — **4.1.3** evidence for that component |
+| [`archlucid-ui/src/components/runs/RunProgressTracker.tsx`](../../archlucid-ui/src/components/runs/RunProgressTracker.tsx) | `aria-live="polite"` — **4.1.3** evidence for that component |
 | [`archlucid-ui/src/components/RouteAnnouncer.tsx`](../../archlucid-ui/src/components/RouteAnnouncer.tsx) | `aria-live="polite"` + e2e assertion in focus spec |
 
 ---
@@ -106,7 +106,7 @@ Radix does **not** remove the need for correct **application** usage (labels, co
 | 6 | 1.2.5 Audio Description (Prerecorded) | AA | None | |
 | 7 | 1.3.1 Info and Relationships | A | Axe tag bundle (live + component) | Custom dashboards/graphs partial |
 | 8 | 1.3.2 Meaningful Sequence | A | Axe + DOM order on scanned routes | |
-| 9 | 1.3.3 Sensory Characteristics | A | None | Manual judgement |
+| 9 | 1.3.3 Sensory Characteristics | A | None | Manual judgment |
 | 10 | 1.3.4 Orientation | AA | None (implicit responsive CSS) | |
 | 11 | 1.3.5 Identify Input Purpose | AA | Axe form/autocomplete rules when applicable | Not exhaustively audited |
 | 12 | 1.4.1 Use of Color | A | Axe (`link-in-text-block`, color-adjacent rules) | Manual gap for status semantics |

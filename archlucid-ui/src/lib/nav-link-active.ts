@@ -2,7 +2,14 @@ import {
   ARCHITECTURES_LIST_PATH,
   REVIEWS_LIST_PATH,
   REVIEWS_NEW_PATH,
-} from "@/lib/architecture-routes";
+} from "@/lib/architecture/architecture-routes";
+import { isSelfSettingsPath } from "@/lib/self-settings-destinations";
+import {
+  SETTINGS_ROOT_PATH,
+  SETTINGS_WORKSPACE_SETTINGS_PATH,
+  pathMatchesSettingsWorkspaceSettings,
+} from "@/lib/settings-admin-route-paths";
+import { PROJECTS_RECYCLE_BIN_PATH } from "@/lib/vocabulary/projects-recycle-drafts-package-vocabulary";
 
 /**
  * Whether a sidebar / drawer link should show the active style for the current pathname.
@@ -28,8 +35,8 @@ export function isNavLinkActive(pathname: string, href: string): boolean {
     return pathname === REVIEWS_LIST_PATH;
   }
 
-  if (pathPart === "/administration/tenant") {
-    return pathname === "/administration/tenant";
+  if (pathPart === SETTINGS_WORKSPACE_SETTINGS_PATH) {
+    return pathMatchesSettingsWorkspaceSettings(pathname) && !pathname.startsWith(`${SETTINGS_WORKSPACE_SETTINGS_PATH}/recycle-bin`);
   }
 
   if (pathPart === "/governance/approval-queue") {
@@ -37,6 +44,14 @@ export function isNavLinkActive(pathname: string, href: string): boolean {
       pathname === "/governance/approval-queue" ||
       pathname.startsWith("/governance/approval-requests/")
     );
+  }
+
+  if (pathPart === SETTINGS_ROOT_PATH) {
+    if (isSelfSettingsPath(pathname) || pathname === PROJECTS_RECYCLE_BIN_PATH) {
+      return false;
+    }
+
+    return pathname === SETTINGS_ROOT_PATH || pathname.startsWith(`${SETTINGS_ROOT_PATH}/`);
   }
 
   return pathname === pathPart || pathname.startsWith(`${pathPart}/`);

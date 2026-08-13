@@ -20,14 +20,31 @@ DEFAULT_NEW_HIT_PCT = "0.02%"
 # values unique 3-letter uppercase IDs (guarded by tests/test_archlucid_ui_route_catalog.py).
 PREFERRED_NEW_ROW_IDS: dict[str, str] = {
     "/shell/contextual-help-drawer": "HCD",
+    "/help/choose-your-next-step": "HPX",
+    "/login": "LOG",
+    "/onboard": "OXX",
+    "/onboarding/start": "OSX",
+    "/operate/architecture-graph": "OAX",
+    "/governance/advisory-scans?tab=scans": "ADT",
 }
 
-# Admin internal-runbook help topics excluded from buyer UX scoring (/al-ui-lowest).
-INTERNAL_UX_RANKING_HELP_PATHS: frozenset[str] = frozenset(
+# When workbook path migrations collide, keep the canonical tab/hub row id (ADV hub retired → ADT).
+WORKBOOK_COLLISION_PREFERRED_ROW_IDS: dict[str, str] = {
+    "/governance/advisory-scans?tab=scans": "ADT",
+    "/administration/workspace-settings": "ATE",
+    "/administration/workspace-settings/recycle-bin": "STR",
+}
+
+# Routes outside `/internal` excluded from buyer UX scoring (/al-ui-lowest) and buyer traffic rollup.
+INTERNAL_UX_RANKING_EXCLUDED_PATHS: frozenset[str] = frozenset(
     {
         "/help/configuration-reference",
+        "/demo/explain",
     }
 )
+
+# Back-compat alias — name predates non-help exclusions (e.g. DEX).
+INTERNAL_UX_RANKING_HELP_PATHS = INTERNAL_UX_RANKING_EXCLUDED_PATHS
 
 # Legacy workbook paths → canonical catalog paths (scores and Hit% merge on collision).
 WORKBOOK_PATH_MIGRATIONS: dict[str, str] = {
@@ -65,11 +82,22 @@ WORKBOOK_PATH_MIGRATIONS: dict[str, str] = {
     "/help/integrations/azure-boards": "/help/azure-boards",
     "/help/product-overview": "/help/executive-summary",
     "/help/starting-reviews": "/help/review-guide",
-    "/help/evaluator-workbook": "/help/path-chooser",
+    "/help/evaluator-workbook": "/help/choose-your-next-step",
+    "/help/path-chooser": "/help/choose-your-next-step",
     "/help/first-hour-operator-path": "/help/first-architecture-review",
     "/help/first-pilot-path": "/help/first-architecture-review",
     "/help/operator-auth-roles": "/help/users-and-roles",
     "/help/pilot-nav-profile": "/help/pilot-guide",
+    # Workbook rows are catalog routes, so these fold to the destination page even when the
+    # browser redirect lands on a section anchor — build_catalog() never emits "#fragment" paths
+    # and assert_ui_route_traffic_workbook_canonical rejects rows outside the catalog.
+    "/help/first-review": "/help/first-architecture-review",
+    "/help/first-value-20-minutes": "/help/first-architecture-review",
+    "/help/pilot-roi-model": "/help/executive-summary",
+    "/help/developer-troubleshooting": "/help/engineering-troubleshooting",
+    # Legacy key: /help/policy-pack-delta-demo is a live registry topic again, so this entry only
+    # keeps the route out of the traffic catalog. Dropping it needs a workbook sync for the new row.
+    "/help/policy-pack-delta-demo": "/help/policy-packs#policy-pack-delta-demo",
     "/manifests": "/governance/signed-records",
     "/manifests/[manifestId]": "/governance/signed-records/[manifestId]",
     "/manifests/[manifestId]/artifacts/[artifactId]": (
@@ -82,8 +110,19 @@ WORKBOOK_PATH_MIGRATIONS: dict[str, str] = {
     ),
     "/settings/cost-reporting": "/administration/ai-usage",
     "/settings/ai-usage": "/administration/ai-usage",
+    "/admin/ai-usage-cost": "/administration/ai-usage",
+    "/onboarding/start": "/architecture/first-review-guide",
+    "/onboard": "/architecture/first-review-guide",
+    "/quick-start": "/get-started",
+    "/login": "/auth/signin",
+    "/operate/architecture-graph": "/insights/evidence-graph",
+    "/administration/tenant": "/administration/workspace-settings",
+    "/administration/tenant/recycle-bin": "/administration/workspace-settings/recycle-bin",
+    "/governance/alerts?tab=inbox": "/governance/alerts",
     # TB-1124: Advisory scans hub under Governance (next.config permanent redirects only).
-    "/advisory": "/governance/advisory-scans",
+    # ADV workbook row retired — fold hub Hit% into default Scans tab (ADT).
+    "/advisory": "/governance/advisory-scans?tab=scans",
+    "/governance/advisory-scans": "/governance/advisory-scans?tab=scans",
     "/advisory?tab=scans": "/governance/advisory-scans?tab=scans",
     "/advisory?tab=schedules": "/governance/advisory-scans?tab=schedules",
     "/advisory-scheduling": "/governance/advisory-scans?tab=schedules",
@@ -96,6 +135,8 @@ WORKBOOK_PATH_MIGRATIONS: dict[str, str] = {
     "/settings/alerts": "/governance/alert-rules",
     # TB-1902 / TB-1901: /settings/exec-digest is next.config-only → Digests Schedule tab.
     "/settings/exec-digest": "/architecture/digests?tab=schedule",
+    "/architecture/digests?tab=browse": "/architecture/digests?tab=get-started",
+    "/digests?tab=browse": "/architecture/digests?tab=get-started",
     "/health": "/administration/system-health",
     # Batch A retired help aliases (permanent redirect only) — migrate out of workbook/catalog.
     "/help/core-pilot": "/help/first-architecture-review",
@@ -148,6 +189,14 @@ WORKBOOK_PATH_MIGRATIONS: dict[str, str] = {
     "/product-learning": "/internal/product-learning",
 }
 
+# Hub paths that stay live in the app but are not scored in the owner workbook (tab rows carry Hit%).
+# /governance/advisory-scans hub retired (ADV removed); default Scans tab ADT is canonical.
+TRAFFIC_EXCLUDED_APP_ROUTER_PATHS: frozenset[str] = frozenset(
+    {
+        "/governance/advisory-scans",
+    }
+)
+
 # Paths that must not appear as scored App Router catalog entries (pages gone / never traffic-scored).
 # RER run-scoped artifact Preview App Router shim removed — old bookmarks 404; Preview hrefs are GAR only.
 REDIRECT_ONLY_APP_PATHS = frozenset(
@@ -155,6 +204,8 @@ REDIRECT_ONLY_APP_PATHS = frozenset(
         "/advisory",
         "/advisory-scheduling",
         "/alert-routing",
+        "/administration/tenant",
+        "/administration/tenant/recycle-bin",
         "/architecture/reviews/[runId]/artifacts/[artifactId]",
         "/demo",
     }
@@ -164,7 +215,15 @@ REDIRECT_ONLY_APP_PATHS = frozenset(
 # /settings/alerts retired from the workbook (SEA removed, TB-1886–TB-1890); migration still maps to SAX.
 # /settings/exec-digest retired from the workbook (EEX removed); migration still maps to DIS.
 # Batch C folded FIR `/help/first-pilot-path` into COR — permanent redirect only (no traffic-tracked bookmark).
-TRAFFIC_TRACKED_REDIRECT_BOOKMARKS: frozenset[str] = frozenset()
+# TB-1794 / TB-1798 / TB-1801: legacy auth/onboarding bookmarks stay as redirect-shim workbook rows (LOG/OXX/OSX).
+TRAFFIC_TRACKED_REDIRECT_BOOKMARKS: frozenset[str] = frozenset(
+    {
+        "/login",
+        "/onboard",
+        "/onboarding/start",
+        "/operate/architecture-graph",
+    }
+)
 
 # Operator-shell overlays scored in the workbook but not App Router pages.
 SHELL_OVERLAY_TRAFFIC_ENTRIES: dict[str, str] = {
@@ -283,7 +342,7 @@ def discover_tab_paths() -> list[str]:
     digests_tabs = _parse_ts_string_array(UI_LIB_DIR / "digests-hub-tab.ts", "DIGESTS_HUB_TAB_IDS")
     alert_rules_tabs = _parse_ts_string_array(UI_LIB_DIR / "alerts-hub-tab.ts", "ALERT_RULES_HUB_TAB_IDS")
     arch_tabs = _parse_ts_string_array(
-        UI_LIB_DIR / "architecture-workspace-tabs.ts",
+        UI_LIB_DIR / "architecture" / "architecture-workspace-tabs.ts",
         "ARCHITECTURE_WORKSPACE_TAB_IDS",
     )
 
@@ -304,13 +363,23 @@ def discover_tab_paths() -> list[str]:
     return sorted(set(paths))
 
 
+def _is_redirect_shim_path(path: str) -> bool:
+    return path in TRAFFIC_TRACKED_REDIRECT_BOOKMARKS
+
+
 def infer_section(path: str, *, help_alias_paths: set[str]) -> str:
+    if _is_redirect_shim_path(path):
+        return "Redirect shim"
+
+    if path in INTERNAL_UX_RANKING_EXCLUDED_PATHS:
+        return "Internal"
+
     if "?" in path:
         return "Tab surface"
     if path == "/help":
         return "Help hub"
     if path.startswith("/help/"):
-        if path in INTERNAL_UX_RANKING_HELP_PATHS:
+        if path in INTERNAL_UX_RANKING_EXCLUDED_PATHS:
             return "Internal"
         if path in help_alias_paths:
             return "Help alias"
@@ -372,7 +441,7 @@ def infer_section(path: str, *, help_alias_paths: set[str]) -> str:
         return "Onboarding"
     if path.startswith("/planning") or path.startswith("/graph") or path == "/compare":
         return "Planning"
-    if path in ("/why-archlucid", "/demo/explain"):
+    if path == "/why-archlucid":
         return "Learning"
     return "Marketing"
 
@@ -383,6 +452,9 @@ def build_catalog() -> dict[str, CatalogEntry]:
 
     for path in discover_app_router_paths():
         if path in REDIRECT_ONLY_APP_PATHS:
+            continue
+
+        if path in TRAFFIC_EXCLUDED_APP_ROUTER_PATHS:
             continue
 
         catalog[path] = CatalogEntry(path=path, section=infer_section(path, help_alias_paths=help_alias_paths), source="app_router")

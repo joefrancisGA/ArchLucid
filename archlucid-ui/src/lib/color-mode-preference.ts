@@ -1,5 +1,8 @@
 export const COLOR_MODE_STORAGE_KEY = "archlucid_color_mode";
 
+export const COLOR_MODE_ACCOUNT_SYNC_LOCAL_ONLY_MESSAGE =
+  "Saved on this device only. Account sync failed — check connectivity and try again.";
+
 export type ColorModePreference = "light" | "dark" | "system";
 
 export type ResolvedColorModeAppearance = "light" | "dark";
@@ -212,12 +215,15 @@ export async function syncColorModePreferenceFromServer(): Promise<ColorModePref
 
 export async function persistColorModePreferenceToServer(
   preference: ColorModePreference,
-): Promise<void> {
+): Promise<boolean> {
   try {
     const { setUserAppearancePreference } = await import("@/lib/api/user-preferences");
     await setUserAppearancePreference(preference);
+
+    return true;
   }
   catch {
     // localStorage remains the immediate fallback for demo/offline sessions.
+    return false;
   }
 }

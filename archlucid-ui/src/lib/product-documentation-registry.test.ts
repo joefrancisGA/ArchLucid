@@ -10,14 +10,14 @@ import {
   PRODUCT_DOCUMENTATION_CONTENT_KIND_BY_SLUG,
   type ProductDocumentationContentKind,
 } from "@/lib/product-documentation-content-kinds";
-import { resolveHelpTopicPermanentRedirect } from "@/lib/help-topic-permanent-redirects";
+import { resolveHelpTopicPermanentRedirect } from "@/lib/help/help-topic-permanent-redirects";
 import {
   getProductDocumentationEntry,
   inAppHelpHref,
   listProductDocumentationEntries,
   type ProductDocumentationEntry,
 } from "@/lib/product-documentation-registry";
-import { getHelpCenterTier } from "@/lib/help-center-catalog";
+import { getHelpCenterTier } from "@/lib/help/help-center-catalog";
 import { tryLoadProductDocumentation } from "@/lib/load-product-documentation";
 
 const REDIRECT_STUB_MARKERS = [/moved\s+—/i, /^#\s*moved\b/i];
@@ -74,6 +74,11 @@ describe("product-documentation-registry", () => {
     expect(inAppHelpHref("evidence-only-review", "fast-path-evidence-only")).toBe(
       "/help/first-architecture-review#fast-path-evidence-only",
     );
+    expect(getProductDocumentationEntry("pilot-roi-model")).toBeNull();
+    expect(resolveHelpTopicPermanentRedirect("pilot-roi-model")).toBe(
+      "/help/executive-summary#pilot-roi-measurement",
+    );
+    expect(inAppHelpHref("pilot-roi-model")).toBe("/help/executive-summary#pilot-roi-measurement");
     expect(getProductDocumentationEntry("cloud-connections/azure")?.title).toBe("Connect Azure securely");
     expect(getProductDocumentationEntry("cloud-connections/aws")?.title).toBe("Connect AWS securely");
     expect(getProductDocumentationEntry("cloud-connections/gcp")?.title).toBe("Connect GCP securely");
@@ -116,7 +121,7 @@ describe("product-documentation-registry", () => {
     expect(glossary?.sourcePaths).toEqual([]);
     expect(glossary?.pdfStatus).toBeNull();
     expect(glossary?.lastReviewed).toBe(CUSTOMER_GLOSSARY_CONTRACT_VERSION);
-    expect(glossary?.releaseApplicability).toContain("V1 GA");
+    expect(glossary?.releaseApplicability).toContain("product vocabulary");
     expect(tryLoadProductDocumentation("glossary")?.markdown).toBe("");
   });
 
@@ -209,7 +214,6 @@ describe("product-documentation-registry", () => {
       "governance-approval": "customer",
       "policy-packs": "customer",
       "audit-trail": "customer",
-      "pilot-roi-model": "public",
     };
 
     for (const [slug, pdfStatus] of Object.entries(expected)) {
@@ -239,11 +243,8 @@ describe("product-documentation-registry", () => {
 
   it("tags internal-runbook slugs with internal-runbook contentKind (TB-732 / TB-1250 / TB-1329)", () => {
     const internalRunbookSlugs = [
-      "first-value-20-minutes",
-      "first-review",
-      "policy-pack-delta-demo",
       "pilot-feedback",
-      "developer-troubleshooting",
+      "engineering-troubleshooting",
       "cli-usage",
       "api-contracts",
       "configuration-reference",
@@ -333,14 +334,14 @@ describe("product-documentation-registry", () => {
     const entry = getProductDocumentationEntry("comparison-replay");
 
     expect(entry?.lastReviewed).toBe("2026-08-09");
-    expect(entry?.releaseApplicability).toContain("V1 GA");
+    expect(entry?.releaseApplicability).toContain("Compare two reviews");
   });
 
   it("declares provenance metadata on enterprise-onboarding operator checklist (HE)", () => {
     const entry = getProductDocumentationEntry("enterprise-onboarding");
 
     expect(entry?.lastReviewed).toBe("2026-08-09");
-    expect(entry?.releaseApplicability).toContain("V1 GA");
+    expect(entry?.releaseApplicability).toContain("hosted enterprise tenant onboarding");
     expect(entry?.pdfStatus).toBe("customer");
   });
 
@@ -348,7 +349,15 @@ describe("product-documentation-registry", () => {
     const entry = getProductDocumentationEntry("evidence-intake");
 
     expect(entry?.lastReviewed).toBe("2026-08-10");
-    expect(entry?.releaseApplicability).toContain("V1 GA");
+    expect(entry?.releaseApplicability).toContain("evidence intake");
+    expect(entry?.pdfStatus).toBe("customer");
+  });
+
+  it("declares provenance metadata on policy-packs operator guide (HEO)", () => {
+    const entry = getProductDocumentationEntry("policy-packs");
+
+    expect(entry?.lastReviewed).toBe("2026-08-09");
+    expect(entry?.releaseApplicability).toContain("policy pack assignment and conflict resolution");
     expect(entry?.pdfStatus).toBe("customer");
   });
 
@@ -356,7 +365,7 @@ describe("product-documentation-registry", () => {
     const entry = getProductDocumentationEntry("api-contracts");
 
     expect(entry?.lastReviewed).toBe("2026-08-10");
-    expect(entry?.releaseApplicability).toContain("V1 GA");
+    expect(entry?.releaseApplicability).toContain("HTTP contract");
   });
 
   it("keeps internal-runbook topics with source paths off the missing-provenance list (HG)", () => {
@@ -382,5 +391,6 @@ describe("product-documentation-registry", () => {
     expect(missingProvenance).not.toContain("comparison-replay");
     expect(missingProvenance).not.toContain("enterprise-onboarding");
     expect(missingProvenance).not.toContain("evidence-intake");
+    expect(missingProvenance).not.toContain("policy-packs");
   });
 });

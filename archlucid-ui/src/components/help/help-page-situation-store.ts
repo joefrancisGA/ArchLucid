@@ -2,7 +2,7 @@
 
 import { useEffect, useSyncExternalStore } from "react";
 
-import type { HelpPageSituation } from "@/lib/help-page-situation";
+import type { HelpPageSituation } from "@/lib/help/help-page-situation";
 
 type HelpPageSituationListener = () => void;
 

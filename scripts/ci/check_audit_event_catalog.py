@@ -8,9 +8,10 @@ import re
 import sys
 from pathlib import Path
 
+from audit_event_types_source import read_audit_event_types_text
+
 REPO_ROOT = Path(__file__).resolve().parents[2]
 CATALOG_PATH = REPO_ROOT / "scripts" / "ci" / "data" / "audit_event_catalog.v1.json"
-AUDIT_TYPES_PATH = REPO_ROOT / "ArchLucid.Core" / "Audit" / "AuditEventTypes.cs"
 MATRIX_PATH = REPO_ROOT / "docs" / "library" / "AUDIT_COVERAGE_MATRIX.md"
 
 REQUIRED_EVENT_KEYS = (
@@ -47,9 +48,9 @@ def load_catalog(path: Path) -> dict[str, object]:
     return payload
 
 
-def audit_event_constant_values(path: Path) -> set[str]:
-    text = path.read_text(encoding="utf-8")
-    return set(re.findall(r'public const string \w+ = "([^"]+)";', text))
+def audit_event_constant_values(root: Path) -> set[str]:
+    text = read_audit_event_types_text(root)
+    return set(re.findall(r'public const string \w+ =\s*"([^"]+)";', text))
 
 
 def catalog_violations(root: Path) -> list[str]:
@@ -85,14 +86,14 @@ def catalog_violations(root: Path) -> list[str]:
             else:
                 seen.add(event_type)
 
-    constant_values = audit_event_constant_values(AUDIT_TYPES_PATH)
+    constant_values = audit_event_constant_values(root)
 
     for event_type in CRITICAL_EVENT_TYPES:
         if event_type not in seen:
             violations.append(f"critical event {event_type!r} missing from catalog")
 
         if event_type not in constant_values:
-            violations.append(f"critical event {event_type!r} not defined in AuditEventTypes.cs")
+            violations.append(f"critical event {event_type!r} not defined in AuditEventTypes partials")
 
     if MATRIX_PATH.is_file():
         matrix_text = MATRIX_PATH.read_text(encoding="utf-8", errors="replace")

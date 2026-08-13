@@ -5,7 +5,7 @@ import Link from "next/link";
 
 import type { SetupHealthPresentation } from "@/lib/setup-health-present";
 import { OPERATOR_CALLOUT_WARN_CLASS, OPERATOR_TYPOGRAPHY } from "@/lib/design-tokens";
-import { WORKSPACE_SETUP_HEALTH_LABELS } from "@/lib/operator-health-labels";
+import { WORKSPACE_SETUP_HEALTH_LABELS } from "@/lib/operator/operator-health-labels";
 
 type WorkspaceSetupHealthCalloutProps = {
   readonly presentation: SetupHealthPresentation;

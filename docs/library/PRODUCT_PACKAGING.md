@@ -263,7 +263,7 @@ Available immediately after a first finalized architecture package. Enabled by c
 | Natural-language Ask | `POST /v1/ask/threads` | Ask (`/ask`) |
 | Advisory scans | `POST /v1/advisory/scans` | Advisory (`/advisory`) |
 | Architecture digests | `GET /v1/advisory/digests` | Digests (`/digests`) |
-| Digest subscriptions (email delivery) | `POST /v1/advisory/digest-subscriptions` | Subscriptions (`/digest-subscriptions`) |
+| Digest subscriptions (email delivery) | `POST /v1/advisory/digest-subscriptions` | Digests Subscriptions tab (`/architecture/digests?tab=subscriptions`; legacy `/digest-subscriptions` bookmark canonicalizes here) |
 | Advisory scheduling | `PUT /v1/advisory/schedules` | Schedules (`/advisory-scheduling`) |
 | Retrieval indexing and search | `POST /v1/retrieval/index` | Search (`/search`) |
 | Pilot feedback rollups | `GET /v1/product-learning/rollups` | Pilot feedback (`/product-learning`) |
@@ -307,7 +307,7 @@ Available immediately but requiring extended/advanced sidebar disclosure and typ
 | Row-level security (RLS) tenant isolation | SQL `SESSION_CONTEXT` per request | — | `ArchLucid:TenantIsolation:Enabled` |
 | Alert inbox (open / acknowledged) | `GET /v1/alerts` | Alerts (`/alerts`) | — |
 | Alert rules | `POST /v1/alert-rules` | Alert rules (`/alert-rules`) | — |
-| Alert routing subscriptions | `POST /v1/alert-routing` | Alert routing (`/alert-routing`) | — |
+| Alert routing subscriptions | `POST /v1/alert-routing` | Alert rules Notifications tab (`/governance/alert-rules?tab=notifications`; legacy `/alert-routing` bookmark canonicalizes here) | — |
 | Composite alert rules | `POST /v1/composite-alert-rules` | Composite rules (`/composite-alert-rules`) | — |
 | Alert simulation | `POST /v1/alert-simulation` | Alert simulation (`/alert-simulation`) | — |
 | Alert tuning (threshold and noise) | `PUT /v1/alert-tuning` | Alert tuning (`/alert-tuning`) | — |
@@ -326,7 +326,7 @@ Essential-tier links: Alerts (inbox).
 
 Extended-tier links: Policy packs Â· Governance resolution Â· Governance dashboard.
 
-Advanced-tier links: Alert rules Â· Alert routing Â· Composite rules Â· Alert simulation Â· Alert tuning Â· Governance workflow Â· Audit log Â· Value report.
+Advanced-tier links: Alert rules · Composite rules · Alert simulation · Alert tuning · Governance workflow · Audit log · Value report.
 
 ---
 

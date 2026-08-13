@@ -1,27 +1,31 @@
 import type { Metadata } from "next";
 import dynamic from "next/dynamic";
 import { headers } from "next/headers";
-import { notFound, permanentRedirect } from "next/navigation";
+import { permanentRedirect } from "next/navigation";
 
 import { HelpTopicMarkdownView } from "../HelpTopicMarkdownView";
 import { CaiqSigResponseHelpEvidenceOrientationStrip } from "@/components/help/CaiqSigResponseHelpEvidenceOrientationStrip";
+import { ScopeHelpCurrentScopePanel } from "@/components/help/ScopeHelpCurrentScopePanel";
+import { ScopeHelpEvidenceOrientationStrip } from "@/components/help/ScopeHelpEvidenceOrientationStrip";
 import { IntegrationReadinessHelpEvidenceOrientationStrip } from "@/components/help/IntegrationReadinessHelpEvidenceOrientationStrip";
 import { AuthenticationSignInHelpEvidenceOrientationStrip } from "@/components/help/AuthenticationSignInHelpEvidenceOrientationStrip";
+import { SecurityTrustHelpEvidenceOrientationStrip } from "@/components/help/SecurityTrustHelpEvidenceOrientationStrip";
+import { SubprocessorsHelpEvidenceOrientationStrip } from "@/components/help/SubprocessorsHelpEvidenceOrientationStrip";
+import { ReportProblemHelpOrientationStack } from "@/components/help/ReportProblemHelpOrientationStack";
+import { HelpSubprocessorsHeaderMetadata } from "@/app/(operator)/help/_sections/HelpSubprocessorsHeaderMetadata";
 import { HelpTopicAuthorityGate } from "../_sections/HelpTopicAuthorityGate";
 import { HelpTopicMarkdownClient } from "../_sections/HelpTopicMarkdownClient";
 import { HelpTopicNotFoundView } from "../_sections/HelpTopicNotFoundView";
 import { principalCanAccessHelpTopic } from "@/lib/product-documentation-access";
 import { BILLING_AND_PLANS_HELP_ROUTE_METADATA } from "@/lib/billing-and-plans-help-route-metadata";
-import { EXECUTIVE_SUMMARY_HELP_ROUTE_METADATA } from "@/lib/executive-summary-help-route-metadata";
-import { FINDINGS_HELP_ROUTE_METADATA } from "@/lib/findings-help-route-metadata";
+import { EXECUTIVE_SUMMARY_HELP_ROUTE_METADATA } from "@/lib/executive/executive-summary-help-route-metadata";
+import { FINDINGS_HELP_ROUTE_METADATA } from "@/lib/findings/findings-help-route-metadata";
 import { FIRST_ARCHITECTURE_REVIEW_HELP_ROUTE_METADATA } from "@/lib/first-architecture-review-help-route-metadata";
-import { GOVERNANCE_APPROVAL_HELP_ROUTE_METADATA } from "@/lib/governance-approval-help-route-metadata";
+import { GOVERNANCE_APPROVAL_HELP_ROUTE_METADATA } from "@/lib/governance/governance-approval-help-route-metadata";
 import { CONFIGURATION_REFERENCE_HELP_ROUTE_METADATA } from "@/lib/configuration-reference-help-route-metadata";
 import { DATA_HANDLING_TENANT_ISOLATION_HELP_ROUTE_METADATA } from "@/lib/data-handling-tenant-isolation-help-route-metadata";
 import { DPA_TEMPLATE_HELP_ROUTE_METADATA } from "@/lib/dpa-template-help-route-metadata";
 import { SOC2_SELF_ASSESSMENT_HELP_ROUTE_METADATA } from "@/lib/soc2-self-assessment-help-route-metadata";
-import { FIRST_REVIEW_HELP_ROUTE_METADATA } from "@/lib/first-review-help-route-metadata";
-import { POLICY_PACK_DELTA_DEMO_HELP_ROUTE_METADATA } from "@/lib/policy-pack-delta-demo-help-route-metadata";
 import { ACCELERATOR_CHOOSER_HELP_ROUTE_METADATA } from "@/lib/accelerator-chooser-help-route-metadata";
 import { PATH_CHOOSER_HELP_ROUTE_METADATA } from "@/lib/path-chooser-help-route-metadata";
 import { tryLoadProductDocumentation } from "@/lib/load-product-documentation";
@@ -30,13 +34,18 @@ import {
   getProductDocumentationEntry,
   listProductDocumentationEntries,
 } from "@/lib/product-documentation-registry";
-import { HELP_TOPIC_PERMANENT_REDIRECTS } from "@/lib/help-topic-permanent-redirects";
+import { HELP_TOPIC_PERMANENT_REDIRECTS } from "@/lib/help/help-topic-permanent-redirects";
 import { getInboundAuthenticatedServerPrincipal } from "@/lib/server-current-principal";
-import { resolveHelpTopicPermanentRedirect } from "@/lib/help-topic-permanent-redirects";
+import { resolveHelpTopicPermanentRedirect } from "@/lib/help/help-topic-permanent-redirects";
+import { assertHelpTopicCatchAllFallthroughAllowed } from "@/lib/help/help-topic-catch-all-fallthrough";
 import { resolveInternalRunbookHelpRouteMetadata } from "@/lib/resolve-internal-runbook-help-route-metadata";
 
+/** ISR for buyer help topics — keep in sync with `HELP_TOPIC_ROUTE_REVALIDATE_SECONDS` (TB-1600). */
 export const revalidate = 3600;
 
+const HelpPathChooserGuideView = dynamic(() =>
+  import("../_sections/HelpPathChooserGuideView").then((module) => module.HelpPathChooserGuideView),
+);
 const HelpAcceleratorChooserGuideView = dynamic(() =>
   import("../_sections/HelpAcceleratorChooserGuideView").then((module) => module.HelpAcceleratorChooserGuideView),
 );
@@ -87,8 +96,16 @@ const HelpReviewPackagesGuideView = dynamic(() =>
 const HelpReviewGuideView = dynamic(() =>
   import("../_sections/HelpReviewGuideView").then((module) => module.HelpReviewGuideView),
 );
+const HelpProcurementGuideView = dynamic(() =>
+  import("../_sections/HelpProcurementGuideView").then((module) => module.HelpProcurementGuideView),
+);
 const HelpPilotGuideView = dynamic(() =>
   import("../_sections/HelpPilotGuideView").then((module) => module.HelpPilotGuideView),
+);
+const HelpPolicyPackDeltaDemoGuideView = dynamic(() =>
+  import("../_sections/HelpPolicyPackDeltaDemoGuideView").then(
+    (module) => module.HelpPolicyPackDeltaDemoGuideView,
+  ),
 );
 const HelpPilotFeedbackGuideView = dynamic(() =>
   import("../_sections/HelpPilotFeedbackGuideView").then((module) => module.HelpPilotFeedbackGuideView),
@@ -125,16 +142,8 @@ const HelpEvidenceIntakeGuideView = dynamic(() =>
 const HelpEvidenceTrailGuideView = dynamic(() =>
   import("../_sections/HelpEvidenceTrailGuideView").then((module) => module.HelpEvidenceTrailGuideView),
 );
-const HelpFirstReviewEvidenceChecklistGuideView = dynamic(() =>
-  import("../_sections/HelpFirstReviewEvidenceChecklistGuideView").then(
-    (module) => module.HelpFirstReviewEvidenceChecklistGuideView,
-  ),
-);
-const HelpFirstValue20GuideView = dynamic(() =>
-  import("../_sections/HelpFirstValue20GuideView").then((module) => module.HelpFirstValue20GuideView),
-);
-const HelpPolicyPackDeltaDemoGuideView = dynamic(() =>
-  import("../_sections/HelpPolicyPackDeltaDemoGuideView").then((module) => module.HelpPolicyPackDeltaDemoGuideView),
+const HelpPolicyPacksGuideView = dynamic(() =>
+  import("../_sections/HelpPolicyPacksGuideView").then((module) => module.HelpPolicyPacksGuideView),
 );
 const HelpConnectAzureSecurelyGuideView = dynamic(() =>
   import("../_sections/HelpConnectAzureSecurelyGuideView").then((module) => module.HelpConnectAzureSecurelyGuideView),
@@ -346,10 +355,6 @@ function renderHelpTopicView(
     return <HelpSoc2SelfAssessmentGuideView entry={loaded.entry} markdown={loaded.markdown} />;
   }
 
-  if (loaded.entry.slug === "policy-pack-delta-demo") {
-    return <HelpPolicyPackDeltaDemoGuideView entry={loaded.entry} markdown={loaded.markdown} />;
-  }
-
   if (loaded.entry.slug === "configuration-reference") {
     return <HelpConfigurationReferenceGuideView entry={loaded.entry} markdown={loaded.markdown} />;
   }
@@ -362,15 +367,7 @@ function renderHelpTopicView(
     return <HelpEvidenceIntakeGuideView entry={loaded.entry} markdown={loaded.markdown} />;
   }
 
-  if (loaded.entry.slug === "first-review") {
-    return <HelpFirstReviewEvidenceChecklistGuideView entry={loaded.entry} markdown={loaded.markdown} />;
-  }
-
-  if (loaded.entry.slug === "first-value-20-minutes") {
-    return <HelpFirstValue20GuideView entry={loaded.entry} markdown={loaded.markdown} />;
-  }
-
-  if (loaded.entry.slug === "developer-troubleshooting") {
+  if (loaded.entry.slug === "engineering-troubleshooting") {
     return <HelpEngineeringTroubleshootingGuideView entry={loaded.entry} markdown={loaded.markdown} />;
   }
 
@@ -384,6 +381,7 @@ function renderHelpTopicView(
         entry={loaded.entry}
         markdown={loaded.markdown}
         showContextualHelp
+        evidenceOrientation={<SecurityTrustHelpEvidenceOrientationStrip />}
       />
     );
   }
@@ -412,13 +410,11 @@ function renderHelpTopicView(
   }
 
   if (loaded.entry.slug === "policy-packs") {
-    return (
-      <HelpTopicMarkdownView
-        entry={loaded.entry}
-        markdown={loaded.markdown}
-        showContextualHelp
-      />
-    );
+    return <HelpPolicyPacksGuideView entry={loaded.entry} markdown={loaded.markdown} />;
+  }
+
+  if (loaded.entry.slug === "policy-pack-delta-demo") {
+    return <HelpPolicyPackDeltaDemoGuideView entry={loaded.entry} markdown={loaded.markdown} />;
   }
 
   if (loaded.entry.slug === "prior-manifest-retrieval") {
@@ -437,6 +433,7 @@ function renderHelpTopicView(
         entry={loaded.entry}
         markdown={loaded.markdown}
         showContextualHelp
+        evidenceOrientation={<ReportProblemHelpOrientationStack />}
       />
     );
   }
@@ -447,6 +444,8 @@ function renderHelpTopicView(
         entry={loaded.entry}
         markdown={loaded.markdown}
         showContextualHelp
+        titleBlockOrientation={<HelpSubprocessorsHeaderMetadata entry={loaded.entry} />}
+        evidenceOrientation={<SubprocessorsHelpEvidenceOrientationStrip />}
       />
     );
   }
@@ -479,6 +478,10 @@ function renderHelpTopicView(
     );
   }
 
+  if (loaded.entry.slug === "choose-your-next-step") {
+    return <HelpPathChooserGuideView entry={loaded.entry} markdown={loaded.markdown} />;
+  }
+
   if (loaded.entry.slug === "comparison-replay") {
     return <HelpComparisonReplayGuideView entry={loaded.entry} markdown={loaded.markdown} />;
   }
@@ -489,33 +492,25 @@ function renderHelpTopicView(
         entry={loaded.entry}
         markdown={loaded.markdown}
         showContextualHelp
+        evidenceOrientation={
+          <>
+            <ScopeHelpEvidenceOrientationStrip />
+            <ScopeHelpCurrentScopePanel />
+          </>
+        }
       />
     );
   }
 
   if (loaded.entry.slug === "procurement") {
-    return (
-      <HelpTopicMarkdownView
-        entry={loaded.entry}
-        markdown={loaded.markdown}
-        showContextualHelp
-      />
-    );
+    return <HelpProcurementGuideView entry={loaded.entry} markdown={loaded.markdown} />;
   }
 
   if (loaded.entry.slug === "evidence-trail") {
     return <HelpEvidenceTrailGuideView entry={loaded.entry} markdown={loaded.markdown} />;
   }
 
-  if (loaded.entry.slug === "pilot-roi-model") {
-    return (
-      <HelpTopicMarkdownView
-        entry={loaded.entry}
-        markdown={loaded.markdown}
-        showContextualHelp
-      />
-    );
-  }
+  assertHelpTopicCatchAllFallthroughAllowed(loaded.entry);
 
   return (
     <HelpTopicMarkdownView
@@ -558,7 +553,7 @@ export async function generateMetadata(props: HelpTopicPageProps): Promise<Metad
     return GOVERNANCE_APPROVAL_HELP_ROUTE_METADATA;
   }
 
-  if (entry.slug === "path-chooser") {
+  if (entry.slug === "choose-your-next-step") {
     return PATH_CHOOSER_HELP_ROUTE_METADATA;
   }
 
@@ -578,16 +573,8 @@ export async function generateMetadata(props: HelpTopicPageProps): Promise<Metad
     return SOC2_SELF_ASSESSMENT_HELP_ROUTE_METADATA;
   }
 
-  if (entry.slug === "policy-pack-delta-demo") {
-    return POLICY_PACK_DELTA_DEMO_HELP_ROUTE_METADATA;
-  }
-
   if (entry.slug === "configuration-reference") {
     return CONFIGURATION_REFERENCE_HELP_ROUTE_METADATA;
-  }
-
-  if (entry.slug === "first-review") {
-    return FIRST_REVIEW_HELP_ROUTE_METADATA;
   }
 
   return {
@@ -609,7 +596,7 @@ export default async function HelpTopicPage(props: HelpTopicPageProps): Promise<
   const entry = getProductDocumentationEntry(slug);
 
   if (entry === null) {
-    notFound();
+    return <HelpTopicNotFoundView />;
   }
 
   if (entry.contentKind === "internal-runbook") {
@@ -619,13 +606,13 @@ export default async function HelpTopicPage(props: HelpTopicPageProps): Promise<
       const principal = await getInboundAuthenticatedServerPrincipal();
 
       if (!principalCanAccessHelpTopic(entry, principal)) {
-        notFound();
+        return <HelpTopicNotFoundView />;
       }
 
       const loaded = tryLoadProductDocumentation(slug);
 
       if (loaded === null) {
-        notFound();
+        return <HelpTopicNotFoundView />;
       }
 
       return (
@@ -645,7 +632,7 @@ export default async function HelpTopicPage(props: HelpTopicPageProps): Promise<
   const loaded = tryLoadProductDocumentation(slug);
 
   if (loaded === null) {
-    notFound();
+    return <HelpTopicNotFoundView />;
   }
 
   return renderHelpTopicView(loaded, resolvedSearchParams);

@@ -4,17 +4,17 @@ import type { ReactNode } from "react";
 
 import { cn } from "@/lib/utils";
 
-import { OperatorPageHeader } from "@/components/OperatorPageHeader";
-import { Button } from "@/components/ui/button";
+import { GOVERNANCE_AUDIT_PATH } from "@/lib/governance/governance-route-paths";
+import { OperatorPageHeader } from "@/components/operator/OperatorPageHeader";
+import { RefreshButton } from "@/components/ui/refresh-button";
 import { PageContextualHelpButton } from "@/components/usability/PageContextualHelpButton";
 import { OPERATOR_TYPOGRAPHY } from "@/lib/design-tokens";
 import {
   operatorLastRefreshedExactLabel,
   operatorLastRefreshedLabel,
-} from "@/lib/operator-last-refreshed-label";
+} from "@/lib/operator/operator-last-refreshed-label";
 import {
   AUDIT_TRAIL_LAST_UPDATED_PREFIX,
-  AUDIT_TRAIL_REFRESH_ACTION,
   AUDIT_TRAIL_REFRESHING_ACTION,
 } from "@/lib/audit-trail-page-copy";
 
@@ -34,6 +34,7 @@ export function AuditPageHeader(props: AuditPageHeaderProps): React.JSX.Element 
 
   return (
     <OperatorPageHeader
+      navHref={GOVERNANCE_AUDIT_PATH}
       title={props.title}
       titleTestId="audit-page-title"
       subtitle={props.subtitle}
@@ -52,16 +53,11 @@ export function AuditPageHeader(props: AuditPageHeaderProps): React.JSX.Element 
       actions={
         <div className="flex flex-wrap items-center gap-2" data-testid="audit-header-actions">
           <PageContextualHelpButton />
-          <Button
-            type="button"
-            variant="outline"
-            size="sm"
-            disabled={props.searching}
+          <RefreshButton
+            busy={props.searching}
             onClick={() => void props.onRefresh()}
             data-testid="audit-header-refresh-button"
-          >
-            {props.searching ? AUDIT_TRAIL_REFRESHING_ACTION : AUDIT_TRAIL_REFRESH_ACTION}
-          </Button>
+          />
           {props.actions}
         </div>
       }

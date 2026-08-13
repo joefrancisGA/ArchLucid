@@ -9,33 +9,38 @@ import { ArchitectureCreatedOverviewPanel } from "@/components/architecture/Arch
 import { ArchitectureCreatedWorkspaceHeader } from "@/components/architecture/ArchitectureCreatedWorkspaceHeader";
 import { ArchitectureDiagramPanel } from "@/components/architecture/ArchitectureDiagramPanel";
 import { ArchitectureFindingsDualPane } from "@/components/architecture/ArchitectureFindingsDualPane";
+import { ClarificationsFindingsVocabularyRail } from "@/components/ClarificationsFindingsVocabularyRail";
+import { OverviewDiagramVocabularyRail } from "@/components/OverviewDiagramVocabularyRail";
+import { PackageActivityAuditTrailVocabularyRail } from "@/components/PackageActivityAuditTrailVocabularyRail";
+import { PackageEvidenceEvidenceGraphVocabularyRail } from "@/components/PackageEvidenceEvidenceGraphVocabularyRail";
+import { PackageGovernanceApprovalQueueVocabularyRail } from "@/components/PackageGovernanceApprovalQueueVocabularyRail";
 import {
   ARCHITECTURE_FINDINGS_DUAL_PANE_TOGGLE_OFF_LABEL,
   ARCHITECTURE_FINDINGS_DUAL_PANE_TOGGLE_ON_LABEL,
   resolveArchitectureFindingsDualPaneLayoutMode,
-} from "@/lib/architecture-findings-dual-pane";
+} from "@/lib/architecture/architecture-findings-dual-pane";
 import { Button } from "@/components/ui/button";
 import { Tabs, TabsContent, TabsList, TabsTrigger } from "@/components/ui/tabs";
 import {
   countClarificationGaps,
   countOpenClarifications,
   countOpenQuestionEntities,
-} from "@/lib/architecture-open-clarifications-count";
+} from "@/lib/architecture/architecture-open-clarifications-count";
 import {
   buildArchitectureCreatedHomeModel,
   mergeArchitectureCreatedHomeInput,
   type BuildArchitectureCreatedHomeModelInput,
-} from "@/lib/architecture-created-home-model";
-import { readArchitectureCreationHandoff } from "@/lib/architecture-creation-handoff";
-import type { ArchitectureCreationUserAssertions } from "@/lib/architecture-structured-content-types";
+} from "@/lib/architecture/architecture-created-home-model";
+import { readArchitectureCreationHandoff } from "@/lib/architecture/architecture-creation-handoff";
+import type { ArchitectureCreationUserAssertions } from "@/lib/architecture/architecture-structured-content-types";
+import { buildArchitectureCorrectionHref } from "@/lib/architecture/architecture-correction-href";
 import {
   ARCHITECTURE_WORKSPACE_TAB_LABELS,
   ARCHITECTURE_WORKSPACE_TAB_PARAM,
-  buildArchitectureWorkspaceTabHref,
   type ArchitectureWorkspaceTabId,
   resolveArchitectureWorkspaceTab,
   resolveArchitectureWorkspaceTabFromHash,
-} from "@/lib/architecture-workspace-tabs";
+} from "@/lib/architecture/architecture-workspace-tabs";
 import {
   architectureOpenClarificationsPresentation,
   formatMetricCountHeadline,
@@ -150,7 +155,7 @@ export function ArchitectureCreatedWorkspace(props: ArchitectureCreatedWorkspace
     clarificationsCount,
   );
   const clarificationsTabAriaLabel = formatMetricCountHeadline(clarificationsPresentation);
-  const clarificationsTabHref = buildArchitectureWorkspaceTabHref(props.baseline.runId, "clarifications");
+  const diagramClarifyHref = buildArchitectureCorrectionHref(props.baseline.runId, props.correctionHref);
   const compactViewportMode =
     activeTab === "clarifications" ||
     activeTab === "diagram" ||
@@ -171,8 +176,7 @@ export function ArchitectureCreatedWorkspace(props: ArchitectureCreatedWorkspace
         canEditDiagram={props.canEditDiagram}
         onNavigateTab={navigateTab}
         mode={compactViewportMode}
-        clarificationsTabHref={clarificationsTabHref}
-        onClarificationsNavigate={() => navigateTab("clarifications")}
+        diagramClarifyHref={diagramClarifyHref}
         onUnconfirmedInferredCountChange={setDiagramInferredCount}
       />
 
@@ -229,7 +233,11 @@ export function ArchitectureCreatedWorkspace(props: ArchitectureCreatedWorkspace
 
         <TabsContent value="overview" data-testid="architecture-workspace-panel-overview">
           <div className="space-y-4">
-<ArchitectureCreatedOverviewPanel
+            <OverviewDiagramVocabularyRail
+              runId={props.baseline.runId}
+              currentSurfaceId="overview"
+            />
+            <ArchitectureCreatedOverviewPanel
               model={model}
               sourceText={props.architectureSourceText}
               userAssertions={userAssertions}
@@ -243,6 +251,10 @@ export function ArchitectureCreatedWorkspace(props: ArchitectureCreatedWorkspace
 
         <TabsContent value="diagram" data-testid="architecture-workspace-panel-diagram">
           <div className="space-y-4">
+            <OverviewDiagramVocabularyRail
+              runId={props.baseline.runId}
+              currentSurfaceId="diagram"
+            />
             <div className="flex flex-wrap items-center justify-end gap-2">
               <Button
                 type="button"
@@ -273,8 +285,7 @@ export function ArchitectureCreatedWorkspace(props: ArchitectureCreatedWorkspace
                     sourceText={props.architectureSourceText}
                     userAssertions={userAssertions}
                     canEdit={props.canEditDiagram}
-                    clarifyHref={clarificationsTabHref}
-                    onClarificationsNavigate={() => navigateTab("clarifications")}
+                    clarifyHref={diagramClarifyHref}
                     onUnconfirmedInferredCountChange={setDiagramInferredCount}
                     onDiagramNodesChange={setDiagramNodes}
                     highlightedNodeId={highlightedNodeId}
@@ -289,8 +300,7 @@ export function ArchitectureCreatedWorkspace(props: ArchitectureCreatedWorkspace
                 sourceText={props.architectureSourceText}
                 userAssertions={userAssertions}
                 canEdit={props.canEditDiagram}
-                clarifyHref={clarificationsTabHref}
-                onClarificationsNavigate={() => navigateTab("clarifications")}
+                clarifyHref={diagramClarifyHref}
                 onUnconfirmedInferredCountChange={setDiagramInferredCount}
                 onDiagramNodesChange={setDiagramNodes}
                 highlightedNodeId={null}
@@ -301,6 +311,10 @@ export function ArchitectureCreatedWorkspace(props: ArchitectureCreatedWorkspace
         </TabsContent>
 
         <TabsContent value="clarifications" data-testid="architecture-workspace-panel-clarifications">
+          <ClarificationsFindingsVocabularyRail
+            runId={props.baseline.runId}
+            currentSurfaceId="clarifications"
+          />
           <ArchitectureCreatedClarificationsPanel
             model={model}
             sourceText={props.architectureSourceText}
@@ -314,22 +328,45 @@ export function ArchitectureCreatedWorkspace(props: ArchitectureCreatedWorkspace
 
         <TabsContent value="findings" data-testid="architecture-workspace-panel-findings">
           <div className="space-y-4">
-{props.panels.findings}
+            <ClarificationsFindingsVocabularyRail
+              runId={props.baseline.runId}
+              currentSurfaceId="findings"
+            />
+            {props.panels.findings}
           </div>
         </TabsContent>
 
         <TabsContent value="evidence" data-testid="architecture-workspace-panel-evidence">
           <div className="space-y-4">
-{props.panels.evidence}
+            <PackageEvidenceEvidenceGraphVocabularyRail
+              runId={props.baseline.runId}
+              currentSurfaceId="package-evidence"
+              hrefKind="archTab"
+            />
+            {props.panels.evidence}
           </div>
         </TabsContent>
 
         <TabsContent value="governance" data-testid="architecture-workspace-panel-governance">
-          {props.panels.governance}
+          <div className="space-y-4">
+            <PackageGovernanceApprovalQueueVocabularyRail
+              runId={props.baseline.runId}
+              currentSurfaceId="package-governance"
+              hrefKind="archTab"
+            />
+            {props.panels.governance}
+          </div>
         </TabsContent>
 
         <TabsContent value="activity" data-testid="architecture-workspace-panel-activity">
-          {props.panels.activity}
+          <div className="space-y-4">
+            <PackageActivityAuditTrailVocabularyRail
+              runId={props.baseline.runId}
+              currentSurfaceId="package-activity"
+              hrefKind="archTab"
+            />
+            {props.panels.activity}
+          </div>
         </TabsContent>
       </Tabs>
     </div>

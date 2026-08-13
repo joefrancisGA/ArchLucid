@@ -1,8 +1,11 @@
 import { describe, expect, it } from "vitest";
 
 import {
+  clampReviewWorkspaceH1Title,
   extractGeneratedIntakeBriefTitle,
   isGeneratedIntakeBrief,
+  isUnusableReviewTitleCandidate,
+  stripInlineMarkdownFromReviewText,
   toReviewDisplayTitle,
 } from "@/lib/review-display-title";
 
@@ -82,5 +85,62 @@ describe("toReviewDisplayTitle", () => {
   it("returns an empty string for blank input", () => {
     expect(toReviewDisplayTitle(null)).toBe("");
     expect(toReviewDisplayTitle("   ")).toBe("");
+  });
+
+  it("strips inline markdown from display titles", () => {
+    expect(toReviewDisplayTitle("**Reviewed** classification for payments")).toBe("Reviewed classification for payments");
+    expect(toReviewDisplayTitle("# Heading title")).toBe("Heading title");
+  });
+});
+
+describe("clampReviewWorkspaceH1Title", () => {
+  it("clamps multi-thousand-character markdown blobs to a single markup-free line", () => {
+    const blob = `**Reviewed** ${"classification ".repeat(400)}`;
+    const title = clampReviewWorkspaceH1Title(blob);
+
+    expect(title.length).toBeLessThanOrEqual(120);
+    expect(title).not.toContain("**");
+    expect(title).not.toContain("#");
+  });
+});
+
+describe("stripInlineMarkdownFromReviewText", () => {
+  it("removes common inline markdown tokens", () => {
+    expect(stripInlineMarkdownFromReviewText("**bold** and `code`")).toBe("bold and code");
+  });
+
+  it("strips underscore emphasis only at word boundaries", () => {
+    expect(stripInlineMarkdownFromReviewText("an _emphasised_ phrase")).toBe("an emphasised phrase");
+    expect(stripInlineMarkdownFromReviewText("__strong__ opener")).toBe("strong opener");
+  });
+
+  it("keeps underscored identifiers intact", () => {
+    expect(stripInlineMarkdownFromReviewText("my_api_gateway routes traffic")).toBe("my_api_gateway routes traffic");
+    expect(toReviewDisplayTitle("Migration of my_api_gateway")).toBe("Migration of my_api_gateway");
+  });
+
+  it("strips blockquote carets, list markers, and pipe-table rows", () => {
+    expect(stripInlineMarkdownFromReviewText("> Reviewed: 2026-07-26")).toBe("Reviewed: 2026-07-26");
+    expect(stripInlineMarkdownFromReviewText("- Claims intake\n| A | B |")).toBe("Claims intake");
+    expect(stripInlineMarkdownFromReviewText("1. First item")).toBe("First item");
+  });
+});
+
+describe("isUnusableReviewTitleCandidate", () => {
+  it("rejects metadata date fragments and letterless residue", () => {
+    expect(isUnusableReviewTitleCandidate("> Reviewed: 2026-07-26")).toBe(true);
+    expect(isUnusableReviewTitleCandidate("2026-07-26")).toBe(true);
+    expect(isUnusableReviewTitleCandidate("| | |")).toBe(true);
+    expect(isUnusableReviewTitleCandidate("Claims intake modernization")).toBe(false);
+  });
+
+  it("keeps short acronym titles usable", () => {
+    expect(isUnusableReviewTitleCandidate("API")).toBe(false);
+    expect(isUnusableReviewTitleCandidate("IAM")).toBe(false);
+    expect(toReviewDisplayTitle("API")).toBe("API");
+  });
+
+  it("returns empty display titles for unusable document fragments", () => {
+    expect(toReviewDisplayTitle("> Reviewed: 2026-07-26")).toBe("");
   });
 });

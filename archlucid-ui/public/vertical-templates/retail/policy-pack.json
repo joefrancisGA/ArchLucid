@@ -34,7 +34,7 @@
       "Advisory findings on rtl-ctrl-* compliance rules",
       "CDE boundary warnings in committed review output"
     ],
-    "scopeLabel": "V1-ready",
+    "scopeLabel": "Product-ready",
     "doNotUseWhen": [
       "Buyer requires QSA-signed PCI ROC from ArchLucid",
       "No payment or cardholder data in scope"

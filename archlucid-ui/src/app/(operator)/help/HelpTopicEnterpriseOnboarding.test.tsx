@@ -28,9 +28,9 @@ import {
 import { FIRST_ARCHITECTURE_REVIEW_HELP_PATH } from "@/lib/first-architecture-review-help-route";
 import { ENTERPRISE_ONBOARDING_HUB_STEPS } from "@/lib/enterprise-onboarding-hub-steps";
 import { canonicalizeLegacyOperatorRoutePath } from "@/lib/canonicalize-legacy-operator-route-path";
-import { getHelpCenterDisplay, getHelpCenterTier } from "@/lib/help-center-catalog";
-import { extractHelpMarkdownHeadings } from "@/lib/help-markdown-headings";
-import { prepareHelpMarkdownForPresentation } from "@/lib/help-markdown-presentation";
+import { getHelpCenterDisplay, getHelpCenterTier } from "@/lib/help/help-center-catalog";
+import { extractHelpMarkdownHeadings } from "@/lib/help/help-markdown-headings";
+import { prepareHelpMarkdownForPresentation } from "@/lib/help/help-markdown-presentation";
 import { tryLoadProductDocumentation } from "@/lib/load-product-documentation";
 
 const ENTERPRISE_ONBOARDING_SOURCE = "docs/library/HOSTED_ENTERPRISE_ONBOARDING_CHECKLIST.md";
@@ -183,15 +183,14 @@ describe("HelpEnterpriseOnboardingGuideView enterprise onboarding checklist", ()
       expect(within(sources).getByRole("link", { name: link.label })).toHaveAttribute("href", link.href);
     }
 
-    expect(screen.getByTestId("help-topic-breadcrumb")).toHaveTextContent("Help");
-    expect(screen.getByRole("link", { name: "Help" })).toHaveAttribute("href", "/help");
-    expect(screen.getByTestId("help-topic-registry-provenance")).toHaveTextContent("Last reviewed 2026-08-09");
-    expect(screen.getByTestId("help-topic-registry-provenance")).toHaveTextContent("V1 GA");
+    expect(screen.getByTestId("help-topic-page-title")).toBeInTheDocument();
+    expect(screen.queryByTestId("help-topic-registry-provenance")).toBeNull();
     expect(screen.getByTestId(ENTERPRISE_ONBOARDING_HELP_PRIMARY_ACTION.testId)).toHaveAttribute(
       "href",
       ENTERPRISE_ONBOARDING_HELP_PRIMARY_ACTION.href,
     );
-    expect(screen.getByTestId("help-topic-download-pdf")).toBeInTheDocument();
+    expect(screen.getByTestId("help-topic-print-pdf")).toBeInTheDocument();
+    expect(screen.queryByTestId("help-topic-download-pdf")).toBeNull();
   });
 
   it("renders every onboarding hub step with owner and deep link", () => {

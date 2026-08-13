@@ -39,16 +39,13 @@ public sealed class ApplicationFrameworkIsolationTests
         result.IsSuccessful.Should().BeTrue(
             because: "Application depends on persistence ports and Core notification abstractions; "
                      + "Dapper, SqlClient, and RazorLight belong in adapter assemblies only. Offending types: {0}",
-            FormatFailingTypeNames(result));
+            ArchitectureConstraintFailureReport.FormatFailingTypeNames(result));
     }
 
     [Fact]
     public void Application_csproj_must_not_declare_Dapper_SqlClient_or_RazorLight_package_references()
     {
-        string csprojPath = Path.Combine(
-            FindRepositoryRoot(),
-            "ArchLucid.Application",
-            "ArchLucid.Application.csproj");
+        string csprojPath = ArchitectureConstraintRepositoryPaths.ProjectFilePath("ArchLucid.Application");
 
         XDocument project = XDocument.Load(csprojPath);
         XNamespace msbuild = project.Root?.Name.Namespace ?? XNamespace.None;
@@ -67,28 +64,4 @@ public sealed class ApplicationFrameworkIsolationTests
                 because: "Application.csproj must not declare direct SQL or RazorLight package references; adapters live outside Application.");
     }
 
-    private static string FindRepositoryRoot()
-    {
-        DirectoryInfo? current = new(Directory.GetCurrentDirectory());
-
-        while (current is not null)
-        {
-            if (File.Exists(Path.Combine(current.FullName, "ArchLucid.sln")))
-                return current.FullName;
-
-            current = current.Parent;
-        }
-
-        throw new InvalidOperationException("Could not locate repository root containing ArchLucid.sln.");
-    }
-
-    private static string FormatFailingTypeNames(TestResult result)
-    {
-        IReadOnlyList<string>? names = result.FailingTypeNames;
-
-        if (names is null || names.Count == 0)
-            return "(none reported)";
-
-        return string.Join(", ", names);
-    }
 }

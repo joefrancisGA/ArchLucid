@@ -9,7 +9,7 @@ import {
   readActiveWorkspaceScopeLabel,
   resolveWorkspaceScopeLabelFromRecord,
 } from "@/lib/active-workspace-scope-label";
-import type { OperatorScopeRecord } from "@/lib/operator-scope-storage";
+import type { OperatorScopeRecord } from "@/lib/operator/operator-scope-storage";
 
 /** Prefix shown before the short workspace name on mutate CTAs. */
 export const MUTATING_IN_WORKSPACE_CHIP_PREFIX = "Applies to workspace" as const;

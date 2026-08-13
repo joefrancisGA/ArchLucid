@@ -12,12 +12,12 @@ vi.mock("@/lib/api", () => ({
   getFindingInspect: vi.fn(),
 }));
 
-vi.mock("@/lib/operator-static-demo", () => ({
+vi.mock("@/lib/operator/operator-static-demo", () => ({
   tryStaticDemoFindingInspect: vi.fn(),
 }));
 
 import { getFindingInspect } from "@/lib/api";
-import { tryStaticDemoFindingInspect } from "@/lib/operator-static-demo";
+import { tryStaticDemoFindingInspect } from "@/lib/operator/operator-static-demo";
 
 describe("load-finding-inspect-for-route", () => {
   const getInspect = vi.mocked(getFindingInspect);

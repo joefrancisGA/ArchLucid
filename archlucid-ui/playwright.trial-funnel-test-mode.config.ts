@@ -6,7 +6,7 @@ import { defineConfig, devices } from "@playwright/test";
  * `signup.staging.archlucid.net` (override with `STAGING_BASE_URL`) — there is
  * **no** local Next.js / API webServer because the spec hits staging directly.
  *
- * Skip behaviour: if `STRIPE_TEST_KEY` is unset the spec self-skips, so this
+ * Skip behavior: if `STRIPE_TEST_KEY` is unset the spec self-skips, so this
  * config is also safe to invoke from a developer's laptop without staging
  * credentials — it will run zero tests rather than fail.
  *

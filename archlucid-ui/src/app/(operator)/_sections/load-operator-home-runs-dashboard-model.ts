@@ -4,8 +4,8 @@ import { toApiLoadFailure, uiFailureFromMessage } from "@/lib/api-load-failure";
 import { dedupeRunSummariesByRunId, normalizeRunSummaryForDemoPicker } from "@/lib/demo-run-canonical";
 import { resolveOverviewListProjectId } from "@/lib/demo-seeded-overview";
 import { isBuyerPolishedOperatorShellEnv } from "@/lib/demo-ui-env";
-import { coerceRunSummaryPaged } from "@/lib/operator-response-guards";
-import { isStaticDemoPayloadFallbackEnabled, tryStaticDemoRunSummariesPaged } from "@/lib/operator-static-demo";
+import { coerceRunSummaryPaged } from "@/lib/operator/operator-response-guards";
+import { isStaticDemoPayloadFallbackEnabled, tryStaticDemoRunSummariesPaged } from "@/lib/operator/operator-static-demo";
 import type { RunSummary } from "@/types/authority";
 
 import {

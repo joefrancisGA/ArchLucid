@@ -9,17 +9,20 @@ import {
   IDENTITY_PROVIDERS_NAV_OVERVIEW,
   IDENTITY_PROVIDERS_NAV_ROLE_MAPPING,
   IDENTITY_PROVIDERS_NAV_SAML,
+  IDENTITY_PROVIDERS_ADMIN_FALLBACK_NOTICE,
   IDENTITY_PROVIDERS_PAGE_INTRO,
   IDENTITY_PROVIDERS_PAGE_TITLE,
   IDENTITY_PROVIDERS_SAFETY_NOTICE,
   identityProvidersPageSubtitle,
 } from "@/lib/identity-providers-settings-copy";
-import type { IdentityProvidersNavId } from "@/lib/identity-providers-settings-types";
+import type { IdentityProvidersNavId, IdentityProvidersOverviewModel } from "@/lib/identity-providers-settings-types";
 import { isBuyerPolishedOperatorShellEnv } from "@/lib/demo-ui-env";
 import {
+  OPERATOR_LAYOUT,
   OPERATOR_LINK,
   OPERATOR_TYPOGRAPHY,
 } from "@/lib/design-tokens";
+import { OperatorPageContainer } from "@/components/operator/OperatorPageContainer";
 import { IdentityProvidersSettingsPageHeader } from "./IdentityProvidersSettingsPageHeader";
 const NAV_ITEMS: ReadonlyArray<{ readonly id: IdentityProvidersNavId; readonly label: string; readonly href: string }> = [
   { id: "overview", label: IDENTITY_PROVIDERS_NAV_OVERVIEW, href: "/administration/identity-providers" },
@@ -49,12 +52,43 @@ function resolveActiveNavId(pathname: string): IdentityProvidersNavId {
   return "overview";
 }
 
+function resolveHeaderStatusLabel(
+  activeNavId: IdentityProvidersNavId,
+  overview: IdentityProvidersOverviewModel | undefined,
+): IdentityProvidersOverviewModel["oidcStatus"] | undefined {
+  if (overview === undefined) {
+    return undefined;
+  }
+
+  switch (activeNavId) {
+    case "saml":
+      return overview.samlStatus;
+    case "oidc":
+      return overview.oidcStatus;
+    case "role-mapping":
+      return overview.roleMappingStatus;
+    case "diagnostics":
+      return overview.ssoStatus;
+    case "overview":
+      return overview.ssoStatus;
+    default: {
+      const _exhaustive: never = activeNavId;
+
+      return _exhaustive;
+    }
+  }
+}
+
 export type IdentityProvidersSettingsShellProps = {
   readonly pageTitle?: string;
   readonly pageSubtitle?: string;
   readonly pageIntro?: string;
+  readonly overview?: IdentityProvidersOverviewModel;
+  readonly statusBadgeReady?: boolean;
   readonly refreshing: boolean;
   readonly lastRefreshedAt: Date | null;
+  readonly diagnosticsDataUnavailable?: boolean;
+  readonly showAdminFallbackNotice?: boolean;
   readonly onRefresh: () => void;
   readonly children: React.ReactNode;
 };
@@ -72,29 +106,46 @@ export function IdentityProvidersSettingsShell(props: IdentityProvidersSettingsS
       : (props.pageIntro ?? IDENTITY_PROVIDERS_PAGE_INTRO));
 
   return (
-    <div className="w-full max-w-4xl space-y-6" data-testid="identity-providers-settings-shell">
+    <OperatorPageContainer variant="settings" className={OPERATOR_LAYOUT.sectionStack} data-testid="identity-providers-settings-shell">
       <IdentityProvidersSettingsPageHeader
         pageTitle={resolvedTitle}
         subtitle={headerSubtitle}
+        statusLabel={
+          props.statusBadgeReady === false
+            || props.diagnosticsDataUnavailable === true
+            || props.overview?.headerStatusAvailable === false
+            ? undefined
+            : resolveHeaderStatusLabel(activeNavId, props.overview)
+        }
         refreshing={props.refreshing}
         lastRefreshedAt={props.lastRefreshedAt}
+        diagnosticsDataUnavailable={props.diagnosticsDataUnavailable}
         onRefresh={props.onRefresh}
       />
 
       {isOverviewPage ? (
         <div className="space-y-2">
           {!buyerPolishedShell ? (
-            <p className={cn("m-0 max-w-prose text-al-text-secondary", OPERATOR_TYPOGRAPHY.body)}>
+            <p className={cn("m-0 text-al-text-secondary", OPERATOR_TYPOGRAPHY.body)}>
               {IDENTITY_PROVIDERS_PAGE_INTRO}
             </p>
           ) : null}
           <p
-            className={cn("m-0 max-w-prose text-al-text-secondary", OPERATOR_TYPOGRAPHY.helper)}
+            className={cn("m-0 text-al-text-primary", OPERATOR_TYPOGRAPHY.body)}
             data-testid="identity-providers-safety-notice"
           >
             {IDENTITY_PROVIDERS_SAFETY_NOTICE}
           </p>
         </div>
+      ) : null}
+
+      {props.showAdminFallbackNotice === true ? (
+        <p
+          className={cn("m-0 text-al-text-secondary", OPERATOR_TYPOGRAPHY.helper)}
+          data-testid="identity-providers-admin-fallback-notice"
+        >
+          {IDENTITY_PROVIDERS_ADMIN_FALLBACK_NOTICE}
+        </p>
       ) : null}
 
       <nav aria-label="Identity provider sections" data-testid="identity-providers-settings-nav">
@@ -106,6 +157,7 @@ export function IdentityProvidersSettingsShell(props: IdentityProvidersSettingsS
               <li key={item.id}>
                 <Link
                   href={item.href}
+                  prefetch={false}
                   aria-current={active ? "page" : undefined}
                   className={cn(
                     "inline-flex min-h-[30px] items-center rounded-full border px-3 py-1 transition-colors",
@@ -125,6 +177,6 @@ export function IdentityProvidersSettingsShell(props: IdentityProvidersSettingsS
       </nav>
 
       {props.children}
-    </div>
+    </OperatorPageContainer>
   );
 }

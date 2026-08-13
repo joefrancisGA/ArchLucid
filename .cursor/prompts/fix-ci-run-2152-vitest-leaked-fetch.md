@@ -43,7 +43,7 @@ it is most likely a **pre-existing flaky** leaked timer rather than a new regres
    - Look for `setInterval` / `setTimeout` / `useEffect` polling loops that call `apiGet`,
      `apiGetJsonWithTrace`, or a run-status poller.
    - In the suspected test, check that the component is **unmounted** (`cleanup()` / RTL auto
-     cleanup) and that any in-flight poll is cancelled.
+     cleanup) and that any in-flight poll is canceled.
 
 ## Fix options (apply the smallest that resolves it)
 

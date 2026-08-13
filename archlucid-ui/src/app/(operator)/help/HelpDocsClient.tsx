@@ -28,7 +28,7 @@ const HELP_DOCS_STATIC_ENTRIES: readonly DocIndexEntry[] = [
     title: "Choose your next step",
     summary: "Path chooser — evaluate, mid-pilot recovery, procurement, sponsor output, or engineering support.",
     category: "Getting Started",
-    url: "/help/path-chooser",
+    url: "/help/choose-your-next-step",
   },
   { title: "Overview (pilot)", summary: "Pilot checklist and recent reviews.", category: "Getting Started", url: "/" },
   {
@@ -103,7 +103,7 @@ export function HelpDocsClient() {
   const [query, setQuery] = useState("");
 
   useEffect(() => {
-    let cancelled = false;
+    let canceled = false;
 
     void (async () => {
       try {
@@ -115,11 +115,11 @@ export function HelpDocsClient() {
 
         const data = (await res.json()) as DocIndexEntry[];
 
-        if (!cancelled) {
+        if (!canceled) {
           setEntries(Array.isArray(data) ? mergeDocIndex(HELP_DOCS_STATIC_ENTRIES, data) : [...HELP_DOCS_STATIC_ENTRIES]);
         }
       } catch (e) {
-        if (!cancelled) {
+        if (!canceled) {
           setLoadError(e instanceof Error ? e.message : "Failed to load documentation index.");
           setEntries([...HELP_DOCS_STATIC_ENTRIES]);
         }
@@ -127,7 +127,7 @@ export function HelpDocsClient() {
     })();
 
     return () => {
-      cancelled = true;
+      canceled = true;
     };
   }, []);
 

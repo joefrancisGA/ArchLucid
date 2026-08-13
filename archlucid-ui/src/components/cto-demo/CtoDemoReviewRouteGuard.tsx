@@ -7,8 +7,8 @@ import { useEffect, useState } from "react";
 
 import { DismissControl } from "@/components/usability/DismissControl";
 import { Button } from "@/components/ui/button";
-import { readBuyerCtoDemoTourActive } from "@/lib/buyer-cto-demo-tour";
-import { getShowcaseExecutiveHref } from "@/lib/buyer-safe-review-navigation";
+import { readBuyerCtoDemoTourActive } from "@/lib/buyer/buyer-cto-demo-tour";
+import { getShowcaseExecutiveHref } from "@/lib/buyer/buyer-safe-review-navigation";
 import { canonicalizeDemoRunId } from "@/lib/demo-run-canonical";
 import { isBuyerPolishedOperatorShellEnv } from "@/lib/demo-ui-env";
 import { SHOWCASE_STATIC_DEMO_RUN_ID } from "@/lib/showcase-static-demo";

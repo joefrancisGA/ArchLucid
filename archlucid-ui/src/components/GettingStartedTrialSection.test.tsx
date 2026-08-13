@@ -1,7 +1,7 @@
 import { render, screen } from "@testing-library/react";
 import { beforeEach, describe, expect, it, vi } from "vitest";
 
-import { GETTING_STARTED_TRIAL_POST_REGISTRATION_LEAD } from "@/lib/buyer-polish-copy";
+import { GETTING_STARTED_TRIAL_POST_REGISTRATION_LEAD } from "@/lib/buyer/buyer-polish-copy";
 
 import { GettingStartedTrialSection } from "./GettingStartedTrialSection";
 

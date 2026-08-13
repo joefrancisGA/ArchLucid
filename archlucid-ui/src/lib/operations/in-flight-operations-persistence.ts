@@ -1,6 +1,6 @@
 import type { TrackedInFlightOperation } from "@/lib/operations/in-flight-operations-store";
 import { normalizeOperationState } from "@/lib/operations/operation-state";
-import { getEffectiveBrowserProxyScopeHeaders } from "@/lib/operator-scope-storage";
+import { getEffectiveBrowserProxyScopeHeaders } from "@/lib/operator/operator-scope-storage";
 
 const STORAGE_KEY_PREFIX = "archlucid_in_flight_operations_v1";
 

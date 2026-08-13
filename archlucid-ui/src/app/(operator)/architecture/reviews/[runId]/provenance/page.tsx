@@ -1,13 +1,13 @@
 ﻿import { cn } from "@/lib/utils";
 import { notFound } from "next/navigation";
 
-import { OperatorApiProblem } from "@/components/OperatorApiProblem";
+import { OperatorApiProblem } from "@/components/operator/OperatorApiProblem";
 import { ProvenancePageWorkspace, type ProvenanceReviewContext } from "@/components/provenance/ProvenancePageWorkspace";
 import type { ApiLoadFailureState } from "@/lib/api-load-failure";
 import { isApiNotFoundFailure, toApiLoadFailure } from "@/lib/api-load-failure";
 import { isInvalidGuidOrSlugRouteToken } from "@/lib/route-dynamic-param";
-import { tryStaticDemoProvenanceGraph } from "@/lib/operator-static-demo";
-import { OPERATOR_TYPOGRAPHY } from "@/lib/design-tokens";
+import { tryStaticDemoProvenanceGraph } from "@/lib/operator/operator-static-demo";
+import { OPERATOR_LINK, OPERATOR_TYPOGRAPHY } from "@/lib/design-tokens";
 import { type ApiResponseWithTrace, getArchitectureRunProvenance, getRunSummary } from "@/lib/api";
 import { provenanceReviewContextFromSummary } from "@/lib/provenance-review-context";
 import type { ArchitectureRunProvenanceGraph } from "@/types/architecture-provenance";
@@ -86,8 +86,15 @@ export default async function RunProvenancePage({
           correlationId={loadFailure?.correlationId ?? null}
         />
         <p className={cn("mt-3", OPERATOR_TYPOGRAPHY.helper)}>
-          Open the <Link href="/insights/evidence-graph">Evidence graph</Link> for this review for an interactive trail, or use the
-          public sample walkthrough when this coordinator view is unavailable.
+          Open the{" "}
+          <Link
+            className={OPERATOR_LINK.nav}
+            href={`/insights/evidence-graph?runId=${encodeURIComponent(runId)}`}
+          >
+            Evidence graph
+          </Link>{" "}
+          for this review for an interactive trail, or use the public sample walkthrough when this coordinator view is
+          unavailable.
         </p>
       </div>
     );

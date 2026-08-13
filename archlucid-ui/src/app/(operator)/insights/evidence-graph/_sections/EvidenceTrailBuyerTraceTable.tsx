@@ -1,13 +1,13 @@
 "use client";
 
 import { cn } from "@/lib/utils";
-import { getFindingEvidenceTraceHref } from "@/lib/finding-evidence-navigation";
+import { getFindingEvidenceTraceHref } from "@/lib/findings/finding-evidence-navigation";
 import Link from "next/link";
 
 import { FindingEvidenceLinkChip } from "@/components/usability/FindingEvidenceLinkChip";
 import { Button } from "@/components/ui/button";
 import { graphTrailHrefWithOptionalNode } from "@/lib/graph-finding-deep-links";
-import { preferredGraphNodeIdForFindingDeepLink } from "@/lib/finding-inspect-graph-evidence";
+import { preferredGraphNodeIdForFindingDeepLink } from "@/lib/findings/finding-inspect-graph-evidence";
 import { truncateForList } from "@/lib/truncate-for-list";
 import { OPERATOR_TYPOGRAPHY } from "@/lib/design-tokens";
 import type { FindingTraceConfidenceDto } from "@/types/explanation";

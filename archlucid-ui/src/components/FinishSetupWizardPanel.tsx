@@ -11,7 +11,7 @@ import { useFinishSetupReadinessContext } from "@/hooks/use-finish-setup-readine
 import {
   ONBOARDING_OPTIONAL_SETUP_DISMISS_DETAIL,
   ONBOARDING_OPTIONAL_SETUP_DISMISS_LABEL,
-} from "@/lib/buyer-polish-copy";
+} from "@/lib/buyer/buyer-polish-copy";
 import { OPERATOR_TYPOGRAPHY } from "@/lib/design-tokens";
 import {
   areFinishSetupRequiredStepsComplete,

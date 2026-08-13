@@ -17,7 +17,7 @@ export const GLOSSARY_TERMS = {
   },
   golden_manifest: {
     term: "Signed review record",
-    definition: "The provenance-backed record that closes a finalized review (what was decided, bound to lineage). PKI-style cryptographic signing is not claimed for current V1 storage unless a deployment explicitly enables it — treat \"signed\" as lineage / provenance closure unless an architecture note says otherwise. Former terms: *signed manifest*, *golden manifest*.",
+    definition: "The provenance-backed record that closes a finalized review (what was decided, bound to lineage). PKI-style cryptographic signing is not claimed for current storage unless a deployment explicitly enables it — treat \"signed\" as lineage / provenance closure unless an architecture note says otherwise. Former terms: *signed manifest*, *golden manifest*.",
     docLink: "/help/glossary#term-signed-review-record",
   },
   review_package: {

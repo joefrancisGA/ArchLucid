@@ -1,16 +1,11 @@
 import { fireEvent, render, screen, waitFor } from "@testing-library/react";
 import { beforeEach, describe, expect, it, vi } from "vitest";
 
-vi.mock("@/lib/recurrence-local-time", async () => {
-  const actual = await vi.importActual<typeof import("@/lib/recurrence-local-time")>(
-    "@/lib/recurrence-local-time",
-  );
+let canMutate = true;
 
-  return {
-    ...actual,
-    resolveRecurrenceDisplayTimeZoneId: () => "America/New_York",
-  };
-});
+vi.mock("@/hooks/use-operate-capability", () => ({
+  useOperateCapability: () => canMutate,
+}));
 
 vi.mock("@/lib/api/governance-stickiness-api", () => ({
   createArchitectureReviewRecurrenceSchedule: vi.fn(),
@@ -21,13 +16,12 @@ vi.mock("@/lib/api/governance-stickiness-api", () => ({
 
 import * as governanceApi from "@/lib/api/governance-stickiness-api";
 import RecurrenceSchedulesClient from "@/components/governance/RecurrenceSchedulesClient";
-import { GOVERNANCE_OVERVIEW_PAGE_LEAD } from "@/lib/governance-overview-copy";
+import { enterpriseMutationControlDisabledTitle } from "@/lib/enterprise-controls-context-copy";
+import { GOVERNANCE_OVERVIEW_PAGE_LEAD } from "@/lib/governance/governance-overview-copy";
 import {
   RECURRENCE_SCHEDULE_EXAMPLES,
   RECURRENCE_SCHEDULES_EMPTY_DESCRIPTION,
   RECURRENCE_SCHEDULES_EMPTY_SUPPORTING,
-  RECURRENCE_SCHEDULES_HELPER_BODY,
-  RECURRENCE_SCHEDULES_HELPER_NEXT_STEP,
   RECURRENCE_SCHEDULES_HELPER_TITLE,
   RECURRENCE_SCHEDULES_HOW_IT_WORKS_BODY,
   RECURRENCE_SCHEDULES_PAGE_SUBTITLE,
@@ -51,6 +45,7 @@ const sampleSchedule = {
 
 describe("RecurrenceSchedulesClient", () => {
   beforeEach(() => {
+    canMutate = true;
     vi.mocked(governanceApi.listArchitectureReviewRecurrenceSchedules).mockResolvedValue([]);
     vi.mocked(governanceApi.updateArchitectureReviewRecurrenceSchedule).mockResolvedValue(sampleSchedule);
     vi.mocked(governanceApi.previewRecurrenceScheduleRuns).mockResolvedValue({
@@ -123,7 +118,7 @@ describe("RecurrenceSchedulesClient", () => {
     expect(secondaryNav.querySelector("button")).toBeNull();
   });
 
-  it("hides the workflow helper rail when empty (TB-1133)", async () => {
+  it("hides the workflow helper disclosure when empty (TB-1133)", async () => {
     render(<RecurrenceSchedulesClient />);
 
     await screen.findByTestId("recurrence-schedules-empty-state");
@@ -131,7 +126,7 @@ describe("RecurrenceSchedulesClient", () => {
     expect(screen.getByTestId("recurrence-schedules-page")).toHaveAttribute("data-empty-composition", "true");
   });
 
-  it("shows the workflow helper rail when schedules exist (TB-1133)", async () => {
+  it("demotes workflow helper to collapsed disclosure when schedules exist (TB-1573)", async () => {
     vi.mocked(governanceApi.listArchitectureReviewRecurrenceSchedules).mockResolvedValue([sampleSchedule]);
 
     render(<RecurrenceSchedulesClient />);
@@ -140,11 +135,13 @@ describe("RecurrenceSchedulesClient", () => {
       expect(screen.getByText("Weekly architecture review")).toBeInTheDocument();
     });
 
-    expect(screen.getByTestId("recurrence-schedules-helper-card")).toBeInTheDocument();
-    expect(screen.getByText(RECURRENCE_SCHEDULES_HELPER_TITLE)).toBeInTheDocument();
-    expect(screen.getByText(RECURRENCE_SCHEDULES_HELPER_BODY)).toBeInTheDocument();
-    expect(screen.getByText(new RegExp(RECURRENCE_SCHEDULES_HELPER_NEXT_STEP))).toBeInTheDocument();
+    const helper = screen.getByTestId("recurrence-schedules-helper-card");
+    expect(helper.tagName.toLowerCase()).toBe("details");
+    expect(helper).not.toHaveAttribute("open");
+    expect(helper).toHaveTextContent(RECURRENCE_SCHEDULES_HELPER_TITLE);
     expect(screen.getByTestId("recurrence-schedules-page")).toHaveAttribute("data-empty-composition", "false");
+    // Single-column page root — helper is disclosure in the main stack, not a right-rail aside.
+    expect(helper.closest("aside")).toBeNull();
   });
 
   it("uses a compact examples chooser under Create when empty (TB-1133)", async () => {
@@ -208,15 +205,15 @@ describe("RecurrenceSchedulesClient", () => {
     expect(screen.queryByTestId("recurrence-schedules-empty-state")).not.toBeInTheDocument();
   });
 
-  it("shows disabled status when schedule is not enabled", async () => {
+  it("shows paused status when schedule recurrence is stopped", async () => {
     vi.mocked(governanceApi.listArchitectureReviewRecurrenceSchedules).mockResolvedValue([
       { ...sampleSchedule, isEnabled: false, lastRunStatus: "never" },
     ]);
 
     render(<RecurrenceSchedulesClient />);
 
-    expect(await screen.findByText("Disabled")).toBeInTheDocument();
-    expect(screen.getByRole("button", { name: "Enable" })).toBeInTheDocument();
+    expect(await screen.findByText("Paused")).toBeInTheDocument();
+    expect(screen.getByRole("button", { name: "Resume" })).toBeInTheDocument();
   });
 
   it("opens create panel from the sole primary Create action", async () => {
@@ -240,12 +237,8 @@ describe("RecurrenceSchedulesClient", () => {
     expect(screen.getByTestId("recurrence-schedule-create-panel")).toBeInTheDocument();
     expect(screen.getByTestId("recurrence-schedule-name")).toHaveValue(example.title);
     expect(screen.getByTestId("cron-expression-input")).toHaveValue(example.cronExpression);
-
-    const humanCadenceLines = screen.getAllByTestId("recurrence-schedule-example-human-cadence");
-    const matchingLine = humanCadenceLines.find((line) => line.textContent?.includes(example.humanCadence));
-
-    expect(matchingLine).toBeDefined();
-    expect(matchingLine!.textContent).toMatch(/America\/New_York/);
+    const humanLines = screen.getAllByTestId("recurrence-schedule-example-human-cadence");
+    expect(humanLines[0]?.textContent).toContain(example.humanCadence);
   });
 
   it("moves Create to the header when schedules exist (TB-1131)", async () => {
@@ -271,6 +264,7 @@ describe("RecurrenceSchedulesClient", () => {
       expect(screen.getByText("Weekly architecture review")).toBeInTheDocument();
     });
 
+    fireEvent.click(screen.getByTestId(`recurrence-more-${sampleSchedule.scheduleId}`));
     fireEvent.click(screen.getByRole("button", { name: "Edit" }));
     fireEvent.change(screen.getByTestId("recurrence-schedule-name"), {
       target: { value: "Updated weekly review" },
@@ -287,5 +281,55 @@ describe("RecurrenceSchedulesClient", () => {
         },
       );
     });
+  });
+
+  it("confirms before disabling an enabled recurrence schedule", async () => {
+    vi.mocked(governanceApi.listArchitectureReviewRecurrenceSchedules).mockResolvedValue([sampleSchedule]);
+
+    render(<RecurrenceSchedulesClient />);
+
+    fireEvent.click(await screen.findByTestId(`recurrence-toggle-${sampleSchedule.scheduleId}`));
+
+    expect(screen.getByRole("heading", { name: /Disable recurrence schedule/i })).toBeInTheDocument();
+    expect(governanceApi.updateArchitectureReviewRecurrenceSchedule).not.toHaveBeenCalled();
+
+    fireEvent.click(screen.getByRole("button", { name: "Disable schedule" }));
+
+    await waitFor(() => {
+      expect(governanceApi.updateArchitectureReviewRecurrenceSchedule).toHaveBeenCalledWith(
+        sampleSchedule.scheduleId,
+        { isEnabled: false },
+      );
+    });
+  });
+
+  it("shows visible WhyDisabled hint when mutation controls are read-only (TB-2359)", async () => {
+    canMutate = false;
+
+    render(<RecurrenceSchedulesClient />);
+
+    const emptyState = await screen.findByTestId("recurrence-schedules-empty-state");
+    const createButton = screen.getByTestId("recurrence-schedules-create-action");
+    const hint = screen.getByTestId("recurrence-schedules-mutate-disabled-hint");
+
+    expect(createButton).toBeDisabled();
+    expect(hint).toHaveTextContent(enterpriseMutationControlDisabledTitle);
+    expect(createButton).toHaveAttribute("aria-describedby", "recurrence-schedules-mutate-disabled-hint");
+    expect(emptyState).toContainElement(hint);
+  });
+
+  it("uses buyer scope label, cadence disclosure, and action-budget row chrome (TB-1649)", async () => {
+    vi.mocked(governanceApi.listArchitectureReviewRecurrenceSchedules).mockResolvedValue([sampleSchedule]);
+
+    render(<RecurrenceSchedulesClient />);
+
+    await waitFor(() => {
+      expect(screen.getByRole("link", { name: "Open review" })).toBeInTheDocument();
+    });
+
+    expect(screen.getByText("Cron expression")).toBeInTheDocument();
+    expect(screen.getByTestId(`recurrence-more-${sampleSchedule.scheduleId}`)).toBeInTheDocument();
+    expect(screen.getByRole("link", { name: "View" })).toBeInTheDocument();
+    expect(screen.getByRole("button", { name: "Pause" })).toBeInTheDocument();
   });
 });

@@ -1,10 +1,9 @@
-"use client";
-
+import { CollapsibleSection } from "@/components/CollapsibleSection";
 import { EnterpriseCompactEmptyState } from "@/components/EnterpriseCompactEmptyState";
 import { SeedSampleReviewButton } from "@/components/SeedSampleReviewButton";
 import { ExecutiveScorecardEmptyStatePreview } from "@/components/executive/ExecutiveScorecardEmptyStatePreview";
-import { EXECUTIVE_DASHBOARD_HREF } from "@/lib/executive-dashboard-route";
-import { BUYER_EXECUTIVE_SUMMARY_VOCABULARY } from "@/lib/buyer-surface-vocabulary";
+import { EXECUTIVE_DASHBOARD_HREF } from "@/lib/executive/executive-dashboard-route";
+import { BUYER_EXECUTIVE_SUMMARY_VOCABULARY } from "@/lib/vocabulary/buyer-surface-vocabulary";
 
 /** Global empty state when the executive scorecard has no committed reviews. */
 export function ExecutiveScorecardEmptyState(): React.JSX.Element {
@@ -25,7 +24,13 @@ export function ExecutiveScorecardEmptyState(): React.JSX.Element {
         ]}
         footer={<SeedSampleReviewButton label={v.scorecardEmptyStateSecondaryAction} />}
       />
-      <ExecutiveScorecardEmptyStatePreview />
+      <CollapsibleSection
+        title={v.scorecardEmptyStatePreviewSectionTitle}
+        summaryLine="Preview the KPI story before your first committed review."
+        sectionTestId="executive-scorecard-empty-preview-disclosure"
+      >
+        <ExecutiveScorecardEmptyStatePreview embedded />
+      </CollapsibleSection>
     </div>
   );
 }

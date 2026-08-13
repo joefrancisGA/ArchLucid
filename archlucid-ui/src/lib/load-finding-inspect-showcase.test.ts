@@ -7,7 +7,7 @@ vi.mock("@/lib/api", () => ({
 import { getFindingInspect } from "@/lib/api";
 import { ApiRequestError } from "@/lib/api-request-error";
 import { loadFindingInspectForRoute } from "@/lib/load-finding-inspect-for-route";
-import { SHOWCASE_STATIC_DEMO_PRIMARY_FINDING_TITLE } from "@/lib/showcase-static-demo";
+import { SHOWCASE_STATIC_DEMO_PRIMARY_FINDING_ID, SHOWCASE_STATIC_DEMO_PRIMARY_FINDING_TITLE, SHOWCASE_STATIC_DEMO_RUN_ID } from "@/lib/showcase-static-demo";
 import { showcasePrimaryFindingDetailHref } from "@/lib/showcase-sample-review-registry";
 
 describe("loadFindingInspectForRoute — showcase primary finding", () => {
@@ -18,7 +18,7 @@ describe("loadFindingInspectForRoute — showcase primary finding", () => {
     delete process.env.NEXT_PUBLIC_OPERATOR_EXPERIENCE;
   });
 
-  it("falls back to curated PHI finding payload in buyer-polished shell when inspect API 404s", async () => {
+  it("falls back to curated primary finding payload in buyer-polished shell when inspect API 404s", async () => {
     delete process.env.NEXT_PUBLIC_DEMO_MODE;
     delete process.env.NEXT_PUBLIC_DEMO_STATIC_OPERATOR;
     delete process.env.NEXT_PUBLIC_OPERATOR_EXPERIENCE;
@@ -31,14 +31,17 @@ describe("loadFindingInspectForRoute — showcase primary finding", () => {
       }),
     );
 
-    const result = await loadFindingInspectForRoute("claims-intake-modernization", "phi-minimization-risk");
+    const result = await loadFindingInspectForRoute(
+      SHOWCASE_STATIC_DEMO_RUN_ID,
+      SHOWCASE_STATIC_DEMO_PRIMARY_FINDING_ID,
+    );
 
     expect(result.failure).toBeNull();
     expect(result.invalidRouteAlignment).toBe(false);
-    expect(result.payload?.findingId).toBe("phi-minimization-risk");
+    expect(result.payload?.findingId).toBe(SHOWCASE_STATIC_DEMO_PRIMARY_FINDING_ID);
     expect(result.payload?.typedPayload.title).toBe(SHOWCASE_STATIC_DEMO_PRIMARY_FINDING_TITLE);
     expect(showcasePrimaryFindingDetailHref()).toBe(
-      "/architecture/reviews/claims-intake-modernization/findings/phi-minimization-risk",
+      `/architecture/reviews/${SHOWCASE_STATIC_DEMO_RUN_ID}/findings/${SHOWCASE_STATIC_DEMO_PRIMARY_FINDING_ID}`,
     );
   });
 });

@@ -2,7 +2,7 @@
 
 import { useState } from "react";
 
-import { normalizeRunIdForRecurrenceApi } from "@/components/RunDetailRecurrenceScheduleCard";
+import { normalizeRunIdForRecurrenceApi } from "@/components/runs/RunDetailRecurrenceScheduleCard";
 import { RecurrenceScheduleActivationActions } from "@/components/governance/RecurrenceScheduleActivationActions";
 import { RecurrenceScheduleFormFields } from "@/components/governance/RecurrenceScheduleFormFields";
 import { Button } from "@/components/ui/button";
