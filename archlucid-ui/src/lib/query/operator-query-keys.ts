@@ -12,6 +12,7 @@ export const operatorQueryKeys = {
   billingSubscriptionStatus: ["operator", "tenant", "billing-subscription-status"] as const,
   operatorStickinessSnapshot: ["operator", "tenant", "stickiness-snapshot"] as const,
   adminConfigLintSummary: ["operator", "admin", "config-lint-summary"] as const,
+  adminOutboxDiagnostics: ["operator", "admin", "outbox-diagnostics"] as const,
   pilotScorecard: ["operator", "pilots", "scorecard"] as const,
   operatorAiQualitySnapshot: ["operator", "assistant", "ai-quality-snapshot"] as const,
   healthReadySummary: ["operator", "health", "ready-summary"] as const,

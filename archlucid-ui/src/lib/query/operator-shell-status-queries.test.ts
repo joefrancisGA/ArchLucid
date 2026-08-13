@@ -18,6 +18,7 @@ const TB_2144_QUERY_SURFACES = [
   "src/components/tenancy/TenantMigrationMaintenanceBanner.tsx",
   "src/components/operator/OperatorStickinessSnapshotCard.tsx",
   "src/components/operator/OperatorAiQualityProofCard.tsx",
+  "src/components/operator/OperatorOutboxDiagnosticsCard.tsx",
 ] as const;
 
 describe("operator billing and alerts nav query migration (TB-2144)", () => {
@@ -26,7 +27,7 @@ describe("operator billing and alerts nav query migration (TB-2144)", () => {
 
     expect(source).not.toContain("useEffect(");
     expect(source).toMatch(
-      /useBillingSubscriptionStatusQuery|useAlertsInboxSummaryQuery|useGovernanceReviewsAwaitingActionQuery|useLlmMonthlyBudgetStatusQuery|useHealthReadySummaryQuery|useTenantCatalogMigrationStatusQuery|useOperatorStickinessSnapshotQuery|useOperatorAiQualitySnapshotQuery/,
+      /useBillingSubscriptionStatusQuery|useAlertsInboxSummaryQuery|useGovernanceReviewsAwaitingActionQuery|useLlmMonthlyBudgetStatusQuery|useHealthReadySummaryQuery|useTenantCatalogMigrationStatusQuery|useOperatorStickinessSnapshotQuery|useOperatorAiQualitySnapshotQuery|useAdminOutboxDiagnosticsQuery/,
     );
   });
 });

@@ -3,18 +3,10 @@ import { cn } from "@/lib/utils";
 import { OPERATOR_TYPOGRAPHY } from "@/lib/design-tokens";
 
 import Link from "next/link";
-import { useEffect, useState } from "react";
 
 import { Card, CardContent, CardHeader, CardTitle } from "@/components/ui/card";
-import { mergeRegistrationScopeForProxy } from "@/lib/proxy-fetch-registration-scope";
-
-type AdminOutboxSnapshot = {
-  readonly authorityPipelineWorkPending?: number;
-  readonly authorityPipelineWorkDeadLetter?: number;
-  readonly retrievalIndexingPending?: number;
-  readonly integrationEventOutboxPublishPending?: number;
-  readonly integrationEventOutboxDeadLetter?: number;
-};
+import { useAdminOutboxDiagnosticsQuery } from "@/hooks/use-admin-outbox-diagnostics-query";
+import type { AdminOutboxSnapshot } from "@/lib/fetch-admin-outbox-diagnostics";
 
 function toneClass(count: number): string {
   if (count <= 0)
@@ -28,42 +20,9 @@ function toneClass(count: number): string {
 
 /** Partial-failure / queue operator view for authority and integration outboxes (assessment #16). */
 export function OperatorOutboxDiagnosticsCard(): React.JSX.Element {
-  const [snapshot, setSnapshot] = useState<AdminOutboxSnapshot | null>(null);
-  const [error, setError] = useState<string | null>(null);
-
-  useEffect(() => {
-    let canceled = false;
-
-    void (async () => {
-      try {
-        const response = await fetch(
-          "/api/proxy/v1/admin/diagnostics/outboxes",
-          mergeRegistrationScopeForProxy({ headers: { Accept: "application/json" }, cache: "no-store" }),
-        );
-
-        if (!response.ok) {
-          if (!canceled)
-            setError("Admin diagnostics unavailable for this account.");
-
-          return;
-        }
-
-        const payload = (await response.json()) as AdminOutboxSnapshot;
-
-        if (!canceled) {
-          setSnapshot(payload);
-          setError(null);
-        }
-      } catch {
-        if (!canceled)
-          setError("Could not load outbox diagnostics.");
-      }
-    })();
-
-    return () => {
-      canceled = true;
-    };
-  }, []);
+  const { data: snapshot, isPending } = useAdminOutboxDiagnosticsQuery();
+  const error =
+    !isPending && snapshot === null ? "Admin diagnostics unavailable for this account." : null;
 
   return (
     <Card data-testid="operator-outbox-diagnostics-card">
@@ -80,39 +39,8 @@ export function OperatorOutboxDiagnosticsCard(): React.JSX.Element {
           </p>
         ) : null}
 
-        {snapshot !== null ? (
-          <dl className="m-0 grid gap-2 sm:grid-cols-2">
-            <div>
-              <dt className={cn("uppercase tracking-wide text-neutral-500", OPERATOR_TYPOGRAPHY.helper)}>Authority pipeline pending</dt>
-              <dd className={`m-0 tabular-nums ${toneClass(snapshot.authorityPipelineWorkPending ?? 0)}`}>
-                {snapshot.authorityPipelineWorkPending ?? 0}
-              </dd>
-            </div>
-            <div>
-              <dt className={cn("uppercase tracking-wide text-neutral-500", OPERATOR_TYPOGRAPHY.helper)}>Authority pipeline dead-letter</dt>
-              <dd className={`m-0 tabular-nums ${toneClass(snapshot.authorityPipelineWorkDeadLetter ?? 0)}`}>
-                {snapshot.authorityPipelineWorkDeadLetter ?? 0}
-              </dd>
-            </div>
-            <div>
-              <dt className={cn("uppercase tracking-wide text-neutral-500", OPERATOR_TYPOGRAPHY.helper)}>Retrieval indexing pending</dt>
-              <dd className={`m-0 tabular-nums ${toneClass(snapshot.retrievalIndexingPending ?? 0)}`}>
-                {snapshot.retrievalIndexingPending ?? 0}
-              </dd>
-            </div>
-            <div>
-              <dt className={cn("uppercase tracking-wide text-neutral-500", OPERATOR_TYPOGRAPHY.helper)}>Integration publish pending</dt>
-              <dd className={`m-0 tabular-nums ${toneClass(snapshot.integrationEventOutboxPublishPending ?? 0)}`}>
-                {snapshot.integrationEventOutboxPublishPending ?? 0}
-              </dd>
-            </div>
-            <div className="sm:col-span-2">
-              <dt className={cn("uppercase tracking-wide text-neutral-500", OPERATOR_TYPOGRAPHY.helper)}>Integration dead-letter</dt>
-              <dd className={`m-0 tabular-nums ${toneClass(snapshot.integrationEventOutboxDeadLetter ?? 0)}`}>
-                {snapshot.integrationEventOutboxDeadLetter ?? 0}
-              </dd>
-            </div>
-          </dl>
+        {snapshot != null ? (
+          <OperatorOutboxDiagnosticsMetrics snapshot={snapshot} />
         ) : null}
 
         <p className="m-0">
@@ -122,5 +50,44 @@ export function OperatorOutboxDiagnosticsCard(): React.JSX.Element {
         </p>
       </CardContent>
     </Card>
+  );
+}
+
+function OperatorOutboxDiagnosticsMetrics(props: { readonly snapshot: AdminOutboxSnapshot }) {
+  const { snapshot } = props;
+
+  return (
+    <dl className="m-0 grid gap-2 sm:grid-cols-2">
+      <div>
+        <dt className={cn("uppercase tracking-wide text-neutral-500", OPERATOR_TYPOGRAPHY.helper)}>Authority pipeline pending</dt>
+        <dd className={`m-0 tabular-nums ${toneClass(snapshot.authorityPipelineWorkPending ?? 0)}`}>
+          {snapshot.authorityPipelineWorkPending ?? 0}
+        </dd>
+      </div>
+      <div>
+        <dt className={cn("uppercase tracking-wide text-neutral-500", OPERATOR_TYPOGRAPHY.helper)}>Authority pipeline dead-letter</dt>
+        <dd className={`m-0 tabular-nums ${toneClass(snapshot.authorityPipelineWorkDeadLetter ?? 0)}`}>
+          {snapshot.authorityPipelineWorkDeadLetter ?? 0}
+        </dd>
+      </div>
+      <div>
+        <dt className={cn("uppercase tracking-wide text-neutral-500", OPERATOR_TYPOGRAPHY.helper)}>Retrieval indexing pending</dt>
+        <dd className={`m-0 tabular-nums ${toneClass(snapshot.retrievalIndexingPending ?? 0)}`}>
+          {snapshot.retrievalIndexingPending ?? 0}
+        </dd>
+      </div>
+      <div>
+        <dt className={cn("uppercase tracking-wide text-neutral-500", OPERATOR_TYPOGRAPHY.helper)}>Integration publish pending</dt>
+        <dd className={`m-0 tabular-nums ${toneClass(snapshot.integrationEventOutboxPublishPending ?? 0)}`}>
+          {snapshot.integrationEventOutboxPublishPending ?? 0}
+        </dd>
+      </div>
+      <div className="sm:col-span-2">
+        <dt className={cn("uppercase tracking-wide text-neutral-500", OPERATOR_TYPOGRAPHY.helper)}>Integration dead-letter</dt>
+        <dd className={`m-0 tabular-nums ${toneClass(snapshot.integrationEventOutboxDeadLetter ?? 0)}`}>
+          {snapshot.integrationEventOutboxDeadLetter ?? 0}
+        </dd>
+      </div>
+    </dl>
   );
 }
