@@ -8,7 +8,6 @@ import { ConnectGcpSecurelyHelpEvidenceOrientationStrip } from "@/components/hel
 import { HelpTopicPrintButton } from "@/components/help/HelpTopicPrintButton";
 import { HelpTopicRegistryProvenanceLine } from "@/components/help/HelpTopicRegistryProvenanceLine";
 import { HelpTopicTableOfContents } from "@/components/help/HelpTopicTableOfContents";
-import { OperatorPageBreadcrumb } from "@/components/operator/OperatorPageBreadcrumb";
 import { OperatorPageHeader } from "@/components/operator/OperatorPageHeader";
 import { PageContextualHelpButton } from "@/components/usability/PageContextualHelpButton";
 import { Button } from "@/components/ui/button";
@@ -165,16 +164,6 @@ export function HelpConnectGcpSecurelyGuideView(props: HelpConnectGcpSecurelyGui
         subtitle={entry.summary}
         headingLevel="h1"
         navHref="/help/cloud-connections/gcp"
-        breadcrumb={
-          <OperatorPageBreadcrumb
-            data-testid="help-connect-gcp-securely-breadcrumb"
-            items={[
-              { label: "Help", href: "/help" },
-              { label: CLOUD_CONNECTIONS_HELP_PAGE_TITLE, href: CLOUD_CONNECTIONS_HELP_PATH },
-              { label: entry.title },
-            ]}
-          />
-        }
         metadata={
           <div className="space-y-2">
             <p className={cn("m-0 max-w-3xl text-al-text-secondary", OPERATOR_TYPOGRAPHY.helper)}>

@@ -69,7 +69,7 @@ describe("HelpUsersAndRolesGuideView", () => {
     expect(resolveHelpTopicPermanentRedirect("operator-auth-roles")).toBe(USERS_AND_ROLES_HELP_CANONICAL_PATH);
   });
 
-  it("renders one H1, breadcrumb, TOC rail, and customer intro without internal engineering sections", () => {
+  it("renders one H1 TOC rail and customer intro without internal engineering sections", () => {
     if (entry === undefined) {
       throw new Error("Expected users-and-roles documentation entry.");
     }
@@ -78,9 +78,6 @@ describe("HelpUsersAndRolesGuideView", () => {
 
     expect(screen.getAllByRole("heading", { level: 1, name: USERS_AND_ROLES_PAGE_TITLE })).toHaveLength(1);
     expect(screen.getByText(USERS_AND_ROLES_PAGE_INTRO)).toBeInTheDocument();
-    expect(screen.getByTestId("help-users-and-roles-breadcrumb")).toHaveTextContent("Help");
-    expect(screen.getByTestId("help-users-and-roles-breadcrumb")).toHaveTextContent(USERS_AND_ROLES_PAGE_TITLE);
-    expect(screen.getByRole("link", { name: "Help" })).toHaveAttribute("href", "/help");
     expect(screen.getByTestId("help-topic-toc")).toBeInTheDocument();
     expect(screen.getByTestId("users-and-roles-role-overview-table")).toBeInTheDocument();
     expect(screen.getByTestId("users-and-roles-capability-matrix")).toBeInTheDocument();

@@ -149,8 +149,6 @@ describe("HelpBillingAndPlansGuideView", () => {
     renderWithOperatorQuery(<HelpBillingAndPlansGuideView entry={entry} />);
 
     expect(screen.getByRole("heading", { level: 1, name: BILLING_HELP_PAGE_DISPLAY_TITLE })).toBeInTheDocument();
-    expect(screen.getByTestId("help-billing-breadcrumb")).toBeInTheDocument();
-    expect(screen.getByRole("link", { name: "Help" })).toHaveAttribute("href", "/help");
     expect(screen.getByText(BILLING_HELP_PAGE_SUBTITLE)).toBeInTheDocument();
     expect(screen.getByTestId("help-billing-refresh-button")).toBeInTheDocument();
     expect(screen.queryByTestId("help-billing-last-refreshed")).toBeNull();

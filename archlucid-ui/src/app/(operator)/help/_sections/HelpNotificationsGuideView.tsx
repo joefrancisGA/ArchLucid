@@ -4,7 +4,6 @@ import { HelpTopicHashScroll } from "@/app/(operator)/help/HelpTopicHashScroll";
 import { NotificationsHelpEvidenceOrientationStrip } from "@/components/help/NotificationsHelpEvidenceOrientationStrip";
 import { HelpTopicRegistryProvenanceLine } from "@/components/help/HelpTopicRegistryProvenanceLine";
 import { HelpTopicTableOfContents } from "@/components/help/HelpTopicTableOfContents";
-import { OperatorPageBreadcrumb } from "@/components/operator/OperatorPageBreadcrumb";
 import { OperatorPageHeader } from "@/components/operator/OperatorPageHeader";
 import { Button } from "@/components/ui/button";
 import { Card, CardContent, CardHeader, CardTitle } from "@/components/ui/card";
@@ -66,12 +65,6 @@ export function HelpNotificationsGuideView(props: HelpNotificationsGuideViewProp
         subtitle={NOTIFICATIONS_HELP_PAGE_SUBTITLE}
         navHref={NOTIFICATIONS_HELP_CANONICAL_PATH}
         headingLevel="h1"
-        breadcrumb={
-          <OperatorPageBreadcrumb
-            data-testid="help-notifications-breadcrumb"
-            items={[{ label: "Help", href: "/help" }, { label: NOTIFICATIONS_HELP_PAGE_TITLE }]}
-          />
-        }
         metadata={<HelpTopicRegistryProvenanceLine entry={entry} />}
         actions={<PageContextualHelpButton />}
       />

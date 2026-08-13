@@ -4,7 +4,6 @@ import { HelpTopicHashScroll } from "@/app/(operator)/help/HelpTopicHashScroll";
 import { StandardsRulesHelpEvidenceOrientationStrip } from "@/components/help/StandardsRulesHelpEvidenceOrientationStrip";
 import { HelpTopicRegistryProvenanceLine } from "@/components/help/HelpTopicRegistryProvenanceLine";
 import { HelpTopicTableOfContents } from "@/components/help/HelpTopicTableOfContents";
-import { OperatorPageBreadcrumb } from "@/components/operator/OperatorPageBreadcrumb";
 import { OperatorPageHeader } from "@/components/operator/OperatorPageHeader";
 import { Button } from "@/components/ui/button";
 import { Card, CardContent, CardHeader, CardTitle } from "@/components/ui/card";
@@ -64,12 +63,6 @@ export function HelpStandardsRulesGuideView(props: HelpStandardsRulesGuideViewPr
         subtitle={STANDARDS_RULES_HELP_PAGE_SUBTITLE}
         navHref={STANDARDS_RULES_HELP_CANONICAL_PATH}
         headingLevel="h1"
-        breadcrumb={
-          <OperatorPageBreadcrumb
-            data-testid="help-standards-rules-breadcrumb"
-            items={[{ label: "Help", href: "/help" }, { label: STANDARDS_RULES_HELP_PAGE_TITLE }]}
-          />
-        }
         metadata={<HelpTopicRegistryProvenanceLine entry={entry} />}
         actions={<PageContextualHelpButton />}
       />

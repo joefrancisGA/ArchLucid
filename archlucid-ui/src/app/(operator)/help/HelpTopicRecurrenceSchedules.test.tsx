@@ -35,17 +35,12 @@ describe("HelpRecurrenceSchedulesGuideView", () => {
     expect(entry?.releaseApplicability).toBe("governance recurrence schedule orientation");
   });
 
-  it("shows breadcrumb, overview first, and buyer-safe section order", () => {
+  it("shows overview first and buyer-safe section order", () => {
     if (entry === undefined) {
       throw new Error("Expected recurrence schedules documentation entry.");
     }
 
     render(<HelpRecurrenceSchedulesGuideView entry={entry} />);
-
-    const breadcrumb = screen.getByTestId("help-recurrence-schedules-breadcrumb");
-    expect(breadcrumb).toHaveTextContent("Help");
-    expect(breadcrumb).toHaveTextContent(RECURRENCE_SCHEDULES_HELP_PAGE_TITLE);
-    expect(screen.getByRole("link", { name: "Help" })).toHaveAttribute("href", "/help");
 
     expect(screen.getByRole("heading", { level: 1, name: RECURRENCE_SCHEDULES_HELP_PAGE_TITLE })).toBeInTheDocument();
     expect(screen.getByText(RECURRENCE_SCHEDULES_HELP_PAGE_SUBTITLE)).toBeInTheDocument();

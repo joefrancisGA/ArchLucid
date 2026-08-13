@@ -8,7 +8,6 @@ import { HelpTopicHashScroll } from "@/app/(operator)/help/HelpTopicHashScroll";
 import { HelpTopicRegistryProvenanceLine } from "@/components/help/HelpTopicRegistryProvenanceLine";
 import { HelpTopicTableOfContents } from "@/components/help/HelpTopicTableOfContents";
 import { MarketingAccessibilityMarkdownFragment } from "@/components/marketing/MarketingAccessibilityMarkdownFragment";
-import { OperatorPageBreadcrumb } from "@/components/operator/OperatorPageBreadcrumb";
 import { OperatorPageHeader } from "@/components/operator/OperatorPageHeader";
 import { Card, CardContent, CardHeader } from "@/components/ui/card";
 import {
@@ -71,15 +70,6 @@ export function HelpCloudConnectionsGuideView(
         titleTestId="help-cloud-connections-page-title"
         subtitle={CLOUD_CONNECTIONS_HELP_PAGE_SUBTITLE}
         navHref={CLOUD_CONNECTIONS_HELP_PATH}
-        breadcrumb={
-          <OperatorPageBreadcrumb
-            data-testid="help-cloud-connections-breadcrumb"
-            items={[
-              { label: "Help", href: "/help" },
-              { label: CLOUD_CONNECTIONS_HELP_PAGE_TITLE },
-            ]}
-          />
-        }
         metadata={<HelpTopicRegistryProvenanceLine entry={entry} />}
         actions={<HelpCloudConnectionsHeaderActions entry={entry} />}
       />

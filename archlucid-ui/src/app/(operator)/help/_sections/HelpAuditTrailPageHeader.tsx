@@ -2,7 +2,6 @@
 
 import Link from "next/link";
 
-import { OperatorPageBreadcrumb } from "@/components/operator/OperatorPageBreadcrumb";
 import { OperatorPageHeader } from "@/components/operator/OperatorPageHeader";
 import { HelpTopicPrintButton } from "@/components/help/HelpTopicPrintButton";
 import { Button } from "@/components/ui/button";
@@ -22,22 +21,13 @@ export type HelpAuditTrailPageHeaderProps = {
   readonly subtitle: string;
 };
 
-/** Shared `/help/audit-trail` hero — help breadcrumb, provenance, live audit trail CTA, and export actions. */
+/** Shared `/help/audit-trail` hero — provenance, live audit trail CTA, and export actions. */
 export function HelpAuditTrailPageHeader(props: HelpAuditTrailPageHeaderProps): React.JSX.Element {
   return (
     <OperatorPageHeader
       title={AUDIT_TRAIL_HELP_PAGE_TITLE}
       titleTestId="help-audit-trail-page-title"
       subtitle={props.subtitle}
-      breadcrumb={
-        <OperatorPageBreadcrumb
-          data-testid="help-audit-trail-breadcrumb"
-          items={[
-            { label: "Help", href: "/help" },
-            { label: AUDIT_TRAIL_HELP_PAGE_TITLE },
-          ]}
-        />
-      }
       metadata={
         <div className="flex flex-wrap items-center gap-x-3 gap-y-1" data-testid="help-audit-trail-provenance">
           <span className={cn("text-al-text-secondary", OPERATOR_TYPOGRAPHY.label)} data-testid="help-audit-trail-source-of-record">

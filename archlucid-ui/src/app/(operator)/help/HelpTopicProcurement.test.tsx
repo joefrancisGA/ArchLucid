@@ -275,7 +275,6 @@ describe("HelpProcurementGuideView procurement FAQ", () => {
     expect(screen.getByTestId("procurement-help-answer-penetration-test")).toBeInTheDocument();
     expect(screen.getByTestId("help-topic-export-claim-discipline")).toBeInTheDocument();
     expect(screen.getByTestId("help-topic-print-pdf")).toBeInTheDocument();
-    expect(screen.getByTestId("help-procurement-breadcrumb")).toBeInTheDocument();
     expect(screen.queryByTestId("page-contextual-help-button")).toBeNull();
   });
 

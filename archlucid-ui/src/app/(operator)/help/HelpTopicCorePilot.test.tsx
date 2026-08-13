@@ -29,6 +29,7 @@ import {
   EVIDENCE_ONLY_REVIEW_HELP_FAST_PATH_HREF,
   EVIDENCE_ONLY_REVIEW_HELP_IA_DUAL_INBOUND_LABEL,
 } from "@/lib/core-pilot-help-ia-dual";
+import { CORE_PILOT_HELP_FIRST_VIEWPORT_JOB_CHROME_TEST_ID } from "@/lib/core-pilot-help-guide-content";
 import { resolveHelpTopicPermanentRedirect } from "@/lib/help/help-topic-permanent-redirects";
 import { getProductDocumentationEntry } from "@/lib/product-documentation-registry";
 
@@ -402,6 +403,25 @@ describe("HelpCorePilotGuideView", () => {
     ).toHaveLength(0);
   });
 
+  it("TB-1685: first-viewport job chrome shows three numbered steps before Related guides", () => {
+    if (entry === undefined) {
+      throw new Error("Expected first-architecture-review documentation entry.");
+    }
+
+    render(<HelpCorePilotGuideView entry={entry} />);
+
+    const firstViewport = screen.getByTestId("core-pilot-first-viewport");
+    const jobChrome = within(firstViewport).getByTestId(CORE_PILOT_HELP_FIRST_VIEWPORT_JOB_CHROME_TEST_ID);
+
+    expect(within(jobChrome).getByRole("heading", { name: /Your first review in three steps/i })).toBeInTheDocument();
+    expect(within(jobChrome).getByTestId("core-pilot-first-viewport-step-1")).toHaveTextContent(/Start a review/);
+    expect(within(jobChrome).getByTestId("core-pilot-first-viewport-step-2")).toHaveTextContent(/Add evidence/);
+    expect(within(jobChrome).getByTestId("core-pilot-first-viewport-step-3")).toHaveTextContent(/Finalize and share/);
+    expect(within(firstViewport).queryByTestId("core-pilot-related-guides")).toBeNull();
+    expect(within(firstViewport).queryByTestId("core-pilot-optional-paths-disclosure")).toBeNull();
+    expect(screen.getByTestId("core-pilot-workflow-stepper")).toBeInTheDocument();
+  });
+
   it("uses customer-facing deferral copy and closing CTAs", () => {
     if (entry === undefined) {
       throw new Error("Expected first-architecture-review documentation entry.");
@@ -432,7 +452,8 @@ describe("HelpCorePilotGuideView", () => {
 
     const firstViewport = screen.getByTestId("core-pilot-first-viewport");
     expect(within(firstViewport).getByTestId("core-pilot-summary-card")).toBeInTheDocument();
-    expect(within(firstViewport).getByTestId("core-pilot-workflow-stepper")).toBeInTheDocument();
+    expect(within(firstViewport).getByTestId(CORE_PILOT_HELP_FIRST_VIEWPORT_JOB_CHROME_TEST_ID)).toBeInTheDocument();
+    expect(within(firstViewport).queryByTestId("core-pilot-workflow-stepper")).toBeNull();
     expect(within(firstViewport).queryByTestId("core-pilot-optional-paths-disclosure")).toBeNull();
     expect(within(firstViewport).queryByTestId("core-pilot-related-guides")).toBeNull();
     expect(within(firstViewport).queryByTestId("core-pilot-help-orientation")).toBeNull();

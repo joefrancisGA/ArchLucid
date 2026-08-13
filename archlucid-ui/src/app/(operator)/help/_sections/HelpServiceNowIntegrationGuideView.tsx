@@ -4,7 +4,6 @@ import { HelpTopicHashScroll } from "@/app/(operator)/help/HelpTopicHashScroll";
 import { ServiceNowIntegrationHelpEvidenceOrientationStrip } from "@/components/help/ServiceNowIntegrationHelpEvidenceOrientationStrip";
 import { HelpTopicRegistryProvenanceLine } from "@/components/help/HelpTopicRegistryProvenanceLine";
 import { HelpTopicTableOfContents } from "@/components/help/HelpTopicTableOfContents";
-import { OperatorPageBreadcrumb } from "@/components/operator/OperatorPageBreadcrumb";
 import { OperatorPageHeader } from "@/components/operator/OperatorPageHeader";
 import { Button } from "@/components/ui/button";
 import { Card, CardContent, CardHeader, CardTitle } from "@/components/ui/card";
@@ -68,12 +67,6 @@ export function HelpServiceNowIntegrationGuideView(
         subtitle={SERVICENOW_INTEGRATION_HELP_PAGE_SUBTITLE}
         navHref={SERVICENOW_INTEGRATION_HELP_CANONICAL_PATH}
         headingLevel="h1"
-        breadcrumb={
-          <OperatorPageBreadcrumb
-            data-testid="help-servicenow-integration-breadcrumb"
-            items={[{ label: "Help", href: "/help" }, { label: SERVICENOW_INTEGRATION_HELP_PAGE_TITLE }]}
-          />
-        }
         metadata={<HelpTopicRegistryProvenanceLine entry={entry} />}
         actions={<PageContextualHelpButton />}
       />

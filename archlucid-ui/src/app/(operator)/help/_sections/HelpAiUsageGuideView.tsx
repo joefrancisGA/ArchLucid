@@ -4,7 +4,6 @@ import { HelpTopicHashScroll } from "@/app/(operator)/help/HelpTopicHashScroll";
 import { AiUsageHelpEvidenceOrientationStrip } from "@/components/help/AiUsageHelpEvidenceOrientationStrip";
 import { HelpTopicRegistryProvenanceLine } from "@/components/help/HelpTopicRegistryProvenanceLine";
 import { HelpTopicTableOfContents } from "@/components/help/HelpTopicTableOfContents";
-import { OperatorPageBreadcrumb } from "@/components/operator/OperatorPageBreadcrumb";
 import { OperatorPageHeader } from "@/components/operator/OperatorPageHeader";
 import { Button } from "@/components/ui/button";
 import { Card, CardContent, CardHeader, CardTitle } from "@/components/ui/card";
@@ -63,12 +62,6 @@ export function HelpAiUsageGuideView(props: HelpAiUsageGuideViewProps): React.Re
         subtitle={AI_USAGE_HELP_PAGE_SUBTITLE}
         navHref={AI_USAGE_HELP_CANONICAL_PATH}
         headingLevel="h1"
-        breadcrumb={
-          <OperatorPageBreadcrumb
-            data-testid="help-ai-usage-breadcrumb"
-            items={[{ label: "Help", href: "/help" }, { label: AI_USAGE_HELP_PAGE_TITLE }]}
-          />
-        }
         metadata={<HelpTopicRegistryProvenanceLine entry={entry} />}
         actions={<PageContextualHelpButton />}
       />

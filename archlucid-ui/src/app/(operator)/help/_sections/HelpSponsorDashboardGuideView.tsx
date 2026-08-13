@@ -4,7 +4,6 @@ import { HelpTopicHashScroll } from "@/app/(operator)/help/HelpTopicHashScroll";
 import { SponsorDashboardHelpEvidenceOrientationStrip } from "@/components/help/SponsorDashboardHelpEvidenceOrientationStrip";
 import { HelpTopicRegistryProvenanceLine } from "@/components/help/HelpTopicRegistryProvenanceLine";
 import { HelpTopicTableOfContents } from "@/components/help/HelpTopicTableOfContents";
-import { OperatorPageBreadcrumb } from "@/components/operator/OperatorPageBreadcrumb";
 import { OperatorPageHeader } from "@/components/operator/OperatorPageHeader";
 import { Button } from "@/components/ui/button";
 import { Card, CardContent, CardHeader, CardTitle } from "@/components/ui/card";
@@ -66,12 +65,6 @@ export function HelpSponsorDashboardGuideView(props: HelpSponsorDashboardGuideVi
         subtitle={SPONSOR_DASHBOARD_HELP_PAGE_SUBTITLE}
         navHref={SPONSOR_DASHBOARD_HELP_CANONICAL_PATH}
         headingLevel="h1"
-        breadcrumb={
-          <OperatorPageBreadcrumb
-            data-testid="help-sponsor-dashboard-breadcrumb"
-            items={[{ label: "Help", href: "/help" }, { label: SPONSOR_DASHBOARD_HELP_PAGE_TITLE }]}
-          />
-        }
         metadata={<HelpTopicRegistryProvenanceLine entry={entry} />}
         actions={<PageContextualHelpButton />}
       />

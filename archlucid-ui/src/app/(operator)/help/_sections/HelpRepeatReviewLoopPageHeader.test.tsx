@@ -36,7 +36,6 @@ describe("HelpRepeatReviewLoopPageHeader", () => {
     expect(screen.getByRole("heading", { level: 1, name: "Your repeat architecture review" })).toBeInTheDocument();
     expect(screen.getByTestId("page-heading-icon")).toBeInTheDocument();
     expect(screen.getByText(repeatReviewLoopHelpPageSubtitle(false))).toBeInTheDocument();
-    expect(screen.getByTestId("help-repeat-review-loop-breadcrumb")).toHaveTextContent("Help");
     expect(screen.queryByTestId("help-topic-registry-provenance")).toBeNull();
     expect(screen.queryByTestId("help-repeat-review-loop-refresh-button")).toBeNull();
     expect(screen.getByTestId("page-contextual-help-button")).toBeInTheDocument();

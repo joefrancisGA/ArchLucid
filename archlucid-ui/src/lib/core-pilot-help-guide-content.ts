@@ -31,6 +31,35 @@ export type CorePilotHelpDeferredItem = {
   readonly description: string;
 };
 
+export type CorePilotHelpFirstViewportStep = {
+  readonly stepNumber: number;
+  readonly title: string;
+  readonly description: string;
+};
+
+/** TB-1685 — compact three-step orientation before optional paths and Related guides. */
+export const CORE_PILOT_HELP_FIRST_VIEWPORT_JOB_CHROME_TITLE = "Your first review in three steps";
+
+export const CORE_PILOT_HELP_FIRST_VIEWPORT_JOB_CHROME_TEST_ID = "core-pilot-first-viewport-job-chrome";
+
+export const CORE_PILOT_HELP_FIRST_VIEWPORT_STEPS: readonly CorePilotHelpFirstViewportStep[] = [
+  {
+    stepNumber: 1,
+    title: "Start a review",
+    description: "Open New architecture review — choose no cloud target when you are evidence-only.",
+  },
+  {
+    stepNumber: 2,
+    title: "Add evidence",
+    description: "Attach briefs, diagrams, documents, IaC, or exports on review detail.",
+  },
+  {
+    stepNumber: 3,
+    title: "Finalize and share",
+    description: "Run the review, finalize the package, and export sponsor-ready outputs.",
+  },
+];
+
 const sampleReviewHref = `/architecture/reviews/${encodeURIComponent(SHOWCASE_STATIC_DEMO_RUN_ID)}`;
 
 /** TB-1332: name the curated Claims Intake showcase — not a bare "sample review" label. */

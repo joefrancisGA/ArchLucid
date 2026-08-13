@@ -10,12 +10,9 @@ import { CollapsibleSection } from "@/components/CollapsibleSection";
 import { HelpTopicRegistryProvenanceLine } from "@/components/help/HelpTopicRegistryProvenanceLine";
 import { HelpTopicTableOfContents } from "@/components/help/HelpTopicTableOfContents";
 import { MarketingAccessibilityMarkdownFragment } from "@/components/marketing/MarketingAccessibilityMarkdownFragment";
-import { OperatorPageBreadcrumb } from "@/components/operator/OperatorPageBreadcrumb";
 import { OperatorPageHeader } from "@/components/operator/OperatorPageHeader";
 import { PageContextualHelpButton } from "@/components/usability/PageContextualHelpButton";
 import {
-  DATA_HANDLING_TENANT_ISOLATION_HELP_BREADCRUMB_HELP_CENTER_LABEL,
-  DATA_HANDLING_TENANT_ISOLATION_HELP_BREADCRUMB_SECURITY_TRUST_LABEL,
   DATA_HANDLING_TENANT_ISOLATION_HELP_PAGE_SUBTITLE,
   DATA_HANDLING_TENANT_ISOLATION_HELP_PAGE_TITLE,
   DATA_HANDLING_TENANT_ISOLATION_HELP_RELATED_TOPICS_HEADING,
@@ -31,7 +28,6 @@ import { extractHelpMarkdownHeadings } from "@/lib/help/help-markdown-headings";
 import { prepareHelpMarkdownForPresentation } from "@/lib/help/help-markdown-presentation";
 import { omitMarkdownSectionsByAnchor } from "@/lib/help/help-markdown-sections";
 import { HELP_PAGE_LAYOUT } from "@/lib/help/help-page-layout";
-import { inAppHelpHref } from "@/lib/product-documentation-registry";
 import type { ProductDocumentationEntry } from "@/lib/product-documentation-registry";
 import { cn } from "@/lib/utils";
 
@@ -80,19 +76,6 @@ export function HelpDataHandlingTenantIsolationGuideView(
         subtitle={DATA_HANDLING_TENANT_ISOLATION_HELP_PAGE_SUBTITLE}
         navHref={DATA_HANDLING_TENANT_ISOLATION_HELP_PATH}
         headingLevel="h1"
-        breadcrumb={
-          <OperatorPageBreadcrumb
-            data-testid="help-data-handling-tenant-isolation-breadcrumb"
-            items={[
-              { label: DATA_HANDLING_TENANT_ISOLATION_HELP_BREADCRUMB_HELP_CENTER_LABEL, href: "/help" },
-              {
-                label: DATA_HANDLING_TENANT_ISOLATION_HELP_BREADCRUMB_SECURITY_TRUST_LABEL,
-                href: inAppHelpHref("security-trust"),
-              },
-              { label: DATA_HANDLING_TENANT_ISOLATION_HELP_PAGE_TITLE },
-            ]}
-          />
-        }
         metadata={<HelpTopicRegistryProvenanceLine entry={entry} />}
         actions={
           <div className="flex flex-wrap items-center gap-2">

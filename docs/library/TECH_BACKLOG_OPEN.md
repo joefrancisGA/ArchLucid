@@ -470,8 +470,8 @@ In `TECH_BACKLOG.md` summary table: **V1 / V1.1 first** (cluster order); **`### 
 | TB-1681 | `/help/evidence-only-review` specialty guide + Start review CTA | Adoption friction P1 **V1** — HEV ~42; prefer Core Pilot specialty after **TB-1683** |
 | TB-1682 | ~~Evidence-only help — stop CORE_PILOT intro dump~~ **Done** 2026-08-03 | Adoption friction P1 **V1** — alias removes section twin dump |
 | TB-1683 | ~~Evidence-only help — IA dual with `/help/core-pilot`~~ **Done** 2026-08-03 | Adoption friction P1 **V1** — alias → `first-architecture-review` |
-| TB-1684 | Evidence-only help — extract-upload vs `/reviews/new` CTA honesty | Trustworthiness P1 **V1** — apply on Core Pilot fast-path copy |
-| TB-1685 | Evidence-only help — first-viewport job chrome | Adoption friction P1 **V1** — supersede via Core Pilot chrome if needed |
+| TB-1684 | ~~Evidence-only help — extract-upload vs `/reviews/new` CTA honesty~~ **Done** 2026-08-13 | Trustworthiness P1 **V1** — Core Pilot fast-path copy |
+| TB-1685 | ~~Evidence-only help — first-viewport job chrome~~ **Done** 2026-08-13 | Adoption friction P1 **V1** — `HelpCorePilotFirstViewportJobChrome` on Core Pilot |
 | TB-1686 | `/help/sponsor-summary` retarget SoT off FAQ dump → sponsor brief | Trustworthiness P1 **V1** — EXE ~30 |
 | TB-1687 | Sponsor-summary help — specialty guide + Open ROI/sponsor CTA | Adoption friction P1 **V1** — with **TB-1686** |
 | TB-1689 | Sponsor-summary help — fix in-app-doc-href catch-all mappings | Trustworthiness P1 **V1** — with **TB-1686** |
@@ -842,7 +842,7 @@ Canonical: [`GTM_BACKLOG.md`](../go-to-market/GTM_BACKLOG.md) only (see wave-3 c
 | Data handling (`/help/data-handling`) | **TB-1654**–**TB-1655** open; **TB-1651**/**TB-1652**/**TB-1656**/**TB-1658** shipped 2026-08-03 | Canon specialty guide; three-layer isolation folded into `DATA_HANDLING.md`; alias HDA→HED. Residual: leaves/stays chrome; Related; presentation rewriter still cites legacy twin path (dirty-blocked). ~52/100; traffic **HED** |
 | Data handling + tenant isolation (`/help/data-handling-tenant-isolation`) | **TB-1660** open; **TB-1656**–**TB-1658** Done 2026-08-03 | Alias → `data-handling`. Residual: Vitest anti-stub polish; traffic fold HDA→HED; leakage **Done TB-1659** |
 | DPA template (`/help/dpa-template`) | **TB-1676**–**TB-1680** (**Done** 2026-08-02) | Specialty guide + Trust CTA; leakage strip; placeholder honesty; Help Center IA; clause defer; traffic **HDP** |
-| Evidence-only review (`/help/evidence-only-review`) | **TB-1681**/**TB-1684**/**TB-1685** open; **TB-1682**/**TB-1683** shipped 2026-08-03 | Alias → `first-architecture-review` (+ `#fast-path-evidence-only`). Residual: Start CTA / extract-upload honesty / step chrome if still desired on Core Pilot; traffic **HEV**→**COR** |
+| Evidence-only review (`/help/evidence-only-review`) | **TB-1681** open; **TB-1682**/**TB-1683**/**TB-1684**/**TB-1685** shipped 2026-08-03–2026-08-13 | Alias → `first-architecture-review` (+ `#fast-path-evidence-only`). Residual: specialty HEV guide if still desired; traffic **HEV**→**COR** |
 | Sponsor summary (`/help/sponsor-summary`) | **TB-1686**–**TB-1690** (open P1 **V1**) | Retarget off FAQ; specialty CTA; leakage; doc-href catch-all; title honesty; ~30/100; traffic **EXE** |
 | First value 20 minutes (`/help/first-value-20-minutes`) | **TB-1691**–**TB-1695** (**Done** 2026-08-11) | Folded into COR `#first-value-in-20-minutes` (Batch R); traffic **HEF** retired |
 | Policy-pack delta demo (`/help/policy-pack-delta-demo`) | **TB-1726**–**TB-1730** (**Done** 2026-08-11) | Folded into HEO `#policy-pack-delta-demo` (Batch R); traffic **POL** retired |

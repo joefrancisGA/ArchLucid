@@ -66,7 +66,6 @@ describe("HelpFirstValue20GuideView (folded into COR, Batch R)", () => {
       FIRST_VALUE_20_HELP_PAGE_TITLE,
     );
     expect(screen.getAllByRole("heading", { level: 1 })).toHaveLength(1);
-    expect(screen.getByTestId("help-first-value-20-breadcrumb")).toBeInTheDocument();
     expect(screen.queryByTestId("help-topic-registry-provenance")).toBeNull();
     expect(screen.getByTestId("help-first-value-20-admin-tag")).toHaveTextContent("Admin only");
     expect(screen.getByTestId("help-first-value-20-claim-discipline")).toBeInTheDocument();

@@ -18,14 +18,12 @@ import { AUDIT_TRAIL_HELP_SOURCE_OF_RECORD_HREF } from "@/lib/audit-trail-help-g
 describe("HelpAuditTrailPageHeader", () => {
   const entry = getProductDocumentationEntry("audit-trail");
 
-  it("renders breadcrumb, provenance, live audit trail CTA, and export actions", () => {
+  it("renders provenance, live audit trail CTA, and export actions", () => {
     if (entry === null) {
       throw new Error("Expected audit-trail documentation entry.");
     }
 
     render(<HelpAuditTrailPageHeader entry={entry} subtitle={auditTrailHelpPageSubtitle(false)} />);
-
-    expect(screen.getByTestId("help-audit-trail-breadcrumb")).toHaveTextContent("Help");
     expect(screen.getByTestId("help-audit-trail-page-title")).toBeInTheDocument();
     expect(screen.getByText(auditTrailHelpPageSubtitle(false))).toBeInTheDocument();
     expect(screen.getByTestId("help-audit-trail-provenance")).toBeInTheDocument();

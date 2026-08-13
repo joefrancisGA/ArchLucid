@@ -5,7 +5,6 @@ import { HelpTopicPrintButton } from "@/components/help/HelpTopicPrintButton";
 import { HelpTopicTableOfContents } from "@/components/help/HelpTopicTableOfContents";
 import { ReviewGuideHelpHeaderAsOfLine } from "@/components/help/ReviewGuideHelpHeaderAsOfLine";
 import { MarketingAccessibilityMarkdownFragment } from "@/components/marketing/MarketingAccessibilityMarkdownFragment";
-import { OperatorPageBreadcrumb } from "@/components/operator/OperatorPageBreadcrumb";
 import { OperatorPageHeader } from "@/components/operator/OperatorPageHeader";
 import { Button } from "@/components/ui/button";
 import {
@@ -63,12 +62,6 @@ export function HelpReviewPackagesGuideView(props: HelpReviewPackagesGuideViewPr
         subtitle={REVIEW_PACKAGES_HELP_PAGE_SUBTITLE}
         navHref={REVIEW_PACKAGES_HELP_PATH}
         headingLevel="h1"
-        breadcrumb={
-          <OperatorPageBreadcrumb
-            data-testid="help-review-packages-breadcrumb"
-            items={[{ label: "Help", href: "/help" }, { label: REVIEW_PACKAGES_HELP_PAGE_TITLE }]}
-          />
-        }
         metadata={
           <div
             className="flex flex-wrap items-center gap-x-3 gap-y-1"

@@ -33,11 +33,6 @@ import { HelpDataHandlingTenantIsolationGuideView } from "@/app/(operator)/help/
 import { DATA_HANDLING_HELP_IA_DUAL_HEADING } from "@/lib/data-handling-help-ia-dual";
 
 import {
-
-  DATA_HANDLING_TENANT_ISOLATION_HELP_BREADCRUMB_HELP_CENTER_LABEL,
-
-  DATA_HANDLING_TENANT_ISOLATION_HELP_BREADCRUMB_SECURITY_TRUST_LABEL,
-
   DATA_HANDLING_TENANT_ISOLATION_HELP_OVERVIEW_CONTRACTED_PACK_FOLLOW_UP,
 
   DATA_HANDLING_TENANT_ISOLATION_HELP_OVERVIEW_CROSS_CHECK_LINKS,
@@ -161,31 +156,6 @@ describe("HelpDataHandlingTenantIsolationGuideView", () => {
     expect(screen.getByTestId("help-topic-print-pdf")).toBeInTheDocument();
     expect(screen.queryByTestId("help-topic-download-pdf")).toBeNull();
 
-
-
-    const breadcrumb = screen.getByTestId("help-data-handling-tenant-isolation-breadcrumb");
-
-    expect(within(breadcrumb).getByRole("link", { name: DATA_HANDLING_TENANT_ISOLATION_HELP_BREADCRUMB_HELP_CENTER_LABEL })).toHaveAttribute(
-
-      "href",
-
-      "/help",
-
-    );
-
-    expect(
-
-      within(breadcrumb).getByRole("link", { name: DATA_HANDLING_TENANT_ISOLATION_HELP_BREADCRUMB_SECURITY_TRUST_LABEL }),
-
-    ).toHaveAttribute("href", "/help/security-trust");
-
-    expect(within(breadcrumb).getByText(DATA_HANDLING_TENANT_ISOLATION_HELP_PAGE_TITLE)).toHaveAttribute(
-
-      "aria-current",
-
-      "page",
-
-    );
 
 
 

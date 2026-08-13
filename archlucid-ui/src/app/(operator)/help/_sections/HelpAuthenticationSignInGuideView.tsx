@@ -7,7 +7,6 @@ import { HelpTopicSignInFailureTriageLine } from "@/components/help/HelpTopicSig
 import { HelpTopicTableOfContents } from "@/components/help/HelpTopicTableOfContents";
 import { CollapsibleSection } from "@/components/CollapsibleSection";
 import { MarketingAccessibilityMarkdownFragment } from "@/components/marketing/MarketingAccessibilityMarkdownFragment";
-import { OperatorPageBreadcrumb } from "@/components/operator/OperatorPageBreadcrumb";
 import { OperatorPageHeader } from "@/components/operator/OperatorPageHeader";
 import {
   AUTHENTICATION_SIGN_IN_HELP_CANONICAL_PATH,
@@ -88,15 +87,6 @@ export function HelpAuthenticationSignInGuideView(
         subtitleClassName="max-w-3xl"
         navHref={AUTHENTICATION_SIGN_IN_HELP_CANONICAL_PATH}
         headingLevel="h1"
-        breadcrumb={
-          <OperatorPageBreadcrumb
-            data-testid="help-authentication-sign-in-breadcrumb"
-            items={[
-              { label: "Help", href: "/help" },
-              { label: entry.title },
-            ]}
-          />
-        }
         actions={<HelpAuthenticationSignInHeaderActions entry={entry} />}
       >
         <HelpTopicSignInFailureTriageLine />

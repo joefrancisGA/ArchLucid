@@ -1,6 +1,5 @@
 "use client";
 
-import { OperatorPageBreadcrumb } from "@/components/operator/OperatorPageBreadcrumb";
 import { OperatorPageHeader } from "@/components/operator/OperatorPageHeader";
 import { Button } from "@/components/ui/button";
 import { PageContextualHelpButton } from "@/components/usability/PageContextualHelpButton";
@@ -24,7 +23,7 @@ export type HelpBillingAndPlansPageHeaderProps = {
   readonly onRefresh: () => void;
 };
 
-/** Shared `/help/billing-and-plans` hero — help breadcrumb, title, contextual help, and refresh. */
+/** Shared `/help/billing-and-plans` hero — title, contextual help, and refresh. */
 export function HelpBillingAndPlansPageHeader(props: HelpBillingAndPlansPageHeaderProps): React.JSX.Element {
   return (
     <OperatorPageHeader
@@ -33,15 +32,6 @@ export function HelpBillingAndPlansPageHeader(props: HelpBillingAndPlansPageHead
       subtitle={props.subtitle}
       navHref={BILLING_HELP_CANONICAL_PATH}
       headingLevel="h1"
-      breadcrumb={
-        <OperatorPageBreadcrumb
-          data-testid="help-billing-breadcrumb"
-          items={[
-            { label: "Help", href: "/help" },
-            { label: BILLING_HELP_PAGE_TITLE },
-          ]}
-        />
-      }
       actions={
         <div className="flex flex-wrap items-center gap-2" data-testid="help-billing-header-actions">
           <PageContextualHelpButton />

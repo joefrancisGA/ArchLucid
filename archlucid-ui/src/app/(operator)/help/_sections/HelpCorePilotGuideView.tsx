@@ -1,6 +1,7 @@
 import Link from "next/link";
 import type { ReactNode } from "react";
 
+import { HelpCorePilotFirstViewportJobChrome } from "@/app/(operator)/help/_sections/HelpCorePilotFirstViewportJobChrome";
 import { HelpCorePilotJobMatrix } from "@/app/(operator)/help/_sections/HelpCorePilotJobMatrix";
 import { CorePilotHelpOrientationFooter } from "@/app/(operator)/help/_sections/CorePilotHelpOrientationFooter";
 import { CorePilotHelpPostStepperPanel } from "@/app/(operator)/help/_sections/CorePilotHelpPostStepperPanel";
@@ -115,14 +116,16 @@ export function HelpCorePilotGuideView(props: HelpCorePilotGuideViewProps): Reac
               </CardContent>
             </Card>
 
-            <section aria-labelledby="run-the-first-review" className="space-y-4">
-              <HelpSectionHeading id="run-the-first-review">Run the first review</HelpSectionHeading>
-              <p className={cn("m-0", OPERATOR_TYPOGRAPHY.helper)}>
-                Follow these five steps in order. Each step links to the product surface where you take action.
-              </p>
-              <HelpCorePilotWorkflowStepper />
-            </section>
+            <HelpCorePilotFirstViewportJobChrome />
           </div>
+
+          <section aria-labelledby="run-the-first-review" className="space-y-4">
+            <HelpSectionHeading id="run-the-first-review">Run the first review</HelpSectionHeading>
+            <p className={cn("m-0", OPERATOR_TYPOGRAPHY.helper)}>
+              Follow these five steps in order. Each step links to the product surface where you take action.
+            </p>
+            <HelpCorePilotWorkflowStepper />
+          </section>
 
           <HelpDisclosure title={CORE_PILOT_HELP_DISCLOSURE.whatThisGuideCovers.title}>
             {CORE_PILOT_HELP_DISCLOSURE.whatThisGuideCovers.body}

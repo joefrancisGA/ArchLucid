@@ -17,7 +17,7 @@ import { HelpBillingAndPlansPageHeader } from "@/app/(operator)/help/_sections/H
 describe("HelpBillingAndPlansPageHeader", () => {
   const entry = getProductDocumentationEntry("billing-and-plans");
 
-  it("renders help breadcrumb, disambiguated title, refresh, and no provenance or freshness metadata", () => {
+  it("renders help disambiguated title, refresh, and no provenance or freshness metadata", () => {
     if (entry === undefined) {
       throw new Error("Expected billing-and-plans documentation entry.");
     }
@@ -34,9 +34,6 @@ describe("HelpBillingAndPlansPageHeader", () => {
         onRefresh={onRefresh}
       />,
     );
-
-    expect(screen.getByTestId("help-billing-breadcrumb")).toBeInTheDocument();
-    expect(screen.getByRole("link", { name: "Help" })).toHaveAttribute("href", "/help");
     expect(
       screen.getByRole("heading", { level: 1, name: "Billing and plans — help topic" }),
     ).toBeInTheDocument();

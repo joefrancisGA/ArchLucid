@@ -9,7 +9,6 @@ import { HelpTopicPrintButton } from "@/components/help/HelpTopicPrintButton";
 import { HelpTopicRegistryProvenanceLine } from "@/components/help/HelpTopicRegistryProvenanceLine";
 import { HelpTopicTableOfContents } from "@/components/help/HelpTopicTableOfContents";
 import { MarketingAccessibilityMarkdownFragment } from "@/components/marketing/MarketingAccessibilityMarkdownFragment";
-import { OperatorPageBreadcrumb } from "@/components/operator/OperatorPageBreadcrumb";
 import { OperatorPageHeader } from "@/components/operator/OperatorPageHeader";
 import { Button } from "@/components/ui/button";
 import { Card, CardContent, CardHeader, CardTitle } from "@/components/ui/card";
@@ -68,15 +67,6 @@ export function HelpAzureBoardsGuideView(props: HelpAzureBoardsGuideViewProps): 
         subtitle={AZURE_BOARDS_HELP_PAGE_SUBTITLE}
         navHref={AZURE_BOARDS_HELP_CANONICAL_PATH}
         headingLevel="h1"
-        breadcrumb={
-          <OperatorPageBreadcrumb
-            data-testid="help-azure-boards-breadcrumb"
-            items={[
-              { label: "Help", href: "/help" },
-              { label: AZURE_BOARDS_HELP_PAGE_TITLE },
-            ]}
-          />
-        }
         metadata={
           <div
             className="flex flex-wrap items-center gap-x-3 gap-y-1"

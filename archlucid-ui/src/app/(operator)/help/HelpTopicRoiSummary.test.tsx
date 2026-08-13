@@ -36,17 +36,12 @@ describe("HelpRoiSummaryGuideView", () => {
     expect(entry?.releaseApplicability).toBe("sponsor ROI summary orientation");
   });
 
-  it("shows breadcrumb, overview first, and buyer-safe section order", () => {
+  it("shows overview first and buyer-safe section order", () => {
     if (entry === undefined) {
       throw new Error("Expected ROI summary documentation entry.");
     }
 
     render(<HelpRoiSummaryGuideView entry={entry} />);
-
-    const breadcrumb = screen.getByTestId("help-roi-summary-breadcrumb");
-    expect(breadcrumb).toHaveTextContent("Help");
-    expect(breadcrumb).toHaveTextContent(ROI_SUMMARY_HELP_PAGE_TITLE);
-    expect(screen.getByRole("link", { name: "Help" })).toHaveAttribute("href", "/help");
 
     expect(screen.getByRole("heading", { level: 1, name: ROI_SUMMARY_HELP_PAGE_TITLE })).toBeInTheDocument();
     expect(screen.getByText(ROI_SUMMARY_HELP_PAGE_SUBTITLE)).toBeInTheDocument();

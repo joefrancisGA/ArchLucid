@@ -5,7 +5,6 @@ import { DigestRecurrenceScheduleVocabularyRail } from "@/components/DigestRecur
 import { RecurrenceSchedulesHelpEvidenceOrientationStrip } from "@/components/help/RecurrenceSchedulesHelpEvidenceOrientationStrip";
 import { HelpTopicRegistryProvenanceLine } from "@/components/help/HelpTopicRegistryProvenanceLine";
 import { HelpTopicTableOfContents } from "@/components/help/HelpTopicTableOfContents";
-import { OperatorPageBreadcrumb } from "@/components/operator/OperatorPageBreadcrumb";
 import { OperatorPageHeader } from "@/components/operator/OperatorPageHeader";
 import { Button } from "@/components/ui/button";
 import { Card, CardContent, CardHeader, CardTitle } from "@/components/ui/card";
@@ -184,12 +183,6 @@ export function HelpRecurrenceSchedulesGuideView(
         subtitle={RECURRENCE_SCHEDULES_HELP_PAGE_SUBTITLE}
         navHref={RECURRENCE_SCHEDULES_HELP_CANONICAL_PATH}
         headingLevel="h1"
-        breadcrumb={
-          <OperatorPageBreadcrumb
-            data-testid="help-recurrence-schedules-breadcrumb"
-            items={[{ label: "Help", href: "/help" }, { label: RECURRENCE_SCHEDULES_HELP_PAGE_TITLE }]}
-          />
-        }
         metadata={<HelpTopicRegistryProvenanceLine entry={entry} />}
         actions={<PageContextualHelpButton />}
       />

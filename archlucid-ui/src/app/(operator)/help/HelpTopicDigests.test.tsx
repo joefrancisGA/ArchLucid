@@ -36,17 +36,12 @@ describe("HelpDigestsGuideView", () => {
     expect(entry?.releaseApplicability).toBe("architecture digests orientation");
   });
 
-  it("shows breadcrumb, overview first, and buyer-safe section order", () => {
+  it("shows overview first and buyer-safe section order", () => {
     if (entry === undefined) {
       throw new Error("Expected digests documentation entry.");
     }
 
     render(<HelpDigestsGuideView entry={entry} />);
-
-    const breadcrumb = screen.getByTestId("help-digests-breadcrumb");
-    expect(breadcrumb).toHaveTextContent("Help");
-    expect(breadcrumb).toHaveTextContent(DIGESTS_HELP_PAGE_TITLE);
-    expect(screen.getByRole("link", { name: "Help" })).toHaveAttribute("href", "/help");
 
     expect(screen.getByRole("heading", { level: 1, name: DIGESTS_HELP_PAGE_TITLE })).toBeInTheDocument();
     expect(screen.getByText(DIGESTS_HELP_PAGE_SUBTITLE)).toBeInTheDocument();

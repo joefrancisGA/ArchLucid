@@ -4,7 +4,6 @@ import { HelpTopicPrintButton } from "@/components/help/HelpTopicPrintButton";
 import { HelpTopicTableOfContents } from "@/components/help/HelpTopicTableOfContents";
 import { ProcurementHelpEvidenceOrientationStrip } from "@/components/help/ProcurementHelpEvidenceOrientationStrip";
 import { MarketingAccessibilityMarkdownFragment } from "@/components/marketing/MarketingAccessibilityMarkdownFragment";
-import { OperatorPageBreadcrumb } from "@/components/operator/OperatorPageBreadcrumb";
 import { OperatorPageHeader } from "@/components/operator/OperatorPageHeader";
 import { PageContextualHelpButton } from "@/components/usability/PageContextualHelpButton";
 import { OPERATOR_LAYOUT, OPERATOR_TYPOGRAPHY } from "@/lib/design-tokens";
@@ -51,12 +50,6 @@ export function HelpProcurementGuideView(props: HelpProcurementGuideViewProps): 
         subtitle={PROCUREMENT_HELP_PAGE_SUBTITLE}
         navHref={PROCUREMENT_HELP_PATH}
         headingLevel="h1"
-        breadcrumb={
-          <OperatorPageBreadcrumb
-            data-testid="help-procurement-breadcrumb"
-            items={[{ label: "Help", href: "/help" }, { label: PROCUREMENT_HELP_PAGE_TITLE }]}
-          />
-        }
         metadata={
           provenanceLine === null ? null : (
             <p

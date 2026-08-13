@@ -4,7 +4,6 @@ import { HelpTopicHashScroll } from "@/app/(operator)/help/HelpTopicHashScroll";
 import { HelpUsersAndRolesManageAction } from "@/app/(operator)/help/_sections/HelpUsersAndRolesManageAction";
 import { HelpTopicTableOfContents } from "@/components/help/HelpTopicTableOfContents";
 import { UsersAndRolesHelpEvidenceOrientationStrip } from "@/components/help/UsersAndRolesHelpEvidenceOrientationStrip";
-import { OperatorPageBreadcrumb } from "@/components/operator/OperatorPageBreadcrumb";
 import { OperatorPageHeader } from "@/components/operator/OperatorPageHeader";
 import { OPERATOR_LAYOUT, OPERATOR_SHELL_SCROLL_OFFSET_CLASS, OPERATOR_TYPOGRAPHY } from "@/lib/design-tokens";
 import { HELP_PAGE_LAYOUT } from "@/lib/help/help-page-layout";
@@ -147,12 +146,6 @@ export function HelpUsersAndRolesGuideView(props: HelpUsersAndRolesGuideViewProp
         subtitle={USERS_AND_ROLES_PAGE_INTRO}
         navHref={inAppHelpHref(entry.slug)}
         headingLevel="h1"
-        breadcrumb={
-          <OperatorPageBreadcrumb
-            data-testid="help-users-and-roles-breadcrumb"
-            items={[{ label: "Help", href: "/help" }, { label: USERS_AND_ROLES_PAGE_TITLE }]}
-          />
-        }
         actions={<HelpUsersAndRolesManageAction />}
       />
 

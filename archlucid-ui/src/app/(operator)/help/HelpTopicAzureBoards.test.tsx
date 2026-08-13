@@ -120,8 +120,6 @@ describe("HelpAzureBoardsGuideView (HEZ)", () => {
     );
     expect(screen.queryByRole("heading", { name: "Orientation only" })).toBeNull();
     expect(screen.getByTestId("help-azure-boards-connection-context")).toBeInTheDocument();
-    expect(screen.getByTestId("help-azure-boards-breadcrumb")).toHaveTextContent("Help");
-    expect(screen.getByRole("link", { name: "Help" })).toHaveAttribute("href", "/help");
     expect(screen.getByTestId("help-topic-print-pdf")).toBeInTheDocument();
     expect(screen.queryByTestId("help-topic-download-pdf")).toBeNull();
     expect(screen.getByRole("link", { name: AZURE_BOARDS_HELP_PRIMARY_ACTIONS.openSettings.label })).toHaveAttribute(

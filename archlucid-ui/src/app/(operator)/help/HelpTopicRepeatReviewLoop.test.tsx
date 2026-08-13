@@ -139,7 +139,6 @@ describe("HelpTopicRepeatReviewLoop (TB-1396)", () => {
     expect(eligibility.compareDocumentPosition(actionPanel) & Node.DOCUMENT_POSITION_FOLLOWING).toBeTruthy();
     expect(actionPanel.compareDocumentPosition(claimDiscipline) & Node.DOCUMENT_POSITION_FOLLOWING).toBeTruthy();
     expect(screen.getByTestId("repeat-review-loop-help-sources")).toBeInTheDocument();
-    expect(screen.getByTestId("help-repeat-review-loop-breadcrumb")).toHaveTextContent("Help");
     expect(screen.queryByTestId("help-topic-registry-provenance")).toBeNull();
     expect(screen.queryByTestId("help-repeat-review-loop-refresh-button")).toBeNull();
     expect(screen.getAllByText(/Prerequisite:/i)).toHaveLength(1);

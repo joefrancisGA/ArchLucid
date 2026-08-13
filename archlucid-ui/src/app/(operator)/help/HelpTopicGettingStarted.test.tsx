@@ -63,7 +63,7 @@ describe("HelpGettingStartedGuideView", () => {
     expect(entry?.releaseApplicability).toBeTruthy();
   });
 
-  it("renders shared help header chrome with breadcrumb, status, provenance, and export actions", () => {
+  it("renders shared help header chrome with status, provenance, and export actions", () => {
     if (entry === undefined) {
       throw new Error("Expected getting-started documentation entry.");
     }

@@ -4,7 +4,6 @@ import { HelpTopicHashScroll } from "@/app/(operator)/help/HelpTopicHashScroll";
 import { TeamsIntegrationHelpEvidenceOrientationStrip } from "@/components/help/TeamsIntegrationHelpEvidenceOrientationStrip";
 import { HelpTopicRegistryProvenanceLine } from "@/components/help/HelpTopicRegistryProvenanceLine";
 import { HelpTopicTableOfContents } from "@/components/help/HelpTopicTableOfContents";
-import { OperatorPageBreadcrumb } from "@/components/operator/OperatorPageBreadcrumb";
 import { OperatorPageHeader } from "@/components/operator/OperatorPageHeader";
 import { Button } from "@/components/ui/button";
 import { Card, CardContent, CardHeader, CardTitle } from "@/components/ui/card";
@@ -65,12 +64,6 @@ export function HelpTeamsIntegrationGuideView(props: HelpTeamsIntegrationGuideVi
         subtitle={TEAMS_INTEGRATION_HELP_PAGE_SUBTITLE}
         navHref={TEAMS_INTEGRATION_HELP_CANONICAL_PATH}
         headingLevel="h1"
-        breadcrumb={
-          <OperatorPageBreadcrumb
-            data-testid="help-teams-integration-breadcrumb"
-            items={[{ label: "Help", href: "/help" }, { label: TEAMS_INTEGRATION_HELP_PAGE_TITLE }]}
-          />
-        }
         metadata={<HelpTopicRegistryProvenanceLine entry={entry} />}
         actions={<PageContextualHelpButton />}
       />
