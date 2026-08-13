@@ -3,6 +3,8 @@ import { inAppHelpHref } from "@/lib/product-documentation-registry";
 
 export const CAIQ_SIG_RESPONSE_HELP_CANONICAL_PATH = "/help/caiq-sig-response" as const;
 
+export const CAIQ_SIG_RESPONSE_HELP_TOPIC_LABEL = "How CAIQ and SIG responses work" as const;
+
 /** Print / PDF export — full claim discipline (not duplicated on-screen). */
 export const CAIQ_SIG_RESPONSE_HELP_CLAIM_DISCIPLINE =
   "This CAIQ / SIG questionnaire guide maps pre-filled responses to in-repo evidence for procurement reviewers — it is help orientation and self-attested questionnaire fill, not a CPA SOC 2 attestation, a published third-party pen-test report, or a signed-review diligence Sources package from your tenant. Open SOC 2 self-assessment, Trust Center, or Procurement FAQ when you need related assurance surfaces.";
@@ -25,8 +27,8 @@ export const CAIQ_SIG_RESPONSE_HELP_SOURCES_INTRO =
   "Use these follow-ups when CAIQ/SIG vocabulary turns into SOC 2 mapping, Trust Center pack, DPA, subprocessors, or procurement FAQ.";
 
 export const CAIQ_SIG_RESPONSE_HELP_PRIMARY_ACTION = {
-  label: "Request diligence pack",
-  href: inAppHelpHref("procurement"),
+  label: "Open Trust Center",
+  href: "/trust",
   testId: "help-caiq-sig-response-primary-action",
 } as const;
 

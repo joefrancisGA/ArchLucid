@@ -4,7 +4,6 @@ import { headers } from "next/headers";
 import { permanentRedirect } from "next/navigation";
 
 import { HelpTopicMarkdownView } from "../HelpTopicMarkdownView";
-import { CaiqSigResponseHelpEvidenceOrientationStrip } from "@/components/help/CaiqSigResponseHelpEvidenceOrientationStrip";
 import { ScopeHelpCurrentScopePanel } from "@/components/help/ScopeHelpCurrentScopePanel";
 import { ScopeHelpEvidenceOrientationStrip } from "@/components/help/ScopeHelpEvidenceOrientationStrip";
 import { IntegrationReadinessHelpEvidenceOrientationStrip } from "@/components/help/IntegrationReadinessHelpEvidenceOrientationStrip";
@@ -189,6 +188,9 @@ const HelpReviewGuideView = dynamic(() =>
 );
 const HelpProcurementGuideView = dynamic(() =>
   import("../_sections/HelpProcurementGuideView").then((module) => module.HelpProcurementGuideView),
+);
+const HelpCaiqSigResponseGuideView = dynamic(() =>
+  import("../_sections/HelpCaiqSigResponseGuideView").then((module) => module.HelpCaiqSigResponseGuideView),
 );
 const HelpPilotGuideView = dynamic(() =>
   import("../_sections/HelpPilotGuideView").then((module) => module.HelpPilotGuideView),
@@ -688,16 +690,7 @@ function renderHelpTopicView(
   }
 
   if (loaded.entry.slug === "caiq-sig-response") {
-    return (
-      <HelpTopicMarkdownView
-        entry={loaded.entry}
-        markdown={loaded.markdown}
-        showContextualHelp
-        evidenceOrientation={<CaiqSigResponseHelpEvidenceOrientationStrip />}
-        layoutVariant="technicalReference"
-        showExportClaimDiscipline
-      />
-    );
+    return <HelpCaiqSigResponseGuideView entry={loaded.entry} markdown={loaded.markdown} />;
   }
 
   if (loaded.entry.slug === "choose-your-next-step") {

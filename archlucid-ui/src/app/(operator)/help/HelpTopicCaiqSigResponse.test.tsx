@@ -5,15 +5,30 @@ vi.mock("@/app/(operator)/help/HelpTopicHashScroll", () => ({
   HelpTopicHashScroll: () => null,
 }));
 
-import { HelpTopicMarkdownView } from "@/app/(operator)/help/HelpTopicMarkdownView";
-import { CaiqSigResponseHelpEvidenceOrientationStrip } from "@/components/help/CaiqSigResponseHelpEvidenceOrientationStrip";
+vi.mock("next/navigation", () => ({
+  usePathname: () => "/help/caiq-sig-response",
+}));
+
+vi.mock("@/components/usability/PageContextualHelpButton", () => ({
+  PageContextualHelpButton: () => null,
+}));
+
+import { HelpCaiqSigResponseGuideView } from "@/app/(operator)/help/_sections/HelpCaiqSigResponseGuideView";
 import {
   CAIQ_SIG_RESPONSE_HELP_CLAIM_HEADING,
   CAIQ_SIG_RESPONSE_HELP_CLAIM_SCOPE,
   CAIQ_SIG_RESPONSE_HELP_LEAD,
-  CAIQ_SIG_RESPONSE_HELP_PRIMARY_ACTION,
   CAIQ_SIG_RESPONSE_HELP_SOURCES,
 } from "@/lib/caiq-sig-response-help-evidence-copy";
+import {
+  CAIQ_SIG_RESPONSE_HELP_GUIDE_TEST_ID,
+  CAIQ_SIG_RESPONSE_HELP_JOB_MATRIX_HEADING,
+  CAIQ_SIG_RESPONSE_HELP_PAGE_TITLE,
+  CAIQ_SIG_RESPONSE_HELP_PRIMARY_ACTIONS,
+  CAIQ_SIG_RESPONSE_SIG_DEFERRED_SUMMARY,
+  CAIQ_SIG_RESPONSE_SIG_DEFERRED_TEST_ID,
+  splitCaiqSigPreparedMarkdown,
+} from "@/lib/caiq-sig-response-help-guide-content";
 import {
   CAIQ_SIG_RESPONSE_LITE_PART_HEADING,
   CAIQ_SIG_RESPONSE_SIG_PART_HEADING,
@@ -25,38 +40,44 @@ import {
 import { extractHelpMarkdownHeadings } from "@/lib/help/help-markdown-headings";
 import { tryLoadProductDocumentation } from "@/lib/load-product-documentation";
 
-describe("HelpTopicMarkdownView caiq-sig-response", () => {
+describe("HelpCaiqSigResponseGuideView (TB-1631)", () => {
   const loaded = tryLoadProductDocumentation("caiq-sig-response");
 
   it("loads CAIQ/SIG documentation from the monorepo", () => {
     expect(loaded).not.toBeNull();
   });
 
-  it("renders lead strip, claim discipline once, Sources links, posture summary, and primary CTA", () => {
+  it("renders specialty guide chrome with diligence CTAs, job split, and posture summary", () => {
     if (loaded === null) {
       throw new Error("Expected caiq-sig-response documentation to load.");
     }
 
-    render(
-      <HelpTopicMarkdownView
-        entry={loaded.entry}
-        markdown={loaded.markdown}
-        showContextualHelp
-        evidenceOrientation={<CaiqSigResponseHelpEvidenceOrientationStrip />}
-        layoutVariant="technicalReference"
-        showExportClaimDiscipline
-      />,
-    );
+    render(<HelpCaiqSigResponseGuideView entry={loaded.entry} markdown={loaded.markdown} />);
 
+    expect(screen.getByTestId(CAIQ_SIG_RESPONSE_HELP_GUIDE_TEST_ID)).toBeInTheDocument();
+    expect(screen.getByRole("heading", { level: 1, name: CAIQ_SIG_RESPONSE_HELP_PAGE_TITLE })).toBeInTheDocument();
     expect(screen.getByTestId("caiq-sig-response-help-lead")).toHaveTextContent(CAIQ_SIG_RESPONSE_HELP_LEAD);
     expect(screen.getByRole("heading", { name: CAIQ_SIG_RESPONSE_HELP_CLAIM_HEADING })).toBeInTheDocument();
     expect(screen.getByTestId("caiq-sig-response-help-claim-discipline")).toHaveTextContent(
       CAIQ_SIG_RESPONSE_HELP_CLAIM_SCOPE,
     );
-    expect(screen.getAllByRole("heading", { name: CAIQ_SIG_RESPONSE_HELP_CLAIM_HEADING })).toHaveLength(1);
 
-    const primaryAction = screen.getByTestId(CAIQ_SIG_RESPONSE_HELP_PRIMARY_ACTION.testId);
-    expect(primaryAction).toHaveAttribute("href", CAIQ_SIG_RESPONSE_HELP_PRIMARY_ACTION.href);
+    expect(screen.getByTestId(CAIQ_SIG_RESPONSE_HELP_PRIMARY_ACTIONS.openTrustCenter.testId)).toHaveAttribute(
+      "href",
+      CAIQ_SIG_RESPONSE_HELP_PRIMARY_ACTIONS.openTrustCenter.href,
+    );
+    expect(screen.getByTestId(CAIQ_SIG_RESPONSE_HELP_PRIMARY_ACTIONS.openComplianceJourney.testId)).toHaveAttribute(
+      "href",
+      CAIQ_SIG_RESPONSE_HELP_PRIMARY_ACTIONS.openComplianceJourney.href,
+    );
+    expect(screen.getByTestId(CAIQ_SIG_RESPONSE_HELP_PRIMARY_ACTIONS.requestDiligencePack.testId)).toHaveAttribute(
+      "href",
+      CAIQ_SIG_RESPONSE_HELP_PRIMARY_ACTIONS.requestDiligencePack.href,
+    );
+
+    expect(screen.getByRole("heading", { name: CAIQ_SIG_RESPONSE_HELP_JOB_MATRIX_HEADING })).toBeInTheDocument();
+    expect(screen.getByRole("link", { name: CAIQ_SIG_RESPONSE_LITE_PART_HEADING })).toBeInTheDocument();
+    expect(screen.getByRole("link", { name: CAIQ_SIG_RESPONSE_SIG_PART_HEADING })).toBeInTheDocument();
 
     for (const link of CAIQ_SIG_RESPONSE_HELP_SOURCES) {
       const sourceLink = within(screen.getByTestId("caiq-sig-response-help-sources")).getByRole("link", {
@@ -83,13 +104,7 @@ describe("HelpTopicMarkdownView caiq-sig-response", () => {
     expect(prepared).toContain(`## ${CAIQ_SIG_RESPONSE_SIG_PART_HEADING}`);
     expect(titles.filter((title) => title.toLowerCase() === "related")).toHaveLength(0);
 
-    render(
-      <HelpTopicMarkdownView
-        entry={loaded.entry}
-        markdown={loaded.markdown}
-        layoutVariant="technicalReference"
-      />,
-    );
+    render(<HelpCaiqSigResponseGuideView entry={loaded.entry} markdown={loaded.markdown} />);
 
     const toc = screen.getByTestId("help-topic-toc");
 
@@ -104,7 +119,7 @@ describe("HelpTopicMarkdownView caiq-sig-response", () => {
       throw new Error("Expected caiq-sig-response documentation to load.");
     }
 
-    render(<HelpTopicMarkdownView entry={loaded.entry} markdown={loaded.markdown} layoutVariant="technicalReference" />);
+    render(<HelpCaiqSigResponseGuideView entry={loaded.entry} markdown={loaded.markdown} />);
 
     const captions = Array.from(document.querySelectorAll("caption"));
     const captionTexts = captions.map((caption) => caption.textContent ?? "");
@@ -139,7 +154,7 @@ describe("HelpTopicMarkdownView caiq-sig-response", () => {
     const counts = computeCaiqSigResponsePostureCounts(prepared);
     const tableRowTotal = countCaiqSigResponseTableRows(prepared);
 
-    render(<HelpTopicMarkdownView entry={loaded.entry} markdown={loaded.markdown} layoutVariant="technicalReference" />);
+    render(<HelpCaiqSigResponseGuideView entry={loaded.entry} markdown={loaded.markdown} />);
 
     expect(screen.getByTestId("caiq-sig-posture-count-affirmative")).toHaveTextContent(String(counts.Affirmative));
     expect(screen.getByTestId("caiq-sig-posture-count-strong")).toHaveTextContent(String(counts.Strong));
@@ -169,15 +184,23 @@ describe("HelpTopicMarkdownView caiq-sig-response", () => {
       throw new Error("Expected caiq-sig-response documentation to load.");
     }
 
-    render(
-      <HelpTopicMarkdownView
-        entry={loaded.entry}
-        markdown={loaded.markdown}
-        layoutVariant="technicalReference"
-      />,
-    );
+    render(<HelpCaiqSigResponseGuideView entry={loaded.entry} markdown={loaded.markdown} />);
 
-    expect(screen.getByTestId("help-caiq-sig-response-topic")).toHaveClass("max-w-[72rem]");
+    expect(screen.getByTestId(CAIQ_SIG_RESPONSE_HELP_GUIDE_TEST_ID)).toHaveClass("max-w-[72rem]");
     expect(screen.getByTestId("help-topic-content").className).toContain("lg:max-w-[52rem]");
+  });
+
+  it("keeps SIG tables out of the first viewport until expanded (TB-1634)", () => {
+    if (loaded === null) {
+      throw new Error("Expected caiq-sig-response documentation to load.");
+    }
+
+    render(<HelpCaiqSigResponseGuideView entry={loaded.entry} markdown={loaded.markdown} />);
+
+    expect(screen.getByTestId(CAIQ_SIG_RESPONSE_SIG_DEFERRED_TEST_ID)).toHaveTextContent(
+      CAIQ_SIG_RESPONSE_SIG_DEFERRED_SUMMARY,
+    );
+    expect(screen.queryByTestId("help-caiq-sig-response-sig-deferred-body")).not.toBeInTheDocument();
+    expect(screen.queryByRole("columnheader", { name: "Family" })).not.toBeInTheDocument();
   });
 });
