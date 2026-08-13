@@ -1,3 +1,4 @@
+import type { TenantCatalogMigrationStatus } from "@/lib/fetch-tenant-catalog-migration-status";
 import type { HealthReadyResponse } from "@/lib/health-dashboard-types";
 import { isAzureServiceBusHealthUnhealthy } from "@/lib/health-dashboard-types";
 import {
@@ -41,6 +42,13 @@ export function shouldPollServiceBusHealthDegradedBanner(
   ready: HealthReadyResponse | null | undefined,
 ): boolean {
   return ready !== null && ready !== undefined && isAzureServiceBusHealthUnhealthy(ready.entries);
+}
+
+/** Catalog migration banner — poll only while a migration is actively in progress. */
+export function shouldPollCatalogMigrationBanner(
+  status: TenantCatalogMigrationStatus | undefined,
+): boolean {
+  return status?.inMigration === true;
 }
 export function resolveShellBannerPollIntervalMs(args: {
   readonly enabled: boolean;

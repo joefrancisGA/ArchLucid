@@ -31,16 +31,46 @@ vi.mock("@/lib/team-expansion-nudge-telemetry", () => ({
 
 import { recordTeamExpansionNudgeClicked, recordTeamExpansionNudgeShown } from "@/lib/team-expansion-nudge-telemetry";
 import { TeamExpansionNudge } from "@/components/TeamExpansionNudge";
+import { invalidateTenantTrialStatusCache } from "@/lib/tenant-trial-status-client";
 import { invalidateTenantUsageStatusCache } from "@/lib/tenant-usage-status-client";
 import { resetOperatorQueryClientForTests } from "@/lib/query/operator-query-client";
 
 const mockShown = vi.mocked(recordTeamExpansionNudgeShown);
 const mockClicked = vi.mocked(recordTeamExpansionNudgeClicked);
 
+function mockOperatorShellFetch(args: {
+  readonly trialStatus?: Record<string, unknown>;
+  readonly usageStatus?: Record<string, unknown>;
+}): void {
+  vi.stubGlobal(
+    "fetch",
+    vi.fn(async (input: RequestInfo | URL) => {
+      const url = typeof input === "string" ? input : input instanceof URL ? input.toString() : input.url;
+
+      if (url.includes("/tenant/trial-status")) {
+        return new Response(JSON.stringify(args.trialStatus ?? { status: "None" }), {
+          status: 200,
+          headers: { "Content-Type": "application/json" },
+        });
+      }
+
+      if (url.includes("/tenant/usage-status")) {
+        return new Response(JSON.stringify(args.usageStatus ?? {}), {
+          status: 200,
+          headers: { "Content-Type": "application/json" },
+        });
+      }
+
+      throw new Error(`Unexpected fetch: ${url}`);
+    }),
+  );
+}
+
 describe("TeamExpansionNudge", () => {
   beforeEach(async () => {
     buyerPolishedShellVitestOverride.value = false;
     resetOperatorQueryClientForTests();
+    await invalidateTenantTrialStatusCache();
     await invalidateTenantUsageStatusCache();
     vi.stubEnv("NEXT_PUBLIC_OPERATOR_EXPERIENCE", "operator");
     sessionStorage.clear();
@@ -59,20 +89,15 @@ describe("TeamExpansionNudge", () => {
   });
 
   it("does not render for trial tenants", async () => {
-    vi.stubGlobal(
-      "fetch",
-      vi.fn(async () => {
-        return new Response(
-          JSON.stringify({
-            isTrial: true,
-            commercialTier: null,
-            seatsUsed: 4,
-            seatsLimit: 5,
-          }),
-          { status: 200, headers: { "Content-Type": "application/json" } },
-        );
-      }),
-    );
+    mockOperatorShellFetch({
+      trialStatus: { status: "Active" },
+      usageStatus: {
+        isTrial: true,
+        commercialTier: null,
+        seatsUsed: 4,
+        seatsLimit: 5,
+      },
+    });
 
     renderWithOperatorQuery(<TeamExpansionNudge />);
 
@@ -80,26 +105,28 @@ describe("TeamExpansionNudge", () => {
       expect(vi.mocked(fetch)).toHaveBeenCalled();
     });
 
+    expect(
+      vi.mocked(fetch).mock.calls.some(([input]) => {
+        const url = typeof input === "string" ? input : input instanceof URL ? input.toString() : input.url;
+
+        return url.includes("/tenant/usage-status");
+      }),
+    ).toBe(false);
     expect(screen.queryByTestId("team-expansion-nudge")).not.toBeInTheDocument();
   });
 
   it("renders workspace trigger and links to pricing with team-expansion query params", async () => {
-    vi.stubGlobal(
-      "fetch",
-      vi.fn(async () => {
-        return new Response(
-          JSON.stringify({
-            isTrial: false,
-            commercialTier: "Team",
-            workspacesUsed: 1,
-            workspacesLimit: 1,
-            seatsUsed: 2,
-            seatsLimit: 5,
-          }),
-          { status: 200, headers: { "Content-Type": "application/json" } },
-        );
-      }),
-    );
+    mockOperatorShellFetch({
+      trialStatus: { status: "None" },
+      usageStatus: {
+        isTrial: false,
+        commercialTier: "Team",
+        workspacesUsed: 1,
+        workspacesLimit: 1,
+        seatsUsed: 2,
+        seatsLimit: 5,
+      },
+    });
 
     renderWithOperatorQuery(<TeamExpansionNudge />);
 
@@ -116,20 +143,15 @@ describe("TeamExpansionNudge", () => {
   });
 
   it("does not render for Professional tenants", async () => {
-    vi.stubGlobal(
-      "fetch",
-      vi.fn(async () => {
-        return new Response(
-          JSON.stringify({
-            isTrial: false,
-            commercialTier: "Professional",
-            seatsUsed: 18,
-            seatsLimit: 20,
-          }),
-          { status: 200, headers: { "Content-Type": "application/json" } },
-        );
-      }),
-    );
+    mockOperatorShellFetch({
+      trialStatus: { status: "None" },
+      usageStatus: {
+        isTrial: false,
+        commercialTier: "Professional",
+        seatsUsed: 18,
+        seatsLimit: 20,
+      },
+    });
 
     renderWithOperatorQuery(<TeamExpansionNudge />);
 
@@ -141,22 +163,17 @@ describe("TeamExpansionNudge", () => {
   });
 
   it("dismiss snoozes for 24 hours and records click telemetry", async () => {
-    vi.stubGlobal(
-      "fetch",
-      vi.fn(async () => {
-        return new Response(
-          JSON.stringify({
-            isTrial: false,
-            commercialTier: "Team",
-            seatsUsed: 4,
-            seatsLimit: 5,
-            workspacesUsed: 1,
-            workspacesLimit: 1,
-          }),
-          { status: 200, headers: { "Content-Type": "application/json" } },
-        );
-      }),
-    );
+    mockOperatorShellFetch({
+      trialStatus: { status: "None" },
+      usageStatus: {
+        isTrial: false,
+        commercialTier: "Team",
+        seatsUsed: 4,
+        seatsLimit: 5,
+        workspacesUsed: 1,
+        workspacesLimit: 1,
+      },
+    });
 
     renderWithOperatorQuery(<TeamExpansionNudge />);
 

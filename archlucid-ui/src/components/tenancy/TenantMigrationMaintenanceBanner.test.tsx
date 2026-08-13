@@ -94,6 +94,23 @@ describe("TenantMigrationMaintenanceBanner", () => {
     expect(screen.queryByTestId("tenant-migration-maintenance-banner")).not.toBeInTheDocument();
   });
 
+  it("does not poll migration status when migration is inactive", async () => {
+    fetchStatusMock.mockResolvedValue({ inMigration: false });
+
+    vi.useFakeTimers({ shouldAdvanceTime: true });
+    renderWithOperatorQuery(<TenantMigrationMaintenanceBanner />);
+
+    await waitFor(() => {
+      expect(fetchStatusMock).toHaveBeenCalledTimes(1);
+    });
+
+    await act(async () => {
+      await vi.advanceTimersByTimeAsync(TENANT_MIGRATION_STATUS_POLL_MS * 2);
+    });
+
+    expect(fetchStatusMock).toHaveBeenCalledTimes(1);
+  });
+
   it("polls migration status and clears the banner when migration completes", async () => {
     fetchStatusMock
       .mockResolvedValueOnce({ inMigration: true, message: "Writes suspended." })

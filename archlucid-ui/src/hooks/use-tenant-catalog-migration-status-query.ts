@@ -11,8 +11,11 @@ import {
   OPERATOR_QUERY_GC_MS,
   OPERATOR_QUERY_STALE_MS,
 } from "@/lib/query/operator-query-stale-time";
+import {
+  resolveShellBannerPollIntervalMs,
+  shouldPollCatalogMigrationBanner,
+} from "@/lib/shell-banner-poll-policy";
 import { TENANT_MIGRATION_STATUS_POLL_MS } from "@/lib/tenant-migration-banner-copy";
-import { resolveShellBannerPollIntervalMs } from "@/lib/shell-banner-poll-policy";
 
 type UseTenantCatalogMigrationStatusQueryOptions = {
   readonly enabled?: boolean;
@@ -34,11 +37,11 @@ export function useTenantCatalogMigrationStatusQuery(
       return status;
     },
     enabled: options?.enabled ?? true,
-    refetchInterval: () =>
+    refetchInterval: (query) =>
       resolveShellBannerPollIntervalMs({
         enabled: options?.enabled ?? true,
         documentHidden: options?.documentHidden ?? false,
-        shouldPoll: true,
+        shouldPoll: shouldPollCatalogMigrationBanner(query.state.data),
         intervalMs: TENANT_MIGRATION_STATUS_POLL_MS,
       }),
     refetchIntervalInBackground: false,
