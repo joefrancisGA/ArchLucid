@@ -87,7 +87,7 @@ ArchLucid is not an architecture documentation tool with AI bolted on. It was bu
 
 ### Pillar 2: Auditable decision trail
 
-Every architecture recommendation ArchLucid produces comes with a complete chain of evidence. The `ExplainabilityTrace` on every finding records what was examined, what rules were applied, what decisions were taken, and why. The provenance graph connects evidence to decisions to manifest entries to artifacts. This is not "AI said so" — it is "AI analyzed these inputs, applied these rules, and reached this conclusion, and here is the full trail."
+Evidence-cited findings include explainability traces where the pipeline enforces them (`ExplainabilityTrace`). The provenance graph connects evidence to decisions to manifest entries to artifacts when present on a committed run. This is not "AI said so" — it is "here is the trail we can show when gates and citations are present."
 
 ### Pillar 3: Enterprise governance
 
@@ -129,7 +129,7 @@ Former standalone: `docs/go-to-market/ELEVATOR_PITCH.md` → this section (inclu
 
 > "Here is the problem as I see it. Enterprise architecture review relies on manual effort from a small pool of senior architects. Reviews are slow, inconsistent, and poorly documented. Decisions are made in meetings and reconstructed months later when an auditor asks what happened. And AI tools built for chat — Copilot, ChatGPT — do not help here because they produce fluent prose with no evidence links, no policy context, and no governance trail.
 >
-> ArchLucid is built specifically for this gap. It coordinates a multi-agent pipeline — four specialized AI agents cover topology, cost, compliance, and design quality — against a structured architecture request. Every finding it surfaces carries an explainability trace: what was examined, which rules applied, what was concluded, and why. Every decision recorded against that finding is auditable and replayable.
+> ArchLucid is built specifically for this gap. It coordinates a multi-agent pipeline — four specialized AI agents cover topology, cost, compliance, and design quality — against a structured architecture request. Evidence-cited findings include explainability traces where gates enforce them. Decisions recorded on those findings are auditable, with replay/compare supported against committed manifests.
 >
 > The output is what I call an architecture package: a signed review record anchored to a full audit chain, structured findings, stated limits where the system does not conclude, and an executive summary your sponsor can read in five minutes. Exportable as DOCX or PDF, whitelabeled if needed.
 >

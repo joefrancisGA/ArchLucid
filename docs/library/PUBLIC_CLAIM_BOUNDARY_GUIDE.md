@@ -345,6 +345,12 @@ Former standalone body: `docs/go-to-market/PA_CLAIM_HONESTY_BULLETS_BATCH_B.md` 
 | --- | --- |
 | “SOC 2 certified/ready/almost/in process”; “pen tested” / “pen test in flight” when only self-assessment / owner-conducted / SoW template exists. | Intent → evidence-type label → pack → defer with funding trigger per [`SOC2_PENTEST_HONEST_PROCUREMENT_TALK_TRACK_CONTRACT.md`](SOC2_PENTEST_HONEST_PROCUREMENT_TALK_TRACK_CONTRACT.md) (**TB-1144**). CI: `check_soc2_pentest_honest_procurement_talk_track_honesty.py` (**TB-1145** Done). |
 
+#### M-201 — Golden-cohort re-lock vs rubber-stamp
+
+| Do not promise | Do promise |
+| --- | --- |
+| Unexplained mass SHA rewrite = regression proof; cohort re-lock heals production `ManifestHash` / export verify; Real-mode captured as Simulator baseline. | Intentional re-lock with rationale + never-re-lockable invariants per [`GOLDEN_COHORT_RELOCK_VS_RUBBER_STAMP_CONTRACT.md`](GOLDEN_COHORT_RELOCK_VS_RUBBER_STAMP_CONTRACT.md) (**TB-1172**). CI: `check_golden_cohort_relock_rubber_stamp_honesty.py` (**TB-1173** Done). |
+
 #### M-186 — Competitive deal loss
 
 | Do not promise | Do promise |

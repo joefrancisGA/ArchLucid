@@ -8,7 +8,7 @@
 **GTM:** **M-247** / **M-248** · **M-203** / **M-204** · **M-166** · **M-207**.  
 **Authority vs AgentTask:** [`AUTHORITY_VS_AGENTTASK_LOOP_CANONICAL_PATH_CONTRACT.md`](AUTHORITY_VS_AGENTTASK_LOOP_CANONICAL_PATH_CONTRACT.md) (**TB-1007**).  
 **Defense plane:** [`SHARED_HALLUCINATION_DEFENSE_PLANE_CONTRACT.md`](SHARED_HALLUCINATION_DEFENSE_PLANE_CONTRACT.md) (**TB-1230**).  
-**Honesty CI:** **TB-1370** (open).
+**Honesty CI:** **TB-1370** (**Done**).
 
 ---
 
@@ -55,13 +55,15 @@
 
 ---
 
-## TB-1370 CI anchors (named, not implemented here)
+## CI anchors for **TB-1370**
 
-| Anchor | Purpose |
+| Anchor | Role |
 | --- | --- |
+| `scripts/ci/check_agenttask_decisioning_ungated_leak_honesty.py` | Fail mode-split / schema=provenance overclaims |
 | `AGENTTASK_DECISIONING_UNGATED_LEAK_SEAMS_CONTRACT.md` | Drift guard (this file) |
-| Buyer/proof stub guards | Fail mode-split / schema=provenance claims |
-| Verification | `AgentTopologyProposalGraphMerge`, `AgentProposalManifestMerger.ApplyFindingsToGovernance`, `DecisionMergeInputGate`, INV-002 labels |
+| `AgentTopologyProposalGraphMerge`, `AgentProposalManifestMerger.ApplyFindingsToGovernance`, `DecisionMergeInputGate` | Verification code anchors |
+
+Honesty CI shipped: **TB-1370**.
 
 ---
 

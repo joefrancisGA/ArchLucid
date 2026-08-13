@@ -122,6 +122,11 @@ GUARDS: tuple[GuardCommand, ...] = (
         None,
     ),
     GuardCommand(
+        "golden-cohort re-lock honesty",
+        ("python", "scripts/ci/check_golden_cohort_relock_rubber_stamp_honesty.py"),
+        None,
+    ),
+    GuardCommand(
         "polly run-completeness honesty",
         ("python", "scripts/ci/check_polly_run_completeness_honesty.py"),
         None,
