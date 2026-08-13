@@ -71,7 +71,9 @@ Without both committed manifests + a persisted comparison, do **not** sell buyer
 
 ---
 
-## 6. CI anchors for **TB-1025** (contract published; CI open)
+## 6. CI anchors for **TB-1025** (shipped)
+
+Mechanical gate: `scripts/ci/check_comparison_replay_drift_honesty.py` (wired in `scripts/ci/run_buyer_surface_strict_guards.py`).
 
 | Forbidden implication | Anchor direction |
 |-----------------------|------------------|
@@ -80,7 +82,7 @@ Without both committed manifests + a persisted comparison, do **not** sell buyer
 | Uncommitted / Ask / enrichment as drift proof | Require §3 committed manifests + persisted comparison |
 | “Compare proves sealed package” without both manifests | Require §3 both-sides rule |
 
-Until **TB-1025** ships, treat this document as the **human** gate; CI is the **mechanical** gate.
+Vitest: `archlucid-ui/src/lib/comparison-replay-drift-honesty.test.ts`.
 
 ---
 

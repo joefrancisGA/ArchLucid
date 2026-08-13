@@ -3890,7 +3890,7 @@ Former standalone body: `docs/go-to-market/COMPARISON_REPLAY_IMMUTABLE_SNAPSHOT_
 
 ### Claim boundary
 
-Do not promise that artifact-mode replay proves architecture is unchanged, or that a live mutable UI side-by-side equals verify. Say: persisted `ComparisonRecord` + committed manifests on both sides; use **verify** for buyer drift/stable claims; label artifact-only as stored-delta replay.
+Do not promise that artifact-mode replay proves architecture is unchanged, or that a live mutable UI side-by-side equals verify. Say: persisted `ComparisonRecord` + committed manifests on both sides; use **verify mode (422)** for buyer drift/stable claims; label artifact-only as stored-delta replay.
 
 ### Safe pin
 
@@ -3905,7 +3905,7 @@ Do not promise that artifact-mode replay proves architecture is unchanged, or th
 
 ### Residuals (honest)
 
-Engineering SoT: [`COMPARISON_REPLAY_IMMUTABLE_SNAPSHOT_CONTRACT.md`](../library/COMPARISON_REPLAY_IMMUTABLE_SNAPSHOT_CONTRACT.md) (**TB-1024** Done). Minimal immutable snapshot set, replay modes, and illusion surfaces are published. Follow-on claim CI: **TB-1025**. Does not claim platform WORM on comparison rows (ADR 0040). Cite Flow C + [`../library/API_CONTRACTS.md`](../library/API_CONTRACTS.md) comparison-replay verify Â§. This handout does not claim CPA SOC 2 or a published third-party penetration test.
+Engineering SoT: [`COMPARISON_REPLAY_IMMUTABLE_SNAPSHOT_CONTRACT.md`](../library/COMPARISON_REPLAY_IMMUTABLE_SNAPSHOT_CONTRACT.md) (**TB-1024** Done). Minimal immutable snapshot set, replay modes, and illusion surfaces are published. Claim CI: **TB-1025** (`check_comparison_replay_drift_honesty.py`). Does not claim platform WORM on comparison rows (ADR 0040). Cite Flow C + [`../library/API_CONTRACTS.md`](../library/API_CONTRACTS.md) comparison-replay verify §. This handout does not claim CPA SOC 2 or a published third-party penetration test.
 
 | Open work | Purpose |
 | --- | --- |
