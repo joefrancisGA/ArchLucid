@@ -45,7 +45,6 @@ import {
   AZURE_PERMISSIONS_PAGE_TITLE,
   AZURE_PERMISSIONS_READ_ONLY_HEADING,
   AZURE_PERMISSIONS_READ_ONLY_INTRO,
-  AZURE_PERMISSIONS_REVISION_NOTE,
   AZURE_PERMISSIONS_SCOPE_HEADING,
   AZURE_PERMISSIONS_TRUST_NO_DEPLOY,
   AZURE_PERMISSIONS_TRUST_NO_MODIFY,
@@ -59,7 +58,12 @@ import {
   AZURE_PERMISSIONS_HELP_DEFERRED_CUSTOM_ROLE_DISCLOSURE_TEST_ID,
   AZURE_PERMISSIONS_HELP_DEFERRED_MATRIX_DISCLOSURE_TEST_ID,
   AZURE_PERMISSIONS_HELP_FIRST_VIEWPORT_TEST_ID,
+  AZURE_PERMISSIONS_HELP_HEADER_TEST_ID,
   AZURE_PERMISSIONS_HELP_PRIMARY_SETUP_ACTION,
+  AZURE_PERMISSIONS_HELP_REQUIREMENTS_REVIEWED_DISCLOSURE_SUMMARY,
+  AZURE_PERMISSIONS_HELP_REQUIREMENTS_REVIEWED_DISCLOSURE_TEST_ID,
+  AZURE_PERMISSIONS_HELP_REQUIREMENTS_REVIEWED_DISCLOSURE_TITLE,
+  formatAzurePermissionsHelpRequirementsReviewedLine,
 } from "@/lib/azure-permissions-help-evidence-copy";
 import type { ProductDocumentationEntry } from "@/lib/product-documentation-registry";
 import { cn } from "@/lib/utils";
@@ -152,7 +156,7 @@ export function HelpAzurePermissionsGuideView(props: HelpAzurePermissionsGuideVi
       data-testid="help-azure-permissions-guide"
     >
       <HelpTopicHashScroll />
-      <header className={HELP_PAGE_LAYOUT.articleHeader}>
+      <header className={HELP_PAGE_LAYOUT.articleHeader} data-testid={AZURE_PERMISSIONS_HELP_HEADER_TEST_ID}>
         <div className="flex flex-wrap items-start justify-between gap-3">
           <div className="min-w-0 space-y-2">
             <p className={cn("m-0", OPERATOR_TYPOGRAPHY.helper)}>
@@ -167,9 +171,6 @@ export function HelpAzurePermissionsGuideView(props: HelpAzurePermissionsGuideVi
             <HelpTopicTitleRow title={AZURE_PERMISSIONS_PAGE_TITLE} />
             <p className={cn("m-0 max-w-3xl", OPERATOR_TYPOGRAPHY.helper)}>{AZURE_PERMISSIONS_PAGE_SUBTITLE}</p>
             <HelpTopicRegistryProvenanceLine entry={entry} />
-            <p className={cn("m-0 text-al-text-secondary", OPERATOR_TYPOGRAPHY.micro)}>
-              {AZURE_PERMISSIONS_REVISION_NOTE(AZURE_CLOUD_CONNECTION_PERMISSIONS_CONTRACT_VERSION)}
-            </p>
           </div>
           <div className="flex min-w-0 flex-col items-start gap-2">
             <Button asChild size="sm" variant="primary" data-testid={AZURE_PERMISSIONS_HELP_PRIMARY_SETUP_ACTION.testId}>
@@ -344,6 +345,19 @@ export function HelpAzurePermissionsGuideView(props: HelpAzurePermissionsGuideVi
                 </li>
               ))}
             </ul>
+          </section>
+
+          <section className="border-t border-neutral-200 pt-6 dark:border-neutral-800">
+            <CollapsibleSection
+              title={AZURE_PERMISSIONS_HELP_REQUIREMENTS_REVIEWED_DISCLOSURE_TITLE}
+              headingLevel={2}
+              summaryLine={AZURE_PERMISSIONS_HELP_REQUIREMENTS_REVIEWED_DISCLOSURE_SUMMARY}
+              sectionTestId={AZURE_PERMISSIONS_HELP_REQUIREMENTS_REVIEWED_DISCLOSURE_TEST_ID}
+            >
+              <p className={cn("m-0 text-al-text-secondary", OPERATOR_TYPOGRAPHY.body)}>
+                {formatAzurePermissionsHelpRequirementsReviewedLine(AZURE_CLOUD_CONNECTION_PERMISSIONS_CONTRACT_VERSION)}
+              </p>
+            </CollapsibleSection>
           </section>
         </div>
         <HelpTopicTableOfContents headings={AZURE_PERMISSIONS_TOC_HEADINGS} />

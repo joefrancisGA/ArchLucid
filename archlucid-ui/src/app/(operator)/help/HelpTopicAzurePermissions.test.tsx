@@ -29,7 +29,7 @@ import {
   AZURE_PERMISSIONS_REQUIRED_ROLES_SUMMARY_HEADING,
   AZURE_PERMISSIONS_SETUP_HEADING,
 } from "@/lib/azure-cloud-connection-permissions-copy";
-import { AZURE_PERMISSIONS_HELP_CLAIM_DISCIPLINE, AZURE_PERMISSIONS_HELP_DEFERRED_CUSTOM_ROLE_DISCLOSURE_TEST_ID, AZURE_PERMISSIONS_HELP_DEFERRED_MATRIX_DISCLOSURE_TEST_ID, AZURE_PERMISSIONS_HELP_FIRST_VIEWPORT_TEST_ID, AZURE_PERMISSIONS_HELP_PRIMARY_SETUP_ACTION } from "@/lib/azure-permissions-help-evidence-copy";
+import { AZURE_PERMISSIONS_HELP_CLAIM_DISCIPLINE, AZURE_PERMISSIONS_HELP_BANNED_PRIMARY_CHROME_COPY, AZURE_PERMISSIONS_HELP_DEFERRED_CUSTOM_ROLE_DISCLOSURE_TEST_ID, AZURE_PERMISSIONS_HELP_DEFERRED_MATRIX_DISCLOSURE_TEST_ID, AZURE_PERMISSIONS_HELP_FIRST_VIEWPORT_TEST_ID, AZURE_PERMISSIONS_HELP_HEADER_TEST_ID, AZURE_PERMISSIONS_HELP_PRIMARY_SETUP_ACTION, AZURE_PERMISSIONS_HELP_REQUIREMENTS_REVIEWED_DISCLOSURE_TEST_ID, formatAzurePermissionsHelpRequirementsReviewedLine } from "@/lib/azure-permissions-help-evidence-copy";
 import { getProductDocumentationEntry } from "@/lib/product-documentation-registry";
 
 describe("HelpAzurePermissionsGuideView", () => {
@@ -191,6 +191,27 @@ describe("HelpAzurePermissionsGuideView", () => {
       expect(within(troubleshootList).getByText(item)).toBeInTheDocument();
     }
     expect(screen.queryByText("Common permission check issues")).not.toBeInTheDocument();
+  });
+
+  it("keeps eng tier and release-contract jargon out of primary chrome (TB-1628)", () => {
+    if (entry === undefined) {
+      throw new Error("Expected azure-permissions documentation entry.");
+    }
+
+    render(<HelpAzurePermissionsGuideView entry={entry} />);
+
+    const header = screen.getByTestId(AZURE_PERMISSIONS_HELP_HEADER_TEST_ID);
+    const firstViewport = screen.getByTestId(AZURE_PERMISSIONS_HELP_FIRST_VIEWPORT_TEST_ID);
+    const primaryChromeText = `${header.textContent ?? ""} ${firstViewport.textContent ?? ""}`;
+
+    for (const banned of AZURE_PERMISSIONS_HELP_BANNED_PRIMARY_CHROME_COPY) {
+      expect(primaryChromeText).not.toContain(banned);
+    }
+
+    expect(screen.getByTestId(AZURE_PERMISSIONS_HELP_REQUIREMENTS_REVIEWED_DISCLOSURE_TEST_ID)).not.toHaveAttribute("open");
+    expect(screen.getByTestId(AZURE_PERMISSIONS_HELP_REQUIREMENTS_REVIEWED_DISCLOSURE_TEST_ID)).toHaveTextContent(
+      formatAzurePermissionsHelpRequirementsReviewedLine("2026-07-13"),
+    );
   });
 
   it("does not surface Tier 1 or Tier 2 vocabulary in customer copy", () => {

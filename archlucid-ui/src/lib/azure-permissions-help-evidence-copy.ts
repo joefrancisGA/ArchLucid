@@ -18,3 +18,26 @@ export const AZURE_PERMISSIONS_HELP_DEFERRED_MATRIX_DISCLOSURE_TEST_ID =
 
 export const AZURE_PERMISSIONS_HELP_DEFERRED_CUSTOM_ROLE_DISCLOSURE_TEST_ID =
   "azure-permissions-custom-role-disclosure";
+
+/** TB-1628 — buyer-safe primary chrome; no eng tier or release-contract theater. */
+export const AZURE_PERMISSIONS_HELP_BANNED_PRIMARY_CHROME_COPY = [
+  "Tier 1",
+  "Tier 2",
+  "release contract",
+  "Evidence tier",
+] as const;
+
+export const AZURE_PERMISSIONS_HELP_HEADER_TEST_ID = "help-azure-permissions-header";
+
+export const AZURE_PERMISSIONS_HELP_REQUIREMENTS_REVIEWED_DISCLOSURE_TEST_ID =
+  "azure-permissions-requirements-reviewed-disclosure";
+
+export const AZURE_PERMISSIONS_HELP_REQUIREMENTS_REVIEWED_DISCLOSURE_TITLE =
+  "When these requirements were last reviewed";
+
+export const AZURE_PERMISSIONS_HELP_REQUIREMENTS_REVIEWED_DISCLOSURE_SUMMARY =
+  "Applies to hosted Azure cloud connections in this workspace.";
+
+export function formatAzurePermissionsHelpRequirementsReviewedLine(contractVersion: string): string {
+  return `Permission requirements last reviewed on ${contractVersion}.`;
+}

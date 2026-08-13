@@ -11,7 +11,7 @@ export const AZURE_PERMISSIONS_READ_ONLY_INTRO =
   "ArchLucid uses Azure permissions to collect architecture evidence. It does not require Owner, Contributor, User Access Administrator, or other write-enabled roles.";
 
 export const AZURE_PERMISSIONS_COST_OPTIONAL_NOTE =
-  "Cost access is optional and is required only when cost analysis is enabled for the connection or when you run the manual extractor script with cost collection.";
+  "Cost access is optional and is required only when cost analysis is enabled for the connection or when you collect cost data with the optional local Azure inventory script.";
 
 export const AZURE_PERMISSIONS_TRUST_NO_MODIFY = "No resource modification";
 
@@ -63,6 +63,7 @@ export const AZURE_PERMISSIONS_CONNECTION_CONTEXT_HEADING = "Connection values";
 
 export const AZURE_PERMISSIONS_OTHER_PROVIDERS_HEADING = "Other cloud providers";
 
+/** @deprecated Header chrome — use `formatAzurePermissionsHelpRequirementsReviewedLine` in the reviewed disclosure (TB-1628). */
 export const AZURE_PERMISSIONS_REVISION_NOTE = (version: string): string =>
   `Permission requirements last verified for ArchLucid release contract ${version}.`;
 
