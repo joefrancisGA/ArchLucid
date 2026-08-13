@@ -7,7 +7,7 @@ import {
   type LlmMonthlyDollarBudgetStatus,
 } from "@/lib/llm-monthly-budget-status";
 import { operatorQueryKeys } from "@/lib/query/operator-query-keys";
-import { OPERATOR_QUERY_STALE_MS } from "@/lib/query/operator-query-stale-time";
+import { resolveLlmMonthlyBudgetStatusStaleTime } from "@/lib/query/operator-query-stale-time";
 import { resolveShellBannerPollIntervalMs } from "@/lib/shell-banner-poll-policy";
 
 type UseLlmMonthlyBudgetStatusQueryOptions = {
@@ -41,6 +41,6 @@ export function useLlmMonthlyBudgetStatusQuery(options?: UseLlmMonthlyBudgetStat
       });
     },
     refetchIntervalInBackground: false,
-    staleTime: OPERATOR_QUERY_STALE_MS,
+    staleTime: (query) => resolveLlmMonthlyBudgetStatusStaleTime(query.state.data),
   });
 }

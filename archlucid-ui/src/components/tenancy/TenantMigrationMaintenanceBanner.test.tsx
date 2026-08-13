@@ -18,10 +18,11 @@ vi.mock("@/lib/fetch-tenant-catalog-migration-status", () => ({
   fetchTenantCatalogMigrationStatus: vi.fn(),
 }));
 
-const deferredShellStatusQueriesEnabledMock = vi.hoisted(() => vi.fn(() => true));
+const concernFetchEnabledMock = vi.hoisted(() => vi.fn(() => true));
 
-vi.mock("@/hooks/use-deferred-operator-shell-status-queries-enabled", () => ({
-  useDeferredOperatorShellStatusQueriesEnabled: () => deferredShellStatusQueriesEnabledMock(),
+vi.mock("@/components/shell/OperatorShellStatusQueryGate", () => ({
+  OperatorShellStatusQueryGate: ({ children }: { children: React.ReactNode }) => children,
+  useOperatorShellStatusConcernFetchEnabled: () => concernFetchEnabledMock(),
 }));
 
 import { TenantMigrationMaintenanceBanner } from "./TenantMigrationMaintenanceBanner";
@@ -46,7 +47,7 @@ describe("TenantMigrationMaintenanceBanner", () => {
     sessionStorage.clear();
     resetOperatorQueryClientForTests();
     buyerPolishedShellVitestOverride.value = false;
-    deferredShellStatusQueriesEnabledMock.mockReturnValue(true);
+    concernFetchEnabledMock.mockReturnValue(true);
     fetchStatusMock.mockReset();
   });
 
@@ -118,8 +119,8 @@ describe("TenantMigrationMaintenanceBanner", () => {
     expect(fetchStatusMock).toHaveBeenCalledTimes(1);
   });
 
-  it("does not fetch migration status until deferred shell queries are enabled", async () => {
-    deferredShellStatusQueriesEnabledMock.mockReturnValue(false);
+  it("does not fetch migration status until shell concern queries are enabled", async () => {
+    concernFetchEnabledMock.mockReturnValue(false);
 
     renderWithOperatorQuery(<TenantMigrationMaintenanceBanner />);
 

@@ -4,6 +4,10 @@ import { useQuery } from "@tanstack/react-query";
 
 import { operatorQueryKeys } from "@/lib/query/operator-query-keys";
 import {
+  OPERATOR_QUERY_GC_MS,
+  resolveTenantTrialStatusStaleTime,
+} from "@/lib/query/operator-query-stale-time";
+import {
   fetchTenantTrialStatus,
   shouldSkipTenantTrialStatusFetch,
   type TenantTrialStatusClientPayload,
@@ -21,5 +25,7 @@ export function useTenantTrialStatusQuery(options?: UseTenantTrialStatusQueryOpt
     queryKey: operatorQueryKeys.tenantTrialStatus,
     queryFn: fetchTenantTrialStatus,
     enabled: authEnabled && queryEnabled,
+    staleTime: (query) => resolveTenantTrialStatusStaleTime(query.state.data),
+    gcTime: OPERATOR_QUERY_GC_MS,
   });
 }

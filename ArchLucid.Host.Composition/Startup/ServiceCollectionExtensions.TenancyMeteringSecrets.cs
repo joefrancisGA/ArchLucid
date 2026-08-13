@@ -4,6 +4,7 @@ using ArchLucid.Core.Identity;
 using ArchLucid.Application.Marketing;
 using ArchLucid.Application.Notifications.Email;
 using ArchLucid.Application.Governance.DefaultPolicyPacks;
+using ArchLucid.Application.Operator;
 using ArchLucid.Application.Support;
 using ArchLucid.Application.Tenancy;
 using ArchLucid.Core.Configuration;
@@ -116,6 +117,7 @@ public static partial class ServiceCollectionExtensions
         services.AddScoped<TrialSeatAccountant>();
         services.AddScoped<ITenantUsageStatusService, TenantUsageStatusService>();
         services.AddScoped<ITenantMigrationStatusService, TenantMigrationStatusService>();
+        services.AddScoped<IOperatorShellStatusService, OperatorShellStatusService>();
         services.AddScoped<ITenantMigrationRetrievalOutboxDrainer, TenantMigrationRetrievalOutboxDrainer>();
         services.AddScoped<ITenantMigrationProjectionRefreshService, TenantMigrationProjectionRefreshService>();
         services.AddScoped<ITenantMigrationVerificationProbe, TenantMigrationVerificationProbe>();

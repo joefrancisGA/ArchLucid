@@ -6,7 +6,7 @@ import { useEffect, useState } from "react";
 
 import { Button } from "@/components/ui/button";
 import { DismissControl } from "@/components/usability/DismissControl";
-import { useDeferredOperatorShellStatusQueriesEnabled } from "@/hooks/use-deferred-operator-shell-status-queries-enabled";
+import { useOperatorShellStatusConcernFetchEnabled } from "@/components/shell/OperatorShellStatusQueryGate";
 import { useTenantTrialStatusQuery } from "@/hooks/use-tenant-trial-status-query";
 import { isBuyerPolishedOperatorShellEnv } from "@/lib/demo-ui-env";
 import { OPERATOR_TYPOGRAPHY } from "@/lib/design-tokens";
@@ -21,8 +21,8 @@ const URGENT_TRIAL_DAYS_MAX = 7;
  * (not only home). Uses `GET /v1/tenant/trial-status` — same source as {@link TrialBanner}.
  */
 export function TrialExpiryBanner() {
-  const deferredReady = useDeferredOperatorShellStatusQueriesEnabled();
-  const { data: payload, isFetched } = useTenantTrialStatusQuery({ enabled: deferredReady });
+  const concernFetchEnabled = useOperatorShellStatusConcernFetchEnabled();
+  const { data: payload, isFetched } = useTenantTrialStatusQuery({ enabled: concernFetchEnabled });
   const [dismissed, setDismissed] = useState(false);
 
   useEffect(() => {

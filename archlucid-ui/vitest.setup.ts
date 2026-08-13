@@ -31,6 +31,11 @@ vi.mock("@/hooks/use-deferred-operator-shell-status-queries-enabled", () => ({
   resetDeferredOperatorShellStatusQueriesForTests: () => {},
 }));
 
+vi.mock("@/components/shell/OperatorShellStatusQueryGate", () => ({
+  OperatorShellStatusQueryGate: ({ children }: { children: React.ReactNode }) => children,
+  useOperatorShellStatusConcernFetchEnabled: () => true,
+}));
+
 vi.mock("next/navigation", async (importOriginal) =>
   extendNextNavigationVitestMock(importOriginal),
 );

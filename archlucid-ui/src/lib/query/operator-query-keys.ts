@@ -20,6 +20,8 @@ export const operatorQueryKeys = {
   /** Throws when readiness cannot be loaded — preserves last payload on refetch errors. */
   healthReadySummaryStrict: ["operator", "health", "ready-summary", "strict"] as const,
   tenantCatalogMigrationStatus: ["operator", "tenant", "catalog-migration-status"] as const,
+  operatorShellStatus: (scope: OperatorScopeQueryKey) =>
+    ["operator", "shell-status", scope] as const,
   llmMonthlyBudgetStatus: ["operator", "llm", "monthly-budget-status"] as const,
   adminAiUsageDashboard: ["operator", "admin", "ai-usage-dashboard"] as const,
   executiveRoiSummary: ["operator", "roi", "executive-summary"] as const,

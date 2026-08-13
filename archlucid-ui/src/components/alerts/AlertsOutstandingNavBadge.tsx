@@ -1,13 +1,13 @@
 "use client";
 
 import { useAlertsInboxSummaryQuery } from "@/components/alerts/use-alerts-inbox-queries";
-import { useDeferredOperatorShellStatusQueriesEnabled } from "@/hooks/use-deferred-operator-shell-status-queries-enabled";
+import { useOperatorShellStatusConcernFetchEnabled } from "@/components/shell/OperatorShellStatusQueryGate";
 import { OPERATOR_TYPOGRAPHY } from "@/lib/design-tokens";
 import { cn } from "@/lib/utils";
 
 /** Count badge beside Alerts nav when open (outstanding) alerts exist. */
 export function AlertsOutstandingNavBadge(): React.JSX.Element | null {
-  const queryEnabled = useDeferredOperatorShellStatusQueriesEnabled();
+  const queryEnabled = useOperatorShellStatusConcernFetchEnabled();
   const { summary } = useAlertsInboxSummaryQuery({ initialModel: null, enabled: queryEnabled });
   const count = summary.open;
 

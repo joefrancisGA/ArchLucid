@@ -6,7 +6,7 @@ import { useEffect, useRef, useState } from "react";
 
 import { Button } from "@/components/ui/button";
 import { DismissControl } from "@/components/usability/DismissControl";
-import { useDeferredOperatorShellStatusQueriesEnabled } from "@/hooks/use-deferred-operator-shell-status-queries-enabled";
+import { useOperatorShellStatusConcernFetchEnabled } from "@/components/shell/OperatorShellStatusQueryGate";
 import { useTenantTrialStatusQuery } from "@/hooks/use-tenant-trial-status-query";
 import { useTenantUsageStatusQuery } from "@/hooks/use-tenant-usage-status-query";
 import { isBuyerPolishedOperatorShellEnv } from "@/lib/demo-ui-env";
@@ -62,10 +62,10 @@ function nudgeCopy(
  * documented thresholds; trials remain owned by {@link TrialUsageUpgradeNudge}.
  */
 export function TeamExpansionNudge() {
-  const deferredReady = useDeferredOperatorShellStatusQueriesEnabled();
-  const { data: trialPayload, isFetched: trialFetched } = useTenantTrialStatusQuery({ enabled: deferredReady });
+  const concernFetchEnabled = useOperatorShellStatusConcernFetchEnabled();
+  const { data: trialPayload, isFetched: trialFetched } = useTenantTrialStatusQuery({ enabled: concernFetchEnabled });
   const usageQueryEnabled =
-    deferredReady && shouldFetchTenantUsageStatusForTeamExpansionNudge(trialPayload, trialFetched);
+    concernFetchEnabled && shouldFetchTenantUsageStatusForTeamExpansionNudge(trialPayload, trialFetched);
   const { data: payload, isFetched } = useTenantUsageStatusQuery({ enabled: usageQueryEnabled });
   const [activeTrigger, setActiveTrigger] = useState<TeamExpansionNudgeTrigger | null>(null);
   const [visible, setVisible] = useState(false);

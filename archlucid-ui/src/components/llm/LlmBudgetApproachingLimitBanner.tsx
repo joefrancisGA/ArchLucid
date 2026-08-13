@@ -5,7 +5,7 @@ import Link from "next/link";
 import { useMemo, useState } from "react";
 
 import { DismissControl } from "@/components/usability/DismissControl";
-import { useDeferredOperatorShellStatusQueriesEnabled } from "@/hooks/use-deferred-operator-shell-status-queries-enabled";
+import { useOperatorShellStatusConcernFetchEnabled } from "@/components/shell/OperatorShellStatusQueryGate";
 import { useLlmMonthlyBudgetStatusQuery } from "@/hooks/use-llm-monthly-budget-status-query";
 import { useDocumentHidden } from "@/lib/document-visibility";
 import { isNextPublicDemoMode, isOperatorExperienceFullShellEnv } from "@/lib/demo-ui-env";
@@ -27,9 +27,9 @@ import { AI_USAGE_SETTINGS_PATH } from "@/lib/ai-usage-nav-paths";
 export function LlmBudgetApproachingLimitBanner() {
   const [dismissed, setDismissed] = useState(false);
   const documentHidden = useDocumentHidden();
-  const deferredReady = useDeferredOperatorShellStatusQueriesEnabled();
+  const concernFetchEnabled = useOperatorShellStatusConcernFetchEnabled();
   const queryEnabled =
-    deferredReady &&
+    concernFetchEnabled &&
     !dismissed &&
     !isNextPublicDemoMode() &&
     !isStaticDemoPayloadFallbackEnabled() &&

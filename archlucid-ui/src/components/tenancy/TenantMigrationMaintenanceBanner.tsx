@@ -3,7 +3,7 @@
 import Link from "next/link";
 
 import { Button } from "@/components/ui/button";
-import { useDeferredOperatorShellStatusQueriesEnabled } from "@/hooks/use-deferred-operator-shell-status-queries-enabled";
+import { useOperatorShellStatusConcernFetchEnabled } from "@/components/shell/OperatorShellStatusQueryGate";
 import { useTenantCatalogMigrationStatusQuery } from "@/hooks/use-tenant-catalog-migration-status-query";
 import { useDocumentHidden } from "@/lib/document-visibility";
 import { isBuyerPolishedOperatorShellEnv, isNextPublicDemoMode } from "@/lib/demo-ui-env";
@@ -25,8 +25,8 @@ function isMigrationBannerSuppressed(): boolean {
  */
 export function TenantMigrationMaintenanceBanner() {
   const documentHidden = useDocumentHidden();
-  const deferredReady = useDeferredOperatorShellStatusQueriesEnabled();
-  const queryEnabled = deferredReady && !isMigrationBannerSuppressed();
+  const concernFetchEnabled = useOperatorShellStatusConcernFetchEnabled();
+  const queryEnabled = concernFetchEnabled && !isMigrationBannerSuppressed();
 
   const { data, isError, isRefetchError, refetch } = useTenantCatalogMigrationStatusQuery({
     enabled: queryEnabled,

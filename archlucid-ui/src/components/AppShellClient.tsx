@@ -10,6 +10,7 @@ import { usePathname, useRouter } from "next/navigation";
 import { ArchLucidWordmarkLink } from "@/components/ArchLucidWordmarkLink";
 import { AppToaster } from "@/components/AppToaster";
 import { OperatorQueryProvider } from "@/components/operator/OperatorQueryProvider";
+import { OperatorShellStatusQueryGate } from "@/components/shell/OperatorShellStatusQueryGate";
 import {
   AppShellIdleOverlaysDeferred,
   AppShellMainContentGateDeferred,
@@ -217,9 +218,11 @@ function AppShellDeferChromeBoundary({
 export function AppShellClient({ children }: AppShellClientProps) {
   return (
     <OperatorQueryProvider>
-      <OperatorChromeModeProvider>
-        <AppShellInner>{children}</AppShellInner>
-      </OperatorChromeModeProvider>
+      <OperatorShellStatusQueryGate>
+        <OperatorChromeModeProvider>
+          <AppShellInner>{children}</AppShellInner>
+        </OperatorChromeModeProvider>
+      </OperatorShellStatusQueryGate>
     </OperatorQueryProvider>
   );
 }
