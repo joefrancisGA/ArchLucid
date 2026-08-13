@@ -19,7 +19,7 @@ _CANONICAL_LABELS = (
 
 _UI_SURFACES = (
     _TAXONOMY_TS,
-    _REPO_ROOT / "archlucid-ui" / "src" / "lib" / "run-detail-first-screen-proof-status.ts",
+    _REPO_ROOT / "archlucid-ui" / "src" / "lib" / "runs" / "run-detail-first-screen-proof-status.ts",
     _REPO_ROOT / "archlucid-ui" / "src" / "lib" / "export-markdown.ts",
 )
 

@@ -92,6 +92,7 @@
         "src/marketing",
         "src/review-workflow",
         "src/data",
+        "src/testing",
         "src/app/(executive)",
         "src/app/api",
         "src/app/not-found.test.tsx",
