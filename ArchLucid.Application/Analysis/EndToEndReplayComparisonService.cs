@@ -3,11 +3,14 @@ using ArchLucid.Application.Findings;
 using ArchLucid.Contracts.Agents;
 using ArchLucid.Contracts.Common;
 using ArchLucid.Contracts.Findings;
+using ArchLucid.Contracts.Runs;
 using ArchLucid.Core.AgentEvaluation;
 using ArchLucid.Core.Scoping;
 using ArchLucid.Contracts.Architecture;
 using ArchLucid.Contracts.Metadata;
 using ArchLucid.Persistence.Data.Repositories;
+using ArchLucid.Persistence.Interfaces;
+using ArchLucid.Persistence.Models;
 
 namespace ArchLucid.Application.Analysis;
 
@@ -23,6 +26,7 @@ namespace ArchLucid.Application.Analysis;
 /// </remarks>
 public sealed class EndToEndReplayComparisonService(
     IRunDetailQueryService runDetailQueryService,
+    IRunRepository runRepository,
     IRunExportRecordRepository runExportRecordRepository,
     IAgentResultDiffService agentResultDiffService,
     IManifestDiffService manifestDiffService,
@@ -32,6 +36,9 @@ public sealed class EndToEndReplayComparisonService(
     IScopeContextProvider scopeContextProvider) : IEndToEndReplayComparisonService
 {
     private readonly IRunDetailQueryService _runDetailQueryService = runDetailQueryService ?? throw new ArgumentNullException(nameof(runDetailQueryService));
+
+    private readonly IRunRepository _runRepository =
+        runRepository ?? throw new ArgumentNullException(nameof(runRepository));
 
     private readonly IRunExportRecordRepository _runExportRecordRepository =
         runExportRecordRepository ?? throw new ArgumentNullException(nameof(runExportRecordRepository));
@@ -66,11 +73,15 @@ public sealed class EndToEndReplayComparisonService(
         ArchitectureRunDetail rightDetail = await rightDetailTask;
         ArchitectureRun leftRun = leftDetail.Run;
         ArchitectureRun rightRun = rightDetail.Run;
+        ReviewRunEngineProvenance? leftEngineProvenance =
+            await TryLoadEngineProvenanceAsync(leftRunId, cancellationToken).ConfigureAwait(false);
+        ReviewRunEngineProvenance? rightEngineProvenance =
+            await TryLoadEngineProvenanceAsync(rightRunId, cancellationToken).ConfigureAwait(false);
         EndToEndReplayComparisonReport report = new()
         {
             LeftRunId = leftRunId,
             RightRunId = rightRunId,
-            RunDiff = BuildRunDiff(leftRun, rightRun)
+            RunDiff = BuildRunDiff(leftRun, rightRun, leftEngineProvenance, rightEngineProvenance)
         };
         List<AgentResult> leftResults = leftDetail.Results;
         List<AgentResult> rightResults = rightDetail.Results;
@@ -158,7 +169,11 @@ public sealed class EndToEndReplayComparisonService(
         return findings;
     }
 
-    private static RunMetadataDiffResult BuildRunDiff(ArchitectureRun leftRun, ArchitectureRun rightRun)
+    private static RunMetadataDiffResult BuildRunDiff(
+        ArchitectureRun leftRun,
+        ArchitectureRun rightRun,
+        ReviewRunEngineProvenance? leftEngineProvenance,
+        ReviewRunEngineProvenance? rightEngineProvenance)
     {
         RunMetadataDiffResult result = new();
         AddIfChanged(result.ChangedFields, "RequestId", leftRun.RequestId, rightRun.RequestId);
@@ -166,11 +181,20 @@ public sealed class EndToEndReplayComparisonService(
         AddIfChanged(result.ChangedFields, "CurrentManifestVersion", leftRun.CurrentManifestVersion, rightRun.CurrentManifestVersion);
         AddIfChanged(result.ChangedFields, "CompletedUtc", leftRun.CompletedUtc, rightRun.CompletedUtc);
         AddIfChanged(result.ChangedFields, "StructuralExecutionMode", leftRun.StructuralExecutionMode, rightRun.StructuralExecutionMode);
+        AddIfChanged(
+            result.ChangedFields,
+            "ModelAliasId",
+            leftEngineProvenance?.ModelAliasId,
+            rightEngineProvenance?.ModelAliasId);
         result.RequestIdsDiffer = !string.Equals(leftRun.RequestId, rightRun.RequestId, StringComparison.OrdinalIgnoreCase);
         result.ManifestVersionsDiffer = !string.Equals(leftRun.CurrentManifestVersion, rightRun.CurrentManifestVersion, StringComparison.OrdinalIgnoreCase);
         result.StatusDiffers = !Equals(leftRun.Status, rightRun.Status);
         result.CompletionStateDiffers = leftRun.CompletedUtc is null != rightRun.CompletedUtc is null;
         result.ExecutionModesDiffer = leftRun.StructuralExecutionMode != rightRun.StructuralExecutionMode;
+        result.ModelAliasIdsDiffer = !string.Equals(
+            leftEngineProvenance?.ModelAliasId,
+            rightEngineProvenance?.ModelAliasId,
+            StringComparison.OrdinalIgnoreCase);
         result.SharedNonRealExecutionMode =
             !result.ExecutionModesDiffer
             && leftRun.StructuralExecutionMode != StructuralExecutionMode.Real;
@@ -188,6 +212,12 @@ public sealed class EndToEndReplayComparisonService(
         {
             report.InterpretationNotes.Add(
                 "Both reviews used the same non-real structural execution mode — treat finding and cost deltas as directional only and confirm per-finding trust labels on inspect and export paths.");
+        }
+
+        if (report.RunDiff.ModelAliasIdsDiffer)
+        {
+            report.InterpretationNotes.Add(
+                "Catalog model alias differs between the two reviews — attribute finding and narrative drift to engine selection before inferring architecture or policy changes.");
         }
 
         if (report.AgentResultDiff is not null && report.ManifestDiff is not null)
@@ -215,6 +245,26 @@ public sealed class EndToEndReplayComparisonService(
         if (report.ExportDiffs.Any(d => d.ChangedTopLevelFields.Count > 0 || d.RequestDiff.ChangedFlags.Count > 0 || d.RequestDiff.ChangedValues.Count > 0))
             report.InterpretationNotes.Add(
                 "Export configuration differences were detected, so document outputs may differ even when architecture state is similar.");
+    }
+
+    private async Task<ReviewRunEngineProvenance?> TryLoadEngineProvenanceAsync(
+        string runId,
+        CancellationToken cancellationToken)
+    {
+        if (!TryParseRunGuid(runId, out Guid runGuid))
+        {
+            return null;
+        }
+
+        ScopeContext scope = _scopeContextProvider.GetCurrentScope();
+        RunRecord? header = await _runRepository.GetByIdAsync(scope, runGuid, cancellationToken).ConfigureAwait(false);
+
+        return ReviewRunEngineProvenanceJson.TryDeserialize(header?.EngineProvenanceJson);
+    }
+
+    private static bool TryParseRunGuid(string runId, out Guid runGuid)
+    {
+        return Guid.TryParseExact(runId, "N", out runGuid) || Guid.TryParse(runId, out runGuid);
     }
 
     private async Task<ArchitectureRunDetail> LoadRunDetailForRollupOrThrow(string runId, CancellationToken cancellationToken)

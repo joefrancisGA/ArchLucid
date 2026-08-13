@@ -275,6 +275,7 @@ public static partial class ServiceCollectionExtensions
         services.AddScoped<IWorkspaceAllowedEngineSetService, WorkspaceAllowedEngineSetService>();
         services.AddScoped<IModelExecutionProfileResolver, ModelExecutionProfileResolver>();
         services.AddScoped<IReviewModelAliasResolver, ReviewModelAliasResolver>();
+        services.AddScoped<IAgentModelCatalogEvaluationRecorder, AgentModelCatalogEvaluationRecorder>();
         services.AddScoped<IExternalSubprocessorEngineAcknowledgmentService, ExternalSubprocessorEngineAcknowledgmentService>();
         services.AddScoped<IFeaturedCompletedSampleService, FeaturedCompletedSampleService>();
         services.AddScoped<IPilotRunDeltaComputer, PilotRunDeltaComputer>();

@@ -9,6 +9,8 @@ using ArchLucid.Contracts.Common;
 using ArchLucid.Contracts.Metadata;
 using ArchLucid.Contracts.Persistence.TechnologyLedger;
 using ArchLucid.Contracts.Requests;
+using ArchLucid.Contracts.Runs;
+using ArchLucid.Core.Agents;
 using ArchLucid.Core.Audit;
 using ArchLucid.Core.Diagnostics;
 using ArchLucid.Core.Runs;
@@ -38,6 +40,7 @@ public sealed class ArchitectureRunAuthorityCoordination(
     IRunStateTransitionService runStateTransitionService,
     IModelExecutionProfileResolver modelExecutionProfileResolver,
     IReviewModelAliasResolver reviewModelAliasResolver,
+    IAgentModelAliasRegistry agentModelAliasRegistry,
     IAuditService auditService,
     ILogger<ArchitectureRunAuthorityCoordination> logger) : IArchitectureRunAuthorityCoordination
 {
@@ -68,6 +71,9 @@ public sealed class ArchitectureRunAuthorityCoordination(
 
     private readonly IReviewModelAliasResolver _reviewModelAliasResolver =
         reviewModelAliasResolver ?? throw new ArgumentNullException(nameof(reviewModelAliasResolver));
+
+    private readonly IAgentModelAliasRegistry _agentModelAliasRegistry =
+        agentModelAliasRegistry ?? throw new ArgumentNullException(nameof(agentModelAliasRegistry));
 
     private readonly IAuditService _auditService =
         auditService ?? throw new ArgumentNullException(nameof(auditService));
@@ -162,7 +168,14 @@ public sealed class ArchitectureRunAuthorityCoordination(
         output.Tasks = tasks;
 
         if (enlistUnitOfWork is null)
-            await PatchAuthorityRunHeaderAsync(authorityRun.RunId, request, deferred, cancellationToken);
+        {
+            await PatchAuthorityRunHeaderAsync(
+                authorityRun.RunId,
+                request,
+                deferred,
+                request.EffectiveModelAliasId,
+                cancellationToken);
+        }
         if (_logger.IsEnabled(LogLevel.Information))
             _logger.LogInformation(
                 "Coordination completed: RunId={RunId}, RequestId={RequestId}, StarterTaskCount={TaskCount}, EvidenceBundleId={EvidenceBundleId}, Deferred={Deferred}",
@@ -178,6 +191,7 @@ public sealed class ArchitectureRunAuthorityCoordination(
         Guid authorityRunId,
         ArchitectureRequest request,
         bool deferred,
+        string? effectiveModelAliasId,
         CancellationToken cancellationToken)
     {
         ScopeContext scope = _scopeContextProvider.GetCurrentScope();
@@ -197,6 +211,20 @@ public sealed class ArchitectureRunAuthorityCoordination(
             header.LegacyRunStatus = targetLegacyRunStatus;
 
         header.PackageOrigin = ArchitecturePackageOriginResolver.Resolve(request);
+
+        if (!deferred
+            && !string.IsNullOrWhiteSpace(effectiveModelAliasId)
+            && _agentModelAliasRegistry.TryGet(effectiveModelAliasId, out AgentModelAliasRegistryEntry? aliasEntry)
+            && aliasEntry is not null)
+        {
+            ReviewRunEngineProvenance selectionProvenance = ReviewRunEngineSelectionProvenanceBuilder.Build(
+                effectiveModelAliasId,
+                aliasEntry,
+                header.CreatedUtc);
+
+            header.EngineProvenanceJson = ReviewRunEngineProvenanceJson.Serialize(selectionProvenance);
+        }
+
         await _runRepository.UpdateAsync(header, cancellationToken);
     }
 

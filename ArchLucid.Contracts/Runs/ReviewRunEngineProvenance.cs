@@ -82,4 +82,18 @@ public sealed class ReviewRunEngineProvenance
         get;
         set;
     }
+
+    /// <summary>Catalog alias selected for this review at run create (TB-2110 / TB-2106).</summary>
+    public string? ModelAliasId
+    {
+        get;
+        set;
+    }
+
+    /// <summary>Per-task evaluation state frozen at selection time (TB-2105 / TB-2106).</summary>
+    public IReadOnlyList<ReviewRunEngineTaskEvaluationSnapshot>? TaskEvaluationSnapshotsAtSelection
+    {
+        get;
+        set;
+    }
 }

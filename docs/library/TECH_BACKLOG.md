@@ -1323,11 +1323,11 @@ All **P0** **V1**: visible-boundary button contract + design-system rule (**TB-2
 | TB-2230 | **Done** (2026-08-13) — Operator-visible quality-gate reject reasons on run detail; see ## TB-2230 below | Explainability P1 — **V1**; non-policy-pack assessment wave 2026-08-13; faithfulness vs structural vs semantic | S |
 | TB-2231 | Live golden-cohort canary with drift alert; see ## TB-2231 below | Testability P2 — **V1**; non-policy-pack assessment wave 2026-08-13; **TB-1506**/**TB-1507** live gap | L |
 | TB-932 | **Done** (2026-08-09) ? **Won't do** ? Offload large JSON payloads to blob storage; DEV LOB evidence max ~30 KB / 0% ?1 MB; see ## TB-932 below | Performance P0 ? **V1** (promoted P0 + V1 2026-08-08 with perf wave 5; evidence-gated; was P3 V2); after **TB-929**?**TB-931**; peers **TB-2119** | L |
-| TB-2103 | Operator-maintained model catalog ? DDL-backed `IAgentModelAliasRegistry` replacing `ConfigAgentModelAliasRegistry`; internal-only admin surface; lifecycle + audit on every mutation; see ## TB-2103 below | Maintainability P1 ? **V1.1**; ADR 0065 D2?; today curation needs a code change + deploy | L |
-| TB-2104 | Structured-output capability ladder (`StrictJsonSchema` \| `JsonObject` \| `DegradedTextParse`) per catalog row + per-task minimum, fail-closed routing; see ## TB-2104 below | Correctness P1 ? **V1.1**; ADR 0065 D4?; the **only** quality-adjacent fail-closed control ? function, not quality judgment | M |
-| TB-2105 | Engine evaluation evidence **attached, not gating** ? conformance + faithfulness + judge delta per engine ? task type stored on the catalog row and surfaced at point of selection; explicit `NotEvaluated`; see ## TB-2105 below | Trustworthiness P1 ? **V1.1**; ADR 0065 D3?; reuses **TB-683** harness + existing judges; selection is never refused on measured quality | L |
-| TB-2110 | Two-tier engine selection ? workspace admin sets allowed engine set + default; users choose within it per review; authorization + provenance; see ## TB-2110 below | Adoption friction P1 ? **V1.1** ? **Partial** 2026-08-13 (backend: allowed-set + run override resolver + settings API; UI/provenance **TB-2106** still open) | M |
-| TB-2106 | Engine identity as first-class run provenance ? trace/`EngineProvenanceJson` completeness + `EndToEndReplayComparisonService` engine diff; explicitly **not** in `ManifestHash`; see ## TB-2106 below | Traceability P1 ? **V1.1**; ADR 0065 D5?; replay currently cannot attribute drift to an engine change | M |
+| TB-2103 | **Done** (2026-08-13) ? Operator-maintained model catalog ? DDL-backed `IAgentModelAliasRegistry` replacing `ConfigAgentModelAliasRegistry`; internal `/internal/agent-model-catalog` + admin API; lifecycle + audit on every mutation; see ## TB-2103 below | Maintainability P1 ? **V1.1**; ADR 0065 D2? | L |
+| TB-2104 | **Done** (2026-08-13) ? Structured-output capability ladder (`StrictJsonSchema` \| `JsonObject` \| `DegradedTextParse`) per catalog row + per-task minimum, fail-closed routing; see ## TB-2104 below | Correctness P1 ? **V1.1**; ADR 0065 D4? | M |
+| TB-2105 | **Partial** (2026-08-13) ? Engine evaluation evidence **attached, not gating** ? operator record API + internal surface; harness automation still open; see ## TB-2105 below | Trustworthiness P1 ? **V1.1**; ADR 0065 D3? | L |
+| TB-2110 | **Done** (2026-08-13) ? Two-tier engine selection ? workspace allowed set + per-review picker + selection provenance at run create; see ## TB-2110 below | Adoption friction P1 ? **V1.1** | M |
+| TB-2106 | **Done** (2026-08-13) ? Engine identity as first-class run provenance ? `ModelAliasId` + eval snapshot on `EngineProvenanceJson` + replay diff; see ## TB-2106 below | Traceability P1 ? **V1.1**; ADR 0065 D5? | M |
 | TB-2107 | Per-engine tokenizer + USD rate profiles on catalog rows; budget guard + `LlmCostEstimator` read from catalog, not deployment-keyed options; see ## TB-2107 below | Cost-effectiveness P2 ? **V1.1**; ADR 0065 D6?; `chars / 4` heuristic does not hold cross-tokenizer | M |
 | TB-2108 | First non-Azure ArchLucid-managed engine adapter ? `LlmProviderType` activation in `DefaultLlmProviderFactory` for one admitted engine; see ## TB-2108 below | Cost-effectiveness P3 ? **V2**; ADR 0065 D1?; gated on **TB-2103**?**TB-2107** and **TB-872** | XL |
 | TB-2109 | Non-Azure engine data-boundary gate ? subprocessor disclosure + trust-center/buyer-packet update + workspace-admin regulated-evidence acknowledgment in audit before first use; see ## TB-2109 below | Compliance readiness P1 ? **V1.1** ? **Partial** 2026-08-13 (registry `DataBoundary`, acknowledgment API + audit; buyer/trust docs + `ExternalSubprocessor` catalog rows still open) | M |
@@ -1505,7 +1505,7 @@ All **P0** **V1**: visible-boundary button contract + design-system rule (**TB-2
 | TB-1627 | **Done** (2026-08-13) — Azure permissions help first-viewport density (required-role summary + deferred matrix/custom-role); see ## TB-1627 below | Adoption friction P1 ? **V1**; with **TB-1626** | S |
 | TB-1628 | **Done** (2026-08-13) — Azure permissions help Tier-1 / contract-version jargon honesty; see ## TB-1628 below | Trustworthiness P1 ? **V1**; with **TB-1626**; pairs **TB-1235** | XS |
 | TB-1629 | **Done** (2026-08-13) — Azure permissions help IA dual with Connect Azure securely: job-matrix first viewport, page-help retarget to `cloud-connections-azure`, mutual-link Vitest; see ## TB-1629 below | Adoption friction P1 ? **V1**; with **TB-1626** | S |
-| TB-1630 | Azure permissions help ? connection-context loading skeleton; see ## TB-1630 below | Adoption friction P1 ? **V1**; with **TB-1626** | XS |
+| TB-1630 | **Done** (2026-08-13) — Azure permissions help connection-context loading skeleton replaces text Suspense fallback; Vitest; see ## TB-1630 below | Adoption friction P1 ? **V1**; with **TB-1626** | XS |
 | TB-1631 | `/help/caiq-sig-response` specialty buyer questionnaire guide; see ## TB-1631 below | Adoption friction P1 ? **V1**; owner review ~41/100 2026-07-27; traffic **HCA**; pairs **TB-1414**/**TB-1253**; do not reopen **TB-135**/**TB-136** | M |
 | TB-1634 | CAIQ/SIG help ? dual-doc dump / first-viewport density; see ## TB-1634 below | Adoption friction P1 ? **V1**; with **TB-1631** | S |
 | TB-1635 | CAIQ/SIG help ? Help Center + Trust / compliance-journey discovery IA; see ## TB-1635 below | Adoption friction P1 ? **V1**; with **TB-1631** | S |
@@ -40711,13 +40711,15 @@ Operators must read three intros before reaching the Trust Center link list.
 
 ## TB-1630 ? Azure permissions help ? connection-context loading skeleton (P0)
 
-**Window:** V1 ? Adoption friction. **Status:** Not started. **Priority:** P0.
+**Window:** V1 ? Adoption friction. **Status:** **Done** (2026-08-13). **Priority:** P0.
 
 **Problem:** Suspense fallback is text ?Loading connection context??.
 
 **Approach:** Skeleton for connection values. Vitest: skeleton testid.
 
 **Acceptance:** Loading matches shell standard. **Size estimate:** XS.
+
+**Shipped:** `HelpAzurePermissionsConnectionContextLoadingSkeleton` wired as Suspense fallback in `HelpAzurePermissionsGuideView`; `AZURE_PERMISSIONS_HELP_CONNECTION_CONTEXT_LOADING_SKELETON_TEST_ID` Vitest guard.
 
 ---
 

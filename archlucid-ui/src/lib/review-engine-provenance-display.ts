@@ -10,6 +10,12 @@ export type ReviewRunEngineProvenance = {
   readonly totalOutputTokens?: number | null;
   readonly estimatedCostUsd?: number | null;
   readonly engineProfileId?: string | null;
+  readonly modelAliasId?: string | null;
+  readonly taskEvaluationSnapshotsAtSelection?: readonly {
+    readonly taskType: string;
+    readonly evaluationState: string;
+    readonly evaluatedUtc?: string | null;
+  }[] | null;
 };
 
 const PROVIDER_KIND_LABELS: Readonly<Record<string, string>> = {

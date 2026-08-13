@@ -46,6 +46,7 @@ internal static class ArchitectureRunAuthorityCoordinationTestFactory
             new RunStateTransitionService(),
             resolver,
             CreateDefaultAliasResolver(scopeContextProvider),
+            new ConfigAgentModelAliasRegistryStub(),
             auditService ?? Mock.Of<IAuditService>(),
             NullLogger<ArchitectureRunAuthorityCoordination>.Instance);
     }

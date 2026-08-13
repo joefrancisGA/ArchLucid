@@ -6,6 +6,9 @@ using ArchLucid.Contracts.Architecture;
 using ArchLucid.Contracts.Common;
 using ArchLucid.Contracts.Manifest;
 using ArchLucid.Contracts.Metadata;
+using ArchLucid.Contracts.Runs;
+using ArchLucid.Persistence.Interfaces;
+using ArchLucid.Persistence.Models;
 
 using FluentAssertions;
 
@@ -26,6 +29,7 @@ public sealed class EndToEndReplayComparisonServiceTests
     private readonly Mock<IRunExportRecordRepository> _exportRepo = new();
     private readonly Mock<IManifestDiffService> _manifestDiff = new();
     private readonly Mock<IRunDetailQueryService> _runDetailQueryService = new();
+    private readonly Mock<IRunRepository> _runRepository = new();
     private readonly Mock<IFindingReviewTrailRepository> _reviewTrailRepository = new();
     private readonly Mock<IScopeContextProvider> _scopeContextProvider = new();
     private readonly EndToEndReplayComparisonService _sut;
@@ -42,6 +46,7 @@ public sealed class EndToEndReplayComparisonServiceTests
         _scopeContextProvider.Setup(provider => provider.GetCurrentScope()).Returns(new ScopeContext());
         _sut = new EndToEndReplayComparisonService(
             _runDetailQueryService.Object,
+            _runRepository.Object,
             _exportRepo.Object,
             _agentDiff.Object,
             _manifestDiff.Object,
@@ -176,5 +181,59 @@ public sealed class EndToEndReplayComparisonServiceTests
         Func<Task<EndToEndReplayComparisonReport>> act = () => _sut.BuildAsync("missing", "right");
 
         await act.Should().ThrowAsync<RunNotFoundException>().WithMessage("*missing*");
+    }
+
+    [SkippableFact]
+    public async Task BuildAsync_WhenModelAliasIdsDiffer_FlagsRunDiffAndAddsInterpretationNote()
+    {
+        ArchitectureRunDetail left = new()
+        {
+            Run = Run("aaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaa", "v1"),
+            Results = [],
+            Manifest = Manifest("aaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaa", "v1"),
+        };
+        ArchitectureRunDetail right = new()
+        {
+            Run = Run("bbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbb", "v1"),
+            Results = [],
+            Manifest = Manifest("bbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbb", "v1"),
+        };
+
+        _runDetailQueryService.Setup(s => s.GetRunDetailForRollupAsync(left.Run.RunId, It.IsAny<CancellationToken>()))
+            .ReturnsAsync(left);
+        _runDetailQueryService.Setup(s => s.GetRunDetailForRollupAsync(right.Run.RunId, It.IsAny<CancellationToken>()))
+            .ReturnsAsync(right);
+        _exportRepo.Setup(r => r.GetByRunIdAsync(It.IsAny<string>(), It.IsAny<CancellationToken>()))
+            .ReturnsAsync(new List<RunExportRecord>());
+        _manifestDiff.Setup(m => m.Compare(left.Manifest, right.Manifest)).Returns(new ManifestDiffResult());
+
+        Guid leftGuid = Guid.ParseExact(left.Run.RunId, "N");
+        Guid rightGuid = Guid.ParseExact(right.Run.RunId, "N");
+
+        _runRepository
+            .Setup(repository => repository.GetByIdAsync(It.IsAny<ScopeContext>(), leftGuid, It.IsAny<CancellationToken>()))
+            .ReturnsAsync(
+                new RunRecord
+                {
+                    RunId = leftGuid,
+                    EngineProvenanceJson = ReviewRunEngineProvenanceJson.Serialize(
+                        new ReviewRunEngineProvenance { ModelAliasId = "economy-general" })
+                });
+        _runRepository
+            .Setup(repository => repository.GetByIdAsync(It.IsAny<ScopeContext>(), rightGuid, It.IsAny<CancellationToken>()))
+            .ReturnsAsync(
+                new RunRecord
+                {
+                    RunId = rightGuid,
+                    EngineProvenanceJson = ReviewRunEngineProvenanceJson.Serialize(
+                        new ReviewRunEngineProvenance { ModelAliasId = "premium-assurance" })
+                });
+
+        EndToEndReplayComparisonReport report = await _sut.BuildAsync(left.Run.RunId, right.Run.RunId);
+
+        report.RunDiff.ModelAliasIdsDiffer.Should().BeTrue();
+        report.RunDiff.ChangedFields.Should().Contain("ModelAliasId");
+        report.InterpretationNotes.Should().Contain(note =>
+            note.Contains("Catalog model alias differs", StringComparison.OrdinalIgnoreCase));
     }
 }

@@ -10,6 +10,7 @@ describe("OperatorSystemAdminNavGroupBuilder", () => {
     const gatedHrefs = new Set([
       "/internal/trial-funnel",
       "/internal/fleet-llm-cogs",
+      "/internal/agent-model-catalog",
       "/internal/rag-health",
       "/internal/integration-events/dlq",
     ]);

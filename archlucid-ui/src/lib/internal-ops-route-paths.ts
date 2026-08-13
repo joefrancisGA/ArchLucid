@@ -7,6 +7,7 @@ export const INTERNAL_OPS_NAV_HUB_PATH = "/internal/health" as const;
 export const INTERNAL_PRICING_QUOTE_AGING_PATH = "/internal/pricing-quote-aging" as const;
 export const INTERNAL_TRIAL_FUNNEL_PATH = "/internal/trial-funnel" as const;
 export const INTERNAL_FLEET_LLM_COGS_PATH = "/internal/fleet-llm-cogs" as const;
+export const INTERNAL_AGENT_MODEL_CATALOG_PATH = "/internal/agent-model-catalog" as const;
 export const INTERNAL_TENANT_HEALTH_PATH = "/internal/tenant-health" as const;
 export const INTERNAL_TENANTS_PATH = "/internal/tenants" as const;
 export const INTERNAL_HEALTH_PATH = "/internal/health" as const;

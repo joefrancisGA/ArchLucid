@@ -55,4 +55,11 @@ public sealed class RunMetadataDiffResult
         get;
         set;
     }
+
+    /// <summary><c>true</c> when the two runs used different catalog model aliases (TB-2106).</summary>
+    public bool ModelAliasIdsDiffer
+    {
+        get;
+        set;
+    }
 }

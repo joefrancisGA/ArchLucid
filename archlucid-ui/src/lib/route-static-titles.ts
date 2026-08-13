@@ -101,6 +101,7 @@ export const ROUTE_TITLES: Record<string, string> = {
   "/internal/pricing-quote-aging": "Pricing quote follow-up",
   "/internal/trial-funnel": "Trial funnel",
   "/internal/fleet-llm-cogs": "Fleet LLM COGS",
+  "/internal/agent-model-catalog": "Agent model catalog",
   "/internal/tenant-health": "Tenant health",
   "/internal/tenants": "Tenants",
   "/internal/health": "Diagnostics dashboard",

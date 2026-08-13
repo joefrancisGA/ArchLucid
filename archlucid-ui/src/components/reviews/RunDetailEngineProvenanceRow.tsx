@@ -28,12 +28,17 @@ function ProvenanceField(props: { readonly label: string; readonly value: string
 /** Quiet enterprise footnote for model engine provenance on run detail. */
 export function RunDetailEngineProvenanceRow(props: RunDetailEngineProvenanceRowProps): ReactElement {
   const { provenance } = props;
-  const engineLabel = `${formatReviewEngineProviderLabel(provenance.providerKind)} / ${provenance.deploymentOrModelId}`;
+  const engineLabel = provenance.modelAliasId
+    ? `${provenance.modelAliasId} (${formatReviewEngineProviderLabel(provenance.providerKind)} / ${provenance.deploymentOrModelId})`
+    : `${formatReviewEngineProviderLabel(provenance.providerKind)} / ${provenance.deploymentOrModelId}`;
   const costLabel = formatReviewEngineCostUsd(provenance.estimatedCostUsd);
 
   return (
     <CollapsibleSection title="Engine & model" defaultOpen={false}>
       <dl className={cn("m-0 grid gap-3 sm:grid-cols-2", OPERATOR_TYPOGRAPHY.body)}>
+        {provenance.modelAliasId ? (
+          <ProvenanceField label="Catalog alias" value={provenance.modelAliasId} />
+        ) : null}
         <ProvenanceField label="Engine" value={engineLabel} />
         {provenance.promptPackVersion ? (
           <ProvenanceField label="Prompt pack" value={provenance.promptPackVersion} />

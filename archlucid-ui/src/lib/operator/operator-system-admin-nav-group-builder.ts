@@ -56,6 +56,8 @@ import {
 
   INTERNAL_FLEET_LLM_COGS_PATH,
 
+  INTERNAL_AGENT_MODEL_CATALOG_PATH,
+
   INTERNAL_HEALTH_PATH,
 
   INTERNAL_INTEGRATION_EVENTS_DLQ_PATH,
@@ -129,6 +131,22 @@ export class OperatorSystemAdminNavGroupBuilder extends NavGroupBuilderBase {
           title: "Fleet LLM COGS — per-tenant estimated LLM budget pressure and margin risk",
 
           icon: Wallet,
+
+          tier: "advanced",
+
+          requiredAuthority: "AdminAuthority",
+
+        },
+
+        {
+
+          href: INTERNAL_AGENT_MODEL_CATALOG_PATH,
+
+          label: "Agent model catalog",
+
+          title: "Agent model catalog — platform alias curation, lifecycle, and evaluation evidence",
+
+          icon: ServerCog,
 
           tier: "advanced",
 

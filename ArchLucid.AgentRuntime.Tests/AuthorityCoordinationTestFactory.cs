@@ -55,6 +55,7 @@ internal static class AuthorityCoordinationTestFactory
                     new StubAgentModelAliasRegistry()),
                 new StubAgentModelAliasRegistry(),
                 new StubExternalSubprocessorEngineAcknowledgmentService()),
+            new StubAgentModelAliasRegistry(),
             Mock.Of<IAuditService>(),
             NullLogger<ArchitectureRunAuthorityCoordination>.Instance);
     }

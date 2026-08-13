@@ -23,12 +23,16 @@ namespace ArchLucid.Api.Controllers.Admin;
 [EnableRateLimiting("fixed")]
 public sealed class AdminAgentModelCatalogController(
     IAgentModelCatalogRepository catalogRepository,
+    IAgentModelCatalogEvaluationRecorder evaluationRecorder,
     IAgentModelCatalogCacheInvalidator cacheInvalidator,
     IAuditService auditService,
     IScopeContextProvider scopeContextProvider) : ControllerBase
 {
     private readonly IAgentModelCatalogRepository _catalogRepository =
         catalogRepository ?? throw new ArgumentNullException(nameof(catalogRepository));
+
+    private readonly IAgentModelCatalogEvaluationRecorder _evaluationRecorder =
+        evaluationRecorder ?? throw new ArgumentNullException(nameof(evaluationRecorder));
 
     private readonly IAgentModelCatalogCacheInvalidator _cacheInvalidator =
         cacheInvalidator ?? throw new ArgumentNullException(nameof(cacheInvalidator));
@@ -93,4 +97,44 @@ public sealed class AdminAgentModelCatalogController(
 
         return Ok(saved);
     }
+
+    [HttpPost("{aliasId}/evaluations/{taskType}/record")]
+    [ProducesResponseType(typeof(AgentModelCatalogRow), StatusCodes.Status200OK)]
+    public async Task<IActionResult> RecordEvaluation(
+        string aliasId,
+        string taskType,
+        [FromBody] RecordAgentModelCatalogEvaluationRequest? request,
+        CancellationToken cancellationToken)
+    {
+        if (request is null)
+        {
+            return BadRequest("Request body is required.");
+        }
+
+        if (!Enum.TryParse(request.EvaluationState, true, out AgentModelEvaluationStateKind evaluationState))
+        {
+            return BadRequest("EvaluationState is invalid.");
+        }
+
+        string actor = User?.Identity?.Name ?? "admin";
+
+        AgentModelCatalogRow saved = await _evaluationRecorder
+            .RecordTaskEvaluationAsync(
+                aliasId,
+                taskType,
+                evaluationState,
+                request.EvidenceJson,
+                actor,
+                cancellationToken)
+            .ConfigureAwait(false);
+
+        return Ok(saved);
+    }
+}
+
+public sealed class RecordAgentModelCatalogEvaluationRequest
+{
+    public string EvaluationState { get; set; } = nameof(AgentModelEvaluationStateKind.NotEvaluated);
+
+    public string? EvidenceJson { get; set; }
 }

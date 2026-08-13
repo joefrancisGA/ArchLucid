@@ -56,6 +56,8 @@ public static partial class AuditEventTypes
     /// <summary>Platform operator updated a catalog engine row (TB-2103).</summary>
     public const string ModelCatalogEntryUpdated = "ModelCatalog.EntryUpdated";
 
+    public const string ModelCatalogEvaluationRecorded = "ModelCatalog.EvaluationRecorded";
+
     /// <summary>Phase B LLM faithfulness judge scored below warn floor on one agent trace (run continues for other traces).</summary>
     public const string AgentOutputLlmFaithfulnessWarned = "AgentOutput.LlmFaithfulnessWarned";
 
