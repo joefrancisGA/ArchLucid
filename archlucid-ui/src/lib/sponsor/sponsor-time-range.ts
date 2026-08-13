@@ -39,17 +39,18 @@ export function filterHistoryPointsByRange<T extends { snapshotUtc: string }>(
   points: readonly T[],
   range: SponsorTimeRange,
 ): T[] {
-  const { fromUtc } = windowForSponsorRange(range);
+  const { fromUtc, toUtc } = windowForSponsorRange(range);
 
   if (fromUtc === null) {
     return [...points];
   }
 
   const fromMs = Date.parse(fromUtc);
+  const toMs = Date.parse(toUtc);
 
   return points.filter((point) => {
     const snapshotMs = Date.parse(point.snapshotUtc);
 
-    return !Number.isNaN(snapshotMs) && snapshotMs >= fromMs;
+    return !Number.isNaN(snapshotMs) && snapshotMs >= fromMs && snapshotMs <= toMs;
   });
 }
