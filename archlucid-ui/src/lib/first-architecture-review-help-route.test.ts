@@ -5,6 +5,7 @@ import { describe, expect, it } from "vitest";
 
 import { FIRST_ARCHITECTURE_REVIEW_HELP_ROUTE_METADATA } from "@/lib/first-architecture-review-help-route-metadata";
 import { FIRST_ARCHITECTURE_REVIEW_HELP_PATH } from "@/lib/first-architecture-review-help-route";
+import { FIRST_ARCHITECTURE_REVIEW_INBOUND_HANDOFF_SOURCE_FILES } from "@/lib/first-architecture-review-help-inbound-handoff-surfaces";
 import { BUYER_FIRST_REVIEW_HELP_HREF } from "@/lib/first-review-90min-playbook-alignment";
 import {
   MARKETING_ROBOTS_DISALLOW_PREFIXES,
@@ -13,14 +14,9 @@ import {
 
 const HELP_TOPIC_PAGE = join(process.cwd(), "src", "app", "(operator)", "help", "[...topic]", "page.tsx");
 
-const PRODUCT_FIRST_REVIEW_HELP_SURFACES = [
-  "archlucid-ui/src/lib/first-review-90min-playbook-alignment.ts",
-  "archlucid-ui/src/components/CorePilotNextStepsCard.tsx",
-  "archlucid-ui/src/lib/help/help-center-catalog.ts",
-  "archlucid-ui/src/lib/help/help-search-panel-catalog.ts",
-  "archlucid-ui/src/lib/usability/page-help-topic-map.ts",
-  "archlucid-ui/src/lib/repeat-review-loop-help-guide-content.ts",
-] as const;
+const PRODUCT_FIRST_REVIEW_HELP_SURFACES = FIRST_ARCHITECTURE_REVIEW_INBOUND_HANDOFF_SOURCE_FILES.map(
+  (relativePath) => `archlucid-ui/${relativePath}` as const,
+);
 
 const CANONICAL_FIRST_REVIEW_HELP_HANDOFF_MARKERS = [
   FIRST_ARCHITECTURE_REVIEW_HELP_PATH,
@@ -66,6 +62,8 @@ describe("first-architecture-review-help-route (COR)", () => {
       const source = readFileSync(join(repoRoot, relativePath), "utf8");
       expectCanonicalFirstReviewHelpHandoff(source);
       expect(source).not.toContain('href="/help/core-pilot"');
+      expect(source).not.toContain("/help/first-hour-operator-path");
+      expect(source).not.toContain('helpSlug="core-pilot"');
     }
   });
 });

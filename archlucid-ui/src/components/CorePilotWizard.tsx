@@ -9,6 +9,7 @@ import { useCallback, useEffect, useReducer, useState } from "react";
 import { GlossaryTooltip } from "@/components/GlossaryTooltip";
 import { InAppHelpLink } from "@/components/InAppHelpLink";
 import { BUYER_ONBOARDING_PAGE_TITLE } from "@/lib/buyer/buyer-polish-copy";
+import { FIRST_ARCHITECTURE_REVIEW_PAGE_TITLE } from "@/lib/first-architecture-review-help-copy";
 import { Button } from "@/components/ui/button";
 import {
   Dialog,
@@ -270,7 +271,7 @@ export function CorePilotWizardLauncher() {
             <div className="flex flex-wrap items-center gap-3">
               <DialogTitle>{step.title}</DialogTitle>
 
-              <InAppHelpLink helpSlug="core-pilot" label="Open the Core Pilot guide" />
+              <InAppHelpLink helpSlug="first-architecture-review" label={FIRST_ARCHITECTURE_REVIEW_PAGE_TITLE} />
             </div>
 
             <div className="space-y-3">

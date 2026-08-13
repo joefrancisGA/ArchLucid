@@ -26,6 +26,8 @@ import {
 
 import { CORE_PILOT_STEPS } from "@/lib/core-pilot-steps";
 
+import { FIRST_ARCHITECTURE_REVIEW_PAGE_TITLE } from "@/lib/first-architecture-review-help-copy";
+
 import { isCorePilotStepOptional, corePilotStepStatusTag } from "@/lib/core-pilot-step-status";
 
 import { resolveCorePilotStepPresentation } from "@/lib/core-pilot-step-presentation";
@@ -141,7 +143,11 @@ export function CorePilotChecklist(props: CorePilotChecklistProps = {}) {
 
         </ul>
 
-        <OperatorHomeGuidanceLink helpSlug="core-pilot" label="Open checklist" className="mt-3 inline-block" />
+        <OperatorHomeGuidanceLink
+          helpSlug="first-architecture-review"
+          label="Open checklist"
+          className="mt-3 inline-block"
+        />
 
       </OperatorHomeDisclosureSection>
 
@@ -166,7 +172,11 @@ export function CorePilotChecklist(props: CorePilotChecklistProps = {}) {
       collapsedSummary={`${CORE_PILOT_STEPS.length} steps from empty tenant to first architecture review.`}
     >
 
-      <OperatorHomeGuidanceLink helpSlug="core-pilot" label="Open Core Pilot guide" className="mb-3 inline-block" />
+      <OperatorHomeGuidanceLink
+        helpSlug="first-architecture-review"
+        label={FIRST_ARCHITECTURE_REVIEW_PAGE_TITLE}
+        className="mb-3 inline-block"
+      />
 
       <p className={cn("m-0 mb-3", OPERATOR_TYPOGRAPHY.body, "text-neutral-600 dark:text-neutral-400")}>
 
@@ -224,11 +234,11 @@ export function CorePilotChecklist(props: CorePilotChecklistProps = {}) {
 
                 <OperatorHomeGuidanceLink
 
-                  helpSlug="core-pilot"
+                  helpSlug="first-architecture-review"
 
                   hashFragment={hashFragment}
 
-                  label={`Core Pilot guide, step ${index + 1}`}
+                  label={`${FIRST_ARCHITECTURE_REVIEW_PAGE_TITLE}, step ${index + 1}`}
 
                 />
 
