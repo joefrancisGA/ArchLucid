@@ -19,10 +19,6 @@ vi.mock("@/components/WorkspaceActiveRunContext", () => ({
   useWorkspaceActiveRun: () => null,
 }));
 
-vi.mock("@/hooks/useNavProgressiveDisclosure", () => ({
-  useNavProgressiveDisclosure: () => ({ showExtended: true, showAdvanced: true }),
-}));
-
 vi.mock("@/components/operator/OperatorNavAuthorityProvider", async () => {
   const { createOperatorNavAuthorityVitestMock } = await import(
     "@/testing/operator-nav-authority-vitest-mock"

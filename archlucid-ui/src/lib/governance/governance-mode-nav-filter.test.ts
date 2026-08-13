@@ -7,16 +7,7 @@ import { listNavGroupsVisibleInOperatorShell } from "@/lib/nav-shell-visibility"
 
 describe("governance-mode-nav-filter", () => {
   it("hides operate-governance destinations when governance view is off", () => {
-    const rows = listNavGroupsVisibleInOperatorShell(
-      NAV_GROUPS,
-      true,
-      true,
-      AUTHORITY_RANK.AdminAuthority,
-      false,
-      "all",
-      true,
-      2,
-    );
+    const rows = listNavGroupsVisibleInOperatorShell(NAV_GROUPS, AUTHORITY_RANK.AdminAuthority, "all", true);
 
     const filtered = filterNavGroupsForGovernanceMode(rows, false);
     const hrefs = filtered.flatMap((row) => row.visibleLinks.map((link) => link.href));

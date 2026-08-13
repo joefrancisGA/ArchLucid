@@ -147,33 +147,21 @@ export type NavGroupWithVisibleLinks = {
  * **Canonical docs:** [PRODUCT_PACKAGING.md](../../../docs/PRODUCT_PACKAGING.md) §3 *Code seams* + *Contributor drift guard*;
  * Stage 1 (not entitlements): [COMMERCIAL_BOUNDARY_HARDENING_SEQUENCE.md](../../../docs/COMMERCIAL_BOUNDARY_HARDENING_SEQUENCE.md) §4.
  *
- * @see `authority-seam-regression.test.ts` — tier + authority composition vs caller rank (Core Pilot invariants; ordering;
- *   rank **0** vs **`ReadAuthority`**; **`/alerts`** **`advanced`** (+ progressive disclosure toggle); Enterprise href **monotonicity**; Advanced default **`/insights/ask-review-questions`**-only;
- *   **`/governance`** gated on **`showAdvanced`** at Execute rank; **`LAYER_PAGE_GUIDANCE`** Enterprise vs Advanced **`enterpriseFootnote`**).
- * @see `authority-execute-floor-regression.test.ts` — **Execute floor** parity (nav **`ExecuteAuthority`** row vs mutation boolean) + **`operate-governance`** config invariants under **`filterNavLinksByAuthority`** alone (complements tier∩rank tests above).
- * @see `authority-shaped-ui-regression.test.ts` — catalog **`ExecuteAuthority`** links vs Read/Execute rank (this module composes those links after **tier**).
- * @see `nav-shell-visibility.test.ts` — empty-group omission after tier then authority; default Reader Enterprise strip;
- *   Execute rank does not bypass extended tier without disclosure toggles; **Core Pilot** **`/internal/replay`** (extended **Execute**)
- *   stays hidden until **Show more** even at Admin rank.
+ * @see `authority-seam-regression.test.ts` — authority composition vs caller rank (Core Pilot invariants; ordering;
+ *   rank **0** vs **`ReadAuthority`**; Enterprise href **monotonicity**; **`LAYER_PAGE_GUIDANCE`** Enterprise vs Advanced **`enterpriseFootnote`**).
+ * @see `authority-execute-floor-regression.test.ts` — **Execute floor** parity (nav **`ExecuteAuthority`** row vs mutation boolean) + **`operate-governance`** config invariants under **`filterNavLinksByAuthority`** alone (complements rank tests above).
+ * @see `authority-shaped-ui-regression.test.ts` — catalog **`ExecuteAuthority`** links vs Read/Execute rank.
+ * @see `nav-shell-visibility.test.ts` — empty-group omission after authority filtering; default Reader Enterprise strip;
+ *   pre-commit gate vs committed-review promotions at each rank.
  * @see `OperatorNavAuthorityProvider.test.tsx` — conservative rank during JWT `/me` refetch (feeds this module indirectly).
  * @see `enterprise-authority-ui-shaping.test.tsx` — **`useOperateCapability`** → **`disabled`** / **`readOnly`** on representative Enterprise pages (incl. governance submit fields).
  * @see `authority-shaped-layout-regression.test.tsx` — read-tier **layout** (inspect-first columns, triage deemphasis); complements this module’s **link set** only.
  */
 export function filterNavLinksForOperatorShell(
   links: ReadonlyArray<NavLinkItem>,
-  /** @deprecated Progressive tier disclosure retired — argument ignored (owner 2026-08-03). */
-  _showExtended: boolean,
-  /** @deprecated Progressive tier disclosure retired — argument ignored (owner 2026-08-03). */
-  _showAdvanced: boolean,
   callerAuthorityRank: number,
-  /** @deprecated Collapsed-pilot link filtering retired — argument ignored (owner 2026-08-03). */
-  _applyCollapsedSidebarPilotFilter = false,
   hasCommittedArchitectureReview = true,
 ): NavLinkItem[] {
-  void _showExtended;
-  void _showAdvanced;
-  void _applyCollapsedSidebarPilotFilter;
-
   const gated = filterNavLinksByCommittedArchitectureReviewGate(links, hasCommittedArchitectureReview);
   const promoted = applyCommittedArchitectureReviewNavPromotions(gated, hasCommittedArchitectureReview);
 
@@ -188,22 +176,17 @@ export function filterNavLinksForOperatorShell(
 
 /**
  * Applies **`filterNavLinksForOperatorShell`** to every configured group and **omits groups with no visible links**.
- * Sidebar, mobile drawer, and command palette should iterate this result so tier + authority + empty-group rules stay aligned.
+ * Sidebar, mobile drawer, and command palette should iterate this result so authority + empty-group rules stay aligned.
  */
 export function listNavGroupsVisibleInOperatorShell(
   groups: ReadonlyArray<NavGroupConfig>,
-  showExtended: boolean,
-  showAdvanced: boolean,
   callerAuthorityRank: number,
-  applyCollapsedSidebarPilotFilter = false,
   surfaceFilter: "all" | NavShellSurface = "all",
   hasCommittedArchitectureReview = true,
 ): NavGroupWithVisibleLinks[] {
   const out: NavGroupWithVisibleLinks[] = [];
 
   for (const group of groups) {
-    // Operate unlock phase no longer hides whole groups — authority filters per link below.
-
     if (group.surface === "system-admin") {
       if (!isShowSystemAdministrationNavEnabled()) {
         continue;
@@ -222,18 +205,9 @@ export function listNavGroupsVisibleInOperatorShell(
       continue;
     }
 
-    const shellLinks = filterNavLinksByPublishReadiness(
-      filterNavLinksForOperatorShell(
-        group.links,
-        showExtended,
-        showAdvanced,
-        callerAuthorityRank,
-        applyCollapsedSidebarPilotFilter,
-        hasCommittedArchitectureReview,
-      ),
+    const visibleLinks = filterNavLinksByPublishReadiness(
+      filterNavLinksForOperatorShell(group.links, callerAuthorityRank, hasCommittedArchitectureReview),
     );
-
-    const visibleLinks = shellLinks;
 
     if (visibleLinks.length === 0) {
       continue;
@@ -246,21 +220,16 @@ export function listNavGroupsVisibleInOperatorShell(
 }
 
 /**
- * Hrefs the operator shell currently exposes (tier ∩ authority ∩ publish gates, all nav groups).
+ * Hrefs the operator shell currently exposes (authority ∩ publish gates, all nav groups).
  * Used to filter curated command-palette tasks so Ctrl+K never lists destinations the sidebar would hide.
  */
 export function visibleOperatorShellHrefSet(
-  showExtended: boolean,
-  showAdvanced: boolean,
   callerAuthorityRank: number,
   hasCommittedArchitectureReview: boolean,
 ): Set<string> {
   const rows = listNavGroupsVisibleInOperatorShell(
     NAV_GROUPS,
-    showExtended,
-    showAdvanced,
     callerAuthorityRank,
-    false,
     "all",
     hasCommittedArchitectureReview,
   );
@@ -273,102 +242,4 @@ export function visibleOperatorShellHrefSet(
   }
 
   return hrefs;
-}
-
-/**
- * Sidebar “N more” badge when collapsed: links that appear after “Show all features”
- * (expands collapsed pilot filter only).
- */
-export function countSidebarLinksRevealedByShowAllFeatures(
-  groups: ReadonlyArray<NavGroupConfig>,
-  showExtended: boolean,
-  showAdvanced: boolean,
-  callerAuthorityRank: number,
-  hasCommittedArchitectureReview: boolean,
-): number {
-  return countSidebarLinksHiddenByCollapsedPilot(
-    groups,
-    showExtended,
-    showAdvanced,
-    callerAuthorityRank,
-    hasCommittedArchitectureReview,
-  );
-}
-
-/**
- * Sidebar “N more features” badge: full operator link count vs collapsed-pilot link count (same tier ∩ authority ∩ publish gates).
- */
-export function countSidebarLinksHiddenByCollapsedPilot(
-  groups: ReadonlyArray<NavGroupConfig>,
-  showExtended: boolean,
-  showAdvanced: boolean,
-  callerAuthorityRank: number,
-  hasCommittedArchitectureReview = true,
-): number {
-  let full = 0;
-  let collapsed = 0;
-
-  for (const group of groups) {
-    if (group.surface === "platform-admin" || group.surface === "system-admin") {
-      continue;
-    }
-
-    const fullLinks = filterNavLinksByPublishReadiness(
-      filterNavLinksForOperatorShell(
-        group.links,
-        showExtended,
-        showAdvanced,
-        callerAuthorityRank,
-        false,
-        hasCommittedArchitectureReview,
-      ),
-    );
-    const collapsedLinks = filterNavLinksByPublishReadiness(
-      filterNavLinksForOperatorShell(
-        group.links,
-        showExtended,
-        showAdvanced,
-        callerAuthorityRank,
-        true,
-        hasCommittedArchitectureReview,
-      ),
-    );
-
-    full += fullLinks.length;
-    collapsed += collapsedLinks.length;
-  }
-
-  return Math.max(0, full - collapsed);
-}
-
-/**
- * How many hrefs in a group are hidden by the current extended/advanced flags (vs. full disclosure at the same
- * authority rank). Used to surface a “N more” affordance in the sidebar.
- */
-export function countLinksHiddenByProgressiveDisclosure(
-  group: NavGroupConfig,
-  showExtended: boolean,
-  showAdvanced: boolean,
-  callerAuthorityRank: number,
-  hasCommittedArchitectureReview = true,
-): number {
-  const current = filterNavLinksForOperatorShell(
-    group.links,
-    showExtended,
-    showAdvanced,
-    callerAuthorityRank,
-    false,
-    hasCommittedArchitectureReview,
-  );
-  const full = filterNavLinksForOperatorShell(
-    group.links,
-    true,
-    true,
-    callerAuthorityRank,
-    false,
-    hasCommittedArchitectureReview,
-  );
-  const currentHrefs = new Set(current.map((l) => l.href));
-
-  return full.filter((l) => !currentHrefs.has(l.href)).length;
 }

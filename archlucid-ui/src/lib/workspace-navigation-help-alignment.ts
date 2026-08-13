@@ -20,19 +20,11 @@ export const PILOT_NAV_OPERATE_GROUP_IDS = [
   "operate-integrations",
 ] as const;
 
-/** Sidebar surfaces that must wire the pilot nav unlock contract. */
-export const PILOT_NAV_REQUIRED_SHELL_COMPONENTS = [
-  "OperateFeaturesUnlockPanel",
-  "OperateUnlockAutoHint",
-] as const;
+/** Sidebar surfaces that must wire the role-density expand control (desktop + mobile parity). */
+export const PILOT_NAV_REQUIRED_SHELL_COMPONENTS = ["RoleNavDensityExpandControl"] as const;
 
-/** Test ids owned by pilot nav unlock UI (defined on child components). */
-export const PILOT_NAV_REQUIRED_UI_TEST_IDS = [
-  "operate-features-unlock-panel",
-  "nav-advanced-unlock",
-  "operate-unlock-auto-hint",
-  "pilot-nav-profile-help-link",
-] as const;
+/** Test ids owned by role-density sidebar escape hatch UI. */
+export const PILOT_NAV_REQUIRED_UI_TEST_IDS = ["role-nav-density-expand-toggle"] as const;
 
 /** Storage keys that must remain stable for E2E and auto-unlock after first commit. */
 export const PILOT_NAV_STORAGE_KEYS = [

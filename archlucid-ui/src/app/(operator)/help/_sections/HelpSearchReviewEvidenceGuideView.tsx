@@ -68,13 +68,7 @@ export function HelpSearchReviewEvidenceGuideView(
         titleTestId="help-search-review-evidence-page-title"
         subtitle={SEARCH_REVIEW_EVIDENCE_HELP_PAGE_SUBTITLE}
         navHref={SEARCH_REVIEW_EVIDENCE_HELP_CANONICAL_PATH}
-        headingLevel="h1"
-        breadcrumb={
-          <OperatorPageBreadcrumb
-            data-testid="help-search-review-evidence-breadcrumb"
-            items={[{ label: "Help", href: "/help" }, { label: SEARCH_REVIEW_EVIDENCE_HELP_PAGE_TITLE }]}
-          />
-        }
+        headingLevel="h1"
         metadata={<HelpTopicRegistryProvenanceLine entry={entry} />}
         actions={<PageContextualHelpButton />}
       />

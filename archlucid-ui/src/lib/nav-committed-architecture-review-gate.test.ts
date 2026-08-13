@@ -62,26 +62,12 @@ describe("filterNavLinksForOperatorShell — pre-commit gate", () => {
     expect(analysis).toBeDefined();
     expect(enterprise).toBeDefined();
 
-    const analysisVisible = filterNavLinksForOperatorShell(
-      analysis!.links,
-      true,
-      true,
-      AUTHORITY_RANK.AdminAuthority,
-      false,
-      false,
-    );
+    const analysisVisible = filterNavLinksForOperatorShell(analysis!.links, AUTHORITY_RANK.AdminAuthority, false);
 
     expect(analysisVisible.some((l) => l.href === "/insights/compare-two-reviews")).toBe(false);
     expect(analysisVisible.some((l) => l.href === "/insights/evidence-graph")).toBe(true);
 
-    const governanceVisible = filterNavLinksForOperatorShell(
-      enterprise!.links,
-      true,
-      true,
-      AUTHORITY_RANK.AdminAuthority,
-      false,
-      false,
-    );
+    const governanceVisible = filterNavLinksForOperatorShell(enterprise!.links, AUTHORITY_RANK.AdminAuthority, false);
 
     expect(governanceVisible).toHaveLength(0);
   });

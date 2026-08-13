@@ -5,9 +5,6 @@ import { isAuditNavPath } from "@/lib/audit-nav-paths";
 import { AUTHORITY_RANK } from "@/lib/nav-authority";
 import { applyAuditNavRunScope } from "@/lib/nav-audit-run-scope";
 import {
-  countLinksHiddenByProgressiveDisclosure,
-  countSidebarLinksHiddenByCollapsedPilot,
-  countSidebarLinksRevealedByShowAllFeatures,
   filterNavLinksForOperatorShell,
   listNavGroupsVisibleInOperatorShell,
   visibleOperatorShellHrefSet,
@@ -19,14 +16,7 @@ describe("filterNavLinksForOperatorShell", () => {
   it("shows ReadAuthority governance links for Reader when disclosure flags are off (tiering retired)", () => {
     expect(enterprise).toBeDefined();
 
-    const visible = filterNavLinksForOperatorShell(
-      enterprise!.links,
-      false,
-      false,
-      AUTHORITY_RANK.ReadAuthority,
-      false,
-      true,
-    );
+    const visible = filterNavLinksForOperatorShell(enterprise!.links, AUTHORITY_RANK.ReadAuthority, true);
 
     expect(visible.some((l) => l.href === "/governance/alerts")).toBe(true);
     expect(visible.some((l) => l.href === "/governance/policy-packs")).toBe(true);
@@ -38,14 +28,7 @@ describe("filterNavLinksForOperatorShell", () => {
   it("keeps the same Reader governance set when extended disclosure is on (tiering retired)", () => {
     expect(enterprise).toBeDefined();
 
-    const visible = filterNavLinksForOperatorShell(
-      enterprise!.links,
-      true,
-      false,
-      AUTHORITY_RANK.ReadAuthority,
-      false,
-      true,
-    );
+    const visible = filterNavLinksForOperatorShell(enterprise!.links, AUTHORITY_RANK.ReadAuthority, true);
 
     expect(visible.some((l) => l.href === "/governance/policy-packs")).toBe(true);
     expect(visible.some((l) => l.href === "/governance/alerts")).toBe(true);
@@ -57,14 +40,7 @@ describe("filterNavLinksForOperatorShell", () => {
   it("keeps Alerts, Audit, approval queue, and policy packs for Reader when only advanced flag is on", () => {
     expect(enterprise).toBeDefined();
 
-    const visible = filterNavLinksForOperatorShell(
-      enterprise!.links,
-      false,
-      true,
-      AUTHORITY_RANK.ReadAuthority,
-      false,
-      true,
-    );
+    const visible = filterNavLinksForOperatorShell(enterprise!.links, AUTHORITY_RANK.ReadAuthority, true);
 
     expect(visible.some((l) => l.href === "/governance/alerts")).toBe(true);
     expect(visible.some((l) => l.href === "/governance/audit")).toBe(true);
@@ -75,14 +51,7 @@ describe("filterNavLinksForOperatorShell", () => {
   it("shows policy packs for Admin rank when extended links are enabled", () => {
     expect(enterprise).toBeDefined();
 
-    const visible = filterNavLinksForOperatorShell(
-      enterprise!.links,
-      true,
-      false,
-      AUTHORITY_RANK.AdminAuthority,
-      false,
-      true,
-    );
+    const visible = filterNavLinksForOperatorShell(enterprise!.links, AUTHORITY_RANK.AdminAuthority, true);
 
     expect(visible.some((l) => l.href === "/governance/policy-packs")).toBe(true);
   });
@@ -94,14 +63,7 @@ describe("filterNavLinksForOperatorShell", () => {
    * `GovernanceWorkflowPageContent`, not this nav link.
    */
   it("shows the approval queue for Reader once both extended and advanced tiers are on", () => {
-    const visible = filterNavLinksForOperatorShell(
-      enterprise!.links,
-      true,
-      true,
-      AUTHORITY_RANK.ReadAuthority,
-      false,
-      true,
-    );
+    const visible = filterNavLinksForOperatorShell(enterprise!.links, AUTHORITY_RANK.ReadAuthority, true);
 
     expect(visible.some((l) => l.href === "/governance/approval-queue")).toBe(true);
     expect(visible.some((l) => l.href === "/governance/findings")).toBe(true);
@@ -110,14 +72,7 @@ describe("filterNavLinksForOperatorShell", () => {
   it("shows extended and advanced governance links when disclosure flags are off (tiering retired)", () => {
     expect(enterprise).toBeDefined();
 
-    const visible = filterNavLinksForOperatorShell(
-      enterprise!.links,
-      false,
-      false,
-      AUTHORITY_RANK.ExecuteAuthority,
-      false,
-      true,
-    );
+    const visible = filterNavLinksForOperatorShell(enterprise!.links, AUTHORITY_RANK.ExecuteAuthority, true);
 
     expect(visible.some((l) => l.href === "/governance/policy-packs")).toBe(true);
     expect(visible.some((l) => l.href === "/governance/approval-queue")).toBe(true);
@@ -129,14 +84,7 @@ describe("filterNavLinksForOperatorShell", () => {
 
     expect(systemAdmin).toBeDefined();
 
-    const visible = filterNavLinksForOperatorShell(
-      systemAdmin!.links,
-      true,
-      true,
-      AUTHORITY_RANK.AdminAuthority,
-      false,
-      true,
-    );
+    const visible = filterNavLinksForOperatorShell(systemAdmin!.links, AUTHORITY_RANK.AdminAuthority, true);
 
     expect(visible.some((l) => l.href === "/internal/health")).toBe(true);
     expect(visible.some((l) => l.href === "/internal/configuration")).toBe(true);
@@ -147,25 +95,11 @@ describe("filterNavLinksForOperatorShell", () => {
 
     expect(systemAdmin).toBeDefined();
 
-    const extendedOff = filterNavLinksForOperatorShell(
-      systemAdmin!.links,
-      false,
-      false,
-      AUTHORITY_RANK.AdminAuthority,
-      false,
-      true,
-    );
+    const extendedOff = filterNavLinksForOperatorShell(systemAdmin!.links, AUTHORITY_RANK.AdminAuthority, true);
 
     expect(extendedOff.some((l) => l.href === "/internal/replay")).toBe(true);
 
-    const extendedOn = filterNavLinksForOperatorShell(
-      systemAdmin!.links,
-      true,
-      false,
-      AUTHORITY_RANK.AdminAuthority,
-      false,
-      true,
-    );
+    const extendedOn = filterNavLinksForOperatorShell(systemAdmin!.links, AUTHORITY_RANK.AdminAuthority, true);
 
     expect(extendedOn.some((l) => l.href === "/internal/replay")).toBe(true);
   });
@@ -189,15 +123,7 @@ describe("listNavGroupsVisibleInOperatorShell", () => {
   ];
 
   it("never returns a group with zero visible links", () => {
-    const rows = listNavGroupsVisibleInOperatorShell(
-      NAV_GROUPS,
-      true,
-      true,
-      AUTHORITY_RANK.ReadAuthority,
-      false,
-      "all",
-      true,
-    );
+    const rows = listNavGroupsVisibleInOperatorShell(NAV_GROUPS, AUTHORITY_RANK.ReadAuthority, "all", true);
 
     expect(rows.length).toBeGreaterThan(0);
 
@@ -207,15 +133,7 @@ describe("listNavGroupsVisibleInOperatorShell", () => {
   });
 
   it("keeps extended-only groups when disclosure flags are off (tiering retired)", () => {
-    const rowsOff = listNavGroupsVisibleInOperatorShell(
-      syntheticExtendedOnly,
-      false,
-      false,
-      AUTHORITY_RANK.ReadAuthority,
-      false,
-      "all",
-      true,
-    );
+    const rowsOff = listNavGroupsVisibleInOperatorShell(syntheticExtendedOnly, AUTHORITY_RANK.ReadAuthority, "all", true);
 
     expect(rowsOff).toHaveLength(1);
     expect(rowsOff[0]!.group.id).toBe("synthetic-extended-only");
@@ -247,15 +165,7 @@ describe("listNavGroupsVisibleInOperatorShell", () => {
       },
     ];
 
-    const rows = listNavGroupsVisibleInOperatorShell(
-      executeOnlyGroup,
-      true,
-      true,
-      AUTHORITY_RANK.ReadAuthority,
-      false,
-      "all",
-      true,
-    );
+    const rows = listNavGroupsVisibleInOperatorShell(executeOnlyGroup, AUTHORITY_RANK.ReadAuthority, "all", true);
 
     expect(rows).toEqual([]);
   });
@@ -265,101 +175,13 @@ describe("listNavGroupsVisibleInOperatorShell", () => {
 
     expect(enterprise).toBeDefined();
 
-    const fromList = listNavGroupsVisibleInOperatorShell(
-      NAV_GROUPS,
-      true,
-      false,
-      AUTHORITY_RANK.ReadAuthority,
-      false,
-      "all",
-      true,
-      2,
-    ).find((r) => r.group.id === "operate-governance");
+    const fromList = listNavGroupsVisibleInOperatorShell(NAV_GROUPS, AUTHORITY_RANK.ReadAuthority, "all", true).find((r) => r.group.id === "operate-governance");
 
     expect(fromList).toBeDefined();
 
-    const fromFilter = filterNavLinksForOperatorShell(
-      enterprise!.links,
-      true,
-      false,
-      AUTHORITY_RANK.ReadAuthority,
-      false,
-      true,
-    );
+    const fromFilter = filterNavLinksForOperatorShell(enterprise!.links, AUTHORITY_RANK.ReadAuthority, true);
 
     expect(fromList!.visibleLinks.map((l) => l.href)).toEqual(fromFilter.map((l) => l.href));
-  });
-});
-
-describe("countLinksHiddenByProgressiveDisclosure", () => {
-  it("is zero when extended and advanced are fully on", () => {
-    const enterprise = NAV_GROUPS.find((g) => g.id === "operate-governance") as NavGroupConfig;
-
-    const n = countLinksHiddenByProgressiveDisclosure(
-      enterprise,
-      true,
-      true,
-      AUTHORITY_RANK.ReadAuthority,
-      true,
-    );
-    expect(n).toBe(0);
-  });
-
-  it("is zero when disclosure flags are off (tiering retired)", () => {
-    const enterprise = NAV_GROUPS.find((g) => g.id === "operate-governance") as NavGroupConfig;
-
-    const n = countLinksHiddenByProgressiveDisclosure(
-      enterprise,
-      false,
-      false,
-      AUTHORITY_RANK.ReadAuthority,
-      true,
-    );
-    expect(n).toBe(0);
-  });
-});
-
-describe("collapsed pilot sidebar filter", () => {
-  it("ignores collapsed-pilot filter (retired with tiering)", () => {
-    const collapsed = listNavGroupsVisibleInOperatorShell(
-      NAV_GROUPS,
-      false,
-      false,
-      AUTHORITY_RANK.ReadAuthority,
-      true,
-      "all",
-      true,
-    );
-    const full = listNavGroupsVisibleInOperatorShell(
-      NAV_GROUPS,
-      false,
-      false,
-      AUTHORITY_RANK.ReadAuthority,
-      false,
-      "all",
-      true,
-    );
-    const collapsedCount = collapsed.reduce((sum, row) => sum + row.visibleLinks.length, 0);
-    const fullCount = full.reduce((sum, row) => sum + row.visibleLinks.length, 0);
-
-    expect(collapsedCount).toBe(fullCount);
-    expect(collapsedCount).toBeGreaterThan(0);
-    expect(countSidebarLinksHiddenByCollapsedPilot(NAV_GROUPS, false, false, AUTHORITY_RANK.ReadAuthority, true)).toBe(0);
-  });
-});
-
-describe("countSidebarLinksRevealedByShowAllFeatures", () => {
-  it("reports zero when collapsed-pilot filtering is retired", () => {
-    const revealed = countSidebarLinksRevealedByShowAllFeatures(
-      NAV_GROUPS,
-      false,
-      false,
-      AUTHORITY_RANK.ReadAuthority,
-      true,
-      1,
-    );
-
-    expect(revealed).toBe(0);
   });
 });
 
@@ -387,28 +209,14 @@ describe("filterNavLinksForOperatorShell — public demo nav omissions", () => {
     expect(enterprise).toBeDefined();
     process.env.NEXT_PUBLIC_DEMO_MODE = "true";
 
-    const visible = filterNavLinksForOperatorShell(
-      enterprise!.links,
-      true,
-      true,
-      AUTHORITY_RANK.AdminAuthority,
-      false,
-      true,
-    );
+    const visible = filterNavLinksForOperatorShell(enterprise!.links, AUTHORITY_RANK.AdminAuthority, true);
 
     expect(visible.some((l) => l.href === "/governance/alerts")).toBe(true);
     expect(visible.some((l) => l.href === "/governance/audit")).toBe(true);
 
     expect(admin).toBeDefined();
 
-    const adminVisible = filterNavLinksForOperatorShell(
-      admin!.links,
-      true,
-      true,
-      AUTHORITY_RANK.AdminAuthority,
-      false,
-      true,
-    );
+    const adminVisible = filterNavLinksForOperatorShell(admin!.links, AUTHORITY_RANK.AdminAuthority, true);
 
     expect(adminVisible.some((l) => l.href === "/administration/security-trust")).toBe(true);
   });
@@ -418,28 +226,14 @@ describe("filterNavLinksForOperatorShell — public demo nav omissions", () => {
     delete process.env.NEXT_PUBLIC_DEMO_MODE;
     process.env.NEXT_PUBLIC_DEMO_STATIC_OPERATOR = "true";
 
-    const visible = filterNavLinksForOperatorShell(
-      enterprise!.links,
-      true,
-      true,
-      AUTHORITY_RANK.AdminAuthority,
-      false,
-      true,
-    );
+    const visible = filterNavLinksForOperatorShell(enterprise!.links, AUTHORITY_RANK.AdminAuthority, true);
 
     expect(visible.some((l) => l.href === "/governance/alerts")).toBe(true);
     expect(visible.some((l) => l.href === "/governance/audit")).toBe(true);
 
     expect(admin).toBeDefined();
 
-    const adminVisible = filterNavLinksForOperatorShell(
-      admin!.links,
-      true,
-      true,
-      AUTHORITY_RANK.AdminAuthority,
-      false,
-      true,
-    );
+    const adminVisible = filterNavLinksForOperatorShell(admin!.links, AUTHORITY_RANK.AdminAuthority, true);
 
     expect(adminVisible.some((l) => l.href === "/administration/security-trust")).toBe(true);
   });
@@ -450,14 +244,7 @@ describe("filterNavLinksForOperatorShell — public demo nav omissions", () => {
     expect(admin).toBeDefined();
     process.env.NEXT_PUBLIC_DEMO_MODE = "true";
 
-    const visible = filterNavLinksForOperatorShell(
-      admin!.links,
-      true,
-      true,
-      AUTHORITY_RANK.AdminAuthority,
-      false,
-      true,
-    );
+    const visible = filterNavLinksForOperatorShell(admin!.links, AUTHORITY_RANK.AdminAuthority, true);
 
     expect(visible.some((l) => l.href === "/administration/users")).toBe(true);
     expect(visible.some((l) => l.href === "/administration/workspace-settings")).toBe(true);
@@ -467,15 +254,7 @@ describe("filterNavLinksForOperatorShell — public demo nav omissions", () => {
 
 describe("listNavGroupsVisibleInOperatorShell — platform-admin surface", () => {
   it("returns operator-admin when surfaceFilter is platform-admin", () => {
-    const rows = listNavGroupsVisibleInOperatorShell(
-      NAV_GROUPS,
-      true,
-      true,
-      AUTHORITY_RANK.AdminAuthority,
-      false,
-      "platform-admin",
-      true,
-    );
+    const rows = listNavGroupsVisibleInOperatorShell(NAV_GROUPS, AUTHORITY_RANK.AdminAuthority, "platform-admin", true);
 
     expect(rows.map((r) => r.group.id)).toEqual(["operator-admin"]);
     expect(rows[0]!.visibleLinks.some((l) => l.href === "/administration/connection-status")).toBe(true);
@@ -485,28 +264,12 @@ describe("listNavGroupsVisibleInOperatorShell — platform-admin surface", () =>
   });
 
   it("omits Administration health links for Read and Execute callers without AdminAuthority (TB-647)", () => {
-    const readRows = listNavGroupsVisibleInOperatorShell(
-      NAV_GROUPS,
-      true,
-      true,
-      AUTHORITY_RANK.ReadAuthority,
-      false,
-      "all",
-      true,
-    );
+    const readRows = listNavGroupsVisibleInOperatorShell(NAV_GROUPS, AUTHORITY_RANK.ReadAuthority, "all", true);
 
     expect(readRows.flatMap((r) => r.visibleLinks).some((l) => l.href === "/administration/system-health")).toBe(false);
     expect(readRows.flatMap((r) => r.visibleLinks).some((l) => l.href === "/administration/connection-status")).toBe(false);
 
-    const executeRows = listNavGroupsVisibleInOperatorShell(
-      NAV_GROUPS,
-      true,
-      true,
-      AUTHORITY_RANK.ExecuteAuthority,
-      false,
-      "all",
-      true,
-    );
+    const executeRows = listNavGroupsVisibleInOperatorShell(NAV_GROUPS, AUTHORITY_RANK.ExecuteAuthority, "all", true);
 
     expect(executeRows.flatMap((r) => r.visibleLinks).some((l) => l.href === "/administration/system-health")).toBe(false);
     expect(executeRows.flatMap((r) => r.visibleLinks).some((l) => l.href === "/administration/connection-status")).toBe(false);
@@ -528,36 +291,15 @@ describe("listNavGroupsVisibleInOperatorShell — platform-admin surface", () =>
 
     expect(admin).toBeDefined();
 
-    const readVisible = filterNavLinksForOperatorShell(
-      admin!.links,
-      true,
-      true,
-      AUTHORITY_RANK.ReadAuthority,
-      false,
-      true,
-    );
+    const readVisible = filterNavLinksForOperatorShell(admin!.links, AUTHORITY_RANK.ReadAuthority, true);
 
     expect(readVisible.some((l) => l.href === "/administration/ai-usage")).toBe(false);
 
-    const executeVisible = filterNavLinksForOperatorShell(
-      admin!.links,
-      true,
-      true,
-      AUTHORITY_RANK.ExecuteAuthority,
-      false,
-      true,
-    );
+    const executeVisible = filterNavLinksForOperatorShell(admin!.links, AUTHORITY_RANK.ExecuteAuthority, true);
 
     expect(executeVisible.some((l) => l.href === "/administration/ai-usage")).toBe(false);
 
-    const adminVisible = filterNavLinksForOperatorShell(
-      admin!.links,
-      true,
-      true,
-      AUTHORITY_RANK.AdminAuthority,
-      false,
-      true,
-    );
+    const adminVisible = filterNavLinksForOperatorShell(admin!.links, AUTHORITY_RANK.AdminAuthority, true);
 
     expect(adminVisible.some((l) => l.href === "/administration/ai-usage")).toBe(true);
   });
@@ -571,29 +313,13 @@ describe("listNavGroupsVisibleInOperatorShell — system-admin surface", () => {
   it("omits internal sales-ops nav unless NEXT_PUBLIC_ARCHLUCID_INTERNAL_OPERATOR is set", () => {
     vi.stubEnv("NEXT_PUBLIC_ARCHLUCID_INTERNAL_OPERATOR", "");
 
-    const hidden = listNavGroupsVisibleInOperatorShell(
-      NAV_GROUPS,
-      true,
-      true,
-      AUTHORITY_RANK.AdminAuthority,
-      false,
-      "all",
-      true,
-    );
+    const hidden = listNavGroupsVisibleInOperatorShell(NAV_GROUPS, AUTHORITY_RANK.AdminAuthority, "all", true);
 
     expect(hidden.some((r) => r.group.id === "operator-system-admin")).toBe(false);
 
     vi.stubEnv("NEXT_PUBLIC_ARCHLUCID_INTERNAL_OPERATOR", "true");
 
-    const visible = listNavGroupsVisibleInOperatorShell(
-      NAV_GROUPS,
-      true,
-      true,
-      AUTHORITY_RANK.AdminAuthority,
-      false,
-      "system-admin",
-      true,
-    );
+    const visible = listNavGroupsVisibleInOperatorShell(NAV_GROUPS, AUTHORITY_RANK.AdminAuthority, "system-admin", true);
 
     expect(visible.map((r) => r.group.id)).toEqual(["operator-system-admin"]);
     expect(visible[0]!.visibleLinks.map((l) => l.href)).toContain("/internal/pricing-quote-aging");
@@ -606,15 +332,7 @@ describe("listNavGroupsVisibleInOperatorShell — system-admin surface", () => {
     vi.stubEnv("NEXT_PUBLIC_ARCHLUCID_INTERNAL_OPERATOR", "true");
     vi.stubEnv("NEXT_PUBLIC_DEMO_MODE", "true");
 
-    const visible = listNavGroupsVisibleInOperatorShell(
-      NAV_GROUPS,
-      true,
-      true,
-      AUTHORITY_RANK.AdminAuthority,
-      false,
-      "all",
-      true,
-    );
+    const visible = listNavGroupsVisibleInOperatorShell(NAV_GROUPS, AUTHORITY_RANK.AdminAuthority, "all", true);
 
     expect(visible.some((row) => row.group.id === "operator-system-admin")).toBe(false);
   });
@@ -622,30 +340,14 @@ describe("listNavGroupsVisibleInOperatorShell — system-admin surface", () => {
 
 describe("committed architecture review gate — operator shell composition", () => {
   it("TB-2133: hides Operate groups before first committed review and restores them after", () => {
-    const preCommit = listNavGroupsVisibleInOperatorShell(
-      NAV_GROUPS,
-      true,
-      true,
-      AUTHORITY_RANK.AdminAuthority,
-      false,
-      "all",
-      false,
-    );
+    const preCommit = listNavGroupsVisibleInOperatorShell(NAV_GROUPS, AUTHORITY_RANK.AdminAuthority, "all", false);
     const preCommitIds = preCommit.map((r) => r.group.id);
 
     expect(preCommitIds).toContain("pilot");
     expect(preCommitIds).not.toContain("operate-governance");
     expect(preCommitIds).not.toContain("operate-integrations");
 
-    const postCommit = listNavGroupsVisibleInOperatorShell(
-      NAV_GROUPS,
-      true,
-      true,
-      AUTHORITY_RANK.AdminAuthority,
-      false,
-      "all",
-      true,
-    );
+    const postCommit = listNavGroupsVisibleInOperatorShell(NAV_GROUPS, AUTHORITY_RANK.AdminAuthority, "all", true);
     const postCommitIds = postCommit.map((r) => r.group.id);
 
     expect(postCommitIds).toContain("pilot");
@@ -657,17 +359,9 @@ describe("committed architecture review gate — operator shell composition", ()
 
 describe("visibleOperatorShellHrefSet", () => {
   it("matches the flattened href set from listNavGroupsVisibleInOperatorShell", () => {
-    const rows = listNavGroupsVisibleInOperatorShell(
-      NAV_GROUPS,
-      true,
-      true,
-      AUTHORITY_RANK.AdminAuthority,
-      false,
-      "all",
-      true,
-    );
+    const rows = listNavGroupsVisibleInOperatorShell(NAV_GROUPS, AUTHORITY_RANK.AdminAuthority, "all", true);
     const fromRows = new Set(rows.flatMap((r) => r.visibleLinks.map((l) => l.href)));
-    const direct = visibleOperatorShellHrefSet(true, true, AUTHORITY_RANK.AdminAuthority, true);
+    const direct = visibleOperatorShellHrefSet(AUTHORITY_RANK.AdminAuthority, true);
 
     expect(direct).toEqual(fromRows);
   });
@@ -688,7 +382,7 @@ describe("buyer-polished shell nav narrowing", () => {
 
     expect(op).toBeDefined();
 
-    const visible = filterNavLinksForOperatorShell(op!.links, true, true, AUTHORITY_RANK.AdminAuthority, false, true);
+    const visible = filterNavLinksForOperatorShell(op!.links, AUTHORITY_RANK.AdminAuthority, true);
 
     expect(visible.map((l) => l.href)).toContain("/insights/compare-two-reviews");
   });
@@ -701,7 +395,7 @@ describe("buyer-polished shell nav narrowing", () => {
 
     expect(op).toBeDefined();
 
-    const visible = filterNavLinksForOperatorShell(op!.links, true, true, AUTHORITY_RANK.AdminAuthority, false, true);
+    const visible = filterNavLinksForOperatorShell(op!.links, AUTHORITY_RANK.AdminAuthority, true);
 
     expect(visible.map((l) => l.href)).toEqual(
       expect.arrayContaining(["/insights/ask-review-questions", "/insights/search-review-evidence", "/insights/compare-two-reviews"]),
@@ -714,15 +408,7 @@ describe("buyer-polished shell nav narrowing", () => {
 
 describe("listNavGroupsVisibleInOperatorShell — customer-facing nav labels", () => {
   it("does not expose operator persona in visible nav link labels", () => {
-    const rows = listNavGroupsVisibleInOperatorShell(
-      NAV_GROUPS,
-      true,
-      true,
-      AUTHORITY_RANK.AdminAuthority,
-      false,
-      "all",
-      true,
-    );
+    const rows = listNavGroupsVisibleInOperatorShell(NAV_GROUPS, AUTHORITY_RANK.AdminAuthority, "all", true);
 
     for (const row of rows) {
       if (row.group.id === "operator-system-admin") {

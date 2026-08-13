@@ -138,14 +138,7 @@ describe("authority seam regression", () => {
 
     expect(core).toBeDefined();
 
-    const visible = filterNavLinksForOperatorShell(
-      core!.links,
-      false,
-      false,
-      AUTHORITY_RANK.ReadAuthority,
-      false,
-      true,
-    );
+    const visible = filterNavLinksForOperatorShell(core!.links, AUTHORITY_RANK.ReadAuthority, true);
     const hrefs = new Set(visible.map((l) => l.href));
 
     expect(hrefs.has(SPONSOR_DASHBOARD_HREF)).toBe(true);
@@ -180,15 +173,7 @@ describe("authority seam regression", () => {
    * (`platform-admin` surface).
    */
   it("Reader default shell lists Pilot and operate-governance (tier/unlock retired — authority-only)", () => {
-    const rows = listNavGroupsVisibleInOperatorShell(
-      NAV_GROUPS,
-      false,
-      false,
-      AUTHORITY_RANK.ReadAuthority,
-      false,
-      "all",
-      true,
-    );
+    const rows = listNavGroupsVisibleInOperatorShell(NAV_GROUPS, AUTHORITY_RANK.ReadAuthority, "all", true);
 
     const ids = rows.map((r) => r.group.id);
 
@@ -197,16 +182,7 @@ describe("authority seam regression", () => {
   });
 
   it("Reader sees Findings in the Governance group without disclosure toggles", () => {
-    const rows = listNavGroupsVisibleInOperatorShell(
-      NAV_GROUPS,
-      false,
-      false,
-      AUTHORITY_RANK.ReadAuthority,
-      false,
-      "all",
-      true,
-      0,
-    );
+    const rows = listNavGroupsVisibleInOperatorShell(NAV_GROUPS, AUTHORITY_RANK.ReadAuthority, "all", true);
 
     const governance = rows.find((r) => r.group.id === "operate-governance");
     const hrefs = governance?.visibleLinks.map((l) => l.href) ?? [];
@@ -269,14 +245,7 @@ describe("authority seam regression", () => {
 
     expect(analysis, "Operate analysis group should remain configured").toBeDefined();
 
-    const visible = filterNavLinksForOperatorShell(
-      analysis!.links,
-      false,
-      false,
-      AUTHORITY_RANK.AdminAuthority,
-      false,
-      true,
-    );
+    const visible = filterNavLinksForOperatorShell(analysis!.links, AUTHORITY_RANK.AdminAuthority, true);
 
     expect(visible.map((l) => l.href)).toEqual(analysis!.links.map((l) => l.href));
   });
@@ -284,36 +253,15 @@ describe("authority seam regression", () => {
   it("surfaces governance workflow for Execute rank without advanced disclosure", () => {
     expect(enterpriseLinks).toBeDefined();
 
-    const gatedOff = filterNavLinksForOperatorShell(
-      enterpriseLinks!,
-      false,
-      false,
-      AUTHORITY_RANK.ExecuteAuthority,
-      false,
-      true,
-    );
+    const gatedOff = filterNavLinksForOperatorShell(enterpriseLinks!, AUTHORITY_RANK.ExecuteAuthority, true);
 
     expect(gatedOff.some((l) => l.href === "/governance/approval-queue")).toBe(true);
 
-    const gatedAdvancedOnly = filterNavLinksForOperatorShell(
-      enterpriseLinks!,
-      false,
-      true,
-      AUTHORITY_RANK.ExecuteAuthority,
-      false,
-      true,
-    );
+    const gatedAdvancedOnly = filterNavLinksForOperatorShell(enterpriseLinks!, AUTHORITY_RANK.ExecuteAuthority, true);
 
     expect(gatedAdvancedOnly.some((l) => l.href === "/governance/approval-queue")).toBe(true);
 
-    const gatedExtendedAndAdvanced = filterNavLinksForOperatorShell(
-      enterpriseLinks!,
-      true,
-      true,
-      AUTHORITY_RANK.ExecuteAuthority,
-      false,
-      true,
-    );
+    const gatedExtendedAndAdvanced = filterNavLinksForOperatorShell(enterpriseLinks!, AUTHORITY_RANK.ExecuteAuthority, true);
 
     expect(gatedExtendedAndAdvanced.some((l) => l.href === "/governance/approval-queue")).toBe(true);
   });
@@ -365,15 +313,7 @@ describe("authority seam regression", () => {
    * regress sidebar / mobile drawer composition without a type error.
    */
   it("preserves NAV_GROUPS order in listNavGroupsVisibleInOperatorShell for default Reader shell", () => {
-    const rows = listNavGroupsVisibleInOperatorShell(
-      NAV_GROUPS,
-      false,
-      false,
-      AUTHORITY_RANK.ReadAuthority,
-      false,
-      "all",
-      true,
-    );
+    const rows = listNavGroupsVisibleInOperatorShell(NAV_GROUPS, AUTHORITY_RANK.ReadAuthority, "all", true);
     const indexById = new Map(NAV_GROUPS.map((g, i) => [g.id, i] as const));
     const indices = rows.map((r) => indexById.get(r.group.id));
 

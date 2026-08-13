@@ -2,32 +2,38 @@ import Link from "next/link";
 
 import { HelpTopicHashScroll } from "@/app/(operator)/help/HelpTopicHashScroll";
 import { ApiKeysHelpEvidenceOrientationStrip } from "@/components/help/ApiKeysHelpEvidenceOrientationStrip";
-import { HelpTopicRegistryProvenanceLine } from "@/components/help/HelpTopicRegistryProvenanceLine";
 import { HelpTopicTableOfContents } from "@/components/help/HelpTopicTableOfContents";
 import { OperatorPageHeader } from "@/components/operator/OperatorPageHeader";
+import { StatusTag } from "@/components/StatusTag";
 import { Button } from "@/components/ui/button";
-import { Card, CardContent, CardHeader, CardTitle } from "@/components/ui/card";
-import { PageContextualHelpButton } from "@/components/usability/PageContextualHelpButton";
+import { Card, CardContent, CardHeader } from "@/components/ui/card";
 import {
+  API_KEYS_HELP_ACTION_PANEL_ID,
+  API_KEYS_HELP_ACTION_PANEL_INTRO,
+  API_KEYS_HELP_ACTION_PANEL_TITLE,
+  API_KEYS_HELP_FEATURE_ITEMS,
+  API_KEYS_HELP_GUIDE_HEADINGS,
+  API_KEYS_HELP_HOW_TO_READ_STEPS,
+  API_KEYS_HELP_INSTEAD_SECTION_ID,
+  API_KEYS_HELP_INSTEAD_SECTION_TITLE,
+  API_KEYS_HELP_OVERVIEW,
+  API_KEYS_HELP_PAGE_SUBTITLE,
+  API_KEYS_HELP_PAGE_TITLE,
+  API_KEYS_HELP_PRIMARY_ACTIONS,
+  API_KEYS_HELP_RELEASE_AVAILABILITY_NOTE,
+  API_KEYS_HELP_RELEASE_STATUS_LABEL,
+  API_KEYS_HELP_STEP_FOLLOW_UP_LINKS,
+  type ApiKeysHelpPrimaryAction,
+} from "@/lib/api-keys-help-guide-content";
+import { API_KEYS_HELP_CANONICAL_PATH } from "@/lib/api-keys-help-evidence-copy";
+import {
+  DESIGN_TOKENS,
   OPERATOR_CARD,
   OPERATOR_LAYOUT,
   OPERATOR_LINK,
   OPERATOR_SHELL_SCROLL_OFFSET_CLASS,
   OPERATOR_TYPOGRAPHY,
 } from "@/lib/design-tokens";
-import {
-  API_KEYS_HELP_CLI_USAGE_HREF,
-  API_KEYS_HELP_FEATURE_ITEMS,
-  API_KEYS_HELP_GUIDE_HEADINGS,
-  API_KEYS_HELP_HOW_TO_READ_STEPS,
-  API_KEYS_HELP_OVERVIEW,
-  API_KEYS_HELP_PAGE_SUBTITLE,
-  API_KEYS_HELP_PAGE_TITLE,
-  API_KEYS_HELP_PRIMARY_ACTION,
-  API_KEYS_HELP_USERS_HREF,
-} from "@/lib/api-keys-help-guide-content";
-import { API_KEYS_HELP_CANONICAL_PATH } from "@/lib/api-keys-help-evidence-copy";
-import { API_KEYS_HELP_TOPIC_LABEL } from "@/lib/api-keys-settings-evidence-copy";
 import { HELP_PAGE_LAYOUT, resolveHelpPageContentGridClass } from "@/lib/help/help-page-layout";
 import type { ProductDocumentationEntry } from "@/lib/product-documentation-registry";
 import { cn } from "@/lib/utils";
@@ -47,9 +53,18 @@ function HelpSectionHeading(props: { readonly id: string; readonly children: str
   );
 }
 
+function HelpApiKeysPrimaryActionButton(props: { readonly action: ApiKeysHelpPrimaryAction }): React.ReactElement {
+  const { action } = props;
+
+  return (
+    <Button asChild size="sm" variant={action.variant}>
+      <Link href={action.href}>{action.label}</Link>
+    </Button>
+  );
+}
+
 /** Operator API keys orientation for `/help/api-keys`. */
-export function HelpApiKeysGuideView(props: HelpApiKeysGuideViewProps): React.ReactElement {
-  const { entry } = props;
+export function HelpApiKeysGuideView(_props: HelpApiKeysGuideViewProps): React.ReactElement {
   const contentGridClass = resolveHelpPageContentGridClass(API_KEYS_HELP_GUIDE_HEADINGS.length);
 
   return (
@@ -62,24 +77,46 @@ export function HelpApiKeysGuideView(props: HelpApiKeysGuideViewProps): React.Re
         subtitle={API_KEYS_HELP_PAGE_SUBTITLE}
         navHref={API_KEYS_HELP_CANONICAL_PATH}
         headingLevel="h1"
-        metadata={<HelpTopicRegistryProvenanceLine entry={entry} />}
-        actions={<PageContextualHelpButton />}
       />
 
       <div className={contentGridClass}>
         <div className={cn(HELP_PAGE_LAYOUT.contentColumn, "space-y-4")}>
-          <p className={cn("m-0 leading-relaxed", OPERATOR_TYPOGRAPHY.body)} data-testid="help-api-keys-overview">
+          <p
+            className={cn("m-0 max-w-3xl leading-relaxed", OPERATOR_TYPOGRAPHY.body)}
+            data-testid="help-api-keys-overview"
+          >
             {API_KEYS_HELP_OVERVIEW}
           </p>
 
-          <Card className="border-neutral-200 dark:border-neutral-800" data-testid="help-api-keys-action-panel">
-            <CardHeader className={OPERATOR_CARD.header}>
-              <CardTitle className={cn("m-0", OPERATOR_TYPOGRAPHY.cardTitle)}>Open API keys</CardTitle>
+          <Card
+            id={API_KEYS_HELP_ACTION_PANEL_ID}
+            className={cn(
+              DESIGN_TOKENS.surface.card,
+              OPERATOR_SHELL_SCROLL_OFFSET_CLASS,
+              "scroll-mt-24",
+            )}
+            data-testid="help-api-keys-action-panel"
+          >
+            <CardHeader className={cn(OPERATOR_CARD.header, "space-y-2")}>
+              <h2 className={cn("m-0 text-lg", OPERATOR_TYPOGRAPHY.sectionTitle)}>
+                {API_KEYS_HELP_ACTION_PANEL_TITLE}
+              </h2>
+              <p className={cn("m-0 max-w-3xl text-al-text-secondary", OPERATOR_TYPOGRAPHY.helper)}>
+                {API_KEYS_HELP_ACTION_PANEL_INTRO}
+              </p>
             </CardHeader>
-            <CardContent className={cn(OPERATOR_CARD.content, "flex flex-wrap items-center gap-2")}>
-              <Button asChild size="sm" variant="primary">
-                <Link href={API_KEYS_HELP_PRIMARY_ACTION.href}>{API_KEYS_HELP_PRIMARY_ACTION.label}</Link>
-              </Button>
+            <CardContent className={cn(OPERATOR_CARD.content, "space-y-3")}>
+              <div className="space-y-2">
+                <StatusTag kind="neutral" label={API_KEYS_HELP_RELEASE_STATUS_LABEL} />
+                <p className={cn("m-0 max-w-3xl", OPERATOR_TYPOGRAPHY.body)} data-testid="help-api-keys-availability-note">
+                  {API_KEYS_HELP_RELEASE_AVAILABILITY_NOTE}
+                </p>
+              </div>
+              <div className="flex flex-wrap items-center gap-2">
+                <HelpApiKeysPrimaryActionButton action={API_KEYS_HELP_PRIMARY_ACTIONS.usersAndRoles} />
+                <HelpApiKeysPrimaryActionButton action={API_KEYS_HELP_PRIMARY_ACTIONS.cliUsageHelp} />
+                <HelpApiKeysPrimaryActionButton action={API_KEYS_HELP_PRIMARY_ACTIONS.audit} />
+              </div>
             </CardContent>
           </Card>
 
@@ -102,10 +139,12 @@ export function HelpApiKeysGuideView(props: HelpApiKeysGuideViewProps): React.Re
           </section>
 
           <section
-            aria-labelledby="how-api-keys-work"
+            aria-labelledby={API_KEYS_HELP_INSTEAD_SECTION_ID}
             className="space-y-3 border-t border-neutral-200 pt-4 dark:border-neutral-800"
           >
-            <HelpSectionHeading id="how-api-keys-work">{API_KEYS_HELP_TOPIC_LABEL}</HelpSectionHeading>
+            <HelpSectionHeading id={API_KEYS_HELP_INSTEAD_SECTION_ID}>
+              {API_KEYS_HELP_INSTEAD_SECTION_TITLE}
+            </HelpSectionHeading>
             <ol
               className={cn("m-0 list-decimal space-y-2 pl-5", OPERATOR_TYPOGRAPHY.body)}
               data-testid="help-api-keys-how-stepper"
@@ -114,22 +153,27 @@ export function HelpApiKeysGuideView(props: HelpApiKeysGuideViewProps): React.Re
                 <li key={step}>{step}</li>
               ))}
             </ol>
-            <p className={cn("m-0", OPERATOR_TYPOGRAPHY.body)}>
-              <Link className={OPERATOR_LINK.inline} href={API_KEYS_HELP_CLI_USAGE_HREF}>
-                Read CLI usage help →
-              </Link>
-            </p>
-            <p className={cn("m-0", OPERATOR_TYPOGRAPHY.body)}>
-              <Link className={OPERATOR_LINK.inline} href={API_KEYS_HELP_USERS_HREF}>
-                Read users and roles help →
-              </Link>
-            </p>
+            <ul
+              className={cn("m-0 list-none space-y-1 p-0", OPERATOR_TYPOGRAPHY.body)}
+              data-testid="help-api-keys-step-follow-ups"
+            >
+              {API_KEYS_HELP_STEP_FOLLOW_UP_LINKS.map((link) => (
+                <li key={link.href}>
+                  <Link className={OPERATOR_LINK.inline} href={link.href}>
+                    {link.label}
+                    <span aria-hidden> →</span>
+                  </Link>
+                </li>
+              ))}
+            </ul>
           </section>
 
-          <ApiKeysHelpEvidenceOrientationStrip />
+          <div className="border-t border-neutral-200 pt-4 dark:border-neutral-800">
+            <ApiKeysHelpEvidenceOrientationStrip />
+          </div>
         </div>
 
-        <HelpTopicTableOfContents headings={API_KEYS_HELP_GUIDE_HEADINGS} />
+        <HelpTopicTableOfContents headings={API_KEYS_HELP_GUIDE_HEADINGS} enableScrollSpy />
       </div>
     </article>
   );

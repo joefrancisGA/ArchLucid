@@ -1,7 +1,6 @@
 "use client";
 
 import { useNavCallerAuthorityRank, useNavCommittedArchitectureReview } from "@/components/operator/OperatorNavAuthorityProvider";
-import { useNavProgressiveDisclosure } from "@/hooks/useNavProgressiveDisclosure";
 import {
   alertOperatorToolingOperatorRankLine,
   alertOperatorToolingReaderRankLine,
@@ -65,9 +64,6 @@ export type NavSurface = {
   readonly layerGuidance: LayerGuidanceBlock;
   readonly contextHints: NavSurfaceContextHints;
   readonly callerAuthorityRank: number;
-  readonly showExtended: boolean;
-  readonly showAdvanced: boolean;
-  readonly mounted: boolean;
 };
 
 /**
@@ -82,7 +78,7 @@ export type NavSurface = {
  * 401/403. The four underlying surfaces stay exported so call sites that only
  * need one piece (e.g. the sidebar) can keep using them.
  *
- * @see `nav-shell-visibility.ts` for tier → authority → empty-group composition.
+ * @see `nav-shell-visibility.ts` for authority → empty-group composition.
  * @see `operate-capability.ts` for the Execute+ mutation floor.
  * @see `layer-guidance.ts` for `LAYER_PAGE_GUIDANCE` packaging copy.
  * @see `OperateCapabilityHints.tsx` for the rendered rank cue components.
@@ -92,16 +88,8 @@ export type NavSurface = {
 export function useNavSurface(routeKey: LayerGuidancePageKey): NavSurface {
   const callerAuthorityRank = useNavCallerAuthorityRank();
   const hasCommittedArchitectureReview = useNavCommittedArchitectureReview();
-  const { mounted, showExtended, showAdvanced } = useNavProgressiveDisclosure();
 
-  return composeNavSurface(
-    routeKey,
-    callerAuthorityRank,
-    showExtended,
-    showAdvanced,
-    mounted,
-    hasCommittedArchitectureReview,
-  );
+  return composeNavSurface(routeKey, callerAuthorityRank, hasCommittedArchitectureReview);
 }
 
 /**
@@ -113,18 +101,12 @@ export function useNavSurface(routeKey: LayerGuidancePageKey): NavSurface {
 export function composeNavSurface(
   routeKey: LayerGuidancePageKey,
   callerAuthorityRank: number,
-  showExtended: boolean,
-  showAdvanced: boolean,
-  mounted: boolean,
   hasCommittedArchitectureReview = true,
 ): NavSurface {
   const layerGuidance = LAYER_PAGE_GUIDANCE[routeKey];
   const links = listNavGroupsVisibleInOperatorShell(
     NAV_GROUPS,
-    showExtended,
-    showAdvanced,
     callerAuthorityRank,
-    false,
     "all",
     hasCommittedArchitectureReview,
   );
@@ -137,9 +119,6 @@ export function composeNavSurface(
     layerGuidance,
     contextHints,
     callerAuthorityRank,
-    showExtended,
-    showAdvanced,
-    mounted,
   };
 }
 

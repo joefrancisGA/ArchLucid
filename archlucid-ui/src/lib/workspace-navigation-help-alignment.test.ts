@@ -38,22 +38,21 @@ describe("workspace-navigation-help-alignment", () => {
     ]);
   });
 
-  it("keeps storage keys and unlock event wired in sidebar surfaces", () => {
+  it("keeps role-density expand control wired in desktop and mobile sidebar surfaces", () => {
     const sidebarNav = readRepoFile("archlucid-ui/src/components/SidebarNav.tsx");
     const mobileNav = readRepoFile("archlucid-ui/src/components/MobileNavDrawer.tsx");
-    const unlockPanel = readRepoFile("archlucid-ui/src/components/usability/OperateFeaturesUnlockPanel.tsx");
-    const autoHint = readRepoFile("archlucid-ui/src/components/usability/OperateUnlockAutoHint.tsx");
 
-    // Desktop SidebarNav shapes groups without the unlock panel; mobile drawer owns the unlock CTA.
     for (const componentName of PILOT_NAV_REQUIRED_SHELL_COMPONENTS) {
+      expect(sidebarNav).toContain(componentName);
       expect(mobileNav).toContain(componentName);
     }
 
-    expect(sidebarNav).not.toContain("OperateFeaturesUnlockPanel");
-    void sidebarNav;
-
     for (const testId of PILOT_NAV_REQUIRED_UI_TEST_IDS) {
-      expect(`${unlockPanel}\n${autoHint}`).toContain(testId);
+      const densityControl = readRepoFile(
+        "archlucid-ui/src/components/sidebar-nav/RoleNavDensityExpandControl.tsx",
+      );
+
+      expect(densityControl).toContain(testId);
     }
 
     expect(PILOT_NAV_UNLOCK_CHANGED_EVENT).toBe(OPERATE_NAV_UNLOCK_CHANGED_EVENT);

@@ -68,13 +68,7 @@ export function HelpArchitectureIntelligenceGuideView(
         titleTestId="help-architecture-intelligence-page-title"
         subtitle={ARCHITECTURE_INTELLIGENCE_HELP_PAGE_SUBTITLE}
         navHref={ARCHITECTURE_INTELLIGENCE_HELP_CANONICAL_PATH}
-        headingLevel="h1"
-        breadcrumb={
-          <OperatorPageBreadcrumb
-            data-testid="help-architecture-intelligence-breadcrumb"
-            items={[{ label: "Help", href: "/help" }, { label: ARCHITECTURE_INTELLIGENCE_HELP_PAGE_TITLE }]}
-          />
-        }
+        headingLevel="h1"
         metadata={<HelpTopicRegistryProvenanceLine entry={entry} />}
         actions={<PageContextualHelpButton />}
       />

@@ -3,7 +3,6 @@
 import { useMemo } from "react";
 
 import { useNavCallerAuthorityRank, useNavCommittedArchitectureReview } from "@/components/operator/OperatorNavAuthorityProvider";
-import { useNavProgressiveDisclosure } from "@/hooks/useNavProgressiveDisclosure";
 import { usePatternLibraryNavVisible } from "@/hooks/use-pattern-library-nav-visible";
 import { visibleOperatorShellHrefSet } from "@/lib/nav-shell-visibility";
 import { applyPatternLibraryHrefSetGate } from "@/lib/apply-pattern-library-nav-gate";
@@ -12,27 +11,14 @@ import { applyPatternLibraryHrefSetGate } from "@/lib/apply-pattern-library-nav-
 export function useIsOperatorNavHrefReachable(href: string): boolean {
   const callerAuthorityRank = useNavCallerAuthorityRank();
   const hasCommittedArchitectureReview = useNavCommittedArchitectureReview();
-  const { showExtended, showAdvanced } = useNavProgressiveDisclosure();
   const patternLibraryNavVisible = usePatternLibraryNavVisible();
 
   return useMemo(
     () =>
       applyPatternLibraryHrefSetGate(
-        visibleOperatorShellHrefSet(
-          showExtended,
-          showAdvanced,
-          callerAuthorityRank,
-          hasCommittedArchitectureReview,
-        ),
+        visibleOperatorShellHrefSet(callerAuthorityRank, hasCommittedArchitectureReview),
         patternLibraryNavVisible,
       ).has(href),
-    [
-      callerAuthorityRank,
-      hasCommittedArchitectureReview,
-      href,
-      patternLibraryNavVisible,
-      showAdvanced,
-      showExtended,
-    ],
+    [callerAuthorityRank, hasCommittedArchitectureReview, href, patternLibraryNavVisible],
   );
 }

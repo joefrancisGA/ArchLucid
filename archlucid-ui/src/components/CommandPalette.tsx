@@ -229,8 +229,6 @@ function buyerPaletteNavGroupHeading(groupId: string, defaultLabel: string): str
 
 function CommandPaletteNavGroups({
   callerAuthorityRank,
-  shellShowExtended,
-  shellShowAdvanced,
   hasCommittedArchitectureReview,
   buyerPolishedShell,
   auditRunId,
@@ -240,8 +238,6 @@ function CommandPaletteNavGroups({
   onNavigate,
 }: {
   callerAuthorityRank: number;
-  shellShowExtended: boolean;
-  shellShowAdvanced: boolean;
   hasCommittedArchitectureReview: boolean;
   buyerPolishedShell: boolean;
   auditRunId: string | null;
@@ -258,10 +254,7 @@ function CommandPaletteNavGroups({
       scopeOperatorShellNavRows(
         listNavGroupsVisibleInOperatorShell(
           NAV_GROUPS,
-          shellShowExtended,
-          shellShowAdvanced,
           callerAuthorityRank,
-          false,
           "review-workflow",
           hasCommittedArchitectureReview,
         ),
@@ -278,10 +271,7 @@ function CommandPaletteNavGroups({
       scopeOperatorShellNavRows(
         listNavGroupsVisibleInOperatorShell(
           NAV_GROUPS,
-          shellShowExtended,
-          shellShowAdvanced,
           callerAuthorityRank,
-          false,
           "platform-admin",
           hasCommittedArchitectureReview,
         ),
@@ -297,10 +287,7 @@ function CommandPaletteNavGroups({
     isShowSystemAdministrationNavEnabled()
       ? listNavGroupsVisibleInOperatorShell(
           NAV_GROUPS,
-          shellShowExtended,
-          shellShowAdvanced,
           callerAuthorityRank,
-          false,
           "system-admin",
           hasCommittedArchitectureReview,
         )
@@ -493,15 +480,7 @@ export function CommandPalette({ showTrigger = false }: CommandPaletteProps) {
   const visibleHrefs = useMemo(() => {
     const shellRows = applyPatternLibraryNavGate(
       scopeOperatorShellNavRows(
-        listNavGroupsVisibleInOperatorShell(
-          NAV_GROUPS,
-          true,
-          true,
-          callerAuthorityRank,
-          false,
-          "all",
-          hasCommittedArchitectureReview,
-        ),
+        listNavGroupsVisibleInOperatorShell(NAV_GROUPS, callerAuthorityRank, "all", hasCommittedArchitectureReview),
         auditRunId,
       ),
       patternLibraryNavVisible,
@@ -668,8 +647,6 @@ export function CommandPalette({ showTrigger = false }: CommandPaletteProps) {
           </CommandEmpty>
           <CommandPaletteNavGroups
             callerAuthorityRank={callerAuthorityRank}
-            shellShowExtended={true}
-            shellShowAdvanced={true}
             hasCommittedArchitectureReview={hasCommittedArchitectureReview}
             buyerPolishedShell={buyerPolishedShell}
             auditRunId={auditRunId}

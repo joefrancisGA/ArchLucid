@@ -17,7 +17,6 @@ const SHELL_AUTH_MARKETING_BUTTON_PATHS = [
   "src/components/ScopeSwitcher.tsx",
   "src/components/shell/AccountSettingsMenu.tsx",
   "src/components/marketing/MarketingPublicHeader.tsx",
-  "src/components/sidebar-nav/SidebarNavLayoutSettingsPanel.tsx",
   "src/components/usability/NavPinnedLinksPanel.tsx",
   "src/app/(operator)/auth/signin/SignInEmailStep.tsx",
   "src/app/(operator)/auth/signin/SignInCodeStep.tsx",
