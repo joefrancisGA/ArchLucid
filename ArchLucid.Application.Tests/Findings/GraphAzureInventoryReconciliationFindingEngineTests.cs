@@ -69,6 +69,8 @@ public sealed class GraphAzureInventoryReconciliationFindingEngineTests
 
         Finding finding = findings.Should().ContainSingle().Subject;
         finding.EngineType.Should().Be("azure-inventory-reconciliation");
+        finding.RelatedNodeIds.Should().ContainSingle().Which.Should().Be("t1");
+        finding.Trace.GraphNodeIdsExamined.Should().ContainSingle().Which.Should().Be("t1");
         InventoryReconciliationFindingPayload payload =
             finding.Payload.Should().BeOfType<InventoryReconciliationFindingPayload>().Subject;
         payload.GraphOnlyResourceIds.Should().ContainSingle();

@@ -6,6 +6,7 @@ using ArchLucid.Core.Scoping;
 using ArchLucid.Decisioning.Findings;
 using ArchLucid.Decisioning.Interfaces;
 using ArchLucid.Decisioning.Models;
+using ArchLucid.KnowledgeGraph;
 using ArchLucid.KnowledgeGraph.Models;
 using ArchLucid.Persistence.Data.Repositories;
 using ArchLucid.Persistence.Models;
@@ -66,6 +67,8 @@ public sealed class GraphAzureInventoryReconciliationFindingEngine(
         if (!reconciliation.HasMismatches)
             return [];
 
+        IReadOnlyList<string> graphOnlyNodeIds = CollectGraphOnlyTopologyNodeIds(graphSnapshot, reconciliation);
+
         return
         [
             new Finding
@@ -78,6 +81,7 @@ public sealed class GraphAzureInventoryReconciliationFindingEngine(
                 Title = "Topology graph and Azure inventory are out of sync",
                 Rationale =
                     "At least one topology resource identifier does not match the latest scoped Azure inventory snapshot.",
+                RelatedNodeIds = graphOnlyNodeIds.ToList(),
                 PayloadType = nameof(InventoryReconciliationFindingPayload),
                 Payload = new InventoryReconciliationFindingPayload
                 {
@@ -93,6 +97,7 @@ public sealed class GraphAzureInventoryReconciliationFindingEngine(
                 ],
                 Trace = new ExplainabilityTrace
                 {
+                    GraphNodeIdsExamined = graphOnlyNodeIds.ToList(),
                     RulesApplied = ["graph-azure-inventory-reconciliation"],
                     DecisionsTaken =
                     [
@@ -111,5 +116,50 @@ public sealed class GraphAzureInventoryReconciliationFindingEngine(
                 }
             }
         ];
+    }
+
+    private static IReadOnlyList<string> CollectGraphOnlyTopologyNodeIds(
+        GraphSnapshot graphSnapshot,
+        InventoryReconciliationResult reconciliation)
+    {
+        if (reconciliation.GraphOnlyResourceIds.Count == 0)
+            return [];
+
+        HashSet<string> graphOnlyIds = reconciliation.GraphOnlyResourceIds
+            .ToHashSet(StringComparer.OrdinalIgnoreCase);
+
+        List<string> nodeIds = [];
+
+        foreach (GraphNode node in graphSnapshot.GetNodesByType(GraphNodeTypes.TopologyResource))
+        {
+            string? resourceId = TryReadTopologyResourceId(node);
+
+            if (string.IsNullOrWhiteSpace(resourceId))
+                continue;
+
+            string normalized = GraphAzureInventoryReconciliationAnalyzer.NormalizeArmResourceId(resourceId);
+
+            if (graphOnlyIds.Contains(normalized))
+                nodeIds.Add(node.NodeId);
+        }
+
+        return nodeIds;
+    }
+
+    private static string? TryReadTopologyResourceId(GraphNode node)
+    {
+        foreach (string key in new[] { "resourceId", "azureResourceId", "armResourceId", "id" })
+        {
+            if (node.Properties.TryGetValue(key, out string? value)
+                && GraphAzureInventoryReconciliationAnalyzer.LooksLikeArmResourceId(value))
+            {
+                return value;
+            }
+        }
+
+        if (GraphAzureInventoryReconciliationAnalyzer.LooksLikeArmResourceId(node.SourceId))
+            return node.SourceId;
+
+        return null;
     }
 }
