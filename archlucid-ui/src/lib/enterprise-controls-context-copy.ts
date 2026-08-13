@@ -262,7 +262,7 @@ export const alertSimulationPageLead =
  * Simulate is the primary section title; tuning is secondary disclosure (TB-1589); rank cue mounts once (TB-1593).
  */
 export const alertTestAlertsTabLead =
-  "Simulation and threshold tuning use read-only APIs on this tab. Enabling subscriptions, editing live rules, or applying a winning threshold stays on Alert rules or routing (Execute+).";
+  "Nothing on this tab changes live alert rules, subscriptions, or thresholds — simulations are recorded in the audit trail.";
 
 /** Alert tuning — primary **Recommend threshold** control (`alert-tuning/page.tsx`). */
 export const alertTuningRecommendButtonTitle =
@@ -278,9 +278,13 @@ export const alertSimulationRunControlTitle =
   "Run what-if (Read access on the API; no live rule or subscription changes from this page).";
 
 /** Alert simulation — outcome column **`h3`** (`alert-simulation/page.tsx`); inputs stay neutral (read access POSTs). */
-export const alertSimulationCurrentBehaviorHeadingOperator = "Current behavior";
+export const alertSimulationCurrentBehaviorHeadingOperator = "Simulated outcome";
 
-export const alertSimulationCurrentBehaviorHeadingReader = "Current behavior (inspect)";
+export const alertSimulationCurrentBehaviorHeadingReader = "Simulated outcome (inspect)";
+
+/** Alert simulation — empty simulated-outcome column before any simulation (P0-3). */
+export const alertSimulationBehaviorEmptyLead =
+  "No simulation yet. Results show per-review matches, suppression, and dedupe for the reviews you select — nothing is applied to live alert rules.";
 
 /** Alerts inbox — lead under title (Execute+); rank cue hidden — see `LayerHeader`. */
 export const alertsPageLeadOperator = "Filter, page, then triage per card.";

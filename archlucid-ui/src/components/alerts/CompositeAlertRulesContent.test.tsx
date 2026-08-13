@@ -1,9 +1,10 @@
 import { readFileSync } from "node:fs";
 import { join } from "node:path";
-import { fireEvent, render, screen, waitFor, within } from "@testing-library/react";
+import { fireEvent, screen, waitFor, within } from "@testing-library/react";
 import { beforeEach, describe, expect, it, vi } from "vitest";
 
 import { CompositeAlertRulesContent } from "@/components/alerts/CompositeAlertRulesContent";
+import { renderWithOperatorQuery } from "@/testing/operator-query-test-helpers";
 import { operatorHubZoneEmptyTitle } from "@/lib/operator/operator-empty-state-kind-presets";
 import type { CompositeAlertRule } from "@/types/composite-alert-rules";
 
@@ -63,7 +64,7 @@ describe("CompositeAlertRulesContent", () => {
   });
 
   it("renders persisted composite rules with operator-safe labels and no engineering enum strings in the list", async () => {
-    render(<CompositeAlertRulesContent />);
+    renderWithOperatorQuery(<CompositeAlertRulesContent />);
 
     await waitFor(() => {
       expect(screen.getByTestId("composite-alert-rule-row-composite-1")).toBeInTheDocument();
@@ -85,7 +86,7 @@ describe("CompositeAlertRulesContent", () => {
   });
 
   it("renders operator selects without engineering enum suffixes", async () => {
-    render(<CompositeAlertRulesContent />);
+    renderWithOperatorQuery(<CompositeAlertRulesContent />);
 
     await waitFor(() => {
       expect(screen.getByTestId("composite-alert-rule-row-composite-1")).toBeInTheDocument();
@@ -100,7 +101,7 @@ describe("CompositeAlertRulesContent", () => {
   });
 
   it("TB-1583: hides reserved reopen-delta copy from the create form", async () => {
-    render(<CompositeAlertRulesContent />);
+    renderWithOperatorQuery(<CompositeAlertRulesContent />);
 
     await waitFor(() => {
       expect(screen.getByTestId("composite-alert-rule-row-composite-1")).toBeInTheDocument();
@@ -111,7 +112,7 @@ describe("CompositeAlertRulesContent", () => {
   });
 
   it("TB-1580: uses design-system Input fields and a primary Create Button on the composite form", async () => {
-    render(<CompositeAlertRulesContent />);
+    renderWithOperatorQuery(<CompositeAlertRulesContent />);
 
     await waitFor(() => {
       expect(screen.getByTestId("composite-alert-rule-row-composite-1")).toBeInTheDocument();
@@ -134,7 +135,7 @@ describe("CompositeAlertRulesContent", () => {
   });
 
   it("TB-1579: does not render a duplicate hub page-title h2 on the composite panel", async () => {
-    render(<CompositeAlertRulesContent />);
+    renderWithOperatorQuery(<CompositeAlertRulesContent />);
 
     await waitFor(() => {
       expect(screen.getByTestId("composite-alert-rule-row-composite-1")).toBeInTheDocument();
@@ -155,7 +156,7 @@ describe("CompositeAlertRulesContent", () => {
 
   it("TB-1582: empty-first hides create form until header Create reveals it", async () => {
     apiHoisted.listCompositeAlertRules.mockResolvedValue([]);
-    render(<CompositeAlertRulesContent />);
+    renderWithOperatorQuery(<CompositeAlertRulesContent />);
 
     await waitFor(() => {
       expect(screen.getByTestId("composite-alert-rules-layout")).toHaveAttribute("data-empty-intro", "true");
@@ -186,7 +187,7 @@ describe("CompositeAlertRulesContent", () => {
         }),
     );
 
-    render(<CompositeAlertRulesContent />);
+    renderWithOperatorQuery(<CompositeAlertRulesContent />);
 
     expect(screen.getByTestId("composite-alert-rules-list-loading-skeleton")).toBeInTheDocument();
     expect(screen.queryByText(/reserved for future use/i)).not.toBeInTheDocument();

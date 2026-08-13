@@ -18,6 +18,7 @@ import {
 import { Button } from "@/components/ui/button";
 import { StatusTag } from "@/components/ui/status-tag";
 import { useOperateCapability } from "@/hooks/use-operate-capability";
+import { useAlertRoutingSubscriptionsQuery } from "@/components/alerts/use-alert-rules-hub-queries";
 import { useOptionalAlertRulesHubRefresh } from "@/lib/alerts-hub-refresh-context";
 import type { ApiLoadFailureState } from "@/lib/api-load-failure";
 import { toApiLoadFailure } from "@/lib/api-load-failure";
@@ -65,7 +66,6 @@ import { GOVERNANCE_AUDIT_PATH, governanceAlertRulesTabHref } from "@/lib/govern
 import {
   createAlertRoutingSubscription,
   listAlertRoutingDeliveryAttempts,
-  listAlertRoutingSubscriptions,
   testWebhookSubscription,
   toggleAlertRoutingSubscription,
 } from "@/lib/api";
@@ -80,19 +80,21 @@ export function AlertRoutingContent() {
   const sampleModeBlocked: boolean =
     isBuyerPolishedOperatorShellEnv() && !isOperatorExperienceFullShellEnv();
   const canEditRouting: boolean = canMutateRouting && !sampleModeBlocked;
+  const routingQuery = useAlertRoutingSubscriptionsQuery();
   const refreshContext = useOptionalAlertRulesHubRefresh();
-  // Keep reportTabLoaded off the load() dependency list — stamping freshness recreates
-  // the context value and would otherwise retrigger the mount load in a loop.
+  // Keep reportTabLoaded off the refresh dependency list — stamping freshness recreates
+  // the context value and would otherwise retrigger effects in a loop.
   const reportTabLoadedRef = useRef(refreshContext?.reportTabLoaded);
   reportTabLoadedRef.current = refreshContext?.reportTabLoaded;
   const registerTabLoader = refreshContext?.registerTabLoader;
   const formSectionRef = useRef<HTMLElement | null>(null);
   const statusRegionId = useId();
-  const [items, setItems] = useState<AlertRoutingSubscription[]>([]);
+  const items = routingQuery.items;
+  const loading = routingQuery.loading;
+  const [mutationFailure, setMutationFailure] = useState<ApiLoadFailureState | null>(null);
+  const failure = routingQuery.failure ?? mutationFailure;
   const [attemptsBySub, setAttemptsBySub] = useState<Record<string, AlertRoutingDeliveryAttempt[]>>({});
-  const [loading, setLoading] = useState(false);
   const [creating, setCreating] = useState(false);
-  const [failure, setFailure] = useState<ApiLoadFailureState | null>(null);
   const [statusMessage, setStatusMessage] = useState<string | null>(null);
   const [fieldErrors, setFieldErrors] = useState<AlertRoutingFieldErrors>({});
   const [testingId, setTestingId] = useState<string | null>(null);
@@ -139,31 +141,25 @@ export function AlertRoutingContent() {
     return formatAlertRoutingConfigProvenanceLine(change.recordedUtc, change.actor);
   }, [items]);
 
-  const load = useCallback(async () => {
-    setLoading(true);
-    setFailure(null);
-    try {
-      const data = await listAlertRoutingSubscriptions();
-      setItems(data);
-      reportTabLoadedRef.current?.("notifications", data.length);
-    } catch (e) {
-      setFailure(toApiLoadFailure(e));
-    } finally {
-      setLoading(false);
-    }
-  }, []);
-
-  useEffect(() => {
-    void load();
-  }, [load]);
+  const refreshRoutingTab = useCallback(async () => {
+    await routingQuery.refresh();
+  }, [routingQuery.refresh]);
 
   useEffect(() => {
     if (registerTabLoader === undefined) {
       return;
     }
 
-    return registerTabLoader("notifications", load);
-  }, [load, registerTabLoader]);
+    return registerTabLoader("notifications", refreshRoutingTab);
+  }, [refreshRoutingTab, registerTabLoader]);
+
+  useEffect(() => {
+    if (loading || routingQuery.failure !== null) {
+      return;
+    }
+
+    reportTabLoadedRef.current?.("notifications", items.length);
+  }, [items.length, loading, routingQuery.failure]);
 
   function scrollToForm() {
     formSectionRef.current?.scrollIntoView({ behavior: "smooth", block: "start" });
@@ -200,7 +196,7 @@ export function AlertRoutingContent() {
     }
 
     setCreating(true);
-    setFailure(null);
+    setMutationFailure(null);
     setStatusMessage(sendTestAfterSave ? "Creating destination and sending test notification…" : "Creating destination…");
 
     try {
@@ -228,9 +224,9 @@ export function AlertRoutingContent() {
       setMinimumSeverity("High");
       setFieldErrors({});
       setStatusMessage("Notification destination created.");
-      await load();
+      await routingQuery.refresh();
     } catch (e) {
-      setFailure(toApiLoadFailure(e));
+      setMutationFailure(toApiLoadFailure(e));
       setStatusMessage("Could not create the notification destination.");
     } finally {
       setCreating(false);
@@ -262,13 +258,13 @@ export function AlertRoutingContent() {
   }
 
   async function executeToggle(id: string): Promise<void> {
-    setFailure(null);
+    setMutationFailure(null);
 
     try {
       await toggleAlertRoutingSubscription(id);
-      await load();
+      await routingQuery.refresh();
     } catch (e) {
-      setFailure(toApiLoadFailure(e));
+      setMutationFailure(toApiLoadFailure(e));
       throw e;
     }
   }

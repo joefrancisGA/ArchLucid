@@ -12,8 +12,9 @@ import { Label } from "@/components/ui/label";
 import { Skeleton } from "@/components/ui/skeleton";
 import { StatusTag } from "@/components/ui/status-tag";
 import { useOperateCapability } from "@/hooks/use-operate-capability";
+import { useCompositeAlertRulesListQuery } from "@/components/alerts/use-alert-rules-hub-queries";
 import { useOptionalAlertRulesHubRefresh } from "@/lib/alerts-hub-refresh-context";
-import { createCompositeAlertRule, listCompositeAlertRules } from "@/lib/api";
+import { createCompositeAlertRule } from "@/lib/api";
 import type { ApiLoadFailureState } from "@/lib/api-load-failure";
 import { toApiLoadFailure } from "@/lib/api-load-failure";
 import {
@@ -67,12 +68,14 @@ function CompositeAlertRulesListLoadingSkeleton(): React.JSX.Element {
 
 export function CompositeAlertRulesContent() {
   const canMutateComposite = useOperateCapability();
+  const compositeRulesQuery = useCompositeAlertRulesListQuery();
   const refreshContext = useOptionalAlertRulesHubRefresh();
   const reportTabLoadedRef = useRef(refreshContext?.reportTabLoaded);
   reportTabLoadedRef.current = refreshContext?.reportTabLoaded;
-  const [items, setItems] = useState<CompositeAlertRule[]>([]);
-  const [loading, setLoading] = useState(false);
-  const [failure, setFailure] = useState<ApiLoadFailureState | null>(null);
+  const items = compositeRulesQuery.items;
+  const loading = compositeRulesQuery.loading;
+  const [mutationFailure, setMutationFailure] = useState<ApiLoadFailureState | null>(null);
+  const failure = compositeRulesQuery.failure ?? mutationFailure;
   const [showCreatePanel, setShowCreatePanel] = useState(false);
 
   const [name, setName] = useState("Cost + compliance composite");
@@ -90,38 +93,32 @@ export function CompositeAlertRulesContent() {
   const [o2, setO2] = useState("GreaterThanOrEqual");
   const [v2, setV2] = useState(1);
 
-  const load = useCallback(async () => {
-    setLoading(true);
-    setFailure(null);
-    try {
-      const data = await listCompositeAlertRules();
-      setItems(data);
-      reportTabLoadedRef.current?.("advanced-rules", data.length);
-    } catch (e) {
-      setFailure(toApiLoadFailure(e));
-    } finally {
-      setLoading(false);
-    }
-  }, []);
-
-  useEffect(() => {
-    void load();
-  }, [load]);
+  const refreshCompositeRulesTab = useCallback(async () => {
+    await compositeRulesQuery.refresh();
+  }, [compositeRulesQuery.refresh]);
 
   useEffect(() => {
     if (refreshContext === null) {
       return;
     }
 
-    return refreshContext.registerTabLoader("advanced-rules", load);
-  }, [load, refreshContext]);
+    return refreshContext.registerTabLoader("advanced-rules", refreshCompositeRulesTab);
+  }, [refreshCompositeRulesTab, refreshContext]);
+
+  useEffect(() => {
+    if (loading || compositeRulesQuery.failure !== null) {
+      return;
+    }
+
+    reportTabLoadedRef.current?.("advanced-rules", items.length);
+  }, [compositeRulesQuery.failure, items.length, loading]);
 
   async function onCreate() {
     if (!canMutateComposite) {
       return;
     }
 
-    setFailure(null);
+    setMutationFailure(null);
     try {
       await createCompositeAlertRule({
         name: name.trim() || "Composite rule",
@@ -136,9 +133,9 @@ export function CompositeAlertRulesContent() {
           { metricType: m2, operator: o2, thresholdValue: v2 },
         ],
       });
-      await load();
+      await compositeRulesQuery.refresh();
     } catch (e) {
-      setFailure(toApiLoadFailure(e));
+      setMutationFailure(toApiLoadFailure(e));
     }
   }
 
@@ -194,7 +191,7 @@ export function CompositeAlertRulesContent() {
             ) : null}
           </div>
           <div className="mb-4 flex flex-col gap-1 sm:flex-row sm:flex-wrap sm:items-center sm:gap-3">
-            <RefreshButton busy={loading} onClick={() => void load()} />
+            <RefreshButton busy={loading} onClick={() => void compositeRulesQuery.refresh()} />
             {!canMutateComposite ? (
               <span className={cn("text-neutral-500 dark:text-neutral-400", OPERATOR_TYPOGRAPHY.helper)}>
                 {compositeRulesRefreshAssistReaderLine}

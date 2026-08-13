@@ -5,6 +5,7 @@ import { AlertSimulationContent } from "@/components/alerts/AlertSimulationConte
 import { AlertTuningContent } from "@/components/alerts/AlertTuningContent";
 import { CollapsibleSection } from "@/components/CollapsibleSection";
 import { AlertOperatorToolingRankCue } from "@/components/EnterpriseControlsContextHints";
+import { StatusTag } from "@/components/ui/status-tag";
 import { alertTestAlertsTabLead } from "@/lib/enterprise-controls-context-copy";
 import { OPERATOR_TYPOGRAPHY } from "@/lib/design-tokens";
 
@@ -17,15 +18,22 @@ export function AlertSimulationTuningSection() {
   return (
     <div className="space-y-6">
       <div>
-        <p
-          className={cn(
-            "mb-2 max-w-prose leading-snug text-neutral-600 dark:text-neutral-400",
-            OPERATOR_TYPOGRAPHY.body,
-          )}
-          data-testid="alert-test-alerts-tab-lead"
-        >
-          {alertTestAlertsTabLead}
-        </p>
+        <div className="mb-2 flex flex-wrap items-center gap-2">
+          <StatusTag
+            kind="neutral"
+            label="Dry run"
+            data-testid="alert-test-alerts-dry-run-tag"
+          />
+          <p
+            className={cn(
+              "m-0 max-w-prose leading-snug text-neutral-600 dark:text-neutral-400",
+              OPERATOR_TYPOGRAPHY.body,
+            )}
+            data-testid="alert-test-alerts-tab-lead"
+          >
+            {alertTestAlertsTabLead}
+          </p>
+        </div>
         <div data-testid="alert-test-alerts-tab-rank-cue">
           <AlertOperatorToolingRankCue className="mb-6" />
         </div>

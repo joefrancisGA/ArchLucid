@@ -7,6 +7,7 @@ import { AlertSimulationContent } from "@/components/alerts/AlertSimulationConte
 import { AlertSimulationTuningSection } from "@/components/alerts/AlertSimulationTuningSection";
 import { AlertsInboxContent } from "@/components/alerts/AlertsInboxContent";
 import { CompositeAlertRulesContent } from "@/components/alerts/CompositeAlertRulesContent";
+import { renderWithOperatorQuery } from "@/testing/operator-query-test-helpers";
 
 vi.mock("@/lib/api/http", async (importOriginal) => {
   const actual = await importOriginal<typeof import("@/lib/api/http")>();
@@ -211,7 +212,7 @@ describe("operator client pages — render gate", () => {
   });
 
   it("Alert rules content renders without a duplicate hub page-title h2 (TB-1584)", async () => {
-    render(<AlertRulesContent />);
+    renderWithOperatorQuery(<AlertRulesContent />);
     await waitFor(() => {
       expect(screen.getByTestId("mutating-in-workspace-chip")).toBeInTheDocument();
     });

@@ -35,10 +35,11 @@ vi.mock("@/hooks/use-operate-capability", () => ({
 }));
 
 describe("AlertSimulationTuningSection TB-1593", () => {
-  it("renders one shared tab lead and rank cue above simulate and tune sections", () => {
+  it("renders one shared tab lead, dry-run tag, and rank cue above simulate and tune sections", () => {
     render(<AlertSimulationTuningSection />);
 
     expect(screen.getByTestId("alert-test-alerts-tab-lead")).toHaveTextContent(alertTestAlertsTabLead);
+    expect(screen.getByTestId("alert-test-alerts-dry-run-tag")).toHaveTextContent("Dry run");
     expect(screen.getByTestId("alert-test-alerts-tab-rank-cue")).toBeInTheDocument();
     expect(screen.getByTestId("stub-alert-rank-cue")).toBeInTheDocument();
     expect(screen.getByTestId("stub-alert-simulation-content")).toBeInTheDocument();

@@ -33,7 +33,11 @@ import {
 import { Skeleton } from "@/components/ui/skeleton";
 import { useOperateCapability } from "@/hooks/use-operate-capability";
 import { useOptionalAlertRulesHubRefresh } from "@/lib/alerts-hub-refresh-context";
-import { createAlertRule, listAlertRoutingSubscriptions, listAlertRules } from "@/lib/api";
+import {
+  useAlertRoutingSubscriptionsQuery,
+  useAlertRulesListQuery,
+} from "@/components/alerts/use-alert-rules-hub-queries";
+import { createAlertRule } from "@/lib/api";
 import type { ApiLoadFailureState } from "@/lib/api-load-failure";
 import { toApiLoadFailure } from "@/lib/api-load-failure";
 import {
@@ -62,8 +66,11 @@ import {
   ALERT_RULES_CREATE_PENDING_LABEL,
   ALERT_RULES_CREATE_SUCCESS_MESSAGE,
   ALERT_RULES_FORM_SECTION_ARIA_LABEL,
+  ALERT_RULES_LIST_EMPTY_BODY,
   ALERT_RULES_LIST_HEADING,
   ALERT_RULES_NAME_LABEL,
+  ALERT_RULES_NOTIFICATION_EXTERNAL_NOT_CONFIGURED,
+  ALERT_RULES_NOTIFICATIONS_TAB_LINK_LABEL,
   ALERT_RULES_RULE_TYPE_HELP,
   ALERT_RULES_RULE_TYPE_LABEL,
   ALERT_RULES_SAMPLE_MODE_BANNER,
@@ -71,16 +78,17 @@ import {
   ALERT_RULES_SAMPLE_MODE_CTA_LABEL,
   ALERT_RULES_STATUS_LIVE_REGION_LABEL,
 } from "@/lib/alert-rule-conditions-copy";
+import { latestAlertRulesConfigChange } from "@/lib/alert-rules-config-change";
 import { ALERT_RULES_LIST_EMPTY_COMPACT } from "@/lib/enterprise-compact-empty-state-presets";
 import { isBuyerPolishedOperatorShellEnv, isOperatorExperienceFullShellEnv } from "@/lib/demo-ui-env";
 import { DESIGN_TOKENS, OPERATOR_TYPOGRAPHY } from "@/lib/design-tokens";
+import { governanceAlertRulesTabHref } from "@/lib/governance/governance-route-paths";
 import {
   alertRulesCreateButtonLabelReaderRank,
 } from "@/lib/enterprise-controls-context-copy";
 import { whyDisabledEnterpriseMutationControl, whyDisabledIncompleteInput } from "@/lib/why-disabled-cta";
 import { readOperatorScopeFromStorage } from "@/lib/operator/operator-scope-storage";
 import type { AlertRule } from "@/types/alerts";
-import type { AlertRoutingSubscription } from "@/types/alert-routing";
 
 function AlertRulesListLoadingSkeleton(): React.JSX.Element {
   return (
@@ -108,15 +116,18 @@ export function AlertRulesContent() {
   const statusRegionId = useId();
   const createInFlightRef = useRef(false);
   const nameInputRef = useRef<HTMLInputElement>(null);
+  const didFocusEmptyIntroRef = useRef(false);
 
-  const [items, setItems] = useState<AlertRule[]>([]);
-  const [routingSubscriptions, setRoutingSubscriptions] = useState<AlertRoutingSubscription[]>([]);
-  const [loading, setLoading] = useState(true);
+  const rulesQuery = useAlertRulesListQuery();
+  const routingQuery = useAlertRoutingSubscriptionsQuery();
   const [creating, setCreating] = useState(false);
-  const [failure, setFailure] = useState<ApiLoadFailureState | null>(null);
+  const [mutationFailure, setMutationFailure] = useState<ApiLoadFailureState | null>(null);
   const [statusMessage, setStatusMessage] = useState<string | null>(null);
+  const items = rulesQuery.items;
+  const routingSubscriptions = routingQuery.items;
+  const loading = rulesQuery.loading;
+  const failure = rulesQuery.failure ?? mutationFailure;
   const [simulateForRule, setSimulateForRule] = useState<AlertRule | null>(null);
-  const [showCreatePanel, setShowCreatePanel] = useState(false);
 
   // Server render has no storage; project id is adopted after mount to avoid a hydration mismatch.
   const [sessionProjectId, setSessionProjectId] = useState<string | undefined>(undefined);
@@ -142,37 +153,12 @@ export function AlertRulesContent() {
   const thresholdStep = usesIntegerThreshold(ruleType) ? 1 : 0.1;
 
   const load = useCallback(async () => {
-    setLoading(true);
-    setFailure(null);
-
-    // TB-2024: rules + routing in parallel (routing failure must not block the rules list).
-    const [rulesOutcome, routingOutcome] = await Promise.allSettled([
-      listAlertRules(),
-      listAlertRoutingSubscriptions(),
-    ]);
-
-    if (rulesOutcome.status === "fulfilled") {
-      setItems(rulesOutcome.value);
-    } else {
-      setFailure(toApiLoadFailure(rulesOutcome.reason));
-    }
-
-    if (routingOutcome.status === "fulfilled") {
-      setRoutingSubscriptions(routingOutcome.value);
-    } else {
-      setRoutingSubscriptions([]);
-    }
-
-    setLoading(false);
-  }, []);
+    await Promise.all([rulesQuery.refresh(), routingQuery.refresh()]);
+  }, [routingQuery, rulesQuery]);
 
   useEffect(() => {
     setSessionProjectId(readOperatorScopeFromStorage()?.projectId);
   }, []);
-
-  useEffect(() => {
-    void load();
-  }, [load]);
 
   useEffect(() => {
     if (registerTabLoader === undefined) {
@@ -187,20 +173,17 @@ export function AlertRulesContent() {
       return;
     }
 
-    reportTabLoaded("rules", items.length);
-  }, [failure, items.length, loading, reportTabLoaded]);
-
-  const revealCreatePanel = useCallback(() => {
-    setShowCreatePanel(true);
-  }, []);
+    reportTabLoaded("rules", items.length, latestAlertRulesConfigChange(items));
+  }, [failure, items, loading, reportTabLoaded]);
 
   useEffect(() => {
-    if (!showCreatePanel || !canEdit) {
+    if (!canEdit || didFocusEmptyIntroRef.current || loading || items.length > 0) {
       return;
     }
 
+    didFocusEmptyIntroRef.current = true;
     nameInputRef.current?.focus();
-  }, [canEdit, showCreatePanel]);
+  }, [canEdit, items.length, loading]);
 
   async function onCreate() {
     if (!canEdit || createInFlightRef.current) {
@@ -215,7 +198,7 @@ export function AlertRulesContent() {
 
     createInFlightRef.current = true;
     setCreating(true);
-    setFailure(null);
+    setMutationFailure(null);
     setStatusMessage(null);
 
     try {
@@ -229,7 +212,7 @@ export function AlertRulesContent() {
       await load();
       setStatusMessage(ALERT_RULES_CREATE_SUCCESS_MESSAGE);
     } catch (error) {
-      setFailure(toApiLoadFailure(error));
+      setMutationFailure(toApiLoadFailure(error));
     } finally {
       createInFlightRef.current = false;
       setCreating(false);
@@ -257,27 +240,44 @@ export function AlertRulesContent() {
 
   const listInitialLoading = loading && items.length === 0;
   const isEmpty = items.length === 0;
-  const showCreateForm = !canEdit || showCreatePanel || !isEmpty;
-  const emptyIntroMode = isEmpty && canEdit && !showCreatePanel && !listInitialLoading;
+  const showEmptyCard = !listInitialLoading && isEmpty;
+  const showCreateForm = canEdit || !isEmpty;
   const sectionGap = pinLivePreviewRail ? "gap-8" : "gap-4";
+
+  const emptyStateDescription = useMemo(() => {
+    const externalNotificationsUnconfigured = routingSubscriptions.length === 0;
+
+    return (
+      <>
+        <p className="m-0">{ALERT_RULES_LIST_EMPTY_BODY}</p>
+        {externalNotificationsUnconfigured ? (
+          <p className="m-0 mt-2">
+            {ALERT_RULES_NOTIFICATION_EXTERNAL_NOT_CONFIGURED}{" "}
+            <Link href={governanceAlertRulesTabHref("notifications")} className="font-medium underline underline-offset-2">
+              {ALERT_RULES_NOTIFICATIONS_TAB_LINK_LABEL}
+            </Link>
+          </p>
+        ) : null}
+      </>
+    );
+  }, [routingSubscriptions.length]);
+
   const emptyStateFooter = canEdit ? (
-    <Button
-      type="button"
-      size="sm"
-      variant="primary"
-      data-testid="alert-rules-create-action"
-      onClick={revealCreatePanel}
-    >
-      {ALERT_RULES_CREATE_BUTTON_LABEL}
-    </Button>
+    <div className="flex flex-wrap items-center gap-2" data-testid="alert-rules-empty-footer">
+      <Button
+        type="button"
+        variant="primary"
+        data-testid="alert-rules-create-action"
+        onClick={() => nameInputRef.current?.focus()}
+      >
+        {ALERT_RULES_CREATE_BUTTON_LABEL}
+      </Button>
+      <MutatingInWorkspaceChip />
+    </div>
   ) : null;
 
   return (
     <div className="min-w-0">
-      <div className="mb-2 flex flex-wrap items-center justify-end gap-2">
-        <MutatingInWorkspaceChip />
-      </div>
-
       {sampleModeBlocked ? (
         <div
           role="status"
@@ -321,7 +321,7 @@ export function AlertRulesContent() {
         data-testid="alert-rules-layout"
         data-rail-kind={OPERATOR_LIVE_PREVIEW_READINESS_RAIL_KIND}
         data-live-rail-pinned={pinLivePreviewRail ? "true" : "false"}
-        data-empty-intro={emptyIntroMode ? "true" : "false"}
+        data-empty-intro={showEmptyCard && canEdit ? "true" : "false"}
       >
         <div className={cn("flex min-w-0 flex-col", sectionGap)}>
           {listInitialLoading ? <AlertRulesListLoadingSkeleton /> : null}
@@ -358,12 +358,12 @@ export function AlertRulesContent() {
             </section>
           ) : null}
 
-          {!listInitialLoading && emptyIntroMode ? (
-            <EnterpriseCompactEmptyState {...ALERT_RULES_LIST_EMPTY_COMPACT} footer={emptyStateFooter} />
-          ) : null}
-
-          {!listInitialLoading && isEmpty && !canEdit ? (
-            <EnterpriseCompactEmptyState {...ALERT_RULES_LIST_EMPTY_COMPACT} />
+          {showEmptyCard ? (
+            <EnterpriseCompactEmptyState
+              {...ALERT_RULES_LIST_EMPTY_COMPACT}
+              description={emptyStateDescription}
+              footer={emptyStateFooter}
+            />
           ) : null}
 
           {showCreateForm ? (
@@ -481,7 +481,6 @@ export function AlertRulesContent() {
                     <Button
                       type="button"
                       variant="primary"
-                      size="sm"
                       onClick={() => void onCreate()}
                       disabled={loading || creating || !canEdit || !formValid}
                       aria-describedby={
@@ -499,6 +498,7 @@ export function AlertRulesContent() {
                           ? ALERT_RULES_CREATE_BUTTON_LABEL
                           : alertRulesCreateButtonLabelReaderRank}
                     </Button>
+                    {canEdit ? <MutatingInWorkspaceChip /> : null}
 
                     {canEdit ? (
                       <WhyDisabledCtaHint

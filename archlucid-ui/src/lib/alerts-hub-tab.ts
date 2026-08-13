@@ -1,9 +1,12 @@
 /**
  * Query-string tab ids for the `/governance/alert-rules` hub (`?tab=`). **rules** is the default when the param is absent or unknown.
  */
+import { governanceAlertRulesTabHref } from "@/lib/governance/governance-route-paths";
+
 export const ALERT_HUB_TAB_IDS = ["inbox", "rules", "notifications", "advanced-rules", "test-alerts"] as const;
 export type AlertHubTabId = (typeof ALERT_HUB_TAB_IDS)[number];
 
+export const ALERT_RULES_HUB_TAB_PARAM = "tab" as const;
 export const ALERT_RULES_HUB_TAB_IDS = ["rules", "notifications", "advanced-rules", "test-alerts"] as const;
 export type AlertRulesHubTabId = (typeof ALERT_RULES_HUB_TAB_IDS)[number];
 
@@ -64,4 +67,27 @@ export function isAlertConfigurationTabParam(param: string | null | undefined): 
   }
 
   return canonicalizeAlertRulesHubTabParam(param) !== null;
+}
+
+/** Reads the active alert-rules hub tab from the current browser location. */
+export function readAlertRulesHubTabFromWindowLocation(): AlertRulesHubTabId {
+  if (typeof window === "undefined") {
+    return "rules";
+  }
+
+  return alertRulesHubTabFromSearchParam(
+    new URLSearchParams(window.location.search).get(ALERT_RULES_HUB_TAB_PARAM),
+  );
+}
+
+/** Updates `?tab=` in the address bar without a Next.js soft navigation. */
+export function writeAlertRulesHubTabToUrl(tab: AlertRulesHubTabId): void {
+  if (typeof window === "undefined") {
+    return;
+  }
+
+  const href = governanceAlertRulesTabHref(tab);
+  const url = new URL(href, window.location.origin);
+
+  window.history.replaceState(null, "", `${url.pathname}${url.search}`);
 }

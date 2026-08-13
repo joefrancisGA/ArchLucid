@@ -491,7 +491,7 @@ describe("Enterprise authority UI shaping (mutation hook → controls)", () => {
     expect(screen.getByRole("heading", { name: alertTuningCurrentTuningHeadingReader })).toBeInTheDocument();
   });
 
-  it("Alert simulation: Current behavior heading uses inspect framing when mutation capability is false", () => {
+  it("Alert simulation: Simulated outcome heading uses inspect framing when mutation capability is false", () => {
     mutateCapability.current = false;
     render(<AlertSimulationContent />);
 
@@ -502,7 +502,8 @@ describe("Enterprise authority UI shaping (mutation hook → controls)", () => {
 
   it("Alert rules: Create rule stays disabled when mutation capability is false", async () => {
     mutateCapability.current = false;
-    render(<AlertRulesContent />);
+    apiHoisted.listAlertRules.mockResolvedValue([sampleListedRule]);
+    renderWithOperatorQuery(<AlertRulesContent />);
 
     await waitFor(() => {
       expect(screen.getByRole("button", { name: /Create rule \(Execute\+\)/ })).toBeDisabled();
@@ -511,13 +512,7 @@ describe("Enterprise authority UI shaping (mutation hook → controls)", () => {
 
   it("Alert rules: Create rule enables after load when mutation capability is true", async () => {
     mutateCapability.current = true;
-    render(<AlertRulesContent />);
-
-    await waitFor(() => {
-      expect(screen.getByTestId("alert-rules-create-action")).toBeInTheDocument();
-    });
-
-    fireEvent.click(screen.getByTestId("alert-rules-create-action"));
+    renderWithOperatorQuery(<AlertRulesContent />);
 
     await waitFor(() => {
       expect(screen.getByRole("button", { name: "Create rule" })).not.toBeDisabled();

@@ -24,6 +24,13 @@ export const ALERT_RULES_LIST_EMPTY_BODY =
 /** Header posture on the rules tab before any alert rules exist in the workspace. */
 export const ALERT_RULES_POSTURE_NOT_CONFIGURED_LABEL = "No conditions configured";
 
+/** Header metadata when the workspace has never persisted an alert rule. */
+export const ALERT_RULES_CONFIG_NEVER_CONFIGURED_LABEL = "Alert rules never configured in this workspace";
+
+/** Visible reason when the Test alerts hub tab is disabled with zero rules. */
+export const ALERT_RULES_TEST_ALERTS_TAB_DISABLED_REASON =
+  "Create at least one alert rule before testing alerts.";
+
 export const ALERT_RULES_CREATE_HEADING = "Create alert rule";
 
 export const ALERT_RULES_EDIT_HEADING = "Edit alert rule";

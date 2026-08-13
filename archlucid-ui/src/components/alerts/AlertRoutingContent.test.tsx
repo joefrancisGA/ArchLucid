@@ -1,5 +1,6 @@
 import { fireEvent, render, screen, waitFor } from "@testing-library/react";
 import { beforeEach, describe, expect, it, vi } from "vitest";
+import { QueryClient, QueryClientProvider } from "@tanstack/react-query";
 
 import { AlertRulesHubRefreshProvider, useAlertRulesHubRefresh } from "@/lib/alerts-hub-refresh-context";
 import { ALERT_ROUTING_DESTINATION_NAME_PLACEHOLDER } from "@/lib/alert-routing-presentation";
@@ -44,11 +45,17 @@ function FreshnessProbe(): React.JSX.Element {
 }
 
 function renderWithHub(ui: React.ReactElement): ReturnType<typeof render> {
+  const queryClient = new QueryClient({
+    defaultOptions: { queries: { retry: false } },
+  });
+
   return render(
-    <AlertRulesHubRefreshProvider activeTab="notifications">
-      <FreshnessProbe />
-      {ui}
-    </AlertRulesHubRefreshProvider>,
+    <QueryClientProvider client={queryClient}>
+      <AlertRulesHubRefreshProvider activeTab="notifications">
+        <FreshnessProbe />
+        {ui}
+      </AlertRulesHubRefreshProvider>
+    </QueryClientProvider>,
   );
 }
 

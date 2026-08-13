@@ -51,6 +51,7 @@ export function EnterpriseCompactEmptyState(props: EnterpriseCompactEmptyStatePr
       >
         {description}
       </div>
+      {footer ? <div className="flex flex-wrap gap-2 pt-1">{footer}</div> : null}
       {actionList.length > 0 ? (
         <div className="flex flex-wrap gap-2 pt-1">
           {actionList.map((action, index) => {
@@ -70,7 +71,6 @@ export function EnterpriseCompactEmptyState(props: EnterpriseCompactEmptyStatePr
           })}
         </div>
       ) : null}
-      {footer ? <div className="flex flex-wrap gap-2 pt-1">{footer}</div> : null}
     </div>
   );
 }

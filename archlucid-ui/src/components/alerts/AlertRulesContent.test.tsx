@@ -1,4 +1,4 @@
-﻿import { fireEvent, render, screen, waitFor } from "@testing-library/react";
+﻿import { fireEvent, render, screen, waitFor, within } from "@testing-library/react";
 import { readFileSync } from "node:fs";
 import { join } from "node:path";
 import { beforeEach, describe, expect, it, vi } from "vitest";
@@ -10,6 +10,8 @@ import {
   ALERT_RULES_CREATE_SUCCESS_MESSAGE,
   ALERT_RULES_LIST_EMPTY_TITLE,
   ALERT_RULES_NAME_LABEL,
+  ALERT_RULES_NOTIFICATION_EXTERNAL_NOT_CONFIGURED,
+  ALERT_RULES_NOTIFICATIONS_TAB_LINK_LABEL,
   ALERT_RULES_PREVIEW_DRAFT_STATUS_LABEL,
   ALERT_RULES_RULE_TYPE_HELP,
   ALERT_RULES_RULE_TYPE_LABEL,
@@ -19,6 +21,7 @@ import {
   clearOperatorScopeStorage,
   writeOperatorScopeToStorage,
 } from "@/lib/operator/operator-scope-storage";
+import { renderWithOperatorQuery, useOperatorQueryTestLifecycle } from "@/testing/operator-query-test-helpers";
 
 const mutateCapability = vi.hoisted(() => ({ current: true }));
 
@@ -63,13 +66,9 @@ const sampleRule = {
 };
 
 describe("AlertRulesContent", () => {
-  async function revealCreateForm(): Promise<void> {
-    await waitFor(() => {
-      expect(screen.getByTestId("alert-rules-create-action")).toBeInTheDocument();
-    });
+  useOperatorQueryTestLifecycle();
 
-    fireEvent.click(screen.getByTestId("alert-rules-create-action"));
-
+  async function waitForCreateForm(): Promise<void> {
     await waitFor(() => {
       expect(screen.getByLabelText(ALERT_RULES_NAME_LABEL)).toBeInTheDocument();
     });
@@ -87,13 +86,13 @@ describe("AlertRulesContent", () => {
   });
 
   it("renders finding-oriented rule preview and alert priority help", async () => {
-    render(<AlertRulesContent />);
+    renderWithOperatorQuery(<AlertRulesContent />);
 
     await waitFor(() => {
       expect(screen.getByTestId("alert-rules-empty")).toBeInTheDocument();
     });
 
-    await revealCreateForm();
+    await waitForCreateForm();
 
     expect(screen.getByText(/does not change the severity of the underlying findings/i)).toBeInTheDocument();
 
@@ -109,37 +108,40 @@ describe("AlertRulesContent", () => {
   });
 
   it("shows empty alert rules state", async () => {
-    render(<AlertRulesContent />);
+    renderWithOperatorQuery(<AlertRulesContent />);
 
     await waitFor(() => {
       expect(screen.getByTestId("alert-rules-empty")).toHaveTextContent(ALERT_RULES_LIST_EMPTY_TITLE);
     });
   });
 
-  it("empty-first hides form and preview until Create reveals the panel (TB-1479)", async () => {
-    render(<AlertRulesContent />);
+  it("shows create form above the fold on first load for editors (P0-3)", async () => {
+    renderWithOperatorQuery(<AlertRulesContent />);
 
     await waitFor(() => {
       expect(screen.getByTestId("alert-rules-layout")).toHaveAttribute("data-empty-intro", "true");
     });
 
-    expect(screen.getByTestId("alert-rules-layout").className).toContain("gap-4");
-    expect(screen.getByTestId("alert-rules-layout").className).not.toContain("gap-8");
-    expect(screen.queryByLabelText(ALERT_RULES_NAME_LABEL)).toBeNull();
-    expect(screen.queryByTestId("alert-rule-live-preview")).toBeNull();
+    expect(screen.getByLabelText(ALERT_RULES_NAME_LABEL)).toBeInTheDocument();
+    expect(screen.getByTestId("alert-rules-empty")).toBeInTheDocument();
+  });
+
+  it("surfaces external notification readiness in the empty card when routing is unset (P0-4)", async () => {
+    renderWithOperatorQuery(<AlertRulesContent />);
+
     await waitFor(() => {
-      expect(screen.getByTestId("alert-rules-create-action")).toBeInTheDocument();
+      expect(screen.getByText(ALERT_RULES_NOTIFICATION_EXTERNAL_NOT_CONFIGURED)).toBeInTheDocument();
     });
 
-    await revealCreateForm();
-
-    expect(screen.getByTestId("alert-rules-layout")).toHaveAttribute("data-empty-intro", "false");
-    expect(screen.queryByTestId("alert-rules-create-action")).toBeNull();
+    expect(screen.getByRole("link", { name: ALERT_RULES_NOTIFICATIONS_TAB_LINK_LABEL })).toHaveAttribute(
+      "href",
+      "/governance/alert-rules?tab=notifications",
+    );
   });
 
   it("TB-1584: uses h2 list heading under the hub page title without duplicating it", async () => {
     apiHoisted.listAlertRules.mockResolvedValue([sampleRule]);
-    render(<AlertRulesContent />);
+    renderWithOperatorQuery(<AlertRulesContent />);
 
     await waitFor(() => {
       expect(screen.getByRole("heading", { level: 2, name: "Configured alert rules" })).toBeInTheDocument();
@@ -163,49 +165,41 @@ describe("AlertRulesContent", () => {
   });
 
   it("TB-1585: surfaces findings and notification honesty on condition type field help", async () => {
-    render(<AlertRulesContent />);
+    renderWithOperatorQuery(<AlertRulesContent />);
 
-    await revealCreateForm();
+    await waitForCreateForm();
 
     expect(screen.getByText(ALERT_RULES_RULE_TYPE_HELP)).toBeInTheDocument();
   });
 
-  it("TB-1586: empty intro keeps one primary Create in the empty region", async () => {
-    render(<AlertRulesContent />);
+  it("TB-1586: empty card keeps one primary Create beside the workspace chip", async () => {
+    renderWithOperatorQuery(<AlertRulesContent />);
 
     await waitFor(() => {
-      expect(screen.getByTestId("alert-rules-create-action")).toBeInTheDocument();
+      expect(screen.getByTestId("alert-rules-empty-footer")).toBeInTheDocument();
     });
 
-    const primaryButtons = screen
-      .getAllByRole("button")
-      .filter((button) => button.className.includes("al-primary-action-bg"));
+    const emptyFooter = screen.getByTestId("alert-rules-empty-footer");
+    const primaryButtons = Array.from(emptyFooter.querySelectorAll("button")).filter((button) =>
+      button.className.includes("al-primary-action-bg"),
+    );
 
     expect(primaryButtons).toHaveLength(1);
     expect(primaryButtons[0]).toHaveAttribute("data-testid", "alert-rules-create-action");
-    expect(screen.getByTestId("alert-rules-empty")).toContainElement(primaryButtons[0]);
+    expect(within(emptyFooter).getByTestId("mutating-in-workspace-chip")).toBeInTheDocument();
   });
 
   it("TB-1586: revealed form promotes one primary submit Create", async () => {
-    render(<AlertRulesContent />);
+    renderWithOperatorQuery(<AlertRulesContent />);
 
-    await revealCreateForm();
-
-    expect(screen.queryByTestId("alert-rules-create-action")).toBeNull();
+    await waitForCreateForm();
 
     const submit = screen.getByTestId("alert-rules-create-button");
 
     expect(submit.className).toContain("al-primary-action-bg");
-
-    const primaryButtons = screen
-      .getAllByRole("button")
-      .filter((button) => button.className.includes("al-primary-action-bg"));
-
-    expect(primaryButtons).toHaveLength(1);
-    expect(primaryButtons[0]).toBe(submit);
   });
 
-  it("TB-1586: create buttons source use primary sm variants", () => {
+  it("TB-1586: create buttons source use primary variants without sm sizing", () => {
     const source = readFileSync(join(process.cwd(), "src", "components", "alerts", "AlertRulesContent.tsx"), "utf8");
 
     for (const testId of ["alert-rules-create-action", "alert-rules-create-button"] as const) {
@@ -213,7 +207,7 @@ describe("AlertRulesContent", () => {
 
       expect(buttonBlock).toBeTruthy();
       expect(buttonBlock).toContain('variant="primary"');
-      expect(buttonBlock).toContain('size="sm"');
+      expect(buttonBlock).not.toContain('size="sm"');
     }
   });
 
@@ -227,11 +221,10 @@ describe("AlertRulesContent", () => {
     );
     apiHoisted.listAlertRoutingSubscriptions.mockResolvedValue([]);
 
-    render(<AlertRulesContent />);
+    renderWithOperatorQuery(<AlertRulesContent />);
 
     expect(screen.getByTestId("alert-rules-list-loading-skeleton")).toBeInTheDocument();
     expect(screen.queryByTestId("alert-rules-empty")).not.toBeInTheDocument();
-    expect(screen.queryByTestId("alert-rules-create-action")).not.toBeInTheDocument();
 
     resolveList?.([]);
 
@@ -243,13 +236,13 @@ describe("AlertRulesContent", () => {
   });
 
   it("TB-1588: create form uses design-system Select controls", async () => {
-    render(<AlertRulesContent />);
+    renderWithOperatorQuery(<AlertRulesContent />);
 
     await waitFor(() => {
       expect(screen.getByTestId("alert-rules-empty")).toBeInTheDocument();
     });
 
-    await revealCreateForm();
+    await waitForCreateForm();
 
     expect(screen.getByTestId("alert-rule-type-select")).toBeInTheDocument();
     expect(screen.getByTestId("alert-rule-priority-select")).toBeInTheDocument();
@@ -265,7 +258,7 @@ describe("AlertRulesContent", () => {
   });
 
   it("stacks live preview rail when empty list uses default draft (TB-1574)", async () => {
-    render(<AlertRulesContent />);
+    renderWithOperatorQuery(<AlertRulesContent />);
 
     await waitFor(() => {
       expect(screen.getByTestId("alert-rules-layout")).toHaveAttribute("data-live-rail-pinned", "false");
@@ -274,15 +267,15 @@ describe("AlertRulesContent", () => {
     expect(screen.getByTestId("alert-rules-layout").className).not.toMatch(/xl:grid-cols-/);
     expect(screen.queryByTestId("alert-rule-live-preview")).toBeNull();
 
-    await revealCreateForm();
+    await waitForCreateForm();
 
     expect(screen.queryByTestId("alert-rule-live-preview")).toBeNull();
   });
 
   it("pins live preview rail after the create draft leaves defaults (TB-1574)", async () => {
-    render(<AlertRulesContent />);
+    renderWithOperatorQuery(<AlertRulesContent />);
 
-    await revealCreateForm();
+    await waitForCreateForm();
 
     fireEvent.change(screen.getByLabelText(ALERT_RULES_NAME_LABEL), {
       target: { value: "Custom workspace watch" },
@@ -294,7 +287,7 @@ describe("AlertRulesContent", () => {
 
   it("pins live preview rail when rules already exist (TB-1574)", async () => {
     apiHoisted.listAlertRules.mockResolvedValue([sampleRule]);
-    render(<AlertRulesContent />);
+    renderWithOperatorQuery(<AlertRulesContent />);
 
     await waitFor(() => {
       expect(screen.getByTestId("alert-rules-layout")).toHaveAttribute("data-live-rail-pinned", "true");
@@ -302,15 +295,15 @@ describe("AlertRulesContent", () => {
   });
 
   it("creates a rule with pending state and success live region", async () => {
-    render(<AlertRulesContent />);
+    renderWithOperatorQuery(<AlertRulesContent />);
 
-    await revealCreateForm();
+    await waitForCreateForm();
 
     await waitFor(() => {
-      expect(screen.getByRole("button", { name: "Create rule" })).not.toBeDisabled();
+      expect(screen.getByTestId("alert-rules-create-button")).not.toBeDisabled();
     });
 
-    fireEvent.click(screen.getByRole("button", { name: "Create rule" }));
+    fireEvent.click(screen.getByTestId("alert-rules-create-button"));
 
     await waitFor(() => {
       expect(apiHoisted.createAlertRule).toHaveBeenCalledWith(
@@ -330,13 +323,14 @@ describe("AlertRulesContent", () => {
     });
   });
 
-  it("blocks create for readers and keeps duplicate submit guard while creating", async () => {
+  it("blocks create for readers when rules exist", async () => {
     mutateCapability.current = false;
+    apiHoisted.listAlertRules.mockResolvedValue([sampleRule]);
     apiHoisted.createAlertRule.mockImplementation(
       () => new Promise((resolve) => setTimeout(() => resolve(sampleRule), 50)),
     );
 
-    render(<AlertRulesContent />);
+    renderWithOperatorQuery(<AlertRulesContent />);
 
     await waitFor(() => {
       expect(screen.getByRole("button", { name: alertRulesCreateButtonLabelReaderRank })).toBeDisabled();
@@ -351,35 +345,35 @@ describe("AlertRulesContent", () => {
   });
 
   it("names the target workspace beside mutating controls in all states", async () => {
-    render(<AlertRulesContent />);
+    renderWithOperatorQuery(<AlertRulesContent />);
 
     await waitFor(() => {
-      expect(screen.getByTestId("mutating-in-workspace-chip")).toBeInTheDocument();
+      expect(screen.getAllByTestId("mutating-in-workspace-chip").length).toBeGreaterThan(0);
     });
 
-    expect(screen.getByTestId("mutating-in-workspace-chip")).toHaveTextContent(
-      "Applies to workspace: Claims Intake",
+    expect(screen.getAllByTestId("mutating-in-workspace-chip")[0]).toHaveTextContent(
+      "Applies to workspace: Claims Intake Demo",
     );
 
-    await revealCreateForm();
+    await waitForCreateForm();
 
-    expect(screen.getByTestId("mutating-in-workspace-chip")).toHaveTextContent(
-      "Applies to workspace: Claims Intake",
+    expect(screen.getAllByTestId("mutating-in-workspace-chip")[0]).toHaveTextContent(
+      "Applies to workspace: Claims Intake Demo",
     );
   });
 
-  it("focuses the rule name field when Create is activated from the empty state", async () => {
-    render(<AlertRulesContent />);
+  it("focuses the rule name field on first load for editors", async () => {
+    renderWithOperatorQuery(<AlertRulesContent />);
 
-    await revealCreateForm();
-
-    expect(screen.getByLabelText(ALERT_RULES_NAME_LABEL)).toHaveFocus();
+    await waitFor(() => {
+      expect(screen.getByLabelText(ALERT_RULES_NAME_LABEL)).toHaveFocus();
+    });
   });
 
   it("marks the rule preview as an unsaved draft so it cannot read as a configured rule", async () => {
-    render(<AlertRulesContent />);
+    renderWithOperatorQuery(<AlertRulesContent />);
 
-    await revealCreateForm();
+    await waitForCreateForm();
 
     fireEvent.change(screen.getByLabelText(ALERT_RULES_NAME_LABEL), {
       target: { value: "Custom workspace watch" },
@@ -395,19 +389,19 @@ describe("AlertRulesContent", () => {
   });
 
   it("shows an inline readiness hint instead of a toast when the name is cleared", async () => {
-    render(<AlertRulesContent />);
+    renderWithOperatorQuery(<AlertRulesContent />);
 
-    await revealCreateForm();
+    await waitForCreateForm();
 
     await waitFor(() => {
-      expect(screen.getByRole("button", { name: "Create rule" })).not.toBeDisabled();
+      expect(screen.getByTestId("alert-rules-create-button")).not.toBeDisabled();
     });
 
     expect(screen.queryByTestId("alert-rules-create-readiness")).toBeNull();
 
     fireEvent.change(screen.getByLabelText(ALERT_RULES_NAME_LABEL), { target: { value: "  " } });
 
-    expect(screen.getByRole("button", { name: "Create rule" })).toBeDisabled();
+    expect(screen.getByTestId("alert-rules-create-button")).toBeDisabled();
     expect(screen.getByTestId("alert-rules-create-readiness")).toHaveTextContent(
       ALERT_RULES_CREATE_BLOCKED_HINT,
     );
@@ -416,7 +410,7 @@ describe("AlertRulesContent", () => {
   it("renders persisted rule rows with plain-language summaries", async () => {
     apiHoisted.listAlertRules.mockResolvedValue([sampleRule]);
 
-    render(<AlertRulesContent />);
+    renderWithOperatorQuery(<AlertRulesContent />);
 
     await waitFor(() => {
       expect(screen.getByTestId("alert-rule-row-rule-1")).toBeInTheDocument();
@@ -431,7 +425,7 @@ describe("AlertRulesContent", () => {
   it("uses EnterpriseTable inventory for populated alert rules (TB-1647)", async () => {
     apiHoisted.listAlertRules.mockResolvedValue([sampleRule]);
 
-    render(<AlertRulesContent />);
+    renderWithOperatorQuery(<AlertRulesContent />);
 
     await waitFor(() => {
       expect(screen.getByRole("table", { name: "Alert rules" })).toBeInTheDocument();
@@ -442,9 +436,9 @@ describe("AlertRulesContent", () => {
   });
 
   it("omits silent projectId=default when the rules list is empty and session has no project", async () => {
-    render(<AlertRulesContent />);
+    renderWithOperatorQuery(<AlertRulesContent />);
 
-    await revealCreateForm();
+    await waitForCreateForm();
 
     fireEvent.change(screen.getByLabelText(ALERT_RULES_NAME_LABEL), {
       target: { value: "Custom workspace watch" },
@@ -467,9 +461,9 @@ describe("AlertRulesContent", () => {
       projectLabel: "Tenant project",
     });
 
-    render(<AlertRulesContent />);
+    renderWithOperatorQuery(<AlertRulesContent />);
 
-    await revealCreateForm();
+    await waitForCreateForm();
 
     fireEvent.change(screen.getByLabelText(ALERT_RULES_NAME_LABEL), {
       target: { value: "Custom workspace watch" },

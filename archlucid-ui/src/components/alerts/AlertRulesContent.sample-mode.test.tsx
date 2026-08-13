@@ -1,8 +1,9 @@
-import { render, screen, waitFor } from "@testing-library/react";
+import { screen, waitFor } from "@testing-library/react";
 import { beforeEach, describe, expect, it, vi } from "vitest";
 
 import { ALERT_RULES_SAMPLE_MODE_BANNER } from "@/lib/alert-rule-conditions-copy";
 import { alertRulesCreateButtonLabelReaderRank } from "@/lib/enterprise-controls-context-copy";
+import { renderWithOperatorQuery } from "@/testing/operator-query-test-helpers";
 
 vi.mock("@/hooks/use-operate-capability", () => ({
   useOperateCapability: () => true,
@@ -31,7 +32,7 @@ describe("AlertRulesContent sample mode", () => {
   });
 
   it("shows sample workspace banner and disables create", async () => {
-    render(<AlertRulesContent />);
+    renderWithOperatorQuery(<AlertRulesContent />);
 
     await waitFor(() => {
       expect(screen.getByText(ALERT_RULES_SAMPLE_MODE_BANNER)).toBeInTheDocument();

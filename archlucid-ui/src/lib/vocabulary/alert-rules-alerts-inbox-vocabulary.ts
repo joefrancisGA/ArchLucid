@@ -35,13 +35,13 @@ export type AlertRulesAlertsInboxVocabularyModel = {
 };
 
 export const ALERT_RULES_ALERTS_INBOX_HEADING =
-  "Alert rules and the Alerts inbox do different jobs" as const;
+  "Alert rules and the Alerts inbox serve different purposes" as const;
 
 export const ALERT_RULES_ALERTS_INBOX_WHY_TWO =
   "Alert rules configure when and how governance alerts fire. The Alerts inbox is triage for raised notifications. Changing a rule does not acknowledge inbox rows, and acknowledging an alert does not edit the rule that raised it." as const;
 
 export const ALERT_RULES_ALERTS_INBOX_COMPACT_LINE =
-  "Alert rules configure firing; the Alerts inbox triages raised notifications — open the other when you need that job." as const;
+  "Alert rules configure firing; the Alerts inbox triages raised notifications." as const;
 
 export const ALERT_RULES_ALERTS_INBOX_RULES_LINK: AlertRulesAlertsInboxLink = {
   id: "alert-rules",

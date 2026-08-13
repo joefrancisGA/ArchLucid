@@ -5,9 +5,16 @@ import { beforeEach, describe, expect, it, vi } from "vitest";
 
 import { AlertSimulationContent } from "@/components/alerts/AlertSimulationContent";
 import {
+  ALERT_SIMULATION_COMPARED_REVIEW_DISABLED_HELPER,
   ALERT_SIMULATION_PROJECT_SLUG_PLACEHOLDER,
+  ALERT_SIMULATION_READINESS_RECENT_COUNT,
+  ALERT_SIMULATION_READINESS_REVIEW_SCOPE,
+  ALERT_SIMULATION_READINESS_THRESHOLD,
+  ALERT_SIMULATION_RECENT_COUNT_LABEL,
   ALERT_SIMULATION_REVIEW_ID_HELPER,
+  ALERT_SIMULATION_SPECIFIC_REVIEW_REPLACES_WINDOW_NOTE,
 } from "@/lib/alert-simulation-form";
+import { alertSimulationBehaviorEmptyLead } from "@/lib/enterprise-controls-context-copy";
 import {
   clearOperatorScopeStorage,
   writeOperatorScopeToStorage,
@@ -127,5 +134,175 @@ describe("AlertSimulationContent TB-1591", () => {
     expect(source).toContain("ALERT_SIMULATION_MODE_TABS");
     expect(source).not.toMatch(/capitalize/);
     expect(source).not.toMatch(/\{t\}/);
+  });
+});
+
+describe("AlertSimulationContent P0-1 review scope precedence", () => {
+  beforeEach(() => {
+    clearOperatorScopeStorage();
+    apiHoisted.simulateAlertRule.mockReset();
+    apiHoisted.simulateAlertRule.mockResolvedValue({
+      evaluatedRunCount: 1,
+      matchedCount: 0,
+      wouldCreateCount: 0,
+      wouldSuppressCount: 0,
+      summaryNotes: [],
+      outcomes: [],
+    });
+  });
+
+  it("disables compared-to review ID when specific review ID is empty", () => {
+    render(<AlertSimulationContent />);
+
+    const comparedTo = screen.getByTestId("alert-simulation-simple-compared-review-id");
+
+    expect(comparedTo).toBeDisabled();
+    expect(screen.getByText(ALERT_SIMULATION_COMPARED_REVIEW_DISABLED_HELPER)).toBeInTheDocument();
+  });
+
+  it("enables compared-to when specific review ID is set and disables recent window controls", () => {
+    render(<AlertSimulationContent />);
+
+    fireEvent.change(screen.getByTestId("alert-simulation-simple-review-id"), {
+      target: { value: "review-abc" },
+    });
+
+    expect(screen.getByTestId("alert-simulation-simple-compared-review-id")).toBeEnabled();
+    expect(screen.getByLabelText(ALERT_SIMULATION_RECENT_COUNT_LABEL)).toBeDisabled();
+    expect(screen.getByLabelText("Use historical window (recent reviews)")).toBeDisabled();
+    expect(screen.getByText(ALERT_SIMULATION_SPECIFIC_REVIEW_REPLACES_WINDOW_NOTE)).toBeInTheDocument();
+  });
+
+  it("does not send compared-to review ID when specific review ID is empty", async () => {
+    render(<AlertSimulationContent />);
+
+    fireEvent.change(screen.getByTestId("alert-simulation-simple-review-id"), {
+      target: { value: "review-abc" },
+    });
+    fireEvent.change(screen.getByTestId("alert-simulation-simple-compared-review-id"), {
+      target: { value: "baseline-review" },
+    });
+    fireEvent.change(screen.getByTestId("alert-simulation-simple-review-id"), {
+      target: { value: "" },
+    });
+
+    fireEvent.click(screen.getByRole("button", { name: "Simulate" }));
+
+    await waitFor(() => {
+      expect(apiHoisted.simulateAlertRule).toHaveBeenCalledWith(
+        expect.objectContaining({
+          runId: null,
+          comparedToRunId: null,
+        }),
+      );
+    });
+  });
+
+  it("sends compared-to only when specific review ID is set", async () => {
+    render(<AlertSimulationContent />);
+
+    fireEvent.change(screen.getByTestId("alert-simulation-simple-review-id"), {
+      target: { value: "review-abc" },
+    });
+    fireEvent.change(screen.getByTestId("alert-simulation-simple-compared-review-id"), {
+      target: { value: "baseline-review" },
+    });
+
+    fireEvent.click(screen.getByRole("button", { name: "Simulate" }));
+
+    await waitFor(() => {
+      expect(apiHoisted.simulateAlertRule).toHaveBeenCalledWith(
+        expect.objectContaining({
+          runId: "review-abc",
+          comparedToRunId: "baseline-review",
+        }),
+      );
+    });
+  });
+});
+
+describe("AlertSimulationContent P0-2 canSimulate gate", () => {
+  beforeEach(() => {
+    clearOperatorScopeStorage();
+    apiHoisted.simulateAlertRule.mockReset();
+    apiHoisted.simulateAlertRule.mockResolvedValue({
+      evaluatedRunCount: 0,
+      matchedCount: 0,
+      wouldCreateCount: 0,
+      wouldSuppressCount: 0,
+      summaryNotes: [],
+      outcomes: [],
+    });
+  });
+
+  it("disables Simulate and shows readiness when recent review count is cleared", () => {
+    render(<AlertSimulationContent />);
+
+    fireEvent.change(screen.getByLabelText(ALERT_SIMULATION_RECENT_COUNT_LABEL), {
+      target: { value: "" },
+    });
+
+    expect(screen.getByTestId("alert-simulation-simple-submit")).toBeDisabled();
+    expect(screen.getByTestId("alert-simulation-simple-readiness")).toHaveTextContent(
+      ALERT_SIMULATION_READINESS_RECENT_COUNT,
+    );
+  });
+
+  it("disables Simulate when recent review count is outside 1–50", () => {
+    render(<AlertSimulationContent />);
+
+    fireEvent.change(screen.getByLabelText(ALERT_SIMULATION_RECENT_COUNT_LABEL), {
+      target: { value: "51" },
+    });
+
+    expect(screen.getByTestId("alert-simulation-simple-submit")).toBeDisabled();
+    expect(screen.getByTestId("alert-simulation-simple-readiness")).toHaveTextContent(
+      ALERT_SIMULATION_READINESS_RECENT_COUNT,
+    );
+  });
+
+  it("disables Simulate when historical window is unchecked without a specific review ID", () => {
+    render(<AlertSimulationContent />);
+
+    fireEvent.click(screen.getByLabelText("Use historical window (recent reviews)"));
+
+    expect(screen.getByTestId("alert-simulation-simple-submit")).toBeDisabled();
+    expect(screen.getByTestId("alert-simulation-simple-readiness")).toHaveTextContent(
+      ALERT_SIMULATION_READINESS_REVIEW_SCOPE,
+    );
+  });
+
+  it("disables Simulate when threshold is cleared", () => {
+    render(<AlertSimulationContent />);
+
+    fireEvent.change(screen.getByLabelText("Threshold"), { target: { value: "" } });
+
+    expect(screen.getByTestId("alert-simulation-simple-submit")).toBeDisabled();
+    expect(screen.getByTestId("alert-simulation-simple-readiness")).toHaveTextContent(
+      ALERT_SIMULATION_READINESS_THRESHOLD,
+    );
+  });
+});
+
+describe("AlertSimulationContent P0-3 simulated outcome empty state", () => {
+  it("shows simulated-outcome empty guidance before any simulation", () => {
+    render(<AlertSimulationContent />);
+
+    expect(screen.getByText(alertSimulationBehaviorEmptyLead)).toBeInTheDocument();
+    expect(screen.queryByText("Current behavior")).not.toBeInTheDocument();
+  });
+});
+
+describe("AlertSimulationContent P0-5 submit button width", () => {
+  it("submit buttons use content width instead of stretching the grid column", () => {
+    const source = readFileSync(
+      join(process.cwd(), "src", "components", "alerts", "AlertSimulationContent.tsx"),
+      "utf8",
+    );
+
+    expect(source).toContain('data-testid="alert-simulation-simple-submit"');
+    expect(source).toContain('data-testid="alert-simulation-composite-submit"');
+    expect(source).toContain('data-testid="alert-simulation-compare-submit"');
+    expect(source.match(/className="justify-self-start"/g)?.length).toBe(3);
   });
 });

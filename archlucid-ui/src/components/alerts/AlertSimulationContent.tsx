@@ -6,6 +6,7 @@ import { GettingStartedSteps } from "@/components/GettingStartedSteps";
 import { OperatorSegmentedModeToolbar } from "@/components/advisory/OperatorSegmentedModeToolbar";
 import { OperatorToolingWorkbenchPanels } from "@/components/advisory/OperatorToolingWorkbenchPanels";
 import { OperatorApiProblem } from "@/components/operator/OperatorApiProblem";
+import { WhyDisabledCtaHint } from "@/components/usability/WhyDisabledCtaHint";
 import { Button } from "@/components/ui/button";
 import { Checkbox } from "@/components/ui/checkbox";
 import {
@@ -22,26 +23,43 @@ import { Label } from "@/components/ui/label";
 import { useOperateCapability } from "@/hooks/use-operate-capability";
 import { compareAlertRuleCandidates, simulateAlertRule } from "@/lib/api";
 import {
+  ALERT_SIMULATION_BEHAVIOR_EMPTY_GETTING_STARTED,
+  ALERT_SIMULATION_COMPARED_REVIEW_DISABLED_HELPER,
   ALERT_SIMULATION_COMPARED_REVIEW_ID_HELPER,
   ALERT_SIMULATION_MODE_TABS,
+  ALERT_SIMULATION_OUTCOMES_TABLE_EMPTY,
   ALERT_SIMULATION_PROJECT_SLUG_HELPER,
   ALERT_SIMULATION_PROJECT_SLUG_PLACEHOLDER,
+  ALERT_SIMULATION_READINESS_RECENT_COUNT,
+  ALERT_SIMULATION_READINESS_REVIEW_SCOPE,
+  ALERT_SIMULATION_READINESS_THRESHOLD,
+  ALERT_SIMULATION_RECENT_COUNT_HELPER,
+  ALERT_SIMULATION_RECENT_COUNT_LABEL,
   ALERT_SIMULATION_REVIEW_ID_HELPER,
   ALERT_SIMULATION_REVIEW_ID_PLACEHOLDER,
+  ALERT_SIMULATION_REVIEW_ID_PRECEDENCE,
+  ALERT_SIMULATION_SPECIFIC_REVIEW_REPLACES_WINDOW_NOTE,
   ALERT_TOOLING_FORM_SELECT_CLASS,
+  isAlertSimulationRecentCountValid,
+  isAlertSimulationThresholdValid,
   resolveAlertSimulationRunProjectSlug,
   type AlertSimulationModeTabId,
 } from "@/lib/alert-simulation-form";
 import {
+  alertSimulationBehaviorEmptyLead,
   alertSimulationCurrentBehaviorHeadingOperator,
   alertSimulationCurrentBehaviorHeadingReader,
   alertSimulationRunControlTitle,
 } from "@/lib/enterprise-controls-context-copy";
-import { alertSimulationOutcomesEmptyGettingStarted } from "@/lib/alerts-hub-empty-guidance";
-import { DESIGN_TOKENS, OPERATOR_TYPOGRAPHY } from "@/lib/design-tokens";
+import { OPERATOR_TYPOGRAPHY } from "@/lib/design-tokens";
 import type { ApiLoadFailureState } from "@/lib/api-load-failure";
 import { toApiLoadFailure } from "@/lib/api-load-failure";
 import { readOperatorScopeFromStorage } from "@/lib/operator/operator-scope-storage";
+import {
+  firstWhyDisabledCtaReason,
+  whyDisabledIncompleteInput,
+  type WhyDisabledCtaReason,
+} from "@/lib/why-disabled-cta";
 import type {
   RuleCandidateComparisonResult,
   RuleSimulationResult,
@@ -75,14 +93,40 @@ const COND_OPS = [
 
 const SEVERITIES = ["Info", "Warning", "High", "Critical"];
 
+function SimulationBehaviorEmpty() {
+  return (
+    <div className="mt-2 grid max-w-xl gap-3">
+      <p className={cn("m-0 text-neutral-500 dark:text-neutral-400", OPERATOR_TYPOGRAPHY.body)}>
+        {alertSimulationBehaviorEmptyLead}
+      </p>
+      <GettingStartedSteps {...ALERT_SIMULATION_BEHAVIOR_EMPTY_GETTING_STARTED} />
+    </div>
+  );
+}
+
+function resolveSimpleSimulationReadiness(
+  hasSpecificReviewId: boolean,
+  recentCountValid: boolean,
+  thresholdValid: boolean,
+  reviewScopeValid: boolean,
+): WhyDisabledCtaReason | null {
+  return firstWhyDisabledCtaReason([
+    !thresholdValid ? whyDisabledIncompleteInput(ALERT_SIMULATION_READINESS_THRESHOLD) : null,
+    !reviewScopeValid ? whyDisabledIncompleteInput(ALERT_SIMULATION_READINESS_REVIEW_SCOPE) : null,
+    hasSpecificReviewId || recentCountValid
+      ? null
+      : whyDisabledIncompleteInput(ALERT_SIMULATION_READINESS_RECENT_COUNT),
+  ]);
+}
+
 function OutcomeTable({ outcomes }: { outcomes: SimulatedAlertOutcome[] }) {
   if (outcomes.length === 0) {
     return (
       <div className="grid max-w-xl gap-3">
         <p className={cn("text-neutral-600 dark:text-neutral-400", OPERATOR_TYPOGRAPHY.body)}>
-          Run a simulation above — per-review outcomes explain matches, suppression, and dedupe.
+          {ALERT_SIMULATION_OUTCOMES_TABLE_EMPTY}
         </p>
-        <GettingStartedSteps {...alertSimulationOutcomesEmptyGettingStarted} />
+        <GettingStartedSteps {...ALERT_SIMULATION_BEHAVIOR_EMPTY_GETTING_STARTED} />
       </div>
     );
   }
@@ -176,6 +220,22 @@ export function AlertSimulationContent() {
   const [sRunId, setSRunId] = useState("");
   const [sCompareRun, setSCompareRun] = useState("");
   const [sUseHistory, setSUseHistory] = useState(true);
+  const [sRecentTouched, setSRecentTouched] = useState(false);
+  const [sThresholdTouched, setSThresholdTouched] = useState(false);
+  const [sScopeTouched, setSScopeTouched] = useState(false);
+
+  const hasSpecificReviewId = sRunId.trim().length > 0;
+  const recentCountValid =
+    hasSpecificReviewId || isAlertSimulationRecentCountValid(sRecent);
+  const thresholdValid = isAlertSimulationThresholdValid(sThreshold);
+  const reviewScopeValid = hasSpecificReviewId || sUseHistory;
+  const simpleFormValid = recentCountValid && thresholdValid && reviewScopeValid;
+  const simpleSimulationReadiness = resolveSimpleSimulationReadiness(
+    hasSpecificReviewId,
+    recentCountValid,
+    thresholdValid,
+    reviewScopeValid,
+  );
 
   // Composite
   const [cName, setCName] = useState("Composite dry-run");
@@ -216,12 +276,16 @@ export function AlertSimulationContent() {
   }
 
   async function runSimple() {
+    if (!simpleFormValid) {
+      return;
+    }
+
     setLoading(true);
     setFailure(null);
     setSimpleResult(null);
     try {
       const runId = parseOptionalGuid(sRunId);
-      const comparedToRunId = parseOptionalGuid(sCompareRun);
+      const comparedToRunId = runId ? parseOptionalGuid(sCompareRun) : undefined;
       const res = await simulateAlertRule({
         ruleKind: "Simple",
         simpleRule: {
@@ -408,20 +472,19 @@ export function AlertSimulationContent() {
               <Input
                 id="alert-simulation-simple-threshold"
                 type="number"
-                value={sThreshold}
-                onChange={(e) => setSThreshold(Number(e.target.value))}
-                className="mt-1"
-              />
-            </div>
-            <div>
-              <Label htmlFor="alert-simulation-simple-recent-count">Recent review count (1–50)</Label>
-              <Input
-                id="alert-simulation-simple-recent-count"
-                type="number"
-                min={1}
-                max={50}
-                value={sRecent}
-                onChange={(e) => setSRecent(Number(e.target.value))}
+                value={Number.isNaN(sThreshold) ? "" : sThreshold}
+                onChange={(e) => {
+                  setSThresholdTouched(true);
+                  const raw = e.target.value;
+
+                  if (raw === "") {
+                    setSThreshold(NaN);
+                    return;
+                  }
+
+                  setSThreshold(Number(raw));
+                }}
+                aria-invalid={sThresholdTouched && !thresholdValid}
                 className="mt-1"
               />
             </div>
@@ -439,50 +502,109 @@ export function AlertSimulationContent() {
                 {ALERT_SIMULATION_PROJECT_SLUG_HELPER}
               </span>
             </div>
-            <div>
-              <Label htmlFor="alert-simulation-simple-review-id">Specific review ID (optional; overrides recent list)</Label>
-              <Input
-                id="alert-simulation-simple-review-id"
-                value={sRunId}
-                onChange={(e) => setSRunId(e.target.value)}
-                placeholder={ALERT_SIMULATION_REVIEW_ID_PLACEHOLDER}
-                className="mt-1"
-                data-testid="alert-simulation-simple-review-id"
-              />
-              <span className={cn("mt-1 block text-neutral-600 dark:text-neutral-400", OPERATOR_TYPOGRAPHY.helper)}>
-                {ALERT_SIMULATION_REVIEW_ID_HELPER}
-              </span>
-            </div>
-            <div>
-              <Label htmlFor="alert-simulation-simple-compared-review-id">Compared-to review ID (optional)</Label>
-              <Input
-                id="alert-simulation-simple-compared-review-id"
-                value={sCompareRun}
-                onChange={(e) => setSCompareRun(e.target.value)}
-                className="mt-1"
-              />
-              <span className={cn("mt-1 block text-neutral-600 dark:text-neutral-400", OPERATOR_TYPOGRAPHY.helper)}>
-                {ALERT_SIMULATION_COMPARED_REVIEW_ID_HELPER}
-              </span>
-            </div>
-            <div className="flex items-center gap-2">
-              <Checkbox
-                id="alert-simulation-simple-use-historical-window"
-                checked={sUseHistory}
-                onCheckedChange={(checked) => setSUseHistory(checked === true)}
-              />
-              <Label htmlFor="alert-simulation-simple-use-historical-window">
-                Use historical window (recent reviews)
-              </Label>
-            </div>
+            <fieldset className="m-0 grid gap-3 rounded-md border border-neutral-200 p-3 dark:border-neutral-700">
+              <legend className={cn("px-1", OPERATOR_TYPOGRAPHY.cardTitle)}>Review scope</legend>
+              <p className={cn("m-0 text-neutral-600 dark:text-neutral-400", OPERATOR_TYPOGRAPHY.helper)}>
+                {ALERT_SIMULATION_REVIEW_ID_PRECEDENCE}
+              </p>
+              <div>
+                <Label htmlFor="alert-simulation-simple-review-id">Specific review ID (optional)</Label>
+                <Input
+                  id="alert-simulation-simple-review-id"
+                  value={sRunId}
+                  onChange={(e) => {
+                    setSScopeTouched(true);
+                    setSRunId(e.target.value);
+                  }}
+                  placeholder={ALERT_SIMULATION_REVIEW_ID_PLACEHOLDER}
+                  className="mt-1"
+                  data-testid="alert-simulation-simple-review-id"
+                />
+                <span className={cn("mt-1 block text-neutral-600 dark:text-neutral-400", OPERATOR_TYPOGRAPHY.helper)}>
+                  {ALERT_SIMULATION_REVIEW_ID_HELPER}
+                </span>
+              </div>
+              <div>
+                <Label htmlFor="alert-simulation-simple-compared-review-id">Compared-to review ID (optional)</Label>
+                <Input
+                  id="alert-simulation-simple-compared-review-id"
+                  value={sCompareRun}
+                  onChange={(e) => setSCompareRun(e.target.value)}
+                  disabled={!hasSpecificReviewId}
+                  className="mt-1"
+                  data-testid="alert-simulation-simple-compared-review-id"
+                />
+                <span className={cn("mt-1 block text-neutral-600 dark:text-neutral-400", OPERATOR_TYPOGRAPHY.helper)}>
+                  {hasSpecificReviewId
+                    ? ALERT_SIMULATION_COMPARED_REVIEW_ID_HELPER
+                    : ALERT_SIMULATION_COMPARED_REVIEW_DISABLED_HELPER}
+                </span>
+              </div>
+              <div>
+                <Label htmlFor="alert-simulation-simple-recent-count">{ALERT_SIMULATION_RECENT_COUNT_LABEL}</Label>
+                <Input
+                  id="alert-simulation-simple-recent-count"
+                  type="number"
+                  min={1}
+                  max={50}
+                  value={Number.isNaN(sRecent) ? "" : sRecent}
+                  onChange={(e) => {
+                    setSRecentTouched(true);
+                    const raw = e.target.value;
+
+                    if (raw === "") {
+                      setSRecent(NaN);
+                      return;
+                    }
+
+                    setSRecent(Number(raw));
+                  }}
+                  disabled={hasSpecificReviewId}
+                  aria-invalid={sRecentTouched && !hasSpecificReviewId && !recentCountValid}
+                  className="mt-1"
+                />
+                <span className={cn("mt-1 block text-neutral-600 dark:text-neutral-400", OPERATOR_TYPOGRAPHY.helper)}>
+                  {ALERT_SIMULATION_RECENT_COUNT_HELPER}
+                </span>
+              </div>
+              <div className="flex items-center gap-2">
+                <Checkbox
+                  id="alert-simulation-simple-use-historical-window"
+                  checked={sUseHistory}
+                  disabled={hasSpecificReviewId}
+                  onCheckedChange={(checked) => {
+                    setSScopeTouched(true);
+                    setSUseHistory(checked === true);
+                  }}
+                  aria-invalid={sScopeTouched && !hasSpecificReviewId && !reviewScopeValid}
+                />
+                <Label htmlFor="alert-simulation-simple-use-historical-window">
+                  Use historical window (recent reviews)
+                </Label>
+              </div>
+              {hasSpecificReviewId ? (
+                <p className={cn("m-0 text-neutral-600 dark:text-neutral-400", OPERATOR_TYPOGRAPHY.helper)}>
+                  {ALERT_SIMULATION_SPECIFIC_REVIEW_REPLACES_WINDOW_NOTE}
+                </p>
+              ) : null}
+            </fieldset>
+            <WhyDisabledCtaHint
+              id="alert-simulation-simple-readiness"
+              testId="alert-simulation-simple-readiness"
+              reason={simpleFormValid ? null : simpleSimulationReadiness}
+            />
             <Button
               type="button"
               variant="primary"
               size="sm"
               data-testid="alert-simulation-simple-submit"
               onClick={() => void runSimple()}
-              disabled={loading}
+              disabled={loading || !simpleFormValid}
               title={alertSimulationRunControlTitle}
+              aria-describedby={
+                simpleFormValid ? undefined : "alert-simulation-simple-readiness"
+              }
+              className="justify-self-start"
             >
               {loading ? "Running…" : "Simulate"}
             </Button>
@@ -492,9 +614,7 @@ export function AlertSimulationContent() {
             simpleResult ? (
               <SummaryBlock result={simpleResult} />
             ) : (
-              <p className={cn("mt-2 text-neutral-500 dark:text-neutral-400", OPERATOR_TYPOGRAPHY.body)}>
-                Run a simulation to see outcomes here.
-              </p>
+              <SimulationBehaviorEmpty />
             )
           }
         />
@@ -704,6 +824,7 @@ export function AlertSimulationContent() {
               onClick={() => void runComposite()}
               disabled={loading}
               title={alertSimulationRunControlTitle}
+              className="justify-self-start"
             >
               {loading ? "Running…" : "Simulate"}
             </Button>
@@ -713,9 +834,7 @@ export function AlertSimulationContent() {
             compositeResult ? (
               <SummaryBlock result={compositeResult} />
             ) : (
-              <p className={cn("mt-2 text-neutral-500 dark:text-neutral-400", OPERATOR_TYPOGRAPHY.body)}>
-                Run a simulation to see outcomes here.
-              </p>
+              <SimulationBehaviorEmpty />
             )
           }
         />
@@ -830,6 +949,7 @@ export function AlertSimulationContent() {
               onClick={() => void runCompare()}
               disabled={loading}
               title={alertSimulationRunControlTitle}
+              className="justify-self-start"
             >
               {loading ? "Running…" : "Compare candidates"}
             </Button>
@@ -850,9 +970,7 @@ export function AlertSimulationContent() {
                 <SummaryBlock result={compareResult.candidateB} />
               </div>
             ) : (
-              <p className={cn("mt-2 text-neutral-500 dark:text-neutral-400", OPERATOR_TYPOGRAPHY.body)}>
-                Run a comparison to see outcomes here.
-              </p>
+              <SimulationBehaviorEmpty />
             )
           }
         />
