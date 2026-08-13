@@ -297,7 +297,7 @@ export const HELP_DOC_SEARCH_RECORDS: readonly HelpDocSearchRecord[] = [
     "docTitle": "Your first architecture review",
     "sectionSlug": "what-good-looks-like",
     "sectionHeading": "What good looks like",
-    "excerpt": "Former first-hour guide success signals for a first session:"
+    "excerpt": "Success signals for a first session:"
   },
   {
     "docPath": "docs/CORE_PILOT.md",
