@@ -90,6 +90,21 @@ const HelpWebhooksIntegrationGuideView = dynamic(() =>
 const HelpApiKeysGuideView = dynamic(() =>
   import("../_sections/HelpApiKeysGuideView").then((module) => module.HelpApiKeysGuideView),
 );
+const HelpSystemHealthGuideView = dynamic(() =>
+  import("../_sections/HelpSystemHealthGuideView").then((module) => module.HelpSystemHealthGuideView),
+);
+const HelpAiUsageGuideView = dynamic(() =>
+  import("../_sections/HelpAiUsageGuideView").then((module) => module.HelpAiUsageGuideView),
+);
+const HelpPreferencesGuideView = dynamic(() =>
+  import("../_sections/HelpPreferencesGuideView").then((module) => module.HelpPreferencesGuideView),
+);
+const HelpNotificationsGuideView = dynamic(() =>
+  import("../_sections/HelpNotificationsGuideView").then((module) => module.HelpNotificationsGuideView),
+);
+const HelpWorkspaceSettingsGuideView = dynamic(() =>
+  import("../_sections/HelpWorkspaceSettingsGuideView").then((module) => module.HelpWorkspaceSettingsGuideView),
+);
 const HelpAdminDiagnosticsGuideView = dynamic(() =>
   import("../_sections/HelpAdminDiagnosticsGuideView").then((module) => module.HelpAdminDiagnosticsGuideView),
 );
@@ -346,6 +361,26 @@ function renderHelpTopicView(
 
   if (loaded.entry.slug === "api-keys") {
     return <HelpApiKeysGuideView entry={loaded.entry} />;
+  }
+
+  if (loaded.entry.slug === "system-health") {
+    return <HelpSystemHealthGuideView entry={loaded.entry} />;
+  }
+
+  if (loaded.entry.slug === "ai-usage") {
+    return <HelpAiUsageGuideView entry={loaded.entry} />;
+  }
+
+  if (loaded.entry.slug === "preferences") {
+    return <HelpPreferencesGuideView entry={loaded.entry} />;
+  }
+
+  if (loaded.entry.slug === "notifications") {
+    return <HelpNotificationsGuideView entry={loaded.entry} />;
+  }
+
+  if (loaded.entry.slug === "workspace-settings") {
+    return <HelpWorkspaceSettingsGuideView entry={loaded.entry} />;
   }
 
   if (loaded.entry.slug === "billing-and-plans") {

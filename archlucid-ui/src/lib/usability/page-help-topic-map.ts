@@ -7,6 +7,7 @@ import {
   ALERTS_CONFIGURATION_PAGE_TITLE,
   ALERTS_HOW_ALERTS_WORK_LABEL,
 } from "@/lib/alerts-page-copy";
+import { AI_USAGE_HELP_TOPIC_LABEL } from "@/lib/ai-usage-settings-evidence-copy";
 import { API_KEYS_HELP_TOPIC_LABEL } from "@/lib/api-keys-settings-evidence-copy";
 import { BASELINE_SETTINGS_HELP_TOPIC_LABEL } from "@/lib/baseline-settings-evidence-copy";
 import { ARCHITECTURES_LIST_PATH } from "@/lib/architecture/architecture-routes";
@@ -14,7 +15,9 @@ import { ARCHITECTURE_DRAFTS_LIST_LABEL, START_REVIEW_LABEL } from "@/lib/archit
 import { BUYER_ONBOARDING_PAGE_TITLE, BUYER_VALUE_REPORT_HOW_IT_WORKS_TITLE } from "@/lib/buyer/buyer-polish-copy";
 import { GOVERNANCE_SETUP_HREF } from "@/lib/governance/governance-setup-route";
 import { GOVERNANCE_EXCEPTIONS_PATH } from "@/lib/governance/governance-route-paths";
+import { NOTIFICATIONS_HELP_TOPIC_LABEL } from "@/lib/notification-preference-center";
 import { OPERATOR_NAV_LINK_LABELS } from "@/lib/i18n";
+import { PREFERENCES_HELP_TOPIC_LABEL } from "@/lib/preferences-settings-evidence-copy";
 import { PROVENANCE_HELP_TOPIC, pathIsRunProvenance } from "@/lib/provenance-evidence-copy";
 import { pathIsFindingEvidenceTrace } from "@/lib/evidence-trace-contextual-help";
 import {
@@ -27,8 +30,11 @@ import { PILOT_OUTCOMES_HELP_TOPIC_LABEL } from "@/lib/pilot-outcomes-evidence-c
 import { ROI_SUMMARY_HELP_TOPIC_LABEL } from "@/lib/roi-summary-help-evidence-copy";
 import { SLACK_INTEGRATION_HELP_TOPIC_LABEL } from "@/lib/slack-integration-evidence-copy";
 import { RECURRENCE_SCHEDULES_HOW_IT_WORKS_TITLE } from "@/lib/recurrence-schedules-copy";
+import { ACCELERATOR_CHOOSER_HELP_INBOUND_LABEL } from "@/lib/accelerator-chooser-help-title-honesty-surfaces";
 import { REPEAT_REVIEW_LOOP_HELP_INBOUND_LABEL } from "@/lib/repeat-review-loop-help-title-honesty-surfaces";
 import { REVIEW_PACKAGES_HELP_INBOUND_LABEL } from "@/lib/review-packages-help-title-honesty-surfaces";
+import { SYSTEM_HEALTH_HELP_TOPIC_LABEL } from "@/lib/system-health-evidence-copy";
+import { WORKSPACE_SETTINGS_HELP_TOPIC_LABEL } from "@/lib/tenant-settings-evidence-copy";
 import { STANDARDS_RULES_HELP_TOPIC_LABEL } from "@/lib/standards-rules-page";
 import { SIGNED_RECORDS_LIST_PATH } from "@/lib/signed-records-paths";
 import { TEAMS_INTEGRATION_HELP_TOPIC_LABEL } from "@/lib/teams-integration-evidence-copy";
@@ -304,6 +310,26 @@ const PAGE_HELP_TOPICS: readonly { prefix: string; topic: PageHelpTopic }[] = [
     topic: { slug: "api-keys", label: API_KEYS_HELP_TOPIC_LABEL },
   },
   {
+    prefix: "/help/system-health",
+    topic: { slug: "system-health", label: SYSTEM_HEALTH_HELP_TOPIC_LABEL },
+  },
+  {
+    prefix: "/help/ai-usage",
+    topic: { slug: "ai-usage", label: AI_USAGE_HELP_TOPIC_LABEL },
+  },
+  {
+    prefix: "/help/preferences",
+    topic: { slug: "preferences", label: PREFERENCES_HELP_TOPIC_LABEL },
+  },
+  {
+    prefix: "/help/notifications",
+    topic: { slug: "notifications", label: NOTIFICATIONS_HELP_TOPIC_LABEL },
+  },
+  {
+    prefix: "/help/workspace-settings",
+    topic: { slug: "workspace-settings", label: WORKSPACE_SETTINGS_HELP_TOPIC_LABEL },
+  },
+  {
     // Secondary hub — no planning specialty; omit Learn more (TB-2050).
     prefix: "/insights/improvement-planning",
     topic: { label: "Improvement planning" },
@@ -332,11 +358,11 @@ const PAGE_HELP_TOPICS: readonly { prefix: string; topic: PageHelpTopic }[] = [
   { prefix: "/administration/billing", topic: { slug: "billing-and-plans", label: "Billing and plans" } },
   {
     prefix: "/administration/ai-usage",
-    topic: { slug: "billing-and-plans", label: `${OPERATOR_NAV_LINK_LABELS.aiUsage} help` },
+    topic: { slug: "ai-usage", label: AI_USAGE_HELP_TOPIC_LABEL },
   },
   {
     prefix: "/administration/settings/ai-usage",
-    topic: { slug: "billing-and-plans", label: `${OPERATOR_NAV_LINK_LABELS.aiUsage} help` },
+    topic: { slug: "ai-usage", label: AI_USAGE_HELP_TOPIC_LABEL },
   },
   { prefix: "/help/billing-and-plans", topic: { slug: "billing-and-plans", label: "Billing and plans" } },
   {
@@ -469,7 +495,7 @@ const PAGE_HELP_TOPICS: readonly { prefix: string; topic: PageHelpTopic }[] = [
     prefix: "/operate/integration-events/dlq",
     topic: { slug: "integration-readiness", label: "Integration event dead letters" },
   },
-  { prefix: "/administration/system-health", topic: { slug: "troubleshooting", label: OPERATOR_NAV_LINK_LABELS.systemHealth } },
+  { prefix: "/administration/system-health", topic: { slug: "system-health", label: SYSTEM_HEALTH_HELP_TOPIC_LABEL } },
   { prefix: "/internal/integrations/itsm", topic: { slug: "integration-readiness", label: "ITSM connectors" } },
   {
     prefix: "/admin/tenant-health",
@@ -509,7 +535,7 @@ const PAGE_HELP_TOPICS: readonly { prefix: string; topic: PageHelpTopic }[] = [
   },
   {
     prefix: "/administration/workspace-settings/recycle-bin",
-    topic: { slug: "scope", label: "Projects recycle bin" },
+    topic: { slug: "workspace-settings", label: WORKSPACE_SETTINGS_HELP_TOPIC_LABEL },
   },
   {
     prefix: "/administration/identity-providers/diagnostics",
@@ -525,11 +551,11 @@ const PAGE_HELP_TOPICS: readonly { prefix: string; topic: PageHelpTopic }[] = [
   },
   {
     prefix: "/administration/preferences",
-    topic: { slug: "getting-started", label: "Preferences" },
+    topic: { slug: "preferences", label: PREFERENCES_HELP_TOPIC_LABEL },
   },
   {
     prefix: "/administration/notifications",
-    topic: { slug: "integration-readiness", label: "Notification channels" },
+    topic: { slug: "notifications", label: NOTIFICATIONS_HELP_TOPIC_LABEL },
   },
   {
     prefix: "/administration/account-security",
@@ -574,7 +600,7 @@ const PAGE_HELP_TOPICS: readonly { prefix: string; topic: PageHelpTopic }[] = [
   },
   {
     prefix: "/administration/workspace-settings",
-    topic: { slug: "scope", label: OPERATOR_NAV_LINK_LABELS.workspaceSettings },
+    topic: { slug: "workspace-settings", label: WORKSPACE_SETTINGS_HELP_TOPIC_LABEL },
   },
   {
     prefix: "/administration/baseline",

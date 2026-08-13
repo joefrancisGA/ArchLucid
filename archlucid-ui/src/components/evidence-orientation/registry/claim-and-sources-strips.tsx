@@ -65,6 +65,36 @@ import {
   API_KEYS_HELP_SOURCES_INTRO,
 } from "@/lib/api-keys-help-evidence-copy";
 import {
+  SYSTEM_HEALTH_HELP_CLAIM_DISCIPLINE,
+  SYSTEM_HEALTH_HELP_FOLLOW_UPS_TITLE,
+  SYSTEM_HEALTH_HELP_SOURCES,
+  SYSTEM_HEALTH_HELP_SOURCES_INTRO,
+} from "@/lib/system-health-help-evidence-copy";
+import {
+  AI_USAGE_HELP_CLAIM_DISCIPLINE,
+  AI_USAGE_HELP_FOLLOW_UPS_TITLE,
+  AI_USAGE_HELP_SOURCES,
+  AI_USAGE_HELP_SOURCES_INTRO,
+} from "@/lib/ai-usage-help-evidence-copy";
+import {
+  PREFERENCES_HELP_CLAIM_DISCIPLINE,
+  PREFERENCES_HELP_FOLLOW_UPS_TITLE,
+  PREFERENCES_HELP_SOURCES,
+  PREFERENCES_HELP_SOURCES_INTRO,
+} from "@/lib/preferences-help-evidence-copy";
+import {
+  NOTIFICATIONS_HELP_CLAIM_DISCIPLINE,
+  NOTIFICATIONS_HELP_FOLLOW_UPS_TITLE,
+  NOTIFICATIONS_HELP_SOURCES,
+  NOTIFICATIONS_HELP_SOURCES_INTRO,
+} from "@/lib/notifications-help-evidence-copy";
+import {
+  WORKSPACE_SETTINGS_HELP_CLAIM_DISCIPLINE,
+  WORKSPACE_SETTINGS_HELP_FOLLOW_UPS_TITLE,
+  WORKSPACE_SETTINGS_HELP_SOURCES,
+  WORKSPACE_SETTINGS_HELP_SOURCES_INTRO,
+} from "@/lib/workspace-settings-help-evidence-copy";
+import {
   ARCHITECTURE_SCORECARD_HELP_CLAIM_DISCIPLINE,
   ARCHITECTURE_SCORECARD_HELP_FOLLOW_UPS_TITLE,
   ARCHITECTURE_SCORECARD_HELP_SOURCES,
@@ -351,6 +381,86 @@ export function ApiKeysHelpEvidenceOrientationStrip(): React.JSX.Element {
       sourcesTitle={API_KEYS_HELP_FOLLOW_UPS_TITLE}
       sourcesIntro={API_KEYS_HELP_SOURCES_INTRO}
       sources={API_KEYS_HELP_SOURCES}
+      sourcesStyle={EVIDENCE_SOURCES_STYLE.operatorRaised}
+      sourcesHeadingId="where-to-go-next"
+    />
+  );
+}
+
+export function SystemHealthHelpEvidenceOrientationStrip(): React.JSX.Element {
+  return (
+    <EvidenceOrientationClaimAndSourcesStrip
+      slug="help-system-health"
+      claim={SYSTEM_HEALTH_HELP_CLAIM_DISCIPLINE}
+      claimStyle={EVIDENCE_CLAIM_STYLE.operatorNeutral}
+      claimElement="div"
+      sourcesTitle={SYSTEM_HEALTH_HELP_FOLLOW_UPS_TITLE}
+      sourcesIntro={SYSTEM_HEALTH_HELP_SOURCES_INTRO}
+      sources={SYSTEM_HEALTH_HELP_SOURCES}
+      sourcesStyle={EVIDENCE_SOURCES_STYLE.operatorRaised}
+      sourcesHeadingId="where-to-go-next"
+    />
+  );
+}
+
+export function AiUsageHelpEvidenceOrientationStrip(): React.JSX.Element {
+  return (
+    <EvidenceOrientationClaimAndSourcesStrip
+      slug="help-ai-usage"
+      claim={AI_USAGE_HELP_CLAIM_DISCIPLINE}
+      claimStyle={EVIDENCE_CLAIM_STYLE.operatorNeutral}
+      claimElement="div"
+      sourcesTitle={AI_USAGE_HELP_FOLLOW_UPS_TITLE}
+      sourcesIntro={AI_USAGE_HELP_SOURCES_INTRO}
+      sources={AI_USAGE_HELP_SOURCES}
+      sourcesStyle={EVIDENCE_SOURCES_STYLE.operatorRaised}
+      sourcesHeadingId="where-to-go-next"
+    />
+  );
+}
+
+export function PreferencesHelpEvidenceOrientationStrip(): React.JSX.Element {
+  return (
+    <EvidenceOrientationClaimAndSourcesStrip
+      slug="help-preferences"
+      claim={PREFERENCES_HELP_CLAIM_DISCIPLINE}
+      claimStyle={EVIDENCE_CLAIM_STYLE.operatorNeutral}
+      claimElement="div"
+      sourcesTitle={PREFERENCES_HELP_FOLLOW_UPS_TITLE}
+      sourcesIntro={PREFERENCES_HELP_SOURCES_INTRO}
+      sources={PREFERENCES_HELP_SOURCES}
+      sourcesStyle={EVIDENCE_SOURCES_STYLE.operatorRaised}
+      sourcesHeadingId="where-to-go-next"
+    />
+  );
+}
+
+export function NotificationsHelpEvidenceOrientationStrip(): React.JSX.Element {
+  return (
+    <EvidenceOrientationClaimAndSourcesStrip
+      slug="help-notifications"
+      claim={NOTIFICATIONS_HELP_CLAIM_DISCIPLINE}
+      claimStyle={EVIDENCE_CLAIM_STYLE.operatorNeutral}
+      claimElement="div"
+      sourcesTitle={NOTIFICATIONS_HELP_FOLLOW_UPS_TITLE}
+      sourcesIntro={NOTIFICATIONS_HELP_SOURCES_INTRO}
+      sources={NOTIFICATIONS_HELP_SOURCES}
+      sourcesStyle={EVIDENCE_SOURCES_STYLE.operatorRaised}
+      sourcesHeadingId="where-to-go-next"
+    />
+  );
+}
+
+export function WorkspaceSettingsHelpEvidenceOrientationStrip(): React.JSX.Element {
+  return (
+    <EvidenceOrientationClaimAndSourcesStrip
+      slug="help-workspace-settings"
+      claim={WORKSPACE_SETTINGS_HELP_CLAIM_DISCIPLINE}
+      claimStyle={EVIDENCE_CLAIM_STYLE.operatorNeutral}
+      claimElement="div"
+      sourcesTitle={WORKSPACE_SETTINGS_HELP_FOLLOW_UPS_TITLE}
+      sourcesIntro={WORKSPACE_SETTINGS_HELP_SOURCES_INTRO}
+      sources={WORKSPACE_SETTINGS_HELP_SOURCES}
       sourcesStyle={EVIDENCE_SOURCES_STYLE.operatorRaised}
       sourcesHeadingId="where-to-go-next"
     />
