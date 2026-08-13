@@ -29,8 +29,22 @@ class TestStickinessBatchTb057(unittest.TestCase):
             / "findings"
             / "governance-findings-query-fetch.ts"
         )
-        page_constants = REPO_ROOT / "archlucid-ui" / "src" / "lib" / "architecture-risk-register-page.ts"
-        csv_module = REPO_ROOT / "archlucid-ui" / "src" / "lib" / "architecture-risk-register-csv.ts"
+        page_constants = (
+            REPO_ROOT
+            / "archlucid-ui"
+            / "src"
+            / "lib"
+            / "architecture"
+            / "architecture-risk-register-page.ts"
+        )
+        csv_module = (
+            REPO_ROOT
+            / "archlucid-ui"
+            / "src"
+            / "lib"
+            / "architecture"
+            / "architecture-risk-register-csv.ts"
+        )
         reader = REPO_ROOT / "ArchLucid.Persistence" / "Governance" / "ArchitectureRiskRegisterReader.cs"
         i18n = REPO_ROOT / "archlucid-ui" / "src" / "lib" / "i18n.ts"
 
