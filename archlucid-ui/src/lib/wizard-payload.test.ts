@@ -46,12 +46,21 @@ describe("wizard-payload", () => {
     expect(payload.modelExecutionProfileOverride).toBeUndefined();
   });
 
-  it("maps per-review model execution profile override when set", () => {
+  it("maps per-review model alias override when set", () => {
     const payload = wizardValuesToCreateRunPayload({
       ...buildDefaultWizardValues(),
-      modelExecutionProfileOverride: "HighAssurance",
+      modelAliasOverride: "premium-assurance",
     });
 
-    expect(payload.modelExecutionProfileOverride).toBe("HighAssurance");
+    expect(payload.modelAliasOverride).toBe("premium-assurance");
+  });
+
+  it("omits model alias override when workspace default is selected", () => {
+    const payload = wizardValuesToCreateRunPayload({
+      ...buildDefaultWizardValues(),
+      modelAliasOverride: "",
+    });
+
+    expect(payload.modelAliasOverride).toBeUndefined();
   });
 });

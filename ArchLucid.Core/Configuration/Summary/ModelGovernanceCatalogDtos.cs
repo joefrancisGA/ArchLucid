@@ -9,6 +9,23 @@ public sealed class ModelAliasRegistryEntryResponse
     public IReadOnlyList<string> CapabilityTags { get; set; } = [];
 
     public IReadOnlyList<string> ApprovedTaskTypes { get; set; } = [];
+
+    public string StructuredOutputLevel { get; set; } = "StrictJsonSchema";
+
+    public string DataBoundary { get; set; } = "AzureBoundary";
+
+    public IReadOnlyList<ModelAliasTaskEvaluationResponse> TaskEvaluations { get; set; } = [];
+}
+
+public sealed class ModelAliasTaskEvaluationResponse
+{
+    public string TaskType { get; set; } = string.Empty;
+
+    public string EvaluationState { get; set; } = "NotEvaluated";
+
+    public string? EvidenceJson { get; set; }
+
+    public DateTime? EvaluatedUtc { get; set; }
 }
 
 public sealed class ModelGovernanceProfileAgentAliasMappingResponse

@@ -87,7 +87,8 @@ internal static class ArchitectureRunAuthorityCoordinationTestFactory
                 ProviderConnectionKind = AgentModelAliasProviderKinds.ArchLucidManagedAzureOpenAi,
                 DeploymentName = "deploy",
                 CapabilityTags = [],
-                ApprovedTaskTypes = []
+                ApprovedTaskTypes = [],
+                StructuredOutputLevel = AgentModelStructuredOutputLevel.StrictJsonSchema
             };
     }
 

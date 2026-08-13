@@ -212,4 +212,13 @@ public sealed class ArchitectureRequest
         get;
         set;
     }
+
+    /// <summary>
+    ///     Server-resolved effective alias id frozen at run create for execution routing (TB-2110).
+    /// </summary>
+    public string? EffectiveModelAliasId
+    {
+        get;
+        set;
+    }
 }

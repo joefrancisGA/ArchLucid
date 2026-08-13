@@ -40,6 +40,20 @@ public sealed class AgentModelAliasRegistryEntry
         init;
     } = AgentModelDataBoundaryKind.AzureBoundary;
 
+    /// <summary>Structured-output capability for fail-closed routing (TB-2104).</summary>
+    public AgentModelStructuredOutputLevel StructuredOutputLevel
+    {
+        get;
+        init;
+    } = AgentModelStructuredOutputLevel.StrictJsonSchema;
+
+    /// <summary>Per-task evaluation evidence snapshot for selection surfaces (TB-2105).</summary>
+    public IReadOnlyList<AgentModelCatalogEvaluationRow> TaskEvaluations
+    {
+        get;
+        init;
+    } = [];
+
     public bool IsTaskApproved(string taskType)
     {
         if (string.IsNullOrWhiteSpace(taskType))

@@ -50,6 +50,12 @@ public static partial class AuditEventTypes
     public const string WorkspaceExternalSubprocessorEngineAcknowledged =
         "Workspace.ExternalSubprocessorEngineAcknowledged";
 
+    /// <summary>Platform operator created a catalog engine row (TB-2103).</summary>
+    public const string ModelCatalogEntryCreated = "ModelCatalog.EntryCreated";
+
+    /// <summary>Platform operator updated a catalog engine row (TB-2103).</summary>
+    public const string ModelCatalogEntryUpdated = "ModelCatalog.EntryUpdated";
+
     /// <summary>Phase B LLM faithfulness judge scored below warn floor on one agent trace (run continues for other traces).</summary>
     public const string AgentOutputLlmFaithfulnessWarned = "AgentOutput.LlmFaithfulnessWarned";
 

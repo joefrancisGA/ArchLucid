@@ -28,6 +28,7 @@ using ArchLucid.Core.Authorization;
 using ArchLucid.Core.Identity;
 using ArchLucid.Core.Persistence.Ports;
 using ArchLucid.Core.Scim;
+using ArchLucid.Persistence.Agents;
 using ArchLucid.Persistence.AiUsage;
 using ArchLucid.Persistence.Alerts;
 using ArchLucid.Persistence.Authorization;
@@ -477,6 +478,7 @@ public static class ArchLucidStorageServiceCollectionExtensions
             services.AddScoped<ITenantSettingsRepository, SqlTenantSettingsRepository>();
             services.AddScoped<IPolicyPackVersionRepository, DapperPolicyPackVersionRepository>();
             services.AddScoped<IPolicyPackCatalogRepository, DapperPolicyPackCatalogRepository>();
+            services.AddScoped<IAgentModelCatalogRepository, DapperAgentModelCatalogRepository>();
             services.AddScoped<IPlatformBundledPolicyPackRegistryRepository, DapperPlatformBundledPolicyPackRegistryRepository>();
             services.AddScoped<IAlertRuleRepository, DapperAlertRuleRepository>();
             services.AddScoped<ICompositeAlertRuleRepository, DapperCompositeAlertRuleRepository>();
@@ -517,6 +519,10 @@ public static class ArchLucidStorageServiceCollectionExtensions
         services.AddScoped<IPolicyPackCatalogRepository>(static sp => new CachingPolicyPackCatalogRepository(
             sp.GetRequiredService<DapperPolicyPackCatalogRepository>(),
             sp.GetRequiredService<IHotPathReadCache>()));
+
+        services.AddScoped<DapperAgentModelCatalogRepository>();
+        services.AddScoped<IAgentModelCatalogRepository>(static sp =>
+            sp.GetRequiredService<DapperAgentModelCatalogRepository>());
 
         services.AddScoped<DapperPlatformBundledPolicyPackRegistryRepository>();
         services.AddScoped<IPlatformBundledPolicyPackRegistryRepository>(static sp =>

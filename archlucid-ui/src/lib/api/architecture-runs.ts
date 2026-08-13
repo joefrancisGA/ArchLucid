@@ -91,6 +91,7 @@ export type CreateArchitectureRunRequestPayload = {
   requestSource?: "wizard" | "cli";
   wizardPresetUsed?: string;
   modelExecutionProfileOverride?: "Economy" | "Balanced" | "HighAssurance";
+  modelAliasOverride?: string;
 };
 
 /** Response envelope for POST /v1/architecture/request. */

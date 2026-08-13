@@ -44,6 +44,16 @@ public sealed class AgentModelAliasResolverTests
             .Which.AliasId.Should().Be(AgentModelAliasIds.EconomyGeneral);
     }
 
+    [Fact]
+    public void Resolve_fails_closed_when_structured_output_level_is_insufficient()
+    {
+        AgentModelAliasResolver resolver = new(new DegradedStructuredOutputRegistryStub());
+
+        Action act = () => resolver.Resolve(LlmModelTier.Economy, nameof(AgentType.Topology));
+
+        act.Should().Throw<AgentModelStructuredOutputInsufficientException>();
+    }
+
     private static AgentModelAliasResolver CreateResolver()
     {
         AgentModelTierResolver tierResolver = AgentModelTierResolverTestsHelper.CreateResolver(
@@ -55,8 +65,36 @@ public sealed class AgentModelAliasResolverTests
             },
             new AgentModelTierOptions());
 
-        ConfigAgentModelAliasRegistry registry = new(tierResolver);
+        CatalogBackedAgentModelAliasRegistry registry =
+            AgentModelAliasRegistryTestsHelper.CreateCatalogRegistry(tierResolver);
 
         return new AgentModelAliasResolver(registry);
+    }
+
+    private sealed class DegradedStructuredOutputRegistryStub : IAgentModelAliasRegistry
+    {
+        public IReadOnlyCollection<AgentModelAliasRegistryEntry> ListEntries() =>
+            [CreateEntry(AgentModelAliasIds.EconomyGeneral)];
+
+        public AgentModelAliasRegistryEntry GetRequired(string aliasId) => CreateEntry(aliasId);
+
+        public bool TryGet(string aliasId, out AgentModelAliasRegistryEntry? entry)
+        {
+            entry = CreateEntry(aliasId);
+            return true;
+        }
+
+        public string ResolveAliasIdForTier(LlmModelTier tier) => AgentModelAliasIds.EconomyGeneral;
+
+        private static AgentModelAliasRegistryEntry CreateEntry(string aliasId) =>
+            new()
+            {
+                AliasId = aliasId,
+                ProviderConnectionKind = AgentModelAliasProviderKinds.ArchLucidManagedAzureOpenAi,
+                DeploymentName = "deploy",
+                CapabilityTags = [],
+                ApprovedTaskTypes = [AgentModelTaskTypes.FromAgentType(AgentType.Topology)],
+                StructuredOutputLevel = AgentModelStructuredOutputLevel.DegradedTextParse
+            };
     }
 }

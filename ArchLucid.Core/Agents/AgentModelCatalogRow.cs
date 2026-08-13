@@ -1,0 +1,99 @@
+namespace ArchLucid.Core.Agents;
+
+/// <summary>Persisted agent model catalog row (TB-2103).</summary>
+public sealed class AgentModelCatalogRow
+{
+    public required string AliasId
+    {
+        get;
+        init;
+    }
+
+    public required string ProviderConnectionKind
+    {
+        get;
+        init;
+    }
+
+    public string? DeploymentName
+    {
+        get;
+        init;
+    }
+
+    public string? TierBinding
+    {
+        get;
+        init;
+    }
+
+    public required IReadOnlyList<string> CapabilityTags
+    {
+        get;
+        init;
+    }
+
+    public required IReadOnlyList<string> ApprovedTaskTypes
+    {
+        get;
+        init;
+    }
+
+    public AgentModelStructuredOutputLevel StructuredOutputLevel
+    {
+        get;
+        init;
+    } = AgentModelStructuredOutputLevel.StrictJsonSchema;
+
+    public AgentModelDataBoundaryKind DataBoundary
+    {
+        get;
+        init;
+    } = AgentModelDataBoundaryKind.AzureBoundary;
+
+    public AgentModelCatalogLifecycleStatus LifecycleStatus
+    {
+        get;
+        init;
+    } = AgentModelCatalogLifecycleStatus.Available;
+
+    public DateTime? StructuredOutputProbeUtc
+    {
+        get;
+        init;
+    }
+
+    public IReadOnlyList<AgentModelCatalogEvaluationRow> Evaluations
+    {
+        get;
+        init;
+    } = [];
+}
+
+/// <summary>Per-task evaluation evidence attached to a catalog row (TB-2105).</summary>
+public sealed class AgentModelCatalogEvaluationRow
+{
+    public required string TaskType
+    {
+        get;
+        init;
+    }
+
+    public AgentModelEvaluationStateKind EvaluationState
+    {
+        get;
+        init;
+    } = AgentModelEvaluationStateKind.NotEvaluated;
+
+    public string? EvidenceJson
+    {
+        get;
+        init;
+    }
+
+    public DateTime? EvaluatedUtc
+    {
+        get;
+        init;
+    }
+}

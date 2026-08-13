@@ -126,6 +126,8 @@ public sealed class ArchitectureRunAuthorityCoordination(
             ReviewModelAliasResolution aliasResolution =
                 await _reviewModelAliasResolver.ResolveForRunCreateAsync(request, cancellationToken).ConfigureAwait(false);
 
+            request.EffectiveModelAliasId = aliasResolution.EffectiveAliasId;
+
             tasks = RunStarterTaskFactory.BuildStarterTasks(
                 runId,
                 evidenceBundle,

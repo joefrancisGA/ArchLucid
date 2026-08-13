@@ -54,7 +54,8 @@ public sealed class TieredAgentCompletionRouterTests
 
     private static AgentModelAliasResolver CreateAliasResolver(IAgentModelTierResolver tierResolver)
     {
-        ConfigAgentModelAliasRegistry registry = new(tierResolver);
+        CatalogBackedAgentModelAliasRegistry registry =
+            AgentModelAliasRegistryTestsHelper.CreateCatalogRegistry(tierResolver);
 
         return new AgentModelAliasResolver(registry);
     }
