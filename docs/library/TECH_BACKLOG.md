@@ -1574,10 +1574,10 @@ All **P0** **V1**: visible-boundary button contract + design-system rule (**TB-2
 | TB-1728 | ~~Policy-pack-delta help ? title honesty (demo script vs in-app help)~~ **Done** 2026-08-11 (Batch R); see ## TB-1728 below | Trustworthiness P1 **V1**; with **TB-1726** | S |
 | TB-1729 | ~~Policy-pack-delta help ? IA dual with governance-approval / alerts~~ **Done** 2026-08-11 (Batch R); see ## TB-1729 below | Adoption friction P1 **V1**; with **TB-1726** | S |
 | TB-1730 | ~~Policy-pack-delta help ? 5-min arc first-viewport before Phase dump~~ **Done** 2026-08-11 (Batch R); see ## TB-1730 below | Adoption friction P1 **V1**; with **TB-1726** | S |
-| TB-1731 | `/help/prior-manifest-retrieval` specialty Ask-memory guide + Open Ask CTA; see ## TB-1731 below | Adoption friction P1 ? **V1**; owner review ~50/100 2026-07-27; traffic **HEP**; pairs **TB-1414** | M |
-| TB-1732 | Prior-manifest help ? manifest/retrieval jargon honesty; see ## TB-1732 below | Trustworthiness P1 ? **V1**; with **TB-1731**; pairs glossary former *manifest* | S |
-| TB-1734 | Prior-manifest help ? IA dual with repeat-review / compare; see ## TB-1734 below | Adoption friction P1 ? **V1**; with **TB-1731**; pairs **TB-1394**/**TB-1636** | S |
-| TB-1735 | Prior-manifest help ? Related + finalize-success inbound copy; see ## TB-1735 below | Adoption friction P1 ? **V1**; with **TB-1731** | S |
+| TB-1731 | **Done** (2026-08-13) — `HelpPriorManifestRetrievalGuideView` + Open Ask CTA; Vitest; see ## TB-1731 below | Adoption friction P1 ? **V1**; owner review ~50/100 2026-07-27; traffic **HEP**; pairs **TB-1414** | M |
+| TB-1732 | **Done** (2026-08-13) — Ask-memory title/jargon honesty + inbound labels; Vitest; see ## TB-1732 below | Trustworthiness P1 ? **V1**; with **TB-1731**; pairs glossary former *manifest* | S |
+| TB-1734 | **Done** (2026-08-13) — prior-manifest job-matrix IA dual with repeat-review/compare; Vitest; see ## TB-1734 below | Adoption friction P1 ? **V1**; with **TB-1731**; pairs **TB-1394**/**TB-1636** | S |
+| TB-1735 | **Done** (2026-08-13) — prior-manifest Related ≤3 + finalize-success inbound copy; Vitest; see ## TB-1735 below | Adoption friction P1 ? **V1**; with **TB-1731** | S |
 | TB-1736 | `/help/sponsor-summary` specialty buyer overview + Start CTA (was product-overview); see ## TB-1736 below | Adoption friction P1 ? **V1**; owner review ~42/100 2026-07-27; traffic **EXE** (alias EPR/HPR); after **TB-1739**; pairs **TB-1414** | M |
 | TB-1737 | Sponsor-summary help ? title honesty (sponsor brief vs product overview); see ## TB-1737 below | Trustworthiness P1 ? **V1**; with **TB-1736** | S |
 | TB-1740 | Sponsor-summary help ? elevator/M-18 outreach dump vs overview job; see ## TB-1740 below | Adoption friction P1 ? **V1**; with **TB-1736** | S |
