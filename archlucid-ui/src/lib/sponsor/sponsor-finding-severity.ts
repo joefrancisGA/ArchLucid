@@ -9,16 +9,16 @@ export function severityFromTrace(label: string | null | undefined): string {
     return "—";
   }
 
-  if (/high|critical|severe/i.test(t)) {
+  if (/\bcritical\b/i.test(t) || /\b(severe|high)\b/i.test(t)) {
     return "High";
   }
 
-  if (/low|minimal/i.test(t)) {
-    return "Low";
+  if (/\b(medium|moderate)\b/i.test(t)) {
+    return "Medium";
   }
 
-  if (/medium|moderate/i.test(t)) {
-    return "Medium";
+  if (/\b(low|minimal)\b/i.test(t)) {
+    return "Low";
   }
 
   return t.length > 32 ? `${t.slice(0, 29)}…` : t;
@@ -35,23 +35,23 @@ export function severitySortRank(label: string | null | undefined): number {
     return 100;
   }
 
-  if (/critical/.test(t)) {
+  if (/\bcritical\b/.test(t)) {
     return 0;
   }
 
-  if (/severe|high/.test(t)) {
+  if (/\b(severe|high)\b/.test(t)) {
     return 1;
   }
 
-  if (/medium|moderate/.test(t)) {
+  if (/\b(medium|moderate)\b/.test(t)) {
     return 2;
   }
 
-  if (/low|minimal/.test(t)) {
+  if (/\b(low|minimal)\b/.test(t)) {
     return 3;
   }
 
-  if (/info/.test(t)) {
+  if (/\binfo\b/.test(t)) {
     return 4;
   }
 

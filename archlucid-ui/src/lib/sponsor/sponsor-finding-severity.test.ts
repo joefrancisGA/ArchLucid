@@ -20,6 +20,11 @@ describe("severityFromTrace", () => {
   it("maps low", () => {
     expect(severityFromTrace("Low")).toBe("Low");
   });
+
+  it("does not treat unrelated substrings as severity buckets", () => {
+    expect(severityFromTrace("Allowlist misconfiguration")).toBe("Allowlist misconfiguration");
+    expect(severitySortRank("Allowlist misconfiguration")).toBe(50);
+  });
 });
 
 describe("severitySortRank", () => {
