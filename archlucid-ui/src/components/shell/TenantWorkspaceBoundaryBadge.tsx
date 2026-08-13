@@ -60,7 +60,6 @@ function ActiveTenantBadgeInner(props: ActiveTenantBadgeInnerProps): React.JSX.E
         href="/administration/workspace-settings"
         className={cn(badgeClassName(variant), "no-underline transition hover:bg-neutral-50 dark:hover:bg-neutral-800/80")}
         data-testid={testId}
-        title={tooltip}
         aria-label={tooltip}
       >
         {body}
@@ -76,7 +75,6 @@ function ActiveTenantBadgeInner(props: ActiveTenantBadgeInnerProps): React.JSX.E
         "cursor-pointer transition hover:bg-neutral-50 dark:hover:bg-neutral-800/80",
       )}
       data-testid={testId}
-      title={tooltip}
       aria-label={tooltip}
     >
       {body}

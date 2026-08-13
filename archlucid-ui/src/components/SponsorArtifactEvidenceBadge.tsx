@@ -1,7 +1,10 @@
+"use client";
+
 import { cn } from "@/lib/utils";
 import { OPERATOR_TYPOGRAPHY } from "@/lib/design-tokens";
 import type { ReactElement } from "react";
 
+import { FieldHelpTooltip } from "@/components/FieldHelpTooltip";
 import {
   resolveSponsorArtifactEvidenceBadges,
   type ResolveSponsorArtifactEvidenceBadgeInput,
@@ -45,14 +48,14 @@ export function SponsorArtifactEvidenceBadge(props: SponsorArtifactEvidenceBadge
         <span
           key={`${trust.posture}-${index}`}
           data-testid={`sponsor-trust-posture-${trust.posture}`}
-          title={trust.detail}
           className={cn(
-            "inline-flex items-center rounded-full border px-2 py-0.5 font-medium",
+            "inline-flex items-center gap-1 rounded-full border px-2 py-0.5 font-medium",
             trustPostureClass(trust.posture),
             OPERATOR_TYPOGRAPHY.helper,
           )}
         >
           {trust.display}
+          <FieldHelpTooltip label={trust.display} hint={trust.detail} />
         </span>
       ))}
       <span data-testid="sponsor-evidence-source-badge" className={sharedClass}>
