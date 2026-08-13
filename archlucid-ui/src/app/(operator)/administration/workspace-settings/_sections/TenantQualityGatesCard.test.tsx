@@ -45,6 +45,9 @@ describe("TenantQualityGatesCard", () => {
       expect(screen.getByTestId("quality-gate-mode-controls")).toBeInTheDocument();
     });
 
+    expect(screen.getByTestId("mutating-in-workspace-chip")).toBeInTheDocument();
+    expect(screen.queryByText(/runs that miss evidence/i)).not.toBeInTheDocument();
+
     fireEvent.click(screen.getByRole("button", { name: "Strict quality" }));
 
     await waitFor(() => {

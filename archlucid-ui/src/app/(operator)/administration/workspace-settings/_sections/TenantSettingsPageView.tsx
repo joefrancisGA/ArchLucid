@@ -61,9 +61,17 @@ import {
 
   TENANT_SETTINGS_ORGANIZATION_IDP_NOTE,
 
-  tenantSettingsActiveScopeSummary,
+  TENANT_SETTINGS_PAGE_SUBTITLE,
 
-  tenantSettingsSignedInAsLine,
+  TENANT_SETTINGS_SCOPE_UNRESOLVED_SUMMARY,
+
+  TENANT_SETTINGS_VOCABULARY_CURRENT_LABEL,
+
+  resolveWorkspaceLabelForSummary,
+
+  tenantSettingsCallerAuthorityLine,
+
+  tenantSettingsEffectiveScopeSummary,
 
 } from "@/lib/tenant-settings-page-copy";
 
@@ -125,13 +133,9 @@ export function TenantSettingsPageView(props: Props) {
 
   const scope = getEffectiveBrowserProxyScopeHeaders();
 
-  const signedInAsLine = tenantSettingsSignedInAsLine(m.currentPrincipalName);
+  const [activeScopeSummary, setActiveScopeSummary] = useState<string>(TENANT_SETTINGS_SCOPE_UNRESOLVED_SUMMARY);
 
-  const [activeScopeSummary, setActiveScopeSummary] = useState(() =>
-
-    tenantSettingsActiveScopeSummary(readOperatorScopeFromStorage()),
-
-  );
+  const [callerAuthorityLine, setCallerAuthorityLine] = useState<string | null>(null);
 
   const [tenantDisplayName, setTenantDisplayName] = useState(() => m.tenantDisplayName);
 
@@ -141,11 +145,19 @@ export function TenantSettingsPageView(props: Props) {
 
   const refreshScopeBoundUi = useCallback(() => {
 
-    setActiveScopeSummary(tenantSettingsActiveScopeSummary(readOperatorScopeFromStorage()));
+    const headers = getEffectiveBrowserProxyScopeHeaders();
+    const scopeRecord = readOperatorScopeFromStorage();
 
+    setActiveScopeSummary(tenantSettingsEffectiveScopeSummary(headers, scopeRecord));
+    setCallerAuthorityLine(
+      tenantSettingsCallerAuthorityLine(
+        m.callerAuthorityRank,
+        resolveWorkspaceLabelForSummary(headers["x-workspace-id"] ?? "", scopeRecord),
+      ),
+    );
     setTenantDisplayName(readActiveTenantContext().displayName);
 
-  }, []);
+  }, [m.callerAuthorityRank]);
 
 
 
@@ -159,7 +171,7 @@ export function TenantSettingsPageView(props: Props) {
 
   useEffect(() => {
 
-    setActiveScopeSummary(tenantSettingsActiveScopeSummary(readOperatorScopeFromStorage()));
+    refreshScopeBoundUi();
 
 
 
@@ -190,7 +202,7 @@ export function TenantSettingsPageView(props: Props) {
 
         title={OPERATOR_NAV_LINK_LABELS.workspaceSettings}
 
-        subtitle="Workspace defaults and tenant-wide configuration."
+        subtitle={TENANT_SETTINGS_PAGE_SUBTITLE}
 
         titleTestId="tenant-settings-page-title"
 
@@ -210,17 +222,17 @@ export function TenantSettingsPageView(props: Props) {
 
             </span>
 
-            {signedInAsLine !== null ? (
+            {callerAuthorityLine !== null ? (
 
               <span
 
                 className={cn("text-al-text-secondary", OPERATOR_TYPOGRAPHY.helper)}
 
-                data-testid="tenant-settings-signed-in-as"
+                data-testid="tenant-settings-caller-authority"
 
               >
 
-                {signedInAsLine}
+                {callerAuthorityLine}
 
               </span>
 
@@ -234,7 +246,10 @@ export function TenantSettingsPageView(props: Props) {
 
       />
 
-      <WorkspaceScopeTenantSettingsVocabularyRail currentSurfaceId="tenant-settings" />
+      <WorkspaceScopeTenantSettingsVocabularyRail
+        currentSurfaceId="tenant-settings"
+        currentLabel={TENANT_SETTINGS_VOCABULARY_CURRENT_LABEL}
+      />
 
       <SectionHeading>General</SectionHeading>
 

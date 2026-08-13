@@ -7,10 +7,13 @@ import { TenantCostSettingsCard } from "@/app/(operator)/administration/workspac
 import {
   TENANT_COST_SETTINGS_AUDIT_HREF,
   TENANT_COST_SETTINGS_DEFAULTS_STATUS_LABEL,
+  TENANT_COST_SETTINGS_EA_DISCOUNT_HELPER,
+  TENANT_COST_SETTINGS_SAVE_READINESS_MESSAGE,
 } from "@/lib/tenant-settings-page-copy";
 
 vi.mock("@/lib/demo-ui-env", () => ({
   isNextPublicDemoMode: () => false,
+  isBuyerPolishedOperatorShellEnv: () => false,
 }));
 
 vi.mock("@/lib/toast", () => ({
@@ -52,7 +55,57 @@ describe("TenantCostSettingsCard", () => {
 
     expect(screen.getByTestId("tenant-cost-settings-save")).toBeDisabled();
     expect(screen.getByText("Enter a USD amount greater than zero.")).toBeInTheDocument();
+    expect(screen.getByTestId("tenant-cost-settings-save-readiness")).toHaveTextContent(
+      TENANT_COST_SETTINGS_SAVE_READINESS_MESSAGE,
+    );
+    expect(screen.getByTestId("tenant-cost-hourly-rate")).toHaveAttribute(
+      "aria-describedby",
+      "architect-hourly-rate-error",
+    );
     expect(showError).not.toHaveBeenCalled();
+  });
+
+  it("constrains EA discount input, wires aria-describedby, and uses buyer-safe helper copy", async () => {
+    const fetchMock = vi.fn(async (input: RequestInfo | URL) => {
+      const url = String(input);
+
+      if (url.includes("/v1/tenant/cost-settings")) {
+        return new Response(
+          JSON.stringify({
+            isTenantConfigured: false,
+            architectHourlyRateUsd: 150,
+            averageIncidentCostUsd: 25000,
+            eaDiscountPercentage: 0,
+            updatedUtc: null,
+          }),
+          { status: 200, headers: { "Content-Type": "application/json" } },
+        );
+      }
+
+      return new Response("not found", { status: 404 });
+    });
+
+    vi.stubGlobal("fetch", fetchMock);
+
+    renderWithOperatorQuery(<TenantCostSettingsCard canEdit />);
+
+    await waitFor(() => {
+      expect(screen.getByTestId("tenant-cost-ea-percentage")).toBeInTheDocument();
+    });
+
+    const eaInput = screen.getByTestId("tenant-cost-ea-percentage");
+    expect(eaInput).toHaveAttribute("type", "number");
+    expect(eaInput).toHaveAttribute("min", "0");
+    expect(eaInput).toHaveAttribute("max", "100");
+    expect(eaInput).toHaveClass("pr-7");
+    expect(screen.getByText(TENANT_COST_SETTINGS_EA_DISCOUNT_HELPER)).toBeInTheDocument();
+    expect(eaInput).toHaveAttribute("aria-describedby", "ea-discount-percentage-helper");
+
+    fireEvent.change(eaInput, { target: { value: "101" } });
+
+    expect(screen.getByTestId("tenant-cost-settings-save")).toBeDisabled();
+    expect(screen.getByText("EA discount percentage must be between 0 and 100.")).toBeInTheDocument();
+    expect(eaInput).toHaveAttribute("aria-describedby", "ea-discount-percentage-error");
   });
 
   it("shows defaults StatusTag, audit trail link after save, and primary submit (P0-3, P0-5, P0-7)", async () => {
@@ -99,6 +152,8 @@ describe("TenantCostSettingsCard", () => {
       );
       expect(screen.getByTestId("tenant-cost-hourly-rate")).toBeInTheDocument();
     });
+
+    expect(screen.getByTestId("mutating-in-tenant-chip")).toBeInTheDocument();
 
     expect(screen.getByTestId("tenant-cost-hourly-rate")).toHaveClass("pl-7");
     expect(screen.getByTestId("tenant-cost-settings-save")).toHaveClass("bg-[var(--al-primary-action-bg)]");

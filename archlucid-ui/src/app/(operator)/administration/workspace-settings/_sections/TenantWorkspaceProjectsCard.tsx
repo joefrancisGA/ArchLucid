@@ -228,6 +228,7 @@ export function TenantWorkspaceProjectsCard(): React.JSX.Element {
                           workspaceName: workspaceContext.workspaceName,
                           projectId: project.projectId,
                           projectName: project.name,
+                          isActiveScope,
                         });
                       }}
                     >

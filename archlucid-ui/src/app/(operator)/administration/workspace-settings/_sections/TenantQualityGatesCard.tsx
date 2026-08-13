@@ -5,6 +5,7 @@ import { cn } from "@/lib/utils";
 import { useCallback, useState } from "react";
 
 import { Button } from "@/components/ui/button";
+import { MutatingInWorkspaceChip } from "@/components/MutatingInWorkspaceChip";
 import { Card, CardContent, CardHeader, CardTitle } from "@/components/ui/card";
 import { useAgentOutputQualityGateModeQuery } from "@/hooks/use-agent-output-quality-gate-mode-query";
 import {
@@ -122,13 +123,16 @@ export function TenantQualityGatesCard() {
   return (
     <Card data-testid="tenant-quality-gates-card">
       <CardHeader>
-        <CardTitle as="h3" className={OPERATOR_TYPOGRAPHY.cardTitle}>Quality gates</CardTitle>
+        <div className="flex flex-wrap items-center gap-2">
+          <CardTitle as="h3" className={OPERATOR_TYPOGRAPHY.cardTitle}>Quality gates</CardTitle>
+          <MutatingInWorkspaceChip />
+        </div>
       </CardHeader>
       <CardContent className={cn("space-y-4 text-al-text-secondary", OPERATOR_TYPOGRAPHY.body)}>
         <p className="m-0">
           Choose whether this workspace warns on weak agent output or blocks the review.{" "}
           {WARN_ONLY_QUALITY_MODE_BUYER_LABEL} keeps the pipeline moving; {STRICT_AI_QUALITY_MODE_BUYER_LABEL} rejects
-          runs that miss evidence or score floors.
+          review output that misses evidence or score floors.
         </p>
 
         {modeQuery.isPending ? (

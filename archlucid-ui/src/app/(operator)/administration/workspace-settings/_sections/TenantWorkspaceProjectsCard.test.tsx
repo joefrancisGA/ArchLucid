@@ -7,6 +7,7 @@ import {
   PROJECT_DELETE_CONFIRM_TITLE,
   PROJECT_DELETE_DEFAULT_PROJECT_DISABLED_REASON,
   PROJECT_DELETE_EXECUTE_DISABLED_REASON,
+  projectDeleteConfirmDescription,
 } from "@/lib/projects-delete-confirm-copy";
 
 const navAuth = vi.hoisted(() => ({
@@ -121,6 +122,9 @@ describe("TenantWorkspaceProjectsCard (TB-1179)", () => {
     expect(
       await screen.findByRole("heading", { name: PROJECT_DELETE_CONFIRM_TITLE }),
     ).toBeInTheDocument();
+    expect(
+      screen.getByText(projectDeleteConfirmDescription("Edge", "Production", 30)),
+    ).toBeInTheDocument();
     fireEvent.click(screen.getByRole("button", { name: PROJECT_DELETE_CONFIRM_ACTION_LABEL }));
 
     await waitFor(() => {
@@ -129,6 +133,36 @@ describe("TenantWorkspaceProjectsCard (TB-1179)", () => {
         expect.objectContaining({ method: "DELETE" }),
       );
     });
+  });
+
+  it("warns when deleting the currently scoped project", async () => {
+    vi.stubGlobal(
+      "localStorage",
+      {
+        getItem: (key: string) =>
+          key === "archlucid_operator_scope_v1"
+            ? JSON.stringify({
+                tenantId: "tenant-1",
+                workspaceId: "ws-1",
+                projectId: "proj-edge",
+                workspaceLabel: "Production",
+                projectLabel: "Edge",
+              })
+            : null,
+        setItem: vi.fn(),
+        removeItem: vi.fn(),
+        clear: vi.fn(),
+        length: 0,
+        key: vi.fn(),
+      },
+    );
+
+    renderWithOperatorQuery(<TenantWorkspaceProjectsCard />);
+
+    const deleteButtons = await screen.findAllByTestId("tenant-workspace-project-delete");
+    fireEvent.click(deleteButtons[1]!);
+
+    expect(await screen.findByTestId("project-delete-active-scope-warning")).toBeInTheDocument();
   });
 
   it("disables delete affordances below Execute authority", async () => {
