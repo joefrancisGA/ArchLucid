@@ -42,6 +42,11 @@ import {
   REPEAT_REVIEW_LOOP_HELP_RELATED,
   REPEAT_REVIEW_LOOP_HELP_RELATED_HEADING,
 } from "@/lib/repeat-review-loop-help-evidence-copy";
+import {
+  COMPARE_REPEAT_REVIEW_HELP_JOB_MATRIX_HEADING,
+  REPEAT_REVIEW_LOOP_HELP_JOB_MATRIX,
+  REPEAT_REVIEW_LOOP_HELP_JOB_MATRIX_TEST_ID,
+} from "@/lib/compare-repeat-review-help-ia-dual";
 import { cn } from "@/lib/utils";
 import { useDocumentDarkMode } from "@/lib/use-document-dark-mode";
 
@@ -92,6 +97,38 @@ export function HelpRepeatReviewLoopGuideView(props: HelpRepeatReviewLoopGuideVi
           .
         </p>
       </div>
+
+      <section
+        aria-labelledby="help-repeat-review-loop-job-matrix-heading"
+        className="space-y-4 border-b border-neutral-200 pb-6 dark:border-neutral-800"
+        data-testid={REPEAT_REVIEW_LOOP_HELP_JOB_MATRIX_TEST_ID}
+      >
+        <h2
+          id="help-repeat-review-loop-job-matrix-heading"
+          className={cn("m-0 text-al-text-primary", OPERATOR_TYPOGRAPHY.sectionTitle)}
+        >
+          {COMPARE_REPEAT_REVIEW_HELP_JOB_MATRIX_HEADING}
+        </h2>
+        <ul className={cn("m-0 list-none space-y-2 p-0", OPERATOR_TYPOGRAPHY.body)}>
+          {REPEAT_REVIEW_LOOP_HELP_JOB_MATRIX.map((row) => (
+            <li key={row.label} className="flex flex-col gap-0.5 sm:flex-row sm:items-baseline sm:gap-2">
+              {row.isCurrent === true ? (
+                <span
+                  className="shrink-0 font-medium text-al-text-primary"
+                  data-testid="help-repeat-review-loop-job-matrix-current"
+                >
+                  {row.label}
+                </span>
+              ) : (
+                <Link className={cn(OPERATOR_LINK.inline, "shrink-0 font-medium")} href={row.href ?? "#"}>
+                  {row.label}
+                </Link>
+              )}
+              <span className="text-al-text-secondary">{row.when}</span>
+            </li>
+          ))}
+        </ul>
+      </section>
 
       <div className="space-y-4 border-b border-neutral-200 pb-6 dark:border-neutral-800">
         <Card

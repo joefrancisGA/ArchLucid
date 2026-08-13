@@ -10,9 +10,9 @@ export const REPEAT_REVIEW_LOOP_HELP_TITLE_HONESTY_SOURCE_FILES: readonly string
   "src/lib/help/help-center-catalog.ts",
   "src/lib/usability/page-help-topic-map.ts",
   "src/lib/repeat-review-activation.ts",
-  "src/lib/comparison-replay-help-evidence-copy.ts",
+  "src/lib/compare-repeat-review-help-ia-dual.ts",
   "src/components/RepeatReviewActivationPrompt.tsx",
-  "src/lib/contextual-help/help-topic-rows.ts",
+  "src/lib/contextual-help/pattern-library-rows.ts",
 ] as const;
 
 export const BANNED_REPEAT_REVIEW_HELP_CUSTOMER_TITLE_PATTERNS: readonly RegExp[] = [

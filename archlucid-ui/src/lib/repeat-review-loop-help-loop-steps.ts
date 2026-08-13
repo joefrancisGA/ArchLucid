@@ -29,8 +29,6 @@ export const REPEAT_REVIEW_LOOP_HELP_LOOP_STEPS: readonly RepeatReviewLoopHelpLo
     description: "Reconstruct authority when investigating regressions on a finalized review.",
     href: "/internal/replay",
     ctaLabel: "Validate review",
-    secondaryHref: inAppHelpHref("comparison-replay"),
-    secondaryLabel: "Compare and replay guide",
   },
   {
     stepNumber: 3,

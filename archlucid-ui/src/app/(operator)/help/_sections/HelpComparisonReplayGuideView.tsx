@@ -14,6 +14,11 @@ import { Button } from "@/components/ui/button";
 import { Card, CardContent, CardHeader, CardTitle } from "@/components/ui/card";
 import { PageContextualHelpButton } from "@/components/usability/PageContextualHelpButton";
 import {
+  COMPARE_REPEAT_REVIEW_HELP_JOB_MATRIX_HEADING,
+  COMPARISON_REPLAY_HELP_JOB_MATRIX,
+  COMPARISON_REPLAY_HELP_JOB_MATRIX_TEST_ID,
+} from "@/lib/compare-repeat-review-help-ia-dual";
+import {
   COMPARISON_REPLAY_HELP_DECISION_COMPARE,
   COMPARISON_REPLAY_HELP_DECISION_PANEL_TITLE,
   COMPARISON_REPLAY_HELP_DECISION_VALIDATE,
@@ -26,8 +31,10 @@ import {
   isComparisonReplayValidateReviewActionAvailable,
 } from "@/lib/comparison-replay-help-guide-content";
 import {
+  DESIGN_TOKENS,
   OPERATOR_CARD,
   OPERATOR_LAYOUT,
+  OPERATOR_LINK,
   OPERATOR_TYPOGRAPHY,
 } from "@/lib/design-tokens";
 import { extractHelpMarkdownHeadings } from "@/lib/help/help-markdown-headings";
@@ -93,6 +100,38 @@ export function HelpComparisonReplayGuideView(
       </header>
 
       <ComparisonReplayHelpEvidenceOrientationStrip />
+
+      <section
+        aria-labelledby="help-comparison-replay-job-matrix-heading"
+        className="space-y-4 border-b border-neutral-200 pb-6 dark:border-neutral-800"
+        data-testid={COMPARISON_REPLAY_HELP_JOB_MATRIX_TEST_ID}
+      >
+        <h2
+          id="help-comparison-replay-job-matrix-heading"
+          className={cn("m-0 text-al-text-primary", OPERATOR_TYPOGRAPHY.sectionTitle)}
+        >
+          {COMPARE_REPEAT_REVIEW_HELP_JOB_MATRIX_HEADING}
+        </h2>
+        <ul className={cn("m-0 list-none space-y-2 p-0", OPERATOR_TYPOGRAPHY.body)}>
+          {COMPARISON_REPLAY_HELP_JOB_MATRIX.map((row) => (
+            <li key={row.label} className="flex flex-col gap-0.5 sm:flex-row sm:items-baseline sm:gap-2">
+              {row.isCurrent === true ? (
+                <span
+                  className="shrink-0 font-medium text-al-text-primary"
+                  data-testid="help-comparison-replay-job-matrix-current"
+                >
+                  {row.label}
+                </span>
+              ) : (
+                <Link className={cn(OPERATOR_LINK.inline, "shrink-0 font-medium")} href={row.href ?? "#"}>
+                  {row.label}
+                </Link>
+              )}
+              <span className="text-al-text-secondary">{row.when}</span>
+            </li>
+          ))}
+        </ul>
+      </section>
 
       <div className="space-y-4 border-b border-neutral-200 pb-6 dark:border-neutral-800">
         <Card

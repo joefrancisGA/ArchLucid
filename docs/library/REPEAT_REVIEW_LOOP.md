@@ -30,7 +30,7 @@
 ## Recommended loop (after first finalize)
 
 1. **Compare** two architecture packages — use Compare in the architect workspace.
-2. **Replay** a saved comparison when investigating regressions — see [Compare and replay](/help/comparison-replay).
+2. **Replay** a saved comparison when investigating regressions — open **Validate review** in the architect workspace or see **Which second-review help guide?** above for compare/replay mechanics.
 3. **Reuse** prior package context in a new review when evidence evolves incrementally — see [Prior package context](/help/prior-manifest-retrieval).
 4. **Run governance dry-run** before enforcing a blocking finalize gate — [`DEFAULT_POLICY_PACKS_V1.md`](../go-to-market/DEFAULT_POLICY_PACKS_V1.md#6-operator-calibration).
 5. **Collect proof** again for the second finalized package — disposition should improve or caveats should shrink.
@@ -212,7 +212,6 @@ Otherwise hold feature work — market signal insufficient.
 
 ## Related help
 
-- [Compare and replay](/help/comparison-replay)
 - [Architecture packages](/help/review-packages)
 - [Accelerator chooser](/help/accelerator-chooser)
 - [Your first architecture review](/help/first-architecture-review)

@@ -1,6 +1,4 @@
 import type { EvidenceSourceLink } from "@/lib/evidence-surface-copy";
-import { inAppHelpHref } from "@/lib/product-documentation-registry";
-import { REPEAT_REVIEW_LOOP_HELP_INBOUND_LABEL } from "@/lib/repeat-review-loop-help-title-honesty-surfaces";
 
 export const COMPARISON_REPLAY_HELP_CANONICAL_PATH = "/help/comparison-replay" as const;
 
@@ -18,7 +16,6 @@ export const COMPARISON_REPLAY_HELP_SOURCES_INTRO =
 export const COMPARISON_REPLAY_HELP_SOURCES: readonly EvidenceSourceLink[] = [
   { label: "Compare two reviews", href: "/insights/compare-two-reviews" },
   { label: "Validate review", href: "/internal/replay" },
-  { label: REPEAT_REVIEW_LOOP_HELP_INBOUND_LABEL, href: inAppHelpHref("repeat-review-loop") },
   { label: "Architecture reviews", href: "/architecture/reviews" },
   { label: "Evidence trail", href: "/insights/evidence-graph" },
 ] as const;

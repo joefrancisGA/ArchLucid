@@ -8,6 +8,10 @@ vi.mock("@/components/help/MermaidDiagram", () => ({
 }));
 
 import { HelpRepeatReviewLoopGuideView } from "@/app/(operator)/help/_sections/HelpRepeatReviewLoopGuideView";
+import {
+  COMPARISON_REPLAY_HELP_IA_DUAL_INBOUND_LABEL,
+  REPEAT_REVIEW_LOOP_HELP_JOB_MATRIX_TEST_ID,
+} from "@/lib/compare-repeat-review-help-ia-dual";
 import { prepareHelpMarkdownForPresentation } from "@/lib/help/help-markdown-presentation";
 import { tryLoadProductDocumentation } from "@/lib/load-product-documentation";
 import {
@@ -83,16 +87,38 @@ describe("HelpTopicRepeatReviewLoop (TB-1396)", () => {
 
     render(<HelpRepeatReviewLoopGuideView entry={loaded.entry} markdown={loaded.markdown} />);
 
-    expect(screen.getAllByRole("link", { name: /Compare and replay/i })[0]).toHaveAttribute(
-      "href",
-      "/help/comparison-replay",
-    );
     expect(screen.getAllByRole("link", { name: /Your first architecture review/i })[0]).toHaveAttribute(
       "href",
       "/help/first-architecture-review",
     );
     expect(screen.getByRole("heading", { name: /Recommended loop/i })).toBeInTheDocument();
     expect(screen.queryByText(/collect-first-pilot-proof/i)).toBeNull();
+  });
+
+  it("exposes IA dual with compare/replay mechanics and one mutual cross-link (TB-1638)", () => {
+    if (loaded === null) {
+      throw new Error("Expected repeat-review-loop documentation to load.");
+    }
+
+    render(<HelpRepeatReviewLoopGuideView entry={loaded.entry} markdown={loaded.markdown} />);
+
+    expect(screen.getByTestId(REPEAT_REVIEW_LOOP_HELP_JOB_MATRIX_TEST_ID)).toBeInTheDocument();
+    expect(screen.getByTestId("help-repeat-review-loop-job-matrix-current")).toHaveTextContent(
+      "This repeat architecture review guide",
+    );
+
+    const comparisonReplayCrossLinks = screen.getAllByRole("link", {
+      name: COMPARISON_REPLAY_HELP_IA_DUAL_INBOUND_LABEL,
+    });
+
+    expect(comparisonReplayCrossLinks).toHaveLength(1);
+    expect(comparisonReplayCrossLinks[0]).toHaveAttribute("href", "/help/comparison-replay");
+
+    const allComparisonReplayHrefs = screen
+      .getAllByRole("link")
+      .filter((link) => link.getAttribute("href") === "/help/comparison-replay");
+
+    expect(allComparisonReplayHrefs).toHaveLength(1);
   });
 
   it("hoists eligibility and start-loop CTA above claim discipline (TB-1394)", () => {
@@ -133,10 +159,7 @@ describe("HelpTopicRepeatReviewLoop (TB-1396)", () => {
       "/insights/compare-two-reviews",
     );
     expect(screen.getByTestId("repeat-review-loop-step-4-cta")).toHaveAttribute("href", "/governance/policy-packs");
-    expect(screen.getByTestId("repeat-review-loop-step-2-secondary-link")).toHaveAttribute(
-      "href",
-      "/help/comparison-replay",
-    );
+    expect(screen.queryByTestId("repeat-review-loop-step-2-secondary-link")).toBeNull();
   });
 
   it("limits Related help to three buyer-safe guides without accelerator chooser (TB-1397)", () => {
@@ -151,9 +174,9 @@ describe("HelpTopicRepeatReviewLoop (TB-1396)", () => {
     expect(relatedLinks).toHaveLength(3);
     expect(relatedLinks.map((link) => link.getAttribute("href"))).toEqual(
       expect.arrayContaining([
-        "/help/comparison-replay",
         "/help/review-packages",
         "/help/first-architecture-review",
+        "/help/governance-approval",
       ]),
     );
     expect(relatedLinks.some((link) => (link.getAttribute("href") ?? "").includes("accelerator-chooser"))).toBe(

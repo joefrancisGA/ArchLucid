@@ -25,10 +25,15 @@ import {
   COMPARISON_REPLAY_HELP_SOURCES,
 } from "@/lib/comparison-replay-help-evidence-copy";
 import {
+  COMPARISON_REPLAY_HELP_IA_DUAL_INBOUND_LABEL,
+  COMPARISON_REPLAY_HELP_JOB_MATRIX_TEST_ID,
+} from "@/lib/compare-repeat-review-help-ia-dual";
+import {
   COMPARISON_REPLAY_HELP_DIAGRAM_ACCESSIBLE_NAME,
   COMPARISON_REPLAY_HELP_DIAGRAM_TEXT_ALTERNATIVE,
   COMPARISON_REPLAY_HELP_PRIMARY_ACTIONS,
 } from "@/lib/comparison-replay-help-guide-content";
+import { REPEAT_REVIEW_LOOP_HELP_PAGE_TITLE } from "@/lib/repeat-review-loop-help-guide-content";
 import { OPERATOR_NAV_LINK_LABELS } from "@/lib/i18n";
 import { getProductDocumentationEntry } from "@/lib/product-documentation-registry";
 import { tryLoadProductDocumentation } from "@/lib/load-product-documentation";
@@ -115,8 +120,13 @@ describe("HelpTopicComparisonReplay (CO)", () => {
     expect(screen.getByRole("heading", { name: "When to compare" })).toBeInTheDocument();
     expect(screen.getByRole("heading", { name: "When to replay" })).toBeInTheDocument();
     expect(screen.getByRole("heading", { name: "When to use this guide" })).toBeInTheDocument();
-    const repeatReviewLinks = screen.getAllByRole("link", { name: /repeat architecture review|Repeat-review loop/i });
-    expect(repeatReviewLinks.some((link) => link.getAttribute("href") === "/help/repeat-review-loop")).toBe(true);
+    expect(screen.getByTestId(COMPARISON_REPLAY_HELP_JOB_MATRIX_TEST_ID)).toBeInTheDocument();
+    expect(screen.getByTestId("help-comparison-replay-job-matrix-current")).toHaveTextContent(
+      "This Compare and replay guide",
+    );
+    const repeatReviewCrossLinks = screen.getAllByRole("link", { name: REPEAT_REVIEW_LOOP_HELP_PAGE_TITLE });
+    expect(repeatReviewCrossLinks).toHaveLength(1);
+    expect(repeatReviewCrossLinks[0]).toHaveAttribute("href", "/help/repeat-review-loop");
     expect(screen.getByText(/Validate review.*in the workspace/i)).toBeInTheDocument();
 
     expect(screen.getByTestId("help-comparison-replay-decision-diagram-panel")).toBeInTheDocument();

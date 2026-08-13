@@ -29,7 +29,7 @@ Replay does **not** replace starting a new architecture review when your evidenc
 
 Use this page for **compare and replay mechanics** — side-by-side deltas between two packages or regenerating a saved comparison record.
 
-For the **repeat-review stickiness loop** (compare → replay → governance dry-run → second finalize → sponsor proof), use [Repeat-review stickiness loop](/help/repeat-review-loop) instead.
+For the **repeat architecture review loop** (compare → replay → governance dry-run → second finalize → sponsor proof), use the repeat-review help guide instead — see **Which second-review help guide?** above.
 
 ## What you get
 
@@ -43,4 +43,3 @@ For the **repeat-review stickiness loop** (compare → replay → governance dry
 
 - [Compare two reviews](/insights/compare-two-reviews) — open the live pair-diff workspace.
 - [Validate review](/internal/replay) — re-check or replay a saved comparison record.
-- [Repeat-review stickiness loop](/help/repeat-review-loop) — second-review habit after the first finalize.
