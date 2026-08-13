@@ -574,7 +574,7 @@ describe("contextual-help-registry (TB-733)", () => {
 
   it("resolves repeat-review loop help Category-1 help (HRX)", () => {
     expect(contextualHelpForPathname("/help/repeat-review-loop")?.whatIsThisPage).toContain(
-      "Repeat-review loop",
+      "Your repeat architecture review",
     );
     expect(contextualHelpForPathname("/help/repeat-review-loop")?.whatToDoNext).toContain(
       "Compare two reviews",

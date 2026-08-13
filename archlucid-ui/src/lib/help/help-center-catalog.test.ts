@@ -1,6 +1,7 @@
 import { describe, expect, it } from "vitest";
 
 import { ENTERPRISE_ONBOARDING_HELP_PAGE_TITLE } from "@/lib/enterprise-onboarding-help-copy";
+import { REPEAT_REVIEW_LOOP_HELP_PAGE_TITLE } from "@/lib/repeat-review-loop-help-guide-content";
 import {
   getHelpCenterDisplay,
   getHelpCenterTier,
@@ -204,5 +205,13 @@ describe("help center tiers", () => {
     const advanced = listHelpCenterTopics({ showAdvanced: true, isAdmin: false }).map((topic) => topic.slug);
 
     expect(advanced).toContain("comparison-replay");
+  });
+
+  it("classifies repeat-review-loop as product tier with canonical buyer title (TB-1395)", () => {
+    const entry = getProductDocumentationEntry("repeat-review-loop");
+
+    expect(entry).not.toBeNull();
+    expect(getHelpCenterTier(entry!)).toBe("product");
+    expect(getHelpCenterDisplay(entry!).title).toBe(REPEAT_REVIEW_LOOP_HELP_PAGE_TITLE);
   });
 });

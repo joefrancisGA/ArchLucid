@@ -1,5 +1,6 @@
 import { describe, expect, it } from "vitest";
 
+import { REPEAT_REVIEW_LOOP_HELP_PAGE_TITLE } from "@/lib/repeat-review-loop-help-guide-content";
 import { pageHelpTopicForPathname } from "@/lib/usability/page-help-topic-map";
 import { searchHelpTopics } from "@/lib/usability/search-help-topics";
 import { shouldAutoStartRegistrationTour } from "@/lib/usability/onboarding-registration-tour";
@@ -44,7 +45,7 @@ describe("usability lib", () => {
     expect(pageHelpTopicForPathname("/help/billing-and-plans")?.slug).toBe("billing-and-plans");
     expect(pageHelpTopicForPathname("/help/billing-and-plans")?.label).toBe("Billing and plans");
     expect(pageHelpTopicForPathname("/help/repeat-review-loop")?.slug).toBe("repeat-review-loop");
-    expect(pageHelpTopicForPathname("/help/repeat-review-loop")?.label).toBe("Repeat-review loop");
+    expect(pageHelpTopicForPathname("/help/repeat-review-loop")?.label).toBe(REPEAT_REVIEW_LOOP_HELP_PAGE_TITLE);
     expect(pageHelpTopicForPathname("/help/audit-trail")?.slug).toBe("audit-trail");
     expect(pageHelpTopicForPathname("/help/audit-trail")?.label).toBe("Audit trail");
     expect(pageHelpTopicForPathname("/insights/impact-preview")?.slug).toBeUndefined();

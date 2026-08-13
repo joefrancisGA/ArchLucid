@@ -25,7 +25,9 @@ describe("repeat-review-activation", () => {
     expect(prompt).not.toBeNull();
     expect(prompt!.headline).toContain("second");
     expect(prompt!.primaryHref).toBe("/architecture/reviews/new");
+    expect(prompt!.summary.toLowerCase()).not.toContain("stickiness");
     expect(prompt!.actions.some((action) => action.href.includes("run-first"))).toBe(true);
+    expect(prompt!.actions.some((action) => action.label === "Your repeat architecture review")).toBe(true);
   });
 
   it("surfaces compare replay and value-report prompts after two commits", () => {
@@ -38,6 +40,7 @@ describe("repeat-review-activation", () => {
 
     expect(prompt).not.toBeNull();
     expect(prompt!.summary.toLowerCase()).not.toContain("prior run");
+    expect(prompt!.summary.toLowerCase()).not.toContain("stickiness");
     expect(prompt!.primaryHref).toContain("/insights/compare-two-reviews");
     expect(prompt!.actions.some((action) => action.href.includes("/internal/replay"))).toBe(true);
     expect(prompt!.actions.some((action) => action.href === "/insights/executive-summary")).toBe(true);

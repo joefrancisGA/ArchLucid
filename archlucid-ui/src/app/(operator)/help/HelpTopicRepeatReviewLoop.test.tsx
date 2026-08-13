@@ -10,7 +10,10 @@ vi.mock("@/components/help/MermaidDiagram", () => ({
 import { HelpRepeatReviewLoopGuideView } from "@/app/(operator)/help/_sections/HelpRepeatReviewLoopGuideView";
 import { prepareHelpMarkdownForPresentation } from "@/lib/help/help-markdown-presentation";
 import { tryLoadProductDocumentation } from "@/lib/load-product-documentation";
-import { REPEAT_REVIEW_LOOP_HELP_DIAGRAM_SOURCE } from "@/lib/repeat-review-loop-help-guide-content";
+import {
+  REPEAT_REVIEW_LOOP_HELP_DIAGRAM_SOURCE,
+  REPEAT_REVIEW_LOOP_HELP_PAGE_TITLE,
+} from "@/lib/repeat-review-loop-help-guide-content";
 
 vi.mock("@/app/(operator)/help/HelpTopicHashScroll", () => ({
   HelpTopicHashScroll: () => null,
@@ -117,6 +120,20 @@ describe("HelpTopicRepeatReviewLoop (TB-1396)", () => {
     expect(screen.queryByRole("link", { name: /Validate review/i })).toBeNull();
   });
 
+  it("uses buyer title honesty without stickiness jargon in the hero (TB-1395)", () => {
+    if (loaded === null) {
+      throw new Error("Expected repeat-review-loop documentation to load.");
+    }
+
+    render(<HelpRepeatReviewLoopGuideView entry={loaded.entry} markdown={loaded.markdown} />);
+
+    expect(screen.getByTestId("help-repeat-review-loop-page-title")).toHaveTextContent(
+      REPEAT_REVIEW_LOOP_HELP_PAGE_TITLE,
+    );
+    expect(screen.getByRole("heading", { level: 1, name: REPEAT_REVIEW_LOOP_HELP_PAGE_TITLE })).toBeInTheDocument();
+    expect((document.body.textContent ?? "").toLowerCase()).not.toContain("stickiness");
+  });
+
   it("shows repeat-review cycle diagram in the default viewport without expanding disclosures", () => {
     if (loaded === null) {
       throw new Error("Expected repeat-review-loop documentation to load.");
@@ -124,7 +141,7 @@ describe("HelpTopicRepeatReviewLoop (TB-1396)", () => {
 
     render(<HelpRepeatReviewLoopGuideView entry={loaded.entry} markdown={loaded.markdown} />);
 
-    const diagramHost = screen.getByTestId("help-repeat-review-loop-stickiness-diagram");
+    const diagramHost = screen.getByTestId("help-repeat-review-loop-cycle-diagram");
     const mermaid = within(diagramHost).getByTestId("mermaid-diagram");
 
     expect(mermaid).toHaveTextContent("First finalize");
