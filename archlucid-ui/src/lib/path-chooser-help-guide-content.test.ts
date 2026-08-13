@@ -41,11 +41,14 @@ describe("path-chooser-help-guide-content", () => {
     expect(PATH_CHOOSER_HELP_EVALUATOR_SESSION_STEPS[2]?.action.href).toBe("/help/first-architecture-review");
   });
 
-  it("lists related next steps without a self-link to path-chooser", () => {
+  it("lists related next steps without a self-link to path-chooser (TB-1715)", () => {
     expect(
       PATH_CHOOSER_HELP_RELATED_NEXT_STEPS.some((link) => link.href === PATH_CHOOSER_HELP_CANONICAL_PATH),
     ).toBe(false);
-    expect(PATH_CHOOSER_HELP_RELATED_NEXT_STEPS.some((link) => link.href === "/trust")).toBe(true);
+    expect(PATH_CHOOSER_HELP_RELATED_NEXT_STEPS.length).toBeLessThanOrEqual(3);
+    expect(PATH_CHOOSER_HELP_RELATED_NEXT_STEPS.some((link) => link.href === "/help/security-trust")).toBe(
+      true,
+    );
   });
 
   it("states claim discipline without implying CPA or third-party pen test", () => {

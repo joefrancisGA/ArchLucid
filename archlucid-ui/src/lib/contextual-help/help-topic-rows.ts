@@ -4,6 +4,9 @@ import type { PageContextualHelpRow } from "@/lib/contextual-help/types";
 import { ACCELERATOR_CHOOSER_HELP_PAGE_TITLE } from "@/lib/accelerator-chooser-help-guide-content";
 import { DATA_HANDLING_TENANT_ISOLATION_HELP_TOPIC_LABEL } from "@/lib/data-handling-tenant-isolation-help-evidence-copy";
 import { SPONSOR_REPORT_HELP_TOPIC_LABEL } from "@/lib/sponsor/sponsor-report-help-evidence-copy";
+import { PATH_CHOOSER_HELP_TOPIC_LABEL } from "@/lib/path-chooser-help-evidence-copy";
+import { PILOT_FEEDBACK_HELP_TOPIC_LABEL } from "@/lib/pilot-feedback-help-evidence-copy";
+import { PILOT_GUIDE_HELP_TOPIC_LABEL } from "@/lib/pilot-guide-help-evidence-copy";
 import { PLANNING_PATH } from "@/lib/planning-route";
 import { PRODUCT_LEARNING_PATH } from "@/lib/product-learning-route";
 
@@ -44,8 +47,7 @@ export const HELP_TOPIC_CONTEXTUAL_HELP_ROWS: readonly PageContextualHelpRow[] =
   {
     prefix: "/help/choose-your-next-step",
     entry: {
-      whatIsThisPage:
-        "Map your current goal to one primary next action for evaluate, pilot, procurement, sponsor, or engineering support.",
+      whatIsThisPage: `${PATH_CHOOSER_HELP_TOPIC_LABEL} — map your goal to one primary next action for evaluate, pilot, procurement, sponsor, or engineering support.`,
       whatToDoNext:
         "Pick the matching goal branch, open the primary cite, then use Sources before treating orientation as diligence.",
       whyEmpty: "Branches always appear when this help topic loads.",
@@ -55,8 +57,7 @@ export const HELP_TOPIC_CONTEXTUAL_HELP_ROWS: readonly PageContextualHelpRow[] =
   {
     prefix: "/help/pilot-feedback",
     entry: {
-      whatIsThisPage:
-        "Pilot feedback help — human judgment signals, ranked improvement opportunities, and how triage differs from recommendation learning.",
+      whatIsThisPage: `${PILOT_FEEDBACK_HELP_TOPIC_LABEL} — human judgment signals, ranked improvement opportunities, and how triage differs from recommendation learning.`,
       whatToDoNext:
         "Open Pilot feedback for live aggregates, then Improvement planning when opportunities become themes or draft plans.",
       whyEmpty: "This guide is always available; live feedback rows appear after architects capture review outcomes.",
@@ -328,8 +329,7 @@ export const HELP_TOPIC_CONTEXTUAL_HELP_ROWS: readonly PageContextualHelpRow[] =
   {
     prefix: "/help/pilot-guide",
     entry: {
-      whatIsThisPage:
-        "Pilot guide — how to prepare for a pilot, run the first architecture review, interpret outputs, and get support.",
+      whatIsThisPage: `${PILOT_GUIDE_HELP_TOPIC_LABEL} — how to prepare for a pilot, run the first architecture review, interpret outputs, and get support.`,
       whatToDoNext:
         "Start an architecture review, or open Your first architecture review when you need the step-by-step walkthrough.",
       whyEmpty: "This guide is always available; live pilot outcomes appear after reviews and sponsor reports exist.",

@@ -2,7 +2,10 @@ import { describe, expect, it } from "vitest";
 
 import {
   CORE_PILOT_HELP_CLOUD_ACTIONS,
+  CORE_PILOT_HELP_DISCLOSURE,
   CORE_PILOT_HELP_DEPTH_GUIDES,
+  CORE_PILOT_HELP_FIRST_VIEWPORT_JOB_CHROME_TEST_ID,
+  CORE_PILOT_HELP_FIRST_VIEWPORT_STEPS,
   CORE_PILOT_HELP_GUIDE_HEADINGS,
   CORE_PILOT_HELP_IN_PRODUCT_CHECKLIST_LABEL,
   CORE_PILOT_HELP_OPTIONAL_PATHS_TITLE,
@@ -15,8 +18,7 @@ import {
 import { SHOWCASE_BUYER_REVIEW_PACKAGE_TITLE, SHOWCASE_STATIC_DEMO_RUN_ID } from "@/lib/showcase-static-demo";
 
 describe("core-pilot-help-guide-content sample CTA (TB-1332)", () => {
-  it("names the Claims Intake showcase on the sample review CTA", () => {
-    expect(CORE_PILOT_HELP_SAMPLE_REVIEW_CTA_LABEL.toLowerCase()).toContain("claims");
+  it("names the showcase buyer review package on the sample review CTA", () => {
     expect(CORE_PILOT_HELP_SAMPLE_REVIEW_CTA_LABEL).toContain(SHOWCASE_BUYER_REVIEW_PACKAGE_TITLE);
     expect(CORE_PILOT_HELP_SAMPLE_REVIEW_CTA_LABEL).not.toBe("Open sample review");
     expect(CORE_PILOT_HELP_PRIMARY_ACTIONS.sampleReview.href).toBe(
@@ -66,5 +68,15 @@ describe("core-pilot-help-guide-content sample CTA (TB-1332)", () => {
     }
 
     expect(CORE_PILOT_HELP_PRIMARY_ACTIONS.startReview.href).toBe(CORE_PILOT_HELP_START_REVIEW_HREF);
+  });
+
+  it("TB-1685: exposes three first-viewport job steps before deferred optional paths", () => {
+    expect(CORE_PILOT_HELP_FIRST_VIEWPORT_STEPS).toHaveLength(3);
+    expect(CORE_PILOT_HELP_FIRST_VIEWPORT_STEPS.map((step) => step.title)).toEqual([
+      "Start a review",
+      "Add evidence",
+      "Finalize and share",
+    ]);
+    expect(CORE_PILOT_HELP_FIRST_VIEWPORT_JOB_CHROME_TEST_ID).toBe("core-pilot-first-viewport-job-chrome");
   });
 });

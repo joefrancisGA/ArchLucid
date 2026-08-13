@@ -72,7 +72,7 @@ import { BILLING_AND_PLANS_HELP_TOPIC_LABEL } from "@/lib/billing-and-plans-help
 import { EXTRACT_UPLOAD_SETTINGS_HELP_TOPIC_LABEL } from "@/lib/extract-upload-settings-evidence-copy";
 import { INVITE_REVIEWER_HELP_TOPIC_LABEL } from "@/lib/invite-reviewer-evidence-copy";
 import { OPERATOR_BILLING_SETTINGS_HELP_TOPIC_LABEL } from "@/lib/operator/operator-billing-settings-evidence-copy";
-import { PRODUCT_LEARNING_HELP_TOPIC_LABEL } from "@/lib/product-learning-evidence-copy";
+import { PILOT_FEEDBACK_HELP_TOPIC_LABEL } from "@/lib/pilot-feedback-help-evidence-copy";
 import { SECURITY_TRUST_HELP_TOPIC_LABEL } from "@/lib/security-trust-help-evidence-copy";
 import { SETTINGS_SECURITY_TRUST_HELP_TOPIC_LABEL } from "@/lib/settings-security-trust-evidence-copy";
 import { SETTINGS_USERS_HELP_TOPIC_LABEL } from "@/lib/settings-users-evidence-copy";
@@ -454,7 +454,7 @@ const PAGE_HELP_TOPICS: readonly { prefix: string; topic: PageHelpTopic }[] = [
   },
   {
     prefix: "/internal/product-learning",
-    topic: { slug: "pilot-feedback", label: PRODUCT_LEARNING_HELP_TOPIC_LABEL },
+    topic: { slug: "pilot-feedback", label: PILOT_FEEDBACK_HELP_TOPIC_LABEL },
   },
   {
     prefix: "/internal/health",
@@ -530,7 +530,7 @@ const PAGE_HELP_TOPICS: readonly { prefix: string; topic: PageHelpTopic }[] = [
   },
   {
     prefix: "/help/pilot-feedback",
-    topic: { slug: "pilot-feedback", label: PRODUCT_LEARNING_HELP_TOPIC_LABEL },
+    topic: { slug: "pilot-feedback", label: PILOT_FEEDBACK_HELP_TOPIC_LABEL },
   },
   {
     prefix: "/help/sponsor-report",

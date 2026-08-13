@@ -1,6 +1,8 @@
 import { PRODUCT_LEARNING_PATH } from "@/lib/product-learning-route";
 import type { EvidenceSourceLink } from "@/lib/evidence-surface-copy";
 
+export { PRODUCT_LEARNING_HELP_TOPIC_LABEL as PILOT_FEEDBACK_HELP_TOPIC_LABEL } from "@/lib/product-learning-evidence-copy";
+
 export const PILOT_FEEDBACK_HELP_CANONICAL_PATH = "/help/pilot-feedback" as const;
 
 export const PILOT_FEEDBACK_HELP_CLAIM_DISCIPLINE =
