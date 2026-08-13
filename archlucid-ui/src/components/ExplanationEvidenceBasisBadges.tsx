@@ -2,6 +2,7 @@ import { cn } from "@/lib/utils";
 import { enterpriseStatusTagClass, OPERATOR_TYPOGRAPHY } from "@/lib/design-tokens";
 import type { ReactElement } from "react";
 
+import { FieldHelpTooltip } from "@/components/FieldHelpTooltip";
 import {
   resolveExplanationEvidenceBasisBadges,
   type ResolveExplanationEvidenceBasisInput,
@@ -30,13 +31,13 @@ export function ExplanationEvidenceBasisBadges(props: ExplanationEvidenceBasisBa
         <span
           key={badge.label}
           className={cn(
-            "inline-flex items-center rounded-full border px-2 py-0.5 font-medium",
+            "inline-flex items-center gap-1 rounded-full border px-2 py-0.5 font-medium",
             badgeClass(badge.warnBeforeSponsorSend),
             OPERATOR_TYPOGRAPHY.helper,
           )}
-          title={badge.detail}
         >
           {badge.display}
+          <FieldHelpTooltip label={badge.display} hint={badge.detail} />
         </span>
       ))}
       {showDetail && badges.some((badge) => badge.warnBeforeSponsorSend) ? (

@@ -80,17 +80,18 @@ export function EstimatedLlmCostBarChart(props: EstimatedLlmCostBarChartProps): 
         const barPx =
           point.estimatedCostUsd === 0 ? 0 : Math.max(2, (point.estimatedCostUsd / maxCost) * barMaxPx);
         const usdLabel = formatEstimatedUsd(point.estimatedCostUsd, currencyCode);
-        const title = `Estimated cost ${usdLabel} — prompt ${point.promptTokens.toLocaleString()} tok, completion ${point.completionTokens.toLocaleString()} tok`;
+        const barAriaLabel = `Estimated cost ${usdLabel} — prompt ${point.promptTokens.toLocaleString()} tok, completion ${point.completionTokens.toLocaleString()} tok`;
 
         return (
           <div
             key={point.bucketUtc}
             className="flex min-h-[144px] min-w-0 flex-1 flex-col items-center justify-end gap-1"
+            tabIndex={0}
+            aria-label={barAriaLabel}
           >
             <div
               className="w-full max-w-[2rem] rounded-t bg-teal-700/90 dark:bg-teal-500/90"
               style={{ height: barPx }}
-              title={title}
             />
             <span className={cn("truncate text-neutral-500 dark:text-neutral-400", OPERATOR_TYPOGRAPHY.badge)}>
               {formatBucketLabel(point.bucketUtc)}
