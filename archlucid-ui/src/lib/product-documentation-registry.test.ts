@@ -321,6 +321,7 @@ describe("product-documentation-registry", () => {
     // TB-1739 / Batch A: product-overview retired — sponsor-report owns SPONSOR_SPONSOR_BRIEF.md sections.
     expect(SponsorReport?.entry.slug).toBe("sponsor-report");
     expect(SponsorReport?.markdown).toContain("What Pilot proves");
+    expect(SponsorReport?.markdown).toContain("What ArchLucid is");
     expect(SponsorReport?.markdown).toContain("Manual review vs ArchLucid proof package");
 
     expect(firstArchitectureReview?.entry.slug).toBe("first-architecture-review");

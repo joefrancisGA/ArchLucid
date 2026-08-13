@@ -83,11 +83,21 @@ export function HelpSponsorSummaryGuideView(
         <Card data-testid="help-sponsor-report-action-panel">
           <CardHeader className={OPERATOR_CARD.header}>
             <CardTitle className={cn("text-lg", OPERATOR_TYPOGRAPHY.sectionTitle)}>
-              Open sponsor outputs
+              Start or open sponsor outputs
             </CardTitle>
           </CardHeader>
           <CardContent className={cn(OPERATOR_CARD.content, "flex flex-wrap items-center gap-2")}>
-            <Button asChild size="sm" variant="primary">
+            <Button asChild size="sm" variant="primary" data-testid="help-sponsor-report-start-review">
+              <Link href={SPONSOR_SUMMARY_HELP_PRIMARY_ACTIONS.startFirstReview.href}>
+                {SPONSOR_SUMMARY_HELP_PRIMARY_ACTIONS.startFirstReview.label}
+              </Link>
+            </Button>
+            <Button asChild size="sm" variant="outline">
+              <Link href={SPONSOR_SUMMARY_HELP_PRIMARY_ACTIONS.firstArchitectureReview.href}>
+                {SPONSOR_SUMMARY_HELP_PRIMARY_ACTIONS.firstArchitectureReview.label}
+              </Link>
+            </Button>
+            <Button asChild size="sm" variant="outline">
               <Link href={SPONSOR_SUMMARY_HELP_PRIMARY_ACTIONS.openSponsorValueReport.href}>
                 {SPONSOR_SUMMARY_HELP_PRIMARY_ACTIONS.openSponsorValueReport.label}
               </Link>

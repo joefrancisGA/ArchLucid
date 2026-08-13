@@ -45,7 +45,7 @@ describe("HelpTopicSponsorSummary", () => {
     expect(loaded?.markdown.toLowerCase()).toContain("baseline questions");
   });
 
-  it("purges FAQ dump leakage and renders sponsor framing with primary CTA (TB-1687, TB-1690)", () => {
+  it("purges FAQ dump leakage and renders sponsor framing with primary CTA (TB-1687, TB-1690, TB-1736)", () => {
     if (loaded === null) {
       throw new Error("Expected sponsor-report documentation to load.");
     }
@@ -62,13 +62,20 @@ describe("HelpTopicSponsorSummary", () => {
     }
 
     expect(preparedMarkdown).toContain("what pilot proves");
+    expect(preparedMarkdown).toContain("what archlucid is");
     expect(preparedMarkdown).not.toMatch(/^##\s+\d+\./m);
+    expect(preparedMarkdown).not.toContain("m-18");
+    expect(preparedMarkdown).not.toContain("outreach message templates");
 
     render(<HelpSponsorSummaryGuideView entry={loaded.entry} markdown={loaded.markdown} />);
 
     expect(screen.getByTestId("help-sponsor-report-guide")).toBeInTheDocument();
     expect(screen.getByTestId("help-sponsor-report-page-title")).toHaveTextContent("Sponsor report");
     expect(screen.getAllByRole("heading", { level: 1, name: "Sponsor report" })).toHaveLength(1);
+    expect(screen.getByTestId("help-sponsor-report-start-review")).toHaveAttribute(
+      "href",
+      "/architecture/reviews/new",
+    );
     expect(screen.queryByTestId("help-sponsor-report-refresh-button")).toBeNull();
     expect(screen.queryByTestId("help-sponsor-report-last-refreshed")).toBeNull();
     expect(screen.getByTestId("help-sponsor-report-claim-discipline")).toBeInTheDocument();

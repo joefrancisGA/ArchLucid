@@ -51789,3 +51789,35 @@ while the four counters go through `countValue`, which ignores it (line ~58).
 **Size estimate:** M.
 
 ---
+
+## TB-2243 — Retire progressive nav disclosure plumbing (P0)
+
+**Window:** V1 — Adoption friction.
+
+**Status:** **Done** 2026-08-13 — removed retired `showExtended` / `showAdvanced` / `applyCollapsedSidebarPilotFilter` params from `nav-shell-visibility.ts`; deleted `useNavProgressiveDisclosure`, unlock panels, and dead sidebar settings UI; **`RoleNavDensityExpandControl`** is the sole sidebar escape hatch on desktop **`SidebarNav`** and mobile **`MobileNavDrawer`**; Vitest parity guard in **`workspace-navigation-help-alignment.test.ts`**; docs in **`NAV_CONFIG_CONTRACT.md`** and **`WORKSPACE_NAVIGATION_GUIDE.md`**.
+
+**Priority:** P0.
+
+**Source:** Owner easier-to-use audit 2026-08-13 (usability item #4); partial delivery toward **TB-2233**.
+
+**Why:** Progressive disclosure tiers, collapsed-pilot “Show all features,” and parallel unlock UI duplicated **`RoleNavDensityExpandControl`** without adding authority signal. Retiring the plumbing reduces nav filter complexity and desktop/mobile divergence.
+
+**Approach:**
+
+1. Drop ignored disclosure parameters and always-zero counter helpers from **`nav-shell-visibility.ts`** and all call sites.
+2. Delete **`useNavProgressiveDisclosure`** and unmounted unlock / sidebar settings components.
+3. Mount **`RoleNavDensityExpandControl`** in **`MobileNavDrawer`** for density parity with desktop.
+4. Update hint copy to **`SHOW_ALL_DESTINATIONS`**; keep **`NAV_DISCLOSURE`** constants only where tests still reference tier metadata.
+5. Vitest: authority seam, nav-shell visibility, sidebar nav, workspace-navigation-help alignment.
+
+**Acceptance:** No production code path reads progressive disclosure flags; sidebar density control works on desktop and mobile; nav/help docs describe **`Show all sidebar links`** as the only reveal affordance.
+
+**Affected files:** `nav-shell-visibility.ts`, `useOperatorShellNavRows.ts`, `MobileNavDrawer.tsx`, `CommandPalette.tsx`, deleted disclosure hooks/components, `NAV_CONFIG_CONTRACT.md`, customer nav guide, hint components, Vitest.
+
+**Peers:** Done **TB-2139** (role-shaped density); open **TB-2233** (full authority + lifecycle + shell-preset model).
+
+**Out of scope:** Removing **`tier`** metadata from nav config; demo/buyer shell preset refactor (**TB-2233**).
+
+**Size estimate:** M.
+
+---

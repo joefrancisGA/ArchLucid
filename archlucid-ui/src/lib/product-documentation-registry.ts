@@ -172,6 +172,9 @@ const PRODUCT_DOCUMENTATION_REGISTRY_INPUT: readonly ProductDocumentationRegistr
       "docs/go-to-market/PILOT_SUCCESS_SCORECARD.md",
     ],
     sectionAnchors: [
+      "what-archlucid-is",
+      "what-problem-it-solves",
+      "core-value-pillars",
       "what-pilot-proves",
       "measurable-pilot-value",
       "what-operate-adds",
