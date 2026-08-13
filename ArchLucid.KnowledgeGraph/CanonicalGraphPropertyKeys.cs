@@ -20,4 +20,10 @@ public static class CanonicalGraphPropertyKeys
 
     /// <summary>Security baseline nodes: explicit topology resources in scope for this control.</summary>
     public const string ProtectedTopologyNodeIds = "protectedTopologyNodeIds";
+
+    /// <summary>Topology resource nodes: explicit upstream dependencies (comma-separated node ids).</summary>
+    public const string DependsOnNodeIds = "dependsOnNodeIds";
+
+    /// <summary>Topology resource nodes: explicit downstream exposure targets (comma-separated node ids).</summary>
+    public const string ExposesToNodeIds = "exposesToNodeIds";
 }

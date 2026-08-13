@@ -389,6 +389,38 @@ public sealed class DefaultGraphEdgeInfererTests
         edges.Should().NotContain(e => e.ToNodeId == "sub-orphan" && e.EdgeType == GraphEdgeTypes.ContainsResource);
     }
 
+    [Fact]
+    public void InferEdges_WhenTopologyDependsOnIdsSet_EmitsDependsOnEdges()
+    {
+        ContextSnapshot snapshot = BuildSnapshot();
+        GraphNode compute = new()
+        {
+            NodeId = "cmp-1",
+            NodeType = GraphNodeTypes.TopologyResource,
+            Label = "api",
+            Category = GraphTopologyCategories.Compute,
+            Properties = new Dictionary<string, string>(StringComparer.OrdinalIgnoreCase)
+            {
+                [CanonicalGraphPropertyKeys.DependsOnNodeIds] = "ds-1"
+            }
+        };
+        GraphNode data = new()
+        {
+            NodeId = "ds-1",
+            NodeType = GraphNodeTypes.TopologyResource,
+            Label = "sql",
+            Category = GraphTopologyCategories.Data,
+            Properties = new()
+        };
+
+        IReadOnlyList<GraphEdge> edges = _sut.InferEdges(snapshot, [compute, data]);
+
+        edges.Should().ContainSingle(e =>
+            e.FromNodeId == "cmp-1" &&
+            e.ToNodeId == "ds-1" &&
+            e.EdgeType == GraphEdgeTypes.DependsOn);
+    }
+
     private static ContextSnapshot BuildSnapshot()
     {
         return new ContextSnapshot { SnapshotId = Guid.NewGuid(), RunId = Guid.NewGuid(), ProjectId = "proj-test" };
