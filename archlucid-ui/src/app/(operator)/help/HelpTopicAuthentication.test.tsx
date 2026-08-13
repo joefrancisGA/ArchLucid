@@ -29,6 +29,9 @@ import {
   AUTHENTICATION_SIGN_IN_HELP_COLLAPSIBLE_SECTIONS,
   AUTHENTICATION_SIGN_IN_HELP_SECONDARY_ACTIONS,
 } from "@/lib/authentication-sign-in-help-guide-content";
+import {
+  authenticationSignInHelpRelatedTopics,
+} from "@/lib/authentication-sign-in-help-related-topics";
 import { AUTHENTICATION_SIGN_IN_COMMON_ISSUES_ANCHOR } from "@/lib/authentication-sign-in-help-triage";
 import { TROUBLESHOOTING_EMAIL_SUPPORT_LINK } from "@/lib/troubleshooting-help-guide-content";
 import { tryLoadProductDocumentation } from "@/lib/load-product-documentation";
@@ -128,5 +131,20 @@ describe("HelpAuthenticationSignInGuideView", () => {
 
     expect(commonIssues).toHaveAttribute("open");
     expect(within(commonIssues).getByText(/Organization sign-in required/i)).toBeInTheDocument();
+  });
+
+  it("caps Related at two product-safe guides and routes SSO setup to the wizard (TB-1617)", () => {
+    if (loaded === null) {
+      throw new Error("Expected authentication documentation to load.");
+    }
+
+    render(<HelpAuthenticationSignInGuideView entry={loaded.entry} markdown={loaded.markdown} />);
+
+    const related = screen.getByTestId("help-authentication-sign-in-related-topics");
+    const relatedLinks = within(related).getAllByRole("link");
+
+    expect(relatedLinks).toHaveLength(authenticationSignInHelpRelatedTopics().length);
+    expect(relatedLinks).toHaveLength(2);
+    expect(within(related).queryByRole("link", { name: /enterprise onboarding/i })).toBeNull();
   });
 });

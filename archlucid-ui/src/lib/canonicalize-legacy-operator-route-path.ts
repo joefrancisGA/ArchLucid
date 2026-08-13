@@ -49,6 +49,10 @@ import {
   PLANNING_PATH,
   PLANNING_PLAN_DETAIL_PATH_PREFIX,
 } from "@/lib/planning-route";
+import {
+  LEGACY_SIGNED_RECORDS_LIST_PATH,
+  SIGNED_RECORDS_LIST_PATH,
+} from "@/lib/signed-records-paths";
 import { SPONSOR_DASHBOARD_HREF } from "@/lib/sponsor/sponsor-dashboard-route";
 import {
   LEGACY_SPONSOR_REPORT_ROOT_PATH,

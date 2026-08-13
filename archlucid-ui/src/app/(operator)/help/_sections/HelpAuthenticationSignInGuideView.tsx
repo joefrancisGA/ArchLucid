@@ -1,6 +1,7 @@
 import { HelpTopicHashScroll } from "@/app/(operator)/help/HelpTopicHashScroll";
 import { HelpAuthenticationSignInActionPanel } from "@/app/(operator)/help/_sections/HelpAuthenticationSignInActionPanel";
 import { HelpAuthenticationSignInHeaderActions } from "@/app/(operator)/help/_sections/HelpAuthenticationSignInHeaderActions";
+import { HelpAuthenticationSignInRelatedTopics } from "@/app/(operator)/help/_sections/HelpAuthenticationSignInRelatedTopics";
 import { AuthenticationSignInHelpEvidenceOrientationStrip } from "@/components/help/AuthenticationSignInHelpEvidenceOrientationStrip";
 import { HelpTopicSignInFailureTriageLine } from "@/components/help/HelpTopicSignInFailureTriageLine";
 import { HelpTopicTableOfContents } from "@/components/help/HelpTopicTableOfContents";
@@ -59,7 +60,7 @@ export function HelpAuthenticationSignInGuideView(
     helpTopicSlug: entry.slug,
   });
   const sections = splitAuthenticationSignInHelpMarkdown(preparedMarkdown);
-  const headings = extractHelpMarkdownHeadings(preparedMarkdown);
+  const headings = extractHelpMarkdownHeadings(preparedMarkdown).filter((heading) => heading.id !== "related");
   const contentGridClass = resolveHelpPageContentGridClass(headings.length);
   const collapsibleSections = AUTHENTICATION_SIGN_IN_HELP_COLLAPSIBLE_SECTIONS;
 
@@ -146,7 +147,7 @@ export function HelpAuthenticationSignInGuideView(
             </CollapsibleSection>
 
             {renderHelpMarkdownSection(sections.securityPrivacyMarkdown, entry, sourceDocPath)}
-            {renderHelpMarkdownSection(sections.relatedMarkdown, entry, sourceDocPath)}
+            <HelpAuthenticationSignInRelatedTopics />
           </div>
         </div>
 
