@@ -3477,7 +3477,7 @@ Do not sell API scale-out as removing AOAI 429/TPM limits, claim launch load is 
 
 ### Residuals (honest)
 
-- **TB-1032** **Done** — [`LAUNCH_LOAD_FAILURE_ORDER_DEGRADATION_CONTRACT.md`](../library/LAUNCH_LOAD_FAILURE_ORDER_DEGRADATION_CONTRACT.md); **TB-1033** language guards (open).
+- **TB-1032** **Done** — [`LAUNCH_LOAD_FAILURE_ORDER_DEGRADATION_CONTRACT.md`](../library/LAUNCH_LOAD_FAILURE_ORDER_DEGRADATION_CONTRACT.md); claim CI: **TB-1033** (`check_launch_load_failure_order_honesty.py`).
 - Measured evidence: owner **G-SCALE-01** / **G-SCALE-02**; cite [`../architecture/LAUNCH_LOAD_DRILL.md`](../architecture/LAUNCH_LOAD_DRILL.md) + [`../library/DEGRADED_MODE.md`](../library/DEGRADED_MODE.md).
 - Complements **M-229**/**M-230** (execute throttle) and **M-237**/**M-238** (100Ã— — do not fold into launch-burst talk-track).
 - This handout does not claim CPA SOC 2 or a published third-party penetration test.

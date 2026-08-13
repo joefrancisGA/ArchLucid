@@ -331,7 +331,7 @@ Former standalone body: `docs/go-to-market/PA_CLAIM_HONESTY_BULLETS_BATCH_B.md` 
 
 | Do not promise | Do promise |
 | --- | --- |
-| API scale-out removes AOAI 429/TPM limits; launch load “proven” while drill pending; outbox lag loses committed packages or is first sync admit failure under burst. | HTTP-first launch vs AOAI-ceiling Real execute; committed packages durable; worker lag affects projections, not finalize record. |
+| API scale-out removes AOAI 429/TPM limits; launch load “proven” while drill pending; outbox lag loses committed packages or is first sync admit failure under burst. | HTTP-first launch vs AOAI-ceiling Real execute; committed packages durable; worker lag affects projections, not finalize record. Engineering matrix: [`LAUNCH_LOAD_FAILURE_ORDER_DEGRADATION_CONTRACT.md`](LAUNCH_LOAD_FAILURE_ORDER_DEGRADATION_CONTRACT.md) (**TB-1032**). CI: `check_launch_load_failure_order_honesty.py` (**TB-1033** Done). |
 
 #### M-184 — Strangler next slice
 

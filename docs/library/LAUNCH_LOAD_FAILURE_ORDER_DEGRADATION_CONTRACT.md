@@ -77,6 +77,10 @@
 
 ---
 
-## CI follow-on
+## CI follow-on (TB-1033 shipped)
 
-**TB-1033** should fail dishonest scale/launch-load/LLM claims per this contract and pair **M-182**.
+Mechanical gate: `scripts/ci/check_launch_load_failure_order_honesty.py` (wired in `scripts/ci/run_buyer_surface_strict_guards.py`).
+
+Vitest: `archlucid-ui/src/lib/launch-load-failure-order-honesty.test.ts`.
+
+Fails dishonest scale/launch-load/LLM claims per this contract and pairs **M-182**.

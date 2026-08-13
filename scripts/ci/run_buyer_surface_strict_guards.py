@@ -239,6 +239,11 @@ GUARDS: tuple[GuardCommand, ...] = (
         None,
     ),
     GuardCommand(
+        "launch-load failure-order honesty",
+        ("python", "scripts/ci/check_launch_load_failure_order_honesty.py"),
+        None,
+    ),
+    GuardCommand(
         "wntp buyer ui honesty",
         ("python", "scripts/ci/check_wntp_buyer_ui_honesty.py"),
         None,
