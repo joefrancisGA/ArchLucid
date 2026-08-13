@@ -73,7 +73,7 @@ describe("PilotValueReportPageView", () => {
     expect(screen.getByLabelText("End date")).toBeInTheDocument();
     expect(screen.getByRole("button", { name: "Apply period" })).toBeInTheDocument();
     expect(screen.getByRole("button", { name: "Download report" })).toBeDisabled();
-    expect(screen.getByRole("button", { name: "Send sponsor report" })).toBeInTheDocument();
+    expect(screen.getByRole("button", { name: "Send executive briefing" })).toBeInTheDocument();
   });
 
   it("shows explicit empty state when no finalized reviews exist", () => {

@@ -4,6 +4,7 @@ import { cn } from "@/lib/utils";
 import { useCallback, useEffect, useMemo, useState } from "react";
 
 import { Button } from "@/components/ui/button";
+import { ReviewPipelineStopAnalysisButton } from "@/components/runs/ReviewPipelineStopAnalysisButton";
 import { Progress } from "@/components/ui/progress";
 import { Separator } from "@/components/ui/separator";
 import { StatusTag } from "@/components/ui/status-tag";
@@ -351,6 +352,10 @@ export function RunProgressTracker({
         >
           {REVIEW_PIPELINE_NOTIFICATIONS_ENABLED_LABEL}
         </p>
+      ) : null}
+
+      {pollEnabled && clientPhase === "polling" ? (
+        <ReviewPipelineStopAnalysisButton runId={runId} className="mt-3" />
       ) : null}
 
       {pollEnabled && clientPhase === "timeout" ? (

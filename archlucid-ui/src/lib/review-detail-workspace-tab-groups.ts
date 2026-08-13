@@ -9,15 +9,15 @@ export const REVIEW_DETAIL_PRIMARY_TAB_IDS = [
   "overview",
   "findings",
   "evidence",
-  "decisions-remediation",
-  "review-package",
+  "activity",
 ] as const satisfies readonly ReviewDetailTabId[];
 
 /** Less-frequent destinations grouped under an explicit More control. */
 export const REVIEW_DETAIL_OVERFLOW_TAB_IDS = [
   "policies",
   "architecture",
-  "activity",
+  "decisions-remediation",
+  "review-package",
 ] as const satisfies readonly ReviewDetailTabId[];
 
 export type ReviewDetailPrimaryTabId = (typeof REVIEW_DETAIL_PRIMARY_TAB_IDS)[number];

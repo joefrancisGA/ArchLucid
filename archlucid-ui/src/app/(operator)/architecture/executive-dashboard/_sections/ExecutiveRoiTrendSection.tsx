@@ -17,9 +17,10 @@ import {
   filterHistoryPointsByRange,
 } from "@/lib/executive/executive-time-range";
 import { BUYER_EXECUTIVE_DATA_SOURCE_NOTE } from "@/lib/buyer/buyer-polish-copy";
+import { OPERATOR_KPI_CARD_DESCRIPTION, OPERATOR_TYPOGRAPHY } from "@/lib/design-tokens";
 import { EXECUTION_MODE_ROI_PERIOD_MIX_FOOTNOTE, resolveExecutiveTrendSavingsUsd } from "@/lib/execution-mode-honesty";
 import { isBuyerPolishedOperatorShellEnv } from "@/lib/demo-ui-env";
-import { OPERATOR_KPI_CARD_DESCRIPTION, OPERATOR_TYPOGRAPHY } from "@/lib/design-tokens";
+import { RULE_BASED_ANALYSIS_ONLY_BUYER_LABEL } from "@/lib/usability/canonical-product-terms";
 
 import { ExecutiveRoiSavingsTrendSvgChart } from "./ExecutiveRoiSavingsTrendSvgChart";
 
@@ -154,10 +155,10 @@ export function ExecutiveRoiTrendSection({
               <div className="flex items-end gap-2">
                 {points.map((point) => (
                   <div key={`critical-${point.snapshotUtc}`} className="flex flex-1 flex-col items-center gap-1">
-                    {isSimulatorOnlyPeriod(point) && !buyerPolished ? (
+                    {isSimulatorOnlyPeriod(point) ? (
                       <StatusTag
                         kind="needs-attention"
-                        label="Simulator-only"
+                        label={buyerPolished ? RULE_BASED_ANALYSIS_ONLY_BUYER_LABEL : "Simulator-only"}
                         className="text-[9px] px-1 py-0"
                         data-testid="exec-roi-trend-simulator-only"
                       />

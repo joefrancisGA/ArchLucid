@@ -231,7 +231,7 @@ export const GETTING_STARTED_HELP_TECHNICAL_TERMS: readonly GettingStartedPlainL
     definition: "Metadata attached to findings for audit and evidence inspection surfaces.",
   },
   {
-    term: "Pre-commit governance gate",
+    term: "Approval gate",
     definition: "Configurable blocker on finalize when severity thresholds are breached.",
   },
 ];

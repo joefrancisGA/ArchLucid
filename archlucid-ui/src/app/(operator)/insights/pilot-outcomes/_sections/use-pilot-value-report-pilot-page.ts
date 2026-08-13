@@ -205,7 +205,7 @@ export function usePilotValueReportPilotPage(loaded: PilotValueReportPageServerL
       setEmailPreviewOpen(false);
     } catch (e: unknown) {
       setError({
-        message: e instanceof Error ? e.message : "Send sponsor report failed.",
+        message: e instanceof Error ? e.message : "Send executive briefing failed.",
         problem: null,
         correlationId: null,
       });

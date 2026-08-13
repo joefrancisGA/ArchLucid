@@ -8,7 +8,7 @@ import type { PreCommitGovernanceBlockView } from "@/lib/pre-commit-governance-b
 import { inAppHelpHref } from "@/lib/product-documentation-registry";
 import { policyPacksEditHref } from "@/lib/policy/policy-packs-deep-link";
 import { OPERATOR_LINK, OPERATOR_TYPOGRAPHY } from "@/lib/design-tokens";
-import { GOVERNANCE_WORKSPACE_HEALTH_HREF } from "@/lib/governance/governance-route-paths";
+import { APPROVAL_GATE_LABEL } from "@/lib/usability/canonical-product-terms";
 
 export type PreCommitGovernanceBlockPanelProps = {
   readonly runId: string;
@@ -36,7 +36,7 @@ export function PreCommitGovernanceBlockPanel(props: PreCommitGovernanceBlockPan
     >
       <div className="flex flex-wrap items-center gap-2">
         <StatusTag kind="blocked" label="Blocked" />
-        <span className="font-medium text-neutral-900 dark:text-neutral-100">Pre-commit governance gate</span>
+        <span className="font-medium text-neutral-900 dark:text-neutral-100">{APPROVAL_GATE_LABEL}</span>
       </div>
 
       <p className="m-0 mt-2 text-neutral-700 dark:text-neutral-300">{block.reason}</p>

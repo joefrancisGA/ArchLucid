@@ -57,5 +57,26 @@ export const STRICT_AI_QUALITY_MODE_BUYER_LABEL = "Strict quality";
 /** Mid-sentence / lowercase form of {@link STRICT_AI_QUALITY_BUYER_LABEL}. */
 export const STRICT_AI_QUALITY_BUYER_LABEL_LOWER = "strict AI quality checks";
 
+/** Buyer label for deterministic / Simulator execution mode (wire id stays Simulator). */
+export const RULE_BASED_ANALYSIS_BUYER_LABEL = "Rule-based analysis";
+
+/** Proof-confidence chip when every agent step used rule-based analysis. */
+export const RULE_BASED_ANALYSIS_ONLY_BUYER_LABEL = "Rule-based analysis only";
+
+/** Executive handoff noun — prefer over "sponsor packet" or "sponsor pack" in buyer UI. */
+export const EXECUTIVE_BRIEFING_EXPORT_LABEL = "Executive briefing export";
+
+/** Artifact table section for stakeholder-facing markdown. */
+export const EXECUTIVE_BRIEFING_LABEL = "Executive briefing";
+
+/** Mid-sentence form of {@link EXECUTIVE_BRIEFING_EXPORT_LABEL}. */
+export const EXECUTIVE_BRIEFING_EXPORT_LABEL_LOWER = "executive briefing export";
+
+/** Governance gate before finalize (prefer over "pre-commit gate" in buyer copy). */
+export const APPROVAL_GATE_LABEL = "Approval gate";
+
+/** Downloadable outputs ZIP (prefer over "artifact bundle" in buyer copy). */
+export const DELIVERABLES_BUNDLE_LABEL = "Deliverables bundle";
+
 /** Buyer label for quality-gate mode `WarnOnly` (wire id stays WarnOnly). */
 export const WARN_ONLY_QUALITY_MODE_BUYER_LABEL = "Warn only";

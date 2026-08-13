@@ -115,7 +115,7 @@ describe("ExecutiveRoiTrendSection", () => {
     expect(bars).toHaveLength(2);
     expect(bars[0]?.parentElement?.querySelector("title")).toHaveTextContent("$300");
     expect(bars[1]?.parentElement?.querySelector("title")).toHaveTextContent("$0");
-    expect(screen.queryByTestId("exec-roi-trend-simulator-only")).not.toBeInTheDocument();
+    expect(screen.getByTestId("exec-roi-trend-simulator-only")).toHaveTextContent("Rule-based analysis only");
     expect(screen.queryByTestId("exec-roi-trend-mixed-mode-footnote")).not.toBeInTheDocument();
   });
 });

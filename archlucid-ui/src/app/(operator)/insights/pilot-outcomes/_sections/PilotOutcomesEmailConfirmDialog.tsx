@@ -34,7 +34,7 @@ export function PilotOutcomesEmailConfirmDialog(props: Props) {
         className="w-full max-w-lg rounded-lg border border-neutral-200 bg-white p-4 shadow-lg dark:border-neutral-700 dark:bg-neutral-950"
       >
         <h2 id="pilot-outcomes-email-dialog-title" className={cn("mt-0", OPERATOR_TYPOGRAPHY.pageTitle)}>
-          Send sponsor report
+          Send executive briefing
         </h2>
         <p className={cn("m-0 text-al-text-secondary", OPERATOR_TYPOGRAPHY.body)}>
           Review what will be included before opening your email client.

@@ -165,6 +165,7 @@ describe("RunProgressTracker", () => {
     expect(screen.queryByText(/pipeline/i)).not.toBeInTheDocument();
     expect(screen.queryByText(/polling/i)).not.toBeInTheDocument();
     expect(screen.queryByText(/live stream/i)).not.toBeInTheDocument();
+    expect(screen.getByTestId("review-pipeline-stop-analysis")).toHaveTextContent("Stop analysis");
   });
 
   it("shows stage timing table when buyer assessment copy is enabled", async () => {

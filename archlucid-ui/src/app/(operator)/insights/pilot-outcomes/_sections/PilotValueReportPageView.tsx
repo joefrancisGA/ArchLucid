@@ -197,7 +197,7 @@ export function PilotValueReportPageView(props: Props) {
             onClick={m.openEmailPreview}
             disabled={m.busy || m.emailBusy}
           >
-            Send sponsor report
+            Send executive briefing
           </Button>
           <Link href={SPONSOR_REPORT_ROI_SUMMARY_PATH} className={cn(OPERATOR_LINK.inline, OPERATOR_TYPOGRAPHY.body)}>
             Open ROI summary

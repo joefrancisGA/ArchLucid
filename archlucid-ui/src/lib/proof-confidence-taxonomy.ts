@@ -2,6 +2,10 @@ import {
   StructuralExecutionModeWire,
   type StructuralExecutionModeWireValue,
 } from "@/lib/structural-execution-mode";
+import {
+  RULE_BASED_ANALYSIS_BUYER_LABEL,
+  RULE_BASED_ANALYSIS_ONLY_BUYER_LABEL,
+} from "@/lib/usability/canonical-product-terms";
 
 /** Canonical buyer-facing proof-confidence classes (aligned with release claim gate wording). */
 export type ProofConfidenceClass =
@@ -18,6 +22,13 @@ export const PROOF_CONFIDENCE_LABELS: Record<ProofConfidenceClass, string> = {
   "partial-real-mode": "Mixed evidence",
   "simulator-only": "Simulator-only",
   unknown: "Evidence not classified",
+};
+
+export const PROOF_CONFIDENCE_BUYER_LABELS: Record<ProofConfidenceClass, string> = {
+  "full-real-mode": PROOF_CONFIDENCE_LABELS["full-real-mode"],
+  "partial-real-mode": PROOF_CONFIDENCE_LABELS["partial-real-mode"],
+  "simulator-only": RULE_BASED_ANALYSIS_ONLY_BUYER_LABEL,
+  unknown: PROOF_CONFIDENCE_LABELS.unknown,
 };
 
 export const CANONICAL_PROOF_CONFIDENCE_LABELS: readonly string[] = Object.values(
@@ -145,6 +156,12 @@ export function formatProofConfidenceLabel(input: ProofConfidenceInput): string 
   return PROOF_CONFIDENCE_LABELS[proofClass];
 }
 
+export function formatProofConfidenceBuyerLabel(input: ProofConfidenceInput): string {
+  const proofClass = resolveProofConfidenceClass(input);
+
+  return PROOF_CONFIDENCE_BUYER_LABELS[proofClass];
+}
+
 /** Maps trust-evidence card execution status text to the canonical proof-confidence label. */
 export function formatProofConfidenceLabelFromTrustStatus(status: string | null | undefined): string {
   if (typeof status !== "string" || status.trim().length === 0) {
@@ -170,4 +187,30 @@ export function formatProofConfidenceLabelFromTrustStatus(status: string | null 
   }
 
   return PROOF_CONFIDENCE_LABELS.unknown;
+}
+
+export function formatProofConfidenceBuyerLabelFromTrustStatus(status: string | null | undefined): string {
+  if (typeof status !== "string" || status.trim().length === 0) {
+    return PROOF_CONFIDENCE_BUYER_LABELS.unknown;
+  }
+
+  const normalized = status.trim().toLowerCase();
+
+  if (
+    normalized.includes("fallback")
+    || normalized.includes("mixed")
+    || normalized.includes("partial")
+  ) {
+    return formatProofConfidenceBuyerLabel({ structuralExecutionMode: StructuralExecutionModeWire.Mixed });
+  }
+
+  if (normalized.includes("simulator") || normalized.includes("demo")) {
+    return formatProofConfidenceBuyerLabel({ structuralExecutionMode: StructuralExecutionModeWire.Simulator });
+  }
+
+  if (normalized.includes("real") || normalized.includes("live")) {
+    return formatProofConfidenceBuyerLabel({ structuralExecutionMode: StructuralExecutionModeWire.Real });
+  }
+
+  return PROOF_CONFIDENCE_BUYER_LABELS.unknown;
 }

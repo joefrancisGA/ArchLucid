@@ -78,7 +78,7 @@ describe("resolveReviewDetailVisibleTabs", () => {
     }
   });
 
-  it("hides findings and signed record from the primary strip while drafting", () => {
+  it("keeps a consistent primary strip across lifecycle stages", () => {
     const resolved = resolveReviewDetailVisibleTabs({
       manifestId: null,
       showProgressTracker: false,
@@ -86,13 +86,17 @@ describe("resolveReviewDetailVisibleTabs", () => {
     });
 
     expect(resolved.stage).toBe("draft");
-    expect(resolved.visibleTabIds).toEqual(["overview", "evidence", "architecture", "activity"]);
-    expect(resolved.advancedCollapsedTabIds).toContain("findings");
-    expect(resolved.advancedCollapsedTabIds).toContain("review-package");
+    expect(resolved.visibleTabIds).toEqual(["overview", "findings", "evidence", "activity"]);
+    expect(resolved.advancedCollapsedTabIds).toEqual([
+      "policies",
+      "decisions-remediation",
+      "review-package",
+      "architecture",
+    ]);
     expect(resolved.defaultTabId).toBe("overview");
   });
 
-  it("promotes findings after analysis completes", () => {
+  it("promotes findings as the default tab after analysis completes", () => {
     const resolved = resolveReviewDetailVisibleTabs({
       manifestId: null,
       showProgressTracker: false,
@@ -104,7 +108,7 @@ describe("resolveReviewDetailVisibleTabs", () => {
     expect(resolved.defaultTabId).toBe("findings");
   });
 
-  it("promotes signed record and decisions after commit", () => {
+  it("keeps architecture package and decisions under More after commit", () => {
     const resolved = resolveReviewDetailVisibleTabs({
       manifestId: "manifest-1",
       showProgressTracker: false,
@@ -112,14 +116,13 @@ describe("resolveReviewDetailVisibleTabs", () => {
     });
 
     expect(resolved.stage).toBe("committed");
-    expect(resolved.visibleTabIds).toEqual([
-      "overview",
-      "findings",
-      "review-package",
+    expect(resolved.visibleTabIds).toEqual(["overview", "findings", "evidence", "activity"]);
+    expect(resolved.advancedCollapsedTabIds).toEqual([
+      "policies",
       "decisions-remediation",
-      "evidence",
+      "review-package",
+      "architecture",
     ]);
-    expect(resolved.advancedCollapsedTabIds).toEqual(["policies", "architecture", "activity"]);
     expect(resolved.defaultTabId).toBe("review-package");
   });
 });

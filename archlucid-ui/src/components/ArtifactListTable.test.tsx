@@ -78,13 +78,13 @@ describe("ArtifactListTable", () => {
     expect(screen.getByRole("columnheader", { name: "Generated" })).toBeInTheDocument();
     const deliverableTables = screen.getAllByRole("table");
     expect(deliverableTables[0]).toHaveClass("table-fixed");
-    expect(screen.getByRole("link", { name: "Open sponsor brief" })).toBeInTheDocument();
-    expect(screen.getByRole("link", { name: "Download sponsor brief" })).toBeInTheDocument();
+    expect(screen.getByRole("link", { name: "Open executive briefing" })).toBeInTheDocument();
+    expect(screen.getByRole("link", { name: "Download executive briefing" })).toBeInTheDocument();
     expect(screen.queryByRole("columnheader", { name: "Format" })).toBeNull();
 
     expect(screen.getByText(/Integrity fingerprints/)).toBeInTheDocument();
     expect(screen.getByText("SHA-256")).toBeInTheDocument();
-    expect(screen.getByRole("button", { name: /Copy fingerprint for Sponsor briefing/i })).toBeInTheDocument();
+    expect(screen.getByRole("button", { name: /Copy fingerprint for Executive briefing/i })).toBeInTheDocument();
   });
 
   it("sponsor mode with audienceSections groups rows under ordered audience headings", () => {
@@ -115,8 +115,8 @@ describe("ArtifactListTable", () => {
 
     const headings = screen.getAllByRole("heading", { level: 3 });
     expect(headings.map((heading) => heading.textContent)).toEqual([
-      "Executive & sponsor",
-      "Sponsor & architecture",
+      "Executive briefing",
+      "Executive & architecture",
       "Architecture review board",
       "Audit & compliance",
     ]);
@@ -142,7 +142,7 @@ describe("ArtifactListTable", () => {
       />,
     );
 
-    const preview = screen.getByRole("link", { name: "Open sponsor brief" });
+    const preview = screen.getByRole("link", { name: "Open executive briefing" });
     expect(preview.getAttribute("href")).toBe(signedRecordArtifactPath("manifest-1", "md"));
   });
 
@@ -150,14 +150,14 @@ describe("ArtifactListTable", () => {
     const row = {
       artifactId: "artifact-guid-md",
       artifactType: "MarkdownReport",
-      name: "Sponsor briefing — Claims Intake Modernization.md",
+      name: "Executive briefing — Claims Intake Modernization.md",
       format: "text/markdown",
       createdUtc: "2020-01-01T00:00:00Z",
       contentHash: "abcdef123456",
     };
     render(<ArtifactListTable manifestId="manifest-1" artifacts={[row]} sponsorMode />);
 
-    expect(screen.queryByText("Sponsor briefing — Claims Intake Modernization")).toBeNull();
+    expect(screen.queryByText("Executive briefing — Claims Intake Modernization")).toBeNull();
     expect(screen.getByRole("columnheader", { name: "Output" })).toBeInTheDocument();
   });
 
@@ -185,6 +185,6 @@ describe("ArtifactListTable", () => {
 
     expect(screen.queryByRole("heading", { name: "Architecture review board" })).toBeNull();
     expect(screen.queryByRole("heading", { name: "Audit & compliance" })).toBeNull();
-    expect(screen.getAllByRole("heading", { level: 3 }).map((h) => h.textContent)).toEqual(["Executive & sponsor"]);
+    expect(screen.getAllByRole("heading", { level: 3 }).map((h) => h.textContent)).toEqual(["Executive briefing"]);
   });
 });

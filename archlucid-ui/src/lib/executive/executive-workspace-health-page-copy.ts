@@ -2,6 +2,7 @@
 
 import { GOVERNANCE_APPROVAL_QUEUE_PATH, GOVERNANCE_AUDIT_PATH } from "@/lib/governance/governance-route-paths";
 import { inAppHelpHref } from "@/lib/product-documentation-registry";
+import { APPROVAL_GATE_LABEL } from "@/lib/usability/canonical-product-terms";
 
 export const EXECUTIVE_WORKSPACE_HEALTH_PAGE_TITLE_BUYER = "Workspace overview";
 
@@ -52,7 +53,7 @@ const EXECUTIVE_WORKSPACE_HEALTH_KPI_TITLES: Record<
   { buyer: string; operator: string }
 > = {
   preCommitOutcomes: {
-    buyer: "Pre-commit outcomes (30 days)",
+    buyer: `${APPROVAL_GATE_LABEL} outcomes (30 days)`,
     operator: "1. Pre-commit outcomes (30 days)",
   },
   highCriticalExposure: {
@@ -68,7 +69,7 @@ const EXECUTIVE_WORKSPACE_HEALTH_KPI_TITLES: Record<
     operator: "4. Approval SLA posture",
   },
   valueProxy: {
-    buyer: "Pre-commit blocks as value proxy",
+    buyer: `${APPROVAL_GATE_LABEL} blocks as value proxy`,
     operator: "5. Pre-commit blocks as value proxy",
   },
 };
