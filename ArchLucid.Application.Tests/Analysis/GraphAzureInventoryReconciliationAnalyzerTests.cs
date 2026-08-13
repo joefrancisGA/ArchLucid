@@ -83,4 +83,31 @@ public sealed class GraphAzureInventoryReconciliationAnalyzerTests
         result.GraphOnlyResourceIds.Should().ContainSingle().Which.Should().Be(graphResourceId.ToLowerInvariant());
         result.InventoryOnlyResourceIds.Should().ContainSingle().Which.Should().Be(inventoryResourceId.ToLowerInvariant());
     }
+
+    [Fact]
+    public void Analyze_returns_empty_when_resources_json_is_malformed()
+    {
+        GraphSnapshot graph = new()
+        {
+            Nodes =
+            [
+                new GraphNode
+                {
+                    NodeId = "t1",
+                    NodeType = GraphNodeTypes.TopologyResource,
+                    Label = "vm-graph",
+                    Properties = new Dictionary<string, string>
+                    {
+                        ["resourceId"] =
+                            "/subscriptions/sub/resourceGroups/rg/providers/Microsoft.Compute/virtualMachines/vm-graph"
+                    }
+                }
+            ]
+        };
+
+        InventoryReconciliationResult result =
+            GraphAzureInventoryReconciliationAnalyzer.Analyze("{not-json", graph);
+
+        result.HasMismatches.Should().BeFalse();
+    }
 }

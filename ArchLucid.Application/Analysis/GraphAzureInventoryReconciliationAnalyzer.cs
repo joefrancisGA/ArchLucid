@@ -78,27 +78,34 @@ public static class GraphAzureInventoryReconciliationAnalyzer
 
     private static HashSet<string> CollectInventoryResourceIds(string resourcesJson)
     {
-        using JsonDocument document = JsonDocument.Parse(resourcesJson);
-
-        if (document.RootElement.ValueKind is not JsonValueKind.Array)
-            return [];
-
-        HashSet<string> ids = new(StringComparer.OrdinalIgnoreCase);
-
-        foreach (JsonElement row in document.RootElement.EnumerateArray())
+        try
         {
-            if (!row.TryGetProperty("resourceId", out JsonElement idElement))
-                continue;
+            using JsonDocument document = JsonDocument.Parse(resourcesJson);
 
-            string? resourceId = idElement.GetString()?.Trim();
+            if (document.RootElement.ValueKind is not JsonValueKind.Array)
+                return [];
 
-            if (!LooksLikeArmResourceId(resourceId))
-                continue;
+            HashSet<string> ids = new(StringComparer.OrdinalIgnoreCase);
 
-            ids.Add(NormalizeArmResourceId(resourceId!));
+            foreach (JsonElement row in document.RootElement.EnumerateArray())
+            {
+                if (!row.TryGetProperty("resourceId", out JsonElement idElement))
+                    continue;
+
+                string? resourceId = idElement.GetString()?.Trim();
+
+                if (!LooksLikeArmResourceId(resourceId))
+                    continue;
+
+                ids.Add(NormalizeArmResourceId(resourceId!));
+            }
+
+            return ids;
         }
-
-        return ids;
+        catch (JsonException)
+        {
+            return [];
+        }
     }
 
     internal static bool LooksLikeArmResourceId(string? value)

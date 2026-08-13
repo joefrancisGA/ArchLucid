@@ -75,6 +75,41 @@ public sealed class GraphAzureInventoryReconciliationFindingEngineTests
         payload.InventoryOnlyResourceIds.Should().ContainSingle();
     }
 
+    [Fact]
+    public async Task AnalyzeAsync_returns_empty_when_package_bytes_are_not_a_valid_zip()
+    {
+        GraphSnapshot graph = new()
+        {
+            Nodes =
+            [
+                new GraphNode
+                {
+                    NodeId = "t1",
+                    NodeType = GraphNodeTypes.TopologyResource,
+                    Label = "vm-graph",
+                    Properties = new Dictionary<string, string>
+                    {
+                        ["resourceId"] =
+                            "/subscriptions/sub/resourceGroups/rg/providers/Microsoft.Compute/virtualMachines/vm-graph"
+                    }
+                }
+            ]
+        };
+
+        AzureExtractorPackageDownloadRecord package = new()
+        {
+            PackageId = Guid.NewGuid(),
+            OriginalFileName = "inventory.zip",
+            PackageBytes = [0x00, 0x01, 0x02, 0x03],
+        };
+
+        GraphAzureInventoryReconciliationFindingEngine sut = CreateSut(package);
+
+        IReadOnlyList<Finding> findings = await sut.AnalyzeAsync(graph, CancellationToken.None);
+
+        findings.Should().BeEmpty();
+    }
+
     private static GraphAzureInventoryReconciliationFindingEngine CreateSut(AzureExtractorPackageDownloadRecord package)
     {
         Mock<IAzureExtractorPackageRepository> packageRepository = new();

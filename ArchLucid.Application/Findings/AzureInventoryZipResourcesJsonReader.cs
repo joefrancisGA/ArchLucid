@@ -11,17 +11,24 @@ internal static class AzureInventoryZipResourcesJsonReader
         if (packageBytes is null || packageBytes.Length == 0)
             return null;
 
-        using MemoryStream stream = new(packageBytes);
-        using ZipArchive archive = new(stream, ZipArchiveMode.Read, leaveOpen: false);
-        ZipArchiveEntry? entry = archive.GetEntry("resources.json")
-                               ?? archive.Entries.FirstOrDefault(static e =>
-                                   e.Name.Equals("resources.json", StringComparison.OrdinalIgnoreCase));
+        try
+        {
+            using MemoryStream stream = new(packageBytes);
+            using ZipArchive archive = new(stream, ZipArchiveMode.Read, leaveOpen: false);
+            ZipArchiveEntry? entry = archive.GetEntry("resources.json")
+                                   ?? archive.Entries.FirstOrDefault(static e =>
+                                       e.Name.Equals("resources.json", StringComparison.OrdinalIgnoreCase));
 
-        if (entry is null)
+            if (entry is null)
+                return null;
+
+            using StreamReader reader = new(entry.Open(), Encoding.UTF8);
+
+            return reader.ReadToEnd();
+        }
+        catch (InvalidDataException)
+        {
             return null;
-
-        using StreamReader reader = new(entry.Open(), Encoding.UTF8);
-
-        return reader.ReadToEnd();
+        }
     }
 }
