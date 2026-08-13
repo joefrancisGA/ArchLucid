@@ -162,12 +162,12 @@ const PRODUCT_DOCUMENTATION_REGISTRY_INPUT: readonly ProductDocumentationRegistr
     sourcePaths: ["docs/library/customer-facing/FINDINGS_OPERATOR_GUIDE.md"],
   },
   {
-    slug: "executive-summary",
-    title: "Executive summary",
+    slug: "sponsor-report",
+    title: "Sponsor report",
     summary: "Sponsor-safe summaries, ROI basis labels, and what executives should expect in exports.",
     audience: "buyer",
     sourcePaths: [
-      "docs/go-to-market/EXECUTIVE_SPONSOR_BRIEF.md",
+      "docs/go-to-market/SPONSOR_BRIEF.md",
       "docs/go-to-market/PILOT_SUCCESS_SCORECARD.md",
     ],
     sectionAnchors: [
@@ -251,6 +251,17 @@ const PRODUCT_DOCUMENTATION_REGISTRY_INPUT: readonly ProductDocumentationRegistr
     lastReviewed: "2026-08-11",
     releaseApplicability:
       "Applies to in-product support intake, captured fields, and the redacted support bundle",
+  },
+  {
+    slug: "contact-support",
+    title: "Contact support",
+    summary:
+      "How to reach ArchLucid support — Report problem on error pages, email, troubleshooting, and redacted diagnostics bundles.",
+    audience: "operator",
+    sourcePaths: ["docs/library/customer-facing/CONTACT_SUPPORT.md"],
+    pdfStatus: "customer",
+    lastReviewed: "2026-08-13",
+    releaseApplicability: "Applies to in-product support discovery and escalation paths for all operator roles",
   },
   {
     slug: "data-handling",

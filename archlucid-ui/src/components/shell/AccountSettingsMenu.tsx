@@ -17,6 +17,7 @@ import { createPortal } from "react-dom";
 import { Button } from "@/components/ui/button";
 import { OPERATOR_TYPOGRAPHY } from "@/lib/design-tokens";
 import { SELF_SETTINGS_DESTINATIONS } from "@/lib/self-settings-destinations";
+import { OPERATOR_SHELL_GET_SUPPORT_MENU_ITEM } from "@/lib/operator/operator-shell-support-affordances";
 import { cn } from "@/lib/utils";
 
 export const ACCOUNT_SETTINGS_MENU_ARIA_LABEL = "Your account settings";
@@ -167,6 +168,31 @@ export function AccountSettingsMenu(): React.JSX.Element {
               </li>
             );
           })}
+        </ul>
+        <div className="my-2 border-t border-neutral-200 dark:border-neutral-700" role="separator" />
+        <ul className="m-0 list-none space-y-1 p-0">
+          <li className="m-0" role="none">
+            <Link
+              href={OPERATOR_SHELL_GET_SUPPORT_MENU_ITEM.href}
+              role="menuitem"
+              aria-current={pathname === OPERATOR_SHELL_GET_SUPPORT_MENU_ITEM.href ? "page" : undefined}
+              data-testid={`account-settings-menu-item-${OPERATOR_SHELL_GET_SUPPORT_MENU_ITEM.id}`}
+              onClick={closeMenu}
+              className={cn(
+                "block rounded-md px-2 py-1.5 no-underline hover:bg-neutral-100 dark:hover:bg-neutral-800",
+                pathname === OPERATOR_SHELL_GET_SUPPORT_MENU_ITEM.href
+                  ? "bg-neutral-100 dark:bg-neutral-800"
+                  : undefined,
+              )}
+            >
+              <span className={cn("block font-medium text-al-text-primary", OPERATOR_TYPOGRAPHY.body)}>
+                {OPERATOR_SHELL_GET_SUPPORT_MENU_ITEM.title}
+              </span>
+              <span className={cn("block text-al-text-secondary", OPERATOR_TYPOGRAPHY.helper)}>
+                {OPERATOR_SHELL_GET_SUPPORT_MENU_ITEM.description}
+              </span>
+            </Link>
+          </li>
         </ul>
       </div>
     ) : null;

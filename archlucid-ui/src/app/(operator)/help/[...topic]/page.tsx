@@ -8,17 +8,17 @@ import { CaiqSigResponseHelpEvidenceOrientationStrip } from "@/components/help/C
 import { ScopeHelpCurrentScopePanel } from "@/components/help/ScopeHelpCurrentScopePanel";
 import { ScopeHelpEvidenceOrientationStrip } from "@/components/help/ScopeHelpEvidenceOrientationStrip";
 import { IntegrationReadinessHelpEvidenceOrientationStrip } from "@/components/help/IntegrationReadinessHelpEvidenceOrientationStrip";
-import { AuthenticationSignInHelpEvidenceOrientationStrip } from "@/components/help/AuthenticationSignInHelpEvidenceOrientationStrip";
 import { SecurityTrustHelpEvidenceOrientationStrip } from "@/components/help/SecurityTrustHelpEvidenceOrientationStrip";
 import { SubprocessorsHelpEvidenceOrientationStrip } from "@/components/help/SubprocessorsHelpEvidenceOrientationStrip";
 import { ReportProblemHelpOrientationStack } from "@/components/help/ReportProblemHelpOrientationStack";
+import { ContactSupportHelpOrientationStack } from "@/components/help/ContactSupportHelpOrientationStack";
 import { HelpSubprocessorsHeaderMetadata } from "@/app/(operator)/help/_sections/HelpSubprocessorsHeaderMetadata";
 import { HelpTopicAuthorityGate } from "../_sections/HelpTopicAuthorityGate";
 import { HelpTopicMarkdownClient } from "../_sections/HelpTopicMarkdownClient";
 import { HelpTopicNotFoundView } from "../_sections/HelpTopicNotFoundView";
 import { principalCanAccessHelpTopic } from "@/lib/product-documentation-access";
 import { BILLING_AND_PLANS_HELP_ROUTE_METADATA } from "@/lib/billing-and-plans-help-route-metadata";
-import { EXECUTIVE_SUMMARY_HELP_ROUTE_METADATA } from "@/lib/executive/executive-summary-help-route-metadata";
+import { SPONSOR_SUMMARY_HELP_ROUTE_METADATA } from "@/lib/sponsor/sponsor-report-help-route-metadata";
 import { FINDINGS_HELP_ROUTE_METADATA } from "@/lib/findings/findings-help-route-metadata";
 import { FIRST_ARCHITECTURE_REVIEW_HELP_ROUTE_METADATA } from "@/lib/first-architecture-review-help-route-metadata";
 import { GOVERNANCE_APPROVAL_HELP_ROUTE_METADATA } from "@/lib/governance/governance-approval-help-route-metadata";
@@ -108,14 +108,19 @@ const HelpWorkspaceSettingsGuideView = dynamic(() =>
 const HelpAdminDiagnosticsGuideView = dynamic(() =>
   import("../_sections/HelpAdminDiagnosticsGuideView").then((module) => module.HelpAdminDiagnosticsGuideView),
 );
+const HelpAuthenticationSignInGuideView = dynamic(() =>
+  import("../_sections/HelpAuthenticationSignInGuideView").then(
+    (module) => module.HelpAuthenticationSignInGuideView,
+  ),
+);
 const HelpApiContractsGuideView = dynamic(() =>
   import("../_sections/HelpApiContractsGuideView").then((module) => module.HelpApiContractsGuideView),
 );
 const HelpBillingAndPlansGuideView = dynamic(() =>
   import("../_sections/HelpBillingAndPlansGuideView").then((module) => module.HelpBillingAndPlansGuideView),
 );
-const HelpExecutiveSummaryGuideView = dynamic(() =>
-  import("../_sections/HelpExecutiveSummaryGuideView").then((module) => module.HelpExecutiveSummaryGuideView),
+const HelpSponsorSummaryGuideView = dynamic(() =>
+  import("../_sections/HelpSponsorSummaryGuideView").then((module) => module.HelpSponsorSummaryGuideView),
 );
 const HelpFindingsGuideView = dynamic(() =>
   import("../_sections/HelpFindingsGuideView").then((module) => module.HelpFindingsGuideView),
@@ -387,8 +392,8 @@ function renderHelpTopicView(
     return <HelpBillingAndPlansGuideView entry={loaded.entry} />;
   }
 
-  if (loaded.entry.slug === "executive-summary") {
-    return <HelpExecutiveSummaryGuideView entry={loaded.entry} markdown={loaded.markdown} />;
+  if (loaded.entry.slug === "sponsor-report") {
+    return <HelpSponsorSummaryGuideView entry={loaded.entry} markdown={loaded.markdown} />;
   }
 
   if (loaded.entry.slug === "findings") {
@@ -524,14 +529,7 @@ function renderHelpTopicView(
   }
 
   if (loaded.entry.slug === "authentication-sign-in") {
-    return (
-      <HelpTopicMarkdownView
-        entry={loaded.entry}
-        markdown={loaded.markdown}
-        showContextualHelp
-        evidenceOrientation={<AuthenticationSignInHelpEvidenceOrientationStrip />}
-      />
-    );
+    return <HelpAuthenticationSignInGuideView entry={loaded.entry} markdown={loaded.markdown} />;
   }
 
   if (loaded.entry.slug === "azure-boards") {
@@ -563,6 +561,17 @@ function renderHelpTopicView(
         markdown={loaded.markdown}
         showContextualHelp
         evidenceOrientation={<ReportProblemHelpOrientationStack />}
+      />
+    );
+  }
+
+  if (loaded.entry.slug === "contact-support") {
+    return (
+      <HelpTopicMarkdownView
+        entry={loaded.entry}
+        markdown={loaded.markdown}
+        showContextualHelp
+        evidenceOrientation={<ContactSupportHelpOrientationStack />}
       />
     );
   }
@@ -670,8 +679,8 @@ export async function generateMetadata(props: HelpTopicPageProps): Promise<Metad
     return BILLING_AND_PLANS_HELP_ROUTE_METADATA;
   }
 
-  if (entry.slug === "executive-summary") {
-    return EXECUTIVE_SUMMARY_HELP_ROUTE_METADATA;
+  if (entry.slug === "sponsor-report") {
+    return SPONSOR_SUMMARY_HELP_ROUTE_METADATA;
   }
 
   if (entry.slug === "findings") {

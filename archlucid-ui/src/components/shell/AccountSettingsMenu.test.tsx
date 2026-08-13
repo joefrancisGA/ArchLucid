@@ -28,6 +28,7 @@ import {
   SETTINGS_ACCOUNT_SECURITY_PATH,
   SETTINGS_PREFERENCES_PATH,
 } from "@/lib/settings-admin-route-paths";
+import { OPERATOR_SHELL_GET_SUPPORT_MENU_ITEM } from "@/lib/operator/operator-shell-support-affordances";
 
 import {
   AccountSettingsMenu,
@@ -55,6 +56,10 @@ describe("AccountSettingsMenu", () => {
     expect(screen.getByTestId("account-settings-menu-item-account-security")).toHaveAttribute(
       "href",
       SETTINGS_ACCOUNT_SECURITY_PATH,
+    );
+    expect(screen.getByTestId(`account-settings-menu-item-${OPERATOR_SHELL_GET_SUPPORT_MENU_ITEM.id}`)).toHaveAttribute(
+      "href",
+      OPERATOR_SHELL_GET_SUPPORT_MENU_ITEM.href,
     );
   });
 

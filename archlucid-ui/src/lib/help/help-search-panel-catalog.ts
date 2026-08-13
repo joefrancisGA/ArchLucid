@@ -30,7 +30,7 @@ export const HELP_SEARCH_PANEL_DO_THIS_NOW_HEADING = "Do this now" as const;
  * Footer label for the guides troubleshooting tab. Names the destination (guides plus a
  * diagnostic bundle) rather than promising a contact channel the button does not open.
  */
-export const HELP_SEARCH_PANEL_SUPPORT_FOOTER_LABEL = "Support and troubleshooting" as const;
+export const HELP_SEARCH_PANEL_SUPPORT_FOOTER_LABEL = "Contact support" as const;
 
 /** Summary shown when the onboarding group is collapsed on a signed-in product surface. */
 export const HELP_SEARCH_PANEL_START_HERE_COLLAPSED_SUMMARY = "New to ArchLucid?" as const;
@@ -290,7 +290,7 @@ const TROUBLESHOOTING_TOPICS: readonly HelpSearchPanelTopic[] = [
     title: HELP_SEARCH_PANEL_SUPPORT_FOOTER_LABEL,
     description: "Troubleshooting guides, support email, and a downloadable diagnostic bundle.",
     keywords: ["support", "contact", "bundle", "diagnostics", "ticket"],
-    action: { kind: "guides-panel", tab: "troubleshooting" },
+    action: { kind: "route", href: "/help/contact-support", helpSlug: "contact-support" },
   },
 ];
 

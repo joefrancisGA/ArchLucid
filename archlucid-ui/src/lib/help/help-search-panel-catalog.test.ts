@@ -205,8 +205,13 @@ describe("help-search-panel-catalog", () => {
   it("names the support footer action after the destination it opens", () => {
     const supportTopic = listHelpSearchPanelTopics(false).find((topic) => topic.id === "contact-support");
 
-    expect(HELP_SEARCH_PANEL_SUPPORT_FOOTER_LABEL).toBe("Support and troubleshooting");
+    expect(HELP_SEARCH_PANEL_SUPPORT_FOOTER_LABEL).toBe("Contact support");
     expect(supportTopic?.title).toBe(HELP_SEARCH_PANEL_SUPPORT_FOOTER_LABEL);
+    expect(supportTopic?.action).toEqual({
+      kind: "route",
+      href: "/help/contact-support",
+      helpSlug: "contact-support",
+    });
   });
 
   it("exposes a report-a-problem topic for defect intake", () => {

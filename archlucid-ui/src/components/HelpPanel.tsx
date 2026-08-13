@@ -37,6 +37,7 @@ import {
 import { SIGNED_MANIFEST_LABEL } from "@/lib/usability/canonical-product-terms";
 import { OPERATOR_LINK, OPERATOR_NAV_GROUP_LABEL, OPERATOR_TYPOGRAPHY } from "@/lib/design-tokens";
 import { SupportBundleDownloadButton } from "@/components/SupportBundleDownloadButton";
+import { OperatorShellSupportQuickLinks } from "@/components/help/OperatorShellSupportQuickLinks";
 import { Button } from "@/components/ui/button";
 import { DismissControl } from "@/components/usability/DismissControl";
 
@@ -431,7 +432,8 @@ export function HelpPanel({ open, onOpenChange, initialTab = "guides" }: HelpPan
           </div>
         </Tabs>
 
-        <footer className="shrink-0 border-t border-neutral-100 px-5 py-3 dark:border-neutral-800">
+        <footer className="shrink-0 space-y-2 border-t border-neutral-100 px-5 py-3 dark:border-neutral-800">
+          <OperatorShellSupportQuickLinks onNavigate={() => onOpenChange(false)} />
           <p className={cn("m-0 text-neutral-500 dark:text-neutral-400", OPERATOR_TYPOGRAPHY.helper)}>
             In-app:{" "}
             <Link href="/architecture/first-review-guide" className={OPERATOR_LINK.nav} onClick={() => onOpenChange(false)}>
