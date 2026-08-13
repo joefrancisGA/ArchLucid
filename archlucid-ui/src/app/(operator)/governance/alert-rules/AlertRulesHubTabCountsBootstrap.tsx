@@ -9,6 +9,7 @@ import {
 } from "@/components/alerts/use-alert-rules-hub-queries";
 import { useAlertRulesHubRefresh } from "@/lib/alerts-hub-refresh-context";
 import { latestAlertRulesConfigChange } from "@/lib/alert-rules-config-change";
+import { latestCompositeAlertRulesConfigChange } from "@/lib/composite-alert-rules-config-change";
 
 /**
  * Keeps hub tab counts and rules provenance accurate even when the operator lands on
@@ -45,7 +46,11 @@ export function AlertRulesHubTabCountsBootstrap(): null {
       return;
     }
 
-    reportTabLoaded("advanced-rules", compositeQuery.items.length);
+    reportTabLoaded(
+      "advanced-rules",
+      compositeQuery.items.length,
+      latestCompositeAlertRulesConfigChange(compositeQuery.items),
+    );
   }, [compositeQuery.failure, compositeQuery.items, compositeQuery.loading, reportTabLoaded]);
 
   return null;

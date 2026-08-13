@@ -13,7 +13,7 @@ import {
 
 describe("alert-rule-conditions-copy", () => {
   it("keeps alert-rule noun alignment across tab, section, and empty titles", () => {
-    expect(ALERT_RULES_TAB_LABEL).toBe("Alert rules");
+    expect(ALERT_RULES_TAB_LABEL).toBe("Conditions");
     expect(ALERT_RULES_SECTION_HEADING).toBe(ALERT_RULES_TAB_LABEL);
     expect(ALERT_RULES_LIST_HEADING).toBe("Configured alert rules");
     expect(ALERT_RULES_LIST_EMPTY_TITLE).toBe("No alert rules yet");

@@ -62,6 +62,7 @@ describe("composite-alert-rules-labels", () => {
     expect(formatCompositeAlertRuleSummary(sampleRule)).toContain("All conditions (AND)");
     expect(formatCompositeAlertRuleSummary(sampleRule)).toContain("Alert priority: High");
     expect(formatCompositeAlertRuleSummary(sampleRule)).toContain("Dedupe: Rule + review");
+    expect(formatCompositeAlertRuleSummary(sampleRule)).toContain("Created");
     expect(formatCompositeAlertRuleSummary(sampleRule)).not.toContain("GreaterThanOrEqual");
     expect(formatCompositeAlertRuleSummary(sampleRule)).not.toContain("RuleAndRun");
     expect(formatCompositeAlertRuleSummary(sampleRule)).not.toContain("Enabled:");

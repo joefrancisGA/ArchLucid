@@ -455,6 +455,29 @@ export const policyPacksAssignButtonLabelReaderRank = "Assign (architect permiss
 export const governanceWorkflowSubmitCardDescriptionReader =
   "Submitting requests requires approver rights in this workspace. You can still review the workflow below.";
 
+/** Canonical noun for composite-rules tab, section headings, and empty titles (GOA P0-6). */
+export const COMPOSITE_RULES_NOUN = "composite rules";
+
+/** Hub tab label for `?tab=advanced-rules` — URL param unchanged. */
+export const COMPOSITE_RULES_TAB_LABEL = "Composite rules";
+
+/** Header metadata when the workspace has never persisted a composite rule. */
+export const COMPOSITE_RULES_CONFIG_NEVER_CONFIGURED_LABEL =
+  "Composite rules never configured in this workspace";
+
+/** List-row disclosure — composite rules API is create-only (GOA P0-2). */
+export const COMPOSITE_RULES_CREATE_ONLY_DISCLOSURE =
+  "Composite rules are create-only on the API — you cannot disable or delete them from this workspace after creation.";
+
+/** Empty-state worked example before the create form opens (GOA P0-5). */
+export const COMPOSITE_RULES_EMPTY_EXAMPLE_HEADING = "Example pairing";
+
+export const COMPOSITE_RULES_EMPTY_EXAMPLE_BODY =
+  "Cost increase % ≥ 10 AND new compliance gap count ≥ 1 — fires only when both signals align.";
+
+/** Secondary empty-state action — link to the Conditions tab (GOA P0-5). */
+export const COMPOSITE_RULES_CONDITIONS_TAB_LINK_LABEL = "Open Conditions tab";
+
 /** Composite alert rules — empty “Current composite rules” list. */
 export const compositeRulesDefinedListEmptyReaderLine =
   "No composite rules yet. Inspect definitions; writes require elevated permissions on the API.";
@@ -477,9 +500,9 @@ export const compositeRulesPageLeadReader =
   "Inspect definitions above; new composite rules need Execute+ on the API at this rank.";
 
 /** Composite — current list heading (mirrors simple alert rules pattern). */
-export const compositeRulesCurrentRulesHeadingOperator = "Current composite rules";
+export const compositeRulesCurrentRulesHeadingOperator = `Current ${COMPOSITE_RULES_NOUN}`;
 
-export const compositeRulesCurrentRulesHeadingReader = "Current composite rules (inspect)";
+export const compositeRulesCurrentRulesHeadingReader = `Current ${COMPOSITE_RULES_NOUN} (inspect)`;
 
 /** Composite — reader assist next to **Refresh** (GET list only). */
 export const compositeRulesRefreshAssistReaderLine =

@@ -1,4 +1,5 @@
 import { alertRuleActiveStatusLabel, labelForAlertPriority } from "@/lib/alert-rule-conditions";
+import { formatInstantForLocale } from "@/lib/locale-datetime";
 import type { EnterpriseStatusKind } from "@/lib/design-tokens";
 import type { CompositeAlertRule, CompositeAlertRuleCondition } from "@/types/composite-alert-rules";
 
@@ -80,10 +81,28 @@ export function formatCompositeAlertConditionSummary(condition: CompositeAlertRu
   return `${metricLabel} ${operatorLabel} ${condition.thresholdValue}`;
 }
 
+function formatCompositeAlertRuleCreatedLabel(createdUtc: string | null | undefined): string | null {
+  const trimmed = createdUtc?.trim() ?? "";
+
+  if (trimmed.length === 0) {
+    return null;
+  }
+
+  const formatted = formatInstantForLocale(trimmed);
+
+  if (formatted === "—") {
+    return null;
+  }
+
+  return `Created ${formatted}`;
+}
+
 export function formatCompositeAlertRuleSummary(rule: CompositeAlertRule): string {
   const joinLabel = labelForCompositeJoinOperator(rule.operator);
   const priorityLabel = labelForAlertPriority(rule.severity);
   const dedupeLabel = labelForCompositeDedupeScope(rule.dedupeScope);
+  const createdLabel = formatCompositeAlertRuleCreatedLabel(rule.createdUtc);
+  const createdSegment = createdLabel !== null ? ` · ${createdLabel}` : "";
 
-  return `Combine: ${joinLabel} · Alert priority: ${priorityLabel} · Suppression: ${rule.suppressionWindowMinutes} min · Cooldown: ${rule.cooldownMinutes} min · Dedupe: ${dedupeLabel}`;
+  return `Combine: ${joinLabel} · Alert priority: ${priorityLabel} · Suppression: ${rule.suppressionWindowMinutes} min · Cooldown: ${rule.cooldownMinutes} min · Dedupe: ${dedupeLabel}${createdSegment}`;
 }

@@ -38,15 +38,15 @@ function Probe(): React.JSX.Element {
 }
 
 describe("alerts-hub-refresh-context", () => {
-  it("initializes all hub tab counts to zero", () => {
+  it("initializes hub tab counts unset until a tab reports load", () => {
     render(
       <AlertRulesHubRefreshProvider activeTab="rules">
         <Probe />
       </AlertRulesHubRefreshProvider>,
     );
 
-    expect(screen.getByTestId("tab-count")).toHaveTextContent("0");
-    expect(screen.getByTestId("test-alerts-count")).toHaveTextContent("0");
+    expect(screen.getByTestId("tab-count")).toHaveTextContent("unset");
+    expect(screen.getByTestId("test-alerts-count")).toHaveTextContent("unset");
   });
 
   it("stamps freshness and tab counts when the active tab reports a successful load", () => {

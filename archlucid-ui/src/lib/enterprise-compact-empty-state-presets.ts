@@ -15,6 +15,7 @@ import {
 } from "@/lib/alert-rule-conditions-copy";
 import {
   COMPOSITE_RULES_LIST_EMPTY_BODY,
+  COMPOSITE_RULES_NOUN,
 } from "@/lib/enterprise-controls-context-copy";
 import {
   ADVISORY_SCANS_SCHEDULES_EMPTY_BODY,
@@ -392,7 +393,7 @@ export const ALERT_RULES_LIST_EMPTY_COMPACT: EnterpriseCompactEmptyStateProps = 
 
 /** Composite alert rules tab when no composite rules exist yet (TB-1555 hub-zone preset). */
 export const COMPOSITE_RULES_LIST_EMPTY_COMPACT: EnterpriseCompactEmptyStateProps = buildOperatorHubZoneEmptyCompact(
-  "composite alert rules",
+  COMPOSITE_RULES_NOUN,
   {
     testId: "composite-alert-rules-empty",
     description: COMPOSITE_RULES_LIST_EMPTY_BODY,

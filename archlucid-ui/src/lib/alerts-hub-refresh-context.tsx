@@ -16,23 +16,17 @@ import type { AlertRulesConfigChange } from "@/lib/alert-rules-config-change";
 
 type TabLoader = () => Promise<void>;
 
-const INITIAL_TAB_COUNTS: Record<AlertRulesHubTabId, number> = {
-  rules: 0,
-  notifications: 0,
-  "advanced-rules": 0,
-  "test-alerts": 0,
-};
-
 type AlertRulesHubRefreshContextValue = {
   readonly refreshing: boolean;
   readonly lastRefreshedAt: Date | null;
   readonly tabCounts: Partial<Record<AlertRulesHubTabId, number>>;
   readonly rulesConfigChange: AlertRulesConfigChange | null;
+  readonly compositeRulesConfigChange: AlertRulesConfigChange | null;
   readonly requestRefresh: () => void;
   readonly reportTabLoaded: (
     tabId: AlertRulesHubTabId,
     itemCount?: number,
-    rulesConfigChange?: AlertRulesConfigChange | null,
+    configChange?: AlertRulesConfigChange | null,
   ) => void;
   readonly registerTabLoader: (tabId: AlertRulesHubTabId, loader: TabLoader) => () => void;
 };
@@ -49,8 +43,9 @@ export function AlertRulesHubRefreshProvider(props: AlertRulesHubRefreshProvider
   const loadersRef = useRef<Partial<Record<AlertRulesHubTabId, TabLoader>>>({});
   const [refreshing, setRefreshing] = useState(false);
   const [lastRefreshedAt, setLastRefreshedAt] = useState<Date | null>(null);
-  const [tabCounts, setTabCounts] = useState<Partial<Record<AlertRulesHubTabId, number>>>(INITIAL_TAB_COUNTS);
+  const [tabCounts, setTabCounts] = useState<Partial<Record<AlertRulesHubTabId, number>>>({});
   const [rulesConfigChange, setRulesConfigChange] = useState<AlertRulesConfigChange | null>(null);
+  const [compositeRulesConfigChange, setCompositeRulesConfigChange] = useState<AlertRulesConfigChange | null>(null);
 
   // Freshness is per active tab — clear when the operator switches so the header does not
   // show another tab's stamp.
@@ -72,7 +67,7 @@ export function AlertRulesHubRefreshProvider(props: AlertRulesHubRefreshProvider
     (
       tabId: AlertRulesHubTabId,
       itemCount?: number,
-      nextRulesConfigChange?: AlertRulesConfigChange | null,
+      nextConfigChange?: AlertRulesConfigChange | null,
     ) => {
       if (itemCount !== undefined) {
         setTabCounts((current) => {
@@ -86,8 +81,12 @@ export function AlertRulesHubRefreshProvider(props: AlertRulesHubRefreshProvider
         });
       }
 
-      if (tabId === "rules" && nextRulesConfigChange !== undefined) {
-        setRulesConfigChange(nextRulesConfigChange);
+      if (tabId === "rules" && nextConfigChange !== undefined) {
+        setRulesConfigChange(nextConfigChange);
+      }
+
+      if (tabId === "advanced-rules" && nextConfigChange !== undefined) {
+        setCompositeRulesConfigChange(nextConfigChange);
       }
 
       if (tabId !== props.activeTab) {
@@ -123,6 +122,7 @@ export function AlertRulesHubRefreshProvider(props: AlertRulesHubRefreshProvider
       lastRefreshedAt,
       tabCounts,
       rulesConfigChange,
+      compositeRulesConfigChange,
       requestRefresh,
       reportTabLoaded,
       registerTabLoader,
@@ -134,6 +134,7 @@ export function AlertRulesHubRefreshProvider(props: AlertRulesHubRefreshProvider
       reportTabLoaded,
       requestRefresh,
       rulesConfigChange,
+      compositeRulesConfigChange,
       tabCounts,
     ],
   );
