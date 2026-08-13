@@ -9,18 +9,6 @@ import { PRODUCT_LEARNING_PATH } from "@/lib/product-learning-route";
 
 export const INSIGHTS_CONTEXTUAL_HELP_ROWS: readonly PageContextualHelpRow[] = [
   {
-    prefix: "/insights/architecture-scorecard",
-    entry: {
-      whatIsThisPage:
-        "Architecture scorecard — workspace throughput tiles and a directional review-time savings model for pilot discussions.",
-      whatToDoNext:
-        "Finalize reviews to populate tiles, then tune ROI assumptions or open ROI summary for sponsor exports.",
-      whyEmpty: "Tiles stay empty until you finalize architecture reviews in this workspace.",
-      whereToConfigurePrerequisite:
-        "Save ROI assumptions on this page when you have Execute authority, or use workspace baseline settings.",
-    },
-  },
-  {
     prefix: EXECUTIVE_DASHBOARD_HREF,
     entry: {
       whatIsThisPage:
@@ -143,22 +131,10 @@ export const INSIGHTS_CONTEXTUAL_HELP_ROWS: readonly PageContextualHelpRow[] = [
     prefix: "/insights/executive-summary",
     entry: {
       whatIsThisPage:
-        "Sponsor executive summary — period preview of finalized reviews, findings, governance activity, and directional ROI for exports.",
+        "Executive value report — period preview of finalized reviews, findings, governance activity, and directional ROI for exports.",
       whatToDoNext: "Set the report period, refresh the preview, then generate sponsor exports when data is ready.",
       whyEmpty: "The preview fills in after you finalize reviews in the selected period.",
       whereToConfigurePrerequisite: "ROI estimates use baseline settings from workspace configuration.",
-    },
-  },
-  {
-    prefix: "/insights/pilot-outcomes",
-    entry: {
-      whatIsThisPage:
-        "Pilot outcomes — period summary of finalized review activity, material findings, governance decisions, and measurable pilot results.",
-      whatToDoNext:
-        "Set the reporting period, apply it, then open Executive summary or ROI summary when you need sibling sponsor packaging.",
-      whyEmpty: "Outcomes fill in after you finalize architecture reviews in the selected period.",
-      whereToConfigurePrerequisite:
-        "Report windows use the current tenant, workspace, and project selected in the shell header.",
     },
   },
 ];

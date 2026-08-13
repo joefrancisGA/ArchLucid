@@ -26,9 +26,9 @@ describe("architecture-scorecard Insights regressions (TB-1960)", () => {
   it("contextual help maps architecture scorecard label to the page (TB-1959)", () => {
     const topic = pageHelpTopicForPathname(SPONSOR_REPORT_ARCHITECTURE_SCORECARD_PATH);
 
-    expect(topic?.slug).toBe("executive-summary");
-    expect(topic?.hashFragment).toBe("pilot-roi-measurement");
-    expect(topic?.label).toBe("Architecture scorecard");
+    expect(topic?.slug).toBe("architecture-scorecard");
+    expect(topic?.hashFragment).toBeUndefined();
+    expect(topic?.label).toBe("How architecture scorecards work");
   });
 
   it("empty primary CTA uses buyer Start architecture review label (TB-1958)", () => {

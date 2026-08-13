@@ -93,6 +93,7 @@ describe("contextual-help-registry (TB-733)", () => {
       "/insights/executive-summary",
       "/insights/pilot-outcomes",
       "/insights/roi-summary",
+      "/sponsor-report/pilot-outcomes",
       "/sponsor-report/roi-summary",
       "/governance/alert-rules",
       "/governance/approval-queue",
@@ -120,6 +121,10 @@ describe("contextual-help-registry (TB-733)", () => {
       "/help/procurement",
       "/help/recurrence-schedules",
       "/help/roi-summary",
+      "/help/pilot-outcomes",
+      "/help/architecture-scorecard",
+      "/help/connection-status",
+      "/help/standards-and-rules",
       "/help/scope",
       "/help/audit-trail",
       "/help/evidence-trail",
@@ -204,7 +209,7 @@ describe("contextual-help-registry (TB-733)", () => {
     );
     expect(contextualHelpForPathname("/governance/findings?filter=open")?.whatToDoNext).toContain("Assign owners");
     expect(contextualHelpForPathname("/insights/executive-summary")?.whatIsThisPage).toContain(
-      "Sponsor executive summary",
+      "Executive value report",
     );
     expect(contextualHelpForPathname("/insights/improvement-planning/plans/plan-1")?.whatIsThisPage).toContain("one prioritized improvement plan");
   });
@@ -644,13 +649,13 @@ describe("contextual-help-registry (TB-733)", () => {
 
   it("resolves sponsor executive summary Category-1 help (SPE)", () => {
     expect(contextualHelpForPathname("/insights/executive-summary")?.whatIsThisPage).toContain(
-      "Sponsor executive summary",
+      "Executive value report",
     );
   });
 
   it("resolves pilot outcomes Category-1 help (SPP)", () => {
     expect(contextualHelpForPathname("/insights/pilot-outcomes")?.whatIsThisPage).toContain("Pilot outcomes");
-    expect(contextualHelpForPathname("/insights/pilot-outcomes")?.whatToDoNext).toContain("reporting period");
+    expect(contextualHelpForPathname("/insights/pilot-outcomes")?.whatToDoNext).toContain("Executive value report");
     expect(contextualHelpForPathname("/insights/roi-summary")?.whatIsThisPage).toContain("Portfolio KPI");
     expect(contextualHelpForPathname("/insights/roi-summary")?.whatToDoNext).toContain("rolling 30-day");
   });
@@ -668,7 +673,8 @@ describe("contextual-help-registry (TB-733)", () => {
 
     expect(entry?.whatIsThisPage).toContain("Connection status");
     expect(entry?.whatToDoNext).toContain("System health");
-    expect(entry?.whatToDoNextAction?.href).toBe("/administration/system-health");
+    expect(entry?.whatToDoNextAction?.href).toBe("/integrations/cloud-connections");
+    expect(entry?.whereToConfigureAction?.href).toBe("/administration/system-health");
   });
 
   it("resolves Internal developer tools Category-1 help (SDX)", () => {

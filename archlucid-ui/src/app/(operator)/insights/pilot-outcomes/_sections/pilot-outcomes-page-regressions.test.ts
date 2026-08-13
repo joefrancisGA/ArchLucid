@@ -13,7 +13,7 @@ describe("pilot-outcomes sponsor-report regressions (TB-1970)", () => {
     expect(PILOT_OUTCOMES_TRAFFIC_PATH).toBe(SPONSOR_REPORT_PILOT_OUTCOMES_PATH);
   });
 
-  it("contextual help maps pilot outcomes under sponsor-report (TB-1968)", () => {
-    expect(pageHelpTopicForPathname(SPONSOR_REPORT_PILOT_OUTCOMES_PATH)?.slug).toBe("executive-summary");
+  it("contextual help maps pilot outcomes to pilot-outcomes specialty guide (TB-1968)", () => {
+    expect(pageHelpTopicForPathname(SPONSOR_REPORT_PILOT_OUTCOMES_PATH)?.slug).toBe("pilot-outcomes");
   });
 });

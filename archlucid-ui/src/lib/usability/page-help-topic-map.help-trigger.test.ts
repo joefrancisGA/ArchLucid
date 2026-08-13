@@ -9,7 +9,6 @@ import { BASELINE_SETTINGS_PAGE_TITLE } from "@/lib/baseline-settings-present";
 import { BUYER_ONBOARDING_PAGE_TITLE } from "@/lib/buyer/buyer-polish-copy";
 import { OPERATOR_NAV_LINK_LABELS } from "@/lib/i18n";
 import { OPERATOR_HOME_PAGE_TITLE } from "@/lib/operator/operator-home-page-copy";
-import { STANDARDS_RULES_PAGE_TITLE } from "@/lib/standards-rules-page";
 import { SYSTEM_HEALTH_PAGE_TITLE } from "@/lib/system-health-page-copy";
 import { pageHelpTopicForPathname } from "@/lib/usability/page-help-topic-map";
 
@@ -30,11 +29,6 @@ const PAGE_HELP_TITLE_COLLISION_SURFACES: ReadonlyArray<{
     pathname: "/governance/alert-rules",
     pageTitle: ALERTS_CONFIGURATION_PAGE_TITLE,
     modulePath: "app/(operator)/governance/alert-rules/AlertRulesPageHeader.tsx",
-  },
-  {
-    pathname: "/governance/standards-and-rules",
-    pageTitle: STANDARDS_RULES_PAGE_TITLE,
-    modulePath: "app/(operator)/governance/standards-and-rules/_sections/GovernanceResolutionPageView.tsx",
   },
   {
     pathname: "/administration/api-keys",

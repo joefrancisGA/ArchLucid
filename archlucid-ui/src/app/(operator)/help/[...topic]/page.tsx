@@ -63,6 +63,18 @@ const HelpRecurrenceSchedulesGuideView = dynamic(() =>
 const HelpRoiSummaryGuideView = dynamic(() =>
   import("../_sections/HelpRoiSummaryGuideView").then((module) => module.HelpRoiSummaryGuideView),
 );
+const HelpPilotOutcomesGuideView = dynamic(() =>
+  import("../_sections/HelpPilotOutcomesGuideView").then((module) => module.HelpPilotOutcomesGuideView),
+);
+const HelpArchitectureScorecardGuideView = dynamic(() =>
+  import("../_sections/HelpArchitectureScorecardGuideView").then((module) => module.HelpArchitectureScorecardGuideView),
+);
+const HelpConnectionStatusGuideView = dynamic(() =>
+  import("../_sections/HelpConnectionStatusGuideView").then((module) => module.HelpConnectionStatusGuideView),
+);
+const HelpStandardsRulesGuideView = dynamic(() =>
+  import("../_sections/HelpStandardsRulesGuideView").then((module) => module.HelpStandardsRulesGuideView),
+);
 const HelpAdminDiagnosticsGuideView = dynamic(() =>
   import("../_sections/HelpAdminDiagnosticsGuideView").then((module) => module.HelpAdminDiagnosticsGuideView),
 );
@@ -273,6 +285,22 @@ function renderHelpTopicView(
 
   if (loaded.entry.slug === "roi-summary") {
     return <HelpRoiSummaryGuideView entry={loaded.entry} />;
+  }
+
+  if (loaded.entry.slug === "pilot-outcomes") {
+    return <HelpPilotOutcomesGuideView entry={loaded.entry} />;
+  }
+
+  if (loaded.entry.slug === "architecture-scorecard") {
+    return <HelpArchitectureScorecardGuideView entry={loaded.entry} />;
+  }
+
+  if (loaded.entry.slug === "connection-status") {
+    return <HelpConnectionStatusGuideView entry={loaded.entry} />;
+  }
+
+  if (loaded.entry.slug === "standards-and-rules") {
+    return <HelpStandardsRulesGuideView entry={loaded.entry} />;
   }
 
   if (loaded.entry.slug === "billing-and-plans") {

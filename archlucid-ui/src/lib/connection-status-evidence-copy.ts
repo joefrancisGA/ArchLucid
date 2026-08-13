@@ -4,6 +4,8 @@ import { GOVERNANCE_AUDIT_PATH } from "@/lib/governance/governance-route-paths";
 
 export const CONNECTION_STATUS_CANONICAL_PATH = "/administration/connection-status" as const;
 
+export const CONNECTION_STATUS_HELP_TOPIC_LABEL = "How connection status works";
+
 export const CONNECTION_STATUS_CLAIM_DISCIPLINE =
   "This Connection status page shows which workspace integrations are configured or recommended - it is not a signed-review diligence Sources package. Open System health, a connector page, or Audit when you need live dependency checks or governed trails.";
 

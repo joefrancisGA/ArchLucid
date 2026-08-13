@@ -15,8 +15,8 @@ describe("usability lib", () => {
     expect(pageHelpTopicForPathname("/governance/alerts")?.slug).toBe("alerts");
     expect(pageHelpTopicForPathname("/governance/alert-rules")?.slug).toBe("alerts");
     expect(pageHelpTopicForPathname("/governance/alert-rules")?.label).toBe("Alert rules");
-    expect(pageHelpTopicForPathname("/administration/connection-status")?.slug).toBe("integration-readiness");
-    expect(pageHelpTopicForPathname("/administration/connection-status")?.label).toBe("How integration readiness works");
+    expect(pageHelpTopicForPathname("/administration/connection-status")?.slug).toBe("connection-status");
+    expect(pageHelpTopicForPathname("/administration/connection-status")?.label).toBe("How connection status works");
     expect(pageHelpTopicForPathname("/administration/system-health")?.slug).toBe("troubleshooting");
     expect(pageHelpTopicForPathname("/administration/system-health")?.label).toBe("System health");
     expect(pageHelpTopicForPathname("/architecture/architectures")?.slug).toBe("getting-started");
@@ -62,12 +62,12 @@ describe("usability lib", () => {
     expect(pageHelpTopicForPathname("/insights/roi-summary")?.hashFragment).toBeUndefined();
     expect(pageHelpTopicForPathname("/insights/roi-summary")?.label).toBe("ROI summary");
     expect(pageHelpTopicForPathname("/help/roi-summary")?.slug).toBe("roi-summary");
-    expect(pageHelpTopicForPathname("/insights/pilot-outcomes")?.slug).toBe("executive-summary");
-    expect(pageHelpTopicForPathname("/insights/architecture-scorecard")?.slug).toBe("executive-summary");
-    expect(pageHelpTopicForPathname("/insights/architecture-scorecard")?.hashFragment).toBe(
-      "pilot-roi-measurement",
-    );
-    expect(pageHelpTopicForPathname("/insights/architecture-scorecard")?.label).toBe("Architecture scorecard");
+    expect(pageHelpTopicForPathname("/insights/pilot-outcomes")?.slug).toBe("pilot-outcomes");
+    expect(pageHelpTopicForPathname("/insights/pilot-outcomes")?.label).toBe("How pilot outcomes work");
+    expect(pageHelpTopicForPathname("/insights/architecture-scorecard")?.slug).toBe("architecture-scorecard");
+    expect(pageHelpTopicForPathname("/insights/architecture-scorecard")?.hashFragment).toBeUndefined();
+    expect(pageHelpTopicForPathname("/insights/architecture-scorecard")?.label).toBe("How architecture scorecards work");
+    expect(pageHelpTopicForPathname("/insights/executive-summary")?.label).toBe("How the sponsor report works");
     expect(pageHelpTopicForPathname("/insights/ask-review-questions")?.slug).toBe("prior-manifest-retrieval");
     expect(pageHelpTopicForPathname("/insights/patterns")?.slug).toBe("repeat-review-loop");
     expect(pageHelpTopicForPathname("/insights/patterns/private-endpoints-paas")?.slug).toBe("repeat-review-loop");
