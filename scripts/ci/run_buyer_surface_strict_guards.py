@@ -347,6 +347,16 @@ GUARDS: tuple[GuardCommand, ...] = (
         None,
     ),
     GuardCommand(
+        "configuration architecture precedence honesty",
+        ("python", "scripts/ci/check_configuration_architecture_precedence_honesty.py"),
+        None,
+    ),
+    GuardCommand(
+        "worker rolling deploy drain handoff honesty",
+        ("python", "scripts/ci/check_worker_rolling_deploy_drain_handoff_honesty.py"),
+        None,
+    ),
+    GuardCommand(
         "isolation claims too-strong honesty",
         ("python", "scripts/ci/check_isolation_claims_too_strong_honesty.py"),
         None,

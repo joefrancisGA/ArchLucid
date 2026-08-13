@@ -1400,13 +1400,13 @@ All **P0** **V1**: visible-boundary button contract + design-system rule (**TB-2
 | TB-1538 | ~~Anti-instant-global-revoke / webhook-rechecks-principal / Entra-AuthVersion honesty CI~~ ? **Done** (2026-08-12); see `## TB-1538` below | Testability P1 ? **V1**; after **TB-1537**; pairs **M-282** | S |
 | TB-1551 | ~~Anti-DB-sequence / anti-Lamport / anti-UI-as-forensic honesty CI~~ ? **Done** (2026-08-12); see `## TB-1551` below | Testability P1 ? **V1**; after **TB-1550**; pairs **M-284** | S |
 | TB-1558 | ~~Anti-separate-migrator-job / anti-always-ZDT / anti-least-privilege-while-bootstrap honesty CI~~ — **Done** (2026-08-12); see `## TB-1558` below | Testability P1 ? **V1**; after **TB-1557**; pairs **M-286**; coordinate **TB-1245** | S |
-| TB-1562 | Anti-appsettings-SoT / anti-TF-state-config-SoT / anti-TB-881-open-pilot-gate honesty CI; see `## TB-1562` below | Testability P1 ? **V1**; after **TB-1561**; pairs **M-290**; coordinate **TB-1372**/**TB-1318** | S |
-| TB-1564 | Anti-ZDT-drain-to-completion / anti-live-handoff / anti-Worker-resumes-LLM honesty CI; see `## TB-1564` below | Testability P1 ? **V1**; after **TB-1563**; pairs **M-292** | S |
+| TB-1562 | ~~Anti-appsettings-SoT / anti-TF-state-config-SoT / anti-TB-881-open-pilot-gate honesty CI~~ — **Done** (2026-08-12); see `## TB-1562` below | Testability P1 ? **V1**; after **TB-1561**; pairs **M-290**; coordinate **TB-1372**/**TB-1318** | S |
+| TB-1564 | ~~Anti-ZDT-drain-to-completion / anti-live-handoff / anti-Worker-resumes-LLM honesty CI~~ — **Done** (2026-08-12); see `## TB-1564` below | Testability P1 ? **V1**; after **TB-1563**; pairs **M-292** | S |
 | TB-1571 | **Done** (2026-08-11) ? `check_paying_tenant_spend_storm_honesty.py` forbids unbounded-key-spend / meter-equals-invoice / Quick-Scan-plane overclaims; wired in `run_buyer_surface_strict_guards.py`; pairs **M-294**; see `## TB-1571` below | Testability P1 ? **V1**; after **TB-1570**; pairs **M-294** | S |
 | TB-1578 | **Done** (2026-08-11) ? `check_shared_aoai_tpm_noisy_neighbor_honesty.py` forbids fair-share-TPM / budget-isolation / replicas-fix-LLM / silent-starvation overclaims; wired in `run_buyer_surface_strict_guards.py`; pairs **M-296**; see `## TB-1578` below | Testability P1 ? **V1**; after **TB-1577**; pairs **M-296** | S |
 | TB-1625 | **Done** (2026-08-11) ? `check_policy_pack_customer_rule_sandbox_honesty.py` forbids WASM/Firecracker / pack-RCE / platform-wide-degrade / execute-time-pin overclaims; wired in `run_buyer_surface_strict_guards.py`; pairs **M-298**; see `## TB-1625` below | Testability P1 ? **V1**; after **TB-1624**; pairs **M-298** | S |
-| TB-1178 | Teams help-link dedupe (header vs aside footer); see ## TB-1178 below | Adoption friction P1 ? **V1**; with **TB-1174**; after **TB-1183** | XS |
-| TB-1234 | `/help/cloud-connections/aws` specialty guide view (Azure parity); see ## TB-1234 below | Adoption friction P1 ? **V1**; owner AWS help ~52/100 2026-07-26; complements Done **TB-720** | M |
+| TB-1178 | ~~Teams help-link dedupe (header vs aside footer)~~ — **Done** (2026-08-12); see ## TB-1178 below | Adoption friction P1 ? **V1**; with **TB-1174**; after **TB-1183** | XS |
+| TB-1234 | ~~`/help/cloud-connections/aws` specialty guide view (Azure parity)~~ — **Done** (2026-08-12); see ## TB-1234 below | Adoption friction P1 ? **V1**; owner AWS help ~52/100 2026-07-26; complements Done **TB-720** | M |
 | TB-1235 | AWS help ? purge Tier/hosted-pull jargon from primary copy; see ## TB-1235 below | Trustworthiness P1 ? **V1**; with **TB-1234**; parity Azure banned-copy list | S |
 | TB-1236 | AWS help ? manifest-driven IAM permissions + Resource Explorer enablement; see ## TB-1236 below | Trustworthiness P1 ? **V1**; with **TB-1234** | M |
 | TB-1237 | AWS help ? copyable OIDC trust-policy template + federation identifiers; see ## TB-1237 below | Trustworthiness P1 ? **V1**; with **TB-1234**; pairs **TB-1236** | M |
@@ -29691,7 +29691,7 @@ Plus visual regression: overview, technical index, one expanded object, one fiel
 
 **Window:** V1 ? Adoption friction.
 
-**Status:** Not started.
+**Status:** **Done** (2026-08-12).
 
 **Priority:** P0.
 
@@ -33852,7 +33852,7 @@ Operators must read three intros before reaching the Trust Center link list.
 
 **Window:** V1 ? Adoption friction.
 
-**Status:** Not started.
+**Status:** **Done** (2026-08-12).
 
 **Priority:** P0.
 
@@ -39385,7 +39385,7 @@ Operators must read three intros before reaching the Trust Center link list.
 
 **Window:** V1 ? Testability.
 
-**Status:** Not started.
+**Status:** **Done** (2026-08-12). Guard: `scripts/ci/check_configuration_architecture_precedence_honesty.py` + unit tests; wired in `run_buyer_surface_strict_guards.py` and CI. Pairs **M-290**; contract **TB-1561**.
 
 **Priority:** P1.
 
@@ -39444,7 +39444,7 @@ Operators must read three intros before reaching the Trust Center link list.
 
 **Window:** V1 ? Testability.
 
-**Status:** Not started.
+**Status:** **Done** (2026-08-12). Guard: `scripts/ci/check_worker_rolling_deploy_drain_handoff_honesty.py` + unit tests; wired in `run_buyer_surface_strict_guards.py` and CI. Pairs **M-292**; contract **TB-1563**.
 
 **Priority:** P1.
 

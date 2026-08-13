@@ -756,7 +756,7 @@ In `TECH_BACKLOG.md` summary table: **V1 / V1.1 first** (cluster order); **`### 
 | TB-1175 | Teams draft vs saved honesty (prefilled recommended + example fields) | Trustworthiness P0 **V1** — with **TB-1174** |
 | TB-1176 | Teams CTA hierarchy — Validate → Test → Save + disabled-test reason | Adoption friction P1 **V1** — with **TB-1174** |
 | TB-1177 | Teams operator spacing density | Adoption friction P1 **V1** — with **TB-1174**; cf. **TB-1170** |
-| TB-1178 | Teams help-link dedupe (header vs aside footer) | Adoption friction P1 **V1** — with **TB-1174**; after **TB-1183** |
+| TB-1178 | ~~Teams help-link dedupe (header vs aside footer)~~ — **Done** (2026-08-12) | Adoption friction P1 **V1** — with **TB-1174**; after **TB-1183** |
 | TB-1183 | Teams page — remove Slack notifications cross-link | Adoption friction P1 **V1** — owner `/integrations/teams` 2026-07-25; with **TB-1178** |
 | TB-1184 | Teams page — help as icon + caption in PageHeading actions | Adoption friction P1 **V1** — owner `/integrations/teams` 2026-07-25; with **TB-1178**/**TB-1183** |
 | TB-1185 | Slack page — remove Teams notifications cross-link | Adoption friction P1 **V1** — owner `/integrations/slack` ~57/100; parity **TB-1183** |
