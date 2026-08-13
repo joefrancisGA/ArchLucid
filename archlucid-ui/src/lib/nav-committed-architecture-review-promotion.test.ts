@@ -8,7 +8,7 @@ import { filterNavLinksForOperatorShell, listNavGroupsVisibleInOperatorShell } f
 describe("committed architecture review nav promotion", () => {
   const pilot = NAV_GROUPS.find((g) => g.id === "pilot");
   const analysis = NAV_GROUPS.find((g) => g.id === "operate-analysis");
-  // /insights/pilot-outcomes lives in Insights (formerly operate-reports).
+  // The merged sponsor report lives in Insights (formerly operate-reports).
 
   it("TB-524: keeps First review guide essential before first commit and demotes after", () => {
     expect(pilot).toBeDefined();
@@ -58,7 +58,7 @@ describe("committed architecture review nav promotion", () => {
     expect(pilotRow?.visibleLinks.some((l) => l.href === "/architecture/first-review-guide")).toBe(true);
   });
 
-  it("promotes Compare and pilot outcomes to essential tier after first commit", () => {
+  it("promotes Compare and the sponsor report to essential tier after first commit", () => {
     expect(analysis).toBeDefined();
 
     const promotedAnalysis = applyCommittedArchitectureReviewNavPromotions(analysis!.links, true);
@@ -66,7 +66,7 @@ describe("committed architecture review nav promotion", () => {
 
     expect(compare?.tier).toBe("essential");
 
-    const outcomes = promotedAnalysis.find((l) => l.href === "/insights/pilot-outcomes");
+    const outcomes = promotedAnalysis.find((l) => l.href === "/insights/executive-summary");
 
     expect(outcomes?.tier).toBe("essential");
 

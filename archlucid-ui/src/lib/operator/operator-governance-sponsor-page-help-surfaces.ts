@@ -90,13 +90,7 @@ export const OPERATOR_GOVERNANCE_SPONSOR_PAGE_HELP_TB1668_SURFACES: readonly Ope
       id: "sponsor-executive-summary",
       pathname: "/insights/executive-summary",
       modulePath: "app/(operator)/insights/executive-summary/_sections/PilotValueReportPageView.tsx",
-      notes: "Executive value report — executive-summary help topic with How the sponsor report works trigger.",
-    },
-    {
-      id: "sponsor-pilot-outcomes",
-      pathname: "/insights/pilot-outcomes",
-      modulePath: "app/(operator)/insights/pilot-outcomes/_sections/PilotValueReportPageView.tsx",
-      notes: "Pilot outcomes — pilot-outcomes specialty help topic.",
+      notes: "Sponsor report — executive-summary help topic with How the sponsor report works trigger.",
     },
     {
       id: "sponsor-roi-summary",

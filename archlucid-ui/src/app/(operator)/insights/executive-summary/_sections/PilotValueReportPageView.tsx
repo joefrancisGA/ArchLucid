@@ -17,8 +17,16 @@ import {
 import { isBuyerPolishedOperatorShellEnv } from "@/lib/demo-ui-env";
 import { ValueReportOutcomesNav } from "@/components/usability/ValueReportOutcomesNav";
 import { OperatorApiProblem } from "@/components/operator/OperatorApiProblem";
-import { SPONSOR_REPORT_PILOT_OUTCOMES_PATH } from "@/lib/sponsor-report-navigation";
+import { SPONSOR_REPORT_EXECUTIVE_SUMMARY_PATH } from "@/lib/sponsor-report-navigation";
 import { OperatorPageHeader } from "@/components/operator/OperatorPageHeader";
+import { WhyDisabledCtaHint } from "@/components/usability/WhyDisabledCtaHint";
+import { firstWhyDisabledCtaReason, type WhyDisabledCtaReason } from "@/lib/why-disabled-cta";
+import {
+  BUYER_VALUE_REPORT_EXPORT_DISABLED_HELP,
+  BUYER_VALUE_REPORT_HOW_IT_WORKS_DETAILS,
+  BUYER_VALUE_REPORT_HOW_IT_WORKS_TITLE,
+  BUYER_VALUE_REPORT_OUTCOME_LEAD,
+} from "@/lib/buyer/buyer-polish-copy";
 import { Button } from "@/components/ui/button";
 import {
   EnterpriseTable,
@@ -37,15 +45,16 @@ import {
   pilotOutcomesReportHasFinalizedReviews,
 } from "@/lib/pilot-outcomes-report-diagnostics";
 import {
-  PILOT_OUTCOMES_PAGE_SUBTITLE,
-  PILOT_OUTCOMES_PAGE_TITLE,
+  SPONSOR_REPORT_PAGE_SUBTITLE,
+  SPONSOR_REPORT_PAGE_TITLE,
   SPONSOR_REPORT_ROI_SUMMARY_PATH,
 } from "@/lib/sponsor-report-navigation";
+import { SponsorReportMetricCard } from "@/components/sponsor-report/SponsorReportMetricCard";
 
 import { PilotOutcomesEmailConfirmDialog } from "./PilotOutcomesEmailConfirmDialog";
 import { PilotOutcomesEmptyState } from "./PilotOutcomesEmptyState";
-import { PilotValueReportMetricCard } from "./PilotValueReportMetricCard";
 import { PilotValueReportSeverityBars } from "./PilotValueReportSeverityBars";
+import { ValueReportIncludesSection } from "./ValueReportIncludesSection";
 import { PilotRoiValidationHandoffClient } from "@/components/pilots/PilotRoiValidationHandoffCard";
 import { formatPilotValueReportAvgCompletion } from "./pilot-value-report-page-helpers";
 import type { PilotValueReportPilotPageViewModel } from "./pilot-value-report-pilot-page-view-model";
@@ -68,6 +77,33 @@ function formatReviewDate(iso: string | null): string {
   return new Intl.DateTimeFormat(undefined, { dateStyle: "medium", timeStyle: "short" }).format(date);
 }
 
+function exportDisabledReason(
+  canMutate: boolean,
+  hasFinalizedReviews: boolean,
+  periodBusy: boolean,
+): WhyDisabledCtaReason | null {
+  return firstWhyDisabledCtaReason([
+    canMutate
+      ? null
+      : {
+          kind: "role",
+          message: "Elevated workspace permissions required to generate sponsor reports.",
+        },
+    !hasFinalizedReviews && !periodBusy
+      ? {
+          kind: "prerequisite",
+          message: BUYER_VALUE_REPORT_EXPORT_DISABLED_HELP,
+        }
+      : null,
+    periodBusy
+      ? {
+          kind: "lifecycle",
+          message: "Wait for the selected reporting period to finish loading.",
+        }
+      : null,
+  ]);
+}
+
 export function PilotValueReportPageView(props: Props) {
   const m = props.model;
   const periodControlsRef = useRef<HTMLDivElement>(null);
@@ -85,6 +121,10 @@ export function PilotValueReportPageView(props: Props) {
   const timelineRows = m.data?.committedRunsTimeline ?? [];
   const showTimelineCapNote = m.data?.runDetailsTruncated === true && timelineCap > 0;
 
+  const exportsDisabledReason = exportDisabledReason(m.canMutate, hasFinalizedReviews, m.busy);
+  const canExport = m.canMutate && hasFinalizedReviews && !m.busy;
+  const exportDisabledHintId = "value-report-export-disabled-reason";
+
   const scrollToPeriodControls = () => {
     periodControlsRef.current?.scrollIntoView({ behavior: "smooth", block: "start" });
   };
@@ -97,12 +137,29 @@ export function PilotValueReportPageView(props: Props) {
       <ValueReportOutcomesNav />
       <DocumentLayout>
         <OperatorPageHeader
-          navHref={SPONSOR_REPORT_PILOT_OUTCOMES_PATH}
-          title={PILOT_OUTCOMES_PAGE_TITLE}
+          navHref={SPONSOR_REPORT_EXECUTIVE_SUMMARY_PATH}
+          title={SPONSOR_REPORT_PAGE_TITLE}
           headingLevel="h1"
-          subtitle={buyerPolishedShell ? PILOT_OUTCOMES_PAGE_SUBTITLE : null}
+          subtitle={
+            buyerPolishedShell ? (
+              <>
+                <p className="m-0">{SPONSOR_REPORT_PAGE_SUBTITLE}</p>
+                <p className="m-0 mt-2">{BUYER_VALUE_REPORT_OUTCOME_LEAD}</p>
+              </>
+            ) : null
+          }
           actions={<PageContextualHelpButton />}
         />
+
+        <CollapsibleSection
+          title={BUYER_VALUE_REPORT_HOW_IT_WORKS_TITLE}
+          defaultOpen={false}
+          sectionTestId="value-report-how-it-works"
+        >
+          <p className={cn("m-0 text-al-text-secondary", OPERATOR_TYPOGRAPHY.body)}>
+            {BUYER_VALUE_REPORT_HOW_IT_WORKS_DETAILS}
+          </p>
+        </CollapsibleSection>
 
         {m.includesSampleData ? (
           <div
@@ -184,6 +241,28 @@ export function PilotValueReportPageView(props: Props) {
         <div className="flex flex-wrap items-center gap-2">
           <Button
             type="button"
+            disabled={!canExport || m.docxBusy}
+            aria-describedby={exportsDisabledReason === null ? undefined : exportDisabledHintId}
+            onClick={() => void m.onGenerateDocx()}
+          >
+            {m.docxBusy ? "Generating…" : "Export sponsor report (.docx)"}
+          </Button>
+          <Button
+            type="button"
+            variant="outline"
+            disabled={!canExport || m.boardBusy}
+            aria-describedby={exportsDisabledReason === null ? undefined : exportDisabledHintId}
+            aria-label={
+              m.boardBusy
+                ? "Generating board pack"
+                : "Export board pack (.pdf). Uses the current calendar quarter."
+            }
+            onClick={() => void m.onBoardPack()}
+          >
+            {m.boardBusy ? "Generating…" : "Export board pack (.pdf)"}
+          </Button>
+          <Button
+            type="button"
             variant="secondary"
             onClick={() => void m.onDownloadReport("markdown")}
             disabled={m.busy || m.exportBusy || !hasFinalizedReviews}
@@ -203,6 +282,14 @@ export function PilotValueReportPageView(props: Props) {
             Open ROI summary
           </Link>
         </div>
+
+        <WhyDisabledCtaHint
+          id={exportDisabledHintId}
+          reason={exportsDisabledReason}
+          testId={exportDisabledHintId}
+        />
+
+        <ValueReportIncludesSection />
 
         {m.error ? (
           <OperatorApiProblem
@@ -234,7 +321,7 @@ export function PilotValueReportPageView(props: Props) {
                 aria-labelledby="pilot-summary-heading"
               >
                 <h2 id="pilot-summary-heading" className={cn("mt-0", OPERATOR_NAV_GROUP_LABEL)}>
-                  Pilot summary
+                  Report summary
                 </h2>
                 <p className={cn("m-0", OPERATOR_TYPOGRAPHY.body)}>{executiveNarrative}</p>
               </section>
@@ -271,16 +358,16 @@ export function PilotValueReportPageView(props: Props) {
                 Review activity
               </h2>
               <div className="mt-3 grid gap-3 sm:grid-cols-2 lg:grid-cols-4">
-                <PilotValueReportMetricCard title="Finalized reviews" value={m.data.totalRunsCommitted.toString()} />
-                <PilotValueReportMetricCard
+                <SponsorReportMetricCard title="Finalized reviews" value={m.data.totalRunsCommitted.toString()} />
+                <SponsorReportMetricCard
                   title="Architectures reviewed"
                   value={new Set(timelineRows.map((row) => row.systemName).filter(Boolean)).size.toString()}
                 />
-                <PilotValueReportMetricCard
+                <SponsorReportMetricCard
                   title="Average review completion time"
                   value={formatPilotValueReportAvgCompletion(m.data.averagePipelineCompletionSeconds)}
                 />
-                <PilotValueReportMetricCard
+                <SponsorReportMetricCard
                   title="Systems in period"
                   value={timelineRows.length > 0 ? String(timelineRows.length) : "Not available"}
                 />
@@ -292,10 +379,10 @@ export function PilotValueReportPageView(props: Props) {
                 Risk discovery
               </h2>
               <div className="mt-3 grid gap-3 sm:grid-cols-2 lg:grid-cols-4">
-                <PilotValueReportMetricCard title="Total findings" value={m.data.totalFindings.toString()} />
-                <PilotValueReportMetricCard title="Critical findings" value={String(criticalFindings)} />
-                <PilotValueReportMetricCard title="High findings" value={String(highFindings)} />
-                <PilotValueReportMetricCard title="Material findings" value={String(materialFindings)} />
+                <SponsorReportMetricCard title="Total findings" value={m.data.totalFindings.toString()} />
+                <SponsorReportMetricCard title="Critical findings" value={String(criticalFindings)} />
+                <SponsorReportMetricCard title="High findings" value={String(highFindings)} />
+                <SponsorReportMetricCard title="Material findings" value={String(materialFindings)} />
               </div>
               <div className="mt-4 rounded-lg border border-neutral-200 bg-white p-4 dark:border-neutral-800 dark:bg-neutral-900">
                 <h3 className={cn("mt-0", OPERATOR_NAV_GROUP_LABEL)}>Severity distribution</h3>

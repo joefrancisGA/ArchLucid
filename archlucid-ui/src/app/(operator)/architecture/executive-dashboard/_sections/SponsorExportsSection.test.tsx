@@ -39,7 +39,7 @@ describe("SponsorExportsSection", () => {
     );
     expect(screen.getByRole("link", { name: v.sponsorExportsPilotValueAction })).toHaveAttribute(
       "href",
-      "/insights/pilot-outcomes",
+      "/insights/executive-summary",
     );
     expect(screen.queryByText(v.sponsorExportsUnavailableFootnote)).not.toBeInTheDocument();
   });

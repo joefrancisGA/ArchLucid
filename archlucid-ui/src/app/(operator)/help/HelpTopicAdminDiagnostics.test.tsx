@@ -11,6 +11,7 @@ import {
   ADMIN_DIAGNOSTICS_HELP_RELATED_TOPICS,
   ADMIN_DIAGNOSTICS_HELP_SIGNAL_HEALTHY_COLUMN,
 } from "@/lib/admin-diagnostics-help-evidence-copy";
+import { listAdminDiagnosticsHelpRelatedTopics } from "@/lib/admin-diagnostics-help-related-topics";
 import { AUTHORITY_RANK } from "@/lib/nav-authority";
 import { getProductDocumentationEntry } from "@/lib/product-documentation-registry";
 import { tryLoadProductDocumentation } from "@/lib/load-product-documentation";
@@ -99,7 +100,7 @@ describe("HelpAdminDiagnosticsGuideView (HAE)", () => {
       expect(within(liveSurfaces).getByRole("link", { name: link.label })).toHaveAttribute("href", link.href);
     }
 
-    for (const link of ADMIN_DIAGNOSTICS_HELP_RELATED_TOPICS) {
+    for (const link of listAdminDiagnosticsHelpRelatedTopics(true)) {
       expect(within(relatedTopics).getByRole("link", { name: link.label })).toHaveAttribute("href", link.href);
     }
 
@@ -159,7 +160,7 @@ describe("HelpAdminDiagnosticsGuideView (HAE)", () => {
     expect(ADMIN_DIAGNOSTICS_HELP_LIVE_SURFACES.find((link) => link.href === "/")?.label).toBe("Home");
   });
 
-  it("labels admin-gated links for non-admin callers instead of hiding them", () => {
+  it("omits eng runbook Related links for non-admin callers (TB-1612)", () => {
     if (loaded === null || entry === undefined) {
       throw new Error("Expected admin-diagnostics documentation to load.");
     }
@@ -175,12 +176,9 @@ describe("HelpAdminDiagnosticsGuideView (HAE)", () => {
 
     expect(within(relatedTopics).getByRole("link", { name: "Troubleshooting" })).toBeInTheDocument();
     expect(within(relatedTopics).getByRole("link", { name: "Report a problem" })).toBeInTheDocument();
-    expect(within(relatedTopics).getByRole("link", { name: "Engineering troubleshooting runbook" })).toBeInTheDocument();
-    expect(within(relatedTopics).queryByRole("link", { name: "Configuration reference" })).not.toBeInTheDocument();
-    expect(within(relatedTopics).getByRole("link", { name: "CLI usage" })).toBeInTheDocument();
-
-    const adminTags = within(actionPanel).getAllByTestId("help-admin-diagnostics-admin-tag");
-    expect(adminTags.length).toBeGreaterThanOrEqual(2);
+    expect(within(relatedTopics).queryByRole("link", { name: "Engineering troubleshooting runbook" })).not.toBeInTheDocument();
+    expect(within(relatedTopics).queryByRole("link", { name: "CLI usage" })).not.toBeInTheDocument();
+    expect(within(relatedTopics).queryByTestId("help-admin-diagnostics-admin-tag")).not.toBeInTheDocument();
   });
 
   it("shows admin tags on admin-only related topics for admin callers", () => {

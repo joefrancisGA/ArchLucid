@@ -1,18 +1,20 @@
 import type { Metadata } from "next";
 
-import { ValueReportPageClient } from "@/app/(operator)/insights/executive-summary/_sections/ValueReportPageClient";
-import { loadValueReportPageData } from "@/app/(operator)/insights/executive-summary/_sections/load-value-report-page-data";
+import { PilotValueReportPageClient } from "@/app/(operator)/insights/executive-summary/_sections/PilotValueReportPageClient";
+import { loadPilotValueReportPageData } from "@/app/(operator)/insights/executive-summary/_sections/load-pilot-value-report-page-data";
 import {
-  EXECUTIVE_SUMMARY_PAGE_TITLE,
+  SPONSOR_REPORT_PAGE_SUBTITLE,
+  SPONSOR_REPORT_PAGE_TITLE,
   SPONSOR_REPORT_SECTION_LABEL,
 } from "@/lib/sponsor-report-navigation";
 
 export const metadata: Metadata = {
-  title: `${EXECUTIVE_SUMMARY_PAGE_TITLE} | ${SPONSOR_REPORT_SECTION_LABEL}`,
+  title: `${SPONSOR_REPORT_PAGE_TITLE} | ${SPONSOR_REPORT_SECTION_LABEL}`,
+  description: SPONSOR_REPORT_PAGE_SUBTITLE,
 };
 
-export default async function SponsorReportExecutiveSummaryPage() {
-  const loaded = await loadValueReportPageData();
+export default async function SponsorReportPage() {
+  const loaded = await loadPilotValueReportPageData();
 
-  return <ValueReportPageClient loaded={loaded} />;
+  return <PilotValueReportPageClient loaded={loaded} />;
 }

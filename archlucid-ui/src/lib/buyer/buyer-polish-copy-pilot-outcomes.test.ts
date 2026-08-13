@@ -3,7 +3,7 @@ import { describe, expect, it } from "vitest";
 import {
   BUYER_EXECUTIVE_SCORECARD_COMMITTED_LABEL,
   BUYER_VALUE_REPORT_PAGE_SUBTITLE,
-  BUYER_VALUE_REPORT_PAGE_TITLE,
+  SPONSOR_REPORT_PAGE_TITLE,
   OPERATOR_GRAPH_PAGE_SUBTITLE,
   PILOT_COMMAND_CENTER_CONNECT_AZURE,
   PILOT_COMMAND_CENTER_LEAD,
@@ -79,10 +79,10 @@ describe("buyer-polish-copy optional setup CTA (TB-466)", () => {
 });
 
 describe("buyer-polish-copy value report page (TB-468)", () => {
-  it("uses executive value report title and sponsor-ready subtitle", () => {
-    expect(BUYER_VALUE_REPORT_PAGE_TITLE).toBe("Executive value report");
+  it("uses the merged sponsor report title and sponsor-ready subtitle", () => {
+    expect(SPONSOR_REPORT_PAGE_TITLE).toBe("Sponsor report");
     expect(BUYER_VALUE_REPORT_PAGE_SUBTITLE).toContain("sponsor-ready");
-    expect(BUYER_VALUE_REPORT_PAGE_TITLE.toLowerCase()).not.toContain("sponsor");
+    expect(SPONSOR_REPORT_PAGE_TITLE.toLowerCase()).not.toContain("pilot");
   });
 });
 

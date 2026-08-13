@@ -53,7 +53,6 @@ import { LEGACY_SIGNED_RECORDS_LIST_PATH, SIGNED_RECORDS_LIST_PATH } from "@/lib
 import {
   LEGACY_SPONSOR_REPORT_ROOT_PATH,
   SPONSOR_REPORT_EXECUTIVE_SUMMARY_PATH,
-  SPONSOR_REPORT_PILOT_OUTCOMES_PATH,
   SPONSOR_REPORT_ROI_SUMMARY_PATH,
 } from "@/lib/sponsor-report-navigation";
 import {
@@ -239,8 +238,10 @@ export function canonicalizeLegacyOperatorRoutePath(pathname: string): string {
     return SPONSOR_REPORT_EXECUTIVE_SUMMARY_PATH;
   }
 
+  // The standalone pilot outcomes page merged into the sponsor report, so this pre-existing bookmark
+  // alias now resolves there rather than at the retired `/insights/pilot-outcomes`.
   if (normalized === LEGACY_SPONSOR_REPORT_PILOT_OUTCOMES_PATH) {
-    return SPONSOR_REPORT_PILOT_OUTCOMES_PATH;
+    return SPONSOR_REPORT_EXECUTIVE_SUMMARY_PATH;
   }
 
   if (normalized === LEGACY_SPONSOR_REPORT_ROI_SUMMARY_PATH) {

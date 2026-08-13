@@ -1,9 +1,8 @@
 import {
-  EXECUTIVE_SUMMARY_PAGE_TITLE,
   LEGACY_SPONSOR_REPORT_ROOT_PATH,
   SPONSOR_REPORT_ARCHITECTURE_SCORECARD_PATH,
   SPONSOR_REPORT_EXECUTIVE_SUMMARY_PATH,
-  SPONSOR_REPORT_PILOT_OUTCOMES_PATH,
+  SPONSOR_REPORT_PAGE_TITLE,
   SPONSOR_REPORT_ROI_SUMMARY_PATH,
   SPONSOR_REPORT_SECTION_LABEL,
 } from "@/lib/sponsor-report-navigation";
@@ -21,13 +20,7 @@ function normalizeOutcomesPath(path: string): string {
   return path.replace(/\/$/, "") || "/";
 }
 
-function matchesPilotOutcomes(path: string): boolean {
-  const normalized = normalizeOutcomesPath(path);
-
-  return normalized === SPONSOR_REPORT_PILOT_OUTCOMES_PATH;
-}
-
-function matchesExecutiveSummary(path: string): boolean {
+function matchesSponsorReport(path: string): boolean {
   const normalized = normalizeOutcomesPath(path);
 
   return (
@@ -54,13 +47,8 @@ function matchesArchitectureScorecard(path: string): boolean {
 export const VALUE_REPORT_OUTCOMES_TABS: readonly ValueReportOutcomesTab[] = [
   {
     href: SPONSOR_REPORT_EXECUTIVE_SUMMARY_PATH,
-    label: EXECUTIVE_SUMMARY_PAGE_TITLE,
-    match: matchesExecutiveSummary,
-  },
-  {
-    href: SPONSOR_REPORT_PILOT_OUTCOMES_PATH,
-    label: "Pilot outcomes",
-    match: matchesPilotOutcomes,
+    label: SPONSOR_REPORT_PAGE_TITLE,
+    match: matchesSponsorReport,
   },
   {
     href: SPONSOR_REPORT_ROI_SUMMARY_PATH,
@@ -75,9 +63,11 @@ export const VALUE_REPORT_OUTCOMES_TABS: readonly ValueReportOutcomesTab[] = [
 ] as const;
 
 /**
- * Pilot outcomes and ROI summary moved from Internal Operations to the Reports sidebar group (nav placement
- * audit, 2026-07-05) — both hit `RequiresCommercialTenantTier` + ReadAuthority endpoints, same as Sponsor report
- * and Executive scorecard, so the tab strip no longer hides them behind `showSystemAdministrationNav` (was TB-605).
+ * ROI summary moved from Internal Operations to the Insights sidebar group (nav placement audit,
+ * 2026-07-05) — it hits `RequiresCommercialTenantTier` + ReadAuthority endpoints, same as the sponsor
+ * report and Executive scorecard, so the tab strip no longer hides it behind
+ * `showSystemAdministrationNav` (was TB-605). The standalone pilot outcomes tab retired when that page
+ * merged into the sponsor report.
  */
 export function resolveVisibleValueReportOutcomesTabs(
   showSystemAdministrationNav: boolean,

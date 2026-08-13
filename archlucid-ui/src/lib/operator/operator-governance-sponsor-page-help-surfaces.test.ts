@@ -28,7 +28,6 @@ describe("operator-governance-sponsor-page-help-surfaces (TB-1668)", () => {
       "governance-alert-rules",
       "governance-advisory-scans",
       "sponsor-executive-summary",
-      "sponsor-pilot-outcomes",
       "sponsor-roi-summary",
     ]);
   });

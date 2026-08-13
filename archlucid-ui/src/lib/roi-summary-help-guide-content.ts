@@ -8,7 +8,7 @@ import {
 } from "@/lib/roi-summary-sponsor-presentation";
 import {
   SPONSOR_REPORT_EXECUTIVE_SUMMARY_PATH,
-  SPONSOR_REPORT_PILOT_OUTCOMES_PATH,
+  SPONSOR_REPORT_PAGE_TITLE,
   SPONSOR_REPORT_ROI_SUMMARY_PATH,
 } from "@/lib/sponsor-report-navigation";
 import { BASELINE_SETTINGS_CANONICAL_PATH } from "@/lib/baseline-settings-evidence-copy";
@@ -94,17 +94,10 @@ export const ROI_SUMMARY_HELP_BASELINE_BODY = BASELINE_ROI_WHY_TWO;
 export const ROI_SUMMARY_HELP_SIBLING_REPORTS = [
   {
     id: "executive-summary",
-    title: "Executive summary",
-    description: "Period preview of finalized reviews, governance activity, and sponsor exports.",
-    actionLabel: "Open executive summary",
+    title: SPONSOR_REPORT_PAGE_TITLE,
+    description: "Period summary of review activity, findings, governance decisions, and measurable outcomes, plus sponsor exports.",
+    actionLabel: "Open sponsor report",
     href: SPONSOR_REPORT_EXECUTIVE_SUMMARY_PATH,
-  },
-  {
-    id: "pilot-outcomes",
-    title: "Pilot outcomes",
-    description: "Pilot-period summary of review activity, findings, and measurable outcomes.",
-    actionLabel: "Open pilot outcomes",
-    href: SPONSOR_REPORT_PILOT_OUTCOMES_PATH,
   },
   {
     id: "architecture-scorecard",

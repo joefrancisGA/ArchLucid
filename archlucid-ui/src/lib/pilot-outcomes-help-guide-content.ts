@@ -1,26 +1,25 @@
 import type { HelpMarkdownHeading } from "@/lib/help/help-markdown-headings";
 import { PILOT_OUTCOMES_HELP_TOPIC_LABEL } from "@/lib/pilot-outcomes-evidence-copy";
 import {
-  PILOT_OUTCOMES_PAGE_SUBTITLE,
-  PILOT_OUTCOMES_PAGE_TITLE,
   SPONSOR_REPORT_EXECUTIVE_SUMMARY_PATH,
-  SPONSOR_REPORT_PILOT_OUTCOMES_PATH,
+  SPONSOR_REPORT_PAGE_SUBTITLE,
+  SPONSOR_REPORT_PAGE_TITLE,
   SPONSOR_REPORT_ROI_SUMMARY_PATH,
 } from "@/lib/sponsor-report-navigation";
 import { ARCHITECTURE_SCORECARD_PATH } from "@/lib/architecture/architecture-scorecard-route";
 
 export { PILOT_OUTCOMES_HELP_TOPIC_LABEL };
 
-export const PILOT_OUTCOMES_HELP_PAGE_TITLE = PILOT_OUTCOMES_PAGE_TITLE;
+export const PILOT_OUTCOMES_HELP_PAGE_TITLE = SPONSOR_REPORT_PAGE_TITLE;
 
-export const PILOT_OUTCOMES_HELP_PAGE_SUBTITLE = PILOT_OUTCOMES_PAGE_SUBTITLE;
+export const PILOT_OUTCOMES_HELP_PAGE_SUBTITLE = SPONSOR_REPORT_PAGE_SUBTITLE;
 
 export const PILOT_OUTCOMES_HELP_OVERVIEW =
-  "Pilot outcomes summarize finalized review activity, material findings, governance decisions, and measurable results for the selected reporting period. Use it for pilot close-out discussions — not as a signed-review diligence package by itself.";
+  "The sponsor report summarizes finalized review activity, material findings, governance decisions, and measurable results for the selected reporting period. Use it for pilot close-out discussions — not as a signed-review diligence package by itself.";
 
 export const PILOT_OUTCOMES_HELP_PRIMARY_ACTION = {
-  label: "Open pilot outcomes",
-  href: "/insights/pilot-outcomes",
+  label: "Open sponsor report",
+  href: SPONSOR_REPORT_EXECUTIVE_SUMMARY_PATH,
 } as const;
 
 export type PilotOutcomesHelpReportItem = {

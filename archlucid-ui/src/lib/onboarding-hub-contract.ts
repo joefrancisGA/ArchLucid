@@ -22,7 +22,6 @@ export const HUB_PAGE_DRIFT_GUARD_SOURCES = [
 export const HUB_PAGE_FORBIDDEN_INTERNAL_HREF_PREFIXES = [
   "/internal/",
   "/internal/integration-events/dlq",
-  "/insights/pilot-outcomes",
   "/insights/roi-summary",
 ] as const;
 

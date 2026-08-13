@@ -220,7 +220,7 @@ describe("contextual-help-registry (TB-733)", () => {
     );
     expect(contextualHelpForPathname("/governance/findings?filter=open")?.whatToDoNext).toContain("Assign owners");
     expect(contextualHelpForPathname("/insights/executive-summary")?.whatIsThisPage).toContain(
-      "Executive value report",
+      "Sponsor report",
     );
     expect(contextualHelpForPathname("/insights/improvement-planning/plans/plan-1")?.whatIsThisPage).toContain("one prioritized improvement plan");
   });
@@ -658,15 +658,20 @@ describe("contextual-help-registry (TB-733)", () => {
     );
   });
 
-  it("resolves sponsor executive summary Category-1 help (SPE)", () => {
+  it("resolves sponsor report Category-1 help (SPE)", () => {
     expect(contextualHelpForPathname("/insights/executive-summary")?.whatIsThisPage).toContain(
-      "Executive value report",
+      "Sponsor report",
     );
   });
 
-  it("resolves pilot outcomes Category-1 help (SPP)", () => {
+  // `/insights/pilot-outcomes` 404s after the merge; help copy still resolves for bookmarked deep links and must
+  // point readers at the surviving sponsor report.
+  it("resolves pilot outcomes Category-1 help (SPP) pointing at the merged sponsor report", () => {
     expect(contextualHelpForPathname("/insights/pilot-outcomes")?.whatIsThisPage).toContain("Pilot outcomes");
-    expect(contextualHelpForPathname("/insights/pilot-outcomes")?.whatToDoNext).toContain("Executive value report");
+    expect(contextualHelpForPathname("/insights/pilot-outcomes")?.whatToDoNext).toContain("Sponsor report");
+    expect(contextualHelpForPathname("/insights/pilot-outcomes")?.whatToDoNextAction?.href).toBe(
+      "/insights/executive-summary",
+    );
     expect(contextualHelpForPathname("/insights/roi-summary")?.whatIsThisPage).toContain("Portfolio KPI");
     expect(contextualHelpForPathname("/insights/roi-summary")?.whatToDoNext).toContain("rolling 30-day");
   });

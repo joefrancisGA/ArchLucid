@@ -31,7 +31,6 @@ const READINESS_BY_PATH: Record<string, RouteReadinessTier> = {
   "/administration/security-trust": "demo-ready",
   "/administration/preferences": "demo-ready",
   "/insights/executive-summary": "advanced-only",
-  "/insights/pilot-outcomes": "advanced-only",
   "/insights/roi-summary": "advanced-only",
   [EVIDENCE_GRAPH_PATH]: "advanced-only",
   [COMPARE_TWO_REVIEWS_PATH]: "advanced-only",
@@ -156,7 +155,6 @@ const PRESENTER_SAFE_MODE_NAV_HIDE = new Set<string>([
   "/administration/identity/sso-wizard",
   "/administration/scim-provisioning",
   "/insights/executive-summary",
-  "/insights/pilot-outcomes",
   "/insights/roi-summary",
 ]);
 

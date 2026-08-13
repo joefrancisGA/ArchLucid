@@ -2,7 +2,10 @@ import { isApiRequestError } from "@/lib/api-request-error";
 
 import type { PilotValueReportPilotPageError } from "./pilot-value-report-pilot-page-view-model";
 
-export function toPilotValueReportPilotPageError(e: unknown): PilotValueReportPilotPageError {
+export function toPilotValueReportPilotPageError(
+  e: unknown,
+  fallbackMessage: string = "Could not load pilot value report.",
+): PilotValueReportPilotPageError {
   if (isApiRequestError(e)) {
     return {
       message: e.message,
@@ -12,7 +15,7 @@ export function toPilotValueReportPilotPageError(e: unknown): PilotValueReportPi
   }
 
   return {
-    message: e instanceof Error ? e.message : "Could not load pilot value report.",
+    message: e instanceof Error ? e.message : fallbackMessage,
     problem: null,
     correlationId: null,
   };

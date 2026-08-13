@@ -4,7 +4,7 @@ import type { PageContextualHelpRow } from "@/lib/contextual-help/types";
 import { BASELINE_SETTINGS_CANONICAL_PATH } from "@/lib/baseline-settings-evidence-copy";
 import { ROI_SUMMARY_HELP_CANONICAL_PATH } from "@/lib/roi-summary-help-evidence-copy";
 import {
-  SPONSOR_REPORT_PILOT_OUTCOMES_PATH,
+  SPONSOR_REPORT_EXECUTIVE_SUMMARY_PATH,
   SPONSOR_REPORT_ROI_SUMMARY_PATH,
 } from "@/lib/sponsor-report-navigation";
 
@@ -21,8 +21,8 @@ const ROI_SUMMARY_HUB_CONTEXTUAL_HELP = {
     href: BASELINE_SETTINGS_CANONICAL_PATH,
   },
   whereToConfigureAction: {
-    label: "Open pilot outcomes",
-    href: SPONSOR_REPORT_PILOT_OUTCOMES_PATH,
+    label: "Open sponsor report",
+    href: SPONSOR_REPORT_EXECUTIVE_SUMMARY_PATH,
   },
 } as const;
 

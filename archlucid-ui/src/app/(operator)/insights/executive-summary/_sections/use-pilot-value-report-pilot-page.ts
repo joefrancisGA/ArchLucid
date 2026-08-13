@@ -3,6 +3,8 @@
 import { useCallback, useState } from "react";
 
 import { buildPilotValueReportQuery, getTenantPilotValueReportJson } from "@/lib/pilot-value-report-fetch";
+import { useOperateCapability } from "@/hooks/use-operate-capability";
+import { downloadBoardPackPdf, downloadValueReportDocx } from "@/lib/api";
 import { isNextPublicDemoMode } from "@/lib/demo-ui-env";
 import { formatPilotOutcomesReportingPeriod } from "@/lib/pilot-outcomes-report-diagnostics";
 import {
@@ -22,7 +24,7 @@ import type {
 import { toPilotValueReportPilotPageError } from "./to-pilot-value-report-pilot-page-error";
 
 const SPONSOR_REPORT_SECTIONS = [
-  "Pilot summary",
+  "Report summary",
   "Review activity",
   "Risk discovery",
   "Governance outcomes",
@@ -60,8 +62,11 @@ export function usePilotValueReportPilotPage(loaded: PilotValueReportPageServerL
   const [toUtc, setToUtc] = useState(loaded.initialToUtc);
   const [periodPreset, setPeriodPreset] = useState<PilotOutcomesPeriodPresetId>("last-30");
   const [data, setData] = useState<PilotValueReportJson | null>(loaded.data);
+  const canMutate = useOperateCapability();
   const [busy, setBusy] = useState(false);
   const [exportBusy, setExportBusy] = useState(false);
+  const [docxBusy, setDocxBusy] = useState(false);
+  const [boardBusy, setBoardBusy] = useState(false);
   const [emailBusy, setEmailBusy] = useState(false);
   const [error, setError] = useState<PilotValueReportPilotPageError | null>(loaded.failure);
   const [emailPreviewOpen, setEmailPreviewOpen] = useState(false);
@@ -135,7 +140,7 @@ export function usePilotValueReportPilotPage(loaded: PilotValueReportPageServerL
     async (format: PilotValueReportExportFormat) => {
       if (format === "pdf" || format === "csv") {
         setError({
-          message: `${format.toUpperCase()} export is not available yet. Download the Markdown report or use Executive summary exports.`,
+          message: `${format.toUpperCase()} export is not available yet. Download the Markdown report, or use the sponsor report (.docx) and board pack (.pdf) exports above.`,
           problem: null,
           correlationId: null,
         });
@@ -163,6 +168,40 @@ export function usePilotValueReportPilotPage(loaded: PilotValueReportPageServerL
     },
     [data?.tenantId, downloadMarkdown, fromUtc, toUtc],
   );
+
+  const onGenerateDocx = useCallback(async () => {
+    setDocxBusy(true);
+    setError(null);
+
+    try {
+      const fromIso = new Date(fromUtc).toISOString();
+      const toIso = new Date(toUtc).toISOString();
+
+      await downloadValueReportDocx(fromIso, toIso);
+    } catch (e: unknown) {
+      setError(toPilotValueReportPilotPageError(e, "Could not generate sponsor report."));
+    } finally {
+      setDocxBusy(false);
+    }
+  }, [fromUtc, toUtc]);
+
+  const onBoardPack = useCallback(async () => {
+    setBoardBusy(true);
+    setError(null);
+
+    try {
+      // The board pack is quarter-scoped server-side, so it uses the current calendar quarter rather
+      // than the reporting period selected above.
+      const now = new Date();
+      const quarter = Math.floor(now.getUTCMonth() / 3) + 1;
+
+      await downloadBoardPackPdf(now.getUTCFullYear(), quarter);
+    } catch (e: unknown) {
+      setError(toPilotValueReportPilotPageError(e, "Could not generate board pack."));
+    } finally {
+      setBoardBusy(false);
+    }
+  }, []);
 
   const openEmailPreview = useCallback(() => {
     setEmailPreview(buildEmailPreview(fromUtc, toUtc, data !== null && data.totalRunsCommitted > 0));
@@ -229,6 +268,11 @@ export function usePilotValueReportPilotPage(loaded: PilotValueReportPageServerL
     error,
     load,
     onDownloadReport,
+    onGenerateDocx,
+    onBoardPack,
+    docxBusy,
+    boardBusy,
+    canMutate,
     emailPreviewOpen,
     emailPreview,
     openEmailPreview,

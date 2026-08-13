@@ -2,7 +2,7 @@
 
 import { cn } from "@/lib/utils";
 
-import { PilotValueReportMetricCard } from "@/app/(operator)/insights/pilot-outcomes/_sections/PilotValueReportMetricCard";
+import { SponsorReportMetricCard } from "@/components/sponsor-report/SponsorReportMetricCard";
 import { OPERATOR_TYPOGRAPHY } from "@/lib/design-tokens";
 import {
   computeRoiSummaryPeriodMetrics,
@@ -47,18 +47,18 @@ export function RoiSummaryHeroStrip(props: Props) {
       </div>
 
       <div className="mt-4 grid gap-3 sm:grid-cols-2 lg:grid-cols-5">
-        <PilotValueReportMetricCard
+        <SponsorReportMetricCard
           title="Estimated hours saved"
           value={formatRoiSummaryHoursDisplay(metrics.hours)}
         />
-        <PilotValueReportMetricCard
+        <SponsorReportMetricCard
           title="Estimated dollar value"
           value={usd.display}
           hint={usd.rateBasisLabel}
         />
-        <PilotValueReportMetricCard title="Findings counted" value={String(metrics.findingsCounted)} />
-        <PilotValueReportMetricCard title="Governance blocks counted" value={String(metrics.blocksCounted)} />
-        <PilotValueReportMetricCard
+        <SponsorReportMetricCard title="Findings counted" value={String(metrics.findingsCounted)} />
+        <SponsorReportMetricCard title="Governance blocks counted" value={String(metrics.blocksCounted)} />
+        <SponsorReportMetricCard
           title="Data completeness"
           value={metrics.confidence.completenessLabel}
         />

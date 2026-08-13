@@ -6,8 +6,8 @@ import { SEARCH_PAGE_SUBTITLE } from "@/app/(operator)/insights/search-review-ev
 import { BUYER_VALUE_REPORT_PAGE_SUBTITLE } from "@/lib/buyer/buyer-polish-copy";
 import { BUYER_EXECUTIVE_SUMMARY_VOCABULARY, PILOT_FEEDBACK_VOCABULARY } from "@/lib/vocabulary/buyer-surface-vocabulary";
 import {
+  RETIRED_PILOT_OUTCOMES_PATH,
   SPONSOR_REPORT_EXECUTIVE_SUMMARY_PATH,
-  SPONSOR_REPORT_PILOT_OUTCOMES_PATH,
   SPONSOR_REPORT_ROI_SUMMARY_PATH,
 } from "@/lib/sponsor-report-navigation";
 import { SHOWCASE_BUYER_REVIEW_PACKAGE_TITLE, SHOWCASE_STATIC_DEMO_RUN_ID } from "@/lib/showcase-static-demo";
@@ -48,15 +48,17 @@ describe("buyerPolishedRouteOrientation", () => {
   it("orients Outcomes tab hub routes with a shared Insights strip", () => {
     const scorecard = buyerPolishedRouteOrientation("/insights/architecture-scorecard");
     const executive = buyerPolishedRouteOrientation(SPONSOR_REPORT_EXECUTIVE_SUMMARY_PATH);
-    const pilot = buyerPolishedRouteOrientation(SPONSOR_REPORT_PILOT_OUTCOMES_PATH);
     const roi = buyerPolishedRouteOrientation(SPONSOR_REPORT_ROI_SUMMARY_PATH);
 
     expect(scorecard?.label).toBe("Insights");
     expect(scorecard?.line).toBe("Value metrics and recommended actions.");
     expect(executive).toEqual(scorecard);
-    expect(pilot).toEqual(scorecard);
     expect(roi).toEqual(scorecard);
     expect(scorecard?.line).not.toBe(BUYER_VALUE_REPORT_PAGE_SUBTITLE);
+  });
+
+  it("returns null for the retired pilot outcomes route (merged into the sponsor report)", () => {
+    expect(buyerPolishedRouteOrientation(RETIRED_PILOT_OUTCOMES_PATH)).toBeNull();
   });
 
   it("returns null for ask — the page carries its own hero copy", () => {

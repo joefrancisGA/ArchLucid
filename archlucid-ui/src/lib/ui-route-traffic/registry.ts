@@ -54,7 +54,6 @@ export const UI_ROUTE_TRAFFIC_STANDALONE_MODULES: readonly string[] = [
   "ui-route-traffic-legacy-settings-alerts",
   "ui-route-traffic-pattern-library",
   "ui-route-traffic-pattern-library-detail",
-  "ui-route-traffic-pilot-outcomes",
   "ui-route-traffic-planning-plan-detail",
   "ui-route-traffic-policy-packs-help",
   "ui-route-traffic-recommendation-learning",

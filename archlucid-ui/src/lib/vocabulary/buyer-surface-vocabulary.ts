@@ -177,7 +177,7 @@ export const BUYER_EXECUTIVE_SUMMARY_VOCABULARY = {
   sponsorExportsPilotValueTitle: "Pilot value report",
   sponsorExportsPilotValueDescription: "Quantified outcomes and improvement themes from finalized reviews.",
   sponsorExportsPilotValueAction: "Open value report",
-  sponsorExportsPilotValueSampleHref: "/insights/pilot-outcomes",
+  sponsorExportsPilotValueSampleHref: "/insights/executive-summary",
   sponsorExportsRoiTitle: "ROI methodology",
   sponsorExportsRoiDescription: "How savings and ROI estimates are derived from review evidence.",
   sponsorExportsRoiAction: "View methodology",

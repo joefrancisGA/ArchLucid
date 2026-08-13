@@ -7,7 +7,8 @@ type Props = {
   hint?: string;
 };
 
-export function PilotValueReportMetricCard(props: Props) {
+/** Shared KPI tile for sponsor-report surfaces (Sponsor report, ROI summary hero strip). */
+export function SponsorReportMetricCard(props: Props) {
   return (
     <div className="rounded-lg border border-neutral-200 bg-white p-4 shadow-sm dark:border-neutral-800 dark:bg-neutral-900">
       <p className={cn(OPERATOR_TYPOGRAPHY.tab, "uppercase tracking-wide text-al-text-secondary")}>{props.title}</p>

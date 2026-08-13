@@ -7,7 +7,8 @@ import {
   REVIEW_SCORECARD_PAGE_TITLE,
 } from "@/lib/pilot-scorecard-present";
 import {
-  SPONSOR_REPORT_PILOT_OUTCOMES_PATH,
+  SPONSOR_REPORT_EXECUTIVE_SUMMARY_PATH,
+  SPONSOR_REPORT_PAGE_TITLE,
   SPONSOR_REPORT_ROI_SUMMARY_PATH,
 } from "@/lib/sponsor-report-navigation";
 import { BASELINE_SETTINGS_CANONICAL_PATH } from "@/lib/baseline-settings-evidence-copy";
@@ -77,11 +78,11 @@ export const ARCHITECTURE_SCORECARD_HELP_SIBLING_REPORTS = [
     href: SPONSOR_REPORT_ROI_SUMMARY_PATH,
   },
   {
-    id: "pilot-outcomes",
-    title: "Pilot outcomes",
-    description: "Pilot-period summary of review activity and measurable outcomes.",
-    actionLabel: "Open pilot outcomes",
-    href: SPONSOR_REPORT_PILOT_OUTCOMES_PATH,
+    id: "sponsor-report",
+    title: SPONSOR_REPORT_PAGE_TITLE,
+    description: "Reporting-period summary of review activity and measurable outcomes.",
+    actionLabel: "Open sponsor report",
+    href: SPONSOR_REPORT_EXECUTIVE_SUMMARY_PATH,
   },
   {
     id: "baseline",

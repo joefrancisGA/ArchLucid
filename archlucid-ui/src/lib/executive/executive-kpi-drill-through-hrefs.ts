@@ -10,7 +10,7 @@ export const EXECUTIVE_KPI_DRILL_THROUGH = {
   decisionsNeeded: "/governance/findings",
   expiringWaivers: "/governance/exceptions",
   findingsRemediated30d: "/governance/findings",
-  costEvidenceFreshness: "/insights/pilot-outcomes",
+  costEvidenceFreshness: "/insights/executive-summary",
   orphanCandidates: "/architecture/reviews?filter=orphan-candidates",
   sqlBackupRegion: `${EXECUTIVE_DASHBOARD_HREF}#executive-sql-backup-region-verification`,
   complianceDrift: GOVERNANCE_WORKSPACE_HEALTH_HREF,

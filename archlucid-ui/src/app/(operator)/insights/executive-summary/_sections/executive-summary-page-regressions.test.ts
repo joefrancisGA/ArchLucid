@@ -1,10 +1,10 @@
 import { describe, expect, it } from "vitest";
 
-import { BUYER_VALUE_REPORT_PAGE_TITLE } from "@/lib/buyer/buyer-polish-copy";
+import { SPONSOR_REPORT_PAGE_TITLE as BUYER_SPONSOR_REPORT_PAGE_TITLE } from "@/lib/buyer/buyer-polish-copy";
 import { COMMAND_PALETTE_ACTIONS } from "@/lib/command-palette-actions";
 import {
-  EXECUTIVE_SUMMARY_PAGE_TITLE,
   SPONSOR_REPORT_EXECUTIVE_SUMMARY_PATH,
+  SPONSOR_REPORT_PAGE_TITLE,
 } from "@/lib/sponsor-report-navigation";
 import {
   TROUBLESHOOTING_DECISION_TREE_STEPS,
@@ -22,9 +22,9 @@ describe("executive-summary sponsor-report regressions (TB-1965)", () => {
     expect(EXECUTIVE_SUMMARY_TRAFFIC_PATH).toBe(SPONSOR_REPORT_EXECUTIVE_SUMMARY_PATH);
   });
 
-  it("page title vocabulary matches buyer value report H1 (TB-1962)", () => {
-    expect(EXECUTIVE_SUMMARY_PAGE_TITLE).toBe(BUYER_VALUE_REPORT_PAGE_TITLE);
-    expect(EXECUTIVE_SUMMARY_PAGE_TITLE).toBe("Executive value report");
+  it("page title vocabulary matches the merged sponsor report H1 (TB-1962)", () => {
+    expect(SPONSOR_REPORT_PAGE_TITLE).toBe(BUYER_SPONSOR_REPORT_PAGE_TITLE);
+    expect(SPONSOR_REPORT_PAGE_TITLE).toBe("Sponsor report");
   });
 
   it("command palette and troubleshooting open canonical SPE path (TB-1963)", () => {

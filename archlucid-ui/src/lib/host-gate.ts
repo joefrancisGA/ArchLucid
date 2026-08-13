@@ -12,6 +12,7 @@ import { LEGACY_PRODUCT_LEARNING_PATH, PRODUCT_LEARNING_PATH } from "@/lib/produ
 import { LEGACY_SEARCH_PATH, SEARCH_REVIEW_EVIDENCE_PATH } from "@/lib/search-review-evidence-route";
 import { DIGESTS_HUB_PATH, LEGACY_DIGESTS_HUB_PATH } from "@/lib/digests-route-paths";
 import { MARKETING_SITEMAP_PATHNAMES } from "@/lib/marketing/public-marketing-seo-paths";
+import { RETIRED_PILOT_OUTCOMES_PATH } from "@/lib/sponsor-report-navigation";
 import { isSplitSiteHostingEnabled, resolveAppSiteOrigin, resolvePublicSiteOrigin } from "@/lib/site-urls";
 
 /** Extra marketing paths not always in the sitemap (noindex / funnel). */
@@ -37,7 +38,6 @@ const CANONICAL_OPERATOR_PATH_PREFIXES: readonly string[] = [
   "/administration",
   "/internal",
   "/insights/executive-summary",
-  "/insights/pilot-outcomes",
   "/insights/roi-summary",
   "/help",
   "/why-archlucid",
@@ -88,6 +88,7 @@ const LEGACY_OPERATOR_PATH_PREFIXES: readonly string[] = [
   LEGACY_LOGIN_PATH,
   LEGACY_PLANNING_PATH,
   LEGACY_INSIGHTS_PLANNING_PATH,
+  RETIRED_PILOT_OUTCOMES_PATH,
 ];
 
 const OPERATOR_PATH_PREFIXES: readonly string[] = [

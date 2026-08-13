@@ -1,4 +1,4 @@
-﻿"use client";
+"use client";
 
 import { cn } from "@/lib/utils";
 import Link from "next/link";
@@ -164,7 +164,7 @@ export function SponsorExportsSection({
           description={v.sponsorExportsPilotValueDescription}
           locked={exportsLocked}
           primaryActionLabel={v.sponsorExportsPilotValueAction}
-          primaryHref="/insights/pilot-outcomes"
+          primaryHref="/insights/executive-summary"
           previewActionLabel={v.sponsorExportsPreviewSampleAction}
           previewHref={v.sponsorExportsPilotValueSampleHref}
           testId="sponsor-exports-pilot-value"

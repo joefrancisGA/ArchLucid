@@ -180,7 +180,11 @@ WORKBOOK_PATH_MIGRATIONS: dict[str, str] = {
     "/sponsor-report/architecture-scorecard": "/insights/architecture-scorecard",
     "/value-report": "/insights/executive-summary",
     "/value-report/roi": "/insights/roi-summary",
-    "/value-report/pilot": "/insights/pilot-outcomes",
+    # Pilot outcomes merged into the sponsor report; retired without a redirect, so SPP hit share
+    # folds into the SPE row rather than tracking a dead path. Migrations resolve in a single pass,
+    # so the older `/value-report/pilot` bookmark has to name the final destination too.
+    "/value-report/pilot": "/insights/executive-summary",
+    "/insights/pilot-outcomes": "/insights/executive-summary",
     # Validate review (replay) under Internal Operations.
     "/replay": "/internal/replay",
     # Legacy internal-ops path segments.
@@ -424,7 +428,6 @@ def infer_section(path: str, *, help_alias_paths: set[str]) -> str:
     if (
         path.startswith("/insights/executive-summary")
         or path.startswith("/insights/roi-summary")
-        or path.startswith("/insights/pilot-outcomes")
     ):
         return "Sponsor report"
     if path.startswith("/architecture/digests") or path.startswith("/digests") or path == "/digest-subscriptions":

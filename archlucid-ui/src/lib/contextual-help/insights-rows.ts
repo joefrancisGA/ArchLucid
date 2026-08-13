@@ -131,10 +131,14 @@ export const INSIGHTS_CONTEXTUAL_HELP_ROWS: readonly PageContextualHelpRow[] = [
     prefix: "/insights/executive-summary",
     entry: {
       whatIsThisPage:
-        "Executive value report — period preview of finalized reviews, findings, governance activity, and directional ROI for exports.",
-      whatToDoNext: "Set the report period, refresh the preview, then generate sponsor exports when data is ready.",
-      whyEmpty: "The preview fills in after you finalize reviews in the selected period.",
+        "Sponsor report — period summary of finalized reviews, material findings, governance decisions, and directional ROI, with sponsor exports. Absorbs the retired standalone pilot outcomes page.",
+      whatToDoNext: "Set the reporting period, apply it, then generate sponsor exports when data is ready.",
+      whyEmpty: "The report fills in after you finalize reviews in the selected period.",
       whereToConfigurePrerequisite: "ROI estimates use baseline settings from workspace configuration.",
+      whatToDoNextAction: {
+        label: "Open ROI summary",
+        href: "/insights/roi-summary",
+      },
     },
   },
 ];

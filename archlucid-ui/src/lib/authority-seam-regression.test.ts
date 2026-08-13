@@ -46,10 +46,10 @@ describe("authority seam regression", () => {
    * Uses hrefs from config (not copy) so new links inherit the same contract automatically.
    * **`operate-analysis`** and **`operate-governance`** are Read-only nav-gate groups after authority-seam review (deeper
    * mutations stay Execute-gated inside the pages themselves); Execute-class rhythm links live under
-   * **`operate-analysis`**, **`operate-integrations`**, and **`operator-system-admin`**.
+   * **`operate-integrations`** and **`operator-system-admin`**.
    */
   it("hides every ExecuteAuthority-marked Operate nav link from Read callers", () => {
-    const groupIds = ["operate-analysis", "operate-integrations", "operator-system-admin"] as const;
+    const groupIds = ["operate-integrations", "operator-system-admin"] as const;
 
     for (const groupId of groupIds) {
       const links = NAV_GROUPS.find((g) => g.id === groupId)?.links;
@@ -69,6 +69,24 @@ describe("authority seam regression", () => {
         expect(navLinkVisibleForCallerRank(link, AUTHORITY_RANK.ExecuteAuthority), link.href).toBe(true);
       }
     }
+  });
+
+  /**
+   * Insights is Read-only at the nav gate. The sponsor report absorbed the pilot outcomes page, which Read callers
+   * could always open, so gating the nav row at Execute would take away a report Readers already had; the DOCX and
+   * board-pack exports stay Execute-gated inside the page via `useOperateCapability`.
+   */
+  it("keeps Insights nav rows Read-gated so reporting stays open and exports gate in-page", () => {
+    const analysis = NAV_GROUPS.find((g) => g.id === "operate-analysis");
+
+    expect(analysis).toBeDefined();
+    expect(analysis!.links.filter((l) => l.requiredAuthority === "ExecuteAuthority")).toEqual([]);
+
+    const readerHrefs = new Set(
+      filterNavLinksByAuthority(analysis!.links, AUTHORITY_RANK.ReadAuthority).map((l) => l.href),
+    );
+
+    expect(readerHrefs.has("/insights/executive-summary")).toBe(true);
   });
 
   it("keeps maxAuthorityRankFromMeClaims aligned with normalizeAuthMeResponse.authorityRank for representative /me claims", () => {

@@ -55,9 +55,9 @@ export const REPEAT_REVIEW_LOOP_HELP_LOOP_STEPS: readonly RepeatReviewLoopHelpLo
     title: "Collect proof",
     description: "Refresh sponsor-safe ROI and proof labels on the second finalized package.",
     href: "/insights/executive-summary",
-    ctaLabel: "Executive value report",
-    secondaryHref: "/insights/pilot-outcomes",
-    secondaryLabel: "Pilot outcomes",
+    ctaLabel: "Sponsor report",
+    secondaryHref: "/insights/roi-summary",
+    secondaryLabel: "ROI summary",
   },
 ] as const;
 

@@ -1,17 +1,18 @@
 import { describe, expect, it } from "vitest";
 
 import {
+  RETIRED_PILOT_OUTCOMES_PATH,
   SPONSOR_REPORT_ARCHITECTURE_SCORECARD_PATH,
   SPONSOR_REPORT_EXECUTIVE_SUMMARY_PATH,
-  SPONSOR_REPORT_PILOT_OUTCOMES_PATH,
+  SPONSOR_REPORT_PAGE_TITLE,
   SPONSOR_REPORT_ROI_SUMMARY_PATH,
+  SPONSOR_REPORT_SECTION_LABEL,
   isSponsorReportOutcomesSurface,
 } from "@/lib/sponsor-report-navigation";
 
 describe("sponsor-report-navigation", () => {
   it("detects sponsor report outcome surfaces", () => {
     expect(isSponsorReportOutcomesSurface(SPONSOR_REPORT_EXECUTIVE_SUMMARY_PATH)).toBe(true);
-    expect(isSponsorReportOutcomesSurface(SPONSOR_REPORT_PILOT_OUTCOMES_PATH)).toBe(true);
     expect(isSponsorReportOutcomesSurface(SPONSOR_REPORT_ROI_SUMMARY_PATH)).toBe(true);
     expect(isSponsorReportOutcomesSurface(SPONSOR_REPORT_ARCHITECTURE_SCORECARD_PATH)).toBe(true);
   });
@@ -23,11 +24,21 @@ describe("sponsor-report-navigation", () => {
 
   it("detects insights sponsor-report outcome paths", () => {
     expect(isSponsorReportOutcomesSurface("/insights/roi-summary")).toBe(true);
-    expect(isSponsorReportOutcomesSurface("/insights/pilot-outcomes")).toBe(true);
   });
 
   it("does not treat retired /sponsor-report bookmarks as live surfaces", () => {
     expect(isSponsorReportOutcomesSurface("/sponsor-report/executive-summary")).toBe(false);
     expect(isSponsorReportOutcomesSurface("/sponsor-report/pilot-outcomes")).toBe(false);
+  });
+
+  it("treats the merged-away pilot outcomes route as retired, not a live outcomes surface", () => {
+    expect(RETIRED_PILOT_OUTCOMES_PATH).toBe("/insights/pilot-outcomes");
+    expect(isSponsorReportOutcomesSurface(RETIRED_PILOT_OUTCOMES_PATH)).toBe(false);
+  });
+
+  it("keeps the page title distinct from the nav section label", () => {
+    expect(SPONSOR_REPORT_PAGE_TITLE).toBe("Sponsor report");
+    expect(SPONSOR_REPORT_SECTION_LABEL).toBe("Insights");
+    expect(SPONSOR_REPORT_PAGE_TITLE).not.toBe(SPONSOR_REPORT_SECTION_LABEL);
   });
 });

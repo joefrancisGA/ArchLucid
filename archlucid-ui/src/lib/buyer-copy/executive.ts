@@ -14,18 +14,22 @@ export const BUYER_WHY_ARCHLUCID_SOURCES_LINE =
 export const BUYER_WHY_ARCHLUCID_SPONSOR_PACK_SOURCE_LINE =
   "Aggregated proof from the evidence pack service — paired with the example Retail baseline review below.";
 
-export const BUYER_VALUE_REPORT_PAGE_TITLE = "Executive value report";
+/**
+ * Canonical title for the merged sponsor report at `/insights/executive-summary` — the standalone
+ * pilot outcomes page folded into it, so one page now carries the period report and its exports.
+ */
+export const SPONSOR_REPORT_PAGE_TITLE = "Sponsor report";
 
 export const BUYER_VALUE_REPORT_PAGE_SUBTITLE =
   "Generate sponsor-ready summaries of finalized reviews, findings, governance activity, and estimated ROI.";
 
 export const BUYER_VALUE_REPORT_OUTCOME_LEAD =
-  "Choose a reporting period, preview what the sponsor report will include, and export when finalized reviews exist in that window.";
+  "Choose a reporting period, review what the report contains, and export when finalized reviews exist in that window.";
 
-export const BUYER_VALUE_REPORT_HOW_IT_WORKS_TITLE = "How value reports work";
+export const BUYER_VALUE_REPORT_HOW_IT_WORKS_TITLE = "How the sponsor report works";
 
 export const BUYER_VALUE_REPORT_HOW_IT_WORKS_DETAILS =
-  "Value reports aggregate finalized reviews, governance activity, and ROI estimates for the selected UTC period. Exports unlock after at least one finalized review falls in the window. Use Pilot outcomes, ROI summary, or Review scorecard for deeper drill-downs.";
+  "The sponsor report aggregates finalized reviews, governance activity, and ROI estimates for the selected UTC period. Exports unlock after at least one finalized review falls in the window. Use ROI summary or Review scorecard for deeper drill-downs.";
 
 export const BUYER_VALUE_REPORT_PERIOD_UTC_HELP = "Times are in UTC for consistent reporting.";
 

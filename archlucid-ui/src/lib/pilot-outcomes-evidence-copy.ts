@@ -1,5 +1,14 @@
 import type { EvidenceSourceLink } from "@/lib/evidence-surface-copy";
-export const PILOT_OUTCOMES_CANONICAL_PATH = "/insights/pilot-outcomes" as const;
+import {
+  SPONSOR_REPORT_EXECUTIVE_SUMMARY_PATH,
+  SPONSOR_REPORT_PAGE_TITLE,
+} from "@/lib/sponsor-report-navigation";
+
+/**
+ * Where the pilot outcomes guide sends readers. The standalone `/insights/pilot-outcomes` page merged into the
+ * sponsor report and 404s, so this must stay pointed at the merged route.
+ */
+export const PILOT_OUTCOMES_CANONICAL_PATH = SPONSOR_REPORT_EXECUTIVE_SUMMARY_PATH;
 
 export const PILOT_OUTCOMES_HELP_CANONICAL_PATH = "/help/pilot-outcomes" as const;
 
@@ -18,9 +27,8 @@ export const PILOT_OUTCOMES_HELP_FOLLOW_UPS_TITLE = "Where to go next";
 
 export const PILOT_OUTCOMES_HELP_SOURCES_INTRO = PILOT_OUTCOMES_SOURCES_INTRO;
 
-/** Operator Sources — no self-href to `/insights/pilot-outcomes`. */
 export const PILOT_OUTCOMES_SOURCES: readonly EvidenceSourceLink[] = [
-  { label: "Executive value report", href: "/insights/executive-summary" },
+  { label: SPONSOR_REPORT_PAGE_TITLE, href: SPONSOR_REPORT_EXECUTIVE_SUMMARY_PATH },
   { label: "ROI summary", href: "/insights/roi-summary" },
   { label: "Architecture reviews", href: "/architecture/reviews" },
   { label: "Pilot guide", href: "/help/pilot-guide" },
@@ -30,5 +38,4 @@ export const PILOT_OUTCOMES_SOURCES: readonly EvidenceSourceLink[] = [
 export const PILOT_OUTCOMES_HELP_SOURCES: readonly EvidenceSourceLink[] = [
   ...PILOT_OUTCOMES_SOURCES,
   { label: "Executive summary help", href: "/help/executive-summary" },
-  { label: "Pilot outcomes", href: PILOT_OUTCOMES_CANONICAL_PATH },
 ] as const;

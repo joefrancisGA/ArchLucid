@@ -2,7 +2,7 @@ import { render, screen } from "@testing-library/react";
 import { describe, expect, it, vi } from "vitest";
 
 import { isShowSystemAdministrationNavEnabled } from "@/lib/features";
-import { EXECUTIVE_SUMMARY_PAGE_TITLE } from "@/lib/sponsor-report-navigation";
+import { SPONSOR_REPORT_PAGE_TITLE } from "@/lib/sponsor-report-navigation";
 
 import { ValueReportOutcomesNav } from "./ValueReportOutcomesNav";
 
@@ -33,23 +33,22 @@ describe("ValueReportOutcomesNav", () => {
     expect(screen.getByRole("navigation", { name: "Sponsor report sections" })).toBeInTheDocument();
     expect(screen.queryByRole("tablist")).not.toBeInTheDocument();
     expect(screen.queryByRole("tab")).not.toBeInTheDocument();
-    expect(screen.getByRole("link", { name: EXECUTIVE_SUMMARY_PAGE_TITLE })).toHaveAttribute(
+    expect(screen.getByRole("link", { name: SPONSOR_REPORT_PAGE_TITLE })).toHaveAttribute(
       "aria-current",
       "page",
     );
-    expect(screen.getByRole("link", { name: "Pilot outcomes" })).toBeInTheDocument();
+    expect(screen.queryByRole("link", { name: "Pilot outcomes" })).not.toBeInTheDocument();
     expect(screen.getByRole("link", { name: "ROI summary" })).toBeInTheDocument();
     expect(screen.getByRole("link", { name: "Architecture scorecard" })).toBeInTheDocument();
   });
 
-  it("shows pilot outcomes and ROI links for all visitors (TB-643 nav placement)", () => {
+  it("shows sponsor report, scorecard, and ROI links for all visitors (TB-643 nav placement)", () => {
     mockIsShowSystemAdministrationNavEnabled.mockReturnValue(false);
 
     render(<ValueReportOutcomesNav />);
 
-    expect(screen.getByRole("link", { name: EXECUTIVE_SUMMARY_PAGE_TITLE })).toBeInTheDocument();
+    expect(screen.getByRole("link", { name: SPONSOR_REPORT_PAGE_TITLE })).toBeInTheDocument();
     expect(screen.getByRole("link", { name: "Architecture scorecard" })).toBeInTheDocument();
-    expect(screen.getByRole("link", { name: "Pilot outcomes" })).toBeInTheDocument();
     expect(screen.getByRole("link", { name: "ROI summary" })).toBeInTheDocument();
   });
 });

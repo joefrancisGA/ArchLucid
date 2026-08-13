@@ -35,6 +35,14 @@ export type PilotValueReportPilotPageViewModel = {
   readonly error: PilotValueReportPilotPageError | null;
   readonly load: () => Promise<void>;
   readonly onDownloadReport: (format: PilotValueReportExportFormat) => Promise<void>;
+  /** Sponsor-report DOCX export for the selected period (Execute-gated). */
+  readonly onGenerateDocx: () => Promise<void>;
+  /** Board pack PDF for the current calendar quarter (Execute-gated). */
+  readonly onBoardPack: () => Promise<void>;
+  readonly docxBusy: boolean;
+  readonly boardBusy: boolean;
+  /** True when the signed-in user holds Execute authority for sponsor exports. */
+  readonly canMutate: boolean;
   readonly emailPreviewOpen: boolean;
   readonly emailPreview: PilotOutcomesEmailPreview | null;
   readonly openEmailPreview: () => void;

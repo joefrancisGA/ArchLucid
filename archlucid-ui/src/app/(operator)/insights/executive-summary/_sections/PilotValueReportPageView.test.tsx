@@ -4,7 +4,7 @@ import { describe, expect, it, vi } from "vitest";
 import { PilotValueReportPageView } from "./PilotValueReportPageView";
 import type { PilotValueReportPilotPageViewModel } from "./pilot-value-report-pilot-page-view-model";
 import { LAYER_PAGE_GUIDANCE } from "@/lib/layer-guidance";
-import { PILOT_OUTCOMES_PAGE_SUBTITLE } from "@/lib/sponsor-report-navigation";
+import { SPONSOR_REPORT_PAGE_SUBTITLE } from "@/lib/sponsor-report-navigation";
 
 vi.mock("@/lib/demo-ui-env", async (importOriginal) => {
   const mod = await importOriginal<typeof import("@/lib/demo-ui-env")>();
@@ -47,6 +47,11 @@ function buildModel(overrides: Partial<PilotValueReportPilotPageViewModel> = {})
     error: null,
     load: vi.fn(),
     onDownloadReport: vi.fn(),
+    onGenerateDocx: vi.fn(),
+    onBoardPack: vi.fn(),
+    docxBusy: false,
+    boardBusy: false,
+    canMutate: true,
     emailPreviewOpen: false,
     emailPreview: null,
     openEmailPreview: vi.fn(),
@@ -65,15 +70,31 @@ describe("PilotValueReportPageView", () => {
     expect(screen.getByTestId("page-contextual-help-button")).toBeInTheDocument();
   });
 
-  it("renders pilot outcomes title and reporting period controls", () => {
+  it("renders sponsor report title and reporting period controls", () => {
     render(<PilotValueReportPageView model={buildModel()} />);
 
-    expect(screen.getByRole("heading", { name: "Pilot outcomes" })).toBeInTheDocument();
+    expect(screen.getByRole("heading", { name: "Sponsor report" })).toBeInTheDocument();
     expect(screen.getByLabelText("Start date")).toBeInTheDocument();
     expect(screen.getByLabelText("End date")).toBeInTheDocument();
     expect(screen.getByRole("button", { name: "Apply period" })).toBeInTheDocument();
     expect(screen.getByRole("button", { name: "Download report" })).toBeDisabled();
     expect(screen.getByRole("button", { name: "Send executive briefing" })).toBeInTheDocument();
+  });
+
+  it("carries the merged sponsor exports and explains why they are disabled without finalized reviews", () => {
+    render(<PilotValueReportPageView model={buildModel()} />);
+
+    expect(screen.getByRole("button", { name: "Export sponsor report (.docx)" })).toBeDisabled();
+    expect(screen.getByRole("button", { name: /Export board pack \(\.pdf\)/ })).toBeDisabled();
+    expect(screen.getByTestId("value-report-export-disabled-reason")).toBeInTheDocument();
+  });
+
+  it("explains sponsor exports are permission-gated when the operator cannot execute", () => {
+    render(<PilotValueReportPageView model={buildModel({ canMutate: false })} />);
+
+    expect(screen.getByTestId("value-report-export-disabled-reason").textContent).toContain(
+      "Elevated workspace permissions",
+    );
   });
 
   it("shows explicit empty state when no finalized reviews exist", () => {
@@ -150,7 +171,7 @@ describe("PilotValueReportPageView", () => {
     );
   });
 
-  it("renders populated pilot summary when finalized reviews exist", () => {
+  it("renders populated report summary when finalized reviews exist", () => {
     render(
       <PilotValueReportPageView
         model={buildModel({
@@ -185,7 +206,7 @@ describe("PilotValueReportPageView", () => {
       />,
     );
 
-    expect(screen.getByRole("heading", { name: "Pilot summary" })).toBeInTheDocument();
+    expect(screen.getByRole("heading", { name: "Report summary" })).toBeInTheDocument();
     expect(screen.getByRole("heading", { name: "Finalized reviews" })).toBeInTheDocument();
     expect(screen.getByRole("button", { name: "Download report" })).toBeEnabled();
     expect(screen.queryByTestId("pilot-outcomes-empty-state")).not.toBeInTheDocument();
@@ -199,7 +220,7 @@ describe("PilotValueReportPageView buyer-polished chrome (TB-1969)", () => {
 
     render(<PilotValueReportPageView model={buildModel()} />);
 
-    expect(screen.getAllByText(PILOT_OUTCOMES_PAGE_SUBTITLE)).toHaveLength(1);
+    expect(screen.getAllByText(SPONSOR_REPORT_PAGE_SUBTITLE)).toHaveLength(1);
     expect(screen.queryByText(LAYER_PAGE_GUIDANCE["value-report-pilot"].headline)).not.toBeInTheDocument();
     expect(screen.queryByTestId("layer-header")).not.toBeInTheDocument();
     expect(screen.getByLabelText("Start date")).toBeInTheDocument();
@@ -212,6 +233,6 @@ describe("PilotValueReportPageView buyer-polished chrome (TB-1969)", () => {
     render(<PilotValueReportPageView model={buildModel()} />);
 
     expect(screen.getByTestId("layer-header")).toBeInTheDocument();
-    expect(screen.queryByText(PILOT_OUTCOMES_PAGE_SUBTITLE)).not.toBeInTheDocument();
+    expect(screen.queryByText(SPONSOR_REPORT_PAGE_SUBTITLE)).not.toBeInTheDocument();
   });
 });
