@@ -2,7 +2,7 @@
  * Baseline for the `title`-attribute-as-help ban (UI_DESIGN_SYSTEM.md § Operator page contextual
  * help — mount + interaction contract, TB-1666).
  *
- * These 41 files carried a native `title` attribute when the rule landed on 2026-08-09. The rule is
+ * These 37 files carried a native `title` attribute when the rule landed on 2026-08-09. The rule is
  * an error everywhere else so new hover-only help cannot be introduced; this list exists only so the
  * rule could land without a 135-site refactor in one change. Sweeping it is TB-2147.
  *
@@ -26,10 +26,6 @@ export const TITLE_ATTRIBUTE_LEGACY_SURFACES = [
   "src/app/(operator)/governance/alert-rules/AlertRulesHubClient.tsx",
   "src/app/(operator)/governance/audit/_sections/AuditTimelineEventCard.tsx",
   "src/app/(operator)/governance/audit/_sections/BuyerAuditEventsTechnicalAppendix.tsx",
-  "src/app/(operator)/governance/policy-packs/_sections/PolicyPackGeneratorSection.tsx",
-  "src/app/(operator)/governance/policy-packs/_sections/PolicyPacksInspectSection.tsx",
-  "src/app/(operator)/governance/policy-packs/_sections/PolicyPacksRegisteredListSection.tsx",
-  "src/app/(operator)/governance/policy-packs/_sections/PolicyRuleAuthoringWizard.tsx",
   "src/app/(operator)/insights/evidence-graph/_sections/EvidenceTrailBuyerTraceTable.tsx",
   "src/app/(operator)/insights/evidence-graph/_sections/GraphPageControls.tsx",
   "src/app/(operator)/integrations/slack/_sections/SlackDestinationForm.tsx",

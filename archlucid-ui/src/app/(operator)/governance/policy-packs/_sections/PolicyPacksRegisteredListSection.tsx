@@ -97,7 +97,7 @@ export function PolicyPacksRegisteredListSection(props: PolicyPacksRegisteredLis
         <select
           value={selectedPackId}
           onChange={(e) => onSelectedPackIdChange(e.target.value)}
-          title={canMutatePacks ? undefined : policyPacksPackSelectReaderTitle}
+          aria-describedby={!canMutatePacks ? "policy-packs-pack-select-reader-hint" : undefined}
           className={cn("mt-1 block w-full max-w-lg p-2", OPERATOR_TYPOGRAPHY.body)}
         >
           <option value="">—</option>
@@ -107,6 +107,15 @@ export function PolicyPacksRegisteredListSection(props: PolicyPacksRegisteredLis
             </option>
           ))}
         </select>
+        {!canMutatePacks ? (
+          <p
+            id="policy-packs-pack-select-reader-hint"
+            className={cn("mt-2 max-w-2xl text-al-text-secondary", OPERATOR_TYPOGRAPHY.helper)}
+            role="note"
+          >
+            {policyPacksPackSelectReaderTitle}
+          </p>
+        ) : null}
       </label>
     </section>
   );

@@ -11,7 +11,6 @@ import {
   policyPacksPublishedVersionsEmptyOperatorLine,
   policyPacksPublishedVersionsEmptyReaderLine,
   policyPacksShowDiffButtonLabelReaderRank,
-  policyPacksShowDiffButtonReaderTitle,
 } from "@/lib/enterprise-controls-context-copy";
 import { isStaticDemoPayloadFallbackEnabled } from "@/lib/operator/operator-static-demo";
 import { OPERATOR_DISCLOSURE_TRIGGER_CLASS, OPERATOR_TYPOGRAPHY } from "@/lib/design-tokens";
@@ -198,12 +197,15 @@ export function PolicyPacksInspectSection(props: PolicyPacksInspectSectionProps)
           type="button"
           onClick={() => setShowVersionDiff(true)}
           disabled={!compareLeftId || !compareRightId || compareLeftId === compareRightId}
-          title={canMutatePacks ? undefined : policyPacksShowDiffButtonReaderTitle}
         >
           {canMutatePacks ? "Show diff" : policyPacksShowDiffButtonLabelReaderRank}
         </button>
         {showVersionDiff ? (
-          <button type="button" onClick={() => setShowVersionDiff(false)} title={policyPacksHideDiffButtonTitle}>
+          <button
+            type="button"
+            onClick={() => setShowVersionDiff(false)}
+            aria-label={policyPacksHideDiffButtonTitle}
+          >
             Hide diff
           </button>
         ) : null}

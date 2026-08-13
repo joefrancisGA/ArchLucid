@@ -10,11 +10,11 @@ import { PolicyPackContentJsonEditor } from "@/components/policy/PolicyPackConte
 import { Textarea } from "@/components/ui/textarea";
 import { OperatorApiProblem } from "@/components/operator/OperatorApiProblem";
 import { PolicySimulator } from "@/components/governance/PolicySimulator";
+import { WhyDisabledCtaHint } from "@/components/usability/WhyDisabledCtaHint";
 import { listRunsByProjectPaged, simulatePolicyPackAgainstRun } from "@/lib/api";
 import { toApiLoadFailure, uiFailureFromMessage } from "@/lib/api-load-failure";
 import type { ApiLoadFailureState } from "@/lib/api-load-failure";
 import { applyGeneratedCuratedPolicyPack } from "@/lib/apply-generated-curated-policy-pack";
-import { enterpriseMutationControlDisabledTitle } from "@/lib/enterprise-controls-context-copy";
 import {
   guidedFieldsFromContentDocument,
   type GuidedPolicyFields,
@@ -33,6 +33,7 @@ import { presentPolicyPackSimulateToast } from "@/lib/policy/policy-pack-simulat
 import { showSuccess } from "@/lib/toast";
 import { OPERATOR_TYPOGRAPHY } from "@/lib/design-tokens";
 import type { RunSummary } from "@/types/authority";
+import { whyDisabledEnterpriseMutationControl } from "@/lib/why-disabled-cta";
 
 import { PACK_TYPES } from "./policy-packs-page-constants";
 import { CuratedRulesAuthoringSection } from "./CuratedRulesAuthoringSection";
@@ -42,6 +43,8 @@ import {
 } from "./policy-packs-authoring-deferred-chunks";
 
 const AUTH_WIZARD_PROJECT_ID = "default";
+const POLICY_RULE_WIZARD_MUTATE_DISABLED_HINT_ID = "policy-rule-wizard-mutate-disabled-hint";
+const POLICY_RULE_WIZARD_BUNDLED_PUBLISH_BLOCKED_HINT_ID = "policy-rule-wizard-bundled-publish-blocked-hint";
 
 export type PolicyRuleAuthoringWizardProps = {
   readonly canMutatePacks: boolean;
@@ -380,6 +383,14 @@ export function PolicyRuleAuthoringWizard(props: PolicyRuleAuthoringWizardProps)
         Design custom policy content and evaluate it against a committed architecture review on one surface, then create
         or publish through the same durable policy-pack versioning as platform defaults.
       </p>
+      {!canMutatePacks ? (
+        <WhyDisabledCtaHint
+          id={POLICY_RULE_WIZARD_MUTATE_DISABLED_HINT_ID}
+          testId={POLICY_RULE_WIZARD_MUTATE_DISABLED_HINT_ID}
+          reason={whyDisabledEnterpriseMutationControl()}
+          className="mt-2"
+        />
+      ) : null}
 
       <div className="mt-4 grid gap-6 lg:grid-cols-2 lg:items-start">
         <div className="space-y-4" data-testid="policy-rule-wizard-step-design">
@@ -540,7 +551,6 @@ export function PolicyRuleAuthoringWizard(props: PolicyRuleAuthoringWizardProps)
               onChange={onPolicyContentJsonSync}
               rows={14}
               readOnly={!canMutatePacks}
-              title={canMutatePacks ? undefined : enterpriseMutationControlDisabledTitle}
             />
             {!canMutatePacks ? (
               <p className={cn("text-al-text-secondary", OPERATOR_TYPOGRAPHY.helper)}>Reader tier: JSON edits are disabled.</p>
@@ -676,7 +686,7 @@ export function PolicyRuleAuthoringWizard(props: PolicyRuleAuthoringWizardProps)
               value={name}
               onChange={(e) => onNameChange(e.target.value)}
               readOnly={!canMutatePacks}
-              title={canMutatePacks ? undefined : enterpriseMutationControlDisabledTitle}
+              aria-describedby={!canMutatePacks ? POLICY_RULE_WIZARD_MUTATE_DISABLED_HINT_ID : undefined}
             />
           </div>
           <div className="space-y-1">
@@ -688,7 +698,7 @@ export function PolicyRuleAuthoringWizard(props: PolicyRuleAuthoringWizardProps)
               value={description}
               onChange={(e) => onDescriptionChange(e.target.value)}
               readOnly={!canMutatePacks}
-              title={canMutatePacks ? undefined : enterpriseMutationControlDisabledTitle}
+              aria-describedby={!canMutatePacks ? POLICY_RULE_WIZARD_MUTATE_DISABLED_HINT_ID : undefined}
             />
           </div>
           <label className={cn("sm:col-span-2", OPERATOR_TYPOGRAPHY.body)}>
@@ -697,7 +707,7 @@ export function PolicyRuleAuthoringWizard(props: PolicyRuleAuthoringWizardProps)
               value={packType}
               onChange={(e) => onPackTypeChange(e.target.value)}
               disabled={!canMutatePacks}
-              title={canMutatePacks ? undefined : enterpriseMutationControlDisabledTitle}
+              aria-describedby={!canMutatePacks ? POLICY_RULE_WIZARD_MUTATE_DISABLED_HINT_ID : undefined}
               className="block w-full p-2 mt-1"
             >
               {PACK_TYPES.map((t) => (
@@ -716,10 +726,23 @@ export function PolicyRuleAuthoringWizard(props: PolicyRuleAuthoringWizardProps)
               value={publishVersion}
               onChange={(e) => onPublishVersionChange(e.target.value)}
               readOnly={!canMutatePacks}
-              title={canMutatePacks ? undefined : enterpriseMutationControlDisabledTitle}
+              aria-describedby={!canMutatePacks ? POLICY_RULE_WIZARD_MUTATE_DISABLED_HINT_ID : undefined}
             />
           </div>
         </div>
+
+        {bundledPublishBlocked ? (
+          <p
+            id={POLICY_RULE_WIZARD_BUNDLED_PUBLISH_BLOCKED_HINT_ID}
+            className={cn(
+              "max-w-prose rounded-md border border-amber-600/40 bg-al-surface-raised px-3 py-2 text-al-text-primary dark:border-amber-700/50",
+              OPERATOR_TYPOGRAPHY.helper,
+            )}
+            role="note"
+          >
+            Bundled default packs cannot be republished from Policy packs. Copy JSON into a project custom pack to customize.
+          </p>
+        ) : null}
 
         <div className="flex flex-wrap gap-2">
           <Button
@@ -727,7 +750,7 @@ export function PolicyRuleAuthoringWizard(props: PolicyRuleAuthoringWizardProps)
             data-testid="policy-rule-wizard-create-pack"
             onClick={() => void onCreate()}
             disabled={loading || !canMutatePacks || parsedDocumentForSimulate === null}
-            title={canMutatePacks ? undefined : enterpriseMutationControlDisabledTitle}
+            aria-describedby={!canMutatePacks ? POLICY_RULE_WIZARD_MUTATE_DISABLED_HINT_ID : undefined}
           >
             Create pack
           </Button>
@@ -736,10 +759,8 @@ export function PolicyRuleAuthoringWizard(props: PolicyRuleAuthoringWizardProps)
             data-testid="policy-rule-wizard-publish-version"
             onClick={() => void onPublish()}
             disabled={publishDisabled}
-            title={
-              bundledPublishBlocked
-                ? "Bundled default packs cannot be republished from Policy packs."
-                : undefined
+            aria-describedby={
+              bundledPublishBlocked ? POLICY_RULE_WIZARD_BUNDLED_PUBLISH_BLOCKED_HINT_ID : undefined
             }
           >
             Publish version
