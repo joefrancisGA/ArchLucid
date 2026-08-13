@@ -9,7 +9,7 @@ export const ALERT_RULES_RULE_TYPE_HELP =
   "Evaluates findings from completed reviews. Saving a condition does not configure external notification delivery.";
 
 /** Canonical rules-tab label — keep aligned with {@link ALERT_RULES_SECTION_HEADING} and empty titles. */
-export const ALERT_RULES_TAB_LABEL = "Alert rules";
+export const ALERT_RULES_TAB_LABEL = "Conditions";
 
 /** Section heading when persisted alert rules exist (distinct from the hub page title row). */
 export const ALERT_RULES_SECTION_HEADING = ALERT_RULES_TAB_LABEL;

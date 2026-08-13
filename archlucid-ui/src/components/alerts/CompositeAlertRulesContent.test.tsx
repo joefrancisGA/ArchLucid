@@ -5,6 +5,12 @@ import { beforeEach, describe, expect, it, vi } from "vitest";
 
 import { CompositeAlertRulesContent } from "@/components/alerts/CompositeAlertRulesContent";
 import { renderWithOperatorQuery } from "@/testing/operator-query-test-helpers";
+import {
+  COMPOSITE_RULES_CONDITIONS_TAB_LINK_LABEL,
+  COMPOSITE_RULES_CREATE_ONLY_DISCLOSURE,
+  COMPOSITE_RULES_EMPTY_EXAMPLE_BODY,
+  COMPOSITE_RULES_NOUN,
+} from "@/lib/enterprise-controls-context-copy";
 import { operatorHubZoneEmptyTitle } from "@/lib/operator/operator-empty-state-kind-presets";
 import type { CompositeAlertRule } from "@/types/composite-alert-rules";
 
@@ -61,6 +67,7 @@ describe("CompositeAlertRulesContent", () => {
     apiHoisted.listCompositeAlertRules.mockReset();
     apiHoisted.createCompositeAlertRule.mockReset();
     apiHoisted.listCompositeAlertRules.mockResolvedValue([sampleRule]);
+    apiHoisted.createCompositeAlertRule.mockResolvedValue(sampleRule);
   });
 
   it("renders persisted composite rules with operator-safe labels and no engineering enum strings in the list", async () => {
@@ -76,9 +83,10 @@ describe("CompositeAlertRulesContent", () => {
     expect(listRow).toHaveTextContent("All conditions (AND)");
     expect(listRow).toHaveTextContent("Alert priority: High");
     expect(listRow).toHaveTextContent("Dedupe: Rule + review");
+    expect(listRow).toHaveTextContent("Created");
     expect(listRow).toHaveTextContent("Cost increase % ≥ 10");
     expect(listRow).toHaveTextContent("New compliance gap count (security deltas) ≥ 1");
-    expect(within(listRow).getByText("Active")).toBeInTheDocument();
+    expect(within(listRow).getByTestId("composite-alert-rule-state-composite-1")).toHaveTextContent("Active");
 
     expect(listRow.textContent).not.toMatch(/GreaterThanOrEqual/i);
     expect(listRow.textContent).not.toMatch(/Enabled:\s*true/i);
@@ -154,7 +162,7 @@ describe("CompositeAlertRulesContent", () => {
     expect(source).not.toContain("OPERATOR_TYPOGRAPHY.pageTitle");
   });
 
-  it("TB-1582: empty-first hides create form until header Create reveals it", async () => {
+  it("P0-5: empty-first hides create form until action row Create reveals it with example and Conditions link", async () => {
     apiHoisted.listCompositeAlertRules.mockResolvedValue([]);
     renderWithOperatorQuery(<CompositeAlertRulesContent />);
 
@@ -163,8 +171,14 @@ describe("CompositeAlertRulesContent", () => {
     });
 
     expect(screen.getByTestId("composite-alert-rules-empty")).toHaveTextContent(
-      operatorHubZoneEmptyTitle("composite alert rules"),
+      operatorHubZoneEmptyTitle(COMPOSITE_RULES_NOUN),
     );
+    expect(screen.getByTestId("composite-rules-empty-example")).toHaveTextContent(COMPOSITE_RULES_EMPTY_EXAMPLE_BODY);
+    expect(screen.getByTestId("composite-rules-empty-conditions-link")).toHaveAttribute(
+      "href",
+      "/governance/alert-rules",
+    );
+    expect(screen.getByRole("link", { name: COMPOSITE_RULES_CONDITIONS_TAB_LINK_LABEL })).toBeInTheDocument();
     expect(screen.queryByLabelText("Name")).toBeNull();
     expect(screen.getByTestId("composite-rules-create-action")).toBeInTheDocument();
 
@@ -175,7 +189,59 @@ describe("CompositeAlertRulesContent", () => {
     });
 
     expect(screen.getByLabelText("Name")).toBeInTheDocument();
-    expect(screen.queryByTestId("composite-rules-create-action")).toBeNull();
+  });
+
+  it("P0-2: shows create-only disclosure and read-only state chips without section Refresh", async () => {
+    renderWithOperatorQuery(<CompositeAlertRulesContent />);
+
+    await waitFor(() => {
+      expect(screen.getByTestId("composite-alert-rule-row-composite-1")).toBeInTheDocument();
+    });
+
+    expect(screen.getByTestId("composite-rules-create-only-disclosure")).toHaveTextContent(
+      COMPOSITE_RULES_CREATE_ONLY_DISCLOSURE,
+    );
+    expect(screen.queryByRole("button", { name: "Refresh" })).toBeNull();
+    expect(screen.getByTestId("composite-alert-rule-state-composite-1")).toHaveAttribute("aria-readonly", "true");
+  });
+
+  it("P0-3: disables create until the form is valid and requires confirmation before POST", async () => {
+    apiHoisted.listCompositeAlertRules.mockResolvedValue([]);
+    renderWithOperatorQuery(<CompositeAlertRulesContent />);
+
+    await waitFor(() => {
+      expect(screen.getByTestId("composite-rules-create-action")).toBeInTheDocument();
+    });
+
+    fireEvent.click(screen.getByTestId("composite-rules-create-action"));
+
+    await waitFor(() => {
+      expect(screen.getByLabelText("Name")).toBeInTheDocument();
+    });
+
+    const createButton = screen.getByTestId("composite-rules-create-button");
+    expect(createButton).toBeDisabled();
+
+    fireEvent.change(screen.getByLabelText("Name"), { target: { value: "Cost + compliance composite" } });
+
+    await waitFor(() => {
+      expect(createButton).not.toBeDisabled();
+    });
+
+    fireEvent.click(createButton);
+
+    await waitFor(() => {
+      expect(screen.getByRole("alertdialog")).toBeInTheDocument();
+    });
+
+    expect(screen.getByRole("alertdialog")).toHaveTextContent("Cost + compliance composite");
+    expect(screen.getByRole("alertdialog")).toHaveTextContent("Cost increase % ≥ 10");
+
+    fireEvent.click(screen.getByRole("button", { name: "Create composite rule" }));
+
+    await waitFor(() => {
+      expect(apiHoisted.createCompositeAlertRule).toHaveBeenCalledTimes(1);
+    });
   });
 
   it("TB-1583: shows a list loading skeleton while composite rules are loading", async () => {

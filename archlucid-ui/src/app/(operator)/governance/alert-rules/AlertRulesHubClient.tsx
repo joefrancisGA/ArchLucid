@@ -16,6 +16,7 @@ import {
   type AlertRulesHubTabId,
 } from "@/lib/alerts-hub-tab";
 import { ALERT_RULES_TAB_LABEL, ALERT_RULES_TEST_ALERTS_TAB_DISABLED_REASON } from "@/lib/alert-rule-conditions-copy";
+import { COMPOSITE_RULES_TAB_LABEL } from "@/lib/enterprise-controls-context-copy";
 import { alertsConfigurationPageSubtitle } from "@/lib/alerts-page-copy";
 import { whyDisabledNeedsPrerequisite } from "@/lib/why-disabled-cta";
 
@@ -41,7 +42,7 @@ const TAB_CONFIG: Record<AlertRulesHubTabId, AlertRulesHubTabConfig> = {
     label: "Notifications",
   },
   "advanced-rules": {
-    label: "Advanced rules",
+    label: COMPOSITE_RULES_TAB_LABEL,
   },
   "test-alerts": {
     label: "Test alerts",
@@ -63,17 +64,30 @@ function alertRulesHubTabLabel(tabId: AlertRulesHubTabId, count: number | undefi
  * The former "About alert rules" / "About alert configuration" disclosures are gone —
  * orientation copy now lives behind the single contextual help entry point in the header.
  */
+function alertRulesHubActiveTabLabel(tabId: AlertRulesHubTabId): string {
+  return TAB_CONFIG[tabId].label;
+}
+
 function AlertRulesHubChrome(props: { readonly activeTab: AlertRulesHubTabId }): React.JSX.Element {
-  const { refreshing, lastRefreshedAt, requestRefresh, tabCounts, rulesConfigChange } =
-    useAlertRulesHubRefresh();
+  const {
+    refreshing,
+    lastRefreshedAt,
+    requestRefresh,
+    tabCounts,
+    rulesConfigChange,
+    compositeRulesConfigChange,
+  } = useAlertRulesHubRefresh();
 
   return (
     <>
       <AlertRulesPageHeader
         subtitle={alertsConfigurationPageSubtitle(isBuyerPolishedOperatorShellEnv())}
         activeTab={props.activeTab}
+        activeTabLabel={alertRulesHubActiveTabLabel(props.activeTab)}
         rulesTabCount={tabCounts.rules}
         rulesConfigChange={rulesConfigChange}
+        advancedRulesTabCount={tabCounts["advanced-rules"]}
+        compositeRulesConfigChange={compositeRulesConfigChange}
         refreshing={refreshing}
         lastRefreshedAt={lastRefreshedAt}
         onRefresh={requestRefresh}
