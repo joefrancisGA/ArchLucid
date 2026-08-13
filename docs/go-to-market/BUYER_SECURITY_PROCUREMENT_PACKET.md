@@ -2500,7 +2500,7 @@ Do not claim product help is specialty-guided / Start-CTA ready while â‰¤~50
 
 ### Residuals (honest)
 
-- **TB-1414** / **TB-1415** own the shared chrome contract and language guards.
+- **TB-1414** **Done** — engineering SoT [`SPECIALTY_HELP_CHROME_CONTRACT.md`](../library/SPECIALTY_HELP_CHROME_CONTRACT.md) + Vitest inventory; **TB-1415** owns language guards.
 - Per-route clusters own shipping chrome for each row; this handout does not replace those P0s.
 - Out of scope: integration empty/not-configured theater (**M-257**/**M-258**).
 - This handout does not claim CPA SOC 2 or a published third-party penetration test.
