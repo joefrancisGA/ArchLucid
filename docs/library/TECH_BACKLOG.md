@@ -1308,7 +1308,7 @@ All **P0** **V1**: visible-boundary button contract + design-system rule (**TB-2
 | TB-2215 | Multi-cloud cost constraint parity (AWS/GCP); see ## TB-2215 below | Cost-effectiveness P2 — **V1.1**; non-policy-pack assessment wave 2026-08-13; pairs **TB-874**–**TB-876** | L |
 | TB-2216 | Graph ↔ Azure inventory reconciliation; see ## TB-2216 below | Correctness P0 — **V1**; non-policy-pack assessment wave 2026-08-13; closes topology validation loop | L |
 | TB-2217 | Expand deterministic Azure orphan/drift classifiers; see ## TB-2217 below | Correctness P0 — **V1**; non-policy-pack assessment wave 2026-08-13; extends `OrphanedResourceClassifier` | M |
-| TB-2218 | AWS/GCP inventory reality finding engines; see ## TB-2218 below | Correctness P1 — **V1.1**; non-policy-pack assessment wave 2026-08-13; pairs **TB-874**–**TB-876** | L |
+| TB-2218 | AWS/GCP inventory reality finding engines; see ## TB-2218 below | Correctness P1 — **V1.1** ? **Done** 2026-08-13; `orphaned-aws-resource` + `orphaned-gcp-resource` engines; pairs **TB-874**–**TB-876** | L |
 | TB-2219 | Inventory collection freshness gate; see ## TB-2219 below | Reliability P1 ? **V1** ? **Done** 2026-08-13; non-policy-pack assessment wave; stale ZIP must not drive findings | S |
 | TB-2220 | Inventory findings linked to topology graph nodes; see ## TB-2220 below | Explainability P2 — **V1**; non-policy-pack assessment wave 2026-08-13; evidence graph visibility | M |
 | TB-2221 | Validate-before-overlay for all agent proposals; see ## TB-2221 below | AI/Agent readiness P0 — **V1**; non-policy-pack assessment wave 2026-08-13; implements **TB-1196** for cost/compliance/critic | L |
@@ -1326,11 +1326,11 @@ All **P0** **V1**: visible-boundary button contract + design-system rule (**TB-2
 | TB-2103 | Operator-maintained model catalog ? DDL-backed `IAgentModelAliasRegistry` replacing `ConfigAgentModelAliasRegistry`; internal-only admin surface; lifecycle + audit on every mutation; see ## TB-2103 below | Maintainability P1 ? **V1.1**; ADR 0065 D2?; today curation needs a code change + deploy | L |
 | TB-2104 | Structured-output capability ladder (`StrictJsonSchema` \| `JsonObject` \| `DegradedTextParse`) per catalog row + per-task minimum, fail-closed routing; see ## TB-2104 below | Correctness P1 ? **V1.1**; ADR 0065 D4?; the **only** quality-adjacent fail-closed control ? function, not quality judgment | M |
 | TB-2105 | Engine evaluation evidence **attached, not gating** ? conformance + faithfulness + judge delta per engine ? task type stored on the catalog row and surfaced at point of selection; explicit `NotEvaluated`; see ## TB-2105 below | Trustworthiness P1 ? **V1.1**; ADR 0065 D3?; reuses **TB-683** harness + existing judges; selection is never refused on measured quality | L |
-| TB-2110 | Two-tier engine selection ? workspace admin sets allowed engine set + default; users choose within it per review; authorization + provenance; see ## TB-2110 below | Adoption friction P1 ? **V1.1**; ADR 0065 D13; bounds within-workspace engine variance so cross-run comparison stays meaningful | M |
+| TB-2110 | Two-tier engine selection ? workspace admin sets allowed engine set + default; users choose within it per review; authorization + provenance; see ## TB-2110 below | Adoption friction P1 ? **V1.1** ? **Partial** 2026-08-13 (backend: allowed-set + run override resolver + settings API; UI/provenance **TB-2106** still open) | M |
 | TB-2106 | Engine identity as first-class run provenance ? trace/`EngineProvenanceJson` completeness + `EndToEndReplayComparisonService` engine diff; explicitly **not** in `ManifestHash`; see ## TB-2106 below | Traceability P1 ? **V1.1**; ADR 0065 D5?; replay currently cannot attribute drift to an engine change | M |
 | TB-2107 | Per-engine tokenizer + USD rate profiles on catalog rows; budget guard + `LlmCostEstimator` read from catalog, not deployment-keyed options; see ## TB-2107 below | Cost-effectiveness P2 ? **V1.1**; ADR 0065 D6?; `chars / 4` heuristic does not hold cross-tokenizer | M |
 | TB-2108 | First non-Azure ArchLucid-managed engine adapter ? `LlmProviderType` activation in `DefaultLlmProviderFactory` for one admitted engine; see ## TB-2108 below | Cost-effectiveness P3 ? **V2**; ADR 0065 D1?; gated on **TB-2103**?**TB-2107** and **TB-872** | XL |
-| TB-2109 | Non-Azure engine data-boundary gate ? subprocessor disclosure + trust-center/buyer-packet update + workspace-admin regulated-evidence acknowledgment in audit before first use; see ## TB-2109 below | Compliance readiness P1 ? **V1.1**; ADR 0065 D11; documentation is a merge gate, not a follow-up | M |
+| TB-2109 | Non-Azure engine data-boundary gate ? subprocessor disclosure + trust-center/buyer-packet update + workspace-admin regulated-evidence acknowledgment in audit before first use; see ## TB-2109 below | Compliance readiness P1 ? **V1.1** ? **Partial** 2026-08-13 (registry `DataBoundary`, acknowledgment API + audit; buyer/trust docs + `ExternalSubprocessor` catalog rows still open) | M |
 | TB-2096 | **Done** ? Keep only middle golden-journey step pills ? remove prev/next arrows + Review lifecycle hero; see ## TB-2096 below | Adoption friction P0 ? **V1**; owner ask 2026-08-07; Evidence graph spine | S |
 | TB-2097 | **Done** ? Rename golden-journey step pill ?Evidence trail? ? ?Evidence graph?; see ## TB-2097 below | Adoption friction P0 ? **V1**; owner ask 2026-08-07; aligns BUYER_SURFACE_VOCABULARY | S |
 | TB-2006 | Architecture draft workspace ? disable Start review until readiness; drop validation toast; see ## TB-2006 below | Adoption friction P1 ? **V1** ? **Done** 2026-08-12 | S |
@@ -49205,7 +49205,7 @@ while the four counters go through `countValue`, which ignores it (line ~58).
 
 **Window:** V1.1 ? ADR 0065 D11. Must land **before** any engine outside the Azure boundary becomes tenant-selectable (**TB-2108**, **TB-873**).
 
-**Status:** Not started.
+**Status:** **Partial** (2026-08-13) — `AgentModelDataBoundaryKind` on registry entries, workspace acknowledgment service + settings API, audit event types; buyer/trust docs and `ExternalSubprocessor` catalog rows still open.
 
 **Priority:** P1.
 
@@ -49243,7 +49243,7 @@ while the four counters go through `countValue`, which ignores it (line ~58).
 
 **Window:** V1.1 ? ADR 0065 D13. After **TB-2103**; pairs with **TB-2105** (evidence at point of selection) and **TB-2106** (per-run provenance).
 
-**Status:** Not started.
+**Status:** **Partial** (2026-08-13) — `WorkspaceAllowedEngineSetService`, settings API, `ModelAliasOverride` on run create with server-side resolver + audit; UI picker and run-detail provenance (**TB-2106**) still open.
 
 **Priority:** P1.
 

@@ -48,7 +48,7 @@ public sealed class SponsorReportsSummaryServiceTests
 
         SponsorReportsSummaryService sut = new(scope.Object, roi.Object, decisions.Object);
 
-        SponsorSummaryResult result = await sut.BuildAsync(CancellationToken.None);
+        SponsorReportResult result = await sut.BuildAsync(CancellationToken.None);
 
         result.TotalRiskReductionScore.Should().Be(7);
         result.PendingGovernanceDecisionCount.Should().Be(11);

@@ -19,4 +19,10 @@ public static class TenantSettingKeys
 
     /// <summary>Workspace default governed model execution profile (<c>Economy</c>, <c>Balanced</c>, <c>HighAssurance</c>).</summary>
     public const string DefaultModelExecutionProfile = "ModelGovernance.DefaultExecutionProfile";
+
+    /// <summary>JSON allowed engine alias ids + default alias id for per-review selection (TB-2110).</summary>
+    public const string WorkspaceAllowedEngineAliases = "ModelGovernance.AllowedEngineAliases";
+
+    /// <summary>Workspace-admin acknowledgment before external-subprocessor engine use (TB-2109).</summary>
+    public const string ExternalSubprocessorEngineAcknowledged = "ModelGovernance.ExternalSubprocessorEngineAcknowledged";
 }

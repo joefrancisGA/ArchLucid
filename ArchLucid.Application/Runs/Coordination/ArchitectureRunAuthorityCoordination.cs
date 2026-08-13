@@ -37,6 +37,7 @@ public sealed class ArchitectureRunAuthorityCoordination(
     TechnologyLedgerEvidenceSeeder technologyLedgerEvidenceSeeder,
     IRunStateTransitionService runStateTransitionService,
     IModelExecutionProfileResolver modelExecutionProfileResolver,
+    IReviewModelAliasResolver reviewModelAliasResolver,
     IAuditService auditService,
     ILogger<ArchitectureRunAuthorityCoordination> logger) : IArchitectureRunAuthorityCoordination
 {
@@ -64,6 +65,9 @@ public sealed class ArchitectureRunAuthorityCoordination(
 
     private readonly IModelExecutionProfileResolver _modelExecutionProfileResolver =
         modelExecutionProfileResolver ?? throw new ArgumentNullException(nameof(modelExecutionProfileResolver));
+
+    private readonly IReviewModelAliasResolver _reviewModelAliasResolver =
+        reviewModelAliasResolver ?? throw new ArgumentNullException(nameof(reviewModelAliasResolver));
 
     private readonly IAuditService _auditService =
         auditService ?? throw new ArgumentNullException(nameof(auditService));
@@ -119,6 +123,9 @@ public sealed class ArchitectureRunAuthorityCoordination(
             ModelExecutionProfileResolution profileResolution =
                 await _modelExecutionProfileResolver.ResolveForRunCreateAsync(request, cancellationToken).ConfigureAwait(false);
 
+            ReviewModelAliasResolution aliasResolution =
+                await _reviewModelAliasResolver.ResolveForRunCreateAsync(request, cancellationToken).ConfigureAwait(false);
+
             tasks = RunStarterTaskFactory.BuildStarterTasks(
                 runId,
                 evidenceBundle,
@@ -133,6 +140,16 @@ public sealed class ArchitectureRunAuthorityCoordination(
                     _scopeContextProvider,
                     runId,
                     profileResolution,
+                    cancellationToken).ConfigureAwait(false);
+            }
+
+            if (!string.IsNullOrWhiteSpace(aliasResolution.RequestedOverrideRaw))
+            {
+                await ReviewModelAliasOverrideAuditWriter.TryLogOverrideAppliedAsync(
+                    _auditService,
+                    _scopeContextProvider,
+                    runId,
+                    aliasResolution,
                     cancellationToken).ConfigureAwait(false);
             }
         }

@@ -203,4 +203,13 @@ public sealed class ArchitectureRequest
         get;
         set;
     }
+
+    /// <summary>
+    ///     Optional per-review curated engine alias override (TB-2110); must be within the workspace allowed set.
+    /// </summary>
+    public string? ModelAliasOverride
+    {
+        get;
+        set;
+    }
 }

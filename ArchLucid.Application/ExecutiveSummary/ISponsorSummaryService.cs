@@ -10,5 +10,5 @@ public interface ISponsorSummaryService
     /// <summary>
     ///     Generates an sponsor report for the specified tenant based on their latest architecture run.
     /// </summary>
-    Task<SponsorSummaryResponse> GenerateSummaryAsync(Guid tenantId, CancellationToken cancellationToken = default);
+    Task<SponsorReportResponse> GenerateSummaryAsync(Guid tenantId, CancellationToken cancellationToken = default);
 }

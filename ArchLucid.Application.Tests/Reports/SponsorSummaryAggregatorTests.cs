@@ -5,13 +5,13 @@ using Xunit;
 namespace ArchLucid.Application.Tests.Reports;
 
 [Trait("Category", "Unit")]
-public sealed class SponsorSummaryAggregatorTests
+public sealed class SponsorReportAggregatorTests
 {
     [Fact]
     public void Aggregate_WithOverlappingFindings_TakesMaxValuesPerFinding()
     {
         // Arrange
-        var findings = new List<SponsorSummaryFinding>
+        var findings = new List<SponsorReportFinding>
         {
             new("finding-1", "run-1", "Cost", 100m, 5),
             new("finding-1", "run-2", "Cost", 150m, 8), // Same finding, higher values
@@ -21,7 +21,7 @@ public sealed class SponsorSummaryAggregatorTests
         };
 
         // Act
-        var result = SponsorSummaryAggregator.Aggregate(findings);
+        var result = SponsorReportAggregator.Aggregate(findings);
 
         // Assert
         result.RawFindingCount.Should().Be(5);
@@ -34,7 +34,7 @@ public sealed class SponsorSummaryAggregatorTests
     public void Aggregate_WithEmptyList_ReturnsZeros()
     {
         // Act
-        var result = SponsorSummaryAggregator.Aggregate(new List<SponsorSummaryFinding>());
+        var result = SponsorReportAggregator.Aggregate(new List<SponsorReportFinding>());
 
         // Assert
         result.RawFindingCount.Should().Be(0);

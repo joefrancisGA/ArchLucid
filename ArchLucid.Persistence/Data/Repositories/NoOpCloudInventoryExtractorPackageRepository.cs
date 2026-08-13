@@ -23,4 +23,16 @@ public sealed class NoOpCloudInventoryExtractorPackageRepository : ICloudInvento
         CloudProvider cloudProvider,
         CancellationToken cancellationToken = default)
         => Task.FromResult<CloudInventoryExtractorPackageProvenance?>(null);
+
+    public Task<DateTime?> TryGetLatestCollectionTimestampUtcInScopeAsync(
+        ScopeContext scope,
+        CloudProvider cloudProvider,
+        CancellationToken cancellationToken = default)
+        => Task.FromResult<DateTime?>(null);
+
+    public Task<CloudInventoryExtractorPackageDownloadRecord?> TryGetLatestDownloadInScopeAsync(
+        ScopeContext scope,
+        CloudProvider cloudProvider,
+        CancellationToken cancellationToken = default)
+        => Task.FromResult<CloudInventoryExtractorPackageDownloadRecord?>(null);
 }

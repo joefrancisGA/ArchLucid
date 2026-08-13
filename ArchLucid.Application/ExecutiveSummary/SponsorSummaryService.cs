@@ -14,7 +14,7 @@ public sealed class SponsorSummaryService(IRunRepository runRepository, IRunDeta
     private readonly IRunRepository _runRepository = runRepository ?? throw new ArgumentNullException(nameof(runRepository));
     private readonly IRunDetailQueryService _runDetailQueryService = runDetailQueryService ?? throw new ArgumentNullException(nameof(runDetailQueryService));
 
-    public async Task<SponsorSummaryResponse> GenerateSummaryAsync(Guid tenantId, CancellationToken cancellationToken = default)
+    public async Task<SponsorReportResponse> GenerateSummaryAsync(Guid tenantId, CancellationToken cancellationToken = default)
     {
         ScopeContext scope = new()
         {
@@ -25,7 +25,7 @@ public sealed class SponsorSummaryService(IRunRepository runRepository, IRunDeta
         IReadOnlyList<RunRecord> recentRuns = await _runRepository.ListRecentInScopeAsync(scope, 1, cancellationToken);
         if (recentRuns.Count == 0)
         {
-            return new SponsorSummaryResponse
+            return new SponsorReportResponse
             {
                 TenantId = tenantId.ToString("N"),
                 SecurityPostureScore = 100,
@@ -38,7 +38,7 @@ public sealed class SponsorSummaryService(IRunRepository runRepository, IRunDeta
         ArchitectureRunDetail? detail = await _runDetailQueryService.GetRunDetailForRollupAsync(latestRun.RunId.ToString("N"), cancellationToken);
         if (detail is null)
         {
-            return new SponsorSummaryResponse
+            return new SponsorReportResponse
             {
                 TenantId = tenantId.ToString("N"),
                 LatestRunId = latestRun.RunId.ToString("N"),
@@ -81,7 +81,7 @@ public sealed class SponsorSummaryService(IRunRepository runRepository, IRunDeta
             }
         }
 
-        return new SponsorSummaryResponse
+        return new SponsorReportResponse
         {
             TenantId = tenantId.ToString("N"),
             LatestRunId = latestRun.RunId.ToString("N"),

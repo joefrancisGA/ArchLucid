@@ -272,7 +272,10 @@ public static partial class ServiceCollectionExtensions
         services.AddScoped<IAgentOutputQualityGateOptionsResolver, AgentOutputQualityGateOptionsResolver>();
         services.AddScoped<ITenantAgentOutputQualityGateModeService, TenantAgentOutputQualityGateModeService>();
         services.AddScoped<IWorkspaceModelExecutionProfileService, WorkspaceModelExecutionProfileService>();
+        services.AddScoped<IWorkspaceAllowedEngineSetService, WorkspaceAllowedEngineSetService>();
         services.AddScoped<IModelExecutionProfileResolver, ModelExecutionProfileResolver>();
+        services.AddScoped<IReviewModelAliasResolver, ReviewModelAliasResolver>();
+        services.AddScoped<IExternalSubprocessorEngineAcknowledgmentService, ExternalSubprocessorEngineAcknowledgmentService>();
         services.AddScoped<IFeaturedCompletedSampleService, FeaturedCompletedSampleService>();
         services.AddScoped<IPilotRunDeltaComputer, PilotRunDeltaComputer>();
         services.AddScoped<IRecentPilotRunDeltasService, RecentPilotRunDeltasService>();

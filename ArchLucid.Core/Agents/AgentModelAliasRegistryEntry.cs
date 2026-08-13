@@ -33,6 +33,13 @@ public sealed class AgentModelAliasRegistryEntry
         init;
     }
 
+    /// <summary>Whether completions stay inside the ArchLucid Azure boundary (TB-2109).</summary>
+    public AgentModelDataBoundaryKind DataBoundary
+    {
+        get;
+        init;
+    } = AgentModelDataBoundaryKind.AzureBoundary;
+
     public bool IsTaskApproved(string taskType)
     {
         if (string.IsNullOrWhiteSpace(taskType))

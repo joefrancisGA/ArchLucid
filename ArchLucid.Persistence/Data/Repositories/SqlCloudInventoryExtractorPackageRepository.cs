@@ -154,6 +154,132 @@ public sealed class SqlCloudInventoryExtractorPackageRepository(ISqlConnectionFa
         };
     }
 
+    public async Task<DateTime?> TryGetLatestCollectionTimestampUtcInScopeAsync(
+        ScopeContext scope,
+        CloudProvider cloudProvider,
+        CancellationToken cancellationToken = default)
+    {
+        ArgumentNullException.ThrowIfNull(scope);
+
+        if (cloudProvider is not (CloudProvider.Aws or CloudProvider.Gcp))
+        {
+            return null;
+        }
+
+        const string sql = """
+                           SELECT TOP (1) CollectionTimestampUtc
+                           FROM dbo.CloudInventoryExtractorPackages
+                           WHERE TenantId = @TenantId
+                               AND WorkspaceId = @WorkspaceId
+                               AND ProjectId = @ProjectId
+                               AND CloudProvider = @CloudProvider
+                               AND CollectionTimestampUtc IS NOT NULL
+                           ORDER BY CollectionTimestampUtc DESC, CreatedUtc DESC;
+                           """;
+
+        using System.Data.IDbConnection conn =
+            await connectionFactory.CreateOpenConnectionAsync(cancellationToken);
+
+        DateTime? row = await conn.ExecuteScalarAsync<DateTime?>(
+            new CommandDefinition(
+                sql,
+                new
+                {
+                    scope.TenantId,
+                    scope.WorkspaceId,
+                    scope.ProjectId,
+                    CloudProvider = (int)cloudProvider,
+                },
+                commandTimeout: DapperCommandTimeoutSeconds.Report,
+                cancellationToken: cancellationToken));
+
+        if (row is null)
+        {
+            return null;
+        }
+
+        return DateTime.SpecifyKind(row.Value, DateTimeKind.Utc);
+    }
+
+    public async Task<CloudInventoryExtractorPackageDownloadRecord?> TryGetLatestDownloadInScopeAsync(
+        ScopeContext scope,
+        CloudProvider cloudProvider,
+        CancellationToken cancellationToken = default)
+    {
+        ArgumentNullException.ThrowIfNull(scope);
+
+        if (cloudProvider is not (CloudProvider.Aws or CloudProvider.Gcp))
+        {
+            return null;
+        }
+
+        const string sql = """
+                           SELECT TOP (1) PackageId, RunId, OriginalFileName, PackageBytes
+                           FROM dbo.CloudInventoryExtractorPackages
+                           WHERE TenantId = @TenantId
+                               AND WorkspaceId = @WorkspaceId
+                               AND ProjectId = @ProjectId
+                               AND CloudProvider = @CloudProvider
+                           ORDER BY CreatedUtc DESC;
+                           """;
+
+        using System.Data.IDbConnection conn =
+            await connectionFactory.CreateOpenConnectionAsync(cancellationToken);
+
+        DownloadRow? row = await conn.QuerySingleOrDefaultAsync<DownloadRow>(
+            new CommandDefinition(
+                sql,
+                new
+                {
+                    scope.TenantId,
+                    scope.WorkspaceId,
+                    scope.ProjectId,
+                    CloudProvider = (int)cloudProvider,
+                },
+                commandTimeout: DapperCommandTimeoutSeconds.Report,
+                cancellationToken: cancellationToken));
+
+        if (row is null || row.PackageId == Guid.Empty)
+        {
+            return null;
+        }
+
+        return new CloudInventoryExtractorPackageDownloadRecord
+        {
+            PackageId = row.PackageId,
+            RunId = row.RunId,
+            OriginalFileName = row.OriginalFileName ?? string.Empty,
+            PackageBytes = row.PackageBytes ?? [],
+        };
+    }
+
+    private sealed class DownloadRow
+    {
+        public Guid PackageId
+        {
+            get;
+            set;
+        }
+
+        public Guid? RunId
+        {
+            get;
+            set;
+        }
+
+        public string? OriginalFileName
+        {
+            get;
+            set;
+        }
+
+        public byte[]? PackageBytes
+        {
+            get;
+            set;
+        }
+    }
+
     private sealed class ProvenanceRow
     {
         public Guid PackageId

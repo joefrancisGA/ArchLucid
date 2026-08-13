@@ -31,7 +31,7 @@ public sealed class SponsorRoiSummaryInvariantTests
     private static readonly Guid ProjectId = Guid.Parse("cccccccc-cccc-cccc-cccc-cccccccccccc");
 
     [Fact]
-    public async Task SponsorSummaryResult_maps_resolved_findings_separately_from_pending_governance()
+    public async Task SponsorReportResult_maps_resolved_findings_separately_from_pending_governance()
     {
         // Regression guard for TB-151 — TotalRiskReductionScore must not alias pending decision count.
         Mock<IScopeContextProvider> scope = new();
@@ -55,14 +55,14 @@ public sealed class SponsorRoiSummaryInvariantTests
 
         SponsorReportsSummaryService sut = new(scope.Object, roi.Object, decisions.Object);
 
-        SponsorSummaryResult result = await sut.BuildAsync(CancellationToken.None);
+        SponsorReportResult result = await sut.BuildAsync(CancellationToken.None);
 
         result.TotalRiskReductionScore.Should().Be(4);
         result.PendingGovernanceDecisionCount.Should().Be(20);
     }
 
     [Fact]
-    public async Task SponsorSummaryResult_cost_waste_usd_is_not_aliased_to_total_savings()
+    public async Task SponsorReportResult_cost_waste_usd_is_not_aliased_to_total_savings()
     {
         // Regression guard for TB-152 — CostWasteUsd must stay null until a distinct waste metric exists.
         Mock<IScopeContextProvider> scope = new();
@@ -86,7 +86,7 @@ public sealed class SponsorRoiSummaryInvariantTests
 
         SponsorReportsSummaryService sut = new(scope.Object, roi.Object, decisions.Object);
 
-        SponsorSummaryResult result = await sut.BuildAsync(CancellationToken.None);
+        SponsorReportResult result = await sut.BuildAsync(CancellationToken.None);
 
         result.TotalCostSavingsUsd.Should().Be(50_000m);
         result.CostWasteUsd.Should().BeNull();

@@ -50,7 +50,7 @@ public sealed class WeeklySponsorSummaryJobTests
         services.AddSingleton(tenants.Object);
         services.AddSingleton(Mock.Of<IAuthorityQueryService>());
         services.AddSingleton(Mock.Of<IRunSummaryOnePagerExportService>());
-        services.AddSingleton(Mock.Of<ISponsorSummaryRecipientLookup>());
+        services.AddSingleton(Mock.Of<ISponsorReportRecipientLookup>());
         services.AddSingleton(Mock.Of<IWeeklySponsorSummaryEmailDispatcher>());
         services.AddSingleton(Mock.Of<IOptionsMonitor<EmailNotificationOptions>>());
         services.AddScoped<WeeklySponsorSummaryDeliveryScanner>();

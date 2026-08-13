@@ -21,7 +21,7 @@ public sealed class WeeklySponsorSummaryDeliveryScanner(
     ITenantRepository tenantRepository,
     IAuthorityQueryService authorityQueryService,
     IRunSummaryOnePagerExportService runSummaryOnePagerExportService,
-    ISponsorSummaryRecipientLookup recipientLookup,
+    ISponsorReportRecipientLookup recipientLookup,
     IWeeklySponsorSummaryEmailDispatcher emailDispatcher,
     IOptionsMonitor<WeeklySponsorSummaryOptions> optionsMonitor,
     IOptionsMonitor<EmailNotificationOptions> emailOptionsMonitor,
@@ -42,7 +42,7 @@ public sealed class WeeklySponsorSummaryDeliveryScanner(
     private readonly IOptionsMonitor<WeeklySponsorSummaryOptions> _optionsMonitor =
         optionsMonitor ?? throw new ArgumentNullException(nameof(optionsMonitor));
 
-    private readonly ISponsorSummaryRecipientLookup _recipientLookup =
+    private readonly ISponsorReportRecipientLookup _recipientLookup =
         recipientLookup ?? throw new ArgumentNullException(nameof(recipientLookup));
 
     private readonly IRunSummaryOnePagerExportService _runSummaryOnePagerExportService =
@@ -68,7 +68,7 @@ public sealed class WeeklySponsorSummaryDeliveryScanner(
             if (cancellationToken.IsCancellationRequested)
                 break;
 
-            if (!CommercialTenantEligibility.IsEligibleForWeeklySponsorSummary(tenant))
+            if (!CommercialTenantEligibility.IsEligibleForWeeklySponsorReport(tenant))
                 continue;
 
             try

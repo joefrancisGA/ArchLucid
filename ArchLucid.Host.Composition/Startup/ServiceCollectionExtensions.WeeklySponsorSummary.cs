@@ -20,9 +20,9 @@ public static partial class ServiceCollectionExtensions
         ArchLucidOptions archLucidOptions = ArchLucidConfigurationBridge.ResolveArchLucidOptions(configuration);
 
         if (ArchLucidOptions.EffectiveIsSql(archLucidOptions.StorageProvider))
-            services.AddScoped<ISponsorSummaryRecipientLookup, DapperSponsorSummaryRecipientLookup>();
+            services.AddScoped<ISponsorReportRecipientLookup, DapperSponsorReportRecipientLookup>();
         else
-            services.AddSingleton<ISponsorSummaryRecipientLookup, NullSponsorSummaryRecipientLookup>();
+            services.AddSingleton<ISponsorReportRecipientLookup, NullSponsorReportRecipientLookup>();
 
         services.AddScoped<IWeeklySponsorSummaryEmailDispatcher, WeeklySponsorSummaryEmailDispatcher>();
         services.AddScoped<WeeklySponsorSummaryDeliveryScanner>();

@@ -20,4 +20,16 @@ public interface ICloudInventoryExtractorPackageRepository
         Guid runId,
         CloudProvider cloudProvider,
         CancellationToken cancellationToken = default);
+
+    /// <summary>Latest collection timestamp for scoped AWS/GCP inventory packages (TB-2218 / TB-2219).</summary>
+    Task<DateTime?> TryGetLatestCollectionTimestampUtcInScopeAsync(
+        ScopeContext scope,
+        CloudProvider cloudProvider,
+        CancellationToken cancellationToken = default);
+
+    /// <summary>Latest AWS/GCP inventory ZIP bytes in the active scope (TB-2218).</summary>
+    Task<CloudInventoryExtractorPackageDownloadRecord?> TryGetLatestDownloadInScopeAsync(
+        ScopeContext scope,
+        CloudProvider cloudProvider,
+        CancellationToken cancellationToken = default);
 }

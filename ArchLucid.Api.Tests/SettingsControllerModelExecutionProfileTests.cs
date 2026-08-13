@@ -1,4 +1,5 @@
 using ArchLucid.Api.Controllers.Admin;
+using ArchLucid.Application.Agents;
 using ArchLucid.Application.Tenancy;
 using ArchLucid.Core.Agents;
 using ArchLucid.Core.Audit;
@@ -153,6 +154,8 @@ public sealed class SettingsControllerModelExecutionProfileTests
         new(
             Mock.Of<ITenantAgentOutputQualityGateModeService>(),
             profileService,
+            Mock.Of<IWorkspaceAllowedEngineSetService>(),
+            Mock.Of<IExternalSubprocessorEngineAcknowledgmentService>(),
             Mock.Of<IAgentModelAliasRegistry>(),
             scopeProvider,
             auditService,
