@@ -4,6 +4,7 @@ import { OPERATOR_TYPOGRAPHY } from "@/lib/design-tokens";
 
 import { useEffect, useId, useMemo, useRef, useState } from "react";
 
+import { Button } from "@/components/ui/button";
 import { Input } from "@/components/ui/input";
 import { Label } from "@/components/ui/label";
 import { useAskProjectRunsQuery } from "@/hooks/use-ask-project-runs-query";
@@ -43,6 +44,38 @@ type RunIdPickerProps = {
   /** When true, focus the combo input on mount (operator list vs compare-entry ergonomics). */
   autoFocus?: boolean;
 };
+
+/**
+ * Load failure inside the picker popup.
+ *
+ * The popup is the only place the failure can appear, so the retry lives here rather than in a page
+ * header: a reader who opened the dropdown to pick a review has nowhere else to go.
+ */
+function RunIdPickerLoadFailure({
+  message,
+  retrying,
+  onRetry,
+}: {
+  readonly message: string;
+  readonly retrying: boolean;
+  readonly onRetry: () => void;
+}) {
+  return (
+    <div className="flex flex-wrap items-center gap-2 px-3 py-2 text-red-700 dark:text-red-400">
+      <span className="min-w-0 flex-1">{message}</span>
+      <Button
+        type="button"
+        variant="outline"
+        size="sm"
+        disabled={retrying}
+        data-testid="run-id-picker-retry"
+        onClick={onRetry}
+      >
+        {retrying ? "Retrying…" : "Try again"}
+      </Button>
+    </div>
+  );
+}
 
 function truncate(text: string, max: number): string {
   const t = text.trim();
@@ -441,8 +474,12 @@ export function RunIdPicker({
             }}
           >
             {loadError !== null ? (
-              <li className="px-3 py-2 text-red-700 dark:text-red-400" role="presentation">
-                {loadError}
+              <li role="presentation">
+                <RunIdPickerLoadFailure
+                  message={loadError}
+                  retrying={runsQuery.isFetching}
+                  onRetry={() => void runsQuery.refetch()}
+                />
               </li>
             ) : null}
             {filtered.map((r, index) => {
@@ -504,7 +541,11 @@ export function RunIdPicker({
               <div className="px-3 py-2 text-neutral-500 dark:text-neutral-400">Loading reviews…</div>
             ) : null}
             {!loading && loadError !== null ? (
-              <div className="px-3 py-2 text-red-700 dark:text-red-400">{loadError}</div>
+              <RunIdPickerLoadFailure
+                message={loadError}
+                retrying={runsQuery.isFetching}
+                onRetry={() => void runsQuery.refetch()}
+              />
             ) : null}
             {showNoMatches ? (
               <div className="px-3 py-2 text-neutral-700 dark:text-neutral-300" data-testid="run-id-picker-no-matches">

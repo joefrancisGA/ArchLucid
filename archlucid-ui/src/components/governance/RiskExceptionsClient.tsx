@@ -8,7 +8,9 @@ import { ConfirmationDialog } from "@/components/ConfirmationDialog";
 import { GovernanceApprovalStatusBanner } from "@/components/governance/GovernanceApprovalStatusBanner";
 import { CopyIdButton } from "@/components/CopyIdButton";
 import { EnterpriseCompactEmptyState } from "@/components/EnterpriseCompactEmptyState";
+import { OperatorSectionLoadFailure } from "@/components/operator/OperatorSectionLoadFailure";
 import { LayerHeader } from "@/components/LayerHeader";
+import { GOVERNANCE_EXCEPTIONS_PATH } from "@/lib/governance/governance-route-paths";
 import { OperatorPageHeader } from "@/components/operator/OperatorPageHeader";
 import { RiskExceptionsFindingsVocabularyRail } from "@/components/RiskExceptionsFindingsVocabularyRail";
 import { PageContextualHelpButton } from "@/components/usability/PageContextualHelpButton";
@@ -74,6 +76,10 @@ function statusTagFor(displayStatus: RiskExceptionDisplayStatus): {
   return { kind: "ready", label: "Active" };
 }
 
+function riskExceptionsLoadFailureMessage(error: unknown): string {
+  return error instanceof Error ? error.message : "Failed to load risk exceptions.";
+}
+
 function sortByExpiryAsc(records: RiskExceptionRecord[]): RiskExceptionRecord[] {
   return [...records].sort((left, right) => Date.parse(left.expiresAtUtc) - Date.parse(right.expiresAtUtc));
 }
@@ -104,6 +110,8 @@ export default function RiskExceptionsClient() {
   const [renewRationale, setRenewRationale] = useState("");
   const [pendingRevoke, setPendingRevoke] = useState<RiskExceptionRecord | null>(null);
 
+  const [retryingLoad, setRetryingLoad] = useState(false);
+
   const reload = useCallback(async (): Promise<void> => {
     const rows = await listRiskExceptions();
     setRecords(sortByExpiryAsc(rows));
@@ -119,7 +127,7 @@ export default function RiskExceptionsClient() {
         await reload();
       } catch (error: unknown) {
         if (!canceled) {
-          setLoadError(error instanceof Error ? error.message : "Failed to load risk exceptions.");
+          setLoadError(riskExceptionsLoadFailureMessage(error));
         }
       }
     })();
@@ -127,6 +135,20 @@ export default function RiskExceptionsClient() {
     return () => {
       canceled = true;
     };
+  }, [reload]);
+
+  /** `reload` throws rather than reporting, so the retry path owns the message the same way the effect does. */
+  const retryLoad = useCallback(async (): Promise<void> => {
+    setRetryingLoad(true);
+    setLoadError(null);
+
+    try {
+      await reload();
+    } catch (error: unknown) {
+      setLoadError(riskExceptionsLoadFailureMessage(error));
+    } finally {
+      setRetryingLoad(false);
+    }
   }, [reload]);
 
   const expiringSoonCount = useMemo(
@@ -188,7 +210,7 @@ export default function RiskExceptionsClient() {
         <LayerHeader pageKey="exceptions" density="compact" className="mb-3" />
       )}
 
-      <OperatorPageHeader title={pageTitle} subtitle={pageSubtitle} actions={<PageContextualHelpButton />} />
+      <OperatorPageHeader navHref={GOVERNANCE_EXCEPTIONS_PATH} title={pageTitle} subtitle={pageSubtitle} actions={<PageContextualHelpButton />} />
       <RiskExceptionsFindingsVocabularyRail currentSurfaceId="risk-exceptions" />
 <div className={cn("mt-4", OPERATOR_LAYOUT.sectionStack)}>
         {expiringSoonCount > 0 ? (
@@ -205,7 +227,12 @@ export default function RiskExceptionsClient() {
         ) : null}
 
         {loadError ? (
-          <p className={cn("m-0 text-red-700 dark:text-red-400", OPERATOR_TYPOGRAPHY.body)}>{loadError}</p>
+          <OperatorSectionLoadFailure
+            message={loadError}
+            retrying={retryingLoad}
+            testId="risk-exceptions-load-failure"
+            onRetry={() => void retryLoad()}
+          />
         ) : null}
 
         {records.length === 0 ? (

@@ -3,7 +3,9 @@
 import { useCallback, useEffect, useState } from "react";
 
 import { EnterpriseCompactEmptyState } from "@/components/EnterpriseCompactEmptyState";
+import { SIGNED_RECORDS_LIST_PATH } from "@/lib/signed-records-paths";
 import { OperatorPageHeader } from "@/components/operator/OperatorPageHeader";
+import { OperatorSectionLoadFailure } from "@/components/operator/OperatorSectionLoadFailure";
 import { SignedRecordsReviewDetailVocabularyRail } from "@/components/SignedRecordsReviewDetailVocabularyRail";
 import { PageContextualHelpButton } from "@/components/usability/PageContextualHelpButton";
 import { listRunsByProjectPaged } from "@/lib/api";
@@ -137,6 +139,7 @@ export default function SignedRecordsListClient() {
   return (
     <div className="w-full max-w-[1440px]">
       <OperatorPageHeader
+        navHref={SIGNED_RECORDS_LIST_PATH}
         title={SIGNED_RECORDS_LIST_PAGE_TITLE}
         subtitle={SIGNED_RECORDS_LIST_PAGE_SUBTITLE}
         titleTestId="signed-records-list-page-title"
@@ -144,9 +147,13 @@ export default function SignedRecordsListClient() {
       />
       <SignedRecordsReviewDetailVocabularyRail currentSurfaceId="signed-records" />
       {loadError !== null ? (
-        <p className={cn(OPERATOR_TYPOGRAPHY.body, "mb-4 text-al-danger")} role="alert">
-          {loadError}
-        </p>
+        <OperatorSectionLoadFailure
+          className="mb-4"
+          message={loadError}
+          retrying={loading}
+          testId="signed-records-list-load-failure"
+          onRetry={() => void loadRows({ page, cursor })}
+        />
       ) : null}
 
       {!loading && !hasRows && loadError === null ? (

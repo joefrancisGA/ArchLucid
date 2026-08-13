@@ -9,7 +9,9 @@ import { CollapsibleSection } from "@/components/CollapsibleSection";
 import { DigestRecurrenceScheduleVocabularyRail } from "@/components/DigestRecurrenceScheduleVocabularyRail";
 import { AdvisoryRecurrenceScheduleVocabularyRail } from "@/components/AdvisoryRecurrenceScheduleVocabularyRail";
 import { EnterpriseCompactEmptyState } from "@/components/EnterpriseCompactEmptyState";
+const GOVERNANCE_RECURRENCE_SCHEDULES_PATH = "/governance/recurrence-schedules" as const;
 import { OperatorPageHeader } from "@/components/operator/OperatorPageHeader";
+import { OperatorSectionLoadFailure } from "@/components/operator/OperatorSectionLoadFailure";
 import { PageContextualHelpButton } from "@/components/usability/PageContextualHelpButton";
 import { WhyDisabledCtaHint } from "@/components/usability/WhyDisabledCtaHint";
 import { OperatorInventoryRowMoreActions } from "@/components/operator/OperatorInventoryRowMoreActions";
@@ -157,12 +159,17 @@ type RecurrenceScheduleRowEditorState = {
   isEnabled: boolean;
 };
 
+function recurrenceSchedulesLoadFailureMessage(error: unknown): string {
+  return error instanceof Error ? error.message : "Failed to load recurrence schedules.";
+}
+
 /** TB-222 — governance workspace for architecture review recurrence schedules. */
 export default function RecurrenceSchedulesClient() {
   const canMutate = useOperateCapability();
   const displayTimeZoneId = useMemo(() => resolveRecurrenceDisplayTimeZoneId(), []);
   const [schedules, setSchedules] = useState<ArchitectureReviewRecurrenceSchedule[]>([]);
   const [loadError, setLoadError] = useState<string | null>(null);
+  const [retryingLoad, setRetryingLoad] = useState(false);
   const [busyId, setBusyId] = useState<string | null>(null);
   const [showCreatePanel, setShowCreatePanel] = useState(false);
   const [createSeed, setCreateSeed] = useState<RecurrenceScheduleExample | null>(null);
@@ -199,7 +206,7 @@ export default function RecurrenceSchedulesClient() {
         await reload();
       } catch (error: unknown) {
         if (!canceled) {
-          setLoadError(error instanceof Error ? error.message : "Failed to load recurrence schedules.");
+          setLoadError(recurrenceSchedulesLoadFailureMessage(error));
         }
       }
     })();
@@ -207,6 +214,20 @@ export default function RecurrenceSchedulesClient() {
     return () => {
       canceled = true;
     };
+  }, [reload]);
+
+  /** `reload` throws rather than reporting, so the retry path owns the message the same way the effect does. */
+  const retryLoad = useCallback(async (): Promise<void> => {
+    setRetryingLoad(true);
+    setLoadError(null);
+
+    try {
+      await reload();
+    } catch (error: unknown) {
+      setLoadError(recurrenceSchedulesLoadFailureMessage(error));
+    } finally {
+      setRetryingLoad(false);
+    }
   }, [reload]);
 
   async function toggleEnabled(schedule: ArchitectureReviewRecurrenceSchedule): Promise<void> {
@@ -336,6 +357,7 @@ export default function RecurrenceSchedulesClient() {
     >
       <div className="space-y-4">
           <OperatorPageHeader
+            navHref={GOVERNANCE_RECURRENCE_SCHEDULES_PATH}
             title="Recurrence schedules"
             subtitle={RECURRENCE_SCHEDULES_PAGE_SUBTITLE}
             actions={
@@ -381,7 +403,12 @@ export default function RecurrenceSchedulesClient() {
           </nav>
 
           {loadError ? (
-            <p className={cn("m-0 text-red-700 dark:text-red-400", OPERATOR_TYPOGRAPHY.body)}>{loadError}</p>
+            <OperatorSectionLoadFailure
+              message={loadError}
+              retrying={retryingLoad}
+              testId="recurrence-schedules-load-failure"
+              onRetry={() => void retryLoad()}
+            />
           ) : null}
 
           {showCreatePanel ? (

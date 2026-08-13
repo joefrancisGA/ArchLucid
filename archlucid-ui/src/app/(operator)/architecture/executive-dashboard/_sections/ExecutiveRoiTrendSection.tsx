@@ -4,6 +4,7 @@ import { cn } from "@/lib/utils";
 import { useMemo, useState } from "react";
 
 import { ExecutiveTimeRangeSelect } from "@/components/executive/ExecutiveTimeRangeSelect";
+import { OperatorSectionLoadFailure } from "@/components/operator/OperatorSectionLoadFailure";
 import { Card, CardContent, CardDescription, CardHeader, CardTitle } from "@/components/ui/card";
 import { Skeleton } from "@/components/ui/skeleton";
 import { StatusTag } from "@/components/ui/status-tag";
@@ -128,9 +129,12 @@ export function ExecutiveRoiTrendSection({
           </div>
         ) : null}
         {!loading && error ? (
-          <p className={cn("m-0 text-al-text-secondary", OPERATOR_TYPOGRAPHY.body)} role="alert">
-            ROI trend is unavailable right now.
-          </p>
+          <OperatorSectionLoadFailure
+            message="ROI trend is unavailable right now."
+            retrying={historyQuery.isFetching}
+            testId="exec-roi-trend-load-failure"
+            onRetry={() => void historyQuery.refetch()}
+          />
         ) : null}
         {!loading && !error && points.length === 0 ? (
           <p className={cn("m-0 text-al-text-secondary", OPERATOR_TYPOGRAPHY.body)}>

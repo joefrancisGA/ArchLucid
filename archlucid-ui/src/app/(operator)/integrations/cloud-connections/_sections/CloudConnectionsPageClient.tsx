@@ -4,6 +4,7 @@ import { cn } from "@/lib/utils";
 import Link from "next/link";
 import { useCallback, useEffect, useMemo, useState } from "react";
 
+import { OperatorSectionLoadFailure } from "@/components/operator/OperatorSectionLoadFailure";
 import { listAwsTier2Connections } from "@/lib/api/aws-cloud-connections-api";
 import { listTier2Connections } from "@/lib/api/cloud-connections-api";
 import { listGcpTier2Connections } from "@/lib/api/gcp-cloud-connections-api";
@@ -59,6 +60,9 @@ type ProviderSummaryState = {
   readonly lastValidation: string;
   readonly evidenceCollected: string;
 };
+
+const CLOUD_CONNECTIONS_LOAD_FAILURE_MESSAGE =
+  "Could not load cloud connection status. Check your permissions, then try again.";
 
 const DEFAULT_PROVIDER_SUMMARY: ProviderSummaryState = {
   status: "Not configured",
@@ -124,18 +128,22 @@ export function CloudConnectionsPageClient() {
     setLoadError(null);
   }, []);
 
-  useEffect(() => {
-    void (async () => {
-      try {
-        await refreshSummaries();
-      } catch (error) {
-        console.error(error);
-        setLoadError("Could not load cloud connection status. Check your permissions and try refreshing the page.");
-      } finally {
-        setIsLoading(false);
-      }
-    })();
+  const loadSummaries = useCallback(async () => {
+    setIsLoading(true);
+
+    try {
+      await refreshSummaries();
+    } catch (error) {
+      console.error(error);
+      setLoadError(CLOUD_CONNECTIONS_LOAD_FAILURE_MESSAGE);
+    } finally {
+      setIsLoading(false);
+    }
   }, [refreshSummaries]);
+
+  useEffect(() => {
+    void loadSummaries();
+  }, [loadSummaries]);
 
   useEffect(
     () =>
@@ -203,9 +211,12 @@ export function CloudConnectionsPageClient() {
         </h2>
 
         {loadError ? (
-          <p className={cn(OPERATOR_TYPOGRAPHY.body, "text-red-600 dark:text-red-400")} role="alert">
-            {loadError}
-          </p>
+          <OperatorSectionLoadFailure
+            message={loadError}
+            retrying={isLoading}
+            testId="cloud-connections-load-failure"
+            onRetry={() => void loadSummaries()}
+          />
         ) : null}
 
         {isLoading ? <p className={OPERATOR_TYPOGRAPHY.helper}>Loading connection status...</p> : null}

@@ -7,6 +7,7 @@ import { useCallback, useEffect, useMemo, useState, type FormEvent, type ReactNo
 
 import { BaselineFieldMessage } from "@/components/forms/BaselineFieldMessage";
 import { Button } from "@/components/ui/button";
+import { OperatorSectionLoadFailure } from "@/components/operator/OperatorSectionLoadFailure";
 import { OperatorSuccessCallout } from "@/components/operator/OperatorSuccessCallout";
 import { Card, CardContent, CardHeader, CardTitle } from "@/components/ui/card";
 import { Input } from "@/components/ui/input";
@@ -266,9 +267,12 @@ export function TenantCostSettingsCard({ canEdit }: TenantCostSettingsCardProps)
       />
       <CardContent>
         {loadFailure !== null ? (
-          <p className={cn("m-0 text-rose-800 dark:text-rose-200", OPERATOR_TYPOGRAPHY.body)} role="alert">
-            {loadFailure}
-          </p>
+          <OperatorSectionLoadFailure
+            message={loadFailure}
+            retrying={costSettingsQuery.isFetching}
+            testId="tenant-cost-settings-load-failure"
+            onRetry={() => void costSettingsQuery.refetch()}
+          />
         ) : null}
 
         {loading ? (
