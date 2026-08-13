@@ -64,8 +64,8 @@ In `TECH_BACKLOG.md` summary table: **V1 / V1.1 first** (cluster order); **`### 
 | Role mapping (`/administration/settings/identity-providers/role-mapping`) | **TB-1916**–**TB-1920** (open **V1**) | Status-hub honesty; shell/dedupe; StatusTag/examples; protocol CTAs; Vitest; ~43/100; traffic **SEO**; siblings SEI/SOI/SSA |
 | SAML identity (`/administration/settings/identity-providers/saml`) | **TB-1921**–**TB-1925** (open **V1**) | Metadata-fetch label; in-page confirm; shell density; Select/regex/health; Vitest; ~52/100; traffic **SSA**; siblings SEI/SOI/SEO |
 | AI and model governance (`/administration/settings/model-governance`) | **TB-1930** (open **V1**) | Vitest; ~48/100; traffic **SEM**; **TB-1927**–**TB-1929** Done |
-| Connect AWS securely help (`/help/cloud-connections/aws`) | **TB-1234**–**TB-1238** (open P1 **V1**) | Specialty guide view (Azure parity); purge Tier/hosted-pull jargon; IAM + Resource Explorer actionability; OIDC trust-policy template; workflow CTAs + classification sections; owner review ~52/100 2026-07-26 |
-| Connect GCP securely help (`/help/cloud-connections/gcp`) | **TB-1239**–**TB-1243** (open P1 **V1**) | Specialty guide view (Azure parity); purge Tier/hosted-pull jargon; Cloud Asset roles + WIF enablement; WIF pool-provider template; workflow CTAs + classification sections; owner review ~51/100 2026-07-26 |
+| Connect AWS securely help (`/help/cloud-connections/aws`) | **Done** (**TB-1234**–**TB-1238**) | Specialty guide + banned-copy + IAM manifest + OIDC trust-policy template + workflow/classification chrome; Vitest; owner review ~52/100 2026-07-26 |
+| Connect GCP securely help (`/help/cloud-connections/gcp`) | **TB-1241**–**TB-1243** (open P1 **V1**); **TB-1239**/**TB-1240** **Done** | Specialty guide + banned-copy shipped; residual: Cloud Asset roles depth, WIF template polish, workflow CTA parity; owner review ~51/100 2026-07-26 |
 | Engineering troubleshooting help exposure | **TB-1248** (open; **TB-1246**/**TB-1247**/**TB-1249**/**TB-1250** Done; specialty chrome shipped 2026-08-02) | Align route slug with “Engineering troubleshooting runbook”; specialty Admin guide + Sources shipped; traffic **HDX** |
 | Procurement FAQ help (`/help/procurement`) | **TB-1253**/**TB-1256**–**TB-1257** (open; **TB-1254**/**TB-1255** Done) | Specialty buyer FAQ guide; diligence CTAs (trust/pack/DPA); in-app-only links + shorten SSO; owner review ~49/100 2026-07-26 |
 | Starting reviews help (`/help/starting-reviews`) | **TB-1259**/**TB-1262** open; **TB-1258**/**TB-1260**/**TB-1261**/**TB-1643** shipped 2026-08-03 | Canon `/help/review-guide`; aliases `starting-reviews` + `creating-runs`. Residual: empty-state pointer (dirty-blocked), wizard CTA (**TB-1259**), Related density (**TB-1262**); traffic **HER**/**HET** → **HR** |
@@ -225,13 +225,13 @@ In `TECH_BACKLOG.md` summary table: **V1 / V1.1 first** (cluster order); **`### 
 | TB-1233 | Anti-WHERE-TenantId-equals-isolation / ARCH-alone-proves / RLS-as-beyond-predicate honesty CI | Testability P1 **V1** — after **TB-1232**; pairs **M-213** |
 | TB-1244 | Azure workload privilege-escalation seam matrix (SQL bootstrap vs runtime MI) | Trustworthiness P1 **V1** — PA Q9; GTM **M-215**/**M-216** |
 | TB-1245 | Anti-least-privilege-while-db_owner-colocated / PE-equals-private / AOAI-Contributor honesty CI | Testability P1 **V1** — after **TB-1244**; pairs **M-215** |
-| TB-1234 | `/help/cloud-connections/aws` specialty guide view (Azure parity) | Adoption friction P1 **V1** — owner AWS help ~52/100; complements Done **TB-720** |
-| TB-1235 | AWS help — purge Tier/hosted-pull jargon from primary copy | Trustworthiness P1 **V1** — with **TB-1234**; Azure banned-copy parity |
-| TB-1236 | AWS help — manifest-driven IAM permissions + Resource Explorer enablement | Trustworthiness P1 **V1** — with **TB-1234** |
-| TB-1237 | AWS help — copyable OIDC trust-policy template + federation identifiers | Trustworthiness P1 **V1** — with **TB-1234**; pairs **TB-1236** |
-| TB-1238 | AWS help — workflow CTAs + classified data sections (Azure chrome parity) | Adoption friction P1 **V1** — with **TB-1234** |
-| TB-1239 | `/help/cloud-connections/gcp` specialty guide view (Azure parity) | Adoption friction P1 **V1** — owner GCP help ~51/100; complements Done **TB-720** / **TB-1234** |
-| TB-1240 | GCP help — purge Tier/hosted-pull jargon from primary copy | Trustworthiness P1 **V1** — with **TB-1239**; Azure/AWS banned-copy parity |
+| TB-1234 | ~~`/help/cloud-connections/aws` specialty guide view (Azure parity)~~ **Done** (2026-08-12) | Adoption friction P1 **V1** — owner AWS help ~52/100; complements Done **TB-720** |
+| TB-1235 | ~~AWS help — purge Tier/hosted-pull jargon from primary copy~~ **Done** (2026-08-12) | Trustworthiness P1 **V1** — with **TB-1234**; Azure banned-copy parity |
+| TB-1236 | ~~AWS help — manifest-driven IAM permissions + Resource Explorer enablement~~ **Done** (2026-08-12) | Trustworthiness P1 **V1** — with **TB-1234** |
+| TB-1237 | ~~AWS help — copyable OIDC trust-policy template + federation identifiers~~ **Done** (2026-08-12) | Trustworthiness P1 **V1** — with **TB-1234**; pairs **TB-1236** |
+| TB-1238 | ~~AWS help — workflow CTAs + classified data sections (Azure chrome parity)~~ **Done** (2026-08-12) | Adoption friction P1 **V1** — with **TB-1234** |
+| TB-1239 | ~~`/help/cloud-connections/gcp` specialty guide view (Azure parity)~~ **Done** (2026-08-12) | Adoption friction P1 **V1** — owner GCP help ~51/100; complements Done **TB-720** / **TB-1234** |
+| TB-1240 | ~~GCP help — purge Tier/hosted-pull jargon from primary copy~~ **Done** (2026-08-12) | Trustworthiness P1 **V1** — with **TB-1239**; Azure/AWS banned-copy parity |
 | TB-1241 | GCP help — manifest-driven roles + Cloud Asset Inventory enablement | Trustworthiness P1 **V1** — with **TB-1239** |
 | TB-1242 | GCP help — copyable WIF pool-provider template + federation identifiers | Trustworthiness P1 **V1** — with **TB-1239**; pairs **TB-1241** |
 | TB-1243 | GCP help — workflow CTAs + classified data sections (Azure chrome parity) | Adoption friction P1 **V1** — with **TB-1239** |
