@@ -34,7 +34,7 @@ import { OPERATOR_TYPOGRAPHY } from "@/lib/design-tokens";
 import type { AlertRoutingDeliveryAttempt, AlertRoutingSubscription } from "@/types/alert-routing";
 
 export type AlertRoutingDestinationListProps = {
-  items: AlertRoutingSubscription[];
+  items: readonly AlertRoutingSubscription[];
   attemptsBySub: Record<string, AlertRoutingDeliveryAttempt[]>;
   canMutateRouting: boolean;
   testingId: string | null;

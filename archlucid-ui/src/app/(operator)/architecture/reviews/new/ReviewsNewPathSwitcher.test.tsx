@@ -64,7 +64,7 @@ describe("ReviewsNewPathSwitcher (first-run tenant)", () => {
     expect(screen.getByTestId("reviews-new-specimen-preview")).toBeInTheDocument();
     expect(screen.getByTestId("reviews-new-specimen-preview-primary-cta")).toHaveAttribute(
       "href",
-      "/architecture/reviews/claims-intake-modernization?reviewTab=review-package",
+      "/architecture/reviews/customer-intake-modernization?reviewTab=review-package",
     );
     expect(screen.getByTestId("reviews-new-primary-path-layout")).toBeInTheDocument();
     expect(screen.queryByText(/Expected outputs:/i)).toBeNull();
