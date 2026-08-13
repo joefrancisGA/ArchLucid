@@ -488,8 +488,6 @@ export function CommandPalette({ showTrigger = false }: CommandPaletteProps) {
   const { showFullNav: roleNavDensityShowFullNav } = useRoleNavDensityExpanded();
   const roleNavDensityPersona = resolveRoleNavDensityPersona(currentPrincipal.roleClaimValues);
   const buyerPolishedShell = isBuyerPolishedOperatorShellEnv();
-  const paletteExtended = true;
-  const paletteAdvanced = true;
   const patternLibraryNavVisible = usePatternLibraryNavVisible();
 
   const visibleHrefs = useMemo(() => {
@@ -497,8 +495,8 @@ export function CommandPalette({ showTrigger = false }: CommandPaletteProps) {
       scopeOperatorShellNavRows(
         listNavGroupsVisibleInOperatorShell(
           NAV_GROUPS,
-          paletteExtended,
-          paletteAdvanced,
+          true,
+          true,
           callerAuthorityRank,
           false,
           "all",
@@ -523,8 +521,6 @@ export function CommandPalette({ showTrigger = false }: CommandPaletteProps) {
     );
   }, [
     auditRunId,
-    paletteExtended,
-    paletteAdvanced,
     callerAuthorityRank,
     hasCommittedArchitectureReview,
     patternLibraryNavVisible,
@@ -672,8 +668,8 @@ export function CommandPalette({ showTrigger = false }: CommandPaletteProps) {
           </CommandEmpty>
           <CommandPaletteNavGroups
             callerAuthorityRank={callerAuthorityRank}
-            shellShowExtended={paletteExtended}
-            shellShowAdvanced={paletteAdvanced}
+            shellShowExtended={true}
+            shellShowAdvanced={true}
             hasCommittedArchitectureReview={hasCommittedArchitectureReview}
             buyerPolishedShell={buyerPolishedShell}
             auditRunId={auditRunId}

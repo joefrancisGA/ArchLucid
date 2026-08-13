@@ -2,6 +2,7 @@
 
 import type { PageContextualHelpRow } from "@/lib/contextual-help/types";
 import { ACCELERATOR_CHOOSER_HELP_PAGE_TITLE } from "@/lib/accelerator-chooser-help-guide-content";
+import { DATA_HANDLING_TENANT_ISOLATION_HELP_TOPIC_LABEL } from "@/lib/data-handling-tenant-isolation-help-evidence-copy";
 import { PLANNING_PATH } from "@/lib/planning-route";
 import { PRODUCT_LEARNING_PATH } from "@/lib/product-learning-route";
 
@@ -9,8 +10,7 @@ export const HELP_TOPIC_CONTEXTUAL_HELP_ROWS: readonly PageContextualHelpRow[] =
   {
     prefix: "/help/data-handling",
     entry: {
-      whatIsThisPage:
-        "Explain how review evidence is handled, what stays in your tenant, and how three-layer isolation works.",
+      whatIsThisPage: `${DATA_HANDLING_TENANT_ISOLATION_HELP_TOPIC_LABEL} — review evidence flow, tenant scope, and three-layer isolation.`,
       whatToDoNext:
         "Open Trust Center or Assurance status for diligence artifacts, then review Sources before sponsor briefings.",
       whyEmpty: "This guide always shows isolation and data-handling content when the help topic loads.",

@@ -12,6 +12,7 @@ import { RECURRENCE_SCHEDULES_HELP_TOPIC_LABEL } from "@/lib/recurrence-schedule
 import { SETTINGS_HUB_HELP_TOPIC_LABEL } from "@/lib/contextual-help/administration-rows";
 import { REPEAT_REVIEW_LOOP_HELP_PAGE_TITLE } from "@/lib/repeat-review-loop-help-guide-content";
 import { COMPARISON_REPLAY_HELP_TOPIC_LABEL } from "@/lib/comparison-replay-help-evidence-copy";
+import { DATA_HANDLING_TENANT_ISOLATION_HELP_TOPIC_LABEL } from "@/lib/data-handling-tenant-isolation-help-evidence-copy";
 import { pageHelpTopicForPathname } from "@/lib/usability/page-help-topic-map";
 import { searchHelpTopics } from "@/lib/usability/search-help-topics";
 import { shouldAutoStartRegistrationTour } from "@/lib/usability/onboarding-registration-tour";
@@ -88,6 +89,8 @@ describe("usability lib", () => {
     expect(pageHelpTopicForPathname("/internal/replay")?.slug).toBe("comparison-replay");
     expect(pageHelpTopicForPathname("/internal/replay")?.label).toBe(COMPARISON_REPLAY_HELP_TOPIC_LABEL);
     expect(pageHelpTopicForPathname("/insights/compare-two-reviews")?.label).toBe(COMPARISON_REPLAY_HELP_TOPIC_LABEL);
+    expect(pageHelpTopicForPathname("/help/data-handling")?.slug).toBe("data-handling");
+    expect(pageHelpTopicForPathname("/help/data-handling")?.label).toBe(DATA_HANDLING_TENANT_ISOLATION_HELP_TOPIC_LABEL);
   });
 
   it("searchHelpTopics finds pilot guide", () => {
