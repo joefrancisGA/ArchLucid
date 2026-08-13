@@ -21,6 +21,7 @@ import { pathIsFindingEvidenceTrace } from "@/lib/evidence-trace-contextual-help
 import {
   pathIsSettingsHubRoot,
 } from "@/lib/settings-admin-route-paths";
+import { RECURRENCE_SCHEDULES_HOW_IT_WORKS_TITLE } from "@/lib/recurrence-schedules-copy";
 import { SIGNED_RECORDS_LIST_PATH } from "@/lib/signed-records-paths";
 
 export type PageHelpTopic = {
@@ -174,7 +175,7 @@ const PAGE_HELP_TOPICS: readonly { prefix: string; topic: PageHelpTopic }[] = [
   },
   {
     prefix: "/governance/recurrence-schedules",
-    topic: { slug: "recurrence-schedules", label: OPERATOR_NAV_LINK_LABELS.recurrenceSchedules },
+    topic: { slug: "recurrence-schedules", label: RECURRENCE_SCHEDULES_HOW_IT_WORKS_TITLE },
   },
   {
     prefix: GOVERNANCE_EXCEPTIONS_PATH,

@@ -12,7 +12,7 @@ import { EnterpriseCompactEmptyState } from "@/components/EnterpriseCompactEmpty
 const GOVERNANCE_RECURRENCE_SCHEDULES_PATH = "/governance/recurrence-schedules" as const;
 import { OperatorPageHeader } from "@/components/operator/OperatorPageHeader";
 import { OperatorSectionLoadFailure } from "@/components/operator/OperatorSectionLoadFailure";
-import { PageContextualHelpButton, PAGE_HELP_SHORT_TRIGGER_TEXT } from "@/components/usability/PageContextualHelpButton";
+import { PageContextualHelpButton } from "@/components/usability/PageContextualHelpButton";
 import { WhyDisabledCtaHint } from "@/components/usability/WhyDisabledCtaHint";
 import { OperatorInventoryRowMoreActions } from "@/components/operator/OperatorInventoryRowMoreActions";
 import { RecurrenceScheduleActivationActions } from "@/components/governance/RecurrenceScheduleActivationActions";
@@ -362,7 +362,7 @@ export default function RecurrenceSchedulesClient() {
             subtitle={RECURRENCE_SCHEDULES_PAGE_SUBTITLE}
             actions={
               <div className="flex flex-wrap items-center gap-2">
-                <PageContextualHelpButton triggerText={PAGE_HELP_SHORT_TRIGGER_TEXT} />
+                <PageContextualHelpButton />
                 {isEmpty ? null : createScheduleButton}
               </div>
             }

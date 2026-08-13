@@ -57,11 +57,6 @@ const PAGE_HELP_TITLE_COLLISION_SURFACES: ReadonlyArray<{
     modulePath: "app/(operator)/administration/baseline/BaselineSettingsClient.tsx",
   },
   {
-    pathname: "/governance/recurrence-schedules",
-    pageTitle: OPERATOR_NAV_LINK_LABELS.recurrenceSchedules,
-    modulePath: "components/governance/RecurrenceSchedulesClient.tsx",
-  },
-  {
     pathname: "/administration/developer",
     pageTitle: "Internal developer tools",
     modulePath: "app/(operator)/administration/developer/DeveloperSettingsPageClient.tsx",
