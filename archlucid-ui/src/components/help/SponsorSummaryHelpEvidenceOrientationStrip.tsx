@@ -1,1 +1,3 @@
-export { SponsorSummaryHelpEvidenceOrientationStrip } from "@/components/evidence-orientation/registry";
+export {
+  SponsorReportHelpEvidenceOrientationStrip as SponsorSummaryHelpEvidenceOrientationStrip,
+} from "@/components/evidence-orientation/registry";

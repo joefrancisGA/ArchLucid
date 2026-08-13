@@ -168,7 +168,7 @@ const PRODUCT_DOCUMENTATION_REGISTRY_INPUT: readonly ProductDocumentationRegistr
     summary: "Sponsor-safe summaries, ROI basis labels, and what executives should expect in exports.",
     audience: "buyer",
     sourcePaths: [
-      "docs/go-to-market/SPONSOR_BRIEF.md",
+      "docs/go-to-market/EXECUTIVE_SPONSOR_BRIEF.md",
       "docs/go-to-market/PILOT_SUCCESS_SCORECARD.md",
     ],
     sectionAnchors: [

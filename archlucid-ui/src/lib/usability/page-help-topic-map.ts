@@ -79,7 +79,8 @@ import { SETTINGS_USERS_HELP_TOPIC_LABEL } from "@/lib/settings-users-evidence-c
 import { TENANT_HEALTH_HELP_TOPIC_LABEL } from "@/lib/tenant-health-evidence-copy";
 import { TRIAL_FUNNEL_HELP_TOPIC_LABEL } from "@/lib/trial-funnel-evidence-copy";
 import { USERS_AND_ROLES_HELP_TOPIC_LABEL } from "@/lib/users-and-roles-help-evidence-copy";
-import { BUYER_ONBOARDING_PAGE_TITLE, BUYER_VALUE_REPORT_HOW_IT_WORKS_TITLE } from "@/lib/buyer/buyer-polish-copy";
+import { BUYER_ONBOARDING_PAGE_TITLE } from "@/lib/buyer/buyer-polish-copy";
+import { SPONSOR_REPORT_HELP_TOPIC_LABEL } from "@/lib/sponsor/sponsor-report-help-evidence-copy";
 import { GOVERNANCE_SETUP_HREF, GOVERNANCE_SETUP_PAGE_TITLE } from "@/lib/governance/governance-setup-route";
 import { GOVERNANCE_EXCEPTIONS_PATH } from "@/lib/governance/governance-route-paths";
 import { GLOSSARY_HELP_TOPIC_LABEL } from "@/lib/glossary-help-evidence-copy";
@@ -343,7 +344,7 @@ const PAGE_HELP_TOPICS: readonly { prefix: string; topic: PageHelpTopic }[] = [
   },
   {
     prefix: "/insights/sponsor-report",
-    topic: { slug: "sponsor-report", label: BUYER_VALUE_REPORT_HOW_IT_WORKS_TITLE },
+    topic: { slug: "sponsor-report", label: SPONSOR_REPORT_HELP_TOPIC_LABEL },
   },
   // Legacy sponsor-report bookmarks canonicalize to /insights/* above; keep prefixes for direct lookups.
   {
@@ -354,7 +355,7 @@ const PAGE_HELP_TOPICS: readonly { prefix: string; topic: PageHelpTopic }[] = [
     prefix: "/sponsor-report/roi-summary",
     topic: { slug: "roi-summary", label: ROI_SUMMARY_HELP_TOPIC_LABEL },
   },
-  { prefix: "/sponsor-report", topic: { slug: "sponsor-report", label: BUYER_VALUE_REPORT_HOW_IT_WORKS_TITLE } },
+  { prefix: "/sponsor-report", topic: { slug: "sponsor-report", label: SPONSOR_REPORT_HELP_TOPIC_LABEL } },
   { prefix: "/architecture/digests", topic: { slug: "digests", label: DIGESTS_HELP_TOPIC_LABEL } },
   { prefix: "/digests", topic: { slug: "digests", label: DIGESTS_HELP_TOPIC_LABEL } },
   { prefix: "/digest-subscriptions", topic: { slug: "digests", label: DIGESTS_HELP_TOPIC_LABEL } },
@@ -533,7 +534,7 @@ const PAGE_HELP_TOPICS: readonly { prefix: string; topic: PageHelpTopic }[] = [
   },
   {
     prefix: "/help/sponsor-report",
-    topic: { slug: "sponsor-report", label: BUYER_VALUE_REPORT_HOW_IT_WORKS_TITLE },
+    topic: { slug: "sponsor-report", label: SPONSOR_REPORT_HELP_TOPIC_LABEL },
   },
   {
     prefix: "/help/policy-packs",

@@ -88,6 +88,7 @@ const DOC_PATH_TO_SLUG: Readonly<Record<string, string>> = {
   "docs/library/customer-facing/cloud_connections.md": "cloud-connections",
   "docs/executive_sponsor_brief.md": "sponsor-report",
   "docs/go-to-market/executive_sponsor_brief.md": "sponsor-report",
+  "docs/go-to-market/sponsor_sponsor_brief.md": "sponsor-report",
   "docs/library/agent_output_evaluation.md": "engineering-troubleshooting",
   "docs/library/saml_sp_certificate_rotation_runbook.md": "enterprise-onboarding",
   "docs/go-to-market/default_policy_packs_v1.md": "governance-approval",

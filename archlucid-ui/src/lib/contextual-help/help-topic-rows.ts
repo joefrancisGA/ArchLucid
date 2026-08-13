@@ -3,6 +3,7 @@
 import type { PageContextualHelpRow } from "@/lib/contextual-help/types";
 import { ACCELERATOR_CHOOSER_HELP_PAGE_TITLE } from "@/lib/accelerator-chooser-help-guide-content";
 import { DATA_HANDLING_TENANT_ISOLATION_HELP_TOPIC_LABEL } from "@/lib/data-handling-tenant-isolation-help-evidence-copy";
+import { SPONSOR_REPORT_HELP_TOPIC_LABEL } from "@/lib/sponsor/sponsor-report-help-evidence-copy";
 import { PLANNING_PATH } from "@/lib/planning-route";
 import { PRODUCT_LEARNING_PATH } from "@/lib/product-learning-route";
 
@@ -74,8 +75,7 @@ export const HELP_TOPIC_CONTEXTUAL_HELP_ROWS: readonly PageContextualHelpRow[] =
   {
     prefix: "/help/sponsor-report",
     entry: {
-      whatIsThisPage:
-        "Sponsor report help — sponsor-safe pilot proof, ROI framing, and what executives should expect in exports.",
+      whatIsThisPage: `${SPONSOR_REPORT_HELP_TOPIC_LABEL} — sponsor-safe pilot proof, ROI framing, and what executives should expect in exports.`,
       whatToDoNext:
         "Open the live sponsor value report or dashboard, then review Pilot ROI measurement when methodology needs clarity.",
       whyEmpty: "This guide is always available; live sponsor reports populate after finalized reviews exist.",
