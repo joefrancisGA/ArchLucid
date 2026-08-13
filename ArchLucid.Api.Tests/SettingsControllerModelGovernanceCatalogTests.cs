@@ -63,7 +63,8 @@ public sealed class SettingsControllerModelGovernanceCatalogTests
             aliasRegistry.Object,
             Mock.Of<IScopeContextProvider>(),
             Mock.Of<IAuditService>(),
-            Mock.Of<IAuditRepository>());
+            Mock.Of<IAuditRepository>(),
+            TimeProvider.System);
 
         ActionResult<ModelGovernanceCatalogResponse> result =
             await controller.GetModelGovernanceCatalog(CancellationToken.None);

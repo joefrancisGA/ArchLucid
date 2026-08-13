@@ -1932,6 +1932,36 @@
               }
             ]
           },
+          "recordedRejectReasonCategory": {
+            "type": [
+              "null",
+              "string"
+            ]
+          },
+          "recordedSemanticScore": {
+            "format": "double",
+            "pattern": "^-?(?:0|[1-9]\\d*)(?:\\.\\d\u002B)?(?:[eE][\u002B-]?\\d\u002B)?$",
+            "type": [
+              "null",
+              "number",
+              "string"
+            ]
+          },
+          "recordedStructuralCompletenessRatio": {
+            "format": "double",
+            "pattern": "^-?(?:0|[1-9]\\d*)(?:\\.\\d\u002B)?(?:[eE][\u002B-]?\\d\u002B)?$",
+            "type": [
+              "null",
+              "number",
+              "string"
+            ]
+          },
+          "recordedTriageScenarioId": {
+            "type": [
+              "null",
+              "string"
+            ]
+          },
           "runId": {
             "type": "string"
           },
@@ -2177,6 +2207,18 @@
           },
           "qualityWarning": {
             "type": "boolean"
+          },
+          "recordedRejectReasonCategory": {
+            "type": [
+              "null",
+              "string"
+            ]
+          },
+          "recordedTriageScenarioId": {
+            "type": [
+              "null",
+              "string"
+            ]
           },
           "semantic": {
             "anyOf": [
@@ -8440,6 +8482,110 @@
         },
         "type": "object"
       },
+      "CrossReviewFindingLifecycleRecord": {
+        "properties": {
+          "category": {
+            "type": "string"
+          },
+          "correlationMethod": {
+            "$ref": "#/components/schemas/FindingCorrelationMethod"
+          },
+          "currentFindingId": {
+            "type": [
+              "null",
+              "string"
+            ]
+          },
+          "latestDisposition": {
+            "anyOf": [
+              {
+                "type": "null"
+              },
+              {
+                "$ref": "#/components/schemas/FindingDisposition"
+              }
+            ]
+          },
+          "message": {
+            "type": "string"
+          },
+          "priorFindingId": {
+            "type": [
+              "null",
+              "string"
+            ]
+          },
+          "resolutionBasis": {
+            "$ref": "#/components/schemas/CrossReviewFindingResolutionBasis"
+          },
+          "severity": {
+            "$ref": "#/components/schemas/FindingSeverity"
+          },
+          "sourceAgent": {
+            "$ref": "#/components/schemas/AgentType"
+          },
+          "state": {
+            "$ref": "#/components/schemas/CrossReviewFindingLifecycleState"
+          }
+        },
+        "required": [
+          "correlationMethod",
+          "resolutionBasis",
+          "severity",
+          "sourceAgent",
+          "state"
+        ],
+        "type": "object"
+      },
+      "CrossReviewFindingLifecycleState": {
+        "enum": [
+          "NewlyIdentified",
+          "PreviouslyIdentifiedStillPresent",
+          "CandidateResolved"
+        ],
+        "type": "string"
+      },
+      "CrossReviewFindingLifecycleSummary": {
+        "properties": {
+          "absenceNotInformativeCount": {
+            "format": "int32",
+            "type": "integer"
+          },
+          "candidateResolvedCount": {
+            "format": "int32",
+            "type": "integer"
+          },
+          "confirmedResolvedCount": {
+            "format": "int32",
+            "type": "integer"
+          },
+          "honestyNote": {
+            "type": "string"
+          },
+          "newlyIdentifiedCount": {
+            "format": "int32",
+            "type": "integer"
+          },
+          "previouslyIdentifiedStillPresentCount": {
+            "format": "int32",
+            "type": "integer"
+          },
+          "unverifiedResolvedCount": {
+            "format": "int32",
+            "type": "integer"
+          }
+        },
+        "type": "object"
+      },
+      "CrossReviewFindingResolutionBasis": {
+        "enum": [
+          "NotApplicable",
+          "ConfirmedByDisposition",
+          "Unverified",
+          "AbsenceNotInformative"
+        ],
+        "type": "string"
+      },
       "CrossTenantPortfolioSummaryResponse": {
         "properties": {
           "headlineSavingsScopeCode": {
@@ -10426,6 +10572,22 @@
               }
             ]
           },
+          "findingLifecycle": {
+            "anyOf": [
+              {
+                "type": "null"
+              },
+              {
+                "$ref": "#/components/schemas/CrossReviewFindingLifecycleSummary"
+              }
+            ]
+          },
+          "findingLifecycleRecords": {
+            "items": {
+              "$ref": "#/components/schemas/CrossReviewFindingLifecycleRecord"
+            },
+            "type": "array"
+          },
           "interpretationNotes": {
             "items": {
               "type": "string"
@@ -12386,6 +12548,14 @@
           "Low",
           null
         ]
+      },
+      "FindingCorrelationMethod": {
+        "enum": [
+          "None",
+          "PolicyRuleAndFingerprint",
+          "MessageCategoryFuzzy"
+        ],
+        "type": "string"
       },
       "FindingDisposition": {
         "type": "integer"
@@ -19072,6 +19242,24 @@
         },
         "type": "object"
       },
+      "PlatformBundledPolicyPackRegistryEntry": {
+        "properties": {
+          "bundleContentFile": {
+            "type": "string"
+          },
+          "displayName": {
+            "type": "string"
+          },
+          "isGloballyActive": {
+            "type": "boolean"
+          },
+          "updatedUtc": {
+            "format": "date-time",
+            "type": "string"
+          }
+        },
+        "type": "object"
+      },
       "PolicyControlItem": {
         "properties": {
           "controlId": {
@@ -19981,6 +20169,37 @@
             "type": "string"
           },
           "version": {
+            "type": "string"
+          }
+        },
+        "type": "object"
+      },
+      "PolicyPackWorkspaceSelectionItem": {
+        "properties": {
+          "assignmentId": {
+            "format": "uuid",
+            "type": "string"
+          },
+          "currentVersion": {
+            "type": "string"
+          },
+          "description": {
+            "type": "string"
+          },
+          "isEnabled": {
+            "type": "boolean"
+          },
+          "isGloballyActive": {
+            "type": "boolean"
+          },
+          "name": {
+            "type": "string"
+          },
+          "packType": {
+            "type": "string"
+          },
+          "policyPackId": {
+            "format": "uuid",
             "type": "string"
           }
         },
@@ -25783,6 +26002,22 @@
         },
         "type": "object"
       },
+      "SetPlatformBundledPolicyPackActivationRequest": {
+        "properties": {
+          "isGloballyActive": {
+            "type": "boolean"
+          }
+        },
+        "type": "object"
+      },
+      "SetPolicyPackAssignmentEnabledRequest": {
+        "properties": {
+          "isEnabled": {
+            "type": "boolean"
+          }
+        },
+        "type": "object"
+      },
       "SignInMethodConfirmedResponse": {
         "properties": {
           "identityId": {
@@ -28534,6 +28769,10 @@
       },
       "TenantWorkspacesListResponse": {
         "properties": {
+          "retentionDays": {
+            "format": "int32",
+            "type": "integer"
+          },
           "workspaces": {
             "items": {
               "$ref": "#/components/schemas/TenantWorkspaceApiDto"
@@ -29695,6 +29934,19 @@
         "properties": {
           "effectiveProfile": {
             "type": "string"
+          },
+          "lastChangedAtUtc": {
+            "format": "date-time",
+            "type": [
+              "null",
+              "string"
+            ]
+          },
+          "lastChangedBy": {
+            "type": [
+              "null",
+              "string"
+            ]
           },
           "source": {
             "type": "string"
@@ -42980,6 +43232,360 @@
         },
         "tags": [
           "AdminTrialFunnelOperational"
+        ],
+        "x-archlucid-audience": "operator"
+      }
+    },
+    "/v1/admin/platform-bundled-policy-packs": {
+      "get": {
+        "responses": {
+          "200": {
+            "content": {
+              "application/json": {
+                "schema": {
+                  "items": {
+                    "$ref": "#/components/schemas/PlatformBundledPolicyPackRegistryEntry"
+                  },
+                  "type": "array"
+                }
+              },
+              "text/json": {
+                "schema": {
+                  "items": {
+                    "$ref": "#/components/schemas/PlatformBundledPolicyPackRegistryEntry"
+                  },
+                  "type": "array"
+                }
+              },
+              "text/plain": {
+                "schema": {
+                  "items": {
+                    "$ref": "#/components/schemas/PlatformBundledPolicyPackRegistryEntry"
+                  },
+                  "type": "array"
+                }
+              }
+            },
+            "description": "OK"
+          },
+          "400": {
+            "content": {
+              "application/problem\u002Bjson": {
+                "schema": {
+                  "$ref": "#/components/schemas/ProblemDetails"
+                }
+              }
+            },
+            "description": "Bad Request (validation or malformed input)."
+          },
+          "401": {
+            "content": {
+              "application/problem\u002Bjson": {
+                "schema": {
+                  "$ref": "#/components/schemas/ProblemDetails"
+                }
+              }
+            },
+            "description": "Unauthorized."
+          },
+          "403": {
+            "content": {
+              "application/problem\u002Bjson": {
+                "schema": {
+                  "$ref": "#/components/schemas/ProblemDetails"
+                }
+              }
+            },
+            "description": "Forbidden."
+          },
+          "404": {
+            "content": {
+              "application/problem\u002Bjson": {
+                "schema": {
+                  "$ref": "#/components/schemas/ProblemDetails"
+                }
+              }
+            },
+            "description": "Not Found."
+          },
+          "405": {
+            "content": {
+              "application/problem\u002Bjson": {
+                "schema": {
+                  "$ref": "#/components/schemas/ProblemDetails"
+                }
+              }
+            },
+            "description": "Method Not Allowed."
+          },
+          "409": {
+            "content": {
+              "application/problem\u002Bjson": {
+                "schema": {
+                  "$ref": "#/components/schemas/ProblemDetails"
+                }
+              }
+            },
+            "description": "Conflict."
+          },
+          "415": {
+            "content": {
+              "application/problem\u002Bjson": {
+                "schema": {
+                  "$ref": "#/components/schemas/ProblemDetails"
+                }
+              }
+            },
+            "description": "Unsupported Media Type."
+          },
+          "422": {
+            "content": {
+              "application/problem\u002Bjson": {
+                "schema": {
+                  "$ref": "#/components/schemas/ProblemDetails"
+                }
+              }
+            },
+            "description": "Unprocessable Entity."
+          },
+          "429": {
+            "content": {
+              "application/problem\u002Bjson": {
+                "schema": {
+                  "$ref": "#/components/schemas/ProblemDetails"
+                }
+              }
+            },
+            "description": "Too Many Requests."
+          },
+          "500": {
+            "content": {
+              "application/problem\u002Bjson": {
+                "schema": {
+                  "$ref": "#/components/schemas/ProblemDetails"
+                }
+              }
+            },
+            "description": "Internal Server Error."
+          },
+          "503": {
+            "content": {
+              "application/problem\u002Bjson": {
+                "schema": {
+                  "$ref": "#/components/schemas/ProblemDetails"
+                }
+              }
+            },
+            "description": "Service Unavailable."
+          }
+        },
+        "tags": [
+          "AdminPlatformBundledPolicyPacks"
+        ],
+        "x-archlucid-audience": "operator"
+      }
+    },
+    "/v1/admin/platform-bundled-policy-packs/{bundleContentFile}/activation": {
+      "put": {
+        "parameters": [
+          {
+            "in": "path",
+            "name": "bundleContentFile",
+            "required": true,
+            "schema": {
+              "type": "string"
+            }
+          }
+        ],
+        "requestBody": {
+          "content": {
+            "application/*\u002Bjson": {
+              "schema": {
+                "anyOf": [
+                  {
+                    "type": "null"
+                  },
+                  {
+                    "$ref": "#/components/schemas/SetPlatformBundledPolicyPackActivationRequest"
+                  }
+                ]
+              }
+            },
+            "application/json": {
+              "schema": {
+                "anyOf": [
+                  {
+                    "type": "null"
+                  },
+                  {
+                    "$ref": "#/components/schemas/SetPlatformBundledPolicyPackActivationRequest"
+                  }
+                ]
+              }
+            },
+            "text/json": {
+              "schema": {
+                "anyOf": [
+                  {
+                    "type": "null"
+                  },
+                  {
+                    "$ref": "#/components/schemas/SetPlatformBundledPolicyPackActivationRequest"
+                  }
+                ]
+              }
+            }
+          }
+        },
+        "responses": {
+          "200": {
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/PlatformBundledPolicyPackRegistryEntry"
+                }
+              },
+              "text/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/PlatformBundledPolicyPackRegistryEntry"
+                }
+              },
+              "text/plain": {
+                "schema": {
+                  "$ref": "#/components/schemas/PlatformBundledPolicyPackRegistryEntry"
+                }
+              }
+            },
+            "description": "OK"
+          },
+          "400": {
+            "content": {
+              "application/problem\u002Bjson": {
+                "schema": {
+                  "$ref": "#/components/schemas/ProblemDetails"
+                }
+              }
+            },
+            "description": "Bad Request (validation or malformed input)."
+          },
+          "401": {
+            "content": {
+              "application/problem\u002Bjson": {
+                "schema": {
+                  "$ref": "#/components/schemas/ProblemDetails"
+                }
+              }
+            },
+            "description": "Unauthorized."
+          },
+          "403": {
+            "content": {
+              "application/problem\u002Bjson": {
+                "schema": {
+                  "$ref": "#/components/schemas/ProblemDetails"
+                }
+              }
+            },
+            "description": "Forbidden."
+          },
+          "404": {
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/ProblemDetails"
+                }
+              },
+              "application/problem\u002Bjson": {
+                "schema": {
+                  "$ref": "#/components/schemas/ProblemDetails"
+                }
+              },
+              "text/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/ProblemDetails"
+                }
+              },
+              "text/plain": {
+                "schema": {
+                  "$ref": "#/components/schemas/ProblemDetails"
+                }
+              }
+            },
+            "description": "Not Found"
+          },
+          "405": {
+            "content": {
+              "application/problem\u002Bjson": {
+                "schema": {
+                  "$ref": "#/components/schemas/ProblemDetails"
+                }
+              }
+            },
+            "description": "Method Not Allowed."
+          },
+          "409": {
+            "content": {
+              "application/problem\u002Bjson": {
+                "schema": {
+                  "$ref": "#/components/schemas/ProblemDetails"
+                }
+              }
+            },
+            "description": "Conflict."
+          },
+          "415": {
+            "content": {
+              "application/problem\u002Bjson": {
+                "schema": {
+                  "$ref": "#/components/schemas/ProblemDetails"
+                }
+              }
+            },
+            "description": "Unsupported Media Type."
+          },
+          "422": {
+            "content": {
+              "application/problem\u002Bjson": {
+                "schema": {
+                  "$ref": "#/components/schemas/ProblemDetails"
+                }
+              }
+            },
+            "description": "Unprocessable Entity."
+          },
+          "429": {
+            "content": {
+              "application/problem\u002Bjson": {
+                "schema": {
+                  "$ref": "#/components/schemas/ProblemDetails"
+                }
+              }
+            },
+            "description": "Too Many Requests."
+          },
+          "500": {
+            "content": {
+              "application/problem\u002Bjson": {
+                "schema": {
+                  "$ref": "#/components/schemas/ProblemDetails"
+                }
+              }
+            },
+            "description": "Internal Server Error."
+          },
+          "503": {
+            "content": {
+              "application/problem\u002Bjson": {
+                "schema": {
+                  "$ref": "#/components/schemas/ProblemDetails"
+                }
+              }
+            },
+            "description": "Service Unavailable."
+          }
+        },
+        "tags": [
+          "AdminPlatformBundledPolicyPacks"
         ],
         "x-archlucid-audience": "operator"
       }
@@ -115123,6 +115729,14 @@
               "format": "int32",
               "type": "integer"
             }
+          },
+          {
+            "in": "query",
+            "name": "assignedToMe",
+            "schema": {
+              "default": false,
+              "type": "boolean"
+            }
           }
         ],
         "responses": {
@@ -133921,6 +134535,195 @@
         "x-archlucid-audience": "operator"
       }
     },
+    "/v1/policy-packs/assignments/{assignmentId}/enabled": {
+      "put": {
+        "parameters": [
+          {
+            "in": "path",
+            "name": "assignmentId",
+            "required": true,
+            "schema": {
+              "format": "uuid",
+              "type": "string"
+            }
+          }
+        ],
+        "requestBody": {
+          "content": {
+            "application/*\u002Bjson": {
+              "schema": {
+                "anyOf": [
+                  {
+                    "type": "null"
+                  },
+                  {
+                    "$ref": "#/components/schemas/SetPolicyPackAssignmentEnabledRequest"
+                  }
+                ]
+              }
+            },
+            "application/json": {
+              "schema": {
+                "anyOf": [
+                  {
+                    "type": "null"
+                  },
+                  {
+                    "$ref": "#/components/schemas/SetPolicyPackAssignmentEnabledRequest"
+                  }
+                ]
+              }
+            },
+            "text/json": {
+              "schema": {
+                "anyOf": [
+                  {
+                    "type": "null"
+                  },
+                  {
+                    "$ref": "#/components/schemas/SetPolicyPackAssignmentEnabledRequest"
+                  }
+                ]
+              }
+            }
+          }
+        },
+        "responses": {
+          "204": {
+            "description": "No Content"
+          },
+          "400": {
+            "content": {
+              "application/problem\u002Bjson": {
+                "schema": {
+                  "$ref": "#/components/schemas/ProblemDetails"
+                }
+              }
+            },
+            "description": "Bad Request (validation or malformed input)."
+          },
+          "401": {
+            "content": {
+              "application/problem\u002Bjson": {
+                "schema": {
+                  "$ref": "#/components/schemas/ProblemDetails"
+                }
+              }
+            },
+            "description": "Unauthorized."
+          },
+          "403": {
+            "content": {
+              "application/problem\u002Bjson": {
+                "schema": {
+                  "$ref": "#/components/schemas/ProblemDetails"
+                }
+              }
+            },
+            "description": "Forbidden."
+          },
+          "404": {
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/ProblemDetails"
+                }
+              },
+              "application/problem\u002Bjson": {
+                "schema": {
+                  "$ref": "#/components/schemas/ProblemDetails"
+                }
+              },
+              "text/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/ProblemDetails"
+                }
+              },
+              "text/plain": {
+                "schema": {
+                  "$ref": "#/components/schemas/ProblemDetails"
+                }
+              }
+            },
+            "description": "Not Found"
+          },
+          "405": {
+            "content": {
+              "application/problem\u002Bjson": {
+                "schema": {
+                  "$ref": "#/components/schemas/ProblemDetails"
+                }
+              }
+            },
+            "description": "Method Not Allowed."
+          },
+          "409": {
+            "content": {
+              "application/problem\u002Bjson": {
+                "schema": {
+                  "$ref": "#/components/schemas/ProblemDetails"
+                }
+              }
+            },
+            "description": "Conflict."
+          },
+          "415": {
+            "content": {
+              "application/problem\u002Bjson": {
+                "schema": {
+                  "$ref": "#/components/schemas/ProblemDetails"
+                }
+              }
+            },
+            "description": "Unsupported Media Type."
+          },
+          "422": {
+            "content": {
+              "application/problem\u002Bjson": {
+                "schema": {
+                  "$ref": "#/components/schemas/ProblemDetails"
+                }
+              }
+            },
+            "description": "Unprocessable Entity."
+          },
+          "429": {
+            "content": {
+              "application/problem\u002Bjson": {
+                "schema": {
+                  "$ref": "#/components/schemas/ProblemDetails"
+                }
+              }
+            },
+            "description": "Too Many Requests."
+          },
+          "500": {
+            "content": {
+              "application/problem\u002Bjson": {
+                "schema": {
+                  "$ref": "#/components/schemas/ProblemDetails"
+                }
+              }
+            },
+            "description": "Internal Server Error."
+          },
+          "503": {
+            "content": {
+              "application/problem\u002Bjson": {
+                "schema": {
+                  "$ref": "#/components/schemas/ProblemDetails"
+                }
+              }
+            },
+            "description": "Service Unavailable."
+          }
+        },
+        "tags": [
+          "PolicyPacks"
+        ],
+        "x-archlucid-audience": "operator"
+      }
+    },
     "/v1/policy-packs/catalog": {
       "get": {
         "responses": {
@@ -135380,6 +136183,170 @@
                 }
               },
               "application/problem\u002Bjson": {
+                "schema": {
+                  "$ref": "#/components/schemas/ProblemDetails"
+                }
+              }
+            },
+            "description": "Not Found"
+          },
+          "405": {
+            "content": {
+              "application/problem\u002Bjson": {
+                "schema": {
+                  "$ref": "#/components/schemas/ProblemDetails"
+                }
+              }
+            },
+            "description": "Method Not Allowed."
+          },
+          "409": {
+            "content": {
+              "application/problem\u002Bjson": {
+                "schema": {
+                  "$ref": "#/components/schemas/ProblemDetails"
+                }
+              }
+            },
+            "description": "Conflict."
+          },
+          "415": {
+            "content": {
+              "application/problem\u002Bjson": {
+                "schema": {
+                  "$ref": "#/components/schemas/ProblemDetails"
+                }
+              }
+            },
+            "description": "Unsupported Media Type."
+          },
+          "422": {
+            "content": {
+              "application/problem\u002Bjson": {
+                "schema": {
+                  "$ref": "#/components/schemas/ProblemDetails"
+                }
+              }
+            },
+            "description": "Unprocessable Entity."
+          },
+          "429": {
+            "content": {
+              "application/problem\u002Bjson": {
+                "schema": {
+                  "$ref": "#/components/schemas/ProblemDetails"
+                }
+              }
+            },
+            "description": "Too Many Requests."
+          },
+          "500": {
+            "content": {
+              "application/problem\u002Bjson": {
+                "schema": {
+                  "$ref": "#/components/schemas/ProblemDetails"
+                }
+              }
+            },
+            "description": "Internal Server Error."
+          },
+          "503": {
+            "content": {
+              "application/problem\u002Bjson": {
+                "schema": {
+                  "$ref": "#/components/schemas/ProblemDetails"
+                }
+              }
+            },
+            "description": "Service Unavailable."
+          }
+        },
+        "tags": [
+          "PolicyPacks"
+        ],
+        "x-archlucid-audience": "operator"
+      }
+    },
+    "/v1/policy-packs/workspace-selection": {
+      "get": {
+        "responses": {
+          "200": {
+            "content": {
+              "application/json": {
+                "schema": {
+                  "items": {
+                    "$ref": "#/components/schemas/PolicyPackWorkspaceSelectionItem"
+                  },
+                  "type": "array"
+                }
+              },
+              "text/json": {
+                "schema": {
+                  "items": {
+                    "$ref": "#/components/schemas/PolicyPackWorkspaceSelectionItem"
+                  },
+                  "type": "array"
+                }
+              },
+              "text/plain": {
+                "schema": {
+                  "items": {
+                    "$ref": "#/components/schemas/PolicyPackWorkspaceSelectionItem"
+                  },
+                  "type": "array"
+                }
+              }
+            },
+            "description": "OK"
+          },
+          "400": {
+            "content": {
+              "application/problem\u002Bjson": {
+                "schema": {
+                  "$ref": "#/components/schemas/ProblemDetails"
+                }
+              }
+            },
+            "description": "Bad Request (validation or malformed input)."
+          },
+          "401": {
+            "content": {
+              "application/problem\u002Bjson": {
+                "schema": {
+                  "$ref": "#/components/schemas/ProblemDetails"
+                }
+              }
+            },
+            "description": "Unauthorized."
+          },
+          "403": {
+            "content": {
+              "application/problem\u002Bjson": {
+                "schema": {
+                  "$ref": "#/components/schemas/ProblemDetails"
+                }
+              }
+            },
+            "description": "Forbidden."
+          },
+          "404": {
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/ProblemDetails"
+                }
+              },
+              "application/problem\u002Bjson": {
+                "schema": {
+                  "$ref": "#/components/schemas/ProblemDetails"
+                }
+              },
+              "text/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/ProblemDetails"
+                }
+              },
+              "text/plain": {
                 "schema": {
                   "$ref": "#/components/schemas/ProblemDetails"
                 }
@@ -150111,6 +151078,9 @@
     },
     {
       "name": "AdminLlmMonthlyDollarBudgetStatus"
+    },
+    {
+      "name": "AdminPlatformBundledPolicyPacks"
     },
     {
       "name": "AdminQualityGateDiagnostics"

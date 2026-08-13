@@ -29,7 +29,8 @@ public sealed class SettingsController(
     IAgentModelAliasRegistry agentModelAliasRegistry,
     IScopeContextProvider scopeContextProvider,
     IAuditService auditService,
-    IAuditRepository auditRepository) : ControllerBase
+    IAuditRepository auditRepository,
+    TimeProvider timeProvider) : ControllerBase
 {
     private readonly ITenantAgentOutputQualityGateModeService _qualityGateModeService =
         qualityGateModeService ?? throw new ArgumentNullException(nameof(qualityGateModeService));
@@ -47,6 +48,9 @@ public sealed class SettingsController(
 
     private readonly IAuditRepository _auditRepository =
         auditRepository ?? throw new ArgumentNullException(nameof(auditRepository));
+
+    private readonly TimeProvider _timeProvider =
+        timeProvider ?? throw new ArgumentNullException(nameof(timeProvider));
 
     /// <summary>Effective <c>AgentOutput:QualityGate:Mode</c> for the active tenant (host default or tenant override).</summary>
     [HttpGet("agent-output-quality-gate-mode")]
@@ -184,7 +188,7 @@ public sealed class SettingsController(
             },
             cancellationToken).ConfigureAwait(false);
 
-        return Ok(MapModelExecutionProfile(snapshot, DateTime.UtcNow, actor));
+        return Ok(MapModelExecutionProfile(snapshot, _timeProvider.GetUtcNow().UtcDateTime, actor));
     }
 
     /// <summary>Remove tenant override so the workspace default profile applies.</summary>
@@ -213,7 +217,7 @@ public sealed class SettingsController(
             },
             cancellationToken).ConfigureAwait(false);
 
-        return Ok(MapModelExecutionProfile(snapshot, DateTime.UtcNow, actor));
+        return Ok(MapModelExecutionProfile(snapshot, _timeProvider.GetUtcNow().UtcDateTime, actor));
     }
 
     /// <summary>Workspace model governance catalog: profile, alias registry, and profile→alias mappings (TB-871).</summary>

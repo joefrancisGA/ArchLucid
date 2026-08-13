@@ -5105,6 +5105,267 @@ export interface paths {
         patch?: never;
         trace?: never;
     };
+    "/v1/admin/diagnostics/data-consistency/missing-architecture-request-runs": {
+        parameters: {
+            query?: never;
+            header?: never;
+            path?: never;
+            cookie?: never;
+        };
+        get: {
+            parameters: {
+                query?: {
+                    maxSampleRows?: number;
+                };
+                header?: never;
+                path?: never;
+                cookie?: never;
+            };
+            requestBody?: never;
+            responses: {
+                /** @description OK */
+                200: {
+                    headers: {
+                        [name: string]: unknown;
+                    };
+                    content: {
+                        "application/json": components["schemas"]["DataConsistencyMissingArchitectureRequestSnapshot"];
+                        "text/json": components["schemas"]["DataConsistencyMissingArchitectureRequestSnapshot"];
+                        "text/plain": components["schemas"]["DataConsistencyMissingArchitectureRequestSnapshot"];
+                    };
+                };
+                /** @description Bad Request (validation or malformed input). */
+                400: {
+                    headers: {
+                        [name: string]: unknown;
+                    };
+                    content: {
+                        "application/problem+json": components["schemas"]["ProblemDetails"];
+                    };
+                };
+                /** @description Unauthorized. */
+                401: {
+                    headers: {
+                        [name: string]: unknown;
+                    };
+                    content: {
+                        "application/problem+json": components["schemas"]["ProblemDetails"];
+                    };
+                };
+                /** @description Forbidden. */
+                403: {
+                    headers: {
+                        [name: string]: unknown;
+                    };
+                    content: {
+                        "application/problem+json": components["schemas"]["ProblemDetails"];
+                    };
+                };
+                /** @description Not Found. */
+                404: {
+                    headers: {
+                        [name: string]: unknown;
+                    };
+                    content: {
+                        "application/problem+json": components["schemas"]["ProblemDetails"];
+                    };
+                };
+                /** @description Method Not Allowed. */
+                405: {
+                    headers: {
+                        [name: string]: unknown;
+                    };
+                    content: {
+                        "application/problem+json": components["schemas"]["ProblemDetails"];
+                    };
+                };
+                /** @description Conflict. */
+                409: {
+                    headers: {
+                        [name: string]: unknown;
+                    };
+                    content: {
+                        "application/problem+json": components["schemas"]["ProblemDetails"];
+                    };
+                };
+                /** @description Unsupported Media Type. */
+                415: {
+                    headers: {
+                        [name: string]: unknown;
+                    };
+                    content: {
+                        "application/problem+json": components["schemas"]["ProblemDetails"];
+                    };
+                };
+                /** @description Unprocessable Entity. */
+                422: {
+                    headers: {
+                        [name: string]: unknown;
+                    };
+                    content: {
+                        "application/problem+json": components["schemas"]["ProblemDetails"];
+                    };
+                };
+                /** @description Too Many Requests. */
+                429: {
+                    headers: {
+                        [name: string]: unknown;
+                    };
+                    content: {
+                        "application/problem+json": components["schemas"]["ProblemDetails"];
+                    };
+                };
+                /** @description Internal Server Error. */
+                500: {
+                    headers: {
+                        [name: string]: unknown;
+                    };
+                    content: {
+                        "application/problem+json": components["schemas"]["ProblemDetails"];
+                    };
+                };
+                /** @description Service Unavailable. */
+                503: {
+                    headers: {
+                        [name: string]: unknown;
+                    };
+                    content: {
+                        "application/problem+json": components["schemas"]["ProblemDetails"];
+                    };
+                };
+            };
+        };
+        put?: never;
+        post: {
+            parameters: {
+                query?: {
+                    dryRun?: boolean;
+                    maxRows?: number;
+                };
+                header?: never;
+                path?: never;
+                cookie?: never;
+            };
+            requestBody?: never;
+            responses: {
+                /** @description OK */
+                200: {
+                    headers: {
+                        [name: string]: unknown;
+                    };
+                    content: {
+                        "application/json": components["schemas"]["MissingArchitectureRequestRemediationResult"];
+                        "text/json": components["schemas"]["MissingArchitectureRequestRemediationResult"];
+                        "text/plain": components["schemas"]["MissingArchitectureRequestRemediationResult"];
+                    };
+                };
+                /** @description Bad Request (validation or malformed input). */
+                400: {
+                    headers: {
+                        [name: string]: unknown;
+                    };
+                    content: {
+                        "application/problem+json": components["schemas"]["ProblemDetails"];
+                    };
+                };
+                /** @description Unauthorized. */
+                401: {
+                    headers: {
+                        [name: string]: unknown;
+                    };
+                    content: {
+                        "application/problem+json": components["schemas"]["ProblemDetails"];
+                    };
+                };
+                /** @description Forbidden. */
+                403: {
+                    headers: {
+                        [name: string]: unknown;
+                    };
+                    content: {
+                        "application/problem+json": components["schemas"]["ProblemDetails"];
+                    };
+                };
+                /** @description Not Found. */
+                404: {
+                    headers: {
+                        [name: string]: unknown;
+                    };
+                    content: {
+                        "application/problem+json": components["schemas"]["ProblemDetails"];
+                    };
+                };
+                /** @description Method Not Allowed. */
+                405: {
+                    headers: {
+                        [name: string]: unknown;
+                    };
+                    content: {
+                        "application/problem+json": components["schemas"]["ProblemDetails"];
+                    };
+                };
+                /** @description Conflict. */
+                409: {
+                    headers: {
+                        [name: string]: unknown;
+                    };
+                    content: {
+                        "application/problem+json": components["schemas"]["ProblemDetails"];
+                    };
+                };
+                /** @description Unsupported Media Type. */
+                415: {
+                    headers: {
+                        [name: string]: unknown;
+                    };
+                    content: {
+                        "application/problem+json": components["schemas"]["ProblemDetails"];
+                    };
+                };
+                /** @description Unprocessable Entity. */
+                422: {
+                    headers: {
+                        [name: string]: unknown;
+                    };
+                    content: {
+                        "application/problem+json": components["schemas"]["ProblemDetails"];
+                    };
+                };
+                /** @description Too Many Requests. */
+                429: {
+                    headers: {
+                        [name: string]: unknown;
+                    };
+                    content: {
+                        "application/problem+json": components["schemas"]["ProblemDetails"];
+                    };
+                };
+                /** @description Internal Server Error. */
+                500: {
+                    headers: {
+                        [name: string]: unknown;
+                    };
+                    content: {
+                        "application/problem+json": components["schemas"]["ProblemDetails"];
+                    };
+                };
+                /** @description Service Unavailable. */
+                503: {
+                    headers: {
+                        [name: string]: unknown;
+                    };
+                    content: {
+                        "application/problem+json": components["schemas"]["ProblemDetails"];
+                    };
+                };
+            };
+        };
+        delete?: never;
+        options?: never;
+        head?: never;
+        patch?: never;
+        trace?: never;
+    };
     "/v1/admin/diagnostics/data-consistency/orphan-comparison-records": {
         parameters: {
             query?: never;
@@ -11516,6 +11777,289 @@ export interface paths {
         patch?: never;
         trace?: never;
     };
+    "/v1/admin/platform-bundled-policy-packs": {
+        parameters: {
+            query?: never;
+            header?: never;
+            path?: never;
+            cookie?: never;
+        };
+        get: {
+            parameters: {
+                query?: never;
+                header?: never;
+                path?: never;
+                cookie?: never;
+            };
+            requestBody?: never;
+            responses: {
+                /** @description OK */
+                200: {
+                    headers: {
+                        [name: string]: unknown;
+                    };
+                    content: {
+                        "application/json": components["schemas"]["PlatformBundledPolicyPackRegistryEntry"][];
+                        "text/json": components["schemas"]["PlatformBundledPolicyPackRegistryEntry"][];
+                        "text/plain": components["schemas"]["PlatformBundledPolicyPackRegistryEntry"][];
+                    };
+                };
+                /** @description Bad Request (validation or malformed input). */
+                400: {
+                    headers: {
+                        [name: string]: unknown;
+                    };
+                    content: {
+                        "application/problem+json": components["schemas"]["ProblemDetails"];
+                    };
+                };
+                /** @description Unauthorized. */
+                401: {
+                    headers: {
+                        [name: string]: unknown;
+                    };
+                    content: {
+                        "application/problem+json": components["schemas"]["ProblemDetails"];
+                    };
+                };
+                /** @description Forbidden. */
+                403: {
+                    headers: {
+                        [name: string]: unknown;
+                    };
+                    content: {
+                        "application/problem+json": components["schemas"]["ProblemDetails"];
+                    };
+                };
+                /** @description Not Found. */
+                404: {
+                    headers: {
+                        [name: string]: unknown;
+                    };
+                    content: {
+                        "application/problem+json": components["schemas"]["ProblemDetails"];
+                    };
+                };
+                /** @description Method Not Allowed. */
+                405: {
+                    headers: {
+                        [name: string]: unknown;
+                    };
+                    content: {
+                        "application/problem+json": components["schemas"]["ProblemDetails"];
+                    };
+                };
+                /** @description Conflict. */
+                409: {
+                    headers: {
+                        [name: string]: unknown;
+                    };
+                    content: {
+                        "application/problem+json": components["schemas"]["ProblemDetails"];
+                    };
+                };
+                /** @description Unsupported Media Type. */
+                415: {
+                    headers: {
+                        [name: string]: unknown;
+                    };
+                    content: {
+                        "application/problem+json": components["schemas"]["ProblemDetails"];
+                    };
+                };
+                /** @description Unprocessable Entity. */
+                422: {
+                    headers: {
+                        [name: string]: unknown;
+                    };
+                    content: {
+                        "application/problem+json": components["schemas"]["ProblemDetails"];
+                    };
+                };
+                /** @description Too Many Requests. */
+                429: {
+                    headers: {
+                        [name: string]: unknown;
+                    };
+                    content: {
+                        "application/problem+json": components["schemas"]["ProblemDetails"];
+                    };
+                };
+                /** @description Internal Server Error. */
+                500: {
+                    headers: {
+                        [name: string]: unknown;
+                    };
+                    content: {
+                        "application/problem+json": components["schemas"]["ProblemDetails"];
+                    };
+                };
+                /** @description Service Unavailable. */
+                503: {
+                    headers: {
+                        [name: string]: unknown;
+                    };
+                    content: {
+                        "application/problem+json": components["schemas"]["ProblemDetails"];
+                    };
+                };
+            };
+        };
+        put?: never;
+        post?: never;
+        delete?: never;
+        options?: never;
+        head?: never;
+        patch?: never;
+        trace?: never;
+    };
+    "/v1/admin/platform-bundled-policy-packs/{bundleContentFile}/activation": {
+        parameters: {
+            query?: never;
+            header?: never;
+            path?: never;
+            cookie?: never;
+        };
+        get?: never;
+        put: {
+            parameters: {
+                query?: never;
+                header?: never;
+                path: {
+                    bundleContentFile: string;
+                };
+                cookie?: never;
+            };
+            requestBody?: {
+                content: {
+                    "application/*+json": null | components["schemas"]["SetPlatformBundledPolicyPackActivationRequest"];
+                    "application/json": null | components["schemas"]["SetPlatformBundledPolicyPackActivationRequest"];
+                    "text/json": null | components["schemas"]["SetPlatformBundledPolicyPackActivationRequest"];
+                };
+            };
+            responses: {
+                /** @description OK */
+                200: {
+                    headers: {
+                        [name: string]: unknown;
+                    };
+                    content: {
+                        "application/json": components["schemas"]["PlatformBundledPolicyPackRegistryEntry"];
+                        "text/json": components["schemas"]["PlatformBundledPolicyPackRegistryEntry"];
+                        "text/plain": components["schemas"]["PlatformBundledPolicyPackRegistryEntry"];
+                    };
+                };
+                /** @description Bad Request (validation or malformed input). */
+                400: {
+                    headers: {
+                        [name: string]: unknown;
+                    };
+                    content: {
+                        "application/problem+json": components["schemas"]["ProblemDetails"];
+                    };
+                };
+                /** @description Unauthorized. */
+                401: {
+                    headers: {
+                        [name: string]: unknown;
+                    };
+                    content: {
+                        "application/problem+json": components["schemas"]["ProblemDetails"];
+                    };
+                };
+                /** @description Forbidden. */
+                403: {
+                    headers: {
+                        [name: string]: unknown;
+                    };
+                    content: {
+                        "application/problem+json": components["schemas"]["ProblemDetails"];
+                    };
+                };
+                /** @description Not Found */
+                404: {
+                    headers: {
+                        [name: string]: unknown;
+                    };
+                    content: {
+                        "application/json": components["schemas"]["ProblemDetails"];
+                        "application/problem+json": components["schemas"]["ProblemDetails"];
+                        "text/json": components["schemas"]["ProblemDetails"];
+                        "text/plain": components["schemas"]["ProblemDetails"];
+                    };
+                };
+                /** @description Method Not Allowed. */
+                405: {
+                    headers: {
+                        [name: string]: unknown;
+                    };
+                    content: {
+                        "application/problem+json": components["schemas"]["ProblemDetails"];
+                    };
+                };
+                /** @description Conflict. */
+                409: {
+                    headers: {
+                        [name: string]: unknown;
+                    };
+                    content: {
+                        "application/problem+json": components["schemas"]["ProblemDetails"];
+                    };
+                };
+                /** @description Unsupported Media Type. */
+                415: {
+                    headers: {
+                        [name: string]: unknown;
+                    };
+                    content: {
+                        "application/problem+json": components["schemas"]["ProblemDetails"];
+                    };
+                };
+                /** @description Unprocessable Entity. */
+                422: {
+                    headers: {
+                        [name: string]: unknown;
+                    };
+                    content: {
+                        "application/problem+json": components["schemas"]["ProblemDetails"];
+                    };
+                };
+                /** @description Too Many Requests. */
+                429: {
+                    headers: {
+                        [name: string]: unknown;
+                    };
+                    content: {
+                        "application/problem+json": components["schemas"]["ProblemDetails"];
+                    };
+                };
+                /** @description Internal Server Error. */
+                500: {
+                    headers: {
+                        [name: string]: unknown;
+                    };
+                    content: {
+                        "application/problem+json": components["schemas"]["ProblemDetails"];
+                    };
+                };
+                /** @description Service Unavailable. */
+                503: {
+                    headers: {
+                        [name: string]: unknown;
+                    };
+                    content: {
+                        "application/problem+json": components["schemas"]["ProblemDetails"];
+                    };
+                };
+            };
+        };
+        post?: never;
+        delete?: never;
+        options?: never;
+        head?: never;
+        patch?: never;
+        trace?: never;
+    };
     "/v1/admin/prompt-variants/stats": {
         parameters: {
             query?: never;
@@ -11555,6 +12099,142 @@ export interface paths {
                         "application/problem+json": components["schemas"]["ProblemDetails"];
                         "text/json": components["schemas"]["ProblemDetails"];
                         "text/plain": components["schemas"]["ProblemDetails"];
+                    };
+                };
+                /** @description Unauthorized. */
+                401: {
+                    headers: {
+                        [name: string]: unknown;
+                    };
+                    content: {
+                        "application/problem+json": components["schemas"]["ProblemDetails"];
+                    };
+                };
+                /** @description Forbidden. */
+                403: {
+                    headers: {
+                        [name: string]: unknown;
+                    };
+                    content: {
+                        "application/problem+json": components["schemas"]["ProblemDetails"];
+                    };
+                };
+                /** @description Not Found. */
+                404: {
+                    headers: {
+                        [name: string]: unknown;
+                    };
+                    content: {
+                        "application/problem+json": components["schemas"]["ProblemDetails"];
+                    };
+                };
+                /** @description Method Not Allowed. */
+                405: {
+                    headers: {
+                        [name: string]: unknown;
+                    };
+                    content: {
+                        "application/problem+json": components["schemas"]["ProblemDetails"];
+                    };
+                };
+                /** @description Conflict. */
+                409: {
+                    headers: {
+                        [name: string]: unknown;
+                    };
+                    content: {
+                        "application/problem+json": components["schemas"]["ProblemDetails"];
+                    };
+                };
+                /** @description Unsupported Media Type. */
+                415: {
+                    headers: {
+                        [name: string]: unknown;
+                    };
+                    content: {
+                        "application/problem+json": components["schemas"]["ProblemDetails"];
+                    };
+                };
+                /** @description Unprocessable Entity. */
+                422: {
+                    headers: {
+                        [name: string]: unknown;
+                    };
+                    content: {
+                        "application/problem+json": components["schemas"]["ProblemDetails"];
+                    };
+                };
+                /** @description Too Many Requests. */
+                429: {
+                    headers: {
+                        [name: string]: unknown;
+                    };
+                    content: {
+                        "application/problem+json": components["schemas"]["ProblemDetails"];
+                    };
+                };
+                /** @description Internal Server Error. */
+                500: {
+                    headers: {
+                        [name: string]: unknown;
+                    };
+                    content: {
+                        "application/problem+json": components["schemas"]["ProblemDetails"];
+                    };
+                };
+                /** @description Service Unavailable. */
+                503: {
+                    headers: {
+                        [name: string]: unknown;
+                    };
+                    content: {
+                        "application/problem+json": components["schemas"]["ProblemDetails"];
+                    };
+                };
+            };
+        };
+        put?: never;
+        post?: never;
+        delete?: never;
+        options?: never;
+        head?: never;
+        patch?: never;
+        trace?: never;
+    };
+    "/v1/admin/quick-scan/budget": {
+        parameters: {
+            query?: never;
+            header?: never;
+            path?: never;
+            cookie?: never;
+        };
+        get: {
+            parameters: {
+                query?: never;
+                header?: never;
+                path?: never;
+                cookie?: never;
+            };
+            requestBody?: never;
+            responses: {
+                /** @description OK */
+                200: {
+                    headers: {
+                        [name: string]: unknown;
+                    };
+                    content: {
+                        "application/json": components["schemas"]["AdminQuickScanBudgetSnapshotResponse"];
+                        "text/json": components["schemas"]["AdminQuickScanBudgetSnapshotResponse"];
+                        "text/plain": components["schemas"]["AdminQuickScanBudgetSnapshotResponse"];
+                    };
+                };
+                /** @description Bad Request (validation or malformed input). */
+                400: {
+                    headers: {
+                        [name: string]: unknown;
+                    };
+                    content: {
+                        "application/problem+json": components["schemas"]["ProblemDetails"];
                     };
                 };
                 /** @description Unauthorized. */
@@ -66120,6 +66800,7 @@ export interface paths {
                 query?: {
                     projectId?: string;
                     maxRows?: number;
+                    assignedToMe?: boolean;
                 };
                 header?: never;
                 path?: never;
@@ -81083,6 +81764,149 @@ export interface paths {
         patch?: never;
         trace?: never;
     };
+    "/v1/policy-packs/assignments/{assignmentId}/enabled": {
+        parameters: {
+            query?: never;
+            header?: never;
+            path?: never;
+            cookie?: never;
+        };
+        get?: never;
+        put: {
+            parameters: {
+                query?: never;
+                header?: never;
+                path: {
+                    assignmentId: string;
+                };
+                cookie?: never;
+            };
+            requestBody?: {
+                content: {
+                    "application/*+json": null | components["schemas"]["SetPolicyPackAssignmentEnabledRequest"];
+                    "application/json": null | components["schemas"]["SetPolicyPackAssignmentEnabledRequest"];
+                    "text/json": null | components["schemas"]["SetPolicyPackAssignmentEnabledRequest"];
+                };
+            };
+            responses: {
+                /** @description No Content */
+                204: {
+                    headers: {
+                        [name: string]: unknown;
+                    };
+                    content?: never;
+                };
+                /** @description Bad Request (validation or malformed input). */
+                400: {
+                    headers: {
+                        [name: string]: unknown;
+                    };
+                    content: {
+                        "application/problem+json": components["schemas"]["ProblemDetails"];
+                    };
+                };
+                /** @description Unauthorized. */
+                401: {
+                    headers: {
+                        [name: string]: unknown;
+                    };
+                    content: {
+                        "application/problem+json": components["schemas"]["ProblemDetails"];
+                    };
+                };
+                /** @description Forbidden. */
+                403: {
+                    headers: {
+                        [name: string]: unknown;
+                    };
+                    content: {
+                        "application/problem+json": components["schemas"]["ProblemDetails"];
+                    };
+                };
+                /** @description Not Found */
+                404: {
+                    headers: {
+                        [name: string]: unknown;
+                    };
+                    content: {
+                        "application/json": components["schemas"]["ProblemDetails"];
+                        "application/problem+json": components["schemas"]["ProblemDetails"];
+                        "text/json": components["schemas"]["ProblemDetails"];
+                        "text/plain": components["schemas"]["ProblemDetails"];
+                    };
+                };
+                /** @description Method Not Allowed. */
+                405: {
+                    headers: {
+                        [name: string]: unknown;
+                    };
+                    content: {
+                        "application/problem+json": components["schemas"]["ProblemDetails"];
+                    };
+                };
+                /** @description Conflict. */
+                409: {
+                    headers: {
+                        [name: string]: unknown;
+                    };
+                    content: {
+                        "application/problem+json": components["schemas"]["ProblemDetails"];
+                    };
+                };
+                /** @description Unsupported Media Type. */
+                415: {
+                    headers: {
+                        [name: string]: unknown;
+                    };
+                    content: {
+                        "application/problem+json": components["schemas"]["ProblemDetails"];
+                    };
+                };
+                /** @description Unprocessable Entity. */
+                422: {
+                    headers: {
+                        [name: string]: unknown;
+                    };
+                    content: {
+                        "application/problem+json": components["schemas"]["ProblemDetails"];
+                    };
+                };
+                /** @description Too Many Requests. */
+                429: {
+                    headers: {
+                        [name: string]: unknown;
+                    };
+                    content: {
+                        "application/problem+json": components["schemas"]["ProblemDetails"];
+                    };
+                };
+                /** @description Internal Server Error. */
+                500: {
+                    headers: {
+                        [name: string]: unknown;
+                    };
+                    content: {
+                        "application/problem+json": components["schemas"]["ProblemDetails"];
+                    };
+                };
+                /** @description Service Unavailable. */
+                503: {
+                    headers: {
+                        [name: string]: unknown;
+                    };
+                    content: {
+                        "application/problem+json": components["schemas"]["ProblemDetails"];
+                    };
+                };
+            };
+        };
+        post?: never;
+        delete?: never;
+        options?: never;
+        head?: never;
+        patch?: never;
+        trace?: never;
+    };
     "/v1/policy-packs/catalog": {
         parameters: {
             query?: never;
@@ -82358,6 +83182,145 @@ export interface paths {
                 };
             };
         };
+        delete?: never;
+        options?: never;
+        head?: never;
+        patch?: never;
+        trace?: never;
+    };
+    "/v1/policy-packs/workspace-selection": {
+        parameters: {
+            query?: never;
+            header?: never;
+            path?: never;
+            cookie?: never;
+        };
+        get: {
+            parameters: {
+                query?: never;
+                header?: never;
+                path?: never;
+                cookie?: never;
+            };
+            requestBody?: never;
+            responses: {
+                /** @description OK */
+                200: {
+                    headers: {
+                        [name: string]: unknown;
+                    };
+                    content: {
+                        "application/json": components["schemas"]["PolicyPackWorkspaceSelectionItem"][];
+                        "text/json": components["schemas"]["PolicyPackWorkspaceSelectionItem"][];
+                        "text/plain": components["schemas"]["PolicyPackWorkspaceSelectionItem"][];
+                    };
+                };
+                /** @description Bad Request (validation or malformed input). */
+                400: {
+                    headers: {
+                        [name: string]: unknown;
+                    };
+                    content: {
+                        "application/problem+json": components["schemas"]["ProblemDetails"];
+                    };
+                };
+                /** @description Unauthorized. */
+                401: {
+                    headers: {
+                        [name: string]: unknown;
+                    };
+                    content: {
+                        "application/problem+json": components["schemas"]["ProblemDetails"];
+                    };
+                };
+                /** @description Forbidden. */
+                403: {
+                    headers: {
+                        [name: string]: unknown;
+                    };
+                    content: {
+                        "application/problem+json": components["schemas"]["ProblemDetails"];
+                    };
+                };
+                /** @description Not Found */
+                404: {
+                    headers: {
+                        [name: string]: unknown;
+                    };
+                    content: {
+                        "application/json": components["schemas"]["ProblemDetails"];
+                        "application/problem+json": components["schemas"]["ProblemDetails"];
+                        "text/json": components["schemas"]["ProblemDetails"];
+                        "text/plain": components["schemas"]["ProblemDetails"];
+                    };
+                };
+                /** @description Method Not Allowed. */
+                405: {
+                    headers: {
+                        [name: string]: unknown;
+                    };
+                    content: {
+                        "application/problem+json": components["schemas"]["ProblemDetails"];
+                    };
+                };
+                /** @description Conflict. */
+                409: {
+                    headers: {
+                        [name: string]: unknown;
+                    };
+                    content: {
+                        "application/problem+json": components["schemas"]["ProblemDetails"];
+                    };
+                };
+                /** @description Unsupported Media Type. */
+                415: {
+                    headers: {
+                        [name: string]: unknown;
+                    };
+                    content: {
+                        "application/problem+json": components["schemas"]["ProblemDetails"];
+                    };
+                };
+                /** @description Unprocessable Entity. */
+                422: {
+                    headers: {
+                        [name: string]: unknown;
+                    };
+                    content: {
+                        "application/problem+json": components["schemas"]["ProblemDetails"];
+                    };
+                };
+                /** @description Too Many Requests. */
+                429: {
+                    headers: {
+                        [name: string]: unknown;
+                    };
+                    content: {
+                        "application/problem+json": components["schemas"]["ProblemDetails"];
+                    };
+                };
+                /** @description Internal Server Error. */
+                500: {
+                    headers: {
+                        [name: string]: unknown;
+                    };
+                    content: {
+                        "application/problem+json": components["schemas"]["ProblemDetails"];
+                    };
+                };
+                /** @description Service Unavailable. */
+                503: {
+                    headers: {
+                        [name: string]: unknown;
+                    };
+                    content: {
+                        "application/problem+json": components["schemas"]["ProblemDetails"];
+                    };
+                };
+            };
+        };
+        put?: never;
+        post?: never;
         delete?: never;
         options?: never;
         head?: never;
@@ -94759,6 +95722,33 @@ export interface components {
             /** Format: double */
             structuralWarnBelow?: number | string;
         };
+        AdminQuickScanBudgetSnapshotResponse: {
+            /** Format: double */
+            dailyCeilingUsd: number | string;
+            dayBucketKey: string;
+            /** Format: double */
+            dayCommittedUsd: number | string;
+            /** Format: double */
+            dayReservedUsd: number | string;
+            /** Format: int32 */
+            expiredPendingReservationCount: number;
+            hourBucketKey: string;
+            /** Format: double */
+            hourCommittedUsd: number | string;
+            /** Format: double */
+            hourReservedUsd: number | string;
+            /** Format: double */
+            hourlyCeilingUsd: number | string;
+            /** Format: int32 */
+            lastReconciliationExpiredCount: number;
+            /** Format: date-time */
+            lastReconciliationUtc?: null | string;
+            operationalMode: string;
+            /** Format: int32 */
+            pendingReservationCount: number;
+            recentUsage: components["schemas"]["AdminQuickScanUsageRecordRow"][];
+            safetyEnabled: boolean;
+        };
         AdminQuickScanSafetySnapshotResponse: {
             actorUserId: string;
             anonymousExecutionAllowed: boolean;
@@ -94774,6 +95764,26 @@ export interface components {
             operationalMode: string;
             publicMessage?: null | string;
             reason: string;
+        };
+        AdminQuickScanUsageRecordRow: {
+            /** Format: double */
+            actualCostUsd?: null | number | string;
+            /** Format: int32 */
+            durationMs: number;
+            /** Format: int32 */
+            inputTokens?: null | number;
+            modelLabel?: null | string;
+            /** Format: date-time */
+            occurredUtc: string;
+            /** Format: int32 */
+            outputTokens?: null | number;
+            rejectionReason?: null | string;
+            /** Format: uuid */
+            reservationId?: null | string;
+            /** Format: double */
+            reservedUsd?: null | number | string;
+            routeKind: string;
+            status: string;
         };
         AdminRagCorpusHealthItem: {
             /** Format: int32 */
@@ -94983,6 +95993,12 @@ export interface components {
             /** Format: int32 */
             reasoningTokenCount?: null | number;
             recordedQualityGateOutcome?: null | components["schemas"]["AgentOutputQualityGateOutcome"];
+            recordedRejectReasonCategory?: null | string;
+            /** Format: double */
+            recordedSemanticScore?: null | number | string;
+            /** Format: double */
+            recordedStructuralCompletenessRatio?: null | number | string;
+            recordedTriageScenarioId?: null | string;
             runId?: string;
             systemPrompt?: string;
             systemPromptContentHash?: null | string;
@@ -95049,6 +96065,8 @@ export interface components {
             qualityGateDefinitionContentHashSha256?: null | string;
             qualityGateOutcome?: null | components["schemas"]["AgentOutputQualityGateOutcome"];
             qualityWarning?: boolean;
+            recordedRejectReasonCategory?: null | string;
+            recordedTriageScenarioId?: null | string;
             semantic?: null | components["schemas"]["AgentOutputSemanticScore"];
             /** Format: double */
             structuralCompletenessRatio?: number | string;
@@ -96775,6 +97793,37 @@ export interface components {
             email?: string;
             message?: null | string;
         };
+        CrossReviewFindingLifecycleRecord: {
+            category?: string;
+            correlationMethod: components["schemas"]["FindingCorrelationMethod"];
+            currentFindingId?: null | string;
+            latestDisposition?: null | components["schemas"]["FindingDisposition"];
+            message?: string;
+            priorFindingId?: null | string;
+            resolutionBasis: components["schemas"]["CrossReviewFindingResolutionBasis"];
+            severity: components["schemas"]["FindingSeverity"];
+            sourceAgent: components["schemas"]["AgentType"];
+            state: components["schemas"]["CrossReviewFindingLifecycleState"];
+        };
+        /** @enum {string} */
+        CrossReviewFindingLifecycleState: "NewlyIdentified" | "PreviouslyIdentifiedStillPresent" | "CandidateResolved";
+        CrossReviewFindingLifecycleSummary: {
+            /** Format: int32 */
+            absenceNotInformativeCount?: number;
+            /** Format: int32 */
+            candidateResolvedCount?: number;
+            /** Format: int32 */
+            confirmedResolvedCount?: number;
+            honestyNote?: string;
+            /** Format: int32 */
+            newlyIdentifiedCount?: number;
+            /** Format: int32 */
+            previouslyIdentifiedStillPresentCount?: number;
+            /** Format: int32 */
+            unverifiedResolvedCount?: number;
+        };
+        /** @enum {string} */
+        CrossReviewFindingResolutionBasis: "NotApplicable" | "ConfirmedByDisposition" | "Unverified" | "AbsenceNotInformative";
         CrossTenantPortfolioSummaryResponse: {
             headlineSavingsScopeCode?: string;
             headlineSavingsScopeDescription?: string;
@@ -96889,6 +97938,11 @@ export interface components {
             goldenManifestIdRepoints: number;
             /** Format: int64 */
             graphSnapshotIdRepoints: number;
+        };
+        DataConsistencyMissingArchitectureRequestSnapshot: {
+            /** Format: int64 */
+            count: number;
+            sampleRunIds: string[];
         };
         DataConsistencyOrphanCounts: {
             /** Format: int64 */
@@ -97373,6 +98427,8 @@ export interface components {
             agentResultDiff?: null | components["schemas"]["AgentResultDiffResult"];
             exportDiffs?: components["schemas"]["ExportRecordDiffResult"][];
             findingCorrelation?: null | components["schemas"]["ComparisonFindingCorrelationMetadata"];
+            findingLifecycle?: null | components["schemas"]["CrossReviewFindingLifecycleSummary"];
+            findingLifecycleRecords?: components["schemas"]["CrossReviewFindingLifecycleRecord"][];
             interpretationNotes?: string[];
             leftRunId?: string;
             manifestDiff?: null | components["schemas"]["ManifestDiffResult"];
@@ -97913,6 +98969,8 @@ export interface components {
         FindingClassification: "DecisionGradeFinding" | "ChecklistCoverage" | null;
         /** @enum {unknown} */
         FindingConfidenceLevel: "High" | "Medium" | "Low" | null;
+        /** @enum {string} */
+        FindingCorrelationMethod: "None" | "PolicyRuleAndFingerprint" | "MessageCategoryFuzzy";
         FindingDisposition: number;
         FindingDispositionEventDto: {
             disposition?: components["schemas"]["FindingDisposition"];
@@ -99416,6 +100474,14 @@ export interface components {
             /** Format: int32 */
             topK?: null | number;
         };
+        MissingArchitectureRequestRemediationResult: {
+            archivedRunIds: string[];
+            /** Format: int32 */
+            candidateCount: number;
+            candidateRunIds: string[];
+            dryRun: boolean;
+            failed: components["schemas"]["RunArchiveByIdFailure"][];
+        };
         ModelAliasRegistryEntryResponse: {
             aliasId?: string;
             approvedTaskTypes?: string[];
@@ -99909,6 +100975,13 @@ export interface components {
             /** Format: uuid */
             tenantId?: string;
         };
+        PlatformBundledPolicyPackRegistryEntry: {
+            bundleContentFile?: string;
+            displayName?: string;
+            isGloballyActive?: boolean;
+            /** Format: date-time */
+            updatedUtc?: string;
+        };
         PolicyControlItem: {
             controlId?: string;
             controlName?: string;
@@ -100207,6 +101280,18 @@ export interface components {
             /** Format: uuid */
             policyPackVersionId?: string;
             version?: string;
+        };
+        PolicyPackWorkspaceSelectionItem: {
+            /** Format: uuid */
+            assignmentId?: string;
+            currentVersion?: string;
+            description?: string;
+            isEnabled?: boolean;
+            isGloballyActive?: boolean;
+            name?: string;
+            packType?: string;
+            /** Format: uuid */
+            policyPackId?: string;
         };
         PolicySection: {
             exemptions?: components["schemas"]["PolicyExemption"][];
@@ -101865,6 +102950,12 @@ export interface components {
         SetAppearancePreferenceRequest: {
             value?: string;
         };
+        SetPlatformBundledPolicyPackActivationRequest: {
+            isGloballyActive?: boolean;
+        };
+        SetPolicyPackAssignmentEnabledRequest: {
+            isEnabled?: boolean;
+        };
         SignInMethodConfirmedResponse: {
             /** Format: uuid */
             identityId?: string;
@@ -102629,6 +103720,8 @@ export interface components {
             totalQuantity?: number;
         };
         TenantWorkspaceApiDto: {
+            /** Format: uuid */
+            defaultProjectId?: string;
             displayName?: null | string;
             name?: string;
             projects?: components["schemas"]["TenantWorkspaceProjectApiDto"][];
@@ -102663,6 +103756,8 @@ export interface components {
             workspaceId?: string;
         };
         TenantWorkspacesListResponse: {
+            /** Format: int32 */
+            retentionDays?: number;
             workspaces?: components["schemas"]["TenantWorkspaceApiDto"][];
         };
         TenantWorkspacesRecycleBinResponse: {
@@ -103003,6 +104098,9 @@ export interface components {
         };
         WorkspaceModelExecutionProfileResponse: {
             effectiveProfile?: string;
+            /** Format: date-time */
+            lastChangedAtUtc?: null | string;
+            lastChangedBy?: null | string;
             source?: string;
             workspaceDefaultProfile?: string;
         };

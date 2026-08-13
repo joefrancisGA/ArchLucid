@@ -156,5 +156,6 @@ public sealed class SettingsControllerModelExecutionProfileTests
             Mock.Of<IAgentModelAliasRegistry>(),
             scopeProvider,
             auditService,
-            auditRepository);
+            auditRepository,
+            TimeProvider.System);
 }
