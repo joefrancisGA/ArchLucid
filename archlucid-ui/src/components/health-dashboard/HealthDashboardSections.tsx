@@ -25,9 +25,9 @@ import {
 } from "@/lib/health-group-metrics";
 import {
   operatorLastRefreshedClockLabel,
-  operatorLastRefreshedExactLabel,
   operatorLastRefreshedLabel,
 } from "@/lib/operator/operator-last-refreshed-label";
+import { OperatorPageFreshnessMetadata } from "@/components/operator/OperatorPageFreshnessMetadata";
 import type { HealthDisplaySeverity } from "@/lib/health-readiness-presentation";
 
 export const HEALTH_DASHBOARD_PAGE_CLASS = cn(OPERATOR_PAGE_CONTAINER.variant.workflow, "max-w-[1120px]");
@@ -48,15 +48,14 @@ export function HealthFreshnessLabel(props: HealthFreshnessLabelProps): React.JS
   const clockLabel = operatorLastRefreshedClockLabel(props.lastRefreshedAt);
 
   return (
-    <span
-      className={cn("text-al-text-secondary", OPERATOR_TYPOGRAPHY.helper)}
-      data-testid={props.testId}
-      title={operatorLastRefreshedExactLabel(props.lastRefreshedAt)}
+    <OperatorPageFreshnessMetadata
+      testId={props.testId}
+      lastRefreshedAt={props.loading ? null : props.lastRefreshedAt}
     >
       Last refreshed: {props.loading ? "Refreshing…" : relativeLabel}
       {!props.loading && clockLabel !== null ? ` (${clockLabel})` : ""}
       {props.refreshPolicy !== undefined ? ` · ${props.refreshPolicy}` : ""}
-    </span>
+    </OperatorPageFreshnessMetadata>
   );
 }
 

@@ -2,7 +2,7 @@
  * Baseline for the `title`-attribute-as-help ban (UI_DESIGN_SYSTEM.md § Operator page contextual
  * help — mount + interaction contract, TB-1666).
  *
- * These 85 files carried a native `title` attribute when the rule landed on 2026-08-09. The rule is
+ * These 76 files carried a native `title` attribute when the rule landed on 2026-08-09. The rule is
  * an error everywhere else so new hover-only help cannot be introduced; this list exists only so the
  * rule could land without a 135-site refactor in one change. Sweeping it is TB-2147.
  *
@@ -20,18 +20,14 @@
 export const TITLE_ATTRIBUTE_LEGACY_SURFACES = [
   "src/app/(operator)/administration/ai-usage/_sections/ai-usage/AiUsageDailyUsagePanel.tsx",
   "src/app/(operator)/administration/billing/OperatorBillingWalletPanel.tsx",
-  "src/app/(operator)/administration/identity-providers/_sections/IdentityProvidersSettingsPageHeader.tsx",
   "src/app/(operator)/architecture/executive-dashboard/_sections/ExecutiveRoiEnvironmentSavingsSection.tsx",
   "src/app/(operator)/architecture/executive-dashboard/_sections/ExecutiveRoiTrendSection.tsx",
   "src/app/(operator)/architecture/reviews/_sections/ReviewsHubResumeDrafts.tsx",
   "src/app/(operator)/governance/alert-rules/AlertRulesHubClient.tsx",
-  "src/app/(operator)/governance/alert-rules/AlertRulesPageHeader.tsx",
-  "src/app/(operator)/governance/audit/_sections/AuditPageHeader.tsx",
   "src/app/(operator)/governance/audit/_sections/AuditTimelineEventCard.tsx",
   "src/app/(operator)/governance/audit/_sections/BuyerAuditEventsTechnicalAppendix.tsx",
   "src/app/(operator)/governance/policy-packs/_sections/PolicyPackGeneratorSection.tsx",
   "src/app/(operator)/governance/policy-packs/_sections/PolicyPacksInspectSection.tsx",
-  "src/app/(operator)/governance/policy-packs/_sections/PolicyPacksPageHeader.tsx",
   "src/app/(operator)/governance/policy-packs/_sections/PolicyPacksRegisteredListSection.tsx",
   "src/app/(operator)/governance/policy-packs/_sections/PolicyRuleAuthoringWizard.tsx",
   "src/app/(operator)/help/_sections/HelpBillingAndPlansPageHeader.tsx",
@@ -39,8 +35,6 @@ export const TITLE_ATTRIBUTE_LEGACY_SURFACES = [
   "src/app/(operator)/help/_sections/HelpRepeatReviewLoopPageHeader.tsx",
   "src/app/(operator)/insights/evidence-graph/_sections/EvidenceTrailBuyerTraceTable.tsx",
   "src/app/(operator)/insights/evidence-graph/_sections/GraphPageControls.tsx",
-  "src/app/(operator)/insights/impact-preview/_sections/ImpactPreviewPageHeader.tsx",
-  "src/app/(operator)/integrations/azure-boards/_sections/AzureBoardsIntegrationPageHeader.tsx",
   "src/app/(operator)/integrations/slack/_sections/SlackDestinationForm.tsx",
   "src/app/(operator)/internal/trial-funnel/_sections/TrialFunnelOpsPageClient.tsx",
   "src/components/AgentEvidenceFaithfulnessBadge.tsx",
@@ -55,7 +49,6 @@ export const TITLE_ATTRIBUTE_LEGACY_SURFACES = [
   "src/components/architecture/ArchitectureDraftListClient.tsx",
   "src/components/ArtifactIntegrityTechnicalDetails.tsx",
   "src/components/ArtifactListTable.tsx",
-  "src/components/AuthorityThemeToggle.tsx",
   "src/components/BeforeAfterDelta/BeforeAfterDeltaTopPanel.tsx",
   "src/components/BulkEvidenceUpload.tsx",
   "src/components/BuyerCtoDemoTourOverlay.tsx",
@@ -65,7 +58,6 @@ export const TITLE_ATTRIBUTE_LEGACY_SURFACES = [
   "src/components/digests/DigestSubscriptionCreateForm.tsx",
   "src/components/EmailRunToSponsorBanner.tsx",
   "src/components/EstimatedLlmCostBarChart.tsx",
-  "src/components/executive/ExecutiveDashboardPageHero.tsx",
   "src/components/ExplanationEvidenceBasisBadges.tsx",
   "src/components/findings/FindingExplainabilityDialog.tsx",
   "src/components/FindingPolicyPackBadge.tsx",
@@ -73,7 +65,6 @@ export const TITLE_ATTRIBUTE_LEGACY_SURFACES = [
   "src/components/FindingsWhatIfAnalysisPanel.tsx",
   "src/components/FindingTrustChip.tsx",
   "src/components/GovernanceApprovalInspectorPreview.tsx",
-  "src/components/health-dashboard/HealthDashboardSections.tsx",
   "src/components/InspectorPanel.tsx",
   "src/components/LayerContextStrip.tsx",
   "src/components/LayerHeader.tsx",

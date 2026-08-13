@@ -55,7 +55,6 @@ export function AuthorityThemeToggle() {
         theme === "charcoal" ? "text-neutral-100 dark:text-neutral-100" : "text-teal-800 dark:text-teal-300",
       )}
       aria-label={label}
-      title={label}
       onClick={() => setAndPersist(nextTheme)}
     >
       <span aria-hidden className={cn("font-bold leading-none", OPERATOR_TYPOGRAPHY.badge)}>

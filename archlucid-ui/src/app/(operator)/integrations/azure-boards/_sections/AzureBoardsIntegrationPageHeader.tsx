@@ -10,9 +10,9 @@ import { RefreshButton } from "@/components/ui/refresh-button";
 import { PageContextualHelpButton } from "@/components/usability/PageContextualHelpButton";
 import { OPERATOR_LINK, OPERATOR_TYPOGRAPHY } from "@/lib/design-tokens";
 import {
-  operatorLastRefreshedExactLabel,
-  operatorLastRefreshedLabel,
+  operatorFreshnessMetadataWithClockLabel,
 } from "@/lib/operator/operator-last-refreshed-label";
+import { OperatorPageFreshnessMetadata } from "@/components/operator/OperatorPageFreshnessMetadata";
 import {
   AZURE_BOARDS_ACTION_REFRESHING,
   AZURE_BOARDS_LAST_REFRESHED_PREFIX,
@@ -32,7 +32,13 @@ export type AzureBoardsIntegrationPageHeaderProps = {
 export function AzureBoardsIntegrationPageHeader(
   props: AzureBoardsIntegrationPageHeaderProps,
 ): React.JSX.Element {
-  const lastRefreshedLabel = operatorLastRefreshedLabel(props.lastRefreshedAt);
+  const freshnessLabel = props.refreshing
+    ? AZURE_BOARDS_ACTION_REFRESHING
+    : operatorFreshnessMetadataWithClockLabel({
+        prefix: AZURE_BOARDS_LAST_REFRESHED_PREFIX,
+        lastRefreshedAt: props.lastRefreshedAt,
+        refreshingLabel: null,
+      });
 
   return (
     <OperatorPageHeader
@@ -58,14 +64,12 @@ export function AzureBoardsIntegrationPageHeader(
         </div>
       }
       metadata={
-        <span
-          className={cn("text-al-text-secondary", OPERATOR_TYPOGRAPHY.helper)}
-          data-testid="azure-boards-last-refreshed"
-          title={operatorLastRefreshedExactLabel(props.lastRefreshedAt)}
+        <OperatorPageFreshnessMetadata
+          testId="azure-boards-last-refreshed"
+          lastRefreshedAt={props.refreshing ? null : props.lastRefreshedAt}
         >
-          {AZURE_BOARDS_LAST_REFRESHED_PREFIX}:{" "}
-          {props.refreshing ? AZURE_BOARDS_ACTION_REFRESHING : lastRefreshedLabel}
-        </span>
+          {freshnessLabel}
+        </OperatorPageFreshnessMetadata>
       }
     />
   );

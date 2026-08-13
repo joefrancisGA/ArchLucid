@@ -11,9 +11,9 @@ import { RefreshButton } from "@/components/ui/refresh-button";
 import { BUYER_EXECUTIVE_SUMMARY_VOCABULARY } from "@/lib/vocabulary/buyer-surface-vocabulary";
 import { OPERATOR_LINK, OPERATOR_TYPOGRAPHY } from "@/lib/design-tokens";
 import {
-  operatorLastRefreshedExactLabel,
-  operatorLastRefreshedLabel,
+  operatorFreshnessMetadataWithClockLabel,
 } from "@/lib/operator/operator-last-refreshed-label";
+import { OperatorPageFreshnessMetadata } from "@/components/operator/OperatorPageFreshnessMetadata";
 import { EXECUTIVE_DASHBOARD_HREF } from "@/lib/executive/executive-dashboard-route";
 import {
   EXECUTIVE_DASHBOARD_ACTION_REFRESHING,
@@ -33,7 +33,13 @@ export function ExecutiveDashboardPageHero({
   const v = BUYER_EXECUTIVE_SUMMARY_VOCABULARY;
   const { refreshing, lastRefreshedAt, refreshDashboard } = useExecutiveDashboardData();
 
-  const lastRefreshedLabel = operatorLastRefreshedLabel(lastRefreshedAt);
+  const freshnessLabel = refreshing
+    ? EXECUTIVE_DASHBOARD_ACTION_REFRESHING
+    : operatorFreshnessMetadataWithClockLabel({
+        prefix: EXECUTIVE_DASHBOARD_LAST_REFRESHED_PREFIX,
+        lastRefreshedAt,
+        refreshingLabel: null,
+      });
 
   return (
     <div
@@ -73,14 +79,12 @@ export function ExecutiveDashboardPageHero({
           </div>
         }
         metadata={
-          <span
-            className={cn("text-al-text-secondary", OPERATOR_TYPOGRAPHY.helper)}
-            data-testid="executive-dashboard-last-refreshed"
-            title={operatorLastRefreshedExactLabel(lastRefreshedAt)}
+          <OperatorPageFreshnessMetadata
+            testId="executive-dashboard-last-refreshed"
+            lastRefreshedAt={refreshing ? null : lastRefreshedAt}
           >
-            {EXECUTIVE_DASHBOARD_LAST_REFRESHED_PREFIX}:{" "}
-            {refreshing ? EXECUTIVE_DASHBOARD_ACTION_REFRESHING : lastRefreshedLabel}
-          </span>
+            {freshnessLabel}
+          </OperatorPageFreshnessMetadata>
         }
       />
     </div>

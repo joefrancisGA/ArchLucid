@@ -3,6 +3,7 @@ import { describe, expect, it } from "vitest";
 import {
   OPERATOR_NOT_REFRESHED_LABEL,
   operatorFreshnessMetadataLabel,
+  operatorFreshnessMetadataWithClockLabel,
   operatorLastRefreshedExactLabel,
   operatorLastRefreshedLabel,
 } from "@/lib/operator/operator-last-refreshed-label";
@@ -70,6 +71,31 @@ describe("operatorFreshnessMetadataLabel", () => {
         refreshingLabel: null,
       }),
     ).toBe(OPERATOR_NOT_REFRESHED_LABEL);
+  });
+});
+
+describe("operatorFreshnessMetadataWithClockLabel", () => {
+  it("appends a visible clock parenthetical when a timestamp exists", () => {
+    const refreshedAt = new Date("2026-01-15T12:00:00.000Z");
+    const label = operatorFreshnessMetadataWithClockLabel({
+      prefix: "Last refreshed",
+      lastRefreshedAt: refreshedAt,
+      refreshingLabel: null,
+    });
+
+    expect(label).toMatch(/^Last refreshed: /);
+    expect(label).toMatch(/\(\d{1,2}:\d{2}:\d{2}/);
+    expect(label).not.toContain("title");
+  });
+
+  it("prefers the in-flight label and omits the clock", () => {
+    expect(
+      operatorFreshnessMetadataWithClockLabel({
+        prefix: "Last refreshed",
+        lastRefreshedAt: new Date(),
+        refreshingLabel: "Refreshing…",
+      }),
+    ).toBe("Refreshing…");
   });
 });
 
