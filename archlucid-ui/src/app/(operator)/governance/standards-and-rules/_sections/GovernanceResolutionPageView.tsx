@@ -15,7 +15,10 @@ import { OperatorApiProblem } from "@/components/operator/OperatorApiProblem";
 import { OperatorPageHeader } from "@/components/operator/OperatorPageHeader";
 import { GovernanceSetupConfigHubsVocabularyRail } from "@/components/governance/GovernanceSetupConfigHubsVocabularyRail";
 import { PolicyPacksStandardsVocabularyRail } from "@/components/policy/PolicyPacksStandardsVocabularyRail";
-import { PageContextualHelpButton } from "@/components/usability/PageContextualHelpButton";
+import {
+  PageContextualHelpButton,
+  PAGE_HELP_SHORT_TRIGGER_TEXT,
+} from "@/components/usability/PageContextualHelpButton";
 import { Button } from "@/components/ui/button";
 import { RefreshButton } from "@/components/ui/refresh-button";
 import {
@@ -225,7 +228,7 @@ export function GovernanceResolutionPageView(props: Props) {
           navHref={GOVERNANCE_STANDARDS_AND_RULES_PATH}
           title={STANDARDS_RULES_PAGE_TITLE}
           subtitle={STANDARDS_RULES_PAGE_SUBTITLE}
-          actions={<PageContextualHelpButton />}
+          actions={<PageContextualHelpButton triggerText={PAGE_HELP_SHORT_TRIGGER_TEXT} />}
         />
         <PolicyPacksStandardsVocabularyRail currentSurfaceId="standards-and-rules" />
         <GovernanceSetupConfigHubsVocabularyRail currentSurfaceId="standards" />
@@ -270,7 +273,7 @@ export function GovernanceResolutionPageView(props: Props) {
         navHref={GOVERNANCE_STANDARDS_AND_RULES_PATH}
         title={OPERATOR_NAV_LINK_LABELS.governanceResolution}
         subtitle={m.canMutateEnterprisePolicySurfaces ? governanceResolutionPageLeadOperator : governanceResolutionPageLeadReader}
-        actions={<PageContextualHelpButton />}
+        actions={<PageContextualHelpButton triggerText={PAGE_HELP_SHORT_TRIGGER_TEXT} />}
       />
       <PolicyPacksStandardsVocabularyRail currentSurfaceId="standards-and-rules" />
       <GovernanceSetupConfigHubsVocabularyRail currentSurfaceId="standards" />

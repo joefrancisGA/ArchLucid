@@ -3,8 +3,15 @@ import { join } from "node:path";
 
 import { describe, expect, it } from "vitest";
 
-import { pageHelpTopicForPathname } from "@/lib/usability/page-help-topic-map";
+import { API_KEYS_PAGE_TITLE } from "@/lib/api-keys-settings-copy";
+import { ALERTS_CONFIGURATION_PAGE_TITLE } from "@/lib/alerts-page-copy";
+import { BASELINE_SETTINGS_PAGE_TITLE } from "@/lib/baseline-settings-present";
 import { BUYER_ONBOARDING_PAGE_TITLE } from "@/lib/buyer/buyer-polish-copy";
+import { OPERATOR_NAV_LINK_LABELS } from "@/lib/i18n";
+import { OPERATOR_HOME_PAGE_TITLE } from "@/lib/operator/operator-home-page-copy";
+import { STANDARDS_RULES_PAGE_TITLE } from "@/lib/standards-rules-page";
+import { SYSTEM_HEALTH_PAGE_TITLE } from "@/lib/system-health-page-copy";
+import { pageHelpTopicForPathname } from "@/lib/usability/page-help-topic-map";
 
 const SRC_ROOT = join(process.cwd(), "src");
 
@@ -14,6 +21,41 @@ const PAGE_HELP_TITLE_COLLISION_SURFACES: ReadonlyArray<{
   readonly pageTitle: string;
   readonly modulePath: string;
 }> = [
+  {
+    pathname: "/",
+    pageTitle: OPERATOR_HOME_PAGE_TITLE,
+    modulePath: "app/(operator)/_sections/OperatorHomePageHeader.tsx",
+  },
+  {
+    pathname: "/governance/alert-rules",
+    pageTitle: ALERTS_CONFIGURATION_PAGE_TITLE,
+    modulePath: "app/(operator)/governance/alert-rules/AlertRulesPageHeader.tsx",
+  },
+  {
+    pathname: "/governance/standards-and-rules",
+    pageTitle: STANDARDS_RULES_PAGE_TITLE,
+    modulePath: "app/(operator)/governance/standards-and-rules/_sections/GovernanceResolutionPageView.tsx",
+  },
+  {
+    pathname: "/administration/api-keys",
+    pageTitle: API_KEYS_PAGE_TITLE,
+    modulePath: "app/(operator)/administration/api-keys/_sections/ApiKeysSettingsPageClient.tsx",
+  },
+  {
+    pathname: "/administration/system-health",
+    pageTitle: SYSTEM_HEALTH_PAGE_TITLE,
+    modulePath: "app/(operator)/administration/system-health/_sections/SystemHealthPageHeader.tsx",
+  },
+  {
+    pathname: "/insights/roi-summary",
+    pageTitle: OPERATOR_NAV_LINK_LABELS.roiReport,
+    modulePath: "app/(operator)/insights/roi-summary/_sections/RoiSummaryPageView.tsx",
+  },
+  {
+    pathname: "/administration/baseline",
+    pageTitle: BASELINE_SETTINGS_PAGE_TITLE,
+    modulePath: "app/(operator)/administration/baseline/BaselineSettingsClient.tsx",
+  },
   {
     pathname: "/administration/developer",
     pageTitle: "Internal developer tools",

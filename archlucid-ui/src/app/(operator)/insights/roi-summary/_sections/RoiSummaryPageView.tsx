@@ -12,7 +12,10 @@ import { LayerHeader } from "@/components/LayerHeader";
 import { BaselineRoiVocabularyRail } from "@/components/BaselineRoiVocabularyRail";
 import { RoiSponsorExportVocabularyRail } from "@/components/RoiSponsorExportVocabularyRail";
 import { ScorecardRoiVocabularyRail } from "@/components/ScorecardRoiVocabularyRail";
-import { PageContextualHelpButton } from "@/components/usability/PageContextualHelpButton";
+import {
+  PageContextualHelpButton,
+  PAGE_HELP_SHORT_TRIGGER_TEXT,
+} from "@/components/usability/PageContextualHelpButton";
 import { ValueReportOutcomesNav } from "@/components/usability/ValueReportOutcomesNav";
 import { OperatorApiProblem } from "@/components/operator/OperatorApiProblem";
 import { RoiTelemetryCard } from "@/components/RoiTelemetryCard";
@@ -118,7 +121,7 @@ export function RoiSummaryPageView(props: Props) {
           subtitle={buyerPolishedShell ? ROI_SUMMARY_PAGE_SUBTITLE : null}
           actions={
             <div className="flex flex-wrap items-center gap-2">
-              <PageContextualHelpButton />
+              <PageContextualHelpButton triggerText={PAGE_HELP_SHORT_TRIGGER_TEXT} />
               <nav
                 aria-label="Related value reports"
                 className={cn("flex flex-wrap items-center gap-x-3 gap-y-1 text-al-text-secondary", OPERATOR_TYPOGRAPHY.helper)}

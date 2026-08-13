@@ -45,7 +45,10 @@ import { WebhooksApiKeysVocabularyRail } from "@/components/WebhooksApiKeysVocab
 import { OperatorPageContainer } from "@/components/operator/OperatorPageContainer";
 import { SETTINGS_ROOT_PATH } from "@/lib/settings-admin-route-paths";
 import { OperatorPageHeader } from "@/components/operator/OperatorPageHeader";
-import { PageContextualHelpButton } from "@/components/usability/PageContextualHelpButton";
+import {
+  PageContextualHelpButton,
+  PAGE_HELP_SHORT_TRIGGER_TEXT,
+} from "@/components/usability/PageContextualHelpButton";
 import { DESIGN_TOKENS, OPERATOR_LAYOUT, OPERATOR_TYPOGRAPHY } from "@/lib/design-tokens";
 
 import { ApiKeyActionConfirmDialog } from "./ApiKeyActionConfirmDialog";
@@ -266,7 +269,7 @@ export function ApiKeysSettingsPageClient() {
           </>
         }
         subtitleClassName="max-w-prose"
-        actions={<PageContextualHelpButton />}
+        actions={<PageContextualHelpButton triggerText={PAGE_HELP_SHORT_TRIGGER_TEXT} />}
       >
         <ApiKeysUsersVocabularyRail currentSurfaceId="api-keys" />
         <WebhooksApiKeysVocabularyRail currentSurfaceId="api-keys" />

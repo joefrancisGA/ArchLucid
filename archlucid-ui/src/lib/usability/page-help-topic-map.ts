@@ -3,13 +3,15 @@
  */
 
 import { canonicalizeLegacyOperatorRoutePath } from "@/lib/canonicalize-legacy-operator-route-path";
-import { ALERTS_HOW_ALERTS_WORK_LABEL } from "@/lib/alerts-page-copy";
+import {
+  ALERTS_CONFIGURATION_PAGE_TITLE,
+  ALERTS_HOW_ALERTS_WORK_LABEL,
+} from "@/lib/alerts-page-copy";
+import { API_KEYS_PAGE_TITLE } from "@/lib/api-keys-settings-copy";
+import { BASELINE_SETTINGS_PAGE_TITLE } from "@/lib/baseline-settings-present";
 import { ARCHITECTURES_LIST_PATH } from "@/lib/architecture/architecture-routes";
 import { ARCHITECTURE_DRAFTS_LIST_LABEL, START_REVIEW_LABEL } from "@/lib/architecture/architecture-workflow-labels";
-import {
-  BUYER_ONBOARDING_PAGE_TITLE,
-  OPERATOR_HOME_EXPLORE_REVIEW_WALKTHROUGH_HEADING,
-} from "@/lib/buyer/buyer-polish-copy";
+import { BUYER_ONBOARDING_PAGE_TITLE } from "@/lib/buyer/buyer-polish-copy";
 import { GOVERNANCE_EXCEPTIONS_PATH } from "@/lib/governance/governance-route-paths";
 import { GOVERNANCE_SETUP_HREF } from "@/lib/governance/governance-setup-route";
 import { EXECUTIVE_DASHBOARD_HREF } from "@/lib/executive/executive-dashboard-route";
@@ -47,7 +49,7 @@ const PAGE_HELP_TOPICS: readonly { prefix: string; topic: PageHelpTopic }[] = [
   // Overview hero help — same topic the former "Learn / View workflow" links opened.
   {
     prefix: "/",
-    topic: { slug: "first-architecture-review", label: OPERATOR_HOME_EXPLORE_REVIEW_WALKTHROUGH_HEADING },
+    topic: { slug: "first-architecture-review", label: OPERATOR_NAV_LINK_LABELS.home },
   },
   { prefix: "/architecture/first-review-guide", topic: { slug: "getting-started", label: BUYER_ONBOARDING_PAGE_TITLE } },
   { prefix: "/help/getting-started", topic: { slug: "getting-started", label: "Getting started" } },
@@ -198,7 +200,7 @@ const PAGE_HELP_TOPICS: readonly { prefix: string; topic: PageHelpTopic }[] = [
   },
   {
     prefix: "/governance/alert-rules",
-    topic: { slug: "alerts", label: ALERTS_HOW_ALERTS_WORK_LABEL },
+    topic: { slug: "alerts", label: ALERTS_CONFIGURATION_PAGE_TITLE },
   },
   {
     prefix: "/governance/policy-packs",
@@ -206,19 +208,19 @@ const PAGE_HELP_TOPICS: readonly { prefix: string; topic: PageHelpTopic }[] = [
   },
   {
     prefix: "/governance/standards-and-rules",
-    topic: { slug: "policy-packs", label: "Policy packs" },
+    topic: { slug: "policy-packs", label: OPERATOR_NAV_LINK_LABELS.governanceResolution },
   },
   { prefix: "/governance", topic: { slug: "governance-approval", label: "Governance approval" } },
   { prefix: "/governance/audit", topic: { slug: "audit-trail", label: "Audit trail" } },
   { prefix: "/governance/alerts", topic: { slug: "alerts", label: "Alerts" } },
-  { prefix: "/governance/alert-rules", topic: { slug: "alerts", label: "How alerts work" } },
+  { prefix: "/governance/alert-rules", topic: { slug: "alerts", label: ALERTS_CONFIGURATION_PAGE_TITLE } },
   { prefix: "/governance/policy-packs", topic: { slug: "policy-packs", label: "Policy packs" } },
   {
     prefix: "/insights/roi-summary",
     topic: {
       slug: "executive-summary",
       hashFragment: "pilot-roi-measurement",
-      label: "View ROI methodology",
+      label: OPERATOR_NAV_LINK_LABELS.roiReport,
     },
   },
   {
@@ -244,7 +246,7 @@ const PAGE_HELP_TOPICS: readonly { prefix: string; topic: PageHelpTopic }[] = [
     topic: {
       slug: "executive-summary",
       hashFragment: "pilot-roi-measurement",
-      label: "View ROI methodology",
+      label: OPERATOR_NAV_LINK_LABELS.roiReport,
     },
   },
   {
@@ -256,7 +258,7 @@ const PAGE_HELP_TOPICS: readonly { prefix: string; topic: PageHelpTopic }[] = [
     topic: {
       slug: "executive-summary",
       hashFragment: "pilot-roi-measurement",
-      label: "View ROI methodology",
+      label: OPERATOR_NAV_LINK_LABELS.roiReport,
     },
   },
   {
@@ -446,7 +448,7 @@ const PAGE_HELP_TOPICS: readonly { prefix: string; topic: PageHelpTopic }[] = [
     prefix: "/operate/integration-events/dlq",
     topic: { slug: "integration-readiness", label: "Integration event dead letters" },
   },
-  { prefix: "/administration/system-health", topic: { slug: "troubleshooting", label: "Troubleshooting" } },
+  { prefix: "/administration/system-health", topic: { slug: "troubleshooting", label: OPERATOR_NAV_LINK_LABELS.systemHealth } },
   { prefix: "/internal/integrations/itsm", topic: { slug: "integration-readiness", label: "ITSM connectors" } },
   {
     prefix: "/admin/tenant-health",
@@ -498,7 +500,7 @@ const PAGE_HELP_TOPICS: readonly { prefix: string; topic: PageHelpTopic }[] = [
   },
   {
     prefix: "/administration/api-keys",
-    topic: { slug: "cli-usage", label: "CLI usage" },
+    topic: { slug: "cli-usage", label: API_KEYS_PAGE_TITLE },
   },
   {
     prefix: "/administration/preferences",
@@ -553,7 +555,7 @@ const PAGE_HELP_TOPICS: readonly { prefix: string; topic: PageHelpTopic }[] = [
     prefix: "/administration/workspace-settings",
     topic: { slug: "scope", label: OPERATOR_NAV_LINK_LABELS.workspaceSettings },
   },
-  { prefix: "/administration/baseline", topic: { slug: "executive-summary", hashFragment: "pilot-roi-measurement", label: "View ROI methodology" } },
+  { prefix: "/administration/baseline", topic: { slug: "executive-summary", hashFragment: "pilot-roi-measurement", label: BASELINE_SETTINGS_PAGE_TITLE } },
   { prefix: "/help", topic: { slug: "getting-started", label: "Help" } },
 ];
 

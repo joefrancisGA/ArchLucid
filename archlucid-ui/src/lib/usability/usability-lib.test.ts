@@ -7,18 +7,18 @@ import { shouldAutoStartRegistrationTour } from "@/lib/usability/onboarding-regi
 describe("usability lib", () => {
   it("pageHelpTopicForPathname maps review routes", () => {
     expect(pageHelpTopicForPathname("/")?.slug).toBe("first-architecture-review");
-    expect(pageHelpTopicForPathname("/")?.label).toBe("Architecture workflow");
+    expect(pageHelpTopicForPathname("/")?.label).toBe("Home");
     expect(pageHelpTopicForPathname("/architecture/reviews/new")?.slug).toBe("evidence-intake");
     expect(pageHelpTopicForPathname("/reviews/new")?.slug).toBe("evidence-intake");
     expect(pageHelpTopicForPathname("/alerts")?.slug).toBe("alerts");
     expect(pageHelpTopicForPathname("/alert-rules")?.slug).toBe("alerts");
     expect(pageHelpTopicForPathname("/governance/alerts")?.slug).toBe("alerts");
     expect(pageHelpTopicForPathname("/governance/alert-rules")?.slug).toBe("alerts");
-    expect(pageHelpTopicForPathname("/governance/alert-rules")?.label).toBe("How alerts work");
+    expect(pageHelpTopicForPathname("/governance/alert-rules")?.label).toBe("Alert rules");
     expect(pageHelpTopicForPathname("/administration/connection-status")?.slug).toBe("integration-readiness");
     expect(pageHelpTopicForPathname("/administration/connection-status")?.label).toBe("How integration readiness works");
     expect(pageHelpTopicForPathname("/administration/system-health")?.slug).toBe("troubleshooting");
-    expect(pageHelpTopicForPathname("/administration/system-health")?.label).toBe("Troubleshooting");
+    expect(pageHelpTopicForPathname("/administration/system-health")?.label).toBe("System health");
     expect(pageHelpTopicForPathname("/architecture/architectures")?.slug).toBe("getting-started");
     expect(pageHelpTopicForPathname("/architecture/architectures")?.label).toBe("Architecture drafts");
     expect(pageHelpTopicForPathname("/architecture/architectures/draft-id-123")?.slug).toBe("getting-started");
@@ -57,7 +57,7 @@ describe("usability lib", () => {
     );
     expect(pageHelpTopicForPathname("/insights/roi-summary")?.slug).toBe("executive-summary");
     expect(pageHelpTopicForPathname("/insights/roi-summary")?.hashFragment).toBe("pilot-roi-measurement");
-    expect(pageHelpTopicForPathname("/insights/roi-summary")?.label).toBe("View ROI methodology");
+    expect(pageHelpTopicForPathname("/insights/roi-summary")?.label).toBe("ROI summary");
     expect(pageHelpTopicForPathname("/insights/pilot-outcomes")?.slug).toBe("executive-summary");
     expect(pageHelpTopicForPathname("/insights/architecture-scorecard")?.slug).toBe("executive-summary");
     expect(pageHelpTopicForPathname("/insights/architecture-scorecard")?.hashFragment).toBe(
