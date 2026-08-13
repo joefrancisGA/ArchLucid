@@ -2,7 +2,7 @@
  * Baseline for the `title`-attribute-as-help ban (UI_DESIGN_SYSTEM.md § Operator page contextual
  * help — mount + interaction contract, TB-1666).
  *
- * These 60 files carried a native `title` attribute when the rule landed on 2026-08-09. The rule is
+ * These 52 files carried a native `title` attribute when the rule landed on 2026-08-09. The rule is
  * an error everywhere else so new hover-only help cannot be introduced; this list exists only so the
  * rule could land without a 135-site refactor in one change. Sweeping it is TB-2147.
  *
@@ -48,10 +48,7 @@ export const TITLE_ATTRIBUTE_LEGACY_SURFACES = [
   "src/components/EstimatedLlmCostBarChart.tsx",
   "src/components/ExplanationEvidenceBasisBadges.tsx",
   "src/components/findings/FindingExplainabilityDialog.tsx",
-  "src/components/FindingPolicyPackBadge.tsx",
-  "src/components/FindingPolicyRuleBadge.tsx",
   "src/components/FindingsWhatIfAnalysisPanel.tsx",
-  "src/components/FindingTrustChip.tsx",
   "src/components/GovernanceApprovalInspectorPreview.tsx",
   "src/components/InspectorPanel.tsx",
   "src/components/LayerContextStrip.tsx",
@@ -70,11 +67,6 @@ export const TITLE_ATTRIBUTE_LEGACY_SURFACES = [
   "src/components/ScopeSwitcherTenantContextFooter.tsx",
   "src/components/shell/DeploymentBuildFingerprintStrip.tsx",
   "src/components/shell/TenantWorkspaceBoundaryBadge.tsx",
-  "src/components/sidebar-nav/SidebarAdministrationSection.tsx",
-  "src/components/sidebar-nav/SidebarGovernanceDisclosureSection.tsx",
-  "src/components/sidebar-nav/SidebarNavCluster.tsx",
-  "src/components/sidebar-nav/SidebarNavLayoutSettingsPanel.tsx",
-  "src/components/sidebar-nav/SidebarNavLink.tsx",
   "src/components/SponsorArtifactEvidenceBadge.tsx",
   "src/components/ui/tabs.tsx",
   "src/components/usability/WizardEvidenceUploadZone.tsx",

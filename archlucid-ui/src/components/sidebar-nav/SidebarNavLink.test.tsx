@@ -64,4 +64,23 @@ describe("SidebarNavLink", () => {
     expect(link.className).toContain("text-neutral-900");
     expect(link.className).not.toContain("text-neutral-600");
   });
+
+  it("exposes supplemental nav hint via aria-describedby instead of title", () => {
+    render(
+      <SidebarNavLink
+        presented={newReviewLink}
+        active={false}
+        advancedDemo={false}
+        buyerPolishedShell
+      />,
+    );
+
+    const link = screen.getByRole("link", { name: CREATE_ARCHITECTURE_LABEL });
+
+    expect(link).not.toHaveAttribute("title");
+    expect(link).toHaveAttribute("aria-describedby", "sidebar-nav-link-hint--architecture-reviews-new");
+    expect(document.getElementById("sidebar-nav-link-hint--architecture-reviews-new")).toHaveTextContent(
+      "Start a review",
+    );
+  });
 });

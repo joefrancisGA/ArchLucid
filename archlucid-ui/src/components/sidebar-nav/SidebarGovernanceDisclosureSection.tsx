@@ -24,8 +24,7 @@ export function SidebarGovernanceDisclosureSection(
         type="button"
         className={cn("sidebar-disclosure-trigger flex w-full items-center justify-between gap-2 rounded-md px-2 py-1.5 text-left font-semibold uppercase tracking-wide text-neutral-700 hover:bg-neutral-50 dark:text-neutral-200 dark:hover:bg-neutral-800/80", OPERATOR_TYPOGRAPHY.helper)}
         data-testid="sidebar-governance-disclosure-toggle"
-        aria-label={NAV_DISCLOSURE.advancedOperationsSidebar.show}
-        title={NAV_DISCLOSURE.advancedOperationsSidebar.assistiveCollapsed}
+        aria-label={`${NAV_DISCLOSURE.advancedOperationsSidebar.show}. ${NAV_DISCLOSURE.advancedOperationsSidebar.assistiveCollapsed}`}
         onClick={() => {
           props.onRevealGovernance();
         }}

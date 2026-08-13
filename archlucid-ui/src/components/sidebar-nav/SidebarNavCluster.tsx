@@ -5,6 +5,7 @@ import { ChevronDown, ChevronRight } from "lucide-react";
 import { useEffect, useState, type ReactElement } from "react";
 
 import { AlertsOutstandingNavBadge } from "@/components/alerts/AlertsOutstandingNavBadge";
+import { FieldHelpTooltip } from "@/components/FieldHelpTooltip";
 import { GovernanceReviewsAwaitingNavBadge } from "@/components/governance/GovernanceReviewsAwaitingNavBadge";
 import { SidebarNavLink } from "@/components/sidebar-nav/SidebarNavLink";
 import type { NavGroupWithVisibleLinks } from "@/lib/nav-shell-visibility";
@@ -96,7 +97,10 @@ export function SidebarNavCluster(props: SidebarNavClusterProps): ReactElement {
         )
       ) : null}
       <span className="flex min-w-0 flex-1 flex-col items-start gap-0.5">
-        <span>{groupHeadingLabel}</span>
+        <span className="inline-flex items-center gap-1">
+          <span>{groupHeadingLabel}</span>
+          {group.caption ? <FieldHelpTooltip label={groupHeadingLabel} hint={group.caption} /> : null}
+        </span>
       </span>
     </>
   );
@@ -134,7 +138,6 @@ export function SidebarNavCluster(props: SidebarNavClusterProps): ReactElement {
           data-testid={`sidebar-group-toggle-${group.id}`}
           aria-expanded={props.isExpanded}
           aria-controls={contentId}
-          title={group.caption}
           onClick={() => {
             props.onToggleExpanded?.();
           }}
@@ -144,7 +147,6 @@ export function SidebarNavCluster(props: SidebarNavClusterProps): ReactElement {
       ) : (
         <div
           className={headingClassName}
-          title={group.caption}
           id={headingId}
           {...(group.id === "pilot" ? { "data-onboarding": "tour-nav-settings" } : {})}
         >

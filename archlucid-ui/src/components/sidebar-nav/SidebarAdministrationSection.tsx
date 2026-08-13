@@ -52,8 +52,7 @@ export function SidebarAdministrationSection(props: SidebarAdministrationSection
         data-testid="sidebar-administration-toggle"
         aria-expanded={props.showAdministration}
         aria-controls="sidebar-administration-content"
-        aria-label={ariaLabel}
-        title={SIDEBAR_ADMINISTRATION.title}
+        aria-label={`${ariaLabel}. ${SIDEBAR_ADMINISTRATION.title}`}
         onClick={() => {
           props.onShowAdministrationChange(!props.showAdministration);
         }}

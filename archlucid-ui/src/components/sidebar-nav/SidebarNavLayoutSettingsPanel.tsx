@@ -107,7 +107,6 @@ export function SidebarNavLayoutSettingsPanel(
                 type="checkbox"
                 className="mt-1 h-4 w-4 rounded border-neutral-300 text-teal-700 focus:ring-teal-600 dark:border-neutral-600"
                 aria-label={NAV_DISCLOSURE.extended.show}
-                title={NAV_DISCLOSURE.extended.title}
                 checked={props.showExtended}
                 onChange={(event) => {
                   props.onShowExtendedChange(event.target.checked);
@@ -126,7 +125,7 @@ export function SidebarNavLayoutSettingsPanel(
                 id="nav-advanced"
                 type="checkbox"
                 className="mt-1 h-4 w-4 rounded border-neutral-300 text-teal-700 focus:ring-teal-600 dark:border-neutral-600"
-                title={NAV_DISCLOSURE.advanced.title}
+                aria-label={NAV_DISCLOSURE.advanced.show}
                 checked={props.showAdvanced}
                 onChange={(event) => {
                   props.onShowAdvancedChange(event.target.checked);
