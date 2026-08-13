@@ -5,6 +5,8 @@ import type { EvidenceSourceLink } from "@/lib/evidence-surface-copy";
 
 export const REVIEW_GUIDE_HELP_CANONICAL_PATH = "/help/review-guide" as const;
 
+export const REVIEW_GUIDE_HELP_TOPIC_LABEL = "How the review guide works" as const;
+
 export const REVIEW_GUIDE_HELP_CLAIM_DISCIPLINE =
   "This review guide is architect field reference for the architecture review wizard — it is not a signed-review diligence Sources package. Open Reviews, Findings, or Audit when you need live packages or governed trails.";
 

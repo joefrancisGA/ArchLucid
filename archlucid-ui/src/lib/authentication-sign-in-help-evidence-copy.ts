@@ -7,6 +7,8 @@ import {
 
 export const AUTHENTICATION_SIGN_IN_HELP_CANONICAL_PATH = "/help/authentication-sign-in" as const;
 
+export const AUTHENTICATION_SIGN_IN_HELP_TOPIC_LABEL = "How authentication and sign-in work" as const;
+
 export const AUTHENTICATION_SIGN_IN_HELP_PAGE_SCOPE =
   "Use this guide when someone cannot sign in, needs an invitation, or is setting up SSO — then return to the sign-in screen when ready." as const;
 

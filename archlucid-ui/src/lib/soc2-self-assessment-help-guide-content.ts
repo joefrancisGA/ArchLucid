@@ -7,6 +7,8 @@ export function formatSoc2SelfAssessmentHelpReviewedCopy(lastReviewed: string): 
 
 export const SOC2_SELF_ASSESSMENT_HELP_PAGE_TITLE = "SOC 2 self-assessment";
 
+export const SOC2_SELF_ASSESSMENT_HELP_TOPIC_LABEL = "How the SOC 2 self-assessment works" as const;
+
 export const SOC2_SELF_ASSESSMENT_HELP_PAGE_SUBTITLE =
   "Internal readiness mapping aligned to SOC 2 Common Criteria — not a CPA attestation report.";
 

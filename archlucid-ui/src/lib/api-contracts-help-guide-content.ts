@@ -7,6 +7,8 @@ export const API_CONTRACTS_OPENAPI_PATH = "/openapi/v1.json";
 /** Title leads with API contracts, not buyer “Governance …” FAQ framing. */
 export const API_CONTRACTS_HELP_PAGE_TITLE = "API contracts (technical reference)";
 
+export const API_CONTRACTS_HELP_TOPIC_LABEL = "How API contracts work" as const;
+
 export const API_CONTRACTS_HELP_PAGE_SUBTITLE =
   "Admin/developer HTTP contract reference — OpenAPI, auth, and versioned endpoint behavior. Not buyer governance-approval help.";
 

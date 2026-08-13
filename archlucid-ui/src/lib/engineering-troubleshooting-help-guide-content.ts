@@ -4,6 +4,8 @@ import { inAppHelpHref } from "@/lib/product-documentation-registry";
 
 export const ENGINEERING_TROUBLESHOOTING_HELP_PAGE_TITLE = "Engineering troubleshooting runbook";
 
+export const ENGINEERING_TROUBLESHOOTING_HELP_TOPIC_LABEL = "How engineering troubleshooting works" as const;
+
 export const ENGINEERING_TROUBLESHOOTING_HELP_PAGE_SUBTITLE =
   "Admin-only CLI, environment, and diagnostic-signal triage for engineering support. Use customer Troubleshooting for operator self-serve.";
 

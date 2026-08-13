@@ -4,6 +4,8 @@ import { inAppHelpHref } from "@/lib/product-documentation-registry";
 
 export const PROCUREMENT_HELP_CANONICAL_PATH = "/help/procurement" as const;
 
+export const PROCUREMENT_HELP_TOPIC_LABEL = "How procurement FAQ works" as const;
+
 /** Matches `**Last reviewed:** 2026-07-29` in BUYER_SECURITY_PROCUREMENT_PACKET.md. */
 export const PROCUREMENT_HELP_LAST_REVIEWED = "2026-07-29" as const;
 

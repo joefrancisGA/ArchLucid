@@ -4,6 +4,8 @@ import { inAppHelpHref } from "@/lib/product-documentation-registry";
 
 export const PATH_CHOOSER_HELP_CANONICAL_PATH = "/help/choose-your-next-step" as const;
 
+export const PATH_CHOOSER_HELP_TOPIC_LABEL = "How to choose your next step" as const;
+
 export const PATH_CHOOSER_HELP_CLAIM_DISCIPLINE =
   "This path chooser orients buyers and evaluators on the next citeable product or help surface — not a signed-review diligence Sources package from your tenant. Open Trust Center or Assurance status when sponsors need diligence evidence.";
 

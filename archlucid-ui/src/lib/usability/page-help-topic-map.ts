@@ -1,4 +1,4 @@
-/**
+﻿/**
  * Maps operator routes to in-app `/help/{slug}` topics for contextual help buttons.
  */
 
@@ -13,9 +13,14 @@ import { ACCOUNT_SECURITY_SETTINGS_HELP_TOPIC_LABEL } from "@/lib/account-securi
 import { AI_USAGE_HELP_TOPIC_LABEL } from "@/lib/ai-usage-settings-evidence-copy";
 import { ADMIN_TENANTS_HELP_TOPIC_LABEL } from "@/lib/admin-tenants-evidence-copy";
 import { AUTH_DOMAINS_SETTINGS_HELP_TOPIC_LABEL } from "@/lib/auth-domains-settings-evidence-copy";
+import { API_CONTRACTS_HELP_TOPIC_LABEL } from "@/lib/api-contracts-help-guide-content";
 import { API_KEYS_HELP_TOPIC_LABEL } from "@/lib/api-keys-settings-evidence-copy";
+import { AUTHENTICATION_SIGN_IN_HELP_TOPIC_LABEL } from "@/lib/authentication-sign-in-help-evidence-copy";
 import { BASELINE_SETTINGS_HELP_TOPIC_LABEL } from "@/lib/baseline-settings-evidence-copy";
+import { CAIQ_SIG_RESPONSE_HELP_TOPIC_LABEL } from "@/lib/caiq-sig-response-help-evidence-copy";
+import { CLI_USAGE_HELP_TOPIC_LABEL } from "@/lib/cli-usage-help-evidence-copy";
 import { CLOUD_CONNECTIONS_HELP_TOPIC_LABEL } from "@/lib/cloud-connections-evidence-copy";
+import { CONFIGURATION_REFERENCE_HELP_TOPIC_LABEL } from "@/lib/configuration-reference-help-guide-content";
 import { CONNECT_AWS_SECURELY_HELP_TOPIC_LABEL } from "@/lib/connect-aws-securely-help-evidence-copy";
 import { CONNECT_GCP_SECURELY_HELP_TOPIC_LABEL } from "@/lib/connect-gcp-securely-help-evidence-copy";
 import { CONNECT_AZURE_SECURELY_HELP_TOPIC_LABEL } from "@/lib/cloud-provider-connection-evidence-copy";
@@ -25,8 +30,11 @@ import { DIGESTS_HELP_TOPIC_LABEL } from "@/lib/digests-help-evidence-copy";
 import { ADVISORY_SCANS_HELP_TOPIC_LABEL } from "@/lib/advisory-scans-help-evidence-copy";
 import { ARCHITECTURES_NEW_HELP_TOPIC_LABEL } from "@/lib/architectures-new-evidence-copy";
 import { ARCHITECTURES_LIST_PATH } from "@/lib/architecture/architecture-routes";
+import { DATA_HANDLING_TENANT_ISOLATION_HELP_TOPIC_LABEL } from "@/lib/data-handling-tenant-isolation-help-evidence-copy";
 import { DECISION_REGISTER_HELP_TOPIC_LABEL } from "@/lib/decision-register-help-evidence-copy";
-import { EVIDENCE_INTAKE_HELP_TOPIC_LABEL } from "@/lib/evidence-intake-help-evidence-copy";
+import { DEMO_READINESS_HELP_TOPIC_LABEL } from "@/lib/demo-readiness-evidence-copy";
+import { DEPLOYMENT_STATUS_HELP_TOPIC_LABEL } from "@/lib/deployment-status-evidence-copy";
+import { DPA_TEMPLATE_HELP_TOPIC_LABEL } from "@/lib/dpa-template-help-guide-content";
 import { EVIDENCE_TRAIL_HELP_TOPIC_LABEL } from "@/lib/evidence-trail-help-evidence-copy";
 import { GETTING_STARTED_HELP_TOPIC_LABEL } from "@/lib/getting-started-help-guide-content";
 import { IMPACT_PREVIEW_HELP_TOPIC_LABEL } from "@/lib/impact-preview-help-evidence-copy";
@@ -44,15 +52,17 @@ import {
   COMPARISON_REPLAY_HELP_TOPIC_LABEL,
   COMPARISON_REPLAY_VALIDATE_HELP_TOPIC_LABEL,
 } from "@/lib/comparison-replay-help-evidence-copy";
+import { ENGINEERING_TROUBLESHOOTING_HELP_TOPIC_LABEL } from "@/lib/engineering-troubleshooting-help-guide-content";
+import { ENTERPRISE_ONBOARDING_HELP_TOPIC_LABEL } from "@/lib/enterprise-onboarding-help-evidence-copy";
 import { EVIDENCE_GRAPH_HELP_TOPIC_LABEL } from "@/lib/evidence-graph-evidence-copy";
+import { EVIDENCE_INTAKE_HELP_TOPIC_LABEL } from "@/lib/evidence-intake-help-evidence-copy";
+import { FIRST_ARCHITECTURE_REVIEW_HELP_TOPIC_LABEL } from "@/lib/first-architecture-review-help-copy";
 import { FINDINGS_HELP_TOPIC_LABEL } from "@/lib/findings/findings-help-evidence-copy";
 import { JIRA_INTEGRATION_HELP_TOPIC_LABEL } from "@/lib/jira-integration-evidence-copy";
 import { MODEL_GOVERNANCE_HELP_TOPIC_LABEL } from "@/lib/model-governance-settings-evidence-copy";
 import { SERVICENOW_INTEGRATION_HELP_TOPIC_LABEL } from "@/lib/servicenow-integration-evidence-copy";
 import { ARCHITECTURE_DRAFTS_LIST_LABEL, START_REVIEW_LABEL } from "@/lib/architecture/architecture-workflow-labels";
 import { BILLING_AND_PLANS_HELP_TOPIC_LABEL } from "@/lib/billing-and-plans-help-evidence-copy";
-import { DEMO_READINESS_HELP_TOPIC_LABEL } from "@/lib/demo-readiness-evidence-copy";
-import { DEPLOYMENT_STATUS_HELP_TOPIC_LABEL } from "@/lib/deployment-status-evidence-copy";
 import { EXTRACT_UPLOAD_SETTINGS_HELP_TOPIC_LABEL } from "@/lib/extract-upload-settings-evidence-copy";
 import { INVITE_REVIEWER_HELP_TOPIC_LABEL } from "@/lib/invite-reviewer-evidence-copy";
 import { OPERATOR_BILLING_SETTINGS_HELP_TOPIC_LABEL } from "@/lib/operator/operator-billing-settings-evidence-copy";
@@ -66,6 +76,7 @@ import { USERS_AND_ROLES_HELP_TOPIC_LABEL } from "@/lib/users-and-roles-help-evi
 import { BUYER_ONBOARDING_PAGE_TITLE, BUYER_VALUE_REPORT_HOW_IT_WORKS_TITLE } from "@/lib/buyer/buyer-polish-copy";
 import { GOVERNANCE_SETUP_HREF, GOVERNANCE_SETUP_PAGE_TITLE } from "@/lib/governance/governance-setup-route";
 import { GOVERNANCE_EXCEPTIONS_PATH } from "@/lib/governance/governance-route-paths";
+import { GLOSSARY_HELP_TOPIC_LABEL } from "@/lib/glossary-help-evidence-copy";
 import { GOVERNANCE_APPROVAL_HELP_TOPIC_LABEL } from "@/lib/governance/governance-approval-help-evidence-copy";
 import { IDENTITY_PROVIDERS_DIAGNOSTICS_HELP_TOPIC_LABEL } from "@/lib/identity-providers-diagnostics-evidence-copy";
 import { IDENTITY_PROVIDERS_OIDC_HELP_TOPIC_LABEL } from "@/lib/identity-providers-oidc-evidence-copy";
@@ -77,10 +88,13 @@ import { ITSM_CONNECTORS_HELP_TOPIC_LABEL } from "@/lib/admin-itsm-connectors-ev
 import { ITSM_OAUTH_CALLBACK_HELP_TOPIC_LABEL } from "@/lib/itsm/itsm-oauth-callback-evidence-copy";
 import { NOTIFICATIONS_HELP_TOPIC_LABEL } from "@/lib/notification-preference-center";
 import { OPERATOR_NAV_LINK_LABELS } from "@/lib/i18n";
+import { PATH_CHOOSER_HELP_TOPIC_LABEL } from "@/lib/path-chooser-help-evidence-copy";
 import { PATTERN_LIBRARY_HELP_TOPIC_LABEL } from "@/lib/pattern-library-evidence-copy";
+import { PILOT_GUIDE_HELP_TOPIC_LABEL } from "@/lib/pilot-guide-help-evidence-copy";
 import { POLICY_PACKS_HELP_TOPIC_LABEL } from "@/lib/policy/policy-packs-help-evidence-copy";
 import { POLICY_PACKS_HUB_HELP_TOPIC_LABEL } from "@/lib/policy/policy-packs-hub-evidence-copy";
 import { PREFERENCES_HELP_TOPIC_LABEL } from "@/lib/preferences-settings-evidence-copy";
+import { PROCUREMENT_HELP_TOPIC_LABEL } from "@/lib/procurement-help-evidence-copy";
 import { PROVENANCE_HELP_TOPIC, pathIsRunProvenance } from "@/lib/provenance-evidence-copy";
 import { pathIsFindingEvidenceTrace } from "@/lib/evidence-trace-contextual-help";
 import {
@@ -89,7 +103,6 @@ import {
 import { SPONSOR_DASHBOARD_HREF } from "@/lib/sponsor/sponsor-dashboard-route";
 import { ARCHITECTURE_SCORECARD_HELP_TOPIC_LABEL } from "@/lib/architecture/architecture-scorecard-page-copy";
 import { CONNECTION_STATUS_HELP_TOPIC_LABEL } from "@/lib/connection-status-evidence-copy";
-import { ENTERPRISE_ONBOARDING_HELP_TOPIC_LABEL } from "@/lib/enterprise-onboarding-help-evidence-copy";
 import { PILOT_OUTCOMES_HELP_TOPIC_LABEL } from "@/lib/pilot-outcomes-evidence-copy";
 import { ROI_SUMMARY_HELP_TOPIC_LABEL } from "@/lib/roi-summary-help-evidence-copy";
 import { SLACK_INTEGRATION_HELP_TOPIC_LABEL } from "@/lib/slack-integration-evidence-copy";
@@ -98,15 +111,19 @@ import { ACCELERATOR_CHOOSER_HELP_INBOUND_LABEL } from "@/lib/accelerator-choose
 import { REPEAT_REVIEW_LOOP_HELP_INBOUND_LABEL } from "@/lib/repeat-review-loop-help-title-honesty-surfaces";
 import { ROLE_MAPPING_SETTINGS_HELP_TOPIC_LABEL } from "@/lib/role-mapping-settings-evidence-copy";
 import { RISK_EXCEPTIONS_HELP_TOPIC_LABEL } from "@/lib/risk-exceptions-evidence-copy";
+import { SCOPE_HELP_TOPIC_LABEL } from "@/lib/scope-help-evidence-copy";
 import { SCIM_PROVISIONING_HELP_TOPIC_LABEL } from "@/lib/scim-provisioning-evidence-copy";
 import { SEARCH_REVIEW_EVIDENCE_HELP_TOPIC_LABEL } from "@/lib/search-review-evidence-evidence-copy";
+import { SOC2_SELF_ASSESSMENT_HELP_TOPIC_LABEL } from "@/lib/soc2-self-assessment-help-guide-content";
 import { SSO_WIZARD_HELP_TOPIC_LABEL } from "@/lib/sso-wizard-evidence-copy";
+import { REVIEW_GUIDE_HELP_TOPIC_LABEL } from "@/lib/review-guide-help-evidence-copy";
 import { REVIEW_PACKAGES_HELP_INBOUND_LABEL } from "@/lib/review-packages-help-title-honesty-surfaces";
 import { SYSTEM_HEALTH_HELP_TOPIC_LABEL } from "@/lib/system-health-evidence-copy";
 import { WORKSPACE_SETTINGS_HELP_TOPIC_LABEL } from "@/lib/tenant-settings-evidence-copy";
 import { STANDARDS_RULES_HELP_TOPIC_LABEL } from "@/lib/standards-rules-page";
 import { SIGNED_RECORDS_LIST_PATH } from "@/lib/signed-records-paths";
 import { TEAMS_INTEGRATION_HELP_TOPIC_LABEL } from "@/lib/teams-integration-evidence-copy";
+import { TROUBLESHOOTING_HELP_TOPIC_LABEL } from "@/lib/troubleshooting-help-evidence-copy";
 import { WEBHOOKS_INTEGRATION_HELP_TOPIC_LABEL } from "@/lib/webhooks-integration-evidence-copy";
 
 export type PageHelpTopic = {
@@ -149,7 +166,7 @@ const PAGE_HELP_TOPICS: readonly { prefix: string; topic: PageHelpTopic }[] = [
   },
   {
     prefix: "/help/authentication-sign-in",
-    topic: { slug: "authentication-sign-in", label: "Authentication and sign-in" },
+    topic: { slug: "authentication-sign-in", label: AUTHENTICATION_SIGN_IN_HELP_TOPIC_LABEL },
   },
   {
     prefix: "/help/azure-boards",
@@ -161,7 +178,7 @@ const PAGE_HELP_TOPICS: readonly { prefix: string; topic: PageHelpTopic }[] = [
   },
   {
     prefix: "/help/caiq-sig-response",
-    topic: { slug: "caiq-sig-response", label: "CAIQ / SIG questionnaire responses" },
+    topic: { slug: "caiq-sig-response", label: CAIQ_SIG_RESPONSE_HELP_TOPIC_LABEL },
   },
   {
     prefix: "/help/comparison-replay",
@@ -169,7 +186,7 @@ const PAGE_HELP_TOPICS: readonly { prefix: string; topic: PageHelpTopic }[] = [
   },
   {
     prefix: "/help/troubleshooting",
-    topic: { slug: "troubleshooting", label: "Troubleshooting" },
+    topic: { slug: "troubleshooting", label: TROUBLESHOOTING_HELP_TOPIC_LABEL },
   },
   {
     prefix: "/help/alerts",
@@ -185,15 +202,15 @@ const PAGE_HELP_TOPICS: readonly { prefix: string; topic: PageHelpTopic }[] = [
   },
   {
     prefix: "/help/review-guide",
-    topic: { slug: "review-guide", label: "Review guide" },
+    topic: { slug: "review-guide", label: REVIEW_GUIDE_HELP_TOPIC_LABEL },
   },
   {
     prefix: "/help/pilot-guide",
-    topic: { slug: "pilot-guide", label: "Pilot guide" },
+    topic: { slug: "pilot-guide", label: PILOT_GUIDE_HELP_TOPIC_LABEL },
   },
   {
     prefix: "/help/first-architecture-review",
-    topic: { slug: "first-architecture-review", label: "Your first architecture review" },
+    topic: { slug: "first-architecture-review", label: FIRST_ARCHITECTURE_REVIEW_HELP_TOPIC_LABEL },
   },
   {
     prefix: "/help/cloud-connections/azure",
@@ -213,7 +230,7 @@ const PAGE_HELP_TOPICS: readonly { prefix: string; topic: PageHelpTopic }[] = [
   },
   {
     prefix: "/help/glossary",
-    topic: { slug: "glossary", label: "Glossary" },
+    topic: { slug: "glossary", label: GLOSSARY_HELP_TOPIC_LABEL },
   },
   {
     prefix: "/help/cloud-connections",
@@ -464,11 +481,11 @@ const PAGE_HELP_TOPICS: readonly { prefix: string; topic: PageHelpTopic }[] = [
   },
   {
     prefix: "/help/procurement",
-    topic: { slug: "procurement", label: "Procurement FAQ" },
+    topic: { slug: "procurement", label: PROCUREMENT_HELP_TOPIC_LABEL },
   },
   {
     prefix: "/help/scope",
-    topic: { slug: "scope", label: "Workspace and scope" },
+    topic: { slug: "scope", label: SCOPE_HELP_TOPIC_LABEL },
   },
   {
     prefix: "/help/repeat-review-loop",
@@ -485,19 +502,19 @@ const PAGE_HELP_TOPICS: readonly { prefix: string; topic: PageHelpTopic }[] = [
   },
   {
     prefix: "/help/data-handling",
-    topic: { slug: "data-handling", label: "Data handling and tenant isolation" },
+    topic: { slug: "data-handling", label: DATA_HANDLING_TENANT_ISOLATION_HELP_TOPIC_LABEL },
   },
   {
     prefix: "/help/dpa-template",
-    topic: { slug: "dpa-template", label: "Data Processing Agreement (template)" },
+    topic: { slug: "dpa-template", label: DPA_TEMPLATE_HELP_TOPIC_LABEL },
   },
   {
     prefix: "/help/soc2-self-assessment",
-    topic: { slug: "soc2-self-assessment", label: "SOC 2 self-assessment" },
+    topic: { slug: "soc2-self-assessment", label: SOC2_SELF_ASSESSMENT_HELP_TOPIC_LABEL },
   },
   {
     prefix: "/help/choose-your-next-step",
-    topic: { slug: "choose-your-next-step", label: "Choose your next step" },
+    topic: { slug: "choose-your-next-step", label: PATH_CHOOSER_HELP_TOPIC_LABEL },
   },
   {
     prefix: "/help/enterprise-onboarding",
@@ -517,23 +534,19 @@ const PAGE_HELP_TOPICS: readonly { prefix: string; topic: PageHelpTopic }[] = [
   },
   {
     prefix: "/help/configuration-reference",
-    topic: { slug: "configuration-reference", label: "Configuration reference" },
+    topic: { slug: "configuration-reference", label: CONFIGURATION_REFERENCE_HELP_TOPIC_LABEL },
   },
   {
     prefix: "/help/cli-usage",
-    topic: { slug: "cli-usage", label: "CLI usage" },
-  },
-  {
-    prefix: "/help/first-architecture-review",
-    topic: { slug: "first-architecture-review", label: "Your first architecture review" },
+    topic: { slug: "cli-usage", label: CLI_USAGE_HELP_TOPIC_LABEL },
   },
   {
     prefix: "/help/engineering-troubleshooting",
-    topic: { slug: "engineering-troubleshooting", label: "Engineering troubleshooting runbook" },
+    topic: { slug: "engineering-troubleshooting", label: ENGINEERING_TROUBLESHOOTING_HELP_TOPIC_LABEL },
   },
   {
     prefix: "/help/api-contracts",
-    topic: { slug: "api-contracts", label: "API contracts (technical reference)" },
+    topic: { slug: "api-contracts", label: API_CONTRACTS_HELP_TOPIC_LABEL },
   },
   {
     prefix: "/insights/impact-preview",

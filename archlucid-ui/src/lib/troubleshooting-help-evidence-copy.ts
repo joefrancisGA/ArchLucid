@@ -9,6 +9,8 @@ import {
 
 export const TROUBLESHOOTING_HELP_CANONICAL_PATH = "/help/troubleshooting" as const;
 
+export const TROUBLESHOOTING_HELP_TOPIC_LABEL = "How troubleshooting works" as const;
+
 export const TROUBLESHOOTING_HELP_LAST_REVIEWED = "2026-08-11" as const;
 
 export const TROUBLESHOOTING_HELP_LAST_REVIEWED_LABEL =
