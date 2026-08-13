@@ -17,7 +17,7 @@ Regenerate after opening or closing summary-table rows:
 | Deployability | 3 |
 | AI/Agent readiness | 11 |
 | Architectural integrity | 5 |
-| Adoption friction | 59 |
+| Adoption friction | 57 |
 | Commercial / marketability | 1 |
 | Cutting-edge AI | 3 |
 | Explainability | 3 |
@@ -30,9 +30,9 @@ Regenerate after opening or closing summary-table rows:
 | Stickiness | 4 |
 | Differentiability | 3 |
 | Other / uncategorized | 7 |
-| **Total (unique open)** | **200** |
+| **Total (unique open)** | **198** |
 
-**By priority band:** P0 **13** | P1 **78** | P2 **93** | P3 **9** | unlabeled **7**.
+**By priority band:** P0 **13** | P1 **76** | P2 **93** | P3 **9** | unlabeled **7**.
 
 <!-- tech-backlog-open-by-category:end -->
 
@@ -1512,7 +1512,7 @@ All **P0** **V1**: visible-boundary button contract + design-system rule (**TB-2
 | TB-1637 | **Done** (2026-08-13) — Compare/replay help Help Center tier honesty (product vs internal); Vitest; see ## TB-1637 below | Trustworthiness P1 ? **V1**; with **TB-1636**; pairs **TB-1395** | S |
 | TB-1638 | **Done** (2026-08-13) — Compare/replay help IA dual with repeat-review-loop job matrix + mutual cross-links; Vitest; see ## TB-1638 below | Adoption friction P1 ? **V1**; with **TB-1636**; pairs **TB-1394** | S |
 | TB-1639 | **Done** (2026-08-13) — Compare/replay help first-viewport compare vs replay job chrome + deferred markdown detail; Vitest; see ## TB-1639 below | Adoption friction P1 ? **V1**; with **TB-1636** | S |
-| TB-1640 | Compare/replay help ? Related density + /compare?/replay inbound labels; see ## TB-1640 below | Adoption friction P1 ? **V1**; with **TB-1636** | S |
+| TB-1640 | **Done** (2026-08-13) — Compare/replay help Related density + compare/replay inbound label alignment; Vitest; see ## TB-1640 below | Adoption friction P1 ? **V1**; with **TB-1636** | S |
 | TB-1641 | **Done** (2026-08-10) ? `/help/creating-runs` permanent redirect ? `/help/review-guide`; `help-topic-permanent-redirects` + Batch E manifest; see ## TB-1641 below | Adoption friction P1 ? **V1**; owner review ~46/100 2026-07-27; traffic **HCR** folded into **HER**/**HR** | S |
 | TB-1651 | `/help/data-handling` specialty buyer guide + Trust/security CTA; see ## TB-1651 below | Adoption friction P1 ? **V1**; owner review ~52/100 2026-07-27; traffic **HED**; pairs **TB-1414**; IDs skip PA **TB-1646**?**TB-1650** | M |
 | TB-1652 | Data-handling help ? IA dual with data-handling-tenant-isolation; see ## TB-1652 below | Adoption friction P1 ? **V1**; with **TB-1651**; traffic **HDA** sibling | S |
@@ -40862,13 +40862,15 @@ Operators must read three intros before reaching the Trust Center link list.
 
 ## TB-1640 ? Compare/replay help ? Related density + /compare?/replay inbound labels (P0)
 
-**Window:** V1 ? Adoption friction. **Status:** Not started. **Priority:** P0.
+**Window:** V1 ? Adoption friction. **Status:** **Done** (2026-08-13). **Priority:** P0.
 
 **Problem:** Related lists four hubs; `/replay` page-help label is ?Validate review? while topic title is Compare and replay ? inbound drift.
 
 **Approach:** Trim Related to 2?3; align page-help labels with topic title/job. Vitest: label consistency + Related count budget.
 
 **Acceptance:** Inbound and Related match the Compare/Replay job. **Size estimate:** S.
+
+**Shipped:** `comparison-replay-help-related-guides.ts` (2 curated help links; workspace compare/replay stays in Sources); `/internal/replay` page-help label unified to `COMPARISON_REPLAY_HELP_TOPIC_LABEL`; inbound label Vitest guards; markdown Related section removed.
 
 ---
 

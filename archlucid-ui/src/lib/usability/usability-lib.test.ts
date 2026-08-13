@@ -11,6 +11,7 @@ import { IMPROVEMENT_PLANNING_HELP_TOPIC_LABEL } from "@/lib/improvement-plannin
 import { RECURRENCE_SCHEDULES_HELP_TOPIC_LABEL } from "@/lib/recurrence-schedules-help-evidence-copy";
 import { SETTINGS_HUB_HELP_TOPIC_LABEL } from "@/lib/contextual-help/administration-rows";
 import { REPEAT_REVIEW_LOOP_HELP_PAGE_TITLE } from "@/lib/repeat-review-loop-help-guide-content";
+import { COMPARISON_REPLAY_HELP_TOPIC_LABEL } from "@/lib/comparison-replay-help-evidence-copy";
 import { pageHelpTopicForPathname } from "@/lib/usability/page-help-topic-map";
 import { searchHelpTopics } from "@/lib/usability/search-help-topics";
 import { shouldAutoStartRegistrationTour } from "@/lib/usability/onboarding-registration-tour";
@@ -85,6 +86,8 @@ describe("usability lib", () => {
     expect(pageHelpTopicForPathname("/insights/patterns")?.slug).toBe("repeat-review-loop");
     expect(pageHelpTopicForPathname("/insights/patterns/private-endpoints-paas")?.slug).toBe("repeat-review-loop");
     expect(pageHelpTopicForPathname("/internal/replay")?.slug).toBe("comparison-replay");
+    expect(pageHelpTopicForPathname("/internal/replay")?.label).toBe(COMPARISON_REPLAY_HELP_TOPIC_LABEL);
+    expect(pageHelpTopicForPathname("/insights/compare-two-reviews")?.label).toBe(COMPARISON_REPLAY_HELP_TOPIC_LABEL);
   });
 
   it("searchHelpTopics finds pilot guide", () => {

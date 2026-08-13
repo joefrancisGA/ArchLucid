@@ -37,8 +37,12 @@ import {
   COMPARISON_REPLAY_HELP_FIRST_VIEWPORT_TEST_ID,
   COMPARISON_REPLAY_HELP_PRIMARY_ACTIONS,
 } from "@/lib/comparison-replay-help-guide-content";
-import { REPEAT_REVIEW_LOOP_HELP_PAGE_TITLE } from "@/lib/repeat-review-loop-help-guide-content";
+import {
+  COMPARISON_REPLAY_HELP_RELATED_GUIDES,
+  COMPARISON_REPLAY_HELP_RELATED_TEST_ID,
+} from "@/lib/comparison-replay-help-related-guides";
 import { OPERATOR_NAV_LINK_LABELS } from "@/lib/i18n";
+import { REPEAT_REVIEW_LOOP_HELP_PAGE_TITLE } from "@/lib/repeat-review-loop-help-guide-content";
 import { getProductDocumentationEntry } from "@/lib/product-documentation-registry";
 import { tryLoadProductDocumentation } from "@/lib/load-product-documentation";
 
@@ -182,6 +186,22 @@ describe("HelpTopicComparisonReplay (CO)", () => {
     for (const phrase of BANNED_DIAGRAM_COPY) {
       expect(diagramText, `diagram should not contain "${phrase}"`).not.toContain(phrase);
     }
+  });
+
+  it("renders curated Related help without markdown workspace hub duplication (TB-1640)", () => {
+    if (loaded === null) {
+      throw new Error("Expected comparison-replay documentation to load.");
+    }
+
+    render(<HelpComparisonReplayGuideView entry={loaded.entry} markdown={loaded.markdown} />);
+
+    const relatedLinks = within(screen.getByTestId(COMPARISON_REPLAY_HELP_RELATED_TEST_ID)).getAllByRole("link");
+
+    expect(relatedLinks).toHaveLength(COMPARISON_REPLAY_HELP_RELATED_GUIDES.length);
+    expect(relatedLinks.map((link) => link.getAttribute("href"))).toEqual(
+      COMPARISON_REPLAY_HELP_RELATED_GUIDES.map((guide) => guide.href),
+    );
+    expect(screen.queryByRole("heading", { name: "Related guides" })).toBeNull();
   });
 
   it("discloses Validate review unavailable copy in demo workspace mode", () => {

@@ -57,7 +57,6 @@ import { AZURE_BOARDS_INTEGRATION_HELP_TOPIC_LABEL } from "@/lib/azure-boards-in
 import { PRIOR_MANIFEST_RETRIEVAL_HELP_TOPIC_LABEL } from "@/lib/ask-review-questions-evidence-copy";
 import {
   COMPARISON_REPLAY_HELP_TOPIC_LABEL,
-  COMPARISON_REPLAY_VALIDATE_HELP_TOPIC_LABEL,
 } from "@/lib/comparison-replay-help-evidence-copy";
 import { ENGINEERING_TROUBLESHOOTING_HELP_TOPIC_LABEL } from "@/lib/engineering-troubleshooting-help-guide-content";
 import { ENTERPRISE_ONBOARDING_HELP_TOPIC_LABEL } from "@/lib/enterprise-onboarding-help-evidence-copy";
@@ -282,7 +281,7 @@ const PAGE_HELP_TOPICS: readonly { prefix: string; topic: PageHelpTopic }[] = [
   { prefix: "/replay", topic: { slug: "comparison-replay", label: COMPARISON_REPLAY_HELP_TOPIC_LABEL } },
   {
     prefix: "/internal/replay",
-    topic: { slug: "comparison-replay", label: COMPARISON_REPLAY_VALIDATE_HELP_TOPIC_LABEL },
+    topic: { slug: "comparison-replay", label: COMPARISON_REPLAY_HELP_TOPIC_LABEL },
   },
   { prefix: "/governance/findings", topic: { slug: "findings", label: FINDINGS_HELP_TOPIC_LABEL } },
   {

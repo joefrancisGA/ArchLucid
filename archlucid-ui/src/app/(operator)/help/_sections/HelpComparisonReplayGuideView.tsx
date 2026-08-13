@@ -29,10 +29,14 @@ import {
   COMPARISON_REPLAY_HELP_DIAGRAM_TEXT_ALTERNATIVE,
   COMPARISON_REPLAY_HELP_FIRST_VIEWPORT_TEST_ID,
   COMPARISON_REPLAY_HELP_PRIMARY_ACTIONS,
-  COMPARISON_REPLAY_HELP_RELATED_GUIDES_HEADING,
   comparisonReplayValidateReviewUnavailableCopy,
   isComparisonReplayValidateReviewActionAvailable,
 } from "@/lib/comparison-replay-help-guide-content";
+import {
+  COMPARISON_REPLAY_HELP_RELATED_GUIDES,
+  COMPARISON_REPLAY_HELP_RELATED_HEADING,
+  COMPARISON_REPLAY_HELP_RELATED_TEST_ID,
+} from "@/lib/comparison-replay-help-related-guides";
 import {
   DESIGN_TOKENS,
   OPERATOR_CARD,
@@ -51,18 +55,17 @@ type HelpComparisonReplayGuideViewProps = {
   readonly markdown: string;
 };
 
-function splitComparisonReplayMarkdown(markdown: string): {
-  readonly deferredJobDetail: string;
-  readonly relatedGuidesSection: string;
-} {
+function splitComparisonReplayDeferredDetail(markdown: string): string {
   const deferredStart = markdown.indexOf(COMPARISON_REPLAY_HELP_DEFERRED_JOB_DETAIL_HEADING);
-  const relatedIndex = markdown.indexOf(COMPARISON_REPLAY_HELP_RELATED_GUIDES_HEADING);
+  const relatedIndex = markdown.indexOf("## Related guides");
+
+  if (deferredStart < 0) {
+    return "";
+  }
+
   const deferredEnd = relatedIndex >= 0 ? relatedIndex : markdown.length;
 
-  return {
-    deferredJobDetail: deferredStart >= 0 ? markdown.slice(deferredStart, deferredEnd).trimStart() : "",
-    relatedGuidesSection: relatedIndex >= 0 ? markdown.slice(relatedIndex).trimStart() : "",
-  };
+  return markdown.slice(deferredStart, deferredEnd).trimStart();
 }
 
 /** Operator compare vs replay orientation for `/help/comparison-replay`. */
@@ -75,7 +78,7 @@ export function HelpComparisonReplayGuideView(
     helpTopicSlug: entry.slug,
   });
   const headings = extractHelpMarkdownHeadings(preparedMarkdown);
-  const { deferredJobDetail, relatedGuidesSection } = splitComparisonReplayMarkdown(preparedMarkdown);
+  const deferredJobDetail = splitComparisonReplayDeferredDetail(preparedMarkdown);
   const validateUnavailable = comparisonReplayValidateReviewUnavailableCopy();
   const validateActionAvailable = isComparisonReplayValidateReviewActionAvailable();
 
@@ -222,16 +225,27 @@ export function HelpComparisonReplayGuideView(
             />
           ) : null}
 
-          {relatedGuidesSection.length > 0 ? (
-            <MarketingAccessibilityMarkdownFragment
-              markdownBody={markdown}
-              tableCaption={`${entry.title} related guides`}
-              presentation="help"
-              sourceDocPath={sourceDocPath}
-              helpTopicSlug={entry.slug}
-              preparedMarkdownOverride={relatedGuidesSection}
-            />
-          ) : null}
+          <section
+            className="space-y-2"
+            aria-labelledby="help-comparison-replay-related-heading"
+            data-testid={COMPARISON_REPLAY_HELP_RELATED_TEST_ID}
+          >
+            <h2 id="help-comparison-replay-related-heading" className={cn("m-0", OPERATOR_TYPOGRAPHY.sectionTitle)}>
+              {COMPARISON_REPLAY_HELP_RELATED_HEADING}
+            </h2>
+            <ul className={cn("m-0 list-disc space-y-1 pl-5", OPERATOR_TYPOGRAPHY.body)}>
+              {COMPARISON_REPLAY_HELP_RELATED_GUIDES.map((link) => (
+                <li key={`${link.href}-${link.label}`}>
+                  <Link
+                    href={link.href}
+                    className={cn("underline-offset-2 hover:underline", DESIGN_TOKENS.accent.link, OPERATOR_LINK.inline)}
+                  >
+                    {link.label}
+                  </Link>
+                </li>
+              ))}
+            </ul>
+          </section>
         </div>
 
         <HelpTopicTableOfContents headings={headings} />

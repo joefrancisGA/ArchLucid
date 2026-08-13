@@ -5,7 +5,6 @@ import { COMPARE_CANONICAL_PATH } from "@/lib/compare-evidence-copy";
 import {
   COMPARISON_REPLAY_HELP_CANONICAL_PATH,
   COMPARISON_REPLAY_HELP_TOPIC_LABEL,
-  COMPARISON_REPLAY_VALIDATE_HELP_TOPIC_LABEL,
 } from "@/lib/comparison-replay-help-evidence-copy";
 import { INTERNAL_REPLAY_PATH } from "@/lib/internal-ops-route-paths";
 
@@ -55,7 +54,7 @@ export const COMPARISON_REPLAY_CONTEXTUAL_HELP_ROWS: readonly PageContextualHelp
         href: COMPARE_CANONICAL_PATH,
       },
       whereToConfigureAction: {
-        label: COMPARISON_REPLAY_VALIDATE_HELP_TOPIC_LABEL,
+        label: COMPARISON_REPLAY_HELP_TOPIC_LABEL,
         href: INTERNAL_REPLAY_PATH,
       },
     },

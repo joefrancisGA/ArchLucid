@@ -38,8 +38,3 @@ For the **repeat architecture review loop** (compare → replay → governance d
 | Comparison summary | Quick narrative of what changed between packages |
 | Export formats | Shareable delta for sponsors, security, or audit |
 | Drift / verify result | Confirm a stored comparison still matches regenerated logic |
-
-## Related guides
-
-- [Compare two reviews](/insights/compare-two-reviews) — open the live pair-diff workspace.
-- [Validate review](/internal/replay) — re-check or replay a saved comparison record.
