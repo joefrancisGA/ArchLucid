@@ -92,4 +92,6 @@ public static class HostElectionLeaseNames
     public const string PlatformDocCorpusStartupIndexer = "hosted:platform-doc-corpus-startup-indexer";
 
     public const string QuickScanBudgetReconciliation = "hosted:quick-scan-budget-reconciliation";
+
+    public const string WaiverExpiryNotification = "hosted:waiver-expiry-notification";
 }

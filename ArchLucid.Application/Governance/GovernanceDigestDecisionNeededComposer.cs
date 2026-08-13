@@ -21,8 +21,6 @@ public sealed class GovernanceDigestDecisionNeededComposer(
     IArchitectureDigestRepository digestRepository,
     IExecutiveRoiSummaryService executiveRoiSummaryService) : IGovernanceDigestDecisionNeededComposer
 {
-    private static readonly int[] WaiverExpiryAlertDays = [30, 14, 7, 0];
-
     private readonly IGovernanceApprovalRequestRepository _approvalRepository =
         approvalRepository ?? throw new ArgumentNullException(nameof(approvalRepository));
 
@@ -337,7 +335,7 @@ public sealed class GovernanceDigestDecisionNeededComposer(
         DateTimeOffset now,
         ref bool hasDecisionContent)
     {
-        foreach (int daysBefore in WaiverExpiryAlertDays)
+        foreach (int daysBefore in GovernanceWaiverExpiryWindow.AlertDayBoundaries)
         {
             DateTimeOffset windowStart = now.Date.AddDays(daysBefore);
             DateTimeOffset windowEnd = windowStart.AddDays(1);

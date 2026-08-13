@@ -323,6 +323,9 @@ public static partial class ServiceCollectionExtensions
         services.AddScoped<IRecurrenceCompletionRecipientResolver, RecurrenceCompletionRecipientResolver>();
         services.AddScoped<IRecurrenceCompletionEmailDispatcher, RecurrenceCompletionEmailDispatcher>();
         services.AddScoped<IRecurrenceCompletionNotificationService, RecurrenceCompletionNotificationService>();
+        services.Configure<WaiverExpiryNotificationOptions>(
+            configuration.GetSection(WaiverExpiryNotificationOptions.SectionName));
+        services.AddScoped<IWaiverExpiryNotificationService, WaiverExpiryNotificationService>();
         services.AddScoped<IReviewsAwaitingActionQueryService, ReviewsAwaitingActionQueryService>();
         services.AddScoped<IRecurringArchitectureReviewTriggerService, RecurringArchitectureReviewTriggerService>();
         services

@@ -155,6 +155,7 @@ public static partial class ServiceCollectionExtensions
         RegisterArchitectureProjectRetentionPurgeHostedService(services, hostingRole);
         RegisterSampleRunTtlHostedService(services, hostingRole);
         RegisterDraftIntakeReaperHostedService(services, hostingRole);
+        RegisterWaiverExpiryNotificationHostedService(services, hostingRole);
         RegisterTenantErasureEligiblePurgeHostedService(services, hostingRole);
         RegisterOrphanedTenantCleanupHostedService(services, hostingRole);
         RegisterAzureExtractorAutoPullHostedService(services, hostingRole);
