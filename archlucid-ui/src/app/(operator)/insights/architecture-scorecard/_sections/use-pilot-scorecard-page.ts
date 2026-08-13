@@ -105,15 +105,15 @@ export function usePilotScorecardPage(loaded: PilotScorecardPageServerLoad): Use
   const error = saveError ?? queryError ?? loaded.error;
 
   useEffect(() => {
-    if (scorecardQuery.data === undefined) {
+    if (data === null) {
       return;
     }
 
-    const synced = syncBaselineFieldsFromScorecard(scorecardQuery.data);
+    const synced = syncBaselineFieldsFromScorecard(data);
     setHours(synced.hours);
     setReviews(synced.reviews);
     setRate(synced.rate);
-  }, [scorecardQuery.dataUpdatedAt, scorecardQuery.data]);
+  }, [scorecardQuery.dataUpdatedAt, data]);
 
   useEffect(() => {
     if (typeof window === "undefined") {

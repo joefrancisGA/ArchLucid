@@ -28,7 +28,11 @@ public sealed class EffectiveGovernanceResolverPropertyTests
                 InMemoryPolicyPackRepository packRepo = new();
                 InMemoryPolicyPackVersionRepository versionRepo = new();
                 InMemoryPolicyPackAssignmentRepository assignmentRepo = new();
-                EffectiveGovernanceResolver resolver = new(assignmentRepo, packRepo, versionRepo);
+                EffectiveGovernanceResolver resolver = new(
+                    assignmentRepo,
+                    packRepo,
+                    versionRepo,
+                    ArchLucid.Core.Governance.PolicyPacks.NullPlatformBundledPolicyPackAvailability.Instance);
 
                 EffectiveGovernanceResolutionResult first = resolver
                     .ResolveAsync(tenantId, workspaceId, projectId, CancellationToken.None)

@@ -19,24 +19,37 @@ public static class DefaultPolicyPackBundledManifest
         PropertyNameCaseInsensitive = true,
     };
 
+    /// <summary>Stable bundled content file names paired with display names for the platform registry.</summary>
+    public static IReadOnlyList<(string ContentFile, string DisplayName)> LoadRegistrySeedEntries()
+    {
+        IReadOnlyList<DefaultPolicyPackBundleDefinition> bundles = LoadBundles();
+        BundledManifestDocument? manifest = LoadManifestDocument();
+
+        if (manifest?.ContentFiles is null || manifest.ContentFiles.Count != bundles.Count)
+        {
+            throw new InvalidOperationException(
+                "Bundled policy pack manifest contentFiles count must match loaded bundle definitions.");
+        }
+
+        List<(string ContentFile, string DisplayName)> entries = new(manifest.ContentFiles.Count);
+
+        for (int index = 0; index < manifest.ContentFiles.Count; index++)
+            entries.Add((manifest.ContentFiles[index], bundles[index].DisplayName));
+
+        return entries;
+    }
+
     /// <summary>Ordered bundle definitions for tenant provisioning seeding.</summary>
     public static IReadOnlyList<DefaultPolicyPackBundleDefinition> LoadBundles()
     {
+        BundledManifestDocument manifest = LoadManifestDocument();
+        IReadOnlyList<string> contentFiles = manifest.ContentFiles
+            ?? throw new InvalidOperationException("Bundled policy pack manifest has no contentFiles.");
+
         Assembly assembly = typeof(DefaultPolicyPackBundledManifest).Assembly;
-        using Stream? manifestStream = assembly.GetManifestResourceStream(ManifestResourceName);
+        List<DefaultPolicyPackBundleDefinition> bundles = new(contentFiles.Count);
 
-        if (manifestStream is null)
-            throw new InvalidOperationException($"Embedded manifest not found: {ManifestResourceName}");
-
-        BundledManifestDocument? manifest =
-            JsonSerializer.Deserialize<BundledManifestDocument>(manifestStream, JsonOptions);
-
-        if (manifest?.ContentFiles is null || manifest.ContentFiles.Count == 0)
-            throw new InvalidOperationException("Bundled policy pack manifest has no contentFiles.");
-
-        List<DefaultPolicyPackBundleDefinition> bundles = new(manifest.ContentFiles.Count);
-
-        foreach (string fileName in manifest.ContentFiles)
+        foreach (string fileName in contentFiles)
         {
             string resourceName = ContentResourcePrefix + fileName;
             using Stream? contentStream = assembly.GetManifestResourceStream(resourceName);
@@ -60,6 +73,23 @@ public static class DefaultPolicyPackBundledManifest
         }
 
         return bundles;
+    }
+
+    private static BundledManifestDocument LoadManifestDocument()
+    {
+        Assembly assembly = typeof(DefaultPolicyPackBundledManifest).Assembly;
+        using Stream? manifestStream = assembly.GetManifestResourceStream(ManifestResourceName);
+
+        if (manifestStream is null)
+            throw new InvalidOperationException($"Embedded manifest not found: {ManifestResourceName}");
+
+        BundledManifestDocument? manifest =
+            JsonSerializer.Deserialize<BundledManifestDocument>(manifestStream, JsonOptions);
+
+        if (manifest?.ContentFiles is null || manifest.ContentFiles.Count == 0)
+            throw new InvalidOperationException("Bundled policy pack manifest has no contentFiles.");
+
+        return manifest;
     }
 
     private static string ResolveMetadata(PolicyPackContentDocument document, string key, string fileName)

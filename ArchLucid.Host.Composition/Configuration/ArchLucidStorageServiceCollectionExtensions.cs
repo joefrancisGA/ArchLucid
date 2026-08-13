@@ -477,6 +477,7 @@ public static class ArchLucidStorageServiceCollectionExtensions
             services.AddScoped<ITenantSettingsRepository, SqlTenantSettingsRepository>();
             services.AddScoped<IPolicyPackVersionRepository, DapperPolicyPackVersionRepository>();
             services.AddScoped<IPolicyPackCatalogRepository, DapperPolicyPackCatalogRepository>();
+            services.AddScoped<IPlatformBundledPolicyPackRegistryRepository, DapperPlatformBundledPolicyPackRegistryRepository>();
             services.AddScoped<IAlertRuleRepository, DapperAlertRuleRepository>();
             services.AddScoped<ICompositeAlertRuleRepository, DapperCompositeAlertRuleRepository>();
             services.AddScoped<ITenantAiBudgetPolicyRepository, SqlTenantAiBudgetPolicyRepository>();
@@ -516,6 +517,10 @@ public static class ArchLucidStorageServiceCollectionExtensions
         services.AddScoped<IPolicyPackCatalogRepository>(static sp => new CachingPolicyPackCatalogRepository(
             sp.GetRequiredService<DapperPolicyPackCatalogRepository>(),
             sp.GetRequiredService<IHotPathReadCache>()));
+
+        services.AddScoped<DapperPlatformBundledPolicyPackRegistryRepository>();
+        services.AddScoped<IPlatformBundledPolicyPackRegistryRepository>(static sp =>
+            sp.GetRequiredService<DapperPlatformBundledPolicyPackRegistryRepository>());
 
         services.AddScoped<DapperAlertRuleRepository>();
         services.AddScoped<IAlertRuleRepository>(static sp => new CachingAlertRuleRepository(

@@ -78,7 +78,7 @@ Sign in as **Admin**. Complete the table in **Pass A**, then again in **Pass B**
 | 5 | `/architecture/executive-dashboard` | Empty KPIs | Metrics after finalize | [ ] | [ ] |
 | 6 | Same URL `#workspace-health` | Empty posture | Populated KPIs | [ ] | [ ] |
 | 7 | `/architecture/first-review-guide` | Hub status + deep links | Status after first finalize | [ ] | [ ] |
-| 8 | `/architecture/digests?tab=browse` | Empty browse | Generated digests | [ ] | [ ] |
+| 8 | `/architecture/digests?tab=get-started` | Empty browse | Generated digests | [ ] | [ ] |
 | 9 | `/architecture/digests?tab=subscriptions` | Empty subscriptions | Rows after create | [ ] | [ ] |
 | 10 | `/architecture/digests?tab=schedule` | Unconfigured / paused | Saved cadence + recipients | [ ] | [ ] |
 | 11 | `/architecture/architecture-intelligence` | Empty / no closed-loop | After Execute workflows | [ ] | [ ] |

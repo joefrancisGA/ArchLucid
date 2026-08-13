@@ -14,6 +14,7 @@ export const GOVERNANCE_SETUP_GUIDE_STEPS: readonly GovernanceSetupStepDefinitio
     title: "Set the policy baseline",
     description: "Choose the policy pack and enforcement thresholds used for architecture reviews.",
     outcome: "Reviews evaluate against a shared baseline instead of ad-hoc judgment.",
+    tracked: true,
     primaryActionLabel: "Configure policy packs",
     primaryActionHref: GOVERNANCE_POLICY_PACKS_PATH,
   },
@@ -22,6 +23,7 @@ export const GOVERNANCE_SETUP_GUIDE_STEPS: readonly GovernanceSetupStepDefinitio
     title: "Validate threshold impact",
     description: "Run a dry-run to understand how proposed thresholds affect existing review findings.",
     outcome: "You see finding impact before thresholds go live.",
+    tracked: false,
     primaryActionLabel: "Run threshold preview",
     primaryActionHref: GOVERNANCE_POLICY_PACKS_PATH,
   },
@@ -30,6 +32,7 @@ export const GOVERNANCE_SETUP_GUIDE_STEPS: readonly GovernanceSetupStepDefinitio
     title: "Configure alert ownership",
     description: "Route important governance alerts to the teams responsible for responding.",
     outcome: "Critical signals reach owners instead of a silent inbox.",
+    tracked: true,
     primaryActionLabel: ALERTS_CONFIGURE_RULES_LINK_LABEL,
     primaryActionHref: governanceAlertRulesTabHref("notifications"),
     secondaryActionLabel: "Check connector readiness",
@@ -40,6 +43,7 @@ export const GOVERNANCE_SETUP_GUIDE_STEPS: readonly GovernanceSetupStepDefinitio
     title: "Define approval expectations",
     description: "Set the approval path, responsible roles, and expected response times.",
     outcome: "Approvals have clear owners and response expectations.",
+    tracked: false,
     primaryActionLabel: "Configure approvals",
     primaryActionHref: "/governance/approval-queue",
   },
@@ -48,6 +52,7 @@ export const GOVERNANCE_SETUP_GUIDE_STEPS: readonly GovernanceSetupStepDefinitio
     title: "Prepare governance reporting",
     description: "Confirm that sponsors can see posture, risk, drift, approvals, and value signals.",
     outcome: "Sponsors can brief from workspace health without assembling slides.",
+    tracked: false,
     primaryActionLabel: "Open workspace overview",
     primaryActionHref: GOVERNANCE_WORKSPACE_HEALTH_HREF,
   },
@@ -62,8 +67,14 @@ export const GOVERNANCE_SETUP_FOUNDATION_INDICATORS: readonly GovernanceSetupFou
 
 export type GovernanceSetupProgressSummary = {
   readonly completedCount: number;
+  /** Count of workspace-tracked steps only — not all guide steps. */
   readonly totalCount: number;
+  readonly untrackedCount: number;
   readonly progressFraction: number;
+  /**
+   * Index into the full {@link GOVERNANCE_SETUP_GUIDE_STEPS} list for the first incomplete
+   * tracked step — never an untracked step index so recommendation cannot pin to undetectable work.
+   */
   readonly firstIncompleteIndex: number | null;
   readonly nextStepTitle: string | null;
   readonly isComplete: boolean;
@@ -73,19 +84,35 @@ export function summarizeGovernanceSetupProgress(
   stepStatuses: readonly GovernanceSetupStepStatus[],
   steps: readonly GovernanceSetupStepDefinition[] = GOVERNANCE_SETUP_GUIDE_STEPS,
 ): GovernanceSetupProgressSummary {
-  const totalCount = stepStatuses.length;
-  const completedCount = stepStatuses.filter((status) => status === "complete").length;
-  const firstIncompleteIndex = stepStatuses.findIndex((status) => status !== "complete");
+  const trackedStepIndices = steps
+    .map((step, index) => (step.tracked ? index : -1))
+    .filter((index) => index >= 0);
+  const trackedTotalCount = trackedStepIndices.length;
+  const untrackedCount = steps.length - trackedTotalCount;
+
+  let completedCount = 0;
+
+  for (const index of trackedStepIndices) {
+    if (stepStatuses[index] === "complete") {
+      completedCount += 1;
+    }
+  }
+
+  const firstIncompleteTrackedIndex = trackedStepIndices.find(
+    (index) => stepStatuses[index] !== "complete",
+  );
+  const firstIncompleteIndex = firstIncompleteTrackedIndex ?? null;
   const nextStepTitle =
-    firstIncompleteIndex < 0 ? null : (steps[firstIncompleteIndex]?.title ?? null);
+    firstIncompleteIndex === null ? null : (steps[firstIncompleteIndex]?.title ?? null);
 
   return {
     completedCount,
-    totalCount,
-    progressFraction: totalCount === 0 ? 0 : completedCount / totalCount,
-    firstIncompleteIndex: firstIncompleteIndex < 0 ? null : firstIncompleteIndex,
+    totalCount: trackedTotalCount,
+    untrackedCount,
+    progressFraction: trackedTotalCount === 0 ? 0 : completedCount / trackedTotalCount,
+    firstIncompleteIndex,
     nextStepTitle,
-    isComplete: totalCount > 0 && completedCount === totalCount,
+    isComplete: trackedTotalCount > 0 && completedCount === trackedTotalCount,
   };
 }
 

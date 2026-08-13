@@ -13,6 +13,7 @@ function initialStepStatuses(): GovernanceSetupStepStatus[] {
 /**
  * Resolves workspace-backed completion signals for the governance setup guide.
  * Steps without a reliable signal stay not-started (never fabricated complete).
+ * No status of any kind is inferred from another step's completion — not even in-progress.
  */
 export async function resolveGovernanceSetupGuideViewModel(): Promise<GovernanceSetupGuideViewModel> {
   const stepStatuses = initialStepStatuses();
@@ -28,10 +29,6 @@ export async function resolveGovernanceSetupGuideViewModel(): Promise<Governance
   }
 
   // TODO: Connect threshold dry-run completion when a workspace signal is exposed for step 2.
-
-  if (stepStatuses[0] === "complete" && stepStatuses[1] !== "complete") {
-    stepStatuses[1] = "in-progress";
-  }
 
   if (routingSettled.status === "fulfilled" && routingSettled.value.length > 0) {
     stepStatuses[2] = "complete";

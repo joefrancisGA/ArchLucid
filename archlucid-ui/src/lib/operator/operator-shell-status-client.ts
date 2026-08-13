@@ -7,6 +7,7 @@ import type { LlmMonthlyDollarBudgetStatus } from "@/lib/llm-monthly-budget-stat
 import { mergeRegistrationScopeForProxy } from "@/lib/proxy-fetch-registration-scope";
 import { operatorQueryKeys } from "@/lib/query/operator-query-keys";
 import type { OperatorScopeQueryKey } from "@/lib/operator/operator-scope-query-key";
+import type { TeamExpansionNudgeStatusPayload } from "@/lib/team-expansion-nudge-trigger";
 import type { TenantTrialStatusClientPayload } from "@/lib/tenant-trial-status-client";
 
 export type OperatorShellStatusPayload = {
@@ -14,6 +15,7 @@ export type OperatorShellStatusPayload = {
   readonly catalogMigration: TenantCatalogMigrationStatus | null;
   readonly llmMonthlyBudgetStatus: LlmMonthlyDollarBudgetStatus | null;
   readonly alertsInboxSummary: AlertsInboxSummaryCounts | null;
+  readonly usageStatus: TeamExpansionNudgeStatusPayload | null;
 };
 
 type OperatorShellStatusApiDto = {
@@ -21,6 +23,7 @@ type OperatorShellStatusApiDto = {
   readonly catalogMigration?: TenantCatalogMigrationStatus | null;
   readonly llmMonthlyBudgetStatus?: LlmMonthlyDollarBudgetStatus | null;
   readonly alertsInboxSummary?: AlertsInboxSummaryApiDto | null;
+  readonly usageStatus?: TeamExpansionNudgeStatusPayload | null;
 };
 
 function mapAlertsInboxSummary(dto: AlertsInboxSummaryApiDto | null | undefined): AlertsInboxSummaryCounts | null {
@@ -55,6 +58,7 @@ export async function fetchOperatorShellStatus(): Promise<OperatorShellStatusPay
     catalogMigration: dto.catalogMigration ?? null,
     llmMonthlyBudgetStatus: dto.llmMonthlyBudgetStatus ?? null,
     alertsInboxSummary: mapAlertsInboxSummary(dto.alertsInboxSummary),
+    usageStatus: dto.usageStatus ?? null,
   };
 }
 
@@ -77,5 +81,9 @@ export function hydrateOperatorShellStatusCaches(
 
   if (payload.alertsInboxSummary !== null) {
     queryClient.setQueryData(operatorQueryKeys.alertsInboxSummary(scope), payload.alertsInboxSummary);
+  }
+
+  if (payload.usageStatus !== null) {
+    queryClient.setQueryData(operatorQueryKeys.tenantUsageStatus, payload.usageStatus);
   }
 }

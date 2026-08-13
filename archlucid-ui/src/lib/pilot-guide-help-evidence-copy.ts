@@ -18,6 +18,6 @@ export const PILOT_GUIDE_HELP_SOURCES: readonly EvidenceSourceLink[] = [
   { label: "Start a review", href: REVIEWS_NEW_PATH },
   { label: "Your first architecture review", href: FIRST_ARCHITECTURE_REVIEW_HELP_PATH },
   { label: "First review guide", href: FIRST_REVIEW_GUIDE_PATH },
-  { label: "Pilot outcomes report", href: "/insights/pilot-outcomes" },
+  { label: "Sponsor report", href: "/insights/executive-summary" },
   { label: "Getting started", href: inAppHelpHref("getting-started") },
 ] as const;

@@ -1,5 +1,7 @@
 using ArchLucid.Application.Advisory;
 using ArchLucid.Application.Governance;
+using ArchLucid.Application.Governance.DefaultPolicyPacks;
+using ArchLucid.Application.Governance.PolicyPacks;
 using ArchLucid.Core.Governance.PolicyPacks;
 using ArchLucid.Persistence.Caching;
 using ArchLucid.Persistence.Cosmos;
@@ -475,6 +477,9 @@ public static partial class ServiceCollectionExtensions
             (ArchLucid.Decisioning.Governance.PolicyPacks.IEffectiveGovernanceLoader)sp.GetRequiredService<ArchLucid.Core.Persistence.Ports.IEffectiveGovernanceLoader>());
         services.AddScoped<IPolicyPacksAppService, PolicyPacksAppService>();
         services.AddScoped<IPolicyPackCatalogAdminService, PolicyPackCatalogAdminService>();
+        services.AddScoped<IPlatformBundledPolicyPackAvailability, PlatformBundledPolicyPackAvailability>();
+        services.AddScoped<PlatformBundledPolicyPackRegistryBootstrapper>();
+        services.AddScoped<PolicyPackWorkspaceSelectionService>();
     }
 
     private static void RegisterIntegrationEventPublishing(IServiceCollection services, IConfiguration configuration)

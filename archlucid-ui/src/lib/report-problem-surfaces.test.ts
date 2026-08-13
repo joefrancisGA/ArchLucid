@@ -43,7 +43,6 @@ describe("report-problem-surfaces (TB-782)", () => {
     expect(
       pathnameMatchesReportProblemRoute(
         "/insights/executive-summary",
-        "/insights/pilot-outcomes",
         "exact-or-child",
       ),
     ).toBe(false);

@@ -6349,6 +6349,26 @@ END;
 
 GO
 
+/* 309: Platform bundled policy pack global activation registry (see Migrations/309_PlatformBundledPolicyPackRegistry.sql). */
+IF OBJECT_ID(N'dbo.PlatformBundledPolicyPackRegistry', N'U') IS NULL
+BEGIN
+    CREATE TABLE dbo.PlatformBundledPolicyPackRegistry
+    (
+        BundleContentFile NVARCHAR(260) NOT NULL
+            CONSTRAINT PK_PlatformBundledPolicyPackRegistry PRIMARY KEY,
+        DisplayName       NVARCHAR(256) NOT NULL,
+        IsGloballyActive  BIT NOT NULL
+            CONSTRAINT DF_PlatformBundledPolicyPackRegistry_IsGloballyActive DEFAULT (1),
+        UpdatedUtc        DATETIME2(7) NOT NULL
+            CONSTRAINT DF_PlatformBundledPolicyPackRegistry_UpdatedUtc DEFAULT SYSUTCDATETIME()
+    );
+
+    CREATE UNIQUE NONCLUSTERED INDEX UX_PlatformBundledPolicyPackRegistry_DisplayName
+        ON dbo.PlatformBundledPolicyPackRegistry (DisplayName);
+END;
+
+GO
+
 /* 162: Host LLM cost USD/M overrides (see Migrations/162_HostLlmCostEstimationUsdRates.sql). */
 IF OBJECT_ID(N'dbo.HostLlmCostEstimationUsdRates', N'U') IS NULL
 BEGIN

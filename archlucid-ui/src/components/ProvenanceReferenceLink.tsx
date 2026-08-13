@@ -1,7 +1,6 @@
 import Link from "next/link";
 
 import { CopyIdButton } from "@/components/CopyIdButton";
-import { FieldHelpTooltip } from "@/components/FieldHelpTooltip";
 import { cn } from "@/lib/utils";
 import { OPERATOR_LINK, OPERATOR_TYPOGRAPHY } from "@/lib/design-tokens";
 import { provenanceNodeDisplayName } from "@/lib/provenance-node-presentation";

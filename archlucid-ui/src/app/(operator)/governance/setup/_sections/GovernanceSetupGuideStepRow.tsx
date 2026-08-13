@@ -8,6 +8,11 @@ import { OPERATOR_LINK, OPERATOR_TYPOGRAPHY } from "@/lib/design-tokens";
 import { presentGovernanceSetupStepStatus } from "./governance-setup-step-status-present";
 import type { GovernanceSetupStepDefinition, GovernanceSetupStepStatus } from "./governance-setup-guide-types";
 import { resolveGovernanceSetupStepCtaVariant } from "./resolve-governance-setup-step-cta-variant";
+import {
+  GOVERNANCE_SETUP_STEP_COMPLETE_SR_LABEL,
+  GOVERNANCE_SETUP_STEP_NOT_TRACKED_HELPER,
+  GOVERNANCE_SETUP_STEP_NOT_TRACKED_STATUS_LABEL,
+} from "./governance-setup-progress-copy";
 
 type GovernanceSetupGuideStepRowProps = {
   readonly step: GovernanceSetupStepDefinition;
@@ -37,18 +42,27 @@ export function GovernanceSetupGuideStepRow({
   recommendedNext,
   isLast,
 }: GovernanceSetupGuideStepRowProps) {
-  const statusPresentation = presentGovernanceSetupStepStatus(status);
+  // Presented as-is rather than collapsing every non-complete status to "Not started": the resolver
+  // no longer infers in-progress, but if a real workspace signal ever reports it, hiding it here
+  // would be the same dishonesty this route was just fixed for.
+  const trackedStatusPresentation = presentGovernanceSetupStepStatus(status);
+  const untrackedStatusPresentation = {
+    kind: "neutral" as const,
+    label: GOVERNANCE_SETUP_STEP_NOT_TRACKED_STATUS_LABEL,
+  };
   const ctaVariant = resolveGovernanceSetupStepCtaVariant({ recommendedNext, status });
-  const showStatusTag = status !== "not-started" || recommendedNext;
 
   return (
     <li
       className="relative flex gap-3"
       data-testid={recommendedNext ? "governance-setup-recommended-step" : `governance-setup-step-${step.stepNumber}`}
     >
-      <div className="relative flex w-8 shrink-0 justify-center" aria-hidden="true">
+      <div className="relative flex w-8 shrink-0 justify-center">
         {isLast ? null : (
-          <span className="absolute top-7 bottom-0 w-px bg-neutral-300 dark:bg-neutral-700" />
+          <span
+            className="absolute top-7 bottom-0 w-px bg-neutral-300 dark:bg-neutral-700"
+            aria-hidden="true"
+          />
         )}
         <span
           className={cn(
@@ -56,7 +70,16 @@ export function GovernanceSetupGuideStepRow({
             resolveStepMarkerClass({ recommendedNext, status }),
           )}
         >
-          {status === "complete" ? "✓" : step.stepNumber}
+          {status === "complete" ? (
+            <>
+              <span aria-hidden="true">✓</span>
+              <span className="sr-only">{GOVERNANCE_SETUP_STEP_COMPLETE_SR_LABEL}</span>
+            </>
+          ) : (
+            // Hidden from assistive tech because the row already carries a "Step N" label; the
+            // status itself now reaches screen readers through the StatusTag below.
+            <span aria-hidden="true">{step.stepNumber}</span>
+          )}
         </span>
       </div>
 
@@ -97,14 +120,21 @@ export function GovernanceSetupGuideStepRow({
               className={cn("m-0 text-al-text-primary", OPERATOR_TYPOGRAPHY.helper)}
               data-testid={`governance-setup-step-${step.stepNumber}-outcome`}
             >
-              <span className="font-medium">Outcome:</span> {step.outcome}
+              {step.outcome}
             </p>
+            {step.tracked ? null : (
+              <p className={cn("m-0 text-neutral-600 dark:text-neutral-400", OPERATOR_TYPOGRAPHY.helper)}>
+                {GOVERNANCE_SETUP_STEP_NOT_TRACKED_HELPER}
+              </p>
+            )}
           </div>
 
           <div className="flex shrink-0 flex-col items-start gap-2 sm:items-end">
-            {showStatusTag ? (
-              <StatusTag kind={statusPresentation.kind} label={statusPresentation.label} />
-            ) : null}
+            {step.tracked ? (
+              <StatusTag kind={trackedStatusPresentation.kind} label={trackedStatusPresentation.label} />
+            ) : (
+              <StatusTag kind={untrackedStatusPresentation.kind} label={untrackedStatusPresentation.label} />
+            )}
             <div className="flex flex-wrap items-center gap-2">
               <Button
                 variant={ctaVariant}

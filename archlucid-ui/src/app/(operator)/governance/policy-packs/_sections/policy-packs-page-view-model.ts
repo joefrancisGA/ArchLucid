@@ -8,6 +8,7 @@ import type {
   PolicyPackCatalogListItem,
   PolicyPackContentDocument,
   PolicyPackVersion,
+  PolicyPackWorkspaceSelectionItem,
 } from "@/types/policy-packs";
 
 /** Primary sections on the policy packs page. */
@@ -26,6 +27,10 @@ export type PolicyPacksPageViewModel = {
   readonly setSelectedCatalogEntryId: Dispatch<SetStateAction<string>>;
   readonly refreshCatalog: () => Promise<void>;
   readonly onCloneCatalogEntry: () => Promise<void>;
+  readonly workspaceSelectionItems: PolicyPackWorkspaceSelectionItem[];
+  readonly workspaceSelectionLoading: boolean;
+  readonly togglingAssignmentId: string | null;
+  readonly onToggleWorkspaceSelection: (assignmentId: string, nextEnabled: boolean) => Promise<void>;
   readonly packs: PolicyPack[];
   readonly effective: EffectivePolicyPackSet | null;
   readonly effectiveContent: PolicyPackContentDocument | null;

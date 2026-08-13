@@ -84,22 +84,30 @@ export function SidebarNavCluster(props: SidebarNavClusterProps): ReactElement {
   const headingClassName = cn(
     OPERATOR_NAV_GROUP_LABEL,
     "flex w-full min-w-0 items-start gap-2 rounded-md px-2 py-1.5 text-left",
-    props.isCollapsible && "hover:bg-neutral-50 dark:hover:bg-neutral-800/80",
+  );
+
+  const collapsibleToggleClassName = cn(
+    OPERATOR_NAV_GROUP_LABEL,
+    "sidebar-disclosure-trigger flex min-w-0 flex-1 items-start gap-2 rounded-md p-0 text-left hover:bg-neutral-50 dark:hover:bg-neutral-800/80",
+  );
+
+  const groupHeadingHelpTooltip = group.caption ? (
+    <FieldHelpTooltip label={groupHeadingLabel} hint={group.caption} />
+  ) : null;
+
+  const collapsibleChevron = props.isExpanded ? (
+    <ChevronDown className="mt-0.5 h-3.5 w-3.5 shrink-0 opacity-80" aria-hidden />
+  ) : (
+    <ChevronRight className="mt-0.5 h-3.5 w-3.5 shrink-0 opacity-80" aria-hidden />
   );
 
   const headingInner = (
     <>
-      {props.isCollapsible ? (
-        props.isExpanded ? (
-          <ChevronDown className="mt-0.5 h-3.5 w-3.5 shrink-0 opacity-80" aria-hidden />
-        ) : (
-          <ChevronRight className="mt-0.5 h-3.5 w-3.5 shrink-0 opacity-80" aria-hidden />
-        )
-      ) : null}
+      {props.isCollapsible ? collapsibleChevron : null}
       <span className="flex min-w-0 flex-1 flex-col items-start gap-0.5">
         <span className="inline-flex items-center gap-1">
           <span>{groupHeadingLabel}</span>
-          {group.caption ? <FieldHelpTooltip label={groupHeadingLabel} hint={group.caption} /> : null}
+          {!props.isCollapsible ? groupHeadingHelpTooltip : null}
         </span>
       </span>
     </>
@@ -131,19 +139,22 @@ export function SidebarNavCluster(props: SidebarNavClusterProps): ReactElement {
   return (
     <div key={group.id} data-testid={`sidebar-group-${group.id}`} className="mt-1 first:mt-0">
       {props.isCollapsible ? (
-        <button
-          type="button"
-          className={cn(headingClassName, "sidebar-disclosure-trigger")}
-          id={headingId}
-          data-testid={`sidebar-group-toggle-${group.id}`}
-          aria-expanded={props.isExpanded}
-          aria-controls={contentId}
-          onClick={() => {
-            props.onToggleExpanded?.();
-          }}
-        >
-          {headingInner}
-        </button>
+        <div className={headingClassName}>
+          <button
+            type="button"
+            className={collapsibleToggleClassName}
+            id={headingId}
+            data-testid={`sidebar-group-toggle-${group.id}`}
+            aria-expanded={props.isExpanded}
+            aria-controls={contentId}
+            onClick={() => {
+              props.onToggleExpanded?.();
+            }}
+          >
+            {headingInner}
+          </button>
+          {groupHeadingHelpTooltip}
+        </div>
       ) : (
         <div
           className={headingClassName}

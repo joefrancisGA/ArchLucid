@@ -5,6 +5,7 @@ using ArchLucid.Contracts.Governance;
 using ArchLucid.Contracts.Governance.Resolution;
 using ArchLucid.Core.Diagnostics;
 using ArchLucid.Decisioning.Governance.PolicyPacks;
+using IPlatformBundledPolicyPackAvailability = ArchLucid.Core.Governance.PolicyPacks.IPlatformBundledPolicyPackAvailability;
 
 namespace ArchLucid.Decisioning.Governance.Resolution;
 
@@ -33,7 +34,8 @@ namespace ArchLucid.Decisioning.Governance.Resolution;
 public sealed class EffectiveGovernanceResolver(
     IPolicyPackAssignmentRepository assignmentRepository,
     IPolicyPackRepository packRepository,
-    IPolicyPackVersionRepository versionRepository) : IEffectiveGovernanceResolver
+    IPolicyPackVersionRepository versionRepository,
+    IPlatformBundledPolicyPackAvailability platformAvailability) : IEffectiveGovernanceResolver
 {
     /// <inheritdoc />
     /// <remarks>
@@ -99,6 +101,16 @@ public sealed class EffectiveGovernanceResolver(
                     skippedNotes.Add(
                         string.Format(
                             GovernanceConstants.Notes.SkippedFocusedPilotPack,
+                            pack.Name,
+                            assignment.PolicyPackId));
+                    continue;
+                }
+
+                if (!await platformAvailability.IsGloballyActiveAsync(pack, ct))
+                {
+                    skippedNotes.Add(
+                        string.Format(
+                            GovernanceConstants.Notes.SkippedPackGloballyInactive,
                             pack.Name,
                             assignment.PolicyPackId));
                     continue;

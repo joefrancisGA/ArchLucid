@@ -182,7 +182,6 @@ describe("nav-config structure", () => {
       "/insights/architecture-scorecard",
       "/insights/patterns",
       "/insights/executive-summary",
-      "/insights/pilot-outcomes",
       "/insights/roi-summary",
     ]);
 

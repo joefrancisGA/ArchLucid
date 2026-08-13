@@ -5,6 +5,7 @@ import { describe, expect, it } from "vitest";
 
 import { ALERTS_CONFIGURATION_PAGE_TITLE } from "@/lib/alerts-page-copy";
 import { BUYER_ONBOARDING_PAGE_TITLE } from "@/lib/buyer/buyer-polish-copy";
+import { GOVERNANCE_SETUP_PAGE_TITLE } from "@/lib/governance/governance-setup-route";
 import { OPERATOR_HOME_PAGE_TITLE } from "@/lib/operator/operator-home-page-copy";
 import { pageHelpTopicForPathname } from "@/lib/usability/page-help-topic-map";
 
@@ -35,6 +36,11 @@ const PAGE_HELP_TITLE_COLLISION_SURFACES: ReadonlyArray<{
     pathname: "/architecture/first-review-guide",
     pageTitle: BUYER_ONBOARDING_PAGE_TITLE,
     modulePath: "app/(operator)/architecture/first-review-guide/_sections/FirstReviewGuidePageClient.tsx",
+  },
+  {
+    pathname: "/governance/setup",
+    pageTitle: GOVERNANCE_SETUP_PAGE_TITLE,
+    modulePath: "app/(operator)/governance/setup/_sections/GovernanceSetupGuidePageView.tsx",
   },
 ];
 

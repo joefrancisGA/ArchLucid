@@ -22,6 +22,8 @@ import {
 
   PackageCheck,
 
+  Shield,
+
   ServerCog,
 
   Settings2,
@@ -49,6 +51,8 @@ import {
   INTERNAL_DEPLOYMENT_STATUS_PATH,
 
   INTERNAL_EVIDENCE_PROPOSALS_PATH,
+
+  INTERNAL_PLATFORM_BUNDLED_POLICY_PACKS_PATH,
 
   INTERNAL_FLEET_LLM_COGS_PATH,
 
@@ -255,6 +259,22 @@ export class OperatorSystemAdminNavGroupBuilder extends NavGroupBuilderBase {
           title: "Evidence proposals — review and promote agent-curated catalog entries",
 
           icon: FilePlus,
+
+          tier: "extended",
+
+          requiredAuthority: "AdminAuthority",
+
+        },
+
+        {
+
+          href: INTERNAL_PLATFORM_BUNDLED_POLICY_PACKS_PATH,
+
+          label: "Platform policy packs",
+
+          title: "Activate or deactivate bundled policy packs for every tenant",
+
+          icon: Shield,
 
           tier: "extended",
 

@@ -47,6 +47,7 @@ export type ExecutiveValueNarrativeBannerProps = {
 
 /** Deterministic executive story line (TB-268). */
 export function ExecutiveValueNarrativeBanner({ timeRange, roiSummary }: ExecutiveValueNarrativeBannerProps) {
+  const window = useMemo(() => windowForExecutiveRange(timeRange), [timeRange]);
   const reportQuery = usePilotValueReportQuery(window.fromUtc, window.toUtc);
   const report = reportQuery.data;
 

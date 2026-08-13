@@ -72,7 +72,10 @@ export function PolicyPacksCatalogSection(props: PolicyPacksCatalogSectionProps)
       ) : null}
 
       {props.items.length === 0 && !props.loading ? (
-        <p className={cn("text-muted-foreground", OPERATOR_TYPOGRAPHY.body)}>No promoted catalog entries yet.</p>
+        <p className={cn("text-muted-foreground", OPERATOR_TYPOGRAPHY.body)}>
+          No promoted catalog snapshots yet. Bundled platform packs live on the <strong>My packs</strong> tab — use the
+          workspace selection list there to turn packs on or off.
+        </p>
       ) : null}
 
       <ul className="divide-y rounded-md border">

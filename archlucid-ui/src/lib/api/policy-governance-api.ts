@@ -27,8 +27,10 @@ import type {
   PolicyPackCatalogListItem,
   PolicyPackContentDocument,
   PolicyPackVersion,
+  PlatformBundledPolicyPackRegistryEntry,
+  PolicyPackWorkspaceSelectionItem,
 } from "@/types/policy-packs";
-import { apiGet, apiPostJson } from "./http";
+import { apiGet, apiPostJson, apiPutJson, apiPutNoContent } from "./http";
 
 export async function listPolicyPacks(): Promise<PolicyPack[]> {
   return apiGet<PolicyPack[]>(`/${ApiV1Routes.policyPacks}`);
@@ -305,6 +307,35 @@ export async function assignPolicyPack(
   return apiPostJson<PolicyPackAssignment>(
     `/${ApiV1Routes.policyPacks}/${encodeURIComponent(policyPackId)}/assign`,
     body,
+  );
+}
+
+/** Lists workspace policy packs with assignment ids for tenant opt-in/opt-out. */
+export async function listPolicyPackWorkspaceSelection(): Promise<PolicyPackWorkspaceSelectionItem[]> {
+  return apiGet(`/${ApiV1Routes.policyPacks}/workspace-selection`);
+}
+
+/** Enables or disables one policy pack assignment for the current workspace. */
+export async function setPolicyPackAssignmentEnabled(assignmentId: string, isEnabled: boolean): Promise<void> {
+  await apiPutNoContent(
+    `/${ApiV1Routes.policyPacks}/assignments/${encodeURIComponent(assignmentId)}/enabled`,
+    { isEnabled },
+  );
+}
+
+/** Lists bundled platform policy packs and global activation flags (internal admin). */
+export async function listPlatformBundledPolicyPacks(): Promise<PlatformBundledPolicyPackRegistryEntry[]> {
+  return apiGet("/v1/admin/platform-bundled-policy-packs");
+}
+
+/** Activates or deactivates a bundled policy pack platform-wide (internal admin). */
+export async function setPlatformBundledPolicyPackActivation(
+  bundleContentFile: string,
+  isGloballyActive: boolean,
+): Promise<PlatformBundledPolicyPackRegistryEntry> {
+  return apiPutJson(
+    `/v1/admin/platform-bundled-policy-packs/${encodeURIComponent(bundleContentFile)}/activation`,
+    { isGloballyActive },
   );
 }
 

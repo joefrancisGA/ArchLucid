@@ -1,3 +1,4 @@
+using ArchLucid.Contracts.Findings;
 using ArchLucid.Decisioning.Services;
 using ArchLucid.KnowledgeGraph;
 using ArchLucid.KnowledgeGraph.Models;
@@ -36,7 +37,7 @@ public sealed class TopologyAntiPatternFindingEngineTests
         };
 
         TopologyAntiPatternFindingEngine sut = new();
-        IReadOnlyList<Models.Finding> findings = await sut.AnalyzeAsync(graph, CancellationToken.None);
+        IReadOnlyList<Finding> findings = await sut.AnalyzeAsync(graph, CancellationToken.None);
 
         findings.Should().Contain(f => f.Title.Contains("no compute dependency", StringComparison.OrdinalIgnoreCase));
     }

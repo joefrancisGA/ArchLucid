@@ -112,7 +112,7 @@ export function PolicyPacksActivePackSummaryCard(props: PolicyPacksActivePackSum
               )}
               onClick={onOpenCatalog}
             >
-              Open catalog
+              Open workspace packs
             </button>
           ) : detailHref !== null ? (
             <Link className={OPERATOR_LINK.inline} href={detailHref}>

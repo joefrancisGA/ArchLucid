@@ -16,6 +16,7 @@ public sealed class OperatorShellStatusService(
     ITenantMigrationStatusService tenantMigrationStatusService,
     ILlmMonthlyTenantDollarBudgetStatusService llmMonthlyBudgetStatusService,
     IAlertRecordRepository alertRecordRepository,
+    ITenantUsageStatusService tenantUsageStatusService,
     IOptionsMonitor<TrialLifecycleSchedulerOptions> trialLifecycleSchedulerOptions) : IOperatorShellStatusService
 {
     private readonly IAlertRecordRepository _alertRecordRepository =
@@ -33,6 +34,9 @@ public sealed class OperatorShellStatusService(
 
     private readonly ITenantRepository _tenantRepository =
         tenantRepository ?? throw new ArgumentNullException(nameof(tenantRepository));
+
+    private readonly ITenantUsageStatusService _tenantUsageStatusService =
+        tenantUsageStatusService ?? throw new ArgumentNullException(nameof(tenantUsageStatusService));
 
     private readonly IOptionsMonitor<TrialLifecycleSchedulerOptions> _trialLifecycleSchedulerOptions =
         trialLifecycleSchedulerOptions ?? throw new ArgumentNullException(nameof(trialLifecycleSchedulerOptions));
@@ -52,8 +56,10 @@ public sealed class OperatorShellStatusService(
         Task<AlertsInboxSummaryDto?> inboxTask = includeAlertsInboxSummary
             ? GetAlertsInboxSummaryAsync(scope, cancellationToken)
             : Task.FromResult<AlertsInboxSummaryDto?>(null);
+        Task<TenantUsageStatusSnapshot?> usageTask =
+            GetUsageStatusAsync(scope.TenantId, cancellationToken);
 
-        await Task.WhenAll(trialTask, migrationTask, llmTask, inboxTask).ConfigureAwait(false);
+        await Task.WhenAll(trialTask, migrationTask, llmTask, inboxTask, usageTask).ConfigureAwait(false);
 
         return new OperatorShellStatusResult
         {
@@ -61,7 +67,26 @@ public sealed class OperatorShellStatusService(
             CatalogMigration = await migrationTask.ConfigureAwait(false),
             LlmMonthlyBudgetStatus = await llmTask.ConfigureAwait(false),
             AlertsInboxSummary = await inboxTask.ConfigureAwait(false),
+            UsageStatus = await usageTask.ConfigureAwait(false),
         };
+    }
+
+    private async Task<TenantUsageStatusSnapshot?> GetUsageStatusAsync(
+        Guid tenantId,
+        CancellationToken cancellationToken)
+    {
+        try
+        {
+            return await _tenantUsageStatusService.BuildAsync(tenantId, cancellationToken).ConfigureAwait(false);
+        }
+        catch (OperationCanceledException)
+        {
+            throw;
+        }
+        catch
+        {
+            return null;
+        }
     }
 
     private async Task<LlmMonthlyTenantDollarBudgetStatusResult?> GetLlmBudgetStatusAsync(

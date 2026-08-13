@@ -1,11 +1,20 @@
-import { cn } from "@/lib/utils";
-
-import { GOVERNANCE_SETUP_HREF } from "@/lib/governance/governance-setup-route";
+import { EvidenceOrientationClaimAndSourcesStrip } from "@/components/evidence-orientation/EvidenceOrientationClaimAndSourcesStrip";
 import { OperatorPageHeader } from "@/components/operator/OperatorPageHeader";
-import { PageContextualHelpButton } from "@/components/usability/PageContextualHelpButton";
+import {
+  PageContextualHelpButton,
+  PAGE_HELP_SHORT_TRIGGER_TEXT,
+} from "@/components/usability/PageContextualHelpButton";
 import { GovernanceSetupConfigHubsVocabularyRail } from "@/components/governance/GovernanceSetupConfigHubsVocabularyRail";
-import { OPERATOR_TYPOGRAPHY } from "@/lib/design-tokens";
-import { GOVERNANCE_SETUP_PAGE_SUBTITLE } from "@/lib/governance/governance-setup-route";
+import {
+  GOVERNANCE_SETUP_HREF,
+  GOVERNANCE_SETUP_PAGE_SUBTITLE,
+  GOVERNANCE_SETUP_PAGE_TITLE,
+} from "@/lib/governance/governance-setup-route";
+import {
+  GOVERNANCE_SETUP_CLAIM_DISCIPLINE,
+  GOVERNANCE_SETUP_SOURCES,
+  GOVERNANCE_SETUP_SOURCES_INTRO,
+} from "@/lib/governance/governance-setup-evidence-copy";
 
 import { GovernanceSetupFoundationPanel } from "./GovernanceSetupFoundationPanel";
 import { GovernanceSetupGuideProgressSummary } from "./GovernanceSetupGuideProgressSummary";
@@ -28,26 +37,15 @@ export function GovernanceSetupGuidePageView({ model }: GovernanceSetupGuidePage
     >
       <OperatorPageHeader
         navHref={GOVERNANCE_SETUP_HREF}
-        title="Governance setup"
+        title={GOVERNANCE_SETUP_PAGE_TITLE}
         titleTestId="governance-setup-page-title"
         subtitle={GOVERNANCE_SETUP_PAGE_SUBTITLE}
-        actions={<PageContextualHelpButton />}
+        actions={<PageContextualHelpButton triggerText={PAGE_HELP_SHORT_TRIGGER_TEXT} />}
       >
         <GovernanceSetupGuideProgressSummary summary={progress} />
       </OperatorPageHeader>
 
       <GovernanceSetupConfigHubsVocabularyRail currentSurfaceId="setup" />
-
-      <p
-        className={cn(
-          "m-0 text-neutral-600 dark:text-neutral-400",
-          OPERATOR_TYPOGRAPHY.helper,
-        )}
-        data-testid="governance-setup-configuration-note"
-      >
-        This guide links to the existing ArchLucid configuration areas. Changes are made and audited in those
-        workspaces.
-      </p>
 
       <div className="grid gap-6 lg:grid-cols-[minmax(0,1fr)_minmax(240px,18rem)] lg:items-start">
         <div className="space-y-5 min-w-0">
@@ -70,6 +68,14 @@ export function GovernanceSetupGuidePageView({ model }: GovernanceSetupGuidePage
           <GovernanceSetupFoundationPanel
             indicators={model.foundationIndicators}
             stepStatuses={model.stepStatuses}
+            steps={model.steps}
+          />
+
+          <EvidenceOrientationClaimAndSourcesStrip
+            slug="governance-setup"
+            claim={GOVERNANCE_SETUP_CLAIM_DISCIPLINE}
+            sourcesIntro={GOVERNANCE_SETUP_SOURCES_INTRO}
+            sources={GOVERNANCE_SETUP_SOURCES}
           />
         </div>
 
