@@ -29,6 +29,10 @@ export const operatorQueryKeys = {
   executiveNextActionInputs: (range: ExecutiveTimeRange) =>
     ["operator", "roi", "next-action-inputs", range] as const,
   complianceDriftTrend30d: ["operator", "governance", "compliance-drift-trend", "30d"] as const,
+  complianceDriftTrendRange: (fromUtc: string, toUtc: string) =>
+    ["operator", "governance", "compliance-drift-trend", { fromUtc, toUtc }] as const,
+  governancePrecommitBlockedCount: (fromUtcIso: string, toUtcIso: string) =>
+    ["operator", "governance", "precommit-blocked-count", { fromUtcIso, toUtcIso }] as const,
   workspaceHealthPrecommitAuditCounts30d:
     ["operator", "workspace-health", "precommit-audit-counts", "30d"] as const,
   pilotValueReport: (fromUtc: string, toUtc: string) =>

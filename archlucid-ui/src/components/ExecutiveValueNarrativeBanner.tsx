@@ -2,9 +2,12 @@
 import { cn } from "@/lib/utils";
 import { OPERATOR_TYPOGRAPHY } from "@/lib/design-tokens";
 
-import { useCallback, useEffect, useState } from "react";
+import { useMemo } from "react";
 
-import { ApiV1Routes } from "@/lib/api-v1-routes";
+import { useComplianceDriftTrendRangeQuery } from "@/hooks/use-compliance-drift-trend-range-query";
+import { useExecutiveRoiSummaryQuery } from "@/hooks/use-executive-roi-summary-query";
+import { useGovernancePrecommitBlockedCountQuery } from "@/hooks/use-governance-precommit-blocked-count-query";
+import { usePilotValueReportQuery } from "@/hooks/use-pilot-value-report-query";
 import {
   buildExecutiveScorecardRecommendedActions,
   type ExecutiveScorecardRecommendedAction,
@@ -16,30 +19,9 @@ import {
   type ExecutiveTimeRange,
   windowForExecutiveRange,
 } from "@/lib/executive-time-range";
-import { fetchPilotValueReportJson } from "@/lib/pilot-value-report-fetch";
-import { mergeRegistrationScopeForProxy } from "@/lib/proxy-fetch-registration-scope";
 import { hoursSurfaced } from "@/lib/roi-assumptions";
-import { getComplianceDriftTrend } from "@/lib/api";
-import { countAuditEventsInWindow } from "@/lib/workspace-health-audit-count";
 
 const AVERAGE_MANUAL_REVIEW_HOURS = 3;
-
-async function fetchExecutiveRoiSummary(): Promise<ExecutiveRoiSummary | null> {
-  try {
-    const response = await fetch(
-      `/api/proxy/${ApiV1Routes.roiExecutiveSummary}`,
-      mergeRegistrationScopeForProxy({ headers: { Accept: "application/json" } }),
-    );
-
-    if (!response.ok) {
-      return null;
-    }
-
-    return (await response.json()) as ExecutiveRoiSummary;
-  } catch {
-    return null;
-  }
-}
 
 function sumDriftChanges(points: { changeCount: number }[]): number {
   return points.reduce((sum, point) => sum + (Number.isFinite(point.changeCount) ? point.changeCount : 0), 0);
@@ -65,69 +47,74 @@ export type ExecutiveValueNarrativeBannerProps = {
 
 /** Deterministic executive story line (TB-268). */
 export function ExecutiveValueNarrativeBanner({ timeRange, roiSummary }: ExecutiveValueNarrativeBannerProps) {
-  const [narrative, setNarrative] = useState<string | null>(null);
-  const [loading, setLoading] = useState(true);
+  const reportQuery = usePilotValueReportQuery(window.fromUtc, window.toUtc);
+  const report = reportQuery.data;
 
-  const load = useCallback(async (selected: ExecutiveTimeRange) => {
-    const { fromUtc, toUtc } = windowForExecutiveRange(selected);
+  const driftFromUtc = window.fromUtc ?? report?.fromUtc ?? "";
+  const reportToUtc = report?.toUtc ?? window.toUtc;
+  const reportFromUtc = report?.fromUtc ?? window.fromUtc ?? "";
 
-    setLoading(true);
+  const driftQuery = useComplianceDriftTrendRangeQuery(driftFromUtc, reportToUtc, {
+    enabled: report !== undefined,
+  });
+  const blockedQuery = useGovernancePrecommitBlockedCountQuery(reportFromUtc, reportToUtc, {
+    enabled: report !== undefined,
+  });
+  const roiQuery = useExecutiveRoiSummaryQuery({ enabled: roiSummary === undefined });
 
-    try {
-      const report = await fetchPilotValueReportJson(fromUtc, toUtc);
-      const driftFrom = fromUtc ?? report.fromUtc;
+  const loading =
+    reportQuery.isPending
+    || (report !== undefined && (driftQuery.isPending || blockedQuery.isPending))
+    || (roiSummary === undefined && roiQuery.isPending);
 
-      const [driftPoints, blocked, executiveSummary] = await Promise.all([
-        getComplianceDriftTrend(driftFrom, report.toUtc, 1440),
-        countAuditEventsInWindow({
-          eventType: "GovernancePreCommitBlocked",
-          fromUtcIso: report.fromUtc,
-          toUtcIso: report.toUtc,
-        }),
-        roiSummary !== undefined ? Promise.resolve(roiSummary) : fetchExecutiveRoiSummary(),
-      ]);
+  const narrative = useMemo((): string | null => {
+    if (reportQuery.isError) {
+      if (roiSummary != null) {
+        return buildFallbackNarrativeFromSummary(roiSummary);
+      }
 
-      const recommendedActions: ExecutiveScorecardRecommendedAction[] =
-        buildExecutiveScorecardRecommendedActions({
-          complianceDriftChangeCount: sumDriftChanges(driftPoints),
-          orphanCandidates: executiveSummary?.orphanCandidates,
-          committedRunsTimeline: report.committedRunsTimeline,
-        });
+      return null;
+    }
 
-      const hoursRoi = hoursSurfaced({
-        critical: report.findingsBySeverity.critical,
-        high: report.findingsBySeverity.high,
-        medium: report.findingsBySeverity.medium,
-        precommitBlocks: blocked.count,
+    if (report === undefined || driftQuery.data === undefined || blockedQuery.data === undefined) {
+      return null;
+    }
+
+    const executiveSummary = roiSummary !== undefined ? roiSummary : roiQuery.data ?? null;
+
+    const recommendedActions: ExecutiveScorecardRecommendedAction[] =
+      buildExecutiveScorecardRecommendedActions({
+        complianceDriftChangeCount: sumDriftChanges(driftQuery.data),
+        orphanCandidates: executiveSummary?.orphanCandidates,
+        committedRunsTimeline: report.committedRunsTimeline,
       });
 
-      const estimatedHours =
-        hoursRoi > 0 ? hoursRoi : report.totalRunsCommitted * AVERAGE_MANUAL_REVIEW_HOURS;
+    const hoursRoi = hoursSurfaced({
+      critical: report.findingsBySeverity.critical,
+      high: report.findingsBySeverity.high,
+      medium: report.findingsBySeverity.medium,
+      precommitBlocks: blockedQuery.data.count,
+    });
 
-      setNarrative(
-        buildExecutiveValueNarrative({
-          reviewsCount: report.totalRunsCommitted,
-          findingsCount: report.totalFindings,
-          estimatedHoursSaved: estimatedHours,
-          estimatedUsdSavings: executiveSummary?.totalEstimatedUsdSavings ?? null,
-          topRecommendedAction: recommendedActions[0] ?? null,
-          qualifyEstimatedHours: isBuyerPolishedOperatorShellEnv(),
-        }),
-      );
-    } catch {
-      if (roiSummary !== undefined && roiSummary !== null) {
-        setNarrative(buildFallbackNarrativeFromSummary(roiSummary));
-      } else {
-        setNarrative(null);
-      }
-    } finally {
-      setLoading(false);
-    }
-  }, [roiSummary]);
+    const estimatedHours =
+      hoursRoi > 0 ? hoursRoi : report.totalRunsCommitted * AVERAGE_MANUAL_REVIEW_HOURS;
 
-  useEffect(() => {
-    void load(timeRange);
-  }, [load, timeRange]);
+    return buildExecutiveValueNarrative({
+      reviewsCount: report.totalRunsCommitted,
+      findingsCount: report.totalFindings,
+      estimatedHoursSaved: estimatedHours,
+      estimatedUsdSavings: executiveSummary?.totalEstimatedUsdSavings ?? null,
+      topRecommendedAction: recommendedActions[0] ?? null,
+      qualifyEstimatedHours: isBuyerPolishedOperatorShellEnv(),
+    });
+  }, [
+    blockedQuery.data,
+    driftQuery.data,
+    report,
+    reportQuery.isError,
+    roiQuery.data,
+    roiSummary,
+  ]);
 
   const displayText =
     narrative ??

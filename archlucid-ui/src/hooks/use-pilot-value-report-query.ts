@@ -16,12 +16,14 @@ type UsePilotValueReportQueryOptions = {
 };
 
 export function usePilotValueReportQuery(
-  fromUtc: string,
+  fromUtc: string | null,
   toUtc: string,
   options?: UsePilotValueReportQueryOptions,
 ) {
+  const fromKey = fromUtc ?? "open";
+
   return useQuery<PilotValueReportJson>({
-    queryKey: operatorQueryKeys.pilotValueReport(fromUtc, toUtc),
+    queryKey: operatorQueryKeys.pilotValueReport(fromKey, toUtc),
     queryFn: () => fetchPilotValueReportJson(fromUtc, toUtc),
     enabled: options?.enabled ?? true,
     refetchInterval: options?.refetchIntervalMs ?? false,
