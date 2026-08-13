@@ -5,6 +5,10 @@ vi.mock("@/app/(operator)/help/HelpTopicHashScroll", () => ({
   HelpTopicHashScroll: () => null,
 }));
 
+vi.mock("@/app/(operator)/help/_sections/HelpConnectionStatusWorkspaceReadinessStrip", () => ({
+  HelpConnectionStatusWorkspaceReadinessStrip: () => null,
+}));
+
 import { HelpApiKeysGuideView } from "@/app/(operator)/help/_sections/HelpApiKeysGuideView";
 import { HelpAiUsageGuideView } from "@/app/(operator)/help/_sections/HelpAiUsageGuideView";
 import { HelpArchitectureDraftsGuideView } from "@/app/(operator)/help/_sections/HelpArchitectureDraftsGuideView";
@@ -73,6 +77,14 @@ describe("specialty help guides — operator surfaces batch", () => {
     render(<View entry={entry} />);
 
     expect(screen.getByTestId(testId)).toBeInTheDocument();
+
+    if (slug === "connection-status") {
+      expect(screen.getByTestId("help-connection-status-primary-cta")).toBeInTheDocument();
+      expect(screen.queryByRole("link", { name: "Help" })).toBeNull();
+
+      return;
+    }
+
     expect(screen.getByRole("link", { name: "Help" })).toHaveAttribute("href", "/help");
   });
 });

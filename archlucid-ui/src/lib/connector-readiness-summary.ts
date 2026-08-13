@@ -103,6 +103,15 @@ function recommendedSetupActionLabel(
   return "Configure notifications";
 }
 
+/** Labels on the live connection-status summary strip — keep help copy aligned via drift tests. */
+export const INTEGRATION_READINESS_SUMMARY_TILE_LABELS = [
+  "Integrations connected",
+  "Recommended setup remaining",
+  "Optional not configured",
+  "Disabled integrations",
+  "Background delivery",
+] as const;
+
 export function buildIntegrationReadinessSummaryTiles(
   data: TenantIntegrationsOperationsDto,
 ): readonly IntegrationReadinessSummaryTile[] {
@@ -130,31 +139,31 @@ export function buildIntegrationReadinessSummaryTiles(
   return [
     {
       id: "connected",
-      label: "Integrations connected",
+      label: INTEGRATION_READINESS_SUMMARY_TILE_LABELS[0],
       value: formatIntegrationsConnectedValue(readyConnectors, totalIntegrations),
       tone: readyConnectors > 0 ? "healthy" : "neutral",
     },
     {
       id: "recommended",
-      label: "Recommended setup remaining",
+      label: INTEGRATION_READINESS_SUMMARY_TILE_LABELS[1],
       value: String(recommendedRemaining),
       tone: recommendedRemaining > 0 ? "attention" : "healthy",
     },
     {
       id: "optional",
-      label: "Optional not configured",
+      label: INTEGRATION_READINESS_SUMMARY_TILE_LABELS[2],
       value: String(optionalNotConfigured),
       tone: "neutral",
     },
     {
       id: "disabled",
-      label: "Disabled integrations",
+      label: INTEGRATION_READINESS_SUMMARY_TILE_LABELS[3],
       value: String(disabledCount),
       tone: disabledCount > 0 ? "disabled" : "neutral",
     },
     {
       id: "background",
-      label: "Background delivery",
+      label: INTEGRATION_READINESS_SUMMARY_TILE_LABELS[4],
       value: backgroundStatus,
       tone: tileToneForBackground(backgroundStatus),
     },

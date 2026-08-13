@@ -1,15 +1,14 @@
 import Link from "next/link";
 
 import { HelpTopicHashScroll } from "@/app/(operator)/help/HelpTopicHashScroll";
+import { HelpConnectionStatusHeaderActions } from "@/app/(operator)/help/_sections/HelpConnectionStatusHeaderActions";
+import { HelpConnectionStatusWorkspaceReadinessStrip } from "@/app/(operator)/help/_sections/HelpConnectionStatusWorkspaceReadinessStrip";
 import { ConnectionStatusHelpEvidenceOrientationStrip } from "@/components/help/ConnectionStatusHelpEvidenceOrientationStrip";
 import { HelpTopicRegistryProvenanceLine } from "@/components/help/HelpTopicRegistryProvenanceLine";
 import { HelpTopicTableOfContents } from "@/components/help/HelpTopicTableOfContents";
 import { OperatorPageHeader } from "@/components/operator/OperatorPageHeader";
-import { Button } from "@/components/ui/button";
-import { Card, CardContent, CardHeader, CardTitle } from "@/components/ui/card";
-import { PageContextualHelpButton } from "@/components/usability/PageContextualHelpButton";
+import { StatusTag } from "@/components/ui/status-tag";
 import {
-  OPERATOR_CARD,
   OPERATOR_LAYOUT,
   OPERATOR_LINK,
   OPERATOR_SHELL_SCROLL_OFFSET_CLASS,
@@ -25,10 +24,13 @@ import {
   CONNECTION_STATUS_HELP_OVERVIEW,
   CONNECTION_STATUS_HELP_PAGE_SUBTITLE,
   CONNECTION_STATUS_HELP_PAGE_TITLE,
-  CONNECTION_STATUS_HELP_PRIMARY_ACTION,
-  CONNECTION_STATUS_HELP_TILE_ITEMS,
+  CONNECTION_STATUS_HELP_STATUS_LEGEND_HEADING,
+  CONNECTION_STATUS_HELP_STATUS_LEGEND_INTRO,
+  CONNECTION_STATUS_HELP_SURFACE_ITEMS,
 } from "@/lib/connection-status-help-guide-content";
 import { CONNECTION_STATUS_HELP_CANONICAL_PATH } from "@/lib/connection-status-help-evidence-copy";
+import { CONNECTION_STATUS_HELP_STATUS_LEGEND } from "@/lib/connection-status-help-status-legend";
+import { resolveConnectorDisplayStatusTag } from "@/lib/connector-operations-present";
 import { cn } from "@/lib/utils";
 
 type HelpConnectionStatusGuideViewProps = {
@@ -65,11 +67,11 @@ export function HelpConnectionStatusGuideView(props: HelpConnectionStatusGuideVi
         navHref={CONNECTION_STATUS_HELP_CANONICAL_PATH}
         headingLevel="h1"
         metadata={<HelpTopicRegistryProvenanceLine entry={entry} />}
-        actions={<PageContextualHelpButton />}
+        actions={<HelpConnectionStatusHeaderActions />}
       />
 
       <div className={contentGridClass}>
-        <div className={cn(HELP_PAGE_LAYOUT.contentColumn, "space-y-4")}>
+        <div className={cn(HELP_PAGE_LAYOUT.contentColumn, "max-w-[75ch] space-y-6 xl:max-w-none")}>
           <p
             className={cn("m-0 leading-relaxed", OPERATOR_TYPOGRAPHY.body)}
             data-testid="help-connection-status-overview"
@@ -77,18 +79,7 @@ export function HelpConnectionStatusGuideView(props: HelpConnectionStatusGuideVi
             {CONNECTION_STATUS_HELP_OVERVIEW}
           </p>
 
-          <Card className="border-neutral-200 dark:border-neutral-800" data-testid="help-connection-status-action-panel">
-            <CardHeader className={OPERATOR_CARD.header}>
-              <CardTitle className={cn("m-0", OPERATOR_TYPOGRAPHY.cardTitle)}>Open connection status</CardTitle>
-            </CardHeader>
-            <CardContent className={cn(OPERATOR_CARD.content, "flex flex-wrap items-center gap-2")}>
-              <Button asChild size="sm" variant="primary">
-                <Link href={CONNECTION_STATUS_HELP_PRIMARY_ACTION.href}>
-                  {CONNECTION_STATUS_HELP_PRIMARY_ACTION.label}
-                </Link>
-              </Button>
-            </CardContent>
-          </Card>
+          <HelpConnectionStatusWorkspaceReadinessStrip />
 
           <section
             aria-labelledby="what-connection-status-shows"
@@ -97,15 +88,50 @@ export function HelpConnectionStatusGuideView(props: HelpConnectionStatusGuideVi
             <HelpSectionHeading id="what-connection-status-shows">What connection status shows</HelpSectionHeading>
             <dl
               className={cn("m-0 grid gap-3 sm:grid-cols-2", OPERATOR_TYPOGRAPHY.body)}
-              data-testid="help-connection-status-tile-items"
+              data-testid="help-connection-status-surface-items"
             >
-              {CONNECTION_STATUS_HELP_TILE_ITEMS.map((item) => (
+              {CONNECTION_STATUS_HELP_SURFACE_ITEMS.map((item) => (
                 <div key={item.label}>
                   <dt className="font-medium text-al-text-primary">{item.label}</dt>
                   <dd className="m-0 mt-1 text-al-text-secondary">{item.detail}</dd>
                 </div>
               ))}
             </dl>
+          </section>
+
+          <section
+            aria-labelledby="connection-status-status-tags"
+            className="space-y-3 border-t border-neutral-200 pt-4 dark:border-neutral-800"
+          >
+            <HelpSectionHeading id="connection-status-status-tags">
+              {CONNECTION_STATUS_HELP_STATUS_LEGEND_HEADING}
+            </HelpSectionHeading>
+            <p className={cn("m-0", OPERATOR_TYPOGRAPHY.body)}>{CONNECTION_STATUS_HELP_STATUS_LEGEND_INTRO}</p>
+            <ul
+              className="m-0 list-none space-y-3 p-0"
+              data-testid="help-connection-status-status-legend"
+            >
+              {CONNECTION_STATUS_HELP_STATUS_LEGEND.map((row) => {
+                const tag = resolveConnectorDisplayStatusTag(row.status);
+
+                return (
+                  <li
+                    key={row.status}
+                    className="rounded-md border border-neutral-200 p-3 dark:border-neutral-800"
+                  >
+                    <div className="flex flex-wrap items-center gap-2">
+                      <StatusTag kind={tag.kind} label={tag.label} />
+                      <span className={cn("font-medium text-al-text-primary", OPERATOR_TYPOGRAPHY.body)}>
+                        {row.meaning}
+                      </span>
+                    </div>
+                    <p className={cn("m-0 mt-2 text-al-text-secondary", OPERATOR_TYPOGRAPHY.helper)}>
+                      Next: {row.nextAction}
+                    </p>
+                  </li>
+                );
+              })}
+            </ul>
           </section>
 
           <section
