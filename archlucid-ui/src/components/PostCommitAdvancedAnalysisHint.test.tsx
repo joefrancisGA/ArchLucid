@@ -1,6 +1,12 @@
 import { render, screen } from "@testing-library/react";
 import { afterEach, beforeEach, describe, expect, it, vi } from "vitest";
 
+import {
+  SHOWCASE_STATIC_DEMO_LATER_COMPARE_RUN_ID,
+  SHOWCASE_STATIC_DEMO_PRIOR_COMPARE_RUN_ID,
+  SHOWCASE_STATIC_DEMO_RUN_ID,
+} from "@/lib/showcase-static-demo";
+
 const BACKUP_ENV = process.env;
 
 vi.mock("@/components/BeforeAfterDelta/useDeltaQuery", () => ({
@@ -22,13 +28,13 @@ describe("PostCommitAdvancedAnalysisHint", () => {
 
     const { PostCommitAdvancedAnalysisHint: Hint } = await import("@/components/PostCommitAdvancedAnalysisHint");
 
-    render(<Hint runId="claims-intake-modernization" />);
+    render(<Hint runId={SHOWCASE_STATIC_DEMO_RUN_ID} />);
 
     const compareCta = screen.getByTestId("post-commit-compare-prior-cta");
 
     expect(compareCta).toHaveAttribute(
       "href",
-      "/insights/compare-two-reviews?priorRunId=claims-intake-run-v1&laterRunId=claims-intake-run-v2",
+      `/insights/compare-two-reviews?priorRunId=${SHOWCASE_STATIC_DEMO_PRIOR_COMPARE_RUN_ID}&laterRunId=${SHOWCASE_STATIC_DEMO_LATER_COMPARE_RUN_ID}`,
     );
     expect(compareCta).toHaveTextContent(/view review change comparison/i);
   });

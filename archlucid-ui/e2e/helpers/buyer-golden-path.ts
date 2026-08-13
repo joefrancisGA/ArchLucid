@@ -1,6 +1,8 @@
 import { expect, type Page } from "@playwright/test";
 
-import { SHOWCASE_BUYER_REVIEW_PACKAGE_TITLE } from "@/lib/showcase-static-demo";
+import {
+  SHOWCASE_BUYER_REVIEW_PACKAGE_TITLE,
+} from "@/lib/showcase-static-demo";
 
 import {
   SCREENSHOT_LEFT_RUN_ID,
@@ -44,7 +46,7 @@ export const BUYER_GOLDEN_PATH_HREFS = {
 } as const;
 
 /** Buyer audit page title when scoped to the showcase run (`AuditPageView`). */
-export const BUYER_SHOWCASE_AUDIT_TRAIL_HEADING = "Audit trail for Claims Intake Modernization";
+export const BUYER_SHOWCASE_AUDIT_TRAIL_HEADING = `Audit trail for ${SHOWCASE_BUYER_REVIEW_PACKAGE_TITLE}`;
 
 /** Review detail workspace H1 for showcase run (`deriveReviewHeaderPresentation` system name). */
 export const BUYER_SHOWCASE_EXECUTIVE_HEADLINE = SHOWCASE_BUYER_REVIEW_PACKAGE_TITLE;

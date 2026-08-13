@@ -14,6 +14,18 @@ vi.mock("@/components/operator/OperatorNavAuthorityProvider", () => ({
   useOperatorNavAuthority: () => ({
     callerAuthorityRank: navAuth.callerAuthorityRank,
     isAuthorityLoading: navAuth.isAuthorityLoading,
+    currentPrincipal: {
+      provenance: "auth-me",
+      name: "operator@test",
+      roleClaimValues: [],
+      primaryAppRole: null,
+      maxAuthority: "ReadAuthority",
+      authorityRank: navAuth.callerAuthorityRank,
+      hasEnterpriseOperatorSurfaces: false,
+      hasCommittedArchitectureReview: false,
+      hasRecognizedArchLucidRole: true,
+      permissionClaimValues: [],
+    },
   }),
 }));
 

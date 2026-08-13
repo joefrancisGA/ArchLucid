@@ -17,7 +17,10 @@ class TestTraceabilityBatch5CE(unittest.TestCase):
         analyzer = (
             REPO_ROOT / "ArchLucid.Decisioning" / "Findings" / "ExplainabilityTraceCompletenessAnalyzer.cs"
         )
-        instrumentation = REPO_ROOT / "ArchLucid.Core" / "Diagnostics" / "ArchLucidInstrumentation.cs"
+        instrumentation_root = REPO_ROOT / "ArchLucid.Core" / "Diagnostics" / "ArchLucidInstrumentation.cs"
+        instrumentation_runs = (
+            REPO_ROOT / "ArchLucid.Core" / "Diagnostics" / "ArchLucidInstrumentation.Runs.cs"
+        )
 
         orchestrator_text = orchestrator.read_text(encoding="utf-8")
         self.assertIn("FindingEngineFailure", orchestrator_text)
@@ -40,7 +43,9 @@ class TestTraceabilityBatch5CE(unittest.TestCase):
         self.assertIn("ListHasMeaningfulAlternativePaths", analyzer_text)
         self.assertIn("RuleBasedDeterministicSinglePathNote", analyzer_text)
 
-        instrumentation_text = instrumentation.read_text(encoding="utf-8")
+        instrumentation_text = instrumentation_root.read_text(encoding="utf-8") + instrumentation_runs.read_text(
+            encoding="utf-8"
+        )
         self.assertIn("archlucid_findings_engine_partial_failure_total", instrumentation_text)
 
 
