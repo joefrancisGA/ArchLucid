@@ -127,7 +127,7 @@ const srcRoot = resolve(__dirname, "..", "src");
 
 const CRITICAL_STATIC_DEMO_SOURCES = [
   "lib/showcase-static-demo.ts",
-  "lib/operator-static-demo.ts",
+  "lib/operator/operator-static-demo.ts",
   "lib/demo-run-canonical.ts",
   "lib/demo-audit-sample-events.ts",
   "lib/ask-static-demo-messages.ts",
@@ -150,7 +150,12 @@ if (allSourcesPresent) {
   // Quick string probes — no TypeScript execution needed
   const showcaseSrc = readFileSync(resolve(srcRoot, "lib/showcase-static-demo.ts"), "utf8");
 
-  if (showcaseSrc.includes("claims-intake-modernization")) {
+  if (
+    showcaseSrc.includes("CUSTOMER_INTAKE_SAMPLE_RUN_ID") ||
+    showcaseSrc.includes("customer-intake-modernization")
+  ) {
+    pass("SHOWCASE_STATIC_DEMO_RUN_ID aligns with customer-intake sample");
+  } else if (showcaseSrc.includes("claims-intake-modernization")) {
     pass('SHOWCASE_STATIC_DEMO_RUN_ID contains "claims-intake-modernization"');
   } else {
     fail("SHOWCASE_STATIC_DEMO_RUN_ID may have been renamed — verify showcase-static-demo.ts");
@@ -205,7 +210,7 @@ section("4. Buyer-polished guard coverage");
 
 const BUYER_GUARD_FILES = [
   "lib/demo-ui-env.ts",
-  "lib/buyer-safe-review-navigation.ts",
+  "lib/buyer/buyer-safe-review-navigation.ts",
   "components/HomeFirstRunWorkflowGate.tsx",
   "components/SampleFirstReviewPackageCard.tsx",
   "components/WelcomeBanner.tsx",

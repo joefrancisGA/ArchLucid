@@ -184,7 +184,7 @@ public sealed class SettingsController(
             },
             cancellationToken).ConfigureAwait(false);
 
-        return Ok(MapModelExecutionProfile(snapshot, DateTime.UtcNow, actor));
+        return Ok(await MapModelExecutionProfileAsync(snapshot, cancellationToken).ConfigureAwait(false));
     }
 
     /// <summary>Remove tenant override so the workspace default profile applies.</summary>
@@ -213,7 +213,7 @@ public sealed class SettingsController(
             },
             cancellationToken).ConfigureAwait(false);
 
-        return Ok(MapModelExecutionProfile(snapshot, DateTime.UtcNow, actor));
+        return Ok(await MapModelExecutionProfileAsync(snapshot, cancellationToken).ConfigureAwait(false));
     }
 
     /// <summary>Workspace model governance catalog: profile, alias registry, and profile→alias mappings (TB-871).</summary>
