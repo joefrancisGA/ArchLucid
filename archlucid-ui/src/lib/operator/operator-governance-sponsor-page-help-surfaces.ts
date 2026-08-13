@@ -60,7 +60,7 @@ export const OPERATOR_GOVERNANCE_SPONSOR_PAGE_HELP_TB1668_SURFACES: readonly Ope
       id: "governance-recurrence-schedules",
       pathname: "/governance/recurrence-schedules",
       modulePath: "components/governance/RecurrenceSchedulesClient.tsx",
-      notes: "Recurrence schedules — digests help topic.",
+      notes: "Recurrence schedules — recurrence-schedules help topic.",
     },
     {
       id: "governance-findings",

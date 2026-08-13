@@ -534,6 +534,16 @@ const PRODUCT_DOCUMENTATION_REGISTRY_INPUT: readonly ProductDocumentationRegistr
     releaseApplicability: "architecture digests orientation",
   },
   {
+    slug: "recurrence-schedules",
+    title: "Recurrence schedules",
+    summary: "Automate follow-up review cadences for governed architecture reviews.",
+    audience: "operator",
+    // App-rendered specialty (`HelpRecurrenceSchedulesGuideView`).
+    sourcePaths: [],
+    lastReviewed: "2026-08-12",
+    releaseApplicability: "governance recurrence schedule orientation",
+  },
+  {
     slug: "alerts",
     title: "Understanding governance alerts",
     summary:

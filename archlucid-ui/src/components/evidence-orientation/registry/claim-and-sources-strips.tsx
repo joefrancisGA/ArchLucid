@@ -35,6 +35,12 @@ import {
   DIGESTS_HELP_SOURCES_INTRO,
 } from "@/lib/digests-help-evidence-copy";
 import {
+  RECURRENCE_SCHEDULES_HELP_CLAIM_DISCIPLINE,
+  RECURRENCE_SCHEDULES_HELP_FOLLOW_UPS_TITLE,
+  RECURRENCE_SCHEDULES_HELP_SOURCES,
+  RECURRENCE_SCHEDULES_HELP_SOURCES_INTRO,
+} from "@/lib/recurrence-schedules-help-evidence-copy";
+import {
   ENTERPRISE_ONBOARDING_HELP_CLAIM_DISCIPLINE,
   ENTERPRISE_ONBOARDING_HELP_RELATED_PAGES_TITLE,
   ENTERPRISE_ONBOARDING_HELP_SOURCES,
@@ -157,6 +163,22 @@ export function DigestsHelpEvidenceOrientationStrip(): React.JSX.Element {
       sourcesTitle={DIGESTS_HELP_FOLLOW_UPS_TITLE}
       sourcesIntro={DIGESTS_HELP_SOURCES_INTRO}
       sources={DIGESTS_HELP_SOURCES}
+      sourcesStyle={EVIDENCE_SOURCES_STYLE.operatorRaised}
+      sourcesHeadingId="where-to-go-next"
+    />
+  );
+}
+
+export function RecurrenceSchedulesHelpEvidenceOrientationStrip(): React.JSX.Element {
+  return (
+    <EvidenceOrientationClaimAndSourcesStrip
+      slug="help-recurrence-schedules"
+      claim={RECURRENCE_SCHEDULES_HELP_CLAIM_DISCIPLINE}
+      claimStyle={EVIDENCE_CLAIM_STYLE.operatorNeutral}
+      claimElement="div"
+      sourcesTitle={RECURRENCE_SCHEDULES_HELP_FOLLOW_UPS_TITLE}
+      sourcesIntro={RECURRENCE_SCHEDULES_HELP_SOURCES_INTRO}
+      sources={RECURRENCE_SCHEDULES_HELP_SOURCES}
       sourcesStyle={EVIDENCE_SOURCES_STYLE.operatorRaised}
       sourcesHeadingId="where-to-go-next"
     />

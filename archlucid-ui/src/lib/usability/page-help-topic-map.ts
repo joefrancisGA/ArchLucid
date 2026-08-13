@@ -174,7 +174,7 @@ const PAGE_HELP_TOPICS: readonly { prefix: string; topic: PageHelpTopic }[] = [
   },
   {
     prefix: "/governance/recurrence-schedules",
-    topic: { slug: "digests", label: OPERATOR_NAV_LINK_LABELS.recurrenceSchedules },
+    topic: { slug: "recurrence-schedules", label: OPERATOR_NAV_LINK_LABELS.recurrenceSchedules },
   },
   {
     prefix: GOVERNANCE_EXCEPTIONS_PATH,
@@ -279,6 +279,10 @@ const PAGE_HELP_TOPICS: readonly { prefix: string; topic: PageHelpTopic }[] = [
   { prefix: "/digests", topic: { slug: "digests", label: "Architecture digests" } },
   { prefix: "/digest-subscriptions", topic: { slug: "digests", label: "Architecture digests" } },
   { prefix: "/help/digests", topic: { slug: "digests", label: "Architecture digests" } },
+  {
+    prefix: "/help/recurrence-schedules",
+    topic: { slug: "recurrence-schedules", label: OPERATOR_NAV_LINK_LABELS.recurrenceSchedules },
+  },
   {
     // Secondary hub — no planning specialty; omit Learn more (TB-2050).
     prefix: "/insights/improvement-planning",

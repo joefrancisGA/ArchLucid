@@ -55,6 +55,11 @@ const HelpAlertsGuideView = dynamic(() =>
 const HelpDigestsGuideView = dynamic(() =>
   import("../_sections/HelpDigestsGuideView").then((module) => module.HelpDigestsGuideView),
 );
+const HelpRecurrenceSchedulesGuideView = dynamic(() =>
+  import("../_sections/HelpRecurrenceSchedulesGuideView").then(
+    (module) => module.HelpRecurrenceSchedulesGuideView,
+  ),
+);
 const HelpAdminDiagnosticsGuideView = dynamic(() =>
   import("../_sections/HelpAdminDiagnosticsGuideView").then((module) => module.HelpAdminDiagnosticsGuideView),
 );
@@ -257,6 +262,10 @@ function renderHelpTopicView(
 
   if (loaded.entry.slug === "digests") {
     return <HelpDigestsGuideView entry={loaded.entry} />;
+  }
+
+  if (loaded.entry.slug === "recurrence-schedules") {
+    return <HelpRecurrenceSchedulesGuideView entry={loaded.entry} />;
   }
 
   if (loaded.entry.slug === "billing-and-plans") {

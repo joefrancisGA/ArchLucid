@@ -29,6 +29,9 @@ describe("usability lib", () => {
     expect(pageHelpTopicForPathname("/digests")?.slug).toBe("digests");
     expect(pageHelpTopicForPathname("/digest-subscriptions")?.slug).toBe("digests");
     expect(pageHelpTopicForPathname("/help/digests")?.slug).toBe("digests");
+    expect(pageHelpTopicForPathname("/governance/recurrence-schedules")?.slug).toBe("recurrence-schedules");
+    expect(pageHelpTopicForPathname("/governance/recurrence-schedules")?.label).toBe("Recurrence schedules");
+    expect(pageHelpTopicForPathname("/help/recurrence-schedules")?.slug).toBe("recurrence-schedules");
     expect(pageHelpTopicForPathname("/insights/improvement-planning")?.slug).toBeUndefined();
     expect(pageHelpTopicForPathname("/insights/improvement-planning")?.label).toBe("Improvement planning");
     expect(pageHelpTopicForPathname("/administration/billing")?.slug).toBe("billing-and-plans");
