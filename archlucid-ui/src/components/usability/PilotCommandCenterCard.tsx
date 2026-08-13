@@ -9,7 +9,7 @@ import { useCorePilotCommitContextQuery } from "@/hooks/use-core-pilot-commit-co
 
 import { useNavCommittedArchitectureReview } from "@/components/operator/OperatorNavAuthorityProvider";
 import { OperatorHomeCardSectionTitle } from "@/components/operator-home/OperatorHomeCardSectionTitle";
-import { OperatorHomeDoThisNextCard } from "@/components/operator-home/OperatorHomeDoThisNextCard";
+import { OperatorHomeCanonicalNextActionSlot } from "@/components/operator-home/OperatorHomeCanonicalNextActionSlot";
 import { GoldenSponsorPackageWalkthroughPanel } from "@/components/golden-walkthrough/GoldenSponsorPackageWalkthroughPanel";
 import { InviteeFirstOrientationPanel } from "@/components/operator/InviteeFirstOrientationPanel";
 import { OperatorHomeDualPathCards } from "@/components/operator-home/OperatorHomeDualPathCards";
@@ -19,6 +19,7 @@ import { Button } from "@/components/ui/button";
 import { FirstPilotOperateUnlockVocabularyRail } from "@/components/FirstPilotOperateUnlockVocabularyRail";
 import { PageContextualHelpButton } from "@/components/usability/PageContextualHelpButton";
 import type { OperatorHomeRunsDashboardModel } from "@/app/(operator)/_sections/operator-home-runs-dashboard-model";
+import { useOperatorHomeEmptyDoThisNextAction } from "@/hooks/use-operator-home-empty-do-this-next-action";
 import {
   OPERATOR_HOME_COMMAND_CENTER_TAGLINE,
   OPERATOR_HOME_RESUME_LATEST_DRAFT_CTA,
@@ -29,6 +30,10 @@ import {
   OPERATOR_SURFACE_CARD_CLASS,
   OPERATOR_TYPE_SCALE,
 } from "@/lib/design-tokens";
+import {
+  toOperatorCanonicalNextActionFromEmptyHome,
+  toOperatorCanonicalNextActionFromPilot,
+} from "@/lib/operator-canonical-next-action";
 import { resolvePilotNextBestAction, type PilotNextBestAction } from "@/lib/resolve-pilot-next-best-action";
 import { resolveLiveRunsDashboardModel } from "@/lib/operator/operator-home-live-runs-dashboard";
 import { deriveOperatorHomeWorkspaceMetrics } from "@/lib/operator/operator-home-workspace-metrics";
@@ -109,6 +114,7 @@ export function PilotCommandCenterCard(props: PilotCommandCenterCardProps = {}):
   const hasWorkspaceReviews =
     (useSsrSeedCounts && props.hasWorkspaceReviews === true) || workspaceActivity.hasWorkspaceReviews;
   const commitQuery = useCorePilotCommitContextQuery();
+  const emptyNext = useOperatorHomeEmptyDoThisNextAction();
 
   const phaseSignals = useMemo(
     () => ({
@@ -218,7 +224,13 @@ export function PilotCommandCenterCard(props: PilotCommandCenterCardProps = {}):
           ) : (
             <GoldenSponsorPackageWalkthroughPanel />
           )}
-          <OperatorHomeDoThisNextCard />
+          <OperatorHomeCanonicalNextActionSlot
+            clientFallback={toOperatorCanonicalNextActionFromEmptyHome(emptyNext.action)}
+            sampleLoading={emptyNext.sampleLoading}
+            slotTestId="operator-home-do-this-next"
+            bridgeTestId="operator-home-do-this-next-bridge"
+            primaryTestId="operator-home-do-this-next-primary"
+          />
         </div>
       ) : null}
 
@@ -253,19 +265,11 @@ export function PilotCommandCenterCard(props: PilotCommandCenterCardProps = {}):
       ) : null}
 
       {workspacePhase === "operational" ? (
-        <div className={cn("flex flex-col gap-3 sm:flex-row sm:items-center sm:justify-between", OPERATOR_LAYOUT.inlineGap)}>
-          <p
-            className={cn("m-0", OPERATOR_TYPE_SCALE.helper, "text-al-text-secondary")}
-            data-testid="pilot-command-center-lead"
-          >
-            {nextAction.bridgeCopy}
-          </p>
-          <Button asChild variant="primary" size="sm" className={cn(heroCtaButtonClass, "shrink-0")}>
-            <Link href={nextAction.href} data-testid="pilot-next-best-action">
-              {nextAction.label}
-            </Link>
-          </Button>
-        </div>
+        <OperatorHomeCanonicalNextActionSlot
+          clientFallback={toOperatorCanonicalNextActionFromPilot(nextAction)}
+          bridgeTestId="pilot-command-center-lead"
+          primaryTestId="pilot-next-best-action"
+        />
       ) : null}
     </section>
   );
