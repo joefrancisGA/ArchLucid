@@ -27,7 +27,7 @@ describe("operator-side-rail-inventory (TB-1575)", () => {
   it("keeps allowlisted exemplars on named kinds only", () => {
     const allowed = listOperatorSideRailAllowedEntries();
 
-    expect(allowed.length).toBeGreaterThanOrEqual(5);
+    expect(allowed.length).toBeGreaterThanOrEqual(4);
 
     for (const entry of allowed) {
       expect(entry.kind).not.toBe("none");
@@ -39,7 +39,6 @@ describe("operator-side-rail-inventory (TB-1575)", () => {
     expect(ids).toContain("digests-schedule");
     expect(ids).toContain("run-detail-workspace");
     expect(ids).toContain("help-topic-toc");
-    expect(ids).toContain("quick-review-wizard");
   });
 
   it("demotes Teams/Slack and peer integration about-asides to single-column", () => {

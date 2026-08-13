@@ -383,13 +383,13 @@ describe("ServiceNowIntegrationPageClient", () => {
     expect(within(screen.getByTestId("servicenow-latest-test")).getByText(/403 forbidden/i)).toBeInTheDocument();
   });
 
-  it("uses two-column layout with sticky setup aside at lg", async () => {
+  it("stacks setup guidance below the connect form (TB-1575 / TB-1576 demoted single-column)", async () => {
     render(<ServiceNowIntegrationPageClient />);
     await screen.findByTestId("integrations-servicenow-page");
 
     const layout = screen.getByTestId("servicenow-page-layout");
-    expect(layout.className).toContain("lg:grid-cols-[minmax(0,1fr)_17.5rem]");
-    expect(screen.getByTestId("servicenow-integration-aside").className).toContain("lg:sticky");
+    expect(layout.className).not.toContain("lg:grid-cols-[minmax(0,1fr)_17.5rem]");
+    expect(screen.getByTestId("servicenow-integration-aside").className).not.toContain("lg:sticky");
     expect(screen.getByTestId("servicenow-setup-progress")).toBeInTheDocument();
   });
 

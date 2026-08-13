@@ -376,11 +376,11 @@ export function ServiceNowIntegrationPageClient(): React.ReactElement {
         <OperatorLoadingNotice>{SERVICENOW_LOADING_MESSAGE}</OperatorLoadingNotice>
       ) : (
         <div
-          className={cn(OPERATOR_LAYOUT.mainWithStickyAside)}
+          className={cn("min-w-0", OPERATOR_LAYOUT.sectionStack)}
           data-testid="servicenow-page-layout"
           data-operator-side-rail-kind="none"
         >
-          <div className={cn("min-w-0", OPERATOR_LAYOUT.sectionStack)} data-testid="servicenow-page-main">
+          <div className="min-w-0 space-y-4" data-testid="servicenow-page-main">
             {loadError !== null ? (
               <p
                 className={cn(
@@ -539,7 +539,6 @@ export function ServiceNowIntegrationPageClient(): React.ReactElement {
           </div>
 
           <ServiceNowIntegrationAside
-            className={OPERATOR_LAYOUT.stickyAsideTop}
             status={connectionStatus}
             setupSteps={setupSteps}
             emphasizedSetupStepId={pageComposition.emphasizedSetupStepId}

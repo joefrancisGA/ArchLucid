@@ -104,14 +104,6 @@ export const OPERATOR_SIDE_RAIL_INVENTORY: readonly OperatorSideRailInventoryEnt
     notes: "Sticky package / selection chrome when `rail` is mounted.",
   },
   {
-    id: "quick-review-wizard",
-    pathOrSurface: "/architecture/reviews/new (quick-review)",
-    kind: "toc-wizard",
-    disposition: "allowed",
-    markerTestId: "quick-review-wizard-side-rail",
-    notes: "Wizard package preview progress rail.",
-  },
-  {
     id: "help-topic-toc",
     pathOrSurface: "/help/{topic}",
     kind: "toc-wizard",

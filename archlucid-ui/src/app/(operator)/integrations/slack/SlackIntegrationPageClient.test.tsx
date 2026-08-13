@@ -95,13 +95,13 @@ describe("SlackIntegrationPageClient", () => {
     expect(screen.queryByTestId("teams-slack-notification-vocabulary")).not.toBeInTheDocument();
   });
 
-  it("uses two-column layout with sticky setup aside at lg", async () => {
+  it("stacks setup guidance below the connect form (TB-1575 / TB-1576 demoted single-column)", async () => {
     render(<SlackIntegrationPageClient />);
     await screen.findByTestId("integrations-slack-page");
 
     const layout = screen.getByTestId("slack-page-layout");
-    expect(layout.className).toContain("lg:grid-cols-[minmax(0,1fr)_17.5rem]");
-    expect(screen.getByTestId("slack-integration-aside").className).toContain("lg:sticky");
+    expect(layout.className).not.toContain("lg:grid-cols-[minmax(0,1fr)_17.5rem]");
+    expect(screen.getByTestId("slack-integration-aside").className).not.toContain("lg:sticky");
     expect(screen.getByTestId("slack-setup-progress")).toBeInTheDocument();
     expect(screen.queryByRole("button", { name: /^Security$/i })).not.toBeInTheDocument();
   });

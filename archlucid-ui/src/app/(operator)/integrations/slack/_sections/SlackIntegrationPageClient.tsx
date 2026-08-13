@@ -301,11 +301,11 @@ export function SlackIntegrationPageClient(): React.ReactElement {
 
       <FormProvider {...form}>
         <div
-          className={cn(OPERATOR_LAYOUT.mainWithStickyAside)}
+          className={cn("min-w-0", OPERATOR_LAYOUT.sectionStack, !canMutate && "opacity-95")}
           data-testid="slack-page-layout"
           data-operator-side-rail-kind="none"
         >
-          <div className={cn("min-w-0", OPERATOR_LAYOUT.sectionStack, !canMutate && "opacity-95")} data-testid="slack-page-main">
+          <div className="min-w-0 space-y-4" data-testid="slack-page-main">
             <SlackDestinationForm
               onClearFormTestFeedback={() => setFormTestFeedback(null)}
               canMutate={canMutate}
@@ -331,7 +331,6 @@ export function SlackIntegrationPageClient(): React.ReactElement {
           </div>
 
           <SlackIntegrationAside
-            className={OPERATOR_LAYOUT.stickyAsideTop}
             loading={loading}
             activeDestinationCount={activeDestinationCount}
             setupSteps={setupSteps}
