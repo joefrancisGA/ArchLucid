@@ -1318,9 +1318,9 @@ All **P0** **V1**: visible-boundary button contract + design-system rule (**TB-2
 | TB-2225 | Simulator ↔ Real structural eval corpus per agent; see ## TB-2225 below | Testability P2 — **V1**; non-policy-pack assessment wave 2026-08-13; prompt regression guard | M |
 | TB-2226 | Fail-closed quality gate on Real commit-eligible runs; see ## TB-2226 below | Trustworthiness P0 — **V1**; non-policy-pack assessment wave 2026-08-13; implements **TB-1197** enforcement path | M |
 | TB-2227 | Finding-level provenance required at commit; see ## TB-2227 below | Trustworthiness P0 — **V1**; non-policy-pack assessment wave 2026-08-13; **TB-1221** class implementation | M |
-| TB-2228 | Category-aware insight density suppression; see ## TB-2228 below | AI/Agent readiness P1 — **V1**; non-policy-pack assessment wave 2026-08-13; never suppress typed engines | S |
-| TB-2229 | Feasibility verdict driven by finding severities; see ## TB-2229 below | Correctness P1 — **V1**; non-policy-pack assessment wave 2026-08-13; ADR 0050 outcome linkage | M |
-| TB-2230 | Operator-visible quality-gate reject reasons on run detail; see ## TB-2230 below | Explainability P1 — **V1**; non-policy-pack assessment wave 2026-08-13; faithfulness vs structural vs semantic | S |
+| TB-2228 | **Done** (2026-08-13) — Category-aware insight density suppression; typed engines never demoted; see ## TB-2228 below | AI/Agent readiness P1 — **V1**; non-policy-pack assessment wave 2026-08-13; never suppress typed engines | S |
+| TB-2229 | **Done** (2026-08-13) — Feasibility verdict driven by finding severities; see ## TB-2229 below | Correctness P1 — **V1**; non-policy-pack assessment wave 2026-08-13; ADR 0050 outcome linkage | M |
+| TB-2230 | **Done** (2026-08-13) — Operator-visible quality-gate reject reasons on run detail; see ## TB-2230 below | Explainability P1 — **V1**; non-policy-pack assessment wave 2026-08-13; faithfulness vs structural vs semantic | S |
 | TB-2231 | Live golden-cohort canary with drift alert; see ## TB-2231 below | Testability P2 — **V1**; non-policy-pack assessment wave 2026-08-13; **TB-1506**/**TB-1507** live gap | L |
 | TB-932 | **Done** (2026-08-09) ? **Won't do** ? Offload large JSON payloads to blob storage; DEV LOB evidence max ~30 KB / 0% ?1 MB; see ## TB-932 below | Performance P0 ? **V1** (promoted P0 + V1 2026-08-08 with perf wave 5; evidence-gated; was P3 V2); after **TB-929**?**TB-931**; peers **TB-2119** | L |
 | TB-2103 | Operator-maintained model catalog ? DDL-backed `IAgentModelAliasRegistry` replacing `ConfigAgentModelAliasRegistry`; internal-only admin surface; lifecycle + audit on every mutation; see ## TB-2103 below | Maintainability P1 ? **V1.1**; ADR 0065 D2?; today curation needs a code change + deploy | L |
@@ -1485,7 +1485,7 @@ All **P0** **V1**: visible-boundary button contract + design-system rule (**TB-2
 | TB-1414 | ~~Specialty help chrome contract (shared root for ?~50 HelpTopicMarkdownView surfaces)~~ **Done** 2026-08-13 ? `SPECIALTY_HELP_CHROME_CONTRACT.md` + Vitest inventory; see `## TB-1414` below | Adoption friction P1 ? **V1**; PA owner scoreboard ?~50; GTM **M-251**/**M-252**; orchestrates help clusters below ~50 | M |
 | TB-1445 | **Done** (2026-08-11) ? Legacy `/alert-routing` ? canonicalize docs/help/nav/comments to alert-rules Notifications tab; see ## TB-1445 below | Trustworthiness P1 ? **V1**; with **TB-1441**; pairs **TB-1408** | S |
 | TB-1599 | **Done** (2026-08-12) ? Help catch-all ? unknown slug ? HelpTopicNotFoundView (not bare notFound); Vitest; see ## TB-1599 below | Adoption friction P1 ? **V1**; owner review ~49/100 2026-07-27; traffic **HE.**; pairs **TB-1414** | S |
-| TB-1604 | `/help/accelerator-chooser` specialty starter-pack companion + Start CTAs; see ## TB-1604 below | Adoption friction P1 ? **V1**; owner review ~42/100 2026-07-27; traffic **HAX**; after Done **TB-170**; pairs **TB-1414** | S |
+| TB-1604 | **Done** (2026-08-13) — `/help/accelerator-chooser` specialty starter-pack companion + Start CTAs; see ## TB-1604 below | Adoption friction P1 ? **V1**; owner review ~42/100 2026-07-27; traffic **HAX**; after Done **TB-170**; pairs **TB-1414** | S |
 | TB-1605 | Accelerator chooser help ? title/tier honesty (not eng ?Accelerator?); see ## TB-1605 below | Trustworthiness P1 ? **V1**; with **TB-1604**; pairs **TB-1397** | S |
 | TB-1607 | Accelerator chooser help ? single SoT with `ACCELERATOR_CHOOSER_ENTRIES`; see ## TB-1607 below | Adoption friction P1 ? **V1**; with **TB-1604** | S |
 | TB-1609 | `/help/admin-diagnostics` specialty platform-health companion + Open `/health` CTA; see ## TB-1609 below | Adoption friction P1 ? **V1**; owner review ~48/100 2026-07-27; traffic **HAE**; pairs **TB-1414** | S |
@@ -40336,13 +40336,13 @@ Operators must read three intros before reaching the Trust Center link list.
 
 ## TB-1604 ? `/help/accelerator-chooser` specialty starter-pack companion + Start CTAs (P0)
 
-**Window:** V1 ? Adoption friction. **Status:** Not started. **Priority:** P0.
+**Window:** V1 ? Adoption friction. **Status:** **Done** 2026-08-13. **Priority:** P0.
 
 **Source:** Owner HAX ~42/100 2026-07-27.
 
 **Problem:** Catch-all falls through to bare `HelpTopicMarkdownView` (Print/PDF, no primary Start) while home already ships interactive pack rows.
 
-**Approach:** Specialty view reusing `ACCELERATOR_CHOOSER_ENTRIES` / card DNA; one primary Start locus per row + core-pilot CTA. Wire `[...topic]` dispatch. Vitest: Start href present; not bare markdown-only.
+**Shipped:** `HelpAcceleratorChooserGuideView` + `[...topic]` dispatch for `accelerator-chooser`; pack cards reuse `ACCELERATOR_CHOOSER_ENTRIES` with `AcceleratorPackStartCta`; Vitest guards Start hrefs and banned contributor copy.
 
 **Acceptance:** Help page is an actionable chooser, not a doc dump. **Size estimate:** S.
 

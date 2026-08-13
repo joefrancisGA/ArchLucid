@@ -74,6 +74,46 @@ public sealed class AuthorityFeasibilityVerdictComposerTests
     }
 
     [Fact]
+    public void Compose_BlockingAcceptedFindingSeverities_ReturnsSoftInfeasible()
+    {
+        ManifestDocument manifest = CreateBaseManifest();
+        manifest.Metadata.Status = "Resolved";
+
+        FindingsSnapshot findingsSnapshot = new()
+        {
+            FindingsSnapshotId = Guid.NewGuid(),
+            RunId = manifest.RunId,
+            ContextSnapshotId = manifest.ContextSnapshotId,
+            GraphSnapshotId = manifest.GraphSnapshotId,
+            CreatedUtc = DateTime.UtcNow,
+            Findings =
+            [
+                new ArchLucid.Contracts.Findings.Finding
+                {
+                    FindingId = "blocking-1",
+                    FindingType = "TopologyGap",
+                    Category = "Topology",
+                    EngineType = "topology-structure",
+                    Severity = ArchLucid.Contracts.Findings.FindingSeverity.Error,
+                    Title = "Missing private endpoint",
+                    Rationale = "Storage account is public.",
+                    Treatment = ArchLucid.Contracts.Findings.FindingTreatment.Promote,
+                },
+            ],
+        };
+
+        FeasibilityVerdict verdict = _composer.Compose(
+            manifest,
+            intakeTransparencyTrail: null,
+            findingsSnapshot,
+            ["blocking-1"]);
+
+        verdict.Kind.Should().Be(FeasibilityVerdictKind.SoftInfeasible);
+        verdict.Summary.Should().Contain("blocking");
+        verdict.TransparencyTrail.Inferred.Should().NotBeEmpty();
+    }
+
+    [Fact]
     public void Compose_MergesIntakeAssertedEntriesIntoTrail()
     {
         ManifestDocument manifest = CreateBaseManifest();

@@ -1,4 +1,5 @@
 import { buyerLabelForAgentType } from "@/lib/agent-type-buyer-label";
+import { plainLanguageRejectCategoryLabel } from "@/lib/execution-vs-quality-outcome-copy";
 import type {
   AgentExecutionTraceRow,
   AgentOutputEvaluationSummaryPayload,
@@ -20,6 +21,9 @@ export type AgentQualityConcernRow = {
   status: AgentQualityConcernStatus;
   structuralCompletenessRatio: number;
   semanticScore: number | null;
+  faithfulnessScore: number | null;
+  rejectReasonCategory: string | null;
+  rejectReasonLabel: string | null;
   breachedThresholds: string[];
 };
 
@@ -76,7 +80,9 @@ export function buildAgentQualityConcernRows(
 
     const structural = score.structuralCompletenessRatio;
     const semantic = score.semantic?.overallSemanticScore ?? null;
+    const faithfulness = score.semantic?.agentResultFaithfulnessSupportRatio ?? null;
     const status: AgentQualityConcernStatus = rejected ? "rejected" : "warned";
+    const rejectReasonCategory = score.recordedRejectReasonCategory ?? null;
 
     rows.push({
       traceId: score.traceId,
@@ -85,6 +91,12 @@ export function buildAgentQualityConcernRows(
       status,
       structuralCompletenessRatio: structural,
       semanticScore: semantic,
+      faithfulnessScore:
+        faithfulness === null || faithfulness === undefined || Number.isNaN(Number(faithfulness))
+          ? null
+          : Number(faithfulness),
+      rejectReasonCategory,
+      rejectReasonLabel: plainLanguageRejectCategoryLabel(rejectReasonCategory),
       breachedThresholds: resolveBreachedThresholds(structural, semantic, status),
     });
   }

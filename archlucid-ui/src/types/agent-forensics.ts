@@ -68,6 +68,8 @@ export type AgentOutputEvaluationScoreRow = {
   semantic?: AgentOutputSemanticScoreRow | null;
   blobUploadFailed?: boolean | null;
   qualityWarning?: boolean;
+  /** Persisted reject reason category from evaluate-time gate (structural | semantic | faithfulness). */
+  recordedRejectReasonCategory?: string | null;
 };
 
 /** Summary from `GET /v1/architecture/review/{runId}/agent-evaluation`. */

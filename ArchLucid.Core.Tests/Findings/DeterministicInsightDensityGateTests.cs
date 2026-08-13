@@ -14,13 +14,50 @@ public sealed class DeterministicInsightDensityGateTests
         new DeterministicInsightDensityGate(Options.Create(new InsightDensityGateOptions()));
 
     [Fact]
+    public void Score_never_demotes_typed_finding_engine_outputs()
+    {
+        InsightDensityGateCandidate candidate = new(
+            "engine-f1",
+            "Enable MFA for all user accounts.",
+            ["critic-checklist"],
+            FindingSeverity.Warning,
+            category: "Security",
+            isAgentArchitectureFinding: false);
+
+        InsightDensityGateResult result = Gate.Score(candidate, [candidate]);
+
+        result.Treatment.Should().Be(FindingTreatment.Promote);
+        result.Classification.Should().Be(FindingClassification.DecisionGradeFinding);
+        result.PenaltyReasons.Should().Contain("typed-engine-protected");
+    }
+
+    [Fact]
+    public void Score_protects_substantive_agent_categories_from_demotion()
+    {
+        InsightDensityGateCandidate candidate = new(
+            "agent-f1",
+            "Use HTTPS for all public endpoints.",
+            ["request"],
+            FindingSeverity.Info,
+            category: "Security",
+            isAgentArchitectureFinding: true);
+
+        InsightDensityGateResult result = Gate.Score(candidate, [candidate]);
+
+        result.Treatment.Should().Be(FindingTreatment.Promote);
+        result.PenaltyReasons.Should().Contain("category-protected");
+    }
+
+    [Fact]
     public void Score_demotes_generic_advice_without_anchor_or_concrete_evidence()
     {
         InsightDensityGateCandidate candidate = new(
             "f1",
             "Enable MFA for all user accounts.",
             ["critic-checklist"],
-            FindingSeverity.Warning);
+            FindingSeverity.Warning,
+            category: "Insight",
+            isAgentArchitectureFinding: true);
 
         InsightDensityGateResult result = Gate.Score(candidate, [candidate]);
 
@@ -82,7 +119,9 @@ public sealed class DeterministicInsightDensityGateTests
             "f3",
             "Use HTTPS for all public endpoints.",
             ["request"],
-            FindingSeverity.Info);
+            FindingSeverity.Info,
+            category: "Insight",
+            isAgentArchitectureFinding: true);
 
         InsightDensityGateResult result = strictGate.Score(candidate, [candidate]);
 

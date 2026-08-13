@@ -106,6 +106,8 @@ export function RunAgentQualityWarningsPanel(props: RunAgentQualityWarningsPanel
                 <EnterpriseTableHeaderCell>Status</EnterpriseTableHeaderCell>
                 <EnterpriseTableHeaderCell>Structural</EnterpriseTableHeaderCell>
                 <EnterpriseTableHeaderCell>Semantic</EnterpriseTableHeaderCell>
+                <EnterpriseTableHeaderCell>Grounding</EnterpriseTableHeaderCell>
+                <EnterpriseTableHeaderCell className="min-w-[12rem]">Reject reason</EnterpriseTableHeaderCell>
                 <EnterpriseTableHeaderCell className="min-w-[12rem]">Threshold notes</EnterpriseTableHeaderCell>
               </EnterpriseTableHeadRow>
             </EnterpriseTableHead>
@@ -125,6 +127,12 @@ export function RunAgentQualityWarningsPanel(props: RunAgentQualityWarningsPanel
                   </EnterpriseTableCell>
                   <EnterpriseTableCell className={cn("font-mono", OPERATOR_TYPOGRAPHY.helper)}>
                     {row.semanticScore === null ? "—" : row.semanticScore.toFixed(2)}
+                  </EnterpriseTableCell>
+                  <EnterpriseTableCell className={cn("font-mono", OPERATOR_TYPOGRAPHY.helper)}>
+                    {row.faithfulnessScore === null ? "—" : row.faithfulnessScore.toFixed(2)}
+                  </EnterpriseTableCell>
+                  <EnterpriseTableCell className={cn("text-neutral-600 dark:text-neutral-400", OPERATOR_TYPOGRAPHY.helper)}>
+                    {row.rejectReasonLabel ?? "—"}
                   </EnterpriseTableCell>
                   <EnterpriseTableCell className={cn("text-neutral-600 dark:text-neutral-400", OPERATOR_TYPOGRAPHY.helper)}>
                     {row.breachedThresholds.join(" · ")}
