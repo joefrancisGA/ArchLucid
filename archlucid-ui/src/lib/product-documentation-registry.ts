@@ -5,6 +5,7 @@
 import { CUSTOMER_GLOSSARY_CONTRACT_VERSION } from "@/lib/customer-glossary-manifest";
 import { ENTERPRISE_ONBOARDING_HELP_PAGE_TITLE } from "@/lib/enterprise-onboarding-help-copy";
 import { FIRST_ARCHITECTURE_REVIEW_PAGE_TITLE } from "@/lib/first-architecture-review-help-copy";
+import { REVIEW_PACKAGES_HELP_PAGE_TITLE } from "@/lib/review-packages-help-page-copy";
 import {
   resolveProductDocumentationContentKind,
   type ProductDocumentationContentKind,
@@ -141,7 +142,7 @@ const PRODUCT_DOCUMENTATION_REGISTRY_INPUT: readonly ProductDocumentationRegistr
   },
   {
     slug: "review-packages",
-    title: "Architecture packages",
+    title: REVIEW_PACKAGES_HELP_PAGE_TITLE,
     summary:
       "Find architecture packages in Reviews, inspect findings and evidence, and export sponsor-ready artifacts.",
     audience: "operator",

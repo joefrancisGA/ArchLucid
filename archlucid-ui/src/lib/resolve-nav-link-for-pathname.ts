@@ -11,7 +11,11 @@ function hrefToPathname(href: string): string {
   }
 }
 
-function pathMatchesNavHref(pathname: string, linkHref: string): boolean {
+function pathMatchesNavHref(pathname: string, linkHref: string | undefined): boolean {
+  if (linkHref === undefined || linkHref === "") {
+    return false;
+  }
+
   const linkPath = hrefToPathname(linkHref);
 
   if (linkPath === "/") {

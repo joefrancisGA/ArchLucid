@@ -26,6 +26,7 @@ import { CONNECTION_STATUS_HELP_TOPIC_LABEL } from "@/lib/connection-status-evid
 import { PILOT_OUTCOMES_HELP_TOPIC_LABEL } from "@/lib/pilot-outcomes-evidence-copy";
 import { RECURRENCE_SCHEDULES_HOW_IT_WORKS_TITLE } from "@/lib/recurrence-schedules-copy";
 import { REPEAT_REVIEW_LOOP_HELP_INBOUND_LABEL } from "@/lib/repeat-review-loop-help-title-honesty-surfaces";
+import { REVIEW_PACKAGES_HELP_INBOUND_LABEL } from "@/lib/review-packages-help-title-honesty-surfaces";
 import { STANDARDS_RULES_HELP_TOPIC_LABEL } from "@/lib/standards-rules-page";
 import { SIGNED_RECORDS_LIST_PATH } from "@/lib/signed-records-paths";
 
@@ -151,7 +152,7 @@ const PAGE_HELP_TOPICS: readonly { prefix: string; topic: PageHelpTopic }[] = [
   },
   { prefix: "/architectures", topic: { slug: "getting-started", label: ARCHITECTURE_DRAFTS_LIST_LABEL } },
   { prefix: "/architecture/reviews/new", topic: { slug: "evidence-intake", label: START_REVIEW_LABEL } },
-  { prefix: "/architecture/reviews", topic: { slug: "review-packages", label: "Reviews" } },
+  { prefix: "/architecture/reviews", topic: { slug: "review-packages", label: REVIEW_PACKAGES_HELP_INBOUND_LABEL } },
   {
     prefix: SIGNED_RECORDS_LIST_PATH,
     topic: { slug: "review-packages", label: "Signed review records" },

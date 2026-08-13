@@ -1,11 +1,11 @@
 import { stripMarkdownSectionsByTitlePrefix } from "@/lib/help-markdown/section-strips";
 import { inAppHelpHref } from "@/lib/product-documentation-registry";
 
-/** Page title for the Reviews hub companion — artifact noun in body is architecture package. */
-export const REVIEW_PACKAGES_HELP_PAGE_TITLE = "Architecture reviews";
-
+export {
+  REVIEW_PACKAGES_HELP_PAGE_TITLE,
+} from "@/lib/review-packages-help-page-copy";
 export const REVIEW_PACKAGES_HELP_PAGE_SUBTITLE =
-  "Open Reviews to find architecture packages in your workspace, then inspect findings and export sponsor-ready artifacts.";
+  "Open Architecture reviews to find packages in your workspace, then inspect findings and export sponsor-ready artifacts.";
 
 /** One orientation statement: definition + review↔package relationship (not browse/inspect/export again). */
 export const REVIEW_PACKAGES_HELP_OVERVIEW =
