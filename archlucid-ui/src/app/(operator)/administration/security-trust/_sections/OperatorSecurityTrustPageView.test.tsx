@@ -6,7 +6,6 @@ import { OperatorSecurityTrustPageView } from "./OperatorSecurityTrustPageView";
 import { textContainsGitHubBlobOrTreeUrl } from "@/lib/github-blob-url-contains";
 import { OPERATOR_NAV_LINK_LABELS } from "@/lib/i18n";
 import {
-  OPERATOR_SECURITY_TRUST_BREADCRUMB_ADMINISTRATION_HREF,
   OPERATOR_SECURITY_TRUST_PAGE_HERO_DESCRIPTION,
   OPERATOR_SECURITY_TRUST_PAGE_NAV_HREF,
   OPERATOR_SECURITY_TRUST_PRIMARY_TRUST_CENTER_LABEL,
@@ -198,7 +197,7 @@ describe("OperatorSecurityTrustPageView", () => {
 });
 
 describe("OperatorSecurityTrustPageView (TB-1223–TB-1227)", () => {
-  it("aligns Administration breadcrumb, nav href, and document title (TB-1223)", () => {
+  it("aligns nav href and document title (TB-1223)", () => {
     expect(SETTINGS_SECURITY_TRUST_PATH).toBe(OPERATOR_SECURITY_TRUST_PAGE_NAV_HREF);
     expect(ROUTE_TITLES[SETTINGS_SECURITY_TRUST_PATH]).toBe(OPERATOR_NAV_LINK_LABELS.securityTrust);
     expect(resolveNavLinkForPathname(SETTINGS_SECURITY_TRUST_PATH)?.label).toBe(
@@ -207,14 +206,7 @@ describe("OperatorSecurityTrustPageView (TB-1223–TB-1227)", () => {
 
     render(<OperatorSecurityTrustPageView />);
 
-    expect(screen.getByTestId("operator-security-trust-page-breadcrumb")).toHaveTextContent("Administration");
-    expect(screen.getByTestId("operator-security-trust-page-breadcrumb")).toHaveTextContent(
-      OPERATOR_NAV_LINK_LABELS.securityTrust,
-    );
-    expect(screen.getByRole("link", { name: "Administration" })).toHaveAttribute(
-      "href",
-      OPERATOR_SECURITY_TRUST_BREADCRUMB_ADMINISTRATION_HREF,
-    );
+    expect(screen.queryByTestId("operator-security-trust-page-breadcrumb")).toBeNull();
     expect(screen.getByRole("heading", { level: 1, name: OPERATOR_NAV_LINK_LABELS.securityTrust })).toBeInTheDocument();
   });
 

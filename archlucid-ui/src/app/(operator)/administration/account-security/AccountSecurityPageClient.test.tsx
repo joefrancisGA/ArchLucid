@@ -141,15 +141,14 @@ describe("AccountSecurityPageClient", () => {
     );
   });
 
-  it("renders personal-settings breadcrumb trail", async () => {
+  it("does not render a breadcrumb trail", async () => {
     vi.mocked(fetchSignInMethods).mockResolvedValue([]);
 
     render(<AccountSecurityPageClient />);
 
-    const breadcrumb = await screen.findByTestId("account-security-page-breadcrumb");
+    await screen.findByTestId("account-security-page-title");
 
-    expect(breadcrumb).toHaveTextContent("Your account settings");
-    expect(breadcrumb).toHaveTextContent("Sign-in methods");
+    expect(screen.queryByTestId("account-security-page-breadcrumb")).toBeNull();
   });
 
   it("shows empty copy with authentication help CTA only after a successful empty list load (TB-1884)", async () => {

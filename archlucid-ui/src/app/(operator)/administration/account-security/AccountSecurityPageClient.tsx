@@ -7,7 +7,6 @@ import { AccountSecurityAuthDomainsVocabularyRail } from "@/components/AccountSe
 import { EnterpriseCompactEmptyState } from "@/components/EnterpriseCompactEmptyState";
 import { OperatorPageContainer } from "@/components/operator/OperatorPageContainer";
 import { OperatorPageHeader } from "@/components/operator/OperatorPageHeader";
-import { OperatorPageBreadcrumb } from "@/components/operator/OperatorPageBreadcrumb";
 import { BooleanStatusChip } from "@/components/ui/boolean-status-chip";
 import { Button } from "@/components/ui/button";
 import { Card, CardContent, CardHeader, CardTitle } from "@/components/ui/card";
@@ -15,7 +14,6 @@ import { Input } from "@/components/ui/input";
 import { Skeleton } from "@/components/ui/skeleton";
 import { StatusTag } from "@/components/ui/status-tag";
 import { PageContextualHelpButton } from "@/components/usability/PageContextualHelpButton";
-import { ACCOUNT_SETTINGS_MENU_ARIA_LABEL } from "@/components/shell/AccountSettingsMenu";
 import { DESIGN_TOKENS, OPERATOR_LAYOUT, OPERATOR_TYPOGRAPHY } from "@/lib/design-tokens";
 import {
   ACCOUNT_SECURITY_DEMO_GATE_MESSAGE,
@@ -375,15 +373,6 @@ export function AccountSecurityPageClient() {
         title={ACCOUNT_SECURITY_PAGE_TITLE}
         subtitle={ACCOUNT_SECURITY_PAGE_SUBTITLE}
         titleTestId="account-security-page-title"
-        breadcrumb={
-          <OperatorPageBreadcrumb
-            data-testid="account-security-page-breadcrumb"
-            items={[
-              { label: ACCOUNT_SETTINGS_MENU_ARIA_LABEL },
-              { label: ACCOUNT_SECURITY_PAGE_TITLE },
-            ]}
-          />
-        }
         actions={<PageContextualHelpButton />}
       />
       <AccountSecurityAuthDomainsVocabularyRail currentSurfaceId="account-security" />

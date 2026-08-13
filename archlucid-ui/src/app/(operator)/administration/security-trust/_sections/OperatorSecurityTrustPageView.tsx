@@ -3,7 +3,6 @@ import { cn } from "@/lib/utils";
 import Link from "next/link";
 
 import { OperatorPageHeader } from "@/components/operator/OperatorPageHeader";
-import { OperatorPageBreadcrumb } from "@/components/operator/OperatorPageBreadcrumb";
 import { StatusTag } from "@/components/StatusTag";
 import { HelpTopicPdfDownloadButton } from "@/components/help/HelpTopicPdfDownloadButton";
 import { Button } from "@/components/ui/button";
@@ -55,8 +54,6 @@ import {
   type OperatorSecurityTrustMaturityTag,
 } from "@/lib/operator/operator-security-trust-content";
 import {
-  OPERATOR_SECURITY_TRUST_BREADCRUMB_ADMINISTRATION_HREF,
-  OPERATOR_SECURITY_TRUST_BREADCRUMB_ADMINISTRATION_LABEL,
   OPERATOR_SECURITY_TRUST_PAGE_HERO_DESCRIPTION,
   OPERATOR_SECURITY_TRUST_PAGE_NAV_HREF,
   OPERATOR_SECURITY_TRUST_PRIMARY_TRUST_CENTER_LABEL,
@@ -230,18 +227,6 @@ export function OperatorSecurityTrustPageView() {
         subtitle={OPERATOR_SECURITY_TRUST_PAGE_HERO_DESCRIPTION}
         headingLevel="h1"
         titleTestId="operator-security-trust-page-title"
-        breadcrumb={
-          <OperatorPageBreadcrumb
-            data-testid="operator-security-trust-page-breadcrumb"
-            items={[
-              {
-                label: OPERATOR_SECURITY_TRUST_BREADCRUMB_ADMINISTRATION_LABEL,
-                href: OPERATOR_SECURITY_TRUST_BREADCRUMB_ADMINISTRATION_HREF,
-              },
-              { label: OPERATOR_NAV_LINK_LABELS.securityTrust },
-            ]}
-          />
-        }
         actions={<PageContextualHelpButton />}
       />
 
