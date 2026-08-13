@@ -161,6 +161,15 @@ describe("help-markdown-presentation (leakage 2)", () => {
     expect(prepared).not.toContain("<details>");
     expect(prepared).toContain("/help/findings");
   });
+  it("rewrites legacy Phase 1 limitations headings for Azure Boards help (TB-1622)", () => {
+    const prepared = prepareHelpMarkdownForPresentation(
+      "## Known limitations (Phase 1)\n\n- No inbound status sync",
+      "docs/library/customer-facing/AZURE_BOARDS_INTEGRATION.md",
+    );
+
+    expect(prepared).toContain("## Known limitations in this release");
+    expect(prepared).not.toMatch(/phase\s*1/i);
+  });
   it("replaces contributor repo-tree framing in CAIQ/SIG help (TB-1632)", () => {
     const source = [
       "| Theme | Response (summary) | Evidence in repo |",

@@ -10,6 +10,7 @@ import {
   stripAcceleratorChooserContributorLeakage,
   stripAcceleratorChooserContributorSections,
   stripAcceleratorChooserIntroAndTable,
+  rewriteAzureBoardsLimitationsHeadingHonesty,
   stripAzureBoardsContributorLeakage,
   stripCaiqSigContributorLeakage,
   stripCliUsageContributorLeakage,
@@ -185,7 +186,7 @@ export const HELP_MARKDOWN_AUDIENCE_RULE_SETS: readonly HelpMarkdownTopicRuleSet
   {
     id: "azure-boards-integration",
     matches: matchesSourceDoc("azure_boards_integration.md"),
-    rules: [stripAzureBoardsContributorLeakage],
+    rules: [stripAzureBoardsContributorLeakage, rewriteAzureBoardsLimitationsHeadingHonesty],
   },
   {
     id: "caiq-sig-response",

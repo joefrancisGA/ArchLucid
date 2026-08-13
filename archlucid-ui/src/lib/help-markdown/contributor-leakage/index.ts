@@ -9,6 +9,7 @@ export { softenEvidenceIntakeHelpPresentation } from "./evidence-and-cli";
 export { stripAcceleratorChooserContributorLeakage } from "./review-loop-and-accelerator";
 export { stripAcceleratorChooserContributorSections } from "./review-loop-and-accelerator";
 export { stripAcceleratorChooserIntroAndTable } from "./review-loop-and-accelerator";
+export { rewriteAzureBoardsLimitationsHeadingHonesty } from "./integrations-trust";
 export { stripAzureBoardsContributorLeakage } from "./integrations-trust";
 export { stripCaiqSigContributorLeakage } from "./integrations-trust";
 export { stripCliUsageContributorLeakage } from "./evidence-and-cli";

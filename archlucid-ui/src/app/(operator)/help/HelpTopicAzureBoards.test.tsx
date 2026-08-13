@@ -24,6 +24,10 @@ import {
   AZURE_BOARDS_HELP_SOURCES,
   AZURE_BOARDS_HELP_SOURCES_HEADING,
 } from "@/lib/azure-boards-help-evidence-copy";
+import {
+  AZURE_BOARDS_HELP_LIMITATIONS_HEADING,
+  azureBoardsHelpCopyContainsBannedPattern,
+} from "@/lib/azure-boards-help-limitations-honesty";
 import { tryLoadProductDocumentation } from "@/lib/load-product-documentation";
 import { getProductDocumentationEntry } from "@/lib/product-documentation-registry";
 
@@ -50,6 +54,24 @@ describe("HelpAzureBoardsGuideView (HEZ)", () => {
       within(setupList!).getByRole("link", { name: /Test connection/i }),
     ).toHaveAttribute("href", "/integrations/azure-boards");
     expect(within(content).getByText(/PAT value is never shown again/i).closest("blockquote")).not.toBeNull();
+  });
+
+  it("uses buyer-safe limitations heading without Phase 1 jargon in primary chrome (TB-1622)", () => {
+    const loaded = tryLoadProductDocumentation("azure-boards");
+
+    expect(loaded).not.toBeNull();
+
+    if (loaded === null) {
+      throw new Error("Expected azure-boards documentation.");
+    }
+
+    render(<HelpAzureBoardsGuideView entry={loaded.entry} markdown={loaded.markdown} />);
+
+    const guide = screen.getByTestId("help-azure-boards-guide");
+    const content = screen.getByTestId("help-azure-boards-content");
+
+    expect(within(content).getByRole("heading", { level: 2, name: AZURE_BOARDS_HELP_LIMITATIONS_HEADING })).toBeInTheDocument();
+    expect(azureBoardsHelpCopyContainsBannedPattern(guide.textContent ?? "")).toHaveLength(0);
   });
 
   it("renders h1 chrome, contextual help, action panel before claim discipline, and export actions", () => {
