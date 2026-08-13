@@ -1,3 +1,4 @@
+import { ACCELERATOR_CHOOSER_HELP_INBOUND_LABEL } from "@/lib/accelerator-chooser-help-title-honesty-surfaces";
 import type { EvidenceSourceLink } from "@/lib/evidence-surface-copy";
 import { inAppHelpHref } from "@/lib/product-documentation-registry";
 
@@ -17,7 +18,7 @@ export const PATH_CHOOSER_HELP_RELATED_NEXT_STEPS_INTRO =
 export const PATH_CHOOSER_HELP_RELATED_NEXT_STEPS: readonly EvidenceSourceLink[] = [
   { label: "Getting started", href: inAppHelpHref("getting-started") },
   { label: "Your first architecture review", href: inAppHelpHref("first-architecture-review") },
-  { label: "Accelerator chooser", href: inAppHelpHref("accelerator-chooser") },
+  { label: ACCELERATOR_CHOOSER_HELP_INBOUND_LABEL, href: inAppHelpHref("accelerator-chooser") },
   { label: "Security and trust", href: inAppHelpHref("security-trust") },
   { label: "Trust Center", href: "/trust" },
   { label: "Procurement FAQ", href: inAppHelpHref("procurement") },

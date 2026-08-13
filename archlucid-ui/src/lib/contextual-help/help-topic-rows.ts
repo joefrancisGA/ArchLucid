@@ -1,6 +1,7 @@
 /** Long-form help topics (`/help/**`). */
 
 import type { PageContextualHelpRow } from "@/lib/contextual-help/types";
+import { ACCELERATOR_CHOOSER_HELP_PAGE_TITLE } from "@/lib/accelerator-chooser-help-guide-content";
 import { INTERNAL_REPLAY_PATH } from "@/lib/internal-ops-route-paths";
 import { PLANNING_PATH } from "@/lib/planning-route";
 import { PRODUCT_LEARNING_PATH } from "@/lib/product-learning-route";
@@ -165,7 +166,7 @@ export const HELP_TOPIC_CONTEXTUAL_HELP_ROWS: readonly PageContextualHelpRow[] =
     prefix: "/help/accelerator-chooser",
     entry: {
       whatIsThisPage:
-        "Pick an accelerator pack — map buyer jobs to accelerator packs after your first finalized architecture review.",
+        `${ACCELERATOR_CHOOSER_HELP_PAGE_TITLE} — map buyer jobs to starter proof packs after your first finalized architecture review.`,
       whatToDoNext:
         "Pick a pack that matches the buyer job, then start the review with the matching accelerator pack.",
       whyEmpty:

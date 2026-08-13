@@ -95,7 +95,7 @@ describe("HelpAcceleratorChooserGuideView", () => {
 
     const visible = (document.body.textContent ?? "").toLowerCase();
 
-    expect(visible).toContain("pick an accelerator pack");
+    expect(visible).toContain("starter proof packs");
     expect(visible).not.toContain("templates/starter-proof-packs");
     expect(visible).not.toContain("accelerator_chooser.md");
     expect(screen.getByTestId("help-accelerator-chooser-guide")).toBeInTheDocument();

@@ -1,3 +1,4 @@
+import { ACCELERATOR_CHOOSER_HELP_PAGE_TITLE } from "@/lib/accelerator-chooser-help-guide-content";
 import { describe, expect, it } from "vitest";
 
 import { ENTERPRISE_ONBOARDING_HELP_PAGE_TITLE } from "@/lib/enterprise-onboarding-help-copy";
@@ -188,11 +189,12 @@ describe("help center tiers", () => {
     expect(advanced).toContain("soc2-self-assessment");
   });
 
-  it("classifies accelerator chooser as product tier (HAX)", () => {
+  it("classifies accelerator chooser as product tier with canonical buyer title (TB-1605)", () => {
     const entry = getProductDocumentationEntry("accelerator-chooser");
 
     expect(entry).not.toBeNull();
     expect(getHelpCenterTier(entry!)).toBe("product");
+    expect(getHelpCenterDisplay(entry!).title).toBe(ACCELERATOR_CHOOSER_HELP_PAGE_TITLE);
   });
 
   it("classifies comparison-replay as product tier for customer-facing operator guide (CO)", () => {
