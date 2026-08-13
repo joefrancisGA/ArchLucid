@@ -244,6 +244,11 @@ GUARDS: tuple[GuardCommand, ...] = (
         None,
     ),
     GuardCommand(
+        "strangler next-slice honesty",
+        ("python", "scripts/ci/check_strangler_next_slice_honesty.py"),
+        None,
+    ),
+    GuardCommand(
         "wntp buyer ui honesty",
         ("python", "scripts/ci/check_wntp_buyer_ui_honesty.py"),
         None,

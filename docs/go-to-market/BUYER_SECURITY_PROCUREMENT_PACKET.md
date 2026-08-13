@@ -3574,7 +3574,7 @@ Do not teach create→execute→commit as the default peer lifecycle to Authorit
 
 ### Residuals (honest)
 
-- **TB-1035** owns strangler next-slice language guards (honesty CI).
+- **TB-1035** **Done** — strangler next-slice language guards: `scripts/ci/check_strangler_next_slice_honesty.py` (wired in `run_buyer_surface_strict_guards.py`).
 - Engineering SoT: [`../library/STRANGLER_NEXT_SLICE_AUTHORITY_FREEZE_AND_RESULT_SUNSET_CONTRACT.md`](../library/STRANGLER_NEXT_SLICE_AUTHORITY_FREEZE_AND_RESULT_SUNSET_CONTRACT.md) (**TB-1034** Done); sunset ADR [0066](../architecture/adrs/0066-agent-result-append-sunset.md).
 - Complements **M-158**/**M-159** forbid matrix; does not reopen Done **TB-919**.
 - Cite [`../architecture/COORDINATOR_STRANGLER_INVENTORY.md`](../architecture/COORDINATOR_STRANGLER_INVENTORY.md), ADR 0030, ADR 0042.

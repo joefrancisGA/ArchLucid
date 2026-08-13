@@ -6,7 +6,7 @@
 > **Buyer summary:** [`BUYER_SECURITY_PROCUREMENT_PACKET.md`](../go-to-market/BUYER_SECURITY_PROCUREMENT_PACKET.md#strangler-next-slice-result-sunset-m-185) (**M-184** / **M-185**).  
 > **Forbid matrix:** [`AUTHORITY_VS_AGENTTASK_LOOP_CANONICAL_PATH_CONTRACT.md`](./AUTHORITY_VS_AGENTTASK_LOOP_CANONICAL_PATH_CONTRACT.md) (**TB-1007**).  
 > **Sunset ADR:** [ADR 0066](../architecture/adrs/0066-agent-result-append-sunset.md).  
-> **Honesty CI:** **TB-1035** (open).
+> **Honesty CI:** **TB-1035** (shipped — `scripts/ci/check_strangler_next_slice_honesty.py`; Vitest `archlucid-ui/src/lib/strangler-next-slice-honesty.test.ts`).
 
 ---
 
