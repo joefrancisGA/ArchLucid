@@ -336,7 +336,7 @@ describe("help-markdown-presentation (leakage 1)", () => {
     expect(prepared).toContain("/help/executive-summary#pilot-roi-measurement");
     expect(prepared.toLowerCase()).not.toContain("docs/go-to-market");
   });
-  it("omits habit-loop validation section from repeat-review help (TB-1396)", () => {
+  it("omits habit-loop validation and recommended-loop prose from repeat-review help (TB-1396 / TB-1398)", () => {
     const source = [
       "## Recommended loop (after first finalize)",
       "",
@@ -354,7 +354,7 @@ describe("help-markdown-presentation (leakage 1)", () => {
     const prepared = stripRepeatReviewLoopContributorSections(source);
 
     expect(prepared.toLowerCase()).not.toContain("second-review habit loop validation");
-    expect(prepared).toContain("## Recommended loop");
+    expect(prepared.toLowerCase()).not.toContain("recommended loop");
     expect(prepared.toLowerCase()).not.toContain("## related help");
     expect(prepared).not.toContain("collect-first-pilot-proof");
   });

@@ -2,6 +2,7 @@
 
 import Link from "next/link";
 import { HelpRepeatReviewLoopPageHeader } from "@/app/(operator)/help/_sections/HelpRepeatReviewLoopPageHeader";
+import { HelpRepeatReviewLoopWorkflowStepper } from "@/app/(operator)/help/_sections/HelpRepeatReviewLoopWorkflowStepper";
 import { HelpTopicHashScroll } from "@/app/(operator)/help/HelpTopicHashScroll";
 import { HelpTopicTableOfContents } from "@/components/help/HelpTopicTableOfContents";
 import { MermaidDiagram } from "@/components/help/MermaidDiagram";
@@ -116,6 +117,8 @@ export function HelpRepeatReviewLoopGuideView(props: HelpRepeatReviewLoopGuideVi
       </div>
 
       <RepeatReviewLoopHelpEvidenceOrientationStrip />
+
+      <HelpRepeatReviewLoopWorkflowStepper />
 
       <div className={HELP_PAGE_LAYOUT.contentGrid}>
         <div className={cn("min-w-0 space-y-6", HELP_PAGE_LAYOUT.contentColumn)}>

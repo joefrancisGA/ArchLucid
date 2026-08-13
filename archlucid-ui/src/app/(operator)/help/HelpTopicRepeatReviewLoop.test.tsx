@@ -117,7 +117,26 @@ describe("HelpTopicRepeatReviewLoop (TB-1396)", () => {
     expect(screen.queryByTestId("help-topic-registry-provenance")).toBeNull();
     expect(screen.queryByTestId("help-repeat-review-loop-refresh-button")).toBeNull();
     expect(screen.getAllByText(/Prerequisite:/i)).toHaveLength(1);
-    expect(screen.queryByRole("link", { name: /Validate review/i })).toBeNull();
+    expect(screen.getByTestId("repeat-review-loop-step-2-cta")).toHaveAttribute("href", "/internal/replay");
+  });
+
+  it("renders loop-step deep-link CTAs for compare and governance actions (TB-1398)", () => {
+    if (loaded === null) {
+      throw new Error("Expected repeat-review-loop documentation to load.");
+    }
+
+    render(<HelpRepeatReviewLoopGuideView entry={loaded.entry} markdown={loaded.markdown} />);
+
+    expect(screen.getByTestId("repeat-review-loop-workflow-stepper")).toBeInTheDocument();
+    expect(screen.getByTestId("repeat-review-loop-step-1-cta")).toHaveAttribute(
+      "href",
+      "/insights/compare-two-reviews",
+    );
+    expect(screen.getByTestId("repeat-review-loop-step-4-cta")).toHaveAttribute("href", "/governance/policy-packs");
+    expect(screen.getByTestId("repeat-review-loop-step-2-secondary-link")).toHaveAttribute(
+      "href",
+      "/help/comparison-replay",
+    );
   });
 
   it("limits Related help to three buyer-safe guides without accelerator chooser (TB-1397)", () => {
