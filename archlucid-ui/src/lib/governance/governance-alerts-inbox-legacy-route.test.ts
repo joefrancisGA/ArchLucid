@@ -11,6 +11,7 @@ import {
   CANONICAL_ALERTS_INBOX_TRAFFIC_PATH,
   RETIRED_ALERTS_INBOX_TAB_TRAFFIC_PATH,
 } from "@/lib/ui-route-traffic-alerts-inbox-tab";
+import { RETIRED_GOVERNANCE_ALERTS_INBOX_TAB_HREF } from "@/lib/alerts-inbox-tab-deep-link-guard";
 
 const PRODUCT_ALERTS_INBOX_SURFACES = [
   "archlucid-ui/src/lib/notification-preference-center.ts",
@@ -21,7 +22,7 @@ const PRODUCT_ALERTS_INBOX_SURFACES = [
 describe("governance alerts inbox legacy tab (GOI / TB-1594–TB-1596)", () => {
   it("keeps canonical inbox on bare /governance/alerts", () => {
     expect(CANONICAL_ALERTS_INBOX_TRAFFIC_PATH).toBe(GOVERNANCE_ALERTS_PATH);
-    expect(RETIRED_ALERTS_INBOX_TAB_TRAFFIC_PATH).toBe("/governance/alerts?tab=inbox");
+    expect(RETIRED_ALERTS_INBOX_TAB_TRAFFIC_PATH).toBe(RETIRED_GOVERNANCE_ALERTS_INBOX_TAB_HREF);
   });
 
   it("strips retired tab=inbox while preserving inbox filters", () => {
