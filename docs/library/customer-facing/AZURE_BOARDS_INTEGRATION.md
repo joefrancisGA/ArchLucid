@@ -26,7 +26,7 @@ Create a personal access token (PAT) scoped to the selected Azure DevOps project
 3. Save a **secure reference** to the PAT (Key Vault secret name).
 4. Choose the default **project** and **work item type**. Types are loaded from your process template (Agile, Scrum, Basic, CMMI, or custom) — ArchLucid does not assume a universal “Bug” type.
 5. Optionally set area path, iteration path, and default tags.
-6. Run **Test connection** to confirm authentication and project access.
+6. Run [**Test connection**](/integrations/azure-boards) to confirm authentication and project access.
 7. From a finding, use **Create Azure Boards work item** when connection validation succeeds.
 
 > **Warning:** The PAT value is never shown again in ArchLucid after setup. Store the token only in your vault or secret store reference.

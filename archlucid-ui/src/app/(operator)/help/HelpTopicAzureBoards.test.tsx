@@ -46,6 +46,9 @@ describe("HelpAzureBoardsGuideView (HEZ)", () => {
     expect(setupList).not.toBeNull();
     expect(within(setupList!).getAllByRole("listitem")).toHaveLength(7);
     expect(within(setupList!).getByText(/Create Azure Boards work item/i)).toBeInTheDocument();
+    expect(
+      within(setupList!).getByRole("link", { name: /Test connection/i }),
+    ).toHaveAttribute("href", "/integrations/azure-boards");
     expect(within(content).getByText(/PAT value is never shown again/i).closest("blockquote")).not.toBeNull();
   });
 
@@ -103,9 +106,17 @@ describe("HelpAzureBoardsGuideView (HEZ)", () => {
       "href",
       "/integrations/azure-boards",
     );
-    expect(screen.getByRole("link", { name: "Integrations → Azure Boards" })).toHaveAttribute(
+    expect(screen.getByTestId("help-azure-boards-setup-step-ctas")).toBeInTheDocument();
+    expect(screen.getByTestId("help-azure-boards-setup-step-1-cta")).toHaveAttribute(
       "href",
       "/integrations/azure-boards",
+    );
+    expect(screen.getByTestId("help-azure-boards-setup-test-connection-cta")).toHaveAttribute(
+      "href",
+      "/integrations/azure-boards",
+    );
+    expect(screen.getByTestId("help-azure-boards-setup-step-1-cta")).toHaveTextContent(
+      "Integrations → Azure Boards",
     );
 
     const actionPanel = screen.getByTestId("help-azure-boards-action-panel");

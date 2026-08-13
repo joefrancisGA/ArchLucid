@@ -4,6 +4,7 @@ import { Suspense } from "react";
 
 import { HelpTopicHashScroll } from "@/app/(operator)/help/HelpTopicHashScroll";
 import { HelpAzureBoardsConnectionContext } from "@/app/(operator)/help/_sections/HelpAzureBoardsConnectionContext";
+import { HelpAzureBoardsSetupStepCtAs } from "@/app/(operator)/help/_sections/HelpAzureBoardsSetupStepCtAs";
 import { HelpTopicPrintButton } from "@/components/help/HelpTopicPrintButton";
 import { HelpTopicRegistryProvenanceLine } from "@/components/help/HelpTopicRegistryProvenanceLine";
 import { HelpTopicTableOfContents } from "@/components/help/HelpTopicTableOfContents";
@@ -120,6 +121,8 @@ export function HelpAzureBoardsGuideView(props: HelpAzureBoardsGuideViewProps): 
               {AZURE_BOARDS_HELP_AUTHORITY_NOTE}
             </p>
           </div>
+
+          <HelpAzureBoardsSetupStepCtAs />
 
           <Suspense
             fallback={
