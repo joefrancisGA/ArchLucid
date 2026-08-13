@@ -3,7 +3,7 @@
 import { useCallback, useEffect, useMemo, useState } from "react";
 
 import { useOperateCapability } from "@/hooks/use-operate-capability";
-import { getPilotScorecard } from "@/lib/api";
+import { usePilotScorecardQuery } from "@/hooks/use-pilot-scorecard-query";
 import {
   areArchitectureScorecardAssumptionsComplete,
   architectureScorecardAssumptionFieldErrors,
@@ -65,42 +65,55 @@ function fieldsMatchBaselines(
   return hours.trim() === saved.hours.trim() && reviews.trim() === saved.reviews.trim() && rate.trim() === saved.rate.trim();
 }
 
+function syncBaselineFieldsFromScorecard(json: PilotScorecardJson): { hours: string; reviews: string; rate: string } {
+  if (!json.baselines) {
+    return { hours: "", reviews: "", rate: "" };
+  }
+
+  return {
+    hours: json.baselines.baselineHoursPerReview?.toString() ?? "",
+    reviews: json.baselines.baselineReviewsPerQuarter?.toString() ?? "",
+    rate: json.baselines.baselineArchitectHourlyCost?.toString() ?? "",
+  };
+}
+
 export function usePilotScorecardPage(loaded: PilotScorecardPageServerLoad): UsePilotScorecardPageModel {
   const canExecute = useOperateCapability();
   const initialFields = baselineFieldsFromData(loaded.data);
+  const scorecardQuery = usePilotScorecardQuery({
+    initialData: loaded.data,
+    throwOnError: true,
+  });
 
-  const [data, setData] = useState<PilotScorecardJson | null>(loaded.data);
-  // Stamp only after a successful client refresh so a failed load cannot imply SSR data is current.
-  const [metricsAsOfUtc, setMetricsAsOfUtc] = useState<string | null>(null);
-  const [error, setError] = useState<string | null>(loaded.error);
   const [hours, setHours] = useState(initialFields.hours);
   const [reviews, setReviews] = useState(initialFields.reviews);
   const [rate, setRate] = useState(initialFields.rate);
   const [saving, setSaving] = useState(false);
+  const [saveError, setSaveError] = useState<string | null>(null);
 
-  const load = useCallback(async () => {
-    setError(null);
+  const data = scorecardQuery.data ?? null;
+  const metricsAsOfUtc =
+    scorecardQuery.dataUpdatedAt > 0 ? new Date(scorecardQuery.dataUpdatedAt).toISOString() : null;
 
-    try {
-      // Browser proxy scope (localStorage/cookie mirror) — must refresh on mount so SSR
-      // empty payloads do not stick when the operator's active workspace has finalized reviews.
-      const json = await getPilotScorecard();
-      setData(json);
-      setMetricsAsOfUtc(new Date().toISOString());
+  const queryError =
+    scorecardQuery.isError
+      ? scorecardQuery.error instanceof Error
+        ? scorecardQuery.error.message
+        : "Failed to load scorecard."
+      : null;
 
-      if (json.baselines) {
-        setHours(json.baselines.baselineHoursPerReview?.toString() ?? "");
-        setReviews(json.baselines.baselineReviewsPerQuarter?.toString() ?? "");
-        setRate(json.baselines.baselineArchitectHourlyCost?.toString() ?? "");
-      }
-    } catch (e: unknown) {
-      setError(e instanceof Error ? e.message : "Failed to load scorecard.");
-    }
-  }, []);
+  const error = saveError ?? queryError ?? loaded.error;
 
   useEffect(() => {
-    void load();
-  }, [load]);
+    if (scorecardQuery.data === undefined) {
+      return;
+    }
+
+    const synced = syncBaselineFieldsFromScorecard(scorecardQuery.data);
+    setHours(synced.hours);
+    setReviews(synced.reviews);
+    setRate(synced.rate);
+  }, [scorecardQuery.dataUpdatedAt, scorecardQuery.data]);
 
   useEffect(() => {
     if (typeof window === "undefined") {
@@ -145,7 +158,7 @@ export function usePilotScorecardPage(loaded: PilotScorecardPageServerLoad): Use
     }
 
     setSaving(true);
-    setError(null);
+    setSaveError(null);
 
     try {
       const body = {
@@ -163,16 +176,16 @@ export function usePilotScorecardPage(loaded: PilotScorecardPageServerLoad): Use
         throw new Error(`HTTP ${res.status}`);
       }
 
-      await load();
+      await scorecardQuery.refetch();
       showSuccess("ROI assumptions saved.");
     } catch (e: unknown) {
       const message = e instanceof Error ? e.message : "Save failed.";
-      setError(message);
+      setSaveError(message);
       showError(message);
     } finally {
       setSaving(false);
     }
-  }, [canSaveAssumptions, hours, load, rate, reviews]);
+  }, [canSaveAssumptions, hours, rate, reviews, scorecardQuery]);
 
   const resolvedQuarterlySavingsLabel = useMemo(() => {
     if (data?.roiEstimate === null || data?.roiEstimate === undefined) {

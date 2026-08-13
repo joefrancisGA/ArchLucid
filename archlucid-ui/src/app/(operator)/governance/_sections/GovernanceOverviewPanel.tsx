@@ -2,14 +2,15 @@
 
 import { cn } from "@/lib/utils";
 import Link from "next/link";
-import { useCallback, useEffect, useRef, useState } from "react";
+import { useMemo, useRef } from "react";
 
 import { OperatorApiProblem } from "@/components/operator/OperatorApiProblem";
 import { EnterpriseCompactEmptyState } from "@/components/EnterpriseCompactEmptyState";
 import { OperatorLoadingNotice } from "@/components/operator/OperatorShellMessage";
 import { RunIdPicker } from "@/components/runs/RunIdPicker";
 import { Button } from "@/components/ui/button";
-import { getGovernanceDashboard, getGovernanceDecisionsNeededSummary } from "@/lib/api";
+import { useGovernanceDashboardQuery } from "@/hooks/use-governance-dashboard-query";
+import { useGovernanceDecisionsNeededSummaryQuery } from "@/hooks/use-governance-decisions-needed-summary-query";
 import type { ApiLoadFailureState } from "@/lib/api-load-failure";
 import { toApiLoadFailure } from "@/lib/api-load-failure";
 import { GOVERNANCE_POLICY_PACKS_PATH } from "@/lib/governance/governance-route-paths";
@@ -115,49 +116,46 @@ export function GovernanceOverviewPanel(props: GovernanceOverviewPanelProps): Re
   } = props;
 
   const pendingSectionRef = useRef<HTMLElement | null>(null);
-  const [loadState, setLoadState] = useState<OverviewLoadState>({ status: "loading" });
+  const dashboardQuery = useGovernanceDashboardQuery();
+  const decisionsQuery = useGovernanceDecisionsNeededSummaryQuery();
 
-  const loadOverview = useCallback(async (options?: { readonly isCancelled?: () => boolean }): Promise<void> => {
-    const isCancelled = options?.isCancelled ?? (() => false);
-
-    if (!isCancelled()) {
-      setLoadState({ status: "loading" });
+  const loadState = useMemo((): OverviewLoadState => {
+    if (dashboardQuery.isPending || decisionsQuery.isPending) {
+      return { status: "loading" };
     }
 
-    try {
-      const [dashboard, decisionsNeeded] = await Promise.all([
-        getGovernanceDashboard(),
-        getGovernanceDecisionsNeededSummary(),
-      ]);
-      const metrics = buildGovernanceOverviewSummaryMetrics(dashboard, decisionsNeeded);
-
-      if (isCancelled()) {
-        return;
-      }
-
-      setLoadState({
-        status: "ready",
-        dashboard,
-        metrics,
-      });
-    } catch (error) {
-      if (isCancelled()) {
-        return;
-      }
-
-      setLoadState({ status: "error", failure: toApiLoadFailure(error) });
+    if (dashboardQuery.isError) {
+      return { status: "error", failure: toApiLoadFailure(dashboardQuery.error) };
     }
-  }, []);
 
-  useEffect(() => {
-    let canceled = false;
+    if (decisionsQuery.isError) {
+      return { status: "error", failure: toApiLoadFailure(decisionsQuery.error) };
+    }
 
-    void loadOverview({ isCancelled: () => canceled });
+    if (dashboardQuery.data === undefined || decisionsQuery.data === undefined) {
+      return { status: "loading" };
+    }
 
-    return () => {
-      canceled = true;
+    return {
+      status: "ready",
+      dashboard: dashboardQuery.data,
+      metrics: buildGovernanceOverviewSummaryMetrics(dashboardQuery.data, decisionsQuery.data),
     };
-  }, [loadOverview]);
+  }, [
+    dashboardQuery.data,
+    dashboardQuery.error,
+    dashboardQuery.isError,
+    dashboardQuery.isPending,
+    decisionsQuery.data,
+    decisionsQuery.error,
+    decisionsQuery.isError,
+    decisionsQuery.isPending,
+  ]);
+
+  const retryOverview = (): void => {
+    void dashboardQuery.refetch();
+    void decisionsQuery.refetch();
+  };
 
   const scrollToPending = (): void => {
     onFocusPending();
@@ -193,7 +191,7 @@ export function GovernanceOverviewPanel(props: GovernanceOverviewPanelProps): Re
               fallbackMessage={loadState.failure.message}
               correlationId={loadState.failure.correlationId}
             />
-            <Button type="button" variant="outline" size="sm" className="mt-3" onClick={() => void loadOverview()}>
+            <Button type="button" variant="outline" size="sm" className="mt-3" onClick={retryOverview}>
               Retry summary
             </Button>
           </div>

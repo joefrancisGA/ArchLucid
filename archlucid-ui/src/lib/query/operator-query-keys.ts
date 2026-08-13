@@ -32,6 +32,8 @@ export const operatorQueryKeys = {
   operatorNextBestActions: ["operator", "tenant", "next-best-actions"] as const,
   governanceDecisionsNeededSummary: (projectId?: string) =>
     ["operator", "governance", "decisions-needed-summary", projectId ?? "workspace"] as const,
+  governanceDashboard: (maxPending: number, maxDecisions: number, maxChanges: number) =>
+    ["operator", "governance", "dashboard", { maxPending, maxDecisions, maxChanges }] as const,
   governanceReviewsAwaitingAction: (scope: OperatorScopeQueryKey) =>
     ["operator", "governance", "reviews-awaiting-action", scope] as const,
   governanceFindingsQueue: (
