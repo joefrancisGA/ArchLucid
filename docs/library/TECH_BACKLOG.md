@@ -1511,7 +1511,7 @@ All **P0** **V1**: visible-boundary button contract + design-system rule (**TB-2
 | TB-1636 | **Done** (2026-08-13) — `/help/comparison-replay` specialty guide + Open Compare two reviews CTA; Vitest; see ## TB-1636 below | Adoption friction P1 ? **V1**; owner review ~48/100 2026-07-27; traffic **CO**; pairs **TB-1414**/**TB-1394** | M |
 | TB-1637 | **Done** (2026-08-13) — Compare/replay help Help Center tier honesty (product vs internal); Vitest; see ## TB-1637 below | Trustworthiness P1 ? **V1**; with **TB-1636**; pairs **TB-1395** | S |
 | TB-1638 | **Done** (2026-08-13) — Compare/replay help IA dual with repeat-review-loop job matrix + mutual cross-links; Vitest; see ## TB-1638 below | Adoption friction P1 ? **V1**; with **TB-1636**; pairs **TB-1394** | S |
-| TB-1639 | Compare/replay help ? compare vs replay first-viewport job chrome; see ## TB-1639 below | Adoption friction P1 ? **V1**; with **TB-1636** | S |
+| TB-1639 | **Done** (2026-08-13) — Compare/replay help first-viewport compare vs replay job chrome + deferred markdown detail; Vitest; see ## TB-1639 below | Adoption friction P1 ? **V1**; with **TB-1636** | S |
 | TB-1640 | Compare/replay help ? Related density + /compare?/replay inbound labels; see ## TB-1640 below | Adoption friction P1 ? **V1**; with **TB-1636** | S |
 | TB-1641 | **Done** (2026-08-10) ? `/help/creating-runs` permanent redirect ? `/help/review-guide`; `help-topic-permanent-redirects` + Batch E manifest; see ## TB-1641 below | Adoption friction P1 ? **V1**; owner review ~46/100 2026-07-27; traffic **HCR** folded into **HER**/**HR** | S |
 | TB-1651 | `/help/data-handling` specialty buyer guide + Trust/security CTA; see ## TB-1651 below | Adoption friction P1 ? **V1**; owner review ~52/100 2026-07-27; traffic **HED**; pairs **TB-1414**; IDs skip PA **TB-1646**?**TB-1650** | M |
@@ -40848,13 +40848,15 @@ Operators must read three intros before reaching the Trust Center link list.
 
 ## TB-1639 ? Compare/replay help ? compare vs replay first-viewport job chrome (P0)
 
-**Window:** V1 ? Adoption friction. **Status:** Not started. **Priority:** P0.
+**Window:** V1 ? Adoption friction. **Status:** **Done** (2026-08-13). **Priority:** P0.
 
 **Problem:** Body explains both jobs in sequential H2s; first viewport does not force a choose-your-job control before the table dump.
 
 **Approach:** Two-card or tab chrome: Compare vs Replay with one-line outcomes; defer export/drift detail. Vitest: both jobs labeled above fold.
 
 **Acceptance:** Operator picks Compare or Replay in first viewport. **Size estimate:** S.
+
+**Shipped:** `COMPARISON_REPLAY_HELP_FIRST_VIEWPORT_TEST_ID` wraps decision panel + visible Mermaid diagram; markdown from `## When to compare` deferred below IA dual job matrix; Vitest TB-1639 document-order guards.
 
 ---
 
