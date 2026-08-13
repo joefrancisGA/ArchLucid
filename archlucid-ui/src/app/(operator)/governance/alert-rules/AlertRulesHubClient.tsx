@@ -15,7 +15,7 @@ import {
   writeAlertRulesHubTabToUrl,
   type AlertRulesHubTabId,
 } from "@/lib/alerts-hub-tab";
-import { ALERT_RULES_TAB_LABEL, ALERT_RULES_TEST_ALERTS_TAB_DISABLED_REASON } from "@/lib/alert-rule-conditions-copy";
+import { ALERT_RULES_TAB_LABEL } from "@/lib/alert-rule-conditions-copy";
 import { COMPOSITE_RULES_TAB_LABEL } from "@/lib/enterprise-controls-context-copy";
 import { alertsConfigurationPageSubtitle } from "@/lib/alerts-page-copy";
 import { whyDisabledNeedsPrerequisite } from "@/lib/why-disabled-cta";
@@ -127,7 +127,6 @@ function AlertRulesHubTabsList(): React.JSX.Element {
               key={id}
               value={id}
               disabled={disabled}
-              title={disabled ? ALERT_RULES_TEST_ALERTS_TAB_DISABLED_REASON : undefined}
               aria-describedby={disabled ? "alert-rules-test-alerts-disabled-hint" : undefined}
               data-testid={`alert-rules-hub-tab-${id}`}
             >

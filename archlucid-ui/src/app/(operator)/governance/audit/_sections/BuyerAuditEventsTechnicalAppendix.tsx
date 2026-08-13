@@ -40,8 +40,8 @@ export function BuyerAuditEventsTechnicalAppendix(props: BuyerAuditEventsTechnic
               {ev.otelTraceId ? (
                 <div>
                   <span className={cn("font-medium text-al-text-secondary", OPERATOR_TYPOGRAPHY.helper)}>Trace</span>{" "}
-                  <code title={ev.otelTraceId} className={OPERATOR_TYPOGRAPHY.micro}>
-                    {ev.otelTraceId.slice(0, 16)}…
+                  <code className={cn("break-all font-mono", OPERATOR_TYPOGRAPHY.micro)}>
+                    {ev.otelTraceId}
                   </code>
                 </div>
               ) : null}
