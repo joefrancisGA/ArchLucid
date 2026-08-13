@@ -62,7 +62,7 @@ describe("ComplianceJourneyPage doc-link honesty (TB-1486)", () => {
 
     expect(
       screen.getByRole("link", {
-        name: /CAIQ \/ SIG questionnaire responses \(in-product help\)/i,
+        name: /CAIQ \/ SIG questionnaire pre-fill drafts \(in-product help\)/i,
       }),
     ).toHaveAttribute("href", "/help/caiq-sig-response");
 

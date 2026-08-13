@@ -1,4 +1,5 @@
 import { resolveInAppDocHref } from "@/lib/in-app-doc-href";
+import { inAppHelpHref } from "@/lib/product-documentation-registry";
 
 /** Anonymous procurement ZIP — same endpoint as Welcome / Why comparison surfaces (TB-721). */
 export const TRUST_CENTER_EVIDENCE_PACK_ZIP_HREF = "/v1/marketing/trust-center/evidence-pack.zip" as const;
@@ -63,6 +64,11 @@ export const TRUST_CENTER_RELATED_HELP_LINKS: readonly TrustCenterRelatedHelpLin
     id: "subprocessors",
     label: "Subprocessors",
     href: "/help/subprocessors",
+  },
+  {
+    id: "caiq-sig-response",
+    label: "CAIQ / SIG pre-fill drafts",
+    href: inAppHelpHref("caiq-sig-response"),
   },
   {
     id: "getting-started",

@@ -1,3 +1,7 @@
+import {
+  CAIQ_SIG_RESPONSE_HELP_CENTER_SUMMARY,
+  CAIQ_SIG_RESPONSE_HELP_PAGE_TITLE,
+} from "@/lib/caiq-sig-response-help-guide-content";
 import { ENTERPRISE_ONBOARDING_HELP_PAGE_TITLE } from "@/lib/enterprise-onboarding-help-copy";
 import { FIRST_ARCHITECTURE_REVIEW_PAGE_TITLE } from "@/lib/first-architecture-review-help-copy";
 import { ACCELERATOR_CHOOSER_HELP_PAGE_TITLE } from "@/lib/accelerator-chooser-help-page-copy";
@@ -48,6 +52,7 @@ const HELP_CENTER_TIER_BY_SLUG: Readonly<Record<string, HelpCenterTier>> = {
   "data-handling": "product",
   "dpa-template": "product",
   "soc2-self-assessment": "product",
+  "caiq-sig-response": "product",
   subprocessors: "product",
   "cloud-connections": "product",
   "cloud-connections-azure": "product",
@@ -122,6 +127,10 @@ const HELP_CENTER_DISPLAY_OVERRIDES: Readonly<Partial<Record<string, HelpCenterD
     title: "SOC 2 self-assessment",
     summary:
       "Owner TSC readiness mapping — not a CPA Type I/II attestation; open Trust Center for the diligence pack.",
+  },
+  "caiq-sig-response": {
+    title: CAIQ_SIG_RESPONSE_HELP_PAGE_TITLE,
+    summary: CAIQ_SIG_RESPONSE_HELP_CENTER_SUMMARY,
   },
   "api-contracts": {
     title: "API contracts (technical reference)",

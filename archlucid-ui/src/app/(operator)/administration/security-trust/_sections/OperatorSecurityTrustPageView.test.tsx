@@ -24,6 +24,7 @@ import {
 } from "@/lib/vocabulary/trust-assurance-security-trust-vocabulary";
 import { SECURITY_TRUST_HELP_HUB_COMPACT_LINE, SECURITY_TRUST_HELP_HUB_HELP_LINK } from "@/lib/vocabulary/security-trust-help-hub-vocabulary";
 import { SETTINGS_SECURITY_TRUST_PATH } from "@/lib/settings-admin-route-paths";
+import { SETTINGS_SECURITY_TRUST_HELP_TOPIC_LABEL } from "@/lib/settings-security-trust-evidence-copy";
 import { ROUTE_TITLES } from "@/lib/route-static-titles";
 import { resolveNavLinkForPathname } from "@/lib/resolve-nav-link-for-pathname";
 import { pageHelpTopicForPathname } from "@/lib/usability/page-help-topic-map";
@@ -105,7 +106,7 @@ describe("OperatorSecurityTrustPageView", () => {
     const visible = (isolationSection.textContent ?? "").toLowerCase();
 
     expect(visible).not.toContain("no cross-tenant data path");
-    expect(within(isolationSection).getByRole("link", { name: /CAIQ \/ SIG response/i })).toHaveAttribute(
+    expect(within(isolationSection).getByRole("link", { name: /CAIQ \/ SIG pre-fill drafts/i })).toHaveAttribute(
       "href",
       "/help/caiq-sig-response",
     );
@@ -233,7 +234,7 @@ describe("OperatorSecurityTrustPageView (TB-1223–TB-1227)", () => {
     expect(screen.getByTestId("page-heading-icon")).toBeInTheDocument();
     expect(screen.getByTestId("page-contextual-help-button")).toBeInTheDocument();
     expect(pageHelpTopicForPathname(SETTINGS_SECURITY_TRUST_PATH)?.label).toBe(
-      `${OPERATOR_NAV_LINK_LABELS.securityTrust} help`,
+      SETTINGS_SECURITY_TRUST_HELP_TOPIC_LABEL,
     );
   });
 

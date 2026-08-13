@@ -10,6 +10,10 @@ export const CAIQ_SIG_RESPONSE_HELP_PAGE_TITLE = "CAIQ / SIG questionnaire respo
 export const CAIQ_SIG_RESPONSE_HELP_PAGE_SUBTITLE =
   "Pre-filled CAIQ Lite themes and SIG Core families for procurement reviewers — transpose into your buyer workbook, not a completed STAR/SIG submission.";
 
+/** Help Center catalog card — discovery IA for TB-1635. */
+export const CAIQ_SIG_RESPONSE_HELP_CENTER_SUMMARY =
+  "Pre-fill drafts for CAIQ Lite and SIG Core — browse in-product or download the questionnaire files from Trust Center.";
+
 export const CAIQ_SIG_RESPONSE_HELP_GUIDE_TEST_ID = "help-caiq-sig-response-guide" as const;
 
 export const CAIQ_SIG_RESPONSE_HELP_JOB_MATRIX_HEADING = "Which questionnaire section?";

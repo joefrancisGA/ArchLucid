@@ -1,4 +1,8 @@
 import { ACCELERATOR_CHOOSER_HELP_PAGE_TITLE } from "@/lib/accelerator-chooser-help-guide-content";
+import {
+  CAIQ_SIG_RESPONSE_HELP_CENTER_SUMMARY,
+  CAIQ_SIG_RESPONSE_HELP_PAGE_TITLE,
+} from "@/lib/caiq-sig-response-help-guide-content";
 import { describe, expect, it } from "vitest";
 
 import { ENTERPRISE_ONBOARDING_HELP_PAGE_TITLE } from "@/lib/enterprise-onboarding-help-copy";
@@ -51,7 +55,7 @@ describe("help-center-catalog", () => {
       (entry) => entry.slug,
     );
 
-    expect(architectGuides).not.toContain("admin-diagnostics");
+    expect(architectGuides).toContain("admin-diagnostics");
 
     const adminGuides = listHelpCenterGuideTopics({ showAdvanced: true, isAdmin: true }).map(
       (entry) => entry.slug,
@@ -187,6 +191,20 @@ describe("help center tiers", () => {
     const advanced = listHelpCenterTopics({ showAdvanced: true, isAdmin: false }).map((entry) => entry.slug);
 
     expect(advanced).toContain("soc2-self-assessment");
+  });
+
+  it("exposes CAIQ/SIG questionnaire pre-fill drafts as a product advanced guide (TB-1635)", () => {
+    const caiqSig = getProductDocumentationEntry("caiq-sig-response");
+
+    expect(caiqSig).not.toBeNull();
+    expect(getHelpCenterTier(caiqSig!)).toBe("product");
+    expect(getHelpCenterDisplay(caiqSig!).title).toBe(CAIQ_SIG_RESPONSE_HELP_PAGE_TITLE);
+    expect(getHelpCenterDisplay(caiqSig!).summary).toBe(CAIQ_SIG_RESPONSE_HELP_CENTER_SUMMARY);
+
+    const advanced = listHelpCenterTopics({ showAdvanced: true, isAdmin: false }).map((entry) => entry.slug);
+
+    expect(advanced).toContain("caiq-sig-response");
+    expect(HELP_CENTER_FEATURED_SLUGS).not.toContain("caiq-sig-response");
   });
 
   it("classifies accelerator chooser as product tier with canonical buyer title (TB-1605)", () => {

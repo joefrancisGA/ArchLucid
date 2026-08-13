@@ -8,6 +8,7 @@ import {
 } from "@/lib/trust-center-marketing";
 import {
   TRUST_CENTER_EVIDENCE_PACK_ZIP_HREF,
+  TRUST_CENTER_RELATED_HELP_LINKS,
   TRUST_PUBLIC_ASSURANCE_ARTIFACTS,
 } from "@/lib/trust-center-public-assurance";
 
@@ -48,5 +49,16 @@ describe("trust-center-marketing (TB-737)", () => {
       expect(href.startsWith("/auth")).toBe(false);
       expect(href.startsWith("/administration")).toBe(false);
     }
+  });
+
+  it("links Trust Center questionnaire pre-fills to the CAIQ/SIG specialty help guide (TB-1635)", () => {
+    const caiqLite = TRUST_PUBLIC_ASSURANCE_ARTIFACTS.find((artifact) => artifact.id === "caiq-lite");
+    const sigCore = TRUST_PUBLIC_ASSURANCE_ARTIFACTS.find((artifact) => artifact.id === "sig-core");
+    const relatedHelp = TRUST_CENTER_RELATED_HELP_LINKS.find((link) => link.id === "caiq-sig-response");
+
+    expect(caiqLite?.href).toBe("/help/caiq-sig-response");
+    expect(sigCore?.href).toBe("/help/caiq-sig-response");
+    expect(relatedHelp?.label).toMatch(/pre-fill drafts/i);
+    expect(relatedHelp?.href).toBe("/help/caiq-sig-response");
   });
 });

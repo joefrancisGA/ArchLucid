@@ -2,6 +2,7 @@ import { resolveInAppDocHref } from "@/lib/in-app-doc-href";
 import type { EnterpriseStatusKind } from "@/lib/design-tokens";
 import {
   getProductDocumentationEntry,
+  inAppHelpHref,
   type ProductDocumentationEntry,
 } from "@/lib/product-documentation-registry";
 import { assuranceMaturityBadgeLabel } from "@/lib/security-trust-content";
@@ -46,11 +47,11 @@ export const OPERATOR_SECURITY_TRUST_MATERIAL_ITEMS: ReadonlyArray<OperatorSecur
     whatItIs: "Internal readiness mapping aligned to SOC 2 Common Criteria — not a CPA attestation report.",
   },
   {
-    label: "CAIQ / SIG response",
-    href: resolveInAppDocHref("docs/security/CAIQ_LITE_2026.md"),
+    label: "CAIQ / SIG pre-fill drafts",
+    href: inAppHelpHref("caiq-sig-response"),
     docSlug: "caiq-sig-response",
     whatItIs:
-      "CAIQ Lite subset and SIG Core family summary index mapped to in-repo evidence — not a complete CAIQ or SIG submission.",
+      "Pre-filled CAIQ Lite themes and SIG Core families for procurement reviewers — transpose into your buyer workbook, not a completed STAR/SIG submission.",
   },
 ];
 
@@ -91,14 +92,12 @@ export const OPERATOR_SECURITY_TRUST_TENANT_ISOLATION_SCOPE_BODY =
 export const OPERATOR_SECURITY_TRUST_TENANT_ISOLATION_EVIDENCE_LABEL = "Evidence";
 
 /** @deprecated Split into OPERATOR_SECURITY_TRUST_TENANT_ISOLATION_* parts; kept for drift guards. */
-export const OPERATOR_SECURITY_TRUST_TENANT_ISOLATION_BODY = `${OPERATOR_SECURITY_TRUST_TENANT_ISOLATION_ENFORCED_BODY} ${OPERATOR_SECURITY_TRUST_TENANT_ISOLATION_SCOPE_BODY} For questionnaire detail, use the CAIQ / SIG response and Trust Center isolation materials.`;
+export const OPERATOR_SECURITY_TRUST_TENANT_ISOLATION_BODY = `${OPERATOR_SECURITY_TRUST_TENANT_ISOLATION_ENFORCED_BODY} ${OPERATOR_SECURITY_TRUST_TENANT_ISOLATION_SCOPE_BODY} For questionnaire pre-fill drafts, use the CAIQ / SIG help topic and Trust Center isolation materials.`;
 
-/** In-app CAIQ doc — references tenant isolation evidence for procurement reviewers. */
-export const OPERATOR_SECURITY_TRUST_TENANT_ISOLATION_DETAIL_HREF = resolveInAppDocHref(
-  "docs/security/CAIQ_LITE_2026.md",
-);
+/** In-app CAIQ / SIG specialty guide — references tenant isolation evidence for procurement reviewers. */
+export const OPERATOR_SECURITY_TRUST_TENANT_ISOLATION_DETAIL_HREF = inAppHelpHref("caiq-sig-response");
 
-export const OPERATOR_SECURITY_TRUST_TENANT_ISOLATION_DETAIL_LABEL = "CAIQ / SIG response";
+export const OPERATOR_SECURITY_TRUST_TENANT_ISOLATION_DETAIL_LABEL = "CAIQ / SIG pre-fill drafts";
 
 export const OPERATOR_SECURITY_TRUST_TENANT_ISOLATION_AUDIT_TRAIL_HREF = resolveInAppDocHref(
   "docs/library/AUDIT_EVENT_MODEL.md",
