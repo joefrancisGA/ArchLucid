@@ -19,6 +19,7 @@ public static class FindingEnginePluginDiscovery
     [
         "requirement",
         "topology-coverage",
+        "topology-structure",
         "security-baseline",
         "security-coverage",
         "policy-applicability",
