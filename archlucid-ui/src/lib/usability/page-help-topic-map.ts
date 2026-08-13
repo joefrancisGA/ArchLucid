@@ -7,7 +7,10 @@ import {
   ALERTS_CONFIGURATION_PAGE_TITLE,
   ALERTS_HOW_ALERTS_WORK_LABEL,
 } from "@/lib/alerts-page-copy";
+import { ACCOUNT_SECURITY_SETTINGS_HELP_TOPIC_LABEL } from "@/lib/account-security-settings-evidence-copy";
 import { AI_USAGE_HELP_TOPIC_LABEL } from "@/lib/ai-usage-settings-evidence-copy";
+import { ADMIN_TENANTS_HELP_TOPIC_LABEL } from "@/lib/admin-tenants-evidence-copy";
+import { AUTH_DOMAINS_SETTINGS_HELP_TOPIC_LABEL } from "@/lib/auth-domains-settings-evidence-copy";
 import { API_KEYS_HELP_TOPIC_LABEL } from "@/lib/api-keys-settings-evidence-copy";
 import { BASELINE_SETTINGS_HELP_TOPIC_LABEL } from "@/lib/baseline-settings-evidence-copy";
 import { ARCHITECTURES_LIST_PATH } from "@/lib/architecture/architecture-routes";
@@ -32,6 +35,9 @@ import { BUYER_ONBOARDING_PAGE_TITLE, BUYER_VALUE_REPORT_HOW_IT_WORKS_TITLE } fr
 import { GOVERNANCE_SETUP_HREF, GOVERNANCE_SETUP_PAGE_TITLE } from "@/lib/governance/governance-setup-route";
 import { GOVERNANCE_EXCEPTIONS_PATH } from "@/lib/governance/governance-route-paths";
 import { GOVERNANCE_APPROVAL_HELP_TOPIC_LABEL } from "@/lib/governance/governance-approval-help-evidence-copy";
+import { IDENTITY_PROVIDERS_DIAGNOSTICS_HELP_TOPIC_LABEL } from "@/lib/identity-providers-diagnostics-evidence-copy";
+import { IDENTITY_PROVIDERS_OIDC_HELP_TOPIC_LABEL } from "@/lib/identity-providers-oidc-evidence-copy";
+import { IDENTITY_PROVIDERS_SAML_HELP_TOPIC_LABEL } from "@/lib/identity-providers-saml-evidence-copy";
 import { IDENTITY_PROVIDERS_SETTINGS_HELP_TOPIC_LABEL } from "@/lib/identity-providers-settings-evidence-copy";
 import { INTEGRATION_EVENTS_DLQ_HELP_TOPIC_LABEL } from "@/lib/integration-events-dlq-evidence-copy";
 import { INTEGRATION_READINESS_HELP_TOPIC_LABEL } from "@/lib/integration-readiness-help-evidence-copy";
@@ -56,6 +62,7 @@ import { SLACK_INTEGRATION_HELP_TOPIC_LABEL } from "@/lib/slack-integration-evid
 import { RECURRENCE_SCHEDULES_HOW_IT_WORKS_TITLE } from "@/lib/recurrence-schedules-copy";
 import { ACCELERATOR_CHOOSER_HELP_INBOUND_LABEL } from "@/lib/accelerator-chooser-help-title-honesty-surfaces";
 import { REPEAT_REVIEW_LOOP_HELP_INBOUND_LABEL } from "@/lib/repeat-review-loop-help-title-honesty-surfaces";
+import { ROLE_MAPPING_SETTINGS_HELP_TOPIC_LABEL } from "@/lib/role-mapping-settings-evidence-copy";
 import { RISK_EXCEPTIONS_HELP_TOPIC_LABEL } from "@/lib/risk-exceptions-evidence-copy";
 import { SCIM_PROVISIONING_HELP_TOPIC_LABEL } from "@/lib/scim-provisioning-evidence-copy";
 import { SEARCH_REVIEW_EVIDENCE_HELP_TOPIC_LABEL } from "@/lib/search-review-evidence-evidence-copy";
@@ -511,14 +518,17 @@ const PAGE_HELP_TOPICS: readonly { prefix: string; topic: PageHelpTopic }[] = [
   },
   {
     prefix: "/internal/tenants",
-    topic: { slug: "enterprise-onboarding", label: "Tenant provisioning" },
+    topic: { slug: "enterprise-onboarding", label: ADMIN_TENANTS_HELP_TOPIC_LABEL },
   },
   {
     // Secondary hub — no advisory-scans specialty; omit Learn more (TB-2050).
     prefix: "/governance/advisory-scans",
     topic: { label: "Advisory scans" },
   },
-  { prefix: "/integrations/cloud-connections/azure", topic: { slug: "azure-permissions", label: "Azure permissions" } },
+  {
+    prefix: "/integrations/cloud-connections/azure",
+    topic: { slug: "cloud-connections-azure", label: "Connect Azure securely" },
+  },
   { prefix: "/integrations/cloud-connections/aws", topic: { slug: "cloud-connections-aws", label: "AWS cloud connection" } },
   { prefix: "/integrations/cloud-connections/gcp", topic: { slug: "cloud-connections-gcp", label: "GCP cloud connection" } },
   { prefix: "/integrations/cloud-connections", topic: { slug: "cloud-connections", label: "Cloud connections" } },
@@ -573,15 +583,15 @@ const PAGE_HELP_TOPICS: readonly { prefix: string; topic: PageHelpTopic }[] = [
   },
   {
     prefix: "/administration/identity-providers/role-mapping",
-    topic: { slug: "users-and-roles", label: "Role mapping" },
+    topic: { slug: "users-and-roles", label: ROLE_MAPPING_SETTINGS_HELP_TOPIC_LABEL },
   },
   {
     prefix: "/administration/identity-providers/oidc",
-    topic: { slug: "enterprise-onboarding", label: "OIDC identity provider" },
+    topic: { slug: "enterprise-onboarding", label: IDENTITY_PROVIDERS_OIDC_HELP_TOPIC_LABEL },
   },
   {
     prefix: "/administration/identity-providers/saml",
-    topic: { slug: "enterprise-onboarding", label: "SAML identity provider" },
+    topic: { slug: "enterprise-onboarding", label: IDENTITY_PROVIDERS_SAML_HELP_TOPIC_LABEL },
   },
   {
     prefix: "/administration/identity/sso-wizard",
@@ -597,7 +607,7 @@ const PAGE_HELP_TOPICS: readonly { prefix: string; topic: PageHelpTopic }[] = [
   },
   {
     prefix: "/administration/identity-providers/diagnostics",
-    topic: { slug: "enterprise-onboarding", label: "Identity diagnostics" },
+    topic: { slug: "enterprise-onboarding", label: IDENTITY_PROVIDERS_DIAGNOSTICS_HELP_TOPIC_LABEL },
   },
   {
     prefix: "/administration/identity-providers",
@@ -617,11 +627,11 @@ const PAGE_HELP_TOPICS: readonly { prefix: string; topic: PageHelpTopic }[] = [
   },
   {
     prefix: "/administration/account-security",
-    topic: { slug: "security-trust", label: "Sign-in methods" },
+    topic: { slug: "security-trust", label: ACCOUNT_SECURITY_SETTINGS_HELP_TOPIC_LABEL },
   },
   {
     prefix: "/administration/auth-domains",
-    topic: { slug: "enterprise-onboarding", label: "Sign-in domains" },
+    topic: { slug: "enterprise-onboarding", label: AUTH_DOMAINS_SETTINGS_HELP_TOPIC_LABEL },
   },
   {
     prefix: "/administration/extract-upload",

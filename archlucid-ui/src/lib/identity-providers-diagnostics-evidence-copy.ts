@@ -4,6 +4,8 @@ import type { EvidenceSourceLink } from "@/lib/evidence-surface-copy";
 export const IDENTITY_PROVIDERS_DIAGNOSTICS_CANONICAL_PATH =
   "/administration/identity-providers/diagnostics" as const;
 
+export const IDENTITY_PROVIDERS_DIAGNOSTICS_HELP_TOPIC_LABEL = "How identity diagnostics work" as const;
+
 export const IDENTITY_PROVIDERS_DIAGNOSTICS_CLAIM_DISCIPLINE =
   "This Identity diagnostics page validates federation health probes and support tooling - it is not a signed-review diligence Sources package. Open SSO and identity, Role mapping, or Assurance status when you need hub setup, claim mapping, or trust cites.";
 

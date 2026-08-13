@@ -4,6 +4,8 @@ import type { EvidenceSourceLink } from "@/lib/evidence-surface-copy";
 export const ROLE_MAPPING_SETTINGS_CANONICAL_PATH =
   "/administration/identity-providers/role-mapping" as const;
 
+export const ROLE_MAPPING_SETTINGS_HELP_TOPIC_LABEL = "How role mapping works" as const;
+
 export const ROLE_MAPPING_SETTINGS_CLAIM_DISCIPLINE =
   "This Role mapping page configures how IdP groups or claims become ArchLucid app roles - it is not a signed-review diligence Sources package. Open Users and roles help, SSO overview, or Assurance status when you need membership, federation, or trust cites.";
 

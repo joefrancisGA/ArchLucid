@@ -49,6 +49,7 @@ import { WEBHOOKS_INTEGRATION_CONTEXTUAL_HELP_ROWS } from "@/lib/contextual-help
 import { SYSTEM_HEALTH_CONTEXTUAL_HELP_ROWS } from "@/lib/contextual-help/system-health-rows";
 import { WORKSPACE_SETTINGS_CONTEXTUAL_HELP_ROWS } from "@/lib/contextual-help/workspace-settings-rows";
 import { HELP_TOPIC_CONTEXTUAL_HELP_ROWS } from "@/lib/contextual-help/help-topic-rows";
+import { IDENTITY_ADMINISTRATION_CONTEXTUAL_HELP_ROWS } from "@/lib/contextual-help/identity-administration-rows";
 import { AI_USAGE_CONTEXTUAL_HELP_ROWS } from "@/lib/contextual-help/ai-usage-rows";
 import { INSIGHTS_CONTEXTUAL_HELP_ROWS } from "@/lib/contextual-help/insights-rows";
 import { INTEGRATION_READINESS_CONTEXTUAL_HELP_ROWS } from "@/lib/contextual-help/integration-readiness-rows";
@@ -103,6 +104,7 @@ const PAGE_CONTEXTUAL_HELP: readonly PageContextualHelpRow[] = [
   ...WEBHOOKS_INTEGRATION_CONTEXTUAL_HELP_ROWS,
   ...WORKSPACE_SETTINGS_CONTEXTUAL_HELP_ROWS,
   ...HELP_TOPIC_CONTEXTUAL_HELP_ROWS,
+  ...IDENTITY_ADMINISTRATION_CONTEXTUAL_HELP_ROWS,
   ...INSIGHTS_CONTEXTUAL_HELP_ROWS,
   ...INTEGRATION_READINESS_CONTEXTUAL_HELP_ROWS,
   ...INTEGRATIONS_CONTEXTUAL_HELP_ROWS,

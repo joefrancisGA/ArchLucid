@@ -4,6 +4,8 @@ import type { EvidenceSourceLink } from "@/lib/evidence-surface-copy";
 export const IDENTITY_PROVIDERS_OIDC_CANONICAL_PATH =
   "/administration/identity-providers/oidc" as const;
 
+export const IDENTITY_PROVIDERS_OIDC_HELP_TOPIC_LABEL = "How OIDC federation works" as const;
+
 export const IDENTITY_PROVIDERS_OIDC_CLAIM_DISCIPLINE =
   "This OIDC/JWT page reviews discovery, authority, and audience for workspace federation - it is not a signed-review diligence Sources package. Open SSO and identity, Role mapping, or Assurance status when you need hub setup, claim mapping, or trust cites.";
 

@@ -5,6 +5,8 @@ import { GOVERNANCE_AUDIT_PATH } from "@/lib/governance/governance-route-paths";
 
 export const ADMIN_TENANTS_CANONICAL_PATH = INTERNAL_TENANTS_PATH;
 
+export const ADMIN_TENANTS_HELP_TOPIC_LABEL = "How tenant provisioning works" as const;
+
 export const ADMIN_TENANTS_CLAIM_DISCIPLINE =
   "Tenant provisioning and shut-off controls manage tenant lifecycle for platform administrators — they are not a signed-review diligence Sources package. Open Tenant health or Audit when you need engagement scores or governed trails.";
 
