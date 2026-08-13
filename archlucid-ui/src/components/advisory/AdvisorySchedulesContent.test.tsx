@@ -121,6 +121,30 @@ describe("AdvisorySchedulesContent", () => {
     expect(screen.queryByTestId("cron-expression-input")).toBeNull();
     expect(await screen.findByText(/Next scheduled runs/i)).toBeInTheDocument();
     expect(await screen.findAllByRole("listitem")).toHaveLength(5);
+    expect(screen.queryByTestId("document-layout")).toBeNull();
+  });
+
+  it("uses primary submit in empty state without a competing header primary (AD-P0-2)", async () => {
+    render(<AdvisorySchedulesContent />);
+
+    const submit = await screen.findByTestId("advisory-schedule-create-submit");
+    expect(submit.className).toContain("al-primary-action-bg");
+    expect(screen.queryByTestId("advisory-schedules-create-action")).toBeNull();
+  });
+
+  it("shows one next-runs panel when Advanced is open on a preset frequency (AD-P0-3)", async () => {
+    render(<AdvisorySchedulesContent />);
+
+    await waitFor(() => {
+      expect(screen.getByTestId("advisory-schedule-upcoming-preview")).toBeInTheDocument();
+    });
+
+    fireEvent.click(screen.getByTestId("advisory-schedule-advanced-toggle"));
+
+    expect(await screen.findByTestId("cron-expression-input")).toBeInTheDocument();
+    expect(screen.getByTestId("advisory-schedule-upcoming-preview")).toBeInTheDocument();
+    expect(screen.queryByTestId("cron-next-runs-preview")).toBeNull();
+    expect(screen.queryByText(/Generated expression \(UTC\)/i)).toBeNull();
   });
 
   it("reveals advanced cron behind Advanced scheduling", async () => {
@@ -322,6 +346,9 @@ describe("AdvisorySchedulesContent", () => {
     expect(screen.getByTestId("advisory-schedules-side-column")).toBeInTheDocument();
     expect(screen.getByTestId("advisory-schedule-inline-scope")).toBeInTheDocument();
     expect(screen.getByTestId("advisory-schedule-project-scope-label")).toHaveTextContent("claims-intake");
+
+    const examplePreview = screen.getByTestId("advisory-schedule-example-preview");
+    expect(layout.compareDocumentPosition(examplePreview)).toBe(Node.DOCUMENT_POSITION_FOLLOWING);
   });
 
   it("surfaces invalid advanced cron feedback", async () => {

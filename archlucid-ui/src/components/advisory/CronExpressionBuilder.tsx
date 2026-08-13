@@ -35,6 +35,10 @@ export type CronExpressionBuilderProps = {
   previewTimeZoneId?: string;
   /** Optional override for the preview heading. */
   previewHeading?: string;
+  /** When true, skips server preview fetch and hides the next-runs panel (parent owns preview). */
+  hidePreview?: boolean;
+  /** Reports server preview validity when this builder owns preview (not when hidePreview). */
+  onPreviewValidityChange?: (isValid: boolean) => void;
 };
 
 function formatPreviewLabel(instant: Date, timeZoneId: string | undefined): string {
@@ -59,6 +63,8 @@ export function CronExpressionBuilder({
   advancedOnly = false,
   previewTimeZoneId,
   previewHeading,
+  hidePreview = false,
+  onPreviewValidityChange,
 }: CronExpressionBuilderProps) {
   const presetId = resolveCronSchedulePresetId(value);
   const activePreset = CRON_SCHEDULE_PRESETS.find((preset) => preset.id === presetId);
@@ -69,6 +75,14 @@ export function CronExpressionBuilder({
   const trimmedValue = value.trim();
 
   useEffect(() => {
+    if (hidePreview) {
+      setPreviewRuns([]);
+      setValidationError(null);
+      setPreviewLoading(false);
+
+      return;
+    }
+
     if (trimmedValue.length === 0) {
       setPreviewRuns([]);
       setValidationError(null);
@@ -120,7 +134,36 @@ export function CronExpressionBuilder({
       canceled = true;
       window.clearTimeout(timer);
     };
-  }, [trimmedValue]);
+  }, [hidePreview, trimmedValue]);
+
+  useEffect(() => {
+    if (onPreviewValidityChange === undefined) {
+      return;
+    }
+
+    if (hidePreview) {
+      onPreviewValidityChange(true);
+
+      return;
+    }
+
+    if (trimmedValue.length === 0) {
+      onPreviewValidityChange(false);
+
+      return;
+    }
+
+    onPreviewValidityChange(
+      !previewLoading && validationError === null && previewRuns.length > 0,
+    );
+  }, [
+    hidePreview,
+    onPreviewValidityChange,
+    previewLoading,
+    previewRuns.length,
+    trimmedValue.length,
+    validationError,
+  ]);
 
   const previewList = useMemo(
     () =>
@@ -195,7 +238,7 @@ export function CronExpressionBuilder({
           onChange={(e) => onChange(e.target.value)}
           readOnly={disabled}
           className={cn(inputClassName, "mt-1 font-mono")}
-          aria-describedby="cron-expression-hint cron-next-runs-preview"
+          aria-describedby={hidePreview ? "cron-expression-hint" : "cron-expression-hint cron-next-runs-preview"}
           aria-invalid={validationError !== null}
           data-testid="cron-expression-input"
         />
@@ -207,44 +250,46 @@ export function CronExpressionBuilder({
           : "Supported presets include daily and weekly UTC times, or another valid five-field UTC expression. Invalid expressions are rejected when you save."}
       </p>
 
-      {validationError !== null ? (
+      {validationError !== null && !hidePreview ? (
         <p className={cn("m-0 text-red-700 dark:text-red-400", OPERATOR_TYPOGRAPHY.body)} role="alert">
           {validationError}
         </p>
       ) : null}
 
-      <div
-        id="cron-next-runs-preview"
-        className="rounded-md border border-neutral-200 bg-neutral-50 p-3 dark:border-neutral-700 dark:bg-neutral-900/50"
-        data-testid="cron-next-runs-preview"
-      >
-        <p
-          className={cn(
-            "m-0 font-semibold uppercase tracking-wide text-neutral-600 dark:text-neutral-400",
-            OPERATOR_TYPOGRAPHY.helper,
-          )}
+      {!hidePreview ? (
+        <div
+          id="cron-next-runs-preview"
+          className="rounded-md border border-neutral-200 bg-neutral-50 p-3 dark:border-neutral-700 dark:bg-neutral-900/50"
+          data-testid="cron-next-runs-preview"
         >
-          {heading}
-        </p>
-        {previewLoading ? (
-          <p className={cn("m-0 mt-2 text-neutral-600 dark:text-neutral-400", OPERATOR_TYPOGRAPHY.body)} aria-live="polite">
-            Loading preview…
-          </p>
-        ) : previewRuns.length > 0 ? (
-          <ol
+          <p
             className={cn(
-              "m-0 mt-2 list-decimal space-y-1 pl-5 text-neutral-800 dark:text-neutral-200",
-              OPERATOR_TYPOGRAPHY.body,
+              "m-0 font-semibold uppercase tracking-wide text-neutral-600 dark:text-neutral-400",
+              OPERATOR_TYPOGRAPHY.helper,
             )}
           >
-            {previewList}
-          </ol>
-        ) : (
-          <p className={cn("m-0 mt-2 text-neutral-600 dark:text-neutral-400", OPERATOR_TYPOGRAPHY.body)}>
-            Enter a supported expression to preview runs.
+            {heading}
           </p>
-        )}
-      </div>
+          {previewLoading ? (
+            <p className={cn("m-0 mt-2 text-neutral-600 dark:text-neutral-400", OPERATOR_TYPOGRAPHY.body)} aria-live="polite">
+              Loading preview…
+            </p>
+          ) : previewRuns.length > 0 ? (
+            <ol
+              className={cn(
+                "m-0 mt-2 list-decimal space-y-1 pl-5 text-neutral-800 dark:text-neutral-200",
+                OPERATOR_TYPOGRAPHY.body,
+              )}
+            >
+              {previewList}
+            </ol>
+          ) : (
+            <p className={cn("m-0 mt-2 text-neutral-600 dark:text-neutral-400", OPERATOR_TYPOGRAPHY.body)}>
+              Enter a supported expression to preview runs.
+            </p>
+          )}
+        </div>
+      ) : null}
     </fieldset>
   );
 }
