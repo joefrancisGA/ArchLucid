@@ -21,6 +21,7 @@ import {
 } from "@/lib/core-pilot-help-guide-content";
 import { CORE_PILOT_HELP_CLAIM_DISCIPLINE } from "@/lib/core-pilot-help-evidence-copy";
 import { FIRST_ARCHITECTURE_REVIEW_HELP_PATH } from "@/lib/first-architecture-review-help-route";
+import { firstArchitectureReviewHelpCopyContainsBannedPattern } from "@/lib/first-architecture-review-help-banned-copy";
 import { resolveHelpTopicPermanentRedirect } from "@/lib/help/help-topic-permanent-redirects";
 import { getProductDocumentationEntry } from "@/lib/product-documentation-registry";
 
@@ -434,6 +435,19 @@ describe("HelpCorePilotGuideView", () => {
       "href",
       "#run-the-first-review",
     );
+  });
+
+  it("TB-1375: purges Pilot-first and operator-path jargon from rendered customer chrome", () => {
+    if (entry === undefined) {
+      throw new Error("Expected first-architecture-review documentation entry.");
+    }
+
+    const { container } = render(<HelpCorePilotGuideView entry={entry} />);
+    const visible = container.textContent ?? "";
+
+    expect(firstArchitectureReviewHelpCopyContainsBannedPattern(visible)).toEqual([]);
+    expect(visible.toLowerCase()).not.toContain("operator orientation");
+    expect(screen.getByRole("heading", { level: 2, name: "Before you share externally" })).toBeInTheDocument();
   });
 
   it("canonicalizes first-hour-operator-path into specialty first-review chrome (TB-1374)", () => {
