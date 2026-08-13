@@ -18,7 +18,7 @@ namespace ArchLucid.Application.Analysis;
 public sealed class PersistedAnalysisExportRequest
 {
     /// <summary>
-    ///     Explicit template profile name (e.g. <c>executive</c>, <c>regulated</c>).
+    ///     Explicit template profile name (e.g. <c>sponsor</c>, <c>regulated</c>).
     ///     When set, profile auto-recommendation is skipped.
     ///     See <see cref="ConsultingDocxProfiles" /> for well-known values.
     /// </summary>
@@ -32,7 +32,7 @@ public sealed class PersistedAnalysisExportRequest
 
     /// <summary>
     ///     Free-text audience hint forwarded to the recommendation service when
-    ///     <see cref="TemplateProfile" /> is not set (e.g. <c>executive</c>, <c>compliance</c>).
+    ///     <see cref="TemplateProfile" /> is not set (e.g. <c>sponsor</c>, <c>compliance</c>).
     /// </summary>
     public string? Audience
     {
@@ -52,7 +52,7 @@ public sealed class PersistedAnalysisExportRequest
 
     /// <summary>
     ///     <see langword="true" /> when the primary reader expects a concise non-technical brief.
-    ///     Signals the <c>executive</c> profile when no stronger flag is set.
+    ///     Signals the <c>sponsor</c> profile when no stronger flag is set.
     /// </summary>
     public bool ExecutiveFriendly
     {

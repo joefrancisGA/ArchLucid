@@ -8,7 +8,7 @@ using Moq;
 namespace ArchLucid.Application.Tests.Analysis;
 
 /// <summary>
-/// Branch coverage for <see cref="EndToEndReplayComparisonExportService"/>: executive profile, guards, and
+/// Branch coverage for <see cref="EndToEndReplayComparisonExportService"/>: sponsor profile, guards, and
 /// manifest relationship subsections on the detailed path.
 /// </summary>
 [Trait("Category", "Unit")]
@@ -28,7 +28,7 @@ public sealed class EndToEndReplayComparisonExportServiceExecutiveAndRelationshi
             LeftRunId = "L-exec", RightRunId = "R-exec", RunDiff = new RunMetadataDiffResult { ChangedFields = ["Alpha"], RequestIdsDiffer = true }
         };
 
-        string md = sut.GenerateMarkdown(report, EndToEndComparisonExportProfile.Executive);
+        string md = sut.GenerateMarkdown(report, EndToEndComparisonExportProfile.Sponsor);
 
         md.Should().Contain("## Key counts");
         md.Should().Contain("Run metadata: 1 changed field(s); Request IDs differ: Yes");
@@ -63,7 +63,7 @@ public sealed class EndToEndReplayComparisonExportServiceExecutiveAndRelationshi
             AgentResultDiff = new AgentResultDiffResult { AgentDeltas = [] }
         };
 
-        string html = sut.GenerateHtml(report, EndToEndComparisonExportProfile.Executive);
+        string html = sut.GenerateHtml(report, EndToEndComparisonExportProfile.Sponsor);
 
         html.Should().Contain("<h2>Key counts</h2>");
         html.Should().NotContain("Agent Result Diff");

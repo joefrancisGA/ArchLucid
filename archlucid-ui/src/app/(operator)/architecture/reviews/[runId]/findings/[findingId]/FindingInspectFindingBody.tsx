@@ -26,13 +26,13 @@ export type FindingInspectFindingBodyProps = {
   readonly decodedFindingId: string;
   readonly payload: FindingInspectPayload;
   readonly variant?: "detail" | "inspect";
-  /** When `executive`, omit operator audit linkage and use executive review handoffs. */
-  readonly surface?: "operator" | "executive";
+  /** When `sponsor`, omit operator audit linkage and use sponsor review handoffs. */
+  readonly surface?: "operator" | "sponsor";
 };
 
 /**
  * Finding narrative + traceability blocks composed by route:
- * - **detail** — sponsor summary first; omits raw reasoning / typed JSON (use Inspect for deep traceability).
+ * - **detail** — sponsor report first; omits raw reasoning / typed JSON (use Inspect for deep traceability).
  * - **inspect** — full ordered traceability including reasoning and structured payload dumps.
  */
 export function FindingInspectFindingBody({
@@ -45,13 +45,13 @@ export function FindingInspectFindingBody({
   const demoFillGaps =
     (isNextPublicDemoMode() || isDemoRunIdEligibleForStaticFallback(runId)) && isOperatorExperienceFullShellEnv();
   const reviewContextHref =
-    surface === "executive"
+    surface === "sponsor"
       ? `/architecture/reviews/${encodeURIComponent(runId)}`
       : isDemoRunIdEligibleForStaticFallback(runId)
         ? getShowcaseManifestHref()
         : `/architecture/reviews/${encodeURIComponent(runId)}`;
   const reviewContextLabel =
-    surface === "executive"
+    surface === "sponsor"
       ? "Open risk review"
       : "Open review summary";
   const citationModel = buildFindingPolicyEvidenceCitationsFromInspect(runId, decodedFindingId, payload);
@@ -146,7 +146,7 @@ export function FindingInspectFindingBody({
   );
 
   const auditBlock =
-    surface === "executive" ? null : (
+    surface === "sponsor" ? null : (
       <FindingInspectAuditSection auditRowId={payload.auditRowId} demoFillGaps={demoFillGaps} />
     );
 

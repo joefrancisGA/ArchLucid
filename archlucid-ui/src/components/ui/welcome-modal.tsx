@@ -27,7 +27,7 @@ export type WelcomeModalProps = {
   readonly onDismiss: () => void;
   /** Operator first-run: closes the welcome modal and starts the guided tour at step 1. */
   readonly onStartTour?: () => void;
-  /** Buyer-polished shell: executive-facing onboarding copy (avoids internal-operator framing). */
+  /** Buyer-polished shell: sponsor-facing onboarding copy (avoids internal-operator framing). */
   readonly buyerShell?: boolean;
 };
 
@@ -67,13 +67,13 @@ const BUYER_WELCOME_STEPS: ReadonlyArray<StepDef> = [
   {
     title: "Welcome to ArchLucid",
     description:
-      "Walk through a completed executive review—risk posture, evidence-linked findings, governance status, and audit-ready exports—without advanced tooling upfront.",
+      "Walk through a completed sponsor review—risk posture, evidence-linked findings, governance status, and audit-ready exports—without advanced tooling upfront.",
     Icon: Package,
   },
   {
-    title: "Start from executive summary",
+    title: "Start from sponsor report",
     description:
-      "Open the executive workspace first for sponsor-ready posture and citations; drill into signed review record, evidence traceability, and deliverables when you need deeper proof.",
+      "Open the sponsor workspace first for sponsor-ready posture and citations; drill into signed review record, evidence traceability, and deliverables when you need deeper proof.",
     Icon: Users,
   },
   {
@@ -237,7 +237,7 @@ export function WelcomeModal(props: WelcomeModalProps) {
                   className={CTA_WIDTH.formMatch}
                   onClick={handleGetStartedInApp}
                 >
-                  {buyerShell ? "Open sample executive summary" : "Get started — new review"}
+                  {buyerShell ? "Open sample sponsor report" : "Get started — new review"}
                 </Button>
                 <Button type="button" variant="secondary" className={CTA_WIDTH.formMatch} asChild>
                   <Link href="/quick-scan" onClick={onDismiss}>

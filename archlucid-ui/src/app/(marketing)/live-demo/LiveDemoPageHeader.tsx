@@ -27,7 +27,7 @@ export function LiveDemoPageHeader() {
       </p>
       <div className="mt-4 flex flex-wrap items-center gap-3">
         <Button asChild variant="primary" data-testid="live-demo-start-walkthrough">
-          <Link href="/live-demo?step=executive">{LIVE_DEMO_START_WALKTHROUGH_CTA}</Link>
+          <Link href="/live-demo?step=sponsor">{LIVE_DEMO_START_WALKTHROUGH_CTA}</Link>
         </Button>
         <Link
           className={cn(

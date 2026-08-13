@@ -4,7 +4,7 @@
 >
 > **Related:** [`CI_INTEGRATION_SHARD_TESTHOST_HANG_2026_06_23.md`](./CI_INTEGRATION_SHARD_TESTHOST_HANG_2026_06_23.md) (testhost shutdown wedge), [`CI_2224_INTEGRATION_SHARD_TIMEOUT_DIAGNOSIS_2026_06_16.md`](./CI_2224_INTEGRATION_SHARD_TIMEOUT_DIAGNOSIS_2026_06_16.md), [`CI_2268_INTEGRATION_SHARD_TIMEOUT_DIAGNOSIS_2026_06_20.md`](./CI_2268_INTEGRATION_SHARD_TIMEOUT_DIAGNOSIS_2026_06_20.md), [`../runbooks/CI_RELEASE_GATE.md`](../runbooks/CI_RELEASE_GATE.md), [`../library/TEST_EXECUTION_MODEL.md`](../library/TEST_EXECUTION_MODEL.md), [`../../archlucid-ui/docs/TESTING_AND_TROUBLESHOOTING.md`](../../archlucid-ui/docs/TESTING_AND_TROUBLESHOOTING.md).
 
-## Executive summary
+## Sponsor summary
 
 From late May through 2026-06-24, **full CI (`workflow_dispatch` on `master`) had not passed in 500+ consecutive runs**. Failures were **not a single regression** — they came from three independent categories:
 
@@ -12,7 +12,7 @@ From late May through 2026-06-24, **full CI (`workflow_dispatch` on `master`) ha
 |----------|---------|---------------------------|
 | **A — Pre-corset guards** | Python guard suite fails before .NET build | Addressed in prior commits on `master` (`915fb35fc`, `bdac6fe3a`, migration rename to `259_*`); re-verify with `bash scripts/ci/run_guards_pre_corset.sh` |
 | **B — Integration shard chunk watchdog** | Five of six Api.Tests integration shards hit **20-minute chunk timeout** | Move five hanging test **classes** to **`Category=Slow`** (slow shard, longer budget) — commit **`f6ff02a31`** |
-| **C — Mock Playwright** | `Operator UI: Playwright mock functional (mock API)` fails on branded 404, executive ROI export wait, audit screenshot gate | E2E spec / helper updates — commit **`f6ff02a31`** |
+| **C — Mock Playwright** | `Operator UI: Playwright mock functional (mock API)` fails on branded 404, sponsor ROI export wait, audit screenshot gate | E2E spec / helper updates — commit **`f6ff02a31`** |
 
 Structural fixes (bounded factory startup, bootstrap-budget wiring for execute/commit pipelines) remain **recommended** so those tests can safely return to the integration shard pool without relying on the Slow escape hatch alone.
 
@@ -158,12 +158,12 @@ Job: **`Operator UI: Playwright mock functional (mock API)`** (`playwright.mock.
 - **Cause:** `OperatorBrandedNotFound` renders the marker as **`sr-only`** (`data-testid="branded-not-found"`). Playwright **`toBeVisible()`** requires visible layout; sr-only nodes fail that check even when the 404 page rendered correctly.
 - **Fix (`f6ff02a31`):** `expectBrandedNotFoundSurface()` — assert visible heading *"We could not find that ArchLucid artifact"* plus **`toBeAttached()`** on the sr-only marker.
 
-### Failure 2 — Executive ROI dashboard export wait (`executive-roi-dashboard.spec.ts`)
+### Failure 2 — Sponsor ROI dashboard export wait (`sponsor-roi-dashboard.spec.ts`)
 
-- **Error:** `page.waitForResponse: Timeout 60000ms exceeded` for `/v1/roi/executive-summary` and `/export`.
+- **Error:** `page.waitForResponse: Timeout 60000ms exceeded` for `/v1/roi/sponsor-summary` and `/export`.
 - **Cause:** Buyer-polished **`/dashboard`** uses portfolio layout; `ExecutiveRoiEnvironmentSavingsSection` (export fetch) mounts only **after** summary hydration (`hasCommittedReviews`). Waiting on network alone races cold CI agents. A prior fix (`86bcbc4aa`) added a **"Savings by environment"** visibility wait; **`76439bb8b`** removed it — regression.
-- **Fix (`f6ff02a31`):** Restored scroll + **`expect(…"Savings by environment").toBeVisible()`** after summary response wait in `e2e/helpers/executive-roi-dashboard.ts`.
-- **Mock payloads:** `e2e/fixtures/executive-roi-dashboard-mock.ts` via `e2e/screenshot-mock-fallback.ts` and `e2e/mock-archlucid-api-server.ts`.
+- **Fix (`f6ff02a31`):** Restored scroll + **`expect(…"Savings by environment").toBeVisible()`** after summary response wait in `e2e/helpers/sponsor-roi-dashboard.ts`.
+- **Mock payloads:** `e2e/fixtures/sponsor-roi-dashboard-mock.ts` via `e2e/screenshot-mock-fallback.ts` and `e2e/mock-archlucid-api-server.ts`.
 
 ### Failure 3 — Audit screenshot gate (`capture-all-screenshots.spec.ts`)
 
@@ -176,7 +176,7 @@ Job: **`Operator UI: Playwright mock functional (mock API)`** (`playwright.mock.
 ```powershell
 cd archlucid-ui
 npx playwright install --with-deps chromium
-npx playwright test -c playwright.mock.config.ts e2e/demo-readiness.spec.ts e2e/executive-roi-dashboard.spec.ts
+npx playwright test -c playwright.mock.config.ts e2e/demo-readiness.spec.ts e2e/sponsor-roi-dashboard.spec.ts
 ```
 
 ---
@@ -224,7 +224,7 @@ FullyQualifiedName~
 
 | Date | Commit | Summary |
 |------|--------|---------|
-| 2026-06-24 | `f6ff02a31` | Slow shard relocation for five Api.Tests classes; Playwright branded-404, executive ROI, audit screenshot fixes |
+| 2026-06-24 | `f6ff02a31` | Slow shard relocation for five Api.Tests classes; Playwright branded-404, sponsor ROI, audit screenshot fixes |
 | 2026-06-24 | `915fb35fc` | Pre-corset nav drift + doc link fixes |
 | 2026-06-24 | `fcff635ba` | Rename duplicate migration `250_SealCommittedRunHeader` → `259_*` |
 | 2026-06-23 | (see linked doc) | Remove in-process `--blame-hang` from chunk runner; testhost shutdown wedge |

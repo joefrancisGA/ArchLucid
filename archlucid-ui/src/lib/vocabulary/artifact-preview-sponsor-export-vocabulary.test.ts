@@ -23,7 +23,7 @@ describe("artifact-preview-sponsor-export-vocabulary (TB-2303)", () => {
     expect(model.compactLine).toBe(ARTIFACT_PREVIEW_SPONSOR_EXPORT_COMPACT_LINE);
     expect(model.artifactPreviewLink).toEqual(ARTIFACT_PREVIEW_SPONSOR_EXPORT_RECORDS_PEER_LINK);
     expect(model.artifactPreviewLink.href).toBe(SIGNED_RECORDS_LIST_PATH);
-    expect(model.sponsorExportLink.href).toBe("/architecture/executive-dashboard#sponsor-exports");
+    expect(model.sponsorExportLink.href).toBe("/architecture/sponsor-dashboard#sponsor-exports");
   });
 
   it("uses a specific artifact href when mounting on preview", () => {

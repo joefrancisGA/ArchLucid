@@ -12,11 +12,11 @@ import {
 } from "@/lib/governance/governance-route-paths";
 import { CREATE_ARCHITECTURE_LABEL, START_REVIEW_LABEL } from "@/lib/architecture/architecture-workflow-labels";
 import { ARCHITECTURES_LIST_PATH, ARCHITECTURES_NEW_PATH } from "@/lib/architecture/architecture-routes";
-import { EXECUTIVE_DASHBOARD_HREF, EXECUTIVE_DASHBOARD_WORKSPACE_HEALTH_HREF } from "@/lib/executive/executive-dashboard-route";
+import { SPONSOR_DASHBOARD_HREF, SPONSOR_DASHBOARD_WORKSPACE_HEALTH_HREF } from "@/lib/sponsor/sponsor-dashboard-route";
 import {
   INTERNAL_DEMO_READINESS_PAGE_TITLE,
 } from "@/lib/demo-readiness-evidence-copy";
-import { BUYER_EXECUTIVE_SUMMARY_VOCABULARY } from "@/lib/vocabulary/buyer-surface-vocabulary";
+import { BUYER_SPONSOR_SUMMARY_VOCABULARY } from "@/lib/vocabulary/buyer-surface-vocabulary";
 import { IMPACT_PREVIEW_PATH } from "@/lib/impact-preview-route";
 import { PLANNING_PATH } from "@/lib/planning-route";
 import { AUDIT_TRAIL_PAGE_TITLE } from "@/lib/audit-trail-page-copy";
@@ -51,7 +51,7 @@ export const ROUTE_TITLES: Record<string, string> = {
   "/insights/patterns": PATTERN_LIBRARY_PAGE_TITLE,
   "/architecture/architecture-intelligence": "Architecture intelligence",
   [GOVERNANCE_APPROVAL_QUEUE_PATH]: GOVERNANCE_OVERVIEW_PAGE_TITLE,
-  [EXECUTIVE_DASHBOARD_WORKSPACE_HEALTH_HREF]: OPERATOR_NAV_LINK_LABELS.workspaceHealth,
+  [SPONSOR_DASHBOARD_WORKSPACE_HEALTH_HREF]: OPERATOR_NAV_LINK_LABELS.workspaceHealth,
   "/governance/findings": OPERATOR_NAV_LINK_LABELS.findings,
   "/governance/findings/assigned-to-me": OPERATOR_NAV_LINK_LABELS.assignedToMeFindings,
   [GOVERNANCE_EXCEPTIONS_PATH]: OPERATOR_NAV_LINK_LABELS.riskExceptions,
@@ -80,9 +80,9 @@ export const ROUTE_TITLES: Record<string, string> = {
   "/integrations/jira": OPERATOR_NAV_LINK_LABELS.jira,
   "/integrations/servicenow": OPERATOR_NAV_LINK_LABELS.servicenow,
   [INTEGRATIONS_READINESS_PATH]: OPERATOR_NAV_LINK_LABELS.integrationReadiness,
-  [EXECUTIVE_DASHBOARD_HREF]: BUYER_EXECUTIVE_SUMMARY_VOCABULARY.pageTitle,
+  [SPONSOR_DASHBOARD_HREF]: BUYER_SPONSOR_SUMMARY_VOCABULARY.pageTitle,
   [DIGESTS_HUB_PATH]: OPERATOR_NAV_LINK_LABELS.digests,
-  "/insights/executive-summary": SPONSOR_REPORT_PAGE_TITLE,
+  "/insights/sponsor-report": SPONSOR_REPORT_PAGE_TITLE,
   [SPONSOR_REPORT_ROI_SUMMARY_PATH]: OPERATOR_NAV_LINK_LABELS.roiReport,
   [ARCHITECTURE_SCORECARD_PATH]: OPERATOR_NAV_LINK_LABELS.scorecard,
   "/internal/demo-readiness": INTERNAL_DEMO_READINESS_PAGE_TITLE,

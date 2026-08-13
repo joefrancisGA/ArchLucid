@@ -177,7 +177,7 @@ Every navigable operator surface must teach its own job in place. The shell top-
 
 **Code touchpoints:** `PageContextualHelpButton` / `PageScopedContextualHelpPanel`, `page-help-topic-map.ts`, `contextual-help-registry.ts`, `components/ui/help-popover.tsx`, `components/ui/popover.tsx`.
 
-**Good exemplars:** `/architecture/reviews`, `/architecture/architectures`, findings / alerts / alert-rules / advisory-scans, `/architecture/digests`, improvement planning, executive summary, readiness. Mount waves **TB-1667**–**TB-1669** Done; Vitest allowlist + non-null topic guard **TB-1670** Done. **Learn more** destinations are governed by the next section (**TB-2048**) — this section owns mount, trigger, and panel semantics only.
+**Good exemplars:** `/architecture/reviews`, `/architecture/architectures`, findings / alerts / alert-rules / advisory-scans, `/architecture/digests`, improvement planning, sponsor summary, readiness. Mount waves **TB-1667**–**TB-1669** Done; Vitest allowlist + non-null topic guard **TB-1670** Done. **Learn more** destinations are governed by the next section (**TB-2048**) — this section owns mount, trigger, and panel semantics only.
 
 ### Operator page contextual help — Learn more job match (**TB-2048** — done 2026-08-05)
 

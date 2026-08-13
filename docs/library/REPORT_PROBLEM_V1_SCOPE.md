@@ -19,7 +19,7 @@ Report Problem is **not** on every error surface. It is allowed only on **fatal 
 | --- | --- | --- |
 | Reviews hub hard failure | `/reviews` · `RunsPageView.tsx` | Unexpected API/empty-broken hub response — **not** “no reviews yet” |
 | Review detail hard failure | `/reviews/[runId]` · `RunDetailPageView.tsx` | Page-level load failure for a review the operator navigated to |
-| Executive / value summary hard failure | `/value-report`, `/value-report/*` · sponsor value surfaces | Executive summary or value report cannot load after navigation |
+| Sponsor / value summary hard failure | `/value-report`, `/value-report/*` · sponsor value surfaces | Sponsor summary or value report cannot load after navigation |
 | Governance findings queue hard failure | `/governance/findings` · findings queue shell | Queue cannot load (hard fail) — **not** empty queue |
 | Review run / commit / export failure | `/reviews/[runId]` · commit/export error shells | Commit, seal, or export blocked with page-level failure (not inline validation toast) |
 | API problem cards (high-stakes) | `OperatorApiProblem.tsx` | Server/network failures with correlation context — **excludes** validation-only 400 toasts unless registry expands |

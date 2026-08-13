@@ -14,7 +14,7 @@ export const WHY_ARCHLUCID_SOURCES_INTRO =
 export const WHY_ARCHLUCID_SOURCES: readonly EvidenceSourceLink[] = [
   { label: "Why ArchLucid (marketing)", href: "/why" },
   { label: "See a sample review", href: "/see-it" },
-  { label: "Sponsor report", href: "/insights/executive-summary" },
+  { label: "Sponsor report", href: "/insights/sponsor-report" },
   { label: "How ArchLucid works", href: inAppHelpHref("getting-started", "how-archlucid-works") },
   { label: "Assurance status", href: "/security-trust" },
 ] as const;

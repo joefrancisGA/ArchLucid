@@ -163,11 +163,11 @@ const MARKETING_FAQ_ITEM_TEMPLATES: ReadonlyArray<MarketingFaqItem> = [
       "Plans include AI usage allowances. Expensive actions are budgeted and may be limited in demo or trial workspaces to prevent surprise usage.",
   },
   {
-    id: "executive-sponsor-value",
+    id: "sponsor-sponsor-value",
     categoryId: "governance-audit",
-    question: "What does the executive sponsor get?",
+    question: "What does the sponsor sponsor get?",
     answer:
-      "An executive summary, value narrative, and exportable proof packet that tie findings and decisions to evidence — so sponsors can approve, fund, or remediate with traceability instead of anecdote.",
+      "An sponsor report, value narrative, and exportable proof packet that tie findings and decisions to evidence — so sponsors can approve, fund, or remediate with traceability instead of anecdote.",
   },
   {
     id: "governance-and-audit",

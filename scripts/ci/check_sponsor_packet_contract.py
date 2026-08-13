@@ -9,7 +9,7 @@ from pathlib import Path
 _REQUIRED_ARTIFACTS: tuple[str, ...] = (
     "index.md",
     "first-value-report.md",
-    "executive-summary.json",
+    "sponsor-report.json",
     "limitations.md",
     "provenance-references.json",
     "pack-manifest.json",

@@ -21,9 +21,9 @@ import { SIDEBAR_NAV_GROUP_EXPANSION_STORAGE_KEY } from "@/lib/sidebar-nav-group
 
 import { MOCK_TRIAL_WELCOME_RUN_ID } from "./fixtures";
 import {
-  awaitExecutiveRoiDashboardReady,
-  prepareExecutiveRoiDashboardProxyWaits,
-} from "./helpers/executive-roi-dashboard";
+  awaitSponsorRoiDashboardReady,
+  prepareSponsorRoiDashboardProxyWaits,
+} from "./helpers/sponsor-roi-dashboard";
 import { assertPageFreeOfScreenshotDemoFailures } from "./screenshot-demo-quality-gates";
 import { publicDirUnderUi } from "./screenshot-output-helpers";
 import {
@@ -114,7 +114,7 @@ async function captureUxAuditScreenshot(
   mode: UxAuditShellMode,
 ): Promise<void> {
   const roiWaits =
-    route.slug === "executive-dashboard" ? prepareExecutiveRoiDashboardProxyWaits(page) : undefined;
+    route.slug === "sponsor-dashboard" ? prepareSponsorRoiDashboardProxyWaits(page) : undefined;
 
   await page.goto(route.href, { waitUntil: "load", timeout: 90_000 });
 
@@ -122,8 +122,8 @@ async function captureUxAuditScreenshot(
     await dismissBlockingHomeModals(page);
   }
 
-  if (route.slug === "executive-dashboard" && roiWaits !== undefined) {
-    await awaitExecutiveRoiDashboardReady(page, roiWaits);
+  if (route.slug === "sponsor-dashboard" && roiWaits !== undefined) {
+    await awaitSponsorRoiDashboardReady(page, roiWaits);
   }
 
   if (mode === "marketing") {

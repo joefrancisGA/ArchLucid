@@ -29,7 +29,7 @@ import {
   waitForRunDetailCommitted,
 } from "./helpers/live-api-client";
 import { openDemoWorkspaceReviewDetailShellReady } from "./helpers/demo-workspace-live-scope";
-import { ensureBuyerExecutiveBriefingSectionExpanded } from "./helpers/operator-journey";
+import { ensureBuyerSponsorBriefingSectionExpanded } from "./helpers/operator-journey";
 
 test.describe("live-api-email-run-to-sponsor", () => {
   test.beforeAll(async ({ request }) => {
@@ -82,7 +82,7 @@ test.describe("live-api-email-run-to-sponsor", () => {
     // SSR uses buyer-summary; wait until goldenManifestId is present, then open with cold-start retries.
     await waitForAuthorityBuyerSummaryGoldenManifest(request, runId, 90_000, tenantScope);
     await openDemoWorkspaceReviewDetailShellReady(page, tenantScope, runId, { timeoutMs: 45_000 });
-    await ensureBuyerExecutiveBriefingSectionExpanded(page, runId);
+    await ensureBuyerSponsorBriefingSectionExpanded(page, runId);
 
     const banner = page.getByTestId("email-run-to-sponsor-banner");
 
@@ -165,6 +165,6 @@ test.describe("live-api-email-run-to-sponsor", () => {
     const markdown = await markdownRes.text();
 
     expect(markdown.length).toBeGreaterThan(64);
-    expect(markdown.toLowerCase()).toMatch(/first.?value|executive|sponsor/i);
+    expect(markdown.toLowerCase()).toMatch(/first.?value|sponsor|sponsor/i);
   });
 });

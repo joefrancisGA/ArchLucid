@@ -17,20 +17,20 @@ class TestAdoptionBatch5AY(unittest.TestCase):
             / "app"
             / "(operator)"
             / "architecture"
-            / "executive-dashboard"
+            / "sponsor-dashboard"
             / "_sections"
             / "ExecutiveDashboardNextActionSection.tsx"
         )
         text = path.read_text(encoding="utf-8")
         self.assertIn("buildExecutiveScorecardRecommendedActions", text)
-        self.assertIn("executive-dashboard-next-action", text)
+        self.assertIn("sponsor-dashboard-next-action", text)
         vocab = (REPO_ROOT / "archlucid-ui" / "src" / "lib" / "buyer-surface-vocabulary.ts").read_text(
             encoding="utf-8"
         )
         self.assertIn("Recommended actions", vocab)
 
     def test_tb_247_derivation_module(self) -> None:
-        path = REPO_ROOT / "archlucid-ui" / "src" / "lib" / "executive-scorecard-recommended-actions.ts"
+        path = REPO_ROOT / "archlucid-ui" / "src" / "lib" / "sponsor-scorecard-recommended-actions.ts"
         text = path.read_text(encoding="utf-8")
         self.assertIn("orphan-candidates", text)
         copy = (REPO_ROOT / "archlucid-ui" / "src" / "lib" / "buyer-polish-copy.ts").read_text(encoding="utf-8")

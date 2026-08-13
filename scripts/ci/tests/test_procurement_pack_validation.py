@@ -197,7 +197,7 @@ class TestProcurementPackValidation(unittest.TestCase):
         self.assertIn("Owner / function", markdown)
         self.assertIn("Caveat", markdown)
         self.assertIn("Deferred scope", markdown)
-        self.assertEqual(data["files"][0]["owner_function"], "Executive owner")
+        self.assertEqual(data["files"][0]["owner_function"], "Sponsor owner")
         self.assertEqual(data["files"][0]["last_reviewed_utc"], "See source document")
 
 

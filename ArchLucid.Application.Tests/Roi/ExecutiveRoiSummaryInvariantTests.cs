@@ -22,25 +22,25 @@ using Moq;
 
 namespace ArchLucid.Application.Tests.Roi;
 
-/// <summary>Regression guards for executive ROI / reports sponsor-facing KPI semantics (TB-240).</summary>
+/// <summary>Regression guards for sponsor ROI / reports sponsor-facing KPI semantics (TB-240).</summary>
 [Trait("Suite", "Core")]
-public sealed class ExecutiveRoiSummaryInvariantTests
+public sealed class SponsorRoiSummaryInvariantTests
 {
     private static readonly Guid TenantId = Guid.Parse("aaaaaaaa-aaaa-aaaa-aaaa-aaaaaaaaaaaa");
     private static readonly Guid WorkspaceId = Guid.Parse("bbbbbbbb-bbbb-bbbb-bbbb-bbbbbbbbbbbb");
     private static readonly Guid ProjectId = Guid.Parse("cccccccc-cccc-cccc-cccc-cccccccccccc");
 
     [Fact]
-    public async Task ExecutiveSummaryResult_maps_resolved_findings_separately_from_pending_governance()
+    public async Task SponsorReportResult_maps_resolved_findings_separately_from_pending_governance()
     {
         // Regression guard for TB-151 — TotalRiskReductionScore must not alias pending decision count.
         Mock<IScopeContextProvider> scope = new();
         scope.Setup(provider => provider.GetCurrentScope()).Returns(
             new ScopeContext { TenantId = TenantId, WorkspaceId = WorkspaceId, ProjectId = ProjectId });
 
-        Mock<IExecutiveRoiSummaryService> roi = new();
+        Mock<ISponsorRoiSummaryService> roi = new();
         roi.Setup(service => service.BuildAsync(It.IsAny<CancellationToken>())).ReturnsAsync(
-            new ExecutiveRoiSummaryResponse
+            new SponsorRoiSummaryResponse
             {
                 ResolvedFindingsCount30Days = 4,
                 NewlyDiscoveredFindingsCount30Days = 0,
@@ -53,25 +53,25 @@ public sealed class ExecutiveRoiSummaryInvariantTests
             .Setup(composer => composer.BuildSummaryAsync(TenantId, ProjectId, It.IsAny<CancellationToken>()))
             .ReturnsAsync(new GovernanceDecisionsNeededSummaryResponse { TotalDecisionItems = 20 });
 
-        ExecutiveReportsSummaryService sut = new(scope.Object, roi.Object, decisions.Object);
+        SponsorReportsSummaryService sut = new(scope.Object, roi.Object, decisions.Object);
 
-        ExecutiveSummaryResult result = await sut.BuildAsync(CancellationToken.None);
+        SponsorReportResult result = await sut.BuildAsync(CancellationToken.None);
 
         result.TotalRiskReductionScore.Should().Be(4);
         result.PendingGovernanceDecisionCount.Should().Be(20);
     }
 
     [Fact]
-    public async Task ExecutiveSummaryResult_cost_waste_usd_is_not_aliased_to_total_savings()
+    public async Task SponsorReportResult_cost_waste_usd_is_not_aliased_to_total_savings()
     {
         // Regression guard for TB-152 — CostWasteUsd must stay null until a distinct waste metric exists.
         Mock<IScopeContextProvider> scope = new();
         scope.Setup(provider => provider.GetCurrentScope()).Returns(
             new ScopeContext { TenantId = TenantId, WorkspaceId = WorkspaceId, ProjectId = ProjectId });
 
-        Mock<IExecutiveRoiSummaryService> roi = new();
+        Mock<ISponsorRoiSummaryService> roi = new();
         roi.Setup(service => service.BuildAsync(It.IsAny<CancellationToken>())).ReturnsAsync(
-            new ExecutiveRoiSummaryResponse
+            new SponsorRoiSummaryResponse
             {
                 TotalEstimatedUsdSavings = 50_000m,
                 ResolvedFindingsCount30Days = 1,
@@ -84,9 +84,9 @@ public sealed class ExecutiveRoiSummaryInvariantTests
             .Setup(composer => composer.BuildSummaryAsync(TenantId, ProjectId, It.IsAny<CancellationToken>()))
             .ReturnsAsync(new GovernanceDecisionsNeededSummaryResponse());
 
-        ExecutiveReportsSummaryService sut = new(scope.Object, roi.Object, decisions.Object);
+        SponsorReportsSummaryService sut = new(scope.Object, roi.Object, decisions.Object);
 
-        ExecutiveSummaryResult result = await sut.BuildAsync(CancellationToken.None);
+        SponsorReportResult result = await sut.BuildAsync(CancellationToken.None);
 
         result.TotalCostSavingsUsd.Should().Be(50_000m);
         result.CostWasteUsd.Should().BeNull();
@@ -139,13 +139,13 @@ public sealed class ExecutiveRoiSummaryInvariantTests
                 },
             ]);
 
-        (ExecutiveRoiSummaryService service, _) = ExecutiveRoiSummaryServiceTestSupport.CreateService(
+        (SponsorRoiSummaryService service, _) = SponsorRoiSummaryServiceTestSupport.CreateService(
             runQuery.Object,
             Mock.Of<ITenantEstimatedUsdSavingsResolver>(),
             findingReviewTrailRepository: trail.Object,
             scope: new ScopeContext { TenantId = TenantId, WorkspaceId = WorkspaceId, ProjectId = ProjectId });
 
-        ExecutiveRoiSummaryResponse response = await service.BuildAsync(CancellationToken.None);
+        SponsorRoiSummaryResponse response = await service.BuildAsync(CancellationToken.None);
 
         response.ResolvedFindingsCount30Days.Should().BeGreaterThan(0);
         response.NewlyDiscoveredFindingsCount30Days.Should().Be(1);
@@ -184,7 +184,7 @@ public sealed class ExecutiveRoiSummaryInvariantTests
             .Setup(query => query.ListRunSummariesKeysetAsync(null, It.IsAny<int>(), It.IsAny<CancellationToken>()))
             .ReturnsAsync((Array.Empty<RunSummary>(), false, null));
 
-        (ExecutiveRoiSummaryService innerService, _) = ExecutiveRoiSummaryServiceTestSupport.CreateService(
+        (SponsorRoiSummaryService innerService, _) = SponsorRoiSummaryServiceTestSupport.CreateService(
             runQuery.Object,
             Mock.Of<ITenantEstimatedUsdSavingsResolver>(),
             scope: new ScopeContext { TenantId = TenantId, WorkspaceId = WorkspaceId, ProjectId = ProjectId });
@@ -193,24 +193,24 @@ public sealed class ExecutiveRoiSummaryInvariantTests
         cache
             .Setup(c => c.GetOrCreateAsync(
                 It.IsAny<string>(),
-                It.IsAny<Func<CancellationToken, Task<ExecutiveRoiSummaryResponse?>>>(),
+                It.IsAny<Func<CancellationToken, Task<SponsorRoiSummaryResponse?>>>(),
                 It.IsAny<CancellationToken>(),
                 It.IsAny<int>()))
-            .ReturnsAsync(new ExecutiveRoiSummaryResponse { ExpiringWaiversCount14Days = 99 });
+            .ReturnsAsync(new SponsorRoiSummaryResponse { ExpiringWaiversCount14Days = 99 });
 
         Mock<IScopeContextProvider> scopeProvider = new();
         scopeProvider.Setup(provider => provider.GetCurrentScope()).Returns(
             new ScopeContext { TenantId = TenantId, WorkspaceId = WorkspaceId, ProjectId = ProjectId });
 
-        Mock<IOptionsMonitor<ExecutiveRoiCacheWarmupOptions>> options = new();
-        options.Setup(monitor => monitor.CurrentValue).Returns(new ExecutiveRoiCacheWarmupOptions { CacheTtlSeconds = 300 });
+        Mock<IOptionsMonitor<SponsorRoiCacheWarmupOptions>> options = new();
+        options.Setup(monitor => monitor.CurrentValue).Returns(new SponsorRoiCacheWarmupOptions { CacheTtlSeconds = 300 });
 
         Mock<IArchitectureRiskRegisterService> architectureRiskRegister = new();
         architectureRiskRegister
             .Setup(service => service.GetRegisterAsync(TenantId, ProjectId, It.IsAny<int>(), It.IsAny<ArchitectureRiskRegisterListOptions?>(), It.IsAny<CancellationToken>()))
             .ReturnsAsync(new ArchitectureRiskRegisterResponse());
 
-        CachingExecutiveRoiSummaryService cachedRoi = new(
+        CachingSponsorRoiSummaryService cachedRoi = new(
             innerService,
             riskExceptions.Object,
             architectureRiskRegister.Object,
@@ -218,7 +218,7 @@ public sealed class ExecutiveRoiSummaryInvariantTests
             scopeProvider.Object,
             options.Object);
 
-        ExecutiveRoiSummaryResponse roi = await cachedRoi.BuildAsync(CancellationToken.None);
+        SponsorRoiSummaryResponse roi = await cachedRoi.BuildAsync(CancellationToken.None);
 
         Mock<IGovernanceApprovalRequestRepository> approvals = new();
         approvals.Setup(repo => repo.GetPendingAsync(It.IsAny<int>(), It.IsAny<CancellationToken>())).ReturnsAsync([]);
@@ -252,7 +252,7 @@ public sealed class ExecutiveRoiSummaryInvariantTests
     [Fact]
     public void ComputeHeadlineSavingsFromBasis_uses_open_plus_needs_evidence_only()
     {
-        ExecutiveRoiBasisBreakdown basis = new()
+        SponsorRoiBasisBreakdown basis = new()
         {
             OpenEstimatedUsd = 100m,
             NeedsEvidenceUsd = 25m,
@@ -262,7 +262,7 @@ public sealed class ExecutiveRoiSummaryInvariantTests
             RealizedUsd = 200m,
         };
 
-        ExecutiveRoiSummaryService.ComputeHeadlineSavingsFromBasis(basis).Should().Be(125m);
+        SponsorRoiSummaryService.ComputeHeadlineSavingsFromBasis(basis).Should().Be(125m);
     }
 
     [Fact]
@@ -297,7 +297,7 @@ public sealed class ExecutiveRoiSummaryInvariantTests
             .Setup(query => query.GetRunDetailForRoiAsync(runId.ToString("N"), It.IsAny<CancellationToken>()))
             .ReturnsAsync(detail);
 
-        ExecutiveRoiSummaryService service = ExecutiveRoiSummaryServiceTestSupport.CreateService(
+        SponsorRoiSummaryService service = SponsorRoiSummaryServiceTestSupport.CreateService(
             runQuery.Object,
             Mock.Of<ITenantEstimatedUsdSavingsResolver>(),
             scope: new ScopeContext { TenantId = TenantId, WorkspaceId = WorkspaceId, ProjectId = ProjectId },
@@ -305,14 +305,14 @@ public sealed class ExecutiveRoiSummaryInvariantTests
             {
                 mock
                     .Setup(repo => repo.GetByIdAsync(It.IsAny<ScopeContext>(), snapshotId, It.IsAny<CancellationToken>()))
-                    .ReturnsAsync(ExecutiveRoiSummaryServiceTestSupport.CreateOpenFindingSnapshot(900m));
+                    .ReturnsAsync(SponsorRoiSummaryServiceTestSupport.CreateOpenFindingSnapshot(900m));
             }).Service;
 
-        ExecutiveRoiSummaryResponse response = await service.BuildAsync(CancellationToken.None);
+        SponsorRoiSummaryResponse response = await service.BuildAsync(CancellationToken.None);
 
         decimal expectedHeadline = response.BasisBreakdown is null
             ? 0m
-            : ExecutiveRoiSummaryService.ComputeHeadlineSavingsFromBasis(response.BasisBreakdown);
+            : SponsorRoiSummaryService.ComputeHeadlineSavingsFromBasis(response.BasisBreakdown);
 
         response.TotalEstimatedUsdSavings.Should().Be(expectedHeadline);
     }
@@ -350,8 +350,8 @@ public sealed class ExecutiveRoiSummaryInvariantTests
             ],
         };
 
-        ExecutiveOrphanCandidateSummary summary =
-            ExecutiveOrphanCandidateKpiCalculator.BuildFromLatestDetails([detail]);
+        SponsorOrphanCandidateSummary summary =
+            SponsorOrphanCandidateKpiCalculator.BuildFromLatestDetails([detail]);
 
         summary.CandidateCount.Should().Be(1);
         summary.AnnualSavingsUsd.Should().Be(200m);
@@ -382,7 +382,7 @@ public sealed class ExecutiveRoiSummaryInvariantTests
             .Setup(query => query.ListRunSummariesKeysetAsync(null, It.IsAny<int>(), It.IsAny<CancellationToken>()))
             .ReturnsAsync((Array.Empty<RunSummary>(), false, null));
 
-        (ExecutiveRoiSummaryService innerService, _) = ExecutiveRoiSummaryServiceTestSupport.CreateService(
+        (SponsorRoiSummaryService innerService, _) = SponsorRoiSummaryServiceTestSupport.CreateService(
             runQuery.Object,
             Mock.Of<ITenantEstimatedUsdSavingsResolver>(),
             scope: new ScopeContext { TenantId = TenantId, WorkspaceId = WorkspaceId, ProjectId = ProjectId });
@@ -391,24 +391,24 @@ public sealed class ExecutiveRoiSummaryInvariantTests
         cache
             .Setup(c => c.GetOrCreateAsync(
                 It.IsAny<string>(),
-                It.IsAny<Func<CancellationToken, Task<ExecutiveRoiSummaryResponse?>>>(),
+                It.IsAny<Func<CancellationToken, Task<SponsorRoiSummaryResponse?>>>(),
                 It.IsAny<CancellationToken>(),
                 It.IsAny<int>()))
-            .ReturnsAsync(new ExecutiveRoiSummaryResponse { ExpiringWaiversCount14Days = 0 });
+            .ReturnsAsync(new SponsorRoiSummaryResponse { ExpiringWaiversCount14Days = 0 });
 
         Mock<IScopeContextProvider> scopeProvider = new();
         scopeProvider.Setup(provider => provider.GetCurrentScope()).Returns(
             new ScopeContext { TenantId = TenantId, WorkspaceId = WorkspaceId, ProjectId = ProjectId });
 
-        Mock<IOptionsMonitor<ExecutiveRoiCacheWarmupOptions>> options = new();
-        options.Setup(monitor => monitor.CurrentValue).Returns(new ExecutiveRoiCacheWarmupOptions { CacheTtlSeconds = 300 });
+        Mock<IOptionsMonitor<SponsorRoiCacheWarmupOptions>> options = new();
+        options.Setup(monitor => monitor.CurrentValue).Returns(new SponsorRoiCacheWarmupOptions { CacheTtlSeconds = 300 });
 
         Mock<IArchitectureRiskRegisterService> architectureRiskRegisterForCache = new();
         architectureRiskRegisterForCache
             .Setup(service => service.GetRegisterAsync(TenantId, ProjectId, It.IsAny<int>(), It.IsAny<ArchitectureRiskRegisterListOptions?>(), It.IsAny<CancellationToken>()))
             .ReturnsAsync(new ArchitectureRiskRegisterResponse());
 
-        CachingExecutiveRoiSummaryService sut = new(
+        CachingSponsorRoiSummaryService sut = new(
             innerService,
             riskExceptions.Object,
             architectureRiskRegisterForCache.Object,
@@ -416,7 +416,7 @@ public sealed class ExecutiveRoiSummaryInvariantTests
             scopeProvider.Object,
             options.Object);
 
-        ExecutiveRoiSummaryResponse result = await sut.BuildAsync(CancellationToken.None);
+        SponsorRoiSummaryResponse result = await sut.BuildAsync(CancellationToken.None);
 
         result.ExpiringWaiversCount14Days.Should().Be(1);
     }

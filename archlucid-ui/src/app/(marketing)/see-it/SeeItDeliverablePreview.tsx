@@ -12,8 +12,8 @@ import { cn } from "@/lib/utils";
 
 const PREVIEW_LAYERS = [
   {
-    id: "executive-summary",
-    title: "Executive summary",
+    id: "sponsor-report",
+    title: "Sponsor report",
     detail: "Sponsor briefing · signed review record",
   },
   {

@@ -19,7 +19,7 @@ describe("ManifestDeliverableGrid", () => {
     );
 
     expect(screen.getByTestId("manifest-deliverable-grid")).toBeInTheDocument();
-    expect(screen.getByTestId("deliverable-tile-executive-pdf")).toBeInTheDocument();
+    expect(screen.getByTestId("deliverable-tile-sponsor-pdf")).toBeInTheDocument();
     expect(screen.getByTestId("deliverable-tile-docx")).toBeInTheDocument();
     expect(screen.getByTestId("deliverable-tile-zip")).toBeInTheDocument();
     expect(screen.getByTestId("deliverable-tile-markdown")).toBeInTheDocument();
@@ -42,7 +42,7 @@ describe("ManifestDeliverableGrid", () => {
       <ManifestDeliverableGrid manifestId="manifest-1" runId="claims-intake-modernization" buyerPolished />,
     );
 
-    expect(screen.queryByTestId("deliverable-tile-executive-pdf")).toBeNull();
+    expect(screen.queryByTestId("deliverable-tile-sponsor-pdf")).toBeNull();
     expect(screen.getByTestId("deliverable-tile-docx")).toBeInTheDocument();
   });
 });

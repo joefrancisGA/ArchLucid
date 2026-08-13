@@ -27,7 +27,7 @@ internal static class OpenApiAudiencePathClassifier
             return OpenApiAudience.Buyer;
 
         if (path.StartsWith("v1/roi/", StringComparison.OrdinalIgnoreCase)
-            && path.Contains("executive", StringComparison.OrdinalIgnoreCase))
+            && path.Contains("sponsor", StringComparison.OrdinalIgnoreCase))
             return OpenApiAudience.Buyer;
 
         if (allowsAnonymous)

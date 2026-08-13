@@ -338,7 +338,7 @@ Live-call demo scripts for the core pilot path, plus the shot-by-shot storyboard
 
 #### Closing (4:30–5:00) — Offer
 
-> "What I am offering is this workflow on your real architecture context. The productized engagement is an ArchLucid AI and Cloud Architecture Readiness Review — we apply relevant policy packs and deliver the exported report: findings register, decision record, executive summary.
+> "What I am offering is this workflow on your real architecture context. The productized engagement is an ArchLucid AI and Cloud Architecture Readiness Review — we apply relevant policy packs and deliver the exported report: findings register, decision record, sponsor summary.
 >
 > The next step is usually a 30-minute intake call. Want to set that up?"
 
@@ -372,7 +372,7 @@ Live-call demo scripts for the core pilot path, plus the shot-by-shot storyboard
 
 ### Two-minute video script (â‰ˆ2 minutes) {#two-minute-video-script-2-minutes}
 
-**Audience:** prospects and executive sponsors who cannot self-host the API before a call. **Grounding:** [V1_SCOPE.md](../library/V1_SCOPE.md) Pilot layer only; no V1.1-only connectors.
+**Audience:** prospects and sponsor sponsors who cannot self-host the API before a call. **Grounding:** [V1_SCOPE.md](../library/V1_SCOPE.md) Pilot layer only; no V1.1-only connectors.
 
 **Trust ladder:** Open on a **finished package** — not the wizard.
 
@@ -979,7 +979,7 @@ Today, **enforce read-only evaluator access** operationally (**Entra roles / RBA
 
 ## Workspace B — Synthetic regulated / AI governance scenario
 
-**Demonstrates:** A **consultant-led regulated AI + security baseline** walkthrough — heavier cross-cutting findings sourced from **AI governance** and **security baseline** seed themes, **whitelabel export pre-fill** JSON on persisted export records, and executive-safe language about sensitive domains **without** hosting real PHI — ideal for **boutique / compliance** evaluators who need “show me the finding depth” before a pilot.
+**Demonstrates:** A **consultant-led regulated AI + security baseline** walkthrough — heavier cross-cutting findings sourced from **AI governance** and **security baseline** seed themes, **whitelabel export pre-fill** JSON on persisted export records, and sponsor-safe language about sensitive domains **without** hosting real PHI — ideal for **boutique / compliance** evaluators who need “show me the finding depth” before a pilot.
 
 **Audience:** Evaluators who need a **regulated, AI-era governance** walkthrough with heavier findings and **consultant whitelabel** export hints.
 
@@ -1092,7 +1092,7 @@ Tenant isolation: logos and branding inputs must be resolved **per tenant** from
 
 | Section | Primary sources |
 |---------|-----------------|
-| **Executive summary** | Analysis report summary (`ArchitectureAnalysisReport.Summary`). |
+| **Sponsor summary** | Analysis report summary (`ArchitectureAnalysisReport.Summary`). |
 | **System overview (architecture snapshot)** | Golden manifest services/datastores/relationships/governance/compliance tags. |
 | **Evidence reviewed** | Evidence package request narrative, constraints, required capabilities. |
 | **Architecture decisions** | Decision traces on the review (for example run events, rule audits). |

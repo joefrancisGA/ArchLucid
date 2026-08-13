@@ -51,7 +51,7 @@ class RoiBaselineSendPolicyTests(unittest.TestCase):
 
         override = {
             "schema": "archlucid.roi-baseline-send-override.v1",
-            "approvedByRole": "executive-owner",
+            "approvedByRole": "sponsor-owner",
             "recordedBy": "sales",
             "validForRunId": "run-1",
             "rationale": "Buyer will supply baselines next week; sponsor deck avoids dollar ROI.",

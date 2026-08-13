@@ -1,17 +1,17 @@
 import { describe, expect, it } from "vitest";
 
 import {
-  formatExecutiveRoiPricingBasisLabel,
+  formatSponsorRoiPricingBasisLabel,
   formatRoiCostEvidenceFreshnessWarning,
   shouldShowRoiCostEvidenceFreshnessWarning,
 } from "@/lib/roi-pricing-basis-label";
 
 describe("roi-pricing-basis-label", () => {
   it("formats uploaded and EA-adjusted labels", () => {
-    expect(formatExecutiveRoiPricingBasisLabel("Uploaded actual/amortized", 0.85)).toBe(
+    expect(formatSponsorRoiPricingBasisLabel("Uploaded actual/amortized", 0.85)).toBe(
       "Uploaded actual/amortized (EA multiplier 0.85)",
     );
-    expect(formatExecutiveRoiPricingBasisLabel("Heuristic fallback", 1)).toBe("Heuristic fallback estimates");
+    expect(formatSponsorRoiPricingBasisLabel("Heuristic fallback", 1)).toBe("Heuristic fallback estimates");
   });
 
   it("warns for stale and missing freshness", () => {

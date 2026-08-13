@@ -4,9 +4,9 @@ public sealed class PortfolioRoiSummaryResponse
 {
     public string DedupeKeyFormat { get; init; } = "{policyRuleId}:{normalizedFindingFingerprint}";
 
-    public ExecutiveRoiAggregatesResponse DeduplicatedTotals { get; init; } = new();
+    public SponsorRoiAggregatesResponse DeduplicatedTotals { get; init; } = new();
 
-    public ExecutiveRoiAggregatesResponse RawRunTotals { get; init; } = new();
+    public SponsorRoiAggregatesResponse RawRunTotals { get; init; } = new();
 
     public int UniqueFindingCount { get; init; }
 

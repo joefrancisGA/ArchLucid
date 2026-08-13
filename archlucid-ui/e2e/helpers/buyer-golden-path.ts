@@ -27,7 +27,7 @@ export function isShowcaseSignedManifestBrowserPath(pathname: string): boolean {
 }
 
 export const BUYER_GOLDEN_PATH_HREFS = {
-  executive: `/architecture/reviews/${showcaseRunEnc}`,
+  sponsor: `/architecture/reviews/${showcaseRunEnc}`,
   reviewPackage: `/architecture/reviews/${showcaseRunEnc}`,
   signedManifestFriendly: `/architecture/reviews/${showcaseRunEnc}/signed-record`,
   signedManifestCanonical: `/governance/signed-records/${encodeURIComponent(SHOWCASE_STATIC_DEMO_MANIFEST_ID)}`,
@@ -47,7 +47,7 @@ export const BUYER_GOLDEN_PATH_HREFS = {
 export const BUYER_SHOWCASE_AUDIT_TRAIL_HEADING = "Audit trail for Claims Intake Modernization";
 
 /** Review detail workspace H1 for showcase run (`deriveReviewHeaderPresentation` system name). */
-export const BUYER_SHOWCASE_EXECUTIVE_HEADLINE = SHOWCASE_BUYER_REVIEW_PACKAGE_TITLE;
+export const BUYER_SHOWCASE_SPONSOR_HEADLINE = SHOWCASE_BUYER_REVIEW_PACKAGE_TITLE;
 
 /** Procurement-oriented package label in cards, breadcrumbs, and static demo copy. */
 export const BUYER_SHOWCASE_REVIEW_PACKAGE_HEADLINE = SHOWCASE_BUYER_REVIEW_PACKAGE_TITLE;
@@ -61,10 +61,10 @@ export async function expectNoGenericErrorBoundary(page: Page): Promise<void> {
 }
 
 /**
- * Executive step readiness: legacy CTO above-fold hero, classic "Executive summary" label, or tabbed buyer-golden
+ * Sponsor step readiness: legacy CTO above-fold hero, classic "Sponsor report" label, or tabbed buyer-golden
  * review detail (`data-buyer-golden-ready` / workspace shell) used by live API demo workspace runs.
  */
-export async function expectBuyerExecutiveSummarySurface(page: Page, options?: { timeout?: number }): Promise<void> {
+export async function expectBuyerSponsorReportSurface(page: Page, options?: { timeout?: number }): Promise<void> {
   const timeout = options?.timeout ?? 60_000;
 
   await waitForAppReady(page);
@@ -72,18 +72,18 @@ export async function expectBuyerExecutiveSummarySurface(page: Page, options?: {
     [
       page.locator('[data-buyer-golden-ready="true"]'),
       page.getByTestId("review-detail-workspace"),
-      page.getByTestId("cto-demo-executive-above-fold"),
-      page.getByText("Executive summary", { exact: true }),
+      page.getByTestId("cto-demo-sponsor-above-fold"),
+      page.getByText("Sponsor report", { exact: true }),
     ],
     timeout,
   );
 }
 
 /**
- * Live API executive route: subnav can expose "Executive summary" before the page H1 hydrates ??? wait for the
- * review shell and its primary heading (executive shell has no global H1 like the operator sidebar chrome).
+ * Live API sponsor route: subnav can expose "Sponsor report" before the page H1 hydrates ??? wait for the
+ * review shell and its primary heading (sponsor shell has no global H1 like the operator sidebar chrome).
  */
-export async function expectBuyerExecutiveReviewPrimaryHeading(page: Page, options?: { timeout?: number }): Promise<void> {
+export async function expectBuyerSponsorReviewPrimaryHeading(page: Page, options?: { timeout?: number }): Promise<void> {
   await expectBuyerReviewPackagePrimaryHeading(page, options);
 }
 

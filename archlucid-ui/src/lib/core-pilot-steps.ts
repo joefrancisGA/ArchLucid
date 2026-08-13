@@ -1,5 +1,5 @@
 import { CLOUD_NEUTRAL_PRIMARY_COPY } from "@/lib/cloud-neutral-primary-copy";
-import { EXECUTIVE_DASHBOARD_HREF } from "@/lib/executive/executive-dashboard-route";
+import { SPONSOR_DASHBOARD_HREF } from "@/lib/sponsor/sponsor-dashboard-route";
 
 export type CorePilotStepBase = {
   title: string;
@@ -55,10 +55,10 @@ export const CORE_PILOT_STEPS: CorePilotStepBase[] = [
   {
     title: "Review portfolio ROI",
     shortBody:
-      "Open the executive ROI summary on the dashboard — confirm evidence freshness and disposition-aware headline scope.",
+      "Open the sponsor ROI summary on the dashboard — confirm evidence freshness and disposition-aware headline scope.",
     detail:
       "Portfolio ROI uses the latest finalized architecture review per system. Per-system rows do not sum to the headline — see the proof status strip for scope labels.",
-    primaryHref: EXECUTIVE_DASHBOARD_HREF,
+    primaryHref: SPONSOR_DASHBOARD_HREF,
     primaryLabel: "Open ROI dashboard",
   },
   {

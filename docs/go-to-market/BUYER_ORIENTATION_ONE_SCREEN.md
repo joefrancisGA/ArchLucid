@@ -86,7 +86,7 @@ Use this when you are unsure which document or UI surface to open next. Each bra
 | **I want to evaluate ArchLucid** | Read this page, then run or observe one Core Pilot review | Open in-app help: **Pilot guide** (`/help/pilot-guide`) |
 | **I am stuck mid-pilot** | Follow [Your first architecture review](/help/first-architecture-review) | Open in-app help: **Troubleshooting** (`/help/troubleshooting`) |
 | **I need procurement or security evidence** | Start at [Security and trust](/help/security-trust) and request a pack via [PROCUREMENT_PACK_INDEX.md](PROCUREMENT_PACK_INDEX.md#how-to-request-and-build-the-pack) | Read [Data handling and tenant isolation](/help/data-handling#isolation) |
-| **I need sponsor or executive output** | Finalize an architecture package, then export the first-value report and proof packet | Read [Executive summary expectations](/help/executive-summary) |
+| **I need sponsor or sponsor output** | Finalize an architecture package, then export the first-value report and proof packet | Read [Sponsor summary expectations](/help/sponsor-summary) |
 | **I need engineering or CLI support** | Run `archlucid doctor` and collect a support bundle | Open in-app help: **CLI usage** (`/help/cli-usage`) or **Configuration reference** (`/help/configuration-reference`) |
 
 **Claim discipline:** Before broadening sales claims, score proof gates **G1–G6** using the [claim readiness status appendix](CLAIM_READINESS_STATUS.md#appendix-gate-passhold-criteria). Stage 0 controlled pilots do not require all gates green; Stage 1 and Stage 2 do — see [`GTM_BACKLOG.md`](GTM_BACKLOG.md) § Proof-gated rollout.

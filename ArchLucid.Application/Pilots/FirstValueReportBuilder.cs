@@ -1,4 +1,4 @@
-﻿using System.Globalization;
+using System.Globalization;
 using System.Text;
 
 using ArchLucid.Application.Runs;
@@ -681,7 +681,7 @@ public sealed class FirstValueReportBuilder(
         bool hasUploadedCostEvidence = proof.RoiConfidenceLabel.Contains("uploaded", StringComparison.OrdinalIgnoreCase)
             || proof.RoiConfidenceLabel.Contains("extractor", StringComparison.OrdinalIgnoreCase);
 
-        return ExecutiveRoiSavingsPricingBasis.Resolve(
+        return SponsorRoiSavingsPricingBasis.Resolve(
             1.0m,
             hasUploadedCostEvidence,
             hasHeuristicCostEvidence: !hasUploadedCostEvidence

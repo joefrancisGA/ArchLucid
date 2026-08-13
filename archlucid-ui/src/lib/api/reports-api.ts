@@ -1,6 +1,6 @@
 import { apiGet } from './http';
 
-export type ExecutiveSummaryResult = {
+export type SponsorReportResult = {
   totalCostSavingsUsd: number;
   /** Resolved findings in trailing 30d (deduped), not pending governance load. */
   totalRiskReductionScore: number;
@@ -13,8 +13,8 @@ export type ExecutiveSummaryResult = {
   pendingGovernanceDecisionCount: number;
 };
 
-/** Live rollup from executive ROI and governance decisions-needed summary (TB-062). */
-export async function getExecutiveSummary(): Promise<ExecutiveSummaryResult> {
-  return apiGet<ExecutiveSummaryResult>('/v1/reports/executive-summary');
+/** Live rollup from sponsor ROI and governance decisions-needed summary (TB-062). */
+export async function getSponsorReport(): Promise<SponsorReportResult> {
+  return apiGet<SponsorReportResult>('/v1/reports/sponsor-report');
 }
 

@@ -60,7 +60,7 @@ describe("button visible-boundary drift guard (TB-2174)", () => {
 
   it("does not flag non-Button component props such as CtoDemoHowItWorksTrigger variant=\"link\"", () => {
     const source = readFileSync(
-      join(SRC_ROOT, "components/cto-demo/CtoDemoExecutiveTenantIsolationCallout.tsx"),
+      join(SRC_ROOT, "components/cto-demo/CtoDemoSponsorTenantIsolationCallout.tsx"),
       "utf8",
     );
 

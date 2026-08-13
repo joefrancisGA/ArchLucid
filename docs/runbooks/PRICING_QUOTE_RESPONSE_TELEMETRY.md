@@ -38,7 +38,7 @@ Targets align with [`MARKETING_PRICING_QUOTE_NOTIFICATIONS.md`](MARKETING_PRICIN
 | **ok** | closed and &lt; 72 | None — within 3-business-day quote-delivery target |
 | **behind_target** | closed and 72 – 119.99 | Log in weekly review; tighten handoff to proof packet |
 | **warn** | closed and 120 – 167.99, **or** still open at 120h | Schedule proof-readiness review; confirm next commercial action |
-| **breach** | closed and ≥ 168, **or** still open at 168h | Executive review of stalled deal; close or re-open with logged reason |
+| **breach** | closed and ≥ 168, **or** still open at 168h | Sponsor review of stalled deal; close or re-open with logged reason |
 | **pending** | `ClosedUtc` is null | Include in weekly open-follow-up list |
 
 Close breach at **168h (7 days)** matches the quote-to-proof follow-up SLA in [`QUOTE_TO_PROOF_PACKET.md`](../go-to-market/QUOTE_TO_PROOF_PACKET.md#readiness-checklist).

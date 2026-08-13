@@ -63,14 +63,14 @@ export const RULE_BASED_ANALYSIS_BUYER_LABEL = "Rule-based analysis";
 /** Proof-confidence chip when every agent step used rule-based analysis. */
 export const RULE_BASED_ANALYSIS_ONLY_BUYER_LABEL = "Rule-based analysis only";
 
-/** Executive handoff noun — prefer over "sponsor packet" or "sponsor pack" in buyer UI. */
-export const EXECUTIVE_BRIEFING_EXPORT_LABEL = "Executive briefing export";
+/** Sponsor handoff noun — prefer over "sponsor packet" or "sponsor pack" in buyer UI. */
+export const SPONSOR_BRIEFING_EXPORT_LABEL = "Sponsor briefing export";
 
 /** Artifact table section for stakeholder-facing markdown. */
-export const EXECUTIVE_BRIEFING_LABEL = "Executive briefing";
+export const SPONSOR_BRIEFING_LABEL = "Sponsor briefing";
 
-/** Mid-sentence form of {@link EXECUTIVE_BRIEFING_EXPORT_LABEL}. */
-export const EXECUTIVE_BRIEFING_EXPORT_LABEL_LOWER = "executive briefing export";
+/** Mid-sentence form of {@link SPONSOR_BRIEFING_EXPORT_LABEL}. */
+export const SPONSOR_BRIEFING_EXPORT_LABEL_LOWER = "sponsor briefing export";
 
 /** Governance gate before finalize (prefer over "pre-commit gate" in buyer copy). */
 export const APPROVAL_GATE_LABEL = "Approval gate";

@@ -1,5 +1,5 @@
 #!/usr/bin/env python3
-"""Aggregate pilot reuse cohort trackers into an executive cohort rollup."""
+"""Aggregate pilot reuse cohort trackers into an sponsor cohort rollup."""
 
 from __future__ import annotations
 
@@ -149,14 +149,14 @@ def aggregate_trackers(trackers: list[dict[str, object]]) -> dict[str, object]:
             "Voluntary reuse is operator-recorded — not inferred from product telemetry.",
             "Do not treat day-30 retention rate as PMF proof until trackingComplete discipline is consistent.",
             "Founder-assisted usage must be separated from independent returns before scaling narrative.",
-            "Redact customer-identifying content from reason fields before executive circulation.",
+            "Redact customer-identifying content from reason fields before sponsor circulation.",
         ],
     }
 
 
 def render_markdown(payload: dict[str, object]) -> str:
     lines = [
-        "# Pilot reuse cohort — executive rollup",
+        "# Pilot reuse cohort — sponsor rollup",
         "",
         f"**Generated UTC:** {payload.get('generatedUtc')}",
         f"**Pilots in corpus:** {payload.get('pilotCount')}",

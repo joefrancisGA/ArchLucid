@@ -12,7 +12,7 @@ describe("live-demo-walkthrough-steps", () => {
     expect(parseLiveDemoWalkthroughStepId("signed")).toBe("signed-record");
     expect(parseLiveDemoWalkthroughStepId("evidence-graph")).toBe("evidence");
     expect(parseLiveDemoWalkthroughStepId("audit")).toBe("audit-trail");
-    expect(parseLiveDemoWalkthroughStepId(null)).toBe("executive");
+    expect(parseLiveDemoWalkthroughStepId(null)).toBe("sponsor");
   });
 
   it("resolves step index", () => {

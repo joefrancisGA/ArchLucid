@@ -314,10 +314,10 @@ $diffArtifact = @{
     }
     changes            = @{
         gateBlockedFlipped = ($beforeBlocked -ne $afterBlocked)
-        executiveSummaryLinesAdded = @(
+        SponsorReportLinesAdded = @(
             if ($afterBlocked -and -not $beforeBlocked) { 'Pre-commit gate: blocked (commit would not proceed)' }
         ) | Where-Object { $_ -ne $null }
-        executiveSummaryLinesRemoved = @(
+        SponsorReportLinesRemoved = @(
             if ($beforeBlocked -and -not $afterBlocked) { 'Pre-commit gate: allowed (commit would proceed)' }
         ) | Where-Object { $_ -ne $null }
     }
@@ -346,7 +346,7 @@ $markdownLines = @(
     'Filter `phase-d-audit-governance-events.csv` for `GovernanceDryRunRequested` and, when assignments are persisted, `PolicyPackAssignmentCreated`.',
     '',
     '## Canonical synthetic fixture',
-    'For deterministic CI regression and fully structured finding/rule/executive-summary deltas, run `PolicyPackBeforeAfterDiffDemoTests` in ArchLucid.Application.Tests.'
+    'For deterministic CI regression and fully structured finding/rule/sponsor-report deltas, run `PolicyPackBeforeAfterDiffDemoTests` in ArchLucid.Application.Tests.'
 )
 
 $markdownPath = Join-Path $bundleDir 'policy-pack-before-after-diff.md'

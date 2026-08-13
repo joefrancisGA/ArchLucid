@@ -23,8 +23,8 @@ public sealed class CrossTenantPortfolioEndpointTests
     public async Task GetCrossTenantPortfolioSummaryAsync_without_directory_object_key_returns_problem_details_403()
     {
         RoiController sut = new(
-            Mock.Of<IExecutiveRoiSummaryService>(),
-            Mock.Of<IExecutiveRoiBoardPackExporter>(),
+            Mock.Of<ISponsorRoiSummaryService>(),
+            Mock.Of<ISponsorRoiBoardPackExporter>(),
             Mock.Of<IAuditService>(),
             Mock.Of<IScopeContextProvider>());
 

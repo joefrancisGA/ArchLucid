@@ -1,7 +1,7 @@
 {
   "schemaVersion": 1,
   "lastReviewedUtc": "2026-06-01",
-  "purpose": "Machine-readable executive KPI semantics (TB-168). UI may format only; counts and windows are server-authoritative.",
+  "purpose": "Machine-readable sponsor KPI semantics (TB-168). UI may format only; counts and windows are server-authoritative.",
   "fields": [
     {
       "id": "expiringWaivers.dashboard",
@@ -23,7 +23,7 @@
     {
       "id": "expiringWaivers.roiResponse",
       "dtoField": "expiringWaiversCount14Days",
-      "apiRoute": "GET /v1/roi/executive-summary",
+      "apiRoute": "GET /v1/roi/sponsor-summary",
       "ownerService": "CachingExecutiveRoiSummaryService.RefreshLiveGovernanceKpisAsync",
       "calculator": "GovernanceWaiverExpiryWindow.CountExpiringWithinDays",
       "meaning": "Same window as dashboard field; refreshed on every ROI read (not ROI cache TTL).",
@@ -49,7 +49,7 @@
     {
       "id": "staleArchitectureRisk.dashboard",
       "dtoField": "staleArchitectureRiskCount",
-      "apiRoute": "GET /v1/roi/executive-summary",
+      "apiRoute": "GET /v1/roi/sponsor-summary",
       "ownerService": "CachingExecutiveRoiSummaryService.RefreshLiveGovernanceKpisAsync",
       "calculator": "StaleArchitectureRiskCountCalculator.CountStale",
       "meaning": "Architecture risk register rows marked stale excluding findings with active non-expired waivers.",
@@ -60,7 +60,7 @@
     {
       "id": "orphanCandidates.summary",
       "dtoField": "orphanCandidates",
-      "apiRoute": "GET /v1/roi/executive-summary",
+      "apiRoute": "GET /v1/roi/sponsor-summary",
       "ownerService": "ExecutiveRoiSummaryService",
       "meaning": "Server-derived orphan candidate count and savings; no client multiplication of counts.",
       "units": "count and USD",
@@ -70,9 +70,9 @@
     {
       "id": "businessImpact.buckets",
       "dtoField": "businessImpactCategoryCounts",
-      "apiRoute": "GET /v1/roi/executive-summary",
+      "apiRoute": "GET /v1/roi/sponsor-summary",
       "ownerService": "ExecutiveRoiSummaryService",
-      "meaning": "Per-category finding counts for executive business-impact widget.",
+      "meaning": "Per-category finding counts for sponsor business-impact widget.",
       "units": "count per category",
       "freshness": "cached-with-roi-summary",
       "forbiddenUiPatterns": ["substring", "includes('cost')", "includes('security')"]
@@ -80,7 +80,7 @@
     {
       "id": "reports.costWaste",
       "dtoField": "costWasteUsd",
-      "apiRoute": "GET /v1/reports/executive-summary",
+      "apiRoute": "GET /v1/reports/sponsor-summary",
       "ownerService": "ExecutiveReportsSummaryService",
       "meaning": "Monthly cost waste; null in V1 until Azure cost extractor exposes authoritative waste (not savings alias).",
       "units": "USD",
@@ -90,7 +90,7 @@
     {
       "id": "reports.riskReduction",
       "dtoField": "totalRiskReductionScore",
-      "apiRoute": "GET /v1/reports/executive-summary",
+      "apiRoute": "GET /v1/reports/sponsor-summary",
       "ownerService": "ExecutiveReportsSummaryService",
       "meaning": "Resolved findings in trailing 30 days (not pending governance load).",
       "units": "count",
@@ -99,7 +99,7 @@
     {
       "id": "reports.pendingGovernance",
       "dtoField": "pendingGovernanceDecisionCount",
-      "apiRoute": "GET /v1/reports/executive-summary",
+      "apiRoute": "GET /v1/reports/sponsor-summary",
       "ownerService": "ExecutiveReportsSummaryService",
       "meaning": "Distinct governance decisions still open (TotalDecisionItems from decisions-needed composer).",
       "units": "count",
@@ -108,7 +108,7 @@
     {
       "id": "roi.headlineScope",
       "dtoField": "headlineSavingsScopeCode",
-      "apiRoute": "GET /v1/roi/executive-summary",
+      "apiRoute": "GET /v1/roi/sponsor-summary",
       "ownerService": "RoiSponsorFacingScopeLabeler",
       "meaning": "Stable scope code for totalEstimatedUsdSavings (disposition-aware open + needs-evidence).",
       "units": "enum",
@@ -118,7 +118,7 @@
     {
       "id": "roi.systemRowScope",
       "dtoField": "systemRowSavingsScopeCode",
-      "apiRoute": "GET /v1/roi/executive-summary",
+      "apiRoute": "GET /v1/roi/sponsor-summary",
       "ownerService": "RoiSponsorFacingScopeLabeler",
       "meaning": "Per-system latest-run snapshot potential; must not be summed to reconstruct headline.",
       "units": "enum",
@@ -127,7 +127,7 @@
     {
       "id": "roi.trailing30dScope",
       "dtoField": "trailing30DayActivityScopeDescription",
-      "apiRoute": "GET /v1/roi/executive-summary",
+      "apiRoute": "GET /v1/roi/sponsor-summary",
       "ownerService": "RoiSponsorFacingScopeLabeler",
       "meaning": "Resolved and newly discovered finding counts in trailing 30-day UTC window (counts only).",
       "units": "count",
@@ -138,7 +138,7 @@
       "dtoField": "valueWindowScopeCode",
       "apiRoute": "POST /v1/value-report/generate",
       "ownerService": "ValueReportBuilder",
-      "meaning": "Activity-window hours and ROI-model annualized USD; not executive disposition-aware headline.",
+      "meaning": "Activity-window hours and ROI-model annualized USD; not sponsor disposition-aware headline.",
       "units": "enum",
       "freshness": "live"
     }

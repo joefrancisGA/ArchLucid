@@ -69,7 +69,7 @@ Run `StructuralExecutionMode` is derived from the **final persisted** per-`(RunI
 ## Explicit non-claims
 
 - Run mode label ≠ quality-gate pass, ≠ sponsor-safe ROI dollars, ≠ CPA/third-party assurance.
-- Within-run **Mixed** ≠ executive history period-mix footnote (**TB-239** `IsMixedMode`).
+- Within-run **Mixed** ≠ sponsor history period-mix footnote (**TB-239** `IsMixedMode`).
 - Request-time `AgentExecutionOptions.Mode` alone does not override a heterogeneous final task set once aggregation runs (**TB-970**).
 
 ---

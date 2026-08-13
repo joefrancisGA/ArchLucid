@@ -4,7 +4,7 @@ import {
   dispositionExportSponsorRoiBucketLabel,
 } from "@/lib/disposition-export-impact";
 
-/** Pre-disposition ROI line in ExecutiveReviewPacketComposer. */
+/** Pre-disposition ROI line in SponsorReviewPacketComposer. */
 export const DISPOSITION_EXPORT_BEFORE_OPEN_ROI_BUCKET = "Open (estimated potential)";
 
 export type DispositionExportBeforeAfterInput = {

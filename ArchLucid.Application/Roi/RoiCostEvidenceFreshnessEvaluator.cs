@@ -7,7 +7,7 @@ using Microsoft.Extensions.Options;
 
 namespace ArchLucid.Application.Roi;
 
-/// <summary>Evaluates uploaded Azure extractor cost evidence freshness for executive ROI labeling.</summary>
+/// <summary>Evaluates uploaded Azure extractor cost evidence freshness for sponsor ROI labeling.</summary>
 public sealed class RoiCostEvidenceFreshnessEvaluator(
     IAzureExtractorPackageRepository azureExtractorPackageRepository,
     IScopeContextProvider scopeContextProvider,

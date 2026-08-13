@@ -7,7 +7,7 @@ import {
 } from "@/lib/cto-demo-fast-create";
 
 describe("cto-demo-fast-create", () => {
-  it("returns a tour-enabled showcase executive summary destination", () => {
+  it("returns a tour-enabled showcase sponsor report destination", () => {
     const href = getCtoDemoFastCreateDestinationHref();
 
     expect(href).toMatch(/^\/architecture\/reviews\//);

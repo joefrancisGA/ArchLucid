@@ -4,8 +4,8 @@ using ArchLucid.Persistence.Roi;
 
 namespace ArchLucid.Application.Roi;
 
-/// <summary>Reads tenant ROI cost settings for executive summary pricing-basis labels.</summary>
-public sealed class ExecutiveRoiTenantPricingContextResolver(
+/// <summary>Reads tenant ROI cost settings for Sponsor report pricing-basis labels.</summary>
+public sealed class SponsorRoiTenantPricingContextResolver(
     ITenantCostSettingsRepository tenantCostSettingsRepository,
     IScopeContextProvider scopeContextProvider)
 {
@@ -25,7 +25,7 @@ public sealed class ExecutiveRoiTenantPricingContextResolver(
 
         decimal multiplier = NormalizeEaDiscountMultiplier(settings?.EaDiscountMultiplier);
 
-        return (multiplier, ExecutiveRoiSavingsPricingBasis.Resolve(multiplier));
+        return (multiplier, SponsorRoiSavingsPricingBasis.Resolve(multiplier));
     }
 
     private static decimal NormalizeEaDiscountMultiplier(decimal? raw)

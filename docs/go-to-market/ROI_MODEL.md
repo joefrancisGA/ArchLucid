@@ -396,7 +396,7 @@ Former standalone: `docs/go-to-market/COST_GUIDE.md` → this section.
 **Measurement companion:** [`PILOT_ROI_MODEL.md`](../library/PILOT_ROI_MODEL.md).  
 **Structured twin:** `SyntheticCaseStudyDataProvider` for DOCX and sample rendering.
 
-### Executive summary
+### Sponsor summary
 
 Retail Checkout Co is modernizing checkout onto Azure while preserving its existing payment-processor integration. This **synthetic** vignette shows how the same measurement scaffolding used in `ValueReportRawMetrics` can tell a conservative before/after story: shorter review cycles, fewer re-review loops, and less manual evidence assembly.
 
@@ -605,9 +605,9 @@ rg -n '^## \d{4}-\d{2}-\d{2} — ROI bulletin signed: Q[1-4]-\d{4}$' docs/CHANGE
 
 ---
 
-## 10. Savings confidence labels (executive ROI surfaces)
+## 10. Savings confidence labels (sponsor ROI surfaces)
 
-Portfolio and sponsor-facing ROI totals (`GET /v1/roi/executive-summary`) include **labeling metadata only** — savings math is unchanged.
+Portfolio and sponsor-facing ROI totals (`GET /v1/roi/sponsor-summary`) include **labeling metadata only** — savings math is unchanged.
 
 | Label | Meaning |
 |-------|---------|
@@ -634,10 +634,10 @@ Server-authoritative labels prevent sponsor confusion when multiple ROI surfaces
 
 | Surface | Scope label gist |
 | --- | --- |
-| Executive summary headline | **Disposition-aware** open + needs-evidence estimated USD from latest committed run per system. |
+| Sponsor summary headline | **Disposition-aware** open + needs-evidence estimated USD from latest committed run per system. |
 | Per-system rows | Snapshot potential USD — **do not sum** to the portfolio headline. |
 | Cross-tenant portfolio | Sums disposition-aware basis per tenant — **Not comparable** to single-tenant headline or value-report hours ROI. |
-| Value report window | Activity-window hours/annualized USD — **Distinct from executive-summary** disposition-aware USD headline. |
+| Value report window | Activity-window hours/annualized USD — **Distinct from sponsor-summary** disposition-aware USD headline. |
 | Trailing 30-day activity | **Counts only — not USD savings** (finding events, not dollars). |
 
 When comparing surfaces, read `headlineSavingsScopeDescription` on API responses before interpreting totals together.

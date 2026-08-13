@@ -10,7 +10,7 @@ REPO_ROOT = Path(__file__).resolve().parents[3]
 
 class TestAdoptionBatch5BA(unittest.TestCase):
     def test_tb_248_contract_field(self) -> None:
-        path = REPO_ROOT / "ArchLucid.Contracts" / "Roi" / "ExecutiveRoiSummaryResponse.cs"
+        path = REPO_ROOT / "ArchLucid.Contracts" / "Roi" / "SponsorRoiSummaryResponse.cs"
         text = path.read_text(encoding="utf-8")
         self.assertIn("FirstCommitUtc", text)
 
@@ -22,9 +22,9 @@ class TestAdoptionBatch5BA(unittest.TestCase):
             / "app"
             / "(operator)"
             / "architecture"
-            / "executive-dashboard"
+            / "sponsor-dashboard"
             / "_sections"
-            / "ExecutiveRoiDashboardLiveKpiCards.tsx"
+            / "SponsorRoiDashboardLiveKpiCards.tsx"
         )
         text = path.read_text(encoding="utf-8")
         self.assertIn("exec-kpi-pilot-day-badge", text)

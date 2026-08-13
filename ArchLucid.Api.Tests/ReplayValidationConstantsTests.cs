@@ -31,7 +31,7 @@ public sealed class ReplayValidationConstantsTests
     [SkippableFact]
     public void ValidProfiles_contains_expected_values_and_count()
     {
-        string[] expected = ["default", "short", "detailed", "executive"];
+        string[] expected = ["default", "short", "detailed", "sponsor"];
         ReplayValidationConstants.ValidProfiles.Should().HaveCount(expected.Length);
         foreach (string e in expected)
             ReplayValidationConstants.ValidProfiles.Should().Contain(e);

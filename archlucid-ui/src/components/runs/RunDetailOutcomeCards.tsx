@@ -225,7 +225,7 @@ function buyerFindingSeveritySignal(
   }
 
   if (key === "elevated") {
-    return "Elevated — prioritize executive review";
+    return "Elevated — prioritize sponsor review";
   }
 
   if (key === "monitored") {
@@ -385,12 +385,12 @@ function PackageStatusStrip(props: PackageStatusStripProps) {
               className="block rounded outline-none ring-offset-2 hover:underline focus-visible:ring-2 focus-visible:ring-teal-600 dark:ring-offset-neutral-950"
             >
               <p className={valueClass}>{finiteIntegerCountDisplay(props.artifactCount)}</p>
-              <p className={detailClass}>Executive-ready deliverables</p>
+              <p className={detailClass}>Sponsor-ready deliverables</p>
             </Link>
           ) : (
             <>
               <p className={valueClass}>{finiteIntegerCountDisplay(props.artifactCount)}</p>
-              <p className={detailClass}>Executive-ready deliverables</p>
+              <p className={detailClass}>Sponsor-ready deliverables</p>
             </>
           )}
         </div>

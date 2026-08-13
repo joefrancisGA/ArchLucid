@@ -42,8 +42,8 @@ export function resolveRunSavingsUsd(inputs: RoiResolutionInputs): RunSavingsSum
   return null;
 }
 
-/** Tier 1 helper for executive-summary and scorecard server payloads. */
-export function buildExecutiveServerSavingsSummary(
+/** Tier 1 helper for sponsor-report and scorecard server payloads. */
+export function buildSponsorServerSavingsSummary(
   totalEstimatedUsdSavings: number | null | undefined,
   savingsPricingBasisDescription?: string | null,
 ): RunSavingsSummaryModel | null {

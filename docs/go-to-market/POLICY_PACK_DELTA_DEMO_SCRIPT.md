@@ -205,7 +205,7 @@ From repo root (Development API @ `http://127.0.0.1:5128`, DevelopmentBypass or 
 
 Outputs: JSON artifacts for baseline dry-run, strict dry-run, pre-commit simulation, audit CSV slice metadata, **`policy-pack-before-after-diff.json`**, and **`policy-pack-before-after-diff.md`** under a timestamped folder.
 
-**Canonical structured diff (CI):** `dotnet test ArchLucid.Application.Tests --filter FullyQualifiedName~PolicyPackBeforeAfterDiffDemoTests` produces a Verify snapshot of the full finding / rule-priority / executive-summary delta using the synthetic fixture (`tests/fixtures/policy-ab-demo/policy-ab-demo-fixture.json`).
+**Canonical structured diff (CI):** `dotnet test ArchLucid.Application.Tests --filter FullyQualifiedName~PolicyPackBeforeAfterDiffDemoTests` produces a Verify snapshot of the full finding / rule-priority / sponsor-summary delta using the synthetic fixture (`tests/fixtures/policy-ab-demo/policy-ab-demo-fixture.json`).
 
 ---
 
@@ -275,13 +275,13 @@ For the **same run id**, record (redacted — no customer-identifying content):
 | 1 | Changed **rule keys** (added/removed) | dry-run rule selection / before-after diff |
 | 2 | **Finding set** change under enforcement | finalized review findings + dry-run |
 | 3 | **Gate outcome** flip (`Blocked` false → true) | `GateResult.Blocked` in dry-run / pre-commit simulation |
-| 4 | **Executive summary** delta | `GET /v1/roi/executive-summary` before/after posture |
+| 4 | **Sponsor summary** delta | `GET /v1/roi/sponsor-summary` before/after posture |
 | 5 | **Remediation owner** for the new blocking finding | one ITSM ticket correlation |
 | 6 | **Audit timeline** of the dry-run/simulation events | `GET /v1/audit/export/csv` (Phase D) |
 
 ### Step 3 — Package buyer-safe + rehearse
 
-- **Assembly + mock procurement review:** [`QUOTE_TO_PROOF_PACKET.md`](QUOTE_TO_PROOF_PACKET.md#executive-paid-pilot-proof-packet-assembly--mock-procurement-review)
+- **Assembly + mock procurement review:** [`QUOTE_TO_PROOF_PACKET.md`](QUOTE_TO_PROOF_PACKET.md#sponsor-paid-pilot-proof-packet-assembly--mock-procurement-review)
 - **One-page buyer evidence:** [`BUYER_SECURITY_PROCUREMENT_PACKET.md`](BUYER_SECURITY_PROCUREMENT_PACKET.md#evidence-routing-map)
 
 ### Step 4 — Market-execution half

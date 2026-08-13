@@ -71,7 +71,7 @@ function sentenceForPrimaryAction(
     case "finalize-package":
       return "Assessment finished — finalize this review to create a signed review record.";
     case "send-to-sponsor":
-      return "This package is finalized — download or share the executive briefing export when you are ready.";
+      return "This package is finalized — download or share the sponsor briefing export when you are ready.";
     case "open-governance-decision":
       return "Governance approval is still pending before this package can move to sponsors.";
     default: {

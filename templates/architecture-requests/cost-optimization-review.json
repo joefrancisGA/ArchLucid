@@ -6,7 +6,7 @@
   "cloudProvider": "Azure",
   "constraints": [
     "Nightly batch must complete by 06:00 UTC",
-    "No reduction of RPO beyond 24 hours without executive sign-off",
+    "No reduction of RPO beyond 24 hours without sponsor sign-off",
     "Private connectivity for sensitive datasets"
   ],
   "requiredCapabilities": [

@@ -45,8 +45,8 @@ export const SPECIALTY_HELP_CHROME_BELOW_50_INVENTORY: readonly SpecialtyHelpChr
   },
   {
     approximateScore: 42,
-    helpPath: "/help/executive-summary",
-    slug: "executive-summary",
+    helpPath: "/help/sponsor-report",
+    slug: "sponsor-report",
     owningClusterId: "TB-1389",
     clusterDone: true,
   },

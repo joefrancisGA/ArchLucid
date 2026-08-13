@@ -8,22 +8,22 @@ using Microsoft.Extensions.Logging;
 
 namespace ArchLucid.Application.Roi;
 
-/// <summary>Builds optional board-pack executive narrative from ROI summary JSON (TB-241).</summary>
-public sealed class ExecutiveRoiBoardPackNarrativeBuilder(
+/// <summary>Builds optional board-pack sponsor narrative from ROI summary JSON (TB-241).</summary>
+public sealed class SponsorRoiBoardPackNarrativeBuilder(
     IAgentCompletionClient completionClient,
-    ILogger<ExecutiveRoiBoardPackNarrativeBuilder> logger)
+    ILogger<SponsorRoiBoardPackNarrativeBuilder> logger)
 {
     private const string SystemPrompt =
-        "You are an enterprise architecture advisor writing a 4-sentence executive summary for a board pack. "
+        "You are an enterprise architecture advisor writing a 4-sentence Sponsor report for a board pack. "
         + "Be concrete. Do not round up claims. Use the exact numbers provided.";
 
     private readonly IAgentCompletionClient _completionClient =
         completionClient ?? throw new ArgumentNullException(nameof(completionClient));
 
-    private readonly ILogger<ExecutiveRoiBoardPackNarrativeBuilder> _logger =
+    private readonly ILogger<SponsorRoiBoardPackNarrativeBuilder> _logger =
         logger ?? throw new ArgumentNullException(nameof(logger));
 
-    public async Task<string?> TryBuildNarrativeAsync(ExecutiveRoiSummaryResponse summary, CancellationToken cancellationToken)
+    public async Task<string?> TryBuildNarrativeAsync(SponsorRoiSummaryResponse summary, CancellationToken cancellationToken)
     {
         ArgumentNullException.ThrowIfNull(summary);
 
@@ -56,7 +56,7 @@ public sealed class ExecutiveRoiBoardPackNarrativeBuilder(
         }
         catch (Exception ex)
         {
-            _logger.LogWarning(ex, "Board-pack executive narrative generation failed; exporting structural content only.");
+            _logger.LogWarning(ex, "Board-pack sponsor narrative generation failed; exporting structural content only.");
 
             return null;
         }
@@ -69,6 +69,6 @@ public sealed class ExecutiveRoiBoardPackNarrativeBuilder(
         if (string.IsNullOrWhiteSpace(narrative))
             return markdown;
 
-        return "## Executive summary\n\n" + narrative.Trim() + "\n\n" + markdown;
+        return "## Sponsor report\n\n" + narrative.Trim() + "\n\n" + markdown;
     }
 }

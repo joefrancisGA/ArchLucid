@@ -47,7 +47,7 @@ export function RunsDashboardOutcomesTab(props: RunsDashboardOutcomesTabProps) {
             <StatusTag kind="neutral" label="Deliverables" />
             <p className={cn("m-0 mt-2", OPERATOR_TYPOGRAPHY.cardTitle)}>Evidence bundle ready</p>
             <p className={cn("m-0 mt-1", OPERATOR_TYPOGRAPHY.label)}>
-              Executive summary through audit trail packaged for diligence and CAB-style review inquiries.
+              Sponsor report through audit trail packaged for diligence and CAB-style review inquiries.
             </p>
           </li>
         </ul>

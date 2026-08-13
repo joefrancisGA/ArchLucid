@@ -1,10 +1,10 @@
 export const DIGESTS_PAGE_TITLE = "Architecture digests" as const;
 
 export const DIGESTS_PAGE_SUBTITLE =
-  "Configure the weekly executive digest for direct recipients. Architecture digests for subscription destinations are managed separately." as const;
+  "Configure the weekly sponsor digest for direct recipients. Architecture digests for subscription destinations are managed separately." as const;
 
 export const DIGESTS_PAGE_SUBTITLE_BUYER =
-  "Weekly executive digest for sponsor recipients in this workspace." as const;
+  "Weekly sponsor digest for sponsor recipients in this workspace." as const;
 
 export const DIGESTS_BROWSE_PAGE_SUBTITLE =
   "Send scheduled summaries of review activity, governance signals, findings, and advisory scans." as const;
@@ -28,7 +28,7 @@ export const DIGESTS_BROWSE_TAB_BROWSE_LABEL = "Browse" as const;
 
 export const DIGESTS_BROWSE_TAB_GET_STARTED_LABEL = "Get started" as const;
 
-export const DIGESTS_SCHEDULE_TAB_LABEL = "Executive schedule" as const;
+export const DIGESTS_SCHEDULE_TAB_LABEL = "Sponsor schedule" as const;
 
 export const DIGESTS_PRIVACY_NOTE =
   "Digest emails include summaries and links back to ArchLucid. Sensitive evidence is excluded by default — configure inclusion on the Subscriptions tab." as const;
@@ -102,7 +102,7 @@ export const DIGESTS_BROWSE_CHECKLIST_LEAD =
   "Digests start flowing once a generation cadence and outbound recipients exist. Work these steps in order." as const;
 
 export const DIGESTS_BROWSE_RECIPIENTS_HELPER =
-  "Architecture digest subscriptions deliver scan summaries to workspace recipients. Executive recipients on the Schedule tab receive a separate sponsor rollup email." as const;
+  "Architecture digest subscriptions deliver scan summaries to workspace recipients. Sponsor recipients on the Schedule tab receive a separate sponsor rollup email." as const;
 
 export const DIGESTS_BROWSE_PREVIEW_DISABLED_TITLE =
   "Configure a schedule or send a test digest first." as const;
@@ -119,7 +119,7 @@ export const DIGESTS_BROWSE_RELATED_INTEGRATIONS_LABEL = "Check integration read
 export const DIGESTS_CHECKLIST_SCHEDULE_LABEL = "Enable advisory scan schedule" as const;
 
 export const DIGESTS_CHECKLIST_SCHEDULE_DETAIL_PENDING =
-  "No enabled advisory scan schedules. Set generation cadence in Advisory schedules; the executive schedule controls only when the sponsor rollup email is sent." as const;
+  "No enabled advisory scan schedules. Set generation cadence in Advisory schedules; the sponsor schedule controls only when the sponsor rollup email is sent." as const;
 
 export const DIGESTS_CHECKLIST_RECIPIENTS_DETAIL_SUFFIX = "Add outbound recipients for delivery." as const;
 
@@ -129,7 +129,7 @@ export const DIGESTS_CHECKLIST_ACTION_RUN_SCAN = "Run advisory scan" as const;
 
 export const DIGESTS_CHECKLIST_ACTION_ADD_SUBSCRIPTIONS = "Add subscriptions" as const;
 
-export const DIGESTS_CHECKLIST_ACTION_OPEN_EXECUTIVE = "Open executive schedule" as const;
+export const DIGESTS_CHECKLIST_ACTION_OPEN_SPONSOR = "Open sponsor schedule" as const;
 
 export function digestsBrowseTabLabel(hasDigestHistory: boolean): string {
   return hasDigestHistory ? DIGESTS_BROWSE_TAB_BROWSE_LABEL : DIGESTS_BROWSE_TAB_GET_STARTED_LABEL;

@@ -497,7 +497,7 @@
                                    },
                        "id":  20,
                        "options":  {
-                                       "content":  "## Business Value\n\nPrimary: **\u0007rchlucid_tenant_estimated_savings_usd** (platform scope) — true Executive ROI USD rollup refreshed by ExecutiveRoiSavingsGaugeHostedService. Secondary panels below retain the severity-weighted findings proxy for directional trend visibility.",
+                                       "content":  "## Business Value\n\nPrimary: **\u0007rchlucid_tenant_estimated_savings_usd** (platform scope) — true Sponsor ROI USD rollup refreshed by ExecutiveRoiSavingsGaugeHostedService. Secondary panels below retain the severity-weighted findings proxy for directional trend visibility.",
                                        "mode":  "markdown"
                                    },
                        "title":  "Business Value",
@@ -508,7 +508,7 @@
                                           "type":  "prometheus",
                                           "uid": "${datasource}"
                                       },
-                       "description":  "Platform aggregate estimated USD savings from Executive ROI dedup rules (Improvement #4).",
+                       "description":  "Platform aggregate estimated USD savings from Sponsor ROI dedup rules (Improvement #4).",
                        "fieldConfig":  {
                                            "defaults":  {
                                                             "unit":  "currencyUSD",

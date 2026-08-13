@@ -26,7 +26,7 @@ internal static class RoiBoardPackCommand
         using HttpClient http = CliAuthorizedHttpClient.Create(baseUrl);
 
         using HttpResponseMessage response = await http.GetAsync(
-            $"v1/roi/executive-summary/board-pack?format={queryFormat}",
+            $"v1/roi/sponsor-report/board-pack?format={queryFormat}",
             cancellationToken);
 
         if (!response.IsSuccessStatusCode)
@@ -114,7 +114,7 @@ internal static class RoiBoardPackCommand
         string stamp = TimeProvider.System.GetUtcNow().UtcDateTime.ToString("yyyyMMdd-HHmmss", System.Globalization.CultureInfo.InvariantCulture);
         string extension = isPdf ? "pdf" : "md";
 
-        return Path.Combine(Directory.GetCurrentDirectory(), $"executive-roi-board-pack-{stamp}.{extension}");
+        return Path.Combine(Directory.GetCurrentDirectory(), $"sponsor-roi-board-pack-{stamp}.{extension}");
     }
 
     private static async Task WriteErrorAsync(string code, string message)

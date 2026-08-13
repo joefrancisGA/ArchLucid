@@ -12,9 +12,9 @@ namespace ArchLucid.Persistence.Tenancy;
 ///     Active SCIM users mapped to <see cref="ArchLucidRoles.Admin" /> or <see cref="ArchLucidRoles.Sponsor" />, with
 ///     audit-based admin fallback when no directory users exist.
 /// </summary>
-public sealed class DapperExecutiveSummaryRecipientLookup(
+public sealed class DapperSponsorReportRecipientLookup(
     ISqlConnectionFactory connectionFactory,
-    ITenantTrialEmailContactLookup trialEmailContactLookup) : IExecutiveSummaryRecipientLookup
+    ITenantTrialEmailContactLookup trialEmailContactLookup) : ISponsorReportRecipientLookup
 {
     private static readonly string[] RecipientRoles =
     [

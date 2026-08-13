@@ -16,7 +16,7 @@ export type FindingDetailDecisionSummaryProps = {
   readonly findingId: string;
 };
 
-/** Compact executive decision summary near the top of the finding detail page. */
+/** Compact sponsor decision summary near the top of the finding detail page. */
 export function FindingDetailDecisionSummary(props: FindingDetailDecisionSummaryProps): React.JSX.Element {
   const { summary } = props;
 

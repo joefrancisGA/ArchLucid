@@ -3,7 +3,7 @@ import { describe, expect, it } from "vitest";
 import {
   RETIRED_PILOT_OUTCOMES_PATH,
   SPONSOR_REPORT_ARCHITECTURE_SCORECARD_PATH,
-  SPONSOR_REPORT_EXECUTIVE_SUMMARY_PATH,
+  SPONSOR_REPORT_PATH,
   SPONSOR_REPORT_PAGE_TITLE,
   SPONSOR_REPORT_ROI_SUMMARY_PATH,
   SPONSOR_REPORT_SECTION_LABEL,
@@ -12,7 +12,7 @@ import {
 
 describe("sponsor-report-navigation", () => {
   it("detects sponsor report outcome surfaces", () => {
-    expect(isSponsorReportOutcomesSurface(SPONSOR_REPORT_EXECUTIVE_SUMMARY_PATH)).toBe(true);
+    expect(isSponsorReportOutcomesSurface(SPONSOR_REPORT_PATH)).toBe(true);
     expect(isSponsorReportOutcomesSurface(SPONSOR_REPORT_ROI_SUMMARY_PATH)).toBe(true);
     expect(isSponsorReportOutcomesSurface(SPONSOR_REPORT_ARCHITECTURE_SCORECARD_PATH)).toBe(true);
   });
@@ -27,7 +27,7 @@ describe("sponsor-report-navigation", () => {
   });
 
   it("does not treat retired /sponsor-report bookmarks as live surfaces", () => {
-    expect(isSponsorReportOutcomesSurface("/sponsor-report/executive-summary")).toBe(false);
+    expect(isSponsorReportOutcomesSurface("/sponsor-report/sponsor-report")).toBe(false);
     expect(isSponsorReportOutcomesSurface("/sponsor-report/pilot-outcomes")).toBe(false);
   });
 

@@ -299,7 +299,7 @@ export const HELP_TOPIC_TRAFFIC_ROWS: readonly UiRouteTrafficRow[] = [
     rowId: "HPX",
     path: PATH_CHOOSER_HELP_PATH,
     section: "Help topic",
-    note: "Path chooser help (Help topic) - HelpPathChooserGuideView with PageContextualHelpButton (topic map path-chooser; Category-1 registry), Start review CTA, four-step evaluator session strip, goal-branch primary/alternate CTAs (reviews/new, security-trust, first-architecture-review, executive-summary, CLI), collapsed buyer-orientation reference appendix, related next steps card (TB-1345/TB-1349; TB-1712 leakage strip). Sibling HEE = evaluator-workbook alias; HAX = accelerator-chooser. Not bare HelpTopicMarkdownView. Score 64/100 (2026-08-10) - help-topic ceiling below HEL hub band; hard-caps higher Evidence without signed-record diligence Sources trail.",
+    note: "Path chooser help (Help topic) - HelpPathChooserGuideView with PageContextualHelpButton (topic map path-chooser; Category-1 registry), Start review CTA, four-step evaluator session strip, goal-branch primary/alternate CTAs (reviews/new, security-trust, first-architecture-review, sponsor-report, CLI), collapsed buyer-orientation reference appendix, related next steps card (TB-1345/TB-1349; TB-1712 leakage strip). Sibling HEE = evaluator-workbook alias; HAX = accelerator-chooser. Not bare HelpTopicMarkdownView. Score 64/100 (2026-08-10) - help-topic ceiling below HEL hub band; hard-caps higher Evidence without signed-record diligence Sources trail.",
     noteMustContain: ["HelpPathChooserGuideView", "related next steps card", "Score 64"],
     sectionMustNotEqualLower: ["marketing"],
   },

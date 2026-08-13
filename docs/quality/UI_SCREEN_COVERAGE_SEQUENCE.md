@@ -75,7 +75,7 @@ Sign in as **Admin**. Complete the table in **Pass A**, then again in **Pass B**
 | 2 | `/architecture/architectures` | Empty list | Draft + linked architectures | [ ] | [ ] |
 | 3 | `/architecture/architectures/new` | Blank create form | — | [ ] | — |
 | 4 | `/architecture/reviews` | Empty inventory (or drafts, no runs) | Package table | [ ] | [ ] |
-| 5 | `/architecture/executive-dashboard` | Empty KPIs | Metrics after finalize | [ ] | [ ] |
+| 5 | `/architecture/sponsor-dashboard` | Empty KPIs | Metrics after finalize | [ ] | [ ] |
 | 6 | Same URL `#workspace-health` | Empty posture | Populated KPIs | [ ] | [ ] |
 | 7 | `/architecture/first-review-guide` | Hub status + deep links | Status after first finalize | [ ] | [ ] |
 | 8 | `/architecture/digests?tab=get-started` | Empty browse | Generated digests | [ ] | [ ] |
@@ -95,7 +95,7 @@ Sign in as **Admin**. Complete the table in **Pass A**, then again in **Pass B**
 | 17 | `/insights/improvement-planning` | Empty themes/plans | Plan list | [ ] | [ ] |
 | 18 | `/insights/architecture-scorecard` | Empty scorecard | Metrics after finalize | [ ] | [ ] |
 | 19 | `/insights/patterns` | Empty or catalog-only | Adoption signals | [ ] | [ ] |
-| 20 | `/insights/executive-summary` | Empty / no report | Sponsor summary + exports | [ ] | [ ] |
+| 20 | `/insights/sponsor-summary` | Empty / no report | Sponsor summary + exports | [ ] | [ ] |
 | 21 | `/insights/pilot-outcomes` | Empty outcomes | Pilot metrics | [ ] | [ ] |
 | 22 | `/insights/roi-summary` | Empty ROI | Hours / severity estimate | [ ] | [ ] |
 
@@ -250,7 +250,7 @@ Then **re-run Phase 1 as Pass B**.
 |:----:|-------|
 | [ ] | As **Reader**: Admin/Internal nav hidden; mutation CTAs disabled (approval, digest subscriptions, support bundle, admin integrations) |
 | [ ] | As **Execute**: governance mutations + digest subscription CRUD; no Users/SSO/Internal |
-| [ ] | Operator ↔ Executive shell toggle (if exposed) lands on portfolio overview |
+| [ ] | Operator ↔ Sponsor shell toggle (if exposed) lands on portfolio overview |
 | [ ] | Before vs after first finalize: **First review guide** nav position / demotion (TB-524) |
 
 ---

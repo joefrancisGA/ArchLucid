@@ -140,7 +140,7 @@ const BLUEPRINT_STEPS: WizardBlueprintStep[] = [
     body: (
       <div className="space-y-2 leading-relaxed text-neutral-700 dark:text-neutral-200">
         <p className="m-0">
-          After finalize, review the package summary and artifact previews, then export the executive briefing from review detail when you need a portable handoff for stakeholders.
+          After finalize, review the package summary and artifact previews, then export the sponsor briefing from review detail when you need a portable handoff for stakeholders.
         </p>
       </div>
     ),

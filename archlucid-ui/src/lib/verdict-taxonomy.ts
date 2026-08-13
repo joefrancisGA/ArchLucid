@@ -38,7 +38,7 @@ export function verdictTierLabel(tier: VerdictTier): string {
   return tier;
 }
 
-/** Best-effort mapper for free-text executive risk posture strings. */
+/** Best-effort mapper for free-text sponsor risk posture strings. */
 export function verdictTierFromRiskPosture(riskPosture: string): VerdictTier {
   const normalized = riskPosture.trim().toLowerCase();
 

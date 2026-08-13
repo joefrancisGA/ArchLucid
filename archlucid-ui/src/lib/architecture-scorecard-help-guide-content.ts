@@ -1,13 +1,13 @@
 import type { HelpMarkdownHeading } from "@/lib/help/help-markdown-headings";
 import { ARCHITECTURE_SCORECARD_HELP_TOPIC_LABEL } from "@/lib/architecture/architecture-scorecard-page-copy";
 import { ARCHITECTURE_SCORECARD_PATH } from "@/lib/architecture/architecture-scorecard-route";
-import { EXECUTIVE_SUMMARY_PILOT_ROI_MEASUREMENT_HELP_HREF } from "@/lib/executive/executive-summary-pilot-roi-measurement-help";
+import { SPONSOR_SUMMARY_PILOT_ROI_MEASUREMENT_HELP_HREF } from "@/lib/sponsor/sponsor-report-pilot-roi-measurement-help";
 import {
   REVIEW_SCORECARD_PAGE_SUBTITLE,
   REVIEW_SCORECARD_PAGE_TITLE,
 } from "@/lib/pilot-scorecard-present";
 import {
-  SPONSOR_REPORT_EXECUTIVE_SUMMARY_PATH,
+  SPONSOR_REPORT_PATH,
   SPONSOR_REPORT_PAGE_TITLE,
   SPONSOR_REPORT_ROI_SUMMARY_PATH,
 } from "@/lib/sponsor-report-navigation";
@@ -61,7 +61,7 @@ export const ARCHITECTURE_SCORECARD_HELP_HOW_TO_READ_STEPS = [
   "Open ROI summary or baseline settings when portfolio framing or cost basis needs adjustment.",
 ] as const;
 
-export const ARCHITECTURE_SCORECARD_HELP_METHODOLOGY_HREF = EXECUTIVE_SUMMARY_PILOT_ROI_MEASUREMENT_HELP_HREF;
+export const ARCHITECTURE_SCORECARD_HELP_METHODOLOGY_HREF = SPONSOR_SUMMARY_PILOT_ROI_MEASUREMENT_HELP_HREF;
 
 export const ARCHITECTURE_SCORECARD_HELP_METHODOLOGY_LABEL = "Review pilot ROI measurement methodology";
 
@@ -82,7 +82,7 @@ export const ARCHITECTURE_SCORECARD_HELP_SIBLING_REPORTS = [
     title: SPONSOR_REPORT_PAGE_TITLE,
     description: "Reporting-period summary of review activity and measurable outcomes.",
     actionLabel: "Open sponsor report",
-    href: SPONSOR_REPORT_EXECUTIVE_SUMMARY_PATH,
+    href: SPONSOR_REPORT_PATH,
   },
   {
     id: "baseline",

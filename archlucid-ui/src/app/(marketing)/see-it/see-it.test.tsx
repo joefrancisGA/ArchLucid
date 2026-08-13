@@ -269,7 +269,7 @@ describe("SeeItMarketingBody", () => {
     render(<SeeItMarketingBody source="snapshot" payload={malformed} />);
 
     expect(screen.getByTestId("see-it-no-artifacts")).toBeInTheDocument();
-    expect(screen.getByText(/Executive sponsor briefing/i)).toBeInTheDocument();
+    expect(screen.getByText(/Sponsor sponsor briefing/i)).toBeInTheDocument();
   });
 
   it("normalizes the secondary CTA row to a single PDF outline action (TB-1282)", () => {
@@ -308,7 +308,7 @@ describe("SeeItDeliverablePreview", () => {
       "href",
       CANONICAL_ANONYMOUS_PROOF_HREF,
     );
-    expect(screen.getByText(/Executive summary/i)).toBeInTheDocument();
+    expect(screen.getByText(/Sponsor report/i)).toBeInTheDocument();
     expect(screen.getByText(/Audit trail/i)).toBeInTheDocument();
     expect(screen.queryByText(/Healthcare Claims/i)).toBeNull();
   });

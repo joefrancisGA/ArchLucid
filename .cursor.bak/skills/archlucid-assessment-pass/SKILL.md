@@ -3,7 +3,7 @@ name: archlucid-assessment-pass
 description: >-
   Runs ArchLucid weighted readiness / first-principles assessment workflow:
   canonical doc reads, (A)/(B) boundary, single output file. Use when updating
-  readiness scores, overwriting docs/assessments/LATEST.md, executive or V1.1
+  readiness scores, overwriting docs/assessments/LATEST.md, sponsor or V1.1
   assessment passes, procurement realism vs headline gates, or following
   ASSESSMENT_INPUTS.md order.
 disable-model-invocation: true

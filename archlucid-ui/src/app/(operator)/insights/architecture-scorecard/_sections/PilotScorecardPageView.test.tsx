@@ -117,7 +117,7 @@ describe("PilotScorecardPageView", () => {
     expect(screen.getByRole("button", { name: "Save ROI assumptions" })).toBeInTheDocument();
   });
 
-  it("shows an executive-ready empty state when no reviews are committed", () => {
+  it("shows an sponsor-ready empty state when no reviews are committed", () => {
     render(
       <PilotScorecardPageView
         model={buildModel({

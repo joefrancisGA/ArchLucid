@@ -67,7 +67,7 @@ Product help links should resolve to stable in-app slugs. Initial V1 registry:
 | `getting-started` | `/help/getting-started` | Getting started |
 | `evidence-intake` | `/help/evidence-intake` | Evidence intake |
 | `review-packages` | `/help/review-packages` | Review packages |
-| `executive-summary` | `/help/executive-summary` | Executive summary |
+| `sponsor-summary` | `/help/sponsor-summary` | Sponsor summary |
 | `evidence-trail` | `/help/evidence-trail` | Evidence trail |
 | `governance-approval` | `/help/governance-approval` | Governance approval |
 | `audit-trail` | `/help/audit-trail` | Audit trail |

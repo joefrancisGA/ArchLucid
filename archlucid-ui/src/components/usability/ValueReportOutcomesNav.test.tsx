@@ -10,7 +10,7 @@ vi.mock("next/navigation", async (importOriginal) => {
   const actual = await importOriginal<typeof import("next/navigation")>();
   return {
     ...actual,
-    usePathname: vi.fn(() => "/insights/executive-summary"),
+    usePathname: vi.fn(() => "/insights/sponsor-report"),
     redirect: vi.fn(),
     permanentRedirect: vi.fn(),
     notFound: vi.fn(),

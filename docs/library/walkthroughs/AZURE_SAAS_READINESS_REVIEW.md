@@ -139,7 +139,7 @@ Authorization: Bearer {token}
 ## Step 5 — Inspect findings and ROI proof
 
 1. Review **findings** tied to `saas-ctrl-*` and cost/topology evidence from extractor ingest.
-2. Open **Executive summary** / per-run ROI when surfaced — basis labels must cite **Retail**, **EA-adjusted**, or **Uploaded actual** ([`ROI_MODEL.md`](../../go-to-market/ROI_MODEL.md)).
+2. Open **Sponsor summary** / per-run ROI when surfaced — basis labels must cite **Retail**, **EA-adjusted**, or **Uploaded actual** ([`ROI_MODEL.md`](../../go-to-market/ROI_MODEL.md)).
 3. Optional **Operate (analysis):** `/compare` two commits if a prior baseline run exists.
 
 ---
@@ -226,7 +226,7 @@ Detailed UI/API steps: sections above. Spine: [`FIRST_PILOT_OPERATOR_PATH.md`](.
 - Finalized **architecture package** with signed review record
 - **Findings** linked to Azure inventory evidence and policy pack rules
 - **Architecture package** exports (DOCX / ZIP) from review detail
-- Optional **executive summary** / per-run ROI with explicit basis labels (Retail, EA-adjusted, Uploaded actual)
+- Optional **sponsor summary** / per-run ROI with explicit basis labels (Retail, EA-adjusted, Uploaded actual)
 
 ### Evidence generated
 

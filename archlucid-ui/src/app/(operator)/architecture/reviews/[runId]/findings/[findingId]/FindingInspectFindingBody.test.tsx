@@ -56,14 +56,14 @@ describe("FindingInspectFindingBody", () => {
     expect(recIdx).toBeGreaterThanOrEqual(0);
   });
 
-  it("executive surface omits operator audit linkage", () => {
+  it("sponsor surface omits operator audit linkage", () => {
     render(
       <FindingInspectFindingBody
         runId={basePayload.runId}
         decodedFindingId="f-1"
         payload={basePayload}
         variant="detail"
-        surface="executive"
+        surface="sponsor"
       />,
     );
 

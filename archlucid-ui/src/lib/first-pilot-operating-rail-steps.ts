@@ -68,7 +68,7 @@ export const FIRST_PILOT_OPERATING_RAIL_STEPS: FirstPilotOperatingRailStepDefini
     shortBody: "Download the one-click sponsor ZIP or email the review after finalize — estimated vs realized labels stay explicit.",
     primaryHref: "/architecture/reviews",
     primaryLabel: "Open finalized review",
-    troubleshootHelpSlug: "executive-summary",
+    troubleshootHelpSlug: "sponsor-report",
   },
 ];
 

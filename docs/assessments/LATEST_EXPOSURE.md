@@ -117,7 +117,7 @@ The engineering substrate is materially more mature than the risk patterns this 
 |---|------|---------|----------|
 | 1 | First review completes end to end | **PASS** | Carried from `LATEST_GPT55.md` §4; re-checked, no contradicting evidence found this pass. |
 | 2 | No hallucinated/uncited citations | **PASS** | Citation contract + faithfulness eval harness, unchanged. |
-| 3 | ROI output coherent, not misleading | **PASS** | Disposition-aware executive-summary endpoint, unchanged. |
+| 3 | ROI output coherent, not misleading | **PASS** | Disposition-aware sponsor-summary endpoint, unchanged. |
 | 4 | Export/package generation works | **PASS** | Ship-gate Gate 4 export matrix, unchanged. |
 | 5 | Architect workspace does not break on first-review path | **PASS** | First-review route smoke, unchanged. |
 | 6 | Auth + tenant isolation correct on pilot path | **PASS** | Live deny-matrix + query-time scoping, unchanged. |
@@ -137,7 +137,7 @@ Reused from `LATEST_GPT55.md` §2 and spot-checked this pass; no delta from this
 | 5 | AI / Agent Readiness | 72 | 10 | 7.20 |
 | 6 | Time-to-Value | 71 | 10 | 7.10 |
 | 7 | Proof-of-ROI Readiness | 67 | 9 | 6.03 |
-| 8 | Executive / Operator Comprehension | 83 | 8 | 6.64 |
+| 8 | Sponsor / Operator Comprehension | 83 | 8 | 6.64 |
 | 9 | Runtime and First-Review Reliability | 87 | 7 | 6.09 |
 | 10 | Adoption Friction | 100 | 5 | 5.00 |
 | | **(A) Headline readiness** | | **100** | **76.32** |
@@ -149,7 +149,7 @@ Carried from `LATEST_GPT55.md` §3, reconciled against this pass's exposure find
 - **Decision Advantage Score:** 60/100 — unchanged; not an exposure-readiness input.
 - **Frontier-AI Survival Probability (12-month):** 55–70%, moderate confidence — unchanged.
 - **30-Day Voluntary Usage Probability:** 35–50%, low-moderate confidence — unchanged; this is the same "no live pilot" gap that caps Public Self-Service at YELLOW in §0/§3.
-- **Executive Purchase Probability:** 25–40%, low confidence — unchanged.
+- **Sponsor Purchase Probability:** 25–40%, low confidence — unchanged.
 - **Reconciliation:** the exposure gates in §3 are consistent with these diagnostics — both point at "engineering substrate solid, market proof absent" as the single dominant gap, not a product-quality gap. There is no contradiction between a 76.32% engineering headline and a YELLOW self-service gate: they are measuring different things (does it work vs. has anyone outside the founder proven it works under real conditions).
 
 ## 7. Trustworthiness Assessment
@@ -188,7 +188,7 @@ The IBM Carbon-aligned design system (`UI_DESIGN_SYSTEM.md`, TB-114–120) is im
 5. **AI budget guardrail language on the demo health page** ("Budget guardrails are summarized for evaluation") is honest but slightly technical for a first-time visitor — low severity, copy-only.
 6. **Policy-pack detail "not found" state** exists (`PolicyPackDetailNotFound`) but its exact copy/CTA quality was not independently reviewed this pass.
 7. **Support bundle download** is a technical artifact (a ZIP) even after redaction — fine for controlled beta, worth a friendlier wrapper before self-service.
-8. **Executive/operator dual-shell split** (buyer-polished vs. full-operator) is real and shipped, but the boundary condition for a self-serve signup landing directly in one shell vs. the other was not traced this pass.
+8. **Sponsor/operator dual-shell split** (buyer-polished vs. full-operator) is real and shipped, but the boundary condition for a self-serve signup landing directly in one shell vs. the other was not traced this pass.
 9. **Cloud-connector per-cloud help pages** (TB-720) are new (2026-07-10) — not yet battle-tested by a real non-Azure buyer.
 10. **Static demo payload** (`/showcase/*`) is safe but, by definition, cannot showcase a buyer's *own* data — fine for public mention, a known limitation for self-service trial expectations.
 

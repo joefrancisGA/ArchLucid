@@ -49,7 +49,7 @@ When the model returns JSON that parses as an object but does not match the stru
 
 ## Aggregate run explanation
 
-The **aggregate** response wraps the same run-level **`ExplanationResult`** as granular explain, plus executive rollups for dashboards and the operator run detail page.
+The **aggregate** response wraps the same run-level **`ExplanationResult`** as granular explain, plus sponsor rollups for dashboards and the operator run detail page.
 
 ### HTTP
 
@@ -65,7 +65,7 @@ Implementation: `ArchLucid.Api.Controllers.ExplanationController.AggregateRunExp
 |-------|------|-------------|
 | `explanation` | object | Full **`ExplanationResult`** (see above): `summary`, `keyDrivers`, `riskImplications`, `structured`, top-level `confidence`, `provenance`, `detailedNarrative`, etc. |
 | `themeSummaries` | string[] | One line per **theme**: decision **`KeyDrivers`** grouped by category prefix (`Category: Title → SelectedOption`); non-matching lines are prefixed with **“Additional signals:”**. |
-| `overallAssessment` | string | Single executive line combining **risk posture**, unresolved issue / compliance gap **counts**, and the explanation **summary** (or narrative fallback). |
+| `overallAssessment` | string | Single sponsor line combining **risk posture**, unresolved issue / compliance gap **counts**, and the explanation **summary** (or narrative fallback). |
 | `riskPosture` | string | **`Low`**, **`Medium`**, **`High`**, or **`Critical`** — derived only from **manifest unresolved issue severities** (not from LLM text). See **Risk posture derivation** below. |
 | `findingCount` | number | `FindingsSnapshot.Findings.Count` when the run detail load included a findings snapshot; otherwise **0**. |
 | `decisionCount` | number | `GoldenManifest.Decisions.Count`. |

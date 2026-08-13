@@ -22,7 +22,7 @@ const base = {
 };
 
 describe("BuyerDeliverablesArtifactTabs", () => {
-  it("renders executive and architecture review board sections without nested tabs", () => {
+  it("renders sponsor and architecture review board sections without nested tabs", () => {
     const artifacts = [
       { ...base, artifactId: "md", artifactType: "MarkdownReport", name: "b.md", format: "text/markdown" },
       { ...base, artifactId: "jb", artifactType: "JsonBundle", name: "decisions.json" },
@@ -33,10 +33,10 @@ describe("BuyerDeliverablesArtifactTabs", () => {
     );
 
     expect(screen.getByTestId("buyer-deliverables-artifact-tabs")).toBeInTheDocument();
-    expect(screen.getByRole("heading", { name: "Executive and sponsor artifacts" })).toBeInTheDocument();
+    expect(screen.getByRole("heading", { name: "Sponsor and sponsor artifacts" })).toBeInTheDocument();
     expect(screen.getByRole("heading", { name: "Architecture review board artifacts" })).toBeInTheDocument();
     expect(screen.queryByRole("tab")).not.toBeInTheDocument();
-    expect(screen.getByTestId("buyer-deliverables-panel-executive")).toBeInTheDocument();
+    expect(screen.getByTestId("buyer-deliverables-panel-sponsor")).toBeInTheDocument();
     expect(screen.getByTestId("buyer-deliverables-panel-arb")).toBeInTheDocument();
   });
 });

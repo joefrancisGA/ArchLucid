@@ -68,7 +68,7 @@ class RefreshTechBacklogCategoryCountsTests(unittest.TestCase):
         )
         self.assertEqual(
             GUARD.normalize_category("Proof-of-ROI"),
-            "Proof-of-ROI / executive value",
+            "Proof-of-ROI / sponsor value",
         )
         self.assertEqual(
             GUARD.normalize_category("Trustworthiness / adoption"),

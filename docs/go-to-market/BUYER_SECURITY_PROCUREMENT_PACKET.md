@@ -799,7 +799,7 @@ Former standalone body: `docs/go-to-market/MINIMUM_PILOT_TRUST_PACKET_WITHOUT_CP
 
 **Audience:** Procurement and security reviewers for a **controlled pilot**; founder assembling the packet.
 
-**Claim:** The Stage 0 pilot trust bar is a **six-element Real SEND executive packet** plus **labeled self-attested** assurance substitutes — not a CPA-issued SOC 2 report and not a published third-party pen-test summary.
+**Claim:** The Stage 0 pilot trust bar is a **six-element Real SEND sponsor packet** plus **labeled self-attested** assurance substitutes — not a CPA-issued SOC 2 report and not a published third-party pen-test summary.
 
 ### Include (minimum bar)
 
@@ -2481,7 +2481,7 @@ Former standalone body: `docs/go-to-market/OWNER_SCREENSHOT_BELOW_50_SPECIALTY_H
 | ~39 | `/help/configuration-reference` | **TB-1326**–**TB-1330** |
 | ~40 | `/help/repeat-review-loop` | **TB-1394**–**TB-1398** |
 | ~42 | `/help/evaluator-workbook` | **TB-1345**–**TB-1349** |
-| ~42 | `/help/executive-summary#pilot-roi-measurement` (folded from pilot-roi-model) | **TB-1389**–**TB-1393** **Done** |
+| ~42 | `/help/sponsor-summary#pilot-roi-measurement` (folded from pilot-roi-model) | **TB-1389**–**TB-1393** **Done** |
 | ~46 | `/help/first-hour-operator-path` | **TB-1374**–**TB-1378** |
 | ~49 | `/help/procurement` | **TB-1253**–**TB-1257** |
 
@@ -4921,7 +4921,7 @@ When extractor schema, RBAC posture, or trust-center rows change, update this pr
 
 | Reviewer | Start with | Decision focus |
 | --- | --- | --- |
-| CIO / executive sponsor | [Executive Sponsor Brief](EXECUTIVE_SPONSOR_BRIEF.md) Â· [Core Pilot](../CORE_PILOT.md) Â· [Pilot Success Scorecard](PILOT_SUCCESS_SCORECARD.md) | Cycle time, defensible package, proof for broader use |
+| CIO / sponsor sponsor | [Sponsor Sponsor Brief](EXECUTIVE_SPONSOR_BRIEF.md) Â· [Core Pilot](../CORE_PILOT.md) Â· [Pilot Success Scorecard](PILOT_SUCCESS_SCORECARD.md) | Cycle time, defensible package, proof for broader use |
 | Architecture review board | [Architecture on one page](../ARCHITECTURE_ON_ONE_PAGE.md) Â· [V1 Scope](../library/V1_SCOPE.md) Â· [Core Pilot](../CORE_PILOT.md) | Findings, decisions, evidence, governance fit |
 | Security / GRC / procurement | [Trust Center](trust-center.md) Â· [Procurement Pack Index](PROCUREMENT_PACK_INDEX.md) Â· [Procurement Response Accelerator](#procurement-response-accelerator) Â· [DPA](DPA_TEMPLATE.md) | Current controls, evidence boundaries, deferred scope |
 | Pilot owner / sales engineer | [Core Pilot](../CORE_PILOT.md) Â· [Pilot Success Scorecard](PILOT_SUCCESS_SCORECARD.md) Â· [Second Run](../library/SECOND_RUN.md) | First-session path, baseline inputs, honest ROI |

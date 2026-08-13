@@ -140,7 +140,7 @@ public sealed class CliPackageCoverageBatch11Tests
                 """);
 
             File.WriteAllText(
-                Path.Combine(packetDir, SponsorPacketArtifactCatalog.ExecutiveSummaryFileName),
+                Path.Combine(packetDir, SponsorPacketArtifactCatalog.SponsorReportFileName),
                 """
                 {
                   "totalEstimatedUsdSavings": 50000,

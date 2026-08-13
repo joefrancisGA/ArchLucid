@@ -191,7 +191,7 @@ public sealed class PilotsController(
     /// <summary>
     ///     Consolidated sponsor packet (manifest, findings, ROI basis by disposition, decisions) — one Markdown download.
     /// </summary>
-    [HttpGet("runs/{runId}/executive-review-packet")]
+    [HttpGet("runs/{runId}/sponsor-review-packet")]
     [Produces("text/markdown")]
     [ProducesResponseType(typeof(string), StatusCodes.Status200OK, "text/markdown")]
     [ProducesResponseType(StatusCodes.Status404NotFound)]
@@ -200,12 +200,12 @@ public sealed class PilotsController(
         string? markdown = await executiveReviewPacketBuilder.BuildMarkdownAsync(runId, cancellationToken);
 
         return markdown is null
-            ? this.NotFoundProblem($"Executive review packet is not available for run '{runId}'.", ProblemTypes.RunNotFound)
+            ? this.NotFoundProblem($"Sponsor review packet is not available for run '{runId}'.", ProblemTypes.RunNotFound)
             : Content(markdown, "text/markdown; charset=utf-8");
     }
 
     /// <summary>
-    ///     One-click sponsor proof ZIP: executive review packet, first-value report (MD+PDF), deltas, limitations, and manifest.
+    ///     One-click sponsor proof ZIP: sponsor review packet, first-value report (MD+PDF), deltas, limitations, and manifest.
     /// </summary>
     [HttpGet("runs/{runId}/sponsor-proof-pack.zip")]
     [Produces("application/zip")]

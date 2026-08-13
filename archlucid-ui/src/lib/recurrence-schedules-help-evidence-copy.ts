@@ -44,11 +44,11 @@ export const RECURRENCE_SCHEDULES_HELP_HEALTH_CONSTRAINTS: readonly RecurrenceSc
   {
     label: "Not email cadence",
     detail:
-      "Executive digest email cadence is configured separately on the Architecture digests Schedule tab.",
+      "Sponsor digest email cadence is configured separately on the Architecture digests Schedule tab.",
   },
 ] as const;
 
 export const RECURRENCE_SCHEDULES_HELP_DIGEST_SCHEDULE_LINK = {
-  label: "Open executive digest schedule",
+  label: "Open sponsor digest schedule",
   href: DIGESTS_SCHEDULE_TAB_PATH,
 } as const;

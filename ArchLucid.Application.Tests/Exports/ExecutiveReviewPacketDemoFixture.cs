@@ -10,8 +10,8 @@ using ArchLucid.Contracts.Roi;
 
 namespace ArchLucid.Application.Tests.Exports;
 
-/// <summary>Seeded Claims Intake demo inputs for executive review packet golden tests.</summary>
-internal static class ExecutiveReviewPacketDemoFixture
+/// <summary>Seeded Claims Intake demo inputs for sponsor review packet golden tests.</summary>
+internal static class SponsorReviewPacketDemoFixture
 {
     internal const string DemoRunId = "claims-intake-modernization";
 
@@ -21,15 +21,15 @@ internal static class ExecutiveReviewPacketDemoFixture
     {
         internal ArchitectureRunDetail Detail { get; init; } = null!;
 
-        internal string ExecutiveSummary { get; init; } = string.Empty;
+        internal string SponsorReport { get; init; } = string.Empty;
 
         internal IReadOnlyList<string> TopFindingTitles { get; init; } = [];
 
-        internal ExecutiveRoiSummaryResponse RoiSummary { get; init; } = null!;
+        internal SponsorRoiSummaryResponse RoiSummary { get; init; } = null!;
 
-        internal IReadOnlyList<ExecutiveReviewPacketDecisionRow> TopDecisions { get; init; } = [];
+        internal IReadOnlyList<SponsorReviewPacketDecisionRow> TopDecisions { get; init; } = [];
 
-        internal ExecutiveReviewPacketPortfolioSignals PortfolioSignals { get; init; } = null!;
+        internal SponsorReviewPacketPortfolioSignals PortfolioSignals { get; init; } = null!;
     }
 
     internal static DemoPacketInputs CreateSeededDemoRun()
@@ -121,13 +121,13 @@ internal static class ExecutiveReviewPacketDemoFixture
             Tasks = []
         };
 
-        ExecutiveRoiSummaryResponse roiSummary = new()
+        SponsorRoiSummaryResponse roiSummary = new()
         {
             TotalEstimatedUsdSavings = 8400m,
             SystemCount = 1,
             LatestRunCount = 1,
             EaDiscountMultiplier = 0.85m,
-            SavingsPricingBasis = ExecutiveRoiSavingsPricingBasis.EaAdjusted,
+            SavingsPricingBasis = SponsorRoiSavingsPricingBasis.EaAdjusted,
             SavingsPricingBasisDescription =
                 "Cost-category findings use EA-adjusted Azure Retail rates for the demo tenant.",
             CostEvidenceFreshnessStatus = RoiCostEvidenceFreshness.Fresh,
@@ -156,7 +156,7 @@ internal static class ExecutiveReviewPacketDemoFixture
                 WaiversRetiredCount30Days = 0,
                 WaiverExpiryReversionCount30Days = 0,
             },
-            BasisBreakdown = new ExecutiveRoiBasisBreakdown
+            BasisBreakdown = new SponsorRoiBasisBreakdown
             {
                 OpenEstimatedUsd = 6200m,
                 AcceptedRiskUsd = 1200m,
@@ -172,7 +172,7 @@ internal static class ExecutiveReviewPacketDemoFixture
         return new DemoPacketInputs
         {
             Detail = detail,
-            ExecutiveSummary =
+            SponsorReport =
                 "Proceed with claims intake modernization under monitored PHI minimization controls — sponsor-facing KPIs remain on track.",
             TopFindingTitles =
             [
@@ -183,7 +183,7 @@ internal static class ExecutiveReviewPacketDemoFixture
             RoiSummary = roiSummary,
             TopDecisions =
             [
-                new ExecutiveReviewPacketDecisionRow
+                new SponsorReviewPacketDecisionRow
                 {
                     Title = "PHI ingress classification",
                     SelectedOption = "Enforce boundary classifier before persistence",
@@ -191,7 +191,7 @@ internal static class ExecutiveReviewPacketDemoFixture
                     EvidenceHref = "/governance/decision-register"
                 }
             ],
-            PortfolioSignals = new ExecutiveReviewPacketPortfolioSignals
+            PortfolioSignals = new SponsorReviewPacketPortfolioSignals
             {
                 ResolvedFindingsCount30Days = 2,
                 NewlyDiscoveredFindingsCount30Days = 3,
@@ -212,12 +212,12 @@ internal static class ExecutiveReviewPacketDemoFixture
             AppContext.BaseDirectory,
             "Exports",
             "Golden",
-            "executive-review-packet-demo-run.md");
+            "sponsor-review-packet-demo-run.md");
 
         if (!File.Exists(path))
         {
             throw new FileNotFoundException(
-                $"Golden executive review packet not found at '{path}'. Ensure CopyToOutputDirectory is set.");
+                $"Golden sponsor review packet not found at '{path}'. Ensure CopyToOutputDirectory is set.");
         }
 
         return File.ReadAllText(path);

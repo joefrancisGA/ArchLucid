@@ -33,7 +33,7 @@ public sealed class BatchReplayComparisonRequestValidator : AbstractValidator<Ba
         {
             RuleFor(x => x.Profile!)
                 .Must(p => ReplayValidationConstants.ValidProfiles.Contains(p.Trim()))
-                .WithMessage("Profile must be one of: default, short, detailed, executive.");
+                .WithMessage("Profile must be one of: default, short, detailed, sponsor.");
         });
     }
 }

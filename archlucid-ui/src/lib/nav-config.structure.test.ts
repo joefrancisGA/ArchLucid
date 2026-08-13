@@ -156,7 +156,7 @@ describe("nav-config structure", () => {
 
     expect(advanced).toBeDefined();
 
-    // Executive value report is Execute-gated; sponsor outcomes and ROI summary stay ReadAuthority.
+    // Sponsor value report is Execute-gated; sponsor outcomes and ROI summary stay ReadAuthority.
     for (const link of advanced!.links) {
       if (link.requiredAuthority === "ExecuteAuthority") {
         expect(link.tier, link.href).not.toBe("essential");
@@ -181,7 +181,7 @@ describe("nav-config structure", () => {
       "/insights/improvement-planning",
       "/insights/architecture-scorecard",
       "/insights/patterns",
-      "/insights/executive-summary",
+      "/insights/sponsor-report",
       "/insights/roi-summary",
     ]);
 
@@ -203,7 +203,7 @@ describe("nav-config structure", () => {
       "/governance/alert-rules",
       "/governance/recurrence-schedules",
       "/governance/setup",
-      "/architecture/executive-dashboard#workspace-health",
+      "/architecture/sponsor-dashboard#workspace-health",
     ]);
     expect(integrationsHrefs).toEqual([
       "/integrations/cloud-connections",
@@ -295,7 +295,7 @@ describe("nav-config structure", () => {
     for (const link of governance!.links) {
       expect(
         link.href === "/governance/approval-queue"
-          || link.href === "/architecture/executive-dashboard#workspace-health"
+          || link.href === "/architecture/sponsor-dashboard#workspace-health"
           || link.href.startsWith("/governance/"),
         link.href,
       ).toBe(true);

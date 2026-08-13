@@ -51,8 +51,8 @@ class TestTrustPaidP1bBatch(unittest.TestCase):
             self.assertIn(scenario, text, f"TB-297 must cover {scenario}")
 
     def test_executive_board_pack_live_e2e_exists(self) -> None:
-        api_tests = REPO_ROOT / "ArchLucid.Api.Tests" / "ExecutiveRoiBoardPackEndpointTests.cs"
-        live_spec = REPO_ROOT / "archlucid-ui" / "e2e" / "live-api-executive-board-pack.spec.ts"
+        api_tests = REPO_ROOT / "ArchLucid.Api.Tests" / "SponsorRoiBoardPackEndpointTests.cs"
+        live_spec = REPO_ROOT / "archlucid-ui" / "e2e" / "live-api-sponsor-board-pack.spec.ts"
         self.assertTrue(api_tests.is_file(), f"Missing {api_tests}")
         self.assertTrue(live_spec.is_file(), f"Missing {live_spec}")
 

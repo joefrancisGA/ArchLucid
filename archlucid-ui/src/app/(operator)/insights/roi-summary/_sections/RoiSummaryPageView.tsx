@@ -6,7 +6,7 @@ import Link from "next/link";
 import { DemoWorkspaceCapabilityUnavailablePanel } from "@/components/DemoWorkspaceCapabilityUnavailablePanel";
 import { OperatorPageContainer } from "@/components/operator/OperatorPageContainer";
 import {
-  SPONSOR_REPORT_EXECUTIVE_SUMMARY_PATH,
+  SPONSOR_REPORT_PATH,
   SPONSOR_REPORT_PAGE_TITLE,
   SPONSOR_REPORT_ROI_SUMMARY_PATH,
 } from "@/lib/sponsor-report-navigation";
@@ -24,7 +24,7 @@ import { Button } from "@/components/ui/button";
 import { CollapsibleSection } from "@/components/CollapsibleSection";
 import { useRoiLoadedHourlyUsd } from "@/hooks/use-roi-loaded-hourly-usd";
 import { BUYER_START_ARCHITECTURE_REVIEW_CTA } from "@/lib/buyer/buyer-polish-copy";
-import { EXECUTIVE_SUMMARY_PILOT_ROI_MEASUREMENT_HELP_HREF } from "@/lib/executive-summary-pilot-roi-measurement-help";
+import { SPONSOR_SUMMARY_PILOT_ROI_MEASUREMENT_HELP_HREF } from "@/lib/sponsor-report-pilot-roi-measurement-help";
 import { GOVERNANCE_WORKSPACE_HEALTH_HREF } from "@/lib/governance/governance-route-paths";
 import { DESIGN_TOKENS, OPERATOR_LINK, OPERATOR_TYPOGRAPHY } from "@/lib/design-tokens";
 import { isBuyerPolishedOperatorShellEnv } from "@/lib/demo-ui-env";
@@ -127,7 +127,7 @@ export function RoiSummaryPageView(props: Props) {
                 aria-label="Related value reports"
                 className={cn("flex flex-wrap items-center gap-x-3 gap-y-1 text-al-text-secondary", OPERATOR_TYPOGRAPHY.helper)}
               >
-                <Link href={SPONSOR_REPORT_EXECUTIVE_SUMMARY_PATH} className={OPERATOR_LINK.inline}>
+                <Link href={SPONSOR_REPORT_PATH} className={OPERATOR_LINK.inline}>
                   {SPONSOR_REPORT_PAGE_TITLE}
                 </Link>
                 <Link href="/administration/baseline" className={OPERATOR_LINK.inline}>
@@ -160,10 +160,10 @@ export function RoiSummaryPageView(props: Props) {
                 <Link href="/architecture/reviews/new">{BUYER_START_ARCHITECTURE_REVIEW_CTA}</Link>
               </Button>
               <Button asChild variant="secondary">
-                <Link href={SPONSOR_REPORT_EXECUTIVE_SUMMARY_PATH}>Open sample sponsor report</Link>
+                <Link href={SPONSOR_REPORT_PATH}>Open sample sponsor report</Link>
               </Button>
               <Button asChild variant="outline">
-                <Link href={EXECUTIVE_SUMMARY_PILOT_ROI_MEASUREMENT_HELP_HREF}>Review methodology</Link>
+                <Link href={SPONSOR_SUMMARY_PILOT_ROI_MEASUREMENT_HELP_HREF}>Review methodology</Link>
               </Button>
             </div>
           </section>
@@ -233,7 +233,7 @@ export function RoiSummaryPageView(props: Props) {
             workspace, and project scope only.
           </p>
           <p className={cn("m-0 mt-3 text-al-text-secondary", OPERATOR_TYPOGRAPHY.helper)}>
-            <Link href={EXECUTIVE_SUMMARY_PILOT_ROI_MEASUREMENT_HELP_HREF} className={OPERATOR_LINK.inline}>
+            <Link href={SPONSOR_SUMMARY_PILOT_ROI_MEASUREMENT_HELP_HREF} className={OPERATOR_LINK.inline}>
               Review full methodology
             </Link>
           </p>

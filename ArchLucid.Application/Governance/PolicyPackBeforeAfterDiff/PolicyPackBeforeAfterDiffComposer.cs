@@ -43,14 +43,14 @@ public static class PolicyPackBeforeAfterDiffComposer
             .OrderBy(id => id, StringComparer.Ordinal)
             .ToList();
 
-        HashSet<string> beforeExecutive = before.ExecutiveSummaryLines.ToHashSet(StringComparer.Ordinal);
-        HashSet<string> afterExecutive = after.ExecutiveSummaryLines.ToHashSet(StringComparer.Ordinal);
+        HashSet<string> beforeExecutive = before.SponsorReportLines.ToHashSet(StringComparer.Ordinal);
+        HashSet<string> afterExecutive = after.SponsorReportLines.ToHashSet(StringComparer.Ordinal);
 
-        IReadOnlyList<string> executiveAdded = after.ExecutiveSummaryLines
+        IReadOnlyList<string> executiveAdded = after.SponsorReportLines
             .Where(line => !beforeExecutive.Contains(line))
             .ToList();
 
-        IReadOnlyList<string> executiveRemoved = before.ExecutiveSummaryLines
+        IReadOnlyList<string> executiveRemoved = before.SponsorReportLines
             .Where(line => !afterExecutive.Contains(line))
             .ToList();
 
@@ -60,8 +60,8 @@ public static class PolicyPackBeforeAfterDiffComposer
             RemovedComplianceRuleKeys = removedRules,
             FindingsNewlyBlockingCommit = newlyBlocking,
             FindingsNoLongerBlockingCommit = noLongerBlocking,
-            ExecutiveSummaryLinesAdded = executiveAdded,
-            ExecutiveSummaryLinesRemoved = executiveRemoved,
+            SponsorReportLinesAdded = executiveAdded,
+            SponsorReportLinesRemoved = executiveRemoved,
             GateBlockedFlipped = before.GateBlocked != after.GateBlocked,
         };
     }

@@ -17,8 +17,8 @@ import {
   RunDetailColdOpenOrientationDeferred,
   RunDetailCompareToBaselineCta,
   RunDetailEvidenceTabPanelDeferred,
-  RunDetailExecutiveBottomLineDeferred,
-  RunDetailExecutiveSummaryCtaCardDeferred,
+  RunDetailSponsorBottomLineDeferred,
+  RunDetailSponsorReportCtaCardDeferred,
   RunDetailExplanationConfidenceBannerDeferred,
   RunDetailGenerateAdrFromRunModal,
   RunDetailGovernanceCtaDeferred,
@@ -203,7 +203,7 @@ const evidenceTabPanelEl = (
 );
 const executiveBottomLineEl =
   blockingApprovalCount === 0 ? (
-    <RunDetailExecutiveBottomLineDeferred content={executiveBottomLineContent} />
+    <RunDetailSponsorBottomLineDeferred content={executiveBottomLineContent} />
   ) : null;
 const explanationDeferredEl = (
   <RunDetailExplanationDeferred
@@ -324,7 +324,7 @@ const architectureTabPanelEl = (
               <RunDetailMidDeferredSections context={deferredContext} />
             </Suspense>
             {buyerFinalizedPackage ? null : (
-              <RunDetailExecutiveSummaryCtaCardDeferred runId={m.resolvedDetail.run.runId} demoted />
+              <RunDetailSponsorReportCtaCardDeferred runId={m.resolvedDetail.run.runId} demoted />
             )}
           </div>
         ),

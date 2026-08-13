@@ -13,7 +13,7 @@ describe("operator-query-persist-allowlist (TB-2165)", () => {
   });
 
   it("denies authority-adjacent and audit payloads", () => {
-    expect(shouldPersistOperatorQueryKey(operatorQueryKeys.executiveRoiSummary)).toBe(false);
+    expect(shouldPersistOperatorQueryKey(operatorQueryKeys.sponsorRoiSummary)).toBe(false);
     expect(shouldPersistOperatorQueryKey(operatorQueryKeys.corePilotCommitContext)).toBe(false);
     expect(shouldPersistOperatorQueryKey(operatorQueryKeys.advisoryRecommendations({ tenantId: "t", workspaceId: "w", projectId: "p" }, "run-1"))).toBe(false);
     expect(shouldPersistOperatorQueryKey(operatorQueryKeys.auditEventsSearch({ tenantId: "t", workspaceId: "w", projectId: "p" }, {}, null))).toBe(false);

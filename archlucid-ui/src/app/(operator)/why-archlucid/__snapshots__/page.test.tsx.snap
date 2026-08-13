@@ -170,7 +170,7 @@ exports[`WhyArchLucidPage (proof page snapshot) > matches the rendered layout sn
           class="mt-3 text-[13px] font-normal leading-5 text-al-text-primary"
           data-testid="why-archlucid-universe-lead"
         >
-          See how ArchLucid turns architecture review into a governed decision package — executive summary, signed review record, evidence trail, governance approval, and audit record — using the Retail baseline sample workspace as a walkthrough.
+          See how ArchLucid turns architecture review into a governed decision package — sponsor summary, signed review record, evidence trail, governance approval, and audit record — using the Retail baseline sample workspace as a walkthrough.
         </p>
       </div>
     </header>
@@ -676,7 +676,7 @@ Demo body.
     <p
       class="text-xs font-normal leading-[18px] text-al-text-secondary"
     >
-      Aggregate executive explanation persisted with the architecture review, with citations back to the signed review record, findings, decision traces, and evidence bundles that the explainability trace was built from.
+      Aggregate sponsor explanation persisted with the architecture review, with citations back to the signed review record, findings, decision traces, and evidence bundles that the explainability trace was built from.
     </p>
     <div
       class="space-y-4"
@@ -847,9 +847,9 @@ Demo body.
      
     <a
       class="font-medium text-teal-800 underline underline-offset-2 dark:text-teal-200"
-      href="/help/executive-summary"
+      href="/help/sponsor-report"
     >
-      Executive sponsor brief
+      Sponsor sponsor brief
     </a>
      · 
     <a

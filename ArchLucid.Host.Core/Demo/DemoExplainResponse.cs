@@ -53,7 +53,7 @@ public sealed class DemoExplainResponse
         init;
     } = "demo tenant — replace before publishing";
 
-    /// <summary>Executive aggregate explanation + citations for the run (same payload as <c>/v1/explain/runs/{runId}/aggregate</c>).</summary>
+    /// <summary>Sponsor aggregate explanation + citations for the run (same payload as <c>/v1/explain/runs/{runId}/aggregate</c>).</summary>
     public required RunExplanationSummary RunExplanation
     {
         get;

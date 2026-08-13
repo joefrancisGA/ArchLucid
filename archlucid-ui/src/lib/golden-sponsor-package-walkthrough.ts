@@ -50,7 +50,7 @@ export const GOLDEN_SPONSOR_PACKAGE_WALKTHROUGH_STEPS: readonly GoldenSponsorPac
   {
     id: "sponsor-export",
     label: "Open sponsor-ready exports",
-    description: "Download the executive summary or architecture report when you are ready to share.",
+    description: "Download the sponsor report or architecture report when you are ready to share.",
   },
 ] as const;
 

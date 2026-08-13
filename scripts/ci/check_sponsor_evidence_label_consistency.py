@@ -109,7 +109,7 @@ _SIMULATOR_ROI_FORBID_ANCHORS: dict[str, tuple[str, ...]] = {
         "isProjectedUsdSponsorBadgeVisible",
         "isExternalSponsorPdfBlockedForExecutionMode",
     ),
-    "archlucid-ui/src/app/(operator)/architecture/executive-dashboard/_sections/ExecutiveRoiTrendSection.tsx": (
+    "archlucid-ui/src/app/(operator)/architecture/sponsor-dashboard/_sections/SponsorRoiTrendSection.tsx": (
         "resolveExecutiveTrendSavingsUsd",
     ),
     "ArchLucid.Application.Tests/Pilots/SponsorSimulatorRoiForbidAssertions.cs": (

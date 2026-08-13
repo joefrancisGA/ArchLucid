@@ -12,7 +12,7 @@ using Moq;
 namespace ArchLucid.Application.Tests.Reports;
 
 [Trait("Category", "Unit")]
-public sealed class ExecutiveReportsSummaryServiceTests
+public sealed class SponsorReportsSummaryServiceTests
 {
     [Fact]
     public async Task BuildAsync_maps_resolved_findings_and_pending_governance_separately()
@@ -27,9 +27,9 @@ public sealed class ExecutiveReportsSummaryServiceTests
                 ProjectId = Guid.Parse("cccccccc-cccc-cccc-cccc-cccccccccccc"),
             });
 
-        Mock<IExecutiveRoiSummaryService> roi = new();
+        Mock<ISponsorRoiSummaryService> roi = new();
         roi.Setup(service => service.BuildAsync(It.IsAny<CancellationToken>())).ReturnsAsync(
-            new ExecutiveRoiSummaryResponse
+            new SponsorRoiSummaryResponse
             {
                 TotalEstimatedUsdSavings = 1000m,
                 ResolvedFindingsCount30Days = 7,
@@ -46,9 +46,9 @@ public sealed class ExecutiveReportsSummaryServiceTests
                     TotalDecisionItems = 11,
                 });
 
-        ExecutiveReportsSummaryService sut = new(scope.Object, roi.Object, decisions.Object);
+        SponsorReportsSummaryService sut = new(scope.Object, roi.Object, decisions.Object);
 
-        ExecutiveSummaryResult result = await sut.BuildAsync(CancellationToken.None);
+        SponsorReportResult result = await sut.BuildAsync(CancellationToken.None);
 
         result.TotalRiskReductionScore.Should().Be(7);
         result.PendingGovernanceDecisionCount.Should().Be(11);

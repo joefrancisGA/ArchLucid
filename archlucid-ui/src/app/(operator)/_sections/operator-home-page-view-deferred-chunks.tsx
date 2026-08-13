@@ -22,10 +22,10 @@ export const PilotCommandCenterCardDeferred = dynamic(
   { ssr: false, loading: () => pilotCommandCenterLoading },
 );
 
-export const OperatorHomeExecutiveRoiStripDeferred = dynamic(
+export const OperatorHomeSponsorRoiStripDeferred = dynamic(
   () =>
-    import("@/components/operator-home/OperatorHomeExecutiveRoiStrip").then(
-      (module) => module.OperatorHomeExecutiveRoiStrip,
+    import("@/components/operator-home/OperatorHomeSponsorRoiStrip").then(
+      (module) => module.OperatorHomeSponsorRoiStrip,
     ),
   { ssr: false, loading: () => null },
 );
@@ -47,10 +47,10 @@ export const OperatorHomeStickinessCockpitDeferred = dynamic(
   { ssr: false, loading: () => null },
 );
 
-export const CtoDemoExecutiveLandingRedirectDeferred = dynamic(
+export const CtoDemoSponsorLandingRedirectDeferred = dynamic(
   () =>
-    import("@/components/cto-demo/CtoDemoExecutiveLandingRedirect").then(
-      (module) => module.CtoDemoExecutiveLandingRedirect,
+    import("@/components/cto-demo/CtoDemoSponsorLandingRedirect").then(
+      (module) => module.CtoDemoSponsorLandingRedirect,
     ),
   { ssr: false, loading: () => null },
 );

@@ -3,7 +3,7 @@ import path from "node:path";
 
 import { describe, expect, it } from "vitest";
 
-import { BUYER_EXECUTIVE_SUMMARY_VOCABULARY } from "@/lib/vocabulary/buyer-surface-vocabulary";
+import { BUYER_SPONSOR_SUMMARY_VOCABULARY } from "@/lib/vocabulary/buyer-surface-vocabulary";
 import {
   BUYER_VOCABULARY_BANNED_LITERALS,
   BUYER_VOCABULARY_LEAKAGE_SURFACES,
@@ -26,12 +26,12 @@ describe("buyer vocabulary leakage guard (VOCABULARY_ROSETTA)", () => {
     }
   });
 
-  it("uses finalize phrasing in executive dashboard copy", () => {
-    expect(BUYER_EXECUTIVE_SUMMARY_VOCABULARY.portfolioPageNextStep).toBe(
+  it("uses finalize phrasing in sponsor dashboard copy", () => {
+    expect(BUYER_SPONSOR_SUMMARY_VOCABULARY.portfolioPageNextStep).toBe(
       "Finalize at least one review to populate dashboard metrics.",
     );
-    expect(BUYER_EXECUTIVE_SUMMARY_VOCABULARY.emptyStateTitle).toBe("No finalized reviews yet");
-    expect(BUYER_EXECUTIVE_SUMMARY_VOCABULARY.metricsPreviewUnavailableFootnote).toBe(
+    expect(BUYER_SPONSOR_SUMMARY_VOCABULARY.emptyStateTitle).toBe("No finalized reviews yet");
+    expect(BUYER_SPONSOR_SUMMARY_VOCABULARY.metricsPreviewUnavailableFootnote).toBe(
       "Available after first finalized review",
     );
   });

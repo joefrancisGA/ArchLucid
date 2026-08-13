@@ -539,7 +539,7 @@ def format_deal_ready_disposition(
     counts = dict(summary.get("scope_classification_counts") or {})
     classification_rows = list(summary.get("scope_classification_rows") or [])
     lines = [
-        "# Procurement deal-ready executive summary",
+        "# Procurement deal-ready Sponsor report",
         "",
         f"**Disposition:** **{disposition}**",
         "",

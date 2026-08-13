@@ -8,13 +8,13 @@ from pathlib import Path
 
 REPO_ROOT = Path(__file__).resolve().parents[3]
 
-LEGACY_EXECUTIVE_SUMMARY_FRAGMENT = "api/authority/executive-summary"
+LEGACY_EXECUTIVE_SUMMARY_FRAGMENT = "api/authority/sponsor-report"
 
 SCOPE_ONLY_ROUTES = (
     ("/v1/value-report/generate", "ValueReportController"),
     ("/v1/admin/reference-evidence", "ReferenceEvidenceAdminController"),
     ("/v1/admin/metering/summary", "MeteringAdminController"),
-    ("/v1/reports/executive-summary", "Reports/ExecutiveSummaryController"),
+    ("/v1/reports/sponsor-report", "Reports/SponsorReportController"),
 )
 
 
@@ -41,7 +41,7 @@ class TestRouteTenantP1Batch(unittest.TestCase):
             / "ArchLucid.Api"
             / "Controllers"
             / "Authority"
-            / "ExecutiveSummaryController.cs"
+            / "SponsorReportController.cs"
         )
         self.assertFalse(legacy.is_file(), f"TB-280: remove {legacy}")
 
@@ -71,7 +71,7 @@ class TestRouteTenantP1Batch(unittest.TestCase):
                 text = path.read_text(encoding="utf-8")
 
                 if LEGACY_EXECUTIVE_SUMMARY_FRAGMENT in text:
-                    self.fail(f"TB-280: legacy executive-summary reference in {path.relative_to(REPO_ROOT)}")
+                    self.fail(f"TB-280: legacy sponsor-report reference in {path.relative_to(REPO_ROOT)}")
 
     def test_cross_tenant_rollup_requires_platform_cross_tenant_read(self) -> None:
         path = (

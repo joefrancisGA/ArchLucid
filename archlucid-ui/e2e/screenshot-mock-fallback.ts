@@ -4,12 +4,12 @@
  */
 
 import {
-  getExecutiveRoiExportMockJson,
-  getExecutiveRoiHistoryMockJson,
-  getExecutiveRoiSummaryMockJson,
+  getSponsorRoiExportMockJson,
+  getSponsorRoiHistoryMockJson,
+  getSponsorRoiSummaryMockJson,
   getGovernanceDecisionsNeededSummaryMockJson,
   getTenantPilotValueReportMockJson,
-} from "./fixtures/executive-roi-dashboard-mock";
+} from "./fixtures/sponsor-roi-dashboard-mock";
 import { getDemoSampleAuditTrailEvents } from "@/lib/demo-audit-sample-events";
 import { MOCK_TRIAL_WELCOME_RUN_ID } from "./fixtures/ids";
 
@@ -100,16 +100,16 @@ export function getScreenshotMockFallbackGetJson(pathname: string, search: strin
     };
   }
 
-  if (pathname === "/v1/roi/executive-summary") {
-    return getExecutiveRoiSummaryMockJson();
+  if (pathname === "/v1/roi/sponsor-report") {
+    return getSponsorRoiSummaryMockJson();
   }
 
-  if (pathname === "/v1/roi/executive-summary/export") {
-    return getExecutiveRoiExportMockJson();
+  if (pathname === "/v1/roi/sponsor-report/export") {
+    return getSponsorRoiExportMockJson();
   }
 
-  if (pathname === "/v1/roi/executive-summary/history") {
-    return getExecutiveRoiHistoryMockJson();
+  if (pathname === "/v1/roi/sponsor-report/history") {
+    return getSponsorRoiHistoryMockJson();
   }
 
   if (pathname === "/v1/tenant/pilot-value-report") {

@@ -5,7 +5,7 @@
 
 # CI #2224 — integration shard timeout diagnosis
 
-## Executive summary
+## Sponsor summary
 
 CI **#2224** degraded **5 of 6** Api.Tests integration regression shards. **Three shards (3/6, 5/6, 6/6) hit the 240-minute job ceiling** (`canceled`). **Two shards (2/6, 4/6) failed at ~100–109 minutes** when a single test exceeded the **75-minute blame-hang inactivity** threshold. Only shard **1/6** completed (~9 minutes).
 

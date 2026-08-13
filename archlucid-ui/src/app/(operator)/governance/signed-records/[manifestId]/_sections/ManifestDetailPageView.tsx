@@ -353,7 +353,7 @@ export function ManifestDetailPageView(props: ManifestDetailPageViewProps) {
             </CardTitle>
             <CardDescription>
               {buyerPolishedLayout
-                ? "These deliverables package the executive decision, architecture review board record, and audit evidence for sign-off and diligence. Rows below list individual deliverable artifacts — prefer the consolidated package download when your workspace publishes a full bundle."
+                ? "These deliverables package the sponsor decision, architecture review board record, and audit evidence for sign-off and diligence. Rows below list individual deliverable artifacts — prefer the consolidated package download when your workspace publishes a full bundle."
                 : "Outputs produced during this review — available for preview and download."}
             </CardDescription>
           </div>

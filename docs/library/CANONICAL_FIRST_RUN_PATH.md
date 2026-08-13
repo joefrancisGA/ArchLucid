@@ -393,7 +393,7 @@ Former standalone body: `docs/library/CONTROLLED_PILOT_FIRST_RUN_CHECKLIST.md` â
 | 6 | Resolve governance warnings; **Commit** manifest. | Manifest id visible; execution mode persisted. | [V1_SCOPE.md](V1_SCOPE.md) |
 | 7 | Verify run detail shows **execution mode** and **evidence basis**. | Real/Simulator/Fallback/Mixed + basis labels. | [CLAIM_READINESS_STATUS.md](../go-to-market/CLAIM_READINESS_STATUS.md) |
 | 8 | Collect proof packet. | `collect-first-pilot-proof.ps1` PASS/WARN with limitations.md. | [FIRST_PILOT_OPERATOR_PATH.md#printable-first-run-evidence-checklist](../runbooks/FIRST_PILOT_OPERATOR_PATH.md#printable-first-run-evidence-checklist) |
-| 9 | Export sponsor packet / executive review. | Labels present; no overclaim language. | [PILOT_GUIDE.md](customer-facing/PILOT_GUIDE.md) |
+| 9 | Export sponsor packet / sponsor review. | Labels present; no overclaim language. | [PILOT_GUIDE.md](customer-facing/PILOT_GUIDE.md) |
 
 ### Expected artifacts
 

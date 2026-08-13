@@ -1,6 +1,6 @@
 import { describe, expect, it } from "vitest";
 
-import { EXECUTIVE_DASHBOARD_HREF } from "@/lib/executive/executive-dashboard-route";
+import { SPONSOR_DASHBOARD_HREF } from "@/lib/sponsor/sponsor-dashboard-route";
 import { CORE_PILOT_STEP_COUNT, CORE_PILOT_STEPS } from "@/lib/core-pilot-steps";
 
 describe("core-pilot-steps", () => {
@@ -20,7 +20,7 @@ describe("core-pilot-steps", () => {
     const hrefs = CORE_PILOT_STEPS.map((step) => step.primaryHref);
 
     expect(hrefs).toContain("/administration/extract-upload");
-    expect(hrefs).toContain(EXECUTIVE_DASHBOARD_HREF);
+    expect(hrefs).toContain(SPONSOR_DASHBOARD_HREF);
     expect(CORE_PILOT_STEPS.some((step) => step.title.toLowerCase().includes("audit"))).toBe(true);
   });
 

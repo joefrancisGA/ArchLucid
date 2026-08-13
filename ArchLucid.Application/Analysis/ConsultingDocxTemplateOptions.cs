@@ -123,8 +123,8 @@ public sealed class ConsultingDocxTemplateOptions
         set;
     } = true;
 
-    /// <summary>When <see langword="true" />, an executive summary section is rendered.</summary>
-    public bool IncludeExecutiveSummary
+    /// <summary>When <see langword="true" />, an Sponsor report section is rendered.</summary>
+    public bool IncludeSponsorReport
     {
         get;
         set;
@@ -220,11 +220,11 @@ public sealed class ConsultingDocxTemplateOptions
     }
 
     /// <summary>
-    ///     Template string for the executive-summary opening sentence.
+    ///     Template string for the sponsor-report opening sentence.
     ///     Supports <c>{SystemName}</c>, <c>{OrganizationName}</c>, <c>{ServiceCount}</c>,
     ///     <c>{DatastoreCount}</c>, and <c>{ControlCount}</c> placeholders.
     /// </summary>
-    public string ExecutiveSummaryTextTemplate
+    public string SponsorReportTextTemplate
     {
         get;
         set;

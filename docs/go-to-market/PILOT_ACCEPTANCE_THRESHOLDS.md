@@ -6,7 +6,7 @@
 
 # Pilot acceptance thresholds (PASS / HOLD / DEFERRED_SCOPE)
 
-**Audience:** Founder, pilot operator, sales engineer, and executive sponsor moving from a completed pilot to a commercial recommendation.
+**Audience:** Founder, pilot operator, sales engineer, and sponsor sponsor moving from a completed pilot to a commercial recommendation.
 
 **Last reviewed:** 2026-07-25
 

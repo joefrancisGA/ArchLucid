@@ -1,4 +1,4 @@
-﻿using System.Net;
+using System.Net;
 using System.Net.Http.Json;
 using System.Text.Json;
 
@@ -280,10 +280,10 @@ public sealed class TenantIsolationSmokeTests
         using HttpClient clientB = factory.CreateClient();
         WireScope(clientB, TenantB, WorkspaceB, ProjectB);
 
-        HttpResponseMessage summary = await clientB.GetAsync("/v1/roi/executive-summary");
+        HttpResponseMessage summary = await clientB.GetAsync("/v1/roi/sponsor-report");
         await summary.EnsureSuccessForTestAsync();
         string body = await summary.Content.ReadAsStringAsync();
-        body.Should().NotContain(requestId, "tenant B executive summary must not include tenant A run data.");
+        body.Should().NotContain(requestId, "tenant B Sponsor report must not include tenant A run data.");
     }
 
     [SkippableFact]

@@ -62,7 +62,7 @@ The ADR 0060 concurrent constraint *"the platform is still producing frequent ru
 - **Procurement and trust-center claims** — the buyer security packet and subprocessor list are published artifacts. Any engine outside the Azure boundary changes them, and D11 makes that a merge gate rather than a cleanup task.
 - **Assurance-claim discipline** — nothing in this ADR may be described as CPA-attested SOC 2 or third-party-pen-tested; those remain owner-execution GTM items.
 - **Single operator** — catalog maintenance, evaluation runs, and engine deprecation all land on one person. This is precisely why D3′ does not gate: a gate operated by one person becomes the bottleneck on every model launch. The corresponding risk is that evidence goes stale or is never gathered, so `NotEvaluated` and evaluation age must be first-class in the UI rather than inferred from a missing field.
-- **Cross-run comparability** — the product sells comparison across reviews (`EndToEndReplayComparisonService`, decision register, executive rollups). Unbounded per-user engine choice would make within-workspace comparisons dominated by engine variance, which is why D13 bounds the choice set at workspace level rather than removing it.
+- **Cross-run comparability** — the product sells comparison across reviews (`EndToEndReplayComparisonService`, decision register, sponsor rollups). Unbounded per-user engine choice would make within-workspace comparisons dominated by engine variance, which is why D13 bounds the choice set at workspace level rather than removing it.
 
 ## Expected impact
 

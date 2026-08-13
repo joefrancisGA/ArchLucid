@@ -62,7 +62,7 @@ export function extractReviewIdFromRoutePath(routePath: string): string | null {
   const parts = normalized.split("/").filter((part) => part.length > 0);
   const reviewsIdx = parts.indexOf("reviews");
 
-  if (reviewsIdx < 0 || parts[0] === "executive") {
+  if (reviewsIdx < 0 || parts[0] === "sponsor") {
     return null;
   }
 

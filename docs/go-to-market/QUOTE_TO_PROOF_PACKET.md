@@ -138,17 +138,17 @@ Use when the buyer needs a labeled path from sample request → finalized archit
 
 ---
 
-## Executive paid-pilot proof packet (assembly + mock procurement review) {#executive-paid-pilot-proof-packet-assembly--mock-procurement-review}
+## Sponsor paid-pilot proof packet (assembly + mock procurement review) {#sponsor-paid-pilot-proof-packet-assembly--mock-procurement-review}
 
-**Audience:** Founder / pilot operator / sales engineer preparing a **paid** executive sponsor packet and rehearsing it before a real procurement call.
+**Audience:** Founder / pilot operator / sales engineer preparing a **paid** sponsor sponsor packet and rehearsing it before a real procurement call.
 
-**Goal:** Turn one finalized review into the six-element executive proof packet, then pressure-test it in a mock procurement review **before** sending. Market-validation tooling (V1 design half); running it on real authorized data is GTM backlog **M-37 (V1.1)**. Assessment Improvement **#4**.
+**Goal:** Turn one finalized review into the six-element sponsor proof packet, then pressure-test it in a mock procurement review **before** sending. Market-validation tooling (V1 design half); running it on real authorized data is GTM backlog **M-37 (V1.1)**. Assessment Improvement **#4**.
 
 ### Six required elements → canonical owners
 
 | # | Required element | Canonical source / command | Claim boundary |
 | --- | --- | --- | --- |
-| 1 | **ROI assumptions** | `executive-summary.json` + [`PILOT_ROI_MODEL.md`](../library/PILOT_ROI_MODEL.md) + [`PILOT_SUCCESS_SCORECARD.md`](PILOT_SUCCESS_SCORECARD.md) | Lead with dollars only when `roiSponsorSafe=true` |
+| 1 | **ROI assumptions** | `sponsor-summary.json` + [`PILOT_ROI_MODEL.md`](../library/PILOT_ROI_MODEL.md) + [`PILOT_SUCCESS_SCORECARD.md`](PILOT_SUCCESS_SCORECARD.md) | Lead with dollars only when `roiSponsorSafe=true` |
 | 2 | **Freshness labels** | `go-no-go-summary.json` → `roiBasisStatus`; [`#roi-baseline-send-policy`](#roi-baseline-send-policy) | Demo-derived values must not read as buyer outcomes |
 | 3 | **Cited evidence** | `provenance-references.json` + [`DIFFERENTIATION_PROOF_PACKET.md`](DIFFERENTIATION_PROOF_PACKET.md) | Evidence-linked claims only |
 | 4 | **Disposition basis** | `go-no-go-summary.json` → `sponsorPacketDisposition` | Do not upgrade `HOLD`/`WARN` |
@@ -247,7 +247,7 @@ Do not ask for annual conversion from a vague demo. Ask after the buyer can poin
 | **SEND** + `roiSponsorSafe` + procurement PASS | **ARB Report** or **Annual Enterprise order** (tier-dependent) | Sales + sponsor |
 | **SEND** + procurement HOLD | **Evidence Pack** — refresh procurement pack | Procurement owner |
 | **HOLD** (any BLOCK row) | **Evidence Pack** — fix remediation column in `first-pilot-command-center.md` | Pilot operator |
-| **DEFERRED_SCOPE** | **Deferred buyer requirement** — record V1.1/V2/(B) ask; do not treat as V1 failure | Executive owner |
+| **DEFERRED_SCOPE** | **Deferred buyer requirement** — record V1.1/V2/(B) ask; do not treat as V1 failure | Sponsor owner |
 | ROI not sponsor-safe | **Evidence Pack** — collect baselines per scorecard | Buyer + ArchLucid |
 
 Generated mapping: `commercial-next-step.json` in the proof folder (from `FirstPilotCommercialNextStep.ps1`).
@@ -308,7 +308,7 @@ python scripts/ci/build_decision_cycle_telemetry.py `
 | Demo → pilot start | Procurement / environment prerequisites |
 | Pilot start → first finalize | First-hour architect friction (see [`CORE_PILOT.md`](../CORE_PILOT.md); `FIRST_HOUR_OPERATOR_PATH.md` alias) |
 | First commit → sponsor send | Proof packet / ROI baseline SEND gates ([§3](#commercial-conversion-checklist)) |
-| Sponsor send → decision | Executive value narrative and faithfulness guardrails |
+| Sponsor send → decision | Sponsor value narrative and faithfulness guardrails |
 
 ---
 
@@ -351,7 +351,7 @@ When `roiBasisStatus` is in the complete set above, the proof pipeline treats re
 
 | Role | May approve override? |
 | --- | :---: |
-| **executive-owner** | Yes |
+| **sponsor-owner** | Yes |
 | **cfo-delegate** | Yes |
 | **sales** / **pilot-operator** | Record only — cannot self-approve |
 
@@ -359,7 +359,7 @@ Place `roi-baseline-send-override.json` in the proof folder next to `go-no-go-su
 
 Required override fields:
 
-- `approvedByRole` — `executive-owner` or `cfo-delegate`
+- `approvedByRole` — `sponsor-owner` or `cfo-delegate`
 - `recordedBy` — `sales` or `pilot-operator`
 - `validForRunId` — must match proof `runId` when supplied
 - `rationale` — at least 24 characters
@@ -475,9 +475,9 @@ Use these names in landing copy, Upwork, SOWs, and outreach so buyers purchase a
 
 | SKU | Buyer / use | Core deliverables (typical) | Indicative band (USD) |
 |-----|-------------|-----------------------------|------------------------|
-| **ArchLucid AI & Cloud Architecture Readiness Review** | Mid-market CTO, fractional CTO, cloud consultant, regulated startup needing credibility | Executive summary; architecture evidence inventory; decision register; risk register; policy/finding summary; recommended actions; final **Architecture Review Report** (DOCX/PDF, whitelabel as needed) | **1,500–3,000 USD** lightweight scope · **5,000–10,000 USD** standard · multi-system / team pilot — upper bands per [PRICING_PHILOSOPHY.md](PRICING_PHILOSOPHY.md) **section 5** |
+| **ArchLucid AI & Cloud Architecture Readiness Review** | Mid-market CTO, fractional CTO, cloud consultant, regulated startup needing credibility | Sponsor summary; architecture evidence inventory; decision register; risk register; policy/finding summary; recommended actions; final **Architecture Review Report** (DOCX/PDF, whitelabel as needed) | **1,500–3,000 USD** lightweight scope · **5,000–10,000 USD** standard · multi-system / team pilot — upper bands per [PRICING_PHILOSOPHY.md](PRICING_PHILOSOPHY.md) **section 5** |
 | **ArchLucid Evidence Pack** | Team with scattered artifacts; needs one structured dossier before a board or ARB | Curated evidence set in-workbench + export bundle aligned to review narrative; gap list | Scope by effort — often bundled **inside** Readiness Review |
-| **ArchLucid Architecture Board / ARB Report** | Sponsor needs a single executive- or ARB-ready artifact | Short cycle focused on **report** sections and traceability appendix; whitelabel firm/client branding | Typically **upper half** of Readiness Review band |
+| **ArchLucid Architecture Board / ARB Report** | Sponsor needs a single sponsor- or ARB-ready artifact | Short cycle focused on **report** sections and traceability appendix; whitelabel firm/client branding | Typically **upper half** of Readiness Review band |
 | **ArchLucid Cloud Governance Review (Azure-first)** | Azure-heavy estate; cost + security baseline narrative | Customer **`Get-ArchLucidAzurePackage.ps1`** ZIP ingest where applicable; security-baseline + cost-oriented findings; report | Align with **Azure Architecture Readiness** Upwork listing in [`GTM_BACKLOG.md`](GTM_BACKLOG.md) M-25 |
 
 **Note:** Indicative bands are planning defaults for **founder-led / consulting-enabled** motion. **[PRICING_PHILOSOPHY.md](PRICING_PHILOSOPHY.md)** (**Marketing alignment Q7**) still applies: **no public paid-pilot $ band on the landing page** in the first 90 days — use **walkthrough → qualify → quote** and private SOWs.
@@ -493,7 +493,7 @@ ArchLucid delivers a **time-boxed architecture review** that produces a **commit
 #### Buyer prerequisites
 
 - Azure architecture evidence (topology, identity, data flows) the buyer may share under contract
-- Executive sponsor and technical lead for a 30-minute findings review
+- Sponsor sponsor and technical lead for a 30-minute findings review
 - Agreement that outputs are **architecture-review evidence**, not regulator attestation
 
 #### Week 1 / week 2 outcomes
@@ -574,7 +574,7 @@ Use these **exact** names in SOWs, order-form addenda, Upwork drafts, LinkedIn, 
 |------------------------|------------------------------|------------------------------|
 | **Readiness Review** | **ArchLucid AI & Cloud Architecture Readiness Review** | Default first paid engagement; convert to Team/Professional subscription via [`ORDER_FORM_TEMPLATE.md`](ORDER_FORM_TEMPLATE.md) |
 | **Evidence Pack** | **ArchLucid Evidence Pack** | Often bundled inside Readiness Review; standalone when procurement needs a dossier before ARB |
-| **ARB Report** | **ArchLucid Architecture Board / ARB Report** | When sponsor needs one executive-/ARB-ready narrative |
+| **ARB Report** | **ArchLucid Architecture Board / ARB Report** | When sponsor needs one sponsor-/ARB-ready narrative |
 | **Azure-first** | **ArchLucid Cloud Governance Review (Azure-first)** | Azure-heavy estates; aligns with Upwork listing **M-25** |
 
 **Conversion path (say this consistently):**  
@@ -604,7 +604,7 @@ Readiness Review (or Azure-first) → optional Evidence Pack / ARB Report → an
 [Name] —
 
 Following our conversation: the first paid step is an ArchLucid AI & Cloud Architecture
-Readiness Review (fixed scope, private quote). Deliverables are an executive summary,
+Readiness Review (fixed scope, private quote). Deliverables are an sponsor summary,
 evidence inventory, risk/decision registers, and an Architecture Review Report (DOCX/PDF)
 with a finalized architecture package and audit trail.
 
@@ -634,7 +634,7 @@ SaaS subscription (Team / Professional) is a separate order form after the revie
 | Report | Architecture Review Report (DOCX/PDF); whitelabel optional |
 | Proof | Finalized package + audit trail; execution mode labeled |
 
-**Buyer gets:** Executive summary; architecture evidence inventory; decision register; risk register; policy/finding summary; recommended actions; Architecture Review Report (DOCX/PDF); finalized architecture package with export/proof-packet artifacts; 30-minute findings / sponsor debrief.
+**Buyer gets:** Sponsor summary; architecture evidence inventory; decision register; risk register; policy/finding summary; recommended actions; Architecture Review Report (DOCX/PDF); finalized architecture package with export/proof-packet artifacts; 30-minute findings / sponsor debrief.
 
 **Buyer does not get (unless addendum):** SOC 2 CPA attestation; published third-party pen test; live Marketplace / Stripe self-serve; V1.1 first-party Jira/ServiceNow/Teams/Slack; guaranteed ROI dollars without buyer baselines; production remediation execution.
 
@@ -737,7 +737,7 @@ an evidence-backed architecture governance package you can take to a sponsor,
 ARB, or security review.
 
 What you get
-• Executive summary of architecture risks and decisions
+• Sponsor summary of architecture risks and decisions
 • Evidence inventory tied to findings (not free-floating AI opinions)
 • Decision / risk registers with clear dispositions
 • Policy / finding summary with recommended actions
@@ -813,7 +813,7 @@ an Azure-heavy architecture readiness package with security-baseline and
 cost-oriented findings you can take to a sponsor or cloud governance forum.
 
 What you get
-• Executive summary focused on Azure estate risks and decisions
+• Sponsor summary focused on Azure estate risks and decisions
 • Evidence inventory tied to findings (ZIP ingest and/or shared artifacts)
 • Security-baseline + cost-oriented finding set with recommended actions
 • Decision / risk register excerpt with clear dispositions
@@ -956,7 +956,7 @@ Test **paid behavior** as stronger evidence than feature completion. Supports ou
 
 **Offer:** ArchLucid AI & Cloud Architecture Readiness Review — fixed-scope (2–3 weeks; 1 architecture domain). **Private band:** **5,000–10,000 USD** standard; **1,500–3,000 USD** when narrowly bounded.
 
-**Buyer gets:** executive summary + evidence inventory; risk register + recommended actions with evidence-basis labels; Architecture Review Report (DOCX/PDF; whitelabel); finalized architecture package with audit trail.
+**Buyer gets:** sponsor summary + evidence inventory; risk register + recommended actions with evidence-basis labels; Architecture Review Report (DOCX/PDF; whitelabel); finalized architecture package with audit trail.
 
 **Buyer does not get (unless separately contracted):** SOC 2 CPA / third-party pen test; V1.1 connectors; Marketplace self-serve / MCP; guaranteed ROI dollars without buyer baselines.
 
@@ -1003,7 +1003,7 @@ Signed SOW/order form; baseline capture started; first finalize within 10 busine
 #### In scope
 
 1. Structured architecture review in ArchLucid (evidence intake, findings, decisions, export).
-2. Executive summary and Architecture Review Report (DOCX/PDF), whitelabel optional.
+2. Sponsor summary and Architecture Review Report (DOCX/PDF), whitelabel optional.
 3. Evidence inventory, decision register, risk register, recommended actions.
 4. Human judgment and sign-off framing; AI-assisted analysis labeled by execution mode.
 5. Buyer-safe proof disposition per [`CLAIM_READINESS_STATUS.md`](CLAIM_READINESS_STATUS.md) where applicable.
@@ -1284,7 +1284,7 @@ Former standalone body: `docs/go-to-market/validation/PAID_PILOT_EVIDENCE_LEDGER
 **Execution tracked as:** GTM backlog **M-37** / **M-45 (V1.1)** — populating rows requires completed paid pilots; this template is the V1 design half.  
 **Path-stable alias:** [`validation/PAID_PILOT_EVIDENCE_LEDGER.md`](validation/PAID_PILOT_EVIDENCE_LEDGER.md).
 
-This ledger converts the ROI narrative into **observable executive purchase proof**: did the pilot change a decision, what did the sponsor do next, and did conversion or expansion signals appear? It includes the [ROI validation session](#pilot-roi-validation-session), [decision-delta interview](#decision-delta-interview-paid-pilots), and [decision-change addendum](#decision-change-addendum), and complements the [commercial conversion checklist](#commercial-conversion-checklist) and [ROI baseline SEND policy](#roi-baseline-send-policy).
+This ledger converts the ROI narrative into **observable sponsor purchase proof**: did the pilot change a decision, what did the sponsor do next, and did conversion or expansion signals appear? It includes the [ROI validation session](#pilot-roi-validation-session), [decision-delta interview](#decision-delta-interview-paid-pilots), and [decision-change addendum](#decision-change-addendum), and complements the [commercial conversion checklist](#commercial-conversion-checklist) and [ROI baseline SEND policy](#roi-baseline-send-policy).
 
 ### When to file (paid-pilot ledger)
 
@@ -1308,7 +1308,7 @@ Copy the JSON template per pilot. Use a **sanitized `pilotLabel`** only (e.g. `r
 | Minutes | Activity |
 | --- | --- |
 | 0–3 | Read persisted signals on the handoff card: ROI confidence, execution mode, sponsor-safe dollar gate, sendability |
-| 3–10 | Walk the six validation questions (card collapsible section) with the executive sponsor or proxy |
+| 3–10 | Walk the six validation questions (card collapsible section) with the sponsor sponsor or proxy |
 | 10–13 | Decide verdict: external ROI quote vs internal directional vs hold sponsor PDF |
 | 13–15 | Copy validation notes to clipboard and populate one ledger row |
 
@@ -1513,7 +1513,7 @@ Store summaries under `docs/go-to-market/validation-runs/` (local; do not commit
 **Companion template:** [`validation/templates/decision-change-addendum.template.md`](validation/templates/decision-change-addendum.template.md)  
 **Execution tracked as:** GTM backlog **M-45 (V1.1)** — populating with real sponsor interviews requires live handoffs; this format is the V1 design half.
 
-This addendum bridges **technical findings** to **executive decisions** without inventing outcomes. It complements the proof ZIP, first-value report, and [decision-delta interview](#decision-delta-interview-paid-pilots) — it does not replace them.
+This addendum bridges **technical findings** to **sponsor decisions** without inventing outcomes. It complements the proof ZIP, first-value report, and [decision-delta interview](#decision-delta-interview-paid-pilots) — it does not replace them.
 
 #### When to attach
 

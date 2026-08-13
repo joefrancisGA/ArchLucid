@@ -22,14 +22,14 @@ const REDIRECT_ONLY_PATHS = [
   "/admin/cloud-connections/aws",
   "/signed-records",
   "/signed-records/[manifestId]",
-  "/sponsor-report/executive-summary",
+  "/sponsor-report/sponsor-report",
   "/sponsor-report/roi-summary",
   "/sponsor-report/pilot-outcomes",
   "/replay",
   "/settings/cost-reporting",
   "/health",
   "/governance/dashboard",
-  "/executive/scorecard",
+  "/sponsor/scorecard",
 ];
 
 describe("ui-route-traffic-template-canonical-guard (TB-748)", () => {
@@ -43,7 +43,7 @@ describe("ui-route-traffic-template-canonical-guard (TB-748)", () => {
     expect(paths).toContain("/governance/signed-records/[manifestId]");
     expect(paths).toContain("/governance/signed-records/[manifestId]/artifacts/[artifactId]");
     expect(paths).toContain("/internal/health");
-    expect(paths).toContain("/insights/executive-summary");
+    expect(paths).toContain("/insights/sponsor-report");
     expect(paths).toContain("/internal/replay");
 
     for (const legacyPath of REDIRECT_ONLY_PATHS) {

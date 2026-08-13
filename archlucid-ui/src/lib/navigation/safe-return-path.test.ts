@@ -1,6 +1,6 @@
 import { describe, expect, it } from "vitest";
 
-import { EXECUTIVE_DASHBOARD_HREF } from "@/lib/executive/executive-dashboard-route";
+import { SPONSOR_DASHBOARD_HREF } from "@/lib/sponsor/sponsor-dashboard-route";
 import { isSafeReturnPath, resolveSafeReturnPath } from "@/lib/navigation/safe-return-path";
 
 describe("isSafeReturnPath", () => {
@@ -67,7 +67,7 @@ describe("isSafeReturnPath", () => {
 
 describe("resolveSafeReturnPath", () => {
   it("returns the candidate when it is safe", () => {
-    expect(resolveSafeReturnPath(EXECUTIVE_DASHBOARD_HREF)).toBe(EXECUTIVE_DASHBOARD_HREF);
+    expect(resolveSafeReturnPath(SPONSOR_DASHBOARD_HREF)).toBe(SPONSOR_DASHBOARD_HREF);
   });
 
   it("falls back to '/' when the candidate is unsafe", () => {

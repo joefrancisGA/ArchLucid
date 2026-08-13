@@ -135,7 +135,7 @@ describe("TenantSettingsPageView", () => {
     ).toBe(true);
     expect(screen.getByRole("heading", { level: 3, name: "Organization" })).toBeInTheDocument();
     expect(screen.getByRole("heading", { level: 3, name: "Active workspace and projects" })).toBeInTheDocument();
-    expect(screen.getByRole("heading", { level: 3, name: "Executive digest (email)" })).toBeInTheDocument();
+    expect(screen.getByRole("heading", { level: 3, name: "Sponsor digest (email)" })).toBeInTheDocument();
     expect(screen.getByRole("heading", { level: 3, name: "Support bundle" })).toBeInTheDocument();
   });
 });

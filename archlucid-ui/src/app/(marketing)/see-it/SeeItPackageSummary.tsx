@@ -10,7 +10,7 @@ export type SeeItPackageSummaryProps = {
 };
 
 /**
- * Executive-style package strip for `/see-it` — reads like a deliverable, not a field dump.
+ * Sponsor-style package strip for `/see-it` — reads like a deliverable, not a field dump.
  */
 export function SeeItPackageSummary(props: SeeItPackageSummaryProps): React.JSX.Element {
   const { reviewTitle, policyPackLabel, findingCountDisplay, complianceGapDisplay } = props;

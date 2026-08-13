@@ -33,7 +33,7 @@ public sealed class ArchitectureReviewBoardExportPipelineIntegrationTests
 
         string docxXml = ArchitectureReviewBoardDocxTestHelpers.ExtractMainDocumentXml(docx);
 
-        docxXml.Should().Contain("Synthetic executive summary produced by pipeline fixture.");
+        docxXml.Should().Contain("Synthetic Sponsor report produced by pipeline fixture.");
         docxXml.Should().Contain("Synthetic pipeline evidence narrative.");
         docxXml.Should().Contain("Synthetic.CommitGate");
 

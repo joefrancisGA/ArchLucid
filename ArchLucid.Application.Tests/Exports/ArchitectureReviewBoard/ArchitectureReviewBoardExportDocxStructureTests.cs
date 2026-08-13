@@ -38,7 +38,7 @@ public sealed class ArchitectureReviewBoardExportDocxStructureTests
 
         string xml = ArchitectureReviewBoardDocxTestHelpers.ExtractMainDocumentXml(bytes);
 
-        xml.Should().Contain("No executive summary content recorded.");
+        xml.Should().Contain("No Sponsor report content recorded.");
         xml.Should().Contain("No architecture snapshot overview items recorded.");
         xml.Should().Contain("No evidence items recorded.");
         xml.Should().Contain("No architecture decisions recorded.");
@@ -103,7 +103,7 @@ public sealed class ArchitectureReviewBoardExportDocxStructureTests
             RequestId = baseModel.RequestId,
             SystemName = baseModel.SystemName,
             ManifestVersion = baseModel.ManifestVersion,
-            ExecutiveSummary = baseModel.ExecutiveSummary,
+            SponsorReport = baseModel.SponsorReport,
             SystemOverviewBullets = baseModel.SystemOverviewBullets,
             EvidenceReviewed = baseModel.EvidenceReviewed,
             ArchitectureDecisions = baseModel.ArchitectureDecisions,
@@ -137,7 +137,7 @@ public sealed class ArchitectureReviewBoardExportDocxStructureTests
 
         string xml = ArchitectureReviewBoardDocxTestHelpers.ExtractMainDocumentXml(bytes);
 
-        xml.Should().Contain("Stable executive summary paragraph for golden exports.");
+        xml.Should().Contain("Stable Sponsor report paragraph for golden exports.");
         xml.Should().Contain("Design memo");
         xml.Should().Contain("ADR-12 Boundary");
         xml.Should().Contain("Latency SLO at risk.");

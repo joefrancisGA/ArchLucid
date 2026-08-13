@@ -24,9 +24,9 @@ export type PathChooserHelpEvaluatorSessionStep = {
 /** Four-step evaluator session flow — absorbs former evaluator-workbook topic chrome (TB-1345 / TB-1348). */
 export const PATH_CHOOSER_HELP_EVALUATOR_SESSION_STEPS: readonly PathChooserHelpEvaluatorSessionStep[] = [
   {
-    title: "Read executive summary expectations",
+    title: "Read sponsor report expectations",
     body: "Understand the outcome story before you run a review or brief sponsors.",
-    action: { label: "Executive summary", href: inAppHelpHref("executive-summary") },
+    action: { label: "Sponsor report", href: inAppHelpHref("sponsor-report") },
   },
   {
     title: "Start an architecture review",
@@ -110,10 +110,10 @@ export const PATH_CHOOSER_HELP_BRANCHES: readonly PathChooserHelpBranch[] = [
   },
   {
     id: "sponsor",
-    goal: "I need sponsor or executive output",
+    goal: "I need sponsor or sponsor output",
     primary: {
-      label: "Executive summary expectations",
-      href: inAppHelpHref("executive-summary"),
+      label: "Sponsor report expectations",
+      href: inAppHelpHref("sponsor-report"),
     },
     fallback: { label: "Reviews hub", href: "/architecture/reviews" },
   },

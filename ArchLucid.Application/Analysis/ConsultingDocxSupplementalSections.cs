@@ -9,7 +9,7 @@ using DocumentFormat.OpenXml.Wordprocessing;
 
 namespace ArchLucid.Application.Analysis;
 
-/// <summary>Non-cover DOCX sections not split into dedicated named builders (TOC, executive summary, appendices, …).</summary>
+/// <summary>Non-cover DOCX sections not split into dedicated named builders (TOC, Sponsor report, appendices, …).</summary>
 internal static class ConsultingDocxSupplementalSections
 {
     public static void AddDocumentControl(Body body, ArchitectureAnalysisReport report)
@@ -46,7 +46,7 @@ internal static class ConsultingDocxSupplementalSections
 
         foreach (string item in new[]
                  {
-                     "1. Executive Summary", "2. Architecture Overview", "3. Evidence and Constraints", "4. Architecture Details",
+                     "1. Sponsor report", "2. Architecture Overview", "3. Evidence and Constraints", "4. Architecture Details",
                      "5. Governance and Controls", "6. Explainability and Execution Review", "7. Conclusions", "Appendix A. Mermaid Source",
                      "Appendix B. Execution Trace Index", "Appendix C. Determinism and Comparison"
                  })
@@ -54,12 +54,12 @@ internal static class ConsultingDocxSupplementalSections
             ConsultingDocxOpenXmlPrimitives.AddBullet(body, item);
     }
 
-    public static void AddExecutiveSummary(
+    public static void AddSponsorReport(
         Body body,
         ArchitectureAnalysisReport report,
         ConsultingDocxTemplateOptions options)
     {
-        ConsultingDocxOpenXmlPrimitives.AddHeading(body, "Executive Summary", 1);
+        ConsultingDocxOpenXmlPrimitives.AddHeading(body, "Sponsor report", 1);
 
         string systemName = report.Manifest?.SystemName
                             ?? report.Evidence?.SystemName
@@ -69,7 +69,7 @@ internal static class ConsultingDocxSupplementalSections
         int datastoreCount = report.Manifest?.Datastores.Count ?? 0;
         int controlCount = report.Manifest?.Governance.RequiredControls.Count ?? 0;
 
-        string text = options.ExecutiveSummaryTextTemplate
+        string text = options.SponsorReportTextTemplate
             .Replace("{SystemName}", systemName, StringComparison.OrdinalIgnoreCase)
             .Replace("{OrganizationName}", options.OrganizationName, StringComparison.OrdinalIgnoreCase)
             .Replace("{ServiceCount}", serviceCount.ToString(), StringComparison.OrdinalIgnoreCase)

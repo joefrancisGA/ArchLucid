@@ -3,13 +3,13 @@ import { join } from "node:path";
 
 import { describe, expect, it } from "vitest";
 
-import { EXECUTIVE_SUMMARY_PILOT_ROI_MEASUREMENT_HELP_HREF } from "@/lib/executive/executive-summary-pilot-roi-measurement-help";
+import { SPONSOR_SUMMARY_PILOT_ROI_MEASUREMENT_HELP_HREF } from "@/lib/sponsor/sponsor-report-pilot-roi-measurement-help";
 
 const LEGACY_PILOT_ROI_MODEL_PATH_PATTERN = /\/help\/pilot-roi-model/g;
 const LEGACY_PATH_ALLOWED_ON_LINE = /redirect|retired|legacy|unreachable|remove|bookmark|fold|migration|→|canonicalize|done/i;
 
 const CONTRIBUTOR_DOC_PATHS = [
-  "docs/go-to-market/EXECUTIVE_SPONSOR_BRIEF.md",
+  "docs/go-to-market/SPONSOR_SPONSOR_BRIEF.md",
   "docs/library/customer-facing/PILOT_GUIDE.md",
   "docs/library/CLI_USAGE.md",
   "docs/go-to-market/BUYER_SECURITY_PROCUREMENT_PACKET.md",
@@ -37,8 +37,8 @@ function linesWithUnlabeledLegacyPath(markdown: string): string[] {
 
 describe("legacy-pilot-roi-model-help-doc-guard (PI fold / TB-1389)", () => {
   it("documents the canonical pilot ROI measurement help anchor", () => {
-    expect(EXECUTIVE_SUMMARY_PILOT_ROI_MEASUREMENT_HELP_HREF).toBe(
-      "/help/executive-summary#pilot-roi-measurement",
+    expect(SPONSOR_SUMMARY_PILOT_ROI_MEASUREMENT_HELP_HREF).toBe(
+      "/help/sponsor-report#pilot-roi-measurement",
     );
   });
 

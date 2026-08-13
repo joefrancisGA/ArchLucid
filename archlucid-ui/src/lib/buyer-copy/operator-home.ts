@@ -376,7 +376,7 @@ export const BUYER_HOME_EXAMPLE_EXPLORE_LINK = "Explore example";
 export const BUYER_HOME_WELCOME_HEADING = "Explore one governed architecture review";
 
 export const BUYER_HOME_WELCOME_LEAD =
-  "Start with the executive view, then the signed review record, audit trail, and prioritized findings.";
+  "Start with the sponsor view, then the signed review record, audit trail, and prioritized findings.";
 
 /** Canonical home reviews zone heading — both operator shells (TB-347). */
 export const OPERATOR_HOME_RECENT_REVIEWS_HEADING = "Recent reviews";

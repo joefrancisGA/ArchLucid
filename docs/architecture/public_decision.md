@@ -67,7 +67,7 @@ Constraints that remain in force:
 
 ### Proven in repository
 
-- Single Next.js App Router app: `archlucid-ui` with route groups `(marketing)`, `(operator)`, `(executive)`.
+- Single Next.js App Router app: `archlucid-ui` with route groups `(marketing)`, `(operator)`, `(sponsor)`.
 - Marketing UI Container App: `infra/terraform-container-apps/marketing_ui.tf` (**TB-2016** Done).
 - Cross-host URL helpers: `archlucid-ui/src/lib/site-urls.ts` (**TB-2018** Done).
 - Host gate: `archlucid-ui/src/lib/host-gate.ts` invoked from `archlucid-ui/src/proxy.ts` (**TB-2019** Done). No `middleware.ts`.

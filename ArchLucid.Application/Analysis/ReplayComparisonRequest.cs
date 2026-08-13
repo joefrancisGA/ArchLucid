@@ -21,7 +21,7 @@ public sealed class ReplayComparisonRequest
         set;
     } = "artifact";
 
-    /// <summary>Export profile for end-to-end comparison: default, short, detailed, executive.</summary>
+    /// <summary>Export profile for end-to-end comparison: default, short, detailed, sponsor.</summary>
     public string? Profile
     {
         get;

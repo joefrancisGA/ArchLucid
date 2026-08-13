@@ -4,8 +4,8 @@
  * Why two surfaces exist:
  * - Artifact preview (`/governance/signed-records/.../artifacts/...`) is the
  *   in-shell signed-record artifact viewer for one committed output.
- * - Sponsor export (executive dashboard `#sponsor-exports` and review-detail
- *   `#sponsor-handoff`) is the per-package handoff — download the executive
+ * - Sponsor export (sponsor dashboard `#sponsor-exports` and review-detail
+ *   `#sponsor-handoff`) is the per-package handoff — download the sponsor
  *   review summary or architecture report for sponsors.
  *
  * They stay separate because previewing a signed-record artifact in the shell
@@ -15,8 +15,8 @@
 
 import { SIGNED_RECORDS_LIST_PATH } from "@/lib/signed-records-paths";
 
-/** Stable peer — matches executive dashboard `#sponsor-exports` (avoid coupling to WIP path moves). */
-const SPONSOR_EXPORTS_HREF = "/architecture/executive-dashboard#sponsor-exports" as const;
+/** Stable peer — matches sponsor dashboard `#sponsor-exports` (avoid coupling to WIP path moves). */
+const SPONSOR_EXPORTS_HREF = "/architecture/sponsor-dashboard#sponsor-exports" as const;
 
 export type ArtifactPreviewSponsorExportSurfaceId = "artifact-preview" | "sponsor-export";
 
@@ -39,7 +39,7 @@ export const ARTIFACT_PREVIEW_SPONSOR_EXPORT_HEADING =
   "Artifact preview and Sponsor export serve different purposes" as const;
 
 export const ARTIFACT_PREVIEW_SPONSOR_EXPORT_WHY_TWO =
-  "Artifact preview shows one signed-record artifact in the shell for review and download of that output. Sponsor export hands off a finalized architecture package — executive review summary or architecture report — to sponsors. Previewing a committed artifact is not the same as sending a package handoff." as const;
+  "Artifact preview shows one signed-record artifact in the shell for review and download of that output. Sponsor export hands off a finalized architecture package — sponsor review summary or architecture report — to sponsors. Previewing a committed artifact is not the same as sending a package handoff." as const;
 
 export const ARTIFACT_PREVIEW_SPONSOR_EXPORT_COMPACT_LINE =
   "Artifact preview is in-shell signed-record content; Sponsor export is package handoff." as const;
@@ -60,7 +60,7 @@ export const ARTIFACT_PREVIEW_SPONSOR_EXPORT_SPONSOR_LINK: ArtifactPreviewSponso
   id: "sponsor-export",
   label: "Sponsor export",
   href: SPONSOR_EXPORTS_HREF,
-  whenToUse: "Download the executive review summary or architecture report for sponsor handoff.",
+  whenToUse: "Download the sponsor review summary or architecture report for sponsor handoff.",
 };
 
 /** Optional run-scoped sponsor handoff href when a review is in scope. */

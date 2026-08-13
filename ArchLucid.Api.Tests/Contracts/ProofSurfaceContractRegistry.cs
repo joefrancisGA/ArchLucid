@@ -52,9 +52,9 @@ internal static class ProofSurfaceContractRegistry
             ],
             ForbiddenJsonProperties: SharedBuyerForbiddenJsonProperties),
         new Surface(
-            OpenApiSchemaName: "ExecutiveRoiSummaryResponse",
-            ContractType: typeof(ArchLucid.Contracts.Roi.ExecutiveRoiSummaryResponse),
-            GeneratedClientTypeName: "ExecutiveRoiSummaryResponse",
+            OpenApiSchemaName: "SponsorRoiSummaryResponse",
+            ContractType: typeof(ArchLucid.Contracts.Roi.SponsorRoiSummaryResponse),
+            GeneratedClientTypeName: "SponsorRoiSummaryResponse",
             CriticalJsonProperties:
             [
                 "orphanCandidates",
@@ -65,9 +65,9 @@ internal static class ProofSurfaceContractRegistry
             ],
             ForbiddenJsonProperties: SharedBuyerForbiddenJsonProperties),
         new Surface(
-            OpenApiSchemaName: "ExecutiveOrphanCandidateSummary",
-            ContractType: typeof(ArchLucid.Contracts.Roi.ExecutiveOrphanCandidateSummary),
-            GeneratedClientTypeName: "ExecutiveOrphanCandidateSummary",
+            OpenApiSchemaName: "SponsorOrphanCandidateSummary",
+            ContractType: typeof(ArchLucid.Contracts.Roi.SponsorOrphanCandidateSummary),
+            GeneratedClientTypeName: "SponsorOrphanCandidateSummary",
             CriticalJsonProperties:
             [
                 "candidateCount",

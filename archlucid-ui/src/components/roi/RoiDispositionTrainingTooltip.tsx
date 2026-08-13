@@ -11,7 +11,7 @@ export function RoiDispositionTrainingTooltip(): React.JSX.Element {
   return (
     <InlineHelp
       label={ROI_DISPOSITION_TRAINING_TOOLTIP_LABEL}
-      ariaLabel="Help: Executive ROI"
+      ariaLabel="Help: Sponsor ROI"
       hint={ROI_DISPOSITION_TRAINING_TOOLTIP_HINT}
     />
   );

@@ -2,9 +2,9 @@
 import { cn } from "@/lib/utils";
 import { OPERATOR_TYPOGRAPHY } from "@/lib/design-tokens";
 
-import { EXECUTIVE_DASHBOARD_HREF } from "@/lib/executive-dashboard-route";
+import { SPONSOR_DASHBOARD_HREF } from "@/lib/sponsor-dashboard-route";
 import { auditTrailNavHref } from "@/lib/audit-nav-paths";
-import { SPONSOR_REPORT_EXECUTIVE_SUMMARY_PATH } from "@/lib/sponsor-report-navigation";
+import { SPONSOR_REPORT_PATH } from "@/lib/sponsor-report-navigation";
 import Link from "next/link";
 import { useState } from "react";
 
@@ -23,25 +23,25 @@ type ExportDeliverableDialogProps = {
   readonly manifestId?: string | null;
 };
 
-type DeliverableAudience = "executive" | "grc" | "board";
+type DeliverableAudience = "sponsor" | "grc" | "board";
 
 const AUDIENCE_OPTIONS: readonly { id: DeliverableAudience; label: string; description: string }[] = [
-  { id: "executive", label: "Executive summary", description: "Sponsor-safe PDF with outcomes and risk posture." },
+  { id: "sponsor", label: "Sponsor report", description: "Sponsor-safe PDF with outcomes and risk posture." },
   { id: "grc", label: "GRC diligence bundle", description: "Audit trail excerpts, findings, and policy references." },
   { id: "board", label: "Board packet", description: "Condensed narrative for governance committees." },
 ];
 
 /** Unified export/deliverable picker for post-commit reviews. */
 export function ExportDeliverableDialog(props: ExportDeliverableDialogProps) {
-  const [audience, setAudience] = useState<DeliverableAudience>("executive");
+  const [audience, setAudience] = useState<DeliverableAudience>("sponsor");
   const encodedRun = encodeURIComponent(props.runId);
 
   const exportHref =
-    audience === "executive"
-      ? `${SPONSOR_REPORT_EXECUTIVE_SUMMARY_PATH}?runId=${encodedRun}`
+    audience === "sponsor"
+      ? `${SPONSOR_REPORT_PATH}?runId=${encodedRun}`
       : audience === "grc"
         ? auditTrailNavHref(props.runId)
-        : `${EXECUTIVE_DASHBOARD_HREF}?runId=${encodedRun}`;
+        : `${SPONSOR_DASHBOARD_HREF}?runId=${encodedRun}`;
 
   return (
     <Dialog>

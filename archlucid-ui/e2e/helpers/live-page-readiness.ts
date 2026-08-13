@@ -44,8 +44,8 @@ async function isLiveAuthorityRunDetailSurfaceVisible(page: Page): Promise<boole
   return (
     (await page.locator('[data-buyer-golden-ready="true"]').isVisible().catch(() => false))
     || (await main.getByTestId("review-detail-workspace").isVisible().catch(() => false))
-    || (await main.getByTestId("cto-demo-executive-above-fold").isVisible().catch(() => false))
-    || (await main.getByText("Executive summary", { exact: true }).isVisible().catch(() => false))
+    || (await main.getByTestId("cto-demo-sponsor-above-fold").isVisible().catch(() => false))
+    || (await main.getByText("Sponsor report", { exact: true }).isVisible().catch(() => false))
   );
 }
 
@@ -177,8 +177,8 @@ export async function waitForLiveAuthorityRunDetailHydration(
       [
         page.locator('[data-buyer-golden-ready="true"]'),
         main.getByTestId("review-detail-workspace"),
-        main.getByTestId("cto-demo-executive-above-fold"),
-        main.getByText("Executive summary", { exact: true }),
+        main.getByTestId("cto-demo-sponsor-above-fold"),
+        main.getByText("Sponsor report", { exact: true }),
       ],
       8_000,
     );

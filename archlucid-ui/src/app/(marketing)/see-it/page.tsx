@@ -48,7 +48,7 @@ export default async function SeeItMarketingPage() {
       >
         <p className={cn("m-0", MARKETING_TYPOGRAPHY.eyebrow)}>Sample review preview</p>
         <p className={cn("mt-2 m-0 max-w-3xl text-al-text-secondary", MARKETING_TYPOGRAPHY.body)}>
-          Evaluation slice for this sample — the same proof shape buyers use on executive summary and review
+          Evaluation slice for this sample — the same proof shape buyers use on sponsor report and review
           pages.
         </p>
         <div className="mt-8">

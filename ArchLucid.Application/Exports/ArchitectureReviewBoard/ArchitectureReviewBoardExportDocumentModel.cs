@@ -38,7 +38,7 @@ public sealed class ArchitectureReviewBoardExportDocumentModel
     }
 
     /// <summary>Optional narrative from review metadata or AI-assisted summary.</summary>
-    public string? ExecutiveSummary
+    public string? SponsorReport
     {
         get;
         init;
@@ -111,7 +111,7 @@ public sealed class ArchitectureReviewBoardExportDocumentModel
         init;
     }
 
-    /// <summary>Tenant display name for executive cover-page attribution ("Prepared for …").</summary>
+    /// <summary>Tenant display name for sponsor cover-page attribution ("Prepared for …").</summary>
     public string? TenantDisplayName
     {
         get;

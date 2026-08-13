@@ -2,7 +2,7 @@ using ArchLucid.Application.Configuration;
 using ArchLucid.Application.Exports;
 using ArchLucid.Application.Notifications.Email;
 using ArchLucid.Application.Tenancy;
-using ArchLucid.Application.WeeklyExecutiveSummary;
+using ArchLucid.Application.WeeklySponsorReport;
 using ArchLucid.Core.Configuration;
 using ArchLucid.Core.Scoping;
 using ArchLucid.Core.Tenancy;
@@ -89,18 +89,18 @@ public sealed class ApplicationPackageCoverageBatch8Tests
     }
 
     [Fact]
-    public async Task WeeklyExecutiveSummaryDeliveryScanner_skips_disabled_and_dispatches_when_due()
+    public async Task WeeklySponsorReportDeliveryScanner_skips_disabled_and_dispatches_when_due()
     {
-        Mock<IOptionsMonitor<WeeklyExecutiveSummaryOptions>> weekly = new();
-        weekly.Setup(o => o.CurrentValue).Returns(new WeeklyExecutiveSummaryOptions { Enabled = false });
+        Mock<IOptionsMonitor<WeeklySponsorReportOptions>> weekly = new();
+        weekly.Setup(o => o.CurrentValue).Returns(new WeeklySponsorReportOptions { Enabled = false });
 
-        WeeklyExecutiveSummaryDeliveryScanner disabled = CreateScanner(
+        WeeklySponsorReportDeliveryScanner disabled = CreateScanner(
             weekly.Object,
             Mock.Of<ITenantRepository>(),
             Mock.Of<IAuthorityQueryService>(),
             Mock.Of<IRunSummaryOnePagerExportService>(),
-            Mock.Of<IExecutiveSummaryRecipientLookup>(),
-            Mock.Of<IWeeklyExecutiveSummaryEmailDispatcher>());
+            Mock.Of<ISponsorReportRecipientLookup>(),
+            Mock.Of<IWeeklySponsorReportEmailDispatcher>());
 
         await disabled.PublishDueAsync(DateTimeOffset.UtcNow, CancellationToken.None);
 
@@ -111,7 +111,7 @@ public sealed class ApplicationPackageCoverageBatch8Tests
         DateTimeOffset dueUtc = new(2026, 7, 20, 14, 0, 0, TimeSpan.Zero);
 
         weekly.Setup(o => o.CurrentValue).Returns(
-            new WeeklyExecutiveSummaryOptions
+            new WeeklySponsorReportOptions
             {
                 Enabled = true,
                 IanaTimeZoneId = "UTC",
@@ -147,11 +147,11 @@ public sealed class ApplicationPackageCoverageBatch8Tests
                 Content = System.Text.Encoding.UTF8.GetBytes("# summary"),
             });
 
-        Mock<IExecutiveSummaryRecipientLookup> recipients = new();
+        Mock<ISponsorReportRecipientLookup> recipients = new();
         recipients.Setup(r => r.ListRecipientMailboxesAsync(tenantId, It.IsAny<CancellationToken>()))
             .ReturnsAsync(["sponsor@example.com"]);
 
-        Mock<IWeeklyExecutiveSummaryEmailDispatcher> dispatcher = new();
+        Mock<IWeeklySponsorReportEmailDispatcher> dispatcher = new();
         dispatcher.Setup(d => d.TryDispatchAsync(
                 tenantId,
                 It.IsAny<string>(),
@@ -163,7 +163,7 @@ public sealed class ApplicationPackageCoverageBatch8Tests
                 It.IsAny<CancellationToken>()))
             .ReturnsAsync(true);
 
-        WeeklyExecutiveSummaryDeliveryScanner sut = CreateScanner(
+        WeeklySponsorReportDeliveryScanner sut = CreateScanner(
             weekly.Object,
             tenants.Object,
             authority.Object,
@@ -186,18 +186,18 @@ public sealed class ApplicationPackageCoverageBatch8Tests
             Times.Once);
     }
 
-    private static WeeklyExecutiveSummaryDeliveryScanner CreateScanner(
-        IOptionsMonitor<WeeklyExecutiveSummaryOptions> weekly,
+    private static WeeklySponsorReportDeliveryScanner CreateScanner(
+        IOptionsMonitor<WeeklySponsorReportOptions> weekly,
         ITenantRepository tenants,
         IAuthorityQueryService authority,
         IRunSummaryOnePagerExportService export,
-        IExecutiveSummaryRecipientLookup recipients,
-        IWeeklyExecutiveSummaryEmailDispatcher dispatcher)
+        ISponsorReportRecipientLookup recipients,
+        IWeeklySponsorReportEmailDispatcher dispatcher)
     {
         Mock<IOptionsMonitor<EmailNotificationOptions>> email = new();
         email.Setup(o => o.CurrentValue).Returns(new EmailNotificationOptions { OperatorBaseUrl = "https://ui.example" });
 
-        return new WeeklyExecutiveSummaryDeliveryScanner(
+        return new WeeklySponsorReportDeliveryScanner(
             tenants,
             authority,
             export,
@@ -205,6 +205,6 @@ public sealed class ApplicationPackageCoverageBatch8Tests
             dispatcher,
             weekly,
             email.Object,
-            NullLogger<WeeklyExecutiveSummaryDeliveryScanner>.Instance);
+            NullLogger<WeeklySponsorReportDeliveryScanner>.Instance);
     }
 }

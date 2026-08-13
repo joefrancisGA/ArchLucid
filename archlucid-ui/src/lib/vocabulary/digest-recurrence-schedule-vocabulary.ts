@@ -2,7 +2,7 @@
  * TB-2226 — Digest ≠ recurrence schedule vocabulary rail.
  *
  * Why two “schedule” surfaces exist:
- * - Digests executive schedule (`/architecture/digests?tab=schedule`) is the
+ * - Digests sponsor schedule (`/architecture/digests?tab=schedule`) is the
  *   *sponsor email cadence* for architecture digest delivery.
  * - Recurrence schedules (`/governance/recurrence-schedules`) automate
  *   *re-review of architecture reviews* on a repeating cadence.
@@ -16,7 +16,7 @@ import { DIGESTS_SCHEDULE_TAB_PATH } from "@/lib/digests-route-paths";
 import { RECURRENCE_SCHEDULES_MANAGE_PATH } from "@/lib/recurrence-schedules-copy";
 
 export type DigestRecurrenceScheduleSurfaceId =
-  | "digest-executive-schedule"
+  | "digest-sponsor-schedule"
   | "recurrence-schedules";
 
 export type DigestRecurrenceScheduleLink = {
@@ -37,14 +37,14 @@ export type DigestRecurrenceScheduleVocabularyModel = {
 export const DIGEST_RECURRENCE_SCHEDULE_HEADING = "Two different kinds of schedule" as const;
 
 export const DIGEST_RECURRENCE_SCHEDULE_WHY_TWO =
-  "Executive digests are the sponsor email cadence for architecture review summaries. Recurrence schedules automate re-review of architecture reviews on a repeating cadence. Both use the word “schedule,” but one sends email and the other starts follow-up reviews — open the peer link when you need the other kind." as const;
+  "Sponsor digests are the sponsor email cadence for architecture review summaries. Recurrence schedules automate re-review of architecture reviews on a repeating cadence. Both use the word “schedule,” but one sends email and the other starts follow-up reviews — open the peer link when you need the other kind." as const;
 
 export const DIGEST_RECURRENCE_SCHEDULE_COMPACT_LINE =
   "Digest schedule emails sponsors; recurrence schedules re-review architecture reviews — open the other when you need both." as const;
 
 export const DIGEST_RECURRENCE_SCHEDULE_DIGEST_LINK: DigestRecurrenceScheduleLink = {
-  id: "digest-executive-schedule",
-  label: "Executive digest schedule",
+  id: "digest-sponsor-schedule",
+  label: "Sponsor digest schedule",
   href: DIGESTS_SCHEDULE_TAB_PATH,
   whenToUse: "Set sponsor email cadence for architecture digests.",
 };
@@ -71,7 +71,7 @@ export function buildDigestRecurrenceScheduleVocabulary(): DigestRecurrenceSched
 export function resolveDigestRecurrenceSchedulePeerLink(
   currentSurfaceId: DigestRecurrenceScheduleSurfaceId,
 ): DigestRecurrenceScheduleLink {
-  if (currentSurfaceId === "digest-executive-schedule") {
+  if (currentSurfaceId === "digest-sponsor-schedule") {
     return DIGEST_RECURRENCE_SCHEDULE_RECURRENCE_LINK;
   }
 

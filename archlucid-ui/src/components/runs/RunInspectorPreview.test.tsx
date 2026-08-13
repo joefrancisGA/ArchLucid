@@ -111,7 +111,7 @@ describe("RunInspectorPreview", () => {
     );
     fireEvent.click(screen.getByText("Open specific artifact"));
 
-    expect(screen.getByRole("link", { name: "Executive summary" })).toHaveAttribute(
+    expect(screen.getByRole("link", { name: "Sponsor report" })).toHaveAttribute(
       "href",
       "/architecture/reviews/claims-intake-modernization",
     );

@@ -80,7 +80,7 @@ WORKBOOK_PATH_MIGRATIONS: dict[str, str] = {
     "/help/evidence-only-review": "/help/first-architecture-review",
     "/help/how-it-works": "/help/getting-started",
     "/help/integrations/azure-boards": "/help/azure-boards",
-    "/help/product-overview": "/help/executive-summary",
+    "/help/product-overview": "/help/sponsor-report",
     "/help/starting-reviews": "/help/review-guide",
     "/help/evaluator-workbook": "/help/choose-your-next-step",
     "/help/path-chooser": "/help/choose-your-next-step",
@@ -93,7 +93,7 @@ WORKBOOK_PATH_MIGRATIONS: dict[str, str] = {
     # and assert_ui_route_traffic_workbook_canonical rejects rows outside the catalog.
     "/help/first-review": "/help/first-architecture-review",
     "/help/first-value-20-minutes": "/help/first-architecture-review",
-    "/help/pilot-roi-model": "/help/executive-summary",
+    "/help/pilot-roi-model": "/help/sponsor-report",
     "/help/developer-troubleshooting": "/help/engineering-troubleshooting",
     # Legacy key: /help/policy-pack-delta-demo is a live registry topic again, so this entry only
     # keeps the route out of the traffic catalog. Dropping it needs a workbook sync for the new row.
@@ -140,9 +140,9 @@ WORKBOOK_PATH_MIGRATIONS: dict[str, str] = {
     "/health": "/administration/system-health",
     # Batch A retired help aliases (permanent redirect only) — migrate out of workbook/catalog.
     "/help/core-pilot": "/help/first-architecture-review",
-    "/dashboard": "/architecture/executive-dashboard",
-    "/executive/dashboard": "/architecture/executive-dashboard",
-    "/portfolio": "/architecture/executive-dashboard",
+    "/dashboard": "/architecture/sponsor-dashboard",
+    "/sponsor/dashboard": "/architecture/sponsor-dashboard",
+    "/portfolio": "/architecture/sponsor-dashboard",
     # Public architecture-prefixed reviews / architectures URLs (App Router still under /reviews).
     "/reviews": "/architecture/reviews",
     "/reviews/new": "/architecture/reviews/new",
@@ -173,18 +173,18 @@ WORKBOOK_PATH_MIGRATIONS: dict[str, str] = {
     "/admin/demo-readiness": "/internal/demo-readiness",
     "/admin/deployment-status": "/internal/deployment-status",
     # Sponsor report → Insights.
-    "/sponsor-report": "/insights/executive-summary",
-    "/sponsor-report/executive-summary": "/insights/executive-summary",
+    "/sponsor-report": "/insights/sponsor-report",
+    "/sponsor-report/sponsor-report": "/insights/sponsor-report",
     "/sponsor-report/roi-summary": "/insights/roi-summary",
     "/sponsor-report/pilot-outcomes": "/insights/pilot-outcomes",
     "/sponsor-report/architecture-scorecard": "/insights/architecture-scorecard",
-    "/value-report": "/insights/executive-summary",
+    "/value-report": "/insights/sponsor-report",
     "/value-report/roi": "/insights/roi-summary",
     # Pilot outcomes merged into the sponsor report; retired without a redirect, so SPP hit share
     # folds into the SPE row rather than tracking a dead path. Migrations resolve in a single pass,
     # so the older `/value-report/pilot` bookmark has to name the final destination too.
-    "/value-report/pilot": "/insights/executive-summary",
-    "/insights/pilot-outcomes": "/insights/executive-summary",
+    "/value-report/pilot": "/insights/sponsor-report",
+    "/insights/pilot-outcomes": "/insights/sponsor-report",
     # Validate review (replay) under Internal Operations.
     "/replay": "/internal/replay",
     # Legacy internal-ops path segments.
@@ -393,8 +393,8 @@ def infer_section(path: str, *, help_alias_paths: set[str]) -> str:
         return "Core review"
     if path.startswith("/architecture/architectures") or path.startswith("/architectures"):
         return "Core review"
-    if path.startswith("/architecture/executive-dashboard"):
-        return "Executive"
+    if path.startswith("/architecture/sponsor-dashboard"):
+        return "Sponsor"
     if path.startswith("/architecture/architecture-intelligence") or path.startswith(
         "/architecture-intelligence"
     ):
@@ -423,10 +423,10 @@ def infer_section(path: str, *, help_alias_paths: set[str]) -> str:
         return "Auth"
     if path.startswith("/help"):
         return "Help topic"
-    if path.startswith("/executive"):
-        return "Executive"
+    if path.startswith("/sponsor"):
+        return "Sponsor"
     if (
-        path.startswith("/insights/executive-summary")
+        path.startswith("/insights/sponsor-report")
         or path.startswith("/insights/roi-summary")
     ):
         return "Sponsor report"

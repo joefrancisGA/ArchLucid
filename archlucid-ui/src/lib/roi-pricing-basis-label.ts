@@ -1,6 +1,6 @@
 import { CLOUD_NEUTRAL_PRIMARY_COPY } from "@/lib/cloud-neutral-primary-copy";
 
-export function formatExecutiveRoiPricingBasisLabel(
+export function formatSponsorRoiPricingBasisLabel(
   savingsPricingBasis: string | null | undefined,
   eaDiscountMultiplier: number | null | undefined,
 ): string {

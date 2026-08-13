@@ -1,7 +1,7 @@
 {
   "schema": "archlucid.roi-baseline-send-override.v1",
   "generatedUtc": "2026-06-07T12:00:00Z",
-  "approvedByRole": "executive-owner",
+  "approvedByRole": "sponsor-owner",
   "recordedBy": "sales",
   "validForRunId": "<committed-run-id>",
   "rationale": "Describe why SEND is approved without COMPLETE baselines (buyer timeline, partial scorecard, etc.).",

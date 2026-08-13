@@ -20,5 +20,21 @@ describe("GovernanceApprovalStatusBanner", () => {
     render(<GovernanceApprovalStatusBanner />);
 
     expect(screen.getByRole("link", { name: "View dispositions" })).toHaveAttribute("href", "/governance/findings");
+    expect(screen.getByRole("link", { name: "View approval record" })).toHaveAttribute(
+      "href",
+      "/governance/approval-queue",
+    );
+    expect(screen.getByRole("link", { name: "View audit trail" })).toHaveAttribute("href", "/governance/audit");
+  });
+
+  it("links assigned-to-me child route to the tenant findings queue without showcase run ids", () => {
+    render(<GovernanceApprovalStatusBanner onAssignedToMeFindingsPage />);
+
+    expect(screen.getByRole("link", { name: "Open findings queue" })).toHaveAttribute("href", "/governance/findings");
+    expect(screen.getByRole("link", { name: "View approval record" })).toHaveAttribute(
+      "href",
+      "/governance/approval-queue",
+    );
+    expect(screen.getByRole("link", { name: "View audit trail" })).toHaveAttribute("href", "/governance/audit");
   });
 });

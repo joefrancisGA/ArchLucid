@@ -17,6 +17,6 @@
 2. …
 3. …
 
-## Executive summary (≤150 words)
+## Sponsor summary (≤150 words)
 
 Label any estimate as an estimate. No marketing language.

@@ -1,6 +1,6 @@
 import { describe, expect, it } from "vitest";
 
-import { EXECUTIVE_DASHBOARD_HREF } from "@/lib/executive/executive-dashboard-route";
+import { SPONSOR_DASHBOARD_HREF } from "@/lib/sponsor/sponsor-dashboard-route";
 import { isNavLinkActive } from "@/lib/nav-link-active";
 
 describe("isNavLinkActive", () => {
@@ -29,8 +29,8 @@ describe("isNavLinkActive", () => {
 
   it("matches exact path or nested segments for other routes", () => {
     expect(isNavLinkActive("/insights/compare-two-reviews", "/insights/compare-two-reviews")).toBe(true);
-    expect(isNavLinkActive(EXECUTIVE_DASHBOARD_HREF, EXECUTIVE_DASHBOARD_HREF)).toBe(true);
-    expect(isNavLinkActive(`${EXECUTIVE_DASHBOARD_HREF}/extra`, EXECUTIVE_DASHBOARD_HREF)).toBe(true);
+    expect(isNavLinkActive(SPONSOR_DASHBOARD_HREF, SPONSOR_DASHBOARD_HREF)).toBe(true);
+    expect(isNavLinkActive(`${SPONSOR_DASHBOARD_HREF}/extra`, SPONSOR_DASHBOARD_HREF)).toBe(true);
   });
 
   it("matches tenant settings but not projects recycle bin", () => {

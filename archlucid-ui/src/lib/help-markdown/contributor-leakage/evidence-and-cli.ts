@@ -84,11 +84,11 @@ export function stripCliUsageContributorLeakage(markdown: string): string {
     .replace(/\[([^\]]*)\]\(\.\.\/runbooks\/TRIAL_FUNNEL_END_TO_END\.md[^)]*\)/gi, "[Engineering troubleshooting](/help/engineering-troubleshooting)")
     .replace(
       /\[([^\]]*)\]\(\.\.\/go-to-market\/ROI_MODEL\.md[^)]*\)/gi,
-      "[Pilot ROI measurement](/help/executive-summary#pilot-roi-measurement)",
+      "[Pilot ROI measurement](/help/sponsor-report#pilot-roi-measurement)",
     )
     .replace(
       /\[([^\]]*)\]\(\.\.\/go-to-market\/SAMPLE_AGGREGATE_ROI_BULLETIN_SYNTHETIC\.md[^)]*\)/gi,
-      "[Pilot ROI measurement](/help/executive-summary#pilot-roi-measurement)",
+      "[Pilot ROI measurement](/help/sponsor-report#pilot-roi-measurement)",
     )
     .replace(/\[([^\]]*)\]\(\.\.\/go-to-market\/PRICING_PHILOSOPHY\.md[^)]*\)/gi, "[Procurement](/help/procurement)")
     .replace(/\[([^\]]*)\]\(\.\.\/go-to-market\/AZURE_MARKETPLACE_SAAS_OFFER\.md[^)]*\)/gi, "")

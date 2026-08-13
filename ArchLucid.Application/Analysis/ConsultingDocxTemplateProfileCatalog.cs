@@ -24,7 +24,7 @@ public sealed class ConsultingDocxTemplateProfileCatalog
 public sealed class ConsultingDocxTemplateProfileInfo
 {
     /// <summary>
-    ///     Machine-readable profile identifier used as the lookup key (e.g. <c>executive</c>).
+    ///     Machine-readable profile identifier used as the lookup key (e.g. <c>sponsor</c>).
     ///     See <see cref="ConsultingDocxProfiles" /> for well-known values.
     /// </summary>
     public string ProfileName
@@ -34,7 +34,7 @@ public sealed class ConsultingDocxTemplateProfileInfo
     } = string.Empty;
 
     /// <summary>
-    ///     Human-readable label shown in UIs and report headers (e.g. <c>Executive Brief</c>).
+    ///     Human-readable label shown in UIs and report headers (e.g. <c>Sponsor Brief</c>).
     /// </summary>
     public string ProfileDisplayName
     {

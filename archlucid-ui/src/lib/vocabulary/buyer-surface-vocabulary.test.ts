@@ -2,13 +2,13 @@ import { describe, expect, it } from "vitest";
 
 import { OPERATOR_NAV_LINK_LABELS } from "@/lib/i18n";
 import {
-  BUYER_EXECUTIVE_SUMMARY_VOCABULARY,
+  BUYER_SPONSOR_SUMMARY_VOCABULARY,
   BUYER_TERMINOLOGY,
 } from "@/lib/vocabulary/buyer-surface-vocabulary";
 
 describe("buyer terminology vocabulary", () => {
-  it("uses finalized-review vocabulary in executive dashboard empty states", () => {
-    const vocabulary = BUYER_EXECUTIVE_SUMMARY_VOCABULARY;
+  it("uses finalized-review vocabulary in sponsor dashboard empty states", () => {
+    const vocabulary = BUYER_SPONSOR_SUMMARY_VOCABULARY;
 
     expect(vocabulary.emptyStateDescription).toMatch(/finalize/i);
     expect(vocabulary.emptyStatePrimaryAction).toBe("Start an architecture review");
@@ -24,14 +24,14 @@ describe("buyer terminology vocabulary", () => {
     expect(OPERATOR_NAV_LINK_LABELS.portfolioOverview).toBe(BUYER_TERMINOLOGY.portfolioOverview);
   });
 
-  it("aligns executive dashboard and sponsor scorecard customer nouns (IA-010)", () => {
-    const vocabulary = BUYER_EXECUTIVE_SUMMARY_VOCABULARY;
+  it("aligns sponsor dashboard and sponsor scorecard customer nouns (IA-010)", () => {
+    const vocabulary = BUYER_SPONSOR_SUMMARY_VOCABULARY;
 
-    expect(vocabulary.pageTitle).toBe("Executive dashboard");
+    expect(vocabulary.pageTitle).toBe("Sponsor dashboard");
     expect(vocabulary.portfolioPageTitle).toBe(vocabulary.pageTitle);
     expect(vocabulary.pageTitle).toBe(BUYER_TERMINOLOGY.portfolioOverview);
     expect(vocabulary.scorecardPageTitle).toBe("Sponsor scorecard");
     expect(vocabulary.sponsorExportsScorecardTitle).toBe(vocabulary.scorecardPageTitle);
-    expect(vocabulary.reviewExecutiveSummaryLabel).toBe("Executive summary");
+    expect(vocabulary.reviewSponsorReportLabel).toBe("Sponsor report");
   });
 });

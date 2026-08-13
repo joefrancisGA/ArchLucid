@@ -17,7 +17,7 @@ using Microsoft.AspNetCore.RateLimiting;
 
 namespace ArchLucid.Api.Controllers.Tenancy;
 
-/// <summary>Weekly executive digest email preferences for the caller’s tenant.</summary>
+/// <summary>Weekly sponsor digest email preferences for the caller’s tenant.</summary>
 [ApiController]
 [Authorize]
 [ApiVersion("1.0")]

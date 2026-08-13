@@ -11,7 +11,7 @@
 ## How to use this brief
 
 1. Open the **minimum first pass** paths below, then widen to the full **primary reading list** as needed.
-2. Answer the **questions** in order, or produce a short executive summary plus a table: *Question → Finding → File evidence → Severity (blocker / gap / OK)*.
+2. Answer the **questions** in order, or produce a short sponsor summary plus a table: *Question → Finding → File evidence → Severity (blocker / gap / OK)*.
 3. Call out **contradictions** between docs (for example `docs/library/AGENT_OUTPUT_EVALUATION.md` vs defaults in `ArchLucid.Api/appsettings*.json`).
 
 ---
@@ -141,6 +141,6 @@ Structural evaluation checks **AgentResult-shaped JSON**. Semantic evaluation is
 
 Prefer this output structure:
 
-1. **Executive summary** (five bullets max): biggest AI risks and whether code mitigates them.
+1. **Sponsor summary** (five bullets max): biggest AI risks and whether code mitigates them.
 2. **Findings table** (*Severity | Area | Evidence (path:line or section) | Recommendation*).
 3. **Unresolved / product-owned** decisions (anything that requires business policy, not code archaeology).

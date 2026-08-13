@@ -11,7 +11,7 @@ import { isBuyerShellHomePresentation } from "@/lib/buyer/buyer-shell-home-prese
 
 type ReadinessRowPresentation = Pick<FirstPilotReadinessRow, "label" | "cta">;
 
-const EXECUTIVE_READINESS_ROW_PRESENT: Readonly<Record<string, ReadinessRowPresentation>> = {
+const SPONSOR_READINESS_ROW_PRESENT: Readonly<Record<string, ReadinessRowPresentation>> = {
   "api-ready": { label: "API and platform readiness", cta: "View status" },
   "config-lint": { label: "Production-like configuration", cta: "View configuration" },
   "storage-and-sql": { label: "SQL/storage configured", cta: "Check readiness" },
@@ -21,7 +21,7 @@ const EXECUTIVE_READINESS_ROW_PRESENT: Readonly<Record<string, ReadinessRowPrese
   "azure-extractor": { label: READINESS_CLOUD_EVIDENCE_LABEL, cta: READINESS_AZURE_EXTRACTOR_CTA },
   "roi-baselines": { label: "ROI assumptions", cta: "Add ROI assumptions" },
   "procurement-classification": { label: "Procurement bundle", cta: "Generate export" },
-  "sponsor-packet": { label: "Executive evidence bundle", cta: "Open review" },
+  "sponsor-packet": { label: "Sponsor evidence bundle", cta: "Open review" },
   "proof-pipeline": { label: "Pilot evidence bundle", cta: "View pilot guide" },
   "data-consistency": { label: "Readiness status", cta: "View status" },
   "second-review": { label: "Next recommended review", cta: CREATE_ARCHITECTURE_LABEL },
@@ -39,22 +39,22 @@ const OPERATOR_READINESS_ROW_CTA: Readonly<Partial<Record<string, string>>> = {
   "second-review": "Start second review",
 };
 
-/** Applies executive labels and governed CTAs on the home readiness tables. */
+/** Applies sponsor labels and governed CTAs on the home readiness tables. */
 export function applyHomeReadinessRowPresentation(rows: readonly FirstPilotReadinessRow[]): FirstPilotReadinessRow[] {
   const curated = isBuyerShellHomePresentation();
 
   return rows.map((row) => {
-    const executive = EXECUTIVE_READINESS_ROW_PRESENT[row.id];
+    const sponsor = SPONSOR_READINESS_ROW_PRESENT[row.id];
 
-    if (executive === undefined) {
+    if (sponsor === undefined) {
       return row;
     }
 
     if (curated) {
       return {
         ...row,
-        label: executive.label,
-        cta: executive.cta,
+        label: sponsor.label,
+        cta: sponsor.cta,
       };
     }
 
@@ -62,7 +62,7 @@ export function applyHomeReadinessRowPresentation(rows: readonly FirstPilotReadi
 
     return {
       ...row,
-      label: executive.label,
+      label: sponsor.label,
       cta: operatorCta ?? row.cta,
     };
   });

@@ -35,7 +35,7 @@ const TINTED_CALLOUT_SURFACE_BASELINE: ReadonlySet<string> = new Set([
   "components/operator-home/OperatorHomeGlossarySections.tsx",
   "components/policy/PolicyPackComplianceRuleKeyDiffView.tsx",
   "components/reviews/ReviewAgentExecutionLogSection.tsx",
-  "components/usability/ExecutiveConfidenceLabel.tsx",
+  "components/usability/SponsorConfidenceLabel.tsx",
 ]);
 
 const TINTED_CALLOUT_SURFACE = /\bbg-(?:amber|emerald|rose|green|sky)-(?:50|100)\b/;

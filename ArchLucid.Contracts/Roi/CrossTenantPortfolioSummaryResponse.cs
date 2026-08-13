@@ -8,7 +8,7 @@ public sealed class CrossTenantPortfolioSummaryResponse
 {
     /// <summary>
     ///     Sum of disposition-aware headline savings (open + needs-evidence USD) across accessible tenants —
-    ///     same semantics as <see cref="ExecutiveRoiSummaryResponse.TotalEstimatedUsdSavings"/>.
+    ///     same semantics as <see cref="SponsorRoiSummaryResponse.TotalEstimatedUsdSavings"/>.
     /// </summary>
     public decimal TotalEstimatedUsdSavings { get; set; }
 

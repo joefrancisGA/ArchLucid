@@ -10,5 +10,5 @@ internal static class ReplayValidationConstants
         new(StringComparer.OrdinalIgnoreCase) { "artifact", "regenerate", "verify" };
 
     public static readonly HashSet<string> ValidProfiles =
-        new(StringComparer.OrdinalIgnoreCase) { "default", "short", "detailed", "executive" };
+        new(StringComparer.OrdinalIgnoreCase) { "default", "short", "detailed", "sponsor" };
 }

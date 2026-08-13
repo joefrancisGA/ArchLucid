@@ -21,7 +21,7 @@ import {
   CONNECT_GCP_SECURELY_SOURCES_INTRO,
 } from "@/lib/connect-gcp-securely-help-evidence-copy";
 import { EVIDENCE_TRAIL_HELP_CLAIM_DISCIPLINE } from "@/lib/evidence-trail-help-evidence-copy";
-import { EXECUTIVE_SUMMARY_HELP_CLAIM_DISCIPLINE } from "@/lib/executive-summary-help-evidence-copy";
+import { SPONSOR_SUMMARY_HELP_CLAIM_DISCIPLINE } from "@/lib/sponsor-report-help-evidence-copy";
 import Link from "next/link";
 import {
   GLOSSARY_HELP_CLAIM_DISCIPLINE_LEAD,
@@ -130,10 +130,10 @@ export function EvidenceTrailHelpEvidenceOrientationStrip(): React.JSX.Element {
   );
 }
 
-export function ExecutiveSummaryHelpEvidenceOrientationStrip(): React.JSX.Element {
+export function SponsorReportHelpEvidenceOrientationStrip(): React.JSX.Element {
   return (
-    <div className={cn(DESIGN_TOKENS.callout.warn, "p-3")} data-testid="help-executive-summary-claim-discipline">
-      <p className={cn("m-0", OPERATOR_TYPOGRAPHY.body)}>{EXECUTIVE_SUMMARY_HELP_CLAIM_DISCIPLINE}</p>
+    <div className={cn(DESIGN_TOKENS.callout.warn, "p-3")} data-testid="help-sponsor-report-claim-discipline">
+      <p className={cn("m-0", OPERATOR_TYPOGRAPHY.body)}>{SPONSOR_SUMMARY_HELP_CLAIM_DISCIPLINE}</p>
     </div>
   );
 }

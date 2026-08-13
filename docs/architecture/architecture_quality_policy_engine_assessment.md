@@ -6,7 +6,7 @@
 
 **Method:** Read-only repository inspection (C# backend under `ArchLucid.*`, Next.js frontend under `archlucid-ui/`, SQL under `ArchLucid.Persistence/`, and `docs/`). Every claim below is grounded in a cited file and, where useful, a line range. Where documentation conflicts with shipped code, both are cited and the conflict is called out rather than silently resolved.
 
-**Reading order:** Part A is grounded fact-finding (the 24 requested inspection points). Part B compares the three architecture options. Part C is the 19 requested deliverables, ending with the executive recommendation restated in one place and the open questions for the owner. If you only read one section, read **Part C.1 (executive recommendation)** and **Part C.19 (open questions)**.
+**Reading order:** Part A is grounded fact-finding (the 24 requested inspection points). Part B compares the three architecture options. Part C is the 19 requested deliverables, ending with the sponsor recommendation restated in one place and the open questions for the owner. If you only read one section, read **Part C.1 (sponsor recommendation)** and **Part C.19 (open questions)**.
 
 ---
 
@@ -260,7 +260,7 @@ Option A is rejected as insufficient, not merely inferior: bolting a "dimension"
 
 # Part C — Required deliverables
 
-## C.1 Executive recommendation
+## C.1 Sponsor recommendation
 
 Adopt **Option B**: build a new, small **coverage-selection layer** — a `CoverageAssignment` concept, persisted in new tables that *reference* existing `PolicyPackId`s — sitting above the untouched existing `PolicyPack`/`PolicyPackAssignment`/`EffectiveGovernanceResolver`/`ComplianceRulePackGovernanceFilter`/`PolicyPackPriorityFloor` pipeline. Do this in the following order, each step independently shippable and tested:
 

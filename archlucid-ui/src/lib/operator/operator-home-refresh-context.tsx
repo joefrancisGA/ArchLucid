@@ -46,9 +46,9 @@ export function OperatorHomeRefreshProvider(props: OperatorHomeRefreshProviderPr
 
     void Promise.all([
       ...loaderPromises,
-      queryClient.invalidateQueries({ queryKey: operatorQueryKeys.executiveRoiSummary }),
+      queryClient.invalidateQueries({ queryKey: operatorQueryKeys.sponsorRoiSummary }),
       queryClient.invalidateQueries({ queryKey: operatorQueryKeys.corePilotCommitContext }),
-      queryClient.refetchQueries({ queryKey: operatorQueryKeys.executiveRoiSummary }),
+      queryClient.refetchQueries({ queryKey: operatorQueryKeys.sponsorRoiSummary }),
       queryClient.refetchQueries({ queryKey: operatorQueryKeys.corePilotCommitContext }),
     ])
       .then(() => {

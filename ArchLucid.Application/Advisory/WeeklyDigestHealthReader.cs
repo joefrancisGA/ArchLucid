@@ -95,7 +95,7 @@ public sealed class WeeklyDigestHealthReader(
 
         if (!execPrefs.EmailEnabled || execPrefs.RecipientEmails.Count == 0)
             gaps.Add(
-                "Executive email digest is not fully configured — sponsor emails will not receive the separate executive rollup.");
+                "Sponsor email digest is not fully configured — sponsor emails will not receive the separate sponsor rollup.");
 
         WeeklyDigestHealthSnapshot snapshot = new()
         {

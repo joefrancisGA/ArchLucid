@@ -6,9 +6,9 @@
 
 export const BUYER_MANIFEST_DELIVERABLES_HEADING = "Deliverables";
 
-export const BUYER_MANIFEST_DELIVERABLE_EXECUTIVE_PDF_TITLE = "Executive PDF";
+export const BUYER_MANIFEST_DELIVERABLE_SPONSOR_PDF_TITLE = "Sponsor PDF";
 
-export const BUYER_MANIFEST_DELIVERABLE_EXECUTIVE_PDF_DESC =
+export const BUYER_MANIFEST_DELIVERABLE_SPONSOR_PDF_DESC =
   "Sponsor-ready one-pager with verdict, top risks, and recommended actions.";
 
 export const BUYER_MANIFEST_DELIVERABLE_DOCX_TITLE = "Architecture review export (DOCX)";
@@ -56,7 +56,7 @@ export const BUYER_MANIFEST_SECTION_DOWNLOADS = "Downloads";
 
 export const BUYER_MANIFEST_SECTION_DILIGENCE = "Diligence";
 
-export const BUYER_EXECUTIVE_BRIEFING_PACKAGE_LABEL = "Executive briefing export";
+export const BUYER_SPONSOR_BRIEFING_PACKAGE_LABEL = "Sponsor briefing export";
 
 export const BUYER_TECHNICAL_APPENDIX_LABEL = "Technical appendix";
 

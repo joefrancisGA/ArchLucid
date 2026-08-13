@@ -19,7 +19,7 @@ Browse and Schedule tabs were not redesigned; only shared health data is passed 
 | **Digest type** | `metadataJson.digestType` (today only `architecture` in `DIGEST_TYPE_OPTIONS`) | Hidden when a single type exists |
 | **Activation** | `isEnabled` on create/toggle | "Enable delivery after saving" — does not send immediately |
 | **Schedule** | Advisory scan schedules (`WeeklyDigestHealthDto.enabledAdvisoryScheduleCount`) | Separate readiness row; generation cadence lives under `/advisory?tab=schedules` |
-| **Executive recipients** | `executiveEmailDigest*` fields on health DTO | Distinct from subscriptions; not edited on this tab |
+| **Sponsor recipients** | `executiveEmailDigest*` fields on health DTO | Distinct from subscriptions; not edited on this tab |
 | **Delivery attempts** | `GET …/delivery-attempts` | Per-subscription history panel |
 | **Test delivery** | No subscription-scoped test API in V1 | **Send test digest** links to schedule workflow (`/advisory?tab=schedules`) |
 

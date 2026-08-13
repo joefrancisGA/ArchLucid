@@ -17,7 +17,7 @@ import { OPERATOR_HOME_RECENT_REVIEWS_HEADING } from "@/lib/operator/operator-ho
 import {
   BuyerPolishedHomeHeroSectionDeferred,
   OperatorHomeBelowFoldPanelsDeferred,
-  OperatorHomeExecutiveRoiStripDeferred,
+  OperatorHomeSponsorRoiStripDeferred,
   OperatorHomeGateDeferred,
   OperatorHomeStickinessCockpitDeferred,
   PilotCommandCenterCardDeferred,
@@ -75,7 +75,7 @@ function BuyerPolishedHomePageBody(props: { readonly model: OperatorHomePageView
 
       <OperatorHomeBelowFoldPanelsDeferred buyerPolishedShell model={props.model} />
 
-      <OperatorHomeExecutiveRoiStripDeferred />
+      <OperatorHomeSponsorRoiStripDeferred />
 
     </OperatorHomeWorkspaceActivityProvider>
 
@@ -120,7 +120,7 @@ function OperatorHomePageBody(props: { readonly model: OperatorHomePageViewModel
         showFirstValueCallout
       />
 
-      <OperatorHomeExecutiveRoiStripDeferred />
+      <OperatorHomeSponsorRoiStripDeferred />
 
     </OperatorHomeWorkspaceActivityProvider>
 

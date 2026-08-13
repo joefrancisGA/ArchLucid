@@ -1,4 +1,4 @@
-﻿using System.IO.Compression;
+using System.IO.Compression;
 using System.Net;
 using System.Net.Http.Headers;
 using System.Net.Http.Json;
@@ -230,8 +230,8 @@ public sealed class ScopedSnapshotReadIdorIntegrationTests
     public async Task Tenant_a_scope_only_executive_summary_is_not_forbidden_sql_tb280()
     {
         await AssertMatchingTenantRouteNotForbiddenAsync(
-            "executive summary",
-            static (client, _) => client.GetAsync("/v1/reports/executive-summary"));
+            "Sponsor report",
+            static (client, _) => client.GetAsync("/v1/reports/sponsor-report"));
     }
 
     [SkippableFact]

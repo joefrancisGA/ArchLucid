@@ -2,10 +2,10 @@ archlucid-ui/src/app/(operator)/_sections/load-operator-home-runs-dashboard-mode
 archlucid-ui/src/app/(operator)/administration/identity-providers/_sections/IdentityProvidersSettingsShell.tsx
 archlucid-ui/src/app/(operator)/administration/system-health/_sections/use-system-health-page.ts
 archlucid-ui/src/app/(operator)/administration/tenant/_sections/load-tenant-settings-page-data.ts
-archlucid-ui/src/app/(operator)/architecture/executive-dashboard/_sections/ExecutiveRoiDashboardLiveKpiCards.tsx
-archlucid-ui/src/app/(operator)/architecture/executive-dashboard/_sections/ExecutiveRoiDashboardPageView.tsx
-archlucid-ui/src/app/(operator)/architecture/executive-dashboard/_sections/ExecutiveRoiSummarySection.tsx
-archlucid-ui/src/app/(operator)/architecture/executive-dashboard/_sections/ExecutiveRoiTrendSection.tsx
+archlucid-ui/src/app/(operator)/architecture/sponsor-dashboard/_sections/ExecutiveRoiDashboardLiveKpiCards.tsx
+archlucid-ui/src/app/(operator)/architecture/sponsor-dashboard/_sections/ExecutiveRoiDashboardPageView.tsx
+archlucid-ui/src/app/(operator)/architecture/sponsor-dashboard/_sections/ExecutiveRoiSummarySection.tsx
+archlucid-ui/src/app/(operator)/architecture/sponsor-dashboard/_sections/ExecutiveRoiTrendSection.tsx
 archlucid-ui/src/app/(operator)/architecture/reviews/RunsListClient.tsx
 archlucid-ui/src/app/(operator)/architecture/reviews/[runId]/_sections/RunDetailBuyerModeFallbackBanner.tsx
 archlucid-ui/src/app/(operator)/architecture/reviews/[runId]/_sections/RunDetailEvidenceTabPanel.tsx
@@ -47,7 +47,7 @@ archlucid-ui/src/app/(operator)/insights/compare-two-reviews/_sections/CompareSu
 archlucid-ui/src/app/(operator)/insights/evidence-graph/_sections/GraphPageContent.tsx
 archlucid-ui/src/app/(operator)/insights/evidence-graph/_sections/GraphSuspenseFallback.tsx
 archlucid-ui/src/app/(operator)/insights/evidence-graph/_sections/graph-page-helpers.ts
-archlucid-ui/src/app/(operator)/insights/executive-summary/_sections/ValueReportPageView.tsx
+archlucid-ui/src/app/(operator)/insights/sponsor-summary/_sections/ValueReportPageView.tsx
 archlucid-ui/src/app/(operator)/insights/impact-preview/_sections/EvolutionReviewPageView.tsx
 archlucid-ui/src/app/(operator)/insights/improvement-planning/_sections/PlanningPageView.tsx
 archlucid-ui/src/app/(operator)/insights/pilot-outcomes/_sections/PilotValueReportPageView.tsx
@@ -158,7 +158,7 @@ archlucid-ui/src/lib/compare-url-query-params.ts
 archlucid-ui/src/lib/cto-demo-offline-auto-fallback.ts
 archlucid-ui/src/lib/cto-demo-presenter-pack.ts
 archlucid-ui/src/lib/demo-audit-sample-events.ts
-archlucid-ui/src/lib/executive-roi-kpi-display.ts
+archlucid-ui/src/lib/sponsor-roi-kpi-display.ts
 archlucid-ui/src/lib/finding-display-from-inspect.ts
 archlucid-ui/src/lib/first-pilot-diagnostics-copy.ts
 archlucid-ui/src/lib/nav-publish-readiness.ts

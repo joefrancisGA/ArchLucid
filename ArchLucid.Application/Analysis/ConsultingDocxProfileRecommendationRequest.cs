@@ -12,7 +12,7 @@ namespace ArchLucid.Application.Analysis;
 public sealed class ConsultingDocxProfileRecommendationRequest
 {
     /// <summary>
-    ///     Free-text description of the intended audience (e.g. <c>executive</c>,
+    ///     Free-text description of the intended audience (e.g. <c>sponsor</c>,
     ///     <c>client</c>, <c>compliance</c>). Used for keyword inference when no
     ///     explicit flag is set.
     /// </summary>
@@ -33,7 +33,7 @@ public sealed class ConsultingDocxProfileRecommendationRequest
     }
 
     /// <summary>
-    ///     <see langword="true" /> when the primary reader is an executive or sponsor
+    ///     <see langword="true" /> when the primary reader is an sponsor or sponsor
     ///     who expects a concise brief without deep technical depth.
     /// </summary>
     public bool ExecutiveFriendly

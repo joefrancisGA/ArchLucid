@@ -153,7 +153,7 @@ On block: `409` with `#governance-pre-commit-blocked`.
 
 1. Export **whitelabel / board sample** deliverables when demo seed provides them (Workspace B export stub).
 2. Download DOCX / ZIP exports from review detail.
-3. Cross-check executive ROI labels — no mock production KPIs in live tenant paths ([`PILOT_SUCCESS_SCORECARD.md`](../../go-to-market/PILOT_SUCCESS_SCORECARD.md)).
+3. Cross-check sponsor ROI labels — no mock production KPIs in live tenant paths ([`PILOT_SUCCESS_SCORECARD.md`](../../go-to-market/PILOT_SUCCESS_SCORECARD.md)).
 
 **API**
 
@@ -177,7 +177,7 @@ Former standalone body: `docs/go-to-market/buyer-jobs/AI_GOVERNANCE_REVIEW.md` �
 
 ### Target buyer and trigger event
 
-Risk, compliance, architecture, or AI platform sponsors use this accelerator when an internal AI launch needs oversight evidence, an executive asks how model-assisted systems are governed, or a customer diligence review asks for Responsible AI controls.
+Risk, compliance, architecture, or AI platform sponsors use this accelerator when an internal AI launch needs oversight evidence, an sponsor asks how model-assisted systems are governed, or a customer diligence review asks for Responsible AI controls.
 
 ### Expected first finding types
 
@@ -231,7 +231,7 @@ Detailed UI/API steps: sections above. Spine: [`FIRST_PILOT_OPERATOR_PATH.md`](.
 - Finalized architecture package with **ai-gov** finding coverage
 - Governance gate status and disposition record on review detail
 - Sponsor-readable exports with thematic (not certifying) framework mapping disclaimer
-- Executive ROI / summary surfaces with live-data basis labels (no mock production KPIs on live tenant paths)
+- Sponsor ROI / summary surfaces with live-data basis labels (no mock production KPIs on live tenant paths)
 
 ### Evidence generated
 

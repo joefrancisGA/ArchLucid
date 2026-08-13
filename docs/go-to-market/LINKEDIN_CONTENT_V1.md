@@ -276,7 +276,7 @@ A defensible architecture package contains five things:
 
 **4. A provenance trail.** Which evidence inputs contributed to which findings? If the finding about data residency cited the compliance attachment and the topology description, that connection should be explicit — not reconstructed from context.
 
-**5. An executive summary.** A human-readable synthesis that a CTO, board member, or sponsor can read in five minutes. Not a dump of the findings register — a structured narrative that explains what was reviewed, what was found, and what was decided.
+**5. An sponsor summary.** A human-readable synthesis that a CTO, board member, or sponsor can read in five minutes. Not a dump of the findings register — a structured narrative that explains what was reviewed, what was found, and what was decided.
 
 Most organizations produce version five. Some produce versions two and five. Very few produce all five in a form that can be replayed, compared, or audited.
 
@@ -322,7 +322,7 @@ The diagram is the starting point. The evidence is the argument. A review withou
 
 > "I published a piece on why architecture diagrams are not architecture evidence — and what a defensible architecture package actually needs to contain.
 >
-> The short version: most teams produce an executive summary and skip the four things that make it defensible.
+> The short version: most teams produce an sponsor summary and skip the four things that make it defensible.
 >
 > The longer version is in the article — about 8 minutes.
 >
@@ -535,7 +535,7 @@ Capture accordingly.
 
 Typography sounds like a design polish task. Pick a readable sans-serif, set a scale, ship it.
 
-That works until you are building an architect workspace where a principal architect scans a findings table, a compliance officer reads an audit log, and a sponsor opens an executive summary — all in the same product, often in the same session — and every screen communicates *authority* through type hierarchy whether you planned it or not.
+That works until you are building an architect workspace where a principal architect scans a findings table, a compliance officer reads an audit log, and a sponsor opens an sponsor summary — all in the same product, often in the same session — and every screen communicates *authority* through type hierarchy whether you planned it or not.
 
 We learned that the hard way on ArchLucid. We did not have a font problem. We had a **text system** problem: dozens of ad-hoc Tailwind classes that each made sense in isolation and collectively made the product feel like three different apps wearing the same color palette.
 
@@ -561,7 +561,7 @@ A page title is not just "the biggest text on the page." In our product it compe
 - **Section labels** above tables and disclosure panels — wayfinding, not content.
 - **Status badges** on findings and pipeline stages — dense, scannable, never taller than a table row.
 - **Metadata lines** — timestamps, correlation hints, secondary context that must stay quieter than body copy.
-- **Executive summary numbers** — sponsor-facing counts that must not inherit the monospace hero scale from operator KPI tiles.
+- **Sponsor summary numbers** — sponsor-facing counts that must not inherit the monospace hero scale from operator KPI tiles.
 
 Each role has different density requirements. A badge at 11px is intentional. A page title at `text-3xl` is a marketing landing page leaking into an architect workspace. A KPI rendered in `text-sm font-semibold` looks like a mislabeled paragraph, not a metric.
 
@@ -583,9 +583,9 @@ We stopped treating typography as a CSS exercise and defined a **semantic type s
 | **Micro** | Timestamps, dense metadata |
 | **Badge** | Status chips — 11px, no arbitrary `text-[10px]` |
 | **KPI value** | Dashboard tiles only — monospace, large, tabular nums |
-| **Executive dashboard metric** | Sponsor-facing numbers — one shared treatment, not two competing styles |
+| **Sponsor dashboard metric** | Sponsor-facing numbers — one shared treatment, not two competing styles |
 
-The point is not the Tailwind class strings. The point is that **component authors pick a role, not a pixel size**. When a finding detail page needs a heading, it imports `OPERATOR_TYPOGRAPHY.pageTitle`. When a status chip needs copy, it uses `badge`. When an executive ROI panel shows a dollar figure, it uses `executiveDashboardMetric` — the same token on KPI cards and summary sections, because mixed treatments on one page was a real bug we filed as design debt.
+The point is not the Tailwind class strings. The point is that **component authors pick a role, not a pixel size**. When a finding detail page needs a heading, it imports `OPERATOR_TYPOGRAPHY.pageTitle`. When a status chip needs copy, it uses `badge`. When an sponsor ROI panel shows a dollar figure, it uses `executiveDashboardMetric` — the same token on KPI cards and summary sections, because mixed treatments on one page was a real bug we filed as design debt.
 
 That is text system complexity: not choosing Inter vs IBM Plex, but maintaining a **contract** about what each level means across hundreds of surfaces.
 
@@ -595,7 +595,7 @@ That is text system complexity: not choosing Inter vs IBM Plex, but maintaining 
 
 Defining tokens is an afternoon. **Enforcing** them is a migration.
 
-Our typography audit (engineering backlog **TB-119**) touched on the order of **106 files** — operator home, run detail, governance findings, audit log, executive dashboard, marketing pages that share the architect workspace. We wrote a migration script (`migrate-tb119-operator-typography.ps1`) because hand-editing `text-2xl` grep results across a monorepo is how you miss the one executive panel that still renders money in the wrong weight.
+Our typography audit (engineering backlog **TB-119**) touched on the order of **106 files** — operator home, run detail, governance findings, audit log, sponsor dashboard, marketing pages that share the architect workspace. We wrote a migration script (`migrate-tb119-operator-typography.ps1`) because hand-editing `text-2xl` grep results across a monorepo is how you miss the one sponsor panel that still renders money in the wrong weight.
 
 Acceptance was not "looks nicer." Acceptance was grep-clean:
 
@@ -746,7 +746,7 @@ Even without a solver, optimization framing improved product decisions:
 
 - **Fail open with a loud label on soft conflicts.** Optimization culture loves hard no. Enterprise architecture culture needs **graded impossibility** — envelope statements, confidence bands, proposed relaxations the human disposes.
 
-- **Do not optimize what you cannot measure honestly.** We rejected fabricated probability on executive summaries. If you cannot defend the number, it should not appear in the objective — even if it would make sorting easier.
+- **Do not optimize what you cannot measure honestly.** We rejected fabricated probability on sponsor summaries. If you cannot defend the number, it should not appear in the objective — even if it would make sorting easier.
 
 These are design principles borrowed from optimization culture, implemented as **governance UX and provenance**, not as MATLAB.
 
@@ -1519,7 +1519,7 @@ Carbon — our primary visual reference — treats operator surfaces as **inform
 When an operator page uses marketing spacing:
 
 - A findings list **looks shorter than it is** — as if the product has little to show.
-- Executive summaries **feel like pitch decks**, not decision packets.
+- Sponsor summaries **feel like pitch decks**, not decision packets.
 - Screenshots fail the "serious enterprise" test before anyone reads a word.
 
 We learned this capturing marketing assets: the same components that felt "clean" in isolation felt **empty** next to a real audit table.
@@ -1541,7 +1541,7 @@ We codified spacing in `UI_DESIGN_SYSTEM.md` after engineering backlog **TB-118*
 
 And an explicit ban on the usual suspects inside `(operator)/` routes: **`space-y-8`**, **`py-8`**, marketing-scale hero cards used as layout crutches.
 
-Acceptance was page-specific, not vibes-based: operator home, run detail, executive dashboard, governance findings, audit log — the pages procurement and ARB reviewers actually land on.
+Acceptance was page-specific, not vibes-based: operator home, run detail, sponsor dashboard, governance findings, audit log — the pages procurement and ARB reviewers actually land on.
 
 Admin wizards can keep slightly looser form spacing where long inputs need breathing room. That is documented exception, not drift.
 
@@ -1563,7 +1563,7 @@ Compact spacing exposes more rows — good for credibility, brutal for annotated
 **Adventure 4: The accessibility tension.**
 Compact does not mean cramped. Touch targets and focus rings still need real estate. The fight is against **decorative** space, not usable space. Our accessibility baseline rule and spacing convention had to agree, not arm-wrestle.
 
-**Adventure 5: The executive dashboard exception that wasn't.**
+**Adventure 5: The sponsor dashboard exception that wasn't.**
 KPI tiles tempt large padding — numbers floating in oceans of gray. Typography tokens solved the hierarchy; spacing had to stay disciplined anyway. Big numbers do not require big voids.
 
 Each adventure reinforced the same lesson: **space fights back**. It is the easiest "improvement" to reintroduce because everyone intuitively likes air.
@@ -1931,7 +1931,7 @@ Honest small words age better.
 
 Practices that stuck:
 
-1. **Two-layer rendering** — architect detail vs executive decision currency on the same evidence (governance packet, not dashboard theater).
+1. **Two-layer rendering** — architect detail vs sponsor decision currency on the same evidence (governance packet, not dashboard theater).
 2. **Glossary-first reviews** — any new UI string checks the table before merge.
 3. **Agent rules that cite the design standard** — TB-120 is vocabulary enforcement, not just color enforcement.
 4. **First-session instrumentation** — hesitation codes when terminology blocks export discovery; fix copy before redesigning nav.
@@ -2061,7 +2061,7 @@ It means:
 
 1. **Ingest** scattered decisions — ADRs, slide decks, email threads, partial manifests.
 2. **Reconcile** them against a structured review (findings, dispositions, committed snapshot).
-3. **Export** a package a sponsor can forward — executive summary, evidence-linked findings, decision register, labeled execution mode.
+3. **Export** a package a sponsor can forward — sponsor summary, evidence-linked findings, decision register, labeled execution mode.
 
 Teams buy this when they already believe in ADRs but cannot **replay** them under scrutiny. The pain is not missing templates. The pain is **missing linkage**.
 

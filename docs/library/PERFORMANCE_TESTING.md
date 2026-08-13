@@ -81,7 +81,7 @@ See **`docs/TEST_EXECUTION_MODEL.md`** — job **`Performance: k6 API smoke (ope
 
 ### Post-commit operator path (local / optional CI)
 
-**`tests/load/post-commit-operator-path.js`** extends the finish path with read-heavy routes after commit: run detail, manifest summary, artifacts, aggregate explanation, provenance, executive ROI summary, and sponsor packet download. Uses **`k6pc:*`** tags and writes `tests/load/results/post-commit-operator-path.json` (slowest tagged route in summary).
+**`tests/load/post-commit-operator-path.js`** extends the finish path with read-heavy routes after commit: run detail, manifest summary, artifacts, aggregate explanation, provenance, sponsor ROI summary, and sponsor packet download. Uses **`k6pc:*`** tags and writes `tests/load/results/post-commit-operator-path.json` (slowest tagged route in summary).
 
 ```bash
 ARCHLUCID_BASE_URL=http://127.0.0.1:5128 K6_COMPRESS=1 k6 run tests/load/post-commit-operator-path.js

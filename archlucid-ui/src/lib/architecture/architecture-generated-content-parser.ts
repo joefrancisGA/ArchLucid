@@ -17,7 +17,7 @@ type MutableSectionDraft = {
 };
 
 const SECTION_ALIAS_ENTRIES: ReadonlyArray<{ readonly key: ArchitectureStructuredSectionKey; readonly aliases: readonly string[] }> = [
-  { key: "executive-summary", aliases: ["executive summary", "summary", "overview", "architecture overview"] },
+  { key: "sponsor-report", aliases: ["sponsor report", "summary", "overview", "architecture overview"] },
   { key: "business-outcome", aliases: ["business outcome", "outcome", "business purpose", "business goal"] },
   { key: "scope", aliases: ["scope", "in scope", "out of scope", "boundaries"] },
   {
@@ -350,7 +350,7 @@ function mergeUserAssertions(
   const name = assertions.architectureName.trim();
 
   if (overview.length > 0) {
-    const draft = drafts.get("executive-summary");
+    const draft = drafts.get("sponsor-report");
 
     if (draft !== undefined) {
       draft.narrativeLines.unshift(overview);
@@ -481,10 +481,10 @@ export function parseArchitectureGeneratedContent(
   const blocks = splitSourceIntoSectionBlocks(cleanedText);
 
   if (blocks.length === 0 && cleanedText.length > 0) {
-    ingestLinesIntoDraft(drafts.get("executive-summary")!, cleanedLines);
+    ingestLinesIntoDraft(drafts.get("sponsor-report")!, cleanedLines);
   } else {
     for (const block of blocks) {
-      const targetKey = block.key ?? "executive-summary";
+      const targetKey = block.key ?? "sponsor-report";
       const draft = drafts.get(targetKey)!;
       ingestLinesIntoDraft(draft, block.lines);
     }

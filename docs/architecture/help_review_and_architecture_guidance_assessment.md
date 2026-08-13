@@ -6,11 +6,11 @@
 
 **Method:** Read-only repository inspection — the help route registry and renderer (`archlucid-ui/src/lib/product-documentation-registry.ts`, `archlucid-ui/src/app/(operator)/help/[...topic]/page.tsx`), the underlying markdown sources under `docs/library/`, contextual-help wiring in product components, navigation builders, the two new (untracked) architecture-assessment documents on the assurance-coverage model, and backlog history in `docs/library/TECH_BACKLOG.md`. Every claim is grounded in a cited file; where the task brief's assumptions conflict with shipped repository decisions, both are stated and the conflict is flagged for the owner rather than silently resolved.
 
-**Reading order:** If you read only two sections, read **1. Executive recommendation** and **20 (§18 “Final recommendation”)**. Part-numbering below follows the 20 required deliverables from the task brief, in order.
+**Reading order:** If you read only two sections, read **1. Sponsor recommendation** and **20 (§18 “Final recommendation”)**. Part-numbering below follows the 20 required deliverables from the task brief, in order.
 
 ---
 
-## 1. Executive recommendation
+## 1. Sponsor recommendation
 
 **`/help/review-guide` has a real but currently mis-scoped job. Narrow and revise it — do not keep it unchanged, do not merge it, do not remove it, and do not convert it into a bare landing page.**
 

@@ -38,7 +38,7 @@ Help enterprise architecture and platform leaders **hire ArchLucid** to turn mes
 
 | Stage | Buyer touchpoints | Proof artifacts |
 |-------|-------------------|-----------------|
-| **Discovery** | Executive sponsor brief, pilot ROI companion, demo script | [`EXECUTIVE_SPONSOR_BRIEF.md`](EXECUTIVE_SPONSOR_BRIEF.md), [`PILOT_ROI_MODEL.md`](../library/PILOT_ROI_MODEL.md) |
+| **Discovery** | Sponsor sponsor brief, pilot ROI companion, demo script | [`EXECUTIVE_SPONSOR_BRIEF.md`](EXECUTIVE_SPONSOR_BRIEF.md), [`PILOT_ROI_MODEL.md`](../library/PILOT_ROI_MODEL.md) |
 | **Pilot (30/60/90)** | Architect workspace + CLI, API keys or Entra JWT | Architecture packages, OTel trace ids, export records, audit events |
 | **Expand** | Governance approvals, integration events | `GovernanceApprovalRequests`, [`INTEGRATION_EVENTS_AND_WEBHOOKS.md`](../library/INTEGRATION_EVENTS_AND_WEBHOOKS.md) |
 
@@ -489,7 +489,7 @@ Score each dimension 1–3 before advancing to intake.
 | Dimension | 1 — Weak | 2 — Moderate | 3 — Strong |
 | --- | --- | --- | --- |
 | **Budget** | No budget signal; all free/trial only | Budget exploration; director or below | Defined pilot budget or services line item; CTO/CFO aware |
-| **Authority** | No sponsor identified | Technical champion; sponsor TBD | Executive sponsor identified and engaged |
+| **Authority** | No sponsor identified | Technical champion; sponsor TBD | Sponsor sponsor identified and engaged |
 | **Need** | Nice to have; no current pain | Current manual process; aware of the problem | Active pain: slow reviews, compliance gap, scaling failure |
 | **Timeline** | >6 months or indefinite | 3–6 months | Ready to start within 30 days |
 
@@ -520,7 +520,7 @@ Collect all of the following before confirming a pilot start date.
 
 - Account name:
 - Primary contact name, title, email:
-- Executive sponsor name, title, email:
+- Sponsor sponsor name, title, email:
 - Account BANT score (from BANT table above):
 - TAP signals confirmed (list):
 - Disqualifiers reviewed — none present? (Yes / No / Exception noted):

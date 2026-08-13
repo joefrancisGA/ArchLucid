@@ -390,7 +390,7 @@ All return `{ ok: true, value/items }` or `{ ok: false, message }`.
 
 ### Purpose
 
-Renders the **aggregate** run explanation from `GET /v1/explain/runs/{runId}/aggregate` (`getRunExplanationSummary` in `api.ts`): executive assessment, risk posture badge, model confidence (`Progress` from shadcn/ui), theme bullets, key drivers / risk implications from the nested `explanation`, and optional provenance in a `<details>` block.
+Renders the **aggregate** run explanation from `GET /v1/explain/runs/{runId}/aggregate` (`getRunExplanationSummary` in `api.ts`): sponsor assessment, risk posture badge, model confidence (`Progress` from shadcn/ui), theme bullets, key drivers / risk implications from the nested `explanation`, and optional provenance in a `<details>` block.
 
 ### Props
 

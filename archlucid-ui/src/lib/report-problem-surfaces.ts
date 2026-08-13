@@ -6,7 +6,7 @@
 export type ReportProblemSurfaceKind =
   | "reviews-hub-fatal"
   | "review-detail-fatal"
-  | "executive-summary-fatal"
+  | "sponsor-report-fatal"
   | "governance-queue-fatal"
   | "review-commit-export-fatal"
   | "api-problem-high-stakes"
@@ -47,12 +47,12 @@ export const REPORT_PROBLEM_V1_SURFACES: readonly ReportProblemSurfaceEntry[] = 
     description: "Review detail page-level load failure.",
   },
   {
-    id: "executive-value-report-load-failure",
-    kind: "executive-summary-fatal",
-    routePattern: "/insights/executive-summary",
+    id: "sponsor-value-report-load-failure",
+    kind: "sponsor-report-fatal",
+    routePattern: "/insights/sponsor-report",
     routeMatch: "exact-or-child",
-    componentPath: "app/(operator)/insights/executive-summary",
-    description: "Executive / sponsor value report hard load failure.",
+    componentPath: "app/(operator)/insights/sponsor-report",
+    description: "Sponsor / sponsor value report hard load failure.",
   },
   {
     id: "governance-findings-queue-hard-failure",

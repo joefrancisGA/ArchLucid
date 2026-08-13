@@ -70,9 +70,9 @@ Release entries newest-first. Each section condenses the detailed prompt logs pr
 
 `/help/integration-readiness` ships IntegrationReadinessHelpEvidenceOrientationStrip (workspace Sources + claim-discipline), PageContextualHelp + Category-1 registry + topic map integration-readiness, traffic Notes under Help topic (row ID HEI), and honest Evidence score 52. Help-topic orientation hard-caps higher Evidence; no CPA / third-party pen-test implication.
 
-## 2026-08-07 - UI: Executive summary help Evidence chrome (EXE)
+## 2026-08-07 - UI: Sponsor summary help Evidence chrome (EXE)
 
-`/help/executive-summary` ships ExecutiveSummaryHelpEvidenceOrientationStrip (workspace Sources + claim-discipline), PageContextualHelp + Category-1 registry + topic map executive-summary, traffic Notes under Help topic (row ID EXE), and honest Evidence score 52. Help-topic orientation hard-caps higher Evidence; no CPA / third-party pen-test implication.
+`/help/sponsor-summary` ships ExecutiveSummaryHelpEvidenceOrientationStrip (workspace Sources + claim-discipline), PageContextualHelp + Category-1 registry + topic map sponsor-summary, traffic Notes under Help topic (row ID EXE), and honest Evidence score 52. Help-topic orientation hard-caps higher Evidence; no CPA / third-party pen-test implication.
 
 ## 2026-08-07 - UI: Evidence-only-review help alias Evidence chrome (HEV)
 
@@ -124,7 +124,7 @@ Finding inspect now derives trust labels from parent run structural execution mo
 
 ## 2026-08-07 - Adoption friction: TB-2065 finding correlation vocabulary disambiguation
 
-Compare, ITSM ticket linkage, and executive ROI surfaces now use distinct vocabulary for cross-review correlation (ADR 0063), ITSM ticket linkages, and portfolio FindingId deduplication.
+Compare, ITSM ticket linkage, and sponsor ROI surfaces now use distinct vocabulary for cross-review correlation (ADR 0063), ITSM ticket linkages, and portfolio FindingId deduplication.
 
 ## 2026-08-07 - Trustworthiness: TB-2064 compare UI finding correlation metadata
 
@@ -144,7 +144,7 @@ Coalesce audit-list scope revision bumps within 3s during append bursts so first
 
 ## 2026-08-07 - Performance: TB-2061 dashboard + signed-records First Load JS
 
-Deferred below-fold executive-dashboard panels and the signed-records list client chunk via `next/dynamic`; extended `check:first-load-js` tracked routes and baseline for `/architecture/executive-dashboard` and `/governance/signed-records`.
+Deferred below-fold sponsor-dashboard panels and the signed-records list client chunk via `next/dynamic`; extended `check:first-load-js` tracked routes and baseline for `/architecture/sponsor-dashboard` and `/governance/signed-records`.
 
 ## 2026-08-07 - UI: Compare and replay help Evidence chrome (CO)
 
@@ -276,7 +276,7 @@ Paste-ready ADR Cleanup listing in [`QUOTE_TO_PROOF_PACKET.md#upwork-listings-dr
 
 ## 2026-08-06 - UI: Projects recycle bin Evidence chrome (STR)
 
-`/administration/tenant/recycle-bin` ships ProjectsRecycleBinEvidenceOrientationStrip (workspace Sources + claim-discipline), PageContextualHelp + Category-1 registry + topic map scope, traffic Notes under Settings (row ID STR; path aligned off legacy settings/tenant/recycle-bin; owner ARE renamed to avoid collision with template executive-dashboard ARE), and honest Evidence score 50. Settings access-hub hard-caps higher Evidence; no CPA / third-party pen-test implication.
+`/administration/tenant/recycle-bin` ships ProjectsRecycleBinEvidenceOrientationStrip (workspace Sources + claim-discipline), PageContextualHelp + Category-1 registry + topic map scope, traffic Notes under Settings (row ID STR; path aligned off legacy settings/tenant/recycle-bin; owner ARE renamed to avoid collision with template sponsor-dashboard ARE), and honest Evidence score 50. Settings access-hub hard-caps higher Evidence; no CPA / third-party pen-test implication.
 
 ## 2026-08-06 - UI: SCIM provisioning Evidence chrome (ASC)
 
@@ -502,7 +502,7 @@ The settings hub is now unambiguously the tenant-administration surface. `settin
 
 Hub-first per **IA-016 / D5**: the sidebar "Settings" slot targets `/administration/settings` at `ReadAuthority` (it also publishes read-only billing and security & trust rows); `/administration/settings/tenant` becomes a separate "Workspace settings" entry at `AdminAuthority` with a `TenantSettingsRestrictedState` for non-admin deep links, and breadcrumbs/static titles follow. `PUT /v1/tenant/cost-settings` tightened to `AdminAuthority`.
 
-The duplicated executive digest editor was removed from the tenant page in favor of the Digests hub, which already owns recipients, time zone, delivery readiness, and subscription health. `POST /v1/tenant/exec-digest-preferences` and `PUT /v1/tenant/baseline` deliberately stay at `ExecuteAuthority`: the Digests hub is a `ReadAuthority` Reports destination where Operators and Sponsors schedule digests, and baseline is written by the review-intake and pilot wizards, so tightening either would break normal workflow rather than close a gap. Quality-gate mode, model governance, identity providers, sign-in domains, API keys, SCIM, users, and AI usage were already `AdminAuthority`.
+The duplicated sponsor digest editor was removed from the tenant page in favor of the Digests hub, which already owns recipients, time zone, delivery readiness, and subscription health. `POST /v1/tenant/exec-digest-preferences` and `PUT /v1/tenant/baseline` deliberately stay at `ExecuteAuthority`: the Digests hub is a `ReadAuthority` Reports destination where Operators and Sponsors schedule digests, and baseline is written by the review-intake and pilot wizards, so tightening either would break normal workflow rather than close a gap. Quality-gate mode, model governance, identity providers, sign-in domains, API keys, SCIM, users, and AI usage were already `AdminAuthority`.
 
 ## 2026-08-05 - Docs: PA first-15 package-spine IA unlock contract (TB-1030)
 
@@ -690,7 +690,7 @@ Shared `InboundWebhookBoundedBodyReader` rejects oversize payloads (Content-Leng
 
 ## 2026-08-04 - UI: Sponsor scorecard Evidence chrome (ESX)
 
-/executive/scorecard ships PageContextualHelpButton, Category-1 registry, Sources + claim-discipline orientation strip, traffic Notes under Executive, and honest Evidence score 48. Executive KPI hub hard-caps higher Evidence; no CPA / third-party pen-test implication.
+/sponsor/scorecard ships PageContextualHelpButton, Category-1 registry, Sources + claim-discipline orientation strip, traffic Notes under Sponsor, and honest Evidence score 48. Sponsor KPI hub hard-caps higher Evidence; no CPA / third-party pen-test implication.
 
 ## 2026-08-03 - UI: Digests Schedule Evidence chrome (DIS); retire mistaken SEX owner row
 
@@ -726,7 +726,7 @@ Shared `InboundWebhookBoundedBodyReader` rejects oversize payloads (Content-Leng
 
 ## 2026-08-03 - UI: Hard-retire most redirect-only bookmarks
 
-Prunes next.config redirects (keeps `/reviews` and `/architectures` namespace force-canonical + signed-record manifest aliases). Removes App Router and proxy shims for `/product-learning`, `/value-report*`, finding `/inspect`, `/planning`, and legacy hub bookmarks (`/runs`, `/manifests`, governance top-level, dashboard/executive, patterns, settings/admin aliases). Inbound links, e2e, host-gate, SEO disallow, and `RETIRED_SHIMS` updated. API `/v1/product-learning/*` unchanged. No CPA / third-party pen-test implication.
+Prunes next.config redirects (keeps `/reviews` and `/architectures` namespace force-canonical + signed-record manifest aliases). Removes App Router and proxy shims for `/product-learning`, `/value-report*`, finding `/inspect`, `/planning`, and legacy hub bookmarks (`/runs`, `/manifests`, governance top-level, dashboard/sponsor, patterns, settings/admin aliases). Inbound links, e2e, host-gate, SEO disallow, and `RETIRED_SHIMS` updated. API `/v1/product-learning/*` unchanged. No CPA / third-party pen-test implication.
 
 ## 2026-08-04 - UI: Hard-retire legacy redirect shims
 
@@ -778,7 +778,7 @@ Legacy `/value-report/pilot` bookmark row **VPX** removed from the UI route traf
 
 ## 2026-08-03 ï¿½ Docs: Retire VXX traffic row; fold hit share into SPE
 
-Legacy `/value-report` bookmark row **VXX** removed from the UI route traffic workbook. Hit% **0.2%** folded into canonical sponsor executive summary **SPE** (Hit **0.22%**, Deficit **22**). App Router shim still permanentRedirects `/value-report` ? `/sponsor-report/executive-summary`. No CPA / third-party pen-test implication.
+Legacy `/value-report` bookmark row **VXX** removed from the UI route traffic workbook. Hit% **0.2%** folded into canonical sponsor sponsor summary **SPE** (Hit **0.22%**, Deficit **22**). App Router shim still permanentRedirects `/value-report` ? `/sponsor-report/sponsor-summary`. No CPA / third-party pen-test implication.
 
 ## 2026-08-03 ï¿½ Docs: Retire SRN traffic row; fold hit share into RRE
 
@@ -787,9 +787,9 @@ Legacy `/snapshot/[runId]` bookmark row **SRN** removed from the UI route traffi
 ## 2026-08-03 ï¿½ Ops: ArchLucid DEV sandbox primary region ? **centralus**
 
 DEV CD target aligned with staging/production: `dev.tfvars.example` + [`AZURE_SUBSCRIPTIONS.md`](library/AZURE_SUBSCRIPTIONS.md) now specify **`centralus`**, with example runtime RG **`rg-ArchLucid-dev-cus`** (`create_resource_group = true`). Operators must update GitHub Environment secret **`DEV_TFVARS`**, **`EXPECTED_AZURE_LOCATION=centralus`**, and **`AZURE_RESOURCE_GROUP`** for the centralus stack. ACR may remain in legacy **`rg-ArchLucid-dev`**.
-## 2026-08-03 ï¿½ UI: Sponsor executive summary Evidence chrome (SPE)
+## 2026-08-03 ï¿½ UI: Sponsor sponsor summary Evidence chrome (SPE)
 
-`/sponsor-report/executive-summary` ships Sources + claim-discipline orientation on ValueReportPageView, Category-1 registry for the canonical path, traffic Notes under Sponsor report, and honest Evidence score 55. Period-summary hard-caps higher Evidence; no CPA / third-party pen-test implication.
+`/sponsor-report/sponsor-summary` ships Sources + claim-discipline orientation on ValueReportPageView, Category-1 registry for the canonical path, traffic Notes under Sponsor report, and honest Evidence score 55. Period-summary hard-caps higher Evidence; no CPA / third-party pen-test implication.
 
 ## 2026-08-03 ï¿½ UI: Signup Evidence chrome (SIG)
 
@@ -1005,7 +1005,7 @@ Honest co-primary surface?package?IDs map ([`SAMPLE_PACKAGE_FUNNEL_ID_MATRIX.md`
 
 ## 2026-04-29 ï¿½ Tests: findings recommended-actions hydration, replay export branches, commit guards
 
-**Outcome.** Added **`FindingsSnapshotRelationalReadOrderedRecommendedActionsDirectSqlIntegrationTests`** (SQL container: `FindingRecommendedActions` **`ORDER BY` SortOrder** via `FindingsSnapshotRelationalRead`). Added **`EndToEndReplayComparisonExportServiceExecutiveAndRelationshipDiffTests`** (executive Markdown/HTML, null report guard, manifest relationship subsections, PDF pre-render cancellation). Added **`AuthorityDrivenArchitectureRunCommitOrchestratorCommitRunAsyncGuardTests`** (`CommitRunAsync` null/whitespace, malformed run id, missing **`RunRecord`** ? **`RunNotFoundException`** + baseline audit). **`COVERAGE_GAP_ANALYSIS.md`** not refreshed (no Cobertura merge).
+**Outcome.** Added **`FindingsSnapshotRelationalReadOrderedRecommendedActionsDirectSqlIntegrationTests`** (SQL container: `FindingRecommendedActions` **`ORDER BY` SortOrder** via `FindingsSnapshotRelationalRead`). Added **`EndToEndReplayComparisonExportServiceExecutiveAndRelationshipDiffTests`** (sponsor Markdown/HTML, null report guard, manifest relationship subsections, PDF pre-render cancellation). Added **`AuthorityDrivenArchitectureRunCommitOrchestratorCommitRunAsyncGuardTests`** (`CommitRunAsync` null/whitespace, malformed run id, missing **`RunRecord`** ? **`RunNotFoundException`** + baseline audit). **`COVERAGE_GAP_ANALYSIS.md`** not refreshed (no Cobertura merge).
 
 ---
 
@@ -1582,7 +1582,7 @@ Honest co-primary surface?package?IDs map ([`SAMPLE_PACKAGE_FUNNEL_ID_MATRIX.md`
 
 ---
 
-## 2026-04-21 ï¿½ Weekly executive digest email (Prompt 10)
+## 2026-04-21 ï¿½ Weekly sponsor digest email (Prompt 10)
 
 **Sponsor loop automation:** Per-tenant **`dbo.TenantExecDigestPreferences`** (migration **103**) stores schedule (**IANA timezone**, **day-of-week**, **hour**), **recipient mailboxes**, and an **email enabled** flag. **`IExecDigestComposer`** / **`ExecDigestComposer`** assemble a UTC-window digest from existing services (**compliance drift** daily buckets, **committed manifests** in-window with **pilot delta** significance proxy, optional **findings delta** line) with graceful omission when data is missing. **`ExecDigestWeeklyDeliveryScanner`** + **`ExecDigestWeeklyHostedService`** (hourly leader-elected poll) and CLI job **`exec-digest-weekly`** send through **`IExecDigestEmailDispatcher`** using embedded Razor **`ExecDigest`** + **`SentEmails`** idempotency **`exec-digest:{tenant}:{iso-week}`**. **API:** **`GET/POST /v1/tenant/exec-digest-preferences`** (Read / Execute) and anonymous **`GET /v1/notifications/exec-digest/unsubscribe?token=ï¿½`** (**`IDataProtection`**, disables email). **UI:** **`/settings/exec-digest`**. Static mirrors: **`templates/email/exec-digest.html`** / **`.txt`**. Tests: composer unit test, unsubscribe token round-trip, **`ExecDigestWeeklyArchLucidJob`** smoke.
 
@@ -1678,7 +1678,7 @@ Added **`GET /v1/demo/preview`** and the marketing **`/demo/preview`** page so s
 
 **Adoption friction ï¿½ `archlucid try` + dev-container:** New CLI command **`archlucid try`** ([`ArchLucid.Cli/Commands/TryCommand.cs`](../ArchLucid.Cli/Commands/TryCommand.cs)) takes a brand-new evaluator from `git clone` to a committed manifest + saved sponsor Markdown report in a single command. Composes existing primitives (no rewrites): **`PilotUpCommand`** for the Docker stack + readiness probe, **`POST /v1/demo/seed`** for idempotent demo data, **`ArchLucidApiClient.CreateRunAsync` / `ExecuteAsync` / `GetRunAsync` / `CommitRunAsync` / `SeedFakeResultsAsync`** for the sample-run lifecycle, and **`GET /v1/pilots/runs/{runId}/first-value-report`** for the Markdown. Polls `GET /v1/architecture/run/{runId}` until `ReadyForCommit` (or falls back to `seed-fake-results` after `--commit-deadline`); opens the saved Markdown and the operator-UI `/runs/{runId}` URL in the default handlers (suppressed by **`--no-open`** for containers / SSH / CI). New devcontainer (**`.devcontainer/devcontainer.json`** + **`.devcontainer/docker-compose.devcontainer.yml`**) layers .NET 10 SDK + Node 22 on the host docker socket (Docker-outside-of-Docker) and runs **`archlucid try --no-open`** on `postCreateCommand`. Tests: [`ArchLucid.Cli.Tests/TryCommandTests.cs`](../ArchLucid.Cli.Tests/TryCommandTests.cs) covers argument parsing (defaults, `--no-open`, custom URLs, invalid flags / values), missing-Docker handling (no `docker-compose.yml` in any cwd ancestor ? `CliExitCode.UsageError`), and the readiness-poll timeout (returns the last observed status when the deadline elapses). **`completions`** word lists and the no-arg usage banner updated. Docs: [`README.md`](../REPOSITORY_README.md) "First-time evaluator" row, [`docs/FIRST_30_MINUTES.md`](FIRST_30_MINUTES.md) skip-ahead callout, [`docs/CLI_USAGE.md`](library/CLI_USAGE.md) new **`archlucid try`** section.
 
-**Marketability ï¿½ proof page:** New architect workspace route **`/why-archlucid`** (Core Pilot tier, no `requiredAuthority`) renders a read-only "Why ArchLucid" proof page for sponsor demos. Wires three live read endpoints against the seeded **Contoso Retail Modernization** demo tenant: **`GET /v1/pilots/why-archlucid-snapshot`** (new ï¿½ process-wide `ArchLucidInstrumentation` counters + canonical demo run id + scoped audit row count), **`GET /v1/pilots/runs/{runId}/first-value-report`** (sponsor Markdown), and **`GET /v1/explain/runs/{runId}/aggregate`** (executive aggregate explanation + citations). Backed by a new **`MeterListenerCounterSnapshotProvider`** singleton (`System.Diagnostics.Metrics.MeterListener` over `archlucid_runs_created_total` and `archlucid_findings_produced_total`) and **`WhyArchLucidSnapshotService`** application service. Vitest snapshot test (`archlucid-ui/src/app/(operator)/why-archlucid/page.test.tsx`) and live Playwright spec (`archlucid-ui/e2e/live-api-why-archlucid.spec.ts`) exercise the route end-to-end after a best-effort `POST /v1/demo/seed`. Cross-links added to [`go-to-market/POSITIONING.md`](go-to-market/POSITIONING.md) ï¿½4 and [`go-to-market/PRODUCT_DATASHEET.md`](go-to-market/PRODUCT_DATASHEET.md) Get-started step 4. **`EXECUTIVE_SPONSOR_BRIEF.md`** intentionally unchanged (sponsor brief stays canonical).
+**Marketability ï¿½ proof page:** New architect workspace route **`/why-archlucid`** (Core Pilot tier, no `requiredAuthority`) renders a read-only "Why ArchLucid" proof page for sponsor demos. Wires three live read endpoints against the seeded **Contoso Retail Modernization** demo tenant: **`GET /v1/pilots/why-archlucid-snapshot`** (new ï¿½ process-wide `ArchLucidInstrumentation` counters + canonical demo run id + scoped audit row count), **`GET /v1/pilots/runs/{runId}/first-value-report`** (sponsor Markdown), and **`GET /v1/explain/runs/{runId}/aggregate`** (sponsor aggregate explanation + citations). Backed by a new **`MeterListenerCounterSnapshotProvider`** singleton (`System.Diagnostics.Metrics.MeterListener` over `archlucid_runs_created_total` and `archlucid_findings_produced_total`) and **`WhyArchLucidSnapshotService`** application service. Vitest snapshot test (`archlucid-ui/src/app/(operator)/why-archlucid/page.test.tsx`) and live Playwright spec (`archlucid-ui/e2e/live-api-why-archlucid.spec.ts`) exercise the route end-to-end after a best-effort `POST /v1/demo/seed`. Cross-links added to [`go-to-market/POSITIONING.md`](go-to-market/POSITIONING.md) ï¿½4 and [`go-to-market/PRODUCT_DATASHEET.md`](go-to-market/PRODUCT_DATASHEET.md) Get-started step 4. **`EXECUTIVE_SPONSOR_BRIEF.md`** intentionally unchanged (sponsor brief stays canonical).
 
 **Quality / docs hygiene:** Moved superseded **2026-04-20** quality assessments and the improvement-decision log to [`archive/quality/`](archive/quality/) with inbound link rewrites (`CHANGELOG`, ADR 0021, Cursor prompt companions, `PENDING_QUESTIONS`, CI comments). See [`archive/quality/README.md`](archive/quality/README.md).
 

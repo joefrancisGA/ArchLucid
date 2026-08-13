@@ -5,7 +5,7 @@
 import { ARCHITECTURE_SCORECARD_PATH } from "@/lib/architecture/architecture-scorecard-route";
 import { COMPARE_TWO_REVIEWS_PATH } from "@/lib/compare-two-reviews-route";
 import { EVIDENCE_GRAPH_PATH } from "@/lib/evidence-graph-route";
-import { EXECUTIVE_DASHBOARD_HREF } from "@/lib/executive/executive-dashboard-route";
+import { SPONSOR_DASHBOARD_HREF } from "@/lib/sponsor/sponsor-dashboard-route";
 import {
   GOVERNANCE_APPROVAL_QUEUE_PATH,
   GOVERNANCE_STANDARDS_AND_RULES_PATH,
@@ -26,11 +26,11 @@ const READINESS_BY_PATH: Record<string, RouteReadinessTier> = {
   "/insights/ask-review-questions": "demo-ready",
   "/insights/search-review-evidence": "demo-ready",
   [ARCHITECTURE_SCORECARD_PATH]: "demo-ready",
-  [EXECUTIVE_DASHBOARD_HREF]: "demo-ready",
+  [SPONSOR_DASHBOARD_HREF]: "demo-ready",
   "/governance/findings": "advanced-only",
   "/administration/security-trust": "demo-ready",
   "/administration/preferences": "demo-ready",
-  "/insights/executive-summary": "advanced-only",
+  "/insights/sponsor-report": "advanced-only",
   "/insights/roi-summary": "advanced-only",
   [EVIDENCE_GRAPH_PATH]: "advanced-only",
   [COMPARE_TWO_REVIEWS_PATH]: "advanced-only",
@@ -154,7 +154,7 @@ const PRESENTER_SAFE_MODE_NAV_HIDE = new Set<string>([
   "/administration/identity-providers/diagnostics",
   "/administration/identity/sso-wizard",
   "/administration/scim-provisioning",
-  "/insights/executive-summary",
+  "/insights/sponsor-report",
   "/insights/roi-summary",
 ]);
 

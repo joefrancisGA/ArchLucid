@@ -7,7 +7,7 @@ import {
   DEMO_PREVIEW_CONDITIONS_LABEL,
   DEMO_PREVIEW_EVIDENCE_BASIS_LABEL,
   DEMO_PREVIEW_EVIDENCE_BASIS_TEXT,
-  DEMO_PREVIEW_EXECUTIVE_CONCLUSION_HEADING,
+  DEMO_PREVIEW_SPONSOR_CONCLUSION_HEADING,
   DEMO_PREVIEW_RECOMMENDATION_LABEL,
   DEMO_PREVIEW_SUPPORTING_EVIDENCE_LABEL,
 } from "@/lib/demo-preview-page-copy";
@@ -20,11 +20,11 @@ import type { DemoCommitPagePreviewResponse } from "@/types/demo-preview";
 import { isDeterministicExplanationFallback } from "@/types/explanation";
 import { cn } from "@/lib/utils";
 
-type DemoPreviewExecutiveConclusionProps = {
+type DemoPreviewSponsorConclusionProps = {
   readonly payload: DemoCommitPagePreviewResponse;
 };
 
-export function DemoPreviewExecutiveConclusion(props: DemoPreviewExecutiveConclusionProps) {
+export function DemoPreviewSponsorConclusion(props: DemoPreviewSponsorConclusionProps) {
   const runExplanation = props.payload.runExplanation;
   const citationCount = Array.isArray(runExplanation?.citations) ? runExplanation.citations.length : 0;
   const recommendation =
@@ -34,12 +34,12 @@ export function DemoPreviewExecutiveConclusion(props: DemoPreviewExecutiveConclu
 
   return (
     <section
-      id="artifact-executive-summary"
+      id="artifact-sponsor-report"
       className="scroll-mt-24 rounded-xl border border-neutral-200 bg-al-surface-raised p-5 dark:border-neutral-800"
-      data-testid="demo-preview-executive-conclusion"
+      data-testid="demo-preview-sponsor-conclusion"
     >
       <h2 className={cn("m-0 text-neutral-900 dark:text-neutral-50", MARKETING_TYPOGRAPHY.sectionTitle)}>
-        {DEMO_PREVIEW_EXECUTIVE_CONCLUSION_HEADING}
+        {DEMO_PREVIEW_SPONSOR_CONCLUSION_HEADING}
       </h2>
 
       <div className="mt-4 space-y-4">
@@ -88,7 +88,7 @@ export function DemoPreviewExecutiveConclusion(props: DemoPreviewExecutiveConclu
   );
 }
 
-export function DemoPreviewSignedReviewSection(props: DemoPreviewExecutiveConclusionProps) {
+export function DemoPreviewSignedReviewSection(props: DemoPreviewSponsorConclusionProps) {
   const manifest = props.payload.manifest;
 
   return (
@@ -126,7 +126,7 @@ export function DemoPreviewSignedReviewSection(props: DemoPreviewExecutiveConclu
 }
 
 export function DemoPreviewEvidenceGraphSection(
-  props: DemoPreviewExecutiveConclusionProps & { readonly showcaseTelemetry?: ShowcaseDemoPreviewTelemetry },
+  props: DemoPreviewSponsorConclusionProps & { readonly showcaseTelemetry?: ShowcaseDemoPreviewTelemetry },
 ) {
   const citations = Array.isArray(props.payload.runExplanation?.citations) ? props.payload.runExplanation.citations : [];
   const runId = props.payload.run?.runId ?? "";
@@ -179,7 +179,7 @@ export function DemoPreviewEvidenceGraphSection(
   );
 }
 
-export function DemoPreviewGovernanceSection(props: DemoPreviewExecutiveConclusionProps) {
+export function DemoPreviewGovernanceSection(props: DemoPreviewSponsorConclusionProps) {
   const manifest = props.payload.manifest;
   const runId = props.payload.run?.runId ?? "";
 

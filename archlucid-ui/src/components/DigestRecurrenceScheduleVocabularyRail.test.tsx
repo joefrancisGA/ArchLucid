@@ -13,12 +13,12 @@ import {
 describe("DigestRecurrenceScheduleVocabularyRail (TB-2226)", () => {
   it("renders compact strip on digest schedule with peer link to recurrence", () => {
     render(
-      <DigestRecurrenceScheduleVocabularyRail currentSurfaceId="digest-executive-schedule" />,
+      <DigestRecurrenceScheduleVocabularyRail currentSurfaceId="digest-sponsor-schedule" />,
     );
 
     const strip = screen.getByTestId("digest-recurrence-schedule-vocabulary");
     expect(strip).toHaveAttribute("data-variant", "compact");
-    expect(strip).toHaveAttribute("data-current-surface", "digest-executive-schedule");
+    expect(strip).toHaveAttribute("data-current-surface", "digest-sponsor-schedule");
     expect(strip.textContent ?? "").toContain(DIGEST_RECURRENCE_SCHEDULE_COMPACT_LINE);
 
     const peer = screen.getByTestId("digest-recurrence-schedule-vocabulary-peer-link");
@@ -44,7 +44,7 @@ describe("DigestRecurrenceScheduleVocabularyRail (TB-2226)", () => {
   it("renders full variant with why-two explanation", () => {
     render(
       <DigestRecurrenceScheduleVocabularyRail
-        currentSurfaceId="digest-executive-schedule"
+        currentSurfaceId="digest-sponsor-schedule"
         variant="full"
       />,
     );

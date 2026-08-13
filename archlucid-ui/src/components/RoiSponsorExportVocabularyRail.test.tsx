@@ -43,8 +43,8 @@ describe("RoiSponsorExportVocabularyRail (TB-2258)", () => {
     expect(peer).toHaveAttribute("href", "/architecture/reviews/run-abc#sponsor-handoff");
   });
 
-  it("from executive dashboard links ROI summary", () => {
-    render(<RoiSponsorExportVocabularyRail currentSurfaceId="executive-dashboard" />);
+  it("from sponsor dashboard links ROI summary", () => {
+    render(<RoiSponsorExportVocabularyRail currentSurfaceId="sponsor-dashboard" />);
 
     const peer = screen.getByTestId("roi-sponsor-export-vocabulary-peer-link");
     expect(peer).toHaveTextContent(ROI_SPONSOR_EXPORT_ROI_SUMMARY_LINK.label);

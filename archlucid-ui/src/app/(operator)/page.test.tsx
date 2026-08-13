@@ -75,7 +75,7 @@ vi.mock("./_sections/operator-home-page-view-deferred-chunks", async () => {
         <DualPathHeroMock />
       </section>
     ),
-    OperatorHomeExecutiveRoiStripDeferred: () => null,
+    OperatorHomeSponsorRoiStripDeferred: () => null,
     OperatorHomeBelowFoldPanelsDeferred: () => (
       <section data-testid="operator-home-explore-sample-section">
         <Link
@@ -87,7 +87,7 @@ vi.mock("./_sections/operator-home-page-view-deferred-chunks", async () => {
       </section>
     ),
     OperatorHomeGateDeferred: ({ children }: { children: import("react").ReactNode }) => <>{children}</>,
-    CtoDemoExecutiveLandingRedirectDeferred: () => null,
+    CtoDemoSponsorLandingRedirectDeferred: () => null,
   };
 
   return deferredExports;
@@ -120,7 +120,7 @@ vi.mock("@/app/(operator)/_sections/operator-home-page-view-deferred-chunks", as
         <DualPathHeroMock />
       </section>
     ),
-    OperatorHomeExecutiveRoiStripDeferred: () => null,
+    OperatorHomeSponsorRoiStripDeferred: () => null,
     OperatorHomeBelowFoldPanelsDeferred: () => (
       <section data-testid="operator-home-explore-sample-section">
         <Link
@@ -132,7 +132,7 @@ vi.mock("@/app/(operator)/_sections/operator-home-page-view-deferred-chunks", as
       </section>
     ),
     OperatorHomeGateDeferred: ({ children }: { children: import("react").ReactNode }) => <>{children}</>,
-    CtoDemoExecutiveLandingRedirectDeferred: () => null,
+    CtoDemoSponsorLandingRedirectDeferred: () => null,
   };
 });
 
@@ -166,12 +166,12 @@ vi.mock("@/components/operator-home/OperatorHomeAdvancedGuidancePanel", () => ({
     props.buyerPolishedShell === true ? null : <div data-testid="operator-home-advanced-guidance" />,
 }));
 
-vi.mock("@/components/cto-demo/CtoDemoExecutiveLandingRedirect", () => ({
-  CtoDemoExecutiveLandingRedirect: () => null,
+vi.mock("@/components/cto-demo/CtoDemoSponsorLandingRedirect", () => ({
+  CtoDemoSponsorLandingRedirect: () => null,
 }));
 
-vi.mock("@/components/operator-home/OperatorHomeExecutiveRoiStrip", () => ({
-  OperatorHomeExecutiveRoiStrip: () => null,
+vi.mock("@/components/operator-home/OperatorHomeSponsorRoiStrip", () => ({
+  OperatorHomeSponsorRoiStrip: () => null,
 }));
 
 vi.mock("@/components/operator-home/OperatorHomeWorkspaceContextDisclosure", () => ({

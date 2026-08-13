@@ -225,9 +225,9 @@ describe("WhyArchLucidPage (proof page snapshot)", () => {
     expect(pageText).not.toMatch(/docs\/go-to-market\/POSITIONING\.md/i);
 
     expect(screen.getByTestId("why-archlucid-page-footer")).toBeInTheDocument();
-    expect(screen.getByRole("link", { name: /Executive sponsor brief/i })).toHaveAttribute(
+    expect(screen.getByRole("link", { name: /Sponsor sponsor brief/i })).toHaveAttribute(
       "href",
-      "/help/executive-summary",
+      "/help/sponsor-report",
     );
     expect(screen.getByRole("link", { name: /Getting started/i })).toHaveAttribute("href", "/get-started");
     expect(screen.getByRole("link", { name: /Trust Center/i })).toHaveAttribute("href", "/trust");

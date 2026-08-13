@@ -33,7 +33,7 @@ TLS via Container Apps managed certificates + DNS CNAME (see `infra/terraform-co
 
 **Cutover automation:** [`docs/runbooks/MARKETING_OPERATOR_HOST_CUTOVER.md`](../runbooks/MARKETING_OPERATOR_HOST_CUTOVER.md) + [`scripts/ops/Invoke-MarketingOperatorHostCutover.ps1`](../../scripts/ops/Invoke-MarketingOperatorHostCutover.ps1) (dry-run by default; `-Apply` to mutate).
 
-**Option A** (legacy single-app): one Next.js build serves marketing + operator + executive on one hostname; optional Front Door path rules. Still valid for pilots that omit a second UI app (`enable_marketing_ui_container_app = false`).
+**Option A** (legacy single-app): one Next.js build serves marketing + operator + sponsor on one hostname; optional Front Door path rules. Still valid for pilots that omit a second UI app (`enable_marketing_ui_container_app = false`).
 
 **Option B** (Front Door dual origin): same image twice with **`marketing_backend_hostname`** + `frontdoor-marketing-routes.tf`. Available if WAF/CDN is later required — not the default cost path.
 
@@ -190,7 +190,7 @@ Until **TB-019** lands, defer non-essential client pixels.
 ### Privacy + CSP (paid pixels)
 
 - Pixels widen CSP (`archlucid-ui/next.config.ts`) — consolidate allowed hosts per vendor and document in [`PRIVACY_POLICY.md`](../go-to-market/PRIVACY_POLICY.md) when live.
-- Avoid architect-workspace analytics leakage — session replay must not run on authenticated operator/executive surfaces until DPIA-aligned.
+- Avoid architect-workspace analytics leakage — session replay must not run on authenticated operator/sponsor surfaces until DPIA-aligned.
 - Cookie consent before non-essential marketing pixels under EU-facing traffic projections.
 - Trust honesty: keep SOC 2 / trust pages synchronized with factual posture (self-assessment + roadmap ≠ CPA attestation).
 

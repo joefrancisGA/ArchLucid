@@ -35,15 +35,15 @@ export const REPEAT_REVIEW_LOOP_HELP_WHERE_YOU_SEE_IT: readonly EvidenceSourceLi
     href: GOVERNANCE_POLICY_PACKS_PATH,
   },
   {
-    label: "Executive ROI summary export",
-    href: "/insights/executive-summary",
+    label: "Sponsor ROI summary export",
+    href: "/insights/sponsor-report",
   },
 ] as const;
 
 /** Operator follow-ups — destinations not already in the Start the loop card. */
 export const REPEAT_REVIEW_LOOP_HELP_SOURCES: readonly EvidenceSourceLink[] = [
   { label: "Compare and replay", href: inAppHelpHref("comparison-replay") },
-  { label: "Sponsor report", href: "/insights/executive-summary" },
+  { label: "Sponsor report", href: "/insights/sponsor-report" },
   { label: "Review guide", href: inAppHelpHref("review-guide") },
   { label: "Audit trail", href: GOVERNANCE_AUDIT_PATH },
 ] as const;

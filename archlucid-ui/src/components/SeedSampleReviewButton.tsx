@@ -9,9 +9,9 @@ import {
   BUYER_SEED_SAMPLE_WORKSPACE_CTA,
   BUYER_SEED_SAMPLE_WORKSPACE_SUCCESS,
 } from "@/lib/buyer/buyer-polish-copy";
-import { EXECUTIVE_DASHBOARD_HREF } from "@/lib/executive-dashboard-route";
+import { SPONSOR_DASHBOARD_HREF } from "@/lib/sponsor-dashboard-route";
 import {
-  invalidateOperatorExecutiveRoiCaches,
+  invalidateOperatorSponsorRoiCaches,
   invalidateOperatorHomeRunsCaches,
 } from "@/lib/operator/operator-query-invalidation";
 import { showError, showSuccess } from "@/lib/toast";
@@ -20,7 +20,7 @@ import { showError, showSuccess } from "@/lib/toast";
  * V1 Operator Shell — OS-1 (LATEST.md improvement #1).
  *
  * Reviews-empty-state CTA that POSTs to the internal `/api/seed-sample` route handler. On success the route
- * returns `{ redirectTo: "/architecture/executive-dashboard" }`; we invalidate dashboard caches, then navigate when the target differs
+ * returns `{ redirectTo: "/architecture/sponsor-dashboard" }`; we invalidate dashboard caches, then navigate when the target differs
  * from the current path. Errors surface via the shared sonner toast (`showError`) — the button stays interactive.
  *
  * Static showcase / `SampleFirstReviewPackageCard` flows are intentionally untouched.
@@ -113,11 +113,11 @@ export function SeedSampleReviewButton({
       }
 
       const payload: unknown = await response.json();
-      const target = readRedirectTarget(payload) ?? EXECUTIVE_DASHBOARD_HREF;
+      const target = readRedirectTarget(payload) ?? SPONSOR_DASHBOARD_HREF;
       const targetPathname = pathnameOnly(target);
       const currentPathname = pathnameOnly(pathname);
 
-      await Promise.all([invalidateOperatorExecutiveRoiCaches(), invalidateOperatorHomeRunsCaches()]);
+      await Promise.all([invalidateOperatorSponsorRoiCaches(), invalidateOperatorHomeRunsCaches()]);
 
       if (currentPathname !== targetPathname) {
         router.push(target);

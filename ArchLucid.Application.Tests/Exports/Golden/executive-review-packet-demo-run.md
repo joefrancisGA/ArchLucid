@@ -1,4 +1,4 @@
-# Executive review packet
+# Sponsor review packet
 
 **Generated (UTC):** 2026-05-16 14:00:00 Z
 
@@ -21,7 +21,7 @@
 
 ## Review summary
 
-# Executive review summary — Claims Intake Modernization
+# Sponsor review summary — Claims Intake Modernization
 
 **Review ID:** `claims-intake-modernization`
 
@@ -34,7 +34,7 @@
 | Medium | 1 |
 | Low | 0 |
 
-## Executive summary
+## Sponsor report
 
 Proceed with claims intake modernization under monitored PHI minimization controls &#8212; sponsor-facing KPIs remain on track.
 
@@ -46,7 +46,7 @@ Proceed with claims intake modernization under monitored PHI minimization contro
 
 ---
 
-_This executive summary was generated with AI assistance from review findings and severity counts. Review before sharing with sponsors._
+_This Sponsor report was generated with AI assistance from review findings and severity counts. Review before sharing with sponsors._
 
 ## Portfolio signals (live)
 

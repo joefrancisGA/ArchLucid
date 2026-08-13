@@ -1,4 +1,4 @@
-"""Tests for RC decision narrative and executive brief builders."""
+"""Tests for RC decision narrative and sponsor brief builders."""
 
 from __future__ import annotations
 

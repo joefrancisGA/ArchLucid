@@ -49,10 +49,11 @@ import {
   PLANNING_PATH,
   PLANNING_PLAN_DETAIL_PATH_PREFIX,
 } from "@/lib/planning-route";
-import { LEGACY_SIGNED_RECORDS_LIST_PATH, SIGNED_RECORDS_LIST_PATH } from "@/lib/signed-records-paths";
+import { SPONSOR_DASHBOARD_HREF } from "@/lib/sponsor/sponsor-dashboard-route";
 import {
   LEGACY_SPONSOR_REPORT_ROOT_PATH,
   SPONSOR_REPORT_EXECUTIVE_SUMMARY_PATH,
+  SPONSOR_REPORT_PATH,
   SPONSOR_REPORT_ROI_SUMMARY_PATH,
 } from "@/lib/sponsor-report-navigation";
 import {
@@ -90,7 +91,13 @@ const LEGACY_ADMIN_ROOT_PATH = "/admin";
 const LEGACY_INTERNAL_OPERATIONS_ROOT_PATH = "/internal-operations";
 const LEGACY_OPERATE_INTEGRATION_EVENTS_DLQ_PATH = "/operate/integration-events/dlq";
 const LEGACY_REPLAY_PATH = "/replay";
-const LEGACY_SPONSOR_REPORT_EXECUTIVE_SUMMARY_PATH = "/sponsor-report/executive-summary";
+const LEGACY_INSIGHTS_EXECUTIVE_SUMMARY_PATH = "/insights/executive-summary";
+const LEGACY_ARCHITECTURE_EXECUTIVE_DASHBOARD_PATH = "/architecture/executive-dashboard";
+const LEGACY_EXECUTIVE_DASHBOARD_PATH = "/executive/dashboard";
+const LEGACY_DASHBOARD_PATH = "/dashboard";
+const LEGACY_PORTFOLIO_PATH = "/portfolio";
+const LEGACY_SPONSOR_REPORT_BOOKMARK_PATH = "/sponsor-report";
+const LEGACY_SPONSOR_REPORT_NESTED_PATH = "/sponsor-report/sponsor-report";
 const LEGACY_SPONSOR_REPORT_PILOT_OUTCOMES_PATH = "/sponsor-report/pilot-outcomes";
 const LEGACY_SPONSOR_REPORT_ROI_SUMMARY_PATH = "/sponsor-report/roi-summary";
 const ADMINISTRATION_USERS_PATH = "/administration/users";
@@ -112,7 +119,7 @@ const LEGACY_ADMIN_PATH_MAP: Readonly<Record<string, string>> = {
 
 /**
  * Maps legacy bookmark paths to canonical operator routes for readiness, help, and orientation lookups.
- * Hard-retired paths (`/governance/dashboard`, `/executive/scorecard`) are not mapped — host-gate 404s them.
+ * Hard-retired paths (`/governance/dashboard`, `/sponsor/scorecard`) are not mapped — host-gate 404s them.
  */
 export function canonicalizeLegacyOperatorRoutePath(pathname: string): string {
   const normalized = pathname.trim().length === 0 ? "/" : pathname;
@@ -234,14 +241,31 @@ export function canonicalizeLegacyOperatorRoutePath(pathname: string): string {
     return CANONICAL_GRAPH_PATH;
   }
 
-  if (normalized === LEGACY_SPONSOR_REPORT_EXECUTIVE_SUMMARY_PATH || normalized === LEGACY_SPONSOR_REPORT_ROOT_PATH) {
-    return SPONSOR_REPORT_EXECUTIVE_SUMMARY_PATH;
+  if (normalized === LEGACY_INSIGHTS_EXECUTIVE_SUMMARY_PATH || normalized === SPONSOR_REPORT_EXECUTIVE_SUMMARY_PATH) {
+    return SPONSOR_REPORT_PATH;
+  }
+
+  if (
+    normalized === LEGACY_SPONSOR_REPORT_NESTED_PATH
+    || normalized === LEGACY_SPONSOR_REPORT_BOOKMARK_PATH
+    || normalized === LEGACY_SPONSOR_REPORT_ROOT_PATH
+  ) {
+    return SPONSOR_REPORT_PATH;
   }
 
   // The standalone pilot outcomes page merged into the sponsor report, so this pre-existing bookmark
   // alias now resolves there rather than at the retired `/insights/pilot-outcomes`.
   if (normalized === LEGACY_SPONSOR_REPORT_PILOT_OUTCOMES_PATH) {
-    return SPONSOR_REPORT_EXECUTIVE_SUMMARY_PATH;
+    return SPONSOR_REPORT_PATH;
+  }
+
+  if (
+    normalized === LEGACY_ARCHITECTURE_EXECUTIVE_DASHBOARD_PATH
+    || normalized === LEGACY_EXECUTIVE_DASHBOARD_PATH
+    || normalized === LEGACY_DASHBOARD_PATH
+    || normalized === LEGACY_PORTFOLIO_PATH
+  ) {
+    return SPONSOR_DASHBOARD_HREF;
   }
 
   if (normalized === LEGACY_SPONSOR_REPORT_ROI_SUMMARY_PATH) {

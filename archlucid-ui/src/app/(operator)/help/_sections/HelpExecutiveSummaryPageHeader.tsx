@@ -4,29 +4,29 @@ import { OperatorPageHeader } from "@/components/operator/OperatorPageHeader";
 import { HelpTopicPrintButton } from "@/components/help/HelpTopicPrintButton";
 import { PageContextualHelpButton } from "@/components/usability/PageContextualHelpButton";
 import {
-  EXECUTIVE_SUMMARY_HELP_PAGE_TITLE,
-} from "@/lib/executive-summary-help-guide-content";
-import { EXECUTIVE_SUMMARY_HELP_CANONICAL_PATH } from "@/lib/executive-summary-help-evidence-copy";
+  SPONSOR_SUMMARY_HELP_PAGE_TITLE,
+} from "@/lib/sponsor-report-help-guide-content";
+import { SPONSOR_SUMMARY_HELP_CANONICAL_PATH } from "@/lib/sponsor-report-help-evidence-copy";
 import type { ProductDocumentationEntry } from "@/lib/product-documentation-registry";
 
-export type HelpExecutiveSummaryPageHeaderProps = {
+export type HelpSponsorReportPageHeaderProps = {
   readonly entry: ProductDocumentationEntry;
   readonly subtitle: string;
 };
 
-/** Shared `/help/executive-summary` hero — title, lead, contextual help, and export. */
-export function HelpExecutiveSummaryPageHeader(
-  props: HelpExecutiveSummaryPageHeaderProps,
+/** Shared `/help/sponsor-report` hero — title, lead, contextual help, and export. */
+export function HelpSponsorReportPageHeader(
+  props: HelpSponsorReportPageHeaderProps,
 ): React.JSX.Element {
   return (
     <OperatorPageHeader
-      title={EXECUTIVE_SUMMARY_HELP_PAGE_TITLE}
-      titleTestId="help-executive-summary-page-title"
+      title={SPONSOR_SUMMARY_HELP_PAGE_TITLE}
+      titleTestId="help-sponsor-report-page-title"
       subtitle={props.subtitle}
-      navHref={EXECUTIVE_SUMMARY_HELP_CANONICAL_PATH}
+      navHref={SPONSOR_SUMMARY_HELP_CANONICAL_PATH}
       headingLevel="h1"
       actions={
-        <div className="flex flex-wrap items-center gap-2" data-testid="help-executive-summary-header-actions">
+        <div className="flex flex-wrap items-center gap-2" data-testid="help-sponsor-report-header-actions">
           <PageContextualHelpButton />
           <HelpTopicPrintButton entry={props.entry} />
         </div>

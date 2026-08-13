@@ -29,15 +29,15 @@ export const BUYER_ASK_GROUNDING_ONCE =
   "Answers are scoped to selected review evidence. Validate conclusions against the finalized signed review record — Ask does not replace formal governance records.";
 
 export const BUYER_ASK_REVIEW_ANCHORS_LINE =
-  "Replies on this review can include quick links to executive summary, review record, policy basis, evidence trail, and audit anchors where available.";
+  "Replies on this review can include quick links to sponsor report, review record, policy basis, evidence trail, and audit anchors where available.";
 
 export const BUYER_ASK_SHOWCASE_ANCHORS_LINE = BUYER_ASK_REVIEW_ANCHORS_LINE;
 
-export const BUYER_ASK_UNSTRUCTURED_EXECUTIVE_FALLBACK_LEAD =
+export const BUYER_ASK_UNSTRUCTURED_SPONSOR_FALLBACK_LEAD =
   "The answer below is scoped to this review's indexed evidence.";
 
 export const BUYER_ASK_INPUT_PLACEHOLDER =
-  "Ask about risks, findings, evidence, mitigations, executive summary, or approval blockers…";
+  "Ask about risks, findings, evidence, mitigations, sponsor report, or approval blockers…";
 
 export const BUYER_ASK_GROUNDING_SOURCES_LABEL = "cited evidence";
 

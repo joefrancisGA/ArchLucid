@@ -135,7 +135,7 @@ describe("RunDetailPageView progressive disclosure", () => {
     expectSourceContains(tabbedWorkspaceSource, "useStructuredPresentation", "run-detail-tabbed-workspace");
   });
 
-  it("places executive context immediately after the decision snapshot in standard review mode", () => {
+  it("places sponsor context immediately after the decision snapshot in standard review mode", () => {
     const summaryIndex = requireSourceIndex(
       tabbedWorkspaceSource,
       "<RunDetailWorkspaceSummaryStripDeferred",

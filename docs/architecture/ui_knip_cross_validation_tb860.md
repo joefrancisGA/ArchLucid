@@ -5,7 +5,7 @@
 > **Command:** `npx --yes knip` in `archlucid-ui/` (Knip not added to `devDependencies`).  
 > **Raw output:** `artifacts/knip-tb860-2026-07-17.txt` (gitignored scratch; regenerate locally).
 
-## Executive summary
+## Sponsor summary
 
 Knip **did not report any unused production `dependencies`** after **TB-858** and **TB-859** removed the three packages identified in [`ui_dependency_assessment.md`](ui_dependency_assessment.md) §6. The manual assessment stands: **no additional Tier 1 unused direct dependency removals** are warranted from Knip output alone.
 

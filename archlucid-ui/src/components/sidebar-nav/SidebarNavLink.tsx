@@ -27,7 +27,7 @@ const HIGH_TRAFFIC_HUB_HREFS: ReadonlySet<string> = new Set([
   "/governance/alert-rules",
   "/governance/policy-packs",
   SIGNED_RECORDS_LIST_PATH,
-  "/architecture/executive-dashboard",
+  "/architecture/sponsor-dashboard",
 ]);
 
 type SidebarNavLinkProps = {

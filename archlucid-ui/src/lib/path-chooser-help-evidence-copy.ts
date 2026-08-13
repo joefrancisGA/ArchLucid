@@ -22,5 +22,5 @@ export const PATH_CHOOSER_HELP_RELATED_NEXT_STEPS: readonly EvidenceSourceLink[]
   { label: "Security and trust", href: inAppHelpHref("security-trust") },
   { label: "Trust Center", href: "/trust" },
   { label: "Procurement FAQ", href: inAppHelpHref("procurement") },
-  { label: "Executive summary", href: inAppHelpHref("executive-summary") },
+  { label: "Sponsor report", href: inAppHelpHref("sponsor-report") },
 ] as const;

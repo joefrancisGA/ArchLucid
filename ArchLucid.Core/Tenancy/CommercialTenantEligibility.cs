@@ -20,7 +20,7 @@ public static class CommercialTenantEligibility
         return (int)tenant.Tier >= (int)minimumTier;
     }
 
-    public static bool IsEligibleForWeeklyExecutiveSummary(TenantRecord tenant)
+    public static bool IsEligibleForWeeklySponsorReport(TenantRecord tenant)
     {
         ArgumentNullException.ThrowIfNull(tenant);
 

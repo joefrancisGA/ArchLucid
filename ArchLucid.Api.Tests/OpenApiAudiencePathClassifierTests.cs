@@ -17,7 +17,7 @@ public sealed class OpenApiAudiencePathClassifierTests
     [InlineData("v1/authority/runs/{runId}/buyer-summary", false, OpenApiAudience.Buyer)]
     [InlineData("v1/explain/{runId}", false, OpenApiAudience.Buyer)]
     [InlineData("v1/pilots/{pilotId}/deltas", false, OpenApiAudience.Buyer)]
-    [InlineData("v1/roi/executive-summary", false, OpenApiAudience.Buyer)]
+    [InlineData("v1/roi/sponsor-report", false, OpenApiAudience.Buyer)]
     [InlineData("v1/authority/runs", false, OpenApiAudience.Operator)]
     [InlineData(null, false, OpenApiAudience.Operator)]
     public void Classify_maps_operator_routes(string? relativePath, bool allowsAnonymous, string expectedAudience)

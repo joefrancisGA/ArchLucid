@@ -1,4 +1,4 @@
-Weekly executive digest from {{ProductName}}.
+Weekly sponsor digest from {{ProductName}}.
 {{WeekLabel}}
 
 Open dashboard: {{DashboardUrl}}

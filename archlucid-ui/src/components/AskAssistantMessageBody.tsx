@@ -5,8 +5,8 @@ import { OPERATOR_TYPOGRAPHY } from "@/lib/design-tokens";
 import Link from "next/link";
 import { Fragment, type ReactNode } from "react";
 
-import { BUYER_ASK_GROUNDING_PRIMARY_SOURCE_LIMIT, BUYER_ASK_UNSTRUCTURED_EXECUTIVE_FALLBACK_LEAD } from "@/lib/buyer/buyer-polish-copy";
-import { splitBuyerAskExecutiveLead } from "@/lib/ask-executive-lead";
+import { BUYER_ASK_GROUNDING_PRIMARY_SOURCE_LIMIT, BUYER_ASK_UNSTRUCTURED_SPONSOR_FALLBACK_LEAD } from "@/lib/buyer/buyer-polish-copy";
+import { splitBuyerAskSponsorLead } from "@/lib/ask-sponsor-lead";
 import { parseAskAssistantStructuredSections } from "@/lib/ask-assistant-section-parser";
 
 export type AskAssistantGroundingLink = {
@@ -117,7 +117,7 @@ function GroundingLinksFooter(props: {
 /**
  * Renders assistant markdown-free content with best-effort deep links for run-shaped UUIDs in plain text.
  * When responses include Risk:/Evidence:/Mitigation:/Validation: blocks, renders them as labeled sections
- * for faster executive scanning (still driven by the model; see Ask service system prompt).
+ * for faster sponsor scanning (still driven by the model; see Ask service system prompt).
  */
 export function AskAssistantMessageBody(props: {
   readonly content: string;
@@ -144,7 +144,7 @@ export function AskAssistantMessageBody(props: {
     let sectionsForRender = structured.sections;
 
     if (preambleTrim.length > 0) {
-      const sp = splitBuyerAskExecutiveLead(preambleTrim);
+      const sp = splitBuyerAskSponsorLead(preambleTrim);
 
       executiveLead = sp.sentence.length > 0 ? sp.sentence : null;
       preambleForRender = sp.rest.trim();
@@ -155,7 +155,7 @@ export function AskAssistantMessageBody(props: {
         const rawRisk = structured.sections[riskIx]?.body.trim() ?? "";
 
         if (rawRisk.length > 0) {
-          const sp = splitBuyerAskExecutiveLead(rawRisk);
+          const sp = splitBuyerAskSponsorLead(rawRisk);
 
           executiveLead = sp.sentence.length > 0 ? sp.sentence : null;
           sectionsForRender = structured.sections.map((s, i) =>
@@ -219,9 +219,9 @@ export function AskAssistantMessageBody(props: {
 
   if (buyerPolishedLinks) {
     const trimmed = content.trim();
-    const split = splitBuyerAskExecutiveLead(trimmed);
+    const split = splitBuyerAskSponsorLead(trimmed);
     const executiveLead =
-      split.sentence.length > 0 ? split.sentence : BUYER_ASK_UNSTRUCTURED_EXECUTIVE_FALLBACK_LEAD;
+      split.sentence.length > 0 ? split.sentence : BUYER_ASK_UNSTRUCTURED_SPONSOR_FALLBACK_LEAD;
     const bodyText = split.rest.trim().length > 0 ? split.rest.trim() : split.sentence.length > 0 ? "" : trimmed;
 
     return (

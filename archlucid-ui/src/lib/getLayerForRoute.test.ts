@@ -1,12 +1,12 @@
 import { describe, expect, it } from "vitest";
 
-import { EXECUTIVE_DASHBOARD_HREF } from "@/lib/executive/executive-dashboard-route";
+import { SPONSOR_DASHBOARD_HREF } from "@/lib/sponsor/sponsor-dashboard-route";
 import { getLayerForRoute } from "./getLayerForRoute";
 
 describe("getLayerForRoute", () => {
   it("returns pilot for the home path", () => {
     expect(getLayerForRoute("/")).toBe("pilot");
-    expect(getLayerForRoute(EXECUTIVE_DASHBOARD_HREF)).toBe("pilot");
+    expect(getLayerForRoute(SPONSOR_DASHBOARD_HREF)).toBe("pilot");
   });
 
   it("returns operate-analysis for evidence graph routes", () => {

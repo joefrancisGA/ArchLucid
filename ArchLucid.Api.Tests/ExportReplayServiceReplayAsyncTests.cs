@@ -282,8 +282,8 @@ public sealed class ExportReplayServiceReplayAsyncTests
             ExportType = exportType,
             Format = "docx",
             FileName = "base.docx",
-            TemplateProfile = "executive",
-            TemplateProfileDisplayName = "Executive",
+            TemplateProfile = "sponsor",
+            TemplateProfileDisplayName = "Sponsor",
             WasAutoSelected = false,
             ResolutionReason = "test",
             CreatedUtc = TimeProvider.System.UtcNowDateTime()

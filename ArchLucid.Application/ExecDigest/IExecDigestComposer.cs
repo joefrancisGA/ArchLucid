@@ -3,7 +3,7 @@ using ArchLucid.Core.Scoping;
 namespace ArchLucid.Application.ExecDigest;
 
 /// <summary>
-///     Builds the weekly executive digest for a tenant/week using existing application services (no new SQL
+///     Builds the weekly sponsor digest for a tenant/week using existing application services (no new SQL
 ///     aggregates).
 /// </summary>
 public interface IExecDigestComposer

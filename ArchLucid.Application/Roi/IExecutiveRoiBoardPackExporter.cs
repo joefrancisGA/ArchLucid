@@ -2,11 +2,11 @@ using ArchLucid.Contracts.Roi;
 
 namespace ArchLucid.Application.Roi;
 
-/// <summary>Builds executive ROI board-pack artifacts (Markdown/PDF) without LLM calls.</summary>
-public interface IExecutiveRoiBoardPackExporter
+/// <summary>Builds sponsor ROI board-pack artifacts (Markdown/PDF) without LLM calls.</summary>
+public interface ISponsorRoiBoardPackExporter
 {
-    Task<ExecutiveRoiBoardPackExportResult> ExportAsync(
-        ExecutiveRoiBoardPackFormat format,
+    Task<SponsorRoiBoardPackExportResult> ExportAsync(
+        SponsorRoiBoardPackFormat format,
         string? traceId,
         bool generateNarrative = false,
         CancellationToken cancellationToken = default);

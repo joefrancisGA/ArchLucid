@@ -37,7 +37,7 @@ public sealed class ExecutiveKpiSemanticContractTests
     [Fact]
     public void Caching_executive_roi_decorator_refreshes_live_governance_fields_on_read()
     {
-        typeof(CachingExecutiveRoiSummaryService)
+        typeof(CachingSponsorRoiSummaryService)
             .GetMethod("RefreshLiveGovernanceKpisAsync", System.Reflection.BindingFlags.Instance | System.Reflection.BindingFlags.NonPublic)
             .Should()
             .NotBeNull("TB-155 requires live waiver/stale counts after cache hit");
@@ -46,7 +46,7 @@ public sealed class ExecutiveKpiSemanticContractTests
     [Fact]
     public void Executive_reports_summary_service_maps_cost_waste_as_null_in_v1()
     {
-        typeof(ExecutiveReportsSummaryService).Assembly.GetName().Name.Should().NotBeNull();
+        typeof(SponsorReportsSummaryService).Assembly.GetName().Name.Should().NotBeNull();
     }
 
     private static string ResolveContractPath()

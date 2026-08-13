@@ -4,7 +4,10 @@ import { useQuery } from "@tanstack/react-query";
 import { useCallback } from "react";
 
 import type { GovernanceFindingQueueRow } from "@/app/(operator)/governance/findings/governance-finding-queue-row";
-import { fetchAssignedToMeFindingQueueRows } from "@/components/governance/findings/governance-findings-query-fetch";
+import {
+  fetchAssignedToMeFindingQueueRows,
+  type GovernanceFindingsFetchFailure,
+} from "@/components/governance/findings/governance-findings-query-fetch";
 import { useOperatorScopeQueryKey } from "@/hooks/use-operator-scope-query-key";
 import { operatorQueryKeys } from "@/lib/query/operator-query-keys";
 import {
@@ -16,6 +19,7 @@ export type AssignedToMeFindingsQueryState = {
   readonly rows: GovernanceFindingQueueRow[];
   readonly loading: boolean;
   readonly loadFailed: boolean;
+  readonly loadFailure: GovernanceFindingsFetchFailure | null;
   readonly refresh: () => void;
 };
 
@@ -37,6 +41,7 @@ export function useAssignedToMeFindingsQuery(): AssignedToMeFindingsQueryState {
     rows: query.data?.rows ?? [],
     loading: query.isPending || query.isFetching,
     loadFailed: query.data?.loadFailed ?? false,
+    loadFailure: query.data?.failure ?? null,
     refresh,
   };
 }

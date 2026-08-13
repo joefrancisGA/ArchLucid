@@ -16,7 +16,7 @@ describe("operator-pilot-analysis-page-help-surfaces (TB-1667)", () => {
   it("tracks every TB-1667 named surface", () => {
     expect(OPERATOR_PILOT_ANALYSIS_PAGE_HELP_TB1667_SURFACES.map((entry) => entry.id)).toEqual([
       "operator-home",
-      "executive-dashboard",
+      "sponsor-dashboard",
       "first-review-guide",
       "evidence-graph",
       "compare-two-reviews",

@@ -20,7 +20,7 @@ public sealed class ReplayExamplesOperationFilter : IOperationFilter
         const string baseDesc = "Replay examples: "
                                 + "artifact-markdown: format=markdown, replayMode=artifact, persistReplay=false. "
                                 + "verify-persist: format=markdown, replayMode=verify, profile=detailed, persistReplay=true. "
-                                + "docx-executive: format=docx, replayMode=artifact, profile=executive, persistReplay=false. "
+                                + "docx-sponsor: format=docx, replayMode=artifact, profile=sponsor, persistReplay=false. "
                                 + "**Verify mode:** regenerates the comparison and diffs against the stored payload. "
                                 + "If drift is detected, the API returns **422 Unprocessable Entity** (application/problem+json) "
                                 + "with type `#comparison-verification-failed`, plus extensions **driftDetected** (boolean) and **driftSummary** (string) when applicable. "

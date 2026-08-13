@@ -1,12 +1,12 @@
-using ArchLucid.Application.WeeklyExecutiveSummary;
+using ArchLucid.Application.WeeklySponsorReport;
 
 namespace ArchLucid.Host.Core.Hosted;
 
 /// <summary>Hourly leader-elected poll that sends weekly run-summary one-pager emails when the global schedule matches.</summary>
-public sealed class WeeklyExecutiveSummaryHostedService(
+public sealed class WeeklySponsorReportHostedService(
     IServiceProvider serviceProvider,
     HostLeaderElectionCoordinator electionCoordinator,
-    ILogger<WeeklyExecutiveSummaryHostedService> logger) : BackgroundService
+    ILogger<WeeklySponsorReportHostedService> logger) : BackgroundService
 {
     private static readonly TimeSpan PollInterval = TimeSpan.FromHours(1);
 
@@ -14,7 +14,7 @@ public sealed class WeeklyExecutiveSummaryHostedService(
     protected override Task ExecuteAsync(CancellationToken stoppingToken)
     {
         return electionCoordinator.RunLeaderWorkAsync(
-            HostElectionLeaseNames.WeeklyExecutiveSummaryPolling,
+            HostElectionLeaseNames.WeeklySponsorReportPolling,
             PollLoopAsync,
             stoppingToken);
     }
@@ -22,7 +22,7 @@ public sealed class WeeklyExecutiveSummaryHostedService(
     private async Task PollLoopAsync(CancellationToken leaderToken)
     {
         logger.LogInformation(
-            "Weekly executive summary delivery started (poll every {Hours} hours).",
+            "Weekly Sponsor report delivery started (poll every {Hours} hours).",
             PollInterval.TotalHours);
 
         while (!leaderToken.IsCancellationRequested)
@@ -30,8 +30,8 @@ public sealed class WeeklyExecutiveSummaryHostedService(
             try
             {
                 using IServiceScope scope = serviceProvider.CreateScope();
-                WeeklyExecutiveSummaryDeliveryScanner scanner =
-                    scope.ServiceProvider.GetRequiredService<WeeklyExecutiveSummaryDeliveryScanner>();
+                WeeklySponsorReportDeliveryScanner scanner =
+                    scope.ServiceProvider.GetRequiredService<WeeklySponsorReportDeliveryScanner>();
 
                 await scanner.PublishDueAsync(TimeProvider.System.GetUtcNow(), leaderToken).ConfigureAwait(false);
             }
@@ -41,7 +41,7 @@ public sealed class WeeklyExecutiveSummaryHostedService(
             }
             catch (Exception ex) when (!leaderToken.IsCancellationRequested)
             {
-                logger.LogError(ex, "Weekly executive summary delivery iteration failed.");
+                logger.LogError(ex, "Weekly Sponsor report delivery iteration failed.");
             }
 
             try

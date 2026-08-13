@@ -12,7 +12,7 @@ OUT_DIR = REPO_ROOT / "archlucid-ui" / "src" / "lib" / "help-markdown" / "contri
 EXPORT_RE = re.compile(r"^export function (\w+)", re.MULTILINE)
 INTERNAL_EXPORT_RE = re.compile(r"^export (?:function|const) (\w+)", re.MULTILINE)
 CROSS_EXPORT_IMPORTS: dict[str, list[tuple[str, str]]] = {
-    "executive-pilot-roi": [("stripProductOverviewContributorLeakage", "policy-and-misc")],
+    "sponsor-pilot-roi": [("stripProductOverviewContributorLeakage", "policy-and-misc")],
 }
 
 
@@ -25,12 +25,12 @@ def bucket(name: str) -> str:
     if "governanceapicontracts" in lowered:
         return "governance-and-api"
     if (
-        "executivesummary" in lowered
+        "SponsorReport" in lowered
         or "pilotroi" in lowered
         or "pilotfeedback" in lowered
         or "firstvalue20" in lowered
     ):
-        return "executive-pilot-roi"
+        return "sponsor-pilot-roi"
     if "repeatreviewloop" in lowered or "acceleratorchooser" in lowered or "priormanifest" in lowered:
         return "review-loop-and-accelerator"
     if (

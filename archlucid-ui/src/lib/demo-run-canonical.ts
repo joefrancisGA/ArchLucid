@@ -62,7 +62,7 @@ export function isShowcaseCreatedStaticDemoRunId(runId: string): boolean {
   return runId.trim() === SHOWCASE_CREATED_STATIC_DEMO_RUN_ID;
 }
 
-/** True when visiting `/runs/{runId}` (or executive `/architecture/reviews/{runId}`) should 308 to the canonical id. */
+/** True when visiting `/runs/{runId}` (or sponsor `/architecture/reviews/{runId}`) should 308 to the canonical id. */
 export function demoRunUrlRequiresCanonicalRedirect(runId: string): boolean {
   const t = runId.trim();
   const canon = canonicalizeDemoRunId(t);

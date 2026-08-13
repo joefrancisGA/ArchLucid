@@ -8,7 +8,7 @@
  */
 import { describe, expect, it } from "vitest";
 
-import { EXECUTIVE_DASHBOARD_HREF } from "@/lib/executive-dashboard-route";
+import { SPONSOR_DASHBOARD_HREF } from "@/lib/sponsor-dashboard-route";
 import {
   normalizeAuthMeResponse,
   operatorNavOutsideProviderPrincipal,
@@ -86,7 +86,7 @@ describe("authority seam regression", () => {
       filterNavLinksByAuthority(analysis!.links, AUTHORITY_RANK.ReadAuthority).map((l) => l.href),
     );
 
-    expect(readerHrefs.has("/insights/executive-summary")).toBe(true);
+    expect(readerHrefs.has("/insights/sponsor-report")).toBe(true);
   });
 
   it("keeps maxAuthorityRankFromMeClaims aligned with normalizeAuthMeResponse.authorityRank for representative /me claims", () => {
@@ -148,7 +148,7 @@ describe("authority seam regression", () => {
     );
     const hrefs = new Set(visible.map((l) => l.href));
 
-    expect(hrefs.has(EXECUTIVE_DASHBOARD_HREF)).toBe(true);
+    expect(hrefs.has(SPONSOR_DASHBOARD_HREF)).toBe(true);
     expect(hrefs.has("/architecture/architectures")).toBe(true);
     expect(hrefs.has("/architecture/reviews")).toBe(true);
   });

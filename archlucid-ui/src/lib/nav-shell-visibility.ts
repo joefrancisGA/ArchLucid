@@ -58,7 +58,7 @@ const DEMO_MODE_OMIT_OPERATOR_HREFS = new Set<string>([
   "/administration/baseline",
   "/administration/api-keys",
   "/administration/ai-usage",
-  "/insights/executive-summary",
+  "/insights/sponsor-report",
   "/insights/roi-summary",
 ]);
 

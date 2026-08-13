@@ -5,7 +5,7 @@
 import { expect, test } from "@playwright/test";
 
 import { RUNS_LIST_PAGE_PRIMARY_HEADING_PATTERN } from "./fixtures";
-import { EXECUTIVE_DASHBOARD_WORKSPACE_HEALTH_HREF } from "@/lib/executive-dashboard-route";
+import { SPONSOR_DASHBOARD_WORKSPACE_HEALTH_HREF } from "@/lib/sponsor-dashboard-route";
 import { liveApiBase } from "./helpers/live-api-client";
 import { auditPageMainHeading, clickAuditSearchAndWaitForSuccessfulResponse, expandAuditBuyerFiltersIfPresent, expectAuditSearchNoResults } from "./helpers/operator-journey";
 
@@ -89,19 +89,19 @@ test.describe("live-api-error-states", () => {
     });
   });
 
-  test("executive dashboard workspace health loads without uncaught errors", async ({ page }) => {
+  test("sponsor dashboard workspace health loads without uncaught errors", async ({ page }) => {
     test.setTimeout(60_000);
 
-    await page.goto(EXECUTIVE_DASHBOARD_WORKSPACE_HEALTH_HREF);
+    await page.goto(SPONSOR_DASHBOARD_WORKSPACE_HEALTH_HREF);
 
-    // Heading copy was rebranded to "Executive Workspace Health" (full operator) / "Workspace
-    // overview" (buyer-polished) in ExecutiveWorkspaceHealthDashboard.tsx — "Governance dashboard"
+    // Heading copy was rebranded to "Sponsor Workspace Health" (full operator) / "Workspace
+    // overview" (buyer-polished) in SponsorWorkspaceHealthDashboard.tsx — "Governance dashboard"
     // is no longer rendered anywhere on this route. NOTE: the heading only renders once the
     // dashboard reaches its "ready" state; the loading/error states render `LayerHeader` guidance
     // text only (no heading role), so this assertion still depends on Concern F's fix for the
     // GET /v1/governance/compliance-drift-trend 503 (out of scope here).
     await expect(
-      page.getByRole("heading", { name: /executive workspace health|workspace overview/i }),
+      page.getByRole("heading", { name: /sponsor workspace health|workspace overview/i }),
     ).toBeVisible({ timeout: 60_000 });
 
     await expect(page.getByText(/Unhandled Runtime Error/i)).toHaveCount(0);

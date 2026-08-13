@@ -30,9 +30,9 @@
       "exportPosture": "category-count-only"
     },
     {
-      "eventType": "ExecutiveRoiBoardPackExported",
+      "eventType": "SponsorRoiBoardPackExported",
       "owner": "Commercial / ROI",
-      "purpose": "Executive ROI board pack exported",
+      "purpose": "Sponsor ROI board pack exported",
       "expectedActor": "operator",
       "buyerSafeSummary": "ROI board pack exported with basis labels",
       "sensitivity": "tenant-scoped",

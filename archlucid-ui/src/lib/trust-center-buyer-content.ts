@@ -157,7 +157,7 @@ export const TRUST_PLANNED_ASSURANCE_MILESTONES: readonly TrustPlannedAssuranceM
     activity: "Independent penetration testing",
     status: "Planned",
     timing: "Next assurance cycle when vendor engagement is approved",
-    deliverable: "Redacted executive summary when approved for distribution",
+    deliverable: "Redacted sponsor report when approved for distribution",
     availability: "Not a published third-party report today",
     classification: "planned",
   },

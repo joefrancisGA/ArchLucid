@@ -9,22 +9,22 @@ import { HelpTopicMarkdownView } from "@/app/(operator)/help/HelpTopicMarkdownVi
 import { prepareHelpMarkdownForPresentation } from "@/lib/help/help-markdown-presentation";
 import { tryLoadProductDocumentation } from "@/lib/load-product-documentation";
 
-describe("HelpTopicMarkdownView executive-summary", () => {
-  const loaded = tryLoadProductDocumentation("executive-summary");
+describe("HelpTopicMarkdownView sponsor-report", () => {
+  const loaded = tryLoadProductDocumentation("sponsor-report");
 
-  it("loads executive-summary from executive sponsor brief sections", () => {
+  it("loads sponsor-report from sponsor sponsor brief sections", () => {
     expect(loaded).not.toBeNull();
-    expect(loaded?.entry.title).toBe("Executive summary");
+    expect(loaded?.entry.title).toBe("Sponsor report");
   });
 
-  it("renders executive-summary without eng/GTM leakage (TB-1738)", () => {
+  it("renders sponsor-report without eng/GTM leakage (TB-1738)", () => {
     if (loaded === null) {
-      throw new Error("Expected executive-summary documentation to load.");
+      throw new Error("Expected sponsor-report documentation to load.");
     }
 
     const sourcePath = loaded.entry.sourcePaths[0] ?? "";
     const preparedMarkdown = prepareHelpMarkdownForPresentation(loaded.markdown, sourcePath, {
-      helpTopicSlug: "executive-summary",
+      helpTopicSlug: "sponsor-report",
     });
 
     render(<HelpTopicMarkdownView entry={loaded.entry} markdown={loaded.markdown} />);

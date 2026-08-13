@@ -1,6 +1,6 @@
 import { ADMINISTRATION_SYSTEM_HEALTH_PATH } from "@/lib/administration-route-paths";
 import type { HelpMarkdownHeading } from "@/lib/help/help-markdown-headings";
-import { SPONSOR_REPORT_EXECUTIVE_SUMMARY_PATH } from "@/lib/sponsor-report-navigation";
+import { SPONSOR_REPORT_PATH } from "@/lib/sponsor-report-navigation";
 import { ARCHLUCID_SUPPORT_EMAIL } from "@/lib/support-workspace-present";
 import { GOVERNANCE_POLICY_PACKS_PATH } from "@/lib/governance/governance-route-paths";
 import { inAppHelpHref } from "@/lib/product-documentation-registry";
@@ -291,7 +291,7 @@ export const TROUBLESHOOTING_DECISION_TREE_STEPS: readonly TroubleshootingDecisi
     question: "Are findings, evidence, or report outputs missing?",
     branches: [
       { label: "Findings missing", href: inAppHelpHref("evidence-trail"), linkLabel: "Open Evidence graph" },
-      { label: "Reports missing", href: SPONSOR_REPORT_EXECUTIVE_SUMMARY_PATH, linkLabel: "Open value report" },
+      { label: "Reports missing", href: SPONSOR_REPORT_PATH, linkLabel: "Open value report" },
       {
         label: "Permissions missing",
         href: inAppHelpHref("users-and-roles"),

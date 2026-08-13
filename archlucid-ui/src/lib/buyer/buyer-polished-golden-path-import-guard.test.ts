@@ -6,7 +6,7 @@ import { describe, expect, it } from "vitest";
 import { UI_ROOT as uiRoot } from "@/lib/testing/repo-paths";
 
 const MOCK_KPI_IMPORT_PATTERN =
-  /from\s+['"]@\/lib\/executive-roi-dashboard-mock-kpis['"]|from\s+['"].*executive-roi-dashboard-mock-kpis['"]|executiveRoiDashboardMockKpis/;
+  /from\s+['"]@\/lib\/sponsor-roi-dashboard-mock-kpis['"]|from\s+['"].*sponsor-roi-dashboard-mock-kpis['"]|sponsorRoiDashboardMockKpis/;
 
 const ILLUSTRATIVE_SPINE_USD_PATTERN = /SHOWCASE_STATIC_DEMO_ILLUSTRATIVE_ANNUALIZED_EXTRACTION_USD/;
 
@@ -19,8 +19,8 @@ const GOLDEN_PATH_ROOTS = [
 ];
 
 const ALLOWLIST_SUFFIXES = [
-  "executive-roi-dashboard-mock-kpis.ts",
-  "executive-production-mock-kpi-guard.test.ts",
+  "sponsor-roi-dashboard-mock-kpis.ts",
+  "sponsor-production-mock-kpi-guard.test.ts",
   "buyer-polished-golden-path-import-guard.test.ts",
   "showcase-static-demo.ts",
   "run-savings-summary-model.ts",
@@ -75,7 +75,7 @@ function collectOffenders(pattern: RegExp): string[] {
 }
 
 describe("buyer golden-path production import guard (TB-273 / BDA-150)", () => {
-  it("does not import demo-only executive mock KPI module from golden-path routes", () => {
+  it("does not import demo-only sponsor mock KPI module from golden-path routes", () => {
     expect(
       collectOffenders(MOCK_KPI_IMPORT_PATTERN),
       "Remove mock KPI imports from buyer golden-path routes.",

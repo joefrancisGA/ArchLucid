@@ -257,7 +257,7 @@ describe("AppShellClient — shell chrome labels", () => {
     vi.unstubAllGlobals();
   });
 
-  it("does not render an Architect | Executive shell switcher or Operator persona labels in the top bar", async () => {
+  it("does not render an Architect | Sponsor shell switcher or Operator persona labels in the top bar", async () => {
     renderWithOperatorQuery(
       <AppShellClient>
         <div>child</div>
@@ -266,7 +266,7 @@ describe("AppShellClient — shell chrome labels", () => {
 
     const topbar = await screen.findByTestId("app-shell-topbar");
 
-    expect(screen.queryByTestId("executive-operator-shell-switcher")).not.toBeInTheDocument();
+    expect(screen.queryByTestId("sponsor-operator-shell-switcher")).not.toBeInTheDocument();
     expect(screen.getByTestId("archlucid-wordmark-link")).toHaveAttribute(
       "aria-label",
       PERSONA_SHELL_WORDMARK_ARIA_LABEL,

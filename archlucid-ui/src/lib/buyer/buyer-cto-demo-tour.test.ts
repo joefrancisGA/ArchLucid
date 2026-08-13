@@ -43,15 +43,15 @@ import {
 
 import { BUYER_GOLDEN_JOURNEY_STEP_DEFINITIONS } from "@/lib/buyer/buyer-golden-journey-nav";
 
-import { getShowcaseExecutiveHref } from "@/lib/buyer/buyer-safe-review-navigation";
+import { getShowcaseSponsorHref } from "@/lib/buyer/buyer-safe-review-navigation";
 
 describe("appendBuyerCtoDemoTourStartQuery", () => {
 
   it("appends the tour start query flag", () => {
 
-    expect(appendBuyerCtoDemoTourStartQuery("/executive/reviews/x")).toBe(
+    expect(appendBuyerCtoDemoTourStartQuery("/sponsor/reviews/x")).toBe(
 
-      `/executive/reviews/x?${BUYER_CTO_DEMO_TOUR_QUERY_PARAM}=1`,
+      `/sponsor/reviews/x?${BUYER_CTO_DEMO_TOUR_QUERY_PARAM}=1`,
 
     );
 
@@ -73,7 +73,7 @@ describe("getStartCtoDemoTourHref", () => {
 
     );
 
-    expect(getStartCtoDemoTourHref()).toContain(getShowcaseExecutiveHref());
+    expect(getStartCtoDemoTourHref()).toContain(getShowcaseSponsorHref());
 
   });
 
@@ -138,9 +138,9 @@ describe("buyerCtoDemoTourPresenterScript", () => {
 
 describe("resolveBuyerCtoDemoTourNavigation", () => {
 
-  it("maps executive summary to step 1 navigation", () => {
+  it("maps sponsor report to step 1 navigation", () => {
 
-    const nav = resolveBuyerCtoDemoTourNavigation(getShowcaseExecutiveHref());
+    const nav = resolveBuyerCtoDemoTourNavigation(getShowcaseSponsorHref());
 
     expect(nav.stepIndex).toBe(0);
 
@@ -214,7 +214,7 @@ describe("buildCtoDemoRunOfShowMarkdown", () => {
 
     const markdown = buildCtoDemoRunOfShowMarkdown();
 
-    expect(markdown).toContain("Executive summary");
+    expect(markdown).toContain("Sponsor report");
 
     expect(markdown).toContain("Signed review record");
 

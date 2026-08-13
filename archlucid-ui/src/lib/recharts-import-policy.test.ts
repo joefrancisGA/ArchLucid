@@ -33,8 +33,8 @@ function collectSourceFiles(dir: string): string[] {
 }
 
 describe("recharts import policy (TB-570)", () => {
-  it("imports recharts only from the executive trend chart module", () => {
-    const allowed = resolveSourceScanTargetPath("executive-roi-systemic-issue-trend-chart");
+  it("imports recharts only from the sponsor trend chart module", () => {
+    const allowed = resolveSourceScanTargetPath("sponsor-roi-systemic-issue-trend-chart");
     const rechartsImporters = collectSourceFiles(SRC_ROOT).filter((filePath) => {
       const source = readFileSync(filePath, "utf8");
 
@@ -44,14 +44,14 @@ describe("recharts import policy (TB-570)", () => {
     expect(rechartsImporters).toEqual([allowed]);
   });
 
-  it("loads the trend chart through a dynamic import in the executive ROI section", () => {
-    const roiSectionSource = readRegisteredSource("executive-roi-summary-section");
+  it("loads the trend chart through a dynamic import in the sponsor ROI section", () => {
+    const roiSectionSource = readRegisteredSource("sponsor-roi-summary-section");
 
-    expectSourceContains(roiSectionSource, "dynamic(", "executive-roi-summary-section");
+    expectSourceContains(roiSectionSource, "dynamic(", "sponsor-roi-summary-section");
     expectSourceContains(
       roiSectionSource,
-      "ExecutiveRoiSystemicIssueTrendChart",
-      "executive-roi-summary-section",
+      "SponsorRoiSystemicIssueTrendChart",
+      "sponsor-roi-summary-section",
     );
   });
 

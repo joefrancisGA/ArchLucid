@@ -62,7 +62,7 @@ The only unit of truth for buyer-facing **review-backed / finalized / signed pac
 | `DraftRequests` / draft workspace | Draft |
 | Ask / RAG answers / chat transcript | Conversational |
 | Simulator / demo / seed as customer outcome | Illustrative |
-| UI executive summary without commit | Summary theater |
+| UI sponsor summary without commit | Summary theater |
 | Governance approval without commit | Gate ≠ finalize |
 | Artifact without commit | Orphan projection |
 | “Audit” that is UI logs only | Not append-only Required audit |

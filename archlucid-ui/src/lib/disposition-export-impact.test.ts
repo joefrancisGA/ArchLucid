@@ -44,9 +44,9 @@ describe("disposition-export-impact (TB-2184)", () => {
     expect(sponsorLine?.detail).toContain("Deferred");
   });
 
-  it("stays aligned with ExecutiveReviewPacketComposer ROI basis section heading", () => {
+  it("stays aligned with SponsorReviewPacketComposer ROI basis section heading", () => {
     const composerSource = readFileSync(
-      join(process.cwd(), "..", "ArchLucid.Application/Exports/ExecutiveReviewPacketComposer.cs"),
+      join(process.cwd(), "..", "ArchLucid.Application/Exports/SponsorReviewPacketComposer.cs"),
       "utf8",
     );
 

@@ -66,7 +66,7 @@ describe("committed architecture review nav promotion", () => {
 
     expect(compare?.tier).toBe("essential");
 
-    const outcomes = promotedAnalysis.find((l) => l.href === "/insights/executive-summary");
+    const outcomes = promotedAnalysis.find((l) => l.href === "/insights/sponsor-report");
 
     expect(outcomes?.tier).toBe("essential");
 

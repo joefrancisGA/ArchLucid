@@ -104,7 +104,7 @@ export const BUYER_CTO_DEMO_QUESTIONS_SHOW_CTA = "CTO questions";
 
 export const BUYER_CTO_DEMO_QUESTIONS_HIDE_CTA = "Hide CTO questions";
 
-export const BUYER_CTO_DEMO_RECAP_HEADING = "Executive recap for follow-up";
+export const BUYER_CTO_DEMO_RECAP_HEADING = "Sponsor recap for follow-up";
 
 export const BUYER_CTO_DEMO_RECAP_COPY_CTA = "Copy recap";
 
@@ -189,7 +189,7 @@ export const BUYER_CTO_DEMO_AUDIT_DEMO_FILTER_BANNER =
 
 export const BUYER_CTO_DEMO_AUDIT_SHOW_ALL_EVENTS_CTA = "Show all events";
 
-export const BUYER_CTO_DEMO_EXECUTIVE_PRINT_CTA = "Print executive summary";
+export const BUYER_CTO_DEMO_SPONSOR_PRINT_CTA = "Print sponsor report";
 
 export const BUYER_CTO_DEMO_STATIC_PRESENTER_BANNER =
   "Presenter: all five demo steps are running on cached showcase data — live API is unavailable or static fallback is enabled.";
@@ -224,7 +224,7 @@ export const BUYER_CTO_DEMO_PREFLIGHT_BEGIN_CTA = "Begin demo";
 export const BUYER_CTO_DEMO_AGENDA_HEADING = "Your 30-minute review journey";
 
 export const BUYER_CTO_DEMO_AGENDA_SUBTEXT =
-  "Five stops from executive outcomes through signed review record, evidence, governance, and audit trail.";
+  "Five stops from sponsor outcomes through signed review record, evidence, governance, and audit trail.";
 
 export const BUYER_CTO_DEMO_AUDIT_VERIFY_CTA = "Verify integrity";
 
@@ -245,7 +245,7 @@ export const BUYER_CTO_DEMO_GOVERNANCE_PREVIEW_NOTE =
   "In production, an architect with Execute authority approves here. This view shows the post-approval state from the example review.";
 
 export const BUYER_CTO_DEMO_VALUE_STRIP_LABELS: readonly string[] = [
-  "This executive summary gives your sponsor a one-page risk and outcome verdict — no engineering context required.",
+  "This sponsor report gives your sponsor a one-page risk and outcome verdict — no engineering context required.",
   "This signed review record is the verifiable record of every decision made in this review — your auditors' starting point.",
   "Every finding traces back to the exact evidence that produced it — no black-box AI.",
   "This approval gate enforces separation-of-duties before any architecture change is promoted to production.",

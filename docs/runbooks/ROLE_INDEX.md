@@ -20,7 +20,7 @@
 
 | Role | Mandatory documents |
 | --- | --- |
-| Buyer / executive sponsor | [`CORE_PILOT.md`](../CORE_PILOT.md) · [`BUYER_ORIENTATION_ONE_SCREEN.md`](../go-to-market/BUYER_ORIENTATION_ONE_SCREEN.md) · [`trust-center.md`](../go-to-market/trust-center.md) for security threads · [`FIRST_PILOT_EVIDENCE_BUNDLE.md`](FIRST_PILOT_EVIDENCE_BUNDLE.md) after finalize |
+| Buyer / sponsor sponsor | [`CORE_PILOT.md`](../CORE_PILOT.md) · [`BUYER_ORIENTATION_ONE_SCREEN.md`](../go-to-market/BUYER_ORIENTATION_ONE_SCREEN.md) · [`trust-center.md`](../go-to-market/trust-center.md) for security threads · [`FIRST_PILOT_EVIDENCE_BUNDLE.md`](FIRST_PILOT_EVIDENCE_BUNDLE.md) after finalize |
 | Operator / pilot lead | [`FIRST_PILOT_OPERATOR_PATH.md`](FIRST_PILOT_OPERATOR_PATH.md) · [`FIRST_PILOT_PRODUCTION_LIKE_PREFLIGHT.md`](FIRST_PILOT_PRODUCTION_LIKE_PREFLIGHT.md) for hosted pilots · [`RC_TARGET_ENVIRONMENT_MATRIX.md`](../library/RC_TARGET_ENVIRONMENT_MATRIX.md) and [`V1_RELEASE_CHECKLIST.md`](../library/V1_RELEASE_CHECKLIST.md) for RC evidence |
 | Security reviewer | [`trust-center.md`](../go-to-market/trust-center.md) · [`TENANT_ISOLATION_DEFENSE_IN_DEPTH.md`](../security/TENANT_ISOLATION_DEFENSE_IN_DEPTH.md) · [`SYSTEM_THREAT_MODEL.md`](../security/SYSTEM_THREAT_MODEL.md) · [`SECURITY.md`](../library/contributor-reference/SECURITY.md) |
 | Integrator / automation | [`API_CONTRACTS.md`](../library/API_CONTRACTS.md) · [`LIVE_E2E_HAPPY_PATH.md`](../library/LIVE_E2E_HAPPY_PATH.md) · [`CLI_USAGE.md`](../library/CLI_USAGE.md) when needed |

@@ -105,7 +105,7 @@ export async function loadRunSavingsSummaryModel(params: Readonly<{
     return null;
 
   footnotesAccumulator.push(
-    `Heuristic roll-up aggregates savings-like numeric signals from ${costDescriptor.name.trim()}. Pure billed totals without adjacent savings wording are suppressed so Finance can still audit the original via Artifacts. Orphan-candidate totals live on the executive dashboard via GET /v1/roi/executive-summary.`,
+    `Heuristic roll-up aggregates savings-like numeric signals from ${costDescriptor.name.trim()}. Pure billed totals without adjacent savings wording are suppressed so Finance can still audit the original via Artifacts. Orphan-candidate totals live on the sponsor dashboard via GET /v1/roi/sponsor-report.`,
   );
 
   return {

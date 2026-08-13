@@ -2,7 +2,7 @@ import { fireEvent, render, screen, waitFor } from "@testing-library/react";
 import { beforeEach, describe, expect, it, vi } from "vitest";
 
 import { ARCHITECTURES_LIST_PATH } from "@/lib/architecture/architecture-routes";
-import { EXECUTIVE_DASHBOARD_HREF } from "@/lib/executive-dashboard-route";
+import { SPONSOR_DASHBOARD_HREF } from "@/lib/sponsor-dashboard-route";
 
 import { SidebarNav } from "./SidebarNav";
 
@@ -93,7 +93,7 @@ type RequestedGroup = {
 const REVIEW_WORK_HREFS: ReadonlyArray<string> = [
   ARCHITECTURES_LIST_PATH,
   "/architecture/reviews",
-  EXECUTIVE_DASHBOARD_HREF,
+  SPONSOR_DASHBOARD_HREF,
   "/architecture/first-review-guide",
 ];
 

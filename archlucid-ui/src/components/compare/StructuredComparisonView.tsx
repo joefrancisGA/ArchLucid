@@ -291,7 +291,7 @@ export function StructuredComparisonView(props: {
                 Cost estimates are derived from the review pipeline cost model when the payload includes units. Validate
                 against your FinOps baseline before using in budget planning.
                 Use &ldquo;{props.buyerCompareUi === true ? "Summarize for leadership" : "Summarize for sponsor"}
-                &rdquo; to include this delta in an executive narrative.
+                &rdquo; to include this delta in an sponsor narrative.
               </p>
             </ComparisonFoldSection>
           ) : null}

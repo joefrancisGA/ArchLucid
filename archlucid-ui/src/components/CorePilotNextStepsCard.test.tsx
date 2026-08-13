@@ -397,7 +397,7 @@ describe("CorePilotNextStepsCard", () => {
 
       await waitFor(() => {
         expect(screen.getByTestId("first-review-checkpoint-next-action")).toHaveTextContent(
-          /open report and use the executive summary/i,
+          /open report and use the sponsor report/i,
         );
       });
     });

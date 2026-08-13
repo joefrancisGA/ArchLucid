@@ -26,7 +26,7 @@ export const ADMIN_TRAFFIC_ROWS: readonly UiRouteTrafficRow[] = [
     rowId: "ADA",
     path: "/administration/baseline",
     section: "Admin",
-    note: "Baseline settings (Settings/Admin) - BaselineSettingsClient with PageContextualHelpButton (topic map executive-summary#pilot-roi-measurement; Category-1 registry), Learn more / claim-discipline (Sources follow-up removed TB-2092) orientation strip, ROI measurement anchors + save/clear. Sibling SPE = executive-summary; SCX = architecture-scorecard; ABI = billing. Measurement anchors - not a signed-record Sources trail.admin hub at SET/ADY Evidence band; hard-caps higher Evidence without signed-record diligence Sources trail. Owner pass: Evidence chrome shipped; cannot improve further toward 80 without turning this into a signed-record diligence Sources trail.",
+    note: "Baseline settings (Settings/Admin) - BaselineSettingsClient with PageContextualHelpButton (topic map sponsor-report#pilot-roi-measurement; Category-1 registry), Learn more / claim-discipline (Sources follow-up removed TB-2092) orientation strip, ROI measurement anchors + save/clear. Sibling SPE = sponsor-report; SCX = architecture-scorecard; ABI = billing. Measurement anchors - not a signed-record Sources trail.admin hub at SET/ADY Evidence band; hard-caps higher Evidence without signed-record diligence Sources trail. Owner pass: Evidence chrome shipped; cannot improve further toward 80 without turning this into a signed-record diligence Sources trail.",
     noteMustContain: ["BaselineSettingsClient", "cannot improve further toward 80"],
   },
   /** Traffic workbook row ID for Connection status (integration readiness). Owner backlog shorthand: ADC. */
@@ -265,7 +265,7 @@ export const ADMIN_TRAFFIC_ROWS: readonly UiRouteTrafficRow[] = [
     note: "Invite a reviewer (Settings/Admin) - InviteReviewerPageView with PageContextualHelpButton (topic map users-and-roles; Category-1 registry), Learn more / claim-discipline orientation strip (Sources follow-up removed TB-2092), invite panel + Reader capabilities summary. Access invitation hub - not a signed-record Sources trail. Sibling AUX = Users and roles. Score 68/100 (2026-08-08) - access-invite hub access-invite hub at AUX Evidence band; hard-caps higher Evidence without signed-record diligence Sources trail. Owner pass: Evidence chrome shipped; cannot improve further toward 80 without turning this into a signed-record diligence Sources trail.",
     noteMustContain: ["InviteReviewerPageView", "Sources", "cannot improve further toward 80"],
   },
-  /** Traffic workbook row ID for Projects recycle bin. Owner backlog shorthand was ARE (collides with template executive-dashboard); template/catalog ID is STR. */
+  /** Traffic workbook row ID for Projects recycle bin. Owner backlog shorthand was ARE (collides with template sponsor-dashboard); template/catalog ID is STR. */
   {
     rowId: "STR",
     path: "/administration/workspace-settings/recycle-bin",

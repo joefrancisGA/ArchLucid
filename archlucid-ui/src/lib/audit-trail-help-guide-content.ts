@@ -153,7 +153,7 @@ export const AUDIT_TRAIL_HELP_ROLE_GUIDANCE: readonly AuditTrailHelpRoleGuidance
       "Correlate audit trail exports with trust-center materials, retention posture, and procurement FAQ answers.",
   },
   {
-    role: "Executive or sponsor",
+    role: "Sponsor or sponsor",
     guidance:
       "Review material exports and finalization events when validating diligence bundles for sign-off.",
   },

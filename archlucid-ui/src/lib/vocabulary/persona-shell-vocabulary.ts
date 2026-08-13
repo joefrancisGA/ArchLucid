@@ -4,11 +4,11 @@
  */
 export const PERSONA_SHELL_LABELS = {
   architect: "Architect",
-  executive: "Executive",
+  sponsor: "Sponsor",
   switchGroupAriaLabel: "Switch shell view",
 } as const;
 
-/** Cross-shell handoff link copy (executive → architect workspace). */
+/** Cross-shell handoff link copy (sponsor → architect workspace). */
 export const PERSONA_SHELL_HANDOFF_LINK = "Open in Architect →";
 
 /** Lowercase phrase for inline “open the other shell” links. */

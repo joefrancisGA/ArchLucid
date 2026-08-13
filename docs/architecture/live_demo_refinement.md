@@ -20,7 +20,7 @@
 
 ## Walkthrough design
 
-- Five steps: Executive summary → Signed review record → Evidence graph → Governance approval → Audit trail.
+- Five steps: Sponsor summary → Signed review record → Evidence graph → Governance approval → Audit trail.
 - `LiveDemoWalkthroughShell` (client): compact stepper, Previous/Next, `?step=` URL sync, optional “View full walkthrough” continuous mode.
 - Each step panel: product preview from sample payload → key takeaway → one inspect action.
 - Initial paint is server-rendered; only the shell and active step panel hydrate on the client.

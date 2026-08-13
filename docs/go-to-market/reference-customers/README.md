@@ -74,7 +74,7 @@ Operational checklist from pilot-complete to **Published** (owner, sales, CS). C
 | **g** | Add one-line entry to [`CHANGELOG.md`](../../CHANGELOG.md) when status becomes **Published**. | ☐ |
 | **h** | Update README row to **Published**; confirm CI reference guard sees at least one published row. | ☐ |
 
-**Sorting:** Work customers with the highest measured ROI delta and executive sponsor engagement first. Defer rows that lack written approval past 60 days back to **Drafting** per the lifecycle rules above.
+**Sorting:** Work customers with the highest measured ROI delta and sponsor sponsor engagement first. Defer rows that lack written approval past 60 days back to **Drafting** per the lifecycle rules above.
 
 ---
 
@@ -244,7 +244,7 @@ Complete one record per customer reference candidate.
 ##### Buyer approval gate
 
 - [ ] Customer key contact name and title confirmed:
-- [ ] Customer executive sponsor confirmed:
+- [ ] Customer sponsor sponsor confirmed:
 - [ ] Reference permission scope agreed (choose all that apply):
   - [ ] Internal use only (no public claim)
   - [ ] Anonymized case study (no name, no logo)

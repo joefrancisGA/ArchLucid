@@ -1662,10 +1662,10 @@
       "nav_operator_href": null
     },
     {
-      "controller_file": "Reports/ExecutiveSummaryController.cs",
-      "class_name": "ExecutiveSummaryController",
-      "route_template": "v{version:apiVersion}/reports/executive-summary",
-      "normalized_prefix": "/v1/reports/executive-summary",
+      "controller_file": "Reports/SponsorReportController.cs",
+      "class_name": "SponsorReportController",
+      "route_template": "v{version:apiVersion}/reports/sponsor-report",
+      "normalized_prefix": "/v1/reports/sponsor-report",
       "commercial_tier": "none",
       "class_policy": "ReadAuthority",
       "exemption": null,
@@ -1679,7 +1679,7 @@
       "commercial_tier": "none",
       "class_policy": "ReadAuthority",
       "exemption": null,
-      "nav_operator_href": "/architecture/executive-dashboard"
+      "nav_operator_href": "/architecture/sponsor-dashboard"
     },
     {
       "controller_file": "Scim/ScimDiscoveryController.cs",
@@ -1919,7 +1919,7 @@
       "commercial_tier": "standard",
       "class_policy": "ExecuteAuthority",
       "exemption": null,
-      "nav_operator_href": "/insights/executive-summary"
+      "nav_operator_href": "/insights/sponsor-report"
     },
     {
       "controller_file": "VersionController.cs",

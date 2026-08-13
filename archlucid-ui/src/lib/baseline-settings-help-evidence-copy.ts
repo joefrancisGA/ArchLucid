@@ -18,7 +18,7 @@ export const BASELINE_SETTINGS_HELP_SOURCES: readonly EvidenceSourceLink[] = [
   { label: "Baseline settings", href: BASELINE_SETTINGS_CANONICAL_PATH },
   { label: "ROI summary", href: "/insights/roi-summary" },
   { label: "Architecture scorecard", href: "/insights/architecture-scorecard" },
-  { label: "Pilot ROI measurement methodology", href: "/help/executive-summary#pilot-roi-measurement" },
+  { label: "Pilot ROI measurement methodology", href: "/help/sponsor-report#pilot-roi-measurement" },
   { label: "ROI summary help", href: "/help/roi-summary" },
   { label: "Assurance status", href: "/security-trust" },
 ] as const;

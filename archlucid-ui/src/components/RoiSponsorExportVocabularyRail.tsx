@@ -28,7 +28,7 @@ export type RoiSponsorExportVocabularyRailProps = {
 
 /**
  * TB-2258 — Compact vocabulary rail between ROI summary (portfolio KPI) and sponsor export (per-package send).
- * Mount on ROI summary, review sponsor handoff, and optionally executive dashboard exports.
+ * Mount on ROI summary, review sponsor handoff, and optionally sponsor dashboard exports.
  */
 export function RoiSponsorExportVocabularyRail(
   props: RoiSponsorExportVocabularyRailProps,
@@ -43,7 +43,7 @@ export function RoiSponsorExportVocabularyRail(
   const currentLabel =
     props.currentSurfaceId === "roi-summary"
       ? model.roiSummaryLink.label
-      : props.currentSurfaceId === "executive-dashboard"
+      : props.currentSurfaceId === "sponsor-dashboard"
         ? model.executiveDashboardLink.label
         : model.sponsorHandoffLink.label;
 

@@ -7,7 +7,7 @@ import { isBrowser } from "@/lib/api/http";
 import { mergeRegistrationScopeForProxy } from "@/lib/proxy-fetch-registration-scope";
 import { operatorQueryKeys } from "@/lib/query/operator-query-keys";
 
-export type ExecutiveRoiHistoryPoint = {
+export type SponsorRoiHistoryPoint = {
   snapshotUtc: string;
   totalEstimatedUsdSavings: number;
   criticalSecurityFindings: number;
@@ -17,9 +17,9 @@ export type ExecutiveRoiHistoryPoint = {
   isMixedMode: boolean;
 };
 
-async function fetchExecutiveRoiSummaryHistory(): Promise<ExecutiveRoiHistoryPoint[]> {
+async function fetchSponsorRoiSummaryHistory(): Promise<SponsorRoiHistoryPoint[]> {
   const response = await fetch(
-    `/api/proxy/${ApiV1Routes.roiExecutiveSummary}/history`,
+    `/api/proxy/${ApiV1Routes.roiSponsorReport}/history`,
     mergeRegistrationScopeForProxy({ headers: { Accept: "application/json" } }),
   );
 
@@ -27,16 +27,16 @@ async function fetchExecutiveRoiSummaryHistory(): Promise<ExecutiveRoiHistoryPoi
     throw new Error(`HTTP ${response.status}`);
   }
 
-  const json = (await response.json()) as { points?: ExecutiveRoiHistoryPoint[] };
+  const json = (await response.json()) as { points?: SponsorRoiHistoryPoint[] };
 
   return json.points ?? [];
 }
 
-/** Cached ROI history for the executive trend chart (was an uncached per-mount useEffect fetch). */
-export function useExecutiveRoiSummaryHistoryQuery() {
-  return useQuery<ExecutiveRoiHistoryPoint[]>({
-    queryKey: operatorQueryKeys.executiveRoiSummaryHistory,
-    queryFn: fetchExecutiveRoiSummaryHistory,
+/** Cached ROI history for the sponsor trend chart (was an uncached per-mount useEffect fetch). */
+export function useSponsorRoiSummaryHistoryQuery() {
+  return useQuery<SponsorRoiHistoryPoint[]>({
+    queryKey: operatorQueryKeys.sponsorRoiSummaryHistory,
+    queryFn: fetchSponsorRoiSummaryHistory,
     enabled: isBrowser(),
   });
 }

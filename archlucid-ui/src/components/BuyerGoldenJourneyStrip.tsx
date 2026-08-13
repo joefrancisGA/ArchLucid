@@ -19,7 +19,7 @@ export function BuyerGoldenJourneyStrip() {
     >
       <h3 className={cn(OPERATOR_HOME_SECTION_HEADING, "text-al-text-primary")}>Review journey</h3>
       <p className={cn("m-0 mt-2 max-w-prose", OPERATOR_TYPE_SCALE.body, "text-al-text-secondary")}>
-        Follow the finalized review from executive decision through signed review record, evidence graph, governance
+        Follow the finalized review from sponsor decision through signed review record, evidence graph, governance
         approval, and audit trail.
       </p>
       <ol className={cn("m-0 mt-2 flex list-none flex-wrap gap-x-3 gap-y-2 p-0", OPERATOR_TYPE_SCALE.body)}>

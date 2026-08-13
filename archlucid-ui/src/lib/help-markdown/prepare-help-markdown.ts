@@ -30,7 +30,7 @@ import {
   HELP_MARKDOWN_SOURCE_PRESTAGE_RULE_SETS,
   resolveDuplicateSectionTitles,
 } from "./topic-rule-sets";
-import { stripExecutiveSummaryPilotRoiMeasurementLeakage, stripTenantIsolationContributorLeakage, alignDataHandlingIsolationHonesty } from "./contributor-leakage";
+import { stripSponsorReportPilotRoiMeasurementLeakage, stripTenantIsolationContributorLeakage, alignDataHandlingIsolationHonesty } from "./contributor-leakage";
 import { finalizeSecurityTrustHelpPresentation } from "@/lib/security-trust-help-presentation";
 
 export type PrepareHelpMarkdownPresentationOptions = {
@@ -136,8 +136,8 @@ export function prepareHelpMarkdownForPresentation(
     stripProductReleaseVersionLabels,
   ]);
 
-  if (options?.helpTopicSlug === "executive-summary") {
-    finalBody = stripExecutiveSummaryPilotRoiMeasurementLeakage(finalBody);
+  if (options?.helpTopicSlug === "sponsor-report") {
+    finalBody = stripSponsorReportPilotRoiMeasurementLeakage(finalBody);
   }
 
   if (options?.helpTopicSlug === "procurement") {

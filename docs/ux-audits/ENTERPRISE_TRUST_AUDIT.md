@@ -56,7 +56,7 @@ Despite the foundation, six structural patterns break or weaken enterprise trust
 | T05 | P1 | Operator security-trust page | Tenant isolation claimed but mechanism not explained |
 | T06 | P1 | Operator settings / security-trust | No data retention policy or deletion controls visible |
 | T07 | P1 | Governance workflow page | Demo approval records can appear in live workspace when API unavailable |
-| T08 | P1 | Executive dashboard | "Database backup region check" card — ArchLucid infra metric not identified as such |
+| T08 | P1 | Sponsor dashboard | "Database backup region check" card — ArchLucid infra metric not identified as such |
 | T09 | P1 | Governance demo preview note | `"In a live pilot"` framing implies pre-production status |
 | T10 | P1 | Governance workflow UI | `"promoteManifest"` CI/CD verb visible in buyer-facing governance strings |
 | T11 | P1 | Invite reviewer flow | Role capabilities not listed — reviewer cannot approve but this is not stated |
@@ -72,7 +72,7 @@ An enterprise security reviewer or procurement officer walking through the UI to
 3. **Tenant isolation:** "You say 'dedicated database catalog' — is that row-level security, schema separation, or database-level isolation? What happens if a support engineer gets production access?"
 4. **Data retention:** "How long do you retain our architecture review data? What is the process for deletion under GDPR/CCPA Article 17 requests?"
 5. **Demo data in production:** "When I'm in the live workspace, how do I know the governance approvals I see are real and not seeded from a demo? The UI looks the same for both."
-6. **Backup region:** "The executive dashboard shows a backup region — is this my data's backup location or yours? Who manages that?"
+6. **Backup region:** "The sponsor dashboard shows a backup region — is this my data's backup location or yours? Who manages that?"
 7. **Reviewer permissions:** "If I invite someone as a reviewer, exactly what can and cannot they do? Can they export sensitive findings to external systems?"
 
 ---
@@ -86,7 +86,7 @@ An enterprise security reviewer or procurement officer walking through the UI to
 | Role capability matrix (what each role can/cannot do) | Invite reviewer flow + roles settings | P1 |
 | "Demo data" disclaimer on audit integrity verification | CTO demo audit trail step | P0 |
 | Formal governance decision confirmation step | Quick approve button | P1 |
-| "ArchLucid infrastructure metric" label on backup region card | Executive dashboard | P1 |
+| "ArchLucid infrastructure metric" label on backup region card | Sponsor dashboard | P1 |
 | Reviewer capabilities explicit list | Invite reviewer page | P1 |
 
 ---
@@ -133,7 +133,7 @@ Add a "Data retention" section to the operator security-trust page with the rete
 
 Ensure `isStaticDemoPayloadFallbackEnabled()` is false in production workspaces. Add a visible "Showing example approval records" status when demo fallback activates.
 
-### T08 — TB-508: Label executive backup region card as ArchLucid infrastructure
+### T08 — TB-508: Label sponsor backup region card as ArchLucid infrastructure
 
 Update the card description and add a sub-label: "ArchLucid platform infrastructure — not your architecture workloads."
 
@@ -158,7 +158,7 @@ Add an explicit can/cannot list (can: view packages, export; cannot: approve, fi
 | T12 | TB-512 | `FunnelTelemetryExportAnchor` wraps download links — name implies surveillance analytics | Rename to `TrackedDownloadAnchor`; add JSDoc |
 | T13 | TB-513 | `GoldenManifestExportMenu` — residual "golden manifest" risk in export menu labels | Audit strings; add JSDoc warning; replace any literals |
 | T14 | TB-514 | `ExplainabilityTraceTree` empty state "No evidence references recorded" gives no context | Replace with explanation distinguishing heuristic vs. evidence-backed |
-| T15 | TB-515 | `"Loading backup region verification…"` — technical vocabulary in executive loading state | Replace with `"Checking backup status…"` matching card title |
+| T15 | TB-515 | `"Loading backup region verification…"` — technical vocabulary in sponsor loading state | Replace with `"Checking backup status…"` matching card title |
 
 ---
 
@@ -212,7 +212,7 @@ When initialDemoApprovals is seeded, render a role="status" banner:
 "Showing example approval records — live governance data unavailable. Refresh to reload."
 ```
 
-**TB-508 + TB-515 — Executive dashboard backup region card:**
+**TB-508 + TB-515 — Sponsor dashboard backup region card:**
 ```
 File: archlucid-ui/src/lib/buyer-surface-vocabulary.ts
 Update sqlBackupRegionVerificationMetric.description to clarify "ArchLucid platform database backup region."

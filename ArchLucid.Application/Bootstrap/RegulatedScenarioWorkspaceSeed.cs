@@ -232,7 +232,7 @@ internal static class RegulatedScenarioWorkspaceSeed
                 Category = "ResponsibleAi",
                 EngineType = "AiGovernanceSeed",
                 Severity = FindingSeverity.Warning,
-                Title = "Drift monitors defined but not wired to executive escalation for weekend scoring releases",
+                Title = "Drift monitors defined but not wired to sponsor escalation for weekend scoring releases",
                 Rationale = "Rule ai-gov-011 expects automated drift routing; synthetic config references dormant action groups.",
                 PolicyRuleId = "ai-gov-011",
                 RecommendedActions =

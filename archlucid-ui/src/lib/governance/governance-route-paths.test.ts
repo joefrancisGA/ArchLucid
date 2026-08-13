@@ -19,7 +19,7 @@ describe("governance-route-paths", () => {
     expect(GOVERNANCE_DECISION_REGISTER_PATH).toBe("/governance/decision-register");
     expect(GOVERNANCE_FINDINGS_PATH).toBe("/governance/findings");
     expect(GOVERNANCE_ASSIGNED_TO_ME_FINDINGS_PATH).toBe("/governance/findings/assigned-to-me");
-    expect(GOVERNANCE_WORKSPACE_HEALTH_HREF).toBe("/architecture/executive-dashboard#workspace-health");
+    expect(GOVERNANCE_WORKSPACE_HEALTH_HREF).toBe("/architecture/sponsor-dashboard#workspace-health");
   });
 
   it("builds alert-rules tab hrefs on the dedicated configuration route", () => {

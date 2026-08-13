@@ -7,17 +7,19 @@ import { AlertsFindingsVocabularyRail } from "@/components/AlertsFindingsVocabul
 import { DecisionRegisterFindingsVocabularyRail } from "@/components/DecisionRegisterFindingsVocabularyRail";
 import { GovernanceApprovalStatusBanner } from "@/components/governance/GovernanceApprovalStatusBanner";
 import { EnterpriseCompactEmptyState } from "@/components/EnterpriseCompactEmptyState";
+import { EnterpriseInlineErrorNotification } from "@/components/EnterpriseInlineErrorNotification";
 import { FindingsQueueSearchEvidenceVocabularyRail } from "@/components/findings/FindingsQueueSearchEvidenceVocabularyRail";
 import { LayerHeader } from "@/components/LayerHeader";
+import { OperatorPageBreadcrumb } from "@/components/operator/OperatorPageBreadcrumb";
 import { OperatorPageHeader } from "@/components/operator/OperatorPageHeader";
 import { GovernanceJobRouterStrip } from "@/components/governance/GovernanceJobRouterStrip";
+import { GovernanceFindingsRelatedQueuesDisclosure } from "@/components/governance/findings/GovernanceFindingsRelatedQueuesDisclosure";
 import { RiskExceptionsFindingsVocabularyRail } from "@/components/RiskExceptionsFindingsVocabularyRail";
 import { PageCapabilityBoundaryStrip } from "@/components/PageCapabilityBoundaryStrip";
 import { PageContextualHelpButton } from "@/components/usability/PageContextualHelpButton";
 import { GovernanceFindingsFilterBar } from "@/components/governance/findings/GovernanceFindingsFilterBar";
 import { GovernanceFindingsList } from "@/components/governance/findings/GovernanceFindingsList";
 import { SponsorStorySynopsisFromCounts } from "@/components/operator/SponsorStorySynopsisPanel";
-import { FatalPageReportProblemSupportRow } from "@/components/support/FatalPageReportProblemAction";
 import { Button } from "@/components/ui/button";
 import { useGovernanceFindingsFilter } from "@/components/governance/findings/use-governance-findings-filter";
 import { useGovernanceFindingsQuery } from "@/components/governance/findings/use-governance-findings-query";
@@ -41,13 +43,21 @@ import {
 } from "@/lib/buyer/buyer-polish-copy";
 import { isBuyerPolishedOperatorShellEnv } from "@/lib/demo-ui-env";
 import { OPERATOR_LAYOUT, OPERATOR_LINK, OPERATOR_TYPOGRAPHY } from "@/lib/design-tokens";
-import { GOVERNANCE_FINDINGS_FILTER_NO_MATCH_COMPACT, GOVERNANCE_FINDINGS_LOAD_FAILED_COMPACT } from "@/lib/enterprise-compact-empty-state-presets";
+import {
+  GOVERNANCE_ASSIGNED_TO_ME_FINDINGS_EMPTY_COMPACT,
+  GOVERNANCE_ASSIGNED_TO_ME_FINDINGS_FILTER_NO_MATCH_COMPACT,
+  GOVERNANCE_ASSIGNED_TO_ME_FINDINGS_LOAD_FAILED_COMPACT,
+  GOVERNANCE_FINDINGS_FILTER_NO_MATCH_COMPACT,
+  GOVERNANCE_FINDINGS_LOAD_FAILED_COMPACT,
+} from "@/lib/enterprise-compact-empty-state-presets";
 import { comparePageHrefAdaptive } from "@/lib/compare-url-query-params";
 import { COMPARE_FINDING_LIFECYCLE_ANCHOR } from "@/lib/compare-finding-lifecycle";
 import {
+  GOVERNANCE_APPROVAL_QUEUE_PATH,
   GOVERNANCE_ASSIGNED_TO_ME_FINDINGS_PATH,
   GOVERNANCE_FINDINGS_PATH,
 } from "@/lib/governance/governance-route-paths";
+import type { GovernanceJobId } from "@/lib/governance/governance-job-router";
 import { governanceRegisterMetricPresentation } from "@/lib/metric-count-presentation";
 import { buildSponsorStoryDispositionCountsFromRows } from "@/lib/sponsor-story-synopsis";
 import {
@@ -64,9 +74,12 @@ import {
 import { usePrefetchItsmFindingCorrelations } from "@/lib/use-itsm-finding-correlations";
 import { cn } from "@/lib/utils";
 import {
+  DEFAULT_FINDING_JOB_VIEW,
   filterGovernanceRowsForJobView,
+  FINDING_JOB_VIEW_LABELS,
   type FindingJobView,
 } from "@/lib/findings/finding-job-view";
+import { resolveEffectiveFindingJobView } from "@/lib/findings/finding-job-view";
 
 export type { GovernanceFindingQueueRow } from "./governance-finding-queue-row";
 
@@ -89,9 +102,12 @@ export default function GovernanceFindingsQueueClient({
   const [nlFacets, setNlFacetsState] = useState<FindingsNaturalLanguageFacets>(
     () => readGovernanceFindingsQueueFacets().nlFacets,
   );
+  const isAssignedToMe = mode === "assigned-to-me";
   const tenantQuery = useGovernanceFindingsQuery();
   const assignedToMeQuery = useAssignedToMeFindingsQuery();
-  const { rows, loading, loadFailed, refresh } = mode === "assigned-to-me" ? assignedToMeQuery : tenantQuery;
+  const activeQuery = isAssignedToMe ? assignedToMeQuery : tenantQuery;
+  const { rows, loading, loadFailed, refresh } = activeQuery;
+  const loadFailure = isAssignedToMe ? assignedToMeQuery.loadFailure : null;
   const {
     registerFilter,
     setRegisterFilter,
@@ -114,6 +130,9 @@ export default function GovernanceFindingsQueueClient({
   }, []);
 
   const buyerPolishedShell = isBuyerPolishedOperatorShellEnv();
+  const filterBarVisible = !buyerPolishedShell && !loading && rows.length > 0;
+  const effectiveJobView = resolveEffectiveFindingJobView(jobView, filterBarVisible);
+  const jobViewFilterActive = filterBarVisible && jobView !== DEFAULT_FINDING_JOB_VIEW;
   const scopedRows = useMemo(
     () => rows.filter((row) => matchesGovernanceFindingsRunScope(row, scopedRunId)),
     [rows, scopedRunId],
@@ -134,9 +153,9 @@ export default function GovernanceFindingsQueueClient({
               nlFacets,
             ),
         ),
-        jobView,
+        effectiveJobView,
       ),
-    [scopedRows, registerFilter, jobView, nlFacets],
+    [scopedRows, registerFilter, effectiveJobView, nlFacets],
   );
   const registerSummary = useMemo(() => computeArchitectureRiskRegisterSummary(rows), [rows]);
   const findingIds = useMemo(
@@ -145,23 +164,30 @@ export default function GovernanceFindingsQueueClient({
   );
   usePrefetchItsmFindingCorrelations(findingIds);
   const pageTitle =
-    mode === "assigned-to-me"
+    isAssignedToMe
       ? "Assigned to me"
       : buyerPolishedShell
         ? BUYER_GOVERNANCE_FINDINGS_PAGE_TITLE
         : ARCHITECTURE_RISK_REGISTER_PAGE_TITLE;
   const pageSubtitle =
-    mode === "assigned-to-me"
+    isAssignedToMe
       ? "Open findings assigned to you for remediation across reviews in this workspace."
       : buyerPolishedShell
         ? BUYER_GOVERNANCE_FINDINGS_PAGE_LEAD
         : ARCHITECTURE_RISK_REGISTER_PAGE_SUBTITLE;
-  const navHref = mode === "assigned-to-me" ? GOVERNANCE_ASSIGNED_TO_ME_FINDINGS_PATH : GOVERNANCE_FINDINGS_PATH;
+  const navHref = isAssignedToMe ? GOVERNANCE_ASSIGNED_TO_ME_FINDINGS_PATH : GOVERNANCE_FINDINGS_PATH;
+  const currentJobId: GovernanceJobId = isAssignedToMe ? "assigned-to-me-findings" : "triage-findings";
+  const loadFailedPreset = isAssignedToMe
+    ? GOVERNANCE_ASSIGNED_TO_ME_FINDINGS_LOAD_FAILED_COMPACT
+    : GOVERNANCE_FINDINGS_LOAD_FAILED_COMPACT;
+  const filterNoMatchPreset = isAssignedToMe
+    ? GOVERNANCE_ASSIGNED_TO_ME_FINDINGS_FILTER_NO_MATCH_COMPACT
+    : GOVERNANCE_FINDINGS_FILTER_NO_MATCH_COMPACT;
   const secondaryViewPresentation =
     displayedRows.length > 0 ? secondaryViewFromGovernanceQueueRow(displayedRows[0]) : null;
   const sponsorSynopsisPackageTitle =
     displayedRows.find((row) => row.recordKind === "finding")?.runLabel ??
-    (scopedRunId !== null && scopedRunId.length > 0 ? scopedRunId : "this review");
+    (scopedRunId !== null && scopedRunId.length > 0 ? scopedRunId : "this workspace");
   const sponsorSynopsisCounts = useMemo(
     () => buildSponsorStoryDispositionCountsFromRows(displayedRows.filter((row) => row.recordKind === "finding")),
     [displayedRows],
@@ -170,11 +196,25 @@ export default function GovernanceFindingsQueueClient({
     scopedRunId !== null && scopedRunId.length > 0
       ? `/architecture/reviews/${encodeURIComponent(scopedRunId)}?reviewTab=review-package`
       : null;
+  const assignedToMeBreadcrumb = isAssignedToMe ? (
+    <OperatorPageBreadcrumb
+      data-testid="governance-assigned-to-me-breadcrumb"
+      items={[
+        { label: "Governance", href: GOVERNANCE_APPROVAL_QUEUE_PATH },
+        { label: "Findings", href: GOVERNANCE_FINDINGS_PATH },
+        { label: "Assigned to me" },
+      ]}
+    />
+  ) : undefined;
 
   return (
     <div className="w-full max-w-[1440px]">
-      {buyerPolishedShell ? (
-        <GovernanceApprovalStatusBanner className="mb-4" onRiskRegisterPage />
+      {buyerPolishedShell && !loadFailed ? (
+        <GovernanceApprovalStatusBanner
+          className="mb-4"
+          onRiskRegisterPage={!isAssignedToMe}
+          onAssignedToMeFindingsPage={isAssignedToMe}
+        />
       ) : (
         <LayerHeader pageKey="governance-findings" density="compact" />
       )}
@@ -183,9 +223,10 @@ export default function GovernanceFindingsQueueClient({
         navHref={navHref}
         title={pageTitle}
         subtitle={pageSubtitle}
+        breadcrumb={assignedToMeBreadcrumb}
         titleTestId="architecture-risk-register-page-title"
         metadata={
-          !buyerPolishedShell && !loading && mode !== "assigned-to-me" ? (
+          !buyerPolishedShell && !loading && !isAssignedToMe ? (
             <>
               <SelfDescribingMetricCount
                 variant="inline"
@@ -232,13 +273,19 @@ export default function GovernanceFindingsQueueClient({
         }
         actions={<PageContextualHelpButton />}
       />
-      <GovernanceJobRouterStrip currentJobId="triage-findings" />
-      <AlertsFindingsVocabularyRail currentSurfaceId="findings-queue" />
-      <DecisionRegisterFindingsVocabularyRail currentSurfaceId="findings-queue" />
-      <RiskExceptionsFindingsVocabularyRail currentSurfaceId="findings-queue" />
-      <FindingsQueueSearchEvidenceVocabularyRail currentSurfaceId="findings-queue" />
-      <PageCapabilityBoundaryStrip surfaceId="governanceFindings" />
-<div className={cn("mt-4", OPERATOR_LAYOUT.sectionStack)}>
+      <GovernanceJobRouterStrip currentJobId={currentJobId} />
+      {isAssignedToMe ? (
+        <GovernanceFindingsRelatedQueuesDisclosure capabilitySurfaceId="assignedFindings" />
+      ) : (
+        <>
+          <AlertsFindingsVocabularyRail currentSurfaceId="findings-queue" />
+          <DecisionRegisterFindingsVocabularyRail currentSurfaceId="findings-queue" />
+          <RiskExceptionsFindingsVocabularyRail currentSurfaceId="findings-queue" />
+          <FindingsQueueSearchEvidenceVocabularyRail currentSurfaceId="findings-queue" />
+          <PageCapabilityBoundaryStrip surfaceId="governanceFindings" />
+        </>
+      )}
+      <div className={cn("mt-4", OPERATOR_LAYOUT.sectionStack)}>
         {secondaryViewPresentation !== null ? (
           <CanonicalObjectSecondaryViewStrip
             presentation={secondaryViewPresentation}
@@ -252,13 +299,13 @@ export default function GovernanceFindingsQueueClient({
             className={cn("m-0 text-al-text-secondary", OPERATOR_TYPOGRAPHY.body)}
             data-testid="governance-findings-run-scope-banner"
           >
-            Showing risks for review{" "}
+            {isAssignedToMe ? "Showing findings for review " : "Showing risks for review "}
             <span className="font-mono text-al-text-primary">{scopedRunId}</span>
-            {" Â· "}
-            <Link className={OPERATOR_LINK.inline} href="/governance/findings">
+            {" · "}
+            <Link className={OPERATOR_LINK.inline} href={navHref}>
               Clear review scope
             </Link>
-            {" Â· "}
+            {" · "}
             <Link className={OPERATOR_LINK.inline} href={`/architecture/reviews/${encodeURIComponent(scopedRunId)}`}>
               Open review
             </Link>
@@ -272,7 +319,21 @@ export default function GovernanceFindingsQueueClient({
           </p>
         ) : null}
 
-        {!buyerPolishedShell && !loading && rows.length > 0 ? (
+        {jobViewFilterActive ? (
+          <p
+            className={cn("m-0 flex flex-wrap items-center gap-2 text-al-text-secondary", OPERATOR_TYPOGRAPHY.helper)}
+            data-testid="governance-findings-job-view-filter-chip"
+          >
+            <span>
+              Filtered by job view: <span className="font-medium text-al-text-primary">{FINDING_JOB_VIEW_LABELS[jobView]}</span>
+            </span>
+            <Button type="button" size="sm" variant="outline" onClick={() => setJobView(DEFAULT_FINDING_JOB_VIEW)}>
+              Clear job view filter
+            </Button>
+          </p>
+        ) : null}
+
+        {filterBarVisible ? (
           <GovernanceFindingsFilterBar
             registerFilter={registerFilter}
             onRegisterFilterChange={setRegisterFilter}
@@ -290,11 +351,11 @@ export default function GovernanceFindingsQueueClient({
         ) : null}
 
         {loading ? (
-          <p className={cn("m-0 text-al-text-secondary", OPERATOR_TYPOGRAPHY.body)}>Loading findingsâ€¦</p>
+          <p className={cn("m-0 text-al-text-secondary", OPERATOR_TYPOGRAPHY.body)}>Loading findings…</p>
         ) : null}
 
         {!loading && rows.length > 0 && displayedRows.length === 0 ? (
-          <EnterpriseCompactEmptyState {...GOVERNANCE_FINDINGS_FILTER_NO_MATCH_COMPACT} />
+          <EnterpriseCompactEmptyState {...filterNoMatchPreset} />
         ) : null}
 
         {!loading && displayedRows.length > 0 ? (
@@ -319,69 +380,71 @@ export default function GovernanceFindingsQueueClient({
         ) : null}
 
         {!loading && rows.length === 0 && loadFailed ? (
-          <>
-            <EnterpriseCompactEmptyState
-              {...GOVERNANCE_FINDINGS_LOAD_FAILED_COMPACT}
-              title={
-                buyerPolishedShell
-                  ? "Could not load risks for this review"
-                  : GOVERNANCE_FINDINGS_LOAD_FAILED_COMPACT.title
-              }
-              description={
-                buyerPolishedShell
-                  ? "The risk register did not load. Your existing findings are unchanged — retry the load or check connectivity before navigating away."
-                  : GOVERNANCE_FINDINGS_LOAD_FAILED_COMPACT.description
-              }
-              footer={
-                <Button
-                  type="button"
-                  variant="primary"
-                  size="sm"
-                  data-testid="governance-findings-retry-load"
-                  onClick={() => {
-                    void refresh();
-                  }}
-                >
-                  Retry load
-                </Button>
-              }
-            />
-            <FatalPageReportProblemSupportRow
-              surfaceId="governance-findings-queue-hard-failure"
-              errorTitle={pageTitle}
-              errorCode="governance-findings-load-failed"
-            />
-          </>
+          <EnterpriseInlineErrorNotification
+            testId={loadFailedPreset.testId}
+            title={
+              !isAssignedToMe && buyerPolishedShell
+                ? "Could not load findings for this workspace"
+                : loadFailedPreset.title
+            }
+            description={
+              !isAssignedToMe && buyerPolishedShell
+                ? "The findings queue did not load. Your existing findings are unchanged — retry the load or check connectivity before navigating away."
+                : loadFailedPreset.description
+            }
+            onRetry={() => {
+              void refresh();
+            }}
+            diagnostics={loadFailure}
+            reportProblem={{
+              surfaceId: "governance-findings-queue-hard-failure",
+              errorTitle: pageTitle,
+              errorCode: loadFailure?.errorCode ?? "governance-findings-load-failed",
+              correlationId: loadFailure?.correlationId,
+              httpStatus: loadFailure?.httpStatus,
+            }}
+          />
         ) : null}
 
         {!loading && rows.length === 0 && !loadFailed ? (
-          <>
-            <EnterpriseCompactEmptyState
-              testId="governance-findings-empty-state"
-              title={buyerPolishedShell ? BUYER_RISK_REGISTER_EMPTY_TITLE : ARCHITECTURE_RISK_REGISTER_EMPTY_TITLE}
-              description={
-                buyerPolishedShell ? BUYER_RISK_REGISTER_EMPTY_BODY : ARCHITECTURE_RISK_REGISTER_EMPTY_BODY
-              }
-              actions={[
-                { label: "Open reviews", href: "/architecture/reviews", variant: "primary" },
-                {
-                  label: buyerPolishedShell ? BUYER_RISK_REGISTER_EMPTY_SECONDARY_ACTION : "Open governance workflow",
-                  href: "/governance/approval-queue",
-                  variant: "outline",
-                },
-              ]}
-              footer={
-                !buyerPolishedShell ? (
-                  <Link className={OPERATOR_LINK.inline} href={ARCHITECTURE_RISK_REGISTER_POLICY_PACKS_HREF}>
-                    View policy packs
-                  </Link>
-                ) : undefined
-              }
-            />
-          </>
+          <EnterpriseCompactEmptyState
+            testId="governance-findings-empty-state"
+            title={
+              isAssignedToMe
+                ? GOVERNANCE_ASSIGNED_TO_ME_FINDINGS_EMPTY_COMPACT.title
+                : buyerPolishedShell
+                  ? BUYER_RISK_REGISTER_EMPTY_TITLE
+                  : ARCHITECTURE_RISK_REGISTER_EMPTY_TITLE
+            }
+            description={
+              isAssignedToMe
+                ? GOVERNANCE_ASSIGNED_TO_ME_FINDINGS_EMPTY_COMPACT.description
+                : buyerPolishedShell
+                  ? BUYER_RISK_REGISTER_EMPTY_BODY
+                  : ARCHITECTURE_RISK_REGISTER_EMPTY_BODY
+            }
+            actions={
+              isAssignedToMe
+                ? GOVERNANCE_ASSIGNED_TO_ME_FINDINGS_EMPTY_COMPACT.actions
+                : [
+                    { label: "Open reviews", href: "/architecture/reviews", variant: "primary" },
+                    {
+                      label: buyerPolishedShell ? BUYER_RISK_REGISTER_EMPTY_SECONDARY_ACTION : "Open governance workflow",
+                      href: "/governance/approval-queue",
+                      variant: "outline",
+                    },
+                  ]
+            }
+            footer={
+              !buyerPolishedShell && !isAssignedToMe ? (
+                <Link className={OPERATOR_LINK.inline} href={ARCHITECTURE_RISK_REGISTER_POLICY_PACKS_HREF}>
+                  View policy packs
+                </Link>
+              ) : undefined
+            }
+          />
         ) : null}
       </div>
     </div>
   );
 }
-

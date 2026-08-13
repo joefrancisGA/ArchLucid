@@ -8,7 +8,7 @@ vi.mock("next/navigation", () => ({
 // Product imports next/dynamic wrappers from deferred-chunks (TB-2145); leaf mocks alone never render.
 vi.mock("./operator-home-page-view-deferred-chunks", () => ({
   PilotCommandCenterCardDeferred: () => <div data-testid="home-block-pilot-command-center" />,
-  OperatorHomeExecutiveRoiStripDeferred: () => <div data-testid="home-block-executive-roi" />,
+  OperatorHomeSponsorRoiStripDeferred: () => <div data-testid="home-block-sponsor-roi" />,
   OperatorHomeBelowFoldPanelsDeferred: (props: {
     readonly buyerPolishedShell?: boolean;
     readonly showFirstValueCallout?: boolean;
@@ -33,7 +33,7 @@ vi.mock("./operator-home-page-view-deferred-chunks", () => ({
   ),
   OperatorHomeGateDeferred: ({ children }: { children: React.ReactNode }) => <>{children}</>,
   OperatorHomeStickinessCockpitDeferred: () => <div data-testid="operator-home-stickiness-cockpit" />,
-  CtoDemoExecutiveLandingRedirectDeferred: () => null,
+  CtoDemoSponsorLandingRedirectDeferred: () => null,
 }));
 
 vi.mock("@/lib/demo-ui-env", async (importOriginal) => {

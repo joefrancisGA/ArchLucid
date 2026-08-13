@@ -9,7 +9,7 @@ const REPO_ROOT = join(process.cwd());
 
 /** Shell, auth, and marketing surfaces from TB-2170 — ghost migration landed in TB-2168. */
 const SHELL_AUTH_MARKETING_BUTTON_PATHS = [
-  "src/components/ExecutiveShellFrame.tsx",
+  "src/components/SponsorShellFrame.tsx",
   "src/components/AppShellClient.tsx",
   "src/components/shell/OperatorShellTopBar.tsx",
   "src/components/shell/OperatorShellTopBarMoreMenu.tsx",

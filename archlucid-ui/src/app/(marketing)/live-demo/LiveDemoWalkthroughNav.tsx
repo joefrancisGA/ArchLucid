@@ -25,7 +25,7 @@ import { cn } from "@/lib/utils";
 import { LiveDemoSampleStatusLine } from "./LiveDemoPageHeader";
 
 const STEP_ICONS = {
-  executive: FileText,
+  sponsor: FileText,
   "signed-record": Stamp,
   evidence: GitBranch,
   governance: ShieldCheck,

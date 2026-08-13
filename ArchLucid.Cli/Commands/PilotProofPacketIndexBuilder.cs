@@ -35,7 +35,7 @@ public static class PilotProofPacketIndexBuilder
             },
             artifacts = new[]
             {
-                new { file = "proof-summary.md", role = "Executive-first narrative when first-value report is available." },
+                new { file = "proof-summary.md", role = "Sponsor-first narrative when first-value report is available." },
                 new { file = "run-evidence.json", role = "Authoritative pilot-run-deltas payload for the committed run." },
                 new { file = "quote-to-proof-readiness.json", role = "Commercial readiness and claim posture for sponsor handoff." },
                 new { file = "governance-outcome-summary.json", role = "Governance disposition summary for the review." },
@@ -87,7 +87,7 @@ public static class PilotProofPacketIndexBuilder
 
             | File | Role |
             | --- | --- |
-            | `proof-summary.md` | Executive-first narrative when available |
+            | `proof-summary.md` | Sponsor-first narrative when available |
             | `run-evidence.json` | Authoritative pilot-run-deltas |
             | `quote-to-proof-readiness.json` | Commercial readiness posture |
             | `governance-outcome-summary.json` | Governance disposition |

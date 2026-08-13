@@ -1,6 +1,6 @@
 "use client";
 
-import { EXECUTIVE_DASHBOARD_HREF } from "@/lib/executive-dashboard-route";
+import { SPONSOR_DASHBOARD_HREF } from "@/lib/sponsor-dashboard-route";
 import { cn } from "@/lib/utils";
 import Link from "next/link";
 import { useSearchParams } from "next/navigation";
@@ -522,8 +522,8 @@ export function RunsListClient({
           <p className="m-0 mt-1 leading-snug">
             Showing reviews in context for orphan-candidate ROI evidence. Open a committed review&apos;s artifacts for{" "}
             <span className={cn("font-mono", OPERATOR_TYPOGRAPHY.micro)}>orphan-candidates.json</span>, or return to the{" "}
-            <Link href={EXECUTIVE_DASHBOARD_HREF} className={OPERATOR_LINK.nav}>
-              executive dashboard
+            <Link href={SPONSOR_DASHBOARD_HREF} className={OPERATOR_LINK.nav}>
+              sponsor dashboard
             </Link>{" "}
             KPI tile.
           </p>

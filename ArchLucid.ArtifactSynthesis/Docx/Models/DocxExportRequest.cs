@@ -91,7 +91,7 @@ public class DocxExportRequest
         set;
     }
 
-    /// <summary>Optional AI narrative for the primary run (executive / stakeholder wording).</summary>
+    /// <summary>Optional AI narrative for the primary run (sponsor / stakeholder wording).</summary>
     public ExplanationResult? RunExplanation
     {
         get;

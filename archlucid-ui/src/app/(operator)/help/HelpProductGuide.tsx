@@ -8,9 +8,9 @@ import { useOperatorNavAuthority } from "@/components/operator/OperatorNavAuthor
 import { SupportBundleDownloadButton } from "@/components/SupportBundleDownloadButton";
 import { Button } from "@/components/ui/button";
 import { Card, CardContent, CardHeader, CardTitle } from "@/components/ui/card";
-import { BUYER_HELP_EXECUTIVE_STEP_CTA } from "@/lib/buyer/buyer-polish-copy";
+import { BUYER_HELP_SPONSOR_STEP_CTA } from "@/lib/buyer/buyer-polish-copy";
 import { OPERATOR_LAYOUT, OPERATOR_LINK, OPERATOR_NAV_GROUP_LABEL, OPERATOR_TYPOGRAPHY } from "@/lib/design-tokens";
-import { getShowcaseExecutiveHref } from "@/lib/buyer/buyer-safe-review-navigation";
+import { getShowcaseSponsorHref } from "@/lib/buyer/buyer-safe-review-navigation";
 import {
   filterHelpCenterTopicsByQuery,
   getHelpCenterDisplay,
@@ -92,11 +92,11 @@ export function HelpProductGuide() {
             </li>
             <li>
               Share the{" "}
-              <Link className={OPERATOR_LINK.inline} href={getShowcaseExecutiveHref()}>
-                executive summary
+              <Link className={OPERATOR_LINK.inline} href={getShowcaseSponsorHref()}>
+                sponsor report
               </Link>{" "}
               or{" "}
-              <Link className={OPERATOR_LINK.inline} href="/insights/executive-summary">
+              <Link className={OPERATOR_LINK.inline} href="/insights/sponsor-report">
                 value report
               </Link>
               .
@@ -112,8 +112,8 @@ export function HelpProductGuide() {
         <CardContent className={cn(OPERATOR_LAYOUT.controlClusterGap, OPERATOR_TYPOGRAPHY.body)}>
           <ol className="m-0 list-decimal space-y-2 pl-5">
             <li>
-              <Link className={OPERATOR_LINK.inline} href={getShowcaseExecutiveHref()}>
-                {BUYER_HELP_EXECUTIVE_STEP_CTA}
+              <Link className={OPERATOR_LINK.inline} href={getShowcaseSponsorHref()}>
+                {BUYER_HELP_SPONSOR_STEP_CTA}
               </Link>{" "}
               — start with the business decision and monitored risks.
             </li>

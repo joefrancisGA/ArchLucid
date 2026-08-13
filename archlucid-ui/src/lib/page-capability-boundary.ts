@@ -11,6 +11,7 @@ export type PageCapabilityBoundarySurfaceId =
   | "ask"
   | "compare"
   | "governanceFindings"
+  | "assignedFindings"
   | "architectureIntelligence"
   | "impactPreview"
   | "advisoryScans"
@@ -51,6 +52,17 @@ export const PAGE_CAPABILITY_BOUNDARY_GOVERNANCE_FINDINGS: PageCapabilityBoundar
     "Author or change policy packs and policy rules.",
     "Invent risks that are not traceable to findings, waivers, exceptions, or governance decisions.",
     "Replace the Decision register or signed review record as the authority of record.",
+  ],
+};
+
+/** Assigned-to-me findings queue — personal remediation scope only. */
+export const PAGE_CAPABILITY_BOUNDARY_ASSIGNED_FINDINGS: PageCapabilityBoundary = {
+  heading: PAGE_CAPABILITY_BOUNDARY_DISCLOSURE_SUMMARY,
+  items: [
+    "Show findings assigned to other operators or unassigned workspace items.",
+    "Automatically remediate cloud or application configuration.",
+    "Replace the tenant findings queue or Decision register as the system of record.",
+    "Invent findings that are not traceable to reviews, evidence trails, or governance records.",
   ],
 };
 
@@ -105,6 +117,7 @@ const PAGE_CAPABILITY_BOUNDARY_BY_SURFACE: Record<
   ask: PAGE_CAPABILITY_BOUNDARY_ASK,
   compare: PAGE_CAPABILITY_BOUNDARY_COMPARE,
   governanceFindings: PAGE_CAPABILITY_BOUNDARY_GOVERNANCE_FINDINGS,
+  assignedFindings: PAGE_CAPABILITY_BOUNDARY_ASSIGNED_FINDINGS,
   architectureIntelligence: PAGE_CAPABILITY_BOUNDARY_ARCHITECTURE_INTELLIGENCE,
   impactPreview: PAGE_CAPABILITY_BOUNDARY_IMPACT_PREVIEW,
   advisoryScans: PAGE_CAPABILITY_BOUNDARY_ADVISORY_SCANS,

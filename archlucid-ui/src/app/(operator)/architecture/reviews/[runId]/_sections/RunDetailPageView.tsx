@@ -25,8 +25,8 @@ import {
   RunDetailCaptureEvidenceSectionDeferred,
   RunDetailDemoMarketingChromeDeferred,
   RunDetailEvidenceTabPanelDeferred,
-  RunDetailExecutiveBottomLineDeferred,
-  RunDetailExecutiveSummaryCtaCardDeferred,
+  RunDetailSponsorBottomLineDeferred,
+  RunDetailSponsorReportCtaCardDeferred,
   RunDetailGovernanceCtaDeferred,
   RunDetailGovernanceDecisionSectionDeferred,
   RunDetailManifestSummaryAlertsDeferred,
@@ -591,7 +591,7 @@ export async function RunDetailPageView(props: {
           />
 
           {buyerFinalizedPackage ? null : (
-            <RunDetailExecutiveSummaryCtaCardDeferred runId={m.resolvedDetail.run.runId} demoted />
+            <RunDetailSponsorReportCtaCardDeferred runId={m.resolvedDetail.run.runId} demoted />
           )}
 
           {!m.buyerPolishedArtifactTable ? (

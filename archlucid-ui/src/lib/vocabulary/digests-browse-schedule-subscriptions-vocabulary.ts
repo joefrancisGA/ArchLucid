@@ -3,7 +3,7 @@
  *
  * Why three Digests hub tabs exist:
  * - Get started (`?tab=get-started`) is history of generated digest content.
- * - Schedule (`?tab=schedule`) is executive digest email cadence and recipients.
+ * - Schedule (`?tab=schedule`) is sponsor digest email cadence and recipients.
  * - Subscriptions (`?tab=subscriptions`) are destination subscriptions for
  *   architecture digests after advisory scans.
  *
@@ -43,7 +43,7 @@ export const DIGESTS_BROWSE_SCHEDULE_SUBSCRIPTIONS_HEADING =
   "Browse, Schedule, and Subscriptions are three different Digests tabs" as const;
 
 export const DIGESTS_BROWSE_SCHEDULE_SUBSCRIPTIONS_WHY_THREE =
-  "Browse is history of generated digest content. Schedule is the executive digest email cadence and recipients. Subscriptions are delivery destinations for architecture digests after advisory scans. Opening history is not configuring cadence — and cadence is not the same as managing delivery destinations." as const;
+  "Browse is history of generated digest content. Schedule is the sponsor digest email cadence and recipients. Subscriptions are delivery destinations for architecture digests after advisory scans. Opening history is not configuring cadence — and cadence is not the same as managing delivery destinations." as const;
 
 export const DIGESTS_BROWSE_SCHEDULE_SUBSCRIPTIONS_COMPACT_LINE =
   "Browse is history; Schedule is cadence; Subscriptions are delivery destinations." as const;
@@ -61,7 +61,7 @@ export const DIGESTS_BROWSE_SCHEDULE_SUBSCRIPTIONS_SCHEDULE_LINK: DigestsBrowseS
     id: "schedule",
     label: "Schedule",
     href: DIGESTS_SCHEDULE_TAB_PATH,
-    whenToUse: "Configure executive digest email cadence and direct recipients.",
+    whenToUse: "Configure sponsor digest email cadence and direct recipients.",
   };
 
 export const DIGESTS_BROWSE_SCHEDULE_SUBSCRIPTIONS_SUBSCRIPTIONS_LINK: DigestsBrowseScheduleSubscriptionsLink =

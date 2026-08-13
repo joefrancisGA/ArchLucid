@@ -76,7 +76,7 @@ export function CorePilotHelpPostStepperPanel(): React.JSX.Element {
                   <ol className={cn("m-0 list-decimal space-y-1.5 pl-5", OPERATOR_TYPOGRAPHY.body)}>
                     <li>Start a review with no cloud target selected (evidence-only).</li>
                     <li>Upload files or paste your architecture brief — a cloud connector is not required.</li>
-                    <li>Start the review, finalize the package, and export the executive briefing.</li>
+                    <li>Start the review, finalize the package, and export the sponsor briefing.</li>
                   </ol>
                   <p className={cn("m-0", OPERATOR_TYPOGRAPHY.body)}>
                     <Link href="#first-review-path" className={cn(OPERATOR_LINK.inline, DESIGN_TOKENS.accent.link)}>

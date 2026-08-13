@@ -49,15 +49,15 @@ describe("digest-setup-gap-actions", () => {
     expect(action.href).toBe("/governance/advisory-scans?tab=schedules");
   });
 
-  it("maps subscription and executive gaps", () => {
+  it("maps subscription and sponsor gaps", () => {
     const mapped = mapDigestSetupGaps([
       "No digest subscriptions — generated digests have no outbound recipients in this scope.",
-      "Executive email digest is not fully configured — sponsor emails will not receive the separate executive rollup.",
+      "Sponsor email digest is not fully configured — sponsor emails will not receive the separate sponsor rollup.",
     ]);
 
     expect(mapped[0]?.actionLabel).toBe("Create subscription");
     expect(mapped[0]?.href).toBe("/architecture/digests?tab=subscriptions");
-    expect(mapped[1]?.actionLabel).toBe("Open executive schedule");
+    expect(mapped[1]?.actionLabel).toBe("Open sponsor schedule");
     expect(mapped[1]?.href).toBe("/architecture/digests?tab=schedule");
   });
 

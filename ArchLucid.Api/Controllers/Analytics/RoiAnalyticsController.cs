@@ -12,7 +12,7 @@ using Microsoft.AspNetCore.RateLimiting;
 
 namespace ArchLucid.Api.Controllers.Analytics;
 
-/// <summary>Executive ROI analytics (aggregates). Data is mocked until the ROI data model is finalized.</summary>
+/// <summary>Sponsor ROI analytics (aggregates). Data is mocked until the ROI data model is finalized.</summary>
 [ApiController]
 [Authorize(Policy = ArchLucidPolicies.ReadAuthority)]
 [ApiVersion("1.0")]
@@ -22,13 +22,13 @@ namespace ArchLucid.Api.Controllers.Analytics;
 [ProducesResponseType(StatusCodes.Status403Forbidden)]
 public sealed class RoiAnalyticsController : ControllerBase
 {
-    /// <summary>Returns mocked aggregate ROI metrics for executive dashboards.</summary>
+    /// <summary>Returns mocked aggregate ROI metrics for sponsor dashboards.</summary>
     [HttpGet("roi")]
     [Produces("application/json")]
-    [ProducesResponseType(typeof(ExecutiveRoiAggregatesResponse), StatusCodes.Status200OK)]
-    public ActionResult<ExecutiveRoiAggregatesResponse> GetRoiAggregates()
+    [ProducesResponseType(typeof(SponsorRoiAggregatesResponse), StatusCodes.Status200OK)]
+    public ActionResult<SponsorRoiAggregatesResponse> GetRoiAggregates()
     {
-        ExecutiveRoiAggregatesResponse body = new()
+        SponsorRoiAggregatesResponse body = new()
         {
             TimeSavedHours = 142.5,
             DecisionsAutomated = 1840,
@@ -92,7 +92,7 @@ public sealed class RoiAnalyticsController : ControllerBase
 
     private static PortfolioRoiSummaryResponse BuildPortfolioSummary(IReadOnlyList<MockPortfolioFinding> findings)
     {
-        ExecutiveRoiAggregatesResponse rawTotals = new()
+        SponsorRoiAggregatesResponse rawTotals = new()
         {
             TimeSavedHours = findings.Sum(static finding => finding.TimeSavedHours),
             DecisionsAutomated = findings.Sum(static finding => finding.DecisionsAutomated),
@@ -105,7 +105,7 @@ public sealed class RoiAnalyticsController : ControllerBase
 
         List<MockPortfolioFinding> uniqueFindings = deduplicatedFindings.ToList();
 
-        ExecutiveRoiAggregatesResponse deduplicatedTotals = new()
+        SponsorRoiAggregatesResponse deduplicatedTotals = new()
         {
             TimeSavedHours = uniqueFindings.Sum(static finding => finding.TimeSavedHours),
             DecisionsAutomated = uniqueFindings.Sum(static finding => finding.DecisionsAutomated),

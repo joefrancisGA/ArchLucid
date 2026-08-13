@@ -74,7 +74,7 @@ export async function listDigestSubscriptions(): Promise<DigestSubscription[]> {
   return apiGet<DigestSubscription[]>(`/${ApiV1Routes.digestSubscriptions}`);
 }
 
-/** Loads weekly executive digest email preferences for the current tenant. */
+/** Loads weekly sponsor digest email preferences for the current tenant. */
 export async function getExecDigestPreferences(): Promise<ExecDigestPreferencesResponse> {
   return apiGet<ExecDigestPreferencesResponse>(`/${ApiV1Routes.tenantExecDigestPreferences}`);
 }
@@ -88,7 +88,7 @@ export async function tryGetTenantTrialStatus(): Promise<TenantTrialStatusPayloa
   }
 }
 
-/** Saves weekly executive digest email preferences (Execute+). */
+/** Saves weekly sponsor digest email preferences (Execute+). */
 export async function saveExecDigestPreferences(
   body: ExecDigestPreferencesUpsertRequest,
 ): Promise<ExecDigestPreferencesResponse> {

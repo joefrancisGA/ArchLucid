@@ -4,7 +4,7 @@ import type { ReactElement } from "react";
 
 import { CollapsibleSection } from "@/components/CollapsibleSection";
 import { RunDetailAiReadinessGateCard } from "@/components/runs/RunDetailAiReadinessGateCard";
-import { BUYER_EXECUTIVE_BRIEFING_PACKAGE_LABEL } from "@/lib/buyer/buyer-polish-copy";
+import { BUYER_SPONSOR_BRIEFING_PACKAGE_LABEL } from "@/lib/buyer/buyer-polish-copy";
 import { OPERATOR_TYPOGRAPHY } from "@/lib/design-tokens";
 
 const EmailRunToSponsorBanner = dynamic(
@@ -100,7 +100,7 @@ export function RunDetailSponsorBriefingSection(props: RunDetailSponsorBriefingS
 
   if (buyerPolishedArtifactTable) {
     return (
-      <CollapsibleSection title={BUYER_EXECUTIVE_BRIEFING_PACKAGE_LABEL} defaultOpen>
+      <CollapsibleSection title={BUYER_SPONSOR_BRIEFING_PACKAGE_LABEL} defaultOpen>
         <div id="sponsor-handoff-extended" className="scroll-mt-24">
           {deliverables}
         </div>

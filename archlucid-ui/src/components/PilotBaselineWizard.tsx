@@ -230,7 +230,7 @@ export function PilotBaselineWizard({ open, onOpenChange, onSaved }: PilotBaseli
             <DialogTitle>{title}</DialogTitle>
 
             <InAppHelpLink
-              helpSlug="executive-summary"
+              helpSlug="sponsor-report"
               hashFragment="pilot-roi-measurement"
               label="Review ROI methodology"
             />

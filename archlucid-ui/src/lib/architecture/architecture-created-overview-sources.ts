@@ -26,7 +26,7 @@ export const ARCHITECTURE_CREATED_OVERVIEW_CLAIM_DISCIPLINE =
 export const ARCHITECTURE_CREATED_OVERVIEW_EMPTY_HEADING = "No structured overview yet" as const;
 
 export const ARCHITECTURE_CREATED_OVERVIEW_EMPTY_CAUSE =
-  "Your brief was too thin for ArchLucid to extract executive summary, risks, or constraints." as const;
+  "Your brief was too thin for ArchLucid to extract sponsor report, risks, or constraints." as const;
 
 export const ARCHITECTURE_CREATED_OVERVIEW_PROVENANCE_LEGEND =
   "Asserted — taken directly from your brief. Inferred — derived by ArchLucid and may need correction in guided questions." as const;

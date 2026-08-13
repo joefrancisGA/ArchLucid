@@ -13,7 +13,7 @@ using Microsoft.AspNetCore.Mvc;
 
 namespace ArchLucid.Api.Controllers.Tenancy;
 
-/// <summary>Read-only workspace baseline artifact presence for executive dashboard nudges.</summary>
+/// <summary>Read-only workspace baseline artifact presence for sponsor dashboard nudges.</summary>
 [ApiController]
 [Authorize]
 [ApiVersion("1.0")]

@@ -21,7 +21,7 @@ using Microsoft.AspNetCore.RateLimiting;
 
 namespace ArchLucid.Api.Controllers.Roi;
 
-/// <summary>Cross-run executive ROI rollups for sponsor dashboards.</summary>
+/// <summary>Cross-run sponsor ROI rollups for sponsor dashboards.</summary>
 [ApiController]
 [Authorize(Policy = ArchLucidPolicies.ReadAuthority)]
 [ApiVersion("1.0")]
@@ -30,15 +30,15 @@ namespace ArchLucid.Api.Controllers.Roi;
 [ProducesResponseType(StatusCodes.Status401Unauthorized)]
 [ProducesResponseType(StatusCodes.Status403Forbidden)]
 public sealed class RoiController(
-    IExecutiveRoiSummaryService executiveRoiSummaryService,
-    IExecutiveRoiBoardPackExporter boardPackExporter,
+    ISponsorRoiSummaryService sponsorRoiSummaryService,
+    ISponsorRoiBoardPackExporter boardPackExporter,
     IAuditService auditService,
     IScopeContextProvider scopeProvider) : ControllerBase
 {
-    private readonly IExecutiveRoiSummaryService _executiveRoiSummaryService =
-        executiveRoiSummaryService ?? throw new ArgumentNullException(nameof(executiveRoiSummaryService));
+    private readonly ISponsorRoiSummaryService _sponsorRoiSummaryService =
+        sponsorRoiSummaryService ?? throw new ArgumentNullException(nameof(sponsorRoiSummaryService));
 
-    private readonly IExecutiveRoiBoardPackExporter _boardPackExporter =
+    private readonly ISponsorRoiBoardPackExporter _boardPackExporter =
         boardPackExporter ?? throw new ArgumentNullException(nameof(boardPackExporter));
 
     private readonly IAuditService _auditService =
@@ -51,37 +51,37 @@ public sealed class RoiController(
     ///     Aggregates the latest committed run per system, sums estimated USD savings, and returns the top recurring
     ///     finding themes.
     /// </summary>
-    [HttpGet("executive-summary")]
+    [HttpGet("sponsor-report")]
     [Produces("application/json")]
-    [ProducesResponseType(typeof(ExecutiveRoiSummaryResponse), StatusCodes.Status200OK)]
+    [ProducesResponseType(typeof(SponsorRoiSummaryResponse), StatusCodes.Status200OK)]
     [ProducesResponseType(StatusCodes.Status304NotModified)]
-    public async Task<IActionResult> GetExecutiveSummaryAsync(CancellationToken cancellationToken)
+    public async Task<IActionResult> GetSponsorReportAsync(CancellationToken cancellationToken)
     {
-        ExecutiveRoiSummaryResponse body = await _executiveRoiSummaryService.BuildAsync(cancellationToken).ConfigureAwait(false);
+        SponsorRoiSummaryResponse body = await _sponsorRoiSummaryService.BuildAsync(cancellationToken).ConfigureAwait(false);
         string etag = ConditionalGetNegotiation.ComputeJsonResponseEtag(
             body,
             ContractJson.CamelCaseIgnoreNullCompact,
-            "roi:executive-summary");
+            "roi:sponsor-report");
 
         return this.OkWithConditionalEtag(body, etag);
     }
 
-    /// <summary>One-page Markdown or PDF board pack derived from the executive ROI summary (no LLM).</summary>
-    [HttpGet("executive-summary/board-pack")]
+    /// <summary>One-page Markdown or PDF board pack derived from the sponsor ROI summary (no LLM).</summary>
+    [HttpGet("sponsor-report/board-pack")]
     [Produces("text/markdown", "application/pdf")]
     [ProducesResponseType(StatusCodes.Status200OK)]
     [ProducesResponseType(StatusCodes.Status400BadRequest)]
-    public async Task<IActionResult> GetExecutiveSummaryBoardPackAsync(
+    public async Task<IActionResult> GetSponsorReportBoardPackAsync(
         [FromQuery] string? format,
         [FromQuery] bool generateNarrative = false,
         CancellationToken cancellationToken = default)
     {
-        if (!TryParseBoardPackFormat(format, out ExecutiveRoiBoardPackFormat parsedFormat))
+        if (!TryParseBoardPackFormat(format, out SponsorRoiBoardPackFormat parsedFormat))
             return this.BadRequestProblem("format must be md or pdf.", ProblemTypes.ValidationFailed);
 
         string? traceId = Activity.Current?.TraceId.ToString();
 
-        ExecutiveRoiBoardPackExportResult export = await _boardPackExporter
+        SponsorRoiBoardPackExportResult export = await _boardPackExporter
             .ExportAsync(parsedFormat, traceId, generateNarrative, cancellationToken)
             .ConfigureAwait(false);
 
@@ -89,13 +89,13 @@ public sealed class RoiController(
 
         await _auditService.LogAsync(
             scope.CreateAuditEvent(
-                AuditEventTypes.ExecutiveRoiBoardPackExported,
+                AuditEventTypes.SponsorRoiBoardPackExported,
                 User?.Identity?.Name ?? "operator",
                 "roi-board-pack",
                 JsonSerializer.Serialize(new { format = parsedFormat.ToString().ToLowerInvariant() })),
             cancellationToken).ConfigureAwait(false);
 
-        if (parsedFormat == ExecutiveRoiBoardPackFormat.Pdf && export.FileBytes is not null)
+        if (parsedFormat == SponsorRoiBoardPackFormat.Pdf && export.FileBytes is not null)
             return File(export.FileBytes, export.ContentType, export.FileName);
 
         return Content(export.Markdown ?? string.Empty, export.ContentType, Encoding.UTF8);
@@ -120,45 +120,45 @@ public sealed class RoiController(
                 type: "https://archlucid.net/errors/portfolio-key-not-configured");
         }
 
-        CrossTenantPortfolioSummaryResponse body = await _executiveRoiSummaryService.GetCrossTenantPortfolioSummaryAsync(directoryKey, cancellationToken).ConfigureAwait(false);
+        CrossTenantPortfolioSummaryResponse body = await _sponsorRoiSummaryService.GetCrossTenantPortfolioSummaryAsync(directoryKey, cancellationToken).ConfigureAwait(false);
         return Ok(body);
     }
 
-    /// <summary>Six-month executive ROI trend (savings and critical findings).</summary>
-    [HttpGet("executive-summary/history")]
+    /// <summary>Six-month sponsor ROI trend (savings and critical findings).</summary>
+    [HttpGet("sponsor-report/history")]
     [Produces("application/json")]
-    [ProducesResponseType(typeof(ExecutiveRoiHistoryResponse), StatusCodes.Status200OK)]
+    [ProducesResponseType(typeof(SponsorRoiHistoryResponse), StatusCodes.Status200OK)]
     [ProducesResponseType(StatusCodes.Status304NotModified)]
-    public async Task<IActionResult> GetExecutiveSummaryHistoryAsync(CancellationToken cancellationToken)
+    public async Task<IActionResult> GetSponsorReportHistoryAsync(CancellationToken cancellationToken)
     {
-        ExecutiveRoiHistoryResponse body = await _executiveRoiSummaryService.BuildHistoryAsync(cancellationToken).ConfigureAwait(false);
+        SponsorRoiHistoryResponse body = await _sponsorRoiSummaryService.BuildHistoryAsync(cancellationToken).ConfigureAwait(false);
         string etag = ConditionalGetNegotiation.ComputeJsonResponseEtag(
             body,
             ContractJson.CamelCaseIgnoreNullCompact,
-            "roi:executive-summary:history");
+            "roi:sponsor-report:history");
 
         return this.OkWithConditionalEtag(body, etag);
     }
 
     /// <summary>Deduplicated finding export rows and environment savings slices.</summary>
-    [HttpGet("executive-summary/export")]
+    [HttpGet("sponsor-report/export")]
     [Produces("application/json")]
-    [ProducesResponseType(typeof(ExecutiveRoiExportResponse), StatusCodes.Status200OK)]
+    [ProducesResponseType(typeof(SponsorRoiExportResponse), StatusCodes.Status200OK)]
     [ProducesResponseType(StatusCodes.Status304NotModified)]
-    public async Task<IActionResult> GetExecutiveSummaryExportAsync(CancellationToken cancellationToken)
+    public async Task<IActionResult> GetSponsorReportExportAsync(CancellationToken cancellationToken)
     {
-        ExecutiveRoiExportResponse body = await _executiveRoiSummaryService.BuildExportAsync(cancellationToken).ConfigureAwait(false);
+        SponsorRoiExportResponse body = await _sponsorRoiSummaryService.BuildExportAsync(cancellationToken).ConfigureAwait(false);
         string etag = ConditionalGetNegotiation.ComputeJsonResponseEtag(
             body,
             ContractJson.CamelCaseIgnoreNullCompact,
-            "roi:executive-summary:export");
+            "roi:sponsor-report:export");
 
         return this.OkWithConditionalEtag(body, etag);
     }
 
-    private static bool TryParseBoardPackFormat(string? format, out ExecutiveRoiBoardPackFormat parsedFormat)
+    private static bool TryParseBoardPackFormat(string? format, out SponsorRoiBoardPackFormat parsedFormat)
     {
-        parsedFormat = ExecutiveRoiBoardPackFormat.Markdown;
+        parsedFormat = SponsorRoiBoardPackFormat.Markdown;
 
         if (string.IsNullOrWhiteSpace(format))
             return true;
@@ -170,7 +170,7 @@ public sealed class RoiController(
 
         if (normalized is "pdf")
         {
-            parsedFormat = ExecutiveRoiBoardPackFormat.Pdf;
+            parsedFormat = SponsorRoiBoardPackFormat.Pdf;
 
             return true;
         }

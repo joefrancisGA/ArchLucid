@@ -4,7 +4,7 @@ const claimsShowcasePath = "/showcase/claims-intake-modernization";
 
 async function expectShowcaseMarketingBodyPresent(page: Page): Promise<void> {
   await expect(page.getByRole("heading", { name: /Claims Intake Modernization/i })).toBeVisible();
-  await expect(page.getByRole("heading", { name: /Executive summary/i })).toBeVisible();
+  await expect(page.getByRole("heading", { name: /Sponsor report/i })).toBeVisible();
   await expect(page.getByTestId("demo-preview-marketing-body")).toBeVisible();
   await expect(page.getByTestId("demo-preview-not-available")).toHaveCount(0);
   await expect(page.getByText(/not available on this site/i)).toHaveCount(0);

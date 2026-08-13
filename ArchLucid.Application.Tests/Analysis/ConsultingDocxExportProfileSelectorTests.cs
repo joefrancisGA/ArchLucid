@@ -20,8 +20,8 @@ public sealed class ConsultingDocxExportProfileSelectorTests
             [
                 new ConsultingDocxTemplateProfileInfo
                 {
-                    ProfileName = "executive",
-                    ProfileDisplayName = "Executive Brief",
+                    ProfileName = "sponsor",
+                    ProfileDisplayName = "Sponsor Brief",
                 },
             ],
         });
@@ -29,11 +29,11 @@ public sealed class ConsultingDocxExportProfileSelectorTests
         ConsultingDocxExportProfileSelector sut = new(resolver.Object, recommendation.Object);
 
         ResolvedConsultingDocxExportProfile resolved = sut.Resolve(
-            "executive",
+            "sponsor",
             new ConsultingDocxProfileRecommendationRequest());
 
-        resolved.SelectedProfileName.Should().Be("executive");
-        resolved.SelectedProfileDisplayName.Should().Be("Executive Brief");
+        resolved.SelectedProfileName.Should().Be("sponsor");
+        resolved.SelectedProfileDisplayName.Should().Be("Sponsor Brief");
         resolved.WasAutoSelected.Should().BeFalse();
         recommendation.VerifyNoOtherCalls();
     }

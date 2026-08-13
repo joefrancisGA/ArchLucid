@@ -62,7 +62,7 @@ ALLOWED_PARAGRAPHS_NORMALIZED: frozenset[str] = frozenset(
         "Five steps. Roughly thirty minutes end-to-end on a normal connection.",
         "Defaults mirror the existing briefs in templates/briefs/.",
         "For the operator path after the sample run, see pricing or talk to your account team via the Request a quote button on the pricing page.",
-        "For the sponsor-facing narrative, see the executive sponsor brief in the public repository at docs/EXECUTIVE_SPONSOR_BRIEF.md.",
+        "For the sponsor-facing narrative, see the sponsor sponsor brief in the public repository at docs/EXECUTIVE_SPONSOR_BRIEF.md.",
         # Marketing page — single-word JSX text nodes for the picker (heading + tiny labels)
         "Pick a vertical to start",
         "Where to go next",

@@ -6,7 +6,7 @@
 import { DIGESTS_BROWSE_INCLUDES_ITEMS } from "@/lib/digests-browse-copy";
 import { channelDisplayLabel } from "@/lib/digest-subscription-form";
 
-export type DigestPreviewBeforeSubscribeVariant = "architecture-subscription" | "executive-schedule";
+export type DigestPreviewBeforeSubscribeVariant = "architecture-subscription" | "sponsor-schedule";
 
 export type DigestPreviewBeforeSubscribeInput = {
   readonly variant: DigestPreviewBeforeSubscribeVariant;
@@ -16,7 +16,7 @@ export type DigestPreviewBeforeSubscribeInput = {
   readonly destination?: string;
   /** Human label for digest type (e.g. Architecture digest). */
   readonly digestTypeLabel?: string;
-  /** Direct recipients on the executive schedule form. */
+  /** Direct recipients on the sponsor schedule form. */
   readonly recipientEmails?: readonly string[];
   /** Live cadence summary (e.g. Every Monday at 8:00 AM Eastern). */
   readonly cadenceSummary?: string;
@@ -38,7 +38,7 @@ export const DIGEST_PREVIEW_BEFORE_SUBSCRIBE_HELPER =
   "Review a faithful specimen of digest content for the destination and cadence you configured. This is not a live compose from your workspace data." as const;
 
 export const DIGEST_PREVIEW_BEFORE_SUBSCRIBE_SCHEDULE_HELPER =
-  "Review a specimen of the executive digest email for the recipients and schedule below. This is not a live compose from your workspace data." as const;
+  "Review a specimen of the sponsor digest email for the recipients and schedule below. This is not a live compose from your workspace data." as const;
 
 export const DIGEST_PREVIEW_SECTIONS_HEADING = "Sections included" as const;
 
@@ -47,8 +47,8 @@ export const DIGEST_PREVIEW_ARCHITECTURE_SECTIONS: readonly string[] = [
   ...DIGESTS_BROWSE_INCLUDES_ITEMS,
 ];
 
-/** Executive weekly rollup sections (deterministic sponsor email). */
-export const DIGEST_PREVIEW_EXECUTIVE_SECTIONS = [
+/** Sponsor weekly rollup sections (deterministic sponsor email). */
+export const DIGEST_PREVIEW_SPONSOR_SECTIONS = [
   "Architecture and review activity summary",
   "Governance and finding highlights",
   "Open decisions needing sponsor attention",
@@ -75,7 +75,7 @@ function resolveArchitectureSubject(input: DigestPreviewBeforeSubscribeInput): s
 }
 
 function resolveToLine(input: DigestPreviewBeforeSubscribeInput): string {
-  if (input.variant === "executive-schedule") {
+  if (input.variant === "sponsor-schedule") {
     const emails = (input.recipientEmails ?? [])
       .map((email) => email.trim())
       .filter((email) => email.length > 0);
@@ -101,7 +101,7 @@ function resolveToLine(input: DigestPreviewBeforeSubscribeInput): string {
 }
 
 function resolveMetaLine(input: DigestPreviewBeforeSubscribeInput): string {
-  if (input.variant === "executive-schedule") {
+  if (input.variant === "sponsor-schedule") {
     const cadence = input.cadenceSummary?.trim();
 
     if (cadence !== undefined && cadence.length > 0) {
@@ -121,7 +121,7 @@ export function resolveDigestPreviewHelper(variant: DigestPreviewBeforeSubscribe
   switch (variant) {
     case "architecture-subscription":
       return DIGEST_PREVIEW_BEFORE_SUBSCRIBE_HELPER;
-    case "executive-schedule":
+    case "sponsor-schedule":
       return DIGEST_PREVIEW_BEFORE_SUBSCRIBE_SCHEDULE_HELPER;
     default: {
       const _exhaustive: never = variant;
@@ -134,17 +134,17 @@ export function resolveDigestPreviewHelper(variant: DigestPreviewBeforeSubscribe
 export function buildDigestPreviewBeforeSubscribeSpecimen(
   input: DigestPreviewBeforeSubscribeInput,
 ): DigestPreviewBeforeSubscribeSpecimen {
-  if (input.variant === "executive-schedule") {
+  if (input.variant === "sponsor-schedule") {
     return {
-      subjectLine: "Executive digest — weekly architecture rollup",
+      subjectLine: "Sponsor digest — weekly architecture rollup",
       toLine: resolveToLine(input),
       metaLine: resolveMetaLine(input),
       sectionsHeading: DIGEST_PREVIEW_SECTIONS_HEADING,
-      sections: DIGEST_PREVIEW_EXECUTIVE_SECTIONS,
+      sections: DIGEST_PREVIEW_SPONSOR_SECTIONS,
       bodyLead:
         "This specimen shows the sponsor email shape for the cadence and direct recipients configured on this schedule.",
       footnote:
-        "Enabling or saving the executive schedule does not consume AI budget. Delivery starts on the next scheduled send after outbound email is ready.",
+        "Enabling or saving the sponsor schedule does not consume AI budget. Delivery starts on the next scheduled send after outbound email is ready.",
     };
   }
 

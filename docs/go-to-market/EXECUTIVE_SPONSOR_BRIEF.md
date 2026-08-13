@@ -1,8 +1,8 @@
 > **Reviewed:** 2026-08-03
 
-> **Scope:** ArchLucid Executive Sponsor Brief — sponsor story of record, plus verbal elevator pitches and M-18 outreach templates (formerly `ELEVATOR_PITCH.md`). Full detail, tables, and links in the sections below.
+> **Scope:** ArchLucid Sponsor Sponsor Brief — sponsor story of record, plus verbal elevator pitches and M-18 outreach templates (formerly `ELEVATOR_PITCH.md`). Full detail, tables, and links in the sections below.
 
-# ArchLucid Executive Sponsor Brief
+# ArchLucid Sponsor Sponsor Brief
 
 **Audience:** CIOs, CTOs, chief architects, architecture review sponsors, governance leaders, and pilot sponsors who need a concise explanation of what ArchLucid does and why a pilot matters. Founders also use §4 for talk-track and warm outreach.
 
@@ -17,7 +17,7 @@ This file is the outward **sponsor story of record**: why a pilot matters, what 
 ## Related
 
 - **[Your first architecture review](/help/first-architecture-review)** — guided first-session checklist
-- **[Pilot ROI measurement](/help/executive-summary#pilot-roi-measurement)** — how pilot value is measured
+- **[Pilot ROI measurement](/help/sponsor-summary#pilot-roi-measurement)** — how pilot value is measured
 - **[Specialty review templates](/help/specialty-walkthroughs)** — Azure SaaS, AI governance, and healthcare starter packs
 - **[Procurement FAQ](/help/procurement)** — InfoSec and enterprise questionnaire answers
 - **[POSITIONING.md](POSITIONING.md)** — positioning aligned to this brief
@@ -131,7 +131,7 @@ Former standalone: `docs/go-to-market/ELEVATOR_PITCH.md` → this section (inclu
 >
 > ArchLucid is built specifically for this gap. It coordinates a multi-agent pipeline — four specialized AI agents cover topology, cost, compliance, and design quality — against a structured architecture request. Evidence-cited findings include explainability traces where gates enforce them. Decisions recorded on those findings are auditable, with replay/compare supported against committed manifests.
 >
-> The output is what I call an architecture package: a signed review record anchored to a full audit chain, structured findings, stated limits where the system does not conclude, and an executive summary your sponsor can read in five minutes. Exportable as DOCX or PDF, whitelabeled if needed.
+> The output is what I call an architecture package: a signed review record anchored to a full audit chain, structured findings, stated limits where the system does not conclude, and an sponsor summary your sponsor can read in five minutes. Exportable as DOCX or PDF, whitelabeled if needed.
 >
 > I offer this as a productized service — an ArchLucid AI and Cloud Architecture Readiness Review — where I run the workflow on your real architecture context and deliver the package. The cost is in the range of a few days of senior architect time at a fraction of the calendar delay.
 >
@@ -319,7 +319,7 @@ Schedule 30 minutes: walkthrough of our ArchLucid pilot findings
 **Procurement / evaluation (pre-pilot):**
 
 ```
-ArchLucid pilot — executive summary and evidence requests
+ArchLucid pilot — sponsor summary and evidence requests
 ```
 
 ```
@@ -341,7 +341,7 @@ We completed an ArchLucid architecture review pilot on our <<SYSTEM_NAME>> conte
 
 ArchLucid turns a structured architecture request into governed findings, a versioned manifest, and downloadable artifacts—every recommendation traced, every decision recorded. This is not a chat transcript; it is an evidence package your ARB or audit team can replay.
 
-I have attached our executive brief, first-value report, proof packet, and ROI context. Could we schedule 30 minutes this week to walk through the findings and decide on next steps?
+I have attached our sponsor brief, first-value report, proof packet, and ROI context. Could we schedule 30 minutes this week to walk through the findings and decide on next steps?
 
 Thank you,
 <<SENDER_NAME>>

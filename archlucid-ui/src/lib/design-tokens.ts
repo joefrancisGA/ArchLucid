@@ -306,7 +306,7 @@ export const OPERATOR_TYPOGRAPHY = {
   dataValue: `${OPERATOR_TYPE_SCALE.body} font-medium tabular-nums`,
   /** Dashboard / metric tiles only — not page titles. */
   kpiValue: "font-mono text-4xl font-semibold tabular-nums text-al-text-primary",
-  /** Executive dashboard numbers (KPI tiles + ROI summary) — one treatment (BDA-139). */
+  /** Sponsor dashboard numbers (KPI tiles + ROI summary) — one treatment (BDA-139). */
   executiveDashboardMetric: "text-2xl font-semibold tabular-nums text-al-text-primary",
 } as const;
 
@@ -434,8 +434,8 @@ export const MARKETING_MOTION = {
   heroVisual: "marketing-hero-visual",
 } as const;
 
-/** Executive buyer shell — reuses operator scale; eyebrow matches marketing entry surfaces. */
-export const EXECUTIVE_TYPOGRAPHY = {
+/** Sponsor buyer shell — reuses operator scale; eyebrow matches marketing entry surfaces. */
+export const SPONSOR_TYPOGRAPHY = {
   eyebrow: MARKETING_TYPOGRAPHY.eyebrow,
   pageTitle: OPERATOR_TYPOGRAPHY.pageTitle,
   lead: `${OPERATOR_TYPOGRAPHY.body} text-al-text-secondary`,

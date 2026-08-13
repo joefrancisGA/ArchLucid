@@ -5,7 +5,7 @@ namespace ArchLucid.Application.Analysis;
 ///     context signals present in a <see cref = "ConsultingDocxProfileRecommendationRequest"/>.
 /// </summary>
 /// <remarks>
-///     Profile resolution follows a priority order: regulated &gt; executive &gt; external delivery &gt;
+///     Profile resolution follows a priority order: regulated &gt; sponsor &gt; external delivery &gt;
 ///     technical depth &gt; audience keyword inference &gt; safe default. The default is
 ///     <see cref = "ConsultingDocxProfiles.Client"/> when no strong signal is detected.
 /// </remarks>
@@ -32,8 +32,8 @@ public sealed class ConsultingDocxTemplateRecommendationService(IConsultingDocxT
         }
         else if (request.ExecutiveFriendly)
         {
-            profile = Prefer(ConsultingDocxProfiles.Executive, available);
-            reason = "An executive-friendly output was requested, so a shorter stakeholder-oriented brief is the best fit.";
+            profile = Prefer(ConsultingDocxProfiles.Sponsor, available);
+            reason = "An sponsor-friendly output was requested, so a shorter stakeholder-oriented brief is the best fit.";
         }
         else if (request.ExternalDelivery)
         {
@@ -45,10 +45,10 @@ public sealed class ConsultingDocxTemplateRecommendationService(IConsultingDocxT
             profile = Prefer(ConsultingDocxProfiles.Internal, available);
             reason = "Detailed evidence, traceability, or replay/comparison depth was requested, so the internal technical review profile is the best fit.";
         }
-        else if (!string.IsNullOrWhiteSpace(request.Audience) && request.Audience.Contains("executive", StringComparison.OrdinalIgnoreCase))
+        else if (!string.IsNullOrWhiteSpace(request.Audience) && request.Audience.Contains("sponsor", StringComparison.OrdinalIgnoreCase))
         {
-            profile = Prefer(ConsultingDocxProfiles.Executive, available);
-            reason = "The audience indicates executives or sponsors, so the executive brief is the best fit.";
+            profile = Prefer(ConsultingDocxProfiles.Sponsor, available);
+            reason = "The audience indicates executives or sponsors, so the sponsor brief is the best fit.";
         }
         else if (!string.IsNullOrWhiteSpace(request.Audience) && (request.Audience.Contains("audit", StringComparison.OrdinalIgnoreCase) ||
                                                                   request.Audience.Contains("compliance", StringComparison.OrdinalIgnoreCase) ||

@@ -4,7 +4,7 @@
 
 # Differentiation proof packet
 
-**Audience:** Evaluators, executive sponsors, and sales engineers answering "why not generic AI or a consultant checklist?"
+**Audience:** Evaluators, sponsor sponsors, and sales engineers answering "why not generic AI or a consultant checklist?"
 
 **Last reviewed:** 2026-07-27
 
@@ -220,7 +220,7 @@ Copy-Item fixtures/model-seats-counter-positioning/cohort-synthesis.template.md 
 
 | Step | Owner | Done when |
 | --- | --- | --- |
-| Recruit 3 executive sponsors or budget holders | Founder | Distinct accounts or roles |
+| Recruit 3 sponsor sponsors or budget holders | Founder | Distinct accounts or roles |
 | Assign script rotation A / B / C | Founder | One primary script per session |
 | Run next-question flow | Founder | Template § Flow complete |
 | Score pass/fail per session | Founder | Template § Scoring complete |
@@ -324,7 +324,7 @@ ArchLucid does **not** always reason better than frontier AI. This protocol docu
 - Policy-consistent exports with execution-mode labels
 - ROI basis discipline and sponsor-safe fallbacks
 
-### Demo script (15-minute executive slice)
+### Demo script (15-minute sponsor slice)
 
 1. Show manual AI findings list — 2 minutes.
 2. Show ArchLucid sponsor packet with **execution mode** and **evidence-basis** labels — 5 minutes.
@@ -376,7 +376,7 @@ Tasks:
 1. List the top 10 material architecture findings (severity + one-line rationale each).
 2. For each finding, cite which packet section or artifact supports it.
 3. Recommend three decision changes the ARB should consider before approval.
-4. Draft a 150-word executive summary suitable for a CIO — label any estimate as an estimate.
+4. Draft a 150-word sponsor summary suitable for a CIO — label any estimate as an estimate.
 
 Constraints:
 - Do not invent infrastructure not present in the packet.

@@ -221,7 +221,7 @@ export const OTHER_TRAFFIC_ROWS: readonly UiRouteTrafficRow[] = [
     rowId: "WH",
     path: "/why-archlucid",
     section: "Learning",
-    note: "Pilot proof telemetry (Learning) - WhyArchLucidPage with OperatorPageHeader/PageHeading, OperatorPageBreadcrumb, PageContextualHelpButton (topic map how-it-works), internal pilot badge, seeded demo telemetry + sponsor pack sections. Sibling WHY = marketing /why. Buyer-polished shell redirects to showcase executive. Demo/proof orientation — not a signed-record Sources trail.",
+    note: "Pilot proof telemetry (Learning) - WhyArchLucidPage with OperatorPageHeader/PageHeading, OperatorPageBreadcrumb, PageContextualHelpButton (topic map how-it-works), internal pilot badge, seeded demo telemetry + sponsor pack sections. Sibling WHY = marketing /why. Buyer-polished shell redirects to showcase sponsor. Demo/proof orientation — not a signed-record Sources trail.",
     noteMustContain: ["WhyArchLucidPage", "OperatorPageHeader", "marketing /why"],
   },
 ];

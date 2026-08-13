@@ -39,8 +39,8 @@ export const SECTION_LOAD_FAILURE_RECOVERY_SURFACES: readonly ErrorRecoveryContr
     requiredMarkers: SECTION_LOAD_FAILURE_MARKERS,
   },
   {
-    id: "executive-roi-trend",
-    sourceRoots: ["app/(operator)/architecture/executive-dashboard/_sections/ExecutiveRoiTrendSection.tsx"],
+    id: "sponsor-roi-trend",
+    sourceRoots: ["app/(operator)/architecture/sponsor-dashboard/_sections/SponsorRoiTrendSection.tsx"],
     requiredMarkers: SECTION_LOAD_FAILURE_MARKERS,
   },
   {

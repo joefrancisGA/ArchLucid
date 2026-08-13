@@ -121,7 +121,7 @@ Operational setup (Dashboard Price object, webhook events) stays in **`docs/go-t
 | **Self-serve trial** | Free | 30 days | Auto-upgrade prompt; see [TRIAL_AND_SIGNUP.md](TRIAL_AND_SIGNUP.md). Team-tier features, simulator agents, 10 runs, 3 seats, sample seeded. One-time 14-day extension available. |
 | **Guided pilot** | $15,000 flat, fully credited on conversion to Professional or Enterprise | 6 weeks (per [PILOT_SUCCESS_SCORECARD.md](PILOT_SUCCESS_SCORECARD.md)) | Scorecard review → commercial proposal |
 | **Design partner** | 50% off Professional list price for 12 months; **capped at first 3 customers** | Contract term | In exchange for: published case study + quarterly reference call |
-| **Enterprise evaluation** | Custom | Negotiated | Champion + executive sponsor path |
+| **Enterprise evaluation** | Custom | Negotiated | Champion + sponsor sponsor path |
 
 **Guided pilot credit:** The $15,000 pilot fee is fully credited against the first annual invoice on conversion, making it zero net cost to the buyer who converts.
 
@@ -311,7 +311,7 @@ Each gate below removes its associated discount from the stack. Trigger a **prod
 
 | Discount line | Magnitude | Owner | Target close date | Evidence link | Re-rate trigger |
 |---------------|-----------|-------|-------------------|---------------|-----------------|
-| Trust discount (SOC 2 Type II + published pen-test) | −25% | TBD (security lead) | TBD (gated on auditor selection) | `docs/security/PEN_TEST_PROGRAM.md` once it lands (file does not yet exist; the link will be made live in the same PR that introduces the program); future CPA attestation evidence filed under NDA after issuance | Auditor opinion letter received **and** filed in the trust portal; pen-test report (or executive summary) approved for prospect distribution |
+| Trust discount (SOC 2 Type II + published pen-test) | −25% | TBD (security lead) | TBD (gated on auditor selection) | `docs/security/PEN_TEST_PROGRAM.md` once it lands (file does not yet exist; the link will be made live in the same PR that introduces the program); future CPA attestation evidence filed under NDA after issuance | Auditor opinion letter received **and** filed in the trust portal; pen-test report (or sponsor summary) approved for prospect distribution |
 | Reference discount (named, published reference customer) | −15% | **Product marketing** (standardized 2026-04-21) | Standing offer — clears the moment first row reaches `Status: Published` | [`reference-customers/README.md`](reference-customers/README.md) — first row reaching `Status: Published`; CI runs `scripts/ci/check_reference_customer_status.py` twice in `.github/workflows/ci.yml` — warn-only first, then a **strict** re-run **only when** the warn step succeeds (auto-flip; **do not** remove `continue-on-error` by hand on publish day) | At least **one** row in the reference-customers index has `Status: Published` **and** the strict re-run step is active (same commit that introduces the Published row is enough). **Outbound offer to subsequent customers is the standardized 15% per § 4.1** — no per-deal negotiation required. |
 
 > **TODO (reference discount copy removal):** Do **not** delete the −15% line from §5.1 / §5.2 until product leadership runs the §5.3 **re-rate review**. The **engineering** signal that the gate is ready is the **same** merge to `main` where the first README row hits `Published` (strict CI step auto-flips — no YAML surgery).

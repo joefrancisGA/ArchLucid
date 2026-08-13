@@ -19,7 +19,7 @@ public sealed class GovernanceDigestDecisionNeededComposer(
     IRiskExceptionService riskExceptionService,
     IFindingReviewTrailRepository findingReviewTrailRepository,
     IArchitectureDigestRepository digestRepository,
-    IExecutiveRoiSummaryService executiveRoiSummaryService) : IGovernanceDigestDecisionNeededComposer
+    ISponsorRoiSummaryService SponsorRoiSummaryService) : IGovernanceDigestDecisionNeededComposer
 {
     private readonly IGovernanceApprovalRequestRepository _approvalRepository =
         approvalRepository ?? throw new ArgumentNullException(nameof(approvalRepository));
@@ -312,11 +312,11 @@ public sealed class GovernanceDigestDecisionNeededComposer(
             return null;
 
         ScopeContext scope = new() { TenantId = tenantId, WorkspaceId = workspaceId, ProjectId = projectId.Value };
-        ExecutiveRoiSummaryResponse roi;
+        SponsorRoiSummaryResponse roi;
 
         using (AmbientScopeContext.Push(scope))
         {
-            roi = await executiveRoiSummaryService.BuildAsync(cancellationToken);
+            roi = await SponsorRoiSummaryService.BuildAsync(cancellationToken);
         }
 
         StringBuilder value = new();

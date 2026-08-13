@@ -1,6 +1,6 @@
 import { NextRequest, NextResponse } from "next/server";
 
-import { EXECUTIVE_DASHBOARD_HREF } from "@/lib/executive-dashboard-route";
+import { SPONSOR_DASHBOARD_HREF } from "@/lib/sponsor-dashboard-route";
 import {
   CORRELATION_ID_HEADER,
   generateCorrelationId,
@@ -12,8 +12,8 @@ import {
  *
  * Internal route handler that bridges the Reviews empty-state seed button to the upstream demo seed endpoint.
  * Forwards POST to `/api/proxy/v1/demo/seed` (which adds API key / bearer / scope headers via the existing proxy).
- * On upstream `204 No Content`, returns `{ redirectTo: "/architecture/executive-dashboard" }` with status 200 so the client component
- * can refresh the executive ROI dashboard. All other upstream statuses are passed through (preserving Problem Details).
+ * On upstream `204 No Content`, returns `{ redirectTo: "/architecture/sponsor-dashboard" }` with status 200 so the client component
+ * can refresh the sponsor ROI dashboard. All other upstream statuses are passed through (preserving Problem Details).
  */
 
 const SEED_TARGET_PATH = "/api/proxy/v1/demo/seed";
@@ -57,7 +57,7 @@ function buildSeedTargetUrl(request: NextRequest): string {
 }
 
 function buildRedirectResponse(correlationId: string): NextResponse {
-  const res = NextResponse.json({ redirectTo: EXECUTIVE_DASHBOARD_HREF }, { status: 200 });
+  const res = NextResponse.json({ redirectTo: SPONSOR_DASHBOARD_HREF }, { status: 200 });
   res.headers.set(CORRELATION_ID_HEADER, correlationId);
 
   return res;
@@ -78,7 +78,7 @@ async function buildPassThroughResponse(
 }
 
 /**
- * Handles `POST /api/seed-sample`. Returns `{ redirectTo: "/architecture/executive-dashboard" }` on upstream 204; otherwise passes the
+ * Handles `POST /api/seed-sample`. Returns `{ redirectTo: "/architecture/sponsor-dashboard" }` on upstream 204; otherwise passes the
  * upstream status and body through so the caller can surface a Problem Details toast.
  */
 export async function POST(request: NextRequest): Promise<NextResponse> {

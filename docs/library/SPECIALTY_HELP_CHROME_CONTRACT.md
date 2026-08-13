@@ -54,7 +54,7 @@ Machine-readable copy: [`archlucid-ui/src/lib/specialty-help-chrome-below-50-inv
 | ~39 | `/help/configuration-reference` | **TB-1326**–**TB-1330** | Open |
 | ~40 | `/help/repeat-review-loop` | **TB-1394**–**TB-1398** | **Done** |
 | ~42 | `/help/evaluator-workbook` | **TB-1345**–**TB-1349** | Open |
-| ~42 | `/help/executive-summary` (pilot ROI depth) | **TB-1389**–**TB-1393** | **Done** |
+| ~42 | `/help/sponsor-summary` (pilot ROI depth) | **TB-1389**–**TB-1393** | **Done** |
 | ~46 | `/help/first-hour-operator-path` | **TB-1374**–**TB-1378** | Open |
 | ~49 | `/help/procurement` | **TB-1253**–**TB-1257** | Open |
 

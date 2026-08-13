@@ -67,7 +67,7 @@ export const GLOSSARY_TERMS = {
   },
   artifact_bundle: {
     term: "Artifact bundle",
-    definition: "An exportable artifact aimed at a specific audience (executive summary, architecture board packet, security appendix, diligence bundle). Distinct from a raw finding row: deliverables are packaged outputs.",
+    definition: "An exportable artifact aimed at a specific audience (sponsor report, architecture board packet, security appendix, diligence bundle). Distinct from a raw finding row: deliverables are packaged outputs.",
     docLink: "/help/glossary#term-deliverable",
   },
   scope: {

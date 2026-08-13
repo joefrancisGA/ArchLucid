@@ -1,7 +1,7 @@
 import type { HelpMarkdownHeading } from "@/lib/help/help-markdown-headings";
 import { PILOT_OUTCOMES_HELP_TOPIC_LABEL } from "@/lib/pilot-outcomes-evidence-copy";
 import {
-  SPONSOR_REPORT_EXECUTIVE_SUMMARY_PATH,
+  SPONSOR_REPORT_PATH,
   SPONSOR_REPORT_PAGE_SUBTITLE,
   SPONSOR_REPORT_PAGE_TITLE,
   SPONSOR_REPORT_ROI_SUMMARY_PATH,
@@ -19,7 +19,7 @@ export const PILOT_OUTCOMES_HELP_OVERVIEW =
 
 export const PILOT_OUTCOMES_HELP_PRIMARY_ACTION = {
   label: "Open sponsor report",
-  href: SPONSOR_REPORT_EXECUTIVE_SUMMARY_PATH,
+  href: SPONSOR_REPORT_PATH,
 } as const;
 
 export type PilotOutcomesHelpReportItem = {
@@ -42,23 +42,23 @@ export const PILOT_OUTCOMES_HELP_REPORT_ITEMS: readonly PilotOutcomesHelpReportI
   },
   {
     label: "Sibling sponsor reports",
-    detail: "Open executive summary or ROI summary when packaging needs a broader narrative.",
+    detail: "Open sponsor report or ROI summary when packaging needs a broader narrative.",
   },
 ] as const;
 
 export const PILOT_OUTCOMES_HELP_HOW_TO_READ_STEPS = [
   "Set the reporting period and apply it so tiles reflect the pilot window you intend to discuss.",
   "Review confidence and empty-state guidance before citing counts to sponsors or procurement.",
-  "Open executive summary, ROI summary, or architecture scorecard when outcomes need sibling packaging.",
+  "Open sponsor report, ROI summary, or architecture scorecard when outcomes need sibling packaging.",
 ] as const;
 
 export const PILOT_OUTCOMES_HELP_SIBLING_REPORTS = [
   {
-    id: "executive-summary",
-    title: "Executive value report",
+    id: "sponsor-report",
+    title: "Sponsor value report",
     description: "Period preview of finalized reviews, governance activity, and sponsor exports.",
-    actionLabel: "Open executive value report",
-    href: SPONSOR_REPORT_EXECUTIVE_SUMMARY_PATH,
+    actionLabel: "Open sponsor value report",
+    href: SPONSOR_REPORT_PATH,
   },
   {
     id: "roi-summary",

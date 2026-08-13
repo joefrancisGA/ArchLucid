@@ -213,10 +213,10 @@ Full-scope audit of sponsor-facing outputs per assessment Task #8. **Disposition
 | First-value report (Markdown) | Execution mode, evidence-basis labels, ROI basis, **ROI narrative claim gate (PASS/WARN/HOLD)**, **decision delta**, **novelty confidence** | `FirstValueReportBuilderTests`, `SponsorDecisionDeltaNoveltyResolverTests`, `SponsorRoiClaimDispositionResolverTests`, `ExecutionModeCrossSurfaceInvariantTests` |
 | First-value report (PDF) | Demo-only / needs-baseline watermarks, execution mode, ROI gate blocks | `SponsorFirstValuePdfGateTests`, `FirstValueReportPdfBuilderTests` |
 | Value report (DOCX) | ROI narrative claim gate, HOLD suppression, LLM cost methodology | `DocxValueReportRenderer`, `ValueReportReviewCycleSectionFormatter` |
-| Executive review packet (Markdown) | Execution mode, ROI disposition | `ExecutiveReviewPacketGoldenFixtureTests`, `SponsorExecutionModeMarkdownFormatter` (shared with first-value report) |
+| Sponsor review packet (Markdown) | Execution mode, ROI disposition | `ExecutiveReviewPacketGoldenFixtureTests`, `SponsorExecutionModeMarkdownFormatter` (shared with first-value report) |
 | Sponsor proof packet | Mode, limitations, ROI table | `SponsorEvidencePackServiceTests` |
 | Review-detail trust card | Execution mode status | `RunTrustEvidenceCardBuilderTests` |
-| Executive ROI summary | Real-mode filter, estimate caveats | `ExecutiveRoiSummaryServiceExtendedTests` |
+| Sponsor ROI summary | Real-mode filter, estimate caveats | `ExecutiveRoiSummaryServiceExtendedTests` |
 | UI review detail / value report | Mode callouts, demo labels, sponsor PDF execution-mode block | Vitest `RunTrustEvidenceCardSection.test.tsx`, `EmailRunToSponsorBanner.test.tsx` |
 | Demo preview / see-it marketing | Illustrative sample, evaluation preview, evidence-basis on sponsor summary | `DemoPreviewMarketingBody`, `SeeItMarketingBody`, `check_sponsor_evidence_label_consistency.py` |
 | Why-ArchLucid pack | Citation-backed rows, illustrative baselines, sample demo embed | `why-archlucid-comparison.ts`, `WhyArchLucidPackBuilder.cs`, `check_why_archlucid_comparison_sync.py` |
@@ -267,7 +267,7 @@ Five backing types. Each buyer-facing claim should be reducible to one of them; 
 
 | Type | Meaning | Canonical backing layer |
 | --- | --- | --- |
-| **extractor-backed** | Traces to uploaded Azure extractor ZIP evidence (cost/savings cite `manifest.json` `collectionTimestamp` + schema version). | `ProofPacketSourceLabelsBuilder.cs`; board-pack posture `extractor-backed` in `executive-roi-board-pack-evidence-clusters.ts`. |
+| **extractor-backed** | Traces to uploaded Azure extractor ZIP evidence (cost/savings cite `manifest.json` `collectionTimestamp` + schema version). | `ProofPacketSourceLabelsBuilder.cs`; board-pack posture `extractor-backed` in `sponsor-roi-board-pack-evidence-clusters.ts`. |
 | **review-backed** | Traces to a finalized review's persisted findings / architecture package / audit rows. | Architecture package (API: golden manifest) + authority chain; `DIFFERENTIATION_PROOF_PACKET.md`. |
 | **illustrative** | Demo-derived / sample, explicitly not a customer outcome. | `illustrative` posture; demo-proof-packet labels; [`QUOTE_TO_PROOF_PACKET.md#roi-baseline-send-policy`](QUOTE_TO_PROOF_PACKET.md#roi-baseline-send-policy) (`demo-derived`). |
 | **self-assessed** | Internally attested (e.g. SOC mapping), not third-party issued. | `SOC2_SELF_ASSESSMENT_2026.md`, `trust-center.md`, `PROCUREMENT_PACK_INDEX.md` (`Self-attested`). |
@@ -283,7 +283,7 @@ Dominant claim types present and the labels that keep them honest. Disposition i
 | --- | --- | --- |
 | `BUYER_SECURITY_PROCUREMENT_PACKET.md` | review-backed, self-assessed, roadmap | "does **not** claim", deferred assurance |
 | `QUOTE_TO_PROOF_PACKET.md` | review-backed, illustrative, roadmap | ROI basis, send rule |
-| `QUOTE_TO_PROOF_PACKET.md` (executive paid-pilot section) | extractor-backed, review-backed, self-assessed, roadmap | six-element claim-boundary column |
+| `QUOTE_TO_PROOF_PACKET.md` (sponsor paid-pilot section) | extractor-backed, review-backed, self-assessed, roadmap | six-element claim-boundary column |
 | `DIFFERENTIATION_PROOF_PACKET.md` | review-backed, illustrative, self-assessed | "what we do **not** claim", ROI basis labels |
 | `DIFFERENTIATION_PROOF_PACKET.md` | review-backed, extractor-backed | evidence-linked comparison section |
 | `EXECUTIVE_SPONSOR_BRIEF.md` | review-backed, illustrative | execution-mode + estimate caveats |
@@ -328,9 +328,9 @@ Point-in-time follow-up confirming sponsor-facing artifact paths cannot be sent 
 | Surface | Execution mode | ROI gate | Demo / low support | Verdict |
 | --- | --- | --- | --- | --- |
 | First-value report (Markdown) | ✅ Sponsor first-page table | ✅ PASS/WARN/HOLD narrative gate | ✅ Demo tenant banner | **OK** |
-| Executive review packet (Markdown) | ✅ **Added 2026-06-16** (`## Execution mode`) | ✅ ROI claim disposition section | ⚠️ Demo run context operator-dependent | **Fixed gap** |
+| Sponsor review packet (Markdown) | ✅ **Added 2026-06-16** (`## Execution mode`) | ✅ ROI claim disposition section | ⚠️ Demo run context operator-dependent | **Fixed gap** |
 | Sponsor evidence pack (API) | ⚠️ Indirect via deltas/trust surfaces | Partial — process instrumentation | Demo run id explicit in response | **OK with labels** |
-| Executive ROI summary (API) | Via trust card / run detail | ✅ Disposition resolver | Heuristic fallback → HOLD | **OK** |
+| Sponsor ROI summary (API) | Via trust card / run detail | ✅ Disposition resolver | Heuristic fallback → HOLD | **OK** |
 | Architecture Review DOCX/PDF | ✅ Provenance footer | ✅ ROI sections | Whitelabel does not strip labels | **OK** |
 | Proof pipeline (`collect-first-pilot-proof.ps1`) | ✅ `realModeEvidenceStatus` | ✅ `roiSponsorSafe`, `-FailOnHold` | ✅ BLOCK rows | **OK** |
 | UI command center phase | ✅ `sponsorDisposition` | ✅ Baseline gate | ✅ Deferred scope phase | **OK** |
@@ -339,7 +339,7 @@ Point-in-time follow-up confirming sponsor-facing artifact paths cannot be sent 
 
 **Gap:** `ExecutiveReviewPacketComposer` exported sponsor Markdown **without** an execution-mode section, violating rule 3 above.
 
-**Remediation:** Shared `SponsorExecutionModeMarkdownFormatter` + executive packet `## Execution mode` section + golden fixture / cross-surface tests.
+**Remediation:** Shared `SponsorExecutionModeMarkdownFormatter` + sponsor packet `## Execution mode` section + golden fixture / cross-surface tests.
 
 #### Send / no-send rules (consolidated)
 

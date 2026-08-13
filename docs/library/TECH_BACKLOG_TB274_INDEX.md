@@ -17,7 +17,7 @@
 | **5DL-trust-p1** | BE-034 export SAS DNS policy consolidation; Slack + exec-digest anonymous rate limits | Done |
 | **5DM-usability** | **TB-270**, **TB-271**, **TB-272** — review paths, correlation id, loading/empty states | Done |
 | **5DL-trust-p2** | Artifact export/push cross-tenant IDOR SQL regression; scope binding on artifact export; CI matrix drift guard | Done |
-| **5DN-demo-deferred** | **BDA-135** home hierarchy; **BDA-139** executive metric typography; **BDA-146** `topDecisionSynopses` on manifest summary | Done |
+| **5DN-demo-deferred** | **BDA-135** home hierarchy; **BDA-139** sponsor metric typography; **BDA-146** `topDecisionSynopses` on manifest summary | Done |
 | **5DO-trust-remainder-p0** | Run-scoped POST IDOR (analysis-report, evidence bulk); `idempotency-posture` on export push / trial / marketing / client-error | Done |
 | **5DO-trust-remainder-p1** | Terraform PR POST IDOR; ingest/quick-scan/request-import posture; mutating-route baseline sync (11 routes) | Done |
 | **5DP-mutating-posture-p1** | `idempotency-posture` on ask/replay/export/advisory routes; mutating-route baseline refresh (~28 routes) | Done |
@@ -32,7 +32,7 @@
 | **5DW-trust-paid-p1a** | **TB-285–287** — forbidden-property CI guard, OpenAPI audience tiers + buyer snapshot, forensics partition | Done |
 | **5DW-trust-paid-p1b** | **TB-295–300** — audit export RLS, export-push SSRF API, governance negative paths, artifact download integrity, board-pack E2E, scope identity permutation table | Done |
 | **5DX-trust-p2** | **TB-288**, **TB-301** — buyer-facing Persistence return-type architecture guard; five Persistence tenant-read SQL scope-isolation probes | Done |
-| **5DU-route-tenant-p1** | **TB-279–282**, **TB-281** — scope-only admin/value-report routes; retire legacy executive-summary; operator-only cross-tenant rollup | Done |
+| **5DU-route-tenant-p1** | **TB-279–282**, **TB-281** — scope-only admin/value-report routes; retire legacy sponsor-summary; operator-only cross-tenant rollup | Done |
 
 ## Recommended next batches
 

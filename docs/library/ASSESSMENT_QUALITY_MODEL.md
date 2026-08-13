@@ -23,8 +23,8 @@ The total weight is **45**.
 | AI/Agent Readiness | 8 | Operational readiness of the agent system: deterministic orchestration, real/simulator separation, schema enforcement, quality gates, budget controls, fallback behavior, and observability around agent output quality. |
 | Time-to-Value | 7 | How quickly a pilot or evaluator can reach the first credible review outcome, committed manifest, artifact, explanation, and sponsor-usable evidence. |
 | Adoption Friction | 6 | The practical effort required for a customer to configure identity, ingest evidence, run the pilot path, validate security posture, and integrate the product into existing operations. |
-| Proof-of-ROI Readiness | 5 | Strength of the financial value narrative: cost evidence, savings estimates, pricing-basis labels, discounts, confidence boundaries, pilot deltas, and executive-facing ROI proof. |
-| Executive Value Visibility | 4 | Ability for sponsors and decision-makers to understand outcomes through dashboards, reports, exports, trend views, graph explanations, and clear action narratives. |
+| Proof-of-ROI Readiness | 5 | Strength of the financial value narrative: cost evidence, savings estimates, pricing-basis labels, discounts, confidence boundaries, pilot deltas, and sponsor-facing ROI proof. |
+| Sponsor Value Visibility | 4 | Ability for sponsors and decision-makers to understand outcomes through dashboards, reports, exports, trend views, graph explanations, and clear action narratives. |
 | Maintainability | 4 | Long-term engineering clarity: modularity, contract discipline, DDL discipline, configuration catalogs, architecture invariants, testability of changes, and resistance to documentation or code drift. |
 | Reliability | 2 | Runtime resilience against expected failures: idempotency, retries, health checks, outbox/DLQ behavior, data consistency probes, budget cutoffs, cache behavior, and safe degraded paths. |
 | Supportability | 1 | Ease of operating and diagnosing the product: logs, traces, metrics, dashboards, admin diagnostics, support bundles, runbooks, and procurement-pack evidence generation. |

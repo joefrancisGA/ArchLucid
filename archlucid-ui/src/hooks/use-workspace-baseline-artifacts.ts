@@ -12,7 +12,7 @@ type TenantWorkspaceBaselineArtifactsPayload = {
   hasBaselineArtifacts?: unknown;
 };
 
-/** Loads `/v1/tenant/workspace-baseline-artifacts` for executive dashboard baseline ZIP nudges. */
+/** Loads `/v1/tenant/workspace-baseline-artifacts` for sponsor dashboard baseline ZIP nudges. */
 
 export function useWorkspaceBaselineArtifactsPresence(): {
   loading: boolean;

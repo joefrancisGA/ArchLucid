@@ -15,7 +15,7 @@ using Microsoft.Extensions.Options;
 
 namespace ArchLucid.Api.Controllers.Authority;
 
-/// <summary>Markdown executive summaries and related run export variants.</summary>
+/// <summary>Markdown sponsor summaries and related run export variants.</summary>
 [ApiController]
 [Authorize(Policy = ArchLucidPolicies.ReadAuthority)]
 [ApiVersion("1.0")]
@@ -29,7 +29,7 @@ public sealed class ArchitectureExportController(
     private readonly IOptionsMonitor<GenerateRunSummaryOptions> _generateRunSummaryOptions =
         generateRunSummaryOptions ?? throw new ArgumentNullException(nameof(generateRunSummaryOptions));
 
-    /// <summary>Downloads an AI-assisted executive one-pager for a committed run.</summary>
+    /// <summary>Downloads an AI-assisted sponsor one-pager for a committed run.</summary>
     [HttpGet("run/{runId}/export/summary")]
     [Produces("text/markdown")]
     [ProducesResponseType(typeof(FileResult), StatusCodes.Status200OK)]

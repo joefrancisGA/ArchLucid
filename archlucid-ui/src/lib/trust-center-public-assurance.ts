@@ -80,6 +80,6 @@ export const TRUST_CENTER_RELATED_HELP_LINKS: readonly TrustCenterRelatedHelpLin
 export const TRUST_CENTER_PAGE_PURPOSE =
   "Full Trust Center — public evidence downloads, procurement posture, and security contact paths." as const;
 
-/** `/security-trust` — executive assurance ladder; depth and ZIP downloads live on `/trust`. */
+/** `/security-trust` — sponsor assurance ladder; depth and ZIP downloads live on `/trust`. */
 export const SECURITY_TRUST_PAGE_PURPOSE =
   "Assurance status — engagement metadata by maturity tier. For downloadable artifacts and the evidence pack, use the Trust Center." as const;

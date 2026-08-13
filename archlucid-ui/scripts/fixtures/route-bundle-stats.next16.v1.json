@@ -49,10 +49,10 @@
     ]
   },
   {
-    "route": "/architecture/executive-dashboard",
+    "route": "/architecture/sponsor-dashboard",
     "firstLoadUncompressedJsBytes": 1525043,
     "firstLoadChunkPaths": [
-      ".next/static/chunks/executive-dashboard.js"
+      ".next/static/chunks/sponsor-dashboard.js"
     ]
   },
   {

@@ -144,7 +144,7 @@ Store buyer-identifying summaries under `docs/go-to-market/validation-runs/` (lo
 
 ## Step 5 — Sponsor-safe summary
 
-**Goal:** One-page rollup safe for executive forward — no superiority claims.
+**Goal:** One-page rollup safe for sponsor forward — no superiority claims.
 
 **Generate machine summary**
 

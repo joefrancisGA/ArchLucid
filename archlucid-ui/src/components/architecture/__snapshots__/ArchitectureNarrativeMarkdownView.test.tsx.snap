@@ -11,10 +11,10 @@ exports[`ArchitectureNarrativeMarkdownView > renders headings, paragraphs, lists
     >
       <h2
         class="scroll-mt-[var(--app-shell-sticky,6rem)] mt-10 first:mt-0 text-lg font-semibold leading-[26px] text-al-text-primary"
-        id="executive-summary"
+        id="sponsor-report"
       >
         <span>
-          Executive summary
+          Sponsor summary
         </span>
       </h2>
       <p

@@ -154,7 +154,7 @@ function RecurrenceSchedulesHelpHealthConstraintsBlock(): React.ReactElement {
         ))}
       </dl>
       <p className={cn("m-0", OPERATOR_TYPOGRAPHY.helper)}>
-        Executive digest email uses a separate surface.{" "}
+        Sponsor digest email uses a separate surface.{" "}
         <Link className={OPERATOR_LINK.inline} href={RECURRENCE_SCHEDULES_HELP_DIGEST_SCHEDULE_LINK.href}>
           {RECURRENCE_SCHEDULES_HELP_DIGEST_SCHEDULE_LINK.label}
         </Link>

@@ -3,7 +3,10 @@ import { beforeEach, beforeAll, describe, expect, it, vi } from "vitest";
 
 import GovernanceFindingsQueueClient from "@/app/(operator)/governance/findings/GovernanceFindingsQueueClient";
 import { OperatorQueryProvider } from "@/components/operator/OperatorQueryProvider";
+import * as demoUiEnv from "@/lib/demo-ui-env";
 import * as governanceApi from "@/lib/api/governance-stickiness-api";
+import * as facetsStorage from "@/lib/governance/governance-findings-queue-facets-storage";
+import { ApiRequestError } from "@/lib/api-request-error";
 import { OPERATOR_NAV_LINK_LABELS } from "@/lib/i18n";
 import { ROUTE_TITLES } from "@/lib/route-static-titles";
 import { routeViewExplanationForPathname } from "@/lib/usability/route-view-explanations";
@@ -29,10 +32,10 @@ vi.mock("@/lib/api", () => ({
   listRunsByProjectPaged: vi.fn().mockResolvedValue({ items: [] }),
 }));
 
-function renderGovernanceFindingsQueue() {
+function renderGovernanceFindingsQueue(mode: "tenant" | "assigned-to-me" = "tenant") {
   return render(
     <OperatorQueryProvider>
-      <GovernanceFindingsQueueClient />
+      <GovernanceFindingsQueueClient mode={mode} />
     </OperatorQueryProvider>,
   );
 }
@@ -82,6 +85,10 @@ vi.mock("@/lib/use-nav-surface", () => ({
     showAdvanced: true,
     mounted: true,
   }),
+}));
+
+vi.mock("@/components/usability/PageContextualHelpButton", () => ({
+  PageContextualHelpButton: () => null,
 }));
 
 vi.mock("@/components/usability/ItsmOutboundQuickActions", () => ({
@@ -198,8 +205,9 @@ describe("GovernanceFindingsQueueClient", () => {
 
     renderGovernanceFindingsQueue();
 
-    expect(await screen.findByTestId("governance-findings-load-failed")).toBeInTheDocument();
-    expect(screen.getByText("Could not load architecture risk register")).toBeInTheDocument();
+    const failure = await screen.findByTestId("governance-findings-load-failed");
+    expect(failure).toHaveAttribute("role", "alert");
+    expect(screen.getByRole("heading", { name: "Could not load architecture risk register" })).toBeInTheDocument();
     expect(screen.getByTestId("governance-findings-retry-load")).toBeInTheDocument();
     expect(screen.queryByTestId("governance-findings-empty-state")).not.toBeInTheDocument();
     expect(screen.getByTestId("fatal-page-report-problem-row")).toBeInTheDocument();
@@ -209,14 +217,15 @@ describe("GovernanceFindingsQueueClient", () => {
   it("retries the risk register load from the failure state", async () => {
     vi.mocked(governanceApi.getArchitectureRiskRegister)
       .mockRejectedValueOnce(new Error("network"))
-      .mockResolvedValueOnce({ entries: [loadedRiskRow] });
+      .mockRejectedValueOnce(new Error("network"))
+      .mockResolvedValue({ entries: [loadedRiskRow] });
 
     renderGovernanceFindingsQueue();
 
     expect(await screen.findByTestId("governance-findings-retry-load")).toBeInTheDocument();
     fireEvent.click(screen.getByTestId("governance-findings-retry-load"));
 
-    expect(await screen.findByTestId("architecture-risk-register-filters")).toBeInTheDocument();
+    expect(await screen.findByTestId("architecture-risk-register-filters", {}, { timeout: 5000 })).toBeInTheDocument();
     expect(screen.queryByTestId("governance-findings-load-failed")).not.toBeInTheDocument();
   });
 
@@ -266,5 +275,93 @@ describe("GovernanceFindingsQueueClient", () => {
     );
     expect(screen.getByTestId("architecture-risk-register-summary-open-value")).toHaveTextContent("1");
     expect(screen.getByTestId("bulk-triage-remaining-progress")).toHaveTextContent("1 of 1 left");
+  });
+});
+
+describe("GovernanceFindingsQueueClient assigned-to-me mode", () => {
+  beforeEach(() => {
+    vi.mocked(governanceApi.getArchitectureRiskRegister).mockResolvedValue({ entries: [] });
+    vi.mocked(governanceApi.getArchitectureDecisionRegister).mockResolvedValue({ decisions: [] });
+    vi.spyOn(demoUiEnv, "isBuyerPolishedOperatorShellEnv").mockReturnValue(false);
+    vi.spyOn(facetsStorage, "readGovernanceFindingsQueueFacets").mockReturnValue({
+      registerFilter: "all",
+      jobView: "needs-my-decision",
+      nlFacets: { severity: null, status: null, titleKeywords: [] },
+    });
+  });
+
+  it("uses assigned-to-me failure copy without risk-register scope language", async () => {
+    vi.mocked(governanceApi.getArchitectureRiskRegister).mockRejectedValue(new Error("network"));
+
+    renderGovernanceFindingsQueue("assigned-to-me");
+
+    expect(await screen.findByRole("heading", { name: "Could not load your assigned findings" })).toBeInTheDocument();
+    expect(screen.queryByText(/risk register/i)).not.toBeInTheDocument();
+    expect(screen.queryByText(/risks for this review/i)).not.toBeInTheDocument();
+    expect(screen.queryByText(/this review/i)).not.toBeInTheDocument();
+    expect(screen.getByTestId("governance-findings-load-failed")).toHaveAttribute("role", "alert");
+  });
+
+  it("renders benign empty state distinct from load failure", async () => {
+    renderGovernanceFindingsQueue("assigned-to-me");
+
+    const empty = await screen.findByTestId("governance-findings-empty-state");
+    expect(empty).toHaveAttribute("role", "status");
+    expect(screen.getByText("No findings assigned to you")).toBeInTheDocument();
+    expect(screen.queryByTestId("governance-findings-load-failed")).not.toBeInTheDocument();
+    expect(screen.getByRole("link", { name: "Open findings queue" })).toHaveAttribute("href", "/governance/findings");
+  });
+
+  it("renders breadcrumb, job router, and tenant findings queue link", async () => {
+    renderGovernanceFindingsQueue("assigned-to-me");
+
+    expect(await screen.findByTestId("governance-assigned-to-me-breadcrumb")).toBeInTheDocument();
+    expect(screen.getByRole("link", { name: "Findings" })).toHaveAttribute("href", "/governance/findings");
+    expect(screen.getByTestId("governance-job-router")).toHaveAttribute("data-current-job", "assigned-to-me-findings");
+    expect(screen.getByTestId("governance-job-router-option-assigned-to-me-findings")).toHaveAttribute(
+      "data-current",
+      "true",
+    );
+    expect(screen.getByTestId("governance-findings-related-queues-disclosure")).toBeInTheDocument();
+  });
+
+  it("surfaces failure diagnostics for assigned-to-me loads", async () => {
+    vi.mocked(governanceApi.getArchitectureRiskRegister).mockRejectedValue(
+      new ApiRequestError("upstream unavailable", {
+        problem: { title: "Unavailable", status: 503, errorCode: "DATABASE_UNAVAILABLE" },
+        correlationId: "corr-assigned-ui",
+        httpStatus: 503,
+      }),
+    );
+
+    renderGovernanceFindingsQueue("assigned-to-me");
+
+    expect(await screen.findByTestId("enterprise-inline-error-diagnostics")).toBeInTheDocument();
+    expect(screen.getByText("corr-assigned-ui")).toBeInTheDocument();
+    expect(screen.getByText("DATABASE_UNAVAILABLE")).toBeInTheDocument();
+  });
+
+  it("shows job view filter chip when the filter bar is visible and job view is non-default", async () => {
+    vi.spyOn(facetsStorage, "readGovernanceFindingsQueueFacets").mockReturnValue({
+      registerFilter: "all",
+      jobView: "ready-for-sponsor-packet",
+      nlFacets: { severity: null, status: null, titleKeywords: [] },
+    });
+    vi.mocked(governanceApi.getArchitectureRiskRegister).mockResolvedValue({ entries: [loadedRiskRow] });
+
+    renderGovernanceFindingsQueue("assigned-to-me");
+
+    expect(await screen.findByTestId("governance-findings-job-view-filter-chip")).toBeInTheDocument();
+  });
+
+  it("suppresses the governance approval banner when the assigned-to-me load fails in buyer shell", async () => {
+    vi.spyOn(demoUiEnv, "isBuyerPolishedOperatorShellEnv").mockReturnValue(true);
+    vi.mocked(governanceApi.getArchitectureRiskRegister).mockRejectedValue(new Error("network"));
+
+    renderGovernanceFindingsQueue("assigned-to-me");
+
+    expect(await screen.findByTestId("governance-findings-load-failed")).toBeInTheDocument();
+    expect(screen.queryByTestId("governance-approval-status-banner")).not.toBeInTheDocument();
+    expect(screen.queryByRole("link", { name: "View approval record" })).not.toBeInTheDocument();
   });
 });

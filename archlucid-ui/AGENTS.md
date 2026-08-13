@@ -74,4 +74,4 @@ Implementation detail for this app (architect workspace, nav contract, testing).
 | Keyboard shortcuts | [KEYBOARD_SHORTCUTS.md](./docs/KEYBOARD_SHORTCUTS.md) |
 | Annotated walkthrough | [ANNOTATED_PAGE_WALKTHROUGH.md](./docs/ANNOTATED_PAGE_WALKTHROUGH.md) |
 
-**Canonical buyer narrative** (repo root, not UI-only): [`../docs/go-to-market/EXECUTIVE_SPONSOR_BRIEF.md`](../docs/go-to-market/EXECUTIVE_SPONSOR_BRIEF.md).
+**Canonical buyer narrative** (repo root, not UI-only): [`../docs/go-to-market/SPONSOR_SPONSOR_BRIEF.md`](../docs/go-to-market/SPONSOR_SPONSOR_BRIEF.md).

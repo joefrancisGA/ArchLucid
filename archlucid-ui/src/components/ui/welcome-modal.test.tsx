@@ -61,14 +61,14 @@ describe("WelcomeModal", () => {
     expect(onDismiss).toHaveBeenCalledTimes(1);
   });
 
-  it("buyer shell shows executive framing on step one", () => {
+  it("buyer shell shows sponsor framing on step one", () => {
     render(<WelcomeModal open onDismiss={vi.fn()} buyerShell />);
 
-    expect(screen.getByText(/completed executive review/i)).toBeInTheDocument();
+    expect(screen.getByText(/completed sponsor review/i)).toBeInTheDocument();
     expect(screen.queryByTestId("welcome-modal-brand-mark")).not.toBeInTheDocument();
   });
 
-  it("buyer shell navigates to sample executive summary from final step", () => {
+  it("buyer shell navigates to sample sponsor report from final step", () => {
     const onDismiss = vi.fn();
 
     render(<WelcomeModal open onDismiss={onDismiss} buyerShell />);
@@ -76,7 +76,7 @@ describe("WelcomeModal", () => {
     fireEvent.click(screen.getByRole("button", { name: "Next" }));
     fireEvent.click(screen.getByRole("button", { name: "Next" }));
 
-    fireEvent.click(screen.getByRole("button", { name: "Open sample executive summary" }));
+    fireEvent.click(screen.getByRole("button", { name: "Open sample sponsor report" }));
 
     expect(onDismiss).toHaveBeenCalledTimes(1);
     expect(routerPushSpy).toHaveBeenCalledWith("/architecture/reviews/claims-intake-modernization");

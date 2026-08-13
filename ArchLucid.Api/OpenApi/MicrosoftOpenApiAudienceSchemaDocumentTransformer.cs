@@ -11,8 +11,8 @@ public sealed class MicrosoftOpenApiAudienceSchemaDocumentTransformer : IOpenApi
     private static readonly string[] BuyerProofSchemaNames =
     [
         "PilotRunDeltasResponse",
-        "ExecutiveRoiSummaryResponse",
-        "ExecutiveOrphanCandidateSummary",
+        "SponsorRoiSummaryResponse",
+        "SponsorOrphanCandidateSummary",
         "BuyerRunDetailSummaryDto",
         "BuyerRunDetailRunDto",
         "RunExplanationSummary",

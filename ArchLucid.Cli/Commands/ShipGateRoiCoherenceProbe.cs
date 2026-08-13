@@ -29,7 +29,7 @@ internal sealed class ShipGateRoiCoherenceProbeResult
 
 internal static class ShipGateRoiCoherenceProbe
 {
-    internal const string ExecutiveSummaryPath = "/v1/roi/executive-summary";
+    internal const string SponsorReportPath = "/v1/roi/sponsor-report";
 
     internal static async Task<IReadOnlyList<ShipGateRoiCoherenceProbeResult>> EvaluateAsync(
         HttpClient http,
@@ -39,7 +39,7 @@ internal static class ShipGateRoiCoherenceProbe
 
         try
         {
-            using HttpResponseMessage response = await http.GetAsync(ExecutiveSummaryPath, cancellationToken);
+            using HttpResponseMessage response = await http.GetAsync(SponsorReportPath, cancellationToken);
 
             if (response.StatusCode != HttpStatusCode.OK)
             {
@@ -47,7 +47,7 @@ internal static class ShipGateRoiCoherenceProbe
                 [
                     Fail(
                         "http-status",
-                        $"GET {ExecutiveSummaryPath} -> HTTP {(int)response.StatusCode}"),
+                        $"GET {SponsorReportPath} -> HTTP {(int)response.StatusCode}"),
                 ];
             }
 

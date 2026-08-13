@@ -37,8 +37,8 @@ export function getShowcaseEvidenceTrailHref(): string {
   });
 }
 
-/** Executive view (concise risk summary and outcomes) for the Claims Intake static spine. */
-export function getShowcaseExecutiveHref(): string {
+/** Sponsor view (concise risk summary and outcomes) for the Claims Intake static spine. */
+export function getShowcaseSponsorHref(): string {
   return getCanonicalReviewWorkspaceHref(SHOWCASE_STATIC_DEMO_RUN_ID);
 }
 

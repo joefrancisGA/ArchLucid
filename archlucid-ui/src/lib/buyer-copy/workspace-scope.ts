@@ -84,7 +84,7 @@ export const BUYER_DEMO_EVALUATION_WORKSPACE_STATUS = "Claims Intake Demo · Buy
 
 export const BUYER_SEED_SAMPLE_WORKSPACE_CTA = "Load sample workspace";
 
-/** Toast after demo seed succeeds — dashboard may stay on executive dashboard while caches refresh. */
+/** Toast after demo seed succeeds — dashboard may stay on sponsor dashboard while caches refresh. */
 export const BUYER_SEED_SAMPLE_WORKSPACE_SUCCESS = "Sample workspace loaded.";
 
 export const BUYER_TRY_SAMPLE_REVIEW_CTA = "Try sample review";

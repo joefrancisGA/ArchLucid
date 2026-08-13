@@ -23,14 +23,14 @@ export const DEMO_PREVIEW_THIRTY_SECOND_ACTION = "View the 30-second summary";
 export const DEMO_PREVIEW_SCHEDULE_DEMO_ACTION = "Schedule enterprise demo";
 
 export const DEMO_PREVIEW_SUGGESTED_PATH =
-  "Start with the executive summary, then follow any conclusion into its evidence, approval history, and signed record.";
+  "Start with the sponsor report, then follow any conclusion into its evidence, approval history, and signed record.";
 
 export const DEMO_PREVIEW_RESULT_HEADING = "Review result at a glance";
 
 export const DEMO_PREVIEW_RESULT_CONCLUSION_FALLBACK =
   "This sample review shows how ArchLucid turns architecture evidence into a governed, sponsor-readable conclusion.";
 
-export const DEMO_PREVIEW_EXECUTIVE_CONCLUSION_HEADING = "Executive conclusion";
+export const DEMO_PREVIEW_SPONSOR_CONCLUSION_HEADING = "Sponsor conclusion";
 
 export const DEMO_PREVIEW_RECOMMENDATION_LABEL = "Recommendation";
 
@@ -90,9 +90,9 @@ export const DEMO_PREVIEW_METRIC_DURATION = "Review duration";
 
 export const DEMO_PREVIEW_METRIC_DELIVERABLES = "Deliverables produced";
 
-export const DEMO_PREVIEW_ARTIFACT_EXECUTIVE_TITLE = "Executive summary";
+export const DEMO_PREVIEW_ARTIFACT_SPONSOR_TITLE = "Sponsor report";
 
-export const DEMO_PREVIEW_ARTIFACT_EXECUTIVE_DESC = "Understand the decision and its business context.";
+export const DEMO_PREVIEW_ARTIFACT_SPONSOR_DESC = "Understand the decision and its business context.";
 
 export const DEMO_PREVIEW_ARTIFACT_SIGNED_TITLE = "Signed review record";
 

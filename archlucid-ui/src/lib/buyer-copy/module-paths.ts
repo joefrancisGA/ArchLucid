@@ -12,7 +12,7 @@ export const BUYER_COPY_MODULE_PATHS = [
   "src/lib/buyer-copy/audit.ts",
   "src/lib/buyer-copy/cto-demo.ts",
   "src/lib/buyer-copy/evidence-graph.ts",
-  "src/lib/buyer-copy/executive.ts",
+  "src/lib/buyer-copy/sponsor.ts",
   "src/lib/buyer-copy/glossary.ts",
   "src/lib/buyer-copy/governance.ts",
   "src/lib/buyer-copy/onboarding.ts",

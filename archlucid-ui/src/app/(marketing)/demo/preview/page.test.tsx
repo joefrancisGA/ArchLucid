@@ -100,7 +100,7 @@ describe("Demo preview marketing body", () => {
     );
 
     expect(screen.getByTestId("demo-preview-artifact-nav")).toBeInTheDocument();
-    expect(screen.getByTestId("demo-preview-executive-conclusion")).toBeInTheDocument();
+    expect(screen.getByTestId("demo-preview-sponsor-conclusion")).toBeInTheDocument();
     expect(screen.getByTestId("demo-preview-result-at-a-glance")).toBeInTheDocument();
     expect(screen.queryByTestId("demo-preview-guided-callouts")).not.toBeInTheDocument();
     expect(screen.queryByText("How to read this walkthrough")).not.toBeInTheDocument();

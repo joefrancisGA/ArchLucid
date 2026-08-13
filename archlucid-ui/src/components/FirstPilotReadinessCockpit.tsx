@@ -327,7 +327,7 @@ export function FirstPilotReadinessCockpit() {
       sectionTestId="first-pilot-readiness-cockpit"
       storageKey={OPERATOR_HOME_DISCLOSURE_STORAGE_KEYS.workspaceReadiness}
       defaultExpanded={false}
-      description="Current readiness summary: platform connectivity, authority assignment, evidence ingestion, review posture, and executive evidence bundle status."
+      description="Current readiness summary: platform connectivity, authority assignment, evidence ingestion, review posture, and sponsor evidence bundle status."
       collapsedSummary={collapsedReadinessSummary(pendingProbes, rows)}
     >
       {probesLoading ? (

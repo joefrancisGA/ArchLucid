@@ -5,7 +5,7 @@ import {
   deriveArchitectureSystemName,
   deriveBlockingApprovalCount,
   deriveEvidenceCoverageSummary,
-  deriveExecutiveBottomLineContent,
+  deriveSponsorBottomLineContent,
   deriveFinalizedAtUtc,
   derivePrimaryConcernLabel,
   deriveRecommendedWorkspaceActions,
@@ -138,7 +138,7 @@ describe("run-detail-workspace-derive", () => {
   });
 
   it("builds narrative bottom-line copy from governance rationale only (blocking counts stay in Decision snapshot)", () => {
-    const content = deriveExecutiveBottomLineContent({
+    const content = deriveSponsorBottomLineContent({
       governanceDecisionLabel: "Approved with monitoring",
       governanceDecisionRationale: "Controls are acceptable for PHI handling.",
       overallPosture: "Approved with monitoring",
@@ -226,7 +226,7 @@ describe("run-detail-workspace-derive", () => {
   });
 
   it("omits redundant bottom-line narrative when only posture would repeat the summary strip", () => {
-    const content = deriveExecutiveBottomLineContent({
+    const content = deriveSponsorBottomLineContent({
       governanceDecisionLabel: "Approved with monitoring",
       governanceDecisionRationale: null,
       overallPosture: "Approved with monitoring",
@@ -257,7 +257,7 @@ describe("run-detail-workspace-derive", () => {
   });
 
   it("falls back to key decision considerations when only theme labels exist", () => {
-    const content = deriveExecutiveBottomLineContent({
+    const content = deriveSponsorBottomLineContent({
       governanceDecisionLabel: "No governance decision recorded",
       governanceDecisionRationale: null,
       overallPosture: "Needs review",

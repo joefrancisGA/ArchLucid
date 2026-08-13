@@ -62,13 +62,13 @@ const bannedStaticImports = [
   './RunDetailWorkspaceStickyActions"',
   './ReviewPackagePrimaryAction"',
   './ReviewPackageDoThisNextStrip"',
-  './RunDetailExecutiveBottomLine"',
+  './RunDetailSponsorBottomLine"',
   './RunDetailManifestSummarySection"',
   './RunDetailSubmittedArchitectureSection"',
   './RunDetailCaptureEvidenceSection"',
   './RunDetailBuyerPilotConversionSection"',
   './RunDetailBuyerModeFallbackBanner"',
-  './RunDetailExecutiveSummaryCtaCard"',
+  './RunDetailSponsorReportCtaCard"',
   './RunDetailGovernanceDecisionSection"',
   './RunDetailReviewPackageSection"',
   './RunDetailGovernanceCta"',
@@ -115,14 +115,14 @@ describe("run detail bundle deferred imports (TB-697 / TB-933 / TB-2021 / TB-211
     expect(pageViewSource).not.toContain("ReviewPackageDoThisNextStripDeferred");
     expect(pageViewSource).not.toContain("RunDetailWorkspaceStickyActionsDeferred");
     expect(pageViewSource).not.toContain("ReviewPackagePrimaryActionDeferred");
-    expect(pageViewSource).toContain("RunDetailExecutiveBottomLineDeferred");
+    expect(pageViewSource).toContain("RunDetailSponsorBottomLineDeferred");
     expect(pageViewSource).toContain("RunDetailSectionNavDeferred");
     expect(pageViewSource).not.toContain("RunDetailTabbedSectionNavDeferred");
     expect(pageViewSource).toContain("RunDetailManifestSummarySectionDeferred");
     expect(pageViewSource).toContain("RunDetailSubmittedArchitectureSectionDeferred");
     expect(pageViewSource).toContain("RunDetailCaptureEvidenceSectionDeferred");
     expect(pageViewSource).toContain("RunDetailBuyerPilotConversionSectionDeferred");
-    expect(pageViewSource).toContain("RunDetailExecutiveSummaryCtaCardDeferred");
+    expect(pageViewSource).toContain("RunDetailSponsorReportCtaCardDeferred");
     expect(pageViewSource).toContain("RunDetailGovernanceDecisionSectionDeferred");
     expect(pageViewSource).toContain("RunDetailReviewPackageSectionDeferred");
     expect(pageViewSource).toContain("RunDetailBuyerModeFallbackBannerDeferred");
@@ -169,7 +169,7 @@ describe("run detail bundle deferred imports (TB-697 / TB-933 / TB-2021 / TB-211
     expect(deferredChunksSource).toContain('import("./ReviewPackageDoThisNextStrip")');
     expect(deferredChunksSource).toContain("RunDetailWorkspaceStickyActionsDeferred");
     expect(deferredChunksSource).toContain("ReviewPackagePrimaryActionDeferred");
-    expect(deferredChunksSource).toContain("RunDetailExecutiveBottomLineDeferred");
+    expect(deferredChunksSource).toContain("RunDetailSponsorBottomLineDeferred");
     expect(deferredChunksSource).toContain("RunDetailSectionNavDeferred");
     expect(deferredChunksSource).toContain("RunDetailManifestSummarySectionDeferred");
     expect(deferredChunksSource).toContain("RunDetailSubmittedArchitectureSectionDeferred");
@@ -180,13 +180,13 @@ describe("run detail bundle deferred imports (TB-697 / TB-933 / TB-2021 / TB-211
     expect(deferredChunksSource).toContain('import("./RunDetailWorkspaceChrome")');
     expect(deferredChunksSource).toContain('import("./RunDetailWorkspaceStickyActions")');
     expect(deferredChunksSource).toContain('import("./ReviewPackagePrimaryActionTabAware")');
-    expect(deferredChunksSource).toContain('import("./RunDetailExecutiveBottomLine")');
+    expect(deferredChunksSource).toContain('import("./RunDetailSponsorBottomLine")');
     expect(deferredChunksSource).toContain('import("@/components/runs/RunDetailSectionNav")');
     expect(deferredChunksSource).toContain('import("./RunDetailManifestSummarySection")');
     expect(deferredChunksSource).toContain('import("./RunDetailSubmittedArchitectureSection")');
     expect(deferredChunksSource).toContain('import("./RunDetailCaptureEvidenceSection")');
     expect(deferredChunksSource).toContain('import("./RunDetailBuyerPilotConversionSection")');
-    expect(deferredChunksSource).toContain('import("./RunDetailExecutiveSummaryCtaCard")');
+    expect(deferredChunksSource).toContain('import("./RunDetailSponsorReportCtaCard")');
     expect(deferredChunksSource).toContain('import("./RunDetailGovernanceCta")');
     expect(deferredChunksSource).toContain('import("./RunDetailGovernanceDecisionSection")');
     expect(deferredChunksSource).toContain('import("./RunDetailReviewPackageSection")');

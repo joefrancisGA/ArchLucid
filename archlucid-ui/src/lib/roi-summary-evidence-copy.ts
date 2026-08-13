@@ -13,8 +13,8 @@ export const ROI_SUMMARY_SOURCES_INTRO =
 /** Operator Sources — no self-href to ROI summary. */
 export const ROI_SUMMARY_SOURCES: readonly EvidenceSourceLink[] = [
   { label: "Architecture reviews", href: "/architecture/reviews" },
-  { label: "Executive dashboard", href: "/architecture/executive-dashboard" },
-  { label: "Executive summary", href: "/insights/executive-summary" },
-  { label: "ROI methodology help", href: inAppHelpHref("executive-summary") },
+  { label: "Sponsor dashboard", href: "/architecture/sponsor-dashboard" },
+  { label: "Sponsor report", href: "/insights/sponsor-report" },
+  { label: "ROI methodology help", href: inAppHelpHref("sponsor-report") },
   { label: "Assurance status", href: "/security-trust" },
 ] as const;

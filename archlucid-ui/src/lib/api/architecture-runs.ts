@@ -595,7 +595,7 @@ export async function explainRun(runId: string): Promise<RunExplanation> {
   return apiGet<RunExplanation>(`/v1/explain/runs/${encodeURIComponent(runId)}/explain`);
 }
 
-/** Aggregate executive explanation (themes, posture, counts) with nested full explanation payload. */
+/** Aggregate sponsor explanation (themes, posture, counts) with nested full explanation payload. */
 export async function getRunExplanationSummary(
   runId: string,
   options?: { readonly scopeHeaders?: Record<string, string> },

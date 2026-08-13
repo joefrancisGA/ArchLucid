@@ -35,14 +35,14 @@ describe("report-problem-surfaces (TB-782)", () => {
     expect(pathnameMatchesReportProblemRoute("/architecture/reviews/[runId]", "/architecture/reviews/new")).toBe(false);
     expect(
       pathnameMatchesReportProblemRoute(
-        "/insights/executive-summary",
-        "/insights/executive-summary/print",
+        "/insights/sponsor-report",
+        "/insights/sponsor-report/print",
         "exact-or-child",
       ),
     ).toBe(true);
     expect(
       pathnameMatchesReportProblemRoute(
-        "/insights/executive-summary",
+        "/insights/sponsor-report",
         "exact-or-child",
       ),
     ).toBe(false);

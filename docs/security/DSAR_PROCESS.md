@@ -37,7 +37,7 @@ ArchLucid stores personal data in the following locations. "Personal data" means
 | `dbo.SentEmails` | `RecipientEmail` | Email delivery log for trial lifecycle and notifications | Operator-managed retention |
 | `dbo.ScimUsers` | `UserName`, `DisplayName`, `ExternalId`, `Emails` (JSON) | SCIM 2.0 inbound provisioning from external IdP | Synced with IdP; removable on SCIM DELETE |
 | `dbo.TenantNotificationChannelPreferences` | `Email` (where channel is email) | Per-tenant notification routing preferences | Tenant lifecycle |
-| `dbo.TenantExecDigestPreferences` | `Email` | Executive digest delivery preferences | Tenant lifecycle |
+| `dbo.TenantExecDigestPreferences` | `Email` | Sponsor digest delivery preferences | Tenant lifecycle |
 | `dbo.GovernanceApprovalRequests` | `RequestedByUserId`, `ApprovedByUserId` | Governance workflow actors | Retained for audit integrity |
 | `dbo.BillingWebhookEvents` | Indirect PII via Stripe/Marketplace payloads (customer email in metadata) | Billing event idempotency and reconciliation | Operator-managed |
 

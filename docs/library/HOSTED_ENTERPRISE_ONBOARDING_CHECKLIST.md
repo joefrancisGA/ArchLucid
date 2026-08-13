@@ -254,7 +254,7 @@ Use **`customGroupClaimRegex`** only when Ping emits full DNs but you prefer to 
 |------|-------|--------------------|
 | Agree minimum / target / stretch metrics | Joint (customer IT + ArchLucid) | Evaluation scorecard completed |
 | Baseline hours + ROI model inputs captured | Tenant admin | ROI model populated |
-| Executive ROI dashboard reviewed | Architect | Executive summary or Home panel validated |
+| Sponsor ROI dashboard reviewed | Architect | Sponsor summary or Home panel validated |
 | Go/no-go review scheduled (week 6) | Procurement + security reviewer | Calendar hold with economic buyer |
 
 ---

@@ -84,8 +84,8 @@
       "summary": "**Scope:** Analyze **customer** architectures on **AWS** or **GCP** while ArchLucid **stays hosted on Azure** ([ADR 0020](../architecture/adrs/0020-azure-primary-platform-permanent.md)). Distinct from **\u00a76l** (multi-region **product** HA) and from re-hosting the control plane on "
     },
     {
-      "title": "6o. Executive ROI summary endpoint \u2014 cross-run dedup (**promoted to V1**, owner 2026-05-22)",
-      "summary": "**Supersedes** the **V1.1** deferral recorded **2026-05-19**. Cross-run executive ROI aggregation is **in contract for V1 GA** \u2014 see [V1_SCOPE.md](V1_SCOPE.md) **\u00a72.8**. | Milestone | V1 posture | |-----------|------------| | **`GET /v1/roi/executive-summary`** + operator dashboa"
+      "title": "6o. Sponsor ROI summary endpoint \u2014 cross-run dedup (**promoted to V1**, owner 2026-05-22)",
+      "summary": "**Supersedes** the **V1.1** deferral recorded **2026-05-19**. Cross-run sponsor ROI aggregation is **in contract for V1 GA** \u2014 see [V1_SCOPE.md](V1_SCOPE.md) **\u00a72.8**. | Milestone | V1 posture | |-----------|------------| | **`GET /v1/roi/sponsor-summary`** + operator dashboa"
     },
     {
       "title": "6p. Azure extractor \u2014 ArchLucid-hosted automated Tier-2 continuous polling (**V1.x / post-V1 GA**) (architecture decision 2026-05-23)",

@@ -7,14 +7,14 @@ import { isBrowser } from "@/lib/api/http";
 import { mergeRegistrationScopeForProxy } from "@/lib/proxy-fetch-registration-scope";
 import { operatorQueryKeys } from "@/lib/query/operator-query-keys";
 
-export type ExecutiveRoiEnvironmentSlice = {
+export type SponsorRoiEnvironmentSlice = {
   environment: string;
   estimatedUsdSavings: number;
 };
 
-export async function fetchExecutiveRoiEnvironmentSavings(): Promise<ExecutiveRoiEnvironmentSlice[]> {
+export async function fetchSponsorRoiEnvironmentSavings(): Promise<SponsorRoiEnvironmentSlice[]> {
   const response = await fetch(
-    `/api/proxy/${ApiV1Routes.roiExecutiveSummary}/export`,
+    `/api/proxy/${ApiV1Routes.roiSponsorReport}/export`,
     mergeRegistrationScopeForProxy({ headers: { Accept: "application/json" } }),
   );
 
@@ -22,16 +22,16 @@ export async function fetchExecutiveRoiEnvironmentSavings(): Promise<ExecutiveRo
     throw new Error(`HTTP ${response.status}`);
   }
 
-  const json = (await response.json()) as { savingsByEnvironment?: ExecutiveRoiEnvironmentSlice[] };
+  const json = (await response.json()) as { savingsByEnvironment?: SponsorRoiEnvironmentSlice[] };
 
   return json.savingsByEnvironment ?? [];
 }
 
-/** Cached environment-savings slices for the executive pie card (was an uncached per-mount useEffect fetch). */
-export function useExecutiveRoiEnvironmentSavingsQuery() {
-  return useQuery<ExecutiveRoiEnvironmentSlice[]>({
-    queryKey: operatorQueryKeys.executiveRoiSummaryExport,
-    queryFn: fetchExecutiveRoiEnvironmentSavings,
+/** Cached environment-savings slices for the sponsor pie card (was an uncached per-mount useEffect fetch). */
+export function useSponsorRoiEnvironmentSavingsQuery() {
+  return useQuery<SponsorRoiEnvironmentSlice[]>({
+    queryKey: operatorQueryKeys.sponsorRoiSummaryExport,
+    queryFn: fetchSponsorRoiEnvironmentSavings,
     enabled: isBrowser(),
   });
 }

@@ -1,6 +1,6 @@
 import { describe, expect, it } from "vitest";
 
-import { EXECUTIVE_DASHBOARD_HREF } from "@/lib/executive/executive-dashboard-route";
+import { SPONSOR_DASHBOARD_HREF } from "@/lib/sponsor/sponsor-dashboard-route";
 import { effectiveNavDisclosureForPathname } from "./nav-disclosure-for-path";
 import {
   NAV_DISCLOSURE,
@@ -55,7 +55,7 @@ describe("nav disclosure copy", () => {
 describe("effectiveNavDisclosureForPathname", () => {
   it.each([
     "/",
-    EXECUTIVE_DASHBOARD_HREF,
+    SPONSOR_DASHBOARD_HREF,
     "/architecture/first-review-guide",
     "/architecture/reviews/new",
     "/architecture/reviews",

@@ -19,7 +19,7 @@ export const RUN_DETAIL_FINALIZED_ARCHITECT_SECTION_ORDER = [
   "export-actions",
   "explanation-confidence",
   "mid-deferred",
-  "executive-bottom-line",
+  "sponsor-bottom-line",
   "holistic-critic",
   "below-fold",
 ] as const;
@@ -36,7 +36,7 @@ export const RUN_DETAIL_DRAFT_ARCHITECT_SECTION_ORDER = [
   "findings",
   "governance-alerts",
   "governance-cta",
-  "executive-summary-cta",
+  "sponsor-report-cta",
   "operator-technical-disclosure",
   "below-fold",
 ] as const;
@@ -63,7 +63,7 @@ export const RUN_DETAIL_PAGE_VIEW_SECTION_MARKERS: Readonly<Record<RunDetailFina
   "export-actions": "<ExportDeliverableDialog",
   "explanation-confidence": "<RunExplanationConfidenceBanner",
   "mid-deferred": "<RunDetailMidDeferredSections",
-  "executive-bottom-line": "<RunDetailExecutiveBottomLine",
+  "sponsor-bottom-line": "<RunDetailSponsorBottomLine",
   "holistic-critic": "<RunDetailHolisticCriticPanel",
   "below-fold": "<RunDetailBelowFoldSections",
 };

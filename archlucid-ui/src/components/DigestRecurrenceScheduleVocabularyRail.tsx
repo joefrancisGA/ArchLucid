@@ -21,7 +21,7 @@ export type DigestRecurrenceScheduleVocabularyRailProps = {
 };
 
 /**
- * TB-2226 — Compact vocabulary rail between executive digest schedule and recurrence schedules.
+ * TB-2226 — Compact vocabulary rail between sponsor digest schedule and recurrence schedules.
  * Mount on both hubs so operators do not conflate email cadence with re-review automation.
  */
 export function DigestRecurrenceScheduleVocabularyRail(
@@ -30,7 +30,7 @@ export function DigestRecurrenceScheduleVocabularyRail(
   const model = props.model ?? buildDigestRecurrenceScheduleVocabulary();
   const peer = resolveDigestRecurrenceSchedulePeerLink(props.currentSurfaceId);
   const currentLink =
-    props.currentSurfaceId === "digest-executive-schedule"
+    props.currentSurfaceId === "digest-sponsor-schedule"
       ? model.digestLink
       : model.recurrenceLink;
 

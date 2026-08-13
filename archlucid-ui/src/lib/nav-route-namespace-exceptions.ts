@@ -11,7 +11,7 @@ export const NAV_ROUTE_NAMESPACE_EXCEPTIONS: readonly NavRouteNamespaceException
     href: GOVERNANCE_WORKSPACE_HEALTH_HREF,
     canonicalPrefixes: ["/governance"],
     exceptionReason:
-      "Workspace health KPIs were merged onto the executive dashboard when standalone /governance/dashboard was retired, "
+      "Workspace health KPIs were merged onto the sponsor dashboard when standalone /governance/dashboard was retired, "
       + "so the governance nav row deep-links to the #workspace-health anchor instead of owning a /governance/* page.",
   },
 ];

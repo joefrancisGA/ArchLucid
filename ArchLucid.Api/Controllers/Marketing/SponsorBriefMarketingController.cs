@@ -15,7 +15,7 @@ namespace ArchLucid.Api.Controllers.Marketing;
 
 using ArchLucid.Api.Security;
 
-/// <summary>Anonymous marketing artifact: printable PDF from the canonical Executive Sponsor Brief markdown.</summary>
+/// <summary>Anonymous marketing artifact: printable PDF from the canonical Sponsor Sponsor Brief markdown.</summary>
 [ApiController]
 [ApiVersion("1.0")]
 [Route("v{version:apiVersion}/marketing")]
@@ -48,7 +48,7 @@ public sealed class SponsorBriefMarketingController(
         if (string.IsNullOrWhiteSpace(path) || !System.IO.File.Exists(path))
         {
             return this.NotFoundProblem(
-                $"Executive sponsor brief was not found under docs/go-to-market (started from '{_hostEnvironment.ContentRootPath}').",
+                $"Sponsor sponsor brief was not found under docs/go-to-market (started from '{_hostEnvironment.ContentRootPath}').",
                 ProblemTypes.ResourceNotFound);
         }
 

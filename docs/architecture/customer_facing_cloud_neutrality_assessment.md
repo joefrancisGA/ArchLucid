@@ -6,7 +6,7 @@
 
 # Customer-facing cloud neutrality and implementation-language assessment
 
-## 1. Executive recommendation
+## 1. Sponsor recommendation
 
 ArchLucid has **invested deliberately** in multi-cloud connector parity for **read-only evidence collection** (Azure, AWS, Google Cloud hub pages, parallel help topics, `cloud-neutral-primary-copy.ts` with CI guards). That investment is **real and test-backed** for the cloud-connections workflow.
 

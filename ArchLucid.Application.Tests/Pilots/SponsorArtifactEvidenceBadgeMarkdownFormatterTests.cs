@@ -17,7 +17,7 @@ public sealed class SponsorArtifactEvidenceBadgeMarkdownFormatterTests
             new PilotRunDeltas { IsDemoTenant = true },
             new ProofPackageCompletenessResponse { DemoTenantWarningRequired = true },
             CreateSnapshot(ReviewCycleBaselineProvenance.NoMeasurementYet),
-            ExecutiveRoiSavingsPricingBasis.Retail,
+            SponsorRoiSavingsPricingBasis.Retail,
             RoiCostEvidenceFreshness.Fresh);
 
         badges.SourceToken.Should().Be("demo-derived");
@@ -31,7 +31,7 @@ public sealed class SponsorArtifactEvidenceBadgeMarkdownFormatterTests
             new PilotRunDeltas(),
             new ProofPackageCompletenessResponse(),
             CreateSnapshot(ReviewCycleBaselineProvenance.DefaultedFromRoiModelOptions),
-            ExecutiveRoiSavingsPricingBasis.UploadedActualAmortized,
+            SponsorRoiSavingsPricingBasis.UploadedActualAmortized,
             RoiCostEvidenceFreshness.Fresh);
 
         badges.SourceToken.Should().Be("uploaded-actual-amortized");
@@ -46,7 +46,7 @@ public sealed class SponsorArtifactEvidenceBadgeMarkdownFormatterTests
             new PilotRunDeltas(),
             new ProofPackageCompletenessResponse(),
             CreateSnapshot(ReviewCycleBaselineProvenance.DefaultedFromRoiModelOptions),
-            ExecutiveRoiSavingsPricingBasis.Retail,
+            SponsorRoiSavingsPricingBasis.Retail,
             RoiCostEvidenceFreshness.Stale);
 
         badges.FreshnessToken.Should().Be("stale");
@@ -60,7 +60,7 @@ public sealed class SponsorArtifactEvidenceBadgeMarkdownFormatterTests
             new PilotRunDeltas(),
             new ProofPackageCompletenessResponse(),
             CreateSnapshot(ReviewCycleBaselineProvenance.DefaultedFromRoiModelOptions),
-            ExecutiveRoiSavingsPricingBasis.HeuristicFallback,
+            SponsorRoiSavingsPricingBasis.HeuristicFallback,
             RoiCostEvidenceFreshness.Fresh);
 
         badges.SourceToken.Should().Be("heuristic-fallback");
@@ -74,7 +74,7 @@ public sealed class SponsorArtifactEvidenceBadgeMarkdownFormatterTests
             new PilotRunDeltas(),
             new ProofPackageCompletenessResponse(),
             CreateSnapshot(ReviewCycleBaselineProvenance.NoMeasurementYet),
-            ExecutiveRoiSavingsPricingBasis.Retail,
+            SponsorRoiSavingsPricingBasis.Retail,
             "Unknown");
 
         badges.FreshnessToken.Should().Be("not-collected");

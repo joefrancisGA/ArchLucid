@@ -276,7 +276,7 @@ Single place to track **decisions only a human owner** can make. When you ask wh
 |---|---|---|
 | **0 — Primitives** | Design tokens (**TB-114** UI cluster), canonical status tags (**TB-116**), `EnterpriseTable` (**TB-117**), Carbon conformance Cursor rule (**TB-120** UI cluster) | Every page pass depends on shared semantics; avoids one-off palette/badge/table drift |
 | **1 — First-pilot + run detail** | Home first-pilot command-center rows, onboarding/new-review wizard, reviews list entry, **buyer-polished run detail** (proof disposition, deliverables, findings, exports) | Highest buyer/sponsor visibility; matches golden path in [`FIRST_PILOT_OPERATOR_PATH.md`](runbooks/FIRST_PILOT_OPERATOR_PATH.md) |
-| **2 — Home / dashboard** | Operator Home executive ROI summary, first-value CTAs, sample-review entry cards | Sponsor-facing value after wave 1 tables/tags exist |
+| **2 — Home / dashboard** | Operator Home sponsor ROI summary, first-value CTAs, sample-review entry cards | Sponsor-facing value after wave 1 tables/tags exist |
 | **3 — Governance / Operate** | Governance dashboard, findings, audit log, policy packs, alerts inbox tables | Operate layer is post-commit; benefits from status tags + `EnterpriseTable` from wave 0 |
 | **4 — Polish** | Surface/card audit (**TB-115** UI cluster), spacing (**TB-118**), typography (**TB-119**), remaining shared cards | Cross-cutting cleanup after route priorities stabilize |
 

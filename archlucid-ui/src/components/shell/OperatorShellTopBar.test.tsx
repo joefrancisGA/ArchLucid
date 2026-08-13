@@ -203,7 +203,7 @@ describe("OperatorShellTopBar", () => {
 
     expect(sessionRail.contains(contextRail)).toBe(true);
     expect(contextRail.contains(scopeTrigger)).toBe(true);
-    expect(screen.queryByTestId("executive-operator-shell-switcher")).not.toBeInTheDocument();
+    expect(screen.queryByTestId("sponsor-operator-shell-switcher")).not.toBeInTheDocument();
     expect(scopeTrigger.compareDocumentPosition(helpTrigger) & Node.DOCUMENT_POSITION_FOLLOWING).toBeTruthy();
     expect(helpTrigger.compareDocumentPosition(budgetPill) & Node.DOCUMENT_POSITION_FOLLOWING).toBeTruthy();
     expect(screen.queryByTestId("operator-shell-topbar-more-trigger")).not.toBeInTheDocument();

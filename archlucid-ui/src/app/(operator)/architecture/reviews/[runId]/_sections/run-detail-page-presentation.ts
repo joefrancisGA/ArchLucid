@@ -21,7 +21,7 @@ import { deriveRunDetailFindingsTriageCounts } from "@/lib/runs/run-detail-findi
 import { shouldShowRunDetailGovernanceCta } from "@/lib/runs/run-detail-governance-cta-visibility";
 import type {
   EvidenceCoverageSummary,
-  ExecutiveBottomLineContent,
+  SponsorBottomLineContent,
   FindingSeverityCounts,
   ReviewHeaderPresentation,
   ReviewStatusSummary,
@@ -85,7 +85,7 @@ export type RunDetailPresentation = {
   readonly governanceDecisionLabel: string;
   readonly governanceOutcomeLine: string;
   readonly findingsSummaryLine: string;
-  readonly executiveBottomLineContent: ExecutiveBottomLineContent | null;
+  readonly executiveBottomLineContent: SponsorBottomLineContent | null;
 
   readonly submittedArchitectureText: string | null;
   readonly hasSubmittedArchitecture: boolean;
@@ -203,7 +203,7 @@ export async function buildRunDetailPresentation(
     deriveArchitectureSystemName,
     deriveBlockingApprovalCount,
     deriveEvidenceCoverageSummary,
-    deriveExecutiveBottomLineContent,
+    deriveSponsorBottomLineContent,
     deriveHighestFindingSeverityLabel,
     derivePrimaryConcernFinding,
     derivePrimaryConcernLabel,
@@ -386,7 +386,7 @@ export async function buildRunDetailPresentation(
       blockingApprovalCount,
       reviewStatusSummary.findingsRequiringActionCount,
     ),
-    executiveBottomLineContent: deriveExecutiveBottomLineContent({
+    executiveBottomLineContent: deriveSponsorBottomLineContent({
       governanceDecisionLabel,
       governanceDecisionRationale: model.resolvedDetail.run.operatorGovernanceDecisionRationale,
       overallPosture,

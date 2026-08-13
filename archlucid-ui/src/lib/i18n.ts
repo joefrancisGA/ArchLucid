@@ -3,7 +3,7 @@
  * @see docs/assessments/LATEST.md — simplify abstract nomenclature without hunting literals in components.
  */
 import { ARCHITECTURE_DRAFTS_LIST_LABEL, CREATE_ARCHITECTURE_LABEL } from "@/lib/architecture/architecture-workflow-labels";
-import { BUYER_EXECUTIVE_SUMMARY_VOCABULARY, BUYER_SURFACE_VOCABULARY, BUYER_TERMINOLOGY } from "@/lib/vocabulary/buyer-surface-vocabulary";
+import { BUYER_SPONSOR_SUMMARY_VOCABULARY, BUYER_SURFACE_VOCABULARY, BUYER_TERMINOLOGY } from "@/lib/vocabulary/buyer-surface-vocabulary";
 import { BUYER_ONBOARDING_PAGE_TITLE } from "@/lib/buyer/buyer-polish-copy";
 import { EVIDENCE_TRAIL_SEARCH } from "@/lib/search-surface-disambiguation";
 
@@ -114,9 +114,9 @@ export const OPERATOR_NAV_GROUP_LABELS = {
 export const OPERATOR_NAV_LINK_LABELS = {
   /** Operator workspace landing (`/`) — left nav label; logo also routes here. */
   home: "Home",
-  /** Operator-shell ROI dashboard (`/architecture/executive-dashboard`); the standalone executive-chrome duplicate was retired (TB-608). */
-  portfolioOverview: "Executive dashboard",
-  executiveSummary: BUYER_EXECUTIVE_SUMMARY_VOCABULARY.reviewExecutiveSummaryLabel,
+  /** Operator-shell ROI dashboard (`/architecture/sponsor-dashboard`); the standalone sponsor-chrome duplicate was retired (TB-608). */
+  portfolioOverview: "Sponsor dashboard",
+  SponsorReport: BUYER_SPONSOR_SUMMARY_VOCABULARY.reviewSponsorReportLabel,
   /** Architecture draft inventory (`/architectures`). */
   architectures: ARCHITECTURE_DRAFTS_LIST_LABEL,
   reviewPackage: "Reviews",
@@ -152,7 +152,7 @@ export const OPERATOR_NAV_LINK_LABELS = {
   failedIntegrationMessages: "Failed integration messages",
   teamsNotifications: "Teams notifications",
   itsmConnectors: "Jira & ServiceNow",
-  valueReport: "Executive summary",
+  valueReport: "Sponsor report",
   /** Compare two reviews (`/insights/compare-two-reviews`). */
   compareTwoReviews: "Compare two reviews",
   replayReview: "Validate review",

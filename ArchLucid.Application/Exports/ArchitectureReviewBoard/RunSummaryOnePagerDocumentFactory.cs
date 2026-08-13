@@ -10,11 +10,11 @@ public static class RunSummaryOnePagerDocumentFactory
 {
     public static RunSummaryOnePagerDocumentModel Create(
         ArchitectureRunDetail detail,
-        string executiveSummary,
+        string SponsorReport,
         IReadOnlyList<string> topFindingTitles)
     {
         ArgumentNullException.ThrowIfNull(detail);
-        ArgumentNullException.ThrowIfNull(executiveSummary);
+        ArgumentNullException.ThrowIfNull(SponsorReport);
         ArgumentNullException.ThrowIfNull(topFindingTitles);
 
         SeverityCounts counts = CountBySeverity(detail);
@@ -27,7 +27,7 @@ public static class RunSummaryOnePagerDocumentFactory
             HighCount = counts.High,
             MediumCount = counts.Medium,
             LowCount = counts.Low,
-            ExecutiveSummary = executiveSummary.Trim(),
+            SponsorReport = SponsorReport.Trim(),
             TopFindingTitles = topFindingTitles
                 .Where(static title => !string.IsNullOrWhiteSpace(title))
                 .Select(static title => title.Trim())

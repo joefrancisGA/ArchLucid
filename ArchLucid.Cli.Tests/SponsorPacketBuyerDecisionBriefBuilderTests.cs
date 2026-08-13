@@ -21,7 +21,7 @@ public sealed class SponsorPacketBuyerDecisionBriefBuilderTests
         }
         """;
 
-    private static string ExecutiveSummaryJson(decimal savings = 125_000m, string scope = "Open + Needs-Evidence findings", int systemCount = 3) =>
+    private static string SponsorReportJson(decimal savings = 125_000m, string scope = "Open + Needs-Evidence findings", int systemCount = 3) =>
         $$"""
         {
           "totalEstimatedUsdSavings": {{savings}},
@@ -85,7 +85,7 @@ public sealed class SponsorPacketBuyerDecisionBriefBuilderTests
         new(
             RunId,
             ManifestJson(),
-            ExecutiveSummaryJson(),
+            SponsorReportJson(),
             LimitationsMd(),
             FirstValueReportMd());
 
@@ -159,7 +159,7 @@ public sealed class SponsorPacketBuyerDecisionBriefBuilderTests
         SponsorPacketBuyerDecisionBriefBuilder.BriefInputs inputs = new(
             RunId,
             ManifestJson(demoDataWarning: true),
-            ExecutiveSummaryJson(),
+            SponsorReportJson(),
             LimitationsMd(),
             FirstValueReportMd());
 
@@ -176,7 +176,7 @@ public sealed class SponsorPacketBuyerDecisionBriefBuilderTests
         SponsorPacketBuyerDecisionBriefBuilder.BriefInputs inputs = new(
             RunId,
             ManifestJson(),
-            ExecutiveSummaryJson(),
+            SponsorReportJson(),
             LimitationsMd(holdReasons: ["Run is not committed.", "ROI source catalog is missing."]),
             null);
 

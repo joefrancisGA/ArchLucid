@@ -25,7 +25,7 @@ describe("OperatorHomePageMainContent", () => {
       <OperatorHomePageMainContent
         heroSection={<div data-testid="home-hero" />}
         recentReviewsSection={<div data-testid="home-recent-reviews" />}
-        executiveRoiStrip={<div data-testid="home-roi" />}
+        sponsorRoiStrip={<div data-testid="home-roi" />}
         firstValueCallout={<div data-testid="home-first-value" />}
         examplesPlacement={<div data-testid="home-examples" />}
       />,

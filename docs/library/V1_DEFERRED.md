@@ -373,17 +373,17 @@ This section **promotes MCP from backlog-only text to the named V1.1 release win
 
 ---
 
-## 6o. Executive ROI summary endpoint — cross-run dedup (**promoted to V1**, owner 2026-05-22)
+## 6o. Sponsor ROI summary endpoint — cross-run dedup (**promoted to V1**, owner 2026-05-22)
 
-**Supersedes** the **V1.1** deferral recorded **2026-05-19**. Cross-run executive ROI aggregation is **in contract for V1 GA** — see [V1_SCOPE.md](V1_SCOPE.md) **§2.8**.
+**Supersedes** the **V1.1** deferral recorded **2026-05-19**. Cross-run sponsor ROI aggregation is **in contract for V1 GA** — see [V1_SCOPE.md](V1_SCOPE.md) **§2.8**.
 
 | Milestone | V1 posture |
 |-----------|------------|
-| **`GET /v1/roi/executive-summary`** + operator dashboard panel | **In V1.** Latest committed run per system; summed estimated USD savings; top systemic issues. **Overlapping findings:** deduplicate by stable **`FindingId`** before portfolio counts (owner decision **2026-05-22**). |
+| **`GET /v1/roi/sponsor-summary`** + operator dashboard panel | **In V1.** Latest committed run per system; summed estimated USD savings; top systemic issues. **Overlapping findings:** deduplicate by stable **`FindingId`** before portfolio counts (owner decision **2026-05-22**). |
 
 **Rules:**
 
-- **`(A)` assessments** may score Executive Value Visibility and Proof-of-ROI Readiness against this surface when evaluating V1 GA readiness.
+- **`(A)` assessments** may score Sponsor Value Visibility and Proof-of-ROI Readiness against this surface when evaluating V1 GA readiness.
 - Prefer extending **`ExecutiveRoiSummaryService`** / [`PILOT_SCORECARD_API.md`](PILOT_SCORECARD_API.md) over parallel ROI math unless a separate board-pack contract is required.
 
 **Historical note:** Prior wording treated a dedicated CFO rollup route as **V1.1** until aggregation rules were pinned; those rules are now authoritative in **§2.8**.

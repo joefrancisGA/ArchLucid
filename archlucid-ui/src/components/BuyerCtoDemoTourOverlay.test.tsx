@@ -7,7 +7,7 @@ import {
   BUYER_CTO_DEMO_TOUR_COLLAPSED_STORAGE_KEY,
 } from "@/lib/buyer/buyer-cto-demo-tour";
 import { BUYER_CTO_DEMO_COMPARE_HREF } from "@/lib/buyer/buyer-golden-journey-nav";
-import { getShowcaseExecutiveHref, getShowcaseManifestHref } from "@/lib/buyer/buyer-safe-review-navigation";
+import { getShowcaseSponsorHref, getShowcaseManifestHref } from "@/lib/buyer/buyer-safe-review-navigation";
 import { SHOWCASE_STATIC_DEMO_RUN_ID } from "@/lib/showcase-static-demo";
 import { OPERATOR_DEMO_STATIC_PANIC_STORAGE_KEY } from "@/lib/operator/operator-static-demo";
 
@@ -23,7 +23,7 @@ vi.mock("@/lib/demo-ui-env", async (importOriginal) => {
   };
 });
 
-const pathnameMock = vi.fn(() => getShowcaseExecutiveHref());
+const pathnameMock = vi.fn(() => getShowcaseSponsorHref());
 
 vi.mock("next/navigation", async (importOriginal) => {
   const actual = await importOriginal<typeof import("next/navigation")>();
@@ -42,7 +42,7 @@ describe("BuyerCtoDemoTourOverlay", () => {
   beforeEach(() => {
     replaceMock.mockReset();
     prefetchMock.mockReset();
-    pathnameMock.mockReturnValue(getShowcaseExecutiveHref());
+    pathnameMock.mockReturnValue(getShowcaseSponsorHref());
     localStorage.clear();
     sessionStorage.clear();
     localStorage.setItem(BUYER_CTO_DEMO_TOUR_ACTIVE_STORAGE_KEY, "1");

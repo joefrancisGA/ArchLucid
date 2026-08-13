@@ -114,7 +114,7 @@ internal static class OpenApiBuyerContractFilter
             return BuyerAudience;
 
         if (path.StartsWith("v1/roi/", StringComparison.OrdinalIgnoreCase)
-            && path.Contains("executive", StringComparison.OrdinalIgnoreCase))
+            && path.Contains("sponsor", StringComparison.OrdinalIgnoreCase))
             return BuyerAudience;
 
         if (allowsAnonymous)

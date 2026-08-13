@@ -92,11 +92,11 @@ describe("BaselineSettingsPage", () => {
     const summary = await screen.findByTestId("baseline-settings-summary");
     expect(within(summary).getByRole("link", { name: "Value report" })).toHaveAttribute(
       "href",
-      "/insights/executive-summary",
+      "/insights/sponsor-report",
     );
-    expect(within(summary).getByRole("link", { name: "Executive dashboard" })).toHaveAttribute(
+    expect(within(summary).getByRole("link", { name: "Sponsor dashboard" })).toHaveAttribute(
       "href",
-      "/architecture/executive-dashboard",
+      "/architecture/sponsor-dashboard",
     );
     expect(within(summary).getByRole("link", { name: "ROI summary" })).toHaveAttribute("href", "/insights/roi-summary");
     expect(screen.getByTestId("baseline-settings-recommended-path")).toBeInTheDocument();

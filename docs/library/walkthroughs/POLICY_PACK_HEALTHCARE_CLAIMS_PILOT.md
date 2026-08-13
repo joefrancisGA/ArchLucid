@@ -156,7 +156,7 @@ On block: `409` with `#governance-pre-commit-blocked` and `blockingFindingIds` e
 ## Step 6 — Sponsor packet (exports)
 
 1. Download **Run summary one-pager** or architecture review board export from review detail **Exports**.
-2. Cross-check ROI basis labels on **Executive summary** (`/dashboard`) — pricing basis must read **Retail**, **EA-adjusted**, or **Uploaded actual/amortized** per tenant evidence ([`ROI_MODEL.md`](../../go-to-market/ROI_MODEL.md)).
+2. Cross-check ROI basis labels on **Sponsor summary** (`/dashboard`) — pricing basis must read **Retail**, **EA-adjusted**, or **Uploaded actual/amortized** per tenant evidence ([`ROI_MODEL.md`](../../go-to-market/ROI_MODEL.md)).
 3. CI golden fixture for packet composition: `ArchLucid.Application.Tests/Exports/ExecutiveReviewPacketGoldenFixtureTests.cs` (see [`PILOT_SUCCESS_SCORECARD.md`](../../go-to-market/PILOT_SUCCESS_SCORECARD.md)).
 
 ---
@@ -225,7 +225,7 @@ Detailed UI/API steps: sections above. Spine: [`FIRST_PILOT_OPERATOR_PATH.md`](.
 - Policy pack assignment record pinned to project scope
 - Findings with healthcare compliance themes and severity aligned to pack rules
 - Finalized architecture package sections (summary, artifacts, exports)
-- Executive summary with ROI basis labels (Retail, EA-adjusted, Uploaded actual/amortized)
+- Sponsor summary with ROI basis labels (Retail, EA-adjusted, Uploaded actual/amortized)
 
 ### Evidence generated
 

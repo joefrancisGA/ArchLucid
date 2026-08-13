@@ -15,8 +15,8 @@ public static class EndToEndComparisonExportProfile
     /// <summary>Minimal: title, run IDs, summary section only.</summary>
     public const string Short = "short";
 
-    /// <summary>Executive: high-level summary, key counts, interpretation notes; minimal lists.</summary>
-    public const string Executive = "executive";
+    /// <summary>Sponsor: high-level summary, key counts, interpretation notes; minimal lists.</summary>
+    public const string Sponsor = "sponsor";
 
     public static bool IsShort(string? profile)
     {
@@ -25,7 +25,7 @@ public static class EndToEndComparisonExportProfile
 
     public static bool IsExecutive(string? profile)
     {
-        return string.Equals(profile, Executive, StringComparison.OrdinalIgnoreCase);
+        return string.Equals(profile, Sponsor, StringComparison.OrdinalIgnoreCase);
     }
 
     public static bool IsDetailedOrDefault(string? profile)

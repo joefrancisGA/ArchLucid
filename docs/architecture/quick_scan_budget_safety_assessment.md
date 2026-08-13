@@ -7,7 +7,7 @@
 
 ---
 
-## Executive summary
+## Sponsor summary
 
 Quick Scan is marketed as a **no-sign-in** experience, but it is **not a true anonymous public API**. The browser calls the Next.js BFF (`/api/proxy/...`), which attaches a **server-held bearer token or API key** and fixed tenant scope headers, then calls an API endpoint gated by **`ReadAuthority`** (authenticated principal required). Every visitor therefore shares **one service identity and one tenant budget bucket**, not per-visitor isolation.
 

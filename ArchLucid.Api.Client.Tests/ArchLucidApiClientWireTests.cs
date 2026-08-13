@@ -47,7 +47,7 @@ public sealed class ArchLucidApiClientWireTests
                 return Task.FromResult(ok);
             }
 
-            if (url.Contains("executive-summary", StringComparison.Ordinal))
+            if (url.Contains("sponsor-summary", StringComparison.Ordinal))
             {
                 const string json =
                     "{\"type\":\"https://example/problem\",\"title\":\"Unauthorized\",\"status\":401,\"traceId\":\"trace-xyz\"}";

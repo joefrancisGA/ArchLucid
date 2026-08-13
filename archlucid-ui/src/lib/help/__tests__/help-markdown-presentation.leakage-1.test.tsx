@@ -21,8 +21,8 @@ import {
   alignDataHandlingIsolationHonesty,
   stripTenantIsolationContributorLeakage,
   stripDpaTemplateContributorLeakage,
-  stripExecutiveSummaryContributorLeakage,
-  stripExecutiveSummarySponsorBriefLeakage,
+  stripSponsorReportContributorLeakage,
+  stripSponsorReportSponsorBriefLeakage,
   stripFirstValue20ContributorLeakage,
   stripPathChooserContributorLeakage,
   stripPilotFeedbackContributorLeakage,
@@ -333,7 +333,7 @@ describe("help-markdown-presentation (leakage 1)", () => {
 
     const prepared = prepareHelpMarkdownForPresentation(source, "docs/library/PILOT_ROI_MODEL.md");
 
-    expect(prepared).toContain("/help/executive-summary#pilot-roi-measurement");
+    expect(prepared).toContain("/help/sponsor-report#pilot-roi-measurement");
     expect(prepared.toLowerCase()).not.toContain("docs/go-to-market");
   });
   it("omits habit-loop validation and recommended-loop prose from repeat-review help (TB-1396 / TB-1398)", () => {

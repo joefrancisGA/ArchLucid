@@ -3,14 +3,14 @@ using ArchLucid.Contracts.Roi;
 
 namespace ArchLucid.Application.Exports;
 
-/// <summary>Maps executive ROI summary evidence signals to sponsor claim disposition (presentation only).</summary>
+/// <summary>Maps sponsor ROI summary evidence signals to sponsor claim disposition (presentation only).</summary>
 public static class SponsorRoiExecutivePacketDispositionResolver
 {
-    public static SponsorRoiClaimDisposition Resolve(ExecutiveRoiSummaryResponse roiSummary)
+    public static SponsorRoiClaimDisposition Resolve(SponsorRoiSummaryResponse roiSummary)
     {
         ArgumentNullException.ThrowIfNull(roiSummary);
 
-        if (string.Equals(roiSummary.SavingsPricingBasis, ExecutiveRoiSavingsPricingBasis.HeuristicFallback, StringComparison.Ordinal))
+        if (string.Equals(roiSummary.SavingsPricingBasis, SponsorRoiSavingsPricingBasis.HeuristicFallback, StringComparison.Ordinal))
             return SponsorRoiClaimDisposition.Hold;
 
         if (string.Equals(roiSummary.CostEvidenceFreshnessStatus, RoiCostEvidenceFreshness.Missing, StringComparison.OrdinalIgnoreCase))
@@ -19,7 +19,7 @@ public static class SponsorRoiExecutivePacketDispositionResolver
         if (string.Equals(roiSummary.CostEvidenceFreshnessStatus, RoiCostEvidenceFreshness.Stale, StringComparison.OrdinalIgnoreCase))
             return SponsorRoiClaimDisposition.Warn;
 
-        if (string.Equals(roiSummary.SavingsPricingBasis, ExecutiveRoiSavingsPricingBasis.UploadedActualAmortized, StringComparison.Ordinal))
+        if (string.Equals(roiSummary.SavingsPricingBasis, SponsorRoiSavingsPricingBasis.UploadedActualAmortized, StringComparison.Ordinal))
             return SponsorRoiClaimDisposition.Pass;
 
         return SponsorRoiClaimDisposition.Warn;

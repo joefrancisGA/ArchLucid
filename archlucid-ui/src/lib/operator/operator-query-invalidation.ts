@@ -1,5 +1,5 @@
 import { invalidateCorePilotCommitContextCache } from "@/lib/core-pilot-commit-context";
-import { invalidateExecutiveRoiSummaryCache } from "@/lib/fetch-executive-roi-summary-client";
+import { invalidateSponsorRoiSummaryCache } from "@/lib/fetch-sponsor-roi-summary-client";
 import { invalidatePilotRecentDeltasCache } from "@/lib/pilot-recent-deltas-client";
 import { invalidateRunsByProjectPagedCache } from "@/lib/runs-by-project-paged-client";
 
@@ -12,7 +12,7 @@ export async function invalidateOperatorHomeRunsCaches(): Promise<void> {
   ]);
 }
 
-/** Invalidates executive ROI summary after governance disposition or portfolio changes (TB-562). */
-export async function invalidateOperatorExecutiveRoiCaches(): Promise<void> {
-  await invalidateExecutiveRoiSummaryCache();
+/** Invalidates sponsor ROI summary after governance disposition or portfolio changes (TB-562). */
+export async function invalidateOperatorSponsorRoiCaches(): Promise<void> {
+  await invalidateSponsorRoiSummaryCache();
 }

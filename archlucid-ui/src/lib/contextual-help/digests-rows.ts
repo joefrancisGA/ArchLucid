@@ -15,7 +15,7 @@ const DIGESTS_HUB_CONTEXTUAL_HELP: PageContextualHelpEntry = {
   whatToDoNext: "Open the Schedule tab to set timing and recipients, then preview or send a test digest.",
   whyEmpty: "Generated digests appear here after a schedule and recipients are configured.",
   whereToConfigurePrerequisite:
-    "Recipient subscriptions and executive rollup settings live on the Schedule tab.",
+    "Recipient subscriptions and sponsor rollup settings live on the Schedule tab.",
   whatToDoNextAction: {
     label: "Open Schedule tab",
     href: DIGESTS_SCHEDULE_TAB_PATH,

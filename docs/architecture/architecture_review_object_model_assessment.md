@@ -27,7 +27,7 @@ Every customer-visible noun found in the product, and what the application curre
 | **Governance approval / Decision** | An approval/rejection workflow item tied to one review at a specific manifest version | `dbo.GovernanceApprovalRequests` (`RunId`, `ManifestVersion`) | SQL table `dbo.GovernanceApprovalRequests` |
 | **Signed review record / Signed decision record** | The finalized, versioned authority closure produced when a review is finalized | `dbo.GoldenManifests` (`ManifestId`, FK `RunId`) | `ManifestDetailPageView.tsx:249` ("Signed decision record", buyer) vs. line 250 ("Finalized architecture package", architect) |
 | **Deliverables / Artifact bundle / Review bundle / Exports** | Generated output files (DOCX, PDF, ZIP) derived from a signed record or finalized review, for different audiences | `ArtifactBundle`, `EvidenceBundle` (backend types) | `buyer-polish-copy.ts:467-482` (`BUYER_MANIFEST_DELIVERABLES_HEADING`) |
-| **Executive dashboard / Executive summary** | A workspace-wide rollup across finalized reviews (dashboard), or a per-review summary panel | Aggregation of `Run` rows | `ExecutiveDashboardPageHero.tsx:31-35`; `RunDetailExecutiveSummaryCtaCard.tsx:22-27` |
+| **Sponsor dashboard / Sponsor summary** | A workspace-wide rollup across finalized reviews (dashboard), or a per-review summary panel | Aggregation of `Run` rows | `ExecutiveDashboardPageHero.tsx:31-35`; `RunDetailExecutiveSummaryCtaCard.tsx:22-27` |
 | **Assessment** | A verb/activity — running the evaluation pipeline against policies — not a customer-facing peer noun to "review" | N/A (activity, not entity) | `architecture-created-home-copy.ts` ("Run initial assessment"); `recurrence-schedule-activation-copy.ts` ("recurring assessments") |
 | **Revision** | Almost entirely a governance workflow verb ("request revision"), not a data-model version concept exposed to customers | N/A | `governance-approval-help-guide-content.ts:41` |
 | **Review run** | A legacy/rejected buyer noun for the same `Run` object, still leaking into trial-limit copy, cost-reporting labels, and CLI | `RunId` | `trial-limit-problem.ts:66`; `AiUsageCostBreakdownPanel.tsx:27` |
@@ -91,7 +91,7 @@ This directly contradicts the task's premise that "package" has been retired fro
 
 **Marketing and demo:**
 - `archlucid-ui/src/app/(marketing)/why/WhyArchlucidMarketingView.tsx` — **"evidence package,"** **"proof package,"** **"audit evidence package"**
-- `first-pilot-readiness-cockpit.ts:204-220` — **"Executive evidence package,"** **"Pilot evidence package"**
+- `first-pilot-readiness-cockpit.ts:204-220` — **"Sponsor evidence package,"** **"Pilot evidence package"**
 - `showcase-static-demo.ts:16-22` — `SHOWCASE_BUYER_REVIEW_PACKAGE_TITLE`
 
 **Backend (structural, not just copy):**
@@ -175,7 +175,7 @@ The list of architecture reviews (`Run` rows) — status, findings/risk summary,
 **Yes, as entry points — but both should be understood, and worded, as two doors into the same lifecycle**, not two competing product objects:
 - **"Create architecture"** → opens a **draft** workspace for preparing content before committing to a review. Good current framing ("save and resume, does not start a review") should be kept and reinforced.
 - **"Start review"** → begins a governed review, either from scratch or from an existing draft's content.
-- Recommend the sidebar caption already in place — *"Overview → Create architecture → Start review → Reviews → Executive dashboard"* (`pilot-nav-group-builder.ts:29-30`) — stays as the mental model, since it already describes a **sequence**, not two parallel systems. The bug is downstream copy (home dual-path cards, hub CTAs) that reintroduces symmetric-object framing TB-738's own design rationale explicitly rejected (per [`POSITIONING.md`](../go-to-market/POSITIONING.md#create-vs-review--adversarial-evaluation-closed), referenced in `TECH_BACKLOG.md` TB-738 cluster).
+- Recommend the sidebar caption already in place — *"Overview → Create architecture → Start review → Reviews → Sponsor dashboard"* (`pilot-nav-group-builder.ts:29-30`) — stays as the mental model, since it already describes a **sequence**, not two parallel systems. The bug is downstream copy (home dual-path cards, hub CTAs) that reintroduces symmetric-object framing TB-738's own design rationale explicitly rejected (per [`POSITIONING.md`](../go-to-market/POSITIONING.md#create-vs-review--adversarial-evaluation-closed), referenced in `TECH_BACKLOG.md` TB-738 cluster).
 
 **Where should users resume editing an existing architecture?**
 - **Before a review starts:** at `/architectures/{id}` (the draft workspace) — keep this.

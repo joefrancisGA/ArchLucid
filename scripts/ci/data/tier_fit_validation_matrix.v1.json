@@ -9,7 +9,7 @@
       "includedProofOutputs": [
         "Committed review package",
         "Sponsor-safe proof packet (when RunId supplied)",
-        "Executive ROI summary with basis labels"
+        "Sponsor ROI summary with basis labels"
       ],
       "excludedOrDeferred": [
         "Live Stripe/Marketplace self-serve (unless explicitly enabled build flag)",

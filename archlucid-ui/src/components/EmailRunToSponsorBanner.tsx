@@ -116,9 +116,9 @@ export function EmailRunToSponsorBanner({
   const [readinessLoadingPhase, setReadinessLoadingPhase] = useState<"quick" | "slow">("quick");
 
   const markdownHref = `/api/proxy/v1/pilots/runs/${encodeURIComponent(runId)}/first-value-report`;
-  const executiveReviewPacketHref = `/api/proxy/v1/pilots/runs/${encodeURIComponent(runId)}/executive-review-packet`;
+  const SponsorReviewPacketHref = `/api/proxy/v1/pilots/runs/${encodeURIComponent(runId)}/sponsor-review-packet`;
   const sponsorProofPackHref = `/api/proxy/v1/pilots/runs/${encodeURIComponent(runId)}/sponsor-proof-pack.zip`;
-  const executiveBriefHref = resolveInAppDocHref("docs/go-to-market/EXECUTIVE_SPONSOR_BRIEF.md");
+  const executiveBriefHref = resolveInAppDocHref("docs/go-to-market/SPONSOR_SPONSOR_BRIEF.md");
   const pilotRoiModelHref = resolveInAppDocHref("docs/library/PILOT_ROI_MODEL.md");
 
   useEffect(() => {
@@ -320,7 +320,7 @@ export function EmailRunToSponsorBanner({
       id="pilot-scorecard-package"
       data-testid="email-run-to-sponsor-banner"
       role="region"
-      aria-label="Executive sponsor deliverables (downstream)"
+      aria-label="Sponsor sponsor deliverables (downstream)"
       className="mb-6 rounded-md border border-neutral-200 bg-al-surface-raised dark:border-neutral-800 px-4 py-3"
     >
       <p className={cn("m-0 flex flex-wrap items-center font-semibold uppercase tracking-wide text-teal-800 dark:text-teal-300", OPERATOR_TYPOGRAPHY.helper)}>
@@ -363,7 +363,7 @@ export function EmailRunToSponsorBanner({
       </p>
 
       <h2 className={cn("m-0 mt-2 font-semibold text-al-text-primary", OPERATOR_TYPOGRAPHY.cardTitle)}>
-        {buyerPolishedShell ? "Create executive sponsor scorecard" : "Generate pilot scorecard package"}
+        {buyerPolishedShell ? "Create sponsor sponsor scorecard" : "Generate pilot scorecard package"}
       </h2>
 
       <p className={cn("m-0 mt-2 leading-relaxed text-neutral-800 dark:text-neutral-100", OPERATOR_TYPOGRAPHY.body)}>
@@ -374,7 +374,7 @@ export function EmailRunToSponsorBanner({
           rel="noopener noreferrer"
           target="_blank"
         >
-          executive sponsor brief
+          sponsor sponsor brief
         </a>{" "}
         and conservative ROI framing in the{" "}
         <a
@@ -484,7 +484,7 @@ export function EmailRunToSponsorBanner({
       ) : null}
 
       <h3 className={cn("m-0 mt-4 font-semibold text-neutral-900 dark:text-neutral-100", OPERATOR_TYPOGRAPHY.cardTitle)}>
-        {buyerPolishedShell ? "Executive readiness (sample signals)" : "Sponsor readiness"}
+        {buyerPolishedShell ? "Sponsor readiness (sample signals)" : "Sponsor readiness"}
       </h3>
 
       {proofGate.status === "skipped" ? null : proofGate.status === "loading" && curatedSampleRun ? (
@@ -494,7 +494,7 @@ export function EmailRunToSponsorBanner({
         >
           {buyerPolishedShell ? (
             <>
-              Sample walkthrough: executive readiness lines summarize pilot deltas when telemetry is connected — packages
+              Sample walkthrough: sponsor readiness lines summarize pilot deltas when telemetry is connected — packages
               below are representative for this review.
             </>
           ) : (
@@ -511,8 +511,8 @@ export function EmailRunToSponsorBanner({
           aria-busy
         >
           {readinessLoadingPhase === "slow"
-            ? "Still preparing executive package details — you can use the exports below in the meantime."
-            : "Preparing executive package details…"}
+            ? "Still preparing sponsor package details — you can use the exports below in the meantime."
+            : "Preparing sponsor package details…"}
         </p>
       ) : proofGate.status === "error" ? (
         <p
@@ -665,11 +665,11 @@ export function EmailRunToSponsorBanner({
         <li>
           <a
             className="font-medium text-teal-800 underline underline-offset-2 dark:text-teal-300"
-            href={executiveReviewPacketHref}
-            download={`archlucid-executive-review-packet-${runId}.md`}
-            data-testid="email-run-to-sponsor-executive-review-packet"
+            href={SponsorReviewPacketHref}
+            download={`archlucid-sponsor-review-packet-${runId}.md`}
+            data-testid="email-run-to-sponsor-sponsor-review-packet"
           >
-            {buyerPolishedShell ? "Executive review packet (one-click Markdown)" : "Executive review packet (Markdown)"}
+            {buyerPolishedShell ? "Sponsor review packet (one-click Markdown)" : "Sponsor review packet (Markdown)"}
           </a>
         </li>
         <li>
@@ -678,7 +678,7 @@ export function EmailRunToSponsorBanner({
             href={markdownHref}
             download={`archlucid-first-value-report-${runId}.md`}
           >
-            {buyerPolishedShell ? "Executive value summary (Markdown)" : "First-value report (Markdown)"}
+            {buyerPolishedShell ? "Sponsor value summary (Markdown)" : "First-value report (Markdown)"}
           </a>
         </li>
         <li>

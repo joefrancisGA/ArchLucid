@@ -7,6 +7,7 @@ import {
   filterGovernanceRowsForJobView,
   filterReviewFindingsForJobView,
   matchesReviewFindingJobView,
+  resolveEffectiveFindingJobView,
 } from "@/lib/findings/finding-job-view";
 import type { QuickDecisionFinding } from "@/lib/quick-decision-summary-derive";
 
@@ -86,5 +87,10 @@ describe("finding-job-view", () => {
 
     expect(decisionQueue.map((entry) => entry.findingId)).toEqual(["f-4"]);
     expect(sponsorReady.map((entry) => entry.findingId)).toEqual(["f-5"]);
+  });
+
+  it("resolveEffectiveFindingJobView skips persisted job view when the filter bar is hidden", () => {
+    expect(resolveEffectiveFindingJobView("ready-for-sponsor-packet", true)).toBe("ready-for-sponsor-packet");
+    expect(resolveEffectiveFindingJobView("ready-for-sponsor-packet", false)).toBe("needs-my-decision");
   });
 });

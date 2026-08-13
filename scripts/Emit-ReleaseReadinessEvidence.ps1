@@ -812,13 +812,13 @@ Add-CheckRow $checks "RC go/no-go verdict" $rcVerdictLabel "synthesized signoff 
     --markdown-out $rcNarrativeMd
 Add-CheckRow $checks "RC decision narrative" (Map-ExitToVerdict $LASTEXITCODE).verdict "human-readable go/no-go summary" "rc-decision-narrative.md"
 
-[string] $execBriefJson = Join-Path $OutDir "executive-one-screen-brief.json"
-[string] $execBriefMd = Join-Path $OutDir "executive-one-screen-brief.md"
+[string] $execBriefJson = Join-Path $OutDir "sponsor-one-screen-brief.json"
+[string] $execBriefMd = Join-Path $OutDir "sponsor-one-screen-brief.md"
 & python (Join-Path $root "scripts/ci/build_executive_one_screen_brief.py") `
     --bundle-dir $OutDir `
     --json-out $execBriefJson `
     --markdown-out $execBriefMd
-Add-CheckRow $checks "Executive one-screen brief" (Map-ExitToVerdict $LASTEXITCODE).verdict "sponsor-facing rollup from RC artifacts" "executive-one-screen-brief.md"
+Add-CheckRow $checks "Sponsor one-screen brief" (Map-ExitToVerdict $LASTEXITCODE).verdict "sponsor-facing rollup from RC artifacts" "sponsor-one-screen-brief.md"
 
 [string] $deployHandoffJson = Join-Path $OutDir "deploy-handoff.json"
 [string] $deployHandoffMd = Join-Path $OutDir "deploy-handoff.md"

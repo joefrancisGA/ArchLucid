@@ -1,6 +1,6 @@
 import { FIRST_ARCHITECTURE_REVIEW_HELP_PATH } from "@/lib/first-architecture-review-help-route";
 import { FIRST_REVIEW_HELP_PATH } from "@/lib/first-review-help-route";
-import { EXECUTIVE_DASHBOARD_HREF } from "@/lib/executive/executive-dashboard-route";
+import { SPONSOR_DASHBOARD_HREF } from "@/lib/sponsor/sponsor-dashboard-route";
 
 /**
  * Repo-relative path for the printable first-run evidence checklist canon
@@ -22,7 +22,7 @@ export const FIRST_REVIEW_90MIN_REQUIRED_ROUTES = [
   "/architecture/reviews/new",
   "/architecture/reviews",
   "/administration/extract-upload",
-  EXECUTIVE_DASHBOARD_HREF,
+  SPONSOR_DASHBOARD_HREF,
 ] as const;
 
 /** Keyword fragments from FIRST_RUN_EVIDENCE_CHECKLIST.md that the UI playbook must cover. */

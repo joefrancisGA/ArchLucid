@@ -55,7 +55,7 @@ public sealed class BoardPackPdfBuilder(
         combined.AppendLine($"# ArchLucid board pack — Q{quarter.ToString(CultureInfo.InvariantCulture)} {year.ToString(CultureInfo.InvariantCulture)} (UTC)");
         combined.AppendLine();
         combined.AppendLine(
-            "This pack combines the **weekly executive digest pipeline** (one representative ISO week inside the quarter) with the **tenant value-report metrics** for the full quarter window. Figures come only from existing builders — no ad-hoc ROI math.");
+            "This pack combines the **weekly sponsor digest pipeline** (one representative ISO week inside the quarter) with the **tenant value-report metrics** for the full quarter window. Figures come only from existing builders — no ad-hoc ROI math.");
         combined.AppendLine();
         combined.AppendLine("---");
         combined.AppendLine();

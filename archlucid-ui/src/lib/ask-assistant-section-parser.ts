@@ -29,7 +29,7 @@ function toTitleCase(word: string): string {
 }
 
 /**
- * Parses optional executive-oriented blocks introduced by Risk:/Evidence:/Mitigation:/Validation: headers.
+ * Parses optional sponsor-oriented blocks introduced by Risk:/Evidence:/Mitigation:/Validation: headers.
  * Returns null when no such headers are found (caller should render the string as a single body).
  */
 export function parseAskAssistantStructuredSections(content: string): {

@@ -275,7 +275,7 @@ const workspaceStickyActionsLoading = runDetailDeferredLoading(
 
 const sectionNavLoading = runDetailDeferredLoading("Loading section navigation", "h-10");
 
-const executiveBottomLineLoading = runDetailDeferredLoading("Loading executive summary", "h-40");
+const executiveBottomLineLoading = runDetailDeferredLoading("Loading sponsor report", "h-40");
 
 /** TB-2117 — workspace identity chrome off sync First Load JS. */
 export const RunDetailWorkspaceHeaderDeferred = dynamic(
@@ -338,13 +338,13 @@ export const RunDetailAdvancedAnalysisSectionDeferred = dynamic(
   { loading: () => null },
 );
 
-export const RunDetailExecutiveBottomLineDeferred = dynamic(
-  () => import("./RunDetailExecutiveBottomLine").then((module) => module.RunDetailExecutiveBottomLine),
+export const RunDetailSponsorBottomLineDeferred = dynamic(
+  () => import("./RunDetailSponsorBottomLine").then((module) => module.RunDetailSponsorBottomLine),
   { ssr: false, loading: () => executiveBottomLineLoading },
 );
 
-export const RunDetailExecutiveSummaryCtaCardDeferred = dynamic(
-  () => import("./RunDetailExecutiveSummaryCtaCard").then((module) => module.RunDetailExecutiveSummaryCtaCard),
+export const RunDetailSponsorReportCtaCardDeferred = dynamic(
+  () => import("./RunDetailSponsorReportCtaCard").then((module) => module.RunDetailSponsorReportCtaCard),
   { ssr: false, loading: () => null },
 );
 

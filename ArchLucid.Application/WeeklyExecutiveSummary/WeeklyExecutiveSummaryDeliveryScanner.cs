@@ -11,38 +11,38 @@ using ArchLucid.Persistence.Queries;
 using Microsoft.Extensions.Logging;
 using Microsoft.Extensions.Options;
 
-namespace ArchLucid.Application.WeeklyExecutiveSummary;
+namespace ArchLucid.Application.WeeklySponsorReport;
 
 /// <summary>
 ///     Worker entry that sends at most one run-summary one-pager email per commercial tenant per ISO week to Admin and
 ///     Sponsor mailboxes.
 /// </summary>
-public sealed class WeeklyExecutiveSummaryDeliveryScanner(
+public sealed class WeeklySponsorReportDeliveryScanner(
     ITenantRepository tenantRepository,
     IAuthorityQueryService authorityQueryService,
     IRunSummaryOnePagerExportService runSummaryOnePagerExportService,
-    IExecutiveSummaryRecipientLookup recipientLookup,
-    IWeeklyExecutiveSummaryEmailDispatcher emailDispatcher,
-    IOptionsMonitor<WeeklyExecutiveSummaryOptions> optionsMonitor,
+    ISponsorReportRecipientLookup recipientLookup,
+    IWeeklySponsorReportEmailDispatcher emailDispatcher,
+    IOptionsMonitor<WeeklySponsorReportOptions> optionsMonitor,
     IOptionsMonitor<EmailNotificationOptions> emailOptionsMonitor,
-    ILogger<WeeklyExecutiveSummaryDeliveryScanner> logger)
+    ILogger<WeeklySponsorReportDeliveryScanner> logger)
 {
     private readonly IAuthorityQueryService _authorityQueryService =
         authorityQueryService ?? throw new ArgumentNullException(nameof(authorityQueryService));
 
-    private readonly IWeeklyExecutiveSummaryEmailDispatcher _emailDispatcher =
+    private readonly IWeeklySponsorReportEmailDispatcher _emailDispatcher =
         emailDispatcher ?? throw new ArgumentNullException(nameof(emailDispatcher));
 
     private readonly IOptionsMonitor<EmailNotificationOptions> _emailOptionsMonitor =
         emailOptionsMonitor ?? throw new ArgumentNullException(nameof(emailOptionsMonitor));
 
-    private readonly ILogger<WeeklyExecutiveSummaryDeliveryScanner> _logger =
+    private readonly ILogger<WeeklySponsorReportDeliveryScanner> _logger =
         logger ?? throw new ArgumentNullException(nameof(logger));
 
-    private readonly IOptionsMonitor<WeeklyExecutiveSummaryOptions> _optionsMonitor =
+    private readonly IOptionsMonitor<WeeklySponsorReportOptions> _optionsMonitor =
         optionsMonitor ?? throw new ArgumentNullException(nameof(optionsMonitor));
 
-    private readonly IExecutiveSummaryRecipientLookup _recipientLookup =
+    private readonly ISponsorReportRecipientLookup _recipientLookup =
         recipientLookup ?? throw new ArgumentNullException(nameof(recipientLookup));
 
     private readonly IRunSummaryOnePagerExportService _runSummaryOnePagerExportService =
@@ -53,7 +53,7 @@ public sealed class WeeklyExecutiveSummaryDeliveryScanner(
 
     public async Task PublishDueAsync(DateTimeOffset utcNow, CancellationToken cancellationToken)
     {
-        WeeklyExecutiveSummaryOptions options = _optionsMonitor.CurrentValue;
+        WeeklySponsorReportOptions options = _optionsMonitor.CurrentValue;
 
         if (!options.Enabled)
             return;
@@ -68,7 +68,7 @@ public sealed class WeeklyExecutiveSummaryDeliveryScanner(
             if (cancellationToken.IsCancellationRequested)
                 break;
 
-            if (!CommercialTenantEligibility.IsEligibleForWeeklyExecutiveSummary(tenant))
+            if (!CommercialTenantEligibility.IsEligibleForWeeklySponsorReport(tenant))
                 continue;
 
             try
@@ -78,7 +78,7 @@ public sealed class WeeklyExecutiveSummaryDeliveryScanner(
             catch (Exception ex) when (!cancellationToken.IsCancellationRequested)
             {
                 if (_logger.IsEnabled(LogLevel.Error))
-                    _logger.LogError(ex, "Weekly executive summary delivery failed for tenant {TenantId}.", tenant.Id);
+                    _logger.LogError(ex, "Weekly Sponsor report delivery failed for tenant {TenantId}.", tenant.Id);
             }
         }
     }
@@ -106,7 +106,7 @@ public sealed class WeeklyExecutiveSummaryDeliveryScanner(
         if (string.IsNullOrWhiteSpace(latestRunHex))
         {
             if (_logger.IsEnabled(LogLevel.Information))
-                _logger.LogInformation("Weekly executive summary skipped; no committed run for tenant {TenantId}.", tenant.Id);
+                _logger.LogInformation("Weekly Sponsor report skipped; no committed run for tenant {TenantId}.", tenant.Id);
 
             return;
         }
@@ -117,7 +117,7 @@ public sealed class WeeklyExecutiveSummaryDeliveryScanner(
         if (recipients.Count == 0)
         {
             if (_logger.IsEnabled(LogLevel.Information))
-                _logger.LogInformation("Weekly executive summary skipped; no Admin/Sponsor mailboxes for tenant {TenantId}.", tenant.Id);
+                _logger.LogInformation("Weekly Sponsor report skipped; no Admin/Sponsor mailboxes for tenant {TenantId}.", tenant.Id);
 
             return;
         }
@@ -164,7 +164,7 @@ public sealed class WeeklyExecutiveSummaryDeliveryScanner(
         return latestRunId.Value.ToString("N");
     }
 
-    private static bool IsScheduledLocalHour(DateTimeOffset utcNow, WeeklyExecutiveSummaryOptions options)
+    private static bool IsScheduledLocalHour(DateTimeOffset utcNow, WeeklySponsorReportOptions options)
     {
         TimeZoneInfo tz;
 

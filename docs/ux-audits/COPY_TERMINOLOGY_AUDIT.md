@@ -26,7 +26,7 @@
 
 1. **"Pilot" persists in production labels** — "Pilot feedback," "Evaluation value report," "Evaluation standards," "Start CTO demo," and "during a pilot" are all customer-visible production labels accessible to any authenticated user. These signal the product is still in evaluation, not in production.
 
-2. **"Commit" vs. "Finalize" inconsistency** — the pipeline status system uses `Finalized / Ready to finalize` consistently, but the home page hero (step 3), the executive scorecard KPI, the executive dashboard empty states, the evidence graph subtitle, the onboarding step tracker, and the roles permissions label all still say "commit." Both terms are in simultaneous use for the same action.
+2. **"Commit" vs. "Finalize" inconsistency** — the pipeline status system uses `Finalized / Ready to finalize` consistently, but the home page hero (step 3), the sponsor scorecard KPI, the sponsor dashboard empty states, the evidence graph subtitle, the onboarding step tracker, and the roles permissions label all still say "commit." Both terms are in simultaneous use for the same action.
 
 3. **Azure-first home page** — `PILOT_COMMAND_CENTER_LEAD` ends with "an optional Azure import" and `PILOT_COMMAND_CENTER_CONNECT_AZURE = "Connect Azure"` is the only cloud-specific optional setup CTA, despite multi-cloud (Azure, AWS, GCP) support being live. A customer with an AWS or GCP estate sees no invitation on the primary onboarding surface.
 
@@ -47,7 +47,7 @@
 | `seeded` / `seed` | source attribution, demo messages | `example` |
 | `demo-derived` | AHA card badge, home page sub-caption | `example` |
 | `simulator mode` | review detail trust badge | `rule-based analysis` |
-| `sponsor value report` | page title | `executive value report` |
+| `sponsor value report` | page title | `sponsor value report` |
 | `Azure import` | home page hero lead | `cloud connection` |
 | `Connect Azure` | home page optional-setup CTA | `Connect cloud` |
 | `Azure cloud connection` | nav label (legacy) | `Cloud connections` (migrate fully) |
@@ -115,11 +115,11 @@ These terms must not appear in any customer-visible rendered text (page titles, 
 - **Visible at:** `/governance/audit` page — all operators
 - **Fix:** Remove the final clause. New value: `"Append-only audit trail — every create, finalize, governance decision, and export is recorded with actor, action type, and timestamp. Filter or sort below to inspect the complete event timeline."`
 
-### C05 — TB-460 · Azure-only cost evidence footnote in executive dashboard
+### C05 — TB-460 · Azure-only cost evidence footnote in sponsor dashboard
 
 - **Symbol:** `BUYER_EXECUTIVE_SUMMARY_VOCABULARY.costEvidenceNotConfiguredFootnote` in `buyer-surface-vocabulary.ts`
 - **Current:** `"Add Azure cost evidence to estimate savings and ROI."`
-- **Visible at:** Executive dashboard cost metric empty state
+- **Visible at:** Sponsor dashboard cost metric empty state
 - **Fix:** `"Add cost evidence (Azure, AWS, or GCP spend data) to estimate savings and ROI."`
 
 ---
@@ -135,7 +135,7 @@ These terms must not appear in any customer-visible rendered text (page titles, 
 | C10 | TB-465 | `PILOT_COMMAND_CENTER_LEAD` | `"…or an optional Azure import."` | `"…or an optional cloud connection."` |
 | C11 | TB-466 | `PILOT_COMMAND_CENTER_CONNECT_AZURE` | `"Connect Azure"` | `"Connect cloud"` |
 | C12 | TB-467 | `OPERATOR_NAV_LINK_LABELS.azureCloudConnection` | `"Azure cloud connection"` | Retire; use `cloudConnections` |
-| C13 | TB-468 | `BUYER_VALUE_REPORT_PAGE_TITLE` | `"Sponsor value report"` | `"Executive value report"` |
+| C13 | TB-468 | `BUYER_VALUE_REPORT_PAGE_TITLE` | `"Sponsor value report"` | `"Sponsor value report"` |
 | C14 | TB-469 | `PRODUCT_CONCEPTS_GLOSSARY_DIALOG_DESCRIPTION` | `"…during a pilot…"` | `"…in your architecture reviews…"` |
 | C15 | TB-470 | `BUYER_WHY_ARCHLUCID_SPONSOR_PACK_SOURCE_LINE` | `"…the seeded Claims Intake review…"` | `"…the example Claims Intake review…"` |
 | C16 | TB-471 | `BUYER_HOME_START_CTO_DEMO_HEADING` + CTA | `"Start CTO demo"` | `"Open example review"` |
@@ -204,7 +204,7 @@ archlucid-ui/src/lib/i18n.ts
 
 ```
 archlucid-ui/src/lib/buyer/buyer-polish-copy.ts
-  BUYER_VALUE_REPORT_PAGE_TITLE: "Sponsor value report" → "Executive value report"
+  BUYER_VALUE_REPORT_PAGE_TITLE: "Sponsor value report" → "Sponsor value report"
   PRODUCT_CONCEPTS_GLOSSARY_DIALOG_DESCRIPTION: remove "during a pilot"
   BUYER_WHY_ARCHLUCID_SPONSOR_PACK_SOURCE_LINE: remove "seeded"
   BUYER_HOME_START_CTO_DEMO_HEADING + CTA: "Start CTO demo" → "Open example review"

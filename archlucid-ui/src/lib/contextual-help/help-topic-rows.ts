@@ -86,12 +86,12 @@ export const HELP_TOPIC_CONTEXTUAL_HELP_ROWS: readonly PageContextualHelpRow[] =
     },
   },
   {
-    prefix: "/help/executive-summary",
+    prefix: "/help/sponsor-report",
     entry: {
       whatIsThisPage:
-        "Executive summary help — sponsor-safe pilot proof, ROI framing, and what executives should expect in exports.",
+        "Sponsor report help — sponsor-safe pilot proof, ROI framing, and what executives should expect in exports.",
       whatToDoNext:
-        "Open the live executive value report or dashboard, then review Pilot ROI measurement when methodology needs clarity.",
+        "Open the live sponsor value report or dashboard, then review Pilot ROI measurement when methodology needs clarity.",
       whyEmpty: "This guide is always available; live sponsor reports populate after finalized reviews exist.",
       whereToConfigurePrerequisite:
         "Sponsor exports need a role that can read finalized architecture reviews in this workspace.",

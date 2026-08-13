@@ -73,7 +73,7 @@ def test_migrate_workbook_path_maps_tb2050_retired_help_aliases() -> None:
     # Section anchors stay out of workbook targets: rows must be catalog routes.
     assert migrate_workbook_path("/help/first-review") == "/help/first-architecture-review"
     assert migrate_workbook_path("/help/first-value-20-minutes") == "/help/first-architecture-review"
-    assert migrate_workbook_path("/help/pilot-roi-model") == "/help/executive-summary"
+    assert migrate_workbook_path("/help/pilot-roi-model") == "/help/sponsor-report"
     assert migrate_workbook_path("/help/developer-troubleshooting") == "/help/engineering-troubleshooting"
     assert migrate_workbook_path("/help/policy-pack-delta-demo") == "/help/policy-packs#policy-pack-delta-demo"
 
@@ -168,7 +168,7 @@ def test_build_catalog_keeps_batch_b_retired_help_aliases_out() -> None:
 def test_migrate_workbook_path_maps_batch_a_retired_help_aliases() -> None:
     assert migrate_workbook_path("/help/starting-reviews") == "/help/review-guide"
     assert migrate_workbook_path("/help/evidence-only-review") == "/help/first-architecture-review"
-    assert migrate_workbook_path("/help/product-overview") == "/help/executive-summary"
+    assert migrate_workbook_path("/help/product-overview") == "/help/sponsor-report"
     assert migrate_workbook_path("/help/how-it-works") == "/help/getting-started"
 
 
@@ -180,7 +180,7 @@ def test_build_catalog_keeps_batch_a_retired_help_aliases_out() -> None:
     assert "/help/how-it-works" not in catalog
     assert "/help/review-guide" in catalog
     assert "/help/first-architecture-review" in catalog
-    assert "/help/executive-summary" in catalog
+    assert "/help/sponsor-report" in catalog
     assert "/help/getting-started" in catalog
 
 
@@ -283,9 +283,9 @@ def test_migrate_workbook_path_maps_legacy_operator_system_health() -> None:
 
 
 def test_migrate_workbook_path_maps_legacy_executive_dashboard_bookmarks() -> None:
-    assert migrate_workbook_path("/dashboard") == "/architecture/executive-dashboard"
-    assert migrate_workbook_path("/executive/dashboard") == "/architecture/executive-dashboard"
-    assert migrate_workbook_path("/portfolio") == "/architecture/executive-dashboard"
+    assert migrate_workbook_path("/dashboard") == "/architecture/sponsor-dashboard"
+    assert migrate_workbook_path("/sponsor/dashboard") == "/architecture/sponsor-dashboard"
+    assert migrate_workbook_path("/portfolio") == "/architecture/sponsor-dashboard"
 
 
 def test_migrate_workbook_path_maps_legacy_admin_internal_ops() -> None:
@@ -297,10 +297,10 @@ def test_migrate_workbook_path_maps_legacy_admin_internal_ops() -> None:
 
 
 def test_migrate_workbook_path_maps_legacy_sponsor_report_to_insights() -> None:
-    assert migrate_workbook_path("/sponsor-report/executive-summary") == "/insights/executive-summary"
+    assert migrate_workbook_path("/sponsor-report/sponsor-report") == "/insights/sponsor-report"
     assert migrate_workbook_path("/sponsor-report/roi-summary") == "/insights/roi-summary"
     assert migrate_workbook_path("/sponsor-report/pilot-outcomes") == "/insights/pilot-outcomes"
-    assert migrate_workbook_path("/value-report") == "/insights/executive-summary"
+    assert migrate_workbook_path("/value-report") == "/insights/sponsor-report"
 
 
 def test_migrate_workbook_path_maps_legacy_replay_and_signed_records() -> None:

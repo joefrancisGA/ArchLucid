@@ -19,14 +19,14 @@ describe("LiveDemoTrackedLink", () => {
     telemetry.trackLiveDemoConversionClick.mockClear();
 
     render(
-      <LiveDemoTrackedLink href="/architecture/reviews/demo" trackKind="artifact" trackValue="executive">
+      <LiveDemoTrackedLink href="/architecture/reviews/demo" trackKind="artifact" trackValue="sponsor">
         Inspect
       </LiveDemoTrackedLink>,
     );
 
     fireEvent.click(screen.getByRole("link", { name: "Inspect" }));
 
-    expect(telemetry.trackLiveDemoArtifactOpened).toHaveBeenCalledWith("executive");
+    expect(telemetry.trackLiveDemoArtifactOpened).toHaveBeenCalledWith("sponsor");
     expect(telemetry.trackLiveDemoConversionClick).not.toHaveBeenCalled();
   });
 

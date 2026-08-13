@@ -1,4 +1,4 @@
-/** Heuristic parser for extractor-style cost JSON; orphan KPIs use GET /v1/roi/executive-summary (TB-103). */
+/** Heuristic parser for extractor-style cost JSON; orphan KPIs use GET /v1/roi/sponsor-report (TB-103). */
 
 const MAX_DEPTH = 42;
 

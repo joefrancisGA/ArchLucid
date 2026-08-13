@@ -11,7 +11,7 @@
 
 ---
 
-## 1. Executive conclusion
+## 1. Sponsor conclusion
 
 **The healthcare framing is real but it is not the biggest problem. The biggest problem is that ArchLucid does not have one primary example ΓÇö it has three, with colliding labels.**
 
@@ -100,7 +100,7 @@ Backend SQL universe (separate)
 | Persona | Can they get it in 30s? | Why |
 |---|---|---|
 | Enterprise/principal architect (regulated) | **Yes** | Intake boundary, PHI minimization, idempotency, retention ΓÇö recognizable and credible |
-| CTO/CIO (regulated) | **Mostly** | Executive summary + illustrative savings ($94,360) work; healthcare vocabulary is a mild translation tax |
+| CTO/CIO (regulated) | **Mostly** | Sponsor summary + illustrative savings ($94,360) work; healthcare vocabulary is a mild translation tax |
 | Engineering leader (tech company) | **Partial** | Findings like OCR bypass, back-pressure, idempotency translate; "claims/adjudication/PHI" does not |
 | Financial-services buyer | **Partial** | Regulated posture resonates; must self-translate PHIΓåÆPII, claimsΓåÆapplications |
 | Government buyer | **Partial** | Governance/evidence/audit resonates; healthcare wrapper distracts |
@@ -248,7 +248,7 @@ Assessing **Enterprise Customer Intake Modernization** as specified (multi-chann
 - **Evidence/governance story weakened?** No ΓÇö evidence traces, signed record, approvals, and compare mechanics are scenario-agnostic (Proven: they render Northwind created-sample content today).
 - **Sponsor metrics?** The illustrative-savings mechanism (`SHOWCASE_STATIC_DEMO_ILLUSTRATIVE_ANNUALIZED_EXTRACTION_USD`) is scenario-agnostic; re-derive the number for the new narrative.
 - **Cloud posture?** Keep it an **Azure reference architecture with honest labeling** (the TB-778 pattern), consistent with ADR 0020. Do not fake neutrality.
-- **Executive comprehension?** Better than claims (no vocabulary tax) but keep the hero finding *visceral* ΓÇö recommend "sensitive personal data crosses the intake boundary before minimization" as the direct generic descendant of the PHI hero, mapped to privacy/data-minimization policy rather than HIPAA.
+- **Sponsor comprehension?** Better than claims (no vocabulary tax) but keep the hero finding *visceral* ΓÇö recommend "sensitive personal data crosses the intake boundary before minimization" as the direct generic descendant of the PHI hero, mapped to privacy/data-minimization policy rather than HIPAA.
 
 **Adjustment recommended:** one hero finding, not ten equals ΓÇö the claims spine works because PHI minimization is a single memorable spike with eight supporting decisions. Reproduce that shape.
 

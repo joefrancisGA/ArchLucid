@@ -7,7 +7,7 @@ import { useEffect, useState } from "react";
 import { ApiV1Routes } from "@/lib/api-v1-routes";
 import { mergeRegistrationScopeForProxy } from "@/lib/proxy-fetch-registration-scope";
 
-type ExecutiveRoiAggregates = {
+type SponsorRoiAggregates = {
   timeSavedHours: number;
   decisionsAutomated: number;
   complianceRisksMitigated: number;
@@ -33,10 +33,10 @@ function formatCount(value: number): string {
   return new Intl.NumberFormat(undefined, { maximumFractionDigits: 0 }).format(value);
 }
 
-/** @deprecated Demo/legacy only — production `/dashboard` uses `ExecutiveRoiDashboardLiveKpiCards` (TB-062). */
-/** Executive ROI tiles backed by `GET /v1/analytics/roi` (mocked on the API until persistence is defined). */
-export function ExecutiveRoiDashboard() {
-  const [data, setData] = useState<ExecutiveRoiAggregates | null>(null);
+/** @deprecated Demo/legacy only — production `/dashboard` uses `SponsorRoiDashboardLiveKpiCards` (TB-062). */
+/** Sponsor ROI tiles backed by `GET /v1/analytics/roi` (mocked on the API until persistence is defined). */
+export function SponsorRoiDashboard() {
+  const [data, setData] = useState<SponsorRoiAggregates | null>(null);
   const [error, setError] = useState<string | null>(null);
 
   useEffect(() => {
@@ -53,7 +53,7 @@ export function ExecutiveRoiDashboard() {
           throw new Error(`HTTP ${res.status}`);
         }
 
-        const json = (await res.json()) as ExecutiveRoiAggregates;
+        const json = (await res.json()) as SponsorRoiAggregates;
 
         if (!canceled) {
           setData(json);
@@ -77,7 +77,7 @@ export function ExecutiveRoiDashboard() {
         className="rounded-lg border border-neutral-200 bg-white p-4 dark:border-neutral-800 dark:bg-neutral-900"
       >
         <h2 id="exec-roi-dashboard-heading" className={cn("font-semibold text-neutral-900 dark:text-neutral-100", OPERATOR_TYPOGRAPHY.cardTitle)}>
-          Executive ROI
+          Sponsor ROI
         </h2>
         <p className={cn("mt-2 text-red-600 dark:text-red-400", OPERATOR_TYPOGRAPHY.helper)} role="alert">
           {error}
@@ -93,7 +93,7 @@ export function ExecutiveRoiDashboard() {
         className="rounded-lg border border-neutral-200 bg-white p-4 dark:border-neutral-800 dark:bg-neutral-900"
       >
         <h2 id="exec-roi-dashboard-heading" className={cn("font-semibold text-neutral-900 dark:text-neutral-100", OPERATOR_TYPOGRAPHY.cardTitle)}>
-          Executive ROI
+          Sponsor ROI
         </h2>
         <p className={cn("mt-2 text-neutral-500 dark:text-neutral-400", OPERATOR_TYPOGRAPHY.helper)}>Loading…</p>
       </section>
@@ -106,7 +106,7 @@ export function ExecutiveRoiDashboard() {
       className="rounded-lg border border-neutral-200 bg-white p-4 dark:border-neutral-800 dark:bg-neutral-900"
     >
       <h2 id="exec-roi-dashboard-heading" className={cn("font-semibold text-neutral-900 dark:text-neutral-100", OPERATOR_TYPOGRAPHY.cardTitle)}>
-        Executive ROI
+        Sponsor ROI
       </h2>
       <p className={cn("mt-1 text-neutral-500 dark:text-neutral-400", OPERATOR_TYPOGRAPHY.helper)}>
         Aggregated impact from <span className="font-mono">GET /v1/analytics/roi</span>.

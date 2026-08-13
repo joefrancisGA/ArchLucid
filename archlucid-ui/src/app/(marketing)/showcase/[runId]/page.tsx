@@ -151,7 +151,7 @@ function ShowcaseBottomCTASection({
   return <ShowcaseBottomCTA scenario={resolveShowcaseScenarioSlug(runId)} renderMode={renderMode} />;
 }
 
-function ShowcaseExecutiveSummary({ payload }: { readonly payload: DemoCommitPagePreviewResponse }): ReactElement {
+function ShowcaseSponsorReport({ payload }: { readonly payload: DemoCommitPagePreviewResponse }): ReactElement {
   const keys = keyDriversFromPayload(payload);
   const riskLine =
     keys[0] ??
@@ -159,10 +159,10 @@ function ShowcaseExecutiveSummary({ payload }: { readonly payload: DemoCommitPag
 
   return (
     <section
-      aria-label="Executive summary"
+      aria-label="Sponsor report"
       className="mb-6 rounded-lg border border-neutral-200 bg-white/80 p-5 dark:border-neutral-700 dark:bg-neutral-900/50"
     >
-      <h2 className="m-0 text-base font-semibold text-neutral-900 dark:text-neutral-50">Executive summary</h2>
+      <h2 className="m-0 text-base font-semibold text-neutral-900 dark:text-neutral-50">Sponsor report</h2>
       <p className="mt-3 mb-0 text-sm leading-relaxed text-neutral-700 dark:text-neutral-300">
         <strong className="font-medium text-neutral-900 dark:text-neutral-100">What changed:</strong> the architecture
         moves from an underspecified intake hand-off to a governed package with explicit decisions and traceable
@@ -268,7 +268,7 @@ function ShowcasePayloadView({
 
       <ShowcaseEvidenceOrientationStrip />
 
-      <ShowcaseExecutiveSummary payload={payload} />
+      <ShowcaseSponsorReport payload={payload} />
 
       <div className="mt-6">
         <ShowcaseWhatThisProves

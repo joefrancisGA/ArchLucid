@@ -58,7 +58,7 @@ From review detail after finalize:
 | Output | Use when |
 | --- | --- |
 | **Sponsor packet** | Executives or program sponsors need a shareable summary |
-| **Executive summary** | ROI or disposition labels matter for the conversation |
+| **Sponsor summary** | ROI or disposition labels matter for the conversation |
 | **Board pack / markdown exports** | You need editable narrative for internal review |
 | **Audit export** | Compliance or security wants a scoped event CSV |
 | **Email this review to your sponsor** | Your workspace enables one-click sponsor handoff |

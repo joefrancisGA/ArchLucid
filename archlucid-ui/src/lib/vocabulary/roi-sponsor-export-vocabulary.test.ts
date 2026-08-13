@@ -2,7 +2,7 @@ import { describe, expect, it } from "vitest";
 
 import {
   ROI_SPONSOR_EXPORT_COMPACT_LINE,
-  ROI_SPONSOR_EXPORT_EXECUTIVE_DASHBOARD_LINK,
+  ROI_SPONSOR_EXPORT_SPONSOR_DASHBOARD_LINK,
   ROI_SPONSOR_EXPORT_HEADING,
   ROI_SPONSOR_EXPORT_ROI_SUMMARY_LINK,
   ROI_SPONSOR_EXPORT_SPONSOR_HANDOFF_LINK,
@@ -11,7 +11,7 @@ import {
   buildRoiSponsorExportVocabulary,
   resolveRoiSponsorExportPeerLink,
 } from "@/lib/vocabulary/roi-sponsor-export-vocabulary";
-import { EXECUTIVE_DASHBOARD_HREF } from "@/lib/executive/executive-dashboard-route";
+import { SPONSOR_DASHBOARD_HREF } from "@/lib/sponsor/sponsor-dashboard-route";
 import { SPONSOR_REPORT_ROI_SUMMARY_PATH } from "@/lib/sponsor-report-navigation";
 
 describe("roi-sponsor-export-vocabulary (TB-2258)", () => {
@@ -31,8 +31,8 @@ describe("roi-sponsor-export-vocabulary (TB-2258)", () => {
     expect(model.roiSummaryLink.href).toBe("/insights/roi-summary");
 
     expect(model.sponsorHandoffLink).toEqual(ROI_SPONSOR_EXPORT_SPONSOR_HANDOFF_LINK);
-    expect(model.executiveDashboardLink).toEqual(ROI_SPONSOR_EXPORT_EXECUTIVE_DASHBOARD_LINK);
-    expect(model.executiveDashboardLink.href).toBe(EXECUTIVE_DASHBOARD_HREF);
+    expect(model.executiveDashboardLink).toEqual(ROI_SPONSOR_EXPORT_SPONSOR_DASHBOARD_LINK);
+    expect(model.executiveDashboardLink.href).toBe(SPONSOR_DASHBOARD_HREF);
   });
 
   it("resolves peers between ROI summary and sponsor export surfaces", () => {
@@ -42,7 +42,7 @@ describe("roi-sponsor-export-vocabulary (TB-2258)", () => {
     expect(resolveRoiSponsorExportPeerLink("sponsor-handoff")).toEqual(
       ROI_SPONSOR_EXPORT_ROI_SUMMARY_LINK,
     );
-    expect(resolveRoiSponsorExportPeerLink("executive-dashboard")).toEqual(
+    expect(resolveRoiSponsorExportPeerLink("sponsor-dashboard")).toEqual(
       ROI_SPONSOR_EXPORT_ROI_SUMMARY_LINK,
     );
   });

@@ -3,7 +3,7 @@ import { describe, expect, it } from "vitest";
 
 import { RunDetailSubmittedArchitectureSection } from "@/app/(operator)/architecture/reviews/[runId]/_sections/RunDetailSubmittedArchitectureSection";
 
-const markdownBrief = `## Executive summary
+const markdownBrief = `## Sponsor report
 
 Governed claims intake.
 
@@ -26,8 +26,8 @@ describe("RunDetailSubmittedArchitectureSection narrative rendering", () => {
 
     const preview = screen.getByTestId("submitted-architecture-preview");
 
-    expect(within(preview).getByRole("heading", { level: 2, name: "Executive summary" })).toBeInTheDocument();
+    expect(within(preview).getByRole("heading", { level: 2, name: "Sponsor report" })).toBeInTheDocument();
     expect(within(preview).getByRole("table")).toBeInTheDocument();
-    expect(screen.queryByText("## Executive summary")).toBeNull();
+    expect(screen.queryByText("## Sponsor report")).toBeNull();
   });
 });

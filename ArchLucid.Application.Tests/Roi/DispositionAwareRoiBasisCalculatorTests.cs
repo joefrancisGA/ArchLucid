@@ -61,7 +61,7 @@ public sealed class DispositionAwareRoiBasisCalculatorTests
             },
         ];
 
-        ExecutiveRoiBasisBreakdown breakdown = DispositionAwareRoiBasisCalculator.Compute(
+        SponsorRoiBasisBreakdown breakdown = DispositionAwareRoiBasisCalculator.Compute(
             [snapshot],
             events,
             waivers,

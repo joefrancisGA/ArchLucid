@@ -460,7 +460,7 @@ export function CompareResultsPanel(props: CompareResultsPanelProps) {
             <summary className={cn("cursor-pointer list-none px-4 py-3 text-al-text-primary outline-none ring-offset-2 marker:content-none focus-visible:ring-2 focus-visible:ring-teal-600 [&::-webkit-details-marker]:hidden", OPERATOR_DISCLOSURE_TRIGGER_CLASS)}>
               <h2 className={cn("m-0 inline text-al-text-primary", OPERATOR_TYPOGRAPHY.sectionTitle)}>
                 {buyerPolished
-                  ? "Executive narrative (AI-generated)"
+                  ? "Sponsor narrative (AI-generated)"
                   : "Sponsor narrative (AI-generated)"}
               </h2>
             </summary>

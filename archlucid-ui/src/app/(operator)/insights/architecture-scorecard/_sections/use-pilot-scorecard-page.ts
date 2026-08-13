@@ -13,7 +13,7 @@ import {
   type ArchitectureScorecardRoiPreview,
 } from "@/lib/architecture/architecture-scorecard-roi-preview";
 import { formatUsd } from "@/lib/roi-assumptions";
-import { buildExecutiveServerSavingsSummary, resolveRunSavingsUsd } from "@/lib/roi-resolution-priority";
+import { buildSponsorServerSavingsSummary, resolveRunSavingsUsd } from "@/lib/roi-resolution-priority";
 import { showError, showSuccess } from "@/lib/toast";
 import type { PilotScorecardJson } from "@/types/pilot-scorecard";
 
@@ -207,7 +207,7 @@ export function usePilotScorecardPage(loaded: PilotScorecardPageServerLoad): Use
     }
 
     const resolved = resolveRunSavingsUsd({
-      serverSummary: buildExecutiveServerSavingsSummary(
+      serverSummary: buildSponsorServerSavingsSummary(
         data.roiEstimate.annualReviewSavingsFromReviewTimeLeverUsd,
         `Model: ${data.roiEstimate.modelReference}`,
       ),

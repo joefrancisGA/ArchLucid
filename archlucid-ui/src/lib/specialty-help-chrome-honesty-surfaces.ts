@@ -5,7 +5,7 @@ export const SPECIALTY_HELP_CHROME_HONESTY_SCAN_FILES: readonly string[] = [
   "docs/go-to-market/POSITIONING.md",
   "docs/go-to-market/COMPETITIVE_POSITIONING.md",
   "docs/go-to-market/DIFFERENTIATION_PROOF_PACKET.md",
-  "docs/go-to-market/EXECUTIVE_SPONSOR_BRIEF.md",
+  "docs/go-to-market/SPONSOR_SPONSOR_BRIEF.md",
   "docs/go-to-market/COMPETITIVE_LANDSCAPE.md",
   "docs/library/PUBLIC_CLAIM_BOUNDARY_GUIDE.md",
   "docs/go-to-market/BUYER_SECURITY_PROCUREMENT_PACKET.md",

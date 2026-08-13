@@ -75,7 +75,7 @@ const ROUTE_VIEW_EXPLANATIONS: readonly { prefix: string; explanation: RouteView
       summary:
         "Browse, subscribe to, and schedule architecture digest emails — the content cadence for sponsors and operators.",
       nextAction:
-        "Start digests by setting an advisory scan cadence and adding recipients; the tabs cover history, recipients, and executive send cadence.",
+        "Start digests by setting an advisory scan cadence and adding recipients; the tabs cover history, recipients, and sponsor send cadence.",
     },
   },
   {

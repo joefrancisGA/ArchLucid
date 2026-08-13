@@ -1,7 +1,7 @@
 namespace ArchLucid.Contracts.Roi;
 
 /// <summary>
-///     Hybrid realized-value metrics linking disposition workflow outcomes to executive ROI (Batch B / item 20).
+///     Hybrid realized-value metrics linking disposition workflow outcomes to sponsor ROI (Batch B / item 20).
 ///     Computed fields are derived from audit and disposition evidence; attestation fields are operator-entered.
 /// </summary>
 public sealed class RealizedValueSummary

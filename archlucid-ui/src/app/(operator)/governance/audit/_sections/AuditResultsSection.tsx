@@ -34,7 +34,7 @@ import {
   BUYER_AUDIT_PACKAGE_READY_LEAD,
   BUYER_AUDIT_TRAIL_COMPLETE_HEADING,
 } from "@/lib/buyer/buyer-polish-copy";
-import { getShowcaseExecutiveHref } from "@/lib/buyer/buyer-safe-review-navigation";
+import { getShowcaseSponsorHref } from "@/lib/buyer/buyer-safe-review-navigation";
 import { isNextPublicDemoMode } from "@/lib/demo-ui-env";
 import { AuditBuyerEmptyState } from "./AuditBuyerEmptyState";
 import { AuditEventsOperatorTable } from "./AuditEventsOperatorTable";
@@ -305,7 +305,7 @@ export function AuditResultsSection(props: AuditResultsSectionProps) {
                     {BUYER_AUDIT_DOWNLOAD_CTA}
                   </Button>
                   <Button type="button" variant="outline" size="sm" asChild>
-                    <Link href={getShowcaseExecutiveHref()}>Return to executive summary</Link>
+                    <Link href={getShowcaseSponsorHref()}>Return to sponsor report</Link>
                   </Button>
                 </div>
                 <WhyDisabledCtaHint

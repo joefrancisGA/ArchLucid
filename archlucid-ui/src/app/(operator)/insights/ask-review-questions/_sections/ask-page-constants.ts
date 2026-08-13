@@ -1,12 +1,12 @@
 /**
  * Operator shell: suggested starters use {@link ASK_EXAMPLE_PROMPTS}; buyer shell groups {@link ASK_BUYER_PROMPT_GROUPS}.
  */
-import { BUYER_EXECUTIVE_SUMMARY_VOCABULARY } from "@/lib/vocabulary/buyer-surface-vocabulary";
+import { BUYER_SPONSOR_SUMMARY_VOCABULARY } from "@/lib/vocabulary/buyer-surface-vocabulary";
 
 export const ASK_EXAMPLE_PROMPTS: readonly string[] = [
   "Summarize the PHI risk for this review.",
   "What should the sponsor review before sign-off?",
-  "Summarize this for an executive sponsor.",
+  "Summarize this for an sponsor sponsor.",
   "Which finding should we fix first, and why?",
 ];
 
@@ -18,9 +18,9 @@ export type AskBuyerPromptGroup = {
 /** Buyer shell: suggested prompts grouped by intent (question form starters + post-reply follow-ups). */
 export const ASK_BUYER_PROMPT_GROUPS: readonly AskBuyerPromptGroup[] = [
   {
-    heading: BUYER_EXECUTIVE_SUMMARY_VOCABULARY.reviewExecutiveSummaryLabel,
+    heading: BUYER_SPONSOR_SUMMARY_VOCABULARY.reviewSponsorReportLabel,
     prompts: [
-      "Summarize this for an executive sponsor.",
+      "Summarize this for an sponsor sponsor.",
       "What are the top three risks I should brief leadership on?",
       "What should I tell my CTO in the first 90 seconds?",
     ],

@@ -59,7 +59,7 @@ export const BASELINE_SETTINGS_HELP_BASELINE_VS_ROI_TITLE = BASELINE_ROI_HEADING
 
 export const BASELINE_SETTINGS_HELP_BASELINE_VS_ROI_BODY = BASELINE_ROI_WHY_TWO;
 
-export const BASELINE_SETTINGS_HELP_METHODOLOGY_HREF = "/help/executive-summary#pilot-roi-measurement";
+export const BASELINE_SETTINGS_HELP_METHODOLOGY_HREF = "/help/sponsor-report#pilot-roi-measurement";
 
 export const BASELINE_SETTINGS_HELP_METHODOLOGY_LABEL = "Read pilot ROI measurement methodology";
 

@@ -29,7 +29,7 @@ CRITICAL_EVENT_TYPES: frozenset[str] = frozenset(
         "ManifestFinalized",
         "GovernanceApprovalRequested",
         "GovernanceDryRunRequested",
-        "ExecutiveRoiBoardPackExported",
+        "SponsorRoiBoardPackExported",
         "SponsorProofPackGenerated",
         "Marketing.PricingQuoteRequestAcknowledged",
         "SupportBundleDownloaded",

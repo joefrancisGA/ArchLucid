@@ -87,10 +87,10 @@ export const OPERATOR_GOVERNANCE_SPONSOR_PAGE_HELP_TB1668_SURFACES: readonly Ope
       notes: "Advisory scans hub — label-only secondary hub.",
     },
     {
-      id: "sponsor-executive-summary",
-      pathname: "/insights/executive-summary",
-      modulePath: "app/(operator)/insights/executive-summary/_sections/PilotValueReportPageView.tsx",
-      notes: "Sponsor report — executive-summary help topic with How the sponsor report works trigger.",
+      id: "sponsor-sponsor-report",
+      pathname: "/insights/sponsor-report",
+      modulePath: "app/(operator)/insights/sponsor-report/_sections/PilotValueReportPageView.tsx",
+      notes: "Sponsor report — sponsor-report help topic with How the sponsor report works trigger.",
     },
     {
       id: "sponsor-roi-summary",

@@ -6,18 +6,18 @@ import { useEffect, type ReactNode } from "react";
 import { useOperatorNavAuthority } from "@/components/operator/OperatorNavAuthorityProvider";
 import {
   isSponsorOnlyPrincipal,
-  resolveSponsorExecutiveRedirectTarget,
-} from "@/lib/sponsor-executive-shell-redirect";
+  resolveSponsorRedirectTarget,
+} from "@/lib/sponsor-sponsor-shell-redirect";
 
-export type SponsorExecutiveShellRedirectProps = {
+export type SponsorShellRedirectProps = {
   readonly children: ReactNode;
 };
 
 /**
- * Redirects Sponsor-only principals out of operator chrome into the executive reviews shell.
+ * Redirects Sponsor-only principals out of operator chrome into the sponsor reviews shell.
  * Execute+ roles that also carry Sponsor stay in operator workflows.
  */
-export function SponsorExecutiveShellRedirect(props: SponsorExecutiveShellRedirectProps): React.JSX.Element {
+export function SponsorShellRedirect(props: SponsorShellRedirectProps): React.JSX.Element {
   const { children } = props;
   const pathname = usePathname() ?? "/";
   const searchParams = useSearchParams();
@@ -37,7 +37,7 @@ export function SponsorExecutiveShellRedirect(props: SponsorExecutiveShellRedire
       return;
     }
 
-    const target = resolveSponsorExecutiveRedirectTarget({
+    const target = resolveSponsorRedirectTarget({
       pathname,
       search: searchParams.toString().length > 0 ? `?${searchParams.toString()}` : "",
     });

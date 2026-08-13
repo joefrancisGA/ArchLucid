@@ -6,7 +6,7 @@ vi.mock("@/app/(operator)/help/HelpTopicHashScroll", () => ({
 }));
 
 import { HelpRoiSummaryGuideView } from "@/app/(operator)/help/_sections/HelpRoiSummaryGuideView";
-import { EXECUTIVE_SUMMARY_PILOT_ROI_MEASUREMENT_HELP_HREF } from "@/lib/executive/executive-summary-pilot-roi-measurement-help";
+import { SPONSOR_SUMMARY_PILOT_ROI_MEASUREMENT_HELP_HREF } from "@/lib/sponsor/sponsor-report-pilot-roi-measurement-help";
 import {
   ROI_SUMMARY_HELP_CLAIM_DISCIPLINE,
   ROI_SUMMARY_HELP_FOLLOW_UPS_TITLE,
@@ -74,7 +74,7 @@ describe("HelpRoiSummaryGuideView", () => {
     expect(screen.getByTestId("help-roi-summary-methodology")).toBeInTheDocument();
     expect(screen.getByRole("link", { name: "Review pilot ROI measurement methodology" })).toHaveAttribute(
       "href",
-      EXECUTIVE_SUMMARY_PILOT_ROI_MEASUREMENT_HELP_HREF,
+      SPONSOR_SUMMARY_PILOT_ROI_MEASUREMENT_HELP_HREF,
     );
     expect(screen.getByTestId("scorecard-roi-vocabulary")).toBeInTheDocument();
     expect(screen.getByTestId("baseline-roi-vocabulary")).toBeInTheDocument();

@@ -26,7 +26,7 @@ Removed **workflow-mode presets** (Pilot operator, Full navigator, Governance re
 | Control | Changed permissions? | Changed routes? | Changed data / workflows? | Changed page behavior? | Effect |
 |---------|---------------------|-----------------|---------------------------|------------------------|--------|
 | Workflow-mode toolbar + sidebar preset radios | No | No | No | No | **Sidebar link visibility only** — `localStorage` filter by href prefix; API `[Authorize]` unchanged |
-| **Operator \| Executive** (retained) | No | Yes (shell destination) | No | No | Switches between operator workspace (`/`) and executive dashboard (`/architecture/executive-dashboard`) |
+| **Operator \| Sponsor** (retained) | No | Yes (shell destination) | No | No | Switches between operator workspace (`/`) and sponsor dashboard (`/architecture/sponsor-dashboard`) |
 
 **Retained shaping:** authority rank from `GET /api/auth/me`, plus demo/buyer packaging omissions. Progressive disclosure tiers (`essential` / `extended` / `advanced`), collapsed-pilot **Show all features**, and per-group **N more** counts were **retired as visibility mechanisms** (owner 2026-08-03); tier survives only as metadata, and the `N more` counters now always resolve to zero.
 
@@ -53,7 +53,7 @@ Operator sidebar groups imply a URL prefix in the address bar. **57** nav hrefs 
 
 | Nav group `id` | Canonical prefix(es) | Notes |
 |----------------|----------------------|--------|
-| `pilot` | *(none — heterogeneous top-level review paths)* | Portfolio overview may use CTO demo executive showcase href (registered exception). |
+| `pilot` | *(none — heterogeneous top-level review paths)* | Portfolio overview may use CTO demo sponsor showcase href (registered exception). |
 | `operate-analysis` | *(none)* | `/insights/ask-review-questions`, `/insights/compare-two-reviews`, `/insights/impact-preview`, … |
 | `operate-governance` | `/governance` | All governance nav hrefs are under `/governance/*` (TB-405). |
 | `operate-reports` | `/sponsor-report`, `/value-report` | Architecture scorecard is Insights-only (`/insights/architecture-scorecard`); digests exception in registry |

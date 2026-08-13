@@ -41,7 +41,7 @@ Supported comparison types:
   - `"default"` (or `null`)  
   - `"short"` – shorter report, limited sections  
   - `"detailed"` – full sections  
-  - `"executive"` – emphasis on executive summary
+  - `"sponsor"` – emphasis on sponsor summary
 
 - **Persisting replays** (`PersistReplay`)  
   When `PersistReplay = true`, a replay operation **creates a new comparison record** linked to the original, and the new ID is returned in `PersistedReplayRecordId`.
@@ -56,7 +56,7 @@ Supported comparison types:
 {
   "format": "markdown",      // markdown | html | docx | pdf (pdf: end-to-end only; docx: end-to-end + export-diff)
   "replayMode": "artifact",  // artifact | regenerate | verify
-  "profile": "default",      // end-to-end only: default | short | detailed | executive
+  "profile": "default",      // end-to-end only: default | short | detailed | sponsor
   "persistReplay": false     // when true, persist this replay as a new comparison record
 }
 ```
@@ -150,7 +150,7 @@ curl -X POST \
   -d '{
     "format": "docx",
     "replayMode": "regenerate",
-    "profile": "executive",
+    "profile": "sponsor",
     "persistReplay": true
   }'
 ```

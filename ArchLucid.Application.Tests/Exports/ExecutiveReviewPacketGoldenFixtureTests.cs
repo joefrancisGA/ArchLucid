@@ -7,26 +7,26 @@ namespace ArchLucid.Application.Tests.Exports;
 
 [Trait("Category", "Unit")]
 [Trait("Suite", "Application")]
-public sealed class ExecutiveReviewPacketGoldenFixtureTests
+public sealed class SponsorReviewPacketGoldenFixtureTests
 {
     [Fact]
     public void Seeded_demo_run_packet_matches_golden_markdown()
     {
-        ExecutiveReviewPacketDemoFixture.DemoPacketInputs inputs =
-            ExecutiveReviewPacketDemoFixture.CreateSeededDemoRun();
+        SponsorReviewPacketDemoFixture.DemoPacketInputs inputs =
+            SponsorReviewPacketDemoFixture.CreateSeededDemoRun();
 
-        string actual = NormalizeNewlines(ExecutiveReviewPacketComposer.ComposeMarkdown(
+        string actual = NormalizeNewlines(SponsorReviewPacketComposer.ComposeMarkdown(
             inputs.Detail,
-            inputs.ExecutiveSummary,
+            inputs.SponsorReport,
             inputs.TopFindingTitles,
             inputs.RoiSummary,
-            ExecutiveReviewPacketDemoFixture.StableGeneratedUtc,
+            SponsorReviewPacketDemoFixture.StableGeneratedUtc,
             inputs.TopDecisions,
             inputs.PortfolioSignals));
 
-        string golden = NormalizeNewlines(ExecutiveReviewPacketDemoFixture.LoadGoldenMarkdown());
+        string golden = NormalizeNewlines(SponsorReviewPacketDemoFixture.LoadGoldenMarkdown());
 
-        actual.Should().Be(golden, "Update Exports/Golden/executive-review-packet-demo-run.md when packet sections change deliberately.");
+        actual.Should().Be(golden, "Update Exports/Golden/sponsor-review-packet-demo-run.md when packet sections change deliberately.");
     }
 
     private static string NormalizeNewlines(string text)
@@ -37,15 +37,15 @@ public sealed class ExecutiveReviewPacketGoldenFixtureTests
     [Fact]
     public void Executive_review_packet_includes_execution_mode_section()
     {
-        ExecutiveReviewPacketDemoFixture.DemoPacketInputs inputs =
-            ExecutiveReviewPacketDemoFixture.CreateSeededDemoRun();
+        SponsorReviewPacketDemoFixture.DemoPacketInputs inputs =
+            SponsorReviewPacketDemoFixture.CreateSeededDemoRun();
 
-        string markdown = ExecutiveReviewPacketComposer.ComposeMarkdown(
+        string markdown = SponsorReviewPacketComposer.ComposeMarkdown(
             inputs.Detail,
-            inputs.ExecutiveSummary,
+            inputs.SponsorReport,
             inputs.TopFindingTitles,
             inputs.RoiSummary,
-            ExecutiveReviewPacketDemoFixture.StableGeneratedUtc,
+            SponsorReviewPacketDemoFixture.StableGeneratedUtc,
             inputs.TopDecisions,
             inputs.PortfolioSignals);
 
@@ -57,15 +57,15 @@ public sealed class ExecutiveReviewPacketGoldenFixtureTests
     [Fact]
     public void Seeded_demo_run_packet_includes_roi_basis_label()
     {
-        ExecutiveReviewPacketDemoFixture.DemoPacketInputs inputs =
-            ExecutiveReviewPacketDemoFixture.CreateSeededDemoRun();
+        SponsorReviewPacketDemoFixture.DemoPacketInputs inputs =
+            SponsorReviewPacketDemoFixture.CreateSeededDemoRun();
 
-        string markdown = ExecutiveReviewPacketComposer.ComposeMarkdown(
+        string markdown = SponsorReviewPacketComposer.ComposeMarkdown(
             inputs.Detail,
-            inputs.ExecutiveSummary,
+            inputs.SponsorReport,
             inputs.TopFindingTitles,
             inputs.RoiSummary,
-            ExecutiveReviewPacketDemoFixture.StableGeneratedUtc,
+            SponsorReviewPacketDemoFixture.StableGeneratedUtc,
             inputs.TopDecisions,
             inputs.PortfolioSignals);
 
@@ -73,7 +73,7 @@ public sealed class ExecutiveReviewPacketGoldenFixtureTests
         markdown.Should().Contain("## Portfolio signals (live)");
         markdown.Should().Contain("Review stale PHI minimization risk");
         markdown.Should().NotContain("(mock)");
-        markdown.Should().Contain($"**Savings pricing basis:** {ExecutiveRoiSavingsPricingBasis.EaAdjusted}");
+        markdown.Should().Contain($"**Savings pricing basis:** {SponsorRoiSavingsPricingBasis.EaAdjusted}");
         markdown.Should().Contain("**Pricing basis note:**");
         markdown.Should().Contain("PHI minimization risk at intake boundary");
         markdown.Should().Contain("Claims Intake Modernization");
@@ -82,15 +82,15 @@ public sealed class ExecutiveReviewPacketGoldenFixtureTests
     [Fact]
     public void Seeded_demo_run_packet_preserves_required_sponsor_sections()
     {
-        ExecutiveReviewPacketDemoFixture.DemoPacketInputs inputs =
-            ExecutiveReviewPacketDemoFixture.CreateSeededDemoRun();
+        SponsorReviewPacketDemoFixture.DemoPacketInputs inputs =
+            SponsorReviewPacketDemoFixture.CreateSeededDemoRun();
 
-        string markdown = ExecutiveReviewPacketComposer.ComposeMarkdown(
+        string markdown = SponsorReviewPacketComposer.ComposeMarkdown(
             inputs.Detail,
-            inputs.ExecutiveSummary,
+            inputs.SponsorReport,
             inputs.TopFindingTitles,
             inputs.RoiSummary,
-            ExecutiveReviewPacketDemoFixture.StableGeneratedUtc,
+            SponsorReviewPacketDemoFixture.StableGeneratedUtc,
             inputs.TopDecisions,
             inputs.PortfolioSignals);
 

@@ -11,14 +11,14 @@ export const EXAMPLE_ROI_BULLETIN_SOURCES_INTRO =
 
 
 export const EXAMPLE_ROI_BULLETIN_METHODOLOGY_HELP_HREF = inAppHelpHref(
-  "executive-summary",
+  "sponsor-report",
   "pilot-roi-measurement",
 );
 
 /** Marketing Sources - no self-href to `/example-roi-bulletin`. */
 export const EXAMPLE_ROI_BULLETIN_SOURCES: readonly EvidenceSourceLink[] = [
   { label: "Pilot ROI measurement (help)", href: EXAMPLE_ROI_BULLETIN_METHODOLOGY_HELP_HREF },
-  { label: "Executive summary", href: "/insights/executive-summary" },
+  { label: "Sponsor report", href: "/insights/sponsor-report" },
   { label: "Assurance status", href: "/security-trust" },
   { label: "Start evaluation", href: "/signup" },
   { label: "Product FAQ", href: "/faq" },

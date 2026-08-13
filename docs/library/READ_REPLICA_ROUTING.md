@@ -49,7 +49,7 @@ These types use `IReadOnlyDbConnectionFactory` for **Query** paths only; writes 
 | `AgentExecutionTraceRepository` | `GetByTraceIdAsync`, `GetByRunIdAsync`, `GetPagedByRunIdAsync`, `GetPagedSummariesByRunIdAsync`, `CountByRunIdAsync`, `GetByTaskIdAsync`, LLM cost slices, distinct agent-type probes; creates/patches/hard-delete stay on primary |
 | `ComparisonRecordRepository` | `GetByIdAsync`, `GetByRunIdAsync`, `GetByExportRecordIdAsync`, `SearchAsync`, `SearchByCursorAsync`; `CreateAsync` / `UpdateLabelAndTagsAsync` stay on primary |
 
-**Executive ROI summary** run enumeration continues to use `IAuthorityRunListConnectionFactory` (`SqlServer:ReadReplica`) because there is no dedicated ROI aggregation repository.
+**Sponsor ROI summary** run enumeration continues to use `IAuthorityRunListConnectionFactory` (`SqlServer:ReadReplica`) because there is no dedicated ROI aggregation repository.
 
 ## Consistency
 

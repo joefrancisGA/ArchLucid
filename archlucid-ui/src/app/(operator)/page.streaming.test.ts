@@ -12,7 +12,7 @@ describe("operator home Suspense streaming", () => {
     expect(pageSource).toContain("<Suspense");
     expect(pageSource).toContain("OperatorHomeRunsDashboardAsync");
     expect(pageSource).toContain("OperatorHomePageSuspenseFallback");
-    expect(pageSource).toContain("CtoDemoExecutiveLandingRedirectDeferred");
+    expect(pageSource).toContain("CtoDemoSponsorLandingRedirectDeferred");
     expect(pageSource).not.toContain("loadOperatorHomeRunsDashboardModel");
     expect(pageSource).not.toMatch(/await\s+loadOperatorHomeRunsDashboardModel/);
     expect(pageSource).not.toContain("OperatorHomePageView");

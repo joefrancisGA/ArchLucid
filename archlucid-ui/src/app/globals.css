@@ -393,11 +393,11 @@ kbd {
     max-width: 100% !important;
   }
 
-  [data-testid="executive-review-page"] {
+  [data-testid="sponsor-review-page"] {
     max-width: 100% !important;
   }
 
-  [data-testid="cto-demo-executive-above-fold"] {
+  [data-testid="cto-demo-sponsor-above-fold"] {
     width: 100% !important;
     max-width: 100% !important;
     break-inside: avoid;

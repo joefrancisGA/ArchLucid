@@ -201,13 +201,13 @@ export const OPERATOR_EMPTY_STATE_MIGRATION_INVENTORY: readonly OperatorEmptySta
     notes: "Nested deliverables panel empty — Compact buyer/operator variants (**TB-1556**).",
   },
   {
-    id: "executive-dashboard-empty",
-    pathOrSurface: "/architecture/executive-dashboard",
+    id: "sponsor-dashboard-empty",
+    pathOrSurface: "/architecture/sponsor-dashboard",
     kind: "hub-zone",
     chrome: "compact",
     disposition: "compact-native",
-    testId: "executive-dashboard-empty-state",
-    componentOrModule: "components/executive/ExecutiveDashboardEmptyState.tsx",
+    testId: "sponsor-dashboard-empty-state",
+    componentOrModule: "components/sponsor/SponsorDashboardEmptyState.tsx",
     notes: "Buyer-polished Compact CTA to seed/review.",
   },
   {

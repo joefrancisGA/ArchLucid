@@ -25,7 +25,7 @@ import {
   getBuyerSafeReviewsTableLinkForRun,
   getBuyerSafeSignedManifestTableLink,
   getCanonicalReviewWorkspaceHref,
-  getShowcaseExecutiveHref,
+  getShowcaseSponsorHref,
   getShowcaseWalkthroughHref,
   isBuyerSafePrimaryReviewNavigationPreferred,
 } from "@/lib/buyer/buyer-safe-review-navigation";
@@ -315,7 +315,7 @@ export function RunInspectorPreview({ run }: RunInspectorPreviewProps) {
                   <>
                     {showcaseStory ? (
                       <Button variant="outline" size="sm" className="w-full" asChild>
-                        <Link href={getShowcaseExecutiveHref()}>Executive summary</Link>
+                        <Link href={getShowcaseSponsorHref()}>Sponsor report</Link>
                       </Button>
                     ) : null}
                     <Button variant="outline" size="sm" className="w-full" asChild>

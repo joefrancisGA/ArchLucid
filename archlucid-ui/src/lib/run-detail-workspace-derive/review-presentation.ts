@@ -31,7 +31,7 @@ const PRODUCT_BRAND_NAME = "ArchLucid";
 
 import type {
   EvidenceCoverageSummary,
-  ExecutiveBottomLineContent,
+  SponsorBottomLineContent,
   ReviewHeaderPresentation,
   ReviewStatusSummary,
   RunDetailWorkspaceRecommendedAction
@@ -105,14 +105,14 @@ export function deriveReviewStatusSummary(input: {
     }),
   };
 }
-export function deriveExecutiveBottomLineContent(input: {
+export function deriveSponsorBottomLineContent(input: {
   readonly governanceDecisionLabel: string;
   readonly governanceDecisionRationale: string | null | undefined;
   readonly overallPosture: string;
   readonly blockingFindingCount: number;
   readonly highestSeverity: string | null;
   readonly themeSummaries: readonly string[] | null | undefined;
-}): ExecutiveBottomLineContent | null {
+}): SponsorBottomLineContent | null {
   const rationale = (input.governanceDecisionRationale ?? "").trim();
   const themes = (input.themeSummaries ?? []).map((theme) => theme.trim()).filter((theme) => theme.length > 0);
   const parts: string[] = [];

@@ -12,7 +12,7 @@ export const DIGESTS_HELP_PAGE_SUBTITLE =
   "Schedule summaries of review activity, governance signals, findings, and advisory scans for operators.";
 
 export const DIGESTS_HELP_OVERVIEW =
-  "Architecture digests are summary reports generated after advisory scans and delivered to subscription destinations. Use Schedule for the separate executive sponsor rollup, Subscriptions for architecture digest destinations, and Browse for generated digests.";
+  "Architecture digests are summary reports generated after advisory scans and delivered to subscription destinations. Use Schedule for the separate sponsor sponsor rollup, Subscriptions for architecture digest destinations, and Browse for generated digests.";
 
 export const DIGESTS_HELP_PRIMARY_ACTION = {
   label: "Open digests Schedule",
@@ -66,14 +66,14 @@ export const DIGESTS_HELP_SAMPLE_DIGEST_BROWSE_LABEL = "Open generated digests i
 export const DIGESTS_HELP_HOW_DIGESTS_WORK_STEPS = [
   "Enable an advisory scan schedule so architecture digests generate on a cadence.",
   "Add subscription destinations so recipients receive those digests after each scan.",
-  "Open Browse to inspect generated digests; use Schedule for the separate executive sponsor rollup.",
+  "Open Browse to inspect generated digests; use Schedule for the separate sponsor sponsor rollup.",
 ] as const;
 
 export const DIGESTS_HELP_DESTINATION_CARDS = [
   {
     id: "schedule",
     title: "Schedule",
-    description: "Configure the executive sponsor rollup email (separate from advisory scan cadence).",
+    description: "Configure the sponsor sponsor rollup email (separate from advisory scan cadence).",
     actionLabel: "Open Schedule",
     href: DIGESTS_SCHEDULE_TAB_PATH,
   },

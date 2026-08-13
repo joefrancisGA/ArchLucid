@@ -42,7 +42,7 @@ public sealed class CliPackageCoverageBatch12Tests
         SponsorPacketBuyerDecisionBriefBuilder.BriefInputs inputs = new(
             RunId: "run-hold",
             PackManifestJson: """{"demoDataWarning":false,"generatedUtc":"2026-07-24T00:00:00Z"}""",
-            ExecutiveSummaryJson: """{"totalEstimatedUsdSavings":25000,"headlineSavingsScopeDescription":"Committed findings","systemCount":1}""",
+            SponsorReportJson: """{"totalEstimatedUsdSavings":25000,"headlineSavingsScopeDescription":"Committed findings","systemCount":1}""",
             LimitationsMd: """
                            # Limitations
 
@@ -66,7 +66,7 @@ public sealed class CliPackageCoverageBatch12Tests
         SponsorPacketBuyerDecisionBriefBuilder.BriefInputs inputs = new(
             RunId: " ",
             PackManifestJson: null,
-            ExecutiveSummaryJson: null,
+            SponsorReportJson: null,
             LimitationsMd: null,
             FirstValueReportMd: null);
 

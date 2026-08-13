@@ -8,11 +8,11 @@ import { MANIFEST_DETAIL_PRIMARY_HEADING_PATTERN } from "./fixtures";
 import {
   BUYER_GOLDEN_PATH_HREFS,
   BUYER_SHOWCASE_AUDIT_TRAIL_HEADING,
-  BUYER_SHOWCASE_EXECUTIVE_HEADLINE,
+  BUYER_SHOWCASE_SPONSOR_HEADLINE,
   BUYER_SHOWCASE_REVIEW_PAGE_HEADING_PATTERN,
   expectBuyerGoldenPageReady,
   expectBuyerGoldenJourneyStepper,
-  expectBuyerExecutiveSummarySurface,
+  expectBuyerSponsorReportSurface,
   expectNoGenericErrorBoundary,
   showcaseSignedManifestBrowserUrlPattern,
 } from "./helpers/buyer-golden-path";
@@ -28,16 +28,16 @@ test.describe(
     page,
   }) => {
     test.setTimeout(150_000);
-    // Step 1 — Executive summary
-    await page.goto(BUYER_GOLDEN_PATH_HREFS.executive);
-    await expectBuyerExecutiveSummarySurface(page);
+    // Step 1 — Sponsor report
+    await page.goto(BUYER_GOLDEN_PATH_HREFS.sponsor);
+    await expectBuyerSponsorReportSurface(page);
     await expect(
-      page.getByRole("heading", { level: 1, name: BUYER_SHOWCASE_EXECUTIVE_HEADLINE }),
+      page.getByRole("heading", { level: 1, name: BUYER_SHOWCASE_SPONSOR_HEADLINE }),
     ).toBeVisible();
     await expectBuyerGoldenJourneyStepper(page);
     await expectNoGenericErrorBoundary(page);
 
-    // Review (between executive summary and signed manifest on the spine)
+    // Review (between sponsor report and signed manifest on the spine)
     await page.goto(BUYER_GOLDEN_PATH_HREFS.reviewPackage);
     await expectBuyerGoldenPageReady(page);
     await expect(

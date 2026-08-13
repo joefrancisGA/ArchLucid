@@ -76,9 +76,9 @@ describe("product-documentation-registry", () => {
     );
     expect(getProductDocumentationEntry("pilot-roi-model")).toBeNull();
     expect(resolveHelpTopicPermanentRedirect("pilot-roi-model")).toBe(
-      "/help/executive-summary#pilot-roi-measurement",
+      "/help/sponsor-report#pilot-roi-measurement",
     );
-    expect(inAppHelpHref("pilot-roi-model")).toBe("/help/executive-summary#pilot-roi-measurement");
+    expect(inAppHelpHref("pilot-roi-model")).toBe("/help/sponsor-report#pilot-roi-measurement");
     expect(getProductDocumentationEntry("cloud-connections/azure")?.title).toBe("Connect Azure securely");
     expect(getProductDocumentationEntry("cloud-connections/aws")?.title).toBe("Connect AWS securely");
     expect(getProductDocumentationEntry("cloud-connections/gcp")?.title).toBe("Connect GCP securely");
@@ -93,8 +93,8 @@ describe("product-documentation-registry", () => {
     expect(resolveHelpTopicPermanentRedirect("core-pilot")).toBe("/help/first-architecture-review");
     expect(inAppHelpHref("core-pilot")).toBe("/help/first-architecture-review");
     expect(getProductDocumentationEntry("product-overview")).toBeNull();
-    expect(resolveHelpTopicPermanentRedirect("product-overview")).toBe("/help/executive-summary#what-archlucid-is");
-    expect(inAppHelpHref("product-overview")).toBe("/help/executive-summary#what-archlucid-is");
+    expect(resolveHelpTopicPermanentRedirect("product-overview")).toBe("/help/sponsor-report#what-archlucid-is");
+    expect(inAppHelpHref("product-overview")).toBe("/help/sponsor-report#what-archlucid-is");
     expect(getProductDocumentationEntry("how-it-works")).toBeNull();
     expect(resolveHelpTopicPermanentRedirect("how-it-works")).toBe("/help/getting-started#how-archlucid-works");
     expect(inAppHelpHref("how-it-works")).toBe("/help/getting-started#how-archlucid-works");
@@ -206,7 +206,7 @@ describe("product-documentation-registry", () => {
       "getting-started": "public",
       "data-handling": "public",
       "security-trust": "public",
-      "executive-summary": "public",
+      "sponsor-report": "public",
       "cloud-connections-azure": "customer",
       "cloud-connections-aws": "customer",
       "cloud-connections-gcp": "customer",
@@ -312,14 +312,14 @@ describe("product-documentation-registry", () => {
   });
 
   it("loads TB-727 sectionAnchor registry entries from existing markdown only", () => {
-    const executiveSummary = tryLoadProductDocumentation("executive-summary");
+    const SponsorReport = tryLoadProductDocumentation("sponsor-report");
     const firstArchitectureReview = tryLoadProductDocumentation("first-architecture-review");
     const dataHandling = tryLoadProductDocumentation("data-handling");
 
-    // TB-1739 / Batch A: product-overview retired — executive-summary owns EXECUTIVE_SPONSOR_BRIEF.md sections.
-    expect(executiveSummary?.entry.slug).toBe("executive-summary");
-    expect(executiveSummary?.markdown).toContain("What Pilot proves");
-    expect(executiveSummary?.markdown).toContain("Manual review vs ArchLucid proof package");
+    // TB-1739 / Batch A: product-overview retired — sponsor-report owns SPONSOR_SPONSOR_BRIEF.md sections.
+    expect(SponsorReport?.entry.slug).toBe("sponsor-report");
+    expect(SponsorReport?.markdown).toContain("What Pilot proves");
+    expect(SponsorReport?.markdown).toContain("Manual review vs ArchLucid proof package");
 
     expect(firstArchitectureReview?.entry.slug).toBe("first-architecture-review");
     expect(firstArchitectureReview?.markdown).toContain("evidence-only review");

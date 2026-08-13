@@ -1942,7 +1942,7 @@ export const HELP_DOC_SEARCH_RECORDS: readonly HelpDocSearchRecord[] = [
     "docTitle": "Buyer security and procurement packet",
     "sectionSlug": "elevator-pitch-v1-claim-audit-m-246",
     "sectionHeading": "Elevator pitch ArchLucid — cut / hedge / prove (M-246)",
-    "excerpt": "Former standalone body: `docs/go-to-market/ELEVATOR_PITCH_V1_CLAIM_AUDIT_PA_ONE_PAGER.md` → this section (filename kept as a path-stable alias for GTM M-245 / M-246 / TB-1367). Complements [`ELEVATOR_PITCH.md`](ELEVATOR_PITCH.md) and KEEP [`EXECUTIVE_SPONSOR_BRIEF.md`](EXECUTIVE_SPONSOR_BRIEF.md) Â§4 (not folded). N…"
+    "excerpt": "Former standalone body: `docs/go-to-market/ELEVATOR_PITCH_V1_CLAIM_AUDIT_PA_ONE_PAGER.md` → this section (filename kept as a path-stable alias for GTM M-245 / M-246 / TB-1367). Complements [`ELEVATOR_PITCH.md`](ELEVATOR_PITCH.md) and KEEP [`SPONSOR_SPONSOR_BRIEF.md`](SPONSOR_SPONSOR_BRIEF.md) Â§4 (not folded). N…"
   },
   {
     "docPath": "docs/go-to-market/BUYER_SECURITY_PROCUREMENT_PACKET.md",

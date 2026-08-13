@@ -59,6 +59,6 @@
 - [ ] Narrow first-session speed claims
 - [ ] Engineering review (≥2 accounts same failure)
 
-## Executive summary (one paragraph)
+## Sponsor summary (one paragraph)
 
 > 

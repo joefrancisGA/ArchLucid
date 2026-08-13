@@ -12,7 +12,7 @@ ArchLucid keeps the sidebar focused on the first-review path until you finalize 
 - **Analysis tools** — Compare, Replay, and Evidence graph appear when you choose **Show analysis & investigation tools** (after a finalized package is most useful).
 - **Governance and admin** — policy packs, audit, and advanced controls appear when you expand those groups and your role allows them.
 
-The **architect workspace** and **executive** reading surfaces are separate shells. Cross-shell links (for example **Open Executive Summary** on review detail) move you between them — there is no single Architect | Executive toggle in the top bar.
+The **architect workspace** and **sponsor** reading surfaces are separate shells. Cross-shell links (for example **Open Sponsor Summary** on review detail) move you between them — there is no single Architect | Sponsor toggle in the top bar.
 
 ## Main workflow {#main-workflow}
 

@@ -17,7 +17,7 @@ import { LiveDemoAuditTrailStepContent } from "./LiveDemoAuditTrailStepContent";
 import { LiveDemoContinuousWalkthrough } from "./LiveDemoContinuousWalkthrough";
 import { LiveDemoConversionCta } from "./LiveDemoConversionCta";
 import { LiveDemoEvidenceStepContent } from "./LiveDemoEvidenceStepContent";
-import { LiveDemoExecutiveStepContent } from "./LiveDemoExecutiveStepContent";
+import { LiveDemoSponsorStepContent } from "./LiveDemoSponsorStepContent";
 import { LiveDemoGovernanceStepContent } from "./LiveDemoGovernanceStepContent";
 import { LiveDemoSignedRecordStepContent } from "./LiveDemoSignedRecordStepContent";
 import { LiveDemoWalkthroughChrome } from "./LiveDemoWalkthroughChrome";
@@ -57,8 +57,8 @@ type LiveDemoSharedStepProps = {
 
 function renderLiveDemoStepPanel(stepId: LiveDemoWalkthroughStepId, shared: LiveDemoSharedStepProps, keyTakeaway: string) {
   switch (stepId) {
-    case "executive":
-      return <LiveDemoExecutiveStepContent {...shared} keyTakeaway={keyTakeaway} />;
+    case "sponsor":
+      return <LiveDemoSponsorStepContent {...shared} keyTakeaway={keyTakeaway} />;
     case "signed-record":
       return <LiveDemoSignedRecordStepContent {...shared} keyTakeaway={keyTakeaway} />;
     case "evidence":

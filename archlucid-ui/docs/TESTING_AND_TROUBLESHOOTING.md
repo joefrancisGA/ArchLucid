@@ -449,7 +449,7 @@ test("home page has ArchLucid heading", async ({ page }) => {
 
 Tests live in **`e2e/`** as **`*.spec.ts`**. **`playwright.mock.config.ts`** sets **`testDir`** to **`e2e/`** and ignores **`live-api-*.spec.ts`**; default **`playwright.config.ts`** is **live-only** (`testMatch: ["live-api-*.spec.ts"]`).
 
-**CI mock Playwright failures (branded 404, executive ROI export wait, audit screenshot gate):** see **[CI chronic failure remediation (2026-06-24)](../../../docs/architecture/CI_CHRONIC_FAILURE_REMEDIATION_2026_06_24.md)** — Category C and local repro commands.
+**CI mock Playwright failures (branded 404, sponsor ROI export wait, audit screenshot gate):** see **[CI chronic failure remediation (2026-06-24)](../../../docs/architecture/CI_CHRONIC_FAILURE_REMEDIATION_2026_06_24.md)** — Category C and local repro commands.
 
 ---
 

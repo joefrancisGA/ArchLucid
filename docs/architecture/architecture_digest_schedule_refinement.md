@@ -2,11 +2,11 @@
 
 **Date:** 2026-07-23  
 **Route:** `/digests?tab=schedule`  
-**Scope:** UI refinement of executive-digest scheduling only (no digest-generation engine, scheduler service, or email-delivery infrastructure replacement).
+**Scope:** UI refinement of sponsor-digest scheduling only (no digest-generation engine, scheduler service, or email-delivery infrastructure replacement).
 
 ## Summary
 
-Refined the Schedule tab into a clear customer workflow for configuring and validating the recurring **executive digest**: one activation control, configured-vs-active cadence, delivery-readiness checklist, direct-recipient chips with validation, sample-mode and permission-aware mutations, and honest preview/test guidance that matches backend capabilities.
+Refined the Schedule tab into a clear customer workflow for configuring and validating the recurring **sponsor digest**: one activation control, configured-vs-active cadence, delivery-readiness checklist, direct-recipient chips with validation, sample-mode and permission-aware mutations, and honest preview/test guidance that matches backend capabilities.
 
 Browse and Subscriptions were touched only for shared terminology and tab responsibility tooltips.
 
@@ -16,39 +16,39 @@ Two separate pipelines exist:
 
 | Pipeline | Customer name | Persistence / API | Recipients | Schedule | Content |
 |----------|---------------|-------------------|------------|----------|---------|
-| Executive email digest | **Executive digest** | `TenantExecDigestPreferences` via `GET/POST /v1/tenant/exec-digest-preferences` | `recipientEmails` (direct list) | Weekly: IANA zone + day of week + hour | Deterministic weekly rollup of architecture/review activity |
+| Sponsor email digest | **Sponsor digest** | `TenantExecDigestPreferences` via `GET/POST /v1/tenant/exec-digest-preferences` | `recipientEmails` (direct list) | Weekly: IANA zone + day of week + hour | Deterministic weekly rollup of architecture/review activity |
 | Architecture digests | **Architecture digests** | Advisory scan + digest subscription destinations | Subscriptions tab destinations | Driven by advisory scan schedules / subscription delivery | Generated from advisory scans (may consume AI budget) |
 
-**Enablement:** `emailEnabled` on exec-digest preferences is the single authoritative switch for executive scheduled delivery. There is no separate “schedule enabled” flag.
+**Enablement:** `emailEnabled` on exec-digest preferences is the single authoritative switch for sponsor scheduled delivery. There is no separate “schedule enabled” flag.
 
 **Not available (and not invented):**
 
-- Executive-digest compose-preview API  
-- Executive-digest test-send API restricted to “send to me”  
-- Deduplication of executive direct recipients against subscription destinations (lists are independent)
+- Sponsor-digest compose-preview API  
+- Sponsor-digest test-send API restricted to “send to me”  
+- Deduplication of sponsor direct recipients against subscription destinations (lists are independent)
 
 ## Canonical terminology
 
 | Layer | Term |
 |-------|------|
 | Product area | Architecture digests |
-| Scheduled digest type (this tab) | Executive digest |
+| Scheduled digest type (this tab) | Sponsor digest |
 | Direct list on Schedule | Direct recipients |
 | Subscriptions tab destinations | Digest subscriptions / subscription destinations |
 
 Relationship copy (accurate to backend):
 
-> An executive digest is a weekly rollup of architecture and review activity for sponsor recipients you configure here. Architecture digests generated from advisory scans are delivered separately to destinations on the Subscriptions tab.
+> An sponsor digest is a weekly rollup of architecture and review activity for sponsor recipients you configure here. Architecture digests generated from advisory scans are delivered separately to destinations on the Subscriptions tab.
 
 Tab responsibilities:
 
 - **Browse:** Read generated architecture digests.  
 - **Subscriptions:** Manage who receives architecture digest delivery.  
-- **Schedule:** Configure when the executive digest is generated and sent to direct recipients.
+- **Schedule:** Configure when the sponsor digest is generated and sent to direct recipients.
 
 ## Enablement-state correction
 
-**Finding:** The prior UI presented overlapping “Enable digest” / “Send executive digest” style controls that mapped to the same `emailEnabled` field (case A — one global enabled state rendered twice).
+**Finding:** The prior UI presented overlapping “Enable digest” / “Send sponsor digest” style controls that mapped to the same `emailEnabled` field (case A — one global enabled state rendered twice).
 
 **Correction:**
 
@@ -61,7 +61,7 @@ Tab responsibilities:
 
 - **Direct recipients** are free-form email addresses on the Schedule tab; they do **not** need to be workspace users.  
 - **Subscription destinations** receive architecture digests after advisory scans; different content and schedule.  
-- Lists are **not combined** for the executive email.  
+- Lists are **not combined** for the sponsor email.  
 - Duplicate addresses within the direct list are rejected in the draft before chips are updated.  
 - Recipient summary states both counts and which pipeline each list feeds.  
 - Sample / public views mask addresses where the presentation model already supports masking.  
@@ -79,21 +79,21 @@ Tab responsibilities:
 ## Preview behavior
 
 - **Preview latest generated digest** links to the latest **architecture digest** in Browse when one exists.  
-- It is **not** an executive-digest compose preview and does not apply unsaved schedule edits.  
+- It is **not** an sponsor-digest compose preview and does not apply unsaved schedule edits.  
 - When none exists: control disabled with  
   “A preview will be available after the first architecture digest is generated.”  
 - No “Generate preview” action was added — backend does not support exec-digest preview-without-send.
 
 ## Test-send behavior
 
-- No executive-digest test-send API exists.  
+- No sponsor-digest test-send API exists.  
 - Schedule tab action **Generate architecture digest test** routes to `/advisory?tab=schedules` (Admin-gated there).  
-- Copy states clearly that it may consume AI budget, targets subscription destinations (not executive direct recipients), and does not change the executive schedule.  
+- Copy states clearly that it may consume AI budget, targets subscription destinations (not sponsor direct recipients), and does not change the sponsor schedule.  
 - Hidden in sample / buyer-polished non-full-shell mode.
 
 ## AI-budget implications
 
-- Executive digest composition is deterministic — enabling/saving the executive schedule does **not** consume AI budget.  
+- Sponsor digest composition is deterministic — enabling/saving the sponsor schedule does **not** consume AI budget.  
 - Architecture digest test/generation via advisory schedules **may** consume AI budget; Schedule tab warns before navigation.  
 - Sample workspace cannot trigger that path from this tab.
 
@@ -144,8 +144,8 @@ Retained customer-useful **Last schedule update** when preferences include `upda
 
 ## Remaining digest limitations
 
-1. No executive-digest preview-without-send or send-test-to-me API — UI cannot offer a true executive test email.  
-2. Preview on Schedule points at architecture digests in Browse, not an executive compose artifact.  
+1. No sponsor-digest preview-without-send or send-test-to-me API — UI cannot offer a true sponsor test email.  
+2. Preview on Schedule points at architecture digests in Browse, not an sponsor compose artifact.  
 3. Direct recipients and subscription destinations are never merged or deduplicated across pipelines.  
 4. Architecture digest cadence remains on advisory schedules / subscriptions — not this form.  
 5. Outbound email readiness is inferred from weekly-digest health setup gaps when available; full provider diagnostics stay out of the customer UI.  

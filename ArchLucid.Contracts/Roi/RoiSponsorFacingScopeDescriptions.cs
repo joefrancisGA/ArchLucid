@@ -18,7 +18,7 @@ public static class RoiSponsorFacingScopeDescriptions
         "Trailing 30-day UTC activity: distinct finding IDs resolved via review trail or discovered on committed runs. Counts only — not USD savings.";
 
     public const string ValueReportActivityWindowGeneric =
-        "Tenant activity window (UTC): architect hours saved and annualized ROI-model USD for the requested period. Distinct from executive-summary disposition-aware USD headline.";
+        "Tenant activity window (UTC): architect hours saved and annualized ROI-model USD for the requested period. Distinct from sponsor-report disposition-aware USD headline.";
 
     public const string PilotScorecardUtcWindowGeneric =
         "Pilot scorecard UTC window: run volume and committed-manifest counts for the period. Does not emit disposition-aware USD headline totals.";

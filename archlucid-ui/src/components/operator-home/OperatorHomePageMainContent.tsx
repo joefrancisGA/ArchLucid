@@ -8,7 +8,7 @@ import { useOperatorHomeWorkspaceActivity } from "@/components/operator-home/ope
 type OperatorHomePageMainContentProps = {
   readonly heroSection: ReactNode;
   readonly recentReviewsSection: ReactNode;
-  readonly executiveRoiStrip: ReactNode;
+  readonly sponsorRoiStrip: ReactNode;
   readonly firstValueCallout: ReactNode | null;
   readonly examplesPlacement: ReactNode;
 };
@@ -22,7 +22,7 @@ export function OperatorHomePageMainContent(props: OperatorHomePageMainContentPr
       <>
         {props.recentReviewsSection}
         <OperatorHomeCompactStartingActionsSection />
-        {props.executiveRoiStrip}
+        {props.sponsorRoiStrip}
         {props.examplesPlacement}
       </>
     );
@@ -32,7 +32,7 @@ export function OperatorHomePageMainContent(props: OperatorHomePageMainContentPr
     <>
       {props.heroSection}
       {props.recentReviewsSection}
-      {props.executiveRoiStrip}
+      {props.sponsorRoiStrip}
       {props.firstValueCallout}
       {props.examplesPlacement}
     </>

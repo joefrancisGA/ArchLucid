@@ -38,7 +38,7 @@ Hypothesis (not measured frequency): status-quo / manual packaging kills deals m
 | **12–14** | Explicit non-claim: EA/portfolio is SoR; ArchLucid is system of insight that feeds it | EA out of bake-off |
 | **14–15** | Close ask + defer CPA SOC 2 / 3P pen test (**G-REAL-05** / **G-ASSURANCE-02**) | Honesty close |
 
-Aligns with [`DIFFERENTIATION_PROOF_PACKET.md#generic-ai-bakeoff-protocol`](../go-to-market/DIFFERENTIATION_PROOF_PACKET.md#generic-ai-bakeoff-protocol) § Demo script (15-minute executive slice) and [`CANONICAL_FIRST_RUN_PATH.md#expert-principal-architect-15-minute-lane`](CANONICAL_FIRST_RUN_PATH.md#expert-principal-architect-15-minute-lane) decision-signal objective — this contract **fuses** competitive kill-order with the timed demo click path.
+Aligns with [`DIFFERENTIATION_PROOF_PACKET.md#generic-ai-bakeoff-protocol`](../go-to-market/DIFFERENTIATION_PROOF_PACKET.md#generic-ai-bakeoff-protocol) § Demo script (15-minute sponsor slice) and [`CANONICAL_FIRST_RUN_PATH.md#expert-principal-architect-15-minute-lane`](CANONICAL_FIRST_RUN_PATH.md#expert-principal-architect-15-minute-lane) decision-signal objective — this contract **fuses** competitive kill-order with the timed demo click path.
 
 ## Orchestration (do not duplicate)
 

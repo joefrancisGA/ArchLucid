@@ -10,7 +10,7 @@ type DemoTenantSeedCalloutProps = {
   readonly description?: string;
 };
 
-const DEFAULT_TITLE = "See the executive ROI dashboard now";
+const DEFAULT_TITLE = "See the sponsor ROI dashboard now";
 const DEFAULT_DESCRIPTION =
   "Load the Retail baseline sample workspace — committed reviews, findings, and portfolio savings populate instantly for pilot walkthroughs.";
 

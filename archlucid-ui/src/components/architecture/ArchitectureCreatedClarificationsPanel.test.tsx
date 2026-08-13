@@ -134,7 +134,7 @@ alpha|beta|gamma|delta|epsilon|zeta`;
     render(
       <ArchitectureCreatedClarificationsPanel
         model={model}
-        sourceText="## Executive summary\nStable platform overview with enough detail for assessment."
+        sourceText="## Sponsor report\nStable platform overview with enough detail for assessment."
         userAssertions={null}
         correctionHref="/architecture/reviews/new?path=guided-intake&rerun=run-abc"
         dismissedClarificationGapIds={new Set()}

@@ -25,7 +25,7 @@
 | pre-commit gate | **Pre-finalize governance gate** | Code (`PreCommitGovernanceGate`), API | Docs updated opportunistically; POSITIONING.md already annotates "(API still says pre-commit)" |
 | coordinator | *(never buyer-visible)* | Internal pipeline ADRs/code only | Not rendered on any surface |
 | Authority / `requiredAuthority` | Workspace-role phrasing ("workspace administrator") | Code, API contracts | `internal-concept-leakage-guard.test.ts` (IA-013) |
-| "operator" (persona) | **Architect / Admin / Reviewer / Approver / Executive / Sponsor** per surface | `(operator)` route group, env flags, diagnostics | `review-terminology-guard.test.ts`; [`CONCEPT_VOCABULARY.md#persona-terms`](CONCEPT_VOCABULARY.md#persona-terms) |
+| "operator" (persona) | **Architect / Admin / Reviewer / Approver / Sponsor / Sponsor** per surface | `(operator)` route group, env flags, diagnostics | `review-terminology-guard.test.ts`; [`CONCEPT_VOCABULARY.md#persona-terms`](CONCEPT_VOCABULARY.md#persona-terms) |
 
 ## Leak inventory (2026-08-03)
 
@@ -43,9 +43,9 @@ Status values: **done** (fixed 2026-08-03) Â· **open** (follow-up) Â· **bloc
 
 | File | Hits | Status |
 |---|---|---|
-| `src/lib/vocabulary/buyer-surface-vocabulary.ts` (executive dashboard copy: "Commit at least one review…", "committed reviews", "No committed reviews yet", …) | ~12 | done |
+| `src/lib/vocabulary/buyer-surface-vocabulary.ts` (sponsor dashboard copy: "Commit at least one review…", "committed reviews", "No committed reviews yet", …) | ~12 | done |
 | `src/lib/buyer/buyer-polish-copy.ts` (`BUYER_EXECUTIVE_DATA_SOURCE_NOTE`, scorecard empty action) | 2 | done |
-| `src/lib/executive/executive-dashboard-page-copy.ts` (page lead) | 1 | done |
+| `src/lib/sponsor/sponsor-dashboard-page-copy.ts` (page lead) | 1 | done |
 | `src/lib/pilot-scorecard-present.ts` ("Committed reviews" KPI + zero-detail copy) | 3 | **open — needs owner decision:** the scorecard deliberately shows "Committed reviews" (`totalRunsCommitted`) *beside* "Finalized packages" (`totalManifestsCreated`); renaming the first to "Finalized reviews" would conflate two distinct metrics. Owner must pick a buyer noun pair (e.g. "Reviews submitted" / "Packages finalized") before this file changes |
 | `src/lib/review-scorecard-empty-state.ts` ("No committed reviews yet" heading — rest of the module already used finalize vocabulary) | 1 | done |
 | `src/lib/search-empty-preset.ts` + `src/lib/enterprise-compact-empty-state-presets.ts` ("committed review evidence indexed") | 2 | done |
@@ -54,12 +54,12 @@ Status values: **done** (fixed 2026-08-03) Â· **open** (follow-up) Â· **bloc
 | `src/components/PostCommitRetentionRail.tsx` ("You have a committed review.") | 1 | done |
 | `src/components/policy/PolicyPackImpactPreviewPanel.tsx` ("Committed review ID" label/placeholder/error) | 4 | done |
 | `src/components/governance/RecurrenceScheduleCreatePanel.tsx` ("committed review GUID", "Choose a committed review") | 2 | done |
-| `src/app/(operator)/architecture/executive-dashboard/_sections/BusinessImpactSummaryWidget.tsx` | 3 | done |
-| `src/app/(operator)/architecture/executive-dashboard/_sections/ExecutiveRoiSummarySection.tsx` ("Run or commit a review…", "No committed reviews with findings yet…", "Latest committed review per system") | 3 | done |
+| `src/app/(operator)/architecture/sponsor-dashboard/_sections/BusinessImpactSummaryWidget.tsx` | 3 | done |
+| `src/app/(operator)/architecture/sponsor-dashboard/_sections/ExecutiveRoiSummarySection.tsx` ("Run or commit a review…", "No committed reviews with findings yet…", "Latest committed review per system") | 3 | done |
 | `src/lib/contextual-help-registry.ts` ("committed review evidence is indexed", "Use a committed review…") | 2 | **blocked** (dirty at baseline) |
 | `src/lib/repeat-review-activation.ts` ("Plan your second committed review", "Open committed review", …) | 4 | **blocked** (untracked user file) |
 | `src/lib/impact-preview-page-copy.ts` | ? | **blocked** (dirty at baseline) |
-| Remaining component/lib literals ("committed review(s)" in `RunDetailAiReadinessGateCard`, `OperatorHomeExecutiveRoiStrip`, `BeforeAfterDeltaPanel`, `RunDetailDecisionDeltaPanel`, `RoiSummaryPageView`, `enterprise-controls-context-copy.ts`, `executive-scorecard-hours-saved-display.ts`, `layer-guidance` schedule surfaces, sponsor-facing JSON copy `roi-sponsor-facing-scope-labels.v1.json`, help markdown rewriters, test names/fixtures) | ~40 | open — follow-up pass; new literals blocked by guard |
+| Remaining component/lib literals ("committed review(s)" in `RunDetailAiReadinessGateCard`, `OperatorHomeExecutiveRoiStrip`, `BeforeAfterDeltaPanel`, `RunDetailDecisionDeltaPanel`, `RoiSummaryPageView`, `enterprise-controls-context-copy.ts`, `sponsor-scorecard-hours-saved-display.ts`, `layer-guidance` schedule surfaces, sponsor-facing JSON copy `roi-sponsor-facing-scope-labels.v1.json`, help markdown rewriters, test names/fixtures) | ~40 | open — follow-up pass; new literals blocked by guard |
 
 ### Class (b) — leave as-is (deliberate internal identifiers)
 

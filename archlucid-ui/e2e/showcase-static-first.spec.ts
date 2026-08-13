@@ -17,7 +17,7 @@ test.describe("Showcase static-first slug", () => {
     await page.goto("/showcase/claims-intake-modernization");
 
     await expect(page.getByRole("heading", { name: /Claims Intake Modernization/i })).toBeVisible();
-    await expect(page.getByRole("heading", { name: /Executive summary/i })).toBeVisible();
+    await expect(page.getByRole("heading", { name: /Sponsor report/i })).toBeVisible();
     await expect(page.getByTestId("showcase-bottom-cta")).toBeVisible();
     await expect(page.getByText(/live preview/i)).toHaveCount(0);
   });

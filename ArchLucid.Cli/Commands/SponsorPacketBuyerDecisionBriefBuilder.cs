@@ -21,13 +21,13 @@ public static class SponsorPacketBuyerDecisionBriefBuilder
         ArgumentException.ThrowIfNullOrWhiteSpace(inputs.RunId);
 
         PackManifestSummary manifest = ParseManifest(inputs.PackManifestJson);
-        ExecutiveSummary executive = ParseExecutiveSummary(inputs.ExecutiveSummaryJson);
+        SponsorReport sponsor = ParseSponsorReport(inputs.SponsorReportJson);
         LimitationsSummary limitations = ParseLimitations(inputs.LimitationsMd);
         string? valueParagraph = ExtractFirstValueParagraph(inputs.FirstValueReportMd);
         string? executionProvenance = ExtractExecutionProvenanceLine(inputs.FirstValueReportMd);
         string disposition = DeriveDisposition(manifest, limitations);
 
-        return RenderBrief(inputs.RunId, disposition, manifest, executive, limitations, valueParagraph, executionProvenance);
+        return RenderBrief(inputs.RunId, disposition, manifest, sponsor, limitations, valueParagraph, executionProvenance);
     }
 
     /// <summary>Convenience overload that reads files from <paramref name="packetDirectory"/>.</summary>
@@ -36,12 +36,12 @@ public static class SponsorPacketBuyerDecisionBriefBuilder
         ArgumentException.ThrowIfNullOrWhiteSpace(packetDirectory);
 
         string? manifestJson = TryReadFile(Path.Combine(packetDirectory, SponsorPacketArtifactCatalog.PackManifestFileName));
-        string? executiveSummaryJson = TryReadFile(Path.Combine(packetDirectory, SponsorPacketArtifactCatalog.ExecutiveSummaryFileName));
+        string? SponsorReportJson = TryReadFile(Path.Combine(packetDirectory, SponsorPacketArtifactCatalog.SponsorReportFileName));
         string? limitationsMd = TryReadFile(Path.Combine(packetDirectory, "limitations.md"));
         string? firstValueReportMd = TryReadFile(Path.Combine(packetDirectory, SponsorPacketArtifactCatalog.FirstValueReportFileName));
         string runId = ExtractRunIdFromManifest(manifestJson) ?? Path.GetFileName(packetDirectory.TrimEnd(Path.DirectorySeparatorChar));
 
-        return Build(new BriefInputs(runId, manifestJson, executiveSummaryJson, limitationsMd, firstValueReportMd));
+        return Build(new BriefInputs(runId, manifestJson, SponsorReportJson, limitationsMd, firstValueReportMd));
     }
 
     private static PackManifestSummary ParseManifest(string? json)
@@ -64,10 +64,10 @@ public static class SponsorPacketBuyerDecisionBriefBuilder
         }
     }
 
-    private static ExecutiveSummary ParseExecutiveSummary(string? json)
+    private static SponsorReport ParseSponsorReport(string? json)
     {
         if (string.IsNullOrWhiteSpace(json))
-            return new ExecutiveSummary(null, null, null, null);
+            return new SponsorReport(null, null, null, null);
 
         try
         {
@@ -82,11 +82,11 @@ public static class SponsorPacketBuyerDecisionBriefBuilder
             int? systemCount = root.TryGetProperty("systemCount", out JsonElement sysEl)
                 && sysEl.TryGetInt32(out int sc) ? sc : null;
 
-            return new ExecutiveSummary(savings, scopeDescription, systemRowScopeDescription, systemCount);
+            return new SponsorReport(savings, scopeDescription, systemRowScopeDescription, systemCount);
         }
         catch (JsonException)
         {
-            return new ExecutiveSummary(null, null, null, null);
+            return new SponsorReport(null, null, null, null);
         }
     }
 
@@ -250,7 +250,7 @@ public static class SponsorPacketBuyerDecisionBriefBuilder
         string runId,
         string disposition,
         PackManifestSummary manifest,
-        ExecutiveSummary executive,
+        SponsorReport sponsor,
         LimitationsSummary limitations,
         string? valueParagraph,
         string? executionProvenance)
@@ -275,11 +275,11 @@ public static class SponsorPacketBuyerDecisionBriefBuilder
         sb.AppendLine();
         sb.AppendLine("## Outcome");
         sb.AppendLine();
-        AppendOutcomeSection(sb, disposition, executive, manifest);
+        AppendOutcomeSection(sb, disposition, sponsor, manifest);
         sb.AppendLine();
         sb.AppendLine("## Quantified value");
         sb.AppendLine();
-        AppendValueSection(sb, executive, valueParagraph);
+        AppendValueSection(sb, sponsor, valueParagraph);
         sb.AppendLine();
         sb.AppendLine("## Top caveats");
         sb.AppendLine();
@@ -296,7 +296,7 @@ public static class SponsorPacketBuyerDecisionBriefBuilder
         return sb.ToString();
     }
 
-    private static void AppendOutcomeSection(StringBuilder sb, string disposition, ExecutiveSummary executive, PackManifestSummary manifest)
+    private static void AppendOutcomeSection(StringBuilder sb, string disposition, SponsorReport sponsor, PackManifestSummary manifest)
     {
         string headline = disposition switch
         {
@@ -308,11 +308,11 @@ public static class SponsorPacketBuyerDecisionBriefBuilder
 
         sb.AppendLine(headline);
 
-        if (executive.SystemCount.HasValue)
+        if (sponsor.SystemCount.HasValue)
         {
             sb.AppendLine();
             sb.AppendLine(CultureInfo.InvariantCulture,
-                $"{executive.SystemCount.Value} system{(executive.SystemCount.Value == 1 ? string.Empty : "s")} evaluated in this committed run.");
+                $"{sponsor.SystemCount.Value} system{(sponsor.SystemCount.Value == 1 ? string.Empty : "s")} evaluated in this committed run.");
         }
 
         if (manifest.DemoDataWarning)
@@ -322,17 +322,17 @@ public static class SponsorPacketBuyerDecisionBriefBuilder
         }
     }
 
-    private static void AppendValueSection(StringBuilder sb, ExecutiveSummary executive, string? valueParagraph)
+    private static void AppendValueSection(StringBuilder sb, SponsorReport sponsor, string? valueParagraph)
     {
-        if (executive.TotalEstimatedUsdSavings.HasValue)
+        if (sponsor.TotalEstimatedUsdSavings.HasValue)
         {
-            string formatted = executive.TotalEstimatedUsdSavings.Value.ToString("C0", CultureInfo.InvariantCulture);
-            string scope = string.IsNullOrWhiteSpace(executive.HeadlineSavingsScopeDescription)
+            string formatted = sponsor.TotalEstimatedUsdSavings.Value.ToString("C0", CultureInfo.InvariantCulture);
+            string scope = string.IsNullOrWhiteSpace(sponsor.HeadlineSavingsScopeDescription)
                 ? RoiSponsorFacingScopeDescriptions.HeadlineDispositionAware
-                : executive.HeadlineSavingsScopeDescription;
-            string systemRowScope = string.IsNullOrWhiteSpace(executive.SystemRowSavingsScopeDescription)
+                : sponsor.HeadlineSavingsScopeDescription;
+            string systemRowScope = string.IsNullOrWhiteSpace(sponsor.SystemRowSavingsScopeDescription)
                 ? RoiSponsorFacingScopeDescriptions.SystemRowSnapshotPotential
-                : executive.SystemRowSavingsScopeDescription;
+                : sponsor.SystemRowSavingsScopeDescription;
 
             sb.AppendLine(CultureInfo.InvariantCulture,
                 $"**Estimated savings:** {formatted} ({scope})");
@@ -345,7 +345,7 @@ public static class SponsorPacketBuyerDecisionBriefBuilder
         }
         else
         {
-            sb.AppendLine("Savings estimate not available in this packet. See `executive-summary.json` when present.");
+            sb.AppendLine("Savings estimate not available in this packet. See `sponsor-report.json` when present.");
         }
 
         if (!string.IsNullOrWhiteSpace(valueParagraph))
@@ -443,13 +443,13 @@ public static class SponsorPacketBuyerDecisionBriefBuilder
     public sealed record BriefInputs(
         string RunId,
         string? PackManifestJson,
-        string? ExecutiveSummaryJson,
+        string? SponsorReportJson,
         string? LimitationsMd,
         string? FirstValueReportMd);
 
     private sealed record PackManifestSummary(string? GeneratedUtc, bool DemoDataWarning);
 
-    private sealed record ExecutiveSummary(
+    private sealed record SponsorReport(
         decimal? TotalEstimatedUsdSavings,
         string? HeadlineSavingsScopeDescription,
         string? SystemRowSavingsScopeDescription,

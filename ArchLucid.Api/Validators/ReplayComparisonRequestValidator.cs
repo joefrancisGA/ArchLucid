@@ -22,7 +22,7 @@ public sealed class ReplayComparisonRequestValidator : AbstractValidator<ReplayC
         {
             RuleFor(x => x.Profile!)
                 .Must(p => ReplayValidationConstants.ValidProfiles.Contains(p.Trim()))
-                .WithMessage("Profile must be one of: default, short, detailed, executive.");
+                .WithMessage("Profile must be one of: default, short, detailed, sponsor.");
         });
     }
 }

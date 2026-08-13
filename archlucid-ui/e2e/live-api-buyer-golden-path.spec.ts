@@ -5,8 +5,8 @@
 import { expect, test } from "@playwright/test";
 
 import {
-  expectBuyerExecutiveReviewPrimaryHeading,
-  expectBuyerExecutiveSummarySurface,
+  expectBuyerSponsorReviewPrimaryHeading,
+  expectBuyerSponsorReportSurface,
   expectBuyerGoldenJourneyStepper,
   expectBuyerGoldenPageReady,
   expectBuyerReviewPackagePrimaryHeading,
@@ -37,7 +37,7 @@ const productTourRunId = DEMO_WORKSPACE_A_PRODUCT_TOUR_RUN_ID;
 const productTourRunEnc = encodeURIComponent(productTourRunId);
 
 const liveBuyerGoldenPathHrefs = {
-  executive: `/architecture/reviews/${productTourRunEnc}`,
+  sponsor: `/architecture/reviews/${productTourRunEnc}`,
   reviewPackage: `/architecture/reviews/${productTourRunEnc}`,
   evidenceGraph: `/insights/evidence-graph?runId=${productTourRunEnc}`,
   governanceApproval: `/governance/approval-queue?runId=${productTourRunEnc}`,
@@ -77,12 +77,12 @@ test.describe(
 
     await injectDemoWorkspaceOperatorScope(page, DEMO_WORKSPACE_A_LIVE_IDS);
 
-    await page.goto(liveBuyerGoldenPathHrefs.executive);
+    await page.goto(liveBuyerGoldenPathHrefs.sponsor);
     await waitForLiveOperatorPageHydration(page);
     await waitForLiveAuthorityRunDetailResponse(page, productTourRunId);
-    await expectBuyerExecutiveSummarySurface(page);
+    await expectBuyerSponsorReportSurface(page);
     await expect(getAppMain(page)).toBeVisible({ timeout: 90_000 });
-    await expectBuyerExecutiveReviewPrimaryHeading(page, { timeout: 90_000 });
+    await expectBuyerSponsorReviewPrimaryHeading(page, { timeout: 90_000 });
     await expectBuyerGoldenJourneyStepper(page);
     await expectNoGenericErrorBoundary(page);
 

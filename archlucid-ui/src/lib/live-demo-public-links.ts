@@ -4,7 +4,7 @@ import { evidenceGraphHref } from "@/lib/evidence-graph-route";
 import { signedRecordDetailPath } from "@/lib/signed-records-paths";
 
 export type LiveDemoInspectDestination =
-  | "executive"
+  | "sponsor"
   | "signed-record"
   | "evidence-graph"
   | "governance"
@@ -33,7 +33,7 @@ export function resolveLiveDemoInspectHref(
   }
 
   switch (destination) {
-    case "executive":
+    case "sponsor":
     case "full-review":
       return `/architecture/reviews/${enc(effectiveRunId)}`;
     case "signed-record":

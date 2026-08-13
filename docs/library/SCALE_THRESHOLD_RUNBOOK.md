@@ -55,7 +55,7 @@ Before adding replicas or Redis, confirm the bottleneck is not a missing index o
 
 ### Read replicas (SQL)
 
-- **When:** Executive dashboards, digests, and analytics readers contend with write-heavy commit windows.
+- **When:** Sponsor dashboards, digests, and analytics readers contend with write-heavy commit windows.
 - **V1 pattern:** Route read-only reporting queries to replica connection string in host configuration (application-specific; not mandatory for pilots).
 - **Trade-off:** Replication lag (seconds) — provenance and run detail reads should stay on primary unless lag is bounded and documented.
 

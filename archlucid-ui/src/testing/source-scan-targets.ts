@@ -21,10 +21,10 @@ export const SOURCE_SCAN_TARGETS = {
     "src/app/(operator)/architecture/reviews/[runId]/_sections/RunDetailSubmittedArchitectureSection.tsx",
   "run-detail-workspace-sticky-actions":
     "src/app/(operator)/architecture/reviews/[runId]/_sections/RunDetailWorkspaceStickyActions.tsx",
-  "executive-roi-systemic-issue-trend-chart":
-    "src/components/ExecutiveRoiSystemicIssueTrendChart.tsx",
-  "executive-roi-summary-section":
-    "src/app/(operator)/architecture/executive-dashboard/_sections/ExecutiveRoiSummarySection.tsx",
+  "sponsor-roi-systemic-issue-trend-chart":
+    "src/components/SponsorRoiSystemicIssueTrendChart.tsx",
+  "sponsor-roi-summary-section":
+    "src/app/(operator)/architecture/sponsor-dashboard/_sections/SponsorRoiSummarySection.tsx",
   "operator-home-page-view": "src/app/(operator)/_sections/OperatorHomePageView.tsx",
   "operator-home-page": "src/app/(operator)/page.tsx",
   "reviews-hub-page": "src/app/(operator)/architecture/reviews/page.tsx",

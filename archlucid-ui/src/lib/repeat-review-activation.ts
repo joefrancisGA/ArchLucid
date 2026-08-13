@@ -75,7 +75,7 @@ export function resolveRepeatReviewActivation(input: {
   return {
     headline: "Repeat reviews unlocked",
     summary:
-      "You have multiple committed reviews. Compare against a prior review, replay authority, refresh the executive ROI rollup, and collect an updated proof packet for sponsors.",
+      "You have multiple committed reviews. Compare against a prior review, replay authority, refresh the sponsor ROI rollup, and collect an updated proof packet for sponsors.",
     primaryHref: compareHref,
     primaryCta: "Compare two reviews",
     actions: [
@@ -88,8 +88,8 @@ export function resolveRepeatReviewActivation(input: {
         reason: "Reconstruct authority pipeline when investigating regressions.",
       },
       {
-        label: "Executive value report",
-        href: "/insights/executive-summary",
+        label: "Sponsor value report",
+        href: "/insights/sponsor-report",
         reason: "Sponsor-safe ROI rollup with source labels and freshness disposition.",
       },
       {

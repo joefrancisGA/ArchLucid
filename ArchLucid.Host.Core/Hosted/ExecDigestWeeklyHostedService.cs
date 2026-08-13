@@ -2,7 +2,7 @@ using ArchLucid.Application.ExecDigest;
 
 namespace ArchLucid.Host.Core.Hosted;
 
-/// <summary>Hourly leader-elected poll that sends weekly executive digest emails when tenant-local schedule matches.</summary>
+/// <summary>Hourly leader-elected poll that sends weekly sponsor digest emails when tenant-local schedule matches.</summary>
 public sealed class ExecDigestWeeklyHostedService(
     IServiceProvider serviceProvider,
     HostLeaderElectionCoordinator electionCoordinator,

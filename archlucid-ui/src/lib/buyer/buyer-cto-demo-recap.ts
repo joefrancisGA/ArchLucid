@@ -1,4 +1,4 @@
-import { getShowcaseExecutiveHref } from "@/lib/buyer/buyer-safe-review-navigation";
+import { getShowcaseSponsorHref } from "@/lib/buyer/buyer-safe-review-navigation";
 import { buildReadOnlyReviewWorkspaceHref } from "@/lib/read-only-review-workspace-href";
 import {
   SHOWCASE_BUYER_REVIEW_TITLE,
@@ -84,7 +84,7 @@ export function formatCtoDemoRecapMarkdown(payload: CtoDemoRecapPayload): string
       : `Not available (${payload.savingsQualifier})`;
 
   return [
-    `# ${payload.systemName} — Executive recap`,
+    `# ${payload.systemName} — Sponsor recap`,
     "",
     `**Findings:** ${payload.findingsCount} total (${payload.criticalCount} require attention)`,
     `**Risk posture:** ${payload.riskPosture}`,
@@ -92,7 +92,7 @@ export function formatCtoDemoRecapMarkdown(payload: CtoDemoRecapPayload): string
     `**Time to first signed package:** ~${payload.firstValueMinutes} minutes`,
     `**Review:** ${payload.reviewPackageUrl}`,
     `**Snapshot (read-only, permanent):** ${payload.snapshotUrl.length > 0 ? payload.snapshotUrl : payload.reviewPackageUrl}`,
-    `**Executive summary:** ${getShowcaseExecutiveHref()}`,
+    `**Sponsor report:** ${getShowcaseSponsorHref()}`,
     "",
     `Generated ${payload.generatedAt}`,
   ].join("\n");

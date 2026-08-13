@@ -24,8 +24,8 @@ export const HELP_TOPIC_PERMANENT_REDIRECTS: Readonly<Record<string, string>> = 
   "integrations/azure-boards": "/help/azure-boards",
   "operator-auth-roles": "/help/users-and-roles",
   "pilot-nav-profile": "/help/pilot-guide",
-  "pilot-roi-model": "/help/executive-summary#pilot-roi-measurement",
-  "product-overview": "/help/executive-summary#what-archlucid-is",
+  "pilot-roi-model": "/help/sponsor-report#pilot-roi-measurement",
+  "product-overview": "/help/sponsor-report#what-archlucid-is",
   "starting-reviews": "/help/review-guide",
   "developer-troubleshooting": "/help/engineering-troubleshooting",
 };

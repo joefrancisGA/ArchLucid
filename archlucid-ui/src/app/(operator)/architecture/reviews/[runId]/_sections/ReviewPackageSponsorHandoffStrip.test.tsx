@@ -49,7 +49,7 @@ describe("ReviewPackageSponsorHandoffStrip", () => {
 
     expect(screen.getByTestId("review-package-sponsor-handoff-strip")).toBeInTheDocument();
     expect(screen.getByRole("heading", { name: "Send to sponsor" })).toBeInTheDocument();
-    expect(screen.getByText(/Download the executive review summary or architecture report/)).toBeInTheDocument();
+    expect(screen.getByText(/Download the sponsor review summary or architecture report/)).toBeInTheDocument();
     expect(screen.getByTestId("review-package-sponsor-handoff-docx")).toBeInTheDocument();
     expect(screen.getByTestId("review-package-sponsor-handoff-more-exports")).toBeInTheDocument();
   });

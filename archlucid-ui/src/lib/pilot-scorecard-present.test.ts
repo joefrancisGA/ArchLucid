@@ -35,7 +35,7 @@ describe("pilot-scorecard-present", () => {
     expect(hasCommittedReviews(baseScorecard)).toBe(true);
   });
 
-  it("builds executive summary copy without implementation jargon", () => {
+  it("builds sponsor report copy without implementation jargon", () => {
     expect(REVIEW_SCORECARD_PAGE_SUBTITLE).not.toMatch(/ROI_MODEL|GET|null/i);
     expect(REVIEW_SCORECARD_PAGE_SUBTITLE).toMatch(/at a glance/i);
 

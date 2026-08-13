@@ -1,5 +1,5 @@
 /*
-  103: Weekly executive digest email preferences (per-tenant schedule + recipients).
+  103: Weekly sponsor digest email preferences (per-tenant schedule + recipients).
 
   RLS: not applied — tenant id is the sole scope; API enforces caller tenant via IScopeContextProvider.
 */

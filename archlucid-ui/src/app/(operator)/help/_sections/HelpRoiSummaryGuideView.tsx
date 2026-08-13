@@ -18,7 +18,7 @@ import {
   OPERATOR_SHELL_SCROLL_OFFSET_CLASS,
   OPERATOR_TYPOGRAPHY,
 } from "@/lib/design-tokens";
-import { EXECUTIVE_SUMMARY_PILOT_ROI_MEASUREMENT_HELP_HREF } from "@/lib/executive/executive-summary-pilot-roi-measurement-help";
+import { SPONSOR_SUMMARY_PILOT_ROI_MEASUREMENT_HELP_HREF } from "@/lib/sponsor/sponsor-report-pilot-roi-measurement-help";
 import { HELP_PAGE_LAYOUT, resolveHelpPageContentGridClass } from "@/lib/help/help-page-layout";
 import type { ProductDocumentationEntry } from "@/lib/product-documentation-registry";
 import {
@@ -179,7 +179,7 @@ export function HelpRoiSummaryGuideView(props: HelpRoiSummaryGuideViewProps): Re
                 {ROI_SUMMARY_HELP_METHODOLOGY_FORMULA}
               </p>
               <p className={cn("m-0", OPERATOR_TYPOGRAPHY.helper)}>{ROI_SUMMARY_HELP_DIRECTIONAL_DISCLAIMER}</p>
-              <Link className="text-sm underline-offset-2 hover:underline" href={EXECUTIVE_SUMMARY_PILOT_ROI_MEASUREMENT_HELP_HREF}>
+              <Link className="text-sm underline-offset-2 hover:underline" href={SPONSOR_SUMMARY_PILOT_ROI_MEASUREMENT_HELP_HREF}>
                 Review pilot ROI measurement methodology
               </Link>
             </div>

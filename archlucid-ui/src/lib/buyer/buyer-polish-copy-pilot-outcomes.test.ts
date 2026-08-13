@@ -1,7 +1,7 @@
 import { describe, expect, it } from "vitest";
 
 import {
-  BUYER_EXECUTIVE_SCORECARD_COMMITTED_LABEL,
+  BUYER_SPONSOR_SCORECARD_COMMITTED_LABEL,
   BUYER_VALUE_REPORT_PAGE_SUBTITLE,
   SPONSOR_REPORT_PAGE_TITLE,
   OPERATOR_GRAPH_PAGE_SUBTITLE,
@@ -46,10 +46,10 @@ describe("buyer-polish-copy pilot command center outcomes (TB-351)", () => {
   });
 });
 
-describe("buyer-polish-copy executive scorecard (TB-462)", () => {
+describe("buyer-polish-copy sponsor scorecard (TB-462)", () => {
   it("uses finalized reviews label on scorecard KPI", () => {
-    expect(BUYER_EXECUTIVE_SCORECARD_COMMITTED_LABEL).toBe("Finalized reviews");
-    expect(BUYER_EXECUTIVE_SCORECARD_COMMITTED_LABEL.toLowerCase()).not.toContain("committed");
+    expect(BUYER_SPONSOR_SCORECARD_COMMITTED_LABEL).toBe("Finalized reviews");
+    expect(BUYER_SPONSOR_SCORECARD_COMMITTED_LABEL.toLowerCase()).not.toContain("committed");
   });
 });
 

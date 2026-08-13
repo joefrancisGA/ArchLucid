@@ -10,7 +10,7 @@ const CLIENT_DRIVEN_LAYOUTS = [
   "src/app/(operator)/architecture/digests/layout.tsx",
   "src/app/(operator)/architecture/first-review-guide/layout.tsx",
   "src/app/(operator)/architecture/architectures/layout.tsx",
-  "src/app/(operator)/architecture/executive-dashboard/layout.tsx",
+  "src/app/(operator)/architecture/sponsor-dashboard/layout.tsx",
   "src/app/(operator)/architecture/reviews/new/layout.tsx",
   "src/app/(operator)/governance/advisory-scans/layout.tsx",
   "src/app/(operator)/governance/layout.tsx",

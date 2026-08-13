@@ -76,7 +76,7 @@ describe("AskAssistantMessageBody", () => {
     expect(evidenceLink).toHaveAttribute("href", "/architecture/reviews/22222222-2222-4222-8222-222222222222");
   });
 
-  it("surfaces an executive lead for unstructured buyer-polished plain text", () => {
+  it("surfaces an sponsor lead for unstructured buyer-polished plain text", () => {
     const { container } = render(
       <AskAssistantMessageBody
         buyerPolishedLinks

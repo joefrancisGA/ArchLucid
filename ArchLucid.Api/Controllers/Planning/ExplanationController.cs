@@ -100,7 +100,7 @@ public sealed class ExplanationController(
         return Ok(result);
     }
 
-    /// <summary>Executive rollup: themes, risk posture, counts, and the same explanation payload as granular explain.</summary>
+    /// <summary>Sponsor rollup: themes, risk posture, counts, and the same explanation payload as granular explain.</summary>
     /// <param name="runId">Run to summarize.</param>
     /// <param name="ct">Cancellation token.</param>
     /// <returns><see cref="RunExplanationSummary" /> JSON, or 404 when the run or manifest is missing in scope.</returns>

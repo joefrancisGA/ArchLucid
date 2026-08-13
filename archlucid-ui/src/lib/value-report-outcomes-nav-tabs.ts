@@ -2,6 +2,7 @@ import {
   LEGACY_SPONSOR_REPORT_ROOT_PATH,
   SPONSOR_REPORT_ARCHITECTURE_SCORECARD_PATH,
   SPONSOR_REPORT_EXECUTIVE_SUMMARY_PATH,
+  SPONSOR_REPORT_PATH,
   SPONSOR_REPORT_PAGE_TITLE,
   SPONSOR_REPORT_ROI_SUMMARY_PATH,
   SPONSOR_REPORT_SECTION_LABEL,
@@ -24,8 +25,9 @@ function matchesSponsorReport(path: string): boolean {
   const normalized = normalizeOutcomesPath(path);
 
   return (
-    normalized === SPONSOR_REPORT_EXECUTIVE_SUMMARY_PATH
+    normalized === SPONSOR_REPORT_PATH
     || normalized === LEGACY_SPONSOR_REPORT_ROOT_PATH
+    || normalized === SPONSOR_REPORT_EXECUTIVE_SUMMARY_PATH
   );
 }
 
@@ -46,7 +48,7 @@ function matchesArchitectureScorecard(path: string): boolean {
 
 export const VALUE_REPORT_OUTCOMES_TABS: readonly ValueReportOutcomesTab[] = [
   {
-    href: SPONSOR_REPORT_EXECUTIVE_SUMMARY_PATH,
+    href: SPONSOR_REPORT_PATH,
     label: SPONSOR_REPORT_PAGE_TITLE,
     match: matchesSponsorReport,
   },
@@ -65,7 +67,7 @@ export const VALUE_REPORT_OUTCOMES_TABS: readonly ValueReportOutcomesTab[] = [
 /**
  * ROI summary moved from Internal Operations to the Insights sidebar group (nav placement audit,
  * 2026-07-05) — it hits `RequiresCommercialTenantTier` + ReadAuthority endpoints, same as the sponsor
- * report and Executive scorecard, so the tab strip no longer hides it behind
+ * report and Sponsor scorecard, so the tab strip no longer hides it behind
  * `showSystemAdministrationNav` (was TB-605). The standalone pilot outcomes tab retired when that page
  * merged into the sponsor report.
  */

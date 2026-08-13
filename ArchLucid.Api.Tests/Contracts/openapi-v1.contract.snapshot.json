@@ -11228,7 +11228,7 @@
         "type": "object",
         "x-archlucid-audience": "buyer"
       },
-      "ExecutiveRoiAggregatesResponse": {
+      "SponsorRoiAggregatesResponse": {
         "properties": {
           "complianceRisksMitigated": {
             "format": "int32",
@@ -11249,7 +11249,7 @@
         },
         "type": "object"
       },
-      "ExecutiveRoiBasisBreakdown": {
+      "SponsorRoiBasisBreakdown": {
         "properties": {
           "acceptedRiskUsd": {
             "format": "double",
@@ -11318,7 +11318,7 @@
         },
         "type": "object"
       },
-      "ExecutiveRoiEnvironmentSavingsSlice": {
+      "SponsorRoiEnvironmentSavingsSlice": {
         "properties": {
           "environment": {
             "type": "string"
@@ -11334,7 +11334,7 @@
         },
         "type": "object"
       },
-      "ExecutiveRoiExportResponse": {
+      "SponsorRoiExportResponse": {
         "properties": {
           "costEvidenceFreshnessStatus": {
             "type": "string"
@@ -11360,13 +11360,13 @@
           },
           "rows": {
             "items": {
-              "$ref": "#/components/schemas/ExecutiveRoiExportRow"
+              "$ref": "#/components/schemas/SponsorRoiExportRow"
             },
             "type": "array"
           },
           "savingsByEnvironment": {
             "items": {
-              "$ref": "#/components/schemas/ExecutiveRoiEnvironmentSavingsSlice"
+              "$ref": "#/components/schemas/SponsorRoiEnvironmentSavingsSlice"
             },
             "type": "array"
           },
@@ -11382,7 +11382,7 @@
         },
         "type": "object"
       },
-      "ExecutiveRoiExportRow": {
+      "SponsorRoiExportRow": {
         "properties": {
           "affectedResource": {
             "type": [
@@ -11423,7 +11423,7 @@
         },
         "type": "object"
       },
-      "ExecutiveRoiHistoryPoint": {
+      "SponsorRoiHistoryPoint": {
         "properties": {
           "criticalSecurityFindings": {
             "format": "int32",
@@ -11463,18 +11463,18 @@
         },
         "type": "object"
       },
-      "ExecutiveRoiHistoryResponse": {
+      "SponsorRoiHistoryResponse": {
         "properties": {
           "points": {
             "items": {
-              "$ref": "#/components/schemas/ExecutiveRoiHistoryPoint"
+              "$ref": "#/components/schemas/SponsorRoiHistoryPoint"
             },
             "type": "array"
           }
         },
         "type": "object"
       },
-      "ExecutiveRoiSummaryResponse": {
+      "SponsorRoiSummaryResponse": {
         "properties": {
           "basisBreakdown": {
             "anyOf": [
@@ -11482,7 +11482,7 @@
                 "type": "null"
               },
               {
-                "$ref": "#/components/schemas/ExecutiveRoiBasisBreakdown"
+                "$ref": "#/components/schemas/SponsorRoiBasisBreakdown"
               }
             ]
           },
@@ -11530,7 +11530,7 @@
           },
           "historicalTrends": {
             "items": {
-              "$ref": "#/components/schemas/ExecutiveRoiSystemicIssueTrendSeries"
+              "$ref": "#/components/schemas/SponsorRoiSystemicIssueTrendSeries"
             },
             "type": "array"
           },
@@ -11623,7 +11623,7 @@
         "type": "object",
         "x-archlucid-audience": "buyer"
       },
-      "ExecutiveRoiSystemicIssueTrendPoint": {
+      "SponsorRoiSystemicIssueTrendPoint": {
         "properties": {
           "count": {
             "format": "int32",
@@ -11635,7 +11635,7 @@
         },
         "type": "object"
       },
-      "ExecutiveRoiSystemicIssueTrendSeries": {
+      "SponsorRoiSystemicIssueTrendSeries": {
         "properties": {
           "category": {
             "type": "string"
@@ -11645,7 +11645,7 @@
           },
           "points": {
             "items": {
-              "$ref": "#/components/schemas/ExecutiveRoiSystemicIssueTrendPoint"
+              "$ref": "#/components/schemas/SponsorRoiSystemicIssueTrendPoint"
             },
             "type": "array"
           },
@@ -11655,7 +11655,7 @@
         },
         "type": "object"
       },
-      "ExecutiveSummaryResult": {
+      "SponsorReportResult": {
         "properties": {
           "costWasteUsd": {
             "format": "double",
@@ -20353,14 +20353,14 @@
             "type": "string"
           },
           "deduplicatedTotals": {
-            "$ref": "#/components/schemas/ExecutiveRoiAggregatesResponse"
+            "$ref": "#/components/schemas/SponsorRoiAggregatesResponse"
           },
           "rawFindingCount": {
             "format": "int32",
             "type": "integer"
           },
           "rawRunTotals": {
-            "$ref": "#/components/schemas/ExecutiveRoiAggregatesResponse"
+            "$ref": "#/components/schemas/SponsorRoiAggregatesResponse"
           },
           "uniqueFindingCount": {
             "format": "int32",
@@ -55934,7 +55934,7 @@
             "content": {
               "application/json": {
                 "schema": {
-                  "$ref": "#/components/schemas/ExecutiveRoiAggregatesResponse"
+                  "$ref": "#/components/schemas/SponsorRoiAggregatesResponse"
                 }
               }
             },
@@ -132173,7 +132173,7 @@
         "x-archlucid-audience": "buyer"
       }
     },
-    "/v1/pilots/runs/{runId}/executive-review-packet": {
+    "/v1/pilots/runs/{runId}/sponsor-review-packet": {
       "get": {
         "parameters": [
           {
@@ -141323,14 +141323,14 @@
         "x-archlucid-audience": "operator"
       }
     },
-    "/v1/reports/executive-summary": {
+    "/v1/reports/sponsor-report": {
       "get": {
         "responses": {
           "200": {
             "content": {
               "application/json": {
                 "schema": {
-                  "$ref": "#/components/schemas/ExecutiveSummaryResult"
+                  "$ref": "#/components/schemas/SponsorReportResult"
                 }
               }
             },
@@ -141458,7 +141458,7 @@
           }
         },
         "tags": [
-          "ExecutiveSummary"
+          "SponsorReport"
         ],
         "x-archlucid-audience": "operator"
       }
@@ -141986,14 +141986,14 @@
         "x-archlucid-audience": "operator"
       }
     },
-    "/v1/roi/executive-summary": {
+    "/v1/roi/sponsor-report": {
       "get": {
         "responses": {
           "200": {
             "content": {
               "application/json": {
                 "schema": {
-                  "$ref": "#/components/schemas/ExecutiveRoiSummaryResponse"
+                  "$ref": "#/components/schemas/SponsorRoiSummaryResponse"
                 }
               }
             },
@@ -142132,7 +142132,7 @@
         "x-archlucid-audience": "buyer"
       }
     },
-    "/v1/roi/executive-summary/board-pack": {
+    "/v1/roi/sponsor-report/board-pack": {
       "get": {
         "parameters": [
           {
@@ -142306,14 +142306,14 @@
         "x-archlucid-audience": "buyer"
       }
     },
-    "/v1/roi/executive-summary/export": {
+    "/v1/roi/sponsor-report/export": {
       "get": {
         "responses": {
           "200": {
             "content": {
               "application/json": {
                 "schema": {
-                  "$ref": "#/components/schemas/ExecutiveRoiExportResponse"
+                  "$ref": "#/components/schemas/SponsorRoiExportResponse"
                 }
               }
             },
@@ -142452,14 +142452,14 @@
         "x-archlucid-audience": "buyer"
       }
     },
-    "/v1/roi/executive-summary/history": {
+    "/v1/roi/sponsor-report/history": {
       "get": {
         "responses": {
           "200": {
             "content": {
               "application/json": {
                 "schema": {
-                  "$ref": "#/components/schemas/ExecutiveRoiHistoryResponse"
+                  "$ref": "#/components/schemas/SponsorRoiHistoryResponse"
                 }
               }
             },
@@ -151608,7 +151608,7 @@
       "name": "ExecDigestUnsubscribe"
     },
     {
-      "name": "ExecutiveSummary"
+      "name": "SponsorReport"
     },
     {
       "name": "Explanation"

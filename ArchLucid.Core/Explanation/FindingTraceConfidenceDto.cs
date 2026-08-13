@@ -73,7 +73,7 @@ public sealed class FindingTraceConfidenceDto
         init;
     }
 
-    /// <summary>Decision-grade vs checklist coverage (TB-384); executive surfaces omit checklist rows.</summary>
+    /// <summary>Decision-grade vs checklist coverage (TB-384); sponsor surfaces omit checklist rows.</summary>
     public FindingClassification? Classification
     {
         get;

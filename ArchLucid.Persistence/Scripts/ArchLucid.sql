@@ -5239,7 +5239,7 @@ BEGIN
 END;
 GO
 
-/* 103: Weekly executive digest email preferences (see Migrations/103_TenantExecDigestPreferences.sql). */
+/* 103: Weekly sponsor digest email preferences (see Migrations/103_TenantExecDigestPreferences.sql). */
 IF OBJECT_ID(N'dbo.TenantExecDigestPreferences', N'U') IS NULL
 BEGIN
     CREATE TABLE dbo.TenantExecDigestPreferences

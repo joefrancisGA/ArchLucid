@@ -25,7 +25,7 @@ import { IMPACT_PREVIEW_PATH } from "@/lib/impact-preview-route";
 import { PLANNING_PATH } from "@/lib/planning-route";
 import { SEARCH_REVIEW_EVIDENCE_PATH } from "@/lib/search-review-evidence-route";
 import {
-  SPONSOR_REPORT_EXECUTIVE_SUMMARY_PATH,
+  SPONSOR_REPORT_PATH,
   SPONSOR_REPORT_PAGE_TITLE,
   SPONSOR_REPORT_ROI_SUMMARY_PATH,
   SPONSOR_REPORT_SECTION_LABEL,
@@ -111,7 +111,7 @@ export class OperateAnalysisNavGroupBuilder extends NavGroupBuilderBase {
       },
       {
         // String literals required: scripts/ci/assert_route_tier_policy_nav.py parses href:"..." only.
-        href: SPONSOR_REPORT_EXECUTIVE_SUMMARY_PATH as typeof SPONSOR_REPORT_EXECUTIVE_SUMMARY_PATH & "/insights/executive-summary",
+        href: SPONSOR_REPORT_PATH as typeof SPONSOR_REPORT_PATH & "/insights/sponsor-report",
         label: SPONSOR_REPORT_PAGE_TITLE,
         title: `${SPONSOR_REPORT_SECTION_LABEL} — finalized-review outcomes, governance signals, and sponsor exports`,
         icon: FileText,

@@ -26,7 +26,7 @@ Run [`DEMO_SCREENSHOT_PREFLIGHT.md`](../library/DEMO_SCREENSHOT_PREFLIGHT.md) (b
 
 | # | Frame | What must be visible | Suggested filename |
 |---|--------|----------------------|--------------------|
-| 1 | Executive summary / hero strip | Scenario title + illustrative-sample disclosure | `showcase-claims-exec-summary.png` |
+| 1 | Sponsor summary / hero strip | Scenario title + illustrative-sample disclosure | `showcase-claims-exec-summary.png` |
 | 2 | Findings strip | ≥1 high-severity finding title (e.g. PHI minimization) | `showcase-claims-findings-strip.png` |
 | 3 | Evidence / provenance peek (optional but preferred) | Link from finding toward evidence | `showcase-claims-evidence.png` |
 | 4 | Signed record / commit cue (if on page) | Finalized / signed language without raw GUID soup | `showcase-claims-signed-record.png` |

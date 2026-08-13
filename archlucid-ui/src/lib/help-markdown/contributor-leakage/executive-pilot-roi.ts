@@ -22,7 +22,7 @@ import {
   isPilotFeedbackContributorLeakageLine
 } from "./internal";
 import { stripProductOverviewContributorLeakage } from "./policy-and-misc";
-export function stripExecutiveSummaryPilotRoiMeasurementLeakage(markdown: string): string {
+export function stripSponsorReportPilotRoiMeasurementLeakage(markdown: string): string {
   let inFence = false;
 
   const withoutSensitiveRows = markdown
@@ -111,20 +111,20 @@ export function stripExecutiveSummaryPilotRoiMeasurementLeakage(markdown: string
     .replace(/`?OPERATOR_DECISION_GUIDE\.md`?/gi, "deployment decision guide")
     .replace(/`?PRODUCT_PACKAGING\.md`?/gi, "product packaging guide")
     .replace(
-      /`?EXECUTIVE_SPONSOR_BRIEF\.md`?/gi,
-      "[Executive summary](/help/executive-summary)",
+      /`?SPONSOR_SPONSOR_BRIEF\.md`?/gi,
+      "[Sponsor report](/help/sponsor-report)",
     )
-    .replace(/EXECUTIVE_SPONSOR_BRIEF\.md/gi, "/help/executive-summary")
+    .replace(/SPONSOR_SPONSOR_BRIEF\.md/gi, "/help/sponsor-report")
     .replace(
       /`?PILOT_ROI_MODEL\.md`?/gi,
-      "[Pilot ROI measurement](/help/executive-summary#pilot-roi-measurement)",
+      "[Pilot ROI measurement](/help/sponsor-report#pilot-roi-measurement)",
     )
-    .replace(/PILOT_ROI_MODEL\.md/gi, "/help/executive-summary#pilot-roi-measurement")
+    .replace(/PILOT_ROI_MODEL\.md/gi, "/help/sponsor-report#pilot-roi-measurement")
     .replace(
       /`?ROI_MODEL\.md`?/gi,
-      "[Pilot ROI measurement](/help/executive-summary#pilot-roi-measurement)",
+      "[Pilot ROI measurement](/help/sponsor-report#pilot-roi-measurement)",
     )
-    .replace(/ROI_MODEL\.md/gi, "/help/executive-summary#pilot-roi-measurement")
+    .replace(/ROI_MODEL\.md/gi, "/help/sponsor-report#pilot-roi-measurement")
     .replace(/`?docs\/go-to-market\/[^`\s)]+`?/gi, "go-to-market documentation")
     .replace(/docs\/go-to-market\/[^\s)]+/gi, "go-to-market documentation")
     .replace(/`?docs\/library\/[^`\s)]+`?/gi, "product documentation")
@@ -163,9 +163,9 @@ function wrapPilotRoiMeasurementDenseSectionsInDetails(markdown: string): string
   return result;
 }
 export function stripPilotRoiModelContributorLeakage(markdown: string): string {
-  return stripExecutiveSummaryPilotRoiMeasurementLeakage(markdown);
+  return stripSponsorReportPilotRoiMeasurementLeakage(markdown);
 }
-export function stripExecutiveSummaryContributorLeakage(markdown: string): string {
+export function stripSponsorReportContributorLeakage(markdown: string): string {
   let result = markdown
     .replace(
       /\*\*How do I try it locally\?\*\*[\s\S]*?(?=\n\n\*\*|\n## |\n---\n|$)/i,
@@ -349,29 +349,29 @@ export function stripPilotFeedbackContributorLeakage(markdown: string): string {
     .replace(/\n{3,}/g, "\n\n")
     .trimEnd();
 }
-export function stripExecutiveSummarySponsorBriefLeakage(markdown: string): string {
+export function stripSponsorReportSponsorBriefLeakage(markdown: string): string {
   return stripProductOverviewContributorLeakage(markdown)
     .replace(/^(##+)\s+\d+\.\s+/gm, "$1 ")
     .replace(/`?API_CONTRACTS\.md`?/gi, "[API contracts](/help/api-contracts)")
     .replace(/API_CONTRACTS\.md/gi, "/help/api-contracts")
     .replace(
       /`?PILOT_ROI_MODEL\.md`?/gi,
-      "[Pilot ROI measurement](/help/executive-summary#pilot-roi-measurement)",
+      "[Pilot ROI measurement](/help/sponsor-report#pilot-roi-measurement)",
     )
-    .replace(/PILOT_ROI_MODEL\.md/gi, "/help/executive-summary#pilot-roi-measurement")
+    .replace(/PILOT_ROI_MODEL\.md/gi, "/help/sponsor-report#pilot-roi-measurement")
     .replace(
       /`?ROI_MODEL\.md`?/gi,
-      "[Pilot ROI measurement](/help/executive-summary#pilot-roi-measurement)",
+      "[Pilot ROI measurement](/help/sponsor-report#pilot-roi-measurement)",
     )
-    .replace(/ROI_MODEL\.md/gi, "/help/executive-summary#pilot-roi-measurement")
+    .replace(/ROI_MODEL\.md/gi, "/help/sponsor-report#pilot-roi-measurement")
     .replace(/\[Api Contracts\]\(/gi, "[API contracts](")
     .replace(/\[Pilot Roi Model\]\(/gi, "[Pilot ROI measurement](")
     .replace(/\[Roi Model\]\(/gi, "[Pilot ROI measurement](")
-    .replace(/`?PRODUCT_PACKAGING\.md`?/gi, "[Executive summary](/help/executive-summary#what-archlucid-is)")
-    .replace(/PRODUCT_PACKAGING\.md/gi, "/help/executive-summary#what-archlucid-is")
-    .replace(/`\/value-report`/gi, "`/insights/executive-summary`")
-    .replace(/\/value-report/gi, "/insights/executive-summary")
-    .replace(/\/help\/pilot-roi-model/gi, "/help/executive-summary#pilot-roi-measurement")
+    .replace(/`?PRODUCT_PACKAGING\.md`?/gi, "[Sponsor report](/help/sponsor-report#what-archlucid-is)")
+    .replace(/PRODUCT_PACKAGING\.md/gi, "/help/sponsor-report#what-archlucid-is")
+    .replace(/`\/value-report`/gi, "`/insights/sponsor-report`")
+    .replace(/\/value-report/gi, "/insights/sponsor-report")
+    .replace(/\/help\/pilot-roi-model/gi, "/help/sponsor-report#pilot-roi-measurement")
     .replace(/`?SPONSOR_BANNER_FIRST_COMMIT_BADGE\.md`?/gi, "sponsor banner documentation")
     .replace(/SPONSOR_BANNER_FIRST_COMMIT_BADGE\.md/gi, "sponsor banner documentation");
 }

@@ -7,7 +7,7 @@ import {
   roiSummaryMethodologyFormula,
 } from "@/lib/roi-summary-sponsor-presentation";
 import {
-  SPONSOR_REPORT_EXECUTIVE_SUMMARY_PATH,
+  SPONSOR_REPORT_PATH,
   SPONSOR_REPORT_PAGE_TITLE,
   SPONSOR_REPORT_ROI_SUMMARY_PATH,
 } from "@/lib/sponsor-report-navigation";
@@ -93,11 +93,11 @@ export const ROI_SUMMARY_HELP_BASELINE_BODY = BASELINE_ROI_WHY_TWO;
 
 export const ROI_SUMMARY_HELP_SIBLING_REPORTS = [
   {
-    id: "executive-summary",
+    id: "sponsor-report",
     title: SPONSOR_REPORT_PAGE_TITLE,
     description: "Period summary of review activity, findings, governance decisions, and measurable outcomes, plus sponsor exports.",
     actionLabel: "Open sponsor report",
-    href: SPONSOR_REPORT_EXECUTIVE_SUMMARY_PATH,
+    href: SPONSOR_REPORT_PATH,
   },
   {
     id: "architecture-scorecard",

@@ -1,6 +1,6 @@
 import {
-  EXECUTIVE_BRIEFING_EXPORT_LABEL,
-  EXECUTIVE_BRIEFING_EXPORT_LABEL_LOWER,
+  SPONSOR_BRIEFING_EXPORT_LABEL,
+  SPONSOR_BRIEFING_EXPORT_LABEL_LOWER,
 } from "@/lib/usability/canonical-product-terms";
 import { resolveInAppDocHref } from "@/lib/in-app-doc-href";
 import { isBuyerPolishedOperatorShellEnv } from "@/lib/demo-ui-env";
@@ -52,9 +52,9 @@ export function buildPostCommitHabitLoop(input: PostCommitHabitLoopInput): PostC
     primary = {
       id: "sponsor-packet",
       kind: "primary",
-      label: `Send ${EXECUTIVE_BRIEFING_EXPORT_LABEL_LOWER}`,
+      label: `Send ${SPONSOR_BRIEFING_EXPORT_LABEL_LOWER}`,
       href: sponsorHref,
-      description: "Open executive deliverables — PDF, proof pack, and readiness checks.",
+      description: "Open sponsor deliverables — PDF, proof pack, and readiness checks.",
     };
 
     optional.push({
@@ -69,18 +69,18 @@ export function buildPostCommitHabitLoop(input: PostCommitHabitLoopInput): PostC
     primary = {
       id: "sponsor-packet",
       kind: "primary",
-      label: `Send ${EXECUTIVE_BRIEFING_EXPORT_LABEL_LOWER}`,
+      label: `Send ${SPONSOR_BRIEFING_EXPORT_LABEL_LOWER}`,
       href: sponsorHref,
-      description: `Finalize ${EXECUTIVE_BRIEFING_EXPORT_LABEL_LOWER} before external circulation.`,
+      description: `Finalize ${SPONSOR_BRIEFING_EXPORT_LABEL_LOWER} before external circulation.`,
     };
   }
   else {
     primary = {
       id: "sponsor-packet",
       kind: "primary",
-      label: `Send ${EXECUTIVE_BRIEFING_EXPORT_LABEL_LOWER}`,
+      label: `Send ${SPONSOR_BRIEFING_EXPORT_LABEL_LOWER}`,
       href: sponsorHref,
-      description: `Download ${EXECUTIVE_BRIEFING_EXPORT_LABEL_LOWER} from the deliverables section.`,
+      description: `Download ${SPONSOR_BRIEFING_EXPORT_LABEL_LOWER} from the deliverables section.`,
     };
   }
 

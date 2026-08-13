@@ -15,7 +15,7 @@ This assessment optimizes for five outcomes (ranked; earlier = more important):
 1. **Decision-changing insight** — non-obvious, correct findings that change a decision a skilled architect using frontier AI alone would not have changed.
 2. **Governed repeatability across an organization** — the same policy-aware, evidence-backed, auditable architecture package produced consistently by different architects, not heroics.
 3. **30-Day Voluntary Usage Probability.**
-4. **Executive Purchase Probability.**
+4. **Sponsor Purchase Probability.**
 5. **Long-Term Differentiation / Survivability Against Frontier AI.**
 
 Do not optimize for feature completeness, engineering elegance, documentation volume, governance breadth, or platform maturity unless they materially improve the five outcomes above.
@@ -43,7 +43,7 @@ Assess ArchLucid as a **governed enterprise architecture review system**, not a 
 
 > ArchLucid uses frontier AI as an analysis engine, but makes that analysis enterprise-specific by grounding it in customer policy packs, internal standards, approved/prohibited patterns, evidence requirements, governance workflow, decision records, exception handling, and audit trail.
 
-Generic AI architecture analysis is increasingly commoditized. Credit durable differentiation **only** where ArchLucid demonstrates: customer-specific policy awareness; findings mapped to standards/policy packs; evidence→finding→policy traceability; repeatable intake→package workflow; executive/operator role separation; decision and exception auditability; remediation/external-ticketing seams; governance-ready packaging that survives architecture, security, compliance, and executive review.
+Generic AI architecture analysis is increasingly commoditized. Credit durable differentiation **only** where ArchLucid demonstrates: customer-specific policy awareness; findings mapped to standards/policy packs; evidence→finding→policy traceability; repeatable intake→package workflow; sponsor/operator role separation; decision and exception auditability; remediation/external-ticketing seams; governance-ready packaging that survives architecture, security, compliance, and sponsor review.
 
 A finding is more valuable when it answers: What evidence produced it? Which standard/policy does it implicate? What decision should change? Who must act? What is the audit record? How is it tracked/remediated?
 
@@ -57,7 +57,7 @@ The following are **already implemented**. Assess whether they *materially chang
 
 **Evidence / audit / traceability:** the typed append-only audit catalog with CSV export (current coverage per `docs/library/AUDIT_COVERAGE_MATRIX.md` and `docs/library/AUDIT_EVENT_MODEL.md`); citation contract (cost/savings lines from an uploaded cloud extractor ZIP must cite `manifest.json` `collectionTimestamp` + schema version); golden manifest + authority chain as the run-of-record.
 
-**Executive packaging / ROI:** `GET /v1/roi/executive-summary` (latest committed run per system, finding dedup by stable `FindingId`, **disposition-aware** portfolio basis), dashboard panel, and a board-pack export delegating to the same service. Note: per-system rows intentionally do **not** sum to the disposition-aware headline.
+**Sponsor packaging / ROI:** `GET /v1/roi/sponsor-summary` (latest committed run per system, finding dedup by stable `FindingId`, **disposition-aware** portfolio basis), dashboard panel, and a board-pack export delegating to the same service. Note: per-system rows intentionally do **not** sum to the disposition-aware headline.
 
 **First-party connectors (V1 GA as of 2026-07-03):** `POST /v1/integrations/itsm/outbound/issues` (Jira + ServiceNow) → ticket from persisted Authority-shaped finding; persists `dbo.ItsmFindingCorrelations` (stable `FindingId`); per-tenant settings; durable audit events (`Integration.JiraIssueCreate*`, `Integration.ServiceNowIncidentCreate*`); Confluence Cloud page-publish; Slack and Microsoft Teams incoming-webhook notifications. All five ship **Shipped** / **Shipped + manual vendor** per `docs/library/CONNECTOR_READINESS_MATRIX.md` — see `V1_SCOPE.md` §2.13–§2.15 and `V1_DEFERRED.md` §6/§6a for the promotion record and **TB-599–TB-602** for remaining tightening work (native-create default posture, OAuth upgrade, live-validation parity, buyer-copy sweep).
 
@@ -90,7 +90,7 @@ Source of truth: `docs/library/V1_SCOPE.md`, `docs/library/V1_DEFERRED.md`, `doc
 * Avoid proposing improvements that already appear implemented (see **Product State Grounding** and the **verify-before-listing gate**).
 * Prefer smaller high-confidence backlogs over larger speculative ones.
 * Persist by **overwriting the rolling pass file under `docs/assessments/`** (currently `docs/assessments/LATEST_GPT55.md`) in place. Do **not** create new dated multi-thousand-line files; archive any prior snapshot under `docs/archive/assessments/`.
-* **File-size discipline.** The rolling pass file should read as a current-state assessment, not an accumulated changelog. If §17 or the executive summary starts enumerating dozens of historical ticket IDs, that is a signal the verify-before-listing gate was skipped — stop and re-apply it.
+* **File-size discipline.** The rolling pass file should read as a current-state assessment, not an accumulated changelog. If §17 or the sponsor summary starts enumerating dozens of historical ticket IDs, that is a signal the verify-before-listing gate was skipped — stop and re-apply it.
 
 ---
 
@@ -162,7 +162,7 @@ Provide two labeled scores:
 | 5 | AI / Agent Readiness | 10 |
 | 6 | Time-to-Value | 10 |
 | 7 | Proof-of-ROI Readiness | 9 |
-| 8 | Executive / Operator Comprehension (cognitive load) | 8 |
+| 8 | Sponsor / Operator Comprehension (cognitive load) | 8 |
 | 9 | Runtime & First-Review Reliability | 7 |
 | 10 | Adoption Friction | 5 |
 
@@ -172,12 +172,12 @@ For each quality provide: Score · Weight · Weighted contribution · Weighted d
 
 * **Decision-Changing Insight Density** — non-obvious, correct findings a skilled architect using frontier AI would miss, dismiss, fail to operationalize, or fail to package into governance. Do not credit articulate-but-generic output.
 * **Differentiability / Defensibility** — use the rubric below. Credit only governed, policy-aware, evidence-backed, repeatable review infrastructure, not critique eloquence. This category **is** the Defensibility score; do not produce a separate orphan defensibility number.
-* **Governed Review Integrity** — does *changing a policy pack* change findings, priorities, recommendations, decisions, executive reporting, and the pre-commit gate outcome, with full traceability and audit reconstruction?
+* **Governed Review Integrity** — does *changing a policy pack* change findings, priorities, recommendations, decisions, sponsor reporting, and the pre-commit gate outcome, with full traceability and audit reconstruction?
 * **Correctness & Evidence Integrity** — coherent states; preserved review/session/workspace identity; **no hallucinated or uncited policy/evidence claims**; no false confidence.
 * **AI / Agent Readiness** — grounded, inspectable, repeatable, policy-aware, safe; account for real-Azure-OpenAI vs simulator separation, Application-layer orchestration, and RAG-V2 depth caveats (Graph-RAG bounded multi-hop per **TB-597**; single-pass query expansion per **TB-598** — not iterative agentic retrieval). "Uses AI" ≠ "AI-ready."
 * **Time-to-Value** — speed to a credible architecture package or "I did not think of that" moment.
-* **Proof-of-ROI Readiness** — credibility (not mere presence) of the ROI story: `GET /v1/roi/executive-summary` + board-pack export, cost evidence, savings basis labels, disposition-aware totals, and (for AWS/GCP) whether cost findings carry structured retail-price grounding or only illustrative framing (**TB-603**).
-* **Executive / Architect Comprehension** — understandable to architects, executives, and governance stakeholders without excessive explanation.
+* **Proof-of-ROI Readiness** — credibility (not mere presence) of the ROI story: `GET /v1/roi/sponsor-summary` + board-pack export, cost evidence, savings basis labels, disposition-aware totals, and (for AWS/GCP) whether cost findings carry structured retail-price grounding or only illustrative framing (**TB-603**).
+* **Sponsor / Architect Comprehension** — understandable to architects, executives, and governance stakeholders without excessive explanation.
 * **Runtime & First-Review Reliability** — does first review generation, commit, manifest, and export work reliably end to end? (UI breakage is also a **ship gate** below.)
 * **Adoption Friction** — effort to configure identity, ingest evidence, run the pilot path, validate security, and fit existing operations; account for `Integrations:Itsm:NativeEnabled` defaulting `false` out of the box (**TB-599**).
 
@@ -186,11 +186,11 @@ For each quality provide: Score · Weight · Weighted contribution · Weighted d
 * **Low:** generic advice frontier AI could produce from a good prompt.
 * **Medium:** structured findings/packages, but policy awareness, evidence traceability, and governance workflow are limited/unclear.
 * **High:** findings mapped to policy packs, standards, evidence, recommendations, decisions, and review workflow a generic AI session would not consistently reproduce.
-* **Excellent:** changing policy packs/standards demonstrably changes findings, priorities, executive reporting, review decisions, and audit trail — traceably and defensibly.
+* **Excellent:** changing policy packs/standards demonstrably changes findings, priorities, sponsor reporting, review decisions, and audit trail — traceably and defensibly.
 
 ## Probability calibration (mandatory for every probability)
 
-For each probability (ship gate confidence, 30-day usage, executive purchase, dismissal, frontier-AI survival): state the **reference class / base rate**, then adjust for ArchLucid-specific evidence, then give a **range** (not a point estimate) and your confidence. Unanchored "vibes" probabilities are not acceptable.
+For each probability (ship gate confidence, 30-day usage, sponsor purchase, dismissal, frontier-AI survival): state the **reference class / base rate**, then adjust for ArchLucid-specific evidence, then give a **range** (not a point estimate) and your confidence. Unanchored "vibes" probabilities are not acceptable.
 
 ---
 
@@ -200,7 +200,7 @@ Before any narrative, answer each **PASS / FAIL / UNKNOWN** with one-line eviden
 
 1. First review completes end to end: create → execute → commit → golden manifest + ≥1 artifact.
 2. Representative review contains **no hallucinated or uncited** policy/evidence citations.
-3. Executive summary / ROI output is coherent and not misleading (incl. the per-system-vs-headline ROI labeling).
+3. Sponsor summary / ROI output is coherent and not misleading (incl. the per-system-vs-headline ROI labeling).
 4. Export/package generation works (Markdown / DOCX / ZIP).
 5. Architect workspace does not break during the first-review / demo path.
 6. Auth + tenant isolation behave correctly on the pilot path.
@@ -228,7 +228,7 @@ Purpose: give the founder one ranked, sequenced worklist of everything in this a
 | Task | Short imperative title, with the GTM backlog ID (e.g. `M-xxx`) |
 | Why ranked here | One line: criticality + dependency reasoning |
 | Engine-assistable? | Yes / Partial / No — can a coding agent do any part of this (e.g. drafting a script, a survey, an email template, a rehearsal doc) even though the human must execute the live/social/financial part? |
-| Recommended engine | Name one of **Composer**, **Sonnet**, **Opus**, or **Fable** (or "N/A — human only") with a one-line cost/effectiveness rationale. Default to **Sonnet** for most drafting/scripting work given its current reduced price makes it the best cost/effectiveness tradeoff; reserve **Opus** for high-stakes strategic framing (e.g. procurement objection rehearsal scripts, executive-facing narrative) where reasoning depth materially changes outcome; reserve **Composer** for fast, low-stakes, high-volume mechanical drafts; reserve **Fable** only if the task is narrative/creative-writing-shaped (e.g. a case-study story) rather than technical or analytical. |
+| Recommended engine | Name one of **Composer**, **Sonnet**, **Opus**, or **Fable** (or "N/A — human only") with a one-line cost/effectiveness rationale. Default to **Sonnet** for most drafting/scripting work given its current reduced price makes it the best cost/effectiveness tradeoff; reserve **Opus** for high-stakes strategic framing (e.g. procurement objection rehearsal scripts, sponsor-facing narrative) where reasoning depth materially changes outcome; reserve **Composer** for fast, low-stakes, high-volume mechanical drafts; reserve **Fable** only if the task is narrative/creative-writing-shaped (e.g. a case-study story) rather than technical or analytical. |
 
 ## 1. Title & Headline
 `ArchLucid Assessment – (A) Headline Readiness: XX.XX%`. State: readiness excludes deferred items; reasoning engine used (real Azure OpenAI vs simulator if relevant); timestamp; source materials inspected.
@@ -240,13 +240,13 @@ Single table of all 10 weighted qualities (score, weight, weighted contribution,
 Report and explicitly state these do **not** feed the headline, then reconcile any tension with it:
 * Decision Advantage Score (1–100) — likelihood ArchLucid changes a decision frontier AI alone would not.
 * Frontier-AI Survival Probability (12-month) — with calibration.
-* 30-Day Voluntary Usage Probability and Executive Purchase Probability — with calibration.
+* 30-Day Voluntary Usage Probability and Sponsor Purchase Probability — with calibration.
 If any diagnostic score sharply contradicts the headline (e.g. low defensibility vs high headline), say so and explain.
 
 ## 4. V1 Ship Gate
 The six PASS/FAIL/UNKNOWN items above, each with evidence and (for FAIL/UNKNOWN) the fastest resolution path.
 
-## 5. Executive Summary
+## 5. Sponsor Summary
 * **(A) Overall headline readiness** (excludes deferred items). Write this as **prose describing current-state capability**, not an enumeration of ticket IDs — a reader should be able to understand the state of the product without cross-referencing `TECH_BACKLOG.md`.
 * **(B) Procurement / market realism** (weight 0): procurement friction, trust posture, SOC posture (self-assessment + roadmap; CPA gap `(B)` only), buyer risk, supportability, security-review expectations. Do not penalize `(A)`.
 * **Commercial picture** (compelling today vs unproven). The V1 motion is **sales-led** (pricing page + order form + TEST-mode trial); live commerce un-hold is V1.1 owner-only — not a V1 blocker.
@@ -272,7 +272,7 @@ Replace all prior duplicated frontier sections with one:
 * **Leverage / upside (mandatory):** how does ArchLucid get *more* valuable *because* base models improve (better model → better findings → more policy mappings → more audit value at ~zero ArchLucid eng cost)? Treat this as a first-class bet, not a defensive footnote.
 * **Displacement timeline** — what is one model release away from commoditization.
 * Survival probability is reported in §3 (do not duplicate the number here; reference it).
-* **Final verdict:** Is ArchLucid becoming more valuable faster than frontier AI is becoming capable? Defend, explicitly addressing: generic-analysis commoditization, customer-specific policy packs, internal-standards awareness, evidence traceability, audit-ready packages, executive/operator workflow, decision advantage, voluntary reuse.
+* **Final verdict:** Is ArchLucid becoming more valuable faster than frontier AI is becoming capable? Defend, explicitly addressing: generic-analysis commoditization, customer-specific policy packs, internal-standards awareness, evidence traceability, audit-ready packages, sponsor/operator workflow, decision advantage, voluntary reuse.
 
 ## 10. Policy-Aware Governance Test
 The surfaces exist (see grounding) — judge whether they change behavior:
@@ -295,7 +295,7 @@ Vs a skilled architect using frontier AI: what they already do manually; what Ar
 
 ## 14. Adoption & Monetization
 * **30-Day Voluntary Usage** (10 principal architects): strongest positive/negative factor; most likely reason to return/stop. (Probability in §3.)
-* **Executive Purchase**: strongest driver/blocker; minimum proof for a paid pilot; likely objection. Answer directly — **why buy ArchLucid instead of more frontier-AI licenses?** — addressing governance, policy packs, evidence traceability, audit trail, repeatability, decision workflow, executive reporting.
+* **Sponsor Purchase**: strongest driver/blocker; minimum proof for a paid pilot; likely objection. Answer directly — **why buy ArchLucid instead of more frontier-AI licenses?** — addressing governance, policy packs, evidence traceability, audit trail, repeatability, decision workflow, sponsor reporting.
 * **Top 6 monetization blockers** (the V1 motion is sales-led; do not treat absent live commerce as a blocker): why each blocks payment; who objects; what evidence overcomes it; implementation vs validation.
 * **Top 6 enterprise adoption blockers** (operators, architects, governance, security, compliance, procurement, implementation): pilot vs scale blocker; whether it affects trust, usability, workflow fit, policy alignment, auditability, or process integration.
 
@@ -315,13 +315,13 @@ Top 3 improvements not worth doing before V1; top 3 diminishing-returns areas; t
 
 **Verify-before-listing gate applies here (see Product State Grounding above) — this is the section most prone to drift.** Every item MUST pass the four-step verification before it appears below. Shipped work never gets its own Tier entry — at most a one-line "Shipped this cycle" pointer with no fabricated score-delta.
 
-**Validation-first ordering (mandatory).** When all six V1 ship gates PASS and no in-contract V1/V1.1 engineering gate is open, this section MUST **lead with market-validation work** — pilot design, buyer-interview scripts, proof-packet cohort (TB-141/142), and the cheapest experiment that would move 30-Day Voluntary Usage or Executive Purchase probability — before any engineering item. Any **new** engineering proposal in this state must justify itself explicitly against the five ranked outcomes (and name which one it moves); "completeness," "polish," or "elegance" are not acceptable justifications. Prefer recommending **zero** new engineering items over manufacturing low-confidence ones.
+**Validation-first ordering (mandatory).** When all six V1 ship gates PASS and no in-contract V1/V1.1 engineering gate is open, this section MUST **lead with market-validation work** — pilot design, buyer-interview scripts, proof-packet cohort (TB-141/142), and the cheapest experiment that would move 30-Day Voluntary Usage or Sponsor Purchase probability — before any engineering item. Any **new** engineering proposal in this state must justify itself explicitly against the five ranked outcomes (and name which one it moves); "completeness," "polish," or "elegance" are not acceptable justifications. Prefer recommending **zero** new engineering items over manufacturing low-confidence ones.
 
 Group into **Tier 1 – Must Fix**, **Tier 2 – High Leverage**, **Tier 3 – Hold For Reassessment**. For each: Title · Tier · Why it matters · Expected impact · Affected qualities · Evidence · Actionability · Design Uncertainty Reduced (1–10) · Market Uncertainty Reduced (1–10) · Classification (V1 / V1.1 / V2 / validation first / blocked on user input). Items whose dominant lever is **Market Uncertainty Reduced** must be expressed as validation plans, not Cursor prompts.
 For actionable V1/V1.1 **engineering** items, generate complete **Cursor prompts** including: current problem, desired behavior, scope boundaries, acceptance criteria, tests to add/update, non-goals.
 
 ## 18. Prompt Batching Guidance
-First / Second / Third batch. Prioritize: (1) reliability of first review generation; (2) clarity of guided intake; (3) evidence/policy traceability; (4) review-package credibility; (5) demo reliability; (6) executive/operator comprehension. Mark each batch safe-for-Composer / safe-for-Sonnet / strong-model-recommended.
+First / Second / Third batch. Prioritize: (1) reliability of first review generation; (2) clarity of guided intake; (3) evidence/policy traceability; (4) review-package credibility; (5) demo reliability; (6) sponsor/operator comprehension. Mark each batch safe-for-Composer / safe-for-Sonnet / strong-model-recommended.
 
 ## 19. Model Usage Guidance
 Composer-safe / Sonnet-safe / strong-model-recommended / Opus-or-Gemini-assessment-recommended. Strong models for: strategic assessment, policy-aware moat evaluation, refactors affecting review generation, security/auth/workspace routing, evidence-graph semantics, cross-document guidance. Cheaper models for: copy cleanup, UI polish, snapshot updates, minor component refactors, straightforward routing fixes. Note Sonnet 5's current reduced price when recommending it over Opus for tasks where reasoning depth is not the limiting factor.
@@ -339,7 +339,7 @@ Separately from the weighted score, assess whether the product demonstrates seri
 
 # Final Instruction
 
-Optimize for the five outcomes in priority order. For survivability, credit primarily customer-specific policy awareness, governed workflow, evidence traceability, review packaging, decision auditability, repeatable organizational adoption, executive/operator separation, and remediation seams — **not** generic critique quality unless tied to policy packs, standards, evidence, governance, or decision workflow. If these conflict with feature completeness, governance breadth, documentation volume, elegance, or polish, prioritize the five outcomes.
+Optimize for the five outcomes in priority order. For survivability, credit primarily customer-specific policy awareness, governed workflow, evidence traceability, review packaging, decision auditability, repeatable organizational adoption, sponsor/operator separation, and remediation seams — **not** generic critique quality unless tied to policy packs, standards, evidence, governance, or decision workflow. If these conflict with feature completeness, governance breadth, documentation volume, elegance, or polish, prioritize the five outcomes.
 
 Central question — answer it directly:
 
@@ -397,7 +397,7 @@ Do not ask only:
 "Can frontier AI produce a similar critique?"
 
 Ask:
-Can a skilled architect using frontier AI alone reliably reproduce the same governed, policy-aware, evidence-backed, repeatable, auditable architecture package — with comparable consistency, role separation, executive packaging, policy traceability, and organizational adoption?
+Can a skilled architect using frontier AI alone reliably reproduce the same governed, policy-aware, evidence-backed, repeatable, auditable architecture package — with comparable consistency, role separation, sponsor packaging, policy traceability, and organizational adoption?
 
 ---
 
@@ -498,7 +498,7 @@ Optimize for these outcomes in priority order:
 2. Governed repeatability across an organization — same policy-aware, evidence-backed, auditable architecture package produced consistently by different architects.
 3. Trustworthy buyer first impression.
 4. 30-day voluntary usage probability.
-5. Executive purchase probability.
+5. Sponsor purchase probability.
 6. Long-term differentiation / survivability against frontier AI.
 7. Reliable and cost-controlled demo/trial exposure.
 
@@ -670,7 +670,7 @@ Weights total 100.
 | 5 | AI / Agent Readiness | 10 |
 | 6 | Time-to-Value | 10 |
 | 7 | Proof-of-ROI Readiness | 9 |
-| 8 | Executive / Operator Comprehension | 8 |
+| 8 | Sponsor / Operator Comprehension | 8 |
 | 9 | Runtime and First-Review Reliability | 7 |
 | 10 | Adoption Friction | 5 |
 
@@ -791,7 +791,7 @@ Before long narrative, answer each PASS / FAIL / UNKNOWN with one-line evidence 
 
 1. First review completes end to end: create → execute → commit → golden manifest + at least one artifact.
 2. Representative review contains no hallucinated or uncited policy/evidence citations.
-3. Executive summary / ROI output is coherent and not misleading.
+3. Sponsor summary / ROI output is coherent and not misleading.
 4. Export/package generation works.
 5. Architect workspace does not break during first-review / demo path.
 6. Auth and tenant isolation behave correctly on the pilot path.
@@ -812,7 +812,7 @@ For every probability, state:
 Required probabilities:
 1. Controlled beta user completes first meaningful review.
 2. 30-day voluntary reuse by a principal architect.
-3. Executive sponsor agrees to paid pilot.
+3. Sponsor sponsor agrees to paid pilot.
 4. Buyer dismisses ArchLucid as "just a wrapper around frontier AI."
 5. Buyer dismisses ArchLucid due to UI/prototype smell.
 6. Buyer dismisses ArchLucid due to pricing complexity.
@@ -890,7 +890,7 @@ Report:
 - Decision Advantage Score
 - Frontier-AI Survival Probability
 - 30-Day Voluntary Usage Probability
-- Executive Purchase Probability
+- Sponsor Purchase Probability
 - Dismissal probabilities
 
 Reconcile any contradiction between diagnostic scores and headline readiness.

@@ -44,7 +44,7 @@ public sealed class StructuralExecutionModeHonestyGuardTests
     [Fact]
     public void Executive_roi_period_IsMixedMode_is_independent_of_within_run_Mixed_enum()
     {
-        ExecutiveRoiHistoryRunModeCalculator.IsMixedMode(realRunCount: 2, simulatorRunCount: 1).Should().BeTrue();
+        SponsorRoiHistoryRunModeCalculator.IsMixedMode(realRunCount: 2, simulatorRunCount: 1).Should().BeTrue();
         StructuralExecutionModeHonesty.IsBuyerRealEvidenceMode(StructuralExecutionMode.Mixed).Should().BeFalse();
     }
 

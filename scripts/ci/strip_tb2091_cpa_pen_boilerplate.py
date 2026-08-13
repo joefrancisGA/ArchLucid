@@ -118,7 +118,7 @@ def candidate_files() -> list[Path]:
         "*architecture-created*-sources.ts",
         "run-detail-*-sources.ts",
         "architecture-scorecard-page-copy.ts",
-        "executive-workspace-health-page-copy.ts",
+        "sponsor-workspace-health-page-copy.ts",
         "ui-route-traffic-*.ts",
         "signup-invite-only-copy.ts",
     )

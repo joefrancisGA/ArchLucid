@@ -27,7 +27,7 @@ export const TRACKED_ROUTES = [
   "/governance/approval-queue",
   "/governance/alerts",
   "/governance/alert-rules",
-  "/architecture/executive-dashboard",
+  "/architecture/sponsor-dashboard",
   "/governance/signed-records",
 ];
 

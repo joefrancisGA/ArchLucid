@@ -52,7 +52,7 @@ export function CtoDemoRecapCard(props: CtoDemoRecapCardProps): React.JSX.Elemen
 
     try {
       await navigator.clipboard.writeText(markdown);
-      showSuccess("Executive recap copied to clipboard.");
+      showSuccess("Sponsor recap copied to clipboard.");
     } catch (error: unknown) {
       const message = error instanceof Error ? error.message : "Clipboard unavailable.";
 
@@ -69,10 +69,10 @@ export function CtoDemoRecapCard(props: CtoDemoRecapCardProps): React.JSX.Elemen
     const slug = payload.systemName.toLowerCase().replace(/[^a-z0-9]+/g, "-").replace(/^-|-$/g, "");
 
     anchor.href = url;
-    anchor.download = `executive-recap-${slug || "review"}.md`;
+    anchor.download = `sponsor-recap-${slug || "review"}.md`;
     anchor.click();
     URL.revokeObjectURL(url);
-    showSuccess("Executive recap download started.");
+    showSuccess("Sponsor recap download started.");
   }, [markdown, payload.systemName]);
 
   const onBoardPacketDownload = useCallback(async () => {

@@ -1,9 +1,9 @@
 import { CREATE_ARCHITECTURE_LABEL, START_REVIEW_LABEL } from "@/lib/architecture/architecture-workflow-labels";
 import {
-  EXECUTIVE_DASHBOARD_HREF,
-  EXECUTIVE_DASHBOARD_WORKSPACE_HEALTH_HREF,
-} from "@/lib/executive/executive-dashboard-route";
-import { BUYER_EXECUTIVE_SUMMARY_VOCABULARY } from "@/lib/vocabulary/buyer-surface-vocabulary";
+  SPONSOR_DASHBOARD_HREF,
+  SPONSOR_DASHBOARD_WORKSPACE_HEALTH_HREF,
+} from "@/lib/sponsor/sponsor-dashboard-route";
+import { BUYER_SPONSOR_SUMMARY_VOCABULARY } from "@/lib/vocabulary/buyer-surface-vocabulary";
 import { GOVERNANCE_AUDIT_PATH } from "@/lib/governance/governance-route-paths";
 import { GOVERNANCE_OVERVIEW_PAGE_TITLE } from "@/lib/governance/governance-overview-copy";
 import { OPERATOR_NAV_LINK_LABELS } from "@/lib/i18n";
@@ -21,8 +21,8 @@ describe("getRouteTitle — static routes", () => {
     expect(getRouteTitle("/architecture/architectures/draft-1")).toBe(CREATE_ARCHITECTURE_LABEL);
     expect(getRouteTitle("/governance/approval-queue")).toBe(GOVERNANCE_OVERVIEW_PAGE_TITLE);
     expect(getRouteTitle(SIGNED_RECORDS_LIST_PATH)).toBe(OPERATOR_NAV_LINK_LABELS.signedReviewRecords);
-    expect(getRouteTitle(EXECUTIVE_DASHBOARD_HREF)).toBe(BUYER_EXECUTIVE_SUMMARY_VOCABULARY.pageTitle);
-    expect(getRouteTitle(EXECUTIVE_DASHBOARD_WORKSPACE_HEALTH_HREF)).toBe(
+    expect(getRouteTitle(SPONSOR_DASHBOARD_HREF)).toBe(BUYER_SPONSOR_SUMMARY_VOCABULARY.pageTitle);
+    expect(getRouteTitle(SPONSOR_DASHBOARD_WORKSPACE_HEALTH_HREF)).toBe(
       OPERATOR_NAV_LINK_LABELS.workspaceHealth,
     );
     expect(getRouteTitle("/internal/replay")).toBe(OPERATOR_NAV_LINK_LABELS.replayReview);

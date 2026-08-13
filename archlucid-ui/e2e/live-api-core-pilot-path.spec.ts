@@ -83,7 +83,7 @@ test.describe("live-api-core-pilot-path", { tag: ["@founder", "@buyer-journey"] 
     await ensureBuyerDeliverablesSectionExpanded(page, DEMO_WORKSPACE_A_PRODUCT_TOUR_RUN_ID);
     await expect(page.getByTestId("buyer-deliverables-artifact-tabs")).toBeVisible();
 
-    const executivePanel = page.getByTestId("buyer-deliverables-panel-executive");
+    const executivePanel = page.getByTestId("buyer-deliverables-panel-sponsor");
     const executiveRegion = executivePanel.getByRole("region", { name: "Deliverables grouped by audience" });
 
     await expect(executiveRegion).toBeVisible();
@@ -95,7 +95,7 @@ test.describe("live-api-core-pilot-path", { tag: ["@founder", "@buyer-journey"] 
 
     await expect(arbPanel).toBeVisible({ timeout: 15_000 });
 
-    // Product Tour packages may only ship executive/sponsor outputs — empty ARB copy is valid.
+    // Product Tour packages may only ship sponsor/sponsor outputs — empty ARB copy is valid.
     const arbRegion = arbPanel.getByRole("region", { name: "Deliverables grouped by audience" });
     const arbEmpty = arbPanel.getByText(
       /No architecture review board or audit-scoped outputs are listed for this review/i,

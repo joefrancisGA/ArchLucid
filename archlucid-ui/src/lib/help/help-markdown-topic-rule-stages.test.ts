@@ -33,7 +33,7 @@ const EXPECTED_AUDIENCE_IDS: readonly string[] = [
   "caiq-sig-response",
   "dpa-template",
   "subprocessors",
-  "executive-summary-faq",
+  "sponsor-report-faq",
   "first-value-20-minutes",
   "evidence-intake",
   "evidence-trail",
@@ -41,7 +41,7 @@ const EXPECTED_AUDIENCE_IDS: readonly string[] = [
   "pilot-feedback",
   "policy-pack-delta-demo",
   "prior-manifest-retrieval",
-  "executive-summary-sponsor-brief",
+  "sponsor-report-sponsor-brief",
   "soc2-self-assessment",
   "security-trust-trust-center",
 ];

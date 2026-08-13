@@ -22,7 +22,7 @@ public class ArchitectureNarrativeArtifactGenerator : IArtifactGenerator
 
         sb.AppendLine($"# {manifest.Metadata.Name}");
         sb.AppendLine();
-        sb.AppendLine("## Executive Summary");
+        sb.AppendLine("## Sponsor Summary");
         sb.AppendLine(manifest.Metadata.Summary);
         sb.AppendLine();
 

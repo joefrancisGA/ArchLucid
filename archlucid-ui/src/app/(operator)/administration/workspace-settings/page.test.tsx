@@ -147,7 +147,7 @@ describe("TenantSettingsPage", () => {
     expect(await screen.findByText(/Status:/i)).toBeInTheDocument();
   });
 
-  it("delegates the executive digest schedule to the Digests hub instead of duplicating the editor", async () => {
+  it("delegates the sponsor digest schedule to the Digests hub instead of duplicating the editor", async () => {
     const page = await TenantSettingsPage();
 
     renderWithOperatorQuery(page);

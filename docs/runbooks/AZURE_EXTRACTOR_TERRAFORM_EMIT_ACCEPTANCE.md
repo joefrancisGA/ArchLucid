@@ -7,7 +7,7 @@
 ## Acceptance checklist
 
 - [ ] Azure inventory ZIP upload failure UX documented in proof (`azure-extractor-upload-failure-ux.md`).
-- [ ] Cost evidence freshness visible in executive summary (`costEvidenceFreshnessStatus`).
+- [ ] Cost evidence freshness visible in sponsor summary (`costEvidenceFreshnessStatus`).
 - [ ] Advisory Terraform snippets referenced from committed-run exports when present.
 - [ ] `terraform-drift-preflight.json` attached to release-readiness bundle.
 

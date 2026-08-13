@@ -3,7 +3,7 @@ using System.Diagnostics.Metrics;
 namespace ArchLucid.Core.Diagnostics;
 
 /// <summary>
-///     Observable gauge registration for outbox depths, fleet health, circuit breakers, LLM budgets, executive ROI, and
+///     Observable gauge registration for outbox depths, fleet health, circuit breakers, LLM budgets, sponsor ROI, and
 ///     warm-catalog pool depth.
 /// </summary>
 /// <remarks>
@@ -23,7 +23,7 @@ public static partial class ArchLucidInstrumentation
 
     private static int _llmTenantBudgetRemainingObservableGaugeRegistered;
 
-    private static int _executiveRoiSavingsObservableGaugeRegistered;
+    private static int _SponsorRoiSavingsObservableGaugeRegistered;
 
     private static long _warmCatalogsAvailableCached;
 
@@ -37,7 +37,7 @@ public static partial class ArchLucidInstrumentation
 
     private static Func<Measurement<double>[]>? _llmBudgetRemainingReader;
 
-    private static Func<Measurement<double>[]>? _executiveRoiSavingsReader;
+    private static Func<Measurement<double>[]>? _SponsorRoiSavingsReader;
 
     /// <summary>Latest outbox depths for <see cref="EnsureOutboxDepthObservableGaugesRegistered" />.</summary>
     public static OutboxDepthGaugeState OutboxDepthGauges
@@ -69,8 +69,8 @@ public static partial class ArchLucidInstrumentation
     public static void SetLlmBudgetRemainingReader(Func<Measurement<double>[]> reader) =>
         Volatile.Write(ref _llmBudgetRemainingReader, reader);
 
-    public static void SetExecutiveRoiSavingsReader(Func<Measurement<double>[]> reader) =>
-        Volatile.Write(ref _executiveRoiSavingsReader, reader);
+    public static void SetSponsorRoiSavingsReader(Func<Measurement<double>[]> reader) =>
+        Volatile.Write(ref _SponsorRoiSavingsReader, reader);
 
     /// <summary>Registers observable gauges once (call from OpenTelemetry host setup).</summary>
     public static void EnsureOutboxDepthObservableGaugesRegistered()
@@ -256,17 +256,17 @@ public static partial class ArchLucidInstrumentation
             "UTC-month LLM dollar headroom remaining under hard cutoff + purchased bump (non-negative; label tenant_id).");
     }
 
-    /// <summary>Registers observable executive ROI savings gauge (platform aggregate + optional per-tenant rows).</summary>
-    public static void EnsureExecutiveRoiSavingsObservableGaugeRegistered()
+    /// <summary>Registers observable sponsor ROI savings gauge (platform aggregate + optional per-tenant rows).</summary>
+    public static void EnsureSponsorRoiSavingsObservableGaugeRegistered()
     {
-        if (Interlocked.Exchange(ref _executiveRoiSavingsObservableGaugeRegistered, 1) != 0)
+        if (Interlocked.Exchange(ref _SponsorRoiSavingsObservableGaugeRegistered, 1) != 0)
             return;
 
         AppMeter.CreateObservableGauge(
             "archlucid_tenant_estimated_savings_usd",
-            () => _executiveRoiSavingsReader?.Invoke() ?? Array.Empty<Measurement<double>>(),
+            () => _SponsorRoiSavingsReader?.Invoke() ?? Array.Empty<Measurement<double>>(),
             "USD",
-            "Estimated USD savings rollup from Executive ROI dedup rules. Labels: scope=platform|tenant; tenant_id when scope=tenant.");
+            "Estimated USD savings rollup from Sponsor ROI dedup rules. Labels: scope=platform|tenant; tenant_id when scope=tenant.");
     }
 
     /// <summary>Registers warm tenant catalog pool depth gauge once (leader-elected replenish worker publishes counts).</summary>

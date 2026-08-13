@@ -25,7 +25,7 @@ describe("RunDetailArchitectureSummaryCard", () => {
     render(
       <RunDetailArchitectureSummaryCard
         architectureTitle="Claims intake platform"
-        architectureText={"## Executive summary\n\n**Governed** intake for PHI.\n| Scope | Value |\n|---|---|\n| A | B |"}
+        architectureText={"## Sponsor report\n\n**Governed** intake for PHI.\n| Scope | Value |\n|---|---|\n| A | B |"}
         evidenceCount={4}
         userAssertions={null}
         hasSubmittedArchitecture
@@ -45,7 +45,7 @@ describe("RunDetailArchitectureSummaryCard", () => {
     render(
       <RunDetailArchitectureSummaryCard
         architectureTitle="Claims intake platform"
-        architectureText={"## Executive summary\n\nGoverned intake for PHI."}
+        architectureText={"## Sponsor report\n\nGoverned intake for PHI."}
         evidenceCount={4}
         userAssertions={null}
         hasSubmittedArchitecture

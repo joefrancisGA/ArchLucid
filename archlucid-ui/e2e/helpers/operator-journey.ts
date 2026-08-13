@@ -812,7 +812,7 @@ export async function ensureBuyerDeliverablesSectionExpanded(page: Page, runId?:
 }
 
 /** Buyer-polished run detail collapses `#sponsor-handoff` (Time-to-Value banner) by default — expand before sponsor PDF assertions. */
-export async function ensureBuyerExecutiveBriefingSectionExpanded(page: Page, runId?: string): Promise<void> {
+export async function ensureBuyerSponsorBriefingSectionExpanded(page: Page, runId?: string): Promise<void> {
   // `#sponsor-handoff` maps to the Review package workspace tab (see LEGACY_HASH_TO_TAB /
   // run-detail-section-tab-map). The above-the-fold strip also mounts outside tabs when the primary
   // action is send-to-sponsor — still open Review package first so extended briefing anchors resolve.

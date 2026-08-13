@@ -20,7 +20,7 @@ namespace ArchLucid.Application.Analysis;
 /// <summary>
 ///     Generates exportable artifacts (Markdown, HTML, DOCX, PDF) from an
 ///     <see cref = "EndToEndReplayComparisonReport"/>. Output verbosity is controlled by the
-///     <see cref = "EndToEndComparisonExportProfile"/> constants (<c>detailed</c>, <c>executive</c>, <c>short</c>).
+///     <see cref = "EndToEndComparisonExportProfile"/> constants (<c>detailed</c>, <c>sponsor</c>, <c>short</c>).
 /// </summary>
 public sealed class EndToEndReplayComparisonExportService(IEndToEndReplayComparisonSummaryFormatter summaryFormatter) : IEndToEndReplayComparisonExportService
 {
@@ -44,7 +44,7 @@ public sealed class EndToEndReplayComparisonExportService(IEndToEndReplayCompari
         sb.AppendLine("---");
         sb.AppendLine();
         if (EndToEndComparisonExportProfile.IsExecutive(p))
-            AppendMarkdownExecutiveSummary(sb, report);
+            AppendMarkdownSponsorReport(sb, report);
         else
         {
             AppendMarkdownRunMetadataDiff(sb, report);
@@ -103,7 +103,7 @@ public sealed class EndToEndReplayComparisonExportService(IEndToEndReplayCompari
         {
             sb.AppendLine("<hr/>");
             if (EndToEndComparisonExportProfile.IsExecutive(p))
-                AppendHtmlExecutiveSummary(sb, report);
+                AppendHtmlSponsorReport(sb, report);
             else
             {
                 AppendHtmlRunMetadataDiff(sb, report);
@@ -150,7 +150,7 @@ public sealed class EndToEndReplayComparisonExportService(IEndToEndReplayCompari
                 AddHeading(body, "Summary", 2);
                 AddParagraph(body, summaryFormatter.FormatMarkdown(report).Trim());
                 AddSpacer(body);
-                AddDocxExecutiveSummary(body, report);
+                AddDocxSponsorReport(body, report);
             }
             else
             {
@@ -321,7 +321,7 @@ public sealed class EndToEndReplayComparisonExportService(IEndToEndReplayCompari
         sb.AppendLine();
     }
 
-    private static void AppendMarkdownExecutiveSummary(StringBuilder sb, EndToEndReplayComparisonReport report)
+    private static void AppendMarkdownSponsorReport(StringBuilder sb, EndToEndReplayComparisonReport report)
     {
         sb.AppendLine("## Key counts");
         sb.AppendLine();
@@ -455,7 +455,7 @@ public sealed class EndToEndReplayComparisonExportService(IEndToEndReplayCompari
         return sb.ToString();
     }
 
-    private static void AppendHtmlExecutiveSummary(StringBuilder sb, EndToEndReplayComparisonReport report)
+    private static void AppendHtmlSponsorReport(StringBuilder sb, EndToEndReplayComparisonReport report)
     {
         sb.AppendLine("<h2>Key counts</h2><ul>");
         sb.AppendLine("<li>Run metadata: " + report.RunDiff.ChangedFields.Count + " changed field(s); Request IDs differ: " +
@@ -551,7 +551,7 @@ public sealed class EndToEndReplayComparisonExportService(IEndToEndReplayCompari
         sb.AppendLine("</ul>");
     }
 
-    private static void AddDocxExecutiveSummary(Body body, EndToEndReplayComparisonReport report)
+    private static void AddDocxSponsorReport(Body body, EndToEndReplayComparisonReport report)
     {
         AddHeading(body, "Key counts", 2);
         AddBullet(body,

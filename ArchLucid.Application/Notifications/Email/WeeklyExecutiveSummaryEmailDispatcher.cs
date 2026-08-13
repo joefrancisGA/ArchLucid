@@ -8,22 +8,22 @@ using Microsoft.Extensions.Options;
 
 namespace ArchLucid.Application.Notifications.Email;
 
-/// <inheritdoc cref="IWeeklyExecutiveSummaryEmailDispatcher" />
-public sealed class WeeklyExecutiveSummaryEmailDispatcher(
+/// <inheritdoc cref="IWeeklySponsorReportEmailDispatcher" />
+public sealed class WeeklySponsorReportEmailDispatcher(
     IEmailTemplateRenderer templateRenderer,
     IEmailProvider emailProvider,
     ISentEmailLedger sentEmailLedger,
     IOptionsMonitor<EmailNotificationOptions> emailOptionsMonitor,
-    ILogger<WeeklyExecutiveSummaryEmailDispatcher> logger) : IWeeklyExecutiveSummaryEmailDispatcher
+    ILogger<WeeklySponsorReportEmailDispatcher> logger) : IWeeklySponsorReportEmailDispatcher
 {
-    public const string TemplateId = "WeeklyExecutiveSummary";
+    public const string TemplateId = "WeeklySponsorReport";
     private const string DefaultProductName = "ArchLucid";
 
     private readonly IOptionsMonitor<EmailNotificationOptions> _emailOptionsMonitor =
         emailOptionsMonitor ?? throw new ArgumentNullException(nameof(emailOptionsMonitor));
 
     private readonly IEmailProvider _emailProvider = emailProvider ?? throw new ArgumentNullException(nameof(emailProvider));
-    private readonly ILogger<WeeklyExecutiveSummaryEmailDispatcher> _logger = logger ?? throw new ArgumentNullException(nameof(logger));
+    private readonly ILogger<WeeklySponsorReportEmailDispatcher> _logger = logger ?? throw new ArgumentNullException(nameof(logger));
     private readonly ISentEmailLedger _sentEmailLedger = sentEmailLedger ?? throw new ArgumentNullException(nameof(sentEmailLedger));
     private readonly IEmailTemplateRenderer _templateRenderer = templateRenderer ?? throw new ArgumentNullException(nameof(templateRenderer));
 
@@ -55,7 +55,7 @@ public sealed class WeeklyExecutiveSummaryEmailDispatcher(
         string productName = string.IsNullOrWhiteSpace(emailOptions.ProductDisplayName) ? DefaultProductName : emailOptions.ProductDisplayName.Trim();
         string? operatorBase = string.IsNullOrWhiteSpace(emailOptions.OperatorBaseUrl) ? null : emailOptions.OperatorBaseUrl.TrimEnd('/');
 
-        WeeklyExecutiveSummaryEmailModel model = new()
+        WeeklySponsorReportEmailModel model = new()
         {
             ProductName = productName,
             WeekLabel = weekLabel,
@@ -65,7 +65,7 @@ public sealed class WeeklyExecutiveSummaryEmailDispatcher(
             LogoImageUrl = EmailBrandingUrls.TryBuildLogoImageUrl(operatorBase)
         };
 
-        string idempotencyKey = $"weekly-executive-summary:{tenantId:N}:{isoWeekIdempotencyKey}";
+        string idempotencyKey = $"weekly-sponsor-report:{tenantId:N}:{isoWeekIdempotencyKey}";
         SentEmailLedgerEntry ledgerEntry = new(idempotencyKey, tenantId, TemplateId, _emailProvider.ProviderName, null);
         bool reserved = await _sentEmailLedger.TryRecordSentAsync(ledgerEntry, cancellationToken);
 
@@ -74,7 +74,7 @@ public sealed class WeeklyExecutiveSummaryEmailDispatcher(
 
         string html = await _templateRenderer.RenderHtmlAsync(TemplateId, model, cancellationToken);
         string text = await _templateRenderer.RenderTextAsync(TemplateId, model, cancellationToken);
-        string subject = $"{productName} weekly executive summary — {weekLabel}";
+        string subject = $"{productName} weekly Sponsor report — {weekLabel}";
 
         foreach (string mailbox in toMailboxes)
         {
@@ -88,7 +88,7 @@ public sealed class WeeklyExecutiveSummaryEmailDispatcher(
                 HtmlBody = html,
                 TextBody = text,
                 IdempotencyKey = idempotencyKey + ":" + mailbox.Trim(),
-                Tags = new EmailMessageTags { TenantId = tenantId, EventType = "weekly-executive-summary" }
+                Tags = new EmailMessageTags { TenantId = tenantId, EventType = "weekly-sponsor-report" }
             };
 
             try
@@ -98,7 +98,7 @@ public sealed class WeeklyExecutiveSummaryEmailDispatcher(
             catch (Exception ex) when (!cancellationToken.IsCancellationRequested)
             {
                 if (_logger.IsEnabled(LogLevel.Error))
-                    _logger.LogError(ex, "Weekly executive summary email send failed for tenant {TenantId}.", tenantId);
+                    _logger.LogError(ex, "Weekly Sponsor report email send failed for tenant {TenantId}.", tenantId);
 
                 throw;
             }

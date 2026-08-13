@@ -83,16 +83,16 @@ describe("ExecDigestScheduleContent", () => {
     });
   });
 
-  it("uses Schedule executive digest identity and relationship copy", async () => {
+  it("uses Schedule sponsor digest identity and relationship copy", async () => {
     render(<ExecDigestScheduleContent />);
 
     expect(screen.queryByText("Architecture digests")).toBeNull();
-    expect(await screen.findByTestId("exec-digest-schedule-heading")).toHaveTextContent("Schedule executive digest");
+    expect(await screen.findByTestId("exec-digest-schedule-heading")).toHaveTextContent("Schedule sponsor digest");
     expect(screen.getByText(/weekly rollup of architecture and review activity/i)).toBeInTheDocument();
     expect(screen.getByText(/Architecture digests generated from advisory scans/i)).toBeInTheDocument();
     expect(screen.queryByText(/Schema version/i)).toBeNull();
     expect(screen.queryByTestId("exec-digest-schedule-technical-details")).toBeNull();
-    expect(screen.queryByLabelText("Send executive digest")).toBeNull();
+    expect(screen.queryByLabelText("Send sponsor digest")).toBeNull();
     expect(screen.queryByTestId("exec-digest-enable-action")).toBeNull();
   });
 
@@ -313,7 +313,7 @@ describe("ExecDigestScheduleContent", () => {
       "/governance/advisory-scans?tab=schedules",
     );
     expect(screen.getByText(/may consume AI budget/i)).toBeInTheDocument();
-    expect(screen.getByText(/does not email executive recipients/i)).toBeInTheDocument();
+    expect(screen.getByText(/does not email sponsor recipients/i)).toBeInTheDocument();
   });
 
   it("enables preview when a latest architecture digest exists", async () => {

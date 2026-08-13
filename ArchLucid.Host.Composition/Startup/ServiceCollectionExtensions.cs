@@ -104,11 +104,11 @@ public static partial class ServiceCollectionExtensions
         services.RegisterBilling(configuration);
         RegisterAdvisoryScheduling(services, configuration, hostingRole);
         RegisterExecDigestServices(services);
-        RegisterWeeklyExecutiveSummaryServices(services, configuration);
+        RegisterWeeklySponsorReportServices(services, configuration);
         RegisterWeeklyArchitectureDigest(services, configuration);
         RegisterTrialLifecycleEmailHostedServices(services, configuration, hostingRole);
         RegisterExecDigestWorkerInfrastructure(services, configuration, hostingRole);
-        RegisterWeeklyExecutiveSummaryWorkerInfrastructure(services, configuration, hostingRole);
+        RegisterWeeklySponsorReportWorkerInfrastructure(services, configuration, hostingRole);
         RegisterWeeklyArchitectureDigestWorkerInfrastructure(services, configuration, hostingRole);
         RegisterTrialLifecycleScheduler(services, configuration, hostingRole);
         RegisterTrialArchitecturePreseed(services, configuration, hostingRole);
@@ -149,8 +149,8 @@ public static partial class ServiceCollectionExtensions
         RegisterAzureDevOpsCommitStatusPublisher(services, configuration);
         RegisterDataArchivalHostedService(services, configuration, hostingRole);
         RegisterAgentResultBlobCleanupHostedService(services, configuration, hostingRole);
-        RegisterExecutiveRoiCacheWarmupHostedService(services, configuration, hostingRole);
-        RegisterExecutiveRoiSavingsGaugeHostedService(services, configuration, hostingRole);
+        RegisterSponsorRoiCacheWarmupHostedService(services, configuration, hostingRole);
+        RegisterSponsorRoiSavingsGaugeHostedService(services, configuration, hostingRole);
         RegisterFirstTenantFunnelArchivalHostedService(services, configuration, hostingRole);
         RegisterArchitectureProjectRetentionPurgeHostedService(services, hostingRole);
         RegisterSampleRunTtlHostedService(services, hostingRole);

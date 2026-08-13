@@ -215,7 +215,7 @@ export const CUSTOMER_GLOSSARY_TERMS: readonly CustomerGlossaryTerm[] = [
     id: "deliverable",
     label: "Deliverable",
     definition:
-      "An exportable output aimed at a specific audience, such as an executive summary, board packet, or diligence bundle.",
+      "An exportable output aimed at a specific audience, such as an sponsor report, board packet, or diligence bundle.",
     category: "deliverables",
     relatedTermIds: ["review-package", "signed-review-record"],
     visibility: "customer",

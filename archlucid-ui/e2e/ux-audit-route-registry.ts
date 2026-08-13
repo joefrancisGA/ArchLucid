@@ -1,7 +1,7 @@
-import { EXECUTIVE_DASHBOARD_WORKSPACE_HEALTH_HREF } from "@/lib/executive-dashboard-route";
+import { SPONSOR_DASHBOARD_WORKSPACE_HEALTH_HREF } from "@/lib/sponsor-dashboard-route";
 import { auditTrailNavHref } from "@/lib/audit-nav-paths";
 
-import { EXECUTIVE_ROI_DASHBOARD_PATHS } from "./helpers/executive-roi-dashboard";
+import { SPONSOR_ROI_DASHBOARD_PATHS } from "./helpers/sponsor-roi-dashboard";
 import { comparePairSearchParams } from "./helpers/operator-journey";
 import {
   SCREENSHOT_FINDING_ID,
@@ -42,13 +42,13 @@ export const UX_AUDIT_OPERATOR_BUYER_ROUTES: readonly UxAuditRouteEntry[] = [
   { slug: "settings-security-trust", href: "/administration/security-trust", persona: "security-architect" },
   { slug: "policy-packs", href: "/governance/policy-packs", persona: "security-architect" },
   { slug: "governance", href: "/governance/approval-queue", persona: "governance-reviewer" },
-  { slug: "governance-dashboard", href: EXECUTIVE_DASHBOARD_WORKSPACE_HEALTH_HREF, persona: "governance-reviewer" },
+  { slug: "governance-dashboard", href: SPONSOR_DASHBOARD_WORKSPACE_HEALTH_HREF, persona: "governance-reviewer" },
   {
     slug: "audit",
     href: auditTrailNavHref(SHOWCASE_DEMO_RUN_ID),
     persona: "governance-reviewer",
   },
-  { slug: "executive-dashboard", href: EXECUTIVE_ROI_DASHBOARD_PATHS.operator, persona: "cto-cio" },
+  { slug: "sponsor-dashboard", href: SPONSOR_ROI_DASHBOARD_PATHS.operator, persona: "cto-cio" },
 ];
 
 /** Public marketing entry points — captured once under `marketing/` (no operator rebuild). */

@@ -2,11 +2,11 @@ import { auditTrailNavHref } from "@/lib/audit-nav-paths";
 import type { CuratedPaletteTask } from "@/lib/command-palette-curated-tasks";
 import {
   getShowcaseCompareHref,
-  getShowcaseExecutiveHref,
+  getShowcaseSponsorHref,
   getShowcaseManifestHref,
 } from "@/lib/buyer/buyer-safe-review-navigation";
 import { BUYER_COMPARE_OPEN_FULL_LINK_LABEL } from "@/lib/buyer/buyer-polish-copy";
-import { BUYER_EXECUTIVE_SUMMARY_VOCABULARY, BUYER_SURFACE_VOCABULARY } from "@/lib/vocabulary/buyer-surface-vocabulary";
+import { BUYER_SPONSOR_SUMMARY_VOCABULARY, BUYER_SURFACE_VOCABULARY } from "@/lib/vocabulary/buyer-surface-vocabulary";
 import { SIGNED_MANIFEST_LABEL } from "@/lib/usability/canonical-product-terms";
 import {
   SHOWCASE_STATIC_DEMO_POLICY_PACK_DETAIL_HREF,
@@ -20,9 +20,9 @@ const showcaseRunEnc = encodeURIComponent(SHOWCASE_STATIC_DEMO_RUN_ID);
  */
 export const BUYER_COMMAND_PALETTE_CURATED_TASKS: readonly CuratedPaletteTask[] = [
   {
-    label: BUYER_EXECUTIVE_SUMMARY_VOCABULARY.reviewExecutiveSummaryLabel,
-    href: getShowcaseExecutiveHref(),
-    searchValue: "executive summary sponsor roi decision",
+    label: BUYER_SPONSOR_SUMMARY_VOCABULARY.reviewSponsorReportLabel,
+    href: getShowcaseSponsorHref(),
+    searchValue: "sponsor report sponsor roi decision",
   },
   {
     label: "Review",

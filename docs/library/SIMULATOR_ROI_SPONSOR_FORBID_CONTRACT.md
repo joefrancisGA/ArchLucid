@@ -44,7 +44,7 @@ Never present Simulator, demo, Fallback, Mixed-without-Real-savings, HOLD-baseli
 | Execution mode disclosed | Simulator / Mixed labeled on every sponsor export |
 | Disposition **WARN** | Estimate wording + basis qualifiers (`SponsorRoiClaimDispositionRules`) |
 | Internal operator walkthroughs | May show Simulator estimates with clear mode + basis labels |
-| Executive history footnotes | Prefer `RealModeSavingsUsd` for Real portion (Done **TB-239**); Simulator slice labeled illustrative |
+| Sponsor history footnotes | Prefer `RealModeSavingsUsd` for Real portion (Done **TB-239**); Simulator slice labeled illustrative |
 | Qualitative value narrative | Time-to-review, governance throughput — without unlabeled $ |
 | Curated sample override | Only when explicitly scoped as sample / not customer-realized |
 
@@ -71,7 +71,7 @@ Never present Simulator, demo, Fallback, Mixed-without-Real-savings, HOLD-baseli
 | Pilot proof API | `projectedDollarClaimsSponsorSafe` on `roiBaselineInputs` | Server-side sponsor-safe flag |
 | CLI commercial readiness | `PilotProofPacketCommercialReadinessBuilder` | Reads `projectedDollarClaimsSponsorSafe` |
 
-Done **TB-239** exposes `RealModeSavingsUsd` on executive ROI history for Real-mode slice separation.
+Done **TB-239** exposes `RealModeSavingsUsd` on sponsor ROI history for Real-mode slice separation.
 
 ---
 
@@ -79,7 +79,7 @@ Done **TB-239** exposes `RealModeSavingsUsd` on executive ROI history for Real-m
 
 | Gap | Current behavior | **TB-984** owner |
 |-----|------------------|------------------|
-| Executive ROI headline | `ExecutiveRoiSummaryService.TotalEstimatedUsdSavings` sums Simulator+Real | Prefer `RealModeSavingsUsd` or hide USD on buyer-polished surfaces |
+| Sponsor ROI headline | `ExecutiveRoiSummaryService.TotalEstimatedUsdSavings` sums Simulator+Real | Prefer `RealModeSavingsUsd` or hide USD on buyer-polished surfaces |
 | Buyer trend chart | `ExecutiveRoiTrendSection` may plot Simulator-inclusive USD (**BDA-069**/**BDA-070**) | Real-only headline bars or labeled estimate |
 | Email-to-sponsor badge | Projected-USD badge can show while PDF blocked for mode | Suppress badge when PDF blocked / `projectedDollarClaimsSponsorSafe` false / HOLD |
 | Board pack / digest | `ExecutiveRoiBoardPackMarkdownBuilder`, `GovernanceDigestDecisionNeededComposer` | Align headline with forbid table |

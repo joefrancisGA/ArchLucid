@@ -22163,7 +22163,7 @@ export interface paths {
                         [name: string]: unknown;
                     };
                     content: {
-                        "application/json": components["schemas"]["ExecutiveRoiAggregatesResponse"];
+                        "application/json": components["schemas"]["SponsorRoiAggregatesResponse"];
                     };
                 };
                 /** @description Bad Request (validation or malformed input). */
@@ -79542,7 +79542,7 @@ export interface paths {
         patch?: never;
         trace?: never;
     };
-    "/v1/pilots/runs/{runId}/executive-review-packet": {
+    "/v1/pilots/runs/{runId}/sponsor-review-packet": {
         parameters: {
             query?: never;
             header?: never;
@@ -87042,7 +87042,7 @@ export interface paths {
         patch?: never;
         trace?: never;
     };
-    "/v1/reports/executive-summary": {
+    "/v1/reports/sponsor-report": {
         parameters: {
             query?: never;
             header?: never;
@@ -87064,7 +87064,7 @@ export interface paths {
                         [name: string]: unknown;
                     };
                     content: {
-                        "application/json": components["schemas"]["ExecutiveSummaryResult"];
+                        "application/json": components["schemas"]["SponsorReportResult"];
                     };
                 };
                 /** @description Bad Request (validation or malformed input). */
@@ -87603,7 +87603,7 @@ export interface paths {
         patch?: never;
         trace?: never;
     };
-    "/v1/roi/executive-summary": {
+    "/v1/roi/sponsor-report": {
         parameters: {
             query?: never;
             header?: never;
@@ -87625,7 +87625,7 @@ export interface paths {
                         [name: string]: unknown;
                     };
                     content: {
-                        "application/json": components["schemas"]["ExecutiveRoiSummaryResponse"];
+                        "application/json": components["schemas"]["SponsorRoiSummaryResponse"];
                     };
                 };
                 /** @description Not Modified */
@@ -87748,7 +87748,7 @@ export interface paths {
         patch?: never;
         trace?: never;
     };
-    "/v1/roi/executive-summary/board-pack": {
+    "/v1/roi/sponsor-report/board-pack": {
         parameters: {
             query?: never;
             header?: never;
@@ -87892,7 +87892,7 @@ export interface paths {
         patch?: never;
         trace?: never;
     };
-    "/v1/roi/executive-summary/export": {
+    "/v1/roi/sponsor-report/export": {
         parameters: {
             query?: never;
             header?: never;
@@ -87914,7 +87914,7 @@ export interface paths {
                         [name: string]: unknown;
                     };
                     content: {
-                        "application/json": components["schemas"]["ExecutiveRoiExportResponse"];
+                        "application/json": components["schemas"]["SponsorRoiExportResponse"];
                     };
                 };
                 /** @description Not Modified */
@@ -88037,7 +88037,7 @@ export interface paths {
         patch?: never;
         trace?: never;
     };
-    "/v1/roi/executive-summary/history": {
+    "/v1/roi/sponsor-report/history": {
         parameters: {
             query?: never;
             header?: never;
@@ -88059,7 +88059,7 @@ export interface paths {
                         [name: string]: unknown;
                     };
                     content: {
-                        "application/json": components["schemas"]["ExecutiveRoiHistoryResponse"];
+                        "application/json": components["schemas"]["SponsorRoiHistoryResponse"];
                     };
                 };
                 /** @description Not Modified */
@@ -98592,7 +98592,7 @@ export interface components {
             results?: components["schemas"]["AgentResult"][];
             runId?: string;
         };
-        ExecutiveBusinessImpactCategoryCounts: {
+        SponsorBusinessImpactCategoryCounts: {
             /** Format: int32 */
             complianceThemeCount?: number;
             /** Format: int32 */
@@ -98608,14 +98608,14 @@ export interface components {
             /** Format: int32 */
             securityThemeCount?: number;
         };
-        ExecutiveOrphanCandidateSummary: {
+        SponsorOrphanCandidateSummary: {
             /** Format: double */
             annualSavingsUsd?: null | number | string;
             /** Format: int32 */
             candidateCount?: number;
             evidenceRunId?: null | string;
         };
-        ExecutiveRoiAggregatesResponse: {
+        SponsorRoiAggregatesResponse: {
             /** Format: int32 */
             complianceRisksMitigated?: number;
             /** Format: int32 */
@@ -98623,7 +98623,7 @@ export interface components {
             /** Format: double */
             timeSavedHours?: number | string;
         };
-        ExecutiveRoiBasisBreakdown: {
+        SponsorRoiBasisBreakdown: {
             /** Format: double */
             acceptedRiskUsd?: number | string;
             /** Format: double */
@@ -98641,12 +98641,12 @@ export interface components {
             /** Format: double */
             waivedUsd?: number | string;
         };
-        ExecutiveRoiEnvironmentSavingsSlice: {
+        SponsorRoiEnvironmentSavingsSlice: {
             environment?: string;
             /** Format: double */
             estimatedUsdSavings?: number | string;
         };
-        ExecutiveRoiExportResponse: {
+        SponsorRoiExportResponse: {
             costEvidenceFreshnessStatus?: string;
             /** Format: int32 */
             costEvidenceStaleAfterDays?: number;
@@ -98654,12 +98654,12 @@ export interface components {
             eaDiscountMultiplier?: number | string;
             /** Format: date-time */
             latestCostEvidenceCollectionTimestampUtc?: null | string;
-            rows?: components["schemas"]["ExecutiveRoiExportRow"][];
-            savingsByEnvironment?: components["schemas"]["ExecutiveRoiEnvironmentSavingsSlice"][];
+            rows?: components["schemas"]["SponsorRoiExportRow"][];
+            savingsByEnvironment?: components["schemas"]["SponsorRoiEnvironmentSavingsSlice"][];
             savingsPricingBasis?: string;
             savingsPricingBasisDescription?: null | string;
         };
-        ExecutiveRoiExportRow: {
+        SponsorRoiExportRow: {
             affectedResource?: null | string;
             category?: string;
             environment?: string;
@@ -98671,7 +98671,7 @@ export interface components {
             systemName?: string;
             title?: string;
         };
-        ExecutiveRoiHistoryPoint: {
+        SponsorRoiHistoryPoint: {
             /** Format: int32 */
             criticalSecurityFindings?: number;
             isMixedMode?: boolean;
@@ -98686,12 +98686,12 @@ export interface components {
             /** Format: double */
             totalEstimatedUsdSavings?: number | string;
         };
-        ExecutiveRoiHistoryResponse: {
-            points?: components["schemas"]["ExecutiveRoiHistoryPoint"][];
+        SponsorRoiHistoryResponse: {
+            points?: components["schemas"]["SponsorRoiHistoryPoint"][];
         };
-        ExecutiveRoiSummaryResponse: {
-            basisBreakdown?: null | components["schemas"]["ExecutiveRoiBasisBreakdown"];
-            businessImpactCategoryCounts?: null | components["schemas"]["ExecutiveBusinessImpactCategoryCounts"];
+        SponsorRoiSummaryResponse: {
+            basisBreakdown?: null | components["schemas"]["SponsorRoiBasisBreakdown"];
+            businessImpactCategoryCounts?: null | components["schemas"]["SponsorBusinessImpactCategoryCounts"];
             costEvidenceFreshnessStatus?: string;
             /** Format: int32 */
             costEvidenceStaleAfterDays?: number;
@@ -98703,14 +98703,14 @@ export interface components {
             firstCommitUtc?: null | string;
             headlineSavingsScopeCode?: string;
             headlineSavingsScopeDescription?: string;
-            historicalTrends?: components["schemas"]["ExecutiveRoiSystemicIssueTrendSeries"][];
+            historicalTrends?: components["schemas"]["SponsorRoiSystemicIssueTrendSeries"][];
             /** Format: date-time */
             latestCostEvidenceCollectionTimestampUtc?: null | string;
             /** Format: int32 */
             latestRunCount?: number;
             /** Format: int32 */
             newlyDiscoveredFindingsCount30Days?: number;
-            orphanCandidates?: null | components["schemas"]["ExecutiveOrphanCandidateSummary"];
+            orphanCandidates?: null | components["schemas"]["SponsorOrphanCandidateSummary"];
             realizedValue?: null | components["schemas"]["RealizedValueSummary"];
             /** Format: int32 */
             resolvedFindingsCount30Days?: number;
@@ -98728,18 +98728,18 @@ export interface components {
             totalEstimatedUsdSavings?: number | string;
             trailing30DayActivityScopeDescription?: string;
         };
-        ExecutiveRoiSystemicIssueTrendPoint: {
+        SponsorRoiSystemicIssueTrendPoint: {
             /** Format: int32 */
             count?: number;
             monthKey?: string;
         };
-        ExecutiveRoiSystemicIssueTrendSeries: {
+        SponsorRoiSystemicIssueTrendSeries: {
             category?: string;
             findingId?: string;
-            points?: components["schemas"]["ExecutiveRoiSystemicIssueTrendPoint"][];
+            points?: components["schemas"]["SponsorRoiSystemicIssueTrendPoint"][];
             severity?: string;
         };
-        ExecutiveSummaryResult: {
+        SponsorReportResult: {
             /** Format: double */
             costWasteUsd: null | number | string;
             /** @default headline-disposition-aware-open-needs-evidence */
@@ -101301,10 +101301,10 @@ export interface components {
         };
         PortfolioRoiSummaryResponse: {
             dedupeKeyFormat?: string;
-            deduplicatedTotals?: components["schemas"]["ExecutiveRoiAggregatesResponse"];
+            deduplicatedTotals?: components["schemas"]["SponsorRoiAggregatesResponse"];
             /** Format: int32 */
             rawFindingCount?: number;
-            rawRunTotals?: components["schemas"]["ExecutiveRoiAggregatesResponse"];
+            rawRunTotals?: components["schemas"]["SponsorRoiAggregatesResponse"];
             /** Format: int32 */
             uniqueFindingCount?: number;
         };

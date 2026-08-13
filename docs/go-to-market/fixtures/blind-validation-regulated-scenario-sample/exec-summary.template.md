@@ -1,6 +1,6 @@
 > **Reviewed:** 2026-07-25
 
-# Blind insight validation — executive summary (template)
+# Blind insight validation — sponsor summary (template)
 
 **Fixture / packet:** Synthetic regulated healthcare data platform (demo-safe)
 **Sessions aggregated:** _(fill after ≥3 sessions)_

@@ -4,7 +4,7 @@ import {
   buildDigestPreviewBeforeSubscribeSpecimen,
   DIGEST_PREVIEW_ARCHITECTURE_SECTIONS,
   DIGEST_PREVIEW_BEFORE_SUBSCRIBE_TITLE,
-  DIGEST_PREVIEW_EXECUTIVE_SECTIONS,
+  DIGEST_PREVIEW_SPONSOR_SECTIONS,
   DIGEST_PREVIEW_SEND_TO_ME_LABEL,
   DIGEST_PREVIEW_SEND_TO_ME_UNAVAILABLE_REASON,
   isDigestPreviewSendToMeAvailable,
@@ -53,17 +53,17 @@ describe("digest-preview-before-subscribe (TB-2211)", () => {
     expect(specimen.subjectLine).toBe("Architecture digest");
   });
 
-  it("builds executive schedule specimen with recipients and cadence", () => {
+  it("builds sponsor schedule specimen with recipients and cadence", () => {
     const specimen = buildDigestPreviewBeforeSubscribeSpecimen({
-      variant: "executive-schedule",
+      variant: "sponsor-schedule",
       recipientEmails: ["sponsor@example.com", "ciso@example.com"],
       cadenceSummary: "Every Monday at 8:00 AM Eastern",
     });
 
-    expect(specimen.subjectLine).toMatch(/Executive digest/i);
+    expect(specimen.subjectLine).toMatch(/Sponsor digest/i);
     expect(specimen.toLine).toBe("sponsor@example.com (+1 more)");
     expect(specimen.metaLine).toContain("Every Monday at 8:00 AM Eastern");
-    expect(specimen.sections).toEqual([...DIGEST_PREVIEW_EXECUTIVE_SECTIONS]);
-    expect(resolveDigestPreviewHelper("executive-schedule")).toMatch(/executive digest/i);
+    expect(specimen.sections).toEqual([...DIGEST_PREVIEW_SPONSOR_SECTIONS]);
+    expect(resolveDigestPreviewHelper("sponsor-schedule")).toMatch(/sponsor digest/i);
   });
 });

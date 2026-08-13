@@ -17,14 +17,14 @@ describe("architecture-narrative-presentation", () => {
   });
 
   it("normalizes escaped newlines when the payload is line-escaped", () => {
-    const source = "## Executive summary\\n\\nGoverned claims intake.\\n\\n| Service | Role |\\n| --- | --- |\\n| API | Edge |";
+    const source = "## Sponsor report\\n\\nGoverned claims intake.\\n\\n| Service | Role |\\n| --- | --- |\\n| API | Edge |";
 
     expect(shouldNormalizeEscapedNewlines(source)).toBe(true);
 
     const prepared = prepareArchitectureNarrativeForPresentation(source);
 
     expect(prepared.normalizationApplied).toContain("escaped-newlines");
-    expect(prepared.markdown).toContain("## Executive summary");
+    expect(prepared.markdown).toContain("## Sponsor report");
     expect(prepared.markdown).toContain("| Service | Role |");
     expect(prepared.markdown).not.toContain("\\n");
   });
@@ -38,8 +38,8 @@ describe("architecture-narrative-presentation", () => {
   });
 
   it("detects JSON payloads for plain-text fallback", () => {
-    expect(looksLikeJsonPayload('{"sections":["Executive summary"]}')).toBe(true);
-    expect(looksLikeJsonPayload("## Executive summary\nBody")).toBe(false);
+    expect(looksLikeJsonPayload('{"sections":["Sponsor report"]}')).toBe(true);
+    expect(looksLikeJsonPayload("## Sponsor report\nBody")).toBe(false);
   });
 
   it("strips script tags for plain-text fallback", () => {

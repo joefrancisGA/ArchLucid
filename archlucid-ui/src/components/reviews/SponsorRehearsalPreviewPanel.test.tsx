@@ -32,7 +32,7 @@ describe("SponsorRehearsalPreviewPanel (TB-2208)", () => {
     expect(screen.getByTestId("sponsor-rehearsal-preview-caution")).toHaveTextContent(
       SPONSOR_REHEARSAL_CAUTION,
     );
-    expect(screen.getByTestId("sponsor-rehearsal-section-executive-summary")).toBeInTheDocument();
+    expect(screen.getByTestId("sponsor-rehearsal-section-sponsor-report")).toBeInTheDocument();
     expect(screen.getByTestId("sponsor-rehearsal-section-key-findings-plain-english")).toHaveTextContent(
       /Missing private endpoint/,
     );

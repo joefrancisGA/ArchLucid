@@ -34,7 +34,7 @@ export async function fetchComparisonNarrativeViaAsk(
     baseRunId,
     targetRunId,
     question:
-      "Summarize the most important architectural change between these two runs for an executive audience.",
+      "Summarize the most important architectural change between these two runs for an sponsor audience.",
   });
 
   const narrative = response.comparisonNarrative?.trim();

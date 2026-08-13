@@ -4,7 +4,7 @@ import { describe, expect, it } from "vitest";
 import { FindingDetailDecisionSummary } from "./FindingDetailDecisionSummary";
 
 describe("FindingDetailDecisionSummary", () => {
-  it("renders compact executive decision fields", () => {
+  it("renders compact sponsor decision fields", () => {
     render(
       <FindingDetailDecisionSummary
         summary={{

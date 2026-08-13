@@ -1,7 +1,7 @@
 import manifest from "@/lib/data/roi-sponsor-facing-scope-labels.v1.json";
 
 /** Operator-facing microcopy for disposition-aware ROI headline semantics (V1 §2.8). */
-export const ROI_DISPOSITION_TRAINING_TOOLTIP_LABEL = "Executive ROI savings basis";
+export const ROI_DISPOSITION_TRAINING_TOOLTIP_LABEL = "Sponsor ROI savings basis";
 
 export const ROI_DISPOSITION_TRAINING_TOOLTIP_HINT = manifest.operatorHints.dispositionTraining;
 

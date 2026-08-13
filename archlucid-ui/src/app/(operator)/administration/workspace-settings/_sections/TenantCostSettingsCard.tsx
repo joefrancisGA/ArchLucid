@@ -172,7 +172,7 @@ function applyLoadedSettingsToForm(
   setters.setEaDiscountPercentage(String(data.eaDiscountPercentage ?? 0));
 }
 
-/** ROI cost assumptions for estimated USD savings on pilot deltas and executive summaries. */
+/** ROI cost assumptions for estimated USD savings on pilot deltas and sponsor summaries. */
 export function TenantCostSettingsCard({ canEdit }: TenantCostSettingsCardProps) {
   const demoMode = isNextPublicDemoMode();
   const queryClient = useQueryClient();
@@ -258,8 +258,8 @@ export function TenantCostSettingsCard({ canEdit }: TenantCostSettingsCardProps)
   const loading = costSettingsQuery.isPending;
 
   const helperCopy = isTenantConfigured
-    ? "These values are used to estimate review savings and executive ROI when actual cost evidence is unavailable."
-    : "These values are used to estimate review savings and executive ROI when actual cost evidence is unavailable. Showing platform defaults until you save.";
+    ? "These values are used to estimate review savings and sponsor ROI when actual cost evidence is unavailable."
+    : "These values are used to estimate review savings and sponsor ROI when actual cost evidence is unavailable. Showing platform defaults until you save.";
 
   if (demoMode) {
     return (

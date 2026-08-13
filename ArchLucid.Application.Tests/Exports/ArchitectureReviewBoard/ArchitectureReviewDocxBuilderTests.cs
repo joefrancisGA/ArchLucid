@@ -23,7 +23,7 @@ public sealed class ArchitectureReviewDocxBuilderTests
             RequestId = "req-1",
             SystemName = "Claims Intake Platform",
             ManifestVersion = "mv-9",
-            ExecutiveSummary = "Pilot outcome stable.",
+            SponsorReport = "Pilot outcome stable.",
             SystemOverviewBullets = ["Service A orchestrates intake.", "Data tier uses regional replicas."],
             HttpCorrelationId = "corr-abc",
             ExtractorTimestampUtcLabel = "2026-05-16T12:00:00Z"

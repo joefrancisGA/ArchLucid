@@ -454,7 +454,7 @@ export function TenantSettingsPageView(props: Props) {
 
           <CardTitle as="h3" className={OPERATOR_TYPOGRAPHY.cardTitle}>
 
-            Executive digest (email)
+            Sponsor digest (email)
 
           </CardTitle>
 

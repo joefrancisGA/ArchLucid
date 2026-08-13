@@ -15,13 +15,13 @@ export { EXECUTION_MODE_WITHIN_RUN_MIXED_BADGE_MARKER } from "@/lib/structural-e
 
 /** Sources scanned by execution-mode-honesty-drift-guard.test.ts (TB-971). */
 export const EXECUTION_MODE_HONESTY_DRIFT_GUARD_SOURCES = [
-  "src/app/(operator)/architecture/executive-dashboard/_sections/ExecutiveRoiTrendSection.tsx",
+  "src/app/(operator)/architecture/sponsor-dashboard/_sections/SponsorRoiTrendSection.tsx",
   "src/lib/structural-execution-mode.ts",
   "src/lib/pilot-proof-readiness.ts",
   "src/components/StructuralExecutionModeBadge.tsx",
 ] as const;
 
-export function resolveExecutiveTrendSavingsUsd(
+export function resolveSponsorTrendSavingsUsd(
   point: {
     readonly totalEstimatedUsdSavings: number;
     readonly realModeSavingsUsd: number;

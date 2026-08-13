@@ -12,7 +12,7 @@ import {
   ADMIN_DIAGNOSTICS_INBOUND_GUIDANCE_LINK_LABEL,
   ADMIN_DIAGNOSTICS_INBOUND_SECTION_TITLE,
 } from "@/lib/admin-diagnostics-inbound-copy";
-import { SPONSOR_REPORT_EXECUTIVE_SUMMARY_PATH } from "@/lib/sponsor-report-navigation";
+import { SPONSOR_REPORT_PATH } from "@/lib/sponsor-report-navigation";
 
 const ENG_RUNBOOK_HREF_MARKERS = [
   "developer-troubleshooting",
@@ -78,12 +78,12 @@ describe("troubleshooting-help-guide-content", () => {
     }
   });
 
-  it("routes missing reports to canonical sponsor executive summary (TB-1963)", () => {
+  it("routes missing reports to canonical sponsor sponsor report (TB-1963)", () => {
     const outputsStep = TROUBLESHOOTING_DECISION_TREE_STEPS.find((step) => step.id === "decision-outputs");
     const reportsBranch = outputsStep?.branches.find((branch) => branch.label === "Reports missing");
 
     expect(reportsBranch).toBeDefined();
-    expect(reportsBranch!.href).toBe(SPONSOR_REPORT_EXECUTIVE_SUMMARY_PATH);
+    expect(reportsBranch!.href).toBe(SPONSOR_REPORT_PATH);
     expect(reportsBranch!.href).not.toBe("/value-report");
   });
 });

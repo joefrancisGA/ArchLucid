@@ -4,7 +4,7 @@ import { Suspense } from "react";
 import { isBuyerPolishedOperatorShellEnv } from "@/lib/demo-ui-env";
 import { OPERATOR_NAV_LINK_LABELS } from "@/lib/i18n";
 
-import { CtoDemoExecutiveLandingRedirectDeferred } from "./_sections/operator-home-page-view-deferred-chunks";
+import { CtoDemoSponsorLandingRedirectDeferred } from "./_sections/operator-home-page-view-deferred-chunks";
 import { OperatorHomePageSuspenseFallback } from "./_sections/OperatorHomePageSuspenseFallback";
 import { OperatorHomeRunsDashboardAsync } from "./_sections/OperatorHomeRunsDashboardAsync";
 
@@ -24,7 +24,7 @@ export default function HomePage() {
 
   return (
     <>
-      <CtoDemoExecutiveLandingRedirectDeferred />
+      <CtoDemoSponsorLandingRedirectDeferred />
       <Suspense fallback={<OperatorHomePageSuspenseFallback />}>
         <OperatorHomeRunsDashboardAsync buyerPolishedShell={buyerPolishedShell} />
       </Suspense>

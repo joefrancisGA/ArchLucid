@@ -7,7 +7,7 @@ namespace ArchLucid.Application.Analysis;
 public sealed class ConsultingDocxProfileRecommendation
 {
     /// <summary>
-    ///     Machine-readable name of the recommended profile (e.g. <c>executive</c>, <c>regulated</c>).
+    ///     Machine-readable name of the recommended profile (e.g. <c>sponsor</c>, <c>regulated</c>).
     ///     Matches a <see cref="ConsultingDocxTemplateProfileInfo.ProfileName" /> from the catalog.
     /// </summary>
     public string RecommendedProfileName
@@ -17,7 +17,7 @@ public sealed class ConsultingDocxProfileRecommendation
     } = string.Empty;
 
     /// <summary>
-    ///     Human-readable display name of the recommended profile (e.g. <c>Executive Brief</c>).
+    ///     Human-readable display name of the recommended profile (e.g. <c>Sponsor Brief</c>).
     /// </summary>
     public string RecommendedProfileDisplayName
     {

@@ -1,9 +1,9 @@
-namespace ArchLucid.Application.WeeklyExecutiveSummary;
+namespace ArchLucid.Application.WeeklySponsorReport;
 
 /// <summary>Global schedule for automated weekly run-summary one-pager emails to commercial tenants.</summary>
-public sealed class WeeklyExecutiveSummaryOptions
+public sealed class WeeklySponsorReportOptions
 {
-    public const string SectionName = "WeeklyExecutiveSummary";
+    public const string SectionName = "WeeklySponsorReport";
 
     public bool Enabled
     {

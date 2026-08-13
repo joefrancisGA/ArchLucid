@@ -19,7 +19,7 @@ using Microsoft.Extensions.Options;
 namespace ArchLucid.Api.Controllers.Tenancy;
 
 /// <summary>
-///     Per-tenant ROI cost assumptions used when computing <c>EstimatedUsdSavings</c> on pilot deltas and executive ROI
+///     Per-tenant ROI cost assumptions used when computing <c>EstimatedUsdSavings</c> on pilot deltas and sponsor ROI
 ///     summaries.
 /// </summary>
 [ApiController]

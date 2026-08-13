@@ -11,7 +11,7 @@ const userAssertions = {
 
 describe("parseArchitectureGeneratedContent", () => {
   it("maps markdown headings into structured sections", () => {
-    const source = `## Executive summary
+    const source = `## Sponsor report
 A governed claims intake platform for enterprise analysts.
 
 ## Business outcome
@@ -24,7 +24,7 @@ Reduce manual triage time and improve auditability.
     const result = parseArchitectureGeneratedContent(source, userAssertions);
     const keys = result.sections.map((section) => section.key);
 
-    expect(keys).toContain("executive-summary");
+    expect(keys).toContain("sponsor-report");
     expect(keys).toContain("business-outcome");
     expect(keys).toContain("systems-and-services");
     expect(result.sections.find((section) => section.key === "business-outcome")?.provenance).toBe("asserted");
@@ -82,19 +82,19 @@ alpha|beta|gamma|delta|epsilon|zeta`;
 
   it("summarizes very long narrative sections without losing source text", () => {
     const longParagraph = Array.from({ length: 260 }, (_, index) => `word${index}`).join(" ");
-    const source = `## Executive summary\n${longParagraph}`;
+    const source = `## Sponsor report\n${longParagraph}`;
     const result = parseArchitectureGeneratedContent(source, null);
-    const summary = result.sections.find((section) => section.key === "executive-summary");
+    const summary = result.sections.find((section) => section.key === "sponsor-report");
 
     expect(summary?.narrativeMarkdown?.split(/\s+/).length ?? 0).toBeGreaterThan(200);
     expect(result.sourceText.length).toBeGreaterThan(1000);
   });
 
   it("normalizes escaped newlines before section parsing", () => {
-    const source = "## Executive summary\\n\\nGoverned claims intake.\\n\\n## Risks\\n\\n- Partner outage";
+    const source = "## Sponsor report\\n\\nGoverned claims intake.\\n\\n## Risks\\n\\n- Partner outage";
     const result = parseArchitectureGeneratedContent(source, null);
 
-    expect(result.sections.some((section) => section.key === "executive-summary")).toBe(true);
+    expect(result.sections.some((section) => section.key === "sponsor-report")).toBe(true);
     expect(result.sections.some((section) => section.key === "risks")).toBe(true);
     expect(result.sourceText).toContain("\\n");
   });

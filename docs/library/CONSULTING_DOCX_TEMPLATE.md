@@ -22,7 +22,7 @@ Document the **`ConsultingDocxTemplate`** and **`ConsultingDocxTemplateProfiles`
 |-----|------|
 | **`OrganizationName`**, **`DocumentTitle`**, **`SubtitleFormat`**, **`GeneratedByLine`** | Cover and header copy. **`SubtitleFormat`** may include `{SystemName}` placeholders consumed by the export pipeline. |
 | **`PrimaryColorHex`**, **`SecondaryColorHex`**, **`AccentFillHex`**, **`BodyColorHex`**, **`SubtleColorHex`** | Theme colors for headings, tables, and body text in the generated document. |
-| **`IncludeDocumentControl`**, **`IncludeTableOfContents`**, section `Include*` flags | Boolean gates for major document sections (executive summary, evidence, governance, appendices, etc.). |
+| **`IncludeDocumentControl`**, **`IncludeTableOfContents`**, section `Include*` flags | Boolean gates for major document sections (sponsor summary, evidence, governance, appendices, etc.). |
 | **`IncludeLogo`**, **`LogoPath`** | Optional logo embedding; when **`IncludeLogo`** is false, **`LogoPath`** is ignored. |
 | **`ExecutiveSummaryTextTemplate`**, **`ArchitectureOverviewIntro`**, **`ConclusionsText`** | Narrative templates; placeholders such as `{SystemName}`, `{OrganizationName}`, and aggregate counts (`{ServiceCount}`, etc.) are substituted at export time. |
 
@@ -32,7 +32,7 @@ Binding type: **`ConsultingDocxTemplateOptions`** (`ArchLucid.Api.Configuration`
 
 | Key | Role |
 |-----|------|
-| **`Profiles`** | Map of profile id → **`ConsultingDocxTemplateProfileOptions`** (e.g. `internal`, `executive`). Each profile can override colors, titles, which sections to include, and audience-facing metadata (`ProfileDisplayName`, `IntendedAudience`, **`DisplayOrder`**). |
+| **`Profiles`** | Map of profile id → **`ConsultingDocxTemplateProfileOptions`** (e.g. `internal`, `sponsor`). Each profile can override colors, titles, which sections to include, and audience-facing metadata (`ProfileDisplayName`, `IntendedAudience`, **`DisplayOrder`**). |
 
 Resolution is handled by **`IConsultingDocxTemplateProfileResolver`** / **`DefaultConsultingDocxTemplateProfileResolver`**: API and export flows pick a profile (often from request or consulting export selector) and merge with the base template.
 

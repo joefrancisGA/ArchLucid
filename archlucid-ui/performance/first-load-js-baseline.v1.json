@@ -24,7 +24,7 @@
     "/architecture/reviews/[runId]": {
       "firstLoadJsKb": 1883.4
     },
-    "/architecture/executive-dashboard": {
+    "/architecture/sponsor-dashboard": {
       "firstLoadJsKb": 1489.3
     },
     "/governance/signed-records": {

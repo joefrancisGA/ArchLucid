@@ -83,7 +83,7 @@ public static partial class ServiceCollectionExtensions
             services.AddHostedService<AgentResultBlobCleanupHostedService>();
     }
 
-    private static void RegisterExecutiveRoiCacheWarmupHostedService(
+    private static void RegisterSponsorRoiCacheWarmupHostedService(
         IServiceCollection services,
         IConfiguration configuration,
         ArchLucidHostingRole hostingRole)
@@ -91,17 +91,17 @@ public static partial class ServiceCollectionExtensions
         if (hostingRole is not ArchLucidHostingRole.Combined and not ArchLucidHostingRole.Worker)
             return;
 
-        ExecutiveRoiCacheWarmupOptions opts =
-            configuration.GetSection(ExecutiveRoiCacheWarmupOptions.SectionPath).Get<ExecutiveRoiCacheWarmupOptions>()
-            ?? new ExecutiveRoiCacheWarmupOptions();
+        SponsorRoiCacheWarmupOptions opts =
+            configuration.GetSection(SponsorRoiCacheWarmupOptions.SectionPath).Get<SponsorRoiCacheWarmupOptions>()
+            ?? new SponsorRoiCacheWarmupOptions();
 
         if (!opts.Enabled)
             return;
 
-        services.AddHostedService<ExecutiveRoiCacheWarmupHostedService>();
+        services.AddHostedService<SponsorRoiCacheWarmupHostedService>();
     }
 
-    private static void RegisterExecutiveRoiSavingsGaugeHostedService(
+    private static void RegisterSponsorRoiSavingsGaugeHostedService(
         IServiceCollection services,
         IConfiguration configuration,
         ArchLucidHostingRole hostingRole)
@@ -109,14 +109,14 @@ public static partial class ServiceCollectionExtensions
         if (hostingRole is not ArchLucidHostingRole.Combined and not ArchLucidHostingRole.Worker)
             return;
 
-        ExecutiveRoiSavingsGaugeOptions opts =
-            configuration.GetSection(ExecutiveRoiSavingsGaugeOptions.SectionPath).Get<ExecutiveRoiSavingsGaugeOptions>()
-            ?? new ExecutiveRoiSavingsGaugeOptions();
+        SponsorRoiSavingsGaugeOptions opts =
+            configuration.GetSection(SponsorRoiSavingsGaugeOptions.SectionPath).Get<SponsorRoiSavingsGaugeOptions>()
+            ?? new SponsorRoiSavingsGaugeOptions();
 
         if (!opts.Enabled)
             return;
 
-        services.AddHostedService<ExecutiveRoiSavingsGaugeHostedService>();
+        services.AddHostedService<SponsorRoiSavingsGaugeHostedService>();
     }
 
     private static void RegisterArchitectureProjectRetentionPurgeHostedService(

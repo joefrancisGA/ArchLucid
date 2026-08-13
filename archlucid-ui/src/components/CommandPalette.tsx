@@ -32,7 +32,7 @@ import { COMMAND_PALETTE_ACTIONS } from "@/lib/command-palette-actions";
 import { COMMAND_PALETTE_CURATED_TASKS } from "@/lib/command-palette-curated-tasks";
 import { DOCUMENTATION_SEARCH_ITEMS, resolveDocumentationHref } from "@/lib/docs-search-index";
 import { NAV_GROUPS } from "@/lib/nav-config";
-import { isExecutiveDashboardPath } from "@/lib/executive-dashboard-route";
+import { isSponsorDashboardPath } from "@/lib/sponsor-dashboard-route";
 import { resetBuyerCtoDemoSession } from "@/lib/buyer/buyer-cto-demo-orchestration";
 import {
   ARCHLUCID_BUYER_CTO_DEMO_TOUR_START_EVENT,
@@ -87,7 +87,7 @@ function buyerPolishedCommandPaletteLabel(pathname: string): string {
     /^\/architecture\/reviews\/[^/]+(?:\/|$)/u.test(path) ||
     /^\/signed-records\/[^/]/u.test(path) ||
     /^\/architecture\/reviews\/[^/]+\/architecture/u.test(path) ||
-    /^\/executive\/reviews\/[^/]/u.test(path);
+    /^\/sponsor\/reviews\/[^/]/u.test(path);
 
   if (reviewPackageSubtree) {
     return "Search this review";
@@ -584,7 +584,7 @@ export function CommandPalette({ showTrigger = false }: CommandPaletteProps) {
     }
 
     if (path.startsWith("/insights/ask-review-questions")) {
-      return "Jump to executive summary, signed review record, evidence trail, or governance…";
+      return "Jump to sponsor report, signed review record, evidence trail, or governance…";
     }
 
     if (path.startsWith("/insights/compare-two-reviews")) {
@@ -592,19 +592,19 @@ export function CommandPalette({ showTrigger = false }: CommandPaletteProps) {
     }
 
     if (path.startsWith("/audit")) {
-      return "Jump to executive summary, evidence graph, signed review record — or type a destination…";
+      return "Jump to sponsor report, evidence graph, signed review record — or type a destination…";
     }
 
     if (path.startsWith("/governance")) {
-      return "Jump to audit trail, findings, executive summary…";
+      return "Jump to audit trail, findings, sponsor report…";
     }
 
-    if (isExecutiveDashboardPath(path)) {
+    if (isSponsorDashboardPath(path)) {
       return "Jump to signed review record, evidence graph, audit…";
     }
 
     if (path.startsWith("/signed-records") || path.includes("/architecture")) {
-      return "Jump to executive summary, graph, governance…";
+      return "Jump to sponsor report, graph, governance…";
     }
 
     return "Find another page in this review…";

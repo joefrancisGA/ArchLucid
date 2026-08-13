@@ -1,14 +1,14 @@
 using ArchLucid.Contracts.Architecture;
 
-namespace ArchLucid.Application.ExecutiveSummary;
+namespace ArchLucid.Application.SponsorReport;
 
 /// <summary>
-///     Aggregates raw architectural findings into high-level executive scores.
+///     Aggregates raw architectural findings into high-level sponsor scores.
 /// </summary>
-public interface IExecutiveSummaryService
+public interface ISponsorReportService
 {
     /// <summary>
-    ///     Generates an executive summary for the specified tenant based on their latest architecture run.
+    ///     Generates an Sponsor report for the specified tenant based on their latest architecture run.
     /// </summary>
-    Task<ExecutiveSummaryResponse> GenerateSummaryAsync(Guid tenantId, CancellationToken cancellationToken = default);
+    Task<SponsorReportResponse> GenerateSummaryAsync(Guid tenantId, CancellationToken cancellationToken = default);
 }

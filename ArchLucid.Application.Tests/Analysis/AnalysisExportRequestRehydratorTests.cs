@@ -30,13 +30,13 @@ public sealed class AnalysisExportRequestRehydratorTests
         RunExportRecord record = new()
         {
             ExportRecordId = "e1",
-            AnalysisRequestJson = """{"templateProfile":"executive","includeEvidence":true}"""
+            AnalysisRequestJson = """{"templateProfile":"sponsor","includeEvidence":true}"""
         };
 
         PersistedAnalysisExportRequest? result = AnalysisExportRequestRehydrator.Rehydrate(record);
 
         result.Should().NotBeNull();
-        result!.TemplateProfile.Should().Be("executive");
+        result!.TemplateProfile.Should().Be("sponsor");
         result.IncludeEvidence.Should().BeTrue();
     }
 

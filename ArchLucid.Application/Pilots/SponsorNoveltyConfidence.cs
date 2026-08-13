@@ -1,7 +1,7 @@
 namespace ArchLucid.Application.Pilots;
 
 /// <summary>
-///     Sponsor-safe novelty confidence for first-value and executive exports — not blind-validation scores.
+///     Sponsor-safe novelty confidence for first-value and sponsor exports — not blind-validation scores.
 /// </summary>
 public enum SponsorNoveltyConfidence
 {

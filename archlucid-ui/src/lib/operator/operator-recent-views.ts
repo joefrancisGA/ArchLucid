@@ -4,7 +4,7 @@
 
 import { BUYER_TERMINOLOGY } from "@/lib/vocabulary/buyer-surface-vocabulary";
 import { GOVERNANCE_AUDIT_PATH } from "@/lib/governance/governance-route-paths";
-import { isExecutiveDashboardPath } from "@/lib/executive/executive-dashboard-route";
+import { isSponsorDashboardPath } from "@/lib/sponsor/sponsor-dashboard-route";
 import { OPERATOR_NAV_LINK_LABELS } from "@/lib/i18n";
 
 export const OPERATOR_RECENT_VIEWS_STORAGE_KEY = "archlucid.operatorRecentViews.v1";
@@ -109,7 +109,7 @@ export function recentViewLabelFromPathname(pathname: string): string | null {
     return "Audit trail";
   }
 
-  if (isExecutiveDashboardPath(path)) {
+  if (isSponsorDashboardPath(path)) {
     return BUYER_TERMINOLOGY.portfolioOverview;
   }
 

@@ -1,6 +1,6 @@
 import type { FindingDispositionKind } from "@/lib/api/governance-stickiness-api";
 
-/** Sponsor packet section that maps disposition to projected USD buckets (ExecutiveReviewPacketComposer). */
+/** Sponsor packet section that maps disposition to projected USD buckets (SponsorReviewPacketComposer). */
 export const DISPOSITION_EXPORT_IMPACT_SPONSOR_ROI_SECTION_HEADING = "ROI basis by disposition";
 
 export type DispositionExportImpactSurface = "signed_review_record" | "sponsor_packet" | "audit_trail";
@@ -48,7 +48,7 @@ export function dispositionExportSponsorRoiBucketLabel(disposition: FindingDispo
   return sponsorRoiBucketForDisposition(disposition).bucketLabel;
 }
 
-/** Export consequences for a finding disposition — aligned to executive review packet ROI buckets (TB-2184). */
+/** Export consequences for a finding disposition — aligned to sponsor review packet ROI buckets (TB-2184). */
 export function getDispositionExportImpactLines(
   disposition: FindingDispositionKind,
 ): readonly DispositionExportImpactLine[] {
@@ -64,7 +64,7 @@ export function getDispositionExportImpactLines(
       surface: "sponsor_packet",
       included: sponsorRule.includedInSponsorPacket,
       detail: sponsorRule.includedInSponsorPacket
-        ? `Included — projected impact moves to the ${sponsorRule.bucketLabel} line in ${DISPOSITION_EXPORT_IMPACT_SPONSOR_ROI_SECTION_HEADING} on the executive review packet. ${SPONSOR_TOP_FINDINGS_DETAIL}`
+        ? `Included — projected impact moves to the ${sponsorRule.bucketLabel} line in ${DISPOSITION_EXPORT_IMPACT_SPONSOR_ROI_SECTION_HEADING} on the sponsor review packet. ${SPONSOR_TOP_FINDINGS_DETAIL}`
         : "Not included in sponsor packet ROI disposition buckets.",
     },
     {

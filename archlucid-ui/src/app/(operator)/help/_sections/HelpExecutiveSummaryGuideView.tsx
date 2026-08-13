@@ -1,10 +1,10 @@
 "use client";
 
 import Link from "next/link";
-import { HelpExecutiveSummaryPageHeader } from "@/app/(operator)/help/_sections/HelpExecutiveSummaryPageHeader";
+import { HelpSponsorReportPageHeader } from "@/app/(operator)/help/_sections/HelpSponsorReportPageHeader";
 import { HelpPilotRoiMeasurementSection } from "@/app/(operator)/help/_sections/HelpPilotRoiMeasurementSection";
 import { HelpTopicHashScroll } from "@/app/(operator)/help/HelpTopicHashScroll";
-import { ExecutiveSummaryHelpEvidenceOrientationStrip } from "@/components/help/ExecutiveSummaryHelpEvidenceOrientationStrip";
+import { SponsorReportHelpEvidenceOrientationStrip } from "@/components/help/SponsorReportHelpEvidenceOrientationStrip";
 import { HelpTopicTableOfContents } from "@/components/help/HelpTopicTableOfContents";
 import { MarketingAccessibilityMarkdownFragment } from "@/components/marketing/MarketingAccessibilityMarkdownFragment";
 import { Button } from "@/components/ui/button";
@@ -15,11 +15,11 @@ import {
   CardTitle,
 } from "@/components/ui/card";
 import {
-  EXECUTIVE_SUMMARY_HELP_OVERVIEW,
-  EXECUTIVE_SUMMARY_HELP_PRIMARY_ACTIONS,
-  executiveSummaryHelpPageSubtitle,
-} from "@/lib/executive-summary-help-guide-content";
-import { PILOT_ROI_MEASUREMENT_HELP_SECTION_TITLE } from "@/lib/executive/pilot-roi-measurement-help-guide-content";
+  SPONSOR_SUMMARY_HELP_OVERVIEW,
+  SPONSOR_SUMMARY_HELP_PRIMARY_ACTIONS,
+  SponsorReportHelpPageSubtitle,
+} from "@/lib/sponsor-report-help-guide-content";
+import { PILOT_ROI_MEASUREMENT_HELP_SECTION_TITLE } from "@/lib/sponsor/pilot-roi-measurement-help-guide-content";
 import { isBuyerPolishedOperatorShellEnv } from "@/lib/demo-ui-env";
 import {
   DESIGN_TOKENS,
@@ -37,14 +37,14 @@ import { HELP_PAGE_LAYOUT } from "@/lib/help/help-page-layout";
 import type { ProductDocumentationEntry } from "@/lib/product-documentation-registry";
 import { cn } from "@/lib/utils";
 
-type HelpExecutiveSummaryGuideViewProps = {
+type HelpSponsorReportGuideViewProps = {
   readonly entry: ProductDocumentationEntry;
   readonly markdown: string;
 };
 
-/** Buyer-safe executive summary orientation for `/help/executive-summary`. */
-export function HelpExecutiveSummaryGuideView(
-  props: HelpExecutiveSummaryGuideViewProps,
+/** Buyer-safe sponsor report orientation for `/help/sponsor-report`. */
+export function HelpSponsorReportGuideView(
+  props: HelpSponsorReportGuideViewProps,
 ): React.JSX.Element {
   const { entry, markdown } = props;
   const buyerPolishedShell = isBuyerPolishedOperatorShellEnv();
@@ -68,19 +68,19 @@ export function HelpExecutiveSummaryGuideView(
   return (
     <article
       className={cn(OPERATOR_LAYOUT.majorSectionGap, "w-full max-w-[72rem]")}
-      data-testid="help-executive-summary-guide"
+      data-testid="help-sponsor-report-guide"
     >
       <HelpTopicHashScroll />
 
-      <HelpExecutiveSummaryPageHeader
+      <HelpSponsorReportPageHeader
         entry={entry}
-        subtitle={executiveSummaryHelpPageSubtitle(buyerPolishedShell)}
+        subtitle={SponsorReportHelpPageSubtitle(buyerPolishedShell)}
       />
 
-      <ExecutiveSummaryHelpEvidenceOrientationStrip />
+      <SponsorReportHelpEvidenceOrientationStrip />
 
       <div className="space-y-4">
-        <Card data-testid="help-executive-summary-action-panel">
+        <Card data-testid="help-sponsor-report-action-panel">
           <CardHeader className={OPERATOR_CARD.header}>
             <CardTitle className={cn("text-lg", OPERATOR_TYPOGRAPHY.sectionTitle)}>
               Open sponsor outputs
@@ -88,24 +88,24 @@ export function HelpExecutiveSummaryGuideView(
           </CardHeader>
           <CardContent className={cn(OPERATOR_CARD.content, "flex flex-wrap items-center gap-2")}>
             <Button asChild size="sm" variant="primary">
-              <Link href={EXECUTIVE_SUMMARY_HELP_PRIMARY_ACTIONS.openExecutiveValueReport.href}>
-                {EXECUTIVE_SUMMARY_HELP_PRIMARY_ACTIONS.openExecutiveValueReport.label}
+              <Link href={SPONSOR_SUMMARY_HELP_PRIMARY_ACTIONS.openSponsorValueReport.href}>
+                {SPONSOR_SUMMARY_HELP_PRIMARY_ACTIONS.openSponsorValueReport.label}
               </Link>
             </Button>
             <Button asChild size="sm" variant="outline">
-              <Link href={EXECUTIVE_SUMMARY_HELP_PRIMARY_ACTIONS.openExecutiveDashboard.href}>
-                {EXECUTIVE_SUMMARY_HELP_PRIMARY_ACTIONS.openExecutiveDashboard.label}
+              <Link href={SPONSOR_SUMMARY_HELP_PRIMARY_ACTIONS.openSponsorDashboard.href}>
+                {SPONSOR_SUMMARY_HELP_PRIMARY_ACTIONS.openSponsorDashboard.label}
               </Link>
             </Button>
             <Link
-              href={EXECUTIVE_SUMMARY_HELP_PRIMARY_ACTIONS.pilotRoiModel.href}
+              href={SPONSOR_SUMMARY_HELP_PRIMARY_ACTIONS.pilotRoiModel.href}
               className={cn(
                 "text-sm underline-offset-2 hover:underline",
                 DESIGN_TOKENS.accent.link,
                 OPERATOR_TYPOGRAPHY.body,
               )}
             >
-              {EXECUTIVE_SUMMARY_HELP_PRIMARY_ACTIONS.pilotRoiModel.label}
+              {SPONSOR_SUMMARY_HELP_PRIMARY_ACTIONS.pilotRoiModel.label}
             </Link>
           </CardContent>
         </Card>
@@ -113,14 +113,14 @@ export function HelpExecutiveSummaryGuideView(
 
       <div className={HELP_PAGE_LAYOUT.contentGrid}>
         <div className={cn("min-w-0 space-y-6", "max-w-[42rem] lg:max-w-none")}>
-          <p className={cn("m-0", OPERATOR_TYPOGRAPHY.body)} data-testid="help-executive-summary-overview">
-            {EXECUTIVE_SUMMARY_HELP_OVERVIEW}
+          <p className={cn("m-0", OPERATOR_TYPOGRAPHY.body)} data-testid="help-sponsor-report-overview">
+            {SPONSOR_SUMMARY_HELP_OVERVIEW}
           </p>
 
           {preparedSponsorBrief.trim().length > 0 ? (
             <div
               className={HELP_PAGE_LAYOUT.contentColumn}
-              data-testid="help-executive-summary-content"
+              data-testid="help-sponsor-report-content"
             >
               <MarketingAccessibilityMarkdownFragment
                 markdownBody={sponsorBriefRaw}

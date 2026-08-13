@@ -21,7 +21,7 @@ describe("help-topic-permanent-redirect-cases (Batch S)", () => {
 
     expect(howItWorks?.targetPath).toBe("/help/getting-started");
     expect(howItWorks?.targetHash).toBe("#how-archlucid-works");
-    expect(productOverview?.targetPath).toBe("/help/executive-summary");
+    expect(productOverview?.targetPath).toBe("/help/sponsor-report");
     expect(productOverview?.targetHash).toBe("#what-archlucid-is");
   });
 

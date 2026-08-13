@@ -89,7 +89,7 @@ function renderMetadataField(field: ReviewMetadataField): React.JSX.Element {
   );
 }
 
-/** Customer-facing review header — title and review identity without repeating executive metrics. */
+/** Customer-facing review header — title and review identity without repeating sponsor metrics. */
 export function RunDetailWorkspaceHeader(props: RunDetailWorkspaceHeaderProps): React.JSX.Element {
   const h1Title = clampReviewWorkspaceH1Title(props.h1Title);
   const metadataFields = buildReviewMetadataFields(props);

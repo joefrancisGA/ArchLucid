@@ -2,7 +2,7 @@
 
 Thin Next.js App Router UI for the ArchLucid architect experience. The default job of the UI is to help a team move from an architecture request to a reviewable, defensible output quickly through the **Pilot** path, then expand into **Operate** only when needed.
 
-**Canonical buyer narrative:** For sponsor-facing and outward buyer messaging, start with [../docs/go-to-market/EXECUTIVE_SPONSOR_BRIEF.md](../docs/go-to-market/EXECUTIVE_SPONSOR_BRIEF.md). This UI README explains architect workspace flow and implementation-facing shaping; it is not the primary buyer summary. **Measurement companion:** [../docs/PILOT_ROI_MODEL.md](../docs/library/PILOT_ROI_MODEL.md).
+**Canonical buyer narrative:** For sponsor-facing and outward buyer messaging, start with [../docs/go-to-market/SPONSOR_SPONSOR_BRIEF.md](../docs/go-to-market/SPONSOR_SPONSOR_BRIEF.md). This UI README explains architect workspace flow and implementation-facing shaping; it is not the primary buyer summary. **Measurement companion:** [../docs/PILOT_ROI_MODEL.md](../docs/library/PILOT_ROI_MODEL.md).
 
 **Pilot first-value rule:** for most first pilots, stay on the **Pilot** path until request → finalize (API `commit`) → artifact review is working cleanly. Treat **Operate** as a follow-on maturity path, not a co-equal Day-1 proof.
 
@@ -141,7 +141,7 @@ This is a boundary-hardening step for clarity and operational accountability. It
 
 | Document | What it covers |
 |----------|---------------|
-| [Executive sponsor brief](../docs/go-to-market/EXECUTIVE_SPONSOR_BRIEF.md) | **Canonical buyer narrative:** what ArchLucid does, what a pilot proves, and why expansion matters. |
+| [Sponsor sponsor brief](../docs/go-to-market/SPONSOR_SPONSOR_BRIEF.md) | **Canonical buyer narrative:** what ArchLucid does, what a pilot proves, and why expansion matters. |
 | [Pilot ROI model](../docs/library/PILOT_ROI_MODEL.md) | **Measurement companion:** how to judge pilot success using scorecards and practical V1 measures without turning the ROI model into a second buyer story. |
 | [Operator decision guide](../docs/library/OPERATOR_DECISION_GUIDE.md) | **Which layer to use next:** stay narrow unless a real question requires expansion. |
 | [Commercial boundary hardening sequence](../docs/library/COMMERCIAL_BOUNDARY_HARDENING_SEQUENCE.md) | **What should harden first:** UI shaping → role-native boundaries → selective future commercialization. |

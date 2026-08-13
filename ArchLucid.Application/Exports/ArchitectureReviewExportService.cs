@@ -229,9 +229,9 @@ public sealed class ArchitectureReviewExportService(
         string title = string.IsNullOrWhiteSpace(documentModel.SystemName)
             ? "Architecture review"
             : documentModel.SystemName.Trim();
-        string summary = string.IsNullOrWhiteSpace(documentModel.ExecutiveSummary)
-            ? "No executive summary is available for this review."
-            : documentModel.ExecutiveSummary.Trim();
+        string summary = string.IsNullOrWhiteSpace(documentModel.SponsorReport)
+            ? "No Sponsor report is available for this review."
+            : documentModel.SponsorReport.Trim();
 
         StringBuilder html = new();
         html.AppendLine("<!DOCTYPE html>");

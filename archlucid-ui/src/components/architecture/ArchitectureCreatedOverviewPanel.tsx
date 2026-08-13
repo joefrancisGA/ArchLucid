@@ -24,7 +24,7 @@ import { OPERATOR_TYPOGRAPHY } from "@/lib/design-tokens";
 import type { ArchitectureWorkspaceTabId } from "@/lib/architecture/architecture-workspace-tabs";
 
 const OVERVIEW_SECTION_KEYS: readonly ArchitectureStructuredSectionKey[] = [
-  "executive-summary",
+  "sponsor-report",
   "business-outcome",
   "risks",
   "constraints",
@@ -34,7 +34,7 @@ const OVERVIEW_SECTION_KEYS: readonly ArchitectureStructuredSectionKey[] = [
 ];
 
 const OVERVIEW_DEFAULT_OPEN_KEYS: ReadonlySet<ArchitectureStructuredSectionKey> = new Set([
-  "executive-summary",
+  "sponsor-report",
   "business-outcome",
   "risks",
   "constraints",
@@ -50,7 +50,7 @@ export type ArchitectureCreatedOverviewPanelProps = {
   readonly submittedArchitectureSection: React.ReactNode;
 };
 
-/** Overview tab — executive architecture narrative without operational chrome. */
+/** Overview tab — sponsor architecture narrative without operational chrome. */
 export function ArchitectureCreatedOverviewPanel(
   props: ArchitectureCreatedOverviewPanelProps,
 ): React.JSX.Element {

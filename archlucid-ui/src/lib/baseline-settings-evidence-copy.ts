@@ -14,9 +14,9 @@ export const BASELINE_SETTINGS_SOURCES_INTRO =
 
 /** Operator Sources - no self-href to `/administration/baseline`. */
 export const BASELINE_SETTINGS_SOURCES: readonly EvidenceSourceLink[] = [
-  { label: "Pilot ROI measurement", href: inAppHelpHref("executive-summary", "pilot-roi-measurement") },
+  { label: "Pilot ROI measurement", href: inAppHelpHref("sponsor-report", "pilot-roi-measurement") },
   { label: "Architecture scorecard", href: "/insights/architecture-scorecard" },
   { label: "ROI summary", href: "/insights/roi-summary" },
-  { label: "Sponsor report", href: "/insights/executive-summary" },
+  { label: "Sponsor report", href: "/insights/sponsor-report" },
   { label: "Billing & plans", href: "/administration/billing" },
 ] as const;

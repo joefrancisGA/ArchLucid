@@ -238,8 +238,8 @@ Merge-blocking check: `python scripts/ci/assert_route_tier_policy_nav.py` after 
 | `Planning/ProvenanceQueryController.cs` | `/v1/authority` | standard | ReadAuthority |  |  |
 | `Planning/RetrievalController.cs` | `/v1/retrieval` | standard | ReadAuthority | /insights/search-review-evidence |  |
 | `RegistrationController.cs` | `/v1/register` | none | AllowAnonymous |  | registration_public_flow |
-| `Reports/ExecutiveSummaryController.cs` | `/v1/reports/executive-summary` | none | ReadAuthority |  |  |
-| `Roi/RoiController.cs` | `/v1/roi` | none | ReadAuthority | /architecture/executive-dashboard |  |
+| `Reports/ExecutiveSummaryController.cs` | `/v1/reports/sponsor-summary` | none | ReadAuthority |  |  |
+| `Roi/RoiController.cs` | `/v1/roi` | none | ReadAuthority | /architecture/sponsor-dashboard |  |
 | `Scim/ScimDiscoveryController.cs` | `/scim/v2` | none | ScimWrite |  | scim_idp_automation |
 | `Scim/ScimGroupsController.cs` | `/scim/v2/Groups` | none | ScimWrite |  | scim_idp_automation |
 | `Scim/ScimUsersController.cs` | `/scim/v2/Users` | none | ScimWrite |  | scim_idp_automation |
@@ -263,7 +263,7 @@ Merge-blocking check: `python scripts/ci/assert_route_tier_policy_nav.py` after 
 | `Tenancy/TenantWorkspaceBaselineArtifactsController.cs` | `/v1/tenant/workspace-baseline-artifacts` | none | Authorize |  |  |
 | `Tenancy/TenantWorkspacesController.cs` | `/v1/tenant/workspaces` | none | Authorize |  |  |
 | `User/UserPreferencesController.cs` | `/v1/user/preferences` | standard | AuthenticatedUserOnly |  |  |
-| `ValueReports/ValueReportController.cs` | `/v1/value-report` | standard | ExecuteAuthority | /insights/executive-summary |  |
+| `ValueReports/ValueReportController.cs` | `/v1/value-report` | standard | ExecuteAuthority | /insights/sponsor-summary |  |
 | `VersionController.cs` | `/version` | none | AllowAnonymous |  | unversioned_version_probe |
 | `Webhooks/OutboundWebhookDryRunController.cs` | `/v1/webhooks` | none | ExecuteAuthority |  |  |
 | `Webhooks/WebhooksController.cs` | `/v1/webhooks/subscriptions` | standard | ReadAuthority |  |  |

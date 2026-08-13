@@ -9,7 +9,7 @@ import {
 } from "@/lib/sponsor-plain-english-finding";
 
 export type SponsorRehearsalSectionId =
-  | "executive-summary"
+  | "sponsor-report"
   | "key-findings-plain-english"
   | "residual-risks"
   | "what-is-excluded";
@@ -23,9 +23,9 @@ export type SponsorRehearsalSection = {
 
 export type SponsorRehearsalPreviewInput = {
   readonly packageTitle?: string | null;
-  /** Explicit executive summary text when already composed for export. */
-  readonly executiveSummary?: string | null;
-  /** Working synopsis paragraph (TB-2183) used when executiveSummary is absent. */
+  /** Explicit sponsor report text when already composed for export. */
+  readonly SponsorReport?: string | null;
+  /** Working synopsis paragraph (TB-2183) used when SponsorReport is absent. */
   readonly synopsisParagraph?: string | null;
   readonly findings?: readonly SponsorPlainEnglishFindingInput[] | null;
   /** Extra residual-risk lines beyond finding residualRisk fields. */
@@ -35,14 +35,14 @@ export type SponsorRehearsalPreviewInput = {
 };
 
 export const SPONSOR_REHEARSAL_SECTION_ORDER: readonly SponsorRehearsalSectionId[] = [
-  "executive-summary",
+  "sponsor-report",
   "key-findings-plain-english",
   "residual-risks",
   "what-is-excluded",
 ] as const;
 
 export const SPONSOR_REHEARSAL_SECTION_TITLES: Record<SponsorRehearsalSectionId, string> = {
-  "executive-summary": "Executive summary",
+  "sponsor-report": "Sponsor report",
   "key-findings-plain-english": "Key findings (plain English)",
   "residual-risks": "Residual risks",
   "what-is-excluded": "What is excluded",
@@ -51,8 +51,8 @@ export const SPONSOR_REHEARSAL_SECTION_TITLES: Record<SponsorRehearsalSectionId,
 export const SPONSOR_REHEARSAL_CAUTION =
   "Preview as sponsor — rehearsal only. Not the signed export packet. Empty sections mean that content is not available on this surface yet.";
 
-const EMPTY_EXECUTIVE =
-  "No executive summary or working sponsor synopsis is available yet for this review.";
+const EMPTY_SPONSOR =
+  "No sponsor report or working sponsor synopsis is available yet for this review.";
 const EMPTY_FINDINGS =
   "No key findings are available to paraphrase for a sponsor on this surface yet.";
 const EMPTY_RESIDUAL =
@@ -66,8 +66,8 @@ function nonEmpty(value: string | null | undefined): string | null {
   return trimmed.length > 0 ? trimmed : null;
 }
 
-function buildExecutiveSummaryBody(input: SponsorRehearsalPreviewInput): { body: string; isEmpty: boolean } {
-  const explicit = nonEmpty(input.executiveSummary);
+function buildSponsorReportBody(input: SponsorRehearsalPreviewInput): { body: string; isEmpty: boolean } {
+  const explicit = nonEmpty(input.SponsorReport);
 
   if (explicit !== null) {
     return { body: explicit, isEmpty: false };
@@ -82,7 +82,7 @@ function buildExecutiveSummaryBody(input: SponsorRehearsalPreviewInput): { body:
     return { body: `${prefix}${synopsis}`, isEmpty: false };
   }
 
-  return { body: EMPTY_EXECUTIVE, isEmpty: true };
+  return { body: EMPTY_SPONSOR, isEmpty: true };
 }
 
 function buildKeyFindingsBody(input: SponsorRehearsalPreviewInput): { body: string; isEmpty: boolean } {
@@ -153,7 +153,7 @@ export type SponsorRehearsalPreview = {
 /** Builds the fixed four-section sponsor rehearsal preview. */
 export function buildSponsorRehearsalPreview(input: SponsorRehearsalPreviewInput): SponsorRehearsalPreview {
   const builders: Record<SponsorRehearsalSectionId, () => { body: string; isEmpty: boolean }> = {
-    "executive-summary": () => buildExecutiveSummaryBody(input),
+    "sponsor-report": () => buildSponsorReportBody(input),
     "key-findings-plain-english": () => buildKeyFindingsBody(input),
     "residual-risks": () => buildResidualRisksBody(input),
     "what-is-excluded": () => buildExcludedBody(input),

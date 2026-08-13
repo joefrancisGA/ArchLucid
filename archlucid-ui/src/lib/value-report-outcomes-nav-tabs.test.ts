@@ -8,7 +8,7 @@ import {
 import {
   RETIRED_PILOT_OUTCOMES_PATH,
   SPONSOR_REPORT_ARCHITECTURE_SCORECARD_PATH,
-  SPONSOR_REPORT_EXECUTIVE_SUMMARY_PATH,
+  SPONSOR_REPORT_PATH,
   SPONSOR_REPORT_PAGE_TITLE,
   SPONSOR_REPORT_ROI_SUMMARY_PATH,
 } from "@/lib/sponsor-report-navigation";
@@ -24,7 +24,7 @@ describe("value-report-outcomes-nav-tabs", () => {
     const visible = resolveVisibleValueReportOutcomesTabs(false);
 
     expect(visible.map((tab) => tab.href)).toEqual([
-      SPONSOR_REPORT_EXECUTIVE_SUMMARY_PATH,
+      SPONSOR_REPORT_PATH,
       SPONSOR_REPORT_ROI_SUMMARY_PATH,
       SPONSOR_REPORT_ARCHITECTURE_SCORECARD_PATH,
     ]);
@@ -32,7 +32,7 @@ describe("value-report-outcomes-nav-tabs", () => {
   });
 
   it("detects outcomes surfaces on canonical sponsor report routes", () => {
-    expect(isValueReportOutcomesSurface(SPONSOR_REPORT_EXECUTIVE_SUMMARY_PATH)).toBe(true);
+    expect(isValueReportOutcomesSurface(SPONSOR_REPORT_PATH)).toBe(true);
     expect(isValueReportOutcomesSurface("/insights/architecture-scorecard")).toBe(true);
     expect(isValueReportOutcomesSurface("/value-report/pilot")).toBe(false);
     expect(isValueReportOutcomesSurface("/architecture/reviews")).toBe(false);

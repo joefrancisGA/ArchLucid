@@ -22,7 +22,7 @@ Ship a pack covering **FinOps principles applied to LLM and AI workloads** — t
 | A3 | Architecture evidence: per-consumer token limits documented in `governance.PolicyConstraints` or services tags; model routing strategy in `services[]` relationships; semantic cache in `services[]` (separate caching service entry). | Manifest schema. |
 | A4 | **Kill-switch** = a mechanism to automatically halt LLM spending when a cost threshold is exceeded. ArchLucid has its own (`killSwitchThresholdPercent` in `budget.config.json`). Rules require a kill-switch or budget-alert mechanism to be architecturally documented. | Internal precedent. |
 | A5 | Pack #7 (`cost-optimization`) covers general Azure resource cost optimization. This pack is AI/LLM-specific — token-level economics that pack #7 has no rules for. | Non-duplication. |
-| A6 | `ai-gateway` (AI-08) covers gateway-level token-limit policy enforcement. This pack covers the architectural **design** of token budgets and cost governance — tenant-level, workload-level, and executive visibility. | Adjacent pack boundary. |
+| A6 | `ai-gateway` (AI-08) covers gateway-level token-limit policy enforcement. This pack covers the architectural **design** of token budgets and cost governance — tenant-level, workload-level, and sponsor visibility. | Adjacent pack boundary. |
 
 ---
 
@@ -74,7 +74,7 @@ llm-finops-rules-v1.json → manifest → Seeder
 | `llm-cost-budget-` | Per-consumer / per-tenant token budgets (budget definition, monitoring, alert thresholds) | 5 | P0-heavy |
 | `llm-cost-route-` | Model-tier routing (primary/fallback model documented, tier selection criteria, cost-vs-quality routing) | 4 | P0/P1 |
 | `llm-cost-cache-` | Semantic caching design (cache strategy documented, TTL policy, cache bypass rules) | 4 | P1 |
-| `llm-cost-kill-` | Kill-switch and circuit-breaker (hard spend limit, automatic suspension, executive alert) | 4 | P0-heavy |
+| `llm-cost-kill-` | Kill-switch and circuit-breaker (hard spend limit, automatic suspension, sponsor alert) | 4 | P0-heavy |
 | `llm-cost-alloc-` | Cost allocation and tagging (per-workload cost tags, showback / chargeback design, FOCUS-aligned tagging) | 4 | P1 |
 | `llm-cost-batch-` | Batch vs realtime optimization (batch endpoint vs realtime, async request design for cost reduction) | 3 | P1/P2 |
 | **Total** | | **~24 rules** | |

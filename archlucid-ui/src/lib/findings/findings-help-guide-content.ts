@@ -271,7 +271,7 @@ export const FINDINGS_HELP_GOVERNANCE_ITEMS = [
   "Severe unresolved findings may require explicit approval or an exception.",
   "Policy and standards results provide context for each finding.",
   "Decisions and exceptions become part of the audit trail.",
-  "Material findings may appear in executive and governance reporting.",
+  "Material findings may appear in sponsor and governance reporting.",
 ] as const;
 
 export type FindingsHelpRoleGuidance = {
@@ -294,7 +294,7 @@ export const FINDINGS_HELP_ROLE_GUIDANCE: readonly FindingsHelpRoleGuidance[] = 
     guidance: "Records decisions, approvals, exceptions, and escalation requirements.",
   },
   {
-    role: "Executive or sponsor",
+    role: "Sponsor or sponsor",
     guidance: "Reviews material risk, unresolved exposure, and decision status.",
   },
 ] as const;
