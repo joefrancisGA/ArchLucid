@@ -3,6 +3,8 @@ import type { EvidenceSourceLink } from "@/lib/evidence-surface-copy";
 
 export const CLOUD_CONNECTIONS_CANONICAL_PATH = "/integrations/cloud-connections" as const;
 
+export const CLOUD_CONNECTIONS_HELP_TOPIC_LABEL = "How cloud connections work" as const;
+
 export const CLOUD_CONNECTIONS_CLAIM_DISCIPLINE =
   "Provider status tiles and evidence-only upload summarize connection readiness for read-only collection — they are not a signed-review diligence Sources package by themselves. Open Connection status or a provider guide before treating inventory as authoritative.";
 

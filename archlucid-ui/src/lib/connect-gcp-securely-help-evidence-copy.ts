@@ -3,6 +3,8 @@ import type { EvidenceSourceLink } from "@/lib/evidence-surface-copy";
 
 export const CONNECT_GCP_SECURELY_CANONICAL_PATH = "/help/cloud-connections/gcp" as const;
 
+export const CONNECT_GCP_SECURELY_HELP_TOPIC_LABEL = "How GCP cloud connection works" as const;
+
 export const CONNECT_GCP_SECURELY_CLAIM_DISCIPLINE =
   "This guide explains how to attach GCP with Workload Identity Federation and Cloud Asset Viewer scope — it is connector setup orientation, not a signed-review diligence Sources package. Open Assurance status or the live Cloud connections hub before treating setup guidance as assurance evidence.";
 

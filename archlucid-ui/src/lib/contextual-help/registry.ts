@@ -14,6 +14,7 @@ import { ADMINISTRATION_CONTEXTUAL_HELP_ROWS, SETTINGS_HUB_CONTEXTUAL_HELP } fro
 import { API_KEYS_CONTEXTUAL_HELP_ROWS } from "@/lib/contextual-help/api-keys-rows";
 import { AZURE_BOARDS_INTEGRATION_CONTEXTUAL_HELP_ROWS } from "@/lib/contextual-help/azure-boards-integration-rows";
 import { BASELINE_SETTINGS_CONTEXTUAL_HELP_ROWS } from "@/lib/contextual-help/baseline-settings-rows";
+import { CLOUD_CONNECTIONS_INTEGRATION_CONTEXTUAL_HELP_ROWS } from "@/lib/contextual-help/cloud-connections-integration-rows";
 import { ARCHITECTURE_CONTEXTUAL_HELP_ROWS } from "@/lib/contextual-help/architecture-rows";
 import { ARCHITECTURE_DRAFTS_CONTEXTUAL_HELP_ROWS } from "@/lib/contextual-help/architecture-drafts-rows";
 import { APPROVAL_LINEAGE_CONTEXTUAL_HELP_ROWS } from "@/lib/contextual-help/approval-lineage-rows";
@@ -78,6 +79,7 @@ const PAGE_CONTEXTUAL_HELP: readonly PageContextualHelpRow[] = [
   ...APPROVAL_QUEUE_CONTEXTUAL_HELP_ROWS,
   ...AZURE_BOARDS_INTEGRATION_CONTEXTUAL_HELP_ROWS,
   ...BASELINE_SETTINGS_CONTEXTUAL_HELP_ROWS,
+  ...CLOUD_CONNECTIONS_INTEGRATION_CONTEXTUAL_HELP_ROWS,
   ...COMPARISON_REPLAY_CONTEXTUAL_HELP_ROWS,
   ...DIGESTS_CONTEXTUAL_HELP_ROWS,
   ...ENTERPRISE_ONBOARDING_CONTEXTUAL_HELP_ROWS,

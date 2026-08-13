@@ -5,6 +5,10 @@ import { describe, expect, it } from "vitest";
 
 import { OPERATOR_INTEGRATIONS_PAGE_HELP_TB1669_SURFACES } from "@/lib/operator/operator-integrations-page-help-surfaces";
 import { isGenericLearnMoreSlug } from "@/lib/learn-more-job-match-inventory";
+import { AZURE_PERMISSIONS_HELP_TOPIC_LABEL } from "@/lib/azure-permissions-help-evidence-copy";
+import { CLOUD_CONNECTIONS_HELP_TOPIC_LABEL } from "@/lib/cloud-connections-evidence-copy";
+import { CONNECT_AWS_SECURELY_HELP_TOPIC_LABEL } from "@/lib/connect-aws-securely-help-evidence-copy";
+import { CONNECT_GCP_SECURELY_HELP_TOPIC_LABEL } from "@/lib/connect-gcp-securely-help-evidence-copy";
 import { PATTERN_LIBRARY_HELP_TOPIC_LABEL } from "@/lib/pattern-library-evidence-copy";
 import { pageHelpTopicForPathname } from "@/lib/usability/page-help-topic-map";
 
@@ -62,9 +66,13 @@ describe("operator-integrations-page-help-surfaces (TB-1669)", () => {
 
   it("cloud provider children map to provider-specific topics (TB-1669)", () => {
     expect(pageHelpTopicForPathname("/integrations/cloud-connections/azure")?.slug).toBe("azure-permissions");
+    expect(pageHelpTopicForPathname("/integrations/cloud-connections/azure")?.label).toBe(AZURE_PERMISSIONS_HELP_TOPIC_LABEL);
     expect(pageHelpTopicForPathname("/integrations/cloud-connections/aws")?.slug).toBe("cloud-connections-aws");
+    expect(pageHelpTopicForPathname("/integrations/cloud-connections/aws")?.label).toBe(CONNECT_AWS_SECURELY_HELP_TOPIC_LABEL);
     expect(pageHelpTopicForPathname("/integrations/cloud-connections/gcp")?.slug).toBe("cloud-connections-gcp");
+    expect(pageHelpTopicForPathname("/integrations/cloud-connections/gcp")?.label).toBe(CONNECT_GCP_SECURELY_HELP_TOPIC_LABEL);
     expect(pageHelpTopicForPathname("/integrations/cloud-connections")?.slug).toBe("cloud-connections");
+    expect(pageHelpTopicForPathname("/integrations/cloud-connections")?.label).toBe(CLOUD_CONNECTIONS_HELP_TOPIC_LABEL);
   });
 
   it("integration product pages map to integration-readiness or product topics (TB-1669)", () => {

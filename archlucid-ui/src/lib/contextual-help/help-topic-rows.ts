@@ -386,70 +386,6 @@ export const HELP_TOPIC_CONTEXTUAL_HELP_ROWS: readonly PageContextualHelpRow[] =
     },
   },
   {
-    prefix: "/help/cloud-connections/azure",
-    entry: {
-      whatIsThisPage:
-        "Connect Azure securely — workload identity federation, read-only roles, and validation without long-lived secrets.",
-      whatToDoNext:
-        "Follow the federation steps, then open the Azure cloud connection wizard to validate the attachment.",
-      whyEmpty: "This guide is always available; live Azure connection status appears on the Cloud connections hub.",
-      whereToConfigurePrerequisite:
-        "Azure attachment is optional — evidence-only reviews work without a cloud connector.",
-    },
-  },
-  {
-    prefix: "/help/cloud-connections/aws",
-    entry: {
-      whatIsThisPage:
-        "Connect AWS securely — OIDC-federated read-only IAM, Resource Explorer inventory, and validation without long-lived access keys.",
-      whatToDoNext:
-        "Follow the federation steps, then open the AWS cloud connection settings to validate the attachment.",
-      whyEmpty: "This guide is always available; live AWS connection status appears on the Cloud connections hub.",
-      whereToConfigurePrerequisite:
-        "AWS attachment is optional — evidence-only reviews work without a cloud connector.",
-      whatToDoNextAction: {
-        label: "Open AWS connection settings",
-        href: "/integrations/cloud-connections/aws",
-      },
-      whereToConfigureAction: {
-        label: "Open Cloud connections help",
-        href: "/help/cloud-connections",
-      },
-    },
-  },
-  {
-    prefix: "/help/cloud-connections/gcp",
-    entry: {
-      whatIsThisPage:
-        "Connect GCP securely — Workload Identity Federation, Cloud Asset Viewer, project scope, and validation without service-account JSON keys.",
-      whatToDoNext:
-        "Follow the federation steps, then open the GCP cloud connection settings to validate the attachment.",
-      whyEmpty: "This guide is always available; live GCP connection status appears on the Cloud connections hub.",
-      whereToConfigurePrerequisite:
-        "GCP attachment is optional — evidence-only reviews work without a cloud connector.",
-      whatToDoNextAction: {
-        label: "Open GCP connection settings",
-        href: "/integrations/cloud-connections/gcp",
-      },
-      whereToConfigureAction: {
-        label: "Open Cloud connections help",
-        href: "/help/cloud-connections",
-      },
-    },
-  },
-  {
-    prefix: "/help/azure-permissions",
-    entry: {
-      whatIsThisPage:
-        "Azure permissions — read-only roles, scopes, and verification steps for ArchLucid cloud connections.",
-      whatToDoNext:
-        "Open Cloud connections to configure Azure, or Connect Azure securely when you need the federation walkthrough.",
-      whyEmpty: "This guide is always available; live permission checks appear after you configure an Azure connection.",
-      whereToConfigurePrerequisite:
-        "Assigning Azure roles needs cloud-admin authority in the target subscription.",
-    },
-  },
-  {
     prefix: "/help/glossary",
     entry: {
       whatIsThisPage:
@@ -471,18 +407,6 @@ export const HELP_TOPIC_CONTEXTUAL_HELP_ROWS: readonly PageContextualHelpRow[] =
       whyEmpty: "This guide is always available; live directory rows appear after users are invited or provisioned.",
       whereToConfigurePrerequisite:
         "Managing users needs Admin authority; SSO may be required before invited users can sign in.",
-    },
-  },
-  {
-    prefix: "/help/cloud-connections",
-    entry: {
-      whatIsThisPage:
-        "Cloud connections help — how optional Azure, AWS, and GCP connectors supply read-only evidence for reviews.",
-      whatToDoNext:
-        "Open the Cloud connections hub to configure a provider, or read Connect Azure securely for federation steps.",
-      whyEmpty: "This guide is always available; live connection status appears on the Cloud connections hub.",
-      whereToConfigurePrerequisite:
-        "Cloud connectors are optional — evidence-only reviews work without attaching a cloud account.",
     },
   },
 ];

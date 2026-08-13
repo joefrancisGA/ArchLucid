@@ -4,6 +4,8 @@ import type { EvidenceSourceLink } from "@/lib/evidence-surface-copy";
 
 export type CloudProviderConnectionKey = "aws" | "azure" | "gcp";
 
+export const CONNECT_AZURE_SECURELY_HELP_TOPIC_LABEL = "How Azure cloud connection works" as const;
+
 export const CLOUD_PROVIDER_CONNECTION_PATHS: Record<CloudProviderConnectionKey, string> = {
   aws: "/integrations/cloud-connections/aws",
   azure: "/integrations/cloud-connections/azure",

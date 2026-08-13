@@ -1,4 +1,33 @@
+import { inAppHelpHref } from "@/lib/product-documentation-registry";
+
 export const AZURE_PERMISSIONS_HELP_CANONICAL_PATH = "/help/azure-permissions" as const;
+
+export const AZURE_PERMISSIONS_HELP_TOPIC_LABEL = "How Azure permissions work" as const;
+
+export type AzurePermissionsHelpJobMatrixRow = {
+  readonly label: string;
+  readonly when: string;
+  readonly href?: string;
+  readonly isCurrent?: boolean;
+};
+
+/** TB-1629 — explicit job split vs Connect Azure securely. */
+export const AZURE_PERMISSIONS_HELP_JOB_MATRIX_HEADING = "Which Azure help guide?";
+
+export const AZURE_PERMISSIONS_HELP_JOB_MATRIX_TEST_ID = "help-azure-permissions-job-matrix";
+
+export const AZURE_PERMISSIONS_HELP_JOB_MATRIX: readonly AzurePermissionsHelpJobMatrixRow[] = [
+  {
+    label: "Connect Azure securely",
+    href: inAppHelpHref("cloud-connections-azure"),
+    when: "Federated trust setup, connection validation, and security model — start from the Azure connection page",
+  },
+  {
+    label: "This Azure permissions guide",
+    when: "Role assignments, scope limits, collected data, and permission troubleshooting",
+    isCurrent: true,
+  },
+] as const;
 
 /** TB-1626 — first-viewport configure/verify entry point for `/help/azure-permissions`. */
 export const AZURE_PERMISSIONS_HELP_PRIMARY_SETUP_ACTION = {
