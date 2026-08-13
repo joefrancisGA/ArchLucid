@@ -96,7 +96,6 @@ vi.mock("./governance-workflow-deferred-chunks", async () => {
   const buyerStrip = await import("@/components/cto-demo/CtoDemoBuyerValueStrip");
   const segregation = await import("@/components/cto-demo/CtoDemoSegregationCallout");
   const previewHint = await import("@/components/OperateCapabilityHints");
-  const quickstart = await import("@/components/governance/GovernanceInteractiveQuickstartContent");
   const storyCard = await import("@/components/governance/GovernanceApprovalStoryCard");
   const advancedOptions = await import("@/components/AdvancedOptionsAccordion");
 
@@ -111,7 +110,6 @@ vi.mock("./governance-workflow-deferred-chunks", async () => {
     CtoDemoBuyerValueStripDeferred: buyerStrip.CtoDemoBuyerValueStrip,
     CtoDemoSegregationCalloutDeferred: segregation.CtoDemoSegregationCallout,
     CtoDemoGovernancePreviewHintDeferred: previewHint.CtoDemoGovernancePreviewHint,
-    GovernanceInteractiveQuickstartContentDeferred: quickstart.GovernanceInteractiveQuickstartContent,
     GovernanceApprovalStoryCardDeferred: storyCard.GovernanceApprovalStoryCard,
     AdvancedOptionsAccordionDeferred: advancedOptions.AdvancedOptionsAccordion,
   };
@@ -213,8 +211,10 @@ describe("GovernanceWorkflowPageContent buyer-polished chrome (TB-1434)", () => 
       GOVERNANCE_WORKSPACE_HEALTH_HREF,
     );
     expect(screen.getByTestId("layer-header-collapsible-guidance")).toBeInTheDocument();
-    expect(screen.getByTestId("governance-interactive-quickstart")).toBeInTheDocument();
+    expect(screen.queryByTestId("governance-interactive-quickstart")).not.toBeInTheDocument();
     expect(screen.queryAllByText("How governance approvals work")).toHaveLength(1);
+    expect(screen.queryByTestId("governance-sample-overview-banner")).not.toBeInTheDocument();
+    expect(screen.getByTestId("governance-overview-summary-authority")).toBeInTheDocument();
     expect(screen.queryByTestId("inline-guidance-governance-overview-next")).not.toBeInTheDocument();
     expect(screen.queryByTestId("governance-overview-submit-action")).not.toBeInTheDocument();
   });

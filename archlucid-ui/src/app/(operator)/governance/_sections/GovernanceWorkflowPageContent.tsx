@@ -11,8 +11,6 @@ import { MutationErrorBoundary } from "@/components/MutationErrorBoundary";
 import { OperatorApiProblem } from "@/components/operator/OperatorApiProblem";
 import { Separator } from "@/components/ui/separator";
 import { InlineGuidanceLabel } from "@/components/InlineGuidanceLabel";
-import { ApprovalLineageQueueVocabularyRail } from "@/components/ApprovalLineageQueueVocabularyRail";
-import { PackageGovernanceApprovalQueueVocabularyRail } from "@/components/PackageGovernanceApprovalQueueVocabularyRail";
 import { GovernanceJobRouterStrip } from "@/components/governance/GovernanceJobRouterStrip";
 import { OperatorPageHeader } from "@/components/operator/OperatorPageHeader";
 import { PageContextualHelpButton } from "@/components/usability/PageContextualHelpButton";
@@ -23,9 +21,10 @@ import { useGovernanceWorkflowRunListsQuery } from "@/hooks/use-governance-workf
 import { useOperateCapability } from "@/hooks/use-operate-capability";
 import { toApiLoadFailure } from "@/lib/api-load-failure";
 import { DESIGN_TOKENS, OPERATOR_LINK, OPERATOR_TYPOGRAPHY } from "@/lib/design-tokens";
-import { isBuyerPolishedOperatorShellEnv } from "@/lib/demo-ui-env";
+import { isBuyerPolishedOperatorShellEnv, isNextPublicDemoMode } from "@/lib/demo-ui-env";
 import { canonicalizeDemoRunId } from "@/lib/demo-run-canonical";
 import {
+  isStaticDemoPayloadFallbackEnabled,
   STATIC_DEMO_GOVERNANCE_FALLBACK_STATUS,
   warnStaticDemoPayloadFallbackOutsidePackagedDeployOnce,
 } from "@/lib/operator/operator-static-demo";
@@ -36,6 +35,7 @@ import {
   GOVERNANCE_OVERVIEW_PAGE_TITLE,
   GOVERNANCE_OVERVIEW_SAMPLE_CONTEXT_LABEL,
   GOVERNANCE_OVERVIEW_SAMPLE_CONTEXT_LINE,
+  GOVERNANCE_OVERVIEW_SAMPLE_OVERVIEW_LINE,
   GOVERNANCE_OVERVIEW_WORKSPACE_HEALTH_LINK_LABEL,
   governanceOverviewPageLead,
   GOVERNANCE_REVIEW_CONTEXT_PAGE_LEAD,
@@ -68,7 +68,6 @@ import {
   CtoDemoGovernancePreviewHintDeferred,
   CtoDemoSegregationCalloutDeferred,
   GovernanceApprovalStoryCardDeferred,
-  GovernanceInteractiveQuickstartContentDeferred,
   GovernanceOverviewPanelDeferred,
   GovernanceReviewContextBarDeferred,
   GovernanceWorkflowApprovalsListDeferred,
@@ -76,6 +75,7 @@ import {
   GovernanceWorkflowPromotionsActivationsSectionDeferred,
   GovernanceWorkflowSubmitSectionDeferred,
 } from "./governance-workflow-deferred-chunks";
+import type { FocusSubmitSectionResult } from "./governance-focus-submit-result";
 import type { GovernanceWorkflowPendingReview } from "./governance-workflow-helpers";
 import {
   GOVERNANCE_APPROVAL_DECISION_RECORD_TITLE,
@@ -84,6 +84,8 @@ import {
   GOVERNANCE_APPROVAL_REQUESTS_SECTION_TITLE,
   governanceWorkflowOutcomeLineForPhase,
 } from "@/lib/governance/governance-workflow-section-copy";
+
+export type { FocusSubmitSectionResult } from "./governance-focus-submit-result";
 
 export function GovernanceWorkflowPageContent() {
   const router = useRouter();
@@ -95,6 +97,7 @@ export function GovernanceWorkflowPageContent() {
   const submitSectionRef = useRef<HTMLDivElement | null>(null);
   const approvalsSectionRef = useRef<HTMLElement | null>(null);
   const deepLinkFocusHandledRef = useRef<string | null>(null);
+  const pendingOverviewSubmitScrollRunIdRef = useRef<string | null>(null);
 
   const [submitRunId, setSubmitRunId] = useState("");
   const [submitManifestVersion, setSubmitManifestVersion] = useState("");
@@ -129,6 +132,8 @@ export function GovernanceWorkflowPageContent() {
   const isShowcaseSampleContext =
     isReviewContext &&
     canonicalizeDemoRunId(activeRunId) === canonicalizeDemoRunId(SHOWCASE_STATIC_DEMO_RUN_ID);
+  const showGovernanceSampleOverviewBanner =
+    !isReviewContext && (isNextPublicDemoMode() || isStaticDemoPayloadFallbackEnabled());
   const approvalWorkflowState = deriveGovernanceApprovalWorkflowState({
     activeRunId,
     approvals,
@@ -271,6 +276,26 @@ export function GovernanceWorkflowPageContent() {
     return () => window.clearTimeout(handle);
   }, [searchParams, listsLoading, activeRunId, approvalWorkflowState.phase]);
 
+  useEffect(() => {
+    const pendingRunId = pendingOverviewSubmitScrollRunIdRef.current;
+
+    if (pendingRunId === null || !isReviewContext || activeRunId !== pendingRunId) {
+      return;
+    }
+
+    if (listsLoading) {
+      return;
+    }
+
+    pendingOverviewSubmitScrollRunIdRef.current = null;
+
+    const handle = window.setTimeout(() => {
+      submitSectionRef.current?.scrollIntoView({ behavior: "smooth", block: "start" });
+    }, 50);
+
+    return () => window.clearTimeout(handle);
+  }, [isReviewContext, activeRunId, listsLoading]);
+
   const focusPendingApprovals = useCallback((): void => {
     if (!isReviewContext) {
       return;
@@ -279,18 +304,28 @@ export function GovernanceWorkflowPageContent() {
     approvalsSectionRef.current?.scrollIntoView({ behavior: "smooth", block: "start" });
   }, [isReviewContext]);
 
-  const focusSubmitSection = useCallback((): void => {
+  const focusSubmitSection = useCallback((): FocusSubmitSectionResult => {
     const selectedRunId = queryRunId.trim();
 
-    if (!isReviewContext && selectedRunId.length > 0) {
+    if (selectedRunId.length === 0) {
+      return { kind: "blocked-empty-review" };
+    }
+
+    if (!isReviewContext) {
       setActiveRunId(selectedRunId);
       setSubmitRunId(selectedRunId);
+      replaceApprovalQueueUrl(selectedRunId);
+      pendingOverviewSubmitScrollRunIdRef.current = selectedRunId;
+
+      return { kind: "activated-review", runId: selectedRunId };
     }
 
     window.setTimeout(() => {
       submitSectionRef.current?.scrollIntoView({ behavior: "smooth", block: "start" });
     }, 0);
-  }, [isReviewContext, queryRunId]);
+
+    return { kind: "scrolled-to-submit" };
+  }, [isReviewContext, queryRunId, replaceApprovalQueueUrl]);
 
   async function onSubmitApproval() {
     if (!canMutateWorkflow) {
@@ -504,19 +539,6 @@ export function GovernanceWorkflowPageContent() {
     <MutationErrorBoundary title="Governance workflow failed to render">
     <TooltipProvider delayDuration={300}>
     <div className="w-full max-w-[1200px]">
-      <LayerHeader
-        pageKey="governance-workflow"
-        density="compact"
-        collapsibleGuidance={GOVERNANCE_OVERVIEW_HOW_IT_WORKS_TRIGGER}
-        collapsibleChildren={
-          !isReviewContext ? (
-            <GovernanceInteractiveQuickstartContentDeferred hideFirst30DaysLink={buyerPolishedShell} />
-          ) : undefined
-        }
-      />
-      {isReviewContext ? <CtoDemoBuyerValueStripDeferred stepIndex={3} /> : null}
-      {isReviewContext ? <CtoDemoSegregationCalloutDeferred /> : null}
-      {isReviewContext ? <CtoDemoGovernancePreviewHintDeferred /> : null}
       <OperatorPageHeader
         navHref="/governance/approval-queue"
         title={pageTitle}
@@ -537,9 +559,31 @@ export function GovernanceWorkflowPageContent() {
         }
         actions={overviewHeaderActions}
       />
-      <GovernanceJobRouterStrip currentJobId="approve-governance" />
-      <ApprovalLineageQueueVocabularyRail currentSurfaceId="approval-queue" />
-      <PackageGovernanceApprovalQueueVocabularyRail currentSurfaceId="approval-queue" />
+
+      <LayerHeader
+        pageKey="governance-workflow"
+        density="compact"
+        collapsibleGuidance={GOVERNANCE_OVERVIEW_HOW_IT_WORKS_TRIGGER}
+      />
+
+      {showGovernanceSampleOverviewBanner ? (
+        <p
+          className={cn(
+            "mb-4",
+            DESIGN_TOKENS.callout.warn,
+            OPERATOR_TYPOGRAPHY.body,
+          )}
+          data-testid="governance-sample-overview-banner"
+        >
+          <strong>{GOVERNANCE_OVERVIEW_SAMPLE_CONTEXT_LABEL}.</strong> {GOVERNANCE_OVERVIEW_SAMPLE_OVERVIEW_LINE}
+        </p>
+      ) : null}
+
+      {isReviewContext ? <CtoDemoBuyerValueStripDeferred stepIndex={3} /> : null}
+      {isReviewContext ? <CtoDemoSegregationCalloutDeferred /> : null}
+      {isReviewContext ? <CtoDemoGovernancePreviewHintDeferred /> : null}
+
+      {isReviewContext ? <GovernanceJobRouterStrip currentJobId="approve-governance" /> : null}
 
       {mutationSuccessMessage !== null ? (
         <OperatorSuccessCallout
