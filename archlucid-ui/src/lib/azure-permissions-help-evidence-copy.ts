@@ -16,6 +16,10 @@ export const AZURE_PERMISSIONS_HELP_JOB_MATRIX_HEADING = "Which Azure help guide
 
 export const AZURE_PERMISSIONS_HELP_JOB_MATRIX_TEST_ID = "help-azure-permissions-job-matrix";
 
+/** TB-1630 — Suspense fallback while connection query params hydrate. */
+export const AZURE_PERMISSIONS_HELP_CONNECTION_CONTEXT_LOADING_SKELETON_TEST_ID =
+  "azure-permissions-connection-context-loading-skeleton";
+
 export const AZURE_PERMISSIONS_HELP_JOB_MATRIX: readonly AzurePermissionsHelpJobMatrixRow[] = [
   {
     label: "Connect Azure securely",

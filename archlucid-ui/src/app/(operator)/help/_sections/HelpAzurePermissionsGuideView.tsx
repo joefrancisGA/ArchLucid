@@ -9,6 +9,7 @@ import { HelpTopicRegistryProvenanceLine } from "@/components/help/HelpTopicRegi
 import { HelpTopicHashScroll } from "@/app/(operator)/help/HelpTopicHashScroll";
 import { HelpAzurePermissionsHeaderActions } from "@/app/(operator)/help/_sections/HelpAzurePermissionsHeaderActions";
 import { HelpAzurePermissionsConnectionContext } from "@/app/(operator)/help/_sections/HelpAzurePermissionsConnectionContext";
+import { HelpAzurePermissionsConnectionContextLoadingSkeleton } from "@/app/(operator)/help/_sections/HelpAzurePermissionsConnectionContextLoadingSkeleton";
 import { HelpAzurePermissionsRequiredRolesSummary } from "@/app/(operator)/help/_sections/HelpAzurePermissionsRequiredRolesSummary";
 import { HelpAzurePermissionsSetupSection } from "@/app/(operator)/help/_sections/HelpAzurePermissionsSetupSection";
 import { HelpAzurePermissionsVerificationPanel } from "@/app/(operator)/help/_sections/HelpAzurePermissionsVerificationPanel";
@@ -260,7 +261,7 @@ export function HelpAzurePermissionsGuideView(props: HelpAzurePermissionsGuideVi
             className="scroll-mt-24 space-y-3 border-t border-neutral-200 pt-6 dark:border-neutral-800"
           >
             <HelpSectionHeading id="connection-context-heading">{AZURE_PERMISSIONS_CONNECTION_CONTEXT_HEADING}</HelpSectionHeading>
-            <Suspense fallback={<p className={cn("m-0", OPERATOR_TYPOGRAPHY.helper)}>Loading connection context…</p>}>
+            <Suspense fallback={<HelpAzurePermissionsConnectionContextLoadingSkeleton />}>
               <HelpAzurePermissionsConnectionContext />
             </Suspense>
           </section>

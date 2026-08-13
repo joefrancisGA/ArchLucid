@@ -17,11 +17,11 @@ Regenerate after opening or closing summary-table rows:
 | Deployability | 3 |
 | AI/Agent readiness | 11 |
 | Architectural integrity | 5 |
-| Adoption friction | 67 |
+| Adoption friction | 63 |
 | Commercial / marketability | 1 |
 | Cutting-edge AI | 3 |
 | Explainability | 3 |
-| Trustworthiness | 23 |
+| Trustworthiness | 22 |
 | Maintainability | 3 |
 | Interoperability | 4 |
 | Compliance readiness | 1 |
@@ -31,9 +31,9 @@ Regenerate after opening or closing summary-table rows:
 | Stickiness | 4 |
 | Differentiability | 3 |
 | Other / uncategorized | 7 |
-| **Total (unique open)** | **211** |
+| **Total (unique open)** | **206** |
 
-**By priority band:** P0 **13** | P1 **89** | P2 **93** | P3 **9** | unlabeled **7**.
+**By priority band:** P0 **13** | P1 **84** | P2 **93** | P3 **9** | unlabeled **7**.
 
 <!-- tech-backlog-open-by-category:end -->
 
