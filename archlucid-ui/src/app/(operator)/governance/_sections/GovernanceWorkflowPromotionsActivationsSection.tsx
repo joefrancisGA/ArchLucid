@@ -1,6 +1,6 @@
 import { cn } from "@/lib/utils";
 import { GettingStartedSteps } from "@/components/GettingStartedSteps";
-import { OperatorEmptyState } from "@/components/operator/OperatorShellMessage";
+import { EnterpriseCompactEmptyState } from "@/components/EnterpriseCompactEmptyState";
 import { Button } from "@/components/ui/button";
 import { Card, CardContent, CardFooter, CardHeader, CardTitle } from "@/components/ui/card";
 import { Tooltip, TooltipContent, TooltipTrigger } from "@/components/ui/tooltip";
@@ -34,6 +34,10 @@ import {
 } from "@/lib/governance/governance-workflow-release-copy";
 import type { ApiLoadFailureState } from "@/lib/api-load-failure";
 import { OPERATOR_TYPOGRAPHY } from "@/lib/design-tokens";
+import {
+  GOVERNANCE_WORKFLOW_NO_ACTIVATIONS_EMPTY_COMPACT,
+  GOVERNANCE_WORKFLOW_NO_PROMOTIONS_EMPTY_COMPACT,
+} from "@/lib/enterprise-compact-empty-state-presets";
 import { whyDisabledEnterpriseMutationControl } from "@/lib/why-disabled-cta";
 import type { GovernanceEnvironmentActivation, GovernancePromotionRecord } from "@/types/governance-workflow";
 import type { MutableRefObject } from "react";
@@ -96,20 +100,24 @@ export function GovernanceWorkflowPromotionsActivationsSection(
       />
 
       {!listsLoading && activeRunId !== null && promotions.length === 0 && listFailure === null ? (
-        <OperatorEmptyState title={GOVERNANCE_WORKFLOW_NO_RELEASES_RECORDED_TITLE}>
-          <div className="grid gap-3">
-            <p className={OPERATOR_TYPOGRAPHY.body}>
-              {canMutateWorkflow
-                ? governanceWorkflowPromotionsEmptyOperatorHint
-                : governanceWorkflowPromotionsEmptyReaderHint}
-            </p>
-            <GettingStartedSteps
-              {...(canMutateWorkflow
-                ? governancePromotionsEmptyGettingStartedOperator
-                : governancePromotionsEmptyGettingStartedReader)}
-            />
-          </div>
-        </OperatorEmptyState>
+        <EnterpriseCompactEmptyState
+          {...GOVERNANCE_WORKFLOW_NO_PROMOTIONS_EMPTY_COMPACT}
+          title={GOVERNANCE_WORKFLOW_NO_RELEASES_RECORDED_TITLE}
+          description={
+            <div className="grid gap-3">
+              <p className={OPERATOR_TYPOGRAPHY.body}>
+                {canMutateWorkflow
+                  ? governanceWorkflowPromotionsEmptyOperatorHint
+                  : governanceWorkflowPromotionsEmptyReaderHint}
+              </p>
+              <GettingStartedSteps
+                {...(canMutateWorkflow
+                  ? governancePromotionsEmptyGettingStartedOperator
+                  : governancePromotionsEmptyGettingStartedReader)}
+              />
+            </div>
+          }
+        />
       ) : null}
 
       <div className="mb-8 grid gap-3">
@@ -184,20 +192,23 @@ export function GovernanceWorkflowPromotionsActivationsSection(
       </h4>
 
       {!listsLoading && activeRunId !== null && activations.length === 0 && listFailure === null ? (
-        <OperatorEmptyState title="No activations recorded yet">
-          <div className="grid gap-3">
-            <p className={OPERATOR_TYPOGRAPHY.body}>
-              {canMutateWorkflow
-                ? governanceWorkflowActivationsEmptyOperatorHint
-                : governanceWorkflowActivationsEmptyReaderHint}
-            </p>
-            <GettingStartedSteps
-              {...(canMutateWorkflow
-                ? governanceActivationsEmptyGettingStartedOperator
-                : governanceActivationsEmptyGettingStartedReader)}
-            />
-          </div>
-        </OperatorEmptyState>
+        <EnterpriseCompactEmptyState
+          {...GOVERNANCE_WORKFLOW_NO_ACTIVATIONS_EMPTY_COMPACT}
+          description={
+            <div className="grid gap-3">
+              <p className={OPERATOR_TYPOGRAPHY.body}>
+                {canMutateWorkflow
+                  ? governanceWorkflowActivationsEmptyOperatorHint
+                  : governanceWorkflowActivationsEmptyReaderHint}
+              </p>
+              <GettingStartedSteps
+                {...(canMutateWorkflow
+                  ? governanceActivationsEmptyGettingStartedOperator
+                  : governanceActivationsEmptyGettingStartedReader)}
+              />
+            </div>
+          }
+        />
       ) : null}
 
       <div className="grid gap-3">

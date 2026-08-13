@@ -1,7 +1,8 @@
 import { cn } from "@/lib/utils";
 import { GettingStartedSteps } from "@/components/GettingStartedSteps";
+import { EnterpriseCompactEmptyState } from "@/components/EnterpriseCompactEmptyState";
 import { GovernanceQuickApproveButton } from "@/components/governance/GovernanceQuickApproveButton";
-import { OperatorEmptyState, OperatorLoadingNotice } from "@/components/operator/OperatorShellMessage";
+import { OperatorLoadingNotice } from "@/components/operator/OperatorShellMessage";
 import { StatusPill } from "@/components/StatusPill";
 import { Button } from "@/components/ui/button";
 import { Card, CardContent, CardDescription, CardFooter, CardHeader, CardTitle } from "@/components/ui/card";
@@ -35,6 +36,7 @@ import type { ApiLoadFailureState } from "@/lib/api-load-failure";
 import type { GovernanceApprovalRequest } from "@/types/governance-workflow";
 import type { MutableRefObject } from "react";
 import { OPERATOR_TYPOGRAPHY } from "@/lib/design-tokens";
+import { GOVERNANCE_WORKFLOW_NO_APPROVALS_EMPTY_COMPACT } from "@/lib/enterprise-compact-empty-state-presets";
 import { whyDisabledEnterpriseMutationControl } from "@/lib/why-disabled-cta";
 import {
   formatGovernanceBusinessInstant,
@@ -106,18 +108,21 @@ export function GovernanceWorkflowApprovalsList(props: GovernanceWorkflowApprova
       ) : null}
 
       {workflowState.phase === "no_requests" && listFailure === null ? (
-        <OperatorEmptyState title="No approval requests for this review">
-          <div className="grid gap-3">
-            <p className={OPERATOR_TYPOGRAPHY.body}>
-              {canMutateWorkflow ? governanceWorkflowNoApprovalsOperatorHint : governanceWorkflowNoApprovalsReaderHint}
-            </p>
-            <GettingStartedSteps
-              {...(canMutateWorkflow
-                ? governanceNoApprovalsGettingStartedOperator
-                : governanceNoApprovalsGettingStartedReader)}
-            />
-          </div>
-        </OperatorEmptyState>
+        <EnterpriseCompactEmptyState
+          {...GOVERNANCE_WORKFLOW_NO_APPROVALS_EMPTY_COMPACT}
+          description={
+            <div className="grid gap-3">
+              <p className={OPERATOR_TYPOGRAPHY.body}>
+                {canMutateWorkflow ? governanceWorkflowNoApprovalsOperatorHint : governanceWorkflowNoApprovalsReaderHint}
+              </p>
+              <GettingStartedSteps
+                {...(canMutateWorkflow
+                  ? governanceNoApprovalsGettingStartedOperator
+                  : governanceNoApprovalsGettingStartedReader)}
+              />
+            </div>
+          }
+        />
       ) : null}
 
       {approvals.length > 0 ? (

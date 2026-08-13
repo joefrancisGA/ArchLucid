@@ -4,6 +4,7 @@ import { extname, join, relative } from "node:path";
 import { describe, expect, it } from "vitest";
 
 import { OPERATOR_CENTERED_EMPTY_STATE_BASELINE_PATHS } from "@/lib/operator/operator-centered-empty-state-baseline";
+import { OPERATOR_OPERATOR_EMPTY_STATE_BASELINE_PATHS } from "@/lib/operator/operator-operator-empty-state-baseline";
 
 const SRC_ROOT = join(process.cwd(), "src");
 const OPERATOR_ROOT = join(SRC_ROOT, "app", "(operator)");
@@ -12,7 +13,14 @@ const CENTERED_EMPTY_STATE_BASELINE: ReadonlySet<string> = new Set(
   OPERATOR_CENTERED_EMPTY_STATE_BASELINE_PATHS,
 );
 
+const OPERATOR_EMPTY_STATE_BASELINE: ReadonlySet<string> = new Set(
+  OPERATOR_OPERATOR_EMPTY_STATE_BASELINE_PATHS,
+);
+
 const EMPTY_STATE_IMPORT_PATTERN = /from ["']@\/components\/EmptyState["']/;
+
+const OPERATOR_SHELL_MESSAGE_IMPORT_PATTERN =
+  /from ["']@\/components\/operator\/OperatorShellMessage["']/;
 
 function collectOperatorViews(directory: string): string[] {
   const collected: string[] = [];
@@ -51,6 +59,16 @@ function usesCenteredEmptyState(absolute: string): boolean {
   return /<EmptyState[\s/>]/.test(source);
 }
 
+function usesOperatorEmptyState(absolute: string): boolean {
+  const source = readFileSync(absolute, "utf8");
+
+  if (!OPERATOR_SHELL_MESSAGE_IMPORT_PATTERN.test(source)) {
+    return false;
+  }
+
+  return /<OperatorEmptyState[\s/>]/.test(source);
+}
+
 describe("operator empty states (TB-1556)", () => {
   it("keeps centered EmptyState usage inside the frozen baseline", () => {
     const offenders = collectOperatorViews(OPERATOR_ROOT)
@@ -65,6 +83,24 @@ describe("operator empty states (TB-1556)", () => {
   it("does not carry baseline entries that already migrated off centered EmptyState", () => {
     const stale = [...CENTERED_EMPTY_STATE_BASELINE]
       .filter((path) => !usesCenteredEmptyState(join(SRC_ROOT, path)))
+      .sort();
+
+    expect(stale).toEqual([]);
+  });
+
+  it("keeps OperatorEmptyState usage inside the frozen baseline", () => {
+    const offenders = collectOperatorViews(OPERATOR_ROOT)
+      .filter(usesOperatorEmptyState)
+      .map(toPosixRelativePath)
+      .filter((path) => !OPERATOR_EMPTY_STATE_BASELINE.has(path))
+      .sort();
+
+    expect(offenders).toEqual([]);
+  });
+
+  it("does not carry OperatorEmptyState baseline entries that already migrated", () => {
+    const stale = [...OPERATOR_EMPTY_STATE_BASELINE]
+      .filter((path) => !usesOperatorEmptyState(join(SRC_ROOT, path)))
       .sort();
 
     expect(stale).toEqual([]);

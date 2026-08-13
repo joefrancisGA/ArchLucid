@@ -27,13 +27,14 @@ import {
 } from "@/components/ui/select";
 import { SettingsRolesMatrixConfirmDialog } from "./SettingsRolesMatrixConfirmDialog";
 import { SeverityTag } from "@/components/ui/severity-tag";
-import { OperatorEmptyState } from "@/components/operator/OperatorShellMessage";
+import { EnterpriseCompactEmptyState } from "@/components/EnterpriseCompactEmptyState";
 import { GOVERNANCE_AUDIT_PATH } from "@/lib/governance/governance-route-paths";
 import { mergeRegistrationScopeForProxy } from "@/lib/proxy-fetch-registration-scope";
 import { roleClaimCaption, roleDisplayLabel } from "@/lib/role-display-labels";
 import { SETTINGS_USERS_USERS_TAB_PATH } from "@/lib/settings-admin-route-paths";
 import { showError, showSuccess } from "@/lib/toast";
 import { DESIGN_TOKENS, OPERATOR_LAYOUT, OPERATOR_NAV_GROUP_LABEL, OPERATOR_TYPOGRAPHY } from "@/lib/design-tokens";
+import { SETTINGS_ROLES_MATRIX_LOAD_FAILED_COMPACT } from "@/lib/enterprise-compact-empty-state-presets";
 
 import { CUSTOM_ROLE_PERMISSION_GROUPS, ALL_MATRIX_PERMISSION_IDS } from "./custom-role-permission-groups";
 import {
@@ -514,13 +515,14 @@ export function SettingsRolesMatrixSection(props: SettingsRolesMatrixSectionProp
   if (loadError) {
     return (
       <section data-testid="settings-roles-matrix" className="space-y-4">
-        <OperatorEmptyState
-          title="Role matrix unavailable"
-          description="Custom roles and permissions could not be loaded. Refresh to try again."
+        <EnterpriseCompactEmptyState
+          {...SETTINGS_ROLES_MATRIX_LOAD_FAILED_COMPACT}
+          footer={
+            <div className="flex flex-wrap gap-2">
+              <RefreshButton onClick={() => void load()} />
+            </div>
+          }
         />
-        <div className="flex flex-wrap gap-2">
-          <RefreshButton onClick={() => void load()} />
-        </div>
       </section>
     );
   }

@@ -310,6 +310,42 @@ export const GOVERNANCE_FINDINGS_LOAD_FAILED_COMPACT: EnterpriseCompactEmptyStat
   actions: [],
 };
 
+/** Governance workflow approvals list when the active review has no requests yet. */
+export const GOVERNANCE_WORKFLOW_NO_APPROVALS_EMPTY_COMPACT: EnterpriseCompactEmptyStateProps = {
+  testId: "governance-workflow-no-approvals",
+  title: "No approval requests for this review",
+  description: "",
+};
+
+/** Governance workflow promotions timeline when no releases exist for the selected review. */
+export const GOVERNANCE_WORKFLOW_NO_PROMOTIONS_EMPTY_COMPACT: EnterpriseCompactEmptyStateProps = {
+  testId: "governance-workflow-no-promotions",
+  title: "No governance releases recorded yet",
+  description: "",
+};
+
+/** Governance workflow activations list when no environment activations exist yet. */
+export const GOVERNANCE_WORKFLOW_NO_ACTIVATIONS_EMPTY_COMPACT: EnterpriseCompactEmptyStateProps = {
+  testId: "governance-workflow-no-activations",
+  title: "No activations recorded yet",
+  description: "",
+};
+
+/** Settings roles matrix load failure. */
+export const SETTINGS_ROLES_MATRIX_LOAD_FAILED_COMPACT: EnterpriseCompactEmptyStateProps = {
+  testId: "settings-roles-matrix-load-failed",
+  title: "Role matrix unavailable",
+  description: "Custom roles and permissions could not be loaded. Refresh to try again.",
+};
+
+/** Pending invitations panel load failure. */
+export const SETTINGS_ROLES_PENDING_INVITATIONS_LOAD_FAILED_COMPACT: EnterpriseCompactEmptyStateProps = {
+  testId: "settings-roles-pending-invitations-unavailable",
+  title: "Pending invitations unavailable",
+  description:
+    "ArchLucid could not load pending invitations for this workspace. Try again or check system health.",
+};
+
 /** Run detail deliverables panel before the review is finalized. */
 export const RUN_DELIVERABLES_PENDING_FINALIZE_COMPACT: EnterpriseCompactEmptyStateProps = {
   testId: "run-deliverables-pending-finalize-empty-state",

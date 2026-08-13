@@ -9,7 +9,6 @@ import { PageHeading } from "@/components/PageHeading";
 import { CollapsibleSection } from "@/components/CollapsibleSection";
 import { DemoWorkspaceCapabilityUnavailablePanel } from "@/components/DemoWorkspaceCapabilityUnavailablePanel";
 import { EnterpriseCompactEmptyState } from "@/components/EnterpriseCompactEmptyState";
-import { OperatorEmptyState } from "@/components/operator/OperatorShellMessage";
 import { ApiKeysUsersVocabularyRail } from "@/components/ApiKeysUsersVocabularyRail";
 import { CustomRolesUsersVocabularyRail } from "@/components/CustomRolesUsersVocabularyRail";
 import { ScimUsersVocabularyRail } from "@/components/ScimUsersVocabularyRail";
@@ -362,13 +361,16 @@ export function SettingsRolesPageView(props: Props) {
                     ) : null}
                     {!m.loading && isUsersNoteLoadFailure(m.usersNote) ? (
                       <div data-testid="settings-roles-api-note">
-                        <OperatorEmptyState
+                        <EnterpriseCompactEmptyState
+                          testId="settings-roles-users-load-failed"
                           title={settingsRolesEmptyStateTitle(m.usersNote, "users")}
                           description={settingsRolesEmptyStateDescription(m.usersNote, "users")}
+                          footer={
+                            <div className="flex flex-wrap gap-2">
+                              <RefreshButton busy={m.loading} onClick={() => void m.load()} />
+                            </div>
+                          }
                         />
-                        <div className="mt-4 flex flex-wrap gap-2">
-                          <RefreshButton busy={m.loading} onClick={() => void m.load()} />
-                        </div>
                       </div>
                     ) : null}
                     {!m.loading && m.usersNote === "empty_response" && userRows.length === 0 ? (
@@ -460,7 +462,8 @@ export function SettingsRolesPageView(props: Props) {
                 {m.loading ? <p className={cn("m-0 text-al-text-secondary", OPERATOR_TYPOGRAPHY.body)}>Loading…</p> : null}
                 {!m.loading && m.keysNote !== null && isKeysNoteLoadFailure(m.keysNote) ? (
                   <div data-testid="settings-roles-api-keys-note" className="space-y-4">
-                    <OperatorEmptyState
+                    <EnterpriseCompactEmptyState
+                      testId="settings-roles-api-keys-load-failed"
                       title={settingsRolesEmptyStateTitle(m.keysNote, "api_keys")}
                       description={settingsRolesEmptyStateDescription(m.keysNote, "api_keys")}
                     />

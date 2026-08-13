@@ -38,12 +38,11 @@ describe("operator-empty-state-migration-inventory (TB-1554)", () => {
     expect(new Set(ids).size).toBe(ids.length);
   });
 
-  it("keeps centered OperatorEmptyState rows explicitly justified", () => {
+  it("keeps centered-justified inventory rows explicit when present", () => {
     const justified = OPERATOR_EMPTY_STATE_MIGRATION_INVENTORY.filter(
       (entry) => entry.disposition === "centered-justified",
     );
 
-    expect(justified.length).toBeGreaterThanOrEqual(2);
-    expect(justified.some((entry) => entry.id === "governance-workflow-no-approvals")).toBe(true);
+    expect(justified).toEqual([]);
   });
 });

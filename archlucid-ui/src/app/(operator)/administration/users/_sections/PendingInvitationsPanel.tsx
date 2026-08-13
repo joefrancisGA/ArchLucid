@@ -5,7 +5,7 @@ import Link from "next/link";
 import { useCallback, useEffect, useMemo, useState } from "react";
 
 import { ConfirmationDialog } from "@/components/ConfirmationDialog";
-import { OperatorEmptyState } from "@/components/operator/OperatorShellMessage";
+import { EnterpriseCompactEmptyState } from "@/components/EnterpriseCompactEmptyState";
 import { TechnicalIdDisclosure } from "@/components/usability/TechnicalIdDisclosure";
 import { Button } from "@/components/ui/button";
 import {
@@ -25,6 +25,7 @@ import {
   type AdminUserInvitationRow,
 } from "@/lib/admin-user-invitations";
 import { OPERATOR_LINK, OPERATOR_TYPOGRAPHY } from "@/lib/design-tokens";
+import { SETTINGS_ROLES_PENDING_INVITATIONS_LOAD_FAILED_COMPACT } from "@/lib/enterprise-compact-empty-state-presets";
 import { GOVERNANCE_AUDIT_PATH } from "@/lib/governance/governance-route-paths";
 import { formatInstantForLocale } from "@/lib/locale-datetime";
 import { formatRelativeTime } from "@/lib/relative-time";
@@ -170,18 +171,15 @@ export function PendingInvitationsPanel({
 
   if (loadFailed) {
     return (
-      <div data-testid="settings-roles-pending-invitations-unavailable">
-        <OperatorEmptyState
-          title="Pending invitations unavailable"
-          description="ArchLucid could not load pending invitations for this workspace. Try again or check system health."
-        />
-        <div className="mt-4">
-          <RefreshButton variant="secondary" label="Retry" onClick={() => void load()} />
-        </div>
-        <div className="mt-4">
-          <PendingInvitationsAuditTrailFootnote />
-        </div>
-      </div>
+      <EnterpriseCompactEmptyState
+        {...SETTINGS_ROLES_PENDING_INVITATIONS_LOAD_FAILED_COMPACT}
+        footer={
+          <div className="space-y-4">
+            <RefreshButton variant="secondary" label="Retry" onClick={() => void load()} />
+            <PendingInvitationsAuditTrailFootnote />
+          </div>
+        }
+      />
     );
   }
 
