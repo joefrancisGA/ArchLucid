@@ -1,6 +1,12 @@
+import { EVIDENCE_ONLY_REVIEW_HELP_FAST_PATH_ANCHOR } from "@/lib/core-pilot-help-ia-dual";
 import { REVIEW_PACKAGES_HELP_LEGACY_ANCHOR_ALIASES } from "@/lib/review-packages-help-anchor-honesty-surfaces";
 
+const FIRST_ARCHITECTURE_REVIEW_HELP_HASH_ALIASES: Readonly<Record<string, string>> = {
+  "fast-path-evidence-only": EVIDENCE_ONLY_REVIEW_HELP_FAST_PATH_ANCHOR,
+};
+
 const HELP_TOPIC_HASH_ALIASES_BY_SLUG: Readonly<Record<string, Readonly<Record<string, string>>>> = {
+  "first-architecture-review": FIRST_ARCHITECTURE_REVIEW_HELP_HASH_ALIASES,
   "review-packages": REVIEW_PACKAGES_HELP_LEGACY_ANCHOR_ALIASES,
 };
 

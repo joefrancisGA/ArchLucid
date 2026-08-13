@@ -10,6 +10,11 @@ import {
   CORE_PILOT_HELP_OPTIONAL_PATHS_TITLE,
   CORE_PILOT_HELP_PRIMARY_ACTIONS,
 } from "@/lib/core-pilot-help-guide-content";
+import {
+  CORE_PILOT_HELP_FULL_REVIEW_PATH_HREF,
+  CORE_PILOT_HELP_IA_DUAL_INBOUND_LABEL,
+  EVIDENCE_ONLY_REVIEW_HELP_FAST_PATH_ANCHOR,
+} from "@/lib/core-pilot-help-ia-dual";
 import { cn } from "@/lib/utils";
 import {
   DESIGN_TOKENS,
@@ -65,7 +70,11 @@ export function CorePilotHelpPostStepperPanel(): React.JSX.Element {
               </div>
             </div>
 
-            <div className="space-y-3" data-testid="core-pilot-fast-path-panel">
+            <div
+              className={cn("space-y-3", OPERATOR_SHELL_SCROLL_OFFSET_CLASS)}
+              data-testid="core-pilot-fast-path-panel"
+              id={EVIDENCE_ONLY_REVIEW_HELP_FAST_PATH_ANCHOR}
+            >
               <h3 className={cn("m-0", OPERATOR_TYPOGRAPHY.cardTitle)}>Fast path: evidence-only review</h3>
               <Card className="border-neutral-200 dark:border-neutral-800">
                 <CardContent className={cn(OPERATOR_CARD.body, "space-y-3")}>
@@ -79,8 +88,18 @@ export function CorePilotHelpPostStepperPanel(): React.JSX.Element {
                     <li>Start the review, finalize the package, and export the sponsor briefing.</li>
                   </ol>
                   <p className={cn("m-0", OPERATOR_TYPOGRAPHY.body)}>
-                    <Link href="#first-review-path" className={cn(OPERATOR_LINK.inline, DESIGN_TOKENS.accent.link)}>
+                    <Link
+                      href={CORE_PILOT_HELP_PRIMARY_ACTIONS.startReview.href}
+                      className={cn(OPERATOR_LINK.inline, DESIGN_TOKENS.accent.link)}
+                    >
                       Start evidence-only review
+                    </Link>
+                    {" · "}
+                    <Link
+                      href={CORE_PILOT_HELP_FULL_REVIEW_PATH_HREF}
+                      className={cn(OPERATOR_LINK.inline, DESIGN_TOKENS.accent.link)}
+                    >
+                      {CORE_PILOT_HELP_IA_DUAL_INBOUND_LABEL}
                     </Link>
                   </p>
                 </CardContent>

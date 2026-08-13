@@ -11,17 +11,17 @@ Regenerate after opening or closing summary-table rows:
 
 | Architectural quality | Open |
 | --- | ---: |
-| Correctness | 9 |
+| Correctness | 6 |
 | Testability | 41 |
 | Reliability | 6 |
 | Deployability | 3 |
 | AI/Agent readiness | 9 |
 | Architectural integrity | 5 |
-| Adoption friction | 48 |
+| Adoption friction | 46 |
 | Commercial / marketability | 1 |
 | Cutting-edge AI | 3 |
 | Explainability | 3 |
-| Trustworthiness | 20 |
+| Trustworthiness | 16 |
 | Maintainability | 3 |
 | Interoperability | 4 |
 | Performance | 5 |
@@ -30,9 +30,9 @@ Regenerate after opening or closing summary-table rows:
 | Stickiness | 4 |
 | Differentiability | 3 |
 | Other / uncategorized | 7 |
-| **Total (unique open)** | **184** |
+| **Total (unique open)** | **175** |
 
-**By priority band:** P0 **13** | P1 **62** | P2 **93** | P3 **9** | unlabeled **7**.
+**By priority band:** P0 **9** | P1 **57** | P2 **93** | P3 **9** | unlabeled **7**.
 
 <!-- tech-backlog-open-by-category:end -->
 
@@ -41760,7 +41760,9 @@ Operators must read three intros before reaching the Trust Center link list.
 
 ## TB-1683 ? Evidence-only help ? IA dual with `/help/core-pilot` (P0)
 
-**Window:** V1 ? Adoption friction. **Status:** Not started. **Priority:** P0.
+**Window:** V1 ? Adoption friction. **Status:** **Done** 2026-08-13 ? Retired `core-pilot` / `evidence-only-review` aliases fold to `/help/first-architecture-review`; `HelpCorePilotJobMatrix` + `core-pilot-help-ia-dual.ts` split full five-step guide vs `#fast-path-evidence-only-review`; mutual cross-link from fast-path panel; Vitest TB-1683. **Priority:** P0.
+
+**Source:** Owner HEV ~42/100 2026-07-27 (folded into COR).
 
 **Problem:** Both topics source `CORE_PILOT.md`; core-pilot already has specialty chrome ? operators may open the wrong guide.
 

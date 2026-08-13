@@ -22,6 +22,13 @@ import {
 import { CORE_PILOT_HELP_CLAIM_DISCIPLINE } from "@/lib/core-pilot-help-evidence-copy";
 import { FIRST_ARCHITECTURE_REVIEW_HELP_PATH } from "@/lib/first-architecture-review-help-route";
 import { firstArchitectureReviewHelpCopyContainsBannedPattern } from "@/lib/first-architecture-review-help-banned-copy";
+import {
+  CORE_PILOT_HELP_IA_DUAL_HEADING,
+  CORE_PILOT_HELP_IA_DUAL_INBOUND_LABEL,
+  CORE_PILOT_HELP_JOB_MATRIX_TEST_ID,
+  EVIDENCE_ONLY_REVIEW_HELP_FAST_PATH_HREF,
+  EVIDENCE_ONLY_REVIEW_HELP_IA_DUAL_INBOUND_LABEL,
+} from "@/lib/core-pilot-help-ia-dual";
 import { resolveHelpTopicPermanentRedirect } from "@/lib/help/help-topic-permanent-redirects";
 import { getProductDocumentationEntry } from "@/lib/product-documentation-registry";
 
@@ -336,6 +343,32 @@ describe("HelpCorePilotGuideView", () => {
     expect(within(disclosure).getByTestId("core-pilot-fast-path-panel")).toBeInTheDocument();
     expect(within(disclosure).getByTestId("core-pilot-deferred-topics-panel")).toBeInTheDocument();
     expect(within(disclosure).getByText(/evidence-only review first/i)).toBeInTheDocument();
+  });
+
+  it("TB-1683: first-viewport job matrix links full review vs evidence-only fast path once each", () => {
+    if (entry === undefined) {
+      throw new Error("Expected first-architecture-review documentation entry.");
+    }
+
+    render(<HelpCorePilotGuideView entry={entry} />);
+
+    const firstViewport = screen.getByTestId("core-pilot-first-viewport");
+    const jobMatrix = within(firstViewport).getByTestId(CORE_PILOT_HELP_JOB_MATRIX_TEST_ID);
+
+    expect(within(jobMatrix).getByRole("heading", { name: CORE_PILOT_HELP_IA_DUAL_HEADING })).toBeInTheDocument();
+    expect(within(jobMatrix).getByText(/This first architecture review guide/i)).toBeInTheDocument();
+    expect(
+      within(jobMatrix).getByRole("link", { name: EVIDENCE_ONLY_REVIEW_HELP_IA_DUAL_INBOUND_LABEL }),
+    ).toHaveAttribute("href", EVIDENCE_ONLY_REVIEW_HELP_FAST_PATH_HREF);
+
+    const disclosure = screen.getByTestId("core-pilot-optional-paths-disclosure");
+    expect(
+      within(disclosure).getByRole("link", { name: CORE_PILOT_HELP_IA_DUAL_INBOUND_LABEL }),
+    ).toHaveAttribute("href", `${FIRST_ARCHITECTURE_REVIEW_HELP_PATH}#first-review-path`);
+    expect(within(disclosure).getByTestId("core-pilot-fast-path-panel")).toHaveAttribute(
+      "id",
+      "fast-path-evidence-only-review",
+    );
   });
 
   it("uses customer-facing deferral copy and closing CTAs", () => {
