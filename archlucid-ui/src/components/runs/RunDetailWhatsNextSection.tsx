@@ -29,7 +29,7 @@ export function RunDetailWhatsNextSection(props: RunDetailWhatsNextSectionProps)
         This review is committed. Review the findings, then plan your next architecture check.
       </p>
       <div className="flex flex-wrap items-center gap-2">
-        <Button type="button" asChild variant="default" size="sm" data-testid="run-detail-plan-next-review">
+        <Button type="button" asChild variant="outline" size="sm" data-testid="run-detail-plan-next-review">
           <Link href={planNextReviewHref}>Plan next review</Link>
         </Button>
         <Button type="button" asChild variant="outline" size="sm" data-testid="run-detail-compare-review">

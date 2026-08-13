@@ -5,13 +5,13 @@ import { PilotCommandCenterCard } from "@/components/usability/PilotCommandCente
 import { renderWithOperatorQuery } from "@/testing/render-with-operator-query";
 import {
   OPERATOR_HOME_COMMAND_CENTER_TAGLINE,
-  OPERATOR_HOME_EXPLORE_REVIEW_WALKTHROUGH_HEADING,
   OPERATOR_HOME_INTENT_CHOOSER_HEADING,
   OPERATOR_HOME_OPEN_SAMPLE_PACKAGE_CTA,
   OPERATOR_HOME_RESUME_LATEST_DRAFT_CTA,
   OPERATOR_HOME_WORKSPACE_OVERVIEW_HEADING,
 } from "@/lib/buyer/buyer-polish-copy";
 import { OPERATOR_HOME_CARD_SECTION_HEADING } from "@/lib/design-tokens";
+import { OPERATOR_NAV_LINK_LABELS } from "@/lib/i18n";
 import { PUBLIC_DEMO_CORE_PILOT_COMMIT_CONTEXT } from "@/lib/core-pilot-commit-context";
 import { SHOWCASE_SAMPLE_REVIEW_REGISTRY } from "@/lib/showcase-sample-review-registry";
 
@@ -193,7 +193,7 @@ describe("PilotCommandCenterCard", () => {
     expect(screen.queryByTestId("operator-home-do-this-next-secondary")).toBeNull();
     expect(screen.getByTestId("pilot-command-center-help")).toBeInTheDocument();
     expect(screen.getByTestId("page-contextual-help-button")).toHaveTextContent(
-      OPERATOR_HOME_EXPLORE_REVIEW_WALKTHROUGH_HEADING,
+      OPERATOR_NAV_LINK_LABELS.home,
     );
     fireEvent.click(screen.getByTestId("page-contextual-help-button"));
     expect(screen.getByTestId("page-scoped-contextual-help-learn-more")).toHaveAttribute(
