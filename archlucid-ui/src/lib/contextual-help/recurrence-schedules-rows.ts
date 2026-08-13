@@ -5,7 +5,10 @@ import {
   RECURRENCE_SCHEDULES_MANAGE_PATH,
   RECURRENCE_SCHEDULES_REVIEW_PACKAGES_HREF,
 } from "@/lib/recurrence-schedules-copy";
-import { RECURRENCE_SCHEDULES_HELP_CANONICAL_PATH } from "@/lib/recurrence-schedules-help-evidence-copy";
+import {
+  RECURRENCE_SCHEDULES_HELP_CANONICAL_PATH,
+  RECURRENCE_SCHEDULES_HELP_TOPIC_LABEL,
+} from "@/lib/recurrence-schedules-help-evidence-copy";
 
 const RECURRENCE_SCHEDULES_HUB_CONTEXTUAL_HELP = {
   whatIsThisPage:
@@ -32,8 +35,7 @@ export const RECURRENCE_SCHEDULES_CONTEXTUAL_HELP_ROWS: readonly PageContextualH
   {
     prefix: RECURRENCE_SCHEDULES_HELP_CANONICAL_PATH,
     entry: {
-      whatIsThisPage:
-        "Recurrence schedules — how automated re-review cadences are created, monitored, and distinguished from sponsor digest email.",
+      whatIsThisPage: `Recurrence schedules — ${RECURRENCE_SCHEDULES_HELP_TOPIC_LABEL.toLowerCase()} and how automated re-review cadences differ from sponsor digest email.`,
       whatToDoNext: "Open recurrence schedules to create or edit a cadence, then follow cloned reviews through governance surfaces.",
       whyEmpty: "This guide is always available; schedules appear after you create one from a finalized review.",
       whereToConfigurePrerequisite:

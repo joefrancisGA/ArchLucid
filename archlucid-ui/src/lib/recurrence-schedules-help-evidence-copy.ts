@@ -1,8 +1,11 @@
 import type { EvidenceSourceLink } from "@/lib/evidence-surface-copy";
 import { inAppHelpHref } from "@/lib/product-documentation-registry";
 import { DIGESTS_SCHEDULE_TAB_PATH } from "@/lib/digests-route-paths";
+import { RECURRENCE_SCHEDULES_HOW_IT_WORKS_TITLE } from "@/lib/recurrence-schedules-copy";
 
 export const RECURRENCE_SCHEDULES_HELP_CANONICAL_PATH = "/help/recurrence-schedules" as const;
+
+export const RECURRENCE_SCHEDULES_HELP_TOPIC_LABEL = RECURRENCE_SCHEDULES_HOW_IT_WORKS_TITLE;
 
 export const RECURRENCE_SCHEDULES_HELP_CLAIM_DISCIPLINE =
   "This guide explains automated re-review cadences — it is not a signed review record or digest delivery receipt.";

@@ -8,6 +8,7 @@ import { DECISION_REGISTER_HELP_TOPIC_LABEL } from "@/lib/decision-register-help
 import { DIGESTS_HELP_TOPIC_LABEL } from "@/lib/digests-help-evidence-copy";
 import { IMPACT_PREVIEW_HELP_TOPIC_LABEL } from "@/lib/impact-preview-help-evidence-copy";
 import { IMPROVEMENT_PLANNING_HELP_TOPIC_LABEL } from "@/lib/improvement-planning-help-evidence-copy";
+import { RECURRENCE_SCHEDULES_HELP_TOPIC_LABEL } from "@/lib/recurrence-schedules-help-evidence-copy";
 import { SETTINGS_HUB_HELP_TOPIC_LABEL } from "@/lib/contextual-help/administration-rows";
 import { REPEAT_REVIEW_LOOP_HELP_PAGE_TITLE } from "@/lib/repeat-review-loop-help-guide-content";
 import { pageHelpTopicForPathname } from "@/lib/usability/page-help-topic-map";
@@ -42,6 +43,7 @@ describe("usability lib", () => {
     expect(pageHelpTopicForPathname("/governance/recurrence-schedules")?.slug).toBe("recurrence-schedules");
     expect(pageHelpTopicForPathname("/governance/recurrence-schedules")?.label).toBe("How recurrence schedules work");
     expect(pageHelpTopicForPathname("/help/recurrence-schedules")?.slug).toBe("recurrence-schedules");
+    expect(pageHelpTopicForPathname("/help/recurrence-schedules")?.label).toBe(RECURRENCE_SCHEDULES_HELP_TOPIC_LABEL);
     expect(pageHelpTopicForPathname("/insights/improvement-planning")?.slug).toBe("improvement-planning");
     expect(pageHelpTopicForPathname("/insights/improvement-planning")?.label).toBe(IMPROVEMENT_PLANNING_HELP_TOPIC_LABEL);
     expect(pageHelpTopicForPathname("/administration/billing")?.slug).toBe("billing-and-plans");
