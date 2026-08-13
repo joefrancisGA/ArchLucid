@@ -59,6 +59,9 @@ vi.mock("@/lib/api", async (importOriginal) => {
 });
 
 vi.mock("@/lib/api/policy-governance-api", () => ({
+  listApprovalRequests: apiHoisted.listApprovalRequests,
+  listPromotions: apiHoisted.listPromotions,
+  listActivations: apiHoisted.listActivations,
   getGovernanceDashboard: apiHoisted.getGovernanceDashboard,
 }));
 
