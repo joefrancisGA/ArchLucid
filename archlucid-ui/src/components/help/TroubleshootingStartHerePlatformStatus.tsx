@@ -1,59 +1,34 @@
 "use client";
 
-import { useEffect, useState } from "react";
-
 import { StatusTag } from "@/components/StatusTag";
-import { fetchHealthReadySummary } from "@/lib/fetch-health-ready";
+import { useHealthReadySummaryQuery } from "@/hooks/use-health-ready-summary-query";
 import { OPERATOR_TYPOGRAPHY } from "@/lib/design-tokens";
 import {
   formatTroubleshootingCheckedAt,
   resolveTroubleshootingPlatformStatus,
-  type TroubleshootingPlatformStatus,
 } from "@/lib/troubleshooting-platform-status";
 import { cn } from "@/lib/utils";
 
-type PlatformStatusState = {
-  readonly status: TroubleshootingPlatformStatus;
-  readonly checkedAtLabel: string | null;
-};
-
 /** Inline platform readiness for troubleshooting Start here (anonymous `/health/ready`). */
 export function TroubleshootingStartHerePlatformStatus(): React.JSX.Element {
-  const [state, setState] = useState<PlatformStatusState>({
-    status: { kind: "neutral", label: "Checking platform status" },
-    checkedAtLabel: null,
-  });
+  const { data, dataUpdatedAt, isPending } = useHealthReadySummaryQuery();
 
-  useEffect(() => {
-    let canceled = false;
+  const status = isPending
+    ? { kind: "neutral" as const, label: "Checking platform status" }
+    : resolveTroubleshootingPlatformStatus(data ?? null);
 
-    void fetchHealthReadySummary().then((body) => {
-      if (canceled) {
-        return;
-      }
-
-      const checkedAt = new Date();
-
-      setState({
-        status: resolveTroubleshootingPlatformStatus(body),
-        checkedAtLabel: formatTroubleshootingCheckedAt(checkedAt),
-      });
-    });
-
-    return () => {
-      canceled = true;
-    };
-  }, []);
+  const checkedAtLabel =
+    dataUpdatedAt > 0 ? formatTroubleshootingCheckedAt(new Date(dataUpdatedAt)) : null;
 
   return (
     <div
       className="flex flex-wrap items-center gap-2"
       data-testid="troubleshooting-platform-status"
     >
-      <StatusTag kind={state.status.kind} label={state.status.label} />
-      {state.checkedAtLabel !== null ? (
+      <StatusTag kind={status.kind} label={status.label} />
+      {checkedAtLabel !== null ? (
         <span className={cn("text-al-text-secondary", OPERATOR_TYPOGRAPHY.helper)}>
-          {state.checkedAtLabel}
+          {checkedAtLabel}
         </span>
       ) : null}
     </div>

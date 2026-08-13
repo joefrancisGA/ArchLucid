@@ -4,9 +4,10 @@ import { OPERATOR_CARD, OPERATOR_HOME_SUBSECTION_LABEL, OPERATOR_NAV_GROUP_LABEL
 import { cn } from "@/lib/utils";
 
 import Link from "next/link";
-import { useEffect, useSyncExternalStore, useState } from "react";
+import { useSyncExternalStore } from "react";
 
 import { useOperatorNavAuthority } from "@/components/operator/OperatorNavAuthorityProvider";
+import { useOperatorTaskSuccessRatesQuery } from "@/hooks/use-operator-task-success-rates-query";
 
 import { OperatorHomeDisclosureSection } from "@/components/operator-home/OperatorHomeDisclosureSection";
 import { OptInTourLauncher } from "@/components/tour/OptInTourLauncher";
@@ -17,7 +18,6 @@ import {
   subscribeCorePilotChecklist,
 } from "@/lib/core-pilot-checklist-storage";
 import type { OperatorTaskSuccessRates } from "@/lib/fetch-operator-task-success-rates";
-import { fetchOperatorTaskSuccessRates } from "@/lib/fetch-operator-task-success-rates";
 import {
   CORE_PILOT_ADVANCED_TOOLS_DEFERRAL_NOTE,
   CORE_PILOT_FIRST_SESSION_GUIDANCE_BULLETS,
@@ -31,39 +31,20 @@ import { AUTHORITY_RANK } from "@/lib/nav-authority";
  */
 export function OperatorCorePilotDiagnosticsChecklist() {
   const { callerAuthorityRank, isAuthorityLoading } = useOperatorNavAuthority();
-  const [rates, setRates] = useState<OperatorTaskSuccessRates | null>(null);
+  const {
+    data: rates,
+    isError: ratesQueryError,
+  } = useOperatorTaskSuccessRatesQuery({
+    enabled: !isAuthorityLoading && callerAuthorityRank >= AUTHORITY_RANK.AdminAuthority,
+  });
 
-  const [ratesError, setRatesError] = useState<string | null>(null);
+  const ratesError = ratesQueryError ? "Signals unavailable." : null;
 
   const checklistStorageSignature = useSyncExternalStore(
     subscribeCorePilotChecklist,
     getCorePilotChecklistStorageSnapshot,
     getCorePilotChecklistStorageServerSnapshot,
   );
-
-  useEffect(() => {
-    let canceled = false;
-
-    void (async () => {
-      try {
-        const data = await fetchOperatorTaskSuccessRates();
-
-        if (!canceled) {
-          setRates(data);
-          setRatesError(null);
-        }
-      } catch {
-        if (!canceled) {
-          setRates(null);
-          setRatesError("Signals unavailable.");
-        }
-      }
-    })();
-
-    return () => {
-      canceled = true;
-    };
-  }, []);
 
   function isStorageDone(index: number): boolean {
     if (checklistStorageSignature.length !== CORE_PILOT_STEPS.length) {
@@ -73,9 +54,9 @@ export function OperatorCorePilotDiagnosticsChecklist() {
     return checklistStorageSignature.charAt(index) === "1";
   }
 
-  const finalizedRecorded = rates !== null ? rates.firstRunCommittedTotal >= 1 : false;
+  const finalizedRecorded = rates != null ? rates.firstRunCommittedTotal >= 1 : false;
 
-  const sessionRecorded = rates !== null ? rates.firstSessionCompletedTotal >= 1 : false;
+  const sessionRecorded = rates != null ? rates.firstSessionCompletedTotal >= 1 : false;
 
   if (isAuthorityLoading || callerAuthorityRank < AUTHORITY_RANK.AdminAuthority) {
     return null;

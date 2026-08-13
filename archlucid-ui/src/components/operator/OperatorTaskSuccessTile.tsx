@@ -2,10 +2,8 @@
 import { cn } from "@/lib/utils";
 import { OPERATOR_TYPOGRAPHY, OPERATOR_NAV_GROUP_LABEL } from "@/lib/design-tokens";
 
-import { useEffect, useState } from "react";
-
+import { useOperatorTaskSuccessRatesQuery } from "@/hooks/use-operator-task-success-rates-query";
 import type { OperatorTaskSuccessRates } from "@/lib/fetch-operator-task-success-rates";
-import { fetchOperatorTaskSuccessRates } from "@/lib/fetch-operator-task-success-rates";
 
 function safeNonNegativeWholeDisplay(value: unknown): string {
   const numeric = typeof value === "number" ? value : Number(value);
@@ -36,33 +34,9 @@ function safeSessionsToFinalizedPercent(ratio: unknown, sessionsTotal: unknown):
 
 /** Small operator-home tile for pilot adoption counters (process lifetime; resets on API restart). */
 export function OperatorTaskSuccessTile() {
-  const [data, setData] = useState<OperatorTaskSuccessRates | null>(null);
-  const [error, setError] = useState<string | null>(null);
+  const { data, isPending, isError } = useOperatorTaskSuccessRatesQuery();
 
-  useEffect(() => {
-    let canceled = false;
-
-    void (async () => {
-      try {
-        const json = await fetchOperatorTaskSuccessRates();
-
-        if (!canceled) {
-          setData(json);
-          setError(null);
-        }
-      } catch {
-        if (!canceled) {
-          setError("Metrics unavailable.");
-        }
-      }
-    })();
-
-    return () => {
-      canceled = true;
-    };
-  }, []);
-
-  if (error) {
+  if (isError) {
     return (
       <section
         aria-labelledby="operator-task-success-heading"
@@ -78,7 +52,7 @@ export function OperatorTaskSuccessTile() {
     );
   }
 
-  if (!data) {
+  if (isPending || data === undefined) {
     return (
       <section
         aria-labelledby="operator-task-success-heading"
@@ -91,6 +65,12 @@ export function OperatorTaskSuccessTile() {
       </section>
     );
   }
+
+  return <OperatorTaskSuccessTileBody data={data} />;
+}
+
+function OperatorTaskSuccessTileBody(props: { readonly data: OperatorTaskSuccessRates }) {
+  const { data } = props;
 
   return (
     <section

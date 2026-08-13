@@ -15,6 +15,7 @@ export const operatorQueryKeys = {
   adminOutboxDiagnostics: ["operator", "admin", "outbox-diagnostics"] as const,
   pilotScorecard: ["operator", "pilots", "scorecard"] as const,
   operatorAiQualitySnapshot: ["operator", "assistant", "ai-quality-snapshot"] as const,
+  operatorTaskSuccessRates: ["operator", "diagnostics", "task-success-rates"] as const,
   healthReadySummary: ["operator", "health", "ready-summary"] as const,
   /** Throws when readiness cannot be loaded — preserves last payload on refetch errors. */
   healthReadySummaryStrict: ["operator", "health", "ready-summary", "strict"] as const,
