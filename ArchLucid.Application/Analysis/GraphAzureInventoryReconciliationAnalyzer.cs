@@ -16,13 +16,12 @@ public static class GraphAzureInventoryReconciliationAnalyzer
 
         HashSet<string> graphResourceIds = CollectGraphResourceIds(graphSnapshot);
 
-        if (graphResourceIds.Count == 0)
-            return InventoryReconciliationResult.Empty;
+        HashSet<string> inventoryResourceIds = string.IsNullOrWhiteSpace(resourcesJson)
+            ? []
+            : CollectInventoryResourceIds(resourcesJson);
 
-        if (string.IsNullOrWhiteSpace(resourcesJson))
+        if (graphResourceIds.Count == 0 && inventoryResourceIds.Count == 0)
             return InventoryReconciliationResult.Empty;
-
-        HashSet<string> inventoryResourceIds = CollectInventoryResourceIds(resourcesJson);
 
         List<string> graphOnly = graphResourceIds
             .Except(inventoryResourceIds, StringComparer.OrdinalIgnoreCase)

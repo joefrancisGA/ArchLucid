@@ -10,7 +10,7 @@ namespace ArchLucid.Application.Tests.Analysis;
 public sealed class GraphAzureInventoryReconciliationAnalyzerTests
 {
     [Fact]
-    public void Analyze_returns_empty_when_graph_has_no_arm_resource_ids()
+    public void Analyze_returns_empty_when_both_graph_and_inventory_have_no_arm_resource_ids()
     {
         GraphSnapshot graph = new()
         {
@@ -26,12 +26,38 @@ public sealed class GraphAzureInventoryReconciliationAnalyzerTests
             ]
         };
 
-        const string resourcesJson =
-            """
+        InventoryReconciliationResult result =
+            GraphAzureInventoryReconciliationAnalyzer.Analyze("[]", graph);
+
+        result.HasMismatches.Should().BeFalse();
+    }
+
+    [Fact]
+    public void Analyze_reports_inventory_only_when_graph_has_no_arm_resource_ids()
+    {
+        const string inventoryResourceId =
+            "/subscriptions/sub/resourceGroups/rg/providers/Microsoft.Compute/virtualMachines/vm1";
+
+        GraphSnapshot graph = new()
+        {
+            Nodes =
+            [
+                new GraphNode
+                {
+                    NodeId = "t1",
+                    NodeType = GraphNodeTypes.TopologyResource,
+                    Label = "api",
+                    Properties = new()
+                }
+            ]
+        };
+
+        string resourcesJson =
+            $$"""
             [
               {
                 "resourceType": "Microsoft.Compute/virtualMachines",
-                "resourceId": "/subscriptions/sub/resourceGroups/rg/providers/Microsoft.Compute/virtualMachines/vm1"
+                "resourceId": "{{inventoryResourceId}}"
               }
             ]
             """;
@@ -39,7 +65,40 @@ public sealed class GraphAzureInventoryReconciliationAnalyzerTests
         InventoryReconciliationResult result =
             GraphAzureInventoryReconciliationAnalyzer.Analyze(resourcesJson, graph);
 
-        result.HasMismatches.Should().BeFalse();
+        result.HasMismatches.Should().BeTrue();
+        result.GraphOnlyResourceIds.Should().BeEmpty();
+        result.InventoryOnlyResourceIds.Should().ContainSingle().Which.Should().Be(inventoryResourceId.ToLowerInvariant());
+    }
+
+    [Fact]
+    public void Analyze_reports_graph_only_when_resources_json_is_missing()
+    {
+        const string graphResourceId =
+            "/subscriptions/sub/resourceGroups/rg/providers/Microsoft.Compute/virtualMachines/vm-graph";
+
+        GraphSnapshot graph = new()
+        {
+            Nodes =
+            [
+                new GraphNode
+                {
+                    NodeId = "t1",
+                    NodeType = GraphNodeTypes.TopologyResource,
+                    Label = "vm-graph",
+                    Properties = new Dictionary<string, string>
+                    {
+                        ["resourceId"] = graphResourceId
+                    }
+                }
+            ]
+        };
+
+        InventoryReconciliationResult result =
+            GraphAzureInventoryReconciliationAnalyzer.Analyze(null, graph);
+
+        result.HasMismatches.Should().BeTrue();
+        result.GraphOnlyResourceIds.Should().ContainSingle().Which.Should().Be(graphResourceId.ToLowerInvariant());
+        result.InventoryOnlyResourceIds.Should().BeEmpty();
     }
 
     [Fact]
