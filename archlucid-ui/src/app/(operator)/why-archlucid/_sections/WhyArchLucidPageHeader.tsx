@@ -1,14 +1,11 @@
 import Link from "next/link";
 
-import { OperatorPageBreadcrumb } from "@/components/operator/OperatorPageBreadcrumb";
 import { OperatorPageHeader } from "@/components/operator/OperatorPageHeader";
 import { StatusTag } from "@/components/ui/status-tag";
 import { PageContextualHelpButton } from "@/components/usability/PageContextualHelpButton";
 import { DESIGN_TOKENS, OPERATOR_LINK, OPERATOR_TYPOGRAPHY } from "@/lib/design-tokens";
 import { WHY_ARCHLUCID_CANONICAL_PATH } from "@/lib/why-archlucid-evidence-copy";
 import {
-  WHY_ARCHLUCID_BREADCRUMB_LEARNING_HREF,
-  WHY_ARCHLUCID_BREADCRUMB_LEARNING_LABEL,
   WHY_ARCHLUCID_INTERNAL_PILOT_BADGE_LABEL,
   WHY_ARCHLUCID_MARKETING_WHY_HREF,
   WHY_ARCHLUCID_MARKETING_WHY_LINK_LABEL,
@@ -49,15 +46,6 @@ export function WhyArchLucidPageHeader(props: WhyArchLucidPageHeaderProps): Reac
             .
           </span>
         </>
-      }
-      breadcrumb={
-        <OperatorPageBreadcrumb
-          data-testid="why-archlucid-page-breadcrumb"
-          items={[
-            { label: WHY_ARCHLUCID_BREADCRUMB_LEARNING_LABEL, href: WHY_ARCHLUCID_BREADCRUMB_LEARNING_HREF },
-            { label: WHY_ARCHLUCID_PAGE_TITLE },
-          ]}
-        />
       }
       statusBadge={
         <StatusTag

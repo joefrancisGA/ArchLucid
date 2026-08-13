@@ -151,12 +151,10 @@ describe("GovernanceApprovalLineageDetailContent", () => {
     expect(screen.getByText("Low")).toBeInTheDocument();
   });
 
-  it("uses short help trigger text and breadcrumb hierarchy", () => {
+  it("uses short help trigger text without breadcrumb trail", () => {
     render(<GovernanceApprovalLineageDetailContent data={sampleLineage()} />);
 
     expect(screen.getByRole("button", { name: "Help" })).toBeInTheDocument();
-    expect(screen.getByTestId("approval-lineage-page-breadcrumb")).toHaveTextContent("Governance");
-    expect(screen.getByTestId("approval-lineage-page-breadcrumb")).toHaveTextContent("Approval queue");
-    expect(screen.getByTestId("approval-lineage-page-breadcrumb")).toHaveTextContent("Approval lineage");
+    expect(screen.queryByTestId("approval-lineage-page-breadcrumb")).toBeNull();
   });
 });

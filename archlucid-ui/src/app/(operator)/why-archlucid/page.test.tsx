@@ -303,7 +303,7 @@ describe("WhyArchLucidPage (proof page snapshot)", () => {
     expect(screen.queryByTestId("why-archlucid-primary-cta")).not.toBeInTheDocument();
   });
 
-  it("TB-1310: renders operator PageHeading chrome with breadcrumb and contextual help", async () => {
+  it("TB-1310: renders operator PageHeading chrome with contextual help", async () => {
     measuredRoiMock.mockResolvedValue(fixedMeasuredRoi);
     sponsorPackMock.mockResolvedValue(fixedSponsorEvidencePack);
     reportMock.mockResolvedValue(fixedReport);
@@ -315,7 +315,7 @@ describe("WhyArchLucidPage (proof page snapshot)", () => {
       expect(screen.getByTestId("why-archlucid-counters")).toBeInTheDocument();
     });
 
-    expect(screen.getByTestId("why-archlucid-page-breadcrumb")).toBeInTheDocument();
+    expect(screen.queryByTestId("why-archlucid-page-breadcrumb")).toBeNull();
     expect(screen.getByTestId("why-archlucid-page-heading-actions")).toBeInTheDocument();
     expect(screen.getByTestId("why-archlucid-internal-pilot-badge")).toHaveTextContent(/Internal pilot proof/i);
     expect(document.querySelector('[data-nav-href="/why-archlucid"]')).toBeInTheDocument();
