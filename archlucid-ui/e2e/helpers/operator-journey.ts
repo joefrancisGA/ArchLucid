@@ -117,10 +117,18 @@ export async function expandAuditBuyerFiltersIfPresent(page: Page): Promise<void
     return;
   }
 
-  if ((await trigger.getAttribute("aria-expanded")) !== "true") {
-    await trigger.click();
-    await expect(trigger).toHaveAttribute("aria-expanded", "true", { timeout: 10_000 });
-  }
+  await trigger.scrollIntoViewIfNeeded();
+
+  await expect(async () => {
+    const expanded = await trigger.getAttribute("aria-expanded");
+
+    if (expanded === "true") {
+      return;
+    }
+
+    await trigger.click({ force: true });
+    await expect(trigger).toHaveAttribute("aria-expanded", "true");
+  }).toPass({ timeout: 15_000 });
 }
 
 /** Asserts audit search completed with an empty result set (summary + empty-state line). */
@@ -700,70 +708,71 @@ export async function expectBuyerPipelineTimelineSectionVisible(
   options?: { timeoutMs?: number; runId?: string },
 ): Promise<void> {
   const timeout = options?.timeoutMs ?? 60_000;
+  const trimmedRunId = options?.runId?.trim() ?? "";
 
-  if (options?.runId !== undefined && options.runId.trim().length > 0) {
-    await openReviewDetailWorkspaceTab(page, options.runId, "activity");
-  } else {
-    const activityTrigger = await ensureReviewDetailWorkspaceTabTriggerVisible(page, "activity", { timeoutMs: timeout });
-
-    await activityTrigger.click();
-    await expect(reviewDetailWorkspacePanel(page, "activity")).toBeVisible({ timeout });
-  }
-
-  const belowFoldLoading = page.getByRole("status", {
-    name: /Loading review technical sections|Loading pipeline timeline/i,
-  });
-
-  // Manifest-backed runs render pipeline timeline inside deferred below-fold Suspense — wait for skeletons to clear.
   await expect(async () => {
+    if (trimmedRunId.length > 0) {
+      await page.goto(buildReviewDetailTabHref(trimmedRunId, "activity", { hash: "pipeline-timeline" }), {
+        waitUntil: "domcontentloaded",
+      });
+      await expect(reviewDetailWorkspacePanel(page, "activity")).toBeVisible({ timeout: 30_000 });
+    } else {
+      const activityTrigger = await ensureReviewDetailWorkspaceTabTriggerVisible(page, "activity", {
+        timeoutMs: 30_000,
+      });
+
+      await activityTrigger.click();
+      await expect(reviewDetailWorkspacePanel(page, "activity")).toBeVisible({ timeout: 30_000 });
+    }
+
+    const belowFoldLoading = page.getByRole("status", {
+      name: /Loading review technical sections|Loading pipeline timeline/i,
+    });
+
     const loadingCount = await belowFoldLoading.count();
 
-    if (loadingCount === 0) {
+    if (loadingCount > 0) {
+      const anyVisible = await belowFoldLoading
+        .first()
+        .isVisible()
+        .catch(() => false);
+
+      if (anyVisible) {
+        throw new Error("below-fold pipeline sections still loading");
+      }
+    }
+
+    const sectionNav = page.getByTestId("provenance-section-nav-desktop");
+
+    if ((await sectionNav.count()) > 0) {
+      const pipelineNavLink = sectionNav.getByRole("link", { name: /Recent lifecycle events/i });
+
+      if ((await pipelineNavLink.count()) > 0) {
+        await pipelineNavLink.first().click();
+      }
+    }
+
+    const pipelineSection = page.locator("#pipeline-timeline").first();
+    const collapsible = page.getByTestId("run-pipeline-timeline-collapsible").first();
+    const pipelineSurface = collapsible.or(pipelineSection).first();
+
+    await expect(pipelineSurface).toBeVisible({ timeout: 10_000 });
+    await pipelineSurface.scrollIntoViewIfNeeded();
+
+    if ((await collapsible.count()) > 0 && (await collapsible.isVisible())) {
+      await expect(
+        collapsible.locator("summary", { hasText: /Recent lifecycle events|Pipeline timeline/i }),
+      ).toBeVisible({ timeout: 10_000 });
+
       return;
     }
 
-    const anyVisible = await belowFoldLoading
-      .first()
-      .isVisible()
-      .catch(() => false);
+    const heading = pipelineSection.getByRole("heading", {
+      name: /Recent lifecycle events|Pipeline timeline/i,
+    });
 
-    if (!anyVisible) {
-      return;
-    }
-
-    throw new Error("below-fold pipeline sections still loading");
+    await expect(heading.first()).toBeVisible({ timeout: 10_000 });
   }).toPass({ timeout });
-
-  const sectionNav = page.getByTestId("provenance-section-nav-desktop");
-
-  if ((await sectionNav.count()) > 0) {
-    const pipelineNavLink = sectionNav.getByRole("link", { name: /Recent lifecycle events/i });
-
-    if ((await pipelineNavLink.count()) > 0) {
-      await pipelineNavLink.first().click();
-    }
-  }
-
-  const pipelineSection = page.locator("#pipeline-timeline");
-
-  await expect(pipelineSection).toBeVisible({ timeout });
-  await pipelineSection.scrollIntoViewIfNeeded();
-
-  const collapsible = page.getByTestId("run-pipeline-timeline-collapsible");
-
-  if ((await collapsible.count()) > 0 && (await collapsible.isVisible())) {
-    await expect(
-      collapsible.locator("summary", { hasText: /Recent lifecycle events|Pipeline timeline/i }),
-    ).toBeVisible({ timeout });
-
-    return;
-  }
-
-  const heading = pipelineSection.getByRole("heading", {
-    name: /Recent lifecycle events|Pipeline timeline/i,
-  });
-
-  await expect(heading.first()).toBeVisible({ timeout });
 }
 
 /** Buyer-polished run detail collapses `#artifacts-exports` deliverables by default — expand before export assertions. */

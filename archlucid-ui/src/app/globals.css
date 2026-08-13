@@ -253,6 +253,12 @@ a.marketing-public-nav-link {
   color: #262626;
 }
 
+@media (prefers-color-scheme: dark) {
+  a.marketing-public-nav-link {
+    color: #f5f5f5;
+  }
+}
+
 html.dark a.marketing-public-nav-link {
   color: #f5f5f5;
 }

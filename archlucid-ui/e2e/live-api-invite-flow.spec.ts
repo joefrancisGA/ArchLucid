@@ -57,6 +57,11 @@ test.describe("live-api-invite-flow", { tag: ["@founder"] }, () => {
 
     await pendingRow.getByRole("button", { name: "Revoke" }).click();
 
+    const revokeDialog = page.getByRole("alertdialog");
+
+    await expect(revokeDialog).toBeVisible({ timeout: 15_000 });
+    await revokeDialog.getByRole("button", { name: "Revoke invitation" }).click();
+
     await expect(pendingRow).toContainText("Revoked", { timeout: 60_000 });
     await expect(pendingRow.getByRole("button", { name: "Revoke" })).toHaveCount(0);
   });
