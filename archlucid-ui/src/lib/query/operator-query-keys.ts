@@ -29,6 +29,9 @@ export const operatorQueryKeys = {
   executiveNextActionInputs: (range: ExecutiveTimeRange) =>
     ["operator", "roi", "next-action-inputs", range] as const,
   complianceDriftTrend30d: ["operator", "governance", "compliance-drift-trend", "30d"] as const,
+  operatorNextBestActions: ["operator", "tenant", "next-best-actions"] as const,
+  governanceDecisionsNeededSummary: (projectId?: string) =>
+    ["operator", "governance", "decisions-needed-summary", projectId ?? "workspace"] as const,
   governanceReviewsAwaitingAction: (scope: OperatorScopeQueryKey) =>
     ["operator", "governance", "reviews-awaiting-action", scope] as const,
   governanceFindingsQueue: (

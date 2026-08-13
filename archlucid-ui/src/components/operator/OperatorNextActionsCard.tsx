@@ -3,9 +3,8 @@ import { cn } from "@/lib/utils";
 import { OPERATOR_TYPOGRAPHY } from "@/lib/design-tokens";
 
 import Link from "next/link";
-import { useEffect, useState } from "react";
 
-import { fetchOperatorNextBestActions, type OperatorNextBestActionDto } from "@/lib/api";
+import { useOperatorNextBestActionsQuery } from "@/hooks/use-operator-next-best-actions-query";
 import { isBuyerPolishedOperatorShellEnv, isNextPublicDemoMode } from "@/lib/demo-ui-env";
 import { isStaticDemoPayloadFallbackEnabled } from "@/lib/operator/operator-static-demo";
 
@@ -17,43 +16,15 @@ export function OperatorNextActionsCard() {
   const hideForPolishedBuyerShell = isBuyerPolishedOperatorShellEnv();
 
   const demoUi = isNextPublicDemoMode() || isStaticDemoPayloadFallbackEnabled();
-  const [items, setItems] = useState<OperatorNextBestActionDto[] | null>(null);
-  const [phase, setPhase] = useState<"idle" | "loading" | "ready" | "error">("idle");
-
-  useEffect(() => {
-    if (hideForPolishedBuyerShell) {
-      return;
-    }
-
-    let canceled = false;
-
-    void (async () => {
-      setPhase("loading");
-
-      try {
-        const data = await fetchOperatorNextBestActions();
-
-        if (!canceled) {
-          setItems(data);
-          setPhase("ready");
-        }
-      } catch {
-        if (!canceled) {
-          setPhase("error");
-        }
-      }
-    })();
-
-    return () => {
-      canceled = true;
-    };
-  }, [hideForPolishedBuyerShell]);
+  const { data: items, isPending, isError } = useOperatorNextBestActionsQuery({
+    enabled: !hideForPolishedBuyerShell,
+  });
 
   if (hideForPolishedBuyerShell) {
     return null;
   }
 
-  if (phase === "error") {
+  if (isError) {
     return (
       <p className={cn("m-0 text-neutral-500 dark:text-neutral-400", OPERATOR_TYPOGRAPHY.helper)} role="status">
         Next steps unavailable (check tenant tier or sign-in).
@@ -61,7 +32,7 @@ export function OperatorNextActionsCard() {
     );
   }
 
-  if (phase === "loading") {
+  if (isPending) {
     if (demoUi) {
       return null;
     }
@@ -74,7 +45,7 @@ export function OperatorNextActionsCard() {
     );
   }
 
-  if (items === null || items.length === 0) {
+  if (items === undefined || items.length === 0) {
     return null;
   }
 
