@@ -1,5 +1,8 @@
 import { stripMarkdownSectionsByTitlePrefix } from "@/lib/help-markdown/section-strips";
-import { inAppHelpHref } from "@/lib/product-documentation-registry";
+import {
+  reviewPackagesHelpRelatedGuides,
+  type ReviewPackagesHelpRelatedLink,
+} from "@/lib/review-packages-help-related-guides";
 
 export {
   REVIEW_PACKAGES_HELP_PAGE_TITLE,
@@ -18,19 +21,11 @@ export const REVIEW_PACKAGES_HELP_PRIMARY_ACTIONS = {
   },
 } as const;
 
-export type ReviewPackagesHelpRelatedLink = {
-  readonly label: string;
-  readonly href: string;
-};
+export type { ReviewPackagesHelpRelatedLink };
 
 /** Authoritative Related guides rail — markdown Related section is stripped for presentation. */
-export const REVIEW_PACKAGES_HELP_RELATED: readonly ReviewPackagesHelpRelatedLink[] = [
-  { label: "Review guide", href: inAppHelpHref("review-guide") },
-  { label: "Start a review", href: inAppHelpHref("evidence-intake") },
-  { label: "Findings", href: inAppHelpHref("findings") },
-  { label: "Evidence graph", href: inAppHelpHref("evidence-trail") },
-  { label: "Governance approval", href: inAppHelpHref("governance-approval") },
-] as const;
+export const REVIEW_PACKAGES_HELP_RELATED: readonly ReviewPackagesHelpRelatedLink[] =
+  reviewPackagesHelpRelatedGuides();
 
 const REVIEW_PACKAGES_OPENING_LEDE =
   "Browse, inspect, and export governed architecture packages in the architect workspace.";
