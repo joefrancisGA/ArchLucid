@@ -76,7 +76,9 @@ Operator first meaningful action should reach finalize + export on this spine (*
 
 ---
 
-## 7. CI anchors for **TB-1027** (contract published; CI open)
+## 7. CI anchors for **TB-1027** (shipped)
+
+Mechanical gate: `scripts/ci/check_operator_primary_object_honesty.py` (wired in `scripts/ci/run_buyer_surface_strict_guards.py`).
 
 | Forbidden implication | Anchor direction |
 |-----------------------|------------------|
@@ -85,7 +87,7 @@ Operator first meaningful action should reach finalize + export on this spine (*
 | Buyer “run” as list/home noun without review/package alias | Coordinate `review-terminology-guard` — do not duplicate full **TB-738** suite |
 | Decision/approval alone = signed package | Require **TB-1003** + package parent |
 
-Until **TB-1027** ships, treat this document as the **human** gate; CI is the **mechanical** gate.
+Vitest: `archlucid-ui/src/lib/operator-primary-object-honesty.test.ts`.
 
 ---
 

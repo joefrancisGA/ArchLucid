@@ -229,6 +229,11 @@ GUARDS: tuple[GuardCommand, ...] = (
         None,
     ),
     GuardCommand(
+        "operator primary object honesty",
+        ("python", "scripts/ci/check_operator_primary_object_honesty.py"),
+        None,
+    ),
+    GuardCommand(
         "wntp buyer ui honesty",
         ("python", "scripts/ci/check_wntp_buyer_ui_honesty.py"),
         None,

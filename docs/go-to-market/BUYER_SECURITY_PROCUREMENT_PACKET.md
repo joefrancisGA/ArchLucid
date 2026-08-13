@@ -923,7 +923,7 @@ Canonical operator spine: `/reviews` and `/reviews/{runId}` package context. `/g
 
 ### Residuals (honest)
 
-Engineering SoT: [`OPERATOR_PRIMARY_OBJECT_NAV_COLLAPSE_CONTRACT.md`](../library/OPERATOR_PRIMARY_OBJECT_NAV_COLLAPSE_CONTRACT.md) (**TB-1026** Done). Primary-object hierarchy, canonical `/reviews` spine, and collapse surfaces are published. Follow-on claim CI: **TB-1027**. Full vocab rewrite is out of scope.
+Engineering SoT: [`OPERATOR_PRIMARY_OBJECT_NAV_COLLAPSE_CONTRACT.md`](../library/OPERATOR_PRIMARY_OBJECT_NAV_COLLAPSE_CONTRACT.md) (**TB-1026** Done). Primary-object hierarchy, canonical `/reviews` spine, and collapse surfaces are published. Claim CI: **TB-1027** (`check_operator_primary_object_honesty.py`). Full vocab rewrite is out of scope.
 
 | Open work | Purpose |
 | --- | --- |
