@@ -49,7 +49,7 @@ describe("TenantWorkspaceBoundaryBadge", () => {
     render(<TenantWorkspaceBoundaryBadge variant="header" />);
 
     expect(screen.getByTestId("active-tenant-context-badge")).toHaveTextContent(
-      /Active tenant: Claims Intake Showcase/i,
+      /Active tenant: Customer Intake Showcase/i,
     );
   });
 
