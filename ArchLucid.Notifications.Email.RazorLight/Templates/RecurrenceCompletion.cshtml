@@ -16,7 +16,8 @@
     </table>
 }
 <p>Your scheduled architecture review <strong>@Model.ScheduleName</strong> has finished.</p>
-<p><strong>@Model.NewFindingCount</strong> new finding(s), <strong>@Model.ResolvedFindingCount</strong> resolved since the prior review.</p>
-<p><a href="@Model.RunDetailUrl">Open the review</a> · <a href="@Model.CompareUrl">Compare with source run</a></p>
+<p><strong>@Model.NewFindingCount</strong> new finding(s), <strong>@Model.ResolvedFindingCount</strong> no longer raised since the prior review.</p>
+<p>Compare the two reviews for per-finding lifecycle — confirmed remediation vs unexplained drop-outs — not a single &quot;resolved&quot; proof.</p>
+<p><a href="@Model.RunDetailUrl">Open the review</a> · <a href="@Model.CompareUrl">View finding lifecycle across reviews</a></p>
 </body>
 </html>

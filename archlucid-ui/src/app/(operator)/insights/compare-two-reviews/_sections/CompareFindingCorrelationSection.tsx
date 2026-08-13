@@ -14,7 +14,7 @@ export type CompareFindingCorrelationSectionProps = {
 export function CompareFindingCorrelationSection(
   props: CompareFindingCorrelationSectionProps,
 ): ReactElement {
-  const { loading, metadata, softFailureMessage } = useCompareFindingCorrelation(
+  const { loading, metadata, lifecycle, lifecycleRecords, softFailureMessage } = useCompareFindingCorrelation(
     props.baselineRunId,
     props.targetRunId,
   );
@@ -22,6 +22,10 @@ export function CompareFindingCorrelationSection(
   return (
     <CompareFindingCorrelationPanel
       metadata={metadata}
+      lifecycle={lifecycle}
+      lifecycleRecords={lifecycleRecords}
+      priorRunId={props.baselineRunId}
+      laterRunId={props.targetRunId}
       loading={loading}
       softFailureMessage={softFailureMessage}
     />

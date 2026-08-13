@@ -22,10 +22,13 @@ export async function generateMetadata({
  */
 export default async function RunFindingExplainPage({
   params,
+  searchParams,
 }: {
   params: Promise<{ runId: string; findingId: string }>;
+  searchParams: Promise<{ priorRunId?: string; laterRunId?: string }>;
 }) {
   const { runId, findingId } = await params;
+  const { priorRunId, laterRunId } = await searchParams;
 
   if (isInvalidGuidOrSlugRouteToken(runId)) {
     notFound();
@@ -43,5 +46,11 @@ export default async function RunFindingExplainPage({
     notFound();
   }
 
-  return <FindingDetailPageView model={result.model} />;
+  return (
+    <FindingDetailPageView
+      model={result.model}
+      crossReviewPriorRunId={priorRunId ?? null}
+      crossReviewLaterRunId={laterRunId ?? null}
+    />
+  );
 }

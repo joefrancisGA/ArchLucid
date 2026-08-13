@@ -1,4 +1,5 @@
 using ArchLucid.Application.Diffs;
+using ArchLucid.Contracts.Findings;
 
 namespace ArchLucid.Application.Analysis;
 
@@ -70,4 +71,18 @@ public sealed class EndToEndReplayComparisonReport
         get;
         set;
     }
+
+    /// <summary>Aggregate finding lifecycle counts and the claim-honest note that qualifies them (TB-2194).</summary>
+    public CrossReviewFindingLifecycleSummary? FindingLifecycle
+    {
+        get;
+        set;
+    }
+
+    /// <summary>Per-finding lifecycle position across the two reviews (TB-2194). Empty when neither run had findings.</summary>
+    public List<CrossReviewFindingLifecycleRecord> FindingLifecycleRecords
+    {
+        get;
+        set;
+    } = [];
 }

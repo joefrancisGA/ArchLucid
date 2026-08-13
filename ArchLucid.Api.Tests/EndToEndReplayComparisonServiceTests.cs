@@ -26,17 +26,29 @@ public sealed class EndToEndReplayComparisonServiceTests
     private readonly Mock<IRunExportRecordRepository> _exportRepo = new();
     private readonly Mock<IManifestDiffService> _manifestDiff = new();
     private readonly Mock<IRunDetailQueryService> _runDetailQueryService = new();
+    private readonly Mock<IFindingReviewTrailRepository> _reviewTrailRepository = new();
+    private readonly Mock<IScopeContextProvider> _scopeContextProvider = new();
     private readonly EndToEndReplayComparisonService _sut;
 
     public EndToEndReplayComparisonServiceTests()
     {
+        _reviewTrailRepository
+            .Setup(repository => repository.ListForFindingIdsSinceUtcAsync(
+                It.IsAny<Guid>(),
+                It.IsAny<IReadOnlyCollection<string>>(),
+                It.IsAny<DateTimeOffset>(),
+                It.IsAny<CancellationToken>()))
+            .ReturnsAsync([]);
+        _scopeContextProvider.Setup(provider => provider.GetCurrentScope()).Returns(new ScopeContext());
         _sut = new EndToEndReplayComparisonService(
             _runDetailQueryService.Object,
             _exportRepo.Object,
             _agentDiff.Object,
             _manifestDiff.Object,
             _exportDiff.Object,
-            new ArchLucid.Application.Findings.CrossReviewFindingCorrelationService());
+            new ArchLucid.Application.Findings.CrossReviewFindingCorrelationService(),
+            new ArchLucid.Application.Findings.CrossReviewFindingLifecycleService(_reviewTrailRepository.Object),
+            _scopeContextProvider.Object);
     }
 
     private static ArchitectureRun Run(string id, string? manifestVersion = null, StructuralExecutionMode mode = StructuralExecutionMode.Simulator)

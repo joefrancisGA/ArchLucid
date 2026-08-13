@@ -2,6 +2,7 @@ using System.Net;
 using System.Text;
 
 using ArchLucid.Application.Diffs;
+using ArchLucid.Application.Findings;
 using ArchLucid.Application.Rendering;
 
 using DocumentFormat.OpenXml;
@@ -89,6 +90,10 @@ public sealed class EndToEndReplayComparisonExportService(IEndToEndReplayCompari
             sb.AppendLine("<p class=\"meta\">Fuzzy (possible) matches: " + metadata.FuzzyMatchCount + "</p>");
             sb.AppendLine("<p class=\"meta\">Correlation honesty: " + EscapeHtml(metadata.HonestyNote) + "</p>");
         }
+
+        if (report.FindingLifecycle is not null)
+            foreach (string line in CrossReviewFindingLifecycleExportLines.Build(report.FindingLifecycle))
+                sb.AppendLine("<p class=\"meta\">" + EscapeHtml(line) + "</p>");
 
         sb.AppendLine("<hr/>");
         string summaryHtml = MarkdownToSimpleHtml(summaryFormatter.FormatMarkdown(report).Trim());
@@ -308,6 +313,10 @@ public sealed class EndToEndReplayComparisonExportService(IEndToEndReplayCompari
             sb.AppendLine($"- Unmatched right findings: {metadata.UnmatchedRightCount}");
             sb.AppendLine($"- Correlation honesty: {metadata.HonestyNote}");
         }
+
+        if (report.FindingLifecycle is not null)
+            foreach (string line in CrossReviewFindingLifecycleExportLines.Build(report.FindingLifecycle))
+                sb.AppendLine($"- {line}");
 
         sb.AppendLine();
     }

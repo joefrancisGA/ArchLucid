@@ -61,11 +61,8 @@ public sealed class RecurrenceCompletionEmailDispatcher(
             : emailOptions.OperatorBaseUrl.TrimEnd('/');
 
         string runHex = triggeredRunId.ToString("N");
-        string sourceHex = sourceRunId.ToString("N");
         string runDetailUrl = operatorBase is null ? $"/reviews/{runHex}" : $"{operatorBase}/reviews/{runHex}";
-        string compareUrl = operatorBase is null
-            ? $"/reviews/{runHex}/compare?base={sourceHex}"
-            : $"{operatorBase}/reviews/{runHex}/compare?base={sourceHex}";
+        string compareUrl = RecurrenceCompletionOperatorLinks.BuildCompareUrl(operatorBase, sourceRunId, triggeredRunId);
 
         RecurrenceCompletionEmailModel model = new()
         {

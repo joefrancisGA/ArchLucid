@@ -258,6 +258,8 @@ public static partial class ServiceCollectionExtensions
         services.AddScoped<ISampleRunPurgeService, SampleRunPurgeService>();
         services.AddSingleton<IFindingTrustLabelMapper, FindingTrustLabelMapper>();
         services.AddSingleton<ICrossReviewFindingCorrelationService, CrossReviewFindingCorrelationService>();
+        // Scoped, not singleton: unlike pure correlation this reads the tenant's finding review trail (TB-2194).
+        services.AddScoped<ICrossReviewFindingLifecycleService, CrossReviewFindingLifecycleService>();
         services.AddScoped<IRunDetailQueryService, RunDetailQueryService>();
         services.AddScoped<IAuthorityRunDetailOperatorEnricher, AuthorityRunDetailOperatorEnricher>();
         services.Configure<RunRoiEstimatorOptions>(configuration.GetSection(RunRoiEstimatorOptions.SectionPath));
