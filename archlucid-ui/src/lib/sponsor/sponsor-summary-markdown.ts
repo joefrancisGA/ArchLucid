@@ -153,6 +153,8 @@ export function buildSponsorSummaryMarkdown(summary: SponsorRoiSummary): string 
     for (const issue of summary.topSystemicIssues) {
       lines.push(`| ${normalizeInline(issue.category)} | ${normalizeInline(issue.severity)} | ${issue.count} |`);
     }
+
+    lines.push("");
   }
 
   if (
@@ -184,6 +186,7 @@ export function buildSponsorSummaryMarkdown(summary: SponsorRoiSummary): string 
   }
 
   if (summary.realizedValue) {
+    lines.push("");
     lines.push("## Realized value (computed)");
     lines.push("");
     lines.push(`- **Findings remediated (30d):** ${summary.realizedValue.findingsRemediatedCount30Days}`);
