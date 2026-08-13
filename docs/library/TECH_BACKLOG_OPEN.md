@@ -88,7 +88,7 @@ In `TECH_BACKLOG.md` summary table: **V1 / V1.1 first** (cluster order); **`### 
 | First-review guide help (`/help/first-architecture-review`; **HFE** redirect **Done**) | **TB-1375**–**TB-1378** (open P1/P2 **V1**); **TB-1374** **Done** 2026-08-12 | Residual on **COR**: purge Pilot/operator-path jargon; inbound first-review pointers; discovery/search twin collapse; Vitest guard; pairs **TB-1335**/**TB-1352** |
 | Complete review workflow help (`/help/first-architecture-review`; **FIR** redirect **Done**) | **TB-1379** (open P1 **V1**); **TB-1380**–**TB-1383** (**Done** 2026-08-11) | Residual on **COR**: specialty companion + Start CTA; pairs **TB-1335**/**TB-1374** |
 | API contracts help (`/help/api-contracts`; legacy `/help/governance-api-contracts` redirects) | **TB-1384**–**TB-1388** (**Done**) | Specialty API contracts guide + title honesty; Admin gate; de-index; buyer deep-link retarget; leakage strip; traffic **HG** |
-| Pilot ROI model help (`/help/pilot-roi-model`; **PI** retired) | **TB-1389**–**TB-1393** (**Done** 2026-08-11) | Folded into `executive-summary#pilot-roi-measurement` (Batch R½); residual EXE quality **TB-1686**–**TB-1690** |
+| Pilot ROI model help (`/help/pilot-roi-model`; **PI** retired) | **TB-1389**–**TB-1393** (**Done** 2026-08-11) | Folded into `sponsor-summary#pilot-roi-measurement` (Batch R½); residual EXE quality **TB-1686**–**TB-1690** |
 | Repeat-review loop help (`/help/repeat-review-loop`) | **TB-1395**–**TB-1398** (open P1 **V1**) | **TB-1394**/**TB-1396** Done 2026-08-12 specialty companion + contributor leak purge; title/tier honesty; Related density; loop-step CTAs; owner review ~40/100 2026-07-26; traffic **HRX**; pairs **TB-1335**/**TB-1390**/**TB-1346** |
 | Architecture packages / Reviews help (`/help/review-packages`) | **TB-1399**–**TB-1403** (open P1 **V1**) | Specialty companion + Open `/reviews` CTA; Reviews vs Architecture packages title hierarchy; TOC/anchor honesty; Related density; export jargon + sample/empty CTA; owner review ~58/100 2026-07-26; traffic **REV**; after Done **TB-761**; pairs **TB-1350**/**TB-738**/**TB-1026** |
 | Legacy Admin AI usage (`/admin/ai-usage-cost`) | **TB-1404**–**TB-1408** (**Done** 2026-08-11) | No App Router page; canonicalize + readiness; ADI redirect-only notes; CI drift + doc guard; owner review ~48/100 2026-07-26; traffic **ADI**; after Done **TB-753**; **IA-014**; pairs **TB-748**; product UX **TB-1216**–**TB-1220** |
@@ -119,7 +119,7 @@ In `TECH_BACKLOG.md` summary table: **V1 / V1.1 first** (cluster order); **`### 
 | Help catch-all (`/help/[...topic]`) | **TB-1599**–**TB-1603** (open P1/P2 **V1**) | NotFound recovery; loading/dynamic honesty; fallthrough↔**TB-1414**; traffic router-meta; dispatch CI; ~49/100; traffic **HE.** |
 | Accelerator chooser (`/help/accelerator-chooser`) | **TB-1605**/**TB-1607** **Done** 2026-08-13; **TB-1604**/**TB-1606**/**TB-1608** Done | TS SoT + title/tier honesty shipped |
 | Admin diagnostics (`/help/admin-diagnostics`) | **TB-1609**–**TB-1611** **Done** 2026-08-13; **TB-1612**–**TB-1613** (open P1 **V1**) | Specialty + System health CTA; Platform health title; product-help tier; eng Related demote + inbound remain |
-| Authentication sign-in (`/help/authentication-sign-in`) | **TB-1614**–**TB-1618** (open P1 **V1**) | Specialty + Sign in CTA; eval/invite CTAs; viewport density; Related; auth-shell label; ~55/100; traffic **HEU** |
+| Authentication sign-in (`/help/authentication-sign-in`) | **TB-1614**–**TB-1616** **Done** 2026-08-13; **TB-1617**–**TB-1618** (open P1 **V1**) | Specialty + Sign in CTA; eval/invite CTAs; viewport density shipped; Related + auth-shell label remain |
 | Azure Boards help (`/help/azure-boards`) | **TB-1619**–**TB-1622** (open P1 **V1**); **TB-1623** **Done** (HEZ redirect/fold) | Specialty + Open CTA; setup links; smoke leak; Phase-1 jargon; ~51/100; traffic **HAZ** |
 | Azure permissions (`/help/azure-permissions`) | **TB-1626**–**TB-1630** (open P1 **V1**) | Primary CTA; viewport density; Tier/contract jargon; Connect-Azure IA; skeleton; ~63/100; traffic **HEA** |
 | Compliance journey (`/compliance-journey`) | **TB-1483**/**TB-1485**/**TB-1487** **Done** 2026-08-11; **TB-1484**/**TB-1486** **Done** | MarketingPageShell + staged journey + primary Trust Center CTA; ISR/testid; doc-link honesty |
@@ -393,9 +393,9 @@ In `TECH_BACKLOG.md` summary table: **V1 / V1.1 first** (cluster order); **`### 
 | TB-1611 | ~~Admin diagnostics help — contentKind/tier honesty~~ **Done** 2026-08-13 | Trustworthiness P1 **V1** — with **TB-1609**; pairs **TB-1250** |
 | TB-1612 | Admin diagnostics help — Related eng deep-link demote | Trustworthiness P1 **V1** — with **TB-1609** |
 | TB-1613 | Admin diagnostics — inbound label honesty + doc-href map | Adoption friction P1 **V1** — with **TB-1609** |
-| TB-1614 | `/help/authentication-sign-in` specialty sign-in companion + Sign in CTA | Adoption friction P1 **V1** — HEU ~55/100 |
-| TB-1615 | Authentication help — Start evaluation / invite secondary CTAs | Adoption friction P1 **V1** — with **TB-1614** |
-| TB-1616 | Authentication help — first-viewport density (SSO/recovery disclosure) | Adoption friction P1 **V1** — with **TB-1614** |
+| TB-1614 | ~~`/help/authentication-sign-in` specialty sign-in companion + Sign in CTA~~ **Done** 2026-08-13 | Adoption friction P1 **V1** — HEU ~55/100 |
+| TB-1615 | ~~Authentication help — Start evaluation / invite secondary CTAs~~ **Done** 2026-08-13 | Adoption friction P1 **V1** — with **TB-1614** |
+| TB-1616 | ~~Authentication help — first-viewport density (SSO/recovery disclosure)~~ **Done** 2026-08-13 | Adoption friction P1 **V1** — with **TB-1614** |
 | TB-1617 | Authentication help — Related density + enterprise-onboarding honesty | Trustworthiness P1 **V1** — with **TB-1614** |
 | TB-1618 | Authentication help — auth-shell inbound label align | Adoption friction P1 **V1** — with **TB-1614** |
 | TB-1619 | `/help/azure-boards` specialty integration companion + Open Azure Boards CTA | Adoption friction P1 **V1** — HAZ ~51/100 |
@@ -472,10 +472,10 @@ In `TECH_BACKLOG.md` summary table: **V1 / V1.1 first** (cluster order); **`### 
 | TB-1683 | ~~Evidence-only help — IA dual with `/help/core-pilot`~~ **Done** 2026-08-03 | Adoption friction P1 **V1** — alias → `first-architecture-review` |
 | TB-1684 | Evidence-only help — extract-upload vs `/reviews/new` CTA honesty | Trustworthiness P1 **V1** — apply on Core Pilot fast-path copy |
 | TB-1685 | Evidence-only help — first-viewport job chrome | Adoption friction P1 **V1** — supersede via Core Pilot chrome if needed |
-| TB-1686 | `/help/executive-summary` retarget SoT off FAQ dump → sponsor brief | Trustworthiness P1 **V1** — EXE ~30 |
-| TB-1687 | Executive-summary help — specialty guide + Open ROI/sponsor CTA | Adoption friction P1 **V1** — with **TB-1686** |
-| TB-1689 | Executive-summary help — fix in-app-doc-href catch-all mappings | Trustworthiness P1 **V1** — with **TB-1686** |
-| TB-1690 | Executive-summary help — title/body honesty | Trustworthiness P1 **V1** — with **TB-1686** |
+| TB-1686 | `/help/sponsor-summary` retarget SoT off FAQ dump → sponsor brief | Trustworthiness P1 **V1** — EXE ~30 |
+| TB-1687 | Sponsor-summary help — specialty guide + Open ROI/sponsor CTA | Adoption friction P1 **V1** — with **TB-1686** |
+| TB-1689 | Sponsor-summary help — fix in-app-doc-href catch-all mappings | Trustworthiness P1 **V1** — with **TB-1686** |
+| TB-1690 | Sponsor-summary help — title/body honesty | Trustworthiness P1 **V1** — with **TB-1686** |
 | TB-1696 | `/help/integration-readiness` specialty guide + Open readiness CTA | Adoption friction P1 **V1** — HEI ~50 |
 | TB-1697 | Integration-readiness help — Help Center tier honesty | Trustworthiness P1 **V1** — with **TB-1696** |
 | TB-1698 | Integration-readiness help — digests/advisory configure-href honesty | Trustworthiness P1 **V1** — with **TB-1696** |
@@ -503,7 +503,7 @@ In `TECH_BACKLOG.md` summary table: **V1 / V1.1 first** (cluster order); **`### 
 | TB-1722 | Pilot-guide workspace-nav — slug/pilot-nav jargon honesty | Trustworthiness P1 **V1** — with **TB-1721** |
 | TB-1723 | Pilot-guide workspace-nav — Help Center catalog discovery | Adoption friction P1 **V1** — with **TB-1721** |
 | TB-1724 | Pilot-guide workspace-nav — IA dual with first-architecture-review paths | Adoption friction P1 **V1** — with **TB-1721** |
-| TB-1725 | Pilot-guide workspace-nav — Related density + executive-shell copy honesty | Adoption friction P1 **V1** — with **TB-1721** |
+| TB-1725 | Pilot-guide workspace-nav — Related density + sponsor-shell copy honesty | Adoption friction P1 **V1** — with **TB-1721** |
 | TB-1726 | ~~`/help/policy-pack-delta-demo` specialty Admin demo guide + Open policy-packs CTA~~ **Done** 2026-08-11 (Batch R fold into HEO) | Adoption friction P1 **V1** — traffic **POL** retired |
 | TB-1728 | ~~Policy-pack-delta help — title honesty~~ **Done** 2026-08-11 (Batch R) | Trustworthiness P1 **V1** — with **TB-1726** |
 | TB-1729 | ~~Policy-pack-delta help — IA dual with governance-approval / alerts~~ **Done** 2026-08-11 (Batch R) | Adoption friction P1 **V1** — with **TB-1726** |
@@ -512,9 +512,9 @@ In `TECH_BACKLOG.md` summary table: **V1 / V1.1 first** (cluster order); **`### 
 | TB-1732 | Prior-manifest help — manifest/retrieval jargon honesty | Trustworthiness P1 **V1** — with **TB-1731** |
 | TB-1734 | Prior-manifest help — IA dual with repeat-review / compare | Adoption friction P1 **V1** — with **TB-1731** |
 | TB-1735 | Prior-manifest help — Related + finalize-success inbound copy | Adoption friction P1 **V1** — with **TB-1731** |
-| TB-1736 | `/help/executive-summary` specialty buyer overview + Start CTA (HPR redirect **Done**; residual on **EXE**) | Adoption friction P1 **V1** — with **TB-1737**/**TB-1740** |
-| TB-1737 | Executive-summary help — title honesty (sponsor brief vs product overview) | Trustworthiness P1 **V1** — with **TB-1736** |
-| TB-1739 | Product-overview help — IA dual with executive-summary / path-chooser | Adoption friction P1 **V1** — with **TB-1736** |
+| TB-1736 | `/help/sponsor-summary` specialty buyer overview + Start CTA (HPR redirect **Done**; residual on **EXE**) | Adoption friction P1 **V1** — with **TB-1737**/**TB-1740** |
+| TB-1737 | Sponsor-summary help — title honesty (sponsor brief vs product overview) | Trustworthiness P1 **V1** — with **TB-1736** |
+| TB-1739 | Product-overview help — IA dual with sponsor-summary / path-chooser | Adoption friction P1 **V1** — with **TB-1736** |
 | TB-1740 | Product-overview help — elevator/M-18 outreach dump vs overview job | Adoption friction P1 **V1** — with **TB-1736** |
 | TB-1741 | `/help/report-a-problem` specialty support guide + Open Settings Support CTA | Adoption friction P1 **V1** — HRE ~55 |
 | TB-1742 | Report-a-problem help — dead-end when Report button absent | Adoption friction P1 **V1** — with **TB-1741** |
@@ -843,7 +843,7 @@ Canonical: [`GTM_BACKLOG.md`](../go-to-market/GTM_BACKLOG.md) only (see wave-3 c
 | Data handling + tenant isolation (`/help/data-handling-tenant-isolation`) | **TB-1660** open; **TB-1656**–**TB-1658** Done 2026-08-03 | Alias → `data-handling`. Residual: Vitest anti-stub polish; traffic fold HDA→HED; leakage **Done TB-1659** |
 | DPA template (`/help/dpa-template`) | **TB-1676**–**TB-1680** (**Done** 2026-08-02) | Specialty guide + Trust CTA; leakage strip; placeholder honesty; Help Center IA; clause defer; traffic **HDP** |
 | Evidence-only review (`/help/evidence-only-review`) | **TB-1681**/**TB-1684**/**TB-1685** open; **TB-1682**/**TB-1683** shipped 2026-08-03 | Alias → `first-architecture-review` (+ `#fast-path-evidence-only`). Residual: Start CTA / extract-upload honesty / step chrome if still desired on Core Pilot; traffic **HEV**→**COR** |
-| Executive summary (`/help/executive-summary`) | **TB-1686**–**TB-1690** (open P1 **V1**) | Retarget off FAQ; specialty CTA; leakage; doc-href catch-all; title honesty; ~30/100; traffic **EXE** |
+| Sponsor summary (`/help/sponsor-summary`) | **TB-1686**–**TB-1690** (open P1 **V1**) | Retarget off FAQ; specialty CTA; leakage; doc-href catch-all; title honesty; ~30/100; traffic **EXE** |
 | First value 20 minutes (`/help/first-value-20-minutes`) | **TB-1691**–**TB-1695** (**Done** 2026-08-11) | Folded into COR `#first-value-in-20-minutes` (Batch R); traffic **HEF** retired |
 | Policy-pack delta demo (`/help/policy-pack-delta-demo`) | **TB-1726**–**TB-1730** (**Done** 2026-08-11) | Folded into HEO `#policy-pack-delta-demo` (Batch R); traffic **POL** retired |
 | Integration readiness (`/help/integration-readiness`) | **TB-1696**–**TB-1700** (open P1 **V1**) | Specialty + Open CTA; tier honesty; digests href; viewport density; Related IA; ~50/100; traffic **HEI** |
@@ -853,7 +853,7 @@ Canonical: [`GTM_BACKLOG.md`](../go-to-market/GTM_BACKLOG.md) only (see wave-3 c
 | Pilot feedback (`/help/pilot-feedback`) | **TB-1716**–**TB-1720** (open P1 **V1**) | Specialty + Open CTA; API leakage; title/58R; vs recommendation learning; job chrome; ~45/100; traffic **HPE**; internal-runbook |
 | Workspace navigation (`/help/pilot-guide`; PIL→HP **Done**) | **TB-1721**–**TB-1725** (open P1 **V1**) | Specialty + Home CTA on pilot-guide; slug jargon; Help Center; vs COR IA; Related/exec copy |
 | Prior manifest retrieval (`/help/prior-manifest-retrieval`) | **TB-1731**–**TB-1735** (open P1 **V1**) | Specialty + Open Ask CTA; manifest jargon; config leakage; vs repeat/compare IA; Related/finalize copy; ~50/100; traffic **HEP** |
-| Product overview (`/help/executive-summary`; HPR redirect **Done**) | **TB-1736**–**TB-1740** (open P1 **V1**) | Specialty + Start CTA on EXE; title dual; eng/GTM leakage; vs path-chooser IA; M-18 pitch dump |
+| Product overview (`/help/sponsor-summary`; HPR redirect **Done**) | **TB-1736**–**TB-1740** (open P1 **V1**) | Specialty + Start CTA on EXE; title dual; eng/GTM leakage; vs path-chooser IA; M-18 pitch dump |
 | Report a problem (`/help/report-a-problem`) | **TB-1741**–**TB-1745** (open P1 **V1**) | Specialty + Support CTA; button-absent dead-end; vs troubleshooting IA; first-viewport; Related/email; ~55/100; traffic **HRE**; after Done **TB-790** |
 | SOC 2 self-assessment (`/help/soc2-self-assessment`) | **TB-1746**/**TB-1749**/**TB-1750** **Done** 2026-08-03; **TB-1747**/**TB-1748** retained | Specialty guide + Trust CTA; IA dual; Help Center; traffic **HES**; do not reopen **TB-135**/**TB-136** |
 | Subprocessors (`/help/subprocessors`) | **TB-1751**–**TB-1755** (open P1 **V1**) | Specialty + Trust CTA; repo leakage; vs DPA/Trust IA; title/Help Center; residency honesty; ~44/100; traffic **HSU** |
@@ -874,7 +874,7 @@ Canonical: [`GTM_BACKLOG.md`](../go-to-market/GTM_BACKLOG.md) only (see wave-3 c
 | Ghost signed-record artifact preview (`/signed-records/.../artifacts/...`) | — (cluster **Done** **TB-1946**–**TB-1950** 2026-08-11) | Traffic + section/docs **Done**; page + hrefs **Done** under **GAR**; Vitest existence with **TB-1825**; ~10/100; traffic **MAM**→**GAR**; peer **RER** |
 | Snapshot leave-behind (`/snapshot/[runId]`) | — (cluster **Done** **TB-1951**–**TB-1955**) | Redirect traffic; destination honesty; next.config/query; docs; Vitest; ~30/100; traffic **SNU** |
 | Architecture scorecard (`/insights/architecture-scorecard`) | — (cluster **Done**; Evidence chrome 2026-08-03) | **TB-1956**–**TB-1960** Done; Sources + Category-1 registry; ~45/100; traffic **SCX**; siblings SPE/SPP/SPR |
-| Executive summary (`/sponsor-report/executive-summary`) | — (cluster **Done** **TB-1961**–**TB-1965**) | SPE sponsor-report cluster complete; siblings SPP/SPR |
+| Sponsor summary (`/sponsor-report/sponsor-summary`) | — (cluster **Done** **TB-1961**–**TB-1965**) | SPE sponsor-report cluster complete; siblings SPP/SPR |
 | Pilot outcomes (`/sponsor-report/pilot-outcomes`) | — | **TB-1966**–**TB-1970** Done; traffic **SPP**; sibling SPR |
 | ROI summary (`/sponsor-report/roi-summary`) | — | **TB-1971**–**TB-1975** Done; traffic **SPR** |
 | Finding evidence-trace (`/…/evidence-trace`) | **TB-1830** (open P2 **V1**; **TB-1826**–**TB-1829** **Done** 2026-08-12) | Finding-first H1; no footer self-link; back to finding detail; heading hierarchy shipped; **TB-1830** Vitest bundle + **TB-987** stickiness honesty; traffic **ERU** |
