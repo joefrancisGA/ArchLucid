@@ -36,16 +36,6 @@ function optionalNumber(value: number | null | undefined): string {
   return String(value);
 }
 
-function shortList(items: readonly string[], limit: number): string {
-  if (items.length === 0)
-    return "-";
-
-  const visible = items.slice(0, limit);
-  const suffix = items.length > limit ? ` +${items.length - limit}` : "";
-
-  return `${visible.join(", ")}${suffix}`;
-}
-
 function graphRagSummary(row: RunRetrievalGroundingRow): string {
   const neighbors = row.graphRagNeighborsAdded;
   const seeds = row.graphRagSeedHits;
@@ -156,11 +146,11 @@ export function RunRetrievalGroundingPanel(props: RunRetrievalGroundingPanelProp
                 <EnterpriseTableRow key={row.traceId}>
                   <EnterpriseTableCell className="whitespace-nowrap">{row.agentName?.trim() || "Unknown"}</EnterpriseTableCell>
                   <EnterpriseTableCell className="whitespace-nowrap">{row.corpusKind?.trim() || "-"}</EnterpriseTableCell>
-                  <EnterpriseTableCell className={cn("max-w-[14rem] font-mono", OPERATOR_TYPOGRAPHY.micro)} title={row.retrievedChunkIds.join(", ")}>
-                    {shortList(row.retrievedChunkIds, 3)}
+                  <EnterpriseTableCell className={cn("max-w-[14rem] break-all font-mono", OPERATOR_TYPOGRAPHY.micro)}>
+                    {row.retrievedChunkIds.length > 0 ? row.retrievedChunkIds.join(", ") : "-"}
                   </EnterpriseTableCell>
-                  <EnterpriseTableCell className={cn("max-w-[12rem] font-mono", OPERATOR_TYPOGRAPHY.micro)} title={row.documentIds.join(", ")}>
-                    {row.documentMetadataMalformed ? "degraded" : shortList(row.documentIds, 2)}
+                  <EnterpriseTableCell className={cn("max-w-[12rem] break-all font-mono", OPERATOR_TYPOGRAPHY.micro)}>
+                    {row.documentMetadataMalformed ? "degraded" : row.documentIds.length > 0 ? row.documentIds.join(", ") : "-"}
                   </EnterpriseTableCell>
                   <EnterpriseTableCell className={cn("max-w-[12rem] font-mono", OPERATOR_TYPOGRAPHY.micro)}>{scoreText(row)}</EnterpriseTableCell>
                   <EnterpriseTableCell className="whitespace-nowrap">{pct(row.citationCoverage)}</EnterpriseTableCell>
@@ -168,7 +158,7 @@ export function RunRetrievalGroundingPanel(props: RunRetrievalGroundingPanelProp
                     {optionalNumber(row.tokensIn)} in / {optionalNumber(row.tokensOut)} out
                   </EnterpriseTableCell>
                   <EnterpriseTableCell className={cn("whitespace-nowrap", OPERATOR_TYPOGRAPHY.helper)}>{graphRagSummary(row)}</EnterpriseTableCell>
-                  <EnterpriseTableCell className={cn("max-w-[12rem] truncate font-mono", OPERATOR_TYPOGRAPHY.micro)} title={row.traceId}>
+                  <EnterpriseTableCell className={cn("max-w-[12rem] break-all font-mono", OPERATOR_TYPOGRAPHY.micro)}>
                     {row.agentExecutionTraceId?.trim() || row.traceId}
                   </EnterpriseTableCell>
                   <EnterpriseTableCell className={cn("whitespace-nowrap text-neutral-600 dark:text-neutral-400", OPERATOR_TYPOGRAPHY.helper)}>

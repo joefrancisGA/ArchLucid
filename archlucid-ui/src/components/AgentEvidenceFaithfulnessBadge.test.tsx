@@ -17,11 +17,9 @@ describe("AgentEvidenceFaithfulnessBadge", () => {
     expect(container.textContent).toBe("—");
   });
 
-  it("exposes heuristic disclaimer on title for non-absent ratios", () => {
+  it("exposes heuristic disclaimer via FieldHelpTooltip for non-absent ratios", () => {
     render(<AgentEvidenceFaithfulnessBadge ratio={0.5} />);
 
-    const pill = screen.getByText("Mixed").closest("span[title]");
-    expect(pill).not.toBeNull();
-    expect(pill?.getAttribute("title")).toContain("deterministic");
+    expect(screen.getByRole("button", { name: /help: evidence grounding/i })).toBeInTheDocument();
   });
 });
