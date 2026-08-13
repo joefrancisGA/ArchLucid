@@ -3,7 +3,16 @@ import { beforeEach, describe, expect, it, vi } from "vitest";
 
 import { RecurrenceSchedulePostCommitCard } from "@/components/governance/RecurrenceSchedulePostCommitCard";
 import * as governanceApi from "@/lib/api/governance-stickiness-api";
-import { RECURRENCE_AI_BUDGET_DISCLOSURE } from "@/lib/recurrence-schedule-activation-copy";
+import {
+  hasDeclinedRecurrenceProposal,
+  recordRecurrenceProposalDecline,
+} from "@/lib/governance/recurrence-proposal-decline";
+import {
+  RECURRENCE_AI_BUDGET_DISCLOSURE,
+  RECURRENCE_COMPLETION_RECIPIENTS_DISCLOSURE,
+  RECURRENCE_DECLINED_STATUS,
+  RECURRENCE_PROPOSAL_LEAD,
+} from "@/lib/recurrence-schedule-activation-copy";
 
 vi.mock("@/lib/api/governance-stickiness-api", () => ({
   createArchitectureReviewRecurrenceSchedule: vi.fn(),
@@ -15,6 +24,7 @@ describe("RecurrenceSchedulePostCommitCard", () => {
   const runId = "aaaaaaaa-aaaa-aaaa-aaaa-aaaaaaaaaaaa";
 
   beforeEach(() => {
+    window.localStorage.clear();
     vi.mocked(governanceApi.listArchitectureReviewRecurrenceSchedules).mockResolvedValue([]);
     vi.mocked(governanceApi.previewRecurrenceScheduleRuns).mockResolvedValue({
       isValid: true,
@@ -107,5 +117,57 @@ describe("RecurrenceSchedulePostCommitCard", () => {
       "href",
       "/governance/recurrence-schedules",
     );
+  });
+
+  it("proposes a concrete cadence with the pre-filled default after commit (TB-2192)", async () => {
+    render(<RecurrenceSchedulePostCommitCard runId={runId} hasStickinessPrompt />);
+
+    expect(await screen.findByTestId("recurrence-proposal-lead")).toHaveTextContent(RECURRENCE_PROPOSAL_LEAD);
+    expect(screen.getByTestId("recurrence-schedule-name")).toHaveValue("Weekly architecture review");
+    expect(screen.getByTestId("cron-expression-input")).toHaveValue("0 8 * * 1");
+  });
+
+  it("discloses who receives completion email before enabling (TB-2192)", async () => {
+    render(<RecurrenceSchedulePostCommitCard runId={runId} hasStickinessPrompt />);
+
+    expect(await screen.findByTestId("recurrence-completion-recipients-disclosure")).toHaveTextContent(
+      RECURRENCE_COMPLETION_RECIPIENTS_DISCLOSURE,
+    );
+  });
+
+  it("records a decline without creating any schedule (TB-2192)", async () => {
+    render(<RecurrenceSchedulePostCommitCard runId={runId} hasStickinessPrompt />);
+
+    fireEvent.click(await screen.findByTestId("recurrence-decline-proposal"));
+
+    expect(await screen.findByTestId("recurrence-proposal-declined")).toHaveTextContent(
+      RECURRENCE_DECLINED_STATUS,
+    );
+    expect(governanceApi.createArchitectureReviewRecurrenceSchedule).not.toHaveBeenCalled();
+    expect(hasDeclinedRecurrenceProposal(runId)).toBe(true);
+  });
+
+  it("stops proposing on a later visit once declined, and stays reopenable (TB-2192)", async () => {
+    recordRecurrenceProposalDecline(runId);
+
+    render(<RecurrenceSchedulePostCommitCard runId={runId} hasStickinessPrompt />);
+
+    await waitFor(() => {
+      expect(screen.queryByTestId("recurrence-schedule-name")).not.toBeInTheDocument();
+    });
+
+    fireEvent.click(screen.getByText("Show"));
+
+    expect(await screen.findByTestId("recurrence-proposal-declined")).toBeInTheDocument();
+  });
+
+  it("restores the proposal when the operator reconsiders (TB-2192)", async () => {
+    render(<RecurrenceSchedulePostCommitCard runId={runId} hasStickinessPrompt />);
+
+    fireEvent.click(await screen.findByTestId("recurrence-decline-proposal"));
+    fireEvent.click(await screen.findByTestId("recurrence-reconsider-proposal"));
+
+    expect(await screen.findByTestId("recurrence-schedule-name")).toBeInTheDocument();
+    expect(hasDeclinedRecurrenceProposal(runId)).toBe(false);
   });
 });
