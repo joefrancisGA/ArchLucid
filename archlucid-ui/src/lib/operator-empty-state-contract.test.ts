@@ -1,10 +1,11 @@
-import { readdirSync, readFileSync, statSync } from "node:fs";
+import { existsSync, readFileSync, readdirSync, statSync } from "node:fs";
 import { extname, join, relative } from "node:path";
 
 import { describe, expect, it } from "vitest";
 
 import { OPERATOR_CENTERED_EMPTY_STATE_BASELINE_PATHS } from "@/lib/operator/operator-centered-empty-state-baseline";
 import { OPERATOR_OPERATOR_EMPTY_STATE_BASELINE_PATHS } from "@/lib/operator/operator-operator-empty-state-baseline";
+import { listOperatorEmptyStateMigratedEntries } from "@/lib/operator/operator-empty-state-migration-inventory";
 
 const SRC_ROOT = join(process.cwd(), "src");
 const OPERATOR_ROOT = join(SRC_ROOT, "app", "(operator)");
@@ -21,6 +22,8 @@ const EMPTY_STATE_IMPORT_PATTERN = /from ["']@\/components\/EmptyState["']/;
 
 const OPERATOR_SHELL_MESSAGE_IMPORT_PATTERN =
   /from ["']@\/components\/operator\/OperatorShellMessage["']/;
+
+const COMPACT_EMPTY_STATE_PATTERN = /EnterpriseCompactEmptyState/;
 
 function collectOperatorViews(directory: string): string[] {
   const collected: string[] = [];
@@ -104,5 +107,27 @@ describe("operator empty states (TB-1556)", () => {
       .sort();
 
     expect(stale).toEqual([]);
+  });
+
+  it("uses EnterpriseCompactEmptyState in TB-1554 migrated inventory roots", () => {
+    const missingCompact: string[] = [];
+
+    for (const entry of listOperatorEmptyStateMigratedEntries()) {
+      const absolutePath = join(SRC_ROOT, ...entry.componentOrModule.split("/"));
+
+      if (!existsSync(absolutePath)) {
+        missingCompact.push(`${entry.id}: missing file ${entry.componentOrModule}`);
+
+        continue;
+      }
+
+      const source = readFileSync(absolutePath, "utf8");
+
+      if (!COMPACT_EMPTY_STATE_PATTERN.test(source)) {
+        missingCompact.push(`${entry.id}: ${entry.componentOrModule}`);
+      }
+    }
+
+    expect(missingCompact).toEqual([]);
   });
 });

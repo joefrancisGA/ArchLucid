@@ -39,10 +39,20 @@ describe("operator-empty-state-kind-presets (TB-1555)", () => {
   });
 
   it("maps exported compact presets to operator empty kinds for TB-1556", () => {
+    const compactPresetKeys = Object.keys(enterpriseCompactEmptyStatePresets).filter((key) =>
+      key.endsWith("_COMPACT"),
+    );
+
+    for (const presetKey of compactPresetKeys) {
+      expect(OPERATOR_EMPTY_STATE_PRESET_KINDS, presetKey).toHaveProperty(presetKey);
+    }
+
     for (const [presetKey, kind] of Object.entries(OPERATOR_EMPTY_STATE_PRESET_KINDS)) {
       expect(enterpriseCompactEmptyStatePresets).toHaveProperty(presetKey);
-      expect(kind).toMatch(/^(collection|hub-zone|filtered|prerequisite|permission)$/);
+      expect(kind).toMatch(/^(collection|hub-zone|filtered|prerequisite|permission|error)$/);
     }
+
+    expect(Object.keys(OPERATOR_EMPTY_STATE_PRESET_KINDS).sort()).toEqual(compactPresetKeys.sort());
   });
 
   it("omits actions on filtered empties when no clear next step exists", () => {

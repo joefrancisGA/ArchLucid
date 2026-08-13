@@ -12,6 +12,7 @@ export const OPERATOR_EMPTY_STATE_KINDS = [
   "filtered",
   "prerequisite",
   "permission",
+  "error",
 ] as const;
 
 export type OperatorEmptyStateKind = (typeof OPERATOR_EMPTY_STATE_KINDS)[number];

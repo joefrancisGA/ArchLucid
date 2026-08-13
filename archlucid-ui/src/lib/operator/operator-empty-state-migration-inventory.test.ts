@@ -16,6 +16,7 @@ describe("operator-empty-state-migration-inventory (TB-1554)", () => {
       "filtered",
       "prerequisite",
       "permission",
+      "error",
     ]);
   });
 
