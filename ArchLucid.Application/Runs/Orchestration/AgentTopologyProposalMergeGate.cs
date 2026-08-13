@@ -7,7 +7,7 @@ using ArchLucid.KnowledgeGraph.Models;
 namespace ArchLucid.Application.Runs.Orchestration;
 
 /// <summary>
-///     Validates topology agent proposals against inventoried graph nodes before commit overlay.
+///     Validates topology and cost agent proposals against inventoried graph nodes before commit overlay.
 /// </summary>
 public static class AgentTopologyProposalMergeGate
 {
@@ -18,12 +18,7 @@ public static class AgentTopologyProposalMergeGate
         ArgumentNullException.ThrowIfNull(graph);
         ArgumentNullException.ThrowIfNull(results);
 
-        HashSet<string> inventoriedLabels = graph.Nodes
-            .Where(static n => string.Equals(n.NodeType, GraphNodeTypes.TopologyResource, StringComparison.OrdinalIgnoreCase))
-            .Where(static n => !IsAgentProposedNode(n))
-            .Select(static n => n.Label)
-            .Where(static l => !string.IsNullOrWhiteSpace(l))
-            .ToHashSet(StringComparer.OrdinalIgnoreCase);
+        HashSet<string> inventoriedLabels = ResolveInventoriedLabels(graph);
 
         if (inventoriedLabels.Count == 0)
             return results;
@@ -32,7 +27,7 @@ public static class AgentTopologyProposalMergeGate
 
         foreach (AgentResult result in results)
         {
-            if (result.AgentType != AgentType.Topology || result.ProposedChanges is null)
+            if (!RequiresInventoryOverlayValidation(result.AgentType) || result.ProposedChanges is null)
             {
                 filtered.Add(result);
                 continue;
@@ -48,6 +43,17 @@ public static class AgentTopologyProposalMergeGate
 
         return filtered;
     }
+
+    private static bool RequiresInventoryOverlayValidation(AgentType agentType) =>
+        agentType is AgentType.Topology or AgentType.Cost;
+
+    private static HashSet<string> ResolveInventoriedLabels(GraphSnapshot graph) =>
+        graph.Nodes
+            .Where(static n => string.Equals(n.NodeType, GraphNodeTypes.TopologyResource, StringComparison.OrdinalIgnoreCase))
+            .Where(static n => !IsAgentProposedNode(n))
+            .Select(static n => n.Label)
+            .Where(static l => !string.IsNullOrWhiteSpace(l))
+            .ToHashSet(StringComparer.OrdinalIgnoreCase);
 
     private static bool IsAgentProposedNode(GraphNode node) =>
         string.Equals(node.SourceType, nameof(AgentType.Topology), StringComparison.OrdinalIgnoreCase)

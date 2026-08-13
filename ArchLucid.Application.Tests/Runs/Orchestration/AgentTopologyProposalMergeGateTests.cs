@@ -103,4 +103,47 @@ public sealed class AgentTopologyProposalMergeGateTests
         merged.Nodes.Should().HaveCount(1);
         merged.Nodes[0].Label.Should().Be("existing-api");
     }
+
+    [Fact]
+    public void FilterValidatedProposals_WhenInventoryExists_RejectsUninventoriedCostProposalLabels()
+    {
+        GraphSnapshot graph = new()
+        {
+            Nodes =
+            [
+                new GraphNode
+                {
+                    NodeId = "inv-1",
+                    NodeType = GraphNodeTypes.TopologyResource,
+                    Label = "existing-api",
+                    Category = GraphTopologyCategories.Compute,
+                    SourceType = "Terraform",
+                    SourceId = "azurerm_app_service.main"
+                }
+            ]
+        };
+
+        AgentResult cost = new()
+        {
+            AgentType = AgentType.Cost,
+            ProposedChanges = new AgentTopologyProposal
+            {
+                SourceAgent = AgentType.Cost,
+                AddedServices =
+                [
+                    new ManifestService
+                    {
+                        ServiceName = "invented-api",
+                        ServiceType = ServiceType.Api,
+                        RuntimePlatform = RuntimePlatform.AppService
+                    }
+                ]
+            }
+        };
+
+        IReadOnlyList<AgentResult> filtered =
+            AgentTopologyProposalMergeGate.FilterValidatedProposals(graph, [cost]);
+
+        filtered.Should().BeEmpty();
+    }
 }

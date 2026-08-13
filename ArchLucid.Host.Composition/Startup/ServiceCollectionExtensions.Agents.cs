@@ -115,10 +115,14 @@ public static partial class ServiceCollectionExtensions
         services.AddScoped<IAgentCuratedEvidenceProposer, AgentCuratedEvidenceProposer>();
         services.AddScoped<AgentResultPostExecutionEnricher>();
         services.AddScoped<AgentResultRegionMismatchEnricher>();
+        services.AddScoped<AgentProposalStructuralPostProcessorEnricher>();
+        services.AddScoped<CrossAgentProposalConsistencyEnricher>();
         services.AddScoped<IAgentResultPostExecutionEnricher>(static sp =>
             new CompositeAgentResultPostExecutionEnricher(
             [
                 sp.GetRequiredService<AgentResultPostExecutionEnricher>(),
+                sp.GetRequiredService<AgentProposalStructuralPostProcessorEnricher>(),
+                sp.GetRequiredService<CrossAgentProposalConsistencyEnricher>(),
                 sp.GetRequiredService<AgentResultRegionMismatchEnricher>(),
             ]));
         services.AddSingleton<IAgentEvidenceUntrustedInputSanitizer, AgentEvidenceUntrustedInputSanitizer>();

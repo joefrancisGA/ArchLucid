@@ -4,13 +4,15 @@ using System.Text;
 using ArchLucid.Application.Findings;
 using ArchLucid.Contracts.Findings;
 using ArchLucid.Contracts.Findings.Payloads;
-using ArchLucid.Contracts.Persistence.Graph;
+using ArchLucid.Core.Configuration;
 using ArchLucid.Core.Scoping;
 using ArchLucid.Decisioning.Models;
 using ArchLucid.Persistence.Data.Repositories;
 using ArchLucid.Persistence.Models;
 
 using FluentAssertions;
+
+using Microsoft.Extensions.Options;
 
 using Moq;
 
@@ -105,14 +107,46 @@ public sealed class OrphanedAzureResourceFindingEngineTests
     }
 
     [Fact]
+    public async Task AnalyzeAsync_returns_empty_when_inventory_collection_is_stale()
+    {
+        Mock<IAzureExtractorPackageRepository> packageRepository = new();
+        packageRepository
+            .Setup(repo => repo.TryGetLatestCollectionTimestampUtcInScopeAsync(TestScope, It.IsAny<CancellationToken>()))
+            .ReturnsAsync(DateTime.UtcNow.AddDays(-120));
+        packageRepository
+            .Setup(repo => repo.TryGetLatestDownloadInScopeAsync(TestScope, It.IsAny<CancellationToken>()))
+            .ReturnsAsync(CreatePackage("[]"));
+
+        OrphanedAzureResourceFindingEngine sut = new(
+            CreateScopeProvider().Object,
+            packageRepository.Object,
+            TimeProvider.System,
+            Options.Create(new RoiCostEvidenceFreshnessOptions { StaleAfterDays = 90 }));
+
+        IReadOnlyList<Finding> findings = await sut.AnalyzeAsync(new GraphSnapshot(), CancellationToken.None);
+
+        findings.Should().BeEmpty();
+        packageRepository.Verify(
+            repo => repo.TryGetLatestDownloadInScopeAsync(TestScope, It.IsAny<CancellationToken>()),
+            Times.Never);
+    }
+
+    [Fact]
     public async Task AnalyzeAsync_returns_empty_when_package_missing()
     {
         Mock<IAzureExtractorPackageRepository> packageRepository = new();
         packageRepository
+            .Setup(repo => repo.TryGetLatestCollectionTimestampUtcInScopeAsync(TestScope, It.IsAny<CancellationToken>()))
+            .ReturnsAsync(DateTime.UtcNow);
+        packageRepository
             .Setup(repo => repo.TryGetLatestDownloadInScopeAsync(TestScope, It.IsAny<CancellationToken>()))
             .ReturnsAsync((AzureExtractorPackageDownloadRecord?)null);
 
-        OrphanedAzureResourceFindingEngine sut = new(CreateScopeProvider().Object, packageRepository.Object);
+        OrphanedAzureResourceFindingEngine sut = new(
+            CreateScopeProvider().Object,
+            packageRepository.Object,
+            TimeProvider.System,
+            Options.Create(new RoiCostEvidenceFreshnessOptions { StaleAfterDays = 90 }));
 
         IReadOnlyList<Finding> findings = await sut.AnalyzeAsync(new GraphSnapshot(), CancellationToken.None);
 
@@ -133,10 +167,17 @@ public sealed class OrphanedAzureResourceFindingEngineTests
     {
         Mock<IAzureExtractorPackageRepository> packageRepository = new();
         packageRepository
+            .Setup(repo => repo.TryGetLatestCollectionTimestampUtcInScopeAsync(TestScope, It.IsAny<CancellationToken>()))
+            .ReturnsAsync(DateTime.UtcNow);
+        packageRepository
             .Setup(repo => repo.TryGetLatestDownloadInScopeAsync(TestScope, It.IsAny<CancellationToken>()))
             .ReturnsAsync(package);
 
-        return new OrphanedAzureResourceFindingEngine(CreateScopeProvider().Object, packageRepository.Object);
+        return new OrphanedAzureResourceFindingEngine(
+            CreateScopeProvider().Object,
+            packageRepository.Object,
+            TimeProvider.System,
+            Options.Create(new RoiCostEvidenceFreshnessOptions { StaleAfterDays = 90 }));
     }
 
     private static Mock<IScopeContextProvider> CreateScopeProvider()

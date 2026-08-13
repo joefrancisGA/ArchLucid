@@ -4,6 +4,7 @@ using System.Text;
 using ArchLucid.ArtifactSynthesis.Classifiers;
 using ArchLucid.Contracts.Findings;
 using ArchLucid.Contracts.Findings.Payloads;
+using ArchLucid.Core.Configuration;
 using ArchLucid.Core.Scoping;
 using ArchLucid.Decisioning.Interfaces;
 using ArchLucid.Decisioning.Models;
@@ -11,13 +12,28 @@ using ArchLucid.KnowledgeGraph.Models;
 using ArchLucid.Persistence.Data.Repositories;
 using ArchLucid.Persistence.Models;
 
+using Microsoft.Extensions.Options;
+
 namespace ArchLucid.Application.Findings;
 
 /// <summary>Deterministic orphan-resource findings from the latest scoped extractor ZIP.</summary>
 public sealed class OrphanedAzureResourceFindingEngine(
     IScopeContextProvider scopeContextProvider,
-    IAzureExtractorPackageRepository packageRepository) : IFindingEngine
+    IAzureExtractorPackageRepository packageRepository,
+    TimeProvider clock,
+    IOptions<RoiCostEvidenceFreshnessOptions> freshnessOptions) : IFindingEngine
 {
+    private readonly IScopeContextProvider _scopeContextProvider =
+        scopeContextProvider ?? throw new ArgumentNullException(nameof(scopeContextProvider));
+
+    private readonly IAzureExtractorPackageRepository _packageRepository =
+        packageRepository ?? throw new ArgumentNullException(nameof(packageRepository));
+
+    private readonly TimeProvider _clock = clock ?? throw new ArgumentNullException(nameof(clock));
+
+    private readonly RoiCostEvidenceFreshnessOptions _freshnessOptions =
+        freshnessOptions?.Value ?? throw new ArgumentNullException(nameof(freshnessOptions));
+
     public string EngineType => "orphaned-azure-resource";
     public string Category => "CostOptimization";
 
@@ -26,9 +42,21 @@ public sealed class OrphanedAzureResourceFindingEngine(
     {
         _ = graphSnapshot;
 
-        ScopeContext scope = scopeContextProvider.GetCurrentScope();
+        ScopeContext scope = _scopeContextProvider.GetCurrentScope();
+        DateTime? collectionUtc = await _packageRepository
+            .TryGetLatestCollectionTimestampUtcInScopeAsync(scope, ct)
+            .ConfigureAwait(false);
+
+        if (InventoryCollectionFreshnessGate.ShouldSuppressInventoryFindings(
+                collectionUtc,
+                _clock.GetUtcNow().UtcDateTime,
+                _freshnessOptions.StaleAfterDays))
+        {
+            return [];
+        }
+
         AzureExtractorPackageDownloadRecord? download =
-            await packageRepository.TryGetLatestDownloadInScopeAsync(scope, ct).ConfigureAwait(false);
+            await _packageRepository.TryGetLatestDownloadInScopeAsync(scope, ct).ConfigureAwait(false);
 
         if (download is null || download.PackageBytes.Length == 0)
             return [];
