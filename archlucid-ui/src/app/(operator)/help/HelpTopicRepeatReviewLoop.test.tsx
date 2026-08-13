@@ -120,6 +120,28 @@ describe("HelpTopicRepeatReviewLoop (TB-1396)", () => {
     expect(screen.queryByRole("link", { name: /Validate review/i })).toBeNull();
   });
 
+  it("limits Related help to three buyer-safe guides without accelerator chooser (TB-1397)", () => {
+    if (loaded === null) {
+      throw new Error("Expected repeat-review-loop documentation to load.");
+    }
+
+    render(<HelpRepeatReviewLoopGuideView entry={loaded.entry} markdown={loaded.markdown} />);
+
+    const relatedLinks = within(screen.getByTestId("help-repeat-review-loop-related-help")).getAllByRole("link");
+
+    expect(relatedLinks).toHaveLength(3);
+    expect(relatedLinks.map((link) => link.getAttribute("href"))).toEqual(
+      expect.arrayContaining([
+        "/help/comparison-replay",
+        "/help/review-packages",
+        "/help/first-architecture-review",
+      ]),
+    );
+    expect(relatedLinks.some((link) => (link.getAttribute("href") ?? "").includes("accelerator-chooser"))).toBe(
+      false,
+    );
+  });
+
   it("uses buyer title honesty without stickiness jargon in the hero (TB-1395)", () => {
     if (loaded === null) {
       throw new Error("Expected repeat-review-loop documentation to load.");

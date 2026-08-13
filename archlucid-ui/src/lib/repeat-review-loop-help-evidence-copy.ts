@@ -3,6 +3,10 @@ import type { EvidenceSourceLink } from "@/lib/evidence-surface-copy";
 import { GOVERNANCE_AUDIT_PATH, GOVERNANCE_POLICY_PACKS_PATH } from "@/lib/governance/governance-route-paths";
 import { inAppHelpHref } from "@/lib/product-documentation-registry";
 import { REPEAT_REVIEW_LOOP_HELP_PRIMARY_ACTIONS } from "@/lib/repeat-review-loop-help-guide-content";
+import {
+  REPEAT_REVIEW_LOOP_HELP_RELATED_GUIDES,
+  repeatReviewLoopHelpRelatedGuides,
+} from "@/lib/repeat-review-loop-help-related-guides";
 
 export const REPEAT_REVIEW_LOOP_HELP_CANONICAL_PATH = "/help/repeat-review-loop" as const;
 
@@ -12,7 +16,7 @@ export const REPEAT_REVIEW_LOOP_HELP_CLAIM_DISCIPLINE =
 export const REPEAT_REVIEW_LOOP_HELP_SOURCES_INTRO =
   "Use these follow-ups when repeat-review guidance turns into sponsor outcomes, review workflow detail, or assurance trails.";
 
-/** Navigable proof-column destinations for the stickiness signals table. */
+/** Navigable proof-column destinations for the repeat-review signals table. */
 export const REPEAT_REVIEW_LOOP_HELP_WHERE_YOU_SEE_IT: readonly EvidenceSourceLink[] = [
   {
     label: "Compare and prior package context",
@@ -46,9 +50,8 @@ export const REPEAT_REVIEW_LOOP_HELP_SOURCES: readonly EvidenceSourceLink[] = [
 
 export const REPEAT_REVIEW_LOOP_HELP_RELATED_HEADING = "Related help" as const;
 
-/** Related help links — same labels as the diligence artifact index where they overlap. */
-export const REPEAT_REVIEW_LOOP_HELP_RELATED: readonly EvidenceSourceLink[] = [
-  { label: "Compare and replay", href: inAppHelpHref("comparison-replay") },
-  { label: "Architecture packages", href: inAppHelpHref("review-packages") },
-  { label: "Accelerator chooser", href: inAppHelpHref("accelerator-chooser") },
-] as const;
+/** Related help links — TB-1397 buyer-safe density (no accelerator chooser). */
+export const REPEAT_REVIEW_LOOP_HELP_RELATED: readonly EvidenceSourceLink[] =
+  REPEAT_REVIEW_LOOP_HELP_RELATED_GUIDES;
+
+export { repeatReviewLoopHelpRelatedGuides };
