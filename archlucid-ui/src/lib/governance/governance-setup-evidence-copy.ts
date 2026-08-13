@@ -1,6 +1,9 @@
+import { GOVERNANCE_SETUP_HREF } from "@/lib/governance/governance-setup-route";
 import { inAppHelpHref } from "@/lib/product-documentation-registry";
 import type { EvidenceSourceLink } from "@/lib/evidence-surface-copy";
 import { GOVERNANCE_ALERT_RULES_PATH, GOVERNANCE_AUDIT_PATH, GOVERNANCE_FINDINGS_PATH, GOVERNANCE_POLICY_PACKS_PATH } from "@/lib/governance/governance-route-paths";
+
+export const GOVERNANCE_SETUP_CANONICAL_PATH = GOVERNANCE_SETUP_HREF;
 
 export const GOVERNANCE_SETUP_CLAIM_DISCIPLINE =
   "Governance setup is a checklist guide that links into audited config workspaces — it is not a signed-review diligence Sources package. Setup detects policy baseline and alert ownership from workspace configuration; threshold preview, approval expectations, and sponsor reporting are steps you confirm yourself. Open Findings, Audit, or Policy packs when you need live governance trails.";

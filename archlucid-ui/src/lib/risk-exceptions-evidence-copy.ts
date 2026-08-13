@@ -1,10 +1,15 @@
 import {
   GOVERNANCE_AUDIT_PATH,
   GOVERNANCE_DECISION_REGISTER_PATH,
+  GOVERNANCE_EXCEPTIONS_PATH,
   GOVERNANCE_FINDINGS_PATH,
 } from "@/lib/governance/governance-route-paths";
 import { inAppHelpHref } from "@/lib/product-documentation-registry";
 import type { EvidenceSourceLink } from "@/lib/evidence-surface-copy";
+
+export const RISK_EXCEPTIONS_CANONICAL_PATH = GOVERNANCE_EXCEPTIONS_PATH;
+
+export const RISK_EXCEPTIONS_HELP_TOPIC_LABEL = "How risk exceptions work";
 
 export const RISK_EXCEPTIONS_CLAIM_DISCIPLINE =
   "Risk exceptions track time-bounded waivers for accepted findings — they are not a signed-review diligence Sources package. Open Findings, Audit, or a review workspace when you need sponsor-safe trails.";

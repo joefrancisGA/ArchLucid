@@ -378,18 +378,6 @@ export const HELP_TOPIC_CONTEXTUAL_HELP_ROWS: readonly PageContextualHelpRow[] =
     },
   },
   {
-    prefix: "/help/governance-approval",
-    entry: {
-      whatIsThisPage:
-        "Governance approval — how architecture decisions move through submit, review, and finalize for architects.",
-      whatToDoNext:
-        "Open the approval queue or Workspace Health, then use Findings when you need the risk register behind a decision.",
-      whyEmpty: "This guide is always available; live approval queues appear after reviews enter governance.",
-      whereToConfigurePrerequisite:
-        "Approval authority follows workspace roles; confirm the header workspace before acting on requests.",
-    },
-  },
-  {
     prefix: "/help/review-guide",
     entry: {
       whatIsThisPage:

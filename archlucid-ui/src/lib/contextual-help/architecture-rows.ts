@@ -50,19 +50,6 @@ export const ARCHITECTURE_CONTEXTUAL_HELP_ROWS: readonly PageContextualHelpRow[]
     },
   },
   {
-    prefix: "/architecture/architecture-intelligence",
-    entry: {
-      whatIsThisPage:
-        "Architecture intelligence - run closed-loop architecture reasoning or the golden regression harness against a free-form description, then publish findings into the workspace review trail when ready.",
-      whatToDoNext:
-        "Paste or edit a description, choose Run architecture reasoning or Run golden harness, then use Publish findings into review when the output is ready to attach as findings.",
-      whyEmpty:
-        "Results appear after a successful run; empty panels mean you have not submitted a description yet or the last run returned no structured output.",
-      whereToConfigurePrerequisite:
-        "Requires an authenticated Core API session and LLM/reasoning configuration for the tenant; sibling Start a review files evidence for a full review pipeline.",
-    },
-  },
-  {
     prefix: "/architecture/first-review-guide",
     entry: {
       whatIsThisPage:

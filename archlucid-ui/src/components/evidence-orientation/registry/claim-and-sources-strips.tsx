@@ -101,6 +101,12 @@ import {
   EVIDENCE_GRAPH_HELP_SOURCES_INTRO,
 } from "@/lib/evidence-graph-help-evidence-copy";
 import {
+  ARCHITECTURE_INTELLIGENCE_HELP_CLAIM_DISCIPLINE,
+  ARCHITECTURE_INTELLIGENCE_HELP_FOLLOW_UPS_TITLE,
+  ARCHITECTURE_INTELLIGENCE_HELP_SOURCES,
+  ARCHITECTURE_INTELLIGENCE_HELP_SOURCES_INTRO,
+} from "@/lib/architecture-intelligence-help-evidence-copy";
+import {
   SEARCH_REVIEW_EVIDENCE_HELP_CLAIM_DISCIPLINE,
   SEARCH_REVIEW_EVIDENCE_HELP_FOLLOW_UPS_TITLE,
   SEARCH_REVIEW_EVIDENCE_HELP_SOURCES,
@@ -700,6 +706,22 @@ export function SearchReviewEvidenceHelpEvidenceOrientationStrip(): React.JSX.El
       sourcesTitle={SEARCH_REVIEW_EVIDENCE_HELP_FOLLOW_UPS_TITLE}
       sourcesIntro={SEARCH_REVIEW_EVIDENCE_HELP_SOURCES_INTRO}
       sources={SEARCH_REVIEW_EVIDENCE_HELP_SOURCES}
+      sourcesStyle={EVIDENCE_SOURCES_STYLE.operatorRaised}
+      sourcesHeadingId="where-to-go-next"
+    />
+  );
+}
+
+export function ArchitectureIntelligenceHelpEvidenceOrientationStrip(): React.JSX.Element {
+  return (
+    <EvidenceOrientationClaimAndSourcesStrip
+      slug="help-architecture-intelligence"
+      claim={ARCHITECTURE_INTELLIGENCE_HELP_CLAIM_DISCIPLINE}
+      claimStyle={EVIDENCE_CLAIM_STYLE.operatorNeutral}
+      claimElement="div"
+      sourcesTitle={ARCHITECTURE_INTELLIGENCE_HELP_FOLLOW_UPS_TITLE}
+      sourcesIntro={ARCHITECTURE_INTELLIGENCE_HELP_SOURCES_INTRO}
+      sources={ARCHITECTURE_INTELLIGENCE_HELP_SOURCES}
       sourcesStyle={EVIDENCE_SOURCES_STYLE.operatorRaised}
       sourcesHeadingId="where-to-go-next"
     />

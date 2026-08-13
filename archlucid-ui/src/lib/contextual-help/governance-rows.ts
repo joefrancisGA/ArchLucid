@@ -3,10 +3,6 @@
 import type { PageContextualHelpRow } from "@/lib/contextual-help/types";
 import { ADVISORY_SCANS_SCHEDULES_HREF } from "@/lib/advisory-scans-route";
 import { REVIEWS_LIST_PATH } from "@/lib/architecture/architecture-routes";
-import {
-  GOVERNANCE_APPROVAL_QUEUE_PATH,
-  GOVERNANCE_WORKSPACE_HEALTH_HREF,
-} from "@/lib/governance/governance-route-paths";
 
 export const GOVERNANCE_CONTEXTUAL_HELP_ROWS: readonly PageContextualHelpRow[] = [
   {
@@ -77,42 +73,6 @@ export const GOVERNANCE_CONTEXTUAL_HELP_ROWS: readonly PageContextualHelpRow[] =
       whyEmpty: "Rules and destinations appear after you create them for this workspace.",
       whereToConfigurePrerequisite:
         "Alert delivery often needs channel integrations (email, Teams, Slack, or webhooks) configured under Integrations.",
-    },
-  },
-  {
-    prefix: "/governance/approval-queue",
-    entry: {
-      whatIsThisPage:
-        "Governance approval queue — submit, approve, or reject architecture-review decisions for this workspace.",
-      whatToDoNext:
-        "Load a review context, submit an approval request when ready, then approve or reject with an audit-friendly comment.",
-      whyEmpty: "Pending requests appear after a finalized architecture review is submitted for governance decision.",
-      whereToConfigurePrerequisite:
-        "Open Findings or Workspace health when you need triage or KPI context before deciding.",
-      whatToDoNextAction: {
-        label: "Open findings",
-        href: "/governance/findings",
-      },
-      whereToConfigureAction: {
-        label: "Open workspace health",
-        href: GOVERNANCE_WORKSPACE_HEALTH_HREF,
-      },
-    },
-  },
-  {
-    prefix: "/governance/approval-requests",
-    entry: {
-      whatIsThisPage:
-        "Approval lineage — inspect how an approval request links to its review, findings, risk posture, and signed-record version.",
-      whatToDoNext:
-        "Open the linked review or findings, return to the approval queue, or check Audit when you need the activity trail.",
-      whyEmpty: "Lineage appears after an approval request exists for a finalized architecture review.",
-      whereToConfigurePrerequisite:
-        "Submit or open an approval from the governance approval queue after a review is ready for decision.",
-      whatToDoNextAction: {
-        label: "Open approval queue",
-        href: GOVERNANCE_APPROVAL_QUEUE_PATH,
-      },
     },
   },
   {

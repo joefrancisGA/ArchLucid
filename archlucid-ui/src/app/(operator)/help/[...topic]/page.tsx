@@ -111,6 +111,9 @@ const HelpEvidenceGraphGuideView = dynamic(() =>
 const HelpSearchReviewEvidenceGuideView = dynamic(() =>
   import("../_sections/HelpSearchReviewEvidenceGuideView").then((module) => module.HelpSearchReviewEvidenceGuideView),
 );
+const HelpArchitectureIntelligenceGuideView = dynamic(() =>
+  import("../_sections/HelpArchitectureIntelligenceGuideView").then((module) => module.HelpArchitectureIntelligenceGuideView),
+);
 const HelpSponsorDashboardGuideView = dynamic(() =>
   import("../_sections/HelpSponsorDashboardGuideView").then((module) => module.HelpSponsorDashboardGuideView),
 );
@@ -415,6 +418,10 @@ function renderHelpTopicView(
 
   if (loaded.entry.slug === "search-review-evidence") {
     return <HelpSearchReviewEvidenceGuideView entry={loaded.entry} />;
+  }
+
+  if (loaded.entry.slug === "architecture-intelligence") {
+    return <HelpArchitectureIntelligenceGuideView entry={loaded.entry} />;
   }
 
   if (loaded.entry.slug === "sponsor-dashboard") {

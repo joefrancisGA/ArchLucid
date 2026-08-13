@@ -722,6 +722,15 @@ const PRODUCT_DOCUMENTATION_REGISTRY_INPUT: readonly ProductDocumentationRegistr
     releaseApplicability: "architecture sponsor dashboard orientation",
   },
   {
+    slug: "architecture-intelligence",
+    title: "Architecture intelligence",
+    summary: "Closed-loop architecture reasoning, golden harness runs, and publish-to-findings orientation.",
+    audience: "operator",
+    sourcePaths: [],
+    lastReviewed: "2026-08-13",
+    releaseApplicability: "architecture intelligence orientation",
+  },
+  {
     slug: "architecture-drafts",
     title: "Architecture drafts",
     summary: "Browse, resume, and refine saved architecture drafts before filing evidence for review.",

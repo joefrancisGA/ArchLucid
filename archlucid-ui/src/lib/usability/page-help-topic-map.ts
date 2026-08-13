@@ -12,6 +12,9 @@ import { API_KEYS_HELP_TOPIC_LABEL } from "@/lib/api-keys-settings-evidence-copy
 import { BASELINE_SETTINGS_HELP_TOPIC_LABEL } from "@/lib/baseline-settings-evidence-copy";
 import { ARCHITECTURES_LIST_PATH } from "@/lib/architecture/architecture-routes";
 import { ARCHITECTURE_DRAFTS_HELP_TOPIC_LABEL } from "@/lib/architecture-drafts-evidence-copy";
+import { ARCHITECTURE_INTELLIGENCE_HELP_TOPIC_LABEL } from "@/lib/architecture/architecture-intelligence-evidence-copy";
+import { APPROVAL_LINEAGE_HELP_TOPIC_LABEL } from "@/lib/approval-lineage-evidence-copy";
+import { APPROVAL_QUEUE_HELP_TOPIC_LABEL } from "@/lib/approval-queue-evidence-copy";
 import { SPONSOR_DASHBOARD_HELP_TOPIC_LABEL } from "@/lib/architecture/architecture-sponsor-dashboard-evidence-copy";
 import { AZURE_BOARDS_INTEGRATION_HELP_TOPIC_LABEL } from "@/lib/azure-boards-integration-evidence-copy";
 import { PRIOR_MANIFEST_RETRIEVAL_HELP_TOPIC_LABEL } from "@/lib/ask-review-questions-evidence-copy";
@@ -26,8 +29,9 @@ import { MODEL_GOVERNANCE_HELP_TOPIC_LABEL } from "@/lib/model-governance-settin
 import { SERVICENOW_INTEGRATION_HELP_TOPIC_LABEL } from "@/lib/servicenow-integration-evidence-copy";
 import { ARCHITECTURE_DRAFTS_LIST_LABEL, START_REVIEW_LABEL } from "@/lib/architecture/architecture-workflow-labels";
 import { BUYER_ONBOARDING_PAGE_TITLE, BUYER_VALUE_REPORT_HOW_IT_WORKS_TITLE } from "@/lib/buyer/buyer-polish-copy";
-import { GOVERNANCE_SETUP_HREF } from "@/lib/governance/governance-setup-route";
+import { GOVERNANCE_SETUP_HREF, GOVERNANCE_SETUP_PAGE_TITLE } from "@/lib/governance/governance-setup-route";
 import { GOVERNANCE_EXCEPTIONS_PATH } from "@/lib/governance/governance-route-paths";
+import { GOVERNANCE_APPROVAL_HELP_TOPIC_LABEL } from "@/lib/governance/governance-approval-help-evidence-copy";
 import { NOTIFICATIONS_HELP_TOPIC_LABEL } from "@/lib/notification-preference-center";
 import { OPERATOR_NAV_LINK_LABELS } from "@/lib/i18n";
 import { PATTERN_LIBRARY_HELP_TOPIC_LABEL } from "@/lib/pattern-library-evidence-copy";
@@ -46,6 +50,7 @@ import { SLACK_INTEGRATION_HELP_TOPIC_LABEL } from "@/lib/slack-integration-evid
 import { RECURRENCE_SCHEDULES_HOW_IT_WORKS_TITLE } from "@/lib/recurrence-schedules-copy";
 import { ACCELERATOR_CHOOSER_HELP_INBOUND_LABEL } from "@/lib/accelerator-chooser-help-title-honesty-surfaces";
 import { REPEAT_REVIEW_LOOP_HELP_INBOUND_LABEL } from "@/lib/repeat-review-loop-help-title-honesty-surfaces";
+import { RISK_EXCEPTIONS_HELP_TOPIC_LABEL } from "@/lib/risk-exceptions-evidence-copy";
 import { SEARCH_REVIEW_EVIDENCE_HELP_TOPIC_LABEL } from "@/lib/search-review-evidence-evidence-copy";
 import { REVIEW_PACKAGES_HELP_INBOUND_LABEL } from "@/lib/review-packages-help-title-honesty-surfaces";
 import { SYSTEM_HEALTH_HELP_TOPIC_LABEL } from "@/lib/system-health-evidence-copy";
@@ -173,7 +178,7 @@ const PAGE_HELP_TOPICS: readonly { prefix: string; topic: PageHelpTopic }[] = [
   { prefix: "/architecture/architectures/new", topic: { slug: "first-architecture-review", label: "Create architecture" } },
   {
     prefix: "/architecture/architecture-intelligence",
-    topic: { slug: "evidence-trail", label: "Architecture intelligence" },
+    topic: { slug: "architecture-intelligence", label: ARCHITECTURE_INTELLIGENCE_HELP_TOPIC_LABEL },
   },
   { prefix: "/architectures", topic: { slug: "architecture-drafts", label: ARCHITECTURE_DRAFTS_HELP_TOPIC_LABEL } },
   { prefix: "/architecture/reviews/new", topic: { slug: "evidence-intake", label: START_REVIEW_LABEL } },
@@ -208,7 +213,7 @@ const PAGE_HELP_TOPICS: readonly { prefix: string; topic: PageHelpTopic }[] = [
   { prefix: "/governance/findings", topic: { slug: "findings", label: FINDINGS_HELP_TOPIC_LABEL } },
   {
     prefix: GOVERNANCE_SETUP_HREF,
-    topic: { slug: "governance-approval", label: OPERATOR_NAV_LINK_LABELS.governanceSetupGuide },
+    topic: { slug: "governance-approval", label: GOVERNANCE_SETUP_PAGE_TITLE },
   },
   {
     prefix: "/governance/recurrence-schedules",
@@ -216,15 +221,15 @@ const PAGE_HELP_TOPICS: readonly { prefix: string; topic: PageHelpTopic }[] = [
   },
   {
     prefix: GOVERNANCE_EXCEPTIONS_PATH,
-    topic: { slug: "governance-approval", label: OPERATOR_NAV_LINK_LABELS.riskExceptions },
+    topic: { slug: "governance-approval", label: RISK_EXCEPTIONS_HELP_TOPIC_LABEL },
   },
   {
     prefix: "/governance/approval-queue",
-    topic: { slug: "governance-approval", label: "Approval queue" },
+    topic: { slug: "governance-approval", label: APPROVAL_QUEUE_HELP_TOPIC_LABEL },
   },
   {
     prefix: "/governance/approval-requests",
-    topic: { slug: "governance-approval", label: "Approval lineage" },
+    topic: { slug: "governance-approval", label: APPROVAL_LINEAGE_HELP_TOPIC_LABEL },
   },
   { prefix: "/governance/audit", topic: { slug: "audit-trail", label: "Audit trail" } },
   {
@@ -248,7 +253,7 @@ const PAGE_HELP_TOPICS: readonly { prefix: string; topic: PageHelpTopic }[] = [
     prefix: "/governance/standards-and-rules",
     topic: { slug: "standards-and-rules", label: STANDARDS_RULES_HELP_TOPIC_LABEL },
   },
-  { prefix: "/governance", topic: { slug: "governance-approval", label: "Governance approval" } },
+  { prefix: "/governance", topic: { slug: "governance-approval", label: GOVERNANCE_APPROVAL_HELP_TOPIC_LABEL } },
   { prefix: "/governance/audit", topic: { slug: "audit-trail", label: "Audit trail" } },
   { prefix: "/governance/alerts", topic: { slug: "alerts", label: "Alerts" } },
   { prefix: "/governance/alert-rules", topic: { slug: "alerts", label: ALERTS_CONFIGURATION_PAGE_TITLE } },

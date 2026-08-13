@@ -14,8 +14,11 @@ import { ADMINISTRATION_CONTEXTUAL_HELP_ROWS, SETTINGS_HUB_CONTEXTUAL_HELP } fro
 import { API_KEYS_CONTEXTUAL_HELP_ROWS } from "@/lib/contextual-help/api-keys-rows";
 import { AZURE_BOARDS_INTEGRATION_CONTEXTUAL_HELP_ROWS } from "@/lib/contextual-help/azure-boards-integration-rows";
 import { BASELINE_SETTINGS_CONTEXTUAL_HELP_ROWS } from "@/lib/contextual-help/baseline-settings-rows";
-import { ARCHITECTURE_DRAFTS_CONTEXTUAL_HELP_ROWS } from "@/lib/contextual-help/architecture-drafts-rows";
 import { ARCHITECTURE_CONTEXTUAL_HELP_ROWS } from "@/lib/contextual-help/architecture-rows";
+import { ARCHITECTURE_DRAFTS_CONTEXTUAL_HELP_ROWS } from "@/lib/contextual-help/architecture-drafts-rows";
+import { APPROVAL_LINEAGE_CONTEXTUAL_HELP_ROWS } from "@/lib/contextual-help/approval-lineage-rows";
+import { APPROVAL_QUEUE_CONTEXTUAL_HELP_ROWS } from "@/lib/contextual-help/approval-queue-rows";
+import { ARCHITECTURE_INTELLIGENCE_CONTEXTUAL_HELP_ROWS } from "@/lib/contextual-help/architecture-intelligence-rows";
 import { DIGESTS_CONTEXTUAL_HELP_ROWS } from "@/lib/contextual-help/digests-rows";
 import { EVIDENCE_GRAPH_CONTEXTUAL_HELP_ROWS } from "@/lib/contextual-help/evidence-graph-rows";
 import { JIRA_INTEGRATION_CONTEXTUAL_HELP_ROWS } from "@/lib/contextual-help/jira-integration-rows";
@@ -23,7 +26,9 @@ import { MODEL_GOVERNANCE_CONTEXTUAL_HELP_ROWS } from "@/lib/contextual-help/mod
 import { SERVICENOW_INTEGRATION_CONTEXTUAL_HELP_ROWS } from "@/lib/contextual-help/servicenow-integration-rows";
 import { SPONSOR_DASHBOARD_CONTEXTUAL_HELP_ROWS } from "@/lib/contextual-help/sponsor-dashboard-rows";
 import { FINDINGS_CONTEXTUAL_HELP_ROWS } from "@/lib/contextual-help/findings-rows";
+import { GOVERNANCE_APPROVAL_CONTEXTUAL_HELP_ROWS } from "@/lib/contextual-help/governance-approval-rows";
 import { GOVERNANCE_CONTEXTUAL_HELP_ROWS } from "@/lib/contextual-help/governance-rows";
+import { GOVERNANCE_SETUP_CONTEXTUAL_HELP_ROWS } from "@/lib/contextual-help/governance-setup-rows";
 import { ARCHITECTURE_SCORECARD_CONTEXTUAL_HELP_ROWS } from "@/lib/contextual-help/architecture-scorecard-rows";
 import { COMPARISON_REPLAY_CONTEXTUAL_HELP_ROWS } from "@/lib/contextual-help/comparison-replay-rows";
 import { CONNECTION_STATUS_CONTEXTUAL_HELP_ROWS } from "@/lib/contextual-help/connection-status-rows";
@@ -33,6 +38,7 @@ import { PILOT_OUTCOMES_CONTEXTUAL_HELP_ROWS } from "@/lib/contextual-help/pilot
 import { PRIOR_MANIFEST_RETRIEVAL_CONTEXTUAL_HELP_ROWS } from "@/lib/contextual-help/prior-manifest-retrieval-rows";
 import { PREFERENCES_CONTEXTUAL_HELP_ROWS } from "@/lib/contextual-help/preferences-rows";
 import { RECURRENCE_SCHEDULES_CONTEXTUAL_HELP_ROWS } from "@/lib/contextual-help/recurrence-schedules-rows";
+import { RISK_EXCEPTIONS_CONTEXTUAL_HELP_ROWS } from "@/lib/contextual-help/risk-exceptions-rows";
 import { ROI_SUMMARY_CONTEXTUAL_HELP_ROWS } from "@/lib/contextual-help/roi-summary-rows";
 import { SEARCH_REVIEW_EVIDENCE_CONTEXTUAL_HELP_ROWS } from "@/lib/contextual-help/search-review-evidence-rows";
 import { SLACK_INTEGRATION_CONTEXTUAL_HELP_ROWS } from "@/lib/contextual-help/slack-integration-rows";
@@ -64,6 +70,9 @@ const PAGE_CONTEXTUAL_HELP: readonly PageContextualHelpRow[] = [
   ...API_KEYS_CONTEXTUAL_HELP_ROWS,
   ...ARCHITECTURE_CONTEXTUAL_HELP_ROWS,
   ...ARCHITECTURE_DRAFTS_CONTEXTUAL_HELP_ROWS,
+  ...ARCHITECTURE_INTELLIGENCE_CONTEXTUAL_HELP_ROWS,
+  ...APPROVAL_LINEAGE_CONTEXTUAL_HELP_ROWS,
+  ...APPROVAL_QUEUE_CONTEXTUAL_HELP_ROWS,
   ...AZURE_BOARDS_INTEGRATION_CONTEXTUAL_HELP_ROWS,
   ...BASELINE_SETTINGS_CONTEXTUAL_HELP_ROWS,
   ...COMPARISON_REPLAY_CONTEXTUAL_HELP_ROWS,
@@ -71,6 +80,8 @@ const PAGE_CONTEXTUAL_HELP: readonly PageContextualHelpRow[] = [
   ...EVIDENCE_GRAPH_CONTEXTUAL_HELP_ROWS,
   ...FINDINGS_CONTEXTUAL_HELP_ROWS,
   ...GOVERNANCE_CONTEXTUAL_HELP_ROWS,
+  ...GOVERNANCE_APPROVAL_CONTEXTUAL_HELP_ROWS,
+  ...GOVERNANCE_SETUP_CONTEXTUAL_HELP_ROWS,
   ...ARCHITECTURE_SCORECARD_CONTEXTUAL_HELP_ROWS,
   ...CONNECTION_STATUS_CONTEXTUAL_HELP_ROWS,
   ...NOTIFICATIONS_CONTEXTUAL_HELP_ROWS,
@@ -79,6 +90,7 @@ const PAGE_CONTEXTUAL_HELP: readonly PageContextualHelpRow[] = [
   ...PILOT_OUTCOMES_CONTEXTUAL_HELP_ROWS,
   ...PRIOR_MANIFEST_RETRIEVAL_CONTEXTUAL_HELP_ROWS,
   ...RECURRENCE_SCHEDULES_CONTEXTUAL_HELP_ROWS,
+  ...RISK_EXCEPTIONS_CONTEXTUAL_HELP_ROWS,
   ...ROI_SUMMARY_CONTEXTUAL_HELP_ROWS,
   ...SEARCH_REVIEW_EVIDENCE_CONTEXTUAL_HELP_ROWS,
   ...SLACK_INTEGRATION_CONTEXTUAL_HELP_ROWS,

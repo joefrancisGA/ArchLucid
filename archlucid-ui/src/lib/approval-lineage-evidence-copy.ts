@@ -6,6 +6,8 @@ import type { EvidenceSourceLink } from "@/lib/evidence-surface-copy";
 export const APPROVAL_LINEAGE_CANONICAL_PATH_PATTERN =
   "/governance/approval-requests/[id]/lineage" as const;
 
+export const APPROVAL_LINEAGE_HELP_TOPIC_LABEL = "How approval lineage works";
+
 export const APPROVAL_LINEAGE_CLAIM_DISCIPLINE =
   "Approval lineage links an approval request to its review, findings, and signed-record version — it is a governance linkage view, not a complete diligence Sources package on its own. Open Audit or the architecture review when you need the fuller trail.";
 

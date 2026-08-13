@@ -6,6 +6,8 @@ import { GOVERNANCE_AUDIT_PATH, GOVERNANCE_FINDINGS_PATH } from "@/lib/governanc
 
 export const ARCHITECTURE_INTELLIGENCE_CANONICAL_PATH = ARCHITECTURE_INTELLIGENCE_PATH;
 
+export const ARCHITECTURE_INTELLIGENCE_HELP_TOPIC_LABEL = "How architecture intelligence works";
+
 export const ARCHITECTURE_INTELLIGENCE_CLAIM_DISCIPLINE =
   "This Architecture intelligence page runs closed-loop reasoning and optional publish-to-findings - it is not a signed-review diligence Sources package. Open Findings, Start a review, or Audit when you need live packages or assurance cites.";
 

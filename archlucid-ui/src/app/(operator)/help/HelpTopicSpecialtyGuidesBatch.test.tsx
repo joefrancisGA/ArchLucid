@@ -12,6 +12,7 @@ import { HelpArchitectureScorecardGuideView } from "@/app/(operator)/help/_secti
 import { HelpBaselineSettingsGuideView } from "@/app/(operator)/help/_sections/HelpBaselineSettingsGuideView";
 import { HelpConnectionStatusGuideView } from "@/app/(operator)/help/_sections/HelpConnectionStatusGuideView";
 import { HelpEvidenceGraphGuideView } from "@/app/(operator)/help/_sections/HelpEvidenceGraphGuideView";
+import { HelpArchitectureIntelligenceGuideView } from "@/app/(operator)/help/_sections/HelpArchitectureIntelligenceGuideView";
 import { HelpSearchReviewEvidenceGuideView } from "@/app/(operator)/help/_sections/HelpSearchReviewEvidenceGuideView";
 import { HelpJiraIntegrationGuideView } from "@/app/(operator)/help/_sections/HelpJiraIntegrationGuideView";
 import { HelpModelGovernanceGuideView } from "@/app/(operator)/help/_sections/HelpModelGovernanceGuideView";
@@ -46,6 +47,7 @@ describe("specialty help guides — operator surfaces batch", () => {
     ["workspace-settings", HelpWorkspaceSettingsGuideView, "help-workspace-settings-guide"],
     ["evidence-graph", HelpEvidenceGraphGuideView, "help-evidence-graph-guide"],
     ["search-review-evidence", HelpSearchReviewEvidenceGuideView, "help-search-review-evidence-guide"],
+    ["architecture-intelligence", HelpArchitectureIntelligenceGuideView, "help-architecture-intelligence-guide"],
     ["sponsor-dashboard", HelpSponsorDashboardGuideView, "help-sponsor-dashboard-guide"],
     ["architecture-drafts", HelpArchitectureDraftsGuideView, "help-architecture-drafts-guide"],
     ["model-governance", HelpModelGovernanceGuideView, "help-model-governance-guide"],
