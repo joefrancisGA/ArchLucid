@@ -74,6 +74,8 @@ describe("product-documentation-registry", () => {
     expect(inAppHelpHref("evidence-only-review", "fast-path-evidence-only")).toBe(
       "/help/first-architecture-review#fast-path-evidence-only",
     );
+    const firstArchitectureReview = getProductDocumentationEntry("first-architecture-review");
+    expect(firstArchitectureReview?.includeIntroWithSections).not.toBe(true);
     expect(getProductDocumentationEntry("pilot-roi-model")).toBeNull();
     expect(resolveHelpTopicPermanentRedirect("pilot-roi-model")).toBe(
       "/help/sponsor-report#pilot-roi-measurement",
