@@ -51,6 +51,9 @@ import {
 import { OPERATOR_CARD, OPERATOR_LAYOUT, OPERATOR_SHELL_SCROLL_OFFSET_CLASS, OPERATOR_TYPOGRAPHY, DESIGN_TOKENS } from "@/lib/design-tokens";
 import type { HelpMarkdownHeading } from "@/lib/help/help-markdown-headings";
 import { HELP_PAGE_LAYOUT } from "@/lib/help/help-page-layout";
+import {
+  AZURE_PERMISSIONS_HELP_PRIMARY_SETUP_ACTION,
+} from "@/lib/azure-permissions-help-evidence-copy";
 import type { ProductDocumentationEntry } from "@/lib/product-documentation-registry";
 import { cn } from "@/lib/utils";
 
@@ -161,8 +164,8 @@ export function HelpAzurePermissionsGuideView(props: HelpAzurePermissionsGuideVi
             </p>
           </div>
           <div className="flex min-w-0 flex-col items-start gap-2">
-            <Button asChild size="sm" variant="primary" data-testid="azure-permissions-setup-primary-action">
-              <Link href={verifySetupHref}>Open Azure connection setup</Link>
+            <Button asChild size="sm" variant="primary" data-testid={AZURE_PERMISSIONS_HELP_PRIMARY_SETUP_ACTION.testId}>
+              <Link href={verifySetupHref}>{AZURE_PERMISSIONS_HELP_PRIMARY_SETUP_ACTION.label}</Link>
             </Button>
             <HelpAzurePermissionsHeaderActions entry={entry} />
           </div>

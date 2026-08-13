@@ -27,7 +27,7 @@ import {
   AZURE_PERMISSIONS_PAGE_SUBTITLE,
   AZURE_PERMISSIONS_PAGE_TITLE,
 } from "@/lib/azure-cloud-connection-permissions-copy";
-import { AZURE_PERMISSIONS_HELP_CLAIM_DISCIPLINE } from "@/lib/azure-permissions-help-evidence-copy";
+import { AZURE_PERMISSIONS_HELP_CLAIM_DISCIPLINE, AZURE_PERMISSIONS_HELP_PRIMARY_SETUP_ACTION } from "@/lib/azure-permissions-help-evidence-copy";
 import { getProductDocumentationEntry } from "@/lib/product-documentation-registry";
 
 describe("HelpAzurePermissionsGuideView", () => {
@@ -39,6 +39,21 @@ describe("HelpAzurePermissionsGuideView", () => {
     expect(entry?.summary).toContain("read-only");
     expect(entry?.lastReviewed).toBe("2026-08-09");
     expect(entry?.releaseApplicability).toBeTruthy();
+  });
+
+  it("exposes a first-viewport primary setup CTA in the header (TB-1626)", () => {
+    if (entry === undefined) {
+      throw new Error("Expected azure-permissions documentation entry.");
+    }
+
+    render(<HelpAzurePermissionsGuideView entry={entry} />);
+
+    const primary = screen.getByTestId(AZURE_PERMISSIONS_HELP_PRIMARY_SETUP_ACTION.testId);
+
+    expect(primary).toHaveAttribute("href", AZURE_PERMISSIONS_HELP_PRIMARY_SETUP_ACTION.defaultHref);
+    expect(primary).toHaveTextContent(AZURE_PERMISSIONS_HELP_PRIMARY_SETUP_ACTION.label);
+    expect(primary.closest("header")).not.toBeNull();
+    expect(primary.compareDocumentPosition(screen.getByTestId("azure-permissions-trust-panel")) & Node.DOCUMENT_POSITION_FOLLOWING).toBeTruthy();
   });
 
   it("renders trust panel, permissions matrix, and provider links", () => {
@@ -56,7 +71,7 @@ describe("HelpAzurePermissionsGuideView", () => {
       AZURE_PERMISSIONS_HELP_CLAIM_DISCIPLINE,
     );
     expect(screen.queryByTestId("azure-permissions-help-sources")).not.toBeInTheDocument();
-    expect(screen.getByRole("link", { name: "Open Azure connection setup" })).toHaveAttribute(
+    expect(screen.getByRole("link", { name: AZURE_PERMISSIONS_HELP_PRIMARY_SETUP_ACTION.label })).toHaveAttribute(
       "href",
       "/integrations/cloud-connections/azure",
     );
