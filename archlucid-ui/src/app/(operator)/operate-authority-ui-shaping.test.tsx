@@ -512,6 +512,10 @@ describe("Enterprise authority UI shaping (mutation hook → controls)", () => {
 
   it("Alert rules: Create rule enables after load when mutation capability is true", async () => {
     mutateCapability.current = true;
+    // A non-empty list keeps the empty-state footer unmounted. Without it that footer renders a second
+    // button also named "Create rule", and the enabled form button drops its "(Execute+)" suffix, so the
+    // accessible-name query below matches two elements.
+    apiHoisted.listAlertRules.mockResolvedValue([sampleListedRule]);
     renderWithOperatorQuery(<AlertRulesContent />);
 
     await waitFor(() => {
