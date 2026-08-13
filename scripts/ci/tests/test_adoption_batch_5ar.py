@@ -18,7 +18,7 @@ class TestAdoptionBatch5AR(unittest.TestCase):
         path = REPO_ROOT / "archlucid-ui" / "src" / "components" / "ExecutiveWorkspaceHealthDashboard.tsx"
         text = path.read_text(encoding="utf-8")
         self.assertIn("DecisionsNeededSummaryCard", text)
-        self.assertIn("getGovernanceDecisionsNeededSummary", text)
+        self.assertIn("useGovernanceDecisionsNeededSummaryQuery", text)
 
 
 if __name__ == "__main__":

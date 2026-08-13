@@ -21,7 +21,7 @@ class TestAdoptionBatch5AK(unittest.TestCase):
         path = REPO_ROOT / "archlucid-ui" / "src" / "components" / "ExecutiveWorkspaceHealthDashboard.tsx"
         text = path.read_text(encoding="utf-8")
         self.assertIn("DecisionsNeededSummaryCard", text)
-        self.assertIn("getGovernanceDecisionsNeededSummary", text)
+        self.assertIn("useGovernanceDecisionsNeededSummaryQuery", text)
 
     def test_tb_223_api_client_exposes_summary(self) -> None:
         path = REPO_ROOT / "archlucid-ui" / "src" / "lib" / "api" / "governance-stickiness-api.ts"

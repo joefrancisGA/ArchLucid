@@ -46,7 +46,7 @@ class TestAdoptionBatch5AF(unittest.TestCase):
         alias = REPO_ROOT / "archlucid-ui" / "src" / "lib" / "ui-route-traffic-evaluator-workbook-help-alias.ts"
         registry_text = registry.read_text(encoding="utf-8")
         alias_text = alias.read_text(encoding="utf-8")
-        self.assertIn("path-chooser", registry_text)
+        self.assertIn("accelerator-chooser", registry_text)
         self.assertIn("evaluator-workbook", alias_text)
         self.assertIn("/help/evaluator-workbook", alias_text)
 
