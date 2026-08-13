@@ -10,7 +10,6 @@ import { EnterpriseCompactEmptyState } from "@/components/EnterpriseCompactEmpty
 import { EnterpriseInlineErrorNotification } from "@/components/EnterpriseInlineErrorNotification";
 import { FindingsQueueSearchEvidenceVocabularyRail } from "@/components/findings/FindingsQueueSearchEvidenceVocabularyRail";
 import { LayerHeader } from "@/components/LayerHeader";
-import { OperatorPageBreadcrumb } from "@/components/operator/OperatorPageBreadcrumb";
 import { OperatorPageHeader } from "@/components/operator/OperatorPageHeader";
 import { GovernanceJobRouterStrip } from "@/components/governance/GovernanceJobRouterStrip";
 import { GovernanceFindingsRelatedQueuesDisclosure } from "@/components/governance/findings/GovernanceFindingsRelatedQueuesDisclosure";
@@ -53,7 +52,6 @@ import {
 import { comparePageHrefAdaptive } from "@/lib/compare-url-query-params";
 import { COMPARE_FINDING_LIFECYCLE_ANCHOR } from "@/lib/compare-finding-lifecycle";
 import {
-  GOVERNANCE_APPROVAL_QUEUE_PATH,
   GOVERNANCE_ASSIGNED_TO_ME_FINDINGS_PATH,
   GOVERNANCE_FINDINGS_PATH,
 } from "@/lib/governance/governance-route-paths";
@@ -197,16 +195,6 @@ export default function GovernanceFindingsQueueClient({
     scopedRunId !== null && scopedRunId.length > 0
       ? `/architecture/reviews/${encodeURIComponent(scopedRunId)}?reviewTab=review-package`
       : null;
-  const assignedToMeBreadcrumb = isAssignedToMe ? (
-    <OperatorPageBreadcrumb
-      data-testid="governance-assigned-to-me-breadcrumb"
-      items={[
-        { label: "Governance", href: GOVERNANCE_APPROVAL_QUEUE_PATH },
-        { label: "Findings", href: GOVERNANCE_FINDINGS_PATH },
-        { label: "Assigned to me" },
-      ]}
-    />
-  ) : undefined;
 
   return (
     <div className="w-full max-w-[1440px]">
@@ -224,7 +212,6 @@ export default function GovernanceFindingsQueueClient({
         navHref={navHref}
         title={pageTitle}
         subtitle={pageSubtitle}
-        breadcrumb={assignedToMeBreadcrumb}
         titleTestId="architecture-risk-register-page-title"
         metadata={
           !buyerPolishedShell && !loading && !isAssignedToMe ? (

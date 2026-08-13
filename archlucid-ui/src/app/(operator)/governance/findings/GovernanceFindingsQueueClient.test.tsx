@@ -311,11 +311,10 @@ describe("GovernanceFindingsQueueClient assigned-to-me mode", () => {
     expect(screen.getByRole("link", { name: "Open findings queue" })).toHaveAttribute("href", "/governance/findings");
   });
 
-  it("renders breadcrumb, job router, and tenant findings queue link", async () => {
+  it("renders job router and tenant findings queue link", async () => {
     renderGovernanceFindingsQueue("assigned-to-me");
 
-    expect(await screen.findByTestId("governance-assigned-to-me-breadcrumb")).toBeInTheDocument();
-    expect(screen.getByRole("link", { name: "Findings" })).toHaveAttribute("href", "/governance/findings");
+    expect(screen.queryByTestId("governance-assigned-to-me-breadcrumb")).toBeNull();
     expect(screen.getByTestId("governance-job-router")).toHaveAttribute("data-current-job", "assigned-to-me-findings");
     expect(screen.getByTestId("governance-job-router-option-assigned-to-me-findings")).toHaveAttribute(
       "data-current",
