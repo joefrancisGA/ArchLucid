@@ -24,9 +24,6 @@ public static class GraphAzureInventoryReconciliationAnalyzer
 
         HashSet<string> inventoryResourceIds = CollectInventoryResourceIds(resourcesJson);
 
-        if (inventoryResourceIds.Count == 0)
-            return InventoryReconciliationResult.Empty;
-
         List<string> graphOnly = graphResourceIds
             .Except(inventoryResourceIds, StringComparer.OrdinalIgnoreCase)
             .OrderBy(static id => id, StringComparer.OrdinalIgnoreCase)
