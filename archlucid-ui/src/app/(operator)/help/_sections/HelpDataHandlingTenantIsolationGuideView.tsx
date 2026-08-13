@@ -1,6 +1,7 @@
 import { HelpTopicHashScroll } from "@/app/(operator)/help/HelpTopicHashScroll";
 import { HelpDataHandlingTenantIsolationClaimDiscipline } from "@/app/(operator)/help/_sections/HelpDataHandlingTenantIsolationClaimDiscipline";
 import { HelpDataHandlingTenantIsolationHeaderActions } from "@/app/(operator)/help/_sections/HelpDataHandlingTenantIsolationHeaderActions";
+import { HelpDataHandlingTenantIsolationJobMatrix } from "@/app/(operator)/help/_sections/HelpDataHandlingTenantIsolationJobMatrix";
 import { HelpDataHandlingTenantIsolationLeavesStaysChrome } from "@/app/(operator)/help/_sections/HelpDataHandlingTenantIsolationLeavesStaysChrome";
 import { HelpDataHandlingTenantIsolationOverview } from "@/app/(operator)/help/_sections/HelpDataHandlingTenantIsolationOverview";
 import { HelpDataHandlingTenantIsolationRelatedTopics } from "@/app/(operator)/help/_sections/HelpDataHandlingTenantIsolationRelatedTopics";
@@ -103,6 +104,7 @@ export function HelpDataHandlingTenantIsolationGuideView(
 
       <div className="space-y-4 border-b border-neutral-200 pb-4 dark:border-neutral-800">
         <HelpDataHandlingTenantIsolationOverview />
+        <HelpDataHandlingTenantIsolationJobMatrix />
         <HelpDataHandlingTenantIsolationClaimDiscipline />
         <div className="space-y-4" data-testid="help-data-handling-tenant-isolation-first-viewport">
           <HelpDataHandlingTenantIsolationLeavesStaysChrome />

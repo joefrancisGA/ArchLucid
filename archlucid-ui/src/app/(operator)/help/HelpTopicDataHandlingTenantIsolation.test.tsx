@@ -30,6 +30,8 @@ vi.mock("next/navigation", () => ({
 
 import { HelpDataHandlingTenantIsolationGuideView } from "@/app/(operator)/help/_sections/HelpDataHandlingTenantIsolationGuideView";
 
+import { DATA_HANDLING_HELP_IA_DUAL_HEADING } from "@/lib/data-handling-help-ia-dual";
+
 import {
 
   DATA_HANDLING_TENANT_ISOLATION_HELP_BREADCRUMB_HELP_CENTER_LABEL,
@@ -210,6 +212,13 @@ describe("HelpDataHandlingTenantIsolationGuideView", () => {
     }
 
 
+
+    const jobMatrix = screen.getByTestId("help-data-handling-job-matrix");
+    expect(within(jobMatrix).getByRole("heading", { name: DATA_HANDLING_HELP_IA_DUAL_HEADING })).toBeInTheDocument();
+    expect(within(jobMatrix).getByRole("link", { name: "Security and trust" })).toHaveAttribute(
+      "href",
+      "/help/security-trust",
+    );
 
     const claimDiscipline = screen.getByTestId("help-data-handling-tenant-isolation-claim-discipline");
 
