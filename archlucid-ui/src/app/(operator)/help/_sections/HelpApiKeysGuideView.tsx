@@ -4,7 +4,7 @@ import { HelpTopicHashScroll } from "@/app/(operator)/help/HelpTopicHashScroll";
 import { ApiKeysHelpEvidenceOrientationStrip } from "@/components/help/ApiKeysHelpEvidenceOrientationStrip";
 import { HelpTopicTableOfContents } from "@/components/help/HelpTopicTableOfContents";
 import { OperatorPageHeader } from "@/components/operator/OperatorPageHeader";
-import { StatusTag } from "@/components/StatusTag";
+import { StatusTag } from "@/components/ui/status-tag";
 import { Button } from "@/components/ui/button";
 import { Card, CardContent, CardHeader } from "@/components/ui/card";
 import {
