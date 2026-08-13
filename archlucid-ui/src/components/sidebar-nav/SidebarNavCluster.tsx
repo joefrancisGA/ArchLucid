@@ -83,34 +83,41 @@ export function SidebarNavCluster(props: SidebarNavClusterProps): ReactElement {
 
   const headingClassName = cn(
     OPERATOR_NAV_GROUP_LABEL,
-    "flex w-full min-w-0 items-start gap-2 rounded-md px-2 py-1.5 text-left",
+    "flex w-full min-w-0 items-center gap-1 rounded-md px-2 py-1.5 text-left",
   );
 
   const collapsibleToggleClassName = cn(
     OPERATOR_NAV_GROUP_LABEL,
-    "sidebar-disclosure-trigger flex min-w-0 flex-1 items-start gap-2 rounded-md p-0 text-left hover:bg-neutral-50 dark:hover:bg-neutral-800/80",
+    "sidebar-disclosure-trigger inline-flex min-w-0 max-w-full items-center gap-2 rounded-md p-0 text-left hover:bg-neutral-50 dark:hover:bg-neutral-800/80",
   );
 
   const groupHeadingHelpTooltip = group.caption ? (
-    <FieldHelpTooltip label={groupHeadingLabel} hint={group.caption} />
+    <FieldHelpTooltip
+      label={groupHeadingLabel}
+      hint={group.caption}
+      side="right"
+      className="shrink-0"
+    />
   ) : null;
 
   const collapsibleChevron = props.isExpanded ? (
-    <ChevronDown className="mt-0.5 h-3.5 w-3.5 shrink-0 opacity-80" aria-hidden />
+    <ChevronDown className="h-3.5 w-3.5 shrink-0 opacity-80" aria-hidden />
   ) : (
-    <ChevronRight className="mt-0.5 h-3.5 w-3.5 shrink-0 opacity-80" aria-hidden />
+    <ChevronRight className="h-3.5 w-3.5 shrink-0 opacity-80" aria-hidden />
   );
 
-  const headingInner = (
+  const headingLabel = <span className="min-w-0 truncate">{groupHeadingLabel}</span>;
+
+  const headingInner = props.isCollapsible ? (
     <>
-      {props.isCollapsible ? collapsibleChevron : null}
-      <span className="flex min-w-0 flex-1 flex-col items-start gap-0.5">
-        <span className="inline-flex items-center gap-1">
-          <span>{groupHeadingLabel}</span>
-          {!props.isCollapsible ? groupHeadingHelpTooltip : null}
-        </span>
-      </span>
+      {collapsibleChevron}
+      {headingLabel}
     </>
+  ) : (
+    <span className="inline-flex min-w-0 flex-1 items-center gap-1">
+      {headingLabel}
+      {groupHeadingHelpTooltip}
+    </span>
   );
 
   function renderLink(link: (typeof linksForRender)[number]): ReactElement {
