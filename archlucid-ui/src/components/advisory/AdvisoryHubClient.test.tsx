@@ -22,12 +22,7 @@ vi.mock("./AdvisorySchedulesContent", () => ({
   AdvisorySchedulesContent: () => <div>Schedules panel</div>,
 }));
 
-import {
-  ADVISORY_SCANS_HOW_IT_WORKS_BODY,
-  ADVISORY_SCANS_PAGE_LEAD,
-  ADVISORY_SCANS_PAGE_VALUE_STATEMENT,
-  ADVISORY_SCANS_TRUST_COPY,
-} from "@/lib/advisory-copy";
+import { ADVISORY_SCANS_PAGE_LEAD, ADVISORY_SCANS_PAGE_VALUE_STATEMENT, ADVISORY_SCANS_TRUST_COPY } from "@/lib/advisory-copy";
 
 import { AdvisoryHubClient } from "./AdvisoryHubClient";
 
@@ -36,34 +31,33 @@ describe("AdvisoryHubClient (TB-670)", () => {
     render(<AdvisoryHubClient initialTab="scans" />);
 
     expect(screen.getByTestId("advisory-scans-page-lead")).toHaveTextContent(ADVISORY_SCANS_PAGE_LEAD);
-
-    const howItWorks = screen.getByTestId("advisory-scans-how-it-works");
-
-    expect(howItWorks).toBeInTheDocument();
-    expect(howItWorks).not.toHaveAttribute("open");
     expect(screen.queryByText(ADVISORY_SCANS_PAGE_VALUE_STATEMENT)).not.toBeInTheDocument();
     expect(screen.queryByText(ADVISORY_SCANS_TRUST_COPY)).not.toBeInTheDocument();
-    expect(screen.getByText(ADVISORY_SCANS_HOW_IT_WORKS_BODY)).toBeInTheDocument();
+    expect(screen.queryByTestId("advisory-scans-how-it-works")).not.toBeInTheDocument();
+    expect(screen.queryByTestId("digests-advisory-scans-vocabulary")).not.toBeInTheDocument();
   });
 
-  it("places tabs directly under the page header and boundary strip below the tab list", () => {
+  it("places tabs directly under the page header without scans orientation chrome", () => {
     render(<AdvisoryHubClient initialTab="scans" />);
 
     const header = screen.getByTestId("advisory-scans-page-title");
     const tablist = screen.getByTestId("advisory-hub-tablist");
+    const panel = screen.getByTestId("advisory-hub-panel");
 
     expect(header.compareDocumentPosition(tablist) & Node.DOCUMENT_POSITION_FOLLOWING).toBeTruthy();
-    expect(tablist.compareDocumentPosition(screen.getByTestId("advisory-scans-how-it-works")) & Node.DOCUMENT_POSITION_FOLLOWING).toBeTruthy();
+    expect(tablist.compareDocumentPosition(panel) & Node.DOCUMENT_POSITION_FOLLOWING).toBeTruthy();
   });
 
-  it("shows scans orientation only on the Scans tab", () => {
+  it("does not mount scans-only orientation in the hub shell", () => {
     render(<AdvisoryHubClient initialTab="schedules" />);
 
     expect(screen.queryByTestId("advisory-scans-how-it-works")).toBeNull();
+    expect(screen.queryByTestId("digests-advisory-scans-vocabulary")).toBeNull();
 
     fireEvent.click(screen.getByRole("tab", { name: "Scans" }));
 
-    expect(screen.getByTestId("advisory-scans-how-it-works")).toBeInTheDocument();
+    expect(screen.queryByTestId("advisory-scans-how-it-works")).toBeNull();
+    expect(screen.queryByTestId("digests-advisory-scans-vocabulary")).toBeNull();
   });
 
   it("uses shared Tabs with linked tabpanels and keyboard roving", () => {

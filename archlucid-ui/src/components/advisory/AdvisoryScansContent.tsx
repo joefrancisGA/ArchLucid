@@ -3,7 +3,7 @@
 import { cn } from "@/lib/utils";
 
 import Link from "next/link";
-import { useCallback, useEffect, useMemo, useState } from "react";
+import { useCallback, useEffect, useId, useMemo, useRef, useState } from "react";
 import { useQueryClient } from "@tanstack/react-query";
 
 import { useAdvisoryRecommendationsQuery } from "@/hooks/use-advisory-recommendations-query";
@@ -14,11 +14,16 @@ import { AdvisoryRecommendationDispositionDialog } from "@/components/advisory/A
 import { AdvisorySampleRecommendationPreview } from "@/components/advisory/AdvisorySampleRecommendationPreview";
 import { AdvisoryScanSummaryPanel } from "@/components/advisory/AdvisoryScanSummaryPanel";
 import { AdvisoryResultsSchedulesVocabularyRail } from "@/components/AdvisoryResultsSchedulesVocabularyRail";
+import { CollapsibleSection } from "@/components/CollapsibleSection";
 import { OperatorApiProblem } from "@/components/operator/OperatorApiProblem";
 import { useNavCallerAuthorityRank } from "@/components/operator/OperatorNavAuthorityProvider";
+import { PageCapabilityBoundaryStrip } from "@/components/PageCapabilityBoundaryStrip";
 import { RunIdPicker } from "@/components/runs/RunIdPicker";
+import { WhyDisabledCtaHint } from "@/components/usability/WhyDisabledCtaHint";
 import { Button } from "@/components/ui/button";
+import { RefreshButton } from "@/components/ui/refresh-button";
 import { applyRecommendationAction, listRecommendations } from "@/lib/advisory-api";
+import { resolveCurrentProjectLabel } from "@/lib/advisory-schedule-page-model";
 import { operatorQueryKeys } from "@/lib/query/operator-query-keys";
 import {
   ADVISORY_SCANS_BASELINE_REVIEW_HELPER,
@@ -26,12 +31,10 @@ import {
   ADVISORY_SCANS_BASELINE_REVIEW_PLACEHOLDER,
   ADVISORY_SCANS_CANT_FIND_REVIEW_BODY,
   ADVISORY_SCANS_CANT_FIND_REVIEW_SUMMARY,
-  ADVISORY_SCANS_CHOOSE_REVIEW_LABEL,
   ADVISORY_SCANS_DISPOSITION_ACCEPT,
   ADVISORY_SCANS_DISPOSITION_DEFER,
   ADVISORY_SCANS_DISPOSITION_IMPLEMENTED,
   ADVISORY_SCANS_DISPOSITION_REJECT,
-  ADVISORY_SCANS_EMPTY_NEXT_STORY_LEAD,
   ADVISORY_SCANS_FINALIZED_REVIEW_LABEL,
   ADVISORY_SCANS_FINALIZED_REVIEW_PLACEHOLDER,
   ADVISORY_SCANS_FORM_SECTION_TITLE,
@@ -39,6 +42,12 @@ import {
   ADVISORY_SCANS_GENERATE_BUTTON_WORKING_LABEL,
   ADVISORY_SCANS_GENERATE_DISABLED_HINT,
   ADVISORY_SCANS_GENERATE_OUTPUT_HINT,
+  ADVISORY_SCANS_HOW_IT_WORKS_BODY,
+  ADVISORY_SCANS_HOW_IT_WORKS_TITLE,
+  ADVISORY_SCANS_INLINE_CAPABILITY_BOUNDARY,
+  ADVISORY_SCANS_LAST_LOADED_PREFIX,
+  ADVISORY_SCANS_LIST_COUNT_LABEL,
+  ADVISORY_SCANS_LIST_HEADING,
   ADVISORY_SCANS_MANUAL_ID_ADMIN_SUMMARY,
   ADVISORY_SCANS_MANUAL_ID_BASELINE_PLACEHOLDER,
   ADVISORY_SCANS_MANUAL_ID_TARGET_PLACEHOLDER,
@@ -47,7 +56,6 @@ import {
   ADVISORY_SCANS_RECOMMENDATIONS_SECTION_BODY,
   ADVISORY_SCANS_RECOMMENDATIONS_SECTION_TITLE,
   ADVISORY_SCANS_REFRESH_SAVED_LABEL,
-  ADVISORY_SCANS_SAMPLE_ANCHOR_HREF,
   ADVISORY_SCANS_VIEW_SAMPLE_LABEL,
 } from "@/lib/advisory-copy";
 import { buildAdvisoryScanSummary } from "@/lib/advisory-scan-summary";
@@ -57,6 +65,11 @@ import { toApiLoadFailure } from "@/lib/api-load-failure";
 import { DESIGN_TOKENS, OPERATOR_TYPOGRAPHY } from "@/lib/design-tokens";
 import { isExperimentalAdvisoryPanelsEnabled } from "@/lib/feature-flags";
 import { AUTHORITY_RANK } from "@/lib/nav-authority";
+import {
+  ARCHLUCID_OPERATOR_SCOPE_CHANGED_EVENT,
+  readOperatorScopeFromStorage,
+} from "@/lib/operator/operator-scope-storage";
+import type { WhyDisabledCtaReason } from "@/lib/why-disabled-cta";
 import type { ImprovementPlan, RecommendationRecord } from "@/types/advisory";
 
 export type AdvisoryScansContentProps = {
@@ -75,6 +88,27 @@ function dispositionActionLabel(action: string): string {
   return DISPOSITION_ACTION_LABELS[action] ?? action;
 }
 
+function formatAdvisoryScansLastLoaded(lastLoadedUtc: string | null): string {
+  if (lastLoadedUtc === null) {
+    return "—";
+  }
+
+  const parsed = new Date(lastLoadedUtc);
+
+  if (Number.isNaN(parsed.getTime())) {
+    return "—";
+  }
+
+  return parsed.toLocaleString(undefined, {
+    year: "numeric",
+    month: "short",
+    day: "numeric",
+    hour: "numeric",
+    minute: "2-digit",
+    timeZoneName: "short",
+  });
+}
+
 /**
  * Scans tab: governance follow-up workspace for advisory recommendations.
  */
@@ -84,6 +118,10 @@ export function AdvisoryScansContent(props: AdvisoryScansContentProps = {}): Rea
   const bootstrappedRunId = (props.initialRunId ?? "").trim();
   const queryClient = useQueryClient();
   const scope = useOperatorScopeQueryKey();
+  const generateDisabledHintId = useId();
+  const samplePreviewRegionId = useId();
+  const samplePreviewTriggerId = useId();
+  const samplePreviewRegionRef = useRef<HTMLDivElement>(null);
 
   const [runId, setRunId] = useState(bootstrappedRunId);
   const [compareToRunId, setCompareToRunId] = useState("");
@@ -91,7 +129,6 @@ export function AdvisoryScansContent(props: AdvisoryScansContentProps = {}): Rea
   const [recommendations, setRecommendations] = useState<RecommendationRecord[]>([]);
   const [loading, setLoading] = useState(false);
   const [failure, setFailure] = useState<ApiLoadFailureState | null>(null);
-  const [showScanForm, setShowScanForm] = useState(bootstrappedRunId.length > 0);
   const [showSamplePreview, setShowSamplePreview] = useState(false);
   const [pendingDisposition, setPendingDisposition] = useState<{
     readonly recommendationId: string;
@@ -99,9 +136,38 @@ export function AdvisoryScansContent(props: AdvisoryScansContentProps = {}): Rea
   } | null>(null);
   const [dispositionBusy, setDispositionBusy] = useState(false);
   const [dispositionError, setDispositionError] = useState<string | null>(null);
+  const [projectLabel, setProjectLabel] = useState("Current project");
+  const [lastLoadedUtc, setLastLoadedUtc] = useState<string | null>(null);
   const bootstrapRecommendationsQuery = useAdvisoryRecommendationsQuery(bootstrappedRunId, {
     enabled: bootstrappedRunId.length > 0,
   });
+
+  const syncProjectContext = useCallback(() => {
+    const operatorScope = readOperatorScopeFromStorage();
+    setProjectLabel(resolveCurrentProjectLabel(operatorScope?.projectLabel));
+  }, []);
+
+  useEffect(() => {
+    syncProjectContext();
+
+    const onScopeChanged = () => {
+      syncProjectContext();
+      setPlanSummary(null);
+      setRecommendations([]);
+      setLastLoadedUtc(null);
+      setFailure(null);
+      setShowSamplePreview(false);
+      void queryClient.invalidateQueries({
+        queryKey: ["operator", "advisory", "recommendations", scope],
+      });
+    };
+
+    window.addEventListener(ARCHLUCID_OPERATOR_SCOPE_CHANGED_EVENT, onScopeChanged);
+
+    return () => {
+      window.removeEventListener(ARCHLUCID_OPERATOR_SCOPE_CHANGED_EVENT, onScopeChanged);
+    };
+  }, [queryClient, scope, syncProjectContext]);
 
   useEffect(() => {
     if (bootstrappedRunId.length === 0) {
@@ -115,9 +181,15 @@ export function AdvisoryScansContent(props: AdvisoryScansContentProps = {}): Rea
 
   const reviewSelected = runId.trim().length > 0;
   const hasResults = planSummary !== null || recommendations.length > 0;
-  const emptyIntroMode =
-    !hasResults && bootstrappedRunId.length === 0 && !showScanForm && !reviewSelected;
-  const showGenerateForm = !emptyIntroMode;
+  const generateDisabledReason: WhyDisabledCtaReason | null = reviewSelected
+    ? null
+    : { kind: "prerequisite", message: ADVISORY_SCANS_GENERATE_DISABLED_HINT };
+
+  useEffect(() => {
+    if (hasResults) {
+      setShowSamplePreview(false);
+    }
+  }, [hasResults]);
 
   useEffect(() => {
     const next = (props.initialRunId ?? "").trim();
@@ -127,7 +199,6 @@ export function AdvisoryScansContent(props: AdvisoryScansContentProps = {}): Rea
     }
 
     setRunId(next);
-    setShowScanForm(true);
   }, [props.initialRunId]);
 
   useEffect(() => {
@@ -137,6 +208,7 @@ export function AdvisoryScansContent(props: AdvisoryScansContentProps = {}): Rea
 
     setRecommendations(bootstrapRecommendationsQuery.data);
     setLoading(false);
+    setLastLoadedUtc(new Date().toISOString());
   }, [bootstrapRecommendationsQuery.data]);
 
   useEffect(() => {
@@ -149,12 +221,19 @@ export function AdvisoryScansContent(props: AdvisoryScansContentProps = {}): Rea
   }, [bootstrapRecommendationsQuery.error, bootstrapRecommendationsQuery.isError]);
 
   useEffect(() => {
-    if (!reviewSelected) {
+    if (!showSamplePreview) {
       return;
     }
 
-    setShowScanForm(true);
-  }, [reviewSelected]);
+    const region = samplePreviewRegionRef.current;
+
+    if (region === null) {
+      return;
+    }
+
+    region.scrollIntoView({ behavior: "smooth", block: "start" });
+    region.focus({ preventScroll: true });
+  }, [showSamplePreview]);
 
   const fetchPersistedRecommendations = useCallback(
     async (rid: string): Promise<RecommendationRecord[]> => {
@@ -198,6 +277,7 @@ export function AdvisoryScansContent(props: AdvisoryScansContentProps = {}): Rea
         if (rid.length > 0) {
           const refreshed = await fetchPersistedRecommendations(rid);
           setRecommendations(refreshed);
+          setLastLoadedUtc(new Date().toISOString());
         }
 
         setPendingDisposition(null);
@@ -225,6 +305,7 @@ export function AdvisoryScansContent(props: AdvisoryScansContentProps = {}): Rea
       setPlanSummary(data);
       const persisted = await fetchPersistedRecommendations(rid);
       setRecommendations(persisted);
+      setLastLoadedUtc(new Date().toISOString());
     } catch (error) {
       setFailure(toApiLoadFailure(error));
       setPlanSummary(null);
@@ -247,6 +328,7 @@ export function AdvisoryScansContent(props: AdvisoryScansContentProps = {}): Rea
     try {
       const persisted = await fetchPersistedRecommendations(rid);
       setRecommendations(persisted);
+      setLastLoadedUtc(new Date().toISOString());
     } catch (error) {
       setFailure(toApiLoadFailure(error));
     } finally {
@@ -254,211 +336,222 @@ export function AdvisoryScansContent(props: AdvisoryScansContentProps = {}): Rea
     }
   }, [fetchPersistedRecommendations, runId]);
 
-  const revealSamplePreview = useCallback((): void => {
-    setShowSamplePreview(true);
-
-    if (typeof document !== "undefined") {
-      const anchor = document.querySelector(ADVISORY_SCANS_SAMPLE_ANCHOR_HREF);
-
-      if (anchor instanceof HTMLElement) {
-        anchor.scrollIntoView({ behavior: "smooth", block: "start" });
-      }
-    }
+  const toggleSamplePreview = useCallback((): void => {
+    setShowSamplePreview((current) => !current);
   }, []);
+
+  const lastLoadedLabel = formatAdvisoryScansLastLoaded(lastLoadedUtc);
+
+  const listHeader = (
+    <div
+      className="flex flex-wrap items-start justify-between gap-2"
+      data-testid="advisory-scans-list-header"
+    >
+      <div className="min-w-0 space-y-1">
+        <h3 className={cn("m-0 font-semibold text-al-text-primary", OPERATOR_TYPOGRAPHY.cardTitle)}>
+          {ADVISORY_SCANS_LIST_HEADING}
+        </h3>
+        <p className={cn("m-0 text-neutral-600 dark:text-neutral-400", OPERATOR_TYPOGRAPHY.helper)}>
+          <span className="font-medium text-al-text-primary">Project scope:</span> {projectLabel}
+          <span aria-hidden="true"> · </span>
+          <span data-testid="advisory-scans-count">
+            {recommendations.length} {ADVISORY_SCANS_LIST_COUNT_LABEL}
+          </span>
+          <span aria-hidden="true"> · </span>
+          <span data-testid="advisory-scans-last-loaded">
+            {ADVISORY_SCANS_LAST_LOADED_PREFIX}: {lastLoadedLabel}
+          </span>
+        </p>
+      </div>
+      <RefreshButton
+        busy={loading}
+        data-testid="advisory-scans-refresh"
+        onClick={() => {
+          void refreshPersistedOnly();
+        }}
+      />
+    </div>
+  );
 
   return (
     <div className="w-full max-w-[1200px]" data-testid="advisory-scans-content">
-      <AdvisoryResultsSchedulesVocabularyRail currentSurfaceId="advisory-results" />
+      {listHeader}
 
-      {emptyIntroMode ? (
-        <div className="space-y-3" data-testid="advisory-empty-next-story">
-          <p
-            className={cn("m-0 max-w-3xl text-neutral-600 dark:text-neutral-400", OPERATOR_TYPOGRAPHY.body)}
-            data-testid="advisory-empty-next-story-lead"
-          >
-            {ADVISORY_SCANS_EMPTY_NEXT_STORY_LEAD}
-          </p>
-
-          <div className="flex flex-wrap items-center gap-2" data-testid="advisory-empty-cta-row">
-            <Button
-              type="button"
-              size="sm"
-              variant="primary"
-              data-testid="advisory-choose-review-cta"
-              onClick={() => {
-                setShowScanForm(true);
-              }}
-            >
-              {ADVISORY_SCANS_CHOOSE_REVIEW_LABEL}
-            </Button>
-
-            <Button
-              type="button"
-              size="sm"
-              variant="outline"
-              data-testid="advisory-empty-view-sample-cta"
-              onClick={revealSamplePreview}
-            >
-              {ADVISORY_SCANS_VIEW_SAMPLE_LABEL}
-            </Button>
-
-            <Button asChild size="sm" variant="outline">
-              <Link
-                href={ADVISORY_SCANS_OPEN_REVIEW_PACKAGES_HREF}
-                data-testid="advisory-empty-open-reviews-link"
-              >
-                {ADVISORY_SCANS_OPEN_REVIEW_PACKAGES_LABEL}
-              </Link>
-            </Button>
-          </div>
+      <section
+        className={cn(DESIGN_TOKENS.surface.card, "mb-6 mt-4 space-y-4 p-5")}
+        aria-label={ADVISORY_SCANS_FORM_SECTION_TITLE}
+        data-testid="advisory-scan-form"
+      >
+        <div className="space-y-1">
+          <h3 className={cn("m-0 font-semibold text-al-text-primary", OPERATOR_TYPOGRAPHY.cardTitle)}>
+            {ADVISORY_SCANS_FORM_SECTION_TITLE}
+          </h3>
         </div>
-      ) : null}
 
-      {showGenerateForm ? (
-        <section
-          className={cn(DESIGN_TOKENS.surface.card, "mb-6 space-y-4 p-5", emptyIntroMode ? "" : "mt-0")}
-          aria-label={ADVISORY_SCANS_FORM_SECTION_TITLE}
-          data-testid="advisory-scan-form"
-        >
-          <div className="space-y-1">
-            <h3 className={cn("m-0 font-semibold text-al-text-primary", OPERATOR_TYPOGRAPHY.cardTitle)}>
-              {ADVISORY_SCANS_FORM_SECTION_TITLE}
-            </h3>
-          </div>
+        {bootstrappedRunId.length > 0 ? (
+          <p
+            className={cn("m-0 text-neutral-600 dark:text-neutral-400", OPERATOR_TYPOGRAPHY.helper)}
+            data-testid="advisory-scans-run-scope-banner"
+          >
+            Scoped to review <span className="font-mono text-al-text-primary">{bootstrappedRunId}</span>.
+            Persisted recommendations load automatically; generate a scan if you need a fresh plan.
+          </p>
+        ) : null}
 
-          {bootstrappedRunId.length > 0 ? (
-            <p
-              className={cn("m-0 text-neutral-600 dark:text-neutral-400", OPERATOR_TYPOGRAPHY.helper)}
-              data-testid="advisory-scans-run-scope-banner"
-            >
-              Scoped to review <span className="font-mono text-al-text-primary">{bootstrappedRunId}</span>.
-              Persisted recommendations load automatically; generate a scan if you need a fresh plan.
-            </p>
-          ) : null}
+        <div className="grid gap-4">
+          <RunIdPicker
+            label={ADVISORY_SCANS_FINALIZED_REVIEW_LABEL}
+            placeholder={ADVISORY_SCANS_FINALIZED_REVIEW_PLACEHOLDER}
+            value={runId}
+            onChange={setRunId}
+            inputId="advisory-run-id"
+            committedOnly
+            preferAutoPick={false}
+            useBuyerFacingRunLabels
+          />
 
-          <div className="grid gap-4">
+          <div className="space-y-2">
             <RunIdPicker
-              label={ADVISORY_SCANS_FINALIZED_REVIEW_LABEL}
-              placeholder={ADVISORY_SCANS_FINALIZED_REVIEW_PLACEHOLDER}
-              value={runId}
-              onChange={setRunId}
-              inputId="advisory-run-id"
+              label={ADVISORY_SCANS_BASELINE_REVIEW_LABEL}
+              placeholder={ADVISORY_SCANS_BASELINE_REVIEW_PLACEHOLDER}
+              value={compareToRunId}
+              onChange={setCompareToRunId}
+              inputId="advisory-compare-run-id"
               committedOnly
               preferAutoPick={false}
               useBuyerFacingRunLabels
             />
-
-            <div className="space-y-2">
-              <RunIdPicker
-                label={ADVISORY_SCANS_BASELINE_REVIEW_LABEL}
-                placeholder={ADVISORY_SCANS_BASELINE_REVIEW_PLACEHOLDER}
-                value={compareToRunId}
-                onChange={setCompareToRunId}
-                inputId="advisory-compare-run-id"
-                committedOnly
-                preferAutoPick={false}
-                useBuyerFacingRunLabels
-              />
-              <p className={cn("m-0 text-neutral-600 dark:text-neutral-400", OPERATOR_TYPOGRAPHY.helper)}>
-                {ADVISORY_SCANS_BASELINE_REVIEW_HELPER}
-              </p>
-            </div>
-
-            <details
-              className={cn(
-                "rounded-md border border-neutral-200 bg-neutral-50/80 px-3 py-2 dark:border-neutral-700 dark:bg-neutral-900/40",
-                OPERATOR_TYPOGRAPHY.helper,
-              )}
-            >
-              <summary className="cursor-pointer font-medium text-neutral-800 dark:text-neutral-200">
-                {ADVISORY_SCANS_CANT_FIND_REVIEW_SUMMARY}
-              </summary>
-              <div className="mt-3 space-y-3">
-                <p className={cn("m-0 text-neutral-600 dark:text-neutral-400", OPERATOR_TYPOGRAPHY.body)}>
-                  {ADVISORY_SCANS_CANT_FIND_REVIEW_BODY}
-                </p>
-                <Button asChild size="sm" variant="outline">
-                  <Link href={ADVISORY_SCANS_OPEN_REVIEW_PACKAGES_HREF}>{ADVISORY_SCANS_OPEN_REVIEW_PACKAGES_LABEL}</Link>
-                </Button>
-
-                {isAdminCaller ? (
-                  <details className="rounded border border-dashed border-neutral-300 p-3 dark:border-neutral-600">
-                    <summary className="cursor-pointer font-medium text-neutral-800 dark:text-neutral-200">
-                      {ADVISORY_SCANS_MANUAL_ID_ADMIN_SUMMARY}
-                    </summary>
-                    <div className="mt-3 grid gap-2">
-                      <input
-                        value={runId}
-                        onChange={(event) => {
-                          setRunId(event.target.value);
-                        }}
-                        placeholder={ADVISORY_SCANS_MANUAL_ID_TARGET_PLACEHOLDER}
-                        className={cn(
-                          "rounded-md border border-neutral-300 bg-white p-2 font-mono text-neutral-900 dark:border-neutral-600 dark:bg-neutral-950 dark:text-neutral-100",
-                          OPERATOR_TYPOGRAPHY.body,
-                        )}
-                      />
-                      <input
-                        value={compareToRunId}
-                        onChange={(event) => {
-                          setCompareToRunId(event.target.value);
-                        }}
-                        placeholder={ADVISORY_SCANS_MANUAL_ID_BASELINE_PLACEHOLDER}
-                        className={cn(
-                          "rounded-md border border-neutral-300 bg-white p-2 font-mono text-neutral-900 dark:border-neutral-600 dark:bg-neutral-950 dark:text-neutral-100",
-                          OPERATOR_TYPOGRAPHY.body,
-                        )}
-                      />
-                    </div>
-                  </details>
-                ) : null}
-              </div>
-            </details>
+            <p className={cn("m-0 text-neutral-600 dark:text-neutral-400", OPERATOR_TYPOGRAPHY.helper)}>
+              {ADVISORY_SCANS_BASELINE_REVIEW_HELPER}
+            </p>
           </div>
 
-          <div className="space-y-2">
-            <div className="flex flex-wrap gap-2">
-              <Button
-                type="button"
-                variant={reviewSelected ? "primary" : "outline"}
-                onClick={() => {
-                  void loadAdvice();
-                }}
-                disabled={loading || !reviewSelected}
-                title={!reviewSelected ? ADVISORY_SCANS_GENERATE_DISABLED_HINT : undefined}
-                data-testid="advisory-generate-scan-button"
-              >
-                {loading ? ADVISORY_SCANS_GENERATE_BUTTON_WORKING_LABEL : ADVISORY_SCANS_GENERATE_BUTTON_LABEL}
+          <details
+            className={cn(
+              "rounded-md border border-neutral-200 bg-neutral-50/80 px-3 py-2 dark:border-neutral-700 dark:bg-neutral-900/40",
+              OPERATOR_TYPOGRAPHY.helper,
+            )}
+          >
+            <summary className="cursor-pointer font-medium text-neutral-800 dark:text-neutral-200">
+              {ADVISORY_SCANS_CANT_FIND_REVIEW_SUMMARY}
+            </summary>
+            <div className="mt-3 space-y-3">
+              <p className={cn("m-0 text-neutral-600 dark:text-neutral-400", OPERATOR_TYPOGRAPHY.body)}>
+                {ADVISORY_SCANS_CANT_FIND_REVIEW_BODY}
+              </p>
+              <Button asChild size="sm" variant="outline">
+                <Link href={ADVISORY_SCANS_OPEN_REVIEW_PACKAGES_HREF}>{ADVISORY_SCANS_OPEN_REVIEW_PACKAGES_LABEL}</Link>
               </Button>
 
-              {reviewSelected ? (
-                <Button
-                  type="button"
-                  variant="outline"
-                  onClick={() => {
-                    void refreshPersistedOnly();
-                  }}
-                  disabled={loading}
-                >
-                  {ADVISORY_SCANS_REFRESH_SAVED_LABEL}
-                </Button>
+              {isAdminCaller ? (
+                <details className="rounded border border-dashed border-neutral-300 p-3 dark:border-neutral-600">
+                  <summary className="cursor-pointer font-medium text-neutral-800 dark:text-neutral-200">
+                    {ADVISORY_SCANS_MANUAL_ID_ADMIN_SUMMARY}
+                  </summary>
+                  <div className="mt-3 grid gap-2">
+                    <input
+                      value={runId}
+                      onChange={(event) => {
+                        setRunId(event.target.value);
+                      }}
+                      placeholder={ADVISORY_SCANS_MANUAL_ID_TARGET_PLACEHOLDER}
+                      className={cn(
+                        "rounded-md border border-neutral-300 bg-white p-2 font-mono text-neutral-900 dark:border-neutral-600 dark:bg-neutral-950 dark:text-neutral-100",
+                        OPERATOR_TYPOGRAPHY.body,
+                      )}
+                    />
+                    <input
+                      value={compareToRunId}
+                      onChange={(event) => {
+                        setCompareToRunId(event.target.value);
+                      }}
+                      placeholder={ADVISORY_SCANS_MANUAL_ID_BASELINE_PLACEHOLDER}
+                      className={cn(
+                        "rounded-md border border-neutral-300 bg-white p-2 font-mono text-neutral-900 dark:border-neutral-600 dark:bg-neutral-950 dark:text-neutral-100",
+                        OPERATOR_TYPOGRAPHY.body,
+                      )}
+                    />
+                  </div>
+                </details>
               ) : null}
             </div>
+          </details>
+        </div>
 
-            {!reviewSelected ? (
-              <p
-                className={cn("m-0 text-neutral-600 dark:text-neutral-400", OPERATOR_TYPOGRAPHY.body)}
-                data-testid="advisory-generate-disabled-hint"
+        <div className="space-y-2">
+          <p
+            className={cn("m-0 text-neutral-600 dark:text-neutral-400", OPERATOR_TYPOGRAPHY.helper)}
+            data-testid="advisory-scans-inline-boundary"
+          >
+            {ADVISORY_SCANS_INLINE_CAPABILITY_BOUNDARY}
+          </p>
+
+          <div className="flex flex-wrap items-center gap-2">
+            <Button
+              type="button"
+              variant={reviewSelected ? "primary" : "outline"}
+              onClick={() => {
+                void loadAdvice();
+              }}
+              disabled={loading || !reviewSelected}
+              aria-describedby={generateDisabledReason === null ? undefined : generateDisabledHintId}
+              data-testid="advisory-generate-scan-button"
+            >
+              {loading ? ADVISORY_SCANS_GENERATE_BUTTON_WORKING_LABEL : ADVISORY_SCANS_GENERATE_BUTTON_LABEL}
+            </Button>
+
+            {reviewSelected ? (
+              <Button
+                type="button"
+                variant="outline"
+                onClick={() => {
+                  void refreshPersistedOnly();
+                }}
+                disabled={loading}
               >
-                {ADVISORY_SCANS_GENERATE_DISABLED_HINT}
-              </p>
-            ) : (
-              <p className={cn("m-0 text-neutral-600 dark:text-neutral-400", OPERATOR_TYPOGRAPHY.body)}>
-                {ADVISORY_SCANS_GENERATE_OUTPUT_HINT}
-              </p>
-            )}
+                {ADVISORY_SCANS_REFRESH_SAVED_LABEL}
+              </Button>
+            ) : null}
+
+            <WhyDisabledCtaHint
+              id={generateDisabledHintId}
+              reason={generateDisabledReason}
+              testId="advisory-generate-disabled-hint"
+            />
           </div>
-        </section>
+
+          {reviewSelected ? (
+            <p className={cn("m-0 text-neutral-600 dark:text-neutral-400", OPERATOR_TYPOGRAPHY.body)}>
+              {ADVISORY_SCANS_GENERATE_OUTPUT_HINT}
+            </p>
+          ) : null}
+        </div>
+      </section>
+
+      {!hasResults ? (
+        <div className="mb-6 flex flex-wrap items-center gap-2" data-testid="advisory-scans-empty-actions">
+          <Button
+            type="button"
+            size="sm"
+            variant="outline"
+            id={samplePreviewTriggerId}
+            aria-expanded={showSamplePreview}
+            aria-controls={samplePreviewRegionId}
+            data-testid="advisory-empty-view-sample-cta"
+            onClick={toggleSamplePreview}
+          >
+            {ADVISORY_SCANS_VIEW_SAMPLE_LABEL}
+          </Button>
+
+          <Button asChild size="sm" variant="outline">
+            <Link
+              href={ADVISORY_SCANS_OPEN_REVIEW_PACKAGES_HREF}
+              data-testid="advisory-empty-open-reviews-link"
+            >
+              {ADVISORY_SCANS_OPEN_REVIEW_PACKAGES_LABEL}
+            </Link>
+          </Button>
+        </div>
       ) : null}
 
       {failure !== null ? (
@@ -534,11 +627,28 @@ export function AdvisoryScansContent(props: AdvisoryScansContentProps = {}): Rea
         </p>
       ) : null}
 
-      {!hasResults && showSamplePreview ? (
-        <div className="mt-4 space-y-3" data-testid="advisory-sample-preview-region">
+      {showSamplePreview ? (
+        <div
+          ref={samplePreviewRegionRef}
+          id={samplePreviewRegionId}
+          tabIndex={-1}
+          className="mt-4 space-y-3 outline-none"
+          data-testid="advisory-sample-preview-region"
+          aria-labelledby={samplePreviewTriggerId}
+        >
           <AdvisorySampleRecommendationPreview />
         </div>
       ) : null}
+
+      <div className="mt-8 space-y-4" data-testid="advisory-scans-orientation-footer">
+        <AdvisoryResultsSchedulesVocabularyRail currentSurfaceId="advisory-results" />
+        <PageCapabilityBoundaryStrip surfaceId="advisoryScans" />
+        <CollapsibleSection title={ADVISORY_SCANS_HOW_IT_WORKS_TITLE} sectionTestId="advisory-scans-how-it-works">
+          <p className={cn("m-0 max-w-3xl text-neutral-700 dark:text-neutral-300", OPERATOR_TYPOGRAPHY.body)}>
+            {ADVISORY_SCANS_HOW_IT_WORKS_BODY}
+          </p>
+        </CollapsibleSection>
+      </div>
 
       <AdvisoryRecommendationDispositionDialog
         open={pendingDisposition !== null}

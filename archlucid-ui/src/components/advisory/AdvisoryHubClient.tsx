@@ -5,25 +5,18 @@ import { cn } from "@/lib/utils";
 import { useCallback, useEffect, useId, useState } from "react";
 import { usePathname, useRouter } from "next/navigation";
 
-import { CollapsibleSection } from "@/components/CollapsibleSection";
 import { ADVISORY_SCANS_HREF } from "@/lib/advisory-scans-route";
 import { OperatorPageHeader } from "@/components/operator/OperatorPageHeader";
-import { PageCapabilityBoundaryStrip } from "@/components/PageCapabilityBoundaryStrip";
 import { PageContextualHelpButton } from "@/components/usability/PageContextualHelpButton";
 import { Tabs, TabsContent, TabsList, TabsTrigger } from "@/components/ui/tabs";
 import { useOperateCapability } from "@/hooks/use-operate-capability";
-import {
-  ADVISORY_SCANS_HOW_IT_WORKS_BODY,
-  ADVISORY_SCANS_HOW_IT_WORKS_TITLE,
-  ADVISORY_SCANS_PAGE_LEAD,
-} from "@/lib/advisory-copy";
+import { ADVISORY_SCANS_PAGE_LEAD } from "@/lib/advisory-copy";
 import { buildAdvisoryHubHref } from "@/lib/advisory-hub-href";
 import { ADVISORY_HUB_TAB_IDS, advisoryHubTabFromSearchParam, type AdvisoryHubTabId } from "@/lib/advisory-hub-tab";
 import { scopedRunIdFromQuery } from "@/lib/architecture/architecture-risk-register-page";
 import { OPERATOR_TYPOGRAPHY } from "@/lib/design-tokens";
 import { OPERATOR_NAV_LINK_LABELS } from "@/lib/i18n";
 
-import { DigestsAdvisoryScansVocabularyRail } from "@/components/DigestsAdvisoryScansVocabularyRail";
 import { AdvisoryScansContent } from "./AdvisoryScansContent";
 import { AdvisorySchedulesContent } from "./AdvisorySchedulesContent";
 
@@ -119,19 +112,6 @@ export function AdvisoryHubClient({ initialTab, initialRunId = null }: AdvisoryH
           <span id={schedulesTabReaderHintId} className="sr-only">
             {SCHEDULES_TAB_READER_DESCRIPTION}
           </span>
-        ) : null}
-
-        <PageCapabilityBoundaryStrip surfaceId="advisoryScans" />
-
-        {activeTab === "scans" ? (
-          <>
-            <DigestsAdvisoryScansVocabularyRail currentSurfaceId="advisory-scans" />
-            <CollapsibleSection title={ADVISORY_SCANS_HOW_IT_WORKS_TITLE} sectionTestId="advisory-scans-how-it-works">
-              <p className={cn("m-0 max-w-3xl text-neutral-700 dark:text-neutral-300", OPERATOR_TYPOGRAPHY.body)}>
-                {ADVISORY_SCANS_HOW_IT_WORKS_BODY}
-              </p>
-            </CollapsibleSection>
-          </>
         ) : null}
 
         <TabsContent value="scans" className="mt-4 min-w-0" data-testid="advisory-hub-panel">

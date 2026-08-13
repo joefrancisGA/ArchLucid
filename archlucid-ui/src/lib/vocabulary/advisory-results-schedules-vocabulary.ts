@@ -2,8 +2,8 @@
  * TB-2280 — Advisory results ≠ Advisory schedules vocabulary rail.
  *
  * Why two advisory surfaces exist on the same hub:
- * - Advisory results (`/governance/advisory-scans?tab=scans`) generate and
- *   browse advisory findings and recommendations for architecture packages.
+ * - Advisory scans (`/governance/advisory-scans?tab=scans`) generate and
+ *   browse advisory scan recommendations for architecture packages.
  * - Advisory schedules (`/governance/advisory-scans?tab=schedules`) automate
  *   recurring advisory scans on a cadence.
  *
@@ -37,19 +37,19 @@ export type AdvisoryResultsSchedulesVocabularyModel = {
 };
 
 export const ADVISORY_RESULTS_SCHEDULES_HEADING =
-  "Advisory results and Advisory schedules do different jobs" as const;
+  "Advisory scans and Advisory schedules do different jobs" as const;
 
 export const ADVISORY_RESULTS_SCHEDULES_WHY_TWO =
-  "Advisory results generate and browse advisory findings and recommendations for architecture packages. Advisory schedules automate recurring advisory scans on a cadence. Producing results is not the same as scheduling scans — open the peer when you need the other job." as const;
+  "Advisory scans generate and browse prioritized recommendations from finalized reviews. Advisory schedules automate recurring advisory scans on a cadence. Running a scan is not the same as scheduling scans — open the peer when you need the other job." as const;
 
 export const ADVISORY_RESULTS_SCHEDULES_COMPACT_LINE =
-  "Advisory results browse findings; Advisory schedules automate recurring scans — open the other when you need both." as const;
+  "Advisory scans browse recommendations; Advisory schedules automate recurring scans — open the other when you need both." as const;
 
 export const ADVISORY_RESULTS_SCHEDULES_RESULTS_LINK: AdvisoryResultsSchedulesLink = {
   id: "advisory-results",
-  label: "Advisory results",
+  label: "Advisory scans",
   href: ADVISORY_SCANS_SCANS_HREF,
-  whenToUse: "Generate and browse advisory findings for architecture packages.",
+  whenToUse: "Generate and browse advisory scan recommendations for architecture packages.",
 };
 
 export const ADVISORY_RESULTS_SCHEDULES_SCHEDULES_LINK: AdvisoryResultsSchedulesLink = {

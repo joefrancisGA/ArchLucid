@@ -19,12 +19,13 @@ describe("advisory-results-schedules-vocabulary (TB-2280)", () => {
     const model = buildAdvisoryResultsSchedulesVocabulary();
 
     expect(model.heading).toBe(ADVISORY_RESULTS_SCHEDULES_HEADING);
-    expect(model.heading.toLowerCase()).toContain("advisory results");
+    expect(model.heading.toLowerCase()).toContain("advisory scans");
     expect(model.heading.toLowerCase()).toContain("advisory schedules");
     expect(model.whyTwo).toBe(ADVISORY_RESULTS_SCHEDULES_WHY_TWO);
-    expect(model.whyTwo.toLowerCase()).toContain("finding");
+    expect(model.whyTwo.toLowerCase()).toContain("scan");
     expect(model.whyTwo.toLowerCase()).toContain("cadence");
     expect(model.compactLine).toBe(ADVISORY_RESULTS_SCHEDULES_COMPACT_LINE);
+    expect(model.compactLine.toLowerCase()).toContain("scan");
 
     expect(model.resultsLink).toEqual(ADVISORY_RESULTS_SCHEDULES_RESULTS_LINK);
     expect(model.resultsLink.href).toBe(ADVISORY_SCANS_SCANS_HREF);

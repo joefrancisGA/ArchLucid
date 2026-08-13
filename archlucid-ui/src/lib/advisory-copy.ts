@@ -58,13 +58,23 @@ export const ADVISORY_SCANS_REFRESH_SAVED_LABEL = "Refresh saved recommendations
 export const ADVISORY_SCANS_EMPTY_TITLE = "No advisory scan generated yet";
 
 export const ADVISORY_SCANS_EMPTY_BODY =
-  "Select a finalized review to generate recommendations, or view a sample advisory scan.";
+  "Select a finalized review to generate an advisory scan, or view a sample scan output.";
 
-/** Single empty/demo next-story lead when no scan results yet (TB-1126 / TB-1567). */
-export const ADVISORY_SCANS_EMPTY_NEXT_STORY_LEAD =
-  "No advisory scan yet. Choose a finalized review to generate recommendations, or preview a sample advisory scan.";
+/** @deprecated Prefer {@link ADVISORY_SCANS_EMPTY_BODY} — folded into compact empty state. */
+export const ADVISORY_SCANS_EMPTY_NEXT_STORY_LEAD = ADVISORY_SCANS_EMPTY_BODY;
 
+/** @deprecated Choose-review gate removed — form is inline on first load. */
 export const ADVISORY_SCANS_CHOOSE_REVIEW_LABEL = "Choose review";
+
+/** One-line advisory-only boundary near the generate action (no disclosure). */
+export const ADVISORY_SCANS_INLINE_CAPABILITY_BOUNDARY =
+  "An advisory scan produces prioritized recommendations from finalized reviews — not a signed review record, governance approval, or automatic remediation.";
+
+export const ADVISORY_SCANS_LIST_HEADING = "Saved advisory scans";
+
+export const ADVISORY_SCANS_LIST_COUNT_LABEL = "recommendations in scope";
+
+export const ADVISORY_SCANS_LAST_LOADED_PREFIX = "Last loaded";
 
 export const ADVISORY_SCANS_VIEW_SAMPLE_LABEL = "View sample advisory scan";
 
