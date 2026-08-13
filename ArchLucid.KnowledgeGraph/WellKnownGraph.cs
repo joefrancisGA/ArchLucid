@@ -10,6 +10,8 @@ public static class GraphNodeTypes
     public const string SecurityBaseline = "SecurityBaseline";
     public const string PolicyControl = "PolicyControl";
     public const string Requirement = "Requirement";
+
+    public const string CostConstraint = "CostConstraint";
 }
 
 /// <summary>

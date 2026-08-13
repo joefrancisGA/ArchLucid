@@ -1545,10 +1545,10 @@ All **P0** **V1**: visible-boundary button contract + design-system rule (**TB-2
 | TB-1700 | **Done** (2026-08-13) — Related connector help + inbound label surfaces; Vitest; see ## TB-1700 below | Adoption friction P1 ? **V1**; with **TB-1696** | S |
 | TB-1701 | **Done** (2026-08-10) ? `/help/integrations/azure-boards` permanent redirect ? `/help/azure-boards`; `help-topic-permanent-redirects` + Batch E manifest; see ## TB-1701 below | Adoption friction P1 ? **V1**; owner review ~48/100 2026-07-27; traffic **HEZ** folded into **HAZ** | S |
 | TB-1706 | **Done** (2026-08-10) ? `/help/operator-auth-roles` permanent redirect ? `/help/users-and-roles`; `help-topic-permanent-redirects` + manifest; see ## TB-1706 below | Adoption friction P1 ? **V1**; owner review ~47/100 2026-07-27; traffic folded into **HOE** | S |
-| TB-1711 | `/help/path-chooser` specialty next-step chooser (not full orientation dump); see ## TB-1711 below | Adoption friction P1 ? **V1**; owner review ~35/100 2026-07-27; traffic **HPX**; pairs **TB-1414** | M |
-| TB-1713 | Path-chooser help ? branch primary CTAs (in-app only); see ## TB-1713 below | Adoption friction P1 ? **V1**; with **TB-1711** | S |
-| TB-1714 | Path-chooser help ? deferred ITSM + eng-help link honesty; see ## TB-1714 below | Trustworthiness P1 ? **V1**; with **TB-1711**; pairs **TB-1689** | S |
-| TB-1715 | Path-chooser help ? slug/title honesty + Related density; see ## TB-1715 below | Adoption friction P1 ? **V1**; with **TB-1711** | S |
+| TB-1711 | **Done** (2026-08-13) — `HelpPathChooserGuideView` specialty chooser; Vitest; see ## TB-1711 below | Adoption friction P1 ? **V1**; owner review ~35/100 2026-07-27; traffic **HPX**; pairs **TB-1414** | M |
+| TB-1713 | **Done** (2026-08-13) — goal-branch primary/fallback CTAs; Vitest; see ## TB-1713 below | Adoption friction P1 ? **V1**; with **TB-1711** | S |
+| TB-1714 | **Done** (2026-08-13) — in-app branch honesty (no configuration-reference primary); Vitest; see ## TB-1714 below | Trustworthiness P1 ? **V1**; with **TB-1711**; pairs **TB-1689** | S |
+| TB-1715 | **Done** (2026-08-13) — title honesty + Related ?3 + inbound labels; Vitest; see ## TB-1715 below | Adoption friction P1 ? **V1**; with **TB-1711** | S |
 | TB-1716 | `/help/pilot-feedback` specialty Admin guide + Open Pilot feedback CTA; see ## TB-1716 below | Adoption friction P1 ? **V1**; owner review ~45/100 2026-07-27; traffic **HPE**; internal-runbook; pairs **TB-1414** | M |
 | TB-1718 | Pilot-feedback help ? title honesty (drop 58R / Product learning H1 dual); see ## TB-1718 below | Trustworthiness P1 ? **V1**; with **TB-1716** | S |
 | TB-1719 | Pilot-feedback help ? IA dual with recommendation learning / pilot-nav; see ## TB-1719 below | Adoption friction P1 ? **V1**; with **TB-1716** | S |
@@ -42130,13 +42130,15 @@ Operators must read three intros before reaching the Trust Center link list.
 
 ---
 
-## TB-1711 ? `/help/path-chooser` specialty next-step chooser (P0)
+## TB-1711 ? `/help/choose-your-next-step` specialty next-step chooser (P0)
 
-**Window:** V1 ? Adoption friction. **Status:** Not started. **Priority:** P0.
+**Window:** V1 ? Adoption friction. **Status:** **Done** 2026-08-13. **Priority:** P0.
 
 **Source:** Owner HPX ~35/100 2026-07-27.
 
 **Problem:** Title/summary promise a next-step chooser, but the page dumps the entire buyer orientation one-screen doc via bare `HelpTopicMarkdownView`.
+
+**Shipped:** `HelpPathChooserGuideView` with evaluator session strip, goal branches, collapsed reference appendix; `HelpTopicPathChooser.test.tsx`; canonical slug `choose-your-next-step`.
 
 **Approach:** Specialty companion (pair **TB-1414**) **or** `sectionAnchors` on ?Choose your next step? only (+ short lead). Vitest: chooser table present; no full Pilot/Operate proof-artifact essay as primary body.
 
@@ -42158,9 +42160,11 @@ Operators must read three intros before reaching the Trust Center link list.
 
 ## TB-1713 ? Path-chooser help ? branch primary CTAs (in-app only) (P0)
 
-**Window:** V1 ? Adoption friction. **Status:** Not started. **Priority:** P0.
+**Window:** V1 ? Adoption friction. **Status:** **Done** 2026-08-13. **Priority:** P0.
 
 **Problem:** Chooser table is prose links inside markdown ? no Button CTAs; evaluate/stuck/procurement branches compete with eng CLI row.
+
+**Shipped:** `PATH_CHOOSER_HELP_BRANCHES` cards with primary/fallback links; action panel Start + Security/trust; Vitest per-branch href guards.
 
 **Approach:** Specialty cards/buttons per buyer branch (evaluate ? core-pilot; stuck ? troubleshooting; procurement ? security-trust; sponsor ? reviews export). Vitest: ?1 primary Button per buyer branch.
 
@@ -42170,9 +42174,11 @@ Operators must read three intros before reaching the Trust Center link list.
 
 ## TB-1714 ? Path-chooser help ? deferred ITSM + eng-help link honesty (P0)
 
-**Window:** V1 ? Trustworthiness. **Status:** Not started. **Priority:** P0.
+**Window:** V1 ? Trustworthiness. **Status:** **Done** 2026-08-13. **Priority:** P0.
 
 **Problem:** Deferred list still claims Jira/ServiceNow/Slack as V1.1 while V1 GA connectors ship; eng branch deep-links CLI usage / configuration-reference (ungated eng risk); sponsor-summary deep-link is wrong SoT (**TB-1686**).
+
+**Shipped:** Branches use in-app help only; sponsor branch points at `sponsor-report`; engineering fallback is troubleshooting (not configuration-reference); leakage strip **TB-1712**; Vitest no Pilot guide / stale eng primary.
 
 **Approach:** Align deferred copy with current V1 connector posture; demote/gate eng help; point sponsor branch at a honest export/ROI help after **TB-1686**. Vitest: no stale ?ITSM V1.1 only? on this route; no ungated configuration-reference as primary.
 
@@ -42182,9 +42188,11 @@ Operators must read three intros before reaching the Trust Center link list.
 
 ## TB-1715 ? Path-chooser help ? slug/title honesty + Related density (P0)
 
-**Window:** V1 ? Adoption friction. **Status:** Not started. **Priority:** P0.
+**Window:** V1 ? Adoption friction. **Status:** **Done** 2026-08-13. **Priority:** P0.
 
 **Problem:** Slug `path-chooser` is eng; H1 ?Buyer orientation (one screen)? fights registry title ?Choose your next step?; Related dumps packaging/GTM files.
+
+**Shipped:** `PATH_CHOOSER_HELP_PAGE_TITLE` single H1; `path-chooser-help-related-guides` (?3); `path-chooser-help-inbound-label-surfaces`; permanent redirect `path-chooser` ? `choose-your-next-step`.
 
 **Approach:** Align single H1 to Choose your next step; consider friendlier slug alias later; Related ?2 in-app topics. Vitest: single h1; Related budget.
 

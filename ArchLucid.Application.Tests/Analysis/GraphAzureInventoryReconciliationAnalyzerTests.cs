@@ -1,0 +1,86 @@
+using ArchLucid.Application.Analysis;
+using ArchLucid.KnowledgeGraph;
+using ArchLucid.KnowledgeGraph.Models;
+
+using FluentAssertions;
+
+namespace ArchLucid.Application.Tests.Analysis;
+
+[Trait("Category", "Unit")]
+public sealed class GraphAzureInventoryReconciliationAnalyzerTests
+{
+    [Fact]
+    public void Analyze_returns_empty_when_graph_has_no_arm_resource_ids()
+    {
+        GraphSnapshot graph = new()
+        {
+            Nodes =
+            [
+                new GraphNode
+                {
+                    NodeId = "t1",
+                    NodeType = GraphNodeTypes.TopologyResource,
+                    Label = "api",
+                    Properties = new()
+                }
+            ]
+        };
+
+        const string resourcesJson =
+            """
+            [
+              {
+                "resourceType": "Microsoft.Compute/virtualMachines",
+                "resourceId": "/subscriptions/sub/resourceGroups/rg/providers/Microsoft.Compute/virtualMachines/vm1"
+              }
+            ]
+            """;
+
+        InventoryReconciliationResult result =
+            GraphAzureInventoryReconciliationAnalyzer.Analyze(resourcesJson, graph);
+
+        result.HasMismatches.Should().BeFalse();
+    }
+
+    [Fact]
+    public void Analyze_reports_graph_only_and_inventory_only_resource_ids()
+    {
+        const string graphResourceId =
+            "/subscriptions/sub/resourceGroups/rg/providers/Microsoft.Compute/virtualMachines/vm-graph";
+        const string inventoryResourceId =
+            "/subscriptions/sub/resourceGroups/rg/providers/Microsoft.Storage/storageAccounts/live";
+
+        GraphSnapshot graph = new()
+        {
+            Nodes =
+            [
+                new GraphNode
+                {
+                    NodeId = "t1",
+                    NodeType = GraphNodeTypes.TopologyResource,
+                    Label = "vm-graph",
+                    Properties = new Dictionary<string, string>
+                    {
+                        ["resourceId"] = graphResourceId
+                    }
+                }
+            ]
+        };
+
+        string resourcesJson =
+            $$"""
+            [
+              {
+                "resourceType": "Microsoft.Storage/storageAccounts",
+                "resourceId": "{{inventoryResourceId}}"
+              }
+            ]
+            """;
+
+        InventoryReconciliationResult result =
+            GraphAzureInventoryReconciliationAnalyzer.Analyze(resourcesJson, graph);
+
+        result.GraphOnlyResourceIds.Should().ContainSingle().Which.Should().Be(graphResourceId.ToLowerInvariant());
+        result.InventoryOnlyResourceIds.Should().ContainSingle().Which.Should().Be(inventoryResourceId.ToLowerInvariant());
+    }
+}

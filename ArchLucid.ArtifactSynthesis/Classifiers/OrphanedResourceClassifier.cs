@@ -77,6 +77,42 @@ public static class OrphanedResourceClassifier
             }
         }
 
+        if (resourceType.Equals("Microsoft.Network/loadBalancers", StringComparison.OrdinalIgnoreCase))
+        {
+            if (!HasBackendAddressPools(row))
+            {
+                return new OrphanedResourceFinding(
+                    resourceId,
+                    resourceType,
+                    "Load balancer with no backend address pools.",
+                    "CostOptimization");
+            }
+        }
+
+        if (resourceType.Equals("Microsoft.Network/networkSecurityGroups", StringComparison.OrdinalIgnoreCase))
+        {
+            if (!HasNetworkSecurityGroupAttachments(row))
+            {
+                return new OrphanedResourceFinding(
+                    resourceId,
+                    resourceType,
+                    "Network security group with no subnet or NIC attachments.",
+                    "CostOptimization");
+            }
+        }
+
+        if (resourceType.Equals("Microsoft.Network/routeTables", StringComparison.OrdinalIgnoreCase))
+        {
+            if (!HasSubnetAssociations(row))
+            {
+                return new OrphanedResourceFinding(
+                    resourceId,
+                    resourceType,
+                    "Route table with no associated subnets.",
+                    "CostOptimization");
+            }
+        }
+
         return null;
     }
 
@@ -118,6 +154,56 @@ public static class OrphanedResourceClassifier
 
         if (ipConfig.ValueKind is JsonValueKind.Array)
             return ipConfig.GetArrayLength() > 0;
+
+        return false;
+    }
+
+    private static bool HasBackendAddressPools(JsonElement row)
+    {
+        if (!row.TryGetProperty("properties", out JsonElement properties))
+            return false;
+
+        if (!properties.TryGetProperty("backendAddressPools", out JsonElement pools))
+            return false;
+
+        if (pools.ValueKind is JsonValueKind.Array)
+            return pools.GetArrayLength() > 0;
+
+        return false;
+    }
+
+    private static bool HasNetworkSecurityGroupAttachments(JsonElement row)
+    {
+        if (!row.TryGetProperty("properties", out JsonElement properties))
+            return false;
+
+        if (properties.TryGetProperty("subnets", out JsonElement subnets)
+            && subnets.ValueKind is JsonValueKind.Array
+            && subnets.GetArrayLength() > 0)
+        {
+            return true;
+        }
+
+        if (properties.TryGetProperty("networkInterfaces", out JsonElement networkInterfaces)
+            && networkInterfaces.ValueKind is JsonValueKind.Array
+            && networkInterfaces.GetArrayLength() > 0)
+        {
+            return true;
+        }
+
+        return false;
+    }
+
+    private static bool HasSubnetAssociations(JsonElement row)
+    {
+        if (!row.TryGetProperty("properties", out JsonElement properties))
+            return false;
+
+        if (!properties.TryGetProperty("subnets", out JsonElement subnets))
+            return false;
+
+        if (subnets.ValueKind is JsonValueKind.Array)
+            return subnets.GetArrayLength() > 0;
 
         return false;
     }

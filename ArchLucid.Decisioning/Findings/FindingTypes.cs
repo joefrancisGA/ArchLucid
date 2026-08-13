@@ -13,6 +13,8 @@ public static class FindingTypes
     public const string SecurityControlFinding = "SecurityControlFinding";
     public const string ComplianceFinding = "ComplianceFinding";
     public const string CostConstraintFinding = "CostConstraintFinding";
+    public const string CostBreachFinding = "CostBreachFinding";
+    public const string InventoryReconciliationFinding = "InventoryReconciliationFinding";
     public const string PolicyApplicabilityFinding = "PolicyApplicabilityFinding";
     public const string TopologyCoverageFinding = "TopologyCoverageFinding";
     public const string SecurityCoverageFinding = "SecurityCoverageFinding";

@@ -1,0 +1,115 @@
+using ArchLucid.Application.Analysis;
+using ArchLucid.Contracts.Findings;
+using ArchLucid.Contracts.Findings.Payloads;
+using ArchLucid.Core.Configuration;
+using ArchLucid.Core.Scoping;
+using ArchLucid.Decisioning.Findings;
+using ArchLucid.Decisioning.Interfaces;
+using ArchLucid.Decisioning.Models;
+using ArchLucid.KnowledgeGraph.Models;
+using ArchLucid.Persistence.Data.Repositories;
+using ArchLucid.Persistence.Models;
+
+using Microsoft.Extensions.Options;
+
+namespace ArchLucid.Application.Findings;
+
+/// <summary>Deterministic graph ↔ Azure inventory reconciliation findings (TB-2216).</summary>
+public sealed class GraphAzureInventoryReconciliationFindingEngine(
+    IScopeContextProvider scopeContextProvider,
+    IAzureExtractorPackageRepository packageRepository,
+    TimeProvider clock,
+    IOptions<RoiCostEvidenceFreshnessOptions> freshnessOptions) : IFindingEngine
+{
+    private readonly IScopeContextProvider _scopeContextProvider =
+        scopeContextProvider ?? throw new ArgumentNullException(nameof(scopeContextProvider));
+
+    private readonly IAzureExtractorPackageRepository _packageRepository =
+        packageRepository ?? throw new ArgumentNullException(nameof(packageRepository));
+
+    private readonly TimeProvider _clock = clock ?? throw new ArgumentNullException(nameof(clock));
+
+    private readonly RoiCostEvidenceFreshnessOptions _freshnessOptions =
+        freshnessOptions?.Value ?? throw new ArgumentNullException(nameof(freshnessOptions));
+
+    public string EngineType => "azure-inventory-reconciliation";
+
+    public string Category => "Correctness";
+
+    public async Task<IReadOnlyList<Finding>> AnalyzeAsync(GraphSnapshot graphSnapshot, CancellationToken ct)
+    {
+        ArgumentNullException.ThrowIfNull(graphSnapshot);
+
+        ScopeContext scope = _scopeContextProvider.GetCurrentScope();
+        DateTime? collectionUtc = await _packageRepository
+            .TryGetLatestCollectionTimestampUtcInScopeAsync(scope, ct)
+            .ConfigureAwait(false);
+
+        if (InventoryCollectionFreshnessGate.ShouldSuppressInventoryFindings(
+                collectionUtc,
+                _clock.GetUtcNow().UtcDateTime,
+                _freshnessOptions.StaleAfterDays))
+        {
+            return [];
+        }
+
+        AzureExtractorPackageDownloadRecord? download =
+            await _packageRepository.TryGetLatestDownloadInScopeAsync(scope, ct).ConfigureAwait(false);
+
+        if (download is null || download.PackageBytes.Length == 0)
+            return [];
+
+        string? resourcesJson = AzureInventoryZipResourcesJsonReader.TryReadResourcesJson(download.PackageBytes);
+        InventoryReconciliationResult reconciliation =
+            GraphAzureInventoryReconciliationAnalyzer.Analyze(resourcesJson, graphSnapshot);
+
+        if (!reconciliation.HasMismatches)
+            return [];
+
+        return
+        [
+            new Finding
+            {
+                FindingSchemaVersion = FindingsSchema.CurrentFindingVersion,
+                FindingType = FindingTypes.InventoryReconciliationFinding,
+                Category = Category,
+                EngineType = EngineType,
+                Severity = FindingSeverity.Warning,
+                Title = "Topology graph and Azure inventory are out of sync",
+                Rationale =
+                    "At least one topology resource identifier does not match the latest scoped Azure inventory snapshot.",
+                PayloadType = nameof(InventoryReconciliationFindingPayload),
+                Payload = new InventoryReconciliationFindingPayload
+                {
+                    GraphTopologyResourceCount = reconciliation.GraphTopologyResourceCount,
+                    InventoryResourceCount = reconciliation.InventoryResourceCount,
+                    GraphOnlyResourceIds = reconciliation.GraphOnlyResourceIds.ToList(),
+                    InventoryOnlyResourceIds = reconciliation.InventoryOnlyResourceIds.ToList()
+                },
+                RecommendedActions =
+                [
+                    "Update the architecture graph to include live inventory resources that are missing from the review.",
+                    "Remove or re-label graph resources that are not present in the scoped Azure inventory."
+                ],
+                Trace = new ExplainabilityTrace
+                {
+                    RulesApplied = ["graph-azure-inventory-reconciliation"],
+                    DecisionsTaken =
+                    [
+                        "Compared topology resource ARM identifiers to scoped extractor resources.json rows."
+                    ],
+                    AlternativePathsConsidered =
+                    [
+                        "Refresh the Azure inventory package before reconciling if collection is stale.",
+                        "Mark planned-but-not-deployed graph resources explicitly as proposed rather than live."
+                    ],
+                    Notes =
+                    [
+                        $"Graph-only resources: {reconciliation.GraphOnlyResourceIds.Count}",
+                        $"Inventory-only resources: {reconciliation.InventoryOnlyResourceIds.Count}"
+                    ]
+                }
+            }
+        ];
+    }
+}

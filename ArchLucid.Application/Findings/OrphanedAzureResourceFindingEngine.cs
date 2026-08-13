@@ -94,7 +94,7 @@ public sealed class OrphanedAzureResourceFindingEngine(
                     Trace = new ExplainabilityTrace
                     {
                         RulesApplied = ["orphaned-azure-resource-classifier"],
-                        DecisionsTaken = ["Flagged unattached disk, NIC, or public IP from extractor inventory."],
+                        DecisionsTaken = ["Flagged unattached disk, NIC, public IP, load balancer, NSG, or route table from extractor inventory."],
                         AlternativePathsConsidered = alternativePaths.ToList(),
                         Notes = [$"Resource type: {orphan.ResourceType}", $"Resource id: {orphan.ResourceId}"],
                     },
