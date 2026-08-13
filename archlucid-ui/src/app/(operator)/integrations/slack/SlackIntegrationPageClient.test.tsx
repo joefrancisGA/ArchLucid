@@ -56,12 +56,12 @@ describe("SlackIntegrationPageClient", () => {
     mockDryRun.mockResolvedValue({ transportSucceeded: true, statusCode: 200, responseBodyTruncated: false });
   });
 
-  it("shows OperatorPageHeader with breadcrumb, status badge, refresh, and last checked", async () => {
+  it("shows OperatorPageHeader with status badge, refresh, and last checked", async () => {
     render(<SlackIntegrationPageClient />);
 
     expect(screen.getByRole("heading", { level: 1, name: SLACK_INTEGRATION_PAGE_TITLE })).toBeInTheDocument();
     expect(screen.getByText(SLACK_INTEGRATION_PAGE_SUBTITLE)).toBeInTheDocument();
-    expect(screen.getByTestId("slack-page-breadcrumb")).toBeInTheDocument();
+    expect(screen.queryByTestId("slack-page-breadcrumb")).toBeNull();
     await waitFor(() => {
       expect(screen.getByTestId("slack-header-status-badge")).toHaveTextContent("Not configured");
     });

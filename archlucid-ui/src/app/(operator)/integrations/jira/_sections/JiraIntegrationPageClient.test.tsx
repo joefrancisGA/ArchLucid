@@ -135,12 +135,12 @@ describe("JiraIntegrationPageClient", () => {
     mockLaunchOAuth.mockResolvedValue(undefined);
   });
 
-  it("renders OperatorPageHeader with breadcrumb, status badge, and last-checked metadata", async () => {
+  it("renders OperatorPageHeader with status badge and last-checked metadata", async () => {
     render(<JiraIntegrationPageClient />);
 
     expect(await screen.findByTestId("jira-page-title")).toHaveTextContent(JIRA_INTEGRATION_PAGE_TITLE);
     expect(screen.getByText(JIRA_PAGE_SUBTITLE)).toBeInTheDocument();
-    expect(screen.getByTestId("jira-page-breadcrumb")).toBeInTheDocument();
+    expect(screen.queryByTestId("jira-page-breadcrumb")).toBeNull();
     expect(screen.getByTestId("jira-header-status-badge")).toBeInTheDocument();
     expect(screen.getByTestId("jira-last-checked")).toBeInTheDocument();
     expect(screen.getByTestId("integrations-jira-page").querySelector("[data-nav-href]")).toHaveAttribute(

@@ -102,13 +102,7 @@ describe("AlertRulesPageHeader", () => {
 
     expect(screen.getByTestId("page-heading-icon")).toBeInTheDocument();
 
-    expect(screen.getByTestId("alert-rules-page-breadcrumb")).toHaveTextContent("Governance");
-
-    expect(screen.getByTestId("alert-rules-page-breadcrumb")).toHaveTextContent("Alert rules");
-
-    expect(screen.getByTestId("alert-rules-page-breadcrumb")).toHaveTextContent(ALERT_RULES_TAB_LABEL);
-
-    expect(screen.getByRole("link", { name: "Governance" })).toHaveAttribute("href", "/governance/approval-queue");
+    expect(screen.queryByTestId("alert-rules-page-breadcrumb")).toBeNull();
 
     expect(screen.getByText(alertsConfigurationPageSubtitle(false))).toBeInTheDocument();
 
@@ -245,7 +239,7 @@ describe("AlertRulesPageHeader", () => {
 
     );
 
-    expect(screen.getByTestId("alert-rules-page-breadcrumb")).toHaveTextContent(COMPOSITE_RULES_TAB_LABEL);
+    expect(screen.queryByTestId("alert-rules-page-breadcrumb")).toBeNull();
 
     expect(screen.getByRole("link", { name: "View audit trail" })).toHaveAttribute("href", "/governance/audit");
 

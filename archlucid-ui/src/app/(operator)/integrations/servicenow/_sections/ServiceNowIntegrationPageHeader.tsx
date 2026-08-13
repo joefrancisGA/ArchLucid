@@ -2,7 +2,6 @@
 
 import Link from "next/link";
 
-import { OperatorPageBreadcrumb } from "@/components/operator/OperatorPageBreadcrumb";
 import { OperatorPageHeader } from "@/components/operator/OperatorPageHeader";
 import { RefreshButton } from "@/components/ui/refresh-button";
 import { StatusTag } from "@/components/ui/status-tag";
@@ -13,7 +12,6 @@ import { itsmConnectionStatusTagKind } from "@/lib/itsm/itsm-connection-status-t
 import { operatorLastRefreshedExactLabel } from "@/lib/operator/operator-last-refreshed-label";
 import {
   SERVICENOW_ACTION_REFRESHING,
-  SERVICENOW_BREADCRUMB_INTEGRATIONS_LABEL,
   SERVICENOW_INTEGRATION_PAGE_TITLE,
   SERVICENOW_LAST_CHECKED_PREFIX,
   SERVICENOW_PAGE_SUBTITLE,
@@ -45,15 +43,6 @@ export function ServiceNowIntegrationPageHeader(
           kind={itsmConnectionStatusTagKind(props.connectionStatus.status)}
           label={props.connectionStatus.label}
           data-testid="servicenow-header-status-badge"
-        />
-      }
-      breadcrumb={
-        <OperatorPageBreadcrumb
-          data-testid="servicenow-page-breadcrumb"
-          items={[
-            { label: SERVICENOW_BREADCRUMB_INTEGRATIONS_LABEL },
-            { label: SERVICENOW_INTEGRATION_PAGE_TITLE, href: INTEGRATIONS_SERVICENOW_PATH },
-          ]}
         />
       }
       actions={

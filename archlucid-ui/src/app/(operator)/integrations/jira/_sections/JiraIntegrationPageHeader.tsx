@@ -2,7 +2,6 @@
 
 import Link from "next/link";
 
-import { OperatorPageBreadcrumb } from "@/components/operator/OperatorPageBreadcrumb";
 import { OperatorPageHeader } from "@/components/operator/OperatorPageHeader";
 import { Button } from "@/components/ui/button";
 import { RefreshButton } from "@/components/ui/refresh-button";
@@ -14,7 +13,6 @@ import { INTEGRATIONS_JIRA_PATH, INTEGRATIONS_READINESS_PATH } from "@/lib/integ
 import { itsmConnectionStatusTagKind } from "@/lib/itsm/itsm-connection-status-tag-kind";
 import {
   JIRA_ACTION_REFRESHING,
-  JIRA_BREADCRUMB_INTEGRATIONS_LABEL,
   JIRA_CONNECT_WITH_ATLASSIAN_LABEL,
   JIRA_CONNECT_WITH_ATLASSIAN_PENDING,
   JIRA_INTEGRATION_PAGE_TITLE,
@@ -52,15 +50,6 @@ export function JiraIntegrationPageHeader(props: JiraIntegrationPageHeaderProps)
           kind={itsmConnectionStatusTagKind(props.connectionStatus.status)}
           label={props.connectionStatus.label}
           data-testid="jira-header-status-badge"
-        />
-      }
-      breadcrumb={
-        <OperatorPageBreadcrumb
-          data-testid="jira-page-breadcrumb"
-          items={[
-            { label: JIRA_BREADCRUMB_INTEGRATIONS_LABEL },
-            { label: JIRA_INTEGRATION_PAGE_TITLE, href: INTEGRATIONS_JIRA_PATH },
-          ]}
         />
       }
       actions={

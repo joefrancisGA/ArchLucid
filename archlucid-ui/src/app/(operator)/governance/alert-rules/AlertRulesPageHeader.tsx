@@ -4,7 +4,6 @@ import Link from "next/link";
 import { cn } from "@/lib/utils";
 
 import { OperatorPageHeader } from "@/components/operator/OperatorPageHeader";
-import { OperatorPageBreadcrumb } from "@/components/operator/OperatorPageBreadcrumb";
 import { RefreshButton } from "@/components/ui/refresh-button";
 import {
   PageContextualHelpButton,
@@ -24,8 +23,6 @@ import {
 import { OperatorPageFreshnessMetadata } from "@/components/operator/OperatorPageFreshnessMetadata";
 import {
   ALERTS_CONFIGURATION_ACTION_REFRESHING,
-  ALERTS_CONFIGURATION_BREADCRUMB_GOVERNANCE_HREF,
-  ALERTS_CONFIGURATION_BREADCRUMB_GOVERNANCE_LABEL,
   ALERTS_CONFIGURATION_LAST_REFRESHED_PREFIX,
   ALERTS_CONFIGURATION_PAGE_TITLE,
 } from "@/lib/alerts-page-copy";
@@ -158,19 +155,6 @@ export function AlertRulesPageHeader(props: AlertRulesPageHeaderProps): React.JS
       title={ALERTS_CONFIGURATION_PAGE_TITLE}
       titleTestId="alert-rules-page-title"
       subtitle={props.subtitle}
-      breadcrumb={
-        <OperatorPageBreadcrumb
-          data-testid="alert-rules-page-breadcrumb"
-          items={[
-            {
-              label: ALERTS_CONFIGURATION_BREADCRUMB_GOVERNANCE_LABEL,
-              href: ALERTS_CONFIGURATION_BREADCRUMB_GOVERNANCE_HREF,
-            },
-            { label: ALERTS_CONFIGURATION_PAGE_TITLE, href: GOVERNANCE_ALERT_RULES_PATH },
-            { label: props.activeTabLabel },
-          ]}
-        />
-      }
       actions={
         <div className="flex flex-wrap items-center gap-2" data-testid="alert-rules-header-actions">
           <PageContextualHelpButton triggerText={PAGE_HELP_SHORT_TRIGGER_TEXT} />

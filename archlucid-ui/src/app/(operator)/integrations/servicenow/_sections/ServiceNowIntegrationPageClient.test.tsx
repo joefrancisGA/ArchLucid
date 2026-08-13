@@ -121,12 +121,12 @@ describe("ServiceNowIntegrationPageClient", () => {
     mockUpsertSettings.mockResolvedValue(baseSettings({ serviceNowAutoCreateCmdbCi: true }));
   });
 
-  it("renders OperatorPageHeader with breadcrumb, status badge, and last-checked metadata", async () => {
+  it("renders OperatorPageHeader with status badge and last-checked metadata", async () => {
     render(<ServiceNowIntegrationPageClient />);
 
     expect(await screen.findByTestId("servicenow-page-title")).toHaveTextContent(SERVICENOW_INTEGRATION_PAGE_TITLE);
     expect(screen.getByText(SERVICENOW_PAGE_SUBTITLE)).toBeInTheDocument();
-    expect(screen.getByTestId("servicenow-page-breadcrumb")).toBeInTheDocument();
+    expect(screen.queryByTestId("servicenow-page-breadcrumb")).toBeNull();
     expect(screen.getByTestId("servicenow-header-status-badge")).toBeInTheDocument();
     expect(screen.getByTestId("servicenow-last-checked")).toBeInTheDocument();
     expect(screen.getByTestId("integrations-servicenow-page").querySelector("[data-nav-href]")).toHaveAttribute(
