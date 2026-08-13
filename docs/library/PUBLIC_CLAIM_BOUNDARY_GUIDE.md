@@ -339,6 +339,12 @@ Former standalone body: `docs/go-to-market/PA_CLAIM_HONESTY_BULLETS_BATCH_B.md` 
 | --- | --- |
 | Create→execute→commit as default peer lifecycle to Authority; dual coordinator storage still ships; `POST …/result` finalizes/commits. | Authority product-default freeze + AgentTask extension-loop rename + `/result` sunset per owner ADR. Engineering matrix: [`STRANGLER_NEXT_SLICE_AUTHORITY_FREEZE_AND_RESULT_SUNSET_CONTRACT.md`](STRANGLER_NEXT_SLICE_AUTHORITY_FREEZE_AND_RESULT_SUNSET_CONTRACT.md) (**TB-1034**). CI: `check_strangler_next_slice_honesty.py` (**TB-1035** Done). |
 
+#### M-196 — SOC 2 / pen-test talk-track
+
+| Do not promise | Do promise |
+| --- | --- |
+| “SOC 2 certified/ready/almost/in process”; “pen tested” / “pen test in flight” when only self-assessment / owner-conducted / SoW template exists. | Intent → evidence-type label → pack → defer with funding trigger per [`SOC2_PENTEST_HONEST_PROCUREMENT_TALK_TRACK_CONTRACT.md`](SOC2_PENTEST_HONEST_PROCUREMENT_TALK_TRACK_CONTRACT.md) (**TB-1144**). CI: `check_soc2_pentest_honest_procurement_talk_track_honesty.py` (**TB-1145** Done). |
+
 #### M-186 — Competitive deal loss
 
 | Do not promise | Do promise |
@@ -377,7 +383,7 @@ Use as preflight language for PA conversations, demos, procurement answers, and 
 | **M-211** | Hallucination defense | Do not infer Real safety from Simulator green. | Promise a shared post-agent defense plane with labeled mode variation. Engineering matrix: [`SHARED_HALLUCINATION_DEFENSE_PLANE_CONTRACT.md`](SHARED_HALLUCINATION_DEFENSE_PLANE_CONTRACT.md) (**TB-1230**). Honesty CI: **TB-1231** Done. |
 | **M-213** | Tenant DiD erosion | Do not equate predicates with the primary boundary. | Promise structural catalogs plus independently described defense layers. Engineering matrix: [`TENANT_DID_EROSION_AND_ENFORCEMENT_BEYOND_PREDICATES_CONTRACT.md`](TENANT_DID_EROSION_AND_ENFORCEMENT_BEYOND_PREDICATES_CONTRACT.md) (**TB-1232**). Honesty CI: **TB-1233** Done. |
 | **M-215** | Azure privilege seam | Do not infer least privilege from private endpoints. | Promise explicit bootstrap/runtime identity separation and residuals. Engineering matrix: [`AZURE_WORKLOAD_PRIVILEGE_ESCALATION_SEAM_CONTRACT.md`](AZURE_WORKLOAD_PRIVILEGE_ESCALATION_SEAM_CONTRACT.md) (**TB-1244**). Honesty CI: **TB-1245** Done. |
-| **M-217** | Demo read plane | Do not call anonymous filters structural isolation. | Promise a dedicated demo plane or static-only surface. |
+| **M-217** | Demo read plane | Do not call anonymous filters structural isolation. | Promise a dedicated demo plane or static-only surface. Engineering matrix: [`DEMO_ANONYMOUS_READ_PLANE_CONTRACT.md`](DEMO_ANONYMOUS_READ_PLANE_CONTRACT.md) (**TB-1251**). Honesty CI: **TB-1252** Done. |
 | **M-219** | Dapper strategy | Do not claim an ORM would solve architecture concerns. | Promise measured signals and an ordered evolution ladder. Engineering matrix: [`DAPPER_DDL_SATELLITE_BREAKDOWN_SIGNALS_CONTRACT.md`](DAPPER_DDL_SATELLITE_BREAKDOWN_SIGNALS_CONTRACT.md) (**TB-1263**). Honesty CI: **TB-1264** Done. |
 | **M-221** | Commit race | Do not promise exactly-once execution or no LLM rebill. | Promise first-wins commit and the pre-persist execution residual. |
 | **M-223** | Schema evolution | Do not treat SchemaVersion as sealed-content migration. | Promise tolerant readers and no rewrite of sealed manifests. |
@@ -391,9 +397,9 @@ Use as preflight language for PA conversations, demos, procurement answers, and 
 | **M-239** | UI over-promise | Do not assume docs scanners cover UI claims. | Promise ranked buyer-facing page review and named owners. Engineering matrix: [`WHAT_NOT_TO_PROMISE_UI_BUYER_RISK_MATRIX_CONTRACT.md`](WHAT_NOT_TO_PROMISE_UI_BUYER_RISK_MATRIX_CONTRACT.md) (**TB-1343**). Honesty CI: **TB-1344** Done. |
 | **M-241** | Core Pilot path | Do not call empty screens sponsor-ready progress. | Promise request-to-finalize-to-sponsor-packet guidance. |
 | **M-243** | Why not ChatGPT/Copilot | Do not claim universal AI superiority or lower TCO. | Promise governed-package and evidence/audit differentiation. |
-| **M-245** | Elevator pitch | Do not claim universal time savings or always-on controls. | Promise only what a committed run can demonstrate. |
-| **M-247** | AgentTask seams | Do not treat schema validation as all leak prevention. | Promise a path-by-mode-by-gate residual matrix. |
-| **M-249** | TB-881 | Do not reopen a completed CI test race as a pilot blocker. | Promise clear CI, pilot, and signup-stress classification. |
+| **M-245** | Elevator pitch | Do not claim universal time savings or always-on controls. | Promise only what a committed run can demonstrate. Honesty CI: **TB-1368** Done. |
+| **M-247** | AgentTask seams | Do not treat schema validation as all leak prevention. | Promise a path-by-mode-by-gate residual matrix. Engineering matrix: [`AGENTTASK_DECISIONING_UNGATED_LEAK_SEAMS_CONTRACT.md`](AGENTTASK_DECISIONING_UNGATED_LEAK_SEAMS_CONTRACT.md) (**TB-1369**). Honesty CI: **TB-1370** Done. |
+| **M-249** | TB-881 | Do not reopen a completed CI test race as a pilot blocker. | Promise clear CI, pilot, and signup-stress classification. Engineering matrix: [`TB881_ORG_REGISTRATION_RACE_SHIP_BLOCKER_CLASSIFICATION_CONTRACT.md`](TB881_ORG_REGISTRATION_RACE_SHIP_BLOCKER_CLASSIFICATION_CONTRACT.md) (**TB-1371**). Honesty CI: **TB-1372** Done. |
 | **M-251** | Specialty help | Do not call bare markdown specialty-guided help. | Promise shared chrome, CTA, tier, and residual visibility. |
 | **M-253** | INV-001 triad | Do not infer semantic truth from tenant identity or hashes. | Promise separately bounded invariants and named owners. Engineering matrix: [`INV001_DECIDE_ONCE_COMMITTED_MANIFEST_PA_TRIAD_CHALLENGE_MATRIX.md`](INV001_DECIDE_ONCE_COMMITTED_MANIFEST_PA_TRIAD_CHALLENGE_MATRIX.md) (**TB-1416**). Honesty CI: **TB-1417** Done. |
 | **M-255** | Structural isolation | Do not label conventional controls structural. | Promise a structural, defense-in-depth, and convention classification. |

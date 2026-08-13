@@ -937,7 +937,7 @@ Former standalone body: `docs/go-to-market/SOC2_PENTEST_HONEST_PROCUREMENT_TALK_
 
 **Path-stable alias:** [`SOC2_PENTEST_HONEST_PROCUREMENT_TALK_TRACK_PA_ONE_PAGER.md`](SOC2_PENTEST_HONEST_PROCUREMENT_TALK_TRACK_PA_ONE_PAGER.md).
 
-**Contributor contract:** [`SOC2_PENTEST_HONEST_PROCUREMENT_TALK_TRACK_CONTRACT.md`](../library/SOC2_PENTEST_HONEST_PROCUREMENT_TALK_TRACK_CONTRACT.md). Honesty CI: **TB-1145** (follow-on).
+**Contributor contract:** [`SOC2_PENTEST_HONEST_PROCUREMENT_TALK_TRACK_CONTRACT.md`](../library/SOC2_PENTEST_HONEST_PROCUREMENT_TALK_TRACK_CONTRACT.md). Honesty CI: **TB-1145** **Done** — `scripts/ci/check_soc2_pentest_honest_procurement_talk_track_honesty.py` (wired in `run_buyer_surface_strict_guards.py`).
 
 **Audience:** Founder and SE in live procurement dialogue.
 

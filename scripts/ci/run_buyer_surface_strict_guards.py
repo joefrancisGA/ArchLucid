@@ -114,6 +114,14 @@ GUARDS: tuple[GuardCommand, ...] = (
         None,
     ),
     GuardCommand(
+        "SOC 2 / pen-test talk-track honesty",
+        (
+            "python",
+            "scripts/ci/check_soc2_pentest_honest_procurement_talk_track_honesty.py",
+        ),
+        None,
+    ),
+    GuardCommand(
         "polly run-completeness honesty",
         ("python", "scripts/ci/check_polly_run_completeness_honesty.py"),
         None,
@@ -291,6 +299,26 @@ GUARDS: tuple[GuardCommand, ...] = (
     GuardCommand(
         "evidence audit ordering causality honesty",
         ("python", "scripts/ci/check_evidence_audit_ordering_causality_honesty.py"),
+        None,
+    ),
+    GuardCommand(
+        "demo anonymous read plane honesty",
+        ("python", "scripts/ci/check_demo_anonymous_read_plane_honesty.py"),
+        None,
+    ),
+    GuardCommand(
+        "elevator pitch v1 claim honesty",
+        ("python", "scripts/ci/check_elevator_pitch_v1_claim_honesty.py"),
+        None,
+    ),
+    GuardCommand(
+        "agenttask decisioning ungated leak honesty",
+        ("python", "scripts/ci/check_agenttask_decisioning_ungated_leak_honesty.py"),
+        None,
+    ),
+    GuardCommand(
+        "tb881 ship blocker classification honesty",
+        ("python", "scripts/ci/check_tb881_ship_blocker_classification_honesty.py"),
         None,
     ),
     GuardCommand(
