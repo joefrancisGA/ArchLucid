@@ -28,11 +28,11 @@ export const SPONSOR_REPORT_ROI_SUMMARY_PATH = "/insights/roi-summary";
  */
 export const RETIRED_PILOT_OUTCOMES_PATH = "/insights/pilot-outcomes";
 
-/** @deprecated Bookmark alias — use {@link SPONSOR_REPORT_PATH}. */
-export const LEGACY_SPONSOR_REPORT_ROOT_PATH = "/insights/sponsor-report";
+/** @deprecated Legacy bookmark — use {@link SPONSOR_REPORT_PATH}. */
+export const LEGACY_SPONSOR_REPORT_ROOT_PATH = "/sponsor-report";
 
 /** @deprecated Legacy path before sponsor-report canonicalization. */
-export const SPONSOR_REPORT_EXECUTIVE_SUMMARY_PATH = "/insights/sponsor-report";
+export const SPONSOR_REPORT_EXECUTIVE_SUMMARY_PATH = "/insights/executive-summary";
 
 /** Architecture scorecard lives under Insights; kept for Outcomes tab strip consumers. */
 export const SPONSOR_REPORT_ARCHITECTURE_SCORECARD_PATH = ARCHITECTURE_SCORECARD_PATH;
