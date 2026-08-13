@@ -41142,11 +41142,9 @@ Operators must read three intros before reaching the Trust Center link list.
 
 **Problem:** Related lists how-it-works + security-trust only; misses `data-handling-tenant-isolation` and marketing `/trust` when those are the diligence next steps.
 
-**Shipped:** React-owned `HelpDataHandlingTenantIsolationRelatedTopics` with Security and trust, Trust Center, audit trail, subprocessors, DPA, and procurement links in first viewport; Vitest.
+**Shipped:** React-owned `HelpDataHandlingTenantIsolationRelatedTopics` with Security and trust, Trust Center, audit trail, subprocessors, DPA, and procurement links in first viewport; `data-handling-help-inbound-label-surfaces` Vitest guards.
 
 **Acceptance:** Diligence path is discoverable from this guide. **Size estimate:** S.
-
-**Shipped:** React-owned Related topics with Trust Center, security-trust, audit trail, subprocessors, DPA, and procurement links; `HelpDataHandlingTenantIsolationRelatedTopics` Vitest guards.
 
 ---
 
