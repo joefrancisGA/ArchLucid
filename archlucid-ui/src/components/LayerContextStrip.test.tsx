@@ -87,7 +87,10 @@ describe("LayerContextStrip", () => {
 
     expect(currentChip).not.toBeNull();
     expect(currentChip?.textContent ?? "").toMatch(/Evidence graph/);
-    expect(currentChip).toHaveAttribute("title", BUYER_GOLDEN_JOURNEY_STEP_DEFINITIONS[2].chipTooltip);
+    expect(currentChip).toHaveAttribute(
+      "aria-label",
+      `Step ${BUYER_GOLDEN_JOURNEY_STEP_DEFINITIONS[2].step}: ${BUYER_GOLDEN_JOURNEY_STEP_DEFINITIONS[2].label}. ${BUYER_GOLDEN_JOURNEY_STEP_DEFINITIONS[2].chipTooltip}`,
+    );
     expect(screen.queryByRole("link", { name: /3\.\s*Evidence graph/i })).toBeNull();
 
     unmount();

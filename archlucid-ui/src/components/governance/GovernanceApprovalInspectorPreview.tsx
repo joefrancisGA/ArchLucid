@@ -67,8 +67,10 @@ export function GovernanceApprovalInspectorPreview({ request }: GovernanceApprov
         <dt className={cn("font-medium uppercase tracking-wide text-neutral-500 dark:text-neutral-400", OPERATOR_TYPOGRAPHY.helper)}>
           Requested
         </dt>
-        <dd className="m-0" title={requestedLabel}>
-          <span className="block">{formatRelativeTime(request.requestedUtc)}</span>
+        <dd className="m-0">
+          <time dateTime={request.requestedUtc} className="block">
+            {formatRelativeTime(request.requestedUtc)}
+          </time>
           <span className={cn("mt-0.5 block text-neutral-500 dark:text-neutral-400", OPERATOR_TYPOGRAPHY.helper)}>{requestedLabel}</span>
         </dd>
         <dt className={cn("font-medium uppercase tracking-wide text-neutral-500 dark:text-neutral-400", OPERATOR_TYPOGRAPHY.helper)}>
@@ -80,8 +82,10 @@ export function GovernanceApprovalInspectorPreview({ request }: GovernanceApprov
             <dt className={cn("font-medium uppercase tracking-wide text-neutral-500 dark:text-neutral-400", OPERATOR_TYPOGRAPHY.helper)}>
               Reviewed
             </dt>
-            <dd className="m-0" title={reviewedLabel}>
-              <span className="block">{formatRelativeTime(reviewedUtcRaw)}</span>
+            <dd className="m-0">
+              <time dateTime={reviewedUtcRaw} className="block">
+                {formatRelativeTime(reviewedUtcRaw)}
+              </time>
               <span className={cn("mt-0.5 block text-neutral-500 dark:text-neutral-400", OPERATOR_TYPOGRAPHY.helper)}>{reviewedLabel}</span>
             </dd>
           </>

@@ -71,7 +71,6 @@ export function LayerHeader({
         <p
           className={cn("m-0 mt-1.5 leading-snug text-neutral-600 dark:text-neutral-400", OPERATOR_TYPOGRAPHY.helper)}
           data-testid="layer-header-review-vocabulary"
-          title={ARCHITECTURE_REVIEW_VOCABULARY.buyerReviewPackageScopeHelp}
         >
           <>
             <InlineGuidanceLabel label="Review and evidence trail:" />{" "}

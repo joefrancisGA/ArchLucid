@@ -122,7 +122,7 @@ function BuyerGoldenJourneyStepperNav(props: BuyerGoldenJourneyStepperNavProps):
                   {current ? (
                     <span
                       aria-current="step"
-                      title={def.chipTooltip}
+                      aria-label={`Step ${def.step}: ${def.label}. ${def.chipTooltip}`}
                       className={cn(
                         "inline-flex min-h-7 items-center gap-1 rounded-full px-2 py-0.5 font-medium transition",
                         OPERATOR_TYPOGRAPHY.badge,
@@ -134,7 +134,7 @@ function BuyerGoldenJourneyStepperNav(props: BuyerGoldenJourneyStepperNavProps):
                   ) : (
                     <Link
                       href={def.href}
-                      title={def.chipTooltip}
+                      aria-label={`Step ${def.step}: ${def.label}. ${def.chipTooltip}`}
                       prefetch
                       className={cn(
                         "inline-flex min-h-7 items-center gap-1 rounded-full px-2 py-0.5 font-medium no-underline transition hover:opacity-95",
@@ -270,7 +270,7 @@ export function LayerContextStrip({
       role="region"
     >
       <div className={cn(OPERATOR_SHELL_MAX_WIDTH_CLASS, OPERATOR_SHELL_CONTENT_PADDING_X_CLASS, (cn("flex h-full min-h-9 flex-wrap items-center gap-x-2 gap-y-0.5 py-1.5 font-normal leading-tight text-neutral-800 dark:text-neutral-200", OPERATOR_TYPOGRAPHY.body)))}>
-        <p className={cn("m-0 min-w-0 flex-1", OPERATOR_TYPOGRAPHY.body)} id="operator-layer-context-text" title={copy.question}>
+        <p className={cn("m-0 min-w-0 flex-1", OPERATOR_TYPOGRAPHY.body)} id="operator-layer-context-text">
           <span className={cn("font-medium", copy.labelClass)}>{copy.label}</span>
         </p>
         {stripBack !== null ? (
