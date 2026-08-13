@@ -1381,10 +1381,10 @@ All **P0** **V1**: visible-boundary button contract + design-system rule (**TB-2
 | TB-1498 | Anti-project-purge-erases-evidence / no-trace-after-bin honesty CI; see `## TB-1498` below | Testability P1 ? **V1**; after **TB-1497**; pairs **M-271** | S |
 | TB-1500 | **Done** (2026-08-10) ? Anti-bit-identical-Real-reexecute / auto-upgrade-as-continuity honesty CI; see `## TB-1500` below | Testability P1 ? **V1**; after **TB-1499**; pairs **M-273** | S |
 | TB-1507 | **Done** (2026-08-10) ? Anti-TB-683-as-live-model-tripwire / nightly-catches-Azure-rev honesty CI; see `## TB-1507` below | Testability P1 ? **V1**; after **TB-1506**; pairs **M-275** | S |
-| TB-1524 | Anti-Worker-resumes-agent-execute / auto-orphan-fail / exactly-once-LLM honesty CI; see `## TB-1524` below | Testability P1 ? **V1**; after **TB-1523**; pairs **M-277** | S |
-| TB-1531 | Anti-exactly-once-ITSM / outbox-equals-native-create / recipe-idempotent honesty CI; see `## TB-1531` below | Testability P1 ? **V1**; after **TB-1530**; pairs **M-280** | S |
-| TB-1538 | Anti-instant-global-revoke / webhook-rechecks-principal / Entra-AuthVersion honesty CI; see `## TB-1538` below | Testability P1 ? **V1**; after **TB-1537**; pairs **M-282** | S |
-| TB-1551 | Anti-DB-sequence / anti-Lamport / anti-UI-as-forensic honesty CI; see `## TB-1551` below | Testability P1 ? **V1**; after **TB-1550**; pairs **M-284** | S |
+| TB-1524 | ~~Anti-Worker-resumes-agent-execute / auto-orphan-fail / exactly-once-LLM honesty CI~~ ? **Done** (2026-08-12); see `## TB-1524` below | Testability P1 ? **V1**; after **TB-1523**; pairs **M-277** | S |
+| TB-1531 | ~~Anti-exactly-once-ITSM / outbox-equals-native-create / recipe-idempotent honesty CI~~ ? **Done** (2026-08-12); see `## TB-1531` below | Testability P1 ? **V1**; after **TB-1530**; pairs **M-280** | S |
+| TB-1538 | ~~Anti-instant-global-revoke / webhook-rechecks-principal / Entra-AuthVersion honesty CI~~ ? **Done** (2026-08-12); see `## TB-1538` below | Testability P1 ? **V1**; after **TB-1537**; pairs **M-282** | S |
+| TB-1551 | ~~Anti-DB-sequence / anti-Lamport / anti-UI-as-forensic honesty CI~~ ? **Done** (2026-08-12); see `## TB-1551` below | Testability P1 ? **V1**; after **TB-1550**; pairs **M-284** | S |
 | TB-1558 | Anti-separate-migrator-job / anti-always-ZDT / anti-least-privilege-while-bootstrap honesty CI; see `## TB-1558` below | Testability P1 ? **V1**; after **TB-1557**; pairs **M-286**; coordinate **TB-1245** | S |
 | TB-1562 | Anti-appsettings-SoT / anti-TF-state-config-SoT / anti-TB-881-open-pilot-gate honesty CI; see `## TB-1562` below | Testability P1 ? **V1**; after **TB-1561**; pairs **M-290**; coordinate **TB-1372**/**TB-1318** | S |
 | TB-1564 | Anti-ZDT-drain-to-completion / anti-live-handoff / anti-Worker-resumes-LLM honesty CI; see `## TB-1564` below | Testability P1 ? **V1**; after **TB-1563**; pairs **M-292** | S |
@@ -38335,7 +38335,7 @@ Operators must read three intros before reaching the Trust Center link list.
 
 **Window:** V1 ? Testability.
 
-**Status:** Not started.
+**Status:** **Done** (2026-08-12) ? `scripts/ci/check_crash_recovery_long_running_review_honesty.py`; CI anchors in `CRASH_RECOVERY_LONG_RUNNING_REVIEW_CLAIM_MAP.md`; pairs **M-277**.
 
 **Priority:** P1.
 
@@ -38748,7 +38748,7 @@ Operators must read three intros before reaching the Trust Center link list.
 
 **Priority:** P1.
 
-**Shipped:** [`ITSM_OUTBOX_DLQ_DELIVERY_GUARANTEE_MAP.md`](ITSM_OUTBOX_DLQ_DELIVERY_GUARANTEE_MAP.md) ? Path A vs B, duplicate windows, poison/notify matrix, too-strong vs safe; pairs **TB-992** / **M-280**; honesty CI **TB-1531** follow-on.
+**Shipped:** [`ITSM_OUTBOX_DLQ_DELIVERY_GUARANTEE_MAP.md`](ITSM_OUTBOX_DLQ_DELIVERY_GUARANTEE_MAP.md) ? Path A vs B, duplicate windows, poison/notify matrix, too-strong vs safe; pairs **TB-992** / **M-280**; honesty CI **TB-1531** **Done** (2026-08-12).
 
 **Source:** Owner / PA question 2026-07-27: *Integration events go through an outbox and a DLQ. For deliveries to Jira/ServiceNow, what are the actual guarantees ? at-least-once with receiver dedupe, or possible duplicates the customer's ITSM will see? Where does a poison message end up, and who is told?*
 
@@ -38775,7 +38775,7 @@ Operators must read three intros before reaching the Trust Center link list.
 
 **Window:** V1 ? Testability.
 
-**Status:** Not started.
+**Status:** **Done** (2026-08-12) ? `scripts/ci/check_itsm_outbox_dlq_delivery_honesty.py`; CI anchors in `ITSM_OUTBOX_DLQ_DELIVERY_GUARANTEE_MAP.md`; pairs **M-280**.
 
 **Priority:** P1.
 
@@ -38973,7 +38973,7 @@ Operators must read three intros before reaching the Trust Center link list.
 
 **Window:** V1 ? Testability.
 
-**Status:** Not started.
+**Status:** **Done** (2026-08-12) ? `scripts/ci/check_mid_run_authority_revocation_honesty.py`; CI anchors in `MID_RUN_AUTHORITY_REVOCATION_CLAIM_MAP.md`; pairs **M-282**.
 
 **Priority:** P1.
 
@@ -39195,7 +39195,7 @@ Operators must read three intros before reaching the Trust Center link list.
 
 **Window:** V1 ? Testability.
 
-**Status:** Not started.
+**Status:** **Done** (2026-08-12) ? `scripts/ci/check_evidence_audit_ordering_causality_honesty.py`; CI anchors in `EVIDENCE_AUDIT_ORDERING_CAUSALITY_CLAIM_MAP.md`; pairs **M-284**.
 
 **Priority:** P1.
 

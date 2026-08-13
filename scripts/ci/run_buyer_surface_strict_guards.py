@@ -224,6 +224,11 @@ GUARDS: tuple[GuardCommand, ...] = (
         None,
     ),
     GuardCommand(
+        "comparison replay drift honesty",
+        ("python", "scripts/ci/check_comparison_replay_drift_honesty.py"),
+        None,
+    ),
+    GuardCommand(
         "wntp buyer ui honesty",
         ("python", "scripts/ci/check_wntp_buyer_ui_honesty.py"),
         None,
@@ -246,6 +251,26 @@ GUARDS: tuple[GuardCommand, ...] = (
     GuardCommand(
         "evidence backup restore honesty",
         ("python", "scripts/ci/check_evidence_backup_restore_honesty.py"),
+        None,
+    ),
+    GuardCommand(
+        "crash recovery long-running review honesty",
+        ("python", "scripts/ci/check_crash_recovery_long_running_review_honesty.py"),
+        None,
+    ),
+    GuardCommand(
+        "itsm outbox dlq delivery honesty",
+        ("python", "scripts/ci/check_itsm_outbox_dlq_delivery_honesty.py"),
+        None,
+    ),
+    GuardCommand(
+        "mid-run authority revocation honesty",
+        ("python", "scripts/ci/check_mid_run_authority_revocation_honesty.py"),
+        None,
+    ),
+    GuardCommand(
+        "evidence audit ordering causality honesty",
+        ("python", "scripts/ci/check_evidence_audit_ordering_causality_honesty.py"),
         None,
     ),
     GuardCommand(

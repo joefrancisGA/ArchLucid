@@ -1133,6 +1133,22 @@ jobs:
         continue-on-error: true
         run: python scripts/ci/check_evidence_backup_restore_honesty.py
 
+      - name: Crash recovery long-running review honesty guard (TB-1524 / M-277)
+        continue-on-error: true
+        run: python scripts/ci/check_crash_recovery_long_running_review_honesty.py
+
+      - name: ITSM outbox DLQ delivery honesty guard (TB-1531 / M-280)
+        continue-on-error: true
+        run: python scripts/ci/check_itsm_outbox_dlq_delivery_honesty.py
+
+      - name: Mid-run authority revocation honesty guard (TB-1538 / M-282)
+        continue-on-error: true
+        run: python scripts/ci/check_mid_run_authority_revocation_honesty.py
+
+      - name: Evidence audit ordering causality honesty guard (TB-1551 / M-284)
+        continue-on-error: true
+        run: python scripts/ci/check_evidence_audit_ordering_causality_honesty.py
+
       - name: Honesty cluster 1264-1312 guard unit tests
         continue-on-error: true
         run: python -m unittest discover -s scripts/ci/tests -p "test_check_honesty_cluster_1264_1312.py"
@@ -1144,6 +1160,10 @@ jobs:
       - name: Honesty cluster 1417-1491 guard unit tests
         continue-on-error: true
         run: python -m unittest discover -s scripts/ci/tests -p "test_check_honesty_cluster_1417_1491.py"
+
+      - name: Honesty cluster 1524-1551 guard unit tests
+        continue-on-error: true
+        run: python -m unittest discover -s scripts/ci/tests -p "test_check_honesty_cluster_1524_1551.py"
 
       - name: Buyer-surface strict claim guards (blocking when buyer paths changed)
         if: steps.buyer-surface-detect.outputs.changed == 'true'

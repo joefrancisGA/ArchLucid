@@ -4,7 +4,7 @@
 
 **Audience:** Engineering, SRE, principal-architect diligence. Not a buyer brochure.
 
-**Status:** **Done** (2026-08-10) — **TB-1523** / GTM **M-277**/**M-278**. Pair honesty CI **TB-1524** (open).
+**Status:** **Done** (2026-08-10) — **TB-1523** / GTM **M-277**/**M-278**. Pair honesty CI **TB-1524** **Done** (2026-08-12).
 
 **Verdict (one line):** Authority-pipeline mid-run death is **Worker-reclaimable** (SQL outbox lease → resume or dead-letter → terminal Failed); **multi-agent Real execute is still sync on the API request thread** — process death mid-`ExecuteRunAsync` leaves **`TasksGenerated` / `WaitingForResults` with 0..N persisted AgentResults**, with **no execute ownership lease / auto-reconciler** (**TB-943** open) — the tenant typically sees a **stuck “In progress” / incomplete review**, not an automatic honest failure, until re-execute or statuses are derived after a completed (non-killed) execute path.
 
@@ -87,6 +87,18 @@ Closest PA label for hard kill: **stuck / silent-partial**, not automatic **hone
 | Open **TB-1311**–**TB-1312** / **M-231**/**M-232** | First async-agent force + state-machine freeze |
 | Open **TB-1270**–**TB-1271** / **M-221**/**M-222** | Execute+commit race / process-idempotency honesty |
 | **TB-1523** / **M-277** | This crash-recovery claim map (orchestrates; does not replace **TB-943**) |
+
+---
+
+## CI anchors for **TB-1524**
+
+| Anchor | Role |
+| --- | --- |
+| `scripts/ci/check_crash_recovery_long_running_review_honesty.py` | Fail Worker-as-agent-resume / auto-orphan-fail / exactly-once-LLM overclaims |
+| `ArchLucid.Application/Runs/Orchestration/ArchitectureRunExecuteOrchestrator.cs` | Sync API execute path code anchor |
+| `ArchLucid.Host.Core/Hosted/AuthorityPipelineWorkHostedService.cs` | Authority outbox reclaim code anchor |
+
+Honesty CI shipped: **TB-1524**.
 
 ---
 
