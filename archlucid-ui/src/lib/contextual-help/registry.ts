@@ -20,6 +20,7 @@ import { APPROVAL_LINEAGE_CONTEXTUAL_HELP_ROWS } from "@/lib/contextual-help/app
 import { APPROVAL_QUEUE_CONTEXTUAL_HELP_ROWS } from "@/lib/contextual-help/approval-queue-rows";
 import { ARCHITECTURE_INTELLIGENCE_CONTEXTUAL_HELP_ROWS } from "@/lib/contextual-help/architecture-intelligence-rows";
 import { DIGESTS_CONTEXTUAL_HELP_ROWS } from "@/lib/contextual-help/digests-rows";
+import { ENTERPRISE_ONBOARDING_CONTEXTUAL_HELP_ROWS } from "@/lib/contextual-help/enterprise-onboarding-rows";
 import { EVIDENCE_GRAPH_CONTEXTUAL_HELP_ROWS } from "@/lib/contextual-help/evidence-graph-rows";
 import { JIRA_INTEGRATION_CONTEXTUAL_HELP_ROWS } from "@/lib/contextual-help/jira-integration-rows";
 import { MODEL_GOVERNANCE_CONTEXTUAL_HELP_ROWS } from "@/lib/contextual-help/model-governance-rows";
@@ -50,6 +51,7 @@ import { WORKSPACE_SETTINGS_CONTEXTUAL_HELP_ROWS } from "@/lib/contextual-help/w
 import { HELP_TOPIC_CONTEXTUAL_HELP_ROWS } from "@/lib/contextual-help/help-topic-rows";
 import { AI_USAGE_CONTEXTUAL_HELP_ROWS } from "@/lib/contextual-help/ai-usage-rows";
 import { INSIGHTS_CONTEXTUAL_HELP_ROWS } from "@/lib/contextual-help/insights-rows";
+import { INTEGRATION_READINESS_CONTEXTUAL_HELP_ROWS } from "@/lib/contextual-help/integration-readiness-rows";
 import { INTEGRATIONS_CONTEXTUAL_HELP_ROWS } from "@/lib/contextual-help/integrations-rows";
 import { INTERNAL_OPS_CONTEXTUAL_HELP_ROWS } from "@/lib/contextual-help/internal-ops-rows";
 import { MARKETING_CONTEXTUAL_HELP_ROWS } from "@/lib/contextual-help/marketing-rows";
@@ -77,6 +79,7 @@ const PAGE_CONTEXTUAL_HELP: readonly PageContextualHelpRow[] = [
   ...BASELINE_SETTINGS_CONTEXTUAL_HELP_ROWS,
   ...COMPARISON_REPLAY_CONTEXTUAL_HELP_ROWS,
   ...DIGESTS_CONTEXTUAL_HELP_ROWS,
+  ...ENTERPRISE_ONBOARDING_CONTEXTUAL_HELP_ROWS,
   ...EVIDENCE_GRAPH_CONTEXTUAL_HELP_ROWS,
   ...FINDINGS_CONTEXTUAL_HELP_ROWS,
   ...GOVERNANCE_CONTEXTUAL_HELP_ROWS,
@@ -101,6 +104,7 @@ const PAGE_CONTEXTUAL_HELP: readonly PageContextualHelpRow[] = [
   ...WORKSPACE_SETTINGS_CONTEXTUAL_HELP_ROWS,
   ...HELP_TOPIC_CONTEXTUAL_HELP_ROWS,
   ...INSIGHTS_CONTEXTUAL_HELP_ROWS,
+  ...INTEGRATION_READINESS_CONTEXTUAL_HELP_ROWS,
   ...INTEGRATIONS_CONTEXTUAL_HELP_ROWS,
   ...INTERNAL_OPS_CONTEXTUAL_HELP_ROWS,
   ...JIRA_INTEGRATION_CONTEXTUAL_HELP_ROWS,

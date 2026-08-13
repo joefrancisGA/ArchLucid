@@ -92,6 +92,7 @@ describe("contextual-help-registry (TB-733)", () => {
       "/insights/improvement-planning/plans",
       "/insights/improvement-planning",
       "/insights/impact-preview",
+      "/internal/integrations/itsm",
       "/internal/product-learning",
       "/why-archlucid",
       "/demo/explain",
@@ -200,7 +201,7 @@ describe("contextual-help-registry (TB-733)", () => {
       "/integrations/servicenow",
       "/integrations/slack",
       "/integrations/webhooks",
-      "/operate/integration-events/dlq",
+      "/internal/integration-events/dlq",
       "/integrations/teams",
     ].sort());
   });

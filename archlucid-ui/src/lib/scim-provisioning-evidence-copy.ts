@@ -3,6 +3,8 @@ import type { EvidenceSourceLink } from "@/lib/evidence-surface-copy";
 
 export const SCIM_PROVISIONING_CANONICAL_PATH = "/administration/scim-provisioning" as const;
 
+export const SCIM_PROVISIONING_HELP_TOPIC_LABEL = "How SCIM provisioning works" as const;
+
 export const SCIM_PROVISIONING_CLAIM_DISCIPLINE =
   "This SCIM provisioning page manages inbound directory tokens for workspace user sync - it is not a signed-review diligence Sources package. Open SSO and identity, SSO wizard, or Assurance status when you need federation setup or trust cites.";
 

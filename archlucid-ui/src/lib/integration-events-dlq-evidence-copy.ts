@@ -4,6 +4,8 @@ import type { EvidenceSourceLink } from "@/lib/evidence-surface-copy";
 
 export const INTEGRATION_EVENTS_DLQ_CANONICAL_PATH = "/internal/integration-events/dlq" as const;
 
+export const INTEGRATION_EVENTS_DLQ_HELP_TOPIC_LABEL = "How integration dead letters work" as const;
+
 export const INTEGRATION_EVENTS_DLQ_CLAIM_DISCIPLINE =
   "This dead-letter queue is an Internal Operations triage surface for failed outbound integration events — it is not a signed-review diligence Sources package. Rows can span every tenant; fix the root cause before bulk retry, and open Integration readiness or System health for connector posture.";
 

@@ -4,7 +4,12 @@ import {
   INTEGRATIONS_READINESS_PATH,
   INTEGRATIONS_SERVICENOW_PATH,
 } from "@/lib/integrations-nav-paths";
+import { INTERNAL_ITSM_CONNECTORS_PATH } from "@/lib/internal-ops-route-paths";
 import type { EvidenceSourceLink } from "@/lib/evidence-surface-copy";
+
+export const ADMIN_ITSM_CONNECTORS_CANONICAL_PATH = INTERNAL_ITSM_CONNECTORS_PATH;
+
+export const ITSM_CONNECTORS_HELP_TOPIC_LABEL = "How ITSM connectors work" as const;
 
 export const ADMIN_ITSM_CONNECTORS_CLAIM_DISCIPLINE =
   "ITSM connectors configures deployment credentials and tenant routing overrides for Jira and ServiceNow — it is not a signed-review diligence Sources package. Open buyer Integrations readiness or Audit when you need export posture or activity trails.";

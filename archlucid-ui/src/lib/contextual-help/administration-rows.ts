@@ -53,19 +53,6 @@ export const ADMINISTRATION_CONTEXTUAL_HELP_ROWS: readonly PageContextualHelpRow
     },
   },
   {
-    prefix: "/administration/identity-providers",
-    entry: {
-      whatIsThisPage:
-        "SSO and identity - configure federation, sign-in domains, and identity-provider health for this workspace.",
-      whatToDoNext:
-        "Review overview status, open SAML or OIDC setup, then validate role mapping before inviting shared users.",
-      whyEmpty:
-        "Summary cards load after auth diagnostics respond; local development sign-in may be enabled until production SSO is configured.",
-      whereToConfigurePrerequisite:
-        "Changing federation settings needs Admin authority and a verified sign-in domain when enforcement is required.",
-    },
-  },
-  {
     prefix: "/administration/identity-providers/oidc",
     entry: {
       whatIsThisPage:
@@ -89,32 +76,6 @@ export const ADMINISTRATION_CONTEXTUAL_HELP_ROWS: readonly PageContextualHelpRow
         "The configuration form always renders for authorized Admins; empty claim tables mean metadata has not been fetched or mapping rows are not filled yet.",
       whereToConfigurePrerequisite:
         "Changing SAML settings needs Admin authority and a reachable IdP metadata URL for lookup; SP signing certificate health is reviewed on Identity diagnostics.",
-    },
-  },
-  {
-    prefix: "/administration/identity/sso-wizard",
-    entry: {
-      whatIsThisPage:
-        "SSO wizard - guided OIDC or SAML setup that discovers provider metadata, maps roles, tests connection, then activates SSO for this workspace.",
-      whatToDoNext:
-        "Choose your identity provider, confirm a protocol, fetch metadata, map claims to ArchLucid roles, run a test connection, then activate only after the test succeeds.",
-      whyEmpty:
-        "Wizard steps always render for authorized Admins; empty issuer or mapping fields mean metadata has not been fetched or claims are not filled yet.",
-      whereToConfigurePrerequisite:
-        "Activating SSO needs Admin authority and a reachable IdP metadata or discovery URL; current sign-in stays unchanged until the final activate step.",
-    },
-  },
-  {
-    prefix: "/administration/scim-provisioning",
-    entry: {
-      whatIsThisPage:
-        "SCIM provisioning - issue, verify, and revoke inbound directory tokens so your IdP can sync users into this workspace.",
-      whatToDoNext:
-        "Copy the SCIM base URL, create a token, verify it against Service Provider Config, then revoke tokens you no longer need.",
-      whyEmpty:
-        "Active tokens appear after creation; an empty list means no inbound provisioning tokens exist yet for this tenant.",
-      whereToConfigurePrerequisite:
-        "Managing SCIM tokens needs Admin authority; pair tokens with SSO and identity setup before enforcing directory sync.",
     },
   },
   {

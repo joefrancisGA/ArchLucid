@@ -52,18 +52,6 @@ export const HELP_TOPIC_CONTEXTUAL_HELP_ROWS: readonly PageContextualHelpRow[] =
     },
   },
   {
-    prefix: "/help/enterprise-onboarding",
-    entry: {
-      whatIsThisPage:
-        "Enterprise onboarding checklist - configure SSO, roles, governance, policy packs, audit export, and optional Azure evidence for a hosted tenant.",
-      whatToDoNext:
-        "Open Identity providers for SSO, Users and roles for access, then Assurance status for assurance orientation.",
-      whyEmpty: "This guide is always available; live identity and role surfaces appear after workspace configuration.",
-      whereToConfigurePrerequisite:
-        "SSO and role changes need System Admin authority in the current workspace.",
-    },
-  },
-  {
     prefix: "/help/pilot-feedback",
     entry: {
       whatIsThisPage:
@@ -218,22 +206,6 @@ export const HELP_TOPIC_CONTEXTUAL_HELP_ROWS: readonly PageContextualHelpRow[] =
       whereToConfigureAction: {
         label: "Open Sign-in methods",
         href: "/administration/account-security",
-      },
-    },
-  },
-  {
-    prefix: "/help/integration-readiness",
-    entry: {
-      whatIsThisPage:
-        "Integration readiness — which notification, ticketing, publishing, and delivery connectors are ready, recommended, or optional.",
-      whatToDoNext:
-        "Open Connection status for live labels, then configure recommended chat connectors before optional ITSM destinations.",
-      whyEmpty: "This guide is always available; live connector status appears on Connection status after setup.",
-      whereToConfigurePrerequisite:
-        "Connector configuration needs a role that can manage integrations for this workspace.",
-      whatToDoNextAction: {
-        label: "Open Connection status",
-        href: "/administration/connection-status",
       },
     },
   },

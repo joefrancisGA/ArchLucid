@@ -3,6 +3,8 @@ import type { EvidenceSourceLink } from "@/lib/evidence-surface-copy";
 
 export const INTEGRATION_READINESS_HELP_CANONICAL_PATH = "/help/integration-readiness" as const;
 
+export const INTEGRATION_READINESS_HELP_TOPIC_LABEL = "How integration readiness works" as const;
+
 export const INTEGRATION_READINESS_HELP_PRIMARY_ACTION = {
   label: "Open Connection status",
   href: "/administration/connection-status",

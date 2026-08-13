@@ -32,6 +32,11 @@ import { BUYER_ONBOARDING_PAGE_TITLE, BUYER_VALUE_REPORT_HOW_IT_WORKS_TITLE } fr
 import { GOVERNANCE_SETUP_HREF, GOVERNANCE_SETUP_PAGE_TITLE } from "@/lib/governance/governance-setup-route";
 import { GOVERNANCE_EXCEPTIONS_PATH } from "@/lib/governance/governance-route-paths";
 import { GOVERNANCE_APPROVAL_HELP_TOPIC_LABEL } from "@/lib/governance/governance-approval-help-evidence-copy";
+import { IDENTITY_PROVIDERS_SETTINGS_HELP_TOPIC_LABEL } from "@/lib/identity-providers-settings-evidence-copy";
+import { INTEGRATION_EVENTS_DLQ_HELP_TOPIC_LABEL } from "@/lib/integration-events-dlq-evidence-copy";
+import { INTEGRATION_READINESS_HELP_TOPIC_LABEL } from "@/lib/integration-readiness-help-evidence-copy";
+import { ITSM_CONNECTORS_HELP_TOPIC_LABEL } from "@/lib/admin-itsm-connectors-evidence-copy";
+import { ITSM_OAUTH_CALLBACK_HELP_TOPIC_LABEL } from "@/lib/itsm/itsm-oauth-callback-evidence-copy";
 import { NOTIFICATIONS_HELP_TOPIC_LABEL } from "@/lib/notification-preference-center";
 import { OPERATOR_NAV_LINK_LABELS } from "@/lib/i18n";
 import { PATTERN_LIBRARY_HELP_TOPIC_LABEL } from "@/lib/pattern-library-evidence-copy";
@@ -44,6 +49,7 @@ import {
 import { SPONSOR_DASHBOARD_HREF } from "@/lib/sponsor/sponsor-dashboard-route";
 import { ARCHITECTURE_SCORECARD_HELP_TOPIC_LABEL } from "@/lib/architecture/architecture-scorecard-page-copy";
 import { CONNECTION_STATUS_HELP_TOPIC_LABEL } from "@/lib/connection-status-evidence-copy";
+import { ENTERPRISE_ONBOARDING_HELP_TOPIC_LABEL } from "@/lib/enterprise-onboarding-help-evidence-copy";
 import { PILOT_OUTCOMES_HELP_TOPIC_LABEL } from "@/lib/pilot-outcomes-evidence-copy";
 import { ROI_SUMMARY_HELP_TOPIC_LABEL } from "@/lib/roi-summary-help-evidence-copy";
 import { SLACK_INTEGRATION_HELP_TOPIC_LABEL } from "@/lib/slack-integration-evidence-copy";
@@ -51,7 +57,9 @@ import { RECURRENCE_SCHEDULES_HOW_IT_WORKS_TITLE } from "@/lib/recurrence-schedu
 import { ACCELERATOR_CHOOSER_HELP_INBOUND_LABEL } from "@/lib/accelerator-chooser-help-title-honesty-surfaces";
 import { REPEAT_REVIEW_LOOP_HELP_INBOUND_LABEL } from "@/lib/repeat-review-loop-help-title-honesty-surfaces";
 import { RISK_EXCEPTIONS_HELP_TOPIC_LABEL } from "@/lib/risk-exceptions-evidence-copy";
+import { SCIM_PROVISIONING_HELP_TOPIC_LABEL } from "@/lib/scim-provisioning-evidence-copy";
 import { SEARCH_REVIEW_EVIDENCE_HELP_TOPIC_LABEL } from "@/lib/search-review-evidence-evidence-copy";
+import { SSO_WIZARD_HELP_TOPIC_LABEL } from "@/lib/sso-wizard-evidence-copy";
 import { REVIEW_PACKAGES_HELP_INBOUND_LABEL } from "@/lib/review-packages-help-title-honesty-surfaces";
 import { SYSTEM_HEALTH_HELP_TOPIC_LABEL } from "@/lib/system-health-evidence-copy";
 import { WORKSPACE_SETTINGS_HELP_TOPIC_LABEL } from "@/lib/tenant-settings-evidence-copy";
@@ -108,7 +116,7 @@ const PAGE_HELP_TOPICS: readonly { prefix: string; topic: PageHelpTopic }[] = [
   },
   {
     prefix: "/help/integration-readiness",
-    topic: { slug: "integration-readiness", label: "Integration readiness" },
+    topic: { slug: "integration-readiness", label: INTEGRATION_READINESS_HELP_TOPIC_LABEL },
   },
   {
     prefix: "/help/caiq-sig-response",
@@ -458,7 +466,7 @@ const PAGE_HELP_TOPICS: readonly { prefix: string; topic: PageHelpTopic }[] = [
   },
   {
     prefix: "/help/enterprise-onboarding",
-    topic: { slug: "enterprise-onboarding", label: "Enterprise onboarding checklist" },
+    topic: { slug: "enterprise-onboarding", label: ENTERPRISE_ONBOARDING_HELP_TOPIC_LABEL },
   },
   {
     prefix: "/help/pilot-feedback",
@@ -521,7 +529,7 @@ const PAGE_HELP_TOPICS: readonly { prefix: string; topic: PageHelpTopic }[] = [
   },
   {
     prefix: "/integrations/itsm/oauth/callback",
-    topic: { slug: "integration-readiness", label: "Atlassian OAuth callback" },
+    topic: { slug: "integration-readiness", label: ITSM_OAUTH_CALLBACK_HELP_TOPIC_LABEL },
   },
   {
     prefix: "/integrations/servicenow",
@@ -543,10 +551,10 @@ const PAGE_HELP_TOPICS: readonly { prefix: string; topic: PageHelpTopic }[] = [
   { prefix: "/administration/developer", topic: { slug: "cli-usage", label: "Internal developer tools" } },
   {
     prefix: "/operate/integration-events/dlq",
-    topic: { slug: "integration-readiness", label: "Integration event dead letters" },
+    topic: { slug: "integration-readiness", label: INTEGRATION_EVENTS_DLQ_HELP_TOPIC_LABEL },
   },
   { prefix: "/administration/system-health", topic: { slug: "system-health", label: SYSTEM_HEALTH_HELP_TOPIC_LABEL } },
-  { prefix: "/internal/integrations/itsm", topic: { slug: "integration-readiness", label: "ITSM connectors" } },
+  { prefix: "/internal/integrations/itsm", topic: { slug: "integration-readiness", label: ITSM_CONNECTORS_HELP_TOPIC_LABEL } },
   {
     prefix: "/admin/tenant-health",
     topic: { slug: "troubleshooting", label: "Tenant health" },
@@ -577,11 +585,11 @@ const PAGE_HELP_TOPICS: readonly { prefix: string; topic: PageHelpTopic }[] = [
   },
   {
     prefix: "/administration/identity/sso-wizard",
-    topic: { slug: "enterprise-onboarding", label: "SSO wizard" },
+    topic: { slug: "enterprise-onboarding", label: SSO_WIZARD_HELP_TOPIC_LABEL },
   },
   {
     prefix: "/administration/scim-provisioning",
-    topic: { slug: "enterprise-onboarding", label: "SCIM provisioning" },
+    topic: { slug: "enterprise-onboarding", label: SCIM_PROVISIONING_HELP_TOPIC_LABEL },
   },
   {
     prefix: "/administration/workspace-settings/recycle-bin",
@@ -593,7 +601,7 @@ const PAGE_HELP_TOPICS: readonly { prefix: string; topic: PageHelpTopic }[] = [
   },
   {
     prefix: "/administration/identity-providers",
-    topic: { slug: "enterprise-onboarding", label: "SSO and identity" },
+    topic: { slug: "enterprise-onboarding", label: IDENTITY_PROVIDERS_SETTINGS_HELP_TOPIC_LABEL },
   },
   {
     prefix: "/administration/api-keys",

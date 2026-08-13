@@ -52,28 +52,4 @@ export const INTEGRATIONS_CONTEXTUAL_HELP_ROWS: readonly PageContextualHelpRow[]
         "Provisioning Workload Identity Federation usually needs cloud-admin authority; saving the connection in ArchLucid needs Operate authority.",
     },
   },
-  {
-    prefix: "/integrations/itsm/oauth/callback",
-    entry: {
-      whatIsThisPage:
-        "Atlassian OAuth callback — completes Jira connector consent after Atlassian redirects back to ArchLucid.",
-      whatToDoNext:
-        "When consent succeeds, return to Jira integration settings to run a health probe; on failure, retry Connect with Atlassian.",
-      whyEmpty: "This page only appears after an OAuth redirect; status text replaces empty layouts.",
-      whereToConfigurePrerequisite:
-        "Starting OAuth requires Operate authority and a configured Atlassian app registration.",
-    },
-  },
-  {
-    prefix: "/operate/integration-events/dlq",
-    entry: {
-      whatIsThisPage:
-        "Integration event dead letters — Internal Operations queue for outbound integration publishes that exceeded retries.",
-      whatToDoNext:
-        "Inspect the failing event, fix connector or destination root cause, then retry or suppress; open Integration readiness or System health for posture.",
-      whyEmpty: "An empty list means no dead-lettered outbox rows are waiting across tenants.",
-      whereToConfigurePrerequisite:
-        "Admin authority is required to retry or suppress; the queue spans all tenants, not only the header workspace.",
-    },
-  },
 ];

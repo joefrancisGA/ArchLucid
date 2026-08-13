@@ -3,6 +3,8 @@ import type { EvidenceSourceLink } from "@/lib/evidence-surface-copy";
 
 export const ENTERPRISE_ONBOARDING_HELP_CANONICAL_PATH = "/help/enterprise-onboarding" as const;
 
+export const ENTERPRISE_ONBOARDING_HELP_TOPIC_LABEL = "How enterprise onboarding works" as const;
+
 export const ENTERPRISE_ONBOARDING_HELP_RELATED_PAGES_TITLE = "Related setup and trust pages";
 
 export const ENTERPRISE_ONBOARDING_HELP_CLAIM_DISCIPLINE =
