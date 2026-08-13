@@ -1,8 +1,11 @@
+"use client";
+
 import { cn } from "@/lib/utils";
 import { OPERATOR_TYPOGRAPHY } from "@/lib/design-tokens";
 import type { ReactElement } from "react";
 
 import { CollapsibleSection } from "@/components/CollapsibleSection";
+import { FieldHelpTooltip } from "@/components/FieldHelpTooltip";
 import { Card, CardContent, CardHeader } from "@/components/ui/card";
 import {
   EnterpriseTable,
@@ -87,10 +90,13 @@ export function ReviewAgentExecutionLogSection({
                       <EnterpriseTableCell>
                         {hasDegradation ? (
                           <span
-                            className={cn("inline-flex rounded border border-amber-300 bg-amber-50 px-1.5 py-0.5 font-medium text-amber-800 dark:border-amber-700 dark:bg-amber-950 dark:text-amber-300", OPERATOR_TYPOGRAPHY.badge)}
-                            title={result.degradationReasonCode ?? ""}
+                            className={cn("inline-flex items-center gap-1 rounded border border-amber-300 bg-amber-50 px-1.5 py-0.5 font-medium text-amber-800 dark:border-amber-700 dark:bg-amber-950 dark:text-amber-300", OPERATOR_TYPOGRAPHY.badge)}
                           >
                             Degraded
+                            <FieldHelpTooltip
+                              label="Degraded"
+                              hint={result.degradationReasonCode ?? "Agent output degraded"}
+                            />
                           </span>
                         ) : (
                           <span className={cn("inline-flex rounded border border-neutral-200 bg-neutral-50 px-1.5 py-0.5 font-medium text-neutral-600 dark:border-neutral-700 dark:bg-neutral-900 dark:text-neutral-400", OPERATOR_TYPOGRAPHY.badge)}>

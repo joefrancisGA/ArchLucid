@@ -31,7 +31,6 @@ export function ReviewSealedIndicatorChip({
         OPERATOR_TYPOGRAPHY.navHelper,
         className,
       )}
-      title={`Package sealed at ${formatted} — immutable`}
       aria-label={`Package sealed at ${formatted}`}
     >
       <Lock className="h-3 w-3 shrink-0" aria-hidden />

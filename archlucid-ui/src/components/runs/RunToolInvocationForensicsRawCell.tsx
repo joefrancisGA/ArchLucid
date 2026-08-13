@@ -60,7 +60,10 @@ export function RunToolInvocationForensicsRawCell(props: RunToolInvocationForens
 
   if (!canViewRaw) {
     return (
-      <span className={cn("text-neutral-500 dark:text-neutral-400", OPERATOR_TYPOGRAPHY.helper)} title="Execute authority required">
+      <span
+        className={cn("text-neutral-500 dark:text-neutral-400", OPERATOR_TYPOGRAPHY.helper)}
+        aria-label="Execute authority required"
+      >
         Restricted
       </span>
     );

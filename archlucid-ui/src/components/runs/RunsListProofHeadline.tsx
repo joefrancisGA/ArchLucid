@@ -6,6 +6,7 @@ import {
   formatMedianLlmCalls,
   safeCommittedRunWindowCount,
 } from "@/components/BeforeAfterDelta/formatDelta";
+import { FieldHelpTooltip } from "@/components/FieldHelpTooltip";
 import { useDeltaQuery } from "@/components/BeforeAfterDelta/useDeltaQuery";
 
 /**
@@ -33,13 +34,15 @@ export function RunsListProofHeadline() {
   const llm = formatMedianLlmCalls(data.medianLlmCallCount);
 
   return (
-    <span
-      className="text-neutral-600 dark:text-neutral-400"
-      data-testid="runs-list-proof-headline"
-      title="Medians across recent finalized reviews in scope (same endpoint as the proof-of-ROI panel below)."
-    >
-      <span className="font-medium text-neutral-800 dark:text-neutral-200">Proof snapshot: </span>
-      {time} to manifest · {findings} findings · {llm} LLM calls (median)
+    <span className="inline-flex items-center gap-1 text-neutral-600 dark:text-neutral-400" data-testid="runs-list-proof-headline">
+      <span>
+        <span className="font-medium text-neutral-800 dark:text-neutral-200">Proof snapshot: </span>
+        {time} to manifest · {findings} findings · {llm} LLM calls (median)
+      </span>
+      <FieldHelpTooltip
+        label="Proof snapshot"
+        hint="Medians across recent finalized reviews in scope (same endpoint as the proof-of-ROI panel below)."
+      />
     </span>
   );
 }

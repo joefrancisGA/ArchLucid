@@ -49,7 +49,7 @@ export function RunTraceViewerLink({ traceId }: RunTraceViewerLinkProps) {
   if (!isAdmin) {
     return (
       <div className={cn("mt-1 flex flex-wrap items-center gap-2", OPERATOR_TYPOGRAPHY.helper)}>
-        <span className="font-mono text-neutral-500 dark:text-neutral-400" title={traceId}>
+        <span className="font-mono break-all text-neutral-500 dark:text-neutral-400" aria-label={`Support reference: ${traceId}`}>
           Support ref: {preview}
         </span>
         <Button
@@ -83,10 +83,7 @@ export function RunTraceViewerLink({ traceId }: RunTraceViewerLinkProps) {
           View trace
         </a>
       ) : null}
-      <span
-        className="font-mono text-neutral-600 dark:text-neutral-400"
-        title={traceId}
-      >
+      <span className="font-mono break-all text-neutral-600 dark:text-neutral-400" aria-label={`Support reference: ${traceId}`}>
         Support ref: {preview}
       </span>
       <Button

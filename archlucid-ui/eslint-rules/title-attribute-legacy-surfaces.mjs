@@ -2,7 +2,7 @@
  * Baseline for the `title`-attribute-as-help ban (UI_DESIGN_SYSTEM.md § Operator page contextual
  * help — mount + interaction contract, TB-1666).
  *
- * These 48 files carried a native `title` attribute when the rule landed on 2026-08-09. The rule is
+ * These 42 files carried a native `title` attribute when the rule landed on 2026-08-09. The rule is
  * an error everywhere else so new hover-only help cannot be introduced; this list exists only so the
  * rule could land without a 135-site refactor in one change. Sweeping it is TB-2147.
  *
@@ -56,14 +56,8 @@ export const TITLE_ATTRIBUTE_LEGACY_SURFACES = [
   "src/components/marketing/CtaButton.tsx",
   "src/components/provenance/ProvenancePageWorkspace.tsx",
   "src/components/ProvenanceReferenceLink.tsx",
-  "src/components/reviews/ReviewAgentExecutionLogSection.tsx",
-  "src/components/reviews/ReviewSealedIndicatorChip.tsx",
   "src/components/RoiTelemetryCard.tsx",
-  "src/components/RunFindingExplainabilityTable.tsx",
-  "src/components/RunRetrievalExemplarStylePriorStrip.tsx",
-  "src/components/RunsListProofHeadline.tsx",
-  "src/components/RunToolInvocationForensicsRawCell.tsx",
-  "src/components/RunTraceViewerLink.tsx",
+  "src/components/runs/RunFindingExplainabilityTable.tsx",
   "src/components/ui/tabs.tsx",
   "src/components/usability/WizardEvidenceUploadZone.tsx",
 ];
