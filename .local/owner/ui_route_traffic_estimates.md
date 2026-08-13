@@ -45,7 +45,7 @@ Priority routes to watch (this doc's master table): `/welcome`, `/reviews`,
 
 ---
 
-**OVERALL WEIGHT SCORE:** 80.72%
+**OVERALL WEIGHT SCORE:** 80.75%
 
 **OVERALL EVIDENCE SCORE:** 71.51%
 
@@ -57,7 +57,6 @@ Priority routes to watch (this doc's master table): `/welcome`, `/reviews`,
 | HEP | `/help/api-keys` | 0.02% | 0 | 0 | 2 | Help topic | No | None |
 | HEB | `/help/baseline-settings` | 0.02% | 0 | 0 | 2 | Help topic | No | None |
 | HCO | `/help/connection-status` | 0.02% | 0 | 0 | 2 | Help topic | No | None |
-| HEE | `/help/engineering-troubleshooting` | 0.02% | 0 | 0 | 2 | Help topic | No | None |
 | HPI | `/help/pilot-outcomes` | 0.02% | 0 | 0 | 2 | Help topic | No | None |
 | ERE | `/help/recurrence-schedules` | 0.02% | 0 | 0 | 2 | Help topic | No | None |
 | HRO | `/help/roi-summary` | 0.02% | 0 | 0 | 2 | Help topic | No | None |
@@ -267,6 +266,7 @@ Priority routes to watch (this doc's master table): `/welcome`, `/reviews`,
 | GOA | `/governance/alert-rules?tab=advanced-rules` | 0.02% | 35,88 | 1.76 | 0.24 | Tab surface | No | 2026-08-12 al-ui-rate: Zero provenance, irreversible create-only rules, orphaned CTA, duplicated refresh, four competing labels.; shipped 6/6 P0 (b3cb70d46); open: none |
 | HES | `/help/soc2-self-assessment` | 0.02% | 86,88 | 1.76 | 0.24 | Help topic | No | Specialty SOC 2 self-assessment guide - HelpSoc2SelfAssessmentGuideView with Trust Center / CAIQ-SIG / procurement primary CTAs, Sources diligence strip (security-trust, DPA, subprocessors, tenant-isolation), job-matrix IA dual (TB-1749), orientation steps, claim-discipline callout (self-assessment is not CPA Type I/II; Type I dates illustrative), PageContextualHelp, and prepared SOC2_SELF_ASSESSMENT_2026.md (TB-1747 leakage strip + TB-1748 roadmap honesty). Title + Help Center product discovery (TB-1750). Not bare HelpTopicMarkdownView. Score 61/100 (2026-08-08) - surface hard-caps higher Evidence. Owner pass: Evidence chrome shipped; cannot improve further toward 80 without turning this into a signed-record diligence Sources trail.; 2026-08-11 al-ui-rate: Undated compliance artifact now shows provenance and followable evidence; shipped 6/6 P0 (f5dc52d0d); open: none |
 | DEX | `/demo/explain` | 0 | 58,74 | 0 | 0 | Internal | No | Internal demo explain (Internal; traffic DEX) - DemoExplainPageView with PageContextualHelpButton (topic map evidence-trail; Category-1 registry), internal tooling orientation strip (full-operator shell), example provenance graph + citations-bound explanation. Buyer-polished shells redirect to /see-it (TB-1322 IA-014); never scored as buyer Learning traffic. Sibling WH = /why-archlucid; DPX = /demo/preview; DXX = /demo entry. Internal demo/proof orientation only - not Marketing or signed-record Sources trail. Owner pass: Evidence chrome shipped; cannot improve further toward 80 without turning this into a signed-record diligence Sources trail. |
+| HEE | `/help/engineering-troubleshooting` | 0.02% | 0,100 | 2 | 0 | Internal | No | None |
 
 ---
 
