@@ -3,6 +3,11 @@
 import { useEffect } from "react";
 import { usePathname } from "next/navigation";
 
+import {
+  helpTopicSlugFromPathname,
+  resolveHelpTopicHashFragment,
+} from "@/lib/help/help-topic-hash-aliases";
+
 function openAncestorDetails(element: HTMLElement): void {
   let ancestor: HTMLElement | null = element;
 
@@ -40,11 +45,20 @@ function focusHashTarget(target: HTMLElement): void {
   target.focus({ preventScroll: true });
 }
 
-function scrollToHashFragment(): void {
-  const hash = typeof window !== "undefined" ? window.location.hash.replace(/^#/, "").trim() : "";
+function scrollToHashFragment(pathname: string): void {
+  const rawHash = typeof window !== "undefined" ? window.location.hash.replace(/^#/, "").trim() : "";
 
-  if (hash.length === 0) {
+  if (rawHash.length === 0) {
     return;
+  }
+
+  const topicSlug = helpTopicSlugFromPathname(pathname);
+  const hash = resolveHelpTopicHashFragment(topicSlug, rawHash);
+
+  if (hash !== rawHash && typeof window !== "undefined") {
+    const nextUrl = `${window.location.pathname}${window.location.search}#${hash}`;
+
+    window.history.replaceState(window.history.state, "", nextUrl);
   }
 
   const target = document.getElementById(hash);
@@ -71,12 +85,16 @@ export function HelpTopicHashScroll(): null {
   const pathname = usePathname();
 
   useEffect(() => {
-    scrollToHashFragment();
+    scrollToHashFragment(pathname);
 
-    window.addEventListener("hashchange", scrollToHashFragment);
+    const onHashChange = (): void => {
+      scrollToHashFragment(pathname);
+    };
+
+    window.addEventListener("hashchange", onHashChange);
 
     return () => {
-      window.removeEventListener("hashchange", scrollToHashFragment);
+      window.removeEventListener("hashchange", onHashChange);
     };
   }, [pathname]);
 
