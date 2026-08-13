@@ -1,7 +1,7 @@
 import { ARCHITECTURE_SCORECARD_PATH } from "@/lib/architecture/architecture-scorecard-route";
 import { COMPARE_TWO_REVIEWS_PATH } from "@/lib/compare-two-reviews-route";
 import {
-  SPONSOR_REPORT_PAGE_TITLE,
+  EXECUTIVE_SUMMARY_PAGE_TITLE,
   SPONSOR_REPORT_ROI_SUMMARY_PATH,
 } from "@/lib/sponsor-report-navigation";
 import { EVIDENCE_GRAPH_PATH } from "@/lib/evidence-graph-route";
@@ -82,7 +82,7 @@ export const ROUTE_TITLES: Record<string, string> = {
   [INTEGRATIONS_READINESS_PATH]: OPERATOR_NAV_LINK_LABELS.integrationReadiness,
   [EXECUTIVE_DASHBOARD_HREF]: BUYER_EXECUTIVE_SUMMARY_VOCABULARY.pageTitle,
   [DIGESTS_HUB_PATH]: OPERATOR_NAV_LINK_LABELS.digests,
-  "/insights/executive-summary": SPONSOR_REPORT_PAGE_TITLE,
+  "/insights/executive-summary": EXECUTIVE_SUMMARY_PAGE_TITLE,
   [SPONSOR_REPORT_ROI_SUMMARY_PATH]: OPERATOR_NAV_LINK_LABELS.roiReport,
   [ARCHITECTURE_SCORECARD_PATH]: OPERATOR_NAV_LINK_LABELS.scorecard,
   "/internal/demo-readiness": INTERNAL_DEMO_READINESS_PAGE_TITLE,

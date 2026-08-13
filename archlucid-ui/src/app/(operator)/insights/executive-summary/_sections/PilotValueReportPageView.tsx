@@ -44,7 +44,7 @@ import {
 
 import { PilotOutcomesEmailConfirmDialog } from "./PilotOutcomesEmailConfirmDialog";
 import { PilotOutcomesEmptyState } from "./PilotOutcomesEmptyState";
-import { PilotValueReportMetricCard } from "./PilotValueReportMetricCard";
+import { PilotValueReportMetricCard } from "@/app/(operator)/insights/pilot-outcomes/_sections/PilotValueReportMetricCard";
 import { PilotValueReportSeverityBars } from "./PilotValueReportSeverityBars";
 import { PilotRoiValidationHandoffClient } from "@/components/pilots/PilotRoiValidationHandoffCard";
 import { formatPilotValueReportAvgCompletion } from "./pilot-value-report-page-helpers";

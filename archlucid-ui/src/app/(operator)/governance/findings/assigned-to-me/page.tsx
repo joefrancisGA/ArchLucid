@@ -1,10 +1,10 @@
 import dynamic from "next/dynamic";
 import { Suspense } from "react";
 
-import { GovernanceFindingsQueueSkeleton } from "./GovernanceFindingsQueueSkeleton";
+import { GovernanceFindingsQueueSkeleton } from "../GovernanceFindingsQueueSkeleton";
 
 const GovernanceFindingsQueueClient = dynamic(
-  () => import("./GovernanceFindingsQueueClient"),
+  () => import("../GovernanceFindingsQueueClient"),
   { loading: () => <GovernanceFindingsQueueSkeleton /> },
 );
 

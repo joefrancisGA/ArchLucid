@@ -15,6 +15,7 @@ namespace ArchLucid.Core.Tests;
 [Trait("Suite", "Core")]
 public sealed class CorePackageCoverageBatchRc29Tests
 {
+    private static readonly DateTimeOffset SampleUtc = new(2026, 4, 1, 12, 0, 0, TimeSpan.Zero);
     [Fact]
     public void AskRequest_and_AskResponse_roundtrip_property_bags()
     {
@@ -73,7 +74,7 @@ public sealed class CorePackageCoverageBatchRc29Tests
             ProjectId = Guid.NewGuid(),
             Kind = UsageMeterKind.ApiRequest,
             Quantity = 1,
-            RecordedUtc = DateTimeOffset.UtcNow
+            RecordedUtc = SampleUtc
         };
 
         await service.RecordAsync(usageEvent, CancellationToken.None);
@@ -81,8 +82,8 @@ public sealed class CorePackageCoverageBatchRc29Tests
 
         IReadOnlyList<TenantUsageSummary> summary = await service.GetSummaryAsync(
             usageEvent.TenantId,
-            DateTimeOffset.UtcNow.AddDays(-1),
-            DateTimeOffset.UtcNow,
+            SampleUtc.AddDays(-1),
+            SampleUtc,
             CancellationToken.None);
 
         summary.Should().BeEmpty();

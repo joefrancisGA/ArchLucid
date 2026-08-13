@@ -105,7 +105,7 @@ export function usePilotScorecardPage(loaded: PilotScorecardPageServerLoad): Use
   const error = saveError ?? queryError ?? loaded.error;
 
   useEffect(() => {
-    if (scorecardQuery.data === undefined) {
+    if (scorecardQuery.data === undefined || scorecardQuery.data === null) {
       return;
     }
 

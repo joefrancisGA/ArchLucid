@@ -16,6 +16,7 @@ namespace ArchLucid.Contracts.Tests;
 [Trait("Suite", "Core")]
 public sealed class ContractsPackageCoverageBatchRc29Tests
 {
+    private static readonly DateTime SampleUtc = new(2026, 4, 1, 12, 0, 0, DateTimeKind.Utc);
     [Theory]
     [InlineData(AgentType.Topology, AgentTypeKeys.Topology)]
     [InlineData(AgentType.Cost, AgentTypeKeys.Cost)]
@@ -79,7 +80,7 @@ public sealed class ContractsPackageCoverageBatchRc29Tests
         AgentOutputEvaluationSummary summary = new()
         {
             RunId = "run-1",
-            EvaluatedAtUtc = DateTime.UtcNow,
+            EvaluatedAtUtc = SampleUtc,
             AdvisoryCurrent = new AgentOutputEvaluationPerspective
             {
                 Authority = "advisoryCurrent",
@@ -110,7 +111,7 @@ public sealed class ContractsPackageCoverageBatchRc29Tests
 
         ProductLearningDashboardSummaryResponse dashboard = new()
         {
-            GeneratedUtc = DateTime.UtcNow,
+            GeneratedUtc = SampleUtc,
             TenantId = Guid.NewGuid(),
             WorkspaceId = Guid.NewGuid(),
             ProjectId = Guid.NewGuid(),

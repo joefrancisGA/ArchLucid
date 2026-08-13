@@ -4,6 +4,7 @@ import { cn } from "@/lib/utils";
 import Link from "next/link";
 
 import { StatusTag } from "@/components/ui/status-tag";
+import { GOVERNANCE_WORKSPACE_HEALTH_HREF } from "@/lib/governance/governance-route-paths";
 import type { PreCommitGovernanceBlockView } from "@/lib/pre-commit-governance-block-problem";
 import { inAppHelpHref } from "@/lib/product-documentation-registry";
 import { policyPacksEditHref } from "@/lib/policy/policy-packs-deep-link";

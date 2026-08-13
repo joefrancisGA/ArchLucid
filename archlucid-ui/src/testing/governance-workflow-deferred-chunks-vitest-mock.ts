@@ -12,8 +12,8 @@ export async function buildGovernanceWorkflowDeferredChunksVitestMock(): Promise
   const buyerStrip = await import("@/components/cto-demo/CtoDemoBuyerValueStrip");
   const segregation = await import("@/components/cto-demo/CtoDemoSegregationCallout");
   const previewHint = await import("@/components/OperateCapabilityHints");
-  const quickstart = await import("@/components/GovernanceInteractiveQuickstartContent");
-  const storyCard = await import("@/components/GovernanceApprovalStoryCard");
+  const quickstart = await import("@/components/governance/GovernanceInteractiveQuickstartContent");
+  const storyCard = await import("@/components/governance/GovernanceApprovalStoryCard");
   const advancedOptions = await import("@/components/AdvancedOptionsAccordion");
 
   return {

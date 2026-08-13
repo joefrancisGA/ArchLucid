@@ -1,7 +1,7 @@
 import type { Metadata } from "next";
 
-import { ValueReportPageClient } from "@/app/(operator)/insights/executive-summary/_sections/ValueReportPageClient";
-import { loadValueReportPageData } from "@/app/(operator)/insights/executive-summary/_sections/load-value-report-page-data";
+import { PilotValueReportPageClient } from "@/app/(operator)/insights/executive-summary/_sections/PilotValueReportPageClient";
+import { loadPilotValueReportPageData } from "@/app/(operator)/insights/executive-summary/_sections/load-pilot-value-report-page-data";
 import {
   EXECUTIVE_SUMMARY_PAGE_TITLE,
   SPONSOR_REPORT_SECTION_LABEL,
@@ -12,7 +12,7 @@ export const metadata: Metadata = {
 };
 
 export default async function SponsorReportExecutiveSummaryPage() {
-  const loaded = await loadValueReportPageData();
+  const loaded = await loadPilotValueReportPageData();
 
-  return <ValueReportPageClient loaded={loaded} />;
+  return <PilotValueReportPageClient loaded={loaded} />;
 }

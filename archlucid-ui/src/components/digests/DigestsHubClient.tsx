@@ -238,7 +238,7 @@ export function DigestsHubClient(): ReactElement {
                 key={id}
                 value={id}
                 data-testid={`digests-hub-tab-${id}`}
-                title={tabTitle}
+                aria-label={tabTitle}
               >
                 {tabLabel(id)}
               </TabsTrigger>
