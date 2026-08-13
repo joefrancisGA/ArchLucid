@@ -14,8 +14,6 @@ import { SecurityTrustHelpPostureSummary } from "@/components/help/SecurityTrust
 
 import { HelpTopicExportClaimDiscipline } from "@/components/help/HelpTopicExportClaimDiscipline";
 
-import { HelpTopicSignInFailureTriageLine } from "@/components/help/HelpTopicSignInFailureTriageLine";
-
 import { HelpTopicHashScroll } from "@/app/(operator)/help/HelpTopicHashScroll";
 
 import { HelpTopicTableOfContents } from "@/components/help/HelpTopicTableOfContents";
@@ -40,7 +38,6 @@ import {
 
 import { DESIGN_TOKENS, OPERATOR_LAYOUT, OPERATOR_TYPOGRAPHY } from "@/lib/design-tokens";
 
-import { AUTHENTICATION_SIGN_IN_HELP_PRIMARY_ACTION } from "@/lib/authentication-sign-in-help-copy";
 import { CAIQ_SIG_RESPONSE_HELP_PRIMARY_ACTION } from "@/lib/caiq-sig-response-help-evidence-copy";
 import { INTEGRATION_READINESS_HELP_PRIMARY_ACTION } from "@/lib/integration-readiness-help-evidence-copy";
 import { PROCUREMENT_HELP_CLAIM_DISCIPLINE } from "@/lib/procurement-help-evidence-copy";
@@ -179,7 +176,6 @@ export function HelpTopicMarkdownView(props: HelpTopicMarkdownViewProps): React.
   const isScopeHelp = entry.slug === "scope";
   const isSubprocessorsHelp = entry.slug === "subprocessors";
   const isProcurementHelp = isProcurementHelpTopic(entry.slug);
-  const isAuthenticationSignInHelp = entry.slug === "authentication-sign-in";
   const allowWithoutServerPdf = entry.pdfStatus === null && (entry.audience === "buyer" || isProcurementHelp);
 
   const isTechnicalReferenceLayout = layoutVariant === "technicalReference";
@@ -236,12 +232,8 @@ export function HelpTopicMarkdownView(props: HelpTopicMarkdownViewProps): React.
 
         titleBlockOrientation={titleBlockOrientation}
 
-        signInFailureTriageLine={isAuthenticationSignInHelp ? <HelpTopicSignInFailureTriageLine /> : undefined}
-
         primaryAction={
-          isAuthenticationSignInHelp
-            ? AUTHENTICATION_SIGN_IN_HELP_PRIMARY_ACTION
-            : isCaiqSigResponse
+          isCaiqSigResponse
               ? CAIQ_SIG_RESPONSE_HELP_PRIMARY_ACTION
               : isIntegrationReadinessHelp
                 ? INTEGRATION_READINESS_HELP_PRIMARY_ACTION
