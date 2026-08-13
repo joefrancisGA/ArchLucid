@@ -20,12 +20,13 @@ describe("help-center-catalog", () => {
     expect(HELP_CENTER_FEATURED_SLUGS).toHaveLength(14);
   });
 
-  it("features review-guide on the help landing grid for browse discovery", () => {
+  it("features first-architecture-review on the help landing grid for browse discovery", () => {
     const defaultTopics = listHelpCenterTopics({ showAdvanced: false, isAdmin: false });
     const slugs = defaultTopics.map((entry) => entry.slug);
 
-    expect(slugs).toContain("review-guide");
-    expect(HELP_CENTER_FEATURED_SLUGS.indexOf("review-guide")).toBeGreaterThan(
+    expect(slugs).toContain("first-architecture-review");
+    expect(slugs).not.toContain("review-guide");
+    expect(HELP_CENTER_FEATURED_SLUGS.indexOf("first-architecture-review")).toBeGreaterThan(
       HELP_CENTER_FEATURED_SLUGS.indexOf("getting-started"),
     );
   });

@@ -17,9 +17,9 @@ export type HelpCenterDisplay = {
 /** Default landing grid — 8–12 intent-based topics (not the full registry). */
 export const HELP_CENTER_FEATURED_SLUGS: readonly string[] = [
   "getting-started",
+  "first-architecture-review",
   "evidence-intake",
   "review-packages",
-  "review-guide",
   "findings",
   "evidence-trail",
   "governance-approval",
