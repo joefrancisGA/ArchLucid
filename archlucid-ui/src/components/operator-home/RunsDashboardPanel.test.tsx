@@ -47,6 +47,10 @@ import {
   OPERATOR_HOME_WORKSPACE_EMPTY_BODY,
   OPERATOR_HOME_WORKSPACE_EMPTY_TITLE,
 } from "@/lib/buyer/buyer-polish-copy";
+import {
+  CUSTOMER_INTAKE_BUYER_REVIEW_TITLE,
+  CUSTOMER_INTAKE_SAMPLE_RUN_ID,
+} from "@/lib/samples/customer-intake-modernization/definition";
 import * as operatorStaticDemo from "@/lib/operator/operator-static-demo";
 
 import { OperatorHomeWorkspaceActivityProvider } from "@/components/operator-home/operator-home-workspace-activity-context";
@@ -345,7 +349,7 @@ describe("RunsDashboardPanel", () => {
 
     try {
       const run: RunSummary = {
-        runId: "claims-intake-modernization",
+        runId: CUSTOMER_INTAKE_SAMPLE_RUN_ID,
         projectId: "default",
         description: "Claims Intake sample",
         createdUtc: "2026-01-15T12:00:00.000Z",
@@ -373,10 +377,10 @@ describe("RunsDashboardPanel", () => {
       expect(screen.queryByRole("link", { name: "Jump to review journey" })).toBeNull();
       expect(screen.getByTestId("runs-dashboard-buyer-proof-title")).toHaveAttribute(
         "href",
-        "/architecture/reviews/claims-intake-modernization",
+        `/architecture/reviews/${CUSTOMER_INTAKE_SAMPLE_RUN_ID}`,
       );
       expect(screen.getByTestId("runs-dashboard-buyer-proof-title")).toHaveTextContent(
-        "Claims Intake Modernization Review",
+        CUSTOMER_INTAKE_BUYER_REVIEW_TITLE,
       );
       // Showcase title lives on the proof card — do not repeat it as a trailing list row.
       expect(screen.queryByTestId("recent-runs-home-panel")).toBeNull();
@@ -396,7 +400,7 @@ describe("RunsDashboardPanel", () => {
 
     try {
       const monitoredShowcase: RunSummary = {
-        runId: "claims-intake-modernization",
+        runId: CUSTOMER_INTAKE_SAMPLE_RUN_ID,
         projectId: "default",
         description: "Claims Intake sample",
         createdUtc: "2026-01-15T12:00:00.000Z",
@@ -435,7 +439,7 @@ describe("RunsDashboardPanel", () => {
 
     try {
       const approvedShowcase: RunSummary = {
-        runId: "claims-intake-modernization",
+        runId: CUSTOMER_INTAKE_SAMPLE_RUN_ID,
         projectId: "default",
         description: "Claims Intake sample",
         createdUtc: "2026-01-15T12:00:00.000Z",
@@ -471,7 +475,7 @@ describe("RunsDashboardPanel", () => {
 
     try {
       const run: RunSummary = {
-        runId: "claims-intake-modernization",
+        runId: CUSTOMER_INTAKE_SAMPLE_RUN_ID,
         projectId: "default",
         description: "Claims Intake sample",
         createdUtc: "2026-01-15T12:00:00.000Z",

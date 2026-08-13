@@ -30,7 +30,7 @@ COUNTER_DESCRIPTION_SNIPPETS = (
 
 class TestLlmCostEstimatorTb025(unittest.TestCase):
     def test_tb_025_counter_description_documents_pretax_and_double_cast(self) -> None:
-        text = INSTRUMENTATION.read_text(encoding="utf-8")
+        text = _instrumentation_sources()
 
         for snippet in COUNTER_DESCRIPTION_SNIPPETS:
             with self.subTest(snippet=snippet):

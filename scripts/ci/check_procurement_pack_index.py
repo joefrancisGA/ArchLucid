@@ -150,7 +150,7 @@ def normalize_source_link(href: str, index_md: Path, root: Path) -> Path | None:
     base = index_md.parent
     target = (base / h).resolve()
     try:
-        target.relative_to(root)
+        target.relative_to(root.resolve())
     except ValueError:
         return None
     return target
@@ -205,7 +205,7 @@ def validate_status_map(
             if not target.is_file():
                 errors.append(
                     f"Status map {artifact!r}: missing file `{m.group(1)}` -> "
-                    + f"{target.relative_to(root).as_posix()}",
+                    + f"{target.relative_to(root.resolve()).as_posix()}",
                 )
 
         if not found_link:
@@ -290,7 +290,10 @@ def validate_procurement_pack_index(
                 continue
 
             if not target.is_file():
-                errors.append(f"{artifact!r}: missing file `{m.group(1)}` -> {target.relative_to(root).as_posix()}")
+                errors.append(
+                    f"{artifact!r}: missing file `{m.group(1)}` -> "
+                    f"{target.relative_to(root.resolve()).as_posix()}",
+                )
 
         if not found_link:
             errors.append(f"{artifact!r}: Source File column has no markdown link.")

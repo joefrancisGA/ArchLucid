@@ -33,7 +33,7 @@ class TestCuttingEdgeBatch5W(unittest.TestCase):
         self.assertIn("NVARCHAR(32)", text)
 
     def test_tb_191_repository_persists_content_hash_column(self) -> None:
-        path = REPO_ROOT / "ArchLucid.Persistence" / "Data" / "Repositories" / "AgentExecutionTraceRepository.cs"
+        path = REPO_ROOT / "ArchLucid.Persistence" / "Sql" / "AgentExecutionTraceSql.cs"
         text = path.read_text(encoding="utf-8")
         self.assertIn("@SystemPromptContentHash", text)
 

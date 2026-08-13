@@ -37,7 +37,7 @@ class TestCuttingEdgeBatch5BO(unittest.TestCase):
         self.assertIn("embeddingDimension", text)
 
     def test_tb_194_admin_nav_link(self) -> None:
-        path = REPO_ROOT / "archlucid-ui" / "src" / "lib" / "operator-system-admin-nav-group-builder.ts"
+        path = REPO_ROOT / "archlucid-ui" / "src" / "lib" / "operator" / "operator-system-admin-nav-group-builder.ts"
         text = path.read_text(encoding="utf-8")
         self.assertIn("INTERNAL_RAG_HEALTH_PATH", text)
         routes = (REPO_ROOT / "archlucid-ui" / "src" / "lib" / "internal-ops-route-paths.ts").read_text(

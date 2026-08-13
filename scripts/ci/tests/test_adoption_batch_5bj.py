@@ -16,7 +16,7 @@ class TestAdoptionBatch5BJ(unittest.TestCase):
         self.assertIn("early-adopter signal", text)
 
     def test_tb_237_buyer_copy_constant(self) -> None:
-        path = REPO_ROOT / "archlucid-ui" / "src" / "lib" / "buyer-polish-copy.ts"
+        path = REPO_ROOT / "archlucid-ui" / "src" / "lib" / "buyer-copy" / "pricing.ts"
         text = path.read_text(encoding="utf-8")
         self.assertIn("BUYER_EARLY_ADOPTER_PRICING_NOTE", text)
         self.assertIn("Early adopter pricing", text)

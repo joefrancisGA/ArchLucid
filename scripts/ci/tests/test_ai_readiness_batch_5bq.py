@@ -39,7 +39,7 @@ class TestAiReadinessBatch5BQ(unittest.TestCase):
         self.assertIn("generated with AI assistance", text)
 
     def test_tb_186_run_detail_download_link(self) -> None:
-        path = REPO_ROOT / "archlucid-ui" / "src" / "components" / "RunDetailPageHeader.tsx"
+        path = REPO_ROOT / "archlucid-ui" / "src" / "components" / "runs" / "RunDetailPageHeader.tsx"
         text = path.read_text(encoding="utf-8")
         self.assertIn("Download Executive Summary", text)
 

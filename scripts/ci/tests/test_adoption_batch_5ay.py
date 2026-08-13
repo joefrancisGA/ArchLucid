@@ -24,16 +24,16 @@ class TestAdoptionBatch5AY(unittest.TestCase):
         text = path.read_text(encoding="utf-8")
         self.assertIn("buildExecutiveScorecardRecommendedActions", text)
         self.assertIn("executive-dashboard-next-action", text)
-        vocab = (REPO_ROOT / "archlucid-ui" / "src" / "lib" / "buyer-surface-vocabulary.ts").read_text(
+        vocab = (REPO_ROOT / "archlucid-ui" / "src" / "lib" / "vocabulary" / "buyer-surface-vocabulary.ts").read_text(
             encoding="utf-8"
         )
         self.assertIn("Recommended actions", vocab)
 
     def test_tb_247_derivation_module(self) -> None:
-        path = REPO_ROOT / "archlucid-ui" / "src" / "lib" / "executive-scorecard-recommended-actions.ts"
+        path = REPO_ROOT / "archlucid-ui" / "src" / "lib" / "executive" / "executive-scorecard-recommended-actions.ts"
         text = path.read_text(encoding="utf-8")
         self.assertIn("orphan-candidates", text)
-        copy = (REPO_ROOT / "archlucid-ui" / "src" / "lib" / "buyer-polish-copy.ts").read_text(encoding="utf-8")
+        copy = (REPO_ROOT / "archlucid-ui" / "src" / "lib" / "buyer-copy" / "executive.ts").read_text(encoding="utf-8")
         self.assertIn("No actions needed", copy)
 
 

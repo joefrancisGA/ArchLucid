@@ -21,12 +21,12 @@ class TestAiReadinessBatch5BP(unittest.TestCase):
         self.assertIn("/ask", text)
 
     def test_tb_185_inline_ask_panel(self) -> None:
-        path = REPO_ROOT / "archlucid-ui" / "src" / "components" / "FindingAskInlinePanel.tsx"
+        path = REPO_ROOT / "archlucid-ui" / "src" / "components" / "findings" / "FindingAskInlinePanel.tsx"
         text = path.read_text(encoding="utf-8")
         self.assertIn("finding-ask-inline-panel", text)
 
     def test_tb_185_quick_decision_chat_icon(self) -> None:
-        path = REPO_ROOT / "archlucid-ui" / "src" / "components" / "QuickDecisionSummary.tsx"
+        path = REPO_ROOT / "archlucid-ui" / "src" / "components" / "quick-decision-summary" / "QuickDecisionSummaryFindingRow.tsx"
         text = path.read_text(encoding="utf-8")
         self.assertIn("MessageCircle", text)
         self.assertIn("FindingAskInlinePanel", text)

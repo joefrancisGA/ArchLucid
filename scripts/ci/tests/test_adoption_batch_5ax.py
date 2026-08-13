@@ -14,7 +14,7 @@ class TestAdoptionBatch5AX(unittest.TestCase):
         text = path.read_text(encoding="utf-8")
         self.assertIn("KpiTileDrillThroughLink", text)
         self.assertIn("kpi-tile-stale-risks-link", text)
-        hrefs = REPO_ROOT / "archlucid-ui" / "src" / "lib" / "executive-kpi-drill-through-hrefs.ts"
+        hrefs = REPO_ROOT / "archlucid-ui" / "src" / "lib" / "executive" / "executive-kpi-drill-through-hrefs.ts"
         self.assertIn("filter=stale", hrefs.read_text(encoding="utf-8"))
 
     def test_tb_244_orphan_card_link(self) -> None:

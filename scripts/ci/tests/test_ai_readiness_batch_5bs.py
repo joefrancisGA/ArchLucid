@@ -10,10 +10,10 @@ REPO_ROOT = Path(__file__).resolve().parents[3]
 
 class TestAiReadinessBatch5BS(unittest.TestCase):
     def test_tb_187_draft_endpoint(self) -> None:
-        path = REPO_ROOT / "ArchLucid.Api" / "Controllers" / "Authority" / "RunsController.cs"
+        path = REPO_ROOT / "ArchLucid.Api" / "Controllers" / "Authority" / "RunsController.Intake.cs"
         text = path.read_text(encoding="utf-8")
         self.assertIn("request/draft", text)
-        self.assertIn("ArchitectureRequestDraftService", text)
+        self.assertIn("architectureRequestDraftService", text)
 
     def test_tb_187_draft_service_prompt(self) -> None:
         path = REPO_ROOT / "ArchLucid.Application" / "Planning" / "ArchitectureRequestDraftService.cs"

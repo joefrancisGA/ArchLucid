@@ -35,7 +35,7 @@ const ALLOWLIST: readonly {
   },
   {
     pathname: "/administration/connection-status",
-    nextHref: "/administration/system-health",
+    nextHref: "/integrations/cloud-connections",
   },
   {
     pathname: EXECUTIVE_DASHBOARD_HREF,

@@ -3,9 +3,9 @@ import { beforeEach, describe, expect, it, vi } from "vitest";
 
 import { PilotCommandCenterCard } from "@/components/usability/PilotCommandCenterCard";
 import { renderWithOperatorQuery } from "@/testing/render-with-operator-query";
+import { OPERATOR_NAV_LINK_LABELS } from "@/lib/i18n";
 import {
   OPERATOR_HOME_COMMAND_CENTER_TAGLINE,
-  OPERATOR_HOME_EXPLORE_REVIEW_WALKTHROUGH_HEADING,
   OPERATOR_HOME_INTENT_CHOOSER_HEADING,
   OPERATOR_HOME_OPEN_SAMPLE_PACKAGE_CTA,
   OPERATOR_HOME_RESUME_LATEST_DRAFT_CTA,
@@ -97,11 +97,11 @@ vi.mock("@/hooks/use-featured-completed-sample-query", () => ({
     isPending: false,
     isError: false,
     data: {
-      selectedRunId: "claims-intake-modernization",
+      selectedRunId: "customer-intake-modernization",
       isConfigured: true,
       isAvailable: true,
-      reviewTitle: "Claims intake modernization",
-      architectureName: "Claims intake modernization",
+      reviewTitle: "Enterprise Customer Intake Modernization",
+      architectureName: "Enterprise Customer Intake Modernization",
       completedUtc: "2026-01-01T00:00:00.000Z",
       isSampleApproved: true,
     },
@@ -193,7 +193,7 @@ describe("PilotCommandCenterCard", () => {
     expect(screen.queryByTestId("operator-home-do-this-next-secondary")).toBeNull();
     expect(screen.getByTestId("pilot-command-center-help")).toBeInTheDocument();
     expect(screen.getByTestId("page-contextual-help-button")).toHaveTextContent(
-      OPERATOR_HOME_EXPLORE_REVIEW_WALKTHROUGH_HEADING,
+      OPERATOR_NAV_LINK_LABELS.home,
     );
     fireEvent.click(screen.getByTestId("page-contextual-help-button"));
     expect(screen.getByTestId("page-scoped-contextual-help-learn-more")).toHaveAttribute(

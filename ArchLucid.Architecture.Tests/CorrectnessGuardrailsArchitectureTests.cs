@@ -13,7 +13,7 @@ public sealed class CorrectnessGuardrailsArchitectureTests
     public void Tb320_run_detail_kpi_semantic_contract_exists()
     {
         string json = Path.Combine(RepoRoot, "docs", "library", "RUN_DETAIL_KPI_SEMANTIC_CONTRACT.json");
-        string ts = Path.Combine(RepoRoot, "archlucid-ui", "src", "lib", "run-detail-kpi-semantic-contract.ts");
+        string ts = Path.Combine(RepoRoot, "archlucid-ui", "src", "lib", "runs", "run-detail-kpi-semantic-contract.ts");
 
         File.Exists(json).Should().BeTrue();
         File.Exists(ts).Should().BeTrue();

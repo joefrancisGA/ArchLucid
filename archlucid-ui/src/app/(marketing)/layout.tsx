@@ -3,6 +3,7 @@ import type { Metadata } from "next";
 import type { ReactNode } from "react";
 
 import { MarketingJsonLd } from "@/components/MarketingJsonLd";
+import { MarketingTooltipProvider } from "@/components/marketing/MarketingTooltipProvider";
 import { MarketingPublicHeader } from "@/components/marketing/MarketingPublicHeader";
 import {
   MarketingAnalyticsConsentBannerDeferred,
@@ -31,15 +32,17 @@ export default function MarketingLayout({ children }: { children: ReactNode }) {
 
   return (
     <ShellReadySurface className={cn("min-h-screen", MARKETING_LAYOUT.page)}>
-      <MarketingFirstTouchCaptureDeferred />
-      <MarketingJsonLd />
-      <MicrosoftClarityLoaderDeferred projectId={clarityProjectId} />
-      <MarketingPublicHeader liveDemoLinked={liveDemoLinked} />
-      {children}
+      <MarketingTooltipProvider>
+        <MarketingFirstTouchCaptureDeferred />
+        <MarketingJsonLd />
+        <MicrosoftClarityLoaderDeferred projectId={clarityProjectId} />
+        <MarketingPublicHeader liveDemoLinked={liveDemoLinked} />
+        {children}
       <div className="mx-auto w-full max-w-6xl px-4 sm:px-6">
         <MarketingPublicFooterDeferred />
       </div>
-      <MarketingAnalyticsConsentBannerDeferred clarityProjectId={clarityProjectId} />
+        <MarketingAnalyticsConsentBannerDeferred clarityProjectId={clarityProjectId} />
+      </MarketingTooltipProvider>
     </ShellReadySurface>
   );
 }

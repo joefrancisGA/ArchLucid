@@ -1,14 +1,16 @@
-import { useEffect } from "react";
-
 import type { ArchitectureScopeUnderstandingCheckPanelProps } from "@/components/architecture/ArchitectureScopeUnderstandingCheckPanel";
 
-/** Opens the TB-2176 scope gate immediately so intake wizard tests can submit without UI interaction. */
+/** Stub scope gate for intake wizard tests — exposes the confirm affordance without full panel UI. */
 export function ArchitectureScopeUnderstandingCheckPanelVitestMock(
   props: ArchitectureScopeUnderstandingCheckPanelProps,
-): null {
-  useEffect(() => {
-    props.onGateChange?.(true);
-  }, [props.onGateChange]);
-
-  return null;
+): JSX.Element {
+  return (
+    <button
+      type="button"
+      data-testid="architecture-scope-understanding-confirm"
+      onClick={() => props.onGateChange?.(true)}
+    >
+      Confirm scope understanding
+    </button>
+  );
 }

@@ -22,7 +22,7 @@ class TestAdoptionBatch5BB(unittest.TestCase):
         self.assertIn('LEGACY_PORTFOLIO_OVERVIEW_PATH = "/portfolio"', text)
         self.assertIn("hard-retired", text)
         self.assertIn("EXECUTIVE_DASHBOARD_HREF", text)
-        route = (REPO_ROOT / "archlucid-ui" / "src" / "lib" / "executive-dashboard-route.ts").read_text(
+        route = (REPO_ROOT / "archlucid-ui" / "src" / "lib" / "executive" / "executive-dashboard-route.ts").read_text(
             encoding="utf-8"
         )
         self.assertIn("/architecture/executive-dashboard", route)

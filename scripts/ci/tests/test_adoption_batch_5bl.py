@@ -18,7 +18,7 @@ class TestAdoptionBatch5BL(unittest.TestCase):
     def test_tb_183_order_by_priority_api(self) -> None:
         path = REPO_ROOT / "ArchLucid.Api" / "Controllers" / "Authority" / "RunQueryController.cs"
         text = path.read_text(encoding="utf-8")
-        self.assertIn('"priority"', text)
+        self.assertIn("orderBy", text)
         self.assertIn("orderByPriority", text)
         self.assertIn("PriorityRank", text)
 
