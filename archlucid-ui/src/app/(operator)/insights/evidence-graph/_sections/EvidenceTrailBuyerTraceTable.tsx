@@ -8,7 +8,6 @@ import { FindingEvidenceLinkChip } from "@/components/usability/FindingEvidenceL
 import { Button } from "@/components/ui/button";
 import { graphTrailHrefWithOptionalNode } from "@/lib/graph-finding-deep-links";
 import { preferredGraphNodeIdForFindingDeepLink } from "@/lib/findings/finding-inspect-graph-evidence";
-import { truncateForList } from "@/lib/truncate-for-list";
 import { OPERATOR_TYPOGRAPHY } from "@/lib/design-tokens";
 import type { FindingTraceConfidenceDto } from "@/types/explanation";
 
@@ -83,11 +82,8 @@ export function EvidenceTrailBuyerTraceTable(props: EvidenceTrailBuyerTraceTable
         return (
           <div key={row.findingId} className={`${rowGridClass} items-start bg-white dark:bg-neutral-900/30`}>
             <div className="min-w-0">
-              <div
-                className={cn("leading-snug text-al-text-primary", OPERATOR_TYPOGRAPHY.helper)}
-                title={titleFull}
-              >
-                {truncateForList(titleFull, 120)}
+              <div className={cn("break-words leading-snug text-al-text-primary", OPERATOR_TYPOGRAPHY.helper)}>
+                {titleFull}
               </div>
               <Button type="button" variant="outline" size="sm" className={cn("mt-1 h-7 px-2", OPERATOR_TYPOGRAPHY.helper)} asChild>
                 <Link href={getFindingEvidenceTraceHref(runTrim, row.findingId)}>
