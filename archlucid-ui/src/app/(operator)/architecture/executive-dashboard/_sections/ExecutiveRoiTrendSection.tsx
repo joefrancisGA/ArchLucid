@@ -153,8 +153,16 @@ export function ExecutiveRoiTrendSection({
             <div>
               <div className={cn("mb-2 font-medium text-al-text-secondary", OPERATOR_TYPOGRAPHY.helper)}>Critical security findings</div>
               <div className="flex items-end gap-2">
-                {points.map((point) => (
-                  <div key={`critical-${point.snapshotUtc}`} className="flex flex-1 flex-col items-center gap-1">
+                {points.map((point) => {
+                  const criticalBarLabel = buildCriticalBarTitle(point, buyerPolished);
+
+                  return (
+                  <div
+                    key={`critical-${point.snapshotUtc}`}
+                    className="flex flex-1 flex-col items-center gap-1"
+                    tabIndex={0}
+                    aria-label={criticalBarLabel}
+                  >
                     {isSimulatorOnlyPeriod(point) ? (
                       <StatusTag
                         kind="needs-attention"
@@ -166,11 +174,11 @@ export function ExecutiveRoiTrendSection({
                     <div
                       className="w-full rounded-sm bg-amber-500/80"
                       style={{ height: `${Math.max(8, Math.round((point.criticalSecurityFindings / maxCritical) * 120))}px` }}
-                      title={buildCriticalBarTitle(point, buyerPolished)}
                     />
                     <span className={cn("text-al-text-secondary", OPERATOR_TYPOGRAPHY.navHelper)}>{formatMonth(point.snapshotUtc)}</span>
                   </div>
-                ))}
+                  );
+                })}
               </div>
             </div>
             {showMixedModeFootnote && !buyerPolished ? (

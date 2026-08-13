@@ -56,7 +56,7 @@ export function ExecutiveRoiEnvironmentSavingsSection() {
         ) : null}
         {!loading && failure === null && slices.length > 0 ? (
           <div className="space-y-3" data-testid="exec-roi-environment-pie">
-            <div className="flex h-4 overflow-hidden rounded-full">
+            <div className="flex h-4 overflow-hidden rounded-full" aria-hidden="true">
               {slices.map((slice, index) => (
                 <div
                   key={slice.environment}
@@ -64,7 +64,6 @@ export function ExecutiveRoiEnvironmentSavingsSection() {
                     flex: `${Math.max(slice.estimatedUsdSavings, 1)} 1 0%`,
                     backgroundColor: SLICE_COLORS[index % SLICE_COLORS.length],
                   }}
-                  title={`${slice.environment}: $${Math.round(slice.estimatedUsdSavings).toLocaleString()}`}
                 />
               ))}
             </div>

@@ -20,7 +20,6 @@ import {
   SelectTrigger,
   SelectValue,
 } from "@/components/ui/select";
-import { enterpriseMutationControlDisabledTitle } from "@/lib/enterprise-controls-context-copy";
 import { AUTHORITY_RANK } from "@/lib/nav-authority";
 import { showError, showInfo } from "@/lib/toast";
 import { OPERATOR_LINK, OPERATOR_NAV_GROUP_LABEL, OPERATOR_TYPOGRAPHY } from "@/lib/design-tokens";
@@ -181,6 +180,10 @@ export function OperatorBillingWalletPanel() {
   };
 
   const capSelectDescriptionId = "wallet-monthly-cap-description";
+  const mutateDisabledHintId = "operator-billing-wallet-mutate-disabled-hint";
+  const capSelectDescribedBy = !canMutate
+    ? `${capSelectDescriptionId} ${mutateDisabledHintId}`
+    : capSelectDescriptionId;
 
   if (loading) {
     return <p className={OPERATOR_TYPOGRAPHY.helper}>Loading prepaid credits…</p>;
@@ -258,8 +261,7 @@ export function OperatorBillingWalletPanel() {
             >
               <SelectTrigger
                 id="wallet-monthly-cap"
-                aria-describedby={capSelectDescriptionId}
-                title={canMutate ? undefined : enterpriseMutationControlDisabledTitle}
+                aria-describedby={capSelectDescribedBy}
               >
                 <SelectValue placeholder="Select cap" />
               </SelectTrigger>
@@ -281,7 +283,7 @@ export function OperatorBillingWalletPanel() {
                 checked={autoReplenish}
                 onCheckedChange={(checked) => setAutoReplenish(checked === true)}
                 disabled={!canMutate}
-                title={canMutate ? undefined : enterpriseMutationControlDisabledTitle}
+                aria-describedby={!canMutate ? mutateDisabledHintId : undefined}
               />
               <Label htmlFor="wallet-auto-replenish">Enable auto-replenish (requires payment method and cap &gt; $0)</Label>
             </div>
@@ -309,14 +311,14 @@ export function OperatorBillingWalletPanel() {
             variant="outline"
             onClick={onSaveClick}
             disabled={!canSaveWallet}
-            aria-describedby={!canMutate ? "operator-billing-wallet-mutate-disabled-hint" : undefined}
+            aria-describedby={!canMutate ? mutateDisabledHintId : undefined}
           >
             Save AI credit settings
           </Button>
 
           {!canMutate ? (
             <p
-              id="operator-billing-wallet-mutate-disabled-hint"
+              id={mutateDisabledHintId}
               className={cn("m-0", OPERATOR_TYPOGRAPHY.helper)}
             >
               Administrator access required to change AI credit settings.

@@ -92,7 +92,6 @@ export function AiUsageDailyUsagePanel(props: Props) {
                     isSpike ? "bg-amber-600/90 dark:bg-amber-400/90" : "bg-teal-700/90 dark:bg-teal-500/90",
                   )}
                   style={{ height: barPx }}
-                  title={title}
                 />
                 <span className={cn("truncate text-neutral-500 dark:text-neutral-400", OPERATOR_TYPOGRAPHY.badge)}>
                   {formatBucketLabel(point.bucketUtc)}
