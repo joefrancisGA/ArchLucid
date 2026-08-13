@@ -60,6 +60,9 @@ const HelpRecurrenceSchedulesGuideView = dynamic(() =>
     (module) => module.HelpRecurrenceSchedulesGuideView,
   ),
 );
+const HelpRoiSummaryGuideView = dynamic(() =>
+  import("../_sections/HelpRoiSummaryGuideView").then((module) => module.HelpRoiSummaryGuideView),
+);
 const HelpAdminDiagnosticsGuideView = dynamic(() =>
   import("../_sections/HelpAdminDiagnosticsGuideView").then((module) => module.HelpAdminDiagnosticsGuideView),
 );
@@ -266,6 +269,10 @@ function renderHelpTopicView(
 
   if (loaded.entry.slug === "recurrence-schedules") {
     return <HelpRecurrenceSchedulesGuideView entry={loaded.entry} />;
+  }
+
+  if (loaded.entry.slug === "roi-summary") {
+    return <HelpRoiSummaryGuideView entry={loaded.entry} />;
   }
 
   if (loaded.entry.slug === "billing-and-plans") {

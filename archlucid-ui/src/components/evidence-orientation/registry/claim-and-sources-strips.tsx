@@ -41,6 +41,12 @@ import {
   RECURRENCE_SCHEDULES_HELP_SOURCES_INTRO,
 } from "@/lib/recurrence-schedules-help-evidence-copy";
 import {
+  ROI_SUMMARY_HELP_CLAIM_DISCIPLINE,
+  ROI_SUMMARY_HELP_FOLLOW_UPS_TITLE,
+  ROI_SUMMARY_HELP_SOURCES,
+  ROI_SUMMARY_HELP_SOURCES_INTRO,
+} from "@/lib/roi-summary-help-evidence-copy";
+import {
   ENTERPRISE_ONBOARDING_HELP_CLAIM_DISCIPLINE,
   ENTERPRISE_ONBOARDING_HELP_RELATED_PAGES_TITLE,
   ENTERPRISE_ONBOARDING_HELP_SOURCES,
@@ -179,6 +185,22 @@ export function RecurrenceSchedulesHelpEvidenceOrientationStrip(): React.JSX.Ele
       sourcesTitle={RECURRENCE_SCHEDULES_HELP_FOLLOW_UPS_TITLE}
       sourcesIntro={RECURRENCE_SCHEDULES_HELP_SOURCES_INTRO}
       sources={RECURRENCE_SCHEDULES_HELP_SOURCES}
+      sourcesStyle={EVIDENCE_SOURCES_STYLE.operatorRaised}
+      sourcesHeadingId="where-to-go-next"
+    />
+  );
+}
+
+export function RoiSummaryHelpEvidenceOrientationStrip(): React.JSX.Element {
+  return (
+    <EvidenceOrientationClaimAndSourcesStrip
+      slug="help-roi-summary"
+      claim={ROI_SUMMARY_HELP_CLAIM_DISCIPLINE}
+      claimStyle={EVIDENCE_CLAIM_STYLE.operatorNeutral}
+      claimElement="div"
+      sourcesTitle={ROI_SUMMARY_HELP_FOLLOW_UPS_TITLE}
+      sourcesIntro={ROI_SUMMARY_HELP_SOURCES_INTRO}
+      sources={ROI_SUMMARY_HELP_SOURCES}
       sourcesStyle={EVIDENCE_SOURCES_STYLE.operatorRaised}
       sourcesHeadingId="where-to-go-next"
     />

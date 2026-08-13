@@ -102,6 +102,6 @@ export const OPERATOR_GOVERNANCE_SPONSOR_PAGE_HELP_TB1668_SURFACES: readonly Ope
       id: "sponsor-roi-summary",
       pathname: "/insights/roi-summary",
       modulePath: "app/(operator)/insights/roi-summary/_sections/RoiSummaryPageView.tsx",
-      notes: "ROI summary — executive-summary + pilot-roi-measurement hash.",
+      notes: "ROI summary — roi-summary help topic.",
     },
   ];

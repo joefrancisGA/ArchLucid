@@ -544,6 +544,16 @@ const PRODUCT_DOCUMENTATION_REGISTRY_INPUT: readonly ProductDocumentationRegistr
     releaseApplicability: "governance recurrence schedule orientation",
   },
   {
+    slug: "roi-summary",
+    title: "ROI summary",
+    summary: "Portfolio KPI framing for review-cycle reduction, effort saved, and governance-ready artifacts.",
+    audience: "operator",
+    // App-rendered specialty (`HelpRoiSummaryGuideView`).
+    sourcePaths: [],
+    lastReviewed: "2026-08-12",
+    releaseApplicability: "sponsor ROI summary orientation",
+  },
+  {
     slug: "alerts",
     title: "Understanding governance alerts",
     summary:

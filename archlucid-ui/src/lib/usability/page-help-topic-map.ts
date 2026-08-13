@@ -217,11 +217,7 @@ const PAGE_HELP_TOPICS: readonly { prefix: string; topic: PageHelpTopic }[] = [
   { prefix: "/governance/policy-packs", topic: { slug: "policy-packs", label: "Policy packs" } },
   {
     prefix: "/insights/roi-summary",
-    topic: {
-      slug: "executive-summary",
-      hashFragment: "pilot-roi-measurement",
-      label: OPERATOR_NAV_LINK_LABELS.roiReport,
-    },
+    topic: { slug: "roi-summary", label: OPERATOR_NAV_LINK_LABELS.roiReport },
   },
   {
     prefix: "/insights/pilot-outcomes",
@@ -243,26 +239,10 @@ const PAGE_HELP_TOPICS: readonly { prefix: string; topic: PageHelpTopic }[] = [
   // Legacy sponsor-report bookmarks canonicalize to /insights/* above; keep prefixes for direct lookups.
   {
     prefix: "/sponsor-report/roi-summary",
-    topic: {
-      slug: "executive-summary",
-      hashFragment: "pilot-roi-measurement",
-      label: OPERATOR_NAV_LINK_LABELS.roiReport,
-    },
+    topic: { slug: "roi-summary", label: OPERATOR_NAV_LINK_LABELS.roiReport },
   },
   {
     prefix: "/sponsor-report/pilot-outcomes",
-    topic: { slug: "executive-summary", label: "Pilot outcomes" },
-  },
-  {
-    prefix: "/insights/roi-summary",
-    topic: {
-      slug: "executive-summary",
-      hashFragment: "pilot-roi-measurement",
-      label: OPERATOR_NAV_LINK_LABELS.roiReport,
-    },
-  },
-  {
-    prefix: "/insights/pilot-outcomes",
     topic: { slug: "executive-summary", label: "Pilot outcomes" },
   },
   {
@@ -282,6 +262,10 @@ const PAGE_HELP_TOPICS: readonly { prefix: string; topic: PageHelpTopic }[] = [
   {
     prefix: "/help/recurrence-schedules",
     topic: { slug: "recurrence-schedules", label: OPERATOR_NAV_LINK_LABELS.recurrenceSchedules },
+  },
+  {
+    prefix: "/help/roi-summary",
+    topic: { slug: "roi-summary", label: OPERATOR_NAV_LINK_LABELS.roiReport },
   },
   {
     // Secondary hub — no planning specialty; omit Learn more (TB-2050).

@@ -15,6 +15,7 @@ import { ARCHITECTURE_CONTEXTUAL_HELP_ROWS } from "@/lib/contextual-help/archite
 import { DIGESTS_CONTEXTUAL_HELP_ROWS } from "@/lib/contextual-help/digests-rows";
 import { GOVERNANCE_CONTEXTUAL_HELP_ROWS } from "@/lib/contextual-help/governance-rows";
 import { RECURRENCE_SCHEDULES_CONTEXTUAL_HELP_ROWS } from "@/lib/contextual-help/recurrence-schedules-rows";
+import { ROI_SUMMARY_CONTEXTUAL_HELP_ROWS } from "@/lib/contextual-help/roi-summary-rows";
 import { HELP_TOPIC_CONTEXTUAL_HELP_ROWS } from "@/lib/contextual-help/help-topic-rows";
 import { INSIGHTS_CONTEXTUAL_HELP_ROWS } from "@/lib/contextual-help/insights-rows";
 import { INTEGRATIONS_CONTEXTUAL_HELP_ROWS } from "@/lib/contextual-help/integrations-rows";
@@ -37,6 +38,7 @@ const PAGE_CONTEXTUAL_HELP: readonly PageContextualHelpRow[] = [
   ...DIGESTS_CONTEXTUAL_HELP_ROWS,
   ...GOVERNANCE_CONTEXTUAL_HELP_ROWS,
   ...RECURRENCE_SCHEDULES_CONTEXTUAL_HELP_ROWS,
+  ...ROI_SUMMARY_CONTEXTUAL_HELP_ROWS,
   ...HELP_TOPIC_CONTEXTUAL_HELP_ROWS,
   ...INSIGHTS_CONTEXTUAL_HELP_ROWS,
   ...INTEGRATIONS_CONTEXTUAL_HELP_ROWS,
