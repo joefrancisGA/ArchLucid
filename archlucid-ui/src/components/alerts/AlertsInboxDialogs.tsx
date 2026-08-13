@@ -84,7 +84,7 @@ export function AlertsInboxTriageActionDialog(props: AlertsInboxTriageActionDial
             title={props.canMutateAlertInbox ? undefined : enterpriseMutationControlDisabledTitle}
           />
         </div>
-        <DialogFooter className="gap-2 sm:gap-0">
+        <DialogFooter>
           <WhyDisabledCtaHint
             id={mutationDisabledHintId}
             reason={mutationDisabledReason}

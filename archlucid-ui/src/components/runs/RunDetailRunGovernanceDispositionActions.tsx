@@ -124,7 +124,7 @@ export function RunDetailRunGovernanceDispositionActions(
               onChange={(e) => setRationale(e.target.value)}
             />
           </label>
-          <DialogFooter className="gap-2 sm:gap-0">
+          <DialogFooter>
             <Button type="button" variant="outline" disabled={busy} onClick={() => setPending(null)}>
               Cancel
             </Button>

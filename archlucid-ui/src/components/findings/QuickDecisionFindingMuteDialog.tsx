@@ -111,7 +111,7 @@ export function QuickDecisionFindingMuteDialog(
             <p className={cn("m-0 text-rose-700 dark:text-rose-300", OPERATOR_TYPOGRAPHY.body)}>{error}</p>
           ) : null}
         </div>
-        <DialogFooter className="gap-2 sm:gap-0">
+        <DialogFooter>
           <Button type="button" variant="outline" onClick={close} disabled={busy}>
             Cancel
           </Button>
