@@ -95,7 +95,7 @@ const PRODUCT_DOCUMENTATION_REGISTRY_INPUT: readonly ProductDocumentationRegistr
   },
   {
     slug: "prior-manifest-retrieval",
-    title: "Prior manifest retrieval",
+    title: "Ask memory from finalized reviews",
     summary:
       "How finalized architecture reviews become searchable tenant memory for Ask, what makes a useful prior, and when to avoid noisy reviews.",
     audience: "operator",

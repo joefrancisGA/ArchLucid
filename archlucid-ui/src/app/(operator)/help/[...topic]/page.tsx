@@ -87,6 +87,11 @@ const HelpArchitectureScorecardGuideView = dynamic(() =>
 const HelpConnectionStatusGuideView = dynamic(() =>
   import("../_sections/HelpConnectionStatusGuideView").then((module) => module.HelpConnectionStatusGuideView),
 );
+const HelpPriorManifestRetrievalGuideView = dynamic(() =>
+  import("../_sections/HelpPriorManifestRetrievalGuideView").then(
+    (module) => module.HelpPriorManifestRetrievalGuideView,
+  ),
+);
 const HelpStandardsRulesGuideView = dynamic(() =>
   import("../_sections/HelpStandardsRulesGuideView").then((module) => module.HelpStandardsRulesGuideView),
 );
@@ -635,13 +640,7 @@ function renderHelpTopicView(
   }
 
   if (loaded.entry.slug === "prior-manifest-retrieval") {
-    return (
-      <HelpTopicMarkdownView
-        entry={loaded.entry}
-        markdown={loaded.markdown}
-        showContextualHelp
-      />
-    );
+    return <HelpPriorManifestRetrievalGuideView entry={loaded.entry} markdown={loaded.markdown} />;
   }
 
   if (loaded.entry.slug === "report-a-problem") {
